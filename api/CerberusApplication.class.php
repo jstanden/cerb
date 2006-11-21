@@ -122,7 +122,7 @@ class CerberusTicketDAO {
 		
 		$tickets = array();
 		
-		$sql = sprintf("SELECT t.id , t.mask, t.subject, t.status, t.last_wrote ".
+		$sql = sprintf("SELECT t.id , t.mask, t.subject, t.status, t.priority, t.last_wrote ".
 			"FROM ticket t"
 		);
 		$rs = $um_db->SelectLimit($sql,2,0) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
@@ -132,6 +132,7 @@ class CerberusTicketDAO {
 			$ticket->mask = $rs->fields['mask'];
 			$ticket->subject = $rs->fields['subject'];
 			$ticket->status = $rs->fields['status'];
+			$ticket->priority = $rs->fields['priority'];
 			$ticket->last_wrote = $rs->fields['last_wrote'];
 			$tickets[$ticket->id] = $ticket;
 			$rs->MoveNext();
@@ -149,7 +150,7 @@ class CerberusTicketDAO {
 		
 		$ticket = null;
 		
-		$sql = sprintf("SELECT t.id , t.mask, t.subject, t.status, t.last_wrote ".
+		$sql = sprintf("SELECT t.id , t.mask, t.subject, t.status, t.priority, t.last_wrote ".
 			"FROM ticket t ".
 			"WHERE t.id = %d",
 			$id
@@ -162,6 +163,7 @@ class CerberusTicketDAO {
 			$ticket->mask = $rs->fields['mask'];
 			$ticket->subject = $rs->fields['subject'];
 			$ticket->status = $rs->fields['status'];
+			$ticket->priority = $rs->fields['priority'];
 			$ticket->last_wrote = $rs->fields['last_wrote'];
 		}
 		

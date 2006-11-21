@@ -7,7 +7,7 @@
 			<table cellpadding="3" cellspacing="1" border="0" width="200" class="tableBg">
 				{foreach from=$mailboxes item=mailbox}
 				<tr>
-					<td class="tableRowBg"><a href="index.php?c=core.module.dashboard&a=clickmailbox&id={$mailbox->id}"><b>{$mailbox->name}</b></a> (10)</td>
+					<td class="tableRowBg"><a href="index.php?c=core.module.dashboard&a=clickmailbox&id={$mailbox->id}"><b>{$mailbox->name}</b></a> (xx)</td>
 				</tr>
 				{/foreach}
 			</table>
