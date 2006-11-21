@@ -11,6 +11,7 @@
       <td align="right" nowrap="nowrap" width="100%">
       	<b>Dashboard:</b> 
       	<select name="">
+      		<option value="">-- choose dashboard --
       	</select>
       	<input type="submit" value="switch"> <a href="#">add dashboard</a>
       </td>
@@ -30,10 +31,11 @@
       <td nowrap="nowrap" width="0%"><img src="images/spacer.gif" width="5" height="1"></td>
       <td nowrap="nowrap" width="100%" valign="top">
       
-      {include file="file:$path/dashboards/ticket_view.tpl.php" id="1"}
-      <br>
-      {include file="file:$path/dashboards/ticket_view.tpl.php" id="2"}
-      <br>
+      {foreach from=$views item=view}
+	      {include file="file:$path/dashboards/ticket_view.tpl.php"}
+	      <br>
+      {/foreach}
+      
       {include file="file:$path/dashboards/whos_online.tpl.php"}
       	
       </td>

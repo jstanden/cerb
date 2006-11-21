@@ -31,6 +31,10 @@ class ChDashboardModule extends CerberusModuleExtension {
 		$tpl->assign('tickets', $tickets[0]);
 		$tpl->assign('total', $tickets[1]);
 		
+		// [JAS]: [TODO] This needs to limit by the selected dashboard
+		$views = CerberusDashboardDAO::getViews(); // getViews($dashboard_id)
+		$tpl->assign('views', $views);
+		
 		$teams = CerberusApplication::getTeamList();
 		$tpl->assign('teams', $teams);
 		

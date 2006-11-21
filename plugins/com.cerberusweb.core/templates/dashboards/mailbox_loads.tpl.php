@@ -9,6 +9,10 @@
 				<tr>
 					<td class="tableRowBg"><a href="index.php?c=core.module.dashboard&a=clickmailbox&id={$mailbox->id}"><b>{$mailbox->name}</b></a> (xx)</td>
 				</tr>
+				{foreachelse}
+				<tr>
+					<td class="tableRowBg">No visible mailboxes.</td>
+				</tr>
 				{/foreach}
 			</table>
 		</td>

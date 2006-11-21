@@ -27,7 +27,7 @@
 ...<br>
 <br>
 <input type="button" value="Save Changes">
-<input type="button" value="Cancel" onclick="getCustomize('{$id}');">
+<input type="button" value="Cancel" onclick="ajax.getCustomize('{$id}');">
 <br>
 <br>
 </div>

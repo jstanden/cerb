@@ -1,14 +1,14 @@
 <table cellpadding="0" cellspacing="0" border="0" class="tableBlue" width="100%" class="tableBg">
 	<tr>
-		<td nowrap="nowrap" class="tableThBlue">My Tickets</td>
+		<td nowrap="nowrap" class="tableThBlue">{$view->name}</td>
 		<td nowrap="nowrap" class="tableThBlue" align="right">
 			<a href="javascript:;" onclick="" class="tableThLink">refresh</a><span style="font-size:12px"> | </span>
-			<a href="index.php?c=core.module.dashboard&a=searchview&id={$id}" class="tableThLink">search</a><span style="font-size:12px"> | </span>
-			<a href="javascript:;" onclick="getCustomize({$id});" class="tableThLink">customize</a>
+			<a href="index.php?c=core.module.dashboard&a=searchview&id={$view->id}" class="tableThLink">search</a><span style="font-size:12px"> | </span>
+			<a href="javascript:;" onclick="ajax.getCustomize({$view->id});" class="tableThLink">customize</a>
 		</td>
 	</tr>
 </table>
-<div id="customize{$id}"></div>
+<div id="customize{$view->id}"></div>
 <table cellpadding="0" cellspacing="0" border="0" width="100%" class="tableRowBg">
 
 	{* Column Headers *}
@@ -27,7 +27,7 @@
 			<td colspan="4"><a href="index.php?c=core.module.dashboard&a=viewticket&id={$ticket->id}" class="ticketLink"><b>{$ticket->subject}</b></a></td>
 		</tr>
 		<tr class="{if $smarty.foreach.tickets.iteration % 2}tableRowBg{else}tableRowAltBg{/if}">
-			<td><a href="#" style="font-size:90%">{$ticket->mask}</a></td>
+			<td><a href="index.php?c=core.module.dashboard&a=viewticket&id={$ticket->id}" style="font-size:90%">{$ticket->mask}</a></td>
 			<td>{$ticket->status}</td>
 			<td><img src="images/star_alpha.gif" title="{$ticket->priority}"></td>
 			<td><a href="#" style="font-size:90%">{$ticket->last_wrote}</a></td>

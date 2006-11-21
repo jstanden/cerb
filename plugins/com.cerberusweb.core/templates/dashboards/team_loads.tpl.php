@@ -9,6 +9,10 @@
 				<tr>
 					<td class="tableRowBg"><a href="index.php?c=core.module.dashboard&a=clickteam&id={$team->id}"><b>{$team->name}</b></a> (xx)</td>
 				</tr>
+				{foreachelse}
+				<tr>
+					<td class="tableRowBg">No visible teams.</td>
+				</tr>
 				{/foreach}
 			</table>
 		</td>

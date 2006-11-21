@@ -17,10 +17,11 @@ CerberusApplication::createMailbox('Bugs');
 CerberusApplication::createMailbox('Wishlist');
 
 // Dashboards
-//$newId = $um_db->GenID('generic_seq');
+$dashboardId = CerberusDashboardDAO::createDashboard("My Dashboard");
 
 // Views
-//$newId = $um_db->GenID('generic_seq');
+CerberusDashboardDAO::createView("My Tickets",$dashboardId);
+CerberusDashboardDAO::createView("Suggested Tickets",$dashboardId);
 
 // Tickets
 CerberusTicketDAO::createTicket('FCX-29293-291','Where is my order?','open','jstanden@gmail.com');

@@ -172,6 +172,63 @@ class CerberusTicketDAO {
 	
 };
 
+/**
+ * Enter description here...
+ *
+ * @addtogroup dao
+ */
+class CerberusDashboardDAO {
+	function createDashboard($name) {
+		$um_db = UserMeetDatabase::getInstance();
+		$newId = $um_db->GenID('generic_seq');
+		
+		$sql = sprintf("INSERT INTO dashboard (id, name) VALUES (%d, %s)",
+			$newId,
+			$um_db->qstr($name)
+		);
+		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		return $newId;
+	}
+	
+	function createView($name,$dashboard_id) {
+		$um_db = UserMeetDatabase::getInstance();
+		$newId = $um_db->GenID('generic_seq');
+		
+		$sql = sprintf("INSERT INTO dashboard_view (id, name, dashboard_id) VALUES (%d, %s, %d)",
+			$newId,
+			$um_db->qstr($name),
+			$dashboard_id
+		);
+		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		return $newId;
+	}
+	
+	function getViews($dashboard_id=0) {
+		$um_db = UserMeetDatabase::getInstance();
+		
+		$sql = sprintf("SELECT v.id, v.name, v.dashboard_id ".
+			"FROM dashboard_view v ".
+			(!empty($dashboard_id) ? sprintf("WHERE v.dashboard_id = %d ", $dashboard_id) : " ")
+		);
+		$rs = $um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		$views = array();
+		
+		while(!$rs->EOF) {
+			$view = new stdClass();
+			$view->id = $rs->fields['id'];
+			$view->name = $rs->fields['name'];
+			$view->dashboard_id = $rs->fields['dashboard_id'];
+			$views[$view->id] = $view; 
+			$rs->MoveNext();
+		}
+		
+		return $views;
+	}
+}
+
 class CerberusModuleExtension extends UserMeetExtension {
 	function CerberusModuleExtension($manifest) {
 		$this->UserMeetExtension($manifest,1);
