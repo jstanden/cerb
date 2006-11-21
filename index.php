@@ -52,6 +52,11 @@ $smarty->assign('module',$module);
 $modules = CerberusApplication::getModules();
 $smarty->assign('modules',$modules);
 
+$index_tokens = array(
+	"header_signed_in" => array($visit->login)
+);
+$smarty->assign('index_tokens',$index_tokens);
+
 $smarty->assign('session', $_SESSION);
 $smarty->assign('visit', $session->getVisit());
 $smarty->assign('translate', $translate);

@@ -9,6 +9,9 @@ $smarty = UserMeetTemplateManager::getInstance();
 $session = UserMeetSessionManager::getInstance(); /* @var $session UserMeetSessionManager */
 $translate = UserMeetTranslationManager::getInstance();
 
+$tpl = UserMeetTemplateManager::getInstance();
+$tpl->assign('translate', $translate);
+
 // [JAS]: Security check
 $visit = $session->getVisit();
 if(empty($visit))

@@ -1,19 +1,20 @@
 <table border="0" cellpadding="0" cellspacing="0" width="100%">
   <tbody>
     <tr>
-      <td width="0%" nowrap="nowrap"><h1>Dashboards</h1></td>
+      <td width="0%" nowrap="nowrap"><h1>{$translate->say('dashboard.dashboards')|capitalize}</h1></td>
       <td nowrap="nowrap" width="0%"><img src="images/spacer.gif" width="10">
-      	<a href="#">add view</a> | 
-      	<a href="#">customize</a> | 
-      	<a href="#">remove</a> | 
-      	<a href="#">create new ticket</a> | 
-      	<a href="#">refresh</a></td>
+      	<a href="#">{$translate->say('dashboard.add_view')|lower}</a> | 
+      	<a href="#">{$translate->say('common.customize')|lower}</a> | 
+      	<a href="#">{$translate->say('common.remove')|lower}</a> | 
+      	<a href="#">{$translate->say('dashboard.create_ticket')|lower}</a> | 
+      	<a href="#">{$translate->say('common.refresh')|lower}</a></td>
       <td align="right" nowrap="nowrap" width="100%">
-      	<b>Dashboard:</b> 
+      	<b>{$translate->say('dashboard')|capitalize}:</b> 
       	<select name="">
-      		<option value="">-- choose dashboard --
+      		<option value="">-- {$translate->say('dashboard.choose_dashboard')|lower} --
       	</select>
-      	<input type="submit" value="switch"> <a href="#">add dashboard</a>
+      	<input type="submit" value="{$translate->say('dashboard.switch')|lower}"> 
+      	<a href="#">{$translate->say('dashboard.add_dashboard')|lower}</a>
       </td>
     </tr>
   </tbody>

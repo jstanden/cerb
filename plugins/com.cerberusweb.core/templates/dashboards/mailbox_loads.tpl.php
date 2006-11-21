@@ -1,6 +1,6 @@
 <table cellpadding="0" cellspacing="0" border="0" class="tableGreen" width="200" class="tableBg">
 	<tr>
-		<td class="tableThGreen" nowrap="nowrap"> <img src="images/folder_network.gif"> Mailbox Loads</td>
+		<td class="tableThGreen" nowrap="nowrap"> <img src="images/folder_network.gif"> {$translate->say('dashboard.mailbox_loads')|capitalize}</td>
 	</tr>
 	<tr>
 		<td>
@@ -11,7 +11,7 @@
 				</tr>
 				{foreachelse}
 				<tr>
-					<td class="tableRowBg">No visible mailboxes.</td>
+					<td class="tableRowBg">{$translate->say('dashboard.no_mailboxes')}</td>
 				</tr>
 				{/foreach}
 			</table>

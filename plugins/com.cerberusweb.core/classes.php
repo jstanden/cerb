@@ -23,8 +23,6 @@ class ChDashboardModule extends CerberusModuleExtension {
 		include_once(UM_PATH . '/libs/adodb/adodb-pager.inc.php');
 		$um_db = UserMeetDatabase::getInstance();
 		$tpl = UserMeetTemplateManager::getInstance();
-		
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		
 		$tickets = CerberusTicketDAO::getTicketList();
@@ -41,6 +39,12 @@ class ChDashboardModule extends CerberusModuleExtension {
 		$mailboxes = CerberusApplication::getMailboxList();
 		$tpl->assign('mailboxes', $mailboxes);
 		
+		$translate_tokens = array(
+			"whos" => array(1)
+		);
+		$tpl->assign('translate_tokens', $translate_tokens);
+		
+		$tpl->cache_lifetime = "0";
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/dashboards/index.tpl.php');
 	}
 	
@@ -66,10 +70,10 @@ class ChDashboardModule extends CerberusModuleExtension {
 		@$id = $_REQUEST['id'];
 
 		$tpl = UserMeetTemplateManager::getInstance();
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
-		
 		$tpl->assign('id',$id);
+
+		$tpl->cache_lifetime = "0";
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/dashboards/rpc/customize_view.tpl.php');
 	}
 	
