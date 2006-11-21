@@ -1,0 +1,146 @@
+<!-- [JAS] [TODO] Needs DTD -->
+<plugin>
+	<name>Cerberus Helpdesk Core</name>
+	<author>WebGroup Media, LLC.</author>
+	
+	<extensions>
+	
+		<extension point="com.cerberusweb.module">
+			<id>core.module.dashboard</id>
+			<name>Dashboard Module</name>
+			<class>
+				<file>classes.php</file>
+				<name>ChDashboardModule</name>
+			</class>
+			<params>
+				<param key="title" value="Dashboard" />
+				<param key="menutitle" value="Dashboard" />
+				<!--<param key="summary" value="support resources" />-->
+			</params>
+		</extension>
+
+		<extension point="com.cerberusweb.module">
+			<id>core.module.display</id>
+			<name>Display Ticket Module</name>
+			<class>
+				<file>classes.php</file>
+				<name>ChDisplayModule</name>
+			</class>
+			<params>
+				<param key="title" value="Display" />
+				<param key="menutitle" value="" />
+				<!--<param key="summary" value="support resources" />-->
+			</params>
+		</extension>
+
+		<extension point="com.cerberusweb.module">
+			<id>core.module.teamwork</id>
+			<name>Teamwork Module</name>
+			<class>
+				<file>classes.php</file>
+				<name>ChTeamworkModule</name>
+			</class>
+			<params>
+				<param key="title" value="Teamwork" />
+				<param key="menutitle" value="Teamwork" />
+				<!--<param key="summary" value="support resources" />-->
+			</params>
+		</extension>
+
+		<extension point="com.cerberusweb.module">
+			<id>core.module.search</id>
+			<name>Search Module</name>
+			<class>
+				<file>classes.php</file>
+				<name>ChSearchModule</name>
+			</class>
+			<params>
+				<param key="title" value="Search" />
+				<param key="menutitle" value="Search" />
+				<!--<param key="summary" value="support resources" />-->
+			</params>
+		</extension>
+
+		<extension point="com.cerberusweb.module">
+			<id>core.module.signin</id>
+			<name>Signin Module</name>
+			<class>
+				<file>classes.php</file>
+				<name>ChSignInModule</name>
+			</class>
+			<params>
+				<param key="title" value="Sign in" />
+				<!--<param key="summary" value="support resources" />-->
+			</params>
+		</extension>
+
+		<!--
+		<extension point="com.usermeet.submenu">
+			<id>cerberus.submenu.kb</id>
+			<name>Knowledgebase Submenu</name>
+			<class>
+				<file>classes.php</file>
+				<name>ScKbMenu</name>
+			</class>
+			<params>
+				<param key="menu" value="cerberus.menu.support" />
+				<param key="title" value="knowledgebase" />
+			</params>
+		</extension>
+
+		<extension point="com.usermeet.submenu">
+			<id>cerberus.submenu.history</id>
+			<name>Ticket History Submenu</name>
+			<class>
+				<file>classes.php</file>
+				<name>ScHistoryMenu</name>
+			</class>
+			<params>
+				<param key="menu" value="cerberus.menu.support" />
+				<param key="title" value="ticket history" />
+			</params>
+		</extension>
+
+		<extension point="com.usermeet.submenu">
+			<id>cerberus.submenu.openticket</id>
+			<name>Open Ticket Submenu</name>
+			<class>
+				<file>classes.php</file>
+				<name>ScOpenTicketMenu</name>
+			</class>
+			<params>
+				<param key="menu" value="cerberus.menu.support" />
+				<param key="title" value="open ticket" />
+			</params>
+		</extension>
+		
+		<extension point="com.usermeet.page.standalone">
+			<id>cerberus.page.kb</id>
+			<name>Manage Pages</name>
+			<class>
+				<file>classes.php</file>
+				<name>ScKbPage</name>
+			</class>
+		</extension>
+		
+		<extension point="com.usermeet.page.standalone">
+			<id>cerberus.page.openticket</id>
+			<name>Open Ticket</name>
+			<class>
+				<file>classes.php</file>
+				<name>ScOpenTicketPage</name>
+			</class>
+		</extension>
+		
+		<extension point="com.usermeet.page.standalone">
+			<id>cerberus.page.history</id>
+			<name>Ticket History</name>
+			<class>
+				<file>classes.php</file>
+				<name>ScHistoryPage</name>
+			</class>
+		</extension>
+		-->
+		
+	</extensions>
+</plugin>

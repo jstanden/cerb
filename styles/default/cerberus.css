@@ -1,0 +1,94 @@
+BODY, TD {
+	color: #555555;
+	font-family: Arial,Helvetica,sans-serif;
+	font-size: 12px;
+}
+#headerMenuSelected, #headerMenuSelected A, .headerUnderline {
+	background-color: #FF6600;
+	color: #FFFFFF;
+}
+.headerMenu {
+	background-color: #888888;
+	color: #FFFFFF;
+}
+H1 { font-weight: bold;
+	font-family: Arial,Helvetica,sans-serif;
+	font-size: 20px;
+	color: rgb(0, 102, 255);
+	margin-top: 0px;
+	margin-bottom: 0px;
+}
+.headerMenu A {
+	color: #FFFFFF;
+}
+#headerMenuLinkActive {
+	color: #FFFFFF;
+	font-weight: bold;
+	text-decoration: none;
+}
+.tableOrange {
+	border: 1px solid rgb(210,84,0);
+}
+.tableThOrange { 
+	background-image: url(../../images/bg_ltorange.jpg);
+	background-repeat: repeat-x;
+	color: rgb(255, 255, 255);
+	padding: 3px;
+	font-size: 18px;
+	font-weight: bold;
+	font-family: Arial,Helvetica,sans-serif;
+	background-color: rgb(255, 153, 0);
+}
+.tableGreen {
+	border: 1px solid rgb(0,153,51);
+}
+.tableThGreen {
+	background-image: url(../../images/bg_green.jpg);
+	background-repeat: repeat-x;
+	color: rgb(255, 255, 255);
+	padding: 3px;
+	font-size: 18px;
+	font-weight: bold;
+	font-family: Arial,Helvetica,sans-serif;
+	background-color: rgb(189, 228, 139);
+}
+.tableBlue {
+	border: 1px solid rgb(0,102,204);
+}
+.tableThBlue {
+	background-image: url(../../images/bg_ltblue.jpg);
+	background-repeat: repeat-x;
+	color: rgb(255, 255, 255);
+	padding: 3px;
+	font-size: 18px;
+	font-weight: bold;
+	font-family: Arial,Helvetica,sans-serif;
+	background-color: rgb(140, 175, 229);
+}
+.tableBg {
+	background-color: rgb(255,255,255);
+}
+.tableThBg {
+	background-color: rgb(192,192,192);
+	font-size: 12px;
+	font-weight: bold;
+	font-family: Arial,Helvetica,sans-serif;
+}
+.tableRowBg {
+	background-color: rgb(240,240,255);
+}
+.tableThLink {
+	color: #FFFFFF;
+	font-family: Arial,Helvetica,sans-serif;
+	font-size: 11px;
+}
+.smallLink {
+	color: #666666;
+	font-family: Arial,Helvetica,sans-serif;
+	font-size: 12px;
+}
+.normalLink {
+	color: #555555;
+	font-family: Arial,Helvetica,sans-serif;
+	font-size: 12px;
+}
