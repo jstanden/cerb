@@ -14,7 +14,7 @@ class CerberusApplication {
 	
 	function setActiveModule($module=null) {
 		static $activeModule;
-		if(!empty($module)) $activeModule = $module;
+		if(!is_null($module)) $activeModule = $module;
 		return $activeModule;
 	}
 	
@@ -180,7 +180,7 @@ class CerberusModuleExtension extends UserMeetExtension {
 	
 	function getLink() { return "#"; }
 	function click() { 
-		echo "You clicked: " . __CLASS__ . "->" . __FUNCTION__ . "!<br>";
+//		echo "You clicked: " . __CLASS__ . "->" . __FUNCTION__ . "!<br>";
 		CerberusApplication::setActiveModule($this->manifest->id);
 	}
 };

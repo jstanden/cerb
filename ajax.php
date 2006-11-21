@@ -9,6 +9,11 @@ $smarty = UserMeetTemplateManager::getInstance();
 $session = UserMeetSessionManager::getInstance(); /* @var $session UserMeetSessionManager */
 $translate = UserMeetTranslationManager::getInstance();
 
+// [JAS]: Security check
+$visit = $session->getVisit();
+if(empty($visit))
+	exit;
+
 //sleep(3); // [JAS]: For testing 'please wait... loading' images
 
 // [JAS]: Handle component actions

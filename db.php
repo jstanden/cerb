@@ -60,7 +60,11 @@ $tables['ticket'] = "
 	id I4 DEFAULT 0 NOTNULL PRIMARY,
 	mask C(16) DEFAULT '' NOTNULL, 
 	subject C(128)  DEFAULT '' NOTNULL, 
+	created I8 DEFAULT 0 NOTNULL,
+	latest I8 DEFAULT 0 NOTNULL,
 	status C(16) DEFAULT '' NOTNULL, 
+	priority I1 DEFAULT 0 NOTNULL, 
+	mailbox_id I4 NOTNULL, 
 	last_wrote C(128) DEFAULT '' NOTNULL 
 ";
 

@@ -10,11 +10,11 @@ class ChDashboardModule extends CerberusModuleExtension {
 		$session = UserMeetSessionManager::getInstance();
 		$visit = $session->getVisit();
 		
-//		if(empty($visit)) {
-//			return true;
-//		} else {
-//			return false;
-//		}
+		if(empty($visit)) {
+			return false;
+		} else {
+			return true;
+		}
 
 		return true;
 	}
@@ -133,7 +133,7 @@ class ChSignInModule extends CerberusModuleExtension {
 //	}
 
 	function show() {
-		echo "You clicked: " . __CLASS__ . "->" . __FUNCTION__ . "!<br>";
+//		echo "You clicked: " . __CLASS__ . "->" . __FUNCTION__ . "!<br>";
 		CerberusApplication::setActiveModule("core.module.signin");
 	}
 	
@@ -147,15 +147,22 @@ class ChSignInModule extends CerberusModuleExtension {
 		$email = $_REQUEST['email'];
 		$password = $_REQUEST['password'];
 		
-		echo "Sign in: " . __CLASS__ . "->" . __FUNCTION__ . "!<br>";
+//		echo "Sign in: " . __CLASS__ . "->" . __FUNCTION__ . "!<br>";
 		$session = UserMeetSessionManager::getInstance();
-		$session->login($email,$password);
+		$visit = $session->login($email,$password);
+		
+		if(!is_null($visit)) {
+			CerberusApplication::setActiveModule("core.module.dashboard");
+		} else {
+			CerberusApplication::setActiveModule("core.module.signin");
+		}
 	}
 	
 	function signout() {
-		echo "Sign out: " . __CLASS__ . "->" . __FUNCTION__ . "!<br>";
+//		echo "Sign out: " . __CLASS__ . "->" . __FUNCTION__ . "!<br>";
 		$session = UserMeetSessionManager::getInstance();
 		$session->logout();
+		CerberusApplication::setActiveModule("core.module.signin");
 	}
 };
 
@@ -170,11 +177,11 @@ class ChTeamworkModule extends CerberusModuleExtension {
 		$session = UserMeetSessionManager::getInstance();
 		$visit = $session->getVisit();
 		
-//		if(empty($visit)) {
-//			return true;
-//		} else {
-//			return false;
-//		}
+		if(empty($visit)) {
+			return false;
+		} else {
+			return true;
+		}
 
 		return true;
 	}
@@ -202,11 +209,11 @@ class ChSearchModule extends CerberusModuleExtension {
 		$session = UserMeetSessionManager::getInstance();
 		$visit = $session->getVisit();
 		
-//		if(empty($visit)) {
-//			return true;
-//		} else {
-//			return false;
-//		}
+		if(empty($visit)) {
+			return false;
+		} else {
+			return true;
+		}
 
 		return true;
 	}

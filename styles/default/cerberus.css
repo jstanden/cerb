@@ -1,15 +1,14 @@
+A {
+	color: #666666;
+	font-family: Arial,Helvetica,sans-serif;
+}
+.ticketLink {
+	color: rgb(0, 102, 255);
+}
 BODY, TD {
 	color: #555555;
 	font-family: Arial,Helvetica,sans-serif;
 	font-size: 12px;
-}
-#headerMenuSelected, #headerMenuSelected A, .headerUnderline {
-	background-color: #FF6600;
-	color: #FFFFFF;
-}
-.headerMenu {
-	background-color: #888888;
-	color: #FFFFFF;
 }
 H1 { font-weight: bold;
 	font-family: Arial,Helvetica,sans-serif;
@@ -18,7 +17,18 @@ H1 { font-weight: bold;
 	margin-top: 0px;
 	margin-bottom: 0px;
 }
+FORM {
+	margin:0px;
+}
+.headerMenu {
+	background-color: #888888;
+	color: #FFFFFF;
+}
 .headerMenu A {
+	color: #FFFFFF;
+}
+#headerMenuSelected, #headerMenuSelected A, .headerUnderline {
+	background-color: #FF6600;
 	color: #FFFFFF;
 }
 #headerMenuLinkActive {
@@ -68,27 +78,24 @@ H1 { font-weight: bold;
 .tableBg {
 	background-color: rgb(255,255,255);
 }
-.tableThBg {
+.tableTh TH {
 	background-color: rgb(192,192,192);
+	text-align: left;
+}
+.tableTh A {
 	font-size: 12px;
 	font-weight: bold;
+	color: #444444;
 	font-family: Arial,Helvetica,sans-serif;
 }
 .tableRowBg {
-	background-color: rgb(240,240,255);
+	background-color: rgb(247,247,255);
+}
+.tableRowAltBg {
+	background-color: rgb(238,238,238);
 }
 .tableThLink {
 	color: #FFFFFF;
 	font-family: Arial,Helvetica,sans-serif;
 	font-size: 11px;
-}
-.smallLink {
-	color: #666666;
-	font-family: Arial,Helvetica,sans-serif;
-	font-size: 12px;
-}
-.normalLink {
-	color: #555555;
-	font-family: Arial,Helvetica,sans-serif;
-	font-size: 12px;
 }

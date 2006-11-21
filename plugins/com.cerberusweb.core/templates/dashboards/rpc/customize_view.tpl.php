@@ -1,4 +1,4 @@
-<div style="background-color: #EEEEEE">
+<div style="background-color: #EEEEEE;padding:5px;">
 <h1>Customize View</h1>
 <b>Name:</b> <br>
 <input type="text" name="name" value="My Tickets" size="45"><br>

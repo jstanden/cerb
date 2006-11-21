@@ -7,7 +7,7 @@
 			<table cellpadding="3" cellspacing="1" border="0" width="200" class="tableBg">
 				{foreach from=$teams item=team}
 				<tr>
-					<td class="tableRowBg"><a href="index.php?c=core.module.dashboard&a=clickteam&id={$team->id}" class="normalLink"><b>{$team->name}</b></a> (xx)</td>
+					<td class="tableRowBg"><a href="index.php?c=core.module.dashboard&a=clickteam&id={$team->id}"><b>{$team->name}</b></a> (xx)</td>
 				</tr>
 				{/foreach}
 			</table>
