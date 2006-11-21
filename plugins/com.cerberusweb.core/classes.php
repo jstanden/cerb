@@ -20,12 +20,22 @@ class ChDashboardModule extends CerberusModuleExtension {
 	}
 	
 	function render() {
+		include_once(UM_PATH . '/libs/adodb/adodb-pager.inc.php');
+		$um_db = UserMeetDatabase::getInstance();
 		$tpl = UserMeetTemplateManager::getInstance();
+		
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		
-		$tickets = CerberusApplication::getTicketList();
-		$tpl->assign('tickets', $tickets);
+		$tickets = CerberusTicketDAO::getTicketList();
+		$tpl->assign('tickets', $tickets[0]);
+		$tpl->assign('total', $tickets[1]);
+		
+		$teams = CerberusApplication::getTeamList();
+		$tpl->assign('teams', $teams);
+		
+		$mailboxes = CerberusApplication::getMailboxList();
+		$tpl->assign('mailboxes', $mailboxes);
 		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/dashboards/index.tpl.php');
 	}
@@ -50,7 +60,18 @@ class ChDashboardModule extends CerberusModuleExtension {
 	
 	function customize() {
 		@$id = $_REQUEST['id'];
-		echo "<H1>Customize $id</H1>";
+
+		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		
+		$tpl->assign('id',$id);
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/dashboards/rpc/customize_view.tpl.php');
+	}
+	
+	function searchview() {
+		@$id = $_REQUEST['id'];
+		CerberusApplication::setActiveModule("core.module.search");
 	}
 	
 };
@@ -78,8 +99,10 @@ class ChDisplayModule extends CerberusModuleExtension {
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 
 		@$id = $_REQUEST['id'];
-		$tpl->assign('id', $id);
 		
+		$ticket = CerberusTicketDAO::getTicket($id);
+		$tpl->assign('ticket', $ticket);
+
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/index.tpl.php');
 	}
 		

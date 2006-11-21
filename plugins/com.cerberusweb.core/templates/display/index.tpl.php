@@ -1,2 +1,2 @@
-<h1>Display Ticket {$id}</h1>
+<h1>Ticket: {$ticket->subject}</h1>
 This is ticket content!

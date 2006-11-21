@@ -5,18 +5,11 @@
 	<tr>
 		<td>
 			<table cellpadding="3" cellspacing="1" border="0" width="200" class="tableBg">
+				{foreach from=$teams item=team}
 				<tr>
-					<td class="tableRowBg"><a href="index.php?c=core.module.dashboard&a=clickteam&id=1" class="normalLink"><b>Development</b></a> (10)</td>
+					<td class="tableRowBg"><a href="index.php?c=core.module.dashboard&a=clickteam&id={$team->id}" class="normalLink"><b>{$team->name}</b></a> (xx)</td>
 				</tr>
-				<tr>
-					<td class="tableRowBg"><a href="index.php?c=core.module.dashboard&a=clickteam&id=2" class="normalLink"><b>Sales</b></a> (10)</td>
-				</tr>
-				<tr>
-					<td class="tableRowBg"><a href="index.php?c=core.module.dashboard&a=clickteam&id=3" class="normalLink"><b>Support</b></a> (10)</td>
-				</tr>
-				<tr>
-					<td class="tableRowBg"><a href="index.php?c=core.module.dashboard&a=clickteam&id=4" class="normalLink"><b>Web Hosting</b></a> (10)</td>
-				</tr>
+				{/foreach}
 			</table>
 		</td>
 	</tr>

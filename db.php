@@ -49,6 +49,13 @@ $tables['session'] = "
 	sessdata B
 ";
 
+$tables['login'] = "
+	id I PRIMARY,
+	login C(32) NOTNULL,
+	password C(32) NOTNULL,
+	admin I1 DEFAULT 0 NOTNULL
+";
+
 $tables['ticket'] = "
 	id I4 DEFAULT 0 NOTNULL PRIMARY,
 	mask C(16) DEFAULT '' NOTNULL, 
@@ -57,11 +64,25 @@ $tables['ticket'] = "
 	last_wrote C(128) DEFAULT '' NOTNULL 
 ";
 
-$tables['login'] = "
-	id I PRIMARY,
-	login C(32) NOTNULL,
-	password C(32) NOTNULL,
-	admin I1 DEFAULT 0 NOTNULL
+$tables['team'] = "
+	id I4 DEFAULT 0 NOTNULL PRIMARY,
+	name C(32) DEFAULT '' NOTNULL
+";
+
+$tables['mailbox'] = "
+	id I4 DEFAULT 0 NOTNULL PRIMARY,
+	name C(32) DEFAULT '' NOTNULL
+";
+
+$tables['dashboard'] = "
+	id I4 DEFAULT 0 NOTNULL PRIMARY,
+	name C(32) DEFAULT '' NOTNULL
+";
+
+$tables['dashboard_view'] = "
+	id I4 DEFAULT 0 NOTNULL PRIMARY,
+	dashboard_id I4 DEFAULT 0 NOTNULL,
+	name C(32) DEFAULT '' NOTNULL
 ";
 
 foreach($tables as $table => $flds) {

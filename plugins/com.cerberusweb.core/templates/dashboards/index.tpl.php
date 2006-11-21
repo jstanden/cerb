@@ -34,12 +34,6 @@
       <br>
       {include file="file:$path/dashboards/ticket_view.tpl.php" id="2"}
       <br>
-      {include file="file:$path/dashboards/ticket_view.tpl.php" id="3"}
-      <br>
-      {include file="file:$path/dashboards/ticket_view.tpl.php" id="4"}
-      <br>
-      {include file="file:$path/dashboards/ticket_view.tpl.php" id="5"}
-      <br>
       
       {include file="file:$path/dashboards/whos_online.tpl.php"}
       	
