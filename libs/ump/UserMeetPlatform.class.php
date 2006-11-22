@@ -35,8 +35,7 @@ class UserMeetPlatform {
 	/**
 	 * @private
 	 */
-	function UserMeetPlatform() {
-		die("Use UserMeetPlatform statically.");
+	private function UserMeetPlatform() {
 	}
 	
 	/**
@@ -46,7 +45,7 @@ class UserMeetPlatform {
 	 * @param string $point
 	 * @return UserMeetExtensionManifest[]
 	 */
-	function getExtensions($point) {
+	static function getExtensions($point) {
 		$results = array();
 		$extensions = UserMeetPlatform::getExtensionRegistry();
 		
@@ -66,7 +65,7 @@ class UserMeetPlatform {
 	 * @param string $extension_id
 	 * @return UserMeetExtensionManifest
 	 */
-	function getExtension($extension_id) {
+	static function getExtension($extension_id) {
 		$result = null;
 		$extensions = UserMeetPlatform::getExtensionRegistry();
 		
@@ -86,7 +85,7 @@ class UserMeetPlatform {
 	 * @static 
 	 * @return UserMeetExtensionManifest[]
 	 */
-	function getExtensionRegistry() {
+	static function getExtensionRegistry() {
 		static $extensions = array();
 		
 		if(!empty($extensions))
@@ -129,7 +128,7 @@ class UserMeetPlatform {
 	 * @static
 	 * @return UserMeetPluginManifest[]
 	 */
-	function getPluginRegistry() {
+	static function getPluginRegistry() {
 		static $plugins = array();
 		
 		if(!empty($plugins))
@@ -165,7 +164,7 @@ class UserMeetPlatform {
 	 * @static 
 	 * @return UserMeetPluginManifest[]
 	 */
-	function readPlugins() {
+	static function readPlugins() {
 		$dir = UM_PLUGIN_PATH;
 		$plugins = array();
 		
@@ -199,7 +198,7 @@ class UserMeetPlatform {
 	 * @param string $file
 	 * @return UserMeetPluginManifest
 	 */
-	function _readPluginManifest($dir) {
+	static private function _readPluginManifest($dir) {
 		if(!file_exists(UM_PLUGIN_PATH.$dir.'/plugin.xml'))
 			return NULL;
 			
@@ -325,7 +324,7 @@ class UserMeetPlatform {
 	 * @static 
 	 * @return void
 	 */
-	function init() {
+	static function init() {
 		// [JAS] [MDF]: Automatically determine the relative webpath to UserMeet files
 		if(!defined('UM_WEBPATH')) {
 			$php_self = $_SERVER["PHP_SELF"];

@@ -9,7 +9,7 @@ $smarty = UserMeetTemplateManager::getInstance();
 $session = UserMeetSessionManager::getInstance(); /* @var $session UserMeetSessionManager */
 $translate = UserMeetTranslationManager::getInstance();
 
-//$plugins = UserMeetPlatform::readPlugins();
+$plugins = UserMeetPlatform::readPlugins();
 
 // [JAS]: Handle component actions
 @$c = (isset($_REQUEST['c']) ? $_REQUEST['c'] : null);
