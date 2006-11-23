@@ -25,10 +25,6 @@ class ChDashboardModule extends CerberusModuleExtension {
 		$tpl = UserMeetTemplateManager::getInstance();
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		
-		$tickets = CerberusTicketDAO::getTicketList();
-		$tpl->assign('tickets', $tickets[0]);
-		$tpl->assign('total', $tickets[1]);
-		
 		// [JAS]: [TODO] This needs to limit by the selected dashboard
 		$views = CerberusDashboardDAO::getViews(); // getViews($dashboard_id)
 		$tpl->assign('views', $views);
@@ -64,6 +60,47 @@ class ChDashboardModule extends CerberusModuleExtension {
 	
 	function getLink() {
 		return "?c=".$this->id."&a=click";
+	}
+	
+	function viewSortBy() {
+		@$id = $_REQUEST['id'];
+		@$sortBy = $_REQUEST['sortBy'];
+		
+		$view = CerberusDashboardDAO::getView($id);
+		$iSortAsc = intval($view->renderSortAsc);
+		
+		// [JAS]: If clicking the same header, toggle asc/desc.
+		if(0 == strcasecmp($sortBy,$view->renderSortBy)) {
+			$iSortAsc = (0 == $iSortAsc) ? 1 : 0;
+		} else { // [JAS]: If a new header, start with asc.
+			$iSortAsc = 1;
+		}
+		
+		$um_db = UserMeetDatabase::getInstance();
+		
+		// [JAS]: [TODO] Move this into DAO
+		$sql = sprintf("UPDATE dashboard_view SET sort_by = %s, sort_asc = %d WHERE id = %d",
+			$um_db->qstr($sortBy),
+			$iSortAsc,
+			$id
+		);
+		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		return TRUE;
+	}
+	
+	function viewRefresh() {
+		@$id = $_REQUEST['id'];
+
+		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		$tpl->assign('id',$id);
+		
+		$view = CerberusDashboardDAO::getView($id);
+		$tpl->assign('view', $view);
+
+		$tpl->cache_lifetime = "0";
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/dashboards/ticket_view.tpl.php');
 	}
 	
 	function customize() {

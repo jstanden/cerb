@@ -35,8 +35,7 @@ class UserMeetPlatform {
 	/**
 	 * @private
 	 */
-	private function UserMeetPlatform() {
-	}
+	private function UserMeetPlatform() {}
 	
 	/**
 	 * Returns the list of extensions on a given extension point.
@@ -361,8 +360,7 @@ class UserMeetExtensionManifest {
 	var $class = '';
 	var $params = array();
 
-	function UserMeetExtensionManifest() {
-	}
+	function UserMeetExtensionManifest() {}
 	
 	/**
 	 * Creates and loads a usable extension from a manifest record.  The object returned 
@@ -497,10 +495,7 @@ class UserMeetSessionManager {
 	/**
 	 * @private
 	 */
-	function UserMeetSessionManager($use_me_statically) {
-		if(empty($use_me_statically))
-			die("Use " . __CLASS__ . " statically.");
-	}
+	private function UserMeetSessionManager() {}
 	
 	/**
 	 * Returns an instance of the session manager
@@ -508,7 +503,7 @@ class UserMeetSessionManager {
 	 * @static
 	 * @return UserMeetSessionManager
 	 */
-	function getInstance() {
+	static function getInstance() {
 		static $instance = null;
 		if(null == $instance) {
 			include_once(UM_PATH . "/libs/adodb/session/adodb-session2.php");
@@ -517,7 +512,7 @@ class UserMeetSessionManager {
 			ADOdb_Session::config(UM_DB_DRIVER, UM_DB_HOST, UM_DB_USER, UM_DB_PASS, UM_DB_DATABASE, $options);
 			ADOdb_session::Persist($connectMode=false);
 			session_start();
-			$instance = new UserMeetSessionManager('private');
+			$instance = new UserMeetSessionManager();
 			$instance->visit = $_SESSION['um_visit']; /* @var $visit UserMeetSession */
 		}
 		
@@ -608,16 +603,14 @@ class UserMeetTemplateManager {
 	 * 
 	 * @private
 	 */
-	function UserMeetTemplateManager() {
-		die("Use ".__CLASS__." statically.");
-	}
+	private function UserMeetTemplateManager() {}
 	/**
 	 * Returns an instance of the Smarty Template Engine
 	 * 
 	 * @static 
 	 * @return Smarty
 	 */
-	function getInstance() {
+	static function getInstance() {
 		static $instance = null;
 		if(null == $instance) {
 			require(UM_PATH . '/libs/smarty/Smarty.class.php');
@@ -646,9 +639,7 @@ class UserMeetDatabase {
 	 * 
 	 * @private
 	 */
-	function UserMeetDatabase() {
-		die("Use ".__CLASS__." statically.");
-	}
+	private function UserMeetDatabase() {}
 	
 	/**
 	 * Returns an ADODB database resource
@@ -656,7 +647,7 @@ class UserMeetDatabase {
 	 * @static 
 	 * @return ADOConnection
 	 */
-	function getInstance() {
+	static function getInstance() {
 		static $instance = null;
 		if(null == $instance) {
 			include_once(UM_PATH . "/libs/adodb/adodb.inc.php");
@@ -681,10 +672,7 @@ class UserMeetTranslationManager {
 	 * 
 	 * @private
 	 */
-	function UserMeetTranslationManager($use_me_statically) {
-		if(empty($use_me_statically))
-			die("Use ".__CLASS__." statically.");
-	}
+	private function UserMeetTranslationManager() {}
 	
 	/**
 	 * Returns an instance of the translation singleton.
@@ -692,7 +680,7 @@ class UserMeetTranslationManager {
 	 * @static 
 	 * @return UserMeetTranslationManager
 	 */
-	function getInstance() {
+	static function getInstance() {
 		static $instance = null;
 		if(null == $instance) {
 			$instance = new UserMeetTranslationManager('private');

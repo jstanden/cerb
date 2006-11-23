@@ -60,8 +60,8 @@ $tables['ticket'] = "
 	id I4 DEFAULT 0 NOTNULL PRIMARY,
 	mask C(16) DEFAULT '' NOTNULL, 
 	subject C(128)  DEFAULT '' NOTNULL, 
-	created I8 DEFAULT 0 NOTNULL,
-	latest I8 DEFAULT 0 NOTNULL,
+	created_date T,
+	updated_date T,
 	status C(16) DEFAULT '' NOTNULL, 
 	priority I1 DEFAULT 0 NOTNULL, 
 	mailbox_id I4 NOTNULL, 
@@ -86,7 +86,10 @@ $tables['dashboard'] = "
 $tables['dashboard_view'] = "
 	id I4 DEFAULT 0 NOTNULL PRIMARY,
 	dashboard_id I4 DEFAULT 0 NOTNULL,
-	name C(32) DEFAULT '' NOTNULL
+	name C(32) DEFAULT '' NOTNULL,
+	sort_by C(32) DEFAULT '' NOTNULL,
+	sort_asc I1 DEFAULT 1 NOTNULL,
+	num_rows I2 DEFAULT 10 NOTNULL
 ";
 
 foreach($tables as $table => $flds) {

@@ -15,6 +15,7 @@
   <script language="javascript" type="text/javascript" src="scripts/yahoo/dom.js"></script>
   <script language="javascript" type="text/javascript" src="scripts/yahoo/event.js"></script>
   <script language="javascript" type="text/javascript" src="scripts/yahoo/connection.js"></script>
+  <script language="javascript" type="text/javascript" src="scripts/yahoo/animation.js"></script>
   <script language="javascript" type="text/javascript" src="scripts/cerberus/cerberus.js"></script>
   
 </head>

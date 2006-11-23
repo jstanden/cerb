@@ -26,6 +26,8 @@
 <br>
 ...<br>
 <br>
+<b>{$translate->say('dashboard.num_rows')|capitalize}:</b> <input type="text" name="" size="3" maxlength="3" value="10"><br>
+<br>
 <input type="button" value="{$translate->say('common.save_changes')|capitalize}">
 <input type="button" value="{$translate->say('common.cancel')|capitalize}" onclick="ajax.getCustomize('{$id}');">
 <br>

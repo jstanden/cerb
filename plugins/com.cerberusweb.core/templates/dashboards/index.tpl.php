@@ -33,7 +33,9 @@
       <td nowrap="nowrap" width="100%" valign="top">
       
       {foreach from=$views item=view}
-	      {include file="file:$path/dashboards/ticket_view.tpl.php"}
+      	<div id="view{$view->id}">
+	      	{include file="file:$path/dashboards/ticket_view.tpl.php"}
+	      </div>
 	      <br>
       {/foreach}
       

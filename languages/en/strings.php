@@ -36,6 +36,7 @@ $language = array(
 	'dashboard.mailbox_loads' => 'Mailbox Loads',
 	'dashboard.no_mailboxes' => 'No visible mailboxes.',
 	'dashboard.no_teams' => 'No visible teams.',
+	'dashboard.num_rows' => 'Rows per page',
 	'dashboard.switch' => 'Switch',
 	'dashboard.team_loads' => 'Team Loads',
 	
