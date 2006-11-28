@@ -1,6 +1,5 @@
 <?php
 include_once(UM_PATH . "/libs/pear/i18n/I18N_UnicodeString.php");
-include_once(UM_PATH . "/libs/pear/mail/cerbHtmlMimeMail.php");
 include_once(UM_PATH . "/languages/".UM_LANGUAGE."/strings.php");
 
 /*
