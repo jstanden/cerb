@@ -586,8 +586,15 @@ class UserMeetEmailManager {
 	 */
 	private function UserMeetEmailManager() {}
 	
-	function getMail($mail_cfg) { /* @var $mail_cfg = UserMeetEmailConfig */
+	/**
+	 * Enter description here...
+	 *
+	 * @param UserMeetEmailConfig $mail_cfg
+	 * @return unknown
+	 */
+	static function getMail($mail_cfg) { /* @var $mail_cfg = UserMeetEmailConfig */
 		if (!extension_loaded("imap")) die("IMAP Extension not loaded!");
+		require_once(UM_PATH . '/libs/pear/mimeDecode.php');
 		
 		$mailbox = imap_open("{".$mail_cfg->server.":".$mail_cfg->port."/service=".$mail_cfg->service."}INBOX",
 							 !empty($mail_cfg->username)?$mail_cfg->username:"superuser",
@@ -596,12 +603,18 @@ class UserMeetEmailManager {
 		$check = imap_check($mailbox);
 		
 		$messages = array();
+		$params = array();
+		$params['include_bodies']	= true;
+		$params['decode_bodies']	= true;
+		$params['decode_headers']	= true;
+		$params['crlf']				= "\r\n";
 	
 		for ($i=1; $i<=$check->Nmsgs; $i++) {
 			$headers = imap_fetchheader($mailbox, $i);
 			$body = imap_body($mailbox, $i);
-			$email = new UserMeetEmailObject($headers, $body);
-			$messages[] = $email;
+			$params['input'] = $headers . "\r\n\r\n" . $body;
+			$structure = Mail_mimeDecode::decode($params);
+			$messages[] = $structure;
 		}
 		
 		imap_close($mailbox);
@@ -624,79 +637,6 @@ class UserMeetEmailConfig {
 		$this->password = $password;
 	}
 }
-
-/**
- * Email object
- */
-class UserMeetEmailObject {
-	var $headers;		/* @var $headers string */
-	var $body;			/* @var $body string */
-	
-	function UserMeetEmailObject($headers, $body) {
-		$this->headers = $headers;
-		$this->body = $body;
-	}
-	
-	function getHeaders() {
-		return $this->headers;
-	}
-	function setHeaders($headers) {
-		$this->headers = $headers;
-	}
-	
-	function getHeader($token) {
-		$split = explode("\r\n",$this->headers);
-		foreach ($split as $header) {
-			$pos = stripos($header, $token.":");
-			if ($pos !== FALSE && $pos == 0)
-				return trim(substr($header,strlen($token)+1));
-		}
-		return FALSE;
-	}
-	function setHeader($token, $value) {
-		$old = explode("\r\n",$this->headers);
-		$new = array();
-		foreach ($old as $header) {
-			$pos = stripos($header, $token.":");
-			if ($pos !== FALSE && $pos == 0)
-				$new[] = $token . ": " . $value . "\r\n";
-			else
-				$new[] = $header;
-		}
-	}
-	
-	function getBody() {
-		return $this->body;
-	}
-	function setBody($body) {
-		$this->body = $body;
-	}
-}
-//class UserMeetEmailObject {
-//	var $email; /* @var $email cerbHtmlMimeMail */
-//	var $to; /* @var $to array */
-//	
-////	function UserMeetEmailObject() {
-////		$this->email = new cerbHtmlMimeMail();
-////		$this->email->setSMTPParams("mail.webgroupmedia.com");
-////	}
-//	
-//	function UserMeetEmailObject($to, $from, $subject, $body, $attachments=array()) {
-//		$this->email = new cerbHtmlMimeMail();
-//		$this->email->setSMTPParams("mail.webgroupmedia.com");
-//		$this->to = $to;
-//		$this->email->setFrom($from);
-//		$this->email->setSubject($subject);
-//		$this->email->setText($body);
-//		foreach ($attachments as $attachment) {
-//			$this->email->addAttachment($attachment);
-//		}
-//	}
-//	
-//	function send() {
-//		$this->email->send($this->to);
-//	}
-//}
 
 /**
  * A single session instance
