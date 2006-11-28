@@ -1,0 +1,1 @@
+{include file="file:$path/display/modules/expandable_module_template.tpl.php" callback="renderBody"}

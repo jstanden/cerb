@@ -74,6 +74,43 @@
 			</params>
 		</extension>
 
+		<extension point="com.cerberusweb.display.module">
+			<id>core.display.module.log</id>
+			<name>Ticket Log Display Module</name>
+			<class>
+				<file>classes.php</file>
+				<name>ChDisplayTicketLog</name>
+			</class>
+			<params>
+				<param key="title" value="Audit Log" />
+				<param key="icon" value="images/document_info.gif" />
+			</params>
+		</extension>
+
+		<extension point="com.cerberusweb.display.module">
+			<id>core.display.module.history</id>
+			<name>Ticket History Display Module</name>
+			<class>
+				<file>classes.php</file>
+				<name>ChDisplayTicketHistory</name>
+			</class>
+			<params>
+				<param key="title" value="Customer History" />
+				<param key="icon" value="images/scroll_view.gif" />
+			</params>
+		</extension>
+		
+		<extension point="com.cerberusweb.display.module">
+			<id>core.display.module.conversation</id>
+			<name>Ticket Conversation Display Module</name>
+			<class>
+				<file>classes.php</file>
+				<name>ChDisplayTicketConversation</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
 		<!--
 		<extension point="com.usermeet.submenu">
 			<id>cerberus.submenu.kb</id>

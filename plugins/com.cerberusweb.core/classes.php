@@ -148,6 +148,15 @@ class ChDisplayModule extends CerberusModuleExtension {
 		$ticket = CerberusTicketDAO::getTicket($id);
 		$tpl->assign('ticket', $ticket);
 
+		$display_module_manifests = UserMeetPlatform::getExtensions("com.cerberusweb.display.module");
+		$display_modules = array();
+		
+		if(is_array($display_module_manifests))
+		foreach($display_module_manifests as $dmm) { /* @var $dmm UserMeetExtensionManifest */
+			$display_modules[] = $dmm->createInstance(1);
+		}
+		$tpl->assign('display_modules', $display_modules);
+		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/index.tpl.php');
 	}
 		
@@ -274,5 +283,51 @@ class ChSearchModule extends CerberusModuleExtension {
 	}
 	
 }
+
+class ChDisplayTicketHistory extends CerberusDisplayModuleExtension {
+	function ChDisplayTicketHistory($manifest) {
+		$this->CerberusDisplayModuleExtension($manifest);
+	}
+
+	function render($ticket) {
+		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl->cache_lifetime = "0";
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/ticket_history.tpl.php');
+	}
+	
+	function renderBody() {
+		echo "History content goes here!";
+	}
+}
+
+class ChDisplayTicketLog extends CerberusDisplayModuleExtension {
+	function ChDisplayTicketLog($manifest) {
+		$this->CerberusDisplayModuleExtension($manifest);
+	}
+
+	function render($ticket) {
+		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl->cache_lifetime = "0";
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/ticket_log.tpl.php');
+	}
+	
+	function renderBody() {
+		echo "Ticket log content goes here!";
+	}
+}
+
+class ChDisplayTicketConversation extends CerberusDisplayModuleExtension {
+	function ChDisplayTicketConversation($manifest) {
+		$this->CerberusDisplayModuleExtension($manifest);
+	}
+
+	function render($ticket) {
+		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl->cache_lifetime = "0";
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/ticket_conversation.tpl.php');
+	}
+}
+
+
 
 ?>

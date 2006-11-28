@@ -1,0 +1,22 @@
+<!-- [JAS] [TODO] Needs DTD -->
+<plugin>
+	<name>Cerberus Helpdesk Knowledgebase</name>
+	<author>WebGroup Media, LLC.</author>
+	
+	<extensions>
+	
+		<extension point="com.cerberusweb.module">
+			<id>core.module.kb</id>
+			<name>Knowledgebase Module</name>
+			<class>
+				<file>classes.php</file>
+				<name>ChKnowledgebaseModule</name>
+			</class>
+			<params>
+				<param key="title" value="Knowledgebase" />
+				<param key="menutitle" value="Knowledgebase" />
+			</params>
+		</extension>
+		
+	</extensions>
+</plugin>

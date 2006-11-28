@@ -249,6 +249,7 @@ class UserMeetPlatform {
 		$eExtensions =& $doc->getElementsByPath("extensions/extension"); /* @var $eExtensions DOMIT_NodeList */
 		if(is_array($eExtensions->arNodeList))
 		foreach($eExtensions->arNodeList as $eExtension) { /* @var $eExtension DOMIT_Node */
+			
 			$sPoint = $eExtension->getAttribute('point');
 			$eId = $eExtension->getElementsByPath('id',1);
 			$eName = $eExtension->getElementsByPath('name',1);
@@ -256,7 +257,7 @@ class UserMeetPlatform {
 			$eClassFile = $eExtension->getElementsByPath('class/file',1);
 			$params = $eExtension->getElementsByPath('params/param');
 			$extension = new UserMeetExtensionManifest();
-			
+
 			if(empty($eId) || empty($eName))
 				continue;
 

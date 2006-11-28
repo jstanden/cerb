@@ -1,6 +1,21 @@
 <!--
 // [JAS]: [TODO] This should move into the plugin
 
+function toggleDiv(divName,state) {
+	var div = document.getElementById(divName);
+	var currentState = div.style.display;
+	
+	if(null == state) {
+		if(currentState == "block") {
+			div.style.display = 'none';
+		} else {
+			div.style.display = 'block';
+		}
+	} else if (null != state && (state == 'block' || state == 'none')) {
+		div.style.display = state;
+	}
+}
+
 var cAjaxCalls = function() {
 	this.getCustomize = function(id) {
 		var div = document.getElementById('customize' + id);
