@@ -4,7 +4,13 @@
       <td class="tableThBlue" nowrap="nowrap"> <img src="images/mail2.gif"> Requesters</td>
     </tr>
     <tr>
-      <td>Something</td>
+      <td><a href="javascript:;" style="font-size:85%;">customer@localhost</a></td>
+    </tr>
+    <tr>
+      <td><a href="javascript:;" style="font-size:85%;">client@localhost</a></td>
+    </tr>
+    <tr>
+    	<td><input type="text"><input type="button" value="+" title="Add requester to ticket"></td>
     </tr>
   </tbody>
 </table>

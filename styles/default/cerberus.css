@@ -15,16 +15,16 @@
   h1 { 
   	 font-weight: bold;
     font-family: Arial,Helvetica,sans-serif;
-    font-size: 20px;
+    font-size: 18px;
     color: rgb(0, 102, 255);
     margin-top: 0px;
     margin-bottom: 0px;
     }
 
   h1.subtitle {
-  	 font-weight: normal;
+  	 font-weight: bold;
     font-family: Arial,Helvetica,sans-serif;
-    font-size: 18px;
+    font-size: 16px;
     color: rgb(0, 102, 255);
     margin-top: 0px;
     margin-bottom: 0px;
@@ -73,6 +73,10 @@
     background-color: rgb(245, 251, 238);
     }
 
+  .tableGreen TD B.green {
+	color: rgb(0, 102, 0);  	
+  }
+    
   .tableThGreen { padding: 3px;
     background-image: url(../../images/bg_green.jpg);
     background-repeat: repeat-x;
