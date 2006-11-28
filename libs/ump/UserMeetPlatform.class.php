@@ -1,5 +1,6 @@
 <?php
 include_once(UM_PATH . "/libs/pear/i18n/I18N_UnicodeString.php");
+include_once(UM_PATH . "/libs/pear/mail/cerbHtmlMimeMail.php");
 include_once(UM_PATH . "/languages/".UM_LANGUAGE."/strings.php");
 
 /*
@@ -511,7 +512,8 @@ class UserMeetSessionManager {
 			$options['table'] = 'session';
 			ADOdb_Session::config(UM_DB_DRIVER, UM_DB_HOST, UM_DB_USER, UM_DB_PASS, UM_DB_DATABASE, $options);
 			ADOdb_session::Persist($connectMode=false);
-			session_start();
+			//session_name("cerb4");
+			//session_start();
 			$instance = new UserMeetSessionManager();
 			$instance->visit = $_SESSION['um_visit']; /* @var $visit UserMeetSession */
 		}
@@ -571,6 +573,130 @@ class UserMeetSessionManager {
 		unset($_SESSION['um_visit']);
 	}
 }
+
+/**
+ * Email Management Singleton
+ *
+ * @static 
+ * @ingroup services
+ */
+class UserMeetEmailManager {
+	/**
+	 * @private
+	 */
+	private function UserMeetEmailManager() {}
+	
+	function getMail($mail_cfg) { /* @var $mail_cfg = UserMeetEmailConfig */
+		if (!extension_loaded("imap")) die("IMAP Extension not loaded!");
+		
+		$mailbox = imap_open("{".$mail_cfg->server.":".$mail_cfg->port."/service=".$mail_cfg->service."}INBOX",
+							 !empty($mail_cfg->username)?$mail_cfg->username:"superuser",
+							 !empty($mail_cfg->password)?$mail_cfg->password:"superuser")
+			or die("Failed with error: ".imap_last_error());
+		$check = imap_check($mailbox);
+		
+		$messages = array();
+	
+		for ($i=1; $i<=$check->Nmsgs; $i++) {
+			$headers = imap_fetchheader($mailbox, $i);
+			$body = imap_body($mailbox, $i);
+			$email = new UserMeetEmailObject($headers, $body);
+			$messages[] = $email;
+		}
+		
+		imap_close($mailbox);
+		return $messages;
+	}
+}
+
+class UserMeetEmailConfig {
+	var $server;		/* @var $server string */
+	var $port;			/* @var $port string */
+	var $service;		/* @var $service string */
+	var $username;		/* @var $username string */
+	var $password;		/* @var $password string */
+
+	function UserMeetEmailConfig($server="localhost",$port=110,$service="pop3",$username="superuser",$password="superuser") {
+		$this->server = $server;
+		$this->port = $port;
+		$this->service = $service;
+		$this->username = $username;
+		$this->password = $password;
+	}
+}
+
+/**
+ * Email object
+ */
+class UserMeetEmailObject {
+	var $headers;		/* @var $headers string */
+	var $body;			/* @var $body string */
+	
+	function UserMeetEmailObject($headers, $body) {
+		$this->headers = $headers;
+		$this->body = $body;
+	}
+	
+	function getHeaders() {
+		return $this->headers;
+	}
+	function setHeaders($headers) {
+		$this->headers = $headers;
+	}
+	
+	function getHeader($token) {
+		$split = explode("\r\n",$this->headers);
+		foreach ($split as $header) {
+			$pos = stripos($header, $token.":");
+			if ($pos !== FALSE && $pos == 0)
+				return trim(substr($header,strlen($token)+1));
+		}
+		return FALSE;
+	}
+	function setHeader($token, $value) {
+		$old = explode("\r\n",$this->headers);
+		$new = array();
+		foreach ($old as $header) {
+			$pos = stripos($header, $token.":");
+			if ($pos !== FALSE && $pos == 0)
+				$new[] = $token . ": " . $value . "\r\n";
+			else
+				$new[] = $header;
+		}
+	}
+	
+	function getBody() {
+		return $this->body;
+	}
+	function setBody($body) {
+		$this->body = $body;
+	}
+}
+//class UserMeetEmailObject {
+//	var $email; /* @var $email cerbHtmlMimeMail */
+//	var $to; /* @var $to array */
+//	
+////	function UserMeetEmailObject() {
+////		$this->email = new cerbHtmlMimeMail();
+////		$this->email->setSMTPParams("mail.webgroupmedia.com");
+////	}
+//	
+//	function UserMeetEmailObject($to, $from, $subject, $body, $attachments=array()) {
+//		$this->email = new cerbHtmlMimeMail();
+//		$this->email->setSMTPParams("mail.webgroupmedia.com");
+//		$this->to = $to;
+//		$this->email->setFrom($from);
+//		$this->email->setSubject($subject);
+//		$this->email->setText($body);
+//		foreach ($attachments as $attachment) {
+//			$this->email->addAttachment($attachment);
+//		}
+//	}
+//	
+//	function send() {
+//		$this->email->send($this->to);
+//	}
+//}
 
 /**
  * A single session instance
