@@ -18,5 +18,18 @@
 			</params>
 		</extension>
 		
+		<extension point="com.cerberusweb.display.module">
+			<id>core.display.module.fnr</id>
+			<name>Fetch &amp; Retrieve Display Module</name>
+			<class>
+				<file>classes.php</file>
+				<name>ChDisplayFnr</name>
+			</class>
+			<params>
+				<param key="title" value="Fetch &amp; Retrieve&amp;trade; - Suggested Resources" />
+				<param key="icon" value="images/document.gif" />
+			</params>
+		</extension>
+		
 	</extensions>
 </plugin>

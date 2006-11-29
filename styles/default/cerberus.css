@@ -4,7 +4,8 @@
     font-family: Arial,Helvetica,sans-serif;
     }
 
-  .ticketLink { color: rgb(0, 102, 255);
+  .ticketLink { 
+  		color: rgb(0, 102, 255);
     }
 
   body, td { color: rgb(85, 85, 85);
@@ -142,4 +143,9 @@
     background-repeat: repeat-x;
     background-color: rgb(252, 242, 191);
     }
+    
+  .displayConversationTable A {
+  	font-weight: bold;
+  	color: rgb(0, 102, 255);
+  }
 

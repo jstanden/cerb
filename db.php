@@ -60,12 +60,23 @@ $tables['ticket'] = "
 	id I4 DEFAULT 0 NOTNULL PRIMARY,
 	mask C(16) DEFAULT '' NOTNULL, 
 	subject C(128)  DEFAULT '' NOTNULL, 
-	created_date T,
-	updated_date T,
-	status C(16) DEFAULT '' NOTNULL, 
+	created_date I4,
+	updated_date I4,
+	status C(1) DEFAULT '' NOTNULL, 
 	priority I1 DEFAULT 0 NOTNULL, 
 	mailbox_id I4 NOTNULL, 
-	last_wrote C(128) DEFAULT '' NOTNULL 
+	last_wrote C(128) DEFAULT '' NOTNULL,
+	first_wrote C(128) DEFAULT '' NOTNULL
+";
+
+$tables['message'] = "
+	id I4 DEFAULT 0 NOTNULL PRIMARY,
+	ticket_id I4 DEFAULT 0 NOTNULL,
+	is_admin I1 DEFAULT 0 NOTNULL,
+	created_date I4,
+	address_id I4,
+	headers B DEFAULT '' NOTNULL,
+	content B DEFAULT '' NOTNULL
 ";
 
 $tables['team'] = "
@@ -90,6 +101,17 @@ $tables['dashboard_view'] = "
 	sort_by C(32) DEFAULT '' NOTNULL,
 	sort_asc I1 DEFAULT 1 NOTNULL,
 	num_rows I2 DEFAULT 10 NOTNULL
+";
+
+$tables['address'] = "
+	id I4 DEFAULT 0 NOTNULL PRIMARY,
+	email C(255) DEFAULT '' NOTNULL,
+	personal C(255) DEFAULT ''
+";
+
+$tables['requester'] = "
+	address_id I4 DEFAULT 0 NOTNULL PRIMARY,
+	ticket_id I4 DEFAULT 0 NOTNULL PRIMARY
 ";
 
 foreach($tables as $table => $flds) {

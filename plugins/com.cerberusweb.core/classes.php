@@ -316,6 +316,38 @@ class ChDisplayTicketLog extends CerberusDisplayModuleExtension {
 	}
 }
 
+class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
+	function ChDisplayTicketWorkflow($manifest) {
+		$this->CerberusDisplayModuleExtension($manifest);
+	}
+
+	function render($ticket) {
+		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl->cache_lifetime = "0";
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/ticket_workflow.tpl.php');
+	}
+	
+	function renderBody() {
+		echo "Ticket workflow content goes here!";
+	}
+}
+
+class ChDisplayTicketFields extends CerberusDisplayModuleExtension {
+	function ChDisplayTicketFields($manifest) {
+		$this->CerberusDisplayModuleExtension($manifest);
+	}
+
+	function render($ticket) {
+		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl->cache_lifetime = "0";
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/ticket_fields.tpl.php');
+	}
+	
+	function renderBody() {
+		echo "Ticket custom fields content goes here!";
+	}
+}
+
 class ChDisplayTicketConversation extends CerberusDisplayModuleExtension {
 	function ChDisplayTicketConversation($manifest) {
 		$this->CerberusDisplayModuleExtension($manifest);

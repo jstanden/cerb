@@ -40,6 +40,11 @@ $language = array(
 	'dashboard.switch' => 'Switch',
 	'dashboard.team_loads' => 'Team Loads',
 	
+	'status.open' => 'Open',
+	'status.waiting' => 'Waiting For Reply',
+	'status.closed' => 'Closed',
+	'status.deleted' => 'Deleted',
+	
 	'whos_online.heading' => "Who's Online: (%d agents)",
 );
 

@@ -22,6 +22,23 @@ class ChKnowledgebaseModule extends CerberusModuleExtension {
 		$tpl->cache_lifetime = "0";
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/knowledgebase/index.tpl.php');
 	}
+};
+
+
+class ChDisplayFnr extends CerberusDisplayModuleExtension {
+	function ChDisplayFnr($manifest) {
+		$this->CerberusDisplayModuleExtension($manifest);
+	}
+
+	function render($ticket) {
+		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl->cache_lifetime = "0";
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/ticket_fnr.tpl.php');
+	}
+	
+	function renderBody() {
+		echo "Ticket F&R content goes here!";
+	}
 }
 
 ?>

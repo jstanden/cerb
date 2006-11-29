@@ -1,8 +1,4 @@
 <?php
-echo "<html><head><title>TEST WINDOW</title></head><body>";
-
-
-
 require(getcwd() . '/framework.config.php');
 require(UM_PATH . '/libs/ump/UserMeetPlatform.class.php');
 require(UM_PATH . '/api/CerberusApplication.class.php');
@@ -38,7 +34,11 @@ require(UM_PATH . '/api/CerberusApplication.class.php');
 $cfg = new UserMeetEmailConfig("cylon.webgroupmedia.com","110","pop3","pop1","poptester");
 $msgs = UserMeetEmailManager::getMail($cfg);
 
-print_r($msgs);
+if(is_array($msgs))
+foreach($msgs as $msg) {
+	CerberusParser::parseMessage($msg);
+}
 
-echo "</body></html>";
+//print_r($msgs);
+
 ?>

@@ -28,6 +28,15 @@ class CerberusApplication {
 		return CerberusApplication::setActiveModule(); // returns
 	}
 	
+	/**
+	 * Enter description here...
+	 *
+	 * @return a unique ticket mask as a string
+	 */
+	static function generateTicketMask() {
+		return "XXX-XXXXX-XXX";
+	}
+	
 	// ***************** DUMMY
 	static function getTeamList() {
 		$um_db = UserMeetDatabase::getInstance();
