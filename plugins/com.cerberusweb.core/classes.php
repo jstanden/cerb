@@ -159,7 +159,43 @@ class ChDisplayModule extends CerberusModuleExtension {
 		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/index.tpl.php');
 	}
+
+	function reply() {
+		@$id = $_REQUEST['id'];
+
+		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		$tpl->assign('id',$id);
+
+		$message = CerberusTicketDAO::getMessage($id);
+		$tpl->assign('message',$message);
 		
+		$tpl->cache_lifetime = "0";
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/rpc/reply.tpl.php');
+	}
+	
+	function forward() {
+		@$id = $_REQUEST['id'];
+
+		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		$tpl->assign('id',$id);
+
+		$tpl->cache_lifetime = "0";
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/rpc/forward.tpl.php');
+	}
+	
+	function comment() {
+		@$id = $_REQUEST['id'];
+
+		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		$tpl->assign('id',$id);
+
+		$tpl->cache_lifetime = "0";
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/rpc/comment.tpl.php');
+	}
+	
 };
 
 class ChSignInModule extends CerberusModuleExtension {

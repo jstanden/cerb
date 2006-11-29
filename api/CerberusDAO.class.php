@@ -200,6 +200,42 @@ class CerberusTicketDAO {
 		return array($messages,$total);
 	}
 	
+	/**
+	 * Enter description here...
+	 *
+	 * @param integer $id message id
+	 * @return CerberusMessage
+	 */
+	static function getMessage($id) {
+		$um_db = UserMeetDatabase::getInstance();
+		$message = null;
+		
+		$sql = sprintf("SELECT m.id , m.ticket_id, m.created_date, m.address_id, m.headers ".
+			"FROM message m ".
+			"WHERE m.id = %d ".
+			"ORDER BY m.created_date ASC ",
+			$id
+		);
+		$rs = $um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		if(!$rs->EOF) {
+			$message = new CerberusMessage();
+			$message->id = intval($rs->fields['id']);
+			$message->ticket_id = intval($rs->fields['ticket_id']);
+			$message->created_date = intval($rs->fields['created_date']);
+			$message->address_id = intval($rs->fields['address_id']);
+			
+			$headers = unserialize($rs->fields['headers']);
+			$message->headers = $headers;
+		}
+
+		// [JAS]: Count all
+//		$rs = $um_db->Execute($sql);
+//		$total = $rs->RecordCount();
+		
+		return $message;
+//		return array($messages,$total);
+	}
+	
 	static function getRequestersByTicket($ticket_id) {
 		$um_db = UserMeetDatabase::getInstance();
 		$addresses = array();

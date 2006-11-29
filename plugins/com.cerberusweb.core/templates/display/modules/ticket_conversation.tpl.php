@@ -27,9 +27,9 @@
       	<br>
       	{$message->getContent()|trim|nl2br}
       	<br>
-      	[ <a href="#">Reply</a> ] 
-      	[ <a href="#">Forward</a> ] 
-      	[ <a href="#">Comment</a> ] 
+      	[ <a href="javascript:;" onclick="ajax.reply('{$message->id}');">Reply</a> ] 
+      	[ <a href="javascript:;" onclick="ajax.forward('{$message->id}');">Forward</a> ] 
+      	[ <a href="javascript:;" onclick="ajax.comment('{$message->id}');">Comment</a> ] 
       	[ <a href="#">More Options...</a> ] 
       	<br>
       	{*<b>Attachments: </b> none<br>*}
@@ -37,6 +37,7 @@
     </tr>
   </tbody>
 </table>
+<div id="reply{$message->id}"></div>
 {if !$smarty.foreach.messages.last}<br>{/if}
 {/foreach}
 {else}

@@ -149,3 +149,28 @@
   	color: rgb(0, 102, 255);
   }
 
+  .displayReplyTable { 
+  	 border: 1px solid rgb(0, 51, 153);
+    background-image: url(../../images/bg_cobalt.jpg);
+    background-position: left top;
+    background-repeat: repeat-x;
+    background-color: rgb(223, 223, 255);
+    }
+    
+	.displayReplyTable TH {
+		text-align: left;
+		font-weight: bold;
+		font-size: 18px;
+		color: rgb(255, 255, 255);
+	}
+	
+	.displayReplyTable TEXTAREA.reply {
+		background-color: rgb(240, 240, 255);
+		width: 98%;
+	}
+	
+	.displayReplyTable TEXTAREA.cc {
+		background-color: rgb(255, 255, 255);
+		border: 1px solid rgb(127,157,185);
+		width: 98%;
+	}
