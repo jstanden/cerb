@@ -123,7 +123,8 @@ class CerberusParser {
 	
 	static private function parseMimePart($part,&$attachments) {
 		$contentType = @$part->ctype_primary.'/'.@$part->ctype_secondary;
-		$fileName = @$part->ctype_parameters['name'];
+		$fileName = @$part->d_parameters['filename'];
+		if (empty($fileName)) $fileName = @$part->ctype_parameters['name'];
 		
 		if(0 == strcasecmp($contentType,'text/plain') && empty($fileName)) {
 			$attachments['plaintext'] .= $part->body;
@@ -135,7 +136,15 @@ class CerberusParser {
 			CerberusParser::parseMimeParts($part);
 			
 		} else {
-			// [JAS]: Find other and attach.
+			// valid primary types are found at http://www.iana.org/assignments/media-types/
+			$timestamp = gmdate('Y.m.d.H.i.s.', gmmktime());
+			list($usec, $sec) = explode(' ', microtime());
+			$timestamp .= $usec . '.';
+			if (false !== file_put_contents(UM_ATTACHMENT_SAVE_PATH . $timestamp . $fileName, $part->body)) {
+				$attachments['files'][$timestamp.$fileName] = $fileName;
+				$attachments['plaintext'] .= ' Saved file <a href="' . UM_ATTACHMENT_ACCESS_PATH . $timestamp . $fileName . '">'
+											. (empty($fileName) ? 'Unnamed file' : $fileName) . '</a>. ';
+			}
 		}
 	}
 	
