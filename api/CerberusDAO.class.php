@@ -50,6 +50,40 @@ class CerberusTicketDAO {
 	
 	private function CerberusTicketDAO() {}
 	
+	/**
+	 * Enter description here...
+	 *
+	 * @param string $mask
+	 * @return CerberusTicket
+	 */
+	static function getTicketByMask($mask) {
+		$um_db = UserMeetDatabase::getInstance();
+		
+		$sql = sprintf("SELECT t.id FROM ticket t WHERE t.mask = %s",
+			$um_db->qstr($mask)
+		);
+		$rs = $um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		if(!$rs->EOF) {
+			$ticket_id = intval($rs->fields['id']);
+			return CerberusTicketDAO::getTicket($ticket_id);
+		}
+		
+		return null;
+	}
+	
+	// [JAS]: [TODO] Stub for Dan
+	static function createAttachment($message_id, $display_name, $filepath) {
+		$um_db = UserMeetDatabase::getInstance();
+		$newId = $um_db->GenID('attachment_seq');
+		
+	}
+	
+	// [JAS]: [TODO] Stub for Dan
+	static function getAttachmentsByMessage($id) {
+		return array();
+	}
+	
 	static function createTicket($mask, $subject, $status, $mailbox_id, $last_wrote, $created_date) {
 		$um_db = UserMeetDatabase::getInstance();
 		$newId = $um_db->GenID('ticket_seq');
@@ -101,10 +135,16 @@ class CerberusTicketDAO {
 		
 		return $newId;
 	}
-	
+
 	/**
 	 * Enter description here...
 	 *
+	 * @param CerberusSearchCriteria[] $params
+	 * @param integer $limit
+	 * @param integer $page
+	 * @param string $sortBy
+	 * @param boolean $sortAsc
+	 * @return array
 	 */
 	static function searchTickets($params,$limit=10,$page=0,$sortBy=null,$sortAsc=null) {
 		$um_db = UserMeetDatabase::getInstance();
@@ -112,8 +152,72 @@ class CerberusTicketDAO {
 		$tickets = array();
 		$start = min($page * $limit,1);
 		
-		$sql = sprintf("SELECT t.id , t.mask, t.subject, t.status, t.priority, t.first_wrote, t.last_wrote, t.created_date, t.updated_date ".
+//		print_r($params);
+		$wheres = array();
+		
+		// [JAS]: Search Builder
+		if(is_array($params))
+		foreach($params as $param) { /* @var $param CerberusSearchCriteria */
+			if(!is_a($param,'CerberusSearchCriteria')) continue;
+			$where = "";
+			
+			// [JAS]: Filter allowed columns (ignore invalid/deprecated)
+			switch($param->field) {
+				case "t.id";
+				case "t.mask";
+				case "t.status";
+				case "t.priority";
+				case "t.mailbox_id";
+				case "t.last_wrote";
+				case "t.first_wrote";
+					break;
+				default:
+					continue;
+					break;
+			}
+			
+			// [JAS]: Operators
+			switch($param->operator) {
+				case "=":
+					$where = sprintf("%s = %s",
+						$param->field,
+						$um_db->qstr($param->value)
+					);
+					break;
+					
+				case "!=":
+					$where = sprintf("%s != %s",
+						$param->field,
+						$um_db->qstr($param->value)
+					);
+					break;
+				
+				case "in":
+					if(!is_array($param->value)) break;
+					$where = sprintf("%s IN ('%s')",
+						$param->field,
+						implode("','",$param->value)
+					);
+					break;
+					
+				case "like":
+					if(!is_array($param->value)) break;
+					$where = sprintf("%s LIKE %s",
+						$param->field,
+						$um_db->qstr($param->value)
+					);
+					break;
+					
+				default:
+					break;
+			}
+			
+			if(!empty($where)) $wheres[] = $where;
+		}
+		
+		$sql = sprintf("SELECT t.id , t.mask, t.subject, t.status, t.priority, t.mailbox_id, t.first_wrote, t.last_wrote, t.created_date, t.updated_date ".
 			"FROM ticket t ".
+			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "").
 			(!empty($sortBy) ? sprintf("ORDER BY %s %s",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : "")
 		);
 		$rs = $um_db->SelectLimit($sql,$limit,0) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
@@ -123,7 +227,8 @@ class CerberusTicketDAO {
 			$ticket->mask = $rs->fields['mask'];
 			$ticket->subject = $rs->fields['subject'];
 			$ticket->status = $rs->fields['status'];
-			$ticket->priority = $rs->fields['priority'];
+			$ticket->priority = intval($rs->fields['priority']);
+			$ticket->mailbox_id = intval($rs->fields['mailbox_id']);
 			$ticket->last_wrote = $rs->fields['last_wrote'];
 			$ticket->first_wrote = $rs->fields['first_wrote'];
 			$ticket->created_date = intval($rs->fields['created_date']);
@@ -140,12 +245,18 @@ class CerberusTicketDAO {
 	}
 	
 	// [JAS]: [TODO] Replace this inner function with a ticket ID search using searchTicket()?  Removes redundancy
+	/**
+	 * Enter description here...
+	 *
+	 * @param integer $id
+	 * @return CerberusTicket
+	 */
 	static function getTicket($id) {
 		$um_db = UserMeetDatabase::getInstance();
 		
 		$ticket = null;
 		
-		$sql = sprintf("SELECT t.id , t.mask, t.subject, t.status, t.priority, t.first_wrote, t.last_wrote, t.created_date, t.updated_date ".
+		$sql = sprintf("SELECT t.id , t.mask, t.subject, t.status, t.priority, t.mailbox_id, t.first_wrote, t.last_wrote, t.created_date, t.updated_date ".
 			"FROM ticket t ".
 			"WHERE t.id = %d",
 			$id
@@ -158,7 +269,8 @@ class CerberusTicketDAO {
 			$ticket->mask = $rs->fields['mask'];
 			$ticket->subject = $rs->fields['subject'];
 			$ticket->status = $rs->fields['status'];
-			$ticket->priority = $rs->fields['priority'];
+			$ticket->priority = intval($rs->fields['priority']);
+			$ticket->mailbox_id = intval($rs->fields['mailbox_id']);
 			$ticket->last_wrote = $rs->fields['last_wrote'];
 			$ticket->first_wrote = $rs->fields['first_wrote'];
 			$ticket->created_date = intval($rs->fields['created_date']);
@@ -333,6 +445,28 @@ class CerberusDashboardDAO {
 		return $newId;
 	}
 	
+	static function updateView($id,$fields) {
+		$um_db = UserMeetDatabase::getInstance();
+		$sets = array();
+		
+		if(!is_array($fields) || empty($fields) || empty($id))
+			return;
+		
+		foreach($fields as $k => $v) {
+			$sets[] = sprintf("%s = %s",
+				$k,
+				$um_db->qstr($v)
+			);
+		}
+			
+		$sql = sprintf("UPDATE dashboard_view SET %s WHERE id = %d",
+			implode(', ', $sets),
+			$id
+		);
+		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+	}
+	
 	/**
 	 * Enter description here...
 	 *
@@ -342,7 +476,7 @@ class CerberusDashboardDAO {
 	static function getViews($dashboard_id=0) {
 		$um_db = UserMeetDatabase::getInstance();
 		
-		$sql = sprintf("SELECT v.id, v.name, v.dashboard_id, v.num_rows, v.sort_by, v.sort_asc ".
+		$sql = sprintf("SELECT v.id, v.name, v.dashboard_id, v.columns, v.num_rows, v.sort_by, v.sort_asc ".
 			"FROM dashboard_view v ".
 			(!empty($dashboard_id) ? sprintf("WHERE v.dashboard_id = %d ", $dashboard_id) : " ")
 		);
@@ -355,6 +489,7 @@ class CerberusDashboardDAO {
 			$view->id = $rs->fields['id'];
 			$view->name = $rs->fields['name'];
 			$view->dashboard_id = intval($rs->fields['dashboard_id']);
+			$view->columns = unserialize($rs->fields['columns']);
 			$view->renderLimit = intval($rs->fields['num_rows']);
 			$view->renderSortBy = $rs->fields['sort_by'];
 			$view->renderSortAsc = intval($rs->fields['sort_asc']);
@@ -374,7 +509,7 @@ class CerberusDashboardDAO {
 	static function getView($view_id) {
 		$um_db = UserMeetDatabase::getInstance();
 		
-		$sql = sprintf("SELECT v.id, v.name, v.dashboard_id, v.num_rows, v.sort_by, v.sort_asc ".
+		$sql = sprintf("SELECT v.id, v.name, v.dashboard_id, v.columns, v.num_rows, v.sort_by, v.sort_asc ".
 			"FROM dashboard_view v ".
 			"WHERE v.id = %d ",
 			$view_id
@@ -386,6 +521,7 @@ class CerberusDashboardDAO {
 			$view->id = $rs->fields['id'];
 			$view->name = $rs->fields['name'];
 			$view->dashboard_id = intval($rs->fields['dashboard_id']);
+			$view->columns = unserialize($rs->fields['columns']);
 			$view->renderLimit = intval($rs->fields['num_rows']);
 			$view->renderSortBy = $rs->fields['sort_by'];
 			$view->renderSortAsc = intval($rs->fields['sort_asc']);

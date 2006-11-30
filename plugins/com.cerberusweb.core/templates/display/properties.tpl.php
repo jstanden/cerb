@@ -6,11 +6,11 @@
     <tr>
       <td>
       	<b class="green">Status:</b><br>
-      	<select name="">
-      		<option value="">open
-      		<option value="">waiting for reply
-      		<option value="">closed
-      		<option value="">deleted
+      	<select name="status">
+      		<option value="O" {if $ticket->status=='O'}selected{/if}>{$translate->say('status.open')|lower}
+      		<option value="W" {if $ticket->status=='W'}selected{/if}>{$translate->say('status.waiting')|lower}
+      		<option value="C" {if $ticket->status=='C'}selected{/if}>{$translate->say('status.closed')|lower}
+      		<option value="D" {if $ticket->status=='D'}selected{/if}>{$translate->say('status.deleted')|lower}
       	</select>
      	</td>
     </tr>
@@ -27,12 +27,12 @@
 					<td align="center"><label for="priority5"><img src="images/star_red.gif" width="16" height="16" border="0" title="Highest" alt="Highest Priority"></label></td>
 				</tr>
 				<tr>
-					<td align="center"><input id="priority0" type="radio" name="ticket_priority" value="0" checked></td>
-					<td align="center"><input id="priority1" type="radio" name="ticket_priority" value="25" ></td>
-					<td align="center"><input id="priority2" type="radio" name="ticket_priority" value="50" ></td>
-					<td align="center"><input id="priority3" type="radio" name="ticket_priority" value="75" ></td>
-					<td align="center"><input id="priority4" type="radio" name="ticket_priority" value="90" ></td>
-					<td align="center"><input id="priority5" type="radio" name="ticket_priority" value="100" ></td>
+					<td align="center"><input id="priority0" type="radio" name="priority" value="0" {if $ticket->priority==0}checked{/if}></td>
+					<td align="center"><input id="priority1" type="radio" name="priority" value="25" {if $ticket->priority==25}checked{/if}></td>
+					<td align="center"><input id="priority2" type="radio" name="priority" value="50" {if $ticket->priority==50}checked{/if}></td>
+					<td align="center"><input id="priority3" type="radio" name="priority" value="75" {if $ticket->priority==75}checked{/if}></td>
+					<td align="center"><input id="priority4" type="radio" name="priority" value="90" {if $ticket->priority==90}checked{/if}></td>
+					<td align="center"><input id="priority5" type="radio" name="priority" value="100" {if $ticket->priority==100}checked{/if}></td>
 				</tr>
 			</table>      	
      	</td>
@@ -51,21 +51,24 @@
     <tr>
       <td>
       	<b class="green">Mailbox:</b><br>
-      	<select name="">
+      	<select name="mailbox_id">
+      		{foreach from=$mailboxes item=mailbox name=mailboxes}
+      			<option value="{$mailbox->id}" {if $ticket->mailbox_id==$mailbox->id}selected{/if}>{$mailbox->name}
+      		{/foreach}
       	</select>
      	</td>
     </tr>
     <tr>
       <td>
       	<b class="green">Due:</b><br>
-      	<input type="text">
+      	<input name="due" type="text">
 			<a href="javascript:;"><img src="images/icon_calendar.gif" width="16" height="16" border="0" align="absmiddle"></a>
      	</td>
     </tr>
     <tr>
       <td>
       	<b class="green">Subject:</b><br>
-      	<input type="text" value="{$ticket->subject|escape:"htmlall"}">
+      	<input type="text" name="subject" value="{$ticket->subject|escape:"htmlall"}">
      	</td>
     </tr>
   </tbody>

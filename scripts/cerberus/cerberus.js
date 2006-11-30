@@ -3,6 +3,7 @@
 
 function toggleDiv(divName,state) {
 	var div = document.getElementById(divName);
+	if(null == div) return;
 	var currentState = div.style.display;
 	
 	if(null == state) {
@@ -14,6 +15,11 @@ function toggleDiv(divName,state) {
 	} else if (null != state && (state == 'block' || state == 'none')) {
 		div.style.display = state;
 	}
+}
+
+function checkAll(divName) {
+	var div = document.getElementById(divName);
+	if(null == div) return;
 }
 
 var cAjaxCalls = function() {
@@ -39,6 +45,35 @@ var cAjaxCalls = function() {
 				}
 			);	
 		}
+	}
+	
+	this.saveCustomize = function(id) {
+		var div = document.getElementById('customize' + id);
+		if(null == div) return;
+
+		YAHOO.util.Connect.setForm('customize' + id);
+		var cObj = YAHOO.util.Connect.asyncRequest('POST', 'ajax.php', {
+				success: function(o) {
+					var id = o.argument.id;
+					var div = document.getElementById('customize' + id);
+					if(null == div) return;
+					
+					div.innerHTML = '';
+					div.style.display = 'inline';
+					
+					var caller = o.argument.caller;
+					caller.getRefresh(id);
+				},
+				failure: function(o) {},
+				argument:{caller:this,id:id}
+			}
+		);	
+	}
+	
+	this.discard = function(id) {
+		var div = document.getElementById('reply' + id);
+		if(null == div) return;
+		div.innerHTML='';		
 	}
 	
 	this.reply = function(id) {

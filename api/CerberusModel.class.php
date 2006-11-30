@@ -1,5 +1,15 @@
 <?php
 
+class CerberusDashboardViewColumn {
+	public $column;
+	public $name;
+	
+	public function CerberusDashboardViewColumn($column, $name) {
+		$this->column = $column;
+		$this->name = $name;
+	}
+}
+
 class CerberusDashboardView {
 	public $id = 0;
 	public $name = "";
@@ -13,13 +23,33 @@ class CerberusDashboardView {
 	
 	function getTickets() {
 		$tickets = CerberusTicketDAO::searchTickets(
-			array(),
+			$this->params,
 			$this->renderLimit,
 			$this->renderPage,
 			$this->renderSortBy,
 			$this->renderSortAsc
 		);
 		return $tickets;	
+	}
+};
+
+class CerberusSearchCriteria {
+	public $field;
+	public $operator;
+	public $value;
+	
+	/**
+	 * Enter description here...
+	 *
+	 * @param string $field
+	 * @param string $oper
+	 * @param mixed $value
+	 * @return CerberusSearchCriteria
+	 */
+	 public function CerberusSearchCriteria($field,$oper,$value) {
+		$this->field = $field;
+		$this->operator = $oper;
+		$this->value = $value;
 	}
 };
 
@@ -194,6 +224,13 @@ class CerberusMessage {
 	function getContent() {
 		return CerberusTicketDAO::getMessageContent($this->id);
 	}
+
+	// [TODO] Stub for Dan
+	function getAttachments() {
+		$attachments = CerberusTicketDAO::getAttachmentsByMessage($this->id);
+		return $attachments;
+	}
+
 };
 
 class CerberusAddress {

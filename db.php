@@ -79,6 +79,13 @@ $tables['message'] = "
 	content B DEFAULT '' NOTNULL
 ";
 
+$tables['attachment'] = "
+	id I4 DEFAULT 0 NOTNULL PRIMARY,
+	message_id I4 DEFAULT 0 NOTNULL,
+	display_name C(128) DEFAULT '' NOTNULL,
+	filepath C(255) DEFAULT '' NOTNULL
+";
+
 $tables['team'] = "
 	id I4 DEFAULT 0 NOTNULL PRIMARY,
 	name C(32) DEFAULT '' NOTNULL
@@ -98,6 +105,7 @@ $tables['dashboard_view'] = "
 	id I4 DEFAULT 0 NOTNULL PRIMARY,
 	dashboard_id I4 DEFAULT 0 NOTNULL,
 	name C(32) DEFAULT '' NOTNULL,
+	columns B,
 	sort_by C(32) DEFAULT '' NOTNULL,
 	sort_asc I1 DEFAULT 1 NOTNULL,
 	num_rows I2 DEFAULT 10 NOTNULL

@@ -34,10 +34,62 @@ class CerberusApplication {
 	 * @return a unique ticket mask as a string
 	 */
 	static function generateTicketMask() {
-		return "XXX-XXXXX-XXX";
+		$letters = "ABCDEFGHIJKLMNPQRSTUVWXYZ";
+		$numbers = "1234567890";
+		$pattern = "LLL-NNNNN-NNN";
+//		$pattern = "Y-M-D-LLLL";
+
+		do {		
+			// [JAS]: Seed randomness
+			list($usec, $sec) = explode(' ', microtime());
+			srand((float) $sec + ((float) $usec * 100000));
+			
+			$mask = "";
+			$bytes = preg_split('//', $pattern, -1, PREG_SPLIT_NO_EMPTY);
+			
+			if(is_array($bytes))
+			foreach($bytes as $byte) {
+				switch(strtoupper($byte)) {
+					case 'L':
+						$mask .= substr($letters,rand(0,strlen($letters)-1),1);
+						break;
+					case 'N':
+						$mask .= substr($numbers,rand(0,strlen($numbers)-1),1);
+						break;
+					case 'Y':
+						$mask .= date('Y');
+						break;
+					case 'M':
+						$mask .= date('n');
+						break;
+					case 'D':
+						$mask .= date('j');
+						break;
+					default:
+						$mask .= $byte;
+						break;
+				}
+			}
+		} while(null != CerberusTicketDAO::getTicketByMask($mask));
+		
+//		echo "Generated unique mask: ",$mask,"<BR>";
+		
+		return $mask;
 	}
 	
 	// ***************** DUMMY
+	static function getDashboardViewColumns() {
+		return array(
+			new CerberusDashboardViewColumn('t.mask','ID'),
+			new CerberusDashboardViewColumn('t.status','Status'),
+			new CerberusDashboardViewColumn('t.priority','Priority'),
+			new CerberusDashboardViewColumn('t.last_wrote','Last Wrote'),
+			new CerberusDashboardViewColumn('t.first_wrote','First Wrote'),
+			new CerberusDashboardViewColumn('t.created_date','Created Date'),
+			new CerberusDashboardViewColumn('t.updated_date','Updated Date'),
+		);
+	}
+	
 	static function getTeamList() {
 		$um_db = UserMeetDatabase::getInstance();
 

@@ -8,18 +8,29 @@
 		</td>
 	</tr>
 </table>
-<div id="customize{$view->id}"></div>
+<form id="customize{$view->id}" action="#" onsubmit="return false;"></form>
 <table cellpadding="0" cellspacing="0" border="0" width="100%" class="tableRowBg">
 
 	{* Column Headers *}
 	<tr class="tableTh">
 		<th style="text-align:center"><a href="#">all</a></th>
-		<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t.id');">ID</a></th>
-		<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t.subject');">Status</a></th>
-		<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t.priority');">Priority</a></th>
-		<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t.last_wrote');">Wrote Last</a></th>
-		<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t.created_date');">Created</a></th>
-		<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t.updated_date');">Updated</a></th>
+		{foreach from=$view->columns item=header name=headers}
+			{if $header=="t.mask"}
+			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t.mask');">ID</a></th>
+			{elseif $header=="t.status"}
+			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t.status');">Status</a></th>
+			{elseif $header=="t.priority"}
+			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t.priority');">Priority</a></th>
+			{elseif $header=="t.last_wrote"}
+			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t.last_wrote');">Wrote Last</a></th>
+			{elseif $header=="t.first_wrote"}
+			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t.first_wrote');">Wrote First</a></th>
+			{elseif $header=="t.created_date"}
+			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t.created_date');">Created</a></th>
+			{elseif $header=="t.updated_date"}
+			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t.updated_date');">Updated</a></th>
+			{/if}
+		{/foreach}
 	</tr>
 
 	{* Column Data *}
@@ -29,18 +40,53 @@
 	{foreach from=$tickets item=ticket key=idx name=tickets}
 		<tr class="{if $smarty.foreach.tickets.iteration % 2}tableRowBg{else}tableRowAltBg{/if}">
 			<td align="center" rowspan="2"><input type="checkbox" name="ticket_id[]" value=""></td>
-			<td colspan="6"><a href="index.php?c=core.module.dashboard&a=viewticket&id={$ticket->id}" class="ticketLink"><b>{$ticket->subject}</b></a></td>
+			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}"><a href="index.php?c=core.module.dashboard&a=viewticket&id={$ticket->id}" class="ticketLink"><b>{$ticket->subject}</b></a></td>
 		</tr>
 		<tr class="{if $smarty.foreach.tickets.iteration % 2}tableRowBg{else}tableRowAltBg{/if}">
+		{foreach from=$view->columns item=column name=columns}
+			{if $column=="t.mask"}
 			<td><a href="index.php?c=core.module.dashboard&a=viewticket&id={$ticket->id}" style="font-size:90%">{$ticket->mask}</a></td>
-			<td>{$ticket->status}</td>
-			<td><img src="images/star_alpha.gif" title="{$ticket->priority}"></td>
+			{elseif $column=="t.status"}
+			<td>
+				{if $ticket->status=='O'}
+					{$translate->say('status.open')|lower}
+				{elseif $ticket->status=='W'}
+					{$translate->say('status.waiting')|lower}
+				{elseif $ticket->status=='C'}
+					{$translate->say('status.closed')|lower}
+				{elseif $ticket->status=='D'}
+					{$translate->say('status.deleted')|lower}
+				{/if}
+			</td>
+			{elseif $column=="t.priority"}
+			<td>
+				{if $ticket->priority == 100}
+					<img src="images/star_red.gif" title="{$ticket->priority}">
+				{elseif $ticket->priority >= 90}
+					<img src="images/star_yellow.gif" title="{$ticket->priority}">
+				{elseif $ticket->priority >= 75}
+					<img src="images/star_green.gif" title="{$ticket->priority}">
+				{elseif $ticket->priority >= 50}
+					<img src="images/star_blue.gif" title="{$ticket->priority}">
+				{elseif $ticket->priority >= 25}
+					<img src="images/star_grey.gif" title="{$ticket->priority}">
+				{else}
+					<img src="images/star_alpha.gif" title="{$ticket->priority}">
+				{/if}
+			</td>
+			{elseif $column=="t.last_wrote"}
 			<td><a href="#" style="font-size:90%">{$ticket->last_wrote}</a></td>
-			<td>{$ticket->created_date}</td>
-			<td>{$ticket->updated_date}</td>
+			{elseif $column=="t.first_wrote"}
+			<td><a href="#" style="font-size:90%">{$ticket->first_wrote}</a></td>
+			{elseif $column=="t.created_date"}
+			<td>{$ticket->created_date|date_format}</td>
+			{elseif $column=="t.updated_date"}
+			<td>{$ticket->updated_date|date_format}</td>
+			{/if}
+		{/foreach}
 		</tr>
 		<tr>
-			<td class="tableBg" colspan="7"></td>
+			<td class="tableBg" colspan="{math equation="x+1" x=$smarty.foreach.headers.total}"></td>
 		</tr>
 	{/foreach}
 	

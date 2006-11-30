@@ -23,6 +23,9 @@ if(empty($visit))
 @$c = (isset($_REQUEST['c']) ? $_REQUEST['c'] : null);
 @$a = (isset($_REQUEST['a']) ? $_REQUEST['a'] : null);
 
+$tpl->assign('c',$c);
+//$tpl->assign('a',$a);
+
 if(!empty($c) && !empty($a)) {
 	// [JAS]: [TODO] Split $c and look for an ID and an instance
 	$mfTarget = UserMeetPlatform::getExtension($c);

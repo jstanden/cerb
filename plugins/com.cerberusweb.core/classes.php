@@ -27,6 +27,19 @@ class ChDashboardModule extends CerberusModuleExtension {
 		
 		// [JAS]: [TODO] This needs to limit by the selected dashboard
 		$views = CerberusDashboardDAO::getViews(); // getViews($dashboard_id)
+		$views[11]->params = array( // params
+//				new CerberusSearchCriteria('t.status','!=','O'),
+				new CerberusSearchCriteria('t.priority','=','0'),
+//				new CerberusSearchCriteria('t.status','in',array('C','W')),
+				new CerberusSearchCriteria('t.mailbox_id','in',array(7,0)),
+			);
+		$views[12]->params = array( // params
+//				new CerberusSearchCriteria('t.status','!=','O'),
+//				new CerberusSearchCriteria('t.priority','!=','0'),
+				new CerberusSearchCriteria('t.status','in',array('O','C','W')),
+//				new CerberusSearchCriteria('t.mailbox_id','in',array(7,0)),
+			);
+
 		$tpl->assign('views', $views);
 		
 		$teams = CerberusApplication::getTeamList();
@@ -110,8 +123,36 @@ class ChDashboardModule extends CerberusModuleExtension {
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		$tpl->assign('id',$id);
 
+		$view = CerberusDashboardDAO::getView($id);
+		$tpl->assign('view',$view);
+		
+		$optColumns = CerberusApplication::getDashboardViewColumns();
+		$tpl->assign('optColumns',$optColumns);
+		
 		$tpl->cache_lifetime = "0";
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/dashboards/rpc/customize_view.tpl.php');
+	}
+	
+	function saveCustomize() {
+		@$id = intval($_REQUEST['id']);
+		@$name = $_REQUEST['name'];
+		@$num_rows = intval($_REQUEST['num_rows']);
+		@$columns = $_REQUEST['columns'];
+		
+		// [JAS]: Clear any empty columns
+		if(is_array($columns))
+		foreach($columns as $k => $v) {
+			if(empty($v))
+				unset($columns[$k]);
+		}
+		
+		$fields = array(
+			'name' => $name,
+			'columns' => serialize($columns),
+			'num_rows' => $num_rows
+		);
+		
+		CerberusDashboardDAO::updateView($id,$fields);
 	}
 	
 	function searchview() {
@@ -148,6 +189,9 @@ class ChDisplayModule extends CerberusModuleExtension {
 		$ticket = CerberusTicketDAO::getTicket($id);
 		$tpl->assign('ticket', $ticket);
 
+		$mailboxes = CerberusApplication::getMailboxList();
+		$tpl->assign('mailboxes', $mailboxes);
+		
 		$display_module_manifests = UserMeetPlatform::getExtensions("com.cerberusweb.display.module");
 		$display_modules = array();
 		
@@ -169,6 +213,9 @@ class ChDisplayModule extends CerberusModuleExtension {
 
 		$message = CerberusTicketDAO::getMessage($id);
 		$tpl->assign('message',$message);
+		
+		$ticket = CerberusTicketDAO::getTicket($message->ticket_id);
+		$tpl->assign('ticket',$ticket);
 		
 		$tpl->cache_lifetime = "0";
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/rpc/reply.tpl.php');
@@ -194,6 +241,24 @@ class ChDisplayModule extends CerberusModuleExtension {
 
 		$tpl->cache_lifetime = "0";
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/rpc/comment.tpl.php');
+	}
+	
+	function sendReply() {
+		@$id = $_REQUEST['id']; // message id
+		@$cc = $_REQUEST['cc'];
+		@$bcc = $_REQUEST['bcc'];
+		@$content = $_REQUEST['content'];
+		@$priority = $_REQUEST['priority'];
+		@$status = $_REQUEST['status'];
+		
+		$message = CerberusTicketDAO::getMessage($id);
+		$ticket_id = $message->ticket_id;
+		$ticket = CerberusTicketDAO::getTicket($ticket_id);
+		
+		CerberusTicketDAO::createMessage($ticket_id,gmmktime(),31,array(),$content);
+		
+		$_REQUEST['id'] = $ticket_id;
+		CerberusApplication::setActiveModule($this->id);
 	}
 	
 };

@@ -75,15 +75,15 @@
 		</extension>
 
 		<extension point="com.cerberusweb.display.module">
-			<id>core.display.module.log</id>
-			<name>Ticket Log Display Module</name>
+			<id>core.display.module.workflow</id>
+			<name>Ticket Workflow Display Module</name>
 			<class>
 				<file>classes.php</file>
-				<name>ChDisplayTicketLog</name>
+				<name>ChDisplayTicketWorkflow</name>
 			</class>
 			<params>
-				<param key="title" value="Audit Log" />
-				<param key="icon" value="images/document_info.gif" />
+				<param key="title" value="Workflow" />
+				<param key="icon" value="images/bookmark.gif" />
 			</params>
 		</extension>
 
@@ -101,15 +101,26 @@
 		</extension>
 		
 		<extension point="com.cerberusweb.display.module">
-			<id>core.display.module.workflow</id>
-			<name>Ticket Workflow Display Module</name>
+			<id>core.display.module.log</id>
+			<name>Ticket Log Display Module</name>
 			<class>
 				<file>classes.php</file>
-				<name>ChDisplayTicketWorkflow</name>
+				<name>ChDisplayTicketLog</name>
 			</class>
 			<params>
-				<param key="title" value="Workflow" />
-				<param key="icon" value="images/bookmark.gif" />
+				<param key="title" value="Audit Log" />
+				<param key="icon" value="images/document_info.gif" />
+			</params>
+		</extension>
+
+		<extension point="com.cerberusweb.display.module">
+			<id>core.display.module.conversation</id>
+			<name>Ticket Conversation Display Module</name>
+			<class>
+				<file>classes.php</file>
+				<name>ChDisplayTicketConversation</name>
+			</class>
+			<params>
 			</params>
 		</extension>
 		
@@ -123,17 +134,6 @@
 			<params>
 				<param key="title" value="Custom Fields" />
 				<param key="icon" value="images/form_green.gif" />
-			</params>
-		</extension>
-		
-		<extension point="com.cerberusweb.display.module">
-			<id>core.display.module.conversation</id>
-			<name>Ticket Conversation Display Module</name>
-			<class>
-				<file>classes.php</file>
-				<name>ChDisplayTicketConversation</name>
-			</class>
-			<params>
 			</params>
 		</extension>
 		

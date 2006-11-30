@@ -9,8 +9,8 @@
       {if isset($message->headers.to)}<b>To:</b> {$message->headers.to|escape:"htmlall"|nl2br}<br>{/if}
       {if isset($message->headers.subject)}<b>Subject:</b> {$message->headers.subject|escape:"htmlall"|nl2br}<br>{/if}
       {if isset($message->headers.date)}<b>Date:</b> {$message->headers.date|escape:"htmlall"|nl2br}<br>{/if}
-      
-      {* // [TODO] Move this to an Ajax packet for full headers
+
+      {* // [TODO] Move this to an Ajax packet for full headers 
       	{if is_array($message->headers)}
       	{foreach from=$message->headers item=headerValue key=headerKey}
       		<b>{$headerKey|capitalize}:</b> 
@@ -23,7 +23,8 @@
       		{/if}
       	{/foreach}
       	{/if}
-      *}
+      	*}
+      
       	<br>
       	{$message->getContent()|trim|nl2br}
       	<br>
@@ -32,12 +33,12 @@
       	[ <a href="javascript:;" onclick="ajax.comment('{$message->id}');">Comment</a> ] 
       	[ <a href="#">More Options...</a> ] 
       	<br>
-      	{*<b>Attachments: </b> none<br>*}
+      	<b>Attachments: </b> none<br>
       </td>
     </tr>
   </tbody>
 </table>
-<div id="reply{$message->id}"></div>
+<form id="reply{$message->id}" action="index.php" method="POST" enctype="multipart/form-data"></form>
 {if !$smarty.foreach.messages.last}<br>{/if}
 {/foreach}
 {else}
