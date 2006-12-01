@@ -1,4 +1,4 @@
-<table cellpadding="2" cellspacing="0" width="250" border="0" class="tableGreen">
+<table cellpadding="2" cellspacing="0" width="200" border="0" class="tableGreen">
 	<tr>
 		<th class="tableThGreen"><img src="images/find.gif"> Search Criteria</th>
 	</tr>

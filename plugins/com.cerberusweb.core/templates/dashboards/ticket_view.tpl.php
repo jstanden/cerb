@@ -45,7 +45,7 @@
 		<tr class="{if $smarty.foreach.tickets.iteration % 2}tableRowBg{else}tableRowAltBg{/if}">
 		{foreach from=$view->columns item=column name=columns}
 			{if $column=="t.mask"}
-			<td><a href="index.php?c=core.module.dashboard&a=viewticket&id={$ticket->id}" style="font-size:90%">{$ticket->mask}</a></td>
+			<td><a href="index.php?c=core.module.dashboard&a=viewticket&id={$ticket->id}">{$ticket->mask}</a></td>
 			{elseif $column=="t.status"}
 			<td>
 				{if $ticket->status=='O'}
@@ -75,9 +75,9 @@
 				{/if}
 			</td>
 			{elseif $column=="t.last_wrote"}
-			<td><a href="#" style="font-size:90%">{$ticket->last_wrote}</a></td>
+			<td><a href="#">{$ticket->last_wrote}</a></td>
 			{elseif $column=="t.first_wrote"}
-			<td><a href="#" style="font-size:90%">{$ticket->first_wrote}</a></td>
+			<td><a href="#">{$ticket->first_wrote}</a></td>
 			{elseif $column=="t.created_date"}
 			<td>{$ticket->created_date|date_format}</td>
 			{elseif $column=="t.updated_date"}

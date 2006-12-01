@@ -246,28 +246,6 @@ class ChDisplayModule extends CerberusModuleExtension {
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/rpc/reply.tpl.php');
 	}
 	
-	function forward() {
-		@$id = $_REQUEST['id'];
-
-		$tpl = UserMeetTemplateManager::getInstance();
-		$tpl->assign('path', dirname(__FILE__) . '/templates/');
-		$tpl->assign('id',$id);
-
-		$tpl->cache_lifetime = "0";
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/rpc/forward.tpl.php');
-	}
-	
-	function comment() {
-		@$id = $_REQUEST['id'];
-
-		$tpl = UserMeetTemplateManager::getInstance();
-		$tpl->assign('path', dirname(__FILE__) . '/templates/');
-		$tpl->assign('id',$id);
-
-		$tpl->cache_lifetime = "0";
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/rpc/comment.tpl.php');
-	}
-	
 	// TODO: this needs to also have an agent_id passed to it, to identify the agent making the reply
 	function sendReply() {
 		require_once(UM_PATH . '/libs/pear/Mail.php');
@@ -320,6 +298,62 @@ class ChDisplayModule extends CerberusModuleExtension {
 //		$headers['From'] = $agent_address->personal . ' <' . $agent_address->email . '>';
 //		CerberusTicketDAO::createMessage($ticket_id,gmmktime(),$agent_id,$headers,$content);
 		CerberusTicketDAO::createMessage($ticket_id,gmmktime(),1,$headers,$content);
+		
+		$_REQUEST['id'] = $ticket_id;
+		CerberusApplication::setActiveModule($this->id);
+	}
+	
+	function forward() {
+		@$id = $_REQUEST['id'];
+
+		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		$tpl->assign('id',$id);
+		
+		$message = CerberusTicketDAO::getMessage($id);
+		$tpl->assign('message',$message);
+		
+		$ticket = CerberusTicketDAO::getTicket($message->ticket_id);
+		$tpl->assign('ticket',$ticket);
+		
+		$tpl->cache_lifetime = "0";
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/rpc/forward.tpl.php');
+	}
+	
+	function sendForward() {
+		@$id = $_REQUEST['id']; // message id
+		
+		$message = CerberusTicketDAO::getMessage($id);
+		$ticket_id = $message->ticket_id;
+		$ticket = CerberusTicketDAO::getTicket($ticket_id);
+		
+		$_REQUEST['id'] = $ticket_id;
+		CerberusApplication::setActiveModule($this->id);
+	}
+	
+	function comment() {
+		@$id = $_REQUEST['id'];
+
+		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		$tpl->assign('id',$id);
+
+		$message = CerberusTicketDAO::getMessage($id);
+		$tpl->assign('message',$message);
+		
+		$ticket = CerberusTicketDAO::getTicket($message->ticket_id);
+		$tpl->assign('ticket',$ticket);
+		
+		$tpl->cache_lifetime = "0";
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/rpc/comment.tpl.php');
+	}
+	
+	function sendComment() {
+		@$id = $_REQUEST['id']; // message id
+		
+		$message = CerberusTicketDAO::getMessage($id);
+		$ticket_id = $message->ticket_id;
+		$ticket = CerberusTicketDAO::getTicket($ticket_id);
 		
 		$_REQUEST['id'] = $ticket_id;
 		CerberusApplication::setActiveModule($this->id);
