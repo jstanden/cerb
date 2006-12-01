@@ -135,7 +135,10 @@ class CerberusParser {
 		}
 
 		if(!empty($attachments)) {
-			CerberusTicketDAO::createMessage($id,$iDate,$fromAddressId,$headers,$attachments['plaintext']);
+			$message_id = CerberusTicketDAO::createMessage($id,$iDate,$fromAddressId,$headers,$attachments['plaintext']);
+		}
+		foreach ($attachments['files'] as $filepath => $filename) {
+			CerberusTicketDAO::createAttachment($message_id, $filename, $filepath);
 		}
 			
 		$ticket = CerberusTicketDAO::getTicket($id);
@@ -172,8 +175,8 @@ class CerberusParser {
 			$timestamp .= $usec . '.';
 			if (false !== file_put_contents(UM_ATTACHMENT_SAVE_PATH . $timestamp . $fileName, $part->body)) {
 				$attachments['files'][$timestamp.$fileName] = $fileName;
-				$attachments['plaintext'] .= ' Saved file <a href="' . UM_ATTACHMENT_ACCESS_PATH . $timestamp . $fileName . '">'
-											. (empty($fileName) ? 'Unnamed file' : $fileName) . '</a>. ';
+//				$attachments['plaintext'] .= ' Saved file <a href="' . UM_ATTACHMENT_ACCESS_PATH . $timestamp . $fileName . '">'
+//											. (empty($fileName) ? 'Unnamed file' : $fileName) . '</a>. ';
 			}
 		}
 	}
@@ -225,7 +228,11 @@ class CerberusMessage {
 		return CerberusTicketDAO::getMessageContent($this->id);
 	}
 
-	// [TODO] Stub for Dan
+	/**
+	 * returns an array of the message's attachments
+	 *
+	 * @return CerberusAttachment[]
+	 */
 	function getAttachments() {
 		$attachments = CerberusTicketDAO::getAttachmentsByMessage($this->id);
 		return $attachments;
@@ -239,6 +246,24 @@ class CerberusAddress {
 	public $personal;
 	
 	function CerberusAddress() {}
+};
+
+class CerberusAttachment {
+	public $id;
+	public $message_id;
+	public $display_name;
+	public $filepath;
+	
+	function CerberusAttachment() {}
+};
+
+class CerberusMailbox {
+	public $id;
+	public $name;
+	public $reply_address_id;
+	public $display_name;
+	
+	function CerberusMailbox() {}
 };
 
 ?>

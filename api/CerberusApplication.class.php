@@ -111,20 +111,27 @@ class CerberusApplication {
 		return $teams;
 	}
 
+	/**
+	 * Returns a list of all known mailboxes, sorted by name
+	 *
+	 * @return CerberusMailbox[]
+	 */
 	static function getMailboxList() {
 		$um_db = UserMeetDatabase::getInstance();
 
 		$mailboxes = array();
 		
-		$sql = sprintf("SELECT m.id , m.name ".
+		$sql = sprintf("SELECT m.id , m.name, m.reply_address_id, m.diaplay_name".
 			"FROM mailbox m ".
 			"ORDER BY m.name ASC"
 		);
 		$rs = $um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
 		while(!$rs->EOF) {
-			$mailbox = new stdClass();
+			$mailbox = new CerberusMailbox();
 			$mailbox->id = intval($rs->fields['id']);
 			$mailbox->name = $rs->fields['name'];
+			$mailbox->reply_address_id = $rs->fields['reply_address_id'];
+			$mailbox->display_name = $$rs->fields['display_name'];
 			$mailboxes[$mailbox->id] = $mailbox;
 			$rs->MoveNext();
 		}
@@ -145,13 +152,23 @@ class CerberusApplication {
 		return $newId;
 	}
 	
-	static function createMailbox($name) {
+	/**
+	 * creates a new mailbox in the database
+	 *
+	 * @param string $name
+	 * @param integer $reply_address_id
+	 * @param string $display_name
+	 * @return integer
+	 */
+	static function createMailbox($name, $reply_address_id, $display_name = '') {
 		$um_db = UserMeetDatabase::getInstance();
 		$newId = $um_db->GenID('generic_seq');
 		
-		$sql = sprintf("INSERT INTO mailbox (id, name) VALUES (%d,%s)",
+		$sql = sprintf("INSERT INTO mailbox (id, name, reply_address_id, display_name) VALUES (%d,%s,%d,%s)",
 			$newId,
-			$um_db->qstr($name)
+			$um_db->qstr($name),
+			$reply_address_id,
+			$um_db->qstr($display_name)
 		);
 		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
 		

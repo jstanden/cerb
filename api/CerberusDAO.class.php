@@ -72,18 +72,72 @@ class CerberusTicketDAO {
 		return null;
 	}
 	
-	// [JAS]: [TODO] Stub for Dan
+	/**
+	 * Adds an attachment link to the database (this is informational only, it does not contain
+	 * the actual attachment)
+	 *
+	 * @param integer $message_id
+	 * @param string $display_name
+	 * @param string $filepath
+	 * @return integer
+	 */
 	static function createAttachment($message_id, $display_name, $filepath) {
 		$um_db = UserMeetDatabase::getInstance();
 		$newId = $um_db->GenID('attachment_seq');
 		
+		$sql = sprintf("INSERT INTO attachment (id, message_id, display_name, filepath)".
+			"VALUES (%d,%d,%s,%s)",
+			$newId,
+			$message_id,
+			$um_db->qstr($display_name),
+			$um_db->qstr($filepath)
+		);
+		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		return $newId;
 	}
 	
-	// [JAS]: [TODO] Stub for Dan
+	/**
+	 * returns an array of CerberusAttachments that
+	 * correspond to the supplied message id.
+	 *
+	 * @param integer $id
+	 * @return CerberusAttachment[]
+	 */
 	static function getAttachmentsByMessage($id) {
-		return array();
+		$um_db = UserMeetDatabase::getInstance();
+		
+		$sql = sprintf("SELECT a.id, a.message_id, a.display_name, a.filepath ".
+			"FROM attachment a WHERE a.message_id = %d",
+			$id
+		);
+		$rs = $um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		$attachments = array();
+		while(!$rs->EOF) {
+			$attachment = new CerberusAttachment();
+			$attachment->id = intval($rs->fields['id']);
+			$attachment->message_id = intval($rs->fields['message_id']);
+			$attachment->display_name = $rs->fields['display_name'];
+			$attachment->filepath = $rs->fields['filepath'];
+			$attachments[] = $attachment;
+			$rs->MoveNext();
+		}
+
+		return $attachments;
 	}
 	
+	/**
+	 * creates a new ticket object in the database
+	 *
+	 * @param string $mask
+	 * @param string $subject
+	 * @param string $status
+	 * @param integer $mailbox_id
+	 * @param string $last_wrote
+	 * @param integer $created_date
+	 * @return integer
+	 */
 	static function createTicket($mask, $subject, $status, $mailbox_id, $last_wrote, $created_date) {
 		$um_db = UserMeetDatabase::getInstance();
 		$newId = $um_db->GenID('ticket_seq');

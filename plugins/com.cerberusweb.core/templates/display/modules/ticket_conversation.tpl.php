@@ -33,7 +33,11 @@
       	[ <a href="javascript:;" onclick="ajax.comment('{$message->id}');">Comment</a> ] 
       	[ <a href="#">More Options...</a> ] 
       	<br>
-      	<b>Attachments: </b> none<br>
+      	<b>Attachments: </b>
+      		{foreach from=$message->getAttachments() item=attachment name=attachments}
+				<a href="{$smarty.const.UM_ATTACHMENT_ACCESS_PATH}{$attachment->filepath}">{$attachment->display_name}</a>
+				{if !$smarty.foreach.requesters.last}, {/if}
+			{/foreach}<br>
       </td>
     </tr>
   </tbody>

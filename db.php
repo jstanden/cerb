@@ -93,7 +93,9 @@ $tables['team'] = "
 
 $tables['mailbox'] = "
 	id I4 DEFAULT 0 NOTNULL PRIMARY,
-	name C(32) DEFAULT '' NOTNULL
+	name C(32) DEFAULT '' NOTNULL,
+	reply_address_id I4 DEFAULT 0 NOTNULL,
+	display_name C(32) DEFAULT ''
 ";
 
 $tables['dashboard'] = "
