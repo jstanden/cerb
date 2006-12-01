@@ -162,6 +162,31 @@ class ChDashboardModule extends CerberusModuleExtension {
 	
 };
 
+class ChConfigurationModule extends CerberusModuleExtension  {
+	function ChConfigurationModule($manifest) {
+		$this->CerberusModuleExtension($manifest);
+	}
+	
+	function isVisible() {
+		$session = UserMeetSessionManager::getInstance();
+		$visit = $session->getVisit();
+		
+		if(empty($visit)) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+	
+	function render() {
+		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/index.tpl.php');
+	}
+}
+
 class ChDisplayModule extends CerberusModuleExtension {
 	function ChDisplayModule($manifest) {
 		$this->CerberusModuleExtension($manifest);
@@ -278,14 +303,15 @@ class ChDisplayModule extends CerberusModuleExtension {
 		$headers = array();
 		// TODO: pull info from mailbox instead of hard-coding it.  (may want to do this such that the display_name is just a personal on a mailbox address...)
 //		$headers['From']		= !empty($mailbox->display_name)?'"'.$mailbox->display_name.'" <'.needafunction::getAddress($mailbox->reply_address_id)->email.'>':needafunction::getAddress($mailbox->reply_address_id)->email;
-		$headers['From']		= 'fakeaddress@webgroupmedia.com';
-		$headers['To']			= $sTo;
-		$headers['CC']			= $cc;
-		$headers['BCC']			= $bcc;
-		$headers['Date']		= gmdate(r);
-		$headers['Subject']		= $ticket->subject;
-		$headers['References']	= $message->headers['message-id'];
-		$headers['In-Reply-To']	= $message->headers['message-id'];
+		$headers['from']		= 'pop1@cerberus6.webgroupmedia.com';
+		$headers['to']			= $sTo;
+		$headers['cc']			= $cc;
+		$headers['bcc']			= $bcc;
+		$headers['date']		= gmdate(r);
+		$headers['message-id'] = CerberusApplication::generateMessageId();
+		$headers['subject']		= $ticket->subject;
+		$headers['references']	= $message->headers['message-id'];
+		$headers['in-reply-to']	= $message->headers['message-id'];
 		
 		$mail_result =& $mailer->send($sRCPT, $headers, $content);
 		if ($mail_result !== true) die("Error message was: " . $mail_result->getMessage());
@@ -382,7 +408,11 @@ class ChTeamworkModule extends CerberusModuleExtension {
 	function render() {
 		$tpl = UserMeetTemplateManager::getInstance();
 		$tpl->cache_lifetime = "0";
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/teamwork.tpl.php');
+		
+		$teams = CerberusApplication::getTeamList();
+		$tpl->assign('teams', $teams);		
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/teamwork/index.tpl.php');
 	}
 	
 	function getLink() {
@@ -407,20 +437,62 @@ class ChSearchModule extends CerberusModuleExtension {
 		} else {
 			return true;
 		}
-
-		return true;
 	}
 	
 	function render() {
 		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		$tpl->cache_lifetime = "0";
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/search.tpl.php');
+
+		$params = array(
+			new CerberusSearchCriteria('t.status','in',array('O')),
+			new CerberusSearchCriteria('t.priority','!=',0),
+		);
+		$tpl->assign('params', $params);
+		
+		$search = CerberusTicketDAO::searchTickets(
+			$params,
+			50,
+			0,
+			't.updated_date',
+			false
+		);
+		$tpl->assign('search', $search[0]);
+		$tpl->assign('total', $search[1]);
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/search/index.tpl.php');
 	}
 	
 	function getLink() {
 		return "?c=".$this->id."&a=click";
 	}
 	
+}
+
+class ChPreferencesModule extends CerberusModuleExtension {
+	function ChPreferencesModule($manifest) {
+		$this->CerberusModuleExtension($manifest);
+	}
+	
+	function isVisible() {
+		// check login
+		$session = UserMeetSessionManager::getInstance();
+		$visit = $session->getVisit();
+		
+		if(empty($visit)) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+	
+	function render() {
+		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		$tpl->cache_lifetime = "0";
+
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/preferences/index.tpl.php');
+	}
 }
 
 class ChDisplayTicketHistory extends CerberusDisplayModuleExtension {

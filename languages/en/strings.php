@@ -15,11 +15,13 @@ $language = array(
 	'common.search' => 'search',
 	'common.ticket' => 'ticket',
 
+	'header.history' => 'history',
 	'header.last_viewed' => 'last viewed',
 	'header.my_flagged_tickets' => 'My Flagged Tickets',
 	'header.my_suggested_tickets' => 'My Suggested Tickets',
 	'header.no_module' => 'No module selected.',
 	'header.not_signed_in' => 'Not signed in',
+	'header.preferences' => 'preferences',
 	'header.signed_in' => 'Signed in as <b>%s</b>',
 	
 	'login.signoff' => 'Sign off',

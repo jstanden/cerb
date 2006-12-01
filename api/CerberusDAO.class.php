@@ -72,6 +72,25 @@ class CerberusTicketDAO {
 		return null;
 	}
 	
+	static function getTicketByMessageId($message_id) {
+		$um_db = UserMeetDatabase::getInstance();
+		
+		$sql = sprintf("SELECT t.id ".
+			"FROM ticket t ".
+			"INNER JOIN message m ON (t.id=m.ticket_id) ".
+			"WHERE m.message_id = %s",
+			$um_db->qstr($message_id)
+		);
+		$rs = $um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		if(!$rs->EOF) {
+			$ticket_id = intval($rs->fields['id']);
+			return $ticket_id;
+		}
+		
+		return null;
+	}
+	
 	/**
 	 * Adds an attachment link to the database (this is informational only, it does not contain
 	 * the actual attachment)
@@ -176,12 +195,13 @@ class CerberusTicketDAO {
 //			}
 //		}
 
-		$sql = sprintf("INSERT INTO message (id,ticket_id,created_date,address_id,headers,content) ".
-			"VALUES (%d,%d,%d,%d,%s,%s)",
+		$sql = sprintf("INSERT INTO message (id,ticket_id,created_date,address_id,message_id,headers,content) ".
+			"VALUES (%d,%d,%d,%d,%s,%s,%s)",
 				$newId,
 				$ticket_id,
 				$created_date,
 				$address_id,
+				((isset($headers['message-id'])) ? $um_db->qstr($headers['message-id']) : "''"),
 				$um_db->qstr($sHeaders),
 				$um_db->qstr($content)
 		);
@@ -338,7 +358,7 @@ class CerberusTicketDAO {
 		$um_db = UserMeetDatabase::getInstance();
 		$messages = array();
 		
-		$sql = sprintf("SELECT m.id , m.ticket_id, m.created_date, m.address_id, m.headers ".
+		$sql = sprintf("SELECT m.id , m.ticket_id, m.created_date, m.address_id, m.message_id, m.headers ".
 			"FROM message m ".
 			"WHERE m.ticket_id = %d ".
 			"ORDER BY m.created_date ASC ",
@@ -351,6 +371,7 @@ class CerberusTicketDAO {
 			$message->ticket_id = intval($rs->fields['ticket_id']);
 			$message->created_date = intval($rs->fields['created_date']);
 			$message->address_id = intval($rs->fields['address_id']);
+			$message->message_id = $rs->fields['message_id'];
 			
 			$headers = unserialize($rs->fields['headers']);
 			$message->headers = $headers;
@@ -376,7 +397,7 @@ class CerberusTicketDAO {
 		$um_db = UserMeetDatabase::getInstance();
 		$message = null;
 		
-		$sql = sprintf("SELECT m.id , m.ticket_id, m.created_date, m.address_id, m.headers ".
+		$sql = sprintf("SELECT m.id , m.ticket_id, m.created_date, m.address_id, m.message_id, m.headers ".
 			"FROM message m ".
 			"WHERE m.id = %d ".
 			"ORDER BY m.created_date ASC ",
@@ -389,6 +410,7 @@ class CerberusTicketDAO {
 			$message->ticket_id = intval($rs->fields['ticket_id']);
 			$message->created_date = intval($rs->fields['created_date']);
 			$message->address_id = intval($rs->fields['address_id']);
+			$message->message_id = $rs->fields['message_id'];
 			
 			$headers = unserialize($rs->fields['headers']);
 			$message->headers = $headers;
@@ -450,13 +472,9 @@ class CerberusTicketDAO {
 	
 	static function createRequester($address_id,$ticket_id) {
 		$um_db = UserMeetDatabase::getInstance();
-
-		$um_db->Replace("requester",array("address_id"=>$address_id,"ticket_id"=>$ticket_id),array("address_id","ticket_id")) 
-			or die(__CLASS__ . ':' . $um_db->ErrorMsg());;
-		
+		$um_db->Replace("requester",array("address_id"=>$address_id,"ticket_id"=>$ticket_id),array("address_id","ticket_id")); 
 		return true;
 	}
-
 	
 };
 

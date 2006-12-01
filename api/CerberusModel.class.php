@@ -118,7 +118,20 @@ class CerberusParser {
 			$toAddressId = CerberusContactDAO::createAddress($toAddress,$toPersonal);
 		}
 		
-		$id = CerberusTicketDAO::createTicket($sMask,$sSubject,CerberusTicketStatus::OPEN,1,$fromAddress,$iDate);
+		$sReferences = @$headers['references'];
+		$sInReplyTo = @$headers['in-reply-to'];
+		
+		// [JAS] [TODO] References header may contain multiple message-ids to find
+//		if(!empty($sReferences) || !empty($sInReplyTo)) {
+		if(!empty($sInReplyTo)) {
+//			$findMessageId = (!empty($sInReplyTo)) ? $sInReplyTo : $sReferences;
+			$findMessageId = $sInReplyTo;
+			$id = CerberusTicketDAO::getTicketByMessageId($findMessageId);
+		}
+
+		if(empty($id)) {
+			$id = CerberusTicketDAO::createTicket($sMask,$sSubject,CerberusTicketStatus::OPEN,1,$fromAddress,$iDate);
+		}
 		
 		// [JAS]: Add requesters to the ticket
 		CerberusTicketDAO::createRequester($fromAddressId,$id);
@@ -219,6 +232,7 @@ class CerberusMessage {
 	public $ticket_id;
 	public $created_date;
 	public $address_id;
+	public $message_id;
 	public $headers;
 	private $content; // use getter
 	

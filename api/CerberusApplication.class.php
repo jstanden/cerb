@@ -77,6 +77,11 @@ class CerberusApplication {
 		return $mask;
 	}
 	
+	static function generateMessageId() {
+		$message_id = sprintf('<%s.%s@%s>', base_convert(time(), 10, 36), base_convert(rand(), 10, 36), !empty($_SERVER['HTTP_HOST']) ?  $_SERVER['HTTP_HOST'] : $_SERVER['SERVER_NAME']);
+		return $message_id;
+	}
+	
 	// ***************** DUMMY
 	static function getDashboardViewColumns() {
 		return array(
@@ -121,7 +126,7 @@ class CerberusApplication {
 
 		$mailboxes = array();
 		
-		$sql = sprintf("SELECT m.id , m.name, m.reply_address_id, m.diaplay_name".
+		$sql = sprintf("SELECT m.id , m.name, m.reply_address_id, m.display_name ".
 			"FROM mailbox m ".
 			"ORDER BY m.name ASC"
 		);

@@ -75,6 +75,7 @@ $tables['message'] = "
 	is_admin I1 DEFAULT 0 NOTNULL,
 	created_date I4,
 	address_id I4,
+	message_id C(255),
 	headers B DEFAULT '' NOTNULL,
 	content B DEFAULT '' NOTNULL
 ";

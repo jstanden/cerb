@@ -1,4 +1,4 @@
-<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<table border="0" cellpadding="0" cellspacing="0" width="100%" style="border-bottom:1px solid rgb(224,224,224);">
   <tbody>
     <tr>
       <td width="0%" nowrap="nowrap" valign="top">

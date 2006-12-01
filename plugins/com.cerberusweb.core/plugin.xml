@@ -43,7 +43,6 @@
 			<params>
 				<param key="title" value="Teamwork" />
 				<param key="menutitle" value="Teamwork" />
-				<!--<param key="summary" value="support resources" />-->
 			</params>
 		</extension>
 
@@ -57,7 +56,6 @@
 			<params>
 				<param key="title" value="Search" />
 				<param key="menutitle" value="Search" />
-				<!--<param key="summary" value="support resources" />-->
 			</params>
 		</extension>
 
@@ -70,10 +68,34 @@
 			</class>
 			<params>
 				<param key="title" value="Sign in" />
-				<!--<param key="summary" value="support resources" />-->
 			</params>
 		</extension>
 
+		<extension point="com.cerberusweb.module">
+			<id>core.module.configuration</id>
+			<name>Configuration Module</name>
+			<class>
+				<file>classes.php</file>
+				<name>ChConfigurationModule</name>
+			</class>
+			<params>
+				<param key="title" value="Configuration" />
+				<param key="menutitle" value="Configuration" />
+			</params>
+		</extension>
+
+		<extension point="com.cerberusweb.module">
+			<id>core.module.preferences</id>
+			<name>Preferences Module</name>
+			<class>
+				<file>classes.php</file>
+				<name>ChPreferencesModule</name>
+			</class>
+			<params>
+				<param key="title" value="Preferences" />
+			</params>
+		</extension>
+		
 		<extension point="com.cerberusweb.display.module">
 			<id>core.display.module.workflow</id>
 			<name>Ticket Workflow Display Module</name>
