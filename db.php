@@ -60,6 +60,7 @@ $tables['ticket'] = "
 	id I4 DEFAULT 0 NOTNULL PRIMARY,
 	mask C(16) DEFAULT '' NOTNULL, 
 	subject C(128)  DEFAULT '' NOTNULL, 
+	bitflags I2 DEFAULT 0,
 	created_date I4,
 	updated_date I4,
 	status C(1) DEFAULT '' NOTNULL, 
@@ -73,6 +74,7 @@ $tables['message'] = "
 	id I4 DEFAULT 0 NOTNULL PRIMARY,
 	ticket_id I4 DEFAULT 0 NOTNULL,
 	is_admin I1 DEFAULT 0 NOTNULL,
+	message_type C(1),
 	created_date I4,
 	address_id I4,
 	message_id C(255),
@@ -117,7 +119,13 @@ $tables['dashboard_view'] = "
 $tables['address'] = "
 	id I4 DEFAULT 0 NOTNULL PRIMARY,
 	email C(255) DEFAULT '' NOTNULL,
-	personal C(255) DEFAULT ''
+	personal C(255) DEFAULT '',
+	bitflags I2 DEFAULT 0,
+";
+
+$tables['address_to_mailbox'] = "
+	address_id I4 DEFAULT 0 NOTNULL PRIMARY,
+	mailbox_id I4 DEFAULT 0 NOTNULL PRIMARY
 ";
 
 $tables['requester'] = "

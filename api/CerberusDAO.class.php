@@ -8,7 +8,7 @@ class CerberusContactDAO {
 		$id = null;
 		
 		$sql = sprintf("SELECT id FROM address WHERE email = %s",
-			$um_db->qstr($email)
+			$um_db->qstr(trim(strtolower($email)))
 		);
 		$rs = $um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
@@ -21,6 +21,26 @@ class CerberusContactDAO {
 		return $id;
 	}
 
+	static function getMailboxIdByAddress($email) {
+		$um_db = UserMeetDatabase::getInstance();
+		$id = CerberusContactDAO::lookupAddress($email,false);
+		$mailbox_id = null;
+		
+		if(empty($id))
+			return null;
+		
+		$sql = sprintf("SELECT am.mailbox_id FROM address_to_mailbox am WHERE am.address_id = %d",
+			$id
+		);
+		$rs = $um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		if(!$rs->EOF) {
+			$mailbox_id = intval($rs->fields['mailbox_id']);
+		}
+		
+		return $mailbox_id;
+	}
+	
 	static function createAddress($email,$personal='') {
 		$um_db = UserMeetDatabase::getInstance();
 		
@@ -31,7 +51,7 @@ class CerberusContactDAO {
 		
 		$sql = sprintf("INSERT INTO address (id,email,personal) VALUES (%d,%s,%s)",
 			$id,
-			$um_db->qstr($email),
+			$um_db->qstr(trim(strtolower($email))),
 			$um_db->qstr($personal)
 		);
 		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
@@ -161,12 +181,13 @@ class CerberusTicketDAO {
 		$um_db = UserMeetDatabase::getInstance();
 		$newId = $um_db->GenID('ticket_seq');
 		
-		$sql = sprintf("INSERT INTO ticket (id, mask, subject, status, last_wrote, first_wrote, created_date, updated_date, priority) ".
-			"VALUES (%d,%s,%s,%s,%s,%s,%d,%d,0)",
+		$sql = sprintf("INSERT INTO ticket (id, mask, subject, status, mailbox_id, last_wrote, first_wrote, created_date, updated_date, priority) ".
+			"VALUES (%d,%s,%s,%s,%d,%s,%s,%d,%d,0)",
 			$newId,
 			$um_db->qstr($mask),
 			$um_db->qstr($subject),
 			$um_db->qstr($status),
+			$mailbox_id,
 			$um_db->qstr($last_wrote),
 			$um_db->qstr($last_wrote),
 			$created_date,
@@ -177,28 +198,18 @@ class CerberusTicketDAO {
 		return $newId;
 	}
 
-	static function createMessage($ticket_id,$created_date,$address_id,$headers,$content) {
+	static function createMessage($ticket_id,$type,$created_date,$address_id,$headers,$content) {
 		$um_db = UserMeetDatabase::getInstance();
 		$newId = $um_db->GenID('message_seq');
 		
 		// [JAS]: Flatten an array of headers into a string.
 		$sHeaders = serialize($headers);
-//		if(is_array($headers)) {
-//			foreach($headers as $k => $v) {
-//				if(is_array($v)) {
-//					foreach($v as $vv) {
-//						$sHeaders .= ucwords($k) . ": " . $vv . "%crlf%";
-//					}
-//				} else {
-//					$sHeaders .= ucwords($k) . ": " . $v . "%crlf%";
-//				}
-//			}
-//		}
 
-		$sql = sprintf("INSERT INTO message (id,ticket_id,created_date,address_id,message_id,headers,content) ".
-			"VALUES (%d,%d,%d,%d,%s,%s,%s)",
+		$sql = sprintf("INSERT INTO message (id,ticket_id,message_type,created_date,address_id,message_id,headers,content) ".
+			"VALUES (%d,%d,%s,%d,%d,%s,%s,%s)",
 				$newId,
 				$ticket_id,
+				$um_db->qstr($type),
 				$created_date,
 				$address_id,
 				((isset($headers['message-id'])) ? $um_db->qstr($headers['message-id']) : "''"),
@@ -289,7 +300,7 @@ class CerberusTicketDAO {
 			if(!empty($where)) $wheres[] = $where;
 		}
 		
-		$sql = sprintf("SELECT t.id , t.mask, t.subject, t.status, t.priority, t.mailbox_id, t.first_wrote, t.last_wrote, t.created_date, t.updated_date ".
+		$sql = sprintf("SELECT t.id , t.mask, t.subject, t.status, t.priority, t.mailbox_id, t.bitflags, t.first_wrote, t.last_wrote, t.created_date, t.updated_date ".
 			"FROM ticket t ".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "").
 			(!empty($sortBy) ? sprintf("ORDER BY %s %s",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : "")
@@ -300,6 +311,7 @@ class CerberusTicketDAO {
 			$ticket->id = intval($rs->fields['id']);
 			$ticket->mask = $rs->fields['mask'];
 			$ticket->subject = $rs->fields['subject'];
+			$ticket->bitflags = intval($rs->fields['bitflags']);
 			$ticket->status = $rs->fields['status'];
 			$ticket->priority = intval($rs->fields['priority']);
 			$ticket->mailbox_id = intval($rs->fields['mailbox_id']);
@@ -330,7 +342,7 @@ class CerberusTicketDAO {
 		
 		$ticket = null;
 		
-		$sql = sprintf("SELECT t.id , t.mask, t.subject, t.status, t.priority, t.mailbox_id, t.first_wrote, t.last_wrote, t.created_date, t.updated_date ".
+		$sql = sprintf("SELECT t.id , t.mask, t.subject, t.status, t.priority, t.mailbox_id, t.bitflags, t.first_wrote, t.last_wrote, t.created_date, t.updated_date ".
 			"FROM ticket t ".
 			"WHERE t.id = %d",
 			$id
@@ -342,6 +354,7 @@ class CerberusTicketDAO {
 			$ticket->id = intval($rs->fields['id']);
 			$ticket->mask = $rs->fields['mask'];
 			$ticket->subject = $rs->fields['subject'];
+			$ticket->bitflags = intval($rs->fields['bitflags']);
 			$ticket->status = $rs->fields['status'];
 			$ticket->priority = intval($rs->fields['priority']);
 			$ticket->mailbox_id = intval($rs->fields['mailbox_id']);
@@ -358,7 +371,7 @@ class CerberusTicketDAO {
 		$um_db = UserMeetDatabase::getInstance();
 		$messages = array();
 		
-		$sql = sprintf("SELECT m.id , m.ticket_id, m.created_date, m.address_id, m.message_id, m.headers ".
+		$sql = sprintf("SELECT m.id , m.ticket_id, m.message_type, m.created_date, m.address_id, m.message_id, m.headers ".
 			"FROM message m ".
 			"WHERE m.ticket_id = %d ".
 			"ORDER BY m.created_date ASC ",
@@ -369,6 +382,7 @@ class CerberusTicketDAO {
 			$message = new CerberusMessage();
 			$message->id = intval($rs->fields['id']);
 			$message->ticket_id = intval($rs->fields['ticket_id']);
+			$message->message_type = $rs->fields['message_type'];
 			$message->created_date = intval($rs->fields['created_date']);
 			$message->address_id = intval($rs->fields['address_id']);
 			$message->message_id = $rs->fields['message_id'];
@@ -397,7 +411,7 @@ class CerberusTicketDAO {
 		$um_db = UserMeetDatabase::getInstance();
 		$message = null;
 		
-		$sql = sprintf("SELECT m.id , m.ticket_id, m.created_date, m.address_id, m.message_id, m.headers ".
+		$sql = sprintf("SELECT m.id , m.ticket_id, m.message_type, m.created_date, m.address_id, m.message_id, m.headers ".
 			"FROM message m ".
 			"WHERE m.id = %d ".
 			"ORDER BY m.created_date ASC ",
@@ -408,6 +422,7 @@ class CerberusTicketDAO {
 			$message = new CerberusMessage();
 			$message->id = intval($rs->fields['id']);
 			$message->ticket_id = intval($rs->fields['ticket_id']);
+			$message->message_type = $rs->fields['message_type'];
 			$message->created_date = intval($rs->fields['created_date']);
 			$message->address_id = intval($rs->fields['address_id']);
 			$message->message_id = $rs->fields['message_id'];

@@ -1,3 +1,33 @@
+<script>
+{literal}
+	myPanel = null;
+
+	function doCriteria() {
+		//myPanel = new YAHOO.widget.Panel("searchCriteriaPanel");
+		
+		if(null != myPanel) {
+			myPanel.show();
+			return;
+		}
+		
+		myPanel = new YAHOO.widget.Panel("searchCriteriaPanel", { 
+			width:"400px",  
+			fixedcenter: true,  
+			constraintoviewport: true,  
+			underlay:"none",  
+			close:true,  
+			visible:true, 
+			modal:true,
+			draggable:false} ); 		
+			
+		myPanel.setHeader("Search Criteria");
+		myPanel.setBody("The Panel is a powerful UI control that enables you to create floating windows without using browser popups.  Effects like drag and drop and constrain-to-viewport are easy to configure.");
+		myPanel.setFooter("Footer");
+			
+		myPanel.render(document.body);
+	}
+{/literal}
+</script>
 <table cellpadding="2" cellspacing="0" width="200" border="0" class="tableGreen">
 	<tr>
 		<th class="tableThGreen"><img src="images/find.gif"> Search Criteria</th>
@@ -14,8 +44,8 @@
 			<table cellpadding="2" cellspacing="0" border="0">
 				<tr>
 					<td colspan="2" align="left">
-						<a href="#">Add new criteria</a> 
-						<a href="#"><img src="images/data_add.gif" align="absmiddle" border="0"></a> 
+						<a href="javascript:;" onclick="doCriteria();">Add new criteria</a> 
+						<a href="javascript:;" onclick="doCriteria();"><img src="images/data_add.gif" align="absmiddle" border="0"></a> 
 					</td>
 				</tr>
 				{foreach from=$params item=param}
@@ -23,7 +53,7 @@
 					<tr>
 						<td width="100%">
 							<img src="images/data_find.gif" align="absmiddle"> 
-							Status 
+							{$translate->say('ticket.status')} 
 							{$param->operator}
 							<b>{$param->value}</b>
 						</td>
@@ -33,7 +63,7 @@
 					<tr>
 						<td width="100%">
 							<img src="images/data_find.gif" align="absmiddle"> 
-							Priority 
+							{$translate->say('ticket.priority')} 
 							{$param->operator} 
 							<b>{$param->value}</b>
 						</td>

@@ -47,6 +47,15 @@ $language = array(
 	'status.closed' => 'Closed',
 	'status.deleted' => 'Deleted',
 	
+	'ticket.created' => 'Created',
+	'ticket.id' => 'ID',
+	'ticket.first_wrote' => 'First Wrote',
+	'ticket.last_wrote' => 'Last Wrote',
+	'ticket.mask' => 'Mask',
+	'ticket.priority' => 'Priority',
+	'ticket.status' => 'Status',
+	'ticket.updated' => 'Updated',
+	
 	'whos_online.heading' => "Who's Online: (%d agents)",
 );
 

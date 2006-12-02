@@ -4,24 +4,26 @@ require(UM_PATH . '/libs/ump/UserMeetPlatform.class.php');
 require(UM_PATH . '/api/CerberusApplication.class.php');
 
 // Teams
-CerberusApplication::createTeam('Support');
-CerberusApplication::createTeam('Sales');
-CerberusApplication::createTeam('Development');
-CerberusApplication::createTeam('Marketing');
-
-// Mailboxes
-CerberusApplication::createMailbox('Trial Keys');
-CerberusApplication::createMailbox('Leads');
-CerberusApplication::createMailbox('Hosting Support');
-CerberusApplication::createMailbox('Bugs');
-CerberusApplication::createMailbox('Wishlist');
-
-// Dashboards
-$dashboardId = CerberusDashboardDAO::createDashboard("My Dashboard");
-
-// Views
-CerberusDashboardDAO::createView("My Tickets",$dashboardId);
-CerberusDashboardDAO::createView("Suggested Tickets",$dashboardId);
+//CerberusApplication::createTeam('Support');
+//CerberusApplication::createTeam('Sales');
+//CerberusApplication::createTeam('Development');
+//CerberusApplication::createTeam('Marketing');
+//
+//// Mailboxes
+//CerberusApplication::createMailbox('Trial Keys');
+//CerberusApplication::createMailbox('Leads');
+//CerberusApplication::createMailbox('Hosting Support');
+//CerberusApplication::createMailbox('Bugs');
+//CerberusApplication::createMailbox('Wishlist');
+//
+//// Dashboards
+//$dashboardId = CerberusDashboardDAO::createDashboard("My Dashboard");
+//
+//// Views
+//CerberusDashboardDAO::createView("My Tickets",$dashboardId);
+//CerberusDashboardDAO::createView("Suggested Tickets",$dashboardId);
+//
+//CerberusContactDAO::createAddress('support@localhost');
 
 // Tickets
 //CerberusTicketDAO::createTicket('FCX-29293-291','Where is my order?','open','jstanden@gmail.com');

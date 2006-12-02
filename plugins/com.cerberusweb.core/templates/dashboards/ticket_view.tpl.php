@@ -16,19 +16,19 @@
 		<th style="text-align:center"><a href="#">all</a></th>
 		{foreach from=$view->columns item=header name=headers}
 			{if $header=="t.mask"}
-			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t.mask');">ID</a></th>
+			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t.mask');">{$translate->say('ticket.id')}</a></th>
 			{elseif $header=="t.status"}
-			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t.status');">Status</a></th>
+			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t.status');">{$translate->say('ticket.status')}</a></th>
 			{elseif $header=="t.priority"}
-			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t.priority');">Priority</a></th>
+			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t.priority');">{$translate->say('ticket.priority')}</a></th>
 			{elseif $header=="t.last_wrote"}
-			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t.last_wrote');">Wrote Last</a></th>
+			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t.last_wrote');">{$translate->say('ticket.last_wrote')}</a></th>
 			{elseif $header=="t.first_wrote"}
-			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t.first_wrote');">Wrote First</a></th>
+			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t.first_wrote');">{$translate->say('ticket.first_wrote')}</a></th>
 			{elseif $header=="t.created_date"}
-			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t.created_date');">Created</a></th>
+			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t.created_date');">{$translate->say('ticket.created')}</a></th>
 			{elseif $header=="t.updated_date"}
-			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t.updated_date');">Updated</a></th>
+			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t.updated_date');">{$translate->say('ticket.updated')}</a></th>
 			{/if}
 		{/foreach}
 	</tr>

@@ -247,6 +247,10 @@ class ChDisplayModule extends CerberusModuleExtension {
 	}
 	
 	// TODO: this needs to also have an agent_id passed to it, to identify the agent making the reply
+	/**
+	 * Enter description here...
+	 * @todo Reuse sendReply
+	 */
 	function sendReply() {
 		require_once(UM_PATH . '/libs/pear/Mail.php');
 		// TODO: make this pull from a config instance rather than hard-coded
@@ -296,8 +300,8 @@ class ChDisplayModule extends CerberusModuleExtension {
 		
 		// TODO: create DAO object for Agent, be able to pull address by having agent id.
 //		$headers['From'] = $agent_address->personal . ' <' . $agent_address->email . '>';
-//		CerberusTicketDAO::createMessage($ticket_id,gmmktime(),$agent_id,$headers,$content);
-		CerberusTicketDAO::createMessage($ticket_id,gmmktime(),1,$headers,$content);
+//		CerberusTicketDAO::createMessage($ticket_id,CerberusMessageType::EMAIL,gmmktime(),$agent_id,$headers,$content);
+		CerberusTicketDAO::createMessage($ticket_id,CerberusMessageType::EMAIL,gmmktime(),1,$headers,$content);
 		
 		$_REQUEST['id'] = $ticket_id;
 		CerberusApplication::setActiveModule($this->id);

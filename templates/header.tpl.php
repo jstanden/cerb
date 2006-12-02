@@ -16,7 +16,11 @@
   <script language="javascript" type="text/javascript" src="scripts/yahoo/event.js"></script>
   <script language="javascript" type="text/javascript" src="scripts/yahoo/connection.js"></script>
   <script language="javascript" type="text/javascript" src="scripts/yahoo/animation.js"></script>
+  <script language="javascript" type="text/javascript" src="scripts/yahoo/dragdrop.js"></script>
+  <script language="javascript" type="text/javascript" src="scripts/yahoo/container.js"></script>
   <script language="javascript" type="text/javascript" src="scripts/cerberus/cerberus.js"></script>
+  
+  <link type="text/css" rel="stylesheet" href="styles/default/container.css" />
   
 </head>
 

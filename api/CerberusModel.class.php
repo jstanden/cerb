@@ -53,11 +53,27 @@ class CerberusSearchCriteria {
 	}
 };
 
+class CerberusMessageType {
+	const EMAIL = 'E';
+	const FORWARD = 'F';
+	const COMMENT = 'C';
+};
+
+class CerberusTicketBits {
+	const CREATED_FROM_WEB = 1;
+};
+
 class CerberusTicketStatus {
 	const OPEN = 'O';
 	const WAITING = 'W';
 	const CLOSED = 'C';
 	const DELETED = 'D';
+};
+
+class CerberusAddressBits {
+	const AGENT = 1;
+	const BANNED = 2;
+	const QUEUE = 4;
 };
 
 class CerberusParser {
@@ -83,15 +99,15 @@ class CerberusParser {
 		$to = array();
 		
 		if(!empty($sReplyTo)) {
-			$from = CerberusParser::parserRfcAddress($sReplyTo);
+			$from = CerberusParser::parseRfcAddress($sReplyTo);
 		} elseif(!empty($sFrom)) {
-			$from = CerberusParser::parserRfcAddress($sFrom);
+			$from = CerberusParser::parseRfcAddress($sFrom);
 		} elseif(!empty($sReturnPath)) {
-			$from = CerberusParser::parserRfcAddress($sReturnPath);
+			$from = CerberusParser::parseRfcAddress($sReturnPath);
 		}
 		
 		if(!empty($sTo)) {
-			$to = CerberusParser::parserRfcAddress($sTo);
+			$to = CerberusParser::parseRfcAddress($sTo);
 		}
 		
 		// Subject
@@ -128,9 +144,10 @@ class CerberusParser {
 			$findMessageId = $sInReplyTo;
 			$id = CerberusTicketDAO::getTicketByMessageId($findMessageId);
 		}
-
+		
 		if(empty($id)) {
-			$id = CerberusTicketDAO::createTicket($sMask,$sSubject,CerberusTicketStatus::OPEN,1,$fromAddress,$iDate);
+			$mailbox_id = CerberusParser::parseDestination($headers);
+			$id = CerberusTicketDAO::createTicket($sMask,$sSubject,CerberusTicketStatus::OPEN,$mailbox_id,$fromAddress,$iDate);
 		}
 		
 		// [JAS]: Add requesters to the ticket
@@ -148,7 +165,7 @@ class CerberusParser {
 		}
 
 		if(!empty($attachments)) {
-			$message_id = CerberusTicketDAO::createMessage($id,$iDate,$fromAddressId,$headers,$attachments['plaintext']);
+			$message_id = CerberusTicketDAO::createMessage($id,CerberusMessageType::EMAIL,$iDate,$fromAddressId,$headers,$attachments['plaintext']);
 		}
 		foreach ($attachments['files'] as $filepath => $filename) {
 			CerberusTicketDAO::createAttachment($message_id, $filename, $filepath);
@@ -156,6 +173,43 @@ class CerberusParser {
 			
 		$ticket = CerberusTicketDAO::getTicket($id);
 		return $ticket;
+	}
+	
+	/**
+	 * Enter description here...
+	 *
+	 * @todo
+	 * @param array $headers
+	 * @return integer
+	 */
+	static private function parseDestination($headers) {
+		$addresses = array();
+		
+		// [TODO] The split could be handled by Mail_RFC822:parseAddressList (commas, semi-colons, etc.)
+
+		$aTo = split(',', @$headers['to']);
+		$aCc = split(',', @$headers['cc']);
+		
+		$destinations = $aTo + $aCc;
+		
+		foreach($destinations as $destination) {
+			$structure = CerberusParser::parseRfcAddress($destination);
+			
+			if(empty($structure[0]->mailbox) || empty($structure[0]->host))
+				continue;
+			
+			$address = $structure[0]->mailbox.'@'.$structure[0]->host;
+				
+			if(null != ($mailbox_id = CerberusContactDAO::getMailboxIdByAddress($address)))
+				return $mailbox_id;
+		}
+		
+		// envelope + delivered 'Delivered-To'
+		// received
+		
+		// [TODO] catchall?
+		
+		return null;
 	}
 	
 	static private function parseMimeParts($parts,&$attachments) {
@@ -194,7 +248,7 @@ class CerberusParser {
 		}
 	}
 	
-	static private function parserRfcAddress($address_string) {
+	static private function parseRfcAddress($address_string) {
 		require_once(UM_PATH . '/libs/pear/Mail/RFC822.php');
 		$structure = Mail_RFC822::parseAddressList($address_string, null, false);
 		return $structure;
@@ -206,6 +260,7 @@ class CerberusTicket {
 	public $id;
 	public $mask;
 	public $subject;
+	public $bitflags;
 	public $status;
 	public $priority;
 	public $mailbox_id;
@@ -230,6 +285,7 @@ class CerberusTicket {
 class CerberusMessage {
 	public $id;
 	public $ticket_id;
+	public $message_type;
 	public $created_date;
 	public $address_id;
 	public $message_id;
@@ -258,6 +314,7 @@ class CerberusAddress {
 	public $id;
 	public $email;
 	public $personal;
+	public $bitflags;
 	
 	function CerberusAddress() {}
 };
