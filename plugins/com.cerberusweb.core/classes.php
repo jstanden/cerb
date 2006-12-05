@@ -308,7 +308,7 @@ class ChDisplayModule extends CerberusModuleExtension {
 		$headers['cc']			= $cc;
 		$headers['bcc']			= $bcc;
 		$headers['date']		= gmdate(r);
-		$headers['message-id'] = CerberusApplication::generateMessageId();
+		$headers['message-id']	= CerberusApplication::generateMessageId();
 		$headers['subject']		= $ticket->subject;
 		$headers['references']	= $message->headers['message-id'];
 		$headers['in-reply-to']	= $message->headers['message-id'];
@@ -379,6 +379,32 @@ class ChDisplayModule extends CerberusModuleExtension {
 		
 		$_REQUEST['id'] = $ticket_id;
 		CerberusApplication::setActiveModule($this->id);
+	}
+	
+	function refreshRequesters() {
+		$tpl = UserMeetTemplateManager::getInstance();
+		@$id = $_REQUEST['id']; // ticket id
+		
+		$ticket = CerberusTicketDAO::getTicket($id);
+
+		$tpl->assign('ticket',$ticket);
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/requesters.tpl.php');
+	}
+
+	function saveRequester() {
+		@$id = $_REQUEST['id']; // ticket id
+		@$add_requester = $_POST['add_requester'];
+		
+		// I'd really like to know why the *$#! this doesn't work.  The if statement works fine atomically...
+//		require_once(UM_PATH . '/libs/pear/Mail/RFC822.php');
+//		if (false === Mail_RFC822::isValidInetAddress($add_requester)) {
+//			return $add_requester . UserMeetTranslationManager::say('ticket.requester.invalid');
+//		}
+		
+		$address_id = CerberusContactDAO::lookupAddress($add_requester, true);
+		CerberusTicketDAO::createRequester($address_id, $id);
+		
+		return ' ';
 	}
 	
 };

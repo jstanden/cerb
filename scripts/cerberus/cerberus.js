@@ -183,7 +183,42 @@ var cAjaxCalls = function() {
 				argument:{caller:this,id:id}
 		});	
 	}
+
+	this.refreshRequesters = function(id) {
+		var div = document.getElementById('displayTicketRequesters');
+		if(null == div) return;
 	
+		var cObj = YAHOO.util.Connect.asyncRequest('GET', 'ajax.php?c=core.module.display&a=refreshRequesters&id=' + id, {
+				success: function(o) {
+					var id = o.argument.id;
+					var div = document.getElementById('displayTicketRequesters');
+					if(null == div) return;
+					
+					div.innerHTML = o.responseText;
+				},
+				failure: function(o) {},
+				argument:{caller:this,id:id}
+			}
+		);	
+	}
+
+	this.saveRequester = function(id) {
+		var div = document.getElementById('displayTicketRequesters');
+		if(null == div) return;
+
+		YAHOO.util.Connect.setForm('displayTicketRequesters');
+		var cObj = YAHOO.util.Connect.asyncRequest('POST', 'ajax.php', {
+				success: function(o) {
+					var id = o.argument.id;
+					var caller = o.argument.caller;
+					caller.refreshRequesters(id);
+				},
+				failure: function(o) {},
+				argument:{caller:this,id:id}
+			}
+		);	
+	}
+
 	this.getSearchCriteria = function(field) {
 		var div = document.getElementById('searchCriteriaVal');
 		if(null == div) return;
@@ -207,6 +242,7 @@ var cAjaxCalls = function() {
 				argument:{caller:this}
 		});	
 	}
+
 }
 
 var ajax = new cAjaxCalls();
