@@ -113,7 +113,8 @@ $tables['dashboard_view'] = "
 	columns B,
 	sort_by C(32) DEFAULT '' NOTNULL,
 	sort_asc I1 DEFAULT 1 NOTNULL,
-	num_rows I2 DEFAULT 10 NOTNULL
+	num_rows I2 DEFAULT 10 NOTNULL,
+	page I2 DEFAULT 0 NOTNULL
 ";
 
 $tables['address'] = "

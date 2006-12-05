@@ -148,6 +148,18 @@ var cAjaxCalls = function() {
 		});	
 	}
 	
+	this.getPage = function(id,page) {
+		var cObj = YAHOO.util.Connect.asyncRequest('GET', 'ajax.php?c=core.module.dashboard&a=viewPage&id=' + id + '&page=' + page, {
+				success: function(o) {
+					var id = o.argument.id;
+					var caller = o.argument.caller;
+					caller.getRefresh(id);
+				},
+				failure: function(o) {},
+				argument:{caller:this,id:id}
+		});	
+	}
+	
 	this.getRefresh = function(id) {
 		var div = document.getElementById('view' + id);
 		if(null == div) return;

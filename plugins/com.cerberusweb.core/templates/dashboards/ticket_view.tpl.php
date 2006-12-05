@@ -101,11 +101,24 @@
 	</tr>
 	<tr>
 		<td align="right">
-			<a href="javascript:;" onclick="ajax.getRefresh('{$view->id}');">&lt;&lt;</a>
-			<a href="javascript:;" onclick="ajax.getRefresh('{$view->id}');">&lt;{$translate->say('common.prev')|capitalize}</a>
-			(Showing x-y of {$total})
-			<a href="javascript:;" onclick="ajax.getRefresh('{$view->id}');">{$translate->say('common.next')|capitalize}&gt;</a>
-			<a href="javascript:;" onclick="ajax.getRefresh('{$view->id}');">&gt;&gt;</a>
+			{math assign=fromRow equation="(x*y)+1" x=$view->renderPage y=$view->renderLimit}
+			{math assign=toRow equation="(x-1)+y" x=$fromRow y=$view->renderLimit}
+			{math assign=nextPage equation="x+1" x=$view->renderPage}
+			{math assign=prevPage equation="x-1" x=$view->renderPage}
+			{math assign=lastPage equation="ceil(x/y)-1" x=$total y=$view->renderLimit}
+			
+			{* Sanity checks *}
+			{if $toRow > $total}{assign var=toRow value=$total}{/if}
+			
+			{if $view->renderPage > 0}
+				<a href="javascript:;" onclick="ajax.getPage('{$view->id}',0);">&lt;&lt;</a>
+				<a href="javascript:;" onclick="ajax.getPage('{$view->id}','{$prevPage}');">&lt;{$translate->say('common.prev')|capitalize}</a>
+			{/if}
+			(Showing {$fromRow}-{$toRow} of {$total})
+			{if $toRow < $total}
+				<a href="javascript:;" onclick="ajax.getPage('{$view->id}','{$nextPage}');">{$translate->say('common.next')|capitalize}&gt;</a>
+				<a href="javascript:;" onclick="ajax.getPage('{$view->id}','{$lastPage}');">&gt;&gt;</a>
+			{/if}
 		</td>
 	</tr>
 </table>

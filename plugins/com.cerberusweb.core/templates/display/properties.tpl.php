@@ -58,6 +58,7 @@
       	</select>
      	</td>
     </tr>
+    <!---
     <tr>
       <td>
       	<b class="green">Due:</b><br>
@@ -65,6 +66,7 @@
 			<a href="javascript:;"><img src="images/icon_calendar.gif" width="16" height="16" border="0" align="absmiddle"></a>
      	</td>
     </tr>
+    --->
     <tr>
       <td>
       	<b class="green">Subject:</b><br>

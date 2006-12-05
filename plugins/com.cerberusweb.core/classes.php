@@ -102,6 +102,23 @@ class ChDashboardModule extends CerberusModuleExtension {
 		return TRUE;
 	}
 	
+	function viewPage() {
+		@$id = $_REQUEST['id'];
+		@$page = $_REQUEST['page'];
+		
+		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		$tpl->assign('id',$id);
+		
+		$fields = array(
+			'page' => $page
+		);
+		
+		CerberusDashboardDAO::updateView($id,$fields);		
+		
+		return ' ';
+	}
+	
 	function viewRefresh() {
 		@$id = $_REQUEST['id'];
 
@@ -149,7 +166,8 @@ class ChDashboardModule extends CerberusModuleExtension {
 		$fields = array(
 			'name' => $name,
 			'columns' => serialize($columns),
-			'num_rows' => $num_rows
+			'num_rows' => $num_rows,
+			'page' => 0 // reset paging
 		);
 		
 		CerberusDashboardDAO::updateView($id,$fields);

@@ -300,12 +300,15 @@ class CerberusTicketDAO {
 			if(!empty($where)) $wheres[] = $where;
 		}
 		
+		// [JAS]: 1-based [TODO] clean up + document
+		$start = ($page * $limit);
+		
 		$sql = sprintf("SELECT t.id , t.mask, t.subject, t.status, t.priority, t.mailbox_id, t.bitflags, t.first_wrote, t.last_wrote, t.created_date, t.updated_date ".
 			"FROM ticket t ".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "").
 			(!empty($sortBy) ? sprintf("ORDER BY %s %s",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : "")
 		);
-		$rs = $um_db->SelectLimit($sql,$limit,0) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $um_db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
 		while(!$rs->EOF) {
 			$ticket = new CerberusTicket();
 			$ticket->id = intval($rs->fields['id']);
@@ -365,6 +368,28 @@ class CerberusTicketDAO {
 		}
 		
 		return $ticket;
+	}
+	
+	static function updateTicket($id,$fields) {
+		$um_db = UserMeetDatabase::getInstance();
+		$sets = array();
+		
+		if(!is_array($fields) || empty($fields) || empty($id))
+			return;
+		
+		foreach($fields as $k => $v) {
+			$sets[] = sprintf("%s = %s",
+				$k,
+				$um_db->qstr($v)
+			);
+		}
+			
+		$sql = sprintf("UPDATE ticket SET %s WHERE id = %d",
+			implode(', ', $sets),
+			$id
+		);
+		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
 	}
 	
 	static function getMessagesByTicket($ticket_id) {
@@ -518,14 +543,15 @@ class CerberusDashboardDAO {
 		$um_db = UserMeetDatabase::getInstance();
 		$newId = $um_db->GenID('generic_seq');
 		
-		$sql = sprintf("INSERT INTO dashboard_view (id, name, dashboard_id, num_rows, sort_by, sort_asc) ".
-			"VALUES (%d, %s, %d, %d, %s, %s)",
+		$sql = sprintf("INSERT INTO dashboard_view (id, name, dashboard_id, num_rows, sort_by, sort_asc, page) ".
+			"VALUES (%d, %s, %d, %d, %s, %s, %d)",
 			$newId,
 			$um_db->qstr($name),
 			$dashboard_id,
 			$num_rows,
 			$um_db->qstr($sort_by),
-			$sort_asc
+			$sort_asc,
+			0
 		);
 		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
@@ -551,7 +577,6 @@ class CerberusDashboardDAO {
 			$id
 		);
 		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
 	}
 	
 	/**
@@ -563,7 +588,7 @@ class CerberusDashboardDAO {
 	static function getViews($dashboard_id=0) {
 		$um_db = UserMeetDatabase::getInstance();
 		
-		$sql = sprintf("SELECT v.id, v.name, v.dashboard_id, v.columns, v.num_rows, v.sort_by, v.sort_asc ".
+		$sql = sprintf("SELECT v.id, v.name, v.dashboard_id, v.columns, v.num_rows, v.sort_by, v.sort_asc, v.page ".
 			"FROM dashboard_view v ".
 			(!empty($dashboard_id) ? sprintf("WHERE v.dashboard_id = %d ", $dashboard_id) : " ")
 		);
@@ -580,6 +605,7 @@ class CerberusDashboardDAO {
 			$view->renderLimit = intval($rs->fields['num_rows']);
 			$view->renderSortBy = $rs->fields['sort_by'];
 			$view->renderSortAsc = intval($rs->fields['sort_asc']);
+			$view->renderPage = intval($rs->fields['page']);
 			$views[$view->id] = $view; 
 			$rs->MoveNext();
 		}
@@ -596,7 +622,7 @@ class CerberusDashboardDAO {
 	static function getView($view_id) {
 		$um_db = UserMeetDatabase::getInstance();
 		
-		$sql = sprintf("SELECT v.id, v.name, v.dashboard_id, v.columns, v.num_rows, v.sort_by, v.sort_asc ".
+		$sql = sprintf("SELECT v.id, v.name, v.dashboard_id, v.columns, v.num_rows, v.sort_by, v.sort_asc, v.page ".
 			"FROM dashboard_view v ".
 			"WHERE v.id = %d ",
 			$view_id
@@ -612,6 +638,7 @@ class CerberusDashboardDAO {
 			$view->renderLimit = intval($rs->fields['num_rows']);
 			$view->renderSortBy = $rs->fields['sort_by'];
 			$view->renderSortAsc = intval($rs->fields['sort_asc']);
+			$view->renderPage = intval($rs->fields['page']);
 			$views[$view->id] = $view; 
 			return $view;
 		}
