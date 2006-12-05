@@ -56,9 +56,10 @@
 						<td width="100%">
 							<img src="images/data_find.gif" align="absmiddle"> 
 							{$translate->say('ticket.status')} 
-							{$param->operator}<br>
-							{foreach from=$param->value item=p}
-							 &nbsp; &nbsp; <b>{$p}</b><br>
+							{$param->operator}
+							{foreach from=$param->value item=p name=params}
+							<b>{$p}</b>
+							 {if !$smarty.foreach.params.last} or {/if}
 							{/foreach}
 						</td>
 						<td width="0%" nowrap="nowrap" valign="top"><a href="#"><img src="images/data_error.gif" border="0" align="absmiddle"></a></td>
@@ -68,9 +69,10 @@
 						<td width="100%">
 							<img src="images/data_find.gif" align="absmiddle"> 
 							{$translate->say('ticket.priority')} 
-							{$param->operator}<br>
-							{foreach from=$param->value item=p}
-							&nbsp; &nbsp; <b>{$p}</b><br>
+							{$param->operator}
+							{foreach from=$param->value item=p name=params}
+							<b>{$p}</b>
+							 {if !$smarty.foreach.params.last} or {/if}
 							{/foreach}
 						</td>
 						<td width="0%" nowrap="nowrap" valign="top"><a href="#"><img src="images/data_error.gif" border="0" align="absmiddle"></a></td>
