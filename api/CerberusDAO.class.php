@@ -251,6 +251,7 @@ class CerberusTicketDAO {
 				case "t.id";
 				case "t.mask";
 				case "t.status";
+				case "t.subject";
 				case "t.priority";
 				case "t.mailbox_id";
 				case "t.last_wrote";
@@ -286,10 +287,10 @@ class CerberusTicketDAO {
 					break;
 					
 				case "like":
-					if(!is_array($param->value)) break;
+//					if(!is_array($param->value)) break;
 					$where = sprintf("%s LIKE %s",
 						$param->field,
-						$um_db->qstr($param->value)
+						$um_db->qstr(str_replace('*','%%',$param->value))
 					);
 					break;
 					
@@ -308,6 +309,7 @@ class CerberusTicketDAO {
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "").
 			(!empty($sortBy) ? sprintf("ORDER BY %s %s",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : "")
 		);
+//		echo $sql;
 		$rs = $um_db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
 		while(!$rs->EOF) {
 			$ticket = new CerberusTicket();

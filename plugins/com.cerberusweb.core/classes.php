@@ -500,10 +500,14 @@ class ChSearchModule extends CerberusModuleExtension {
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		$tpl->cache_lifetime = "0";
 
-		$params = array(
-			new CerberusSearchCriteria('t.status','in',array('O')),
-			new CerberusSearchCriteria('t.priority','!=',0),
-		);
+//		global $_SESSION;
+		$params = $_SESSION['params'];
+//		print_r($params);
+		
+//		$params = array(
+//			new CerberusSearchCriteria('t.status','in',array('O')),
+//			new CerberusSearchCriteria('t.priority','!=',0),
+//		);
 		$tpl->assign('params', $params);
 		
 		$search = CerberusTicketDAO::searchTickets(
@@ -523,6 +527,52 @@ class ChSearchModule extends CerberusModuleExtension {
 		return "?c=".$this->id."&a=click";
 	}
 	
+	function getCriteria() {
+		@$field = $_REQUEST['field'];
+		
+		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		$tpl->cache_lifetime = "0";
+		
+		switch($field) {
+			case "t.status":
+				$tpl->display('file:' . dirname(__FILE__) . '/templates/search/criteria/ticket_status.tpl.php');
+				break;
+				
+			case "t.priority":
+				$tpl->display('file:' . dirname(__FILE__) . '/templates/search/criteria/ticket_priority.tpl.php');
+				break;
+				
+			case "t.subject":
+				$tpl->display('file:' . dirname(__FILE__) . '/templates/search/criteria/ticket_subject.tpl.php');
+				break;
+		}
+	}
+	
+	function addCriteria() {
+		@$params = $_SESSION['params'];
+		@$field = $_REQUEST['field'];
+		
+		switch($field) {
+			case "t.status":
+				@$status = $_REQUEST['status'];
+				$params[$field] = new CerberusSearchCriteria($field,'in',$status);
+				break;
+			case "t.priority":
+				@$priority = $_REQUEST['priority'];
+				$params[$field] = new CerberusSearchCriteria($field,'in',$priority);
+				break;
+			case "t.subject":
+				@$subject = $_REQUEST['subject'];
+				$params[$field] = new CerberusSearchCriteria($field,'like',$subject);
+				break;
+		}
+		
+		
+		$_SESSION['params'] = $params;
+		
+		CerberusApplication::setActiveModule($this->id);
+	}
 }
 
 class ChPreferencesModule extends CerberusModuleExtension {

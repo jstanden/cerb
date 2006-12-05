@@ -54,6 +54,7 @@ $language = array(
 	'ticket.mask' => 'Mask',
 	'ticket.priority' => 'Priority',
 	'ticket.status' => 'Status',
+	'ticket.subject' => 'Subject',
 	'ticket.updated' => 'Updated',
 	
 	'whos_online.heading' => "Who's Online: (%d agents)",

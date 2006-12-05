@@ -183,6 +183,30 @@ var cAjaxCalls = function() {
 				argument:{caller:this,id:id}
 		});	
 	}
+	
+	this.getSearchCriteria = function(field) {
+		var div = document.getElementById('searchCriteriaVal');
+		if(null == div) return;
+
+//		var anim = new YAHOO.util.Anim(div, { opacity: { to: 0.2 } }, 1, YAHOO.util.Easing.easeOut);
+//		anim.animate();
+		
+		var cObj = YAHOO.util.Connect.asyncRequest('GET', 'ajax.php?c=core.module.search&a=getCriteria&field=' + field, {
+				success: function(o) {
+//					var id = o.argument.id;
+					var div = document.getElementById('searchCriteriaVal');
+					if(null == div) return;
+					
+					div.innerHTML = o.responseText;
+//					div.style.display = 'block';
+					
+//					var anim = new YAHOO.util.Anim(div, { opacity: { to: 1 } }, 1, YAHOO.util.Easing.easeOut);
+//					anim.animate();
+				},
+				failure: function(o) {},
+				argument:{caller:this}
+		});	
+	}
 }
 
 var ajax = new cAjaxCalls();
