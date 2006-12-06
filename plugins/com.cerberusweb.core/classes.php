@@ -266,65 +266,9 @@ class ChDisplayModule extends CerberusModuleExtension {
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/rpc/reply.tpl.php');
 	}
 	
-	// TODO: this needs to also have an agent_id passed to it, to identify the agent making the reply
-	/**
-	 * Enter description here...
-	 * @todo Reuse sendReply
-	 */
+	// TODO: may need to also have an agent_id passed to it in the request, to identify the agent making the reply
 	function sendReply() {
-		require_once(UM_PATH . '/libs/pear/Mail.php');
-		// TODO: make this pull from a config instance rather than hard-coded
-		$mail_params = array();
-		$mail_params['host'] = 'mail.webgroupmedia.com';
-		$mailer =& Mail::factory("smtp", $mail_params);
-		
-		@$id = $_REQUEST['id']; // message id
-		@$cc = $_REQUEST['cc'];
-		@$bcc = $_REQUEST['bcc'];
-		@$content = $_REQUEST['content'];
-		@$priority = $_REQUEST['priority'];
-		@$status = $_REQUEST['status'];
-		@$agent_id = $_REQUEST['agent_id'];
-		
-		$message = CerberusTicketDAO::getMessage($id);
-		$ticket_id = $message->ticket_id;
-		$ticket = CerberusTicketDAO::getTicket($ticket_id);
-		$mailboxes = CerberusApplication::getMailboxList();
-		$mailbox = $mailboxes[$ticket->mailbox_id];
-		$requesters = CerberusTicketDAO::getRequestersByTicket($ticket_id);
-		$sTo = '';
-		$sRCPT = '';
-		foreach ($requesters as $requester) {
-			if (!empty($sTo)) $sTo .= ', ';
-			if (!empty($sRCPT)) $sRCPT .= ', ';
-			if (!empty($requester->personal)) $sTo .= $requester->personal . ' ';
-			$sTo .= '<' . $requester->email . '>';
-			$sRCPT .= $requester->email;
-		}
-		
-		$headers = array();
-		// TODO: pull info from mailbox instead of hard-coding it.  (may want to do this such that the display_name is just a personal on a mailbox address...)
-//		$headers['From']		= !empty($mailbox->display_name)?'"'.$mailbox->display_name.'" <'.needafunction::getAddress($mailbox->reply_address_id)->email.'>':needafunction::getAddress($mailbox->reply_address_id)->email;
-		$headers['from']		= 'pop1@cerberus6.webgroupmedia.com';
-		$headers['to']			= $sTo;
-		$headers['cc']			= $cc;
-		$headers['bcc']			= $bcc;
-		$headers['date']		= gmdate(r);
-		$headers['message-id']	= CerberusApplication::generateMessageId();
-		$headers['subject']		= $ticket->subject;
-		$headers['references']	= $message->headers['message-id'];
-		$headers['in-reply-to']	= $message->headers['message-id'];
-		
-		$mail_result =& $mailer->send($sRCPT, $headers, $content);
-		if ($mail_result !== true) die("Error message was: " . $mail_result->getMessage());
-		
-		// TODO: create DAO object for Agent, be able to pull address by having agent id.
-//		$headers['From'] = $agent_address->personal . ' <' . $agent_address->email . '>';
-//		CerberusTicketDAO::createMessage($ticket_id,CerberusMessageType::EMAIL,gmmktime(),$agent_id,$headers,$content);
-		CerberusTicketDAO::createMessage($ticket_id,CerberusMessageType::EMAIL,gmmktime(),1,$headers,$content);
-		
-		$_REQUEST['id'] = $ticket_id;
-		CerberusApplication::setActiveModule($this->id);
+		ChDisplayModule::sendMessage(CerberusMessageType::EMAIL);
 	}
 	
 	function forward() {
@@ -345,14 +289,7 @@ class ChDisplayModule extends CerberusModuleExtension {
 	}
 	
 	function sendForward() {
-		@$id = $_REQUEST['id']; // message id
-		
-		$message = CerberusTicketDAO::getMessage($id);
-		$ticket_id = $message->ticket_id;
-		$ticket = CerberusTicketDAO::getTicket($ticket_id);
-		
-		$_REQUEST['id'] = $ticket_id;
-		CerberusApplication::setActiveModule($this->id);
+		ChDisplayModule::sendMessage(CerberusMessageType::FORWARD);
 	}
 	
 	function comment() {
@@ -373,11 +310,80 @@ class ChDisplayModule extends CerberusModuleExtension {
 	}
 	
 	function sendComment() {
-		@$id = $_REQUEST['id']; // message id
+		ChDisplayModule::sendMessage(CerberusMessageType::COMMENT);
+	}
+	
+	function sendMessage($type) {
+		// mailer setup -- [TODO]: make this pull from a config instance rather than hard-coded
+		require_once(UM_PATH . '/libs/pear/Mail.php');
+		$mail_params = array();
+		$mail_params['host'] = 'mail.webgroupmedia.com';
+		$mailer =& Mail::factory("smtp", $mail_params);
 		
-		$message = CerberusTicketDAO::getMessage($id);
-		$ticket_id = $message->ticket_id;
-		$ticket = CerberusTicketDAO::getTicket($ticket_id);
+		// variable loading
+		@$id		= $_REQUEST['id']; // message id
+		@$to		= $_REQUEST['to'];
+		@$cc		= $_REQUEST['cc'];
+		@$bcc		= $_REQUEST['bcc'];
+		@$content	= $_REQUEST['content'];
+		@$priority	= $_REQUEST['priority'];
+		@$status	= $_REQUEST['status'];
+		@$agent_id	= $_REQUEST['agent_id'];
+		
+		// object loading
+		$message	= CerberusTicketDAO::getMessage($id);
+		$ticket_id	= $message->ticket_id;
+		$ticket		= CerberusTicketDAO::getTicket($ticket_id);
+		$mailboxes	= CerberusApplication::getMailboxList();
+		$mailbox	= $mailboxes[$ticket->mailbox_id];
+		$requesters	= CerberusTicketDAO::getRequestersByTicket($ticket_id);
+		
+		// requester address parsing - needs to vary based on type
+		$sTo = '';
+		$sRCPT = '';
+		if ($type == CerberusMessageType::EMAIL) {
+			foreach ($requesters as $requester) {
+				if (!empty($sTo)) $sTo .= ', ';
+				if (!empty($sRCPT)) $sRCPT .= ', ';
+				if (!empty($requester->personal)) $sTo .= $requester->personal . ' ';
+				$sTo .= '<' . $requester->email . '>';
+				$sRCPT .= $requester->email;
+			}
+		} else {
+			$sTo = $to;
+			$sRCPT = $to;
+		}
+		
+		// header setup: varies based on type of response - BREAK statements intentionally left out!
+		$headers = array();
+		switch ($type) {
+			case CerberusMessageType::FORWARD :
+			case CerberusMessageType::EMAIL :
+				$headers['to']			= $sTo;
+				$headers['cc']			= $cc;
+				$headers['bcc']			= $bcc;
+			case CerberusMessageType::COMMENT :
+				// TODO: pull info from mailbox instead of hard-coding it.  (display name cannot be just a personal on a mailbox address...)
+				// TODO: differentiate between mailbox from as part of email/forward and agent from as part of comment (may not be necessary, depends on ticket display)
+				//$headers['From']		= !empty($mailbox->display_name)?'"'.$mailbox->display_name.'" <'.needafunction::getAddress($mailbox->reply_address_id)->email.'>':needafunction::getAddress($mailbox->reply_address_id)->email;
+				$headers['from']		= 'pop1@cerberus6.webgroupmedia.com';
+				$headers['date']		= gmdate(r);
+				$headers['message-id']	= CerberusApplication::generateMessageId();
+				$headers['subject']		= $ticket->subject;
+				$headers['references']	= $message->headers['message-id'];
+				$headers['in-reply-to']	= $message->headers['message-id'];
+		}
+		
+		// send email (if necessary)
+		if ($type != CerberusMessageType::COMMENT) {
+			$mail_result =& $mailer->send($sRCPT, $headers, $content);
+			if ($mail_result !== true) die("Error message was: " . $mail_result->getMessage());
+		}
+		
+		// TODO: create DAO object for Agent, be able to pull address by having agent id.
+//		$headers['From'] = $agent_address->personal . ' <' . $agent_address->email . '>';
+//		CerberusTicketDAO::createMessage($ticket_id,CerberusMessageType::EMAIL,gmmktime(),$agent_id,$headers,$content);
+		CerberusTicketDAO::createMessage($ticket_id,$type,gmmktime(),1,$headers,$content);
 		
 		$_REQUEST['id'] = $ticket_id;
 		CerberusApplication::setActiveModule($this->id);

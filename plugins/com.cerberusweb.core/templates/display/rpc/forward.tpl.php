@@ -1,6 +1,6 @@
 <input type="hidden" name="id" value="{$message->id}">
 <input type="hidden" name="c" value="{$c}">
-<input type="hidden" name="a" value="sendReply">
+<input type="hidden" name="a" value="sendForward">
 <table cellpadding="2" cellspacing="0" border="0" width="100%" class="displayReplyTable">
 	<tr>
 		<th>Forward</th>

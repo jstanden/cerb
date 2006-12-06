@@ -41,6 +41,14 @@ class CerberusContactDAO {
 		return $mailbox_id;
 	}
 	
+	/**
+	 * creates an address entry in the database if it doesn't exist already
+	 *
+	 * @param string $email
+	 * @param string $personal
+	 * @return integer
+	 * @throws exception on invalid address
+	 */
 	static function createAddress($email,$personal='') {
 		$um_db = UserMeetDatabase::getInstance();
 		
@@ -48,6 +56,11 @@ class CerberusContactDAO {
 			return $id;
 
 		$id = $um_db->GenID('address_seq');
+		
+		require_once(UM_PATH . '/libs/pear/Mail/RFC822.php');
+		if (false === Mail_RFC822::isValidInetAddress($email)) {
+			throw new Exception($email . UserMeetTranslationManager::say('ticket.requester.invalid'));
+		}
 		
 		$sql = sprintf("INSERT INTO address (id,email,personal) VALUES (%d,%s,%s)",
 			$id,
