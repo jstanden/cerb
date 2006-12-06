@@ -99,7 +99,7 @@ class ChDashboardModule extends CerberusModuleExtension {
 		);
 		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
-		return TRUE;
+		echo ' ';
 	}
 	
 	function viewPage() {
@@ -116,7 +116,7 @@ class ChDashboardModule extends CerberusModuleExtension {
 		
 		CerberusDashboardDAO::updateView($id,$fields);		
 		
-		return ' ';
+		echo ' ';
 	}
 	
 	function viewRefresh() {
@@ -171,6 +171,8 @@ class ChDashboardModule extends CerberusModuleExtension {
 		);
 		
 		CerberusDashboardDAO::updateView($id,$fields);
+
+		echo ' ';
 	}
 	
 	function searchview() {
@@ -404,7 +406,7 @@ class ChDisplayModule extends CerberusModuleExtension {
 		$address_id = CerberusContactDAO::lookupAddress($add_requester, true);
 		CerberusTicketDAO::createRequester($address_id, $id);
 		
-		return ' ';
+		echo ' ';
 	}
 	
 };

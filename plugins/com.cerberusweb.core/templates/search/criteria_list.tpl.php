@@ -34,7 +34,7 @@
 	<tr>
 		<th class="tableThGreen"><img src="images/find.gif"> Search Criteria</th>
 	</tr>
-	<tr style="border-bottom:1px solid rgb(200,200,200);display:block;">
+	<tr style="border-bottom:1px solid rgb(200,200,200);">
 		<td>
 			<a href="javascript:;" onclick="">reset criteria</a> |
 			<a href="#">save</a> |
