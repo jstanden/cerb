@@ -9,6 +9,7 @@
 	</tr>
 </table>
 <form id="customize{$view->id}" action="#" onsubmit="return false;"></form>
+<div id="criteria{$view->id}" style="visibility:visible;"></div>
 <table cellpadding="0" cellspacing="0" border="0" width="100%" class="tableRowBg">
 
 	{* Column Headers *}

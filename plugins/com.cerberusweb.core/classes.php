@@ -583,6 +583,18 @@ class ChSearchModule extends CerberusModuleExtension {
 		}
 	}
 	
+	function getCriteriaDialog() {
+		@$divName = $_REQUEST['divName'];
+		
+		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		$tpl->cache_lifetime = "0";
+		
+		$tpl->assign('divName',$divName);
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/search/rpc/add_criteria.tpl.php');
+	}
+	
 	function addCriteria() {
 		@$params = $_SESSION['params'];
 		@$field = $_REQUEST['field'];

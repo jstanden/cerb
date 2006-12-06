@@ -22,7 +22,54 @@ function checkAll(divName) {
 	if(null == div) return;
 }
 
-var cAjaxCalls = function() {
+var searchDialogs = new Array();
+
+function addCriteria(divName) {
+	if(null == searchDialogs[''+divName]) {
+		ajax.getSearchCriteriaDialog(divName);
+	} else {
+		try {
+			document.getElementById(divName + '_field').selectedIndex = 0;
+			document.getElementById(divName + '_render').innerHTML = '';
+		} catch(e) {}
+		searchDialogs[''+divName].show();
+		return;
+	}
+}
+
+var cAjaxCalls = function(divName) {
+	this.getSearchCriteriaDialog = function(divName) {
+		var div = document.getElementById(divName);
+		if(null == div) return;
+		
+		var cObj = YAHOO.util.Connect.asyncRequest('GET', 'ajax.php?c=core.module.search&a=getCriteriaDialog&divName=' + divName, {
+				success: function(o) {
+					var divName = o.argument.divName;
+					var div = document.getElementById(divName);
+					if(null == div) return;
+					
+					div.innerHTML = o.responseText;
+					
+					searchDialogs[''+divName] = new YAHOO.widget.Panel(divName, { 
+						width:"500px",  
+						fixedcenter: true,  
+						constraintoviewport: true,  
+						underlay:"shadow",  
+						close:false,  
+						visible:true, 
+						modal:true,
+						draggable:false} ); 		
+						
+					searchDialogs[''+divName].render();
+					
+//					div.style.display = 'block';
+				},
+				failure: function(o) {},
+				argument:{caller:this,divName:divName}
+			}
+		);	
+	}
+	
 	this.getCustomize = function(id) {
 		var div = document.getElementById('customize' + id);
 		if(null == div) return;
@@ -219,8 +266,8 @@ var cAjaxCalls = function() {
 		);	
 	}
 
-	this.getSearchCriteria = function(field) {
-		var div = document.getElementById('searchCriteriaVal');
+	this.getSearchCriteria = function(divName,field) {
+		var div = document.getElementById(divName + '_render');
 		if(null == div) return;
 
 //		var anim = new YAHOO.util.Anim(div, { opacity: { to: 0.2 } }, 1, YAHOO.util.Easing.easeOut);
@@ -229,7 +276,7 @@ var cAjaxCalls = function() {
 		var cObj = YAHOO.util.Connect.asyncRequest('GET', 'ajax.php?c=core.module.search&a=getCriteria&field=' + field, {
 				success: function(o) {
 //					var id = o.argument.id;
-					var div = document.getElementById('searchCriteriaVal');
+					var div = document.getElementById(divName + '_render');
 					if(null == div) return;
 					
 					div.innerHTML = o.responseText;
