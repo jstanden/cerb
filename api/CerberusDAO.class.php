@@ -558,8 +558,8 @@ class CerberusDashboardDAO {
 		$um_db = UserMeetDatabase::getInstance();
 		$newId = $um_db->GenID('generic_seq');
 		
-		$sql = sprintf("INSERT INTO dashboard_view (id, name, dashboard_id, num_rows, sort_by, sort_asc, page) ".
-			"VALUES (%d, %s, %d, %d, %s, %s, %d)",
+		$sql = sprintf("INSERT INTO dashboard_view (id, name, dashboard_id, num_rows, sort_by, sort_asc, page, params) ".
+			"VALUES (%d, %s, %d, %d, %s, %s, %d, '')",
 			$newId,
 			$um_db->qstr($name),
 			$dashboard_id,
@@ -603,7 +603,7 @@ class CerberusDashboardDAO {
 	static function getViews($dashboard_id=0) {
 		$um_db = UserMeetDatabase::getInstance();
 		
-		$sql = sprintf("SELECT v.id, v.name, v.dashboard_id, v.columns, v.num_rows, v.sort_by, v.sort_asc, v.page ".
+		$sql = sprintf("SELECT v.id, v.name, v.dashboard_id, v.columns, v.num_rows, v.sort_by, v.sort_asc, v.page, v.params ".
 			"FROM dashboard_view v ".
 			(!empty($dashboard_id) ? sprintf("WHERE v.dashboard_id = %d ", $dashboard_id) : " ")
 		);
@@ -617,6 +617,7 @@ class CerberusDashboardDAO {
 			$view->name = $rs->fields['name'];
 			$view->dashboard_id = intval($rs->fields['dashboard_id']);
 			$view->columns = unserialize($rs->fields['columns']);
+			$view->params = unserialize($rs->fields['params']);
 			$view->renderLimit = intval($rs->fields['num_rows']);
 			$view->renderSortBy = $rs->fields['sort_by'];
 			$view->renderSortAsc = intval($rs->fields['sort_asc']);
@@ -637,7 +638,7 @@ class CerberusDashboardDAO {
 	static function getView($view_id) {
 		$um_db = UserMeetDatabase::getInstance();
 		
-		$sql = sprintf("SELECT v.id, v.name, v.dashboard_id, v.columns, v.num_rows, v.sort_by, v.sort_asc, v.page ".
+		$sql = sprintf("SELECT v.id, v.name, v.dashboard_id, v.columns, v.num_rows, v.sort_by, v.sort_asc, v.page, v.params ".
 			"FROM dashboard_view v ".
 			"WHERE v.id = %d ",
 			$view_id
@@ -650,6 +651,7 @@ class CerberusDashboardDAO {
 			$view->name = $rs->fields['name'];
 			$view->dashboard_id = intval($rs->fields['dashboard_id']);
 			$view->columns = unserialize($rs->fields['columns']);
+			$view->params = unserialize($rs->fields['params']);
 			$view->renderLimit = intval($rs->fields['num_rows']);
 			$view->renderSortBy = $rs->fields['sort_by'];
 			$view->renderSortAsc = intval($rs->fields['sort_asc']);

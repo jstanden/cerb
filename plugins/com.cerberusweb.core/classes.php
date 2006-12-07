@@ -27,19 +27,6 @@ class ChDashboardModule extends CerberusModuleExtension {
 		
 		// [JAS]: [TODO] This needs to limit by the selected dashboard
 		$views = CerberusDashboardDAO::getViews(); // getViews($dashboard_id)
-		$views[11]->params = array( // params
-//				new CerberusSearchCriteria('t.status','!=','O'),
-				new CerberusSearchCriteria('t.priority','=','0'),
-//				new CerberusSearchCriteria('t.status','in',array('C','W')),
-				new CerberusSearchCriteria('t.mailbox_id','in',array(7,0)),
-			);
-		$views[12]->params = array( // params
-//				new CerberusSearchCriteria('t.status','!=','O'),
-//				new CerberusSearchCriteria('t.priority','!=','0'),
-				new CerberusSearchCriteria('t.status','in',array('O','C','W')),
-//				new CerberusSearchCriteria('t.mailbox_id','in',array(7,0)),
-			);
-
 		$tpl->assign('views', $views);
 		
 		$teams = CerberusApplication::getTeamList();
@@ -177,6 +164,10 @@ class ChDashboardModule extends CerberusModuleExtension {
 	
 	function searchview() {
 		@$id = $_REQUEST['id'];
+		
+		$view = CerberusDashboardDAO::getView($id);
+		$_SESSION['params'] = $view->params;
+		
 		CerberusApplication::setActiveModule("core.module.search");
 	}
 	
@@ -618,6 +609,55 @@ class ChSearchModule extends CerberusModuleExtension {
 		$_SESSION['params'] = $params;
 		
 		CerberusApplication::setActiveModule($this->id);
+	}
+	
+	function removeCriteria() {
+		@$params = $_SESSION['params'];
+		@$field = $_REQUEST['field'];
+		
+		if(isset($params[$field]))
+			unset($params[$field]);
+			
+		$_SESSION['params'] = $params;
+		
+		CerberusApplication::setActiveModule($this->id);
+	}
+	
+	function getSaveSearch() {
+		@$divName = $_REQUEST['divName'];
+		
+		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		$tpl->cache_lifetime = "0";
+
+		$tpl->assign('divName',$divName);
+		
+		$views = CerberusDashboardDAO::getViews(0);
+		$tpl->assign('views', $views);
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/search/rpc/save_search.tpl.php');
+	}
+	
+	function saveSearch() {
+		@$params = $_SESSION['params'];
+		@$save_as = $_REQUEST['save_as'];
+
+		if($save_as=='view') {
+			@$view_id = $_REQUEST['view_id'];
+			
+			$fields = array(
+				'params' => serialize($params)
+			);
+			CerberusDashboardDAO::updateView($view_id,$fields);
+			echo "Saved as view!";
+			
+		} else { // named search
+			@$name = $_REQUEST['name'];
+			
+			echo sprintf("Saved as %s!",
+				$name
+			);
+		}
 	}
 }
 

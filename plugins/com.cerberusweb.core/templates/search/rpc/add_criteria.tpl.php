@@ -1,5 +1,5 @@
 <form action="index.php" method="POST">
-<input type="hidden" name="c" value="{$c}">
+<input type="hidden" name="c" value="core.module.search">
 <input type="hidden" name="a" value="addCriteria">
 <div class="tableThGreen">Add Search Criteria</div>
 <div class="bd">

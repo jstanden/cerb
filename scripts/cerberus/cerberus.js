@@ -1,6 +1,13 @@
 <!--
 // [JAS]: [TODO] This should move into the plugin
 
+function clearDiv(divName) {
+	var div = document.getElementById(divName);
+	if(null == div) return;
+	
+	div.innerHTML = '';
+}
+
 function toggleDiv(divName,state) {
 	var div = document.getElementById(divName);
 	if(null == div) return;
@@ -37,7 +44,45 @@ function addCriteria(divName) {
 	}
 }
 
-var cAjaxCalls = function(divName) {
+var cAjaxCalls = function() {
+	
+	this.getSaveSearch = function(divName) {
+		var div = document.getElementById(divName + '_control');
+		if(null == div) return;
+		
+		var cObj = YAHOO.util.Connect.asyncRequest('GET', 'ajax.php?c=core.module.search&a=getSaveSearch&divName='+divName, {
+				success: function(o) {
+					var divName = o.argument.divName;
+					var div = document.getElementById(divName + '_control');
+					if(null == div) return;
+					
+					div.innerHTML = o.responseText;
+				},
+				failure: function(o) {},
+				argument:{caller:this,divName:divName}
+				}
+		);
+	}
+	
+	this.saveSearch = function(divName) {
+		var div = document.getElementById(divName + '_control');
+		if(null == div) return;
+		
+		YAHOO.util.Connect.setForm(divName + '_control');
+		var cObj = YAHOO.util.Connect.asyncRequest('POST', 'ajax.php', {
+				success: function(o) {
+					var divName = o.argument.divName;
+					var div = document.getElementById(divName + '_control');
+					if(null == div) return;
+					
+					div.innerHTML = o.responseText;
+				},
+				failure: function(o) {},
+				argument:{caller:this,divName:divName}
+				}
+		);
+	}
+	
 	this.getSearchCriteriaDialog = function(divName) {
 		var div = document.getElementById(divName);
 		if(null == div) return;

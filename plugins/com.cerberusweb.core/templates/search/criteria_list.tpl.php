@@ -5,8 +5,10 @@
 	<tr style="border-bottom:1px solid rgb(200,200,200);">
 		<td>
 			<a href="javascript:;" onclick="">reset criteria</a> |
-			<a href="#">save</a> |
+			<a href="javascript:;" onclick="ajax.getSaveSearch('{$divName}');">save</a> |
 			<a href="#">load</a>
+			<br>
+			<form id="{$divName}_control"></form>
 		</td>
 	</tr>
 	<tr>
@@ -18,10 +20,12 @@
 						<a href="javascript:;" onclick="addCriteria('{$divName}');"><img src="images/data_add.gif" align="absmiddle" border="0"></a> 
 					</td>
 				</tr>
+				{if !empty($params)}
 				{foreach from=$params item=param}
-				{if $param->field=="t.status"}
 					<tr>
 						<td width="100%">
+				
+				{if $param->field=="t.status"}
 							<img src="images/data_find.gif" align="absmiddle"> 
 							{$translate->say('ticket.status')} 
 							{$param->operator}
@@ -29,12 +33,7 @@
 							<b>{$p}</b>
 							 {if !$smarty.foreach.params.last} or {/if}
 							{/foreach}
-						</td>
-						<td width="0%" nowrap="nowrap" valign="top"><a href="#"><img src="images/data_error.gif" border="0" align="absmiddle"></a></td>
-					</tr>
 				{elseif $param->field=="t.priority"}
-					<tr>
-						<td width="100%">
 							<img src="images/data_find.gif" align="absmiddle"> 
 							{$translate->say('ticket.priority')} 
 							{$param->operator}
@@ -42,22 +41,18 @@
 							<b>{$p}</b>
 							 {if !$smarty.foreach.params.last} or {/if}
 							{/foreach}
-						</td>
-						<td width="0%" nowrap="nowrap" valign="top"><a href="#"><img src="images/data_error.gif" border="0" align="absmiddle"></a></td>
-					</tr>
 				{elseif $param->field=="t.subject"}
-					<tr>
-						<td width="100%">
 							<img src="images/data_find.gif" align="absmiddle"> 
 							{$translate->say('ticket.subject')} 
 							{$param->operator} 
 							<b>{$param->value}</b>
-						</td>
-						<td width="0%" nowrap="nowrap" valign="top"><a href="#"><img src="images/data_error.gif" border="0" align="absmiddle"></a></td>
-					</tr>
 				{else}
 				{/if}
+						</td>
+						<td width="0%" nowrap="nowrap" valign="top"><a href="index.php?c=core.module.search&a=removeCriteria&field={$param->field}"><img src="images/data_error.gif" border="0" align="absmiddle"></a></td>
+					</tr>
 				{/foreach}
+				{/if}
 			</table>
 		</td>
 	</tr>
