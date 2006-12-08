@@ -239,7 +239,7 @@ class CerberusParser {
 			// valid primary types are found at http://www.iana.org/assignments/media-types/
 			$timestamp = gmdate('Y.m.d.H.i.s.', gmmktime());
 			list($usec, $sec) = explode(' ', microtime());
-			$timestamp .= $usec . '.';
+			$timestamp .= substr($usec,2,3) . '.';
 			if (false !== file_put_contents(UM_ATTACHMENT_SAVE_PATH . $timestamp . $fileName, $part->body)) {
 				$attachments['files'][$timestamp.$fileName] = $fileName;
 //				$attachments['plaintext'] .= ' Saved file <a href="' . UM_ATTACHMENT_ACCESS_PATH . $timestamp . $fileName . '">'

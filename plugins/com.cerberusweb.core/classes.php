@@ -240,13 +240,17 @@ class ChDisplayModule extends CerberusModuleExtension {
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/index.tpl.php');
 	}
 
-	function reply() {
+	function reply()	{ ChDisplayModule::loadMessageTemplate(CerberusMessageType::EMAIL); }
+	function forward()	{ ChDisplayModule::loadMessageTemplate(CerberusMessageType::FORWARD); }
+	function comment()	{ ChDisplayModule::loadMessageTemplate(CerberusMessageType::COMMENT); }
+	
+	function loadMessageTemplate($type) {
 		@$id = $_REQUEST['id'];
 
 		$tpl = UserMeetTemplateManager::getInstance();
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		$tpl->assign('id',$id);
-
+		
 		$message = CerberusTicketDAO::getMessage($id);
 		$tpl->assign('message',$message);
 		
@@ -254,61 +258,31 @@ class ChDisplayModule extends CerberusModuleExtension {
 		$tpl->assign('ticket',$ticket);
 		
 		$tpl->cache_lifetime = "0";
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/rpc/reply.tpl.php');
+		
+		switch ($type) {
+			case CerberusMessageType::FORWARD :
+				$tpl->display('file:' . dirname(__FILE__) . '/templates/display/rpc/forward.tpl.php');
+				break;
+			case CerberusMessageType::EMAIL :
+				$tpl->display('file:' . dirname(__FILE__) . '/templates/display/rpc/reply.tpl.php');
+				break;
+			case CerberusMessageType::COMMENT :
+				$tpl->display('file:' . dirname(__FILE__) . '/templates/display/rpc/comment.tpl.php');
+				break;
+		}
 	}
+	
+	function sendReply()	{ ChDisplayModule::sendMessage(CerberusMessageType::EMAIL); }
+	function sendForward()	{ ChDisplayModule::sendMessage(CerberusMessageType::FORWARD); }
+	function sendComment()	{ ChDisplayModule::sendMessage(CerberusMessageType::COMMENT); }
 	
 	// TODO: may need to also have an agent_id passed to it in the request, to identify the agent making the reply
-	function sendReply() {
-		ChDisplayModule::sendMessage(CerberusMessageType::EMAIL);
-	}
-	
-	function forward() {
-		@$id = $_REQUEST['id'];
-
-		$tpl = UserMeetTemplateManager::getInstance();
-		$tpl->assign('path', dirname(__FILE__) . '/templates/');
-		$tpl->assign('id',$id);
-		
-		$message = CerberusTicketDAO::getMessage($id);
-		$tpl->assign('message',$message);
-		
-		$ticket = CerberusTicketDAO::getTicket($message->ticket_id);
-		$tpl->assign('ticket',$ticket);
-		
-		$tpl->cache_lifetime = "0";
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/rpc/forward.tpl.php');
-	}
-	
-	function sendForward() {
-		ChDisplayModule::sendMessage(CerberusMessageType::FORWARD);
-	}
-	
-	function comment() {
-		@$id = $_REQUEST['id'];
-
-		$tpl = UserMeetTemplateManager::getInstance();
-		$tpl->assign('path', dirname(__FILE__) . '/templates/');
-		$tpl->assign('id',$id);
-
-		$message = CerberusTicketDAO::getMessage($id);
-		$tpl->assign('message',$message);
-		
-		$ticket = CerberusTicketDAO::getTicket($message->ticket_id);
-		$tpl->assign('ticket',$ticket);
-		
-		$tpl->cache_lifetime = "0";
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/rpc/comment.tpl.php');
-	}
-	
-	function sendComment() {
-		ChDisplayModule::sendMessage(CerberusMessageType::COMMENT);
-	}
-	
 	function sendMessage($type) {
-		// mailer setup -- [TODO]: make this pull from a config instance rather than hard-coded
+		// mailer setup
 		require_once(UM_PATH . '/libs/pear/Mail.php');
+		require_once(UM_PATH . '/libs/pear/mime.php');
 		$mail_params = array();
-		$mail_params['host'] = 'mail.webgroupmedia.com';
+		$mail_params['host'] = 'mail.webgroupmedia.com'; //[TODO]: make this pull from a config instance rather than hard-coded
 		$mailer =& Mail::factory("smtp", $mail_params);
 		
 		// variable loading
@@ -367,14 +341,40 @@ class ChDisplayModule extends CerberusModuleExtension {
 		
 		// send email (if necessary)
 		if ($type != CerberusMessageType::COMMENT) {
-			$mail_result =& $mailer->send($sRCPT, $headers, $content);
+			// build MIME message if message has attachments
+			if (is_array($_FILES) && !empty($_FILES)) {
+				$mime_mail = new Mail_mime();
+				$mime_mail->setTXTBody($content);
+				foreach ($_FILES as $file) {
+					$mime_mail->addAttachment($file['tmp_name'], $file['type'], $file['name']);
+				}
+				
+				$email_body = $mime_mail->get();
+				$email_headers = $mime_mail->headers($headers);
+			} else {
+				$email_body = $content;
+				$email_headers = $headers;
+			}
+			
+			$mail_result =& $mailer->send($sRCPT, $email_headers, $email_body);
 			if ($mail_result !== true) die("Error message was: " . $mail_result->getMessage());
 		}
 		
 		// TODO: create DAO object for Agent, be able to pull address by having agent id.
 //		$headers['From'] = $agent_address->personal . ' <' . $agent_address->email . '>';
 //		CerberusTicketDAO::createMessage($ticket_id,CerberusMessageType::EMAIL,gmmktime(),$agent_id,$headers,$content);
-		CerberusTicketDAO::createMessage($ticket_id,$type,gmmktime(),1,$headers,$content);
+		$message_id = CerberusTicketDAO::createMessage($ticket_id,$type,gmmktime(),1,$headers,$content);
+		
+		// if this message was submitted with attachments, store them in the filestore and link them in the db.
+		if (is_array($_FILES) && !empty($_FILES)) {
+			foreach ($_FILES as $file) {
+				$timestamp = gmdate('Y.m.d.H.i.s.', gmmktime());
+				list($usec, $sec) = explode(' ', microtime());
+				$timestamp .= substr($usec,2,3) . '.';
+				copy($file['tmp_name'],UM_ATTACHMENT_SAVE_PATH . $timestamp . $file['name']);
+				CerberusTicketDAO::createAttachment($message_id, $file['name'], $timestamp . $file['name']);
+			}
+		}
 		
 		$_REQUEST['id'] = $ticket_id;
 		CerberusApplication::setActiveModule($this->id);
