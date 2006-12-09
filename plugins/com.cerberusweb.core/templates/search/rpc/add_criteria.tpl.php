@@ -6,6 +6,7 @@
 	<b>Add Criteria:</b>
 		<select name='field' id="{$divName}_field" onchange="ajax.getSearchCriteria('{$divName}',this.options[this.selectedIndex].value)" onkeydown="ajax.getSearchCriteria('{$divName}',this.options[this.selectedIndex].value)">
 			<option value=''>-- select criteria --
+			<option value='t.mask'>{$translate->say('ticket.mask')}
 			<option value='t.status'>{$translate->say('ticket.status')}
 			<option value='t.priority'>{$translate->say('ticket.priority')}
 			<option value='t.subject'>{$translate->say('ticket.subject')}

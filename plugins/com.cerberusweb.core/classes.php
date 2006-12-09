@@ -608,6 +608,10 @@ class ChSearchModule extends CerberusModuleExtension {
 		$tpl->cache_lifetime = "0";
 		
 		switch($field) {
+			case "t.mask":
+				$tpl->display('file:' . dirname(__FILE__) . '/templates/search/criteria/ticket_mask.tpl.php');
+				break;
+				
 			case "t.status":
 				$tpl->display('file:' . dirname(__FILE__) . '/templates/search/criteria/ticket_status.tpl.php');
 				break;
@@ -639,6 +643,10 @@ class ChSearchModule extends CerberusModuleExtension {
 		@$field = $_REQUEST['field'];
 		
 		switch($field) {
+			case "t.mask":
+				@$mask = $_REQUEST['mask'];
+				$params[$field] = new CerberusSearchCriteria($field,'like',$mask);
+				break;
 			case "t.status":
 				@$status = $_REQUEST['status'];
 				$params[$field] = new CerberusSearchCriteria($field,'in',$status);

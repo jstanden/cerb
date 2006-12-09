@@ -25,7 +25,12 @@
 					<tr>
 						<td width="100%">
 				
-				{if $param->field=="t.status"}
+				{if $param->field=="t.mask"}
+							<img src="images/data_find.gif" align="absmiddle"> 
+							{$translate->say('ticket.mask')} 
+							{$param->operator} 
+							<b>{$param->value}</b>
+				{elseif $param->field=="t.status"}
 							<img src="images/data_find.gif" align="absmiddle"> 
 							{$translate->say('ticket.status')} 
 							{$param->operator}

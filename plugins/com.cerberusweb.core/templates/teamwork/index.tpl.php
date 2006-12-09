@@ -6,12 +6,12 @@
 				<tr class="tableThGreen">
 					<th nowrap="nowrap"><img src="images/folder_gear.gif"> My Teams <a href="#" class="normalLink">reload</a>&nbsp;</th>
 				</tr>
-				<tr style="background-color:rgb(240,240,240);">
+				<tr class="tableCellBg">
 					<td nowrap="nowrap"><b style="color:rgb(229,95,0);">Assign me work from:</b></td>
 				</tr>
 				
 				{foreach from=$teams item=team name=teams}
-				<tr style="background-color:rgb(240,240,240);">
+				<tr class="tableCellBg">
 					<td nowrap="nowrap">
 						<label><input type="checkbox"> <img src="images/businessmen.gif" border="0"> 
 						<b>{$team->name}</b></label> (0)
@@ -19,10 +19,10 @@
 				</tr>
 				{/foreach}
 				
-				<tr style="background-color:rgb(240,240,240);">
+				<tr class="tableCellBg">
 					<td nowrap="nowrap"><b style="color:rgb(229,95,0);">How many tickets?</b></td>
 				</tr>
-				<tr style="background-color:rgb(240,240,240);">
+				<tr class="tableCellBg">
 					<td nowrap="nowrap">
 						<select name="">
 							<option value="1">1

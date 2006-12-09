@@ -14,7 +14,7 @@
 
 	{* Column Headers *}
 	<tr class="tableTh">
-		<th style="text-align:center"><a href="#">all</a></th>
+		<th style="text-align:center"><input type="checkbox" onclick="checkAll('view{$view->id}',this.checked);"></th>
 		{foreach from=$view->columns item=header name=headers}
 			{if $header=="t.mask"}
 			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t.mask');">{$translate->say('ticket.id')}</a></th>

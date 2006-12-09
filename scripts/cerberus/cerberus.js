@@ -24,9 +24,18 @@ function toggleDiv(divName,state) {
 	}
 }
 
-function checkAll(divName) {
+function checkAll(divName, state) {
 	var div = document.getElementById(divName);
 	if(null == div) return;
+	
+	var boxes = div.getElementsByTagName('input');
+	var numBoxes = boxes.length;
+	
+	for(x=0;x<numBoxes;x++) {
+		if(null != boxes[x].name) {
+			boxes[x].checked = (state) ? true : false;
+		}
+	}
 }
 
 var searchDialogs = new Array();
@@ -162,7 +171,7 @@ var cAjaxCalls = function() {
 		);	
 	}
 	
-	// [JAS]: [TODO] This should use the generic toggle/div functions
+	// [JAS]: [TODO] This should use the generic clearDiv function (same with anything similar)
 	this.discard = function(id) {
 		var div = document.getElementById('reply' + id);
 		if(null == div) return;
