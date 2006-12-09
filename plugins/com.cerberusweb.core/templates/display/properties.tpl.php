@@ -1,3 +1,6 @@
+<input type="hidden" name="c" value="core.module.display">
+<input type="hidden" name="a" value="updateProperties">
+<input type="hidden" name="id" value="{$ticket->id}">
 <table class="tableGreen" border="0" cellpadding="2" cellspacing="0" width="100%">
   <tbody>
     <tr>
@@ -72,6 +75,11 @@
       	<b class="green">Subject:</b><br>
       	<input type="text" name="subject" value="{$ticket->subject|escape:"htmlall"}">
      	</td>
+    </tr>
+    <tr>
+    	<td align="right">
+    		<input type="submit" value="Update Properties">
+    	</td>
     </tr>
   </tbody>
 </table>

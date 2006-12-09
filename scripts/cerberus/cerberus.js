@@ -162,6 +162,7 @@ var cAjaxCalls = function() {
 		);	
 	}
 	
+	// [JAS]: [TODO] This should use the generic toggle/div functions
 	this.discard = function(id) {
 		var div = document.getElementById('reply' + id);
 		if(null == div) return;
@@ -265,11 +266,17 @@ var cAjaxCalls = function() {
 					var div = document.getElementById('view' + id);
 					if(null == div) return;
 					
-					div.innerHTML = o.responseText;
-					div.style.display = 'block';
-					
-					var anim = new YAHOO.util.Anim(div, { opacity: { to: 1 } }, 1, YAHOO.util.Easing.easeOut);
-					anim.animate();
+					if(1 == o.responseText.length) {
+						div.innerHTML = '';
+						div.style.display = 'inline';
+						
+					} else {
+						div.innerHTML = o.responseText;
+						div.style.display = 'block';
+						
+						var anim = new YAHOO.util.Anim(div, { opacity: { to: 1 } }, 1, YAHOO.util.Easing.easeOut);
+						anim.animate();
+					}
 				},
 				failure: function(o) {},
 				argument:{caller:this,id:id}

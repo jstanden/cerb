@@ -4,7 +4,7 @@
 	</tr>
 	<tr style="border-bottom:1px solid rgb(200,200,200);">
 		<td>
-			<a href="javascript:;" onclick="">reset criteria</a> |
+			<a href="index.php?c=core.module.search&a=resetCriteria">reset criteria</a> |
 			<a href="javascript:;" onclick="ajax.getSaveSearch('{$divName}');">save</a> |
 			<a href="#">load</a>
 			<br>

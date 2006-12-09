@@ -3,11 +3,11 @@
     <tr>
       <td width="0%" nowrap="nowrap"><h1>{$translate->say('dashboard.dashboards')|capitalize}</h1></td>
       <td nowrap="nowrap" width="0%"><img src="images/spacer.gif" width="10">
-      	<a href="#">{$translate->say('dashboard.add_view')|lower}</a> | 
+      	<a href="index.php?c=core.module.dashboard&a=addView">{$translate->say('dashboard.add_view')|lower}</a> | 
       	<a href="#">{$translate->say('common.customize')|lower}</a> | 
       	<a href="#">{$translate->say('common.remove')|lower}</a> | 
       	<a href="#">{$translate->say('dashboard.create_ticket')|lower}</a> | 
-      	<a href="#">{$translate->say('common.refresh')|lower}</a></td>
+      	<a href="index.php?c=core.module.dashboard">{$translate->say('common.refresh')|lower}</a></td>
       <td align="right" nowrap="nowrap" width="100%">
       	<b>{$translate->say('dashboard')|capitalize}:</b> 
       	<select name="">
@@ -36,7 +36,6 @@
       	<div id="view{$view->id}">
 	      	{include file="file:$path/dashboards/ticket_view.tpl.php"}
 	      </div>
-	      <br>
       {/foreach}
       
       {include file="file:$path/dashboards/whos_online.tpl.php"}

@@ -115,9 +115,13 @@ class ChDashboardModule extends CerberusModuleExtension {
 		
 		$view = CerberusDashboardDAO::getView($id);
 		$tpl->assign('view', $view);
-
-		$tpl->cache_lifetime = "0";
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/dashboards/ticket_view.tpl.php');
+		
+		if(!empty($view)) {
+			$tpl->cache_lifetime = "0";
+			$tpl->display('file:' . dirname(__FILE__) . '/templates/dashboards/ticket_view.tpl.php');
+		} else {
+			echo " ";
+		}
 	}
 	
 	function customize() {
@@ -142,22 +146,28 @@ class ChDashboardModule extends CerberusModuleExtension {
 		@$name = $_REQUEST['name'];
 		@$num_rows = intval($_REQUEST['num_rows']);
 		@$columns = $_REQUEST['columns'];
+		@$delete = $_REQUEST['delete'];
 		
-		// [JAS]: Clear any empty columns
-		if(is_array($columns))
-		foreach($columns as $k => $v) {
-			if(empty($v))
-				unset($columns[$k]);
+		if(!empty($delete)) {
+			CerberusDashboardDAO::deleteView($id);
+			
+		} else {
+			// [JAS]: Clear any empty columns
+			if(is_array($columns))
+			foreach($columns as $k => $v) {
+				if(empty($v))
+					unset($columns[$k]);
+			}
+			
+			$fields = array(
+				'name' => $name,
+				'columns' => serialize($columns),
+				'num_rows' => $num_rows,
+				'page' => 0 // reset paging
+			);
+			
+			CerberusDashboardDAO::updateView($id,$fields);
 		}
-		
-		$fields = array(
-			'name' => $name,
-			'columns' => serialize($columns),
-			'num_rows' => $num_rows,
-			'page' => 0 // reset paging
-		);
-		
-		CerberusDashboardDAO::updateView($id,$fields);
 
 		echo ' ';
 	}
@@ -169,6 +179,23 @@ class ChDashboardModule extends CerberusModuleExtension {
 		$_SESSION['params'] = $view->params;
 		
 		CerberusApplication::setActiveModule("core.module.search");
+	}
+	
+	function addView() {
+		$view_id = CerberusDashboardDAO::createView('New View', 0, 10);
+		
+		$fields = array(
+			'columns' => serialize(array(
+				't.mask',
+				't.status',
+				't.priority',
+				't.last_wrote',
+				't.created_date'
+			))
+		);
+		CerberusDashboardDAO::updateView($view_id,$fields);
+		
+		CerberusApplication::setActiveModule($this->id);
 	}
 	
 };
@@ -240,6 +267,26 @@ class ChDisplayModule extends CerberusModuleExtension {
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/index.tpl.php');
 	}
 
+	function updateProperties() {
+		@$id = $_REQUEST['id']; // ticket id
+		@$status = $_REQUEST['status'];
+		@$priority = $_REQUEST['priority'];
+		@$mailbox_id = $_REQUEST['mailbox_id'];
+		@$subject = $_REQUEST['subject'];
+		
+		$properties = array(
+			'status' => $status,
+			'priority' => intval($priority),
+			'mailbox_id' => $mailbox_id,
+			'subject' => $subject,
+			'updated_date' => gmmktime()
+		);
+		CerberusTicketDAO::updateTicket($id, $properties);
+		
+		$_REQUEST['id'] = $id;
+		CerberusApplication::setActiveModule($this->id);
+	}
+	
 	function reply()	{ ChDisplayModule::loadMessageTemplate(CerberusMessageType::EMAIL); }
 	function forward()	{ ChDisplayModule::loadMessageTemplate(CerberusMessageType::FORWARD); }
 	function comment()	{ ChDisplayModule::loadMessageTemplate(CerberusMessageType::COMMENT); }
@@ -621,6 +668,11 @@ class ChSearchModule extends CerberusModuleExtension {
 			
 		$_SESSION['params'] = $params;
 		
+		CerberusApplication::setActiveModule($this->id);
+	}
+	
+	function resetCriteria() {
+		$_SESSION['params'] = array();
 		CerberusApplication::setActiveModule($this->id);
 	}
 	

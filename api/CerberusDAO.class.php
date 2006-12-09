@@ -594,6 +594,16 @@ class CerberusDashboardDAO {
 		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
 	}
 	
+	static function deleteView($id) {
+		$um_db = UserMeetDatabase::getInstance();
+		
+		$sql = sprintf("DELETE FROM dashboard_view WHERE id = %d",
+			$id
+		);
+		
+		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+	}
+	
 	/**
 	 * Enter description here...
 	 *

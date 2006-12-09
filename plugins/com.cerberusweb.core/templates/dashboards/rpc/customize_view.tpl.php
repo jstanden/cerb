@@ -21,6 +21,8 @@
 <br>
 <b>{$translate->say('dashboard.num_rows')|capitalize}:</b> <input type="text" name="num_rows" size="3" maxlength="3" value="{$view->renderLimit}"><br>
 <br>
+<label><input type="checkbox" name="delete" value="1"> {$translate->say('dashboard.remove_view')}</label><br>
+<br>
 <input type="button" value="{$translate->say('common.save_changes')|capitalize}" onclick="ajax.saveCustomize('{$id}');">
 <input type="button" value="{$translate->say('common.cancel')|capitalize}" onclick="ajax.getCustomize('{$id}');">
 <br>
