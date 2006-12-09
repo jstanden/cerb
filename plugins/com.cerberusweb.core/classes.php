@@ -339,14 +339,15 @@ class ChDisplayModule extends CerberusModuleExtension {
 				$headers['in-reply-to']	= $message->headers['message-id'];
 		}
 		
+		$files = $_FILES['attachment'];
 		// send email (if necessary)
 		if ($type != CerberusMessageType::COMMENT) {
 			// build MIME message if message has attachments
-			if (is_array($_FILES) && !empty($_FILES)) {
+			if (is_array($files) && !empty($files)) {
 				$mime_mail = new Mail_mime();
 				$mime_mail->setTXTBody($content);
-				foreach ($_FILES as $file) {
-					$mime_mail->addAttachment($file['tmp_name'], $file['type'], $file['name']);
+				foreach ($files['tmp_name'] as $idx => $file) {
+					$mime_mail->addAttachment($files['tmp_name'][$idx], $files['type'][$idx], $files['name'][$idx]);
 				}
 				
 				$email_body = $mime_mail->get();
@@ -366,13 +367,13 @@ class ChDisplayModule extends CerberusModuleExtension {
 		$message_id = CerberusTicketDAO::createMessage($ticket_id,$type,gmmktime(),1,$headers,$content);
 		
 		// if this message was submitted with attachments, store them in the filestore and link them in the db.
-		if (is_array($_FILES) && !empty($_FILES)) {
-			foreach ($_FILES as $file) {
+		if (is_array($files) && !empty($files)) {
+			foreach ($files['tmp_name'] as $idx => $file) {
 				$timestamp = gmdate('Y.m.d.H.i.s.', gmmktime());
 				list($usec, $sec) = explode(' ', microtime());
 				$timestamp .= substr($usec,2,3) . '.';
-				copy($file['tmp_name'],UM_ATTACHMENT_SAVE_PATH . $timestamp . $file['name']);
-				CerberusTicketDAO::createAttachment($message_id, $file['name'], $timestamp . $file['name']);
+				copy($files['tmp_name'][$idx],UM_ATTACHMENT_SAVE_PATH . $timestamp . $files['name'][$idx]);
+				CerberusTicketDAO::createAttachment($message_id, $files['name'][$idx], $timestamp . $files['name'][$idx]);
 			}
 		}
 		
