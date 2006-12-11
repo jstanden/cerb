@@ -192,12 +192,12 @@ class CerberusParser {
 	 * @return CerberusTicket ticket object
 	 */
 	static public function parseMessage($rfcMessage) {
-		$continue = parsePreRules($rfcMessage);
+		$continue = CerberusParser::parsePreRules($rfcMessage);
 		if (false === $continue) return;
 		
-		$ticket = parseToTicket($rfcMessage);
+		$ticket = CerberusParser::parseToTicket($rfcMessage);
 		
-		parsePostRules($ticket);
+		CerberusParser::parsePostRules($ticket);
 		
 		return $ticket;
 	}

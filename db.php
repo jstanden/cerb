@@ -103,12 +103,15 @@ $tables['mailbox'] = "
 
 $tables['dashboard'] = "
 	id I4 DEFAULT 0 NOTNULL PRIMARY,
-	name C(32) DEFAULT '' NOTNULL
+	name C(32) DEFAULT '' NOTNULL,
+	agent_id I4 NOTNULL
 ";
 
 $tables['dashboard_view'] = "
 	id I4 DEFAULT 0 NOTNULL PRIMARY,
 	dashboard_id I4 DEFAULT 0 NOTNULL,
+	type C(1) DEFAULT 'D',
+	agent_id I4 NOTNULL,
 	name C(32) DEFAULT '' NOTNULL,
 	columns B,
 	sort_by C(32) DEFAULT '' NOTNULL,
@@ -122,7 +125,7 @@ $tables['address'] = "
 	id I4 DEFAULT 0 NOTNULL PRIMARY,
 	email C(255) DEFAULT '' NOTNULL,
 	personal C(255) DEFAULT '',
-	bitflags I2 DEFAULT 0,
+	bitflags I2 DEFAULT 0
 ";
 
 $tables['address_to_mailbox'] = "
@@ -142,4 +145,5 @@ foreach($tables as $table => $flds) {
 	echo "<HR>";
 }
 
+$plugins = UserMeetPlatform::readPlugins();
 ?>

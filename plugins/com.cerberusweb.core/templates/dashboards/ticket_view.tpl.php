@@ -3,7 +3,7 @@
 		<td nowrap="nowrap" class="tableThBlue">{$view->name}</td>
 		<td nowrap="nowrap" class="tableThBlue" align="right">
 			<a href="javascript:;" onclick="ajax.getRefresh('{$view->id}');" class="tableThLink">{$translate->say('common.refresh')|lower}</a><span style="font-size:12px"> | </span>
-			<a href="index.php?c=core.module.dashboard&a=searchview&id={$view->id}" class="tableThLink">{$translate->say('common.search')|lower}</a><span style="font-size:12px"> | </span>
+			{if $view->type == 'D'}<a href="index.php?c=core.module.dashboard&a=searchview&id={$view->id}" class="tableThLink">{$translate->say('common.search')|lower}</a><span style="font-size:12px"> | </span>{/if}
 			<a href="javascript:;" onclick="ajax.getCustomize('{$view->id}');" class="tableThLink">{$translate->say('common.customize')|lower}</a>
 		</td>
 	</tr>

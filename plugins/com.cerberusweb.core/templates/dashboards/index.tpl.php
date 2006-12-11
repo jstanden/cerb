@@ -12,6 +12,9 @@
       	<b>{$translate->say('dashboard')|capitalize}:</b> 
       	<select name="">
       		<option value="">-- {$translate->say('dashboard.choose_dashboard')|lower} --
+      		{foreach from=$dashboards item=dashboard}
+      			<option value="{$dashboard->id}">{$dashboard->name}
+      		{/foreach}
       	</select>
       	<input type="submit" value="{$translate->say('dashboard.switch')|lower}"> 
       	<a href="#">{$translate->say('dashboard.add_dashboard')|lower}</a>

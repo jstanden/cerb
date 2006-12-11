@@ -513,6 +513,7 @@ class UserMeetSessionManager {
 			ADOdb_Session::config(UM_DB_DRIVER, UM_DB_HOST, UM_DB_USER, UM_DB_PASS, UM_DB_DATABASE, $options);
 			ADOdb_session::Persist($connectMode=false);
 			//session_name("cerb4");
+			session_set_cookie_params(0);
 			session_start();
 			$instance = new UserMeetSessionManager();
 			$instance->visit = $_SESSION['um_visit']; /* @var $visit UserMeetSession */

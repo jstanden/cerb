@@ -10,10 +10,19 @@ class CerberusDashboardViewColumn {
 	}
 }
 
+class CerberusDashboard {
+	public $id = 0;
+	public $name = "";
+	public $agent_id = 0;
+}
+
 class CerberusDashboardView {
 	public $id = 0;
 	public $name = "";
 	public $dashboard_id = 0;
+	public $type = '';
+	public $agent_id = 0;
+	public $columns = array();
 	public $params = array();
 	
 	public $renderPage = 0;

@@ -1,5 +1,35 @@
 <?php
 
+class CerberusAgentDAO {
+	private function CerberusAgentDAO() {}
+	
+	static function createAgent($login, $password, $admin=0) {
+		$um_db = UserMeetDatabase::getInstance();
+		$id = $um_db->GenID('generic_seq');
+		
+		$sql = sprintf("INSERT INTO login (id, login, password, admin) ".
+			"VALUES (%d, %s, %s, %d)",
+			$id,
+			$um_db->qstr($login),
+			$um_db->qstr(md5($password)),
+			$admin
+		);
+		$rs = $um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		return $id;
+	}
+	
+	static function getAgent($id) {
+		$um_db = UserMeetDatabase::getInstance();
+		
+	}
+	
+	static function updateAgent($id, $fields) {
+		$um_db = UserMeetDatabase::getInstance();
+		
+	}
+}
+
 class CerberusContactDAO {
 	private function CerberusContactDAO() {}
 	
@@ -541,28 +571,55 @@ class CerberusTicketDAO {
 class CerberusDashboardDAO {
 	private function CerberusDashboardDAO() {}
 	
-	static function createDashboard($name) {
+	static function createDashboard($name, $agent_id) {
 		$um_db = UserMeetDatabase::getInstance();
 		$newId = $um_db->GenID('generic_seq');
 		
-		$sql = sprintf("INSERT INTO dashboard (id, name) VALUES (%d, %s)",
+		$sql = sprintf("INSERT INTO dashboard (id, name, agent_id) ".
+			"VALUES (%d, %s, %d)",
 			$newId,
-			$um_db->qstr($name)
+			$um_db->qstr($name),
+			$agent_id
 		);
 		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		return $newId;
 	}
 	
-	static function createView($name,$dashboard_id,$num_rows=10,$sort_by=null,$sort_asc=1) {
+	// [JAS]: Convert this over to pulling by a list of IDs?
+	static function getDashboards($agent_id=0) {
+		$um_db = UserMeetDatabase::getInstance();
+		
+		$sql = sprintf("SELECT id, name ".
+			"FROM dashboard "
+//			(($agent_id) ? sprintf("WHERE agent_id = %d ",$agent_id) : " ")
+		);
+		$rs = $um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		$dashboards = array();
+		
+		while(!$rs->EOF) {
+			$dashboard = new CerberusDashboard();
+			$dashboard->id = intval($rs->fields['id']);
+			$dashboard->name = $rs->fields['name'];
+			$dashboard->agent_id = intval($rs->fields['agent_id']);
+			$dashboards[$dashboard->id] = $dashboard;
+			$rs->MoveNext();
+		}
+		
+		return $dashboards;
+	}
+	
+	static function createView($name,$dashboard_id,$num_rows=10,$sort_by=null,$sort_asc=1,$type='D') {
 		$um_db = UserMeetDatabase::getInstance();
 		$newId = $um_db->GenID('generic_seq');
 		
-		$sql = sprintf("INSERT INTO dashboard_view (id, name, dashboard_id, num_rows, sort_by, sort_asc, page, params) ".
-			"VALUES (%d, %s, %d, %d, %s, %s, %d, '')",
+		$sql = sprintf("INSERT INTO dashboard_view (id, name, dashboard_id, type, num_rows, sort_by, sort_asc, page, params) ".
+			"VALUES (%d, %s, %d, %s, %d, %s, %s, %d, '')",
 			$newId,
 			$um_db->qstr($name),
 			$dashboard_id,
+			$um_db->qstr($type),
 			$num_rows,
 			$um_db->qstr($sort_by),
 			$sort_asc,
@@ -573,7 +630,7 @@ class CerberusDashboardDAO {
 		return $newId;
 	}
 	
-	static function updateView($id,$fields) {
+	static private function _updateView($id,$fields) {
 		$um_db = UserMeetDatabase::getInstance();
 		$sets = array();
 		
@@ -613,9 +670,10 @@ class CerberusDashboardDAO {
 	static function getViews($dashboard_id=0) {
 		$um_db = UserMeetDatabase::getInstance();
 		
-		$sql = sprintf("SELECT v.id, v.name, v.dashboard_id, v.columns, v.num_rows, v.sort_by, v.sort_asc, v.page, v.params ".
+		$sql = sprintf("SELECT v.id, v.name, v.dashboard_id, v.type, v.agent_id, v.columns, v.num_rows, v.sort_by, v.sort_asc, v.page, v.params ".
 			"FROM dashboard_view v ".
-			(!empty($dashboard_id) ? sprintf("WHERE v.dashboard_id = %d ", $dashboard_id) : " ")
+			"WHERE v.dashboard_id > 0 "
+//			(!empty($dashboard_id) ? sprintf("WHERE v.dashboard_id = %d ", $dashboard_id) : " ")
 		);
 		$rs = $um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
@@ -626,6 +684,8 @@ class CerberusDashboardDAO {
 			$view->id = $rs->fields['id'];
 			$view->name = $rs->fields['name'];
 			$view->dashboard_id = intval($rs->fields['dashboard_id']);
+			$view->type = $rs->fields['type'];
+			$view->agent_id = intval($rs->fields['agent_id']);
 			$view->columns = unserialize($rs->fields['columns']);
 			$view->params = unserialize($rs->fields['params']);
 			$view->renderLimit = intval($rs->fields['num_rows']);
@@ -640,15 +700,91 @@ class CerberusDashboardDAO {
 	}
 	
 	/**
+	 * Loads or creates a view for a given agent
+	 *
+	 * @param integer $search_id
+	 * @return CerberusDashboardView
+	 */
+	static function getView($view_id) {
+		if(!empty($view_id)) {
+			$view = CerberusDashboardDAO::_getView($view_id);
+			
+		} elseif(!empty($_SESSION['search_view'])) {
+			$view = $_SESSION['search_view'];
+			
+		} else {
+			$view = new CerberusDashboardView();
+			$view->id = 0;
+			$view->name = "Search Results";
+			$view->dashboard_id = 0;
+			$view->columns = array(
+				't.mask',
+				't.status',
+				't.priority',
+				't.last_wrote',
+				't.created_date'
+				);
+			$view->params = array();
+			$view->renderLimit = 100;
+			$view->renderPage = 0;
+			$view->renderSortBy = 't.created_date';
+			$view->renderSortAsc = 0;
+			
+			$_SESSION['search_view'] = $view;
+		}
+		
+		return $view;
+	}
+	
+	static function updateView($view_id,$fields) {
+		
+		if(!empty($view_id)) { // db-driven view
+			CerberusDashboardDAO::_updateView($view_id, $fields);
+			
+		} elseif(!empty($_SESSION['search_view'])) { // virtual view
+			$view =& $_SESSION['search_view']; /* @var $view CerberusDashboardView */
+			
+			foreach($fields as $key => $value) {
+				switch($key) {
+					case 'name':
+						$view->name = $value;
+						break;
+					case 'columns':
+						$view->columns = unserialize($value);
+						break;
+					case 'params':
+						$view->params = unserialize($value);
+						break;
+					case 'num_rows':
+						$view->renderLimit = intval($value);
+						break;
+					case 'page':
+						$view->renderPage = intval($value);
+						break;
+					case 'type':
+						$view->type = $value;
+						break;
+					case 'sort_by':
+						$view->renderSortBy = $value;
+						break;
+					case 'sort_asc':
+						$view->renderSortAsc = (boolean) $value;
+						break;
+				}
+			}
+		}		
+	}
+	
+	/**
 	 * Enter description here...
 	 *
 	 * @param integer $view_id
 	 * @return CerberusDashboardView
 	 */
-	static function getView($view_id) {
+	static private function _getView($view_id) {
 		$um_db = UserMeetDatabase::getInstance();
 		
-		$sql = sprintf("SELECT v.id, v.name, v.dashboard_id, v.columns, v.num_rows, v.sort_by, v.sort_asc, v.page, v.params ".
+		$sql = sprintf("SELECT v.id, v.name, v.dashboard_id, v.type, v.agent_id, v.columns, v.num_rows, v.sort_by, v.sort_asc, v.page, v.params ".
 			"FROM dashboard_view v ".
 			"WHERE v.id = %d ",
 			$view_id
@@ -660,6 +796,8 @@ class CerberusDashboardDAO {
 			$view->id = $rs->fields['id'];
 			$view->name = $rs->fields['name'];
 			$view->dashboard_id = intval($rs->fields['dashboard_id']);
+			$view->type = $rs->fields['type'];
+			$view->agent_id = intval($rs->fields['agent_id']);
 			$view->columns = unserialize($rs->fields['columns']);
 			$view->params = unserialize($rs->fields['params']);
 			$view->renderLimit = intval($rs->fields['num_rows']);

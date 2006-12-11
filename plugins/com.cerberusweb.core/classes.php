@@ -24,6 +24,12 @@ class ChDashboardModule extends CerberusModuleExtension {
 		$um_db = UserMeetDatabase::getInstance();
 		$tpl = UserMeetTemplateManager::getInstance();
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+
+		$session = UserMeetSessionManager::getInstance();
+		$visit = $session->getVisit();
+		
+		$dashboards = CerberusDashboardDAO::getDashboards($visit->id);
+		$tpl->assign('dashboards', $dashboards);
 		
 		// [JAS]: [TODO] This needs to limit by the selected dashboard
 		$views = CerberusDashboardDAO::getViews(); // getViews($dashboard_id)
@@ -78,13 +84,11 @@ class ChDashboardModule extends CerberusModuleExtension {
 		
 		$um_db = UserMeetDatabase::getInstance();
 		
-		// [JAS]: [TODO] Move this into DAO
-		$sql = sprintf("UPDATE dashboard_view SET sort_by = %s, sort_asc = %d WHERE id = %d",
-			$um_db->qstr($sortBy),
-			$iSortAsc,
-			$id
+		$fields = array(
+			'sort_by' => $sortBy,
+			'sort_asc' => $iSortAsc
 		);
-		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		CerberusDashboardDAO::updateView($id, $fields);
 		
 		echo ' ';
 	}
@@ -100,7 +104,6 @@ class ChDashboardModule extends CerberusModuleExtension {
 		$fields = array(
 			'page' => $page
 		);
-		
 		CerberusDashboardDAO::updateView($id,$fields);		
 		
 		echo ' ';
@@ -158,14 +161,13 @@ class ChDashboardModule extends CerberusModuleExtension {
 				if(empty($v))
 					unset($columns[$k]);
 			}
-			
+
 			$fields = array(
 				'name' => $name,
 				'columns' => serialize($columns),
 				'num_rows' => $num_rows,
 				'page' => 0 // reset paging
 			);
-			
 			CerberusDashboardDAO::updateView($id,$fields);
 		}
 
@@ -174,15 +176,21 @@ class ChDashboardModule extends CerberusModuleExtension {
 	
 	function searchview() {
 		@$id = $_REQUEST['id'];
-		
 		$view = CerberusDashboardDAO::getView($id);
-		$_SESSION['params'] = $view->params;
+
+		@$search_id = $_SESSION['search_id'];
+		$search_view = CerberusDashboardDAO::getView($search_id);
+		$fields = array(
+			'params' => serialize($view->params)
+		);
+		CerberusDashboardDAO::updateView($search_id, $fields);
 		
 		CerberusApplication::setActiveModule("core.module.search");
 	}
 	
 	function addView() {
-		$view_id = CerberusDashboardDAO::createView('New View', 0, 10);
+		// [JAS]: [TODO] Use a real dashboard ID here.
+		$view_id = CerberusDashboardDAO::createView('New View', 1, 10);
 		
 		$fields = array(
 			'columns' => serialize(array(
@@ -573,25 +581,11 @@ class ChSearchModule extends CerberusModuleExtension {
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		$tpl->cache_lifetime = "0";
 
-//		global $_SESSION;
-		$params = $_SESSION['params'];
-//		print_r($params);
+		$search_id = $_SESSION['search_id'];
+		$view = CerberusDashboardDAO::getView($search_id);
 		
-//		$params = array(
-//			new CerberusSearchCriteria('t.status','in',array('O')),
-//			new CerberusSearchCriteria('t.priority','!=',0),
-//		);
-		$tpl->assign('params', $params);
-		
-		$search = CerberusTicketDAO::searchTickets(
-			$params,
-			50,
-			0,
-			't.updated_date',
-			false
-		);
-		$tpl->assign('search', $search[0]);
-		$tpl->assign('total', $search[1]);
+		$tpl->assign('view', $view);
+		$tpl->assign('params', $view->params);
 		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/search/index.tpl.php');
 	}
@@ -639,9 +633,12 @@ class ChSearchModule extends CerberusModuleExtension {
 	}
 	
 	function addCriteria() {
-		@$params = $_SESSION['params'];
+		@$search_id = $_SESSION['search_id'];
+		$view = CerberusDashboardDAO::getView($search_id);
+
+		$params = $view->params;
 		@$field = $_REQUEST['field'];
-		
+
 		switch($field) {
 			case "t.mask":
 				@$mask = $_REQUEST['mask'];
@@ -661,26 +658,35 @@ class ChSearchModule extends CerberusModuleExtension {
 				break;
 		}
 		
-		
-		$_SESSION['params'] = $params;
+		$fields = array(
+			'params' => serialize($params)
+		);
+		CerberusDashboardDAO::updateView($search_id, $fields);
 		
 		CerberusApplication::setActiveModule($this->id);
 	}
 	
 	function removeCriteria() {
-		@$params = $_SESSION['params'];
+		@$search_id = $_SESSION['search_id'];
+		$view = CerberusDashboardDAO::getView($search_id);
+
+		@$params = $view->params;
 		@$field = $_REQUEST['field'];
 		
 		if(isset($params[$field]))
 			unset($params[$field]);
 			
-		$_SESSION['params'] = $params;
+		$fields = array(
+			'params' => serialize($params)
+		);
+		CerberusDashboardDAO::updateView($search_id, $fields);
 		
 		CerberusApplication::setActiveModule($this->id);
 	}
 	
 	function resetCriteria() {
-		$_SESSION['params'] = array();
+		$_SESSION['search_id'] = 0;
+		unset($_SESSION['search_view']);
 		CerberusApplication::setActiveModule($this->id);
 	}
 	
@@ -700,7 +706,10 @@ class ChSearchModule extends CerberusModuleExtension {
 	}
 	
 	function saveSearch() {
-		@$params = $_SESSION['params'];
+		@$search_id = $_SESSION['search_id'];
+		$view = CerberusDashboardDAO::getView($search_id);
+
+		@$params = $view->params;
 		@$save_as = $_REQUEST['save_as'];
 
 		if($save_as=='view') {

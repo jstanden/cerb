@@ -12,10 +12,10 @@
 		</td>
 		<td valign="top" width="0%" nowrap="nowrap"><img src="images/spacer.gif" width="5" height="1"></td>
 		<td valign="top" width="100%">
-			{foreach from=$search item=ticket}
+			{*foreach from=$search item=ticket}
 				{$ticket->mask}: {$ticket->subject}<br>
-			{/foreach}
-			{*include file="file:$path/dashboards/ticket_view.tpl.php"*}
+			{/foreach*}
+			<div id="view{$view->id}">{include file="file:$path/dashboards/ticket_view.tpl.php"}</div>
 		</td>
 	</tr>
 </table>
