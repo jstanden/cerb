@@ -91,6 +91,12 @@ var cAjaxCalls = function() {
 		);
 	}
 	
+	this.deleteSearch = function(id) {
+		if(confirm('Are you sure you want to delete this search?')) {
+			document.location = 'index.php?c=core.module.search&a=deleteSearch&search_id=' + id;
+		}
+	}
+	
 	this.saveSearch = function(divName) {
 		var div = document.getElementById(divName + '_control');
 		if(null == div) return;

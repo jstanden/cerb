@@ -4,9 +4,13 @@
 	</tr>
 	<tr style="border-bottom:1px solid rgb(200,200,200);">
 		<td>
-			<a href="index.php?c=core.module.search&a=resetCriteria">reset criteria</a> |
-			<a href="javascript:;" onclick="ajax.getSaveSearch('{$divName}');">save</a> |
+			{if !empty($view->id)}
+				Search: <b>{$view->name}</b><br>
+			{/if}
+			<a href="index.php?c=core.module.search&a=resetCriteria">reset</a> |
+			<a href="javascript:;" onclick="ajax.getSaveSearch('{$divName}');">save as</a> |
 			<a href="javascript:;" onclick="ajax.getLoadSearch('{$divName}');">load</a>
+			{if !empty($view->id)} | <a href="javascript:;" onclick="ajax.deleteSearch('{$view->id}');">delete</a>{/if}
 			<br>
 			<form id="{$divName}_control"></form>
 		</td>

@@ -584,6 +584,14 @@ class ChSearchModule extends CerberusModuleExtension {
 		$search_id = $_SESSION['search_id'];
 		$view = CerberusDashboardDAO::getView($search_id);
 		
+		// [JAS]: Recover from a bad cached ID.
+		if(null == $view) {
+			$search_id = 0;
+			$_SESSION['search_id'] = $search_id;
+			unset($_SESSION['search_view']);
+			$view = CerberusDashboardDAO::getView($search_id);
+		}
+		
 		$tpl->assign('view', $view);
 		$tpl->assign('params', $view->params);
 		
@@ -713,8 +721,8 @@ class ChSearchModule extends CerberusModuleExtension {
 		@$params = $view->params;
 		@$columns = $view->columns;
 		
-//		$view->id = 0;
 		$_SESSION['search_view'] = $view;
+		$_SESSION['search_id'] = $view->id;
 		
 		CerberusApplication::setActiveModule($this->id);
 	}
@@ -763,7 +771,24 @@ class ChSearchModule extends CerberusModuleExtension {
 				'num_rows' => $view->renderLimit
 			);
 			CerberusDashboardDAO::updateView($view_id, $fields);
+			$_SESSION['search_view'] = CerberusDashboardDAO::getView($view_id);
+			$_SESSION['search_id'] = $view_id;
+			
+			echo "Saved search!";
 		}
+	}
+	
+	function deleteSearch() {
+		@$search_id = $_SESSION['search_id'];
+		
+		if($_SESSION['search_id']==$search_id) {
+			$_SESSION['search_id'] = 0;
+			unset($_SESSION['search_view']);
+		}
+		
+		CerberusDashboardDAO::deleteView($search_id);
+		
+		CerberusApplication::setActiveModule($this->id);
 	}
 }
 

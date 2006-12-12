@@ -6,11 +6,13 @@
 $language = array(
 	'common.cancel' => 'cancel',
 	'common.customize' => 'customize',
-	'common.name' => 'name',
+	'common.name' => 'Name',
+	'common.load' => 'Load',
 	'common.next' => 'next',
 	'common.prev' => 'prev',
 	'common.refresh' => 'refresh',
 	'common.remove' => 'remove',
+	'common.save' => 'Save',
 	'common.save_changes' => 'Save Changes',
 	'common.search' => 'search',
 	'common.ticket' => 'ticket',
@@ -43,7 +45,7 @@ $language = array(
 	'dashboard.switch' => 'Switch',
 	'dashboard.team_loads' => 'Team Loads',
 	
-	'search.remove_view' => 'Delete Saved Search',
+	'search.no_saved' => 'No saved searches.',
 	
 	'status.open' => 'Open',
 	'status.waiting' => 'Waiting For Reply',

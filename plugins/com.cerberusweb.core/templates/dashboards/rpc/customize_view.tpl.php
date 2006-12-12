@@ -31,9 +31,6 @@
 {if $view->type == 'D'}
 <label><input type="checkbox" name="delete" value="1"> {$translate->say('dashboard.remove_view')}</label><br>
 <br>
-{elseif $view->type == 'S'}
-<label><input type="checkbox" name="delete" value="1"> {$translate->say('search.remove_view')}</label><br>
-<br>
 {/if}
 
 <input type="button" value="{$translate->say('common.save_changes')|capitalize}" onclick="ajax.saveCustomize('{$id}');">

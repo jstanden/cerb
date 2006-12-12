@@ -7,9 +7,8 @@
 	{/foreach}
 </select>
 <br>
-<input type="submit" value="Load Search">
+<input type="submit" value="{$translate->say('common.load')|capitalize}">
 {else}
-No saved searches.
-<br>
+{$translate->say('search.no_saved')}<br>
 {/if}
-<input type="button" value="Cancel" onclick="clearDiv('{$divName}_control');">
+<input type="button" value="{$translate->say('common.cancel')|capitalize}" onclick="clearDiv('{$divName}_control');">
