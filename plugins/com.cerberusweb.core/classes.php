@@ -690,6 +690,35 @@ class ChSearchModule extends CerberusModuleExtension {
 		CerberusApplication::setActiveModule($this->id);
 	}
 	
+	function getLoadSearch() {
+		@$divName = $_REQUEST['divName'];
+		
+		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		$tpl->cache_lifetime = "0";
+		
+		$tpl->assign('divName',$divName);
+		
+		$searches = CerberusSearchDAO::getSavedSearches(1); /* @var $searches CerberusDashboardView[] */
+		$tpl->assign('searches', $searches);
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/search/rpc/load_search.tpl.php');
+	}
+	
+	function loadSearch() {
+		@$search_id = $_REQUEST['search_id'];
+		
+		$view = CerberusDashboardDAO::getView($search_id);
+
+		@$params = $view->params;
+		@$columns = $view->columns;
+		
+//		$view->id = 0;
+		$_SESSION['search_view'] = $view;
+		
+		CerberusApplication::setActiveModule($this->id);
+	}
+	
 	function getSaveSearch() {
 		@$divName = $_REQUEST['divName'];
 		
@@ -710,6 +739,7 @@ class ChSearchModule extends CerberusModuleExtension {
 		$view = CerberusDashboardDAO::getView($search_id);
 
 		@$params = $view->params;
+		@$columns = $view->columns;
 		@$save_as = $_REQUEST['save_as'];
 
 		if($save_as=='view') {
@@ -724,9 +754,15 @@ class ChSearchModule extends CerberusModuleExtension {
 		} else { // named search
 			@$name = $_REQUEST['name'];
 			
-			echo sprintf("Saved as %s!",
-				$name
+			$view_id = CerberusDashboardDAO::createView($name, 0, 50, 't.created_date', 0, 'S');
+			$fields = array(
+				'columns' => serialize($columns),
+				'params' => serialize($params),
+				'sort_by' => $view->renderSortBy,
+				'sort_asc' => $view->renderSortAsc,
+				'num_rows' => $view->renderLimit
 			);
+			CerberusDashboardDAO::updateView($view_id, $fields);
 		}
 	}
 }

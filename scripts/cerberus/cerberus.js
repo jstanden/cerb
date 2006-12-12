@@ -55,6 +55,24 @@ function addCriteria(divName) {
 
 var cAjaxCalls = function() {
 	
+	this.getLoadSearch = function(divName) {
+		var div = document.getElementById(divName + '_control');
+		if(null == div) return;
+		
+		var cObj = YAHOO.util.Connect.asyncRequest('GET', 'ajax.php?c=core.module.search&a=getLoadSearch&divName='+divName, {
+				success: function(o) {
+					var divName = o.argument.divName;
+					var div = document.getElementById(divName + '_control');
+					if(null == div) return;
+					
+					div.innerHTML = o.responseText;
+				},
+				failure: function(o) {},
+				argument:{caller:this,divName:divName}
+				}
+		);
+	}
+
 	this.getSaveSearch = function(divName) {
 		var div = document.getElementById(divName + '_control');
 		if(null == div) return;

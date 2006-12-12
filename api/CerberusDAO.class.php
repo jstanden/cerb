@@ -812,4 +812,49 @@ class CerberusDashboardDAO {
 	}
 };
 
+/**
+ * Enter description here...
+ * 
+ * @addtogroup dao
+ */
+class CerberusSearchDAO {
+	// [JAS]: [TODO] Implement Agent ID lookup
+	// [JAS]: [TODO] Move to a single getViewsById
+	/**
+	 * Enter description here...
+	 *
+	 * @param integer $agent_id
+	 * @return CerberusDashboardView[]
+	 */
+	static function getSavedSearches($agent_id) {
+		$um_db = UserMeetDatabase::getInstance();
+		$searches = array();
+		
+		$sql = sprintf("SELECT v.id, v.name, v.dashboard_id, v.type, v.agent_id, v.columns, v.num_rows, v.sort_by, v.sort_asc, v.page, v.params ".
+			"FROM dashboard_view v ".
+			"WHERE v.type = 'S' "
+		);
+		$rs = $um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+
+		while(!$rs->EOF) {
+			$view = new CerberusDashboardView();
+			$view->id = $rs->fields['id'];
+			$view->name = $rs->fields['name'];
+			$view->dashboard_id = intval($rs->fields['dashboard_id']);
+			$view->type = $rs->fields['type'];
+			$view->agent_id = intval($rs->fields['agent_id']);
+			$view->columns = unserialize($rs->fields['columns']);
+			$view->params = unserialize($rs->fields['params']);
+			$view->renderLimit = intval($rs->fields['num_rows']);
+			$view->renderSortBy = $rs->fields['sort_by'];
+			$view->renderSortAsc = intval($rs->fields['sort_asc']);
+			$view->renderPage = intval($rs->fields['page']);
+			$searches[$view->id] = $view; 
+			$rs->MoveNext();
+		}
+		
+		return $searches;
+	}
+};
+
 ?>

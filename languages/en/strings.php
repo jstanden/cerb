@@ -43,6 +43,8 @@ $language = array(
 	'dashboard.switch' => 'Switch',
 	'dashboard.team_loads' => 'Team Loads',
 	
+	'search.remove_view' => 'Delete Saved Search',
+	
 	'status.open' => 'Open',
 	'status.waiting' => 'Waiting For Reply',
 	'status.closed' => 'Closed',

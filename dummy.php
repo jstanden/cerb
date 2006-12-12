@@ -23,13 +23,23 @@ CerberusApplication::createMailbox('Wishlist',$address_id);
 $dashboardId = CerberusDashboardDAO::createDashboard("My Dashboard",1);
 
 // Views
-CerberusDashboardDAO::createView("My Tickets",$dashboardId);
-CerberusDashboardDAO::createView("Suggested Tickets",$dashboardId);
+$fields = array(
+	'columns' => serialize(array(
+		't.mask',
+		't.status',
+		't.priority',
+		't.last_wrote',
+		't.updated_date'
+	))
+);
 
-//CerberusContactDAO::createAddress('support@localhost');
+$view_id = CerberusDashboardDAO::createView("My Tickets",$dashboardId);
+CerberusDashboardDAO::updateView($view_id,$fields);
+
+$view_id = CerberusDashboardDAO::createView("Suggested Tickets",$dashboardId);
+CerberusDashboardDAO::updateView($view_id,$fields);
 
 // Agents
 CerberusAgentDAO::createAgent('superuser','superuser',1);
-
 
 ?>

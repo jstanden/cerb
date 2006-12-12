@@ -6,7 +6,7 @@
 		<td>
 			<a href="index.php?c=core.module.search&a=resetCriteria">reset criteria</a> |
 			<a href="javascript:;" onclick="ajax.getSaveSearch('{$divName}');">save</a> |
-			<a href="#">load</a>
+			<a href="javascript:;" onclick="ajax.getLoadSearch('{$divName}');">load</a>
 			<br>
 			<form id="{$divName}_control"></form>
 		</td>
