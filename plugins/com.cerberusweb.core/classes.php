@@ -164,7 +164,7 @@ class ChDashboardModule extends CerberusModuleExtension {
 
 			$fields = array(
 				'name' => $name,
-				'columns' => serialize($columns),
+				'view_columns' => serialize($columns),
 				'num_rows' => $num_rows,
 				'page' => 0 // reset paging
 			);
@@ -193,7 +193,7 @@ class ChDashboardModule extends CerberusModuleExtension {
 		$view_id = CerberusDashboardDAO::createView('New View', 1, 10);
 		
 		$fields = array(
-			'columns' => serialize(array(
+			'view_columns' => serialize(array(
 				't.mask',
 				't.status',
 				't.priority',
@@ -719,7 +719,7 @@ class ChSearchModule extends CerberusModuleExtension {
 		$view = CerberusDashboardDAO::getView($search_id);
 
 		@$params = $view->params;
-		@$columns = $view->columns;
+		@$columns = $view->view_columns;
 		
 		$_SESSION['search_view'] = $view;
 		$_SESSION['search_id'] = $view->id;
@@ -747,7 +747,7 @@ class ChSearchModule extends CerberusModuleExtension {
 		$view = CerberusDashboardDAO::getView($search_id);
 
 		@$params = $view->params;
-		@$columns = $view->columns;
+		@$columns = $view->view_columns;
 		@$save_as = $_REQUEST['save_as'];
 
 		if($save_as=='view') {
@@ -764,7 +764,7 @@ class ChSearchModule extends CerberusModuleExtension {
 			
 			$view_id = CerberusDashboardDAO::createView($name, 0, 50, 't.created_date', 0, 'S');
 			$fields = array(
-				'columns' => serialize($columns),
+				'view_columns' => serialize($columns),
 				'params' => serialize($params),
 				'sort_by' => $view->renderSortBy,
 				'sort_asc' => $view->renderSortAsc,

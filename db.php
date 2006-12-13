@@ -113,7 +113,7 @@ $tables['dashboard_view'] = "
 	type C(1) DEFAULT 'D',
 	agent_id I4 NOTNULL,
 	name C(32) DEFAULT '' NOTNULL,
-	columns B,
+	view_columns B,
 	sort_by C(32) DEFAULT '' NOTNULL,
 	sort_asc I1 DEFAULT 1 NOTNULL,
 	num_rows I2 DEFAULT 10 NOTNULL,

@@ -15,7 +15,7 @@
 	{* Column Headers *}
 	<tr class="tableTh">
 		<th style="text-align:center"><input type="checkbox" onclick="checkAll('view{$view->id}',this.checked);"></th>
-		{foreach from=$view->columns item=header name=headers}
+		{foreach from=$view->view_columns item=header name=headers}
 			{if $header=="t.mask"}
 			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t.mask');">{$translate->say('ticket.id')}</a></th>
 			{elseif $header=="t.status"}
@@ -44,7 +44,7 @@
 			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}"><a href="index.php?c=core.module.dashboard&a=viewticket&id={$ticket->id}" class="ticketLink"><b>{$ticket->subject}</b></a></td>
 		</tr>
 		<tr class="{if $smarty.foreach.tickets.iteration % 2}tableRowBg{else}tableRowAltBg{/if}">
-		{foreach from=$view->columns item=column name=columns}
+		{foreach from=$view->view_columns item=column name=columns}
 			{if $column=="t.mask"}
 			<td><a href="index.php?c=core.module.dashboard&a=viewticket&id={$ticket->id}">{$ticket->mask}</a></td>
 			{elseif $column=="t.status"}

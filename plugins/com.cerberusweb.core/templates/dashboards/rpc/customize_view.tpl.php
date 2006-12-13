@@ -19,7 +19,7 @@
 <select name="columns[]">
 	<option value=""></option> {*-- {$translate->say('dashboard.choose_column')|lower} --*}
 	{foreach from=$optColumns item=optColumn}
-		<option value="{$optColumn->column}" {if $view->columns.$index==$optColumn->column}selected{/if}>{$optColumn->name}</option>
+		<option value="{$optColumn->column}" {if $view->view_columns.$index==$optColumn->column}selected{/if}>{$optColumn->name}</option>
 	{/foreach}
 </select>
 <br>

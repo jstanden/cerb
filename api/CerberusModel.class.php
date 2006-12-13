@@ -22,7 +22,7 @@ class CerberusDashboardView {
 	public $dashboard_id = 0;
 	public $type = '';
 	public $agent_id = 0;
-	public $columns = array();
+	public $view_columns = array();
 	public $params = array();
 	
 	public $renderPage = 0;

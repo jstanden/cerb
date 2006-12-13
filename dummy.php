@@ -24,7 +24,7 @@ $dashboardId = CerberusDashboardDAO::createDashboard("My Dashboard",1);
 
 // Views
 $fields = array(
-	'columns' => serialize(array(
+	'view_columns' => serialize(array(
 		't.mask',
 		't.status',
 		't.priority',
