@@ -597,7 +597,7 @@ class UserMeetEmailManager {
 		if (!extension_loaded("imap")) die("IMAP Extension not loaded!");
 		require_once(UM_PATH . '/libs/pear/mimeDecode.php');
 		
-		$mailbox = imap_open("{".$mail_cfg->server.":".$mail_cfg->port."/service=".$mail_cfg->service."}INBOX",
+		$mailbox = imap_open("{".$mail_cfg->server.":".$mail_cfg->port."/service=".$mail_cfg->service."/notls}INBOX",
 							 !empty($mail_cfg->username)?$mail_cfg->username:"superuser",
 							 !empty($mail_cfg->password)?$mail_cfg->password:"superuser")
 			or die("Failed with error: ".imap_last_error());
