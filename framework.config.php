@@ -9,6 +9,9 @@ define('UM_DIRECTORY',basename(realpath(dirname(__FILE__))));
 define('UM_LANGUAGE','en');
 define('UM_THEME','default');
 
+// Set UM_DEBUG to 'true' to turn on debugging output and 'false' to turn it off
+define('UM_DEBUG','true');
+
 define('LANG_CHARSET_MAIL_CONTENT_TYPE','text/plain');
 define('LANG_CHARSET_CODE','iso-8859-1');
 

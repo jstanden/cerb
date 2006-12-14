@@ -812,6 +812,136 @@ class CerberusDashboardDAO {
 	}
 };
 
+class CerberusMailRuleDAO {
+	private function CerberusMailRuleDAO() {}
+	
+	/**
+	 * creates a new mail rule
+	 *
+	 * @param CerberusMailRuleCriterion[] $criteria
+	 * @param string $sequence
+	 * @param string $strictness
+	 */
+	static function createMailRule ($criteria, $sequence, $strictness) {
+		$um_db = UserMeetDatabase::getInstance();
+		$newId = $um_db->GenID('generic_seq');
+		
+		$sCriteria = serialize($criteria); // Flatten criterion array into a string
+		
+		$sql = sprintf("INSERT INTO mail_rule (id, criteria, sequence, strictness) ".
+			"VALUES (%d, %s, %s, %s)",
+			$newId,
+			$um_db->qstr($sCriteria),
+			$um_db->qstr($sequence),
+			$um_db->qstr($strictness)
+		);
+		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg());
+	}
+	
+	/**
+	 * deletes a mail rule from the database
+	 *
+	 * @param integer $id
+	 */
+	static function deleteMailRule ($id) {
+		$um_db = UserMeetDatabase::getInstance();
+		
+		$sql = sprintf("DELETE FROM mail_rule WHERE id = %d",
+			$id
+		);
+		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg());
+	}
+	
+	/**
+	 * returns the mail rule with the given id
+	 *
+	 * @param integer $id
+	 * @return CerberusMailRule
+	 */
+	static function getMailRule ($id) {
+		$um_db = UserMeetDatabase::getInstance();
+		
+		$sql = sprintf("SELECT m.id, m.criteria, m.sequence, m.strictness ".
+			"FROM mail_rule m ".
+			"WHERE m.id = %d",
+			$id
+		);
+		$rs = $um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg());
+		
+		$mailRule = new CerberusMailRule();
+		while(!$rs->EOF) {
+			$mailRule->id = intval($rs->fields['id']);
+			$mailRule->sequence = $rs->fields['sequence'];
+			$mailRule->strictness = $rs->fields['strictness'];
+			
+			$criteria = unserialize($rs->fields['criteria']);
+			$mailRule->criteria = $criteria;
+
+			$mailRules[$mailRule->id] = $mailRule;
+			$rs->MoveNext();
+		}
+		
+		return $mailRule;
+	}
+	
+	/**
+	 * returns an array of all mail rules
+	 *
+	 * @return CerberusMailRule[]
+	 */
+	static function getMailRules () {
+		$um_db = UserMeetDatabase::getInstance();
+		
+		$sql = sprintf("SELECT m.id, m.criteria, m.sequence, m.strictness ".
+			"FROM mail_rule m"
+		);
+		$rs = $um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg());
+		
+		$mailRules = array();
+		
+		while(!$rs->EOF) {
+			$mailRule = new CerberusMailRule();
+			$mailRule->id = intval($rs->fields['id']);
+			$mailRule->sequence = $rs->fields['sequence'];
+			$mailRule->strictness = $rs->fields['strictness'];
+			
+			$criteria = unserialize($rs->fields['criteria']);
+			$mailRule->criteria = $criteria;
+
+			$mailRules[$mailRule->id] = $mailRule;
+			$rs->MoveNext();
+		}
+		
+		return $mailRules;
+	}
+	
+	/**
+	 * update changed fields on a mail rule
+	 *
+	 * @param integer $id
+	 * @param associative array $fields
+	 */
+	static function updateMailRule ($id, $fields) {
+		$um_db = UserMeetDatabase::getInstance();
+		
+		if(!is_array($fields) || empty($fields) || empty($id))
+			return;
+		
+		foreach($fields as $k => $v) {
+			$sets[] = sprintf("%s = %s",
+				$k,
+				$um_db->qstr($v)
+			);
+		}
+			
+		$sql = sprintf("UPDATE mail_rule SET %s WHERE id = %d",
+			implode(', ', $sets),
+			$id
+		);
+		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg());
+	}
+};
+
 /**
  * Enter description here...
  * 

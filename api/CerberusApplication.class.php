@@ -192,6 +192,8 @@ class CerberusParser {
 	 * @return CerberusTicket ticket object
 	 */
 	static public function parseMessage($rfcMessage) {
+		if (UM_DEBUG == 'true') {echo ('Entering parseMessage() with rfcMessage :<br>'); print_r ($rfcMessage); echo ('<hr>');}
+		
 		$continue = CerberusParser::parsePreRules($rfcMessage);
 		if (false === $continue) return;
 		
@@ -205,11 +207,87 @@ class CerberusParser {
 	static public function parsePreRules(&$rfcMessage) {
 		$continue_parsing = true;
 		
+		$mailRules = CerberusMailRuleDAO::getMailRules();
+		
+		foreach ($mailRules as $mailRule) { /* @var $mailRule CerberusMailRule */
+			// break if any of the rules told us to stop parsing
+			if (false === $continue_parsing) break;
+			
+			// here we only want pre-parse rules
+			if (0 != strcmp('PRE',$mailRule->sequence)) continue;
+			
+			// check whether all or any of the criteria have to match the message
+			if (0 == strcmp('ALL',$mailRule->strictness)) {
+				$require_all = true;
+				$perform_actions = true;
+			} else {
+				$require_all = false;
+				$perform_actions = false;
+			}
+			
+			// parse the rule's criteria and perform actions if conditions match requirements
+			foreach ($mailRule->criteria as $criterion) { /* @var $criterion CerberusMailRuleCriterion */
+				if (CerberusParser::criterionMatchesEmail($criterion, $rfcMessage)) {
+					if (UM_DEBUG == 'true') {echo ('criterionMatchesEmail() returned true<hr>');}
+					if (!$require_all) {
+						$perform_actions = true;
+						break;
+					}
+				}
+				else {
+					if (UM_DEBUG == 'true') {echo ('criterionMatchesEmail() returned false<hr>');}
+					if ($require_all) {
+						$perform_actions = false;
+						break;
+					}
+				}
+			}
+			
+			if ($perform_actions === true)
+				$continue_parsing = CerberusParser::runMailRuleEmailActions($mailRule->id, $rfcMessage);
+		}
+		
 		return $continue_parsing;
 	}
 	
 	static public function parsePostRules(&$ticket) {
+		$continue_parsing = true;
 		
+		$mailRules = CerberusMailRuleDAO::getMailRules();
+		
+		foreach ($mailRules as $mailRule) { /* @var $mailRule CerberusMailRule */
+			// break if any of the rules told us to stop parsing
+			if (false === $continue_parsing) break;
+			
+			// here we only want post-parse rules
+			if (0 != strcmp('POST',$mailRule->sequence)) continue;
+			
+			// check whether all or any of the criteria have to match the message
+			if (0 == strcmp('ALL',$mailRule->strictness)) {
+				$require_all = true;
+				$perform_actions = true;
+			} else {
+				$require_all = false;
+				$perform_actions = false;
+			}
+			
+			// parse the rule's criteria and perform actions if conditions match requirements
+			foreach ($mailRule->criteria as $criterion) { /* @var $criterion CerberusMailRuleCriterion */
+				if (CerberusParser::criterionMatchesTicket($criterion, $ticket))
+					if (!$require_all) {
+						$perform_actions = true;
+						break;
+					}
+				else
+					if ($require_all) {
+						$perform_actions = false;
+						break;
+					}
+			}
+			
+			if ($perform_actions === true)
+				$continue_parsing = CerberusParser::runMailRuleTicketActions($mailRule->id, $ticket);
+		}
 	}
 	
 	static public function parseToTicket($rfcMessage) {
@@ -304,6 +382,87 @@ class CerberusParser {
 		return $ticket;
 	}
 	
+	static public function criterionMatchesEmail($criterion, $rfcMessage) { /* @var $criterion CerberusMailRuleCriterion */
+		if (UM_DEBUG == 'true') {echo ('Entering criterionMatchesEmail() with criterion :<br>'); print_r ($criterion); echo ('<br>and message :<br>'); print_r($rfcMessage); echo ('<hr>');}
+		
+		switch ($criterion->operator) {
+			case 'equals':
+				if ($rfcMessage->$$criterion->field == $$criterion->value) return true;
+				break;
+			case 'not-equals':
+				if ($rfcMessage->$$criterion->field != $$criterion->value) return true;
+				break;
+			case 'less-than':
+				if ($rfcMessage->$$criterion->field < $$criterion->value) return true;
+				break;
+			case 'not-less-than':
+				if ($rfcMessage->$$criterion->field >= $$criterion->value) return true;
+				break;
+			case 'greater-than':
+				if ($rfcMessage->$$criterion->field > $$criterion->value) return true;
+				break;
+			case 'not-greater-than':
+				if ($rfcMessage->$$criterion->field <= $$criterion->value) return true;
+				break;
+			case 'regex':
+				if (true) return true; // [TODO]: um... figure out how to do this...
+				break;
+			case 'match':
+//				if (strpos($rfcMessage->{$criterion->field}, $criterion->value) !== false) return true;
+				if (strpos($rfcMessage->headers['subject'], $criterion->value) !== false) return true;
+				break;
+			case 'not-match':
+				if (strpos($rfcMessage->$$criterion->field, $$criterion->value) === false) return true;
+				break;
+		}
+		return false;
+	}
+	
+	static public function runMailRuleEmailActions($id, &$rfcMessage) {
+		if (UM_DEBUG == 'true') {echo ('Entering runMailRuleEmailActions() with mailRule id = ' . $id . ' and message:<br>'); print_r ($rfcMessage); echo ('<hr>');}
+		return true;
+	}
+	
+	static public function criterionMatchesTicket($criterion, $ticket) {
+		if (UM_DEBUG == 'true') {echo ('Entering criterionMatchesTicket() with criterion :<br>'); print_r ($criterion); echo ('<br>and ticket :<br>'); print_r($ticket); echo ('<hr>');}
+		
+		switch ($criterion->operator) {
+			case 'equals':
+				if ($ticket->$$criterion->field == $$criterion->value) return true;
+				break;
+			case 'not-equals':
+				if ($ticket->$$criterion->field != $$criterion->value) return true;
+				break;
+			case 'less-than':
+				if ($ticket->$$criterion->field < $$criterion->value) return true;
+				break;
+			case 'not-less-than':
+				if ($ticket->$$criterion->field >= $$criterion->value) return true;
+				break;
+			case 'greater-than':
+				if ($ticket->$$criterion->field > $$criterion->value) return true;
+				break;
+			case 'not-greater-than':
+				if ($ticket->$$criterion->field <= $$criterion->value) return true;
+				break;
+			case 'regex':
+				if (true) return true; // [TODO]: um... figure out how to do this...
+				break;
+			case 'match':
+				if (strpos($ticket->$$criterion->field, $$criterion->value) !== false) return true;
+				break;
+			case 'not-match':
+				if (strpos($ticket->$$criterion->field, $$criterion->value) === false) return true;
+				break;
+		}
+		return false;
+	}
+	
+	static public function runMailRuleTicketActions($id, &$ticket) {
+		if (UM_DEBUG == 'true') {echo ('Entering runMailRuleTicketActions() with mailRule id = ' . $id . ' and ticket :<br>'); print_r ($ticket); echo ('<hr>');}
+		return true;
+	}
+	
 	/**
 	 * Enter description here...
 	 *
@@ -385,4 +544,9 @@ class CerberusParser {
 	
 };
 
+class ToCriterion implements ICerberusCriterion {
+	function getValue($rfcMessage) {
+		return $rfcMessage->headers['to'];
+	}
+};
 ?>

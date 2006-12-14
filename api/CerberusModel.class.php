@@ -166,4 +166,25 @@ class CerberusMailbox {
 	function CerberusMailbox() {}
 };
 
+class CerberusMailRule {
+	public $id;
+	public $criteria;
+	public $sequence;
+	public $strictness;
+	
+	function CerberusMailRule() {}
+};
+
+class CerberusMailRuleCriterion {
+	public $field;
+	public $operator;
+	public $value;
+	
+	function CerberusMailRuleCriterion() {}
+};
+
+interface ICerberusCriterion {
+	public function getValue($rfcMessage);
+};
+
 ?>

@@ -128,6 +128,13 @@ $tables['address'] = "
 	bitflags I2 DEFAULT 0
 ";
 
+$tables['mail_rule'] = "
+	id I4 DEFAULT 0 NOTNULL PRIMARY,
+	criteria B DEFAULT '' NOTNULL,
+	sequence C(4) DEFAULT '',
+	strictness C(4) DEFAULT ''
+";
+
 $tables['address_to_mailbox'] = "
 	address_id I4 DEFAULT 0 NOTNULL PRIMARY,
 	mailbox_id I4 DEFAULT 0 NOTNULL PRIMARY

@@ -17,15 +17,18 @@ $translate = UserMeetTranslationManager::getInstance();
 
 $visit = $session->getVisit();
 if(!empty($c) && !empty($a)) {
-	// [JAS]: Security check
-	if(empty($visit) && 0 != strcasecmp($c,"core.module.signin") && 0 != strcasecmp($a,"signin")) {
-		// [JAS]: [TODO] This should probably be a meta redirect for IIS.
-		header("Location: index.php?c=core.module.signin&a=show");
-	}
-	
 	// [JAS]: [TODO] Split $c and look for an ID and an instance
 	$mfTarget = UserMeetPlatform::getExtension($c);
 	$target = $mfTarget->createInstance();
+
+	// [JAS]: Security check
+	if(empty($visit)) {
+		if (0 != strcasecmp($c,"core.module.signin") && !is_a($target, 'cerberusloginmoduleextension')) {
+			// [JAS]: [TODO] This should probably be a meta redirect for IIS.
+			header("Location: index.php?c=core.module.signin&a=show");
+			exit;
+		}
+	}
 	
 	if(method_exists($target,$a)) {
 		call_user_method($a,$target); // [JAS]: [TODO] Action Args

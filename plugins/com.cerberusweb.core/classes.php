@@ -494,24 +494,9 @@ class ChSignInModule extends CerberusModuleExtension {
 	}
 	
 	function render() {
-		$tpl = UserMeetTemplateManager::getInstance();
-		$tpl->cache_lifetime = "0";
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/signin.tpl.php');
-	}
-	
-	function signin() {
-		$email = $_REQUEST['email'];
-		$password = $_REQUEST['password'];
-		
-//		echo "Sign in: " . __CLASS__ . "->" . __FUNCTION__ . "!<br>";
-		$session = UserMeetSessionManager::getInstance();
-		$visit = $session->login($email,$password);
-		
-		if(!is_null($visit)) {
-			CerberusApplication::setActiveModule("core.module.dashboard");
-		} else {
-			CerberusApplication::setActiveModule("core.module.signin");
-		}
+		$manifest = UserMeetPlatform::getExtension('login.default');
+		$inst = $manifest->createInstance(1); /* @var $inst CerberusLoginModuleExtension */
+		$inst->renderLoginForm();
 	}
 	
 	function signout() {
