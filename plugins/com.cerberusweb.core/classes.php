@@ -20,7 +20,6 @@ class ChDashboardModule extends CerberusModuleExtension {
 	}
 	
 	function render() {
-		include_once(UM_PATH . '/libs/adodb/adodb-pager.inc.php');
 		$um_db = UserMeetDatabase::getInstance();
 		$tpl = UserMeetTemplateManager::getInstance();
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
@@ -703,9 +702,6 @@ class ChSearchModule extends CerberusModuleExtension {
 		
 		$view = CerberusDashboardDAO::getView($search_id);
 
-		@$params = $view->params;
-		@$columns = $view->view_columns;
-		
 		$_SESSION['search_view'] = $view;
 		$_SESSION['search_id'] = $view->id;
 		
