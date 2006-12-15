@@ -50,6 +50,43 @@ class CerberusContactDAO {
 		
 		return $id;
 	}
+	
+	static function getAddresses($ids=array()) {
+		$um_db = UserMeetDatabase::getInstance();
+		if(!is_array($ids)) $ids = array($ids);
+		$addresses = array();
+		
+		$sql = sprintf("SELECT a.id, a.email, a.personal, a.bitflags ".
+			"FROM address a ".
+			((!empty($ids)) ? "WHERE a.id IN (%s) " : " ").
+			"ORDER BY a.email ",
+			implode(',', $ids)
+		);
+		$rs = $um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		while(!$rs->EOF) {
+			$address = new CerberusAddress();
+			$address->id = intval($rs->fields['id']);
+			$address->email = $rs->fields['email'];
+			$address->personal = $rs->fields['personal'];
+			$address->bitflags = intval($rs->fields['bitflags']);
+			$addresses[$address->id] = $address;
+			$rs->MoveNext();
+		}
+		
+		return $addresses;
+	}
+	
+	static function getAddress($id) {
+		if(empty($id)) return null;
+		
+		$addresses = CerberusContactDAO::getAddresses(array($id));
+		
+		if(isset($addresses[$id]))
+			return $addresses[$id];
+			
+		return null;		
+	}
 
 	static function getMailboxIdByAddress($email) {
 		$um_db = UserMeetDatabase::getInstance();

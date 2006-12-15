@@ -214,9 +214,16 @@ class ChDashboardModule extends CerberusModuleExtension {
 	}
 	
 	function showContactPanel() {
+		@$sAddress = $_REQUEST['address'];
+		
 		$tpl = UserMeetTemplateManager::getInstance();
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		$tpl->cache_lifetime = "0";
+		
+		$address_id = CerberusContactDAO::lookupAddress($sAddress, false);
+		$address = CerberusContactDAO::getAddress($address_id);
+		
+		$tpl->assign('address', $address);
 		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/contact_panel.tpl.php');
 	}

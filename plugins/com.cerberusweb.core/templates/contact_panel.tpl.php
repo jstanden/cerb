@@ -7,13 +7,14 @@
 </table>
 <div style="height:200px;overflow:auto;background-color:rgb(255,255,255);border:1px solid rgb(200,200,200);margin:2px;padding:3px;">
 <b>Contact Information:</b><br>
-[[name]]<br>
+[[name]] (ID: {$address->id})<br>
 [[company]]<br>
 [[address]]<br>
 [[city]] [[state/prov]] [[zip/postal]]<br>
 [[country]]<br>
 [[phone]]<br>
-[[email]]<br>
+{$address->email}<br>
+Personal: {$address->personal}<br>
 <br>
 
 <b>Ticket History:</b><br>

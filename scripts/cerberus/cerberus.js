@@ -111,13 +111,13 @@ var cAjaxCalls = function() {
 	}
 	
 	this.contactPanel = null;
-	this.showContactPanel = function(target) {
+	this.showContactPanel = function(address,target) {
 		
 		if(null != this.contactPanel) {
 			this.contactPanel.hide();
 		}
 		
-		var cObj = YAHOO.util.Connect.asyncRequest('GET', 'ajax.php?c=core.module.dashboard&a=showContactPanel', {
+		var cObj = YAHOO.util.Connect.asyncRequest('GET', 'ajax.php?c=core.module.dashboard&a=showContactPanel&address=' + address, {
 				success: function(o) {
 					var caller = o.argument.caller;
 					var target = o.argument.target;
