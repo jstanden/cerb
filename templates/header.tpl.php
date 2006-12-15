@@ -9,20 +9,20 @@
 	<META HTTP-EQUIV="Expires" CONTENT="0">
 
 	<title>Cerberus Helpdesk</title>
-  <link type="text/css" rel="stylesheet" href="styles/default/cerberus.css"></link>
+  <link type="text/css" rel="stylesheet" href="styles/default/cerberus.css?v={$smarty.const.CERBERUS_BUILD}"></link>
   
-  <script language="javascript" type="text/javascript" src="scripts/yahoo/YAHOO.js"></script>
-  <script language="javascript" type="text/javascript" src="scripts/yahoo/dom.js"></script>
-  <script language="javascript" type="text/javascript" src="scripts/yahoo/event.js"></script>
-  <script language="javascript" type="text/javascript" src="scripts/yahoo/connection.js"></script>
-  <script language="javascript" type="text/javascript" src="scripts/yahoo/animation.js"></script>
-  <script language="javascript" type="text/javascript" src="scripts/yahoo/dragdrop.js"></script>
-  <script language="javascript" type="text/javascript" src="scripts/yahoo/container.js"></script>
+  <script language="javascript" type="text/javascript" src="scripts/yahoo/YAHOO.js?v={$smarty.const.CERBERUS_BUILD}"></script>
+  <script language="javascript" type="text/javascript" src="scripts/yahoo/dom.js?v={$smarty.const.CERBERUS_BUILD}"></script>
+  <script language="javascript" type="text/javascript" src="scripts/yahoo/event.js?v={$smarty.const.CERBERUS_BUILD}"></script>
+  <script language="javascript" type="text/javascript" src="scripts/yahoo/connection.js?v={$smarty.const.CERBERUS_BUILD}"></script>
+  <script language="javascript" type="text/javascript" src="scripts/yahoo/animation.js?v={$smarty.const.CERBERUS_BUILD}"></script>
+  <script language="javascript" type="text/javascript" src="scripts/yahoo/dragdrop.js?v={$smarty.const.CERBERUS_BUILD}"></script>
+  <script language="javascript" type="text/javascript" src="scripts/yahoo/container.js?v={$smarty.const.CERBERUS_BUILD}"></script>
   
-  <script language="javascript" type="text/javascript" src="scripts/cerberus/cerberus.js"></script>
-  <script language="javascript" type="text/javascript" src="scripts/cerberus/display.js"></script>
+  <script language="javascript" type="text/javascript" src="scripts/cerberus/cerberus.js?v={$smarty.const.CERBERUS_BUILD}"></script>
+  <script language="javascript" type="text/javascript" src="scripts/cerberus/display.js?v={$smarty.const.CERBERUS_BUILD}"></script>
   
-  <link type="text/css" rel="stylesheet" href="styles/default/container.css" />
+  <link type="text/css" rel="stylesheet" href="styles/default/container.css?v={$smarty.const.CERBERUS_BUILD}" />
   
 </head>
 
