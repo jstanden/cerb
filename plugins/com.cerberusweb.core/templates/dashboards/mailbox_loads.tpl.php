@@ -1,4 +1,4 @@
-<table cellpadding="0" cellspacing="0" border="0" class="tableGreen" width="250" class="tableBg">
+<table cellpadding="0" cellspacing="0" border="0" class="tableGreen" width="220" class="tableBg">
 	<tr>
 		<td class="tableThGreen" nowrap="nowrap"> <img src="images/folder_network.gif"> {$translate->say('dashboard.mailbox_loads')|capitalize}</td>
 	</tr>

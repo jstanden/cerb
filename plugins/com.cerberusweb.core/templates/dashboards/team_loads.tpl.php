@@ -1,4 +1,4 @@
-<table cellpadding="0" cellspacing="0" border="0" class="tableOrange" width="250" class="tableBg">
+<table cellpadding="0" cellspacing="0" border="0" class="tableOrange" width="220" class="tableBg">
 	<tr>
 		<td class="tableThOrange" nowrap="nowrap"> <img src="images/businessmen.gif"> {$translate->say('dashboard.team_loads')|capitalize}</td>
 	</tr>

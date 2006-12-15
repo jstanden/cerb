@@ -10,7 +10,7 @@
     {assign var=requesters value=$ticket->getRequesters()}
     {foreach from=$requesters item=requester name=requesters}
     <tr>
-      <td><a href="javascript:;" style="font-size:85%;" title="{$requester->personal|escape:"htmlall"}">{$requester->email}</a></td>
+      <td><a href="javascript:;" onclick="ajax.showContactPanel(this);" style="font-size:85%;" title="{$requester->personal|escape:"htmlall"}">{$requester->email}</a></td>
     </tr>
     {/foreach}
     <tr>

@@ -72,6 +72,82 @@ function appendTextboxAsCsv(formName, oLink) {
 
 var cAjaxCalls = function() {
 
+	this.historyPanel = null;
+	this.showHistoryPanel = function(target) {
+		
+		if(null != this.historyPanel) {
+			this.historyPanel.hide();
+		}
+		
+		var cObj = YAHOO.util.Connect.asyncRequest('GET', 'ajax.php?c=core.module.dashboard&a=showHistoryPanel', {
+				success: function(o) {
+					var caller = o.argument.caller;
+					var target = o.argument.target;
+					
+					if(null == caller.historyPanel) {
+						caller.historyPanel = new YAHOO.widget.Panel("historyPanel", 
+							{ width : "300px",
+							  fixedcenter : false,
+							  visible : false, 
+							  constraintoviewport : true,
+							  modal: false,
+							  close: false,
+							  draggable: false
+							});
+
+						caller.historyPanel.setBody('');
+						caller.historyPanel.render(document.body);
+					}
+					
+					caller.historyPanel.hide();
+					caller.historyPanel.setBody(o.responseText);
+					caller.historyPanel.cfg.setProperty('context',[target,"tr","br"]);
+					caller.historyPanel.show();
+				},
+				failure: function(o) {},
+				argument:{caller:this,target:target}
+			}
+		);	
+	}
+	
+	this.contactPanel = null;
+	this.showContactPanel = function(target) {
+		
+		if(null != this.contactPanel) {
+			this.contactPanel.hide();
+		}
+		
+		var cObj = YAHOO.util.Connect.asyncRequest('GET', 'ajax.php?c=core.module.dashboard&a=showContactPanel', {
+				success: function(o) {
+					var caller = o.argument.caller;
+					var target = o.argument.target;
+					
+					if(null == caller.contactPanel) {
+						caller.contactPanel = new YAHOO.widget.Panel("contactPanel", 
+							{ width : "350px",
+							  fixedcenter : false,
+							  visible : false, 
+							  constraintoviewport : true,
+							  modal: false,
+							  close: false,
+							  draggable: false
+							});
+
+						caller.contactPanel.setBody('');
+						caller.contactPanel.render(document.body);
+					}
+					
+					caller.contactPanel.hide();
+					caller.contactPanel.setBody(o.responseText);
+					caller.contactPanel.cfg.setProperty('context',[target,"tl","bl"]);
+					caller.contactPanel.show();
+				},
+				failure: function(o) {},
+				argument:{caller:this,target:target}
+			}
+		);	
+	}
+	
 	this.getLoadSearch = function(divName) {
 		var div = document.getElementById(divName + '_control');
 		if(null == div) return;

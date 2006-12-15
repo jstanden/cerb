@@ -205,6 +205,22 @@ class ChDashboardModule extends CerberusModuleExtension {
 		CerberusApplication::setActiveModule($this->id);
 	}
 	
+	function showHistoryPanel() {
+		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		$tpl->cache_lifetime = "0";
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/history_panel.tpl.php');
+	}
+	
+	function showContactPanel() {
+		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		$tpl->cache_lifetime = "0";
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/contact_panel.tpl.php');
+	}
+	
 };
 
 class ChConfigurationModule extends CerberusModuleExtension  {

@@ -76,9 +76,9 @@
 				{/if}
 			</td>
 			{elseif $column=="t.last_wrote"}
-			<td><a href="#">{$ticket->last_wrote}</a></td>
+			<td><a href="javascript:;" onclick="ajax.showContactPanel(this);">{$ticket->last_wrote}</a></td>
 			{elseif $column=="t.first_wrote"}
-			<td><a href="#">{$ticket->first_wrote}</a></td>
+			<td><a href="javascript:;" onclick="ajax.showContactPanel(this);">{$ticket->first_wrote}</a></td>
 			{elseif $column=="t.created_date"}
 			<td>{$ticket->created_date|date_format}</td>
 			{elseif $column=="t.updated_date"}
