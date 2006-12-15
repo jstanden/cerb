@@ -11,10 +11,12 @@
     </tr>
   </tbody>
 </table>
-<table border="0" cellpadding="0" cellspacing="0" width="100%" class="displayModuleTable" id="{$display_module->manifest->id}_body" style="display:block;">
+<div id="{$moduleLabel}_body" style="display:block;">
+<table border="0" cellpadding="0" cellspacing="0" width="100%" class="displayModuleTable">
     <tr>
-      <td colspan="2" valign="top">
-        {$display_module->$callback()}
+      <td colspan="2" valign="top" style="padding:2px;">
+        <form action="javascript:;" id="{$moduleLabel}_form">{$display_module->$callback()}</form>
       </td>
     </tr>
 </table>
+</div>

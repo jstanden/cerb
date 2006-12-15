@@ -145,6 +145,16 @@ $tables['requester'] = "
 	ticket_id I4 DEFAULT 0 NOTNULL PRIMARY
 ";
 
+$tables['tag'] = "
+	id I4 DEFAULT 0 NOTNULL PRIMARY,
+	name C(32) DEFAULT '' NOTNULL
+";
+
+$tables['tag_to_ticket'] ="
+	tag_id I4 DEFAULT 0 NOTNULL PRIMARY,
+	ticket_id I4 DEFAULT 0 NOTNULL PRIMARY
+";
+
 foreach($tables as $table => $flds) {
 	$sql = $datadict->ChangeTableSQL($table,$flds);
 	print_r($sql);

@@ -1,4 +1,3 @@
-[[default login form]]
 <form action="index.php" method="post">
 <h1>{$translate->say('login.signon')|capitalize}</h1>
 <input type="hidden" name="c" value="login.default">

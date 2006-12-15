@@ -839,12 +839,87 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 	function render($ticket) {
 		$tpl = UserMeetTemplateManager::getInstance();
 		$tpl->cache_lifetime = "0";
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/ticket_workflow.tpl.php');
+		$tpl->assign('callback','renderBody');
+		$tpl->assign('moduleLabel', $this->manifest->id);
+		$tpl->display('display/expandable_module_template.tpl.php');
 	}
 	
 	function renderBody() {
-		echo "Ticket workflow content goes here!";
+		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl->cache_lifetime = "0";
+		
+		$favoriteTags = CerberusWorkflowDAO::getTags();
+		$tpl->assign('favoriteTags', $favoriteTags);
+		
+		$suggestedTags = CerberusWorkflowDAO::getTags();
+		$tpl->assign('suggestedTags', $suggestedTags);
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/ticket_workflow.tpl.php');
 	}
+	
+	function refresh() {
+		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl->caching = 0;
+		$tpl->cache_lifetime = 0;
+
+		$tpl->assign('moduleLabel', $this->manifest->id);
+
+		@$id = $_REQUEST['id'];
+		
+		$ticket = CerberusTicketDAO::getTicket($id);
+		$tpl->assign('ticket', $ticket);
+		
+		$favoriteTags = CerberusWorkflowDAO::getTags();
+		$tpl->assign('favoriteTags', $favoriteTags);
+		
+		$suggestedTags = CerberusWorkflowDAO::getTags();
+		$tpl->assign('suggestedTags', $suggestedTags);
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/ticket_workflow.tpl.php');
+	}
+	
+	function getTagDialog() {
+		@$tag_id = intval($_REQUEST['id']);
+		@$ticket_id = intval($_REQUEST['ticket_id']);
+		@$parent_div = $_REQUEST['parent_div'];
+		
+		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl->caching = 0;
+		$tpl->cache_lifetime = 0;
+		
+		$tag = CerberusWorkflowDAO::getTag($tag_id);
+		$tpl->assign('tag', $tag);
+		
+		$tpl->assign('ticket_id', $ticket_id);
+		$tpl->assign('parent_div', $parent_div);
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/workflow/tag_dialog.tpl.php');
+	}
+	
+	function saveTagDialog() {
+		@$id = intval($_REQUEST['id']);
+		@$ticket_id = intval($_REQUEST['ticket_id']);
+		@$untag = intval($_REQUEST['untag']);
+		@$terms = $_REQUEST['terms'];
+		
+		if(!empty($untag) && !empty($ticket_id)) {
+			CerberusTicketDAO::untagTicket($ticket_id, $id);
+		} else {
+			// save changes
+		}
+		
+		echo ' ';
+	}
+	
+	function applyTags() {
+		@$id = intval($_POST['id']);
+		@$tagEntry = $_POST['tagEntry'];
+		
+		CerberusTicketDAO::tagTicket($id, $tagEntry);
+		
+		echo ' ';
+	}
+	
 }
 
 class ChDisplayTicketFields extends CerberusDisplayModuleExtension {

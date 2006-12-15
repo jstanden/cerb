@@ -24,3 +24,6 @@
     </tr>
   </tbody>
 </table>
+<script>
+	var displayAjax = new cDisplayTicketAjax('{$ticket->id}','core.display.module.workflow_form');
+</script>

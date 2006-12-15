@@ -109,6 +109,11 @@ class CerberusTicket {
 		$requesters = CerberusTicketDAO::getRequestersByTicket($this->id);
 		return $requesters;
 	}
+	
+	function getTags() {
+		$tags = CerberusWorkflowDAO::getTagsByTicket($this->id);
+		return $tags;
+	}
 };
 
 class CerberusMessage {
@@ -164,6 +169,11 @@ class CerberusMailbox {
 	public $display_name;
 	
 	function CerberusMailbox() {}
+};
+
+class CerberusTag {
+	public $id;
+	public $name;
 };
 
 class CerberusMailRule {

@@ -53,8 +53,25 @@ function addCriteria(divName) {
 	}
 }
 
-var cAjaxCalls = function() {
+// [JAS]: [TODO] Make this a little more generic?
+function appendTextboxAsCsv(formName, oLink) {
+	var frm = document.getElementById(formName);
+	if(null == frm) return;
 	
+	var txt = frm.tagEntry;
+	var sAppend = '';
+	
+	// [TODO]: check that the last character(s) aren't comma or comma space
+	if(0 != txt.value.length)
+		sAppend += ', ';
+		
+	sAppend += oLink.innerHTML;
+	
+	txt.value = txt.value + sAppend;
+}
+
+var cAjaxCalls = function() {
+
 	this.getLoadSearch = function(divName) {
 		var div = document.getElementById(divName + '_control');
 		if(null == div) return;

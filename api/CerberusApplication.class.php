@@ -29,6 +29,25 @@ class CerberusApplication {
 	}
 	
 	/**
+	 * Takes a comma-separated value string and returns an array of tokens.
+	 *
+	 * @param string $string
+	 * @return array
+	 */
+	static function parseCsvString($string) {
+		$tokens = explode(',', $string);
+
+		if(!is_array($tokens))
+			return array();
+		
+		foreach($tokens as $k => $v) {
+			$tokens[$k] = trim($v);
+		}
+		
+		return $tokens;
+	}
+	
+	/**
 	 * Enter description here...
 	 *
 	 * @return a unique ticket mask as a string

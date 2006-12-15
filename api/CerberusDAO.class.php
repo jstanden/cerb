@@ -437,6 +437,27 @@ class CerberusTicketDAO {
 		
 	}
 	
+	static function tagTicket($ticket_id, $tag_string) {
+		$um_db = UserMeetDatabase::getInstance();
+		$tags = CerberusApplication::parseCsvString($tag_string);
+		
+		if(is_array($tags))
+		foreach($tags as $tagName) {
+			$tag = CerberusWorkflowDAO::lookupTag($tagName, true);
+			$um_db->Replace('tag_to_ticket', array('ticket_id'=>$ticket_id,'tag_id'=>$tag->id), array('ticket_id','tag_id'));
+		}
+	}
+	
+	static function untagTicket($ticket_id, $tag_id) {
+		$um_db = UserMeetDatabase::getInstance();
+		
+		$sql = sprintf("DELETE FROM tag_to_ticket WHERE tag_id = %d AND ticket_id = %d",
+			$tag_id,
+			$ticket_id
+		);
+		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+	}
+	
 	static function getMessagesByTicket($ticket_id) {
 		$um_db = UserMeetDatabase::getInstance();
 		$messages = array();
@@ -987,4 +1008,141 @@ class CerberusSearchDAO {
 	}
 };
 
+/**
+ * Enter description here...
+ *
+ * @addtogroup dao
+ */
+class CerberusWorkflowDAO {
+	
+	/**
+	 * Enter description here...
+	 *
+	 * @param string $tag_name
+	 * @param boolean $create_if_notexist
+	 * @return CerberusTag
+	 */
+	static function lookupTag($tag_name, $create_if_notexist=false) {
+		if(empty($tag_name)) return null;
+		
+		$um_db = UserMeetDatabase::getInstance();
+		$tag = null;
+
+		$sql = sprintf("SELECT t.id FROM tag t WHERE t.name = %s",
+			$um_db->qstr($tag_name)
+		);
+		$rs = $um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		if(!$rs->EOF) {
+			$id = intval($rs->fields['id']);
+		} elseif($create_if_notexist) {
+			$id = CerberusWorkflowDAO::createTag($tag_name);
+		}
+		
+		if(!empty($id)) {
+			$tag = CerberusWorkflowDAO::getTag($id);
+		}
+		
+		return $tag;
+	}
+	
+	/**
+	 * Enter description here...
+	 *
+	 * @param array $ids
+	 * @return CerberusTag[]
+	 */
+	static function getTags($ids=array()) {
+		if(!is_array($ids)) $ids = array($ids);
+
+		$um_db = UserMeetDatabase::getInstance();
+		$tags = array();
+
+		$sql = "SELECT t.id, t.name ".
+			"FROM tag t ".
+			((!empty($ids) ? sprintf("WHERE t.id IN (%s)",implode(',', $ids)) : " ").
+			"ORDER BY t.name"
+		);
+		$rs = $um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		while(!$rs->EOF) {
+			$tag = new CerberusTag();
+			$tag->id = intval($rs->fields['id']);
+			$tag->name = $rs->fields['name'];
+			$tags[$tag->id] = $tag;
+			$rs->MoveNext();
+		}
+		
+		return $tags;
+	}
+	
+	/**
+	 * Enter description here...
+	 *
+	 * @param integer $id
+	 * @return CerberusTag[]
+	 */
+	static function getTagsByTicket($id) {
+		$um_db = UserMeetDatabase::getInstance();
+		$ids = array();
+		$tags = array();
+		
+		$sql = sprintf("SELECT tt.tag_id ".
+			"FROM tag_to_ticket tt ".
+			"INNER JOIN tag t ON (tt.tag_id=t.id) ".
+			"WHERE tt.ticket_id = %d ".
+			"ORDER BY t.name",
+			$id
+		);
+		$rs = $um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		while(!$rs->EOF) {
+			$ids[] = intval($rs->fields['tag_id']);
+			$rs->MoveNext();
+		}
+		
+		if(!empty($ids)) {
+			$tags = CerberusWorkflowDAO::getTags($ids); 
+		}
+		
+		return $tags;
+	}
+	
+	/**
+	 * Enter description here...
+	 *
+	 * @param integer $id
+	 * @return CerberusTag
+	 */
+	static function getTag($id) {
+		$tags = CerberusWorkflowDAO::getTags(array($id));
+		
+		if(isset($tags[$id]))
+			return $tags[$id];
+			
+		return null;
+	}
+	
+	/**
+	 * Enter description here...
+	 *
+	 * @param string $name
+	 * @return integer id
+	 */
+	static function createTag($name) {
+		$um_db = UserMeetDatabase::getInstance();
+		if(empty($name)) return null;
+		
+		$id = $um_db->GenID('tag_seq');
+		
+		$sql = sprintf("INSERT INTO tag (id, name) ".
+			"VALUES (%d, %s)",
+			$id,
+			$um_db->qstr(strtolower($name))
+		);
+		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		return $id;
+	}
+}
 ?>
