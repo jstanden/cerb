@@ -8,6 +8,7 @@ $language = array(
 	'common.customize' => 'customize',
 	'common.name' => 'Name',
 	'common.load' => 'Load',
+	'common.mailbox' => 'Mailbox',
 	'common.next' => 'next',
 	'common.prev' => 'prev',
 	'common.refresh' => 'refresh',

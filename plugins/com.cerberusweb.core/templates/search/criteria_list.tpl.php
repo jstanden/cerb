@@ -31,12 +31,20 @@
 				
 				{if $param->field=="t.mask"}
 							<img src="images/data_find.gif" align="absmiddle"> 
-							{$translate->say('ticket.mask')} 
+							{$translate->say('ticket.mask')|capitalize} 
 							{$param->operator} 
 							<b>{$param->value}</b>
 				{elseif $param->field=="t.status"}
 							<img src="images/data_find.gif" align="absmiddle"> 
-							{$translate->say('ticket.status')} 
+							{$translate->say('ticket.status')|capitalize} 
+							{$param->operator}
+							{foreach from=$param->value item=p name=params}
+							<b>{$p}</b>
+							 {if !$smarty.foreach.params.last} or {/if}
+							{/foreach}
+				{elseif $param->field=="t.mailbox_id"}
+							<img src="images/data_find.gif" align="absmiddle"> 
+							{$translate->say('common.mailbox')|capitalize}
 							{$param->operator}
 							{foreach from=$param->value item=p name=params}
 							<b>{$p}</b>
@@ -44,7 +52,7 @@
 							{/foreach}
 				{elseif $param->field=="t.priority"}
 							<img src="images/data_find.gif" align="absmiddle"> 
-							{$translate->say('ticket.priority')} 
+							{$translate->say('ticket.priority')|capitalize} 
 							{$param->operator}
 							{foreach from=$param->value item=p name=params}
 							<b>{$p}</b>
@@ -52,7 +60,7 @@
 							{/foreach}
 				{elseif $param->field=="t.subject"}
 							<img src="images/data_find.gif" align="absmiddle"> 
-							{$translate->say('ticket.subject')} 
+							{$translate->say('ticket.subject')|capitalize} 
 							{$param->operator} 
 							<b>{$param->value}</b>
 				{else}

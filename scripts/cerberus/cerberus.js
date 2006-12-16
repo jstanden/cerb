@@ -54,11 +54,11 @@ function addCriteria(divName) {
 }
 
 // [JAS]: [TODO] Make this a little more generic?
-function appendTextboxAsCsv(formName, oLink) {
+function appendTextboxAsCsv(formName, field, oLink) {
 	var frm = document.getElementById(formName);
 	if(null == frm) return;
 	
-	var txt = frm.tagEntry;
+	var txt = frm.elements[field];
 	var sAppend = '';
 	
 	// [TODO]: check that the last character(s) aren't comma or comma space

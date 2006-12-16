@@ -1,5 +1,11 @@
 <?php
 
+class CerberusAgent {
+	public $id;
+	public $login;
+	public $admin;
+}
+
 class CerberusDashboardViewColumn {
 	public $column;
 	public $name;
@@ -113,6 +119,16 @@ class CerberusTicket {
 	function getTags() {
 		$tags = CerberusWorkflowDAO::getTagsByTicket($this->id);
 		return $tags;
+	}
+	
+	function getFlaggedWorkers() {
+		$agents = CerberusWorkflowDAO::getWorkersByTicket($this->id, true);
+		return $agents;
+	}
+	
+	function getSuggestedWorkers() {
+		$agents = CerberusWorkflowDAO::getWorkersByTicket($this->id, false);
+		return $agents;
 	}
 };
 

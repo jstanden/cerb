@@ -19,9 +19,62 @@ class CerberusAgentDAO {
 		return $id;
 	}
 	
+	static function getAgents($ids=array()) {
+		if(!is_array($ids)) $ids = array($ids);
+		
+		$um_db = UserMeetDatabase::getInstance();
+		$agents = array();
+		
+		$sql = "SELECT a.id, a.login, a.password, a.admin ".
+			"FROM login a ".
+			((!empty($ids) ? sprintf("WHERE a.id IN (%s)",implode(',',$ids)) : " ").
+			"ORDER BY a.login "
+		);
+		$rs = $um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		while(!$rs->EOF) {
+			$agent = new CerberusAgent();
+			$agent->id = intval($rs->fields['id']);
+			$agent->login = $rs->fields['login'];
+			$agent->admin = intval($rs->fields['admin']);
+			$agents[$agent->id] = $agent;
+			$rs->MoveNext();
+		}
+		
+		return $agents;		
+	}
+	
 	static function getAgent($id) {
+		if(empty($id)) return null;
+		
+		$agents = CerberusAgentDAO::getAgents(array($id));
+		
+		if(isset($agents[$id]))
+			return $agents[$id];
+			
+		return null;
+	}
+
+	/**
+	 * Enter description here...
+	 *
+	 * @param string $login
+	 * @return integer $id
+	 */
+	static function lookupAgentLogin($login) {
+		if(empty($login)) return null;
 		$um_db = UserMeetDatabase::getInstance();
 		
+		$sql = sprintf("SELECT a.id FROM login a WHERE a.login = %s",
+			$um_db->qstr($login)
+		);
+		$rs = $um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		if(!$rs->EOF) {
+			return intval($rs->fields['id']);
+		}
+		
+		return null;		
 	}
 	
 	static function updateAgent($id, $fields) {
@@ -384,8 +437,10 @@ class CerberusTicketDAO {
 		// [JAS]: 1-based [TODO] clean up + document
 		$start = ($page * $limit);
 		
-		$sql = sprintf("SELECT t.id , t.mask, t.subject, t.status, t.priority, t.mailbox_id, t.bitflags, t.first_wrote, t.last_wrote, t.created_date, t.updated_date ".
+		$sql = sprintf("SELECT t.id , t.mask, t.subject, t.status, t.priority, t.mailbox_id, t.bitflags, t.first_wrote, t.last_wrote, t.created_date, ".
+			"t.updated_date ". //m.name
 			"FROM ticket t ".
+//			"INNER JOIN mailbox m ON (t.mailbox_id=m.id) ".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "").
 			(!empty($sortBy) ? sprintf("ORDER BY %s %s",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : "")
 		);
@@ -490,6 +545,42 @@ class CerberusTicketDAO {
 		
 		$sql = sprintf("DELETE FROM tag_to_ticket WHERE tag_id = %d AND ticket_id = %d",
 			$tag_id,
+			$ticket_id
+		);
+		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+	}
+	
+	static function flagTicket($ticket_id, $agent_id) {
+		if(empty($ticket_id) || empty($agent_id))
+			return null;
+		
+		$um_db = UserMeetDatabase::getInstance();
+		$um_db->Replace('assign_to_ticket', array('ticket_id'=>$ticket_id,'agent_id'=>$agent_id,'is_flag'=>1), array('ticket_id','agent_id'));
+	}
+	
+	static function unflagTicket($ticket_id, $agent_id) {
+		$um_db = UserMeetDatabase::getInstance();
+		
+		$sql = sprintf("DELETE FROM assign_to_ticket WHERE agent_id = %d AND ticket_id = %d AND is_flag = 1",
+			$agent_id,
+			$ticket_id
+		);
+		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+	}
+	
+	static function suggestTicket($ticket_id, $agent_id) {
+		if(empty($ticket_id) || empty($agent_id))
+			return null;
+		
+		$um_db = UserMeetDatabase::getInstance();
+		$um_db->Replace('assign_to_ticket', array('ticket_id'=>$ticket_id,'agent_id'=>$agent_id,'is_flag'=>0), array('ticket_id','agent_id'));
+	}
+	
+	static function unsuggestTicket($ticket_id, $agent_id) {
+		$um_db = UserMeetDatabase::getInstance();
+		
+		$sql = sprintf("DELETE FROM assign_to_ticket WHERE agent_id = %d AND ticket_id = %d AND is_flag = 0",
+			$agent_id,
 			$ticket_id
 		);
 		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
@@ -1143,6 +1234,39 @@ class CerberusWorkflowDAO {
 		}
 		
 		return $tags;
+	}
+	
+	/**
+	 * Enter description here...
+	 *
+	 * @param integer $ticket_id
+	 * @param boolean $is_flag
+	 * @return CerberusAgent[]
+	 */
+	static function getWorkersByTicket($ticket_id, $is_flag) {
+		$um_db = UserMeetDatabase::getInstance();
+		$ids = array();
+		$workers = array();
+		
+		$sql = sprintf("SELECT at.agent_id ".
+			"FROM assign_to_ticket at ".
+			"WHERE at.ticket_id = %d ".
+			"AND at.is_flag = %d",
+			$ticket_id,
+			($is_flag) ? 1 : 0
+		);
+		$rs= $um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		while(!$rs->EOF) {
+			$ids[] = intval($rs->fields['agent_id']);
+			$rs->MoveNext();
+		}
+
+		if(!empty($ids)) {
+			$workers = CerberusAgentDAO::getAgents($ids);
+		}
+		
+		return $workers;
 	}
 	
 	/**

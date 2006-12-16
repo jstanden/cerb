@@ -907,19 +907,12 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 		$ticket = CerberusTicketDAO::getTicket($id);
 		$tpl->assign('ticket', $ticket);
 		
-		$favoriteTags = CerberusWorkflowDAO::getTags();
-		$tpl->assign('favoriteTags', $favoriteTags);
-		
-		$suggestedTags = CerberusWorkflowDAO::getTags();
-		$tpl->assign('suggestedTags', $suggestedTags);
-		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/ticket_workflow.tpl.php');
 	}
 	
 	function getTagDialog() {
 		@$tag_id = intval($_REQUEST['id']);
 		@$ticket_id = intval($_REQUEST['ticket_id']);
-		@$parent_div = $_REQUEST['parent_div'];
 		
 		$tpl = UserMeetTemplateManager::getInstance();
 		$tpl->caching = 0;
@@ -929,7 +922,6 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 		$tpl->assign('tag', $tag);
 		
 		$tpl->assign('ticket_id', $ticket_id);
-		$tpl->assign('parent_div', $parent_div);
 		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/workflow/tag_dialog.tpl.php');
 	}
@@ -938,7 +930,6 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 		@$id = intval($_REQUEST['id']);
 		@$ticket_id = intval($_REQUEST['ticket_id']);
 		@$untag = intval($_REQUEST['untag']);
-		@$terms = $_REQUEST['terms'];
 		
 		if(!empty($untag) && !empty($ticket_id)) {
 			CerberusTicketDAO::untagTicket($ticket_id, $id);
@@ -949,11 +940,129 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 		echo ' ';
 	}
 	
+	function getAgentDialog() {
+		@$id = intval($_REQUEST['id']);
+		@$ticket_id = intval($_REQUEST['ticket_id']);
+		
+		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl->caching = 0;
+		$tpl->cache_lifetime = 0;
+		
+		$agent = CerberusAgentDAO::getAgent($id);
+		$tpl->assign('agent', $agent);
+		
+		$tpl->assign('ticket_id', $ticket_id);
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/workflow/agent_dialog.tpl.php');
+	}
+	
+	function saveAgentDialog() {
+		@$id = intval($_REQUEST['id']);
+		@$ticket_id = intval($_REQUEST['ticket_id']);
+		@$unassign = intval($_REQUEST['unassign']);
+		
+		if(!empty($unassign) && !empty($ticket_id)) {
+			CerberusTicketDAO::unflagTicket($ticket_id, $id);
+			CerberusTicketDAO::unsuggestTicket($ticket_id, $id);
+		} else {
+			// save changes
+		}
+		
+		echo ' ';
+	}
+	
+	function showApplyTags() {
+		@$id = intval($_REQUEST['id']);
+		
+		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl->caching = 0;
+		$tpl->cache_lifetime = 0;
+		
+		$tpl->assign('moduleLabel', $this->manifest->id);
+		
+		$ticket = CerberusTicketDAO::getTicket($id);
+		$tpl->assign('ticket', $ticket);
+		
+		$favoriteTags = CerberusWorkflowDAO::getTags();
+		$tpl->assign('favoriteTags', $favoriteTags);
+		
+		$suggestedTags = CerberusWorkflowDAO::getTags();
+		$tpl->assign('suggestedTags', $suggestedTags);
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/workflow/add_tags.tpl.php');
+	}
+	
 	function applyTags() {
 		@$id = intval($_POST['id']);
 		@$tagEntry = $_POST['tagEntry'];
 		
 		CerberusTicketDAO::tagTicket($id, $tagEntry);
+		
+		echo ' ';
+	}
+	
+	function showFlagAgents() {
+		@$id = intval($_REQUEST['id']);
+		
+		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl->caching = 0;
+		$tpl->cache_lifetime = 0;
+
+		$tpl->assign('moduleLabel', $this->manifest->id);
+
+		$ticket = CerberusTicketDAO::getTicket($id);
+		$tpl->assign('ticket', $ticket);
+		
+		$agents = CerberusAgentDAO::getAgents();
+		$tpl->assign('agents', $agents);
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/workflow/add_flags.tpl.php');
+	}
+	
+	function flagAgents() {
+		@$id = intval($_POST['id']);
+		@$agentEntry = $_POST['agentEntry'];
+		
+		$tokens = CerberusApplication::parseCsvString($agentEntry);
+		
+		foreach($tokens as $token) {
+			$agent_id = CerberusAgentDAO::lookupAgentLogin($token);
+			if(empty($agent_id)) continue;
+			CerberusTicketDAO::flagTicket($id, $agent_id);
+		}
+		
+		echo ' ';
+	}
+	
+	function showSuggestAgents() {
+		@$id = intval($_REQUEST['id']);
+		
+		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl->caching = 0;
+		$tpl->cache_lifetime = 0;
+
+		$tpl->assign('moduleLabel', $this->manifest->id);
+
+		$ticket = CerberusTicketDAO::getTicket($id);
+		$tpl->assign('ticket', $ticket);
+		
+		$agents = CerberusAgentDAO::getAgents();
+		$tpl->assign('agents', $agents);
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/workflow/add_suggestions.tpl.php');
+	}
+
+	function suggestAgents() {
+		@$id = intval($_POST['id']);
+		@$agentEntry = $_POST['agentEntry'];
+		
+		$tokens = CerberusApplication::parseCsvString($agentEntry);
+		
+		foreach($tokens as $token) {
+			$agent_id = CerberusAgentDAO::lookupAgentLogin($token);
+			if(empty($agent_id)) continue;
+			CerberusTicketDAO::suggestTicket($id, $agent_id);
+		}
 		
 		echo ' ';
 	}

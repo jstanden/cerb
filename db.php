@@ -155,6 +155,12 @@ $tables['tag_to_ticket'] ="
 	ticket_id I4 DEFAULT 0 NOTNULL PRIMARY
 ";
 
+$tables['assign_to_ticket'] = "
+	agent_id I4 DEFAULT 0 NOTNULL PRIMARY,
+	ticket_id I4 DEFAULT 0 NOTNULL PRIMARY,
+	is_flag I1 DEFAULT 0 NOTNULL
+";
+
 foreach($tables as $table => $flds) {
 	$sql = $datadict->ChangeTableSQL($table,$flds);
 	print_r($sql);
