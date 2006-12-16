@@ -167,15 +167,9 @@ class CerberusMailbox {
 	public $name;
 	public $reply_address_id;
 	public $display_name;
+	public $count;
 	
 	function CerberusMailbox() {}
-	
-	function getTotal() {
-		// [TODO] DAN!
-//		CerberusTicketDAO::searchTickets(array(
-//			
-//		));
-	}
 };
 
 class CerberusTag {

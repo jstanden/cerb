@@ -37,8 +37,14 @@ class ChDashboardModule extends CerberusModuleExtension {
 		$teams = CerberusApplication::getTeamList();
 		$tpl->assign('teams', $teams);
 		
-		$mailboxes = CerberusApplication::getMailboxList();
+		$mailboxes = CerberusApplication::getMailboxListWithCounts();
 		$tpl->assign('mailboxes', $mailboxes);
+
+		$total_count = 0;
+		foreach ($mailboxes as $mailbox) {
+			$total_count += $mailbox->count;
+		}
+		$tpl->assign('total_count', $total_count);
 		
 		$translate_tokens = array(
 			"whos" => array(1)

@@ -164,6 +164,27 @@ class CerberusApplication {
 		return $mailboxes;
 	}
 	
+	static function getMailboxListWithCounts() {
+		$um_db = UserMeetDatabase::getInstance();
+		$mailboxes = CerberusApplication::getMailboxList(); /* @var $mailboxes CerberusMailbox[] */
+		
+		foreach ($mailboxes as $mailbox) {
+			$sql = sprintf("SELECT COUNT(t.id) as ticket_count ".
+				"FROM ticket t ".
+				"WHERE t.mailbox_id = %d AND t.status = 'O'",
+				$mailbox->id
+			);
+			
+			$rs = $um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+			
+			while(!$rs->EOF) {
+				$mailbox->count = intval($rs->fields['ticket_count']);
+				$rs->MoveNext();
+			}			
+		}
+		return $mailboxes;	
+	}
+	
 	static function createTeam($name) {
 		$um_db = UserMeetDatabase::getInstance();
 		$newId = $um_db->GenID('generic_seq');
