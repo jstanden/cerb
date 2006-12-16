@@ -1,5 +1,9 @@
 <?php
 define('UM_PATH',realpath(dirname(__FILE__)));
+
+ini_set('session.gc_maxlifetime','86400');
+ini_set('session.save_path',UM_PATH . '/tmp');
+
 define('UM_PLUGIN_PATH',UM_PATH.'/plugins/');
 define('UM_ATTACHMENT_SAVE_PATH',UM_PATH.'/tmp/');
 define('UM_ATTACHMENT_ACCESS_PATH','http://localhost/cerb4/tmp/');
