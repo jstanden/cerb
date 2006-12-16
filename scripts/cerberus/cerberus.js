@@ -139,7 +139,7 @@ var cAjaxCalls = function() {
 					
 					caller.contactPanel.hide();
 					caller.contactPanel.setBody(o.responseText);
-					caller.contactPanel.cfg.setProperty('context',[target,"tl","bl"]);
+					caller.contactPanel.cfg.setProperty('context',[target,"tl","br"]);
 					caller.contactPanel.show();
 				},
 				failure: function(o) {},

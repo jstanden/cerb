@@ -60,6 +60,15 @@ class ChDashboardModule extends CerberusModuleExtension {
 	}
 	
 	function clickmailbox() {
+		@$id = intval($_REQUEST['id']);
+		
+		$view = CerberusDashboardDAO::getView(0);
+		$view->params = array(
+			new CerberusSearchCriteria('t.mailbox_id','=', $id),
+			new CerberusSearchCriteria('t.status','in', array(CerberusTicketStatus::OPEN))
+		);
+		$_SESSION['search_view'] = $view;
+		
 		CerberusApplication::setActiveModule("core.module.search");
 	}
 	

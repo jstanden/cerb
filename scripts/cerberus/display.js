@@ -7,8 +7,8 @@ var cDisplayTicketAjax = function(ticket_id, workflow_div) {
 		var div = document.getElementById(this.workflow_div);
 		if(null == div) return;
 
-		var anim = new YAHOO.util.Anim(div, { opacity: { to: 0.2 } }, 1, YAHOO.util.Easing.easeOut);
-		anim.animate();
+//		var anim = new YAHOO.util.Anim(div, { opacity: { to: 0.2 } }, 1, YAHOO.util.Easing.easeOut);
+//		anim.animate();
 		
 		var cObj = YAHOO.util.Connect.asyncRequest('GET', 'ajax.php?c=core.display.module.workflow&a=refresh&id=' + this.ticket_id, {
 				success: function(o) {
@@ -18,8 +18,8 @@ var cDisplayTicketAjax = function(ticket_id, workflow_div) {
 					
 					div.innerHTML = o.responseText;
 					
-					var anim = new YAHOO.util.Anim(div, { opacity: { to: 1 } }, 1, YAHOO.util.Easing.easeOut);
-					anim.animate();
+//					var anim = new YAHOO.util.Anim(div, { opacity: { to: 1 } }, 1, YAHOO.util.Easing.easeOut);
+//					anim.animate();
 					
 				},
 				failure: function(o) {},
@@ -61,7 +61,7 @@ var cDisplayTicketAjax = function(ticket_id, workflow_div) {
 							  fixedcenter : false,
 							  visible : false, 
 							  constraintoviewport : true,
-							  modal: true,
+							  modal: false,
 							  close: false,
 							  draggable: false
 							});

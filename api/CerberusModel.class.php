@@ -169,6 +169,13 @@ class CerberusMailbox {
 	public $display_name;
 	
 	function CerberusMailbox() {}
+	
+	function getTotal() {
+		// [TODO] DAN!
+//		CerberusTicketDAO::searchTickets(array(
+//			
+//		));
+	}
 };
 
 class CerberusTag {
