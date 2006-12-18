@@ -38,8 +38,9 @@
 			<a href="javascript:;" onclick="checkAll('configWorkerTeams',false);">check none</a>
 		</td>
 		<td width="100%" id="configWorkerTeams" valign="top">
-			{foreach from=$teams item=team}
-			<label><input type="checkbox" name="team_id[]" value="{$team->id}">{$team->name}</label><br>
+			{if $worker->id}{assign var=workerTeams value=$worker->getTeams()}{/if}
+			{foreach from=$teams item=team key=team_id}
+			<label><input type="checkbox" name="team_id[]" value="{$team->id}" {if $workerTeams.$team_id}checked{/if}>{$team->name}</label><br>
 			{/foreach}
 		</td>
 	</tr>

@@ -26,8 +26,9 @@
 			<a href="javascript:;" onclick="checkAll('configMailboxTeams',false);">check none</a>
 		</td>
 		<td width="100%" id="configMailboxTeams">
-			{foreach from=$teams item=team}
-			<label><input type="checkbox" name="team_id[]" value="{$team->id}">{$team->name}</label><br>
+			{if $mailbox->id}{assign var=mailboxTeams value=$mailbox->getTeams()}{/if}
+			{foreach from=$teams item=team key=team_id}
+			<label><input type="checkbox" name="team_id[]" value="{$team_id}" {if $mailboxTeams.$team_id}checked{/if}>{$team->name}</label><br>
 			{/foreach}
 		</td>
 	</tr>

@@ -11,12 +11,16 @@
 
 <h2>Workflow</h2>
 
+<a name="pop3"></a>
 {include file="file:$path/configuration/pop3_accounts.tpl.php"}
 
+<a name="mailboxes"></a>
 {include file="file:$path/configuration/mailboxes.tpl.php"}
 
+<a name="workers"></a>
 {include file="file:$path/configuration/agents.tpl.php"}
 
+<a name="teams"></a>
 {include file="file:$path/configuration/teams.tpl.php"}
 
 <script>

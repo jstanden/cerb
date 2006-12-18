@@ -12,8 +12,8 @@
 				<tr>
 					<td>
 						<div style="margin:0px;padding:3px;height:150px;width:200px;overflow:auto;">
-						{if !empty($agents)}
-							{foreach from=$agents item=agent}
+						{if !empty($workers)}
+							{foreach from=$workers item=agent}
 							&#187; <a href="javascript:;" onclick="configAjax.getWorker('{$agent->id}')">{$agent->login}</a><br>
 							{/foreach}
 						{/if}
@@ -24,7 +24,7 @@
 		</td>
 		
 		<td width="100%" valign="top">
-			<form action="index.php" method="post" id="configWorker">
+			<form action="index.php#workers" method="post" id="configWorker">
 				{include file="$path/configuration/workflow/edit_worker.tpl.php" worker=null}
 			</form>
 		</td>

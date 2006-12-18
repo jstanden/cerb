@@ -17,13 +17,27 @@
 	</tr>
 	<tr>
 		<td width="0%" nowrap="nowrap" valign="top">
+			<b>Workers:</b><br>
+			<a href="javascript:;" onclick="checkAll('configTeamWorkers',true);">check all</a><br>
+			<a href="javascript:;" onclick="checkAll('configTeamWorkers',false);">check none</a>
+		</td>
+		<td width="100%" id="configTeamWorkers" valign="top">
+			{if $team->id}{assign var=teamWorkers value=$team->getWorkers()}{/if}
+			{foreach from=$workers item=worker key=worker_id}
+			<label><input type="checkbox" name="agent_id[]" value="{$worker_id}" {if $teamWorkers.$worker_id}checked{/if}>{$worker->login}</label><br>
+			{/foreach}
+		</td>
+	</tr>
+	<tr>
+		<td width="0%" nowrap="nowrap" valign="top">
 			<b>Mailboxes:</b><br>
 			<a href="javascript:;" onclick="checkAll('configTeamMailboxes',true);">check all</a><br>
 			<a href="javascript:;" onclick="checkAll('configTeamMailboxes',false);">check none</a>
 		</td>
 		<td width="100%" id="configTeamMailboxes" valign="top">
-			{foreach from=$mailboxes item=mailbox}
-			<label><input type="checkbox" name="mailbox_id[]" value="{$mailbox->id}">{$mailbox->name}</label><br>
+			{if $team->id}{assign var=teamMailboxes value=$team->getMailboxes()}{/if}
+			{foreach from=$mailboxes item=mailbox key=mailbox_id}
+			<label><input type="checkbox" name="mailbox_id[]" value="{$mailbox_id}" {if $teamMailboxes.$mailbox_id}checked{/if}>{$mailbox->name}</label><br>
 			{/foreach}
 		</td>
 	</tr>

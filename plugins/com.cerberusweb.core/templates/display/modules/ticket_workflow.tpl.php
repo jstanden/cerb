@@ -1,6 +1,6 @@
 {assign var=tags value=$ticket->getTags()}
 <b>Tags:</b> 
-<img src="images/bookmark_add.gif" align="absmiddle"> <a href="#workflowOptions" onclick="displayAjax.showApplyTags();">Add Tags</a>
+<img src="images/bookmark_add.gif" align="absmiddle"> <a href="javascript:;" onclick="displayAjax.showApplyTags();">Add Tags</a>
 <br>
 <div style="width:98%;background-color:rgb(250,250,255);border:1px solid rgb(200,200,200);margin:2px;padding:5px;">
 {if !empty($tags)}
@@ -18,8 +18,8 @@
 {assign var=suggestedAgents value=$ticket->getSuggestedWorkers()}
 
 <b>Workers:</b> 
-<img src="images/flag_red.gif" align="absmiddle"> <a href="#workflowOptions" onclick="displayAjax.showFlagAgents();">Assign Workers</a>
-<img src="images/businessman_add.gif" align="absmiddle"> <a href="#workflowOptions" onclick="displayAjax.showSuggestAgents();" style="font-style:italic;">Suggest Workers</a>
+<img src="images/flag_red.gif" align="absmiddle"> <a href="javascript:;" onclick="displayAjax.showFlagAgents();">Assign Workers</a>
+<img src="images/businessman_add.gif" align="absmiddle"> <a href="javascript:;" onclick="displayAjax.showSuggestAgents();" style="font-style:italic;">Suggest Workers</a>
 <br>
 <div style="width:98%;background-color:rgb(250,250,255);border:1px solid rgb(200,200,200);margin:2px;padding:5px;">
 {if !empty($flaggedAgents)}
@@ -40,5 +40,4 @@
 {/if}
 </div>
 
-<a name="workflowOptions"></a>
 <span style="display:none;" id="displayWorkflowOptions"></span>

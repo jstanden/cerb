@@ -4,6 +4,11 @@ class CerberusAgent {
 	public $id;
 	public $login;
 	public $admin;
+	
+	function getTeams() {
+		return CerberusAgentDAO::getAgentTeams($this->id);
+	}
+	
 }
 
 class CerberusDashboardViewColumn {
@@ -186,11 +191,33 @@ class CerberusMailbox {
 	public $count;
 	
 	function CerberusMailbox() {}
+	
+	/**
+	 * Enter description here...
+	 *
+	 * @return CerberusTeam[]
+	 */
+	function getTeams() {
+		return CerberusMailDAO::getMailboxTeams($this->id);
+	}
 };
 
 class CerberusTeam {
 	public $id;
 	public $name;
+	
+	/**
+	 * Enter description here...
+	 *
+	 * @return CerberusMailbox[]
+	 */
+	function getMailboxes() {
+		return CerberusWorkflowDAO::getTeamMailboxes($this->id);
+	}
+	
+	function getWorkers() {
+		return CerberusWorkflowDAO::getTeamWorkers($this->id);
+	}
 }
 
 class CerberusPop3Account {

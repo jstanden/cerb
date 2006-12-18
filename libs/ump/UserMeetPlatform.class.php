@@ -687,7 +687,7 @@ class UserMeetTemplateManager {
 			$instance->cache_dir = UM_PATH . '/cache';
 			
 			//$smarty->config_dir = UM_PATH . '/configs';
-			$instance->caching = 1;
+			$instance->caching = 0;
 			$instance->cache_lifetime = 0;
 		}
 		return $instance;

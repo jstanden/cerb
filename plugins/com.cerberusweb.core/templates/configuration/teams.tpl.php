@@ -24,7 +24,7 @@
 		</td>
 		
 		<td width="100%" valign="top">
-			<form action="index.php" method="post" id="configTeam">
+			<form action="index.php#teams" method="post" id="configTeam">
 				{include file="$path/configuration/workflow/edit_team.tpl.php" team=null}
 			</form>
 		</td>

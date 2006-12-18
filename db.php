@@ -167,6 +167,11 @@ $tables['mailbox_to_team'] = "
 	is_routed I1 DEFAULT 0 NOTNULL
 ";
 
+$tables['worker_to_team'] = "
+	agent_id I4 DEFAULT 0 NOTNULL PRIMARY,
+	team_id I4 DEFAULT 0 NOTNULL PRIMARY
+";
+
 $tables['pop3_account'] = "
 	id I4 DEFAULT 0 NOTNULL PRIMARY,
 	nickname C(128) DEFAULT '' NOTNULL,

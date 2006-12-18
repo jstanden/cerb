@@ -1,5 +1,5 @@
 <?php
-define("CERBERUS_BUILD", 53);
+define("CERBERUS_BUILD", 55);
 
 include_once(UM_PATH . "/api/CerberusDAO.class.php");
 include_once(UM_PATH . "/api/CerberusModel.class.php");

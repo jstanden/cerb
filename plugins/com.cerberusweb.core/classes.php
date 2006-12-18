@@ -272,8 +272,8 @@ class ChConfigurationModule extends CerberusModuleExtension  {
 		$mailboxes = CerberusMailDAO::getMailboxes();
 		$tpl->assign('mailboxes', $mailboxes);
 		
-		$agents = CerberusAgentDAO::getAgents();
-		$tpl->assign('agents', $agents);
+		$workers = CerberusAgentDAO::getAgents();
+		$tpl->assign('workers', $workers);
 		
 		$teams = CerberusWorkflowDAO::getTeams();
 		$tpl->assign('teams', $teams);
@@ -298,10 +298,11 @@ class ChConfigurationModule extends CerberusModuleExtension  {
 	}
 	
 	function saveWorker() {
-		@$id = $_REQUEST['id'];
-		@$login = $_REQUEST['login'];
-		@$password = $_REQUEST['password'];
-		@$delete = $_REQUEST['delete'];
+		@$id = $_POST['id'];
+		@$login = $_POST['login'];
+		@$password = $_POST['password'];
+		@$team_id = $_POST['team_id'];
+		@$delete = $_POST['delete'];
 		
 		if(empty($name)) $name = "No Name";
 		
@@ -319,11 +320,13 @@ class ChConfigurationModule extends CerberusModuleExtension  {
 			}
 			
 			CerberusAgentDAO::updateAgent($id, $fields);
+			CerberusAgentDAO::setAgentTeams($id, $team_id);
 			
 		} else {
 			// Don't dupe.
 			if(null == CerberusAgentDAO::lookupAgentLogin($login)) {
-				CerberusAgentDAO::createAgent($login, $password);
+				$id = CerberusAgentDAO::createAgent($login, $password);
+				CerberusAgentDAO::setAgentTeams($id, $team_id);
 			}
 		}
 		
@@ -340,6 +343,9 @@ class ChConfigurationModule extends CerberusModuleExtension  {
 		$team = CerberusWorkflowDAO::getTeam($id);
 		$tpl->assign('team', $team);
 		
+		$workers = CerberusAgentDAO::getAgents();
+		$tpl->assign('workers', $workers);
+		
 		$mailboxes = CerberusMailDAO::getMailboxes();
 		$tpl->assign('mailboxes', $mailboxes);
 		
@@ -347,9 +353,11 @@ class ChConfigurationModule extends CerberusModuleExtension  {
 	}
 	
 	function saveTeam() {
-		@$id = $_REQUEST['id'];
-		@$name = $_REQUEST['name'];
-		@$delete = $_REQUEST['delete'];
+		@$id = $_POST['id'];
+		@$name = $_POST['name'];
+		@$mailbox_id = $_POST['mailbox_id'];
+		@$agent_id = $_POST['agent_id'];
+		@$delete = $_POST['delete'];
 		
 		if(empty($name)) $name = "No Name";
 		
@@ -361,9 +369,13 @@ class ChConfigurationModule extends CerberusModuleExtension  {
 				'name' => $name
 			);
 			CerberusWorkflowDAO::updateTeam($id, $fields);
+			CerberusWorkflowDAO::setTeamMailboxes($id, $mailbox_id);
+			CerberusWorkflowDAO::setTeamWorkers($id, $agent_id);
 			
 		} else {
-			CerberusWorkflowDAO::createTeam($name);
+			$id = CerberusWorkflowDAO::createTeam($name);
+			CerberusWorkflowDAO::setTeamMailboxes($id, $mailbox_id);
+			CerberusWorkflowDAO::setTeamWorkers($id, $agent_id);
 		}
 		
 		CerberusApplication::setActiveModule($this->id);
@@ -389,10 +401,11 @@ class ChConfigurationModule extends CerberusModuleExtension  {
 	}
 	
 	function saveMailbox() {
-		@$id = $_REQUEST['id'];
-		@$name = $_REQUEST['name'];
-		@$reply_as = $_REQUEST['reply_as'];
-		@$delete = $_REQUEST['delete'];
+		@$id = $_POST['id'];
+		@$name = $_POST['name'];
+		@$reply_as = $_POST['reply_as'];
+		@$team_id = $_POST['team_id'];
+		@$delete = $_POST['delete'];
 		
 		if(empty($name)) $name = "No Name";
 		
@@ -404,13 +417,15 @@ class ChConfigurationModule extends CerberusModuleExtension  {
 
 			$fields = array(
 				'name' => $name,
-				'reply_as' => $reply_id
+				'reply_address_id' => $reply_id
 			);
 			CerberusMailDAO::updateMailbox($id, $fields);
+			CerberusMailDAO::setMailboxTeams($id, $team_id);
 			
 		} else {
 			$reply_id = CerberusContactDAO::lookupAddress($reply_as, true);
-			CerberusMailDAO::createMailbox($name,$reply_id);
+			$id = CerberusMailDAO::createMailbox($name,$reply_id);
+			CerberusMailDAO::setMailboxTeams($id, $team_id);
 		}
 		
 		CerberusApplication::setActiveModule($this->id);
@@ -430,12 +445,12 @@ class ChConfigurationModule extends CerberusModuleExtension  {
 	}
 	
 	function savePop3Account() {
-		@$id = $_REQUEST['id'];
-		@$nickname = $_REQUEST['nickname'];
-		@$host = $_REQUEST['host'];
-		@$username = $_REQUEST['username'];
-		@$password = $_REQUEST['password'];
-		@$delete = $_REQUEST['delete'];
+		@$id = $_POST['id'];
+		@$nickname = $_POST['nickname'];
+		@$host = $_POST['host'];
+		@$username = $_POST['username'];
+		@$password = $_POST['password'];
+		@$delete = $_POST['delete'];
 		
 		if(empty($nickname)) $nickname = "No Nickname";
 		
@@ -450,7 +465,7 @@ class ChConfigurationModule extends CerberusModuleExtension  {
 			);
 			CerberusMailDAO::updatePop3Account($id, $fields);
 		} else {
-			CerberusMailDAO::createPop3Account($nickname,$host,$username,$password);
+			$id = CerberusMailDAO::createPop3Account($nickname,$host,$username,$password);
 		}
 		
 		CerberusApplication::setActiveModule($this->id);

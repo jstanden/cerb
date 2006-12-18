@@ -111,7 +111,55 @@ class CerberusAgentDAO {
 			$id
 		);
 		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		$sql = sprintf("DELETE FROM worker_to_team WHERE agent_id = %d",
+			$id
+		);
+		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
 	}
+	
+	static function setAgentTeams($agent_id, $team_ids) {
+		if(!is_array($team_ids)) $team_ids = array($team_ids);
+		if(empty($agent_id)) return;
+		$um_db = UserMeetDatabase::getInstance();
+
+		$sql = sprintf("DELETE FROM worker_to_team WHERE agent_id = %d",
+			$agent_id
+		);
+		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		foreach($team_ids as $team_id) {
+			$sql = sprintf("INSERT INTO worker_to_team (agent_id, team_id) ".
+				"VALUES (%d,%d)",
+				$agent_id,
+				$team_id
+			);
+			$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		}
+	}
+	
+	static function getAgentTeams($agent_id) {
+		if(empty($agent_id)) return;
+		$um_db = UserMeetDatabase::getInstance();
+		$ids = array();
+		
+		$sql = sprintf("SELECT wt.team_id FROM worker_to_team wt WHERE wt.agent_id = %d",
+			$agent_id
+		);
+		$rs = $um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		while(!$rs->EOF) {
+			$ids[] = intval($rs->fields['team_id']);
+			$rs->MoveNext();
+		}
+		
+		if(empty($ids))
+			return array();
+		
+		return CerberusWorkflowDAO::getTeams($ids);
+	}
+	
 }
 
 class CerberusContactDAO {
@@ -1449,7 +1497,102 @@ class CerberusWorkflowDAO {
 			$id
 		);
 		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		$sql = sprintf("DELETE FROM mailbox_to_team WHERE team_id = %d",
+			$id
+		);
+		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		$sql = sprintf("DELETE FROM worker_to_team WHERE team_id = %d",
+			$id
+		);
+		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
 	}
+	
+	static function setTeamMailboxes($team_id, $mailbox_ids) {
+		if(!is_array($mailbox_ids)) $mailbox_ids = array($mailbox_ids);
+		if(empty($team_id)) return;
+		$um_db = UserMeetDatabase::getInstance();
+		
+		$sql = sprintf("DELETE FROM mailbox_to_team WHERE team_id = %d",
+			$team_id
+		);
+		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		foreach($mailbox_ids as $mailbox_id) {
+			$sql = sprintf("INSERT INTO mailbox_to_team (mailbox_id, team_id, is_routed) ".
+				"VALUES (%d,%d,%d)",
+				$mailbox_id,
+				$team_id,
+				1
+			);
+			$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		}
+	}
+	
+	static function getTeamMailboxes($team_id) {
+		if(empty($team_id)) return;
+		$um_db = UserMeetDatabase::getInstance();
+		$ids = array();
+		
+		$sql = sprintf("SELECT mt.mailbox_id FROM mailbox_to_team mt WHERE mt.team_id = %d",
+			$team_id
+		);
+		$rs = $um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		while(!$rs->EOF) {
+			$ids[] = intval($rs->fields['mailbox_id']);
+			$rs->MoveNext();
+		}
+		
+		if(empty($ids))
+			return array();
+		
+		return CerberusMailDAO::getMailboxes($ids);
+	}
+	
+	static function setTeamWorkers($team_id, $agent_ids) {
+		if(!is_array($agent_ids)) $agent_ids = array($agent_ids);
+		if(empty($team_id)) return;
+		$um_db = UserMeetDatabase::getInstance();
+
+		$sql = sprintf("DELETE FROM worker_to_team WHERE team_id = %d",
+			$team_id
+		);
+		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		foreach($agent_ids as $agent_id) {
+			$sql = sprintf("INSERT INTO worker_to_team (agent_id, team_id) ".
+				"VALUES (%d,%d)",
+				$agent_id,
+				$team_id
+			);
+			$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		}
+	}
+	
+	static function getTeamWorkers($team_id) {
+		if(empty($team_id)) return;
+		$um_db = UserMeetDatabase::getInstance();
+		$ids = array();
+		
+		$sql = sprintf("SELECT wt.agent_id FROM worker_to_team wt WHERE wt.team_id = %d",
+			$team_id
+		);
+		$rs = $um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		while(!$rs->EOF) {
+			$ids[] = intval($rs->fields['agent_id']);
+			$rs->MoveNext();
+		}
+		
+		if(empty($ids))
+			return array();
+		
+		return CerberusAgentDAO::getAgents($ids);
+	}
+	
 	
 }
 
@@ -1570,8 +1713,57 @@ class CerberusMailDAO {
 			$id
 		);
 		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		$sql = sprintf("DELETE FROM mailbox_to_team WHERE mailbox_id = %d",
+			$id
+		);
+		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
 	}
 	
+	
+	static function setMailboxTeams($mailbox_id, $team_ids) {
+		if(!is_array($team_ids)) $team_ids = array($team_ids);
+		if(empty($mailbox_id)) return;
+		$um_db = UserMeetDatabase::getInstance();
+
+		$sql = sprintf("DELETE FROM mailbox_to_team WHERE mailbox_id = %d",
+			$mailbox_id
+		);
+		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		foreach($team_ids as $team_id) {
+			$sql = sprintf("INSERT INTO mailbox_to_team (mailbox_id, team_id, is_routed) ".
+				"VALUES (%d,%d,%d)",
+				$mailbox_id,
+				$team_id,
+				1
+			);
+			$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		}
+	}
+	
+	static function getMailboxTeams($mailbox_id) {
+		if(empty($mailbox_id)) return;
+		$um_db = UserMeetDatabase::getInstance();
+		$ids = array();
+		
+		$sql = sprintf("SELECT mt.team_id FROM mailbox_to_team mt WHERE mt.mailbox_id = %d",
+			$mailbox_id
+		);
+		$rs = $um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		while(!$rs->EOF) {
+			$ids[] = intval($rs->fields['team_id']);
+			$rs->MoveNext();
+		}
+		
+		if(empty($ids))
+			return array();
+			
+		return CerberusWorkflowDAO::getTeams($ids);
+	}
+		
 	// Pop3 Accounts
 	
 	static function createPop3Account($nickname,$host,$username,$password) {
