@@ -34,10 +34,10 @@ class ChDashboardModule extends CerberusModuleExtension {
 		$views = CerberusDashboardDAO::getViews(); // getViews($dashboard_id)
 		$tpl->assign('views', $views);
 		
-		$teams = CerberusApplication::getTeamList();
+		$teams = CerberusWorkflowDAO::getTeams();
 		$tpl->assign('teams', $teams);
 		
-		$mailboxes = CerberusApplication::getMailboxListWithCounts();
+		$mailboxes = CerberusMailDAO::getMailboxListWithCounts();
 		$tpl->assign('mailboxes', $mailboxes);
 
 		$total_count = 0;
@@ -266,7 +266,194 @@ class ChConfigurationModule extends CerberusModuleExtension  {
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 
+		$pop3_accounts = CerberusMailDAO::getPop3Accounts();
+		$tpl->assign('pop3_accounts', $pop3_accounts);
+		
+		$mailboxes = CerberusMailDAO::getMailboxes();
+		$tpl->assign('mailboxes', $mailboxes);
+		
+		$agents = CerberusAgentDAO::getAgents();
+		$tpl->assign('agents', $agents);
+		
+		$teams = CerberusWorkflowDAO::getTeams();
+		$tpl->assign('teams', $teams);
+		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/index.tpl.php');
+	}
+	
+	function getWorker() {
+		@$id = $_REQUEST['id'];
+
+		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+
+		$worker = CerberusAgentDAO::getAgent($id);
+		$tpl->assign('worker', $worker);
+		
+		$teams = CerberusWorkflowDAO::getTeams();
+		$tpl->assign('teams', $teams);
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/workflow/edit_worker.tpl.php');
+	}
+	
+	function saveWorker() {
+		@$id = $_REQUEST['id'];
+		@$login = $_REQUEST['login'];
+		@$password = $_REQUEST['password'];
+		@$delete = $_REQUEST['delete'];
+		
+		if(empty($name)) $name = "No Name";
+		
+		if(!empty($id) && !empty($delete)) {
+			CerberusAgentDAO::deleteAgent($id);
+			
+		} elseif(!empty($id)) {
+			$fields = array(
+				'login' => $login
+			);
+			
+			// if we're resetting the password
+			if(!empty($password)) {
+				$fields['password'] = md5($password);
+			}
+			
+			CerberusAgentDAO::updateAgent($id, $fields);
+			
+		} else {
+			// Don't dupe.
+			if(null == CerberusAgentDAO::lookupAgentLogin($login)) {
+				CerberusAgentDAO::createAgent($login, $password);
+			}
+		}
+		
+		CerberusApplication::setActiveModule($this->id);
+	}
+	
+	function getTeam() {
+		@$id = $_REQUEST['id'];
+
+		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+
+		$team = CerberusWorkflowDAO::getTeam($id);
+		$tpl->assign('team', $team);
+		
+		$mailboxes = CerberusMailDAO::getMailboxes();
+		$tpl->assign('mailboxes', $mailboxes);
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/workflow/edit_team.tpl.php');
+	}
+	
+	function saveTeam() {
+		@$id = $_REQUEST['id'];
+		@$name = $_REQUEST['name'];
+		@$delete = $_REQUEST['delete'];
+		
+		if(empty($name)) $name = "No Name";
+		
+		if(!empty($id) && !empty($delete)) {
+			CerberusWorkflowDAO::deleteTeam($id);
+			
+		} elseif(!empty($id)) {
+			$fields = array(
+				'name' => $name
+			);
+			CerberusWorkflowDAO::updateTeam($id, $fields);
+			
+		} else {
+			CerberusWorkflowDAO::createTeam($name);
+		}
+		
+		CerberusApplication::setActiveModule($this->id);
+	}
+	
+	function getMailbox() {
+		@$id = $_REQUEST['id'];
+
+		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+
+		$mailbox = CerberusMailDAO::getMailbox($id);
+		$tpl->assign('mailbox', $mailbox);
+		
+		$teams = CerberusWorkflowDAO::getTeams();
+		$tpl->assign('teams', $teams);
+		
+		$reply_address = CerberusContactDAO::getAddress($mailbox->reply_address_id);
+		$tpl->assign('reply_address', $reply_address);
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/workflow/edit_mailbox.tpl.php');
+	}
+	
+	function saveMailbox() {
+		@$id = $_REQUEST['id'];
+		@$name = $_REQUEST['name'];
+		@$reply_as = $_REQUEST['reply_as'];
+		@$delete = $_REQUEST['delete'];
+		
+		if(empty($name)) $name = "No Name";
+		
+		if(!empty($id) && !empty($delete)) {
+			CerberusMailDAO::deleteMailbox($id);
+			
+		} elseif(!empty($id)) {
+			$reply_id = CerberusContactDAO::lookupAddress($reply_as, true);
+
+			$fields = array(
+				'name' => $name,
+				'reply_as' => $reply_id
+			);
+			CerberusMailDAO::updateMailbox($id, $fields);
+			
+		} else {
+			$reply_id = CerberusContactDAO::lookupAddress($reply_as, true);
+			CerberusMailDAO::createMailbox($name,$reply_id);
+		}
+		
+		CerberusApplication::setActiveModule($this->id);
+	}
+	
+	function getPop3Account() {
+		@$id = $_REQUEST['id'];
+		
+		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+
+		$pop3_account = CerberusMailDAO::getPop3Account($id);
+		$tpl->assign('pop3_account', $pop3_account);
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/workflow/edit_pop3_account.tpl.php');
+	}
+	
+	function savePop3Account() {
+		@$id = $_REQUEST['id'];
+		@$nickname = $_REQUEST['nickname'];
+		@$host = $_REQUEST['host'];
+		@$username = $_REQUEST['username'];
+		@$password = $_REQUEST['password'];
+		@$delete = $_REQUEST['delete'];
+		
+		if(empty($nickname)) $nickname = "No Nickname";
+		
+		if(!empty($id) && !empty($delete)) {
+			CerberusMailDAO::deletePop3Account($id);
+		} elseif(!empty($id)) {
+			$fields = array(
+				'nickname' => $nickname,
+				'host' => $host,
+				'username' => $username,
+				'password' => $password
+			);
+			CerberusMailDAO::updatePop3Account($id, $fields);
+		} else {
+			CerberusMailDAO::createPop3Account($nickname,$host,$username,$password);
+		}
+		
+		CerberusApplication::setActiveModule($this->id);
 	}
 }
 
@@ -297,7 +484,7 @@ class ChDisplayModule extends CerberusModuleExtension {
 		$ticket = CerberusTicketDAO::getTicket($id);
 		$tpl->assign('ticket', $ticket);
 
-		$mailboxes = CerberusApplication::getMailboxList();
+		$mailboxes = CerberusMailDAO::getMailboxes();
 		$tpl->assign('mailboxes', $mailboxes);
 		
 		$display_module_manifests = UserMeetPlatform::getExtensions("com.cerberusweb.display.module");
@@ -391,8 +578,8 @@ class ChDisplayModule extends CerberusModuleExtension {
 		$message	= CerberusTicketDAO::getMessage($id);
 		$ticket_id	= $message->ticket_id;
 		$ticket		= CerberusTicketDAO::getTicket($ticket_id);
-		$mailboxes	= CerberusApplication::getMailboxList();
-		$mailbox	= $mailboxes[$ticket->mailbox_id];
+		$mailboxes	= CerberusMailDAO::getMailboxes();
+		$mailbox	= $mailboxes[$ticket->mailbox_id]; // [JAS]: [TODO] This should be using a singular DAO call ::getMailbox($id)
 		$requesters	= CerberusTicketDAO::getRequestersByTicket($ticket_id);
 		
 		// requester address parsing - needs to vary based on type
@@ -568,7 +755,7 @@ class ChTeamworkModule extends CerberusModuleExtension {
 		$tpl = UserMeetTemplateManager::getInstance();
 		$tpl->cache_lifetime = "0";
 		
-		$teams = CerberusApplication::getTeamList();
+		$teams = CerberusWorkflowDAO::getTeams();
 		$tpl->assign('teams', $teams);		
 		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/teamwork/index.tpl.php');

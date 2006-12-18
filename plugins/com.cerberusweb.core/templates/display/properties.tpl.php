@@ -73,7 +73,7 @@
     <tr>
       <td>
       	<b class="green">Subject:</b><br>
-      	<input type="text" name="subject" value="{$ticket->subject|escape:"htmlall"}">
+      	<input type="text" name="subject" value="{$ticket->subject|escape:"htmlall"}" style="width:98%">
      	</td>
     </tr>
     <tr>

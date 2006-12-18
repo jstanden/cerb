@@ -34,6 +34,9 @@
     }
 
   h2 {
+  	 font-weight: bold;
+    font-family: Arial,Helvetica,sans-serif;
+    font-size: 18px;
     margin-top: 0px;
     margin-bottom: 0px;
 	}  
@@ -66,7 +69,9 @@
     text-decoration: none;
     }
 
-  .tableOrange { border: 1px solid rgb(210, 84, 0);
+  .tableOrange { 
+  		border: 1px solid rgb(210, 84, 0);
+  		background-color: rgb(247, 247, 255);
     }
 
   .tableThOrange { padding: 3px;
@@ -198,3 +203,20 @@
 		border: 1px solid rgb(127,157,185);
 		width: 98%;
 	}
+	
+  .configTable { 
+    border: 1px solid rgb(0, 153, 51);
+    background-color: rgb(247, 247, 255); 
+  }
+
+  .configTableTh { 
+    padding: 3px;
+    background-image: url(../../images/bg_green.jpg);
+    background-repeat: repeat-x;
+    color: rgb(255, 255, 255);
+    font-size: 18px;
+    font-weight: bold;
+    font-family: Arial,Helvetica,sans-serif;
+  	 text-align: left;
+    background-color: rgb(189, 228, 139);
+  }

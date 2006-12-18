@@ -161,6 +161,20 @@ $tables['assign_to_ticket'] = "
 	is_flag I1 DEFAULT 0 NOTNULL
 ";
 
+$tables['mailbox_to_team'] = "
+	mailbox_id I4 DEFAULT 0 NOTNULL PRIMARY,
+	team_id I4 DEFAULT 0 NOTNULL PRIMARY,
+	is_routed I1 DEFAULT 0 NOTNULL
+";
+
+$tables['pop3_account'] = "
+	id I4 DEFAULT 0 NOTNULL PRIMARY,
+	nickname C(128) DEFAULT '' NOTNULL,
+	host C(128) DEFAULT '' NOTNULL,
+	username C(128) DEFAULT '' NOTNULL,
+	password C(128) DEFAULT '' NOTNULL
+";
+
 foreach($tables as $table => $flds) {
 	$sql = $datadict->ChangeTableSQL($table,$flds);
 	print_r($sql);

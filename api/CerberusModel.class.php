@@ -188,6 +188,19 @@ class CerberusMailbox {
 	function CerberusMailbox() {}
 };
 
+class CerberusTeam {
+	public $id;
+	public $name;
+}
+
+class CerberusPop3Account {
+	public $id;
+	public $nickname;
+	public $host;
+	public $username;
+	public $password;
+};
+
 class CerberusTag {
 	public $id;
 	public $name;

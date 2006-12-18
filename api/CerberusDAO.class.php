@@ -4,6 +4,9 @@ class CerberusAgentDAO {
 	private function CerberusAgentDAO() {}
 	
 	static function createAgent($login, $password, $admin=0) {
+		if(empty($login) || empty($password))
+			return null;
+			
 		$um_db = UserMeetDatabase::getInstance();
 		$id = $um_db->GenID('generic_seq');
 		
@@ -79,7 +82,35 @@ class CerberusAgentDAO {
 	
 	static function updateAgent($id, $fields) {
 		$um_db = UserMeetDatabase::getInstance();
+		$sets = array();
 		
+		if(!is_array($fields) || empty($fields) || empty($id))
+			return;
+		
+		foreach($fields as $k => $v) {
+			$sets[] = sprintf("%s = %s",
+				$k,
+				$um_db->qstr($v)
+			);
+		}
+			
+		$sql = sprintf("UPDATE login SET %s WHERE id = %d",
+			implode(', ', $sets),
+			$id
+		);
+		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+	}
+	
+	static function deleteAgent($id) {
+		if(empty($id)) return;
+		
+		$um_db = UserMeetDatabase::getInstance();
+		
+		$sql = sprintf("DELETE FROM login WHERE id = %d",
+			$id
+		);
+		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
 	}
 }
 
@@ -179,7 +210,8 @@ class CerberusContactDAO {
 		
 		require_once(UM_PATH . '/libs/pear/Mail/RFC822.php');
 		if (false === Mail_RFC822::isValidInetAddress($email)) {
-			throw new Exception($email . UserMeetTranslationManager::say('ticket.requester.invalid'));
+//			throw new Exception($email . UserMeetTranslationManager::say('ticket.requester.invalid'));
+			return null;
 		}
 		
 		$sql = sprintf("INSERT INTO address (id,email,personal) VALUES (%d,%s,%s)",
@@ -801,6 +833,7 @@ class CerberusDashboardDAO {
 	}
 	
 	static function deleteView($id) {
+		if(empty($id)) return;
 		$um_db = UserMeetDatabase::getInstance();
 		
 		$sql = sprintf("DELETE FROM dashboard_view WHERE id = %d",
@@ -993,6 +1026,7 @@ class CerberusMailRuleDAO {
 	 * @param integer $id
 	 */
 	static function deleteMailRule ($id) {
+		if(empty($id)) return;
 		$um_db = UserMeetDatabase::getInstance();
 		
 		$sql = sprintf("DELETE FROM mail_rule WHERE id = %d",
@@ -1305,5 +1339,335 @@ class CerberusWorkflowDAO {
 		
 		return $id;
 	}
+	
+	// Teams
+	
+	/**
+	 * Enter description here...
+	 *
+	 * @param integer $id
+	 * @return CerberusTeam
+	 */
+	static function getTeam($id) {
+		$teams = CerberusWorkflowDAO::getTeams(array($id));
+		
+		if(isset($teams[$id]))
+			return $teams[$id];
+			
+		return null;
+	}
+	
+	/**
+	 * Enter description here...
+	 *
+	 * @param array $ids
+	 * @return CerberusTeam[]
+	 */
+	static function getTeams($ids=array()) {
+		if(!is_array($ids)) $ids = array($ids);
+		$um_db = UserMeetDatabase::getInstance();
+
+		$teams = array();
+		
+		$sql = sprintf("SELECT t.id , t.name ".
+			"FROM team t ".
+			((!empty($ids)) ? sprintf("WHERE t.id IN (%s) ",implode(',',$ids)) : " ").
+			"ORDER BY t.name ASC"
+		);
+		$rs = $um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		while(!$rs->EOF) {
+			$team = new CerberusTeam();
+			$team->id = intval($rs->fields['id']);
+			$team->name = $rs->fields['name'];
+			$teams[$team->id] = $team;
+			$rs->MoveNext();
+		}
+		
+		return $teams;
+	}
+
+	/**
+	 * Enter description here...
+	 *
+	 * @param string $name
+	 * @return integer
+	 */
+	static function createTeam($name) {
+		if(empty($name))
+			return;
+		
+		$um_db = UserMeetDatabase::getInstance();
+		$newId = $um_db->GenID('generic_seq');
+		
+		$sql = sprintf("INSERT INTO team (id, name) VALUES (%d,%s)",
+			$newId,
+			$um_db->qstr($name)
+		);
+		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		return $newId;
+	}
+
+	/**
+	 * Enter description here...
+	 *
+	 * @param integer $id
+	 * @param array $fields
+	 */
+	static function updateTeam($id, $fields) {
+		$um_db = UserMeetDatabase::getInstance();
+		$sets = array();
+		
+		if(!is_array($fields) || empty($fields) || empty($id))
+			return;
+		
+		foreach($fields as $k => $v) {
+			$sets[] = sprintf("%s = %s",
+				$k,
+				$um_db->qstr($v)
+			);
+		}
+			
+		$sql = sprintf("UPDATE team SET %s WHERE id = %d",
+			implode(', ', $sets),
+			$id
+		);
+		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+	}
+	
+	/**
+	 * Enter description here...
+	 *
+	 * @param integer $id
+	 */
+	static function deleteTeam($id) {
+		if(empty($id)) return;
+		$um_db = UserMeetDatabase::getInstance();
+		
+		$sql = sprintf("DELETE FROM team WHERE id = %d",
+			$id
+		);
+		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+	}
+	
 }
+
+class CerberusMailDAO {
+	// Mailboxes
+	
+	/**
+	 * Returns a list of all known mailboxes, sorted by name
+	 *
+	 * @return CerberusMailbox[]
+	 */
+	static function getMailboxes($ids=array()) {
+		if(!is_array($ids)) $ids = array($ids);
+		$um_db = UserMeetDatabase::getInstance();
+
+		$mailboxes = array();
+		
+		$sql = sprintf("SELECT m.id , m.name, m.reply_address_id, m.display_name ".
+			"FROM mailbox m ".
+			((!empty($ids)) ? sprintf("WHERE m.id IN (%s) ",implode(',', $ids)) : " ").
+			"ORDER BY m.name ASC"
+		);
+		$rs = $um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		while(!$rs->EOF) {
+			$mailbox = new CerberusMailbox();
+			$mailbox->id = intval($rs->fields['id']);
+			$mailbox->name = $rs->fields['name'];
+			$mailbox->reply_address_id = $rs->fields['reply_address_id'];
+			$mailbox->display_name = $$rs->fields['display_name'];
+			$mailboxes[$mailbox->id] = $mailbox;
+			$rs->MoveNext();
+		}
+		
+		return $mailboxes;
+	}
+	
+	static function getMailboxListWithCounts() {
+		$um_db = UserMeetDatabase::getInstance();
+		$mailboxes = CerberusMailDAO::getMailboxes(); /* @var $mailboxes CerberusMailbox[] */
+		
+		foreach ($mailboxes as $mailbox) {
+			$sql = sprintf("SELECT COUNT(t.id) as ticket_count ".
+				"FROM ticket t ".
+				"WHERE t.mailbox_id = %d AND t.status = 'O'",
+				$mailbox->id
+			);
+			
+			$rs = $um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+			
+			while(!$rs->EOF) {
+				$mailbox->count = intval($rs->fields['ticket_count']);
+				$rs->MoveNext();
+			}			
+		}
+		return $mailboxes;	
+	}	
+	
+	/**
+	 * creates a new mailbox in the database
+	 *
+	 * @param string $name
+	 * @param integer $reply_address_id
+	 * @param string $display_name
+	 * @return integer
+	 */
+	static function createMailbox($name, $reply_address_id, $display_name = '') {
+		$um_db = UserMeetDatabase::getInstance();
+		$newId = $um_db->GenID('generic_seq');
+		
+		$sql = sprintf("INSERT INTO mailbox (id, name, reply_address_id, display_name) VALUES (%d,%s,%d,%s)",
+			$newId,
+			$um_db->qstr($name),
+			$reply_address_id,
+			$um_db->qstr($display_name)
+		);
+		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		return $newId;
+	}
+	
+	static function updateMailbox($id, $fields) {
+		$um_db = UserMeetDatabase::getInstance();
+		$sets = array();
+		
+		if(!is_array($fields) || empty($fields) || empty($id))
+			return;
+		
+		foreach($fields as $k => $v) {
+			$sets[] = sprintf("%s = %s",
+				$k,
+				$um_db->qstr($v)
+			);
+		}
+			
+		$sql = sprintf("UPDATE mailbox SET %s WHERE id = %d",
+			implode(', ', $sets),
+			$id
+		);
+		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+	}
+	
+	static function getMailbox($id) {
+		$mailboxes = CerberusMailDAO::getMailboxes(array($id));
+		
+		if(isset($mailboxes[$id]))
+			return $mailboxes[$id];
+			
+		return null;
+	}
+	
+	static function deleteMailbox($id) {
+		if(empty($id)) return;
+		
+		$um_db = UserMeetDatabase::getInstance();
+		
+		$sql = sprintf("DELETE FROM mailbox WHERE id = %d",
+			$id
+		);
+		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+	}
+	
+	// Pop3 Accounts
+	
+	static function createPop3Account($nickname,$host,$username,$password) {
+		if(empty($nickname) || empty($host) || empty($username) || empty($password)) 
+			return null;
+			
+		$um_db = UserMeetDatabase::getInstance();
+		$newId = $um_db->GenID('generic_seq');
+		
+		$sql = sprintf("INSERT INTO pop3_account (id, nickname, host, username, password) ".
+			"VALUES (%d,%s,%s,%s,%s)",
+			$newId,
+			$um_db->qstr($nickname),
+			$um_db->qstr($host),
+			$um_db->qstr($username),
+			$um_db->qstr($password)
+		);
+		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		return $newId;
+	}
+	
+	static function getPop3Accounts($ids=array()) {
+		if(!is_array($ids)) $ids = array($ids);
+		$um_db = UserMeetDatabase::getInstance();
+		$pop3accounts = array();
+		
+		$sql = "SELECT id, nickname, host, username, password ".
+			"FROM pop3_account ".
+			((!empty($ids) ? sprintf("WHERE id IN (%s)", implode(',', $ids)) : " ").
+			"ORDER BY nickname "
+		);
+		$rs = $um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		while(!$rs->EOF) {
+			$pop3 = new CerberusPop3Account();
+			$pop3->id = intval($rs->fields['id']);
+			$pop3->nickname = $rs->fields['nickname'];
+			$pop3->host = $rs->fields['host'];
+			$pop3->username = $rs->fields['username'];
+			$pop3->password = $rs->fields['password'];
+			$pop3accounts[$pop3->id] = $pop3;
+			$rs->MoveNext();
+		}
+		
+		return $pop3accounts;		
+	}
+	
+	/**
+	 * Enter description here...
+	 *
+	 * @param integer $id
+	 * @return CerberusPop3Account
+	 */
+	static function getPop3Account($id) {
+		$accounts = CerberusMailDAO::getPop3Accounts(array($id));
+		
+		if(isset($accounts[$id]))
+			return $accounts[$id];
+			
+		return null;
+	}
+	
+	static function updatePop3Account($id, $fields) {
+		$um_db = UserMeetDatabase::getInstance();
+		$sets = array();
+		
+		if(!is_array($fields) || empty($fields) || empty($id))
+			return;
+		
+		foreach($fields as $k => $v) {
+			$sets[] = sprintf("%s = %s",
+				$k,
+				$um_db->qstr($v)
+			);
+		}
+			
+		$sql = sprintf("UPDATE pop3_account SET %s WHERE id = %d",
+			implode(', ', $sets),
+			$id
+		);
+		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+	}
+	
+	static function deletePop3Account($id) {
+		if(empty($id))
+			return;
+			
+		$um_db = UserMeetDatabase::getInstance();
+		
+		$sql = sprintf("DELETE FROM pop3_account WHERE id = %d",
+			$id			
+		);
+		
+		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+	}
+	
+};
 ?>
