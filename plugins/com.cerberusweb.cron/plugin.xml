@@ -1,0 +1,20 @@
+<!-- [JAS] [TODO] Needs DTD -->
+<plugin>
+	<name>Cerberus Helpdesk Login Plugins</name>
+	<author>WebGroup Media, LLC.</author>
+	
+	<extensions>
+	
+		<extension point="com.cerberusweb.cron">
+			<id>cron.pop3</id>
+			<name>Default POP3 Module</name>
+			<class>
+				<file>classes.php</file>
+				<name>Pop3Module</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
+	</extensions>
+</plugin>

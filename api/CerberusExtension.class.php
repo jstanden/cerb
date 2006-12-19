@@ -70,4 +70,17 @@ abstract class CerberusLoginModuleExtension extends UserMeetExtension {
 	}
 }
 
+abstract class CerberusCronModuleExtension extends UserMeetExtension {
+	function CerberusCronModuleExtension($manifest) {
+		$this->UserMeetExtension($manifest, 1);
+	}
+
+	/**
+	 * runs scheduled task
+	 *
+	 */
+	function run() {
+	}
+}
+
 ?>

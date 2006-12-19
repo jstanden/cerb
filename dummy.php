@@ -19,6 +19,9 @@ CerberusMailDAO::createMailbox('Hosting Support',$address_id);
 CerberusMailDAO::createMailbox('Bugs',$address_id);
 CerberusMailDAO::createMailbox('Wishlist',$address_id);
 
+// POP3 Account
+CerberusMailDAO::createPop3Account('Default Test Account','cylon.webgroupmedia.com','pop1','poptester');
+
 // Dashboards
 $dashboardId = CerberusDashboardDAO::createDashboard("My Dashboard",1);
 
