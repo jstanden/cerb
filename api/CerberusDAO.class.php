@@ -1475,6 +1475,29 @@ class CerberusWorkflowDAO {
 		return null;
 	}
 	
+	static function searchTags($query,$limit=10) {
+		$um_db = UserMeetDatabase::getInstance();
+		if(empty($query)) return null;
+		
+		$sql = sprintf("SELECT t.id FROM tag t WHERE t.name LIKE '%s%%' LIMIT 0,%d",
+			$query,
+			$limit
+		);
+		$rs = $um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		$ids = array();
+		
+		while(!$rs->EOF) {
+			$ids[] = intval($rs->fields['id']);
+			$rs->MoveNext();
+		}
+		
+		if(empty($ids))
+			return array();
+			
+		return CerberusWorkflowDAO::getTags($ids);
+	}
+	
 	/**
 	 * Enter description here...
 	 *

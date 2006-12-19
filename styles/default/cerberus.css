@@ -220,3 +220,16 @@
   	 text-align: left;
     background-color: rgb(189, 228, 139);
   }
+  
+	.automod {position:relative;}
+	.autocomplete {position:relative;width:15em;margin-bottom:1em;}/* set width of widget here*/
+	.autocomplete {z-index:9000} /* for IE z-index of absolute divs inside relative divs issue */
+	.autoinput {_position:absolute;width:100%;height:50px;z-index:0;} /* abs for ie quirks */
+	.autocontainer {position:absolute;width:100%}
+	.autocontainer .yui-ac-content {position:absolute;width:100%;border:1px solid #404040;background:#fff;overflow:hidden;z-index:9050;}
+	.autocontainer .yui-ac-shadow {position:absolute;margin:.3em;width:100%;background:#a0a0a0;z-index:9049;}
+	.autocontainer ul {padding:5px 0;width:100%;}
+	.autocontainer li {padding:0 5px;cursor:default;white-space:nowrap;}
+	.autocontainer li.yui-ac-highlight {background:#ddddff;}
+	.autocontainer li.yui-ac-prehighlight {background:#FFFFCC;}
+          

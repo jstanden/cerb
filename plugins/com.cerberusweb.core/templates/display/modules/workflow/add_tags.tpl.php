@@ -3,10 +3,14 @@
 <input type="hidden" name="id" value="{$ticket->id}">
 
 <br>
+<div class="automod">
 <H1>Add Tags</H1>
 <b>Add tags separated by commas:</b><br>
-<textarea style="width:98%;height:50px;margin:2px;background-color:rgb(255,255,255);border:1px solid rgb(200,200,200);" name="tagEntry"></textarea>
-<br>
+<div class="autocomplete" style="width:98%;margin:2px;">
+<textarea style="background-color:rgb(255,255,255);border:1px solid rgb(200,200,200);" name="tagEntry" id="tagEntry" class="autoinput"></textarea><br>
+<div id="myTagContainer" class="autocontainer"></div>
+</div>
+</div>
 <input type="button" value="Apply Tags" onclick="displayAjax.submitWorkflow();">
 <input type="button" value="Cancel" onclick="toggleDiv('displayWorkflowOptions','none');">
 <br>

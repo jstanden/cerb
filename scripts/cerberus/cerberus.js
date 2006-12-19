@@ -62,7 +62,7 @@ function appendTextboxAsCsv(formName, field, oLink) {
 	var sAppend = '';
 	
 	// [TODO]: check that the last character(s) aren't comma or comma space
-	if(0 != txt.value.length)
+	if(0 != txt.value.length && txt.value.substr(-1,1) != ',' && txt.value.substr(-2,2) != ', ')
 		sAppend += ', ';
 		
 	sAppend += oLink.innerHTML;
