@@ -1087,8 +1087,10 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 	function renderBody() {
 		$tpl = UserMeetTemplateManager::getInstance();
 		$tpl->cache_lifetime = "0";
+		$session = UserMeetSessionManager::getInstance();
+		$visit = $session->getVisit();
 		
-		$favoriteTags = CerberusWorkflowDAO::getTags();
+		$favoriteTags = CerberusAgentDAO::getFavoriteTags($visit->id);
 		$tpl->assign('favoriteTags', $favoriteTags);
 		
 		$suggestedTags = CerberusWorkflowDAO::getTags();
@@ -1176,6 +1178,9 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 	function showApplyTags() {
 		@$id = intval($_REQUEST['id']);
 		
+		$session = UserMeetSessionManager::getInstance();
+		$visit = $session->getVisit();
+		
 		$tpl = UserMeetTemplateManager::getInstance();
 		$tpl->caching = 0;
 		$tpl->cache_lifetime = 0;
@@ -1185,7 +1190,7 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 		$ticket = CerberusTicketDAO::getTicket($id);
 		$tpl->assign('ticket', $ticket);
 		
-		$favoriteTags = CerberusWorkflowDAO::getTags();
+		$favoriteTags = CerberusAgentDAO::getFavoriteTags($visit->id);
 		$tpl->assign('favoriteTags', $favoriteTags);
 		
 		$suggestedTags = CerberusWorkflowDAO::getTags();
@@ -1202,9 +1207,67 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 		
 		echo ' ';
 	}
+
+	function showFavTags() {
+		$session = UserMeetSessionManager::getInstance();
+		$visit = $session->getVisit();
+		
+		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl->caching = 0;
+		$tpl->cache_lifetime = 0;
+
+		$favoriteTags = CerberusAgentDAO::getFavoriteTags($visit->id);
+		$tpl->assign('favoriteTags', $favoriteTags);
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/workflow/add_favtags.tpl.php');
+	}
+
+	function saveFavoriteTags() {
+		@$favTagEntry = $_POST['favTagEntry'];
+		
+		$session = UserMeetSessionManager::getInstance();
+		$visit = $session->getVisit();
+		
+		CerberusAgentDAO::setFavoriteTags($visit->id, $favTagEntry);
+		
+		echo ' ';
+	}
+	
+	function showFavWorkers() {
+		$session = UserMeetSessionManager::getInstance();
+		$visit = $session->getVisit();
+		
+		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl->caching = 0;
+		$tpl->cache_lifetime = 0;
+
+		$tpl->assign('moduleLabel', $this->manifest->id);
+
+		$agents = CerberusAgentDAO::getAgents();
+		$tpl->assign('agents', $agents);
+		
+		$favoriteWorkers = CerberusAgentDAO::getFavoriteWorkers($visit->id);
+		$tpl->assign('favoriteWorkers', $favoriteWorkers);
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/workflow/add_favworkers.tpl.php');
+	}
+
+	function saveFavoriteWorkers() {
+		@$favWorkerEntry = $_POST['favWorkerEntry'];
+		
+		$session = UserMeetSessionManager::getInstance();
+		$visit = $session->getVisit();
+		
+		CerberusAgentDAO::setFavoriteWorkers($visit->id, $favWorkerEntry);
+		
+		echo ' ';
+	}
 	
 	function showFlagAgents() {
 		@$id = intval($_REQUEST['id']);
+
+		$session = UserMeetSessionManager::getInstance();
+		$visit = $session->getVisit();
 		
 		$tpl = UserMeetTemplateManager::getInstance();
 		$tpl->caching = 0;
@@ -1214,6 +1277,9 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 
 		$ticket = CerberusTicketDAO::getTicket($id);
 		$tpl->assign('ticket', $ticket);
+		
+		$favoriteWorkers = CerberusAgentDAO::getFavoriteWorkers($visit->id);
+		$tpl->assign('favoriteWorkers', $favoriteWorkers);
 		
 		$agents = CerberusAgentDAO::getAgents();
 		$tpl->assign('agents', $agents);
@@ -1239,6 +1305,9 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 	function showSuggestAgents() {
 		@$id = intval($_REQUEST['id']);
 		
+		$session = UserMeetSessionManager::getInstance();
+		$visit = $session->getVisit();
+		
 		$tpl = UserMeetTemplateManager::getInstance();
 		$tpl->caching = 0;
 		$tpl->cache_lifetime = 0;
@@ -1247,6 +1316,9 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 
 		$ticket = CerberusTicketDAO::getTicket($id);
 		$tpl->assign('ticket', $ticket);
+		
+		$favoriteWorkers = CerberusAgentDAO::getFavoriteWorkers($visit->id);
+		$tpl->assign('favoriteWorkers', $favoriteWorkers);
 		
 		$agents = CerberusAgentDAO::getAgents();
 		$tpl->assign('agents', $agents);

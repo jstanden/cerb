@@ -173,6 +173,74 @@ var cDisplayTicketAjax = function(ticket_id, workflow_div) {
 		);
 	}
 	
+	this.showFavTags = function() {
+		var div = document.getElementById('displayWorkflowOptions');
+		if(null == div) return;
+		
+		var cObj = YAHOO.util.Connect.asyncRequest('GET', 'ajax.php?c=core.display.module.workflow&a=showFavTags', {
+				success: function(o) {
+					var div = document.getElementById('displayWorkflowOptions');
+					if(null == div) return;
+
+					div.innerHTML = o.responseText;
+					toggleDiv('displayWorkflowOptions','block');
+				},
+				failure: function(o) {},
+				argument:{caller:this}
+				}
+		);
+	}
+	
+	this.saveFavTags = function() {
+		var div = document.getElementById(this.workflow_div);
+		if(null == div) return;
+		
+		YAHOO.util.Connect.setForm(this.workflow_div);
+		var cObj = YAHOO.util.Connect.asyncRequest('POST', 'ajax.php', {
+				success: function(o) {
+					var caller = o.argument.caller;
+					caller.refreshWorkflow();
+				},
+				failure: function(o) {},
+				argument:{caller:this}
+				}
+		);
+	}
+	
+	this.showFavWorkers = function() {
+		var div = document.getElementById('displayWorkflowOptions');
+		if(null == div) return;
+		
+		var cObj = YAHOO.util.Connect.asyncRequest('GET', 'ajax.php?c=core.display.module.workflow&a=showFavWorkers', {
+				success: function(o) {
+					var div = document.getElementById('displayWorkflowOptions');
+					if(null == div) return;
+
+					div.innerHTML = o.responseText;
+					toggleDiv('displayWorkflowOptions','block');
+				},
+				failure: function(o) {},
+				argument:{caller:this}
+				}
+		);
+	}
+	
+	this.saveFavWorkers = function() {
+		var div = document.getElementById(this.workflow_div);
+		if(null == div) return;
+		
+		YAHOO.util.Connect.setForm(this.workflow_div);
+		var cObj = YAHOO.util.Connect.asyncRequest('POST', 'ajax.php', {
+				success: function(o) {
+					var caller = o.argument.caller;
+					caller.refreshWorkflow();
+				},
+				failure: function(o) {},
+				argument:{caller:this}
+				}
+		);
+	}
+	
 	this.showFlagAgents = function() {
 		var div = document.getElementById('displayWorkflowOptions');
 		if(null == div) return;

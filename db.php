@@ -19,12 +19,6 @@ $tables['extension'] = "
 	params B DEFAULT '' NOTNULL
 ";
 
-//$tables['page'] = "
-//	id I PRIMARY,
-//	extension_id C(128) DEFAULT '' NOTNULL,
-//	display_order I1 DEFAULT 0 NOTNULL
-//";
-
 $tables['plugin'] = "
 	id I PRIMARY,
 	enabled I1 DEFAULT 0 NOTNULL,
@@ -170,6 +164,16 @@ $tables['mailbox_to_team'] = "
 $tables['worker_to_team'] = "
 	agent_id I4 DEFAULT 0 NOTNULL PRIMARY,
 	team_id I4 DEFAULT 0 NOTNULL PRIMARY
+";
+
+$tables['favorite_tag_to_worker'] = "
+	tag_id I4 DEFAULT 0 NOTNULL PRIMARY,
+	agent_id I4 DEFAULT 0 NOTNULL PRIMARY
+";
+
+$tables['favorite_worker_to_worker'] = "
+	worker_id I4 DEFAULT 0 NOTNULL PRIMARY,
+	agent_id I4 DEFAULT 0 NOTNULL PRIMARY
 ";
 
 $tables['pop3_account'] = "

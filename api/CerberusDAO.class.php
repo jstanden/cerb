@@ -117,6 +117,11 @@ class CerberusAgentDAO {
 		);
 		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
+		$sql = sprintf("DELETE FROM favorite_tag_to_worker WHERE agent_id = %d",
+			$id
+		);
+		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
 	}
 	
 	static function setAgentTeams($agent_id, $team_ids) {
@@ -158,6 +163,110 @@ class CerberusAgentDAO {
 			return array();
 		
 		return CerberusWorkflowDAO::getTeams($ids);
+	}
+	
+	static function getFavoriteTags($agent_id) {
+		$um_db = UserMeetDatabase::getInstance();
+		if(empty($agent_id)) return null;
+		
+		$ids = array();
+		
+		$sql = sprintf("SELECT tag_id FROM favorite_tag_to_worker WHERE agent_id = %d",
+			$agent_id
+		);
+		$rs = $um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		while(!$rs->EOF) {
+			$ids[] = intval($rs->fields['tag_id']);
+			$rs->MoveNext();
+		}
+
+		if(empty($ids))
+			return array();
+		
+		return CerberusWorkflowDAO::getTags($ids);
+	}
+	
+	static function setFavoriteTags($agent_id, $tag_string) {
+		$um_db = UserMeetDatabase::getInstance();
+		if(empty($agent_id)) return null;
+		
+		$sql = sprintf("DELETE FROM favorite_tag_to_worker WHERE agent_id = %d",
+			$agent_id
+		);
+		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		$tags = CerberusApplication::parseCsvString($tag_string);
+		$ids = array();
+		
+		foreach($tags as $tag_name) {
+			$tag = CerberusWorkflowDAO::lookupTag($tag_name, true);
+			$ids[$tag->id] = $tag->id;
+		}
+		
+		foreach($ids as $tag_id) {
+			$sql = sprintf("INSERT INTO favorite_tag_to_worker (tag_id, agent_id) ".
+				"VALUES (%d,%d) ",
+					$tag_id,
+					$agent_id
+			);
+			$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */	
+		}
+		
+	}
+	
+	static function getFavoriteWorkers($agent_id) {
+		$um_db = UserMeetDatabase::getInstance();
+		if(empty($agent_id)) return null;
+		
+		$ids = array();
+		
+		$sql = sprintf("SELECT worker_id FROM favorite_worker_to_worker WHERE agent_id = %d",
+			$agent_id
+		);
+		$rs = $um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		while(!$rs->EOF) {
+			$ids[] = intval($rs->fields['worker_id']);
+			$rs->MoveNext();
+		}
+
+		if(empty($ids))
+			return array();
+		
+		return CerberusAgentDAO::getAgents($ids);
+	}
+	
+	static function setFavoriteWorkers($agent_id, $worker_string) {
+		$um_db = UserMeetDatabase::getInstance();
+		if(empty($agent_id)) return null;
+		
+		$sql = sprintf("DELETE FROM favorite_worker_to_worker WHERE agent_id = %d",
+			$agent_id
+		);
+		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		$workers = CerberusApplication::parseCsvString($worker_string);
+		$ids = array();
+		
+		foreach($workers as $worker_name) {
+			$worker_id = CerberusAgentDAO::lookupAgentLogin($worker_name);
+			
+			if(null == $worker_id)
+				continue;
+
+			$ids[$worker_id] = $worker_id;
+		}
+		
+		foreach($ids as $worker_id) {
+			$sql = sprintf("INSERT INTO favorite_worker_to_worker (worker_id, agent_id) ".
+				"VALUES (%d,%d) ",
+					$worker_id,
+					$agent_id
+			);
+			$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */	
+		}
+		
 	}
 	
 }
@@ -1388,6 +1497,26 @@ class CerberusWorkflowDAO {
 		return $id;
 	}
 	
+	static function deleteTag($id) {
+		$um_db = UserMeetDatabase::getInstance();
+		if(empty($id)) return;
+		
+		$sql = sprintf("DELETE FROM tag WHERE id = %d",
+			$id
+		);
+		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		$sql = sprintf("DELETE FROM favorite_tag_to_worker WHERE tag_id = %d",
+			$id
+		);
+		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		$sql = sprintf("DELETE FROM tag_to_ticket WHERE tag_id = %d",
+			$id
+		);
+		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+	}
+	
 	// Teams
 	
 	/**
@@ -1507,7 +1636,6 @@ class CerberusWorkflowDAO {
 			$id
 		);
 		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
 	}
 	
 	static function setTeamMailboxes($team_id, $mailbox_ids) {
