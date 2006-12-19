@@ -3,9 +3,14 @@
 <input type="hidden" name="id" value="{$ticket->id}">
 
 <br>
+<div class="automod">
 <H1>Assign Workers</H1>
 <b>Add workers separated by commas:</b><br>
-<textarea style="width:98%;height:50px;margin:2px;background-color:rgb(255,255,255);border:1px solid rgb(200,200,200);" name="agentEntry"></textarea>
+<div class="autocomplete" style="width:98%;margin:2px;">
+<textarea style="width:98%;height:50px;margin:2px;background-color:rgb(255,255,255);border:1px solid rgb(200,200,200);" name="workerEntry" id="workerEntry" class="autoinput"></textarea>
+<div id="myWorkerContainer" class="autocontainer"></div>
+</div>
+</div>
 <br>
 <input type="button" value="Assign Workers" onclick="displayAjax.submitWorkflow();">
 <input type="button" value="Cancel" onclick="toggleDiv('displayWorkflowOptions','none');">

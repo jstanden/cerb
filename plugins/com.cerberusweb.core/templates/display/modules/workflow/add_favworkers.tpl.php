@@ -2,9 +2,14 @@
 <input type="hidden" name="a" value="saveFavoriteWorkers">
 
 <br>
+<div class="automod">
 <H1>My Favorite Workers</H1>
 <b>Add workers separated by commas:</b><br>
-<textarea style="width:98%;height:50px;margin:2px;background-color:rgb(255,255,255);border:1px solid rgb(200,200,200);" name="favWorkerEntry">{foreach from=$favoriteWorkers item=worker name=workers}{$worker->login}{if !$smarty.foreach.workers.last}, {/if}{/foreach}</textarea>
+<div class="autocomplete" style="width:98%;margin:2px;">
+<textarea style="width:98%;height:50px;margin:2px;background-color:rgb(255,255,255);border:1px solid rgb(200,200,200);" name="favWorkerEntry" id="favWorkerEntry" class="autoinput">{foreach from=$favoriteWorkers item=worker name=workers}{$worker->login}{if !$smarty.foreach.workers.last}, {/if}{/foreach}</textarea>
+<div id="favWorkerContainer" class="autocontainer"></div>
+</div>
+</div>
 <br>
 <input type="button" value="{$translate->say('common.save_changes')|capitalize}" onclick="displayAjax.saveFavWorkers();">
 <input type="button" value="{$translate->say('common.cancel')|capitalize}" onclick="toggleDiv('displayWorkflowOptions','none');">

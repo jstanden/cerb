@@ -1154,7 +1154,18 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 		foreach($tags as $tag) {
 			echo $tag->name,"\t",$tag->id,"\n";
 		}
+	}
+	
+	function autoWorker() {
+		@$q = $_REQUEST['q'];
+		header("Content-Type: text/plain");
 		
+		$workers = CerberusAgentDAO::searchAgents($q, 10);
+		
+		if(is_array($workers))
+		foreach($workers as $worker) {
+			echo $worker->login,"\t",$worker->id,"\n";
+		}
 	}
 	
 	function getAgentDialog() {

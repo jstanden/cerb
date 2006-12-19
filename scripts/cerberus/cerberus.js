@@ -72,6 +72,54 @@ function appendTextboxAsCsv(formName, field, oLink) {
 
 var cAjaxCalls = function() {
 
+	this.addTagAutoComplete = function(txt,con) {
+		// [JAS]: [TODO] Move to a tag autocompletion shared method
+		myXHRDataSource = new YAHOO.widget.DS_XHR("ajax.php", ["\n", "\t"]);
+		myXHRDataSource.scriptQueryParam = "q"; 
+		myXHRDataSource.scriptQueryAppend = "c=core.display.module.workflow&a=autoTag"; 
+		myXHRDataSource.responseType = myXHRDataSource.TYPE_FLAT;
+		myXHRDataSource.maxCacheEntries = 60;
+		myXHRDataSource.queryMatchSubset = true;
+		myXHRDataSource.connTimeout = 3000;
+
+		var myAutoComp = new YAHOO.widget.AutoComplete(txt, con, myXHRDataSource); 
+		myAutoComp.delimChar = ",";
+		myAutoComp.queryDelay = 1;
+		myAutoComp.useIFrame = true; 
+		myAutoComp.typeAhead = false;
+//					myAutoComp.prehighlightClassName = "yui-ac-prehighlight"; 
+		myAutoComp.allowBrowserAutocomplete = false;
+		myAutoComp.formatResult = function(oResultItem, sQuery) {
+       var sKey = oResultItem[0];
+       var aMarkup = [sKey];
+       return (aMarkup.join(""));
+		}
+	}
+	
+	this.addWorkerAutoComplete = function(txt,con) {
+		// [JAS]: [TODO] Move to a tag autocompletion shared method
+		myXHRDataSource = new YAHOO.widget.DS_XHR("ajax.php", ["\n", "\t"]);
+		myXHRDataSource.scriptQueryParam = "q"; 
+		myXHRDataSource.scriptQueryAppend = "c=core.display.module.workflow&a=autoWorker"; 
+		myXHRDataSource.responseType = myXHRDataSource.TYPE_FLAT;
+		myXHRDataSource.maxCacheEntries = 60;
+		myXHRDataSource.queryMatchSubset = true;
+		myXHRDataSource.connTimeout = 3000;
+
+		var myAutoComp = new YAHOO.widget.AutoComplete(txt, con, myXHRDataSource); 
+		myAutoComp.delimChar = ",";
+		myAutoComp.queryDelay = 1;
+		myAutoComp.useIFrame = true; 
+		myAutoComp.typeAhead = false;
+//					myAutoComp.prehighlightClassName = "yui-ac-prehighlight"; 
+		myAutoComp.allowBrowserAutocomplete = false;
+		myAutoComp.formatResult = function(oResultItem, sQuery) {
+       var sKey = oResultItem[0];
+       var aMarkup = [sKey];
+       return (aMarkup.join(""));
+		}
+	}
+	
 	this.historyPanel = null;
 	this.showHistoryPanel = function(target) {
 		

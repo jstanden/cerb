@@ -151,29 +151,7 @@ var cDisplayTicketAjax = function(ticket_id, workflow_div) {
 					div.innerHTML = o.responseText;
 					toggleDiv('displayWorkflowOptions','block');
 					
-					var myArray1 = ["abc", "bcd", "cde"]; 
-					var myDataSource1 = new YAHOO.widget.DS_JSArray(myArray1);
-
-					myXHRDataSource = new YAHOO.widget.DS_XHR("ajax.php", ["\n", "\t"]);
-					myXHRDataSource.scriptQueryParam = "q"; 
-					myXHRDataSource.scriptQueryAppend = "c=core.display.module.workflow&a=autoTag"; 
-					myXHRDataSource.responseType = myXHRDataSource.TYPE_FLAT;
-					myXHRDataSource.maxCacheEntries = 60;
-					myXHRDataSource.queryMatchSubset = true;
-					myXHRDataSource.connTimeout = 3000;
-
-					var myAutoComp = new YAHOO.widget.AutoComplete("tagEntry","myTagContainer", myXHRDataSource); 
-					myAutoComp.delimChar = ",";
-					myAutoComp.queryDelay = 1;
-					myAutoComp.useIFrame = true; 
-					myAutoComp.typeAhead = false;
-//					myAutoComp.prehighlightClassName = "yui-ac-prehighlight"; 
-					myAutoComp.allowBrowserAutocomplete = false;
-					myAutoComp.formatResult = function(oResultItem, sQuery) {
-                var sKey = oResultItem[0];
-                var aMarkup = [sKey];
-                return (aMarkup.join(""));
-            };
+					ajax.addTagAutoComplete("tagEntry","myTagContainer");		
 				},
 				failure: function(o) {},
 				argument:{caller:this}
@@ -208,6 +186,8 @@ var cDisplayTicketAjax = function(ticket_id, workflow_div) {
 
 					div.innerHTML = o.responseText;
 					toggleDiv('displayWorkflowOptions','block');
+					
+					ajax.addTagAutoComplete("favTagEntry","favTagContainer");
 				},
 				failure: function(o) {},
 				argument:{caller:this}
@@ -242,6 +222,8 @@ var cDisplayTicketAjax = function(ticket_id, workflow_div) {
 
 					div.innerHTML = o.responseText;
 					toggleDiv('displayWorkflowOptions','block');
+					
+					ajax.addWorkerAutoComplete("favWorkerEntry","favWorkerContainer");
 				},
 				failure: function(o) {},
 				argument:{caller:this}
@@ -276,6 +258,8 @@ var cDisplayTicketAjax = function(ticket_id, workflow_div) {
 
 					div.innerHTML = o.responseText;
 					toggleDiv('displayWorkflowOptions','block');
+					
+					ajax.addWorkerAutoComplete("workerEntry","myWorkerContainer");
 				},
 				failure: function(o) {},
 				argument:{caller:this}
@@ -294,6 +278,8 @@ var cDisplayTicketAjax = function(ticket_id, workflow_div) {
 
 					div.innerHTML = o.responseText;
 					toggleDiv('displayWorkflowOptions','block');
+					
+					ajax.addWorkerAutoComplete("workerEntry","myWorkerContainer");
 				},
 				failure: function(o) {},
 				argument:{caller:this}
