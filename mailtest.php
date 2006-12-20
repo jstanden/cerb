@@ -1,11 +1,11 @@
 <?php
 require(getcwd() . '/framework.config.php');
-require(UM_PATH . '/libs/ump/UserMeetPlatform.class.php');
+require(UM_PATH . '/libs/cloudglue/CloudGlue.class.php');
 require(UM_PATH . '/api/CerberusApplication.class.php');
 //
-//UserMeetPlatform::init();
+//CgPlatform::init();
 
-//$email = new UserMeetEmailObject(array("jeff@webgroupmedia.com"), "hildy@webgroupmedia.com", "test email from usermeet", "this email was sent through a pear implementation embedded in usermeet.");
+//$email = new CgEmailObject(array("jeff@webgroupmedia.com"), "hildy@webgroupmedia.com", "test email from usermeet", "this email was sent through a pear implementation embedded in usermeet.");
 
 //print_r($email);
 
@@ -31,8 +31,8 @@ require(UM_PATH . '/api/CerberusApplication.class.php');
 //}
 
 
-$cfg = new UserMeetEmailConfig("cylon.webgroupmedia.com","110","pop3","pop1","poptester");
-$msgs = UserMeetEmailManager::getMail($cfg);
+$cfg = new CgEmailConfig("cylon.webgroupmedia.com","110","pop3","pop1","poptester");
+$msgs = CgEmailManager::getMail($cfg);
 
 if(is_array($msgs))
 foreach($msgs as $msg) {

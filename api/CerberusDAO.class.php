@@ -7,7 +7,7 @@ class CerberusAgentDAO {
 		if(empty($login) || empty($password))
 			return null;
 			
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		$id = $um_db->GenID('generic_seq');
 		
 		$sql = sprintf("INSERT INTO login (id, login, password, admin) ".
@@ -25,7 +25,7 @@ class CerberusAgentDAO {
 	static function getAgents($ids=array()) {
 		if(!is_array($ids)) $ids = array($ids);
 		
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		$agents = array();
 		
 		$sql = "SELECT a.id, a.login, a.password, a.admin ".
@@ -66,7 +66,7 @@ class CerberusAgentDAO {
 	 */
 	static function lookupAgentLogin($login) {
 		if(empty($login)) return null;
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		
 		$sql = sprintf("SELECT a.id FROM login a WHERE a.login = %s",
 			$um_db->qstr($login)
@@ -81,7 +81,7 @@ class CerberusAgentDAO {
 	}
 	
 	static function updateAgent($id, $fields) {
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		$sets = array();
 		
 		if(!is_array($fields) || empty($fields) || empty($id))
@@ -105,7 +105,7 @@ class CerberusAgentDAO {
 	static function deleteAgent($id) {
 		if(empty($id)) return;
 		
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		
 		$sql = sprintf("DELETE FROM login WHERE id = %d",
 			$id
@@ -127,7 +127,7 @@ class CerberusAgentDAO {
 	static function setAgentTeams($agent_id, $team_ids) {
 		if(!is_array($team_ids)) $team_ids = array($team_ids);
 		if(empty($agent_id)) return;
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 
 		$sql = sprintf("DELETE FROM worker_to_team WHERE agent_id = %d",
 			$agent_id
@@ -146,7 +146,7 @@ class CerberusAgentDAO {
 	
 	static function getAgentTeams($agent_id) {
 		if(empty($agent_id)) return;
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		$ids = array();
 		
 		$sql = sprintf("SELECT wt.team_id FROM worker_to_team wt WHERE wt.agent_id = %d",
@@ -166,7 +166,7 @@ class CerberusAgentDAO {
 	}
 	
 	static function getFavoriteTags($agent_id) {
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		if(empty($agent_id)) return null;
 		
 		$ids = array();
@@ -188,7 +188,7 @@ class CerberusAgentDAO {
 	}
 	
 	static function setFavoriteTags($agent_id, $tag_string) {
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		if(empty($agent_id)) return null;
 		
 		$sql = sprintf("DELETE FROM favorite_tag_to_worker WHERE agent_id = %d",
@@ -216,7 +216,7 @@ class CerberusAgentDAO {
 	}
 	
 	static function getFavoriteWorkers($agent_id) {
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		if(empty($agent_id)) return null;
 		
 		$ids = array();
@@ -238,7 +238,7 @@ class CerberusAgentDAO {
 	}
 	
 	static function setFavoriteWorkers($agent_id, $worker_string) {
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		if(empty($agent_id)) return null;
 		
 		$sql = sprintf("DELETE FROM favorite_worker_to_worker WHERE agent_id = %d",
@@ -270,7 +270,7 @@ class CerberusAgentDAO {
 	}
 	
 	static function searchAgents($query, $limit=10) {
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		if(empty($query)) return null;
 		
 		$sql = sprintf("SELECT a.id FROM login a WHERE a.login LIKE '%s%%' LIMIT 0,%d",
@@ -298,7 +298,7 @@ class CerberusContactDAO {
 	private function CerberusContactDAO() {}
 	
 	static function lookupAddress($email,$create_if_null=false) {
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		$id = null;
 		
 		$sql = sprintf("SELECT id FROM address WHERE email = %s",
@@ -316,7 +316,7 @@ class CerberusContactDAO {
 	}
 	
 	static function getAddresses($ids=array()) {
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		if(!is_array($ids)) $ids = array($ids);
 		$addresses = array();
 		
@@ -353,7 +353,7 @@ class CerberusContactDAO {
 	}
 
 	static function getMailboxIdByAddress($email) {
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		$id = CerberusContactDAO::lookupAddress($email,false);
 		$mailbox_id = null;
 		
@@ -381,7 +381,7 @@ class CerberusContactDAO {
 	 * @throws exception on invalid address
 	 */
 	static function createAddress($email,$personal='') {
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		
 		if(null != ($id = CerberusContactDAO::lookupAddress($email,false)))
 			return $id;
@@ -390,7 +390,7 @@ class CerberusContactDAO {
 		
 		require_once(UM_PATH . '/libs/pear/Mail/RFC822.php');
 		if (false === Mail_RFC822::isValidInetAddress($email)) {
-//			throw new Exception($email . UserMeetTranslationManager::say('ticket.requester.invalid'));
+//			throw new Exception($email . CgTranslationManager::say('ticket.requester.invalid'));
 			return null;
 		}
 		
@@ -422,7 +422,7 @@ class CerberusTicketDAO {
 	 * @return CerberusTicket
 	 */
 	static function getTicketByMask($mask) {
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		
 		$sql = sprintf("SELECT t.id FROM ticket t WHERE t.mask = %s",
 			$um_db->qstr($mask)
@@ -438,7 +438,7 @@ class CerberusTicketDAO {
 	}
 	
 	static function getTicketByMessageId($message_id) {
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		
 		$sql = sprintf("SELECT t.id ".
 			"FROM ticket t ".
@@ -466,7 +466,7 @@ class CerberusTicketDAO {
 	 * @return integer
 	 */
 	static function createAttachment($message_id, $display_name, $filepath) {
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		$newId = $um_db->GenID('attachment_seq');
 		
 		$sql = sprintf("INSERT INTO attachment (id, message_id, display_name, filepath)".
@@ -489,7 +489,7 @@ class CerberusTicketDAO {
 	 * @return CerberusAttachment[]
 	 */
 	static function getAttachmentsByMessage($id) {
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		
 		$sql = sprintf("SELECT a.id, a.message_id, a.display_name, a.filepath ".
 			"FROM attachment a WHERE a.message_id = %d",
@@ -523,7 +523,7 @@ class CerberusTicketDAO {
 	 * @return integer
 	 */
 	static function createTicket($mask, $subject, $status, $mailbox_id, $last_wrote, $created_date) {
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		$newId = $um_db->GenID('ticket_seq');
 		
 		$sql = sprintf("INSERT INTO ticket (id, mask, subject, status, mailbox_id, last_wrote, first_wrote, created_date, updated_date, priority) ".
@@ -544,7 +544,7 @@ class CerberusTicketDAO {
 	}
 
 	static function createMessage($ticket_id,$type,$created_date,$address_id,$headers,$content) {
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		$newId = $um_db->GenID('message_seq');
 		
 		// [JAS]: Flatten an array of headers into a string.
@@ -577,7 +577,7 @@ class CerberusTicketDAO {
 	 * @return array
 	 */
 	static function searchTickets($params,$limit=10,$page=0,$sortBy=null,$sortAsc=null) {
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		
 		$tickets = array();
 		$start = min($page * $limit,1);
@@ -690,7 +690,7 @@ class CerberusTicketDAO {
 	 * @return CerberusTicket
 	 */
 	static function getTicket($id) {
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		
 		$ticket = null;
 		
@@ -720,7 +720,7 @@ class CerberusTicketDAO {
 	}
 	
 	static function updateTicket($id,$fields) {
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		$sets = array();
 		
 		if(!is_array($fields) || empty($fields) || empty($id))
@@ -742,7 +742,7 @@ class CerberusTicketDAO {
 	}
 	
 	static function tagTicket($ticket_id, $tag_string) {
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		$tags = CerberusApplication::parseCsvString($tag_string);
 		
 		if(is_array($tags))
@@ -753,7 +753,7 @@ class CerberusTicketDAO {
 	}
 	
 	static function untagTicket($ticket_id, $tag_id) {
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		
 		$sql = sprintf("DELETE FROM tag_to_ticket WHERE tag_id = %d AND ticket_id = %d",
 			$tag_id,
@@ -766,12 +766,12 @@ class CerberusTicketDAO {
 		if(empty($ticket_id) || empty($agent_id))
 			return null;
 		
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		$um_db->Replace('assign_to_ticket', array('ticket_id'=>$ticket_id,'agent_id'=>$agent_id,'is_flag'=>1), array('ticket_id','agent_id'));
 	}
 	
 	static function unflagTicket($ticket_id, $agent_id) {
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		
 		$sql = sprintf("DELETE FROM assign_to_ticket WHERE agent_id = %d AND ticket_id = %d AND is_flag = 1",
 			$agent_id,
@@ -784,12 +784,12 @@ class CerberusTicketDAO {
 		if(empty($ticket_id) || empty($agent_id))
 			return null;
 		
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		$um_db->Replace('assign_to_ticket', array('ticket_id'=>$ticket_id,'agent_id'=>$agent_id,'is_flag'=>0), array('ticket_id','agent_id'));
 	}
 	
 	static function unsuggestTicket($ticket_id, $agent_id) {
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		
 		$sql = sprintf("DELETE FROM assign_to_ticket WHERE agent_id = %d AND ticket_id = %d AND is_flag = 0",
 			$agent_id,
@@ -799,7 +799,7 @@ class CerberusTicketDAO {
 	}
 	
 	static function getMessagesByTicket($ticket_id) {
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		$messages = array();
 		
 		$sql = sprintf("SELECT m.id , m.ticket_id, m.message_type, m.created_date, m.address_id, m.message_id, m.headers ".
@@ -839,7 +839,7 @@ class CerberusTicketDAO {
 	 * @return CerberusMessage
 	 */
 	static function getMessage($id) {
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		$message = null;
 		
 		$sql = sprintf("SELECT m.id , m.ticket_id, m.message_type, m.created_date, m.address_id, m.message_id, m.headers ".
@@ -871,7 +871,7 @@ class CerberusTicketDAO {
 	}
 	
 	static function getRequestersByTicket($ticket_id) {
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		$addresses = array();
 		
 		$sql = sprintf("SELECT a.id , a.email, a.personal ".
@@ -899,7 +899,7 @@ class CerberusTicketDAO {
 	}
 	
 	static function getMessageContent($id) {
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		$content = '';
 		
 		$sql = sprintf("SELECT m.id, m.content ".
@@ -917,7 +917,7 @@ class CerberusTicketDAO {
 	}
 	
 	static function createRequester($address_id,$ticket_id) {
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		$um_db->Replace("requester",array("address_id"=>$address_id,"ticket_id"=>$ticket_id),array("address_id","ticket_id")); 
 		return true;
 	}
@@ -933,7 +933,7 @@ class CerberusDashboardDAO {
 	private function CerberusDashboardDAO() {}
 	
 	static function createDashboard($name, $agent_id) {
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		$newId = $um_db->GenID('generic_seq');
 		
 		$sql = sprintf("INSERT INTO dashboard (id, name, agent_id) ".
@@ -949,7 +949,7 @@ class CerberusDashboardDAO {
 	
 	// [JAS]: Convert this over to pulling by a list of IDs?
 	static function getDashboards($agent_id=0) {
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		
 		$sql = sprintf("SELECT id, name ".
 			"FROM dashboard "
@@ -972,7 +972,7 @@ class CerberusDashboardDAO {
 	}
 	
 	static function createView($name,$dashboard_id,$num_rows=10,$sort_by=null,$sort_asc=1,$type='D') {
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		$newId = $um_db->GenID('generic_seq');
 		
 		$sql = sprintf("INSERT INTO dashboard_view (id, name, dashboard_id, type, num_rows, sort_by, sort_asc, page, params) ".
@@ -992,7 +992,7 @@ class CerberusDashboardDAO {
 	}
 	
 	static private function _updateView($id,$fields) {
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		$sets = array();
 		
 		if(!is_array($fields) || empty($fields) || empty($id))
@@ -1014,7 +1014,7 @@ class CerberusDashboardDAO {
 	
 	static function deleteView($id) {
 		if(empty($id)) return;
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		
 		$sql = sprintf("DELETE FROM dashboard_view WHERE id = %d",
 			$id
@@ -1030,7 +1030,7 @@ class CerberusDashboardDAO {
 	 * @return CerberusDashboardView[]
 	 */
 	static function getViews($dashboard_id=0) {
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		
 		$sql = sprintf("SELECT v.id, v.name, v.dashboard_id, v.type, v.agent_id, v.view_columns, v.num_rows, v.sort_by, v.sort_asc, v.page, v.params ".
 			"FROM dashboard_view v ".
@@ -1144,7 +1144,7 @@ class CerberusDashboardDAO {
 	 * @return CerberusDashboardView
 	 */
 	static private function _getView($view_id) {
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		
 		$sql = sprintf("SELECT v.id, v.name, v.dashboard_id, v.type, v.agent_id, v.view_columns, v.num_rows, v.sort_by, v.sort_asc, v.page, v.params ".
 			"FROM dashboard_view v ".
@@ -1185,7 +1185,7 @@ class CerberusMailRuleDAO {
 	 * @param string $strictness
 	 */
 	static function createMailRule ($criteria, $sequence, $strictness) {
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		$newId = $um_db->GenID('generic_seq');
 		
 		$sCriteria = serialize($criteria); // Flatten criterion array into a string
@@ -1207,7 +1207,7 @@ class CerberusMailRuleDAO {
 	 */
 	static function deleteMailRule ($id) {
 		if(empty($id)) return;
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		
 		$sql = sprintf("DELETE FROM mail_rule WHERE id = %d",
 			$id
@@ -1222,7 +1222,7 @@ class CerberusMailRuleDAO {
 	 * @return CerberusMailRule
 	 */
 	static function getMailRule ($id) {
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		
 		$sql = sprintf("SELECT m.id, m.criteria, m.sequence, m.strictness ".
 			"FROM mail_rule m ".
@@ -1253,7 +1253,7 @@ class CerberusMailRuleDAO {
 	 * @return CerberusMailRule[]
 	 */
 	static function getMailRules () {
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		
 		$sql = sprintf("SELECT m.id, m.criteria, m.sequence, m.strictness ".
 			"FROM mail_rule m"
@@ -1285,7 +1285,7 @@ class CerberusMailRuleDAO {
 	 * @param associative array $fields
 	 */
 	static function updateMailRule ($id, $fields) {
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		
 		if(!is_array($fields) || empty($fields) || empty($id))
 			return;
@@ -1320,7 +1320,7 @@ class CerberusSearchDAO {
 	 * @return CerberusDashboardView[]
 	 */
 	static function getSavedSearches($agent_id) {
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		$searches = array();
 		
 		$sql = sprintf("SELECT v.id, v.name, v.dashboard_id, v.type, v.agent_id, v.view_columns, v.num_rows, v.sort_by, v.sort_asc, v.page, v.params ".
@@ -1367,7 +1367,7 @@ class CerberusWorkflowDAO {
 	static function lookupTag($tag_name, $create_if_notexist=false) {
 		if(empty($tag_name)) return null;
 		
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		$tag = null;
 
 		$sql = sprintf("SELECT t.id FROM tag t WHERE t.name = %s",
@@ -1397,7 +1397,7 @@ class CerberusWorkflowDAO {
 	static function getTags($ids=array()) {
 		if(!is_array($ids)) $ids = array($ids);
 
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		$tags = array();
 
 		$sql = "SELECT t.id, t.name ".
@@ -1425,7 +1425,7 @@ class CerberusWorkflowDAO {
 	 * @return CerberusTag[]
 	 */
 	static function getTagsByTicket($id) {
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		$ids = array();
 		$tags = array();
 		
@@ -1458,7 +1458,7 @@ class CerberusWorkflowDAO {
 	 * @return CerberusAgent[]
 	 */
 	static function getWorkersByTicket($ticket_id, $is_flag) {
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		$ids = array();
 		$workers = array();
 		
@@ -1499,7 +1499,7 @@ class CerberusWorkflowDAO {
 	}
 	
 	static function searchTags($query,$limit=10) {
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		if(empty($query)) return null;
 		
 		$sql = sprintf("SELECT t.id FROM tag t WHERE t.name LIKE '%s%%' LIMIT 0,%d",
@@ -1528,7 +1528,7 @@ class CerberusWorkflowDAO {
 	 * @return integer id
 	 */
 	static function createTag($name) {
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		if(empty($name)) return null;
 		
 		$id = $um_db->GenID('tag_seq');
@@ -1544,7 +1544,7 @@ class CerberusWorkflowDAO {
 	}
 	
 	static function deleteTag($id) {
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		if(empty($id)) return;
 		
 		$sql = sprintf("DELETE FROM tag WHERE id = %d",
@@ -1588,7 +1588,7 @@ class CerberusWorkflowDAO {
 	 */
 	static function getTeams($ids=array()) {
 		if(!is_array($ids)) $ids = array($ids);
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 
 		$teams = array();
 		
@@ -1619,7 +1619,7 @@ class CerberusWorkflowDAO {
 		if(empty($name))
 			return;
 		
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		$newId = $um_db->GenID('generic_seq');
 		
 		$sql = sprintf("INSERT INTO team (id, name) VALUES (%d,%s)",
@@ -1638,7 +1638,7 @@ class CerberusWorkflowDAO {
 	 * @param array $fields
 	 */
 	static function updateTeam($id, $fields) {
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		$sets = array();
 		
 		if(!is_array($fields) || empty($fields) || empty($id))
@@ -1666,7 +1666,7 @@ class CerberusWorkflowDAO {
 	 */
 	static function deleteTeam($id) {
 		if(empty($id)) return;
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		
 		$sql = sprintf("DELETE FROM team WHERE id = %d",
 			$id
@@ -1687,7 +1687,7 @@ class CerberusWorkflowDAO {
 	static function setTeamMailboxes($team_id, $mailbox_ids) {
 		if(!is_array($mailbox_ids)) $mailbox_ids = array($mailbox_ids);
 		if(empty($team_id)) return;
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		
 		$sql = sprintf("DELETE FROM mailbox_to_team WHERE team_id = %d",
 			$team_id
@@ -1707,7 +1707,7 @@ class CerberusWorkflowDAO {
 	
 	static function getTeamMailboxes($team_id, $with_counts = false) {
 		if(empty($team_id)) return;
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		$ids = array();
 		
 		$sql = sprintf("SELECT mt.mailbox_id FROM mailbox_to_team mt WHERE mt.team_id = %d",
@@ -1729,7 +1729,7 @@ class CerberusWorkflowDAO {
 	static function setTeamWorkers($team_id, $agent_ids) {
 		if(!is_array($agent_ids)) $agent_ids = array($agent_ids);
 		if(empty($team_id)) return;
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 
 		$sql = sprintf("DELETE FROM worker_to_team WHERE team_id = %d",
 			$team_id
@@ -1748,7 +1748,7 @@ class CerberusWorkflowDAO {
 	
 	static function getTeamWorkers($team_id) {
 		if(empty($team_id)) return;
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		$ids = array();
 		
 		$sql = sprintf("SELECT wt.agent_id FROM worker_to_team wt WHERE wt.team_id = %d",
@@ -1780,7 +1780,7 @@ class CerberusMailDAO {
 	 */
 	static function getMailboxes($ids=array(), $with_counts = false) {
 		if(!is_array($ids)) $ids = array($ids);
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 
 		$mailboxes = array();
 		
@@ -1830,7 +1830,7 @@ class CerberusMailDAO {
 	 * @return integer
 	 */
 	static function createMailbox($name, $reply_address_id, $display_name = '') {
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		$newId = $um_db->GenID('generic_seq');
 		
 		$sql = sprintf("INSERT INTO mailbox (id, name, reply_address_id, display_name) VALUES (%d,%s,%d,%s)",
@@ -1845,7 +1845,7 @@ class CerberusMailDAO {
 	}
 	
 	static function updateMailbox($id, $fields) {
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		$sets = array();
 		
 		if(!is_array($fields) || empty($fields) || empty($id))
@@ -1878,7 +1878,7 @@ class CerberusMailDAO {
 	static function deleteMailbox($id) {
 		if(empty($id)) return;
 		
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		
 		$sql = sprintf("DELETE FROM mailbox WHERE id = %d",
 			$id
@@ -1896,7 +1896,7 @@ class CerberusMailDAO {
 	static function setMailboxTeams($mailbox_id, $team_ids) {
 		if(!is_array($team_ids)) $team_ids = array($team_ids);
 		if(empty($mailbox_id)) return;
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 
 		$sql = sprintf("DELETE FROM mailbox_to_team WHERE mailbox_id = %d",
 			$mailbox_id
@@ -1916,7 +1916,7 @@ class CerberusMailDAO {
 	
 	static function getMailboxTeams($mailbox_id) {
 		if(empty($mailbox_id)) return;
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		$ids = array();
 		
 		$sql = sprintf("SELECT mt.team_id FROM mailbox_to_team mt WHERE mt.mailbox_id = %d",
@@ -1941,7 +1941,7 @@ class CerberusMailDAO {
 		if(empty($nickname) || empty($host) || empty($username) || empty($password)) 
 			return null;
 			
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		$newId = $um_db->GenID('generic_seq');
 		
 		$sql = sprintf("INSERT INTO pop3_account (id, nickname, host, username, password) ".
@@ -1959,7 +1959,7 @@ class CerberusMailDAO {
 	
 	static function getPop3Accounts($ids=array()) {
 		if(!is_array($ids)) $ids = array($ids);
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		$pop3accounts = array();
 		
 		$sql = "SELECT id, nickname, host, username, password ".
@@ -1999,7 +1999,7 @@ class CerberusMailDAO {
 	}
 	
 	static function updatePop3Account($id, $fields) {
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		$sets = array();
 		
 		if(!is_array($fields) || empty($fields) || empty($id))
@@ -2023,7 +2023,7 @@ class CerberusMailDAO {
 		if(empty($id))
 			return;
 			
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		
 		$sql = sprintf("DELETE FROM pop3_account WHERE id = %d",
 			$id			

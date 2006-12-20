@@ -1,8 +1,8 @@
 <?php
 
-abstract class CerberusModuleExtension extends UserMeetExtension {
+abstract class CerberusModuleExtension extends CgExtension {
 	function CerberusModuleExtension($manifest) {
-		$this->UserMeetExtension($manifest,1);
+		$this->CgExtension($manifest,1);
 	}
 	
 	function isVisible() { return true; }
@@ -17,9 +17,9 @@ abstract class CerberusModuleExtension extends UserMeetExtension {
 	}
 };
 
-abstract class CerberusDisplayModuleExtension extends UserMeetExtension {
+abstract class CerberusDisplayModuleExtension extends CgExtension {
 	function CerberusDisplayModuleExtension($manifest) {
-		$this->UserMeetExtension($manifest,1);
+		$this->CgExtension($manifest,1);
 	}
 	
 	/**
@@ -28,9 +28,9 @@ abstract class CerberusDisplayModuleExtension extends UserMeetExtension {
 	function render($ticket) {}
 }
 
-abstract class CerberusLoginModuleExtension extends UserMeetExtension {
+abstract class CerberusLoginModuleExtension extends CgExtension {
 	function CerberusLoginModuleExtension($manifest) {
-		$this->UserMeetExtension($manifest, 1);
+		$this->CgExtension($manifest, 1);
 	}
 	
 	/**
@@ -70,9 +70,9 @@ abstract class CerberusLoginModuleExtension extends UserMeetExtension {
 	}
 }
 
-abstract class CerberusCronModuleExtension extends UserMeetExtension {
+abstract class CerberusCronModuleExtension extends CgExtension {
 	function CerberusCronModuleExtension($manifest) {
-		$this->UserMeetExtension($manifest, 1);
+		$this->CgExtension($manifest, 1);
 	}
 
 	/**

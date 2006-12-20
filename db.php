@@ -1,9 +1,8 @@
 <?php
 require(getcwd() . '/framework.config.php');
-require(UM_PATH . '/libs/ump/UserMeetPlatform.class.php');
-//require(UM_PATH . '/api/UserMeetApplication.class.php');
+require(UM_PATH . '/libs/cloudglue/CloudGlue.class.php');
 
-$um_db = UserMeetDatabase::getInstance();
+$um_db = CgDatabase::getInstance();
 
 $datadict = NewDataDictionary($um_db); /* @var $datadict ADODB_DataDict */ // ,'mysql' 
 
@@ -191,5 +190,5 @@ foreach($tables as $table => $flds) {
 	echo "<HR>";
 }
 
-$plugins = UserMeetPlatform::readPlugins();
+$plugins = CgPlatform::readPlugins();
 ?>

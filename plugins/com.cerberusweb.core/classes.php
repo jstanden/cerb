@@ -1,13 +1,13 @@
 <?php
 class ChDashboardModule extends CerberusModuleExtension {
 	function ChDashboardModule($manifest) {
-//		$this->UserMeetMenuExtension($manifest);
+//		$this->CgMenuExtension($manifest);
 		$this->CerberusModuleExtension($manifest,1);
 	}
 	
 	function isVisible() {
 		// check login
-		$session = UserMeetSessionManager::getInstance();
+		$session = CgSessionManager::getInstance();
 		$visit = $session->getVisit();
 		
 		if(empty($visit)) {
@@ -20,11 +20,11 @@ class ChDashboardModule extends CerberusModuleExtension {
 	}
 	
 	function render() {
-		$um_db = UserMeetDatabase::getInstance();
-		$tpl = UserMeetTemplateManager::getInstance();
+		$um_db = CgDatabase::getInstance();
+		$tpl = CgTemplateManager::getInstance();
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 
-		$session = UserMeetSessionManager::getInstance();
+		$session = CgSessionManager::getInstance();
 		$visit = $session->getVisit();
 		
 		$dashboards = CerberusDashboardDAO::getDashboards($visit->id);
@@ -111,7 +111,7 @@ class ChDashboardModule extends CerberusModuleExtension {
 			$iSortAsc = 1;
 		}
 		
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		
 		$fields = array(
 			'sort_by' => $sortBy,
@@ -126,7 +126,7 @@ class ChDashboardModule extends CerberusModuleExtension {
 		@$id = $_REQUEST['id'];
 		@$page = $_REQUEST['page'];
 		
-		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl = CgTemplateManager::getInstance();
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		$tpl->assign('id',$id);
 		
@@ -141,7 +141,7 @@ class ChDashboardModule extends CerberusModuleExtension {
 	function viewRefresh() {
 		@$id = $_REQUEST['id'];
 
-		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl = CgTemplateManager::getInstance();
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		$tpl->assign('id',$id);
 		
@@ -159,7 +159,7 @@ class ChDashboardModule extends CerberusModuleExtension {
 	function customize() {
 		@$id = $_REQUEST['id'];
 
-		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl = CgTemplateManager::getInstance();
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		$tpl->assign('id',$id);
 
@@ -236,7 +236,7 @@ class ChDashboardModule extends CerberusModuleExtension {
 	}
 	
 	function showHistoryPanel() {
-		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl = CgTemplateManager::getInstance();
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		$tpl->cache_lifetime = "0";
 		
@@ -246,7 +246,7 @@ class ChDashboardModule extends CerberusModuleExtension {
 	function showContactPanel() {
 		@$sAddress = $_REQUEST['address'];
 		
-		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl = CgTemplateManager::getInstance();
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		$tpl->cache_lifetime = "0";
 		
@@ -266,7 +266,7 @@ class ChConfigurationModule extends CerberusModuleExtension  {
 	}
 	
 	function isVisible() {
-		$session = UserMeetSessionManager::getInstance();
+		$session = CgSessionManager::getInstance();
 		$visit = $session->getVisit();
 		
 		if(empty($visit)) {
@@ -277,7 +277,7 @@ class ChConfigurationModule extends CerberusModuleExtension  {
 	}
 	
 	function render() {
-		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl = CgTemplateManager::getInstance();
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 
@@ -299,7 +299,7 @@ class ChConfigurationModule extends CerberusModuleExtension  {
 	function getWorker() {
 		@$id = $_REQUEST['id'];
 
-		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl = CgTemplateManager::getInstance();
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 
@@ -351,7 +351,7 @@ class ChConfigurationModule extends CerberusModuleExtension  {
 	function getTeam() {
 		@$id = $_REQUEST['id'];
 
-		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl = CgTemplateManager::getInstance();
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 
@@ -399,7 +399,7 @@ class ChConfigurationModule extends CerberusModuleExtension  {
 	function getMailbox() {
 		@$id = $_REQUEST['id'];
 
-		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl = CgTemplateManager::getInstance();
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 
@@ -449,7 +449,7 @@ class ChConfigurationModule extends CerberusModuleExtension  {
 	function getPop3Account() {
 		@$id = $_REQUEST['id'];
 		
-		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl = CgTemplateManager::getInstance();
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 
@@ -494,7 +494,7 @@ class ChDisplayModule extends CerberusModuleExtension {
 	
 	function isVisible() {
 		// check login
-		$session = UserMeetSessionManager::getInstance();
+		$session = CgSessionManager::getInstance();
 		$visit = $session->getVisit();
 		
 		if(empty($visit)) {
@@ -505,7 +505,7 @@ class ChDisplayModule extends CerberusModuleExtension {
 	}
 	
 	function render() {
-		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl = CgTemplateManager::getInstance();
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 
@@ -517,11 +517,11 @@ class ChDisplayModule extends CerberusModuleExtension {
 		$mailboxes = CerberusMailDAO::getMailboxes();
 		$tpl->assign('mailboxes', $mailboxes);
 		
-		$display_module_manifests = UserMeetPlatform::getExtensions("com.cerberusweb.display.module");
+		$display_module_manifests = CgPlatform::getExtensions("com.cerberusweb.display.module");
 		$display_modules = array();
 		
 		if(is_array($display_module_manifests))
-		foreach($display_module_manifests as $dmm) { /* @var $dmm UserMeetExtensionManifest */
+		foreach($display_module_manifests as $dmm) { /* @var $dmm CgExtensionManifest */
 			$display_modules[] = $dmm->createInstance(1);
 		}
 		$tpl->assign('display_modules', $display_modules);
@@ -556,7 +556,7 @@ class ChDisplayModule extends CerberusModuleExtension {
 	function loadMessageTemplate($type) {
 		@$id = $_REQUEST['id'];
 
-		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl = CgTemplateManager::getInstance();
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		$tpl->assign('id',$id);
 		
@@ -691,7 +691,7 @@ class ChDisplayModule extends CerberusModuleExtension {
 	}
 	
 	function refreshRequesters() {
-		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl = CgTemplateManager::getInstance();
 		@$id = $_REQUEST['id']; // ticket id
 		
 		$ticket = CerberusTicketDAO::getTicket($id);
@@ -707,7 +707,7 @@ class ChDisplayModule extends CerberusModuleExtension {
 		// I'd really like to know why the *$#! this doesn't work.  The if statement works fine atomically...
 //		require_once(UM_PATH . '/libs/pear/Mail/RFC822.php');
 //		if (false === Mail_RFC822::isValidInetAddress($add_requester)) {
-//			return $add_requester . UserMeetTranslationManager::say('ticket.requester.invalid');
+//			return $add_requester . CgTranslationManager::say('ticket.requester.invalid');
 //		}
 		
 		$address_id = CerberusContactDAO::lookupAddress($add_requester, true);
@@ -720,13 +720,13 @@ class ChDisplayModule extends CerberusModuleExtension {
 
 class ChSignInModule extends CerberusModuleExtension {
 	function ChSignInModule($manifest) {
-//		$this->UserMeetMenuExtension($manifest);
+//		$this->CgMenuExtension($manifest);
 		$this->CerberusModuleExtension($manifest);
 	}
 	
 	function isVisible() {
 		// check login
-		$session = UserMeetSessionManager::getInstance();
+		$session = CgSessionManager::getInstance();
 		$visit = $session->getVisit();
 		
 //		if(empty($visit)) {
@@ -748,14 +748,14 @@ class ChSignInModule extends CerberusModuleExtension {
 	}
 	
 	function render() {
-		$manifest = UserMeetPlatform::getExtension('login.default');
+		$manifest = CgPlatform::getExtension('login.default');
 		$inst = $manifest->createInstance(1); /* @var $inst CerberusLoginModuleExtension */
 		$inst->renderLoginForm();
 	}
 	
 	function signout() {
 //		echo "Sign out: " . __CLASS__ . "->" . __FUNCTION__ . "!<br>";
-		$session = UserMeetSessionManager::getInstance();
+		$session = CgSessionManager::getInstance();
 		$session->logout();
 		CerberusApplication::setActiveModule("core.module.signin");
 	}
@@ -763,13 +763,13 @@ class ChSignInModule extends CerberusModuleExtension {
 
 class ChTeamworkModule extends CerberusModuleExtension {
 	function ChTeamworkModule($manifest) {
-//		$this->UserMeetMenuExtension($manifest);
+//		$this->CgMenuExtension($manifest);
 		$this->CerberusModuleExtension($manifest);
 	}
 	
 	function isVisible() {
 		// check login
-		$session = UserMeetSessionManager::getInstance();
+		$session = CgSessionManager::getInstance();
 		$visit = $session->getVisit();
 		
 		if(empty($visit)) {
@@ -782,7 +782,7 @@ class ChTeamworkModule extends CerberusModuleExtension {
 	}
 	
 	function render() {
-		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl = CgTemplateManager::getInstance();
 		$tpl->cache_lifetime = "0";
 		
 		$teams = CerberusWorkflowDAO::getTeams();
@@ -799,13 +799,13 @@ class ChTeamworkModule extends CerberusModuleExtension {
 
 class ChSearchModule extends CerberusModuleExtension {
 	function ChSearchModule($manifest) {
-//		$this->UserMeetMenuExtension($manifest);
+//		$this->CgMenuExtension($manifest);
 		$this->CerberusModuleExtension($manifest);
 	}
 	
 	function isVisible() {
 		// check login
-		$session = UserMeetSessionManager::getInstance();
+		$session = CgSessionManager::getInstance();
 		$visit = $session->getVisit();
 		
 		if(empty($visit)) {
@@ -816,7 +816,7 @@ class ChSearchModule extends CerberusModuleExtension {
 	}
 	
 	function render() {
-		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl = CgTemplateManager::getInstance();
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		$tpl->cache_lifetime = "0";
 
@@ -844,7 +844,7 @@ class ChSearchModule extends CerberusModuleExtension {
 	function getCriteria() {
 		@$field = $_REQUEST['field'];
 		
-		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl = CgTemplateManager::getInstance();
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		$tpl->cache_lifetime = "0";
 		
@@ -870,7 +870,7 @@ class ChSearchModule extends CerberusModuleExtension {
 	function getCriteriaDialog() {
 		@$divName = $_REQUEST['divName'];
 		
-		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl = CgTemplateManager::getInstance();
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		$tpl->cache_lifetime = "0";
 		
@@ -940,7 +940,7 @@ class ChSearchModule extends CerberusModuleExtension {
 	function getLoadSearch() {
 		@$divName = $_REQUEST['divName'];
 		
-		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl = CgTemplateManager::getInstance();
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		$tpl->cache_lifetime = "0";
 		
@@ -966,7 +966,7 @@ class ChSearchModule extends CerberusModuleExtension {
 	function getSaveSearch() {
 		@$divName = $_REQUEST['divName'];
 		
-		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl = CgTemplateManager::getInstance();
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		$tpl->cache_lifetime = "0";
 
@@ -1035,7 +1035,7 @@ class ChPreferencesModule extends CerberusModuleExtension {
 	
 	function isVisible() {
 		// check login
-		$session = UserMeetSessionManager::getInstance();
+		$session = CgSessionManager::getInstance();
 		$visit = $session->getVisit();
 		
 		if(empty($visit)) {
@@ -1046,7 +1046,7 @@ class ChPreferencesModule extends CerberusModuleExtension {
 	}
 	
 	function render() {
-		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl = CgTemplateManager::getInstance();
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		$tpl->cache_lifetime = "0";
 
@@ -1060,7 +1060,7 @@ class ChDisplayTicketHistory extends CerberusDisplayModuleExtension {
 	}
 
 	function render($ticket) {
-		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl = CgTemplateManager::getInstance();
 		$tpl->cache_lifetime = "0";
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/ticket_history.tpl.php');
 	}
@@ -1076,7 +1076,7 @@ class ChDisplayTicketLog extends CerberusDisplayModuleExtension {
 	}
 
 	function render($ticket) {
-		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl = CgTemplateManager::getInstance();
 		$tpl->cache_lifetime = "0";
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/ticket_log.tpl.php');
 	}
@@ -1092,7 +1092,7 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 	}
 
 	function render($ticket) {
-		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl = CgTemplateManager::getInstance();
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('callback','renderBody');
 		$tpl->assign('moduleLabel', $this->manifest->id);
@@ -1100,9 +1100,9 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 	}
 	
 	function renderBody() {
-		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl = CgTemplateManager::getInstance();
 		$tpl->cache_lifetime = "0";
-		$session = UserMeetSessionManager::getInstance();
+		$session = CgSessionManager::getInstance();
 		$visit = $session->getVisit();
 		
 		$favoriteTags = CerberusAgentDAO::getFavoriteTags($visit->id);
@@ -1115,7 +1115,7 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 	}
 	
 	function refresh() {
-		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl = CgTemplateManager::getInstance();
 		$tpl->caching = 0;
 		$tpl->cache_lifetime = 0;
 
@@ -1133,7 +1133,7 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 		@$tag_id = intval($_REQUEST['id']);
 		@$ticket_id = intval($_REQUEST['ticket_id']);
 		
-		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl = CgTemplateManager::getInstance();
 		$tpl->caching = 0;
 		$tpl->cache_lifetime = 0;
 		
@@ -1187,7 +1187,7 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 		@$id = intval($_REQUEST['id']);
 		@$ticket_id = intval($_REQUEST['ticket_id']);
 		
-		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl = CgTemplateManager::getInstance();
 		$tpl->caching = 0;
 		$tpl->cache_lifetime = 0;
 		
@@ -1217,10 +1217,10 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 	function showApplyTags() {
 		@$id = intval($_REQUEST['id']);
 		
-		$session = UserMeetSessionManager::getInstance();
+		$session = CgSessionManager::getInstance();
 		$visit = $session->getVisit();
 		
-		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl = CgTemplateManager::getInstance();
 		$tpl->caching = 0;
 		$tpl->cache_lifetime = 0;
 		
@@ -1248,10 +1248,10 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 	}
 
 	function showFavTags() {
-		$session = UserMeetSessionManager::getInstance();
+		$session = CgSessionManager::getInstance();
 		$visit = $session->getVisit();
 		
-		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl = CgTemplateManager::getInstance();
 		$tpl->caching = 0;
 		$tpl->cache_lifetime = 0;
 
@@ -1264,7 +1264,7 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 	function saveFavoriteTags() {
 		@$favTagEntry = $_POST['favTagEntry'];
 		
-		$session = UserMeetSessionManager::getInstance();
+		$session = CgSessionManager::getInstance();
 		$visit = $session->getVisit();
 		
 		CerberusAgentDAO::setFavoriteTags($visit->id, $favTagEntry);
@@ -1273,10 +1273,10 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 	}
 	
 	function showFavWorkers() {
-		$session = UserMeetSessionManager::getInstance();
+		$session = CgSessionManager::getInstance();
 		$visit = $session->getVisit();
 		
-		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl = CgTemplateManager::getInstance();
 		$tpl->caching = 0;
 		$tpl->cache_lifetime = 0;
 
@@ -1294,7 +1294,7 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 	function saveFavoriteWorkers() {
 		@$favWorkerEntry = $_POST['favWorkerEntry'];
 		
-		$session = UserMeetSessionManager::getInstance();
+		$session = CgSessionManager::getInstance();
 		$visit = $session->getVisit();
 		
 		CerberusAgentDAO::setFavoriteWorkers($visit->id, $favWorkerEntry);
@@ -1305,10 +1305,10 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 	function showFlagAgents() {
 		@$id = intval($_REQUEST['id']);
 
-		$session = UserMeetSessionManager::getInstance();
+		$session = CgSessionManager::getInstance();
 		$visit = $session->getVisit();
 		
-		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl = CgTemplateManager::getInstance();
 		$tpl->caching = 0;
 		$tpl->cache_lifetime = 0;
 
@@ -1344,10 +1344,10 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 	function showSuggestAgents() {
 		@$id = intval($_REQUEST['id']);
 		
-		$session = UserMeetSessionManager::getInstance();
+		$session = CgSessionManager::getInstance();
 		$visit = $session->getVisit();
 		
-		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl = CgTemplateManager::getInstance();
 		$tpl->caching = 0;
 		$tpl->cache_lifetime = 0;
 
@@ -1388,7 +1388,7 @@ class ChDisplayTicketFields extends CerberusDisplayModuleExtension {
 	}
 
 	function render($ticket) {
-		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl = CgTemplateManager::getInstance();
 		$tpl->cache_lifetime = "0";
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/ticket_fields.tpl.php');
 	}
@@ -1404,7 +1404,7 @@ class ChDisplayTicketConversation extends CerberusDisplayModuleExtension {
 	}
 
 	function render($ticket) {
-		$tpl = UserMeetTemplateManager::getInstance();
+		$tpl = CgTemplateManager::getInstance();
 		$tpl->cache_lifetime = "0";
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/ticket_conversation.tpl.php');
 	}

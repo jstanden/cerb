@@ -10,17 +10,17 @@ com.usermeet.submenu
 */
 
 /**
- *  @defgroup core UserMeet Framework Core
+ *  @defgroup core CloudGlue Framework Core
  *  Core data structures of the framework
  */
 
 /**
- *  @defgroup plugin UserMeet Framework Plugins
+ *  @defgroup plugin CloudGlue Framework Plugins
  *  Components for plugin/extensions
  */
 
 /**
- *  @defgroup services UserMeet Framework Services
+ *  @defgroup services CloudGlue Framework Services
  *  Services provided by the framework
  */
 
@@ -31,25 +31,25 @@ com.usermeet.submenu
  * @ingroup core
  * @author Jeff Standen
  */
-class UserMeetPlatform {
+class CgPlatform {
 	/**
 	 * @private
 	 */
-	private function UserMeetPlatform() {}
+	private function CgPlatform() {}
 	
 	/**
 	 * Returns the list of extensions on a given extension point.
 	 *
 	 * @static
 	 * @param string $point
-	 * @return UserMeetExtensionManifest[]
+	 * @return CgExtensionManifest[]
 	 */
 	static function getExtensions($point) {
 		$results = array();
-		$extensions = UserMeetPlatform::getExtensionRegistry();
+		$extensions = CgPlatform::getExtensionRegistry();
 		
 		if(is_array($extensions))
-		foreach($extensions as $extension) { /* @var $extension UserMeetExtensionManifest */
+		foreach($extensions as $extension) { /* @var $extension CgExtensionManifest */
 			if(0 == strcasecmp($extension->point,$point)) {
 				$results[] = $extension;
 			}
@@ -62,14 +62,14 @@ class UserMeetPlatform {
 	 *
 	 * @static
 	 * @param string $extension_id
-	 * @return UserMeetExtensionManifest
+	 * @return CgExtensionManifest
 	 */
 	static function getExtension($extension_id) {
 		$result = null;
-		$extensions = UserMeetPlatform::getExtensionRegistry();
+		$extensions = CgPlatform::getExtensionRegistry();
 		
 		if(is_array($extensions))
-		foreach($extensions as $extension) { /* @var $extension UserMeetExtensionManifest */
+		foreach($extensions as $extension) { /* @var $extension CgExtensionManifest */
 			if(0 == strcasecmp($extension->id,$extension_id)) {
 				$result = $extension;
 			}
@@ -82,7 +82,7 @@ class UserMeetPlatform {
 	 * Returns an array of all contributed extension manifests.
 	 *
 	 * @static 
-	 * @return UserMeetExtensionManifest[]
+	 * @return CgExtensionManifest[]
 	 */
 	static function getExtensionRegistry() {
 		static $extensions = array();
@@ -90,15 +90,15 @@ class UserMeetPlatform {
 		if(!empty($extensions))
 			return $extensions;
 		
-		$um_db = UserMeetDatabase::getInstance();
-		$plugins = UserMeetPlatform::getPluginRegistry();
+		$um_db = CgDatabase::getInstance();
+		$plugins = CgPlatform::getPluginRegistry();
 		
 		$sql = sprintf("SELECT e.id , e.plugin_id, e.point, e.name , e.file , e.class, e.params ".
 			"FROM extension e"
 		);
 		$rs = $um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
 		while(!$rs->EOF) {
-			$extension = new UserMeetExtensionManifest();
+			$extension = new CgExtensionManifest();
 			$extension->id = stripslashes($rs->fields['id']);
 			$extension->plugin_id = intval($rs->fields['plugin_id']);
 			$extension->point = stripslashes($rs->fields['point']);
@@ -110,7 +110,7 @@ class UserMeetPlatform {
 			if(empty($extension->params))
 				$extension->params = array();
 			
-			@$plugin = $plugins[$extension->plugin_id]; /* @var $plugin UserMeetPluginManifest */
+			@$plugin = $plugins[$extension->plugin_id]; /* @var $plugin CgPluginManifest */
 			if(!empty($plugin)) {
 				$extensions[$extension->id] = $extension;
 			}
@@ -125,7 +125,7 @@ class UserMeetPlatform {
 	 * Returns an array of all contributed plugin manifests.
 	 *
 	 * @static
-	 * @return UserMeetPluginManifest[]
+	 * @return CgPluginManifest[]
 	 */
 	static function getPluginRegistry() {
 		static $plugins = array();
@@ -133,14 +133,14 @@ class UserMeetPlatform {
 		if(!empty($plugins))
 			return $plugins;
 		
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		
 		$sql = sprintf("SELECT p.id , p.enabled , p.name, p.author, p.dir ".
 			"FROM plugin p"
 		);
 		$rs = $um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
 		while(!$rs->EOF) {
-			$plugin = new UserMeetPluginManifest();
+			$plugin = new CgPluginManifest();
 			$plugin->id = intval($rs->fields['id']);
 //			$plugin->enabled = intval($rs->fields['enabled']);
 			$plugin->name = stripslashes($rs->fields['name']);
@@ -161,7 +161,7 @@ class UserMeetPlatform {
 	 * Reads and caches manifests from the plugin directory.
 	 *
 	 * @static 
-	 * @return UserMeetPluginManifest[]
+	 * @return CgPluginManifest[]
 	 */
 	static function readPlugins() {
 		$dir = UM_PLUGIN_PATH;
@@ -175,7 +175,7 @@ class UserMeetPlatform {
 		        		
 		        	$path = $dir . '/' . $file;
 		        	if(is_dir($path) && file_exists($path.'/plugin.xml')) {
-		        		$manifest = UserMeetPlatform::_readPluginManifest($file);
+		        		$manifest = CgPlatform::_readPluginManifest($file);
 		        		if(null != $manifest) {
 //							print_r($manifest);
 							$plugins[] = $manifest;
@@ -195,7 +195,7 @@ class UserMeetPlatform {
 	 * @static 
 	 * @private
 	 * @param string $file
-	 * @return UserMeetPluginManifest
+	 * @return CgPluginManifest
 	 */
 	static private function _readPluginManifest($dir) {
 		if(!file_exists(UM_PLUGIN_PATH.$dir.'/plugin.xml'))
@@ -209,12 +209,12 @@ class UserMeetPlatform {
 		$eName = $doc->getElementsByPath("name",1);
 		$eAuthor = $doc->getElementsByPath("author",1);
 			
-		$manifest = new UserMeetPluginManifest();
+		$manifest = new CgPluginManifest();
 		$manifest->dir = $dir;
 		$manifest->author = $eAuthor->getText();
 		$manifest->name = $eName->getText();
 		
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		
 		// [JAS]: Check if the plugin exists already
 		$sql = sprintf("SELECT id FROM plugin WHERE dir = %s",
@@ -255,7 +255,7 @@ class UserMeetPlatform {
 			$eClassName = $eExtension->getElementsByPath('class/name',1);
 			$eClassFile = $eExtension->getElementsByPath('class/file',1);
 			$params = $eExtension->getElementsByPath('params/param');
-			$extension = new UserMeetExtensionManifest();
+			$extension = new CgExtensionManifest();
 
 			if(empty($eId) || empty($eName))
 				continue;
@@ -280,7 +280,7 @@ class UserMeetPlatform {
 		
 		// [JAS]: Extension caching
 		if(is_array($manifest->extensions))
-		foreach($manifest->extensions as $extension_idx => $extension) { /* @var $extension UserMeetExtensionManifest */
+		foreach($manifest->extensions as $extension_idx => $extension) { /* @var $extension CgExtensionManifest */
 			$sql = sprintf("SELECT id FROM extension WHERE plugin_id = '%d' AND point = %s AND class = %s",
 				$extension->plugin_id,
 				$um_db->qstr($extension->point),
@@ -325,7 +325,7 @@ class UserMeetPlatform {
 	 * @return void
 	 */
 	static function init() {
-		// [JAS] [MDF]: Automatically determine the relative webpath to UserMeet files
+		// [JAS] [MDF]: Automatically determine the relative webpath to CloudGlue files
 		if(!defined('UM_WEBPATH')) {
 			$php_self = $_SERVER["PHP_SELF"];
 			$pos = strrpos($php_self,'/');
@@ -340,7 +340,7 @@ class UserMeetPlatform {
  * Manifest information for plugin.
  * @ingroup plugin
  */
-class UserMeetPluginManifest {
+class CgPluginManifest {
 	var $id = 0;
 	var $name = '';
 	var $author = '';
@@ -352,7 +352,7 @@ class UserMeetPluginManifest {
  * Manifest information for a plugin's extension.
  * @ingroup plugin
  */
-class UserMeetExtensionManifest {
+class CgExtensionManifest {
 	var $id = '';
 	var $plugin_id = 0;
 	var $point = '';
@@ -361,7 +361,7 @@ class UserMeetExtensionManifest {
 	var $class = '';
 	var $params = array();
 
-	function UserMeetExtensionManifest() {}
+	function CgExtensionManifest() {}
 	
 	/**
 	 * Creates and loads a usable extension from a manifest record.  The object returned 
@@ -375,12 +375,12 @@ class UserMeetExtensionManifest {
 		if(empty($this->id) || empty($this->plugin_id)) // empty($instance_id) || 
 			return null;
 
-		$plugins = UserMeetPlatform::getPluginRegistry();
+		$plugins = CgPlatform::getPluginRegistry();
 		
 		if(!isset($plugins[$this->plugin_id]))
 			return null;
 		
-		$plugin = $plugins[$this->plugin_id]; /* @var $plugin UserMeetPluginManifest */
+		$plugin = $plugins[$this->plugin_id]; /* @var $plugin CgPluginManifest */
 		
 		$class_file = UM_PLUGIN_PATH . $plugin->dir . '/' . $this->file;
 		$class_name = $this->class;
@@ -404,7 +404,7 @@ class UserMeetExtensionManifest {
  * @abstract 
  * @ingroup plugin
  */
-class UserMeetExtension {
+class CgExtension {
 	var $manifest = null;
 	var $instance_id = 0;
 	var $id  = '';
@@ -414,11 +414,11 @@ class UserMeetExtension {
 	 * Constructor
 	 *
 	 * @private
-	 * @param UserMeetExtensionManifest $manifest
+	 * @param CgExtensionManifest $manifest
 	 * @param int $instance_id
-	 * @return UserMeetExtension
+	 * @return CgExtension
 	 */
-	function UserMeetExtension($manifest,$instance_id) { /* @var $manifest UserMeetExtensionManifest */
+	function CgExtension($manifest,$instance_id) { /* @var $manifest CgExtensionManifest */
 		$this->manifest = $manifest;
 		$this->id = $manifest->id;
 		$this->instance_id = $instance_id;
@@ -442,7 +442,7 @@ class UserMeetExtension {
 //			return $params;
 		
 		$params = $this->manifest->params;
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		
 		$sql = sprintf("SELECT property,value ".
 			"FROM property_store ".
@@ -469,7 +469,7 @@ class UserMeetExtension {
 		if(empty($this->instance_id) || empty($this->id))
 			return FALSE;
 		
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		
 		if(is_array($this->params))
 		foreach($this->params as $k => $v) {
@@ -490,19 +490,19 @@ class UserMeetExtension {
  * @static 
  * @ingroup services
  */
-class UserMeetSessionManager {
+class CgSessionManager {
 	var $visit = null;
 	
 	/**
 	 * @private
 	 */
-	private function UserMeetSessionManager() {}
+	private function CgSessionManager() {}
 	
 	/**
 	 * Returns an instance of the session manager
 	 *
 	 * @static
-	 * @return UserMeetSessionManager
+	 * @return CgSessionManager
 	 */
 	static function getInstance() {
 		static $instance = null;
@@ -515,8 +515,8 @@ class UserMeetSessionManager {
 			//session_name("cerb4");
 			session_set_cookie_params(0);
 			session_start();
-			$instance = new UserMeetSessionManager();
-			$instance->visit = $_SESSION['um_visit']; /* @var $visit UserMeetSession */
+			$instance = new CgSessionManager();
+			$instance->visit = $_SESSION['um_visit']; /* @var $visit CgSession */
 		}
 		
 		return $instance;
@@ -525,22 +525,22 @@ class UserMeetSessionManager {
 	/**
 	 * Returns the current session or NULL if no session exists.
 	 *
-	 * @return UserMeetSession
+	 * @return CgSession
 	 */
 	function getVisit() {
 		return $this->visit;
 	}
 	
 	/**
-	 * Attempts to create a session by login/password.  On success a UserMeetSession 
+	 * Attempts to create a session by login/password.  On success a CgSession 
 	 * is returned.  On failure NULL is returned.
 	 *
 	 * @param string $login
 	 * @param string $password
-	 * @return UserMeetSession
+	 * @return CgSession
 	 */
 	function login($login,$password) {
-		$um_db = UserMeetDatabase::getInstance();
+		$um_db = CgDatabase::getInstance();
 		
 		$sql = sprintf("SELECT id,login,admin ".
 			"FROM login ".
@@ -552,7 +552,7 @@ class UserMeetSessionManager {
 		$rs = $um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		if($rs->NumRows()) {
-			$visit = new UserMeetSession();
+			$visit = new CgSession();
 				$visit->id = intval($rs->fields['id']);
 				$visit->login = stripslashes($rs->fields['login']);
 				$visit->admin = intval($rs->fields['admin']);
@@ -581,19 +581,19 @@ class UserMeetSessionManager {
  * @static 
  * @ingroup services
  */
-class UserMeetEmailManager {
+class CgEmailManager {
 	/**
 	 * @private
 	 */
-	private function UserMeetEmailManager() {}
+	private function CgEmailManager() {}
 	
 	/**
 	 * Enter description here...
 	 *
-	 * @param UserMeetEmailConfig $mail_cfg
+	 * @param CgEmailConfig $mail_cfg
 	 * @return unknown
 	 */
-	static function getMail($mail_cfg) { /* @var $mail_cfg = UserMeetEmailConfig */
+	static function getMail($mail_cfg) { /* @var $mail_cfg = CgEmailConfig */
 		if (!extension_loaded("imap")) die("IMAP Extension not loaded!");
 		require_once(UM_PATH . '/libs/pear/mimeDecode.php');
 		
@@ -623,14 +623,14 @@ class UserMeetEmailManager {
 	}
 }
 
-class UserMeetEmailConfig {
+class CgEmailConfig {
 	var $server;		/* @var $server string */
 	var $port;			/* @var $port string */
 	var $service;		/* @var $service string */
 	var $username;		/* @var $username string */
 	var $password;		/* @var $password string */
 
-	function UserMeetEmailConfig($server="localhost",$port=110,$service="pop3",$username="superuser",$password="superuser") {
+	function CgEmailConfig($server="localhost",$port=110,$service="pop3",$username="superuser",$password="superuser") {
 		$this->server = $server;
 		$this->port = $port;
 		$this->service = $service;
@@ -644,7 +644,7 @@ class UserMeetEmailConfig {
  *
  * @ingroup core
  */
-class UserMeetSession {
+class CgSession {
 	var $id = 0;
 	var $login = '';
 	var $admin = 0;
@@ -664,13 +664,13 @@ class UserMeetSession {
  *
  * @ingroup services
  */
-class UserMeetTemplateManager {
+class CgTemplateManager {
 	/**
 	 * Constructor
 	 * 
 	 * @private
 	 */
-	private function UserMeetTemplateManager() {}
+	private function CgTemplateManager() {}
 	/**
 	 * Returns an instance of the Smarty Template Engine
 	 * 
@@ -699,14 +699,14 @@ class UserMeetTemplateManager {
  *
  * @ingroup services
  */
-class UserMeetDatabase {
+class CgDatabase {
 	
 	/**
 	 * Constructor 
 	 * 
 	 * @private
 	 */
-	private function UserMeetDatabase() {}
+	private function CgDatabase() {}
 	
 	/**
 	 * Returns an ADODB database resource
@@ -733,24 +733,24 @@ class UserMeetDatabase {
  *
  * @ingroup services
  */
-class UserMeetTranslationManager {
+class CgTranslationManager {
 	/**
 	 * Constructor
 	 * 
 	 * @private
 	 */
-	private function UserMeetTranslationManager() {}
+	private function CgTranslationManager() {}
 	
 	/**
 	 * Returns an instance of the translation singleton.
 	 *
 	 * @static 
-	 * @return UserMeetTranslationManager
+	 * @return CgTranslationManager
 	 */
 	static function getInstance() {
 		static $instance = null;
 		if(null == $instance) {
-			$instance = new UserMeetTranslationManager('private');
+			$instance = new CgTranslationManager('private');
 		}
 		return $instance;
 	}

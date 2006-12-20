@@ -1,5 +1,5 @@
 <?php
-define("CERBERUS_BUILD", 59);
+define("CERBERUS_BUILD", 61);
 
 include_once(UM_PATH . "/api/CerberusDAO.class.php");
 include_once(UM_PATH . "/api/CerberusModel.class.php");
@@ -11,10 +11,10 @@ class CerberusApplication {
 	
 	static function getModules() {
 		$modules = array();
-		$extModules = UserMeetPlatform::getExtensions("com.cerberusweb.module");
-		foreach($extModules as $mod) { /* @var $mod UserMeetExtensionManifest */
+		$extModules = CgPlatform::getExtensions("com.cerberusweb.module");
+		foreach($extModules as $mod) { /* @var $mod CgExtensionManifest */
 			$instance = $mod->createInstance(); /* @var $instance CerberusModuleExtension */
-			if(is_a($instance,'usermeetextension') && $instance->isVisible())
+			if(is_a($instance,'cgextension') && $instance->isVisible())
 				$modules[] = $instance;
 		}
 		return $modules;

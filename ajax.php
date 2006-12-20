@@ -1,15 +1,15 @@
 <?php
 require(getcwd() . '/framework.config.php');
-require(UM_PATH . '/libs/ump/UserMeetPlatform.class.php');
+require(UM_PATH . '/libs/cloudglue/CloudGlue.class.php');
 require(UM_PATH . '/api/CerberusApplication.class.php');
 
-UserMeetPlatform::init();
+CgPlatform::init();
 
-$smarty = UserMeetTemplateManager::getInstance();
-$session = UserMeetSessionManager::getInstance(); /* @var $session UserMeetSessionManager */
-$translate = UserMeetTranslationManager::getInstance();
+$smarty = CgTemplateManager::getInstance();
+$session = CgSessionManager::getInstance(); /* @var $session CgSessionManager */
+$translate = CgTranslationManager::getInstance();
 
-$tpl = UserMeetTemplateManager::getInstance();
+$tpl = CgTemplateManager::getInstance();
 $tpl->assign('translate', $translate);
 
 // [JAS]: Security check
@@ -28,7 +28,7 @@ $tpl->assign('c',$c);
 
 if(!empty($c) && !empty($a)) {
 	// [JAS]: [TODO] Split $c and look for an ID and an instance
-	$mfTarget = UserMeetPlatform::getExtension($c);
+	$mfTarget = CgPlatform::getExtension($c);
 	$target = $mfTarget->createInstance();
 	
 	if(method_exists($target,$a)) {

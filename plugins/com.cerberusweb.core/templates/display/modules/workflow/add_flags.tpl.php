@@ -22,7 +22,7 @@
 			<b>Favorite Workers:</b><br>
 			<div style="background-color:rgb(250,250,255);border:1px solid rgb(200,200,200);margin:2px;padding:5px;">
 			{foreach from=$favoriteWorkers item=worker name=workers}
-				<a href="javascript:;" onclick="appendTextboxAsCsv('{$moduleLabel}_form','agentEntry',this);">{$worker->login}</a>{if !$smarty.foreach.workers.last}, {/if}
+				<a href="javascript:;" onclick="appendTextboxAsCsv('{$moduleLabel}_form','workerEntry',this);">{$worker->login}</a>{if !$smarty.foreach.workers.last}, {/if}
 			{/foreach}
 			</div>
 		</td>
@@ -30,7 +30,7 @@
 			<b>All Workers:</b><br>
 			<div style="background-color:rgb(250,250,255);border:1px solid rgb(200,200,200);margin:2px;padding:5px;">
 			{foreach from=$agents item=agent name=agents}
-				<a href="javascript:;" onclick="appendTextboxAsCsv('{$moduleLabel}_form','agentEntry',this);">{$agent->login}</a>{if !$smarty.foreach.agents.last}, {/if}
+				<a href="javascript:;" onclick="appendTextboxAsCsv('{$moduleLabel}_form','workerEntry',this);">{$agent->login}</a>{if !$smarty.foreach.agents.last}, {/if}
 			{/foreach}
 			</div>
 		</td>

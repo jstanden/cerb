@@ -1,15 +1,15 @@
 <?php
 require(getcwd() . '/framework.config.php');
-require(UM_PATH . '/libs/ump/UserMeetPlatform.class.php');
+require(UM_PATH . '/libs/cloudglue/CloudGlue.class.php');
 require(UM_PATH . '/api/CerberusApplication.class.php');
 
-UserMeetPlatform::init();
+CgPlatform::init();
 
-$smarty = UserMeetTemplateManager::getInstance();
-$session = UserMeetSessionManager::getInstance(); /* @var $session UserMeetSessionManager */
-$translate = UserMeetTranslationManager::getInstance();
+$smarty = CgTemplateManager::getInstance();
+$session = CgSessionManager::getInstance(); /* @var $session CgSessionManager */
+$translate = CgTranslationManager::getInstance();
 
-//$plugins = UserMeetPlatform::readPlugins();
+//$plugins = CgPlatform::readPlugins();
 
 // [JAS]: Handle component actions
 @$c = (isset($_REQUEST['c']) ? $_REQUEST['c'] : null);
@@ -18,7 +18,7 @@ $translate = UserMeetTranslationManager::getInstance();
 $visit = $session->getVisit();
 if(!empty($c) && !empty($a)) {
 	// [JAS]: [TODO] Split $c and look for an ID and an instance
-	$mfTarget = UserMeetPlatform::getExtension($c);
+	$mfTarget = CgPlatform::getExtension($c);
 	$target = $mfTarget->createInstance();
 
 	// [JAS]: Security check
@@ -46,7 +46,7 @@ if(empty($activeModule)) {
 }
 
 $module = null;
-$ext = UserMeetPlatform::getExtension($activeModule);
+$ext = CgPlatform::getExtension($activeModule);
 if(!empty($ext) && !empty($activeModule)) {
 	$module = $ext->createInstance(1);
 }
