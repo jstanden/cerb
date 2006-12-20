@@ -1705,7 +1705,7 @@ class CerberusWorkflowDAO {
 		}
 	}
 	
-	static function getTeamMailboxes($team_id) {
+	static function getTeamMailboxes($team_id, $with_counts = false) {
 		if(empty($team_id)) return;
 		$um_db = UserMeetDatabase::getInstance();
 		$ids = array();
@@ -1723,7 +1723,7 @@ class CerberusWorkflowDAO {
 		if(empty($ids))
 			return array();
 		
-		return CerberusMailDAO::getMailboxes($ids);
+		return CerberusMailDAO::getMailboxes($ids, $with_counts);
 	}
 	
 	static function setTeamWorkers($team_id, $agent_ids) {
@@ -1778,7 +1778,7 @@ class CerberusMailDAO {
 	 *
 	 * @return CerberusMailbox[]
 	 */
-	static function getMailboxes($ids=array()) {
+	static function getMailboxes($ids=array(), $with_counts = false) {
 		if(!is_array($ids)) $ids = array($ids);
 		$um_db = UserMeetDatabase::getInstance();
 
@@ -1800,29 +1800,26 @@ class CerberusMailDAO {
 			$rs->MoveNext();
 		}
 		
+		// add per-mailbox counts of open tickets if requested
+		if ($with_counts === true) {
+			foreach ($mailboxes as $mailbox) {
+				$sql = sprintf("SELECT COUNT(t.id) as ticket_count ".
+					"FROM ticket t ".
+					"WHERE t.mailbox_id = %d AND t.status = 'O'",
+					$mailbox->id
+				);
+				
+				$rs = $um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+				
+				while(!$rs->EOF) {
+					$mailbox->count = intval($rs->fields['ticket_count']);
+					$rs->MoveNext();
+				}			
+			}
+		}
+
 		return $mailboxes;
 	}
-	
-	static function getMailboxListWithCounts() {
-		$um_db = UserMeetDatabase::getInstance();
-		$mailboxes = CerberusMailDAO::getMailboxes(); /* @var $mailboxes CerberusMailbox[] */
-		
-		foreach ($mailboxes as $mailbox) {
-			$sql = sprintf("SELECT COUNT(t.id) as ticket_count ".
-				"FROM ticket t ".
-				"WHERE t.mailbox_id = %d AND t.status = 'O'",
-				$mailbox->id
-			);
-			
-			$rs = $um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
-			
-			while(!$rs->EOF) {
-				$mailbox->count = intval($rs->fields['ticket_count']);
-				$rs->MoveNext();
-			}			
-		}
-		return $mailboxes;	
-	}	
 	
 	/**
 	 * creates a new mailbox in the database

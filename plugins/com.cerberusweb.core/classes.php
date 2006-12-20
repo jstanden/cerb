@@ -35,9 +35,24 @@ class ChDashboardModule extends CerberusModuleExtension {
 		$tpl->assign('views', $views);
 		
 		$teams = CerberusWorkflowDAO::getTeams();
+		$team_mailbox_counts = array();
+		foreach ($teams as $team) { /* @var $team CerberusTeam */
+			$team->count = 0;
+			$team_mailboxes = $team->getMailboxes(true);
+			foreach ($team_mailboxes as $team_mailbox) { /* @var $team_mailbox CerberusMailbox */
+				$team_mailbox_counts[$team_mailbox->id] = $team_mailbox->count;
+				$team->count += $team_mailbox->count;
+			}
+		}
 		$tpl->assign('teams', $teams);
 		
-		$mailboxes = CerberusMailDAO::getMailboxListWithCounts();
+		$team_total_count = 0;
+		foreach ($team_mailbox_counts as $idx => $val) {
+			$team_total_count += $val;
+		}
+		$tpl->assign('team_total_count', $team_total_count);
+		
+		$mailboxes = CerberusMailDAO::getMailboxes(array(), true);
 		$tpl->assign('mailboxes', $mailboxes);
 
 		$total_count = 0;

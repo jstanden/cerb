@@ -205,14 +205,15 @@ class CerberusMailbox {
 class CerberusTeam {
 	public $id;
 	public $name;
+	public $count;
 	
 	/**
 	 * Enter description here...
 	 *
 	 * @return CerberusMailbox[]
 	 */
-	function getMailboxes() {
-		return CerberusWorkflowDAO::getTeamMailboxes($this->id);
+	function getMailboxes($with_counts = false) {
+		return CerberusWorkflowDAO::getTeamMailboxes($this->id, $with_counts);
 	}
 	
 	function getWorkers() {
