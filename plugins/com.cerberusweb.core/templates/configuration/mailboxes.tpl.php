@@ -7,7 +7,7 @@
 					<td class="tableThBlue">Mailboxes</td>
 				</tr>
 				<tr>
-					<td style="background-color:rgb(220, 220, 255);"><a href="javascript:;" onclick="configAjax.getMailbox('0');">add new mailbox</a></td>
+					<td style="background-color:rgb(220, 220, 255);border-bottom:1px dotted rgb(0, 153, 51);"><a href="javascript:;" onclick="configAjax.getMailbox('0');">add new mailbox</a></td>
 				</tr>
 				<tr>
 					<td>

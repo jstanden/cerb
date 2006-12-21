@@ -12,20 +12,29 @@
 		</td>
 	</tr>
 	<tr>
-		<td width="0%" nowrap="nowrap"><b>Name:</b></td>
+		<td width="0%" nowrap="nowrap" valign="top"><b>Name:</b></td>
 		<td width="100%"><input type="text" name="name" value="{$mailbox->name|escape:"html"}"></td>
 	</tr>
 	<tr>
-		<td width="0%" nowrap="nowrap"><b>Reply As:</b></td>
+		<td width="0%" nowrap="nowrap" valign="top"><b>Reply As:</b></td>
 		<td width="100%"><input type="text" name="reply_as" value="{$reply_address->email|escape:"html"}"></td>
 	</tr>
+	<!---
 	<tr>
-		<td width="0%" nowrap="nowrap" valign="top">
+		<td width="0%" nowrap="nowrap" valign="top"><b>Incoming<br>Addresses:</b></td>
+		<td width="100%" valign="top">
+			<label><input type="checkbox"> sales@localhost</label><br>
+			<label><input type="checkbox"> support@localhost</label><br>
+		</td>
+	</tr>
+	--->
+	<tr>
+		<td width="0%" nowrap="nowrap" valign="top" valign="top">
 			<b>Teams:</b><br>
 			<a href="javascript:;" onclick="checkAll('configMailboxTeams',true);">check all</a><br>
 			<a href="javascript:;" onclick="checkAll('configMailboxTeams',false);">check none</a>
 		</td>
-		<td width="100%" id="configMailboxTeams">
+		<td width="100%" id="configMailboxTeams" valign="top">
 			{if $mailbox->id}{assign var=mailboxTeams value=$mailbox->getTeams()}{/if}
 			{foreach from=$teams item=team key=team_id}
 			<label><input type="checkbox" name="team_id[]" value="{$team_id}" {if $mailboxTeams.$team_id}checked{/if}>{$team->name}</label><br>

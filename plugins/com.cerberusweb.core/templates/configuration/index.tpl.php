@@ -9,6 +9,13 @@
 	{include file="file:$path/configuration/system_info.tpl.php"}
 </div>
 
+<h2>Mail</h2>
+
+<a name="routing"></a>
+{include file="file:$path/configuration/mail_routing.tpl.php"}
+
+<br>
+
 <h2>Workflow</h2>
 
 <a name="pop3"></a>
