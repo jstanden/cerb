@@ -7,7 +7,7 @@ class ChKnowledgebaseModule extends CerberusModuleExtension {
 	
 	function isVisible() {
 		// check login
-		$session = CgSessionManager::getInstance();
+		$session = CgPlatform::getSessionService();
 		$visit = $session->getVisit();
 		
 		if(empty($visit)) {
@@ -18,7 +18,7 @@ class ChKnowledgebaseModule extends CerberusModuleExtension {
 	}
 	
 	function render() {
-		$tpl = CgTemplateManager::getInstance();
+		$tpl = CgPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/knowledgebase/index.tpl.php');
 	}
@@ -31,7 +31,7 @@ class ChDisplayFnr extends CerberusDisplayModuleExtension {
 	}
 
 	function render($ticket) {
-		$tpl = CgTemplateManager::getInstance();
+		$tpl = CgPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/ticket_fnr.tpl.php');
 	}

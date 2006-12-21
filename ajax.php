@@ -5,11 +5,11 @@ require(UM_PATH . '/api/CerberusApplication.class.php');
 
 CgPlatform::init();
 
-$smarty = CgTemplateManager::getInstance();
-$session = CgSessionManager::getInstance(); /* @var $session CgSessionManager */
-$translate = CgTranslationManager::getInstance();
+$smarty = CgPlatform::getTemplateService();
+$session = CgPlatform::getSessionService();
+$translate = CgPlatform::getTranslationService();
 
-$tpl = CgTemplateManager::getInstance();
+$tpl = CgPlatform::getTemplateService();
 $tpl->assign('translate', $translate);
 
 // [JAS]: Security check

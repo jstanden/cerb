@@ -2,7 +2,7 @@
 require(getcwd() . '/framework.config.php');
 require(UM_PATH . '/libs/cloudglue/CloudGlue.class.php');
 
-$um_db = CgDatabase::getInstance();
+$um_db = CgPlatform::getDatabaseService();
 
 $datadict = NewDataDictionary($um_db); /* @var $datadict ADODB_DataDict */ // ,'mysql' 
 

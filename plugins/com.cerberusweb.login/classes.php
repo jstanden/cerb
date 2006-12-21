@@ -2,7 +2,7 @@
 class DefaultLoginModule extends CerberusLoginModuleExtension {
 	function renderLoginForm() {
 		// draws HTML form of controls needed for login information
-		$tpl = CgTemplateManager::getInstance();
+		$tpl = CgPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/login_form_default.tpl.php');
 	}
@@ -12,7 +12,7 @@ class DefaultLoginModule extends CerberusLoginModuleExtension {
 		@$email		= $_POST['email'];
 		@$password	= $_POST['password'];
 			
-		$session = CgSessionManager::getInstance();
+		$session = CgPlatform::getSessionService();
 		$visit = $session->login($email,$password);
 		
 		if(!is_null($visit)) {
@@ -28,7 +28,7 @@ class DefaultLoginModule extends CerberusLoginModuleExtension {
 class LDAPLoginModule extends CerberusLoginModuleExtension {
 	function renderLoginForm() {
 		// draws HTML form of controls needed for login information
-		$tpl = CgTemplateManager::getInstance();
+		$tpl = CgPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/login_form_ldap.tpl.php');
 	}
@@ -46,7 +46,7 @@ class LDAPLoginModule extends CerberusLoginModuleExtension {
 		if ($conn) {
 			$auth = ldap_bind($conn, $dn, $password);
 			if (1 == $auth) {
-				$session = CgSessionManager::getInstance();
+				$session = CgPlatform::getSessionService();
 				$visit = new CgSession();
 					$visit->id = 1;
 					$visit->login = 'ldap_user';

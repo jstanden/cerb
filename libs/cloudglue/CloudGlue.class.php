@@ -90,7 +90,7 @@ class CgPlatform {
 		if(!empty($extensions))
 			return $extensions;
 		
-		$um_db = CgDatabase::getInstance();
+		$um_db = CgPlatform::getDatabaseService();
 		$plugins = CgPlatform::getPluginRegistry();
 		
 		$sql = sprintf("SELECT e.id , e.plugin_id, e.point, e.name , e.file , e.class, e.params ".
@@ -133,7 +133,7 @@ class CgPlatform {
 		if(!empty($plugins))
 			return $plugins;
 		
-		$um_db = CgDatabase::getInstance();
+		$um_db = CgPlatform::getDatabaseService();
 		
 		$sql = sprintf("SELECT p.id , p.enabled , p.name, p.author, p.dir ".
 			"FROM plugin p"
@@ -214,7 +214,7 @@ class CgPlatform {
 		$manifest->author = $eAuthor->getText();
 		$manifest->name = $eName->getText();
 		
-		$um_db = CgDatabase::getInstance();
+		$um_db = CgPlatform::getDatabaseService();
 		
 		// [JAS]: Check if the plugin exists already
 		$sql = sprintf("SELECT id FROM plugin WHERE dir = %s",
@@ -316,6 +316,26 @@ class CgPlatform {
 		}
 
 		return $manifest;
+	}
+
+	static function getDatabaseService() {
+		return _CgDatabaseManager::getInstance();
+	}
+	
+	static function getMailService() {
+		return _CgEmailManager::getInstance();
+	}
+	
+	static function getSessionService() {
+		return _CgSessionManager::getInstance();
+	}
+	
+	static function getTemplateService() {
+		return _CgTemplateManager::getInstance();
+	}
+	
+	static function getTranslationService() {
+		return _CgTranslationManager::getInstance();
 	}
 	
 	/**
@@ -442,7 +462,7 @@ class CgExtension {
 //			return $params;
 		
 		$params = $this->manifest->params;
-		$um_db = CgDatabase::getInstance();
+		$um_db = CgPlatform::getDatabaseService();
 		
 		$sql = sprintf("SELECT property,value ".
 			"FROM property_store ".
@@ -469,7 +489,7 @@ class CgExtension {
 		if(empty($this->instance_id) || empty($this->id))
 			return FALSE;
 		
-		$um_db = CgDatabase::getInstance();
+		$um_db = CgPlatform::getDatabaseService();
 		
 		if(is_array($this->params))
 		foreach($this->params as $k => $v) {
@@ -490,13 +510,13 @@ class CgExtension {
  * @static 
  * @ingroup services
  */
-class CgSessionManager {
+class _CgSessionManager {
 	var $visit = null;
 	
 	/**
 	 * @private
 	 */
-	private function CgSessionManager() {}
+	private function _CgSessionManager() {}
 	
 	/**
 	 * Returns an instance of the session manager
@@ -515,7 +535,7 @@ class CgSessionManager {
 			//session_name("cerb4");
 			session_set_cookie_params(0);
 			session_start();
-			$instance = new CgSessionManager();
+			$instance = new _CgSessionManager();
 			$instance->visit = $_SESSION['um_visit']; /* @var $visit CgSession */
 		}
 		
@@ -540,7 +560,7 @@ class CgSessionManager {
 	 * @return CgSession
 	 */
 	function login($login,$password) {
-		$um_db = CgDatabase::getInstance();
+		$um_db = CgPlatform::getDatabaseService();
 		
 		$sql = sprintf("SELECT id,login,admin ".
 			"FROM login ".
@@ -581,25 +601,27 @@ class CgSessionManager {
  * @static 
  * @ingroup services
  */
-class CgEmailManager {
+class _CgEmailManager {
 	/**
 	 * @private
 	 */
-	private function CgEmailManager() {}
+	private function _CgEmailManager() {}
 	
-	/**
-	 * Enter description here...
-	 *
-	 * @param CgEmailConfig $mail_cfg
-	 * @return unknown
-	 */
-	static function getMail($mail_cfg) { /* @var $mail_cfg = CgEmailConfig */
+	public function getInstance() {
+		static $instance = null;
+		if(null == $instance) {
+			$instance = new _CgEmailManager();
+		}
+		return $instance;
+	}
+	
+	static function getMessages($server, $port, $service, $username, $password) {
 		if (!extension_loaded("imap")) die("IMAP Extension not loaded!");
 		require_once(UM_PATH . '/libs/pear/mimeDecode.php');
 		
-		$mailbox = imap_open("{".$mail_cfg->server.":".$mail_cfg->port."/service=".$mail_cfg->service."/notls}INBOX",
-							 !empty($mail_cfg->username)?$mail_cfg->username:"superuser",
-							 !empty($mail_cfg->password)?$mail_cfg->password:"superuser")
+		$mailbox = imap_open("{".$server.":".$port."/service=".$service."/notls}INBOX",
+							 !empty($username)?$username:"superuser",
+							 !empty($password)?$password:"superuser")
 			or die("Failed with error: ".imap_last_error());
 		$check = imap_check($mailbox);
 		
@@ -620,22 +642,6 @@ class CgEmailManager {
 		
 		imap_close($mailbox);
 		return $messages;
-	}
-}
-
-class CgEmailConfig {
-	var $server;		/* @var $server string */
-	var $port;			/* @var $port string */
-	var $service;		/* @var $service string */
-	var $username;		/* @var $username string */
-	var $password;		/* @var $password string */
-
-	function CgEmailConfig($server="localhost",$port=110,$service="pop3",$username="superuser",$password="superuser") {
-		$this->server = $server;
-		$this->port = $port;
-		$this->service = $service;
-		$this->username = $username;
-		$this->password = $password;
 	}
 }
 
@@ -664,13 +670,13 @@ class CgSession {
  *
  * @ingroup services
  */
-class CgTemplateManager {
+class _CgTemplateManager {
 	/**
 	 * Constructor
 	 * 
 	 * @private
 	 */
-	private function CgTemplateManager() {}
+	private function _CgTemplateManager() {}
 	/**
 	 * Returns an instance of the Smarty Template Engine
 	 * 
@@ -699,14 +705,14 @@ class CgTemplateManager {
  *
  * @ingroup services
  */
-class CgDatabase {
+class _CgDatabaseManager {
 	
 	/**
 	 * Constructor 
 	 * 
 	 * @private
 	 */
-	private function CgDatabase() {}
+	private function _CgDatabaseManager() {}
 	
 	/**
 	 * Returns an ADODB database resource
@@ -733,13 +739,13 @@ class CgDatabase {
  *
  * @ingroup services
  */
-class CgTranslationManager {
+class _CgTranslationManager {
 	/**
 	 * Constructor
 	 * 
 	 * @private
 	 */
-	private function CgTranslationManager() {}
+	private function _CgTranslationManager() {}
 	
 	/**
 	 * Returns an instance of the translation singleton.
@@ -750,7 +756,7 @@ class CgTranslationManager {
 	static function getInstance() {
 		static $instance = null;
 		if(null == $instance) {
-			$instance = new CgTranslationManager('private');
+			$instance = new _CgTranslationManager();
 		}
 		return $instance;
 	}

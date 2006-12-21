@@ -5,9 +5,9 @@ require(UM_PATH . '/api/CerberusApplication.class.php');
 
 CgPlatform::init();
 
-$smarty = CgTemplateManager::getInstance();
-$session = CgSessionManager::getInstance(); /* @var $session CgSessionManager */
-$translate = CgTranslationManager::getInstance();
+$smarty = CgPlatform::getTemplateService();
+$session = CgPlatform::getSessionService();
+$translate = CgPlatform::getTranslationService();
 
 //$plugins = CgPlatform::readPlugins();
 

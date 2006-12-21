@@ -5,8 +5,9 @@ class Pop3Module extends CerberusCronModuleExtension {
 		
 		foreach ($accounts as $account) { /* @var $account CerberusPop3Account */
 			echo ('Account being parsed is ' . $account->nickname . '<br>');
-			$cfg = new CgEmailConfig($account->host,'110','pop3',$account->username,$account->password);
-			$msgs = CgEmailManager::getMail($cfg);
+			
+			$mail = CgPlatform::getMailService();
+			$msgs = $mail->getMessages($account->host,'110','pop3',$account->username, $account->password);
 			
 			if(is_array($msgs))
 			foreach($msgs as $msg) {
