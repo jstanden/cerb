@@ -77,6 +77,7 @@ class CerberusMessageType {
 	const EMAIL = 'E';
 	const FORWARD = 'F';
 	const COMMENT = 'C';
+	const AUTORESPONSE = 'A';
 };
 
 class CerberusTicketBits {
@@ -188,6 +189,8 @@ class CerberusMailbox {
 	public $name;
 	public $reply_address_id;
 	public $display_name;
+	public $close_autoresponse;
+	public $new_autoresponse;
 	public $count;
 	
 	function CerberusMailbox() {}

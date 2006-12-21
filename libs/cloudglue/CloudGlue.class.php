@@ -615,6 +615,17 @@ class _CgEmailManager {
 		return $instance;
 	}
 	
+	static function send($server, $sRCPT, $headers, $body) {
+		// mailer setup
+		require_once(UM_PATH . '/libs/pear/Mail.php');
+		$mail_params = array();
+		$mail_params['host'] = $server;
+		$mailer =& Mail::factory("smtp", $mail_params);
+
+		$result = $mailer->send($sRCPT, $headers, $body);
+		return $result;
+	}
+	
 	static function getMessages($server, $port, $service, $username, $password) {
 		if (!extension_loaded("imap")) die("IMAP Extension not loaded!");
 		require_once(UM_PATH . '/libs/pear/mimeDecode.php');

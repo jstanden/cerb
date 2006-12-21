@@ -584,72 +584,28 @@ class ChDisplayModule extends CerberusModuleExtension {
 	
 	// TODO: may need to also have an agent_id passed to it in the request, to identify the agent making the reply
 	function sendMessage($type) {
-		// mailer setup
-		require_once(UM_PATH . '/libs/pear/Mail.php');
-		require_once(UM_PATH . '/libs/pear/mime.php');
-		$mail_params = array();
-		$mail_params['host'] = 'mail.webgroupmedia.com'; //[TODO]: make this pull from a config instance rather than hard-coded
-		$mailer =& Mail::factory("smtp", $mail_params);
-		
 		// variable loading
 		@$id		= $_REQUEST['id']; // message id
-		@$to		= $_REQUEST['to'];
-		@$cc		= $_REQUEST['cc'];
-		@$bcc		= $_REQUEST['bcc'];
 		@$content	= $_REQUEST['content'];
-		@$priority	= $_REQUEST['priority'];
-		@$status	= $_REQUEST['status'];
+		@$priority	= $_REQUEST['priority'];	// DDH: TODO: if priority and/or status change, we need to update the
+		@$status	= $_REQUEST['status'];		// ticket object.  not sure if we want to do that here or not.
 		@$agent_id	= $_REQUEST['agent_id'];
 		
 		// object loading
 		$message	= CerberusTicketDAO::getMessage($id);
 		$ticket_id	= $message->ticket_id;
 		$ticket		= CerberusTicketDAO::getTicket($ticket_id);
-		$mailboxes	= CerberusMailDAO::getMailboxes();
-		$mailbox	= $mailboxes[$ticket->mailbox_id]; // [JAS]: [TODO] This should be using a singular DAO call ::getMailbox($id)
+		$mailbox	= CerberusMailDAO::getMailbox($ticket->mailbox_id);
 		$requesters	= CerberusTicketDAO::getRequestersByTicket($ticket_id);
-		
-		// requester address parsing - needs to vary based on type
-		$sTo = '';
-		$sRCPT = '';
-		if ($type == CerberusMessageType::EMAIL) {
-			foreach ($requesters as $requester) {
-				if (!empty($sTo)) $sTo .= ', ';
-				if (!empty($sRCPT)) $sRCPT .= ', ';
-				if (!empty($requester->personal)) $sTo .= $requester->personal . ' ';
-				$sTo .= '<' . $requester->email . '>';
-				$sRCPT .= $requester->email;
-			}
-		} else {
-			$sTo = $to;
-			$sRCPT = $to;
-		}
-		
-		// header setup: varies based on type of response - BREAK statements intentionally left out!
-		$headers = array();
-		switch ($type) {
-			case CerberusMessageType::FORWARD :
-			case CerberusMessageType::EMAIL :
-				$headers['to']			= $sTo;
-				$headers['cc']			= $cc;
-				$headers['bcc']			= $bcc;
-			case CerberusMessageType::COMMENT :
-				// TODO: pull info from mailbox instead of hard-coding it.  (display name cannot be just a personal on a mailbox address...)
-				// TODO: differentiate between mailbox from as part of email/forward and agent from as part of comment (may not be necessary, depends on ticket display)
-				//$headers['From']		= !empty($mailbox->display_name)?'"'.$mailbox->display_name.'" <'.needafunction::getAddress($mailbox->reply_address_id)->email.'>':needafunction::getAddress($mailbox->reply_address_id)->email;
-				$headers['from']		= 'pop1@cerberus6.webgroupmedia.com';
-				$headers['date']		= gmdate(r);
-				$headers['message-id']	= CerberusApplication::generateMessageId();
-				$headers['subject']		= $ticket->subject;
-				$headers['references']	= $message->headers['message-id'];
-				$headers['in-reply-to']	= $message->headers['message-id'];
-		}
+		$mailMgr	= CgPlatform::getMailService();
+		$headers	= CerberusMailDAO::getHeaders($type, $ticket_id);
 		
 		$files = $_FILES['attachment'];
 		// send email (if necessary)
 		if ($type != CerberusMessageType::COMMENT) {
 			// build MIME message if message has attachments
 			if (is_array($files) && !empty($files)) {
+				require_once(UM_PATH . '/libs/pear/mime.php');
 				$mime_mail = new Mail_mime();
 				$mime_mail->setTXTBody($content);
 				foreach ($files['tmp_name'] as $idx => $file) {
@@ -663,13 +619,13 @@ class ChDisplayModule extends CerberusModuleExtension {
 				$email_headers = $headers;
 			}
 			
-			$mail_result =& $mailer->send($sRCPT, $email_headers, $email_body);
+			$mail_result =& $mailMgr->send('mail.webgroupmedia.com', $headers['x-rcpt'], $email_headers, $email_body); // DDH: TODO: this needs to pull the servername from a config, not hardcoded.
 			if ($mail_result !== true) die("Error message was: " . $mail_result->getMessage());
 		}
 		
 		// TODO: create DAO object for Agent, be able to pull address by having agent id.
 //		$headers['From'] = $agent_address->personal . ' <' . $agent_address->email . '>';
-//		CerberusTicketDAO::createMessage($ticket_id,CerberusMessageType::EMAIL,gmmktime(),$agent_id,$headers,$content);
+//		$message_id = CerberusTicketDAO::createMessage($ticket_id,$type,gmmktime(),$agent_id,$headers,$content);
 		$message_id = CerberusTicketDAO::createMessage($ticket_id,$type,gmmktime(),1,$headers,$content);
 		
 		// if this message was submitted with attachments, store them in the filestore and link them in the db.

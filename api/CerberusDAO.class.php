@@ -540,6 +540,9 @@ class CerberusTicketDAO {
 		);
 		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
+		// send new ticket auto-response
+		CerberusMailDAO::sendAutoresponse($id, 'new');
+		
 		return $newId;
 	}
 
@@ -727,6 +730,12 @@ class CerberusTicketDAO {
 			return;
 		
 		foreach($fields as $k => $v) {
+			switch ($k) {
+				case 'status':
+					if (0 == strcasecmp($v, 'C')) // if ticket is being closed
+						CerberusMailDAO::sendAutoresponse($id, 'closed');
+					break;
+			}
 			$sets[] = sprintf("%s = %s",
 				$k,
 				$um_db->qstr($v)
@@ -1784,7 +1793,7 @@ class CerberusMailDAO {
 
 		$mailboxes = array();
 		
-		$sql = sprintf("SELECT m.id , m.name, m.reply_address_id, m.display_name ".
+		$sql = sprintf("SELECT m.id , m.name, m.reply_address_id, m.display_name, m.close_autoresponse, m.new_autoresponse ".
 			"FROM mailbox m ".
 			((!empty($ids)) ? sprintf("WHERE m.id IN (%s) ",implode(',', $ids)) : " ").
 			"ORDER BY m.name ASC"
@@ -1795,7 +1804,9 @@ class CerberusMailDAO {
 			$mailbox->id = intval($rs->fields['id']);
 			$mailbox->name = $rs->fields['name'];
 			$mailbox->reply_address_id = $rs->fields['reply_address_id'];
-			$mailbox->display_name = $$rs->fields['display_name'];
+			$mailbox->display_name = $rs->fields['display_name'];
+			$mailbox->close_autoresponse = $rs->fields['close_autoresponse'];
+			$mailbox->new_autoresponse = $rs->fields['new_autoresponse'];
 			$mailboxes[$mailbox->id] = $mailbox;
 			$rs->MoveNext();
 		}
@@ -1829,15 +1840,17 @@ class CerberusMailDAO {
 	 * @param string $display_name
 	 * @return integer
 	 */
-	static function createMailbox($name, $reply_address_id, $display_name = '') {
+	static function createMailbox($name, $reply_address_id, $display_name = '', $close_autoresponse = '', $new_autoresponse = '') {
 		$um_db = CgPlatform::getDatabaseService();
 		$newId = $um_db->GenID('generic_seq');
 		
-		$sql = sprintf("INSERT INTO mailbox (id, name, reply_address_id, display_name) VALUES (%d,%s,%d,%s)",
+		$sql = sprintf("INSERT INTO mailbox (id, name, reply_address_id, display_name, close_autoresponse, new_autoresponse) VALUES (%d,%s,%d,%s,%s,%s)",
 			$newId,
 			$um_db->qstr($name),
 			$reply_address_id,
-			$um_db->qstr($display_name)
+			$um_db->qstr($display_name),
+			$um_db->qstr($close_autoresponse),
+			$um_db->qstr($new_autoresponse)
 		);
 		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
@@ -1933,6 +1946,95 @@ class CerberusMailDAO {
 			return array();
 			
 		return CerberusWorkflowDAO::getTeams($ids);
+	}
+	
+	static function sendAutoresponse($ticket_id, $type) {
+		$mailMgr = CgPlatform::getMailService();
+		$ticket = CerberusTicketDAO::getTicket($ticket_id);  /* @var $ticket CerberusTicket */
+		$mailbox = CerberusMailDAO::getMailbox($ticket->mailbox_id);  /* @var $mailbox CerberusMailbox */
+		
+		$body = '';
+		switch ($type) {
+			case 'new':
+				$body = CerberusMailDAO::getTokenizedText($ticket_id, $mailbox->new_autoresponse);
+				break;
+			case 'closed':
+				$body = CerberusMailDAO::getTokenizedText($ticket_id, $mailbox->close_autoresponse);
+				break;
+		}
+		if (0 == strcmp($body, '')) return 0; // if there's no body, we must not need to send an autoresponse.
+		
+		$headers = CerberusMailDAO::getHeaders(CerberusMessageType::AUTORESPONSE, $ticket_id);
+		
+		$mail_result =& $mailMgr->send('mail.webgroupmedia.com', $headers['x-rcpt'], $headers, $body); // DDH: TODO: this needs to pull the servername from a config, not hardcoded.
+		if ($mail_result !== true) die("Error message was: " . $mail_result->getMessage());
+	}
+	
+	static function getTokenizedText($ticket_id, $source_text) {
+		// TODO: actually implement this function...
+		return $source_text;
+	}
+	
+	static function getHeaders($type, $ticket_id = 0) {
+		// variable loading
+		@$id		= $_REQUEST['id']; // message id
+		@$to		= $_REQUEST['to'];
+		@$cc		= $_REQUEST['cc'];
+		@$bcc		= $_REQUEST['bcc'];
+		
+		// object loading
+		if (!empty($id)) {
+			$message	= CerberusTicketDAO::getMessage($id);
+			if ($ticket_id == 0)
+				$ticket_id	= $message->ticket_id;
+		} else {
+			$messages = CerberusTicketDAO::getMessagesByTicket($ticket_id);
+			if ($messages[1] > 0) $message = $messages[0][0];
+		}
+		$ticket		= CerberusTicketDAO::getTicket($ticket_id);						/* @var $ticket CerberusTicket */
+		$mailbox	= CerberusMailDAO::getMailbox($ticket->mailbox_id);				/* @var $mailbox CerberusMailbox */
+		$address	= CerberusContactDAO::getAddress($mailbox->reply_address_id);	/* @var $address CerberusAddress */
+		$requesters	= CerberusTicketDAO::getRequestersByTicket($ticket_id);			/* @var $requesters CerberusRequester[] */
+		
+		// requester address parsing - needs to vary based on type
+		$sTo = '';
+		$sRCPT = '';
+		if ($type == CerberusMessageType::EMAIL
+		||	$type == CerberusMessageType::AUTORESPONSE ) {
+			foreach ($requesters as $requester) {
+				if (!empty($sTo)) $sTo .= ', ';
+				if (!empty($sRCPT)) $sRCPT .= ', ';
+				if (!empty($requester->personal)) $sTo .= $requester->personal . ' ';
+				$sTo .= '<' . $requester->email . '>';
+				$sRCPT .= $requester->email;
+			}
+		} else {
+			$sTo = $to;
+			$sRCPT = $to;
+		}
+
+		// header setup: varies based on type of response - BREAK statements intentionally left out!
+		$headers = array();
+		switch ($type) {
+			case CerberusMessageType::FORWARD :
+			case CerberusMessageType::EMAIL :
+				$headers['cc']			= $cc;
+				$headers['bcc']			= $bcc;
+			case CerberusMessageType::AUTORESPONSE :
+				$headers['to']			= $sTo;
+				$headers['x-rcpt']		= $sRCPT;
+			case CerberusMessageType::COMMENT :
+				// TODO: pull info from mailbox instead of hard-coding it.  (display name cannot be just a personal on a mailbox address...)
+				// TODO: differentiate between mailbox from as part of email/forward and agent from as part of comment (may not be necessary, depends on ticket display)
+				$headers['from']		= (!empty($mailbox->display_name)) ? '"' . $mailbox->display_name . '" <' . $address->email . '>' : $address->email ;
+				$headers['date']		= gmdate(r);
+				$headers['message-id']	= CerberusApplication::generateMessageId();
+				$headers['subject']		= $ticket->subject;
+				$headers['references']	= (!empty($message)) ? $message->headers['message-id'] : '' ;
+				$headers['in-reply-to']	= (!empty($message)) ? $message->headers['message-id'] : '' ;
+		}
+		
+		return $headers;
 	}
 		
 	// Pop3 Accounts
