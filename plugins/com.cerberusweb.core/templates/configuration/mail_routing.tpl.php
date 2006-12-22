@@ -3,54 +3,35 @@
 		<td class="configTableTh">Mailbox Routing</td>
 	</tr>
 	<tr>
-		<td style="background-color:rgb(240, 240, 240);border-bottom:1px dotted rgb(0, 153, 51);"><a href="javascript:;" onclick="configAjax.getMailbox('0');">add incoming address</a></td>
+		<td style="background-color:rgb(240, 240, 240);border-bottom:1px dotted rgb(0, 153, 51);"><a href="javascript:;" onclick="configAjax.showMailboxRouting('0',this);">add incoming address</a></td>
 	</tr>
 	<tr>
 		<td>
 			
 			<table cellpadding="2" cellspacing="0" border="0">
 				<tr>
-					<td><b>Sent to Address</b></td>
+					<td nowrap="nowrap"><a href="javascript:;" onclick="configAjax.refreshMailboxRouting();" style="font-weight:bold;">Sent to Address</a></td>
 					<td></td>
-					<td><b>Deliver to Mailbox</b></td>
-				</tr>
-			
-				<tr>
-					<td width="0%" nowrap="nowrap">
-					<label>sales@portsensor.com</label></td>
-					<td width="0%" nowrap="nowrap"> &#187; </td>
-					<td width="100%"><!---<select>
-						<option value="">Support
-					</select>---><span style="color:rgb(80,80,230);">Sales</span></td>
+					<td nowrap="nowrap"><a href="javascript:;" onclick="configAjax.refreshMailboxRouting();" style="font-weight:bold;">Deliver to Mailbox</a></td>
+					<td></td>
 				</tr>
 
+				{foreach from=$routing item=route_mailbox_id key=route_address_id}
+				{assign var=route_address value=$routing_addresses.$route_address_id}
+				{assign var=route_mailbox value=$mailboxes.$route_mailbox_id}
 				<tr>
 					<td width="0%" nowrap="nowrap">
-					<label>support@portsensor.com</label></td>
+					<label>{$route_address->email}</label></td>
 					<td width="0%" nowrap="nowrap"> &#187; </td>
-					<td width="100%"><!---<select>
-						<option value="">Support
-					</select>---><span style="color:rgb(80,80,230);">Hosting Support</span></td>
-				</tr>
-
-				<!---
-				<tr>
-					<td colspan="2">&nbsp;</td>
-				</tr>
-				
-				<tr>
-					<td colspan="2">
-						<b>New Incoming Address:</b> 
-						<input type="text" size="40">
-						<b>Deliver to Mailbox:</b> 
-						<select>
-							<option value="">Support
-						</select>
+					<td width="0%" nowrap="nowrap"><span style="color:rgb(80,80,230);" id="mbox_routing_{$route_address_id}">{$route_mailbox->name}</span></td>
+					<td width="100%" nowrap="nowrap">
+						<a href="javascript:;" onclick="configAjax.showMailboxRouting('{$route_address_id}',this);">modify</a>
 					</td>
 				</tr>
-				--->
-				
+				{/foreach}
+
 			</table>
+			
 		</td>
 	</tr>
 </table>

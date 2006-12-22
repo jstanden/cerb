@@ -25,7 +25,7 @@
 	</tr>
 	<tr>
 		<td width="0%" nowrap="nowrap"><b>Password:</b></td>
-		<td width="100%"><input type="text" name="password" value="{$pop3_account->password|escape:"html"}"></td>
+		<td width="100%"><input type="password" name="password" value="{$pop3_account->password|escape:"html"}"></td>
 	</tr>
 	{if !empty($pop3_account->id)}
 	<tr>

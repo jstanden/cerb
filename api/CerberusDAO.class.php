@@ -297,6 +297,7 @@ class CerberusAgentDAO {
 class CerberusContactDAO {
 	private function CerberusContactDAO() {}
 	
+	// [JAS]: [TODO] Move this into MailDAO
 	static function lookupAddress($email,$create_if_null=false) {
 		$um_db = CgPlatform::getDatabaseService();
 		$id = null;
@@ -315,6 +316,7 @@ class CerberusContactDAO {
 		return $id;
 	}
 	
+	// [JAS]: [TODO] Move this into MailDAO
 	static function getAddresses($ids=array()) {
 		$um_db = CgPlatform::getDatabaseService();
 		if(!is_array($ids)) $ids = array($ids);
@@ -341,6 +343,7 @@ class CerberusContactDAO {
 		return $addresses;
 	}
 	
+	// [JAS]: [TODO] Move this into MailDAO
 	static function getAddress($id) {
 		if(empty($id)) return null;
 		
@@ -352,6 +355,7 @@ class CerberusContactDAO {
 		return null;		
 	}
 
+	// [JAS]: [TODO] Move this into MailDAO
 	static function getMailboxIdByAddress($email) {
 		$um_db = CgPlatform::getDatabaseService();
 		$id = CerberusContactDAO::lookupAddress($email,false);
@@ -372,6 +376,7 @@ class CerberusContactDAO {
 		return $mailbox_id;
 	}
 	
+	// [JAS]: [TODO] Move this into MailDAO
 	/**
 	 * creates an address entry in the database if it doesn't exist already
 	 *
@@ -1946,6 +1951,41 @@ class CerberusMailDAO {
 			return array();
 			
 		return CerberusWorkflowDAO::getTeams($ids);
+	}
+	
+	static function getMailboxRouting() {
+		$um_db = CgPlatform::getDatabaseService();
+		$routing = array();
+		
+		$sql = "SELECT am.address_id, am.mailbox_id ".
+			"FROM address_to_mailbox am ".
+			"INNER JOIN address a ON (a.id=am.address_id) ".
+			"ORDER BY a.email ";
+		$rs = $um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		while(!$rs->EOF) {
+			$address_id = intval($rs->fields['address_id']);
+			$mailbox_id = intval($rs->fields['mailbox_id']);
+			$routing[$address_id] = $mailbox_id;
+			$rs->MoveNext();
+		}
+		
+		return $routing;
+	}
+	
+	static function setMailboxRouting($address_id, $mailbox_id) {
+		$um_db = CgPlatform::getDatabaseService();
+		return $um_db->Replace('address_to_mailbox', array('address_id'=>$address_id,'mailbox_id'=>$mailbox_id),array('address_id'));
+	}
+	
+	static function deleteMailboxRouting($address_id) {
+		$um_db = CgPlatform::getDatabaseService();
+		if(empty($address_id)) return;
+		
+		$sql = sprintf("DELETE FROM address_to_mailbox WHERE address_id = %d",
+			$address_id
+		);
+		$rs = $um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
 	}
 	
 	static function sendAutoresponse($ticket_id, $type) {

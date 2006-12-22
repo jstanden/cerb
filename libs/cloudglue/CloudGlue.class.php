@@ -318,6 +318,12 @@ class CgPlatform {
 		return $manifest;
 	}
 
+	
+	/**
+	 * Enter description here...
+	 *
+	 * @return ADOConnection
+	 */
 	static function getDatabaseService() {
 		return _CgDatabaseManager::getInstance();
 	}

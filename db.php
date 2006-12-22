@@ -132,7 +132,7 @@ $tables['mail_rule'] = "
 
 $tables['address_to_mailbox'] = "
 	address_id I4 DEFAULT 0 NOTNULL PRIMARY,
-	mailbox_id I4 DEFAULT 0 NOTNULL PRIMARY
+	mailbox_id I4 DEFAULT 0 NOTNULL
 ";
 
 $tables['requester'] = "

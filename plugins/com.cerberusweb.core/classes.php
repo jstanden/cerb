@@ -278,6 +278,13 @@ class ChConfigurationModule extends CerberusModuleExtension  {
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 
+		$routing = CerberusMailDAO::getMailboxRouting();
+		$tpl->assign('routing', $routing);
+
+		$address_ids = array_keys($routing);
+		$routing_addresses = CerberusContactDAO::getAddresses($address_ids);
+		$tpl->assign('routing_addresses', $routing_addresses);
+		
 		$pop3_accounts = CerberusMailDAO::getPop3Accounts();
 		$tpl->assign('pop3_accounts', $pop3_accounts);
 		
@@ -482,6 +489,69 @@ class ChConfigurationModule extends CerberusModuleExtension  {
 		
 		CerberusApplication::setActiveModule($this->id);
 	}
+	
+	function ajaxGetRouting() {
+		$tpl = CgPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+
+		$routing = CerberusMailDAO::getMailboxRouting();
+		$tpl->assign('routing', $routing);
+
+		$address_ids = array_keys($routing);
+		$routing_addresses = CerberusContactDAO::getAddresses($address_ids);
+		$tpl->assign('routing_addresses', $routing_addresses);
+		
+		$mailboxes = CerberusMailDAO::getMailboxes();
+		$tpl->assign('mailboxes', $mailboxes);
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/mail_routing.tpl.php');
+	}
+	
+	function ajaxDeleteRouting() {
+		@$id = $_REQUEST['id'];
+		CerberusMailDAO::deleteMailboxRouting($id);
+	}
+	
+	function getMailboxRoutingDialog() {
+		@$id = $_REQUEST['id'];
+		
+		$tpl = CgPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+
+		$tpl->assign('id', $id);
+
+		$mailboxes = CerberusMailDAO::getMailboxes();
+		$tpl->assign('mailboxes', $mailboxes);
+		
+		$address = CerberusContactDAO::getAddress($id);
+		$tpl->assign('address', $address);
+
+		$selected_id = CerberusContactDAO::getMailboxIdByAddress($address->email);
+		$tpl->assign('selected_id', $selected_id);
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/mail/edit_mailbox_routing.tpl.php');
+	}
+	
+	function saveMailboxRoutingDialog() {
+		@$address_id = intval($_POST['id']);
+		@$mailbox_id = intval($_POST['mailbox_id']);
+		@$address = $_POST['address'];
+		
+		if(empty($address_id) && !empty($address)) { // create
+			$address_id = CerberusContactDAO::lookupAddress($address, true);
+			if(empty($address_id)) return;
+		}
+		
+		CerberusMailDAO::setMailboxRouting($address_id, $mailbox_id);
+
+		// [JAS]: Send the new mailbox name to the server 
+		// [TODO] Necessary?
+		$mailbox = CerberusMailDAO::getMailbox($mailbox_id);
+		echo $mailbox->name;
+	}
+	
 }
 
 class ChDisplayModule extends CerberusModuleExtension {
