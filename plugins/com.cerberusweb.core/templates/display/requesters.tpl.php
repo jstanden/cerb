@@ -14,7 +14,15 @@
     </tr>
     {/foreach}
     <tr>
-    	<td><input name="add_requester" type="text"><input type="button" onclick="ajax.saveRequester('{$ticket->id}');" value="+" title="Add requester to ticket"></td>
+    	<td>
+	    	<div class="automod">
+	   	<div class="autocomplete">
+ 			<input name="add_requester" type="text" style="width:98%;" class="autoinput" id="addRequesterEntry">
+ 			<div id="addRequesterContainer" class="autocontainer"></div>
+ 			</div>
+ 			</div>
+    		<div align="right"><input type="button" onclick="ajax.saveRequester('{$ticket->id}');" value="Add" title="Add requester to ticket"></div>
+    	</td>
     </tr>
   </tbody>
 </table>

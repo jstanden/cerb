@@ -1206,6 +1206,19 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 		}
 	}
 	
+	function autoAddress() {
+		@$q = $_REQUEST['q'];
+		header("Content-Type: text/plain");
+		
+		$addresses = CerberusMailDAO::searchAddresses($q, 10);
+		
+		if(is_array($addresses))
+		foreach($addresses as $address) {
+			echo $address->email,"\t",$address->id,"\n";
+		}
+	}
+	
+	
 	function getAgentDialog() {
 		@$id = intval($_REQUEST['id']);
 		@$ticket_id = intval($_REQUEST['ticket_id']);

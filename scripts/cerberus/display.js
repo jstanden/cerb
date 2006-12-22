@@ -46,6 +46,7 @@ var cDisplayTicketAjax = function(ticket_id, workflow_div) {
 							  fixedcenter : false,
 							  visible : false, 
 							  constraintoviewport : true,
+							  underlay:"none",
 							  modal: false,
 							  close: false,
 							  draggable: false
@@ -101,6 +102,7 @@ var cDisplayTicketAjax = function(ticket_id, workflow_div) {
 							  fixedcenter : false,
 							  visible : false, 
 							  constraintoviewport : true,
+							  underlay:"none",
 							  modal: false,
 							  close: false,
 							  draggable: false
@@ -151,7 +153,7 @@ var cDisplayTicketAjax = function(ticket_id, workflow_div) {
 					div.innerHTML = o.responseText;
 					toggleDiv('displayWorkflowOptions','block');
 					
-					ajax.addTagAutoComplete("tagEntry","myTagContainer");		
+					ajax.addTagAutoComplete("tagEntry","myTagContainer");	
 				},
 				failure: function(o) {},
 				argument:{caller:this}

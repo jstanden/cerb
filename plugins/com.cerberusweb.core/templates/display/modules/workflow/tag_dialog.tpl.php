@@ -1,8 +1,8 @@
-<table cellpadding="0" cellspacing="0" border="0" width="100%">
+<table cellpadding="0" cellspacing="0" border="0" width="98%">
 	<tr>
 		<td align="left" width="0%" nowrap="nowrap"><img src="images/bookmark.gif" align="absmiddle"><img src="spacer.gif" width="5" height="1"></td>
 		<td align="left" width="100%" nowrap="nowrap"><h1>Tag: {$tag->name}</h1></td>
-		<td align="right" width="0%" nowrap="nowrap"><form><input type="button" value="X" onclick="displayAjax.tagDialog.hide();"></form></td>
+		<td align="right" width="0%" nowrap="nowrap"><form><input type="button" value=" X " onclick="displayAjax.tagDialog.hide();"></form></td>
 	</tr>
 </table>
 <form method="POST" action="javascript:;" id="tagPanel">

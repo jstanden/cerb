@@ -145,6 +145,7 @@ var cConfigAjax = function() {
 							  fixedcenter : false,
 							  visible : false, 
 							  constraintoviewport : true,
+							  underlay:"none",
 							  modal: false,
 							  close: false,
 							  draggable: false
@@ -158,6 +159,8 @@ var cConfigAjax = function() {
 					caller.mailboxRoutingDialog.setBody(o.responseText);
 					caller.mailboxRoutingDialog.cfg.setProperty('context',[target,"tl","bl"]);
 					caller.mailboxRoutingDialog.show();
+					
+					ajax.addAddressAutoComplete("routingEntry","routingEntryContainer", true);
 				},
 				failure: function(o) {},
 				argument:{caller:this,target:target}

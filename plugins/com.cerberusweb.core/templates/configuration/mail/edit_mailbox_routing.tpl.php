@@ -1,7 +1,7 @@
-<table cellpadding="0" cellspacing="0" border="0" width="100%">
+<table cellpadding="0" cellspacing="0" border="0" width="98%">
 	<tr>
 		<td align="left" width="100%" nowrap="nowrap"><h1>Mailbox Routing</h1></td>
-		<td align="right" width="0%" nowrap="nowrap"><form><input type="button" value="X" onclick="configAjax.mailboxRoutingDialog.hide();"></form></td>
+		<td align="right" width="0%" nowrap="nowrap"><form><input type="button" value=" X " onclick="configAjax.mailboxRoutingDialog.hide();"></form></td>
 	</tr>
 </table>
 <form action="javascript:;" method="post" id="routingDialog">
@@ -10,11 +10,15 @@
 <input type="hidden" name="id" value="{$id}">
 <b>Incoming Address:</b><br>
 {if $id}
-{$address->email}
+{$address->email}<br>
 {else}
-	<input type="text" name="address" value="" size="45" style="width:98%;">
+	<div class="automod">
+	<div class="autocomplete" style="width:98%;margin:2px;">
+	<input type="text" id="routingEntry" name="address" value="" size="45" style="width:98%;" class="autoinput">
+	<div id="routingEntryContainer" class="autocontainer"></div>
+	</div>
+	</div>
 {/if}
-<br>
 
 <br>
 

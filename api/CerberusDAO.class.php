@@ -891,7 +891,7 @@ class CerberusTicketDAO {
 		$sql = sprintf("SELECT a.id , a.email, a.personal ".
 			"FROM address a ".
 			"INNER JOIN requester r ON (r.ticket_id = %d AND a.id=r.address_id) ".
-			"ORDER BY a.personal, a.email ASC ",
+			"ORDER BY a.email ASC ",
 			$ticket_id
 		);
 		$rs = $um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
@@ -1986,6 +1986,29 @@ class CerberusMailDAO {
 			$address_id
 		);
 		$rs = $um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+	}
+	
+	static function searchAddresses($query, $limit=10) {
+		$um_db = CgPlatform::getDatabaseService();
+		if(empty($query)) return null;
+		
+		$sql = sprintf("SELECT a.id FROM address a WHERE a.email LIKE '%s%%' LIMIT 0,%d",
+			$query,
+			$limit
+		);
+		$rs = $um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		$ids = array();
+		
+		while(!$rs->EOF) {
+			$ids[] = intval($rs->fields['id']);
+			$rs->MoveNext();
+		}
+		
+		if(empty($ids))
+			return array();
+			
+		return CerberusContactDAO::getAddresses($ids);
 	}
 	
 	static function sendAutoresponse($ticket_id, $type) {

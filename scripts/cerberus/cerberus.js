@@ -120,6 +120,31 @@ var cAjaxCalls = function() {
 		}
 	}
 	
+	this.addAddressAutoComplete = function(txt,con,single) {
+		// [JAS]: [TODO] Move to a tag autocompletion shared method
+		myXHRDataSource = new YAHOO.widget.DS_XHR("ajax.php", ["\n", "\t"]);
+		myXHRDataSource.scriptQueryParam = "q"; 
+		myXHRDataSource.scriptQueryAppend = "c=core.display.module.workflow&a=autoAddress"; 
+		myXHRDataSource.responseType = myXHRDataSource.TYPE_FLAT;
+		myXHRDataSource.maxCacheEntries = 60;
+		myXHRDataSource.queryMatchSubset = true;
+		myXHRDataSource.connTimeout = 3000;
+
+		var myAutoComp = new YAHOO.widget.AutoComplete(txt, con, myXHRDataSource); 
+		if(null == single || false == single) myAutoComp.delimChar = ",";
+		myAutoComp.queryDelay = 1;
+		myAutoComp.useIFrame = true; 
+		myAutoComp.typeAhead = false;
+		myAutoComp.useShadow = true;
+//					myAutoComp.prehighlightClassName = "yui-ac-prehighlight"; 
+		myAutoComp.allowBrowserAutocomplete = false;
+		myAutoComp.formatResult = function(oResultItem, sQuery) {
+       var sKey = oResultItem[0];
+       var aMarkup = [sKey];
+       return (aMarkup.join(""));
+		}
+	}
+	
 	this.historyPanel = null;
 	this.showHistoryPanel = function(target) {
 		
@@ -138,6 +163,7 @@ var cAjaxCalls = function() {
 							  fixedcenter : false,
 							  visible : false, 
 							  constraintoviewport : true,
+							  underlay:"none",
 							  modal: false,
 							  close: false,
 							  draggable: false
@@ -174,8 +200,10 @@ var cAjaxCalls = function() {
 						caller.contactPanel = new YAHOO.widget.Panel("contactPanel", 
 							{ width : "350px",
 							  fixedcenter : false,
+							  zIndex: 9001,
 							  visible : false, 
 							  constraintoviewport : true,
+							  underlay:"none",
 							  modal: false,
 							  close: false,
 							  draggable: false
@@ -273,7 +301,7 @@ var cAjaxCalls = function() {
 						width:"500px",  
 						fixedcenter: true,  
 						constraintoviewport: true,  
-						underlay:"shadow",  
+						underlay:"none",  
 						close:false,  
 						visible:true, 
 						modal:true,
@@ -468,6 +496,8 @@ var cAjaxCalls = function() {
 					if(null == div) return;
 					
 					div.innerHTML = o.responseText;
+					
+					ajax.addAddressAutoComplete("addRequesterEntry","addRequesterContainer", true);
 				},
 				failure: function(o) {},
 				argument:{caller:this,id:id}
