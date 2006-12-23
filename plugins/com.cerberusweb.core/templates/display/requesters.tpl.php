@@ -15,8 +15,8 @@
     {/foreach}
     <tr>
     	<td>
-	    	<div class="automod">
-	   	<div class="autocomplete">
+    		<div class="automod">
+	   		<div class="autocomplete">
  			<input name="add_requester" type="text" style="width:98%;" class="autoinput" id="addRequesterEntry">
  			<div id="addRequesterContainer" class="autocontainer"></div>
  			</div>

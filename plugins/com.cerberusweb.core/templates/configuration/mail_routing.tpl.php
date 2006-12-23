@@ -3,7 +3,7 @@
 		<td class="configTableTh">Mailbox Routing</td>
 	</tr>
 	<tr>
-		<td style="background-color:rgb(240, 240, 240);border-bottom:1px dotted rgb(0, 153, 51);"><a href="javascript:;" onclick="configAjax.showMailboxRouting('0',this);">add incoming address</a></td>
+		<td style="background-color:rgb(240, 240, 240);border-bottom:1px solid rgb(130, 130, 130);"><a href="javascript:;" onclick="configAjax.showMailboxRouting('0',this);">add incoming address</a></td>
 	</tr>
 	<tr>
 		<td>

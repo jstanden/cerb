@@ -7,7 +7,7 @@
 					<td class="tableThBlue">Teams</td>
 				</tr>
 				<tr>
-					<td style="background-color:rgb(220, 220, 255);border-bottom:1px dotted rgb(0, 153, 51);"><a href="javascript:;" onclick="configAjax.getTeam('0');">add new team</a></td>
+					<td style="background-color:rgb(220, 220, 255);border-bottom:1px solid rgb(130, 130, 130);"><a href="javascript:;" onclick="configAjax.getTeam('0');">add new team</a></td>
 				</tr>
 				<tr>
 					<td>

@@ -11,7 +11,7 @@
 					{/if}
 				<tr>
 					<td class="tableCellBg" width="100%" style="padding:2px;"><a href="index.php?c=core.module.dashboard&a=clickteam&id={$team->id}"><b>{$team->name}</b></a> ({$team->count})</td>
-					<td class="tableCellBgIndent" width="0%" nowrap="nowrap" style="width:50px;"><img src="images/cerb_graph.gif" width="{$percent}" height="15"><img src="images/cer_graph_cap.gif" height="15" width="1"></td>
+					<td class="tableCellBgIndent" width="0%" nowrap="nowrap" style="width:51px;"><img src="images/cerb_graph.gif" width="{$percent}" height="15"><img src="images/cer_graph_cap.gif" height="15" width="1"></td>
 				</tr>
 				{foreachelse}
 				<tr>
