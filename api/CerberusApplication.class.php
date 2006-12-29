@@ -103,7 +103,7 @@ class CerberusApplication {
 		return $message_id;
 	}
 	
-	// ***************** DUMMY
+	// ***************** DUMMY [TODO] Move to Model?
 	static function getDashboardViewColumns() {
 		return array(
 			new CerberusDashboardViewColumn('t.mask','ID'),

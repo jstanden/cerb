@@ -13,8 +13,8 @@ class CerberusAgentDAO {
 		$sql = sprintf("INSERT INTO login (id, login, password, admin) ".
 			"VALUES (%d, %s, %s, %d)",
 			$id,
-			$um_db->qstr($login),
-			$um_db->qstr(md5($password)),
+			$um_db->QMagic($login),
+			$um_db->QMagic(md5($password)),
 			$admin
 		);
 		$rs = $um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
@@ -69,7 +69,7 @@ class CerberusAgentDAO {
 		$um_db = CgPlatform::getDatabaseService();
 		
 		$sql = sprintf("SELECT a.id FROM login a WHERE a.login = %s",
-			$um_db->qstr($login)
+			$um_db->QMagic($login)
 		);
 		$rs = $um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
@@ -90,7 +90,7 @@ class CerberusAgentDAO {
 		foreach($fields as $k => $v) {
 			$sets[] = sprintf("%s = %s",
 				$k,
-				$um_db->qstr($v)
+				$um_db->QMagic($v)
 			);
 		}
 			
@@ -303,7 +303,7 @@ class CerberusContactDAO {
 		$id = null;
 		
 		$sql = sprintf("SELECT id FROM address WHERE email = %s",
-			$um_db->qstr(trim(strtolower($email)))
+			$um_db->QMagic(trim(strtolower($email)))
 		);
 		$rs = $um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
@@ -401,8 +401,8 @@ class CerberusContactDAO {
 		
 		$sql = sprintf("INSERT INTO address (id,email,personal) VALUES (%d,%s,%s)",
 			$id,
-			$um_db->qstr(trim(strtolower($email))),
-			$um_db->qstr($personal)
+			$um_db->QMagic(trim(strtolower($email))),
+			$um_db->QMagic($personal)
 		);
 		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
@@ -430,7 +430,7 @@ class CerberusTicketDAO {
 		$um_db = CgPlatform::getDatabaseService();
 		
 		$sql = sprintf("SELECT t.id FROM ticket t WHERE t.mask = %s",
-			$um_db->qstr($mask)
+			$um_db->QMagic($mask)
 		);
 		$rs = $um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
@@ -449,7 +449,7 @@ class CerberusTicketDAO {
 			"FROM ticket t ".
 			"INNER JOIN message m ON (t.id=m.ticket_id) ".
 			"WHERE m.message_id = %s",
-			$um_db->qstr($message_id)
+			$um_db->QMagic($message_id)
 		);
 		$rs = $um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
@@ -478,8 +478,8 @@ class CerberusTicketDAO {
 			"VALUES (%d,%d,%s,%s)",
 			$newId,
 			$message_id,
-			$um_db->qstr($display_name),
-			$um_db->qstr($filepath)
+			$um_db->QMagic($display_name),
+			$um_db->QMagic($filepath)
 		);
 		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
@@ -534,12 +534,12 @@ class CerberusTicketDAO {
 		$sql = sprintf("INSERT INTO ticket (id, mask, subject, status, mailbox_id, last_wrote, first_wrote, created_date, updated_date, priority) ".
 			"VALUES (%d,%s,%s,%s,%d,%s,%s,%d,%d,0)",
 			$newId,
-			$um_db->qstr($mask),
-			$um_db->qstr($subject),
-			$um_db->qstr($status),
+			$um_db->QMagic($mask),
+			$um_db->QMagic($subject),
+			$um_db->QMagic($status),
 			$mailbox_id,
-			$um_db->qstr($last_wrote),
-			$um_db->qstr($last_wrote),
+			$um_db->QMagic($last_wrote),
+			$um_db->QMagic($last_wrote),
 			$created_date,
 			gmmktime()
 		);
@@ -562,12 +562,12 @@ class CerberusTicketDAO {
 			"VALUES (%d,%d,%s,%d,%d,%s,%s,%s)",
 				$newId,
 				$ticket_id,
-				$um_db->qstr($type),
+				$um_db->QMagic($type),
 				$created_date,
 				$address_id,
-				((isset($headers['message-id'])) ? $um_db->qstr($headers['message-id']) : "''"),
-				$um_db->qstr($sHeaders),
-				$um_db->qstr($content)
+				((isset($headers['message-id'])) ? $um_db->QMagic($headers['message-id']) : "''"),
+				$um_db->QMagic($sHeaders),
+				$um_db->QMagic($content)
 		);
 		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
@@ -620,14 +620,14 @@ class CerberusTicketDAO {
 				case "=":
 					$where = sprintf("%s = %s",
 						$param->field,
-						$um_db->qstr($param->value)
+						$um_db->QMagic($param->value)
 					);
 					break;
 					
 				case "!=":
 					$where = sprintf("%s != %s",
 						$param->field,
-						$um_db->qstr($param->value)
+						$um_db->QMagic($param->value)
 					);
 					break;
 				
@@ -643,7 +643,7 @@ class CerberusTicketDAO {
 //					if(!is_array($param->value)) break;
 					$where = sprintf("%s LIKE %s",
 						$param->field,
-						$um_db->qstr(str_replace('*','%%',$param->value))
+						$um_db->QMagic(str_replace('*','%%',$param->value))
 					);
 					break;
 					
@@ -743,7 +743,7 @@ class CerberusTicketDAO {
 			}
 			$sets[] = sprintf("%s = %s",
 				$k,
-				$um_db->qstr($v)
+				$um_db->QMagic($v)
 			);
 		}
 			
@@ -953,7 +953,7 @@ class CerberusDashboardDAO {
 		$sql = sprintf("INSERT INTO dashboard (id, name, agent_id) ".
 			"VALUES (%d, %s, %d)",
 			$newId,
-			$um_db->qstr($name),
+			$um_db->QMagic($name),
 			$agent_id
 		);
 		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
@@ -992,11 +992,11 @@ class CerberusDashboardDAO {
 		$sql = sprintf("INSERT INTO dashboard_view (id, name, dashboard_id, type, num_rows, sort_by, sort_asc, page, params) ".
 			"VALUES (%d, %s, %d, %s, %d, %s, %s, %d, '')",
 			$newId,
-			$um_db->qstr($name),
+			$um_db->QMagic($name),
 			$dashboard_id,
-			$um_db->qstr($type),
+			$um_db->QMagic($type),
 			$num_rows,
-			$um_db->qstr($sort_by),
+			$um_db->QMagic($sort_by),
 			$sort_asc,
 			0
 		);
@@ -1015,7 +1015,7 @@ class CerberusDashboardDAO {
 		foreach($fields as $k => $v) {
 			$sets[] = sprintf("%s = %s",
 				$k,
-				$um_db->qstr($v)
+				$um_db->QMagic($v)
 			);
 		}
 			
@@ -1207,9 +1207,9 @@ class CerberusMailRuleDAO {
 		$sql = sprintf("INSERT INTO mail_rule (id, criteria, sequence, strictness) ".
 			"VALUES (%d, %s, %s, %s)",
 			$newId,
-			$um_db->qstr($sCriteria),
-			$um_db->qstr($sequence),
-			$um_db->qstr($strictness)
+			$um_db->QMagic($sCriteria),
+			$um_db->QMagic($sequence),
+			$um_db->QMagic($strictness)
 		);
 		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg());
 	}
@@ -1307,7 +1307,7 @@ class CerberusMailRuleDAO {
 		foreach($fields as $k => $v) {
 			$sets[] = sprintf("%s = %s",
 				$k,
-				$um_db->qstr($v)
+				$um_db->QMagic($v)
 			);
 		}
 			
@@ -1385,7 +1385,7 @@ class CerberusWorkflowDAO {
 		$tag = null;
 
 		$sql = sprintf("SELECT t.id FROM tag t WHERE t.name = %s",
-			$um_db->qstr($tag_name)
+			$um_db->QMagic($tag_name)
 		);
 		$rs = $um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
@@ -1550,7 +1550,7 @@ class CerberusWorkflowDAO {
 		$sql = sprintf("INSERT INTO tag (id, name) ".
 			"VALUES (%d, %s)",
 			$id,
-			$um_db->qstr(strtolower($name))
+			$um_db->QMagic(strtolower($name))
 		);
 		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
@@ -1638,7 +1638,7 @@ class CerberusWorkflowDAO {
 		
 		$sql = sprintf("INSERT INTO team (id, name) VALUES (%d,%s)",
 			$newId,
-			$um_db->qstr($name)
+			$um_db->QMagic($name)
 		);
 		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
@@ -1661,7 +1661,7 @@ class CerberusWorkflowDAO {
 		foreach($fields as $k => $v) {
 			$sets[] = sprintf("%s = %s",
 				$k,
-				$um_db->qstr($v)
+				$um_db->QMagic($v)
 			);
 		}
 			
@@ -1851,11 +1851,11 @@ class CerberusMailDAO {
 		
 		$sql = sprintf("INSERT INTO mailbox (id, name, reply_address_id, display_name, close_autoresponse, new_autoresponse) VALUES (%d,%s,%d,%s,%s,%s)",
 			$newId,
-			$um_db->qstr($name),
+			$um_db->QMagic($name),
 			$reply_address_id,
-			$um_db->qstr($display_name),
-			$um_db->qstr($close_autoresponse),
-			$um_db->qstr($new_autoresponse)
+			$um_db->QMagic($display_name),
+			$um_db->QMagic($close_autoresponse),
+			$um_db->QMagic($new_autoresponse)
 		);
 		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
@@ -1872,7 +1872,7 @@ class CerberusMailDAO {
 		foreach($fields as $k => $v) {
 			$sets[] = sprintf("%s = %s",
 				$k,
-				$um_db->qstr($v)
+				$um_db->QMagic($v)
 			);
 		}
 			
@@ -2112,10 +2112,10 @@ class CerberusMailDAO {
 		$sql = sprintf("INSERT INTO pop3_account (id, nickname, host, username, password) ".
 			"VALUES (%d,%s,%s,%s,%s)",
 			$newId,
-			$um_db->qstr($nickname),
-			$um_db->qstr($host),
-			$um_db->qstr($username),
-			$um_db->qstr($password)
+			$um_db->QMagic($nickname),
+			$um_db->QMagic($host),
+			$um_db->QMagic($username),
+			$um_db->QMagic($password)
 		);
 		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
@@ -2173,7 +2173,7 @@ class CerberusMailDAO {
 		foreach($fields as $k => $v) {
 			$sets[] = sprintf("%s = %s",
 				$k,
-				$um_db->qstr($v)
+				$um_db->QMagic($v)
 			);
 		}
 			

@@ -218,16 +218,16 @@ class CgPlatform {
 		
 		// [JAS]: Check if the plugin exists already
 		$sql = sprintf("SELECT id FROM plugin WHERE dir = %s",
-			$um_db->qstr($manifest->dir)
+			$um_db->QMagic($manifest->dir)
 		);
 		$rs = $um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		if($rs->NumRows()) { // exists
 			$manifest->id = intval($rs->fields['id']);
 			$sql = sprintf("UPDATE plugin SET name=%s,author=%s,dir=%s WHERE id=%d",
-				$um_db->qstr($manifest->name),
-				$um_db->qstr($manifest->author),
-				$um_db->qstr($manifest->dir),
+				$um_db->QMagic($manifest->name),
+				$um_db->QMagic($manifest->author),
+				$um_db->QMagic($manifest->dir),
 				$manifest->id
 			);
 			$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg());
@@ -236,10 +236,10 @@ class CgPlatform {
 			$sql = sprintf("INSERT INTO plugin (id,name,enabled,author,dir) ".
 				" VALUES (%d,%s,%d,%s,%s)",
 				$id,
-				$um_db->qstr($manifest->name),
+				$um_db->QMagic($manifest->name),
 				1,
-				$um_db->qstr($manifest->author),
-				$um_db->qstr($manifest->dir)
+				$um_db->QMagic($manifest->author),
+				$um_db->QMagic($manifest->dir)
 			);
 			$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg());
 			$manifest->id = $id;
@@ -283,32 +283,32 @@ class CgPlatform {
 		foreach($manifest->extensions as $extension_idx => $extension) { /* @var $extension CgExtensionManifest */
 			$sql = sprintf("SELECT id FROM extension WHERE plugin_id = '%d' AND point = %s AND class = %s",
 				$extension->plugin_id,
-				$um_db->qstr($extension->point),
-				$um_db->qstr($extension->class)
+				$um_db->QMagic($extension->point),
+				$um_db->QMagic($extension->class)
 			);
 			$rs = $um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
 			if($rs->NumRows()) { // exists
 				$manifest->extensions[$extension_idx]->extension_id = stripslashes($rs->fields['id']);
 				$sql = sprintf("UPDATE extension SET plugin_id=%d,point=%s,name=%s,file=%s,class=%s,params=%s WHERE id=%s",
 					$extension->plugin_id,
-					$um_db->qstr($extension->point),
-					$um_db->qstr($extension->name),
-					$um_db->qstr($extension->file),
-					$um_db->qstr($extension->class),
-					$um_db->qstr(serialize($extension->params)),
-					$um_db->qstr($manifest->extensions[$extension_idx]->extension_id)
+					$um_db->QMagic($extension->point),
+					$um_db->QMagic($extension->name),
+					$um_db->QMagic($extension->file),
+					$um_db->QMagic($extension->class),
+					$um_db->QMagic(serialize($extension->params)),
+					$um_db->QMagic($manifest->extensions[$extension_idx]->extension_id)
 				);
 				$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg());
 			} else { // new
 				$sql = sprintf("INSERT INTO extension (id,plugin_id,point,name,file,class,params) ".
 					" VALUES (%s,%d,%s,%s,%s,%s,%s)",
-					$um_db->qstr($extension->id),
+					$um_db->QMagic($extension->id),
 					$extension->plugin_id,
-					$um_db->qstr($extension->point),
-					$um_db->qstr($extension->name),
-					$um_db->qstr($extension->file),
-					$um_db->qstr($extension->class),
-					$um_db->qstr(serialize($extension->params))
+					$um_db->QMagic($extension->point),
+					$um_db->QMagic($extension->name),
+					$um_db->QMagic($extension->file),
+					$um_db->QMagic($extension->class),
+					$um_db->QMagic(serialize($extension->params))
 				);
 				$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg());
 			}
@@ -473,7 +473,7 @@ class CgExtension {
 		$sql = sprintf("SELECT property,value ".
 			"FROM property_store ".
 			"WHERE extension_id=%s AND instance_id='%d' ",
-			$um_db->qstr($this->id),
+			$um_db->QMagic($this->id),
 			$this->instance_id
 		);
 		$rs = $um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
@@ -501,7 +501,7 @@ class CgExtension {
 		foreach($this->params as $k => $v) {
 			$um_db->Replace(
 				'property_store',
-				array('extension_id'=>$this->id,'instance_id'=>$this->instance_id,'property'=>$um_db->qstr($k),'value'=>$um_db->qstr($v)),
+				array('extension_id'=>$this->id,'instance_id'=>$this->instance_id,'property'=>$um_db->QMagic($k),'value'=>$um_db->QMagic($v)),
 				array('extension_id','instance_id','property'),
 				true
 			);
@@ -572,8 +572,8 @@ class _CgSessionManager {
 			"FROM login ".
 			"WHERE login = %s ".
 			"AND password = MD5(%s)",
-				$um_db->qstr($login),
-				$um_db->qstr($password)
+				$um_db->QMagic($login),
+				$um_db->QMagic($password)
 		);
 		$rs = $um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
