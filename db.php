@@ -1,8 +1,8 @@
 <?php
 require(getcwd() . '/framework.config.php');
-require(UM_PATH . '/libs/cloudglue/CloudGlue.class.php');
+require(DEVBLOCKS_PATH . '/libs/devblocks/Devblocks.class.php');
 
-$um_db = CgPlatform::getDatabaseService();
+$um_db = DevblocksPlatform::getDatabaseService();
 
 $datadict = NewDataDictionary($um_db); /* @var $datadict ADODB_DataDict */ // ,'mysql' 
 
@@ -12,6 +12,7 @@ $tables['extension'] = "
 	id C(128) DEFAULT '' NOTNULL PRIMARY,
 	plugin_id I DEFAULT 0 NOTNULL,
 	point C(128) DEFAULT '' NOTNULL,
+	pos I2 DEFAULT 0 NOTNULL,
 	name C(128) DEFAULT '' NOTNULL,
 	file C(128) DEFAULT '' NOTNULL,
 	class C(128) DEFAULT '' NOTNULL,
@@ -192,5 +193,5 @@ foreach($tables as $table => $flds) {
 	echo "<HR>";
 }
 
-$plugins = CgPlatform::readPlugins();
+$plugins = DevblocksPlatform::readPlugins();
 ?>

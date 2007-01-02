@@ -1,9 +1,9 @@
 <?php
 define("CERBERUS_BUILD", 68);
 
-include_once(UM_PATH . "/api/CerberusDAO.class.php");
-include_once(UM_PATH . "/api/CerberusModel.class.php");
-include_once(UM_PATH . "/api/CerberusExtension.class.php");
+include_once(DEVBLOCKS_PATH . "/api/CerberusDAO.class.php");
+include_once(DEVBLOCKS_PATH . "/api/CerberusModel.class.php");
+include_once(DEVBLOCKS_PATH . "/api/CerberusExtension.class.php");
 
 class CerberusApplication {
 	
@@ -11,10 +11,10 @@ class CerberusApplication {
 	
 	static function getModules() {
 		$modules = array();
-		$extModules = CgPlatform::getExtensions("com.cerberusweb.module");
-		foreach($extModules as $mod) { /* @var $mod CgExtensionManifest */
+		$extModules = DevblocksPlatform::getExtensions("com.cerberusweb.module");
+		foreach($extModules as $mod) { /* @var $mod DevblocksExtensionManifest */
 			$instance = $mod->createInstance(); /* @var $instance CerberusModuleExtension */
-			if(is_a($instance,'cgextension') && $instance->isVisible())
+			if(is_a($instance,'devblocksextension') && $instance->isVisible())
 				$modules[] = $instance;
 		}
 		return $modules;
@@ -128,7 +128,7 @@ class CerberusParser {
 	 * @return CerberusTicket ticket object
 	 */
 	static public function parseMessage($rfcMessage) {
-		if (UM_DEBUG == 'true') {echo ('Entering parseMessage() with rfcMessage :<br>'); print_r ($rfcMessage); echo ('<hr>');}
+		if (DEVBLOCKS_DEBUG == 'true') {echo ('Entering parseMessage() with rfcMessage :<br>'); print_r ($rfcMessage); echo ('<hr>');}
 		
 		$continue = CerberusParser::parsePreRules($rfcMessage);
 		if (false === $continue) return;
@@ -164,14 +164,14 @@ class CerberusParser {
 			// parse the rule's criteria and perform actions if conditions match requirements
 			foreach ($mailRule->criteria as $criterion) { /* @var $criterion CerberusMailRuleCriterion */
 				if (CerberusParser::criterionMatchesEmail($criterion, $rfcMessage)) {
-					if (UM_DEBUG == 'true') {echo ('criterionMatchesEmail() returned true<hr>');}
+					if (DEVBLOCKS_DEBUG == 'true') {echo ('criterionMatchesEmail() returned true<hr>');}
 					if (!$require_all) {
 						$perform_actions = true;
 						break;
 					}
 				}
 				else {
-					if (UM_DEBUG == 'true') {echo ('criterionMatchesEmail() returned false<hr>');}
+					if (DEVBLOCKS_DEBUG == 'true') {echo ('criterionMatchesEmail() returned false<hr>');}
 					if ($require_all) {
 						$perform_actions = false;
 						break;
@@ -319,7 +319,7 @@ class CerberusParser {
 	}
 	
 	static public function criterionMatchesEmail($criterion, $rfcMessage) { /* @var $criterion CerberusMailRuleCriterion */
-		if (UM_DEBUG == 'true') {echo ('Entering criterionMatchesEmail() with criterion :<br>'); print_r ($criterion); echo ('<br>and message :<br>'); print_r($rfcMessage); echo ('<hr>');}
+		if (DEVBLOCKS_DEBUG == 'true') {echo ('Entering criterionMatchesEmail() with criterion :<br>'); print_r ($criterion); echo ('<br>and message :<br>'); print_r($rfcMessage); echo ('<hr>');}
 		
 		switch ($criterion->operator) {
 			case 'equals':
@@ -355,12 +355,12 @@ class CerberusParser {
 	}
 	
 	static public function runMailRuleEmailActions($id, &$rfcMessage) {
-		if (UM_DEBUG == 'true') {echo ('Entering runMailRuleEmailActions() with mailRule id = ' . $id . ' and message:<br>'); print_r ($rfcMessage); echo ('<hr>');}
+		if (DEVBLOCKS_DEBUG == 'true') {echo ('Entering runMailRuleEmailActions() with mailRule id = ' . $id . ' and message:<br>'); print_r ($rfcMessage); echo ('<hr>');}
 		return true;
 	}
 	
 	static public function criterionMatchesTicket($criterion, $ticket) {
-		if (UM_DEBUG == 'true') {echo ('Entering criterionMatchesTicket() with criterion :<br>'); print_r ($criterion); echo ('<br>and ticket :<br>'); print_r($ticket); echo ('<hr>');}
+		if (DEVBLOCKS_DEBUG == 'true') {echo ('Entering criterionMatchesTicket() with criterion :<br>'); print_r ($criterion); echo ('<br>and ticket :<br>'); print_r($ticket); echo ('<hr>');}
 		
 		switch ($criterion->operator) {
 			case 'equals':
@@ -395,7 +395,7 @@ class CerberusParser {
 	}
 	
 	static public function runMailRuleTicketActions($id, &$ticket) {
-		if (UM_DEBUG == 'true') {echo ('Entering runMailRuleTicketActions() with mailRule id = ' . $id . ' and ticket :<br>'); print_r ($ticket); echo ('<hr>');}
+		if (DEVBLOCKS_DEBUG == 'true') {echo ('Entering runMailRuleTicketActions() with mailRule id = ' . $id . ' and ticket :<br>'); print_r ($ticket); echo ('<hr>');}
 		return true;
 	}
 	
@@ -464,16 +464,16 @@ class CerberusParser {
 			$timestamp = gmdate('Y.m.d.H.i.s.', gmmktime());
 			list($usec, $sec) = explode(' ', microtime());
 			$timestamp .= substr($usec,2,3) . '.';
-			if (false !== file_put_contents(UM_ATTACHMENT_SAVE_PATH . $timestamp . $fileName, $part->body)) {
+			if (false !== file_put_contents(DEVBLOCKS_ATTACHMENT_SAVE_PATH . $timestamp . $fileName, $part->body)) {
 				$attachments['files'][$timestamp.$fileName] = $fileName;
-//				$attachments['plaintext'] .= ' Saved file <a href="' . UM_ATTACHMENT_ACCESS_PATH . $timestamp . $fileName . '">'
+//				$attachments['plaintext'] .= ' Saved file <a href="' . DEVBLOCKS_ATTACHMENT_ACCESS_PATH . $timestamp . $fileName . '">'
 //											. (empty($fileName) ? 'Unnamed file' : $fileName) . '</a>. ';
 			}
 		}
 	}
 	
 	static private function parseRfcAddress($address_string) {
-		require_once(UM_PATH . '/libs/pear/Mail/RFC822.php');
+		require_once(DEVBLOCKS_PATH . '/libs/pear/Mail/RFC822.php');
 		$structure = Mail_RFC822::parseAddressList($address_string, null, false);
 		return $structure;
 	}

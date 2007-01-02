@@ -2,7 +2,7 @@
 class DefaultLoginModule extends CerberusLoginModuleExtension {
 	function renderLoginForm() {
 		// draws HTML form of controls needed for login information
-		$tpl = CgPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/login_form_default.tpl.php');
 	}
@@ -12,7 +12,7 @@ class DefaultLoginModule extends CerberusLoginModuleExtension {
 		@$email		= $_POST['email'];
 		@$password	= $_POST['password'];
 			
-		$session = CgPlatform::getSessionService();
+		$session = DevblocksPlatform::getSessionService();
 		$visit = $session->login($email,$password);
 		
 		if(!is_null($visit)) {
@@ -28,7 +28,7 @@ class DefaultLoginModule extends CerberusLoginModuleExtension {
 class LDAPLoginModule extends CerberusLoginModuleExtension {
 	function renderLoginForm() {
 		// draws HTML form of controls needed for login information
-		$tpl = CgPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/login_form_ldap.tpl.php');
 	}
@@ -46,8 +46,8 @@ class LDAPLoginModule extends CerberusLoginModuleExtension {
 		if ($conn) {
 			$auth = ldap_bind($conn, $dn, $password);
 			if (1 == $auth) {
-				$session = CgPlatform::getSessionService();
-				$visit = new CgSession();
+				$session = DevblocksPlatform::getSessionService();
+				$visit = new DevblocksSession();
 					$visit->id = 1;
 					$visit->login = 'ldap_user';
 					$visit->admin = 1;

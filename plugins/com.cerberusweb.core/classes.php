@@ -1,13 +1,12 @@
 <?php
 class ChDashboardModule extends CerberusModuleExtension {
-	function ChDashboardModule($manifest) {
-//		$this->CgMenuExtension($manifest);
-		$this->CerberusModuleExtension($manifest,1);
+	function __construct($manifest) {
+		parent::__construct($manifest);
 	}
 	
 	function isVisible() {
 		// check login
-		$session = CgPlatform::getSessionService();
+		$session = DevblocksPlatform::getSessionService();
 		$visit = $session->getVisit();
 		
 		if(empty($visit)) {
@@ -20,10 +19,10 @@ class ChDashboardModule extends CerberusModuleExtension {
 	}
 	
 	function render() {
-		$tpl = CgPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 
-		$session = CgPlatform::getSessionService();
+		$session = DevblocksPlatform::getSessionService();
 		$visit = $session->getVisit();
 		
 		$dashboards = CerberusDashboardDAO::getDashboards($visit->id);
@@ -123,7 +122,7 @@ class ChDashboardModule extends CerberusModuleExtension {
 		@$id = $_REQUEST['id'];
 		@$page = $_REQUEST['page'];
 		
-		$tpl = CgPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		$tpl->assign('id',$id);
 		
@@ -138,7 +137,7 @@ class ChDashboardModule extends CerberusModuleExtension {
 	function viewRefresh() {
 		@$id = $_REQUEST['id'];
 
-		$tpl = CgPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		$tpl->assign('id',$id);
 		
@@ -156,7 +155,7 @@ class ChDashboardModule extends CerberusModuleExtension {
 	function customize() {
 		@$id = $_REQUEST['id'];
 
-		$tpl = CgPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		$tpl->assign('id',$id);
 
@@ -233,7 +232,7 @@ class ChDashboardModule extends CerberusModuleExtension {
 	}
 	
 	function showHistoryPanel() {
-		$tpl = CgPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		$tpl->cache_lifetime = "0";
 		
@@ -243,7 +242,7 @@ class ChDashboardModule extends CerberusModuleExtension {
 	function showContactPanel() {
 		@$sAddress = $_REQUEST['address'];
 		
-		$tpl = CgPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		$tpl->cache_lifetime = "0";
 		
@@ -258,12 +257,12 @@ class ChDashboardModule extends CerberusModuleExtension {
 };
 
 class ChConfigurationModule extends CerberusModuleExtension  {
-	function ChConfigurationModule($manifest) {
-		$this->CerberusModuleExtension($manifest);
+	function __construct($manifest) {
+		parent::__construct($manifest);
 	}
 	
 	function isVisible() {
-		$session = CgPlatform::getSessionService();
+		$session = DevblocksPlatform::getSessionService();
 		$visit = $session->getVisit();
 		
 		if(empty($visit)) {
@@ -274,7 +273,7 @@ class ChConfigurationModule extends CerberusModuleExtension  {
 	}
 	
 	function render() {
-		$tpl = CgPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 
@@ -303,7 +302,7 @@ class ChConfigurationModule extends CerberusModuleExtension  {
 	function getWorker() {
 		@$id = $_REQUEST['id'];
 
-		$tpl = CgPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 
@@ -355,7 +354,7 @@ class ChConfigurationModule extends CerberusModuleExtension  {
 	function getTeam() {
 		@$id = $_REQUEST['id'];
 
-		$tpl = CgPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 
@@ -403,7 +402,7 @@ class ChConfigurationModule extends CerberusModuleExtension  {
 	function getMailbox() {
 		@$id = $_REQUEST['id'];
 
-		$tpl = CgPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 
@@ -453,7 +452,7 @@ class ChConfigurationModule extends CerberusModuleExtension  {
 	function getPop3Account() {
 		@$id = $_REQUEST['id'];
 		
-		$tpl = CgPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 
@@ -491,7 +490,7 @@ class ChConfigurationModule extends CerberusModuleExtension  {
 	}
 	
 	function ajaxGetRouting() {
-		$tpl = CgPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 
@@ -516,7 +515,7 @@ class ChConfigurationModule extends CerberusModuleExtension  {
 	function getMailboxRoutingDialog() {
 		@$id = $_REQUEST['id'];
 		
-		$tpl = CgPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 
@@ -555,13 +554,13 @@ class ChConfigurationModule extends CerberusModuleExtension  {
 }
 
 class ChDisplayModule extends CerberusModuleExtension {
-	function ChDisplayModule($manifest) {
-		$this->CerberusModuleExtension($manifest);
+	function __construct($manifest) {
+		parent::__construct($manifest);
 	}
 	
 	function isVisible() {
 		// check login
-		$session = CgPlatform::getSessionService();
+		$session = DevblocksPlatform::getSessionService();
 		$visit = $session->getVisit();
 		
 		if(empty($visit)) {
@@ -572,7 +571,7 @@ class ChDisplayModule extends CerberusModuleExtension {
 	}
 	
 	function render() {
-		$tpl = CgPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 
@@ -584,11 +583,11 @@ class ChDisplayModule extends CerberusModuleExtension {
 		$mailboxes = CerberusMailDAO::getMailboxes();
 		$tpl->assign('mailboxes', $mailboxes);
 		
-		$display_module_manifests = CgPlatform::getExtensions("com.cerberusweb.display.module");
+		$display_module_manifests = DevblocksPlatform::getExtensions("com.cerberusweb.display.module");
 		$display_modules = array();
 		
 		if(is_array($display_module_manifests))
-		foreach($display_module_manifests as $dmm) { /* @var $dmm CgExtensionManifest */
+		foreach($display_module_manifests as $dmm) { /* @var $dmm DevblocksExtensionManifest */
 			$display_modules[] = $dmm->createInstance(1);
 		}
 		$tpl->assign('display_modules', $display_modules);
@@ -623,7 +622,7 @@ class ChDisplayModule extends CerberusModuleExtension {
 	function loadMessageTemplate($type) {
 		@$id = $_REQUEST['id'];
 
-		$tpl = CgPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		$tpl->assign('id',$id);
 		
@@ -667,7 +666,7 @@ class ChDisplayModule extends CerberusModuleExtension {
 		$ticket		= CerberusTicketDAO::getTicket($ticket_id);
 		$mailbox	= CerberusMailDAO::getMailbox($ticket->mailbox_id);
 		$requesters	= CerberusTicketDAO::getRequestersByTicket($ticket_id);
-		$mailMgr	= CgPlatform::getMailService();
+		$mailMgr	= DevblocksPlatform::getMailService();
 		$headers	= CerberusMailDAO::getHeaders($type, $ticket_id);
 		
 		$files = $_FILES['attachment'];
@@ -675,7 +674,7 @@ class ChDisplayModule extends CerberusModuleExtension {
 		if ($type != CerberusMessageType::COMMENT) {
 			// build MIME message if message has attachments
 			if (is_array($files) && !empty($files)) {
-				require_once(UM_PATH . '/libs/pear/mime.php');
+				require_once(DEVBLOCKS_PATH . '/libs/pear/mime.php');
 				$mime_mail = new Mail_mime();
 				$mime_mail->setTXTBody($content);
 				foreach ($files['tmp_name'] as $idx => $file) {
@@ -704,7 +703,7 @@ class ChDisplayModule extends CerberusModuleExtension {
 				$timestamp = gmdate('Y.m.d.H.i.s.', gmmktime());
 				list($usec, $sec) = explode(' ', microtime());
 				$timestamp .= substr($usec,2,3) . '.';
-				copy($files['tmp_name'][$idx],UM_ATTACHMENT_SAVE_PATH . $timestamp . $files['name'][$idx]);
+				copy($files['tmp_name'][$idx],DEVBLOCKS_ATTACHMENT_SAVE_PATH . $timestamp . $files['name'][$idx]);
 				CerberusTicketDAO::createAttachment($message_id, $files['name'][$idx], $timestamp . $files['name'][$idx]);
 			}
 		}
@@ -714,7 +713,7 @@ class ChDisplayModule extends CerberusModuleExtension {
 	}
 	
 	function refreshRequesters() {
-		$tpl = CgPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateService();
 		@$id = $_REQUEST['id']; // ticket id
 		
 		$ticket = CerberusTicketDAO::getTicket($id);
@@ -728,9 +727,9 @@ class ChDisplayModule extends CerberusModuleExtension {
 		@$add_requester = $_POST['add_requester'];
 		
 		// I'd really like to know why the *$#! this doesn't work.  The if statement works fine atomically...
-//		require_once(UM_PATH . '/libs/pear/Mail/RFC822.php');
+//		require_once(DEVBLOCKS_PATH . '/libs/pear/Mail/RFC822.php');
 //		if (false === Mail_RFC822::isValidInetAddress($add_requester)) {
-//			return $add_requester . CgTranslationManager::say('ticket.requester.invalid');
+//			return $add_requester . DevblocksTranslationManager::say('ticket.requester.invalid');
 //		}
 		
 		$address_id = CerberusContactDAO::lookupAddress($add_requester, true);
@@ -742,14 +741,13 @@ class ChDisplayModule extends CerberusModuleExtension {
 };
 
 class ChSignInModule extends CerberusModuleExtension {
-	function ChSignInModule($manifest) {
-//		$this->CgMenuExtension($manifest);
-		$this->CerberusModuleExtension($manifest);
+	function __construct($manifest) {
+		parent::__construct($manifest);
 	}
 	
 	function isVisible() {
 		// check login
-		$session = CgPlatform::getSessionService();
+		$session = DevblocksPlatform::getSessionService();
 		$visit = $session->getVisit();
 		
 //		if(empty($visit)) {
@@ -771,28 +769,27 @@ class ChSignInModule extends CerberusModuleExtension {
 	}
 	
 	function render() {
-		$manifest = CgPlatform::getExtension('login.default');
+		$manifest = DevblocksPlatform::getExtension('login.default');
 		$inst = $manifest->createInstance(1); /* @var $inst CerberusLoginModuleExtension */
 		$inst->renderLoginForm();
 	}
 	
 	function signout() {
 //		echo "Sign out: " . __CLASS__ . "->" . __FUNCTION__ . "!<br>";
-		$session = CgPlatform::getSessionService();
+		$session = DevblocksPlatform::getSessionService();
 		$session->logout();
 		CerberusApplication::setActiveModule("core.module.signin");
 	}
 };
 
 class ChTeamworkModule extends CerberusModuleExtension {
-	function ChTeamworkModule($manifest) {
-//		$this->CgMenuExtension($manifest);
-		$this->CerberusModuleExtension($manifest);
+	function __construct($manifest) {
+		parent::__construct($manifest);
 	}
 	
 	function isVisible() {
 		// check login
-		$session = CgPlatform::getSessionService();
+		$session = DevblocksPlatform::getSessionService();
 		$visit = $session->getVisit();
 		
 		if(empty($visit)) {
@@ -805,7 +802,7 @@ class ChTeamworkModule extends CerberusModuleExtension {
 	}
 	
 	function render() {
-		$tpl = CgPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
 		
 		$teams = CerberusWorkflowDAO::getTeams();
@@ -821,14 +818,13 @@ class ChTeamworkModule extends CerberusModuleExtension {
 };
 
 class ChSearchModule extends CerberusModuleExtension {
-	function ChSearchModule($manifest) {
-//		$this->CgMenuExtension($manifest);
-		$this->CerberusModuleExtension($manifest);
+	function __construct($manifest) {
+		parent::__construct($manifest);
 	}
 	
 	function isVisible() {
 		// check login
-		$session = CgPlatform::getSessionService();
+		$session = DevblocksPlatform::getSessionService();
 		$visit = $session->getVisit();
 		
 		if(empty($visit)) {
@@ -839,7 +835,7 @@ class ChSearchModule extends CerberusModuleExtension {
 	}
 	
 	function render() {
-		$tpl = CgPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		$tpl->cache_lifetime = "0";
 
@@ -867,7 +863,7 @@ class ChSearchModule extends CerberusModuleExtension {
 	function getCriteria() {
 		@$field = $_REQUEST['field'];
 		
-		$tpl = CgPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		$tpl->cache_lifetime = "0";
 		
@@ -893,7 +889,7 @@ class ChSearchModule extends CerberusModuleExtension {
 	function getCriteriaDialog() {
 		@$divName = $_REQUEST['divName'];
 		
-		$tpl = CgPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		$tpl->cache_lifetime = "0";
 		
@@ -963,7 +959,7 @@ class ChSearchModule extends CerberusModuleExtension {
 	function getLoadSearch() {
 		@$divName = $_REQUEST['divName'];
 		
-		$tpl = CgPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		$tpl->cache_lifetime = "0";
 		
@@ -989,7 +985,7 @@ class ChSearchModule extends CerberusModuleExtension {
 	function getSaveSearch() {
 		@$divName = $_REQUEST['divName'];
 		
-		$tpl = CgPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		$tpl->cache_lifetime = "0";
 
@@ -1052,13 +1048,13 @@ class ChSearchModule extends CerberusModuleExtension {
 }
 
 class ChPreferencesModule extends CerberusModuleExtension {
-	function ChPreferencesModule($manifest) {
-		$this->CerberusModuleExtension($manifest);
+	function __construct($manifest) {
+		parent::__construct($manifest);
 	}
 	
 	function isVisible() {
 		// check login
-		$session = CgPlatform::getSessionService();
+		$session = DevblocksPlatform::getSessionService();
 		$visit = $session->getVisit();
 		
 		if(empty($visit)) {
@@ -1069,7 +1065,7 @@ class ChPreferencesModule extends CerberusModuleExtension {
 	}
 	
 	function render() {
-		$tpl = CgPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		$tpl->cache_lifetime = "0";
 
@@ -1078,12 +1074,12 @@ class ChPreferencesModule extends CerberusModuleExtension {
 }
 
 class ChDisplayTicketHistory extends CerberusDisplayModuleExtension {
-	function ChDisplayTicketHistory($manifest) {
-		$this->CerberusDisplayModuleExtension($manifest);
+	function __construct($manifest) {
+		parent::__construct($manifest);
 	}
-
+	
 	function render($ticket) {
-		$tpl = CgPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/ticket_history.tpl.php');
 	}
@@ -1094,12 +1090,12 @@ class ChDisplayTicketHistory extends CerberusDisplayModuleExtension {
 }
 
 class ChDisplayTicketLog extends CerberusDisplayModuleExtension {
-	function ChDisplayTicketLog($manifest) {
-		$this->CerberusDisplayModuleExtension($manifest);
+	function __construct($manifest) {
+		parent::__construct($manifest);
 	}
-
+	
 	function render($ticket) {
-		$tpl = CgPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/ticket_log.tpl.php');
 	}
@@ -1110,12 +1106,12 @@ class ChDisplayTicketLog extends CerberusDisplayModuleExtension {
 }
 
 class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
-	function ChDisplayTicketWorkflow($manifest) {
-		$this->CerberusDisplayModuleExtension($manifest);
+	function __construct($manifest) {
+		parent::__construct($manifest);
 	}
-
+	
 	function render($ticket) {
-		$tpl = CgPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('callback','renderBody');
 		$tpl->assign('moduleLabel', $this->manifest->id);
@@ -1123,9 +1119,9 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 	}
 	
 	function renderBody() {
-		$tpl = CgPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
-		$session = CgPlatform::getSessionService();
+		$session = DevblocksPlatform::getSessionService();
 		$visit = $session->getVisit();
 		
 		$favoriteTags = CerberusAgentDAO::getFavoriteTags($visit->id);
@@ -1138,7 +1134,7 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 	}
 	
 	function refresh() {
-		$tpl = CgPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->caching = 0;
 		$tpl->cache_lifetime = 0;
 
@@ -1156,7 +1152,7 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 		@$tag_id = intval($_REQUEST['id']);
 		@$ticket_id = intval($_REQUEST['ticket_id']);
 		
-		$tpl = CgPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->caching = 0;
 		$tpl->cache_lifetime = 0;
 		
@@ -1223,7 +1219,7 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 		@$id = intval($_REQUEST['id']);
 		@$ticket_id = intval($_REQUEST['ticket_id']);
 		
-		$tpl = CgPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->caching = 0;
 		$tpl->cache_lifetime = 0;
 		
@@ -1253,10 +1249,10 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 	function showApplyTags() {
 		@$id = intval($_REQUEST['id']);
 		
-		$session = CgPlatform::getSessionService();
+		$session = DevblocksPlatform::getSessionService();
 		$visit = $session->getVisit();
 		
-		$tpl = CgPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->caching = 0;
 		$tpl->cache_lifetime = 0;
 		
@@ -1284,10 +1280,10 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 	}
 
 	function showFavTags() {
-		$session = CgPlatform::getSessionService();
+		$session = DevblocksPlatform::getSessionService();
 		$visit = $session->getVisit();
 		
-		$tpl = CgPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->caching = 0;
 		$tpl->cache_lifetime = 0;
 
@@ -1300,7 +1296,7 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 	function saveFavoriteTags() {
 		@$favTagEntry = $_POST['favTagEntry'];
 		
-		$session = CgPlatform::getSessionService();
+		$session = DevblocksPlatform::getSessionService();
 		$visit = $session->getVisit();
 		
 		CerberusAgentDAO::setFavoriteTags($visit->id, $favTagEntry);
@@ -1309,10 +1305,10 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 	}
 	
 	function showFavWorkers() {
-		$session = CgPlatform::getSessionService();
+		$session = DevblocksPlatform::getSessionService();
 		$visit = $session->getVisit();
 		
-		$tpl = CgPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->caching = 0;
 		$tpl->cache_lifetime = 0;
 
@@ -1330,7 +1326,7 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 	function saveFavoriteWorkers() {
 		@$favWorkerEntry = $_POST['favWorkerEntry'];
 		
-		$session = CgPlatform::getSessionService();
+		$session = DevblocksPlatform::getSessionService();
 		$visit = $session->getVisit();
 		
 		CerberusAgentDAO::setFavoriteWorkers($visit->id, $favWorkerEntry);
@@ -1341,10 +1337,10 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 	function showFlagAgents() {
 		@$id = intval($_REQUEST['id']);
 
-		$session = CgPlatform::getSessionService();
+		$session = DevblocksPlatform::getSessionService();
 		$visit = $session->getVisit();
 		
-		$tpl = CgPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->caching = 0;
 		$tpl->cache_lifetime = 0;
 
@@ -1380,10 +1376,10 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 	function showSuggestAgents() {
 		@$id = intval($_REQUEST['id']);
 		
-		$session = CgPlatform::getSessionService();
+		$session = DevblocksPlatform::getSessionService();
 		$visit = $session->getVisit();
 		
-		$tpl = CgPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->caching = 0;
 		$tpl->cache_lifetime = 0;
 
@@ -1419,12 +1415,12 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 }
 
 class ChDisplayTicketFields extends CerberusDisplayModuleExtension {
-	function ChDisplayTicketFields($manifest) {
-		$this->CerberusDisplayModuleExtension($manifest);
+	function __construct($manifest) {
+		parent::__construct($manifest);
 	}
-
+	
 	function render($ticket) {
-		$tpl = CgPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/ticket_fields.tpl.php');
 	}
@@ -1435,12 +1431,12 @@ class ChDisplayTicketFields extends CerberusDisplayModuleExtension {
 }
 
 class ChDisplayTicketConversation extends CerberusDisplayModuleExtension {
-	function ChDisplayTicketConversation($manifest) {
-		$this->CerberusDisplayModuleExtension($manifest);
+	function __construct($manifest) {
+		parent::__construct($manifest);
 	}
-
+	
 	function render($ticket) {
-		$tpl = CgPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/ticket_conversation.tpl.php');
 	}

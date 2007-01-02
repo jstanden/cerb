@@ -1,13 +1,13 @@
 <?php
 
 class ChKnowledgebaseModule extends CerberusModuleExtension {
-	function ChKnowledgebaseModule($manifest) {
-		$this->CerberusModuleExtension($manifest);
+	function __construct($manifest) {
+		parent::__construct($manifest);
 	}
-	
+		
 	function isVisible() {
 		// check login
-		$session = CgPlatform::getSessionService();
+		$session = DevblocksPlatform::getSessionService();
 		$visit = $session->getVisit();
 		
 		if(empty($visit)) {
@@ -18,7 +18,7 @@ class ChKnowledgebaseModule extends CerberusModuleExtension {
 	}
 	
 	function render() {
-		$tpl = CgPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/knowledgebase/index.tpl.php');
 	}
@@ -26,12 +26,12 @@ class ChKnowledgebaseModule extends CerberusModuleExtension {
 
 
 class ChDisplayFnr extends CerberusDisplayModuleExtension {
-	function ChDisplayFnr($manifest) {
-		$this->CerberusDisplayModuleExtension($manifest);
+	function __construct($manifest) {
+		parent::__construct($manifest);
 	}
-
+	
 	function render($ticket) {
-		$tpl = CgPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/ticket_fnr.tpl.php');
 	}

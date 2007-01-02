@@ -1,9 +1,9 @@
 <?php
 require(getcwd() . '/framework.config.php');
-require(UM_PATH . '/libs/cloudglue/CloudGlue.class.php');
-require(UM_PATH . '/api/CerberusApplication.class.php');
+require(DEVBLOCKS_PATH . '/libs/devblocks/Devblocks.class.php');
+require(DEVBLOCKS_PATH . '/api/CerberusApplication.class.php');
 
-$cron_manifests = CgPlatform::getExtensions('com.cerberusweb.cron');
+$cron_manifests = DevblocksPlatform::getExtensions('com.cerberusweb.cron');
 
 foreach ($cron_manifests as $manifest) {
 	$instance = $manifest->createInstance();

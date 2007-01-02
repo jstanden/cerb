@@ -1,7 +1,7 @@
 <?php
 require(getcwd() . '/framework.config.php');
-require(UM_PATH . '/libs/cloudglue/CloudGlue.class.php');
-require(UM_PATH . '/api/CerberusApplication.class.php');
+require(DEVBLOCKS_PATH . '/libs/devblocks/Devblocks.class.php');
+require(DEVBLOCKS_PATH . '/api/CerberusApplication.class.php');
 
 // Teams
 CerberusWorkflowDAO::createTeam('Support');

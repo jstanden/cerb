@@ -1,15 +1,15 @@
 <?php
 require(getcwd() . '/framework.config.php');
-require(UM_PATH . '/libs/cloudglue/CloudGlue.class.php');
-require(UM_PATH . '/api/CerberusApplication.class.php');
+require(DEVBLOCKS_PATH . '/libs/devblocks/Devblocks.class.php');
+require(DEVBLOCKS_PATH . '/api/CerberusApplication.class.php');
 
-CgPlatform::init();
+DevblocksPlatform::init();
 
-$smarty = CgPlatform::getTemplateService();
-$session = CgPlatform::getSessionService();
-$translate = CgPlatform::getTranslationService();
+$smarty = DevblocksPlatform::getTemplateService();
+$session = DevblocksPlatform::getSessionService();
+$translate = DevblocksPlatform::getTranslationService();
 
-$tpl = CgPlatform::getTemplateService();
+$tpl = DevblocksPlatform::getTemplateService();
 $tpl->assign('translate', $translate);
 
 // [JAS]: Security check
@@ -28,7 +28,7 @@ $tpl->assign('c',$c);
 
 if(!empty($c) && !empty($a)) {
 	// [JAS]: [TODO] Split $c and look for an ID and an instance
-	$mfTarget = CgPlatform::getExtension($c);
+	$mfTarget = DevblocksPlatform::getExtension($c);
 	$target = $mfTarget->createInstance();
 	
 	if(method_exists($target,$a)) {

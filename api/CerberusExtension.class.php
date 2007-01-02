@@ -1,8 +1,8 @@
 <?php
 
-abstract class CerberusModuleExtension extends CgExtension {
-	function CerberusModuleExtension($manifest) {
-		$this->CgExtension($manifest,1);
+abstract class CerberusModuleExtension extends DevblocksExtension {
+	function __construct($manifest) {
+		$this->DevblocksExtension($manifest,1);
 	}
 	
 	function isVisible() { return true; }
@@ -17,9 +17,9 @@ abstract class CerberusModuleExtension extends CgExtension {
 	}
 };
 
-abstract class CerberusDisplayModuleExtension extends CgExtension {
-	function CerberusDisplayModuleExtension($manifest) {
-		$this->CgExtension($manifest,1);
+abstract class CerberusDisplayModuleExtension extends DevblocksExtension {
+	function __construct($manifest) {
+		$this->DevblocksExtension($manifest,1);
 	}
 	
 	/**
@@ -28,9 +28,9 @@ abstract class CerberusDisplayModuleExtension extends CgExtension {
 	function render($ticket) {}
 }
 
-abstract class CerberusLoginModuleExtension extends CgExtension {
-	function CerberusLoginModuleExtension($manifest) {
-		$this->CgExtension($manifest, 1);
+abstract class CerberusLoginModuleExtension extends DevblocksExtension {
+	function __construct($manifest) {
+		$this->DevblocksExtension($manifest, 1);
 	}
 	
 	/**
@@ -70,9 +70,9 @@ abstract class CerberusLoginModuleExtension extends CgExtension {
 	}
 }
 
-abstract class CerberusCronModuleExtension extends CgExtension {
-	function CerberusCronModuleExtension($manifest) {
-		$this->CgExtension($manifest, 1);
+abstract class CerberusCronModuleExtension extends DevblocksExtension {
+	function __construct($manifest) {
+		$this->DevblocksExtension($manifest, 1);
 	}
 
 	/**
