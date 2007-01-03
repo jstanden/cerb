@@ -62,6 +62,11 @@
 							{$translate->say('ticket.subject')|capitalize} 
 							{$param->operator} 
 							<b>{$param->value}</b>
+						{elseif $param->field=="ra_email"}
+							<img src="images/data_find.gif" align="absmiddle"> 
+							{$translate->say('requester')|capitalize} 
+							{$param->operator} 
+							<b>{$param->value}</b>
 						{elseif $param->field=="att_agent_id"}
 							<img src="images/data_find.gif" align="absmiddle"> 
 							{$translate->say('workflow.assigned')|capitalize} 

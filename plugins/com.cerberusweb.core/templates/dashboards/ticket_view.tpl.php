@@ -86,7 +86,7 @@
 			{elseif $column=="t_updated_date"}
 			<td>{$result.t_updated_date|date_format}</td>
 			{elseif $column=="m_name"}
-			<td><a href="index.php?c={$c}&a=viewmailbox&id={$result.m_id}">{$result.m_name}</a></td>
+			<td><a href="index.php?c=core.module.dashboard&a=clickmailbox&id={$result.m_id}">{$result.m_name}</a></td>
 			{/if}
 		{/foreach}
 		</tr>

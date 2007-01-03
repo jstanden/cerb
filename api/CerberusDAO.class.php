@@ -1290,8 +1290,6 @@ class CerberusSearchDAO {
 		// [JAS]: 1-based [TODO] clean up + document
 		$start = ($page * $limit);
 		
-		// [JAS]: [TODO] Dynamically link and optimize the necessary tables for the requested fields.
-		
 		$sql = sprintf("SELECT ".
 			"t.id as t_id, ".
 			"t.mask as t_mask, ".
@@ -1299,7 +1297,6 @@ class CerberusSearchDAO {
 			"t.status as t_status, ".
 			"t.priority as t_priority, ".
 			"t.mailbox_id as t_mailbox_id, ".
-			"t.bitflags as t_bitflags, ".
 			"t.first_wrote as t_first_wrote, ".
 			"t.last_wrote as t_last_wrote, ".
 			"t.created_date as t_created_date, ".
@@ -1309,8 +1306,11 @@ class CerberusSearchDAO {
 			"FROM ticket t ".
 			"INNER JOIN mailbox m ON (t.mailbox_id=m.id) ".
 			
-			(isset($tables['att']) ? sprintf("LEFT JOIN assign_to_ticket att ON (att.ticket_id=t.id AND att.is_flag = 1) ") : " ").
-			(isset($tables['stt']) ? sprintf("LEFT JOIN assign_to_ticket stt ON (stt.ticket_id=t.id AND stt.is_flag = 0) ") : " ").
+			// [JAS]: Dynamic table joins
+			(isset($tables['att']) ? "LEFT JOIN assign_to_ticket att ON (att.ticket_id=t.id AND att.is_flag = 1) " : " ").
+			(isset($tables['stt']) ? "LEFT JOIN assign_to_ticket stt ON (stt.ticket_id=t.id AND stt.is_flag = 0) " : " ").
+			(isset($tables['ra']) ? "INNER JOIN requester r ON (r.ticket_id=t.id)" : " ").
+			(isset($tables['ra']) ? "INNER JOIN address ra ON (ra.id=r.address_id) " : " ").
 			
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "").
 			(!empty($sortBy) ? sprintf("ORDER BY %s %s",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : "")

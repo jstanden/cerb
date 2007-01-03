@@ -1,5 +1,5 @@
 <?php
-define("CERBERUS_BUILD", 68);
+define("CERBERUS_BUILD", 72);
 
 include_once(DEVBLOCKS_PATH . "/api/CerberusDAO.class.php");
 include_once(DEVBLOCKS_PATH . "/api/CerberusModel.class.php");
@@ -115,8 +115,6 @@ class CerberusApplication {
 			new CerberusDashboardViewColumn(CerberusSearchFields::TICKET_CREATED_DATE,'Created Date'),
 			new CerberusDashboardViewColumn(CerberusSearchFields::TICKET_UPDATED_DATE,'Updated Date'),
 			new CerberusDashboardViewColumn(CerberusSearchFields::MAILBOX_NAME,'Mailbox'),
-			new CerberusDashboardViewColumn(CerberusSearchFields::ASSIGNED_WORKER,'Assigned Worker'),
-			new CerberusDashboardViewColumn(CerberusSearchFields::SUGGESTED_WORKER,'Suggested Worker'),
 		);
 	}
 	// ***************** DUMMY

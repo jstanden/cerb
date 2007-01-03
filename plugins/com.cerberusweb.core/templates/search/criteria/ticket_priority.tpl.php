@@ -1,8 +1,4 @@
-{*
-<label><input type="radio" name="oper" value="in" checked>in list</label>
-<label><input type="radio" name="oper" value="!in">not in list</label>
-<br>
-*}
+Matching Priorities:<br>
 <label><input name="priority[]" type="checkbox" value="100">Highest</label><br>
 <label><input name="priority[]" type="checkbox" value="90">High</label><br>
 <label><input name="priority[]" type="checkbox" value="75">Moderate</label><br>

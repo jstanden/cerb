@@ -48,6 +48,8 @@ $language = array(
 	
 	'search.no_saved' => 'No saved searches.',
 	
+	'requester' => 'Requester',
+	
 	'status.open' => 'Open',
 	'status.waiting' => 'Waiting For Reply',
 	'status.closed' => 'Closed',

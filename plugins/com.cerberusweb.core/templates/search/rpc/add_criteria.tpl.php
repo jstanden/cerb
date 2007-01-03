@@ -15,6 +15,7 @@
 				<option value='t_subject'>{$translate->say('ticket.subject')}
 				<option value='att_agent_id'>{$translate->say('workflow.assigned')}
 				<option value='stt_agent_id'>{$translate->say('workflow.suggested')}
+				<option value='ra_email'>{$translate->say('requester')}
 			</select>
 		</td>
 		

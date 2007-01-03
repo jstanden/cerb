@@ -897,6 +897,10 @@ class ChSearchModule extends CerberusModuleExtension {
 				$tpl->display('file:' . dirname(__FILE__) . '/templates/search/criteria/ticket_subject.tpl.php');
 				break;
 				
+			case CerberusSearchFields::REQUESTER_ADDRESS:
+				$tpl->display('file:' . dirname(__FILE__) . '/templates/search/criteria/requester_email.tpl.php');
+				break;
+				
 			case CerberusSearchFields::ASSIGNED_WORKER:
 				$workers = CerberusAgentDAO::getAgents();
 				$tpl->assign('workers', $workers);
@@ -948,6 +952,11 @@ class ChSearchModule extends CerberusModuleExtension {
 			case CerberusSearchFields::TICKET_SUBJECT:
 				@$subject = $_REQUEST['subject'];
 				$params[$field] = new CerberusSearchCriteria($field,'like',$subject);
+				break;
+			case CerberusSearchFields::REQUESTER_ADDRESS:
+				@$requester = $_REQUEST['requester'];
+				@$oper = $_REQUEST['oper'];
+				$params[$field] = new CerberusSearchCriteria($field,$oper,$requester);
 				break;
 			case CerberusSearchFields::ASSIGNED_WORKER:
 				@$worker_ids = $_REQUEST['worker_id'];
