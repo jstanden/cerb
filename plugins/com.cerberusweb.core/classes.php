@@ -83,8 +83,8 @@ class ChDashboardModule extends CerberusModuleExtension {
 		
 		$view = CerberusDashboardDAO::getView(0);
 		$view->params = array(
-			new CerberusSearchCriteria('t.mailbox_id','=', $id),
-			new CerberusSearchCriteria('t.status','in', array(CerberusTicketStatus::OPEN))
+			new CerberusSearchCriteria(CerberusSearchFields::MAILBOX_ID,'=', $id),
+			new CerberusSearchCriteria(CerberusSearchFields::TICKET_STATUS,'in', array(CerberusTicketStatus::OPEN))
 		);
 		$_SESSION['search_view'] = $view;
 		
@@ -219,11 +219,11 @@ class ChDashboardModule extends CerberusModuleExtension {
 		
 		$fields = array(
 			'view_columns' => serialize(array(
-				't.mask',
-				't.status',
-				't.priority',
-				't.last_wrote',
-				't.created_date'
+				CerberusSearchFields::TICKET_MASK,
+				CerberusSearchFields::TICKET_STATUS,
+				CerberusSearchFields::TICKET_PRIORITY,
+				CerberusSearchFields::TICKET_LAST_WROTE,
+				CerberusSearchFields::TICKET_CREATED_DATE,
 			))
 		);
 		CerberusDashboardDAO::updateView($view_id,$fields);
@@ -803,10 +803,23 @@ class ChTeamworkModule extends CerberusModuleExtension {
 	
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		$tpl->cache_lifetime = "0";
+		
+		$session = DevblocksPlatform::getSessionService();
+		$visit = $session->getVisit();
 		
 		$teams = CerberusWorkflowDAO::getTeams();
 		$tpl->assign('teams', $teams);		
+		
+		$mytickets = CerberusSearchDAO::searchTickets(
+			array(
+				new CerberusSearchCriteria(CerberusSearchFields::ASSIGNED_WORKER,'in',array($visit->id))
+			),
+			25
+		);
+		$tpl->assign('count',$mytickets[1]);
+		$tpl->assign('mytickets',$mytickets[0]);
 		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/teamwork/index.tpl.php');
 	}
@@ -868,20 +881,34 @@ class ChSearchModule extends CerberusModuleExtension {
 		$tpl->cache_lifetime = "0";
 		
 		switch($field) {
-			case "t.mask":
+			case CerberusSearchFields::TICKET_MASK:
 				$tpl->display('file:' . dirname(__FILE__) . '/templates/search/criteria/ticket_mask.tpl.php');
 				break;
 				
-			case "t.status":
+			case CerberusSearchFields::TICKET_STATUS:
 				$tpl->display('file:' . dirname(__FILE__) . '/templates/search/criteria/ticket_status.tpl.php');
 				break;
 				
-			case "t.priority":
+			case CerberusSearchFields::TICKET_PRIORITY:
 				$tpl->display('file:' . dirname(__FILE__) . '/templates/search/criteria/ticket_priority.tpl.php');
 				break;
 				
-			case "t.subject":
+			case CerberusSearchFields::TICKET_SUBJECT:
 				$tpl->display('file:' . dirname(__FILE__) . '/templates/search/criteria/ticket_subject.tpl.php');
+				break;
+				
+			case CerberusSearchFields::ASSIGNED_WORKER:
+				$workers = CerberusAgentDAO::getAgents();
+				$tpl->assign('workers', $workers);
+				
+				$tpl->display('file:' . dirname(__FILE__) . '/templates/search/criteria/assigned_worker.tpl.php');
+				break;
+				
+			case CerberusSearchFields::SUGGESTED_WORKER:
+				$workers = CerberusAgentDAO::getAgents();
+				$tpl->assign('workers', $workers);
+				
+				$tpl->display('file:' . dirname(__FILE__) . '/templates/search/criteria/suggested_worker.tpl.php');
 				break;
 		}
 	}
@@ -906,21 +933,29 @@ class ChSearchModule extends CerberusModuleExtension {
 		@$field = $_REQUEST['field'];
 
 		switch($field) {
-			case "t.mask":
+			case CerberusSearchFields::TICKET_MASK:
 				@$mask = $_REQUEST['mask'];
 				$params[$field] = new CerberusSearchCriteria($field,'like',$mask);
 				break;
-			case "t.status":
+			case CerberusSearchFields::TICKET_STATUS:
 				@$status = $_REQUEST['status'];
 				$params[$field] = new CerberusSearchCriteria($field,'in',$status);
 				break;
-			case "t.priority":
+			case CerberusSearchFields::TICKET_PRIORITY:
 				@$priority = $_REQUEST['priority'];
 				$params[$field] = new CerberusSearchCriteria($field,'in',$priority);
 				break;
-			case "t.subject":
+			case CerberusSearchFields::TICKET_SUBJECT:
 				@$subject = $_REQUEST['subject'];
 				$params[$field] = new CerberusSearchCriteria($field,'like',$subject);
+				break;
+			case CerberusSearchFields::ASSIGNED_WORKER:
+				@$worker_ids = $_REQUEST['worker_id'];
+				$params[$field] = new CerberusSearchCriteria($field,'in',$worker_ids);
+				break;
+			case CerberusSearchFields::SUGGESTED_WORKER:
+				@$worker_ids = $_REQUEST['worker_id'];
+				$params[$field] = new CerberusSearchCriteria($field,'in',$worker_ids);
 				break;
 		}
 		
@@ -1017,7 +1052,7 @@ class ChSearchModule extends CerberusModuleExtension {
 		} else { // named search
 			@$name = $_REQUEST['name'];
 			
-			$view_id = CerberusDashboardDAO::createView($name, 0, 50, 't.created_date', 0, 'S');
+			$view_id = CerberusDashboardDAO::createView($name, 0, 50, 't_created_date', 0, 'S');
 			$fields = array(
 				'view_columns' => serialize($columns),
 				'params' => serialize($params),
@@ -1360,7 +1395,7 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 	
 	function flagAgents() {
 		@$id = intval($_POST['id']);
-		@$agentEntry = $_POST['agentEntry'];
+		@$agentEntry = $_POST['workerEntry'];
 		
 		$tokens = CerberusApplication::parseCsvString($agentEntry);
 		
@@ -1399,7 +1434,7 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 
 	function suggestAgents() {
 		@$id = intval($_POST['id']);
-		@$agentEntry = $_POST['agentEntry'];
+		@$agentEntry = $_POST['workerEntry'];
 		
 		$tokens = CerberusApplication::parseCsvString($agentEntry);
 		

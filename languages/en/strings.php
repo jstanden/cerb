@@ -58,12 +58,16 @@ $language = array(
 	'ticket.first_wrote' => 'First Wrote',
 	'ticket.last_wrote' => 'Last Wrote',
 	'ticket.mask' => 'Mask',
+	'ticket.mailbox' => 'Mailbox',
 	'ticket.priority' => 'Priority',
 	'ticket.status' => 'Status',
 	'ticket.subject' => 'Subject',
 	'ticket.updated' => 'Updated',
 	
 	'whos_online.heading' => "Who's Online: (%d agents)",
+	
+	'workflow.assigned' => 'Assigned',
+	'workflow.suggested' => 'Suggested'
 );
 
 ?>

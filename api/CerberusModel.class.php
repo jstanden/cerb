@@ -38,11 +38,11 @@ class CerberusDashboardView {
 	
 	public $renderPage = 0;
 	public $renderLimit = 10;
-	public $renderSortBy = 't.subject';
+	public $renderSortBy = 't_subject';
 	public $renderSortAsc = 1;
 	
 	function getTickets() {
-		$tickets = CerberusTicketDAO::searchTickets(
+		$tickets = CerberusSearchDAO::searchTickets(
 			$this->params,
 			$this->renderLimit,
 			$this->renderPage,
@@ -50,6 +50,61 @@ class CerberusDashboardView {
 			$this->renderSortAsc
 		);
 		return $tickets;	
+	}
+};
+
+class CerberusSearchFields {
+	// Ticket
+	const TICKET_ID = 't_id';
+	const TICKET_MASK = 't_mask';
+	const TICKET_STATUS = 't_status';
+	const TICKET_PRIORITY = 't_priority';
+	const TICKET_SUBJECT = 't_subject';
+	const TICKET_LAST_WROTE = 't_last_wrote';
+	const TICKET_FIRST_WROTE = 't_first_wrote';
+	const TICKET_CREATED_DATE = 't_created_date';
+	const TICKET_UPDATED_DATE = 't_updated_date';
+	
+	// Mailbox
+	const MAILBOX_ID = 'm_id';
+	const MAILBOX_NAME = 'm_name';
+	
+	// Worker Workflow
+	const ASSIGNED_WORKER = 'att_agent_id';
+	const SUGGESTED_WORKER = 'stt_agent_id';
+	
+	/**
+	 * @return CerberusSearchField[]
+	 */
+	static function getFields() {
+		return array(
+			CerberusSearchFields::TICKET_MASK => new CerberusSearchField(CerberusSearchFields::TICKET_MASK, 't', 'mask'),
+			CerberusSearchFields::TICKET_STATUS => new CerberusSearchField(CerberusSearchFields::TICKET_STATUS, 't', 'status'),
+			CerberusSearchFields::TICKET_PRIORITY => new CerberusSearchField(CerberusSearchFields::TICKET_PRIORITY, 't', 'priority'),
+			CerberusSearchFields::TICKET_SUBJECT => new CerberusSearchField(CerberusSearchFields::TICKET_SUBJECT, 't', 'subject'),
+			CerberusSearchFields::TICKET_LAST_WROTE => new CerberusSearchField(CerberusSearchFields::TICKET_LAST_WROTE, 't', 'last_wrote'),
+			CerberusSearchFields::TICKET_FIRST_WROTE => new CerberusSearchField(CerberusSearchFields::TICKET_FIRST_WROTE, 't', 'first_wrote'),
+			CerberusSearchFields::TICKET_CREATED_DATE => new CerberusSearchField(CerberusSearchFields::TICKET_CREATED_DATE, 't', 'created_date'),
+			CerberusSearchFields::TICKET_UPDATED_DATE => new CerberusSearchField(CerberusSearchFields::TICKET_FIRST_WROTE, 't', 'updated_date'),
+
+			CerberusSearchFields::ASSIGNED_WORKER => new CerberusSearchField(CerberusSearchFields::ASSIGNED_WORKER, 'att', 'agent_id'),
+			CerberusSearchFields::SUGGESTED_WORKER => new CerberusSearchField(CerberusSearchFields::SUGGESTED_WORKER, 'stt', 'agent_id'),
+			
+			CerberusSearchFields::MAILBOX_ID => new CerberusSearchField(CerberusSearchFields::MAILBOX_ID, 'm', 'id'),
+			CerberusSearchFields::MAILBOX_NAME => new CerberusSearchField(CerberusSearchFields::MAILBOX_NAME, 'm', 'name'),
+		);
+	}
+};
+
+class CerberusSearchField {
+	public $token;
+	public $db_table;
+	public $db_column;
+	
+	function __construct($token, $db_table, $db_column) {
+		$this->token = $token;
+		$this->db_table = $db_table;
+		$this->db_column = $db_column;
 	}
 };
 

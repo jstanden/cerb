@@ -574,122 +574,6 @@ class CerberusTicketDAO {
 		return $newId;
 	}
 
-	/**
-	 * Enter description here...
-	 *
-	 * @param CerberusSearchCriteria[] $params
-	 * @param integer $limit
-	 * @param integer $page
-	 * @param string $sortBy
-	 * @param boolean $sortAsc
-	 * @return array
-	 */
-	static function searchTickets($params,$limit=10,$page=0,$sortBy=null,$sortAsc=null) {
-		$um_db = DevblocksPlatform::getDatabaseService();
-		
-		$tickets = array();
-		$start = min($page * $limit,1);
-		
-//		print_r($params);
-		$wheres = array();
-		
-		// [JAS]: Search Builder
-		if(is_array($params))
-		foreach($params as $param) { /* @var $param CerberusSearchCriteria */
-			if(!is_a($param,'CerberusSearchCriteria')) continue;
-			$where = "";
-			
-			// [JAS]: Filter allowed columns (ignore invalid/deprecated)
-			switch($param->field) {
-				case "t.id";
-				case "t.mask";
-				case "t.status";
-				case "t.subject";
-				case "t.priority";
-				case "t.mailbox_id";
-				case "t.last_wrote";
-				case "t.first_wrote";
-					break;
-				default:
-					continue;
-					break;
-			}
-			
-			// [JAS]: Operators
-			switch($param->operator) {
-				case "=":
-					$where = sprintf("%s = %s",
-						$param->field,
-						$um_db->QMagic($param->value)
-					);
-					break;
-					
-				case "!=":
-					$where = sprintf("%s != %s",
-						$param->field,
-						$um_db->QMagic($param->value)
-					);
-					break;
-				
-				case "in":
-					if(!is_array($param->value)) break;
-					$where = sprintf("%s IN ('%s')",
-						$param->field,
-						implode("','",$param->value)
-					);
-					break;
-					
-				case "like":
-//					if(!is_array($param->value)) break;
-					$where = sprintf("%s LIKE %s",
-						$param->field,
-						$um_db->QMagic(str_replace('*','%%',$param->value))
-					);
-					break;
-					
-				default:
-					break;
-			}
-			
-			if(!empty($where)) $wheres[] = $where;
-		}
-		
-		// [JAS]: 1-based [TODO] clean up + document
-		$start = ($page * $limit);
-		
-		$sql = sprintf("SELECT t.id , t.mask, t.subject, t.status, t.priority, t.mailbox_id, t.bitflags, t.first_wrote, t.last_wrote, t.created_date, ".
-			"t.updated_date ". //m.name
-			"FROM ticket t ".
-//			"INNER JOIN mailbox m ON (t.mailbox_id=m.id) ".
-			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "").
-			(!empty($sortBy) ? sprintf("ORDER BY %s %s",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : "")
-		);
-//		echo $sql;
-		$rs = $um_db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
-		while(!$rs->EOF) {
-			$ticket = new CerberusTicket();
-			$ticket->id = intval($rs->fields['id']);
-			$ticket->mask = $rs->fields['mask'];
-			$ticket->subject = $rs->fields['subject'];
-			$ticket->bitflags = intval($rs->fields['bitflags']);
-			$ticket->status = $rs->fields['status'];
-			$ticket->priority = intval($rs->fields['priority']);
-			$ticket->mailbox_id = intval($rs->fields['mailbox_id']);
-			$ticket->last_wrote = $rs->fields['last_wrote'];
-			$ticket->first_wrote = $rs->fields['first_wrote'];
-			$ticket->created_date = intval($rs->fields['created_date']);
-			$ticket->updated_date = intval($rs->fields['updated_date']);
-			$tickets[$ticket->id] = $ticket;
-			$rs->MoveNext();
-		}
-
-		// [JAS]: Count all
-		$rs = $um_db->Execute($sql);
-		$total = $rs->RecordCount();
-		
-		return array($tickets,$total);
-	}
-	
 	// [JAS]: [TODO] Replace this inner function with a ticket ID search using searchTicket()?  Removes redundancy
 	/**
 	 * Enter description here...
@@ -1094,16 +978,17 @@ class CerberusDashboardDAO {
 			$view->name = "Search Results";
 			$view->dashboard_id = 0;
 			$view->view_columns = array(
-				't.mask',
-				't.status',
-				't.priority',
-				't.last_wrote',
-				't.created_date'
+				CerberusSearchFields::TICKET_MASK,
+				CerberusSearchFields::TICKET_STATUS,
+				CerberusSearchFields::TICKET_PRIORITY,
+				CerberusSearchFields::MAILBOX_NAME,
+				CerberusSearchFields::TICKET_LAST_WROTE,
+				CerberusSearchFields::TICKET_CREATED_DATE,
 				);
 			$view->params = array();
 			$view->renderLimit = 100;
 			$view->renderPage = 0;
-			$view->renderSortBy = 't.created_date';
+			$view->renderSortBy = CerberusSearchFields::TICKET_CREATED_DATE;
 			$view->renderSortAsc = 0;
 			
 			$_SESSION['search_view'] = $view;
@@ -1327,6 +1212,129 @@ class CerberusMailRuleDAO {
 class CerberusSearchDAO {
 	// [JAS]: [TODO] Implement Agent ID lookup
 	// [JAS]: [TODO] Move to a single getViewsById
+	
+	/**
+	 * Enter description here...
+	 *
+	 * @param CerberusSearchCriteria[] $params
+	 * @param integer $limit
+	 * @param integer $page
+	 * @param string $sortBy
+	 * @param boolean $sortAsc
+	 * @return array
+	 */
+	static function searchTickets($params,$limit=10,$page=0,$sortBy=null,$sortAsc=null) {
+		$um_db = DevblocksPlatform::getDatabaseService();
+
+		$fields = CerberusSearchFields::getFields();
+		$start = min($page * $limit,1);
+		
+		$results = array();
+		$tables = array();
+		$wheres = array();
+		
+		// [JAS]: Search Builder
+		if(is_array($params))
+		foreach($params as $param) { /* @var $param CerberusSearchCriteria */
+			if(!is_a($param,'CerberusSearchCriteria')) continue;
+			$where = "";
+			
+			// [JAS]: Filter allowed columns (ignore invalid/deprecated)
+			if(!isset($fields[$param->field]))
+				continue;
+
+			$db_field_name = $fields[$param->field]->db_table . '.' . $fields[$param->field]->db_column; 
+			
+			// [JAS]: Indexes for optimization
+			$tables[$fields[$param->field]->db_table] = $fields[$param->field]->db_table;
+				
+			// [JAS]: Operators
+			switch($param->operator) {
+				case "=":
+					$where = sprintf("%s = %s",
+						$db_field_name,
+						$um_db->QMagic($param->value)
+					);
+					break;
+					
+				case "!=":
+					$where = sprintf("%s != %s",
+						$db_field_name,
+						$um_db->QMagic($param->value)
+					);
+					break;
+				
+				case "in":
+					if(!is_array($param->value)) break;
+					$where = sprintf("%s IN ('%s')",
+						$db_field_name,
+						implode("','",$param->value)
+					);
+					break;
+					
+				case "like":
+//					if(!is_array($param->value)) break;
+					$where = sprintf("%s LIKE %s",
+						$db_field_name,
+						$um_db->QMagic(str_replace('*','%%',$param->value))
+					);
+					break;
+					
+				default:
+					break;
+			}
+			
+			if(!empty($where)) $wheres[] = $where;
+		}
+		
+		// [JAS]: 1-based [TODO] clean up + document
+		$start = ($page * $limit);
+		
+		// [JAS]: [TODO] Dynamically link and optimize the necessary tables for the requested fields.
+		
+		$sql = sprintf("SELECT ".
+			"t.id as t_id, ".
+			"t.mask as t_mask, ".
+			"t.subject as t_subject, ".
+			"t.status as t_status, ".
+			"t.priority as t_priority, ".
+			"t.mailbox_id as t_mailbox_id, ".
+			"t.bitflags as t_bitflags, ".
+			"t.first_wrote as t_first_wrote, ".
+			"t.last_wrote as t_last_wrote, ".
+			"t.created_date as t_created_date, ".
+			"t.updated_date as t_updated_date, ".
+			"m.id as m_id, ".
+			"m.name as m_name ".
+			"FROM ticket t ".
+			"INNER JOIN mailbox m ON (t.mailbox_id=m.id) ".
+			
+			(isset($tables['att']) ? sprintf("LEFT JOIN assign_to_ticket att ON (att.ticket_id=t.id AND att.is_flag = 1) ") : " ").
+			(isset($tables['stt']) ? sprintf("LEFT JOIN assign_to_ticket stt ON (stt.ticket_id=t.id AND stt.is_flag = 0) ") : " ").
+			
+			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "").
+			(!empty($sortBy) ? sprintf("ORDER BY %s %s",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : "")
+		);
+		$rs = $um_db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		while(!$rs->EOF) {
+			// [JAS]: [TODO] This needs to change to an intermediary search row object.
+			$result = array();
+			foreach($rs->fields as $f => $v) {
+				$result[$f] = $v;
+			}
+			$ticket_id = intval($rs->fields[CerberusSearchFields::TICKET_ID]);
+			$results[$ticket_id] = $result;
+			$rs->MoveNext();
+		}
+
+		// [JAS]: Count all
+		$rs = $um_db->Execute($sql);
+		$total = $rs->RecordCount();
+		
+		return array($results,$total);
+	}	
+	
 	/**
 	 * Enter description here...
 	 *

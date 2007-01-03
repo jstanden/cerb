@@ -16,20 +16,22 @@
 	<tr class="tableTh">
 		<th style="text-align:center"><input type="checkbox" onclick="checkAll('view{$view->id}',this.checked);"></th>
 		{foreach from=$view->view_columns item=header name=headers}
-			{if $header=="t.mask"}
-			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t.mask');">{$translate->say('ticket.id')}</a></th>
-			{elseif $header=="t.status"}
-			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t.status');">{$translate->say('ticket.status')}</a></th>
-			{elseif $header=="t.priority"}
-			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t.priority');">{$translate->say('ticket.priority')}</a></th>
-			{elseif $header=="t.last_wrote"}
-			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t.last_wrote');">{$translate->say('ticket.last_wrote')}</a></th>
-			{elseif $header=="t.first_wrote"}
-			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t.first_wrote');">{$translate->say('ticket.first_wrote')}</a></th>
-			{elseif $header=="t.created_date"}
-			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t.created_date');">{$translate->say('ticket.created')}</a></th>
-			{elseif $header=="t.updated_date"}
-			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t.updated_date');">{$translate->say('ticket.updated')}</a></th>
+			{if $header=="t_mask"}
+			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_mask');">{$translate->say('ticket.id')}</a></th>
+			{elseif $header=="t_status"}
+			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_status');">{$translate->say('ticket.status')}</a></th>
+			{elseif $header=="t_priority"}
+			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_priority');">{$translate->say('ticket.priority')}</a></th>
+			{elseif $header=="t_last_wrote"}
+			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_last_wrote');">{$translate->say('ticket.last_wrote')}</a></th>
+			{elseif $header=="t_first_wrote"}
+			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_first_wrote');">{$translate->say('ticket.first_wrote')}</a></th>
+			{elseif $header=="t_created_date"}
+			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_created_date');">{$translate->say('ticket.created')}</a></th>
+			{elseif $header=="t_updated_date"}
+			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_updated_date');">{$translate->say('ticket.updated')}</a></th>
+			{elseif $header=="m_name"}
+			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','m_name');">{$translate->say('ticket.mailbox')}</a></th>
 			{/if}
 		{/foreach}
 	</tr>
@@ -38,51 +40,53 @@
 	{assign var=results value=$view->getTickets()}
 	{assign var=total value=$results[1]}
 	{assign var=tickets value=$results[0]}
-	{foreach from=$tickets item=ticket key=idx name=tickets}
-		<tr class="{if $smarty.foreach.tickets.iteration % 2}tableRowBg{else}tableRowAltBg{/if}">
+	{foreach from=$tickets item=result key=idx name=results}
+		<tr class="{if $smarty.foreach.results.iteration % 2}tableRowBg{else}tableRowAltBg{/if}">
 			<td align="center" rowspan="2"><input type="checkbox" name="ticket_id[]" value=""></td>
-			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}"><a href="index.php?c=core.module.dashboard&a=viewticket&id={$ticket->id}" class="ticketLink"><b>{$ticket->subject}</b></a></td>
+			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}"><a href="index.php?c=core.module.dashboard&a=viewticket&id={$result.t_id}" class="ticketLink"><b>{$result.t_subject}</b></a></td>
 		</tr>
-		<tr class="{if $smarty.foreach.tickets.iteration % 2}tableRowBg{else}tableRowAltBg{/if}">
+		<tr class="{if $smarty.foreach.results.iteration % 2}tableRowBg{else}tableRowAltBg{/if}">
 		{foreach from=$view->view_columns item=column name=columns}
-			{if $column=="t.mask"}
-			<td><a href="index.php?c=core.module.dashboard&a=viewticket&id={$ticket->id}">{$ticket->mask}</a></td>
-			{elseif $column=="t.status"}
+			{if $column=="t_mask"}
+			<td><a href="index.php?c=core.module.dashboard&a=viewticket&id={$result.t_id}">{$result.t_mask}</a></td>
+			{elseif $column=="t_status"}
 			<td>
-				{if $ticket->status=='O'}
+				{if $result.t_status=='O'}
 					{$translate->say('status.open')|lower}
-				{elseif $ticket->status=='W'}
+				{elseif $result.t_status=='W'}
 					{$translate->say('status.waiting')|lower}
-				{elseif $ticket->status=='C'}
+				{elseif $result.t_status=='C'}
 					{$translate->say('status.closed')|lower}
-				{elseif $ticket->status=='D'}
+				{elseif $result.t_status=='D'}
 					{$translate->say('status.deleted')|lower}
 				{/if}
 			</td>
-			{elseif $column=="t.priority"}
+			{elseif $column=="t_priority"}
 			<td>
-				{if $ticket->priority == 100}
-					<img src="images/star_red.gif" title="{$ticket->priority}">
-				{elseif $ticket->priority >= 90}
-					<img src="images/star_yellow.gif" title="{$ticket->priority}">
-				{elseif $ticket->priority >= 75}
-					<img src="images/star_green.gif" title="{$ticket->priority}">
-				{elseif $ticket->priority >= 50}
-					<img src="images/star_blue.gif" title="{$ticket->priority}">
-				{elseif $ticket->priority >= 25}
-					<img src="images/star_grey.gif" title="{$ticket->priority}">
+				{if $result.t_priority == 100}
+					<img src="images/star_red.gif" title="{$result.t_priority}">
+				{elseif $result.t_priority >= 90}
+					<img src="images/star_yellow.gif" title="{$result.t_priority}">
+				{elseif $result.t_priority >= 75}
+					<img src="images/star_green.gif" title="{$result.t_priority}">
+				{elseif $result.t_priority >= 50}
+					<img src="images/star_blue.gif" title="{$result.t_priority}">
+				{elseif $result.t_priority >= 25}
+					<img src="images/star_grey.gif" title="{$result.t_priority}">
 				{else}
-					<img src="images/star_alpha.gif" title="{$ticket->priority}">
+					<img src="images/star_alpha.gif" title="{$result.t_priority}">
 				{/if}
 			</td>
-			{elseif $column=="t.last_wrote"}
-			<td><a href="javascript:;" onclick="ajax.showContactPanel('{$ticket->last_wrote}',this);">{$ticket->last_wrote}</a></td>
-			{elseif $column=="t.first_wrote"}
-			<td><a href="javascript:;" onclick="ajax.showContactPanel('{$ticket->first_wrote}',this);">{$ticket->first_wrote}</a></td>
-			{elseif $column=="t.created_date"}
-			<td>{$ticket->created_date|date_format}</td>
-			{elseif $column=="t.updated_date"}
-			<td>{$ticket->updated_date|date_format}</td>
+			{elseif $column=="t_last_wrote"}
+			<td><a href="javascript:;" onclick="ajax.showContactPanel('{$ticket->last_wrote}',this);">{$result.t_last_wrote}</a></td>
+			{elseif $column=="t_first_wrote"}
+			<td><a href="javascript:;" onclick="ajax.showContactPanel('{$ticket->first_wrote}',this);">{$result.t_first_wrote}</a></td>
+			{elseif $column=="t_created_date"}
+			<td>{$result.t_created_date|date_format}</td>
+			{elseif $column=="t_updated_date"}
+			<td>{$result.t_updated_date|date_format}</td>
+			{elseif $column=="m_name"}
+			<td><a href="index.php?c={$c}&a=viewmailbox&id={$result.m_id}">{$result.m_name}</a></td>
 			{/if}
 		{/foreach}
 		</tr>

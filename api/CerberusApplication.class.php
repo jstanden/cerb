@@ -103,19 +103,22 @@ class CerberusApplication {
 		return $message_id;
 	}
 	
-	// ***************** DUMMY [TODO] Move to Model?
+	// ***************** DUMMY [TODO] Move to Model?  Combine with search fields?
+	// [JAS]: [TODO] Translate
 	static function getDashboardViewColumns() {
 		return array(
-			new CerberusDashboardViewColumn('t.mask','ID'),
-			new CerberusDashboardViewColumn('t.status','Status'),
-			new CerberusDashboardViewColumn('t.priority','Priority'),
-			new CerberusDashboardViewColumn('t.last_wrote','Last Wrote'),
-			new CerberusDashboardViewColumn('t.first_wrote','First Wrote'),
-			new CerberusDashboardViewColumn('t.created_date','Created Date'),
-			new CerberusDashboardViewColumn('t.updated_date','Updated Date'),
+			new CerberusDashboardViewColumn(CerberusSearchFields::TICKET_MASK,'ID'),
+			new CerberusDashboardViewColumn(CerberusSearchFields::TICKET_STATUS,'Status'),
+			new CerberusDashboardViewColumn(CerberusSearchFields::TICKET_PRIORITY,'Priority'),
+			new CerberusDashboardViewColumn(CerberusSearchFields::TICKET_LAST_WROTE,'Last Wrote'),
+			new CerberusDashboardViewColumn(CerberusSearchFields::TICKET_FIRST_WROTE,'First Wrote'),
+			new CerberusDashboardViewColumn(CerberusSearchFields::TICKET_CREATED_DATE,'Created Date'),
+			new CerberusDashboardViewColumn(CerberusSearchFields::TICKET_UPDATED_DATE,'Updated Date'),
+			new CerberusDashboardViewColumn(CerberusSearchFields::MAILBOX_NAME,'Mailbox'),
+			new CerberusDashboardViewColumn(CerberusSearchFields::ASSIGNED_WORKER,'Assigned Worker'),
+			new CerberusDashboardViewColumn(CerberusSearchFields::SUGGESTED_WORKER,'Suggested Worker'),
 		);
 	}
-	
 	// ***************** DUMMY
 	
 };

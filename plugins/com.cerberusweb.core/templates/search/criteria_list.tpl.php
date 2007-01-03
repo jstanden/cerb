@@ -28,13 +28,12 @@
 				{foreach from=$params item=param}
 					<tr>
 						<td width="100%">
-				
-				{if $param->field=="t.mask"}
+						{if $param->field=='t_mask'}
 							<img src="images/data_find.gif" align="absmiddle"> 
 							{$translate->say('ticket.mask')|capitalize} 
 							{$param->operator} 
 							<b>{$param->value}</b>
-				{elseif $param->field=="t.status"}
+						{elseif $param->field=="t_status"}
 							<img src="images/data_find.gif" align="absmiddle"> 
 							{$translate->say('ticket.status')|capitalize} 
 							{$param->operator}
@@ -42,7 +41,7 @@
 							<b>{$p}</b>
 							 {if !$smarty.foreach.params.last} or {/if}
 							{/foreach}
-				{elseif $param->field=="t.mailbox_id"}
+						{elseif $param->field=="m_id"}
 							<img src="images/data_find.gif" align="absmiddle"> 
 							{$translate->say('common.mailbox')|capitalize}
 							{$param->operator}
@@ -50,7 +49,7 @@
 							<b>{$p}</b>
 							 {if !$smarty.foreach.params.last} or {/if}
 							{/foreach}
-				{elseif $param->field=="t.priority"}
+						{elseif $param->field=="t_priority"}
 							<img src="images/data_find.gif" align="absmiddle"> 
 							{$translate->say('ticket.priority')|capitalize} 
 							{$param->operator}
@@ -58,13 +57,29 @@
 							<b>{$p}</b>
 							 {if !$smarty.foreach.params.last} or {/if}
 							{/foreach}
-				{elseif $param->field=="t.subject"}
+						{elseif $param->field=="t_subject"}
 							<img src="images/data_find.gif" align="absmiddle"> 
 							{$translate->say('ticket.subject')|capitalize} 
 							{$param->operator} 
 							<b>{$param->value}</b>
-				{else}
-				{/if}
+						{elseif $param->field=="att_agent_id"}
+							<img src="images/data_find.gif" align="absmiddle"> 
+							{$translate->say('workflow.assigned')|capitalize} 
+							{$param->operator} 
+							{foreach from=$param->value item=p name=params}
+							<b>{$p}</b>
+							 {if !$smarty.foreach.params.last} or {/if}
+							{/foreach}
+						{elseif $param->field=="stt_agent_id"}
+							<img src="images/data_find.gif" align="absmiddle"> 
+							{$translate->say('workflow.suggested')|capitalize} 
+							{$param->operator} 
+							{foreach from=$param->value item=p name=params}
+							<b>{$p}</b>
+							 {if !$smarty.foreach.params.last} or {/if}
+							{/foreach}
+						{else}
+						{/if}
 						</td>
 						<td width="0%" nowrap="nowrap" valign="top"><a href="index.php?c=core.module.search&a=removeCriteria&field={$param->field}"><img src="images/data_error.gif" border="0" align="absmiddle"></a></td>
 					</tr>

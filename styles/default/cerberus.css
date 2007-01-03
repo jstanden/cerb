@@ -51,6 +51,13 @@
   form { margin: 0px;
     }
 
+  A.ticket {
+  	 font-weight: bold;
+    font-family: Arial,Helvetica,sans-serif;
+    font-size: 16px;
+    color: rgb(0, 102, 255);
+    }
+
   .headerMenu { 
     background-color: rgb(136, 136, 136);
     color: rgb(255, 255, 255);
