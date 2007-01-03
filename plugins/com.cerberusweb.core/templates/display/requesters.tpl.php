@@ -5,16 +5,17 @@
 <table class="tableBlue" border="0" cellpadding="2" cellspacing="0" width="100%">
   <tbody>
     <tr>
-      <td class="tableThBlue" nowrap="nowrap"> <img src="images/mail2.gif"> Requesters </td>
+      <td colspan="2" class="tableThBlue" nowrap="nowrap"> <img src="images/mail2.gif"> Requesters </td>
     </tr>
     {assign var=requesters value=$ticket->getRequesters()}
     {foreach from=$requesters item=requester name=requesters}
     <tr>
-      <td><a href="javascript:;" onclick="ajax.showContactPanel('{$requester->email}',this);" style="font-size:85%;" title="{$requester->personal|escape:"htmlall"}">{$requester->email}</a></td>
+      <td><a href="javascript:;" onclick="ajax.showContactPanel('{$requester->email}',this);" style="font-size:85%;" title="{$requester->email|escape:"htmlall"}">{if !empty($requester->personal)}{$requester->personal|escape:"htmlall"}{else}{$requester->email}{/if}</a></td>
+      <td><a href="javascript:;" onclick=""><b>X</b></a></td>
     </tr>
     {/foreach}
     <tr>
-    	<td>
+    	<td colspan="2">
     		<div class="automod">
 	   		<div class="autocomplete">
  			<input name="add_requester" type="text" style="width:98%;" class="autoinput" id="addRequesterEntry">

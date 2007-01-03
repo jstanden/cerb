@@ -302,6 +302,10 @@ class CerberusPop3Account {
 class CerberusTag {
 	public $id;
 	public $name;
+	
+	function getTerms() {
+		return CerberusWorkflowDAO::getTagTerms($this->id);
+	}
 };
 
 class CerberusMailRule {

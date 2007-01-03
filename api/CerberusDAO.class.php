@@ -1571,6 +1571,72 @@ class CerberusWorkflowDAO {
 		return $id;
 	}
 	
+	/**
+	 * Enter description here...
+	 *
+	 * @param integer $id
+	 * @param array $fields
+	 */
+	static function updateTag($id, $fields) {
+		$um_db = DevblocksPlatform::getDatabaseService();
+		$sets = array();
+		
+		if(!is_array($fields) || empty($fields) || empty($id))
+			return;
+		
+		foreach($fields as $k => $v) {
+			$sets[] = sprintf("%s = %s",
+				$k,
+				$um_db->QMagic($v)
+			);
+		}
+			
+		$sql = sprintf("UPDATE tag SET %s WHERE id = %d",
+			implode(', ', $sets),
+			$id
+		);
+		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+	}
+	
+	static function setTagTerms($id, $terms) {
+		if(empty($id)) return null;
+		
+		$um_db = DevblocksPlatform::getDatabaseService();
+
+		// [JAS]: Clear previous terms
+		$um_db->Execute(sprintf("DELETE FROM tag_term WHERE tag_id = %d", $id));
+		
+		if(is_array($terms))
+		foreach($terms as $v) {
+			$term = trim($v);
+			if(empty($term)) continue;
+			$um_db->Replace('tag_term', array('tag_id'=>$id,'term'=>$um_db->QMagic($term)),array('tag_id','term'),false);
+		}
+	}
+	
+	static function getTagTerms($id) {
+		if(empty($id)) return;
+		
+		$um_db = DevblocksPlatform::getDatabaseService();
+		$terms = array();
+		
+		$sql = sprintf("SELECT tag_id, term ".
+			"FROM tag_term ".
+			"WHERE tag_id = %d ". 
+			"ORDER BY term ASC",
+			$id
+		);
+		$rs = $um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		while(!$rs->EOF) {
+			$terms[] = $rs->fields['term'];
+			$rs->MoveNext();
+		}
+		
+		return $terms;
+	}
+	
 	static function deleteTag($id) {
 		$um_db = DevblocksPlatform::getDatabaseService();
 		if(empty($id)) return;

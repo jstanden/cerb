@@ -10,8 +10,9 @@
 	<input type="hidden" name="a" value="saveTagDialog">
 	<input type="hidden" name="id" value="{$tag->id}">
 	
-	<b>Related Terms &amp; Phrases (one per line):</b><br>
-	<textarea style="width:98%;height:50px;"></textarea><br>
+	<b>Related terms &amp; phrases to find in conversation:</b><br>
+	<textarea style="width:98%;height:50px;" name="terms">{foreach from=$tag->getTerms() item=term name=terms}{$term|cat:"\n"}{/foreach}</textarea><br>
+	<i>(enter one phrase per line)</i><br>
 	
 	{if !empty($ticket_id)}
 	<br>

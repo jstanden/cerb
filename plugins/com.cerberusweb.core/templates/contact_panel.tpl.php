@@ -5,20 +5,35 @@
 		<td align="right" width="0%" nowrap="nowrap"><form><input type="button" value=" X " onclick="ajax.contactPanel.hide();"></form></td>
 	</tr>
 </table>
-<div style="height:200px;overflow:auto;background-color:rgb(255,255,255);border:1px solid rgb(230,230,230);margin:2px;padding:3px;">
+<div style="height:200px;overflow:auto;border:1px solid rgb(180,180,180);margin:2px;padding:3px;">
 <b>Contact Information:</b><br>
-[[name]] (ID: {$address->id})<br>
-[[company]]<br>
-[[address]]<br>
-[[city]] [[state/prov]] [[zip/postal]]<br>
-[[country]]<br>
-[[phone]]<br>
-{$address->email}<br>
-Personal: {$address->personal}<br>
+
+<table cellspacing="0" cellpadding="2" width="100%">
+	<tr>
+		<td>First Name:</td>
+		<td><input type="text"></td>
+	</tr>
+	<tr>
+		<td>Last Name:</td>
+		<td><input type="text"></td>
+	</tr>
+	<tr>
+		<td>Company:</td>
+		<td><input type="text"></td>
+	</tr>
+	<tr>
+		<td>Phone:</td>
+		<td><input type="text"></td>
+	</tr>
+</table>
+
+<input type="button" value="{$translate->say('common.save_changes')}"><br>
+
 <br>
 
 <b>Ticket History:</b><br>
-<a href="javascript:;">find open tickets</a><br>
-<a href="javascript:;">find all tickets</a><br>
+<a href="javascript:;">find open tickets</a>
+ |  
+<a href="javascript:;">find all tickets</a>
 <br>
 </div>

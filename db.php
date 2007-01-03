@@ -146,6 +146,11 @@ $tables['tag'] = "
 	name C(32) DEFAULT '' NOTNULL
 ";
 
+$tables['tag_term'] = "
+	tag_id I4 DEFAULT 0 NOTNULL PRIMARY,
+	term C(128) DEFAULT '' NOTNULL PRIMARY
+";
+
 $tables['tag_to_ticket'] ="
 	tag_id I4 DEFAULT 0 NOTNULL PRIMARY,
 	ticket_id I4 DEFAULT 0 NOTNULL PRIMARY

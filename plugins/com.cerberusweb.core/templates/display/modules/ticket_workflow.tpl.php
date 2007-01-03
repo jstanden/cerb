@@ -1,6 +1,6 @@
 {assign var=tags value=$ticket->getTags()}
 <b>Tags:</b> 
-<img src="images/bookmark_add.gif" align="absmiddle"> <a href="javascript:;" onclick="displayAjax.showApplyTags();">Add Tags</a>
+<img src="images/bookmark_add.gif" align="absmiddle"> <a href="javascript:;" onclick="displayAjax.showApplyTagDialog(this);">Add Tags</a>
 <img src="images/preferences.gif" align="absmiddle"> <a href="javascript:;" onclick="displayAjax.showFavTags();">Manage Favorites</a>
 <br>
 <div style="width:98%;background-color:rgb(250,250,255);border:1px solid rgb(200,200,200);margin:2px;padding:5px;">
