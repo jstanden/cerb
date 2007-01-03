@@ -15,7 +15,7 @@
 <table border="0" cellpadding="0" cellspacing="0" width="100%" class="displayModuleTable">
     <tr>
       <td colspan="2" valign="top" style="padding:2px;">
-        <form action="javascript:;" id="{$display_module->manifest->id}_form">{$display_module->$callback()}</form>
+        <form action="javascript:;" id="{$display_module->manifest->id}_form">{$display_module->$callback($ticket)}</form>
       </td>
     </tr>
 </table>

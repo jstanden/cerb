@@ -65,7 +65,11 @@ class CerberusSearchFields {
 	const TICKET_CREATED_DATE = 't_created_date';
 	const TICKET_UPDATED_DATE = 't_updated_date';
 	
+	// Message
+	const MESSAGE_CONTENT = 'msg_content';
+	
 	// Requester
+	const REQUESTER_ID = 'ra_id';
 	const REQUESTER_ADDRESS = 'ra_email';
 	
 	// Mailbox
@@ -89,10 +93,13 @@ class CerberusSearchFields {
 			CerberusSearchFields::TICKET_FIRST_WROTE => new CerberusSearchField(CerberusSearchFields::TICKET_FIRST_WROTE, 't', 'first_wrote'),
 			CerberusSearchFields::TICKET_CREATED_DATE => new CerberusSearchField(CerberusSearchFields::TICKET_CREATED_DATE, 't', 'created_date'),
 			CerberusSearchFields::TICKET_UPDATED_DATE => new CerberusSearchField(CerberusSearchFields::TICKET_FIRST_WROTE, 't', 'updated_date'),
+			
+			CerberusSearchFields::MESSAGE_CONTENT => new CerberusSearchField(CerberusSearchFields::MESSAGE_CONTENT, 'msg', 'content'),
 
 			CerberusSearchFields::ASSIGNED_WORKER => new CerberusSearchField(CerberusSearchFields::ASSIGNED_WORKER, 'att', 'agent_id'),
 			CerberusSearchFields::SUGGESTED_WORKER => new CerberusSearchField(CerberusSearchFields::SUGGESTED_WORKER, 'stt', 'agent_id'),
 			
+			CerberusSearchFields::REQUESTER_ID => new CerberusSearchField(CerberusSearchFields::REQUESTER_ID, 'ra', 'id'),
 			CerberusSearchFields::REQUESTER_ADDRESS => new CerberusSearchField(CerberusSearchFields::REQUESTER_ADDRESS, 'ra', 'email'),
 			
 			CerberusSearchFields::MAILBOX_ID => new CerberusSearchField(CerberusSearchFields::MAILBOX_ID, 'm', 'id'),

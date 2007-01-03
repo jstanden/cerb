@@ -46,9 +46,11 @@ $language = array(
 	'dashboard.switch' => 'Switch',
 	'dashboard.team_loads' => 'Team Loads',
 	
-	'search.no_saved' => 'No saved searches.',
-	
+	'message.content' => 'Message Content',
+		
 	'requester' => 'Requester',
+	
+	'search.no_saved' => 'No saved searches.',
 	
 	'status.open' => 'Open',
 	'status.waiting' => 'Waiting For Reply',

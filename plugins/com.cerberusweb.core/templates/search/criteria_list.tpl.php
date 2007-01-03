@@ -67,6 +67,11 @@
 							{$translate->say('requester')|capitalize} 
 							{$param->operator} 
 							<b>{$param->value}</b>
+						{elseif $param->field=="msg_content"}
+							<img src="images/data_find.gif" align="absmiddle"> 
+							{$translate->say('message.content')|capitalize} 
+							{$param->operator} 
+							<b>{$param->value}</b>
 						{elseif $param->field=="att_agent_id"}
 							<img src="images/data_find.gif" align="absmiddle"> 
 							{$translate->say('workflow.assigned')|capitalize} 

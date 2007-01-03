@@ -117,7 +117,7 @@
 				<name>ChDisplayTicketHistory</name>
 			</class>
 			<params>
-				<param key="title" value="Customer History" />
+				<param key="title" value="Requester History" />
 				<param key="icon" value="images/scroll_view.gif" />
 			</params>
 		</extension>

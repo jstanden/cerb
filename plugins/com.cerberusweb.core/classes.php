@@ -652,6 +652,10 @@ class ChDisplayModule extends CerberusModuleExtension {
 	function sendComment()	{ ChDisplayModule::sendMessage(CerberusMessageType::COMMENT); }
 	
 	// TODO: may need to also have an agent_id passed to it in the request, to identify the agent making the reply
+	/*
+	 * [JAS]: [TODO] This really belongs in the API, it will be reused plenty and there's way too much 
+	 * reusable code here stuck in the plugin action.
+	 */
 	function sendMessage($type) {
 		// variable loading
 		@$id		= $_REQUEST['id']; // message id
@@ -674,7 +678,12 @@ class ChDisplayModule extends CerberusModuleExtension {
 		if ($type != CerberusMessageType::COMMENT) {
 			// build MIME message if message has attachments
 			if (is_array($files) && !empty($files)) {
-				require_once(DEVBLOCKS_PATH . '/libs/pear/mime.php');
+				
+				/*
+				 * [JAS]: [TODO] If we're going to call platform libs directly we should just have
+				 * the platform provide the functionality.
+				 */
+				require_once(DEVBLOCKS_PATH . '/libs/devblocks/pear/mime.php');
 				$mime_mail = new Mail_mime();
 				$mime_mail->setTXTBody($content);
 				foreach ($files['tmp_name'] as $idx => $file) {
@@ -901,6 +910,10 @@ class ChSearchModule extends CerberusModuleExtension {
 				$tpl->display('file:' . dirname(__FILE__) . '/templates/search/criteria/requester_email.tpl.php');
 				break;
 				
+			case CerberusSearchFields::MESSAGE_CONTENT:
+				$tpl->display('file:' . dirname(__FILE__) . '/templates/search/criteria/message_content.tpl.php');
+				break;
+				
 			case CerberusSearchFields::ASSIGNED_WORKER:
 				$workers = CerberusAgentDAO::getAgents();
 				$tpl->assign('workers', $workers);
@@ -957,6 +970,10 @@ class ChSearchModule extends CerberusModuleExtension {
 				@$requester = $_REQUEST['requester'];
 				@$oper = $_REQUEST['oper'];
 				$params[$field] = new CerberusSearchCriteria($field,$oper,$requester);
+				break;
+			case CerberusSearchFields::MESSAGE_CONTENT:
+				@$requester = $_REQUEST['content'];
+				$params[$field] = new CerberusSearchCriteria($field,'like',$requester);
 				break;
 			case CerberusSearchFields::ASSIGNED_WORKER:
 				@$worker_ids = $_REQUEST['worker_id'];
@@ -1128,8 +1145,24 @@ class ChDisplayTicketHistory extends CerberusDisplayModuleExtension {
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/ticket_history.tpl.php');
 	}
 	
-	function renderBody() {
-		echo "History content goes here!";
+	function renderBody($ticket) {
+		/* @var $ticket CerberusTicket */
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		
+		$requesters = $ticket->getRequesters();
+		
+		$history_tickets = CerberusSearchDAO::searchTickets(
+			array(
+				new CerberusSearchCriteria(CerberusSearchFields::REQUESTER_ID,'in',array_keys($requesters))
+			),
+			10
+		);
+		$tpl->assign('history_tickets', $history_tickets[0]);
+		$tpl->assign('history_count', $history_tickets[1]);
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/history/index.tpl.php');
 	}
 }
 
@@ -1144,7 +1177,7 @@ class ChDisplayTicketLog extends CerberusDisplayModuleExtension {
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/ticket_log.tpl.php');
 	}
 	
-	function renderBody() {
+	function renderBody($ticket) {
 		echo "Ticket log content goes here!";
 	}
 }
@@ -1162,7 +1195,7 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 		$tpl->display('display/expandable_module_template.tpl.php');
 	}
 	
-	function renderBody() {
+	function renderBody($ticket) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
 		$session = DevblocksPlatform::getSessionService();
@@ -1469,7 +1502,7 @@ class ChDisplayTicketFields extends CerberusDisplayModuleExtension {
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/ticket_fields.tpl.php');
 	}
 	
-	function renderBody() {
+	function renderBody($ticket) {
 		echo "Ticket custom fields content goes here!";
 	}
 }

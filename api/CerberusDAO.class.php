@@ -393,7 +393,11 @@ class CerberusContactDAO {
 
 		$id = $um_db->GenID('address_seq');
 		
-		require_once(DEVBLOCKS_PATH . '/libs/pear/Mail/RFC822.php');
+		/*
+		 * [JAS]: [TODO] If we're going to call platform libs directly we should just have
+		 * the platform provide the functionality.
+		 */
+		require_once(DEVBLOCKS_PATH . '/libs/devblocks/pear/Mail/RFC822.php');
 		if (false === Mail_RFC822::isValidInetAddress($email)) {
 //			throw new Exception($email . DevblocksTranslationManager::say('ticket.requester.invalid'));
 			return null;
@@ -1311,8 +1315,10 @@ class CerberusSearchDAO {
 			(isset($tables['stt']) ? "LEFT JOIN assign_to_ticket stt ON (stt.ticket_id=t.id AND stt.is_flag = 0) " : " ").
 			(isset($tables['ra']) ? "INNER JOIN requester r ON (r.ticket_id=t.id)" : " ").
 			(isset($tables['ra']) ? "INNER JOIN address ra ON (ra.id=r.address_id) " : " ").
+			(isset($tables['msg']) ? "INNER JOIN message msg ON (msg.ticket_id=t.id) " : " ").
 			
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "").
+			"GROUP BY t.id ".
 			(!empty($sortBy) ? sprintf("ORDER BY %s %s",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : "")
 		);
 		$rs = $um_db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */

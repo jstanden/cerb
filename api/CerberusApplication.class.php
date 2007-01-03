@@ -1,5 +1,5 @@
 <?php
-define("CERBERUS_BUILD", 72);
+define("CERBERUS_BUILD", 73);
 
 include_once(DEVBLOCKS_PATH . "/api/CerberusDAO.class.php");
 include_once(DEVBLOCKS_PATH . "/api/CerberusModel.class.php");
@@ -474,7 +474,11 @@ class CerberusParser {
 	}
 	
 	static private function parseRfcAddress($address_string) {
-		require_once(DEVBLOCKS_PATH . '/libs/pear/Mail/RFC822.php');
+		/*
+		 * [JAS]: [TODO] If we're going to call platform libs directly we should just have
+		 * the platform provide the functionality.
+		 */
+		require_once(DEVBLOCKS_PATH . '/libs/devblocks/pear/Mail/RFC822.php');
 		$structure = Mail_RFC822::parseAddressList($address_string, null, false);
 		return $structure;
 	}
