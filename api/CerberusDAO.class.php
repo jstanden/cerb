@@ -700,6 +700,9 @@ class CerberusTicketDAO {
 		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
 	}
 	
+	/**
+	 * @return CerberusMessage[]
+	 */
 	static function getMessagesByTicket($ticket_id) {
 		$um_db = DevblocksPlatform::getDatabaseService();
 		$messages = array();
@@ -1526,6 +1529,37 @@ class CerberusWorkflowDAO {
 		return null;
 	}
 	
+	static function getSuggestedTags($ticket_id,$limit=10) {
+		if(empty($ticket_id)) return array();
+		
+		$um_db = DevblocksPlatform::getDatabaseService();
+		$tags = array();
+		
+		$msgs = CerberusTicketDAO::getMessagesByTicket($ticket_id);
+		if(!is_array($msgs[0])) return array();
+		
+		$msg = array_shift($msgs[0]); /* @var $msg CerberusMessage */
+		$content = $msg->getContent();
+		
+		// [JAS]: [TODO] This could get out of control fast
+		$terms = CerberusWorkflowDAO::getTagTerms();
+
+		foreach($terms as $term) {
+			if(FALSE === stristr($content,$term->term)) continue;
+			$tags[$term->tag_id] = intval($tags[$term->tag_id]) + 1;
+		}
+		
+		arsort($tags);
+		$tags = array_slice($tags,0,$limit,true);
+		
+		unset($terms);
+		
+		if(empty($tags))
+			return array();
+		
+		return CerberusWorkflowDAO::getTags(array_keys($tags));
+	}
+	
 	static function searchTags($query,$limit=10) {
 		$um_db = DevblocksPlatform::getDatabaseService();
 		if(empty($query)) return null;
@@ -1615,22 +1649,21 @@ class CerberusWorkflowDAO {
 		}
 	}
 	
-	static function getTagTerms($id) {
-		if(empty($id)) return;
-		
+	static function getTagTerms($id=null) {
 		$um_db = DevblocksPlatform::getDatabaseService();
 		$terms = array();
 		
-		$sql = sprintf("SELECT tag_id, term ".
+		$sql = "SELECT tag_id, term ".
 			"FROM tag_term ".
-			"WHERE tag_id = %d ". 
-			"ORDER BY term ASC",
-			$id
-		);
+			((!empty($id)) ? sprintf("WHERE tag_id = %d ",$id) : " "). 
+			"ORDER BY term ASC";
 		$rs = $um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		while(!$rs->EOF) {
-			$terms[] = $rs->fields['term'];
+			$term = new CerberusTagTerm();
+			$term->tag_id = intval($rs->fields['tag_id']);
+			$term->term = $rs->fields['term'];
+			$terms[] = $term;
 			$rs->MoveNext();
 		}
 		

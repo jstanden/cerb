@@ -1,5 +1,5 @@
 <?php
-define("CERBERUS_BUILD", 73);
+define("CERBERUS_BUILD", 75);
 
 include_once(DEVBLOCKS_PATH . "/api/CerberusDAO.class.php");
 include_once(DEVBLOCKS_PATH . "/api/CerberusModel.class.php");

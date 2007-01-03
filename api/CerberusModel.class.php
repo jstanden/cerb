@@ -308,6 +308,11 @@ class CerberusTag {
 	}
 };
 
+class CerberusTagTerm {
+	public $tag_id;
+	public $term;
+};
+
 class CerberusMailRule {
 	public $id;
 	public $criteria;

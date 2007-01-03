@@ -1207,8 +1207,8 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 		$favoriteTags = CerberusAgentDAO::getFavoriteTags($visit->id);
 		$tpl->assign('favoriteTags', $favoriteTags);
 		
-		$suggestedTags = CerberusWorkflowDAO::getTags();
-		$tpl->assign('suggestedTags', $suggestedTags);
+//		$suggestedTags = CerberusWorkflowDAO::getSuggestedTags($ticket->id,10);
+//		$tpl->assign('suggestedTags', $suggestedTags);
 		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/ticket_workflow.tpl.php');
 	}
@@ -1244,9 +1244,9 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 		$favoriteTags = CerberusAgentDAO::getFavoriteTags($visit->id);
 		$tpl->assign('favoriteTags', $favoriteTags);
 		
-		$suggestedTags = CerberusWorkflowDAO::getTags();
+		$suggestedTags = CerberusWorkflowDAO::getSuggestedTags($ticket->id,10);
 		$tpl->assign('suggestedTags', $suggestedTags);
-		
+				
 		$tpl->assign('ticket_id', $ticket_id);
 		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/workflow/apply_tag.tpl.php');
