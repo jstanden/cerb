@@ -1347,6 +1347,119 @@ class CerberusSearchDAO {
 	/**
 	 * Enter description here...
 	 *
+	 * @param CerberusSearchCriteria[] $params
+	 * @param integer $limit
+	 * @param integer $page
+	 * @param string $sortBy
+	 * @param boolean $sortAsc
+	 * @return array
+	 * 
+	 * @todo [TODO] This and the ticket search could really share a lot of the operator/field functionality 
+	 */
+	static function searchResources($params,$limit=10,$page=0,$sortBy=null,$sortAsc=null) {
+		$um_db = DevblocksPlatform::getDatabaseService();
+
+		$fields = CerberusResourceSearchFields::getFields();
+		$start = min($page * $limit,1);
+		
+		$results = array();
+		$tables = array();
+		$wheres = array();
+		
+		// [JAS]: Search Builder
+		if(is_array($params))
+		foreach($params as $param) { /* @var $param CerberusSearchCriteria */
+			if(!is_a($param,'CerberusSearchCriteria')) continue;
+			$where = "";
+			
+			// [JAS]: Filter allowed columns (ignore invalid/deprecated)
+			if(!isset($fields[$param->field]))
+				continue;
+
+			$db_field_name = $fields[$param->field]->db_table . '.' . $fields[$param->field]->db_column; 
+			
+			// [JAS]: Indexes for optimization
+			$tables[$fields[$param->field]->db_table] = $fields[$param->field]->db_table;
+				
+			// [JAS]: Operators
+			switch($param->operator) {
+				case "=":
+					$where = sprintf("%s = %s",
+						$db_field_name,
+						$um_db->QMagic($param->value)
+					);
+					break;
+					
+				case "!=":
+					$where = sprintf("%s != %s",
+						$db_field_name,
+						$um_db->QMagic($param->value)
+					);
+					break;
+				
+				case "in":
+					if(!is_array($param->value)) break;
+					$where = sprintf("%s IN ('%s')",
+						$db_field_name,
+						implode("','",$param->value)
+					);
+					break;
+					
+				case "like":
+//					if(!is_array($param->value)) break;
+					$where = sprintf("%s LIKE %s",
+						$db_field_name,
+						$um_db->QMagic(str_replace('*','%%',$param->value))
+					);
+					break;
+					
+				default:
+					break;
+			}
+			
+			if(!empty($where)) $wheres[] = $where;
+		}
+		
+		// [JAS]: 1-based [TODO] clean up + document
+		$start = ($page * $limit);
+		
+		$sql = sprintf("SELECT ".
+			"kb.id as kb_id, ".
+			"kb.title as kb_title, ".
+			"kb.type as kb_type ".
+			"FROM kb ".
+			
+			// [JAS]: Dynamic table joins
+			(isset($tables['kbc']) ? "INNER JOIN kb_content kbc ON (kbc.kb_id=kb.id) " : " ").
+			(isset($tables['kbcat']) ? "LEFT JOIN kb_to_category kbtc ON (kbtc.kb_id=kb.id) " : " ").
+			(isset($tables['kbcat']) ? "LEFT JOIN kb_category kbcat ON (kbcat.id=kbtc.category_id) " : " ").
+			
+			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "").
+			"GROUP BY kb.id ".
+			(!empty($sortBy) ? sprintf("ORDER BY %s %s",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : "")
+		);
+		$rs = $um_db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		while(!$rs->EOF) {
+			$result = array();
+			foreach($rs->fields as $f => $v) {
+				$result[$f] = $v;
+			}
+			$id = intval($rs->fields[CerberusResourceSearchFields::KB_ID]);
+			$results[$id] = $result;
+			$rs->MoveNext();
+		}
+
+		// [JAS]: Count all
+		$rs = $um_db->Execute($sql);
+		$total = $rs->RecordCount();
+		
+		return array($results,$total);
+	}	
+	
+	/**
+	 * Enter description here...
+	 *
 	 * @param integer $agent_id
 	 * @return CerberusDashboardView[]
 	 */
@@ -2309,6 +2422,240 @@ class CerberusMailDAO {
 		
 		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
 	}
+};
+
+class DAO_Kb {
+	
+	/**
+	 * @return integer
+	 */
+	static function createCategory($name, $parent_id=0) {
+		if(empty($name)) return null;
+		
+		$um_db = DevblocksPlatform::getDatabaseService();
+		$id = $um_db->GenID('generic_seq');
+		
+		$sql = sprintf("INSERT INTO kb_category (id,name,parent_id) ".
+			"VALUES (%d,%s,%d)",
+			$id,
+			$um_db->QMagic($name),
+			$parent_id
+		);
+		
+		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		return $id;
+	}
+	
+	static function getCategory($id) {
+		$categories = DAO_Kb::getCategories(array($id));
+		
+		if(isset($categories[$id]))
+			return $categories[$id];
+			
+		return null;
+	}
+	
+	static function getBreadcrumbTrail(&$tree,$id) {
+		$trail = array();
+		$p = $id;
+		do {
+			$trail[] =& $tree[$p];
+			$p = $tree[$p]->parent_id; 		
+		} while($p >= 0);
+		$trail = array_reverse($trail,true);
+		return $trail;
+	}
+	
+	/*
+	 * @return array
+	 */
+	static private function _getCategoryResourceTotals() {
+		$um_db = DevblocksPlatform::getDatabaseService();
+		$totals = array();
+		
+		$sql = sprintf("SELECT kbc.category_id, count(kb.id) as hits ".
+			"FROM kb ".
+			"INNER JOIN kb_to_category kbc ON (kb.id=kbc.kb_id) ".
+			"GROUP BY kbc.category_id"
+		);
+		$rs = $um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		while(!$rs->EOF) {
+			$id = intval($rs->fields['category_id']);
+			$hits = intval($rs->fields['hits']);
+			$totals[$id] = $hits;
+			$rs->MoveNext();
+		}
+		
+		return $totals;
+	}
+	
+	static function getCategoryTree() {
+
+		// [JAS]: Root node
+		$rootNode = new CerberusKbCategory();
+		$rootNode->id = 0;
+		$rootNode->name = 'Top';
+		$rootNode->parent_id = -1;
+		
+		$tree = DAO_Kb::getCategories();
+		$tree[0] = $rootNode;
+		
+		// [JAS]: Pointer hash
+		foreach($tree as $catid => $cat) { /* @var $cat CerberusKbCategory */
+			if(isset($tree[$cat->parent_id]) && $cat->parent_id != $catid) {
+				$children =& $tree[$cat->parent_id]->children;
+				$children[$catid] =& $tree[$catid];
+			}
+		}
+
+		// [JAS]: Alphabetize children
+		foreach($tree as $catid => $cat) { /* @var $cat CerberusKbCategory */
+			$func = create_function('$a,$b', 'return strcasecmp($a->name,$b->name);');
+			uasort($cat->children, $func);
+		}
+		
+		// [JAS]: Recursively total resources
+		$totals = DAO_Kb::_getCategoryResourceTotals();
+		foreach($totals as $catid => $hits) {
+			$ptrid = $catid;
+			do {
+				$ptr =& $tree[$ptrid];
+				$ptr->hits += $hits;
+				$ptrid = $ptr->parent_id;				
+			} while($ptrid >= 0);
+		}
+		
+		return $tree;
+	}
+	
+	static function getCategories($ids=array()) {
+		if(!is_array($ids)) $ids = array($ids);
+		
+		$um_db = DevblocksPlatform::getDatabaseService();
+		$categories = array();
+		
+		$sql = "SELECT kc.id, kc.name, kc.parent_id ".
+			"FROM kb_category kc ".
+			(!empty($ids) ? sprintf("WHERE kc.id IN (%s) ",implode(',', $ids)) : " ").
+			"ORDER BY kc.id";
+		$rs = $um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		while(!$rs->EOF) {
+			$category = new CerberusKbCategory();
+			$category->id = intval($rs->fields['id']);
+			$category->name = $rs->fields['name'];
+			$category->parent_id = intval($rs->fields['parent_id']);
+			$categories[$category->id] = $category;
+			$rs->MoveNext();
+		}
+		
+		return $categories;
+	}
+	
+	static function updateCategory($id, $fields) {
+		
+	}
+	
+	static function deleteCategory($id) {
+		if(empty($id)) return null;
+		$um_db = DevblocksPlatform::getDatabaseService();
+		$um_db->Execute(sprintf("DELETE FROM kb_category WHERE id = %d",$id)) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+	}
+	
+	static function createResource($title,$type=CerberusKbResourceTypes::ARTICLE) {
+		if(empty($title)) return null;
+		
+		$um_db = DevblocksPlatform::getDatabaseService();
+		$id = $um_db->GenID('kb_seq');
+		
+		$sql = sprintf("INSERT INTO (id,title,type) ".
+			"VALUES (%d,%s,%s)",
+			$id,
+			$um_db->QMagic($title),
+			$um_db->QMagic($type)
+		);
+		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		return $id;
+	}
+	
+	static function getResource($id) {
+		if(empty($id)) return null;
+		
+		$resources = DAO_Kb::getResources(array($id));
+		
+		if(isset($resources[$id]))
+			return $resources[$id];
+			
+		return null;
+	}
+	
+	static function getResources($ids=array()) {
+		if(!is_array($ids)) $ids = array($ids);
+		
+		$um_db = DevblocksPlatform::getDatabaseService();
+		$resources = array();
+		
+		$sql = "SELECT kb.id, kb.title, kb.type ".
+			"FROM kb ".
+			((!empty($ids)) ? sprintf("WHERE kb.id IN (%s) ",implode(',',$ids)) : " ").
+			"ORDER BY kb.title";
+		$rs = $um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		while(!$rs->EOF) {
+			$resource = new CerberusKbResource();
+			$resource->id = intval($rs->fields['id']);
+			$resource->title = $rs->fields['title'];
+			$resource->type = $rs->fields['type'];
+			$resources[$resource->id] = $resource;
+			$rs->MoveNext();
+		}
+			
+		return $resources;		
+	}
+	
+	static function updateResource($id, $fields) {
+		
+	}
+	
+	static function deleteResource($id) {
+		if(empty($id)) return null;
+		$um_db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = sprintf("DELETE FROM kb WHERE id = %d",$id);
+		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		$sql = sprintf("DELETE FROM kb_content WHERE kb_id = %d",$id);
+		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		$sql = sprintf("DELETE FROM kb_to_category WHERE kb_id = %d",$id);
+		$um_db->Execute($sql) or die(__CLASS__ . ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+	}
+	
+	/**
+	 * Enter description here...
+	 *
+	 * @param integer $id
+	 * @param string $content
+	 */
+	static function setResourceContent($id, $content) {
+		$um_db = DevblocksPlatform::getDatabaseService();
+		$um_db->Replace('kb_content',array('kb_id'=>$id,'content'=>$um_db->QMagic($content)),array('kb_id'),false);
+	}
+	
+	/**
+	 * Enter description here...
+	 *
+	 * @param integer $id
+	 * @return string
+	 */
+	static function getResourceContent($id) {
+		$content = "Content";
+		return $content;
+	}
 	
 };
+
 ?>

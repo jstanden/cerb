@@ -23,6 +23,7 @@
   <script language="javascript" type="text/javascript" src="scripts/cerberus/cerberus.js?v={$smarty.const.CERBERUS_BUILD}"></script>
   <script language="javascript" type="text/javascript" src="scripts/cerberus/display.js?v={$smarty.const.CERBERUS_BUILD}"></script>
   <script language="javascript" type="text/javascript" src="scripts/cerberus/config.js?v={$smarty.const.CERBERUS_BUILD}"></script>
+  <script language="javascript" type="text/javascript" src="scripts/cerberus/kb.js?v={$smarty.const.CERBERUS_BUILD}"></script>
   
   <link type="text/css" rel="stylesheet" href="styles/default/container.css?v={$smarty.const.CERBERUS_BUILD}" />
   

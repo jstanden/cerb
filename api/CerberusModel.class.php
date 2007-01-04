@@ -108,6 +108,34 @@ class CerberusSearchFields {
 	}
 };
 
+class CerberusResourceSearchFields {
+	// Resource
+	const KB_ID = 'kb_id';
+	const KB_TITLE = 'kb_title';
+	const KB_TYPE = 'kb_type';
+	
+	// Content
+	const KB_CONTENT = 'kb_content';
+	
+	// Category
+	const KB_CATEGORY_ID = 'kbc_id';
+	
+	/**
+	 * @return CerberusSearchField[]
+	 */
+	static function getFields() {
+		return array(
+			CerberusResourceSearchFields::KB_ID => new CerberusSearchField(CerberusResourceSearchFields::KB_ID, 'kb', 'id'),
+			CerberusResourceSearchFields::KB_TITLE => new CerberusSearchField(CerberusResourceSearchFields::KB_TITLE, 'kb', 'title'),
+			CerberusResourceSearchFields::KB_TYPE => new CerberusSearchField(CerberusResourceSearchFields::KB_TYPE, 'kb', 'type'),
+			
+			CerberusResourceSearchFields::KB_CONTENT => new CerberusSearchField(CerberusResourceSearchFields::KB_CONTENT, 'kbc', 'content'),
+			
+			CerberusResourceSearchFields::KB_CATEGORY_ID => new CerberusSearchField(CerberusResourceSearchFields::KB_CATEGORY_ID, 'kbcat', 'id'),
+		);
+	}
+};
+
 class CerberusSearchField {
 	public $token;
 	public $db_table;
@@ -328,6 +356,32 @@ class CerberusMailRuleCriterion {
 	public $value;
 	
 	function CerberusMailRuleCriterion() {}
+};
+
+class CerberusKbCategory {
+	public $id;
+	public $name;
+	public $parent_id;
+	
+	public $hits=0;
+	public $children = array(); // ptr array
+};
+
+class CerberusKbResource {
+	public $id;
+	public $title;
+	public $type; // CerberusKbResourceTypes
+	public $categories = array();
+	
+	function getContent() { 
+		
+		return '';
+	}
+};
+
+class CerberusKbResourceTypes {
+	const ARTICLE = 'A';
+	const URL = 'U';
 };
 
 interface ICerberusCriterion {

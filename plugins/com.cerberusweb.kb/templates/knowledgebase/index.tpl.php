@@ -7,12 +7,21 @@
 		<td width="0%" nowrap="nowrap" valign="top"><h2>Categories:</h2></td>
 		<td width="100%" nowrap="nowrap" valign="middle">
 			<img src="images/spacer.gif" width="5" height="1">
-			<a href="#">manage</a>
+			<a href="javascript:;" onclick="kbAjax.showMailboxRouting(this);">manage</a>
 		</td>
 	</tr>
 </table>
-[[ Top :: Breadcrumb :: Trail ]]<br>
-[[ <img src="images/folder.gif" align="absmiddle"> category tree ]]<br>
+{foreach from=$trail item=tn name=trails}
+<a href="index.php?c={$c}&a=click&id={$tn->id}">{$tn->name}</a> :  
+{/foreach}
 <br>
+<br>
+
+{include file="file:$path/knowledgebase/category_table.tpl.php"}
+
 <h2>Resources:</h2>
-[[ <img src="images/document.gif" align="absmiddle"> F&amp;R resource list ]]<br>
+{include file="file:$path/knowledgebase/resource_list.tpl.php"}
+
+<script>
+	var kbAjax = new cKbAjax();
+</script>

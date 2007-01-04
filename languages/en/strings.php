@@ -5,6 +5,7 @@
 
 $language = array(
 	'common.cancel' => 'cancel',
+	'common.close' => 'close',
 	'common.customize' => 'customize',
 	'common.name' => 'Name',
 	'common.load' => 'Load',
