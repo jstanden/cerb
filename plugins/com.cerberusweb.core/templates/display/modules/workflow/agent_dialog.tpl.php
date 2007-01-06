@@ -1,6 +1,6 @@
 <table cellpadding="0" cellspacing="0" border="0" width="98%">
 	<tr>
-		<td align="left" width="0%" nowrap="nowrap"><img src="images/businessman2.gif" align="absmiddle"><img src="spacer.gif" width="5" height="1"></td>
+		<td align="left" width="0%" nowrap="nowrap"><img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/businessman2.gif" align="absmiddle"><img src="spacer.gif" width="5" height="1"></td>
 		<td align="left" width="100%" nowrap="nowrap"><h1>Worker: {$agent->login}</h1></td>
 		<td align="right" width="0%" nowrap="nowrap"><form><input type="button" value=" X " onclick="displayAjax.agentDialog.hide();"></form></td>
 	</tr>

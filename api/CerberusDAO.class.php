@@ -2523,11 +2523,26 @@ class DAO_Kb {
 			do {
 				$ptr =& $tree[$ptrid];
 				$ptr->hits += $hits;
-				$ptrid = $ptr->parent_id;				
+				$ptrid = $ptr->parent_id;
 			} while($ptrid >= 0);
 		}
 		
 		return $tree;
+	}
+	
+	static function buildTreeMap($tree,&$map,$position=0) {
+		static $level = 0;
+		$node =& $tree[$position];
+		
+		$level++;
+		
+		if(is_array($node->children))
+		foreach($node->children as $ck => $cv) {
+			$map[$ck] = $level;
+			DAO_Kb::buildTreeMap($tree,$map,$ck);
+		}
+		
+		$level--;
 	}
 	
 	static function getCategories($ids=array()) {

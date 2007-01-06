@@ -8,6 +8,7 @@ DevblocksPlatform::init();
 $smarty = DevblocksPlatform::getTemplateService();
 $session = DevblocksPlatform::getSessionService();
 $translate = DevblocksPlatform::getTranslationService();
+$url = DevblocksPlatform::getUrlService();
 
 //$plugins = DevblocksPlatform::readPlugins();
 
@@ -63,6 +64,7 @@ $smarty->assign('index_tokens',$index_tokens);
 $smarty->assign('session', $_SESSION);
 $smarty->assign('visit', $session->getVisit());
 $smarty->assign('translate', $translate);
+$smarty->assign('url', $url);
 $smarty->assign('c', $c);
 $smarty->assign('activeModule', $activeModule);
 

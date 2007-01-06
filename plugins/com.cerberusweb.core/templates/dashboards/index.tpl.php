@@ -2,12 +2,12 @@
   <tbody>
     <tr>
       <td width="0%" nowrap="nowrap"><h1>{$translate->say('dashboard.dashboards')|capitalize}</h1></td>
-      <td nowrap="nowrap" width="0%"><img src="images/spacer.gif" width="10">
-      	<a href="index.php?c=core.module.dashboard&a=addView">{$translate->say('dashboard.add_view')|lower}</a> | 
+      <td nowrap="nowrap" width="0%"><img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/spacer.gif" width="10">
+      	<a href="{$smarty.const.DEVBLOCKS_WEBPATH}index.php?c=core.module.dashboard&a=addView">{$translate->say('dashboard.add_view')|lower}</a> | 
       	<a href="#">{$translate->say('common.customize')|lower}</a> | 
       	<a href="#">{$translate->say('common.remove')|lower}</a> | 
       	<a href="#">{$translate->say('dashboard.create_ticket')|lower}</a> | 
-      	<a href="index.php?c=core.module.dashboard">{$translate->say('common.refresh')|lower}</a></td>
+      	<a href="{$smarty.const.DEVBLOCKS_WEBPATH}index.php?c=core.module.dashboard">{$translate->say('common.refresh')|lower}</a></td>
       <td align="right" nowrap="nowrap" width="100%">
       	<b>{$translate->say('dashboard')|capitalize}:</b> 
       	<select name="">
@@ -32,7 +32,7 @@
       {include file="file:$path/dashboards/mailbox_loads.tpl.php"}
       	
       </td>
-      <td nowrap="nowrap" width="0%"><img src="images/spacer.gif" width="5" height="1"></td>
+      <td nowrap="nowrap" width="0%"><img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/spacer.gif" width="5" height="1"></td>
       <td nowrap="nowrap" width="100%" valign="top">
       
       {foreach from=$views item=view}

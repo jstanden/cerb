@@ -1,7 +1,7 @@
 var cKbAjax = function() {
 	
 	this.categoryPanel = null;
-	this.showMailboxRouting = function(target) {
+	this.showCategoryJump = function(target) {
 		
 		if(null != this.categoryPanel) {
 			this.categoryPanel.hide();
@@ -39,33 +39,43 @@ var cKbAjax = function() {
 		);	
 	}
 	
-	this.postShowMailboxRouting = function(addressId) {
-		var frm = document.getElementById('routingDialog');
-		if(null == frm) return;
+	this.categoryModifyPanel = null;
+	this.showCategoryModify = function(id,parent,target) {
 		
-		YAHOO.util.Connect.setForm(frm);
-		var cObj = YAHOO.util.Connect.asyncRequest('POST', 'ajax.php', {
+		if(null != this.categoryModifyPanel) {
+			this.categoryModifyPanel.hide();
+		}
+		
+		var cObj = YAHOO.util.Connect.asyncRequest('GET', 'ajax.php?c=core.module.kb&a=getKbCategoryModifyDialog&id=' + id + '&pid=' + parent, {
 				success: function(o) {
 					var caller = o.argument.caller;
-					var addressId = o.argument.id;
-
-					caller.mailboxRoutingDialog.hide();
+					var target = o.argument.target;
 					
-					if(addressId != '0') { // update
-						var div = document.getElementById('mbox_routing_' + addressId);
-						if(null == div) return;
-						div.innerHTML = o.responseText;
-						
-					} else { // create
-						caller.refreshMailboxRouting();
+					if(null == caller.categoryModifyPanel) {
+						caller.categoryModifyPanel = new YAHOO.widget.Panel("kbCategoryModifyDialog", 
+							{ width : "510px",
+							  fixedcenter : false,
+							  visible : false, 
+							  constraintoviewport : true,
+							  underlay:"none",
+							  modal: true,
+							  close: false,
+							  draggable: false
+							});
+
+						caller.categoryModifyPanel.setBody('');
+						caller.categoryModifyPanel.render(document.body);
 					}
 					
-//					caller.refreshWorkflow();
+					caller.categoryModifyPanel.hide();
+					caller.categoryModifyPanel.setBody(o.responseText);
+					caller.categoryModifyPanel.cfg.setProperty('context',[target,"tl","bl"]);
+					caller.categoryModifyPanel.show();
 				},
 				failure: function(o) {},
-				argument:{caller:this,id:addressId}
-				}
-		);
-	}	
+				argument:{caller:this,target:target}
+			}
+		);	
+	}
 	
 }

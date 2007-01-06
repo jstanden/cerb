@@ -92,7 +92,7 @@ class ChDashboardModule extends CerberusModuleExtension {
 	}
 	
 	function getLink() {
-		return "?c=".$this->id."&a=click";
+		return DEVBLOCKS_WEBPATH . "index.php?c=".$this->id."&a=click";
 	}
 	
 	function viewSortBy() {
@@ -769,7 +769,7 @@ class ChSignInModule extends CerberusModuleExtension {
 	}
 	
 //	function getLink() {
-//		return "?c=".$this->id."&a=show";
+//		return DEVBLOCKS_WEBPATH . "index.php?c=".$this->id."&a=show";
 //	}
 
 	function show() {
@@ -834,7 +834,7 @@ class ChTeamworkModule extends CerberusModuleExtension {
 	}
 	
 	function getLink() {
-		return "?c=".$this->id."&a=click";
+		return DEVBLOCKS_WEBPATH . "index.php?c=".$this->id."&a=click";
 	}
 	
 };
@@ -879,7 +879,7 @@ class ChSearchModule extends CerberusModuleExtension {
 	}
 	
 	function getLink() {
-		return "?c=".$this->id."&a=click";
+		return DEVBLOCKS_WEBPATH . "index.php?c=".$this->id."&a=click";
 	}
 	
 	function getCriteria() {

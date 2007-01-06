@@ -11,7 +11,7 @@
 		{$history.t_created_date|date_format}
 		</td>
 		<td width="100%" valign="top">
-			<a href="index.php?c=core.module.dashboard&a=viewticket&id={$history.t_id}">{$history.t_subject}</a>
+			<a href="{$smarty.const.DEVBLOCKS_WEBPATH}index.php?c=core.module.dashboard&a=viewticket&id={$history.t_id}">{$history.t_subject}</a>
 			<i>({if $history.t_status=='O'}
 				{$translate->say('status.open')|lower}
 			{elseif $history.t_status=='W'}

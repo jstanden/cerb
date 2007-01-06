@@ -1,6 +1,6 @@
 <table cellpadding="0" cellspacing="0" border="0" class="tableGreen" width="220" class="tableBg">
 	<tr>
-		<td class="tableThGreen" nowrap="nowrap"> <img src="images/folder_network.gif"> {$translate->say('dashboard.mailbox_loads')|capitalize}</td>
+		<td class="tableThGreen" nowrap="nowrap"> <img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/folder_network.gif"> {$translate->say('dashboard.mailbox_loads')|capitalize}</td>
 	</tr>
 	<tr>
 		<td>
@@ -10,8 +10,8 @@
 						{math assign=percent equation="(x/y)*50" x=$mailbox->count y=$total_count format="%0.0f"}
 					{/if}
 				<tr>
-					<td class="tableCellBg" width="100%" style="padding:2px;"><a href="index.php?c=core.module.dashboard&a=clickmailbox&id={$mailbox->id}"><b>{$mailbox->name}</b></a> ({$mailbox->count})</td>
-					<td class="tableCellBgIndent" width="0%" nowrap="nowrap" style="width:51px;"><img src="images/cerb_graph.gif" width="{$percent}" height="15"><img src="images/cer_graph_cap.gif" height="15" width="1"></td>
+					<td class="tableCellBg" width="100%" style="padding:2px;"><a href="{$smarty.const.DEVBLOCKS_WEBPATH}index.php?c=core.module.dashboard&a=clickmailbox&id={$mailbox->id}"><b>{$mailbox->name}</b></a> ({$mailbox->count})</td>
+					<td class="tableCellBgIndent" width="0%" nowrap="nowrap" style="width:51px;"><img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/cerb_graph.gif" width="{$percent}" height="15"><img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/cer_graph_cap.gif" height="15" width="1"></td>
 				</tr>
 				{foreachelse}
 				<tr>

@@ -1,25 +1,55 @@
 <h1>Knowledgebase</h1>
-<img src="images/view.gif"> <b>Search:</b> 
-<input type="text" size="45"><input type="button" value="Go!"> <input type="button" value="Add Content"><br>
+<img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/view.gif"> <b>Search:</b> 
+<input type="text" size="45"><input type="button" value="Go!">
+<img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/folder_into.gif" align="absmiddle"> <a href="javascript:;" onclick="kbAjax.showCategoryJump(this);">jump to category</a>
+<br>
+
+{if $node->id}
 <br>
 <table cellpadding="0" cellspacing="0" border="0" width="100%">
 	<tr>
-		<td width="0%" nowrap="nowrap" valign="top"><h2>Categories:</h2></td>
+		<td width="0%" nowrap="nowrap" valign="top"><h2>{$node->name}</h2></td>
 		<td width="100%" nowrap="nowrap" valign="middle">
-			<img src="images/spacer.gif" width="5" height="1">
-			<a href="javascript:;" onclick="kbAjax.showMailboxRouting(this);">manage</a>
+			<img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/spacer.gif" width="5" height="1">
+			<img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/folder_edit.gif" align="absmiddle"> <a href="javascript:;" onclick="kbAjax.showCategoryModify('{$node->id}','0',this);">modify</a>
 		</td>
 	</tr>
 </table>
+{/if}
+
+{if $node->id}
 {foreach from=$trail item=tn name=trails}
-<a href="index.php?c={$c}&a=click&id={$tn->id}">{$tn->name}</a> :  
+{if $smarty.foreach.trails.last && $tn->id}
+	<b>{$tn->name}</b>
+{else}
+	<a href="{$smarty.const.DEVBLOCKS_WEBPATH}index.php?c={$c}&a=click&id={$tn->id}">{$tn->name}</a> :
+{/if}
 {/foreach}
 <br>
+{/if}
+
 <br>
 
+<table cellpadding="0" cellspacing="0" border="0" width="100%">
+	<tr>
+		<td width="0%" nowrap="nowrap" valign="top"><h2>Subcategories:</h2></td>
+		<td width="100%" nowrap="nowrap" valign="middle">
+			<img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/spacer.gif" width="5" height="1">
+			<img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/folder_add.gif" align="absmiddle"> <a href="javascript:;" onclick="kbAjax.showCategoryModify('0','{$node->id}',this);">add</a>
+		</td>
+	</tr>
+</table>
+<div style="border:1px solid rgb(224,224,224);padding:5px;">
 {include file="file:$path/knowledgebase/category_table.tpl.php"}
+</div>
 
-<h2>Resources:</h2>
+<br>
+<table cellpadding="0" cellspacing="0">
+	<tr>
+		<td><h2>Resources:</h2></td>
+		<td> &nbsp;<img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/document_add.gif" align="absmiddle"> <a href="#">add</a></td>
+	</tr>
+</table>
 {include file="file:$path/knowledgebase/resource_list.tpl.php"}
 
 <script>

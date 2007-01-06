@@ -56,7 +56,44 @@ class ChKnowledgebaseModule extends CerberusModuleExtension {
 		$tree = DAO_Kb::getCategoryTree();
 		$tpl->assign('node', $tree[0]);
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/knowledgebase/category_manage_dialog.tpl.php');
+		$sorted = array();
+		DAO_Kb::buildTreeMap($tree, $sorted);
+		$tpl->assign('tree', $tree);
+		$tpl->assign('sorted', $sorted);
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/knowledgebase/category_jump_dialog.tpl.php');
+	}
+	
+	function getKbCategoryModifyDialog() {
+		@$id = $_REQUEST['id'];
+		@$parent = $_REQUEST['parent'];
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+
+		if(!empty($id)) {
+			$node = DAO_Kb::getCategory($id);
+			$tpl->assign('node', $node);
+		}
+		
+		$tpl->assign('id', $id);
+		
+		if(empty($parent) && !empty($node)) $parent = $node->parent_id;
+		$tpl->assign('parent', $parent);
+
+		$tree = DAO_Kb::getCategoryTree();
+		
+		// [JAS]: Remove our own category from the tree so we don't create a 
+		// parallel universe by setting ourselves as our own parent
+		unset($tree[$id]);
+		
+		$sorted = array();
+		DAO_Kb::buildTreeMap($tree, $sorted);
+		$tpl->assign('tree', $tree);
+		$tpl->assign('sorted', $sorted);
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/knowledgebase/category_modify_dialog.tpl.php');
 	}
 };
 

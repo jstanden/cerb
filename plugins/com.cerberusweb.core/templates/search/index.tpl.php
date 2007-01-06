@@ -10,7 +10,7 @@
 			{include file="file:$path/search/criteria_list.tpl.php" divName="searchCriteriaDialog"}
 			<div id="searchCriteriaDialog" style="visibility:visible;"></div>
 		</td>
-		<td valign="top" width="0%" nowrap="nowrap"><img src="images/spacer.gif" width="5" height="1"></td>
+		<td valign="top" width="0%" nowrap="nowrap"><img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/spacer.gif" width="5" height="1"></td>
 		<td valign="top" width="100%">
 			{*foreach from=$search item=ticket}
 				{$ticket->mask}: {$ticket->subject}<br>

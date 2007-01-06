@@ -4,7 +4,7 @@
 <table class="tableGreen" border="0" cellpadding="2" cellspacing="0" width="100%">
   <tbody>
     <tr>
-      <td class="tableThGreen" nowrap="nowrap"> <img src="images/folder_network.gif"> Properties</td>
+      <td class="tableThGreen" nowrap="nowrap"> <img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/folder_network.gif"> Properties</td>
     </tr>
     <tr>
       <td>
@@ -22,12 +22,12 @@
       	<b class="green">Priority:</b><br>
 			<table cellpadding="0" cellspacing="0">
 				<tr>
-					<td align="center"><label for="priority0"><img src="images/star_alpha.gif" width="16" height="16" border="0" title="None" alt="No Priority"></label></td>
-					<td align="center"><label for="priority1"><img src="images/star_grey.gif" width="16" height="16" border="0" title="Lowest" alt="Lowest Priority"></label></td>
-					<td align="center"><label for="priority2"><img src="images/star_blue.gif" width="16" height="16" border="0" title="Low" alt="Low Priority"></label></td>
-					<td align="center"><label for="priority3"><img src="images/star_green.gif" width="16" height="16" border="0" title="Moderate" alt="Moderate Priority"></label></td>
-					<td align="center"><label for="priority4"><img src="images/star_yellow.gif" width="16" height="16" border="0" title="High" alt="High Priority"></label></td>
-					<td align="center"><label for="priority5"><img src="images/star_red.gif" width="16" height="16" border="0" title="Highest" alt="Highest Priority"></label></td>
+					<td align="center"><label for="priority0"><img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/star_alpha.gif" width="16" height="16" border="0" title="None" alt="No Priority"></label></td>
+					<td align="center"><label for="priority1"><img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/star_grey.gif" width="16" height="16" border="0" title="Lowest" alt="Lowest Priority"></label></td>
+					<td align="center"><label for="priority2"><img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/star_blue.gif" width="16" height="16" border="0" title="Low" alt="Low Priority"></label></td>
+					<td align="center"><label for="priority3"><img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/star_green.gif" width="16" height="16" border="0" title="Moderate" alt="Moderate Priority"></label></td>
+					<td align="center"><label for="priority4"><img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/star_yellow.gif" width="16" height="16" border="0" title="High" alt="High Priority"></label></td>
+					<td align="center"><label for="priority5"><img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/star_red.gif" width="16" height="16" border="0" title="Highest" alt="Highest Priority"></label></td>
 				</tr>
 				<tr>
 					<td align="center"><input id="priority0" type="radio" name="priority" value="0" {if $ticket->priority==0}checked{/if}></td>
@@ -66,7 +66,7 @@
       <td>
       	<b class="green">Due:</b><br>
       	<input name="due" type="text">
-			<a href="javascript:;"><img src="images/icon_calendar.gif" width="16" height="16" border="0" align="absmiddle"></a>
+			<a href="javascript:;"><img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/icon_calendar.gif" width="16" height="16" border="0" align="absmiddle"></a>
      	</td>
     </tr>
     --->

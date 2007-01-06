@@ -289,6 +289,19 @@ class DevblocksPlatform {
 		return $manifest;
 	}
 
+	/**
+	 * @return DevblocksResourceManager
+	 */
+	static function getResourceService() {
+		return DevblocksResourceManager::getInstance();
+	}
+		
+	/**
+	 * @return DevblocksUrlManager
+	 */
+	static function getUrlService() {
+		return DevblocksUrlManager::getInstance();
+	}
 	
 	/**
 	 * Enter description here...
@@ -329,7 +342,7 @@ class DevblocksPlatform {
 		if(!defined('DEVBLOCKS_WEBPATH')) {
 			$php_self = $_SERVER["PHP_SELF"];
 			$pos = strrpos($php_self,'/');
-			$php_self = substr($php_self,0,$pos) . '/' . DEVBLOCKS_DIRECTORY . '/';
+			$php_self = substr($php_self,0,$pos) . '/'; //  . '/' . DEVBLOCKS_DIRECTORY
 			@define('DEVBLOCKS_WEBPATH',$php_self);
 		}
 	}
@@ -729,6 +742,44 @@ class _DevblocksDatabaseManager {
 	}
 	
 };
+
+class DevblocksResourceManager {
+	private function DevblocksResourceManager() {}
+
+	static function getInstance() {
+		static $instance = null;
+		if(null == $instance) {
+			$instance = new DevblocksResourceManager();
+		}
+		return $instance;
+	}
+}
+
+class DevblocksUrlManager {
+	private function DevblocksUrlManager() {}
+
+	static function getInstance() {
+		static $instance = null;
+		if(null == $instance) {
+			$instance = new DevblocksUrlManager();
+		}
+		return $instance;
+	}
+	
+	static function write($c,$a,$args) {
+		if(defined('DEVBLOCKS_URL_REWRITE') && DEVBLOCKS_URL_REWRITE) {
+			return sprintf("x"
+			);
+			
+		} else {
+			return sprintf("index.php?%s%s%s",
+				(!empty($c) ? "c=" . $c : "x="),
+				(!empty($a) ? "&a=" . $a : ""),
+				(!empty($args) ? "&args=" . $args : "")
+			);
+		}
+	}
+}
 
 /**
  * Unicode Translation Singleton

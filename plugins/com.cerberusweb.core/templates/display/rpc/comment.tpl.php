@@ -26,12 +26,12 @@
 					<td width="0%" nowrap="nowrap" valign="top"><b>Actions:</b></td>
 					<td width="100%" valign="top">
 						Set priority: 
-						<label><input type="radio" name="priority" value="0" {if $ticket->priority==0}checked{/if}><img src="images/star_alpha.gif"></label>
-						<label><input type="radio" name="priority" value="25" {if $ticket->priority==25}checked{/if}><img src="images/star_grey.gif"></label>
-						<label><input type="radio" name="priority" value="50" {if $ticket->priority==50}checked{/if}><img src="images/star_blue.gif"></label>
-						<label><input type="radio" name="priority" value="75" {if $ticket->priority==75}checked{/if}><img src="images/star_green.gif"></label>
-						<label><input type="radio" name="priority" value="90" {if $ticket->priority==90}checked{/if}><img src="images/star_yellow.gif"></label>
-						<label><input type="radio" name="priority" value="100" {if $ticket->priority==100}checked{/if}><img src="images/star_red.gif"></label>
+						<label><input type="radio" name="priority" value="0" {if $ticket->priority==0}checked{/if}><img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/star_alpha.gif"></label>
+						<label><input type="radio" name="priority" value="25" {if $ticket->priority==25}checked{/if}><img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/star_grey.gif"></label>
+						<label><input type="radio" name="priority" value="50" {if $ticket->priority==50}checked{/if}><img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/star_blue.gif"></label>
+						<label><input type="radio" name="priority" value="75" {if $ticket->priority==75}checked{/if}><img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/star_green.gif"></label>
+						<label><input type="radio" name="priority" value="90" {if $ticket->priority==90}checked{/if}><img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/star_yellow.gif"></label>
+						<label><input type="radio" name="priority" value="100" {if $ticket->priority==100}checked{/if}><img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/star_red.gif"></label>
 						<br>
 						Set status: 
 						<label><input type="radio" name="status" value="O" {if $ticket->status=='O'}checked{/if}>open</label>

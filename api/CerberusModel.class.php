@@ -364,6 +364,7 @@ class CerberusKbCategory {
 	public $parent_id;
 	
 	public $hits=0;
+	public $level=0;
 	public $children = array(); // ptr array
 };
 

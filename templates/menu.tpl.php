@@ -2,14 +2,14 @@
 	<tr>
 		{foreach from=$modules item=module}
 			{if !empty($module->manifest->params.menutitle)}
-				<td width="0%" nowrap="nowrap" {if $activeModule==$module->id}id="headerMenuSelected"{/if}><img src="images/spacer.gif" width="10" height="1"><a href="{$module->getLink()}">{$module->manifest->params.menutitle|lower}</a><img src="images/spacer.gif" width="10" height="1"></td>
-				<td width="0%" nowrap="nowrap" valign="bottom"><img src="images/menuSep.gif"></td>
+				<td width="0%" nowrap="nowrap" {if $activeModule==$module->id}id="headerMenuSelected"{/if}><img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/spacer.gif" width="10" height="1"><a href="{$module->getLink()}">{$module->manifest->params.menutitle|lower}</a><img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/spacer.gif" width="10" height="1"></td>
+				<td width="0%" nowrap="nowrap" valign="bottom"><img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/menuSep.gif"></td>
 			{/if}
 		{/foreach}
-		<td width="100%"><img src="images/spacer.gif" height="22" width="1"></td>
+		<td width="100%"><img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/spacer.gif" height="22" width="1"></td>
 	</tr>
 </table>
 <table cellpadding="0" cellspacing="0" border="0" width="100%">
-	<tr><td class="headerUnderline"><img src="images/spacer.gif" height="5" width="1"></td></tr>
+	<tr><td class="headerUnderline"><img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/spacer.gif" height="5" width="1"></td></tr>
 </table>
-<img src="images/spacer.gif" height="5" width="1"><br>
+<img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/spacer.gif" height="5" width="1"><br>

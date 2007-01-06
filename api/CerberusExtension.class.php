@@ -9,7 +9,7 @@ abstract class CerberusModuleExtension extends DevblocksExtension {
 	function render() { }
 	
 	function getLink() {
-		return "?c=".$this->manifest->id."&a=click";
+		return DEVBLOCKS_WEBPATH . "index.php?c=".$this->manifest->id."&a=click";
 	}
 	function click() { 
 //		echo "You clicked: " . __CLASS__ . "->" . __FUNCTION__ . "!<br>";
