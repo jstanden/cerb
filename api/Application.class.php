@@ -1,34 +1,11 @@
 <?php
 define("CERBERUS_BUILD", 75);
 
-include_once(DEVBLOCKS_PATH . "/api/CerberusDAO.class.php");
-include_once(DEVBLOCKS_PATH . "/api/CerberusModel.class.php");
-include_once(DEVBLOCKS_PATH . "/api/CerberusExtension.class.php");
+include_once(DEVBLOCKS_PATH . "/api/DAO.class.php");
+include_once(DEVBLOCKS_PATH . "/api/Model.class.php");
+include_once(DEVBLOCKS_PATH . "/api/Extension.class.php");
 
-class CerberusApplication {
-	
-	private function CerberusApplication() {}
-	
-	static function getModules() {
-		$modules = array();
-		$extModules = DevblocksPlatform::getExtensions("com.cerberusweb.module");
-		foreach($extModules as $mod) { /* @var $mod DevblocksExtensionManifest */
-			$instance = $mod->createInstance(); /* @var $instance CerberusModuleExtension */
-			if(is_a($instance,'devblocksextension') && $instance->isVisible())
-				$modules[] = $instance;
-		}
-		return $modules;
-	}
-	
-	static function setActiveModule($module=null) {
-		static $activeModule;
-		if(!is_null($module)) $activeModule = $module;
-		return $activeModule;
-	}
-	
-	static function getActiveModule() {
-		return CerberusApplication::setActiveModule(); // returns
-	}
+class CerberusApplication extends DevblocksApplication {
 	
 	/**
 	 * Takes a comma-separated value string and returns an array of tokens.
