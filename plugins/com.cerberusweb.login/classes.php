@@ -9,17 +9,17 @@ class DefaultLoginModule extends CerberusLoginModuleExtension {
 	
 	function authenticate() {
 		// pull auth info out of $_POST, check it, return user_id or false
-		@$email		= $_POST['email'];
-		@$password	= $_POST['password'];
+		@$email		= DevblocksPlatform::importGPC($_POST['email']);
+		@$password	= DevblocksPlatform::importGPC($_POST['password']);
 			
 		$session = DevblocksPlatform::getSessionService();
 		$visit = $session->login($email,$password);
 		
 		if(!is_null($visit)) {
-			CerberusApplication::setActiveModule("core.module.dashboard");
+			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('dashboard')));
 			return true;
 		} else {
-			CerberusApplication::setActiveModule("core.module.signin");
+			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('login')));
 			return false;
 		}
 	}
@@ -35,10 +35,10 @@ class LDAPLoginModule extends CerberusLoginModuleExtension {
 	
 	function authenticate() {
 		// pull auth info out of $_POST, check it, return user_id or false
-		@$server	= $_POST['server'];
-		@$port		= $_POST['port'];
-		@$dn		= $_POST['dn'];
-		@$password	= $_POST['password'];
+		@$server	= DevblocksPlatform::importGPC($_POST['server']);
+		@$port		= DevblocksPlatform::importGPC($_POST['port']);
+		@$dn		= DevblocksPlatform::importGPC($_POST['dn']);
+		@$password	= DevblocksPlatform::importGPC($_POST['password']);
 
 		$conn = ldap_connect($server, $port);
 		ldap_set_option($conn, LDAP_OPT_PROTOCOL_VERSION, 3);

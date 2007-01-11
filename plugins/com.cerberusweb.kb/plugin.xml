@@ -1,7 +1,12 @@
 <!-- [JAS] [TODO] Needs DTD -->
 <plugin>
+	<id>cerberusweb.kb</id>
 	<name>Cerberus Helpdesk Knowledgebase</name>
 	<author>WebGroup Media, LLC.</author>
+	
+	<mapping>
+		<uri value="kb" extension_id="core.module.kb" />
+	</mapping>	
 	
 	<extensions>
 	

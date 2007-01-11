@@ -1,16 +1,8 @@
 <IfModule mod_rewrite.c>
 RewriteEngine on
 
-RewriteRule ^dashboard$ index.php?c=core.module.dashboard&a=click
-RewriteRule ^teamwork$ index.php?c=core.module.teamwork&a=click
-RewriteRule ^search$ index.php?c=core.module.search&a=click
-RewriteRule ^config$ index.php?c=core.module.configuration&a=click
-RewriteRule ^kb$ index.php?c=core.module.kb&a=click
-RewriteRule ^login$ index.php?c=core.module.signin&a=click
-
-RewriteRule ^display/([0-9]+)$ index.php?c=core.module.dashboard&a=viewticket&id=$1
-
-RewriteRule ^kb/([0-9]+)$ index.php?c=core.module.kb&a=click&id=$1
-
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . index.php [L]
 
 </IfModule>

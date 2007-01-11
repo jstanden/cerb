@@ -24,7 +24,7 @@
 		</td>
 		
 		<td width="100%" valign="top">
-			<form action="index.php#pop3" method="post" id="configPop3">
+			<form action="{devblocks_url}{/devblocks_url}#pop3" method="post" id="configPop3">
 				{include file="$path/configuration/workflow/edit_pop3_account.tpl.php" pop3_account=null}
 			</form>
 		</td>

@@ -2,7 +2,7 @@
   <tbody>
     <tr>
       <td style="vertical-align: top;" width="200" nowrap="nowrap">
-      	<form method="post" action="index.php" id="displayTicketProperties">
+      	<form method="post" action="{devblocks_url}{/devblocks_url}" id="displayTicketProperties">
       	{include file="file:$path/display/properties.tpl.php"}
       	</form>
       	<br>

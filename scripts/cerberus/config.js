@@ -7,7 +7,7 @@ var cConfigAjax = function() {
 		var anim = new YAHOO.util.Anim(frm, { opacity: { to: 0.2 } }, 1, YAHOO.util.Easing.easeOut);
 		anim.animate();
 		
-		var cObj = YAHOO.util.Connect.asyncRequest('GET', 'ajax.php?c=core.module.configuration&a=getPop3Account&id=' + id, {
+		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=config&a=getPop3Account&id=' + id, {
 				success: function(o) {
 					var frm = document.getElementById('configPop3');
 					if(null == frm) return;
@@ -29,7 +29,7 @@ var cConfigAjax = function() {
 		var anim = new YAHOO.util.Anim(frm, { opacity: { to: 0.2 } }, 1, YAHOO.util.Easing.easeOut);
 		anim.animate();
 		
-		var cObj = YAHOO.util.Connect.asyncRequest('GET', 'ajax.php?c=core.module.configuration&a=getMailbox&id=' + id, {
+		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=config&a=getMailbox&id=' + id, {
 				success: function(o) {
 					var frm = document.getElementById('configMailbox');
 					if(null == frm) return;
@@ -51,7 +51,7 @@ var cConfigAjax = function() {
 		var anim = new YAHOO.util.Anim(frm, { opacity: { to: 0.2 } }, 1, YAHOO.util.Easing.easeOut);
 		anim.animate();
 		
-		var cObj = YAHOO.util.Connect.asyncRequest('GET', 'ajax.php?c=core.module.configuration&a=getWorker&id=' + id, {
+		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=config&a=getWorker&id=' + id, {
 				success: function(o) {
 					var frm = document.getElementById('configWorker');
 					if(null == frm) return;
@@ -73,7 +73,7 @@ var cConfigAjax = function() {
 		var anim = new YAHOO.util.Anim(frm, { opacity: { to: 0.2 } }, 1, YAHOO.util.Easing.easeOut);
 		anim.animate();
 		
-		var cObj = YAHOO.util.Connect.asyncRequest('GET', 'ajax.php?c=core.module.configuration&a=getTeam&id=' + id, {
+		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=config&a=getTeam&id=' + id, {
 				success: function(o) {
 					var frm = document.getElementById('configTeam');
 					if(null == frm) return;
@@ -95,7 +95,7 @@ var cConfigAjax = function() {
 		var anim = new YAHOO.util.Anim(div, { opacity: { to: 0.2 } }, 1, YAHOO.util.Easing.easeOut);
 		anim.animate();
 		
-		var cObj = YAHOO.util.Connect.asyncRequest('GET', 'ajax.php?c=core.module.configuration&a=ajaxGetRouting', {
+		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=config&a=ajaxGetRouting', {
 				success: function(o) {
 					var caller = o.argument.caller;
 					
@@ -115,7 +115,7 @@ var cConfigAjax = function() {
 	}
 	
 	this.deleteMailboxRouting = function(id) {
-		var cObj = YAHOO.util.Connect.asyncRequest('GET', 'ajax.php?c=core.module.configuration&a=ajaxDeleteRouting&id=' + id, {
+		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=config&a=ajaxDeleteRouting&id=' + id, {
 				success: function(o) {
 					var caller = o.argument.caller;
 					caller.mailboxRoutingDialog.hide();
@@ -134,7 +134,7 @@ var cConfigAjax = function() {
 			this.mailboxRoutingDialog.hide();
 		}
 		
-		var cObj = YAHOO.util.Connect.asyncRequest('GET', 'ajax.php?c=core.module.configuration&a=getMailboxRoutingDialog&id=' + addressId, {
+		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=config&a=getMailboxRoutingDialog&id=' + addressId, {
 				success: function(o) {
 					var caller = o.argument.caller;
 					var target = o.argument.target;
@@ -173,7 +173,7 @@ var cConfigAjax = function() {
 		if(null == frm) return;
 		
 		YAHOO.util.Connect.setForm(frm);
-		var cObj = YAHOO.util.Connect.asyncRequest('POST', 'ajax.php', {
+		var cObj = YAHOO.util.Connect.asyncRequest('POST', DevblocksAppPath+'ajax.php', {
 				success: function(o) {
 					var caller = o.argument.caller;
 					var addressId = o.argument.id;

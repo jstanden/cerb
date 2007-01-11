@@ -1,11 +1,53 @@
 <?php
-define("CERBERUS_BUILD", 75);
+define("APP_BUILD", 80);
 
-include_once(DEVBLOCKS_PATH . "/api/DAO.class.php");
-include_once(DEVBLOCKS_PATH . "/api/Model.class.php");
-include_once(DEVBLOCKS_PATH . "/api/Extension.class.php");
+include_once(APP_PATH . "/api/DAO.class.php");
+include_once(APP_PATH . "/api/Model.class.php");
+include_once(APP_PATH . "/api/Extension.class.php");
 
 class CerberusApplication extends DevblocksApplication {
+	
+	static function writeDefaultHttpResponse($response) {
+		$path = $response->path;
+
+		// [JAS]: Ajax?
+		if(empty($path))
+			return;
+		
+		$mapping = DevblocksPlatform::getMappingRegistry();
+		@$extension_id = $mapping[$path[0]];
+		
+		if(empty($extension_id)) $extension_id = 'core.module.dashboard';
+
+		$tpl = DevblocksPlatform::getTemplateService();
+		$session = DevblocksPlatform::getSessionService();
+		
+		$modules = CerberusApplication::getModules();
+		$tpl->assign('modules',$modules);		
+		
+		$pageManifest = DevblocksPlatform::getExtension($extension_id);
+		$page = $pageManifest->createInstance();
+		$tpl->assign('module',$page);
+		
+		$tpl->assign('session', $_SESSION);
+		$tpl->assign('visit', $session->getVisit());
+		
+		$translate = DevblocksPlatform::getTranslationService();
+		$tpl->assign('translate', $translate);
+		
+		$tpl->display('border.php');
+	}
+	
+	static function getModules() {
+		$modules = array();
+		$extModules = DevblocksPlatform::getExtensions("com.cerberusweb.module");
+		foreach($extModules as $mod) { /* @var $mod DevblocksExtensionManifest */
+			$instance = $mod->createInstance(); /* @var $instance CerberusModuleExtension */
+			if(is_a($instance,'devblocksextension') && $instance->isVisible())
+				$modules[] = $instance;
+		}
+		return $modules;
+	}	
 	
 	/**
 	 * Takes a comma-separated value string and returns an array of tokens.
@@ -455,7 +497,7 @@ class CerberusParser {
 		 * [JAS]: [TODO] If we're going to call platform libs directly we should just have
 		 * the platform provide the functionality.
 		 */
-		require_once(DEVBLOCKS_PATH . '/libs/devblocks/pear/Mail/RFC822.php');
+		require_once(DEVBLOCKS_PATH . 'pear/Mail/RFC822.php');
 		$structure = Mail_RFC822::parseAddressList($address_string, null, false);
 		return $structure;
 	}

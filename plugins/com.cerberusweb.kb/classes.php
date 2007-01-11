@@ -22,7 +22,10 @@ class ChKnowledgebaseModule extends CerberusModuleExtension {
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		
-		@$id = intval($_REQUEST['id']);
+//		@$id = intval(DevblocksPlatform::importGPC($_REQUEST['id']));
+		$response = DevblocksPlatform::getHttpResponse();
+		$stack = $response->path;
+		@$id = intval($stack[1]);
 		
 		$tree = DAO_Kb::getCategoryTree();
 		$tpl->assign('node', $tree[$id]);
@@ -65,8 +68,8 @@ class ChKnowledgebaseModule extends CerberusModuleExtension {
 	}
 	
 	function getKbCategoryModifyDialog() {
-		@$id = $_REQUEST['id'];
-		@$parent = $_REQUEST['parent'];
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
+		@$parent = DevblocksPlatform::importGPC($_REQUEST['parent']);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";

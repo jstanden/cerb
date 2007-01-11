@@ -2,8 +2,8 @@
   <tbody>
     <tr>
       <td width="0%" nowrap="nowrap" valign="top">
-      	<a href="javascript:;" onclick="toggleDiv('{$display_module->manifest->id}_body');"><img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/icon_collapse.gif" width="16" height="16" border="0" align="absmiddle"></a> 
-      	<img src="{$smarty.const.DEVBLOCKS_WEBPATH}{$display_module->manifest->params.icon}" width="16" height="16" align="absmiddle">
+      	<a href="javascript:;" onclick="toggleDiv('{$display_module->manifest->id}_body');"><img src="{devblocks_url}images/icon_collapse.gif{/devblocks_url}" width="16" height="16" border="0" align="absmiddle"></a> 
+      	<img src="{devblocks_url}{$display_module->manifest->params.icon}{/devblocks_url}" width="16" height="16" align="absmiddle">
       </td>
       <td width="100%" valign="top" nowrap="nowrap">
 	      <h1 class="subtitle">&nbsp;{$display_module->manifest->params.title}</h1>

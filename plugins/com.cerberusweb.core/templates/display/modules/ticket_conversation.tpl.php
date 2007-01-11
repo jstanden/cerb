@@ -45,7 +45,7 @@
     </tr>
   </tbody>
 </table>
-<form id="reply{$message->id}" action="index.php" method="POST" enctype="multipart/form-data"></form>
+<form id="reply{$message->id}" action="{devblocks_url}{/devblocks_url}" method="POST" enctype="multipart/form-data"></form>
 {if !$smarty.foreach.messages.last}<br>{/if}
 {/foreach}
 {else}

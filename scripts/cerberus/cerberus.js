@@ -1,43 +1,6 @@
 <!--
 // [JAS]: [TODO] This should move into the plugin
 
-function clearDiv(divName) {
-	var div = document.getElementById(divName);
-	if(null == div) return;
-	
-	div.innerHTML = '';
-}
-
-function toggleDiv(divName,state) {
-	var div = document.getElementById(divName);
-	if(null == div) return;
-	var currentState = div.style.display;
-	
-	if(null == state) {
-		if(currentState == "block") {
-			div.style.display = 'none';
-		} else {
-			div.style.display = 'block';
-		}
-	} else if (null != state && (state == 'block' || state == 'none')) {
-		div.style.display = state;
-	}
-}
-
-function checkAll(divName, state) {
-	var div = document.getElementById(divName);
-	if(null == div) return;
-	
-	var boxes = div.getElementsByTagName('input');
-	var numBoxes = boxes.length;
-	
-	for(x=0;x<numBoxes;x++) {
-		if(null != boxes[x].name) {
-			boxes[x].checked = (state) ? true : false;
-		}
-	}
-}
-
 var searchDialogs = new Array();
 
 function addCriteria(divName) {
@@ -53,28 +16,11 @@ function addCriteria(divName) {
 	}
 }
 
-// [JAS]: [TODO] Make this a little more generic?
-function appendTextboxAsCsv(formName, field, oLink) {
-	var frm = document.getElementById(formName);
-	if(null == frm) return;
-	
-	var txt = frm.elements[field];
-	var sAppend = '';
-	
-	// [TODO]: check that the last character(s) aren't comma or comma space
-	if(0 != txt.value.length && txt.value.substr(-1,1) != ',' && txt.value.substr(-2,2) != ', ')
-		sAppend += ', ';
-		
-	sAppend += oLink.innerHTML;
-	
-	txt.value = txt.value + sAppend;
-}
-
 var cAjaxCalls = function() {
 
 	this.addTagAutoComplete = function(txt,con) {
 		// [JAS]: [TODO] Move to a tag autocompletion shared method
-		myXHRDataSource = new YAHOO.widget.DS_XHR("ajax.php", ["\n", "\t"]);
+		myXHRDataSource = new YAHOO.widget.DS_XHR(DevblocksAppPath+"ajax.php", ["\n", "\t"]);
 		myXHRDataSource.scriptQueryParam = "q"; 
 		myXHRDataSource.scriptQueryAppend = "c=core.display.module.workflow&a=autoTag"; 
 		myXHRDataSource.responseType = myXHRDataSource.TYPE_FLAT;
@@ -98,7 +44,7 @@ var cAjaxCalls = function() {
 	
 	this.addWorkerAutoComplete = function(txt,con) {
 		// [JAS]: [TODO] Move to a tag autocompletion shared method
-		myXHRDataSource = new YAHOO.widget.DS_XHR("ajax.php", ["\n", "\t"]);
+		myXHRDataSource = new YAHOO.widget.DS_XHR(DevblocksAppPath+"ajax.php", ["\n", "\t"]);
 		myXHRDataSource.scriptQueryParam = "q"; 
 		myXHRDataSource.scriptQueryAppend = "c=core.display.module.workflow&a=autoWorker"; 
 		myXHRDataSource.responseType = myXHRDataSource.TYPE_FLAT;
@@ -122,7 +68,7 @@ var cAjaxCalls = function() {
 	
 	this.addAddressAutoComplete = function(txt,con,single) {
 		// [JAS]: [TODO] Move to a tag autocompletion shared method
-		myXHRDataSource = new YAHOO.widget.DS_XHR("ajax.php", ["\n", "\t"]);
+		myXHRDataSource = new YAHOO.widget.DS_XHR(DevblocksAppPath+"ajax.php", ["\n", "\t"]);
 		myXHRDataSource.scriptQueryParam = "q"; 
 		myXHRDataSource.scriptQueryAppend = "c=core.display.module.workflow&a=autoAddress"; 
 		myXHRDataSource.responseType = myXHRDataSource.TYPE_FLAT;
@@ -152,7 +98,7 @@ var cAjaxCalls = function() {
 			this.historyPanel.hide();
 		}
 		
-		var cObj = YAHOO.util.Connect.asyncRequest('GET', 'ajax.php?c=core.module.dashboard&a=showHistoryPanel', {
+		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=dashboard&a=showHistoryPanel', {
 				success: function(o) {
 					var caller = o.argument.caller;
 					var target = o.argument.target;
@@ -191,7 +137,7 @@ var cAjaxCalls = function() {
 			this.contactPanel.hide();
 		}
 		
-		var cObj = YAHOO.util.Connect.asyncRequest('GET', 'ajax.php?c=core.module.dashboard&a=showContactPanel&address=' + address, {
+		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=dashboard&a=showContactPanel&address=' + address, {
 				success: function(o) {
 					var caller = o.argument.caller;
 					var target = o.argument.target;
@@ -228,7 +174,7 @@ var cAjaxCalls = function() {
 		var div = document.getElementById(divName + '_control');
 		if(null == div) return;
 		
-		var cObj = YAHOO.util.Connect.asyncRequest('GET', 'ajax.php?c=core.module.search&a=getLoadSearch&divName='+divName, {
+		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=search&a=getLoadSearch&divName='+divName, {
 				success: function(o) {
 					var divName = o.argument.divName;
 					var div = document.getElementById(divName + '_control');
@@ -246,7 +192,7 @@ var cAjaxCalls = function() {
 		var div = document.getElementById(divName + '_control');
 		if(null == div) return;
 		
-		var cObj = YAHOO.util.Connect.asyncRequest('GET', 'ajax.php?c=core.module.search&a=getSaveSearch&divName='+divName, {
+		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=search&a=getSaveSearch&divName='+divName, {
 				success: function(o) {
 					var divName = o.argument.divName;
 					var div = document.getElementById(divName + '_control');
@@ -262,7 +208,12 @@ var cAjaxCalls = function() {
 	
 	this.deleteSearch = function(id) {
 		if(confirm('Are you sure you want to delete this search?')) {
-			document.location = 'index.php?c=core.module.search&a=deleteSearch&search_id=' + id;
+			var url = new DevblocksUrl();
+			url.addVar('search');
+			url.addVar('deleteSearch');
+			url.addVar('id');
+		
+			document.location = url.getUrl();
 		}
 	}
 	
@@ -271,7 +222,7 @@ var cAjaxCalls = function() {
 		if(null == div) return;
 		
 		YAHOO.util.Connect.setForm(divName + '_control');
-		var cObj = YAHOO.util.Connect.asyncRequest('POST', 'ajax.php', {
+		var cObj = YAHOO.util.Connect.asyncRequest('POST', DevblocksAppPath+'ajax.php', {
 				success: function(o) {
 					var divName = o.argument.divName;
 					var div = document.getElementById(divName + '_control');
@@ -289,7 +240,7 @@ var cAjaxCalls = function() {
 		var div = document.getElementById(divName);
 		if(null == div) return;
 		
-		var cObj = YAHOO.util.Connect.asyncRequest('GET', 'ajax.php?c=core.module.search&a=getCriteriaDialog&divName=' + divName, {
+		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=search&a=getCriteriaDialog&divName=' + divName, {
 				success: function(o) {
 					var divName = o.argument.divName;
 					var div = document.getElementById(divName);
@@ -325,7 +276,7 @@ var cAjaxCalls = function() {
 			div.innerHTML = '';
 			div.style.display = 'inline';
 		} else {
-			var cObj = YAHOO.util.Connect.asyncRequest('GET', 'ajax.php?c=core.module.dashboard&a=customize&id=' + id, {
+			var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=dashboard&a=customize&id=' + id, {
 					success: function(o) {
 						var id = o.argument.id;
 						var div = document.getElementById('customize' + id);
@@ -346,7 +297,7 @@ var cAjaxCalls = function() {
 		if(null == div) return;
 
 		YAHOO.util.Connect.setForm('customize' + id);
-		var cObj = YAHOO.util.Connect.asyncRequest('POST', 'ajax.php', {
+		var cObj = YAHOO.util.Connect.asyncRequest('POST', DevblocksAppPath+'ajax.php', {
 				success: function(o) {
 					var id = o.argument.id;
 					var div = document.getElementById('customize' + id);
@@ -375,7 +326,7 @@ var cAjaxCalls = function() {
 		var div = document.getElementById('reply' + id);
 		if(null == div) return;
 		
-		var cObj = YAHOO.util.Connect.asyncRequest('GET', 'ajax.php?c=core.module.display&a=reply&id=' + id, {
+		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=display&a=reply&id=' + id, {
 				success: function(o) {
 					var id = o.argument.id;
 					var caller = o.argument.caller;
@@ -395,7 +346,7 @@ var cAjaxCalls = function() {
 		var div = document.getElementById('reply' + id);
 		if(null == div) return;
 		
-		var cObj = YAHOO.util.Connect.asyncRequest('GET', 'ajax.php?c=core.module.display&a=forward&id=' + id, {
+		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=display&a=forward&id=' + id, {
 				success: function(o) {
 					var id = o.argument.id;
 					var caller = o.argument.caller;
@@ -415,7 +366,7 @@ var cAjaxCalls = function() {
 		var div = document.getElementById('reply' + id);
 		if(null == div) return;
 		
-		var cObj = YAHOO.util.Connect.asyncRequest('GET', 'ajax.php?c=core.module.display&a=comment&id=' + id, {
+		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=display&a=comment&id=' + id, {
 				success: function(o) {
 					var id = o.argument.id;
 					var caller = o.argument.caller;
@@ -432,7 +383,7 @@ var cAjaxCalls = function() {
 	}
 	
 	this.getSortBy = function(id,sortBy) {
-		var cObj = YAHOO.util.Connect.asyncRequest('GET', 'ajax.php?c=core.module.dashboard&a=viewSortBy&id=' + id + '&sortBy=' + sortBy, {
+		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=dashboard&a=viewSortBy&id=' + id + '&sortBy=' + sortBy, {
 				success: function(o) {
 					var id = o.argument.id;
 					var caller = o.argument.caller;
@@ -444,7 +395,7 @@ var cAjaxCalls = function() {
 	}
 	
 	this.getPage = function(id,page) {
-		var cObj = YAHOO.util.Connect.asyncRequest('GET', 'ajax.php?c=core.module.dashboard&a=viewPage&id=' + id + '&page=' + page, {
+		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=dashboard&a=viewPage&id=' + id + '&page=' + page, {
 				success: function(o) {
 					var id = o.argument.id;
 					var caller = o.argument.caller;
@@ -462,7 +413,7 @@ var cAjaxCalls = function() {
 		var anim = new YAHOO.util.Anim(div, { opacity: { to: 0.2 } }, 1, YAHOO.util.Easing.easeOut);
 		anim.animate();
 		
-		var cObj = YAHOO.util.Connect.asyncRequest('GET', 'ajax.php?c=core.module.dashboard&a=viewRefresh&id=' + id, {
+		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=dashboard&a=viewRefresh&id=' + id, {
 				success: function(o) {
 					var id = o.argument.id;
 					var div = document.getElementById('view' + id);
@@ -489,7 +440,7 @@ var cAjaxCalls = function() {
 		var div = document.getElementById('displayTicketRequesters');
 		if(null == div) return;
 	
-		var cObj = YAHOO.util.Connect.asyncRequest('GET', 'ajax.php?c=core.module.display&a=refreshRequesters&id=' + id, {
+		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=display&a=refreshRequesters&id=' + id, {
 				success: function(o) {
 					var id = o.argument.id;
 					var div = document.getElementById('displayTicketRequesters');
@@ -510,7 +461,7 @@ var cAjaxCalls = function() {
 		if(null == div) return;
 
 		YAHOO.util.Connect.setForm('displayTicketRequesters');
-		var cObj = YAHOO.util.Connect.asyncRequest('POST', 'ajax.php', {
+		var cObj = YAHOO.util.Connect.asyncRequest('POST', DevblocksAppPath+'ajax.php', {
 				success: function(o) {
 					var id = o.argument.id;
 					var caller = o.argument.caller;
@@ -529,7 +480,7 @@ var cAjaxCalls = function() {
 //		var anim = new YAHOO.util.Anim(div, { opacity: { to: 0.2 } }, 1, YAHOO.util.Easing.easeOut);
 //		anim.animate();
 		
-		var cObj = YAHOO.util.Connect.asyncRequest('GET', 'ajax.php?c=core.module.search&a=getCriteria&field=' + field, {
+		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=search&a=getCriteria&field=' + field, {
 				success: function(o) {
 //					var id = o.argument.id;
 					var div = document.getElementById(divName + '_render');

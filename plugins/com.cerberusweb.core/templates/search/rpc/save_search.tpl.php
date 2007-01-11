@@ -1,4 +1,4 @@
-<input type="hidden" name="c" value="core.module.search">
+<input type="hidden" name="c" value="search">
 <input type="hidden" name="a" value="saveSearch">
 <label><input type="radio" name="save_as" value="view"> Save as view:</label><br>
 <select name="view_id" onfocus="this.form.save_as[0].checked=true;">

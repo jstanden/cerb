@@ -3,7 +3,7 @@
 		<td nowrap="nowrap" class="tableThBlue">{$view->name}</td>
 		<td nowrap="nowrap" class="tableThBlue" align="right">
 			<a href="javascript:;" onclick="ajax.getRefresh('{$view->id}');" class="tableThLink">{$translate->say('common.refresh')|lower}</a><span style="font-size:12px"> | </span>
-			{if $view->type == 'D'}<a href="{$smarty.const.DEVBLOCKS_WEBPATH}index.php?c=core.module.dashboard&a=searchview&id={$view->id}" class="tableThLink">{$translate->say('common.search')|lower}</a><span style="font-size:12px"> | </span>{/if}
+			{if $view->type == 'D'}<a href="{devblocks_url}c=dashboard&a=searchview&id={$view->id}{/devblocks_url}" class="tableThLink">{$translate->say('common.search')|lower}</a><span style="font-size:12px"> | </span>{/if}
 			<a href="javascript:;" onclick="ajax.getCustomize('{$view->id}');" class="tableThLink">{$translate->say('common.customize')|lower}</a>
 		</td>
 	</tr>
@@ -43,12 +43,12 @@
 	{foreach from=$tickets item=result key=idx name=results}
 		<tr class="{if $smarty.foreach.results.iteration % 2}tableRowBg{else}tableRowAltBg{/if}">
 			<td align="center" rowspan="2"><input type="checkbox" name="ticket_id[]" value=""></td>
-			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}"><a href="{$smarty.const.DEVBLOCKS_WEBPATH}index.php?c=core.module.dashboard&a=viewticket&id={$result.t_id}" class="ticketLink"><b>{$result.t_subject}</b></a></td>
+			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}"><a href="{devblocks_url}c=display&id={$result.t_mask}{/devblocks_url}" class="ticketLink"><b>{$result.t_subject}</b></a></td>
 		</tr>
 		<tr class="{if $smarty.foreach.results.iteration % 2}tableRowBg{else}tableRowAltBg{/if}">
 		{foreach from=$view->view_columns item=column name=columns}
 			{if $column=="t_mask"}
-			<td><a href="{$smarty.const.DEVBLOCKS_WEBPATH}index.php?c=core.module.dashboard&a=viewticket&id={$result.t_id}">{$result.t_mask}</a></td>
+			<td><a href="{devblocks_url}c=display&id={$result.t_mask}{/devblocks_url}">{$result.t_mask}</a></td>
 			{elseif $column=="t_status"}
 			<td>
 				{if $result.t_status=='O'}
@@ -64,17 +64,17 @@
 			{elseif $column=="t_priority"}
 			<td>
 				{if $result.t_priority == 100}
-					<img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/star_red.gif" title="{$result.t_priority}">
+					<img src="{devblocks_url}images/star_red.gif{/devblocks_url}" title="{$result.t_priority}">
 				{elseif $result.t_priority >= 90}
-					<img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/star_yellow.gif" title="{$result.t_priority}">
+					<img src="{devblocks_url}images/star_yellow.gif{/devblocks_url}" title="{$result.t_priority}">
 				{elseif $result.t_priority >= 75}
-					<img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/star_green.gif" title="{$result.t_priority}">
+					<img src="{devblocks_url}images/star_green.gif{/devblocks_url}" title="{$result.t_priority}">
 				{elseif $result.t_priority >= 50}
-					<img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/star_blue.gif" title="{$result.t_priority}">
+					<img src="{devblocks_url}images/star_blue.gif{/devblocks_url}" title="{$result.t_priority}">
 				{elseif $result.t_priority >= 25}
-					<img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/star_grey.gif" title="{$result.t_priority}">
+					<img src="{devblocks_url}images/star_grey.gif{/devblocks_url}" title="{$result.t_priority}">
 				{else}
-					<img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/star_alpha.gif" title="{$result.t_priority}">
+					<img src="{devblocks_url}images/star_alpha.gif{/devblocks_url}" title="{$result.t_priority}">
 				{/if}
 			</td>
 			{elseif $column=="t_last_wrote"}
@@ -86,7 +86,7 @@
 			{elseif $column=="t_updated_date"}
 			<td>{$result.t_updated_date|date_format}</td>
 			{elseif $column=="m_name"}
-			<td><a href="{$smarty.const.DEVBLOCKS_WEBPATH}index.php?c=core.module.dashboard&a=clickmailbox&id={$result.m_id}">{$result.m_name}</a></td>
+			<td><a href="{devblocks_url}c=dashboard&a=mailbox&id={$result.m_id}{/devblocks_url}">{$result.m_name}</a></td>
 			{/if}
 		{/foreach}
 		</tr>

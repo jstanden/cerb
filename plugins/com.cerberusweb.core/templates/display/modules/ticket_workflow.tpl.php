@@ -1,7 +1,7 @@
 {assign var=tags value=$ticket->getTags()}
 <b>Tags:</b> 
-<img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/bookmark_add.gif" align="absmiddle"> <a href="javascript:;" onclick="displayAjax.showApplyTagDialog(this);">Add Tags</a>
-<img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/preferences.gif" align="absmiddle"> <a href="javascript:;" onclick="displayAjax.showFavTags();">Manage Favorites</a>
+<img src="{devblocks_url}images/bookmark_add.gif{/devblocks_url}" align="absmiddle"> <a href="javascript:;" onclick="displayAjax.showApplyTagDialog(this);">Add Tags</a>
+<img src="{devblocks_url}images/preferences.gif{/devblocks_url}" align="absmiddle"> <a href="javascript:;" onclick="displayAjax.showFavTags();">Manage Favorites</a>
 <br>
 <div style="width:98%;background-color:rgb(250,250,255);border:1px solid rgb(200,200,200);margin:2px;padding:5px;">
 {if !empty($tags)}
@@ -13,15 +13,15 @@
 {/if}
 </div>
 
-<img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/spacer.gif" width="1" height="5"><br>
+<img src="{devblocks_url}images/spacer.gif{/devblocks_url}" width="1" height="5"><br>
 
 {assign var=flaggedAgents value=$ticket->getFlaggedWorkers()}
 {assign var=suggestedAgents value=$ticket->getSuggestedWorkers()}
 
 <b>Workers:</b> 
-<img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/flag_red.gif" align="absmiddle"> <a href="javascript:;" onclick="displayAjax.showFlagAgents();">Assign Workers</a>
-<img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/businessman_add.gif" align="absmiddle"> <a href="javascript:;" onclick="displayAjax.showSuggestAgents();" style="font-style:italic;">Suggest Workers</a>
-<img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/preferences.gif" align="absmiddle"> <a href="javascript:;" onclick="displayAjax.showFavWorkers();">Manage Favorites</a>
+<img src="{devblocks_url}images/flag_red.gif{/devblocks_url}" align="absmiddle"> <a href="javascript:;" onclick="displayAjax.showFlagAgents();">Assign Workers</a>
+<img src="{devblocks_url}images/businessman_add.gif{/devblocks_url}" align="absmiddle"> <a href="javascript:;" onclick="displayAjax.showSuggestAgents();" style="font-style:italic;">Suggest Workers</a>
+<img src="{devblocks_url}images/preferences.gif{/devblocks_url}" align="absmiddle"> <a href="javascript:;" onclick="displayAjax.showFavWorkers();">Manage Favorites</a>
 <br>
 <div style="width:98%;background-color:rgb(250,250,255);border:1px solid rgb(200,200,200);margin:2px;padding:5px;">
 {if !empty($flaggedAgents)}

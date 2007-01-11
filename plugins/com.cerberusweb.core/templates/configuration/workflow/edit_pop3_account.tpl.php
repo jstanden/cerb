@@ -1,4 +1,4 @@
-<input type="hidden" name="c" value="core.module.configuration">
+<input type="hidden" name="c" value="config">
 <input type="hidden" name="a" value="savePop3Account">
 <input type="hidden" name="id" value="{if !empty($pop3_account->id)}{$pop3_account->id}{else}0{/if}">
 <table cellpadding="2" cellspacing="0" border="0" width="100%" class="configTable">

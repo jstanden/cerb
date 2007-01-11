@@ -1,5 +1,5 @@
 <input type="hidden" name="id" value="{$id}">
-<input type="hidden" name="c" value="{$c}">
+<input type="hidden" name="c" value="dashboard">
 <input type="hidden" name="a" value="saveCustomize">
 <div style="background-color: #EEEEEE;padding:5px;">
 <h1>{$translate->say('common.customize')|capitalize}</h1>

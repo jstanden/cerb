@@ -1,10 +1,10 @@
 <form>
-<input type="hidden" name="c" value="core.module.kb">
+<input type="hidden" name="c" value="kb">
 <input type="hidden" name="a" value="">
 <input type="hidden" name="id" value="{$node->id}">
 <table cellpadding="0" cellspacing="0" border="0" width="98%">
 	<tr>
-		<td align="left" width="100%" nowrap="nowrap"><img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/cerb_fnr_header.jpg"></td>
+		<td align="left" width="100%" nowrap="nowrap"><img src="{devblocks_url}images/cerb_fnr_header.jpg{/devblocks_url}"></td>
 	</tr>
 </table>
 
@@ -30,9 +30,9 @@
 				{assign var=category value=$tree.$si}
 				{if !empty($category)}
 					<label><input type="radio" name="parent_id" value="{$category->id}" {if $parent==$category->id}checked{/if}>
-					{if $level>2}<img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/spacer.gif" align="absmiddle" width="{math equation="(x-2)*16" x=$level}" height="1">{/if}
-					{if $level>1}<img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/tree_cap.gif" align="absmiddle">{/if}
-					<img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/folder.gif" align="absmiddle"> <b>{$category->name}</b>
+					{if $level>2}<img src="{devblocks_url}images/spacer.gif{/devblocks_url}" align="absmiddle" width="{math equation="(x-2)*16" x=$level}" height="1">{/if}
+					{if $level>1}<img src="{devblocks_url}images/tree_cap.gif{/devblocks_url}" align="absmiddle">{/if}
+					<img src="{devblocks_url}images/folder.gif{/devblocks_url}" align="absmiddle"> <b>{$category->name}</b>
 					</label><br>
 				{/if}
 			{/foreach}

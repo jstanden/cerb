@@ -5,7 +5,7 @@
 	</tr>
 </table>
 <form action="javascript:;" method="post" id="routingDialog">
-<input type="hidden" name="c" value="{$c}">
+<input type="hidden" name="c" value="config">
 <input type="hidden" name="a" value="saveMailboxRoutingDialog">
 <input type="hidden" name="id" value="{$id}">
 <b>Incoming Address:</b><br>

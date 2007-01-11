@@ -1,4 +1,8 @@
 <?php
+/*
+ * [JAS]: [TODO] This really belongs in CORE, though it was a good
+ * plugin exercise.
+ */ 
 class Pop3Module extends CerberusCronModuleExtension {
 	function run() {
 		$accounts = CerberusMailDAO::getPop3Accounts(); /* @var $accounts CerberusPop3Account[] */

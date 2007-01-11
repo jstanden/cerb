@@ -1,6 +1,6 @@
-<input type="hidden" name="id" value="{$message->id}">
-<input type="hidden" name="c" value="{$c}">
+<input type="hidden" name="c" value="display">
 <input type="hidden" name="a" value="sendComment">
+<input type="hidden" name="id" value="{$message->id}">
 <table cellpadding="2" cellspacing="0" border="0" width="100%" class="displayReplyTable">
 	<tr>
 		<th>Comment</th>
@@ -26,12 +26,12 @@
 					<td width="0%" nowrap="nowrap" valign="top"><b>Actions:</b></td>
 					<td width="100%" valign="top">
 						Set priority: 
-						<label><input type="radio" name="priority" value="0" {if $ticket->priority==0}checked{/if}><img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/star_alpha.gif"></label>
-						<label><input type="radio" name="priority" value="25" {if $ticket->priority==25}checked{/if}><img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/star_grey.gif"></label>
-						<label><input type="radio" name="priority" value="50" {if $ticket->priority==50}checked{/if}><img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/star_blue.gif"></label>
-						<label><input type="radio" name="priority" value="75" {if $ticket->priority==75}checked{/if}><img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/star_green.gif"></label>
-						<label><input type="radio" name="priority" value="90" {if $ticket->priority==90}checked{/if}><img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/star_yellow.gif"></label>
-						<label><input type="radio" name="priority" value="100" {if $ticket->priority==100}checked{/if}><img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/star_red.gif"></label>
+						<label><input type="radio" name="priority" value="0" {if $ticket->priority==0}checked{/if}><img src="{devblocks_url}images/star_alpha.gif{/devblocks_url}"></label>
+						<label><input type="radio" name="priority" value="25" {if $ticket->priority==25}checked{/if}><img src="{devblocks_url}images/star_grey.gif{/devblocks_url}"></label>
+						<label><input type="radio" name="priority" value="50" {if $ticket->priority==50}checked{/if}><img src="{devblocks_url}images/star_blue.gif{/devblocks_url}"></label>
+						<label><input type="radio" name="priority" value="75" {if $ticket->priority==75}checked{/if}><img src="{devblocks_url}images/star_green.gif{/devblocks_url}"></label>
+						<label><input type="radio" name="priority" value="90" {if $ticket->priority==90}checked{/if}><img src="{devblocks_url}images/star_yellow.gif{/devblocks_url}"></label>
+						<label><input type="radio" name="priority" value="100" {if $ticket->priority==100}checked{/if}><img src="{devblocks_url}images/star_red.gif{/devblocks_url}"></label>
 						<br>
 						Set status: 
 						<label><input type="radio" name="status" value="O" {if $ticket->status=='O'}checked{/if}>open</label>

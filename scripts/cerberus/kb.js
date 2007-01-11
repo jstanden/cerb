@@ -7,7 +7,7 @@ var cKbAjax = function() {
 			this.categoryPanel.hide();
 		}
 		
-		var cObj = YAHOO.util.Connect.asyncRequest('GET', 'ajax.php?c=core.module.kb&a=getKbCategoryDialog', {
+		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=kb&a=getKbCategoryDialog', {
 				success: function(o) {
 					var caller = o.argument.caller;
 					var target = o.argument.target;
@@ -46,7 +46,7 @@ var cKbAjax = function() {
 			this.categoryModifyPanel.hide();
 		}
 		
-		var cObj = YAHOO.util.Connect.asyncRequest('GET', 'ajax.php?c=core.module.kb&a=getKbCategoryModifyDialog&id=' + id + '&pid=' + parent, {
+		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=kb&a=getKbCategoryModifyDialog&id=' + id + '&pid=' + parent, {
 				success: function(o) {
 					var caller = o.argument.caller;
 					var target = o.argument.target;

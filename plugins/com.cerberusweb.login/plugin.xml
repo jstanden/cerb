@@ -1,5 +1,6 @@
 <!-- [JAS] [TODO] Needs DTD -->
 <plugin>
+	<id>cerberusweb.login</id>
 	<name>Cerberus Helpdesk Login Plugins</name>
 	<author>WebGroup Media, LLC.</author>
 	

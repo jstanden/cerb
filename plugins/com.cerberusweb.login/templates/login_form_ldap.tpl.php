@@ -1,4 +1,4 @@
-<form action="index.php" method="post">
+<form action="{devblocks_url}{/devblocks_url}" method="post">
 <h1>{$translate->say('login.signon')|capitalize}</h1>
 <input type="hidden" name="c" value="login.ldap">
 <input type="hidden" name="a" value="authenticate">

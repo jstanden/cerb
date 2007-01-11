@@ -1,7 +1,18 @@
 <!-- [JAS] [TODO] Needs DTD -->
 <plugin>
+	<id>cerberusweb.core</id>
 	<name>Cerberus Helpdesk Core</name>
 	<author>WebGroup Media, LLC.</author>
+	
+	<mapping>
+		<uri value="login" extension_id="core.module.signin" />
+		<uri value="dashboard" extension_id="core.module.dashboard" />
+		<uri value="display" extension_id="core.module.display" />
+		<uri value="teamwork" extension_id="core.module.teamwork" />
+		<uri value="search" extension_id="core.module.search" />
+		<uri value="config" extension_id="core.module.configuration" />
+		<uri value="preferences" extension_id="core.module.preferences" />
+	</mapping>
 	
 	<extensions>
 	
@@ -158,74 +169,6 @@
 				<param key="icon" value="images/form_green.gif" />
 			</params>
 		</extension>
-		
-		<!--
-		<extension point="com.usermeet.submenu">
-			<id>cerberus.submenu.kb</id>
-			<name>Knowledgebase Submenu</name>
-			<class>
-				<file>classes.php</file>
-				<name>ScKbMenu</name>
-			</class>
-			<params>
-				<param key="menu" value="cerberus.menu.support" />
-				<param key="title" value="knowledgebase" />
-			</params>
-		</extension>
-
-		<extension point="com.usermeet.submenu">
-			<id>cerberus.submenu.history</id>
-			<name>Ticket History Submenu</name>
-			<class>
-				<file>classes.php</file>
-				<name>ScHistoryMenu</name>
-			</class>
-			<params>
-				<param key="menu" value="cerberus.menu.support" />
-				<param key="title" value="ticket history" />
-			</params>
-		</extension>
-
-		<extension point="com.usermeet.submenu">
-			<id>cerberus.submenu.openticket</id>
-			<name>Open Ticket Submenu</name>
-			<class>
-				<file>classes.php</file>
-				<name>ScOpenTicketMenu</name>
-			</class>
-			<params>
-				<param key="menu" value="cerberus.menu.support" />
-				<param key="title" value="open ticket" />
-			</params>
-		</extension>
-		
-		<extension point="com.usermeet.page.standalone">
-			<id>cerberus.page.kb</id>
-			<name>Manage Pages</name>
-			<class>
-				<file>classes.php</file>
-				<name>ScKbPage</name>
-			</class>
-		</extension>
-		
-		<extension point="com.usermeet.page.standalone">
-			<id>cerberus.page.openticket</id>
-			<name>Open Ticket</name>
-			<class>
-				<file>classes.php</file>
-				<name>ScOpenTicketPage</name>
-			</class>
-		</extension>
-		
-		<extension point="com.usermeet.page.standalone">
-			<id>cerberus.page.history</id>
-			<name>Ticket History</name>
-			<class>
-				<file>classes.php</file>
-				<name>ScHistoryPage</name>
-			</class>
-		</extension>
-		-->
 		
 	</extensions>
 </plugin>

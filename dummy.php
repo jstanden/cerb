@@ -1,7 +1,7 @@
 <?php
 require(getcwd() . '/framework.config.php');
-require(DEVBLOCKS_PATH . '/libs/devblocks/Devblocks.class.php');
-require(DEVBLOCKS_PATH . '/api/CerberusApplication.class.php');
+require(DEVBLOCKS_PATH . 'Devblocks.class.php');
+require(APP_PATH . '/api/Application.class.php');
 
 // Teams
 CerberusWorkflowDAO::createTeam('Support');

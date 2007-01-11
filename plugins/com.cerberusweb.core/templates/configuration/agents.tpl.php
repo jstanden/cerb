@@ -24,7 +24,7 @@
 		</td>
 		
 		<td width="100%" valign="top">
-			<form action="index.php#workers" method="post" id="configWorker">
+			<form action="{devblocks_url}{/devblocks_url}#workers" method="post" id="configWorker">
 				{include file="$path/configuration/workflow/edit_worker.tpl.php" worker=null}
 			</form>
 		</td>

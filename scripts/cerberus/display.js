@@ -11,7 +11,7 @@ var cDisplayTicketAjax = function(ticket_id, workflow_div) {
 //		var anim = new YAHOO.util.Anim(div, { opacity: { to: 0.2 } }, 1, YAHOO.util.Easing.easeOut);
 //		anim.animate();
 		
-		var cObj = YAHOO.util.Connect.asyncRequest('GET', 'ajax.php?c=core.display.module.workflow&a=refresh&id=' + this.ticket_id, {
+		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=core.display.module.workflow&a=refresh&id=' + this.ticket_id, {
 				success: function(o) {
 					var caller = o.argument.caller;
 					var div = document.getElementById(caller.workflow_div);
@@ -36,7 +36,7 @@ var cDisplayTicketAjax = function(ticket_id, workflow_div) {
 			this.applyTagDialog.hide();
 		}
 		
-		var cObj = YAHOO.util.Connect.asyncRequest('GET', 'ajax.php?c=core.display.module.workflow&a=showApplyTagDialog&ticket_id=' + this.ticket_id, {
+		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=core.display.module.workflow&a=showApplyTagDialog&ticket_id=' + this.ticket_id, {
 				success: function(o) {
 					var caller = o.argument.caller;
 					var target = o.argument.target;
@@ -75,7 +75,7 @@ var cDisplayTicketAjax = function(ticket_id, workflow_div) {
 		if(null == frm) return;
 		
 		YAHOO.util.Connect.setForm(frm);
-		var cObj = YAHOO.util.Connect.asyncRequest('POST', 'ajax.php', {
+		var cObj = YAHOO.util.Connect.asyncRequest('POST', DevblocksAppPath+'ajax.php', {
 				success: function(o) {
 					var caller = o.argument.caller;
 					caller.applyTagDialog.hide();
@@ -93,7 +93,7 @@ var cDisplayTicketAjax = function(ticket_id, workflow_div) {
 			this.tagDialog.hide();
 		}
 		
-		var cObj = YAHOO.util.Connect.asyncRequest('GET', 'ajax.php?c=core.display.module.workflow&a=getTagDialog&id=' + tagId + '&ticket_id=' + this.ticket_id, {
+		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=core.display.module.workflow&a=getTagDialog&id=' + tagId + '&ticket_id=' + this.ticket_id, {
 				success: function(o) {
 					var caller = o.argument.caller;
 					var target = o.argument.target;
@@ -130,7 +130,7 @@ var cDisplayTicketAjax = function(ticket_id, workflow_div) {
 		if(null == frm) return;
 		
 		YAHOO.util.Connect.setForm(frm);
-		var cObj = YAHOO.util.Connect.asyncRequest('POST', 'ajax.php', {
+		var cObj = YAHOO.util.Connect.asyncRequest('POST', DevblocksAppPath+'ajax.php', {
 				success: function(o) {
 					var caller = o.argument.caller;
 					caller.tagDialog.hide();
@@ -148,7 +148,7 @@ var cDisplayTicketAjax = function(ticket_id, workflow_div) {
 			this.agentDialog.hide();
 		}
 		
-		var cObj = YAHOO.util.Connect.asyncRequest('GET', 'ajax.php?c=core.display.module.workflow&a=getAgentDialog&id=' + agentId + '&ticket_id=' + this.ticket_id, {
+		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=core.display.module.workflow&a=getAgentDialog&id=' + agentId + '&ticket_id=' + this.ticket_id, {
 				success: function(o) {
 					var caller = o.argument.caller;
 					var target = o.argument.target;
@@ -185,7 +185,7 @@ var cDisplayTicketAjax = function(ticket_id, workflow_div) {
 		if(null == frm) return;
 		
 		YAHOO.util.Connect.setForm(frm);
-		var cObj = YAHOO.util.Connect.asyncRequest('POST', 'ajax.php', {
+		var cObj = YAHOO.util.Connect.asyncRequest('POST', DevblocksAppPath+'ajax.php', {
 				success: function(o) {
 					var caller = o.argument.caller;
 
@@ -202,7 +202,7 @@ var cDisplayTicketAjax = function(ticket_id, workflow_div) {
 		var div = document.getElementById('displayWorkflowOptions');
 		if(null == div) return;
 		
-		var cObj = YAHOO.util.Connect.asyncRequest('GET', 'ajax.php?c=core.display.module.workflow&a=showApplyTags&id=' + this.ticket_id, {
+		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=core.display.module.workflow&a=showApplyTags&id=' + this.ticket_id, {
 				success: function(o) {
 					var div = document.getElementById('displayWorkflowOptions');
 					if(null == div) return;
@@ -223,7 +223,7 @@ var cDisplayTicketAjax = function(ticket_id, workflow_div) {
 		if(null == div) return;
 		
 		YAHOO.util.Connect.setForm(this.workflow_div);
-		var cObj = YAHOO.util.Connect.asyncRequest('POST', 'ajax.php', {
+		var cObj = YAHOO.util.Connect.asyncRequest('POST', DevblocksAppPath+'ajax.php', {
 				success: function(o) {
 					var caller = o.argument.caller;
 					caller.refreshWorkflow();
@@ -238,7 +238,7 @@ var cDisplayTicketAjax = function(ticket_id, workflow_div) {
 		var div = document.getElementById('displayWorkflowOptions');
 		if(null == div) return;
 		
-		var cObj = YAHOO.util.Connect.asyncRequest('GET', 'ajax.php?c=core.display.module.workflow&a=showFavTags', {
+		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=core.display.module.workflow&a=showFavTags', {
 				success: function(o) {
 					var div = document.getElementById('displayWorkflowOptions');
 					if(null == div) return;
@@ -259,7 +259,7 @@ var cDisplayTicketAjax = function(ticket_id, workflow_div) {
 		if(null == div) return;
 		
 		YAHOO.util.Connect.setForm(this.workflow_div);
-		var cObj = YAHOO.util.Connect.asyncRequest('POST', 'ajax.php', {
+		var cObj = YAHOO.util.Connect.asyncRequest('POST', DevblocksAppPath+'ajax.php', {
 				success: function(o) {
 					var caller = o.argument.caller;
 					caller.refreshWorkflow();
@@ -274,7 +274,7 @@ var cDisplayTicketAjax = function(ticket_id, workflow_div) {
 		var div = document.getElementById('displayWorkflowOptions');
 		if(null == div) return;
 		
-		var cObj = YAHOO.util.Connect.asyncRequest('GET', 'ajax.php?c=core.display.module.workflow&a=showFavWorkers', {
+		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=core.display.module.workflow&a=showFavWorkers', {
 				success: function(o) {
 					var div = document.getElementById('displayWorkflowOptions');
 					if(null == div) return;
@@ -295,7 +295,7 @@ var cDisplayTicketAjax = function(ticket_id, workflow_div) {
 		if(null == div) return;
 		
 		YAHOO.util.Connect.setForm(this.workflow_div);
-		var cObj = YAHOO.util.Connect.asyncRequest('POST', 'ajax.php', {
+		var cObj = YAHOO.util.Connect.asyncRequest('POST', DevblocksAppPath+'ajax.php', {
 				success: function(o) {
 					var caller = o.argument.caller;
 					caller.refreshWorkflow();
@@ -310,7 +310,7 @@ var cDisplayTicketAjax = function(ticket_id, workflow_div) {
 		var div = document.getElementById('displayWorkflowOptions');
 		if(null == div) return;
 		
-		var cObj = YAHOO.util.Connect.asyncRequest('GET', 'ajax.php?c=core.display.module.workflow&a=showFlagAgents&id=' + this.ticket_id, {
+		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=core.display.module.workflow&a=showFlagAgents&id=' + this.ticket_id, {
 				success: function(o) {
 					var div = document.getElementById('displayWorkflowOptions');
 					if(null == div) return;
@@ -330,7 +330,7 @@ var cDisplayTicketAjax = function(ticket_id, workflow_div) {
 		var div = document.getElementById('displayWorkflowOptions');
 		if(null == div) return;
 		
-		var cObj = YAHOO.util.Connect.asyncRequest('GET', 'ajax.php?c=core.display.module.workflow&a=showSuggestAgents&id=' + this.ticket_id, {
+		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=core.display.module.workflow&a=showSuggestAgents&id=' + this.ticket_id, {
 				success: function(o) {
 					var div = document.getElementById('displayWorkflowOptions');
 					if(null == div) return;

@@ -24,7 +24,7 @@
 		</td>
 		
 		<td width="100%" valign="top">
-			<form action="index.php#mailboxes" method="post" id="configMailbox">
+			<form action="{devblocks_url}{/devblocks_url}#mailboxes" method="post" id="configMailbox">
 				{include file="$path/configuration/workflow/edit_mailbox.tpl.php" mailbox=null}
 			</form>
 		</td>

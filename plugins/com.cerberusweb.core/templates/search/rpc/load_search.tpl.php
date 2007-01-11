@@ -1,4 +1,4 @@
-<input type="hidden" name="c" value="core.module.search">
+<input type="hidden" name="c" value="search">
 <input type="hidden" name="a" value="loadSearch">
 {if !empty($searches)}
 <b>Load:</b> <select name="search_id">

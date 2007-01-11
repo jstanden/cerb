@@ -1,11 +1,11 @@
-<input type="hidden" name="c" value="core.module.display">
+<input type="hidden" name="c" value="display">
 <input type="hidden" name="a" value="saveRequester">
 <input type="hidden" name="id" value="{$ticket->id}">
 
 <table class="tableBlue" border="0" cellpadding="2" cellspacing="0" width="100%">
   <tbody>
     <tr>
-      <td colspan="2" class="tableThBlue" nowrap="nowrap"> <img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/mail2.gif"> Requesters </td>
+      <td colspan="2" class="tableThBlue" nowrap="nowrap"> <img src="{devblocks_url}images/mail2.gif{/devblocks_url}"> Requesters </td>
     </tr>
     {assign var=requesters value=$ticket->getRequesters()}
     {foreach from=$requesters item=requester name=requesters}

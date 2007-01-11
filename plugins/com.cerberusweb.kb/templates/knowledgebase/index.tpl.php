@@ -1,7 +1,7 @@
 <h1>Knowledgebase</h1>
-<img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/view.gif"> <b>Search:</b> 
+<img src="{devblocks_url}images/view.gif{/devblocks_url}"> <b>Search:</b> 
 <input type="text" size="45"><input type="button" value="Go!">
-<img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/folder_into.gif" align="absmiddle"> <a href="javascript:;" onclick="kbAjax.showCategoryJump(this);">jump to category</a>
+<img src="{devblocks_url}images/folder_into.gif{/devblocks_url}" align="absmiddle"> <a href="javascript:;" onclick="kbAjax.showCategoryJump(this);">jump to category</a>
 <br>
 
 {if $node->id}
@@ -10,8 +10,8 @@
 	<tr>
 		<td width="0%" nowrap="nowrap" valign="top"><h2>{$node->name}</h2></td>
 		<td width="100%" nowrap="nowrap" valign="middle">
-			<img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/spacer.gif" width="5" height="1">
-			<img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/folder_edit.gif" align="absmiddle"> <a href="javascript:;" onclick="kbAjax.showCategoryModify('{$node->id}','0',this);">modify</a>
+			<img src="{devblocks_url}images/spacer.gif{/devblocks_url}" width="5" height="1">
+			<img src="{devblocks_url}images/folder_edit.gif{/devblocks_url}" align="absmiddle"> <a href="javascript:;" onclick="kbAjax.showCategoryModify('{$node->id}','0',this);">modify</a>
 		</td>
 	</tr>
 </table>
@@ -22,7 +22,7 @@
 {if $smarty.foreach.trails.last && $tn->id}
 	<b>{$tn->name}</b>
 {else}
-	<a href="{$smarty.const.DEVBLOCKS_WEBPATH}index.php?c={$c}&a=click&id={$tn->id}">{$tn->name}</a> :
+	<a href="{devblocks_url}c=kb&id={$tn->id}{/devblocks_url}">{$tn->name}</a> :
 {/if}
 {/foreach}
 <br>
@@ -34,8 +34,8 @@
 	<tr>
 		<td width="0%" nowrap="nowrap" valign="top"><h2>Subcategories:</h2></td>
 		<td width="100%" nowrap="nowrap" valign="middle">
-			<img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/spacer.gif" width="5" height="1">
-			<img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/folder_add.gif" align="absmiddle"> <a href="javascript:;" onclick="kbAjax.showCategoryModify('0','{$node->id}',this);">add</a>
+			<img src="{devblocks_url}images/spacer.gif{/devblocks_url}" width="5" height="1">
+			<img src="{devblocks_url}images/folder_add.gif{/devblocks_url}" align="absmiddle"> <a href="javascript:;" onclick="kbAjax.showCategoryModify('0','{$node->id}',this);">add</a>
 		</td>
 	</tr>
 </table>
@@ -47,7 +47,7 @@
 <table cellpadding="0" cellspacing="0">
 	<tr>
 		<td><h2>Resources:</h2></td>
-		<td> &nbsp;<img src="{$smarty.const.DEVBLOCKS_WEBPATH}images/document_add.gif" align="absmiddle"> <a href="#">add</a></td>
+		<td> &nbsp;<img src="{devblocks_url}images/document_add.gif{/devblocks_url}" align="absmiddle"> <a href="#">add</a></td>
 	</tr>
 </table>
 {include file="file:$path/knowledgebase/resource_list.tpl.php"}
