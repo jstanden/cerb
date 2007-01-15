@@ -13,15 +13,20 @@ class CerberusApplication extends DevblocksApplication {
 		// [JAS]: Ajax?
 		if(empty($path))
 			return;
+
+		$tpl = DevblocksPlatform::getTemplateService();
+		$session = DevblocksPlatform::getSessionService();
+		$visit = $session->getVisit();
 		
 		$mapping = DevblocksPlatform::getMappingRegistry();
 		@$extension_id = $mapping[$path[0]];
 		
-		if(empty($extension_id)) $extension_id = 'core.module.dashboard';
-
-		$tpl = DevblocksPlatform::getTemplateService();
-		$session = DevblocksPlatform::getSessionService();
+		if(empty($visit))
+			$extension_id = 'core.module.signin';
 		
+		if(empty($extension_id)) 
+			$extension_id = 'core.module.dashboard';
+	
 		$modules = CerberusApplication::getModules();
 		$tpl->assign('modules',$modules);		
 		
@@ -30,7 +35,7 @@ class CerberusApplication extends DevblocksApplication {
 		$tpl->assign('module',$page);
 		
 		$tpl->assign('session', $_SESSION);
-		$tpl->assign('visit', $session->getVisit());
+		$tpl->assign('visit', $visit);
 		
 		$translate = DevblocksPlatform::getTranslationService();
 		$tpl->assign('translate', $translate);

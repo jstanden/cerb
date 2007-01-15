@@ -271,28 +271,60 @@ class ChConfigurationModule extends CerberusModuleExtension  {
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 
-		$routing = CerberusMailDAO::getMailboxRouting();
-		$tpl->assign('routing', $routing);
-
-		$address_ids = array_keys($routing);
-		$routing_addresses = CerberusContactDAO::getAddresses($address_ids);
-		$tpl->assign('routing_addresses', $routing_addresses);
+		$response = DevblocksPlatform::getHttpResponse();
+		$stack = $response->path;
+		$command = array_shift($stack);
 		
-		$pop3_accounts = CerberusMailDAO::getPop3Accounts();
-		$tpl->assign('pop3_accounts', $pop3_accounts);
+		switch($stack[0]) {
+			case 'general':
+				$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/general/index.tpl.php');				
+				break;
+				
+			case 'mail':
+				$routing = CerberusMailDAO::getMailboxRouting();
+				$tpl->assign('routing', $routing);
 		
-		$mailboxes = CerberusMailDAO::getMailboxes();
-		$tpl->assign('mailboxes', $mailboxes);
+				$address_ids = array_keys($routing);
+				$routing_addresses = CerberusContactDAO::getAddresses($address_ids);
+				$tpl->assign('routing_addresses', $routing_addresses);
+				
+				$pop3_accounts = CerberusMailDAO::getPop3Accounts();
+				$tpl->assign('pop3_accounts', $pop3_accounts);
+				
+				$mailboxes = CerberusMailDAO::getMailboxes();
+				$tpl->assign('mailboxes', $mailboxes);
+				
+				$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/mail/index.tpl.php');				
+				break;
+				
+			case 'workflow':
+				$workers = CerberusAgentDAO::getAgents();
+				$tpl->assign('workers', $workers);
+				
+				$teams = CerberusWorkflowDAO::getTeams();
+				$tpl->assign('teams', $teams);
+				
+				$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/workflow/index.tpl.php');				
+				break;
+				
+			case 'extensions':
+				$plugins = DevblocksPlatform::getPluginRegistry();
+				$tpl->assign('plugins', $plugins);
+				
+				$extensions = DevblocksPlatform::getExtensionRegistry();
+				$tpl->assign('extensions', $extensions);
+				
+				$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/extensions/index.tpl.php');				
+				break;
+				
+			default:
+				$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/index.tpl.php');
+				break;
+		} // end switch
 		
-		$workers = CerberusAgentDAO::getAgents();
-		$tpl->assign('workers', $workers);
-		
-		$teams = CerberusWorkflowDAO::getTeams();
-		$tpl->assign('teams', $teams);
-		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/index.tpl.php');
 	}
 	
+	// Ajax
 	function getWorker() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
 
@@ -309,6 +341,7 @@ class ChConfigurationModule extends CerberusModuleExtension  {
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/workflow/edit_worker.tpl.php');
 	}
 	
+	// Post
 	function saveWorker() {
 		@$id = DevblocksPlatform::importGPC($_POST['id']);
 		@$login = DevblocksPlatform::importGPC($_POST['login']);
@@ -342,9 +375,10 @@ class ChConfigurationModule extends CerberusModuleExtension  {
 			}
 		}
 		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config')));
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','workflow')));
 	}
 	
+	// Ajax
 	function getTeam() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
 
@@ -364,6 +398,7 @@ class ChConfigurationModule extends CerberusModuleExtension  {
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/workflow/edit_team.tpl.php');
 	}
 	
+	// Post
 	function saveTeam() {
 		@$id = DevblocksPlatform::importGPC($_POST['id']);
 		@$name = DevblocksPlatform::importGPC($_POST['name']);
@@ -390,9 +425,10 @@ class ChConfigurationModule extends CerberusModuleExtension  {
 			CerberusWorkflowDAO::setTeamWorkers($id, $agent_id);
 		}
 		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config')));
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','workflow')));
 	}
 	
+	// Ajax
 	function getMailbox() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
 
@@ -409,9 +445,10 @@ class ChConfigurationModule extends CerberusModuleExtension  {
 		$reply_address = CerberusContactDAO::getAddress($mailbox->reply_address_id);
 		$tpl->assign('reply_address', $reply_address);
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/workflow/edit_mailbox.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/mail/edit_mailbox.tpl.php');
 	}
 	
+	// Post
 	function saveMailbox() {
 		@$id = DevblocksPlatform::importGPC($_POST['id']);
 		@$name = DevblocksPlatform::importGPC($_POST['name']);
@@ -440,9 +477,10 @@ class ChConfigurationModule extends CerberusModuleExtension  {
 			CerberusMailDAO::setMailboxTeams($id, $team_id);
 		}
 		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config')));
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','mail')));
 	}
 	
+	// Ajax
 	function getPop3Account() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
 		
@@ -453,9 +491,10 @@ class ChConfigurationModule extends CerberusModuleExtension  {
 		$pop3_account = CerberusMailDAO::getPop3Account($id);
 		$tpl->assign('pop3_account', $pop3_account);
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/workflow/edit_pop3_account.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/mail/edit_pop3_account.tpl.php');
 	}
 	
+	// Post
 	function savePop3Account() {
 		@$id = DevblocksPlatform::importGPC($_POST['id']);
 		@$nickname = DevblocksPlatform::importGPC($_POST['nickname']);
@@ -480,9 +519,10 @@ class ChConfigurationModule extends CerberusModuleExtension  {
 			$id = CerberusMailDAO::createPop3Account($nickname,$host,$username,$password);
 		}
 		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config')));
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','mail')));
 	}
 	
+	// Ajax
 	function ajaxGetRouting() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
@@ -498,14 +538,16 @@ class ChConfigurationModule extends CerberusModuleExtension  {
 		$mailboxes = CerberusMailDAO::getMailboxes();
 		$tpl->assign('mailboxes', $mailboxes);
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/mail_routing.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/mail/mail_routing.tpl.php');
 	}
 	
+	// Ajax
 	function ajaxDeleteRouting() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
 		CerberusMailDAO::deleteMailboxRouting($id);
 	}
 	
+	// Ajax
 	function getMailboxRoutingDialog() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
 		
@@ -527,6 +569,7 @@ class ChConfigurationModule extends CerberusModuleExtension  {
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/mail/edit_mailbox_routing.tpl.php');
 	}
 	
+	// Ajax
 	function saveMailboxRoutingDialog() {
 		@$address_id = intval(DevblocksPlatform::importGPC($_POST['id']));
 		@$mailbox_id = intval(DevblocksPlatform::importGPC($_POST['mailbox_id']));

@@ -27,7 +27,7 @@
 
 {include file="menu.tpl.php"}
 
-{if !empty($module)}
+{if !empty($module) && $module->isVisible()}
 	{$module->render()}
 {else}
 	{$translate->say('header.no_module')}

@@ -1,7 +1,7 @@
 <!-- [JAS] [TODO] Needs DTD -->
 <plugin>
 	<id>cerberusweb.cron.pop3</id>
-	<name>Cerberus Helpdesk Login Plugins</name>
+	<name>Cerberus Helpdesk Cron Plugins</name>
 	<author>WebGroup Media, LLC.</author>
 	
 	<extensions>
