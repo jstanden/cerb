@@ -10,7 +10,7 @@ abstract class CerberusModuleExtension extends DevblocksExtension implements Dev
 	
 	function getLink() {
 		$uris = DevblocksPlatform::getMappingRegistry();
-		$url = URL::getInstance();
+		$url = DevblocksPlatform::getUrlService();
 		// [JAS]: [TODO] Move this to the platform
 		$uri = array_search($this->id,$uris);
 		return $url->write($uri);
