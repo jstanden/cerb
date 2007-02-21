@@ -10,7 +10,7 @@
 	
 	<extensions>
 	
-		<extension point="com.cerberusweb.module">
+		<extension point="cerberusweb.module">
 			<id>core.module.kb</id>
 			<name>Knowledgebase Module</name>
 			<class>
@@ -23,7 +23,7 @@
 			</params>
 		</extension>
 		
-		<extension point="com.cerberusweb.display.module">
+		<extension point="cerberusweb.display.module">
 			<id>core.display.module.fnr</id>
 			<name>Fetch &amp; Retrieve Display Module</name>
 			<class>

@@ -1,21 +1,24 @@
 <?php
 
+// [JAS]: [TODO] Should rename this to WorkerDAO for consistency
 class CerberusAgentDAO {
 	private function CerberusAgentDAO() {}
 	
-	static function createAgent($login, $password, $admin=0) {
+	static function createAgent($login, $password, $first_name, $last_name, $title) {
 		if(empty($login) || empty($password))
 			return null;
 			
 		$um_db = DevblocksPlatform::getDatabaseService();
 		$id = $um_db->GenID('generic_seq');
 		
-		$sql = sprintf("INSERT INTO login (id, login, password, admin) ".
-			"VALUES (%d, %s, %s, %d)",
+		$sql = sprintf("INSERT INTO worker (id, login, pass, first_name, last_name, title) ".
+			"VALUES (%d, %s, %s, %s, %s, %s)",
 			$id,
 			$um_db->qstr($login),
 			$um_db->qstr(md5($password)),
-			$admin
+			$um_db->qstr($first_name),
+			$um_db->qstr($last_name),
+			$um_db->qstr($title)
 		);
 		$rs = $um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
@@ -26,25 +29,29 @@ class CerberusAgentDAO {
 		if(!is_array($ids)) $ids = array($ids);
 		
 		$um_db = DevblocksPlatform::getDatabaseService();
-		$agents = array();
+		$workers = array();
 		
-		$sql = "SELECT a.id, a.login, a.password, a.admin ".
-			"FROM login a ".
+		$sql = "SELECT a.id, a.first_name, a.last_name, a.login, a.title ".
+			"FROM worker a ".
 			((!empty($ids) ? sprintf("WHERE a.id IN (%s)",implode(',',$ids)) : " ").
-			"ORDER BY a.login "
+			"ORDER BY a.first_name "
 		);
 		$rs = $um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		while(!$rs->EOF) {
-			$agent = new CerberusAgent();
-			$agent->id = intval($rs->fields['id']);
-			$agent->login = $rs->fields['login'];
-			$agent->admin = intval($rs->fields['admin']);
-			$agents[$agent->id] = $agent;
+			// [TODO] CerberusWorker
+			$worker = new CerberusWorker();
+			$worker->id = intval($rs->fields['id']);
+			$worker->first_name = $rs->fields['first_name'];
+			$worker->last_name = $rs->fields['last_name'];
+			$worker->login = $rs->fields['login'];
+			$worker->title = $rs->fields['title'];
+			$worker->last_activity_date = intval($rs->fields['last_activity_date']);
+			$workers[$worker->id] = $worker;
 			$rs->MoveNext();
 		}
 		
-		return $agents;		
+		return $workers;		
 	}
 	
 	static function getAgent($id) {
@@ -68,7 +75,7 @@ class CerberusAgentDAO {
 		if(empty($login)) return null;
 		$um_db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = sprintf("SELECT a.id FROM login a WHERE a.login = %s",
+		$sql = sprintf("SELECT a.id FROM worker a WHERE a.login = %s",
 			$um_db->qstr($login)
 		);
 		$rs = $um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
@@ -94,7 +101,7 @@ class CerberusAgentDAO {
 			);
 		}
 			
-		$sql = sprintf("UPDATE login SET %s WHERE id = %d",
+		$sql = sprintf("UPDATE worker SET %s WHERE id = %d",
 			implode(', ', $sets),
 			$id
 		);
@@ -107,7 +114,7 @@ class CerberusAgentDAO {
 		
 		$um_db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = sprintf("DELETE FROM login WHERE id = %d",
+		$sql = sprintf("DELETE FROM worker WHERE id = %d",
 			$id
 		);
 		$um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
@@ -122,6 +129,25 @@ class CerberusAgentDAO {
 		);
 		$um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
+	}
+	
+	static function login($login, $password) {
+		$db = DevblocksPlatform::getDatabaseService();
+
+		$sql = sprintf("SELECT id ".
+			"FROM worker ".
+			"WHERE login = %s ".
+			"AND pass = MD5(%s)",
+				$db->qstr($login),
+				$db->qstr($password)
+		);
+		$worker_id = $db->GetOne($sql); // or die(__CLASS__ . ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+
+		if(!empty($worker_id)) {
+			return self::getAgent($worker_id);
+		}
+		
+		return null;
 	}
 	
 	static function setAgentTeams($agent_id, $team_ids) {

@@ -23,7 +23,9 @@ $tables['ticket'] = "
 	priority I1 DEFAULT 0 NOTNULL, 
 	mailbox_id I4 NOTNULL, 
 	last_wrote C(128) DEFAULT '' NOTNULL,
-	first_wrote C(128) DEFAULT '' NOTNULL
+	first_wrote C(128) DEFAULT '' NOTNULL,
+	first_wrote_address_id I4 NOTNULL DEFAULT 0,
+	last_wrote_address_id I4 NOTNULL DEFAULT 0
 ";
 
 $tables['message'] = "
@@ -180,6 +182,15 @@ $tables['tag_to_kb'] ="
 	kb_id I4 DEFAULT 0 NOTNULL PRIMARY
 ";
 
+$tables['worker'] ="
+	id I4 DEFAULT 0 NOTNULL PRIMARY,
+	first_name C(32) DEFAULT '',
+	last_name C(64) DEFAULT '',
+	title C(64) DEFAULT '',
+	login C(64) DEFAULT '',
+	pass C(32) DEFAULT '',
+	last_activity_date I4
+";
 
 foreach($tables as $table => $flds) {
 	$sql = $datadict->ChangeTableSQL($table,$flds);

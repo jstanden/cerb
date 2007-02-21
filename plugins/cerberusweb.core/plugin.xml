@@ -16,7 +16,9 @@
 	
 	<extensions>
 	
-		<extension point="com.cerberusweb.module">
+		<!-- Page Modules -->
+	
+		<extension point="cerberusweb.module">
 			<id>core.module.dashboard</id>
 			<name>Dashboard Module</name>
 			<class>
@@ -30,7 +32,7 @@
 			</params>
 		</extension>
 
-		<extension point="com.cerberusweb.module">
+		<extension point="cerberusweb.module">
 			<id>core.module.display</id>
 			<name>Display Ticket Module</name>
 			<class>
@@ -44,7 +46,7 @@
 			</params>
 		</extension>
 
-		<extension point="com.cerberusweb.module">
+		<extension point="cerberusweb.module">
 			<id>core.module.teamwork</id>
 			<name>Teamwork Module</name>
 			<class>
@@ -57,7 +59,7 @@
 			</params>
 		</extension>
 
-		<extension point="com.cerberusweb.module">
+		<extension point="cerberusweb.module">
 			<id>core.module.search</id>
 			<name>Search Module</name>
 			<class>
@@ -70,7 +72,7 @@
 			</params>
 		</extension>
 
-		<extension point="com.cerberusweb.module">
+		<extension point="cerberusweb.module">
 			<id>core.module.signin</id>
 			<name>Signin Module</name>
 			<class>
@@ -82,7 +84,7 @@
 			</params>
 		</extension>
 
-		<extension point="com.cerberusweb.module">
+		<extension point="cerberusweb.module">
 			<id>core.module.configuration</id>
 			<name>Configuration Module</name>
 			<class>
@@ -95,7 +97,7 @@
 			</params>
 		</extension>
 
-		<extension point="com.cerberusweb.module">
+		<extension point="cerberusweb.module">
 			<id>core.module.preferences</id>
 			<name>Preferences Module</name>
 			<class>
@@ -107,7 +109,9 @@
 			</params>
 		</extension>
 		
-		<extension point="com.cerberusweb.display.module">
+		<!-- Display Ticket Modules -->
+		
+		<extension point="cerberusweb.display.module">
 			<id>core.display.module.workflow</id>
 			<name>Ticket Workflow Display Module</name>
 			<class>
@@ -120,7 +124,7 @@
 			</params>
 		</extension>
 
-		<extension point="com.cerberusweb.display.module">
+		<extension point="cerberusweb.display.module">
 			<id>core.display.module.history</id>
 			<name>Ticket History Display Module</name>
 			<class>
@@ -133,7 +137,7 @@
 			</params>
 		</extension>
 		
-		<extension point="com.cerberusweb.display.module">
+		<extension point="cerberusweb.display.module">
 			<id>core.display.module.log</id>
 			<name>Ticket Log Display Module</name>
 			<class>
@@ -146,7 +150,7 @@
 			</params>
 		</extension>
 
-		<extension point="com.cerberusweb.display.module">
+		<extension point="cerberusweb.display.module">
 			<id>core.display.module.conversation</id>
 			<name>Ticket Conversation Display Module</name>
 			<class>
@@ -157,7 +161,7 @@
 			</params>
 		</extension>
 		
-		<extension point="com.cerberusweb.display.module">
+		<extension point="cerberusweb.display.module">
 			<id>core.display.module.fields</id>
 			<name>Ticket Custom Fields Display Module</name>
 			<class>
@@ -169,6 +173,43 @@
 				<param key="icon" value="images/form_green.gif" />
 			</params>
 		</extension>
+		
+		<!--  Login Extensions -->
+		
+		<extension point="cerberusweb.login">
+			<id>login.default</id>
+			<name>Default Login Module</name>
+			<class>
+				<file>login.classes.php</file>
+				<name>DefaultLoginModule</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
+		<extension point="cerberusweb.login">
+			<id>login.ldap</id>
+			<name>LDAP Login Module</name>
+			<class>
+				<file>login.classes.php</file>
+				<name>LDAPLoginModule</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
+		<!-- Cron Extensions -->
+		
+		<extension point="cerberusweb.cron">
+			<id>cron.pop3</id>
+			<name>Default POP3 Module</name>
+			<class>
+				<file>cron.classes.php</file>
+				<name>Pop3Module</name>
+			</class>
+			<params>
+			</params>
+		</extension>		
 		
 	</extensions>
 </plugin>

@@ -1,9 +1,16 @@
 <?php
 
-class CerberusAgent {
+class CerberusVisit {
+	public $worker;
+}
+
+class CerberusWorker {
 	public $id;
+	public $first_name;
+	public $last_name;
 	public $login;
-	public $admin;
+	public $title;
+	public $last_activity_date;
 	
 	function getTeams() {
 		return CerberusAgentDAO::getAgentTeams($this->id);

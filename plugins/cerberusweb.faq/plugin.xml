@@ -1,0 +1,40 @@
+<!-- [JAS] [TODO] Needs DTD -->
+<plugin>
+	<id>cerberusweb.faq</id>
+	<name>Cerberus Helpdesk FAQ</name>
+	<author>WebGroup Media, LLC.</author>
+	
+	<mapping>
+		<uri value="faq" extension_id="core.module.faq" />
+	</mapping>	
+	
+	<extensions>
+	
+		<extension point="cerberusweb.module">
+			<id>core.module.faq</id>
+			<name>FAQ Module</name>
+			<class>
+				<file>classes.php</file>
+				<name>ChFaqModule</name>
+			</class>
+			<params>
+				<param key="title" value="Faq" />
+				<param key="menutitle" value="Faq" />
+			</params>
+		</extension>
+		
+		<extension point="cerberusweb.display.module">
+			<id>core.display.module.faq</id>
+			<name>Fetch &amp; Retrieve Display Module</name>
+			<class>
+				<file>classes.php</file>
+				<name>ChDisplayFaq</name>
+			</class>
+			<params>
+				<param key="title" value="Fetch &amp; Retrieve&amp;trade; - Suggested FAQs" />
+				<param key="icon" value="images/document.gif" />
+			</params>
+		</extension>
+		
+	</extensions>
+</plugin>

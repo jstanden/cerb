@@ -25,7 +25,7 @@ class ChDashboardModule extends CerberusModuleExtension {
 		$session = DevblocksPlatform::getSessionService();
 		$visit = $session->getVisit();
 		
-		$dashboards = CerberusDashboardDAO::getDashboards($visit->id);
+		$dashboards = CerberusDashboardDAO::getDashboards($visit->worker->id);
 		$tpl->assign('dashboards', $dashboards);
 		
 		// [JAS]: [TODO] This needs to limit by the selected dashboard
@@ -631,7 +631,7 @@ class ChDisplayModule extends CerberusModuleExtension {
 		$mailboxes = CerberusMailDAO::getMailboxes();
 		$tpl->assign('mailboxes', $mailboxes);
 		
-		$display_module_manifests = DevblocksPlatform::getExtensions("com.cerberusweb.display.module");
+		$display_module_manifests = DevblocksPlatform::getExtensions("cerberusweb.display.module");
 		$display_modules = array();
 		
 		if(is_array($display_module_manifests))
@@ -828,7 +828,7 @@ class ChSignInModule extends CerberusModuleExtension {
 	function signout() {
 //		echo "Sign out: " . __CLASS__ . "->" . __FUNCTION__ . "!<br>";
 		$session = DevblocksPlatform::getSessionService();
-		$session->logout();
+		$session->clear();
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('login')));
 	}
 };
@@ -865,7 +865,7 @@ class ChTeamworkModule extends CerberusModuleExtension {
 		
 		$mytickets = CerberusSearchDAO::searchTickets(
 			array(
-				new CerberusSearchCriteria(CerberusSearchFields::ASSIGNED_WORKER,'in',array($visit->id))
+				new CerberusSearchCriteria(CerberusSearchFields::ASSIGNED_WORKER,'in',array($visit->worker->id))
 			),
 			25
 		);
@@ -1242,7 +1242,7 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 		$session = DevblocksPlatform::getSessionService();
 		$visit = $session->getVisit();
 		
-		$favoriteTags = CerberusAgentDAO::getFavoriteTags($visit->id);
+		$favoriteTags = CerberusAgentDAO::getFavoriteTags($visit->worker->id);
 		$tpl->assign('favoriteTags', $favoriteTags);
 		
 //		$suggestedTags = CerberusWorkflowDAO::getSuggestedTags($ticket->id,10);
@@ -1279,7 +1279,7 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 		$ticket = CerberusTicketDAO::getTicket($ticket_id);
 		$tpl->assign('ticket', $ticket);
 		
-		$favoriteTags = CerberusAgentDAO::getFavoriteTags($visit->id);
+		$favoriteTags = CerberusAgentDAO::getFavoriteTags($visit->worker->id);
 		$tpl->assign('favoriteTags', $favoriteTags);
 		
 		$suggestedTags = CerberusWorkflowDAO::getSuggestedTags($ticket->id,10);
@@ -1411,7 +1411,7 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 //		$ticket = CerberusTicketDAO::getTicket($id);
 //		$tpl->assign('ticket', $ticket);
 //		
-//		$favoriteTags = CerberusAgentDAO::getFavoriteTags($visit->id);
+//		$favoriteTags = CerberusAgentDAO::getFavoriteTags($visit->worker->id);
 //		$tpl->assign('favoriteTags', $favoriteTags);
 //		
 //		$suggestedTags = CerberusWorkflowDAO::getTags();
@@ -1437,7 +1437,7 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 		$tpl->caching = 0;
 		$tpl->cache_lifetime = 0;
 
-		$favoriteTags = CerberusAgentDAO::getFavoriteTags($visit->id);
+		$favoriteTags = CerberusAgentDAO::getFavoriteTags($visit->worker->id);
 		$tpl->assign('favoriteTags', $favoriteTags);
 		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/workflow/add_favtags.tpl.php');
@@ -1449,7 +1449,7 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 		$session = DevblocksPlatform::getSessionService();
 		$visit = $session->getVisit();
 		
-		CerberusAgentDAO::setFavoriteTags($visit->id, $favTagEntry);
+		CerberusAgentDAO::setFavoriteTags($visit->worker->id, $favTagEntry);
 		
 		echo ' ';
 	}
@@ -1467,7 +1467,7 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 		$agents = CerberusAgentDAO::getAgents();
 		$tpl->assign('agents', $agents);
 		
-		$favoriteWorkers = CerberusAgentDAO::getFavoriteWorkers($visit->id);
+		$favoriteWorkers = CerberusAgentDAO::getFavoriteWorkers($visit->worker->id);
 		$tpl->assign('favoriteWorkers', $favoriteWorkers);
 		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/workflow/add_favworkers.tpl.php');
@@ -1479,7 +1479,7 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 		$session = DevblocksPlatform::getSessionService();
 		$visit = $session->getVisit();
 		
-		CerberusAgentDAO::setFavoriteWorkers($visit->id, $favWorkerEntry);
+		CerberusAgentDAO::setFavoriteWorkers($visit->worker->id, $favWorkerEntry);
 		
 		echo ' ';
 	}
@@ -1499,7 +1499,7 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 		$ticket = CerberusTicketDAO::getTicket($id);
 		$tpl->assign('ticket', $ticket);
 		
-		$favoriteWorkers = CerberusAgentDAO::getFavoriteWorkers($visit->id);
+		$favoriteWorkers = CerberusAgentDAO::getFavoriteWorkers($visit->worker->id);
 		$tpl->assign('favoriteWorkers', $favoriteWorkers);
 		
 		$agents = CerberusAgentDAO::getAgents();
@@ -1538,7 +1538,7 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 		$ticket = CerberusTicketDAO::getTicket($id);
 		$tpl->assign('ticket', $ticket);
 		
-		$favoriteWorkers = CerberusAgentDAO::getFavoriteWorkers($visit->id);
+		$favoriteWorkers = CerberusAgentDAO::getFavoriteWorkers($visit->worker->id);
 		$tpl->assign('favoriteWorkers', $favoriteWorkers);
 		
 		$agents = CerberusAgentDAO::getAgents();
