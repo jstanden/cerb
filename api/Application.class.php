@@ -145,6 +145,64 @@ class CerberusApplication extends DevblocksApplication {
 	
 };
 
+/*
+ * [TODO]: This is currently stripping off apostrophes (don't) and 
+ * is stripping potentially useful dashes (http-header) and periods (office.webgroupmedia.com) 
+ */
+class CerberusBayes {
+	/**
+	 * @param string $text A string of text to break into unique words
+	 * @param integer $min The minimum word length used
+	 * @param integer $max The maximum word length used
+	 * @return array An array with unique words as keys
+	 */
+	static function parseUniqueWords($text,$min=3,$max=24) {
+		// Force lowercase and strip non-word punctuation
+		$text = preg_replace('#\W+#', ' ', strtolower($text));
+		
+		// Sort unique words w/ condensed spaces
+		$words = array_flip(explode(' ', preg_replace('#\s+#', ' ', $text)));
+		
+		// Toss anything over/under the word length bounds
+		foreach($words as $k => $v) {
+			$len = strlen($k);
+			if($len < $min || $len > $max) {
+				unset($words[$k]); // toss
+			}
+		}
+		
+		return $words;
+	}
+	
+	/**
+	 * @param string $text A string of text to run through spam scoring
+	 */
+	static function processText($text) {
+		$words = self::parseUniqueWords($text);
+		$words = self::_lookupWordIds($words);
+		
+		// [TODO] Actually do some Bayesian spam scoring
+		print_r($words);
+	}
+	
+	/**
+	 * @param array $words An array indexed with words to look up 
+	 */
+	static private function _lookupWordIds($words) {
+		$pos = 0;
+		$batch_size = 10;
+		$outwords = array(); // 
+				
+		while(array() != ($batch = array_slice($words,$pos,$batch_size,true))) {
+			$batch = array_keys($batch); // words are now values
+			$word_ids = DAO_Bayes::lookupWordIds($batch);
+			$outwords = array_merge($outwords, $word_ids);
+			$pos += $batch_size;
+		}
+		return $outwords;
+	}
+};
+
 class CerberusParser {
 	
 	/**
@@ -334,6 +392,10 @@ class CerberusParser {
 
 		if(!empty($attachments)) {
 			$message_id = CerberusTicketDAO::createMessage($id,CerberusMessageType::EMAIL,$iDate,$fromAddressId,$headers,$attachments['plaintext']);
+			
+			// Spam scoring
+			// [TODO]: This should only run on the first thread (ticket creation)
+			CerberusBayes::processText($attachments['plaintext']);
 		}
 		foreach ($attachments['files'] as $filepath => $filename) {
 			CerberusTicketDAO::createAttachment($message_id, $filename, $filepath);

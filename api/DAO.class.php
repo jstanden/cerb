@@ -1,5 +1,64 @@
 <?php
 
+class DAO_Bayes {
+	private function DAO_Bayes() {}
+	
+	/**
+	 * @return CerberusWord[]
+	 */
+	static function lookupWordIds($words) {
+		$db = DevblocksPlatform::getDatabaseService();
+		$tmp = array();
+		$outwords = array(); // CerberusWord
+		
+		// Escaped set
+		if(is_array($words))
+		foreach($words as $word) {
+			$tmp[] = $db->escape($word);
+		}
+		
+		$sql = sprintf("SELECT id,word,spam,nonspam FROM bayes_words WHERE word IN ('%s')",
+			implode("','", $tmp)
+		);
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		// [JAS]: Keep a list of words we can check off as we index them with IDs
+		$tmp = array_flip($words); // words are now keys
+		
+		// Existing Words
+		while(!$rs->EOF) {
+			$w = new CerberusWord();
+			$w->id = intval($rs->fields['id']);
+			$w->word = $rs->fields['word'];
+			$w->spam = intval($rs->fields['spam']);
+			$w->nonspam = intval($rs->fields['nonspam']);
+			$outwords[$w->word] = $w;
+			unset($tmp[$w->word]); // check off we've indexed this word
+			$rs->MoveNext();
+		}
+		
+		// Insert new words
+		if(is_array($tmp))
+		foreach($tmp as $new_word => $v) {
+			$new_id = $db->GenID('bayes_words_seq');
+			$sql = sprintf("INSERT INTO bayes_words (id,word) VALUES (%d,%s)",
+				$new_id,
+				$db->qstr($new_word)
+			);
+			$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+			
+			$w = new CerberusWord();
+			$w->id = $new_id;
+			$w->word = $new_word;
+			$w->spam = 0;
+			$w->nonspam = 0;
+			$outwords[$w->word] = $w;
+		}
+		
+		return $outwords;
+	}
+};
+
 // [JAS]: [TODO] Should rename this to WorkerDAO for consistency
 class CerberusAgentDAO {
 	private function CerberusAgentDAO() {}

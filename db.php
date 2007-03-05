@@ -1,4 +1,5 @@
 <?php
+@set_time_limit(3600);
 require(getcwd() . '/framework.config.php');
 require(DEVBLOCKS_PATH . 'Devblocks.class.php');
 
@@ -25,7 +26,9 @@ $tables['ticket'] = "
 	last_wrote C(128) DEFAULT '' NOTNULL,
 	first_wrote C(128) DEFAULT '' NOTNULL,
 	first_wrote_address_id I4 NOTNULL DEFAULT 0,
-	last_wrote_address_id I4 NOTNULL DEFAULT 0
+	last_wrote_address_id I4 NOTNULL DEFAULT 0,
+	spam_score F NOTNULL DEFAULT 0,
+	spam_training I1 NOTNULL DEFAULT 0
 ";
 
 $tables['message'] = "
@@ -190,6 +193,13 @@ $tables['worker'] ="
 	login C(64) DEFAULT '',
 	pass C(32) DEFAULT '',
 	last_activity_date I4
+";
+
+$tables['bayes_words'] = "
+	id I4 DEFAULT 0 NOTNULL PRIMARY,
+	word C(64) DEFAULT '' NOTNULL,
+	spam I4 DEFAULT 0,
+	nonspam I4 DEFAULT 0
 ";
 
 foreach($tables as $table => $flds) {

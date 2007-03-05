@@ -4,6 +4,13 @@ class CerberusVisit {
 	public $worker;
 }
 
+class CerberusWord {
+	public $id = 0;
+	public $word = '';
+	public $spam = 0;
+	public $nonspam = 0;
+}
+
 class CerberusWorker {
 	public $id;
 	public $first_name;
