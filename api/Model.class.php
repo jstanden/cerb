@@ -4,11 +4,13 @@ class CerberusVisit {
 	public $worker;
 }
 
-class CerberusWord {
-	public $id = 0;
+class CerberusBayesWord {
+	public $id = -1;
 	public $word = '';
 	public $spam = 0;
 	public $nonspam = 0;
+	public $probability = CerberusBayes::PROBABILITY_UNKNOWN;
+	public $interest_rating = 0.0;
 }
 
 class CerberusWorker {
@@ -78,6 +80,7 @@ class CerberusSearchFields {
 	const TICKET_FIRST_WROTE = 't_first_wrote';
 	const TICKET_CREATED_DATE = 't_created_date';
 	const TICKET_UPDATED_DATE = 't_updated_date';
+	const TICKET_SPAM_SCORE = 't_spam_score';
 	
 	// Message
 	const MESSAGE_CONTENT = 'msg_content';
@@ -103,10 +106,11 @@ class CerberusSearchFields {
 			CerberusSearchFields::TICKET_STATUS => new CerberusSearchField(CerberusSearchFields::TICKET_STATUS, 't', 'status'),
 			CerberusSearchFields::TICKET_PRIORITY => new CerberusSearchField(CerberusSearchFields::TICKET_PRIORITY, 't', 'priority'),
 			CerberusSearchFields::TICKET_SUBJECT => new CerberusSearchField(CerberusSearchFields::TICKET_SUBJECT, 't', 'subject'),
-			CerberusSearchFields::TICKET_LAST_WROTE => new CerberusSearchField(CerberusSearchFields::TICKET_LAST_WROTE, 't', 'last_wrote'),
-			CerberusSearchFields::TICKET_FIRST_WROTE => new CerberusSearchField(CerberusSearchFields::TICKET_FIRST_WROTE, 't', 'first_wrote'),
+			CerberusSearchFields::TICKET_LAST_WROTE => new CerberusSearchField(CerberusSearchFields::TICKET_LAST_WROTE, 'a2', 'email'),
+			CerberusSearchFields::TICKET_FIRST_WROTE => new CerberusSearchField(CerberusSearchFields::TICKET_FIRST_WROTE, 'a1', 'email'),
 			CerberusSearchFields::TICKET_CREATED_DATE => new CerberusSearchField(CerberusSearchFields::TICKET_CREATED_DATE, 't', 'created_date'),
 			CerberusSearchFields::TICKET_UPDATED_DATE => new CerberusSearchField(CerberusSearchFields::TICKET_FIRST_WROTE, 't', 'updated_date'),
+			CerberusSearchFields::TICKET_SPAM_SCORE => new CerberusSearchField(CerberusSearchFields::TICKET_SPAM_SCORE, 't', 'spam_score'),
 			
 			CerberusSearchFields::MESSAGE_CONTENT => new CerberusSearchField(CerberusSearchFields::MESSAGE_CONTENT, 'msg', 'content'),
 
@@ -214,10 +218,12 @@ class CerberusTicket {
 	public $status;
 	public $priority;
 	public $mailbox_id;
-	public $first_wrote;
-	public $last_wrote;
+	public $first_wrote_address_id;
+	public $last_wrote_address_id;
 	public $created_date;
 	public $updated_date;
+	public $spam_score;
+	public $spam_training;
 	
 	function CerberusTicket() {}
 	

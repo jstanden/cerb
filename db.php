@@ -23,12 +23,10 @@ $tables['ticket'] = "
 	status C(1) DEFAULT '' NOTNULL, 
 	priority I1 DEFAULT 0 NOTNULL, 
 	mailbox_id I4 NOTNULL, 
-	last_wrote C(128) DEFAULT '' NOTNULL,
-	first_wrote C(128) DEFAULT '' NOTNULL,
 	first_wrote_address_id I4 NOTNULL DEFAULT 0,
 	last_wrote_address_id I4 NOTNULL DEFAULT 0,
 	spam_score F NOTNULL DEFAULT 0,
-	spam_training I1 NOTNULL DEFAULT 0
+	spam_training C(1) NOTNULL DEFAULT ''
 ";
 
 $tables['message'] = "
@@ -198,6 +196,11 @@ $tables['worker'] ="
 $tables['bayes_words'] = "
 	id I4 DEFAULT 0 NOTNULL PRIMARY,
 	word C(64) DEFAULT '' NOTNULL,
+	spam I4 DEFAULT 0,
+	nonspam I4 DEFAULT 0
+";
+
+$tables['bayes_stats'] = "
 	spam I4 DEFAULT 0,
 	nonspam I4 DEFAULT 0
 ";

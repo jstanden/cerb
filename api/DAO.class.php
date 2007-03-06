@@ -27,11 +27,12 @@ class DAO_Bayes {
 		
 		// Existing Words
 		while(!$rs->EOF) {
-			$w = new CerberusWord();
+			$w = new CerberusBayesWord();
 			$w->id = intval($rs->fields['id']);
 			$w->word = $rs->fields['word'];
 			$w->spam = intval($rs->fields['spam']);
 			$w->nonspam = intval($rs->fields['nonspam']);
+			
 			$outwords[$w->word] = $w;
 			unset($tmp[$w->word]); // check off we've indexed this word
 			$rs->MoveNext();
@@ -47,16 +48,62 @@ class DAO_Bayes {
 			);
 			$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 			
-			$w = new CerberusWord();
+			$w = new CerberusBayesWord();
 			$w->id = $new_id;
 			$w->word = $new_word;
-			$w->spam = 0;
-			$w->nonspam = 0;
 			$outwords[$w->word] = $w;
 		}
 		
 		return $outwords;
 	}
+	
+	/**
+	 * @return array Two element array (keys: spam,nonspam)
+	 */
+	static function getStatistics() {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		// [JAS]: [TODO] Change this into a 'replace' index?
+		$sql = "SELECT spam, nonspam FROM bayes_stats";
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		if($rs->NumRows()) {
+			$spam = intval($rs->Fields('spam'));
+			$nonspam = intval($rs->Fields('nonspam'));
+		} else {
+			$spam = 0;
+			$nonspam = 0;
+			$sql = "INSERT INTO bayes_stats (spam, nonspam) VALUES (0,0)";
+			$db->Execute($sql);
+		}
+		
+		return array('spam' => $spam,'nonspam' => $nonspam);
+	}
+	
+	static function addOneToSpamTotal() {
+		$db = DevblocksPlatform::getDatabaseService();
+		$sql = "UPDATE bayes_stats SET spam = spam + 1";
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+	}
+	
+	static function addOneToNonSpamTotal() {
+		$db = DevblocksPlatform::getDatabaseService();
+		$sql = "UPDATE bayes_stats SET nonspam = nonspam + 1";
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+	}
+	
+	static function addOneToSpamWord($word_id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		$sql = sprintf("UPDATE bayes_words SET spam = spam + 1 WHERE id = %d", $word_id);
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+	}
+	
+	static function addOneToNonSpamWord($word_id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		$sql = sprintf("UPDATE bayes_words SET nonspam = nonspam + 1 WHERE id = %d", $word_id);
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+	}
+	
 };
 
 // [JAS]: [TODO] Should rename this to WorkerDAO for consistency
@@ -615,20 +662,24 @@ class CerberusTicketDAO {
 	 * @param string $last_wrote
 	 * @param integer $created_date
 	 * @return integer
+	 * 
+	 * [TODO]: Change $last_wrote argument to an ID rather than string?
 	 */
 	static function createTicket($mask, $subject, $status, $mailbox_id, $last_wrote, $created_date) {
 		$um_db = DevblocksPlatform::getDatabaseService();
 		$newId = $um_db->GenID('ticket_seq');
 		
-		$sql = sprintf("INSERT INTO ticket (id, mask, subject, status, mailbox_id, last_wrote, first_wrote, created_date, updated_date, priority) ".
-			"VALUES (%d,%s,%s,%s,%d,%s,%s,%d,%d,0)",
+		$last_wrote_id = CerberusContactDAO::lookupAddress($last_wrote, true);
+		
+		$sql = sprintf("INSERT INTO ticket (id, mask, subject, status, mailbox_id, last_wrote_address_id, first_wrote_address_id, created_date, updated_date, priority) ".
+			"VALUES (%d,%s,%s,%s,%d,%d,%d,%d,%d,0)",
 			$newId,
 			$um_db->qstr($mask),
 			$um_db->qstr($subject),
 			$um_db->qstr($status),
 			$mailbox_id,
-			$um_db->qstr($last_wrote),
-			$um_db->qstr($last_wrote),
+			$last_wrote_id,
+			$last_wrote_id,
 			$created_date,
 			gmmktime()
 		);
@@ -676,7 +727,8 @@ class CerberusTicketDAO {
 		
 		$ticket = null;
 		
-		$sql = sprintf("SELECT t.id , t.mask, t.subject, t.status, t.priority, t.mailbox_id, t.bitflags, t.first_wrote, t.last_wrote, t.created_date, t.updated_date ".
+		$sql = sprintf("SELECT t.id , t.mask, t.subject, t.status, t.priority, t.mailbox_id, t.bitflags, ".
+			"t.first_wrote_address_id, t.last_wrote_address_id, t.created_date, t.updated_date, t.spam_training, t.spam_score ".
 			"FROM ticket t ".
 			"WHERE t.id = %d",
 			$id
@@ -692,10 +744,12 @@ class CerberusTicketDAO {
 			$ticket->status = $rs->fields['status'];
 			$ticket->priority = intval($rs->fields['priority']);
 			$ticket->mailbox_id = intval($rs->fields['mailbox_id']);
-			$ticket->last_wrote = $rs->fields['last_wrote'];
-			$ticket->first_wrote = $rs->fields['first_wrote'];
+			$ticket->last_wrote_address_id = intval($rs->fields['last_wrote_address_id']);
+			$ticket->first_wrote_address_id = intval($rs->fields['first_wrote_address_id']);
 			$ticket->created_date = intval($rs->fields['created_date']);
 			$ticket->updated_date = intval($rs->fields['updated_date']);
+			$ticket->spam_score = floatval($rs->fields['spam_score']);
+			$ticket->spam_training = $rs->fields['spam_training'];
 		}
 		
 		return $ticket;
@@ -1315,6 +1369,7 @@ class CerberusSearchDAO {
 	 * @param string $sortBy
 	 * @param boolean $sortAsc
 	 * @return array
+	 * [TODO]: Fold back into DAO_Ticket
 	 */
 	static function searchTickets($params,$limit=10,$page=0,$sortBy=null,$sortAsc=null) {
 		$um_db = DevblocksPlatform::getDatabaseService();
@@ -1390,14 +1445,17 @@ class CerberusSearchDAO {
 			"t.status as t_status, ".
 			"t.priority as t_priority, ".
 			"t.mailbox_id as t_mailbox_id, ".
-			"t.first_wrote as t_first_wrote, ".
-			"t.last_wrote as t_last_wrote, ".
+			"a1.email as t_first_wrote, ".
+			"a2.email as t_last_wrote, ".
 			"t.created_date as t_created_date, ".
 			"t.updated_date as t_updated_date, ".
+			"t.spam_score as t_spam_score, ".
 			"m.id as m_id, ".
 			"m.name as m_name ".
 			"FROM ticket t ".
 			"INNER JOIN mailbox m ON (t.mailbox_id=m.id) ".
+			"INNER JOIN address a1 ON (t.first_wrote_address_id=a1.id) ".
+			"INNER JOIN address a2 ON (t.last_wrote_address_id=a2.id) ".
 			
 			// [JAS]: Dynamic table joins
 			(isset($tables['att']) ? "LEFT JOIN assign_to_ticket att ON (att.ticket_id=t.id AND att.is_flag = 1) " : " ").

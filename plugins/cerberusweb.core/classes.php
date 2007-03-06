@@ -649,6 +649,15 @@ class ChDisplayModule extends CerberusModuleExtension {
 		@$priority = DevblocksPlatform::importGPC($_REQUEST['priority']);
 		@$mailbox_id = DevblocksPlatform::importGPC($_REQUEST['mailbox_id']);
 		@$subject = DevblocksPlatform::importGPC($_REQUEST['subject']);
+		@$training = DevblocksPlatform::importGPC($_REQUEST['training']);
+		
+		// Anti-Spam
+		if(!empty($training)) {
+			if(0 == strcasecmp($training,'N')) {
+				CerberusBayes::markTicketAsNotSpam($id); }
+			else { 
+				CerberusBayes::markTicketAsSpam($id); }
+		}
 		
 		$properties = array(
 			'status' => $status,

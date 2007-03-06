@@ -32,6 +32,8 @@
 			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_updated_date');">{$translate->say('ticket.updated')}</a></th>
 			{elseif $header=="m_name"}
 			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','m_name');">{$translate->say('ticket.mailbox')}</a></th>
+			{elseif $header=="t_spam_score"}
+			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_spam_score');">{$translate->say('common.spam')}</a></th>
 			{/if}
 		{/foreach}
 	</tr>
@@ -87,6 +89,8 @@
 			<td>{$result.t_updated_date|date_format}</td>
 			{elseif $column=="m_name"}
 			<td><a href="{devblocks_url}c=dashboard&a=mailbox&id={$result.m_id}{/devblocks_url}">{$result.m_name}</a></td>
+			{elseif $column=="t_spam_score"}
+			<td>{math equation="x*100" format="%0.2f" x=$result.t_spam_score}%</td>
 			{/if}
 		{/foreach}
 		</tr>

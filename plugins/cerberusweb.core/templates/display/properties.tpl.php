@@ -45,8 +45,17 @@
       	<b class="green">Spam Probability:</b><br>
 			<table cellpadding="1" cellspacing="0">
 				<tr>
-					<td style="background-color:rgb(0,200,0);padding:3px;"><b style="color:rgb(255,255,255);">0.00%</b></td>
-					<td>Marked as Not Spam</td>
+					<td style="{if $ticket->spam_score < .90}background-color:rgb(0,200,0){else}background-color:rgb(200,0,0){/if};padding:3px;"><b style="color:rgb(255,255,255);">{math equation="x*100" format="%0.2f" x=$ticket->spam_score}%</b></td>
+					<td>
+						{if !empty($ticket->spam_training)}
+							{if $ticket->spam_training=='N'}Marked as Not Spam{else}Marked as Spam{/if}
+						{else}
+							<select name="training">
+								<option value="N">This is Not Spam
+								<option value="S" {if $ticket->spam_score >= 0.90}selected{/if}>This is Spam
+							</select>
+						{/if}
+					</td>
 				</tr>
 			</table>
      	</td>

@@ -17,6 +17,7 @@ $language = array(
 	'common.save' => 'Save',
 	'common.save_changes' => 'Save Changes',
 	'common.search' => 'search',
+	'common.spam' => 'Spam',
 	'common.ticket' => 'ticket',
 
 	'header.history' => 'history',
