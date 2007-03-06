@@ -1,5 +1,5 @@
 <?php
-define("APP_BUILD", 80);
+define("APP_BUILD", 87);
 
 include_once(APP_PATH . "/api/DAO.class.php");
 include_once(APP_PATH . "/api/Model.class.php");
@@ -78,10 +78,9 @@ class CerberusApplication extends DevblocksApplication {
 	 *
 	 * @return a unique ticket mask as a string
 	 */
-	static function generateTicketMask() {
+	static function generateTicketMask($pattern = "LLL-NNNNN-NNN") {
 		$letters = "ABCDEFGHIJKLMNPQRSTUVWXYZ";
 		$numbers = "1234567890";
-		$pattern = "LLL-NNNNN-NNN";
 //		$pattern = "Y-M-D-LLLL";
 
 		do {		
@@ -740,7 +739,7 @@ class CerberusParser {
 		}
 	}
 	
-	static private function parseRfcAddress($address_string) {
+	static function parseRfcAddress($address_string) {
 		/*
 		 * [JAS]: [TODO] If we're going to call platform libs directly we should just have
 		 * the platform provide the functionality.
