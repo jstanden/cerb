@@ -1,0 +1,25 @@
+<!-- [JAS] [TODO] Needs DTD -->
+<plugin>
+	<id>cerberusweb.mobile</id>
+	<name>Cerberus Helpdesk Login Plugins</name>
+	<author>WebGroup Media, LLC.</author>
+	
+	<mapping>
+		<uri value="mobile" extension_id="cerberusweb.mobile.handler" />
+	</mapping>
+	
+	<extensions>
+	
+		<extension point="cerberusweb.mobile.handler">
+			<id>cerberusweb.mobile.handler</id>
+			<name>Mobile Interface Module</name>
+			<class>
+				<file>classes.php</file>
+				<name>MobileHandler</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
+	</extensions>
+</plugin>
