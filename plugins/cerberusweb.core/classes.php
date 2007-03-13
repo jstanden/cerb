@@ -32,6 +32,10 @@ class ChDashboardModule extends CerberusModuleExtension {
 		$views = CerberusDashboardDAO::getViews(); // getViews($dashboard_id)
 		$tpl->assign('views', $views);
 		
+		// [TODO]: This should be filterable by a specific view later as well using searchDAO.
+		$viewActions = DAO_DashboardViewAction::getList();
+		$tpl->assign('viewActions', $viewActions);
+		
 		$teams = CerberusWorkflowDAO::getTeams();
 		$team_mailbox_counts = array();
 		foreach ($teams as $team) { /* @var $team CerberusTeam */
@@ -138,12 +142,106 @@ class ChDashboardModule extends CerberusModuleExtension {
 		$view = CerberusDashboardDAO::getView($id);
 		$tpl->assign('view', $view);
 		
+		// [TODO]: This should be filterable by a specific view later as well using searchDAO.
+		$viewActions = DAO_DashboardViewAction::getList();
+		$tpl->assign('viewActions', $viewActions);
+		
 		if(!empty($view)) {
 			$tpl->cache_lifetime = "0";
 			$tpl->display('file:' . dirname(__FILE__) . '/templates/dashboards/ticket_view.tpl.php');
 		} else {
 			echo " ";
 		}
+	}
+	
+	function showViewActions() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
+
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		$tpl->assign('id', $id);
+		$tpl->assign('view_id', $view_id);
+
+		// Status
+		$statuses = CerberusTicketStatus::getOptions();
+		$tpl->assign('statuses', $statuses);
+		// Priority
+		$priorities = CerberusTicketPriority::getOptions();
+		$tpl->assign('priorities', $priorities);
+		// Mailbox		
+		$mailboxes = CerberusMailDAO::getMailboxes();
+		$tpl->assign('mailboxes', $mailboxes);
+		// Spam Training
+		$training = CerberusTicketSpamTraining::getOptions();
+		$tpl->assign('training', $training);
+		// My Tickets
+		$flag = CerberusTicketFlagEnum::getOptions();
+		$tpl->assign('flag', $flag);
+		
+		// Load action object to populate fields
+		$action = DAO_DashboardViewAction::get($id);
+		$tpl->assign('action', $action);
+		
+		$tpl->cache_lifetime = "0";
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/dashboards/rpc/view_actions_panel.tpl.php');
+	}
+	
+	function saveViewActionPanel() {
+		@$action_id = DevblocksPlatform::importGPC($_POST['action_id']);
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id']);
+		@$title = DevblocksPlatform::importGPC($_POST['title']);
+		@$status = DevblocksPlatform::importGPC($_POST['status']);
+		@$priority = DevblocksPlatform::importGPC($_POST['priority']);
+		@$mailbox = DevblocksPlatform::importGPC($_POST['mailbox']);
+		@$spam = DevblocksPlatform::importGPC($_POST['spam']);
+		@$flag = DevblocksPlatform::importGPC($_POST['flag']);
+		
+		$params = array();			
+		
+		if(!empty($status))
+			$params['status'] = $status;
+		if(!empty($priority))
+			$params['priority'] = $priority;
+		if(!empty($mailbox))
+			$params['mailbox'] = $mailbox;
+		if(!empty($spam))
+			$params['spam'] = $spam;
+		if(!empty($flag))
+			$params['flag'] = $flag;
+			
+		if(empty($action_id)) {
+			$action_id = DAO_DashboardViewAction::create();
+		} else {
+			// [TODO]: Security check that the editor was the author of the original action.  
+		}
+		
+		$fields = array(
+			DAO_DashboardViewAction::$FIELD_NAME => $title,
+			DAO_DashboardViewAction::$FIELD_VIEW_ID => 0,
+			DAO_DashboardViewAction::$FIELD_WORKER_ID => 1, // [TODO] Should be real
+			DAO_DashboardViewAction::$FIELD_PARAMS => serialize($params)
+		);
+		DAO_DashboardViewAction::update($action_id, $fields);
+		
+		echo ' ';
+	}
+	
+	function runAction() {
+		@$id = DevblocksPlatform::importGPC($_POST['id']);
+		@$action_id = DevblocksPlatform::importGPC($_POST['action_id']);
+		@$ticket_ids = DevblocksPlatform::importGPC($_POST['ticket_id']);
+		
+		$action = DAO_DashboardViewAction::get($action_id);
+		if(empty($action)) return;
+		
+		$tickets = CerberusTicketDAO::getTickets($ticket_ids);
+		if(empty($tickets)) return;
+		
+		// Run the action components
+		$action->run($tickets);
+		
+		echo ' ';
 	}
 	
 	function customize() {
@@ -841,6 +939,10 @@ class ChSearchModule extends CerberusModuleExtension {
 
 		$search_id = $_SESSION['search_id'];
 		$view = CerberusDashboardDAO::getView($search_id);
+		
+		// [TODO]: This should be filterable by a specific view later as well using searchDAO.
+		$viewActions = DAO_DashboardViewAction::getList();
+		$tpl->assign('viewActions', $viewActions);
 		
 		// [JAS]: Recover from a bad cached ID.
 		if(null == $view) {

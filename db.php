@@ -82,6 +82,14 @@ $tables['dashboard_view'] = "
 	params B
 ";
 
+$tables['dashboard_view_action'] = "
+	id I4 DEFAULT 0 NOTNULL PRIMARY,
+	dashboard_view_id I4 DEFAULT 0 NOTNULL,
+	name C(64) DEFAULT '' NOTNULL,
+	worker_id I4 NOTNULL,
+	params B
+";
+
 $tables['address'] = "
 	id I4 DEFAULT 0 NOTNULL PRIMARY,
 	email C(255) DEFAULT '' NOTNULL,

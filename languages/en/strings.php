@@ -49,7 +49,14 @@ $language = array(
 	'dashboard.team_loads' => 'Team Loads',
 	
 	'message.content' => 'Message Content',
-		
+	
+	'priority.none' => 'None',
+//	'priority.lowest' => 'Lowest',
+	'priority.low' => 'Low',
+	'priority.moderate' => 'Moderate',
+	'priority.high' => 'High',
+//	'priority.highest' => 'Highest',
+	
 	'requester' => 'Requester',
 	
 	'search.no_saved' => 'No saved searches.',
@@ -70,10 +77,15 @@ $language = array(
 	'ticket.subject' => 'Subject',
 	'ticket.updated' => 'Updated',
 	
+	'training.report_spam' => 'Report Spam',
+	'training.not_spam' => 'Not Spam',
+	
 	'whos_online.heading' => "Who's Online: (%d agents)",
 	
 	'workflow.assigned' => 'Assigned',
-	'workflow.suggested' => 'Suggested'
+	'workflow.release' => 'Release',
+	'workflow.suggested' => 'Suggested',
+	'workflow.take' => 'Take',
 );
 
 ?>

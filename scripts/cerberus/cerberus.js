@@ -169,6 +169,65 @@ var cAjaxCalls = function() {
 			}
 		);	
 	}
+
+	this.manageViewActionPanel = null;
+	this.showViewActionPanel = function(id,view_id,target) {
+		
+		if(null != this.manageViewActionPanel) {
+			this.manageViewActionPanel.hide();
+		}
+		
+		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=dashboard&a=showViewActions&id=' + id + '&view_id=' + view_id, {
+				success: function(o) {
+					var caller = o.argument.caller;
+					var target = o.argument.target;
+					
+					if(null == caller.manageViewActionPanel) {
+						caller.manageViewActionPanel = new YAHOO.widget.Panel("manageViewActionPanel", 
+							{ width : "450px",
+							  fixedcenter : false,
+							  zIndex: 9001,
+							  visible : false, 
+							  constraintoviewport : true,
+							  underlay:"none",
+							  modal: false,
+							  close: false,
+							  draggable: false
+							});
+
+						caller.manageViewActionPanel.setBody('');
+						caller.manageViewActionPanel.render(document.body);
+					}
+					
+					caller.manageViewActionPanel.hide();
+					caller.manageViewActionPanel.setBody(o.responseText);
+					caller.manageViewActionPanel.cfg.setProperty('context',[target,"tl","br"]);
+					caller.manageViewActionPanel.show();
+				},
+				failure: function(o) {},
+				argument:{caller:this,target:target}
+			}
+		);	
+	}
+	
+	this.saveViewActionPanel = function(id,view_id) {
+		YAHOO.util.Connect.setForm('formViewActions');
+		
+		var cObj = YAHOO.util.Connect.asyncRequest('POST', DevblocksAppPath+'ajax.php', {
+				success: function(o) {
+					var caller = o.argument.caller;
+					
+					if(null != caller.manageViewActionPanel) {
+						caller.manageViewActionPanel.hide();
+					}
+					
+					var view_id = o.argument.view_id;
+					caller.getRefresh(view_id);
+				},
+				failure: function(o) {},
+				argument:{caller:this,view_id:view_id}
+		});	
+	}
 	
 	this.getLoadSearch = function(divName) {
 		var div = document.getElementById(divName + '_control');
@@ -267,7 +326,7 @@ var cAjaxCalls = function() {
 			}
 		);	
 	}
-	
+
 	this.getCustomize = function(id) {
 		var div = document.getElementById('customize' + id);
 		if(null == div) return;
@@ -396,6 +455,19 @@ var cAjaxCalls = function() {
 	
 	this.getPage = function(id,page) {
 		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=dashboard&a=viewPage&id=' + id + '&page=' + page, {
+				success: function(o) {
+					var id = o.argument.id;
+					var caller = o.argument.caller;
+					caller.getRefresh(id);
+				},
+				failure: function(o) {},
+				argument:{caller:this,id:id}
+		});	
+	}
+	
+	this.viewRunAction = function(id) {
+		YAHOO.util.Connect.setForm('viewForm'+id);
+		var cObj = YAHOO.util.Connect.asyncRequest('POST', DevblocksAppPath+'ajax.php', {
 				success: function(o) {
 					var id = o.argument.id;
 					var caller = o.argument.caller;

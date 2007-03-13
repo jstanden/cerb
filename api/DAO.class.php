@@ -553,6 +553,12 @@ class CerberusContactDAO {
  * @addtogroup dao
  */
 class CerberusTicketDAO {
+	const ID = 'id';
+	const STATUS = 'status';
+	const PRIORITY = 'priority';
+	const MAILBOX_ID = 'mailbox_id';
+	const SPAM_TRAINING = 'spam_training';
+	const SPAM_SCORE = 'spam_score';
 	
 	private function CerberusTicketDAO() {}
 	
@@ -715,7 +721,6 @@ class CerberusTicketDAO {
 		return $newId;
 	}
 
-	// [JAS]: [TODO] Replace this inner function with a ticket ID search using searchTicket()?  Removes redundancy
 	/**
 	 * Enter description here...
 	 *
@@ -723,19 +728,38 @@ class CerberusTicketDAO {
 	 * @return CerberusTicket
 	 */
 	static function getTicket($id) {
+		if(empty($id)) return NULL;
+		
+		$tickets = self::getTickets(array($id));
+		
+		if(isset($tickets[$id]))
+			return $tickets[$id];
+			
+		return NULL;
+	}
+	
+	/**
+	 * Enter description here...
+	 *
+	 * @param array $ids
+	 * @return CerberusTicket[]
+	 */
+	static function getTickets($ids=array()) {
+		if(!is_array($ids)) $ids = array($ids);
 		$um_db = DevblocksPlatform::getDatabaseService();
 		
-		$ticket = null;
+		$tickets = array();
 		
 		$sql = sprintf("SELECT t.id , t.mask, t.subject, t.status, t.priority, t.mailbox_id, t.bitflags, ".
 			"t.first_wrote_address_id, t.last_wrote_address_id, t.created_date, t.updated_date, t.spam_training, t.spam_score ".
 			"FROM ticket t ".
-			"WHERE t.id = %d",
+			(!empty($ids) ? sprintf("WHERE t.id IN (%s) ",implode(',',$ids)) : " ").
+			"ORDER BY t.updated_date DESC",
 			$id
 		);
-		$rs = $um_db->SelectLimit($sql,2,0) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
-		if(!$rs->EOF) {
+		while(!$rs->EOF) {
 			$ticket = new CerberusTicket();
 			$ticket->id = intval($rs->fields['id']);
 			$ticket->mask = $rs->fields['mask'];
@@ -750,9 +774,11 @@ class CerberusTicketDAO {
 			$ticket->updated_date = intval($rs->fields['updated_date']);
 			$ticket->spam_score = floatval($rs->fields['spam_score']);
 			$ticket->spam_training = $rs->fields['spam_training'];
+			$tickets[$ticket->id] = $ticket;
+			$rs->MoveNext();
 		}
 		
-		return $ticket;
+		return $tickets;
 	}
 	
 	static function updateTicket($id,$fields) {
@@ -1218,6 +1244,111 @@ class CerberusDashboardDAO {
 		
 		return null;
 	}
+	
+};
+
+class DAO_DashboardViewAction extends DevblocksORMHelper {
+	static $properties = array(
+		'table' => 'dashboard_view_action',
+		'id_column' => 'id'
+	);
+
+	static public $FIELD_ID = 'id';
+	static public $FIELD_VIEW_ID = 'dashboard_view_id';
+	static public $FIELD_NAME = 'name';
+	static public $FIELD_WORKER_ID = 'worker_id';
+	static public $FIELD_PARAMS = 'params';
+	
+	/**
+	 * Create a DAO entity.
+	 *
+	 * @return integer
+	 */
+	static function create() {
+		return parent::_createId(self::$properties);
+	}
+
+	/**
+	 * Update a DAO entity.
+	 *
+	 * @param integer $id
+	 * @param array $fields
+	 */
+	static function update($id, $fields) {
+		parent::_update($id,self::$properties['table'],$fields);
+	}
+	
+	/**
+	 * Get multiple DAO entities.
+	 *
+	 * @param array $ids
+	 * @return Model_DashboardViewAction[]
+	 */
+	static function getList($ids=array()) {
+		if(!is_array($ids)) $ids = array($ids);
+		$db = DevblocksPlatform::getDatabaseService();
+		$objects = array();
+		
+		$sql = sprintf("SELECT id, dashboard_view_id, name, worker_id, params ".
+			"FROM %s ".
+			(!empty($ids) ? sprintf("WHERE id IN (%s) ",implode(',',$ids)) : ""),
+				self::$properties['table']
+		);
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		if($rs->NumRows())
+		while(!$rs->EOF) {
+			$object = new Model_DashboardViewAction();
+			$object->id = intval($rs->Fields('id'));
+			$object->dashboard_view_id = intval($rs->Fields('dashboard_view_id'));
+			$object->name = $rs->Fields('name');
+			$object->worker_id = intval($rs->Fields('worker_id'));
+			
+			$params = $rs->Fields('params');
+			$object->params = !empty($params) ? unserialize($params) : array();
+			
+			$objects[$object->id] = $object;
+			$rs->MoveNext();
+		}
+		
+		return $objects;
+	}
+	
+	/**
+	 * Get a single DAO entity.
+	 *
+	 * @param integer $id
+	 * @return Model_DashboardViewAction
+	 */
+	static function get($id) {
+		if(empty($id)) return NULL;
+		
+		$results = self::getList(array($id));
+		
+		if(isset($results[$id])) 
+			return $results[$id];
+			
+		return NULL;
+	}
+	
+	/**
+	 * Delete a DAO entity.
+	 *
+	 * @param integer $id
+	 */
+	static function delete($id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = sprintf("DELETE FROM %s WHERE %s = %d",
+			self::$properties['table'],
+			self::$properties['id_column'],
+			$id
+		);
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		// [TODO]: Don't forget to also cascade deletes for foreign keys.
+	}
+	
 };
 
 class CerberusMailRuleDAO {

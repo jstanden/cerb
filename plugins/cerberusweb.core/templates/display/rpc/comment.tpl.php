@@ -27,11 +27,9 @@
 					<td width="100%" valign="top">
 						Set priority: 
 						<label><input type="radio" name="priority" value="0" {if $ticket->priority==0}checked{/if}><img src="{devblocks_url}images/star_alpha.gif{/devblocks_url}"></label>
-						<label><input type="radio" name="priority" value="25" {if $ticket->priority==25}checked{/if}><img src="{devblocks_url}images/star_grey.gif{/devblocks_url}"></label>
-						<label><input type="radio" name="priority" value="50" {if $ticket->priority==50}checked{/if}><img src="{devblocks_url}images/star_blue.gif{/devblocks_url}"></label>
-						<label><input type="radio" name="priority" value="75" {if $ticket->priority==75}checked{/if}><img src="{devblocks_url}images/star_green.gif{/devblocks_url}"></label>
-						<label><input type="radio" name="priority" value="90" {if $ticket->priority==90}checked{/if}><img src="{devblocks_url}images/star_yellow.gif{/devblocks_url}"></label>
-						<label><input type="radio" name="priority" value="100" {if $ticket->priority==100}checked{/if}><img src="{devblocks_url}images/star_red.gif{/devblocks_url}"></label>
+						<label><input type="radio" name="priority" value="25" {if $ticket->priority==25}checked{/if}><img src="{devblocks_url}images/star_green.gif{/devblocks_url}"></label>
+						<label><input type="radio" name="priority" value="50" {if $ticket->priority==50}checked{/if}><img src="{devblocks_url}images/star_yellow.gif{/devblocks_url}"></label>
+						<label><input type="radio" name="priority" value="75" {if $ticket->priority==75}checked{/if}><img src="{devblocks_url}images/star_red.gif{/devblocks_url}"></label>
 						<br>
 						Set status: 
 						<label><input type="radio" name="status" value="O" {if $ticket->status=='O'}checked{/if}>open</label>

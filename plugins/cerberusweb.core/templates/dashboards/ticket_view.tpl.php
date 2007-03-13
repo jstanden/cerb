@@ -8,8 +8,13 @@
 		</td>
 	</tr>
 </table>
-<form id="customize{$view->id}" action="#" onsubmit="return false;"></form>
+<form id="customize{$view->id}" action="#" onsubmit="return false;">
 <div id="criteria{$view->id}" style="visibility:visible;"></div>
+</form>
+<form id="viewForm{$view->id}" name="viewForm{$view->id}">
+<input type="hidden" name="c" value="dashboard">
+<input type="hidden" name="a" value="runAction">
+<input type="hidden" name="id" value="{$view->id}">
 <table cellpadding="0" cellspacing="0" border="0" width="100%" class="tableRowBg">
 
 	{* Column Headers *}
@@ -44,7 +49,7 @@
 	{assign var=tickets value=$results[0]}
 	{foreach from=$tickets item=result key=idx name=results}
 		<tr class="{if $smarty.foreach.results.iteration % 2}tableRowBg{else}tableRowAltBg{/if}">
-			<td align="center" rowspan="2"><input type="checkbox" name="ticket_id[]" value=""></td>
+			<td align="center" rowspan="2"><input type="checkbox" name="ticket_id[]" value="{$result.t_id}"></td>
 			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}"><a href="{devblocks_url}c=display&id={$result.t_mask}{/devblocks_url}" class="ticketLink"><b>{$result.t_subject}</b></a></td>
 		</tr>
 		<tr class="{if $smarty.foreach.results.iteration % 2}tableRowBg{else}tableRowAltBg{/if}">
@@ -65,16 +70,12 @@
 			</td>
 			{elseif $column=="t_priority"}
 			<td>
-				{if $result.t_priority == 100}
+				{if $result.t_priority >= 75}
 					<img src="{devblocks_url}images/star_red.gif{/devblocks_url}" title="{$result.t_priority}">
-				{elseif $result.t_priority >= 90}
-					<img src="{devblocks_url}images/star_yellow.gif{/devblocks_url}" title="{$result.t_priority}">
-				{elseif $result.t_priority >= 75}
-					<img src="{devblocks_url}images/star_green.gif{/devblocks_url}" title="{$result.t_priority}">
 				{elseif $result.t_priority >= 50}
-					<img src="{devblocks_url}images/star_blue.gif{/devblocks_url}" title="{$result.t_priority}">
+					<img src="{devblocks_url}images/star_yellow.gif{/devblocks_url}" title="{$result.t_priority}">
 				{elseif $result.t_priority >= 25}
-					<img src="{devblocks_url}images/star_grey.gif{/devblocks_url}" title="{$result.t_priority}">
+					<img src="{devblocks_url}images/star_green.gif{/devblocks_url}" title="{$result.t_priority}">
 				{else}
 					<img src="{devblocks_url}images/star_alpha.gif{/devblocks_url}" title="{$result.t_priority}">
 				{/if}
@@ -103,9 +104,17 @@
 <table cellpadding="2" cellspacing="0" border="0" width="100%" class="tableBg">
 	<tr>
 		<td>
-			<select name="">
+			<select name="action_id" onchange="toggleDiv('action{$view->id}',(this.selectedIndex>0)?'inline':'none');">
 				<option value="">-- perform action --
+				{foreach from=$viewActions item=action}
+				<option value="{$action->id}">{$action->name}
+				{/foreach}
 			</select>
+			<span id="action{$view->id}" style="display:none;">
+				<input type="button" value="Apply" onclick="ajax.viewRunAction('{$view->id}');">
+				<a href="javascript:;" onclick="ajax.showViewActionPanel(selectValue(document.getElementById('viewForm{$view->id}').action_id),'{$view->id}',this);">edit action</a> | 
+			</span>
+			<a href="javascript:;" onclick="ajax.showViewActionPanel('0','{$view->id}',this);">new action</a>
 		</td>
 	</tr>
 	<tr>
@@ -131,4 +140,5 @@
 		</td>
 	</tr>
 </table>
+</form>
 <br>

@@ -1,6 +1,64 @@
 <?php
 
-class CerberusVisit {
+class Model_DashboardViewAction {
+	public $id = 0;
+	public $dashboard_view_id = 0;
+	public $name = '';
+	public $worker_id = 0;
+	public $params = array();
+	
+	/**
+	 * @param CerberusTicket[] $tickets
+	 */
+	function run($tickets) {
+		$session = DevblocksPlatform::getSessionService();
+		$visit = $session->getVisit(); /* @var $visit CerberusVisit */
+		$agent_id = $visit->worker->id;
+		
+		if(is_array($tickets))
+		foreach($tickets as $ticket_id => $ticket) {
+			$fields = array();
+			
+			// actions
+			if(is_array($this->params))
+			foreach($this->params as $k => $v) {
+				switch($k) {
+					case 'status':
+						$fields[CerberusTicketDAO::STATUS] = $v;
+						break;
+					
+					case 'priority':
+						$fields[CerberusTicketDAO::PRIORITY] = $v;
+						break;
+					
+					case 'mailbox':
+						$fields[CerberusTicketDAO::MAILBOX_ID] = $v;
+						break;
+					
+					case 'spam':
+						$fields[CerberusTicketDAO::SPAM_TRAINING] = $v;
+						break;
+					
+					case 'flag':
+						if($v==CerberusTicketFlagEnum::TAKE) {
+							CerberusTicketDAO::flagTicket($ticket_id, $agent_id);
+						} else { // release
+							CerberusTicketDAO::unflagTicket($ticket_id, $agent_id);
+						}
+						break;
+					
+					default:
+						// [TODO] Log?
+						break;
+				}
+			}
+			
+			CerberusTicketDAO::updateTicket($ticket_id,$fields);
+		}
+	}
+};
+
+class CerberusVisit extends DevblocksVisit {
 	public $worker;
 }
 
@@ -186,7 +244,7 @@ class CerberusSearchCriteria {
 	}
 };
 
-class CerberusMessageType {
+class CerberusMessageType { // [TODO] Append 'Enum' to class name?
 	const EMAIL = 'E';
 	const FORWARD = 'F';
 	const COMMENT = 'C';
@@ -197,13 +255,74 @@ class CerberusTicketBits {
 	const CREATED_FROM_WEB = 1;
 };
 
-class CerberusTicketStatus {
+class CerberusTicketStatus { // [TODO] Append 'Enum' to class name?
 	const OPEN = 'O';
 	const WAITING = 'W';
 	const CLOSED = 'C';
 	const DELETED = 'D';
+	
+	/**
+	 * @return array 
+	 */
+	public static function getOptions() {
+		$translate = DevblocksPlatform::getTranslationService();
+		
+		return array(
+			self::OPEN => $translate->say('status.open'),
+			self::WAITING => $translate->say('status.waiting'),
+			self::CLOSED => $translate->say('status.closed'),
+			self::DELETED => $translate->say('status.deleted'),
+		);
+	}
 };
 
+class CerberusTicketSpamTraining { // [TODO] Append 'Enum' to class name?
+	const NOT_SPAM = 'N';
+	const SPAM = 'S';
+	
+	public static function getOptions() {
+		$translate = DevblocksPlatform::getTranslationService();
+		
+		return array(
+			self::NOT_SPAM => $translate->say('training.not_spam'),
+			self::SPAM => $translate->say('training.report_spam'),
+		);
+	}
+};
+
+class CerberusTicketPriority { // [TODO] Append 'Enum' to class name?
+	const NONE = 0;
+	const LOW = 25;
+	const MODERATE = 50;
+	const HIGH = 75;
+	
+	public static function getOptions() {
+		$translate = DevblocksPlatform::getTranslationService();
+		
+		return array(
+			self::NONE => $translate->say('priority.none'),
+			self::LOW => $translate->say('priority.low'),
+			self::MODERATE => $translate->say('priority.moderate'),
+			self::HIGH => $translate->say('priority.high'),
+		);
+	}
+};
+
+class CerberusTicketFlagEnum {
+	const TAKE = 'T';
+	const RELEASE = 'R';
+	
+	public static function getOptions() {
+		$translate = DevblocksPlatform::getTranslationService();
+		
+		return array(
+			self::TAKE => $translate->say('workflow.take'),
+			self::RELEASE => $translate->say('workflow.release'),
+		);
+	}
+}
+
+// [TODO] Is this used?
 class CerberusAddressBits {
 	const AGENT = 1;
 	const BANNED = 2;

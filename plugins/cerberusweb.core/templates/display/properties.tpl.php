@@ -23,19 +23,15 @@
 			<table cellpadding="0" cellspacing="0">
 				<tr>
 					<td align="center"><label for="priority0"><img src="{devblocks_url}images/star_alpha.gif{/devblocks_url}" width="16" height="16" border="0" title="None" alt="No Priority"></label></td>
-					<td align="center"><label for="priority1"><img src="{devblocks_url}images/star_grey.gif{/devblocks_url}" width="16" height="16" border="0" title="Lowest" alt="Lowest Priority"></label></td>
-					<td align="center"><label for="priority2"><img src="{devblocks_url}images/star_blue.gif{/devblocks_url}" width="16" height="16" border="0" title="Low" alt="Low Priority"></label></td>
-					<td align="center"><label for="priority3"><img src="{devblocks_url}images/star_green.gif{/devblocks_url}" width="16" height="16" border="0" title="Moderate" alt="Moderate Priority"></label></td>
-					<td align="center"><label for="priority4"><img src="{devblocks_url}images/star_yellow.gif{/devblocks_url}" width="16" height="16" border="0" title="High" alt="High Priority"></label></td>
-					<td align="center"><label for="priority5"><img src="{devblocks_url}images/star_red.gif{/devblocks_url}" width="16" height="16" border="0" title="Highest" alt="Highest Priority"></label></td>
+					<td align="center"><label for="priority3"><img src="{devblocks_url}images/star_green.gif{/devblocks_url}" width="16" height="16" border="0" title="{$translate->say('priority.low')}" alt="{$translate->say('priority.low')}"></label></td>
+					<td align="center"><label for="priority4"><img src="{devblocks_url}images/star_yellow.gif{/devblocks_url}" width="16" height="16" border="0" title="{$translate->say('priority.moderate')}" alt="{$translate->say('priority.moderate')}"></label></td>
+					<td align="center"><label for="priority5"><img src="{devblocks_url}images/star_red.gif{/devblocks_url}" width="16" height="16" border="0" title="{$translate->say('priority.high')}" alt="{$translate->say('priority.high')}"></label></td>
 				</tr>
 				<tr>
 					<td align="center"><input id="priority0" type="radio" name="priority" value="0" {if $ticket->priority==0}checked{/if}></td>
-					<td align="center"><input id="priority1" type="radio" name="priority" value="25" {if $ticket->priority==25}checked{/if}></td>
-					<td align="center"><input id="priority2" type="radio" name="priority" value="50" {if $ticket->priority==50}checked{/if}></td>
-					<td align="center"><input id="priority3" type="radio" name="priority" value="75" {if $ticket->priority==75}checked{/if}></td>
-					<td align="center"><input id="priority4" type="radio" name="priority" value="90" {if $ticket->priority==90}checked{/if}></td>
-					<td align="center"><input id="priority5" type="radio" name="priority" value="100" {if $ticket->priority==100}checked{/if}></td>
+					<td align="center"><input id="priority3" type="radio" name="priority" value="25" {if $ticket->priority==25}checked{/if}></td>
+					<td align="center"><input id="priority4" type="radio" name="priority" value="50" {if $ticket->priority==50}checked{/if}></td>
+					<td align="center"><input id="priority5" type="radio" name="priority" value="75" {if $ticket->priority==75}checked{/if}></td>
 				</tr>
 			</table>      	
      	</td>
