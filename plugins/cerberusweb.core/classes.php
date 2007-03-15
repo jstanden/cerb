@@ -1,5 +1,5 @@
 <?php
-class ChDashboardModule extends CerberusModuleExtension {
+class ChTicketsModule extends CerberusModuleExtension {
 	function __construct($manifest) {
 		parent::__construct($manifest);
 	}
@@ -25,57 +25,65 @@ class ChDashboardModule extends CerberusModuleExtension {
 		$session = DevblocksPlatform::getSessionService();
 		$visit = $session->getVisit();
 		
-		$dashboards = CerberusDashboardDAO::getDashboards($visit->worker->id);
-		$tpl->assign('dashboards', $dashboards);
+		$response = DevblocksPlatform::getHttpResponse();
+		@$section = $response->path[1];
 		
-		// [JAS]: [TODO] This needs to limit by the selected dashboard
-		$views = CerberusDashboardDAO::getViews(); // getViews($dashboard_id)
-		$tpl->assign('views', $views);
-		
-		// [TODO]: This should be filterable by a specific view later as well using searchDAO.
-		$viewActions = DAO_DashboardViewAction::getList();
-		$tpl->assign('viewActions', $viewActions);
-		
-		$teams = CerberusWorkflowDAO::getTeams();
-		$team_mailbox_counts = array();
-		foreach ($teams as $team) { /* @var $team CerberusTeam */
-			$team->count = 0;
-			$team_mailboxes = $team->getMailboxes(true);
-			foreach ($team_mailboxes as $team_mailbox) { /* @var $team_mailbox CerberusMailbox */
-				$team_mailbox_counts[$team_mailbox->id] = $team_mailbox->count;
-				$team->count += $team_mailbox->count;
-			}
+		switch($section) {
+			case 'search':
+				$search_id = $_SESSION['search_id'];
+				$view = CerberusDashboardDAO::getView($search_id);
+				
+				// [TODO]: This should be filterable by a specific view later as well using searchDAO.
+				$viewActions = DAO_DashboardViewAction::getList();
+				$tpl->assign('viewActions', $viewActions);
+				
+				// [JAS]: Recover from a bad cached ID.
+				if(null == $view) {
+					$search_id = 0;
+					$_SESSION['search_id'] = $search_id;
+					unset($_SESSION['search_view']);
+					$view = CerberusDashboardDAO::getView($search_id);
+				}
+				
+				$tpl->assign('view', $view);
+				$tpl->assign('params', $view->params);
+				
+				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/search/index.tpl.php');
+				break;
+				
+			case 'create':
+				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/create/index.tpl.php');
+				break;
+			
+			case 'dashboards':
+			default:
+				$dashboards = CerberusDashboardDAO::getDashboards($visit->worker->id);
+				$tpl->assign('dashboards', $dashboards);
+				
+				// [JAS]: [TODO] This needs to limit by the selected dashboard
+				$views = CerberusDashboardDAO::getViews(); // getViews($dashboard_id)
+				$tpl->assign('views', $views);
+				
+				// [TODO]: This should be filterable by a specific view later as well using searchDAO.
+				$viewActions = DAO_DashboardViewAction::getList();
+				$tpl->assign('viewActions', $viewActions);
+				
+				$translate_tokens = array(
+					"whos" => array(1)
+				);
+				$tpl->assign('translate_tokens', $translate_tokens);
+				
+				$tpl->cache_lifetime = "0";
+				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/index.tpl.php');
+				break;
 		}
-		$tpl->assign('teams', $teams);
 		
-		$team_total_count = 0;
-		foreach ($team_mailbox_counts as $idx => $val) {
-			$team_total_count += $val;
-		}
-		$tpl->assign('team_total_count', $team_total_count);
-		
-		$mailboxes = CerberusMailDAO::getMailboxes(array(), true);
-		$tpl->assign('mailboxes', $mailboxes);
-
-		$total_count = 0;
-		foreach ($mailboxes as $mailbox) {
-			$total_count += $mailbox->count;
-		}
-		$tpl->assign('total_count', $total_count);
-		
-		$translate_tokens = array(
-			"whos" => array(1)
-		);
-		$tpl->assign('translate_tokens', $translate_tokens);
-		
-		$tpl->cache_lifetime = "0";
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/dashboards/index.tpl.php');
 	}
 	
 	//**** Local scope
 	
 	function clickteam() {
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('search')));
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','search')));
 	}
 	
 	function mailbox() {
@@ -90,7 +98,7 @@ class ChDashboardModule extends CerberusModuleExtension {
 		);
 		$_SESSION['search_view'] = $view;
 		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('search')));
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','search')));
 	}
 	
 	function viewSortBy() {
@@ -148,10 +156,79 @@ class ChDashboardModule extends CerberusModuleExtension {
 		
 		if(!empty($view)) {
 			$tpl->cache_lifetime = "0";
-			$tpl->display('file:' . dirname(__FILE__) . '/templates/dashboards/ticket_view.tpl.php');
+			$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/ticket_view.tpl.php');
 		} else {
 			echo " ";
 		}
+	}
+	
+	function showMailboxPanel() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+
+		$mailboxes = CerberusMailDAO::getMailboxes(array(), true);
+		$tpl->assign('mailboxes', $mailboxes);
+
+		$total_count = 0;
+		foreach ($mailboxes as $mailbox) {
+			$total_count += $mailbox->count;
+		}
+		$tpl->assign('total_count', $total_count);
+		
+		$tpl->cache_lifetime = "0";
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/rpc/mailbox_load_panel.tpl.php');
+	}
+	
+	function showTeamPanel() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+
+		$teams = CerberusWorkflowDAO::getTeams();
+		$team_mailbox_counts = array();
+		foreach ($teams as $team) { /* @var $team CerberusTeam */
+			$team->count = 0;
+			$team_mailboxes = $team->getMailboxes(true);
+			foreach ($team_mailboxes as $team_mailbox) { /* @var $team_mailbox CerberusMailbox */
+				$team_mailbox_counts[$team_mailbox->id] = $team_mailbox->count;
+				$team->count += $team_mailbox->count;
+			}
+		}
+		$tpl->assign('teams', $teams);
+		
+		$team_total_count = 0;
+		foreach ($team_mailbox_counts as $idx => $val) {
+			$team_total_count += $val;
+		}
+		$tpl->assign('team_total_count', $team_total_count);
+		
+		$tpl->cache_lifetime = "0";
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/rpc/team_load_panel.tpl.php');
+	}
+	
+	function showAssignPanel() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+
+		$teams = CerberusWorkflowDAO::getTeams();
+		$team_mailbox_counts = array();
+		foreach ($teams as $team) { /* @var $team CerberusTeam */
+			$team->count = 0;
+			$team_mailboxes = $team->getMailboxes(true);
+			foreach ($team_mailboxes as $team_mailbox) { /* @var $team_mailbox CerberusMailbox */
+				$team_mailbox_counts[$team_mailbox->id] = $team_mailbox->count;
+				$team->count += $team_mailbox->count;
+			}
+		}
+		$tpl->assign('teams', $teams);
+		
+		$team_total_count = 0;
+		foreach ($team_mailbox_counts as $idx => $val) {
+			$team_total_count += $val;
+		}
+		$tpl->assign('team_total_count', $team_total_count);
+		
+		$tpl->cache_lifetime = "0";
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/rpc/assign_panel.tpl.php');
 	}
 	
 	function showViewActions() {
@@ -184,7 +261,7 @@ class ChDashboardModule extends CerberusModuleExtension {
 		$tpl->assign('action', $action);
 		
 		$tpl->cache_lifetime = "0";
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/dashboards/rpc/view_actions_panel.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/rpc/view_actions_panel.tpl.php');
 	}
 	
 	function saveViewActionPanel() {
@@ -258,7 +335,7 @@ class ChDashboardModule extends CerberusModuleExtension {
 		$tpl->assign('optColumns',$optColumns);
 		
 		$tpl->cache_lifetime = "0";
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/dashboards/rpc/customize_view.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/rpc/customize_view.tpl.php');
 	}
 	
 	function saveCustomize() {
@@ -302,7 +379,7 @@ class ChDashboardModule extends CerberusModuleExtension {
 		);
 		CerberusDashboardDAO::updateView($search_id, $fields);
 		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('search')));
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','search')));
 	}
 	
 	function addView() {
@@ -320,7 +397,7 @@ class ChDashboardModule extends CerberusModuleExtension {
 		);
 		CerberusDashboardDAO::updateView($view_id,$fields);
 		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('dashboard')));
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets')));
 	}
 	
 	function showHistoryPanel() {
@@ -344,6 +421,237 @@ class ChDashboardModule extends CerberusModuleExtension {
 		$tpl->assign('address', $address);
 		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/contact_panel.tpl.php');
+	}
+	
+	// [JAS]: Search Functions =================================================
+	
+	function getCriteria() {
+		@$field = DevblocksPlatform::importGPC($_REQUEST['field']);
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		$tpl->cache_lifetime = "0";
+		
+		switch($field) {
+			case CerberusSearchFields::TICKET_MASK:
+				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/search/criteria/ticket_mask.tpl.php');
+				break;
+				
+			case CerberusSearchFields::TICKET_STATUS:
+				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/search/criteria/ticket_status.tpl.php');
+				break;
+				
+			case CerberusSearchFields::TICKET_PRIORITY:
+				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/search/criteria/ticket_priority.tpl.php');
+				break;
+				
+			case CerberusSearchFields::TICKET_SUBJECT:
+				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/search/criteria/ticket_subject.tpl.php');
+				break;
+				
+			case CerberusSearchFields::REQUESTER_ADDRESS:
+				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/search/criteria/requester_email.tpl.php');
+				break;
+				
+			case CerberusSearchFields::MESSAGE_CONTENT:
+				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/search/criteria/message_content.tpl.php');
+				break;
+				
+			case CerberusSearchFields::ASSIGNED_WORKER:
+				$workers = CerberusAgentDAO::getAgents();
+				$tpl->assign('workers', $workers);
+				
+				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/search/criteria/assigned_worker.tpl.php');
+				break;
+				
+			case CerberusSearchFields::SUGGESTED_WORKER:
+				$workers = CerberusAgentDAO::getAgents();
+				$tpl->assign('workers', $workers);
+				
+				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/search/criteria/suggested_worker.tpl.php');
+				break;
+		}
+	}
+	
+	function getCriteriaDialog() {
+		@$divName = DevblocksPlatform::importGPC($_REQUEST['divName']);
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		$tpl->cache_lifetime = "0";
+		
+		$tpl->assign('divName',$divName);
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/search/rpc/add_criteria.tpl.php');
+	}
+	
+	function addCriteria() {
+		@$search_id = $_SESSION['search_id'];
+		$view = CerberusDashboardDAO::getView($search_id);
+
+		$params = $view->params;
+		@$field = DevblocksPlatform::importGPC($_REQUEST['field']);
+
+		switch($field) {
+			case CerberusSearchFields::TICKET_MASK:
+				@$mask = DevblocksPlatform::importGPC($_REQUEST['mask']);
+				$params[$field] = new CerberusSearchCriteria($field,'like',$mask);
+				break;
+			case CerberusSearchFields::TICKET_STATUS:
+				@$status = DevblocksPlatform::importGPC($_REQUEST['status']);
+				$params[$field] = new CerberusSearchCriteria($field,'in',$status);
+				break;
+			case CerberusSearchFields::TICKET_PRIORITY:
+				@$priority = DevblocksPlatform::importGPC($_REQUEST['priority']);
+				$params[$field] = new CerberusSearchCriteria($field,'in',$priority);
+				break;
+			case CerberusSearchFields::TICKET_SUBJECT:
+				@$subject = DevblocksPlatform::importGPC($_REQUEST['subject']);
+				$params[$field] = new CerberusSearchCriteria($field,'like',$subject);
+				break;
+			case CerberusSearchFields::REQUESTER_ADDRESS:
+				@$requester = DevblocksPlatform::importGPC($_REQUEST['requester']);
+				@$oper = DevblocksPlatform::importGPC($_REQUEST['oper']);
+				$params[$field] = new CerberusSearchCriteria($field,$oper,$requester);
+				break;
+			case CerberusSearchFields::MESSAGE_CONTENT:
+				@$requester = DevblocksPlatform::importGPC($_REQUEST['content']);
+				$params[$field] = new CerberusSearchCriteria($field,'like',$requester);
+				break;
+			case CerberusSearchFields::ASSIGNED_WORKER:
+				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id']);
+				$params[$field] = new CerberusSearchCriteria($field,'in',$worker_ids);
+				break;
+			case CerberusSearchFields::SUGGESTED_WORKER:
+				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id']);
+				$params[$field] = new CerberusSearchCriteria($field,'in',$worker_ids);
+				break;
+		}
+		
+		$fields = array(
+			'params' => serialize($params)
+		);
+		CerberusDashboardDAO::updateView($search_id, $fields);
+		
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','search')));
+	}
+	
+	function removeCriteria() {
+		@$search_id = $_SESSION['search_id'];
+		$view = CerberusDashboardDAO::getView($search_id);
+
+		@$params = $view->params;
+		
+		$request = DevblocksPlatform::getHttpRequest();
+		$stack = $request->path;
+		
+		@$field = $stack[2];		
+
+		if(isset($params[$field]))
+			unset($params[$field]);
+			
+		$fields = array(
+			'params' => serialize($params)
+		);
+		CerberusDashboardDAO::updateView($search_id, $fields);
+		
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','search')));
+	}
+	
+	function resetCriteria() {
+		$_SESSION['search_id'] = 0;
+		unset($_SESSION['search_view']);
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','search')));
+	}
+	
+	function getLoadSearch() {
+		@$divName = DevblocksPlatform::importGPC($_REQUEST['divName']);
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		$tpl->cache_lifetime = "0";
+		
+		$tpl->assign('divName',$divName);
+		
+		$searches = CerberusSearchDAO::getSavedSearches(1); /* @var $searches CerberusDashboardView[] */
+		$tpl->assign('searches', $searches);
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/search/rpc/load_search.tpl.php');
+	}
+	
+	function loadSearch() {
+		@$search_id = DevblocksPlatform::importGPC($_REQUEST['search_id']);
+		
+		$view = CerberusDashboardDAO::getView($search_id);
+
+		$_SESSION['search_view'] = $view;
+		$_SESSION['search_id'] = $view->id;
+		
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','search')));
+	}
+	
+	function getSaveSearch() {
+		@$divName = DevblocksPlatform::importGPC($_REQUEST['divName']);
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		$tpl->cache_lifetime = "0";
+
+		$tpl->assign('divName',$divName);
+		
+		$views = CerberusDashboardDAO::getViews(0);
+		$tpl->assign('views', $views);
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/search/rpc/save_search.tpl.php');
+	}
+	
+	function saveSearch() {
+		@$search_id = $_SESSION['search_id'];
+		$view = CerberusDashboardDAO::getView($search_id);
+
+		@$params = $view->params;
+		@$columns = $view->view_columns;
+		@$save_as = DevblocksPlatform::importGPC($_REQUEST['save_as']);
+
+		if($save_as=='view') {
+			@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
+			
+			$fields = array(
+				'params' => serialize($params)
+			);
+			CerberusDashboardDAO::updateView($view_id,$fields);
+			echo "Saved as view!";
+			
+		} else { // named search
+			@$name = DevblocksPlatform::importGPC($_REQUEST['name']);
+			
+			$view_id = CerberusDashboardDAO::createView($name, 0, 50, 't_created_date', 0, 'S');
+			$fields = array(
+				'view_columns' => serialize($columns),
+				'params' => serialize($params),
+				'sort_by' => $view->renderSortBy,
+				'sort_asc' => $view->renderSortAsc,
+				'num_rows' => $view->renderLimit
+			);
+			CerberusDashboardDAO::updateView($view_id, $fields);
+			$_SESSION['search_view'] = CerberusDashboardDAO::getView($view_id);
+			$_SESSION['search_id'] = $view_id;
+			
+			echo "Saved search!";
+		}
+	}
+	
+	function deleteSearch() {
+		@$search_id = $_SESSION['search_id'];
+		
+		if($_SESSION['search_id']==$search_id) {
+			$_SESSION['search_id'] = 0;
+			unset($_SESSION['search_view']);
+		}
+		
+		CerberusDashboardDAO::deleteView($search_id);
+		
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','search')));
 	}
 	
 };
@@ -870,323 +1178,6 @@ class ChSignInModule extends CerberusModuleExtension {
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('login')));
 	}
 };
-
-class ChTeamworkModule extends CerberusModuleExtension {
-	function __construct($manifest) {
-		parent::__construct($manifest);
-	}
-	
-	function isVisible() {
-		// check login
-		$session = DevblocksPlatform::getSessionService();
-		$visit = $session->getVisit();
-		
-		if(empty($visit)) {
-			return false;
-		} else {
-			return true;
-		}
-
-		return true;
-	}
-	
-	function render() {
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', dirname(__FILE__) . '/templates/');
-		$tpl->cache_lifetime = "0";
-		
-		$session = DevblocksPlatform::getSessionService();
-		$visit = $session->getVisit();
-		
-		$teams = CerberusWorkflowDAO::getTeams();
-		$tpl->assign('teams', $teams);		
-		
-		$mytickets = CerberusSearchDAO::searchTickets(
-			array(
-				new CerberusSearchCriteria(CerberusSearchFields::ASSIGNED_WORKER,'in',array($visit->worker->id))
-			),
-			25
-		);
-		$tpl->assign('count',$mytickets[1]);
-		$tpl->assign('mytickets',$mytickets[0]);
-		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/teamwork/index.tpl.php');
-	}
-	
-};
-
-class ChSearchModule extends CerberusModuleExtension {
-	function __construct($manifest) {
-		parent::__construct($manifest);
-	}
-	
-	function isVisible() {
-		// check login
-		$session = DevblocksPlatform::getSessionService();
-		$visit = $session->getVisit();
-		
-		if(empty($visit)) {
-			return false;
-		} else {
-			return true;
-		}
-	}
-	
-	function render() {
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', dirname(__FILE__) . '/templates/');
-		$tpl->cache_lifetime = "0";
-
-		$search_id = $_SESSION['search_id'];
-		$view = CerberusDashboardDAO::getView($search_id);
-		
-		// [TODO]: This should be filterable by a specific view later as well using searchDAO.
-		$viewActions = DAO_DashboardViewAction::getList();
-		$tpl->assign('viewActions', $viewActions);
-		
-		// [JAS]: Recover from a bad cached ID.
-		if(null == $view) {
-			$search_id = 0;
-			$_SESSION['search_id'] = $search_id;
-			unset($_SESSION['search_view']);
-			$view = CerberusDashboardDAO::getView($search_id);
-		}
-		
-		$tpl->assign('view', $view);
-		$tpl->assign('params', $view->params);
-		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/search/index.tpl.php');
-	}
-	
-	function getCriteria() {
-		@$field = DevblocksPlatform::importGPC($_REQUEST['field']);
-		
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', dirname(__FILE__) . '/templates/');
-		$tpl->cache_lifetime = "0";
-		
-		switch($field) {
-			case CerberusSearchFields::TICKET_MASK:
-				$tpl->display('file:' . dirname(__FILE__) . '/templates/search/criteria/ticket_mask.tpl.php');
-				break;
-				
-			case CerberusSearchFields::TICKET_STATUS:
-				$tpl->display('file:' . dirname(__FILE__) . '/templates/search/criteria/ticket_status.tpl.php');
-				break;
-				
-			case CerberusSearchFields::TICKET_PRIORITY:
-				$tpl->display('file:' . dirname(__FILE__) . '/templates/search/criteria/ticket_priority.tpl.php');
-				break;
-				
-			case CerberusSearchFields::TICKET_SUBJECT:
-				$tpl->display('file:' . dirname(__FILE__) . '/templates/search/criteria/ticket_subject.tpl.php');
-				break;
-				
-			case CerberusSearchFields::REQUESTER_ADDRESS:
-				$tpl->display('file:' . dirname(__FILE__) . '/templates/search/criteria/requester_email.tpl.php');
-				break;
-				
-			case CerberusSearchFields::MESSAGE_CONTENT:
-				$tpl->display('file:' . dirname(__FILE__) . '/templates/search/criteria/message_content.tpl.php');
-				break;
-				
-			case CerberusSearchFields::ASSIGNED_WORKER:
-				$workers = CerberusAgentDAO::getAgents();
-				$tpl->assign('workers', $workers);
-				
-				$tpl->display('file:' . dirname(__FILE__) . '/templates/search/criteria/assigned_worker.tpl.php');
-				break;
-				
-			case CerberusSearchFields::SUGGESTED_WORKER:
-				$workers = CerberusAgentDAO::getAgents();
-				$tpl->assign('workers', $workers);
-				
-				$tpl->display('file:' . dirname(__FILE__) . '/templates/search/criteria/suggested_worker.tpl.php');
-				break;
-		}
-	}
-	
-	function getCriteriaDialog() {
-		@$divName = DevblocksPlatform::importGPC($_REQUEST['divName']);
-		
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', dirname(__FILE__) . '/templates/');
-		$tpl->cache_lifetime = "0";
-		
-		$tpl->assign('divName',$divName);
-		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/search/rpc/add_criteria.tpl.php');
-	}
-	
-	function addCriteria() {
-		@$search_id = $_SESSION['search_id'];
-		$view = CerberusDashboardDAO::getView($search_id);
-
-		$params = $view->params;
-		@$field = DevblocksPlatform::importGPC($_REQUEST['field']);
-
-		switch($field) {
-			case CerberusSearchFields::TICKET_MASK:
-				@$mask = DevblocksPlatform::importGPC($_REQUEST['mask']);
-				$params[$field] = new CerberusSearchCriteria($field,'like',$mask);
-				break;
-			case CerberusSearchFields::TICKET_STATUS:
-				@$status = DevblocksPlatform::importGPC($_REQUEST['status']);
-				$params[$field] = new CerberusSearchCriteria($field,'in',$status);
-				break;
-			case CerberusSearchFields::TICKET_PRIORITY:
-				@$priority = DevblocksPlatform::importGPC($_REQUEST['priority']);
-				$params[$field] = new CerberusSearchCriteria($field,'in',$priority);
-				break;
-			case CerberusSearchFields::TICKET_SUBJECT:
-				@$subject = DevblocksPlatform::importGPC($_REQUEST['subject']);
-				$params[$field] = new CerberusSearchCriteria($field,'like',$subject);
-				break;
-			case CerberusSearchFields::REQUESTER_ADDRESS:
-				@$requester = DevblocksPlatform::importGPC($_REQUEST['requester']);
-				@$oper = DevblocksPlatform::importGPC($_REQUEST['oper']);
-				$params[$field] = new CerberusSearchCriteria($field,$oper,$requester);
-				break;
-			case CerberusSearchFields::MESSAGE_CONTENT:
-				@$requester = DevblocksPlatform::importGPC($_REQUEST['content']);
-				$params[$field] = new CerberusSearchCriteria($field,'like',$requester);
-				break;
-			case CerberusSearchFields::ASSIGNED_WORKER:
-				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id']);
-				$params[$field] = new CerberusSearchCriteria($field,'in',$worker_ids);
-				break;
-			case CerberusSearchFields::SUGGESTED_WORKER:
-				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id']);
-				$params[$field] = new CerberusSearchCriteria($field,'in',$worker_ids);
-				break;
-		}
-		
-		$fields = array(
-			'params' => serialize($params)
-		);
-		CerberusDashboardDAO::updateView($search_id, $fields);
-		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('search')));
-	}
-	
-	function removeCriteria() {
-		@$search_id = $_SESSION['search_id'];
-		$view = CerberusDashboardDAO::getView($search_id);
-
-		@$params = $view->params;
-		
-		$request = DevblocksPlatform::getHttpRequest();
-		$stack = $request->path;
-		
-		@$field = $stack[2];		
-
-		if(isset($params[$field]))
-			unset($params[$field]);
-			
-		$fields = array(
-			'params' => serialize($params)
-		);
-		CerberusDashboardDAO::updateView($search_id, $fields);
-		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('search')));
-	}
-	
-	function resetCriteria() {
-		$_SESSION['search_id'] = 0;
-		unset($_SESSION['search_view']);
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('search')));
-	}
-	
-	function getLoadSearch() {
-		@$divName = DevblocksPlatform::importGPC($_REQUEST['divName']);
-		
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', dirname(__FILE__) . '/templates/');
-		$tpl->cache_lifetime = "0";
-		
-		$tpl->assign('divName',$divName);
-		
-		$searches = CerberusSearchDAO::getSavedSearches(1); /* @var $searches CerberusDashboardView[] */
-		$tpl->assign('searches', $searches);
-		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/search/rpc/load_search.tpl.php');
-	}
-	
-	function loadSearch() {
-		@$search_id = DevblocksPlatform::importGPC($_REQUEST['search_id']);
-		
-		$view = CerberusDashboardDAO::getView($search_id);
-
-		$_SESSION['search_view'] = $view;
-		$_SESSION['search_id'] = $view->id;
-		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('search')));
-	}
-	
-	function getSaveSearch() {
-		@$divName = DevblocksPlatform::importGPC($_REQUEST['divName']);
-		
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', dirname(__FILE__) . '/templates/');
-		$tpl->cache_lifetime = "0";
-
-		$tpl->assign('divName',$divName);
-		
-		$views = CerberusDashboardDAO::getViews(0);
-		$tpl->assign('views', $views);
-		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/search/rpc/save_search.tpl.php');
-	}
-	
-	function saveSearch() {
-		@$search_id = $_SESSION['search_id'];
-		$view = CerberusDashboardDAO::getView($search_id);
-
-		@$params = $view->params;
-		@$columns = $view->view_columns;
-		@$save_as = DevblocksPlatform::importGPC($_REQUEST['save_as']);
-
-		if($save_as=='view') {
-			@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
-			
-			$fields = array(
-				'params' => serialize($params)
-			);
-			CerberusDashboardDAO::updateView($view_id,$fields);
-			echo "Saved as view!";
-			
-		} else { // named search
-			@$name = DevblocksPlatform::importGPC($_REQUEST['name']);
-			
-			$view_id = CerberusDashboardDAO::createView($name, 0, 50, 't_created_date', 0, 'S');
-			$fields = array(
-				'view_columns' => serialize($columns),
-				'params' => serialize($params),
-				'sort_by' => $view->renderSortBy,
-				'sort_asc' => $view->renderSortAsc,
-				'num_rows' => $view->renderLimit
-			);
-			CerberusDashboardDAO::updateView($view_id, $fields);
-			$_SESSION['search_view'] = CerberusDashboardDAO::getView($view_id);
-			$_SESSION['search_id'] = $view_id;
-			
-			echo "Saved search!";
-		}
-	}
-	
-	function deleteSearch() {
-		@$search_id = $_SESSION['search_id'];
-		
-		if($_SESSION['search_id']==$search_id) {
-			$_SESSION['search_id'] = 0;
-			unset($_SESSION['search_view']);
-		}
-		
-		CerberusDashboardDAO::deleteView($search_id);
-		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('search')));
-	}
-}
 
 class ChPreferencesModule extends CerberusModuleExtension {
 	function __construct($manifest) {

@@ -35,6 +35,7 @@ $language = array(
 	'dashboard' => 'Dashboard',
 	'dashboard.add_dashboard' => 'Add Dashboard',
 	'dashboard.add_view' => 'Add View',
+	'dashboard.assign_work' => 'Assign Me Work',
 	'dashboard.choose_column' => 'Choose Column',
 	'dashboard.choose_dashboard' => 'Choose Dashboard',
 	'dashboard.columns' => 'Columns',
@@ -43,10 +44,12 @@ $language = array(
 	'dashboard.mailbox_loads' => 'Mailbox Loads',
 	'dashboard.no_mailboxes' => 'No visible mailboxes.',
 	'dashboard.no_teams' => 'No visible teams.',
+	'dashboard.options' => 'Options',
 	'dashboard.num_rows' => 'Rows per page',
 	'dashboard.remove_view' => 'Remove View From Dashboard',
 	'dashboard.switch' => 'Switch',
 	'dashboard.team_loads' => 'Team Loads',
+	'dashboard.teamwork' => 'Teamwork',
 	
 	'message.content' => 'Message Content',
 	

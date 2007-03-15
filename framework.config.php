@@ -2,10 +2,10 @@
 define('APP_DB_DRIVER','mysql');
 define('APP_DB_HOST','localhost');
 define('APP_DB_DATABASE','cerb4');
-define('APP_DB_USER','cerberus');
-define('APP_DB_PASS','cerberus');
+define('APP_DB_USER','cerb4');
+define('APP_DB_PASS','cerb4');
 
-define('APP_DEFAULT_URI','dashboard');
+define('APP_DEFAULT_URI','tickets');
 //define('DEVBLOCKS_LANGUAGE','en');
 //define('DEVBLOCKS_THEME','default');
 //define('DEVBLOCKS_REWRITE',true);

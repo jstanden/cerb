@@ -816,6 +816,7 @@ class CerberusParser {
 	
 };
 
+// [JAS]: [TODO] This probably isn't needed
 class ToCriterion implements ICerberusCriterion {
 	function getValue($rfcMessage) {
 		return $rfcMessage->headers['to'];

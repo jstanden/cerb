@@ -9,7 +9,7 @@
 <form action="{devblocks_url}{/devblocks_url}" method="POST" id="formViewActions" name="formViewActions">
 <input type="hidden" name="action_id" value="{$id}">
 <input type="hidden" name="view_id" value="{$view_id}">
-<input type="hidden" name="c" value="dashboard">
+<input type="hidden" name="c" value="tickets">
 <input type="hidden" name="a" value="saveViewActionPanel">
 <div style="height:300px;overflow:auto;border:1px solid rgb(180,180,180);margin:2px;padding:3px;">
 

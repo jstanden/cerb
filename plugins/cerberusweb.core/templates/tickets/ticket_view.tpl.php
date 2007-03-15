@@ -3,7 +3,7 @@
 		<td nowrap="nowrap" class="tableThBlue">{$view->name}</td>
 		<td nowrap="nowrap" class="tableThBlue" align="right">
 			<a href="javascript:;" onclick="ajax.getRefresh('{$view->id}');" class="tableThLink">{$translate->say('common.refresh')|lower}</a><span style="font-size:12px"> | </span>
-			{if $view->type == 'D'}<a href="{devblocks_url}c=dashboard&a=searchview&id={$view->id}{/devblocks_url}" class="tableThLink">{$translate->say('common.search')|lower}</a><span style="font-size:12px"> | </span>{/if}
+			{if $view->type == 'D'}<a href="{devblocks_url}c=tickets&a=searchview&id={$view->id}{/devblocks_url}" class="tableThLink">{$translate->say('common.search')|lower}</a><span style="font-size:12px"> | </span>{/if}
 			<a href="javascript:;" onclick="ajax.getCustomize('{$view->id}');" class="tableThLink">{$translate->say('common.customize')|lower}</a>
 		</td>
 	</tr>
@@ -12,7 +12,7 @@
 <div id="criteria{$view->id}" style="visibility:visible;"></div>
 </form>
 <form id="viewForm{$view->id}" name="viewForm{$view->id}">
-<input type="hidden" name="c" value="dashboard">
+<input type="hidden" name="c" value="tickets">
 <input type="hidden" name="a" value="runAction">
 <input type="hidden" name="id" value="{$view->id}">
 <table cellpadding="0" cellspacing="0" border="0" width="100%" class="tableRowBg">
@@ -89,7 +89,7 @@
 			{elseif $column=="t_updated_date"}
 			<td>{$result.t_updated_date|date_format}</td>
 			{elseif $column=="m_name"}
-			<td><a href="{devblocks_url}c=dashboard&a=mailbox&id={$result.m_id}{/devblocks_url}">{$result.m_name}</a></td>
+			<td><a href="{devblocks_url}c=tickets&a=mailbox&id={$result.m_id}{/devblocks_url}">{$result.m_name}</a></td>
 			{elseif $column=="t_spam_score"}
 			<td>{math equation="x*100" format="%0.2f" x=$result.t_spam_score}%</td>
 			{/if}

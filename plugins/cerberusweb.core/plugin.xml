@@ -6,10 +6,8 @@
 	
 	<mapping>
 		<uri value="login" extension_id="core.module.signin" />
-		<uri value="dashboard" extension_id="core.module.dashboard" />
+		<uri value="tickets" extension_id="core.module.tickets" />
 		<uri value="display" extension_id="core.module.display" />
-		<uri value="teamwork" extension_id="core.module.teamwork" />
-		<uri value="search" extension_id="core.module.search" />
 		<uri value="config" extension_id="core.module.configuration" />
 		<uri value="preferences" extension_id="core.module.preferences" />
 	</mapping>
@@ -19,15 +17,15 @@
 		<!-- Page Modules -->
 	
 		<extension point="cerberusweb.module">
-			<id>core.module.dashboard</id>
-			<name>Dashboard Module</name>
+			<id>core.module.tickets</id>
+			<name>Tickets Module</name>
 			<class>
 				<file>classes.php</file>
-				<name>ChDashboardModule</name>
+				<name>ChTicketsModule</name>
 			</class>
 			<params>
-				<param key="title" value="Dashboard" />
-				<param key="menutitle" value="Dashboard" />
+				<param key="title" value="Tickets" />
+				<param key="menutitle" value="Tickets" />
 				<!--<param key="summary" value="support resources" />-->
 			</params>
 		</extension>
@@ -43,32 +41,6 @@
 				<param key="title" value="Display" />
 				<param key="menutitle" value="" />
 				<!--<param key="summary" value="support resources" />-->
-			</params>
-		</extension>
-
-		<extension point="cerberusweb.module">
-			<id>core.module.teamwork</id>
-			<name>Teamwork Module</name>
-			<class>
-				<file>classes.php</file>
-				<name>ChTeamworkModule</name>
-			</class>
-			<params>
-				<param key="title" value="Teamwork" />
-				<param key="menutitle" value="Teamwork" />
-			</params>
-		</extension>
-
-		<extension point="cerberusweb.module">
-			<id>core.module.search</id>
-			<name>Search Module</name>
-			<class>
-				<file>classes.php</file>
-				<name>ChSearchModule</name>
-			</class>
-			<params>
-				<param key="title" value="Search" />
-				<param key="menutitle" value="Search" />
 			</params>
 		</extension>
 

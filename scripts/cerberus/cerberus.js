@@ -98,7 +98,7 @@ var cAjaxCalls = function() {
 			this.historyPanel.hide();
 		}
 		
-		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=dashboard&a=showHistoryPanel', {
+		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=tickets&a=showHistoryPanel', {
 				success: function(o) {
 					var caller = o.argument.caller;
 					var target = o.argument.target;
@@ -130,6 +130,123 @@ var cAjaxCalls = function() {
 		);	
 	}
 	
+	this.mailboxPanel = null;
+	this.showMailboxPanel = function(target) {
+		
+		if(null != this.mailboxPanel) {
+			this.mailboxPanel.hide();
+		}
+		
+		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=tickets&a=showMailboxPanel', {
+				success: function(o) {
+					var caller = o.argument.caller;
+					var target = o.argument.target;
+					
+					if(null == caller.mailboxPanel) {
+						caller.mailboxPanel = new YAHOO.widget.Panel("mailboxPanel", 
+							{ width : "300px",
+							  fixedcenter : false,
+							  visible : false, 
+							  constraintoviewport : true,
+							  underlay:"none",
+							  modal: false,
+							  close: false,
+							  draggable: false
+							});
+
+						caller.mailboxPanel.setBody('');
+						caller.mailboxPanel.render(document.body);
+					}
+					
+					caller.mailboxPanel.hide();
+					caller.mailboxPanel.setBody(o.responseText);
+					caller.mailboxPanel.cfg.setProperty('context',[target,"tr","br"]);
+					caller.mailboxPanel.show();
+				},
+				failure: function(o) {},
+				argument:{caller:this,target:target}
+			}
+		);	
+	}
+	
+	this.teamPanel = null;
+	this.showTeamPanel = function(target) {
+		
+		if(null != this.teamPanel) {
+			this.teamPanel.hide();
+		}
+		
+		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=tickets&a=showTeamPanel', {
+				success: function(o) {
+					var caller = o.argument.caller;
+					var target = o.argument.target;
+					
+					if(null == caller.teamPanel) {
+						caller.teamPanel = new YAHOO.widget.Panel("teamPanel", 
+							{ width : "300px",
+							  fixedcenter : false,
+							  visible : false, 
+							  constraintoviewport : true,
+							  underlay:"none",
+							  modal: false,
+							  close: false,
+							  draggable: false
+							});
+
+						caller.teamPanel.setBody('');
+						caller.teamPanel.render(document.body);
+					}
+					
+					caller.teamPanel.hide();
+					caller.teamPanel.setBody(o.responseText);
+					caller.teamPanel.cfg.setProperty('context',[target,"tr","br"]);
+					caller.teamPanel.show();
+				},
+				failure: function(o) {},
+				argument:{caller:this,target:target}
+			}
+		);	
+	}
+	
+	this.assignPanel = null;
+	this.showAssignPanel = function(target) {
+		
+		if(null != this.assignPanel) {
+			this.assignPanel.hide();
+		}
+		
+		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=tickets&a=showAssignPanel', {
+				success: function(o) {
+					var caller = o.argument.caller;
+					var target = o.argument.target;
+					
+					if(null == caller.assignPanel) {
+						caller.assignPanel = new YAHOO.widget.Panel("assignPanel", 
+							{ width : "300px",
+							  fixedcenter : true,
+							  visible : false, 
+							  constraintoviewport : true,
+							  underlay:"none",
+							  modal: true,
+							  close: false,
+							  draggable: false
+							});
+
+						caller.assignPanel.setBody('');
+						caller.assignPanel.render(document.body);
+					}
+					
+					caller.assignPanel.hide();
+					caller.assignPanel.setBody(o.responseText);
+//					caller.assignPanel.cfg.setProperty('context',[target,"tr","br"]);
+					caller.assignPanel.show();
+				},
+				failure: function(o) {},
+				argument:{caller:this,target:target}
+			}
+		);	
+	}
+	
 	this.contactPanel = null;
 	this.showContactPanel = function(address,target) {
 		
@@ -137,7 +254,7 @@ var cAjaxCalls = function() {
 			this.contactPanel.hide();
 		}
 		
-		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=dashboard&a=showContactPanel&address=' + address, {
+		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=tickets&a=showContactPanel&address=' + address, {
 				success: function(o) {
 					var caller = o.argument.caller;
 					var target = o.argument.target;
@@ -177,7 +294,7 @@ var cAjaxCalls = function() {
 			this.manageViewActionPanel.hide();
 		}
 		
-		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=dashboard&a=showViewActions&id=' + id + '&view_id=' + view_id, {
+		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=tickets&a=showViewActions&id=' + id + '&view_id=' + view_id, {
 				success: function(o) {
 					var caller = o.argument.caller;
 					var target = o.argument.target;
@@ -233,7 +350,7 @@ var cAjaxCalls = function() {
 		var div = document.getElementById(divName + '_control');
 		if(null == div) return;
 		
-		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=search&a=getLoadSearch&divName='+divName, {
+		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=tickets&a=getLoadSearch&divName='+divName, {
 				success: function(o) {
 					var divName = o.argument.divName;
 					var div = document.getElementById(divName + '_control');
@@ -251,7 +368,7 @@ var cAjaxCalls = function() {
 		var div = document.getElementById(divName + '_control');
 		if(null == div) return;
 		
-		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=search&a=getSaveSearch&divName='+divName, {
+		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=tickets&a=getSaveSearch&divName='+divName, {
 				success: function(o) {
 					var divName = o.argument.divName;
 					var div = document.getElementById(divName + '_control');
@@ -299,7 +416,7 @@ var cAjaxCalls = function() {
 		var div = document.getElementById(divName);
 		if(null == div) return;
 		
-		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=search&a=getCriteriaDialog&divName=' + divName, {
+		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=tickets&a=getCriteriaDialog&divName=' + divName, {
 				success: function(o) {
 					var divName = o.argument.divName;
 					var div = document.getElementById(divName);
@@ -335,7 +452,7 @@ var cAjaxCalls = function() {
 			div.innerHTML = '';
 			div.style.display = 'inline';
 		} else {
-			var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=dashboard&a=customize&id=' + id, {
+			var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=tickets&a=customize&id=' + id, {
 					success: function(o) {
 						var id = o.argument.id;
 						var div = document.getElementById('customize' + id);
@@ -442,7 +559,7 @@ var cAjaxCalls = function() {
 	}
 	
 	this.getSortBy = function(id,sortBy) {
-		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=dashboard&a=viewSortBy&id=' + id + '&sortBy=' + sortBy, {
+		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=tickets&a=viewSortBy&id=' + id + '&sortBy=' + sortBy, {
 				success: function(o) {
 					var id = o.argument.id;
 					var caller = o.argument.caller;
@@ -454,7 +571,7 @@ var cAjaxCalls = function() {
 	}
 	
 	this.getPage = function(id,page) {
-		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=dashboard&a=viewPage&id=' + id + '&page=' + page, {
+		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=tickets&a=viewPage&id=' + id + '&page=' + page, {
 				success: function(o) {
 					var id = o.argument.id;
 					var caller = o.argument.caller;
@@ -485,7 +602,7 @@ var cAjaxCalls = function() {
 		var anim = new YAHOO.util.Anim(div, { opacity: { to: 0.2 } }, 1, YAHOO.util.Easing.easeOut);
 		anim.animate();
 		
-		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=dashboard&a=viewRefresh&id=' + id, {
+		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=tickets&a=viewRefresh&id=' + id, {
 				success: function(o) {
 					var id = o.argument.id;
 					var div = document.getElementById('view' + id);
@@ -552,7 +669,7 @@ var cAjaxCalls = function() {
 //		var anim = new YAHOO.util.Anim(div, { opacity: { to: 0.2 } }, 1, YAHOO.util.Easing.easeOut);
 //		anim.animate();
 		
-		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=search&a=getCriteria&field=' + field, {
+		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=tickets&a=getCriteria&field=' + field, {
 				success: function(o) {
 //					var id = o.argument.id;
 					var div = document.getElementById(divName + '_render');
