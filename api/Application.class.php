@@ -1,5 +1,5 @@
 <?php
-define("APP_BUILD", 90);
+define("APP_BUILD", 93);
 
 include_once(APP_PATH . "/api/DAO.class.php");
 include_once(APP_PATH . "/api/Model.class.php");
@@ -25,7 +25,7 @@ class CerberusApplication extends DevblocksApplication {
 			$extension_id = 'core.module.signin';
 		
 		if(empty($extension_id)) 
-			$extension_id = 'core.module.dashboard';
+			$extension_id = 'core.module.tickets';
 	
 		$modules = CerberusApplication::getModules();
 		$tpl->assign('modules',$modules);		
@@ -54,9 +54,31 @@ class CerberusApplication extends DevblocksApplication {
 		return $modules;
 	}	
 	
+	// [TODO] Move to a FormHelper service?
+	static function parseCrlfString($string) {
+		// Make linefeeds uniform (CR to LF)
+//		$string = str_replace("\r","\n",$string);
+		
+		// Condense repeat LF into a single LF
+//		$string = preg_replace('#\n+#', '\n', $string);
+		
+		// 
+		$parts = split("[\r\n]", $string);
+		
+		// Remove any empty tokens
+		foreach($parts as $idx => $part) {
+			$parts[$idx] = trim($part);
+			if(empty($parts[$idx])) 
+				unset($parts[$idx]);
+		}
+		
+		return $parts;
+	}
+	
 	/**
 	 * Takes a comma-separated value string and returns an array of tokens.
-	 *
+	 * [TODO] Move to a FormHelper service?
+	 * 
 	 * @param string $string
 	 * @return array
 	 */

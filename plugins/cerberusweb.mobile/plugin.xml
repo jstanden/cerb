@@ -1,7 +1,7 @@
 <!-- [JAS] [TODO] Needs DTD -->
 <plugin>
 	<id>cerberusweb.mobile</id>
-	<name>Cerberus Helpdesk Login Plugins</name>
+	<name>Cerberus Helpdesk Mobile UI</name>
 	<author>WebGroup Media, LLC.</author>
 	
 	<mapping>

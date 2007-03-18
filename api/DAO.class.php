@@ -110,6 +110,13 @@ class DAO_Bayes {
 class CerberusAgentDAO {
 	private function CerberusAgentDAO() {}
 	
+	const ID = 'id';
+	const LOGIN = 'login';
+	const PASSWORD = 'pass';
+	const FIRST_NAME = 'first_name';
+	const LAST_NAME = 'last_name';
+	const TITLE = 'title';
+	
 	static function createAgent($login, $password, $first_name, $last_name, $title) {
 		if(empty($login) || empty($password))
 			return null;
@@ -140,7 +147,7 @@ class CerberusAgentDAO {
 		$sql = "SELECT a.id, a.first_name, a.last_name, a.login, a.title ".
 			"FROM worker a ".
 			((!empty($ids) ? sprintf("WHERE a.id IN (%s)",implode(',',$ids)) : " ").
-			"ORDER BY a.first_name "
+			"ORDER BY a.last_name, a.first_name "
 		);
 		$rs = $um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
@@ -529,13 +536,14 @@ class CerberusContactDAO {
 		 * [JAS]: [TODO] If we're going to call platform libs directly we should just have
 		 * the platform provide the functionality.
 		 */
+		// [TODO] This code fails with anything@localhost
 		require_once(DEVBLOCKS_PATH . 'pear/Mail/RFC822.php');
 		if (false === Mail_RFC822::isValidInetAddress($email)) {
 //			throw new Exception($email . DevblocksTranslationManager::say('ticket.requester.invalid'));
 			return null;
 		}
 		
-		$sql = sprintf("INSERT INTO address (id,email,personal) VALUES (%d,%s,%s)",
+		$sql = sprintf("INSERT INTO address (id,email,personal,bitflags) VALUES (%d,%s,%s,0)",
 			$id,
 			$um_db->qstr(trim(strtolower($email))),
 			$um_db->qstr($personal)
@@ -2287,6 +2295,11 @@ class CerberusWorkflowDAO {
 
 class CerberusMailDAO {
 	// Mailboxes
+	
+	const MAILBOX_ID = 'id';
+	const MAILBOX_NAME = 'name';
+	const MAILBOX_REPLY_ADDRESS_ID = 'reply_address_id';
+	const MAILBOX_DISPLAY_NAME = 'display_name';
 	
 	/**
 	 * Returns a list of all known mailboxes, sorted by name

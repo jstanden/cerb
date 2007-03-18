@@ -8,9 +8,7 @@
 		</td>
 	</tr>
 </table>
-<form id="customize{$view->id}" action="#" onsubmit="return false;">
-<div id="criteria{$view->id}" style="visibility:visible;"></div>
-</form>
+<form id="customize{$view->id}" action="#" onsubmit="return false;" style="display:none;"></form>
 <form id="viewForm{$view->id}" name="viewForm{$view->id}">
 <input type="hidden" name="c" value="tickets">
 <input type="hidden" name="a" value="runAction">

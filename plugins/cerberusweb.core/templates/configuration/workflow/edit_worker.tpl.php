@@ -12,12 +12,20 @@
 		</td>
 	</tr>
 	<tr>
-		<td width="0%" nowrap="nowrap"><b>Full Name:</b></td>
-		<td width="100%"><input type="text" name="" value=""></td>
+		<td width="0%" nowrap="nowrap"><b>First Name:</b></td>
+		<td width="100%"><input type="text" name="first_name" value="{$worker->first_name}"></td>
+	</tr>
+	<tr>
+		<td width="0%" nowrap="nowrap">Last Name:</td>
+		<td width="100%"><input type="text" name="last_name" value="{$worker->last_name}"></td>
+	</tr>
+	<tr>
+		<td width="0%" nowrap="nowrap">Title:</td>
+		<td width="100%"><input type="text" name="title" value="{$worker->title}"></td>
 	</tr>
 	<tr>
 		<td width="0%" nowrap="nowrap"><b>Primary Email:</b></td>
-		<td width="100%"><input type="text" name="" value=""></td>
+		<td width="100%"><input type="text" name="primary_email" value="[TODO]"></td>
 	</tr>
 	<tr>
 		<td width="0%" nowrap="nowrap"><b>Login:</b></td>

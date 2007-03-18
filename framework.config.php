@@ -19,4 +19,3 @@ define('DEVBLOCKS_PATH',APP_PATH . '/libs/devblocks/');
 
 require_once(DEVBLOCKS_PATH . 'framework.defaults.php');
 
-?>

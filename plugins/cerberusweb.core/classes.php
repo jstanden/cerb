@@ -699,6 +699,9 @@ class ChConfigurationModule extends CerberusModuleExtension  {
 				
 				$mailboxes = CerberusMailDAO::getMailboxes();
 				$tpl->assign('mailboxes', $mailboxes);
+
+				$teams = CerberusWorkflowDAO::getTeams();
+				$tpl->assign('teams', $teams);
 				
 				$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/mail/index.tpl.php');				
 				break;
@@ -709,6 +712,9 @@ class ChConfigurationModule extends CerberusModuleExtension  {
 				
 				$teams = CerberusWorkflowDAO::getTeams();
 				$tpl->assign('teams', $teams);
+				
+				$mailboxes = CerberusMailDAO::getMailboxes();
+				$tpl->assign('mailboxes', $mailboxes);
 				
 				$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/workflow/index.tpl.php');				
 				break;
@@ -749,11 +755,15 @@ class ChConfigurationModule extends CerberusModuleExtension  {
 	
 	// Post
 	function saveWorker() {
-		@$id = DevblocksPlatform::importGPC($_POST['id']);
-		@$login = DevblocksPlatform::importGPC($_POST['login']);
-		@$password = DevblocksPlatform::importGPC($_POST['password']);
-		@$team_id = DevblocksPlatform::importGPC($_POST['team_id']);
-		@$delete = DevblocksPlatform::importGPC($_POST['delete']);
+		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer');
+		@$first_name = DevblocksPlatform::importGPC($_POST['first_name'],'string');
+		@$last_name = DevblocksPlatform::importGPC($_POST['last_name'],'string');
+		@$title = DevblocksPlatform::importGPC($_POST['title'],'string');
+		@$primary_email = DevblocksPlatform::importGPC($_POST['primary_email'],'string');
+		@$login = DevblocksPlatform::importGPC($_POST['login'],'string');
+		@$password = DevblocksPlatform::importGPC($_POST['password'],'string');
+		@$team_id = DevblocksPlatform::importGPC($_POST['team_id'],'integer');
+		@$delete = DevblocksPlatform::importGPC($_POST['delete'],'integer');
 		
 		if(empty($name)) $name = "No Name";
 		
@@ -762,12 +772,15 @@ class ChConfigurationModule extends CerberusModuleExtension  {
 			
 		} elseif(!empty($id)) {
 			$fields = array(
-				'login' => $login
+				CerberusAgentDAO::FIRST_NAME => $first_name,
+				CerberusAgentDAO::LAST_NAME => $last_name,
+				CerberusAgentDAO::TITLE => $title,
+				CerberusAgentDAO::LOGIN => $login,
 			);
 			
 			// if we're resetting the password
 			if(!empty($password)) {
-				$fields['password'] = md5($password);
+				$fields[CerberusAgentDAO::PASSWORD] = md5($password);
 			}
 			
 			CerberusAgentDAO::updateAgent($id, $fields);
