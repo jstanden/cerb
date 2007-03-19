@@ -6,7 +6,7 @@
 		{if empty($visit)}
 		{$translate->say('header.not_signed_in')} [<a href="{devblocks_url}c=login{/devblocks_url}">{$translate->say('login.signon')|lower}</a>]
 		{else}
-		{$translate->say('header.signed_in',$index_tokens.header_signed_in)} 
+		{$translate->say('header.signed_in',$visit->worker->getName())} 
 		<a href="#" title="{$translate->say('header.my_flagged_tickets')|capitalize}"><img src="{devblocks_url}images/flag_red.gif{/devblocks_url}" align="bottom" title="{$translate->say('header.my_flagged_tickets')|capitalize}" border="0"></a>
 		<a href="#" title="{$translate->say('header.my_flagged_tickets')|capitalize}">5</a> 
 		<a href="#" title="{$translate->say('header.my_suggested_tickets')|capitalize}"><img src="{devblocks_url}images/hand_paper.gif{/devblocks_url}" align="bottom" title="{$translate->say('header.my_suggested_tickets')|capitalize}" border="0"></a>

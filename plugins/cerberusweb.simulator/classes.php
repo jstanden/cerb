@@ -22,27 +22,74 @@ class ChSimulatorModule extends CerberusModuleExtension {
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		
-//		@$id = intval(DevblocksPlatform::importGPC($_REQUEST['id']));
 		$response = DevblocksPlatform::getHttpResponse();
 		$stack = $response->path;
-		@$id = intval($stack[1]);
 		
-//		$tree = DAO_Kb::getCategoryTree();
-//		$tpl->assign('node', $tree[$id]);
+		$mailboxes = CerberusMailDAO::getMailboxes();
+		$tpl->assign('mailboxes', $mailboxes);
 		
-//		$resources = CerberusSearchDAO::searchResources(
-//			array(
-//				new CerberusSearchCriteria(CerberusResourceSearchFields::KB_CATEGORY_ID,'in',array($id))
-//			),
-//			25,
-//			0,
-//			CerberusResourceSearchFields::KB_TITLE,
-//			1
-//		);
-//		$tpl->assign('resources', $resources[0]);
-//		$tpl->assign('resources_total', $resources[1]);
+		$flavors = array(
+			'hosting' => 'Web Hosting',
+			'retail' => 'Retail',
+			'edu' => 'Education',
+			'gov' => 'Government',
+			'npo' => 'Non-profit/Charity',
+			'spam' => 'Spam',
+		);
+		$tpl->assign('flavors', $flavors);
+		
+		$how_many_opts = array(
+			5,
+			25,
+			50,
+			100
+		);
+		$tpl->assign('how_many_opts', $how_many_opts);
 		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/index.tpl.php');
+	}
+	
+	function generateTickets() {
+		require_once(dirname(__FILE__) . '/api/API.class.php');
+		require_once(DEVBLOCKS_PATH . 'pear/mimeDecode.php');
+		
+		@$mailbox_id = DevblocksPlatform::importGPC($_POST['mailbox_id'],'integer'); 
+		@$dataset = DevblocksPlatform::importGPC($_POST['dataset'],'string');
+		@$how_many = DevblocksPlatform::importGPC($_POST['how_many'],'integer');
+		
+		$dataset = new EduDataset();
+		$simulator = CerberusSimulator::getInstance();
+		$emails = $simulator->generateEmails($dataset,$how_many);
+
+		foreach($emails as $template) {
+			$mail = sprintf("From: %s\r\n".
+				"To: %s\r\n".
+				"Subject: %s\r\n".
+				"Date: " . date('r') . "\r\n".
+				"\r\n".
+				"%s\r\n".
+				"\r\n".
+				"--\r\n%s %s\r\n",
+				$template['sender']['address'],
+				'pop1@cerberus6.webgroupmedia.com', // [TODO] This needs to adopt a real mailbox addy
+				$template['subject'],
+				$template['body'],
+				$template['sender']['firstname'],
+				$template['sender']['lastname']
+			);
+			
+			$params = array();
+			$params['include_bodies']	= true;
+			$params['decode_bodies']	= true;
+			$params['decode_headers']	= true;
+			$params['crlf']				= "\r\n";
+			$params['input'] = $mail;
+			$structure = Mail_mimeDecode::decode($params);
+			
+			CerberusParser::parseMessage($structure);
+		}
+		
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('simulator')));
 	}
 	
 };

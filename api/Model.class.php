@@ -83,6 +83,14 @@ class CerberusWorker {
 		return CerberusAgentDAO::getAgentTeams($this->id);
 	}
 	
+	function getName() {
+		return sprintf("%s%s%s",
+			$this->first_name,
+			(!empty($this->first_name) && !empty($this->last_name)) ? " " : "",
+			$this->last_name
+		);
+	}
+	
 }
 
 class CerberusDashboardViewColumn {
