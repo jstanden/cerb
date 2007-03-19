@@ -24,12 +24,7 @@
 				</tr>
 				<tr>
 					<td class="tableCellBg" width="100%" style="padding:2px;">
-						 <a href="#">{$translate->say('common.customize')|lower}</a>
-					</td>
-				</tr>
-				<tr>
-					<td class="tableCellBg" width="100%" style="padding:2px;">
-						 <a href="#">{$translate->say('common.remove')|lower}</a>
+						 <a href="#">{$translate->say('dashboard.modify')|lower}</a>
 					</td>
 				</tr>
 				<tr>

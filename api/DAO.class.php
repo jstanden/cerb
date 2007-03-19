@@ -2617,6 +2617,7 @@ class CerberusMailDAO {
 		
 	// Pop3 Accounts
 	
+	// [TODO] Allow custom ports
 	static function createPop3Account($nickname,$host,$username,$password) {
 		if(empty($nickname) || empty($host) || empty($username) || empty($password)) 
 			return null;

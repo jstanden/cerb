@@ -1,0 +1,27 @@
+<!-- [JAS] [TODO] Needs DTD -->
+<plugin>
+	<id>cerberusweb.simulator</id>
+	<name>Cerberus Helpdesk Simulator</name>
+	<author>WebGroup Media, LLC.</author>
+	
+	<mapping>
+		<uri value="simulator" extension_id="core.module.simulator" />
+	</mapping>	
+	
+	<extensions>
+	
+		<extension point="cerberusweb.module">
+			<id>core.module.simulator</id>
+			<name>Simulator Module</name>
+			<class>
+				<file>classes.php</file>
+				<name>ChSimulatorModule</name>
+			</class>
+			<params>
+				<param key="title" value="Simulator" />
+				<param key="menutitle" value="Simulator" />
+			</params>
+		</extension>
+		
+	</extensions>
+</plugin>

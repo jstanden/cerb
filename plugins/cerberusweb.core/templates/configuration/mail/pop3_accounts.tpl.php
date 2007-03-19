@@ -7,10 +7,10 @@
 					<td class="tableThBlue" nowrap="nowrap">POP3 Accounts</td>
 				</tr>
 				<tr>
-					<td style="background-color:rgb(220, 220, 255);border-bottom:1px solid rgb(130, 130, 130);"><a href="javascript:;" onclick="configAjax.getPop3Account('0');">add new account</a></td>
+					<td style="background-color:rgb(220, 220, 255);border-bottom:1px solid rgb(130, 130, 130);">[ <a href="javascript:;" onclick="configAjax.getPop3Account('0');">add new account</a> ]</td>
 				</tr>
 				<tr>
-					<td>
+					<td nowrap="nowrap">
 						<div style="margin:0px;padding:3px;height:150px;width:200px;overflow:auto;">
 						{if !empty($pop3_accounts)}
 							{foreach from=$pop3_accounts item=pop3}

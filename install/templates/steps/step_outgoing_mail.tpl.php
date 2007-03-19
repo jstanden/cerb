@@ -1,21 +1,36 @@
-<h2>Configuring the Helpdesk</h2>
+<h2>Outgoing Mail</h2>
 
 <form action="index.php" method="POST">
 <input type="hidden" name="step" value="{$smarty.const.STEP_OUTGOING_MAIL}">
+<input type="hidden" name="form_submit" value="1">
 
-<H3>Outgoing Mail</H3>
+<H3>SMTP</H3>
 
 <b>SMTP Server:</b><br>
 <input type="text" name="smtp_host" value="{$smtp_host}"><br>
 <br>
 
-<b>SMTP Auth. User (optional):</b><br>
+<b>Send to:</b><br>
+<input type="text" name="smtp_to" value="{$smtp_to}"><br>
+<br>
+
+<i>SMTP Auth. User (optional):</i><br>
 <input type="text" name="smtp_auth_user" value="{$smtp_auth_user}"><br>
 <br>
 
-<b>SMTP Auth. Password (optional):</b><br>
+<i>SMTP Auth. Password (optional):</i><br>
 <input type="text" name="smtp_auth_pass" value="{$smtp_auth_pass}"><br>
 <br>
 
-<input type="submit" value="Test Outgoing Mail &gt;&gt;">
+{if !empty($form_submit)}
+	<b>SENT! Did you receive the test e-mail to {$smtp_to}?</b> (It may take a few moments)<br>
+	<label><input type="radio" name="passed" value="1" checked> Yes!</label> 
+	<label><input type="radio" name="passed" value="0"> No, please retry.</label>
+	<br> 
+	<br>
+	<input type="submit" value="Continue &gt;&gt;">
+{else}
+	<input type="submit" value="Test Outgoing Mail &gt;&gt;">
+{/if}
+
 </form>

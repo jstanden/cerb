@@ -20,9 +20,9 @@ leave it blank.<br>
 	</tr>
 {foreach from=$worker_ids key=worker_id item=worker}
 	<tr>
-		<td><input type="hidden" name="worker_ids[]" value="{$worker_id}">{$worker}</td>
-		<td><input type="text" name="worker_first[]"></td>
-		<td><input type="text" name="worker_last[]"></td>
+		<td style="padding-right:10px;"><input type="hidden" name="worker_ids[]" value="{$worker_id}">{$worker}</td>
+		<td style="padding-right:10px;"><input type="text" name="worker_first[]"></td>
+		<td style="padding-right:10px;"><input type="text" name="worker_last[]"></td>
 		<td><input type="text" name="worker_title[]"></td>
 	</tr>
 {/foreach}
@@ -35,11 +35,11 @@ leave it blank.<br>
 <table cellpadding="0" cellspacing="0" border="0">
 	<tr>
 		<th>Mailbox</th>
-		<th>Reply From E-mail Address</th>
+		<th>E-mail Address</th>
 	</tr>
 {foreach from=$mailbox_ids key=mailbox_id item=mailbox}
 	<tr>
-		<td><input type="hidden" name="mailbox_ids[]" value="{$mailbox_id}">{$mailbox}</td>
+		<td style="padding-right:10px;"><input type="hidden" name="mailbox_ids[]" value="{$mailbox_id}">{$mailbox}</td>
 		<td><input type="text" name="mailbox_from[]"></td>
 	</tr>
 {/foreach}
@@ -57,15 +57,15 @@ leave it blank.<br>
 	</tr>
 {foreach from=$team_ids key=team_id item=team_name}
 	<tr>
-		<td valign="top"><input type="hidden" name="team_ids[]" value="{$team_id}">{$team_name}</td>
-		<td valign="top">
+		<td valign="top" style="padding-right:10px;"><input type="hidden" name="team_ids[]" value="{$team_id}">{$team_name}</td>
+		<td valign="top" style="padding-right:10px;">
 			{if !empty($worker_ids)}
 			{foreach from=$worker_ids item=worker key=worker_id}
 				<label><input type="checkbox" name="team_members_{$team_id}[]" value="{$worker_id}">{$worker}</label><br>
 			{/foreach}
 			{/if}
 		</td>
-		<td valign="top">
+		<td valign="top" style="padding-right:10px;">
 			{if !empty($mailbox_ids)}
 			{foreach from=$mailbox_ids item=mailbox key=mailbox_id}
 				<label><input type="checkbox" name="team_mailboxes_{$team_id}[]" value="{$mailbox_id}">{$mailbox}</label><br>

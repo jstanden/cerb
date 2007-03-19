@@ -721,10 +721,14 @@ class ChConfigurationModule extends CerberusModuleExtension  {
 				
 			case 'extensions':
 				$plugins = DevblocksPlatform::getPluginRegistry();
+				unset($plugins['cerberusweb.core']);
 				$tpl->assign('plugins', $plugins);
 				
-				$extensions = DevblocksPlatform::getExtensionRegistry();
-				$tpl->assign('extensions', $extensions);
+//				$extensions = DevblocksPlatform::getExtensionRegistry();
+//				$tpl->assign('extensions', $extensions);
+
+				$points = DevblocksPlatform::getExtensionPoints();
+				$tpl->assign('points', $points);
 				
 				$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/extensions/index.tpl.php');				
 				break;
@@ -1005,6 +1009,39 @@ class ChConfigurationModule extends CerberusModuleExtension  {
 		// [TODO] Necessary?
 		$mailbox = CerberusMailDAO::getMailbox($mailbox_id);
 		echo $mailbox->name;
+	}
+	
+	// Ajax
+	function refreshPlugins() {
+//		if(!ACL_TypeMonkey::hasPriv(ACL_TypeMonkey::SETUP)) return;
+		
+		DevblocksPlatform::readPlugins();
+		DevblocksPlatform::clearCache();
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','extensions')));
+	}
+	
+	function savePlugins() {
+//		if(!ACL_TypeMonkey::hasPriv(ACL_TypeMonkey::SETUP)) return;
+		
+		$plugins_enabled = DevblocksPlatform::importGPC($_REQUEST['plugins_enabled'],'array');
+		$pluginStack = DevblocksPlatform::getPluginRegistry();
+		
+		if(is_array($plugins_enabled))
+		foreach($plugins_enabled as $plugin_id) {
+			$plugin = $pluginStack[$plugin_id];
+			$plugin->setEnabled(true);
+			unset($pluginStack[$plugin_id]);
+		}
+
+		// [JAS]: Clear unchecked plugins
+		foreach($pluginStack as $plugin) {
+			// [JAS]: We can't force disable core here [TODO] Improve
+			if($plugin->id=='cerberusweb.core') continue;
+			$plugin->setEnabled(false);
+		}
+		
+		DevblocksPlatform::clearCache();
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','extensions')));
 	}
 	
 }

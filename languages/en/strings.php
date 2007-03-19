@@ -42,6 +42,7 @@ $language = array(
 	'dashboard.create_ticket' => 'Create Ticket',
 	'dashboard.dashboards' => 'Dashboards',
 	'dashboard.mailbox_loads' => 'Mailbox Loads',
+	'dashboard.modify' => 'Modify Dashboard',
 	'dashboard.no_mailboxes' => 'No visible mailboxes.',
 	'dashboard.no_teams' => 'No visible teams.',
 	'dashboard.options' => 'Options',

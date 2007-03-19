@@ -18,6 +18,7 @@ define('STEP_OUTGOING_MAIL', 6);
 define('STEP_INCOMING_MAIL', 7);
 define('STEP_WORKFLOW', 8);
 define('STEP_ANTISPAM', 9);
+define('STEP_FINISHED', 10);
 
 // Import GPC variables to determine our scope/step.
 @$step = DevblocksPlatform::importGPC($_REQUEST['step'],'integer');
@@ -268,35 +269,90 @@ switch($step) {
 		
 		break;
 	
-	// [TODO] Test the outgoing SMTP
+	// Set up and test the outgoing SMTP
 	case STEP_OUTGOING_MAIL:
 		@$smtp_host = DevblocksPlatform::importGPC($_POST['smtp_host'],'string');
+		@$smtp_to = DevblocksPlatform::importGPC($_POST['smtp_to'],'string');
 		@$smtp_auth_user = DevblocksPlatform::importGPC($_POST['smtp_auth_user'],'string');
 		@$smtp_auth_pass = DevblocksPlatform::importGPC($_POST['smtp_auth_pass'],'string');
+		@$form_submit = DevblocksPlatform::importGPC($_POST['form_submit'],'integer');
+		@$passed = DevblocksPlatform::importGPC($_POST['passed'],'integer');
 		
-		if(!empty($smtp_host)) {
-			// [TODO] Actually test outgoing mail
+		if(!empty($form_submit)) {
+			$mail = DevblocksPlatform::getMailService();
+			$from = $_SERVER['HTTP_HOST'];
 			
-			// Pass
-			if(1) {
+			// Did the user receive the test message?
+			if($passed) { // passed
 				$tpl->assign('step', STEP_INCOMING_MAIL);
 				$tpl->display('steps/redirect.tpl.php');
 				exit;
+				
+			} else { // fail
+				$mail->testSmtp($smtp_host,$smtp_to,"mailer-daemon@".$from,$smtp_auth_user,$smtp_auth_pass);
+				
+				$tpl->assign('smtp_host', $smtp_host);
+				$tpl->assign('smtp_to', $smtp_to);
+				$tpl->assign('smtp_auth_user', $smtp_auth_user);
+				$tpl->assign('smtp_auth_pass', $smtp_auth_pass);
+				$tpl->assign('form_submit', $form_submit);
 			}
+			
+		} else {
+//			$id = CerberusAgentDAO::lookupAgentLogin("superuser");
+//			if(!empty($id)) {
+//				$superuser = CerberusAgentDAO::getAgent($id);
+//				$tpl->assign('smtp_to', $superuser->)
+//			}
+			$tpl->assign('smtp_host', 'localhost');
 		}
 		
 		// First time, or retry
-		$tpl->assign('smtp_host', 'localhost');
 		$tpl->assign('template', 'steps/step_outgoing_mail.tpl.php');
 		
 		break;
 
+	// Set up a POP3/IMAP mailbox
 	case STEP_INCOMING_MAIL:
-		
-		if(1) {
+		@$imap_service = DevblocksPlatform::importGPC($_POST['imap_service'],'string');
+		@$imap_host = DevblocksPlatform::importGPC($_POST['imap_host'],'string');
+		@$imap_user = DevblocksPlatform::importGPC($_POST['imap_user'],'string');
+		@$imap_pass = DevblocksPlatform::importGPC($_POST['imap_pass'],'string');
+		@$imap_port = DevblocksPlatform::importGPC($_POST['imap_port'],'integer');
+		@$form_submit = DevblocksPlatform::importGPC($_POST['form_submit'],'integer');
+
+		// Allow skip by submitting a blank form
+		// Skip if we already have a pop3 box defined.
+		$accounts = CerberusMailDAO::getPop3Accounts();
+		$skip = (!empty($form_submit) && empty($imap_host) && empty($imap_user)) ? true : false; 
+		if($skip OR !empty($accounts)) {
 			$tpl->assign('step', STEP_WORKFLOW);
 			$tpl->display('steps/redirect.tpl.php');
 			exit;
+		}
+		
+		if(!empty($form_submit)) {
+			$mail = DevblocksPlatform::getMailService();
+
+			// Test mailbox
+			if($mail->testImap($imap_host,$imap_port,$imap_service,$imap_user,$imap_pass)) { // Success!
+				// [TODO] Check to make sure the details aren't duplicate
+				$id = CerberusMailDAO::createPop3Account($imap_user.'@'.$imap_host,$imap_host,$imap_user,$imap_pass);
+				
+				$tpl->assign('step', STEP_WORKFLOW);
+				$tpl->display('steps/redirect.tpl.php');
+				exit;
+				
+			} else { // Failed
+				$tpl->assign('imap_host', $imap_host);
+				$tpl->assign('imap_user', $imap_user);
+				$tpl->assign('imap_pass', $imap_pass);
+				$tpl->assign('imap_port', $imap_port);
+				
+				$tpl->assign('failed', true);
+				$tpl->assign('error_msgs', $mail->getErrors());
+				$tpl->assign('template', 'steps/step_incoming_mail.tpl.php');
+			}
 		}
 		
 		$tpl->assign('template', 'steps/step_incoming_mail.tpl.php');
@@ -401,7 +457,7 @@ switch($step) {
 				}
 				
 				$tpl->assign('step', STEP_ANTISPAM);
-//				$tpl->display('steps/redirect.tpl.php');
+				$tpl->display('steps/redirect.tpl.php');
 				exit;
 				
 				break;
@@ -412,25 +468,58 @@ switch($step) {
 		}
 		
 		break;
-		
+
+	// [TODO] Create an anti-spam rule and mailbox automatically
 	case STEP_ANTISPAM:
-//		$tpl->assign('template', 'steps/step_workflow.tpl.php');
+		@$setup_antispam = DevblocksPlatform::importGPC($_POST['setup_antispam'],'integer');
+		@$form_submit = DevblocksPlatform::importGPC($_POST['form_submit'],'integer');
+		
+		if($form_submit) {
+			// [TODO] Implement (to check for dupes)
+			$id = 0;
+//			$id = CerberusMailDAO::lookupMailbox('Spam');
+			
+			if($setup_antispam && empty($id)) {
+				$id = CerberusMailDAO::createMailbox('Spam',0);
+				
+				// [TODO] Need to create a mail rule to route spam > 90%
+				
+				// Assign the new mailbox to all existing teams
+				$teams = CerberusWorkflowDAO::getTeams();
+				if(is_array($teams))
+				foreach($teams as $team_id => $team) { /* @var $team CerberusTeam */
+					$mailbox_keys = array_keys($team->getMailboxes());
+					$mailbox_keys[] = $id;
+					// [TODO] This could be simplified with the addition of addTeamMailbox(id,id)
+					CerberusWorkflowDAO::setTeamMailboxes($team_id, $mailbox_keys);
+				}
+			}
+			
+			$tpl->assign('step', STEP_FINISHED);
+			$tpl->display('steps/redirect.tpl.php');
+			exit;
+		}
+		
+		$tpl->assign('template', 'steps/step_antispam.tpl.php');
+		break;
+
+	// [TODO] Automatically collect 'About Me' information? (Register, with benefit)
+	// [TODO] Send the user to login
+	// [TODO] Delete the /install/ directory (security)
+		case STEP_FINISHED:
+		$tpl->assign('template', 'steps/step_finished.tpl.php');
 		break;
 }
 
-// [TODO] Create POP3 mailbox
+// [TODO] License Agreement (first step)
+
+// [TODO] Support Center
+
+// [TODO] Set up the cron to run using internal timer by default
 
 // [TODO] Configure a catch-all rule
 
-// [TODO] Create an anti-spam rule and mailbox automatically?
-
-// [TODO] Prompt to create sample tickets (Dan's madlibs with sets in the API)
-
 // [TODO] Check apache rewrite (somehow)
-
-// [TODO] Delete the /install/ directory (security)
-
-// [TODO] Send the user to login
 
 // [TODO] Show a progress bar on the page by counting toward max steps?
 

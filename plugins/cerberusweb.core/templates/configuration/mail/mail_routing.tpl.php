@@ -3,16 +3,19 @@
 		<td class="configTableTh">Mailbox Routing</td>
 	</tr>
 	<tr>
-		<td style="background-color:rgb(240, 240, 240);border-bottom:1px solid rgb(130, 130, 130);"><a href="javascript:;" onclick="configAjax.showMailboxRouting('0',this);">add incoming address</a></td>
+		<td style="background-color:rgb(240, 240, 240);border-bottom:1px solid rgb(130, 130, 130);">
+			[ <a href="javascript:;" onclick="configAjax.showMailboxRouting('0',this);">add routing rule</a> ] 
+			[ <a href="javascript:;" onclick="configAjax.showMailboxRoutingTest('0',this);">test routing</a> ]
+		</td>
 	</tr>
 	<tr>
 		<td>
 			
 			<table cellpadding="2" cellspacing="0" border="0">
 				<tr>
-					<td nowrap="nowrap"><a href="javascript:;" onclick="configAjax.refreshMailboxRouting();" style="font-weight:bold;">Sent to Address</a></td>
+					<td nowrap="nowrap"><span style="font-weight:bold;">Destination Matches</span></td>
 					<td></td>
-					<td nowrap="nowrap"><a href="javascript:;" onclick="configAjax.refreshMailboxRouting();" style="font-weight:bold;">Deliver to Mailbox</a></td>
+					<td nowrap="nowrap"><span style="font-weight:bold;">Deliver to Mailbox</span></td>
 					<td></td>
 				</tr>
 

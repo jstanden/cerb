@@ -49,16 +49,30 @@ class MobileHandler extends CerberusModuleExtension implements DevblocksHttpRequ
 		$uri = array_shift($stack);		// $uri should be "mobile"
 		$page = array_shift($stack);	// action to take (login, display, etc)
 		
+		$tpl = DevblocksPlatform::getTemplateService();
+		
 		switch ($page) {
+			default:
 			case "home":
-			case "login":
-				echo("Home/Login page");
+				$mytickets = CerberusSearchDAO::searchTickets(
+					array(
+						new CerberusSearchCriteria(CerberusSearchFields::TICKET_STATUS,'in',array(CerberusTicketStatus::OPEN))
+					),
+					25,
+					0,
+					CerberusSearchFields::TICKET_UPDATED_DATE,
+					0
+				);
+				$tpl->assign('mytickets', $mytickets[0]);
+				$tpl->display('file:' . dirname(__FILE__) . '/templates/my_tickets.tpl.php');
 				break;
+
+			case "login":
+				break;
+				
 			case "comment":
 			case "display":
 			case "forward":
-				$tpl = DevblocksPlatform::getTemplateService();
-				
 				$ticket_id = array_shift($stack);
 				$message_id = array_shift($stack);
 				
@@ -90,9 +104,6 @@ class MobileHandler extends CerberusModuleExtension implements DevblocksHttpRequ
 					$tpl->assign('message', $message);
 					$tpl->display('file:' . dirname(__FILE__) . '/templates/display_brief.tpl.php');
 				}
-				break;
-
-			default:
 				break;
 		}
 	}
