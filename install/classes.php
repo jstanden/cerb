@@ -193,9 +193,11 @@ class CerberusInstaller {
 			strictness C(4) DEFAULT ''
 		";
 		
-		$tables['address_to_mailbox'] = "
-			address_id I4 DEFAULT 0 NOTNULL PRIMARY,
-			mailbox_id I4 DEFAULT 0 NOTNULL
+		$tables['mail_routing'] = "
+			id I4 DEFAULT 0 NOTNULL PRIMARY,
+			pattern C(255) DEFAULT '' NOTNULL,
+			mailbox_id I4 DEFAULT 0 NOTNULL,
+			pos I2 DEFAULT 0 NOT NULL
 		";
 		
 		$tables['requester'] = "
@@ -300,6 +302,11 @@ class CerberusInstaller {
 		$tables['bayes_stats'] = "
 			spam I4 DEFAULT 0,
 			nonspam I4 DEFAULT 0
+		";
+		
+		$tables['setting'] = "
+			setting C(32) DEFAULT '' NOTNULL PRIMARY,
+			value C(255) DEFAULT '' NOTNULL
 		";
 		
 		foreach($tables as $table => $flds) {

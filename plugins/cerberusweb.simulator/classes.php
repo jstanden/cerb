@@ -53,11 +53,33 @@ class ChSimulatorModule extends CerberusModuleExtension {
 		require_once(dirname(__FILE__) . '/api/API.class.php');
 		require_once(DEVBLOCKS_PATH . 'pear/mimeDecode.php');
 		
-		@$mailbox_id = DevblocksPlatform::importGPC($_POST['mailbox_id'],'integer'); 
+		@$address = DevblocksPlatform::importGPC($_POST['address'],'string'); 
 		@$dataset = DevblocksPlatform::importGPC($_POST['dataset'],'string');
 		@$how_many = DevblocksPlatform::importGPC($_POST['how_many'],'integer');
 		
-		$dataset = new EduDataset();
+		// [JAS]: [TODO] This should probably move to an extension point later
+		switch($dataset) {
+			default:
+			case "retail":
+				$dataset = new RetailDataset();
+				break;
+			case "hosting":
+				$dataset = new HostingDataset();
+				break;
+			case "edu":
+				$dataset = new EduDataset();
+				break;
+			case "gov":
+				$dataset = new GovDataset();
+				break;
+			case "npo":
+				$dataset = new NPODataset();
+				break;
+			case "spam":
+				$dataset = new SpamDataset();
+				break;
+		}
+		
 		$simulator = CerberusSimulator::getInstance();
 		$emails = $simulator->generateEmails($dataset,$how_many);
 
@@ -71,7 +93,7 @@ class ChSimulatorModule extends CerberusModuleExtension {
 				"\r\n".
 				"--\r\n%s %s\r\n",
 				$template['sender']['address'],
-				'pop1@cerberus6.webgroupmedia.com', // [TODO] This needs to adopt a real mailbox addy
+				$address,
 				$template['subject'],
 				$template['body'],
 				$template['sender']['firstname'],

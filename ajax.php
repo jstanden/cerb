@@ -9,11 +9,13 @@ require(APP_PATH . '/api/Application.class.php');
 // [JAS]: [TODO] Is an explicit init() really required?
 DevblocksPlatform::init();
 $session = DevblocksPlatform::getSessionService();
+$settings = CerberusSettings::getInstance();
 
 $tpl = DevblocksPlatform::getTemplateService();
 $tpl->assign('translate', DevblocksPlatform::getTranslationService());
 $tpl->assign('session', $_SESSION);
 $tpl->assign('visit', $session->getVisit());
+$tpl->assign('settings', $settings);
 
 $request = new DevblocksHttpRequest(array($uri,$listener));
 DevblocksPlatform::processRequest($request,true);

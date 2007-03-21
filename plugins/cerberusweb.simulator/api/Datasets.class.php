@@ -82,7 +82,7 @@ class HostingDataset extends SimulatorDataset {
 		$this->addEmailTemplate('Need help','How do I ##web_action## ##filetype## files?');
 		$this->addEmailTemplate('How can I pay?','What ##types## of ##payment## do you accept?');
 		
-		$this->addToken('##sites##',array('site','website','webpage','control panel'));
+		$this->addToken('##site##',array('site','website','webpage','control panel'));
 		$this->addToken('##access##',array('access','retrieve','find','download','surf'));
 		$this->addToken('##login##',array('setup','upload','login'));
 		$this->addToken('##signup_present##',array('purchasing','Signing up','paying','setting up'));
@@ -120,7 +120,7 @@ class NPODataset extends SimulatorDataset {
 		$this->addEmailTemplate('Who do you help?','Will local ##group## benefit from my ##donation##?');
 		$this->addEmailTemplate('Leave me alone!','Will your ##organization## stop ##harassing## me?');
 		
-		$this->addToken('##works##',array('work','help','community involvement','fundraising'));
+		$this->addToken('##work##',array('work','help','community involvement','fundraising'));
 		$this->addToken('##organization##',array('organization','company','N.P.O.','non-profit'));
 		$this->addToken('##news##',array('word','news','reports','articles'));
 		$this->addToken('##location##',array('area','community','neighborhood','city','county'));
@@ -137,7 +137,7 @@ class NPODataset extends SimulatorDataset {
 };
 
 
-class DefaultDataset extends SimulatorDataset {
+class RetailDataset extends SimulatorDataset {
 	
 	public function __construct() {
 		$this->addEmailTemplate('Where is my ##generic_product##?','I ##user_action_past## ##timeframe## ago, where is my ##generic_product##?');
@@ -152,8 +152,8 @@ class DefaultDataset extends SimulatorDataset {
 		$this->addEmailTemplate('Help, please','I tried to ##user_action_present## but nothing happened in my ##viewing_device##.');
 		$this->addEmailTemplate('##expedite## ##generic_product##','Can you ##expedite## ##generic_product##s?');
 		
-		$this->addToken('##products##',array('Code Search','Reader','Transit','Picassa','Mars','Web Accelerator'));
-		$this->addToken('##user_action_pasts##',array('paid','bought','purchased','bought your product'));
+		$this->addToken('##generic_product##',array('Code Search','Reader','Transit','Picassa','Mars','Web Accelerator'));
+		$this->addToken('##user_action_past##',array('paid','bought','purchased','bought your product'));
 		$this->addToken('##user_action_present##',array('pay for','buy','purchase','submit'));
 		$this->addToken('##timeframe##',array('a week','three days','a month','five hours'));
 		$this->addToken('##generic_product##',array('product','order','package','item','bundle'));

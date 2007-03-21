@@ -10,12 +10,8 @@
 <table cellpadding="5" cellspacing="0" border="0">
 	<tr>
 		<td>
-			<b>To Mailbox:</b><br>
-			<select name="mailbox_id">
-				{foreach from=$mailboxes item=mailbox key=mailbox_id}
-					<option value="{$mailbox->id}">{$mailbox->name}
-				{/foreach}
-			</select>
+			<b>To Address:</b><br>
+			<input type="text" name="address" value="{$address}">
 		</td>
 		<td>
 			<b>Sample Data Flavor:</b><br>

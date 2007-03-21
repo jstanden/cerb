@@ -125,6 +125,7 @@
 			
 			{* Sanity checks *}
 			{if $toRow > $total}{assign var=toRow value=$total}{/if}
+			{if $fromRow > $toRow}{assign var=fromRow value=$toRow}{/if}
 			
 			{if $view->renderPage > 0}
 				<a href="javascript:;" onclick="ajax.getPage('{$view->id}',0);">&lt;&lt;</a>

@@ -1,4 +1,36 @@
 <?php
+class DAO_Setting extends DevblocksORMHelper {
+	static function set($key, $value) {
+		$db = DevblocksPlatform::getDatabaseService();
+		$db->Replace('setting',array('setting'=>$key,'value'=>$value),array('setting'),true);
+	}
+	
+	static function get($key) {
+		$db = DevblocksPlatform::getDatabaseService();
+		$sql = sprintf("SELECT value FROM setting WHERE setting = %s",
+			$db->qstr($key)
+		);
+		$value = $db->GetOne($sql) or die(__CLASS__ . ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		return $value;
+	}
+	
+	// [TODO] Cache as static/singleton or load up in a page scope object?
+	static function getSettings() {
+		$db = DevblocksPlatform::getDatabaseService();
+		$settings = array();
+		
+		$sql = sprintf("SELECT setting,value FROM setting");
+		$rs = $db->Execute($sql) or die(__CLASS__ . ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		while(!$rs->EOF) {
+			$settings[$rs->Fields('setting')] = $rs->Fields('value');
+			$rs->MoveNext();
+		}
+		
+		return $settings;
+	}
+};
 
 class DAO_Bayes {
 	private function DAO_Bayes() {}
@@ -494,26 +526,26 @@ class CerberusContactDAO {
 		return null;		
 	}
 
-	// [JAS]: [TODO] Move this into MailDAO
-	static function getMailboxIdByAddress($email) {
-		$um_db = DevblocksPlatform::getDatabaseService();
-		$id = CerberusContactDAO::lookupAddress($email,false);
-		$mailbox_id = null;
-		
-		if(empty($id))
-			return null;
-		
-		$sql = sprintf("SELECT am.mailbox_id FROM address_to_mailbox am WHERE am.address_id = %d",
-			$id
-		);
-		$rs = $um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-		if(!$rs->EOF) {
-			$mailbox_id = intval($rs->fields['mailbox_id']);
-		}
-		
-		return $mailbox_id;
-	}
+//	// [JAS]: [TODO] Move this into MailDAO
+//	static function getMailboxIdByAddress($email) {
+//		$um_db = DevblocksPlatform::getDatabaseService();
+//		$id = CerberusContactDAO::lookupAddress($email,false);
+//		$mailbox_id = null;
+//		
+//		if(empty($id))
+//			return null;
+//		
+//		$sql = sprintf("SELECT am.mailbox_id FROM address_to_mailbox am WHERE am.address_id = %d",
+//			$id
+//		);
+//		$rs = $um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+//		
+//		if(!$rs->EOF) {
+//			$mailbox_id = intval($rs->fields['mailbox_id']);
+//		}
+//		
+//		return $mailbox_id;
+//	}
 	
 	// [JAS]: [TODO] Move this into MailDAO
 	/**
@@ -2301,6 +2333,11 @@ class CerberusMailDAO {
 	const MAILBOX_REPLY_ADDRESS_ID = 'reply_address_id';
 	const MAILBOX_DISPLAY_NAME = 'display_name';
 	
+	const ROUTING_ID = 'id';
+	const ROUTING_PATTERN = 'pattern';
+	const ROUTING_MAILBOX_ID = 'mailbox_id';
+	const ROUTING_POS = 'pos';
+	
 	/**
 	 * Returns a list of all known mailboxes, sorted by name
 	 *
@@ -2469,36 +2506,76 @@ class CerberusMailDAO {
 	}
 	
 	static function getMailboxRouting() {
-		$um_db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::getDatabaseService();
 		$routing = array();
 		
-		$sql = "SELECT am.address_id, am.mailbox_id ".
-			"FROM address_to_mailbox am ".
-			"INNER JOIN address a ON (a.id=am.address_id) ".
-			"ORDER BY a.email ";
-		$rs = $um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$sql = "SELECT mr.id, mr.pattern, mr.mailbox_id, mr.pos ".
+			"FROM mail_routing mr ".
+			"ORDER BY mr.pos ";
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		while(!$rs->EOF) {
-			$address_id = intval($rs->fields['address_id']);
-			$mailbox_id = intval($rs->fields['mailbox_id']);
-			$routing[$address_id] = $mailbox_id;
+			$route = new Model_MailRoute();
+			$route->id = intval($rs->fields['id']);
+			$route->pattern = $rs->fields['pattern'];
+			$route->mailbox_id = intval($rs->fields['mailbox_id']);
+			$route->pos = intval($rs->Fields('pos'));
+			$routing[$route->id] = $route;
 			$rs->MoveNext();
 		}
 		
 		return $routing;
 	}
 	
-	static function setMailboxRouting($address_id, $mailbox_id) {
-		$um_db = DevblocksPlatform::getDatabaseService();
-		return $um_db->Replace('address_to_mailbox', array('address_id'=>$address_id,'mailbox_id'=>$mailbox_id),array('address_id'));
+	static function createMailboxRouting() {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$id = $db->GenID('generic_seq');
+		
+		// Move everything down one position in priority
+		$sql = "UPDATE mail_routing SET pos=pos+1";
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		// Insert at top
+		$sql = sprintf("INSERT INTO mail_routing (id,pattern,mailbox_id,pos) ".
+			"VALUES (%d,%s,%d,%d)",
+			$id,
+			$db->qstr(''),
+			0,
+			0
+		);
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		return $id;
 	}
 	
-	static function deleteMailboxRouting($address_id) {
-		$um_db = DevblocksPlatform::getDatabaseService();
-		if(empty($address_id)) return;
+	static function updateMailboxRouting($id, $fields) {
+		$db = DevblocksPlatform::getDatabaseService();
+		$sets = array();
 		
-		$sql = sprintf("DELETE FROM address_to_mailbox WHERE address_id = %d",
-			$address_id
+		if(!is_array($fields) || empty($fields) || empty($id))
+			return;
+		
+		foreach($fields as $k => $v) {
+			$sets[] = sprintf("%s = %s",
+				$k,
+				$db->qstr($v)
+			);
+		}
+			
+		$sql = sprintf("UPDATE mail_routing SET %s WHERE id = %d",
+			implode(', ', $sets),
+			$id
+		);
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+	}
+	
+	static function deleteMailboxRouting($id) {
+		$um_db = DevblocksPlatform::getDatabaseService();
+		if(empty($id)) return;
+		
+		$sql = sprintf("DELETE FROM mail_routing WHERE id = %d",
+			$id
 		);
 		$rs = $um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
 	}

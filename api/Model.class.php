@@ -37,6 +37,13 @@ class Model_DashboardViewAction {
 					
 					case 'spam':
 						$fields[CerberusTicketDAO::SPAM_TRAINING] = $v;
+						
+						if($v == CerberusTicketSpamTraining::NOT_SPAM) {
+							CerberusBayes::markTicketAsNotSpam($ticket_id);
+						} else {
+							CerberusBayes::markTicketAsSpam($ticket_id);
+						}
+						
 						break;
 					
 					case 'flag':
@@ -56,6 +63,13 @@ class Model_DashboardViewAction {
 			CerberusTicketDAO::updateTicket($ticket_id,$fields);
 		}
 	}
+};
+
+class Model_MailRoute {
+	public $id = 0;
+	public $pattern = '';
+	public $mailbox_id = 0;
+	public $pos = 0;
 };
 
 class CerberusVisit extends DevblocksVisit {

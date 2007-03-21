@@ -37,6 +37,12 @@ class CerberusBayesTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals(4, count($words));
 		$this->assertArrayHasKey('unique', $words);
 	}
+	
+	function testBayesCombineP() {
+		$expected = "0.9028";
+		$actual = number_format(CerberusBayes::_combineP(array(0.99,0.99,0.99,0.047225013,0.047225013,0.07347802,0.08221981,0.09019077,0.09019077,0.9075001,0.8921298,0.12454646,0.8568143,0.14758544,0.82347786)),4);
+		$this->assertEquals($expected,$actual,"Failed to combine probabilities.");
+	}
 }
 
 class CerberusParserTest extends PHPUnit_Framework_TestCase {

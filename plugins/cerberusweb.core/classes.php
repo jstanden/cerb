@@ -690,10 +690,6 @@ class ChConfigurationModule extends CerberusModuleExtension  {
 				$routing = CerberusMailDAO::getMailboxRouting();
 				$tpl->assign('routing', $routing);
 		
-				$address_ids = array_keys($routing);
-				$routing_addresses = CerberusContactDAO::getAddresses($address_ids);
-				$tpl->assign('routing_addresses', $routing_addresses);
-				
 				$pop3_accounts = CerberusMailDAO::getPop3Accounts();
 				$tpl->assign('pop3_accounts', $pop3_accounts);
 				
@@ -719,14 +715,15 @@ class ChConfigurationModule extends CerberusModuleExtension  {
 				$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/workflow/index.tpl.php');				
 				break;
 				
+			case 'maintenance':
+				$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/maintenance/index.tpl.php');
+				break;
+				
 			case 'extensions':
 				$plugins = DevblocksPlatform::getPluginRegistry();
 				unset($plugins['cerberusweb.core']);
 				$tpl->assign('plugins', $plugins);
 				
-//				$extensions = DevblocksPlatform::getExtensionRegistry();
-//				$tpl->assign('extensions', $extensions);
-
 				$points = DevblocksPlatform::getExtensionPoints();
 				$tpl->assign('points', $points);
 				
@@ -950,18 +947,38 @@ class ChConfigurationModule extends CerberusModuleExtension  {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
-
+		
 		$routing = CerberusMailDAO::getMailboxRouting();
 		$tpl->assign('routing', $routing);
 
-		$address_ids = array_keys($routing);
-		$routing_addresses = CerberusContactDAO::getAddresses($address_ids);
-		$tpl->assign('routing_addresses', $routing_addresses);
-		
 		$mailboxes = CerberusMailDAO::getMailboxes();
 		$tpl->assign('mailboxes', $mailboxes);
 		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/mail/mail_routing.tpl.php');
+	}
+	
+	// Form Submit
+	function saveRouting() {
+		@$default_mailbox_id = DevblocksPlatform::importGPC($_POST['default_mailbox_id'],'integer');
+		@$route_ids = DevblocksPlatform::importGPC($_POST['route_ids'],'array');
+		@$positions = DevblocksPlatform::importGPC($_POST['positions'],'array');
+		
+		// Rule reordering
+		if(is_array($route_ids) && is_array($positions)) {
+			foreach($route_ids as $idx => $route_id) {
+				$pos = $positions[$idx];
+				$fields = array(
+					CerberusMailDAO::ROUTING_POS => $pos
+				);
+				CerberusMailDAO::updateMailboxRouting($route_id, $fields);
+			}
+		}
+		
+		// Default mailbox
+		$settings = CerberusSettings::getInstance();
+		$settings->set(CerberusSettings::DEFAULT_MAILBOX_ID, $default_mailbox_id);
+		
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','mail')));
 	}
 	
 	// Ajax
@@ -982,29 +999,34 @@ class ChConfigurationModule extends CerberusModuleExtension  {
 
 		$mailboxes = CerberusMailDAO::getMailboxes();
 		$tpl->assign('mailboxes', $mailboxes);
-		
-		$address = CerberusContactDAO::getAddress($id);
-		$tpl->assign('address', $address);
 
-		$selected_id = CerberusContactDAO::getMailboxIdByAddress($address->email);
-		$tpl->assign('selected_id', $selected_id);
+		$routing = CerberusMailDAO::getMailboxRouting();
+		$tpl->assign('routing', $routing);
+
+		if(!empty($id)) {
+			@$route = $routing[$id];
+			$tpl->assign('route', $route);
+		}
 		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/mail/edit_mailbox_routing.tpl.php');
 	}
 	
 	// Ajax
 	function saveMailboxRoutingDialog() {
-		@$address_id = intval(DevblocksPlatform::importGPC($_POST['id']));
-		@$mailbox_id = intval(DevblocksPlatform::importGPC($_POST['mailbox_id']));
-		@$address = DevblocksPlatform::importGPC($_POST['address']);
+		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer');
+		@$pattern = DevblocksPlatform::importGPC($_POST['pattern'],'string');
+		@$mailbox_id = DevblocksPlatform::importGPC($_POST['mailbox_id'],'integer');
 		
-		if(empty($address_id) && !empty($address)) { // create
-			$address_id = CerberusContactDAO::lookupAddress($address, true);
-			if(empty($address_id)) return;
+		if(empty($id)) {
+			$id = CerberusMailDAO::createMailboxRouting();
 		}
 		
-		CerberusMailDAO::setMailboxRouting($address_id, $mailbox_id);
-
+		$fields = array(
+			CerberusMailDAO::ROUTING_PATTERN => $pattern,
+			CerberusMailDAO::ROUTING_MAILBOX_ID => $mailbox_id,
+		);
+		CerberusMailDAO::updateMailboxRouting($id, $fields);
+		
 		// [JAS]: Send the new mailbox name to the server 
 		// [TODO] Necessary?
 		$mailbox = CerberusMailDAO::getMailbox($mailbox_id);

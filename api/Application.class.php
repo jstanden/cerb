@@ -34,6 +34,9 @@ class CerberusApplication extends DevblocksApplication {
 		$page = $pageManifest->createInstance();
 		$tpl->assign('module',$page);
 		
+		$settings = CerberusSettings::getInstance();
+		$tpl->assign('settings', $settings);
+				
 		$tpl->assign('session', $_SESSION);
 		$tpl->assign('visit', $visit);
 		
@@ -358,7 +361,7 @@ class CerberusBayes {
 		return $words;
 	}
 	
-	static private function _combineP($argv) {
+	static public function _combineP($argv) {
 		// [JAS]: Variable for all our probabilities multiplied, for Naive Bayes
 		$AB = 1; // probabilities: A*B*C...
 		$ZY = 1; // compliments: (1-A)*(1-B)*(1-C)...
@@ -380,7 +383,7 @@ class CerberusBayes {
 				break;
 		}
 		
-		return $combined_p;
+		return number_format($combined_p,4);
 	}
 	
 	/**
@@ -400,22 +403,33 @@ class CerberusBayes {
 	 */
 	static private function _calculateWordProbability($word) {
 		static $stats = null; // [JAS]: [TODO] Keep an eye on this.
-		if(empty($stats)) $stats = DAO_Bayes::getStatistics();
+		if(is_null($stats)) $stats = DAO_Bayes::getStatistics();
 		
 		if(!is_a($word,'CerberusBayesWord')) return FALSE;
 		
-		$non_spam = max($stats['nonspam'],1);
-		$spam = max($stats['spam'],1);
+		$ngood = max($stats['nonspam'],1);
+		$nbad = max($stats['spam'],1);
 		
-		$num_good = intval($word->nonspam * 2);
-		$num_bad = intval($word->spam);
+		$g = intval($word->nonspam * 2);
+		$b = intval($word->spam);
 
-		$ngood = min(($num_good / $non_spam),1);
-		$nbad = min(($num_bad / $spam),1);
+		// [JAS]: If less than 5 occurrences total
+		if($g*2 + $b < 5) {
+			$prob = self::PROBABILITY_UNKNOWN;
+			
+		} else {
+			$prob = max(self::PROBABILITY_FLOOR,
+				min(self::PROBABILITY_CEILING,
+					floatval( 
+						min(1,($b/$nbad))	
+						/ 
+						( $g/$ngood + $b/$nbad )
+					)
+				)
+			);
+		}
 		
-		$prob = max(min(($nbad / max($ngood + $nbad,1)),self::PROBABILITY_CEILING),self::PROBABILITY_FLOOR);
-
-		return $prob;
+		return number_format($prob,4);
 	}
 	
 	/**
@@ -756,19 +770,23 @@ class CerberusParser {
 	/**
 	 * Enter description here...
 	 *
-	 * @todo
 	 * @param array $headers
-	 * @return integer
+	 * @return integer mailbox id
 	 */
 	static private function parseDestination($headers) {
-		$addresses = array();
+		static $routing = null;
+		
+		$settings = CerberusSettings::getInstance();
 		
 		// [TODO] The split could be handled by Mail_RFC822:parseAddressList (commas, semi-colons, etc.)
-
 		$aTo = split(',', @$headers['to']);
 		$aCc = split(',', @$headers['cc']);
 		
 		$destinations = $aTo + $aCc;
+
+		// [TODO] Should this cache be at the class level?
+		if(is_null($routing))
+			$routing = CerberusMailDAO::getMailboxRouting();
 		
 		foreach($destinations as $destination) {
 			$structure = CerberusParser::parseRfcAddress($destination);
@@ -777,17 +795,28 @@ class CerberusParser {
 				continue;
 			
 			$address = $structure[0]->mailbox.'@'.$structure[0]->host;
-				
-			if(null != ($mailbox_id = CerberusContactDAO::getMailboxIdByAddress($address)))
-				return $mailbox_id;
+			
+			// Test each pattern successively
+			foreach($routing as $route) { /* @var $route Model_MailRoute */
+				$pattern = sprintf("/^%s$/i",
+					str_replace(array('*'),array('.*?'),$route->pattern)
+				);
+				if(preg_match($pattern,$address)) 
+					return $route->mailbox_id;
+			}
 		}
 		
 		// envelope + delivered 'Delivered-To'
 		// received
 		
-		// [TODO] catchall?
+		// Check if we have a default mailbox configured before returning NULL.		
+		$default_mailbox_id = $settings->get(CerberusSettings::DEFAULT_MAILBOX_ID,0);
 		
-		return null;
+		if(!empty($default_mailbox_id)) { // catchall
+			return $default_mailbox_id;
+		}
+		
+		return null; // bounce
 	}
 	
 	static private function parseMimeParts($parts,&$attachments) {
@@ -836,6 +865,55 @@ class CerberusParser {
 		return $structure;
 	}
 	
+};
+
+class CerberusSettings {
+	const DEFAULT_MAILBOX_ID = 'default_mailbox_id'; 
+	
+	static $instance = null;
+	private $settings = array( // defaults
+		DEFAULT_MAILBOX_ID => 0,
+	);
+
+	/**
+	 * @return CerberusSettings
+	 */
+	private function __construct() {
+		$saved_settings = DAO_Setting::getSettings();
+		foreach($saved_settings as $k => $v) {
+			$this->settings[$k] = $v;
+		}
+	}
+	
+	/**
+	 * @return CerberusSettings
+	 */
+	public static function getInstance() {
+		if(self::$instance==null) {
+			self::$instance = new CerberusSettings();	
+		}
+		
+		return self::$instance;		
+	}
+	
+	public function set($key,$value) {
+		DAO_Setting::set($key,$value);
+		$this->settings[$key] = $value;
+		
+		return TRUE;
+	}
+	
+	/**
+	 * @param string $key
+	 * @param string $default
+	 * @return mixed
+	 */
+	public function get($key,$default=null) {
+		if(isset($this->settings[$key]))
+			return $this->settings[$key];
+		else 
+			return $default;
+	}
 };
 
 // [JAS]: [TODO] This probably isn't needed

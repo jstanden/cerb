@@ -10,31 +10,55 @@
 	</tr>
 	<tr>
 		<td>
+			<form action="{devblocks_url}{/devblocks_url}" method="post">
+			<input type="hidden" name="c" value="config">
+			<input type="hidden" name="a" value="saveRouting">
 			
 			<table cellpadding="2" cellspacing="0" border="0">
 				<tr>
-					<td nowrap="nowrap"><span style="font-weight:bold;">Destination Matches</span></td>
+					<td nowrap="nowrap"><span style="font-weight:bold;">Priority</span></td>
+					<td nowrap="nowrap"><span style="font-weight:bold;">Sent to</span></td>
 					<td></td>
-					<td nowrap="nowrap"><span style="font-weight:bold;">Deliver to Mailbox</span></td>
+					<td nowrap="nowrap"><span style="font-weight:bold;">Deliver to</span></td>
 					<td></td>
 				</tr>
 
-				{foreach from=$routing item=route_mailbox_id key=route_address_id}
-				{assign var=route_address value=$routing_addresses.$route_address_id}
-				{assign var=route_mailbox value=$mailboxes.$route_mailbox_id}
+ 				{counter name="routing" start=0 print=false}
+
+				{foreach from=$routing item=route key=route_id}
+				{assign var=mailbox_id value=$route->mailbox_id}
+				{assign var=mailbox value=$mailboxes.$mailbox_id}
 				<tr>
 					<td width="0%" nowrap="nowrap">
-					<label>{$route_address->email}</label></td>
+						<input type="hidden" name="route_ids[]" value="{$route_id}">
+						<input type="text" name="positions[]" value="{counter}" size="3">
+					</td>
+					<td width="0%" nowrap="nowrap">
+						<label>{$route->pattern}</label></td>
 					<td width="0%" nowrap="nowrap"> &#187; </td>
-					<td width="0%" nowrap="nowrap"><span style="color:rgb(80,80,230);" id="mbox_routing_{$route_address_id}">{$route_mailbox->name}</span></td>
+					<td width="0%" nowrap="nowrap"><span style="color:rgb(80,80,230);" id="mbox_routing_{$route->id}">{$mailbox->name}</span></td>
 					<td width="100%" nowrap="nowrap">
-						<a href="javascript:;" onclick="configAjax.showMailboxRouting('{$route_address_id}',this);">modify</a>
+						<a href="javascript:;" onclick="configAjax.showMailboxRouting('{$route->id}',this);">modify</a>
 					</td>
 				</tr>
 				{/foreach}
 
 			</table>
+			<br>
 			
+			<b>Default Mailbox:</b> 
+			<select name="default_mailbox_id">
+				<option value="0">-- None (Bounce) --
+			{if !empty($mailboxes)}
+			{foreach from=$mailboxes item=mailbox key=mailbox_id}
+				<option value="{$mailbox_id}" {if $settings->get('default_mailbox_id')==$mailbox_id}selected{/if}>{$mailbox->name}
+			{/foreach}
+			{/if}
+			</select><br>
+			<br>
+			
+			<input type="submit" value="Save Changes">
+			</form>
 		</td>
 	</tr>
 </table>
