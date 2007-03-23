@@ -17,13 +17,15 @@ leave it blank.<br>
 		<th>First Name</th>
 		<th>Last Name</th>
 		<th>Title</th>
+		<th>Admin?</th>
 	</tr>
 {foreach from=$worker_ids key=worker_id item=worker}
 	<tr>
 		<td style="padding-right:10px;"><input type="hidden" name="worker_ids[]" value="{$worker_id}">{$worker}</td>
 		<td style="padding-right:10px;"><input type="text" name="worker_first[]"></td>
 		<td style="padding-right:10px;"><input type="text" name="worker_last[]"></td>
-		<td><input type="text" name="worker_title[]"></td>
+		<td style="padding-right:10px;"><input type="text" name="worker_title[]"></td>
+		<td align="center"><input type="checkbox" name="worker_superuser[]" value="1"></td>
 	</tr>
 {/foreach}
 </table>
@@ -35,12 +37,12 @@ leave it blank.<br>
 <table cellpadding="0" cellspacing="0" border="0">
 	<tr>
 		<th>Mailbox</th>
-		<th>E-mail Address</th>
+		<th>Reply As E-mail Address</th>
 	</tr>
 {foreach from=$mailbox_ids key=mailbox_id item=mailbox}
 	<tr>
 		<td style="padding-right:10px;"><input type="hidden" name="mailbox_ids[]" value="{$mailbox_id}">{$mailbox}</td>
-		<td><input type="text" name="mailbox_from[]"></td>
+		<td><input type="text" name="mailbox_from[]" size="45" value="{$default_reply_from}"></td>
 	</tr>
 {/foreach}
 </table>

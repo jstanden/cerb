@@ -13,11 +13,11 @@
 	</tr>
 	<tr>
 		<td width="0%" nowrap="nowrap" valign="top"><b>Name:</b></td>
-		<td width="100%"><input type="text" name="name" value="{$mailbox->name|escape:"html"}"></td>
+		<td width="100%"><input type="text" name="name" value="{$mailbox->name|escape:"html"}" size="45"></td>
 	</tr>
 	<tr>
-		<td width="0%" nowrap="nowrap" valign="top"><b>Reply As:</b></td>
-		<td width="100%"><input type="text" name="reply_as" value="{$reply_address->email|escape:"html"}"></td>
+		<td width="0%" nowrap="nowrap" valign="top">Reply As Address:</td>
+		<td width="100%"><input type="text" name="reply_as" value="{$reply_address->email|escape:"html"}" size="45"></td>
 	</tr>
 	<!---
 	<tr>
@@ -28,6 +28,9 @@
 		</td>
 	</tr>
 	--->
+	
+	<tr><td colspan="2">&nbsp;</td></tr>
+	
 	<tr>
 		<td width="0%" nowrap="nowrap" valign="top" valign="top">
 			<b>Teams:</b><br>
@@ -41,6 +44,9 @@
 			{/foreach}
 		</td>
 	</tr>
+	
+	<tr><td colspan="2">&nbsp;</td></tr>
+	
 	{if !empty($mailbox->id)}
 	<tr>
 		<td width="0%" nowrap="nowrap"><b>Delete:</b></td>

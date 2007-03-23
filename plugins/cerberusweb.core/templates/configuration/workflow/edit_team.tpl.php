@@ -13,8 +13,11 @@
 	</tr>
 	<tr>
 		<td width="0%" nowrap="nowrap" valign="top"><b>Name:</b></td>
-		<td width="100%"><input type="text" name="name" value="{$team->name|escape:"html"}"></td>
+		<td width="100%"><input type="text" name="name" value="{$team->name|escape:"html"}" size="45"></td>
 	</tr>
+	
+	<tr><td colspan="2">&nbsp;</td></tr>
+	
 	<tr>
 		<td width="0%" nowrap="nowrap" valign="top">
 			<b>Workers:</b><br>
@@ -24,10 +27,13 @@
 		<td width="100%" id="configTeamWorkers" valign="top">
 			{if $team->id}{assign var=teamWorkers value=$team->getWorkers()}{/if}
 			{foreach from=$workers item=worker key=worker_id}
-			<label><input type="checkbox" name="agent_id[]" value="{$worker_id}" {if $teamWorkers.$worker_id}checked{/if}>{$worker->login}</label><br>
+			<label><input type="checkbox" name="agent_id[]" value="{$worker_id}" {if $teamWorkers.$worker_id}checked{/if}>{$worker->getName()}</label><br>
 			{/foreach}
 		</td>
 	</tr>
+	
+	<tr><td colspan="2">&nbsp;</td></tr>
+	
 	<tr>
 		<td width="0%" nowrap="nowrap" valign="top">
 			<b>Mailboxes:</b><br>
@@ -41,6 +47,9 @@
 			{/foreach}
 		</td>
 	</tr>
+	
+	<tr><td colspan="2">&nbsp;</td></tr>
+	
 	<tr>
 		<td width="0%" nowrap="nowrap" valign="top">
 			<b>Permissions:</b><br>

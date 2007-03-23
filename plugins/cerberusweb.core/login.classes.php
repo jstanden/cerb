@@ -12,7 +12,7 @@ class DefaultLoginModule extends CerberusLoginModuleExtension {
 		@$email		= DevblocksPlatform::importGPC($_POST['email']);
 		@$password	= DevblocksPlatform::importGPC($_POST['password']);
 			
-		$worker = CerberusAgentDAO::login($email, $password);
+		$worker = DAO_Worker::login($email, $password);
 		
 		if(!is_null($worker)) {
 			$session = DevblocksPlatform::getSessionService();

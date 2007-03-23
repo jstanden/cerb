@@ -1,8 +1,11 @@
 @CHARSET "ISO-8859-1";
-BODY {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 9pt; color: #333333}
+BODY, TD, TH {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 11pt; color: #333333}
+TH { font-size: 11pt; font-weight: bold;}
 FORM { margin: 0px; }
 H3 { color: rgb(0,180,0); }
 A { color: rgb(80,80,80); }
 .good { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 9pt; font-weight: bold; color: #009900 }
 .bad { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 9pt; font-weight: bold; color: #CC0000}
 .warning { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 9pt; font-weight: bold; color: #FFAA00}
+.progress_complete { background: orange; }
+.progress_incomplete { background: rgb(200,200,200); }

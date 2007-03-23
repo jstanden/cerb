@@ -6,9 +6,19 @@
 
 <H3>POP3/IMAP</H3>
 
-The recommended process is setting up a mailbox which receives all your redirected mail. [ELABORATE]<br>
-[TODO] IMAP/POP3<br>
-[TODO] SSL/TLS<br>
+The helpdesk can retrieve mail from most mail servers through POP3/IMAP.  If you're 
+migrating from a desktop e-mail client (such as Outlook, Thunderbird or Evolution) you 
+can likely use the same mail server information.<br>
+<br>The recommended practice is creating a single POP3 box (cerberus@company) that has other addresses 
+(sales@company, marketing@company, etc.) redirected to it by your mail server.  With 
+many popular server-side control panels you may alternatively set up these addresses as 'aliases' on 
+your POP3 mailbox without having to create separate redirects for each address.<br>
+<br>
+This practice saves you the hassle of checking a POP3 mailbox for every e-mail address, which is
+definitely NOT recommended.<br>
+<br>
+<i>If for any reason you need to skip this section you may leave the form blank and provide 
+the information later from Configuration-&gt;Mail.</i><br>
 <br>
 
 {if $failed}
@@ -34,7 +44,7 @@ Could not connect to your mailbox.  Please correct the following errors:
 <br>
 
 <b>Server:</b><br>
-<input type="text" name="imap_host" value="{$imap_host}"><br>
+<input type="text" name="imap_host" value="{$imap_host}" size="45"><br>
 <br>
 
 <b>User:</b><br>
@@ -46,7 +56,7 @@ Could not connect to your mailbox.  Please correct the following errors:
 <br>
 
 <b>Port:</b><br>
-<input type="text" name="imap_port" value="{$imap_port}"><br>
+<input type="text" name="imap_port" value="{$imap_port}" size="5"><br>
 <br>
 
 <input type="submit" value="Test Incoming Mail &gt;&gt;">

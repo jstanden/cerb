@@ -9,6 +9,15 @@ require_once(DEVBLOCKS_PATH . 'Devblocks.class.php');
 require_once(APP_PATH . '/api/Application.class.php');
 require_once(APP_PATH . '/install/classes.php');
 
+// DevblocksPlatform::init() workaround 
+if(!defined('DEVBLOCKS_WEBPATH')) {
+	$php_self = $_SERVER["PHP_SELF"];
+	$php_self = str_replace('/install','',$php_self);
+	$pos = strrpos($php_self,'/');
+	$php_self = substr($php_self,0,$pos) . '/';
+	@define('DEVBLOCKS_WEBPATH',$php_self);
+}
+
 define('STEP_ENVIRONMENT', 1);
 define('STEP_DATABASE', 2);
 define('STEP_SAVE_CONFIG_FILE', 3);
@@ -17,8 +26,12 @@ define('STEP_CONTACT', 5);
 define('STEP_OUTGOING_MAIL', 6);
 define('STEP_INCOMING_MAIL', 7);
 define('STEP_WORKFLOW', 8);
-define('STEP_ANTISPAM', 9);
-define('STEP_FINISHED', 10);
+define('STEP_CATCHALL', 9);
+define('STEP_ANTISPAM', 10);
+define('STEP_REGISTER', 11);
+define('STEP_FINISHED', 12);
+
+define('TOTAL_STEPS', 12);
 
 // Import GPC variables to determine our scope/step.
 @$step = DevblocksPlatform::importGPC($_REQUEST['step'],'integer');
@@ -46,6 +59,8 @@ if(!is_writeable(DEVBLOCKS_PATH . "tmp/cache/")) {
 $tpl = DevblocksPlatform::getTemplateService();
 $tpl->template_dir = APP_PATH . '/install/templates';
 $tpl->caching = 0;
+
+$tpl->assign('step', $step);
 
 switch($step) {
 	// [TODO] Check server + php environment (extensions + php.ini)
@@ -232,6 +247,8 @@ switch($step) {
 		// Read in plugin information from the filesystem to the database
 		DevblocksPlatform::readPlugins();
 		
+		// [TODO] Tailor which plugins are enabled by default
+		
 		$tpl->assign('step', STEP_CONTACT);
 		$tpl->display('steps/redirect.tpl.php');
 		exit;
@@ -241,37 +258,49 @@ switch($step) {
 
 	// Personalize system information (title, timezone, language)
 	case STEP_CONTACT:
-		@$superuser_pass = DevblocksPlatform::importGPC($_POST['superuser_pass'],'string');
-
-		// Set up a default superuser login
-		$id = CerberusAgentDAO::lookupAgentLogin('superuser');
+		$settings = CerberusSettings::getInstance();
 		
-		// If our agent already exists, skip.
-		if(!empty($id)) {
-			$tpl->assign('step',STEP_OUTGOING_MAIL);
-			$tpl->display('steps/redirect.tpl.php');
-			exit;
-		}
+		@$default_reply_from = DevblocksPlatform::importGPC($_POST['default_reply_from'],'string',$settings->get(CerberusSettings::DEFAULT_REPLY_FROM));
+		@$default_reply_personal = DevblocksPlatform::importGPC($_POST['default_reply_personal'],'string',$settings->get(CerberusSettings::DEFAULT_REPLY_PERSONAL));
+		@$helpdesk_title = DevblocksPlatform::importGPC($_POST['helpdesk_title'],'string',$settings->get(CerberusSettings::HELPDESK_TITLE));
+		@$form_submit = DevblocksPlatform::importGPC($_POST['form_submit'],'integer');
 		
-		if(!empty($superuser_pass)) {
+		if(!empty($form_submit) && !empty($default_reply_from)) {
 			
-			if(empty($id)) {
-				$id = CerberusAgentDAO::createAgent('superuser', $superuser_pass, 'Superuser', '', 'Administrator');
+			if(!empty($default_reply_from)) {
+				$settings->set(CerberusSettings::DEFAULT_REPLY_FROM, $default_reply_from);
+			}
+			
+			if(!empty($default_reply_personal)) {
+				$settings->set(CerberusSettings::DEFAULT_REPLY_PERSONAL, $default_reply_personal);
+			}
+			
+			if(!empty($helpdesk_title)) {
+				$settings->set(CerberusSettings::HELPDESK_TITLE, $helpdesk_title);
 			}
 			
 			$tpl->assign('step', STEP_OUTGOING_MAIL);
 			$tpl->display('steps/redirect.tpl.php');
 			exit;
-					
-		} else { // first time
-			$tpl->assign('template', 'steps/step_contact.tpl.php');
 		}
+		
+		if(!empty($form_submit) && empty($default_reply_from)) {
+			$tpl->assign('failed', true);
+		}
+		
+		$tpl->assign('default_reply_from', $default_reply_from);
+		$tpl->assign('default_reply_personal', $default_reply_personal);
+		$tpl->assign('helpdesk_title', $helpdesk_title);
+		
+		$tpl->assign('template', 'steps/step_contact.tpl.php');
 		
 		break;
 	
 	// Set up and test the outgoing SMTP
 	case STEP_OUTGOING_MAIL:
-		@$smtp_host = DevblocksPlatform::importGPC($_POST['smtp_host'],'string');
+		$settings = CerberusSettings::getInstance();
+		
+		@$smtp_host = DevblocksPlatform::importGPC($_POST['smtp_host'],'string',$settings->get(CerberusSettings::SMTP_HOST));
 		@$smtp_to = DevblocksPlatform::importGPC($_POST['smtp_to'],'string');
 		@$smtp_auth_user = DevblocksPlatform::importGPC($_POST['smtp_auth_user'],'string');
 		@$smtp_auth_pass = DevblocksPlatform::importGPC($_POST['smtp_auth_pass'],'string');
@@ -284,12 +313,20 @@ switch($step) {
 			
 			// Did the user receive the test message?
 			if($passed) { // passed
+				if(!empty($smtp_host))
+					$settings->set(CerberusSettings::SMTP_HOST, $smtp_host);
+				if(!empty($smtp_auth_user))
+					$settings->set(CerberusSettings::SMTP_AUTH_USER, $smtp_auth_user);
+				if(!empty($smtp_auth_pass))
+					$settings->set(CerberusSettings::SMTP_AUTH_PASS, $smtp_auth_pass);
+				
 				$tpl->assign('step', STEP_INCOMING_MAIL);
 				$tpl->display('steps/redirect.tpl.php');
 				exit;
 				
 			} else { // fail
-				$mail->testSmtp($smtp_host,$smtp_to,"mailer-daemon@".$from,$smtp_auth_user,$smtp_auth_pass);
+				$from = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM);
+				$mail->testSmtp($smtp_host,$smtp_to,$from,$smtp_auth_user,$smtp_auth_pass);
 				
 				$tpl->assign('smtp_host', $smtp_host);
 				$tpl->assign('smtp_to', $smtp_to);
@@ -297,14 +334,6 @@ switch($step) {
 				$tpl->assign('smtp_auth_pass', $smtp_auth_pass);
 				$tpl->assign('form_submit', $form_submit);
 			}
-			
-		} else {
-//			$id = CerberusAgentDAO::lookupAgentLogin("superuser");
-//			if(!empty($id)) {
-//				$superuser = CerberusAgentDAO::getAgent($id);
-//				$tpl->assign('smtp_to', $superuser->)
-//			}
-			$tpl->assign('smtp_host', 'localhost');
 		}
 		
 		// First time, or retry
@@ -353,6 +382,10 @@ switch($step) {
 				$tpl->assign('error_msgs', $mail->getErrors());
 				$tpl->assign('template', 'steps/step_incoming_mail.tpl.php');
 			}
+			
+		} else { // defaults
+			$tpl->assign('imap_host', 'localhost');
+			$tpl->assign('imap_port', 110);
 		}
 		
 		$tpl->assign('template', 'steps/step_incoming_mail.tpl.php');
@@ -362,6 +395,7 @@ switch($step) {
 	// Create initial workers, mailboxes, teams
 	case STEP_WORKFLOW:
 		@$form_submit = DevblocksPlatform::importGPC($_POST['form_submit'],'integer');
+		$settings = CerberusSettings::getInstance();
 
 		// Catch the submit
 		switch($form_submit) {
@@ -373,18 +407,29 @@ switch($step) {
 				$worker_ids = array();
 				$mailbox_ids = array();
 				$team_ids = array();
+
+				$workers = CerberusApplication::parseCrlfString($workers_str);
+				$mailboxes = CerberusApplication::parseCrlfString($mailboxes_str);
+				$teams = CerberusApplication::parseCrlfString($teams_str);
+
+				if(empty($workers)) {
+					$tpl->assign('failed', true);
+					$tpl->assign('workers_str', $workers_str);
+					$tpl->assign('mailboxes_str', $mailboxes_str);
+					$tpl->assign('teams_str', $teams_str);
+					$tpl->assign('template', 'steps/step_workflow.tpl.php');
+					break;
+				}
 				
 				// Create worker records
-				$workers = CerberusApplication::parseCrlfString($workers_str);
 				if(is_array($workers))
 				foreach($workers as $worker_email) {
 					// [TODO] Need a function for generating a password (PEAR/Platform)
-					$id = CerberusAgentDAO::createAgent($worker_email,md5('new'),'Joe','User','');
+					$id = DAO_Worker::create($worker_email,'new','Joe','User','');
 					$worker_ids[$id] = $worker_email; 
 				}
 				
 				// Create mailbox records
-				$mailboxes = CerberusApplication::parseCrlfString($mailboxes_str);
 				if(is_array($mailboxes))
 				foreach($mailboxes as $mailbox_name) {
 					$id = CerberusMailDAO::createMailbox($mailbox_name,0);
@@ -392,16 +437,16 @@ switch($step) {
 				}
 				
 				// Create team records
-				$teams = CerberusApplication::parseCrlfString($teams_str);
 				if(is_array($teams))
 				foreach($teams as $team_name) {
 					$id = CerberusWorkflowDAO::createTeam($team_name);
 					$team_ids[$id] = $team_name;
 				}
-
+				
 				$tpl->assign('worker_ids', $worker_ids);
 				$tpl->assign('mailbox_ids', $mailbox_ids);
 				$tpl->assign('team_ids', $team_ids);
+				$tpl->assign('default_reply_from', $settings->get(CerberusSettings::DEFAULT_REPLY_FROM));
 				$tpl->assign('template', 'steps/step_workflow2.tpl.php');
 				break;
 				
@@ -410,6 +455,7 @@ switch($step) {
 				@$worker_first = DevblocksPlatform::importGPC($_POST['worker_first'],'array');
 				@$worker_last = DevblocksPlatform::importGPC($_POST['worker_last'],'array');
 				@$worker_title = DevblocksPlatform::importGPC($_POST['worker_title'],'array');
+				@$worker_superuser = DevblocksPlatform::importGPC($_POST['worker_superuser'],'array');
 				@$mailbox_ids = DevblocksPlatform::importGPC($_POST['mailbox_ids'],'array');
 				@$mailbox_from = DevblocksPlatform::importGPC($_POST['mailbox_from'],'array');
 				@$team_ids = DevblocksPlatform::importGPC($_POST['team_ids'],'array');
@@ -418,14 +464,97 @@ switch($step) {
 				// [TODO] E-mail the workers their logins (generate random pw)
 				// [TODO] Create a default dashboard for each worker
 				// [TODO] Add default actions to worker dashboards (Report Spam)
+				// [TODO] Make sure we're setting up at least one superuser
 				if(is_array($worker_ids))
 				foreach($worker_ids as $idx => $worker_id) {
 					$fields = array(
-						CerberusAgentDAO::FIRST_NAME => $worker_first[$idx],
-						CerberusAgentDAO::LAST_NAME => $worker_last[$idx],
-						CerberusAgentDAO::TITLE => $worker_title[$idx]
+						DAO_Worker::FIRST_NAME => $worker_first[$idx],
+						DAO_Worker::LAST_NAME => $worker_last[$idx],
+						DAO_Worker::TITLE => $worker_title[$idx],
+						DAO_Worker::IS_SUPERUSER => intval($worker_superuser[$idx])
 					);
-					CerberusAgentDAO::updateAgent($worker_id, $fields);
+					DAO_Worker::updateAgent($worker_id, $fields);
+					
+					$dashboard_id = CerberusDashboardDAO::createDashboard("Dashboard", $worker_id);
+					$my_view_id = CerberusDashboardDAO::createView('My Tickets',$dashboard_id);
+					$team_view_id = CerberusDashboardDAO::createView('Team Tickets',$dashboard_id);
+					
+					$fields = array(
+						'view_columns' => serialize(array(
+							't_mask',
+							't_status',
+							't_priority',
+							't_last_wrote',
+							't_updated_date'
+						)),
+						'params' => serialize(array(
+							new CerberusSearchCriteria(CerberusSearchFields::ASSIGNED_WORKER,'in',array($worker_id)),
+							new CerberusSearchCriteria(CerberusSearchFields::TICKET_STATUS,'=',CerberusTicketStatus::OPEN)
+						))
+					);
+					CerberusDashboardDAO::updateView($my_view_id, $fields);
+					
+					$fields = array(
+						'view_columns' => serialize(array(
+							't_mask',
+							't_status',
+							't_priority',
+							't_last_wrote',
+							't_updated_date',
+							'm_name'
+						)),
+						'params' => serialize(array(
+							new CerberusSearchCriteria(CerberusSearchFields::TICKET_STATUS,'=',CerberusTicketStatus::OPEN)
+						))
+					);
+					CerberusDashboardDAO::updateView($team_view_id, $fields);
+					
+					// Trash Action
+					$trash_action_id = DAO_DashboardViewAction::create();
+					$fields = array(
+						DAO_DashboardViewAction::$FIELD_NAME => 'Trash',
+						DAO_DashboardViewAction::$FIELD_WORKER_ID => $worker_id,
+						DAO_DashboardViewAction::$FIELD_PARAMS => serialize(array(
+							'status' => CerberusTicketStatus::DELETED
+						))
+					);
+					DAO_DashboardViewAction::update($trash_action_id,$fields);
+
+					// Spam Action
+					$spam_action_id = DAO_DashboardViewAction::create();
+					// [TODO] Look up the spam mailbox id
+					$fields = array(
+						DAO_DashboardViewAction::$FIELD_NAME => 'Report Spam',
+						DAO_DashboardViewAction::$FIELD_WORKER_ID => $worker_id,
+						DAO_DashboardViewAction::$FIELD_PARAMS => serialize(array(
+							'status' => CerberusTicketStatus::DELETED,
+							'spam' => CerberusTicketSpamTraining::SPAM
+						))
+					);
+					DAO_DashboardViewAction::update($spam_action_id,$fields);
+
+					// Take Ticket Action
+					$take_action_id = DAO_DashboardViewAction::create();
+					$fields = array(
+						DAO_DashboardViewAction::$FIELD_NAME => 'Take',
+						DAO_DashboardViewAction::$FIELD_WORKER_ID => $worker_id,
+						DAO_DashboardViewAction::$FIELD_PARAMS => serialize(array(
+							'flag' => CerberusTicketFlagEnum::TAKE
+						))
+					);
+					DAO_DashboardViewAction::update($take_action_id,$fields);
+					
+					// Release Ticket Action
+					$release_action_id = DAO_DashboardViewAction::create();
+					$fields = array(
+						DAO_DashboardViewAction::$FIELD_NAME => 'Release',
+						DAO_DashboardViewAction::$FIELD_WORKER_ID => $worker_id,
+						DAO_DashboardViewAction::$FIELD_PARAMS => serialize(array(
+							'flag' => CerberusTicketFlagEnum::RELEASE
+						))
+					);
+					DAO_DashboardViewAction::update($release_action_id,$fields);
+					
 				}
 				
 				// Mailbox Details
@@ -456,19 +585,42 @@ switch($step) {
 						CerberusWorkflowDAO::setTeamMailboxes($team_id,$team_mailboxes);
 				}
 				
-				$tpl->assign('step', STEP_ANTISPAM);
+				$tpl->assign('step', STEP_CATCHALL);
 				$tpl->display('steps/redirect.tpl.php');
 				exit;
 				
 				break;
 				
 			default: // first time
+				$tpl->assign('mailboxes_str', "Inbox\n");
+				$tpl->assign('teams_str', "General\n");
 				$tpl->assign('template', 'steps/step_workflow.tpl.php');
 				break;
 		}
 		
 		break;
 
+	case STEP_CATCHALL:
+		@$form_submit = DevblocksPlatform::importGPC($_POST['form_submit'],'integer');
+		
+		if(!empty($form_submit)) {
+			@$default_mailbox_id = DevblocksPlatform::importGPC($_POST['default_mailbox_id'],'integer');
+			
+			$settings = CerberusSettings::getInstance();
+			$settings->set(CerberusSettings::DEFAULT_MAILBOX_ID,$default_mailbox_id);
+			
+			$tpl->assign('step', STEP_ANTISPAM);
+			$tpl->display('steps/redirect.tpl.php');
+			exit;
+		}
+		
+		$mailboxes = CerberusMailDAO::getMailboxes();
+		$tpl->assign('mailboxes', $mailboxes);
+		
+		$tpl->assign('template', 'steps/step_catchall.tpl.php');
+		
+		break;
+		
 	// [TODO] Create an anti-spam rule and mailbox automatically
 	case STEP_ANTISPAM:
 		@$setup_antispam = DevblocksPlatform::importGPC($_POST['setup_antispam'],'integer');
@@ -495,7 +647,7 @@ switch($step) {
 				}
 			}
 			
-			$tpl->assign('step', STEP_FINISHED);
+			$tpl->assign('step', STEP_REGISTER);
 			$tpl->display('steps/redirect.tpl.php');
 			exit;
 		}
@@ -504,9 +656,21 @@ switch($step) {
 		break;
 
 	// [TODO] Automatically collect 'About Me' information? (Register, with benefit)
-	// [TODO] Send the user to login
+	case STEP_REGISTER:
+		@$register = DevblocksPlatform::importGPC($_POST['register'],'integer');
+		@$form_submit = DevblocksPlatform::importGPC($_POST['form_submit'],'integer');
+		
+		if(!empty($form_submit)) {
+			$tpl->assign('step', STEP_FINISHED);
+			$tpl->display('steps/redirect.tpl.php');
+			exit;
+		}
+		
+		$tpl->assign('template', 'steps/step_register.tpl.php');
+		break;
+		
 	// [TODO] Delete the /install/ directory (security)
-		case STEP_FINISHED:
+	case STEP_FINISHED:
 		$tpl->assign('template', 'steps/step_finished.tpl.php');
 		break;
 }
@@ -517,13 +681,7 @@ switch($step) {
 
 // [TODO] Set up the cron to run using internal timer by default
 
-// [TODO] Configure a catch-all rule
-
 // [TODO] Check apache rewrite (somehow)
-
-// [TODO] Show a progress bar on the page by counting toward max steps?
-
-// [TODO] Add all mailboxes/teams to superuser? (This needs an overall concept too, admin should bypass all privs?)
 
 $tpl->display('base.tpl.php');
 

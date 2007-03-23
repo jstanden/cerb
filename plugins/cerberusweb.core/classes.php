@@ -458,14 +458,14 @@ class ChTicketsModule extends CerberusModuleExtension {
 				break;
 				
 			case CerberusSearchFields::ASSIGNED_WORKER:
-				$workers = CerberusAgentDAO::getAgents();
+				$workers = DAO_Worker::getList();
 				$tpl->assign('workers', $workers);
 				
 				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/search/criteria/assigned_worker.tpl.php');
 				break;
 				
 			case CerberusSearchFields::SUGGESTED_WORKER:
-				$workers = CerberusAgentDAO::getAgents();
+				$workers = DAO_Worker::getList();
 				$tpl->assign('workers', $workers);
 				
 				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/search/criteria/suggested_worker.tpl.php');
@@ -703,7 +703,7 @@ class ChConfigurationModule extends CerberusModuleExtension  {
 				break;
 				
 			case 'workflow':
-				$workers = CerberusAgentDAO::getAgents();
+				$workers = DAO_Worker::getList();
 				$tpl->assign('workers', $workers);
 				
 				$teams = CerberusWorkflowDAO::getTeams();
@@ -745,7 +745,7 @@ class ChConfigurationModule extends CerberusModuleExtension  {
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 
-		$worker = CerberusAgentDAO::getAgent($id);
+		$worker = DAO_Worker::getAgent($id);
 		$tpl->assign('worker', $worker);
 		
 		$teams = CerberusWorkflowDAO::getTeams();
@@ -761,37 +761,42 @@ class ChConfigurationModule extends CerberusModuleExtension  {
 		@$last_name = DevblocksPlatform::importGPC($_POST['last_name'],'string');
 		@$title = DevblocksPlatform::importGPC($_POST['title'],'string');
 		@$primary_email = DevblocksPlatform::importGPC($_POST['primary_email'],'string');
-		@$login = DevblocksPlatform::importGPC($_POST['login'],'string');
+		@$email = DevblocksPlatform::importGPC($_POST['email'],'string');
 		@$password = DevblocksPlatform::importGPC($_POST['password'],'string');
+		@$is_superuser = DevblocksPlatform::importGPC($_POST['is_superuser'],'integer');
 		@$team_id = DevblocksPlatform::importGPC($_POST['team_id'],'integer');
 		@$delete = DevblocksPlatform::importGPC($_POST['delete'],'integer');
+		
+		// [TODO] The superuser set bit here needs to be protected by ACL
 		
 		if(empty($name)) $name = "No Name";
 		
 		if(!empty($id) && !empty($delete)) {
-			CerberusAgentDAO::deleteAgent($id);
+			DAO_Worker::deleteAgent($id);
 			
 		} elseif(!empty($id)) {
 			$fields = array(
-				CerberusAgentDAO::FIRST_NAME => $first_name,
-				CerberusAgentDAO::LAST_NAME => $last_name,
-				CerberusAgentDAO::TITLE => $title,
-				CerberusAgentDAO::LOGIN => $login,
+				DAO_Worker::FIRST_NAME => $first_name,
+				DAO_Worker::LAST_NAME => $last_name,
+				DAO_Worker::TITLE => $title,
+				DAO_Worker::EMAIL => $email,
+				DAO_Worker::IS_SUPERUSER => $is_superuser,
 			);
 			
 			// if we're resetting the password
 			if(!empty($password)) {
-				$fields[CerberusAgentDAO::PASSWORD] = md5($password);
+				$fields[DAO_Worker::PASSWORD] = md5($password);
 			}
 			
-			CerberusAgentDAO::updateAgent($id, $fields);
-			CerberusAgentDAO::setAgentTeams($id, $team_id);
+			DAO_Worker::updateAgent($id, $fields);
+			DAO_Worker::setAgentTeams($id, $team_id);
 			
 		} else {
 			// Don't dupe.
-			if(null == CerberusAgentDAO::lookupAgentLogin($login)) {
-				$id = CerberusAgentDAO::createAgent($login, $password);
-				CerberusAgentDAO::setAgentTeams($id, $team_id);
+			if(null == DAO_Worker::lookupAgentEmail($email)) {
+				// [TODO] This doesn't fill in all the fields (title, first/last, superuser)
+				$id = DAO_Worker::create($email, $password);
+				DAO_Worker::setAgentTeams($id, $team_id);
 			}
 		}
 		
@@ -809,7 +814,7 @@ class ChConfigurationModule extends CerberusModuleExtension  {
 		$team = CerberusWorkflowDAO::getTeam($id);
 		$tpl->assign('team', $team);
 		
-		$workers = CerberusAgentDAO::getAgents();
+		$workers = DAO_Worker::getList();
 		$tpl->assign('workers', $workers);
 		
 		$mailboxes = CerberusMailDAO::getMailboxes();
@@ -1347,7 +1352,7 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 		$session = DevblocksPlatform::getSessionService();
 		$visit = $session->getVisit();
 		
-		$favoriteTags = CerberusAgentDAO::getFavoriteTags($visit->worker->id);
+		$favoriteTags = DAO_Worker::getFavoriteTags($visit->worker->id);
 		$tpl->assign('favoriteTags', $favoriteTags);
 		
 //		$suggestedTags = CerberusWorkflowDAO::getSuggestedTags($ticket->id,10);
@@ -1384,7 +1389,7 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 		$ticket = CerberusTicketDAO::getTicket($ticket_id);
 		$tpl->assign('ticket', $ticket);
 		
-		$favoriteTags = CerberusAgentDAO::getFavoriteTags($visit->worker->id);
+		$favoriteTags = DAO_Worker::getFavoriteTags($visit->worker->id);
 		$tpl->assign('favoriteTags', $favoriteTags);
 		
 		$suggestedTags = CerberusWorkflowDAO::getSuggestedTags($ticket->id,10);
@@ -1449,7 +1454,7 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 		@$q = DevblocksPlatform::importGPC($_REQUEST['q']);
 		header("Content-Type: text/plain");
 		
-		$workers = CerberusAgentDAO::searchAgents($q, 10);
+		$workers = DAO_Worker::searchAgents($q, 10);
 		
 		if(is_array($workers))
 		foreach($workers as $worker) {
@@ -1478,7 +1483,7 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 		$tpl->caching = 0;
 		$tpl->cache_lifetime = 0;
 		
-		$agent = CerberusAgentDAO::getAgent($id);
+		$agent = DAO_Worker::getAgent($id);
 		$tpl->assign('agent', $agent);
 		
 		$tpl->assign('ticket_id', $ticket_id);
@@ -1516,7 +1521,7 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 //		$ticket = CerberusTicketDAO::getTicket($id);
 //		$tpl->assign('ticket', $ticket);
 //		
-//		$favoriteTags = CerberusAgentDAO::getFavoriteTags($visit->worker->id);
+//		$favoriteTags = DAO_Worker::getFavoriteTags($visit->worker->id);
 //		$tpl->assign('favoriteTags', $favoriteTags);
 //		
 //		$suggestedTags = CerberusWorkflowDAO::getTags();
@@ -1542,7 +1547,7 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 		$tpl->caching = 0;
 		$tpl->cache_lifetime = 0;
 
-		$favoriteTags = CerberusAgentDAO::getFavoriteTags($visit->worker->id);
+		$favoriteTags = DAO_Worker::getFavoriteTags($visit->worker->id);
 		$tpl->assign('favoriteTags', $favoriteTags);
 		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/workflow/add_favtags.tpl.php');
@@ -1554,7 +1559,7 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 		$session = DevblocksPlatform::getSessionService();
 		$visit = $session->getVisit();
 		
-		CerberusAgentDAO::setFavoriteTags($visit->worker->id, $favTagEntry);
+		DAO_Worker::setFavoriteTags($visit->worker->id, $favTagEntry);
 		
 		echo ' ';
 	}
@@ -1569,10 +1574,10 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 
 		$tpl->assign('moduleLabel', $this->manifest->id);
 
-		$agents = CerberusAgentDAO::getAgents();
+		$agents = DAO_Worker::getList();
 		$tpl->assign('agents', $agents);
 		
-		$favoriteWorkers = CerberusAgentDAO::getFavoriteWorkers($visit->worker->id);
+		$favoriteWorkers = DAO_Worker::getFavoriteWorkers($visit->worker->id);
 		$tpl->assign('favoriteWorkers', $favoriteWorkers);
 		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/workflow/add_favworkers.tpl.php');
@@ -1584,7 +1589,7 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 		$session = DevblocksPlatform::getSessionService();
 		$visit = $session->getVisit();
 		
-		CerberusAgentDAO::setFavoriteWorkers($visit->worker->id, $favWorkerEntry);
+		DAO_Worker::setFavoriteWorkers($visit->worker->id, $favWorkerEntry);
 		
 		echo ' ';
 	}
@@ -1604,10 +1609,10 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 		$ticket = CerberusTicketDAO::getTicket($id);
 		$tpl->assign('ticket', $ticket);
 		
-		$favoriteWorkers = CerberusAgentDAO::getFavoriteWorkers($visit->worker->id);
+		$favoriteWorkers = DAO_Worker::getFavoriteWorkers($visit->worker->id);
 		$tpl->assign('favoriteWorkers', $favoriteWorkers);
 		
-		$agents = CerberusAgentDAO::getAgents();
+		$agents = DAO_Worker::getList();
 		$tpl->assign('agents', $agents);
 		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/workflow/add_flags.tpl.php');
@@ -1620,7 +1625,7 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 		$tokens = CerberusApplication::parseCsvString($agentEntry);
 		
 		foreach($tokens as $token) {
-			$agent_id = CerberusAgentDAO::lookupAgentLogin($token);
+			$agent_id = DAO_Worker::lookupAgentEmail($token);
 			if(empty($agent_id)) continue;
 			CerberusTicketDAO::flagTicket($id, $agent_id);
 		}
@@ -1643,10 +1648,10 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 		$ticket = CerberusTicketDAO::getTicket($id);
 		$tpl->assign('ticket', $ticket);
 		
-		$favoriteWorkers = CerberusAgentDAO::getFavoriteWorkers($visit->worker->id);
+		$favoriteWorkers = DAO_Worker::getFavoriteWorkers($visit->worker->id);
 		$tpl->assign('favoriteWorkers', $favoriteWorkers);
 		
-		$agents = CerberusAgentDAO::getAgents();
+		$agents = DAO_Worker::getList();
 		$tpl->assign('agents', $agents);
 		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/workflow/add_suggestions.tpl.php');
@@ -1659,7 +1664,7 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 		$tokens = CerberusApplication::parseCsvString($agentEntry);
 		
 		foreach($tokens as $token) {
-			$agent_id = CerberusAgentDAO::lookupAgentLogin($token);
+			$agent_id = DAO_Worker::lookupAgentEmail($token);
 			if(empty($agent_id)) continue;
 			CerberusTicketDAO::suggestTicket($id, $agent_id);
 		}

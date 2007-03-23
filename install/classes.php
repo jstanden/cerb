@@ -287,8 +287,9 @@ class CerberusInstaller {
 			first_name C(32) DEFAULT '',
 			last_name C(64) DEFAULT '',
 			title C(64) DEFAULT '',
-			login C(64) DEFAULT '',
+			email C(128) DEFAULT '',
 			pass C(32) DEFAULT '',
+			is_superuser I1 DEFAULT 0 NOTNULL,
 			last_activity_date I4
 		";
 		

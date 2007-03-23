@@ -7,7 +7,7 @@
 			{if empty($worker->id)}
 			Add Worker
 			{else}
-			Modify '{$worker->login}'
+			Modify '{$worker->getName()}'
 			{/if}
 		</td>
 	</tr>
@@ -24,21 +24,24 @@
 		<td width="100%"><input type="text" name="title" value="{$worker->title}"></td>
 	</tr>
 	<tr>
-		<td width="0%" nowrap="nowrap"><b>Primary Email:</b></td>
-		<td width="100%"><input type="text" name="primary_email" value="[TODO]"></td>
+		<td width="0%" nowrap="nowrap">Administrator:</td>
+		<td width="100%"><input type="checkbox" name="is_superuser" value="1" {if $worker->is_superuser}checked{/if}></td>
 	</tr>
 	<tr>
-		<td width="0%" nowrap="nowrap"><b>Login:</b></td>
-		<td width="100%"><input type="text" name="login" value="{$worker->login|escape:"html"}"></td>
+		<td width="0%" nowrap="nowrap"><b>E-mail:</b></td>
+		<td width="100%"><input type="text" name="email" value="{$worker->email}" size="45"></td>
 	</tr>
 	<tr>
-		<td width="0%" nowrap="nowrap"><b>Password:</b></td>
+		<td width="0%" nowrap="nowrap">Password:</td>
 		<td width="100%"><input type="password" name="password" value=""></td>
 	</tr>
 	<tr>
 		<td width="0%" nowrap="nowrap">Password (again):</td>
 		<td width="100%"><input type="password" name="" value=""></td>
 	</tr>
+	
+	<tr><td colspan="2">&nbsp;</td></tr>
+	
 	<tr>
 		<td width="0%" nowrap="nowrap" valign="top">
 			<b>Teams:</b><br>
@@ -52,6 +55,9 @@
 			{/foreach}
 		</td>
 	</tr>
+	
+	<tr><td colspan="2">&nbsp;</td></tr>
+	
 	{if !empty($worker->id)}
 	<tr>
 		<td width="0%" nowrap="nowrap"><b>Delete:</b></td>

@@ -10,13 +10,19 @@ leave it blank.<br>
 
 <H3>Workers</H3>
 
+{if $failed}
+<span class='bad'>Oops!  You must create at least one worker to continue.  How about yourself?</span>
+<br>
+<br>
+{/if}
+
 Workers are your people, those in your organization who perform various roles through the helpdesk: 
 answering e-mail, troubleshooting issues, contacting leads, and so on.  A single worker may belong 
 to multiple teams -- such as a person who performs both Support and Sales roles.<br>
 <br>
 Set up workers by adding <b>one worker e-mail address per line</b> below.  We'll ask for additional 
 details on the next step:<br>
-<textarea rows="5" cols="50" name="workers"></textarea><br>
+<textarea rows="5" cols="50" name="workers">{$workers_str}</textarea><br>
 
 <H3>Mailboxes</H3>
 
@@ -30,7 +36,7 @@ groups as needed (by project, by location, by escalation).<br>
 <br>
 Set up mailboxes by adding <b>one mailbox name per line</b> below.  We'll ask for additional 
 details on the next step:<br>
-<textarea rows="5" cols="50" name="mailboxes"></textarea><br>
+<textarea rows="5" cols="50" name="mailboxes">{$mailboxes_str}</textarea><br>
 
 <H3>Teams</H3>
 
@@ -41,7 +47,7 @@ the helpdesk. Many people find it helpful to start with a couple department or p
 <br>
 Set up teams by adding <b>one team name per line</b> below.  We'll ask for additional 
 details on the next step:<br>
-<textarea rows="5" cols="50" name="teams"></textarea><br>
+<textarea rows="5" cols="50" name="teams">{$teams_str}</textarea><br>
 
 <br>
 

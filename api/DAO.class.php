@@ -138,28 +138,28 @@ class DAO_Bayes {
 	
 };
 
-// [JAS]: [TODO] Should rename this to WorkerDAO for consistency
-class CerberusAgentDAO {
-	private function CerberusAgentDAO() {}
+class DAO_Worker {
+	private function DAO_Worker() {}
 	
 	const ID = 'id';
-	const LOGIN = 'login';
-	const PASSWORD = 'pass';
 	const FIRST_NAME = 'first_name';
 	const LAST_NAME = 'last_name';
 	const TITLE = 'title';
+	const EMAIL = 'email';
+	const PASSWORD = 'pass';
+	const IS_SUPERUSER = 'is_superuser';
 	
-	static function createAgent($login, $password, $first_name, $last_name, $title) {
-		if(empty($login) || empty($password))
+	static function create($email, $password, $first_name, $last_name, $title) {
+		if(empty($email) || empty($password))
 			return null;
 			
 		$um_db = DevblocksPlatform::getDatabaseService();
 		$id = $um_db->GenID('generic_seq');
 		
-		$sql = sprintf("INSERT INTO worker (id, login, pass, first_name, last_name, title) ".
+		$sql = sprintf("INSERT INTO worker (id, email, pass, first_name, last_name, title) ".
 			"VALUES (%d, %s, %s, %s, %s, %s)",
 			$id,
-			$um_db->qstr($login),
+			$um_db->qstr($email),
 			$um_db->qstr(md5($password)),
 			$um_db->qstr($first_name),
 			$um_db->qstr($last_name),
@@ -170,13 +170,13 @@ class CerberusAgentDAO {
 		return $id;
 	}
 	
-	static function getAgents($ids=array()) {
+	static function getList($ids=array()) {
 		if(!is_array($ids)) $ids = array($ids);
 		
 		$um_db = DevblocksPlatform::getDatabaseService();
 		$workers = array();
 		
-		$sql = "SELECT a.id, a.first_name, a.last_name, a.login, a.title ".
+		$sql = "SELECT a.id, a.first_name, a.last_name, a.email, a.title, a.is_superuser ".
 			"FROM worker a ".
 			((!empty($ids) ? sprintf("WHERE a.id IN (%s)",implode(',',$ids)) : " ").
 			"ORDER BY a.last_name, a.first_name "
@@ -184,13 +184,13 @@ class CerberusAgentDAO {
 		$rs = $um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		while(!$rs->EOF) {
-			// [TODO] CerberusWorker
 			$worker = new CerberusWorker();
 			$worker->id = intval($rs->fields['id']);
 			$worker->first_name = $rs->fields['first_name'];
 			$worker->last_name = $rs->fields['last_name'];
-			$worker->login = $rs->fields['login'];
+			$worker->email = $rs->fields['email'];
 			$worker->title = $rs->fields['title'];
+			$worker->is_superuser = $rs->fields['is_superuser'];
 			$worker->last_activity_date = intval($rs->fields['last_activity_date']);
 			$workers[$worker->id] = $worker;
 			$rs->MoveNext();
@@ -202,7 +202,7 @@ class CerberusAgentDAO {
 	static function getAgent($id) {
 		if(empty($id)) return null;
 		
-		$agents = CerberusAgentDAO::getAgents(array($id));
+		$agents = DAO_Worker::getList(array($id));
 		
 		if(isset($agents[$id]))
 			return $agents[$id];
@@ -213,15 +213,15 @@ class CerberusAgentDAO {
 	/**
 	 * Enter description here...
 	 *
-	 * @param string $login
+	 * @param string $email
 	 * @return integer $id
 	 */
-	static function lookupAgentLogin($login) {
-		if(empty($login)) return null;
+	static function lookupAgentEmail($email) {
+		if(empty($email)) return null;
 		$um_db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = sprintf("SELECT a.id FROM worker a WHERE a.login = %s",
-			$um_db->qstr($login)
+		$sql = sprintf("SELECT a.id FROM worker a WHERE a.email = %s",
+			$um_db->qstr($email)
 		);
 		$rs = $um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
@@ -276,14 +276,14 @@ class CerberusAgentDAO {
 		
 	}
 	
-	static function login($login, $password) {
+	static function login($email, $password) {
 		$db = DevblocksPlatform::getDatabaseService();
 
 		$sql = sprintf("SELECT id ".
 			"FROM worker ".
-			"WHERE login = %s ".
+			"WHERE email = %s ".
 			"AND pass = MD5(%s)",
-				$db->qstr($login),
+				$db->qstr($email),
 				$db->qstr($password)
 		);
 		$worker_id = $db->GetOne($sql); // or die(__CLASS__ . ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
@@ -405,7 +405,7 @@ class CerberusAgentDAO {
 		if(empty($ids))
 			return array();
 		
-		return CerberusAgentDAO::getAgents($ids);
+		return DAO_Worker::getList($ids);
 	}
 	
 	static function setFavoriteWorkers($agent_id, $worker_string) {
@@ -421,7 +421,7 @@ class CerberusAgentDAO {
 		$ids = array();
 		
 		foreach($workers as $worker_name) {
-			$worker_id = CerberusAgentDAO::lookupAgentLogin($worker_name);
+			$worker_id = DAO_Worker::lookupAgentEmail($worker_name);
 			
 			if(null == $worker_id)
 				continue;
@@ -440,11 +440,12 @@ class CerberusAgentDAO {
 		
 	}
 	
+	// [TODO] Test where this is used
 	static function searchAgents($query, $limit=10) {
 		$um_db = DevblocksPlatform::getDatabaseService();
 		if(empty($query)) return null;
 		
-		$sql = sprintf("SELECT a.id FROM login a WHERE a.login LIKE '%s%%' LIMIT 0,%d",
+		$sql = sprintf("SELECT w.id FROM worker w WHERE w.email LIKE '%s%%' LIMIT 0,%d",
 			$query,
 			$limit
 		);
@@ -460,7 +461,7 @@ class CerberusAgentDAO {
 		if(empty($ids))
 			return array();
 			
-		return CerberusAgentDAO::getAgents($ids);
+		return DAO_Worker::getList($ids);
 	}
 	
 }
@@ -1293,6 +1294,7 @@ class DAO_DashboardViewAction extends DevblocksORMHelper {
 		'id_column' => 'id'
 	);
 
+	// [TODO] Const? (Fix references)
 	static public $FIELD_ID = 'id';
 	static public $FIELD_VIEW_ID = 'dashboard_view_id';
 	static public $FIELD_NAME = 'name';
@@ -1936,7 +1938,7 @@ class CerberusWorkflowDAO {
 		}
 
 		if(!empty($ids)) {
-			$workers = CerberusAgentDAO::getAgents($ids);
+			$workers = DAO_Worker::getList($ids);
 		}
 		
 		return $workers;
@@ -2319,7 +2321,7 @@ class CerberusWorkflowDAO {
 		if(empty($ids))
 			return array();
 		
-		return CerberusAgentDAO::getAgents($ids);
+		return DAO_Worker::getList($ids);
 	}
 	
 	

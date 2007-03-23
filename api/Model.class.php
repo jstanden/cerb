@@ -89,12 +89,12 @@ class CerberusWorker {
 	public $id;
 	public $first_name;
 	public $last_name;
-	public $login;
+	public $email;
 	public $title;
 	public $last_activity_date;
 	
 	function getTeams() {
-		return CerberusAgentDAO::getAgentTeams($this->id);
+		return DAO_Worker::getAgentTeams($this->id);
 	}
 	
 	function getName() {

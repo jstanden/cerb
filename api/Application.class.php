@@ -1,5 +1,5 @@
 <?php
-define("APP_BUILD", 93);
+define("APP_BUILD", 99);
 
 include_once(APP_PATH . "/api/DAO.class.php");
 include_once(APP_PATH . "/api/Model.class.php");
@@ -869,10 +869,22 @@ class CerberusParser {
 
 class CerberusSettings {
 	const DEFAULT_MAILBOX_ID = 'default_mailbox_id'; 
+	const DEFAULT_REPLY_FROM = 'default_reply_from'; 
+	const DEFAULT_REPLY_PERSONAL = 'default_reply_personal'; 
+	const HELPDESK_TITLE = 'helpdesk_title'; 
+	const SMTP_HOST = 'smtp_host'; 
+	const SMTP_AUTH_USER = 'smtp_auth_user'; 
+	const SMTP_AUTH_PASS = 'smtp_auth_pass'; 
 	
 	static $instance = null;
 	private $settings = array( // defaults
-		DEFAULT_MAILBOX_ID => 0,
+		self::DEFAULT_MAILBOX_ID => 0,
+		self::DEFAULT_REPLY_FROM => '',
+		self::DEFAULT_REPLY_PERSONAL => '',
+		self::HELPDESK_TITLE => 'Cerberus Helpdesk :: Team-based E-mail Management',
+		self::SMTP_HOST => 'localhost',
+		self::SMTP_AUTH_USER => '',
+		self::SMTP_AUTH_PASS => '',
 	);
 
 	/**

@@ -7,11 +7,11 @@
 <H3>SMTP</H3>
 
 <b>SMTP Server:</b><br>
-<input type="text" name="smtp_host" value="{$smtp_host}"><br>
+<input type="text" name="smtp_host" value="{$smtp_host}" size="45"><br>
 <br>
 
-<b>Send to:</b><br>
-<input type="text" name="smtp_to" value="{$smtp_to}"><br>
+<b>Send test message to:</b><br>
+<input type="text" name="smtp_to" value="{$smtp_to}" size="45"><br>
 <br>
 
 <i>SMTP Auth. User (optional):</i><br>
