@@ -128,7 +128,6 @@ class CerberusDashboardView {
 	public $name = "";
 	public $dashboard_id = 0;
 	public $type = '';
-	public $agent_id = 0;
 	public $view_columns = array();
 	public $params = array();
 	

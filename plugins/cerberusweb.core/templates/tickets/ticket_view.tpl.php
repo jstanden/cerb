@@ -103,10 +103,12 @@
 	<tr>
 		<td>
 			<select name="action_id" onchange="toggleDiv('action{$view->id}',(this.selectedIndex>0)?'inline':'none');">
-				<option value="">-- perform action --
+				<option value="">-- perform action --</option>
+				<optgroup label="Shared Actions" style="color:rgb(0,180,0);">
 				{foreach from=$viewActions item=action}
-				<option value="{$action->id}">{$action->name}
+				<option value="{$action->id}">{$action->name}</option>
 				{/foreach}
+				</optgroup>
 			</select>
 			<span id="action{$view->id}" style="display:none;">
 				<input type="button" value="Apply" onclick="ajax.viewRunAction('{$view->id}');">

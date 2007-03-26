@@ -286,20 +286,20 @@ class ChTicketsModule extends CerberusModuleExtension {
 			$params['spam'] = $spam;
 		if(!empty($flag))
 			$params['flag'] = $flag;
-			
-		if(empty($action_id)) {
-			$action_id = DAO_DashboardViewAction::create();
-		} else {
-			// [TODO]: Security check that the editor was the author of the original action.  
-		}
-		
+
 		$fields = array(
 			DAO_DashboardViewAction::$FIELD_NAME => $title,
 			DAO_DashboardViewAction::$FIELD_VIEW_ID => 0,
 			DAO_DashboardViewAction::$FIELD_WORKER_ID => 1, // [TODO] Should be real
 			DAO_DashboardViewAction::$FIELD_PARAMS => serialize($params)
 		);
-		DAO_DashboardViewAction::update($action_id, $fields);
+			
+		if(empty($action_id)) {
+			$action_id = DAO_DashboardViewAction::create($fields);
+		} else {
+			// [TODO]: Security check that the editor was the author of the original action.
+			DAO_DashboardViewAction::update($action_id, $fields);  
+		}
 		
 		echo ' ';
 	}
@@ -1071,6 +1071,59 @@ class ChConfigurationModule extends CerberusModuleExtension  {
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','extensions')));
 	}
 	
+}
+
+class ChFilesModule extends CerberusModuleExtension {
+	function __construct($manifest) {
+		parent::__construct($manifest);	
+	}
+	
+	function isVisible() {
+		// check login
+		$session = DevblocksPlatform::getSessionService();
+		$visit = $session->getVisit();
+		
+		if(empty($visit)) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+	
+	/*
+	 * Request Overload
+	 */
+	function handleRequest($request) {
+		// URLS like: /cerb4/files/10000/plaintext.txt
+		
+		$stack = $request->path;
+		array_shift($stack); // files	
+		$file_id = array_shift($stack); 		
+		$file_name = array_shift($stack); 		
+		
+		// [TODO] Elaborate
+		// [TODO] Do a security check the current user can see the parent ticket (team check)
+		if(empty($file_id) || empty($file_name))
+			die("File Not Found");
+		
+		// [TODO] Set content type header
+
+		// [TODO] Pull up the file contents by abstraction (FTP or Disk)
+
+//		echo file_get_contents($dir,false);
+		
+		/*
+		 * [TODO] Proxy the binary through to the browser w/ appropriate headers 
+		 * (filename, content-length, disposition)
+		 */
+		
+		echo sprintf("This is the content of file '%s' from ID (%d).",
+			$file_name,
+			$file_id
+		);
+		
+		exit;
+	}
 }
 
 class ChDisplayModule extends CerberusModuleExtension {

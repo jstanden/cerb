@@ -151,6 +151,30 @@ switch($step) {
 		}
 		unset($db);
 		
+		// [JAS]: Detect available database drivers
+		
+		$drivers = array();
+		
+		if(extension_loaded('mysql')) {
+			$drivers['mysql'] = 'MySQL 3.23/4.x/5.x';
+		}
+		
+		if(extension_loaded('pgsql')) {
+			$drivers['postgres8'] = 'PostgreSQL 8.x';
+			$drivers['postgres7'] = 'PostgreSQL 7.x';
+			$drivers['postgres64'] = 'PostgreSQL 6.4';
+		}
+
+		if(extension_loaded('mssql')) {
+			$drivers['mssql'] = 'Microsoft SQL Server 7.x/2000/2005';
+		}
+		
+		if(extension_loaded('oci8')) {
+			$drivers['oci8'] = 'Oracle 8/9';
+		}
+		
+		$tpl->assign('drivers', $drivers);
+		
 		if(!empty($db_driver) && !empty($db_server) && !empty($db_name) && !empty($db_user)) {
 			// Test the given settings, bypass platform initially
 			include_once(DEVBLOCKS_PATH . "adodb/adodb.inc.php");
@@ -459,12 +483,22 @@ switch($step) {
 				@$mailbox_ids = DevblocksPlatform::importGPC($_POST['mailbox_ids'],'array');
 				@$mailbox_from = DevblocksPlatform::importGPC($_POST['mailbox_from'],'array');
 				@$team_ids = DevblocksPlatform::importGPC($_POST['team_ids'],'array');
+
+				/*
+				 * [TODO] Make sure we're setting up at least one superuser.
+				 * This is probably best done through a javascript form validation, 
+				 * since it won't require re-typing everything into the form (or injecting)
+				 * on failure.
+				 */
+				// 
+//				if(empty($workers)) {
+//					$tpl->assign('failed', true);
+//					$tpl->assign('template', 'steps/step_workflow.tpl.php');
+//					break;
+//				}
 				
 				// Worker Details
 				// [TODO] E-mail the workers their logins (generate random pw)
-				// [TODO] Create a default dashboard for each worker
-				// [TODO] Add default actions to worker dashboards (Report Spam)
-				// [TODO] Make sure we're setting up at least one superuser
 				if(is_array($worker_ids))
 				foreach($worker_ids as $idx => $worker_id) {
 					$fields = array(
@@ -475,6 +509,7 @@ switch($step) {
 					);
 					DAO_Worker::updateAgent($worker_id, $fields);
 					
+					// Create a default dashboard for each worker
 					$dashboard_id = CerberusDashboardDAO::createDashboard("Dashboard", $worker_id);
 					$my_view_id = CerberusDashboardDAO::createView('My Tickets',$dashboard_id);
 					$team_view_id = CerberusDashboardDAO::createView('Team Tickets',$dashboard_id);
@@ -509,8 +544,9 @@ switch($step) {
 					);
 					CerberusDashboardDAO::updateView($team_view_id, $fields);
 					
+					// Add default actions to worker dashboards
+					
 					// Trash Action
-					$trash_action_id = DAO_DashboardViewAction::create();
 					$fields = array(
 						DAO_DashboardViewAction::$FIELD_NAME => 'Trash',
 						DAO_DashboardViewAction::$FIELD_WORKER_ID => $worker_id,
@@ -518,10 +554,9 @@ switch($step) {
 							'status' => CerberusTicketStatus::DELETED
 						))
 					);
-					DAO_DashboardViewAction::update($trash_action_id,$fields);
+					$trash_action_id = DAO_DashboardViewAction::create($fields);
 
 					// Spam Action
-					$spam_action_id = DAO_DashboardViewAction::create();
 					// [TODO] Look up the spam mailbox id
 					$fields = array(
 						DAO_DashboardViewAction::$FIELD_NAME => 'Report Spam',
@@ -531,10 +566,9 @@ switch($step) {
 							'spam' => CerberusTicketSpamTraining::SPAM
 						))
 					);
-					DAO_DashboardViewAction::update($spam_action_id,$fields);
+					$spam_action_id = DAO_DashboardViewAction::create($fields);
 
 					// Take Ticket Action
-					$take_action_id = DAO_DashboardViewAction::create();
 					$fields = array(
 						DAO_DashboardViewAction::$FIELD_NAME => 'Take',
 						DAO_DashboardViewAction::$FIELD_WORKER_ID => $worker_id,
@@ -542,10 +576,9 @@ switch($step) {
 							'flag' => CerberusTicketFlagEnum::TAKE
 						))
 					);
-					DAO_DashboardViewAction::update($take_action_id,$fields);
+					$take_action_id = DAO_DashboardViewAction::create($fields);
 					
 					// Release Ticket Action
-					$release_action_id = DAO_DashboardViewAction::create();
 					$fields = array(
 						DAO_DashboardViewAction::$FIELD_NAME => 'Release',
 						DAO_DashboardViewAction::$FIELD_WORKER_ID => $worker_id,
@@ -553,8 +586,7 @@ switch($step) {
 							'flag' => CerberusTicketFlagEnum::RELEASE
 						))
 					);
-					DAO_DashboardViewAction::update($release_action_id,$fields);
-					
+					$release_action_id = DAO_DashboardViewAction::create($fields);
 				}
 				
 				// Mailbox Details

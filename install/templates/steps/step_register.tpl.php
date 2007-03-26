@@ -10,7 +10,7 @@ Each new Cerberus Helpdesk installation defaults to a "Free Mode", allowing near
 full-functionality with no expiration.  Companies with lighter requirements may find the free version 
 does everything they need.  Go ahead, enjoy!<br>
 <br>
-For companies which need advanced functionality, or would prefer direct product 
+For companies that need advanced functionality, or would prefer direct product 
 support options, we offer affordable and flexible licensing options.<br>
 
 <H3>Register your copy of Cerberus Helpdesk</H3>
@@ -25,7 +25,7 @@ Feel free to do your own research about our privacy track record (via Google, We
 Community Forums, Client References).<br>
 <br>
 <b>Register for free?</b><br>
-<label><input type="radio" name="register" value="1" checked>Yes! You had me at 'E-mail Management'.</label><br> 
+<label><input type="radio" name="register" value="1" checked> Yes! You had me at 'E-mail Management'.</label><br> 
 <label><input type="radio" name="register" value="0"> Look, I like you, I do -- but not in that way.</label><br>
 <br>
 

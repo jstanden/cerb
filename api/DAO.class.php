@@ -1,4 +1,10 @@
 <?php
+/*
+ * [TODO] Mike's suggestion of using a self::update($id,$fields) call inside
+ * the create function makes it much cleaner to do creates passing arbitrary lists
+ * of arguments.  Voila!
+ */
+
 class DAO_Setting extends DevblocksORMHelper {
 	static function set($key, $value) {
 		$db = DevblocksPlatform::getDatabaseService();
@@ -1144,7 +1150,7 @@ class CerberusDashboardDAO {
 	static function getViews($dashboard_id=0) {
 		$um_db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = sprintf("SELECT v.id, v.name, v.dashboard_id, v.type, v.agent_id, v.view_columns, v.num_rows, v.sort_by, v.sort_asc, v.page, v.params ".
+		$sql = sprintf("SELECT v.id, v.name, v.dashboard_id, v.type, v.view_columns, v.num_rows, v.sort_by, v.sort_asc, v.page, v.params ".
 			"FROM dashboard_view v ".
 			"WHERE v.dashboard_id > 0 "
 //			(!empty($dashboard_id) ? sprintf("WHERE v.dashboard_id = %d ", $dashboard_id) : " ")
@@ -1159,7 +1165,6 @@ class CerberusDashboardDAO {
 			$view->name = $rs->fields['name'];
 			$view->dashboard_id = intval($rs->fields['dashboard_id']);
 			$view->type = $rs->fields['type'];
-			$view->agent_id = intval($rs->fields['agent_id']);
 			$view->view_columns = unserialize($rs->fields['view_columns']);
 			$view->params = unserialize($rs->fields['params']);
 			$view->renderLimit = intval($rs->fields['num_rows']);
@@ -1255,11 +1260,12 @@ class CerberusDashboardDAO {
 	 *
 	 * @param integer $view_id
 	 * @return CerberusDashboardView
+	 * [TODO] This should wrap getViews()
 	 */
 	static private function _getView($view_id) {
 		$um_db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = sprintf("SELECT v.id, v.name, v.dashboard_id, v.type, v.agent_id, v.view_columns, v.num_rows, v.sort_by, v.sort_asc, v.page, v.params ".
+		$sql = sprintf("SELECT v.id, v.name, v.dashboard_id, v.type, v.view_columns, v.num_rows, v.sort_by, v.sort_asc, v.page, v.params ".
 			"FROM dashboard_view v ".
 			"WHERE v.id = %d ",
 			$view_id
@@ -1272,7 +1278,6 @@ class CerberusDashboardDAO {
 			$view->name = $rs->fields['name'];
 			$view->dashboard_id = intval($rs->fields['dashboard_id']);
 			$view->type = $rs->fields['type'];
-			$view->agent_id = intval($rs->fields['agent_id']);
 			$view->view_columns = unserialize($rs->fields['view_columns']);
 			$view->params = unserialize($rs->fields['params']);
 			$view->renderLimit = intval($rs->fields['num_rows']);
@@ -1306,8 +1311,21 @@ class DAO_DashboardViewAction extends DevblocksORMHelper {
 	 *
 	 * @return integer
 	 */
-	static function create() {
-		return parent::_createId(self::$properties);
+	static function create($fields) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$id = $db->GenID('generic_seq');
+		
+		$sql = sprintf("INSERT INTO %s (id,dashboard_view_id,name,worker_id,params) ".
+			"VALUES (%d,0,'',0,'')",
+			self::$properties['table'],
+			$id
+		);
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		self::update($id, $fields);
+		
+		return $id;
 	}
 
 	/**
@@ -1638,7 +1656,7 @@ class CerberusSearchDAO {
 			(isset($tables['msg']) ? "INNER JOIN message msg ON (msg.ticket_id=t.id) " : " ").
 			
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "").
-			"GROUP BY t.id ".
+//			"GROUP BY t_id ".
 			(!empty($sortBy) ? sprintf("ORDER BY %s %s",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : "")
 		);
 		$rs = $um_db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
@@ -1752,7 +1770,7 @@ class CerberusSearchDAO {
 			(isset($tables['kbcat']) ? "LEFT JOIN kb_category kbcat ON (kbcat.id=kbtc.category_id) " : " ").
 			
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "").
-			"GROUP BY kb.id ".
+//			"GROUP BY kb.id ".
 			(!empty($sortBy) ? sprintf("ORDER BY %s %s",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : "")
 		);
 		$rs = $um_db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */

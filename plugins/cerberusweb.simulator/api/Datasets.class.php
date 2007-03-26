@@ -166,8 +166,8 @@ class RetailDataset extends SimulatorDataset {
 		$this->addToken('##discount##',array('discount','reduced price','coupon','rebate'));
 		$this->addToken('##bulk##',array('bulk','large','big','a lot of'));
 		$this->addToken('##accept##',array('accept','take','honor','permit'));
-		$this->addToken('##payment_method##',array('Visa','MasterCard','American Express','personal checks','AMEX','Diner\'s Club'));
-		$this->addToken('##payment##',array('payment','billing','balances','remuneration'));
+		$this->addToken('##payment_method##',array('Visa','MasterCard','American Express','personal checks','AMEX','Diner\'s Club','purchase orders'));
+		$this->addToken('##payment##',array('payment','billing','balances','orders'));
 		$this->addToken('##previous##',array('previous','old','phased out','expired','past'));
 		$this->addToken('##types##',array('types','versions','kinds','configurations'));
 		$this->addToken('##viewing_device##',array('browser','window','screen','account'));

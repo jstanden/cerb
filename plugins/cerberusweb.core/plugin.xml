@@ -10,6 +10,7 @@
 		<uri value="display" extension_id="core.module.display" />
 		<uri value="config" extension_id="core.module.configuration" />
 		<uri value="preferences" extension_id="core.module.preferences" />
+		<uri value="files" extension_id="core.module.files" />
 	</mapping>
 	
 	<extensions>
@@ -41,6 +42,19 @@
 				<param key="title" value="Display" />
 				<param key="menutitle" value="" />
 				<!--<param key="summary" value="support resources" />-->
+			</params>
+		</extension>
+
+		<extension point="cerberusweb.module">
+			<id>core.module.files</id>
+			<name>Files Module</name>
+			<class>
+				<file>classes.php</file>
+				<name>ChFilesModule</name>
+			</class>
+			<params>
+				<param key="title" value="" />
+				<param key="menutitle" value="" />
 			</params>
 		</extension>
 

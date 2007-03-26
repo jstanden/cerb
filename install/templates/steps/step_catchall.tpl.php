@@ -20,8 +20,8 @@ you have two choices:<br>
 <b>Where should Cerberus Helpdesk send unrouted mail?</b><br>
 <select name="default_mailbox_id">
 	<option value="">-- Nowhere (Bounce) --
-	{foreach from=$mailboxes item=mail key=mailbox_id}
-	<option value="{$mailbox_id}">{$mail->name}
+	{foreach from=$mailboxes item=mail key=mailbox_id name=mailboxes}
+	<option value="{$mailbox_id}" {if $smarty.foreach.mailboxes.first}selected{/if}>{$mail->name}
 	{/foreach}
 </select>
 <br>

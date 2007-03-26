@@ -161,7 +161,6 @@ class CerberusInstaller {
 			id I4 DEFAULT 0 NOTNULL PRIMARY,
 			dashboard_id I4 DEFAULT 0 NOTNULL,
 			type C(1) DEFAULT 'D',
-			agent_id I4 NOTNULL,
 			name C(32) DEFAULT '' NOTNULL,
 			view_columns B,
 			sort_by C(32) DEFAULT '' NOTNULL,

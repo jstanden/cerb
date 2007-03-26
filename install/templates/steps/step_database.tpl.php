@@ -8,14 +8,11 @@
 <br>
 {/if}
 
-<b>Database Driver:</b><br>
+<b>Database Driver:</b> (from PHP environment)<br>
 <select name="db_driver">
-	<option value="mysql">MySQL 3.23/4.x/5.x
-	<option value="postgres8">PostgreSQL 8.x
-	<option value="postgres7">PostgreSQL 7.x
-	<option value="postgres64">PostgreSQL 6.4
-	<option value="mssql">Microsoft SQL Server 7.x/2000/2005
-	<option value="oci8">Oracle 8/9
+	{foreach from=$drivers item=driver key=k}
+	<option value="{$k}" {if $k==$db_driver}selected{/if}>{$driver}
+	{/foreach}
 </select><br>
 <br>
 
