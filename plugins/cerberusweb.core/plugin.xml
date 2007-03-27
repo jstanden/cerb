@@ -1,4 +1,4 @@
-<!-- [JAS] [TODO] Needs DTD -->
+<!DOCTYPE PLUGIN SYSTEM "../../libs/devblocks/plugin.dtd">
 <plugin>
 	<id>cerberusweb.core</id>
 	<name>Cerberus Helpdesk Core</name>
