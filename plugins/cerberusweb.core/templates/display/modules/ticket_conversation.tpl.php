@@ -37,7 +37,7 @@
       	{if !empty($attachments)}
       	<b>Attachments: </b>
       		{foreach from=$attachments item=attachment name=attachments}
-				<a href="{$smarty.const.DEVBLOCKS_ATTACHMENT_ACCESS_PATH}{$attachment->filepath}">{$attachment->display_name}</a>
+				<a href="{devblocks_url}{/devblocks_url}files/{$attachment->filepath}/{$attachment->display_name}">{$attachment->display_name}</a>
 				{if !$smarty.foreach.requesters.last}, {/if}
 			{/foreach}<br>
 			{/if}

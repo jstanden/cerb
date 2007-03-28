@@ -683,6 +683,10 @@ class ChConfigurationModule extends CerberusModuleExtension  {
 		
 		switch($stack[0]) {
 			case 'general':
+				$settings = CerberusSettings::getInstance();
+				$attachmentlocation = $settings->get(CerberusSettings::SAVE_FILE_PATH);
+				$tpl->assign('attachmentlocation', $attachmentlocation);
+		
 				$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/general/index.tpl.php');				
 				break;
 				
@@ -905,6 +909,38 @@ class ChConfigurationModule extends CerberusModuleExtension  {
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','mail')));
 	}
 	
+	// Ajax  (DDH: I don't think this actually gets used anywhere...hm.)
+	function getAttachmentLocation() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
+
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+
+		$settings = CerberusSettings::getInstance();
+		$attachmentlocation = $settings->get(CerberusSettings::SAVE_FILE_PATH);
+		$tpl->assign('attachmentlocation', $attachmentlocation);
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/general/attachments.tpl.php');
+	}
+	
+	// Post
+	function saveAttachmentLocation() {
+		@$id = DevblocksPlatform::importGPC($_POST['id']);
+		@$attachmentlocation = DevblocksPlatform::importGPC($_POST['attachmentlocation']);
+		if (!empty($attachmentlocation)
+		&&	(	strrpos($attachmentlocation,'/') != strlen($attachmentlocation)
+			||	strrpos($attachmentlocation,'\\') != strlen($attachmentlocation)
+			)
+		)
+			$attachmentlocation = $attachmentlocation . '/';
+		
+		$settings = CerberusSettings::getInstance();
+		$settings->set(CerberusSettings::SAVE_FILE_PATH,$attachmentlocation);
+				
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','general')));
+	}
+	
 	// Ajax
 	function getPop3Account() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
@@ -1110,35 +1146,78 @@ class ChFilesModule extends CerberusModuleExtension {
 	 * Request Overload
 	 */
 	function handleRequest($request) {
-		// URLS like: /cerb4/files/10000/plaintext.txt
+		$stack = $request->path;				// URLS like: /files/10000/plaintext.txt
+		array_shift($stack);					// files	
+		$file_id = array_shift($stack); 		// 10000
+		$file_name = array_shift($stack); 		// plaintext.txt
 		
-		$stack = $request->path;
-		array_shift($stack); // files	
-		$file_id = array_shift($stack); 		
-		$file_name = array_shift($stack); 		
-		
-		// [TODO] Elaborate
 		// [TODO] Do a security check the current user can see the parent ticket (team check)
 		if(empty($file_id) || empty($file_name))
 			die("File Not Found");
 		
-		// [TODO] Set content type header
+		// Set headers
+		header("Expires: Mon, 26 Nov 1962 00:00:00 GMT\n");
+		header("Last-Modified: " . gmdate("D,d M YH:i:s") . " GMT\n");
+		header("Cache-control: private\n");
+		header("Pragma: no-cache\n");
+		header("Content-Type: " . ChFilesModule::getMimeType($file_name) . "\n");
+		header("Content-transfer-encoding: binary\n"); 
+		header("Content-Length: " . ChFilesModule::getFileSize($file_id) . "\n");
+		
+		echo(ChFilesModule::getFileContents($file_id));
 
-		// [TODO] Pull up the file contents by abstraction (FTP or Disk)
-
-//		echo file_get_contents($dir,false);
-		
-		/*
-		 * [TODO] Proxy the binary through to the browser w/ appropriate headers 
-		 * (filename, content-length, disposition)
-		 */
-		
-		echo sprintf("This is the content of file '%s' from ID (%d).",
-			$file_name,
-			$file_id
-		);
-		
 		exit;
+	}
+	
+	private function getMimeType($file_name) {
+		$fexp=explode('.',$file_name);
+		$ext=$fexp[sizeof($fexp)-1];
+		 
+		$mimetype = array( 
+		    'bmp'=>'image/bmp',
+		    'doc'=>'application/msword', 
+		    'gif'=>'image/gif',
+		    'gz'=>'application/x-gzip-compressed',
+		    'htm'=>'text/html', 
+		    'html'=>'text/html', 
+		    'jpg'=>'image/jpeg', 
+		    'mp3'=>'audio/x-mp3',
+		    'pdf'=>'application/pdf', 
+		    'php'=>'text/plain', 
+		    'swf'=>'application/x-shockwave-flash',
+		    'tar'=>'application/x-tar',
+		    'tgz'=>'application/x-gzip-compressed',
+		    'tif'=>'image/tiff',
+		    'tiff'=>'image/tiff',
+		    'txt'=>'text/plain', 
+		    'vsd'=>'application/vnd.visio',
+		    'vss'=>'application/vnd.visio',
+		    'vst'=>'application/vnd.visio',
+		    'vsw'=>'application/vnd.visio',
+		    'wav'=>'audio/x-wav',
+		    'xls'=>'application/vnd.ms-excel',
+		    'xml'=>'text/xml',
+		    'zip'=>'application/x-zip-compressed' 
+		    ); 
+		        
+		if(isset($mimetype[strtolower($ext)]))
+			return($mimetype[strtolower($ext)]);
+		else
+			return("application/octet-stream");
+	}
+
+	private function getFileSize($file_id) {
+		$settings = CerberusSettings::getInstance();
+		$file_path = $settings->get(CerberusSettings::SAVE_FILE_PATH);
+		if (!empty($file_path))
+			return filesize($file_path.$file_id);
+	}
+	
+	private function getFileContents($file_id) {
+		$settings = CerberusSettings::getInstance();
+		$file_path = $settings->get(CerberusSettings::SAVE_FILE_PATH);
+		if (!empty($file_path))
+			return file_get_contents($file_path.$file_id,false);
 	}
 }
 

@@ -204,12 +204,12 @@ class CerberusApplication extends DevblocksApplication {
 		
 		// if this message was submitted with attachments, store them in the filestore and link them in the db.
 		if (is_array($files) && !empty($files)) {
+			$settings = CerberusSettings::getInstance();
+			$attachmentlocation = $settings->get(CerberusSettings::SAVE_FILE_PATH);
+		
 			foreach ($files['tmp_name'] as $idx => $file) {
-				$timestamp = gmdate('Y.m.d.H.i.s.', gmmktime());
-				list($usec, $sec) = explode(' ', microtime());
-				$timestamp .= substr($usec,2,3) . '.';
-				copy($files['tmp_name'][$idx],DEVBLOCKS_ATTACHMENT_SAVE_PATH . $timestamp . $files['name'][$idx]);
-				CerberusTicketDAO::createAttachment($message_id, $files['name'][$idx], $timestamp . $files['name'][$idx]);
+				copy($files['tmp_name'][$idx],$attachmentlocation.$message_id.$idx);
+				CerberusTicketDAO::createAttachment($message_id, $files['name'][$idx], $message_id.$idx);
 			}
 		}
 		
@@ -671,11 +671,21 @@ class CerberusParser {
 			CerberusParser::parseMimePart($rfcMessage,$attachments);			
 		}
 
-		if(!empty($attachments)) {
+		if(!empty($attachments['plaintext'])) {
+			$settings = CerberusSettings::getInstance();
+			$attachmentlocation = $settings->get(CerberusSettings::SAVE_FILE_PATH);
+		
 			$message_id = CerberusTicketDAO::createMessage($id,CerberusMessageType::EMAIL,$iDate,$fromAddressId,$headers,$attachments['plaintext']);
+
+			if(!empty($attachments['html'])) {
+				$message_id = CerberusTicketDAO::createMessage($id,CerberusMessageType::EMAIL,$iDate,$fromAddressId,$headers,$attachments['plaintext']);
+			}
 			
-			foreach ($attachments['files'] as $filepath => $filename) {
-				CerberusTicketDAO::createAttachment($message_id, $filename, $filepath);
+			$idx = 0;
+			foreach ($attachments['files'] as $filename => $file) {
+				file_put_contents($attachmentlocation.$message_id.$idx,$file);
+				CerberusTicketDAO::createAttachment($message_id, $filename, $message_id.$idx);
+				$idx++;
 			}
 		}
 
@@ -829,6 +839,7 @@ class CerberusParser {
 	}
 	
 	static private function parseMimePart($part,&$attachments) {
+		// valid primary types are found at http://www.iana.org/assignments/media-types/
 		$contentType = @$part->ctype_primary.'/'.@$part->ctype_secondary;
 		$fileName = @$part->d_parameters['filename'];
 		if (empty($fileName)) $fileName = @$part->ctype_parameters['name'];
@@ -843,15 +854,10 @@ class CerberusParser {
 			CerberusParser::parseMimeParts($part);
 			
 		} else {
-			// valid primary types are found at http://www.iana.org/assignments/media-types/
-			$timestamp = gmdate('Y.m.d.H.i.s.', gmmktime());
-			list($usec, $sec) = explode(' ', microtime());
-			$timestamp .= substr($usec,2,3) . '.';
-			if (false !== file_put_contents(DEVBLOCKS_ATTACHMENT_SAVE_PATH . $timestamp . $fileName, $part->body)) {
-				$attachments['files'][$timestamp.$fileName] = $fileName;
-//				$attachments['plaintext'] .= ' Saved file <a href="' . DEVBLOCKS_ATTACHMENT_ACCESS_PATH . $timestamp . $fileName . '">'
-//											. (empty($fileName) ? 'Unnamed file' : $fileName) . '</a>. ';
-			}
+			if (empty($fileName))
+				$attachments['files'][] = $part->body;
+			else
+				$attachments['files'][$fileName] = $part->body;
 		}
 	}
 	
@@ -872,6 +878,7 @@ class CerberusSettings {
 	const DEFAULT_REPLY_FROM = 'default_reply_from'; 
 	const DEFAULT_REPLY_PERSONAL = 'default_reply_personal'; 
 	const HELPDESK_TITLE = 'helpdesk_title'; 
+	const SAVE_FILE_PATH = 'save_file_path'; 
 	const SMTP_HOST = 'smtp_host'; 
 	const SMTP_AUTH_USER = 'smtp_auth_user'; 
 	const SMTP_AUTH_PASS = 'smtp_auth_pass'; 
@@ -882,6 +889,7 @@ class CerberusSettings {
 		self::DEFAULT_REPLY_FROM => '',
 		self::DEFAULT_REPLY_PERSONAL => '',
 		self::HELPDESK_TITLE => 'Cerberus Helpdesk :: Team-based E-mail Management',
+		self::SAVE_FILE_PATH => 'ftps://cerberus:cerberus@localhost/',
 		self::SMTP_HOST => 'localhost',
 		self::SMTP_AUTH_USER => '',
 		self::SMTP_AUTH_PASS => '',
