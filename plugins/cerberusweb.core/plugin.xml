@@ -1,8 +1,16 @@
-<!DOCTYPE PLUGIN SYSTEM "../../libs/devblocks/plugin.dtd">
+<!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
 <plugin>
 	<id>cerberusweb.core</id>
 	<name>Cerberus Helpdesk Core</name>
+	<description>The core functionality of Cerberus Helpdesk.</description>
 	<author>WebGroup Media, LLC.</author>
+	<revision>0</revision>
+	
+	<!-- 
+	<requires>
+		<plugin id="plugin.core.id" version=">= 1.0" />
+	</requires>
+	 -->
 	
 	<mapping>
 		<uri value="login" extension_id="core.module.signin" />
@@ -14,9 +22,21 @@
 	</mapping>
 	
 	<extensions>
+
+		<!-- Patch Containers -->
+		<extension point="devblocks.patch.container">
+			<id>core.patches</id>
+			<name>Cerberus Helpdesk Core Patches</name>
+			<class>
+				<file>patch.classes.php</file>
+				<name>ChCorePatchContainer</name>
+			</class>
+			<params>
+			</params>
+		</extension>
 	
 		<!-- Page Modules -->
-	
+
 		<extension point="cerberusweb.module">
 			<id>core.module.tickets</id>
 			<name>Tickets Module</name>

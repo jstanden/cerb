@@ -1,17 +1,31 @@
-<!-- [JAS] [TODO] Needs DTD -->
+<!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
 <plugin>
 	<id>cerberusweb.faq</id>
 	<name>Cerberus Helpdesk FAQ</name>
+	<description>A FAQ (Frequently Asked Questions) module to provide ticket answers through tagging.</description>
 	<author>WebGroup Media, LLC.</author>
+	<revision>0</revision>
 	
 	<mapping>
-		<uri value="faq" extension_id="core.module.faq" />
-	</mapping>	
+		<uri value="faq" extension_id="faq.module.faq" />
+	</mapping>
 	
 	<extensions>
 	
+		<!-- Patch Containers -->
+		<extension point="devblocks.patch.container">
+			<id>faq.patches</id>
+			<name>Cerberus Helpdesk FAQ Patches</name>
+			<class>
+				<file>patch.classes.php</file>
+				<name>ChFaqPatchContainer</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+	
 		<extension point="cerberusweb.module">
-			<id>core.module.faq</id>
+			<id>faq.module.faq</id>
 			<name>FAQ Module</name>
 			<class>
 				<file>classes.php</file>
@@ -24,7 +38,7 @@
 		</extension>
 		
 		<extension point="cerberusweb.display.module">
-			<id>core.display.module.faq</id>
+			<id>faq.display.module.faq</id>
 			<name>Fetch &amp; Retrieve Display Module</name>
 			<class>
 				<file>classes.php</file>

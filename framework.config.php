@@ -14,6 +14,7 @@ define('APP_DEFAULT_URI','tickets');
 /****************************************************************************
  * [JAS]: Don't change the following unless you know what you're doing!
  ***************************************************************************/
+define('APP_DB_PREFIX','cerb');
 define('APP_PATH',realpath(dirname(__FILE__)));
 define('DEVBLOCKS_PATH',APP_PATH . '/libs/devblocks/');
 

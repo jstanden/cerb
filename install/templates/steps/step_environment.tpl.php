@@ -1,7 +1,7 @@
 <h2>Checking Server Environment</h2>
 
 <form action="index.php" method="POST">
-<b>PHP Version:</b> 
+<b>PHP Version... </b> 
 {if !$results.php_version}
 	<span class="bad">Failure!  PHP 5.0.0 or later is required.</span>
 {else}

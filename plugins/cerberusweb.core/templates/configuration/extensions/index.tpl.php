@@ -17,9 +17,20 @@
 
 <ul style="list-style:none;margin-left:0;padding-left:1em;text-indent:1em;">
 {foreach from=$plugins item=plugin}
-		<li>
-			<input type="checkbox" name="plugins_enabled[]" value="{$plugin->id}" {if $plugin->enabled}checked{/if}> 
-			<a href="javascript:;" style="font-weight:bold;">{$plugin->name}</a>
+		<li style='padding-bottom:5px;'>
+			<div style="border:1px solid rgb(0,120,0);background-color:rgb(240,240,255);width:750px;" id="config_plugin_{$plugin->id}">
+			<table cellpadding="5" cellspacing="0" border="0" width="100%">
+				<tr>
+					<td nowrap="nowrap" width="0%" valign="top">
+						<input type="checkbox" name="plugins_enabled[]" value="{$plugin->id}" {if $plugin->enabled}checked{/if}>
+					</td>
+					<td width="100%" onclick="checkAll('config_plugin_{$plugin->id}');">
+						<span style="font-weight:bold;color:rgb(0,120,0);">{$plugin->name}</span> (Revision: {$plugin->revision})<br>
+						{$plugin->description}
+					</td>
+				</tr>
+			</table>
+			</div>
 		</li>
 {foreachelse}
 	<li>No extensions installed.</li>

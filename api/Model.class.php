@@ -545,6 +545,33 @@ class CerberusKbResourceTypes {
 	const URL = 'U';
 };
 
+class CerberusPatch extends DevblocksPatch {
+	private $plugin_id = null;
+	private $revision = null;
+	private $container = null;
+	
+	function __construct($plugin_id, $revision, DevblocksPatchContainerExtension $container) {
+		parent::__construct($plugin_id, $revision);
+		$this->revision = intval($revision);
+		$this->container = $container;
+	}
+	
+	public function run() {
+		if(empty($this->container) || !is_object($this->container))
+			return FALSE;
+			
+		// Callback
+		$result = $this->container->runRevision($this->revision);
+		
+		if($result) {
+			$this->_ran();
+			return TRUE;
+		} else {
+			return FALSE;
+		}
+	}
+};
+
 interface ICerberusCriterion {
 	public function getValue($rfcMessage);
 };

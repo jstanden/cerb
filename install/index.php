@@ -9,6 +9,8 @@ require_once(DEVBLOCKS_PATH . 'Devblocks.class.php');
 require_once(APP_PATH . '/api/Application.class.php');
 require_once(APP_PATH . '/install/classes.php');
 
+require_once(DEVBLOCKS_PATH . 'api/Patch.php'); // [TODO] Temporary
+
 // DevblocksPlatform::init() workaround 
 if(!defined('DEVBLOCKS_WEBPATH')) {
 	$php_self = $_SERVER["PHP_SELF"];
@@ -29,9 +31,10 @@ define('STEP_WORKFLOW', 8);
 define('STEP_CATCHALL', 9);
 define('STEP_ANTISPAM', 10);
 define('STEP_REGISTER', 11);
-define('STEP_FINISHED', 12);
+define('STEP_UPGRADE', 12);
+define('STEP_FINISHED', 13);
 
-define('TOTAL_STEPS', 12);
+define('TOTAL_STEPS', 13);
 
 // Import GPC variables to determine our scope/step.
 @$step = DevblocksPlatform::importGPC($_REQUEST['step'],'integer');
@@ -133,7 +136,9 @@ switch($step) {
 		
 		break;
 		
-	// Configure and test the database connection 
+	// Configure and test the database connection
+	// [TODO] This should also patch in app_id + revision order
+	// [TODO] This should remind the user to make a backup (and refer to a wiki article how)
 	case STEP_DATABASE:
 		// Import scope (if post)
 		@$db_driver = DevblocksPlatform::importGPC($_POST['db_driver'],'string');
@@ -256,27 +261,74 @@ switch($step) {
 	case STEP_INIT_DB:
 		// [TODO] Add current user to patcher/upgrade authorized IPs
 		
-		// Is the database empty?
-		if(CerberusInstaller::isDatabaseEmpty()) {
+		if(CerberusInstaller::isDatabaseEmpty()) { // install
+			$patchMgr = DevblocksPlatform::getPatchService();
+			
+			// [JAS]: Run our overloaded container for the platform
+			$patchMgr->registerPatchContainer(new PlatformPatchContainer());
 			
 			// Clean script
-			if(!CerberusInstaller::initDatabase()) {
+			if(!$patchMgr->run()) {
 				// [TODO] Show more info on the error
 				$tpl->assign('template', 'steps/step_init_db.tpl.php');
+				
+			} else { // success
+				// Read in plugin information from the filesystem to the database
+				DevblocksPlatform::readPlugins();
+				
+				$plugins = DevblocksPlatform::getPluginRegistry();
+				
+				// Tailor which plugins are enabled by default
+				if(is_array($plugins))
+				foreach($plugins as $plugin_manifest) { /* @var $plugin_manifest DevblocksPluginManifest */
+					switch ($plugin_manifest->id) {
+						case "cerberusweb.core":
+						case "cerberusweb.simulator":
+							$plugin_manifest->setEnabled(true);
+							break;
+						
+						default:
+							$plugin_manifest->setEnabled(false);
+							break;
+					}
+				}
+				
+				DevblocksPlatform::clearCache();
+				
+				// Run enabled plugin patches
+				$patches = DevblocksPlatform::getExtensions("devblocks.patch.container");
+				
+				if(is_array($patches))
+				foreach($patches as $patch_manifest) { /* @var $patch_manifest DevblocksExtensionManifest */ 
+					 $container = $patch_manifest->createInstance(); /* @var $container DevblocksPatchContainerExtension */
+					 $patchMgr->registerPatchContainer($container);
+				}
+				
+				if(!$patchMgr->run()) { // fail
+					$tpl->assign('template', 'steps/step_init_db.tpl.php');
+					
+				} else {
+					// success
+					$tpl->assign('step', STEP_CONTACT);
+					$tpl->display('steps/redirect.tpl.php');
+					exit;
+				}
+			
+				// [TODO] Verify the database
 			}
+			
+			
+		} else { // upgrade / patch
+			/*
+			 * [TODO] We should probably only forward to upgrade when we know 
+			 * the proper tables were installed.  We may be repeating an install 
+			 * request where the clean DB failed.
+			 */
+			$tpl->assign('step', STEP_UPGRADE);
+			$tpl->display('steps/redirect.tpl.php');
+			exit;
 		}
 			
-		// [TODO] Verify the database
-		
-		// Read in plugin information from the filesystem to the database
-		DevblocksPlatform::readPlugins();
-		
-		// [TODO] Tailor which plugins are enabled by default
-		
-		$tpl->assign('step', STEP_CONTACT);
-		$tpl->display('steps/redirect.tpl.php');
-		exit;
-		
 		break;
 		
 
@@ -408,7 +460,6 @@ switch($step) {
 			}
 			
 		} else { // defaults
-			$tpl->assign('imap_host', 'localhost');
 			$tpl->assign('imap_port', 110);
 		}
 		
@@ -701,6 +752,18 @@ switch($step) {
 		$tpl->assign('template', 'steps/step_register.tpl.php');
 		break;
 		
+	case STEP_UPGRADE:
+//		$patchMgr = DevblocksPlatform::getPatchService();
+//		$patchMgr->registerPatchContainer(new PlatformPatchContainer());
+		/*
+		 * [TODO] Need an easy way to scan plugins for their own patches,
+		 * and move core there.
+		 */
+//		$result = $patchMgr->run();
+		
+		$tpl->assign('template', 'steps/step_upgrade.tpl.php');
+		break;
+		
 	// [TODO] Delete the /install/ directory (security)
 	case STEP_FINISHED:
 		$tpl->assign('template', 'steps/step_finished.tpl.php');
@@ -709,11 +772,13 @@ switch($step) {
 
 // [TODO] License Agreement (first step)
 
-// [TODO] Support Center
+// [TODO] Support Center (move to SC installer)
 
 // [TODO] Set up the cron to run using internal timer by default
 
 // [TODO] Check apache rewrite (somehow)
+
+// [TODO] Check if safe_mode is disabled, and if so set our php.ini overrides in the framework.config.php rewrite
 
 $tpl->display('base.tpl.php');
 

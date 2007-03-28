@@ -1066,8 +1066,24 @@ class ChConfigurationModule extends CerberusModuleExtension  {
 			if($plugin->id=='cerberusweb.core') continue;
 			$plugin->setEnabled(false);
 		}
-		
+
 		DevblocksPlatform::clearCache();
+		
+		// Run any enabled plugin patches
+		// [TODO] Should the platform do this automatically on enable in order?
+		$patchMgr = DevblocksPlatform::getPatchService();
+		$patches = DevblocksPlatform::getExtensions("devblocks.patch.container");
+		
+		if(is_array($patches))
+		foreach($patches as $patch_manifest) { /* @var $patch_manifest DevblocksExtensionManifest */ 
+			 $container = $patch_manifest->createInstance(); /* @var $container DevblocksPatchContainerExtension */
+			 $patchMgr->registerPatchContainer($container);
+		}
+		
+		if(!$patchMgr->run()) { // fail
+			die("Failed updating plugins."); // [TODO] Make this more graceful
+		}
+		
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','extensions')));
 	}
 	
