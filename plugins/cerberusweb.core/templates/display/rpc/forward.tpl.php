@@ -30,7 +30,14 @@
 	<tr>
 		<td><textarea name="content" rows="10" cols="80" class="reply">{$message->getContent()|trim|wordwrap:70|indent:1:'> '}</textarea></td>
 	</tr>
-	<tr><td>Attach a file:<input type="file" name="attachment[]"></input></td></tr>
+	<tr>
+		<td>
+			<b>Attachments:</b><br>
+			<input type="file" name="attachment[]"></input> 
+			<a href="javascript:;" onclick="appendFileInput('displayForwardAttachments','attachment[]');">attach another file</a>
+			<div id="displayForwardAttachments"></div>
+		</td>
+	</tr>
 	<tr>
 		<td>
 			<table cellpadding="2" cellspacing="0" border="0" width="100%">

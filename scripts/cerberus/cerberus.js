@@ -1,6 +1,19 @@
 <!--
 // [JAS]: [TODO] This should move into the plugin
 
+function appendFileInput(divName,fieldName) {
+	var frm = document.getElementById(divName);
+	if(null == frm) return;
+
+	var fileInput = document.createElement('input');
+	fileInput.setAttribute('type','file');
+	fileInput.setAttribute('name',fieldName);
+	
+	frm.appendChild(fileInput);
+	
+	frm.innerHTML += "<BR>";
+}
+
 var searchDialogs = new Array();
 
 function addCriteria(divName) {
