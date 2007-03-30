@@ -10,10 +10,10 @@
       <td>
       	<b class="green">Status:</b><br>
       	<select name="status">
-      		<option value="O" {if $ticket->status=='O'}selected{/if}>{$translate->say('status.open')|lower}
-      		<option value="W" {if $ticket->status=='W'}selected{/if}>{$translate->say('status.waiting')|lower}
-      		<option value="C" {if $ticket->status=='C'}selected{/if}>{$translate->say('status.closed')|lower}
-      		<option value="D" {if $ticket->status=='D'}selected{/if}>{$translate->say('status.deleted')|lower}
+      		<option value="O" {if $ticket->status=='O'}selected{/if}>{$translate->_('status.open')|lower}
+      		<option value="W" {if $ticket->status=='W'}selected{/if}>{$translate->_('status.waiting')|lower}
+      		<option value="C" {if $ticket->status=='C'}selected{/if}>{$translate->_('status.closed')|lower}
+      		<option value="D" {if $ticket->status=='D'}selected{/if}>{$translate->_('status.deleted')|lower}
       	</select>
      	</td>
     </tr>
@@ -23,9 +23,9 @@
 			<table cellpadding="0" cellspacing="0">
 				<tr>
 					<td align="center"><label for="priority0"><img src="{devblocks_url}images/star_alpha.gif{/devblocks_url}" width="16" height="16" border="0" title="None" alt="No Priority"></label></td>
-					<td align="center"><label for="priority3"><img src="{devblocks_url}images/star_green.gif{/devblocks_url}" width="16" height="16" border="0" title="{$translate->say('priority.low')}" alt="{$translate->say('priority.low')}"></label></td>
-					<td align="center"><label for="priority4"><img src="{devblocks_url}images/star_yellow.gif{/devblocks_url}" width="16" height="16" border="0" title="{$translate->say('priority.moderate')}" alt="{$translate->say('priority.moderate')}"></label></td>
-					<td align="center"><label for="priority5"><img src="{devblocks_url}images/star_red.gif{/devblocks_url}" width="16" height="16" border="0" title="{$translate->say('priority.high')}" alt="{$translate->say('priority.high')}"></label></td>
+					<td align="center"><label for="priority3"><img src="{devblocks_url}images/star_green.gif{/devblocks_url}" width="16" height="16" border="0" title="{$translate->_('priority.low')}" alt="{$translate->_('priority.low')}"></label></td>
+					<td align="center"><label for="priority4"><img src="{devblocks_url}images/star_yellow.gif{/devblocks_url}" width="16" height="16" border="0" title="{$translate->_('priority.moderate')}" alt="{$translate->_('priority.moderate')}"></label></td>
+					<td align="center"><label for="priority5"><img src="{devblocks_url}images/star_red.gif{/devblocks_url}" width="16" height="16" border="0" title="{$translate->_('priority.high')}" alt="{$translate->_('priority.high')}"></label></td>
 				</tr>
 				<tr>
 					<td align="center"><input id="priority0" type="radio" name="priority" value="0" {if $ticket->priority==0}checked{/if}></td>

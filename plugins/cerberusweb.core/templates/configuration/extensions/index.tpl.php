@@ -37,7 +37,7 @@
 {/foreach}
 </ul>
 
-<input type="submit" value="{$translate->say('common.save_changes')}">
+<input type="submit" value="{$translate->_('common.save_changes')}">
 </form>
 <br>
 

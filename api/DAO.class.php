@@ -576,7 +576,7 @@ class CerberusContactDAO {
 		 * the platform provide the functionality.
 		 */
 		// [TODO] This code fails with anything@localhost
-		require_once(DEVBLOCKS_PATH . 'pear/Mail/RFC822.php');
+		require_once(DEVBLOCKS_PATH . 'libs/pear/Mail/RFC822.php');
 		if (false === Mail_RFC822::isValidInetAddress($email)) {
 //			throw new Exception($email . DevblocksTranslationManager::say('ticket.requester.invalid'));
 			return null;

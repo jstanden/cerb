@@ -2,12 +2,12 @@
 <plugin>
 	<id>cerberusweb.faq</id>
 	<name>Cerberus Helpdesk FAQ</name>
-	<description>A FAQ (Frequently Asked Questions) module to provide ticket answers through tagging.</description>
+	<description>A FAQ (Frequently Asked Questions) page to provide ticket answers through tagging.</description>
 	<author>WebGroup Media, LLC.</author>
 	<revision>0</revision>
 	
 	<mapping>
-		<uri value="faq" extension_id="faq.module.faq" />
+		<uri value="faq" extension_id="faq.page.faq" />
 	</mapping>
 	
 	<extensions>
@@ -24,12 +24,12 @@
 			</params>
 		</extension>
 	
-		<extension point="cerberusweb.module">
-			<id>faq.module.faq</id>
-			<name>FAQ Module</name>
+		<extension point="cerberusweb.page">
+			<id>faq.page.faq</id>
+			<name>FAQ Page</name>
 			<class>
 				<file>classes.php</file>
-				<name>ChFaqModule</name>
+				<name>ChFaqPage</name>
 			</class>
 			<params>
 				<param key="title" value="Faq" />

@@ -2,22 +2,22 @@
 <plugin>
 	<id>cerberusweb.kb</id>
 	<name>Cerberus Helpdesk Knowledgebase</name>
-	<description>Knowledgebase module providing articles organized into categories.</description>
+	<description>Knowledgebase page providing articles organized into categories.</description>
 	<author>WebGroup Media, LLC.</author>
 	<revision>0</revision>
 	
 	<mapping>
-		<uri value="kb" extension_id="core.module.kb" />
+		<uri value="kb" extension_id="core.page.kb" />
 	</mapping>	
 	
 	<extensions>
 	
-		<extension point="cerberusweb.module">
-			<id>core.module.kb</id>
-			<name>Knowledgebase Module</name>
+		<extension point="cerberusweb.page">
+			<id>core.page.kb</id>
+			<name>Knowledgebase Page</name>
 			<class>
 				<file>classes.php</file>
-				<name>ChKnowledgebaseModule</name>
+				<name>ChKnowledgebasePage</name>
 			</class>
 			<params>
 				<param key="title" value="Knowledgebase" />

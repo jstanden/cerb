@@ -1,5 +1,5 @@
 <?php
-define("APP_BUILD", 102);
+define("APP_BUILD", 105);
 
 include_once(APP_PATH . "/api/DAO.class.php");
 include_once(APP_PATH . "/api/Model.class.php");
@@ -22,17 +22,17 @@ class CerberusApplication extends DevblocksApplication {
 		@$extension_id = $mapping[$path[0]];
 		
 		if(empty($visit))
-			$extension_id = 'core.module.signin';
+			$extension_id = 'core.page.signin';
 		
 		if(empty($extension_id)) 
-			$extension_id = 'core.module.tickets';
+			$extension_id = 'core.page.tickets';
 	
-		$modules = CerberusApplication::getModules();
-		$tpl->assign('modules',$modules);		
+		$pages = CerberusApplication::getPages();
+		$tpl->assign('pages',$pages);		
 		
 		$pageManifest = DevblocksPlatform::getExtension($extension_id);
 		$page = $pageManifest->createInstance();
-		$tpl->assign('module',$page);
+		$tpl->assign('page',$page);
 		
 		$settings = CerberusSettings::getInstance();
 		$tpl->assign('settings', $settings);
@@ -46,15 +46,15 @@ class CerberusApplication extends DevblocksApplication {
 		$tpl->display('border.php');
 	}
 	
-	static function getModules() {
-		$modules = array();
-		$extModules = DevblocksPlatform::getExtensions("cerberusweb.module");
+	static function getPages() {
+		$pages = array();
+		$extModules = DevblocksPlatform::getExtensions("cerberusweb.page");
 		foreach($extModules as $mod) { /* @var $mod DevblocksExtensionManifest */
-			$instance = $mod->createInstance(); /* @var $instance CerberusModuleExtension */
+			$instance = $mod->createInstance(); /* @var $instance CerberusPageExtension */
 			if(is_a($instance,'devblocksextension') && $instance->isVisible())
-				$modules[] = $instance;
+				$pages[] = $instance;
 		}
-		return $modules;
+		return $pages;
 	}	
 	
 	// [TODO] Move to a FormHelper service?
@@ -179,7 +179,7 @@ class CerberusApplication extends DevblocksApplication {
 				 * [JAS]: [TODO] If we're going to call platform libs directly we should just have
 				 * the platform provide the functionality.
 				 */
-				require_once(APP_PATH . '/libs/devblocks/pear/mime.php');
+				require_once(DEVBLOCKS_PATH . '/libs/pear/mime.php');
 				$mime_mail = new Mail_mime();
 				$mime_mail->setTXTBody($content);
 				foreach ($files['tmp_name'] as $idx => $file) {
@@ -866,7 +866,7 @@ class CerberusParser {
 		 * [JAS]: [TODO] If we're going to call platform libs directly we should just have
 		 * the platform provide the functionality.
 		 */
-		require_once(DEVBLOCKS_PATH . 'pear/Mail/RFC822.php');
+		require_once(DEVBLOCKS_PATH . 'libs/pear/Mail/RFC822.php');
 		$structure = Mail_RFC822::parseAddressList($address_string, null, false);
 		return $structure;
 	}

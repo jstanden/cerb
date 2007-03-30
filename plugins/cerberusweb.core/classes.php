@@ -1,5 +1,15 @@
 <?php
-class ChTicketsModule extends CerberusModuleExtension {
+class ChTranslations extends DevblocksTranslationsExtension {
+	function __construct($manifest) {
+		parent::__construct($manifest);	
+	}
+	
+	function getTmxFile() {
+		return dirname(__FILE__) . '/strings.xml';
+	}
+};
+
+class ChTicketsPage extends CerberusPageExtension {
 	function __construct($manifest) {
 		parent::__construct($manifest);
 	}
@@ -308,6 +318,9 @@ class ChTicketsModule extends CerberusModuleExtension {
 		@$id = DevblocksPlatform::importGPC($_POST['id']);
 		@$action_id = DevblocksPlatform::importGPC($_POST['action_id']);
 		@$ticket_ids = DevblocksPlatform::importGPC($_POST['ticket_id']);
+		
+		if(empty($action_id) || empty($ticket_ids))
+			return;
 		
 		$action = DAO_DashboardViewAction::get($action_id);
 		if(empty($action)) return;
@@ -656,7 +669,7 @@ class ChTicketsModule extends CerberusModuleExtension {
 	
 };
 
-class ChConfigurationModule extends CerberusModuleExtension  {
+class ChConfigurationPage extends CerberusPageExtension  {
 	function __construct($manifest) {
 		parent::__construct($manifest);
 	}
@@ -1125,7 +1138,7 @@ class ChConfigurationModule extends CerberusModuleExtension  {
 	
 }
 
-class ChFilesModule extends CerberusModuleExtension {
+class ChFilesPage extends CerberusPageExtension {
 	function __construct($manifest) {
 		parent::__construct($manifest);	
 	}
@@ -1160,11 +1173,11 @@ class ChFilesModule extends CerberusModuleExtension {
 		header("Last-Modified: " . gmdate("D,d M YH:i:s") . " GMT\n");
 		header("Cache-control: private\n");
 		header("Pragma: no-cache\n");
-		header("Content-Type: " . ChFilesModule::getMimeType($file_name) . "\n");
+		header("Content-Type: " . ChFilesPage::getMimeType($file_name) . "\n");
 		header("Content-transfer-encoding: binary\n"); 
-		header("Content-Length: " . ChFilesModule::getFileSize($file_id) . "\n");
+		header("Content-Length: " . ChFilesPage::getFileSize($file_id) . "\n");
 		
-		echo(ChFilesModule::getFileContents($file_id));
+		echo(ChFilesPage::getFileContents($file_id));
 
 		exit;
 	}
@@ -1221,7 +1234,7 @@ class ChFilesModule extends CerberusModuleExtension {
 	}
 }
 
-class ChDisplayModule extends CerberusModuleExtension {
+class ChDisplayPage extends CerberusPageExtension {
 	function __construct($manifest) {
 		parent::__construct($manifest);
 	}
@@ -1302,9 +1315,9 @@ class ChDisplayModule extends CerberusModuleExtension {
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('display',$id)));
 	}
 	
-	function reply()	{ ChDisplayModule::loadMessageTemplate(CerberusMessageType::EMAIL); }
-	function forward()	{ ChDisplayModule::loadMessageTemplate(CerberusMessageType::FORWARD); }
-	function comment()	{ ChDisplayModule::loadMessageTemplate(CerberusMessageType::COMMENT); }
+	function reply()	{ ChDisplayPage::loadMessageTemplate(CerberusMessageType::EMAIL); }
+	function forward()	{ ChDisplayPage::loadMessageTemplate(CerberusMessageType::FORWARD); }
+	function comment()	{ ChDisplayPage::loadMessageTemplate(CerberusMessageType::COMMENT); }
 	
 	function loadMessageTemplate($type) {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
@@ -1366,7 +1379,7 @@ class ChDisplayModule extends CerberusModuleExtension {
 	
 };
 
-class ChSignInModule extends CerberusModuleExtension {
+class ChSignInPage extends CerberusPageExtension {
 	function __construct($manifest) {
 		parent::__construct($manifest);
 	}
@@ -1392,7 +1405,7 @@ class ChSignInModule extends CerberusModuleExtension {
 	
 	function render() {
 		$manifest = DevblocksPlatform::getExtension('login.default');
-		$inst = $manifest->createInstance(1); /* @var $inst CerberusLoginModuleExtension */
+		$inst = $manifest->createInstance(1); /* @var $inst CerberusLoginPageExtension */
 		$inst->renderLoginForm();
 	}
 	
@@ -1404,7 +1417,7 @@ class ChSignInModule extends CerberusModuleExtension {
 	}
 };
 
-class ChPreferencesModule extends CerberusModuleExtension {
+class ChPreferencesPage extends CerberusPageExtension {
 	function __construct($manifest) {
 		parent::__construct($manifest);
 	}
@@ -1430,7 +1443,7 @@ class ChPreferencesModule extends CerberusModuleExtension {
 	}
 }
 
-class ChDisplayTicketHistory extends CerberusDisplayModuleExtension {
+class ChDisplayTicketHistory extends CerberusDisplayPageExtension {
 	function __construct($manifest) {
 		parent::__construct($manifest);
 	}
@@ -1465,7 +1478,7 @@ class ChDisplayTicketHistory extends CerberusDisplayModuleExtension {
 	}
 }
 
-class ChDisplayTicketLog extends CerberusDisplayModuleExtension {
+class ChDisplayTicketLog extends CerberusDisplayPageExtension {
 	function __construct($manifest) {
 		parent::__construct($manifest);
 	}
@@ -1481,7 +1494,7 @@ class ChDisplayTicketLog extends CerberusDisplayModuleExtension {
 	}
 }
 
-class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
+class ChDisplayTicketWorkflow extends CerberusDisplayPageExtension {
 	function __construct($manifest) {
 		parent::__construct($manifest);
 	}
@@ -1822,7 +1835,7 @@ class ChDisplayTicketWorkflow extends CerberusDisplayModuleExtension {
 	
 }
 
-class ChDisplayTicketFields extends CerberusDisplayModuleExtension {
+class ChDisplayTicketFields extends CerberusDisplayPageExtension {
 	function __construct($manifest) {
 		parent::__construct($manifest);
 	}
@@ -1838,7 +1851,7 @@ class ChDisplayTicketFields extends CerberusDisplayModuleExtension {
 	}
 }
 
-class ChDisplayTicketConversation extends CerberusDisplayModuleExtension {
+class ChDisplayTicketConversation extends CerberusDisplayPageExtension {
 	function __construct($manifest) {
 		parent::__construct($manifest);
 	}

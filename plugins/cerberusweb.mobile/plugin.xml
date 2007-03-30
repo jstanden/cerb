@@ -7,19 +7,21 @@
 	<revision>0</revision>
 	
 	<mapping>
-		<uri value="mobile" extension_id="cerberusweb.mobile.handler" />
+		<uri value="mobile" extension_id="cerberusweb.page.mobile" />
 	</mapping>
 	
 	<extensions>
 	
-		<extension point="cerberusweb.mobile.handler">
-			<id>cerberusweb.mobile.handler</id>
-			<name>Mobile Interface Module</name>
+		<extension point="cerberusweb.page">
+			<id>cerberusweb.page.mobile</id>
+			<name>Mobile Interface Page</name>
 			<class>
 				<file>classes.php</file>
-				<name>MobileHandler</name>
+				<name>MobilePage</name>
 			</class>
 			<params>
+				<param key="title" value="" />
+				<param key="menutitle" value="" />
 			</params>
 		</extension>
 		

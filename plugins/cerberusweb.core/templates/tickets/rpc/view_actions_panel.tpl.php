@@ -98,7 +98,7 @@
 
 </div>
 
-<input type="button" value="{$translate->say('common.save_changes')}" onclick="ajax.saveViewActionPanel('{$id}','{$view_id}');">
-{if !empty($id)}<input type="button" value="{$translate->say('common.remove')|capitalize}" onclick="">{/if}
+<input type="button" value="{$translate->_('common.save_changes')}" onclick="ajax.saveViewActionPanel('{$id}','{$view_id}');">
+{if !empty($id)}<input type="button" value="{$translate->_('common.remove')|capitalize}" onclick="">{/if}
 <br>
 </form>

@@ -42,7 +42,7 @@ class ChCorePatchContainer extends DevblocksPatchContainerExtension {
 		$tables['ticket'] = "
 			id I4 DEFAULT 0 NOTNULL PRIMARY,
 			mask C(16) DEFAULT '' NOTNULL, 
-			subject C(128)  DEFAULT '' NOTNULL, 
+			subject C(255)  DEFAULT '' NOTNULL, 
 			bitflags I2 DEFAULT 0,
 			created_date I4,
 			updated_date I4,

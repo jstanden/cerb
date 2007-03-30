@@ -11,7 +11,7 @@
       	</form>
       </td>
       <td style="vertical-align: top;">
-      	<h1>{$translate->say('common.ticket')|capitalize} #{$ticket->mask}: {$ticket->subject}</h1>
+      	<h1>{$translate->_('common.ticket')|capitalize} #{$ticket->mask}: {$ticket->subject}</h1>
 			<a href="#" style="font-size:90%;">jump to latest message</a> | <a href="#" style="font-size:90%;">customize page layout</a><br>
 			<br>
 			{foreach from=$display_modules item=display_module}

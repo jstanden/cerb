@@ -11,22 +11,36 @@
 		<plugin id="plugin.core.id" version=">= 1.0" />
 	</requires>
 	 -->
-	
+
 	<mapping>
-		<uri value="login" extension_id="core.module.signin" />
-		<uri value="tickets" extension_id="core.module.tickets" />
-		<uri value="display" extension_id="core.module.display" />
-		<uri value="config" extension_id="core.module.configuration" />
-		<uri value="preferences" extension_id="core.module.preferences" />
-		<uri value="files" extension_id="core.module.files" />
+		<uri value="login" extension_id="core.page.signin" />
+		<uri value="tickets" extension_id="core.page.tickets" />
+		<uri value="display" extension_id="core.page.display" />
+		<uri value="config" extension_id="core.page.configuration" />
+		<uri value="preferences" extension_id="core.page.preferences" />
+		<uri value="files" extension_id="core.page.files" />
 	</mapping>
-	
+
 	<extensions>
 
+		<!-- Translations -->
+		
+		<extension point="devblocks.i18n.translations">
+			<id>core.translations</id>
+			<name>Cerberus Helpdesk Translations</name>
+			<class>
+				<file>classes.php</file>
+				<name>ChTranslations</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
 		<!-- Patch Containers -->
+		
 		<extension point="devblocks.patch.container">
 			<id>core.patches</id>
-			<name>Cerberus Helpdesk Core Patches</name>
+			<name>Cerberus Helpdesk Patches</name>
 			<class>
 				<file>patch.classes.php</file>
 				<name>ChCorePatchContainer</name>
@@ -35,14 +49,14 @@
 			</params>
 		</extension>
 	
-		<!-- Page Modules -->
+		<!-- Pages -->
 
-		<extension point="cerberusweb.module">
-			<id>core.module.tickets</id>
-			<name>Tickets Module</name>
+		<extension point="cerberusweb.page">
+			<id>core.page.tickets</id>
+			<name>Tickets Page</name>
 			<class>
 				<file>classes.php</file>
-				<name>ChTicketsModule</name>
+				<name>ChTicketsPage</name>
 			</class>
 			<params>
 				<param key="title" value="Tickets" />
@@ -51,12 +65,12 @@
 			</params>
 		</extension>
 
-		<extension point="cerberusweb.module">
-			<id>core.module.display</id>
-			<name>Display Ticket Module</name>
+		<extension point="cerberusweb.page">
+			<id>core.page.display</id>
+			<name>Display Ticket Page</name>
 			<class>
 				<file>classes.php</file>
-				<name>ChDisplayModule</name>
+				<name>ChDisplayPage</name>
 			</class>
 			<params>
 				<param key="title" value="Display" />
@@ -65,12 +79,12 @@
 			</params>
 		</extension>
 
-		<extension point="cerberusweb.module">
-			<id>core.module.files</id>
-			<name>Files Module</name>
+		<extension point="cerberusweb.page">
+			<id>core.page.files</id>
+			<name>Files Page</name>
 			<class>
 				<file>classes.php</file>
-				<name>ChFilesModule</name>
+				<name>ChFilesPage</name>
 			</class>
 			<params>
 				<param key="title" value="" />
@@ -78,24 +92,24 @@
 			</params>
 		</extension>
 
-		<extension point="cerberusweb.module">
-			<id>core.module.signin</id>
-			<name>Signin Module</name>
+		<extension point="cerberusweb.page">
+			<id>core.page.signin</id>
+			<name>Signin Page</name>
 			<class>
 				<file>classes.php</file>
-				<name>ChSignInModule</name>
+				<name>ChSignInPage</name>
 			</class>
 			<params>
 				<param key="title" value="Sign in" />
 			</params>
 		</extension>
 
-		<extension point="cerberusweb.module">
-			<id>core.module.configuration</id>
-			<name>Configuration Module</name>
+		<extension point="cerberusweb.page">
+			<id>core.page.configuration</id>
+			<name>Configuration Page</name>
 			<class>
 				<file>classes.php</file>
-				<name>ChConfigurationModule</name>
+				<name>ChConfigurationPage</name>
 			</class>
 			<params>
 				<param key="title" value="Configuration" />
@@ -103,12 +117,12 @@
 			</params>
 		</extension>
 
-		<extension point="cerberusweb.module">
-			<id>core.module.preferences</id>
-			<name>Preferences Module</name>
+		<extension point="cerberusweb.page">
+			<id>core.page.preferences</id>
+			<name>Preferences Page</name>
 			<class>
 				<file>classes.php</file>
-				<name>ChPreferencesModule</name>
+				<name>ChPreferencesPage</name>
 			</class>
 			<params>
 				<param key="title" value="Preferences" />

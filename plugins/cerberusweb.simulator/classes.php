@@ -1,6 +1,6 @@
 <?php
 
-class ChSimulatorModule extends CerberusModuleExtension {
+class ChSimulatorPage extends CerberusPageExtension {
 	function __construct($manifest) {
 		parent::__construct($manifest);
 	}
@@ -51,7 +51,7 @@ class ChSimulatorModule extends CerberusModuleExtension {
 	
 	function generateTickets() {
 		require_once(dirname(__FILE__) . '/api/API.class.php');
-		require_once(DEVBLOCKS_PATH . 'pear/mimeDecode.php');
+		require_once(DEVBLOCKS_PATH . 'libs/pear/mimeDecode.php');
 		
 		@$address = DevblocksPlatform::importGPC($_POST['address'],'string'); 
 		@$dataset = DevblocksPlatform::importGPC($_POST['dataset'],'string');

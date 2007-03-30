@@ -1,5 +1,5 @@
 <?php
-class DefaultLoginModule extends CerberusLoginModuleExtension {
+class DefaultLoginModule extends CerberusLoginPageExtension {
 	function renderLoginForm() {
 		// draws HTML form of controls needed for login information
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -29,7 +29,7 @@ class DefaultLoginModule extends CerberusLoginModuleExtension {
 	}
 };
 
-class LDAPLoginModule extends CerberusLoginModuleExtension {
+class LDAPLoginModule extends CerberusLoginPageExtension {
 	function renderLoginForm() {
 		// draws HTML form of controls needed for login information
 		$tpl = DevblocksPlatform::getTemplateService();

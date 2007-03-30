@@ -11,6 +11,6 @@
 </div>
 </div>
 <br>
-<input type="button" value="{$translate->say('common.save_changes')|capitalize}" onclick="displayAjax.saveFavTags();">
-<input type="button" value="{$translate->say('common.cancel')|capitalize}" onclick="toggleDiv('displayWorkflowOptions','none');">
+<input type="button" value="{$translate->_('common.save_changes')|capitalize}" onclick="displayAjax.saveFavTags();">
+<input type="button" value="{$translate->_('common.cancel')|capitalize}" onclick="toggleDiv('displayWorkflowOptions','none');">
 <br>

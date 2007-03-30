@@ -10,5 +10,5 @@
 <label><input type="radio" name="save_as" value="search" checked> Named search:</label><br>
 <input type="text" name="name" size="24" onfocus="this.form.save_as[1].checked=true;">
 <br>
-<input type="button" onclick="ajax.saveSearch('{$divName}');" value="{$translate->say('common.save')|capitalize}">
-<input type="button" onclick="clearDiv('{$divName}_control');" value="{$translate->say('common.cancel')|capitalize}">
+<input type="button" onclick="ajax.saveSearch('{$divName}');" value="{$translate->_('common.save')|capitalize}">
+<input type="button" onclick="clearDiv('{$divName}_control');" value="{$translate->_('common.cancel')|capitalize}">

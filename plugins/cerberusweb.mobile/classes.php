@@ -1,6 +1,5 @@
 <?php
-
-class MobileHandler extends CerberusModuleExtension implements DevblocksHttpRequestHandler {
+class MobilePage extends CerberusPageExtension implements DevblocksHttpRequestHandler {
 	
 	public function isVisible() {
 		$session = DevblocksPlatform::getSessionService();

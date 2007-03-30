@@ -30,12 +30,12 @@
 						<td width="100%">
 						{if $param->field=='t_mask'}
 							<img src="{devblocks_url}images/data_find.gif{/devblocks_url}" align="absmiddle"> 
-							{$translate->say('ticket.mask')|capitalize} 
+							{$translate->_('ticket.mask')|capitalize} 
 							{$param->operator} 
 							<b>{$param->value}</b>
 						{elseif $param->field=="t_status"}
 							<img src="{devblocks_url}images/data_find.gif{/devblocks_url}" align="absmiddle"> 
-							{$translate->say('ticket.status')|capitalize} 
+							{$translate->_('ticket.status')|capitalize} 
 							{$param->operator}
 							{foreach from=$param->value item=p name=params}
 							<b>{$p}</b>
@@ -43,7 +43,7 @@
 							{/foreach}
 						{elseif $param->field=="m_id"}
 							<img src="{devblocks_url}images/data_find.gif{/devblocks_url}" align="absmiddle"> 
-							{$translate->say('common.mailbox')|capitalize}
+							{$translate->_('common.mailbox')|capitalize}
 							{$param->operator}
 							{foreach from=$param->value item=p name=params}
 							<b>{$p}</b>
@@ -51,7 +51,7 @@
 							{/foreach}
 						{elseif $param->field=="t_priority"}
 							<img src="{devblocks_url}images/data_find.gif{/devblocks_url}" align="absmiddle"> 
-							{$translate->say('ticket.priority')|capitalize} 
+							{$translate->_('ticket.priority')|capitalize} 
 							{$param->operator}
 							{foreach from=$param->value item=p name=params}
 							<b>{$p}</b>
@@ -59,22 +59,22 @@
 							{/foreach}
 						{elseif $param->field=="t_subject"}
 							<img src="{devblocks_url}images/data_find.gif{/devblocks_url}" align="absmiddle"> 
-							{$translate->say('ticket.subject')|capitalize} 
+							{$translate->_('ticket.subject')|capitalize} 
 							{$param->operator} 
 							<b>{$param->value}</b>
 						{elseif $param->field=="ra_email"}
 							<img src="{devblocks_url}images/data_find.gif{/devblocks_url}" align="absmiddle"> 
-							{$translate->say('requester')|capitalize} 
+							{$translate->_('requester')|capitalize} 
 							{$param->operator} 
 							<b>{$param->value}</b>
 						{elseif $param->field=="msg_content"}
 							<img src="{devblocks_url}images/data_find.gif{/devblocks_url}" align="absmiddle"> 
-							{$translate->say('message.content')|capitalize} 
+							{$translate->_('message.content')|capitalize} 
 							{$param->operator} 
 							<b>{$param->value}</b>
 						{elseif $param->field=="att_agent_id"}
 							<img src="{devblocks_url}images/data_find.gif{/devblocks_url}" align="absmiddle"> 
-							{$translate->say('workflow.assigned')|capitalize} 
+							{$translate->_('workflow.assigned')|capitalize} 
 							{$param->operator} 
 							{foreach from=$param->value item=p name=params}
 							<b>{$p}</b>
@@ -82,7 +82,7 @@
 							{/foreach}
 						{elseif $param->field=="stt_agent_id"}
 							<img src="{devblocks_url}images/data_find.gif{/devblocks_url}" align="absmiddle"> 
-							{$translate->say('workflow.suggested')|capitalize} 
+							{$translate->_('workflow.suggested')|capitalize} 
 							{$param->operator} 
 							{foreach from=$param->value item=p name=params}
 							<b>{$p}</b>

@@ -41,6 +41,6 @@
 	</tr>
 </table>
 <br>
-<input type="button" value="{$translate->say('common.save_changes')|capitalize}" onclick="kbAjax.categoryModifyPanel.hide();">
-<input type="button" value="{$translate->say('common.cancel')|capitalize}" onclick="kbAjax.categoryModifyPanel.hide();">
+<input type="button" value="{$translate->_('common.save_changes')|capitalize}" onclick="kbAjax.categoryModifyPanel.hide();">
+<input type="button" value="{$translate->_('common.cancel')|capitalize}" onclick="kbAjax.categoryModifyPanel.hide();">
 </form>

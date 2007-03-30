@@ -27,7 +27,7 @@
 	</tr>
 </table>
 
-<input type="button" value="{$translate->say('common.save_changes')}"><br>
+<input type="button" value="{$translate->_('common.save_changes')}"><br>
 
 <br>
 

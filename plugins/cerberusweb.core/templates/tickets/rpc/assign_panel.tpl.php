@@ -1,7 +1,7 @@
 <table cellpadding="0" cellspacing="0" border="0" width="98%">
 	<tr>
 		<td align="left" width="0%" nowrap="nowrap"><img src="{devblocks_url}images/folder_gear.gif{/devblocks_url}" align="absmiddle"></td>
-		<td align="left" width="100%" nowrap="nowrap"><h1>{$translate->say('dashboard.assign_work')|capitalize}</h1></td>
+		<td align="left" width="100%" nowrap="nowrap"><h1>{$translate->_('dashboard.assign_work')|capitalize}</h1></td>
 		<td align="right" width="0%" nowrap="nowrap"><form><input type="button" value=" X " onclick="ajax.assignPanel.hide();"></form></td>
 	</tr>
 </table>
@@ -20,7 +20,7 @@
 		</tr>
 		{foreachelse}
 		<tr>
-			<td colspan="2" class="tableCellBg">{$translate->say('dashboard.no_teams')}</td>
+			<td colspan="2" class="tableCellBg">{$translate->_('dashboard.no_teams')}</td>
 		</tr>
 		{/foreach}
 	</table>

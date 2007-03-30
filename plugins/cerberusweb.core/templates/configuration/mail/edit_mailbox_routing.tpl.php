@@ -34,6 +34,6 @@
 <br>
 -->
 
-<input type="button" value="{$translate->say('common.save_changes')|capitalize}" onclick="configAjax.postShowMailboxRouting('{$id}');">
-{if $id}<input type="button" value="{$translate->say('common.remove')|capitalize}" onclick="if(confirm('Are you sure?')) configAjax.deleteMailboxRouting('{$id}');">{/if}
+<input type="button" value="{$translate->_('common.save_changes')|capitalize}" onclick="configAjax.postShowMailboxRouting('{$id}');">
+{if $id}<input type="button" value="{$translate->_('common.remove')|capitalize}" onclick="if(confirm('Are you sure?')) configAjax.deleteMailboxRouting('{$id}');">{/if}
 </form>

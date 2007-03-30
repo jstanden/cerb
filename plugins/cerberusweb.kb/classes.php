@@ -1,6 +1,6 @@
 <?php
 
-class ChKnowledgebaseModule extends CerberusModuleExtension {
+class ChKnowledgebasePage extends CerberusPageExtension {
 	function __construct($manifest) {
 		parent::__construct($manifest);
 	}
@@ -101,7 +101,7 @@ class ChKnowledgebaseModule extends CerberusModuleExtension {
 };
 
 
-class ChDisplayFnr extends CerberusDisplayModuleExtension {
+class ChDisplayFnr extends CerberusDisplayPageExtension {
 	function __construct($manifest) {
 		parent::__construct($manifest);
 	}

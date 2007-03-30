@@ -7,17 +7,17 @@
 	<revision>0</revision>
 	
 	<mapping>
-		<uri value="simulator" extension_id="core.module.simulator" />
+		<uri value="simulator" extension_id="core.page.simulator" />
 	</mapping>	
 	
 	<extensions>
 	
-		<extension point="cerberusweb.module">
-			<id>core.module.simulator</id>
-			<name>Simulator Module</name>
+		<extension point="cerberusweb.page">
+			<id>core.page.simulator</id>
+			<name>Simulator Page</name>
 			<class>
 				<file>classes.php</file>
-				<name>ChSimulatorModule</name>
+				<name>ChSimulatorPage</name>
 			</class>
 			<params>
 				<param key="title" value="Simulator" />

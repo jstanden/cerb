@@ -1,6 +1,6 @@
 <?php
 
-abstract class CerberusModuleExtension extends DevblocksExtension implements DevblocksHttpRequestHandler {
+abstract class CerberusPageExtension extends DevblocksExtension implements DevblocksHttpRequestHandler {
 	function __construct($manifest) {
 		$this->DevblocksExtension($manifest,1);
 	}
@@ -40,7 +40,7 @@ abstract class CerberusModuleExtension extends DevblocksExtension implements Dev
  * [JAS]: [TODO] DevblocksHttpRequestHandler is getting popular, does it 
  * need to be implemented on DevblocksExtension by default?
  */
-abstract class CerberusDisplayModuleExtension extends DevblocksExtension implements DevblocksHttpRequestHandler {
+abstract class CerberusDisplayPageExtension extends DevblocksExtension implements DevblocksHttpRequestHandler {
 	function __construct($manifest) {
 		$this->DevblocksExtension($manifest,1);
 	}
@@ -67,7 +67,7 @@ abstract class CerberusDisplayModuleExtension extends DevblocksExtension impleme
 	
 }
 
-abstract class CerberusLoginModuleExtension extends DevblocksExtension implements DevblocksHttpRequestHandler {
+abstract class CerberusLoginPageExtension extends DevblocksExtension implements DevblocksHttpRequestHandler {
 	function __construct($manifest) {
 		$this->DevblocksExtension($manifest, 1);
 	}
@@ -122,7 +122,7 @@ abstract class CerberusLoginModuleExtension extends DevblocksExtension implement
 	}
 }
 
-abstract class CerberusCronModuleExtension extends DevblocksExtension {
+abstract class CerberusCronPageExtension extends DevblocksExtension {
 	function __construct($manifest) {
 		$this->DevblocksExtension($manifest, 1);
 	}

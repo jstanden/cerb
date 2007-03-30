@@ -289,10 +289,10 @@ class CerberusTicketStatus { // [TODO] Append 'Enum' to class name?
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		return array(
-			self::OPEN => $translate->say('status.open'),
-			self::WAITING => $translate->say('status.waiting'),
-			self::CLOSED => $translate->say('status.closed'),
-			self::DELETED => $translate->say('status.deleted'),
+			self::OPEN => $translate->_('status.open'),
+			self::WAITING => $translate->_('status.waiting'),
+			self::CLOSED => $translate->_('status.closed'),
+			self::DELETED => $translate->_('status.deleted'),
 		);
 	}
 };
@@ -305,8 +305,8 @@ class CerberusTicketSpamTraining { // [TODO] Append 'Enum' to class name?
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		return array(
-			self::NOT_SPAM => $translate->say('training.not_spam'),
-			self::SPAM => $translate->say('training.report_spam'),
+			self::NOT_SPAM => $translate->_('training.not_spam'),
+			self::SPAM => $translate->_('training.report_spam'),
 		);
 	}
 };
@@ -321,10 +321,10 @@ class CerberusTicketPriority { // [TODO] Append 'Enum' to class name?
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		return array(
-			self::NONE => $translate->say('priority.none'),
-			self::LOW => $translate->say('priority.low'),
-			self::MODERATE => $translate->say('priority.moderate'),
-			self::HIGH => $translate->say('priority.high'),
+			self::NONE => $translate->_('priority.none'),
+			self::LOW => $translate->_('priority.low'),
+			self::MODERATE => $translate->_('priority.moderate'),
+			self::HIGH => $translate->_('priority.high'),
 		);
 	}
 };
@@ -337,8 +337,8 @@ class CerberusTicketFlagEnum {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		return array(
-			self::TAKE => $translate->say('workflow.take'),
-			self::RELEASE => $translate->say('workflow.release'),
+			self::TAKE => $translate->_('workflow.take'),
+			self::RELEASE => $translate->_('workflow.release'),
 		);
 	}
 }

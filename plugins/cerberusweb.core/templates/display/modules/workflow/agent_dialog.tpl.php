@@ -23,5 +23,5 @@
 	{/if}
 	
 	<br>
-	<input type="button" value="{$translate->say('common.save_changes')}" onclick="displayAjax.postShowAgent();">
+	<input type="button" value="{$translate->_('common.save_changes')}" onclick="displayAjax.postShowAgent();">
 </form>

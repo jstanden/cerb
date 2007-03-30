@@ -1,7 +1,7 @@
 <table cellpadding="0" cellspacing="0" border="0" width="98%">
 	<tr>
 		<td align="left" width="0%" nowrap="nowrap"><img src="{devblocks_url}images/folder_network.gif{/devblocks_url}" align="absmiddle"></td>
-		<td align="left" width="100%" nowrap="nowrap"><h1>{$translate->say('dashboard.mailbox_loads')|capitalize}</h1></td>
+		<td align="left" width="100%" nowrap="nowrap"><h1>{$translate->_('dashboard.mailbox_loads')|capitalize}</h1></td>
 		<td align="right" width="0%" nowrap="nowrap"><form><input type="button" value=" X " onclick="ajax.mailboxPanel.hide();"></form></td>
 	</tr>
 </table>
@@ -17,7 +17,7 @@
 		</tr>
 		{foreachelse}
 		<tr>
-			<td class="tableCellBg">{$translate->say('dashboard.no_mailboxes')}</td>
+			<td class="tableCellBg">{$translate->_('dashboard.no_mailboxes')}</td>
 		</tr>
 		{/foreach}
 	</table>

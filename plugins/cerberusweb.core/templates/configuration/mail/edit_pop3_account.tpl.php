@@ -39,7 +39,7 @@
 	{/if}
 	<tr>
 		<td colspan="2">
-			<input type="submit" value="{$translate->say('common.save_changes')}">
+			<input type="submit" value="{$translate->_('common.save_changes')}">
 		</td>
 	</tr>
 </table>

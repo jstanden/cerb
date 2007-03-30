@@ -12,5 +12,5 @@
 		<img src="{devblocks_url}images/folder.gif{/devblocks_url}" align="absmiddle"> <a href="{devblocks_url}c=kb&id={$category->id}{/devblocks_url}">{$category->name}</a> ({$category->hits})<br>
 	{/foreach}
 </div>
-<input type="button" value="{$translate->say('common.cancel')|capitalize}" onclick="kbAjax.categoryPanel.hide();">
+<input type="button" value="{$translate->_('common.cancel')|capitalize}" onclick="kbAjax.categoryPanel.hide();">
 <br>

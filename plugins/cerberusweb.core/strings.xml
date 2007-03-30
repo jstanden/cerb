@@ -1,0 +1,407 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tmx SYSTEM "tmx14.dtd">
+<tmx version="1.4">
+	<header datatype="winres" segtype="sentence" adminlang="en-us" srclang="en-us" o-tmf="abc"></header>
+	<body>
+
+		<!-- Common Strings -->
+
+		<tu tuid='common.cancel'>
+			<tuv xml:lang="en">
+				<seg>cancel</seg>
+			</tuv>
+		</tu>
+		<tu tuid='common.close'>
+			<tuv xml:lang="en">
+				<seg>close</seg>
+			</tuv>
+		</tu>
+		<tu tuid='common.customize'>
+			<tuv xml:lang="en">
+				<seg>customize</seg>
+			</tuv>
+		</tu>
+		<tu tuid='common.name'>
+			<tuv xml:lang="en">
+				<seg>Name</seg>
+			</tuv>
+		</tu>
+		<tu tuid='common.load'>
+			<tuv xml:lang="en">
+				<seg>Load</seg>
+			</tuv>
+		</tu>
+		<tu tuid='common.mailbox'>
+			<tuv xml:lang="en">
+				<seg>Mailbox</seg>
+			</tuv>
+		</tu>
+		<tu tuid='common.next'>
+			<tuv xml:lang="en">
+				<seg>next</seg>
+			</tuv>
+		</tu>
+		<tu tuid='common.prev'>
+			<tuv xml:lang="en">
+				<seg>prev</seg>
+			</tuv>
+		</tu>
+		<tu tuid='common.refresh'>
+			<tuv xml:lang="en">
+				<seg>refresh</seg>
+			</tuv>
+		</tu>
+		<tu tuid='common.remove'>
+			<tuv xml:lang="en">
+				<seg>remove</seg>
+			</tuv>
+		</tu>
+		<tu tuid='common.save'>
+			<tuv xml:lang="en">
+				<seg>Save</seg>
+			</tuv>
+		</tu>
+		<tu tuid='common.save_changes'>
+			<tuv xml:lang="en">
+				<seg>Save Changes</seg>
+			</tuv>
+		</tu>
+		<tu tuid='common.search'>
+			<tuv xml:lang="en">
+				<seg>search</seg>
+			</tuv>
+		</tu>
+		<tu tuid='common.spam'>
+			<tuv xml:lang="en">
+				<seg>Spam</seg>
+			</tuv>
+		</tu>
+		<tu tuid='common.ticket'>
+			<tuv xml:lang="en">
+				<seg>ticket</seg>
+			</tuv>
+		</tu>
+
+		<!-- Header -->
+
+		<tu tuid='header.history'>
+			<tuv xml:lang="en">
+				<seg>history</seg>
+			</tuv>
+		</tu>
+		<tu tuid='header.last_viewed'>
+			<tuv xml:lang="en">
+				<seg>last viewed</seg>
+			</tuv>
+		</tu>
+		<tu tuid='header.my_flagged_tickets'>
+			<tuv xml:lang="en">
+				<seg>My Flagged Tickets</seg>
+			</tuv>
+		</tu>
+		<tu tuid='header.my_suggested_tickets'>
+			<tuv xml:lang="en">
+				<seg>My Suggested Tickets</seg>
+			</tuv>
+		</tu>
+		<tu tuid='header.no_page'>
+			<tuv xml:lang="en">
+				<seg>No page selected.</seg>
+			</tuv>
+		</tu>
+		<tu tuid='header.not_signed_in'>
+			<tuv xml:lang="en">
+				<seg>Not signed in</seg>
+			</tuv>
+		</tu>
+		<tu tuid='header.preferences'>
+			<tuv xml:lang="en">
+				<seg>preferences</seg>
+			</tuv>
+		</tu>
+		<tu tuid='header.signed_in'>
+			<tuv xml:lang="en">
+				<seg>Signed in as %$1s</seg>
+			</tuv>
+		</tu>
+		<tu tuid='header.signoff'>
+			<tuv xml:lang="en">
+				<seg>Sign off</seg>
+			</tuv>
+		</tu>
+		<tu tuid='header.signon'>
+			<tuv xml:lang="en">
+				<seg>Sign on</seg>
+			</tuv>
+		</tu>
+
+		<!-- Dashboard -->
+
+		<tu tuid='dashboard'>
+			<tuv xml:lang="en">
+				<seg>Dashboard</seg>
+			</tuv>
+		</tu>
+		<tu tuid='dashboard.add_dashboard'>
+			<tuv xml:lang="en">
+				<seg>Add Dashboard</seg>
+			</tuv>
+		</tu>
+		<tu tuid='dashboard.add_view'>
+			<tuv xml:lang="en">
+				<seg>Add View</seg>
+			</tuv>
+		</tu>
+		<tu tuid='dashboard.assign_work'>
+			<tuv xml:lang="en">
+				<seg>Assign Me Work</seg>
+			</tuv>
+		</tu>
+		<tu tuid='dashboard.choose_column'>
+			<tuv xml:lang="en">
+				<seg>Choose Column</seg>
+			</tuv>
+		</tu>
+		<tu tuid='dashboard.choose_dashboard'>
+			<tuv xml:lang="en">
+				<seg>Choose Dashboard</seg>
+			</tuv>
+		</tu>
+		<tu tuid='dashboard.columns'>
+			<tuv xml:lang="en">
+				<seg>Columns</seg>
+			</tuv>
+		</tu>
+		<tu tuid='dashboard.create_ticket'>
+			<tuv xml:lang="en">
+				<seg>Create Ticket</seg>
+			</tuv>
+		</tu>
+		<tu tuid='dashboard.dashboards'>
+			<tuv xml:lang="en">
+				<seg>Dashboards</seg>
+			</tuv>
+		</tu>
+		<tu tuid='dashboard.mailbox_loads'>
+			<tuv xml:lang="en">
+				<seg>Mailbox Loads</seg>
+			</tuv>
+		</tu>
+		<tu tuid='dashboard.modify'>
+			<tuv xml:lang="en">
+				<seg>Modify Dashboard</seg>
+			</tuv>
+		</tu>
+		<tu tuid='dashboard.no_mailboxes'>
+			<tuv xml:lang="en">
+				<seg>No visible mailboxes.</seg>
+			</tuv>
+		</tu>
+		<tu tuid='dashboard.no_teams'>
+			<tuv xml:lang="en">
+				<seg>No visible teams.</seg>
+			</tuv>
+		</tu>
+		<tu tuid='dashboard.options'>
+			<tuv xml:lang="en">
+				<seg>Options</seg>
+			</tuv>
+		</tu>
+		<tu tuid='dashboard.num_rows'>
+			<tuv xml:lang="en">
+				<seg>Rows per page</seg>
+			</tuv>
+		</tu>
+		<tu tuid='dashboard.remove_view'>
+			<tuv xml:lang="en">
+				<seg>Remove View From Dashboard</seg>
+			</tuv>
+		</tu>
+		<tu tuid='dashboard.switch'>
+			<tuv xml:lang="en">
+				<seg>Switch</seg>
+			</tuv>
+		</tu>
+		<tu tuid='dashboard.team_loads'>
+			<tuv xml:lang="en">
+				<seg>Team Loads</seg>
+			</tuv>
+		</tu>
+		<tu tuid='dashboard.teamwork'>
+			<tuv xml:lang="en">
+				<seg>Teamwork</seg>
+			</tuv>
+		</tu>
+
+		<!-- Message -->
+
+		<tu tuid='message.content'>
+			<tuv xml:lang="en">
+				<seg>Message Content</seg>
+			</tuv>
+		</tu>
+
+		<!-- Priorities -->
+
+		<tu tuid='priority.none'>
+			<tuv xml:lang="en">
+				<seg>None</seg>
+			</tuv>
+		</tu>
+		<tu tuid='priority.low'>
+			<tuv xml:lang="en">
+				<seg>Low</seg>
+			</tuv>
+		</tu>
+		<tu tuid='priority.moderate'>
+			<tuv xml:lang="en">
+				<seg>Moderate</seg>
+			</tuv>
+		</tu>
+		<tu tuid='priority.high'>
+			<tuv xml:lang="en">
+				<seg>High</seg>
+			</tuv>
+		</tu>
+
+		<!--  -->
+
+		<tu tuid='requester'>
+			<tuv xml:lang="en">
+				<seg>Requester</seg>
+			</tuv>
+		</tu>
+
+		<!-- Search -->
+
+		<tu tuid='search.no_saved'>
+			<tuv xml:lang="en">
+				<seg>No saved searches.</seg>
+			</tuv>
+		</tu>
+
+		<!-- Statuses -->
+
+		<tu tuid='status.open'>
+			<tuv xml:lang="en">
+				<seg>Open</seg>
+			</tuv>
+		</tu>
+		<tu tuid='status.waiting'>
+			<tuv xml:lang="en">
+				<seg>Waiting For Reply</seg>
+			</tuv>
+		</tu>
+		<tu tuid='status.closed'>
+			<tuv xml:lang="en">
+				<seg>Closed</seg>
+			</tuv>
+		</tu>
+		<tu tuid='status.deleted'>
+			<tuv xml:lang="en">
+				<seg>Deleted</seg>
+			</tuv>
+		</tu>
+
+		<!-- Tickets -->
+
+		<tu tuid='ticket.created'>
+			<tuv xml:lang="en">
+				<seg>Created</seg>
+			</tuv>
+		</tu>
+		<tu tuid='ticket.id'>
+			<tuv xml:lang="en">
+				<seg>ID</seg>
+			</tuv>
+		</tu>
+		<tu tuid='ticket.first_wrote'>
+			<tuv xml:lang="en">
+				<seg>First Wrote</seg>
+			</tuv>
+		</tu>
+		<tu tuid='ticket.last_wrote'>
+			<tuv xml:lang="en">
+				<seg>Last Wrote</seg>
+			</tuv>
+		</tu>
+		<tu tuid='ticket.mask'>
+			<tuv xml:lang="en">
+				<seg>Mask</seg>
+			</tuv>
+		</tu>
+		<tu tuid='ticket.mailbox'>
+			<tuv xml:lang="en">
+				<seg>Mailbox</seg>
+			</tuv>
+		</tu>
+		<tu tuid='ticket.priority'>
+			<tuv xml:lang="en">
+				<seg>Priority</seg>
+			</tuv>
+		</tu>
+		<tu tuid='ticket.status'>
+			<tuv xml:lang="en">
+				<seg>Status</seg>
+			</tuv>
+		</tu>
+		<tu tuid='ticket.subject'>
+			<tuv xml:lang="en">
+				<seg>Subject</seg>
+			</tuv>
+		</tu>
+		<tu tuid='ticket.updated'>
+			<tuv xml:lang="en">
+				<seg>Updated</seg>
+			</tuv>
+		</tu>
+
+		<!-- Spam Training -->
+
+		<tu tuid='training.report_spam'>
+			<tuv xml:lang="en">
+				<seg>Report Spam</seg>
+			</tuv>
+		</tu>
+		<tu tuid='training.not_spam'>
+			<tuv xml:lang="en">
+				<seg>Not Spam</seg>
+			</tuv>
+		</tu>
+
+		<!-- Whos Online -->
+
+		<tu tuid='whos_online.heading'>
+			<tuv xml:lang="en">
+				<seg>Who's Online: (%$1d agents)</seg>
+			</tuv>
+		</tu>
+
+		<!-- Workflow -->
+
+		<tu tuid='workflow.assigned'>
+			<tuv xml:lang="en">
+				<seg>Assigned</seg>
+			</tuv>
+		</tu>
+		<tu tuid='workflow.release'>
+			<tuv xml:lang="en">
+				<seg>Release</seg>
+			</tuv>
+		</tu>
+		<tu tuid='workflow.suggested'>
+			<tuv xml:lang="en">
+				<seg>Suggested</seg>
+			</tuv>
+		</tu>
+		<tu tuid='workflow.take'>
+			<tuv xml:lang="en">
+				<seg>Take</seg>
+			</tuv>
+		</tu>
+
+	</body>
+</tmx>
+<!-- 
+	
+-->

@@ -58,10 +58,50 @@ if(!is_writeable(DEVBLOCKS_PATH . "tmp/cache/")) {
 	die(realpath(DEVBLOCKS_PATH . "tmp/cache/") . " is not writeable by the webserver.  Please adjust permissions and reload this page.");
 }
 
+if(!is_writeable(DEVBLOCKS_PATH . "logs/")) {
+	die(realpath(DEVBLOCKS_PATH . "logs/") ." is not writeable by the webserver.  Please adjust permissions and reload this page.");
+}
+
+require_once(DEVBLOCKS_PATH . 'libs/Zend.php');
+//require_once(DEVBLOCKS_PATH . 'libs/Zend/Config.php');
+
+// [JAS]: [TODO] Initialize logging (this needs to move into Devblocks)
+require_once 'Zend/Log.php';
+require_once 'Zend/Log/Adapter/File.php';
+
+define('LOG_DEVBLOCKS_INSTALLER','devblocks_installer');
+define('LOG_DEVBLOCKS_PLATFORM','devblocks');
+define('LOG_DEVBLOCKS_APPLICATION','devblocks_app');
+
+Zend_Log::registerLogger(new Zend_Log_Adapter_File(DEVBLOCKS_PATH . 'logs/installer.txt'),LOG_DEVBLOCKS_INSTALLER);
+Zend_Log::registerLogger(new Zend_Log_Adapter_File(DEVBLOCKS_PATH . 'logs/platform.txt'),LOG_DEVBLOCKS_PLATFORM);
+Zend_Log::registerLogger(new Zend_Log_Adapter_File(DEVBLOCKS_PATH . 'logs/application.txt'),LOG_DEVBLOCKS_APPLICATION);
+
+Zend_Log::setDefaultLogger(LOG_DEVBLOCKS_APPLICATION);
+Zend_Log::setLevel(Zend_Log::LEVEL_INFO);
+
+Zend_Log::log("Starting Installer...", Zend_Log::LEVEL_INFO, LOG_DEVBLOCKS_INSTALLER);
+
+// [JAS]: Email Validator
+//require_once 'Zend/Validate/EmailAddress.php';
+
+// [TODO] Move this to the framework init (installer blocks this at the moment)
+$locale = DevblocksPlatform::getLocaleService();
+$locale->setLocale('en_US');
+
+// [JAS]: Translations
+// [TODO] Should probably cache this
+$translate = DevblocksPlatform::getTranslationService();
+$translate->addTranslation(APP_PATH . '/install/strings.xml',$locale);
+//$date = DevblocksPlatform::getDateService();
+//echo sprintf($translate->_('installer.today'),$date->get(Zend_Date::WEEKDAY));
+
 // Get a reference to the template system and configure it
 $tpl = DevblocksPlatform::getTemplateService();
 $tpl->template_dir = APP_PATH . '/install/templates';
 $tpl->caching = 0;
+
+$tpl->assign('translate', $translate);
 
 $tpl->assign('step', $step);
 
@@ -182,7 +222,7 @@ switch($step) {
 		
 		if(!empty($db_driver) && !empty($db_server) && !empty($db_name) && !empty($db_user)) {
 			// Test the given settings, bypass platform initially
-			include_once(DEVBLOCKS_PATH . "adodb/adodb.inc.php");
+			include_once(DEVBLOCKS_PATH . "libs/adodb/adodb.inc.php");
 			$ADODB_CACHE_DIR = APP_PATH . "/tmp/cache";
 			@$db =& ADONewConnection($db_driver);
 			@$db->Connect($db_server, $db_user, $db_pass, $db_name);
