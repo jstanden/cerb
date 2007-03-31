@@ -19,15 +19,17 @@
 		<uri value="config" extension_id="core.page.configuration" />
 		<uri value="preferences" extension_id="core.page.preferences" />
 		<uri value="files" extension_id="core.page.files" />
+		<uri value="cron" extension_id="core.page.cron" />
+		<uri value="tests" extension_id="core.page.tests" />
 	</mapping>
 
 	<extensions>
 
 		<!-- Translations -->
 		
-		<extension point="devblocks.i18n.translations">
+		<extension point="devblocks.i18n.strings">
 			<id>core.translations</id>
-			<name>Cerberus Helpdesk Translations</name>
+			<name>Cerberus Helpdesk Strings</name>
 			<class>
 				<file>classes.php</file>
 				<name>ChTranslations</name>
@@ -85,6 +87,32 @@
 			<class>
 				<file>classes.php</file>
 				<name>ChFilesPage</name>
+			</class>
+			<params>
+				<param key="title" value="" />
+				<param key="menutitle" value="" />
+			</params>
+		</extension>
+
+		<extension point="cerberusweb.page">
+			<id>core.page.tests</id>
+			<name>Unit Tests Page</name>
+			<class>
+				<file>classes.php</file>
+				<name>ChTestsPage</name>
+			</class>
+			<params>
+				<param key="title" value="" />
+				<param key="menutitle" value="" />
+			</params>
+		</extension>
+		
+		<extension point="cerberusweb.page">
+			<id>core.page.cron</id>
+			<name>Scheduled Tasks (Cron) Page</name>
+			<class>
+				<file>classes.php</file>
+				<name>ChCronPage</name>
 			</class>
 			<params>
 				<param key="title" value="" />
@@ -225,7 +253,7 @@
 			<name>Default POP3 Module</name>
 			<class>
 				<file>cron.classes.php</file>
-				<name>Pop3Module</name>
+				<name>Pop3Cron</name>
 			</class>
 			<params>
 			</params>

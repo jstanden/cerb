@@ -468,7 +468,7 @@ switch($step) {
 
 		// Allow skip by submitting a blank form
 		// Skip if we already have a pop3 box defined.
-		$accounts = CerberusMailDAO::getPop3Accounts();
+		$accounts = DAO_Mail::getPop3Accounts();
 		$skip = (!empty($form_submit) && empty($imap_host) && empty($imap_user)) ? true : false; 
 		if($skip OR !empty($accounts)) {
 			$tpl->assign('step', STEP_WORKFLOW);
@@ -482,7 +482,7 @@ switch($step) {
 			// Test mailbox
 			if($mail->testImap($imap_host,$imap_port,$imap_service,$imap_user,$imap_pass)) { // Success!
 				// [TODO] Check to make sure the details aren't duplicate
-				$id = CerberusMailDAO::createPop3Account($imap_user.'@'.$imap_host,$imap_host,$imap_user,$imap_pass);
+				$id = DAO_Mail::createPop3Account($imap_user.'@'.$imap_host,$imap_host,$imap_user,$imap_pass);
 				
 				$tpl->assign('step', STEP_WORKFLOW);
 				$tpl->display('steps/redirect.tpl.php');
@@ -547,14 +547,14 @@ switch($step) {
 				// Create mailbox records
 				if(is_array($mailboxes))
 				foreach($mailboxes as $mailbox_name) {
-					$id = CerberusMailDAO::createMailbox($mailbox_name,0);
+					$id = DAO_Mail::createMailbox($mailbox_name,0);
 					$mailbox_ids[$id] = $mailbox_name;
 				}
 				
 				// Create team records
 				if(is_array($teams))
 				foreach($teams as $team_name) {
-					$id = CerberusWorkflowDAO::createTeam($team_name);
+					$id = DAO_Workflow::createTeam($team_name);
 					$team_ids[$id] = $team_name;
 				}
 				
@@ -601,9 +601,9 @@ switch($step) {
 					DAO_Worker::updateAgent($worker_id, $fields);
 					
 					// Create a default dashboard for each worker
-					$dashboard_id = CerberusDashboardDAO::createDashboard("Dashboard", $worker_id);
-					$my_view_id = CerberusDashboardDAO::createView('My Tickets',$dashboard_id);
-					$team_view_id = CerberusDashboardDAO::createView('Team Tickets',$dashboard_id);
+					$dashboard_id = DAO_Dashboard::createDashboard("Dashboard", $worker_id);
+					$my_view_id = DAO_Dashboard::createView('My Tickets',$dashboard_id);
+					$team_view_id = DAO_Dashboard::createView('Team Tickets',$dashboard_id);
 					
 					$fields = array(
 						'view_columns' => serialize(array(
@@ -618,7 +618,7 @@ switch($step) {
 							new CerberusSearchCriteria(CerberusSearchFields::TICKET_STATUS,'=',CerberusTicketStatus::OPEN)
 						))
 					);
-					CerberusDashboardDAO::updateView($my_view_id, $fields);
+					DAO_Dashboard::updateView($my_view_id, $fields);
 					
 					$fields = array(
 						'view_columns' => serialize(array(
@@ -633,7 +633,7 @@ switch($step) {
 							new CerberusSearchCriteria(CerberusSearchFields::TICKET_STATUS,'=',CerberusTicketStatus::OPEN)
 						))
 					);
-					CerberusDashboardDAO::updateView($team_view_id, $fields);
+					DAO_Dashboard::updateView($team_view_id, $fields);
 					
 					// Add default actions to worker dashboards
 					
@@ -684,12 +684,12 @@ switch($step) {
 				// [TODO] Add inbound addresses (and create DB routing)
 				if(is_array($mailbox_ids))
 				foreach($mailbox_ids as $idx => $mailbox_id) {
-					$addy_id = CerberusContactDAO::lookupAddress($mailbox_from[$idx],true);
+					$addy_id = DAO_Contact::lookupAddress($mailbox_from[$idx],true);
 					
 					$fields = array(
-						CerberusMailDAO::MAILBOX_REPLY_ADDRESS_ID => $addy_id
+						DAO_Mail::MAILBOX_REPLY_ADDRESS_ID => $addy_id
 					);
-					CerberusMailDAO::updateMailbox($mailbox_id, $fields);
+					DAO_Mail::updateMailbox($mailbox_id, $fields);
 				}
 
 				// Team Details
@@ -701,11 +701,11 @@ switch($step) {
 					
 					// Team Members
 					if(is_array($team_members))
-						CerberusWorkflowDAO::setTeamWorkers($team_id,$team_members);
+						DAO_Workflow::setTeamWorkers($team_id,$team_members);
 					
 					// Team Mailboxes
 					if(is_array($team_mailboxes))
-						CerberusWorkflowDAO::setTeamMailboxes($team_id,$team_mailboxes);
+						DAO_Workflow::setTeamMailboxes($team_id,$team_mailboxes);
 				}
 				
 				$tpl->assign('step', STEP_CATCHALL);
@@ -737,7 +737,7 @@ switch($step) {
 			exit;
 		}
 		
-		$mailboxes = CerberusMailDAO::getMailboxes();
+		$mailboxes = DAO_Mail::getMailboxes();
 		$tpl->assign('mailboxes', $mailboxes);
 		
 		$tpl->assign('template', 'steps/step_catchall.tpl.php');
@@ -752,21 +752,21 @@ switch($step) {
 		if($form_submit) {
 			// [TODO] Implement (to check for dupes)
 			$id = 0;
-//			$id = CerberusMailDAO::lookupMailbox('Spam');
+//			$id = DAO_Mail::lookupMailbox('Spam');
 			
 			if($setup_antispam && empty($id)) {
-				$id = CerberusMailDAO::createMailbox('Spam',0);
+				$id = DAO_Mail::createMailbox('Spam',0);
 				
 				// [TODO] Need to create a mail rule to route spam > 90%
 				
 				// Assign the new mailbox to all existing teams
-				$teams = CerberusWorkflowDAO::getTeams();
+				$teams = DAO_Workflow::getTeams();
 				if(is_array($teams))
 				foreach($teams as $team_id => $team) { /* @var $team CerberusTeam */
 					$mailbox_keys = array_keys($team->getMailboxes());
 					$mailbox_keys[] = $id;
 					// [TODO] This could be simplified with the addition of addTeamMailbox(id,id)
-					CerberusWorkflowDAO::setTeamMailboxes($team_id, $mailbox_keys);
+					DAO_Workflow::setTeamMailboxes($team_id, $mailbox_keys);
 				}
 			}
 			

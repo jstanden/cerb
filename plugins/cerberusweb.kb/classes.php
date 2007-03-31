@@ -36,7 +36,7 @@ class ChKnowledgebasePage extends CerberusPageExtension {
 		$trail = DAO_Kb::getBreadcrumbTrail($tree,$id);
 		$tpl->assign('trail', $trail);
 		
-		$resources = CerberusSearchDAO::searchResources(
+		$resources = DAO_Search::searchResources(
 			array(
 				new CerberusSearchCriteria(CerberusResourceSearchFields::KB_CATEGORY_ID,'in',array($id))
 			),

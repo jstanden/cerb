@@ -25,7 +25,7 @@ class ChSimulatorPage extends CerberusPageExtension {
 		$response = DevblocksPlatform::getHttpResponse();
 		$stack = $response->path;
 		
-		$mailboxes = CerberusMailDAO::getMailboxes();
+		$mailboxes = DAO_Mail::getMailboxes();
 		$tpl->assign('mailboxes', $mailboxes);
 		
 		$flavors = array(

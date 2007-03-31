@@ -3,9 +3,9 @@
  * [JAS]: [TODO] This really belongs in CORE, though it was a good
  * plugin exercise.
  */ 
-class Pop3Page extends CerberusCronPageExtension {
+class Pop3Cron extends CerberusCronPageExtension {
 	function run() {
-		$accounts = CerberusMailDAO::getPop3Accounts(); /* @var $accounts CerberusPop3Account[] */
+		$accounts = DAO_Mail::getPop3Accounts(); /* @var $accounts CerberusPop3Account[] */
 		
 		foreach ($accounts as $account) { /* @var $account CerberusPop3Account */
 			echo ('Account being parsed is ' . $account->nickname . '<br>');

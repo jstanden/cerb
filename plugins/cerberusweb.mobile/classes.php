@@ -53,7 +53,7 @@ class MobilePage extends CerberusPageExtension implements DevblocksHttpRequestHa
 		switch ($page) {
 			default:
 			case "home":
-				$mytickets = CerberusSearchDAO::searchTickets(
+				$mytickets = DAO_Search::searchTickets(
 					array(
 						new CerberusSearchCriteria(CerberusSearchFields::TICKET_STATUS,'in',array(CerberusTicketStatus::OPEN))
 					),
@@ -85,9 +85,9 @@ class MobilePage extends CerberusPageExtension implements DevblocksHttpRequestHa
 				}
 				
 				if (!is_numeric($ticket_id)) {
-					$ticket = CerberusTicketDAO::getTicketByMask($ticket_id);
+					$ticket = DAO_Ticket::getTicketByMask($ticket_id);
 				} else {
-					$ticket = CerberusTicketDAO::getTicket($ticket_id);
+					$ticket = DAO_Ticket::getTicket($ticket_id);
 				}
 				$tpl->assign('ticket', $ticket);
 				$tpl->assign('ticket_id', $ticket_id);
@@ -97,7 +97,7 @@ class MobilePage extends CerberusPageExtension implements DevblocksHttpRequestHa
 				if (0 == strcasecmp($message_id, 'full')) {
 					$tpl->display('file:' . dirname(__FILE__) . '/templates/display.tpl.php');
 				} else {
-					$message = CerberusTicketDAO::getMessage($message_id);
+					$message = DAO_Ticket::getMessage($message_id);
 					if (empty($message))
 						$message = array_pop($ticket->getMessages());
 					$tpl->assign('message', $message);

@@ -30,7 +30,7 @@ class ChFaqPage extends CerberusPageExtension {
 //		$tree = DAO_Kb::getCategoryTree();
 //		$tpl->assign('node', $tree[$id]);
 		
-//		$resources = CerberusSearchDAO::searchResources(
+//		$resources = DAO_Search::searchResources(
 //			array(
 //				new CerberusSearchCriteria(CerberusResourceSearchFields::KB_CATEGORY_ID,'in',array($id))
 //			),

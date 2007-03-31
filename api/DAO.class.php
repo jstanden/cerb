@@ -339,7 +339,7 @@ class DAO_Worker {
 		if(empty($ids))
 			return array();
 		
-		return CerberusWorkflowDAO::getTeams($ids);
+		return DAO_Workflow::getTeams($ids);
 	}
 	
 	static function getFavoriteTags($agent_id) {
@@ -361,7 +361,7 @@ class DAO_Worker {
 		if(empty($ids))
 			return array();
 		
-		return CerberusWorkflowDAO::getTags($ids);
+		return DAO_Workflow::getTags($ids);
 	}
 	
 	static function setFavoriteTags($agent_id, $tag_string) {
@@ -377,7 +377,7 @@ class DAO_Worker {
 		$ids = array();
 		
 		foreach($tags as $tag_name) {
-			$tag = CerberusWorkflowDAO::lookupTag($tag_name, true);
+			$tag = DAO_Workflow::lookupTag($tag_name, true);
 			$ids[$tag->id] = $tag->id;
 		}
 		
@@ -472,8 +472,8 @@ class DAO_Worker {
 	
 }
 
-class CerberusContactDAO {
-	private function CerberusContactDAO() {}
+class DAO_Contact {
+	private function DAO_Contact() {}
 	
 	// [JAS]: [TODO] Move this into MailDAO
 	static function lookupAddress($email,$create_if_null=false) {
@@ -488,7 +488,7 @@ class CerberusContactDAO {
 		if(!$rs->EOF) {
 			$id = $rs->fields['id'];
 		} elseif($create_if_null) {
-			$id = CerberusContactDAO::createAddress($email);
+			$id = DAO_Contact::createAddress($email);
 		}
 		
 		return $id;
@@ -525,7 +525,7 @@ class CerberusContactDAO {
 	static function getAddress($id) {
 		if(empty($id)) return null;
 		
-		$addresses = CerberusContactDAO::getAddresses(array($id));
+		$addresses = DAO_Contact::getAddresses(array($id));
 		
 		if(isset($addresses[$id]))
 			return $addresses[$id];
@@ -536,7 +536,7 @@ class CerberusContactDAO {
 //	// [JAS]: [TODO] Move this into MailDAO
 //	static function getMailboxIdByAddress($email) {
 //		$um_db = DevblocksPlatform::getDatabaseService();
-//		$id = CerberusContactDAO::lookupAddress($email,false);
+//		$id = DAO_Contact::lookupAddress($email,false);
 //		$mailbox_id = null;
 //		
 //		if(empty($id))
@@ -566,7 +566,7 @@ class CerberusContactDAO {
 	static function createAddress($email,$personal='') {
 		$um_db = DevblocksPlatform::getDatabaseService();
 		
-		if(null != ($id = CerberusContactDAO::lookupAddress($email,false)))
+		if(null != ($id = DAO_Contact::lookupAddress($email,false)))
 			return $id;
 
 		$id = $um_db->GenID('address_seq');
@@ -599,7 +599,7 @@ class CerberusContactDAO {
  *
  * @addtogroup dao
  */
-class CerberusTicketDAO {
+class DAO_Ticket {
 	const ID = 'id';
 	const STATUS = 'status';
 	const PRIORITY = 'priority';
@@ -607,7 +607,7 @@ class CerberusTicketDAO {
 	const SPAM_TRAINING = 'spam_training';
 	const SPAM_SCORE = 'spam_score';
 	
-	private function CerberusTicketDAO() {}
+	private function DAO_Ticket() {}
 	
 	/**
 	 * Enter description here...
@@ -625,7 +625,7 @@ class CerberusTicketDAO {
 		
 		if(!$rs->EOF) {
 			$ticket_id = intval($rs->fields['id']);
-			return CerberusTicketDAO::getTicket($ticket_id);
+			return DAO_Ticket::getTicket($ticket_id);
 		}
 		
 		return null;
@@ -722,7 +722,7 @@ class CerberusTicketDAO {
 		$um_db = DevblocksPlatform::getDatabaseService();
 		$newId = $um_db->GenID('ticket_seq');
 		
-		$last_wrote_id = CerberusContactDAO::lookupAddress($last_wrote, true);
+		$last_wrote_id = DAO_Contact::lookupAddress($last_wrote, true);
 		
 		$sql = sprintf("INSERT INTO ticket (id, mask, subject, status, mailbox_id, last_wrote_address_id, first_wrote_address_id, created_date, updated_date, priority) ".
 			"VALUES (%d,%s,%s,%s,%d,%d,%d,%d,%d,0)",
@@ -739,7 +739,7 @@ class CerberusTicketDAO {
 		$um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		// send new ticket auto-response
-		CerberusMailDAO::sendAutoresponse($id, 'new');
+		DAO_Mail::sendAutoresponse($id, 'new');
 		
 		return $newId;
 	}
@@ -839,7 +839,7 @@ class CerberusTicketDAO {
 			switch ($k) {
 				case 'status':
 					if (0 == strcasecmp($v, 'C')) // if ticket is being closed
-						CerberusMailDAO::sendAutoresponse($id, 'closed');
+						DAO_Mail::sendAutoresponse($id, 'closed');
 					break;
 			}
 			$sets[] = sprintf("%s = %s",
@@ -862,7 +862,7 @@ class CerberusTicketDAO {
 		
 		if(is_array($tags))
 		foreach($tags as $tagName) {
-			$tag = CerberusWorkflowDAO::lookupTag($tagName, true);
+			$tag = DAO_Workflow::lookupTag($tagName, true);
 			$um_db->Replace('tag_to_ticket', array('ticket_id'=>$ticket_id,'tag_id'=>$tag->id), array('ticket_id','tag_id'));
 		}
 	}
@@ -1047,8 +1047,8 @@ class CerberusTicketDAO {
  *
  * @addtogroup dao
  */
-class CerberusDashboardDAO {
-	private function CerberusDashboardDAO() {}
+class DAO_Dashboard {
+	private function DAO_Dashboard() {}
 	
 	static function createDashboard($name, $agent_id) {
 		$um_db = DevblocksPlatform::getDatabaseService();
@@ -1186,7 +1186,7 @@ class CerberusDashboardDAO {
 	 */
 	static function getView($view_id) {
 		if(!empty($view_id)) {
-			$view = CerberusDashboardDAO::_getView($view_id);
+			$view = DAO_Dashboard::_getView($view_id);
 			
 		} elseif(!empty($_SESSION['search_view'])) {
 			$view = $_SESSION['search_view'];
@@ -1219,7 +1219,7 @@ class CerberusDashboardDAO {
 	static function updateView($view_id,$fields) {
 		
 		if(!empty($view_id)) { // db-driven view
-			CerberusDashboardDAO::_updateView($view_id, $fields);
+			DAO_Dashboard::_updateView($view_id, $fields);
 			
 		} elseif(!empty($_SESSION['search_view'])) { // virtual view
 			$view =& $_SESSION['search_view']; /* @var $view CerberusDashboardView */
@@ -1411,8 +1411,8 @@ class DAO_DashboardViewAction extends DevblocksORMHelper {
 	
 };
 
-class CerberusMailRuleDAO {
-	private function CerberusMailRuleDAO() {}
+class DAO_MailRule {
+	private function DAO_MailRule() {}
 	
 	/**
 	 * creates a new mail rule
@@ -1547,7 +1547,7 @@ class CerberusMailRuleDAO {
  * 
  * @addtogroup dao
  */
-class CerberusSearchDAO {
+class DAO_Search {
 	// [JAS]: [TODO] Implement Agent ID lookup
 	// [JAS]: [TODO] Move to a single getViewsById
 	
@@ -1834,7 +1834,7 @@ class CerberusSearchDAO {
  *
  * @addtogroup dao
  */
-class CerberusWorkflowDAO {
+class DAO_Workflow {
 	
 	/**
 	 * Enter description here...
@@ -1857,11 +1857,11 @@ class CerberusWorkflowDAO {
 		if(!$rs->EOF) {
 			$id = intval($rs->fields['id']);
 		} elseif($create_if_notexist) {
-			$id = CerberusWorkflowDAO::createTag($tag_name);
+			$id = DAO_Workflow::createTag($tag_name);
 		}
 		
 		if(!empty($id)) {
-			$tag = CerberusWorkflowDAO::getTag($id);
+			$tag = DAO_Workflow::getTag($id);
 		}
 		
 		return $tag;
@@ -1923,7 +1923,7 @@ class CerberusWorkflowDAO {
 		}
 		
 		if(!empty($ids)) {
-			$tags = CerberusWorkflowDAO::getTags($ids); 
+			$tags = DAO_Workflow::getTags($ids); 
 		}
 		
 		return $tags;
@@ -1969,7 +1969,7 @@ class CerberusWorkflowDAO {
 	 * @return CerberusTag
 	 */
 	static function getTag($id) {
-		$tags = CerberusWorkflowDAO::getTags(array($id));
+		$tags = DAO_Workflow::getTags(array($id));
 		
 		if(isset($tags[$id]))
 			return $tags[$id];
@@ -1983,14 +1983,14 @@ class CerberusWorkflowDAO {
 		$um_db = DevblocksPlatform::getDatabaseService();
 		$tags = array();
 		
-		$msgs = CerberusTicketDAO::getMessagesByTicket($ticket_id);
+		$msgs = DAO_Ticket::getMessagesByTicket($ticket_id);
 		if(!is_array($msgs[0])) return array();
 		
 		$msg = array_shift($msgs[0]); /* @var $msg CerberusMessage */
 		$content = $msg->getContent();
 		
 		// [JAS]: [TODO] This could get out of control fast
-		$terms = CerberusWorkflowDAO::getTagTerms();
+		$terms = DAO_Workflow::getTagTerms();
 
 		foreach($terms as $term) {
 			if(FALSE === stristr($content,$term->term)) continue;
@@ -2005,7 +2005,7 @@ class CerberusWorkflowDAO {
 		if(empty($tags))
 			return array();
 		
-		return CerberusWorkflowDAO::getTags(array_keys($tags));
+		return DAO_Workflow::getTags(array_keys($tags));
 	}
 	
 	static function searchTags($query,$limit=10) {
@@ -2028,7 +2028,7 @@ class CerberusWorkflowDAO {
 		if(empty($ids))
 			return array();
 			
-		return CerberusWorkflowDAO::getTags($ids);
+		return DAO_Workflow::getTags($ids);
 	}
 	
 	/**
@@ -2147,7 +2147,7 @@ class CerberusWorkflowDAO {
 	 * @return CerberusTeam
 	 */
 	static function getTeam($id) {
-		$teams = CerberusWorkflowDAO::getTeams(array($id));
+		$teams = DAO_Workflow::getTeams(array($id));
 		
 		if(isset($teams[$id]))
 			return $teams[$id];
@@ -2298,7 +2298,7 @@ class CerberusWorkflowDAO {
 		if(empty($ids))
 			return array();
 		
-		return CerberusMailDAO::getMailboxes($ids, $with_counts);
+		return DAO_Mail::getMailboxes($ids, $with_counts);
 	}
 	
 	static function setTeamWorkers($team_id, $agent_ids) {
@@ -2342,10 +2342,9 @@ class CerberusWorkflowDAO {
 		return DAO_Worker::getList($ids);
 	}
 	
-	
 }
 
-class CerberusMailDAO {
+class DAO_Mail {
 	// Mailboxes
 	
 	const MAILBOX_ID = 'id';
@@ -2457,7 +2456,7 @@ class CerberusMailDAO {
 	
 	static function getMailbox($id) {
 		if(empty($id)) return null;
-		$mailboxes = CerberusMailDAO::getMailboxes(array($id));
+		$mailboxes = DAO_Mail::getMailboxes(array($id));
 		
 		if(isset($mailboxes[$id]))
 			return $mailboxes[$id];
@@ -2522,7 +2521,7 @@ class CerberusMailDAO {
 		if(empty($ids))
 			return array();
 			
-		return CerberusWorkflowDAO::getTeams($ids);
+		return DAO_Workflow::getTeams($ids);
 	}
 	
 	static function getMailboxRouting() {
@@ -2620,26 +2619,26 @@ class CerberusMailDAO {
 		if(empty($ids))
 			return array();
 			
-		return CerberusContactDAO::getAddresses($ids);
+		return DAO_Contact::getAddresses($ids);
 	}
 	
 	static function sendAutoresponse($ticket_id, $type) {
 		$mailMgr = DevblocksPlatform::getMailService();
-		$ticket = CerberusTicketDAO::getTicket($ticket_id);  /* @var $ticket CerberusTicket */
-		$mailbox = CerberusMailDAO::getMailbox($ticket->mailbox_id);  /* @var $mailbox CerberusMailbox */
+		$ticket = DAO_Ticket::getTicket($ticket_id);  /* @var $ticket CerberusTicket */
+		$mailbox = DAO_Mail::getMailbox($ticket->mailbox_id);  /* @var $mailbox CerberusMailbox */
 		
 		$body = '';
 		switch ($type) {
 			case 'new':
-				$body = CerberusMailDAO::getTokenizedText($ticket_id, $mailbox->new_autoresponse);
+				$body = DAO_Mail::getTokenizedText($ticket_id, $mailbox->new_autoresponse);
 				break;
 			case 'closed':
-				$body = CerberusMailDAO::getTokenizedText($ticket_id, $mailbox->close_autoresponse);
+				$body = DAO_Mail::getTokenizedText($ticket_id, $mailbox->close_autoresponse);
 				break;
 		}
 		if (0 == strcmp($body, '')) return 0; // if there's no body, we must not need to send an autoresponse.
 		
-		$headers = CerberusMailDAO::getHeaders(CerberusMessageType::AUTORESPONSE, $ticket_id);
+		$headers = DAO_Mail::getHeaders(CerberusMessageType::AUTORESPONSE, $ticket_id);
 		
 		$mail_result =& $mailMgr->send('mail.webgroupmedia.com', $headers['x-rcpt'], $headers, $body); // DDH: TODO: this needs to pull the servername from a config, not hardcoded.
 		if ($mail_result !== true) die("Error message was: " . $mail_result->getMessage());
@@ -2659,17 +2658,17 @@ class CerberusMailDAO {
 		
 		// object loading
 		if (!empty($id)) {
-			$message	= CerberusTicketDAO::getMessage($id);
+			$message	= DAO_Ticket::getMessage($id);
 			if ($ticket_id == 0)
 				$ticket_id	= $message->ticket_id;
 		} else {
-			$messages = CerberusTicketDAO::getMessagesByTicket($ticket_id);
+			$messages = DAO_Ticket::getMessagesByTicket($ticket_id);
 			if ($messages[1] > 0) $message = $messages[0][0];
 		}
-		$ticket		= CerberusTicketDAO::getTicket($ticket_id);						/* @var $ticket CerberusTicket */
-		$mailbox	= CerberusMailDAO::getMailbox($ticket->mailbox_id);				/* @var $mailbox CerberusMailbox */
-		$address	= CerberusContactDAO::getAddress($mailbox->reply_address_id);	/* @var $address CerberusAddress */
-		$requesters	= CerberusTicketDAO::getRequestersByTicket($ticket_id);			/* @var $requesters CerberusRequester[] */
+		$ticket		= DAO_Ticket::getTicket($ticket_id);						/* @var $ticket CerberusTicket */
+		$mailbox	= DAO_Mail::getMailbox($ticket->mailbox_id);				/* @var $mailbox CerberusMailbox */
+		$address	= DAO_Contact::getAddress($mailbox->reply_address_id);	/* @var $address CerberusAddress */
+		$requesters	= DAO_Ticket::getRequestersByTicket($ticket_id);			/* @var $requesters CerberusRequester[] */
 		
 		// requester address parsing - needs to vary based on type
 		$sTo = '';
@@ -2768,7 +2767,7 @@ class CerberusMailDAO {
 	 * @return CerberusPop3Account
 	 */
 	static function getPop3Account($id) {
-		$accounts = CerberusMailDAO::getPop3Accounts(array($id));
+		$accounts = DAO_Mail::getPop3Accounts(array($id));
 		
 		if(isset($accounts[$id]))
 			return $accounts[$id];

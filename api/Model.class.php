@@ -24,19 +24,19 @@ class Model_DashboardViewAction {
 			foreach($this->params as $k => $v) {
 				switch($k) {
 					case 'status':
-						$fields[CerberusTicketDAO::STATUS] = $v;
+						$fields[DAO_Ticket::STATUS] = $v;
 						break;
 					
 					case 'priority':
-						$fields[CerberusTicketDAO::PRIORITY] = $v;
+						$fields[DAO_Ticket::PRIORITY] = $v;
 						break;
 					
 					case 'mailbox':
-						$fields[CerberusTicketDAO::MAILBOX_ID] = $v;
+						$fields[DAO_Ticket::MAILBOX_ID] = $v;
 						break;
 					
 					case 'spam':
-						$fields[CerberusTicketDAO::SPAM_TRAINING] = $v;
+						$fields[DAO_Ticket::SPAM_TRAINING] = $v;
 						
 						if($v == CerberusTicketSpamTraining::NOT_SPAM) {
 							CerberusBayes::markTicketAsNotSpam($ticket_id);
@@ -48,9 +48,9 @@ class Model_DashboardViewAction {
 					
 					case 'flag':
 						if($v==CerberusTicketFlagEnum::TAKE) {
-							CerberusTicketDAO::flagTicket($ticket_id, $agent_id);
+							DAO_Ticket::flagTicket($ticket_id, $agent_id);
 						} else { // release
-							CerberusTicketDAO::unflagTicket($ticket_id, $agent_id);
+							DAO_Ticket::unflagTicket($ticket_id, $agent_id);
 						}
 						break;
 					
@@ -60,7 +60,7 @@ class Model_DashboardViewAction {
 				}
 			}
 			
-			CerberusTicketDAO::updateTicket($ticket_id,$fields);
+			DAO_Ticket::updateTicket($ticket_id,$fields);
 		}
 	}
 };
@@ -137,7 +137,7 @@ class CerberusDashboardView {
 	public $renderSortAsc = 1;
 	
 	function getTickets() {
-		$tickets = CerberusSearchDAO::searchTickets(
+		$tickets = DAO_Search::searchTickets(
 			$this->params,
 			$this->renderLimit,
 			$this->renderPage,
@@ -368,27 +368,27 @@ class CerberusTicket {
 	function CerberusTicket() {}
 	
 	function getMessages() {
-		$messages = CerberusTicketDAO::getMessagesByTicket($this->id);
+		$messages = DAO_Ticket::getMessagesByTicket($this->id);
 		return $messages[0];
 	}
 	
 	function getRequesters() {
-		$requesters = CerberusTicketDAO::getRequestersByTicket($this->id);
+		$requesters = DAO_Ticket::getRequestersByTicket($this->id);
 		return $requesters;
 	}
 	
 	function getTags() {
-		$tags = CerberusWorkflowDAO::getTagsByTicket($this->id);
+		$tags = DAO_Workflow::getTagsByTicket($this->id);
 		return $tags;
 	}
 	
 	function getFlaggedWorkers() {
-		$agents = CerberusWorkflowDAO::getWorkersByTicket($this->id, true);
+		$agents = DAO_Workflow::getWorkersByTicket($this->id, true);
 		return $agents;
 	}
 	
 	function getSuggestedWorkers() {
-		$agents = CerberusWorkflowDAO::getWorkersByTicket($this->id, false);
+		$agents = DAO_Workflow::getWorkersByTicket($this->id, false);
 		return $agents;
 	}
 };
@@ -406,7 +406,7 @@ class CerberusMessage {
 	function CerberusMessage() {}
 	
 	function getContent() {
-		return CerberusTicketDAO::getMessageContent($this->id);
+		return DAO_Ticket::getMessageContent($this->id);
 	}
 
 	/**
@@ -415,7 +415,7 @@ class CerberusMessage {
 	 * @return CerberusAttachment[]
 	 */
 	function getAttachments() {
-		$attachments = CerberusTicketDAO::getAttachmentsByMessage($this->id);
+		$attachments = DAO_Ticket::getAttachmentsByMessage($this->id);
 		return $attachments;
 	}
 
@@ -456,7 +456,7 @@ class CerberusMailbox {
 	 * @return CerberusTeam[]
 	 */
 	function getTeams() {
-		return CerberusMailDAO::getMailboxTeams($this->id);
+		return DAO_Mail::getMailboxTeams($this->id);
 	}
 };
 
@@ -471,11 +471,11 @@ class CerberusTeam {
 	 * @return CerberusMailbox[]
 	 */
 	function getMailboxes($with_counts = false) {
-		return CerberusWorkflowDAO::getTeamMailboxes($this->id, $with_counts);
+		return DAO_Workflow::getTeamMailboxes($this->id, $with_counts);
 	}
 	
 	function getWorkers() {
-		return CerberusWorkflowDAO::getTeamWorkers($this->id);
+		return DAO_Workflow::getTeamWorkers($this->id);
 	}
 }
 
@@ -492,7 +492,7 @@ class CerberusTag {
 	public $name;
 	
 	function getTerms() {
-		return CerberusWorkflowDAO::getTagTerms($this->id);
+		return DAO_Workflow::getTagTerms($this->id);
 	}
 };
 
