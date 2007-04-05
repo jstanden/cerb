@@ -1,8 +1,8 @@
 <table cellpadding="0" cellspacing="0" border="0" width="98%">
 	<tr>
-		<td align="left" width="0%" nowrap="nowrap"><img src="{devblocks_url}images/folder_gear.gif{/devblocks_url}" align="absmiddle"></td>
-		<td align="left" width="100%" nowrap="nowrap"><h1>{$translate->_('dashboard.assign_work')|capitalize}</h1></td>
-		<td align="right" width="0%" nowrap="nowrap"><form><input type="button" value=" X " onclick="ajax.assignPanel.hide();"></form></td>
+		<td align="left" width="0%" nowrap="nowrap"><img src="{devblocks_url}images/document_into.gif{/devblocks_url}" align="absmiddle">&nbsp;</td>
+		<td align="left" width="100%" nowrap="nowrap"><h1>{$translate->_('teamwork.assign_work')|capitalize}</h1></td>
+		<td align="right" width="0%" nowrap="nowrap"><form><input type="button" value=" X " onclick="genericPanel.hide();"></form></td>
 	</tr>
 </table>
 <div style="height:300px;overflow:auto;background-color:rgb(247, 247, 255);border:1px solid rgb(230,230,230);margin:2px;padding:3px;">

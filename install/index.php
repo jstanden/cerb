@@ -516,21 +516,21 @@ switch($step) {
 		switch($form_submit) {
 			case 1: // names form submit
 				@$workers_str = DevblocksPlatform::importGPC($_POST['workers'],'string');
-				@$mailboxes_str = DevblocksPlatform::importGPC($_POST['mailboxes'],'string');
+//				@$mailboxes_str = DevblocksPlatform::importGPC($_POST['mailboxes'],'string');
 				@$teams_str = DevblocksPlatform::importGPC($_POST['teams'],'string');
 				
 				$worker_ids = array();
-				$mailbox_ids = array();
+//				$mailbox_ids = array();
 				$team_ids = array();
 
 				$workers = CerberusApplication::parseCrlfString($workers_str);
-				$mailboxes = CerberusApplication::parseCrlfString($mailboxes_str);
+//				$mailboxes = CerberusApplication::parseCrlfString($mailboxes_str);
 				$teams = CerberusApplication::parseCrlfString($teams_str);
 
 				if(empty($workers)) {
 					$tpl->assign('failed', true);
 					$tpl->assign('workers_str', $workers_str);
-					$tpl->assign('mailboxes_str', $mailboxes_str);
+//					$tpl->assign('mailboxes_str', $mailboxes_str);
 					$tpl->assign('teams_str', $teams_str);
 					$tpl->assign('template', 'steps/step_workflow.tpl.php');
 					break;
@@ -545,11 +545,11 @@ switch($step) {
 				}
 				
 				// Create mailbox records
-				if(is_array($mailboxes))
-				foreach($mailboxes as $mailbox_name) {
-					$id = DAO_Mail::createMailbox($mailbox_name,0);
-					$mailbox_ids[$id] = $mailbox_name;
-				}
+//				if(is_array($mailboxes))
+//				foreach($mailboxes as $mailbox_name) {
+//					$id = DAO_Mail::createMailbox($mailbox_name,0);
+//					$mailbox_ids[$id] = $mailbox_name;
+//				}
 				
 				// Create team records
 				if(is_array($teams))
@@ -559,7 +559,7 @@ switch($step) {
 				}
 				
 				$tpl->assign('worker_ids', $worker_ids);
-				$tpl->assign('mailbox_ids', $mailbox_ids);
+//				$tpl->assign('mailbox_ids', $mailbox_ids);
 				$tpl->assign('team_ids', $team_ids);
 				$tpl->assign('default_reply_from', $settings->get(CerberusSettings::DEFAULT_REPLY_FROM));
 				$tpl->assign('template', 'steps/step_workflow2.tpl.php');
@@ -571,8 +571,8 @@ switch($step) {
 				@$worker_last = DevblocksPlatform::importGPC($_POST['worker_last'],'array');
 				@$worker_title = DevblocksPlatform::importGPC($_POST['worker_title'],'array');
 				@$worker_superuser = DevblocksPlatform::importGPC($_POST['worker_superuser'],'array');
-				@$mailbox_ids = DevblocksPlatform::importGPC($_POST['mailbox_ids'],'array');
-				@$mailbox_from = DevblocksPlatform::importGPC($_POST['mailbox_from'],'array');
+//				@$mailbox_ids = DevblocksPlatform::importGPC($_POST['mailbox_ids'],'array');
+//				@$mailbox_from = DevblocksPlatform::importGPC($_POST['mailbox_from'],'array');
 				@$team_ids = DevblocksPlatform::importGPC($_POST['team_ids'],'array');
 
 				/*
@@ -602,38 +602,38 @@ switch($step) {
 					
 					// Create a default dashboard for each worker
 					$dashboard_id = DAO_Dashboard::createDashboard("Dashboard", $worker_id);
-					$my_view_id = DAO_Dashboard::createView('My Tickets',$dashboard_id);
-					$team_view_id = DAO_Dashboard::createView('Team Tickets',$dashboard_id);
-					
-					$fields = array(
-						'view_columns' => serialize(array(
-							't_mask',
-							't_status',
-							't_priority',
-							't_last_wrote',
-							't_updated_date'
-						)),
-						'params' => serialize(array(
-							new CerberusSearchCriteria(CerberusSearchFields::ASSIGNED_WORKER,'in',array($worker_id)),
-							new CerberusSearchCriteria(CerberusSearchFields::TICKET_STATUS,'=',CerberusTicketStatus::OPEN)
-						))
-					);
-					DAO_Dashboard::updateView($my_view_id, $fields);
-					
-					$fields = array(
-						'view_columns' => serialize(array(
-							't_mask',
-							't_status',
-							't_priority',
-							't_last_wrote',
-							't_updated_date',
-							'm_name'
-						)),
-						'params' => serialize(array(
-							new CerberusSearchCriteria(CerberusSearchFields::TICKET_STATUS,'=',CerberusTicketStatus::OPEN)
-						))
-					);
-					DAO_Dashboard::updateView($team_view_id, $fields);
+//					$my_view_id = DAO_Dashboard::createView('My Tickets',$dashboard_id);
+//					$team_view_id = DAO_Dashboard::createView('Team Tickets',$dashboard_id);
+//					
+//					$fields = array(
+//						'view_columns' => serialize(array(
+//							't_mask',
+//							't_status',
+//							't_priority',
+//							't_last_wrote',
+//							't_updated_date'
+//						)),
+//						'params' => serialize(array(
+//							new CerberusSearchCriteria(CerberusSearchFields::ASSIGNED_WORKER,'in',array($worker_id)),
+//							new CerberusSearchCriteria(CerberusSearchFields::TICKET_STATUS,'=',CerberusTicketStatus::OPEN)
+//						))
+//					);
+//					DAO_Dashboard::updateView($my_view_id, $fields);
+//					
+//					$fields = array(
+//						'view_columns' => serialize(array(
+//							't_mask',
+//							't_status',
+//							't_priority',
+//							't_last_wrote',
+//							't_updated_date',
+//							'm_name'
+//						)),
+//						'params' => serialize(array(
+//							new CerberusSearchCriteria(CerberusSearchFields::TICKET_STATUS,'=',CerberusTicketStatus::OPEN)
+//						))
+//					);
+//					DAO_Dashboard::updateView($team_view_id, $fields);
 					
 					// Add default actions to worker dashboards
 					
@@ -658,54 +658,17 @@ switch($step) {
 						))
 					);
 					$spam_action_id = DAO_DashboardViewAction::create($fields);
-
-					// Take Ticket Action
-					$fields = array(
-						DAO_DashboardViewAction::$FIELD_NAME => 'Take',
-						DAO_DashboardViewAction::$FIELD_WORKER_ID => $worker_id,
-						DAO_DashboardViewAction::$FIELD_PARAMS => serialize(array(
-							'flag' => CerberusTicketFlagEnum::TAKE
-						))
-					);
-					$take_action_id = DAO_DashboardViewAction::create($fields);
-					
-					// Release Ticket Action
-					$fields = array(
-						DAO_DashboardViewAction::$FIELD_NAME => 'Release',
-						DAO_DashboardViewAction::$FIELD_WORKER_ID => $worker_id,
-						DAO_DashboardViewAction::$FIELD_PARAMS => serialize(array(
-							'flag' => CerberusTicketFlagEnum::RELEASE
-						))
-					);
-					$release_action_id = DAO_DashboardViewAction::create($fields);
 				}
 				
-				// Mailbox Details
-				// [TODO] Add inbound addresses (and create DB routing)
-				if(is_array($mailbox_ids))
-				foreach($mailbox_ids as $idx => $mailbox_id) {
-					$addy_id = DAO_Contact::lookupAddress($mailbox_from[$idx],true);
-					
-					$fields = array(
-						DAO_Mail::MAILBOX_REPLY_ADDRESS_ID => $addy_id
-					);
-					DAO_Mail::updateMailbox($mailbox_id, $fields);
-				}
-
 				// Team Details
 				// [TODO] Permissions
 				if(is_array($team_ids))
 				foreach($team_ids as $idx => $team_id) {
 					@$team_members = DevblocksPlatform::importGPC($_POST['team_members_'.$team_id],'array');
-					@$team_mailboxes = DevblocksPlatform::importGPC($_POST['team_mailboxes_'.$team_id],'array');
 					
 					// Team Members
 					if(is_array($team_members))
 						DAO_Workflow::setTeamWorkers($team_id,$team_members);
-					
-					// Team Mailboxes
-					if(is_array($team_mailboxes))
-						DAO_Workflow::setTeamMailboxes($team_id,$team_mailboxes);
 				}
 				
 				$tpl->assign('step', STEP_CATCHALL);
@@ -715,7 +678,7 @@ switch($step) {
 				break;
 				
 			default: // first time
-				$tpl->assign('mailboxes_str', "Inbox\n");
+//				$tpl->assign('mailboxes_str', "Inbox\n");
 				$tpl->assign('teams_str', "General\n");
 				$tpl->assign('template', 'steps/step_workflow.tpl.php');
 				break;
@@ -727,18 +690,18 @@ switch($step) {
 		@$form_submit = DevblocksPlatform::importGPC($_POST['form_submit'],'integer');
 		
 		if(!empty($form_submit)) {
-			@$default_mailbox_id = DevblocksPlatform::importGPC($_POST['default_mailbox_id'],'integer');
+			@$default_team_id = DevblocksPlatform::importGPC($_POST['default_team_id'],'integer');
 			
 			$settings = CerberusSettings::getInstance();
-			$settings->set(CerberusSettings::DEFAULT_MAILBOX_ID,$default_mailbox_id);
+			$settings->set(CerberusSettings::DEFAULT_TEAM_ID,$default_team_id);
 			
 			$tpl->assign('step', STEP_ANTISPAM);
 			$tpl->display('steps/redirect.tpl.php');
 			exit;
 		}
 		
-		$mailboxes = DAO_Mail::getMailboxes();
-		$tpl->assign('mailboxes', $mailboxes);
+		$teams = DAO_Workflow::getTeams();
+		$tpl->assign('teams', $teams);
 		
 		$tpl->assign('template', 'steps/step_catchall.tpl.php');
 		
@@ -755,19 +718,21 @@ switch($step) {
 //			$id = DAO_Mail::lookupMailbox('Spam');
 			
 			if($setup_antispam && empty($id)) {
-				$id = DAO_Mail::createMailbox('Spam',0);
+//				$id = DAO_Mail::createMailbox('Spam',0);
+
+				// [TODO] Need to fit antispam into the new team-oriented concepts (no more mailbox)
 				
 				// [TODO] Need to create a mail rule to route spam > 90%
 				
 				// Assign the new mailbox to all existing teams
-				$teams = DAO_Workflow::getTeams();
-				if(is_array($teams))
-				foreach($teams as $team_id => $team) { /* @var $team CerberusTeam */
-					$mailbox_keys = array_keys($team->getMailboxes());
-					$mailbox_keys[] = $id;
-					// [TODO] This could be simplified with the addition of addTeamMailbox(id,id)
-					DAO_Workflow::setTeamMailboxes($team_id, $mailbox_keys);
-				}
+//				$teams = DAO_Workflow::getTeams();
+//				if(is_array($teams))
+//				foreach($teams as $team_id => $team) { /* @var $team CerberusTeam */
+//					$mailbox_keys = array_keys($team->getMailboxes());
+//					$mailbox_keys[] = $id;
+//					// [TODO] This could be simplified with the addition of addTeamMailbox(id,id)
+//					DAO_Workflow::setTeamMailboxes($team_id, $mailbox_keys);
+//				}
 			}
 			
 			$tpl->assign('step', STEP_REGISTER);
@@ -793,15 +758,41 @@ switch($step) {
 		break;
 		
 	case STEP_UPGRADE:
-//		$patchMgr = DevblocksPlatform::getPatchService();
-//		$patchMgr->registerPatchContainer(new PlatformPatchContainer());
-		/*
-		 * [TODO] Need an easy way to scan plugins for their own patches,
-		 * and move core there.
-		 */
-//		$result = $patchMgr->run();
+		$patchMgr = DevblocksPlatform::getPatchService();
+		$patchMgr->clear();
 		
-		$tpl->assign('template', 'steps/step_upgrade.tpl.php');
+		// [JAS]: Run our overloaded container for the platform
+		$patchMgr->registerPatchContainer(new PlatformPatchContainer());
+		
+		// Clean script
+		if(!$patchMgr->run()) {
+			// [TODO] Show more info on the error
+			$tpl->assign('template', 'steps/step_upgrade.tpl.php');
+			
+		} else { // success
+			// Read in plugin information from the filesystem to the database
+			DevblocksPlatform::readPlugins();
+			DevblocksPlatform::clearCache();
+			
+			// Run enabled plugin patches
+			$patches = DevblocksPlatform::getExtensions("devblocks.patch.container");
+			
+			if(is_array($patches))
+			foreach($patches as $patch_manifest) { /* @var $patch_manifest DevblocksExtensionManifest */ 
+				 $container = $patch_manifest->createInstance(); /* @var $container DevblocksPatchContainerExtension */
+				 $patchMgr->registerPatchContainer($container);
+			}
+			
+			if(!$patchMgr->run()) { // fail
+				$tpl->assign('template', 'steps/step_upgrade.tpl.php');
+				
+			} else { // pass
+				$tpl->assign('step', STEP_FINISHED);
+				$tpl->display('steps/redirect.tpl.php');
+				exit;
+			}
+		}
+		
 		break;
 		
 	// [TODO] Delete the /install/ directory (security)

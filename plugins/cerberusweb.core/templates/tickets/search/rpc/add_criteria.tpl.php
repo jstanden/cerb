@@ -13,8 +13,7 @@
 				<option value='t_status'>{$translate->_('ticket.status')}
 				<option value='t_priority'>{$translate->_('ticket.priority')}
 				<option value='t_subject'>{$translate->_('ticket.subject')}
-				<option value='att_agent_id'>{$translate->_('workflow.assigned')}
-				<option value='stt_agent_id'>{$translate->_('workflow.suggested')}
+				<option value='tm_id'>{$translate->_('common.team')}
 				<option value='ra_email'>{$translate->_('requester')}
 				<option value='msg_content'>{$translate->_('message.content')}
 			</select>

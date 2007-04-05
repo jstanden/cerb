@@ -13,7 +13,7 @@ class Model_DashboardViewAction {
 	function run($tickets) {
 		$session = DevblocksPlatform::getSessionService();
 		$visit = $session->getVisit(); /* @var $visit CerberusVisit */
-		$agent_id = $visit->worker->id;
+		$agent_id = $visit->getWorker()->id;
 		
 		if(is_array($tickets))
 		foreach($tickets as $ticket_id => $ticket) {
@@ -31,10 +31,6 @@ class Model_DashboardViewAction {
 						$fields[DAO_Ticket::PRIORITY] = $v;
 						break;
 					
-					case 'mailbox':
-						$fields[DAO_Ticket::MAILBOX_ID] = $v;
-						break;
-					
 					case 'spam':
 						$fields[DAO_Ticket::SPAM_TRAINING] = $v;
 						
@@ -46,13 +42,8 @@ class Model_DashboardViewAction {
 						
 						break;
 					
-					case 'flag':
-						if($v==CerberusTicketFlagEnum::TAKE) {
-							DAO_Ticket::flagTicket($ticket_id, $agent_id);
-						} else { // release
-							DAO_Ticket::unflagTicket($ticket_id, $agent_id);
-						}
-						break;
+					case 'team':
+						$fields[DAO_Ticket::TEAM_ID] = $v;
 					
 					default:
 						// [TODO] Log?
@@ -68,12 +59,32 @@ class Model_DashboardViewAction {
 class Model_MailRoute {
 	public $id = 0;
 	public $pattern = '';
-	public $mailbox_id = 0;
+	public $team_id = 0;
 	public $pos = 0;
 };
 
 class CerberusVisit extends DevblocksVisit {
-	public $worker;
+	private $worker;
+	
+	const KEY_VIEW_MANAGER = 'view_manager';
+	const KEY_DASHBOARD_ID = 'cur_dashboard_id';
+
+	public function __construct() {
+		$this->worker = null;
+		$this->set(self::KEY_VIEW_MANAGER, new CerberusStaticViewManager());
+	}
+	
+	/**
+	 * @return CerberusWorker
+	 */
+	public function getWorker() {
+		return $this->worker;
+	}
+	
+	public function setWorker(CerberusWorker $worker=null) {
+		$this->worker = $worker;
+	}
+	
 }
 
 class CerberusBayesWord {
@@ -168,13 +179,9 @@ class CerberusSearchFields {
 	const REQUESTER_ID = 'ra_id';
 	const REQUESTER_ADDRESS = 'ra_email';
 	
-	// Mailbox
-	const MAILBOX_ID = 'm_id';
-	const MAILBOX_NAME = 'm_name';
-	
-	// Worker Workflow
-	const ASSIGNED_WORKER = 'att_agent_id';
-	const SUGGESTED_WORKER = 'stt_agent_id';
+	// Teams
+	const TEAM_ID = 'tm_id';
+	const TEAM_NAME = 'tm_name';
 	
 	/**
 	 * @return CerberusSearchField[]
@@ -193,18 +200,16 @@ class CerberusSearchFields {
 			
 			CerberusSearchFields::MESSAGE_CONTENT => new CerberusSearchField(CerberusSearchFields::MESSAGE_CONTENT, 'msg', 'content'),
 
-			CerberusSearchFields::ASSIGNED_WORKER => new CerberusSearchField(CerberusSearchFields::ASSIGNED_WORKER, 'att', 'agent_id'),
-			CerberusSearchFields::SUGGESTED_WORKER => new CerberusSearchField(CerberusSearchFields::SUGGESTED_WORKER, 'stt', 'agent_id'),
-			
 			CerberusSearchFields::REQUESTER_ID => new CerberusSearchField(CerberusSearchFields::REQUESTER_ID, 'ra', 'id'),
 			CerberusSearchFields::REQUESTER_ADDRESS => new CerberusSearchField(CerberusSearchFields::REQUESTER_ADDRESS, 'ra', 'email'),
 			
-			CerberusSearchFields::MAILBOX_ID => new CerberusSearchField(CerberusSearchFields::MAILBOX_ID, 'm', 'id'),
-			CerberusSearchFields::MAILBOX_NAME => new CerberusSearchField(CerberusSearchFields::MAILBOX_NAME, 'm', 'name'),
+			CerberusSearchFields::TEAM_ID => new CerberusSearchField(CerberusSearchFields::TEAM_ID,'tm','id'),
+			CerberusSearchFields::TEAM_NAME => new CerberusSearchField(CerberusSearchFields::TEAM_NAME,'tm','name'),
 		);
 	}
 };
 
+// [JAS] This is no longer needed
 class CerberusResourceSearchFields {
 	// Resource
 	const KB_ID = 'kb_id';
@@ -329,20 +334,6 @@ class CerberusTicketPriority { // [TODO] Append 'Enum' to class name?
 	}
 };
 
-class CerberusTicketFlagEnum {
-	const TAKE = 'T';
-	const RELEASE = 'R';
-	
-	public static function getOptions() {
-		$translate = DevblocksPlatform::getTranslationService();
-		
-		return array(
-			self::TAKE => $translate->_('workflow.take'),
-			self::RELEASE => $translate->_('workflow.release'),
-		);
-	}
-}
-
 // [TODO] Is this used?
 class CerberusAddressBits {
 	const AGENT = 1;
@@ -354,10 +345,9 @@ class CerberusTicket {
 	public $id;
 	public $mask;
 	public $subject;
-	public $bitflags;
 	public $status;
+	public $team_id;
 	public $priority;
-	public $mailbox_id;
 	public $first_wrote_address_id;
 	public $last_wrote_address_id;
 	public $created_date;
@@ -377,20 +367,15 @@ class CerberusTicket {
 		return $requesters;
 	}
 	
+	/**
+	 * @return CloudGlueTag[]
+	 */
 	function getTags() {
-		$tags = DAO_Workflow::getTagsByTicket($this->id);
+		$result = DAO_CloudGlue::getTagsOnContents(array($this->id), CerberusApplication::INDEX_TICKETS);
+		$tags = array_shift($result);
 		return $tags;
 	}
 	
-	function getFlaggedWorkers() {
-		$agents = DAO_Workflow::getWorkersByTicket($this->id, true);
-		return $agents;
-	}
-	
-	function getSuggestedWorkers() {
-		$agents = DAO_Workflow::getWorkersByTicket($this->id, false);
-		return $agents;
-	}
 };
 
 class CerberusMessage {
@@ -439,44 +424,21 @@ class CerberusAttachment {
 	function CerberusAttachment() {}
 };
 
-class CerberusMailbox {
-	public $id;
-	public $name;
-	public $reply_address_id;
-	public $display_name;
-	public $close_autoresponse;
-	public $new_autoresponse;
-	public $count;
-	
-	function CerberusMailbox() {}
-	
-	/**
-	 * Enter description here...
-	 *
-	 * @return CerberusTeam[]
-	 */
-	function getTeams() {
-		return DAO_Mail::getMailboxTeams($this->id);
-	}
-};
-
 class CerberusTeam {
 	public $id;
 	public $name;
 	public $count;
 	
-	/**
-	 * Enter description here...
-	 *
-	 * @return CerberusMailbox[]
-	 */
-	function getMailboxes($with_counts = false) {
-		return DAO_Workflow::getTeamMailboxes($this->id, $with_counts);
-	}
-	
 	function getWorkers() {
 		return DAO_Workflow::getTeamWorkers($this->id);
 	}
+}
+
+class CerberusTeamCategory {
+	public $id;
+	public $name;
+	public $team_id;
+	public $tags = array();
 }
 
 class CerberusPop3Account {
@@ -487,19 +449,19 @@ class CerberusPop3Account {
 	public $password;
 };
 
-class CerberusTag {
-	public $id;
-	public $name;
-	
-	function getTerms() {
-		return DAO_Workflow::getTagTerms($this->id);
-	}
-};
-
-class CerberusTagTerm {
-	public $tag_id;
-	public $term;
-};
+//class CerberusTag {
+//	public $id;
+//	public $name;
+//	
+//	function getTerms() {
+//		return DAO_Workflow::getTagTerms($this->id);
+//	}
+//};
+//
+//class CerberusTagTerm {
+//	public $tag_id;
+//	public $term;
+//};
 
 class CerberusMailRule {
 	public $id;
@@ -557,9 +519,10 @@ class CerberusPatch extends DevblocksPatch {
 	}
 	
 	public function run() {
-		if(empty($this->container) || !is_object($this->container))
+		if(empty($this->container) || !is_object($this->container)) {
 			return FALSE;
-			
+		}
+		
 		// Callback
 		$result = $this->container->runRevision($this->revision);
 		

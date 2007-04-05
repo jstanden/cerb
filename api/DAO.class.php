@@ -159,19 +159,19 @@ class DAO_Worker {
 		if(empty($email) || empty($password))
 			return null;
 			
-		$um_db = DevblocksPlatform::getDatabaseService();
-		$id = $um_db->GenID('generic_seq');
+		$db = DevblocksPlatform::getDatabaseService();
+		$id = $db->GenID('generic_seq');
 		
 		$sql = sprintf("INSERT INTO worker (id, email, pass, first_name, last_name, title) ".
 			"VALUES (%d, %s, %s, %s, %s, %s)",
 			$id,
-			$um_db->qstr($email),
-			$um_db->qstr(md5($password)),
-			$um_db->qstr($first_name),
-			$um_db->qstr($last_name),
-			$um_db->qstr($title)
+			$db->qstr($email),
+			$db->qstr(md5($password)),
+			$db->qstr($first_name),
+			$db->qstr($last_name),
+			$db->qstr($title)
 		);
-		$rs = $um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		return $id;
 	}
@@ -179,7 +179,7 @@ class DAO_Worker {
 	static function getList($ids=array()) {
 		if(!is_array($ids)) $ids = array($ids);
 		
-		$um_db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::getDatabaseService();
 		$workers = array();
 		
 		$sql = "SELECT a.id, a.first_name, a.last_name, a.email, a.title, a.is_superuser ".
@@ -187,7 +187,7 @@ class DAO_Worker {
 			((!empty($ids) ? sprintf("WHERE a.id IN (%s)",implode(',',$ids)) : " ").
 			"ORDER BY a.last_name, a.first_name "
 		);
-		$rs = $um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		while(!$rs->EOF) {
 			$worker = new CerberusWorker();
@@ -224,12 +224,12 @@ class DAO_Worker {
 	 */
 	static function lookupAgentEmail($email) {
 		if(empty($email)) return null;
-		$um_db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::getDatabaseService();
 		
 		$sql = sprintf("SELECT a.id FROM worker a WHERE a.email = %s",
-			$um_db->qstr($email)
+			$db->qstr($email)
 		);
-		$rs = $um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		if(!$rs->EOF) {
 			return intval($rs->fields['id']);
@@ -239,7 +239,7 @@ class DAO_Worker {
 	}
 	
 	static function updateAgent($id, $fields) {
-		$um_db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::getDatabaseService();
 		$sets = array();
 		
 		if(!is_array($fields) || empty($fields) || empty($id))
@@ -248,7 +248,7 @@ class DAO_Worker {
 		foreach($fields as $k => $v) {
 			$sets[] = sprintf("%s = %s",
 				$k,
-				$um_db->qstr($v)
+				$db->qstr($v)
 			);
 		}
 			
@@ -256,29 +256,29 @@ class DAO_Worker {
 			implode(', ', $sets),
 			$id
 		);
-		$um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 	}
 	
 	static function deleteAgent($id) {
 		if(empty($id)) return;
 		
-		$um_db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::getDatabaseService();
 		
 		$sql = sprintf("DELETE FROM worker WHERE id = %d",
 			$id
 		);
-		$um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		$sql = sprintf("DELETE FROM worker_to_team WHERE agent_id = %d",
 			$id
 		);
-		$um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
-		$sql = sprintf("DELETE FROM favorite_tag_to_worker WHERE agent_id = %d",
-			$id
-		);
-		$um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+//		$sql = sprintf("DELETE FROM favorite_tag_to_worker WHERE agent_id = %d",
+//			$id
+//		);
+//		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 	}
 	
@@ -304,12 +304,12 @@ class DAO_Worker {
 	static function setAgentTeams($agent_id, $team_ids) {
 		if(!is_array($team_ids)) $team_ids = array($team_ids);
 		if(empty($agent_id)) return;
-		$um_db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::getDatabaseService();
 
 		$sql = sprintf("DELETE FROM worker_to_team WHERE agent_id = %d",
 			$agent_id
 		);
-		$um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		foreach($team_ids as $team_id) {
 			$sql = sprintf("INSERT INTO worker_to_team (agent_id, team_id) ".
@@ -317,19 +317,19 @@ class DAO_Worker {
 				$agent_id,
 				$team_id
 			);
-			$um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+			$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		}
 	}
 	
 	static function getAgentTeams($agent_id) {
 		if(empty($agent_id)) return;
-		$um_db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::getDatabaseService();
 		$ids = array();
 		
 		$sql = sprintf("SELECT wt.team_id FROM worker_to_team wt WHERE wt.agent_id = %d",
 			$agent_id
 		);
-		$rs = $um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		while(!$rs->EOF) {
 			$ids[] = intval($rs->fields['team_id']);
@@ -342,58 +342,58 @@ class DAO_Worker {
 		return DAO_Workflow::getTeams($ids);
 	}
 	
-	static function getFavoriteTags($agent_id) {
-		$um_db = DevblocksPlatform::getDatabaseService();
-		if(empty($agent_id)) return null;
-		
-		$ids = array();
-		
-		$sql = sprintf("SELECT tag_id FROM favorite_tag_to_worker WHERE agent_id = %d",
-			$agent_id
-		);
-		$rs = $um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-		while(!$rs->EOF) {
-			$ids[] = intval($rs->fields['tag_id']);
-			$rs->MoveNext();
-		}
-
-		if(empty($ids))
-			return array();
-		
-		return DAO_Workflow::getTags($ids);
-	}
+//	static function getFavoriteTags($agent_id) {
+//		$db = DevblocksPlatform::getDatabaseService();
+//		if(empty($agent_id)) return null;
+//		
+//		$ids = array();
+//		
+//		$sql = sprintf("SELECT tag_id FROM favorite_tag_to_worker WHERE agent_id = %d",
+//			$agent_id
+//		);
+//		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+//		
+//		while(!$rs->EOF) {
+//			$ids[] = intval($rs->fields['tag_id']);
+//			$rs->MoveNext();
+//		}
+//
+//		if(empty($ids))
+//			return array();
+//		
+//		return DAO_Workflow::getTags($ids);
+//	}
 	
-	static function setFavoriteTags($agent_id, $tag_string) {
-		$um_db = DevblocksPlatform::getDatabaseService();
-		if(empty($agent_id)) return null;
-		
-		$sql = sprintf("DELETE FROM favorite_tag_to_worker WHERE agent_id = %d",
-			$agent_id
-		);
-		$um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-		$tags = CerberusApplication::parseCsvString($tag_string);
-		$ids = array();
-		
-		foreach($tags as $tag_name) {
-			$tag = DAO_Workflow::lookupTag($tag_name, true);
-			$ids[$tag->id] = $tag->id;
-		}
-		
-		foreach($ids as $tag_id) {
-			$sql = sprintf("INSERT INTO favorite_tag_to_worker (tag_id, agent_id) ".
-				"VALUES (%d,%d) ",
-					$tag_id,
-					$agent_id
-			);
-			$um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */	
-		}
-		
-	}
+//	static function setFavoriteTags($agent_id, $tag_string) {
+//		$db = DevblocksPlatform::getDatabaseService();
+//		if(empty($agent_id)) return null;
+//		
+//		$sql = sprintf("DELETE FROM favorite_tag_to_worker WHERE agent_id = %d",
+//			$agent_id
+//		);
+//		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+//		
+//		$tags = CerberusApplication::parseCsvString($tag_string);
+//		$ids = array();
+//		
+//		foreach($tags as $tag_name) {
+//			$tag = DAO_Workflow::lookupTag($tag_name, true);
+//			$ids[$tag->id] = $tag->id;
+//		}
+//		
+//		foreach($ids as $tag_id) {
+//			$sql = sprintf("INSERT INTO favorite_tag_to_worker (tag_id, agent_id) ".
+//				"VALUES (%d,%d) ",
+//					$tag_id,
+//					$agent_id
+//			);
+//			$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */	
+//		}
+//		
+//	}
 	
 	static function getFavoriteWorkers($agent_id) {
-		$um_db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::getDatabaseService();
 		if(empty($agent_id)) return null;
 		
 		$ids = array();
@@ -401,7 +401,7 @@ class DAO_Worker {
 		$sql = sprintf("SELECT worker_id FROM favorite_worker_to_worker WHERE agent_id = %d",
 			$agent_id
 		);
-		$rs = $um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		while(!$rs->EOF) {
 			$ids[] = intval($rs->fields['worker_id']);
@@ -415,13 +415,13 @@ class DAO_Worker {
 	}
 	
 	static function setFavoriteWorkers($agent_id, $worker_string) {
-		$um_db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::getDatabaseService();
 		if(empty($agent_id)) return null;
 		
 		$sql = sprintf("DELETE FROM favorite_worker_to_worker WHERE agent_id = %d",
 			$agent_id
 		);
-		$um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		$workers = CerberusApplication::parseCsvString($worker_string);
 		$ids = array();
@@ -441,21 +441,21 @@ class DAO_Worker {
 					$worker_id,
 					$agent_id
 			);
-			$um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */	
+			$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */	
 		}
 		
 	}
 	
 	// [TODO] Test where this is used
 	static function searchAgents($query, $limit=10) {
-		$um_db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::getDatabaseService();
 		if(empty($query)) return null;
 		
 		$sql = sprintf("SELECT w.id FROM worker w WHERE w.email LIKE '%s%%' LIMIT 0,%d",
 			$query,
 			$limit
 		);
-		$rs = $um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		$ids = array();
 		
@@ -477,13 +477,13 @@ class DAO_Contact {
 	
 	// [JAS]: [TODO] Move this into MailDAO
 	static function lookupAddress($email,$create_if_null=false) {
-		$um_db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::getDatabaseService();
 		$id = null;
 		
 		$sql = sprintf("SELECT id FROM address WHERE email = %s",
-			$um_db->qstr(trim(strtolower($email)))
+			$db->qstr(trim(strtolower($email)))
 		);
-		$rs = $um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		if(!$rs->EOF) {
 			$id = $rs->fields['id'];
@@ -496,7 +496,7 @@ class DAO_Contact {
 	
 	// [JAS]: [TODO] Move this into MailDAO
 	static function getAddresses($ids=array()) {
-		$um_db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::getDatabaseService();
 		if(!is_array($ids)) $ids = array($ids);
 		$addresses = array();
 		
@@ -506,7 +506,7 @@ class DAO_Contact {
 			"ORDER BY a.email ",
 			implode(',', $ids)
 		);
-		$rs = $um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		while(!$rs->EOF) {
 			$address = new CerberusAddress();
@@ -535,7 +535,7 @@ class DAO_Contact {
 
 //	// [JAS]: [TODO] Move this into MailDAO
 //	static function getMailboxIdByAddress($email) {
-//		$um_db = DevblocksPlatform::getDatabaseService();
+//		$db = DevblocksPlatform::getDatabaseService();
 //		$id = DAO_Contact::lookupAddress($email,false);
 //		$mailbox_id = null;
 //		
@@ -545,7 +545,7 @@ class DAO_Contact {
 //		$sql = sprintf("SELECT am.mailbox_id FROM address_to_mailbox am WHERE am.address_id = %d",
 //			$id
 //		);
-//		$rs = $um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+//		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 //		
 //		if(!$rs->EOF) {
 //			$mailbox_id = intval($rs->fields['mailbox_id']);
@@ -564,12 +564,12 @@ class DAO_Contact {
 	 * @throws exception on invalid address
 	 */
 	static function createAddress($email,$personal='') {
-		$um_db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::getDatabaseService();
 		
 		if(null != ($id = DAO_Contact::lookupAddress($email,false)))
 			return $id;
 
-		$id = $um_db->GenID('address_seq');
+		$id = $db->GenID('address_seq');
 		
 		/*
 		 * [JAS]: [TODO] If we're going to call platform libs directly we should just have
@@ -584,10 +584,10 @@ class DAO_Contact {
 		
 		$sql = sprintf("INSERT INTO address (id,email,personal,bitflags) VALUES (%d,%s,%s,0)",
 			$id,
-			$um_db->qstr(trim(strtolower($email))),
-			$um_db->qstr($personal)
+			$db->qstr(trim(strtolower($email))),
+			$db->qstr($personal)
 		);
-		$um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		return $id;
 	}
@@ -601,9 +601,15 @@ class DAO_Contact {
  */
 class DAO_Ticket {
 	const ID = 'id';
+	const MASK = 'mask';
+	const SUBJECT = 'subject';
 	const STATUS = 'status';
+	const TEAM_ID = 'team_id';
+	const LAST_WROTE_ID = 'last_wrote_address_id';
+	const FIRST_WROTE_ID = 'first_wrote_address_id';
+	const CREATED_DATE = 'created_date';
+	const UPDATED_DATE = 'updated_date';
 	const PRIORITY = 'priority';
-	const MAILBOX_ID = 'mailbox_id';
 	const SPAM_TRAINING = 'spam_training';
 	const SPAM_SCORE = 'spam_score';
 	
@@ -616,12 +622,12 @@ class DAO_Ticket {
 	 * @return CerberusTicket
 	 */
 	static function getTicketByMask($mask) {
-		$um_db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::getDatabaseService();
 		
 		$sql = sprintf("SELECT t.id FROM ticket t WHERE t.mask = %s",
-			$um_db->qstr($mask)
+			$db->qstr($mask)
 		);
-		$rs = $um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		if(!$rs->EOF) {
 			$ticket_id = intval($rs->fields['id']);
@@ -632,15 +638,15 @@ class DAO_Ticket {
 	}
 	
 	static function getTicketByMessageId($message_id) {
-		$um_db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::getDatabaseService();
 		
 		$sql = sprintf("SELECT t.id ".
 			"FROM ticket t ".
 			"INNER JOIN message m ON (t.id=m.ticket_id) ".
 			"WHERE m.message_id = %s",
-			$um_db->qstr($message_id)
+			$db->qstr($message_id)
 		);
-		$rs = $um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		if(!$rs->EOF) {
 			$ticket_id = intval($rs->fields['id']);
@@ -660,17 +666,17 @@ class DAO_Ticket {
 	 * @return integer
 	 */
 	static function createAttachment($message_id, $display_name, $filepath) {
-		$um_db = DevblocksPlatform::getDatabaseService();
-		$newId = $um_db->GenID('attachment_seq');
+		$db = DevblocksPlatform::getDatabaseService();
+		$newId = $db->GenID('attachment_seq');
 		
 		$sql = sprintf("INSERT INTO attachment (id, message_id, display_name, filepath)".
 			"VALUES (%d,%d,%s,%s)",
 			$newId,
 			$message_id,
-			$um_db->qstr($display_name),
-			$um_db->qstr($filepath)
+			$db->qstr($display_name),
+			$db->qstr($filepath)
 		);
-		$um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		return $newId;
 	}
@@ -683,13 +689,13 @@ class DAO_Ticket {
 	 * @return CerberusAttachment[]
 	 */
 	static function getAttachmentsByMessage($id) {
-		$um_db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::getDatabaseService();
 		
 		$sql = sprintf("SELECT a.id, a.message_id, a.display_name, a.filepath ".
 			"FROM attachment a WHERE a.message_id = %d",
 			$id
 		);
-		$rs = $um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		$attachments = array();
 		while(!$rs->EOF) {
@@ -711,42 +717,35 @@ class DAO_Ticket {
 	 * @param string $mask
 	 * @param string $subject
 	 * @param string $status
-	 * @param integer $mailbox_id
 	 * @param string $last_wrote
 	 * @param integer $created_date
 	 * @return integer
 	 * 
 	 * [TODO]: Change $last_wrote argument to an ID rather than string?
 	 */
-	static function createTicket($mask, $subject, $status, $mailbox_id, $last_wrote, $created_date) {
-		$um_db = DevblocksPlatform::getDatabaseService();
-		$newId = $um_db->GenID('ticket_seq');
+	static function createTicket($fields) {
+		$db = DevblocksPlatform::getDatabaseService();
+		$newId = $db->GenID('ticket_seq');
 		
-		$last_wrote_id = DAO_Contact::lookupAddress($last_wrote, true);
-		
-		$sql = sprintf("INSERT INTO ticket (id, mask, subject, status, mailbox_id, last_wrote_address_id, first_wrote_address_id, created_date, updated_date, priority) ".
-			"VALUES (%d,%s,%s,%s,%d,%d,%d,%d,%d,0)",
+		$sql = sprintf("INSERT INTO ticket (id, mask, subject, status, last_wrote_address_id, first_wrote_address_id, created_date, updated_date, priority) ".
+			"VALUES (%d,'','','O',0,0,%d,%d,0)",
 			$newId,
-			$um_db->qstr($mask),
-			$um_db->qstr($subject),
-			$um_db->qstr($status),
-			$mailbox_id,
-			$last_wrote_id,
-			$last_wrote_id,
-			$created_date,
+			gmmktime(),
 			gmmktime()
 		);
-		$um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		self::updateTicket($newId, $fields);
 		
 		// send new ticket auto-response
-		DAO_Mail::sendAutoresponse($id, 'new');
+//		DAO_Mail::sendAutoresponse($id, 'new');
 		
 		return $newId;
 	}
 
 	static function createMessage($ticket_id,$type,$created_date,$address_id,$headers,$content) {
-		$um_db = DevblocksPlatform::getDatabaseService();
-		$newId = $um_db->GenID('message_seq');
+		$db = DevblocksPlatform::getDatabaseService();
+		$newId = $db->GenID('message_seq');
 		
 		// [JAS]: Flatten an array of headers into a string.
 		$sHeaders = serialize($headers);
@@ -755,15 +754,15 @@ class DAO_Ticket {
 			"VALUES (%d,%d,%s,%d,%d,%s,%s,%s)",
 				$newId,
 				$ticket_id,
-				$um_db->qstr($type),
+				$db->qstr($type),
 				$created_date,
 				$address_id,
-				((isset($headers['message-id'])) ? $um_db->qstr($headers['message-id']) : "''"),
-				$um_db->qstr($sHeaders),
-				$um_db->qstr($content)
+				((isset($headers['message-id'])) ? $db->qstr($headers['message-id']) : "''"),
+				$db->qstr($sHeaders),
+				$db->qstr($content)
 		);
 		
-		$um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		return $newId;
 	}
@@ -793,28 +792,27 @@ class DAO_Ticket {
 	 */
 	static function getTickets($ids=array()) {
 		if(!is_array($ids)) $ids = array($ids);
-		$um_db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::getDatabaseService();
 		
 		$tickets = array();
 		
-		$sql = sprintf("SELECT t.id , t.mask, t.subject, t.status, t.priority, t.mailbox_id, t.bitflags, ".
+		$sql = sprintf("SELECT t.id , t.mask, t.subject, t.status, t.priority, t.team_id, ".
 			"t.first_wrote_address_id, t.last_wrote_address_id, t.created_date, t.updated_date, t.spam_training, t.spam_score ".
 			"FROM ticket t ".
 			(!empty($ids) ? sprintf("WHERE t.id IN (%s) ",implode(',',$ids)) : " ").
 			"ORDER BY t.updated_date DESC",
 			$id
 		);
-		$rs = $um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		while(!$rs->EOF) {
 			$ticket = new CerberusTicket();
 			$ticket->id = intval($rs->fields['id']);
 			$ticket->mask = $rs->fields['mask'];
 			$ticket->subject = $rs->fields['subject'];
-			$ticket->bitflags = intval($rs->fields['bitflags']);
+			$ticket->team_id = intval($rs->fields['team_id']);
 			$ticket->status = $rs->fields['status'];
 			$ticket->priority = intval($rs->fields['priority']);
-			$ticket->mailbox_id = intval($rs->fields['mailbox_id']);
 			$ticket->last_wrote_address_id = intval($rs->fields['last_wrote_address_id']);
 			$ticket->first_wrote_address_id = intval($rs->fields['first_wrote_address_id']);
 			$ticket->created_date = intval($rs->fields['created_date']);
@@ -829,7 +827,7 @@ class DAO_Ticket {
 	}
 	
 	static function updateTicket($id,$fields) {
-		$um_db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::getDatabaseService();
 		$sets = array();
 		
 		if(!is_array($fields) || empty($fields) || empty($id))
@@ -838,13 +836,13 @@ class DAO_Ticket {
 		foreach($fields as $k => $v) {
 			switch ($k) {
 				case 'status':
-					if (0 == strcasecmp($v, 'C')) // if ticket is being closed
-						DAO_Mail::sendAutoresponse($id, 'closed');
+//					if (0 == strcasecmp($v, 'C')) // if ticket is being closed
+//						DAO_Mail::sendAutoresponse($id, 'closed');
 					break;
 			}
 			$sets[] = sprintf("%s = %s",
 				$k,
-				$um_db->qstr($v)
+				$db->qstr($v)
 			);
 		}
 			
@@ -852,72 +850,15 @@ class DAO_Ticket {
 			implode(', ', $sets),
 			$id
 		);
-		$um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
-	}
-	
-	static function tagTicket($ticket_id, $tag_string) {
-		$um_db = DevblocksPlatform::getDatabaseService();
-		$tags = CerberusApplication::parseCsvString($tag_string);
-		
-		if(is_array($tags))
-		foreach($tags as $tagName) {
-			$tag = DAO_Workflow::lookupTag($tagName, true);
-			$um_db->Replace('tag_to_ticket', array('ticket_id'=>$ticket_id,'tag_id'=>$tag->id), array('ticket_id','tag_id'));
-		}
-	}
-	
-	static function untagTicket($ticket_id, $tag_id) {
-		$um_db = DevblocksPlatform::getDatabaseService();
-		
-		$sql = sprintf("DELETE FROM tag_to_ticket WHERE tag_id = %d AND ticket_id = %d",
-			$tag_id,
-			$ticket_id
-		);
-		$um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
-	}
-	
-	static function flagTicket($ticket_id, $agent_id) {
-		if(empty($ticket_id) || empty($agent_id))
-			return null;
-		
-		$um_db = DevblocksPlatform::getDatabaseService();
-		$um_db->Replace('assign_to_ticket', array('ticket_id'=>$ticket_id,'agent_id'=>$agent_id,'is_flag'=>1), array('ticket_id','agent_id'));
-	}
-	
-	static function unflagTicket($ticket_id, $agent_id) {
-		$um_db = DevblocksPlatform::getDatabaseService();
-		
-		$sql = sprintf("DELETE FROM assign_to_ticket WHERE agent_id = %d AND ticket_id = %d AND is_flag = 1",
-			$agent_id,
-			$ticket_id
-		);
-		$um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
-	}
-	
-	static function suggestTicket($ticket_id, $agent_id) {
-		if(empty($ticket_id) || empty($agent_id))
-			return null;
-		
-		$um_db = DevblocksPlatform::getDatabaseService();
-		$um_db->Replace('assign_to_ticket', array('ticket_id'=>$ticket_id,'agent_id'=>$agent_id,'is_flag'=>0), array('ticket_id','agent_id'));
-	}
-	
-	static function unsuggestTicket($ticket_id, $agent_id) {
-		$um_db = DevblocksPlatform::getDatabaseService();
-		
-		$sql = sprintf("DELETE FROM assign_to_ticket WHERE agent_id = %d AND ticket_id = %d AND is_flag = 0",
-			$agent_id,
-			$ticket_id
-		);
-		$um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
 	}
 	
 	/**
 	 * @return CerberusMessage[]
 	 */
 	static function getMessagesByTicket($ticket_id) {
-		$um_db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::getDatabaseService();
 		$messages = array();
 		
 		$sql = sprintf("SELECT m.id , m.ticket_id, m.message_type, m.created_date, m.address_id, m.message_id, m.headers ".
@@ -926,7 +867,7 @@ class DAO_Ticket {
 			"ORDER BY m.created_date ASC ",
 			$ticket_id
 		);
-		$rs = $um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		while(!$rs->EOF) {
 			$message = new CerberusMessage();
 			$message->id = intval($rs->fields['id']);
@@ -944,7 +885,7 @@ class DAO_Ticket {
 		}
 
 		// [JAS]: Count all
-		$rs = $um_db->Execute($sql);
+		$rs = $db->Execute($sql);
 		$total = $rs->RecordCount();
 		
 		return array($messages,$total);
@@ -957,7 +898,7 @@ class DAO_Ticket {
 	 * @return CerberusMessage
 	 */
 	static function getMessage($id) {
-		$um_db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::getDatabaseService();
 		$message = null;
 		
 		$sql = sprintf("SELECT m.id , m.ticket_id, m.message_type, m.created_date, m.address_id, m.message_id, m.headers ".
@@ -966,7 +907,7 @@ class DAO_Ticket {
 			"ORDER BY m.created_date ASC ",
 			$id
 		);
-		$rs = $um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		if(!$rs->EOF) {
 			$message = new CerberusMessage();
 			$message->id = intval($rs->fields['id']);
@@ -981,7 +922,7 @@ class DAO_Ticket {
 		}
 
 		// [JAS]: Count all
-//		$rs = $um_db->Execute($sql);
+//		$rs = $db->Execute($sql);
 //		$total = $rs->RecordCount();
 		
 		return $message;
@@ -989,7 +930,7 @@ class DAO_Ticket {
 	}
 	
 	static function getRequestersByTicket($ticket_id) {
-		$um_db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::getDatabaseService();
 		$addresses = array();
 		
 		$sql = sprintf("SELECT a.id , a.email, a.personal ".
@@ -998,7 +939,7 @@ class DAO_Ticket {
 			"ORDER BY a.email ASC ",
 			$ticket_id
 		);
-		$rs = $um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		while(!$rs->EOF) {
 			$address = new CerberusAddress();
 			$address->id = intval($rs->fields['id']);
@@ -1009,7 +950,7 @@ class DAO_Ticket {
 		}
 
 		// [JAS]: Count all
-//		$rs = $um_db->Execute($sql);
+//		$rs = $db->Execute($sql);
 //		$total = $rs->RecordCount();
 //		return array($addresses,$total);
 
@@ -1017,7 +958,7 @@ class DAO_Ticket {
 	}
 	
 	static function getMessageContent($id) {
-		$um_db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::getDatabaseService();
 		$content = '';
 		
 		$sql = sprintf("SELECT m.id, m.content ".
@@ -1025,7 +966,7 @@ class DAO_Ticket {
 			"WHERE m.id = %d ",
 			$id
 		);
-		$rs = $um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		if(!$rs->EOF) {
 			$content = $rs->fields['content'];
@@ -1035,8 +976,8 @@ class DAO_Ticket {
 	}
 	
 	static function createRequester($address_id,$ticket_id) {
-		$um_db = DevblocksPlatform::getDatabaseService();
-		$um_db->Replace("requester",array("address_id"=>$address_id,"ticket_id"=>$ticket_id),array("address_id","ticket_id")); 
+		$db = DevblocksPlatform::getDatabaseService();
+		$db->Replace("requester",array("address_id"=>$address_id,"ticket_id"=>$ticket_id),array("address_id","ticket_id")); 
 		return true;
 	}
 	
@@ -1051,29 +992,29 @@ class DAO_Dashboard {
 	private function DAO_Dashboard() {}
 	
 	static function createDashboard($name, $agent_id) {
-		$um_db = DevblocksPlatform::getDatabaseService();
-		$newId = $um_db->GenID('generic_seq');
+		$db = DevblocksPlatform::getDatabaseService();
+		$newId = $db->GenID('generic_seq');
 		
 		$sql = sprintf("INSERT INTO dashboard (id, name, agent_id) ".
 			"VALUES (%d, %s, %d)",
 			$newId,
-			$um_db->qstr($name),
+			$db->qstr($name),
 			$agent_id
 		);
-		$um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		return $newId;
 	}
 	
 	// [JAS]: Convert this over to pulling by a list of IDs?
 	static function getDashboards($agent_id=0) {
-		$um_db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::getDatabaseService();
 		
 		$sql = sprintf("SELECT id, name ".
 			"FROM dashboard "
 //			(($agent_id) ? sprintf("WHERE agent_id = %d ",$agent_id) : " ")
 		);
-		$rs = $um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		$dashboards = array();
 		
@@ -1090,27 +1031,27 @@ class DAO_Dashboard {
 	}
 	
 	static function createView($name,$dashboard_id,$num_rows=10,$sort_by=null,$sort_asc=1,$type='D') {
-		$um_db = DevblocksPlatform::getDatabaseService();
-		$newId = $um_db->GenID('generic_seq');
+		$db = DevblocksPlatform::getDatabaseService();
+		$newId = $db->GenID('generic_seq');
 		
 		$sql = sprintf("INSERT INTO dashboard_view (id, name, dashboard_id, type, num_rows, sort_by, sort_asc, page, params) ".
 			"VALUES (%d, %s, %d, %s, %d, %s, %s, %d, '')",
 			$newId,
-			$um_db->qstr($name),
+			$db->qstr($name),
 			$dashboard_id,
-			$um_db->qstr($type),
+			$db->qstr($type),
 			$num_rows,
-			$um_db->qstr($sort_by),
+			$db->qstr($sort_by),
 			$sort_asc,
 			0
 		);
-		$um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		return $newId;
 	}
 	
 	static private function _updateView($id,$fields) {
-		$um_db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::getDatabaseService();
 		$sets = array();
 		
 		if(!is_array($fields) || empty($fields) || empty($id))
@@ -1119,7 +1060,7 @@ class DAO_Dashboard {
 		foreach($fields as $k => $v) {
 			$sets[] = sprintf("%s = %s",
 				$k,
-				$um_db->qstr($v)
+				$db->qstr($v)
 			);
 		}
 			
@@ -1127,18 +1068,18 @@ class DAO_Dashboard {
 			implode(', ', $sets),
 			$id
 		);
-		$um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 	}
 	
 	static function deleteView($id) {
 		if(empty($id)) return;
-		$um_db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::getDatabaseService();
 		
 		$sql = sprintf("DELETE FROM dashboard_view WHERE id = %d",
 			$id
 		);
 		
-		$um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 	}
 	
 	/**
@@ -1148,14 +1089,14 @@ class DAO_Dashboard {
 	 * @return CerberusDashboardView[]
 	 */
 	static function getViews($dashboard_id=0) {
-		$um_db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::getDatabaseService();
 		
 		$sql = sprintf("SELECT v.id, v.name, v.dashboard_id, v.type, v.view_columns, v.num_rows, v.sort_by, v.sort_asc, v.page, v.params ".
 			"FROM dashboard_view v ".
 			"WHERE v.dashboard_id > 0 "
 //			(!empty($dashboard_id) ? sprintf("WHERE v.dashboard_id = %d ", $dashboard_id) : " ")
 		);
-		$rs = $um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		$views = array();
 		
@@ -1181,48 +1122,36 @@ class DAO_Dashboard {
 	/**
 	 * Loads or creates a view for a given agent
 	 *
-	 * @param integer $search_id
+	 * @param integer $view_id
 	 * @return CerberusDashboardView
 	 */
 	static function getView($view_id) {
-		if(!empty($view_id)) {
+		$view = NULL;
+		$visit = CerberusApplication::getVisit();
+		$viewManager = $visit->get(CerberusVisit::KEY_VIEW_MANAGER);
+		
+		if(!empty($view_id) && is_numeric($view_id)) { // custom view
 			$view = DAO_Dashboard::_getView($view_id);
 			
-		} elseif(!empty($_SESSION['search_view'])) {
-			$view = $_SESSION['search_view'];
-			
-		} else {
-			$view = new CerberusDashboardView();
-			$view->id = 0;
-			$view->name = "Search Results";
-			$view->dashboard_id = 0;
-			$view->view_columns = array(
-				CerberusSearchFields::TICKET_MASK,
-				CerberusSearchFields::TICKET_STATUS,
-				CerberusSearchFields::TICKET_PRIORITY,
-				CerberusSearchFields::MAILBOX_NAME,
-				CerberusSearchFields::TICKET_LAST_WROTE,
-				CerberusSearchFields::TICKET_CREATED_DATE,
-				);
-			$view->params = array();
-			$view->renderLimit = 100;
-			$view->renderPage = 0;
-			$view->renderSortBy = CerberusSearchFields::TICKET_CREATED_DATE;
-			$view->renderSortAsc = 0;
-			
-			$_SESSION['search_view'] = $view;
+		} elseif($viewManager->exists($view_id)) {
+			$view =& $viewManager->getView($view_id);
 		}
 		
 		return $view;
 	}
 	
-	static function updateView($view_id,$fields) {
+	static function updateView($view_id, $fields) {
+		$visit = CerberusApplication::getVisit();
 		
-		if(!empty($view_id)) { // db-driven view
+		if(method_exists($visit,'get')) {
+			$viewManager = $visit->get(CerberusVisit::KEY_VIEW_MANAGER);
+		}
+		
+		if(is_numeric($view_id)) { // db-driven view
 			DAO_Dashboard::_updateView($view_id, $fields);
 			
-		} elseif(!empty($_SESSION['search_view'])) { // virtual view
-			$view =& $_SESSION['search_view']; /* @var $view CerberusDashboardView */
+		} elseif($viewManager->exists($view_id)) { // virtual view
+			$view =& $viewManager->getView($view_id); /* @var $view CerberusDashboardView */
 			
 			foreach($fields as $key => $value) {
 				switch($key) {
@@ -1263,14 +1192,14 @@ class DAO_Dashboard {
 	 * [TODO] This should wrap getViews()
 	 */
 	static private function _getView($view_id) {
-		$um_db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::getDatabaseService();
 		
 		$sql = sprintf("SELECT v.id, v.name, v.dashboard_id, v.type, v.view_columns, v.num_rows, v.sort_by, v.sort_asc, v.page, v.params ".
 			"FROM dashboard_view v ".
 			"WHERE v.id = %d ",
 			$view_id
 		);
-		$rs = $um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 
 		if(!$rs->EOF) {
 			$view = new CerberusDashboardView();
@@ -1422,19 +1351,19 @@ class DAO_MailRule {
 	 * @param string $strictness
 	 */
 	static function createMailRule ($criteria, $sequence, $strictness) {
-		$um_db = DevblocksPlatform::getDatabaseService();
-		$newId = $um_db->GenID('generic_seq');
+		$db = DevblocksPlatform::getDatabaseService();
+		$newId = $db->GenID('generic_seq');
 		
 		$sCriteria = serialize($criteria); // Flatten criterion array into a string
 		
 		$sql = sprintf("INSERT INTO mail_rule (id, criteria, sequence, strictness) ".
 			"VALUES (%d, %s, %s, %s)",
 			$newId,
-			$um_db->qstr($sCriteria),
-			$um_db->qstr($sequence),
-			$um_db->qstr($strictness)
+			$db->qstr($sCriteria),
+			$db->qstr($sequence),
+			$db->qstr($strictness)
 		);
-		$um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg());
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 	}
 	
 	/**
@@ -1444,12 +1373,12 @@ class DAO_MailRule {
 	 */
 	static function deleteMailRule ($id) {
 		if(empty($id)) return;
-		$um_db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::getDatabaseService();
 		
 		$sql = sprintf("DELETE FROM mail_rule WHERE id = %d",
 			$id
 		);
-		$um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg());
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 	}
 	
 	/**
@@ -1459,14 +1388,14 @@ class DAO_MailRule {
 	 * @return CerberusMailRule
 	 */
 	static function getMailRule ($id) {
-		$um_db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::getDatabaseService();
 		
 		$sql = sprintf("SELECT m.id, m.criteria, m.sequence, m.strictness ".
 			"FROM mail_rule m ".
 			"WHERE m.id = %d",
 			$id
 		);
-		$rs = $um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg());
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
 		$mailRule = new CerberusMailRule();
 		while(!$rs->EOF) {
@@ -1490,12 +1419,12 @@ class DAO_MailRule {
 	 * @return CerberusMailRule[]
 	 */
 	static function getMailRules () {
-		$um_db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::getDatabaseService();
 		
 		$sql = sprintf("SELECT m.id, m.criteria, m.sequence, m.strictness ".
 			"FROM mail_rule m"
 		);
-		$rs = $um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg());
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
 		$mailRules = array();
 		
@@ -1522,7 +1451,7 @@ class DAO_MailRule {
 	 * @param associative array $fields
 	 */
 	static function updateMailRule ($id, $fields) {
-		$um_db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::getDatabaseService();
 		
 		if(!is_array($fields) || empty($fields) || empty($id))
 			return;
@@ -1530,7 +1459,7 @@ class DAO_MailRule {
 		foreach($fields as $k => $v) {
 			$sets[] = sprintf("%s = %s",
 				$k,
-				$um_db->qstr($v)
+				$db->qstr($v)
 			);
 		}
 			
@@ -1538,7 +1467,7 @@ class DAO_MailRule {
 			implode(', ', $sets),
 			$id
 		);
-		$um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg());
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 	}
 };
 
@@ -1563,7 +1492,7 @@ class DAO_Search {
 	 * [TODO]: Fold back into DAO_Ticket
 	 */
 	static function searchTickets($params,$limit=10,$page=0,$sortBy=null,$sortAsc=null) {
-		$um_db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::getDatabaseService();
 
 		$fields = CerberusSearchFields::getFields();
 		$start = min($page * $limit,1);
@@ -1592,14 +1521,14 @@ class DAO_Search {
 				case "=":
 					$where = sprintf("%s = %s",
 						$db_field_name,
-						$um_db->qstr($param->value)
+						$db->qstr($param->value)
 					);
 					break;
 					
 				case "!=":
 					$where = sprintf("%s != %s",
 						$db_field_name,
-						$um_db->qstr($param->value)
+						$db->qstr($param->value)
 					);
 					break;
 				
@@ -1615,7 +1544,7 @@ class DAO_Search {
 //					if(!is_array($param->value)) break;
 					$where = sprintf("%s LIKE %s",
 						$db_field_name,
-						$um_db->qstr(str_replace('*','%%',$param->value))
+						$db->qstr(str_replace('*','%%',$param->value))
 					);
 					break;
 					
@@ -1635,22 +1564,19 @@ class DAO_Search {
 			"t.subject as t_subject, ".
 			"t.status as t_status, ".
 			"t.priority as t_priority, ".
-			"t.mailbox_id as t_mailbox_id, ".
 			"a1.email as t_first_wrote, ".
 			"a2.email as t_last_wrote, ".
 			"t.created_date as t_created_date, ".
 			"t.updated_date as t_updated_date, ".
 			"t.spam_score as t_spam_score, ".
-			"m.id as m_id, ".
-			"m.name as m_name ".
+			"tm.id as tm_id, ".
+			"tm.name as tm_name ".
 			"FROM ticket t ".
-			"INNER JOIN mailbox m ON (t.mailbox_id=m.id) ".
+			"INNER JOIN team tm ON (tm.id = t.team_id) ".
 			"INNER JOIN address a1 ON (t.first_wrote_address_id=a1.id) ".
 			"INNER JOIN address a2 ON (t.last_wrote_address_id=a2.id) ".
 			
 			// [JAS]: Dynamic table joins
-			(isset($tables['att']) ? "LEFT JOIN assign_to_ticket att ON (att.ticket_id=t.id AND att.is_flag = 1) " : " ").
-			(isset($tables['stt']) ? "LEFT JOIN assign_to_ticket stt ON (stt.ticket_id=t.id AND stt.is_flag = 0) " : " ").
 			(isset($tables['ra']) ? "INNER JOIN requester r ON (r.ticket_id=t.id)" : " ").
 			(isset($tables['ra']) ? "INNER JOIN address ra ON (ra.id=r.address_id) " : " ").
 			(isset($tables['msg']) ? "INNER JOIN message msg ON (msg.ticket_id=t.id) " : " ").
@@ -1659,7 +1585,7 @@ class DAO_Search {
 //			"GROUP BY t_id ".
 			(!empty($sortBy) ? sprintf("ORDER BY %s %s",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : "")
 		);
-		$rs = $um_db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		while(!$rs->EOF) {
 			// [JAS]: [TODO] This needs to change to an intermediary search row object.
@@ -1673,7 +1599,7 @@ class DAO_Search {
 		}
 
 		// [JAS]: Count all
-		$rs = $um_db->Execute($sql);
+		$rs = $db->Execute($sql);
 		$total = $rs->RecordCount();
 		
 		return array($results,$total);
@@ -1692,7 +1618,7 @@ class DAO_Search {
 	 * @todo [TODO] This and the ticket search could really share a lot of the operator/field functionality 
 	 */
 	static function searchResources($params,$limit=10,$page=0,$sortBy=null,$sortAsc=null) {
-		$um_db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::getDatabaseService();
 
 		$fields = CerberusResourceSearchFields::getFields();
 		$start = min($page * $limit,1);
@@ -1721,14 +1647,14 @@ class DAO_Search {
 				case "=":
 					$where = sprintf("%s = %s",
 						$db_field_name,
-						$um_db->qstr($param->value)
+						$db->qstr($param->value)
 					);
 					break;
 					
 				case "!=":
 					$where = sprintf("%s != %s",
 						$db_field_name,
-						$um_db->qstr($param->value)
+						$db->qstr($param->value)
 					);
 					break;
 				
@@ -1744,7 +1670,7 @@ class DAO_Search {
 //					if(!is_array($param->value)) break;
 					$where = sprintf("%s LIKE %s",
 						$db_field_name,
-						$um_db->qstr(str_replace('*','%%',$param->value))
+						$db->qstr(str_replace('*','%%',$param->value))
 					);
 					break;
 					
@@ -1773,7 +1699,7 @@ class DAO_Search {
 //			"GROUP BY kb.id ".
 			(!empty($sortBy) ? sprintf("ORDER BY %s %s",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : "")
 		);
-		$rs = $um_db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		while(!$rs->EOF) {
 			$result = array();
@@ -1786,7 +1712,7 @@ class DAO_Search {
 		}
 
 		// [JAS]: Count all
-		$rs = $um_db->Execute($sql);
+		$rs = $db->Execute($sql);
 		$total = $rs->RecordCount();
 		
 		return array($results,$total);
@@ -1799,14 +1725,14 @@ class DAO_Search {
 	 * @return CerberusDashboardView[]
 	 */
 	static function getSavedSearches($agent_id) {
-		$um_db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::getDatabaseService();
 		$searches = array();
 		
-		$sql = sprintf("SELECT v.id, v.name, v.dashboard_id, v.type, v.agent_id, v.view_columns, v.num_rows, v.sort_by, v.sort_asc, v.page, v.params ".
+		$sql = sprintf("SELECT v.id, v.name, v.dashboard_id, v.type, v.view_columns, v.num_rows, v.sort_by, v.sort_asc, v.page, v.params ".
 			"FROM dashboard_view v ".
 			"WHERE v.type = 'S' "
 		);
-		$rs = $um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 
 		while(!$rs->EOF) {
 			$view = new CerberusDashboardView();
@@ -1814,7 +1740,7 @@ class DAO_Search {
 			$view->name = $rs->fields['name'];
 			$view->dashboard_id = intval($rs->fields['dashboard_id']);
 			$view->type = $rs->fields['type'];
-			$view->agent_id = intval($rs->fields['agent_id']);
+//			$view->agent_id = intval($rs->fields['agent_id']);
 			$view->columns = unserialize($rs->fields['view_columns']);
 			$view->params = unserialize($rs->fields['params']);
 			$view->renderLimit = intval($rs->fields['num_rows']);
@@ -1829,6 +1755,34 @@ class DAO_Search {
 	}
 };
 
+//class DAO_TeamCategory {
+//	public static function create($fields) {
+//		$db = DevblocksPlatform::getDatabaseService();
+//		$id = $db->GenID('generic_seq');
+//		
+//		$sql = sprintf("INSERT INTO team",
+//			
+//		);
+//		$rs= $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+//		
+//	}
+//	public static function update($id,$fields) {
+//		
+//	}
+//	public static function get($id) {
+//		
+//	}
+//	public static function getList($ids=array()) {
+//		
+//	}
+//	public static function delete($id) {
+//		// [TODO] cascade foreign key constraints	
+//	}
+//	public static function search() {
+//		
+//	}
+//};
+
 /**
  * Enter description here...
  *
@@ -1839,304 +1793,102 @@ class DAO_Workflow {
 	/**
 	 * Enter description here...
 	 *
-	 * @param string $tag_name
-	 * @param boolean $create_if_notexist
-	 * @return CerberusTag
-	 */
-	static function lookupTag($tag_name, $create_if_notexist=false) {
-		if(empty($tag_name)) return null;
-		
-		$um_db = DevblocksPlatform::getDatabaseService();
-		$tag = null;
-
-		$sql = sprintf("SELECT t.id FROM tag t WHERE t.name = %s",
-			$um_db->qstr($tag_name)
-		);
-		$rs = $um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-		if(!$rs->EOF) {
-			$id = intval($rs->fields['id']);
-		} elseif($create_if_notexist) {
-			$id = DAO_Workflow::createTag($tag_name);
-		}
-		
-		if(!empty($id)) {
-			$tag = DAO_Workflow::getTag($id);
-		}
-		
-		return $tag;
-	}
-	
-	/**
-	 * Enter description here...
-	 *
-	 * @param array $ids
-	 * @return CerberusTag[]
-	 */
-	static function getTags($ids=array()) {
-		if(!is_array($ids)) $ids = array($ids);
-
-		$um_db = DevblocksPlatform::getDatabaseService();
-		$tags = array();
-
-		$sql = "SELECT t.id, t.name ".
-			"FROM tag t ".
-			((!empty($ids) ? sprintf("WHERE t.id IN (%s)",implode(',', $ids)) : " ").
-			"ORDER BY t.name"
-		);
-		$rs = $um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-		while(!$rs->EOF) {
-			$tag = new CerberusTag();
-			$tag->id = intval($rs->fields['id']);
-			$tag->name = $rs->fields['name'];
-			$tags[$tag->id] = $tag;
-			$rs->MoveNext();
-		}
-		
-		return $tags;
-	}
-	
-	/**
-	 * Enter description here...
-	 *
 	 * @param integer $id
 	 * @return CerberusTag[]
 	 */
-	static function getTagsByTicket($id) {
-		$um_db = DevblocksPlatform::getDatabaseService();
-		$ids = array();
-		$tags = array();
-		
-		$sql = sprintf("SELECT tt.tag_id ".
-			"FROM tag_to_ticket tt ".
-			"INNER JOIN tag t ON (tt.tag_id=t.id) ".
-			"WHERE tt.ticket_id = %d ".
-			"ORDER BY t.name",
-			$id
-		);
-		$rs = $um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-		while(!$rs->EOF) {
-			$ids[] = intval($rs->fields['tag_id']);
-			$rs->MoveNext();
-		}
-		
-		if(!empty($ids)) {
-			$tags = DAO_Workflow::getTags($ids); 
-		}
-		
-		return $tags;
-	}
+//	static function getTagsByTicket($id) {
+//		$db = DevblocksPlatform::getDatabaseService();
+//		$ids = array();
+//		$tags = array();
+//		
+//		$sql = sprintf("SELECT tt.tag_id ".
+//			"FROM tag_to_ticket tt ".
+//			"INNER JOIN tag t ON (tt.tag_id=t.id) ".
+//			"WHERE tt.ticket_id = %d ".
+//			"ORDER BY t.name",
+//			$id
+//		);
+//		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+//		
+//		while(!$rs->EOF) {
+//			$ids[] = intval($rs->fields['tag_id']);
+//			$rs->MoveNext();
+//		}
+//		
+//		if(!empty($ids)) {
+//			$tags = DAO_Workflow::getTags($ids); 
+//		}
+//		
+//		return $tags;
+//	}
 	
-	/**
-	 * Enter description here...
-	 *
-	 * @param integer $ticket_id
-	 * @param boolean $is_flag
-	 * @return CerberusAgent[]
-	 */
-	static function getWorkersByTicket($ticket_id, $is_flag) {
-		$um_db = DevblocksPlatform::getDatabaseService();
-		$ids = array();
-		$workers = array();
-		
-		$sql = sprintf("SELECT at.agent_id ".
-			"FROM assign_to_ticket at ".
-			"WHERE at.ticket_id = %d ".
-			"AND at.is_flag = %d",
-			$ticket_id,
-			($is_flag) ? 1 : 0
-		);
-		$rs= $um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-		while(!$rs->EOF) {
-			$ids[] = intval($rs->fields['agent_id']);
-			$rs->MoveNext();
-		}
-
-		if(!empty($ids)) {
-			$workers = DAO_Worker::getList($ids);
-		}
-		
-		return $workers;
-	}
+//	static function getSuggestedTags($ticket_id,$limit=10) {
+//		if(empty($ticket_id)) return array();
+//		
+//		$db = DevblocksPlatform::getDatabaseService();
+//		$tags = array();
+//		
+//		$msgs = DAO_Ticket::getMessagesByTicket($ticket_id);
+//		if(!is_array($msgs[0])) return array();
+//		
+//		$msg = array_shift($msgs[0]); /* @var $msg CerberusMessage */
+//		$content = $msg->getContent();
+//		
+//		// [JAS]: [TODO] This could get out of control fast
+//		$terms = DAO_Workflow::getTagTerms();
+//
+//		foreach($terms as $term) {
+//			if(FALSE === stristr($content,$term->term)) continue;
+//			$tags[$term->tag_id] = intval($tags[$term->tag_id]) + 1;
+//		}
+//		
+//		arsort($tags);
+//		$tags = array_slice($tags,0,$limit,true);
+//		
+//		unset($terms);
+//		
+//		if(empty($tags))
+//			return array();
+//		
+//		return DAO_Workflow::getTags(array_keys($tags));
+//	}
 	
-	/**
-	 * Enter description here...
-	 *
-	 * @param integer $id
-	 * @return CerberusTag
-	 */
-	static function getTag($id) {
-		$tags = DAO_Workflow::getTags(array($id));
-		
-		if(isset($tags[$id]))
-			return $tags[$id];
-			
-		return null;
-	}
-	
-	static function getSuggestedTags($ticket_id,$limit=10) {
-		if(empty($ticket_id)) return array();
-		
-		$um_db = DevblocksPlatform::getDatabaseService();
-		$tags = array();
-		
-		$msgs = DAO_Ticket::getMessagesByTicket($ticket_id);
-		if(!is_array($msgs[0])) return array();
-		
-		$msg = array_shift($msgs[0]); /* @var $msg CerberusMessage */
-		$content = $msg->getContent();
-		
-		// [JAS]: [TODO] This could get out of control fast
-		$terms = DAO_Workflow::getTagTerms();
-
-		foreach($terms as $term) {
-			if(FALSE === stristr($content,$term->term)) continue;
-			$tags[$term->tag_id] = intval($tags[$term->tag_id]) + 1;
-		}
-		
-		arsort($tags);
-		$tags = array_slice($tags,0,$limit,true);
-		
-		unset($terms);
-		
-		if(empty($tags))
-			return array();
-		
-		return DAO_Workflow::getTags(array_keys($tags));
-	}
-	
-	static function searchTags($query,$limit=10) {
-		$um_db = DevblocksPlatform::getDatabaseService();
-		if(empty($query)) return null;
-		
-		$sql = sprintf("SELECT t.id FROM tag t WHERE t.name LIKE '%s%%' LIMIT 0,%d",
-			$query,
-			$limit
-		);
-		$rs = $um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-		$ids = array();
-		
-		while(!$rs->EOF) {
-			$ids[] = intval($rs->fields['id']);
-			$rs->MoveNext();
-		}
-		
-		if(empty($ids))
-			return array();
-			
-		return DAO_Workflow::getTags($ids);
-	}
-	
-	/**
-	 * Enter description here...
-	 *
-	 * @param string $name
-	 * @return integer id
-	 */
-	static function createTag($name) {
-		$um_db = DevblocksPlatform::getDatabaseService();
-		if(empty($name)) return null;
-		
-		$id = $um_db->GenID('tag_seq');
-		
-		$sql = sprintf("INSERT INTO tag (id, name) ".
-			"VALUES (%d, %s)",
-			$id,
-			$um_db->qstr(strtolower($name))
-		);
-		$um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-		return $id;
-	}
-	
-	/**
-	 * Enter description here...
-	 *
-	 * @param integer $id
-	 * @param array $fields
-	 */
-	static function updateTag($id, $fields) {
-		$um_db = DevblocksPlatform::getDatabaseService();
-		$sets = array();
-		
-		if(!is_array($fields) || empty($fields) || empty($id))
-			return;
-		
-		foreach($fields as $k => $v) {
-			$sets[] = sprintf("%s = %s",
-				$k,
-				$um_db->qstr($v)
-			);
-		}
-			
-		$sql = sprintf("UPDATE tag SET %s WHERE id = %d",
-			implode(', ', $sets),
-			$id
-		);
-		$um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-	}
-	
-	static function setTagTerms($id, $terms) {
-		if(empty($id)) return null;
-		
-		$um_db = DevblocksPlatform::getDatabaseService();
-
-		// [JAS]: Clear previous terms
-		$um_db->Execute(sprintf("DELETE FROM tag_term WHERE tag_id = %d", $id));
-		
-		if(is_array($terms))
-		foreach($terms as $v) {
-			$term = trim($v);
-			if(empty($term)) continue;
-			$um_db->Replace('tag_term', array('tag_id'=>$id,'term'=>$um_db->qstr($term)),array('tag_id','term'),false);
-		}
-	}
-	
-	static function getTagTerms($id=null) {
-		$um_db = DevblocksPlatform::getDatabaseService();
-		$terms = array();
-		
-		$sql = "SELECT tag_id, term ".
-			"FROM tag_term ".
-			((!empty($id)) ? sprintf("WHERE tag_id = %d ",$id) : " "). 
-			"ORDER BY term ASC";
-		$rs = $um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-		while(!$rs->EOF) {
-			$term = new CerberusTagTerm();
-			$term->tag_id = intval($rs->fields['tag_id']);
-			$term->term = $rs->fields['term'];
-			$terms[] = $term;
-			$rs->MoveNext();
-		}
-		
-		return $terms;
-	}
-	
-	static function deleteTag($id) {
-		$um_db = DevblocksPlatform::getDatabaseService();
-		if(empty($id)) return;
-		
-		$sql = sprintf("DELETE FROM tag WHERE id = %d",
-			$id
-		);
-		$um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-		$sql = sprintf("DELETE FROM favorite_tag_to_worker WHERE tag_id = %d",
-			$id
-		);
-		$um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-		$sql = sprintf("DELETE FROM tag_to_ticket WHERE tag_id = %d",
-			$id
-		);
-		$um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
-	}
+//	static function setTagTerms($id, $terms) {
+//		if(empty($id)) return null;
+//		
+//		$db = DevblocksPlatform::getDatabaseService();
+//
+//		// [JAS]: Clear previous terms
+//		$db->Execute(sprintf("DELETE FROM tag_term WHERE tag_id = %d", $id));
+//		
+//		if(is_array($terms))
+//		foreach($terms as $v) {
+//			$term = trim($v);
+//			if(empty($term)) continue;
+//			$db->Replace('tag_term', array('tag_id'=>$id,'term'=>$db->qstr($term)),array('tag_id','term'),false);
+//		}
+//	}
+//	
+//	static function getTagTerms($id=null) {
+//		$db = DevblocksPlatform::getDatabaseService();
+//		$terms = array();
+//		
+//		$sql = "SELECT tag_id, term ".
+//			"FROM tag_term ".
+//			((!empty($id)) ? sprintf("WHERE tag_id = %d ",$id) : " "). 
+//			"ORDER BY term ASC";
+//		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+//		
+//		while(!$rs->EOF) {
+//			$term = new CerberusTagTerm();
+//			$term->tag_id = intval($rs->fields['tag_id']);
+//			$term->term = $rs->fields['term'];
+//			$terms[] = $term;
+//			$rs->MoveNext();
+//		}
+//		
+//		return $terms;
+//	}
 	
 	// Teams
 	
@@ -2163,7 +1915,7 @@ class DAO_Workflow {
 	 */
 	static function getTeams($ids=array()) {
 		if(!is_array($ids)) $ids = array($ids);
-		$um_db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::getDatabaseService();
 
 		$teams = array();
 		
@@ -2172,7 +1924,7 @@ class DAO_Workflow {
 			((!empty($ids)) ? sprintf("WHERE t.id IN (%s) ",implode(',',$ids)) : " ").
 			"ORDER BY t.name ASC"
 		);
-		$rs = $um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		while(!$rs->EOF) {
 			$team = new CerberusTeam();
 			$team->id = intval($rs->fields['id']);
@@ -2194,14 +1946,14 @@ class DAO_Workflow {
 		if(empty($name))
 			return;
 		
-		$um_db = DevblocksPlatform::getDatabaseService();
-		$newId = $um_db->GenID('generic_seq');
+		$db = DevblocksPlatform::getDatabaseService();
+		$newId = $db->GenID('generic_seq');
 		
 		$sql = sprintf("INSERT INTO team (id, name) VALUES (%d,%s)",
 			$newId,
-			$um_db->qstr($name)
+			$db->qstr($name)
 		);
-		$um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		return $newId;
 	}
@@ -2213,7 +1965,7 @@ class DAO_Workflow {
 	 * @param array $fields
 	 */
 	static function updateTeam($id, $fields) {
-		$um_db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::getDatabaseService();
 		$sets = array();
 		
 		if(!is_array($fields) || empty($fields) || empty($id))
@@ -2222,7 +1974,7 @@ class DAO_Workflow {
 		foreach($fields as $k => $v) {
 			$sets[] = sprintf("%s = %s",
 				$k,
-				$um_db->qstr($v)
+				$db->qstr($v)
 			);
 		}
 			
@@ -2230,7 +1982,7 @@ class DAO_Workflow {
 			implode(', ', $sets),
 			$id
 		);
-		$um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 	}
 	
@@ -2241,75 +1993,131 @@ class DAO_Workflow {
 	 */
 	static function deleteTeam($id) {
 		if(empty($id)) return;
-		$um_db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::getDatabaseService();
 		
 		$sql = sprintf("DELETE FROM team WHERE id = %d",
 			$id
 		);
-		$um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-		$sql = sprintf("DELETE FROM mailbox_to_team WHERE team_id = %d",
-			$id
-		);
-		$um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		$sql = sprintf("DELETE FROM worker_to_team WHERE team_id = %d",
 			$id
 		);
-		$um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 	}
 	
-	static function setTeamMailboxes($team_id, $mailbox_ids) {
-		if(!is_array($mailbox_ids)) $mailbox_ids = array($mailbox_ids);
-		if(empty($team_id)) return;
-		$um_db = DevblocksPlatform::getDatabaseService();
-		
-		$sql = sprintf("DELETE FROM mailbox_to_team WHERE team_id = %d",
-			$team_id
-		);
-		$um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-		foreach($mailbox_ids as $mailbox_id) {
-			$sql = sprintf("INSERT INTO mailbox_to_team (mailbox_id, team_id, is_routed) ".
-				"VALUES (%d,%d,%d)",
-				$mailbox_id,
-				$team_id,
-				1
-			);
-			$um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
-		}
-	}
+//	static function setTeamMailboxes($team_id, $mailbox_ids) {
+//		if(!is_array($mailbox_ids)) $mailbox_ids = array($mailbox_ids);
+//		if(empty($team_id)) return;
+//		$db = DevblocksPlatform::getDatabaseService();
+//		
+//		$sql = sprintf("DELETE FROM mailbox_to_team WHERE team_id = %d",
+//			$team_id
+//		);
+//		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+//		
+//		foreach($mailbox_ids as $mailbox_id) {
+//			$sql = sprintf("INSERT INTO mailbox_to_team (mailbox_id, team_id, is_routed) ".
+//				"VALUES (%d,%d,%d)",
+//				$mailbox_id,
+//				$team_id,
+//				1
+//			);
+//			$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+//		}
+//	}
 	
-	static function getTeamMailboxes($team_id, $with_counts = false) {
-		if(empty($team_id)) return;
-		$um_db = DevblocksPlatform::getDatabaseService();
-		$ids = array();
+//	static function getTeamMailboxes($team_id, $with_counts = false) {
+//		if(empty($team_id)) return;
+//		$db = DevblocksPlatform::getDatabaseService();
+//		$ids = array();
+//		
+//		$sql = sprintf("SELECT mt.mailbox_id FROM mailbox_to_team mt WHERE mt.team_id = %d",
+//			$team_id
+//		);
+//		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+//		
+//		while(!$rs->EOF) {
+//			$ids[] = intval($rs->fields['mailbox_id']);
+//			$rs->MoveNext();
+//		}
+//		
+//		if(empty($ids))
+//			return array();
+//		
+//		return DAO_Mail::getMailboxes($ids, $with_counts);
+//	}
+	
+	// [TODO] Should this be returning model objects or wrapping a DAO function passed IDs?
+	// [TODO] Move to a separate DAO entity object (Category CRUD)
+	static function getTeamCategories($team_id) {
+		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = sprintf("SELECT mt.mailbox_id FROM mailbox_to_team mt WHERE mt.team_id = %d",
+		$sql = sprintf("SELECT tc.id, tc.name ".
+			"FROM team_category tc ".
+			"WHERE tc.team_id = %d ",
 			$team_id
 		);
-		$rs = $um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		$categories = array();
 		
 		while(!$rs->EOF) {
-			$ids[] = intval($rs->fields['mailbox_id']);
-			$rs->MoveNext();
+			$category = new CerberusTeamCategory();
+			$category->id = intval($rs->Fields('id'));
+			$category->name = $rs->Fields('name');
+			$category->team_id = intval($rs->Fields('team_id'));
+			$categories[$category->id] = $category;
 		}
 		
-		if(empty($ids))
-			return array();
+		return $categories;
+	}
+	
+	static function createTeamCategory($name,$team_id) {
+		$db = DevblocksPlatform::getDatabaseService();
 		
-		return DAO_Mail::getMailboxes($ids, $with_counts);
+		$id = $db->GenID('generic_seq');
+		
+		$sql = sprintf("INSERT INTO team_category (id,name,team_id) ".
+			"VALUES (%d,%s,%d)",
+			$id,
+			$db->qstr($name),
+			$team_id
+		);
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		return $id;
+	}
+	
+	static function updateTeamCategory($id,$name) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = sprintf("UPDATE team_category SET name=%s WHERE id = %d",
+			$db->qstr($name),
+			$id
+		);
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+	}
+	
+	static function deleteTeamCategory($id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = sprintf("DELETE FROM team_category WHERE id = %d", $id);
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		$sql = sprintf("DELETE FROM team_category_to_tag WHERE category_id = %d", $id);
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 	}
 	
 	static function setTeamWorkers($team_id, $agent_ids) {
 		if(!is_array($agent_ids)) $agent_ids = array($agent_ids);
 		if(empty($team_id)) return;
-		$um_db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::getDatabaseService();
 
 		$sql = sprintf("DELETE FROM worker_to_team WHERE team_id = %d",
 			$team_id
 		);
-		$um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		foreach($agent_ids as $agent_id) {
 			$sql = sprintf("INSERT INTO worker_to_team (agent_id, team_id) ".
@@ -2317,19 +2125,19 @@ class DAO_Workflow {
 				$agent_id,
 				$team_id
 			);
-			$um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+			$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		}
 	}
 	
 	static function getTeamWorkers($team_id) {
 		if(empty($team_id)) return;
-		$um_db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::getDatabaseService();
 		$ids = array();
 		
 		$sql = sprintf("SELECT wt.agent_id FROM worker_to_team wt WHERE wt.team_id = %d",
 			$team_id
 		);
-		$rs = $um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		while(!$rs->EOF) {
 			$ids[] = intval($rs->fields['agent_id']);
@@ -2345,16 +2153,9 @@ class DAO_Workflow {
 }
 
 class DAO_Mail {
-	// Mailboxes
-	
-	const MAILBOX_ID = 'id';
-	const MAILBOX_NAME = 'name';
-	const MAILBOX_REPLY_ADDRESS_ID = 'reply_address_id';
-	const MAILBOX_DISPLAY_NAME = 'display_name';
-	
 	const ROUTING_ID = 'id';
 	const ROUTING_PATTERN = 'pattern';
-	const ROUTING_MAILBOX_ID = 'mailbox_id';
+	const ROUTING_TEAM_ID = 'team_id';
 	const ROUTING_POS = 'pos';
 	
 	/**
@@ -2362,50 +2163,50 @@ class DAO_Mail {
 	 *
 	 * @return CerberusMailbox[]
 	 */
-	static function getMailboxes($ids=array(), $with_counts = false) {
-		if(!is_array($ids)) $ids = array($ids);
-		$um_db = DevblocksPlatform::getDatabaseService();
-
-		$mailboxes = array();
-
-		$sql = sprintf("SELECT m.id , m.name, m.reply_address_id, m.display_name, m.close_autoresponse, m.new_autoresponse ".
-			"FROM mailbox m ".
-			((!empty($ids)) ? sprintf("WHERE m.id IN (%s) ",implode(',', $ids)) : " ").
-			"ORDER BY m.name ASC"
-		);
-		$rs = $um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
-		while(!$rs->EOF) {
-			$mailbox = new CerberusMailbox();
-			$mailbox->id = intval($rs->fields['id']);
-			$mailbox->name = $rs->fields['name'];
-			$mailbox->reply_address_id = $rs->fields['reply_address_id'];
-			$mailbox->display_name = $rs->fields['display_name'];
-			$mailbox->close_autoresponse = $rs->fields['close_autoresponse'];
-			$mailbox->new_autoresponse = $rs->fields['new_autoresponse'];
-			$mailboxes[$mailbox->id] = $mailbox;
-			$rs->MoveNext();
-		}
-		
-		// add per-mailbox counts of open tickets if requested
-		if ($with_counts === true) {
-			foreach ($mailboxes as $mailbox) {
-				$sql = sprintf("SELECT COUNT(t.id) as ticket_count ".
-					"FROM ticket t ".
-					"WHERE t.mailbox_id = %d AND t.status = 'O'",
-					$mailbox->id
-				);
-				
-				$rs = $um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
-				
-				while(!$rs->EOF) {
-					$mailbox->count = intval($rs->fields['ticket_count']);
-					$rs->MoveNext();
-				}			
-			}
-		}
-
-		return $mailboxes;
-	}
+//	static function getMailboxes($ids=array(), $with_counts = false) {
+//		if(!is_array($ids)) $ids = array($ids);
+//		$db = DevblocksPlatform::getDatabaseService();
+//
+//		$mailboxes = array();
+//
+//		$sql = sprintf("SELECT m.id , m.name, m.reply_address_id, m.display_name, m.close_autoresponse, m.new_autoresponse ".
+//			"FROM mailbox m ".
+//			((!empty($ids)) ? sprintf("WHERE m.id IN (%s) ",implode(',', $ids)) : " ").
+//			"ORDER BY m.name ASC"
+//		);
+//		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+//		while(!$rs->EOF) {
+//			$mailbox = new CerberusMailbox();
+//			$mailbox->id = intval($rs->fields['id']);
+//			$mailbox->name = $rs->fields['name'];
+//			$mailbox->reply_address_id = $rs->fields['reply_address_id'];
+//			$mailbox->display_name = $rs->fields['display_name'];
+//			$mailbox->close_autoresponse = $rs->fields['close_autoresponse'];
+//			$mailbox->new_autoresponse = $rs->fields['new_autoresponse'];
+//			$mailboxes[$mailbox->id] = $mailbox;
+//			$rs->MoveNext();
+//		}
+//		
+//		// add per-mailbox counts of open tickets if requested
+//		if ($with_counts === true) {
+//			foreach ($mailboxes as $mailbox) {
+//				$sql = sprintf("SELECT COUNT(t.id) as ticket_count ".
+//					"FROM ticket t ".
+//					"WHERE t.mailbox_id = %d AND t.status = 'O'",
+//					$mailbox->id
+//				);
+//				
+//				$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+//				
+//				while(!$rs->EOF) {
+//					$mailbox->count = intval($rs->fields['ticket_count']);
+//					$rs->MoveNext();
+//				}			
+//			}
+//		}
+//
+//		return $mailboxes;
+//	}
 	
 	/**
 	 * creates a new mailbox in the database
@@ -2415,120 +2216,120 @@ class DAO_Mail {
 	 * @param string $display_name
 	 * @return integer
 	 */
-	static function createMailbox($name, $reply_address_id, $display_name = '', $close_autoresponse = '', $new_autoresponse = '') {
-		$um_db = DevblocksPlatform::getDatabaseService();
-		$newId = $um_db->GenID('generic_seq');
-		
-		$sql = sprintf("INSERT INTO mailbox (id, name, reply_address_id, display_name, close_autoresponse, new_autoresponse) VALUES (%d,%s,%d,%s,%s,%s)",
-			$newId,
-			$um_db->qstr($name),
-			$reply_address_id,
-			$um_db->qstr($display_name),
-			$um_db->qstr($close_autoresponse),
-			$um_db->qstr($new_autoresponse)
-		);
-		$um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-		return $newId;
-	}
-	
-	static function updateMailbox($id, $fields) {
-		$um_db = DevblocksPlatform::getDatabaseService();
-		$sets = array();
-		
-		if(!is_array($fields) || empty($fields) || empty($id))
-			return;
-		
-		foreach($fields as $k => $v) {
-			$sets[] = sprintf("%s = %s",
-				$k,
-				$um_db->qstr($v)
-			);
-		}
-			
-		$sql = sprintf("UPDATE mailbox SET %s WHERE id = %d",
-			implode(', ', $sets),
-			$id
-		);
-		$um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-	}
-	
-	static function getMailbox($id) {
-		if(empty($id)) return null;
-		$mailboxes = DAO_Mail::getMailboxes(array($id));
-		
-		if(isset($mailboxes[$id]))
-			return $mailboxes[$id];
-			
-		return null;
-	}
-	
-	static function deleteMailbox($id) {
-		if(empty($id)) return;
-		
-		$um_db = DevblocksPlatform::getDatabaseService();
-		
-		$sql = sprintf("DELETE FROM mailbox WHERE id = %d",
-			$id
-		);
-		$um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-		$sql = sprintf("DELETE FROM mailbox_to_team WHERE mailbox_id = %d",
-			$id
-		);
-		$um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-	}
-	
-	
-	static function setMailboxTeams($mailbox_id, $team_ids) {
-		if(!is_array($team_ids)) $team_ids = array($team_ids);
-		if(empty($mailbox_id)) return;
-		$um_db = DevblocksPlatform::getDatabaseService();
-
-		$sql = sprintf("DELETE FROM mailbox_to_team WHERE mailbox_id = %d",
-			$mailbox_id
-		);
-		$um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-		foreach($team_ids as $team_id) {
-			$sql = sprintf("INSERT INTO mailbox_to_team (mailbox_id, team_id, is_routed) ".
-				"VALUES (%d,%d,%d)",
-				$mailbox_id,
-				$team_id,
-				1
-			);
-			$um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
-		}
-	}
-	
-	static function getMailboxTeams($mailbox_id) {
-		if(empty($mailbox_id)) return;
-		$um_db = DevblocksPlatform::getDatabaseService();
-		$ids = array();
-		
-		$sql = sprintf("SELECT mt.team_id FROM mailbox_to_team mt WHERE mt.mailbox_id = %d",
-			$mailbox_id
-		);
-		$rs = $um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-		while(!$rs->EOF) {
-			$ids[] = intval($rs->fields['team_id']);
-			$rs->MoveNext();
-		}
-		
-		if(empty($ids))
-			return array();
-			
-		return DAO_Workflow::getTeams($ids);
-	}
+//	static function createMailbox($name, $reply_address_id, $display_name = '', $close_autoresponse = '', $new_autoresponse = '') {
+//		$db = DevblocksPlatform::getDatabaseService();
+//		$newId = $db->GenID('generic_seq');
+//		
+//		$sql = sprintf("INSERT INTO mailbox (id, name, reply_address_id, display_name, close_autoresponse, new_autoresponse) VALUES (%d,%s,%d,%s,%s,%s)",
+//			$newId,
+//			$db->qstr($name),
+//			$reply_address_id,
+//			$db->qstr($display_name),
+//			$db->qstr($close_autoresponse),
+//			$db->qstr($new_autoresponse)
+//		);
+//		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+//		
+//		return $newId;
+//	}
+//	
+//	static function updateMailbox($id, $fields) {
+//		$db = DevblocksPlatform::getDatabaseService();
+//		$sets = array();
+//		
+//		if(!is_array($fields) || empty($fields) || empty($id))
+//			return;
+//		
+//		foreach($fields as $k => $v) {
+//			$sets[] = sprintf("%s = %s",
+//				$k,
+//				$db->qstr($v)
+//			);
+//		}
+//			
+//		$sql = sprintf("UPDATE mailbox SET %s WHERE id = %d",
+//			implode(', ', $sets),
+//			$id
+//		);
+//		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+//		
+//	}
+//	
+//	static function getMailbox($id) {
+//		if(empty($id)) return null;
+//		$mailboxes = DAO_Mail::getMailboxes(array($id));
+//		
+//		if(isset($mailboxes[$id]))
+//			return $mailboxes[$id];
+//			
+//		return null;
+//	}
+//	
+//	static function deleteMailbox($id) {
+//		if(empty($id)) return;
+//		
+//		$db = DevblocksPlatform::getDatabaseService();
+//		
+//		$sql = sprintf("DELETE FROM mailbox WHERE id = %d",
+//			$id
+//		);
+//		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+//		
+//		$sql = sprintf("DELETE FROM mailbox_to_team WHERE mailbox_id = %d",
+//			$id
+//		);
+//		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+//		
+//	}
+//	
+//	
+//	static function setMailboxTeams($mailbox_id, $team_ids) {
+//		if(!is_array($team_ids)) $team_ids = array($team_ids);
+//		if(empty($mailbox_id)) return;
+//		$db = DevblocksPlatform::getDatabaseService();
+//
+//		$sql = sprintf("DELETE FROM mailbox_to_team WHERE mailbox_id = %d",
+//			$mailbox_id
+//		);
+//		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+//		
+//		foreach($team_ids as $team_id) {
+//			$sql = sprintf("INSERT INTO mailbox_to_team (mailbox_id, team_id, is_routed) ".
+//				"VALUES (%d,%d,%d)",
+//				$mailbox_id,
+//				$team_id,
+//				1
+//			);
+//			$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+//		}
+//	}
+//	
+//	static function getMailboxTeams($mailbox_id) {
+//		if(empty($mailbox_id)) return;
+//		$db = DevblocksPlatform::getDatabaseService();
+//		$ids = array();
+//		
+//		$sql = sprintf("SELECT mt.team_id FROM mailbox_to_team mt WHERE mt.mailbox_id = %d",
+//			$mailbox_id
+//		);
+//		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+//		
+//		while(!$rs->EOF) {
+//			$ids[] = intval($rs->fields['team_id']);
+//			$rs->MoveNext();
+//		}
+//		
+//		if(empty($ids))
+//			return array();
+//			
+//		return DAO_Workflow::getTeams($ids);
+//	}
 	
 	static function getMailboxRouting() {
 		$db = DevblocksPlatform::getDatabaseService();
 		$routing = array();
 		
-		$sql = "SELECT mr.id, mr.pattern, mr.mailbox_id, mr.pos ".
+		$sql = "SELECT mr.id, mr.pattern, mr.team_id, mr.pos ".
 			"FROM mail_routing mr ".
 			"ORDER BY mr.pos ";
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
@@ -2537,7 +2338,7 @@ class DAO_Mail {
 			$route = new Model_MailRoute();
 			$route->id = intval($rs->fields['id']);
 			$route->pattern = $rs->fields['pattern'];
-			$route->mailbox_id = intval($rs->fields['mailbox_id']);
+			$route->team_id = intval($rs->fields['team_id']);
 			$route->pos = intval($rs->Fields('pos'));
 			$routing[$route->id] = $route;
 			$rs->MoveNext();
@@ -2546,7 +2347,7 @@ class DAO_Mail {
 		return $routing;
 	}
 	
-	static function createMailboxRouting() {
+	static function createMailboxRouting($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		$id = $db->GenID('generic_seq');
@@ -2556,7 +2357,7 @@ class DAO_Mail {
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		// Insert at top
-		$sql = sprintf("INSERT INTO mail_routing (id,pattern,mailbox_id,pos) ".
+		$sql = sprintf("INSERT INTO mail_routing (id,pattern,team_id,pos) ".
 			"VALUES (%d,%s,%d,%d)",
 			$id,
 			$db->qstr(''),
@@ -2564,6 +2365,8 @@ class DAO_Mail {
 			0
 		);
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		self::updateMailboxRouting($id, $fields);
 		
 		return $id;
 	}
@@ -2590,24 +2393,24 @@ class DAO_Mail {
 	}
 	
 	static function deleteMailboxRouting($id) {
-		$um_db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::getDatabaseService();
 		if(empty($id)) return;
 		
 		$sql = sprintf("DELETE FROM mail_routing WHERE id = %d",
 			$id
 		);
-		$rs = $um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 	}
 	
 	static function searchAddresses($query, $limit=10) {
-		$um_db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::getDatabaseService();
 		if(empty($query)) return null;
 		
 		$sql = sprintf("SELECT a.id FROM address a WHERE a.email LIKE '%s%%' LIMIT 0,%d",
 			$query,
 			$limit
 		);
-		$rs = $um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		$ids = array();
 		
@@ -2622,27 +2425,27 @@ class DAO_Mail {
 		return DAO_Contact::getAddresses($ids);
 	}
 	
-	static function sendAutoresponse($ticket_id, $type) {
-		$mailMgr = DevblocksPlatform::getMailService();
-		$ticket = DAO_Ticket::getTicket($ticket_id);  /* @var $ticket CerberusTicket */
-		$mailbox = DAO_Mail::getMailbox($ticket->mailbox_id);  /* @var $mailbox CerberusMailbox */
-		
-		$body = '';
-		switch ($type) {
-			case 'new':
-				$body = DAO_Mail::getTokenizedText($ticket_id, $mailbox->new_autoresponse);
-				break;
-			case 'closed':
-				$body = DAO_Mail::getTokenizedText($ticket_id, $mailbox->close_autoresponse);
-				break;
-		}
-		if (0 == strcmp($body, '')) return 0; // if there's no body, we must not need to send an autoresponse.
-		
-		$headers = DAO_Mail::getHeaders(CerberusMessageType::AUTORESPONSE, $ticket_id);
-		
-		$mail_result =& $mailMgr->send('mail.webgroupmedia.com', $headers['x-rcpt'], $headers, $body); // DDH: TODO: this needs to pull the servername from a config, not hardcoded.
-		if ($mail_result !== true) die("Error message was: " . $mail_result->getMessage());
-	}
+//	static function sendAutoresponse($ticket_id, $type) {
+//		$mailMgr = DevblocksPlatform::getMailService();
+//		$ticket = DAO_Ticket::getTicket($ticket_id);  /* @var $ticket CerberusTicket */
+//		$mailbox = DAO_Mail::getMailbox($ticket->mailbox_id);  /* @var $mailbox CerberusMailbox */
+//		
+//		$body = '';
+//		switch ($type) {
+//			case 'new':
+//				$body = DAO_Mail::getTokenizedText($ticket_id, $mailbox->new_autoresponse);
+//				break;
+//			case 'closed':
+//				$body = DAO_Mail::getTokenizedText($ticket_id, $mailbox->close_autoresponse);
+//				break;
+//		}
+//		if (0 == strcmp($body, '')) return 0; // if there's no body, we must not need to send an autoresponse.
+//		
+//		$headers = DAO_Mail::getHeaders(CerberusMessageType::AUTORESPONSE, $ticket_id);
+//		
+//		$mail_result =& $mailMgr->send('mail.webgroupmedia.com', $headers['x-rcpt'], $headers, $body); // DDH: TODO: this needs to pull the servername from a config, not hardcoded.
+//		if ($mail_result !== true) die("Error message was: " . $mail_result->getMessage());
+//	}
 	
 	static function getTokenizedText($ticket_id, $source_text) {
 		// TODO: actually implement this function...
@@ -2718,25 +2521,25 @@ class DAO_Mail {
 		if(empty($nickname) || empty($host) || empty($username) || empty($password)) 
 			return null;
 			
-		$um_db = DevblocksPlatform::getDatabaseService();
-		$newId = $um_db->GenID('generic_seq');
+		$db = DevblocksPlatform::getDatabaseService();
+		$newId = $db->GenID('generic_seq');
 		
 		$sql = sprintf("INSERT INTO pop3_account (id, nickname, host, username, password) ".
 			"VALUES (%d,%s,%s,%s,%s)",
 			$newId,
-			$um_db->qstr($nickname),
-			$um_db->qstr($host),
-			$um_db->qstr($username),
-			$um_db->qstr($password)
+			$db->qstr($nickname),
+			$db->qstr($host),
+			$db->qstr($username),
+			$db->qstr($password)
 		);
-		$um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		return $newId;
 	}
 	
 	static function getPop3Accounts($ids=array()) {
 		if(!is_array($ids)) $ids = array($ids);
-		$um_db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::getDatabaseService();
 		$pop3accounts = array();
 		
 		$sql = "SELECT id, nickname, host, username, password ".
@@ -2744,7 +2547,7 @@ class DAO_Mail {
 			((!empty($ids) ? sprintf("WHERE id IN (%s)", implode(',', $ids)) : " ").
 			"ORDER BY nickname "
 		);
-		$rs = $um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		while(!$rs->EOF) {
 			$pop3 = new CerberusPop3Account();
@@ -2776,7 +2579,7 @@ class DAO_Mail {
 	}
 	
 	static function updatePop3Account($id, $fields) {
-		$um_db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::getDatabaseService();
 		$sets = array();
 		
 		if(!is_array($fields) || empty($fields) || empty($id))
@@ -2785,7 +2588,7 @@ class DAO_Mail {
 		foreach($fields as $k => $v) {
 			$sets[] = sprintf("%s = %s",
 				$k,
-				$um_db->qstr($v)
+				$db->qstr($v)
 			);
 		}
 			
@@ -2793,20 +2596,20 @@ class DAO_Mail {
 			implode(', ', $sets),
 			$id
 		);
-		$um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 	}
 	
 	static function deletePop3Account($id) {
 		if(empty($id))
 			return;
 			
-		$um_db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::getDatabaseService();
 		
 		$sql = sprintf("DELETE FROM pop3_account WHERE id = %d",
 			$id			
 		);
 		
-		$um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 	}
 };
 
@@ -2818,17 +2621,17 @@ class DAO_Kb {
 	static function createCategory($name, $parent_id=0) {
 		if(empty($name)) return null;
 		
-		$um_db = DevblocksPlatform::getDatabaseService();
-		$id = $um_db->GenID('generic_seq');
+		$db = DevblocksPlatform::getDatabaseService();
+		$id = $db->GenID('generic_seq');
 		
 		$sql = sprintf("INSERT INTO kb_category (id,name,parent_id) ".
 			"VALUES (%d,%s,%d)",
 			$id,
-			$um_db->qstr($name),
+			$db->qstr($name),
 			$parent_id
 		);
 		
-		$um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		return $id;
 	}
@@ -2857,7 +2660,7 @@ class DAO_Kb {
 	 * @return array
 	 */
 	static private function _getCategoryResourceTotals() {
-		$um_db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::getDatabaseService();
 		$totals = array();
 		
 		$sql = sprintf("SELECT kbc.category_id, count(kb.id) as hits ".
@@ -2865,7 +2668,7 @@ class DAO_Kb {
 			"INNER JOIN kb_to_category kbc ON (kb.id=kbc.kb_id) ".
 			"GROUP BY kbc.category_id"
 		);
-		$rs = $um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		while(!$rs->EOF) {
 			$id = intval($rs->fields['category_id']);
@@ -2934,14 +2737,14 @@ class DAO_Kb {
 	static function getCategories($ids=array()) {
 		if(!is_array($ids)) $ids = array($ids);
 		
-		$um_db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::getDatabaseService();
 		$categories = array();
 		
 		$sql = "SELECT kc.id, kc.name, kc.parent_id ".
 			"FROM kb_category kc ".
 			(!empty($ids) ? sprintf("WHERE kc.id IN (%s) ",implode(',', $ids)) : " ").
 			"ORDER BY kc.id";
-		$rs = $um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		while(!$rs->EOF) {
 			$category = new CerberusKbCategory();
@@ -2961,23 +2764,23 @@ class DAO_Kb {
 	
 	static function deleteCategory($id) {
 		if(empty($id)) return null;
-		$um_db = DevblocksPlatform::getDatabaseService();
-		$um_db->Execute(sprintf("DELETE FROM kb_category WHERE id = %d",$id)) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db = DevblocksPlatform::getDatabaseService();
+		$db->Execute(sprintf("DELETE FROM kb_category WHERE id = %d",$id)) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 	}
 	
 	static function createResource($title,$type=CerberusKbResourceTypes::ARTICLE) {
 		if(empty($title)) return null;
 		
-		$um_db = DevblocksPlatform::getDatabaseService();
-		$id = $um_db->GenID('kb_seq');
+		$db = DevblocksPlatform::getDatabaseService();
+		$id = $db->GenID('kb_seq');
 		
 		$sql = sprintf("INSERT INTO (id,title,type) ".
 			"VALUES (%d,%s,%s)",
 			$id,
-			$um_db->qstr($title),
-			$um_db->qstr($type)
+			$db->qstr($title),
+			$db->qstr($type)
 		);
-		$um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		return $id;
 	}
@@ -2996,14 +2799,14 @@ class DAO_Kb {
 	static function getResources($ids=array()) {
 		if(!is_array($ids)) $ids = array($ids);
 		
-		$um_db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::getDatabaseService();
 		$resources = array();
 		
 		$sql = "SELECT kb.id, kb.title, kb.type ".
 			"FROM kb ".
 			((!empty($ids)) ? sprintf("WHERE kb.id IN (%s) ",implode(',',$ids)) : " ").
 			"ORDER BY kb.title";
-		$rs = $um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		while(!$rs->EOF) {
 			$resource = new CerberusKbResource();
@@ -3023,16 +2826,16 @@ class DAO_Kb {
 	
 	static function deleteResource($id) {
 		if(empty($id)) return null;
-		$um_db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::getDatabaseService();
 		
 		$sql = sprintf("DELETE FROM kb WHERE id = %d",$id);
-		$um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		$sql = sprintf("DELETE FROM kb_content WHERE kb_id = %d",$id);
-		$um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		$sql = sprintf("DELETE FROM kb_to_category WHERE kb_id = %d",$id);
-		$um_db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $um_db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 	}
 	
 	/**
@@ -3042,8 +2845,8 @@ class DAO_Kb {
 	 * @param string $content
 	 */
 	static function setResourceContent($id, $content) {
-		$um_db = DevblocksPlatform::getDatabaseService();
-		$um_db->Replace('kb_content',array('kb_id'=>$id,'content'=>$um_db->qstr($content)),array('kb_id'),false);
+		$db = DevblocksPlatform::getDatabaseService();
+		$db->Replace('kb_content',array('kb_id'=>$id,'content'=>$db->qstr($content)),array('kb_id'),false);
 	}
 	
 	/**

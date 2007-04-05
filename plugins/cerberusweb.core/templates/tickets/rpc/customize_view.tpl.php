@@ -4,7 +4,7 @@
 <div style="background-color: #EEEEEE;padding:5px;">
 <h1>{$translate->_('common.customize')|capitalize}</h1>
 
-{if !empty($view->id)}
+{if is_numeric($view->id)}
 	<b>{$translate->_('common.name')|capitalize}:</b> <br>
 	<input type="text" name="name" value="{$view->name}" size="45"><br>
 	<br>
@@ -29,7 +29,7 @@
 <br>
 
 {if $view->type == 'D'}
-<label><input type="checkbox" name="delete" value="1"> {$translate->_('dashboard.remove_view')}</label><br>
+<label><span style="background-color:rgb(255,220,220);"><input type="checkbox" name="delete" value="1"> {$translate->_('dashboard.remove_view')}</span></label><br>
 <br>
 {/if}
 

@@ -8,9 +8,8 @@
 
 Cerberus Helpdesk uses an approach known as "Bayesian Spam Filtering" to 
 statistically analyze the language and context of new e-mail messages.  
-It is highly recommended you allow the installer to automatically create 
-a "Spam" mailbox and configure your helpdesk to redirect probable spam 
-into it.<br>
+It is highly recommended you allow the installer to automatically configure 
+your helpdesk to quarantine probable spam.<br>
 <br>
 
 <b>Would you like to have anti-spam functionality configured for you?</b><br>

@@ -5,7 +5,7 @@
 <input type="hidden" name="form_submit" value="2">
 
 This step will help you quickly create your initial workflow.  Once installed you may always add 
-additional workers, teams and mailboxes from the Configuration page.  To skip a section simply 
+additional workers and teams from the Configuration page.  To skip a section simply 
 leave it blank.<br>
 
 {if !empty($worker_ids)}
@@ -31,6 +31,7 @@ leave it blank.<br>
 </table>
 {/if}
 
+<!--
 {if !empty($mailbox_ids)}
 <H3>Mailbox Details</H3>
 
@@ -47,6 +48,7 @@ leave it blank.<br>
 {/foreach}
 </table>
 {/if}
+-->
 
 {if !empty($team_ids)}
 <H3>Team Details</H3>
@@ -55,7 +57,6 @@ leave it blank.<br>
 	<tr>
 		<th>Team</th>
 		<th>Members</th>
-		<th>Mailboxes</th>
 	</tr>
 {foreach from=$team_ids key=team_id item=team_name}
 	<tr>
@@ -64,13 +65,6 @@ leave it blank.<br>
 			{if !empty($worker_ids)}
 			{foreach from=$worker_ids item=worker key=worker_id}
 				<label><input type="checkbox" name="team_members_{$team_id}[]" value="{$worker_id}">{$worker}</label><br>
-			{/foreach}
-			{/if}
-		</td>
-		<td valign="top" style="padding-right:10px;">
-			{if !empty($mailbox_ids)}
-			{foreach from=$mailbox_ids item=mailbox key=mailbox_id}
-				<label><input type="checkbox" name="team_mailboxes_{$team_id}[]" value="{$mailbox_id}">{$mailbox}</label><br>
 			{/foreach}
 			{/if}
 		</td>

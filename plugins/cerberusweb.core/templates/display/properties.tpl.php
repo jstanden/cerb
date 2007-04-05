@@ -38,13 +38,23 @@
     </tr>
     <tr>
       <td>
+      	<b class="green">Primary Team:</b><br>
+      	<select name="team_id">
+      		{foreach from=$teams item=team}
+      		<option value="{$team->id}" {if $ticket->team_id==$team->id}selected{/if}>{$team->name}
+      		{/foreach}
+      	</select>
+     	</td>
+    </tr>
+    <tr>
+      <td>
       	<b class="green">Spam Probability:</b><br>
 			<table cellpadding="1" cellspacing="0">
 				<tr>
 					<td style="{if $ticket->spam_score < .90}background-color:rgb(0,200,0){else}background-color:rgb(200,0,0){/if};padding:3px;"><b style="color:rgb(255,255,255);">{math equation="x*100" format="%0.2f" x=$ticket->spam_score}%</b></td>
 					<td>
 						{if !empty($ticket->spam_training)}
-							{if $ticket->spam_training=='N'}Marked as Not Spam{else}Marked as Spam{/if}
+							&nbsp;{if $ticket->spam_training=='N'}Marked as Not Spam{else}Marked as Spam{/if}
 						{else}
 							<select name="training">
 								<option value="N">This is Not Spam
@@ -56,16 +66,6 @@
 			</table>
      	</td>
     </tr>
-    <tr>
-      <td>
-      	<b class="green">Mailbox:</b><br>
-      	<select name="mailbox_id">
-      		{foreach from=$mailboxes item=mailbox name=mailboxes}
-      			<option value="{$mailbox->id}" {if $ticket->mailbox_id==$mailbox->id}selected{/if}>{$mailbox->name}
-      		{/foreach}
-      	</select>
-     	</td>
-    </tr>
     <!---
     <tr>
       <td>
@@ -75,6 +75,22 @@
      	</td>
     </tr>
     --->
+    <!-- 
+    <tr>
+      <td nowrap="nowrap">
+      	<b class="green">Add Tags:</b><br>
+      	<input type="text" name="tags" value="" size="22">
+      	<input type="button" value="..." onclick="genericAjaxPanel('c=tickets&a=showTagChooserPanel',this,true,'500px');">
+     	</td>
+    </tr>
+    <tr>
+      <td nowrap="nowrap">
+      	<b class="green">Add Workers:</b> (by e-mail)<br>
+      	<input type="text" name="workers" value="" size="22">
+      	<input type="button" value="..." onclick="genericAjaxPanel('c=tickets&a=showWorkerChooserPanel',this,true,'500px');">
+     	</td>
+    </tr>
+     -->
     <tr>
       <td>
       	<b class="green">Subject:</b><br>

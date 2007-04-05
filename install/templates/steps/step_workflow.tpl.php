@@ -5,7 +5,7 @@
 <input type="hidden" name="form_submit" value="1">
 
 This step will help you quickly create your initial workflow.  Once installed you may always add 
-additional workers, teams and mailboxes from the Configuration page.  To skip a section simply 
+additional workers and teams from the Configuration page.  To skip a section simply 
 leave it blank.<br>
 
 <H3>Workers</H3>
@@ -24,6 +24,7 @@ Set up workers by adding <b>one worker e-mail address per line</b> below.  We'll
 details on the next step:<br>
 <textarea rows="5" cols="50" name="workers">{$workers_str}</textarea><br>
 
+<!-- 
 <H3>Mailboxes</H3>
 
 Mailboxes are the primary container for tickets in the helpdesk, and are similar to folders in a 
@@ -37,10 +38,11 @@ groups as needed (by project, by location, by escalation).<br>
 Set up mailboxes by adding <b>one mailbox name per line</b> below.  We'll ask for additional 
 details on the next step:<br>
 <textarea rows="5" cols="50" name="mailboxes">{$mailboxes_str}</textarea><br>
-
+ -->
+ 
 <H3>Teams</H3>
 
-Teams are groups of workers and mailboxes.  How you define your teams will depend on you intend to use 
+Teams are groups of workers.  How you define your teams will depend on you intend to use 
 the helpdesk. Many people find it helpful to start with a couple department or project related teams 
 (Support, Sales, Billing, Abuse) which are ultimately broken down into smaller groups as needed 
 (by project, by location, by escalation).<br>

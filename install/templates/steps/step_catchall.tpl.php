@@ -4,24 +4,24 @@
 <input type="hidden" name="step" value="{$smarty.const.STEP_CATCHALL}">
 <input type="hidden" name="form_submit" value="1">
 
-<H3>Default Mailbox</H3>
+<H3>Default Routing</H3>
 
 Cerberus Helpdesk allows you to create flexible routing rules to 
-determine how incoming mail is assigned to mailboxes.<br>
+determine how incoming mail is assigned to teams.<br>
 <br>
 In the event none of your routing rules specify a destination for a message 
 you have two choices:<br>
 <ul>
 	<li>You may bounce the message back to the sender.</li>
-	<li>You may assign a Default Mailbox to catch unrouted mail.</li>
+	<li>You may assign a Default Team to catch unrouted mail.</li>
 </ul>
 <br>
 
-<b>Where should Cerberus Helpdesk send unrouted mail?</b><br>
-<select name="default_mailbox_id">
-	<option value="">-- Nowhere (Bounce) --
-	{foreach from=$mailboxes item=mail key=mailbox_id name=mailboxes}
-	<option value="{$mailbox_id}" {if $smarty.foreach.mailboxes.first}selected{/if}>{$mail->name}
+<b>Which team should receive any unrouted mail?</b><br>
+<select name="default_team_id">
+	<option value="">-- None (Bounce) --
+	{foreach from=$teams item=team key=team_id name=teams}
+	<option value="{$team_id}" {if $smarty.foreach.teams.first}selected{/if}>{$team->name}
 	{/foreach}
 </select>
 <br>

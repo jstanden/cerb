@@ -25,6 +25,6 @@
   </tbody>
 </table>
 <script>
-	var displayAjax = new cDisplayTicketAjax('{$ticket->id}','core.display.module.workflow_form');
-	ajax.addAddressAutoComplete("addRequesterEntry","addRequesterContainer", true);
+	var displayAjax = new cDisplayTicketAjax('{$ticket->id}');
+	//ajax.addAddressAutoComplete("addRequesterEntry","addRequesterContainer", true);
 </script>

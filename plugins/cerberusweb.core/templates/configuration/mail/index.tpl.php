@@ -8,9 +8,6 @@
 
 <br>
 
-<a name="mailboxes"></a>
-{include file="file:$path/configuration/mail/mailboxes.tpl.php"}
-
 <a name="pop3"></a>
 {include file="file:$path/configuration/mail/pop3_accounts.tpl.php"}
 

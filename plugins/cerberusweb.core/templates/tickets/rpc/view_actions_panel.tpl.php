@@ -1,8 +1,8 @@
 <table cellpadding="0" cellspacing="0" border="0" width="98%">
 	<tr>
 		<td align="left" width="0%" nowrap="nowrap" style="padding-right:5px;"><img src="{devblocks_url}images/gear.gif{/devblocks_url}" align="absmiddle"></td>
-		<td align="left" width="100%" nowrap="nowrap"><h1>My Shortcut Actions</h1></td>
-		<td align="right" width="0%" nowrap="nowrap"><form><input type="button" value=" X " onclick="ajax.manageViewActionPanel.hide();"></form></td>
+		<td align="left" width="100%" nowrap="nowrap"><h1>My Shortcuts</h1></td>
+		<td align="right" width="0%" nowrap="nowrap"><form><input type="button" value=" X " onclick="genericPanel.hide();"></form></td>
 	</tr>
 </table>
 
@@ -46,12 +46,11 @@
 		</select></td>
 	</tr>
 	<tr>
-		<td width="0%" nowrap="nowrap">Set mailbox:</td>
-		{* [TODO]: Needs Translations *}
-		<td width="100%"><select name="mailbox">
+		<td width="0%" nowrap="nowrap">Set team:</td>
+		<td width="100%"><select name="team">
 			<option value=""></option>
-			{foreach from=$mailboxes item=mailbox}
-			<option value="{$mailbox->id}" {if $mailbox->id==$action->params.mailbox}selected{/if}>{$mailbox->name}</option>
+			{foreach from=$teams item=v key=k}
+			<option value="{$k}" {if $k==$action->params.team}selected{/if}>{$v->name}</option>
 			{/foreach}
 		</select></td>
 	</tr>
@@ -63,36 +62,6 @@
 			<option value="{$v}" {if $v==$action->params.spam}selected{/if}>{$k}</option>
 			{/foreach}
 		</select></td>
-	</tr>
-	<tr>
-		<td width="0%" nowrap="nowrap">My tickets:</td>
-		<td width="100%"><select name="flag">
-			<option value=""></option>
-			{foreach from=$flag item=k key=v}
-			<option value="{$v}" {if $v==$action->params.flag}selected{/if}>{$k}</option>
-			{/foreach}
-		</select></td>
-	</tr>
-	<tr>
-		<td width="0%" nowrap="nowrap" valign="top">Apply tags:</td>
-		{* [TODO]: Needs Translations *}
-		<td width="100%" valign="top">
-			<input type="text" name="tags" size="30"> <input type="button" value="..." onclick="">
-		</td>
-	</tr>
-	<tr>
-		<td width="0%" nowrap="nowrap" valign="top">Suggest workers:</td>
-		{* [TODO]: Needs Translations *}
-		<td width="100%" valign="top">
-			<input type="text" name="suggest" size="30"> <input type="button" value="..." onclick="">
-		</td>
-	</tr>
-	<tr>
-		<td width="0%" nowrap="nowrap" valign="top">Assign workers:</td>
-		{* [TODO]: Needs Translations *}
-		<td width="100%" valign="top">
-			<input type="text" name="assign" size="30"> <input type="button" value="..." onclick="">
-		</td>
 	</tr>
 </table>
 

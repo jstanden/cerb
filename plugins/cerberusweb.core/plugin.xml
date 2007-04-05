@@ -160,15 +160,15 @@
 		<!-- Display Ticket Modules -->
 		
 		<extension point="cerberusweb.display.module">
-			<id>core.display.module.workflow</id>
-			<name>Ticket Workflow Display Module</name>
+			<id>core.display.module.tasks</id>
+			<name>Ticket Tasks Module</name>
 			<class>
 				<file>classes.php</file>
-				<name>ChDisplayTicketWorkflow</name>
+				<name>ChDisplayTicketTasks</name>
 			</class>
 			<params>
-				<param key="title" value="Workflow" />
-				<param key="icon" value="images/bookmark.gif" />
+				<param key="title" value="Tasks" />
+				<param key="icon" value="images/gear.gif" />
 			</params>
 		</extension>
 

@@ -4,13 +4,13 @@
 	</tr>
 	<tr style="border-bottom:1px solid rgb(200,200,200);">
 		<td>
-			{if !empty($view->id)}
+			{if $view->type=='S'}
 				Search: <b>{$view->name}</b><br>
 			{/if}
 			<a href="{devblocks_url}c=tickets&a=resetCriteria{/devblocks_url}">reset</a> |
 			<a href="javascript:;" onclick="ajax.getSaveSearch('{$divName}');">save as</a> |
 			<a href="javascript:;" onclick="ajax.getLoadSearch('{$divName}');">load</a>
-			{if !empty($view->id)} | <a href="javascript:;" onclick="ajax.deleteSearch('{$view->id}');">delete</a>{/if}
+			{if $view->type=='S'} | <a href="javascript:;" onclick="ajax.deleteSearch('{$view->id}');">delete</a>{/if}
 			<br>
 			<form id="{$divName}_control"></form>
 		</td>
@@ -41,9 +41,9 @@
 							<b>{$p}</b>
 							 {if !$smarty.foreach.params.last} or {/if}
 							{/foreach}
-						{elseif $param->field=="m_id"}
+						{elseif $param->field=="tm_id"}
 							<img src="{devblocks_url}images/data_find.gif{/devblocks_url}" align="absmiddle"> 
-							{$translate->_('common.mailbox')|capitalize}
+							{$translate->_('common.team')|capitalize}
 							{$param->operator}
 							{foreach from=$param->value item=p name=params}
 							<b>{$p}</b>
@@ -72,22 +72,6 @@
 							{$translate->_('message.content')|capitalize} 
 							{$param->operator} 
 							<b>{$param->value}</b>
-						{elseif $param->field=="att_agent_id"}
-							<img src="{devblocks_url}images/data_find.gif{/devblocks_url}" align="absmiddle"> 
-							{$translate->_('workflow.assigned')|capitalize} 
-							{$param->operator} 
-							{foreach from=$param->value item=p name=params}
-							<b>{$p}</b>
-							 {if !$smarty.foreach.params.last} or {/if}
-							{/foreach}
-						{elseif $param->field=="stt_agent_id"}
-							<img src="{devblocks_url}images/data_find.gif{/devblocks_url}" align="absmiddle"> 
-							{$translate->_('workflow.suggested')|capitalize} 
-							{$param->operator} 
-							{foreach from=$param->value item=p name=params}
-							<b>{$p}</b>
-							 {if !$smarty.foreach.params.last} or {/if}
-							{/foreach}
 						{else}
 						{/if}
 						</td>

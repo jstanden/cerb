@@ -21,6 +21,11 @@
 				<seg>customize</seg>
 			</tuv>
 		</tu>
+		<tu tuid='common.filter'>
+			<tuv xml:lang="en">
+				<seg>filter</seg>
+			</tuv>
+		</tu>
 		<tu tuid='common.name'>
 			<tuv xml:lang="en">
 				<seg>Name</seg>
@@ -29,11 +34,6 @@
 		<tu tuid='common.load'>
 			<tuv xml:lang="en">
 				<seg>Load</seg>
-			</tuv>
-		</tu>
-		<tu tuid='common.mailbox'>
-			<tuv xml:lang="en">
-				<seg>Mailbox</seg>
 			</tuv>
 		</tu>
 		<tu tuid='common.next'>
@@ -76,6 +76,11 @@
 				<seg>Spam</seg>
 			</tuv>
 		</tu>
+		<tu tuid='common.team'>
+			<tuv xml:lang="en">
+				<seg>Team</seg>
+			</tuv>
+		</tu>
 		<tu tuid='common.ticket'>
 			<tuv xml:lang="en">
 				<seg>ticket</seg>
@@ -92,16 +97,6 @@
 		<tu tuid='header.last_viewed'>
 			<tuv xml:lang="en">
 				<seg>last viewed</seg>
-			</tuv>
-		</tu>
-		<tu tuid='header.my_flagged_tickets'>
-			<tuv xml:lang="en">
-				<seg>My Flagged Tickets</seg>
-			</tuv>
-		</tu>
-		<tu tuid='header.my_suggested_tickets'>
-			<tuv xml:lang="en">
-				<seg>My Suggested Tickets</seg>
 			</tuv>
 		</tu>
 		<tu tuid='header.no_page'>
@@ -130,9 +125,7 @@
 			</tuv>
 		</tu>
 		<tu tuid='header.signon'>
-			<tuv xml:lang="en">
-				<seg>Sign on</seg>
-			</tuv>
+			<tuv xml:lang="en"><seg>Sign on</seg></tuv>
 		</tu>
 
 		<!-- Dashboard -->
@@ -142,19 +135,24 @@
 				<seg>Dashboard</seg>
 			</tuv>
 		</tu>
+		<tu tuid='dashboard.actions'>
+			<tuv xml:lang="en">
+				<seg>Actions</seg>
+			</tuv>
+		</tu>
+		<tu tuid='dashboard.active_dashboard'>
+			<tuv xml:lang="en">
+				<seg>Active Dashboard:</seg>
+			</tuv>
+		</tu>
 		<tu tuid='dashboard.add_dashboard'>
 			<tuv xml:lang="en">
-				<seg>Add Dashboard</seg>
+				<seg>add custom dashboard</seg>
 			</tuv>
 		</tu>
 		<tu tuid='dashboard.add_view'>
 			<tuv xml:lang="en">
-				<seg>Add View</seg>
-			</tuv>
-		</tu>
-		<tu tuid='dashboard.assign_work'>
-			<tuv xml:lang="en">
-				<seg>Assign Me Work</seg>
+				<seg>add ticket list</seg>
 			</tuv>
 		</tu>
 		<tu tuid='dashboard.choose_column'>
@@ -182,19 +180,9 @@
 				<seg>Dashboards</seg>
 			</tuv>
 		</tu>
-		<tu tuid='dashboard.mailbox_loads'>
-			<tuv xml:lang="en">
-				<seg>Mailbox Loads</seg>
-			</tuv>
-		</tu>
 		<tu tuid='dashboard.modify'>
 			<tuv xml:lang="en">
 				<seg>Modify Dashboard</seg>
-			</tuv>
-		</tu>
-		<tu tuid='dashboard.no_mailboxes'>
-			<tuv xml:lang="en">
-				<seg>No visible mailboxes.</seg>
 			</tuv>
 		</tu>
 		<tu tuid='dashboard.no_teams'>
@@ -214,17 +202,12 @@
 		</tu>
 		<tu tuid='dashboard.remove_view'>
 			<tuv xml:lang="en">
-				<seg>Remove View From Dashboard</seg>
+				<seg>Remove ticket list from dashboard</seg>
 			</tuv>
 		</tu>
 		<tu tuid='dashboard.switch'>
 			<tuv xml:lang="en">
 				<seg>Switch</seg>
-			</tuv>
-		</tu>
-		<tu tuid='dashboard.team_loads'>
-			<tuv xml:lang="en">
-				<seg>Team Loads</seg>
 			</tuv>
 		</tu>
 		<tu tuid='dashboard.teamwork'>
@@ -303,6 +286,32 @@
 			</tuv>
 		</tu>
 
+		<!-- Teamwork -->
+		
+		<tu tuid='teamwork.assign_work'>
+			<tuv xml:lang="en">
+				<seg>Get Tickets</seg>
+			</tuv>
+		</tu>
+		
+		<tu tuid='teamwork.my_team_loads'>
+			<tuv xml:lang="en">
+				<seg>My Team Loads</seg>
+			</tuv>
+		</tu>
+		
+		<tu tuid='teamwork.categories'>
+			<tuv xml:lang="en">
+				<seg>Team Categories</seg>
+			</tuv>
+		</tu>
+		
+		<tu tuid='teamwork.team_management'>
+			<tuv xml:lang="en">
+				<seg>Team Management</seg>
+			</tuv>
+		</tu>
+		
 		<!-- Tickets -->
 
 		<tu tuid='ticket.created'>
@@ -328,11 +337,6 @@
 		<tu tuid='ticket.mask'>
 			<tuv xml:lang="en">
 				<seg>Mask</seg>
-			</tuv>
-		</tu>
-		<tu tuid='ticket.mailbox'>
-			<tuv xml:lang="en">
-				<seg>Mailbox</seg>
 			</tuv>
 		</tu>
 		<tu tuid='ticket.priority'>
@@ -396,9 +400,7 @@
 			</tuv>
 		</tu>
 		<tu tuid='workflow.take'>
-			<tuv xml:lang="en">
-				<seg>Take</seg>
-			</tuv>
+			<tuv xml:lang="en"><seg>Take</seg></tuv>
 		</tu>
 
 	</body>

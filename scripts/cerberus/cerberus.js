@@ -31,6 +31,7 @@ function addCriteria(divName) {
 
 var cAjaxCalls = function() {
 
+/*
 	this.addTagAutoComplete = function(txt,con) {
 		// [JAS]: [TODO] Move to a tag autocompletion shared method
 		myXHRDataSource = new YAHOO.widget.DS_XHR(DevblocksAppPath+"ajax.php", ["\n", "\t"]);
@@ -78,7 +79,9 @@ var cAjaxCalls = function() {
        return (aMarkup.join(""));
 		}
 	}
-	
+*/
+
+/*
 	this.addAddressAutoComplete = function(txt,con,single) {
 		// [JAS]: [TODO] Move to a tag autocompletion shared method
 		myXHRDataSource = new YAHOO.widget.DS_XHR(DevblocksAppPath+"ajax.php", ["\n", "\t"]);
@@ -103,243 +106,8 @@ var cAjaxCalls = function() {
        return (aMarkup.join(""));
 		}
 	}
-	
-	this.historyPanel = null;
-	this.showHistoryPanel = function(target) {
-		
-		if(null != this.historyPanel) {
-			this.historyPanel.hide();
-		}
-		
-		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=tickets&a=showHistoryPanel', {
-				success: function(o) {
-					var caller = o.argument.caller;
-					var target = o.argument.target;
-					
-					if(null == caller.historyPanel) {
-						caller.historyPanel = new YAHOO.widget.Panel("historyPanel", 
-							{ width : "300px",
-							  fixedcenter : false,
-							  visible : false, 
-							  constraintoviewport : true,
-							  underlay:"none",
-							  modal: false,
-							  close: false,
-							  draggable: false
-							});
+*/
 
-						caller.historyPanel.setBody('');
-						caller.historyPanel.render(document.body);
-					}
-					
-					caller.historyPanel.hide();
-					caller.historyPanel.setBody(o.responseText);
-					caller.historyPanel.cfg.setProperty('context',[target,"tr","br"]);
-					caller.historyPanel.show();
-				},
-				failure: function(o) {},
-				argument:{caller:this,target:target}
-			}
-		);	
-	}
-	
-	this.mailboxPanel = null;
-	this.showMailboxPanel = function(target) {
-		
-		if(null != this.mailboxPanel) {
-			this.mailboxPanel.hide();
-		}
-		
-		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=tickets&a=showMailboxPanel', {
-				success: function(o) {
-					var caller = o.argument.caller;
-					var target = o.argument.target;
-					
-					if(null == caller.mailboxPanel) {
-						caller.mailboxPanel = new YAHOO.widget.Panel("mailboxPanel", 
-							{ width : "300px",
-							  fixedcenter : false,
-							  visible : false, 
-							  constraintoviewport : true,
-							  underlay:"none",
-							  modal: false,
-							  close: false,
-							  draggable: false
-							});
-
-						caller.mailboxPanel.setBody('');
-						caller.mailboxPanel.render(document.body);
-					}
-					
-					caller.mailboxPanel.hide();
-					caller.mailboxPanel.setBody(o.responseText);
-					caller.mailboxPanel.cfg.setProperty('context',[target,"tr","br"]);
-					caller.mailboxPanel.show();
-				},
-				failure: function(o) {},
-				argument:{caller:this,target:target}
-			}
-		);	
-	}
-	
-	this.teamPanel = null;
-	this.showTeamPanel = function(target) {
-		
-		if(null != this.teamPanel) {
-			this.teamPanel.hide();
-		}
-		
-		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=tickets&a=showTeamPanel', {
-				success: function(o) {
-					var caller = o.argument.caller;
-					var target = o.argument.target;
-					
-					if(null == caller.teamPanel) {
-						caller.teamPanel = new YAHOO.widget.Panel("teamPanel", 
-							{ width : "300px",
-							  fixedcenter : false,
-							  visible : false, 
-							  constraintoviewport : true,
-							  underlay:"none",
-							  modal: false,
-							  close: false,
-							  draggable: false
-							});
-
-						caller.teamPanel.setBody('');
-						caller.teamPanel.render(document.body);
-					}
-					
-					caller.teamPanel.hide();
-					caller.teamPanel.setBody(o.responseText);
-					caller.teamPanel.cfg.setProperty('context',[target,"tr","br"]);
-					caller.teamPanel.show();
-				},
-				failure: function(o) {},
-				argument:{caller:this,target:target}
-			}
-		);	
-	}
-	
-	this.assignPanel = null;
-	this.showAssignPanel = function(target) {
-		
-		if(null != this.assignPanel) {
-			this.assignPanel.hide();
-		}
-		
-		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=tickets&a=showAssignPanel', {
-				success: function(o) {
-					var caller = o.argument.caller;
-					var target = o.argument.target;
-					
-					if(null == caller.assignPanel) {
-						caller.assignPanel = new YAHOO.widget.Panel("assignPanel", 
-							{ width : "300px",
-							  fixedcenter : true,
-							  visible : false, 
-							  constraintoviewport : true,
-							  underlay:"none",
-							  modal: true,
-							  close: false,
-							  draggable: false
-							});
-
-						caller.assignPanel.setBody('');
-						caller.assignPanel.render(document.body);
-					}
-					
-					caller.assignPanel.hide();
-					caller.assignPanel.setBody(o.responseText);
-//					caller.assignPanel.cfg.setProperty('context',[target,"tr","br"]);
-					caller.assignPanel.show();
-				},
-				failure: function(o) {},
-				argument:{caller:this,target:target}
-			}
-		);	
-	}
-	
-	this.contactPanel = null;
-	this.showContactPanel = function(address,target) {
-		
-		if(null != this.contactPanel) {
-			this.contactPanel.hide();
-		}
-		
-		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=tickets&a=showContactPanel&address=' + address, {
-				success: function(o) {
-					var caller = o.argument.caller;
-					var target = o.argument.target;
-					
-					if(null == caller.contactPanel) {
-						caller.contactPanel = new YAHOO.widget.Panel("contactPanel", 
-							{ width : "350px",
-							  fixedcenter : false,
-							  zIndex: 9001,
-							  visible : false, 
-							  constraintoviewport : true,
-							  underlay:"none",
-							  modal: false,
-							  close: false,
-							  draggable: false
-							});
-
-						caller.contactPanel.setBody('');
-						caller.contactPanel.render(document.body);
-					}
-					
-					caller.contactPanel.hide();
-					caller.contactPanel.setBody(o.responseText);
-					caller.contactPanel.cfg.setProperty('context',[target,"tl","br"]);
-					caller.contactPanel.show();
-				},
-				failure: function(o) {},
-				argument:{caller:this,target:target}
-			}
-		);	
-	}
-
-	this.manageViewActionPanel = null;
-	this.showViewActionPanel = function(id,view_id,target) {
-		
-		if(null != this.manageViewActionPanel) {
-			this.manageViewActionPanel.hide();
-		}
-		
-		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=tickets&a=showViewActions&id=' + id + '&view_id=' + view_id, {
-				success: function(o) {
-					var caller = o.argument.caller;
-					var target = o.argument.target;
-					
-					if(null == caller.manageViewActionPanel) {
-						caller.manageViewActionPanel = new YAHOO.widget.Panel("manageViewActionPanel", 
-							{ width : "450px",
-							  fixedcenter : false,
-							  zIndex: 9001,
-							  visible : false, 
-							  constraintoviewport : true,
-							  underlay:"none",
-							  modal: false,
-							  close: false,
-							  draggable: false
-							});
-
-						caller.manageViewActionPanel.setBody('');
-						caller.manageViewActionPanel.render(document.body);
-					}
-					
-					caller.manageViewActionPanel.hide();
-					caller.manageViewActionPanel.setBody(o.responseText);
-					caller.manageViewActionPanel.cfg.setProperty('context',[target,"tl","br"]);
-					caller.manageViewActionPanel.show();
-				},
-				failure: function(o) {},
-				argument:{caller:this,target:target}
-			}
-		);	
-	}
-	
 	this.saveViewActionPanel = function(id,view_id) {
 		YAHOO.util.Connect.setForm('formViewActions');
 		
@@ -347,8 +115,8 @@ var cAjaxCalls = function() {
 				success: function(o) {
 					var caller = o.argument.caller;
 					
-					if(null != caller.manageViewActionPanel) {
-						caller.manageViewActionPanel.hide();
+					if(null != genericPanel) {
+						genericPanel.hide();
 					}
 					
 					var view_id = o.argument.view_id;

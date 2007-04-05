@@ -46,13 +46,17 @@ class ChFaqPatchContainer extends DevblocksPatchContainerExtension {
 			question C(255) DEFAULT '' NOTNULL
 		";
 		
+		$currentTables = $db->MetaTables('TABLE', false);
+
 		if(is_array($tables))
 		foreach($tables as $table => $flds) {
-			$sql = $datadict->ChangeTableSQL($table,$flds);
-//			print_r($sql);
-			// [TODO] Buffer up success and fail messages?  Patcher!
-			if(!$datadict->ExecuteSQLArray($sql,false)) {
-				return FALSE;
+			if(false === array_search($table,$currentTables)) {
+				$sql = $datadict->CreateTableSQL($table,$flds);
+			//			print_r($sql);
+				// [TODO] Buffer up success and fail messages?  Patcher!
+				if(!$datadict->ExecuteSQLArray($sql,false)) {
+					return FALSE;
+				}
 			}
 //			echo "<HR>";
 		}				

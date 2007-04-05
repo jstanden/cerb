@@ -21,34 +21,53 @@ class ChCorePatchContainer extends DevblocksPatchContainerExtension {
 	}
 
 	function runRevision($rev) {
+		$result = TRUE;
+		
 		switch($rev) {
-			
 			// 4.0 Beta Clean
 			case REV_0:
-				self::_initDatabase();
+				$result = self::_initDatabase();
 				break;
-				
 		}
 		
-		return TRUE;
+		return $result;
 	}
 	
 	private static function _initDatabase() {
 		$db = DevblocksPlatform::getDatabaseService();
 		$datadict = NewDataDictionary($db); /* @var $datadict ADODB_DataDict */ // ,'mysql' 
 		
+		$tables = array();
+		
+		// ***** CloudGlue
+		
+		$tables['tag_to_content'] = "
+			index_id I2 DEFAULT 0 NOTNULL PRIMARY,
+			tag_id I4 DEFAULT 0 NOTNULL PRIMARY,
+			content_id I8 DEFAULT 0 NOTNULL PRIMARY
+		";
+		
+		$tables['tag_index'] = "
+			id I2 DEFAULT 0 NOTNULL PRIMARY,
+			name C(64) DEFAULT '' NOTNULL 
+		";
+		
+		$tables['tag'] = "
+			id I4 DEFAULT 0 NOTNULL PRIMARY,
+			name C(32) DEFAULT '' NOTNULL 
+		";
+		
 		// ***** Application
 		
 		$tables['ticket'] = "
 			id I4 DEFAULT 0 NOTNULL PRIMARY,
 			mask C(16) DEFAULT '' NOTNULL, 
-			subject C(255)  DEFAULT '' NOTNULL, 
-			bitflags I2 DEFAULT 0,
+			subject C(255)  DEFAULT '' NOTNULL,
+			team_id I4 DEFAULT 0 NOTNULL, 
 			created_date I4,
 			updated_date I4,
 			status C(1) DEFAULT '' NOTNULL, 
 			priority I1 DEFAULT 0 NOTNULL, 
-			mailbox_id I4 NOTNULL, 
 			first_wrote_address_id I4 NOTNULL DEFAULT 0,
 			last_wrote_address_id I4 NOTNULL DEFAULT 0,
 			spam_score F NOTNULL DEFAULT 0,
@@ -79,13 +98,15 @@ class ChCorePatchContainer extends DevblocksPatchContainerExtension {
 			name C(32) DEFAULT '' NOTNULL
 		";
 		
-		$tables['mailbox'] = "
+		$tables['team_category'] = "
 			id I4 DEFAULT 0 NOTNULL PRIMARY,
-			name C(32) DEFAULT '' NOTNULL,
-			reply_address_id I4 DEFAULT 0 NOTNULL,
-			display_name C(32) DEFAULT '',
-			close_autoresponse B,
-			new_autoresponse B
+			team_id I4 DEFAULT 0 NOTNULL,
+			name C(32) DEFAULT '' NOTNULL
+		";
+
+		$tables['team_category_to_tag'] = "
+			category_id I4 DEFAULT 0 NOTNULL PRIMARY,
+			tag_id I4 DEFAULT 0 NOTNULL PRIMARY
 		";
 		
 		$tables['dashboard'] = "
@@ -132,7 +153,7 @@ class ChCorePatchContainer extends DevblocksPatchContainerExtension {
 		$tables['mail_routing'] = "
 			id I4 DEFAULT 0 NOTNULL PRIMARY,
 			pattern C(255) DEFAULT '' NOTNULL,
-			mailbox_id I4 DEFAULT 0 NOTNULL,
+			team_id I4 DEFAULT 0 NOTNULL,
 			pos I2 DEFAULT 0 NOT NULL
 		";
 		
@@ -141,42 +162,15 @@ class ChCorePatchContainer extends DevblocksPatchContainerExtension {
 			ticket_id I4 DEFAULT 0 NOTNULL PRIMARY
 		";
 		
-		$tables['tag'] = "
-			id I4 DEFAULT 0 NOTNULL PRIMARY,
-			name C(32) DEFAULT '' NOTNULL
-		";
-		
-		$tables['tag_term'] = "
-			tag_id I4 DEFAULT 0 NOTNULL PRIMARY,
-			term C(128) DEFAULT '' NOTNULL PRIMARY
-		";
-		
-		$tables['tag_to_ticket'] ="
-			tag_id I4 DEFAULT 0 NOTNULL PRIMARY,
-			ticket_id I4 DEFAULT 0 NOTNULL PRIMARY
-		";
-		
-		$tables['assign_to_ticket'] = "
-			agent_id I4 DEFAULT 0 NOTNULL PRIMARY,
-			ticket_id I4 DEFAULT 0 NOTNULL PRIMARY,
-			is_flag I1 DEFAULT 0 NOTNULL
-		";
-		
-		$tables['mailbox_to_team'] = "
-			mailbox_id I4 DEFAULT 0 NOTNULL PRIMARY,
-			team_id I4 DEFAULT 0 NOTNULL PRIMARY,
-			is_routed I1 DEFAULT 0 NOTNULL
-		";
-		
 		$tables['worker_to_team'] = "
 			agent_id I4 DEFAULT 0 NOTNULL PRIMARY,
 			team_id I4 DEFAULT 0 NOTNULL PRIMARY
 		";
 		
-		$tables['favorite_tag_to_worker'] = "
-			tag_id I4 DEFAULT 0 NOTNULL PRIMARY,
-			agent_id I4 DEFAULT 0 NOTNULL PRIMARY
-		";
+//		$tables['favorite_tag_to_worker'] = "
+//			tag_id I4 DEFAULT 0 NOTNULL PRIMARY,
+//			agent_id I4 DEFAULT 0 NOTNULL PRIMARY
+//		";
 		
 		$tables['favorite_worker_to_worker'] = "
 			worker_id I4 DEFAULT 0 NOTNULL PRIMARY,
@@ -189,33 +183,6 @@ class ChCorePatchContainer extends DevblocksPatchContainerExtension {
 			host C(128) DEFAULT '' NOTNULL,
 			username C(128) DEFAULT '' NOTNULL,
 			password C(128) DEFAULT '' NOTNULL
-		";
-		
-		$tables['kb_category'] = "
-			id I2 DEFAULT 0 NOTNULL PRIMARY,
-			name C(128) DEFAULT '' NOTNULL,
-			parent_id I2 DEFAULT 0 NOTNULL
-		";
-		
-		$tables['kb_to_category'] = "
-			kb_id I4 DEFAULT 0 NOTNULL PRIMARY,
-			category_id I2 DEFAULT 0 NOTNULL PRIMARY
-		";
-		
-		$tables['kb'] = "
-			id I4 DEFAULT 0 NOTNULL PRIMARY,
-			title C(128) DEFAULT '' NOTNULL,
-			type C(1) DEFAULT 'A' NOTNULL
-		";
-		
-		$tables['kb_content'] = "
-			kb_id I4 DEFAULT 0 NOTNULL PRIMARY,
-			content B DEFAULT '' NOTNULL
-		";
-		
-		$tables['tag_to_kb'] ="
-			tag_id I4 DEFAULT 0 NOTNULL PRIMARY,
-			kb_id I4 DEFAULT 0 NOTNULL PRIMARY
 		";
 		
 		$tables['worker'] ="
@@ -247,16 +214,24 @@ class ChCorePatchContainer extends DevblocksPatchContainerExtension {
 			value C(255) DEFAULT '' NOTNULL
 		";
 		
+		// [TODO] This could be part of the patcher
+		$currentTables = $db->MetaTables('TABLE', false);
+		
 		if(is_array($tables))
 		foreach($tables as $table => $flds) {
-			$sql = $datadict->ChangeTableSQL($table,$flds);
-//			print_r($sql);
-			// [TODO] Buffer up success and fail messages?  Patcher!
-			if(!$datadict->ExecuteSQLArray($sql,false)) {
-				return FALSE;
+			if(false === array_search($table,$currentTables)) {
+				$sql = $datadict->CreateTableSQL($table,$flds);
+				// [TODO] Need verify step
+				// [TODO] Buffer up success and fail messages?  Patcher!
+				if(!$datadict->ExecuteSQLArray($sql,false)) {
+					echo '[' . $table . '] ' . $db->ErrorMsg();
+					exit;
+					return FALSE;
+				}
 			}
-//			echo "<HR>";
-		}				
+		}
+		
+		return TRUE;
 	}
 };
 

@@ -1,15 +1,23 @@
-{include file="file:$path/tickets/menu.tpl.php"}
+<table cellpadding="0" cellspacing="0">
+<tr>
+	<td style="padding-right:5px;"><h1>Dashboards</h1></td>
+	<td>
+		{include file="file:$path/tickets/menu.tpl.php"}
+	</td>
+</tr>
+</table>
 
 <table border="0" cellpadding="0" cellspacing="0" width="100%">
   <tbody>
     <tr>
       <td nowrap="nowrap" width="0%" valign="top">
 
-      {include file="file:$path/tickets/teamwork_menu.tpl.php"}
+      {include file="file:$path/tickets/dashboard_menu.tpl.php"}
       
       <br>
       
-      {include file="file:$path/tickets/dashboard_menu.tpl.php"}
+      {* [TODO] Only show if on a team dashboard *}
+      {include file="file:$path/tickets/teamwork/categories.tpl.php"}
       
       </td>
       <td nowrap="nowrap" width="0%"><img src="{devblocks_url}images/spacer.gif{/devblocks_url}" width="5" height="1"></td>

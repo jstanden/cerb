@@ -17,7 +17,7 @@ class DefaultLoginModule extends CerberusLoginPageExtension {
 		if(!is_null($worker)) {
 			$session = DevblocksPlatform::getSessionService();
 			$visit = new CerberusVisit();
-				$visit->worker = $worker;
+				$visit->setWorker($worker);
 			$session->setVisit($visit);
 			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('dashboard')));
 			return true;

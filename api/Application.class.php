@@ -1,5 +1,5 @@
 <?php
-define("APP_BUILD", 106);
+define("APP_BUILD", 107);
 
 include_once(APP_PATH . "/api/ClassLoader.php");
 include_once(APP_PATH . "/api/DAO.class.php");
@@ -7,6 +7,27 @@ include_once(APP_PATH . "/api/Model.class.php");
 include_once(APP_PATH . "/api/Extension.class.php");
 
 class CerberusApplication extends DevblocksApplication {
+	const INDEX_TICKETS = 'tickets';
+		
+	const VIEW_SEARCH = 'search';
+	const VIEW_MY_TICKETS = 'teamwork_my';
+	const VIEW_TEAM_TICKETS = 'teamwork_team';
+	
+	/**
+	 * @return CerberusVisit
+	 */
+	static function getVisit() {
+		$session = DevblocksPlatform::getSessionService();
+		return $session->getVisit();
+	}
+	
+	/**
+	 * @return CerberusWorker
+	 */
+	static function getActiveWorker() {
+		$visit = self::getVisit();
+		return $visit->getWorker();
+	}
 	
 	static function writeDefaultHttpResponse($response) {
 		$path = $response->path;
@@ -218,6 +239,34 @@ class CerberusApplication extends DevblocksApplication {
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('display',$id)));
 	}
 	
+	// [TODO] Rethink
+	static function getDashboardGlobalActions() {
+//		$trashAction = new Model_DashboardViewAction();
+//		$trashAction->id = 'trash';
+//		$trashAction->dashboard_view_id = CerberusApplication::VIEW_MY_TICKETS;
+//		$trashAction->name = 'Trash';
+//		$trashAction->params = array(
+//			'status' => CerberusTicketStatus::DELETED
+//		);
+//		
+//		$spamAction = new Model_DashboardViewAction();
+//		$spamAction->id = 'spam';
+//		$spamAction->dashboard_view_id = CerberusApplication::VIEW_MY_TICKETS;
+//		$spamAction->name = 'Report Spam';
+//		$spamAction->params = array(
+//			'spam' => CerberusTicketSpamTraining::SPAM
+//		);
+//		
+//		$view_actions = array(
+//			$releaseAction->id => $releaseAction,
+//			$trashAction->id => $trashAction,
+//			$spamAction->id => $spamAction
+//		);
+		
+//		return $view_actions;
+		return array();
+	}
+	
 	// ***************** DUMMY [TODO] Move to Model?  Combine with search fields?
 	static function getDashboardViewColumns() {
 		$translate = DevblocksPlatform::getTranslationService();
@@ -231,15 +280,36 @@ class CerberusApplication extends DevblocksApplication {
 			new CerberusDashboardViewColumn(CerberusSearchFields::TICKET_CREATED_DATE,$translate->_('ticket.created')),
 			new CerberusDashboardViewColumn(CerberusSearchFields::TICKET_UPDATED_DATE,$translate->_('ticket.updated')),
 			new CerberusDashboardViewColumn(CerberusSearchFields::TICKET_SPAM_SCORE,$translate->_('ticket.spam_score')),
-			new CerberusDashboardViewColumn(CerberusSearchFields::MAILBOX_NAME,$translate->_('ticket.mailbox')),
+			new CerberusDashboardViewColumn(CerberusSearchFields::TEAM_NAME,$translate->_('common.team')),
 		);
 	}
 	// ***************** DUMMY
 	
 };
 
+/**
+ * [TODO] This goes in the session
+ */
+class CerberusStaticViewManager {
+	private $views = array();
+	
+	public function exists($view_label) {
+		return isset($this->views[$view_label]);
+	}
+	
+	public function &getView($view_label) {
+		if(!$this->exists($view_label)) return NULL;
+		
+		return $this->views[$view_label];
+	}
+	
+	public function setView($view_label, $view) {
+		$this->views[$view_label] = $view;
+	}
+};
+
 class CerberusSettings {
-	const DEFAULT_MAILBOX_ID = 'default_mailbox_id'; 
+	const DEFAULT_TEAM_ID = 'default_team_id'; 
 	const DEFAULT_REPLY_FROM = 'default_reply_from'; 
 	const DEFAULT_REPLY_PERSONAL = 'default_reply_personal'; 
 	const HELPDESK_TITLE = 'helpdesk_title'; 
@@ -250,7 +320,7 @@ class CerberusSettings {
 	
 	static $instance = null;
 	private $settings = array( // defaults
-		self::DEFAULT_MAILBOX_ID => 0,
+		self::DEFAULT_TEAM_ID => 0,
 		self::DEFAULT_REPLY_FROM => '',
 		self::DEFAULT_REPLY_PERSONAL => '',
 		self::HELPDESK_TITLE => 'Cerberus Helpdesk :: Team-based E-mail Management',

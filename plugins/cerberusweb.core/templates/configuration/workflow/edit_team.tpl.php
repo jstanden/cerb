@@ -36,22 +36,6 @@
 	
 	<tr>
 		<td width="0%" nowrap="nowrap" valign="top">
-			<b>Mailboxes:</b><br>
-			<a href="javascript:;" onclick="checkAll('configTeamMailboxes',true);">check all</a><br>
-			<a href="javascript:;" onclick="checkAll('configTeamMailboxes',false);">check none</a>
-		</td>
-		<td width="100%" id="configTeamMailboxes" valign="top">
-			{if $team->id}{assign var=teamMailboxes value=$team->getMailboxes()}{/if}
-			{foreach from=$mailboxes item=mailbox key=mailbox_id}
-			<label><input type="checkbox" name="mailbox_id[]" value="{$mailbox_id}" {if $teamMailboxes.$mailbox_id}checked{/if}>{$mailbox->name}</label><br>
-			{/foreach}
-		</td>
-	</tr>
-	
-	<tr><td colspan="2">&nbsp;</td></tr>
-	
-	<tr>
-		<td width="0%" nowrap="nowrap" valign="top">
 			<b>Permissions:</b><br>
 			<a href="javascript:;" onclick="checkAll('configTeamAcl',true);">check all</a><br>
 			<a href="javascript:;" onclick="checkAll('configTeamAcl',false);">check none</a>

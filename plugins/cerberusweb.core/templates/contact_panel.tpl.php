@@ -2,7 +2,7 @@
 	<tr>
 		<td align="left" width="0%" nowrap="nowrap"><img src="{devblocks_url}images/businessman2.gif{/devblocks_url}" align="absmiddle"></td>
 		<td align="left" width="100%" nowrap="nowrap"><h1>Contact</h1></td>
-		<td align="right" width="0%" nowrap="nowrap"><form><input type="button" value=" X " onclick="ajax.contactPanel.hide();"></form></td>
+		<td align="right" width="0%" nowrap="nowrap"><form><input type="button" value=" X " onclick="genericPanel.hide();"></form></td>
 	</tr>
 </table>
 <div style="height:200px;overflow:auto;border:1px solid rgb(180,180,180);margin:2px;padding:3px;">

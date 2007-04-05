@@ -37,6 +37,8 @@
 			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','m_name');">{$translate->_('ticket.mailbox')}</a></th>
 			{elseif $header=="t_spam_score"}
 			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_spam_score');">{$translate->_('common.spam')}</a></th>
+			{elseif $header=="tm_name"}
+			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','tm_name');">{$translate->_('common.team')}</a></th>
 			{/if}
 		{/foreach}
 	</tr>
@@ -79,13 +81,15 @@
 				{/if}
 			</td>
 			{elseif $column=="t_last_wrote"}
-			<td><a href="javascript:;" onclick="ajax.showContactPanel('{$ticket->last_wrote}',this);">{$result.t_last_wrote}</a></td>
+			<td><a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showContactPanel&address={$ticket->last_wrote}',this);">{$result.t_last_wrote}</a></td>
 			{elseif $column=="t_first_wrote"}
-			<td><a href="javascript:;" onclick="ajax.showContactPanel('{$ticket->first_wrote}',this);">{$result.t_first_wrote}</a></td>
+			<td><a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showContactPanel&address={$ticket->first_wrote}',this);">{$result.t_first_wrote}</a></td>
 			{elseif $column=="t_created_date"}
 			<td>{$result.t_created_date|date_format}</td>
 			{elseif $column=="t_updated_date"}
 			<td>{$result.t_updated_date|date_format}</td>
+			{elseif $column=="tm_name"}
+			<td><a href="{devblocks_url}c=tickets&a=dashboards&m=team&id={$result.tm_id}{/devblocks_url}">{$result.tm_name}</a></td>
 			{elseif $column=="m_name"}
 			<td><a href="{devblocks_url}c=tickets&a=mailbox&id={$result.m_id}{/devblocks_url}">{$result.m_name}</a></td>
 			{elseif $column=="t_spam_score"}
@@ -103,8 +107,8 @@
 	<tr>
 		<td>
 			<select name="action_id" onchange="toggleDiv('action{$view->id}',(this.selectedIndex>0)?'inline':'none');">
-				<option value="">-- perform action --</option>
-				<optgroup label="Shared Actions" style="color:rgb(0,180,0);">
+				<option value="">-- perform shortcut --</option>
+				<optgroup label="Shared Shortcuts" style="color:rgb(0,180,0);">
 				{foreach from=$viewActions item=action}
 				<option value="{$action->id}">{$action->name}</option>
 				{/foreach}
@@ -112,9 +116,9 @@
 			</select>
 			<span id="action{$view->id}" style="display:none;">
 				<input type="button" value="Apply" onclick="ajax.viewRunAction('{$view->id}');">
-				<a href="javascript:;" onclick="ajax.showViewActionPanel(selectValue(document.getElementById('viewForm{$view->id}').action_id),'{$view->id}',this);">edit action</a> | 
+				<a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showViewActions&id='+selectValue(document.getElementById('viewForm{$view->id}').action_id)+'&view_id={$view->id}',this,true,'500px');">edit shortcut</a> | 
 			</span>
-			<a href="javascript:;" onclick="ajax.showViewActionPanel('0','{$view->id}',this);">new action</a>
+			<a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showViewActions&id=0&view_id={$view->id}',this,true,'500px');">new shortcut</a>
 		</td>
 	</tr>
 	<tr>

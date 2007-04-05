@@ -170,8 +170,20 @@ class CerberusParser {
 		}
 		
 		if(empty($id)) {
-			$mailbox_id = CerberusParser::parseDestination($headers);
-			$id = DAO_Ticket::createTicket($sMask,$sSubject,CerberusTicketStatus::OPEN,$mailbox_id,$fromAddress,$iDate);
+			$team_id = CerberusParser::parseDestination($headers);
+			$wrote_id = DAO_Contact::lookupAddress($fromAddress, true);
+			
+			$fields = array(
+				DAO_Ticket::MASK => $sMask,
+				DAO_Ticket::SUBJECT => $sSubject,
+				DAO_Ticket::STATUS => CerberusTicketStatus::OPEN,
+				DAO_Ticket::FIRST_WROTE_ID => $wrote_id,
+				DAO_Ticket::LAST_WROTE_ID => $wrote_id,
+				DAO_Ticket::CREATED_DATE => $iDate,
+				DAO_Ticket::UPDATED_DATE => $iDate,
+				DAO_Ticket::TEAM_ID => $team_id
+			);
+			$id = DAO_Ticket::createTicket($fields);
 		}
 		
 		// [JAS]: Add requesters to the ticket
@@ -298,7 +310,7 @@ class CerberusParser {
 	 * Enter description here...
 	 *
 	 * @param array $headers
-	 * @return integer mailbox id
+	 * @return integer team id
 	 */
 	static private function parseDestination($headers) {
 		static $routing = null;
@@ -329,7 +341,7 @@ class CerberusParser {
 					str_replace(array('*'),array('.*?'),$route->pattern)
 				);
 				if(preg_match($pattern,$address)) 
-					return $route->mailbox_id;
+					return $route->team_id;
 			}
 		}
 		
@@ -337,10 +349,10 @@ class CerberusParser {
 		// received
 		
 		// Check if we have a default mailbox configured before returning NULL.		
-		$default_mailbox_id = $settings->get(CerberusSettings::DEFAULT_MAILBOX_ID,0);
+		$default_team_id = $settings->get(CerberusSettings::DEFAULT_TEAM_ID,0);
 		
-		if(!empty($default_mailbox_id)) { // catchall
-			return $default_mailbox_id;
+		if(!empty($default_team_id)) { // catchall
+			return $default_team_id;
 		}
 		
 		return null; // bounce

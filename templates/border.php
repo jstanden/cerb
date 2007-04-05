@@ -8,10 +8,8 @@
 		{else}
 		{$translate->_('header.signed_in')} 
 		<a href="#" title="{$translate->_('header.my_flagged_tickets')|capitalize}"><img src="{devblocks_url}images/flag_red.gif{/devblocks_url}" align="bottom" title="{$translate->_('header.my_flagged_tickets')|capitalize}" border="0"></a>
-		<a href="#" title="{$translate->_('header.my_flagged_tickets')|capitalize}">5</a> 
-		<a href="#" title="{$translate->_('header.my_suggested_tickets')|capitalize}"><img src="{devblocks_url}images/hand_paper.gif{/devblocks_url}" align="bottom" title="{$translate->_('header.my_suggested_tickets')|capitalize}" border="0"></a>
-		<a href="#" title="{$translate->_('header.my_suggested_tickets')|capitalize}">9</a>
-		[ <a href="javascript:;" onclick="ajax.showHistoryPanel(this);">{$translate->_('header.history')|lower}</a> ]
+		<a href="{devblocks_url}c=tickets&a=dashboards&i=my{/devblocks_url}" title="{$translate->_('header.my_flagged_tickets')|capitalize}">5</a> 
+		[ <a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showHistoryPanel',this);">{$translate->_('header.history')|lower}</a> ]
 		[ <a href="{devblocks_url}c=preferences{/devblocks_url}">{$translate->_('header.preferences')|lower}</a> ]
 		[ <a href="{devblocks_url}c=login&a=signout{/devblocks_url}">{$translate->_('header.signoff')|lower}</a> ]<br>
 		<b>Quick Find:</b> <select name="">
