@@ -117,9 +117,9 @@ class ChTicketsPage extends CerberusPageExtension {
 					"\r\n".
 					"%s\r\n".
 					"\r\n",
+					$to, // Yes, this maps to From:.  We're pretending here, to make it make more sense on the gui front end.
 					//$team->getReplyAddress(), // TODO: this function needs to exist, or something similar
 					"support@hildy.net",
-					$to,
 					$subject,
 					$content
 				);
