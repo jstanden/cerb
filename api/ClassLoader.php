@@ -32,6 +32,7 @@ class CerberusClassLoader {
 		self::_initDAO();
 		self::_initModel();
 		self::_initExtension();
+		self::_initZend();
 	}
 	
 	private static function _initApp() {
@@ -56,6 +57,22 @@ class CerberusClassLoader {
 	
 	private static function _initExtension() {
 		$path = APP_PATH . '/api/ext/';
+	}
+	
+	private static function _initZend() {
+		$path = APP_PATH . '/libs/devblocks/libs/Zend';
+		
+		self::registerClasses($path . '/Mail.php', array(
+			'Zend_Mail',
+		));
+		
+		self::registerClasses($path . '/Mime.php', array(
+			'Zend_Mime',
+		));
+		
+		self::registerClasses($path . '/Mail/Transport/Smtp.php', array(
+			'Zend_Mail_Transport_Smtp',
+		));
 	}
 	
 };

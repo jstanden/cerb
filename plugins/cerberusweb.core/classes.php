@@ -90,7 +90,65 @@ class ChTicketsPage extends CerberusPageExtension {
 				break;
 				
 			case 'create':
+				$teams = DAO_Workflow::getTeams();
+				$tpl->assign('teams', $teams);
+				
 				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/create/index.tpl.php');
+				break;
+				
+			case 'createTicket':
+				require_once(DEVBLOCKS_PATH . 'libs/pear/mimeDecode.php');
+
+				@$team_id = DevblocksPlatform::importGPC($_POST['from'],'integer'); 
+				@$to = DevblocksPlatform::importGPC($_POST['to'],'string');
+				@$subject = DevblocksPlatform::importGPC($_POST['subject'],'string');
+				@$content = DevblocksPlatform::importGPC($_POST['content'],'string');
+				@$cc = DevblocksPlatform::importGPC($_POST['cc'],'string');
+				@$bcc = DevblocksPlatform::importGPC($_POST['bcc'],'string');
+				@$files = $_FILES['attachment'];
+				
+				$team = DAO_Workflow::getTeam($team_id);
+		
+				$mail = sprintf(
+					"From: %s\r\n".
+					"To: %s\r\n".
+					"Subject: %s\r\n".
+					"Date: " . date('r') . "\r\n".
+					"\r\n".
+					"%s\r\n".
+					"\r\n",
+					//$team->getReplyAddress(), // TODO: this function needs to exist, or something similar
+					"support@hildy.net",
+					$to,
+					$subject,
+					$content
+				);
+
+				$params = array();
+				$params['include_bodies']	= true;
+				$params['decode_bodies']	= true;
+				$params['decode_headers']	= true;
+				$params['crlf']				= "\r\n";
+				$params['input'] = $mail;
+				$structure = Mail_mimeDecode::decode($params);
+					
+				$ticket = CerberusParser::parseMessage($structure); /* @var $ticket CerberusTicket */
+				$messages = $ticket->getMessages();
+				$message = array_shift($messages); /* @var $ticket CerberusMessage */
+				$message_id = $message->id;
+				
+				// if this message was submitted with attachments, store them in the filestore and link them to the message_id in the db.
+				if (is_array($files) && !empty($files)) {
+					$settings = CerberusSettings::getInstance();
+					$attachmentlocation = $settings->get(CerberusSettings::SAVE_FILE_PATH);
+				
+					foreach ($files['tmp_name'] as $idx => $file) {
+						copy($files['tmp_name'][$idx],$attachmentlocation.$message_id.$idx);
+						DAO_Ticket::createAttachment($message_id, $files['name'][$idx], $message_id.$idx);
+					}
+				}
+
+				echo("message successfully parsed");
 				break;
 			
 			case 'dashboards':
