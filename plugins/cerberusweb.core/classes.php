@@ -96,61 +96,6 @@ class ChTicketsPage extends CerberusPageExtension {
 				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/create/index.tpl.php');
 				break;
 				
-			case 'createTicket':
-				require_once(DEVBLOCKS_PATH . 'libs/pear/mimeDecode.php');
-
-				@$team_id = DevblocksPlatform::importGPC($_POST['from'],'integer'); 
-				@$to = DevblocksPlatform::importGPC($_POST['to'],'string');
-				@$subject = DevblocksPlatform::importGPC($_POST['subject'],'string');
-				@$content = DevblocksPlatform::importGPC($_POST['content'],'string');
-				@$cc = DevblocksPlatform::importGPC($_POST['cc'],'string');
-				@$bcc = DevblocksPlatform::importGPC($_POST['bcc'],'string');
-				@$files = $_FILES['attachment'];
-				
-				$team = DAO_Workflow::getTeam($team_id);
-		
-				$mail = sprintf(
-					"From: %s\r\n".
-					"To: %s\r\n".
-					"Subject: %s\r\n".
-					"Date: " . date('r') . "\r\n".
-					"\r\n".
-					"%s\r\n".
-					"\r\n",
-					$to, // Yes, this maps to From:.  We're pretending here, to make it make more sense on the gui front end.
-					//$team->getReplyAddress(), // TODO: this function needs to exist, or something similar
-					"support@hildy.net",
-					$subject,
-					$content
-				);
-
-				$params = array();
-				$params['include_bodies']	= true;
-				$params['decode_bodies']	= true;
-				$params['decode_headers']	= true;
-				$params['crlf']				= "\r\n";
-				$params['input'] = $mail;
-				$structure = Mail_mimeDecode::decode($params);
-					
-				$ticket = CerberusParser::parseMessage($structure); /* @var $ticket CerberusTicket */
-				$messages = $ticket->getMessages();
-				$message = array_shift($messages); /* @var $ticket CerberusMessage */
-				$message_id = $message->id;
-				
-				// if this message was submitted with attachments, store them in the filestore and link them to the message_id in the db.
-				if (is_array($files) && !empty($files)) {
-					$settings = CerberusSettings::getInstance();
-					$attachmentlocation = $settings->get(CerberusSettings::SAVE_FILE_PATH);
-				
-					foreach ($files['tmp_name'] as $idx => $file) {
-						copy($files['tmp_name'][$idx],$attachmentlocation.$message_id.$idx);
-						DAO_Ticket::createAttachment($message_id, $files['name'][$idx], $message_id.$idx);
-					}
-				}
-
-				echo("message successfully parsed");
-				break;
-			
 			case 'dashboards':
 			default:
 				$viewManager = $visit->get(CerberusVisit::KEY_VIEW_MANAGER);
@@ -188,7 +133,7 @@ class ChTicketsPage extends CerberusPageExtension {
 					if(null == $myView) {
 						$myView = new CerberusDashboardView();
 						$myView->id = CerberusApplication::VIEW_MY_TICKETS;
-						$myView->name = "My Active Tickets";
+						$myView->name = "My Ticket Tasks";
 						$myView->dashboard_id = 0;
 						$myView->view_columns = array(
 							CerberusSearchFields::TICKET_MASK,
@@ -199,7 +144,7 @@ class ChTicketsPage extends CerberusPageExtension {
 							CerberusSearchFields::TICKET_UPDATED_DATE,
 							);
 						$myView->params = array(
-//							new CerberusSearchCriteria(CerberusSearchFields::ASSIGNED_WORKER,'=',$visit->getWorker()->id),
+							new CerberusSearchCriteria(CerberusSearchFields::TASK_WORKER_ID,'=',$visit->getWorker()->id),
 							new CerberusSearchCriteria(CerberusSearchFields::TICKET_STATUS,'in',array(CerberusTicketStatus::OPEN)),
 						);
 						$myView->renderLimit = 10;
@@ -252,12 +197,16 @@ class ChTicketsPage extends CerberusPageExtension {
 				} else { // virtual dashboards
 					// team dashboard
 					if(0 == strcmp('t',substr($active_dashboard_id,0,1))) {
-						// Team Tickets
-						$teamView = $viewManager->getView(CerberusApplication::VIEW_TEAM_TICKETS);
 						$team_id = intval(substr($active_dashboard_id,1));
 						$team = $teams[$team_id];
 						
-						// [JAS]: Recover from a bad cached ID.
+						$categories = DAO_Category::getByTeam($team_id);
+						$tpl->assign('categories', $categories);
+												
+						// ======================================================
+						// Team Tickets (All)
+						// ======================================================
+						$teamView = $viewManager->getView(CerberusApplication::VIEW_TEAM_TICKETS);
 						if(null == $teamView) {
 							$teamView = new CerberusDashboardView();
 							$teamView->id = CerberusApplication::VIEW_TEAM_TICKETS;
@@ -269,7 +218,7 @@ class ChTicketsPage extends CerberusPageExtension {
 								CerberusSearchFields::TICKET_PRIORITY,
 								CerberusSearchFields::TICKET_LAST_WROTE,
 								CerberusSearchFields::TICKET_UPDATED_DATE,
-//								CerberusSearchFields::TEAM_NAME,
+								CerberusSearchFields::CATEGORY_NAME,
 								);
 							$teamView->params = array(
 							);
@@ -289,7 +238,45 @@ class ChTicketsPage extends CerberusPageExtension {
 							new CerberusSearchCriteria(CerberusSearchFields::TICKET_STATUS,'in',array(CerberusTicketStatus::OPEN)),
 						);
 						
-						$views = array($teamView->id => $teamView);
+						// ======================================================
+						// Team Tasks
+						// ======================================================
+						$teamTasksView = $viewManager->getView(CerberusApplication::VIEW_TEAM_TASKS);
+						if(null == $teamTasksView) {
+							$teamTasksView = new CerberusDashboardView();
+							$teamTasksView->id = CerberusApplication::VIEW_TEAM_TASKS;
+							$teamTasksView->name = "Ticket Tasks";
+							$teamTasksView->dashboard_id = 0;
+							$teamTasksView->view_columns = array(
+								CerberusSearchFields::TICKET_MASK,
+								CerberusSearchFields::TICKET_STATUS,
+								CerberusSearchFields::TICKET_PRIORITY,
+								CerberusSearchFields::TICKET_LAST_WROTE,
+								CerberusSearchFields::TICKET_UPDATED_DATE,
+								CerberusSearchFields::TEAM_NAME,
+								CerberusSearchFields::CATEGORY_NAME,
+								);
+							$teamTasksView->params = array(
+							);
+							$teamTasksView->renderLimit = 25;
+							$teamTasksView->renderPage = 0;
+							$teamTasksView->renderSortBy = CerberusSearchFields::TICKET_UPDATED_DATE;
+							$teamTasksView->renderSortAsc = 0;
+							
+							$viewManager->setView(CerberusApplication::VIEW_TEAM_TASKS,$teamTasksView);
+						}
+						
+						$teamTasksView->name = $team->name . ": Tasks";
+						$teamTasksView->params = array(
+							new CerberusSearchCriteria(CerberusSearchFields::TASK_TEAM_ID,'=',$team_id),
+							// [TODO] In categories... 
+							new CerberusSearchCriteria(CerberusSearchFields::TICKET_STATUS,'in',array(CerberusTicketStatus::OPEN)),
+						);
+						
+						$views = array(
+							$teamView->id => $teamView,
+							$teamTasksView->id => $teamTasksView
+						);
 						$tpl->assign('views', $views);
 					}
 				}
@@ -311,6 +298,71 @@ class ChTicketsPage extends CerberusPageExtension {
 	
 	function clickteam() {
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','search')));
+	}
+	
+	// [TODO] Nuke the message_id redundancy here, and such
+	function createTicket() {
+		require_once(DEVBLOCKS_PATH . 'libs/pear/mimeDecode.php');
+
+		$settings = CerberusSettings::getInstance();
+		$to = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM);
+		
+		@$team_id = DevblocksPlatform::importGPC($_POST['team_id'],'integer'); 
+		@$from = DevblocksPlatform::importGPC($_POST['from'],'string');
+		@$subject = DevblocksPlatform::importGPC($_POST['subject'],'string');
+		@$content = DevblocksPlatform::importGPC($_POST['content'],'string');
+		@$files = $_FILES['attachment'];
+		
+		$team = DAO_Workflow::getTeam($team_id);
+
+		$mail = sprintf(
+			"From: %s\r\n".
+			"To: %s\r\n".
+			"Subject: %s\r\n".
+			"Date: " . date('r') . "\r\n".
+			"\r\n".
+			"%s\r\n".
+			"\r\n",
+			$from,
+			$to,
+			$subject,
+			$content
+		);
+
+		$params = array();
+		$params['include_bodies']	= true;
+		$params['decode_bodies']	= true;
+		$params['decode_headers']	= true;
+		$params['crlf']				= "\r\n";
+		$params['input'] = $mail;
+		$structure = Mail_mimeDecode::decode($params);
+			
+		$ticket = CerberusParser::parseMessage($structure); /* @var $ticket CerberusTicket */
+		$messages = $ticket->getMessages();
+		$message = array_shift($messages); /* @var $ticket CerberusMessage */
+		$message_id = $message->id;
+		
+		// if this message was submitted with attachments, store them in the filestore and link them to the message_id in the db.
+		if (is_array($files) && !empty($files)) {
+			$settings = CerberusSettings::getInstance();
+			$attachmentlocation = $settings->get(CerberusSettings::SAVE_FILE_PATH);
+		
+			/*
+			// [TODO] This needs cleaned up
+			if(is_array($files['tmp_name']))
+			foreach ($files['tmp_name'] as $idx => $file) {
+				copy($files['tmp_name'][$idx],$attachmentlocation.$message_id.$idx);
+				DAO_Ticket::createAttachment($message_id, $files['name'][$idx], $message_id.$idx);
+			}
+			*/
+		}
+		
+		// Routing override
+		DAO_Ticket::updateTicket($ticket->id,array(
+			DAO_Ticket::TEAM_ID => $team_id
+		));
+
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('display',$ticket->id)));
 	}
 	
 	function mailbox() {
@@ -512,13 +564,85 @@ class ChTicketsPage extends CerberusPageExtension {
 		// Teams
 		$teams = DAO_Workflow::getTeams();
 		$tpl->assign('teams', $teams);
-		
+		// Categories
+		$team_categories = DAO_Category::getTeams();
+		$tpl->assign('team_categories', $team_categories);
+				
 		// Load action object to populate fields
 		$action = DAO_DashboardViewAction::get($id);
 		$tpl->assign('action', $action);
 		
 		$tpl->cache_lifetime = "0";
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/rpc/view_actions_panel.tpl.php');
+	}
+	
+	function showTaskPanel() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer');
+		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer');
+
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		$tpl->assign('id', $id);
+
+		// Ticket
+		$ticket = DAO_Ticket::getTicket($ticket_id);
+		$tpl->assign('ticket', $ticket);
+		
+		// Workers
+		$workers = DAO_Worker::getList();
+		$tpl->assign('workers', $workers);
+		
+		// Teams
+		$teams = DAO_Workflow::getTeams();
+		$tpl->assign('teams', $teams);
+		
+		// Task
+		$task = DAO_Task::get($id);
+		$tpl->assign('task', $task);
+		
+		// Task Owners
+		$owners = DAO_Task::getOwners(array($id));
+		$tpl->assign('owners', $owners[$id]);
+		
+		$tpl->cache_lifetime = "0";
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/rpc/task_panel.tpl.php');
+	}
+	
+	function saveTaskPanel() {
+		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer');
+		@$ticket_id = DevblocksPlatform::importGPC($_POST['ticket_id'],'integer');
+		@$title = DevblocksPlatform::importGPC($_POST['title'],'string');
+		@$due_date = DevblocksPlatform::importGPC($_POST['due_date'],'string');
+		@$completed = DevblocksPlatform::importGPC($_POST['completed'],'integer');
+		@$content = DevblocksPlatform::importGPC($_POST['content'],'string');
+		@$team_ids = DevblocksPlatform::importGPC($_POST['team_ids'],'array');
+		@$worker_ids = DevblocksPlatform::importGPC($_POST['worker_ids'],'array');
+		@$delete = DevblocksPlatform::importGPC($_POST['delete'],'integer');
+
+		if(!empty($delete)) {
+			DAO_Task::delete($id);
+			
+		} else {
+			if(empty($due_date))
+				$due_date = "Today";
+			
+			$fields = array(
+				DAO_Task::TICKET_ID => $ticket_id,
+				DAO_Task::TITLE => $title,
+				DAO_Task::DUE_DATE => strtotime($due_date),
+				DAO_Task::COMPLETED => $completed,
+				DAO_Task::CONTENT => $content
+			);
+	
+			if(empty($id)) { // new
+				$id = DAO_Task::create($fields);
+			} else {
+				DAO_Task::update($id, $fields);
+			}
+			
+			// Reassign Owners
+			DAO_Task::setOwners($id, $team_ids, $worker_ids, true);
+		}
 	}
 	
 	function saveViewActionPanel() {
@@ -528,7 +652,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$status = DevblocksPlatform::importGPC($_POST['status']);
 		@$priority = DevblocksPlatform::importGPC($_POST['priority']);
 		@$spam = DevblocksPlatform::importGPC($_POST['spam']);
-		@$team = DevblocksPlatform::importGPC($_POST['team']);
+		@$team = DevblocksPlatform::importGPC($_POST['team'],'string');
 		
 		$params = array();			
 		
@@ -559,9 +683,9 @@ class ChTicketsPage extends CerberusPageExtension {
 	}
 	
 	function runAction() {
-		@$id = DevblocksPlatform::importGPC($_POST['id']);
-		@$action_id = DevblocksPlatform::importGPC($_POST['action_id']);
-		@$ticket_ids = DevblocksPlatform::importGPC($_POST['ticket_id']);
+		@$id = DevblocksPlatform::importGPC($_POST['id'],'string');
+		@$action_id = DevblocksPlatform::importGPC($_POST['action_id'],'integer');
+		@$ticket_ids = DevblocksPlatform::importGPC($_POST['ticket_id'],'array');
 		
 		if(empty($action_id) || empty($ticket_ids))
 			return;
@@ -1625,6 +1749,9 @@ class ChDisplayPage extends CerberusPageExtension {
 		$teams = DAO_Workflow::getTeams();
 		$tpl->assign('teams', $teams);
 		
+		$team_categories = DAO_Category::getTeams();
+		$tpl->assign('team_categories', $team_categories);
+		
 		$display_module_manifests = DevblocksPlatform::getExtensions("cerberusweb.display.module");
 		$display_modules = array();
 		
@@ -1642,10 +1769,8 @@ class ChDisplayPage extends CerberusPageExtension {
 		@$status = DevblocksPlatform::importGPC($_REQUEST['status']);
 		@$priority = DevblocksPlatform::importGPC($_REQUEST['priority'],'integer');
 		@$subject = DevblocksPlatform::importGPC($_REQUEST['subject']);
-		@$tags = DevblocksPlatform::importGPC($_REQUEST['tags']);
-		@$workers = DevblocksPlatform::importGPC($_REQUEST['workers']);
 		@$training = DevblocksPlatform::importGPC($_REQUEST['training']);
-		@$team_id = DevblocksPlatform::importGPC($_REQUEST['team_id'],'integer');
+		@$category_code = DevblocksPlatform::importGPC($_REQUEST['category_id'],'string');
 		
 		// Anti-Spam
 		if(!empty($training)) {
@@ -1654,6 +1779,11 @@ class ChDisplayPage extends CerberusPageExtension {
 			else { 
 				CerberusBayes::markTicketAsSpam($id); }
 		}
+
+		$categories = DAO_Category::getList();
+		
+		// Team/Category
+		list($team_id,$category_id) = CerberusApplication::translateTeamCategoryCode($category_code);
 		
 		// Properties
 		$properties = array(
@@ -1661,7 +1791,8 @@ class ChDisplayPage extends CerberusPageExtension {
 			DAO_Ticket::PRIORITY => intval($priority),
 			DAO_Ticket::SUBJECT => $subject,
 			DAO_Ticket::UPDATED_DATE => gmmktime(),
-			DAO_Ticket::TEAM_ID => $team_id
+			DAO_Ticket::TEAM_ID => $team_id,
+			DAO_Ticket::CATEGORY_ID => $category_id,
 		);
 		DAO_Ticket::updateTicket($id, $properties);
 
@@ -1746,6 +1877,24 @@ class ChDisplayPage extends CerberusPageExtension {
 		DAO_Ticket::createRequester($address_id, $id);
 		
 		echo ' ';
+	}
+	
+	function reloadTasks() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['ticket_id']); // ticket id
+		
+//		$tpl = DevblocksPlatform::getTemplateService();
+//		$tpl->cache_lifetime = "0";
+//		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+
+//		$response = DevblocksPlatform::getHttpResponse();
+//		$stack = $response->path;
+
+		$manifest = DevblocksPlatform::getExtension('core.display.module.tasks');
+		$ext = $manifest->createInstance(); /* @var $ext ChDisplayTicketTasks */
+		
+		$ticket = DAO_Ticket::getTicket($id);
+		
+		$ext->renderBody($ticket);
 	}
 	
 };
@@ -1873,21 +2022,25 @@ class ChDisplayTicketTasks extends CerberusDisplayPageExtension {
 	function render($ticket) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
-		$tpl->assign('callback','renderBody');
-		$tpl->assign('moduleLabel', $this->manifest->id);
-		$tpl->display('display/expandable_module_template.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/ticket_tasks.tpl.php');
 	}
 	
 	/**
 	 * @param CerberusTicket $ticket
 	 */
-	function renderBody($ticket) {
+	function renderBody(CerberusTicket $ticket) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
-		$session = DevblocksPlatform::getSessionService();
-		$visit = $session->getVisit();
+//		
+		$tasks = DAO_Task::getByTicket($ticket->id);
+		$tpl->assign('tasks', $tasks);
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/ticket_tasks.tpl.php');
+		$task_owners = DAO_Task::getOwners(array_keys($tasks));
+		$tpl->assign('task_owners', $task_owners);
+		
+		$tpl->assign('ticket', $ticket);
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/tasks/index.tpl.php');
 	}
 	
 //	function getTagDialog() {

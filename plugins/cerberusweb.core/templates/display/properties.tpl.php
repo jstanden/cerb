@@ -38,11 +38,22 @@
     </tr>
     <tr>
       <td>
-      	<b class="green">Primary Team:</b><br>
-      	<select name="team_id">
+      	<b class="green">Owner:</b> (Team/Category)<br>
+      	<select name="category_id">
+      		{if empty($ticket->category_id)}{assign var=t_or_c value="t"}{else}{assign var=t_or_c value="c"}{/if}
+      		<optgroup label="Team (No Category)">
       		{foreach from=$teams item=team}
-      		<option value="{$team->id}" {if $ticket->team_id==$team->id}selected{/if}>{$team->name}
+      			<option value="t{$team->id}" {if $t_or_c=='t' && $ticket->team_id==$team->id}selected{/if}>{$team->name}</option>
       		{/foreach}
+      		</optgroup>
+      		{foreach from=$team_categories item=categories key=teamId}
+      			{assign var=team value=$teams.$teamId}
+      			<optgroup label="{$team->name}">
+      			{foreach from=$categories item=category}
+    				<option value="c{$category->id}" {if $t_or_c=='c' && $ticket->category_id==$category->id}selected{/if}>{$category->name}</option>
+    			{/foreach}
+    			</optgroup>
+     		{/foreach}
       	</select>
      	</td>
     </tr>

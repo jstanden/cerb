@@ -40,19 +40,34 @@
 		<td width="0%" nowrap="nowrap">Set priority:</td>
 		<td width="100%"><select name="priority">
 			<option value=""></option>
-			{foreach from=$priorities item=k key=v}
-			<option value="{$v}" {if $v==$action->params.priority}selected{/if}>{$k}</option>
+			{foreach from=$priorities item=v key=k}
+			<option value="{$k}" {if $k==$action->params.priority}selected{/if}>{$v}</option>
 			{/foreach}
 		</select></td>
 	</tr>
 	<tr>
-		<td width="0%" nowrap="nowrap">Set team:</td>
+		<td width="0%" nowrap="nowrap">Set owner:</td>
 		<td width="100%"><select name="team">
 			<option value=""></option>
-			{foreach from=$teams item=v key=k}
-			<option value="{$k}" {if $k==$action->params.team}selected{/if}>{$v->name}</option>
-			{/foreach}
-		</select></td>
+      		{if substr($action->params.team,0,1)=='t'}
+      			{assign var=t_or_c value="t"}
+      		{else}
+      			{assign var=t_or_c value="c"}
+      		{/if}
+      		<optgroup label="Team (No Category)">
+      		{foreach from=$teams item=team}
+      			<option value="t{$team->id}" {if $t_or_c=='t' && substr($action->params.team,1)==$team->id}selected{/if}>{$team->name}</option>
+      		{/foreach}
+      		</optgroup>
+      		{foreach from=$team_categories item=categories key=teamId}
+      			{assign var=team value=$teams.$teamId}
+      			<optgroup label="{$team->name}">
+      			{foreach from=$categories item=category}
+    				<option value="c{$category->id}" {if $t_or_c=='c' && substr($action->params.team,1)==$category->id}selected{/if}>{$category->name}</option>
+    			{/foreach}
+    			</optgroup>
+     		{/foreach}
+      	</select></td>
 	</tr>
 	<tr>
 		<td width="0%" nowrap="nowrap">Set training:</td>

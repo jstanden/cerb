@@ -63,7 +63,8 @@ class ChCorePatchContainer extends DevblocksPatchContainerExtension {
 			id I4 DEFAULT 0 NOTNULL PRIMARY,
 			mask C(16) DEFAULT '' NOTNULL, 
 			subject C(255)  DEFAULT '' NOTNULL,
-			team_id I4 DEFAULT 0 NOTNULL, 
+			team_id I4 DEFAULT 0 NOTNULL,
+			category_id I4 DEFAULT 0 NOTNULL,
 			created_date I4,
 			updated_date I4,
 			status C(1) DEFAULT '' NOTNULL, 
@@ -71,7 +72,8 @@ class ChCorePatchContainer extends DevblocksPatchContainerExtension {
 			first_wrote_address_id I4 NOTNULL DEFAULT 0,
 			last_wrote_address_id I4 NOTNULL DEFAULT 0,
 			spam_score F NOTNULL DEFAULT 0,
-			spam_training C(1) NOTNULL DEFAULT ''
+			spam_training C(1) NOTNULL DEFAULT '',
+			num_tasks I1 NOTNULL DEFAULT 0
 		";
 		
 		$tables['message'] = "
@@ -98,15 +100,31 @@ class ChCorePatchContainer extends DevblocksPatchContainerExtension {
 			name C(32) DEFAULT '' NOTNULL
 		";
 		
-		$tables['team_category'] = "
+		$tables['category'] = "
 			id I4 DEFAULT 0 NOTNULL PRIMARY,
 			team_id I4 DEFAULT 0 NOTNULL,
 			name C(32) DEFAULT '' NOTNULL
 		";
 
-		$tables['team_category_to_tag'] = "
+		$tables['category_to_tag'] = "
 			category_id I4 DEFAULT 0 NOTNULL PRIMARY,
 			tag_id I4 DEFAULT 0 NOTNULL PRIMARY
+		";
+		
+		// [TODO] (priority? created?)
+		$tables['task'] = "
+			id I4 DEFAULT 0 NOTNULL PRIMARY,
+			ticket_id I4 DEFAULT 0 NOTNULL,
+			title C(128) DEFAULT '' NOTNULL,
+			due_date I8 DEFAULT 0 NOTNULL,
+			is_completed I1 DEFAULT 0 NOTNULL,
+			content B DEFAULT '' NOTNULL
+		";
+		
+		$tables['task_owner'] = "
+			task_id I4 DEFAULT 0 NOTNULL PRIMARY,
+			owner_type C(1) NOTNULL PRIMARY,
+			owner_id I4 NOTNULL PRIMARY
 		";
 		
 		$tables['dashboard'] = "

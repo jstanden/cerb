@@ -168,7 +168,7 @@
 			</class>
 			<params>
 				<param key="title" value="Tasks" />
-				<param key="icon" value="images/gear.gif" />
+				<param key="icon" value="images/hand_paper.gif" />
 			</params>
 		</extension>
 

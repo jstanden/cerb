@@ -42,21 +42,25 @@
 						<img src="{devblocks_url}images/folder_gear.gif{/devblocks_url}"> <a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showTeamPanel',this);">{$translate->_('teamwork.team_management')|capitalize}</a><br>
 					</td>
 				</tr>
+				{if !empty($active_dashboard_id) && is_numeric($active_dashboard_id)}
 				<tr>
 					<td class="tableCellBg" width="100%" style="padding:2px;">
 						 <a href="{devblocks_url}c=tickets&a=addView{/devblocks_url}">{$translate->_('dashboard.add_view')|lower}</a>
 					</td>
 				</tr>
+				{/if}
 				<tr>
 					<td class="tableCellBg" width="100%" style="padding:2px;">
 						 <a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showAddDashboardPanel',this,true);">{$translate->_('dashboard.add_dashboard')|lower}</a>
 					</td>
 				</tr>
+				{if !empty($active_dashboard_id) && is_numeric($active_dashboard_id)}
 				<tr>
 					<td class="tableCellBg" width="100%" style="padding:2px;">
 						 <a href="#">{$translate->_('dashboard.modify')|lower}</a>
 					</td>
 				</tr>
+				{/if}
 				<tr>
 					<td class="tableCellBg" width="100%" style="padding:2px;">
 						 <a href="{devblocks_url}c=tickets{/devblocks_url}">{$translate->_('common.refresh')|lower}</a>

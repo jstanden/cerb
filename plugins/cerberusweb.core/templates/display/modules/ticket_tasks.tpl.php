@@ -1,3 +1,1 @@
-<?php
-
-?>
+{include file="display/expandable_module_template.tpl.php" callback="renderBody"}

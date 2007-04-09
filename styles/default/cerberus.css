@@ -17,7 +17,6 @@
     }
 
   .ticketLink { 
-      font-size: 12px;
   		color: rgb(0, 102, 255);
     }
 
@@ -178,11 +177,6 @@
     font-size: 11px;
     }
 
-  .displayModuleTable {
-  	background-color: rgb(240,240,255);
-  	border: 1px solid rgb(187,187,187);
-  }
-    
   .displayConversationTable { 
   	 border: 1px solid rgb(255, 153, 0);
     background-image: url(../../images/bg_yellow.jpg);

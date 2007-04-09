@@ -605,6 +605,7 @@ class DAO_Ticket {
 	const SUBJECT = 'subject';
 	const STATUS = 'status';
 	const TEAM_ID = 'team_id';
+	const CATEGORY_ID = 'category_id';
 	const LAST_WROTE_ID = 'last_wrote_address_id';
 	const FIRST_WROTE_ID = 'first_wrote_address_id';
 	const CREATED_DATE = 'created_date';
@@ -612,6 +613,7 @@ class DAO_Ticket {
 	const PRIORITY = 'priority';
 	const SPAM_TRAINING = 'spam_training';
 	const SPAM_SCORE = 'spam_score';
+	const NUM_TASKS = 'num_tasks';
 	
 	private function DAO_Ticket() {}
 	
@@ -796,7 +798,7 @@ class DAO_Ticket {
 		
 		$tickets = array();
 		
-		$sql = sprintf("SELECT t.id , t.mask, t.subject, t.status, t.priority, t.team_id, ".
+		$sql = sprintf("SELECT t.id , t.mask, t.subject, t.status, t.priority, t.team_id, t.category_id, ".
 			"t.first_wrote_address_id, t.last_wrote_address_id, t.created_date, t.updated_date, t.spam_training, t.spam_score ".
 			"FROM ticket t ".
 			(!empty($ids) ? sprintf("WHERE t.id IN (%s) ",implode(',',$ids)) : " ").
@@ -811,6 +813,7 @@ class DAO_Ticket {
 			$ticket->mask = $rs->fields['mask'];
 			$ticket->subject = $rs->fields['subject'];
 			$ticket->team_id = intval($rs->fields['team_id']);
+			$ticket->category_id = intval($rs->fields['category_id']);
 			$ticket->status = $rs->fields['status'];
 			$ticket->priority = intval($rs->fields['priority']);
 			$ticket->last_wrote_address_id = intval($rs->fields['last_wrote_address_id']);
@@ -851,7 +854,6 @@ class DAO_Ticket {
 			$id
 		);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
 	}
 	
 	/**
@@ -1478,7 +1480,6 @@ class DAO_MailRule {
  */
 class DAO_Search {
 	// [JAS]: [TODO] Implement Agent ID lookup
-	// [JAS]: [TODO] Move to a single getViewsById
 	
 	/**
 	 * Enter description here...
@@ -1569,10 +1570,14 @@ class DAO_Search {
 			"t.created_date as t_created_date, ".
 			"t.updated_date as t_updated_date, ".
 			"t.spam_score as t_spam_score, ".
+			"t.num_tasks as t_tasks, ".
 			"tm.id as tm_id, ".
-			"tm.name as tm_name ".
+			"tm.name as tm_name, ".
+			"cat.id as cat_id, ".
+			"cat.name as cat_name ".
 			"FROM ticket t ".
 			"INNER JOIN team tm ON (tm.id = t.team_id) ".
+			"LEFT JOIN category cat ON (cat.id = t.category_id) ".
 			"INNER JOIN address a1 ON (t.first_wrote_address_id=a1.id) ".
 			"INNER JOIN address a2 ON (t.last_wrote_address_id=a2.id) ".
 			
@@ -1580,6 +1585,8 @@ class DAO_Search {
 			(isset($tables['ra']) ? "INNER JOIN requester r ON (r.ticket_id=t.id)" : " ").
 			(isset($tables['ra']) ? "INNER JOIN address ra ON (ra.id=r.address_id) " : " ").
 			(isset($tables['msg']) ? "INNER JOIN message msg ON (msg.ticket_id=t.id) " : " ").
+			(isset($tables['ttt']) ? "INNER JOIN task ttk ON (ttk.ticket_id=t.id) INNER JOIN task_owner ttt ON (ttt.owner_type='T' AND ttk.is_completed=0 AND ttt.task_id=ttk.id) " : " ").
+			(isset($tables['wtt']) ? "INNER JOIN task wtk ON (wtk.ticket_id=t.id) INNER JOIN task_owner wtt ON (wtt.owner_type='W' AND wtk.is_completed=0 AND wtt.task_id=wtk.id) " : " ").
 			
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "").
 //			"GROUP BY t_id ".
@@ -2048,67 +2055,6 @@ class DAO_Workflow {
 //		return DAO_Mail::getMailboxes($ids, $with_counts);
 //	}
 	
-	// [TODO] Should this be returning model objects or wrapping a DAO function passed IDs?
-	// [TODO] Move to a separate DAO entity object (Category CRUD)
-	static function getTeamCategories($team_id) {
-		$db = DevblocksPlatform::getDatabaseService();
-		
-		$sql = sprintf("SELECT tc.id, tc.name ".
-			"FROM team_category tc ".
-			"WHERE tc.team_id = %d ",
-			$team_id
-		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-		$categories = array();
-		
-		while(!$rs->EOF) {
-			$category = new CerberusTeamCategory();
-			$category->id = intval($rs->Fields('id'));
-			$category->name = $rs->Fields('name');
-			$category->team_id = intval($rs->Fields('team_id'));
-			$categories[$category->id] = $category;
-		}
-		
-		return $categories;
-	}
-	
-	static function createTeamCategory($name,$team_id) {
-		$db = DevblocksPlatform::getDatabaseService();
-		
-		$id = $db->GenID('generic_seq');
-		
-		$sql = sprintf("INSERT INTO team_category (id,name,team_id) ".
-			"VALUES (%d,%s,%d)",
-			$id,
-			$db->qstr($name),
-			$team_id
-		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-		return $id;
-	}
-	
-	static function updateTeamCategory($id,$name) {
-		$db = DevblocksPlatform::getDatabaseService();
-		
-		$sql = sprintf("UPDATE team_category SET name=%s WHERE id = %d",
-			$db->qstr($name),
-			$id
-		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-	}
-	
-	static function deleteTeamCategory($id) {
-		$db = DevblocksPlatform::getDatabaseService();
-		
-		$sql = sprintf("DELETE FROM team_category WHERE id = %d", $id);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-		$sql = sprintf("DELETE FROM team_category_to_tag WHERE category_id = %d", $id);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-	}
-	
 	static function setTeamWorkers($team_id, $agent_ids) {
 		if(!is_array($agent_ids)) $agent_ids = array($agent_ids);
 		if(empty($team_id)) return;
@@ -2151,6 +2097,314 @@ class DAO_Workflow {
 	}
 	
 }
+
+class DAO_Task extends DevblocksORMHelper {
+	const ID = 'id';
+	const TITLE = 'title';
+	const TICKET_ID = 'ticket_id';
+	const COMPLETED = 'is_completed';
+	const DUE_DATE = 'due_date';
+	const CONTENT = 'content';
+	
+	static private function _cacheTicketTasks($ticket_id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		if(empty($ticket_id)) return;
+		
+		$sql = sprintf("SELECT count(*) FROM task WHERE ticket_id = %d AND is_completed = 0",
+			$ticket_id
+		);
+		$count = $db->getOne($sql);
+		
+		DAO_Ticket::updateTicket($ticket_id, array(
+			DAO_Ticket::NUM_TASKS => $count
+		));
+	}
+	
+	static function create($fields) {
+		$db = DevblocksPlatform::getDatabaseService();
+		$id = $db->GenID('task_seq');
+		
+		$sql = sprintf("INSERT INTO task (id,ticket_id,title,due_date,is_completed,content) ".
+			"VALUES (%d,0,'',0,0,'') ",
+			$id
+		);
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		self::update($id, $fields);
+		
+		return $id;
+	}
+	
+	static function update($id, $fields) {
+		self::_update($id,'task',$fields);
+		
+		// Recache ticket num_tasks
+		$task = DAO_Task::get($id);
+		if(!empty($task->ticket_id)) self::_cacheTicketTasks($task->ticket_id);
+	}
+	
+	static function delete($id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$task = DAO_Task::get($id);
+		
+		$sql = sprintf("DELETE FROM task WHERE id = %d", $id);
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		$sql = sprintf("DELETE FROM task_owner WHERE task_id = %d", $id);
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		// recache ticket num_tasks
+		if(!empty($task->ticket_id)) self::_cacheTicketTasks($task->ticket_id);
+	}
+	
+	static function get($id) {
+		$tasks = self::getList(array($id));
+		if(isset($tasks[$id]))
+			return $tasks[$id];
+		return NULL;
+	}
+	
+	static function getList($ids=array()) {
+		$db = DevblocksPlatform::getDatabaseService();
+		if(!is_array($ids)) $ids = array($ids);
+		
+		$sql = "SELECT tk.id, tk.title, tk.ticket_id, tk.due_date, tk.is_completed ".
+			"FROM task tk ".
+			(!empty($ids) ? sprintf("WHERE tk.id IN (%s) ", implode(',', $ids)) : " ").
+			"ORDER BY tk.due_date ASC "
+		;
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		$tasks = array();
+		
+		while(!$rs->EOF) {
+			$task = new Model_CerberusTask();
+			$task->id = intval($rs->Fields('id'));
+			$task->ticket_id = intval($rs->Fields('ticket_id'));
+			$task->title = $rs->Fields('title');
+			$task->due_date = $rs->Fields('due_date');
+			$task->is_completed = intval($rs->Fields('is_completed'));
+			$tasks[$task->id] = $task;
+			$rs->MoveNext();
+		}
+		
+		return $tasks;
+	}
+	
+	// [TODO] Should be a searchDAO thing later
+	static function getByTicket($ticket_id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = sprintf("SELECT tk.id ".
+			"FROM task tk ".
+			"WHERE tk.ticket_id = %d",
+			$ticket_id
+		);
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		$ids = array();
+		
+		while(!$rs->EOF) {
+			$ids[] = intval($rs->Fields('id'));
+			$rs->MoveNext();
+		}
+		
+		if(empty($ids))
+			return array();
+			
+		return self::getList($ids);
+	}
+	
+	// [TODO] For multiple IDS at once?
+	static function getContent($id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = sprintf("SELECT tk.content FROM task AS tk WHERE tk.id = %d",
+			$id
+		);
+		return $db->GetOne($sql);// or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+	}
+	
+	static function getOwners($ids=array()) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		if(empty($ids)) return array();
+		
+		// [JAS]: [TODO] These should come from a cache
+		$teams = DAO_Workflow::getTeams();
+		$workers = DAO_Worker::getList();
+		
+		$sql = sprintf("SELECT tko.task_id, tko.owner_type, tko.owner_id ".
+			"FROM task_owner AS tko ".
+			"WHERE tko.task_id IN (%s)",
+			implode(',', $ids)
+		);
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		$owners = array();
+		
+		while(!$rs->EOF) {
+			$id = intval($rs->fields['task_id']);
+			$type = $rs->fields['owner_type'];
+			$owner_id = intval($rs->fields['owner_id']);
+			
+			if(!isset($owners[$id]))
+				$owners[$id] = new Model_CerberusTaskOwners();
+			
+			$owner =& $owners[$id]; /* @var $owners Model_CerberusTaskOwners */
+
+			if($type == Enum_CerberusTaskOwnerType::TEAM) {
+				$owner->teams[$owner_id] = $teams[$owner_id];
+			} else {
+				$owner->workers[$owner_id] = $workers[$owner_id];
+			}
+			
+			$rs->MoveNext();
+		}
+		
+		return $owners;
+	}
+	
+	function setOwners($task_id,$team_ids=array(),$worker_ids=array(),$replace=false) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		if($replace) {
+			$sql = sprintf("DELETE FROM task_owner WHERE task_id = %d",
+				$task_id
+			);
+			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		}
+		
+		// Teams
+		if(!empty($team_ids)) {
+			if(is_array($team_ids))
+			foreach($team_ids as $team_id) {
+				$db->Replace(
+					'task_owner',
+					array('task_id' => $task_id,'owner_type' => $db->qstr(Enum_CerberusTaskOwnerType::TEAM),'owner_id' => $team_id),
+					array('task_id','owner_type','owner_id'),
+					false
+				);
+			}
+		}
+		
+		// Workers
+		if(!empty($worker_ids)) {
+			if(is_array($worker_ids))
+			foreach($worker_ids as $worker_id) {
+				$db->Replace(
+					'task_owner',
+					array('task_id' => $task_id,'owner_type' => $db->qstr(Enum_CerberusTaskOwnerType::WORKER),'owner_id' => $worker_id),
+					array('task_id','owner_type','owner_id'),
+					false
+				);
+			}
+		}
+	}
+	
+};
+
+class DAO_Category extends DevblocksORMHelper {
+	
+	static function getTeams() {
+		$categories = self::getList();
+		$team_categories = array();
+		
+		foreach($categories as $cat) {
+			$team_categories[$cat->team_id][] = $cat;
+		}
+		
+		return $team_categories;
+	}
+	
+	static function getList($ids=array()) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = "SELECT tc.id, tc.name, tc.team_id ".
+			"FROM category tc ".
+			"INNER JOIN team t ON (tc.team_id=t.id) ".
+			(!empty($ids) ? sprintf("WHERE tc.id IN (%s) ", implode(',', $ids)) : "").
+			"ORDER BY t.name ASC, tc.name ASC "
+		;
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		$categories = array();
+		
+		while(!$rs->EOF) {
+			$category = new CerberusCategory();
+			$category->id = intval($rs->Fields('id'));
+			$category->name = $rs->Fields('name');
+			$category->team_id = intval($rs->Fields('team_id'));
+			$categories[$category->id] = $category;
+			$rs->MoveNext();
+		}
+		
+		return $categories;
+	}
+	
+	static function getByTeam($team_id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = sprintf("SELECT tc.id ".
+			"FROM category tc ".
+			"WHERE tc.team_id = %d ".
+			"ORDER BY tc.name ASC ",
+			$team_id
+		);
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		$ids = array();
+		$categories = array();
+		
+		while(!$rs->EOF) {
+			$ids[] = $rs->fields['id'];
+			$rs->MoveNext();
+		}
+		
+		if(!empty($ids)) {
+			$categories = self::getList($ids);
+		}
+		
+		return $categories;
+	}
+	
+	static function create($name,$team_id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$id = $db->GenID('generic_seq');
+		
+		$sql = sprintf("INSERT INTO category (id,name,team_id) ".
+			"VALUES (%d,%s,%d)",
+			$id,
+			$db->qstr($name),
+			$team_id
+		);
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		return $id;
+	}
+	
+	static function update($id,$name) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = sprintf("UPDATE category SET name=%s WHERE id = %d",
+			$db->qstr($name),
+			$id
+		);
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+	}
+	
+	static function delete($id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = sprintf("DELETE FROM category WHERE id = %d", $id);
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		$sql = sprintf("DELETE FROM category_to_tag WHERE category_id = %d", $id);
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+	}	
+};
 
 class DAO_Mail {
 	const ROUTING_ID = 'id';

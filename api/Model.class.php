@@ -22,6 +22,8 @@ class Model_DashboardViewAction {
 			// actions
 			if(is_array($this->params))
 			foreach($this->params as $k => $v) {
+				if(empty($v)) continue;
+				
 				switch($k) {
 					case 'status':
 						$fields[DAO_Ticket::STATUS] = $v;
@@ -43,7 +45,10 @@ class Model_DashboardViewAction {
 						break;
 					
 					case 'team':
-						$fields[DAO_Ticket::TEAM_ID] = $v;
+						list($team_id,$category_id) = CerberusApplication::translateTeamCategoryCode($v);
+						$fields[DAO_Ticket::TEAM_ID] = $team_id;
+						$fields[DAO_Ticket::CATEGORY_ID] = $category_id;
+						break;
 					
 					default:
 						// [TODO] Log?
@@ -171,6 +176,7 @@ class CerberusSearchFields {
 	const TICKET_CREATED_DATE = 't_created_date';
 	const TICKET_UPDATED_DATE = 't_updated_date';
 	const TICKET_SPAM_SCORE = 't_spam_score';
+	const TICKET_TASKS = 't_tasks';
 	
 	// Message
 	const MESSAGE_CONTENT = 'msg_content';
@@ -182,6 +188,16 @@ class CerberusSearchFields {
 	// Teams
 	const TEAM_ID = 'tm_id';
 	const TEAM_NAME = 'tm_name';
+	
+	// Category
+	const CATEGORY_ID = 'cat_id';
+	const CATEGORY_NAME = 'cat_name';
+	
+	// Tasks->Teams
+	const TASK_TEAM_ID = 'ttt_owner_id';
+	
+	// Tasks->Workers
+	const TASK_WORKER_ID = 'wtt_owner_id';
 	
 	/**
 	 * @return CerberusSearchField[]
@@ -197,6 +213,7 @@ class CerberusSearchFields {
 			CerberusSearchFields::TICKET_CREATED_DATE => new CerberusSearchField(CerberusSearchFields::TICKET_CREATED_DATE, 't', 'created_date'),
 			CerberusSearchFields::TICKET_UPDATED_DATE => new CerberusSearchField(CerberusSearchFields::TICKET_FIRST_WROTE, 't', 'updated_date'),
 			CerberusSearchFields::TICKET_SPAM_SCORE => new CerberusSearchField(CerberusSearchFields::TICKET_SPAM_SCORE, 't', 'spam_score'),
+			CerberusSearchFields::TICKET_TASKS => new CerberusSearchField(CerberusSearchFields::TICKET_TASKS, 't', 'num_tasks'),
 			
 			CerberusSearchFields::MESSAGE_CONTENT => new CerberusSearchField(CerberusSearchFields::MESSAGE_CONTENT, 'msg', 'content'),
 
@@ -205,6 +222,12 @@ class CerberusSearchFields {
 			
 			CerberusSearchFields::TEAM_ID => new CerberusSearchField(CerberusSearchFields::TEAM_ID,'tm','id'),
 			CerberusSearchFields::TEAM_NAME => new CerberusSearchField(CerberusSearchFields::TEAM_NAME,'tm','name'),
+			
+			CerberusSearchFields::CATEGORY_ID => new CerberusSearchField(CerberusSearchFields::CATEGORY_ID,'cat','id'),
+			CerberusSearchFields::CATEGORY_NAME => new CerberusSearchField(CerberusSearchFields::CATEGORY_NAME,'cat','name'),
+			
+			CerberusSearchFields::TASK_TEAM_ID => new CerberusSearchField(CerberusSearchFields::TASK_TEAM_ID,'ttt','owner_id'),
+			CerberusSearchFields::TASK_WORKER_ID => new CerberusSearchField(CerberusSearchFields::TASK_WORKER_ID,'wtt','owner_id'),
 		);
 	}
 };
@@ -347,6 +370,7 @@ class CerberusTicket {
 	public $subject;
 	public $status;
 	public $team_id;
+	public $category_id;
 	public $priority;
 	public $first_wrote_address_id;
 	public $last_wrote_address_id;
@@ -434,11 +458,44 @@ class CerberusTeam {
 	}
 }
 
-class CerberusTeamCategory {
+class CerberusCategory {
 	public $id;
 	public $name;
 	public $team_id;
 	public $tags = array();
+}
+
+class Enum_CerberusTaskOwnerType {
+	const WORKER = 'W';
+	const TEAM = 'T';
+};
+
+class Model_CerberusTask {
+	public $id;
+	public $ticket_id;
+	public $title;
+	public $due_date;
+	public $is_completed;
+	
+	/**
+	 * @return string
+	 */
+	function getContent() {
+		return DAO_Task::getContent($this->id);
+	}
+	
+	/**
+	 * @return Model_CerberusTaskOwners[]
+	 */
+	function getOwners() {
+		$owners = DAO_Task::getOwners(array($this->id));
+		return $owners[$this->id];
+	}
+}
+
+class Model_CerberusTaskOwners {
+	public $workers = array();
+	public $teams = array();
 }
 
 class CerberusPop3Account {

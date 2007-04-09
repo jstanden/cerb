@@ -1,5 +1,5 @@
 <?php
-define("APP_BUILD", 107);
+define("APP_BUILD", 108);
 
 include_once(APP_PATH . "/api/ClassLoader.php");
 include_once(APP_PATH . "/api/DAO.class.php");
@@ -12,6 +12,7 @@ class CerberusApplication extends DevblocksApplication {
 	const VIEW_SEARCH = 'search';
 	const VIEW_MY_TICKETS = 'teamwork_my';
 	const VIEW_TEAM_TICKETS = 'teamwork_team';
+	const VIEW_TEAM_TASKS = 'teamwork_tasks';
 	
 	/**
 	 * @return CerberusVisit
@@ -267,6 +268,23 @@ class CerberusApplication extends DevblocksApplication {
 		return array();
 	}
 	
+	// [TODO] This needs a better name and home (and hell, while at it, implementation)
+	static function translateTeamCategoryCode($code) {
+		$t_or_c = substr($code,0,1);
+		$t_or_c_id = intval(substr($code,1));
+		
+		if($t_or_c=='c') {
+			$categories = DAO_Category::getList(); // [TODO] Cache
+			$team_id = $categories[$t_or_c_id]->team_id;
+			$category_id = $t_or_c_id; 
+		} else {
+			$team_id = $t_or_c_id;
+			$category_id = 0;
+		}
+		
+		return array($team_id, $category_id);
+	}
+	
 	// ***************** DUMMY [TODO] Move to Model?  Combine with search fields?
 	static function getDashboardViewColumns() {
 		$translate = DevblocksPlatform::getTranslationService();
@@ -280,7 +298,9 @@ class CerberusApplication extends DevblocksApplication {
 			new CerberusDashboardViewColumn(CerberusSearchFields::TICKET_CREATED_DATE,$translate->_('ticket.created')),
 			new CerberusDashboardViewColumn(CerberusSearchFields::TICKET_UPDATED_DATE,$translate->_('ticket.updated')),
 			new CerberusDashboardViewColumn(CerberusSearchFields::TICKET_SPAM_SCORE,$translate->_('ticket.spam_score')),
+			new CerberusDashboardViewColumn(CerberusSearchFields::TICKET_TASKS,$translate->_('common.tasks')),
 			new CerberusDashboardViewColumn(CerberusSearchFields::TEAM_NAME,$translate->_('common.team')),
+			new CerberusDashboardViewColumn(CerberusSearchFields::CATEGORY_NAME,$translate->_('common.category')),
 		);
 	}
 	// ***************** DUMMY

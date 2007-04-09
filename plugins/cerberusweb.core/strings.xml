@@ -7,14 +7,13 @@
 		<!-- Common Strings -->
 
 		<tu tuid='common.cancel'>
-			<tuv xml:lang="en">
-				<seg>cancel</seg>
-			</tuv>
+			<tuv xml:lang="en"><seg>cancel</seg></tuv>
+		</tu>
+		<tu tuid='common.category'>
+			<tuv xml:lang="en"><seg>Category</seg></tuv>
 		</tu>
 		<tu tuid='common.close'>
-			<tuv xml:lang="en">
-				<seg>close</seg>
-			</tuv>
+			<tuv xml:lang="en"><seg>close</seg></tuv>
 		</tu>
 		<tu tuid='common.customize'>
 			<tuv xml:lang="en">
@@ -76,10 +75,14 @@
 				<seg>Spam</seg>
 			</tuv>
 		</tu>
+		<tu tuid='common.task'>
+			<tuv xml:lang="en"><seg>Task</seg></tuv>
+		</tu>
+		<tu tuid='common.tasks'>
+			<tuv xml:lang="en"><seg>Tasks</seg></tuv>
+		</tu>
 		<tu tuid='common.team'>
-			<tuv xml:lang="en">
-				<seg>Team</seg>
-			</tuv>
+			<tuv xml:lang="en"><seg>Team</seg></tuv>
 		</tu>
 		<tu tuid='common.ticket'>
 			<tuv xml:lang="en">
@@ -284,6 +287,24 @@
 			<tuv xml:lang="en">
 				<seg>Deleted</seg>
 			</tuv>
+		</tu>
+
+		<!--  Tasks -->
+		
+		<tu tuid='task.comments'>
+			<tuv xml:lang="en"><seg>Comments</seg></tuv>
+		</tu>
+		<tu tuid='task.complete'>
+			<tuv xml:lang="en"><seg>Complete</seg></tuv>
+		</tu>
+		<tu tuid='task.due_date'>
+			<tuv xml:lang="en"><seg>Due</seg></tuv>
+		</tu>
+		<tu tuid='task.owners'>
+			<tuv xml:lang="en"><seg>Owner(s)</seg></tuv>
+		</tu>
+		<tu tuid='task.title'>
+			<tuv xml:lang="en"><seg>Title</seg></tuv>
 		</tu>
 
 		<!-- Teamwork -->

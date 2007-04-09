@@ -33,12 +33,16 @@
 			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_created_date');">{$translate->_('ticket.created')}</a></th>
 			{elseif $header=="t_updated_date"}
 			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_updated_date');">{$translate->_('ticket.updated')}</a></th>
+			{elseif $header=="t_tasks"}
+			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_tasks');">{$translate->_('common.tasks')}</a></th>
 			{elseif $header=="m_name"}
 			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','m_name');">{$translate->_('ticket.mailbox')}</a></th>
 			{elseif $header=="t_spam_score"}
 			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_spam_score');">{$translate->_('common.spam')}</a></th>
 			{elseif $header=="tm_name"}
 			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','tm_name');">{$translate->_('common.team')}</a></th>
+			{elseif $header=="cat_name"}
+			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','cat_name');">{$translate->_('common.category')}</a></th>
 			{/if}
 		{/foreach}
 	</tr>
@@ -50,7 +54,7 @@
 	{foreach from=$tickets item=result key=idx name=results}
 		<tr class="{if $smarty.foreach.results.iteration % 2}tableRowBg{else}tableRowAltBg{/if}">
 			<td align="center" rowspan="2"><input type="checkbox" name="ticket_id[]" value="{$result.t_id}"></td>
-			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}"><a href="{devblocks_url}c=display&id={$result.t_mask}{/devblocks_url}" class="ticketLink"><b>{$result.t_subject}</b></a></td>
+			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}"><a href="{devblocks_url}c=display&id={$result.t_mask}{/devblocks_url}" class="ticketLink" style="font-size:12px;"><b>{$result.t_subject}</b></a></td>
 		</tr>
 		<tr class="{if $smarty.foreach.results.iteration % 2}tableRowBg{else}tableRowAltBg{/if}">
 		{foreach from=$view->view_columns item=column name=columns}
@@ -88,10 +92,12 @@
 			<td>{$result.t_created_date|date_format}</td>
 			{elseif $column=="t_updated_date"}
 			<td>{$result.t_updated_date|date_format}</td>
+			{elseif $column=="t_tasks"}
+			<td align='center'>{if !empty($result.t_tasks)}{$result.t_tasks}{/if}</td>
 			{elseif $column=="tm_name"}
 			<td><a href="{devblocks_url}c=tickets&a=dashboards&m=team&id={$result.tm_id}{/devblocks_url}">{$result.tm_name}</a></td>
-			{elseif $column=="m_name"}
-			<td><a href="{devblocks_url}c=tickets&a=mailbox&id={$result.m_id}{/devblocks_url}">{$result.m_name}</a></td>
+			{elseif $column=="cat_name"}
+			<td>{$result.cat_name}</td>
 			{elseif $column=="t_spam_score"}
 			<td>{math equation="x*100" format="%0.2f" x=$result.t_spam_score}%</td>
 			{/if}
