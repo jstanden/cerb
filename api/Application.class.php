@@ -203,7 +203,7 @@ class CerberusApplication extends DevblocksApplication {
 				 * [JAS]: [TODO] If we're going to call platform libs directly we should just have
 				 * the platform provide the functionality.
 				 */
-				require_once(DEVBLOCKS_PATH . '/libs/pear/mime.php');
+			//	require_once(DEVBLOCKS_PATH . '/libS/pear/mime.php');
 				$mime_mail = new Mail_mime();
 				$mime_mail->setTXTBody($content);
 				foreach ($files['tmp_name'] as $idx => $file) {

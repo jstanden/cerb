@@ -32,6 +32,7 @@ class CerberusClassLoader {
 		self::_initDAO();
 		self::_initModel();
 		self::_initExtension();
+		self::_initPEAR();	
 		self::_initZend();
 	}
 	
@@ -57,6 +58,20 @@ class CerberusClassLoader {
 	
 	private static function _initExtension() {
 		$path = APP_PATH . '/api/ext/';
+	}
+
+	private static function _initPEAR() {
+		self::registerClasses('Mail.php',array(
+			'Mail',
+		));
+		
+		self::registerClasses('Mail/mimeDecode.php', array(
+			'Mail_mimeDecode',
+		));
+
+		self::registerClasses('Mail/RFC822.php', array(
+			'Mail_RFC822',
+		));
 	}
 	
 	private static function _initZend() {

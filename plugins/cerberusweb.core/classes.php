@@ -302,7 +302,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	
 	// [TODO] Nuke the message_id redundancy here, and such
 	function createTicket() {
-		require_once(DEVBLOCKS_PATH . 'libs/pear/mimeDecode.php');
+		//require_once(DEVBLOCKS_PATH . 'libs/pear/mimeDecode.php');
 
 		$settings = CerberusSettings::getInstance();
 		$to = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM);
