@@ -798,13 +798,12 @@ class DAO_Ticket {
 		
 		$tickets = array();
 		
-		$sql = sprintf("SELECT t.id , t.mask, t.subject, t.status, t.priority, t.team_id, t.category_id, ".
+		$sql = "SELECT t.id , t.mask, t.subject, t.status, t.priority, t.team_id, t.category_id, ".
 			"t.first_wrote_address_id, t.last_wrote_address_id, t.created_date, t.updated_date, t.spam_training, t.spam_score ".
 			"FROM ticket t ".
 			(!empty($ids) ? sprintf("WHERE t.id IN (%s) ",implode(',',$ids)) : " ").
-			"ORDER BY t.updated_date DESC",
-			$id
-		);
+			"ORDER BY t.updated_date DESC"
+		;
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		while(!$rs->EOF) {

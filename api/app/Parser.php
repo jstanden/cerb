@@ -194,7 +194,7 @@ class CerberusParser {
 		$attachments['html'] = '';
 		$attachments['files'] = array();
 		
-		if(is_array($rfcMessage->parts)) {
+		if(@is_array($rfcMessage->parts)) {
 			CerberusParser::parseMimeParts($rfcMessage->parts,$attachments);
 		} else {
 			CerberusParser::parseMimePart($rfcMessage,$attachments);			

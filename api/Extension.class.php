@@ -26,7 +26,7 @@ abstract class CerberusPageExtension extends DevblocksExtension implements Devbl
 		$path = $request->path;
 		$command = array_shift($path);
 		
-		if(method_exists($this,$path[0])) {
+		if(method_exists($this,@$path[0])) {
 			call_user_method($path[0],$this); // [TODO] Pass HttpRequest as arg?
 		}
 	}

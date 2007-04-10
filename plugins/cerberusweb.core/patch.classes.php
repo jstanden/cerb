@@ -11,7 +11,7 @@ class ChCorePatchContainer extends DevblocksPatchContainerExtension {
 		 * number.
 		 */
 		$revisions = array(
-			REV_0, // 4.0 Beta
+			self::REV_0, // 4.0 Beta
 		);
 		
 		if(is_array($revisions))
@@ -25,7 +25,7 @@ class ChCorePatchContainer extends DevblocksPatchContainerExtension {
 		
 		switch($rev) {
 			// 4.0 Beta Clean
-			case REV_0:
+			case self::REV_0:
 				$result = self::_initDatabase();
 				break;
 		}

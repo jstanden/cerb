@@ -124,7 +124,7 @@ class CerberusSimulator {
 	}
 	
 	public function getInstance() {
-		if(is_null($this->instance)) {
+		if(@is_null($this->instance)) {
 			$this->instance = new CerberusSimulator();
 		}
 		
