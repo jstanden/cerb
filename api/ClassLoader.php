@@ -16,7 +16,13 @@ class CerberusClassLoader {
 			require_once($file);
 		} else {
 	       	// [TODO]: Exception, log
-	       	die("ERROR: ClassLoader could not find '$className'.");
+	       	// [TODO] It's probably not a good idea to send this much info to the browser
+	       	echo sprintf("<b>ERROR: ClassLoader could not find '%s':</b><br><pre>",
+	       	    $className
+	       	);
+	       	print_r(debug_backtrace());
+	       	echo "</pre>";
+	       	die;
 		}
 	}
 	
@@ -43,8 +49,16 @@ class CerberusClassLoader {
 			'CerberusBayes',
 		));
 		
+		self::registerClasses($path . 'Mail.php', array(
+			'CerberusMail',
+		));
+		
 		self::registerClasses($path . 'Parser.php', array(
 			'CerberusParser',
+		));
+		
+		self::registerClasses($path . 'Utils.php', array(
+			'CerberusUtils',
 		));
 	}
 	
@@ -72,20 +86,24 @@ class CerberusClassLoader {
 		self::registerClasses('Mail/RFC822.php', array(
 			'Mail_RFC822',
 		));
+		
+		self::registerClasses('Text/Password.php', array(
+			'Text_Password',
+		));
 	}
 	
 	private static function _initZend() {
-		$path = APP_PATH . '/libs/devblocks/libs/Zend';
+		$path = APP_PATH . '/libs/devblocks/libs/Zend/';
 		
-		self::registerClasses($path . '/Mail.php', array(
+		self::registerClasses($path . 'Mail.php', array(
 			'Zend_Mail',
 		));
 		
-		self::registerClasses($path . '/Mime.php', array(
+		self::registerClasses($path . 'Mime.php', array(
 			'Zend_Mime',
 		));
 		
-		self::registerClasses($path . '/Mail/Transport/Smtp.php', array(
+		self::registerClasses($path . 'Mail/Transport/Smtp.php', array(
 			'Zend_Mail_Transport_Smtp',
 		));
 	}

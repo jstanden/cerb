@@ -200,7 +200,8 @@ class ChCorePatchContainer extends DevblocksPatchContainerExtension {
 			nickname C(128) DEFAULT '' NOTNULL,
 			host C(128) DEFAULT '' NOTNULL,
 			username C(128) DEFAULT '' NOTNULL,
-			password C(128) DEFAULT '' NOTNULL
+			password C(128) DEFAULT '' NOTNULL,
+			port I2 DEFAULT 110 NOTNULL
 		";
 		
 		$tables['worker'] ="

@@ -12,7 +12,7 @@
       </td>
       <td style="vertical-align: top;">
       	<h1>{$translate->_('common.ticket')|capitalize} #{$ticket->mask}: {$ticket->subject}</h1>
-			<a href="#" style="font-size:90%;">jump to latest message</a> | <a href="#" style="font-size:90%;">customize page layout</a><br>
+			<a href="#latest" style="font-size:90%;">jump to latest message</a> | <a href="#" style="font-size:90%;">customize page layout</a><br>
 			<br>
 			{foreach from=$display_modules item=display_module}
 				{$display_module->render($ticket)}

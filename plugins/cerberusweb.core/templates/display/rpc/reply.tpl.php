@@ -1,6 +1,7 @@
 <input type="hidden" name="c" value="display">
 <input type="hidden" name="a" value="sendReply">
 <input type="hidden" name="id" value="{$message->id}">
+<input type="hidden" name="ticket_id" value="{$ticket->id}">
 <table cellpadding="2" cellspacing="0" border="0" width="100%" class="displayReplyTable">
 	<tr>
 		<th>Reply</th>
@@ -10,7 +11,7 @@
 			<table cellpadding="1" cellspacing="0" border="0" width="100%">
 				<tr>
 					<td width="0%" nowrap="nowrap" valign="top"><b>From:</b></td>
-					<td width="100%">[[ agent from ]]</td>
+					<td width="100%">[[ team address via agent address ]]</td>
 				</tr>
 				<tr>
 					<td width="0%" nowrap="nowrap" valign="top"><b>To:</b></td>
@@ -69,7 +70,6 @@
 	<tr>
 		<td>
 			<input type="submit" value="Send">
-			<input type="submit" value="Send &amp; Release">
 			<input type="button" value="Discard" onclick="ajax.discard('{$message->id}');">
 		</td>
 	</tr>

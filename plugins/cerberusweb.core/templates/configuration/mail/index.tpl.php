@@ -8,6 +8,11 @@
 
 <br>
 
+<a name="outgoing"></a>
+<span id="configMailboxOutgoing">{include file="file:$path/configuration/mail/outgoing_settings.tpl.php"}</span>
+
+<br>
+
 <a name="pop3"></a>
 {include file="file:$path/configuration/mail/pop3_accounts.tpl.php"}
 

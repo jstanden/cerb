@@ -63,17 +63,17 @@ class ChTicketsPage extends CerberusPageExtension {
 					$view->name = "Search Results";
 					$view->dashboard_id = 0;
 					$view->view_columns = array(
-						CerberusSearchFields::TICKET_MASK,
-						CerberusSearchFields::TICKET_STATUS,
-						CerberusSearchFields::TICKET_PRIORITY,
-						CerberusSearchFields::TEAM_NAME,
-						CerberusSearchFields::TICKET_LAST_WROTE,
-						CerberusSearchFields::TICKET_CREATED_DATE,
+						SearchFields_Ticket::TICKET_MASK,
+						SearchFields_Ticket::TICKET_STATUS,
+						SearchFields_Ticket::TICKET_PRIORITY,
+						SearchFields_Ticket::TEAM_NAME,
+						SearchFields_Ticket::TICKET_LAST_WROTE,
+						SearchFields_Ticket::TICKET_CREATED_DATE,
 						);
 					$view->params = array();
 					$view->renderLimit = 100;
 					$view->renderPage = 0;
-					$view->renderSortBy = CerberusSearchFields::TICKET_CREATED_DATE;
+					$view->renderSortBy = SearchFields_Ticket::TICKET_CREATED_DATE;
 					$view->renderSortAsc = 0;
 					
 					$viewManager->setView(CerberusApplication::VIEW_SEARCH,$view);
@@ -136,20 +136,20 @@ class ChTicketsPage extends CerberusPageExtension {
 						$myView->name = "My Ticket Tasks";
 						$myView->dashboard_id = 0;
 						$myView->view_columns = array(
-							CerberusSearchFields::TICKET_MASK,
-							CerberusSearchFields::TICKET_STATUS,
-							CerberusSearchFields::TICKET_PRIORITY,
-							CerberusSearchFields::TEAM_NAME,
-							CerberusSearchFields::TICKET_LAST_WROTE,
-							CerberusSearchFields::TICKET_UPDATED_DATE,
+							SearchFields_Ticket::TICKET_MASK,
+							SearchFields_Ticket::TICKET_STATUS,
+							SearchFields_Ticket::TICKET_PRIORITY,
+							SearchFields_Ticket::TEAM_NAME,
+							SearchFields_Ticket::TICKET_LAST_WROTE,
+							SearchFields_Ticket::TICKET_UPDATED_DATE,
 							);
 						$myView->params = array(
-							new CerberusSearchCriteria(CerberusSearchFields::TASK_WORKER_ID,'=',$visit->getWorker()->id),
-							new CerberusSearchCriteria(CerberusSearchFields::TICKET_STATUS,'in',array(CerberusTicketStatus::OPEN)),
+							new DevblocksSearchCriteria(SearchFields_Ticket::TASK_WORKER_ID,'=',$visit->getWorker()->id),
+							new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_STATUS,'in',array(CerberusTicketStatus::OPEN)),
 						);
 						$myView->renderLimit = 10;
 						$myView->renderPage = 0;
-						$myView->renderSortBy = CerberusSearchFields::TICKET_UPDATED_DATE;
+						$myView->renderSortBy = SearchFields_Ticket::TICKET_UPDATED_DATE;
 						$myView->renderSortAsc = 0;
 						
 						$viewManager->setView(CerberusApplication::VIEW_MY_TICKETS,$myView);
@@ -213,18 +213,18 @@ class ChTicketsPage extends CerberusPageExtension {
 							$teamView->name = "Active Team Tickets";
 							$teamView->dashboard_id = 0;
 							$teamView->view_columns = array(
-								CerberusSearchFields::TICKET_MASK,
-								CerberusSearchFields::TICKET_STATUS,
-								CerberusSearchFields::TICKET_PRIORITY,
-								CerberusSearchFields::TICKET_LAST_WROTE,
-								CerberusSearchFields::TICKET_UPDATED_DATE,
-								CerberusSearchFields::CATEGORY_NAME,
+								SearchFields_Ticket::TICKET_MASK,
+								SearchFields_Ticket::TICKET_STATUS,
+								SearchFields_Ticket::TICKET_PRIORITY,
+								SearchFields_Ticket::TICKET_LAST_WROTE,
+								SearchFields_Ticket::TICKET_UPDATED_DATE,
+								SearchFields_Ticket::CATEGORY_NAME,
 								);
 							$teamView->params = array(
 							);
-							$teamView->renderLimit = 25;
+							$teamView->renderLimit = 10;
 							$teamView->renderPage = 0;
-							$teamView->renderSortBy = CerberusSearchFields::TICKET_UPDATED_DATE;
+							$teamView->renderSortBy = SearchFields_Ticket::TICKET_UPDATED_DATE;
 							$teamView->renderSortAsc = 0;
 							
 							$viewManager->setView(CerberusApplication::VIEW_TEAM_TICKETS,$teamView);
@@ -232,10 +232,10 @@ class ChTicketsPage extends CerberusPageExtension {
 						
 						$teamView->name = $team->name . ": Active Tickets";
 						$teamView->params = array(
-							new CerberusSearchCriteria(CerberusSearchFields::TEAM_ID,'=',$team_id),
+							new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'=',$team_id),
 							// [TODO] Not assigned...
 							// [TODO] In categories... 
-							new CerberusSearchCriteria(CerberusSearchFields::TICKET_STATUS,'in',array(CerberusTicketStatus::OPEN)),
+							new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_STATUS,'in',array(CerberusTicketStatus::OPEN)),
 						);
 						
 						// ======================================================
@@ -248,19 +248,19 @@ class ChTicketsPage extends CerberusPageExtension {
 							$teamTasksView->name = "Ticket Tasks";
 							$teamTasksView->dashboard_id = 0;
 							$teamTasksView->view_columns = array(
-								CerberusSearchFields::TICKET_MASK,
-								CerberusSearchFields::TICKET_STATUS,
-								CerberusSearchFields::TICKET_PRIORITY,
-								CerberusSearchFields::TICKET_LAST_WROTE,
-								CerberusSearchFields::TICKET_UPDATED_DATE,
-								CerberusSearchFields::TEAM_NAME,
-								CerberusSearchFields::CATEGORY_NAME,
+								SearchFields_Ticket::TICKET_MASK,
+								SearchFields_Ticket::TICKET_STATUS,
+								SearchFields_Ticket::TICKET_PRIORITY,
+								SearchFields_Ticket::TICKET_LAST_WROTE,
+								SearchFields_Ticket::TICKET_UPDATED_DATE,
+								SearchFields_Ticket::TEAM_NAME,
+								SearchFields_Ticket::CATEGORY_NAME,
 								);
 							$teamTasksView->params = array(
 							);
-							$teamTasksView->renderLimit = 25;
+							$teamTasksView->renderLimit = 10;
 							$teamTasksView->renderPage = 0;
-							$teamTasksView->renderSortBy = CerberusSearchFields::TICKET_UPDATED_DATE;
+							$teamTasksView->renderSortBy = SearchFields_Ticket::TICKET_UPDATED_DATE;
 							$teamTasksView->renderSortAsc = 0;
 							
 							$viewManager->setView(CerberusApplication::VIEW_TEAM_TASKS,$teamTasksView);
@@ -268,9 +268,9 @@ class ChTicketsPage extends CerberusPageExtension {
 						
 						$teamTasksView->name = $team->name . ": Tasks";
 						$teamTasksView->params = array(
-							new CerberusSearchCriteria(CerberusSearchFields::TASK_TEAM_ID,'=',$team_id),
+							new DevblocksSearchCriteria(SearchFields_Ticket::TASK_TEAM_ID,'=',$team_id),
 							// [TODO] In categories... 
-							new CerberusSearchCriteria(CerberusSearchFields::TICKET_STATUS,'in',array(CerberusTicketStatus::OPEN)),
+							new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_STATUS,'in',array(CerberusTicketStatus::OPEN)),
 						);
 						
 						$views = array(
@@ -295,6 +295,41 @@ class ChTicketsPage extends CerberusPageExtension {
 	}
 	
 	//**** Local scope
+	
+	// Post	
+	function doQuickSearch() {
+        @$type = DevblocksPlatform::importGPC($_POST['type'],'string'); 
+        @$query = DevblocksPlatform::importGPC($_POST['query'],'string');
+
+        $visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
+        $viewMgr = $visit->get(CerberusVisit::KEY_VIEW_MANAGER); /* @var $viewMgr CerberusStaticViewManager */
+        $searchView = $viewMgr->getView(CerberusApplication::VIEW_SEARCH); /* @var $searchView CerberusDashboardView */
+        
+        $params = array();
+        
+        switch($type) {
+            case "mask":
+                $params[] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_MASK,DevblocksSearchCriteria::OPER_LIKE,'*'.strtoupper($query).'*');
+                break;
+                
+            case "req":
+                $params[] = new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ADDRESS,DevblocksSearchCriteria::OPER_LIKE,'*'.strtolower($query).'*');               
+                break;
+                
+            case "subject":
+                $params[] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_SUBJECT,DevblocksSearchCriteria::OPER_LIKE,'*'.$query.'*');               
+                break;
+                
+            case "content":
+                $params[] = new DevblocksSearchCriteria(SearchFields_Ticket::MESSAGE_CONTENT,DevblocksSearchCriteria::OPER_LIKE,'*'.$query.'*');               
+                break;
+        }
+        
+        $searchView->params = $params;
+        $viewMgr->setView(CerberusApplication::VIEW_SEARCH,$searchView);
+        
+        DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','search')));
+	}
 	
 	function clickteam() {
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','search')));
@@ -372,8 +407,8 @@ class ChTicketsPage extends CerberusPageExtension {
 		
 		$view = DAO_Dashboard::getView(CerberusApplication::VIEW_SEARCH);
 		$view->params = array(
-			new CerberusSearchCriteria(CerberusSearchFields::MAILBOX_ID,'=', $id),
-			new CerberusSearchCriteria(CerberusSearchFields::TICKET_STATUS,'in', array(CerberusTicketStatus::OPEN))
+			new DevblocksSearchCriteria(SearchFields_Ticket::MAILBOX_ID,'=', $id),
+			new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_STATUS,'in', array(CerberusTicketStatus::OPEN))
 		);
 		
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','search')));
@@ -750,9 +785,14 @@ class ChTicketsPage extends CerberusPageExtension {
 	}
 	
 	function searchview() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
-		$view = DAO_Dashboard::getView($id);
+	    $response = DevblocksPlatform::getHttpRequest();
+	    $path = $response->path;
+	    array_shift($path); // tickets
+	    array_shift($path); // searchview
+	    $id = array_shift($path);
 
+		$view = DAO_Dashboard::getView($id);
+		
 		$search_view = DAO_Dashboard::getView(CerberusApplication::VIEW_SEARCH);
 		$fields = array(
 			'params' => serialize($view->params)
@@ -768,12 +808,12 @@ class ChTicketsPage extends CerberusPageExtension {
 		
 		$fields = array(
 			'view_columns' => serialize(array(
-				CerberusSearchFields::TICKET_MASK,
-				CerberusSearchFields::TICKET_STATUS,
-				CerberusSearchFields::TICKET_PRIORITY,
-				CerberusSearchFields::TICKET_LAST_WROTE,
-				CerberusSearchFields::TICKET_CREATED_DATE,
-				CerberusSearchFields::TEAM_NAME,
+				SearchFields_Ticket::TICKET_MASK,
+				SearchFields_Ticket::TICKET_STATUS,
+				SearchFields_Ticket::TICKET_PRIORITY,
+				SearchFields_Ticket::TICKET_LAST_WROTE,
+				SearchFields_Ticket::TICKET_CREATED_DATE,
+				SearchFields_Ticket::TEAM_NAME,
 			))
 		);
 		DAO_Dashboard::updateView($view_id,$fields);
@@ -814,31 +854,31 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl->cache_lifetime = "0";
 		
 		switch($field) {
-			case CerberusSearchFields::TICKET_MASK:
+			case SearchFields_Ticket::TICKET_MASK:
 				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/search/criteria/ticket_mask.tpl.php');
 				break;
 				
-			case CerberusSearchFields::TICKET_STATUS:
+			case SearchFields_Ticket::TICKET_STATUS:
 				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/search/criteria/ticket_status.tpl.php');
 				break;
 				
-			case CerberusSearchFields::TICKET_PRIORITY:
+			case SearchFields_Ticket::TICKET_PRIORITY:
 				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/search/criteria/ticket_priority.tpl.php');
 				break;
 				
-			case CerberusSearchFields::TICKET_SUBJECT:
+			case SearchFields_Ticket::TICKET_SUBJECT:
 				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/search/criteria/ticket_subject.tpl.php');
 				break;
 				
-			case CerberusSearchFields::REQUESTER_ADDRESS:
+			case SearchFields_Ticket::REQUESTER_ADDRESS:
 				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/search/criteria/requester_email.tpl.php');
 				break;
 				
-			case CerberusSearchFields::MESSAGE_CONTENT:
+			case SearchFields_Ticket::MESSAGE_CONTENT:
 				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/search/criteria/message_content.tpl.php');
 				break;
 				
-			case CerberusSearchFields::TEAM_ID:
+			case SearchFields_Ticket::TEAM_ID:
 				$teams = DAO_Workflow::getTeams();
 				$tpl->assign('teams', $teams);
 				
@@ -866,34 +906,34 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$field = DevblocksPlatform::importGPC($_REQUEST['field']);
 
 		switch($field) {
-			case CerberusSearchFields::TICKET_MASK:
+			case SearchFields_Ticket::TICKET_MASK:
 				@$mask = DevblocksPlatform::importGPC($_REQUEST['mask']);
-				$params[$field] = new CerberusSearchCriteria($field,'like',$mask);
+				$params[$field] = new DevblocksSearchCriteria($field,'like',$mask);
 				break;
-			case CerberusSearchFields::TICKET_STATUS:
+			case SearchFields_Ticket::TICKET_STATUS:
 				@$status = DevblocksPlatform::importGPC($_REQUEST['status']);
-				$params[$field] = new CerberusSearchCriteria($field,'in',$status);
+				$params[$field] = new DevblocksSearchCriteria($field,'in',$status);
 				break;
-			case CerberusSearchFields::TICKET_PRIORITY:
+			case SearchFields_Ticket::TICKET_PRIORITY:
 				@$priority = DevblocksPlatform::importGPC($_REQUEST['priority']);
-				$params[$field] = new CerberusSearchCriteria($field,'in',$priority);
+				$params[$field] = new DevblocksSearchCriteria($field,'in',$priority);
 				break;
-			case CerberusSearchFields::TICKET_SUBJECT:
+			case SearchFields_Ticket::TICKET_SUBJECT:
 				@$subject = DevblocksPlatform::importGPC($_REQUEST['subject']);
-				$params[$field] = new CerberusSearchCriteria($field,'like',$subject);
+				$params[$field] = new DevblocksSearchCriteria($field,'like',$subject);
 				break;
-			case CerberusSearchFields::REQUESTER_ADDRESS:
+			case SearchFields_Ticket::REQUESTER_ADDRESS:
 				@$requester = DevblocksPlatform::importGPC($_REQUEST['requester']);
 				@$oper = DevblocksPlatform::importGPC($_REQUEST['oper']);
-				$params[$field] = new CerberusSearchCriteria($field,$oper,$requester);
+				$params[$field] = new DevblocksSearchCriteria($field,$oper,$requester);
 				break;
-			case CerberusSearchFields::MESSAGE_CONTENT:
+			case SearchFields_Ticket::MESSAGE_CONTENT:
 				@$requester = DevblocksPlatform::importGPC($_REQUEST['content']);
-				$params[$field] = new CerberusSearchCriteria($field,'like',$requester);
+				$params[$field] = new DevblocksSearchCriteria($field,'like',$requester);
 				break;
-			case CerberusSearchFields::TEAM_ID:
+			case SearchFields_Ticket::TEAM_ID:
 				@$team_ids = DevblocksPlatform::importGPC($_REQUEST['team_id'],'array');
-				$params[$field] = new CerberusSearchCriteria($field,'in',$team_ids);
+				$params[$field] = new DevblocksSearchCriteria($field,'in',$team_ids);
 				break;
 		}
 		
@@ -1079,6 +1119,17 @@ class ChConfigurationPage extends CerberusPageExtension  {
 				break;
 				
 			case 'maintenance':
+			    $results = DAO_Ticket::search(array(
+			            new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_STATUS,'=',CerberusTicketStatus::DELETED)
+			        ),
+			        1,
+			        0,
+			        SearchFields_Ticket::TICKET_LAST_WROTE,
+			        0
+			    );
+			    $purge_count = $results[1];
+			    $tpl->assign('purge_count', $purge_count);
+			    
 				$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/maintenance/index.tpl.php');
 				break;
 				
@@ -1098,6 +1149,28 @@ class ChConfigurationPage extends CerberusPageExtension  {
 				break;
 		} // end switch
 		
+	}
+	
+	// Post
+	function doPurge() {
+        do {	    
+		    list($tickets, $tickets_count) = DAO_Ticket::search(array(
+		            new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_STATUS,'=',CerberusTicketStatus::DELETED)
+		        ),
+		        10,
+		        0,
+		        SearchFields_Ticket::TICKET_LAST_WROTE,
+		        0,
+		        true
+		    );
+	
+		    DAO_Ticket::delete(array_keys($tickets));
+        } while($tickets_count);
+	    
+	    // [TODO] After deletion, check for any leftover NULL rows and delete them
+	    // [TODO] Optimize/Vaccuum?
+	    
+	    DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','maintenance')));
 	}
 	
 	// Ajax
@@ -1137,7 +1210,11 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		if(!empty($id) && !empty($delete)) {
 			DAO_Worker::deleteAgent($id);
 			
-		} elseif(!empty($id)) {
+		} else {
+			if(empty($id) && null == DAO_Worker::lookupAgentEmail($email)) {
+				$id = DAO_Worker::create($email, $password);
+			}
+		    
 			$fields = array(
 				DAO_Worker::FIRST_NAME => $first_name,
 				DAO_Worker::LAST_NAME => $last_name,
@@ -1153,14 +1230,6 @@ class ChConfigurationPage extends CerberusPageExtension  {
 			
 			DAO_Worker::updateAgent($id, $fields);
 			DAO_Worker::setAgentTeams($id, $team_id);
-			
-		} else {
-			// Don't dupe.
-			if(null == DAO_Worker::lookupAgentEmail($email)) {
-				// [TODO] This doesn't fill in all the fields (title, first/last, superuser)
-				$id = DAO_Worker::create($email, $password);
-				DAO_Worker::setAgentTeams($id, $team_id);
-			}
 		}
 		
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','workflow')));
@@ -1313,30 +1382,52 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	
 	// Post
 	function savePop3Account() {
-		@$id = DevblocksPlatform::importGPC($_POST['id']);
-		@$nickname = DevblocksPlatform::importGPC($_POST['nickname']);
-		@$host = DevblocksPlatform::importGPC($_POST['host']);
-		@$username = DevblocksPlatform::importGPC($_POST['username']);
-		@$password = DevblocksPlatform::importGPC($_POST['password']);
-		@$delete = DevblocksPlatform::importGPC($_POST['delete']);
+		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer');
+		@$nickname = DevblocksPlatform::importGPC($_POST['nickname'],'string');
+		@$host = DevblocksPlatform::importGPC($_POST['host'],'string');
+		@$username = DevblocksPlatform::importGPC($_POST['username'],'string');
+		@$password = DevblocksPlatform::importGPC($_POST['password'],'string');
+		@$port = DevblocksPlatform::importGPC($_POST['port'],'integer');
+		@$delete = DevblocksPlatform::importGPC($_POST['delete'],'integer');
 		
 		if(empty($nickname)) $nickname = "No Nickname";
 		
 		if(!empty($id) && !empty($delete)) {
 			DAO_Mail::deletePop3Account($id);
 		} elseif(!empty($id)) {
+		    // [JAS]: [TODO] convert to field constants
 			$fields = array(
 				'nickname' => $nickname,
 				'host' => $host,
 				'username' => $username,
-				'password' => $password
+				'password' => $password,
+				'port' => $port
 			);
 			DAO_Mail::updatePop3Account($id, $fields);
 		} else {
+		    // [JAS]: [TODO] Convert to ::create($id,$fields) format
 			$id = DAO_Mail::createPop3Account($nickname,$host,$username,$password);
 		}
 		
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','mail')));
+	}
+	
+	// Form Submit
+	function saveOutgoingMailSettings() {
+	    @$default_reply_address = DevblocksPlatform::importGPC($_REQUEST['sender_address'],'string');
+	    @$default_reply_personal = DevblocksPlatform::importGPC($_REQUEST['sender_personal'],'string');
+	    @$smtp_host = DevblocksPlatform::importGPC($_REQUEST['smtp_host'],'string');
+	    @$smtp_auth_user = DevblocksPlatform::importGPC($_REQUEST['smtp_auth_user'],'string');
+	    @$smtp_auth_pass = DevblocksPlatform::importGPC($_REQUEST['smtp_auth_pass'],'string');
+	    
+	    $settings = CerberusSettings::getInstance();
+	    $settings->set(CerberusSettings::DEFAULT_REPLY_FROM, $default_reply_address);
+	    $settings->set(CerberusSettings::DEFAULT_REPLY_PERSONAL, $default_reply_personal);
+	    $settings->set(CerberusSettings::SMTP_HOST, $smtp_host);
+	    $settings->set(CerberusSettings::SMTP_AUTH_USER, $smtp_auth_user);
+	    $settings->set(CerberusSettings::SMTP_AUTH_PASS, $smtp_auth_pass);
+	    
+	    DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','mail')));
 	}
 	
 	// Ajax
@@ -1816,9 +1907,17 @@ class ChDisplayPage extends CerberusPageExtension {
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('display',$id)));
 	}
 	
-	function reply()	{ ChDisplayPage::loadMessageTemplate(CerberusMessageType::EMAIL); }
-	function forward()	{ ChDisplayPage::loadMessageTemplate(CerberusMessageType::FORWARD); }
-	function comment()	{ ChDisplayPage::loadMessageTemplate(CerberusMessageType::COMMENT); }
+	function reply() { 
+	    ChDisplayPage::loadMessageTemplate(CerberusMessageType::EMAIL);
+	}
+	
+	function forward() {
+	    ChDisplayPage::loadMessageTemplate(CerberusMessageType::FORWARD);
+	}
+	
+	function comment() {
+	    ChDisplayPage::loadMessageTemplate(CerberusMessageType::COMMENT);
+	}
 	
 	function loadMessageTemplate($type) {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
@@ -1848,9 +1947,58 @@ class ChDisplayPage extends CerberusPageExtension {
 		}
 	}
 	
-	function sendReply()	{ CerberusApplication::sendMessage(CerberusMessageType::EMAIL); }
-	function sendForward()	{ CerberusApplication::sendMessage(CerberusMessageType::FORWARD); }
-	function sendComment()	{ CerberusApplication::sendMessage(CerberusMessageType::COMMENT); }
+	function sendReply() {
+	    @$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer');
+	    
+		$properties = array(
+		    'type' => CerberusMessageType::EMAIL,
+		    'message_id' => DevblocksPlatform::importGPC($_REQUEST['id']),
+		    'ticket_id' => $ticket_id,
+		    'cc' => DevblocksPlatform::importGPC($_REQUEST['cc']),
+		    'bcc' => DevblocksPlatform::importGPC($_REQUEST['bcc']),
+		    'content' => DevblocksPlatform::importGPC($_REQUEST['content']),
+		    'files' => $_FILES['attachment'],
+		    'priority' => DevblocksPlatform::importGPC($_REQUEST['priority'],'integer'),
+		    'status' => DevblocksPlatform::importGPC($_REQUEST['status'],'string'),
+		    'agent_id' => DevblocksPlatform::importGPC($_REQUEST['agent_id'],'integer'),
+		);
+		
+		CerberusMail::sendTicketMessage($properties);
+
+        DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('display',$ticket_id)));
+	}
+	
+	function sendForward()	{
+		@$to = DevblocksPlatform::importGPC($_REQUEST['to']);
+	    @$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer');
+	    
+		$properties = array(
+		    'type' => CerberusMessageType::FORWARD,
+		    'to' => $to,
+		    'message_id' => DevblocksPlatform::importGPC($_REQUEST['id']),
+		    'ticket_id' => $ticket_id,
+		    'cc' => DevblocksPlatform::importGPC($_REQUEST['cc']),
+		    'bcc' => DevblocksPlatform::importGPC($_REQUEST['bcc']),
+		    'content' => DevblocksPlatform::importGPC($_REQUEST['content']),
+		    'files' => $_FILES['attachment'],
+		    'priority' => DevblocksPlatform::importGPC($_REQUEST['priority']),
+		    'status' => DevblocksPlatform::importGPC($_REQUEST['status']),
+		    'agent_id' => DevblocksPlatform::importGPC($_REQUEST['agent_id']),
+		);
+		
+		CerberusMail::sendTicketMessage($properties);
+
+        DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('display',$ticket_id)));
+	    
+//	    CerberusMessageType::FORWARD
+//	    CerberusApplication::sendMessage(); 
+	}
+
+	// [TODO] Move comments to notes (outside ticket table)
+	function sendComment()	{ 
+//	    CerberusMessageType::COMMENT
+//	    CerberusApplication::sendMessage();
+	}
 	
 	function refreshRequesters() {
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -1900,6 +2048,10 @@ class ChDisplayPage extends CerberusPageExtension {
 };
 
 class ChSignInPage extends CerberusPageExtension {
+    const KEY_FORGOT_EMAIL = 'login.recover.email';
+    const KEY_FORGOT_SENTCODE = 'login.recover.sentcode';
+    const KEY_FORGOT_CODE = 'login.recover.code';
+    
 	function __construct($manifest) {
 		parent::__construct($manifest);
 	}
@@ -1924,9 +2076,40 @@ class ChSignInPage extends CerberusPageExtension {
 	}
 	
 	function render() {
-		$manifest = DevblocksPlatform::getExtension('login.default');
-		$inst = $manifest->createInstance(1); /* @var $inst CerberusLoginPageExtension */
-		$inst->renderLoginForm();
+	    $response = DevblocksPlatform::getHttpResponse();
+	    $stack = $response->path;
+	    array_shift($stack); // login
+        $section = array_shift($stack);
+        
+        switch($section) {
+            case "forgot":
+                $step = array_shift($stack);
+                $tpl = DevblocksPlatform::getTemplateService();
+                $path = realpath(dirname(__FILE__) . "/templates");
+                
+                switch($step) {
+                    default:
+                    case "step1":
+                        $tpl->display("file:${path}/login/forgot1.tpl.php");
+                        break;
+                    
+                    case "step2":
+                        $tpl->display("file:${path}/login/forgot2.tpl.php");
+                        break;
+                        
+                    case "step3":
+                        $tpl->display("file:${path}/login/forgot3.tpl.php");
+                        break;
+                }
+                
+                break;
+            
+            default:
+				$manifest = DevblocksPlatform::getExtension('login.default');
+				$inst = $manifest->createInstance(1); /* @var $inst CerberusLoginPageExtension */
+				$inst->renderLoginForm();
+                break;
+        }
 	}
 	
 	function signout() {
@@ -1934,6 +2117,85 @@ class ChSignInPage extends CerberusPageExtension {
 		$session = DevblocksPlatform::getSessionService();
 		$session->clear();
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('login')));
+	}
+	
+	// Post
+	function doRecoverStep1() {
+	    @$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string');
+	    
+	    $worker = DAO_Worker::lookupAgentEmail($email);
+	    
+	    if(empty($email) || empty($worker))
+	        return;
+	    
+	    $_SESSION[self::KEY_FORGOT_EMAIL] = $email;
+	    
+	    $mail = CerberusMail::createInstance();
+	    $body = "Password recovery.";
+	    
+	    $passGen = new Text_Password();
+	    $code = $passGen->create(10);
+	    
+	    $_SESSION[self::KEY_FORGOT_SENTCODE] = $code;
+	    
+	    $mail->addTo($email,'');
+	    $mail->setSubject("Confirm helpdesk password recovery.");
+	    $mail->setBodyText(sprintf("This confirmation code will allow you to reset your helpdesk login:\n\n%s",
+	        $code
+	    ));
+	    
+	    $mail->send();
+	    
+	    DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('login','forgot','step2')));
+	}
+	
+	// Post
+	function doRecoverStep2() {
+        @$code = DevblocksPlatform::importGPC($_REQUEST['code'],'string');
+
+        $email = $_SESSION[self::KEY_FORGOT_EMAIL];
+        $sentcode = $_SESSION[self::KEY_FORGOT_SENTCODE];
+        $_SESSION[self::KEY_FORGOT_CODE] = $code;
+        
+	    $worker_id = DAO_Worker::lookupAgentEmail($email);
+	    
+	    if(empty($email) || empty($worker_id) || empty($code))
+	        return;
+        
+	    if(0 == strcmp($sentcode,$code)) { // passed
+            DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('login','forgot','step3')));	        
+	    } else {
+            DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('login','forgot','step2')));	        
+	    }
+	}
+	
+	// Post
+	function doRecoverStep3() {
+        @$password = DevblocksPlatform::importGPC($_REQUEST['password'],'string');
+
+        $email = $_SESSION[self::KEY_FORGOT_EMAIL];
+        $sentcode = $_SESSION[self::KEY_FORGOT_SENTCODE];
+        $code = $_SESSION[self::KEY_FORGOT_CODE];
+        
+	    $worker_id = DAO_Worker::lookupAgentEmail($email);
+	    
+	    if(empty($email) || empty($code) || empty($worker_id))
+	        return;
+        
+	    if(0 == strcmp($sentcode,$code)) { // passed
+	        DAO_Worker::updateAgent($worker_id, array(
+	            DAO_Worker::PASSWORD => md5($password)
+	        ));
+	        
+            unset($_SESSION[self::KEY_FORGOT_EMAIL]);
+            unset($_SESSION[self::KEY_FORGOT_CODE]);
+            unset($_SESSION[self::KEY_FORGOT_SENTCODE]);
+            
+            DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('login')));
+	    } else {
+	        DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('login','forgot','step2')));
+	    }
+        
 	}
 };
 
@@ -1982,13 +2244,13 @@ class ChDisplayTicketHistory extends CerberusDisplayPageExtension {
 		
 		$requesters = $ticket->getRequesters();
 		
-		$history_tickets = DAO_Search::searchTickets(
+		$history_tickets = DAO_Ticket::search(
 			array(
-				new CerberusSearchCriteria(CerberusSearchFields::REQUESTER_ID,'in',array_keys($requesters))
+				new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ID,'in',array_keys($requesters))
 			),
 			10,
 			0,
-			CerberusSearchFields::TICKET_CREATED_DATE,
+			SearchFields_Ticket::TICKET_CREATED_DATE,
 			0
 		);
 		$tpl->assign('history_tickets', $history_tickets[0]);

@@ -390,14 +390,9 @@ class CerberusParser {
 		}
 	}
 	
+	// [TODO] Phase out in favor of the CerberusUtils class
 	static function parseRfcAddress($address_string) {
-		/*
-		 * [JAS]: [TODO] If we're going to call platform libs directly we should just have
-		 * the platform provide the functionality.
-		 */
-		//require_once(DEVBLOCKS_PATH . 'libs/pear/Mail/RFC822.php');
-		$structure = Mail_RFC822::parseAddressList($address_string, null, false);
-		return $structure;
+		return CerberusUtils::parseRfcAddressList($address_string);
 	}
 	
 };

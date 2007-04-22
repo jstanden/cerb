@@ -153,7 +153,7 @@ class CerberusDashboardView {
 	public $renderSortAsc = 1;
 	
 	function getTickets() {
-		$tickets = DAO_Search::searchTickets(
+		$tickets = DAO_Ticket::search(
 			$this->params,
 			$this->renderLimit,
 			$this->renderPage,
@@ -164,76 +164,8 @@ class CerberusDashboardView {
 	}
 };
 
-class CerberusSearchFields {
-	// Ticket
-	const TICKET_ID = 't_id';
-	const TICKET_MASK = 't_mask';
-	const TICKET_STATUS = 't_status';
-	const TICKET_PRIORITY = 't_priority';
-	const TICKET_SUBJECT = 't_subject';
-	const TICKET_LAST_WROTE = 't_last_wrote';
-	const TICKET_FIRST_WROTE = 't_first_wrote';
-	const TICKET_CREATED_DATE = 't_created_date';
-	const TICKET_UPDATED_DATE = 't_updated_date';
-	const TICKET_SPAM_SCORE = 't_spam_score';
-	const TICKET_TASKS = 't_tasks';
-	
-	// Message
-	const MESSAGE_CONTENT = 'msg_content';
-	
-	// Requester
-	const REQUESTER_ID = 'ra_id';
-	const REQUESTER_ADDRESS = 'ra_email';
-	
-	// Teams
-	const TEAM_ID = 'tm_id';
-	const TEAM_NAME = 'tm_name';
-	
-	// Category
-	const CATEGORY_ID = 'cat_id';
-	const CATEGORY_NAME = 'cat_name';
-	
-	// Tasks->Teams
-	const TASK_TEAM_ID = 'ttt_owner_id';
-	
-	// Tasks->Workers
-	const TASK_WORKER_ID = 'wtt_owner_id';
-	
-	/**
-	 * @return CerberusSearchField[]
-	 */
-	static function getFields() {
-		return array(
-			CerberusSearchFields::TICKET_MASK => new CerberusSearchField(CerberusSearchFields::TICKET_MASK, 't', 'mask'),
-			CerberusSearchFields::TICKET_STATUS => new CerberusSearchField(CerberusSearchFields::TICKET_STATUS, 't', 'status'),
-			CerberusSearchFields::TICKET_PRIORITY => new CerberusSearchField(CerberusSearchFields::TICKET_PRIORITY, 't', 'priority'),
-			CerberusSearchFields::TICKET_SUBJECT => new CerberusSearchField(CerberusSearchFields::TICKET_SUBJECT, 't', 'subject'),
-			CerberusSearchFields::TICKET_LAST_WROTE => new CerberusSearchField(CerberusSearchFields::TICKET_LAST_WROTE, 'a2', 'email'),
-			CerberusSearchFields::TICKET_FIRST_WROTE => new CerberusSearchField(CerberusSearchFields::TICKET_FIRST_WROTE, 'a1', 'email'),
-			CerberusSearchFields::TICKET_CREATED_DATE => new CerberusSearchField(CerberusSearchFields::TICKET_CREATED_DATE, 't', 'created_date'),
-			CerberusSearchFields::TICKET_UPDATED_DATE => new CerberusSearchField(CerberusSearchFields::TICKET_FIRST_WROTE, 't', 'updated_date'),
-			CerberusSearchFields::TICKET_SPAM_SCORE => new CerberusSearchField(CerberusSearchFields::TICKET_SPAM_SCORE, 't', 'spam_score'),
-			CerberusSearchFields::TICKET_TASKS => new CerberusSearchField(CerberusSearchFields::TICKET_TASKS, 't', 'num_tasks'),
-			
-			CerberusSearchFields::MESSAGE_CONTENT => new CerberusSearchField(CerberusSearchFields::MESSAGE_CONTENT, 'msg', 'content'),
-
-			CerberusSearchFields::REQUESTER_ID => new CerberusSearchField(CerberusSearchFields::REQUESTER_ID, 'ra', 'id'),
-			CerberusSearchFields::REQUESTER_ADDRESS => new CerberusSearchField(CerberusSearchFields::REQUESTER_ADDRESS, 'ra', 'email'),
-			
-			CerberusSearchFields::TEAM_ID => new CerberusSearchField(CerberusSearchFields::TEAM_ID,'tm','id'),
-			CerberusSearchFields::TEAM_NAME => new CerberusSearchField(CerberusSearchFields::TEAM_NAME,'tm','name'),
-			
-			CerberusSearchFields::CATEGORY_ID => new CerberusSearchField(CerberusSearchFields::CATEGORY_ID,'cat','id'),
-			CerberusSearchFields::CATEGORY_NAME => new CerberusSearchField(CerberusSearchFields::CATEGORY_NAME,'cat','name'),
-			
-			CerberusSearchFields::TASK_TEAM_ID => new CerberusSearchField(CerberusSearchFields::TASK_TEAM_ID,'ttt','owner_id'),
-			CerberusSearchFields::TASK_WORKER_ID => new CerberusSearchField(CerberusSearchFields::TASK_WORKER_ID,'wtt','owner_id'),
-		);
-	}
-};
-
 // [JAS] This is no longer needed
-class CerberusResourceSearchFields {
+class CerberusResourceSearchFields implements IDevblocksSearchFields {
 	// Resource
 	const KB_ID = 'kb_id';
 	const KB_TITLE = 'kb_title';
@@ -246,50 +178,18 @@ class CerberusResourceSearchFields {
 	const KB_CATEGORY_ID = 'kbc_id';
 	
 	/**
-	 * @return CerberusSearchField[]
+	 * @return DevblocksSearchField[]
 	 */
 	static function getFields() {
 		return array(
-			CerberusResourceSearchFields::KB_ID => new CerberusSearchField(CerberusResourceSearchFields::KB_ID, 'kb', 'id'),
-			CerberusResourceSearchFields::KB_TITLE => new CerberusSearchField(CerberusResourceSearchFields::KB_TITLE, 'kb', 'title'),
-			CerberusResourceSearchFields::KB_TYPE => new CerberusSearchField(CerberusResourceSearchFields::KB_TYPE, 'kb', 'type'),
+			CerberusResourceSearchFields::KB_ID => new DevblocksSearchField(CerberusResourceSearchFields::KB_ID, 'kb', 'id'),
+			CerberusResourceSearchFields::KB_TITLE => new DevblocksSearchField(CerberusResourceSearchFields::KB_TITLE, 'kb', 'title'),
+			CerberusResourceSearchFields::KB_TYPE => new DevblocksSearchField(CerberusResourceSearchFields::KB_TYPE, 'kb', 'type'),
 			
-			CerberusResourceSearchFields::KB_CONTENT => new CerberusSearchField(CerberusResourceSearchFields::KB_CONTENT, 'kbc', 'content'),
+			CerberusResourceSearchFields::KB_CONTENT => new DevblocksSearchField(CerberusResourceSearchFields::KB_CONTENT, 'kbc', 'content'),
 			
-			CerberusResourceSearchFields::KB_CATEGORY_ID => new CerberusSearchField(CerberusResourceSearchFields::KB_CATEGORY_ID, 'kbcat', 'id'),
+			CerberusResourceSearchFields::KB_CATEGORY_ID => new DevblocksSearchField(CerberusResourceSearchFields::KB_CATEGORY_ID, 'kbcat', 'id'),
 		);
-	}
-};
-
-class CerberusSearchField {
-	public $token;
-	public $db_table;
-	public $db_column;
-	
-	function __construct($token, $db_table, $db_column) {
-		$this->token = $token;
-		$this->db_table = $db_table;
-		$this->db_column = $db_column;
-	}
-};
-
-class CerberusSearchCriteria {
-	public $field;
-	public $operator;
-	public $value;
-	
-	/**
-	 * Enter description here...
-	 *
-	 * @param string $field
-	 * @param string $oper
-	 * @param mixed $value
-	 * @return CerberusSearchCriteria
-	 */
-	 public function CerberusSearchCriteria($field,$oper,$value) {
-		$this->field = $field;
-		$this->operator = $oper;
-		$this->value = $value;
 	}
 };
 
@@ -504,6 +404,7 @@ class CerberusPop3Account {
 	public $host;
 	public $username;
 	public $password;
+	public $port=110;
 };
 
 //class CerberusTag {

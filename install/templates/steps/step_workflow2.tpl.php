@@ -10,22 +10,26 @@ leave it blank.<br>
 
 {if !empty($worker_ids)}
 <H3>Worker Details</H3>
+By default, workers will be automatically e-mailed a randomly-generated password.<br>
+<br>
 
-<table cellpadding="0" cellspacing="0" border="0">
+<table cellpadding="0" cellspacing="5" border="0">
 	<tr>
 		<th>Worker</th>
 		<th>First Name</th>
 		<th>Last Name</th>
 		<th>Title</th>
 		<th>Admin?</th>
+		<th>Send pw?</th>
 	</tr>
-{foreach from=$worker_ids key=worker_id item=worker}
+{foreach from=$worker_ids key=worker_id item=worker name=workers}
 	<tr>
-		<td style="padding-right:10px;"><input type="hidden" name="worker_ids[]" value="{$worker_id}">{$worker}</td>
-		<td style="padding-right:10px;"><input type="text" name="worker_first[]"></td>
-		<td style="padding-right:10px;"><input type="text" name="worker_last[]"></td>
-		<td style="padding-right:10px;"><input type="text" name="worker_title[]"></td>
-		<td align="center"><input type="checkbox" name="worker_superuser[]" value="1"></td>
+		<td><input type="hidden" name="worker_ids[]" value="{$worker_id}">{$worker}</td>
+		<td><input type="text" name="worker_first[]"></td>
+		<td><input type="text" name="worker_last[]"></td>
+		<td><input type="text" name="worker_title[]"></td>
+		<td align="center"><input type="checkbox" name="worker_superuser[]" value="{$worker_id}" {if $smarty.foreach.workers.first}checked{/if}></td>
+		<td align="center"><input type="checkbox" name="worker_pw[]" value="{$worker_id}" checked></td>
 	</tr>
 {/foreach}
 </table>

@@ -516,15 +516,12 @@ switch($step) {
 		switch($form_submit) {
 			case 1: // names form submit
 				@$workers_str = DevblocksPlatform::importGPC($_POST['workers'],'string');
-//				@$mailboxes_str = DevblocksPlatform::importGPC($_POST['mailboxes'],'string');
 				@$teams_str = DevblocksPlatform::importGPC($_POST['teams'],'string');
 				
 				$worker_ids = array();
-//				$mailbox_ids = array();
 				$team_ids = array();
 
 				$workers = CerberusApplication::parseCrlfString($workers_str);
-//				$mailboxes = CerberusApplication::parseCrlfString($mailboxes_str);
 				$teams = CerberusApplication::parseCrlfString($teams_str);
 
 				if(empty($workers)) {
@@ -539,17 +536,9 @@ switch($step) {
 				// Create worker records
 				if(is_array($workers))
 				foreach($workers as $worker_email) {
-					// [TODO] Need a function for generating a password (PEAR/Platform)
 					$id = DAO_Worker::create($worker_email,'new','Joe','User','');
 					$worker_ids[$id] = $worker_email; 
 				}
-				
-				// Create mailbox records
-//				if(is_array($mailboxes))
-//				foreach($mailboxes as $mailbox_name) {
-//					$id = DAO_Mail::createMailbox($mailbox_name,0);
-//					$mailbox_ids[$id] = $mailbox_name;
-//				}
 				
 				// Create team records
 				if(is_array($teams))
@@ -559,7 +548,6 @@ switch($step) {
 				}
 				
 				$tpl->assign('worker_ids', $worker_ids);
-//				$tpl->assign('mailbox_ids', $mailbox_ids);
 				$tpl->assign('team_ids', $team_ids);
 				$tpl->assign('default_reply_from', $settings->get(CerberusSettings::DEFAULT_REPLY_FROM));
 				$tpl->assign('template', 'steps/step_workflow2.tpl.php');
@@ -571,8 +559,7 @@ switch($step) {
 				@$worker_last = DevblocksPlatform::importGPC($_POST['worker_last'],'array');
 				@$worker_title = DevblocksPlatform::importGPC($_POST['worker_title'],'array');
 				@$worker_superuser = DevblocksPlatform::importGPC($_POST['worker_superuser'],'array');
-//				@$mailbox_ids = DevblocksPlatform::importGPC($_POST['mailbox_ids'],'array');
-//				@$mailbox_from = DevblocksPlatform::importGPC($_POST['mailbox_from'],'array');
+				@$worker_pw = DevblocksPlatform::importGPC($_POST['worker_pw'],'array');
 				@$team_ids = DevblocksPlatform::importGPC($_POST['team_ids'],'array');
 
 				/*
@@ -589,53 +576,42 @@ switch($step) {
 //				}
 				
 				// Worker Details
-				// [TODO] E-mail the workers their logins (generate random pw)
 				if(is_array($worker_ids))
 				foreach($worker_ids as $idx => $worker_id) {
+				    $passGen = new Text_Password();
+				    $password = $passGen->create(8);
+				    
+				    $worker = DAO_Worker::getAgent($worker_id);
+				    
+				    if(in_array($worker_id,$worker_pw)) {
+					    $mail = CerberusMail::createInstance();
+					    
+					    $mail->addTo($worker->email,'');
+					    $mail->setSubject("Your new helpdesk login information.");
+					    $mail->setBodyText(sprintf("Your new helpdesk login information is below:\n\n".
+					        "URL: %s\n".
+					        "Login: %s\n".
+					        "Password: %s\n\n".
+					        "You should change your password after logging in for the first time.\n",
+						        "http://", // [TODO]
+						        $worker->email,
+						        $password
+					    ));
+					    
+					    $mail->send();
+				    }
+				    
 					$fields = array(
 						DAO_Worker::FIRST_NAME => $worker_first[$idx],
 						DAO_Worker::LAST_NAME => $worker_last[$idx],
 						DAO_Worker::TITLE => $worker_title[$idx],
-						DAO_Worker::IS_SUPERUSER => intval($worker_superuser[$idx])
+						DAO_Worker::PASSWORD => md5($password),
+						DAO_Worker::IS_SUPERUSER => (in_array($worker_id,$worker_superuser) ? 1 : 0)
 					);
 					DAO_Worker::updateAgent($worker_id, $fields);
 					
 					// Create a default dashboard for each worker
 					$dashboard_id = DAO_Dashboard::createDashboard("Dashboard", $worker_id);
-//					$my_view_id = DAO_Dashboard::createView('My Tickets',$dashboard_id);
-//					$team_view_id = DAO_Dashboard::createView('Team Tickets',$dashboard_id);
-//					
-//					$fields = array(
-//						'view_columns' => serialize(array(
-//							't_mask',
-//							't_status',
-//							't_priority',
-//							't_last_wrote',
-//							't_updated_date'
-//						)),
-//						'params' => serialize(array(
-//							new CerberusSearchCriteria(CerberusSearchFields::ASSIGNED_WORKER,'in',array($worker_id)),
-//							new CerberusSearchCriteria(CerberusSearchFields::TICKET_STATUS,'=',CerberusTicketStatus::OPEN)
-//						))
-//					);
-//					DAO_Dashboard::updateView($my_view_id, $fields);
-//					
-//					$fields = array(
-//						'view_columns' => serialize(array(
-//							't_mask',
-//							't_status',
-//							't_priority',
-//							't_last_wrote',
-//							't_updated_date',
-//							'm_name'
-//						)),
-//						'params' => serialize(array(
-//							new CerberusSearchCriteria(CerberusSearchFields::TICKET_STATUS,'=',CerberusTicketStatus::OPEN)
-//						))
-//					);
-//					DAO_Dashboard::updateView($team_view_id, $fields);
-					
-					// Add default actions to worker dashboards
 					
 					// Trash Action
 					$fields = array(
@@ -678,7 +654,6 @@ switch($step) {
 				break;
 				
 			default: // first time
-//				$tpl->assign('mailboxes_str', "Inbox\n");
 				$tpl->assign('teams_str', "General\n");
 				$tpl->assign('template', 'steps/step_workflow.tpl.php');
 				break;
@@ -800,6 +775,10 @@ switch($step) {
 		$tpl->assign('template', 'steps/step_finished.tpl.php');
 		break;
 }
+
+// [TODO] Check PEAR path
+
+// [TODO] Automatically do the spam step?  (no prompt/step)
 
 // [TODO] License Agreement (first step)
 

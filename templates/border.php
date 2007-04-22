@@ -11,12 +11,16 @@
 		[ <a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showHistoryPanel',this);">{$translate->_('header.history')|lower}</a> ]
 		[ <a href="{devblocks_url}c=preferences{/devblocks_url}">{$translate->_('header.preferences')|lower}</a> ]
 		[ <a href="{devblocks_url}c=login&a=signout{/devblocks_url}">{$translate->_('header.signoff')|lower}</a> ]<br>
-		<b>Quick Find:</b> <select name="">
-			<option value="">Ticket ID/Mask</option>
-			<option value="">Requester</option>
-			<option value="">Subject</option>
-			<option value="">Content</option>
-		</select><input type="text" size="24"><input type="button" value="Search">
+		<form action="{devblocks_url}{/devblocks_url}" method="post">
+		<input type="hidden" name="c" value="tickets">
+		<input type="hidden" name="a" value="doQuickSearch">
+		<b>Quick Find:</b> <select name="type">
+			<option value="mask">Ticket Mask</option>
+			<option value="req">Requester</option>
+			<option value="subject">Subject</option>
+			<option value="content">Content</option>
+		</select><input type="text" name="query" size="24"><input type="submit" value="Search">
+		</form>
 		{/if}
 		</td>
 	</tr>

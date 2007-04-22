@@ -155,6 +155,7 @@ class DAO_Worker {
 	const PASSWORD = 'pass';
 	const IS_SUPERUSER = 'is_superuser';
 	
+	// [TODO] Convert to ::create($id, $fields)
 	static function create($email, $password, $first_name, $last_name, $title) {
 		if(empty($email) || empty($password))
 			return null;
@@ -205,6 +206,9 @@ class DAO_Worker {
 		return $workers;		
 	}
 	
+	/**
+	 * @return CerberusWorker
+	 */
 	static function getAgent($id) {
 		if(empty($id)) return null;
 		
@@ -594,12 +598,110 @@ class DAO_Contact {
 	
 }
 
+class DAO_Message extends DevblocksORMHelper {
+    const ID = 'id';
+    const TICKET_ID = 'ticket_id';
+    const IS_ADMIN = 'is_admin';
+    const MESSAGE_TYPE = 'message_type';
+    const CREATED_DATE = 'created_date';
+    const ADDRESS_ID = 'address_id';
+    const MESSAGE_ID = 'message_id';
+    const HEADERS = 'headers';
+    const CONTENT = 'content';
+
+    static function delete($ids) {
+        if(!is_array($ids)) $ids = array($ids);
+        if(empty($ids)) return;
+
+		$db = DevblocksPlatform::getDatabaseService();
+        
+        $message_ids = implode(',', $ids);
+        $sql = sprintf("DELETE FROM message WHERE id IN (%s)", $message_ids);
+        $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+
+        // Attachments
+        $sql = sprintf("DELETE FROM attachment WHERE message_id IN (%s)", $message_ids);
+        $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+    }
+    
+    /**
+     * Enter description here...
+     *
+     * @param DevblocksSearchCriteria[] $params
+     * @param integer $limit
+     * @param integer $page
+     * @param string $sortBy
+     * @param boolean $sortAsc
+     * @param boolean $withCounts
+     * @return array
+     */
+    static function search($params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
+		$db = DevblocksPlatform::getDatabaseService();
+
+        list($tables,$wheres) = parent::_parseSearchParams($params, SearchFields_Message::getFields());
+		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
+		
+		$sql = sprintf("SELECT ".
+			"m.id as %s, ".
+			"m.ticket_id as %s ".
+			"FROM message m ",
+//			"INNER JOIN team tm ON (tm.id = t.team_id) ".
+			    SearchFields_Message::ID,
+			    SearchFields_Message::TICKET_ID
+			).
+			
+			// [JAS]: Dynamic table joins
+//			(isset($tables['ra']) ? "INNER JOIN requester r ON (r.ticket_id=t.id)" : " ").
+			
+			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "").
+			(!empty($sortBy) ? sprintf("ORDER BY %s %s",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : "")
+		;
+		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		$results = array();
+		while(!$rs->EOF) {
+			$result = array();
+			foreach($rs->fields as $f => $v) {
+				$result[$f] = $v;
+			}
+			$ticket_id = intval($rs->fields[SearchFields_Message::ID]);
+			$results[$ticket_id] = $result;
+			$rs->MoveNext();
+		}
+
+		// [JAS]: Count all
+		$total = -1;
+		if($withCounts) {
+		    $rs = $db->Execute($sql);
+		    $total = $rs->RecordCount();
+		}
+		
+		return array($results,$total);
+    }
+};
+
+class SearchFields_Message implements IDevblocksSearchFields {
+	// Message
+	const ID = 'm_id';
+	const TICKET_ID = 'm_ticket_id';
+	
+	/**
+	 * @return DevblocksSearchField[]
+	 */
+	static function getFields() {
+		return array(
+			SearchFields_Message::ID => new DevblocksSearchField(SearchFields_Message::ID, 'm', 'id'),
+			SearchFields_Message::TICKET_ID => new DevblocksSearchField(SearchFields_Message::TICKET_ID, 'm', 'ticket_id'),
+		);
+	}
+};
+
 /**
  * Enter description here...
  *
  * @addtogroup dao
  */
-class DAO_Ticket {
+class DAO_Ticket extends DevblocksORMHelper {
 	const ID = 'id';
 	const MASK = 'mask';
 	const SUBJECT = 'subject';
@@ -745,13 +847,14 @@ class DAO_Ticket {
 		return $newId;
 	}
 
+	// [JAS]: [TODO] Convert to create($fields) format
 	static function createMessage($ticket_id,$type,$created_date,$address_id,$headers,$content) {
 		$db = DevblocksPlatform::getDatabaseService();
 		$newId = $db->GenID('message_seq');
 		
 		// [JAS]: Flatten an array of headers into a string.
 		$sHeaders = serialize($headers);
-
+		
 		$sql = sprintf("INSERT INTO message (id,ticket_id,message_type,created_date,address_id,message_id,headers,content) ".
 			"VALUES (%d,%d,%s,%d,%d,%s,%s,%s)",
 				$newId,
@@ -769,6 +872,60 @@ class DAO_Ticket {
 		return $newId;
 	}
 
+	/**
+	 * Enter description here...
+	 *
+	 * @param array $ids
+	 */
+	static function delete($ids) {
+	    if(!is_array($ids)) $ids = array($ids);
+	    if(empty($ids)) return;
+	    
+        $db = DevblocksPlatform::getDatabaseService();
+	    $ticket_ids = implode(',', $ids);
+
+	    // Tickets
+	    
+        $sql = sprintf("DELETE FROM ticket WHERE id IN (%s)", $ticket_ids);
+        $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+
+        // Requester
+        
+        $sql = sprintf("DELETE FROM requester WHERE ticket_id IN (%s)", $ticket_ids); 
+        $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+        
+        // Messages
+        
+        do{
+	        list($messages, $messages_count) = DAO_Message::search(
+	            array(
+	                new DevblocksSearchCriteria(SearchFields_Message::TICKET_ID,DevblocksSearchCriteria::OPER_IN,$ids),
+	            ),
+	            100,
+	            0,
+	            SearchFields_Message::ID,
+	            true,
+	            true
+	        );
+            DAO_Message::delete(array_keys($messages));	        
+	
+        } while($messages_count);
+        
+        // Task
+
+        do {
+	        list($tasks, $tasks_count) = DAO_Task::search(
+	            array(
+	                new DevblocksSearchCriteria(SearchFields_Task::TICKET_ID,DevblocksSearchCriteria::OPER_IN,$ids)
+	            ),
+	            100,
+	            0
+	        );
+	        DAO_Task::delete(array_keys($tasks));
+        } while($tasks_count);
+        
+	}
+	
 	/**
 	 * Enter description here...
 	 *
@@ -982,6 +1139,151 @@ class DAO_Ticket {
 		return true;
 	}
 	
+    static function search($params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
+		$db = DevblocksPlatform::getDatabaseService();
+
+        list($tables,$wheres) = parent::_parseSearchParams($params, SearchFields_Ticket::getFields());
+		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
+		
+		$sql = sprintf("SELECT ".
+			"t.id as %s, ".
+			"t.mask as %s, ".
+			"t.subject as %s, ".
+			"t.status as %s, ".
+			"t.priority as %s, ".
+			"a1.email as %s, ".
+			"a2.email as %s, ".
+			"t.created_date as %s, ".
+			"t.updated_date as %s, ".
+			"t.spam_score as %s, ".
+			"t.num_tasks as %s, ".
+			"tm.id as %s, ".
+			"tm.name as %s, ".
+			"cat.id as %s, ".
+			"cat.name as %s ".
+			"FROM ticket t ".
+			"INNER JOIN team tm ON (tm.id = t.team_id) ".
+			"LEFT JOIN category cat ON (cat.id = t.category_id) ".
+			"INNER JOIN address a1 ON (t.first_wrote_address_id=a1.id) ".
+			"INNER JOIN address a2 ON (t.last_wrote_address_id=a2.id) ",
+			    SearchFields_Ticket::TICKET_ID,
+			    SearchFields_Ticket::TICKET_MASK,
+			    SearchFields_Ticket::TICKET_SUBJECT,
+			    SearchFields_Ticket::TICKET_STATUS,
+			    SearchFields_Ticket::TICKET_PRIORITY,
+			    SearchFields_Ticket::TICKET_FIRST_WROTE,
+			    SearchFields_Ticket::TICKET_LAST_WROTE,
+			    SearchFields_Ticket::TICKET_CREATED_DATE,
+			    SearchFields_Ticket::TICKET_UPDATED_DATE,
+			    SearchFields_Ticket::TICKET_SPAM_SCORE,
+			    SearchFields_Ticket::TICKET_TASKS,
+			    SearchFields_Ticket::TEAM_ID,
+			    SearchFields_Ticket::TEAM_NAME,
+			    SearchFields_Ticket::CATEGORY_ID,
+			    SearchFields_Ticket::CATEGORY_NAME
+			).
+			
+			// [JAS]: Dynamic table joins
+			(isset($tables['ra']) ? "INNER JOIN requester r ON (r.ticket_id=t.id)" : " ").
+			(isset($tables['ra']) ? "INNER JOIN address ra ON (ra.id=r.address_id) " : " ").
+			(isset($tables['msg']) ? "INNER JOIN message msg ON (msg.ticket_id=t.id) " : " ").
+			(isset($tables['ttt']) ? "INNER JOIN task ttk ON (ttk.ticket_id=t.id) INNER JOIN task_owner ttt ON (ttt.owner_type='T' AND ttk.is_completed=0 AND ttt.task_id=ttk.id) " : " ").
+			(isset($tables['wtt']) ? "INNER JOIN task wtk ON (wtk.ticket_id=t.id) INNER JOIN task_owner wtt ON (wtt.owner_type='W' AND wtk.is_completed=0 AND wtt.task_id=wtk.id) " : " ").
+			
+			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "").
+			(!empty($sortBy) ? sprintf("ORDER BY %s %s",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : "")
+		;
+		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		$results = array();
+		while(!$rs->EOF) {
+			$result = array();
+			foreach($rs->fields as $f => $v) {
+				$result[$f] = $v;
+			}
+			$ticket_id = intval($rs->fields[SearchFields_Ticket::TICKET_ID]);
+			$results[$ticket_id] = $result;
+			$rs->MoveNext();
+		}
+
+		// [JAS]: Count all
+		$total = -1;
+		if($withCounts) {
+		    $rs = $db->Execute($sql);
+		    $total = $rs->RecordCount();
+		}
+		
+		return array($results,$total);
+    }	
+	
+};
+
+class SearchFields_Ticket implements IDevblocksSearchFields {
+	// Ticket
+	const TICKET_ID = 't_id';
+	const TICKET_MASK = 't_mask';
+	const TICKET_STATUS = 't_status';
+	const TICKET_PRIORITY = 't_priority';
+	const TICKET_SUBJECT = 't_subject';
+	const TICKET_LAST_WROTE = 't_last_wrote';
+	const TICKET_FIRST_WROTE = 't_first_wrote';
+	const TICKET_CREATED_DATE = 't_created_date';
+	const TICKET_UPDATED_DATE = 't_updated_date';
+	const TICKET_SPAM_SCORE = 't_spam_score';
+	const TICKET_TASKS = 't_tasks';
+	
+	// Message
+	const MESSAGE_CONTENT = 'msg_content';
+	
+	// Requester
+	const REQUESTER_ID = 'ra_id';
+	const REQUESTER_ADDRESS = 'ra_email';
+	
+	// Teams
+	const TEAM_ID = 'tm_id';
+	const TEAM_NAME = 'tm_name';
+	
+	// Category
+	const CATEGORY_ID = 'cat_id';
+	const CATEGORY_NAME = 'cat_name';
+	
+	// Tasks->Teams
+	const TASK_TEAM_ID = 'ttt_owner_id';
+	
+	// Tasks->Workers
+	const TASK_WORKER_ID = 'wtt_owner_id';
+	
+	/**
+	 * @return DevblocksSearchField[]
+	 */
+	static function getFields() {
+		return array(
+			SearchFields_Ticket::TICKET_MASK => new DevblocksSearchField(SearchFields_Ticket::TICKET_MASK, 't', 'mask'),
+			SearchFields_Ticket::TICKET_STATUS => new DevblocksSearchField(SearchFields_Ticket::TICKET_STATUS, 't', 'status'),
+			SearchFields_Ticket::TICKET_PRIORITY => new DevblocksSearchField(SearchFields_Ticket::TICKET_PRIORITY, 't', 'priority'),
+			SearchFields_Ticket::TICKET_SUBJECT => new DevblocksSearchField(SearchFields_Ticket::TICKET_SUBJECT, 't', 'subject'),
+			SearchFields_Ticket::TICKET_LAST_WROTE => new DevblocksSearchField(SearchFields_Ticket::TICKET_LAST_WROTE, 'a2', 'email'),
+			SearchFields_Ticket::TICKET_FIRST_WROTE => new DevblocksSearchField(SearchFields_Ticket::TICKET_FIRST_WROTE, 'a1', 'email'),
+			SearchFields_Ticket::TICKET_CREATED_DATE => new DevblocksSearchField(SearchFields_Ticket::TICKET_CREATED_DATE, 't', 'created_date'),
+			SearchFields_Ticket::TICKET_UPDATED_DATE => new DevblocksSearchField(SearchFields_Ticket::TICKET_FIRST_WROTE, 't', 'updated_date'),
+			SearchFields_Ticket::TICKET_SPAM_SCORE => new DevblocksSearchField(SearchFields_Ticket::TICKET_SPAM_SCORE, 't', 'spam_score'),
+			SearchFields_Ticket::TICKET_TASKS => new DevblocksSearchField(SearchFields_Ticket::TICKET_TASKS, 't', 'num_tasks'),
+			
+			SearchFields_Ticket::MESSAGE_CONTENT => new DevblocksSearchField(SearchFields_Ticket::MESSAGE_CONTENT, 'msg', 'content'),
+
+			SearchFields_Ticket::REQUESTER_ID => new DevblocksSearchField(SearchFields_Ticket::REQUESTER_ID, 'ra', 'id'),
+			SearchFields_Ticket::REQUESTER_ADDRESS => new DevblocksSearchField(SearchFields_Ticket::REQUESTER_ADDRESS, 'ra', 'email'),
+			
+			SearchFields_Ticket::TEAM_ID => new DevblocksSearchField(SearchFields_Ticket::TEAM_ID,'tm','id'),
+			SearchFields_Ticket::TEAM_NAME => new DevblocksSearchField(SearchFields_Ticket::TEAM_NAME,'tm','name'),
+			
+			SearchFields_Ticket::CATEGORY_ID => new DevblocksSearchField(SearchFields_Ticket::CATEGORY_ID,'cat','id'),
+			SearchFields_Ticket::CATEGORY_NAME => new DevblocksSearchField(SearchFields_Ticket::CATEGORY_NAME,'cat','name'),
+			
+			SearchFields_Ticket::TASK_TEAM_ID => new DevblocksSearchField(SearchFields_Ticket::TASK_TEAM_ID,'ttt','owner_id'),
+			SearchFields_Ticket::TASK_WORKER_ID => new DevblocksSearchField(SearchFields_Ticket::TASK_WORKER_ID,'wtt','owner_id'),
+		);
+	}
 };
 
 /**
@@ -1483,138 +1785,7 @@ class DAO_Search {
 	/**
 	 * Enter description here...
 	 *
-	 * @param CerberusSearchCriteria[] $params
-	 * @param integer $limit
-	 * @param integer $page
-	 * @param string $sortBy
-	 * @param boolean $sortAsc
-	 * @return array
-	 * [TODO]: Fold back into DAO_Ticket
-	 */
-	static function searchTickets($params,$limit=10,$page=0,$sortBy=null,$sortAsc=null) {
-		$db = DevblocksPlatform::getDatabaseService();
-
-		$fields = CerberusSearchFields::getFields();
-		$start = min($page * $limit,1);
-		
-		$results = array();
-		$tables = array();
-		$wheres = array();
-		
-		// [JAS]: Search Builder
-		if(is_array($params))
-		foreach($params as $param) { /* @var $param CerberusSearchCriteria */
-			if(!is_a($param,'CerberusSearchCriteria')) continue;
-			$where = "";
-			
-			// [JAS]: Filter allowed columns (ignore invalid/deprecated)
-			if(!isset($fields[$param->field]))
-				continue;
-
-			$db_field_name = $fields[$param->field]->db_table . '.' . $fields[$param->field]->db_column; 
-			
-			// [JAS]: Indexes for optimization
-			$tables[$fields[$param->field]->db_table] = $fields[$param->field]->db_table;
-				
-			// [JAS]: Operators
-			switch($param->operator) {
-				case "=":
-					$where = sprintf("%s = %s",
-						$db_field_name,
-						$db->qstr($param->value)
-					);
-					break;
-					
-				case "!=":
-					$where = sprintf("%s != %s",
-						$db_field_name,
-						$db->qstr($param->value)
-					);
-					break;
-				
-				case "in":
-					if(!is_array($param->value)) break;
-					$where = sprintf("%s IN ('%s')",
-						$db_field_name,
-						implode("','",$param->value)
-					);
-					break;
-					
-				case "like":
-//					if(!is_array($param->value)) break;
-					$where = sprintf("%s LIKE %s",
-						$db_field_name,
-						$db->qstr(str_replace('*','%%',$param->value))
-					);
-					break;
-					
-				default:
-					break;
-			}
-			
-			if(!empty($where)) $wheres[] = $where;
-		}
-		
-		// [JAS]: 1-based [TODO] clean up + document
-		$start = ($page * $limit);
-		
-		$sql = sprintf("SELECT ".
-			"t.id as t_id, ".
-			"t.mask as t_mask, ".
-			"t.subject as t_subject, ".
-			"t.status as t_status, ".
-			"t.priority as t_priority, ".
-			"a1.email as t_first_wrote, ".
-			"a2.email as t_last_wrote, ".
-			"t.created_date as t_created_date, ".
-			"t.updated_date as t_updated_date, ".
-			"t.spam_score as t_spam_score, ".
-			"t.num_tasks as t_tasks, ".
-			"tm.id as tm_id, ".
-			"tm.name as tm_name, ".
-			"cat.id as cat_id, ".
-			"cat.name as cat_name ".
-			"FROM ticket t ".
-			"INNER JOIN team tm ON (tm.id = t.team_id) ".
-			"LEFT JOIN category cat ON (cat.id = t.category_id) ".
-			"INNER JOIN address a1 ON (t.first_wrote_address_id=a1.id) ".
-			"INNER JOIN address a2 ON (t.last_wrote_address_id=a2.id) ".
-			
-			// [JAS]: Dynamic table joins
-			(isset($tables['ra']) ? "INNER JOIN requester r ON (r.ticket_id=t.id)" : " ").
-			(isset($tables['ra']) ? "INNER JOIN address ra ON (ra.id=r.address_id) " : " ").
-			(isset($tables['msg']) ? "INNER JOIN message msg ON (msg.ticket_id=t.id) " : " ").
-			(isset($tables['ttt']) ? "INNER JOIN task ttk ON (ttk.ticket_id=t.id) INNER JOIN task_owner ttt ON (ttt.owner_type='T' AND ttk.is_completed=0 AND ttt.task_id=ttk.id) " : " ").
-			(isset($tables['wtt']) ? "INNER JOIN task wtk ON (wtk.ticket_id=t.id) INNER JOIN task_owner wtt ON (wtt.owner_type='W' AND wtk.is_completed=0 AND wtt.task_id=wtk.id) " : " ").
-			
-			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "").
-//			"GROUP BY t_id ".
-			(!empty($sortBy) ? sprintf("ORDER BY %s %s",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : "")
-		);
-		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-		while(!$rs->EOF) {
-			// [JAS]: [TODO] This needs to change to an intermediary search row object.
-			$result = array();
-			foreach($rs->fields as $f => $v) {
-				$result[$f] = $v;
-			}
-			$ticket_id = intval($rs->fields[CerberusSearchFields::TICKET_ID]);
-			$results[$ticket_id] = $result;
-			$rs->MoveNext();
-		}
-
-		// [JAS]: Count all
-		$rs = $db->Execute($sql);
-		$total = $rs->RecordCount();
-		
-		return array($results,$total);
-	}	
-	
-	/**
-	 * Enter description here...
-	 *
-	 * @param CerberusSearchCriteria[] $params
+	 * @param DevblocksSearchCriteria[] $params
 	 * @param integer $limit
 	 * @param integer $page
 	 * @param string $sortBy
@@ -1635,8 +1806,8 @@ class DAO_Search {
 		
 		// [JAS]: Search Builder
 		if(is_array($params))
-		foreach($params as $param) { /* @var $param CerberusSearchCriteria */
-			if(!is_a($param,'CerberusSearchCriteria')) continue;
+		foreach($params as $param) { /* @var $param DevblocksSearchCriteria */
+			if(!is_a($param,'DevblocksSearchCriteria')) continue;
 			$where = "";
 			
 			// [JAS]: Filter allowed columns (ignore invalid/deprecated)
@@ -2142,19 +2313,22 @@ class DAO_Task extends DevblocksORMHelper {
 		if(!empty($task->ticket_id)) self::_cacheTicketTasks($task->ticket_id);
 	}
 	
-	static function delete($id) {
+	static function delete($ids) {
+	    if(!is_array($ids)) $ids = array($ids);
+	    if(empty($ids)) return;
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$task = DAO_Task::get($id);
-		
-		$sql = sprintf("DELETE FROM task WHERE id = %d", $id);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-		$sql = sprintf("DELETE FROM task_owner WHERE task_id = %d", $id);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+        $task_ids = implode(',', $ids);
+        
+        $sql = sprintf("DELETE FROM task WHERE id IN (%s)", $task_ids); 
+        $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+        
+        $sql = sprintf("DELETE FROM task_owner WHERE task_id IN (%s)", $task_ids); 
+        $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		// recache ticket num_tasks
-		if(!empty($task->ticket_id)) self::_cacheTicketTasks($task->ticket_id);
+		// [TODO] Fix recache for multiple IDs
+//		if(!empty($task->ticket_id)) self::_cacheTicketTasks($task->ticket_id);
 	}
 	
 	static function get($id) {
@@ -2302,8 +2476,80 @@ class DAO_Task extends DevblocksORMHelper {
 		}
 	}
 	
+    /**
+     * Enter description here...
+     *
+     * @param DevblocksSearchCriteria[] $params
+     * @param integer $limit
+     * @param integer $page
+     * @param string $sortBy
+     * @param boolean $sortAsc
+     * @param boolean $withCounts
+     * @return array
+     */
+    static function search($params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
+		$db = DevblocksPlatform::getDatabaseService();
+
+        list($tables,$wheres) = parent::_parseSearchParams($params, SearchFields_Task::getFields());
+		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
+		
+		$sql = sprintf("SELECT ".
+			"tk.id as %s, ".
+			"tk.title as %s ".
+			"FROM task tk ",
+//			"INNER JOIN team tm ON (tm.id = t.team_id) ".
+			    SearchFields_Task::ID,
+			    SearchFields_Task::TITLE
+			).
+			
+			// [JAS]: Dynamic table joins
+//			(isset($tables['ra']) ? "INNER JOIN requester r ON (r.ticket_id=t.id)" : " ").
+			
+			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "").
+			(!empty($sortBy) ? sprintf("ORDER BY %s %s",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : "")
+		;
+		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		$results = array();
+		while(!$rs->EOF) {
+			$result = array();
+			foreach($rs->fields as $f => $v) {
+				$result[$f] = $v;
+			}
+			$ticket_id = intval($rs->fields[SearchFields_Task::ID]);
+			$results[$ticket_id] = $result;
+			$rs->MoveNext();
+		}
+
+		// [JAS]: Count all
+		$total = -1;
+		if($withCounts) {
+		    $rs = $db->Execute($sql);
+		    $total = $rs->RecordCount();
+		}
+		
+		return array($results,$total);
+    }
 };
 
+class SearchFields_Task implements IDevblocksSearchFields {
+	// Task
+	const ID = 'tk_id';
+	const TITLE = 'tk_title';
+	const TICKET_ID = 'tk_ticket_id';
+	
+	/**
+	 * @return DevblocksSearchField[]
+	 */
+	static function getFields() {
+		return array(
+			SearchFields_Task::ID => new DevblocksSearchField(SearchFields_Task::ID, 'tk', 'id'),
+			SearchFields_Task::TITLE => new DevblocksSearchField(SearchFields_Task::TITLE, 'tk', 'title'),
+			SearchFields_Task::TICKET_ID => new DevblocksSearchField(SearchFields_Task::TICKET_ID, 'tk', 'ticket_id'),
+		);
+	}
+};	
+	
 class DAO_Category extends DevblocksORMHelper {
 	
 	static function getTeams() {
@@ -2704,69 +2950,7 @@ class DAO_Mail {
 		// TODO: actually implement this function...
 		return $source_text;
 	}
-	
-	static function getHeaders($type, $ticket_id = 0) {
-		// variable loading
-		@$id		= DevblocksPlatform::importGPC($_REQUEST['id']); // message id
-		@$to		= DevblocksPlatform::importGPC($_REQUEST['to']);
-		@$cc		= DevblocksPlatform::importGPC($_REQUEST['cc']);
-		@$bcc		= DevblocksPlatform::importGPC($_REQUEST['bcc']);
-		
-		// object loading
-		if (!empty($id)) {
-			$message	= DAO_Ticket::getMessage($id);
-			if ($ticket_id == 0)
-				$ticket_id	= $message->ticket_id;
-		} else {
-			$messages = DAO_Ticket::getMessagesByTicket($ticket_id);
-			if ($messages[1] > 0) $message = $messages[0][0];
-		}
-		$ticket		= DAO_Ticket::getTicket($ticket_id);						/* @var $ticket CerberusTicket */
-		$mailbox	= DAO_Mail::getMailbox($ticket->mailbox_id);				/* @var $mailbox CerberusMailbox */
-		$address	= DAO_Contact::getAddress($mailbox->reply_address_id);	/* @var $address CerberusAddress */
-		$requesters	= DAO_Ticket::getRequestersByTicket($ticket_id);			/* @var $requesters CerberusRequester[] */
-		
-		// requester address parsing - needs to vary based on type
-		$sTo = '';
-		$sRCPT = '';
-		if ($type == CerberusMessageType::EMAIL
-		||	$type == CerberusMessageType::AUTORESPONSE ) {
-			foreach ($requesters as $requester) {
-				if (!empty($sTo)) $sTo .= ', ';
-				if (!empty($sRCPT)) $sRCPT .= ', ';
-				if (!empty($requester->personal)) $sTo .= $requester->personal . ' ';
-				$sTo .= '<' . $requester->email . '>';
-				$sRCPT .= $requester->email;
-			}
-		} else {
-			$sTo = $to;
-			$sRCPT = $to;
-		}
 
-		// header setup: varies based on type of response - BREAK statements intentionally left out!
-		$headers = array();
-		switch ($type) {
-			case CerberusMessageType::FORWARD :
-			case CerberusMessageType::EMAIL :
-				$headers['cc']			= $cc;
-				$headers['bcc']			= $bcc;
-			case CerberusMessageType::AUTORESPONSE :
-				$headers['to']			= $sTo;
-				$headers['x-rcpt']		= $sRCPT;
-			case CerberusMessageType::COMMENT :
-				// TODO: pull info from mailbox instead of hard-coding it.  (display name cannot be just a personal on a mailbox address...)
-				// TODO: differentiate between mailbox from as part of email/forward and agent from as part of comment (may not be necessary, depends on ticket display)
-				$headers['from']		= (!empty($mailbox->display_name)) ? '"' . $mailbox->display_name . '" <' . $address->email . '>' : $address->email ;
-				$headers['date']		= gmdate(r);
-				$headers['message-id']	= CerberusApplication::generateMessageId();
-				$headers['subject']		= $ticket->subject;
-				$headers['references']	= (!empty($message)) ? $message->headers['message-id'] : '' ;
-				$headers['in-reply-to']	= (!empty($message)) ? $message->headers['message-id'] : '' ;
-		}
-		
-		return $headers;
-	}
-		
 	// Pop3 Accounts
 	
 	// [TODO] Allow custom ports
@@ -2795,7 +2979,7 @@ class DAO_Mail {
 		$db = DevblocksPlatform::getDatabaseService();
 		$pop3accounts = array();
 		
-		$sql = "SELECT id, nickname, host, username, password ".
+		$sql = "SELECT id, nickname, host, username, password, port ".
 			"FROM pop3_account ".
 			((!empty($ids) ? sprintf("WHERE id IN (%s)", implode(',', $ids)) : " ").
 			"ORDER BY nickname "
@@ -2809,6 +2993,7 @@ class DAO_Mail {
 			$pop3->host = $rs->fields['host'];
 			$pop3->username = $rs->fields['username'];
 			$pop3->password = $rs->fields['password'];
+			$pop3->port = intval($rs->fields['port']);
 			$pop3accounts[$pop3->id] = $pop3;
 			$rs->MoveNext();
 		}

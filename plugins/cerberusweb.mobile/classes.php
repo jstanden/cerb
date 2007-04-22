@@ -20,21 +20,33 @@ class MobilePage extends CerberusPageExtension implements DevblocksHttpRequestHa
 		
 		switch ($page) {
 			case "reply":
+				@$message_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer');
+				@$content = DevblocksPlatform::importGPC($_REQUEST['content'],'content');
+				@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string'); // used by forward
+				
+				$properties = array(
+					'message_id' => $message_id,
+					'content' => $content,
+			    );
+			    
 				switch (DevblocksPlatform::importGPC($_REQUEST['page_type'])) {
 					case "comment":
-						$type = CerberusMessageType::COMMENT;
+						$properties['type'] = CerberusMessageType::COMMENT;
 						break;
 					case "display":
-						$type = CerberusMessageType::EMAIL;
+						$properties['type'] = CerberusMessageType::EMAIL;
 						break;
 					case "forward":
-						$type = CerberusMessageType::FORWARD;
+						$properties['type'] = CerberusMessageType::FORWARD;
+						$properties['to'] = $to;
 						break;
 						
 					default:
 						break;
-				} // end switch (page_type)
-				CerberusApplication::sendMessage($type);
+				}
+				
+				CerberusMail::sendTicketMessage($properties);
+				
 				DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array($uri,'home')));
 				break;
 
@@ -53,13 +65,13 @@ class MobilePage extends CerberusPageExtension implements DevblocksHttpRequestHa
 		switch ($page) {
 			default:
 			case "home":
-				$mytickets = DAO_Search::searchTickets(
+				$mytickets = DAO_Ticket::search(
 					array(
-						new CerberusSearchCriteria(CerberusSearchFields::TICKET_STATUS,'in',array(CerberusTicketStatus::OPEN))
+						new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_STATUS,'in',array(CerberusTicketStatus::OPEN))
 					),
 					25,
 					0,
-					CerberusSearchFields::TICKET_UPDATED_DATE,
+					SearchFields_Ticket::TICKET_UPDATED_DATE,
 					0
 				);
 				$tpl->assign('mytickets', $mytickets[0]);

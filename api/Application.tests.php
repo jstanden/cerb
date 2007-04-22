@@ -47,11 +47,19 @@ class CerberusBayesTest extends PHPUnit_Framework_TestCase {
 
 class CerberusParserTest extends PHPUnit_Framework_TestCase {
 	function testParseRfcAddress() {
+		// FQDN Addy
 		$structure = CerberusParser::parseRfcAddress("jeff@webgroupmedia.com");
 		$addy = array_shift($structure);
 		
 		$this->assertEquals('jeff', $addy->mailbox);
 		$this->assertEquals('webgroupmedia.com', $addy->host);
+		
+		// Local Addy
+		$structure = CerberusParser::parseRfcAddress("jeff@localhost");
+		$addy = array_shift($structure);
+		
+		$this->assertEquals('jeff', $addy->mailbox);
+		$this->assertEquals('localhost', $addy->host);
 	}
 }
 

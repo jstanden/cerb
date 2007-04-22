@@ -13,7 +13,7 @@ abstract class CerberusPageExtension extends DevblocksExtension implements Devbl
 		$url = DevblocksPlatform::getUrlService();
 		// [JAS]: [TODO] Move this to the platform
 		$uri = array_search($this->id,$uris);
-		return $url->write($uri);
+		return $url->write("c=".$uri);
 	}
 	
 	/**

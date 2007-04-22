@@ -38,7 +38,7 @@ class ChKnowledgebasePage extends CerberusPageExtension {
 		
 		$resources = DAO_Search::searchResources(
 			array(
-				new CerberusSearchCriteria(CerberusResourceSearchFields::KB_CATEGORY_ID,'in',array($id))
+				new DevblocksSearchCriteria(CerberusResourceSearchFields::KB_CATEGORY_ID,'in',array($id))
 			),
 			25,
 			0,

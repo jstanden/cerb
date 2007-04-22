@@ -4,7 +4,7 @@
 <table class="tableGreen" border="0" cellpadding="2" cellspacing="0" width="100%">
   <tbody>
     <tr>
-      <td class="tableThGreen" nowrap="nowrap"> <img src="{devblocks_url}images/folder_network.gif{/devblocks_url}"> Properties</td>
+      <td class="tableThGreen" nowrap="nowrap"> <img src="{devblocks_url}images/folder_gear.gif{/devblocks_url}"> Properties</td>
     </tr>
     <tr>
       <td>

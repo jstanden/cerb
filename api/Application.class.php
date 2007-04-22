@@ -174,72 +174,6 @@ class CerberusApplication extends DevblocksApplication {
 		return $message_id;
 	}
 	
-	// TODO: may need to also have an agent_id passed to it in the request, to identify the agent making the reply
-	// [TODO] This needs to move into mail api/App functions and out of Application
-	function sendMessage($type) {
-		// variable loading
-		@$id		= DevblocksPlatform::importGPC($_REQUEST['id']); // message id
-		@$content	= DevblocksPlatform::importGPC($_REQUEST['content']);
-		@$priority	= DevblocksPlatform::importGPC($_REQUEST['priority']);	// DDH: TODO: if priority and/or status change, we need to update the
-		@$status	= DevblocksPlatform::importGPC($_REQUEST['status']);		// ticket object.  not sure if we want to do that here or not.
-		@$agent_id	= DevblocksPlatform::importGPC($_REQUEST['agent_id']);
-		
-		// object loading
-		$message	= DAO_Ticket::getMessage($id);
-		$ticket_id	= $message->ticket_id;
-		$ticket		= DAO_Ticket::getTicket($ticket_id);
-		$mailbox	= DAO_Mail::getMailbox($ticket->mailbox_id);
-		$requesters	= DAO_Ticket::getRequestersByTicket($ticket_id);
-		$mailMgr	= DevblocksPlatform::getMailService();
-		$headers	= DAO_Mail::getHeaders($type, $ticket_id);
-		
-		$files = $_FILES['attachment'];
-		// send email (if necessary)
-		if ($type != CerberusMessageType::COMMENT) {
-			// build MIME message if message has attachments
-			if (is_array($files) && !empty($files)) {
-				
-				/*
-				 * [JAS]: [TODO] If we're going to call platform libs directly we should just have
-				 * the platform provide the functionality.
-				 */
-			//	require_once(DEVBLOCKS_PATH . '/libS/pear/mime.php');
-				$mime_mail = new Mail_mime();
-				$mime_mail->setTXTBody($content);
-				foreach ($files['tmp_name'] as $idx => $file) {
-					$mime_mail->addAttachment($files['tmp_name'][$idx], $files['type'][$idx], $files['name'][$idx]);
-				}
-				
-				$email_body = $mime_mail->get();
-				$email_headers = $mime_mail->headers($headers);
-			} else {
-				$email_body = $content;
-				$email_headers = $headers;
-			}
-			
-			$mail_result =& $mailMgr->send('mail.webgroupmedia.com', $headers['x-rcpt'], $email_headers, $email_body); // DDH: TODO: this needs to pull the servername from a config, not hardcoded.
-			if ($mail_result !== true) die("Error message was: " . $mail_result->getMessage());
-		}
-		
-		// TODO: create DAO object for Agent, be able to pull address by having agent id.
-//		$headers['From'] = $agent_address->personal . ' <' . $agent_address->email . '>';
-//		$message_id = DAO_Ticket::createMessage($ticket_id,$type,gmmktime(),$agent_id,$headers,$content);
-		$message_id = DAO_Ticket::createMessage($ticket_id,$type,gmmktime(),1,$headers,$content);
-		
-		// if this message was submitted with attachments, store them in the filestore and link them in the db.
-		if (is_array($files) && !empty($files)) {
-			$settings = CerberusSettings::getInstance();
-			$attachmentlocation = $settings->get(CerberusSettings::SAVE_FILE_PATH);
-		
-			foreach ($files['tmp_name'] as $idx => $file) {
-				copy($files['tmp_name'][$idx],$attachmentlocation.$message_id.$idx);
-				DAO_Ticket::createAttachment($message_id, $files['name'][$idx], $message_id.$idx);
-			}
-		}
-		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('display',$id)));
-	}
-	
 	// [TODO] Rethink
 	static function getDashboardGlobalActions() {
 //		$trashAction = new Model_DashboardViewAction();
@@ -249,22 +183,10 @@ class CerberusApplication extends DevblocksApplication {
 //		$trashAction->params = array(
 //			'status' => CerberusTicketStatus::DELETED
 //		);
-//		
-//		$spamAction = new Model_DashboardViewAction();
-//		$spamAction->id = 'spam';
-//		$spamAction->dashboard_view_id = CerberusApplication::VIEW_MY_TICKETS;
-//		$spamAction->name = 'Report Spam';
-//		$spamAction->params = array(
-//			'spam' => CerberusTicketSpamTraining::SPAM
-//		);
-//		
+//
 //		$view_actions = array(
-//			$releaseAction->id => $releaseAction,
 //			$trashAction->id => $trashAction,
-//			$spamAction->id => $spamAction
 //		);
-		
-//		return $view_actions;
 		return array();
 	}
 	
@@ -290,17 +212,17 @@ class CerberusApplication extends DevblocksApplication {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		return array(
-			new CerberusDashboardViewColumn(CerberusSearchFields::TICKET_MASK,$translate->_('ticket.id')),
-			new CerberusDashboardViewColumn(CerberusSearchFields::TICKET_STATUS,$translate->_('ticket.status')),
-			new CerberusDashboardViewColumn(CerberusSearchFields::TICKET_PRIORITY,$translate->_('ticket.priority')),
-			new CerberusDashboardViewColumn(CerberusSearchFields::TICKET_LAST_WROTE,$translate->_('ticket.last_wrote')),
-			new CerberusDashboardViewColumn(CerberusSearchFields::TICKET_FIRST_WROTE,$translate->_('ticket.first_wrote')),
-			new CerberusDashboardViewColumn(CerberusSearchFields::TICKET_CREATED_DATE,$translate->_('ticket.created')),
-			new CerberusDashboardViewColumn(CerberusSearchFields::TICKET_UPDATED_DATE,$translate->_('ticket.updated')),
-			new CerberusDashboardViewColumn(CerberusSearchFields::TICKET_SPAM_SCORE,$translate->_('ticket.spam_score')),
-			new CerberusDashboardViewColumn(CerberusSearchFields::TICKET_TASKS,$translate->_('common.tasks')),
-			new CerberusDashboardViewColumn(CerberusSearchFields::TEAM_NAME,$translate->_('common.team')),
-			new CerberusDashboardViewColumn(CerberusSearchFields::CATEGORY_NAME,$translate->_('common.category')),
+			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_MASK,$translate->_('ticket.id')),
+			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_STATUS,$translate->_('ticket.status')),
+			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_PRIORITY,$translate->_('ticket.priority')),
+			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_LAST_WROTE,$translate->_('ticket.last_wrote')),
+			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_FIRST_WROTE,$translate->_('ticket.first_wrote')),
+			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_CREATED_DATE,$translate->_('ticket.created')),
+			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_UPDATED_DATE,$translate->_('ticket.updated')),
+			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_SPAM_SCORE,$translate->_('ticket.spam_score')),
+			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_TASKS,$translate->_('common.tasks')),
+			new CerberusDashboardViewColumn(SearchFields_Ticket::TEAM_NAME,$translate->_('common.team')),
+			new CerberusDashboardViewColumn(SearchFields_Ticket::CATEGORY_NAME,$translate->_('common.category')),
 		);
 	}
 	// ***************** DUMMY

@@ -1,6 +1,7 @@
 <h1 class="subtitle" style="color: rgb(102,102,102);">Ticket Conversation</h1>
 {if !empty($ticket)}
 {foreach from=$ticket->getMessages() item=message name=messages}
+{if $smarty.foreach.messages.last}<a name="latest"></a>{/if}
 <table style="text-align: left; width: 100%;" class="displayConversationTable" border="0" cellpadding="2" cellspacing="0">
   <tbody>
     <tr>

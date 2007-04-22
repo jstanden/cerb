@@ -2,6 +2,12 @@
 <br>
 
 <h2>Purge Deleted Tickets</h2>
+<form action="{devblocks_url}{/devblocks_url}" method="post">
+<input type="hidden" name="c" value="config">
+<input type="hidden" name="a" value="doPurge">
+<b>{$purge_count}</b> deleted tickets pending purge.<br>
+<input type="submit" value="Purge">
+</form>
 
 <!-- 
 <a name="routing"></a>
