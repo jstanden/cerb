@@ -11,7 +11,7 @@
     {foreach from=$requesters item=requester name=requesters}
     <tr>
       <td><a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showContactPanel&address={$requester->email}',this);" style="font-size:85%;" title="{$requester->email|escape:"htmlall"}">{if !empty($requester->personal)}{$requester->personal|escape:"htmlall"}{else}{$requester->email}{/if}</a></td>
-      <td><a href="javascript:;" onclick=""><b>X</b></a></td>
+      <td><a href="javascript:;" onclick="genericAjaxGet('','c=display&a=removeRequester&id={$ticket->id}&address_id={$requester->id}',ajax.refreshRequesters('{$ticket->id}'))"><b>X</b></a></td>
     </tr>
     {/foreach}
     <tr>

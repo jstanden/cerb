@@ -418,7 +418,7 @@ var cAjaxCalls = function() {
 					
 					div.innerHTML = o.responseText;
 					
-					ajax.addAddressAutoComplete("addRequesterEntry","addRequesterContainer", true);
+//					ajax.addAddressAutoComplete("addRequesterEntry","addRequesterContainer", true);
 				},
 				failure: function(o) {},
 				argument:{caller:this,id:id}

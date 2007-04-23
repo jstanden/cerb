@@ -1139,6 +1139,19 @@ class DAO_Ticket extends DevblocksORMHelper {
 		return true;
 	}
 	
+	static function deleteRequester($id, $address_id) {
+	    if(empty($id) || empty($address_id))
+	        return;
+	        
+        $db = DevblocksPlatform::getDatabaseService();
+
+        $sql = sprintf("DELETE FROM requester WHERE ticket_id = %d AND address_id = %d",
+            $id,
+            $address_id
+        );
+        $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+	}
+	
     static function search($params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
 
@@ -2111,6 +2124,74 @@ class DAO_Workflow {
 		}
 		
 		return $teams;
+	}
+	
+	/**
+	 * Returns an array of team ticket and task counts, indexed by team id.
+	 *
+	 * @param array $ids Team IDs to summarize
+	 * @return array
+	 */
+	static function getTeamCounts($ids) {
+		if(!is_array($ids)) $ids = array($ids);
+		$db = DevblocksPlatform::getDatabaseService();
+
+		$team_totals = array('0' => array('tickets'=>0,'tasks'=>0));
+
+		if(is_array($ids))
+		foreach($ids as $id) {
+	        $team_totals[$id] = array('tickets'=>0,'tasks'=>0);
+		}
+		
+		$sql = sprintf("SELECT count(*) as hits, t.team_id ".
+		    "FROM ticket t ".
+		    "WHERE t.team_id IN (%s) ".
+		    "AND t.status = 'O' ".
+		    "GROUP BY t.team_id ",
+		    implode(',', $ids)
+		);
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		while(!$rs->EOF) {
+		    $team_id = intval($rs->fields['team_id']);
+		    $hits = intval($rs->fields['hits']);
+		    
+		    if(!isset($team_totals[$team_id]))
+		        continue;
+		    
+		    $team_totals[$team_id]['tickets'] = $hits;
+		    $team_totals[0]['tickets'] += $hits;
+		        
+		    $rs->MoveNext();
+		}
+		
+		$sql = sprintf("SELECT count(*) as hits, tko.owner_id as team_id ".
+		    "FROM task tk ".
+		    "INNER JOIN task_owner tko ON (tk.id=tko.task_id) ".
+//		    "INNER JOIN ticket t ON (t.id=tk.ticket_id) ".
+		    "WHERE tko.owner_id IN (%s) ".
+		    "AND tko.owner_type = 'T' ".
+		    "AND tk.is_completed = 0 ".
+//		    "AND t.status = 'O' ".
+		    "GROUP BY tko.owner_id ",
+		    implode(',', $ids)
+		);
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		while(!$rs->EOF) {
+		    $team_id = intval($rs->fields['team_id']);
+		    $hits = intval($rs->fields['hits']);
+		    
+		    if(!isset($team_totals[$team_id]))
+		        continue;
+		    
+		    $team_totals[$team_id]['tasks'] = $hits;
+		    $team_totals[0]['tasks'] += $hits;
+		        
+		    $rs->MoveNext();
+		}
+		
+		return $team_totals;
 	}
 
 	/**

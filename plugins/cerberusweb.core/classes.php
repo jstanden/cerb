@@ -122,6 +122,10 @@ class ChTicketsPage extends CerberusPageExtension {
 				$teams = DAO_Workflow::getTeams();
 				$tpl->assign('teams', $teams);
 				
+				// [TODO] Be sure we're caching this
+				$team_counts = DAO_Workflow::getTeamCounts(array_keys($teams));
+				$tpl->assign('team_counts', $team_counts);
+
 				$active_dashboard_id = $visit->get(CerberusVisit::KEY_DASHBOARD_ID, 0);
 				$tpl->assign('active_dashboard_id', $active_dashboard_id);
 				
@@ -480,23 +484,11 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 
 		$teams = DAO_Workflow::getTeams();
-		$team_mailbox_counts = array();
-		// [TODO] Counts need redone
-		foreach ($teams as $team) { /* @var $team CerberusTeam */
-			$team->count = 0;
-//			$team_mailboxes = $team->getMailboxes(true);
-//			foreach ($team_mailboxes as $team_mailbox) { /* @var $team_mailbox CerberusMailbox */
-//				$team_mailbox_counts[$team_mailbox->id] = $team_mailbox->count;
-//				$team->count += $team_mailbox->count;
-//			}
-		}
 		$tpl->assign('teams', $teams);
-		
-//		$team_total_count = 0;
-//		foreach ($team_mailbox_counts as $idx => $val) {
-//			$team_total_count += $val;
-//		}
-		$tpl->assign('team_total_count', $team_total_count);
+
+		// [TODO] Be sure we're caching this
+		$team_counts = DAO_Workflow::getTeamCounts(array_keys($teams));
+		$tpl->assign('team_counts', $team_counts);
 		
 		$tpl->cache_lifetime = "0";
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/rpc/team_load_panel.tpl.php');
@@ -555,23 +547,11 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 
 		$teams = DAO_Workflow::getTeams();
-		$team_mailbox_counts = array();
-		// [TODO] Counts need redone (plus should never be redundant in here with teamPanel)
-		foreach ($teams as $team) { /* @var $team CerberusTeam */
-			$team->count = 0;
-//			$team_mailboxes = $team->getMailboxes(true);
-//			foreach ($team_mailboxes as $team_mailbox) { /* @var $team_mailbox CerberusMailbox */
-//				$team_mailbox_counts[$team_mailbox->id] = $team_mailbox->count;
-//				$team->count += $team_mailbox->count;
-//			}
-		}
 		$tpl->assign('teams', $teams);
 		
-//		$team_total_count = 0;
-//		foreach ($team_mailbox_counts as $idx => $val) {
-//			$team_total_count += $val;
-//		}
-		$tpl->assign('team_total_count', $team_total_count);
+		// [TODO] Be sure we're caching this
+		$team_counts = DAO_Workflow::getTeamCounts(array_keys($teams));
+		$tpl->assign('team_counts', $team_counts);
 		
 		$tpl->cache_lifetime = "0";
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/rpc/assign_panel.tpl.php');
@@ -688,30 +668,36 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$priority = DevblocksPlatform::importGPC($_POST['priority']);
 		@$spam = DevblocksPlatform::importGPC($_POST['spam']);
 		@$team = DevblocksPlatform::importGPC($_POST['team'],'string');
+		@$delete = DevblocksPlatform::importGPC($_POST['delete'],'integer');
 		
 		$params = array();			
 		
-		if(!is_null($status))
-			$params['status'] = $status;
-		if(!is_null($priority))
-			$params['priority'] = $priority;
-		if(!is_null($spam))
-			$params['spam'] = $spam;
-		if(!is_null($team))
-			$params['team'] = $team;
-
-		$fields = array(
-			DAO_DashboardViewAction::$FIELD_NAME => $title,
-			DAO_DashboardViewAction::$FIELD_VIEW_ID => 0,
-			DAO_DashboardViewAction::$FIELD_WORKER_ID => 1, // [TODO] Should be real
-			DAO_DashboardViewAction::$FIELD_PARAMS => serialize($params)
-		);
-			
-		if(empty($action_id)) {
-			$action_id = DAO_DashboardViewAction::create($fields);
+		if($delete) {
+		    DAO_DashboardViewAction::delete($action_id);
+		    
 		} else {
-			// [TODO]: Security check that the editor was the author of the original action.
-			DAO_DashboardViewAction::update($action_id, $fields);  
+			if(!is_null($status))
+				$params['status'] = $status;
+			if(!is_null($priority))
+				$params['priority'] = $priority;
+			if(!is_null($spam))
+				$params['spam'] = $spam;
+			if(!is_null($team))
+				$params['team'] = $team;
+	
+			$fields = array(
+				DAO_DashboardViewAction::$FIELD_NAME => $title,
+				DAO_DashboardViewAction::$FIELD_VIEW_ID => 0,
+				DAO_DashboardViewAction::$FIELD_WORKER_ID => 1, // [TODO] Should be real
+				DAO_DashboardViewAction::$FIELD_PARAMS => serialize($params)
+			);
+				
+			if(empty($action_id)) {
+				$action_id = DAO_DashboardViewAction::create($fields);
+			} else {
+				// [TODO]: Security check that the editor was the author of the original action.
+				DAO_DashboardViewAction::update($action_id, $fields);  
+			}
 		}
 		
 		echo ' ';
@@ -2010,11 +1996,20 @@ class ChDisplayPage extends CerberusPageExtension {
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/requesters.tpl.php');
 	}
 
+	function removeRequester() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id']); // ticket id
+		@$address_id = DevblocksPlatform::importGPC($_REQUEST['address_id']); // address id
+	    
+		DAO_Ticket::deleteRequester($id, $address_id);
+		
+		echo ' ';
+	}
+	
 	function saveRequester() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']); // ticket id
 		@$add_requester = DevblocksPlatform::importGPC($_POST['add_requester']);
 		
-		// I'd really like to know why the *$#! this doesn't work.  The if statement works fine atomically...
+		// [DDH]: I'd really like to know why the *$#! this doesn't work.  The if statement works fine atomically...
 		// [JAS]: [TODO] Just convert it to the Zend_Validate stuff.
 //		require_once(APP_PATH . '/libs/pear/Mail/RFC822.php');
 //		if (false === Mail_RFC822::isValidInetAddress($add_requester)) {

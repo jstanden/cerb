@@ -14,8 +14,9 @@
 				      	<select name="dashboard_id" onchange="this.form.submit();">
 				      		<option value="0" {if empty($active_dashboard_id)}selected{/if}>My Tickets</option>
 				      		<optgroup label="Team Dashboards">
-				      			{foreach from=$teams item=team}
-				      			<option value="t{$team->id}" {if substr($active_dashboard_id,1)==$team->id}selected{/if}>{$team->name}</option>
+				      			{foreach from=$teams item=team key=team_id}
+				      			{assign var=team_count value=$team_counts.$team_id}
+				      			<option value="t{$team->id}" {if substr($active_dashboard_id,1)==$team->id}selected{/if}>{$team->name} ({$team_count.tickets}{if $team_count.tasks}/+{$team_count.tasks}{/if})</option>
 				      			{/foreach}
 				      		</optgroup>
 				      		<optgroup label="Custom Dashboards">

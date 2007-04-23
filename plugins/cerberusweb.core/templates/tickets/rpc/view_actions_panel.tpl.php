@@ -83,6 +83,6 @@
 </div>
 
 <input type="button" value="{$translate->_('common.save_changes')}" onclick="ajax.saveViewActionPanel('{$id}','{$view_id}');">
-{if !empty($id)}<input type="button" value="{$translate->_('common.remove')|capitalize}" onclick="">{/if}
+{if !empty($id)}<label><input type="checkbox" name="delete" value="1"> {$translate->_('common.remove')|capitalize}</label>{/if}
 <br>
 </form>
