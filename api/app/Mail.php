@@ -135,9 +135,8 @@ class CerberusMail {
 			// Mime Attachments
 			if (is_array($files) && !empty($files)) {
 				foreach ($files['tmp_name'] as $idx => $file) {
-				    // [TODO] Add attachments
-//					$mime_mail->addAttachment($files['tmp_name'][$idx], $files['type'][$idx], $files['name'][$idx]);
-//					$mail->addAttachment()
+					$attachment =& $mail->addAttachment(file_get_contents($files['tmp_name'][$idx]),$files['type'][$idx]); /* @var $attachment Zend_Mime_Part */
+					$attachment->filename = $files['name'][$idx];
 				}
 			}
 			
@@ -149,16 +148,16 @@ class CerberusMail {
 		// [TODO] Include real address_id
 		$message_id = DAO_Ticket::createMessage($ticket_id,$type,gmmktime(),1,$headers,$content);
 
-//		// [TODO] if this message was submitted with attachments, store them in the filestore and link them in the db.
-//		if (is_array($files) && !empty($files)) {
-//			$settings = CerberusSettings::getInstance();
-//			$attachmentlocation = $settings->get(CerberusSettings::SAVE_FILE_PATH);
-//		
-//			foreach ($files['tmp_name'] as $idx => $file) {
-//				copy($files['tmp_name'][$idx],$attachmentlocation.$message_id.$idx);
-//				DAO_Ticket::createAttachment($message_id, $files['name'][$idx], $message_id.$idx);
-//			}
-//		}
+//		// if this message was submitted with attachments, store them in the filestore and link them in the db.
+		if (is_array($files) && !empty($files)) {
+			$settings = CerberusSettings::getInstance();
+			$attachment_location = $settings->get(CerberusSettings::SAVE_FILE_PATH);
+		
+			foreach ($files['tmp_name'] as $idx => $file) {
+				copy($files['tmp_name'][$idx],$attachment_location.$message_id.$idx);
+				DAO_Ticket::createAttachment($message_id, $files['name'][$idx], $message_id.$idx);
+			}
+		}
 		
 		// Handle post-mail actions
 		$change_fields = array();

@@ -58,6 +58,10 @@ if(!is_writeable(DEVBLOCKS_PATH . "tmp/cache/")) {
 	die(realpath(DEVBLOCKS_PATH . "tmp/cache/") . " is not writeable by the webserver.  Please adjust permissions and reload this page.");
 }
 
+if(!is_writeable(APP_PATH . "/attachments/")) {
+	die(realpath(APP_PATH . "/attachments/") ." is not writeable by the webserver.  Please adjust permissions and reload this page.");
+}
+
 if(!is_writeable(DEVBLOCKS_PATH . "logs/")) {
 	die(realpath(DEVBLOCKS_PATH . "logs/") ." is not writeable by the webserver.  Please adjust permissions and reload this page.");
 }
@@ -775,6 +779,8 @@ switch($step) {
 		$tpl->assign('template', 'steps/step_finished.tpl.php');
 		break;
 }
+
+// [TODO] Configure attachment path (/attachments?)  -- Can remove the is_writeable check in the top if !/attachments
 
 // [TODO] Check PEAR path
 

@@ -144,7 +144,7 @@ class DAO_Bayes {
 	
 };
 
-class DAO_Worker {
+class DAO_Worker extends DevblocksORMHelper {
 	private function DAO_Worker() {}
 	
 	const ID = 'id';
@@ -154,6 +154,8 @@ class DAO_Worker {
 	const EMAIL = 'email';
 	const PASSWORD = 'pass';
 	const IS_SUPERUSER = 'is_superuser';
+	const LAST_ACTIVITY_DATE = 'last_activity_date';
+	const LAST_ACTIVITY = 'last_activity';
 	
 	// [TODO] Convert to ::create($id, $fields)
 	static function create($email, $password, $first_name, $last_name, $title) {
@@ -183,7 +185,7 @@ class DAO_Worker {
 		$db = DevblocksPlatform::getDatabaseService();
 		$workers = array();
 		
-		$sql = "SELECT a.id, a.first_name, a.last_name, a.email, a.title, a.is_superuser ".
+		$sql = "SELECT a.id, a.first_name, a.last_name, a.email, a.title, a.is_superuser, a.last_activity_date, a.last_activity ".
 			"FROM worker a ".
 			((!empty($ids) ? sprintf("WHERE a.id IN (%s)",implode(',',$ids)) : " ").
 			"ORDER BY a.last_name, a.first_name "
@@ -199,6 +201,10 @@ class DAO_Worker {
 			$worker->title = $rs->fields['title'];
 			$worker->is_superuser = $rs->fields['is_superuser'];
 			$worker->last_activity_date = intval($rs->fields['last_activity_date']);
+			
+			if(!empty($rs->fields['last_activity']))
+			    $worker->last_activity = unserialize($rs->fields['last_activity']);
+			
 			$workers[$worker->id] = $worker;
 			$rs->MoveNext();
 		}
@@ -474,7 +480,91 @@ class DAO_Worker {
 		return DAO_Worker::getList($ids);
 	}
 	
+	/**
+	 * Store the workers last activity (provided by the page extension).
+	 * 
+	 * @param integer $worker_id
+	 * @param Model_Activity $activity
+	 */
+	static function logActivity($worker_id, Model_Activity $activity) {
+	    DAO_Worker::updateAgent($worker_id,array(
+	        DAO_Worker::LAST_ACTIVITY_DATE => gmmktime(),
+	        DAO_Worker::LAST_ACTIVITY => serialize($activity)
+	    ));
+	}
+
+    /**
+     * Enter description here...
+     *
+     * @param DevblocksSearchCriteria[] $params
+     * @param integer $limit
+     * @param integer $page
+     * @param string $sortBy
+     * @param boolean $sortAsc
+     * @param boolean $withCounts
+     * @return array
+     */
+    static function search($params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
+		$db = DevblocksPlatform::getDatabaseService();
+
+        list($tables,$wheres) = parent::_parseSearchParams($params, SearchFields_Worker::getFields());
+		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
+		
+		$sql = sprintf("SELECT ".
+			"w.id as %s, ".
+			"w.last_activity_date as %s ".
+			"FROM worker w ",
+//			"INNER JOIN team tm ON (tm.id = t.team_id) ".
+			    SearchFields_Worker::ID,
+			    SearchFields_Worker::LAST_ACTIVITY_DATE
+			).
+			
+			// [JAS]: Dynamic table joins
+//			(isset($tables['ra']) ? "INNER JOIN requester r ON (r.ticket_id=t.id)" : " ").
+			
+			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "").
+			(!empty($sortBy) ? sprintf("ORDER BY %s %s",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : "")
+		;
+		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		$results = array();
+		while(!$rs->EOF) {
+			$result = array();
+			foreach($rs->fields as $f => $v) {
+				$result[$f] = $v;
+			}
+			$ticket_id = intval($rs->fields[SearchFields_Worker::ID]);
+			$results[$ticket_id] = $result;
+			$rs->MoveNext();
+		}
+
+		// [JAS]: Count all
+		$total = -1;
+		if($withCounts) {
+		    $rs = $db->Execute($sql);
+		    $total = $rs->RecordCount();
+		}
+		
+		return array($results,$total);
+    }
+    	
 }
+
+class SearchFields_Worker implements IDevblocksSearchFields {
+	// Worker
+	const ID = 'w_id';
+	const LAST_ACTIVITY_DATE = 'w_last_activity_date';
+	
+	/**
+	 * @return DevblocksSearchField[]
+	 */
+	static function getFields() {
+		return array(
+			SearchFields_Worker::ID => new DevblocksSearchField(SearchFields_Worker::ID, 'w', 'id'),
+			SearchFields_Worker::LAST_ACTIVITY_DATE => new DevblocksSearchField(SearchFields_Worker::LAST_ACTIVITY_DATE, 'w', 'last_activity_date'),
+		);
+	}
+};
 
 class DAO_Contact {
 	private function DAO_Contact() {}
@@ -581,10 +671,10 @@ class DAO_Contact {
 		 */
 		// [TODO] This code fails with anything@localhost
 //		require_once(DEVBLOCKS_PATH . 'libs/pear/Mail/RFC822.php');
-		if (false === Mail_RFC822::isValidInetAddress($email)) {
+//		if (false === Mail_RFC822::isValidInetAddress($email)) {
 //			throw new Exception($email . DevblocksTranslationManager::say('ticket.requester.invalid'));
-			return null;
-		}
+//			return null;
+//		}
 		
 		$sql = sprintf("INSERT INTO address (id,email,personal,bitflags) VALUES (%d,%s,%s,0)",
 			$id,

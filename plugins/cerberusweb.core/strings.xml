@@ -90,6 +90,11 @@
 			</tuv>
 		</tu>
 
+		<!-- Activities -->
+		<tu tuid='activity.default'>
+			<tuv xml:lang="en"><seg>is browsing the helpdesk</seg></tuv>
+		</tu>
+
 		<!-- Header -->
 
 		<tu tuid='header.history'>
@@ -119,7 +124,7 @@
 		</tu>
 		<tu tuid='header.signed_in'>
 			<tuv xml:lang="en">
-				<seg>Signed in as %$1s</seg>
+				<seg>Signed in as %s</seg>
 			</tuv>
 		</tu>
 		<tu tuid='header.signoff'>
@@ -399,7 +404,7 @@
 
 		<tu tuid='whos_online.heading'>
 			<tuv xml:lang="en">
-				<seg>Who's Online: (%$1d agents)</seg>
+				<seg>Who's Online: (%d agents)</seg>
 			</tuv>
 		</tu>
 

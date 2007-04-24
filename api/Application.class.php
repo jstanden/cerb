@@ -1,5 +1,5 @@
 <?php
-define("APP_BUILD", 108);
+define("APP_BUILD", 115);
 
 include_once(APP_PATH . "/api/ClassLoader.php");
 include_once(APP_PATH . "/api/DAO.class.php");
@@ -54,8 +54,11 @@ class CerberusApplication extends DevblocksApplication {
 		$tpl->assign('pages',$pages);		
 		
 		$pageManifest = DevblocksPlatform::getExtension($extension_id);
-		$page = $pageManifest->createInstance();
+		$page = $pageManifest->createInstance(); /* @var $page CerberusPageExtension */
 		$tpl->assign('page',$page);
+		
+		if(!empty($visit) && !is_null($visit->getWorker()))
+		    DAO_Worker::logActivity($visit->getWorker()->id, $page->getActivity());
 		
 		$settings = CerberusSettings::getInstance();
 		$tpl->assign('settings', $settings);
@@ -65,6 +68,12 @@ class CerberusApplication extends DevblocksApplication {
 		
 		$translate = DevblocksPlatform::getTranslationService();
 		$tpl->assign('translate', $translate);
+		
+		// [JAS]: Pre-translate any dynamic strings
+        $common_translated = array();
+        if(!empty($visit) && !is_null($visit->getWorker()))
+            $common_translated['header_signed_in'] = vsprintf($translate->_('header.signed_in'), array('<b>'.$visit->getWorker()->getName().'</b>'));
+        $tpl->assign('common_translated', $common_translated);
 		
 		$tpl->display('border.php');
 	}
@@ -266,7 +275,6 @@ class CerberusSettings {
 		self::DEFAULT_REPLY_FROM => '',
 		self::DEFAULT_REPLY_PERSONAL => '',
 		self::HELPDESK_TITLE => 'Cerberus Helpdesk :: Team-based E-mail Management',
-		self::SAVE_FILE_PATH => 'ftps://cerberus:cerberus@localhost/',
 		self::SMTP_HOST => 'localhost',
 		self::SMTP_AUTH_USER => '',
 		self::SMTP_AUTH_PASS => '',
@@ -276,6 +284,9 @@ class CerberusSettings {
 	 * @return CerberusSettings
 	 */
 	private function __construct() {
+	    // Defaults (dynamic)
+	    $this->settings[self::SAVE_FILE_PATH] = realpath(APP_PATH . '/attachments').DIRECTORY_SEPARATOR;
+	    
 		$saved_settings = DAO_Setting::getSettings();
 		foreach($saved_settings as $k => $v) {
 			$this->settings[$k] = $v;

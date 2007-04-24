@@ -11,10 +11,13 @@
 			This is the location where Cerberus will store attachments, both received via email and uploaded by Workers.
 			<br>&nbsp;&nbsp;&nbsp;&nbsp;To save to disk, use a complete file path (e.g. C:\httpd\cerb4\temp\ or /usr/local/cerb4/tmp/).
 			<br>&nbsp;&nbsp;&nbsp;&nbsp;To use an FTP server, use a full FTP URI (e.g. ftps://user:password@hostname/file/path/).
-			<br><b>Attachment Storage Location:</b>
-			<input type="text" name="attachmentlocation" value="{$attachmentlocation|escape:"html"}" size="45">
-			
 			<br>
+			<br>
+			
+			<b>Attachment Storage Location:</b><br>
+			<input type="text" name="attachmentlocation" value="{$settings->get('save_file_path')|escape:"html"}" size="64"><br>
+			<br>
+			
 			<input type="submit" value="Save Changes">
 			</form>
 		</td>

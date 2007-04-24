@@ -212,7 +212,8 @@ class ChCorePatchContainer extends DevblocksPatchContainerExtension {
 			email C(128) DEFAULT '',
 			pass C(32) DEFAULT '',
 			is_superuser I1 DEFAULT 0 NOTNULL,
-			last_activity_date I4
+			last_activity_date I4,
+			last_activity B DEFAULT ''
 		";
 		
 		$tables['bayes_words'] = "

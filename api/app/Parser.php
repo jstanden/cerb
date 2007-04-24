@@ -148,7 +148,8 @@ class CerberusParser {
 		
 		$fromAddress = $from[0]->mailbox.'@'.$from[0]->host;
 		$fromPersonal = $from[0]->personal;
-		$fromAddressId = DAO_Contact::createAddress($fromAddress, $fromPersonal);
+		$fromAddressId = DAO_Contact::lookupAddress($fromAddress, true); 
+		//DAO_Contact::createAddress($fromAddress, $fromPersonal);
 
 		if(is_array($to))
 		foreach($to as $recipient) {
@@ -171,14 +172,14 @@ class CerberusParser {
 		
 		if(empty($id)) {
 			$team_id = CerberusParser::parseDestination($headers);
-			$wrote_id = DAO_Contact::lookupAddress($fromAddress, true);
+//			$wrote_id = DAO_Contact::lookupAddress($fromAddress, true);
 			
 			$fields = array(
 				DAO_Ticket::MASK => $sMask,
 				DAO_Ticket::SUBJECT => $sSubject,
 				DAO_Ticket::STATUS => CerberusTicketStatus::OPEN,
-				DAO_Ticket::FIRST_WROTE_ID => $wrote_id,
-				DAO_Ticket::LAST_WROTE_ID => $wrote_id,
+				DAO_Ticket::FIRST_WROTE_ID => $fromAddressId,
+				DAO_Ticket::LAST_WROTE_ID => $fromAddressId,
 				DAO_Ticket::CREATED_DATE => $iDate,
 				DAO_Ticket::UPDATED_DATE => $iDate,
 				DAO_Ticket::TEAM_ID => $team_id

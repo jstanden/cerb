@@ -8,7 +8,7 @@
 	<META HTTP-EQUIV="Cache-Directive" CONTENT="no-cache">
 	<META HTTP-EQUIV="Expires" CONTENT="0">
 
-	<title>Cerberus Helpdesk</title>
+  <title>{$settings->get('helpdesk_title')}</title>
   <link type="text/css" rel="stylesheet" href="{devblocks_url}styles/default/cerberus.css?v={$smarty.const.APP_BUILD}{/devblocks_url}"></link>
   
   <script language="javascript" type="text/javascript" src="{devblocks_url}scripts/yahoo/YAHOO.js?v={$smarty.const.APP_BUILD}{/devblocks_url}"></script>

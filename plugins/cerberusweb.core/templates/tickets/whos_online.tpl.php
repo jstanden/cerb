@@ -1,3 +1,5 @@
-<h1>{$translate->_('whos_online.heading')}</h1>
+<h1>{$translated.whos_heading}</h1>
 <div class="line"><img src="{devblocks_url}images/spacer.gif{/devblocks_url}" width="1" height="1"></div>
-<b>Jeff Standen</b>  (jstanden) on the main screen (ip: 1.2.3.4 idle: 0 secs)<br>
+{foreach from=$whos_online item=who name=whos}
+	<b>{$who->getName()}</b> {if $who->title}({$who->title}) {/if}{if $who->last_activity}{$who->last_activity->toString()}{/if} (ip: x.x.x.x idle: xx secs)<br>
+{/foreach}

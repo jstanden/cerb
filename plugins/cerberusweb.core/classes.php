@@ -284,12 +284,30 @@ class ChTicketsPage extends CerberusPageExtension {
 						$tpl->assign('views', $views);
 					}
 				}
+				
+				// [TODO]: This should be filterable by a specific view later as well using searchDAO.
+				$viewActions = DAO_DashboardViewAction::getList();
+				$tpl->assign('viewActions', $viewActions);
 			
-				// [TODO] This currently isn't working in translate substitutions
-				$translate_tokens = array(
-					"whos" => array(1)
+				list($whos_online_workers, $whos_online_count) = DAO_Worker::search(
+				    array(
+				        new DevblocksSearchCriteria(SearchFields_Worker::LAST_ACTIVITY_DATE,DevblocksSearchCriteria::OPER_GT,(gmmktime()-60*15)), // idle < 15 mins
+				    ),
+				    1000,
+				    0,
+				    SearchFields_Worker::LAST_ACTIVITY_DATE,
+				    false,
+				    true
 				);
-				$tpl->assign('translate_tokens', $translate_tokens);
+				
+				$whos_online = DAO_Worker::getList(array_keys($whos_online_workers));
+				$tpl->assign('whos_online', $whos_online);
+				
+				$translate = DevblocksPlatform::getTranslationService();
+				$translated = array(
+					'whos_heading' => vsprintf($translate->_('whos_online.heading'),array($whos_online_count))
+				);
+				$tpl->assign('translated', $translated);
 				
 				$tpl->cache_lifetime = "0";
 				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/index.tpl.php');
@@ -1074,10 +1092,6 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		
 		switch($stack[0]) {
 			case 'general':
-				$settings = CerberusSettings::getInstance();
-				$attachmentlocation = $settings->get(CerberusSettings::SAVE_FILE_PATH);
-				$tpl->assign('attachmentlocation', $attachmentlocation);
-		
 				$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/general/index.tpl.php');				
 				break;
 				
@@ -1198,7 +1212,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 			
 		} else {
 			if(empty($id) && null == DAO_Worker::lookupAgentEmail($email)) {
-				$id = DAO_Worker::create($email, $password);
+				$id = DAO_Worker::create($email, $password, '', '', '');
 			}
 		    
 			$fields = array(
@@ -1320,34 +1334,28 @@ class ChConfigurationPage extends CerberusPageExtension  {
 //		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','mail')));
 //	}
 	
-	// Ajax  (DDH: I don't think this actually gets used anywhere...hm.)
-	function getAttachmentLocation() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
-
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
-		$tpl->assign('path', dirname(__FILE__) . '/templates/');
-
-		$settings = CerberusSettings::getInstance();
-		$attachmentlocation = $settings->get(CerberusSettings::SAVE_FILE_PATH);
-		$tpl->assign('attachmentlocation', $attachmentlocation);
-		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/general/attachments.tpl.php');
+	// Post
+	function saveSettings() {
+	    @$title = DevblocksPlatform::importGPC($_POST['title'],'string');
+	    
+	    $settings = CerberusSettings::getInstance();
+	    $settings->set(CerberusSettings::HELPDESK_TITLE, $title);
+	    
+	    DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','general')));
 	}
 	
 	// Post
 	function saveAttachmentLocation() {
 		@$id = DevblocksPlatform::importGPC($_POST['id']);
-		@$attachmentlocation = DevblocksPlatform::importGPC($_POST['attachmentlocation']);
-		if (!empty($attachmentlocation)
-		&&	(	strrpos($attachmentlocation,'/') != strlen($attachmentlocation)
-			||	strrpos($attachmentlocation,'\\') != strlen($attachmentlocation)
-			)
-		)
-			$attachmentlocation = $attachmentlocation . '/';
+		@$attachment_location = DevblocksPlatform::importGPC($_POST['attachmentlocation']);
+
+		// [JAS]: Make sure we're appending an appropriate directory separator
+		$last_char = substr($attachment_location,-1,1);
+		if (!empty($attachment_location) && (0 != strcmp($last_char, '/') && 0 != strcmp($last_char, '\\')))
+    		$attachment_location = $attachment_location . DIRECTORY_SEPARATOR;
 		
 		$settings = CerberusSettings::getInstance();
-		$settings->set(CerberusSettings::SAVE_FILE_PATH,$attachmentlocation);
+		$settings->set(CerberusSettings::SAVE_FILE_PATH,$attachment_location);
 				
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','general')));
 	}
@@ -2217,6 +2225,13 @@ class ChPreferencesPage extends CerberusPageExtension {
 		$tpl->cache_lifetime = "0";
 
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/preferences/index.tpl.php');
+	}
+	
+	// Post
+	function saveDefaults() {
+	    @$timezone = DevblocksPlatform::importGPC($_REQUEST['timezone'],'string');
+	    @$default_signature = DevblocksPlatform::importGPC($_REQUEST['default_signature'],'string');
+	    @$reply_box_height = DevblocksPlatform::importGPC($_REQUEST['reply_box_height'],'integer');
 	}
 }
 

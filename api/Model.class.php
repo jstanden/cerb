@@ -61,6 +61,21 @@ class Model_DashboardViewAction {
 	}
 };
 
+class Model_Activity {
+    public $translation_code;
+    public $params;
+    
+    public function __construct($translation_code='activity.default',$params=array()) {
+        $this->translation_code = $translation_code;
+        $this->params = $params;
+    }
+    
+    public function toString() {
+        $translate = DevblocksPlatform::getTranslationService();
+        return vsprintf($translate->_($this->translation_code), $this->params);
+    }
+}
+
 class Model_MailRoute {
 	public $id = 0;
 	public $pattern = '';
@@ -107,6 +122,7 @@ class CerberusWorker {
 	public $last_name;
 	public $email;
 	public $title;
+	public $last_activity;
 	public $last_activity_date;
 	
 	function getTeams() {

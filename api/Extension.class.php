@@ -33,7 +33,14 @@ abstract class CerberusPageExtension extends DevblocksExtension implements Devbl
 	
 	public function writeResponse($response) {
 		CerberusApplication::writeDefaultHttpResponse($response);
-	}	
+	}
+	
+	/**
+	 * @return Model_Activity
+	 */
+	public function getActivity() {
+        return new Model_Activity();
+	}
 };
 
 /*
