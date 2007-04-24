@@ -39,6 +39,10 @@ class ChTicketsPage extends CerberusPageExtension {
 		return true;
 	}
 	
+	function getActivity() {
+	    return new Model_Activity('activity.tickets');
+	}
+	
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
@@ -1081,6 +1085,10 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		}
 	}
 	
+	function getActivity() {
+	    return new Model_Activity('activity.config');
+	}
+	
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
@@ -1810,6 +1818,20 @@ class ChDisplayPage extends CerberusPageExtension {
 			return true;
 		}
 	}
+	
+	function getActivity() {
+		$response = DevblocksPlatform::getHttpResponse();
+		$stack = $response->path;
+		@$id = $stack[1];
+	       
+		$url = DevblocksPlatform::getUrlService();
+		$link = sprintf("<a href='%s'>#%s</a>",
+		    $url->write("c=display&id=".$id),
+		    $id
+		);
+	    return new Model_Activity('activity.display_ticket',array($link));
+	}
+	
 	
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();

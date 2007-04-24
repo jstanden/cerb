@@ -95,6 +95,22 @@
 			<tuv xml:lang="en"><seg>is browsing the helpdesk</seg></tuv>
 		</tu>
 
+		<tu tuid='activity.config'>
+			<tuv xml:lang="en"><seg>is configuring the helpdesk</seg></tuv>
+		</tu>
+
+		<tu tuid='activity.display_ticket'>
+			<tuv xml:lang="en"><seg>is displaying %s</seg></tuv>
+		</tu>
+
+		<tu tuid='activity.simulator'>
+			<tuv xml:lang="en"><seg>is generating simulated tickets</seg></tuv>
+		</tu>
+
+		<tu tuid='activity.tickets'>
+			<tuv xml:lang="en"><seg>is browsing tickets</seg></tuv>
+		</tu>
+
 		<!-- Header -->
 
 		<tu tuid='header.history'>

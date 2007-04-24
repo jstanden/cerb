@@ -17,6 +17,10 @@ class ChSimulatorPage extends CerberusPageExtension {
 		}
 	}
 	
+	function getActivity() {
+	    return new Model_Activity('activity.simulator');
+	}
+	
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
