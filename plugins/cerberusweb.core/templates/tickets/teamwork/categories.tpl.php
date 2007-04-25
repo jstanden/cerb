@@ -9,13 +9,16 @@
 	</tr>
 	<tr>
 		<td class="tableCellBg" width="100%" style="padding:2px;">
-			<table cellpadding="0" cellspacing="0" border="0" width="100%">
+			<label><input type="radio" name="hide_categorized" value="1" {if $team_filters.hide_categorized}checked{/if} onclick="toggleDiv('teamCategories','none');"> <b>Hide categorized</b></label><br>
+			<label><input type="radio" name="hide_categorized" value="0" {if !$team_filters.hide_categorized}checked{/if} onclick="toggleDiv('teamCategories','block');"> <b>In these categories:</b></label><br>
+			<div id="teamCategories" style="display:{if $team_filters.hide_categorized}none{else}block{/if};">
+			<table cellpadding="0" cellspacing="0" border="0" width="95%" align="right">
 				{foreach from=$categories item=category key=category_id}
 					{if $category_counts.0}
 						{math assign=percent equation="(x/y)*50" x=$category_counts.$category_id y=$category_counts.0 format="%0.0f"}
 					{/if}
 				<tr>
-					<td class="tableCellBg" width="100%"><label><input type="checkbox" name="categories[]" value="{$category->id}" {if isset($team_filters.categories.$category_id)}checked{/if}> {$category->name} ({$category_counts.$category_id})</label></td>
+					<td class="tableCellBg" width="100%"><label><input type="checkbox" name="categories[]" value="{$category->id}" {if isset($team_filters.categories.$category_id)}checked{/if} onclick="this.form.hide_categorized[1].checked=true;"> {$category->name} ({$category_counts.$category_id})</label></td>
 					<td class="tableCellBgIndent" width="0%" nowrap="nowrap" style="width:51px;"><img src="{devblocks_url}images/cerb_graph.gif{/devblocks_url}" width="{$percent}" height="15"><img src="{devblocks_url}images/cer_graph_cap.gif{/devblocks_url}" height="15" width="1"></td>
 				</tr>
 				{foreachelse}
@@ -24,9 +27,11 @@
 				</tr>
 				{/foreach}
 			</table>
+			<br>
+			<br>
+			</div>
 			
-			<label><input type="checkbox" name="hide_categorized" value="1" {if $team_filters.hide_categorized}checked{/if}> <i>Hide Categorized</i></label><br>
-			<label><input type="checkbox" name="hide_assigned" value="1" {if $team_filters.hide_assigned}checked{/if}> <i>Hide with Active Tasks</i></label><br>
+			<label><input type="checkbox" name="hide_assigned" value="1" {if $team_filters.hide_assigned}checked{/if}> Hide with Active Tasks</label><br>
 			
 			<div align="right">
 				<input type="submit" value="{$translate->_('common.filter')|capitalize}">
