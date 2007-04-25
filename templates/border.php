@@ -7,7 +7,10 @@
 		{$translate->_('header.not_signed_in')} [<a href="{devblocks_url}c=login{/devblocks_url}">{$translate->_('header.signon')|lower}</a>]
 		{else}
 		{$common_translated.header_signed_in} 
-		<img src="{devblocks_url}images/hand_paper.gif{/devblocks_url}" align="bottom" border="0"> <a href="{devblocks_url}c=tickets&a=dashboards&i=my{/devblocks_url}" title="{$translate->_('header.my_flagged_tickets')|capitalize}">my tasks</a> 
+		<img src="{devblocks_url}images/hand_paper.gif{/devblocks_url}" align="bottom" border="0"> <a href="{devblocks_url}c=tickets&a=dashboards&i=my{/devblocks_url}" title="{$translate->_('header.my_flagged_tickets')|capitalize}">my tasks</a>
+		<img src="{devblocks_url}images/businessmen.gif{/devblocks_url}"> <a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showTeamPanel',this);">{$translate->_('teamwork.my_team_loads')|lower}</a> 
+		<img src="{devblocks_url}images/document_into.gif{/devblocks_url}"> <a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showAssignPanel',this,true);">{$translate->_('teamwork.assign_work')|lower}</a> 
+		<br> 
 		[ <a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showHistoryPanel',this);">{$translate->_('header.history')|lower}</a> ]
 		[ <a href="{devblocks_url}c=preferences{/devblocks_url}">{$translate->_('header.preferences')|lower}</a> ]
 		[ <a href="{devblocks_url}c=login&a=signout{/devblocks_url}">{$translate->_('header.signoff')|lower}</a> ]<br>

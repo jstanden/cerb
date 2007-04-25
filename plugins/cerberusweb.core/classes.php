@@ -204,89 +204,129 @@ class ChTicketsPage extends CerberusPageExtension {
 					
 				} else { // virtual dashboards
 					// team dashboard
-					if(0 == strcmp('t',substr($active_dashboard_id,0,1))) {
+                    if(0 == strcmp('t',substr($active_dashboard_id,0,1))) {
 						$team_id = intval(substr($active_dashboard_id,1));
 						$team = $teams[$team_id];
 						
+						$tpl->assign('dashboard_team_id', $team_id);
+
 						$categories = DAO_Category::getByTeam($team_id);
 						$tpl->assign('categories', $categories);
-												
-						// ======================================================
-						// Team Tickets (All)
-						// ======================================================
-						$teamView = $viewManager->getView(CerberusApplication::VIEW_TEAM_TICKETS);
-						if(null == $teamView) {
-							$teamView = new CerberusDashboardView();
-							$teamView->id = CerberusApplication::VIEW_TEAM_TICKETS;
-							$teamView->name = "Active Team Tickets";
-							$teamView->dashboard_id = 0;
-							$teamView->view_columns = array(
-								SearchFields_Ticket::TICKET_MASK,
-								SearchFields_Ticket::TICKET_STATUS,
-								SearchFields_Ticket::TICKET_PRIORITY,
-								SearchFields_Ticket::TICKET_LAST_WROTE,
-								SearchFields_Ticket::TICKET_UPDATED_DATE,
-								SearchFields_Ticket::CATEGORY_NAME,
+						
+						@$team_filters = $_SESSION['team_filters'][$team_id];
+						if(empty($team_filters)) $team_filters = array();
+						$tpl->assign('team_filters', $team_filters);
+						
+						$category_counts = DAO_Category::getCategoryCounts(array_keys($categories));
+		                $tpl->assign('category_counts', $category_counts);
+						
+					    @$team_mode = array_shift($request_path);
+					    // Editing
+					    if(0 == strcasecmp($team_mode,"manage")) {
+						    $tpl->assign('team', $team);
+						    
+						    // [TODO] Migrate this DAO stub to worker::search
+						    $members = DAO_Workflow::getTeamWorkers($team_id);
+						    $tpl->assign('members', $members);
+						    
+					        $tpl->cache_lifetime = "0";
+							$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/teamwork/manage.tpl.php');
+							break;
+					        
+					    // Viewing
+					    } else {
+							// ======================================================
+							// Team Tickets (All)
+							// ======================================================
+							$teamView = $viewManager->getView(CerberusApplication::VIEW_TEAM_TICKETS);
+							if(null == $teamView) {
+								$teamView = new CerberusDashboardView();
+								$teamView->id = CerberusApplication::VIEW_TEAM_TICKETS;
+								$teamView->name = "Active Team Tickets";
+								$teamView->dashboard_id = 0;
+								$teamView->view_columns = array(
+									SearchFields_Ticket::TICKET_MASK,
+									SearchFields_Ticket::TICKET_STATUS,
+									SearchFields_Ticket::TICKET_PRIORITY,
+									SearchFields_Ticket::TICKET_LAST_WROTE,
+									SearchFields_Ticket::TICKET_UPDATED_DATE,
+									SearchFields_Ticket::CATEGORY_NAME,
+									);
+								$teamView->params = array(
 								);
+								$teamView->renderLimit = 10;
+								$teamView->renderPage = 0;
+								$teamView->renderSortBy = SearchFields_Ticket::TICKET_UPDATED_DATE;
+								$teamView->renderSortAsc = 0;
+								
+								$viewManager->setView(CerberusApplication::VIEW_TEAM_TICKETS,$teamView);
+							}
+							
+							$teamView->name = $team->name . ": Active Tickets";
 							$teamView->params = array(
+								new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'=',$team_id),
+								new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_STATUS,'in',array(CerberusTicketStatus::OPEN)),
 							);
-							$teamView->renderLimit = 10;
-							$teamView->renderPage = 0;
-							$teamView->renderSortBy = SearchFields_Ticket::TICKET_UPDATED_DATE;
-							$teamView->renderSortAsc = 0;
 							
-							$viewManager->setView(CerberusApplication::VIEW_TEAM_TICKETS,$teamView);
-						}
-						
-						$teamView->name = $team->name . ": Active Tickets";
-						$teamView->params = array(
-							new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'=',$team_id),
-							// [TODO] Not assigned...
-							// [TODO] In categories... 
-							new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_STATUS,'in',array(CerberusTicketStatus::OPEN)),
-						);
-						
-						// ======================================================
-						// Team Tasks
-						// ======================================================
-						$teamTasksView = $viewManager->getView(CerberusApplication::VIEW_TEAM_TASKS);
-						if(null == $teamTasksView) {
-							$teamTasksView = new CerberusDashboardView();
-							$teamTasksView->id = CerberusApplication::VIEW_TEAM_TASKS;
-							$teamTasksView->name = "Ticket Tasks";
-							$teamTasksView->dashboard_id = 0;
-							$teamTasksView->view_columns = array(
-								SearchFields_Ticket::TICKET_MASK,
-								SearchFields_Ticket::TICKET_STATUS,
-								SearchFields_Ticket::TICKET_PRIORITY,
-								SearchFields_Ticket::TICKET_LAST_WROTE,
-								SearchFields_Ticket::TICKET_UPDATED_DATE,
-								SearchFields_Ticket::TEAM_NAME,
-								SearchFields_Ticket::CATEGORY_NAME,
+							// [JAS]: Team Filters
+							if(!empty($team_filters)) {
+							    if(!empty($team_filters['hide_categorized'])) {
+                                    $teamView->params[] = new DevblocksSearchCriteria(SearchFields_Ticket::CATEGORY_ID,DevblocksSearchCriteria::OPER_IS_NULL);
+							    } else {
+								    if(!empty($team_filters['categories'])) {
+	    							    $cats = array_keys($team_filters['categories']);
+                                        $teamView->params[] = new DevblocksSearchCriteria(SearchFields_Ticket::CATEGORY_ID,DevblocksSearchCriteria::OPER_IN,$cats);
+								    }
+							    }
+							    
+							    if(!empty($team_filters['hide_assigned'])) {
+							       $teamView->params[] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TASKS,DevblocksSearchCriteria::OPER_EQ,0);
+							    }
+
+							}
+							
+							// ======================================================
+							// Team Tasks
+							// ======================================================
+							$teamTasksView = $viewManager->getView(CerberusApplication::VIEW_TEAM_TASKS);
+							if(null == $teamTasksView) {
+								$teamTasksView = new CerberusDashboardView();
+								$teamTasksView->id = CerberusApplication::VIEW_TEAM_TASKS;
+								$teamTasksView->name = "Ticket Tasks";
+								$teamTasksView->dashboard_id = 0;
+								$teamTasksView->view_columns = array(
+									SearchFields_Ticket::TICKET_MASK,
+									SearchFields_Ticket::TICKET_STATUS,
+									SearchFields_Ticket::TICKET_PRIORITY,
+									SearchFields_Ticket::TICKET_LAST_WROTE,
+									SearchFields_Ticket::TICKET_UPDATED_DATE,
+									SearchFields_Ticket::TEAM_NAME,
+									SearchFields_Ticket::CATEGORY_NAME,
+									);
+								$teamTasksView->params = array(
 								);
-							$teamTasksView->params = array(
-							);
-							$teamTasksView->renderLimit = 10;
-							$teamTasksView->renderPage = 0;
-							$teamTasksView->renderSortBy = SearchFields_Ticket::TICKET_UPDATED_DATE;
-							$teamTasksView->renderSortAsc = 0;
+								$teamTasksView->renderLimit = 10;
+								$teamTasksView->renderPage = 0;
+								$teamTasksView->renderSortBy = SearchFields_Ticket::TICKET_UPDATED_DATE;
+								$teamTasksView->renderSortAsc = 0;
+								
+								$viewManager->setView(CerberusApplication::VIEW_TEAM_TASKS,$teamTasksView);
+							}
 							
-							$viewManager->setView(CerberusApplication::VIEW_TEAM_TASKS,$teamTasksView);
+							$teamTasksView->name = $team->name . ": Tasks";
+							$teamTasksView->params = array(
+								new DevblocksSearchCriteria(SearchFields_Ticket::TASK_TEAM_ID,'=',$team_id),
+								// [TODO] In categories... 
+								new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_STATUS,'in',array(CerberusTicketStatus::OPEN)),
+							);
+							
+							$views = array(
+								$teamView->id => $teamView,
+								$teamTasksView->id => $teamTasksView
+							);
+							$tpl->assign('views', $views);
 						}
-						
-						$teamTasksView->name = $team->name . ": Tasks";
-						$teamTasksView->params = array(
-							new DevblocksSearchCriteria(SearchFields_Ticket::TASK_TEAM_ID,'=',$team_id),
-							// [TODO] In categories... 
-							new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_STATUS,'in',array(CerberusTicketStatus::OPEN)),
-						);
-						
-						$views = array(
-							$teamView->id => $teamView,
-							$teamTasksView->id => $teamTasksView
-						);
-						$tpl->assign('views', $views);
-					}
+                    }
 				}
 				
 				// [TODO]: This should be filterable by a specific view later as well using searchDAO.
@@ -321,6 +361,26 @@ class ChTicketsPage extends CerberusPageExtension {
 	}
 	
 	//**** Local scope
+	
+	// Post
+	function saveTeamFilters() {
+	    @$team_id = DevblocksPlatform::importGPC($_POST['team_id'],'integer');
+	    @$categories = DevblocksPlatform::importGPC($_POST['categories'],'array');
+	    @$hide_categorized = DevblocksPlatform::importGPC($_POST['hide_categorized'],'integer');
+	    @$hide_assigned = DevblocksPlatform::importGPC($_POST['hide_assigned'],'integer');
+
+	    if(!isset($_SESSION['team_filters']))
+	        $_SESSION['team_filters'] = array();
+	    
+	    $filters = array(
+	        'categories' => array_flip($categories),
+	        'hide_categorized' => $hide_categorized,
+	        'hide_assigned' => $hide_assigned
+	    );
+	    $_SESSION['team_filters'][$team_id] = $filters;
+	    
+	    DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','dashboards','team',$team_id)));
+	}
 	
 	// Post	
 	function doQuickSearch() {
@@ -501,6 +561,39 @@ class ChTicketsPage extends CerberusPageExtension {
 		}
 	}
 	
+	// Post
+	function saveTeamManage() {
+	    @$team_id = DevblocksPlatform::importGPC($_REQUEST['team_id'],'integer');
+	    @$add_str = DevblocksPlatform::importGPC($_REQUEST['add'],'string');
+	    @$ids = DevblocksPlatform::importGPC($_REQUEST['ids'],'array');
+	    @$names = DevblocksPlatform::importGPC($_REQUEST['names'],'array');
+	    @$deletes = DevblocksPlatform::importGPC($_REQUEST['deletes'],'array');
+
+	    // Updates
+	    $cats = DAO_Category::getList($ids);
+	    foreach($ids as $idx => $id) {
+	        $cat = $cats[$id];
+	        if(0 != strcasecmp($cat->name,$names[$idx])) {
+	            DAO_Category::update($id, $names[$idx]);
+	        }
+	    }
+	    
+	    // Adds: Sort and insert team categories
+	    $categories = CerberusApplication::parseCrlfString($add_str);
+
+	    if(is_array($categories))
+	    foreach($categories as $category) {
+	        // [TODO] Dupe checking
+	        $cat_id = DAO_Category::create($category, $team_id);
+	    }
+	    
+	    if(!empty($deletes))
+	        DAO_Category::delete(array_values($deletes));
+	    
+        DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','dashboards','team',$team_id)));   
+	}
+	
+	// Ajax
 	function showTeamPanel() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');

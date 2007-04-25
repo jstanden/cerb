@@ -28,21 +28,13 @@
 				      	</form>
 					</td>
 				</tr>
+				{if substr($active_dashboard_id,0,1) == 't'}
 				<tr>
 					<td class="tableCellBg" width="100%" style="padding:2px;">
-						<img src="{devblocks_url}images/businessmen.gif{/devblocks_url}"> <a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showTeamPanel',this);">{$translate->_('teamwork.my_team_loads')|capitalize}</a><br>
+						<img src="{devblocks_url}images/folder_gear.gif{/devblocks_url}"> <a href="{devblocks_url}c=tickets&a=dashboards&team=team&id={$dashboard_team_id}&mode=manage{/devblocks_url}">{$translate->_('teamwork.team_management')|capitalize}</a><br>
 					</td>
 				</tr>
-				<tr>
-					<td class="tableCellBg" width="100%" style="padding:2px;">
-						<img src="{devblocks_url}images/document_into.gif{/devblocks_url}"> <a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showAssignPanel',this,true);">{$translate->_('teamwork.assign_work')|capitalize}</a><br>
-					</td>
-				</tr>
-				<tr>
-					<td class="tableCellBg" width="100%" style="padding:2px;">
-						<img src="{devblocks_url}images/folder_gear.gif{/devblocks_url}"> <a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showTeamPanel',this);">{$translate->_('teamwork.team_management')|capitalize}</a><br>
-					</td>
-				</tr>
+				{/if}
 				{if !empty($active_dashboard_id) && is_numeric($active_dashboard_id)}
 				<tr>
 					<td class="tableCellBg" width="100%" style="padding:2px;">

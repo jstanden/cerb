@@ -21,9 +21,7 @@
 			</tuv>
 		</tu>
 		<tu tuid='common.filter'>
-			<tuv xml:lang="en">
-				<seg>filter</seg>
-			</tuv>
+			<tuv xml:lang="en"><seg>filter</seg></tuv>
 		</tu>
 		<tu tuid='common.name'>
 			<tuv xml:lang="en">
@@ -198,6 +196,9 @@
 			<tuv xml:lang="en">
 				<seg>Create Ticket</seg>
 			</tuv>
+		</tu>
+		<tu tuid='dashboard.team_filters'>
+			<tuv xml:lang="en"><seg>Team Filters</seg></tuv>
 		</tu>
 		<tu tuid='dashboard.dashboards'>
 			<tuv xml:lang="en">

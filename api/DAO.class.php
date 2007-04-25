@@ -2070,6 +2070,9 @@ class DAO_Search {
  */
 class DAO_Workflow {
 	
+    const TEAM_ID = 'id';
+    const TEAM_NAME = 'name';
+    
 	/**
 	 * Enter description here...
 	 *
@@ -2723,6 +2726,10 @@ class SearchFields_Task implements IDevblocksSearchFields {
 	
 class DAO_Category extends DevblocksORMHelper {
 	
+    const ID = 'id';
+    const NAME = 'name';
+    const TEAM_ID = 'team_id';
+    
 	static function getTeams() {
 		$categories = self::getList();
 		$team_categories = array();
@@ -2811,15 +2818,66 @@ class DAO_Category extends DevblocksORMHelper {
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 	}
 	
-	static function delete($id) {
+	static function delete($ids) {
+	    if(!is_array($ids)) $ids = array($ids);
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = sprintf("DELETE FROM category WHERE id = %d", $id);
+		$sql = sprintf("DELETE FROM category WHERE id IN (%s)", implode(',',$ids));
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
-		$sql = sprintf("DELETE FROM category_to_tag WHERE category_id = %d", $id);
+		$sql = sprintf("DELETE FROM category_to_tag WHERE category_id IN (%s)", implode(',',$ids));
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		// Reset any tickets using this category
+		$sql = sprintf("UPDATE ticket SET category_id = 0 WHERE category_id IN (%s)", implode(',',$ids));
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+	}
+	
+	/**
+	 * Returns an array of category ticket counts, indexed by category id.
+	 *
+	 * @param array $ids Category IDs to summarize
+	 * @return array
+	 */
+	static function getCategoryCounts($ids) {
+		if(!is_array($ids)) $ids = array($ids);
+		$db = DevblocksPlatform::getDatabaseService();
+
+		$cat_totals = array('0' => 0);
+
+		if(empty($ids)) return $cat_totals;
+		
+		if(is_array($ids))
+		foreach($ids as $id) {
+	        $cat_totals[$id] = 0;
+		}
+		
+		$sql = sprintf("SELECT count(*) as hits, t.category_id, t.team_id ".
+		    "FROM ticket t ".
+		    "WHERE t.category_id IN (%s) ".
+		    "AND t.status = 'O' ".
+		    "GROUP BY t.category_id, t.team_id ",
+		    implode(',', $ids)
+		);
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		while(!$rs->EOF) {
+		    $cat_id = intval($rs->fields['category_id']);
+		    $team_id = intval($rs->fields['team_id']);
+		    $hits = intval($rs->fields['hits']);
+		    
+		    if(!isset($cat_totals[$cat_id]))
+		        continue;
+		    
+		    $cat_totals[$cat_id] = $hits;
+		    $cat_totals[0] += $hits;
+		        
+		    $rs->MoveNext();
+		}
+		
+		return $cat_totals;
 	}	
+	
 };
 
 class DAO_Mail {
