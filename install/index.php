@@ -62,29 +62,8 @@ if(!is_writeable(APP_PATH . "/attachments/")) {
 	die(realpath(APP_PATH . "/attachments/") ." is not writeable by the webserver.  Please adjust permissions and reload this page.");
 }
 
-if(!is_writeable(DEVBLOCKS_PATH . "logs/")) {
-	die(realpath(DEVBLOCKS_PATH . "logs/") ." is not writeable by the webserver.  Please adjust permissions and reload this page.");
-}
-
 require_once(DEVBLOCKS_PATH . 'libs/Zend.php');
 //require_once(DEVBLOCKS_PATH . 'libs/Zend/Config.php');
-
-// [JAS]: [TODO] Initialize logging (this needs to move into Devblocks)
-require_once 'Zend/Log.php';
-require_once 'Zend/Log/Adapter/File.php';
-
-define('LOG_DEVBLOCKS_INSTALLER','devblocks_installer');
-define('LOG_DEVBLOCKS_PLATFORM','devblocks');
-define('LOG_DEVBLOCKS_APPLICATION','devblocks_app');
-
-Zend_Log::registerLogger(new Zend_Log_Adapter_File(DEVBLOCKS_PATH . 'logs/installer.txt'),LOG_DEVBLOCKS_INSTALLER);
-Zend_Log::registerLogger(new Zend_Log_Adapter_File(DEVBLOCKS_PATH . 'logs/platform.txt'),LOG_DEVBLOCKS_PLATFORM);
-Zend_Log::registerLogger(new Zend_Log_Adapter_File(DEVBLOCKS_PATH . 'logs/application.txt'),LOG_DEVBLOCKS_APPLICATION);
-
-Zend_Log::setDefaultLogger(LOG_DEVBLOCKS_APPLICATION);
-Zend_Log::setLevel(Zend_Log::LEVEL_INFO);
-
-Zend_Log::log("Starting Installer...", Zend_Log::LEVEL_INFO, LOG_DEVBLOCKS_INSTALLER);
 
 // [JAS]: Email Validator
 //require_once 'Zend/Validate/EmailAddress.php';
