@@ -265,7 +265,6 @@ class ChTicketsPage extends CerberusPageExtension {
 							$teamView->name = $team->name . ": Active Tickets";
 							$teamView->params = array(
 								new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'=',$team_id),
-								new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_STATUS,'in',array(CerberusTicketStatus::OPEN)),
 							);
 							
 							// [JAS]: Team Filters
@@ -283,6 +282,15 @@ class ChTicketsPage extends CerberusPageExtension {
 							       $teamView->params[] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TASKS,DevblocksSearchCriteria::OPER_EQ,0);
 							    }
 
+							    if(!empty($team_filters['show_waiting'])) {
+							       $teamView->params[] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_STATUS,'in',array(CerberusTicketStatus::OPEN,CerberusTicketStatus::WAITING));
+							    } else {
+							        $teamView->params[] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_STATUS,DevblocksSearchCriteria::OPER_EQ,CerberusTicketStatus::OPEN);
+							    }
+
+							} else { // defaults (no filters)
+                                $teamView->params[] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_STATUS,DevblocksSearchCriteria::OPER_EQ,CerberusTicketStatus::OPEN);
+                                							    
 							}
 							
 							// ======================================================
@@ -367,6 +375,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	    @$team_id = DevblocksPlatform::importGPC($_POST['team_id'],'integer');
 	    @$categories = DevblocksPlatform::importGPC($_POST['categories'],'array');
 	    @$hide_categorized = DevblocksPlatform::importGPC($_POST['hide_categorized'],'integer');
+	    @$show_waiting = DevblocksPlatform::importGPC($_POST['show_waiting'],'integer');
 	    @$hide_assigned = DevblocksPlatform::importGPC($_POST['hide_assigned'],'integer');
 
 	    if(!isset($_SESSION['team_filters']))
@@ -375,7 +384,8 @@ class ChTicketsPage extends CerberusPageExtension {
 	    $filters = array(
 	        'categories' => array_flip($categories),
 	        'hide_categorized' => $hide_categorized,
-	        'hide_assigned' => $hide_assigned
+	        'hide_assigned' => $hide_assigned,
+	        'show_waiting' => $show_waiting
 	    );
 	    $_SESSION['team_filters'][$team_id] = $filters;
 	    

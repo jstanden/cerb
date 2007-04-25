@@ -10,8 +10,10 @@
 	<tr>
 		<td class="tableCellBg" width="100%" style="padding:2px;">
 			<label><input type="radio" name="hide_categorized" value="1" {if $team_filters.hide_categorized}checked{/if} onclick="toggleDiv('teamCategories','none');"> <b>Hide categorized</b></label><br>
-			<label><input type="radio" name="hide_categorized" value="0" {if !$team_filters.hide_categorized}checked{/if} onclick="toggleDiv('teamCategories','block');"> <b>In these categories:</b></label><br>
-			<div id="teamCategories" style="display:{if $team_filters.hide_categorized}none{else}block{/if};">
+			<label><input type="radio" name="hide_categorized" value="0" {if !$team_filters.hide_categorized}checked{/if} onclick="toggleDiv('teamCategories','block');"> <b>In these categories:</b></label>
+			<a href="javascript:;" onclick="checkAll('teamCategories');">all</a> 
+			<br>
+			<div id="teamCategories" style="display:{if $team_filters.hide_categorized}none{else}block{/if};margin:2px;">
 			<table cellpadding="0" cellspacing="0" border="0" width="95%" align="right">
 				{foreach from=$categories item=category key=category_id}
 					{if $category_counts.0}
@@ -31,6 +33,7 @@
 			<br>
 			</div>
 			
+			<label><input type="checkbox" name="show_waiting" value="1" {if $team_filters.show_waiting}checked{/if}> Show Waiting Tickets</label><br>
 			<label><input type="checkbox" name="hide_assigned" value="1" {if $team_filters.hide_assigned}checked{/if}> Hide with Active Tasks</label><br>
 			
 			<div align="right">
