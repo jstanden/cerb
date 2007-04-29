@@ -27,7 +27,7 @@ abstract class CerberusPageExtension extends DevblocksExtension implements Devbl
 		$command = array_shift($path);
 		
 		if(method_exists($this,@$path[0])) {
-			call_user_method($path[0],$this); // [TODO] Pass HttpRequest as arg?
+			call_user_func(array(&$this, $path[0])); // [TODO] Pass HttpRequest as arg?
 		}
 	}
 	
@@ -64,7 +64,7 @@ abstract class CerberusDisplayPageExtension extends DevblocksExtension implement
 		$command = array_shift($path);
 		
 		if(method_exists($this,$path[0])) {
-			call_user_method($path[0],$this); // [TODO] Pass HttpRequest as arg?
+			call_user_func(array(&$this, $path[0])); // [TODO] Pass HttpRequest as arg?
 		}
 	}
 	
@@ -120,7 +120,7 @@ abstract class CerberusLoginPageExtension extends DevblocksExtension implements 
 		$command = array_shift($path);
 		
 		if(method_exists($this,$path[0])) {
-			call_user_method($path[0],$this); // [TODO] Pass HttpRequest as arg?
+			call_user_func(array(&$this, $path[0])); // [TODO] Pass HttpRequest as arg?
 		}
 	}
 	

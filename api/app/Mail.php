@@ -104,7 +104,7 @@ class CerberusMail {
 	    	// TODO: create DAO object for Agent, be able to pull address by having agent id.
     		// From
 			//		$headers['From'] = $agent_address->personal . ' <' . $agent_address->email . '>';
-			//		$message_id = DAO_Ticket::createMessage($ticket_id,$type,gmmktime(),$agent_id,$headers,$content);
+			//		$message_id = DAO_Ticket::createMessage($ticket_id,$type,time(),$agent_id,$headers,$content);
 			//		$mail->setFrom('somebody@example.com', 'Some Sender');
 
 			// Subject
@@ -144,7 +144,7 @@ class CerberusMail {
 		// Add message to the database
 		$headers = self::sanitizeHeaders($mail->getHeaders());
 		// [TODO] Include real address_id
-		$message_id = DAO_Ticket::createMessage($ticket_id,$type,gmmktime(),1,$headers,$content);
+		$message_id = DAO_Ticket::createMessage($ticket_id,$type,time(),1,$headers,$content);
 
 //		// if this message was submitted with attachments, store them in the filestore and link them in the db.
 		if (is_array($files) && !empty($files)) {

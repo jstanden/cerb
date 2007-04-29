@@ -341,7 +341,7 @@ class ChTicketsPage extends CerberusPageExtension {
 			
 				list($whos_online_workers, $whos_online_count) = DAO_Worker::search(
 				    array(
-				        new DevblocksSearchCriteria(SearchFields_Worker::LAST_ACTIVITY_DATE,DevblocksSearchCriteria::OPER_GT,(gmmktime()-60*15)), // idle < 15 mins
+				        new DevblocksSearchCriteria(SearchFields_Worker::LAST_ACTIVITY_DATE,DevblocksSearchCriteria::OPER_GT,(time()-60*15)), // idle < 15 mins
 				    ),
 				    1000,
 				    0,
@@ -2073,7 +2073,7 @@ class ChDisplayPage extends CerberusPageExtension {
 			DAO_Ticket::STATUS => $status,
 			DAO_Ticket::PRIORITY => intval($priority),
 			DAO_Ticket::SUBJECT => $subject,
-			DAO_Ticket::UPDATED_DATE => gmmktime(),
+			DAO_Ticket::UPDATED_DATE => time(),
 			DAO_Ticket::TEAM_ID => $team_id,
 			DAO_Ticket::CATEGORY_ID => $category_id,
 		);

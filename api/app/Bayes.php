@@ -61,7 +61,7 @@ class CerberusBayes {
 	static private function _markTicketAs($ticket_id,$spam=true) {
 		// pull up text of first ticket message
 		@list($message_id, $first_message) = each(array_shift(DAO_Ticket::getMessagesByTicket($ticket_id))); /* @var $first_message CerberusMessage */
-		if(!is_a($first_message,'CerberusMessage')) return FALSE;
+		if(!($first_message instanceOf CerberusMessage)) return FALSE;
 		
 		// Pass text to analyze() to get back interesting words
 		$content = $first_message->getContent();
@@ -165,11 +165,9 @@ class CerberusBayes {
 	 * @param CerberusBayesWord $word
 	 * @return float The probability of the word being spammy.
 	 */
-	static private function _calculateWordProbability($word) {
+	static private function _calculateWordProbability(CerberusBayesWord $word) {
 		static $stats = null; // [JAS]: [TODO] Keep an eye on this.
 		if(is_null($stats)) $stats = DAO_Bayes::getStatistics();
-		
-		if(!is_a($word,'CerberusBayesWord')) return FALSE;
 		
 		$ngood = max($stats['nonspam'],1);
 		$nbad = max($stats['spam'],1);
@@ -231,7 +229,7 @@ class CerberusBayes {
 	static function calculateTicketSpamProbability($ticket_id) {
 		// pull up text of first ticket message
 		@list($message_id, $first_message) = each(array_shift(DAO_Ticket::getMessagesByTicket($ticket_id))); /* @var $first_message CerberusMessage */
-		if(!is_a($first_message,'CerberusMessage')) return FALSE;
+		if(!($first_message instanceOf CerberusMessage)) return FALSE;
 		
 		// Pass text to analyze() to get back interesting words
 		$content = $first_message->getContent();

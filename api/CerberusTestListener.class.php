@@ -87,7 +87,7 @@ implements PHPUnit_Framework_TestListener
   	$num_cases = 0;
   	for($x=0;$x<$suite->testCount();$x++) { 
   		$test = $suite->testAt($x); /* @var $test PHPUnit_Framework_TestCase */
-  		if(!is_a($test,'PHPUnit_Framework_TestCase')) continue;
+  		if(!($test instanceOf PHPUnit_Framework_TestCase)) continue;
   		if($test->hasFailed()) {
   			$failed = true;
   			break;

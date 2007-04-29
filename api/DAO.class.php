@@ -488,7 +488,7 @@ class DAO_Worker extends DevblocksORMHelper {
 	 */
 	static function logActivity($worker_id, Model_Activity $activity) {
 	    DAO_Worker::updateAgent($worker_id,array(
-	        DAO_Worker::LAST_ACTIVITY_DATE => gmmktime(),
+	        DAO_Worker::LAST_ACTIVITY_DATE => time(),
 	        DAO_Worker::LAST_ACTIVITY => serialize($activity)
 	    ));
 	}
@@ -925,8 +925,8 @@ class DAO_Ticket extends DevblocksORMHelper {
 		$sql = sprintf("INSERT INTO ticket (id, mask, subject, status, last_wrote_address_id, first_wrote_address_id, created_date, updated_date, due_date, priority) ".
 			"VALUES (%d,'','','O',0,0,%d,%d,0,0)",
 			$newId,
-			gmmktime(),
-			gmmktime()
+			time(),
+			time()
 		);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
@@ -1919,7 +1919,7 @@ class DAO_Search {
 		// [JAS]: Search Builder
 		if(is_array($params))
 		foreach($params as $param) { /* @var $param DevblocksSearchCriteria */
-			if(!is_a($param,'DevblocksSearchCriteria')) continue;
+			if(!($param instanceOf DevblocksSearchCriteria)) continue;
 			$where = "";
 			
 			// [JAS]: Filter allowed columns (ignore invalid/deprecated)

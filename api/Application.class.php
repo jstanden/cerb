@@ -83,7 +83,7 @@ class CerberusApplication extends DevblocksApplication {
 		$extModules = DevblocksPlatform::getExtensions("cerberusweb.page");
 		foreach($extModules as $mod) { /* @var $mod DevblocksExtensionManifest */
 			$instance = $mod->createInstance(); /* @var $instance CerberusPageExtension */
-			if(is_a($instance,'devblocksextension') && $instance->isVisible())
+			if($instance instanceOf devblocksextension && $instance->isVisible())
 				$pages[] = $instance;
 		}
 		return $pages;

@@ -138,7 +138,7 @@ class CerberusParser {
 		
 		// Date
 		$iDate = strtotime(@$headers['date']);
-		if(empty($iDate)) $iDate = gmmktime();
+		if(empty($iDate)) $iDate = time();
 		
 		// Message Id / References / In-Reply-To
 //		echo "Parsing message-id: ",@$headers['message-id'],"<BR>\r\n";
