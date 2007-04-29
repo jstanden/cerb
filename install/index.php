@@ -187,6 +187,10 @@ switch($step) {
 			$drivers['mysql'] = 'MySQL 3.23/4.x/5.x';
 		}
 		
+		if(extension_loaded('mysqli')) {
+			$drivers['mysqli'] = 'MySQLi 4.x/5.x';
+		}
+		
 		if(extension_loaded('pgsql')) {
 			$drivers['postgres8'] = 'PostgreSQL 8.x';
 			$drivers['postgres7'] = 'PostgreSQL 7.x';
@@ -785,5 +789,3 @@ I'll add to install/index.php [TODO]
  */
 
 $tpl->display('base.tpl.php');
-
-?>
