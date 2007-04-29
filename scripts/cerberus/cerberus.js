@@ -108,6 +108,40 @@ var cAjaxCalls = function() {
 	}
 */
 
+	this.saveBatchPanel = function(view_id) {
+		var frm = document.getElementById('formBatchUpdate');
+		
+		// [JAS]: Compile a list of checked ticket IDs
+		var viewForm = document.getElementById('viewForm'+view_id);
+		if(null == viewForm) return;
+		var elements = viewForm.elements['ticket_id[]'];
+		if(null == elements) return;
+		var len = elements.length;
+		
+		for(var x=len-1;x>=0;x--) {
+			if(elements[x].checked) {
+				frm.appendChild(elements[x]);
+			}
+		}		
+
+		YAHOO.util.Connect.setForm('formBatchUpdate');
+		
+		var cObj = YAHOO.util.Connect.asyncRequest('POST', DevblocksAppPath+'ajax.php', {
+				success: function(o) {
+					var caller = o.argument.caller;
+					
+					if(null != genericPanel) {
+						genericPanel.hide();
+					}
+					
+					var view_id = o.argument.view_id;
+					caller.getRefresh(view_id);
+				},
+				failure: function(o) {},
+				argument:{caller:this,view_id:view_id}
+		});	
+	}
+	
 	this.saveViewActionPanel = function(id,view_id) {
 		YAHOO.util.Connect.setForm('formViewActions');
 		

@@ -680,6 +680,81 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/rpc/assign_panel.tpl.php');
 	}
 	
+	function showBatchPanel() {
+//		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
+
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+//		$tpl->assign('id', $id);
+		$tpl->assign('view_id', $view_id);
+
+		// Status
+		$statuses = CerberusTicketStatus::getOptions();
+		$tpl->assign('statuses', $statuses);
+		// Priority
+		$priorities = CerberusTicketPriority::getOptions();
+		unset($priorities[0]); // don't show 'none'
+		$tpl->assign('priorities', $priorities);
+		// Spam Training
+		$training = CerberusTicketSpamTraining::getOptions();
+		$tpl->assign('training', $training);
+		// Teams
+		$teams = DAO_Workflow::getTeams();
+		$tpl->assign('teams', $teams);
+		// Categories
+		$team_categories = DAO_Category::getTeams();
+		$tpl->assign('team_categories', $team_categories);
+				
+		// Load action object to populate fields
+//		$action = DAO_DashboardViewAction::get($id);
+//		$tpl->assign('action', $action);
+		
+		$tpl->cache_lifetime = "0";
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/rpc/batch_panel.tpl.php');
+	}
+	
+	// Ajax
+	function doBatchUpdate() {
+	    @$ticket_ids = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'array');
+	    
+	    if(empty($ticket_ids)) {
+	        echo ' ';
+	        return;
+	    }
+	    
+	    @$status = DevblocksPlatform::importGPC($_POST['status']);
+		@$priority = DevblocksPlatform::importGPC($_POST['priority']);
+		@$spam = DevblocksPlatform::importGPC($_POST['spam']);
+		@$team = DevblocksPlatform::importGPC($_POST['team'],'string');
+	    
+		$params = array();
+		
+		if(!is_null($status))
+			$params['status'] = $status;
+		if(!is_null($priority))
+			$params['priority'] = $priority;
+		if(!is_null($spam))
+			$params['spam'] = $spam;
+		if(!is_null($team))
+			$params['team'] = $team;
+			
+		$action = new Model_DashboardViewAction();
+		$action->params = $params;
+		$action->dashboard_view_id = $view_id;
+		
+		$tickets = DAO_Ticket::getTickets($ticket_ids);
+		
+		if(empty($tickets)) {
+		    echo ' ';
+		    return;
+		}
+		
+		$action->run($tickets);
+		
+		echo ' ';
+	}
+	
 	function showViewActions() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);

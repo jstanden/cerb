@@ -129,6 +129,8 @@
 				<a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showViewActions&id='+selectValue(document.getElementById('viewForm{$view->id}').action_id)+'&view_id={$view->id}',this,true,'500px');">edit shortcut</a> | 
 			</span>
 			<a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showViewActions&id=0&view_id={$view->id}',this,true,'500px');">new shortcut</a>
+			| 
+			<a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showBatchPanel&view_id={$view->id}',this,true,'500px');">batch update</a>
 		</td>
 	</tr>
 	<tr>

@@ -775,6 +775,15 @@ switch($step) {
 
 // [TODO] Check if safe_mode is disabled, and if so set our php.ini overrides in the framework.config.php rewrite
 
+/*
+Jeremy: yup... that's it... :)
+stupid adodb hiding that error
+I switched framework.config.php to have mysqli as the db driver (the extension which I have loaded) and it works
+
+Jeff: k, sweet. I just need to add that to the dropdown, and then have the platform or installer check for any of the possible ones being there and complain if none
+I'll add to install/index.php [TODO]
+ */
+
 $tpl->display('base.tpl.php');
 
 ?>
