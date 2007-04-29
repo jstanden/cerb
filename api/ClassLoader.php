@@ -93,7 +93,31 @@ class CerberusClassLoader {
 	}
 	
 	private static function _initZend() {
-		$path = APP_PATH . '/libs/devblocks/libs/Zend/';
+		$path = APP_PATH . '/libs/devblocks/libs/ZendFramework/Zend/';
+		
+		self::registerClasses(APP_PATH . '/libs/devblocks/libs/ZendFramework/Zend.php', array(
+			'Zend',
+		));
+		
+		self::registerClasses($path . 'Exception.php', array(
+			'Zend_Exception',
+		));
+		
+	    self::registerClasses($path . 'Registry.php', array(
+			'Zend_Registry',
+		));
+		
+		self::registerClasses($path . 'Date.php', array(
+			'Zend_Date',
+		));
+		
+		self::registerClasses($path . 'Locale.php', array(
+			'Zend_Locale',
+		));
+		
+		self::registerClasses($path . 'Translate.php', array(
+			'Zend_Translate',
+		));
 		
 		self::registerClasses($path . 'Mail.php', array(
 			'Zend_Mail',
@@ -103,9 +127,18 @@ class CerberusClassLoader {
 			'Zend_Mime',
 		));
 		
+		self::registerClasses($path . 'Validate/EmailAddress.php.php', array(
+			'Zend_Validate_EmailAddress',
+		));
+		
 		self::registerClasses($path . 'Mail/Transport/Smtp.php', array(
 			'Zend_Mail_Transport_Smtp',
 		));
+		
+		self::registerClasses($path . 'Mail/Transport/Sendmail.php', array(
+			'Zend_Mail_Transport_Sendmail',
+		));
+		
 	}
 	
 };

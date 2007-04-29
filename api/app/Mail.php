@@ -12,7 +12,6 @@ class CerberusMail {
 		// [TODO] Transport toggle
 		
 		// SMTP
-		require_once 'Zend/Mail/Transport/Smtp.php';
 		$smtp_host = $settings->get(CerberusSettings::SMTP_HOST,'localhost');
 		$smtp_user = $settings->get(CerberusSettings::SMTP_AUTH_USER,null);
 		$smtp_pass = $settings->get(CerberusSettings::SMTP_AUTH_PASS,null);
@@ -28,7 +27,6 @@ class CerberusMail {
 		$tr = new Zend_Mail_Transport_Smtp($settings->get(CerberusSettings::SMTP_HOST), $config);
 		
 		// Mail()
-		//	require_once 'Zend/Mail/Transport/Sendmail.php';
 		//	$tr = new Zend_Mail_Transport_Sendmail();
 		
 		Zend_Mail::setDefaultTransport($tr);
