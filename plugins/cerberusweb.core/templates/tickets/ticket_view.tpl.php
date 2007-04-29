@@ -33,6 +33,8 @@
 			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_created_date');">{$translate->_('ticket.created')}</a></th>
 			{elseif $header=="t_updated_date"}
 			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_updated_date');">{$translate->_('ticket.updated')}</a></th>
+			{elseif $header=="t_due_date"}
+			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_due_date');">{$translate->_('ticket.due')}</a></th>
 			{elseif $header=="t_tasks"}
 			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_tasks');">{$translate->_('common.tasks')}</a></th>
 			{elseif $header=="m_name"}
@@ -92,6 +94,8 @@
 			<td>{$result.t_created_date|date_format}</td>
 			{elseif $column=="t_updated_date"}
 			<td>{$result.t_updated_date|date_format}</td>
+			{elseif $column=="t_due_date"}
+			<td>{$result.t_due_date|date_format}</td>
 			{elseif $column=="t_tasks"}
 			<td align='center'>{if !empty($result.t_tasks)}{$result.t_tasks}{/if}</td>
 			{elseif $column=="tm_name"}

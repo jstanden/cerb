@@ -269,12 +269,10 @@ class ChTicketsPage extends CerberusPageExtension {
 							
 							// [JAS]: Team Filters
 							if(!empty($team_filters)) {
-							    if(!empty($team_filters['hide_categorized'])) {
-                                    $teamView->params[] = new DevblocksSearchCriteria(SearchFields_Ticket::CATEGORY_ID,DevblocksSearchCriteria::OPER_IS_NULL);
-							    } else {
-								    if(!empty($team_filters['categories'])) {
+							    if(!empty($team_filters['categorized'])) {
+                                    if(!empty($team_filters['categories'])) {
 	    							    $cats = array_keys($team_filters['categories']);
-                                        $teamView->params[] = new DevblocksSearchCriteria(SearchFields_Ticket::CATEGORY_ID,DevblocksSearchCriteria::OPER_IN,$cats);
+                                        $teamView->params[] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CATEGORY_ID,DevblocksSearchCriteria::OPER_IN,$cats);
 								    }
 							    }
 							    
@@ -374,7 +372,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	function saveTeamFilters() {
 	    @$team_id = DevblocksPlatform::importGPC($_POST['team_id'],'integer');
 	    @$categories = DevblocksPlatform::importGPC($_POST['categories'],'array');
-	    @$hide_categorized = DevblocksPlatform::importGPC($_POST['hide_categorized'],'integer');
+	    @$categorized = DevblocksPlatform::importGPC($_POST['categorized'],'integer');
 	    @$show_waiting = DevblocksPlatform::importGPC($_POST['show_waiting'],'integer');
 	    @$hide_assigned = DevblocksPlatform::importGPC($_POST['hide_assigned'],'integer');
 
@@ -383,7 +381,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	    
 	    $filters = array(
 	        'categories' => array_flip($categories),
-	        'hide_categorized' => $hide_categorized,
+	        'categorized' => $categorized,
 	        'hide_assigned' => $hide_assigned,
 	        'show_waiting' => $show_waiting
 	    );
@@ -612,7 +610,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl->assign('teams', $teams);
 
 		// [TODO] Be sure we're caching this
-		$team_counts = DAO_Workflow::getTeamCounts(array_keys($teams));
+		$team_counts = DAO_Workflow::getTeamCounts(array_keys($teams),true,false,false);
 		$tpl->assign('team_counts', $team_counts);
 		
 		$tpl->cache_lifetime = "0";
@@ -675,7 +673,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl->assign('teams', $teams);
 		
 		// [TODO] Be sure we're caching this
-		$team_counts = DAO_Workflow::getTeamCounts(array_keys($teams));
+		$team_counts = DAO_Workflow::getTeamCounts(array_keys($teams),false,false,true);
 		$tpl->assign('team_counts', $team_counts);
 		
 		$tpl->cache_lifetime = "0";

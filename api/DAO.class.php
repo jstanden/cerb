@@ -802,6 +802,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 	const FIRST_WROTE_ID = 'first_wrote_address_id';
 	const CREATED_DATE = 'created_date';
 	const UPDATED_DATE = 'updated_date';
+	const DUE_DATE = 'due_date';
 	const PRIORITY = 'priority';
 	const SPAM_TRAINING = 'spam_training';
 	const SPAM_SCORE = 'spam_score';
@@ -921,8 +922,8 @@ class DAO_Ticket extends DevblocksORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$newId = $db->GenID('ticket_seq');
 		
-		$sql = sprintf("INSERT INTO ticket (id, mask, subject, status, last_wrote_address_id, first_wrote_address_id, created_date, updated_date, priority) ".
-			"VALUES (%d,'','','O',0,0,%d,%d,0)",
+		$sql = sprintf("INSERT INTO ticket (id, mask, subject, status, last_wrote_address_id, first_wrote_address_id, created_date, updated_date, due_date, priority) ".
+			"VALUES (%d,'','','O',0,0,%d,%d,0,0)",
 			$newId,
 			gmmktime(),
 			gmmktime()
@@ -1046,7 +1047,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 		$tickets = array();
 		
 		$sql = "SELECT t.id , t.mask, t.subject, t.status, t.priority, t.team_id, t.category_id, ".
-			"t.first_wrote_address_id, t.last_wrote_address_id, t.created_date, t.updated_date, t.spam_training, t.spam_score ".
+			"t.first_wrote_address_id, t.last_wrote_address_id, t.created_date, t.updated_date, t.due_date, t.spam_training, t.spam_score ".
 			"FROM ticket t ".
 			(!empty($ids) ? sprintf("WHERE t.id IN (%s) ",implode(',',$ids)) : " ").
 			"ORDER BY t.updated_date DESC"
@@ -1066,6 +1067,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 			$ticket->first_wrote_address_id = intval($rs->fields['first_wrote_address_id']);
 			$ticket->created_date = intval($rs->fields['created_date']);
 			$ticket->updated_date = intval($rs->fields['updated_date']);
+			$ticket->due_date = intval($rs->fields['due_date']);
 			$ticket->spam_score = floatval($rs->fields['spam_score']);
 			$ticket->spam_training = $rs->fields['spam_training'];
 			$tickets[$ticket->id] = $ticket;
@@ -1076,30 +1078,31 @@ class DAO_Ticket extends DevblocksORMHelper {
 	}
 	
 	static function updateTicket($id,$fields) {
-		$db = DevblocksPlatform::getDatabaseService();
-		$sets = array();
-		
-		if(!is_array($fields) || empty($fields) || empty($id))
-			return;
-		
-		foreach($fields as $k => $v) {
-			switch ($k) {
-				case 'status':
-//					if (0 == strcasecmp($v, 'C')) // if ticket is being closed
-//						DAO_Mail::sendAutoresponse($id, 'closed');
-					break;
-			}
-			$sets[] = sprintf("%s = %s",
-				$k,
-				$db->qstr($v)
-			);
-		}
-			
-		$sql = sprintf("UPDATE ticket SET %s WHERE id = %d",
-			implode(', ', $sets),
-			$id
-		);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+//		$db = DevblocksPlatform::getDatabaseService();
+//		$sets = array();
+//		
+//		if(!is_array($fields) || empty($fields) || empty($id))
+//			return;
+//		
+//		foreach($fields as $k => $v) {
+//			switch ($k) {
+//				case 'status':
+////					if (0 == strcasecmp($v, 'C')) // if ticket is being closed
+////						DAO_Mail::sendAutoresponse($id, 'closed');
+//					break;
+//			}
+//			$sets[] = sprintf("%s = %s",
+//				$k,
+//				$db->qstr($v)
+//			);
+//		}
+//			
+//		$sql = sprintf("UPDATE ticket SET %s WHERE id = %d",
+//			implode(', ', $sets),
+//			$id
+//		);
+//		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+        parent::_update($id,'ticket',$fields);
 	}
 	
 	/**
@@ -1258,11 +1261,12 @@ class DAO_Ticket extends DevblocksORMHelper {
 			"a2.email as %s, ".
 			"t.created_date as %s, ".
 			"t.updated_date as %s, ".
+			"t.due_date as %s, ".
 			"t.spam_score as %s, ".
 			"t.num_tasks as %s, ".
 			"tm.id as %s, ".
 			"tm.name as %s, ".
-			"cat.id as %s, ".
+			"t.category_id as %s, ".
 			"cat.name as %s ".
 			"FROM ticket t ".
 			"INNER JOIN team tm ON (tm.id = t.team_id) ".
@@ -1278,6 +1282,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 			    SearchFields_Ticket::TICKET_LAST_WROTE,
 			    SearchFields_Ticket::TICKET_CREATED_DATE,
 			    SearchFields_Ticket::TICKET_UPDATED_DATE,
+			    SearchFields_Ticket::TICKET_DUE_DATE,
 			    SearchFields_Ticket::TICKET_SPAM_SCORE,
 			    SearchFields_Ticket::TICKET_TASKS,
 			    SearchFields_Ticket::TEAM_ID,
@@ -1332,8 +1337,10 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 	const TICKET_FIRST_WROTE = 't_first_wrote';
 	const TICKET_CREATED_DATE = 't_created_date';
 	const TICKET_UPDATED_DATE = 't_updated_date';
+	const TICKET_DUE_DATE = 't_due_date';
 	const TICKET_SPAM_SCORE = 't_spam_score';
 	const TICKET_TASKS = 't_tasks';
+	const TICKET_CATEGORY_ID = 't_category_id';
 	
 	// Message
 	const MESSAGE_CONTENT = 'msg_content';
@@ -1369,8 +1376,10 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 			SearchFields_Ticket::TICKET_FIRST_WROTE => new DevblocksSearchField(SearchFields_Ticket::TICKET_FIRST_WROTE, 'a1', 'email'),
 			SearchFields_Ticket::TICKET_CREATED_DATE => new DevblocksSearchField(SearchFields_Ticket::TICKET_CREATED_DATE, 't', 'created_date'),
 			SearchFields_Ticket::TICKET_UPDATED_DATE => new DevblocksSearchField(SearchFields_Ticket::TICKET_FIRST_WROTE, 't', 'updated_date'),
+			SearchFields_Ticket::TICKET_DUE_DATE => new DevblocksSearchField(SearchFields_Ticket::TICKET_DUE_DATE, 't', 'due_date'),
 			SearchFields_Ticket::TICKET_SPAM_SCORE => new DevblocksSearchField(SearchFields_Ticket::TICKET_SPAM_SCORE, 't', 'spam_score'),
 			SearchFields_Ticket::TICKET_TASKS => new DevblocksSearchField(SearchFields_Ticket::TICKET_TASKS, 't', 'num_tasks'),
+			SearchFields_Ticket::TICKET_CATEGORY_ID => new DevblocksSearchField(SearchFields_Ticket::TICKET_CATEGORY_ID, 't', 'category_id'),
 			
 			SearchFields_Ticket::MESSAGE_CONTENT => new DevblocksSearchField(SearchFields_Ticket::MESSAGE_CONTENT, 'msg', 'content'),
 
@@ -2225,7 +2234,7 @@ class DAO_Workflow {
 	 * @param array $ids Team IDs to summarize
 	 * @return array
 	 */
-	static function getTeamCounts($ids) {
+	static function getTeamCounts($ids,$with_tickets=true,$with_tasks=true,$with_unassigned=false) {
 		if(!is_array($ids)) $ids = array($ids);
 		$db = DevblocksPlatform::getDatabaseService();
 
@@ -2233,55 +2242,84 @@ class DAO_Workflow {
 
 		if(is_array($ids))
 		foreach($ids as $id) {
-	        $team_totals[$id] = array('tickets'=>0,'tasks'=>0);
+	        $team_totals[$id] = array('tickets'=>0,'tasks'=>0,'unassigned'=>0);
 		}
 		
-		$sql = sprintf("SELECT count(*) as hits, t.team_id ".
-		    "FROM ticket t ".
-		    "WHERE t.team_id IN (%s) ".
-		    "AND t.status = 'O' ".
-		    "GROUP BY t.team_id ",
-		    implode(',', $ids)
-		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-		while(!$rs->EOF) {
-		    $team_id = intval($rs->fields['team_id']);
-		    $hits = intval($rs->fields['hits']);
-		    
-		    if(!isset($team_totals[$team_id]))
-		        continue;
-		    
-		    $team_totals[$team_id]['tickets'] = $hits;
-		    $team_totals[0]['tickets'] += $hits;
-		        
-		    $rs->MoveNext();
+		if($with_tickets) {
+			$sql = sprintf("SELECT count(*) as hits, t.team_id ".
+			    "FROM ticket t ".
+			    "WHERE t.team_id IN (%s) ".
+			    "AND t.status = 'O' ".
+			    "GROUP BY t.team_id ",
+			    implode(',', $ids)
+			);
+			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+			
+			while(!$rs->EOF) {
+			    $team_id = intval($rs->fields['team_id']);
+			    $hits = intval($rs->fields['hits']);
+			    
+			    if(!isset($team_totals[$team_id]))
+			        continue;
+			    
+			    $team_totals[$team_id]['tickets'] = $hits;
+			    $team_totals[0]['tickets'] += $hits;
+			        
+			    $rs->MoveNext();
+			}
 		}
 		
-		$sql = sprintf("SELECT count(*) as hits, tko.owner_id as team_id ".
-		    "FROM task tk ".
-		    "INNER JOIN task_owner tko ON (tk.id=tko.task_id) ".
-//		    "INNER JOIN ticket t ON (t.id=tk.ticket_id) ".
-		    "WHERE tko.owner_id IN (%s) ".
-		    "AND tko.owner_type = 'T' ".
-		    "AND tk.is_completed = 0 ".
-//		    "AND t.status = 'O' ".
-		    "GROUP BY tko.owner_id ",
-		    implode(',', $ids)
-		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		if($with_tasks) {
+			$sql = sprintf("SELECT count(*) as hits, tko.owner_id as team_id ".
+			    "FROM task tk ".
+			    "INNER JOIN task_owner tko ON (tk.id=tko.task_id) ".
+	//		    "INNER JOIN ticket t ON (t.id=tk.ticket_id) ".
+			    "WHERE tko.owner_id IN (%s) ".
+			    "AND tko.owner_type = 'T' ".
+			    "AND tk.is_completed = 0 ".
+	//		    "AND t.status = 'O' ".
+			    "GROUP BY tko.owner_id ",
+			    implode(',', $ids)
+			);
+			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+			
+			while(!$rs->EOF) {
+			    $team_id = intval($rs->fields['team_id']);
+			    $hits = intval($rs->fields['hits']);
+			    
+			    if(!isset($team_totals[$team_id]))
+			        continue;
+			    
+			    $team_totals[$team_id]['tasks'] = $hits;
+			    $team_totals[0]['tasks'] += $hits;
+			        
+			    $rs->MoveNext();
+			}
+		}
 		
-		while(!$rs->EOF) {
-		    $team_id = intval($rs->fields['team_id']);
-		    $hits = intval($rs->fields['hits']);
-		    
-		    if(!isset($team_totals[$team_id]))
-		        continue;
-		    
-		    $team_totals[$team_id]['tasks'] = $hits;
-		    $team_totals[0]['tasks'] += $hits;
-		        
-		    $rs->MoveNext();
+		if($with_unassigned) {
+			$sql = sprintf("SELECT count(*) as hits, t.team_id ".
+			    "FROM ticket t ".
+			    "WHERE t.team_id IN (%s) ".
+			    "AND t.status = 'O' ".
+			    "AND t.num_tasks = 0 ".
+			    "GROUP BY t.team_id ",
+			    implode(',', $ids)
+			);
+			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+			
+			while(!$rs->EOF) {
+			    $team_id = intval($rs->fields['team_id']);
+			    $hits = intval($rs->fields['hits']);
+			    
+			    if(!isset($team_totals[$team_id]))
+			        continue;
+			    
+			    $team_totals[$team_id]['unassigned'] = $hits;
+			    $team_totals[0]['unassigned'] += $hits;
+			        
+			    $rs->MoveNext();
+			}
 		}
 		
 		return $team_totals;
@@ -2454,13 +2492,17 @@ class DAO_Task extends DevblocksORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		if(empty($ticket_id)) return;
 		
-		$sql = sprintf("SELECT count(*) FROM task WHERE ticket_id = %d AND is_completed = 0",
+		$sql = sprintf("SELECT count(*) as hits, min(due_date) as due_date FROM task WHERE ticket_id = %d AND is_completed = 0",
 			$ticket_id
 		);
-		$count = $db->getOne($sql);
+		$row = $db->GetRow($sql);
 		
+  		$count = intval($row['hits']);
+	   	$min_date = !empty($row['due_date']) ? $row['due_date'] : NULL;
+	   	
 		DAO_Ticket::updateTicket($ticket_id, array(
-			DAO_Ticket::NUM_TASKS => $count
+			DAO_Ticket::NUM_TASKS => $count,
+			DAO_Ticket::DUE_DATE => $min_date
 		));
 	}
 	

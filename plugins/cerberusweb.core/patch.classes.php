@@ -67,6 +67,7 @@ class ChCorePatchContainer extends DevblocksPatchContainerExtension {
 			category_id I4 DEFAULT 0 NOTNULL,
 			created_date I4,
 			updated_date I4,
+			due_date I4,
 			status C(1) DEFAULT '' NOTNULL, 
 			priority I1 DEFAULT 0 NOTNULL, 
 			first_wrote_address_id I4 NOTNULL DEFAULT 0,

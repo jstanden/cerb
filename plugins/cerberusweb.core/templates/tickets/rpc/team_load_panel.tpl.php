@@ -11,7 +11,7 @@
 		{foreach from=$teams item=team key=team_id}
    			{assign var=team_count value=$team_counts.$team_id}
 		
-			{if $team_totals}
+			{if $team_totals && $team_totals.tickets}
 				{math assign=percent equation="(x/y)*50" x=$team_count.tickets y=$team_totals.tickets format="%0.0f"}
 			{/if}
 		<tr>

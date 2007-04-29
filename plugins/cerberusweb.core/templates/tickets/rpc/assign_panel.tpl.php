@@ -12,12 +12,12 @@
 		{foreach from=$teams item=team key=team_id}
    			{assign var=team_count value=$team_counts.$team_id}
    			
-			{if $team_totals}
-				{math assign=percent equation="(x/y)*50" x=$team_count.tickets y=$team_totals.tickets format="%0.0f"}
+			{if $team_totals && $team_totals.unassigned}
+				{math assign=percent equation="(x/y)*50" x=$team_count.unassigned y=$team_totals.unassigned format="%0.0f"}
 			{/if}
 		<tr>
 			<td class="tableCellBg" width="100%" style="padding:2px;">
-				<label><input type="checkbox" name="" value="{$team->id}"> <b>{$team->name}</b> ({$team_count.tickets})</label>
+				<label><input type="checkbox" name="" value="{$team->id}"> <b>{$team->name}</b> ({$team_count.unassigned})</label>
 			</td>
 			<td class="tableCellBgIndent" width="0%" nowrap="nowrap" style="width:51px;"><img src="{devblocks_url}images/cerb_graph.gif{/devblocks_url}" width="{$percent}" height="15"><img src="{devblocks_url}images/cer_graph_cap.gif{/devblocks_url}" height="15" width="1"></td>
 		</tr>

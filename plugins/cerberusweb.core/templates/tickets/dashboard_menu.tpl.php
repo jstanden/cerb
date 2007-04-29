@@ -13,7 +13,7 @@
 						<input type="hidden" name="a" value="changeDashboard">
 				      	<select name="dashboard_id" onchange="this.form.submit();">
 				      		<option value="0" {if empty($active_dashboard_id)}selected{/if}>My Tickets</option>
-				      		<optgroup label="Team Dashboards">
+				      		<optgroup label="Teamwork">
 				      			{foreach from=$teams item=team key=team_id}
 				      			{assign var=team_count value=$team_counts.$team_id}
 				      			<option value="t{$team->id}" {if substr($active_dashboard_id,1)==$team->id}selected{/if}>{$team->name} ({$team_count.tickets}{if $team_count.tasks}/+{$team_count.tasks}{/if})</option>
@@ -23,6 +23,7 @@
 				      		{foreach from=$dashboards item=dashboard}
 				      			<option value="{$dashboard->id}" {if $active_dashboard_id==$dashboard->id}selected{/if}>{$dashboard->name}</option>
 				      		{/foreach}
+				      		<option value="add"> -- {$translate->_('dashboard.add_dashboard')|lower} -- </option>
 				      		</optgroup>
 				      	</select>
 				      	</form>
@@ -42,11 +43,6 @@
 					</td>
 				</tr>
 				{/if}
-				<tr>
-					<td class="tableCellBg" width="100%" style="padding:2px;">
-						 <a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showAddDashboardPanel',this,true);">{$translate->_('dashboard.add_dashboard')|lower}</a>
-					</td>
-				</tr>
 				{if !empty($active_dashboard_id) && is_numeric($active_dashboard_id)}
 				<tr>
 					<td class="tableCellBg" width="100%" style="padding:2px;">

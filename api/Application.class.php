@@ -1,5 +1,5 @@
 <?php
-define("APP_BUILD", 117);
+define("APP_BUILD", 121);
 
 include_once(APP_PATH . "/api/ClassLoader.php");
 include_once(APP_PATH . "/api/DAO.class.php");
@@ -228,6 +228,7 @@ class CerberusApplication extends DevblocksApplication {
 			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_FIRST_WROTE,$translate->_('ticket.first_wrote')),
 			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_CREATED_DATE,$translate->_('ticket.created')),
 			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_UPDATED_DATE,$translate->_('ticket.updated')),
+			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_DUE_DATE,$translate->_('ticket.due')),
 			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_SPAM_SCORE,$translate->_('ticket.spam_score')),
 			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_TASKS,$translate->_('common.tasks')),
 			new CerberusDashboardViewColumn(SearchFields_Ticket::TEAM_NAME,$translate->_('common.team')),

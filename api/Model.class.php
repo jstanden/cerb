@@ -292,6 +292,7 @@ class CerberusTicket {
 	public $last_wrote_address_id;
 	public $created_date;
 	public $updated_date;
+	public $due_date;
 	public $spam_score;
 	public $spam_training;
 	

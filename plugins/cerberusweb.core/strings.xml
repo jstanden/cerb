@@ -169,7 +169,7 @@
 		</tu>
 		<tu tuid='dashboard.add_dashboard'>
 			<tuv xml:lang="en">
-				<seg>add custom dashboard</seg>
+				<seg>add dashboard</seg>
 			</tuv>
 		</tu>
 		<tu tuid='dashboard.add_view'>
@@ -361,6 +361,9 @@
 			<tuv xml:lang="en">
 				<seg>Created</seg>
 			</tuv>
+		</tu>
+		<tu tuid='ticket.due'>
+			<tuv xml:lang="en"><seg>Due</seg></tuv>
 		</tu>
 		<tu tuid='ticket.id'>
 			<tuv xml:lang="en">
