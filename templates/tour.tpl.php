@@ -16,8 +16,16 @@
 		<td colspan="3">
 			<p>This is where all the text goes that explains what this section of the tour is 
 			covering.</p>
-			<p>It will have a section of callouts below which will give some details 
-			about what you are looking at.</p>
+			
+			{if !empty($tour.callouts)}
+			<p>
+			<b>Spotlights:</b><br>
+			{foreach from=$tour.callouts item=callout key=callout_div name=callouts}
+				<a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showCallout&id={$callout_div}','{$callout_div}',false);">{$callout}</a>
+				{if !$smarty.foreach.callouts.last} | {/if}
+			{/foreach}
+			</p>
+			{/if}
 		</td>
 	</tr>
 </table>

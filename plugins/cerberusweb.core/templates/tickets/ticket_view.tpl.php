@@ -116,6 +116,7 @@
 <table cellpadding="2" cellspacing="0" border="0" width="100%" class="tableBg">
 	<tr>
 		<td>
+		    {if $first_view}<div id="tourDashboardShortcuts"></div>{/if}
 			<select name="action_id" onchange="toggleDiv('action{$view->id}',(this.selectedIndex>0)?'inline':'none');">
 				<option value="">-- perform shortcut --</option>
 				<optgroup label="Shared Shortcuts" style="color:rgb(0,180,0);">
@@ -130,7 +131,7 @@
 			</span>
 			<a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showViewActions&id=0&view_id={$view->id}',this,true,'500px');">new shortcut</a>
 			| 
-			<a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showBatchPanel&view_id={$view->id}',this,true,'500px');">batch update</a>
+			<a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showBatchPanel&view_id={$view->id}',this,true,'500px');">{if $first_view}<span id="tourDashboardBatch">batch update</span>{else}batch update{/if}</a>
 		</td>
 	</tr>
 	<tr>

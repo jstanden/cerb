@@ -1,3 +1,4 @@
+<div id="tourDashboardActions"></div>
 <table cellpadding="0" cellspacing="0" border="0" class="tableGreen" width="220" class="tableBg">
 	<tr>
 		<td class="tableThGreen" nowrap="nowrap"> <img src="{devblocks_url}images/window_view.gif{/devblocks_url}"> {$translate->_('dashboard.actions')|capitalize}</td>

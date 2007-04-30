@@ -14,6 +14,12 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension {
 		        );
                 break;
 
+            case "preferences":
+		        $tour = array(
+		            'title' => 'Preferences'
+		        );
+                break;
+
             case "config":
                 switch(array_shift($path)) {
                     default:
@@ -65,21 +71,27 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension {
                             default:
                             case NULL:
 						        $tour = array(
-						            'title' => 'Dashboards'
+						            'title' => 'Dashboards',
+						            'callouts' => array(
+						                'tourDashboardActions' => 'Actions',
+						                'tourDashboardViews' => 'Ticket Views',
+						                'tourDashboardShortcuts' => 'Shortcuts',
+						                'tourDashboardBatch' => 'Batch Updates',
+						            )
 						        );
                                 break;
                             
-                            case 'team':
-						        $tour = array(
-						            'title' => 'Team Dashboards'
-						        );
-                                break;
-                                                    
-                            case 'my':
-						        $tour = array(
-						            'title' => 'My Tasks'
-						        );
-                                break;
+//                            case 'team':
+//						        $tour = array(
+//						            'title' => 'Team Dashboards'
+//						        );
+//                                break;
+//                                                    
+//                            case 'my':
+//						        $tour = array(
+//						            'title' => 'My Tasks'
+//						        );
+//                                break;
                                                        
                         }
                         break;

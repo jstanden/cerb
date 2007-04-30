@@ -13,12 +13,26 @@
 	<extensions>
 	
 		<!-- Patch Containers -->
+		
 		<extension point="devblocks.patch.container">
 			<id>faq.patches</id>
 			<name>Cerberus Helpdesk FAQ Patches</name>
 			<class>
 				<file>patch.classes.php</file>
 				<name>ChFaqPatchContainer</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+	
+		<!-- Http Listeners -->
+		
+		<extension point="devblocks.listener.http">
+			<id>faq.listeners.tour</id>
+			<name>FAQ Tour</name>
+			<class>
+				<file>listeners.classes.php</file>
+				<name>ChFaqTour</name>
 			</class>
 			<params>
 			</params>

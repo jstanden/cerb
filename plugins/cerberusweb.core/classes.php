@@ -368,7 +368,42 @@ class ChTicketsPage extends CerberusPageExtension {
 	
 	//**** Local scope
 	
+	// Ajax
+	// [TODO] Move to another page
+	function showCallout() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'string');
+
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+
+        switch($id) {
+            case "tourDashboardActions":
+                $title = "Dashboard Actions";
+                $body = "Dashboard actions are very interesting.";
+                break;
+            case "tourDashboardViews":
+                $title = "Dashboard Views";
+                $body = "Dashboard views are very awesome.";
+                break;
+            case "tourDashboardShortcuts":
+                $title = "Shortcuts";
+                $body = "Shortcuts are a shortcut to being more popular.";
+                break;
+            case "tourDashboardBatch":
+                $title = "Batch Updates";
+                $body = "Batch Updates allow you to yada yada.";
+                break;
+        }
+
+		$tpl->assign('callout_title',$title);
+		$tpl->assign('callout_body',$body);
+        
+		$tpl->cache_lifetime = "0";
+		$tpl->display('tour/callout.tpl.php');
+	}
+	
 	// Post
+	// [TODO] Move to another page
 	function doStopTour() {
 		$visit = CerberusApplication::getVisit();
 		$visit->set("TOUR_ENABLED", false);

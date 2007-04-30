@@ -12,6 +12,19 @@
 	
 	<extensions>
 	
+		<!-- Http Listeners -->
+		
+		<extension point="devblocks.listener.http">
+			<id>simulator.listeners.tour</id>
+			<name>Simulator Tour</name>
+			<class>
+				<file>listeners.classes.php</file>
+				<name>ChSimulatorTour</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+	
 		<extension point="cerberusweb.page">
 			<id>core.page.simulator</id>
 			<name>Simulator Page</name>

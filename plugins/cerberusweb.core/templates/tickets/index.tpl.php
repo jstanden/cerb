@@ -23,10 +23,11 @@
       <td nowrap="nowrap" width="0%"><img src="{devblocks_url}images/spacer.gif{/devblocks_url}" width="5" height="1"></td>
       <td nowrap="nowrap" width="100%" valign="top">
       
-      {foreach from=$views item=view}
+      <div id="tourDashboardViews"></div>
+      {foreach from=$views item=view name=views}
       	<div id="view{$view->id}">
-	      	{include file="file:$path/tickets/ticket_view.tpl.php"}
-	      </div>
+	      	{include file="file:$path/tickets/ticket_view.tpl.php" first_view=$smarty.foreach.views.first}
+	    </div>
       {/foreach}
       
       {include file="file:$path/tickets/whos_online.tpl.php"}
