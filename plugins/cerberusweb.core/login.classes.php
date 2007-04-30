@@ -18,8 +18,12 @@ class DefaultLoginModule extends CerberusLoginPageExtension {
 			$session = DevblocksPlatform::getSessionService();
 			$visit = new CerberusVisit();
 				$visit->setWorker($worker);
+
+		    // [JAS]: [TODO] Consider
+		    $visit->set("TOUR_ENABLED", true);
+				
 			$session->setVisit($visit);
-			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('dashboard')));
+			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets')));
 			return true;
 			
 		} else {

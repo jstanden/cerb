@@ -1,5 +1,4 @@
 <?php
-
 class Model_DashboardViewAction {
 	public $id = 0;
 	public $dashboard_view_id = 0;

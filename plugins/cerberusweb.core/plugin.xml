@@ -51,6 +51,19 @@
 			</params>
 		</extension>
 	
+		<!-- Http Listeners -->
+		
+		<extension point="devblocks.listener.http">
+			<id>core.listeners.tour</id>
+			<name>Core Helpdesk Tour</name>
+			<class>
+				<file>listeners.classes.php</file>
+				<name>ChCoreTour</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+	
 		<!-- Pages -->
 
 		<extension point="cerberusweb.page">

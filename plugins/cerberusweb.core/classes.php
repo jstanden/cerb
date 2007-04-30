@@ -369,6 +369,12 @@ class ChTicketsPage extends CerberusPageExtension {
 	//**** Local scope
 	
 	// Post
+	function doStopTour() {
+		$visit = CerberusApplication::getVisit();
+		$visit->set("TOUR_ENABLED", false);
+	}
+	
+	// Post
 	function saveTeamFilters() {
 	    @$team_id = DevblocksPlatform::importGPC($_POST['team_id'],'integer');
 	    @$categories = DevblocksPlatform::importGPC($_POST['categories'],'array');

@@ -31,7 +31,8 @@ class CerberusApplication extends DevblocksApplication {
 	}
 	
 	static function writeDefaultHttpResponse($response) {
-		$path = $response->path;
+	    $path = $response->path;
+//	    $request = DevblocksPlatform::getHttpRequest();
 
 		// [JAS]: Ajax?
 		if(empty($path))
@@ -53,8 +54,7 @@ class CerberusApplication extends DevblocksApplication {
 		$pages = CerberusApplication::getPages();
 		$tpl->assign('pages',$pages);		
 		
-		$pageManifest = DevblocksPlatform::getExtension($extension_id);
-		$page = $pageManifest->createInstance(); /* @var $page CerberusPageExtension */
+        $page = $pages[$extension_id]; /* @var $page CerberusPageExtension */
 		$tpl->assign('page',$page);
 		
 		if(!empty($visit) && !is_null($visit->getWorker()))
@@ -69,6 +69,15 @@ class CerberusApplication extends DevblocksApplication {
 		$translate = DevblocksPlatform::getTranslationService();
 		$tpl->assign('translate', $translate);
 		
+		// [JAS]: Step-by-step guided tour
+		if($visit && $visit->get('TOUR_ENABLED',0)) {
+		    $listenerManifests = DevblocksPlatform::getExtensions('devblocks.listener.http');
+		    foreach($listenerManifests as $listenerManifest) { /* @var $listenerManifest DevblocksExtensionManifest */
+		         $inst = $listenerManifest->createInstance(); /* @var $inst DevblocksHttpRequestListenerExtension */
+		         $inst->run($response, $tpl);
+		    }
+		}
+		
 		// [JAS]: Pre-translate any dynamic strings
         $common_translated = array();
         if(!empty($visit) && !is_null($visit->getWorker()))
@@ -78,13 +87,14 @@ class CerberusApplication extends DevblocksApplication {
 		$tpl->display('border.php');
 	}
 	
+    // [JAS]: [TODO] Cache this
 	static function getPages() {
 		$pages = array();
 		$extModules = DevblocksPlatform::getExtensions("cerberusweb.page");
 		foreach($extModules as $mod) { /* @var $mod DevblocksExtensionManifest */
 			$instance = $mod->createInstance(); /* @var $instance CerberusPageExtension */
-			if($instance instanceOf devblocksextension && $instance->isVisible())
-				$pages[] = $instance;
+			if($instance instanceof DevblocksExtension && $instance->isVisible())
+				$pages[$mod->id] = $instance;
 		}
 		return $pages;
 	}	

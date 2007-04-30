@@ -1,3 +1,4 @@
+{if !empty($tour)}{include file="tour.tpl.php"}{/if}
 {include file="header.tpl.php"}
 <table cellspacing="0" cellpadding="2" border="0" width="100%">
 	<tr>
