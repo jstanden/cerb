@@ -1,3 +1,4 @@
+<div id="tourDisplayProperties"></div>
 <input type="hidden" name="c" value="display">
 <input type="hidden" name="a" value="updateProperties">
 <input type="hidden" name="id" value="{$ticket->id}">

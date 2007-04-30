@@ -1,6 +1,7 @@
 {include file="file:$path/configuration/menu.tpl.php"}
 <br>
 
+<div id="tourConfigMaintPurge"></div>
 <h2>Purge Deleted Tickets</h2>
 <form action="{devblocks_url}{/devblocks_url}" method="post">
 <input type="hidden" name="c" value="config">

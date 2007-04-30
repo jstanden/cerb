@@ -1,3 +1,4 @@
+<div id="tourDisplayConversation"></div>
 <h1 class="subtitle" style="color: rgb(102,102,102);">Ticket Conversation</h1>
 {if !empty($ticket)}
 {foreach from=$ticket->getMessages() item=message name=messages}

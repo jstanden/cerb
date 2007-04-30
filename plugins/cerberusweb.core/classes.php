@@ -393,6 +393,26 @@ class ChTicketsPage extends CerberusPageExtension {
                 $title = "Batch Updates";
                 $body = "Batch Updates allow you to yada yada.";
                 break;
+            case "tourDisplayProperties":
+                $title = "Properties";
+                $body = "Properties are for chumps, unless...!";
+                break;
+            case "tourDisplayTasks":
+                $title = "Tasks";
+                $body = "Ticket tasks allow you to blah in the whuzah.";
+                break;
+            case "tourDisplayRequesters":
+                $title = "Requesters";
+                $body = "Requesters are the people who bug you when you're trying to sleep.";
+                break;
+            case "tourDisplayConversation":
+                $title = "Conversation";
+                $body = "This is where people ask you to do things while you're playing Warcraft3.";
+                break;
+            case "tourConfigMaintPurge":
+                $title = "Purge Deleted";
+                $body = "If you build it, they will delete it and then purge it.";
+                break;
         }
 
 		$tpl->assign('callout_title',$title);

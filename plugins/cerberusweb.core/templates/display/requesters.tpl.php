@@ -1,3 +1,4 @@
+<div id="tourDisplayRequesters"></div>
 <input type="hidden" name="c" value="display">
 <input type="hidden" name="a" value="saveRequester">
 <input type="hidden" name="id" value="{$ticket->id}">

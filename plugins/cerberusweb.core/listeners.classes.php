@@ -10,7 +10,13 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension {
         switch(array_shift($path)) {
             case "display":
 		        $tour = array(
-		            'title' => 'Display Ticket'
+		            'title' => 'Display Ticket',
+		            'callouts' => array(
+		                'tourDisplayProperties' => 'Properties',
+		                'tourDisplayTasks' => 'Tasks',
+		                'tourDisplayRequesters' => 'Requesters',
+		                'tourDisplayConversation' => 'Conversation',
+		            )
 		        );
                 break;
 
@@ -25,7 +31,7 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension {
                     default:
                     case NULL:
 				        $tour = array(
-				            'title' => 'Configuration'
+				            'title' => 'Configuration',
 				        );
                         break;
                         
@@ -49,7 +55,10 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension {
                         
                     case "maintenance":
 				        $tour = array(
-				            'title' => 'Maintenance'
+				            'title' => 'Maintenance',
+				            'callouts' => array(
+				                'tourConfigMaintPurge' => 'Purge',
+				            )
 				        );
                         break;
                         
