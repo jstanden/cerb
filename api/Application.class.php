@@ -1,5 +1,5 @@
 <?php
-define("APP_BUILD", 121);
+define("APP_BUILD", 131);
 
 include_once(APP_PATH . "/api/ClassLoader.php");
 include_once(APP_PATH . "/api/DAO.class.php");
@@ -69,14 +69,12 @@ class CerberusApplication extends DevblocksApplication {
 		$translate = DevblocksPlatform::getTranslationService();
 		$tpl->assign('translate', $translate);
 		
-		// [JAS]: Step-by-step guided tour
-		if($visit && $visit->get('TOUR_ENABLED',0)) {
-		    $listenerManifests = DevblocksPlatform::getExtensions('devblocks.listener.http');
-		    foreach($listenerManifests as $listenerManifest) { /* @var $listenerManifest DevblocksExtensionManifest */
-		         $inst = $listenerManifest->createInstance(); /* @var $inst DevblocksHttpRequestListenerExtension */
-		         $inst->run($response, $tpl);
-		    }
-		}
+		// [JAS]: Listeners (Step-by-step guided tour, etc.)
+	    $listenerManifests = DevblocksPlatform::getExtensions('devblocks.listener.http');
+	    foreach($listenerManifests as $listenerManifest) { /* @var $listenerManifest DevblocksExtensionManifest */
+	         $inst = $listenerManifest->createInstance(); /* @var $inst DevblocksHttpRequestListenerExtension */
+	         $inst->run($response, $tpl);
+	    }
 		
 		// [JAS]: Pre-translate any dynamic strings
         $common_translated = array();
@@ -85,6 +83,29 @@ class CerberusApplication extends DevblocksApplication {
         $tpl->assign('common_translated', $common_translated);
 		
 		$tpl->display('border.php');
+	}
+	
+	// [JAS]: [TODO] Cleanup + move (platform, diff ext point, DAO?)
+	/**
+	 * @return DevblocksTourCallout[]
+	 */
+	static function getTourCallouts() {
+	    static $callouts = null;
+	    
+	    if(!is_null($callouts))
+	        return $callouts;
+	    
+	    $callouts = array();
+	        
+	    $listenerManifests = DevblocksPlatform::getExtensions('devblocks.listener.http');
+	    foreach($listenerManifests as $listenerManifest) { /* @var $listenerManifest DevblocksExtensionManifest */
+	         $inst = $listenerManifest->createInstance(); /* @var $inst IDevblocksTourListener */
+	         
+	         if($inst instanceof IDevblocksTourListener)
+	             $callouts += $inst->registerCallouts();
+	    }
+	    
+	    return $callouts;
 	}
 	
     // [JAS]: [TODO] Cache this

@@ -1,7 +1,16 @@
 <?php
-class ChSimulatorTour extends DevblocksHttpResponseListenerExtension {
+class ChSimulatorTour extends DevblocksHttpResponseListenerExtension implements IDevblocksTourListener {
     function __construct($manifest) {
         parent::__construct($manifest);
+    }
+    
+    /**
+     * @return DevblocksTourCallout[]
+     */
+    function registerCallouts() {
+        return array(
+            '' => new DevblocksTourCallout('',''),
+        );
     }
     
     function run(DevblocksHttpResponse $response, Smarty $tpl) {

@@ -376,48 +376,14 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 
-        switch($id) {
-            case "tourDashboardActions":
-                $title = "Dashboard Actions";
-                $body = "Dashboard actions are very interesting.";
-                break;
-            case "tourDashboardViews":
-                $title = "Dashboard Views";
-                $body = "Dashboard views are very awesome.";
-                break;
-            case "tourDashboardShortcuts":
-                $title = "Shortcuts";
-                $body = "Shortcuts are a shortcut to being more popular.";
-                break;
-            case "tourDashboardBatch":
-                $title = "Batch Updates";
-                $body = "Batch Updates allow you to yada yada.";
-                break;
-            case "tourDisplayProperties":
-                $title = "Properties";
-                $body = "Properties are for chumps, unless...!";
-                break;
-            case "tourDisplayTasks":
-                $title = "Tasks";
-                $body = "Ticket tasks allow you to blah in the whuzah.";
-                break;
-            case "tourDisplayRequesters":
-                $title = "Requesters";
-                $body = "Requesters are the people who bug you when you're trying to sleep.";
-                break;
-            case "tourDisplayConversation":
-                $title = "Conversation";
-                $body = "This is where people ask you to do things while you're playing Warcraft3.";
-                break;
-            case "tourConfigMaintPurge":
-                $title = "Purge Deleted";
-                $body = "If you build it, they will delete it and then purge it.";
-                break;
-        }
-
-		$tpl->assign('callout_title',$title);
-		$tpl->assign('callout_body',$body);
-        
+		$callouts = CerberusApplication::getTourCallouts();
+		
+	    $callout = array();
+	    if(isset($callouts[$id]))
+	        $callout = $callouts[$id];
+		
+	    $tpl->assign('callout',$callout);
+		
 		$tpl->cache_lifetime = "0";
 		$tpl->display('tour/callout.tpl.php');
 	}

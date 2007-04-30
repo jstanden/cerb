@@ -20,8 +20,8 @@
 			{if !empty($tour.callouts)}
 			<p>
 			<b>Points of Interest:</b><br>
-			{foreach from=$tour.callouts item=callout key=callout_div name=callouts}
-				<a href="#{$callout_div}" onclick="genericAjaxPanel('c=tickets&a=showCallout&id={$callout_div}','{$callout_div}',false);">{$callout}</a>
+			{foreach from=$tour.callouts item=callout name=callouts}
+				<a href="#{$callout->id}" onclick="genericAjaxPanel('c=tickets&a=showCallout&id={$callout->id}','{$callout->id}',false);">{$callout->title}</a>
 				{if !$smarty.foreach.callouts.last} | {/if}
 			{/foreach}
 			</p>
