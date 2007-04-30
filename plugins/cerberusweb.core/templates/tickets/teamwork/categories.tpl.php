@@ -5,7 +5,7 @@
 <input type="hidden" name="team_id" value="{$dashboard_team_id}">
 <table cellpadding="0" cellspacing="0" border="0" class="tableOrange" width="220" class="tableBg">
 	<tr>
-		<td class="tableThOrange" nowrap="nowrap"> <img src="{devblocks_url}images/index.gif{/devblocks_url}"> {$translate->_('dashboard.team_filters')|capitalize}</td>
+		<td class="tableThOrange" nowrap="nowrap"> <img src="{devblocks_url}images/funnel.gif{/devblocks_url}"> {$translate->_('dashboard.team_filters')|capitalize}</td>
 	</tr>
 	<tr>
 		<td class="tableCellBg" width="100%" style="padding:2px;">

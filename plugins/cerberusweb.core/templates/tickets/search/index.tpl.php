@@ -10,6 +10,7 @@
 <table cellpadding="0" cellspacing="0" border="0">
 	<tr>
 		<td valign="top" width="0%" nowrap="nowrap">
+			<div id="tourDashboardSearchCriteria"></div>
 			{include file="file:$path/tickets/search/criteria_list.tpl.php" divName="searchCriteriaDialog"}
 			<div id="searchCriteriaDialog" style="visibility:visible;"></div>
 		</td>

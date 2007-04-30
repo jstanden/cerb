@@ -20,7 +20,8 @@ class ChFaqTour extends DevblocksHttpResponseListenerExtension implements IDevbl
             case NULL:
             case "faq":
 		        $tour = array(
-		            'title' => 'FAQ'
+		            'title' => 'FAQ',
+		            'body' => "The FAQ is your repository of Frequently-Asked-Questions.  This functionality ensures your team isn't answering the same questions multiple times.  It also provides a time-saving self-help resource for your customers.",
 		        );
                 break;
         }

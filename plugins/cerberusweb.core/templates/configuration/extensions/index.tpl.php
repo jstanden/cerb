@@ -1,6 +1,7 @@
 {include file="file:$path/configuration/menu.tpl.php"}
 <br>
 
+<div id="tourConfigExtensionsRefresh"></div>
 <h2>Synchronization</h2>
 <br>
 <form action="{devblocks_url}{/devblocks_url}" method="post">
