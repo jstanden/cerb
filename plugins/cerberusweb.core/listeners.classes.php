@@ -126,7 +126,7 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension implements IDevb
                             case NULL:
 						        $tour = array(
 						            'title' => 'Dashboards',
-						            'body' => '',
+						            'body' => "Dashboards organize your ticket lists.  By default you have a personal dashboard and one for each team you are a member of.  You may also create your own flexible custom dashboards to adapt the helpdesk to your personal workflow.",
 						            'callouts' => array(
 		                                $callouts['tourDashboardActions'],
 		                                $callouts['tourDashboardViews'],

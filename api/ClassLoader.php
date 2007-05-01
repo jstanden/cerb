@@ -3,12 +3,14 @@ function __autoload($className) {
 	CerberusClassLoader::loadClass($className);
 }
 
+// [JAS]: [TODO] This should move to Platform
 class CerberusClassLoader {
 	static private $classMap = array();
+	static private $init = false;
 	
 	public static function loadClass($className) {
 		if(class_exists($className)) return;
-		if(null == self::$classMap) self::_init();
+		if(!self::$init) self::_init();
 		
 		$file = self::$classMap[$className];
 		
@@ -27,6 +29,8 @@ class CerberusClassLoader {
 	}
 	
 	public static function registerClasses($file,$classes=array()) {
+	    if(!self::$init) self::_init();
+	    
 		if(is_array($classes))
 		foreach($classes as $class) {
 			self::$classMap[$class] = $file;
@@ -34,12 +38,14 @@ class CerberusClassLoader {
 	}
 	
 	private static function _init() {
+	    self::$init = true;
 		self::_initApp();
 		self::_initDAO();
 		self::_initModel();
 		self::_initExtension();
 		self::_initPEAR();	
 		self::_initZend();
+		self::_initLibs();
 	}
 	
 	private static function _initApp() {
@@ -74,6 +80,12 @@ class CerberusClassLoader {
 		$path = APP_PATH . '/api/ext/';
 	}
 
+	private static function _initLibs() {
+		self::registerClasses(DEVBLOCKS_PATH . 'libs/markdown/markdown.php',array(
+			'Markdown',
+		));
+	}
+	
 	private static function _initPEAR() {
 		self::registerClasses('Mail.php',array(
 			'Mail',

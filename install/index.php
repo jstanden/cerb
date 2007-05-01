@@ -62,7 +62,7 @@ if(!is_writeable(APP_PATH . "/attachments/")) {
 	die(realpath(APP_PATH . "/attachments/") ." is not writeable by the webserver.  Please adjust permissions and reload this page.");
 }
 
-require_once(DEVBLOCKS_PATH . 'libs/Zend.php');
+//require_once(DEVBLOCKS_PATH . 'libs/Zend.php');
 //require_once(DEVBLOCKS_PATH . 'libs/Zend/Config.php');
 
 // [JAS]: Email Validator
