@@ -2507,7 +2507,10 @@ class ChDisplayTicketLog extends CerberusDisplayPageExtension {
 	}
 	
 	function renderBody($ticket) {
-		echo "Ticket log content goes here!";
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/log/index.tpl.php');
 	}
 }
 

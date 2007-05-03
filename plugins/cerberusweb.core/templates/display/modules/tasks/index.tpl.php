@@ -41,5 +41,7 @@
 	</tr>
 	{/foreach}
 </table>
+{else}
+	No tasks exist for this ticket.
 {/if}
 [ <a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showTaskPanel&id=0&ticket_id={$ticket->id}',this,true,'400px');">add task</a> ]

@@ -75,7 +75,7 @@
 
 </div>
 
-<input type="button" value="{$translate->_('common.save_changes')}" onclick="saveGenericAjaxPanel('formTaskPanel',displayAjax.reloadTicketTasks);"> 
+<input type="button" value="{$translate->_('common.save_changes')}" onclick="saveGenericAjaxPanel('formTaskPanel',true,displayAjax.reloadTicketTasks);"> 
 {if !empty($id)}<label><input type="checkbox" name="delete" value="1"> {$translate->_('common.remove')|capitalize}</label>{/if}
 <br>
 </form>
