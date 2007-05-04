@@ -14,6 +14,7 @@
 
 	<mapping>
 		<uri value="login" extension_id="core.page.signin" />
+		<uri value="welcome" extension_id="core.page.welcome" />
 		<uri value="tickets" extension_id="core.page.tickets" />
 		<uri value="display" extension_id="core.page.display" />
 		<uri value="config" extension_id="core.page.configuration" />
@@ -65,6 +66,20 @@
 		</extension>
 	
 		<!-- Pages -->
+
+		<extension point="cerberusweb.page">
+			<id>core.page.welcome</id>
+			<name>Welcome Page</name>
+			<class>
+				<file>classes.php</file>
+				<name>ChWelcomePage</name>
+			</class>
+			<params>
+				<param key="title" value="" />
+				<param key="menutitle" value="" />
+				<!--<param key="summary" value="support resources" />-->
+			</params>
+		</extension>
 
 		<extension point="cerberusweb.page">
 			<id>core.page.tickets</id>
@@ -247,7 +262,8 @@
 			<params>
 			</params>
 		</extension>
-		
+
+		<!-- 
 		<extension point="cerberusweb.login">
 			<id>login.ldap</id>
 			<name>LDAP Login Module</name>
@@ -258,7 +274,8 @@
 			<params>
 			</params>
 		</extension>
-		
+		-->		
+		 
 		<!-- Cron Extensions -->
 		
 		<extension point="cerberusweb.cron">

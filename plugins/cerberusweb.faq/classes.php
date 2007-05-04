@@ -63,7 +63,7 @@ class ChFaqPage extends CerberusPageExtension {
 	    @$id = intval(DevblocksPlatform::importGPC($_REQUEST['id'],'integer'));
 	    @$question = DevblocksPlatform::importGPC($_REQUEST['question'],'string');
 	    @$answer = DevblocksPlatform::importGPC($_REQUEST['answer'],'string');
-	    @$delete = DevblocksPlatform::importGPC($_REQUEST['delete'],'integer');
+	    @$delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer');
 	    
 	    $worker = CerberusApplication::getActiveWorker();
 	    
@@ -113,6 +113,53 @@ class ChFaqPage extends CerberusPageExtension {
 		$tpl->assign('faq', $faq);
 		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/faq/faq_panel.tpl.php');
+	}
+	
+	// Ajax
+	function showFaqSearchPanel() {
+	    @$q = DevblocksPlatform::importGPC($_REQUEST['q']);
+	    
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+
+		if(!empty($q)) {
+		    // [TODO] Do search
+	        list($results, $results_count) = DAO_Faq::search(
+	            array(
+	                new DevblocksSearchCriteria(SearchFields_Faq::IS_ANSWERED,DevblocksSearchCriteria::OPER_EQ,1)
+	            ),
+	            25,
+	            0
+	        );
+	        $tpl->assign('results', $results);
+	        $tpl->assign('results_count', $results_count);
+
+	        $tpl->assign('query', $q);
+		}
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/faq/faq_search_panel.tpl.php');
+	}
+	
+	function showFaqAnswer() {
+	    @$id = intval(DevblocksPlatform::importGPC($_REQUEST['id']));
+	    
+	    $faq = DAO_Faq::get($id);
+	    
+	    if(!empty($faq)) {
+	   		$tpl = DevblocksPlatform::getTemplateService();
+			$tpl->cache_lifetime = "0";
+			$tpl->assign('path', dirname(__FILE__) . '/templates/');
+	        
+		    include_once(DEVBLOCKS_PATH . 'libs/markdown/markdown.php');
+			$tpl->register_modifier('markdown','smarty_modifier_markdown');
+			
+			$tpl->assign('faq', $faq);
+	        
+	        $tpl->display('file:' . dirname(__FILE__) . '/templates/faq/faq_answer.tpl.php');
+	    } else
+	        echo ' ';
+	        
 	}
 	
 };

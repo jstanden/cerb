@@ -96,7 +96,7 @@ switch($step) {
 		$fails = 0;
 		
 		// PHP Version
-		if(version_compare(PHP_VERSION,"5.0.0") >=0) {
+		if(version_compare(PHP_VERSION,"5.1.4") >=0) {
 			$results['php_version'] = PHP_VERSION;
 		} else {
 			$results['php_version'] = false;

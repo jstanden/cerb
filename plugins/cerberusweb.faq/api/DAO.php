@@ -27,6 +27,9 @@ class DAO_Faq extends DevblocksORMHelper {
         self::_update($id, 'faq', $fields);
 	}
 	
+	/**
+	 * @return Model_Faq
+	 */
 	public static function get($id) {
 		$items = self::getList(array($id));
 		
@@ -36,6 +39,9 @@ class DAO_Faq extends DevblocksORMHelper {
 		return NULL;
 	}
 	
+	/**
+	 * @return Model_Faq[]
+	 */
 	public static function getList($ids=array()) {
 	    if(!is_array($ids)) $ids = array($ids);
 		$db = DevblocksPlatform::getDatabaseService();

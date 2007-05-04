@@ -42,8 +42,8 @@ details on the next step:<br>
  
 <H3>Teams</H3>
 
-Teams are groups of workers.  How you define your teams will depend on you intend to use 
-the helpdesk. Many people find it helpful to start with a couple department or project related teams 
+Teams are simply groups of workers.  How you define your teams will depend on how you intend to use 
+the helpdesk. Many organizations find it helpful to start with a couple department or project related teams 
 (Support, Sales, Billing, Abuse) which are ultimately broken down into smaller groups as needed 
 (by project, by location, by escalation).<br>
 <br>

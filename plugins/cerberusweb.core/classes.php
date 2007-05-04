@@ -1822,6 +1822,42 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	
 }
 
+class ChWelcomePage extends CerberusPageExtension {
+	function __construct($manifest) {
+		parent::__construct($manifest);
+
+//		$path = realpath(dirname(__FILE__)) . DIRECTORY_SEPARATOR;
+//		
+//		CerberusClassLoader::registerClasses($path. 'api/DAO.php', array(
+//		    'DAO_Faq'
+//		));
+	}
+		
+	function isVisible() {
+		// check login
+		$visit = CerberusApplication::getVisit();
+		
+		if(empty($visit)) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+	
+	function render() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		
+		$response = DevblocksPlatform::getHttpResponse();
+		$stack = $response->path;
+
+		
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/welcome/index.tpl.php');
+	}
+};
+
 class ChFilesPage extends CerberusPageExtension {
 	function __construct($manifest) {
 		parent::__construct($manifest);	

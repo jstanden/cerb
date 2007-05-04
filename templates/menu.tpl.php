@@ -1,3 +1,4 @@
+<div id="tourHeaderMenu"></div>
 <table cellpadding="0" cellspacing="0" border="0" width="100%" class="headerMenu">
 	<tr>
 		{foreach from=$pages item=m}

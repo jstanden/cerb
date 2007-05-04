@@ -9,6 +9,11 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension implements IDevb
      */
     function registerCallouts() {
         return array(
+            'tourHeaderMenu' => new DevblocksTourCallout('tourHeaderMenu','Helpdesk Menu','This is where you can change between major helpdesk sections.'),
+            'tourHeaderMyTasks' => new DevblocksTourCallout('tourHeaderMyTasks','My Tasks','Here you can quickly jump to a summary of your current tasks.'),
+            'tourHeaderTeamLoads' => new DevblocksTourCallout('tourHeaderTeamLoads','My Team Loads','Here you can quickly display the workload of any of your teams.  You can display a team\'s dashboard by clicking them.'),
+            'tourHeaderGetTickets' => new DevblocksTourCallout('tourHeaderGetTickets','Get Tickets',"The 'Get Tickets' link will assign you available tickets from your desired teams."),
+            'tourHeaderQuickLookup' => new DevblocksTourCallout('tourHeaderQuickLookup','Quick Lookup','Here you can quickly search for tickets from anywhere in the helpdesk.  This is generally most useful when someone calls up and you need to promptly locate their ticket.'),
             'tourDashboardActions' => new DevblocksTourCallout('tourDashboardActions','Dashboard Actions','This is where you may change your active dashboard.'),
             'tourDashboardViews' => new DevblocksTourCallout('tourDashboardViews','Ticket Lists','This is where your customized lists of tickets are displayed.'),
             'tourDashboardShortcuts' => new DevblocksTourCallout('tourDashboardShortcuts','Shortcuts','Here you may quickly perform multiple pre-defined actions to a list of tickets.  Use a shortcut if you\'re frequently using the same actions on different groups of tickets.'), 
@@ -30,12 +35,27 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension implements IDevb
         $path = $response->path;
         $visit = CerberusApplication::getVisit();
         
+        // [TODO] This should be more shared in the listener/parent
         if(!$visit || !$visit->get('TOUR_ENABLED',0))
             return;
         
         $callouts = CerberusApplication::getTourCallouts();
             
         switch(array_shift($path)) {
+            case 'welcome':
+		        $tour = array(
+		            'title' => 'Welcome!',
+		            'body' => "This assistant will help you become familiar with the helpdesk by following along and providing information about the current page.  You may follow the 'Points of Interest' links highlighted below to read tips about nearby functionality.",
+		            'callouts' => array(
+		                $callouts['tourHeaderMenu'],
+		                $callouts['tourHeaderMyTasks'],
+		                $callouts['tourHeaderTeamLoads'],
+		                $callouts['tourHeaderGetTickets'],
+		                $callouts['tourHeaderQuickLookup'],
+		            )
+		        );
+                break;
+                
             case "display":
 		        $tour = array(
 		            'title' => 'Display Ticket',

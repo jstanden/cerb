@@ -13,3 +13,8 @@
 	{/foreach}
 </table>
 
+<input type="text" name="q" value="">
+<input type="submit" value="{$translate->_('common.search')}" onclick="genericAjaxPanel('c=faq&a=showFaqSearchPanel&q='+this.form.q.value,this,true,'500px');">
+
+[ <a href="javascript:;" onclick="genericAjaxPanel('c=faq&a=showFaqPanel&id=0',this,true,'500px');">have a new question?</a> ]
+
