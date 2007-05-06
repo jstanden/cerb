@@ -2,11 +2,13 @@
 <html>
 <head>
 	<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">
+	<!--
 	<META HTTP-EQUIV="Pragma" CONTENT="no-cache">
 	<META HTTP-EQUIV="Cache-Control" CONTENT="no-cache">
 	<META HTTP-EQUIV="Pragma-directive" CONTENT="no-cache">
 	<META HTTP-EQUIV="Cache-Directive" CONTENT="no-cache">
 	<META HTTP-EQUIV="Expires" CONTENT="0">
+	-->
 
   <title>{$settings->get('helpdesk_title')}</title>
   <link type="text/css" rel="stylesheet" href="{devblocks_url}styles/default/cerberus.css?v={$smarty.const.APP_BUILD}{/devblocks_url}"></link>

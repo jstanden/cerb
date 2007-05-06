@@ -3,10 +3,10 @@ require(getcwd() . '/framework.config.php');
 require(DEVBLOCKS_PATH . 'Devblocks.class.php');
 require(APP_PATH . '/api/Application.class.php');
 
-@$uri = DevblocksPlatform::importGPC($_REQUEST['c']); // extension
-@$listener = DevblocksPlatform::importGPC($_REQUEST['a']); // listener
-
-$request = new DevblocksHttpRequest(array($uri,$listener));
+//@$uri = DevblocksPlatform::importGPC($_REQUEST['c']); // extension
+//@$listener = DevblocksPlatform::importGPC($_REQUEST['a']); // listener
+$request = DevblocksPlatform::readRequest();
+//$request = new DevblocksHttpRequest(array($uri,$listener));
 
 // [JAS]: [TODO] Is an explicit init() really required?
 DevblocksPlatform::init();
