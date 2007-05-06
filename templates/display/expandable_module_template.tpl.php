@@ -3,7 +3,7 @@
     <tr>
       <td width="0%" nowrap="nowrap" valign="top">
       	<a href="javascript:;" onclick="toggleDiv('{$display_module->manifest->id}_body');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/icon_collapse.gif{/devblocks_url}" width="16" height="16" border="0" align="absmiddle"></a> 
-      	<img src="{devblocks_url}{$display_module->manifest->params.icon}{/devblocks_url}" width="16" height="16" align="absmiddle">
+      	<img src="{devblocks_url}c=resource&p={$display_module->manifest->plugin_id}&f={$display_module->manifest->params.icon}{/devblocks_url}" width="16" height="16" align="absmiddle">
       </td>
       <td width="100%" valign="top" nowrap="nowrap">
 	      <h1 class="subtitle">&nbsp;{$display_module->manifest->params.title}</h1>
