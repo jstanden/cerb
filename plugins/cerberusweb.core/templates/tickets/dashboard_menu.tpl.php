@@ -1,7 +1,7 @@
 <div id="tourDashboardActions"></div>
 <table cellpadding="0" cellspacing="0" border="0" class="tableGreen" width="220" class="tableBg">
 	<tr>
-		<td class="tableThGreen" nowrap="nowrap"> <img src="{devblocks_url}images/window_view.gif{/devblocks_url}"> {$translate->_('dashboard.actions')|capitalize}</td>
+		<td class="tableThGreen" nowrap="nowrap"> <img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/window_view.gif{/devblocks_url}"> {$translate->_('dashboard.actions')|capitalize}</td>
 	</tr>
 	<tr>
 		<td>
@@ -33,7 +33,7 @@
 				{if substr($active_dashboard_id,0,1) == 't'}
 				<tr>
 					<td class="tableCellBg" width="100%" style="padding:2px;">
-						<img src="{devblocks_url}images/folder_gear.gif{/devblocks_url}"> <a href="{devblocks_url}c=tickets&a=dashboards&team=team&id={$dashboard_team_id}&mode=manage{/devblocks_url}">{$translate->_('teamwork.team_management')|capitalize}</a><br>
+						<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}"> <a href="{devblocks_url}c=tickets&a=dashboards&team=team&id={$dashboard_team_id}&mode=manage{/devblocks_url}">{$translate->_('teamwork.team_management')|capitalize}</a><br>
 					</td>
 				</tr>
 				{/if}

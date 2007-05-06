@@ -1,7 +1,7 @@
 <div id="faqPanel">
 <table cellpadding="0" cellspacing="0" border="0" width="98%">
 	<tr>
-		<td align="left" width="0%" nowrap="nowrap"><img src="{devblocks_url}images/help.gif{/devblocks_url}" align="absmiddle">&nbsp;</td>
+		<td align="left" width="0%" nowrap="nowrap"><img src="{devblocks_url}c=resource&a=cerberusweb.faq&f=images/help.gif{/devblocks_url}" align="absmiddle">&nbsp;</td>
 		<td align="left" width="100%" nowrap="nowrap"><h1>FAQ</h1></td>
 		<td align="right" width="0%" nowrap="nowrap"><form><input type="button" value=" X " onclick="genericPanel.hide();"></form></td>
 	</tr>

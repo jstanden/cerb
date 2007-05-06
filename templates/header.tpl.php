@@ -10,24 +10,23 @@
 
   <title>{$settings->get('helpdesk_title')}</title>
   <link type="text/css" rel="stylesheet" href="{devblocks_url}styles/default/cerberus.css?v={$smarty.const.APP_BUILD}{/devblocks_url}"></link>
+  <link type="text/css" rel="stylesheet" href="{devblocks_url}styles/default/container.css?v={$smarty.const.APP_BUILD}{/devblocks_url}" />
   
-  <script language="javascript" type="text/javascript" src="{devblocks_url}scripts/yahoo/YAHOO.js?v={$smarty.const.APP_BUILD}{/devblocks_url}"></script>
-  <script language="javascript" type="text/javascript" src="{devblocks_url}scripts/yahoo/dom.js?v={$smarty.const.APP_BUILD}{/devblocks_url}"></script>
-  <script language="javascript" type="text/javascript" src="{devblocks_url}scripts/yahoo/event.js?v={$smarty.const.APP_BUILD}{/devblocks_url}"></script>
-  <script language="javascript" type="text/javascript" src="{devblocks_url}scripts/yahoo/connection.js?v={$smarty.const.APP_BUILD}{/devblocks_url}"></script>
-  <script language="javascript" type="text/javascript" src="{devblocks_url}scripts/yahoo/animation.js?v={$smarty.const.APP_BUILD}{/devblocks_url}"></script>
-  <script language="javascript" type="text/javascript" src="{devblocks_url}scripts/yahoo/dragdrop.js?v={$smarty.const.APP_BUILD}{/devblocks_url}"></script>
-  <script language="javascript" type="text/javascript" src="{devblocks_url}scripts/yahoo/autocomplete.js?v={$smarty.const.APP_BUILD}{/devblocks_url}"></script>
-  <script language="javascript" type="text/javascript" src="{devblocks_url}scripts/yahoo/container.js?v={$smarty.const.APP_BUILD}{/devblocks_url}"></script>
+  <script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yahoo/YAHOO.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
+  <script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yahoo/dom.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
+  <script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yahoo/event.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
+  <script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yahoo/connection.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
+  <script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yahoo/animation.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
+  <script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yahoo/dragdrop.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
+  <script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yahoo/autocomplete.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
+  <script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yahoo/container.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
 
   <script language="javascript" type="text/javascript">{php}DevblocksPlatform::printJavascriptLibrary();{/php}</script>
   
-  <script language="javascript" type="text/javascript" src="{devblocks_url}scripts/cerberus/cerberus.js?v={$smarty.const.APP_BUILD}{/devblocks_url}"></script>
-  <script language="javascript" type="text/javascript" src="{devblocks_url}scripts/cerberus/display.js?v={$smarty.const.APP_BUILD}{/devblocks_url}"></script>
-  <script language="javascript" type="text/javascript" src="{devblocks_url}scripts/cerberus/config.js?v={$smarty.const.APP_BUILD}{/devblocks_url}"></script>
-  <script language="javascript" type="text/javascript" src="{devblocks_url}scripts/cerberus/kb.js?v={$smarty.const.APP_BUILD}{/devblocks_url}"></script>
- 
-  <link type="text/css" rel="stylesheet" href="{devblocks_url}styles/default/container.css?v={$smarty.const.APP_BUILD}{/devblocks_url}" />
+  <script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/cerberus/cerberus.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
+  <script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/cerberus/display.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
+  <script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/cerberus/config.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
+  <script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/cerberus/kb.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
   
 </head>
 

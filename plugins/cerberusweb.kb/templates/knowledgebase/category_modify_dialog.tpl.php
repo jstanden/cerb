@@ -30,7 +30,7 @@
 				{assign var=category value=$tree.$si}
 				{if !empty($category)}
 					<label><input type="radio" name="parent_id" value="{$category->id}" {if $parent==$category->id}checked{/if}>
-					{if $level>2}<img src="{devblocks_url}images/spacer.gif{/devblocks_url}" align="absmiddle" width="{math equation="(x-2)*16" x=$level}" height="1">{/if}
+					{if $level>2}<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/spacer.gif{/devblocks_url}" align="absmiddle" width="{math equation="(x-2)*16" x=$level}" height="1">{/if}
 					{if $level>1}<img src="{devblocks_url}images/tree_cap.gif{/devblocks_url}" align="absmiddle">{/if}
 					<img src="{devblocks_url}images/folder.gif{/devblocks_url}" align="absmiddle"> <b>{$category->name}</b>
 					</label><br>

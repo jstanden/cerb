@@ -5,7 +5,7 @@
 <table class="tableGreen" border="0" cellpadding="2" cellspacing="0" width="100%">
   <tbody>
     <tr>
-      <td class="tableThGreen" nowrap="nowrap"> <img src="{devblocks_url}images/folder_gear.gif{/devblocks_url}"> Properties</td>
+      <td class="tableThGreen" nowrap="nowrap"> <img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}"> Properties</td>
     </tr>
     <tr>
       <td>
@@ -23,10 +23,10 @@
       	<b class="green">Priority:</b><br>
 			<table cellpadding="0" cellspacing="0">
 				<tr>
-					<td align="center"><label for="priority0"><img src="{devblocks_url}images/star_alpha.gif{/devblocks_url}" width="16" height="16" border="0" title="None" alt="No Priority"></label></td>
-					<td align="center"><label for="priority3"><img src="{devblocks_url}images/star_green.gif{/devblocks_url}" width="16" height="16" border="0" title="{$translate->_('priority.low')}" alt="{$translate->_('priority.low')}"></label></td>
-					<td align="center"><label for="priority4"><img src="{devblocks_url}images/star_yellow.gif{/devblocks_url}" width="16" height="16" border="0" title="{$translate->_('priority.moderate')}" alt="{$translate->_('priority.moderate')}"></label></td>
-					<td align="center"><label for="priority5"><img src="{devblocks_url}images/star_red.gif{/devblocks_url}" width="16" height="16" border="0" title="{$translate->_('priority.high')}" alt="{$translate->_('priority.high')}"></label></td>
+					<td align="center"><label for="priority0"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/star_alpha.gif{/devblocks_url}" width="16" height="16" border="0" title="None" alt="No Priority"></label></td>
+					<td align="center"><label for="priority3"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/star_green.gif{/devblocks_url}" width="16" height="16" border="0" title="{$translate->_('priority.low')}" alt="{$translate->_('priority.low')}"></label></td>
+					<td align="center"><label for="priority4"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/star_yellow.gif{/devblocks_url}" width="16" height="16" border="0" title="{$translate->_('priority.moderate')}" alt="{$translate->_('priority.moderate')}"></label></td>
+					<td align="center"><label for="priority5"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/star_red.gif{/devblocks_url}" width="16" height="16" border="0" title="{$translate->_('priority.high')}" alt="{$translate->_('priority.high')}"></label></td>
 				</tr>
 				<tr>
 					<td align="center"><input id="priority0" type="radio" name="priority" value="0" {if $ticket->priority==0}checked{/if}></td>
@@ -78,31 +78,6 @@
 			</table>
      	</td>
     </tr>
-    <!---
-    <tr>
-      <td>
-      	<b class="green">Due:</b><br>
-      	<input name="due" type="text">
-			<a href="javascript:;"><img src="{devblocks_url}images/icon_calendar.gif{/devblocks_url}" width="16" height="16" border="0" align="absmiddle"></a>
-     	</td>
-    </tr>
-    --->
-    <!-- 
-    <tr>
-      <td nowrap="nowrap">
-      	<b class="green">Add Tags:</b><br>
-      	<input type="text" name="tags" value="" size="22">
-      	<input type="button" value="..." onclick="genericAjaxPanel('c=tickets&a=showTagChooserPanel',this,true,'500px');">
-     	</td>
-    </tr>
-    <tr>
-      <td nowrap="nowrap">
-      	<b class="green">Add Workers:</b> (by e-mail)<br>
-      	<input type="text" name="workers" value="" size="22">
-      	<input type="button" value="..." onclick="genericAjaxPanel('c=tickets&a=showWorkerChooserPanel',this,true,'500px');">
-     	</td>
-    </tr>
-     -->
     <tr>
       <td>
       	<b class="green">Subject:</b><br>

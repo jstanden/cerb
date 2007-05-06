@@ -10,7 +10,7 @@
 	<tr>
 		<td width="0%" nowrap="nowrap" valign="top"><h2>{$node->name}</h2></td>
 		<td width="100%" nowrap="nowrap" valign="middle">
-			<img src="{devblocks_url}images/spacer.gif{/devblocks_url}" width="5" height="1">
+			<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/spacer.gif{/devblocks_url}" width="5" height="1">
 			<img src="{devblocks_url}images/folder_edit.gif{/devblocks_url}" align="absmiddle"> <a href="javascript:;" onclick="kbAjax.showCategoryModify('{$node->id}','0',this);">modify</a>
 		</td>
 	</tr>
@@ -34,7 +34,7 @@
 	<tr>
 		<td width="0%" nowrap="nowrap" valign="top"><h2>Subcategories:</h2></td>
 		<td width="100%" nowrap="nowrap" valign="middle">
-			<img src="{devblocks_url}images/spacer.gif{/devblocks_url}" width="5" height="1">
+			<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/spacer.gif{/devblocks_url}" width="5" height="1">
 			<img src="{devblocks_url}images/folder_add.gif{/devblocks_url}" align="absmiddle"> <a href="javascript:;" onclick="kbAjax.showCategoryModify('0','{$node->id}',this);">add</a>
 		</td>
 	</tr>

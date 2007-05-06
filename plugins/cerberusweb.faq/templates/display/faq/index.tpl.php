@@ -6,7 +6,7 @@
 	{foreach from=$fnr_faqs item=faq name=faqs key=faq_id}
 	<tr>
 		<td width="100%" valign="top" style="border-bottom:1px solid rgb(220,220,220);">
-			<img src="{devblocks_url}images/help.gif{/devblocks_url}" align="absmiddle"> 
+			<img src="{devblocks_url}c=resource&a=cerberusweb.faq&f=images/help.gif{/devblocks_url}" align="absmiddle"> 
 			<a href="javascript:;" onclick="genericAjaxPanel('c=faq&a=showFaqPanel&id={$faq_id}',this,false,'500px');" style="color:rgb(0, 102, 255);font-weight:normal;">{$faq.f_question}</a>
 		</td>
 	</tr>

@@ -19,14 +19,14 @@
 			<a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showTaskPanel&id={$task->id}&ticket_id={$ticket->id}',this,true,'400px');" class="ticketLink"><b style="{if $task->is_completed}text-decoration:line-through;{/if}">{$task->title}</b></a>
 			{if !$task->is_completed}
 				<br>
-				<img src="{devblocks_url}images/spacer.gif{/devblocks_url}" height="3" width="1"><br>
+				<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/spacer.gif{/devblocks_url}" height="3" width="1"><br>
 				{assign var=owners value=$task_owners.$task_id}
 				{foreach from=$owners->teams item=owner name=owners}
-					<img src="{devblocks_url}images/businessmen.gif{/devblocks_url}" border="0" align="top">
+					<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/businessmen.gif{/devblocks_url}" border="0" align="top">
 					<a href="javascript:;">{$owner->name}</a>
 				{/foreach}
 				{foreach from=$owners->workers item=owner name=owners}
-					<img src="{devblocks_url}images/user_headset.gif{/devblocks_url}" border="0" align="top">
+					<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/user_headset.gif{/devblocks_url}" border="0" align="top">
 					<a href="javascript:;">{$owner->getName()}</a>
 				{/foreach}
 			{/if}

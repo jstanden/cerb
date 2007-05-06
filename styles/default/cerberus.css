@@ -92,7 +92,7 @@
     }
 
   .tableThOrange { padding: 3px;
-    background-image: url(../../images/bg_ltorange.jpg);
+    background-image: url(bg_ltorange.jpg);
     background-repeat: repeat-x;
     color: rgb(255, 255, 255);
     font-size: 18px;
@@ -110,7 +110,7 @@
   }
     
   .tableThGreen { padding: 3px;
-    background-image: url(../../images/bg_green.jpg);
+    background-image: url(bg_green.jpg);
     background-repeat: repeat-x;
     color: rgb(255, 255, 255);
     font-size: 18px;
@@ -125,7 +125,7 @@
     }
 
   .tableThBlue { padding: 3px;
-    background-image: url(../../images/bg_ltblue.jpg);
+    background-image: url(bg_ltblue.jpg);
     background-repeat: repeat-x;
     color: rgb(255, 255, 255);
     font-size: 18px;
@@ -179,7 +179,7 @@
 
   .displayConversationTable { 
   	 border: 1px solid rgb(255, 153, 0);
-    background-image: url(../../images/bg_yellow.jpg);
+    background-image: url(bg_yellow.jpg);
     background-position: left top;
     background-repeat: repeat-x;
     background-color: rgb(252, 242, 191);
@@ -192,7 +192,7 @@
 
   .displayReplyTable { 
   	 border: 1px solid rgb(0, 51, 153);
-    background-image: url(../../images/bg_cobalt.jpg);
+    background-image: url(bg_cobalt.jpg);
     background-position: left top;
     background-repeat: repeat-x;
     background-color: rgb(223, 223, 255);
@@ -223,7 +223,7 @@
 
   .configTableTh { 
     padding: 3px;
-    background-image: url(../../images/bg_green.jpg);
+    background-image: url(bg_green.jpg);
     background-repeat: repeat-x;
     color: rgb(255, 255, 255);
     font-size: 18px;

@@ -77,13 +77,13 @@
 			{elseif $column=="t_priority"}
 			<td>
 				{if $result.t_priority >= 75}
-					<img src="{devblocks_url}images/star_red.gif{/devblocks_url}" title="{$result.t_priority}">
+					<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/star_red.gif{/devblocks_url}" title="{$result.t_priority}">
 				{elseif $result.t_priority >= 50}
-					<img src="{devblocks_url}images/star_yellow.gif{/devblocks_url}" title="{$result.t_priority}">
+					<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/star_yellow.gif{/devblocks_url}" title="{$result.t_priority}">
 				{elseif $result.t_priority >= 25}
-					<img src="{devblocks_url}images/star_green.gif{/devblocks_url}" title="{$result.t_priority}">
+					<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/star_green.gif{/devblocks_url}" title="{$result.t_priority}">
 				{else}
-					<img src="{devblocks_url}images/star_alpha.gif{/devblocks_url}" title="{$result.t_priority}">
+					<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/star_alpha.gif{/devblocks_url}" title="{$result.t_priority}">
 				{/if}
 			</td>
 			{elseif $column=="t_last_wrote"}

@@ -5,7 +5,7 @@
 <input type="hidden" name="team_id" value="{$dashboard_team_id}">
 <table cellpadding="0" cellspacing="0" border="0" class="tableOrange" width="220" class="tableBg">
 	<tr>
-		<td class="tableThOrange" nowrap="nowrap"> <img src="{devblocks_url}images/funnel.gif{/devblocks_url}"> {$translate->_('dashboard.team_filters')|capitalize}</td>
+		<td class="tableThOrange" nowrap="nowrap"> <img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/funnel.gif{/devblocks_url}"> {$translate->_('dashboard.team_filters')|capitalize}</td>
 	</tr>
 	<tr>
 		<td class="tableCellBg" width="100%" style="padding:2px;">
@@ -22,7 +22,7 @@
 					{/if}
 				<tr>
 					<td class="tableCellBg" width="100%"><label><input type="checkbox" name="categories[]" value="{$category->id}" {if isset($team_filters.categories.$category_id)}checked{/if} onclick="this.form.categorized[1].checked=true;"> {$category->name} ({$category_counts.$category_id})</label></td>
-					<td class="tableCellBgIndent" width="0%" nowrap="nowrap" style="width:51px;"><img src="{devblocks_url}images/cerb_graph.gif{/devblocks_url}" width="{$percent}" height="15"><img src="{devblocks_url}images/cer_graph_cap.gif{/devblocks_url}" height="15" width="1"></td>
+					<td class="tableCellBgIndent" width="0%" nowrap="nowrap" style="width:51px;"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/cerb_graph.gif{/devblocks_url}" width="{$percent}" height="15"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/cer_graph_cap.gif{/devblocks_url}" height="15" width="1"></td>
 				</tr>
 				{/foreach}
 			</table>

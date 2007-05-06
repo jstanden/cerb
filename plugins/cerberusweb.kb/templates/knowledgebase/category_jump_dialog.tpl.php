@@ -7,8 +7,8 @@
 <div style="height:250px;overflow:auto;background-color:rgb(255,255,255);border:1px solid rgb(180,180,180);margin:2px;padding:3px;">
 	{foreach from=$sorted key=si item=level name=sorted}
 		{assign var=category value=$tree.$si}
-		{if $level==1 && !$smarty.foreach.sorted.first}<img src="{devblocks_url}images/spacer.gif{/devblocks_url}" align="absmiddle" height="10" width="1"><br>{/if}
-		<img src="{devblocks_url}images/spacer.gif{/devblocks_url}" align="absmiddle" width="{math equation="(x-1)*14" x=$level}" height="1">
+		{if $level==1 && !$smarty.foreach.sorted.first}<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/spacer.gif{/devblocks_url}" align="absmiddle" height="10" width="1"><br>{/if}
+		<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/spacer.gif{/devblocks_url}" align="absmiddle" width="{math equation="(x-1)*14" x=$level}" height="1">
 		<img src="{devblocks_url}images/folder.gif{/devblocks_url}" align="absmiddle"> <a href="{devblocks_url}c=kb&id={$category->id}{/devblocks_url}">{$category->name}</a> ({$category->hits})<br>
 	{/foreach}
 </div>
