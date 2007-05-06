@@ -5,7 +5,7 @@ We did not find a ticket to match the supplied ID / mask.
 <table>
   <tr>
     <td valign="top"><h2 style="color: rgb(102,102,102);">Ticket #{$ticket_id}</h2></td>
-    <td valign="top">[ <a href="{devblocks_url}mobile/display/{$ticket_id}/full{/devblocks_url}"">Show Full Ticket</a> ]</td>
+    <td valign="top">[ <a href="{devblocks_url}c=mobile&a=display&id={$ticket_id}&mode=full{/devblocks_url}"">Show Full Ticket</a> ]</td>
   </tr>
 </table>
   {if isset($message->headers.from)}<b>From:</b> {$message->headers.from|escape:"htmlall"|nl2br}<br>{/if}
@@ -15,7 +15,7 @@ We did not find a ticket to match the supplied ID / mask.
 <br>
   {$message->getContent()|trim|nl2br}
 <br><br>
-<form id="reply{$message->id}" action="{devblocks_url}mobile/reply/{$ticket_id}/{$message->id}{/devblocks_url}" method="POST" enctype="multipart/form-data">
+<form id="reply{$message->id}" action="{devblocks_url}c=mobile&a=reply&id={$ticket_id}&m_id={$message->id}{/devblocks_url}" method="POST" enctype="multipart/form-data">
 <input type="hidden" name="page_type" value="{$page_type}">
 <input type="hidden" name="id" value="{$message->id}">
 

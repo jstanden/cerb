@@ -17,9 +17,9 @@ We did not find a ticket to match the supplied ID / mask.
       	{$message->getContent()|trim|nl2br}
       	<br>
 
-      	[ <a href="{devblocks_url}mobile/display/{$ticket_id}/{$message->id}{/devblocks_url}"">Reply</a> 
-      	/ <a href="{devblocks_url}mobile/forward/{$ticket_id}/{$message->id}{/devblocks_url}"">Forward</a> 
-      	/ <a href="{devblocks_url}mobile/comment/{$ticket_id}/{$message->id}{/devblocks_url}"">Comment</a> ] 
+      	[ <a href="{devblocks_url}c=mobile&a=display&id={$ticket_id}&m_id={$message->id}{/devblocks_url}"">Reply</a> 
+      	/ <a href="{devblocks_url}c=mobile&a=forward&id={$ticket_id}&m_id={$message->id}{/devblocks_url}"">Forward</a> 
+      	/ <a href="{devblocks_url}c=mobile&a=comment&id={$ticket_id}&m_id={$message->id}{/devblocks_url}"">Comment</a> ] 
       	<br>
       	{assign var=attachments value=$message->getAttachments()}
       	{if !empty($attachments)}
