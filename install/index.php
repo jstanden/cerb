@@ -571,21 +571,27 @@ switch($step) {
 				    $worker = DAO_Worker::getAgent($worker_id);
 				    
 				    if(in_array($worker_id,$worker_pw)) {
-					    $mail = CerberusMail::createInstance();
-					    
-					    $mail->addTo($worker->email,'');
-					    $mail->setSubject("Your new helpdesk login information.");
-					    $mail->setBodyText(sprintf("Your new helpdesk login information is below:\n\n".
-					        "URL: %s\n".
-					        "Login: %s\n".
-					        "Password: %s\n\n".
-					        "You should change your password after logging in for the first time.\n",
-						        "http://", // [TODO]
+				        
+				        $mailer = DevblocksPlatform::getMailService();
+				        $mail = $mailer->createInstance();       
+				        
+				        $headers = $mailer->getDefaultHeaders();
+				        $headers['Subject'] = 'Your new helpdesk login information!';
+				        
+					    $body = sprintf("Your new helpdesk login information is below:\r\n".
+							"\r\n".
+					        "URL: %s\r\n".
+					        "Login: %s\r\n".
+					        "Password: %s\r\n".
+					        "\r\n".
+					        "You should change your password after logging in for the first time.\r\n".
+					        "\r\n",
+						        "http://", // [TODO] URL
 						        $worker->email,
 						        $password
-					    ));
-					    
-					    $mail->send();
+					    );
+				        
+					    $result = $mail->send($worker->email,$headers,$body);
 				    }
 				    
 					$fields = array(

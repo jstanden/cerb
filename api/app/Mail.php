@@ -2,48 +2,6 @@
 class CerberusMail {
 	private function __construct() {}
 	
-	/**
-	 * @return Zend_Mail
-	 */
-	static function createInstance() {
-		$mail = new Zend_Mail();
-		$settings = CerberusSettings::getInstance();
-
-		// [TODO] Transport toggle
-		
-		// SMTP
-		$smtp_host = $settings->get(CerberusSettings::SMTP_HOST,'localhost');
-		$smtp_user = $settings->get(CerberusSettings::SMTP_AUTH_USER,null);
-		$smtp_pass = $settings->get(CerberusSettings::SMTP_AUTH_PASS,null);
-		
-		// [TODO] Test SMTP Auth
-		if(!empty($smtp_user)) { // AUTH
-			$config = array('auth' => 'login',
-                'username' => $smtp_user,
-                'password' => $smtp_pass);
-		} else { // no AUTH
-			$config = array();
-		}
-		$tr = new Zend_Mail_Transport_Smtp($settings->get(CerberusSettings::SMTP_HOST), $config);
-		
-		// Mail()
-		//	$tr = new Zend_Mail_Transport_Sendmail();
-		
-		Zend_Mail::setDefaultTransport($tr);
-		
-		// Mail Defaults
-		$from_addy = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM,'nobody@localhost');
-		$from_personal = $settings->get(CerberusSettings::DEFAULT_REPLY_PERSONAL,'');
-		$mail->setFrom($from_addy, $from_personal);
-		
-		$mail->addHeader('Date', gmdate('r'));
-		$mail->addHeader('Message-Id', CerberusApplication::generateMessageId());
-		$mail->addHeader('X-Mailer', 'Cerberus Helpdesk (Build '.APP_BUILD.')');
-		$mail->addHeader('X-MailGenerator', 'Cerberus Helpdesk (Build '.APP_BUILD.')');
-		
-        return $mail;
-	}
-	
 	static function sendTicketMessage($properties=array()) {
 	    /*
 	     * [TODO] Move these into constants?
@@ -59,6 +17,12 @@ class CerberusMail {
 	    'status'
 	    'agent_id'
 		*/
+
+		// objects
+	    $mailer = DevblocksPlatform::getMailService();
+        $mail = $mailer->createInstance();
+        $headers = $mailer->getDefaultHeaders();
+        $to = array();
 	    
 	    // properties
 	    @$type = $properties['type'];
@@ -66,8 +30,6 @@ class CerberusMail {
 	    @$content = $properties['content'];
 	    @$files = $properties['files'];
 	    
-		// objects
-	    $mail = self::createInstance(); /* @var $mail Zend_Mail */
 		$message = DAO_Ticket::getMessage($message_id);
 		$ticket_id = $message->ticket_id;
 		$ticket = DAO_Ticket::getTicket($ticket_id);
@@ -75,18 +37,18 @@ class CerberusMail {
 
 		// References
 		if(!empty($message) && false !== ($in_reply_to = $message->headers['message-id'])) {
-		    $mail->addHeader('References', $in_reply_to);
-		    $mail->addHeader('In-Reply-To', $in_reply_to);
+		    $headers['References'] = $in_reply_to;
+		    $headers['In-Reply-To'] = $in_reply_to;
 		}
 		
 		// Body
-	    $mail->setBodyText($content);
+//	    $mail->setBodyText($content);
 
 	    switch($type) {
 	        case CerberusMessageType::FORWARD:
 	            // Forward to
 	            if(isset($properties['to'])) {
-	                $mail->addTo($properties['to'],'');
+	                $to[] = $properties['to'];
 	            }
 	            break;
 	            
@@ -94,7 +56,7 @@ class CerberusMail {
 			    // Recepients
 			    if(is_array($requesters))
 			    foreach($requesters as $requester) { /* @var $requester CerberusAddress */
-			        $mail->addTo($requester->email, ''); // $requester->personal    
+                    $to[] = $requester->email;
 			    }
 	            break;
 	    }
@@ -108,43 +70,43 @@ class CerberusMail {
 			//		$mail->setFrom('somebody@example.com', 'Some Sender');
 
 			// Subject
-			$mail->setSubject('Re: ' . $ticket->subject); // [TODO] Do properly
+	        $headers['Subject'] = 'Re: ' . $ticket->subject; 
 			
 			// Cc
+	        // [TODO] Reimplement (with validation)
 			@$cc = $properties['cc'];
 			if(!empty($cc)) {
 			    $addresses = CerberusApplication::parseCsvString($cc);
 			    if(is_array($addresses))
 			    foreach($addresses as $address) {
-			        $mail->addCc($address, '');
+//			        $mail->addCc($address, '');
 			    }
 			}
 			
 			// Bcc
+	        // [TODO] Reimplement (with validation)
 			@$bcc = $properties['bcc'];
 			if(!empty($bcc)) {
 			    $addresses = CerberusApplication::parseCsvString($bcc);
 			    if(is_array($addresses))
 			    foreach($addresses as $address) {
-			        $mail->addBcc($address, '');
+//			        $mail->addBcc($address, '');
 			    }
 			}
 		    
-			// Mime Attachments
+			// Mime Attachments // [TODO] Reimplement
 			if (is_array($files) && !empty($files)) {
 				foreach ($files['tmp_name'] as $idx => $file) {
-					$attachment =& $mail->addAttachment(file_get_contents($files['tmp_name'][$idx]),$files['type'][$idx]); /* @var $attachment Zend_Mime_Part */
-					$attachment->filename = $files['name'][$idx];
+//					$attachment =& $mail->addAttachment(file_get_contents($files['tmp_name'][$idx]),$files['type'][$idx]); /* @var $attachment Zend_Mime_Part */
+//					$attachment->filename = $files['name'][$idx];
 				}
 			}
 			
-			$mail->send();
+			$mail->send($to, $headers, $content);
 		}
 		
-		// Add message to the database
-		$headers = self::sanitizeHeaders($mail->getHeaders());
 		// [TODO] Include real address_id
-		$message_id = DAO_Ticket::createMessage($ticket_id,$type,time(),1,$headers,$content);
+		$message_id = DAO_Ticket::createMessage($ticket_id,$type,time(),1,self::sanitizeHeaders($headers),$content);
 
 //		// if this message was submitted with attachments, store them in the filestore and link them in the db.
 		if (is_array($files) && !empty($files)) {
@@ -152,8 +114,8 @@ class CerberusMail {
 			$attachment_location = $settings->get(CerberusSettings::SAVE_FILE_PATH);
 		
 			foreach ($files['tmp_name'] as $idx => $file) {
-				copy($files['tmp_name'][$idx],$attachment_location.$message_id.$idx);
-				DAO_Ticket::createAttachment($message_id, $files['name'][$idx], $message_id.$idx);
+//				copy($files['tmp_name'][$idx],$attachment_location.$message_id.$idx);
+//				DAO_Ticket::createAttachment($message_id, $files['name'][$idx], $message_id.$idx);
 			}
 		}
 		
@@ -174,31 +136,18 @@ class CerberusMail {
 		
 	}
 	
-	// [TODO] We should example if there's a way to have the Zend_Mail class do this for us (generateMessage).
-	static private function sanitizeHeaders($raw_headers) {
-	    $headers = array();
+//	// [TODO] We should example if there's a way to have the Zend_Mail class do this for us (generateMessage).
+	static private function sanitizeHeaders($headers) {
+	    $clean_headers = array();
 	    
-	    if(is_array($raw_headers))
-	    foreach($raw_headers as $k => $v) {
-	        $vals = array();
-	        
-	        if(is_array($v))
-	        foreach($v as $vk => $vv) {
-	            if(is_numeric($vk))
-	                $vals[] = $vv;    
-	        }
-	        
-	        if(isset($v['append'])) {
-	            $val = implode(', ', $vals);
-	        } else {
-	            $val = implode(Zend_Mime::LINEEND, $vals);
-	        }
-	        
-	        $headers[strtolower($k)] = $val;
+	    if(is_array($headers))
+	    foreach($headers as $k => $v) {
+	        $clean_headers[strtolower($k)] = $v;
 	    }
 	    
-	    return $headers;
+	    return $clean_headers;
 	}
+	
+};
 
-}
 ?>
