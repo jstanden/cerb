@@ -58,8 +58,12 @@ class ChFaqPage extends CerberusPageExtension {
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/faq/index.tpl.php');
 	}
 	
+	function renderAction() {
+	    self::render();
+	}
+	
 	// Ajax
-	function answer() {
+	function answerAction() {
 	    @$id = intval(DevblocksPlatform::importGPC($_REQUEST['id'],'integer'));
 	    @$question = DevblocksPlatform::importGPC($_REQUEST['question'],'string');
 	    @$answer = DevblocksPlatform::importGPC($_REQUEST['answer'],'string');
@@ -99,7 +103,7 @@ class ChFaqPage extends CerberusPageExtension {
 	}
 	
 	// Ajax
-	function showFaqPanel() {
+	function showFaqPanelAction() {
 	    @$id = intval(DevblocksPlatform::importGPC($_REQUEST['id']));
 
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -116,7 +120,7 @@ class ChFaqPage extends CerberusPageExtension {
 	}
 	
 	// Ajax
-	function showFaqSearchPanel() {
+	function showFaqSearchPanelAction() {
 	    @$q = DevblocksPlatform::importGPC($_REQUEST['q']);
 	    
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -141,7 +145,7 @@ class ChFaqPage extends CerberusPageExtension {
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/faq/faq_search_panel.tpl.php');
 	}
 	
-	function showFaqAnswer() {
+	function showFaqAnswerAction() {
 	    @$id = intval(DevblocksPlatform::importGPC($_REQUEST['id']));
 	    
 	    $faq = DAO_Faq::get($id);

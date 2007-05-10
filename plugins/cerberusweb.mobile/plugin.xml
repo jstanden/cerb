@@ -12,16 +12,14 @@
 	
 	<extensions>
 	
-		<extension point="cerberusweb.page">
-			<id>cerberusweb.page.mobile</id>
-			<name>Mobile Interface Page</name>
+		<extension point="devblocks.controller">
+			<id>cerberusweb.controller.mobile</id>
+			<name>Mobile Controller</name>
 			<class>
 				<file>classes.php</file>
-				<name>MobilePage</name>
+				<name>MobileController</name>
 			</class>
 			<params>
-				<param key="title" value="" />
-				<param key="menutitle" value="" />
 			</params>
 		</extension>
 		

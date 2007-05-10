@@ -1,4 +1,137 @@
 <?php
+class ChPageController extends DevblocksControllerExtension {
+    const ID = 'core.controller.page';
+    
+	function __construct($manifest) {
+		parent::__construct($manifest);
+
+		/*
+		 * [JAS]: Read in the page extensions from the entire system and register 
+		 * the URI shortcuts from their manifests with the router.
+		 */
+        $router = DevblocksPlatform::getRoutingService();
+        $pages = CerberusApplication::getPages();
+        
+        // [TODO] These should be manifests instead of instances
+        foreach($pages as $page) { /* @var $page CerberusPageExtension */
+            $uri = $page->manifest->params['uri'];
+            if(empty($uri)) continue;
+            $router->addRoute($uri, self::ID);
+        }
+	}
+
+	/**
+	 * Enter description here...
+	 *
+	 * @param string $uri
+	 * @return string $id
+	 */
+	private function _getPageByUri($uri) {
+        $pages = CerberusApplication::getPages();
+        foreach($pages as $page) { /* @var $page CerberusPageExtension */
+            if(0 == strcasecmp($uri,$page->manifest->params['uri']))
+                return $page;
+        }
+        return NULL;
+	}
+	
+	public function handleRequest(DevblocksHttpRequest $request) {
+//	    echo "REQUEST";
+	    
+//	    print_r($request);
+	    
+	    $path = $request->path;
+		$controller = array_shift($path);
+
+        $pages = CerberusApplication::getPages();
+
+        $page = $this->_getPageByUri($controller);
+
+        if(empty($page)) return; // 404
+        
+	    @$action = array_shift($path) . 'Action';
+
+	    switch($action) {
+	        case NULL:
+	            // [TODO] Index/page render
+	            break;
+	            
+	        default:
+			    // Default action, call arg as a method suffixed with Action
+				if(method_exists($page,$action)) {
+					call_user_func(array(&$page, $action)); // [TODO] Pass HttpRequest as arg?
+				}
+	            break;
+	    }
+	}
+	
+	public function writeResponse(DevblocksHttpResponse $response) {
+	    $path = $response->path;
+	    
+		// [JAS]: Ajax? // [TODO] Explore outputting whitespace here for Safari
+	    if(empty($path))
+			return;
+
+		$tpl = DevblocksPlatform::getTemplateService();
+		$session = DevblocksPlatform::getSessionService();
+		$settings = CerberusSettings::getInstance();
+		$translate = DevblocksPlatform::getTranslationService();
+		$visit = $session->getVisit();
+
+        $pages = CerberusApplication::getPages();
+		
+//	    echo "RESPONSE";
+	    
+//	    print_r($response);
+	    
+		$controller = array_shift($path);
+
+		// Default page [TODO] This is supposed to come from framework.config.php
+		if(empty($controller)) 
+			$controller = 'tickets';
+
+	    // [JAS]: Require us to always be logged in for Cerberus pages
+	    // [TODO] This should probably consult with the page itself for ::authenticated()
+		if(empty($visit))
+			$controller = 'signin';
+
+//		$page = $pages[$id]; /* @var $page CerberusPageExtension */
+	    $page = $this->_getPageByUri($controller);
+        
+        if(empty($page)) return; // 404
+	    
+		// [TODO] Reimplement
+		if(!empty($visit) && !is_null($visit->getWorker()))
+		    DAO_Worker::logActivity($visit->getWorker()->id, $page->getActivity());
+		
+		// [JAS]: Listeners (Step-by-step guided tour, etc.)
+	    $listenerManifests = DevblocksPlatform::getExtensions('devblocks.listener.http');
+	    foreach($listenerManifests as $listenerManifest) { /* @var $listenerManifest DevblocksExtensionManifest */
+	         $inst = $listenerManifest->createInstance(); /* @var $inst DevblocksHttpRequestListenerExtension */
+	         $inst->run($response, $tpl);
+	    }
+		
+		// [JAS]: Pre-translate any dynamic strings
+        $common_translated = array();
+        if(!empty($visit) && !is_null($visit->getWorker()))
+            $common_translated['header_signed_in'] = vsprintf($translate->_('header.signed_in'), array('<b>'.$visit->getWorker()->getName().'</b>'));
+        $tpl->assign('common_translated', $common_translated);
+		
+        // [JAS]: Variables provided to all page templates
+		$tpl->assign('settings', $settings);
+		$tpl->assign('session', $_SESSION);
+		$tpl->assign('translate', $translate);
+		$tpl->assign('visit', $visit);
+		
+		$tpl->assign('pages',$pages);		
+		$tpl->assign('page',$page);
+		
+		$tpl_path = dirname(__FILE__) . '/templates/';
+		$tpl->assign('tpl_path', $tpl_path);
+		$tpl->display($tpl_path.'border.php');
+	}
+};
+
 class ChTranslations extends DevblocksTranslationsExtension {
 	function __construct($manifest) {
 		parent::__construct($manifest);	
@@ -343,11 +476,11 @@ class ChTicketsPage extends CerberusPageExtension {
 				    array(
 				        new DevblocksSearchCriteria(SearchFields_Worker::LAST_ACTIVITY_DATE,DevblocksSearchCriteria::OPER_GT,(time()-60*15)), // idle < 15 mins
 				    ),
-				    1000,
+				    -1,
 				    0,
 				    SearchFields_Worker::LAST_ACTIVITY_DATE,
 				    false,
-				    true
+				    false
 				);
 				
 				$whos_online = DAO_Worker::getList(array_keys($whos_online_workers));
@@ -370,7 +503,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	
 	// Ajax
 	// [TODO] Move to another page
-	function showCallout() {
+	function showCalloutAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'string');
 
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -390,13 +523,13 @@ class ChTicketsPage extends CerberusPageExtension {
 	
 	// Post
 	// [TODO] Move to another page
-	function doStopTour() {
+	function doStopTourAction() {
 		$visit = CerberusApplication::getVisit();
 		$visit->set("TOUR_ENABLED", false);
 	}
 	
 	// Post
-	function saveTeamFilters() {
+	function saveTeamFiltersAction() {
 	    @$team_id = DevblocksPlatform::importGPC($_POST['team_id'],'integer');
 	    @$categories = DevblocksPlatform::importGPC($_POST['categories'],'array');
 	    @$categorized = DevblocksPlatform::importGPC($_POST['categorized'],'integer');
@@ -418,7 +551,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	}
 	
 	// Post	
-	function doQuickSearch() {
+	function doQuickSearchAction() {
         @$type = DevblocksPlatform::importGPC($_POST['type'],'string'); 
         @$query = DevblocksPlatform::importGPC($_POST['query'],'string');
 
@@ -452,12 +585,12 @@ class ChTicketsPage extends CerberusPageExtension {
         DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','search')));
 	}
 	
-	function clickteam() {
+	function clickteamAction() {
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','search')));
 	}
 	
 	// [TODO] Nuke the message_id redundancy here, and such
-	function createTicket() {
+	function createTicketAction() {
 		//require_once(DEVBLOCKS_PATH . 'libs/pear/mimeDecode.php');
 
 		$settings = CerberusSettings::getInstance();
@@ -521,7 +654,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('display',$ticket->id)));
 	}
 	
-	function mailbox() {
+	function mailboxAction() {
 		$request = DevblocksPlatform::getHttpRequest();
 		$stack = $request->path;
 		@$id = intval($stack[2]); 
@@ -535,7 +668,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','search')));
 	}
 	
-	function viewSortBy() {
+	function viewSortByAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
 		@$sortBy = DevblocksPlatform::importGPC($_REQUEST['sortBy']);
 		
@@ -558,7 +691,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		echo ' ';
 	}
 	
-	function viewPage() {
+	function viewPageAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
 		@$page = DevblocksPlatform::importGPC(DevblocksPlatform::importGPC($_REQUEST['page']));
 		
@@ -574,7 +707,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		echo ' ';
 	}
 	
-	function viewRefresh() {
+	function viewRefreshAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
 
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -597,7 +730,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	}
 	
 	// Post
-	function saveTeamManage() {
+	function saveTeamManageAction() {
 	    @$team_id = DevblocksPlatform::importGPC($_REQUEST['team_id'],'integer');
 	    @$add_str = DevblocksPlatform::importGPC($_REQUEST['add'],'string');
 	    @$ids = DevblocksPlatform::importGPC($_REQUEST['ids'],'array');
@@ -629,7 +762,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	}
 	
 	// Ajax
-	function showTeamPanel() {
+	function showTeamPanelAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 
@@ -644,7 +777,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/rpc/team_load_panel.tpl.php');
 	}
 	
-	function showTagChooserPanel() {
+	function showTagChooserPanelAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 
@@ -657,7 +790,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/rpc/tag_chooser_panel.tpl.php');
 	}
 	
-	function changeDashboard() {
+	function changeDashboardAction() {
 		$dashboard_id = DevblocksPlatform::importGPC($_POST['dashboard_id'], 'string', '0');
 		
 		$visit = DevblocksPlatform::getSessionService()->getVisit();
@@ -666,7 +799,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','dashboards')));
 	}
 	
-	function clickChooserTag() {
+	function clickChooserTagAction() {
 		$tag_id = DevblocksPlatform::importGPC($_REQUEST['tag']);
 		$remove = intval($_REQUEST['remove']);
 	
@@ -684,7 +817,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tagCloud->render();
 	}
 	
-	function showWorkerChooserPanel() {
+	function showWorkerChooserPanelAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 
@@ -692,7 +825,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/rpc/worker_chooser_panel.tpl.php');
 	}
 	
-	function showAssignPanel() {
+	function showAssignPanelAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 
@@ -707,7 +840,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/rpc/assign_panel.tpl.php');
 	}
 	
-	function showBatchPanel() {
+	function showBatchPanelAction() {
 //		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
 
@@ -742,7 +875,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	}
 	
 	// Ajax
-	function doBatchUpdate() {
+	function doBatchUpdateAction() {
 	    @$ticket_ids = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'array');
 	    
 	    if(empty($ticket_ids)) {
@@ -782,7 +915,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		echo ' ';
 	}
 	
-	function showViewActions() {
+	function showViewActionsAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
 
@@ -816,7 +949,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/rpc/view_actions_panel.tpl.php');
 	}
 	
-	function showTaskPanel() {
+	function showTaskPanelAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer');
 		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer');
 
@@ -848,7 +981,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/rpc/task_panel.tpl.php');
 	}
 	
-	function saveTaskPanel() {
+	function saveTaskPanelAction() {
 		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer');
 		@$ticket_id = DevblocksPlatform::importGPC($_POST['ticket_id'],'integer');
 		@$title = DevblocksPlatform::importGPC($_POST['title'],'string');
@@ -885,7 +1018,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		}
 	}
 	
-	function saveViewActionPanel() {
+	function saveViewActionPanelAction() {
 		@$action_id = DevblocksPlatform::importGPC($_POST['action_id']);
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id']);
 		@$title = DevblocksPlatform::importGPC($_POST['title']);
@@ -928,7 +1061,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		echo ' ';
 	}
 	
-	function runAction() {
+	function runActionAction() {
 		@$id = DevblocksPlatform::importGPC($_POST['id'],'string');
 		@$action_id = DevblocksPlatform::importGPC($_POST['action_id'],'integer');
 		@$ticket_ids = DevblocksPlatform::importGPC($_POST['ticket_id'],'array');
@@ -948,7 +1081,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		echo ' ';
 	}
 	
-	function customize() {
+	function customizeAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'string');
 
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -965,7 +1098,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/rpc/customize_view.tpl.php');
 	}
 	
-	function saveCustomize() {
+	function saveCustomizeAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'string');
 		@$name = DevblocksPlatform::importGPC($_REQUEST['name'],'string');
 		@$num_rows = DevblocksPlatform::importGPC($_REQUEST['num_rows'],'integer');
@@ -995,7 +1128,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		echo ' ';
 	}
 	
-	function searchview() {
+	function searchviewAction() {
 	    $response = DevblocksPlatform::getHttpRequest();
 	    $path = $response->path;
 	    array_shift($path); // tickets
@@ -1013,7 +1146,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','search')));
 	}
 	
-	function addView() {
+	function addViewAction() {
 		// [JAS]: [TODO] Use a real dashboard ID here.
 		$view_id = DAO_Dashboard::createView('New Ticket List', 1, 10);
 		
@@ -1032,7 +1165,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','dashboards')));
 	}
 	
-	function showHistoryPanel() {
+	function showHistoryPanelAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		$tpl->cache_lifetime = "0";
@@ -1040,7 +1173,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/history_panel.tpl.php');
 	}
 	
-	function showContactPanel() {
+	function showContactPanelAction() {
 		@$sAddress = DevblocksPlatform::importGPC($_REQUEST['address']);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -1057,7 +1190,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	
 	// [JAS]: Search Functions =================================================
 	
-	function getCriteria() {
+	function getCriteriaAction() {
 		@$field = DevblocksPlatform::importGPC($_REQUEST['field']);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -1098,7 +1231,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		}
 	}
 	
-	function getCriteriaDialog() {
+	function getCriteriaDialogAction() {
 		@$divName = DevblocksPlatform::importGPC($_REQUEST['divName']);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -1110,7 +1243,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/search/rpc/add_criteria.tpl.php');
 	}
 	
-	function addCriteria() {
+	function addCriteriaAction() {
 		$view = DAO_Dashboard::getView(CerberusApplication::VIEW_SEARCH);
 		
 		$params = $view->params;
@@ -1156,7 +1289,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','search')));
 	}
 	
-	function removeCriteria() {
+	function removeCriteriaAction() {
 		$view = DAO_Dashboard::getView(CerberusApplication::VIEW_SEARCH);
 
 		@$params = $view->params;
@@ -1177,14 +1310,14 @@ class ChTicketsPage extends CerberusPageExtension {
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','search')));
 	}
 	
-	function resetCriteria() {
+	function resetCriteriaAction() {
 		DAO_Dashboard::updateView(CerberusApplication::VIEW_SEARCH, array(
 			'params' => serialize(array())
 		));
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','search')));
 	}
 	
-	function getLoadSearch() {
+	function getLoadSearchAction() {
 		@$divName = DevblocksPlatform::importGPC($_REQUEST['divName']);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -1199,7 +1332,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/search/rpc/load_search.tpl.php');
 	}
 	
-	function loadSearch() {
+	function loadSearchAction() {
 		@$search_id = DevblocksPlatform::importGPC($_REQUEST['search_id']);
 		
 		$view = DAO_Dashboard::getView($search_id);
@@ -1213,7 +1346,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','search')));
 	}
 	
-	function getSaveSearch() {
+	function getSaveSearchAction() {
 		@$divName = DevblocksPlatform::importGPC($_REQUEST['divName']);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -1228,7 +1361,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/search/rpc/save_search.tpl.php');
 	}
 	
-	function saveSearch() {
+	function saveSearchAction() {
 //		@$search_id = $_SESSION['search_id'];
 		$view = DAO_Dashboard::getView(CerberusApplication::VIEW_SEARCH);
 
@@ -1262,7 +1395,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		}
 	}
 	
-	function deleteSearch() {
+	function deleteSearchAction() {
 		@$search_id = $_SESSION['search_id'];
 		
 		DAO_Dashboard::deleteView($search_id);
@@ -1363,7 +1496,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	}
 	
 	// Post
-	function doPurge() {
+	function doPurgeAction() {
         do {	    
 		    list($tickets, $tickets_count) = DAO_Ticket::search(array(
 		            new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_STATUS,'=',CerberusTicketStatus::DELETED)
@@ -1385,7 +1518,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	}
 	
 	// Ajax
-	function getWorker() {
+	function getWorkerAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
 
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -1402,7 +1535,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	}
 	
 	// Post
-	function saveWorker() {
+	function saveWorkerAction() {
 		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer');
 		@$first_name = DevblocksPlatform::importGPC($_POST['first_name'],'string');
 		@$last_name = DevblocksPlatform::importGPC($_POST['last_name'],'string');
@@ -1447,7 +1580,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	}
 	
 	// Ajax
-	function getTeam() {
+	function getTeamAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
 
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -1464,7 +1597,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	}
 	
 	// Post
-	function saveTeam() {
+	function saveTeamAction() {
 		@$id = DevblocksPlatform::importGPC($_POST['id']);
 		@$name = DevblocksPlatform::importGPC($_POST['name']);
 //		@$mailbox_id = DevblocksPlatform::importGPC($_POST['mailbox_id']);
@@ -1494,7 +1627,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	}
 	
 	// Ajax
-//	function getMailbox() {
+//	function getMailboxAction() {
 //		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
 //
 //		$tpl = DevblocksPlatform::getTemplateService();
@@ -1514,7 +1647,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 //	}
 //	
 //	// Post
-//	function saveMailbox() {
+//	function saveMailboxAction() {
 //		@$id = DevblocksPlatform::importGPC($_POST['id']);
 //		@$name = DevblocksPlatform::importGPC($_POST['name']);
 //		@$reply_as = DevblocksPlatform::importGPC($_POST['reply_as']);
@@ -1546,7 +1679,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 //	}
 	
 	// Post
-	function saveSettings() {
+	function saveSettingsAction() {
 	    @$title = DevblocksPlatform::importGPC($_POST['title'],'string');
 	    
 	    $settings = CerberusSettings::getInstance();
@@ -1556,7 +1689,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	}
 	
 	// Post
-	function saveAttachmentLocation() {
+	function saveAttachmentLocationAction() {
 		@$id = DevblocksPlatform::importGPC($_POST['id']);
 		@$attachment_location = DevblocksPlatform::importGPC($_POST['attachmentlocation']);
 
@@ -1572,7 +1705,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	}
 	
 	// Ajax
-	function getPop3Account() {
+	function getPop3AccountAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -1586,7 +1719,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	}
 	
 	// Post
-	function savePop3Account() {
+	function savePop3AccountAction() {
 		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer');
 		@$nickname = DevblocksPlatform::importGPC($_POST['nickname'],'string');
 		@$host = DevblocksPlatform::importGPC($_POST['host'],'string');
@@ -1618,7 +1751,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	}
 	
 	// Form Submit
-	function saveOutgoingMailSettings() {
+	function saveOutgoingMailSettingsAction() {
 	    @$default_reply_address = DevblocksPlatform::importGPC($_REQUEST['sender_address'],'string');
 	    @$default_reply_personal = DevblocksPlatform::importGPC($_REQUEST['sender_personal'],'string');
 	    @$smtp_host = DevblocksPlatform::importGPC($_REQUEST['smtp_host'],'string');
@@ -1636,7 +1769,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	}
 	
 	// Ajax
-	function ajaxGetRouting() {
+	function ajaxGetRoutingAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
@@ -1651,7 +1784,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	}
 	
 	// Form Submit
-	function saveRouting() {
+	function saveRoutingAction() {
 		@$positions = DevblocksPlatform::importGPC($_POST['positions'],'array');
 		@$route_ids = DevblocksPlatform::importGPC($_POST['route_ids'],'array');
 		@$route_team_id = DevblocksPlatform::importGPC($_POST['route_team_id'],'array');
@@ -1710,13 +1843,13 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	}
 	
 	// Ajax
-	function ajaxDeleteRouting() {
+	function ajaxDeleteRoutingAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
 		DAO_Mail::deleteMailboxRouting($id);
 	}
 	
 	// Ajax
-	function getMailRoutingAdd() {
+	function getMailRoutingAddAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
@@ -1728,7 +1861,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	}
 	
 	// Ajax
-//	function getMailboxRoutingDialog() {
+//	function getMailboxRoutingDialogAction() {
 //		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
 //		
 //		$tpl = DevblocksPlatform::getTemplateService();
@@ -1750,7 +1883,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 //	}
 //	
 //	// Ajax
-//	function saveMailboxRoutingDialog() {
+//	function saveMailboxRoutingDialogAction() {
 //		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer');
 //		@$pattern = DevblocksPlatform::importGPC($_POST['pattern'],'string');
 //		@$team_id = DevblocksPlatform::importGPC($_POST['team_id'],'integer');
@@ -1772,7 +1905,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 //	}
 	
 	// Ajax
-	function refreshPlugins() {
+	function refreshPluginsAction() {
 //		if(!ACL_TypeMonkey::hasPriv(ACL_TypeMonkey::SETUP)) return;
 		
 		DevblocksPlatform::readPlugins();
@@ -1780,7 +1913,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','extensions')));
 	}
 	
-	function savePlugins() {
+	function savePluginsAction() {
 //		if(!ACL_TypeMonkey::hasPriv(ACL_TypeMonkey::SETUP)) return;
 		
 		$plugins_enabled = DevblocksPlatform::importGPC($_REQUEST['plugins_enabled'],'array');
@@ -1858,27 +1991,22 @@ class ChWelcomePage extends CerberusPageExtension {
 	}
 };
 
-class ChFilesPage extends CerberusPageExtension {
+class ChFilesController extends DevblocksControllerExtension {
 	function __construct($manifest) {
-		parent::__construct($manifest);	
+		parent::__construct($manifest);
+		
+		$router = DevblocksPlatform::getRoutingService();
+		$router->addRoute('files','core.controller.files');
 	}
 	
 	function isVisible() {
-		// check login
-		$session = DevblocksPlatform::getSessionService();
-		$visit = $session->getVisit();
-		
-		if(empty($visit)) {
-			return false;
-		} else {
-			return true;
-		}
+	    // [TODO] SECURITY
 	}
 	
 	/*
 	 * Request Overload
 	 */
-	function handleRequest($request) {
+	function handleRequest(DevblocksHttpRequest $request) {
 		$stack = $request->path;				// URLS like: /files/10000/plaintext.txt
 		array_shift($stack);					// files	
 		$file_id = array_shift($stack); 		// 10000
@@ -1893,11 +2021,11 @@ class ChFilesPage extends CerberusPageExtension {
 		header("Last-Modified: " . gmdate("D,d M YH:i:s") . " GMT\n");
 		header("Cache-control: private\n");
 		header("Pragma: no-cache\n");
-		header("Content-Type: " . ChFilesPage::getMimeType($file_name) . "\n");
+		header("Content-Type: " . ChFilesController::getMimeType($file_name) . "\n");
 		header("Content-transfer-encoding: binary\n"); 
-		header("Content-Length: " . ChFilesPage::getFileSize($file_id) . "\n");
+		header("Content-Length: " . ChFilesController::getFileSize($file_id) . "\n");
 		
-		echo(ChFilesPage::getFileContents($file_id));
+		echo(ChFilesController::getFileContents($file_id));
 
 		exit;
 	}
@@ -1954,27 +2082,22 @@ class ChFilesPage extends CerberusPageExtension {
 	}
 }
 
-class ChCronPage extends CerberusPageExtension {
+class ChCronController extends DevblocksControllerExtension {
 	function __construct($manifest) {
-		parent::__construct($manifest);	
+		parent::__construct($manifest);
+		
+		$router = DevblocksPlatform::getRoutingService();
+		$router->addRoute('cron','core.controller.cron');
 	}
 	
 	function isVisible() {
 		// [TODO] This should restrict by IP rather than session
-		$session = DevblocksPlatform::getSessionService();
-		$visit = $session->getVisit();
-		
-		if(empty($visit)) {
-			return false;
-		} else {
-			return true;
-		}
 	}
 	
 	/*
 	 * Request Overload
 	 */
-	function handleRequest($request) {
+	function handleRequest(DevblocksHttpRequest $request) {
 		$cron_manifests = DevblocksPlatform::getExtensions('cerberusweb.cron');
 		
 		if(is_array($cron_manifests))
@@ -1989,38 +2112,18 @@ class ChCronPage extends CerberusPageExtension {
 	}
 }
 
-class ChTestsPage extends CerberusPageExtension {
+class ChTestsController extends DevblocksControllerExtension {
 	function __construct($manifest) {
-		parent::__construct($manifest);	
-	}
-	
-	function isVisible() {
-//		$session = DevblocksPlatform::getSessionService();
-//		$visit = $session->getVisit();
-//		
-//		if(empty($visit)) {
-//			return false;
-//		} else {
-//			return true;
-//		}
-		return true;
+		parent::__construct($manifest);
+		$router = DevblocksPlatform::getRoutingService();
+		$router->addRoute('tests','core.controller.tests');
 	}
 	
 	/*
 	 * Request Overload
 	 */
-	function handleRequest($request) {
+	function handleRequest(DevblocksHttpRequest $request) {
 		// [TODO] Add testing extension point to Cerb/Devblocks
-		
-//		$cron_manifests = DevblocksPlatform::getExtensions('cerberusweb.cron');
-//		
-//		if(is_array($cron_manifests))
-//		foreach($cron_manifests as $manifest) { /* @var $manifest DevblocksExtensionManifest */
-//			$instance = $manifest->createInstance();
-//
-//			if($instance)
-//				$instance->run();
-//		}
 
 		require_once 'PHPUnit/Framework.php';
 		require_once 'api/CerberusTestListener.class.php';
@@ -2110,7 +2213,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/index.tpl.php');
 	}
 
-	function updateProperties() {
+	function updatePropertiesAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']); // ticket id
 		@$status = DevblocksPlatform::importGPC($_REQUEST['status']);
 		@$priority = DevblocksPlatform::importGPC($_REQUEST['priority'],'integer');
@@ -2162,15 +2265,15 @@ class ChDisplayPage extends CerberusPageExtension {
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('display',$id)));
 	}
 	
-	function reply() { 
+	function replyAction() { 
 	    ChDisplayPage::loadMessageTemplate(CerberusMessageType::EMAIL);
 	}
 	
-	function forward() {
+	function forwardAction() {
 	    ChDisplayPage::loadMessageTemplate(CerberusMessageType::FORWARD);
 	}
 	
-	function comment() {
+	function commentAction() {
 	    ChDisplayPage::loadMessageTemplate(CerberusMessageType::COMMENT);
 	}
 	
@@ -2202,7 +2305,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		}
 	}
 	
-	function sendReply() {
+	function sendReplyAction() {
 	    @$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer');
 	    
 		$properties = array(
@@ -2255,7 +2358,7 @@ class ChDisplayPage extends CerberusPageExtension {
 //	    CerberusApplication::sendMessage();
 	}
 	
-	function refreshRequesters() {
+	function refreshRequestersAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']); // ticket id
 		
@@ -2265,7 +2368,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/requesters.tpl.php');
 	}
 
-	function removeRequester() {
+	function removeRequesterAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']); // ticket id
 		@$address_id = DevblocksPlatform::importGPC($_REQUEST['address_id']); // address id
 	    
@@ -2274,7 +2377,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		echo ' ';
 	}
 	
-	function saveRequester() {
+	function saveRequesterAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']); // ticket id
 		@$add_requester = DevblocksPlatform::importGPC($_POST['add_requester']);
 		
@@ -2291,7 +2394,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		echo ' ';
 	}
 	
-	function reloadTasks() {
+	function reloadTasksAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['ticket_id']); // ticket id
 		
 //		$tpl = DevblocksPlatform::getTemplateService();
@@ -2334,7 +2437,7 @@ class ChSignInPage extends CerberusPageExtension {
 		return true;
 	}
 	
-	function show() {
+	function showAction() {
 //		echo "You clicked: " . __CLASS__ . "->" . __FUNCTION__ . "!<br>";
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('login')));
 	}
@@ -2376,7 +2479,7 @@ class ChSignInPage extends CerberusPageExtension {
         }
 	}
 	
-	function signout() {
+	function signoutAction() {
 //		echo "Sign out: " . __CLASS__ . "->" . __FUNCTION__ . "!<br>";
 		$session = DevblocksPlatform::getSessionService();
 		$session->clear();
@@ -2384,7 +2487,7 @@ class ChSignInPage extends CerberusPageExtension {
 	}
 	
 	// Post
-	function doRecoverStep1() {
+	function doRecoverStep1Action() {
 	    @$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string');
 	    
 	    $worker = DAO_Worker::lookupAgentEmail($email);
@@ -2414,7 +2517,7 @@ class ChSignInPage extends CerberusPageExtension {
 	}
 	
 	// Post
-	function doRecoverStep2() {
+	function doRecoverStep2Action() {
         @$code = DevblocksPlatform::importGPC($_REQUEST['code'],'string');
 
         $email = $_SESSION[self::KEY_FORGOT_EMAIL];
@@ -2434,7 +2537,7 @@ class ChSignInPage extends CerberusPageExtension {
 	}
 	
 	// Post
-	function doRecoverStep3() {
+	function doRecoverStep3Action() {
         @$password = DevblocksPlatform::importGPC($_REQUEST['password'],'string');
 
         $email = $_SESSION[self::KEY_FORGOT_EMAIL];
@@ -2489,7 +2592,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 	}
 	
 	// Post
-	function saveDefaults() {
+	function saveDefaultsAction() {
 	    @$timezone = DevblocksPlatform::importGPC($_REQUEST['timezone'],'string');
 	    @$default_signature = DevblocksPlatform::importGPC($_REQUEST['default_signature'],'string');
 	    @$reply_box_height = DevblocksPlatform::importGPC($_REQUEST['reply_box_height'],'integer');

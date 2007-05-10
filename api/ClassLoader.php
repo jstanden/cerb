@@ -111,6 +111,10 @@ class CerberusClassLoader {
 			'Zend',
 		));
 		
+		self::registerClasses($path . 'Cache.php', array(
+			'Zend_Cache',
+		));
+		
 		self::registerClasses($path . 'Exception.php', array(
 			'Zend_Exception',
 		));
@@ -129,6 +133,10 @@ class CerberusClassLoader {
 		
 		self::registerClasses($path . 'Translate.php', array(
 			'Zend_Translate',
+		));
+		
+		self::registerClasses($path . 'Translate/Adapter/Tmx.php', array(
+			'Zend_Translate_Adapter_Tmx',
 		));
 		
 		self::registerClasses($path . 'Mail.php', array(

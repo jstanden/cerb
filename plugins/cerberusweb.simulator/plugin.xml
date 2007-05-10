@@ -6,9 +6,11 @@
 	<author>WebGroup Media, LLC.</author>
 	<revision>0</revision>
 	
+	<!-- 
 	<mapping>
 		<uri value="simulator" extension_id="core.page.simulator" />
 	</mapping>	
+	-->
 	
 	<extensions>
 	
@@ -33,6 +35,7 @@
 				<name>ChSimulatorPage</name>
 			</class>
 			<params>
+				<param key="uri" value="simulator" />
 				<param key="title" value="Simulator" />
 				<param key="menutitle" value="Simulator" />
 			</params>

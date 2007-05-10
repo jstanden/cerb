@@ -1,19 +1,24 @@
 <?php
-class MobilePage extends CerberusPageExtension implements DevblocksHttpRequestHandler {
+// [TODO] Convert to a controller (not page)
+class MobileController extends DevblocksControllerExtension {
+    const ID = 'cerberusweb.controller.mobile';
 	
-	public function isVisible() {
+    public function __construct($manifest) {
+        parent::__construct($manifest);
+        
+        $router = DevblocksPlatform::getRoutingService();
+        $router->addRoute('mobile', self::ID);
+    }
+    
+	public function handleRequest(DevblocksHttpRequest $request) { /* @var $request DevblocksHttpRequest */
 		$session = DevblocksPlatform::getSessionService();
 		$visit = $session->getVisit();
 		
-		if(empty($visit)) {
-			return false;
-		} else {
-			return true;
-		}
-	}
-	
-	public function handleRequest($request) { /* @var $request DevblocksHttpRequest */
-		//print_r($request);echo("<hr>");print_r($_REQUEST);echo("<hr>");
+		// [TODO] Implement a mobile login system
+		
+		if(empty($visit))
+		    die("Not logged in.");
+	    
 		$stack = $request->path;
 		$uri = array_shift($stack);		// $uri should be "mobile"
 		$page = array_shift($stack);	// action to take (login, display, etc)
@@ -55,7 +60,7 @@ class MobilePage extends CerberusPageExtension implements DevblocksHttpRequestHa
 		} // end switch (page)
 	}
 	
-	public function writeResponse($response) { /* @var $response DevblocksHttpResponse */
+	public function writeResponse(DevblocksHttpResponse $response) { /* @var $response DevblocksHttpResponse */
 		$stack = $response->path;
 		$uri = array_shift($stack);		// $uri should be "mobile"
 		$page = array_shift($stack);	// action to take (login, display, etc)
@@ -90,9 +95,6 @@ class MobilePage extends CerberusPageExtension implements DevblocksHttpRequestHa
 				if (empty($ticket_id)) {
 					$session = DevblocksPlatform::getSessionService();
 					$visit = $session->getVisit();
-					print_r($session);
-					echo("<hr>");
-					print_r($visit);
 					break;
 				}
 				

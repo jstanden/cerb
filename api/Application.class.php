@@ -1,5 +1,5 @@
 <?php
-define("APP_BUILD", 137);
+define("APP_BUILD", 142);
 
 include_once(APP_PATH . "/api/ClassLoader.php");
 include_once(APP_PATH . "/api/DAO.class.php");
@@ -13,6 +13,8 @@ class CerberusApplication extends DevblocksApplication {
 	const VIEW_MY_TICKETS = 'teamwork_my';
 	const VIEW_TEAM_TICKETS = 'teamwork_team';
 	const VIEW_TEAM_TASKS = 'teamwork_tasks';
+	
+	const CACHE_SETTINGS_DAO = 'ch_settings_dao';
 	
 	/**
 	 * @return CerberusVisit
@@ -28,61 +30,6 @@ class CerberusApplication extends DevblocksApplication {
 	static function getActiveWorker() {
 		$visit = self::getVisit();
 		return $visit->getWorker();
-	}
-	
-	static function writeDefaultHttpResponse($response) {
-	    $path = $response->path;
-//	    $request = DevblocksPlatform::getHttpRequest();
-
-		// [JAS]: Ajax?
-		if(empty($path))
-			return;
-
-		$tpl = DevblocksPlatform::getTemplateService();
-		$session = DevblocksPlatform::getSessionService();
-		$visit = $session->getVisit();
-		
-		$mapping = DevblocksPlatform::getMappingRegistry();
-		@$extension_id = $mapping[$path[0]];
-		
-		if(empty($visit))
-			$extension_id = 'core.page.signin';
-		
-		if(empty($extension_id)) 
-			$extension_id = 'core.page.tickets';
-	
-		$pages = CerberusApplication::getPages();
-		$tpl->assign('pages',$pages);		
-		
-        $page = $pages[$extension_id]; /* @var $page CerberusPageExtension */
-		$tpl->assign('page',$page);
-		
-		if(!empty($visit) && !is_null($visit->getWorker()))
-		    DAO_Worker::logActivity($visit->getWorker()->id, $page->getActivity());
-		
-		$settings = CerberusSettings::getInstance();
-		$tpl->assign('settings', $settings);
-				
-		$tpl->assign('session', $_SESSION);
-		$tpl->assign('visit', $visit);
-		
-		$translate = DevblocksPlatform::getTranslationService();
-		$tpl->assign('translate', $translate);
-		
-		// [JAS]: Listeners (Step-by-step guided tour, etc.)
-	    $listenerManifests = DevblocksPlatform::getExtensions('devblocks.listener.http');
-	    foreach($listenerManifests as $listenerManifest) { /* @var $listenerManifest DevblocksExtensionManifest */
-	         $inst = $listenerManifest->createInstance(); /* @var $inst DevblocksHttpRequestListenerExtension */
-	         $inst->run($response, $tpl);
-	    }
-		
-		// [JAS]: Pre-translate any dynamic strings
-        $common_translated = array();
-        if(!empty($visit) && !is_null($visit->getWorker()))
-            $common_translated['header_signed_in'] = vsprintf($translate->_('header.signed_in'), array('<b>'.$visit->getWorker()->getName().'</b>'));
-        $tpl->assign('common_translated', $common_translated);
-		
-		$tpl->display('border.php');
 	}
 	
 	// [JAS]: [TODO] Cleanup + move (platform, diff ext point, DAO?)
@@ -108,7 +55,7 @@ class CerberusApplication extends DevblocksApplication {
 	    return $callouts;
 	}
 	
-    // [JAS]: [TODO] Cache this
+    // [JAS]: [TODO] Cache/Kill this
 	static function getPages() {
 		$pages = array();
 		$extModules = DevblocksPlatform::getExtensions("cerberusweb.page");
@@ -301,7 +248,8 @@ class CerberusSettings {
 	const SMTP_AUTH_USER = 'smtp_auth_user'; 
 	const SMTP_AUTH_PASS = 'smtp_auth_pass'; 
 	
-	static $instance = null;
+	private static $instance = null;
+	
 	private $settings = array( // defaults
 		self::DEFAULT_TEAM_ID => 0,
 		self::DEFAULT_REPLY_FROM => '',

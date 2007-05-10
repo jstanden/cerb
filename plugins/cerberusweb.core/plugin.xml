@@ -12,19 +12,72 @@
 	</requires>
 	 -->
 
-	<mapping>
-		<uri value="login" extension_id="core.page.signin" />
-		<uri value="welcome" extension_id="core.page.welcome" />
-		<uri value="tickets" extension_id="core.page.tickets" />
-		<uri value="display" extension_id="core.page.display" />
-		<uri value="config" extension_id="core.page.configuration" />
-		<uri value="preferences" extension_id="core.page.preferences" />
-		<uri value="files" extension_id="core.page.files" />
-		<uri value="cron" extension_id="core.page.cron" />
-		<uri value="tests" extension_id="core.page.tests" />
-	</mapping>
+	<!-- 
+	<extension-points>
+		<point id=""></point>
+	</extension-points>
+	-->
 
 	<extensions>
+
+		<!-- Routers -->
+		
+		<extension point="devblocks.router">
+			<id>core.router</id>
+			<name>Cerberus Helpdesk Router</name>
+			<class>
+				<file>classes.php</file>
+				<name>ChCoreRouter</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
+		<!-- Controllers -->
+		
+		<extension point="devblocks.controller">
+			<id>core.controller.tests</id>
+			<name>Unit Testing Controller</name>
+			<class>
+				<file>classes.php</file>
+				<name>ChTestsController</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
+		<extension point="devblocks.controller">
+			<id>core.controller.files</id>
+			<name>Files Controller</name>
+			<class>
+				<file>classes.php</file>
+				<name>ChFilesController</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
+		<extension point="devblocks.controller">
+			<id>core.controller.cron</id>
+			<name>Scheduled Tasks (Cron) Controller</name>
+			<class>
+				<file>classes.php</file>
+				<name>ChCronController</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
+		<extension point="devblocks.controller">
+			<id>core.controller.page</id>
+			<name>Cerberus Helpdesk Controller</name>
+			<class>
+				<file>classes.php</file>
+				<name>ChPageController</name>
+			</class>
+			<params>
+			</params>
+		</extension>
 
 		<!-- Translations -->
 		
@@ -75,6 +128,7 @@
 				<name>ChWelcomePage</name>
 			</class>
 			<params>
+				<param key="uri" value="welcome" />
 				<param key="title" value="" />
 				<param key="menutitle" value="" />
 				<!--<param key="summary" value="support resources" />-->
@@ -89,6 +143,7 @@
 				<name>ChTicketsPage</name>
 			</class>
 			<params>
+				<param key="uri" value="tickets" />
 				<param key="title" value="Tickets" />
 				<param key="menutitle" value="Tickets" />
 				<!--<param key="summary" value="support resources" />-->
@@ -103,48 +158,10 @@
 				<name>ChDisplayPage</name>
 			</class>
 			<params>
+				<param key="uri" value="display" />
 				<param key="title" value="Display" />
 				<param key="menutitle" value="" />
 				<!--<param key="summary" value="support resources" />-->
-			</params>
-		</extension>
-
-		<extension point="cerberusweb.page">
-			<id>core.page.files</id>
-			<name>Files Page</name>
-			<class>
-				<file>classes.php</file>
-				<name>ChFilesPage</name>
-			</class>
-			<params>
-				<param key="title" value="" />
-				<param key="menutitle" value="" />
-			</params>
-		</extension>
-
-		<extension point="cerberusweb.page">
-			<id>core.page.tests</id>
-			<name>Unit Tests Page</name>
-			<class>
-				<file>classes.php</file>
-				<name>ChTestsPage</name>
-			</class>
-			<params>
-				<param key="title" value="" />
-				<param key="menutitle" value="" />
-			</params>
-		</extension>
-		
-		<extension point="cerberusweb.page">
-			<id>core.page.cron</id>
-			<name>Scheduled Tasks (Cron) Page</name>
-			<class>
-				<file>classes.php</file>
-				<name>ChCronPage</name>
-			</class>
-			<params>
-				<param key="title" value="" />
-				<param key="menutitle" value="" />
 			</params>
 		</extension>
 
@@ -156,6 +173,7 @@
 				<name>ChSignInPage</name>
 			</class>
 			<params>
+				<param key="uri" value="login" />
 				<param key="title" value="Sign in" />
 			</params>
 		</extension>
@@ -168,6 +186,7 @@
 				<name>ChConfigurationPage</name>
 			</class>
 			<params>
+				<param key="uri" value="config" />
 				<param key="title" value="Configuration" />
 				<param key="menutitle" value="Configuration" />
 			</params>
@@ -181,6 +200,7 @@
 				<name>ChPreferencesPage</name>
 			</class>
 			<params>
+				<param key="uri" value="preferences" />
 				<param key="title" value="Preferences" />
 			</params>
 		</extension>

@@ -1,39 +1,11 @@
 <?php
-
-abstract class CerberusPageExtension extends DevblocksExtension implements DevblocksHttpRequestHandler {
+abstract class CerberusPageExtension extends DevblocksExtension {
 	function __construct($manifest) {
 		$this->DevblocksExtension($manifest,1);
 	}
 	
 	function isVisible() { return true; }
 	function render() { }
-	
-	function getLink() {
-		$uris = DevblocksPlatform::getMappingRegistry();
-		$url = DevblocksPlatform::getUrlService();
-		// [JAS]: [TODO] Move this to the platform
-		$uri = array_search($this->id,$uris);
-		return $url->write("c=".$uri);
-	}
-	
-	/**
-	 * @param DevblocksHttpRequest
-	 * @return DevblocksHttpResponse
-	 */
-	public function handleRequest($request) {
-//		print_r($request);
-
-		$path = $request->path;
-		$command = array_shift($path);
-		
-		if(method_exists($this,@$path[0])) {
-			call_user_func(array(&$this, $path[0])); // [TODO] Pass HttpRequest as arg?
-		}
-	}
-	
-	public function writeResponse($response) {
-		CerberusApplication::writeDefaultHttpResponse($response);
-	}
 	
 	/**
 	 * @return Model_Activity
@@ -43,11 +15,7 @@ abstract class CerberusPageExtension extends DevblocksExtension implements Devbl
 	}
 };
 
-/*
- * [JAS]: [TODO] DevblocksHttpRequestHandler is getting popular, does it 
- * need to be implemented on DevblocksExtension by default?
- */
-abstract class CerberusDisplayPageExtension extends DevblocksExtension implements DevblocksHttpRequestHandler {
+abstract class CerberusDisplayPageExtension extends DevblocksExtension {
 	function __construct($manifest) {
 		$this->DevblocksExtension($manifest,1);
 	}
@@ -57,24 +25,9 @@ abstract class CerberusDisplayPageExtension extends DevblocksExtension implement
 	 */
 	function render($ticket) {}
 	
-	public function handleRequest($request) {
-//		print_r($request);
-
-		$path = $request->path;
-		$command = array_shift($path);
-		
-		if(method_exists($this,$path[0])) {
-			call_user_func(array(&$this, $path[0])); // [TODO] Pass HttpRequest as arg?
-		}
-	}
-	
-	public function writeResponse($response) {
-		CerberusApplication::writeDefaultHttpResponse($response);
-	}	
-	
 }
 
-abstract class CerberusLoginPageExtension extends DevblocksExtension implements DevblocksHttpRequestHandler {
+abstract class CerberusLoginPageExtension extends DevblocksExtension { //implements DevblocksHttpRequestHandler {
 	function __construct($manifest) {
 		$this->DevblocksExtension($manifest, 1);
 	}
@@ -115,20 +68,9 @@ abstract class CerberusLoginPageExtension extends DevblocksExtension implements 
 	function signoff() {
 	}
 	
-	public function handleRequest($request) {
-		$path = $request->path;
-		$command = array_shift($path);
-		
-		if(method_exists($this,$path[0])) {
-			call_user_func(array(&$this, $path[0])); // [TODO] Pass HttpRequest as arg?
-		}
-	}
-	
-	public function writeResponse($response) {
-		CerberusApplication::writeDefaultHttpResponse($response);
-	}
 }
 
+// [TODO] Convert to a controller extension
 abstract class CerberusCronPageExtension extends DevblocksExtension {
 	function __construct($manifest) {
 		$this->DevblocksExtension($manifest, 1);

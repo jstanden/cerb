@@ -5,10 +5,12 @@
 	<description>Knowledgebase page providing articles organized into categories.</description>
 	<author>WebGroup Media, LLC.</author>
 	<revision>0</revision>
-	
+
+	<!-- 
 	<mapping>
 		<uri value="kb" extension_id="core.page.kb" />
 	</mapping>	
+	 -->
 	
 	<extensions>
 	
@@ -20,6 +22,7 @@
 				<name>ChKnowledgebasePage</name>
 			</class>
 			<params>
+				<param key="uri" value="kb" />
 				<param key="title" value="Knowledgebase" />
 				<param key="menutitle" value="Knowledgebase" />
 			</params>

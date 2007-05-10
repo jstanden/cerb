@@ -10,6 +10,7 @@ $request = DevblocksPlatform::readRequest();
 
 // [JAS]: [TODO] Is an explicit init() really required?  No anonymous static blocks?
 DevblocksPlatform::init();
+//DevblocksPlatform::readPlugins();
 $session = DevblocksPlatform::getSessionService();
 
 // [JAS]: HTTP Request

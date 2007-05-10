@@ -23,16 +23,21 @@ class DAO_Setting extends DevblocksORMHelper {
 	
 	// [TODO] Cache as static/singleton or load up in a page scope object?
 	static function getSettings() {
-		$db = DevblocksPlatform::getDatabaseService();
-		$settings = array();
-		
-		$sql = sprintf("SELECT setting,value FROM setting");
-		$rs = $db->Execute($sql) or die(__CLASS__ . ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-		while(!$rs->EOF) {
-			$settings[$rs->Fields('setting')] = $rs->Fields('value');
-			$rs->MoveNext();
-		}
+	    $cache = DevblocksPlatform::getCacheService();
+	    if(false === ($settings = $cache->load(CerberusApplication::CACHE_SETTINGS_DAO))) {
+			$db = DevblocksPlatform::getDatabaseService();
+			$settings = array();
+			
+			$sql = sprintf("SELECT setting,value FROM setting");
+			$rs = $db->Execute($sql) or die(__CLASS__ . ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+			
+			while(!$rs->EOF) {
+				$settings[$rs->Fields('setting')] = $rs->Fields('value');
+				$rs->MoveNext();
+			}
+			
+			$cache->save($settings, CerberusApplication::CACHE_SETTINGS_DAO);
+	    }
 		
 		return $settings;
 	}
@@ -509,6 +514,7 @@ class DAO_Worker extends DevblocksORMHelper {
 
         list($tables,$wheres) = parent::_parseSearchParams($params, SearchFields_Worker::getFields());
 		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
+		$total = -1;
 		
 		$sql = sprintf("SELECT ".
 			"w.id as %s, ".
@@ -525,7 +531,13 @@ class DAO_Worker extends DevblocksORMHelper {
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "").
 			(!empty($sortBy) ? sprintf("ORDER BY %s %s",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : "")
 		;
-		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		// [TODO] Could push the select logic down a level too
+		if($limit > 0) {
+    		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		} else {
+		    $rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+            $total = $rs->RecordCount();
+		}
 		
 		$results = array();
 		while(!$rs->EOF) {
@@ -539,7 +551,6 @@ class DAO_Worker extends DevblocksORMHelper {
 		}
 
 		// [JAS]: Count all
-		$total = -1;
 		if($withCounts) {
 		    $rs = $db->Execute($sql);
 		    $total = $rs->RecordCount();
@@ -1247,7 +1258,8 @@ class DAO_Ticket extends DevblocksORMHelper {
 	
     static function search($params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
-
+		$total = -1;
+		
         list($tables,$wheres) = parent::_parseSearchParams($params, SearchFields_Ticket::getFields());
 		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
 		
@@ -1315,7 +1327,6 @@ class DAO_Ticket extends DevblocksORMHelper {
 		}
 
 		// [JAS]: Count all
-		$total = -1;
 		if($withCounts) {
 		    $rs = $db->Execute($sql);
 		    $total = $rs->RecordCount();

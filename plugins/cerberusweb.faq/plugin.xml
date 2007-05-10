@@ -6,9 +6,11 @@
 	<author>WebGroup Media, LLC.</author>
 	<revision>0</revision>
 	
+	<!-- 
 	<mapping>
 		<uri value="faq" extension_id="faq.page.faq" />
 	</mapping>
+	 -->
 	
 	<extensions>
 	
@@ -46,6 +48,7 @@
 				<name>ChFaqPage</name>
 			</class>
 			<params>
+				<param key="uri" value="faq" />
 				<param key="title" value="Faq" />
 				<param key="menutitle" value="Faq" />
 			</params>

@@ -50,7 +50,7 @@ class ChSimulatorPage extends CerberusPageExtension {
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/index.tpl.php');
 	}
 	
-	function generateTickets() {
+	function generateTicketsAction() {
 		require_once(dirname(__FILE__) . '/api/API.class.php');
 	//	require_once(DEVBLOCKS_PATH . 'libs/pear/mimeDecode.php');
 		
