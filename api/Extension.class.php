@@ -58,7 +58,7 @@ abstract class CerberusLoginPageExtension extends DevblocksExtension { //impleme
 	 * 
 	 * @return boolean whether login succeeded
 	 */
-	function authenticate() {
+	function authenticate($params=array()) {
 		return false;
 	}
 	

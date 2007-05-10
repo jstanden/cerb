@@ -175,6 +175,7 @@
 			<params>
 				<param key="uri" value="login" />
 				<param key="title" value="Sign in" />
+				<param key="menutitle" value="" />
 			</params>
 		</extension>
 

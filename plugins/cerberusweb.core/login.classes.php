@@ -7,11 +7,11 @@ class DefaultLoginModule extends CerberusLoginPageExtension {
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/login/login_form_default.tpl.php');
 	}
 	
-	function authenticate() {
+	function authenticate($params) {
+	    $email = $params['email'];
+	    $password = $params['password'];
+	    
 		// pull auth info out of $_POST, check it, return user_id or false
-		@$email		= DevblocksPlatform::importGPC($_POST['email']);
-		@$password	= DevblocksPlatform::importGPC($_POST['password']);
-			
 		$worker = DAO_Worker::login($email, $password);
 		
 		if(!is_null($worker)) {

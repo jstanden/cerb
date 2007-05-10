@@ -93,7 +93,7 @@ class ChPageController extends DevblocksControllerExtension {
 	    // [JAS]: Require us to always be logged in for Cerberus pages
 	    // [TODO] This should probably consult with the page itself for ::authenticated()
 		if(empty($visit))
-			$controller = 'signin';
+			$controller = 'login';
 
 //		$page = $pages[$id]; /* @var $page CerberusPageExtension */
 	    $page = $this->_getPageByUri($controller);
@@ -2424,22 +2424,7 @@ class ChSignInPage extends CerberusPageExtension {
 	}
 	
 	function isVisible() {
-		// check login
-		$session = DevblocksPlatform::getSessionService();
-		$visit = $session->getVisit();
-		
-//		if(empty($visit)) {
-//			return true;
-//		} else {
-//			return false;
-//		}
-
 		return true;
-	}
-	
-	function showAction() {
-//		echo "You clicked: " . __CLASS__ . "->" . __FUNCTION__ . "!<br>";
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('login')));
 	}
 	
 	function render() {
@@ -2477,6 +2462,21 @@ class ChSignInPage extends CerberusPageExtension {
 				$inst->renderLoginForm();
                 break;
         }
+	}
+	
+	function showAction() {
+//		echo "You clicked: " . __CLASS__ . "->" . __FUNCTION__ . "!<br>";
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('login')));
+	}
+
+	// POST
+	function authenticateAction() {
+		@$email		= DevblocksPlatform::importGPC($_POST['email']);
+		@$password	= DevblocksPlatform::importGPC($_POST['password']);
+	    
+		$manifest = DevblocksPlatform::getExtension('login.default');
+		$inst = $manifest->createInstance(); /* @var $inst CerberusLoginPageExtension */
+		$inst->authenticate(array('email' => $email, 'password' => $password));
 	}
 	
 	function signoutAction() {
