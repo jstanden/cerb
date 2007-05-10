@@ -288,6 +288,9 @@ class CerberusSettings {
 		DAO_Setting::set($key,$value);
 		$this->settings[$key] = $value;
 		
+	    $cache = DevblocksPlatform::getCacheService();
+		$cache->remove(CerberusApplication::CACHE_SETTINGS_DAO);
+		
 		return TRUE;
 	}
 	

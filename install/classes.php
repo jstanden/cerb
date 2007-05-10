@@ -85,6 +85,7 @@ class CerberusInstaller {
 	// [TODO] Move to patcher service
 	public static function isDatabaseEmpty() {
 		$db = DevblocksPlatform::getDatabaseService();
+		if(is_null($db)) return true;
 		
 		$tables = $db->MetaTables('TABLE',true);
 		

@@ -171,7 +171,7 @@ switch($step) {
 		@$db_pass = DevblocksPlatform::importGPC($_POST['db_pass'],'string');
 
 		@$db = DevblocksPlatform::getDatabaseService();
-		if(@$db->IsConnected()) {
+		if(!is_null($db) && @$db->IsConnected()) {
 			// If we've been to this step, skip past framework.config.php
 			$tpl->assign('step', STEP_INIT_DB);
 			$tpl->display('steps/redirect.tpl.php');
@@ -209,7 +209,7 @@ switch($step) {
 		
 		if(!empty($db_driver) && !empty($db_server) && !empty($db_name) && !empty($db_user)) {
 			// Test the given settings, bypass platform initially
-			include_once(DEVBLOCKS_PATH . "libs/adodb/adodb.inc.php");
+			include_once(DEVBLOCKS_PATH . "libs/adodb5/adodb.inc.php");
 			$ADODB_CACHE_DIR = APP_PATH . "/tmp/cache";
 			@$db =& ADONewConnection($db_driver);
 			@$db->Connect($db_server, $db_user, $db_pass, $db_name);
@@ -221,7 +221,7 @@ switch($step) {
 			$tpl->assign('db_pass', $db_pass);
 			
 			// If passed, write config file and continue
-			if($db->IsConnected()) {
+			if(!is_null($db) && $db->IsConnected()) {
 				// [TODO] Write database settings to framework.config.php
 				$result = CerberusInstaller::saveFrameworkConfig($db_driver, $db_server, $db_name, $db_user, $db_pass);
 				

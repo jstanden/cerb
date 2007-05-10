@@ -933,8 +933,8 @@ class DAO_Ticket extends DevblocksORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$newId = $db->GenID('ticket_seq');
 		
-		$sql = sprintf("INSERT INTO ticket (id, mask, subject, status, last_wrote_address_id, first_wrote_address_id, created_date, updated_date, due_date, priority) ".
-			"VALUES (%d,'','','O',0,0,%d,%d,0,0)",
+		$sql = sprintf("INSERT INTO ticket (id, mask, subject, status, last_wrote_address_id, first_wrote_address_id, created_date, updated_date, due_date, priority, team_id, category_id) ".
+			"VALUES (%d,'','','O',0,0,%d,%d,0,0,0,0)",
 			$newId,
 			time(),
 			time()

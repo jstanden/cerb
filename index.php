@@ -3,7 +3,11 @@ require(getcwd() . '/framework.config.php');
 require(DEVBLOCKS_PATH . 'Devblocks.class.php');
 require(APP_PATH . '/api/Application.class.php');
 
-// [TODO]: If this is our first run, redirect to the installer
+// If this is our first run, redirect to the installer
+if('' == APP_DB_DRIVER || '' == APP_DB_HOST || '' == APP_DB_DATABASE) {
+    header('Location: install/index.php'); // [TODO] change this to a meta redirect
+    exit;
+}
 
 // Request
 $request = DevblocksPlatform::readRequest();

@@ -178,17 +178,18 @@ class CerberusParser {
 				DAO_Ticket::MASK => $sMask,
 				DAO_Ticket::SUBJECT => $sSubject,
 				DAO_Ticket::STATUS => CerberusTicketStatus::OPEN,
-				DAO_Ticket::FIRST_WROTE_ID => $fromAddressId,
-				DAO_Ticket::LAST_WROTE_ID => $fromAddressId,
+				DAO_Ticket::FIRST_WROTE_ID => intval($fromAddressId),
+				DAO_Ticket::LAST_WROTE_ID => intval($fromAddressId),
 				DAO_Ticket::CREATED_DATE => $iDate,
 				DAO_Ticket::UPDATED_DATE => $iDate,
-				DAO_Ticket::TEAM_ID => $team_id
+				DAO_Ticket::TEAM_ID => intval($team_id)
 			);
 			$id = DAO_Ticket::createTicket($fields);
 		}
 		
 		// [JAS]: Add requesters to the ticket
-		DAO_Ticket::createRequester($fromAddressId,$id);
+	    if(!empty($fromAddressId) && !empty($id))
+		    DAO_Ticket::createRequester($fromAddressId,$id);
 		
 		$attachments = array();
 		$attachments['plaintext'] = '';

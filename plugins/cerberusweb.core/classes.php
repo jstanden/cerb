@@ -69,8 +69,8 @@ class ChPageController extends DevblocksControllerExtension {
 	    $path = $response->path;
 	    
 		// [JAS]: Ajax? // [TODO] Explore outputting whitespace here for Safari
-	    if(empty($path))
-			return;
+//	    if(empty($path))
+//			return;
 
 		$tpl = DevblocksPlatform::getTemplateService();
 		$session = DevblocksPlatform::getSessionService();
