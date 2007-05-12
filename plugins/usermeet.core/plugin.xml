@@ -1,0 +1,50 @@
+<!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
+<plugin>
+	<id>usermeet.core</id>
+	<name>Usermeet Community Tools</name>
+	<description>Portal tools ...</description>
+	<author>WebGroup Media, LLC.</author>
+	<revision>0</revision>
+	
+	<extensions>
+	
+		<!-- Patch Containers -->
+		
+		<extension point="devblocks.patch.container">
+			<id>usermeet.patches</id>
+			<name>Usermeet Patches</name>
+			<class>
+				<file>patch.classes.php</file>
+				<name>UmPatchContainer</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+	
+		<extension point="devblocks.controller">
+			<id>usermeet.controller.portal</id>
+			<name>Community Portal Controller</name>
+			<class>
+				<file>classes.php</file>
+				<name>UmPortalController</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
+		<extension point="cerberusweb.page">
+			<id>usermeet.page.community</id>
+			<name>Community Page</name>
+			<class>
+				<file>classes.php</file>
+				<name>UmCommunityPage</name>
+			</class>
+			<params>
+				<param key="uri" value="community" />
+				<param key="title" value="Community" />
+				<param key="menutitle" value="Community" />
+			</params>
+		</extension>
+		
+	</extensions>
+</plugin>

@@ -1908,8 +1908,8 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	function refreshPluginsAction() {
 //		if(!ACL_TypeMonkey::hasPriv(ACL_TypeMonkey::SETUP)) return;
 		
-		DevblocksPlatform::readPlugins();
 		DevblocksPlatform::clearCache();
+        DevblocksPlatform::readPlugins();
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','extensions')));
 	}
 	

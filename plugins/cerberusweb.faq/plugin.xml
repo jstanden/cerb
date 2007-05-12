@@ -6,12 +6,6 @@
 	<author>WebGroup Media, LLC.</author>
 	<revision>0</revision>
 	
-	<!-- 
-	<mapping>
-		<uri value="faq" extension_id="faq.page.faq" />
-	</mapping>
-	 -->
-	
 	<extensions>
 	
 		<!-- Patch Containers -->
@@ -54,6 +48,8 @@
 			</params>
 		</extension>
 		
+		<!-- Display Modules -->
+		
 		<extension point="cerberusweb.display.module">
 			<id>faq.display.module.faq</id>
 			<name>Fetch &amp; Retrieve Display Module</name>
@@ -64,6 +60,20 @@
 			<params>
 				<param key="title" value="Fetch &amp; Retrieve&amp;trade; - Suggested FAQs" />
 				<param key="icon" value="images/document.gif" />
+			</params>
+		</extension>
+
+		<!-- Usermeet Apps -->
+		
+		<extension point="usermeet.app">
+			<id>faq.app</id>
+			<name>FAQ Community App</name>
+			<class>
+				<file>usermeet.classes.php</file>
+				<name>ChFaqApp</name>
+			</class>
+			<params>
+				<param key="uri" value="faq" />
 			</params>
 		</extension>
 		

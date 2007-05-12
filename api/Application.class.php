@@ -1,5 +1,5 @@
 <?php
-define("APP_BUILD", 142);
+define("APP_BUILD", 146);
 
 include_once(APP_PATH . "/api/ClassLoader.php");
 include_once(APP_PATH . "/api/DAO.class.php");

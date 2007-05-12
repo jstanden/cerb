@@ -11,9 +11,9 @@
 	-->
 
   <title>{$settings->get('helpdesk_title')}</title>
-  <link type="text/css" rel="stylesheet" href="{devblocks_url}styles/default/cerberus.css?v={$smarty.const.APP_BUILD}{/devblocks_url}"></link>
-  <link type="text/css" rel="stylesheet" href="{devblocks_url}styles/default/container.css?v={$smarty.const.APP_BUILD}{/devblocks_url}" />
-  <link rel="shortcut icon" href="{devblocks_url}favicon.ico{/devblocks_url}" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" href="{devblocks_url}styles/default/cerberus.css?v={$smarty.const.APP_BUILD}{/devblocks_url}">
+  <link type="text/css" rel="stylesheet" href="{devblocks_url}styles/default/container.css?v={$smarty.const.APP_BUILD}{/devblocks_url}">
+  <link rel="shortcut icon" href="{devblocks_url}favicon.ico{/devblocks_url}" type="image/x-icon">
   
   <script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yahoo/YAHOO.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
   <script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yahoo/dom.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
