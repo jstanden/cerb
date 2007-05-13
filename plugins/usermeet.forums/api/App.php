@@ -30,9 +30,9 @@ class UmForumsApp extends Extension_UsermeetApp {
 	    
 //		switch(array_shift($stack)) {
 //		    default:
-//		        @$q = DevblocksPlatform::importGPC($_POST['q']);
+		        @$q = DevblocksPlatform::importGPC($_POST['q']);
 //		        
-//		        if(!empty($q)) {
+		        if(!empty($q)) {
 //		            list($faqs, $faqs_count) = DAO_Faq::search(
 //		                array(
 //		                    new DevblocksSearchCriteria(SearchFields_Faq::QUESTION,DevblocksSearchCriteria::OPER_LIKE,'%'.$q.'%')
@@ -40,14 +40,14 @@ class UmForumsApp extends Extension_UsermeetApp {
 //		                10,
 //		                0
 //		            );
-//		            $tpl->assign('q', $q);
+		            $tpl->assign('q', $q);
 //		            $tpl->assign('results', $faqs);
 //		            $tpl->assign('results_count', $faqs_count);
 //		            
 //		        } else {
 //		            $faqs = DAO_Faq::getList();
 //		            $tpl->assign('faqs', $faqs);
-//		        }
+		        }
 //		        
 		        $tpl->display('file:' . $realpath . '/forums/index.tpl.php');
 //		        break;

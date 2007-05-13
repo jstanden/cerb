@@ -35,85 +35,85 @@ border: 1px solid rgb(189, 76, 13);
 width: 75%;
 font-size: 18px;
 }
-div.message { border-top: 1pt solid rgb(158, 158, 158);
+table.message { 
+border-top: 1px solid rgb(200,200,200);
 background-color: rgb(255, 255, 255);
 background-image: url({/literal}{devblocks_url}c=resource&p=usermeet.forums&f=images/bg_message.jpg{/devblocks_url}{literal});
 background-repeat: repeat-x;
 }
-div.message td { color: rgb(51, 51, 51);
+table.message td { color: rgb(51, 51, 51);
 }
-div.message a { color: rgb(37, 125, 255);
+table.message a { color: rgb(37, 125, 255);
 font-weight: bold;
 font-size: 16px;
 }
-div.message div.count { border: 1px solid rgb(127, 127, 127);
-padding: 5px;
+table.message table.count { border: 1px solid rgb(127, 127, 127);
 background-color: rgb(255, 255, 255);
 background-image: url({/literal}{devblocks_url}c=resource&p=usermeet.forums&f=images/bg_count.jpg{/devblocks_url}{literal});
 background-repeat: repeat-x;
 color: rgb(102, 102, 102);
-width: 75%;
 text-align: center;
+width:85%;
 }
-div.message div.count b { font-weight: bold;
-font-size: x-large;
+table.message table.count b { font-weight: bold;
+font-size: 24px;
 color: rgb(237, 72, 20);
 }
 {/literal}
   </style>
 </head>
 <body>
-<img style="width: 201px; height: 78px;" alt="Logo"
- src="{devblocks_url}c=resource&p=usermeet.forums&f=images/logo.jpg{/devblocks_url}"><br>
-&nbsp;<br>
-<table style="text-align: left; width: 100%;" id="search_box"
- border="0" cellpadding="5" cellspacing="0">
+<img style="width: 201px; height: 78px;" alt="Logo" src="{devblocks_url}c=resource&p=usermeet.forums&f=images/logo.jpg{/devblocks_url}"><br>
+&nbsp;
+<br>
+
+<table style="text-align: left; width: 100%;" id="search_box" border="0" cellpadding="5" cellspacing="0">
   <tbody>
     <tr>
       <td style="font-weight: bold;"><big><big>Search the Discussion Logs</big></big></td>
     </tr>
   </tbody>
 </table>
+
 <form action="{devblocks_url}{/devblocks_url}" method="POST">
-  <div style="padding: 10px;"><input id="search_input" name="q"></div>
+  <div style="padding: 10px;">
+  	<input id="search_input" name="q" value="{$q}">
+  	&nbsp;
+  	<a href="#" style="color:rgb(189, 76, 13);">advanced</a>
+  </div>
 </form>
-<table style="text-align: left; width: 100%;" id="recent_box"
- border="0" cellpadding="5" cellspacing="0">
+
+<table style="text-align: left; width: 100%;" id="recent_box" border="0" cellpadding="5" cellspacing="0">
   <tbody>
     <tr>
-      <td style="font-weight: bold;"><big><big>Recent
-Messages</big></big></td>
+      <td style="font-weight: bold;"><big><big>Recent Messages</big></big></td>
     </tr>
   </tbody>
 </table>
-<input name="only" value="1" type="checkbox">Only
-show replies<br>
-&nbsp;<br>
+<label><input name="only" value="1" type="checkbox">Only show replies</label><br>
+&nbsp;
+<br>
 
 {section name=messages loop=5 start=0}
-<div class="message">
-<table style="text-align: left; width: 100%;" border="0"
- cellpadding="5" cellspacing="0">
-  <tbody>
+<table style="text-align: left; width: 100%;" border="0" cellpadding="5" cellspacing="0" class="message">
     <tr>
-      <td nowrap="nowrap" valign="top" width="0%">
-      <div class="count"><b>5</b><br>
-msgs</div>
+      <td nowrap="nowrap" valign="top" width="0%" align="center">
+      <table class="count">
+      	<tr><td nowrap="nowrap"><b>50</b><br>comments</td></tr>
+	  </table>
       </td>
-      <td style="width: 100%;"><a href="#">Looking
-for information on writing a couple custom plugins...</a><br>
-45 minutes ago <span
- style="color: rgb(85, 148, 6); font-weight: bold;">Jeff
-Standen</span> wrote:<br>
-      <span style="font-weight: bold; font-size: 24px;">&ldquo;</span>
-A good place to look would be the Devblocks wiki, it has a lot of
-examples on the extension points that... <span
- style="font-weight: bold; font-size: 24px;">&rdquo;</span><br>
-topics: Cerberus Helpdesk, Installation</td>
+      <td style="width: 100%;"><a href="#">Looking for information on writing a couple custom plugins...</a><br>
+		45 minutes ago <span style="color: rgb(85, 148, 6); font-weight: bold;">Jeff Standen</span> wrote:<br>
+		<span style="background-color:rgb(240,240,240);">
+		<span style="font-weight: bold; font-size: 24px;">&ldquo;</span>
+		A good place to look would be the Devblocks wiki, it has a lot of examples on the extension points that... 
+		<span style="font-weight: bold; font-size: 24px;">&rdquo;</span>
+		</span>
+		<br>
+		<a href="#" style="font-size:10px;color:rgb(85, 148, 6);">Cerberus Helpdesk</a> 
+	  </td>
     </tr>
-  </tbody>
 </table>
-</div>
 {/section}
 
 </body>
