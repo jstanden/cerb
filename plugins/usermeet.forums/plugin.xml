@@ -1,0 +1,41 @@
+<!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
+<plugin>
+	<id>usermeet.forums</id>
+	<name>Usermeet Community Forums</name>
+	<description>Forums to foster community discussion while helping busy team members keep track of feedback.</description>
+	<author>WebGroup Media, LLC.</author>
+	<revision>0</revision>
+	
+	<extensions>
+	
+		<!-- Patch Containers -->
+		
+		<extension point="devblocks.patch.container">
+			<id>forums.patches</id>
+			<name>Usermeet Forums Patches</name>
+			<class>
+				<file>patch.classes.php</file>
+				<name>UmForumsPatchContainer</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
+		<!-- Usermeet App -->
+		
+		<!-- Usermeet Apps -->
+		
+		<extension point="usermeet.app">
+			<id>forums.app</id>
+			<name>Forums Community App</name>
+			<class>
+				<file>api/App.php</file>
+				<name>UmForumsApp</name>
+			</class>
+			<params>
+				<param key="uri" value="forums" />
+			</params>
+		</extension>
+	
+	</extensions>
+</plugin>
