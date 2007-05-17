@@ -18,7 +18,7 @@ color: rgb(255, 255, 255);
 }
 .result { border: 1px solid rgb(105, 161, 13);
 background-color: rgb(255, 255, 255);
-background-image: url({/literal}{devblocks_url}c=resource&p=cerberusweb.faq&f=images/bg_question.jpg{/devblocks_url}{literal});
+background-image: url({/literal}{devblocks_url}c=resource&p=cerberusweb.faq&f=images/bg_message.jpg{/devblocks_url}{literal});
 background-repeat: repeat-x;
 font-weight: normal;
 width: 100%;

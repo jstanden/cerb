@@ -1,6 +1,7 @@
-<table cellpadding="2" cellspacing="0" border="0" width="100%" class="configTable">
+<div class="block">
+<table cellpadding="2" cellspacing="0" border="0" width="100%">
 	<tr>
-		<td class="configTableTh">Helpdesk Settings</td>
+		<td><h2>Helpdesk Settings</h2></td>
 	</tr>
 	<tr>
 		<td>
@@ -18,8 +19,9 @@
 			</select><br>
 			<br>
 			
-			<input type="submit" value="Save Changes">
+			<button onclick="this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
 			</form>
 		</td>
 	</tr>
 </table>
+</div>

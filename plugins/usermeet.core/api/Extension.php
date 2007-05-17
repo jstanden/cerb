@@ -1,5 +1,5 @@
 <?php
-abstract class Extension_UsermeetApp extends DevblocksExtension implements DevblocksHttpRequestHandler {
+abstract class Extension_UsermeetTool extends DevblocksExtension implements DevblocksHttpRequestHandler {
     function __construct($manifest) {
         // [TODO] Refactor to __construct
         parent::DevblocksExtension($manifest);

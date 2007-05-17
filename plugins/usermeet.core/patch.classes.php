@@ -41,17 +41,12 @@ class UmPatchContainer extends DevblocksPatchContainerExtension {
 		
 		// ***** Application
 
-//		$tables['faq'] = "
-//			id I4 DEFAULT 0 NOTNULL PRIMARY,
-//			question C(255) DEFAULT '' NOTNULL,
-//			is_answered I1 DEFAULT 0,
-//			answer B DEFAULT '',
-//			answered_by I4 DEFAULT 0,
-//			created I4 DEFAULT 0
-//		";
-		
-		// [TODO] Faq comments (worker + visitor contributed)
-		// [TODO] Faq votes (worker + visitor contributed)
+		$tables['community_tool'] = "
+			id I4 DEFAULT 0 NOTNULL PRIMARY,
+			code C(8) DEFAULT '' NOTNULL,
+			community_id I4 DEFAULT 0 NOTNULL,
+			extension_id C(128) DEFAULT '' NOTNULL
+		";
 		
 		$currentTables = $db->MetaTables('TABLE', false);
 

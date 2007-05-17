@@ -233,7 +233,14 @@
     background-color: rgb(189, 228, 139);
   }
   
-  
+
+DIV.block {
+	padding:5px;
+	background-image:url(bg_block.jpg);
+	background-repeat: repeat-x;
+	border:1px solid rgb(120,120,120);
+}
+
  /*
 .searchcontainer {position:relative;width:100%;}
 .searchcontainer .yui-ac-content {position:relative;width:100%;border:1px solid #404040;background:#fff;overflow:hidden;z-index:9050;}

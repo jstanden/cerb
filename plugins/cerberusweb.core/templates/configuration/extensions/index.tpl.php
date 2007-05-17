@@ -2,13 +2,14 @@
 <br>
 
 <div id="tourConfigExtensionsRefresh"></div>
+<div class="block">
 <h2>Synchronization</h2>
-<br>
 <form action="{devblocks_url}{/devblocks_url}" method="post">
 <input type="hidden" name="c" value="config">
 <input type="hidden" name="a" value="refreshPlugins">
-<input type="submit" value="Scan for plugin changes">
+<button onclick="this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/data_find.gif{/devblocks_url}" align="top"> Scan for plugin changes</button>
 </form>
+</div>
 <br>
 
 <h2>Active Plugins</h2>
@@ -48,10 +49,11 @@
 {/foreach}
 </ul>
 
-<input type="submit" value="{$translate->_('common.save_changes')}">
+<button onclick="this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
 </form>
 <br>
 
+<div class="block">
 <h2>Extension Points</h2>
 {if !empty($points)}
 <ul style="list-style:none;margin-left:0;padding-left:1em;text-indent:1em;">
@@ -71,8 +73,8 @@
 		{/if}
 	{/foreach}
 </ul>
-<br>
 {/if}
+</div>
 
 <script>
 	var configAjax = new cConfigAjax();

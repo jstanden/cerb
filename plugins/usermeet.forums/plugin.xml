@@ -21,19 +21,16 @@
 			</params>
 		</extension>
 
-		<!-- Usermeet App -->
+		<!-- Usermeet Tools -->
 		
-		<!-- Usermeet Apps -->
-		
-		<extension point="usermeet.app">
-			<id>forums.app</id>
-			<name>Forums Community App</name>
+		<extension point="usermeet.tool">
+			<id>forums.tool</id>
+			<name>Discussion Forums</name>
 			<class>
 				<file>api/App.php</file>
 				<name>UmForumsApp</name>
 			</class>
 			<params>
-				<param key="uri" value="forums" />
 			</params>
 		</extension>
 	

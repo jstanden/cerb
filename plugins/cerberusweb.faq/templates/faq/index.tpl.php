@@ -6,7 +6,7 @@
     <tr>
       <td nowrap="nowrap" width="100%" valign="top">
 
-		<div style="border:1px solid rgb(120,120,120);padding:10px;background-color:rgb(245,245,245);">
+		<div class="block">
 		<a href="javascript:;" onclick="genericAjaxPanel('c=faq&a=showFaqPanel&id=0',this,true,'500px');" style="font-size:18px;font-weight:bold;color:rgb(0,180,0);">Have a new question?  Click here.</a>
 		</div>
 		<br>
@@ -21,16 +21,18 @@
 		</form>
 		 -->
 
+		<div class="block">
 		<h2>Search</h2>
-		<blockquote style="margin-top:0px;">
 		<form action="javascript:;" onsubmit="genericAjaxPanel('c=faq&a=showFaqSearchPanel&q='+this.q.value,this,true,'500px');">
 			<input type="hidden" name="c" value="">
 			<input type="hidden" name="a" value="">
-			<input type="text" name="q" value="" style="font-size:18px;">
-			<input type="submit" value="{$translate->_('common.search')}">
+			<input type="text" name="q" value="" style="font-size:18px;" size="45">
+			<button onclick="this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.faq&f=images/find.gif{/devblocks_url}" align="top"> {$translate->_('common.search')|capitalize}</button>
 		</form>
-		</blockquote>
+		</div>
+		<br>
 		 
+		<div class="block">
       	<h2>Answers Needed</h2>
       	<ul style="margin-top:0px;">
       	{foreach from=$faqs item=faq name=faqs key=faq_id}
@@ -44,7 +46,10 @@
       		No new questions have been asked.
       	{/foreach}
       	</ul>
+      	</div>
+      	<br>
 
+		<div class="block">
       	<h2>Most Popular Answers</h2>
       	<ul style="margin-top:0px;">
       	{foreach from=$popular_faqs item=faq name=pfaqs key=faq_id}
@@ -58,6 +63,8 @@
       		No answers have been submitted.
       	{/foreach}
       	</ul>
+      	</div>
+      	<br>
       	
       </td>
     </tr>

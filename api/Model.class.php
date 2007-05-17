@@ -509,6 +509,12 @@ class CerberusPatch extends DevblocksPatch {
 	}
 };
 
+class Model_Community {
+    public $id = 0;
+    public $name = '';
+    public $url = '';
+}
+
 interface ICerberusCriterion {
 	public function getValue($rfcMessage);
 };

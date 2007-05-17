@@ -1,13 +1,14 @@
 <input type="hidden" name="c" value="config">
 <input type="hidden" name="a" value="saveWorker">
 <input type="hidden" name="id" value="{if !empty($worker->id)}{$worker->id}{else}0{/if}">
-<table cellpadding="2" cellspacing="0" border="0" width="100%" class="configTable">
+<div class="block">
+<table cellpadding="2" cellspacing="0" border="0" width="100%">
 	<tr>
-		<td colspan="2" class="configTableTh">
+		<td colspan="2">
 			{if empty($worker->id)}
-			Add Worker
+			<h2>Add Worker</h2>
 			{else}
-			Modify '{$worker->getName()}'
+			<h2>Modify '{$worker->getName()}'</h2>
 			{/if}
 		</td>
 	</tr>
@@ -66,7 +67,8 @@
 	{/if}
 	<tr>
 		<td colspan="2">
-			<input type="submit" value="{$translate->_('common.save_changes')}">
+			<button onclick="this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
 		</td>
 	</tr>
 </table>
+</div>

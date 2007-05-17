@@ -3166,6 +3166,7 @@ class DAO_Mail {
 	}
 };
 
+// [TODO] Nuke/Move to KB Plugin
 class DAO_Kb {
 	
 	/**
@@ -3414,5 +3415,149 @@ class DAO_Kb {
 	}
 	
 };
+
+class DAO_Community extends DevblocksORMHelper {
+    const ID = 'id';
+    const NAME = 'name';
+    const URL = 'url';
+    
+	public static function create($fields) {
+	    $db = DevblocksPlatform::getDatabaseService();
+		$id = $db->GenID('generic_seq');
+		
+		$sql = sprintf("INSERT INTO community (id,name,url) ".
+		    "VALUES (%d,'','')",
+		    $id
+		);
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		self::update($id, $fields);
+		
+		return $id;
+	}
+	
+	public static function update($id, $fields) {
+        self::_update($id, 'community', $fields);
+	}
+	
+	public static function get($id) {
+		$items = self::getList(array($id));
+		
+		if(isset($items[$id]))
+		    return $items[$id];
+		    
+		return NULL;
+	}
+	
+	public static function getList($ids=array()) {
+	    if(!is_array($ids)) $ids = array($ids);
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = "SELECT id,name,url ".
+		    "FROM community ".
+		    (!empty($ids) ? sprintf("WHERE id IN (%s) ", implode(',', $ids)) : " ").
+		    "ORDER BY name ASC "
+		;
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		$objects = array();
+		
+		while(!$rs->EOF) {
+		    $object = new Model_Community();
+		    $object->id = intval($rs->fields['id']);
+		    $object->name = $rs->fields['name'];
+		    $object->url = $rs->fields['url'];
+		    $objects[$object->id] = $object;
+		    $rs->MoveNext();
+		}
+		
+		return $objects;
+	}
+	
+	public static function delete($ids) {
+	    if(!is_array($ids)) $ids = array($ids);
+	    $db = DevblocksPlatform::getDatabaseService();
+	    
+	    $id_list = implode(',', $ids);
+	    
+	    $sql = sprintf("DELETE FROM community WHERE id IN (%s)", $id_list);
+	    $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+
+	    // [TODO] cascade foreign key constraints	
+	}
+
+    /**
+     * Enter description here...
+     *
+     * @param DevblocksSearchCriteria[] $params
+     * @param integer $limit
+     * @param integer $page
+     * @param string $sortBy
+     * @param boolean $sortAsc
+     * @param boolean $withCounts
+     * @return array
+     */
+    static function search($params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
+		$db = DevblocksPlatform::getDatabaseService();
+
+        list($tables,$wheres) = parent::_parseSearchParams($params, SearchFields_Community::getFields());
+		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
+		
+		$sql = sprintf("SELECT ".
+			"t.id as %s, ".
+			"t.title as %s ".
+			"FROM community c ",
+//			"INNER JOIN team tm ON (tm.id = t.team_id) ".
+			    SearchFields_Community::ID,
+			    SearchFields_Community::NAME
+			).
+			
+			// [JAS]: Dynamic table joins
+//			(isset($tables['ra']) ? "INNER JOIN requester r ON (r.ticket_id=t.id)" : " ").
+			
+			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "").
+			(!empty($sortBy) ? sprintf("ORDER BY %s %s",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : "")
+		;
+		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		$results = array();
+		while(!$rs->EOF) {
+			$result = array();
+			foreach($rs->fields as $f => $v) {
+				$result[$f] = $v;
+			}
+			$ticket_id = intval($rs->fields[SearchFields_Community::ID]);
+			$results[$ticket_id] = $result;
+			$rs->MoveNext();
+		}
+
+		// [JAS]: Count all
+		$total = -1;
+		if($withCounts) {
+		    $rs = $db->Execute($sql);
+		    $total = $rs->RecordCount();
+		}
+		
+		return array($results,$total);
+    }
+};
+
+class SearchFields_Community implements IDevblocksSearchFields {
+	// Table
+	const ID = 'c_id';
+	const NAME = 'c_name';
+	const URL = 'c_url';
+	
+	/**
+	 * @return DevblocksSearchField[]
+	 */
+	static function getFields() {
+		return array(
+			SearchFields_Community::ID => new DevblocksSearchField(SearchFields_Community::ID, 'c', 'id'),
+			SearchFields_Community::NAME => new DevblocksSearchField(SearchFields_Community::NAME, 'c', 'name'),
+			SearchFields_Community::URL => new DevblocksSearchField(SearchFields_Community::URL, 'c', 'url'),
+		);
+	}
+};	
 
 ?>

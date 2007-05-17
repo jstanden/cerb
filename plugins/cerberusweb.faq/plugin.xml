@@ -63,17 +63,16 @@
 			</params>
 		</extension>
 
-		<!-- Usermeet Apps -->
+		<!-- Usermeet Tools -->
 		
-		<extension point="usermeet.app">
-			<id>faq.app</id>
-			<name>FAQ Community App</name>
+		<extension point="usermeet.tool">
+			<id>faq.tool</id>
+			<name>FAQ</name>
 			<class>
 				<file>usermeet.classes.php</file>
 				<name>ChFaqApp</name>
 			</class>
 			<params>
-				<param key="uri" value="faq" />
 			</params>
 		</extension>
 		

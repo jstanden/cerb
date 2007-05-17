@@ -1,7 +1,7 @@
 <?php
 // [TODO] Local scope includes can go here too (rather than classload if never reused)
 
-class UmForumsApp extends Extension_UsermeetApp {
+class UmForumsApp extends Extension_UsermeetTool {
     function __construct($manifest) {
         parent::__construct($manifest);
     }

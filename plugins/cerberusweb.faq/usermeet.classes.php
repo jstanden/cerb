@@ -1,5 +1,5 @@
 <?php
-class ChFaqApp extends Extension_UsermeetApp {
+class ChFaqApp extends Extension_UsermeetTool {
     function __construct($manifest) {
         parent::__construct($manifest);
     }
@@ -17,11 +17,11 @@ class ChFaqApp extends Extension_UsermeetApp {
 		
 		// Usermeet Session
 		@$fingerprint = unserialize($_COOKIE['GroupLoginPassport']);
-		if(empty($fingerprint)) die("..."); // [TODO] Fix
+//		if(empty($fingerprint)) die("..."); // [TODO] Fix
         $tpl->assign('fingerprint', $fingerprint);
         
         // Routing        
-	    array_shift($stack); // CERB
+//	    array_shift($stack);
 		
 		switch(array_shift($stack)) {
 		    default:

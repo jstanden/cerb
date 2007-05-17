@@ -229,6 +229,15 @@ class ChCorePatchContainer extends DevblocksPatchContainerExtension {
 			nonspam I4 DEFAULT 0
 		";
 		
+		// Communities
+		$tables['community'] = "
+			id I4 DEFAULT 0 NOTNULL PRIMARY,
+			name C(64) DEFAULT '',
+			url C(128) DEFAULT ''
+		";
+		
+		// [TODO] Events
+		
 		// [JAS]: [TODO] Platform table?
 		$tables['setting'] = "
 			setting C(32) DEFAULT '' NOTNULL PRIMARY,

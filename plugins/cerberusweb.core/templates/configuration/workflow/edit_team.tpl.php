@@ -1,13 +1,14 @@
 <input type="hidden" name="c" value="config">
 <input type="hidden" name="a" value="saveTeam">
 <input type="hidden" name="id" value="{$team->id}">
-<table cellpadding="2" cellspacing="0" border="0" width="100%" class="configTable">
+<div class="block">
+<table cellpadding="2" cellspacing="0" border="0" width="100%">
 	<tr>
-		<td colspan="2" class="configTableTh">
+		<td colspan="2">
 			{if empty($team->id)}
-			Add Team
+			<h2>Add Team</h2>
 			{else}
-			Modify '{$team->name}'
+			<h2>Modify '{$team->name}'</h2>
 			{/if}
 		</td>
 	</tr>
@@ -52,7 +53,8 @@
 	{/if}
 	<tr>
 		<td colspan="2">
-			<input type="submit" value="{$translate->_('common.save_changes')}">
+			<button onclick="this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
 		</td>
 	</tr>
 </table>
+</div>

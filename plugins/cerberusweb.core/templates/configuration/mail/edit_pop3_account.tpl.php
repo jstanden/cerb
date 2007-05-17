@@ -1,13 +1,14 @@
 <input type="hidden" name="c" value="config">
 <input type="hidden" name="a" value="savePop3Account">
 <input type="hidden" name="id" value="{if !empty($pop3_account->id)}{$pop3_account->id}{else}0{/if}">
-<table cellpadding="2" cellspacing="0" border="0" width="100%" class="configTable">
+<div class="block">
+<table cellpadding="2" cellspacing="0" border="0" width="100%">
 	<tr>
-		<td colspan="2" class="configTableTh">
+		<td colspan="2">
 			{if empty($pop3_account->id)}
-			Add POP3 Account
+			<h2>Add POP3 Account</h2>
 			{else}
-			Modify '{$pop3_account->nickname}'
+			<h2>Modify '{$pop3_account->nickname}'</h2>
 			{/if}
 		</td>
 	</tr>
@@ -39,7 +40,8 @@
 	{/if}
 	<tr>
 		<td colspan="2">
-			<input type="submit" value="{$translate->_('common.save_changes')}">
+			<button onclick="this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
 		</td>
 	</tr>
 </table>
+</div>
