@@ -142,10 +142,34 @@ class UmCommunityPage extends CerberusPageExtension {
 		array_shift($stack); // community
 		
 		switch(array_shift($stack)) {
+		    case 'add_tool':
+		        $communities = DAO_Community::getList();
+			    $tpl->assign('communities', $communities);
+		        
+			    // Tool Manifests
+			    $tools = DevblocksPlatform::getExtensions('usermeet.tool', false);
+			    $tpl->assign('tool_manifests', $tools);
+			    
+		        $tpl->display('file:' . dirname(__FILE__) . '/templates/community/add_tool.tpl.php');
+		        break;
+		        
+		    case 'add_widget':
+		        $communities = DAO_Community::getList();
+			    $tpl->assign('communities', $communities);
+			    
+			    // Widget Manifests
+			    $widgets = DevblocksPlatform::getExtensions('usermeet.widget', false);
+			    $tpl->assign('widget_manifests', $widgets);
+			    
+		        $tpl->display('file:' . dirname(__FILE__) . '/templates/community/add_widget.tpl.php');
+		        break;
+		    
 		    case 'tool':
 		        $code = array_shift($stack);
-		        
-		        list($tools, $count) = DAO_CommunityTool::search(
+
+		        // Instance (Tool Fields)
+	            // [TODO] This makes templates a bit wacky, convert to a DAO call returning a Model obj?
+		        list($instances, $count) = DAO_CommunityTool::search(
 		            array(
 		                new DevblocksSearchCriteria(SearchFields_CommunityTool::CODE,DevblocksSearchCriteria::OPER_EQ,$code)
 		            ),
@@ -155,7 +179,18 @@ class UmCommunityPage extends CerberusPageExtension {
 		            null,
 		            false
 		        );
-		        $tpl->assign('tool', array_shift($tools));
+		        $instance = array_shift($instances);
+		        $tpl->assign('instance', $instance);
+
+		        // Community Record
+		        $community_id = $instance[SearchFields_CommunityTool::COMMUNITY_ID];
+		        $community = DAO_Community::get($community_id);
+		        $tpl->assign('community', $community);
+		        
+		        // Tool Manifest
+		        $toolManifest = DevblocksPlatform::getExtension($instance[SearchFields_CommunityTool::EXTENSION_ID]);
+		        $tool = $toolManifest->createInstance();
+		        $tpl->assign('tool', $tool);
 		        
 		        $tpl->display('file:' . dirname(__FILE__) . '/templates/community/tool_config.tpl.php');
 		        break;
@@ -181,17 +216,15 @@ class UmCommunityPage extends CerberusPageExtension {
 			        $community_addons[$tool->community_id]['tools'][$tool->code] = $tool->extension_id;
 			    }
 			    
-			    // [TODO] Widgets
-			    
-			    $tpl->assign('community_addons', $community_addons);
-			    
 			    // Tool Manifests
 			    $tools = DevblocksPlatform::getExtensions('usermeet.tool', false);
 			    $tpl->assign('tool_manifests', $tools);
-				
-			    // Widget Manifests
+			    
+			    // [TODO] Widget Manifests
 			    $widgets = DevblocksPlatform::getExtensions('usermeet.widget', false);
 			    $tpl->assign('widget_manifests', $widgets);
+			    			    
+			    $tpl->assign('community_addons', $community_addons);
 				
 				$tpl->display('file:' . dirname(__FILE__) . '/templates/community/index.tpl.php');
 		        break;

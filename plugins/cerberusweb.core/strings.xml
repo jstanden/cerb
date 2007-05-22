@@ -4,6 +4,11 @@
 	<header datatype="winres" segtype="sentence" adminlang="en-us" srclang="en-us" o-tmf="abc"></header>
 	<body>
 
+		<!-- Temporary Events -->
+		<tu tuid='event.faq.question_asked'>
+			<tuv xml:lang="en"><seg>Someone just asked, '%2$s' (question %1$s)</seg></tuv>
+		</tu>
+
 		<!-- Common Strings -->
 
 		<tu tuid='common.cancel'>

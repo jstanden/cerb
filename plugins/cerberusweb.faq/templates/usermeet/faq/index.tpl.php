@@ -56,7 +56,7 @@ form { margin: 0px;
 <!-- <span class="title">Cerberus Helpdesk Q&amp;A</span><br> -->
 <img src="{devblocks_url}c=resource&p=cerberusweb.faq&f=images/logo.jpg{/devblocks_url}" style="margin-bottom:10px;" alt="Logo"><br>
 
-<form action="{devblocks_url}{/devblocks_url}" method="post">
+<form action="{devblocks_url}c=search{/devblocks_url}" method="post">
 <table style="text-align: left; width: 550px;" class="search" border="0" cellpadding="5" cellspacing="5">
   <tbody>
     <tr>
@@ -71,7 +71,22 @@ form { margin: 0px;
 </form>
 <br>
 
-{if empty($q)}
+<form action="{devblocks_url}{/devblocks_url}" method="post">
+<input type="hidden" name="a" value="doAsk">
+<table style="text-align: left; width: 550px;" class="search" border="0" cellpadding="5" cellspacing="5">
+  <tbody>
+    <tr>
+      <td colspan="2">
+      	<h4>Ask a question:</h4>	
+		<input name="q" class="question" value="{$q}"><br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</form>
+<br>
+
+{if is_null($q)}
 	{foreach from=$faqs item=faq key=faq_id}
 	<table class="result" cellpadding="5">
 	  <tbody>

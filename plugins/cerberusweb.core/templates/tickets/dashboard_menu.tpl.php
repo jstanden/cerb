@@ -1,13 +1,14 @@
 <div id="tourDashboardActions"></div>
-<table cellpadding="0" cellspacing="0" border="0" class="tableGreen" width="220" class="tableBg">
+<div class="block">
+<table cellpadding="0" cellspacing="0" border="0" width="220">
 	<tr>
-		<td class="tableThGreen" nowrap="nowrap"> <img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/window_view.gif{/devblocks_url}"> {$translate->_('dashboard.actions')|capitalize}</td>
+		<td nowrap="nowrap"><h2>{$translate->_('dashboard.actions')|capitalize}</h2></td>
 	</tr>
 	<tr>
 		<td>
-			<table cellpadding="0" cellspacing="1" border="0" width="100%" class="tableBg">
+			<table cellpadding="0" cellspacing="1" border="0" width="100%">
 				<tr>
-					<td class="tableCellBg" width="100%" style="padding:2px;">
+					<td width="100%">
 				      	<b>{$translate->_('dashboard.active_dashboard')|capitalize}</b>
 						<form method="POST" action="{devblocks_url}{/devblocks_url}" id="dashboardMenuForm">
 						<input type="hidden" name="c" value="tickets">
@@ -32,27 +33,27 @@
 				</tr>
 				{if substr($active_dashboard_id,0,1) == 't'}
 				<tr>
-					<td class="tableCellBg" width="100%" style="padding:2px;">
+					<td width="100%" style="padding:2px;">
 						<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}"> <a href="{devblocks_url}c=tickets&a=dashboards&team=team&id={$dashboard_team_id}&mode=manage{/devblocks_url}">{$translate->_('teamwork.team_management')|capitalize}</a><br>
 					</td>
 				</tr>
 				{/if}
 				{if !empty($active_dashboard_id) && is_numeric($active_dashboard_id)}
 				<tr>
-					<td class="tableCellBg" width="100%" style="padding:2px;">
+					<td width="100%" style="padding:2px;">
 						 <a href="{devblocks_url}c=tickets&a=addView{/devblocks_url}">{$translate->_('dashboard.add_view')|lower}</a>
 					</td>
 				</tr>
 				{/if}
 				{if !empty($active_dashboard_id) && is_numeric($active_dashboard_id)}
 				<tr>
-					<td class="tableCellBg" width="100%" style="padding:2px;">
+					<td width="100%" style="padding:2px;">
 						 <a href="#">{$translate->_('dashboard.modify')|lower}</a>
 					</td>
 				</tr>
 				{/if}
 				<tr>
-					<td class="tableCellBg" width="100%" style="padding:2px;">
+					<td width="100%" style="padding:2px;">
 						 <a href="{devblocks_url}c=tickets{/devblocks_url}">{$translate->_('common.refresh')|lower}</a>
 					</td>
 				</tr>
@@ -60,3 +61,5 @@
 		</td>
 	</tr>
 </table>
+</div>
+

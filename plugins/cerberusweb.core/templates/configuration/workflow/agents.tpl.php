@@ -2,12 +2,14 @@
 	<tr>
 		
 		<td width="0%" nowrap="nowrap" valign="top">
-			<table cellpadding="2" cellspacing="0" border="0" width="100%" class="tableBlue">
+		
+			<div class="block">
+			<table cellpadding="2" cellspacing="0" border="0" width="100%">
 				<tr>
-					<td class="tableThBlue">Workers</td>
+					<td><h2>Workers</h2></td>
 				</tr>
 				<tr>
-					<td style="background-color:rgb(220, 220, 255);border-bottom:1px solid rgb(130, 130, 130);">[ <a href="javascript:;" onclick="configAjax.getWorker('0');">add new worker</a> ]</td>
+					<td>[ <a href="javascript:;" onclick="configAjax.getWorker('0');">add new worker</a> ]</td>
 				</tr>
 				<tr>
 					<td>
@@ -21,6 +23,8 @@
 					</td>
 				</tr>
 			</table>
+			</div>
+			
 		</td>
 		
 		<td width="100%" valign="top">

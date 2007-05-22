@@ -5,6 +5,21 @@
 	<description>FAQ (Frequently Asked Questions) page to provide ticket answers through content tagging.</description>
 	<author>WebGroup Media, LLC.</author>
 	<revision>0</revision>
+
+	<!-- Event Points -->
+
+	<event_points>
+		<event id="faq.question_asked">
+			<name>FAQ Question Asked</name>
+			<param key="id" />
+			<param key="question" />
+		</event>
+		<event id="faq.question_answered">
+			<name>FAQ Question Answered</name>
+			<param key="id" />
+			<param key="question" />
+		</event>
+	</event_points>
 	
 	<extensions>
 	
@@ -33,7 +48,28 @@
 			<params>
 			</params>
 		</extension>
-	
+
+		<!-- Event Listeners -->
+		
+		<extension point="devblocks.listener.event">
+			<id>faq.listeners.event</id>
+			<name>FAQ Event Listener</name>
+			<class>
+				<file>listeners.classes.php</file>
+				<name>UmFaqEventListener</name>
+			</class>
+			<params>
+				<param key="events">
+					<value>
+						<data key="faq.question_asked" />
+						<data key="faq.question_answered" />
+					</value>
+				</param>
+			</params>
+		</extension>
+
+		<!-- Pages -->	
+		
 		<extension point="cerberusweb.page">
 			<id>faq.page.faq</id>
 			<name>FAQ Page</name>
@@ -47,7 +83,7 @@
 				<param key="menutitle" value="Faq" />
 			</params>
 		</extension>
-		
+	
 		<!-- Display Modules -->
 		
 		<extension point="cerberusweb.display.module">

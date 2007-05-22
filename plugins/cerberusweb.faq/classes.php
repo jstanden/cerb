@@ -1,5 +1,4 @@
 <?php
-
 class ChFaqPage extends CerberusPageExtension {
 	function __construct($manifest) {
 		parent::__construct($manifest);
@@ -39,7 +38,7 @@ class ChFaqPage extends CerberusPageExtension {
 		    array(
 		        new DevblocksSearchCriteria(SearchFields_Faq::IS_ANSWERED,DevblocksSearchCriteria::OPER_EQ,0)
 		    ),
-		    10,
+		    100,
 		    0
 		);
 		
@@ -49,7 +48,7 @@ class ChFaqPage extends CerberusPageExtension {
 		    array(
 		        new DevblocksSearchCriteria(SearchFields_Faq::IS_ANSWERED,DevblocksSearchCriteria::OPER_EQ,1)
 		    ),
-		    10,
+		    100,
 		    0
 		);
 

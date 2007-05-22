@@ -19,7 +19,7 @@
 			<input type="text" name="attachmentlocation" value="{$settings->get('save_file_path')|escape:"html"}" size="64"><br>
 			<br>
 			
-			<button onclick="this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
+			<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
 			</form>
 		</td>
 	</tr>

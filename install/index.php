@@ -74,6 +74,7 @@ $locale->setLocale('en_US');
 
 // [JAS]: Translations
 // [TODO] Should probably cache this
+// [TODO] This breaks if you change the platform tables (it needs to look up plugins)
 $translate = DevblocksPlatform::getTranslationService();
 $translate->addTranslation(APP_PATH . '/install/strings.xml',$locale);
 //$date = DevblocksPlatform::getDateService();

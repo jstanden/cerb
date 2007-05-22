@@ -7,6 +7,8 @@
 </tr>
 </table>
 
+<div class="block">
+<h2>Ticket Details</h2>
 <form enctype="multipart/form-data" method="post" action="{devblocks_url}{/devblocks_url}">
 <input type="hidden" name="c" value="tickets">
 <input type="hidden" name="a" value="createTicket">
@@ -53,10 +55,11 @@
 	</tr>
 	<tr>
 		<td>
-			<input type="submit" value="Send"> 
+			<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
 			<a href="{devblocks_url}c=tickets&a=create{/devblocks_url}">Discard</a>
 		</td>
 	</tr>
   </tbody>
 </table>
 </form>
+</div>

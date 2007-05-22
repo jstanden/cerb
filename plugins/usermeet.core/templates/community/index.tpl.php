@@ -1,16 +1,22 @@
 <H1>Community</H1>
+[ <a href="{devblocks_url}c=community&a=add_tool{/devblocks_url}">add tool</a> ]
+[ <a href="{devblocks_url}c=community&a=add_widget{/devblocks_url}">add widget</a> ]
+<br>
 <br>
 
 {foreach from=$communities item=community key=community_id}
+	<div class="block">
 	<H2>{$community->name}</H2>
-		
+	<a href="{$community->url}" target="_blank">{$community->url}</a><br>
+	<br>
+	
 	{assign var=addons value=$community_addons.$community_id}
-	<blockquote>
+	<blockquote style="margin:5px;">
 		{assign var=tools value=$addons.tools}
 		{assign var=widgets value=$addons.widgets}
 		
 		{if !empty($tools)}
-		<b>Tools</b><br>
+		<b>Tools:</b><br>
 		<ul style="margin-top:0px;">
 			{foreach from=$tools item=tool_extid key=tool_code}
 				{assign var=tool value=$tool_manifests.$tool_extid}
@@ -20,76 +26,15 @@
 		{/if}
 	
 		{if !empty($widgets)}
-		<b>Widgets</b><br>
+		<b>Widgets:</b><br>
 		<ul style="margin-top:0px;">
 			<li>Network Status: <a href="http://{$host}{devblocks_url}c=portal&app=forums&key=CERB{/devblocks_url}">http://{$host}{devblocks_url}c=portal&app=forums&key=CERB{/devblocks_url}</a></li>
 		</ul>
 		{/if}
 	</blockquote>
+	</div>
+	<br>
 {/foreach}
-
-<br>
-
-<div class="block">
-<H2>Add Community Tool</H2>
-<br>
-
-<form action="{devblocks_url}{/devblocks_url}" method="post">
-<input type="hidden" name="c" value="community">
-<input type="hidden" name="a" value="addCommunityTool">
-
-<b>Community:</b><br>
-<select name="community_id">
-	{foreach from=$communities item=community}
-	<option value="{$community->id}">{$community->name}</option>
-	{/foreach}
-</select><br>
-<br>
-
-<b>Tool:</b><br>
-<select name="extension_id">
-	{foreach from=$tool_manifests item=tool}
-	<option value="{$tool->id}">{$tool->name}</option>
-	{/foreach}
-</select><br>
-<br>
-
-<button onclick="this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
-
-</form>
-</div>
-
-<br>
-
-<div class="block">
-<H2>Add Community Widget</H2>
-<br>
-
-<form action="{devblocks_url}{/devblocks_url}" method="post">
-<input type="hidden" name="c" value="community">
-<input type="hidden" name="a" value="addCommunityWidget">
-
-<b>Community:</b><br>
-<select name="community_id">
-	{foreach from=$communities item=community}
-	<option value="{$community->id}">{$community->name}</option>
-	{/foreach}
-</select><br>
-<br>
-
-<b>Widget:</b><br>
-<select name="extension_id">
-	{foreach from=$widget_manifests item=widget}
-	<option value="{$widget->id}">{$widget->name}</option>
-	{/foreach}
-</select><br>
-<br>
-
-<button onclick="this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
-</form>
-</div>
-
-<br>
 
 <div class="block">
 <H2>Create Community</H2>
@@ -107,7 +52,7 @@
 <input type="text" name="url" size="64" maxlength="128"><br>
 <br>
 
-<button onclick="this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
+<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
 
 </form>
 </div>

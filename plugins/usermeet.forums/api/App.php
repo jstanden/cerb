@@ -53,5 +53,21 @@ class UmForumsApp extends Extension_UsermeetTool {
 //		        break;
 //		}
 	}
+
+	/**
+	 * @param $instance Model_CommunityTool 
+	 */
+    public function configure($instance) {
+        $tpl = DevblocksPlatform::getTemplateService();
+        $tpl_path = realpath(dirname(__FILE__) . '/..') . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR;
+        
+        
+        
+        $tpl->display("file:${tpl_path}forums/config.tpl.php");
+    }
+    
+    public function saveConfigurationAction() {
+        
+    }
 };
 ?>

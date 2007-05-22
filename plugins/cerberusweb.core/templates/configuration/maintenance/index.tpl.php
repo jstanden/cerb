@@ -8,7 +8,7 @@
 <input type="hidden" name="c" value="config">
 <input type="hidden" name="a" value="doPurge">
 <b>{$purge_count}</b> deleted tickets pending purge.<br>
-<button onclick="this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> Purge</button>
+<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> Purge</button>
 </form>
 </div>
 

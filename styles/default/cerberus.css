@@ -216,29 +216,27 @@
 		width: 98%;
 	}
 	
-  .configTable { 
-    border: 1px solid rgb(0, 153, 51);
-    background-color: rgb(247, 247, 255); 
-  }
-
-  .configTableTh { 
-    padding: 3px;
-    background-image: url(bg_green.jpg);
-    background-repeat: repeat-x;
-    color: rgb(255, 255, 255);
-    font-size: 18px;
-    font-weight: bold;
-    font-family: Arial,Helvetica,sans-serif;
-  	 text-align: left;
-    background-color: rgb(189, 228, 139);
-  }
-  
-
 DIV.block {
 	padding:5px;
 	background-image:url(bg_block.jpg);
 	background-repeat: repeat-x;
 	border:1px solid rgb(120,120,120);
+}
+
+DIV.block H2 {
+  	font-weight: bold;
+    font-family: Arial,Helvetica,sans-serif;
+    font-size: 18px;
+	margin:0px;
+	color: rgb(0,150,0);
+}
+
+DIV.block H3 {
+  	font-weight: bold;
+    font-family: Arial,Helvetica,sans-serif;
+    font-size: 18px;
+	margin:0px;
+	color: rgb(85, 85, 85);
 }
 
  /*

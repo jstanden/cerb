@@ -22,18 +22,18 @@
 		 -->
 
 		<div class="block">
-		<h2>Search</h2>
+		<h3>Search</h3>
 		<form action="javascript:;" onsubmit="genericAjaxPanel('c=faq&a=showFaqSearchPanel&q='+this.q.value,this,true,'500px');">
 			<input type="hidden" name="c" value="">
 			<input type="hidden" name="a" value="">
 			<input type="text" name="q" value="" style="font-size:18px;" size="45">
-			<button onclick="this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.faq&f=images/find.gif{/devblocks_url}" align="top"> {$translate->_('common.search')|capitalize}</button>
+			<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.faq&f=images/find.gif{/devblocks_url}" align="top"> {$translate->_('common.search')|capitalize}</button>
 		</form>
 		</div>
 		<br>
 		 
 		<div class="block">
-      	<h2>Answers Needed</h2>
+      	<h3>Answers Needed</h3>
       	<ul style="margin-top:0px;">
       	{foreach from=$faqs item=faq name=faqs key=faq_id}
       		<li>
@@ -50,7 +50,7 @@
       	<br>
 
 		<div class="block">
-      	<h2>Most Popular Answers</h2>
+      	<h3>Most Popular Answers</h3>
       	<ul style="margin-top:0px;">
       	{foreach from=$popular_faqs item=faq name=pfaqs key=faq_id}
       		<li>

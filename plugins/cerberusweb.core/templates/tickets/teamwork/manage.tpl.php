@@ -6,7 +6,7 @@
 
 <br>
 
-{if !empty($members)}
+<div class="block">
 <h2>Members</h2>
 <table cellspacing="2" cellpadding="0">
 	{foreach from=$members item=member key=member_id name=members}
@@ -21,15 +21,13 @@
 		</tr>
 	{/foreach}
 </table>
-<br>
-{/if}
-
-<h2>Add Members</h2>
 <input type="text" name="" size="45">
 <input type="button" name="" value="..." onclick=""><br>
+</div>
 <br>
 
 {if !empty($categories)}
+<div class="block">
 <h2>Categories</h2>
 <table cellspacing="2" cellpadding="0">
 	<tr>
@@ -53,12 +51,15 @@
 		</tr>
 	{/foreach}
 </table>
+</div>
 <br>
 {/if}
 
+<div class="block">
 <h2>Add Categories</h2>
 (one label per line)<br>
 <textarea rows="5" cols="45" name="add"></textarea><br>
+</div>
 <br>
 	
 <input type="submit" value="{$translate->_('common.save_changes')|capitalize}">

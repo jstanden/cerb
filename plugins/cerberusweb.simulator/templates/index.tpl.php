@@ -1,6 +1,7 @@
 <H1>Simulator</H1>
 <br>
 
+<div class="block">
 <form method="post" action="{devblocks_url}{/devblocks_url}">
 <input type="hidden" name="c" value="simulator">
 <input type="hidden" name="a" value="generateTickets">
@@ -11,7 +12,7 @@
 	<tr>
 		<td>
 			<b>To Address:</b><br>
-			<input type="text" name="address" value="{$address}">
+			<input type="text" name="address" value="{$address}" size="45">
 		</td>
 		<td>
 			<b>Sample Data Flavor:</b><br>
@@ -33,6 +34,7 @@
 </table>
 <br>
 
-<input type="submit" value="Generate">
+<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/gear.gif{/devblocks_url}" align="top"> Generate</button>
 	
 </form>
+</div>

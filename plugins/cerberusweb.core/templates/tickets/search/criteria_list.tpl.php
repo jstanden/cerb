@@ -1,8 +1,9 @@
-<table cellpadding="2" cellspacing="0" width="200" border="0" class="tableGreen">
+<div class="block">
+<table cellpadding="2" cellspacing="0" width="200" border="0">
 	<tr>
-		<th class="tableThGreen"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/find.gif{/devblocks_url}"> Search Criteria</th>
+		<td><h2>Search Criteria</h2></td>
 	</tr>
-	<tr style="border-bottom:1px solid rgb(200,200,200);">
+	<tr>
 		<td>
 			{if $view->type=='S'}
 				Search: <b>{$view->name}</b><br>
@@ -16,7 +17,7 @@
 		</td>
 	</tr>
 	<tr>
-		<td style="background-color:rgb(255,255,255);">
+		<td>
 			<table cellpadding="2" cellspacing="0" border="0">
 				<tr>
 					<td colspan="2" align="left">
@@ -83,3 +84,4 @@
 		</td>
 	</tr>
 </table>
+</div>

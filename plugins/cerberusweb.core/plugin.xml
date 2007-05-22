@@ -20,6 +20,38 @@
 
 	<extensions>
 
+		<!-- Event Listeners -->
+		
+		<extension point="devblocks.listener.event">
+			<id>core.listeners.event</id>
+			<name>Notifications Event Listener</name>
+			<class>
+				<file>listeners.classes.php</file>
+				<name>ChMasterNotificationListener</name>
+			</class>
+			<params>
+				<!-- Global Listener -->
+			</params>
+		</extension>
+
+		<!-- 
+		<extension point="devblocks.listener.event">
+			<id>cerberusweb.listeners.event</id>
+			<name>Cerberus Helpdesk Event Listener</name>
+			<class>
+				<file>listeners.classes.php</file>
+				<name>ChCoreEventListener</name>
+			</class>
+			<params>
+				<param key="events">
+					<value>
+						<data key="event.name" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		-->
+ 
 		<!-- Routers -->
 		
 		<extension point="devblocks.router">
@@ -74,6 +106,17 @@
 			<class>
 				<file>classes.php</file>
 				<name>ChPageController</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
+		<extension point="devblocks.controller">
+			<id>core.controller.notification</id>
+			<name>Notification Controller</name>
+			<class>
+				<file>classes.php</file>
+				<name>ChNotificationController</name>
 			</class>
 			<params>
 			</params>

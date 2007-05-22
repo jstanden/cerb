@@ -7,7 +7,7 @@
 <form action="{devblocks_url}{/devblocks_url}" method="post">
 <input type="hidden" name="c" value="config">
 <input type="hidden" name="a" value="refreshPlugins">
-<button onclick="this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/data_find.gif{/devblocks_url}" align="top"> Scan for plugin changes</button>
+<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/data_find.gif{/devblocks_url}" align="top"> Scan for plugin changes</button>
 </form>
 </div>
 <br>
@@ -49,7 +49,7 @@
 {/foreach}
 </ul>
 
-<button onclick="this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
+<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
 </form>
 <br>
 
@@ -66,7 +66,7 @@
 		{if !empty($p->extensions)}
 		<ul style="display:none;" id='divChConfig_{$point}'>
 		{foreach from=$p->extensions item=extension}
-			<li><a href="javascript:;">{$extension->name}</a> (<i>{$extension->plugin_id}</i>)</li>
+			<li>{$extension->name} (<i>{$extension->plugin_id}</i>)</li>
 		{/foreach}
 		</ul>
 		<br>

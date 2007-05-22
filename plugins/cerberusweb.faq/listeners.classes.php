@@ -34,5 +34,19 @@ class ChFaqTour extends DevblocksHttpResponseListenerExtension implements IDevbl
         if(!empty($tour))
             $tpl->assign('tour', $tour);
     }
-}
+};
+
+class UmFaqEventListener extends DevblocksEventListenerExtension {
+    function __construct($manifest) {
+        parent::__construct($manifest);
+    }
+    
+    function handleEvent(Model_DevblocksEvent $event) {
+        switch($event->id) {
+            case 'faq.question_asked':
+                echo "I listened to a question being asked ...<br>";
+                break;
+        }
+    }
+};
 ?>

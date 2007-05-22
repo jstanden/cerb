@@ -76,7 +76,7 @@ class HostingDataset extends SimulatorDataset {
 		$this->addEmailTemplate('##lost## ##password##','I ##lost## my ##password##, how do I get it back?');
 		$this->addEmailTemplate('##docs##?','I\'m ##emotion##.  Where is your ##docs##?');
 		$this->addEmailTemplate('How long?','I just ##signup_past##.  How long does it take to get my new site ##online##?');
-		$this->addEmailTemplate('how much is ##product##?','Where can I find the ##cost## for your ##product##?');
+		$this->addEmailTemplate('how much are ##product##?','Where can I find the ##cost## for your ##product##?');
 		$this->addEmailTemplate('Money back?','I don\'t like your ##feature##.  How can I get ##refund##?');
 		$this->addEmailTemplate('alternative ##feature## levels?','Do you ##offer## different ##feature## levels?');
 		$this->addEmailTemplate('Need help','How do I ##web_action## ##filetype## files?');
