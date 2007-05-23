@@ -236,16 +236,6 @@ class ChCorePatchContainer extends DevblocksPatchContainerExtension {
 			url C(128) DEFAULT ''
 		";
 		
-		// Notifications
-		$tables['notification'] = "
-			id I8 DEFAULT 0 NOTNULL PRIMARY,
-			created I8 DEFAULT 0,
-			worker_id I4 DEFAULT 0,
-			event_id C(128) DEFAULT '',
-			read I1 DEFAULT 0,
-			params B DEFAULT ''
-		";
-
 		// Worker Preferences
 		$tables['worker_pref'] = "
 			worker_id I4 DEFAULT 0 NOTNULL PRIMARY,

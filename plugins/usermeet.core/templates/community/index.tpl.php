@@ -1,4 +1,4 @@
-<H1>Community</H1>
+<H1>Communities</H1>
 [ <a href="{devblocks_url}c=community&a=add_tool{/devblocks_url}">add tool</a> ]
 [ <a href="{devblocks_url}c=community&a=add_widget{/devblocks_url}">add widget</a> ]
 <br>

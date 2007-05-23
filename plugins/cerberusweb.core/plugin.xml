@@ -22,18 +22,6 @@
 
 		<!-- Event Listeners -->
 		
-		<extension point="devblocks.listener.event">
-			<id>core.listeners.event</id>
-			<name>Notifications Event Listener</name>
-			<class>
-				<file>listeners.classes.php</file>
-				<name>ChMasterNotificationListener</name>
-			</class>
-			<params>
-				<!-- Global Listener -->
-			</params>
-		</extension>
-
 		<!-- 
 		<extension point="devblocks.listener.event">
 			<id>cerberusweb.listeners.event</id>

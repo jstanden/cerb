@@ -1,0 +1,109 @@
+<!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
+<plugin>
+	<id>cerberusweb.rss</id>
+	<name>Cerberus Helpdesk Feeds</name>
+	<description>RSS.</description>
+	<author>WebGroup Media, LLC.</author>
+	<revision>0</revision>
+	
+	<!-- 
+	<requires>
+		<plugin id="plugin.core.id" version=">= 1.0" />
+	</requires>
+	 -->
+
+	<!-- 
+	<extension-points>
+		<point id=""></point>
+	</extension-points>
+	-->
+
+	<extensions>
+
+		<!-- Event Listeners -->
+		
+		<extension point="devblocks.listener.event">
+			<id>rss.listeners.event</id>
+			<name>Feeds Event Listener</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChFeedEventListener</name>
+			</class>
+			<params>
+				<!-- Global Listener -->
+			</params>
+		</extension>
+
+		<!-- Controllers -->
+		
+		<extension point="devblocks.controller">
+			<id>rss.controller</id>
+			<name>RSS Controller</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChFeedsController</name>
+			</class>
+			<params>
+			</params>
+		</extension>		
+
+		<!-- Translations -->
+
+		<!-- 
+		<extension point="devblocks.i18n.strings">
+			<id>core.translations</id>
+			<name>Cerberus Helpdesk Strings</name>
+			<class>
+				<file>classes.php</file>
+				<name>ChTranslations</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		 -->		
+
+		<!-- Patch Containers -->
+		<extension point="devblocks.patch.container">
+			<id>rss.patches</id>
+			<name>Cerberus Helpdesk Patches</name>
+			<class>
+				<file>api/Patch.php</file>
+				<name>ChFeedsPatchContainer</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		 
+		<!-- Pages -->
+		 
+		<extension point="cerberusweb.page">
+			<id>feeds.page.home</id>
+			<name>Feeds Page</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChFeedsPage</name>
+			</class>
+			<params>
+				<param key="uri" value="feeds" />
+				<param key="title" value="Feeds" />
+				<param key="menutitle" value="feeds" />
+			</params>
+		</extension>
+		 
+		<!-- Cron Extensions -->
+
+		<!--
+		<extension point="cerberusweb.cron">
+			<id>cron.pop3</id>
+			<name>Default POP3 Module</name>
+			<class>
+				<file>cron.classes.php</file>
+				<name>Pop3Cron</name>
+			</class>
+			<params>
+			</params>
+		</extension>		
+		-->
+		
+	</extensions>
+</plugin>

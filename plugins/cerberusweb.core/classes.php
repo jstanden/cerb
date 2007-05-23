@@ -2601,62 +2601,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 		    default:
                 $tpl->display('file:' . $tpl_path . '/preferences/general.tpl.php');
 		        break;
-		   
-		    case 'events':
-                $worker_id = CerberusApplication::getActiveWorker()->id;
-                
-                // Event Log
-                list($event_log,$event_log_counts) = DAO_Notification::search(
-                    array(
-                        new DevblocksSearchCriteria(SearchFields_Notification::WORKER_ID,DevblocksSearchCriteria::OPER_EQ,$worker_id)
-                    ),
-                    25,
-                    0,
-                    SearchFields_Notification::CREATED,
-                    false,
-                    true
-                );
-                $tpl->assign('event_log', $event_log);
-                $tpl->assign('event_log_counts', $event_log_counts);
-
-                $points = DevblocksPlatform::getEventPointRegistry();
-                $tpl->assign('points', $points);
-                
-                // Event Log Translations
-		        $translate = DevblocksPlatform::getTranslationService();
-                $event_strings = array();
-                if(is_array($event_log))
-                foreach($event_log as $notify_id => $event) {
-					$string = $translate->_('event.' . $event[SearchFields_Notification::EVENT_ID]);
-					$params = $event[SearchFields_Notification::PARAMS];
-					$params = !empty($params) ? unserialize($params) : array();
-					// [TODO] Try...catch
-                    $event_strings[$notify_id] = !empty($string) ? vsprintf($string, $params) : "";
-                }
-                $tpl->assign('event_strings', $event_strings);
-                
-                $tpl->display('file:' . $tpl_path . '/preferences/event_log.tpl.php');
-                
-		        break;
-		        
-		    case 'notifications':
-                $plugins = DevblocksPlatform::getPluginRegistry();
-                $tpl->assign('plugins', $plugins);
-                
-                $worker_id = CerberusApplication::getActiveWorker()->id;
-                
-                // Notification Setup
-                $notifications = array();
-                $worker_notify = DAO_WorkerPref::get($worker_id, DAO_WorkerPref::NOTIFICATIONS);
-                if(!empty($worker_notify)) {
-                    $notifications = unserialize($worker_notify);
-                }
-                $tpl->assign('notifications', $notifications);
-                
-                $tpl->display('file:' . $tpl_path . '/preferences/notifications.tpl.php');
-		        break;
 		}
-		
 	}
 	
 	// Post
@@ -2665,17 +2610,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 	    @$default_signature = DevblocksPlatform::importGPC($_REQUEST['default_signature'],'string');
 	    @$reply_box_height = DevblocksPlatform::importGPC($_REQUEST['reply_box_height'],'integer');
 	}
-	
-	// Post
-	function saveNotificationsAction() {
-   	    @$events = DevblocksPlatform::importGPC($_POST['events'],'array',array());
-       
-   	    $worker_id = CerberusApplication::getActiveWorker()->id;
-   	    DAO_WorkerPref::set($worker_id,DAO_WorkerPref::NOTIFICATIONS, serialize(array_flip($events)));
-   	    
-   	    DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('preferences','notifications')));
-	}
-}
+};
 
 class ChDisplayTicketHistory extends CerberusDisplayPageExtension {
 	function __construct($manifest) {
@@ -3040,106 +2975,6 @@ class ChDisplayTicketConversation extends CerberusDisplayPageExtension {
 		$tpl->cache_lifetime = "0";
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/ticket_conversation.tpl.php');
 	}
-}
-
-
-class ChNotificationController extends DevblocksControllerExtension {
-    const ID = 'core.controller.notification';
-    
-	function __construct($manifest) {
-	    parent::__construct($manifest);
-	    
-        $router = DevblocksPlatform::getRoutingService();
-        $router->addRoute('notification', self::ID);
-	}
-	
-	public function handleRequest(DevblocksHttpRequest $request) {
-	}
-	
-	public function writeResponse(DevblocksHttpResponse $response) {
-	    $event_points = DevblocksPlatform::getEventPointRegistry();
-	    
-//	    $worker = CerberusApplication::getActiveWorker();
-	    $worker = DAO_Worker::getAgent(2);
-	    
-	    // [TODO] Implement logins for the wiretap app
-	    if(empty($worker)) {
-	        die("Log in.");
-	    }
-	    
-		header("Content-Type: text/xml");
-
-		$xmlstr = <<<XML
-		<rss version='2.0'>
-		</rss>
-XML;
-		
-		$xml = new SimpleXMLElement($xmlstr);
-		
-		// Channel
-		// [JAS]: [TODO] Support HTTPS/etc
-		$host = 'http://' . $_SERVER['HTTP_HOST'] . DEVBLOCKS_WEBPATH;
-		
-		$channel = $xml->addChild('channel');
-		
-		$channel->addChild('title', 'Cerberus Helpdesk Notifications');
-
-		$url = DevblocksPlatform::getUrlService();
-		$channel->addChild('link', $host);
-		
-		$channel->addChild('description', 'Description');
-		
-        list($events, $events_count) = DAO_Notification::search(
-            array(
-                new DevblocksSearchCriteria(SearchFields_Notification::WORKER_ID,DevblocksSearchCriteria::OPER_EQ,$worker->id)
-            ),
-            50,
-            0,
-            SearchFields_Notification::CREATED,
-            true,
-            false
-        );
-
-        $translate = DevblocksPlatform::getTranslationService();
-        $notify_ids = array();
-        
-		foreach($events as $event) {
-			$notify_ids[] = intval($event[SearchFields_Notification::ID]);
-			$event_id = $event[SearchFields_Notification::EVENT_ID];
-			$param_str = $event[SearchFields_Notification::PARAMS];
-			$created = intval($event[SearchFields_Notification::CREATED]);
-			if(empty($created)) $created = time();
-			$params = (!empty($param_str)) ? unserialize($param_str) : array();
-			
-			if(!isset($event_points[$event_id]))
-			    continue;
-			
-			$eItem = $channel->addChild('item');
-			    
-			$string = $translate->_('event.' . $event_id);
-	        $desc = '';
-	        if(!empty($string))
-	            $desc = vsprintf($string, $params);
-			
-			$eTitle = $eItem->addChild('title', $event_points[$event_id]->name);
-			$eDesc = $eItem->addChild('description', $desc);
-			
-			$url = DevblocksPlatform::getUrlService();
-//			$link = (!empty($post['p_permalink'])) 
-//				? $url->write(sprintf('c=read&y=%d&m=%d&s=%s',gmdate('Y',$post['p_created']),gmdate('m',$post['p_created']),$post['p_permalink'])) 
-//				: $url->write('c=read&id='.$post['p_id'])
-//				;
-			$eLink = $eItem->addChild('link', $host);
-			
-			$eDate = $eItem->addChild('pubDate', gmdate('D, d M Y H:i:s T',$created));
-		}
-		
-		if(!empty($notify_ids))
-		    DAO_Notification::markRead($notify_ids);
-		
-		echo $xml->asXML();	    
-	}
-  
 };
 
 ?>

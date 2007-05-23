@@ -1,13 +1,4 @@
 <?php
-class Model_Notification {
-  public $id = 0;
-  public $created = 0;
-  public $worker_id = 0;
-  public $event_id = '';
-  public $read = 0;
-  public $params = array();  
-};
-
 class Model_WorkerPreference {
     public $setting = '';
     public $value = '';

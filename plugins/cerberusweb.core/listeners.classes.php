@@ -196,36 +196,6 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension implements IDevb
     }
 };
 
-class ChMasterNotificationListener extends DevblocksEventListenerExtension {
-    function __construct($manifest) {
-        parent::__construct($manifest);
-    }
-    
-    /**
-     * @param Model_DevblocksEvent $event
-     */
-    function handleEvent(Model_DevblocksEvent $event) {
-        $worker_prefs = DAO_WorkerPref::getSettings();
-        if(empty($worker_prefs)) return;
-        
-        if(is_array($worker_prefs))
-        foreach($worker_prefs as $worker_id => $prefs) {
-            $notifications = $prefs[DAO_WorkerPref::NOTIFICATIONS];
-            $notifications = !empty($notifications) ? unserialize($notifications) : array();
-
-            if(empty($notifications) || !isset($notifications[$event->id]))
-                continue;
-            
-	        $fields = array(
-	            DAO_Notification::EVENT_ID => $event->id,
-	            DAO_Notification::PARAMS => serialize($event->params),
-	            DAO_Notification::WORKER_ID => $worker_id
-	        );
-	        DAO_Notification::create($fields);
-        }
-    }
-};
-
 class ChCoreEventListener extends DevblocksEventListenerExtension {
     function __construct($manifest) {
         parent::__construct($manifest);
