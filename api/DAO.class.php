@@ -3094,7 +3094,7 @@ class DAO_Mail {
 		$db = DevblocksPlatform::getDatabaseService();
 		$pop3accounts = array();
 		
-		$sql = "SELECT id, nickname, host, username, password, port ".
+		$sql = "SELECT id, nickname, protocol, host, username, password, port ".
 			"FROM pop3_account ".
 			((!empty($ids) ? sprintf("WHERE id IN (%s)", implode(',', $ids)) : " ").
 			"ORDER BY nickname "
@@ -3105,6 +3105,7 @@ class DAO_Mail {
 			$pop3 = new CerberusPop3Account();
 			$pop3->id = intval($rs->fields['id']);
 			$pop3->nickname = $rs->fields['nickname'];
+			$pop3->protocol = $rs->fields['protocol'];
 			$pop3->host = $rs->fields['host'];
 			$pop3->username = $rs->fields['username'];
 			$pop3->password = $rs->fields['password'];

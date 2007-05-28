@@ -199,6 +199,7 @@ class ChCorePatchContainer extends DevblocksPatchContainerExtension {
 		$tables['pop3_account'] = "
 			id I4 DEFAULT 0 NOTNULL PRIMARY,
 			nickname C(128) DEFAULT '' NOTNULL,
+			protocol C(32) DEFAULT 'pop3' NOTNULL,
 			host C(128) DEFAULT '' NOTNULL,
 			username C(128) DEFAULT '' NOTNULL,
 			password C(128) DEFAULT '' NOTNULL,

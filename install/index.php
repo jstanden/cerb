@@ -470,6 +470,7 @@ switch($step) {
 			// Test mailbox
 			if($mail->testImap($imap_host,$imap_port,$imap_service,$imap_user,$imap_pass)) { // Success!
 				// [TODO] Check to make sure the details aren't duplicate
+	            // [TODO] Set protocol
 				$id = DAO_Mail::createPop3Account($imap_user.'@'.$imap_host,$imap_host,$imap_user,$imap_pass);
 				
 				$tpl->assign('step', STEP_WORKFLOW);

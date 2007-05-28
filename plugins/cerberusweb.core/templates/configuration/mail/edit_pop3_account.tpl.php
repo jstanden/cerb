@@ -17,6 +17,14 @@
 		<td width="100%"><input type="text" name="nickname" value="{$pop3_account->nickname|escape:"html"}" size="45"></td>
 	</tr>
 	<tr>
+		<td width="0%" nowrap="nowrap"><b>Protocol:</b></td>
+		<td width="100%"><select name="protocol">
+			<option value="pop3" {if $pop3_account->protocol=='pop3'}selected{/if}>POP3
+			<option value="pop3-ssl" {if $pop3_account->protocol=='pop3-ssl'}selected{/if}>POP3-SSL
+			<option value="imap" {if $pop3_account->protocol=='imap'}selected{/if}>IMAP
+		</select></td>
+	</tr>
+	<tr>
 		<td width="0%" nowrap="nowrap"><b>Host:</b></td>
 		<td width="100%"><input type="text" name="host" value="{$pop3_account->host|escape:"html"}" size="45"></td>
 	</tr>

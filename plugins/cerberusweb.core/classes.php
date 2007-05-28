@@ -1724,6 +1724,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	function savePop3AccountAction() {
 		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer');
 		@$nickname = DevblocksPlatform::importGPC($_POST['nickname'],'string');
+		@$protocol = DevblocksPlatform::importGPC($_POST['protocol'],'string');
 		@$host = DevblocksPlatform::importGPC($_POST['host'],'string');
 		@$username = DevblocksPlatform::importGPC($_POST['username'],'string');
 		@$password = DevblocksPlatform::importGPC($_POST['password'],'string');
@@ -1738,6 +1739,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		    // [JAS]: [TODO] convert to field constants
 			$fields = array(
 				'nickname' => $nickname,
+				'protocol' => $protocol,
 				'host' => $host,
 				'username' => $username,
 				'password' => $password,

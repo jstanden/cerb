@@ -11,7 +11,8 @@ class Pop3Cron extends CerberusCronPageExtension {
 			echo ('Account being parsed is ' . $account->nickname . '<br>');
 			
 			$mail = DevblocksPlatform::getMailService();
-			$msgs = $mail->getMessages($account->host,'110','pop3',$account->username, $account->password);
+			
+			$msgs = $mail->getMessages($account->host, $account->port, $account->protocol, $account->username, $account->password);
 			
 			if(is_array($msgs))
 			foreach($msgs as $msg) {

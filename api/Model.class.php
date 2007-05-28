@@ -422,6 +422,7 @@ class Model_CerberusTaskOwners {
 class CerberusPop3Account {
 	public $id;
 	public $nickname;
+	public $protocol='pop3';
 	public $host;
 	public $username;
 	public $password;

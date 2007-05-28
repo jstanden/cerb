@@ -32,7 +32,6 @@ font-size: 12px;
 }
 #search_input { 
 border: 1px solid rgb(189, 76, 13);
-width: 75%;
 font-size: 18px;
 }
 table.message { 
@@ -77,9 +76,14 @@ color: rgb(237, 72, 20);
 
 <form action="{devblocks_url}{/devblocks_url}" method="POST">
   <div style="padding: 10px;">
-  	<input id="search_input" name="q" value="{$q}">
-  	&nbsp;
-  	<a href="#" style="color:rgb(189, 76, 13);">advanced</a>
+  	<input id="search_input" name="q" size="40" value="{$q}">
+  	<select name="range">
+  		<option value="7">Past week
+  		<option value="30">Past month
+  		<option value="365">Past year
+  		<option value="0">All time
+  	</select>
+  	<button>Search</button>
   </div>
 </form>
 
