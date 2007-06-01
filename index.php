@@ -4,7 +4,6 @@ require(DEVBLOCKS_PATH . 'Devblocks.class.php');
 
 // If this is our first run, redirect to the installer
 if('' == APP_DB_DRIVER || '' == APP_DB_HOST || '' == APP_DB_DATABASE) {
-    DevblocksPlatform::getCacheService()->clean();
     header('Location: install/index.php'); // [TODO] change this to a meta redirect
     exit;
 }

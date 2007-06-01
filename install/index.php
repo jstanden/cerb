@@ -11,6 +11,8 @@ require_once(APP_PATH . '/install/classes.php');
 
 require_once(DEVBLOCKS_PATH . 'api/Patch.php'); // [TODO] Temporary
 
+DevblocksPlatform::getCacheService()->clean();
+
 // DevblocksPlatform::init() workaround 
 if(!defined('DEVBLOCKS_WEBPATH')) {
 	$php_self = $_SERVER["PHP_SELF"];
@@ -795,5 +797,7 @@ I switched framework.config.php to have mysqli as the db driver (the extension w
 Jeff: k, sweet. I just need to add that to the dropdown, and then have the platform or installer check for any of the possible ones being there and complain if none
 I'll add to install/index.php [TODO]
  */
+
+// [TODO] Make sure storage/mail/new is writeable
 
 $tpl->display('base.tpl.php');
