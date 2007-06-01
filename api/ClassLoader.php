@@ -143,6 +143,10 @@ class CerberusClassLoader {
 			'Zend_Mail',
 		));
 		
+		self::registerClasses($path . 'Mail/Storage/Pop3.php', array(
+			'Zend_Mail_Storage_Pop3',
+		));
+		
 		self::registerClasses($path . 'Mime.php', array(
 			'Zend_Mime',
 		));

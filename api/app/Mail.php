@@ -2,6 +2,14 @@
 class CerberusMail {
 	private function __construct() {}
 	
+	static function generateMessageFilename() {
+	    return sprintf("%s.%s.%s",
+	        time(),
+	        rand(0,9999),
+	        $_SERVER['HTTP_HOST']
+	    );
+	}
+	
 	static function sendTicketMessage($properties=array()) {
 	    /*
 	     * [TODO] Move these into constants?

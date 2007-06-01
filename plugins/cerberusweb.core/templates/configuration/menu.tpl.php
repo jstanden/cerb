@@ -5,4 +5,5 @@
 [ <a href="{devblocks_url}c=config&a=mail{/devblocks_url}">mail</a> ] 
 [ <a href="{devblocks_url}c=config&a=maintenance{/devblocks_url}">maintenance</a> ] 
 [ <a href="{devblocks_url}c=config&a=extensions{/devblocks_url}">extensions</a> ] 
+[ <a href="{devblocks_url}c=config&a=jobs{/devblocks_url}">jobs</a> ] 
 <br>

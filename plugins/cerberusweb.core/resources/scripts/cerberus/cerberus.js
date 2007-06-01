@@ -141,6 +141,74 @@ var cAjaxCalls = function() {
 				argument:{caller:this,view_id:view_id}
 		});	
 	}
+
+	this.previewTip = null;	
+	this.scheduleTicketPreview = function(id, at) {
+//		var func = function() {
+			genericAjaxPanel('c=tickets&a=showPreview&id=' + id, at, false, '500px');
+//		}
+//		this.previewTip = setTimeout(func, 1);
+	};
+//	this.cancelTicketPreview = function() {
+//		clearTimeout(this.previewTip);
+//		if(null != genericPanel)
+//			genericPanel.hide();
+//	};
+	
+	this.showCategorizePanel = function(view_id) {
+		var viewForm = document.getElementById('viewForm'+view_id);
+		if(null == viewForm) return;
+		var elements = viewForm.elements['ticket_id[]'];
+		if(null == elements) return;
+		var len = elements.length;
+
+		var ids = new Array();
+		
+		for(var x=len-1;x>=0;x--) {
+			if(elements[x].checked) {
+				//frm.appendChild(elements[x]);
+				ids[ids.length] = elements[x].value;
+			}
+		}
+	
+		var ticket_ids = ids.join(','); // [TODO] Encode?
+	
+		genericAjaxPanel('c=tickets&a=showCategoryFilterPanel&view_id=' + view_id + '&ids=' + ticket_ids,null,true,'500px');
+	}
+	
+	this.saveCategorizePanel = function(view_id) {
+		var frm = document.getElementById('formCategorize');
+		
+		// [JAS]: Compile a list of checked ticket IDs
+		var viewForm = document.getElementById('viewForm'+view_id);
+		if(null == viewForm) return;
+		var elements = viewForm.elements['ticket_id[]'];
+		if(null == elements) return;
+		var len = elements.length;
+		
+		for(var x=len-1;x>=0;x--) {
+			if(elements[x].checked) {
+				frm.appendChild(elements[x]);
+			}
+		}		
+
+		YAHOO.util.Connect.setForm('formCategorize');
+		
+		var cObj = YAHOO.util.Connect.asyncRequest('POST', DevblocksAppPath+'ajax.php', {
+				success: function(o) {
+					var caller = o.argument.caller;
+					
+					if(null != genericPanel) {
+						genericPanel.hide();
+					}
+					
+					var view_id = o.argument.view_id;
+					caller.getRefresh(view_id);
+				},
+				failure: function(o) {},
+				argument:{caller:this,view_id:view_id}
+		});	
+	}
 	
 	this.saveViewActionPanel = function(id,view_id) {
 		YAHOO.util.Connect.setForm('formViewActions');

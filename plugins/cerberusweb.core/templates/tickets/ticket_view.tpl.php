@@ -56,7 +56,7 @@
 	{foreach from=$tickets item=result key=idx name=results}
 		<tr class="{if $smarty.foreach.results.iteration % 2}tableRowBg{else}tableRowAltBg{/if}">
 			<td align="center" rowspan="2"><input type="checkbox" name="ticket_id[]" value="{$result.t_id}"></td>
-			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}"><a href="{devblocks_url}c=display&id={$result.t_mask}{/devblocks_url}" class="ticketLink" style="font-size:12px;"><b>{$result.t_subject}</b></a></td>
+			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}"><a href="{devblocks_url}c=display&id={$result.t_mask}{/devblocks_url}" class="ticketLink" style="font-size:12px;"><b id="subject_{$result.t_id}_{$view->id}">{$result.t_subject}</b></a> <a href="javascript:;" onclick="ajax.scheduleTicketPreview('{$result.t_id}',this);" title="Preview">&raquo;</a></td>
 		</tr>
 		<tr class="{if $smarty.foreach.results.iteration % 2}tableRowBg{else}tableRowAltBg{/if}">
 		{foreach from=$view->view_columns item=column name=columns}
@@ -107,9 +107,6 @@
 			{/if}
 		{/foreach}
 		</tr>
-		<tr>
-			<td class="tableBg" colspan="{math equation="x+1" x=$smarty.foreach.headers.total}"></td>
-		</tr>
 	{/foreach}
 	
 </table>
@@ -129,9 +126,9 @@
 				<input type="button" value="Apply" onclick="ajax.viewRunAction('{$view->id}');">
 				<a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showViewActions&id='+selectValue(document.getElementById('viewForm{$view->id}').action_id)+'&view_id={$view->id}',this,true,'500px');">edit shortcut</a> | 
 			</span>
-			<a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showViewActions&id=0&view_id={$view->id}',this,true,'500px');">new shortcut</a>
-			| 
-			<a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showBatchPanel&view_id={$view->id}',this,true,'500px');">{if $first_view}<span id="tourDashboardBatch">batch update</span>{else}batch update{/if}</a>
+			<a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showBatchPanel&view_id={$view->id}',this,true,'500px');">{if $first_view}<span id="tourDashboardBatch">bulk update</span>{else}bulk update{/if}</a> 
+			|
+			<a href="javascript:;" onclick="ajax.showCategorizePanel('{$view->id}');">set category</a>
 		</td>
 	</tr>
 	<tr>

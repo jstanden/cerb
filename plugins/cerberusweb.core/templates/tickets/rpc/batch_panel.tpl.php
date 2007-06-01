@@ -1,7 +1,7 @@
 <table cellpadding="0" cellspacing="0" border="0" width="98%">
 	<tr>
 		<td align="left" width="0%" nowrap="nowrap" style="padding-right:5px;"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/gear.gif{/devblocks_url}" align="absmiddle"></td>
-		<td align="left" width="100%" nowrap="nowrap"><h1>Batch Update</h1></td>
+		<td align="left" width="100%" nowrap="nowrap"><h1>Bulk Update</h1></td>
 		<td align="right" width="0%" nowrap="nowrap"><form><input type="button" value=" X " onclick="genericPanel.hide();"></form></td>
 	</tr>
 </table>
@@ -13,12 +13,8 @@
 <input type="hidden" name="a" value="doBatchUpdate">
 <div style="height:300px;overflow:auto;border:1px solid rgb(180,180,180);margin:2px;padding:3px;">
 
+<h2>With selected tickets:</h2>
 <table cellspacing="0" cellpadding="2" width="100%">
-	<tr>
-		<td colspan="2">
-			<b>Apply these changes to selected tickets:</b>
-		</td>
-	</tr>
 	<tr>
 		<td width="0%" nowrap="nowrap">Set status:</td>
 		<td width="100%"><select name="status">
@@ -66,6 +62,15 @@
 		</select></td>
 	</tr>
 </table>
+
+<br>
+
+<H2>Save as shortcut?</H2>
+
+<b>Label:</b><br>
+<input type="text" name="shortcut_name" size="45" style='width:95%;'><br>
+<i>(leave blank to skip shortcut)</i><br>
+<br>
 
 </div>
 

@@ -28,7 +28,7 @@
       	*}
       
       	<br>
-      	{$message->getContent()|trim|nl2br}
+      	{$message->getContent()|trim|escape:"htmlall"|nl2br}
       	<br>
       	[ <a href="javascript:;" onclick="ajax.reply('{$message->id}');">Reply</a> ] 
       	[ <a href="javascript:;" onclick="ajax.forward('{$message->id}');">Forward</a> ] 

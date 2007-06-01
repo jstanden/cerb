@@ -950,25 +950,36 @@ class DAO_Ticket extends DevblocksORMHelper {
 	}
 
 	// [JAS]: [TODO] Convert to create($fields) format
-	static function createMessage($ticket_id,$type,$created_date,$address_id,$headers,$content) {
+	static function createMessage($ticket_id,$type,$created_date,$address_id,$headers=array(),$content='') {
 		$db = DevblocksPlatform::getDatabaseService();
 		$newId = $db->GenID('message_seq');
 		
 		// [JAS]: Flatten an array of headers into a string.
-		$sHeaders = serialize($headers);
+		$sHeaders = !empty($headers) ? serialize($headers) : serialize(array());
+		
+		$message_id = (!empty($headers['message-id']) && is_array($headers['message-id'])) 
+		    ? array_shift($headers['message-id']) : $headers['message-id'];
+		
+		//str_replace(array("'","\\"),array("\\'","\\\\"),$content)
+		
+//		echo "<pre>",$content,"</pre><br>";
+//		exit;
 		
 		$sql = sprintf("INSERT INTO message (id,ticket_id,message_type,created_date,address_id,message_id,headers,content) ".
-			"VALUES (%d,%d,%s,%d,%d,%s,%s,%s)",
+			"VALUES (%d,%d,%s,%d,%d,%s,'%s','%s')",
 				$newId,
 				$ticket_id,
 				$db->qstr($type),
 				$created_date,
 				$address_id,
-				((isset($headers['message-id'])) ? $db->qstr($headers['message-id']) : "''"),
-				$db->qstr($sHeaders),
-				$db->qstr($content)
+				((!empty($message_id)) ? $db->qstr($message_id) : "''"),
+				$db->BlobEncode($sHeaders),
+				$db->BlobEncode($content) // [TODO] Errr, why does PGSQL hate \\ from qstr?
 		);
-		
+
+//		echo "<pre>",$sql,"</pre><br>";
+//		exit;
+				
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		return $newId;
@@ -1356,6 +1367,10 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 	// Message
 	const MESSAGE_CONTENT = 'msg_content';
 	
+	// Sender
+	const SENDER_ID = 'a1_id';
+	const SENDER_ADDRESS = 'a1_address';
+	
 	// Requester
 	const REQUESTER_ID = 'ra_id';
 	const REQUESTER_ADDRESS = 'ra_email';
@@ -1396,6 +1411,9 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 
 			SearchFields_Ticket::REQUESTER_ID => new DevblocksSearchField(SearchFields_Ticket::REQUESTER_ID, 'ra', 'id'),
 			SearchFields_Ticket::REQUESTER_ADDRESS => new DevblocksSearchField(SearchFields_Ticket::REQUESTER_ADDRESS, 'ra', 'email'),
+			
+			SearchFields_Ticket::SENDER_ID => new DevblocksSearchField(SearchFields_Ticket::SENDER_ID, 'a1', 'id'),
+			SearchFields_Ticket::SENDER_ADDRESS => new DevblocksSearchField(SearchFields_Ticket::SENDER_ADDRESS, 'a1', 'email'),
 			
 			SearchFields_Ticket::TEAM_ID => new DevblocksSearchField(SearchFields_Ticket::TEAM_ID,'tm','id'),
 			SearchFields_Ticket::TEAM_NAME => new DevblocksSearchField(SearchFields_Ticket::TEAM_NAME,'tm','name'),
@@ -1764,137 +1782,6 @@ class DAO_DashboardViewAction extends DevblocksORMHelper {
 		// [TODO]: Don't forget to also cascade deletes for foreign keys.
 	}
 	
-};
-
-class DAO_MailRule {
-	private function DAO_MailRule() {}
-	
-	/**
-	 * creates a new mail rule
-	 *
-	 * @param CerberusMailRuleCriterion[] $criteria
-	 * @param string $sequence
-	 * @param string $strictness
-	 */
-	static function createMailRule ($criteria, $sequence, $strictness) {
-		$db = DevblocksPlatform::getDatabaseService();
-		$newId = $db->GenID('generic_seq');
-		
-		$sCriteria = serialize($criteria); // Flatten criterion array into a string
-		
-		$sql = sprintf("INSERT INTO mail_rule (id, criteria, sequence, strictness) ".
-			"VALUES (%d, %s, %s, %s)",
-			$newId,
-			$db->qstr($sCriteria),
-			$db->qstr($sequence),
-			$db->qstr($strictness)
-		);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
-	}
-	
-	/**
-	 * deletes a mail rule from the database
-	 *
-	 * @param integer $id
-	 */
-	static function deleteMailRule ($id) {
-		if(empty($id)) return;
-		$db = DevblocksPlatform::getDatabaseService();
-		
-		$sql = sprintf("DELETE FROM mail_rule WHERE id = %d",
-			$id
-		);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
-	}
-	
-	/**
-	 * returns the mail rule with the given id
-	 *
-	 * @param integer $id
-	 * @return CerberusMailRule
-	 */
-	static function getMailRule ($id) {
-		$db = DevblocksPlatform::getDatabaseService();
-		
-		$sql = sprintf("SELECT m.id, m.criteria, m.sequence, m.strictness ".
-			"FROM mail_rule m ".
-			"WHERE m.id = %d",
-			$id
-		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
-		
-		$mailRule = new CerberusMailRule();
-		while(!$rs->EOF) {
-			$mailRule->id = intval($rs->fields['id']);
-			$mailRule->sequence = $rs->fields['sequence'];
-			$mailRule->strictness = $rs->fields['strictness'];
-			
-			$criteria = unserialize($rs->fields['criteria']);
-			$mailRule->criteria = $criteria;
-
-			$mailRules[$mailRule->id] = $mailRule;
-			$rs->MoveNext();
-		}
-		
-		return $mailRule;
-	}
-	
-	/**
-	 * returns an array of all mail rules
-	 *
-	 * @return CerberusMailRule[]
-	 */
-	static function getMailRules () {
-		$db = DevblocksPlatform::getDatabaseService();
-		
-		$sql = sprintf("SELECT m.id, m.criteria, m.sequence, m.strictness ".
-			"FROM mail_rule m"
-		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
-		
-		$mailRules = array();
-		
-		while(!$rs->EOF) {
-			$mailRule = new CerberusMailRule();
-			$mailRule->id = intval($rs->fields['id']);
-			$mailRule->sequence = $rs->fields['sequence'];
-			$mailRule->strictness = $rs->fields['strictness'];
-			
-			$criteria = unserialize($rs->fields['criteria']);
-			$mailRule->criteria = $criteria;
-
-			$mailRules[$mailRule->id] = $mailRule;
-			$rs->MoveNext();
-		}
-		
-		return $mailRules;
-	}
-	
-	/**
-	 * update changed fields on a mail rule
-	 *
-	 * @param integer $id
-	 * @param associative array $fields
-	 */
-	static function updateMailRule ($id, $fields) {
-		$db = DevblocksPlatform::getDatabaseService();
-		
-		if(!is_array($fields) || empty($fields) || empty($id))
-			return;
-		
-		foreach($fields as $k => $v) {
-			$sets[] = sprintf("%s = %s",
-				$k,
-				$db->qstr($v)
-			);
-		}
-			
-		$sql = sprintf("UPDATE mail_rule SET %s WHERE id = %d",
-			implode(', ', $sets),
-			$id
-		);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
-	}
 };
 
 /**
@@ -3076,8 +2963,8 @@ class DAO_Mail {
 		$db = DevblocksPlatform::getDatabaseService();
 		$newId = $db->GenID('generic_seq');
 		
-		$sql = sprintf("INSERT INTO pop3_account (id, nickname, host, username, password) ".
-			"VALUES (%d,%s,%s,%s,%s)",
+		$sql = sprintf("INSERT INTO pop3_account (id, enabled, nickname, host, username, password) ".
+			"VALUES (%d,1,%s,%s,%s,%s)",
 			$newId,
 			$db->qstr($nickname),
 			$db->qstr($host),
@@ -3094,7 +2981,7 @@ class DAO_Mail {
 		$db = DevblocksPlatform::getDatabaseService();
 		$pop3accounts = array();
 		
-		$sql = "SELECT id, nickname, protocol, host, username, password, port ".
+		$sql = "SELECT id, enabled, nickname, protocol, host, username, password, port ".
 			"FROM pop3_account ".
 			((!empty($ids) ? sprintf("WHERE id IN (%s)", implode(',', $ids)) : " ").
 			"ORDER BY nickname "
@@ -3104,6 +2991,7 @@ class DAO_Mail {
 		while(!$rs->EOF) {
 			$pop3 = new CerberusPop3Account();
 			$pop3->id = intval($rs->fields['id']);
+			$pop3->enabled = intval($rs->fields['enabled']);
 			$pop3->nickname = $rs->fields['nickname'];
 			$pop3->protocol = $rs->fields['protocol'];
 			$pop3->host = $rs->fields['host'];

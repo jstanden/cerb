@@ -421,6 +421,7 @@ class Model_CerberusTaskOwners {
 
 class CerberusPop3Account {
 	public $id;
+	public $enabled=1;
 	public $nickname;
 	public $protocol='pop3';
 	public $host;
@@ -442,23 +443,6 @@ class CerberusPop3Account {
 //	public $tag_id;
 //	public $term;
 //};
-
-class CerberusMailRule {
-	public $id;
-	public $criteria;
-	public $sequence;
-	public $strictness;
-	
-	function CerberusMailRule() {}
-};
-
-class CerberusMailRuleCriterion {
-	public $field;
-	public $operator;
-	public $value;
-	
-	function CerberusMailRuleCriterion() {}
-};
 
 class CerberusKbCategory {
 	public $id;

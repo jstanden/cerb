@@ -21,7 +21,8 @@ class DAO_CommunityTool extends DevblocksORMHelper {
 		
 		return $id;
 	}
-	
+
+	// [TODO] APIize?
 	private static function _generateUniqueCode($length=8) {
 	    $db = DevblocksPlatform::getDatabaseService();
 	    

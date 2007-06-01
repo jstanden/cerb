@@ -1,5 +1,6 @@
 <?php
 define("APP_BUILD", 150);
+define("APP_MAIL_PATH", realpath(APP_PATH . '/storage/mail/new') . DIRECTORY_SEPARATOR);
 
 include_once(APP_PATH . "/api/ClassLoader.php");
 include_once(APP_PATH . "/api/DAO.class.php");
@@ -307,10 +308,4 @@ class CerberusSettings {
 	}
 };
 
-// [JAS]: [TODO] This probably isn't needed
-class ToCriterion implements ICerberusCriterion {
-	function getValue($rfcMessage) {
-		return $rfcMessage->headers['to'];
-	}
-};
 ?>

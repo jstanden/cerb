@@ -331,11 +331,11 @@
 		<!-- Cron Extensions -->
 		
 		<extension point="cerberusweb.cron">
-			<id>cron.pop3</id>
-			<name>Default POP3 Module</name>
+			<id>cron.parser</id>
+			<name>Inbound E-Mail Parser</name>
 			<class>
 				<file>cron.classes.php</file>
-				<name>Pop3Cron</name>
+				<name>ParseCron</name>
 			</class>
 			<params>
 			</params>

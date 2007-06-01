@@ -162,12 +162,12 @@ class ChCorePatchContainer extends DevblocksPatchContainerExtension {
 			bitflags I2 DEFAULT 0
 		";
 		
-		$tables['mail_rule'] = "
-			id I4 DEFAULT 0 NOTNULL PRIMARY,
-			criteria B DEFAULT '' NOTNULL,
-			sequence C(4) DEFAULT '',
-			strictness C(4) DEFAULT ''
-		";
+//		$tables['mail_rule'] = "
+//			id I4 DEFAULT 0 NOTNULL PRIMARY,
+//			criteria B DEFAULT '' NOTNULL,
+//			sequence C(4) DEFAULT '',
+//			strictness C(4) DEFAULT ''
+//		";
 		
 		$tables['mail_routing'] = "
 			id I4 DEFAULT 0 NOTNULL PRIMARY,
@@ -198,6 +198,7 @@ class ChCorePatchContainer extends DevblocksPatchContainerExtension {
 		
 		$tables['pop3_account'] = "
 			id I4 DEFAULT 0 NOTNULL PRIMARY,
+			enabled I1 DEFAULT 1 NOTNULL,
 			nickname C(128) DEFAULT '' NOTNULL,
 			protocol C(32) DEFAULT 'pop3' NOTNULL,
 			host C(128) DEFAULT '' NOTNULL,
