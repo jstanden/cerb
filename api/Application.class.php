@@ -1,5 +1,5 @@
 <?php
-define("APP_BUILD", 150);
+define("APP_BUILD", 155);
 define("APP_MAIL_PATH", realpath(APP_PATH . '/storage/mail/new') . DIRECTORY_SEPARATOR);
 
 include_once(APP_PATH . "/api/ClassLoader.php");
