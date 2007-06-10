@@ -610,6 +610,10 @@ switch($step) {
 					// Create a default dashboard for each worker
 					$dashboard_id = DAO_Dashboard::createDashboard("Dashboard", $worker_id);
 					
+					/*
+					// [TODO] Replace these with buttons for delete/spam functionality from config
+					//  move to categories, etc.					
+
 					// Trash Action
 					$fields = array(
 						DAO_DashboardViewAction::$FIELD_NAME => 'Trash',
@@ -631,6 +635,8 @@ switch($step) {
 						))
 					);
 					$spam_action_id = DAO_DashboardViewAction::create($fields);
+
+					*/
 				}
 				
 				// Team Details

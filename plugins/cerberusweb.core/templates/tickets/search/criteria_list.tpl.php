@@ -34,7 +34,7 @@
 							{$translate->_('ticket.mask')|capitalize} 
 							{$param->operator} 
 							<b>{$param->value}</b>
-						{elseif $param->field=="t_status"}
+						{elseif $param->field=="t_is_closed"}
 							<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/data_find.gif{/devblocks_url}" align="absmiddle"> 
 							{$translate->_('ticket.status')|capitalize} 
 							{$param->operator}

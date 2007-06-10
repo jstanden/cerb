@@ -1,16 +1,20 @@
 <div id="tourDisplayConversation"></div>
-<h1 class="subtitle" style="color: rgb(102,102,102);">Ticket Conversation</h1>
+<!-- <h2>Ticket Conversation</h2> -->
 {if !empty($ticket)}
 {foreach from=$ticket->getMessages() item=message name=messages}
 {if $smarty.foreach.messages.last}<a name="latest"></a>{/if}
-<table style="text-align: left; width: 100%;" class="displayConversationTable" border="0" cellpadding="2" cellspacing="0">
+<!-- class="displayConversationTable" -->
+<div class="block" id="{$ticket->id}t">
+<table style="text-align: left; width: 100%;" border="0" cellpadding="2" cellspacing="0">
   <tbody>
     <tr>
       <td>
-      {if isset($message->headers.from)}<b>From:</b> {$message->headers.from|escape:"htmlall"|nl2br}<br>{/if}
+      {if isset($message->headers.from)}<h3>From: {$message->headers.from|escape:"htmlall"|nl2br}</h3>{/if}
       {if isset($message->headers.to)}<b>To:</b> {$message->headers.to|escape:"htmlall"|nl2br}<br>{/if}
       {if isset($message->headers.subject)}<b>Subject:</b> {$message->headers.subject|escape:"htmlall"|nl2br}<br>{/if}
       {if isset($message->headers.date)}<b>Date:</b> {$message->headers.date|escape:"htmlall"|nl2br}<br>{/if}
+      
+      <a href="#{$ticket->id}b">jump to response options</a><br>
 
       {* // [TODO] Move this to an Ajax packet for full headers 
       	{if is_array($message->headers)}
@@ -28,25 +32,33 @@
       	*}
       
       	<br>
-      	{$message->getContent()|trim|escape:"htmlall"|nl2br}
+      	{$message->getContent()|trim|escape:"htmlall"|nl2br}<br>
       	<br>
-      	[ <a href="javascript:;" onclick="ajax.reply('{$message->id}');">Reply</a> ] 
-      	[ <a href="javascript:;" onclick="ajax.forward('{$message->id}');">Forward</a> ] 
-      	[ <a href="javascript:;" onclick="ajax.comment('{$message->id}');">Comment</a> ] 
-      	[ <a href="#">More Options...</a> ] 
+      	[ <a href="javascript:;" onclick="displayAjax.reply('{$message->id}');" style="color: rgb(0, 102, 255);font-weight:bold;">Reply</a> ] 
+      	[ <a href="javascript:;" onclick="displayAjax.forward('{$message->id}');" style="color: rgb(0, 102, 255);font-weight:bold;">Forward</a> ] 
+      	[ <a href="javascript:;" onclick="displayAjax.comment('{$message->id}');" style="color: rgb(0, 102, 255);font-weight:bold;">Comment</a> ]
+      	[ <a href="javascript:;" onclick="displayAjax.change('{$message->id}');" style="color: rgb(0, 102, 255);font-weight:bold;">Change</a> ]
+      	[ <a href="#{$ticket->id}t">top of message</a> ] 
+      	<!-- [ <a href="#">More Options...</a> ] --> 
       	<br>
+      	
       	{assign var=attachments value=$message->getAttachments()}
       	{if !empty($attachments)}
-      	<b>Attachments: </b>
+      	<br>
+      	<b>Attachments:</b><br>
+      	<ul style="margin-top:0px;margin-bottom:5px;">
       		{foreach from=$attachments item=attachment name=attachments}
-				<a href="{devblocks_url}c=files&p={$attachment->filepath}&name={$attachment->display_name}{/devblocks_url}">{$attachment->display_name}</a>
-				{if !$smarty.foreach.requesters.last}, {/if}
+				<li><a href="{devblocks_url}c=files&p={$attachment->filepath}&name={$attachment->display_name}{/devblocks_url}">{$attachment->display_name}</a></li>
+				<!-- {if !$smarty.foreach.requesters.last}, {/if}-->
 			{/foreach}<br>
-			{/if}
+		</ul>
+		{/if}
       </td>
     </tr>
   </tbody>
 </table>
+</div>
+<div id="{$ticket->id}b"></div>
 <form id="reply{$message->id}" action="{devblocks_url}{/devblocks_url}" method="POST" enctype="multipart/form-data"></form>
 {if !$smarty.foreach.messages.last}<br>{/if}
 {/foreach}

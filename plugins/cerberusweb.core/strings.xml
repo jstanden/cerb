@@ -300,19 +300,9 @@
 				<seg>Open</seg>
 			</tuv>
 		</tu>
-		<tu tuid='status.waiting'>
-			<tuv xml:lang="en">
-				<seg>Waiting For Reply</seg>
-			</tuv>
-		</tu>
 		<tu tuid='status.closed'>
 			<tuv xml:lang="en">
 				<seg>Closed</seg>
-			</tuv>
-		</tu>
-		<tu tuid='status.deleted'>
-			<tuv xml:lang="en">
-				<seg>Deleted</seg>
 			</tuv>
 		</tu>
 
@@ -394,7 +384,7 @@
 			<tuv xml:lang="en"><seg>Priority</seg></tuv>
 		</tu>
 		<tu tuid='ticket.spam_score'>
-			<tuv xml:lang="en"><seg>Spam Score</seg></tuv>
+			<tuv xml:lang="en"><seg>Spam Training</seg></tuv>
 		</tu>
 		<tu tuid='ticket.status'>
 			<tuv xml:lang="en">

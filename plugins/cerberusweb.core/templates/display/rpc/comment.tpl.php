@@ -40,10 +40,7 @@
 						<label><input type="radio" name="priority" value="75" {if $ticket->priority==75}checked{/if}><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/star_red.gif{/devblocks_url}"></label>
 						<br>
 						Set status: 
-						<label><input type="radio" name="status" value="O" {if $ticket->status=='O'}checked{/if}>open</label>
-						<label><input type="radio" name="status" value="W" {if $ticket->status=='W'}checked{/if}>waiting for reply</label>
-						<label><input type="radio" name="status" value="C" {if $ticket->status=='C'}checked{/if}>closed</label>
-						<label><input type="radio" name="status" value="D" {if $ticket->status=='D'}checked{/if}>deleted</label>
+						<label><input type="checkbox" name="closed" value="1" {if $ticket->is_closed}checked{/if}>closed</label>
 						<br>
 					</td>
 				</tr>
@@ -53,7 +50,7 @@
 	<tr>
 		<td>
 			<input type="submit" value="Save Comment">
-			<input type="button" value="Discard" onclick="ajax.discard('{$message->id}');">
+			<input type="button" value="Discard" onclick="clearDiv('reply{$message->id}');">
 		</td>
 	</tr>
 </table>

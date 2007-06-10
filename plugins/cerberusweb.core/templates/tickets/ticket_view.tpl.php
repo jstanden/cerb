@@ -3,6 +3,7 @@
 		<td nowrap="nowrap" class="tableThBlue">{$view->name}</td>
 		<td nowrap="nowrap" class="tableThBlue" align="right">
 			<a href="javascript:;" onclick="ajax.getRefresh('{$view->id}');" class="tableThLink">{$translate->_('common.refresh')|lower}</a><span style="font-size:12px"> | </span>
+			<!-- <a href="javascript:;" onclick="" class="tableThLink">read all</a><span style="font-size:12px"> | </span> -->
 			{if $view->id != 'search'}<a href="{devblocks_url}c=tickets&a=searchview&id={$view->id}{/devblocks_url}" class="tableThLink">{$translate->_('common.search')|lower}</a><span style="font-size:12px"> | </span>{/if}
 			<a href="javascript:;" onclick="ajax.getCustomize('{$view->id}');" class="tableThLink">{$translate->_('common.customize')|lower}</a>
 		</td>
@@ -10,8 +11,10 @@
 </table>
 <form id="customize{$view->id}" action="#" onsubmit="return false;" style="display:none;"></form>
 <form id="viewForm{$view->id}" name="viewForm{$view->id}">
+<!-- 
 <input type="hidden" name="c" value="tickets">
 <input type="hidden" name="a" value="runAction">
+ -->
 <input type="hidden" name="id" value="{$view->id}">
 <table cellpadding="0" cellspacing="0" border="0" width="100%" class="tableRowBg">
 
@@ -21,8 +24,6 @@
 		{foreach from=$view->view_columns item=header name=headers}
 			{if $header=="t_mask"}
 			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_mask');">{$translate->_('ticket.id')}</a></th>
-			{elseif $header=="t_status"}
-			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_status');">{$translate->_('ticket.status')}</a></th>
 			{elseif $header=="t_priority"}
 			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_priority');">{$translate->_('ticket.priority')}</a></th>
 			{elseif $header=="t_last_wrote"}
@@ -54,26 +55,22 @@
 	{assign var=total value=$results[1]}
 	{assign var=tickets value=$results[0]}
 	{foreach from=$tickets item=result key=idx name=results}
-		<tr class="{if $smarty.foreach.results.iteration % 2}tableRowBg{else}tableRowAltBg{/if}">
+
+	{assign var=rowIdPrefix value="row_"|cat:$view->id|cat:"_"|cat:$result.t_id}
+	{if $smarty.foreach.results.iteration % 2}
+		{assign var=tableRowBg value="tableRowBg"}
+	{else}
+		{assign var=tableRowBg value="tableRowAltBg"}
+	{/if}
+	
+		<tr class="{$tableRowBg}" id="{$rowIdPrefix}_s" onmouseover="toggleClass(this.id,'tableRowHover');toggleClass('{$rowIdPrefix}','tableRowHover');" onmouseout="toggleClass(this.id,'{$tableRowBg}');toggleClass('{$rowIdPrefix}','{$tableRowBg}');" onclick="if(getEventTarget(event)=='TD') checkAll('{$rowIdPrefix}_s');">
 			<td align="center" rowspan="2"><input type="checkbox" name="ticket_id[]" value="{$result.t_id}"></td>
-			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}"><a href="{devblocks_url}c=display&id={$result.t_mask}{/devblocks_url}" class="ticketLink" style="font-size:12px;"><b id="subject_{$result.t_id}_{$view->id}">{$result.t_subject}</b></a> <a href="javascript:;" onclick="ajax.scheduleTicketPreview('{$result.t_id}',this);" title="Preview">&raquo;</a></td>
+			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}"><a href="{devblocks_url}c=display&id={$result.t_mask}{/devblocks_url}" class="ticketLink" style="font-size:12px;"><b id="subject_{$result.t_id}_{$view->id}">{if $result.t_is_closed}<strike>{$result.t_subject}</strike>{else}{$result.t_subject}{/if}</b></a> <a href="javascript:;" onclick="ajax.scheduleTicketPreview('{$result.t_id}',this);" title="Preview">&raquo;</a></td>
 		</tr>
-		<tr class="{if $smarty.foreach.results.iteration % 2}tableRowBg{else}tableRowAltBg{/if}">
+		<tr class="{$tableRowBg}" id="{$rowIdPrefix}" onmouseover="toggleClass(this.id,'tableRowHover');toggleClass('{$rowIdPrefix}_s','tableRowHover');" onmouseout="toggleClass(this.id,'{$tableRowBg}');toggleClass('{$rowIdPrefix}_s','{$tableRowBg}');" onclick="if(getEventTarget(event)=='TD') checkAll('{$rowIdPrefix}_s');">
 		{foreach from=$view->view_columns item=column name=columns}
 			{if $column=="t_mask"}
 			<td><a href="{devblocks_url}c=display&id={$result.t_mask}{/devblocks_url}">{$result.t_mask}</a></td>
-			{elseif $column=="t_status"}
-			<td>
-				{if $result.t_status=='O'}
-					{$translate->_('status.open')|lower}
-				{elseif $result.t_status=='W'}
-					{$translate->_('status.waiting')|lower}
-				{elseif $result.t_status=='C'}
-					{$translate->_('status.closed')|lower}
-				{elseif $result.t_status=='D'}
-					{$translate->_('status.deleted')|lower}
-				{/if}
-			</td>
 			{elseif $column=="t_priority"}
 			<td>
 				{if $result.t_priority >= 75}
@@ -103,7 +100,14 @@
 			{elseif $column=="cat_name"}
 			<td>{$result.cat_name}</td>
 			{elseif $column=="t_spam_score"}
-			<td>{math equation="x*100" format="%0.2f" x=$result.t_spam_score}%</td>
+			<td>
+				{math assign=score equation="x*100" format="%0.2f%%" x=$result.t_spam_score}
+				{if empty($result.t_spam_training)}
+				<!---<a href="javascript:;"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/warning.gif{/devblocks_url}" align="top" border="0" title="Not Spam ({$score})"></a>--->
+				<!---<a href="javascript:;"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check_gray.gif{/devblocks_url}" align="top" border="0" title="Not Spam ({$score})"></a>--->
+				<a href="javascript:;" onclick="toggleDiv('{$rowIdPrefix}_s','none');toggleDiv('{$rowIdPrefix}','none');genericAjaxGet(null,'c=tickets&a=reportSpam&id={$result.t_id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/{if $result.t_spam_score >= .80}warning.gif{else}warning_gray.gif{/if}{/devblocks_url}" align="top" border="0" title="Report Spam ({$score})"></a>
+				{/if}
+			</td>
 			{/if}
 		{/foreach}
 		</tr>
@@ -114,6 +118,7 @@
 	<tr>
 		<td>
 		    {if $first_view}<div id="tourDashboardShortcuts"></div>{/if}
+		    <!-- 
 			<select name="action_id" onchange="toggleDiv('action{$view->id}',(this.selectedIndex>0)?'inline':'none');">
 				<option value="">-- perform shortcut --</option>
 				<optgroup label="Shared Shortcuts" style="color:rgb(0,180,0);">
@@ -126,9 +131,31 @@
 				<input type="button" value="Apply" onclick="ajax.viewRunAction('{$view->id}');">
 				<a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showViewActions&id='+selectValue(document.getElementById('viewForm{$view->id}').action_id)+'&view_id={$view->id}',this,true,'500px');">edit shortcut</a> | 
 			</span>
-			<a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showBatchPanel&view_id={$view->id}',this,true,'500px');">{if $first_view}<span id="tourDashboardBatch">bulk update</span>{else}bulk update{/if}</a> 
-			|
-			<a href="javascript:;" onclick="ajax.showCategorizePanel('{$view->id}');">set category</a>
+			 -->
+			
+			<span id="tourDashboardBatch"><button type="button" onclick="ajax.showBatchPanel('{$view->id}');">bulk update</button></span> <!-- genericAjaxPanel('c=tickets&a=showBatchPanel&view_id={$view->id}',this,true,'500px'); -->
+			<!-- <button type="button" onclick="ajax.showCategorizePanel('{$view->id}');">move</button>  -->
+			<button type="button" onclick="ajax.viewCloseTickets('{$view->id}',0);">close</button>
+			<button type="button" onclick="ajax.viewCloseTickets('{$view->id}',1);">report spam</button>
+			<button type="button" onclick="ajax.viewCloseTickets('{$view->id}',2);">delete</button>
+			
+			<select name="move_to" onchange="ajax.viewMoveTickets('{$view->id}',this.form.move_to[this.selectedIndex].value);">
+				<option value="">-- move to --</option>
+				<optgroup label="Team (Inbox)">
+					{foreach from=$teams item=team}
+						<option value="t{$team->id}">{$team->name}</option>
+					{/foreach}
+					</optgroup>
+					{foreach from=$team_categories item=categories key=teamId}
+						{assign var=team value=$teams.$teamId}
+						<optgroup label="{$team->name}">
+						{foreach from=$categories item=category}
+					<option value="c{$category->id}">{$category->name}</option>
+				{/foreach}
+				</optgroup>
+				{/foreach}
+			</select>
+			
 		</td>
 	</tr>
 	<tr>

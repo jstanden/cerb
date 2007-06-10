@@ -19,7 +19,8 @@ class UmForumsApp extends Extension_UsermeetTool {
 		$stack = $response->path;
 		
 		// Usermeet Session
-		@$fingerprint = unserialize($_COOKIE['GroupLoginPassport']);
+	    $cookie = get_magic_quotes_gpc() ? stripslashes($_COOKIE['GroupLoginPassport']) : $_COOKIE['GroupLoginPassport'];
+	    @$fingerprint = unserialize($cookie);
 		if(empty($fingerprint)) die("..."); // [TODO] Fix
         $tpl->assign('fingerprint', $fingerprint);
         

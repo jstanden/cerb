@@ -806,7 +806,8 @@ class DAO_Ticket extends DevblocksORMHelper {
 	const ID = 'id';
 	const MASK = 'mask';
 	const SUBJECT = 'subject';
-	const STATUS = 'status';
+	const IS_CLOSED = 'is_closed';
+	const IS_DELETED = 'is_deleted';
 	const TEAM_ID = 'team_id';
 	const CATEGORY_ID = 'category_id';
 	const LAST_WROTE_ID = 'last_wrote_address_id';
@@ -920,11 +921,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 	/**
 	 * creates a new ticket object in the database
 	 *
-	 * @param string $mask
-	 * @param string $subject
-	 * @param string $status
-	 * @param string $last_wrote
-	 * @param integer $created_date
+	 * @param array $fields
 	 * @return integer
 	 * 
 	 * [TODO]: Change $last_wrote argument to an ID rather than string?
@@ -933,8 +930,8 @@ class DAO_Ticket extends DevblocksORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$newId = $db->GenID('ticket_seq');
 		
-		$sql = sprintf("INSERT INTO ticket (id, mask, subject, status, last_wrote_address_id, first_wrote_address_id, created_date, updated_date, due_date, priority, team_id, category_id) ".
-			"VALUES (%d,'','','O',0,0,%d,%d,0,0,0,0)",
+		$sql = sprintf("INSERT INTO ticket (id, mask, subject, last_wrote_address_id, first_wrote_address_id, created_date, updated_date, due_date, priority, team_id, category_id) ".
+			"VALUES (%d,'','',0,0,%d,%d,0,0,0,0)",
 			$newId,
 			time(),
 			time()
@@ -1068,7 +1065,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 		
 		$tickets = array();
 		
-		$sql = "SELECT t.id , t.mask, t.subject, t.status, t.priority, t.team_id, t.category_id, ".
+		$sql = "SELECT t.id , t.mask, t.subject, t.is_closed, t.is_deleted, t.priority, t.team_id, t.category_id, ".
 			"t.first_wrote_address_id, t.last_wrote_address_id, t.created_date, t.updated_date, t.due_date, t.spam_training, t.spam_score ".
 			"FROM ticket t ".
 			(!empty($ids) ? sprintf("WHERE t.id IN (%s) ",implode(',',$ids)) : " ").
@@ -1083,7 +1080,8 @@ class DAO_Ticket extends DevblocksORMHelper {
 			$ticket->subject = $rs->fields['subject'];
 			$ticket->team_id = intval($rs->fields['team_id']);
 			$ticket->category_id = intval($rs->fields['category_id']);
-			$ticket->status = $rs->fields['status'];
+			$ticket->is_closed = intval($rs->fields['is_closed']);
+			$ticket->is_deleted = intval($rs->fields['is_deleted']);
 			$ticket->priority = intval($rs->fields['priority']);
 			$ticket->last_wrote_address_id = intval($rs->fields['last_wrote_address_id']);
 			$ticket->first_wrote_address_id = intval($rs->fields['first_wrote_address_id']);
@@ -1278,13 +1276,15 @@ class DAO_Ticket extends DevblocksORMHelper {
 			"t.id as %s, ".
 			"t.mask as %s, ".
 			"t.subject as %s, ".
-			"t.status as %s, ".
+			"t.is_closed as %s, ".
+			"t.is_deleted as %s, ".
 			"t.priority as %s, ".
 			"a1.email as %s, ".
 			"a2.email as %s, ".
 			"t.created_date as %s, ".
 			"t.updated_date as %s, ".
 			"t.due_date as %s, ".
+			"t.spam_training as %s, ".
 			"t.spam_score as %s, ".
 			"t.num_tasks as %s, ".
 			"tm.id as %s, ".
@@ -1299,13 +1299,15 @@ class DAO_Ticket extends DevblocksORMHelper {
 			    SearchFields_Ticket::TICKET_ID,
 			    SearchFields_Ticket::TICKET_MASK,
 			    SearchFields_Ticket::TICKET_SUBJECT,
-			    SearchFields_Ticket::TICKET_STATUS,
+			    SearchFields_Ticket::TICKET_CLOSED,
+			    SearchFields_Ticket::TICKET_DELETED,
 			    SearchFields_Ticket::TICKET_PRIORITY,
 			    SearchFields_Ticket::TICKET_FIRST_WROTE,
 			    SearchFields_Ticket::TICKET_LAST_WROTE,
 			    SearchFields_Ticket::TICKET_CREATED_DATE,
 			    SearchFields_Ticket::TICKET_UPDATED_DATE,
 			    SearchFields_Ticket::TICKET_DUE_DATE,
+			    SearchFields_Ticket::TICKET_SPAM_TRAINING,
 			    SearchFields_Ticket::TICKET_SPAM_SCORE,
 			    SearchFields_Ticket::TICKET_TASKS,
 			    SearchFields_Ticket::TEAM_ID,
@@ -1352,7 +1354,8 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 	// Ticket
 	const TICKET_ID = 't_id';
 	const TICKET_MASK = 't_mask';
-	const TICKET_STATUS = 't_status';
+	const TICKET_CLOSED = 't_is_closed';
+	const TICKET_DELETED = 't_is_deleted';
 	const TICKET_PRIORITY = 't_priority';
 	const TICKET_SUBJECT = 't_subject';
 	const TICKET_LAST_WROTE = 't_last_wrote';
@@ -1361,6 +1364,7 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 	const TICKET_UPDATED_DATE = 't_updated_date';
 	const TICKET_DUE_DATE = 't_due_date';
 	const TICKET_SPAM_SCORE = 't_spam_score';
+	const TICKET_SPAM_TRAINING = 't_spam_training';
 	const TICKET_TASKS = 't_tasks';
 	const TICKET_CATEGORY_ID = 't_category_id';
 	
@@ -1395,7 +1399,8 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 	static function getFields() {
 		return array(
 			SearchFields_Ticket::TICKET_MASK => new DevblocksSearchField(SearchFields_Ticket::TICKET_MASK, 't', 'mask'),
-			SearchFields_Ticket::TICKET_STATUS => new DevblocksSearchField(SearchFields_Ticket::TICKET_STATUS, 't', 'status'),
+			SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchField(SearchFields_Ticket::TICKET_CLOSED, 't', 'is_closed'),
+			SearchFields_Ticket::TICKET_DELETED => new DevblocksSearchField(SearchFields_Ticket::TICKET_DELETED, 't', 'is_deleted'),
 			SearchFields_Ticket::TICKET_PRIORITY => new DevblocksSearchField(SearchFields_Ticket::TICKET_PRIORITY, 't', 'priority'),
 			SearchFields_Ticket::TICKET_SUBJECT => new DevblocksSearchField(SearchFields_Ticket::TICKET_SUBJECT, 't', 'subject'),
 			SearchFields_Ticket::TICKET_LAST_WROTE => new DevblocksSearchField(SearchFields_Ticket::TICKET_LAST_WROTE, 'a2', 'email'),
@@ -1403,6 +1408,7 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 			SearchFields_Ticket::TICKET_CREATED_DATE => new DevblocksSearchField(SearchFields_Ticket::TICKET_CREATED_DATE, 't', 'created_date'),
 			SearchFields_Ticket::TICKET_UPDATED_DATE => new DevblocksSearchField(SearchFields_Ticket::TICKET_FIRST_WROTE, 't', 'updated_date'),
 			SearchFields_Ticket::TICKET_DUE_DATE => new DevblocksSearchField(SearchFields_Ticket::TICKET_DUE_DATE, 't', 'due_date'),
+			SearchFields_Ticket::TICKET_SPAM_TRAINING => new DevblocksSearchField(SearchFields_Ticket::TICKET_SPAM_TRAINING, 't', 'spam_training'),
 			SearchFields_Ticket::TICKET_SPAM_SCORE => new DevblocksSearchField(SearchFields_Ticket::TICKET_SPAM_SCORE, 't', 'spam_score'),
 			SearchFields_Ticket::TICKET_TASKS => new DevblocksSearchField(SearchFields_Ticket::TICKET_TASKS, 't', 'num_tasks'),
 			SearchFields_Ticket::TICKET_CATEGORY_ID => new DevblocksSearchField(SearchFields_Ticket::TICKET_CATEGORY_ID, 't', 'category_id'),
@@ -2147,7 +2153,7 @@ class DAO_Workflow {
 			$sql = sprintf("SELECT count(*) as hits, t.team_id ".
 			    "FROM ticket t ".
 			    "WHERE t.team_id IN (%s) ".
-			    "AND t.status = 'O' ".
+			    "AND t.is_closed = 0 ".
 			    "GROUP BY t.team_id ",
 			    implode(',', $ids)
 			);
@@ -2171,11 +2177,9 @@ class DAO_Workflow {
 			$sql = sprintf("SELECT count(*) as hits, tko.owner_id as team_id ".
 			    "FROM task tk ".
 			    "INNER JOIN task_owner tko ON (tk.id=tko.task_id) ".
-	//		    "INNER JOIN ticket t ON (t.id=tk.ticket_id) ".
 			    "WHERE tko.owner_id IN (%s) ".
 			    "AND tko.owner_type = 'T' ".
 			    "AND tk.is_completed = 0 ".
-	//		    "AND t.status = 'O' ".
 			    "GROUP BY tko.owner_id ",
 			    implode(',', $ids)
 			);
@@ -2199,7 +2203,7 @@ class DAO_Workflow {
 			$sql = sprintf("SELECT count(*) as hits, t.team_id ".
 			    "FROM ticket t ".
 			    "WHERE t.team_id IN (%s) ".
-			    "AND t.status = 'O' ".
+			    "AND t.is_closed = 0 ".
 			    "AND t.num_tasks = 0 ".
 			    "GROUP BY t.team_id ",
 			    implode(',', $ids)
@@ -2795,7 +2799,7 @@ class DAO_Category extends DevblocksORMHelper {
 		$sql = sprintf("SELECT count(*) as hits, t.category_id, t.team_id ".
 		    "FROM ticket t ".
 		    "WHERE t.category_id IN (%s) ".
-		    "AND t.status = 'O' ".
+		    "AND t.is_closed = 0 ".
 		    "GROUP BY t.category_id, t.team_id ",
 		    implode(',', $ids)
 		);

@@ -3,10 +3,11 @@
 <input type="hidden" name="a" value="saveRequester">
 <input type="hidden" name="id" value="{$ticket->id}">
 
-<table class="tableBlue" border="0" cellpadding="2" cellspacing="0" width="100%">
+<div class="block">
+<table border="0" cellpadding="2" cellspacing="0" width="100%">
   <tbody>
     <tr>
-      <td colspan="2" class="tableThBlue" nowrap="nowrap"> <img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/mail2.gif{/devblocks_url}"> Requesters </td>
+      <td colspan="2" nowrap="nowrap"><h2>Requesters</h2><!-- <img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/mail2.gif{/devblocks_url}"> --></td>
     </tr>
     {assign var=requesters value=$ticket->getRequesters()}
     {foreach from=$requesters item=requester name=requesters}
@@ -30,3 +31,4 @@
     </tr>
   </tbody>
 </table>
+</div>

@@ -26,8 +26,13 @@ class CerberusParser {
 		$sReplyTo = @$headers['reply-to'];
 		$sFrom = @$headers['from'];
 		$sTo = @$headers['to'];
-		$sMask = CerberusApplication::generateTicketMask();
 		$bIsNew = true;
+
+		// Overloadable
+		$sMask = '';
+		$iClosed = 0;
+		$enumSpamTraining = '';
+		$iDate = time();
 		
 		$from = array();
 		$to = array();
@@ -74,21 +79,62 @@ class CerberusParser {
 		
 		// [JAS] [TODO] References header may contain multiple message-ids to find
 //		if(!empty($sReferences) || !empty($sInReplyTo)) {
-		if(!empty($sInReplyTo)) {
+		if(!APP_PARSER_ALLOW_IMPORTS && !empty($sInReplyTo)) {
 //			$findMessageId = (!empty($sInReplyTo)) ? $sInReplyTo : $sReferences;
 			$findMessageId = $sInReplyTo;
 			$id = DAO_Ticket::getTicketByMessageId($findMessageId);
 			$bIsNew = false;
 		}
+
+		// Are we importing a ticket?
+        if(APP_PARSER_ALLOW_IMPORTS) {
+            $importNew = @$headers['x-cerberusnew'];
+            $importAppend = @$headers['x-cerberusappendto'];
+            
+            if(!empty($importNew)) {
+                $importMask = @$headers['x-cerberusmask'];
+                $importStatus = @$headers['x-cerberusstatus'];
+                $importCreatedDate = @$headers['x-cerberuscreateddate'];
+                $importSpamTraining = @$headers['x-cerberusspamtraining'];
+                
+                switch($importStatus) {
+                    case 'C':
+                        $iClosed = CerberusTicketStatus::CLOSED;
+                        break;
+                    default:
+                        $iClosed = CerberusTicketStatus::OPEN;
+                        break;
+                }
+                
+                // [TODO] Need to check that this is unique in the local desk
+                if(!empty($importMask))
+                    $sMask = $importMask;
+                
+                if(!empty($importCreatedDate))
+                    $iDate = $importCreatedDate;
+                    
+                if(!empty($importSpamTraining))
+                    $enumSpamTraining = $importSpamTraining;
+                    
+                // [TODO] Mailbox ID/Name mapping to Teams/Categories
+            }
+            
+            if(!empty($importAppend)) {
+                $appendTo = DAO_Ticket::getTicketByMask($importAppend);
+                $id = $appendTo->id;
+                if(!empty($id)) $bIsNew = false;
+//                echo "IMPORT DETECTED: Appending to existing ",$importAppend," (",$id,")<br>";
+            }
+        }
 		
 		if(empty($id)) {
 			$team_id = CerberusParser::parseDestination($headers);
 //			$wrote_id = DAO_Contact::lookupAddress($fromAddress, true);
 			
 			$fields = array(
-				DAO_Ticket::MASK => $sMask,
+				DAO_Ticket::MASK => (!empty($sMask) ? $sMask : CerberusApplication::generateTicketMask()),
 				DAO_Ticket::SUBJECT => $sSubject,
-				DAO_Ticket::STATUS => CerberusTicketStatus::OPEN,
+				DAO_Ticket::IS_CLOSED => $iClosed,
 				DAO_Ticket::FIRST_WROTE_ID => intval($fromAddressId),
 				DAO_Ticket::LAST_WROTE_ID => intval($fromAddressId),
 				DAO_Ticket::CREATED_DATE => $iDate,
@@ -132,7 +178,18 @@ class CerberusParser {
 		}
 
 		// Spam scoring
-		if($bIsNew) CerberusBayes::calculateTicketSpamProbability($id);
+		if($bIsNew) {
+    		// Allow spam training overloading
+		    if(!empty($enumSpamTraining)) {
+			    if($enumSpamTraining == CerberusTicketSpamTraining::SPAM) {
+	                CerberusBayes::markTicketAsSpam($id);		        
+			    } elseif($enumSpamTraining == CerberusTicketSpamTraining::NOT_SPAM) {
+		            CerberusBayes::markTicketAsNotSpam($id);
+		        }
+			} else { // No overload
+			    CerberusBayes::calculateTicketSpamProbability($id);
+			}
+		}
 		
 		$ticket = DAO_Ticket::getTicket($id);
 		return $ticket;

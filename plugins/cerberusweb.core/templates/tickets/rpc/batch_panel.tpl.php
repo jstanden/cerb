@@ -7,37 +7,81 @@
 </table>
 
 <form action="{devblocks_url}{/devblocks_url}" method="POST" id="formBatchUpdate" name="formBatchUpdate">
-<input type="hidden" name="action_id" value="{$id}">
-<input type="hidden" name="view_id" value="{$view_id}">
+<!-- <input type="hidden" name="action_id" value="{$id}"> -->
 <input type="hidden" name="c" value="tickets">
 <input type="hidden" name="a" value="doBatchUpdate">
-<div style="height:300px;overflow:auto;border:1px solid rgb(180,180,180);margin:2px;padding:3px;">
+<input type="hidden" name="view_id" value="{$view_id}">
+<div style="height:400px;overflow:auto;border:1px solid rgb(180,180,180);margin:2px;padding:3px;background-color:rgb(255,255,255);">
 
-<h2>With selected tickets:</h2>
+<h2>With:</h2>
+
+<label><input type="radio" name="filter" value="" onclick="toggleDiv('categoryFilterPanelSender','none');toggleDiv('categoryFilterPanelSubject','none');" checked> Selected</label> 
+<label><input type="radio" name="filter" value="sender" onclick="toggleDiv('categoryFilterPanelSender','block');toggleDiv('categoryFilterPanelSubject','none');"> Similar senders</label>
+<label><input type="radio" name="filter" value="subject" onclick="toggleDiv('categoryFilterPanelSender','none');toggleDiv('categoryFilterPanelSubject','block');"> Similar subjects</label>
+<br>
+<br>
+
+<div style='display:none;' id='categoryFilterPanelSender'>
+<label><b>When sender matches:</b> (one per line, use * for wildcards)</label><br>
+<textarea rows='3' cols='45' style='width:95%' name='senders' wrap="off">{foreach from=$unique_senders key=sender item=total name=senders}{$sender}{if !$smarty.foreach.senders.last}{"\n"}{/if}{/foreach}</textarea><br>
+<br>
+</div>
+
+<div style='display:none;' id='categoryFilterPanelSubject'>
+<label><b>When subject matches:</b> (one per line, use * for wildcards)</label><br>
+<textarea rows='3' cols='45' style='width:95%' name='subjects' wrap="off">{foreach from=$unique_subjects key=subject item=total name=subjects}{$subject}{if !$smarty.foreach.subjects.last}{"\n"}{/if}{/foreach}</textarea><br>
+<br>
+</div>
+
+<!-- 
+<div style='display:none;' id='categoryFilterPanelFuture'>
+<label><input type="checkbox"> Apply this filter to all tickets in the current list</label><br>
+<label><input type="checkbox"> Always apply this filter in the future</label><br>
+<br>
+</div>
+-->
+
+<!-- 
+<h2>Move selected tickets to:</h2>
+
+<select name="team">
+	<optgroup label="Team (No Category)">
+		{foreach from=$teams item=team}
+			<option value="t{$team->id}">{$team->name}</option>
+		{/foreach}
+		</optgroup>
+		{foreach from=$team_categories item=categories key=teamId}
+			{assign var=team value=$teams.$teamId}
+			<optgroup label="{$team->name}">
+			{foreach from=$categories item=category}
+		<option value="c{$category->id}">{$category->name}</option>
+	{/foreach}
+	</optgroup>
+	{/foreach}
+</select><br>
+<br>
+ -->
+
+<!-- 
+<b>Do Shortcut:</b>
+<select name="action_id" onchange="toggleDiv('bulkUpdateCustom',(this.selectedIndex>0)?'none':'block');">
+	<option value="">-- no shortcut --</option>
+	<optgroup label="Shared Shortcuts" style="color:rgb(0,180,0);">
+	{foreach from=$viewActions item=action}
+	<option value="{$action->id}">{$action->name}</option>
+	{/foreach}
+	</optgroup>
+</select><br>
+ -->
+
+<div id="bulkUpdateCustom" style="display:block;">
+<H2>Do:</H2>
 <table cellspacing="0" cellpadding="2" width="100%">
 	<tr>
-		<td width="0%" nowrap="nowrap">Set status:</td>
-		<td width="100%"><select name="status">
-			<option value=""></option>
-			{foreach from=$statuses item=k key=v}
-			<option value="{$v}">{$k}</option>
-			{/foreach}
-		</select></td>
-	</tr>
-	<tr>
-		<td width="0%" nowrap="nowrap">Set priority:</td>
-		<td width="100%"><select name="priority">
-			<option value=""></option>
-			{foreach from=$priorities item=v key=k}
-			<option value="{$k}">{$v}</option>
-			{/foreach}
-		</select></td>
-	</tr>
-	<tr>
-		<td width="0%" nowrap="nowrap">Set owner:</td>
+		<td width="0%" nowrap="nowrap">Move to:</td>
 		<td width="100%"><select name="team">
 			<option value=""></option>
-      		<optgroup label="Team (No Category)">
+      		<optgroup label="Team (Inbox)">
       		{foreach from=$teams item=team}
       			<option value="t{$team->id}">{$team->name}</option>
       		{/foreach}
@@ -53,7 +97,25 @@
       	</select></td>
 	</tr>
 	<tr>
-		<td width="0%" nowrap="nowrap">Set training:</td>
+		<td width="0%" nowrap="nowrap">Status:</td>
+		<td width="100%"><select name="closed">
+			<option value=""></option>
+			{foreach from=$statuses item=k key=v}
+			<option value="{$v}">{$k}</option>
+			{/foreach}
+		</select></td>
+	</tr>
+	<tr>
+		<td width="0%" nowrap="nowrap">Priority:</td>
+		<td width="100%"><select name="priority">
+			<option value=""></option>
+			{foreach from=$priorities item=v key=k}
+			<option value="{$k}">{$v}</option>
+			{/foreach}
+		</select></td>
+	</tr>
+	<tr>
+		<td width="0%" nowrap="nowrap">Spam:</td>
 		<td width="100%"><select name="spam">
 			<option value=""></option>
 			{foreach from=$training item=k key=v}
@@ -63,15 +125,18 @@
 	</tr>
 </table>
 
+<!-- 
 <br>
-
 <H2>Save as shortcut?</H2>
 
 <b>Label:</b><br>
 <input type="text" name="shortcut_name" size="45" style='width:95%;'><br>
 <i>(leave blank to skip shortcut)</i><br>
 <br>
-
+ -->
+ 
+</div>
+ 
 </div>
 
 <input type="button" value="{$translate->_('common.save_changes')}" onclick="ajax.saveBatchPanel('{$view_id}');">

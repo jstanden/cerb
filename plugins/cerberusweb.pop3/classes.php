@@ -176,7 +176,7 @@ class Pop3Cron extends CerberusCronPageExtension {
 				DAO_Mail::deletePop3Account($id);
 				
 			} elseif(!empty($id)) {
-			    $enabled = is_numeric(array_search($id, $ar_enabled)) ? 1 : 0;
+			    $enabled = (is_array($ar_enabled) && is_numeric(array_search($id, $ar_enabled))) ? 1 : 0;
 			    
 			    // [JAS]: [TODO] convert to field constants
 				$fields = array(

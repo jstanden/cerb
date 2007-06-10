@@ -1,0 +1,57 @@
+<!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
+<plugin>
+	<id>cerberusweb.import</id>
+	<name>Cerberus Helpdesk Importer</name>
+	<description>Imports from various other applications</description>
+	<author>WebGroup Media, LLC.</author>
+	<revision>0</revision>
+	
+	<!-- 
+	<mapping>
+		<uri value="simulator" extension_id="core.page.simulator" />
+	</mapping>	
+	-->
+	
+	<extensions>
+	
+		<!-- Http Listeners -->
+		
+		<!-- 
+		<extension point="devblocks.listener.http">
+			<id>import.listeners.tour</id>
+			<name>Simulator Tour</name>
+			<class>
+				<file>listeners.classes.php</file>
+				<name>ChSimulatorTour</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		 -->
+	
+		<extension point="cerberusweb.cron">
+			<id>import.cron</id>
+			<name>Background Importer</name>
+			<class>
+				<file>classes.php</file>
+				<name>ChImportCron</name>
+			</class>
+			<params>
+			</params>
+		</extension>		
+		
+		<!-- Importers -->
+		
+		<extension point="cerberusweb.importer">
+			<id>importer.cerb350</id>
+			<name>Cerberus 3.5 Mail Importer</name>
+			<class>
+				<file>api/Cerb350Importer.php</file>
+				<name>ChCerb350Importer</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
+	</extensions>
+</plugin>

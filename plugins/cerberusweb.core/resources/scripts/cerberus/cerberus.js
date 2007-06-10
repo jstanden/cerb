@@ -108,6 +108,27 @@ var cAjaxCalls = function() {
 	}
 */
 
+	this.showBatchPanel = function(view_id) {
+		var viewForm = document.getElementById('viewForm'+view_id);
+		if(null == viewForm) return;
+		var elements = viewForm.elements['ticket_id[]'];
+		if(null == elements) return;
+		var len = elements.length;
+
+		var ids = new Array();
+		
+		for(var x=len-1;x>=0;x--) {
+			if(elements[x].checked) {
+				//frm.appendChild(elements[x]);
+				ids[ids.length] = elements[x].value;
+			}
+		}
+	
+		var ticket_ids = ids.join(','); // [TODO] Encode?
+	
+		genericAjaxPanel('c=tickets&a=showBatchPanel&view_id=' + view_id + '&ids=' + ticket_ids,null,true,'500px');
+	}
+
 	this.saveBatchPanel = function(view_id) {
 		var frm = document.getElementById('formBatchUpdate');
 		
@@ -154,62 +175,7 @@ var cAjaxCalls = function() {
 //		if(null != genericPanel)
 //			genericPanel.hide();
 //	};
-	
-	this.showCategorizePanel = function(view_id) {
-		var viewForm = document.getElementById('viewForm'+view_id);
-		if(null == viewForm) return;
-		var elements = viewForm.elements['ticket_id[]'];
-		if(null == elements) return;
-		var len = elements.length;
 
-		var ids = new Array();
-		
-		for(var x=len-1;x>=0;x--) {
-			if(elements[x].checked) {
-				//frm.appendChild(elements[x]);
-				ids[ids.length] = elements[x].value;
-			}
-		}
-	
-		var ticket_ids = ids.join(','); // [TODO] Encode?
-	
-		genericAjaxPanel('c=tickets&a=showCategoryFilterPanel&view_id=' + view_id + '&ids=' + ticket_ids,null,true,'500px');
-	}
-	
-	this.saveCategorizePanel = function(view_id) {
-		var frm = document.getElementById('formCategorize');
-		
-		// [JAS]: Compile a list of checked ticket IDs
-		var viewForm = document.getElementById('viewForm'+view_id);
-		if(null == viewForm) return;
-		var elements = viewForm.elements['ticket_id[]'];
-		if(null == elements) return;
-		var len = elements.length;
-		
-		for(var x=len-1;x>=0;x--) {
-			if(elements[x].checked) {
-				frm.appendChild(elements[x]);
-			}
-		}		
-
-		YAHOO.util.Connect.setForm('formCategorize');
-		
-		var cObj = YAHOO.util.Connect.asyncRequest('POST', DevblocksAppPath+'ajax.php', {
-				success: function(o) {
-					var caller = o.argument.caller;
-					
-					if(null != genericPanel) {
-						genericPanel.hide();
-					}
-					
-					var view_id = o.argument.view_id;
-					caller.getRefresh(view_id);
-				},
-				failure: function(o) {},
-				argument:{caller:this,view_id:view_id}
-		});	
-	}
-	
 	this.saveViewActionPanel = function(id,view_id) {
 		YAHOO.util.Connect.setForm('formViewActions');
 		
@@ -374,73 +340,6 @@ var cAjaxCalls = function() {
 		);	
 	}
 	
-	// [JAS]: [TODO] This should use the generic clearDiv function (same with anything similar)
-	this.discard = function(id) {
-		var div = document.getElementById('reply' + id);
-		if(null == div) return;
-		div.innerHTML='';		
-	}
-	
-	this.reply = function(id) {
-		var div = document.getElementById('reply' + id);
-		if(null == div) return;
-		
-		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=display&a=reply&id=' + id, {
-				success: function(o) {
-					var id = o.argument.id;
-					var caller = o.argument.caller;
-					
-					var div = document.getElementById('reply' + id);
-					if(null == div) return;
-					
-					div.innerHTML = o.responseText;
-//					div.style.display = 'block';
-				},
-				failure: function(o) {},
-				argument:{caller:this,id:id}
-		});	
-	}
-	
-	this.forward = function(id) {
-		var div = document.getElementById('reply' + id);
-		if(null == div) return;
-		
-		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=display&a=forward&id=' + id, {
-				success: function(o) {
-					var id = o.argument.id;
-					var caller = o.argument.caller;
-					
-					var div = document.getElementById('reply' + id);
-					if(null == div) return;
-					
-					div.innerHTML = o.responseText;
-//					div.style.display = 'block';
-				},
-				failure: function(o) {},
-				argument:{caller:this,id:id}
-		});	
-	}
-	
-	this.comment = function(id) {
-		var div = document.getElementById('reply' + id);
-		if(null == div) return;
-		
-		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=display&a=comment&id=' + id, {
-				success: function(o) {
-					var id = o.argument.id;
-					var caller = o.argument.caller;
-					
-					var div = document.getElementById('reply' + id);
-					if(null == div) return;
-					
-					div.innerHTML = o.responseText;
-//					div.style.display = 'block';
-				},
-				failure: function(o) {},
-				argument:{caller:this,id:id}
-		});	
-	}
-	
 	this.getSortBy = function(id,sortBy) {
 		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=tickets&a=viewSortBy&id=' + id + '&sortBy=' + sortBy, {
 				success: function(o) {
@@ -463,6 +362,40 @@ var cAjaxCalls = function() {
 				failure: function(o) {},
 				argument:{caller:this,id:id}
 		});	
+	}
+	
+	this.viewMoveTickets = function(view_id,move_to) {
+		var formName = 'viewForm'+view_id;
+		var viewForm = document.getElementById(formName);
+		if(null == viewForm) return;
+
+		genericAjaxPost(formName, '', 'c=tickets&a=viewMoveTickets', function(o) {
+			ajax.getRefresh(view_id);
+		});
+	}
+	
+	this.viewCloseTickets = function(view_id,mode) {
+		var formName = 'viewForm'+view_id;
+		var viewForm = document.getElementById(formName);
+		if(null == viewForm) return;
+
+		switch(mode) {
+			case 1: // spam
+				genericAjaxPost(formName, '', 'c=tickets&a=viewSpamTickets', function(o) {
+					ajax.getRefresh(view_id);
+				});
+				break;
+			case 2: // delete
+				genericAjaxPost(formName, '', 'c=tickets&a=viewDeleteTickets', function(o) {
+					ajax.getRefresh(view_id);
+				});
+				break;
+			default: // close
+				genericAjaxPost(formName, '', 'c=tickets&a=viewCloseTickets', function(o) {
+					ajax.getRefresh(view_id);
+				});
+				break;
+		}
 	}
 	
 	this.viewRunAction = function(id) {

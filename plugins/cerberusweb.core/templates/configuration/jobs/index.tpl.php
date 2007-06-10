@@ -27,7 +27,7 @@
 	{/if}
 	 )
 	
-	[ <a href="javascript:;" onclick="genericAjaxGet('job_{$job_id}','c=config&a=runJob&id={$job_id}');">force run</a> ]<br>
+	[ <a href="{devblocks_url}c=cron&id={$job_id}{/devblocks_url}" target="_blank">force run</a> ]<br>
 	
 	<div id="job_{$job_id}" style="display:block;border:1px solid rgb(200,200,200);background-color:rgb(255,255,255);padding:5px;margin:5px;">
 		Last run: {if $lastrun}{$lastrun|date_format:"%a, %b %d %Y %I:%M %p"}{else}Never{/if}

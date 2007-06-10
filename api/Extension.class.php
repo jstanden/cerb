@@ -73,6 +73,7 @@ abstract class CerberusLoginPageExtension extends DevblocksExtension { //impleme
 // [TODO] Convert to a controller extension
 abstract class CerberusCronPageExtension extends DevblocksExtension {
     const PARAM_ENABLED = 'enabled';
+    const PARAM_LOCKED = 'locked';
     const PARAM_DURATION = 'duration';
     const PARAM_TERM = 'term';
     
@@ -95,11 +96,9 @@ abstract class CerberusCronPageExtension extends DevblocksExtension {
 	    $this->saveParams();
 	}
 	
-	public function configure($instance) {
-	}
+	public function configure($instance) {}
 	
-	public function saveConfigurationAction() {
-	}
+	public function saveConfigurationAction() {}
 	
 }
 

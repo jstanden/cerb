@@ -11,16 +11,21 @@ class Model_DashboardViewAction {
 	public $worker_id = 0;
 	public $params = array();
 	
-	/**
-	 * @param CerberusTicket[] $tickets
+	/*
+	 * [TODO] [JAS] This could be way more efficient by doing a single DAO_Ticket::update() 
+	 * call where the DAO accepts multiple IDs for a single update, vs. a loop with 'n'.
 	 */
-	function run($tickets) {
+	
+	/**
+	 * @param integer[] $ticket_ids
+	 */
+	function run($ticket_ids) {
 		$session = DevblocksPlatform::getSessionService();
 		$visit = $session->getVisit(); /* @var $visit CerberusVisit */
 		$agent_id = $visit->getWorker()->id;
 		
-		if(is_array($tickets))
-		foreach($tickets as $ticket_id => $ticket) {
+		if(is_array($ticket_ids))
+		foreach($ticket_ids as $ticket_id) {
 			$fields = array();
 			
 			// actions
@@ -29,8 +34,8 @@ class Model_DashboardViewAction {
 				if(empty($v)) continue;
 				
 				switch($k) {
-					case 'status':
-						$fields[DAO_Ticket::STATUS] = $v;
+					case 'closed':
+						$fields[DAO_Ticket::IS_CLOSED] = intval($v);
 						break;
 					
 					case 'priority':
@@ -60,6 +65,7 @@ class Model_DashboardViewAction {
 				}
 			}
 			
+			// [TODO] Accept multiple ticket IDs in DAO stub
 			DAO_Ticket::updateTicket($ticket_id,$fields);
 		}
 	}
@@ -224,11 +230,9 @@ class CerberusTicketBits {
 	const CREATED_FROM_WEB = 1;
 };
 
-class CerberusTicketStatus { // [TODO] Append 'Enum' to class name?
-	const OPEN = 'O';
-	const WAITING = 'W';
-	const CLOSED = 'C';
-	const DELETED = 'D';
+class CerberusTicketStatus {
+	const OPEN = 0;
+	const CLOSED = 1;
 	
 	/**
 	 * @return array 
@@ -238,9 +242,7 @@ class CerberusTicketStatus { // [TODO] Append 'Enum' to class name?
 		
 		return array(
 			self::OPEN => $translate->_('status.open'),
-			self::WAITING => $translate->_('status.waiting'),
 			self::CLOSED => $translate->_('status.closed'),
-			self::DELETED => $translate->_('status.deleted'),
 		);
 	}
 };
@@ -288,7 +290,8 @@ class CerberusTicket {
 	public $id;
 	public $mask;
 	public $subject;
-	public $status;
+	public $is_closed = 0;
+	public $is_deleted = 0;
 	public $team_id;
 	public $category_id;
 	public $priority;

@@ -1,8 +1,12 @@
+{include file="file:$path/configuration/menu.tpl.php"}
+<br>
+
 <div class="block">
 <h2>Modify Job '{$job->manifest->name}'</h2>
 <br>
 
 {assign var=enabled value=$job->getParam('enabled')}
+{assign var=locked value=$job->getParam('locked')}
 {assign var=duration value=$job->getParam('duration',5)}
 {assign var=term value=$job->getParam('term','m')}
 
@@ -11,7 +15,13 @@
 <input type="hidden" name="a" value="saveJob">
 <input type="hidden" name="id" value="{$job->manifest->id}">
 
-<label><input type="checkbox" name="enabled" value="1" {if $enabled}checked{/if}> <b>Enabled</b></label><br>
+<label><input type="checkbox" name="enabled" value="1" {if $enabled}checked{/if}> <b>Enabled</b></label>
+
+{if $locked}
+<label><input type="checkbox" name="locked" value="1" {if $locked}checked{/if}> <b>Locked</b></label>
+{/if}
+
+<br>
 <br>
 
 <b>Run every:</b><br>

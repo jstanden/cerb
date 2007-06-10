@@ -9,6 +9,11 @@
 
 <br>
 
+<a name="antispam"></a>
+{include file="file:$path/configuration/general/antispam.tpl.php"}
+
+<br>
+
 <a name="attachments"></a>
 {include file="file:$path/configuration/general/attachments.tpl.php"}
 

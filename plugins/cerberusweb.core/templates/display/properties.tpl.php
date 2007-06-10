@@ -2,25 +2,21 @@
 <input type="hidden" name="c" value="display">
 <input type="hidden" name="a" value="updateProperties">
 <input type="hidden" name="id" value="{$ticket->id}">
-<table class="tableGreen" border="0" cellpadding="2" cellspacing="0" width="100%">
+<div class="block">
+<table border="0" cellpadding="2" cellspacing="0" width="100%">
   <tbody>
     <tr>
-      <td class="tableThGreen" nowrap="nowrap"> <img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}"> Properties</td>
+      <td nowrap="nowrap"><h2>Properties</h2><!-- <img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}">  --></td>
     </tr>
     <tr>
       <td>
       	<b class="green">Status:</b><br>
-      	<select name="status">
-      		<option value="O" {if $ticket->status=='O'}selected{/if}>{$translate->_('status.open')|lower}
-      		<option value="W" {if $ticket->status=='W'}selected{/if}>{$translate->_('status.waiting')|lower}
-      		<option value="C" {if $ticket->status=='C'}selected{/if}>{$translate->_('status.closed')|lower}
-      		<option value="D" {if $ticket->status=='D'}selected{/if}>{$translate->_('status.deleted')|lower}
-      	</select>
+      	<label><input type="checkbox" name="closed" value="1" {if $ticket->is_closed}checked{/if}> {$translate->_('status.closed')|lower}</label> 
      	</td>
     </tr>
     <tr>
       <td>
-      	<b class="green">Priority:</b><br>
+      	<b>Priority:</b><br>
 			<table cellpadding="0" cellspacing="0">
 				<tr>
 					<td align="center"><label for="priority0"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/star_alpha.gif{/devblocks_url}" width="16" height="16" border="0" title="None" alt="No Priority"></label></td>
@@ -39,7 +35,7 @@
     </tr>
     <tr>
       <td>
-      	<b class="green">Owner:</b> (Team/Category)<br>
+      	<b>Category:</b><br>
       	<select name="category_id">
       		{if empty($ticket->category_id)}{assign var=t_or_c value="t"}{else}{assign var=t_or_c value="c"}{/if}
       		<optgroup label="Team (No Category)">
@@ -60,7 +56,7 @@
     </tr>
     <tr>
       <td>
-      	<b class="green">Spam Probability:</b><br>
+      	<b>Spam Probability:</b><br>
 			<table cellpadding="1" cellspacing="0">
 				<tr>
 					<td style="{if $ticket->spam_score < .90}background-color:rgb(0,200,0){else}background-color:rgb(200,0,0){/if};padding:3px;"><b style="color:rgb(255,255,255);">{math equation="x*100" format="%0.2f" x=$ticket->spam_score}%</b></td>
@@ -80,7 +76,7 @@
     </tr>
     <tr>
       <td>
-      	<b class="green">Subject:</b><br>
+      	<b>Subject:</b><br>
       	<input type="text" name="subject" value="{$ticket->subject|escape:"htmlall"}" size="25">
      	</td>
     </tr>
@@ -91,3 +87,4 @@
     </tr>
   </tbody>
 </table>
+</div>

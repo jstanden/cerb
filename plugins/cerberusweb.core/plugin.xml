@@ -239,6 +239,7 @@
 		
 		<!-- Display Ticket Modules -->
 		
+		<!-- 
 		<extension point="cerberusweb.display.module">
 			<id>core.display.module.tasks</id>
 			<name>Ticket Tasks Module</name>
@@ -251,7 +252,8 @@
 				<param key="icon" value="images/hand_paper.gif" />
 			</params>
 		</extension>
-
+		-->
+		<!--
 		<extension point="cerberusweb.display.module">
 			<id>core.display.module.history</id>
 			<name>Ticket History Display Module</name>
@@ -260,11 +262,12 @@
 				<name>ChDisplayTicketHistory</name>
 			</class>
 			<params>
-				<param key="title" value="Requester Ticket History" />
+				<param key="title" value="Sender History" />
 				<param key="icon" value="images/scroll_view.gif" />
 			</params>
 		</extension>
-		
+		-->
+		<!--
 		<extension point="cerberusweb.display.module">
 			<id>core.display.module.log</id>
 			<name>Ticket Log Display Module</name>
@@ -277,7 +280,7 @@
 				<param key="icon" value="images/document_info.gif" />
 			</params>
 		</extension>
-
+		-->
 		<extension point="cerberusweb.display.module">
 			<id>core.display.module.conversation</id>
 			<name>Ticket Conversation Display Module</name>
@@ -289,6 +292,7 @@
 			</params>
 		</extension>
 		
+		<!--
 		<extension point="cerberusweb.display.module">
 			<id>core.display.module.fields</id>
 			<name>Ticket Custom Fields Display Module</name>
@@ -301,6 +305,7 @@
 				<param key="icon" value="images/form_green.gif" />
 			</params>
 		</extension>
+		-->
 		
 		<!--  Login Extensions -->
 		
@@ -336,6 +341,17 @@
 			<class>
 				<file>cron.classes.php</file>
 				<name>ParseCron</name>
+			</class>
+			<params>
+			</params>
+		</extension>		
+		
+		<extension point="cerberusweb.cron">
+			<id>cron.maint</id>
+			<name>Maintenance</name>
+			<class>
+				<file>cron.classes.php</file>
+				<name>MaintCron</name>
 			</class>
 			<params>
 			</params>

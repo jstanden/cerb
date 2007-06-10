@@ -1,5 +1,5 @@
 <?php
-define("APP_BUILD", 155);
+define("APP_BUILD", 156);
 define("APP_MAIL_PATH", realpath(APP_PATH . '/storage/mail/new') . DIRECTORY_SEPARATOR);
 
 include_once(APP_PATH . "/api/ClassLoader.php");
@@ -164,17 +164,6 @@ class CerberusApplication extends DevblocksApplication {
 	
 	// [TODO] Rethink
 	static function getDashboardGlobalActions() {
-//		$trashAction = new Model_DashboardViewAction();
-//		$trashAction->id = 'trash';
-//		$trashAction->dashboard_view_id = CerberusApplication::VIEW_MY_TICKETS;
-//		$trashAction->name = 'Trash';
-//		$trashAction->params = array(
-//			'status' => CerberusTicketStatus::DELETED
-//		);
-//
-//		$view_actions = array(
-//			$trashAction->id => $trashAction,
-//		);
 		return array();
 	}
 	
@@ -201,7 +190,6 @@ class CerberusApplication extends DevblocksApplication {
 		
 		return array(
 			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_MASK,$translate->_('ticket.id')),
-			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_STATUS,$translate->_('ticket.status')),
 			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_PRIORITY,$translate->_('ticket.priority')),
 			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_LAST_WROTE,$translate->_('ticket.last_wrote')),
 			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_FIRST_WROTE,$translate->_('ticket.first_wrote')),

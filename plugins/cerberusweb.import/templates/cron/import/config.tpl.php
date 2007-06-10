@@ -1,0 +1,1 @@
+{include file="file:$path/cron/import/c350_importer.tpl.php"}

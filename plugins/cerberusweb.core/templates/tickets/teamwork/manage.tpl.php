@@ -32,7 +32,6 @@
 <table cellspacing="2" cellpadding="0">
 	<tr>
 		<td>Name</td>
-		<td>Tags</td>
 		<td>Remove</td>
 	</tr>
 	{foreach from=$categories item=cat key=cat_id name=cats}
@@ -40,10 +39,6 @@
 			<td>
 				<input type="hidden" name="ids[]" value="{$cat->id}">
 				<input type="text" name="names[]" value="{$cat->name}" size="35">
-			</td>
-			<td>
-				<input type="text" name="" size="25">
-				<input type="button" name="" value="..." onclick=""><br>
 			</td>
 			<td align="center">
 				<input type="checkbox" name="deletes[]" value="{$cat_id}">

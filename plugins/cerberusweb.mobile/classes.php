@@ -72,12 +72,13 @@ class MobileController extends DevblocksControllerExtension {
 			case "home":
 				$mytickets = DAO_Ticket::search(
 					array(
-						new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_STATUS,'in',array(CerberusTicketStatus::OPEN))
+						new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN)
 					),
 					25,
 					0,
 					SearchFields_Ticket::TICKET_UPDATED_DATE,
-					0
+					0,
+					false
 				);
 				$tpl->assign('mytickets', $mytickets[0]);
 				$tpl->display('file:' . dirname(__FILE__) . '/templates/my_tickets.tpl.php');

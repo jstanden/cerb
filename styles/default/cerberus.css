@@ -170,6 +170,8 @@
 
   .tableRowAltBg { background-color: rgb(238, 238, 238); }
 
+  .tableRowHover {background-color: rgb(255, 255, 206); }
+
   .tableRowBg TD, .tableRowAltBg TD { font-size: 11px; }
   
   .tableThLink { color: rgb(255, 255, 255);

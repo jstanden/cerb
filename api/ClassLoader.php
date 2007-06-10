@@ -91,6 +91,10 @@ class CerberusClassLoader {
 			'Mail',
 		));
 		
+		self::registerClasses('Mail/Mime.php', array(
+			'Mail_mime',
+		));
+		
 		self::registerClasses('Mail/mimeDecode.php', array(
 			'Mail_mimeDecode',
 		));

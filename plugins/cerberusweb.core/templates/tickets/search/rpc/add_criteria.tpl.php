@@ -10,7 +10,7 @@
 			<select size="10" name='field' id="{$divName}_field" onchange="ajax.getSearchCriteria('{$divName}',this.options[this.selectedIndex].value)" onkeydown="ajax.getSearchCriteria('{$divName}',this.options[this.selectedIndex].value)">
 				<option value=''>-- select criteria --
 				<option value='t_mask'>{$translate->_('ticket.mask')}
-				<option value='t_status'>{$translate->_('ticket.status')}
+				<option value='t_is_closed'>{$translate->_('ticket.status')}
 				<option value='t_priority'>{$translate->_('ticket.priority')}
 				<option value='t_subject'>{$translate->_('ticket.subject')}
 				<option value='tm_id'>{$translate->_('common.team')}
