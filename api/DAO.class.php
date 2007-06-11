@@ -962,22 +962,25 @@ class DAO_Ticket extends DevblocksORMHelper {
 //		echo "<pre>",$content,"</pre><br>";
 //		exit;
 		
-		$sql = sprintf("INSERT INTO message (id,ticket_id,message_type,created_date,address_id,message_id,headers,content) ".
-			"VALUES (%d,%d,%s,%d,%d,%s,'%s','%s')",
+		$sql = sprintf("INSERT INTO message (id,ticket_id,message_type,created_date,address_id,message_id) ". // ,headers,content
+			"VALUES (%d,%d,%s,%d,%d,%s)", // ,'%s','%s'
 				$newId,
 				$ticket_id,
 				$db->qstr($type),
 				$created_date,
 				$address_id,
-				((!empty($message_id)) ? $db->qstr($message_id) : "''"),
-				$db->BlobEncode($sHeaders),
-				$db->BlobEncode($content) // [TODO] Errr, why does PGSQL hate \\ from qstr?
+				((!empty($message_id)) ? $db->qstr($message_id) : "''")
+//				$db->BlobEncode($sHeaders),
+//				$db->BlobEncode($content) // [TODO] Errr, why does PGSQL hate \\ from qstr?
 		);
-
+		
 //		echo "<pre>",$sql,"</pre><br>";
 //		exit;
 				
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+
+		$db->UpdateBlob('message', 'headers', $sHeaders, 'id='.$newId);
+		$db->UpdateBlob('message', 'content', $content, 'id='.$newId);
 		
 		return $newId;
 	}
