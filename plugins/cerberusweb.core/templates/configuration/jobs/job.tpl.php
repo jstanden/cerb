@@ -7,6 +7,7 @@
 
 {assign var=enabled value=$job->getParam('enabled')}
 {assign var=locked value=$job->getParam('locked')}
+{assign var=lastrun value=$job->getParam('lastrun',0)}
 {assign var=duration value=$job->getParam('duration',5)}
 {assign var=term value=$job->getParam('term','m')}
 
@@ -29,7 +30,13 @@
 <select name="term">
 	<option value="m" {if $term=='m'}selected{/if}>minute(s)
 	<option value="h" {if $term=='h'}selected{/if}>hour(s)
+	<option value="d" {if $term=='d'}selected{/if}>day(s)
 </select><br>
+<br>
+
+<b>Starting at date:</b> (leave blank for unchanged)<br>
+<input type="text" name="starting" size="45" value=""><br>
+{if !empty($lastrun)}<i>({$lastrun|date_format:"%a, %b %d %Y %I:%M %p"})</i><br>{/if}
 <br>
 
 {if $job}

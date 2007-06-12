@@ -56,7 +56,7 @@ class Pop3Cron extends CerberusCronPageExtension {
             $check = imap_check($mailbox);
             	
             // [TODO] Make this an account setting?
-            $total = min(10,$check->Nmsgs);
+            $total = min(20,$check->Nmsgs);
             	
             //			$info = imap_fetch_overview($mailbox,"1:$total",0);
             //			print_r($info);echo "<BR>";

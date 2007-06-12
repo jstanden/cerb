@@ -45,7 +45,7 @@
 			{elseif $header=="tm_name"}
 			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','tm_name');">{$translate->_('common.team')}</a></th>
 			{elseif $header=="cat_name"}
-			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','cat_name');">{$translate->_('common.category')}</a></th>
+			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','cat_name');">{$translate->_('common.bucket')|capitalize}</a></th>
 			{/if}
 		{/foreach}
 	</tr>

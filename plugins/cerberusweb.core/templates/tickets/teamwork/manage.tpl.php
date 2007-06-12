@@ -1,8 +1,13 @@
-<h1>Team: {$team->name}</h1>
+<h1>Manage Team: {$team->name}</h1>
 <form action="{devblocks_url}{/devblocks_url}" method="post">
 <input type="hidden" name="c" value="tickets">
 <input type="hidden" name="a" value="saveTeamManage">
 <input type="hidden" name="team_id" value="{$team->id}">
+
+[ <a href="#">buckets</a> ]
+[ <a href="#">members</a> ]
+[ <a href="#">mail routing</a> ]
+<br>
 
 <br>
 
@@ -28,7 +33,7 @@
 
 {if !empty($categories)}
 <div class="block">
-<h2>Categories</h2>
+<h2>Buckets</h2>
 <table cellspacing="2" cellpadding="0">
 	<tr>
 		<td>Name</td>
@@ -51,7 +56,7 @@
 {/if}
 
 <div class="block">
-<h2>Add Categories</h2>
+<h2>Add Buckets</h2>
 (one label per line)<br>
 <textarea rows="5" cols="45" name="add"></textarea><br>
 </div>

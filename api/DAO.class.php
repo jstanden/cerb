@@ -872,7 +872,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 	 * @param string $filepath
 	 * @return integer
 	 */
-	static function createAttachment($message_id, $display_name, $filepath) {
+	static function createAttachment($message_id, $display_name, $filepath='') {
 		$db = DevblocksPlatform::getDatabaseService();
 		$newId = $db->GenID('attachment_seq');
 		
@@ -886,6 +886,10 @@ class DAO_Ticket extends DevblocksORMHelper {
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		return $newId;
+	}
+	
+	static function updateAttachment($id, $fields) {
+	    parent::_update($id, 'attachment', $fields);
 	}
 	
 	/**

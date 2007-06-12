@@ -11,7 +11,7 @@
 	<tr>
 		<td width="100%">
 			<label><input type="radio" name="categorized" value="0" {if !$team_filters.categorized}checked{/if} onclick="toggleDiv('teamCategories','none');"> <b>All active</b></label><br>
-			<label><input type="radio" name="categorized" value="1" {if $team_filters.categorized}checked{/if} onclick="toggleDiv('teamCategories','block');"> <b>In these categories:</b></label>
+			<label><input type="radio" name="categorized" value="1" {if $team_filters.categorized}checked{/if} onclick="toggleDiv('teamCategories','block');"> <b>In these buckets:</b></label>
 			<a href="javascript:;" onclick="checkAll('teamCategories');">all</a> 
 			<br>
 			

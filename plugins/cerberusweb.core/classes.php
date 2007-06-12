@@ -1740,9 +1740,17 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	    @$locked = DevblocksPlatform::importGPC($_REQUEST['locked'],'integer',0);
 	    @$duration = DevblocksPlatform::importGPC($_REQUEST['duration'],'integer',5);
 	    @$term = DevblocksPlatform::importGPC($_REQUEST['term'],'string','m');
+	    @$starting = DevblocksPlatform::importGPC($_REQUEST['starting'],'string','');
 	    	    
 	    $manifest = DevblocksPlatform::getExtension($id);
 	    $job = $manifest->createInstance(); /* @var $job CerberusCronPageExtension */
+
+	    if(!empty($starting)) {
+		    $starting_time = strtotime($starting);
+		    if(false === $starting_time) $starting_time = time();
+		    $starting_time -= CerberusCronPageExtension::getIntervalAsSeconds($duration, $term);
+    	    $job->setParam(CerberusCronPageExtension::PARAM_LASTRUN, $starting_time);
+	    }
 	    
 	    if(!$job instanceof CerberusCronPageExtension)
 	        die("Bad!");
@@ -2353,53 +2361,69 @@ class ChCronController extends DevblocksControllerExtension {
 		array_shift($stack); // cron
 		$job_id = array_shift($stack);
 
-		// [TODO] Respect the duration of jobs (so we don't run each cron)
+        @set_time_limit(0); // Unlimited (if possible)
 		
+		$url = DevblocksPlatform::getUrlService();
+        $timelimit = intval(ini_get('max_execution_time'));
+		
+		echo "<HTML>".
+		"<HEAD>".
+		"<TITLE></TITLE>".
+		"<meta http-equiv='Refresh' content='30;" . $url->write('c=cron') . "'>".
+	    "</HEAD>".
+		"<BODY>";
+
+	    // [TODO] Determine if we're on a time limit under 60 seconds
+		
+	    $cron_manifests = DevblocksPlatform::getExtensions('cerberusweb.cron', true);
+        $jobs = array();
+	    
 	    if(empty($job_id)) { // do everything 
-		    $cron_manifests = DevblocksPlatform::getExtensions('cerberusweb.cron', true);
 			
-		    // [TODO] Determine who wants to go first by next time and longest waiting
-		    // [TODO] Determine if we're on a time limit under 60 seconds
-
+		    // Determine who wants to go first by next time and longest waiting
+            $nexttime = time() + 86400;
+		    
 			if(is_array($cron_manifests))
-			foreach($cron_manifests as $instance) { /* @var $manifest DevblocksExtensionManifest */
-//				$proxy = DevblocksProxy::getProxy();
-//				$proxy->_get('localhost','/cerb4/cron/' . $manifest->id);
-
-				if($instance) {
-				    $locked = $instance->getParam('locked', false);
-				    $enabled = $instance->getParam('enabled', true);
-				    
-				    if(!$locked && $enabled) {
-				        $instance->setParam('locked', true);
-				        $instance->saveParams(); // [TODO] Kludgey
-				        
-					    $instance->run();
-		                $instance->_ran();
-				    }
-				}
+			foreach($cron_manifests as $idx => $instance) { /* @var $instance CerberusCronPageExtension */
+			    $lastrun = $instance->getParam(CerberusCronPageExtension::PARAM_LASTRUN, 0);
+			    
+			    if($instance->isReadyToRun()) {
+			        if($timelimit) {
+			            if($lastrun < $nexttime) {
+			                $jobs[0] = $cron_manifests[$idx];
+	    		            $nexttime = $lastrun;
+			            }
+			        } else {
+    			        $jobs[] =& $cron_manifests[$idx];
+			        }
+			    }
 			}
-	        
+			
 	    } else { // single job
 	        $manifest = DevblocksPlatform::getExtension($job_id);
-	        if(empty($manifest)) exit;	        
-	        
+	        if(empty($manifest)) exit;
+	        	        
 	        $instance = $manifest->createInstance();
 	        
 			if($instance) {
-			    $locked = $instance->getParam('locked', false);
-				$enabled = $instance->getParam('enabled', true);
-			    
-			    if(!$locked && $enabled) {
-			        $instance->setParam('locked', true);
-			        $instance->saveParams(); // [TODO] Kludgey
-			        
-				    $instance->run();
-	                $instance->_ran();
+			    if($instance->isReadyToRun()) {
+			        $jobs[0] =& $instance;
 			    }
 			}
-	        
 	    }
+	    
+		if(!empty($jobs)) {
+		    foreach($jobs as $nextjob) {
+		        $nextjob->setParam(CerberusCronPageExtension::PARAM_LOCKED, time());
+	            $nextjob->saveParams(); // [TODO] Kludgey
+	    	    $nextjob->_run();
+	        }
+		} else {
+		    echo "Nothing to do yet!";
+		}
+			
+	    echo "</BODY>".
+	    "</HTML>";
 		
 		exit;
 	}
@@ -2582,6 +2606,12 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		$ticket = DAO_Ticket::getTicket($message->ticket_id);
 		$tpl->assign('ticket',$ticket);
+		
+		$teams = DAO_Workflow::getTeams();
+		$tpl->assign('teams', $teams);
+		
+		$team_categories = DAO_Category::getTeams();
+		$tpl->assign('team_categories', $team_categories);
 		
 		$tpl->cache_lifetime = "0";
 		

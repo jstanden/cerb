@@ -76,6 +76,7 @@ abstract class CerberusCronPageExtension extends DevblocksExtension {
     const PARAM_LOCKED = 'locked';
     const PARAM_DURATION = 'duration';
     const PARAM_TERM = 'term';
+    const PARAM_LASTRUN = 'lastrun';
     
 	function __construct($manifest) {
 		$this->DevblocksExtension($manifest, 1);
@@ -86,14 +87,64 @@ abstract class CerberusCronPageExtension extends DevblocksExtension {
 	 *
 	 */
 	function run() {
-	    $this->_ran();
+	    // Overloaded by child
 	}
 	
-	// [TODO] Hack
-	function _ran() {
-	    $this->setParam('lastrun',time());
-	    $this->setParam('locked',false);
+	function _run() {
+	    $this->run();
+	    
+		$duration = $this->getParam(self::PARAM_DURATION, 5);
+		$term = $this->getParam(self::PARAM_TERM, 'm');
+	    $lastrun = $this->getParam(self::PARAM_LASTRUN, time());
+
+	    $secs = self::getIntervalAsSeconds($duration, $term);
+	    $ran_at = time();
+	    
+	    if(!empty($secs)) {
+		    $gap = time() - $lastrun; // how long since we last ran
+		    $extra = $gap % $secs; // we waited too long to run by this many secs
+		    $ran_at = time() - $extra; // go back in time and lie
+	    }
+	    
+	    $this->setParam(self::PARAM_LASTRUN,$ran_at);
+	    $this->setParam(self::PARAM_LOCKED,false);
 	    $this->saveParams();
+	}
+	
+	/**
+	 * @return boolean
+	 */
+	public function isReadyToRun() {
+		$locked = $this->getParam(self::PARAM_LOCKED, 0);
+		$enabled = $this->getParam(self::PARAM_ENABLED, true);
+		$duration = $this->getParam(self::PARAM_DURATION, 5);
+		$term = $this->getParam(self::PARAM_TERM, 'm');
+		$lastrun = $this->getParam(self::PARAM_LASTRUN, 0);
+		
+		// If we've been locked too long then unlock
+	    if($locked && $locked < (time() - 15 * 60)) {
+	        $locked = 0;
+	    }
+
+	    // Make sure enough time has elapsed.
+	    $checkpoint = $lastrun + self::getIntervalAsSeconds($duration, $term);
+
+	    // Ready?
+	    return (!$locked && $enabled && time() >= $checkpoint) ? true : false;
+	}
+	
+	static public function getIntervalAsSeconds($duration, $term) {
+	    $seconds = 0;
+	    
+	    if($term=='d') {
+	        $seconds = $duration * 24 * 60 * 60; // x hours * mins * secs
+	    } elseif($term=='h') {
+	        $seconds = $duration * 60 * 60; // x * mins * secs
+	    } else {
+	        $seconds = $duration * 60; // x * secs
+	    }
+	    
+	    return $seconds;
 	}
 	
 	public function configure($instance) {}

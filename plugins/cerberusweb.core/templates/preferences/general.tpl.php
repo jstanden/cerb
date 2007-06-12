@@ -17,14 +17,6 @@
 </select><br>
 <br>
 
-<b>Signature:</b><br>
-<textarea name="default_signature" rows="5" cols="50"></textarea><br>
-<br>
-
-<b>Reply Box Lines:</b><br>
-<input type="text" name="reply_box_lines" size="4" value="10"><br>
-<br>
-
 <input type="submit" value="{$translate->_('common.save_changes')}">
 </form>
 </div>

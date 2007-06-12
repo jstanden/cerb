@@ -50,7 +50,7 @@ class CerberusParser {
 		}
 		
 		// Subject
-		$sSubject = @$headers['subject'];
+		$sSubject = isset($headers['subject']) ? $headers['subject'] : '(no subject)';
 		
 		// Date
 		$iDate = @strtotime($headers['date']);
@@ -74,12 +74,15 @@ class CerberusParser {
 			$toAddressId = DAO_Contact::createAddress($toAddress,$toPersonal);
 		}
 		
-		$sReferences = @$headers['references'];
 		$sInReplyTo = @$headers['in-reply-to'];
+		$sReferences = @$headers['references'];
+
+        $importNew = @$headers['x-cerberusnew'];
+        $importAppend = @$headers['x-cerberusappendto'];
 		
 		// [JAS] [TODO] References header may contain multiple message-ids to find
 //		if(!empty($sReferences) || !empty($sInReplyTo)) {
-		if(!APP_PARSER_ALLOW_IMPORTS && !empty($sInReplyTo)) {
+		if(!APP_PARSER_ALLOW_IMPORTS || (empty($importNew) && empty($importAppend))) {
 //			$findMessageId = (!empty($sInReplyTo)) ? $sInReplyTo : $sReferences;
 			$findMessageId = $sInReplyTo;
 			$id = DAO_Ticket::getTicketByMessageId($findMessageId);
@@ -87,9 +90,7 @@ class CerberusParser {
 		}
 
 		// Are we importing a ticket?
-        if(APP_PARSER_ALLOW_IMPORTS) {
-            $importNew = @$headers['x-cerberusnew'];
-            $importAppend = @$headers['x-cerberusappendto'];
+        if(APP_PARSER_ALLOW_IMPORTS && (!empty($importNew) || !empty($importAppend))) {
             
             if(!empty($importNew)) {
                 $importMask = @$headers['x-cerberusmask'];
@@ -159,21 +160,35 @@ class CerberusParser {
 			CerberusParser::parseMimePart($rfcMessage,$attachments);			
 		}
 
-		if(!empty($attachments['plaintext'])) {
-			$settings = CerberusSettings::getInstance();
-			$attachmentlocation = $settings->get(CerberusSettings::SAVE_FILE_PATH);
+		$settings = CerberusSettings::getInstance();
+		$attachmentlocation = $settings->get(CerberusSettings::SAVE_FILE_PATH);
 		
+		if(!empty($attachments['plaintext'])) {
 			$message_id = DAO_Ticket::createMessage($id,CerberusMessageType::EMAIL,$iDate,$fromAddressId,$headers,$attachments['plaintext']);
 
-//			if(!empty($attachments['html'])) {
-//				$message_id = DAO_Ticket::createMessage($id,CerberusMessageType::EMAIL,$iDate,$fromAddressId,$headers,$attachments['plaintext']);
-//			}
-			
-			$idx = 0;
+		} else { // generate the plaintext part
+			if(!empty($attachments['html'])) {
+			    $body = CerberusApplication::stripHTML($attachments['html']);
+				$message_id = DAO_Ticket::createMessage($id,CerberusMessageType::EMAIL,$iDate,$fromAddressId,$headers,$body);
+	            $attachments['files']['html_part.html'] = $attachments['html'];
+//				unset($body);
+//	            unset($attachments['html']);
+			}
+		}
+		
+		if(!empty($message_id)) {
 			foreach ($attachments['files'] as $filename => $file) {
-				file_put_contents($attachmentlocation.$message_id.$idx,$file);
-				DAO_Ticket::createAttachment($message_id, $filename, $message_id.$idx);
-				$idx++;
+				$file_id = DAO_Ticket::createAttachment($message_id, $filename);
+				if(empty($file_id)) continue;
+				
+			    file_put_contents($attachmentlocation.$file_id,$file);
+			    
+			    // [TODO] Make file attachments use buckets so we have a max per directory
+			    
+			    // [TODO] Split off attachments into its own DAO
+			    DAO_Ticket::updateAttachment($file_id, array(
+			        'filepath' => $file_id // [TODO] Make this a const later
+			    ));
 			}
 		}
 

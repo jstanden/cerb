@@ -2,7 +2,6 @@
 class ParseCron extends CerberusCronPageExtension {
     function run() {
         if (!extension_loaded("imap")) die("IMAP Extension not loaded!");
-        @set_time_limit(0); // Unlimited (if possible)
         @ini_set('memory_limit','64M');
 
         $timeout = ini_get('max_execution_time');
@@ -11,12 +10,12 @@ class ParseCron extends CerberusCronPageExtension {
 
         $runtime = microtime(true);
         	
-        echo 'Init time: ',((microtime(true)-$runtime)*1000),' ms<br>';
+//        echo 'Init time: ',((microtime(true)-$runtime)*1000),' ms<br>';
 
         echo "<BR>";
         flush();
 
-        $total = 100;
+        $total = 50;
         
         $mailfiles = scandir(APP_MAIL_PATH);
         
@@ -103,7 +102,6 @@ class ParseCron extends CerberusCronPageExtension {
 
 class MaintCron extends CerberusCronPageExtension {
     function run() {
-        @set_time_limit(0); // Unlimited (if possible)
         @ini_set('memory_limit','64M');
         
         $purged = 0;

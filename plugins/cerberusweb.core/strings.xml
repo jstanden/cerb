@@ -11,11 +11,14 @@
 
 		<!-- Common Strings -->
 
+		<tu tuid='common.bucket'>
+			<tuv xml:lang="en"><seg>bucket</seg></tuv>
+		</tu>
 		<tu tuid='common.cancel'>
 			<tuv xml:lang="en"><seg>cancel</seg></tuv>
 		</tu>
 		<tu tuid='common.category'>
-			<tuv xml:lang="en"><seg>Category</seg></tuv>
+			<tuv xml:lang="en"><seg>category</seg></tuv>
 		</tu>
 		<tu tuid='common.close'>
 			<tuv xml:lang="en"><seg>close</seg></tuv>
