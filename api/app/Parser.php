@@ -1,25 +1,36 @@
 <?php
+class CerberusParserMessage {
+    public $headers = array();
+    public $body = '';
+    public $htmlbody = '';
+    public $files = array();
+};
+
 class CerberusParser {
 	
 	/**
 	 * Enter description here...
-	 * @param object $rfcMessage
+	 * @param CerberusParserMessage $message
 	 * @return CerberusTicket ticket object
 	 */
-	static public function parseMessage($rfcMessage) {
-		if (DEVBLOCKS_DEBUG == 'true') {echo ('Entering parseMessage() with rfcMessage :<br>'); print_r ($rfcMessage); echo ('<hr>');}
+	static public function parseMessage($message) {
+//		if (DEVBLOCKS_DEBUG == 'true') {echo ('Entering parseMessage() with rfcMessage :<br>'); print_r ($message); echo ('<hr>');}
 		
-//		$continue = CerberusParser::parsePreRules($rfcMessage);
-		$ticket = CerberusParser::parseToTicket($rfcMessage);
-//		CerberusParser::parsePostRules($ticket);
+		$ticket = CerberusParser::parseToTicket($message);
 		
 		return $ticket;
 	}
 	
-	static public function parseToTicket($rfcMessage) {
+	/**
+	 * Enter description here...
+	 *
+	 * @param CerberusParserMessage $message
+	 * @return unknown
+	 */
+	static public function parseToTicket($message) {
 //		print_r($rfcMessage);
 
-		$headers =& $rfcMessage->headers;
+		$headers =& $message->headers;
 
 		// To/From/Cc/Bcc
 		$sReturnPath = @$headers['return-path'];
@@ -28,6 +39,8 @@ class CerberusParser {
 		$sTo = @$headers['to'];
 		$bIsNew = true;
 
+//		echo htmlentities($sTo),' ',htmlentities($sFrom),' ',htmlentities($sReplyTo),' ',htmlentities($sReturnPath),"<BR>";
+		
 		// Overloadable
 		$sMask = '';
 		$iClosed = 0;
@@ -46,6 +59,7 @@ class CerberusParser {
 		}
 		
 		if(!empty($sTo)) {
+		    // [TODO] Do we still need this RFC address parser?
 			$to = CerberusParser::parseRfcAddress($sTo);
 		}
 		
@@ -56,9 +70,6 @@ class CerberusParser {
 		$iDate = @strtotime($headers['date']);
 		if(empty($iDate)) $iDate = time();
 		
-		// Message Id / References / In-Reply-To
-//		echo "Parsing message-id: ",@$headers['message-id'],"<BR>\r\n";
-
 		if(empty($from) || !is_array($from))
 			return false;
 		
@@ -74,19 +85,26 @@ class CerberusParser {
 			$toAddressId = DAO_Contact::createAddress($toAddress,$toPersonal);
 		}
 		
+		// Message Id / References / In-Reply-To
 		$sInReplyTo = @$headers['in-reply-to'];
-		$sReferences = @$headers['references'];
+		$sMessageId = @$headers['message-id'];
+//		$sReferences = @$headers['references'];
 
         $importNew = @$headers['x-cerberusnew'];
         $importAppend = @$headers['x-cerberusappendto'];
-		
+
 		// [JAS] [TODO] References header may contain multiple message-ids to find
 //		if(!empty($sReferences) || !empty($sInReplyTo)) {
-		if(!APP_PARSER_ALLOW_IMPORTS || (empty($importNew) && empty($importAppend))) {
+		if(!empty($sInReplyTo) && (empty($importNew) && empty($importAppend))) {
 //			$findMessageId = (!empty($sInReplyTo)) ? $sInReplyTo : $sReferences;
 			$findMessageId = $sInReplyTo;
-			$id = DAO_Ticket::getTicketByMessageId($findMessageId);
-			$bIsNew = false;
+			
+			if(0 != strcmp($findMessageId,"''")) {
+				$id = DAO_Ticket::getTicketByMessageId($findMessageId);
+				$bIsNew = false;
+			}
+			
+			return;
 		}
 
 		// Are we importing a ticket?
@@ -130,7 +148,6 @@ class CerberusParser {
 		
 		if(empty($id)) {
 			$team_id = CerberusParser::parseDestination($headers);
-//			$wrote_id = DAO_Contact::lookupAddress($fromAddress, true);
 			
 			$fields = array(
 				DAO_Ticket::MASK => (!empty($sMask) ? $sMask : CerberusApplication::generateTicketMask()),
@@ -149,39 +166,37 @@ class CerberusParser {
 	    if(!empty($fromAddressId) && !empty($id))
 		    DAO_Ticket::createRequester($fromAddressId,$id);
 		
-		$attachments = array();
-		$attachments['plaintext'] = '';
-		$attachments['html'] = '';
-		$attachments['files'] = array();
-		
-		if(@is_array($rfcMessage->parts)) {
-			CerberusParser::parseMimeParts($rfcMessage->parts,$attachments);
-		} else {
-			CerberusParser::parseMimePart($rfcMessage,$attachments);			
-		}
-
 		$settings = CerberusSettings::getInstance();
 		$attachmentlocation = $settings->get(CerberusSettings::SAVE_FILE_PATH);
 		
-		if(!empty($attachments['plaintext'])) {
-			$message_id = DAO_Ticket::createMessage($id,CerberusMessageType::EMAIL,$iDate,$fromAddressId,$headers,$attachments['plaintext']);
+		// [TODO] Move createMessage to DAO_Message and fix ->create($fields)
+		
+		if(!empty($message->body)) {
+			$email_id = DAO_Ticket::createMessage($id,CerberusMessageType::EMAIL,$iDate,$fromAddressId,$headers,$message->body);
 
 		} else { // generate the plaintext part
-			if(!empty($attachments['html'])) {
-			    $body = CerberusApplication::stripHTML($attachments['html']);
-				$message_id = DAO_Ticket::createMessage($id,CerberusMessageType::EMAIL,$iDate,$fromAddressId,$headers,$body);
-	            $attachments['files']['html_part.html'] = $attachments['html'];
-//				unset($body);
-//	            unset($attachments['html']);
+			if(!empty($message->htmlbody)) {
+			    $body = CerberusApplication::stripHTML($message->htmlbody);
+				$email_id = DAO_Ticket::createMessage($id,CerberusMessageType::EMAIL,$iDate,$fromAddressId,$headers,$body);
+				unset($body);
 			}
 		}
 		
-		if(!empty($message_id)) {
-			foreach ($attachments['files'] as $filename => $file) {
-				$file_id = DAO_Ticket::createAttachment($message_id, $filename);
+		if(!empty($email_id)) {
+		    // [TODO] Clean up (add to create)
+			DAO_Message::update($email_id,array(
+			    DAO_Message::MESSAGE_ID => $sMessageId
+			));
+		    
+			foreach ($message->files as $filename => $file) {
+			    
+				$file_id = DAO_Ticket::createAttachment($email_id, $filename);
 				if(empty($file_id)) continue;
 				
-			    file_put_contents($attachmentlocation.$file_id,$file);
+//			    file_put_contents($attachmentlocation.$file_id,$file);
+
+	            // [TODO] Need to push this out to a generic class (no ->tmpname access)
+	            rename($file->tmpname, $attachmentlocation.$file_id);
 			    
 			    // [TODO] Make file attachments use buckets so we have a max per directory
 			    
@@ -206,6 +221,8 @@ class CerberusParser {
 			}
 		}
 		
+		unset($message);
+		
 		$ticket = DAO_Ticket::getTicket($id);
 		return $ticket;
 	}
@@ -222,10 +239,10 @@ class CerberusParser {
 		$settings = CerberusSettings::getInstance();
 		
 		// [TODO] The split could be handled by Mail_RFC822:parseAddressList (commas, semi-colons, etc.)
-		$aTo = split(',', @$headers['to']);
-		$aCc = split(',', @$headers['cc']);
+		$aTo = CerberusApplication::parseCsvString(@$headers['to']);
+		$aCc = CerberusApplication::parseCsvString(@$headers['cc']);
 		
-		$destinations = $aTo + $aCc;
+		$destinations = $aTo + $aCc; // [TODO] Can we count on this?
 
 		// [TODO] Should this cache be at the class level?
 		if(is_null($routing))
@@ -262,37 +279,37 @@ class CerberusParser {
 		return null; // bounce
 	}
 	
-	static private function parseMimeParts($parts,&$attachments) {
-		
-		foreach($parts as $part) {
-			CerberusParser::parseMimePart($part,$attachments);
-		}
-		
-		return $attachments;
-	}
-	
-	static private function parseMimePart($part,&$attachments) {
-		// valid primary types are found at http://www.iana.org/assignments/media-types/
-		$contentType = @$part->ctype_primary.'/'.@$part->ctype_secondary;
-		$fileName = @$part->d_parameters['filename'];
-		if (empty($fileName)) $fileName = @$part->ctype_parameters['name'];
-		
-		if(0 == strcasecmp($contentType,'text/plain') && empty($fileName)) {
-			$attachments['plaintext'] .= $part->body;
-			
-		} elseif(0 == strcasecmp($contentType,'text/html') && empty($fileName)) {
-			$attachments['html'] .= $part->body;
-			
-		} elseif(0 == strcasecmp(@$part->ctype_primary,'multipart')) {
-			CerberusParser::parseMimeParts($part, $attachments);
-			
-		} else {
-			if (empty($fileName))
-				$attachments['files'][] = $part->body;
-			else
-				$attachments['files'][$fileName] = $part->body;
-		}
-	}
+//	static private function parseMimeParts($parts,&$attachments) {
+//		
+//		foreach($parts as $part) {
+//			CerberusParser::parseMimePart($part,$attachments);
+//		}
+//		
+//		return $attachments;
+//	}
+//	
+//	static private function parseMimePart($part,&$attachments) {
+//		// valid primary types are found at http://www.iana.org/assignments/media-types/
+//		$contentType = @$part->ctype_primary.'/'.@$part->ctype_secondary;
+//		$fileName = @$part->d_parameters['filename'];
+//		if (empty($fileName)) $fileName = @$part->ctype_parameters['name'];
+//		
+//		if(0 == strcasecmp($contentType,'text/plain') && empty($fileName)) {
+//			$attachments['plaintext'] .= $part->body;
+//			
+//		} elseif(0 == strcasecmp($contentType,'text/html') && empty($fileName)) {
+//			$attachments['html'] .= $part->body;
+//			
+//		} elseif(0 == strcasecmp(@$part->ctype_primary,'multipart')) {
+//			CerberusParser::parseMimeParts($part, $attachments);
+//			
+//		} else {
+//			if (empty($fileName))
+//				$attachments['files'][] = $part->body;
+//			else
+//				$attachments['files'][$fileName] = $part->body;
+//		}
+//	}
 	
 	// [TODO] Phase out in favor of the CerberusUtils class
 	static function parseRfcAddress($address_string) {

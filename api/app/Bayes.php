@@ -233,6 +233,10 @@ class CerberusBayes {
 		
 		// Pass text to analyze() to get back interesting words
 		$content = $first_message->getContent();
+		
+		// Only check the first 15000 characters for spam, rounded to a sentence
+	    $content = substr($content, 0, strrpos(substr($content, 0, 15000), ' '));
+
 		$words = self::processText($content);
 		
 		$out = self::_calculateSpamProbability($words);

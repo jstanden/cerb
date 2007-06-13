@@ -710,6 +710,10 @@ class DAO_Message extends DevblocksORMHelper {
     const HEADERS = 'headers';
     const CONTENT = 'content';
 
+    static function update($id, $fields) {
+        parent::_update($id, 'message', $fields);
+    }
+    
     static function delete($ids) {
         if(!is_array($ids)) $ids = array($ids);
         if(empty($ids)) return;

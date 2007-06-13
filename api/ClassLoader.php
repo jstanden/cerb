@@ -61,6 +61,7 @@ class CerberusClassLoader {
 		
 		self::registerClasses($path . 'Parser.php', array(
 			'CerberusParser',
+			'CerberusParserMessage',
 		));
 		
 		self::registerClasses($path . 'Utils.php', array(
