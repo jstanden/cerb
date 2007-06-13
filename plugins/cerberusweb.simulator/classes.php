@@ -52,7 +52,6 @@ class ChSimulatorPage extends CerberusPageExtension {
 	
 	function generateTicketsAction() {
 		require_once(dirname(__FILE__) . '/api/API.class.php');
-	//	require_once(DEVBLOCKS_PATH . 'libs/pear/mimeDecode.php');
 		
 		@$address = DevblocksPlatform::importGPC($_POST['address'],'string'); 
 		@$dataset = DevblocksPlatform::importGPC($_POST['dataset'],'string');
@@ -85,31 +84,21 @@ class ChSimulatorPage extends CerberusPageExtension {
 		$emails = $simulator->generateEmails($dataset,$how_many);
 
 		foreach($emails as $template) {
-			$mail = sprintf("From: %s\r\n".
-				"To: %s\r\n".
-				"Subject: %s\r\n".
-				"Date: " . date('r') . "\r\n".
-				"\r\n".
+            $message = new CerberusParserMessage();
+            $message->headers['from'] = $template['sender']['address'];
+            $message->headers['to'] = $address;
+            $message->headers['subject'] = $template['subject'];
+            
+            $message->body = sprintf(
 				"%s\r\n".
 				"\r\n".
 				"--\r\n%s %s\r\n",
-				$template['sender']['address'],
-				$address,
-				$template['subject'],
 				$template['body'],
 				$template['sender']['firstname'],
 				$template['sender']['lastname']
 			);
-			
-			$params = array();
-			$params['include_bodies']	= true;
-			$params['decode_bodies']	= true;
-			$params['decode_headers']	= true;
-			$params['crlf']				= "\r\n";
-			$params['input'] = $mail;
-			$structure = Mail_mimeDecode::decode($params);
-			
-			CerberusParser::parseMessage($structure);
+		    
+			CerberusParser::parseMessage($message);
 		}
 		
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('simulator')));

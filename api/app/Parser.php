@@ -66,6 +66,11 @@ class CerberusParser {
 		// Subject
 		$sSubject = isset($headers['subject']) ? $headers['subject'] : '(no subject)';
 		
+		// If quote printable subject
+		if(0 == strcmp(substr($sSubject,0,2),'=?')) {
+		    $sSubject = self::fixQuotePrintableString($sSubject);
+		}
+		
 		// Date
 		$iDate = @strtotime($headers['date']);
 		if(empty($iDate)) $iDate = time();
@@ -95,16 +100,24 @@ class CerberusParser {
 
 		// [JAS] [TODO] References header may contain multiple message-ids to find
 //		if(!empty($sReferences) || !empty($sInReplyTo)) {
-		if(!empty($sInReplyTo) && (empty($importNew) && empty($importAppend))) {
+		if(!empty($sInReplyTo) && 0 != strcmp($sMessageId,$sInReplyTo) && empty($importNew) && empty($importAppend)) {
 //			$findMessageId = (!empty($sInReplyTo)) ? $sInReplyTo : $sReferences;
 			$findMessageId = $sInReplyTo;
 			
+//			echo "Find message id (", htmlentities($sInReplyTo), ") for (" . htmlentities($sMessageId) . ")... ";
+			
 			if(0 != strcmp($findMessageId,"''")) {
-				$id = DAO_Ticket::getTicketByMessageId($findMessageId);
-				$bIsNew = false;
+				if(null != ($id = DAO_Ticket::getTicketByMessageId($findMessageId))) {
+				    $bIsNew = false;
+//				    echo "matched $id!<br>";
+				} else {
+//				    echo "thought so, but no.<br>";
+				}
+			} else {
+//			    echo "no match!<br>";
 			}
 			
-			return;
+//			return;
 		}
 
 		// Are we importing a ticket?
@@ -147,6 +160,7 @@ class CerberusParser {
         }
 		
 		if(empty($id)) {
+//		    echo "Creating new ticket<br>";
 			$team_id = CerberusParser::parseDestination($headers);
 			
 			$fields = array(
@@ -238,7 +252,7 @@ class CerberusParser {
 		
 		$settings = CerberusSettings::getInstance();
 		
-		// [TODO] The split could be handled by Mail_RFC822:parseAddressList (commas, semi-colons, etc.)
+		// [TODO] The split could be handled by ::parseAddressList (commas, semi-colons, etc.)
 		$aTo = CerberusApplication::parseCsvString(@$headers['to']);
 		$aCc = CerberusApplication::parseCsvString(@$headers['cc']);
 		
@@ -316,5 +330,30 @@ class CerberusParser {
 		return CerberusUtils::parseRfcAddressList($address_string);
 	}
 	
+	static private function fixQuotePrintableString($str) {
+		preg_match("/\=\?(.*?)\?(.*?)\?(.*?)\?\=/", $str, $matches);
+		
+		if(count($matches) != 4) {
+		    return $str;
+		}
+		
+		$encoding = $matches[1];
+		$code = $matches[2];
+		$s = $matches[3];
+		
+		switch(strtolower($code)) {
+		    case 'b':
+		        $out = base64_decode($s);
+		        break;
+		    case 'q':
+		        $out = quoted_printable_decode($s);
+		        break;
+		    default:
+		        $out = $s;
+		        break;
+		}
+		
+		return $out;
+	}
 };
 ?>

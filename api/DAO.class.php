@@ -676,17 +676,6 @@ class DAO_Contact {
 
 		$id = $db->GenID('address_seq');
 		
-		/*
-		 * [JAS]: [TODO] If we're going to call platform libs directly we should just have
-		 * the platform provide the functionality.
-		 */
-		// [TODO] This code fails with anything@localhost
-//		require_once(DEVBLOCKS_PATH . 'libs/pear/Mail/RFC822.php');
-//		if (false === Mail_RFC822::isValidInetAddress($email)) {
-//			throw new Exception($email . DevblocksTranslationManager::say('ticket.requester.invalid'));
-//			return null;
-//		}
-		
 		$sql = sprintf("INSERT INTO address (id,email,personal,bitflags) VALUES (%d,%s,%s,0)",
 			$id,
 			$db->qstr(trim(strtolower($email))),
@@ -851,16 +840,15 @@ class DAO_Ticket extends DevblocksORMHelper {
 	static function getTicketByMessageId($message_id) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = sprintf("SELECT t.id ".
-			"FROM ticket t ".
-			"INNER JOIN message m ON (t.id=m.ticket_id) ".
+		$sql = sprintf("SELECT m.ticket_id ".
+			"FROM message m ".
 			"WHERE m.message_id = %s",
 			$db->qstr($message_id)
 		);
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		if(!$rs->EOF) {
-			$ticket_id = intval($rs->fields['id']);
+			$ticket_id = intval($rs->fields['ticket_id']);
 			return $ticket_id;
 		}
 		

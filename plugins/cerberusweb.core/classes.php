@@ -647,29 +647,16 @@ class ChTicketsPage extends CerberusPageExtension {
 		
 		$team = DAO_Workflow::getTeam($team_id);
 
-		$mail = sprintf(
-			"From: %s\r\n".
-			"To: %s\r\n".
-			"Subject: %s\r\n".
-			"Date: " . date('r') . "\r\n".
-			"\r\n".
-			"%s\r\n".
-			"\r\n",
-			$from,
-			$to,
-			$subject,
-			$content
-		);
+		$message = new CerberusParserMessage();
+		$message->headers['from'] = $from;
+		$message->headers['to'] = $to;
+		$message->headers['subject'] = $subject;
+		$message->headers['date'] = date('r');
+		
+		$message->body = $content;
+	    
+		$ticket = CerberusParser::parseMessage($message); /* @var $ticket CerberusTicket */
 
-		$params = array();
-		$params['include_bodies']	= true;
-		$params['decode_bodies']	= true;
-		$params['decode_headers']	= true;
-		$params['crlf']				= "\r\n";
-		$params['input'] = $mail;
-		$structure = Mail_mimeDecode::decode($params);
-			
-		$ticket = CerberusParser::parseMessage($structure); /* @var $ticket CerberusTicket */
 		$messages = $ticket->getMessages();
 		$message = array_shift($messages); /* @var $ticket CerberusMessage */
 		$message_id = $message->id;
@@ -2002,30 +1989,6 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	    DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','mail')));
 	}
 	
-	// Form
-	function doManualParseAction() {
-	    @$source = DevblocksPlatform::importGPC($_REQUEST['source'],'string');
-	    @$next = DevblocksPlatform::importGPC($_REQUEST['next'],'string','display');
-
-		$params = array();
-		$params['include_bodies']	= true;
-		$params['decode_bodies']	= true;
-		$params['decode_headers']	= true;
-		$params['crlf']				= "\r\n";
-		$params['input'] = $source;
-		unset($source);
-		
-	    $msg = Mail_mimeDecode::decode($params);
-	    
-	    $ticket = CerberusParser::parseMessage($msg);
-		
-	    if($next=='display') {
-    		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('display',$ticket->mask)));
-	    } else {
-	        DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','mail')));
-	    }
-	}
-	
 	// Ajax
 	function ajaxGetRoutingAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -2703,13 +2666,6 @@ class ChDisplayPage extends CerberusPageExtension {
 	function saveRequesterAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']); // ticket id
 		@$add_requester = DevblocksPlatform::importGPC($_POST['add_requester']);
-		
-		// [DDH]: I'd really like to know why the *$#! this doesn't work.  The if statement works fine atomically...
-		// [JAS]: [TODO] Just convert it to the Zend_Validate stuff.
-//		require_once(APP_PATH . '/libs/pear/Mail/RFC822.php');
-//		if (false === Mail_RFC822::isValidInetAddress($add_requester)) {
-//			return $add_requester . DevblocksTranslationManager::say('ticket.requester.invalid');
-//		}
 		
 		$address_id = DAO_Contact::lookupAddress($add_requester, true);
 		DAO_Ticket::createRequester($address_id, $id);

@@ -17,9 +17,9 @@
 {assign var=index value=$smarty.section.columns.index}
 {math equation="x+1" x=$index format="%02d"}: 
 <select name="columns[]">
-	<option value=""></option> {*-- {$translate->_('dashboard.choose_column')|lower} --*}
+	<option value=""></option>
 	{foreach from=$optColumns item=optColumn}
-		<option value="{$optColumn->column}" {if $view->view_columns.$index==$optColumn->column}selected{/if}>{$optColumn->name}</option>
+		<option value="{$optColumn->column}" {if $view->view_columns.$index==$optColumn->column}selected{/if}>{$optColumn->name|capitalize}</option>
 	{/foreach}
 </select>
 <br>

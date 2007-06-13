@@ -14,11 +14,6 @@
 
 <br>
 
-<a name="manual"></a>
-<span id="configManualParse">{include file="file:$path/configuration/mail/manual_parse.tpl.php"}</span>
-
-<br>
-
 <script>
 	var configAjax = new cConfigAjax();
 </script>

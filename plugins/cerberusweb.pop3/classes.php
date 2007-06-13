@@ -108,7 +108,6 @@ class Pop3Cron extends CerberusCronPageExtension {
                 unset($headers);
                 unset($body);
 
-                //				echo "<textarea rows=5 cols=80>",$params['input'],"</textarea><br>";
                 $time = microtime(true) - $time;
                 echo "(",sprintf("%d",($time*1000))," ms)<br>";
                 flush();

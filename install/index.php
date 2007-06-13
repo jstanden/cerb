@@ -804,6 +804,8 @@ Jeff: k, sweet. I just need to add that to the dropdown, and then have the platf
 I'll add to install/index.php [TODO]
  */
 
+// [TODO] Test for mailparse extension
+
 // [TODO] Make sure storage/mail/new is writeable
 
 $tpl->display('base.tpl.php');
