@@ -122,7 +122,7 @@ abstract class CerberusCronPageExtension extends DevblocksExtension {
 		$lastrun = $this->getParam(self::PARAM_LASTRUN, 0);
 		
 		// If we've been locked too long then unlock
-	    if($locked && $locked < (time() - 15 * 60)) {
+	    if($locked && $locked < (time() - 10 * 60)) {
 	        $locked = 0;
 	    }
 

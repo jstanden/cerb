@@ -94,7 +94,7 @@ class Pop3Cron extends CerberusCronPageExtension {
                 //				echo "Length: ",strlen($body),"<BR>";
 
                 do {
-                    $filename = APP_MAIL_PATH . CerberusMail::generateMessageFilename();
+                    $filename = APP_MAIL_PATH . 'new' . DIRECTORY_SEPARATOR . CerberusMail::generateMessageFilename();
                 } while(file_exists($filename));
                 $fp = fopen($filename,'w');
 
@@ -135,7 +135,7 @@ class Pop3Cron extends CerberusCronPageExtension {
     
     function saveConfigurationAction() {
 		@$ar_ids = DevblocksPlatform::importGPC($_POST['account_id'],'array');
-		@$ar_enabled = DevblocksPlatform::importGPC($_POST['enabled'],'array');
+		@$ar_enabled = DevblocksPlatform::importGPC($_POST['pop3_enabled'],'array');
 		@$ar_nickname = DevblocksPlatform::importGPC($_POST['nickname'],'array');
 		@$ar_protocol = DevblocksPlatform::importGPC($_POST['protocol'],'array');
 		@$ar_host = DevblocksPlatform::importGPC($_POST['host'],'array');

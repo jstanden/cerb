@@ -2,7 +2,7 @@
 class ParseCron extends CerberusCronPageExtension {
     function run() {
         if (!extension_loaded("imap")) die("IMAP Extension not loaded!");
-        @ini_set('memory_limit','8M');
+        @ini_set('memory_limit','64M');
 
         $timeout = ini_get('max_execution_time');
         echo 'Time Limit: ', (($timeout) ? $timeout : 'unlimited') ,' secs<br>';
@@ -15,11 +15,10 @@ class ParseCron extends CerberusCronPageExtension {
 
         $total = 25;
         
-        // [TODO] This is inefficient, let's go back to opendir
-	    $dir = opendir(APP_MAIL_PATH);
+	    $dir = opendir(APP_MAIL_PATH . 'new');
 	    
 	    while($file = readdir($dir)) {
-	        $full_filename = APP_MAIL_PATH . $file;
+	        $full_filename = APP_MAIL_PATH . 'new' . DIRECTORY_SEPARATOR . $file;
 
 	        if($file == '.' || $file == '..' || $file == '.svn')
 	            continue;
@@ -33,14 +32,19 @@ class ParseCron extends CerberusCronPageExtension {
 	                if($subfile == '.' || $subfile == '..' || is_dir($sub_filename))
 	                    continue;
 
-			        $this->_parseFile($sub_filename);
+	                $parsefile = APP_MAIL_PATH . 'fail' . DIRECTORY_SEPARATOR . $subfile;
+	                rename($sub_filename, $parsefile);
+	                    
+			        $this->_parseFile($parsefile);
 			        if(--$total <= 0) break;
 	            }
 	            
 	            @closedir($subdir);
 	            
 	        } else { // file
-		        $this->_parseFile($full_filename);
+                $parsefile = APP_MAIL_PATH . 'fail' . DIRECTORY_SEPARATOR . $file;
+                rename($full_filename, $parsefile);
+		        $this->_parseFile($parsefile);
 		        if(--$total <= 0) break;
 	        }
             
@@ -52,7 +56,8 @@ class ParseCron extends CerberusCronPageExtension {
     }
     
     function _parseFile($full_filename) {
-        echo "Reading ",$full_filename,"...<br>";
+        $fileparts = pathinfo($full_filename);
+        echo "Reading ",$fileparts['basename'],"...<br>";
         
         echo "Decoding... "; flush();
         $time = microtime(true);
@@ -120,7 +125,6 @@ class ParseCron extends CerberusCronPageExtension {
         $time = microtime(true) - $time;
         echo "parsed! (",sprintf("%d",($time*1000))," ms)<br>";
 
-        // [TODO] If we did have errors, move it to the fails directory
         unlink($full_filename);
 
 		echo "<hr>";

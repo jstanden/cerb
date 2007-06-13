@@ -1,6 +1,6 @@
 <?php
-define("APP_BUILD", 158);
-define("APP_MAIL_PATH", realpath(APP_PATH . '/storage/mail/new') . DIRECTORY_SEPARATOR);
+define("APP_BUILD", 160);
+define("APP_MAIL_PATH", realpath(APP_PATH . '/storage/mail') . DIRECTORY_SEPARATOR);
 
 include_once(APP_PATH . "/api/ClassLoader.php");
 include_once(APP_PATH . "/api/DAO.class.php");
