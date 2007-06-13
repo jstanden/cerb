@@ -116,7 +116,7 @@ abstract class CerberusCronPageExtension extends DevblocksExtension {
 	 */
 	public function isReadyToRun() {
 		$locked = $this->getParam(self::PARAM_LOCKED, 0);
-		$enabled = $this->getParam(self::PARAM_ENABLED, true);
+		$enabled = $this->getParam(self::PARAM_ENABLED, false);
 		$duration = $this->getParam(self::PARAM_DURATION, 5);
 		$term = $this->getParam(self::PARAM_TERM, 'm');
 		$lastrun = $this->getParam(self::PARAM_LASTRUN, 0);
