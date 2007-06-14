@@ -2338,6 +2338,38 @@ class DAO_Workflow {
 //		return DAO_Mail::getMailboxes($ids, $with_counts);
 //	}
 	
+    static function addTeamWorkers($team_id, $worker_ids=array()) {
+        if(!is_array($worker_ids)) $worker_ids = array($worker_ids);
+        
+        if(empty($worker_ids) || empty($team_id))
+            return FALSE;
+            
+        $db = DevblocksPlatform::getDatabaseService();
+        
+        foreach($worker_ids as $worker_id) {
+	        $db->Replace(
+	            'worker_to_team',
+	            array('agent_id' => $worker_id, 'team_id' => $team_id),
+	            array('agent_id','team_id')
+	        );
+        }
+    }
+    
+    static function removeTeamWorkers($team_id, $worker_ids=array()) {
+        if(!is_array($worker_ids)) $worker_ids = array($worker_ids);
+        
+        if(empty($worker_ids) || empty($team_id))
+            return FALSE;
+            
+        $db = DevblocksPlatform::getDatabaseService();
+        
+		$sql = sprintf("DELETE FROM worker_to_team WHERE team_id = %d AND agent_id IN (%s)",
+		    $team_id,
+		    implode(',', $worker_ids)
+		);
+		$db->Execute($sql);
+    }
+
 	static function setTeamWorkers($team_id, $agent_ids) {
 		if(!is_array($agent_ids)) $agent_ids = array($agent_ids);
 		if(empty($team_id)) return;
@@ -3497,5 +3529,199 @@ class DAO_WorkerPref extends DevblocksORMHelper {
 		return $workers;
 	}
 };
+
+class DAO_TeamRoutingRule extends DevblocksORMHelper {
+    const ID = 'id';
+    const TEAM_ID = 'team_id';
+    const HEADER = 'header';
+    const PATTERN = 'pattern';
+    const POS = 'pos';
+    const PARAMS = 'params'; // blob
+    
+	public static function create($fields) {
+	    $db = DevblocksPlatform::getDatabaseService();
+		$id = $db->GenID('generic_seq');
+		
+		self::findDupes($fields);
+		
+		$sql = sprintf("INSERT INTO team_routing_rule (id,team_id,header,pattern,pos,params) ".
+		    "VALUES (%d,0,'','',0,'')",
+		    $id
+		);
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		self::update($id, $fields);
+		
+		return $id;
+	}
+	
+	public static function update($id, $fields) {
+	    self::findDupes($fields);
+	    
+	    if($fields[self::PARAMS]) {
+	        $params = $fields[self::PARAMS];
+//	        unset($fields[self::PARAMS]);
+	        // [TODO] DO our own DB call here for updateBlob (HACK until new patch system)
+	    }
+	    
+        self::_update($id, 'team_routing_rule', $fields);
+	}
+	
+	private static function findDupes($fields) {
+	    $db = DevblocksPlatform::getDatabaseService();
+	    
+	    // Check for dupes
+	    // [TODO] This is stupid
+		if(isset($fields[self::TEAM_ID]) && isset($fields[self::PATTERN]) && isset($fields[self::HEADER])) {
+		    $sql = sprintf("DELETE FROM team_routing_rule ".
+		        "WHERE team_id = %d ".
+		        "AND pattern = %s ".
+		        "AND header = %s ",
+		        intval($fields[self::TEAM_ID]),
+		        $db->qstr($fields[self::PATTERN]),
+		        $db->qstr($fields[self::HEADER])
+		    );
+		    $db->Execute($sql);
+		    
+		    return true;
+		}
+		
+		return false;
+	}
+	
+	public static function get($id) {
+		$items = self::getList(array($id));
+		
+		if(isset($items[$id]))
+		    return $items[$id];
+		    
+		return NULL;
+	}
+	
+    /**
+     * @return Model_TeamRoutingRule[]
+     */
+	public static function getList($ids=array()) {
+	    if(!is_array($ids)) $ids = array($ids);
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = "SELECT id, team_id, header, pattern, pos, params ".
+		    "FROM team_routing_rule ".
+		    (!empty($ids) ? sprintf("WHERE id IN (%s) ", implode(',', $ids)) : " ").
+		    "ORDER BY pos DESC"
+		;
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		$objects = array();
+		
+		while(!$rs->EOF) {
+		    $object = new Model_TeamRoutingRule();
+		    $object->id = intval($rs->fields['id']);
+		    $object->team_id = intval($rs->fields['team_id']);
+		    $object->header = $rs->fields['header'];
+		    $object->pattern = $rs->fields['pattern'];
+		    $object->pos = intval($rs->fields['pos']);
+		    
+		    $params = $rs->fields['params'];
+		    
+		    if(!empty($params)) {
+		        @$object->params = unserialize($params);
+		    }
+		    
+		    $objects[$object->id] = $object;
+		    $rs->MoveNext();
+		}
+		
+		return $objects;
+	}
+	
+	public static function delete($ids) {
+	    if(!is_array($ids)) $ids = array($ids);
+	    $db = DevblocksPlatform::getDatabaseService();
+	    
+	    $id_list = implode(',', $ids);
+	    
+	    $sql = sprintf("DELETE FROM team_routing_rule WHERE id IN (%s)", $id_list);
+	    $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+
+	    // [TODO] cascade foreign key constraints	
+	}
+
+    /**
+     * Enter description here...
+     *
+     * @param DevblocksSearchCriteria[] $params
+     * @param integer $limit
+     * @param integer $page
+     * @param string $sortBy
+     * @param boolean $sortAsc
+     * @param boolean $withCounts
+     * @return array
+     */
+    static function search($params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
+		$db = DevblocksPlatform::getDatabaseService();
+
+        list($tables,$wheres) = parent::_parseSearchParams($params, SearchFields_TeamRoutingRule::getFields());
+		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
+		
+		$sql = sprintf("SELECT ".
+			"trr.id as %s, ".
+			"trr.team_id as %s, ".
+			"trr.pos as %s ".
+			"FROM team_routing_rule trr ",
+//			"INNER JOIN team tm ON (tm.id = t.team_id) ".
+			    SearchFields_TeamRoutingRule::ID,
+			    SearchFields_TeamRoutingRule::TEAM_ID,
+			    SearchFields_TeamRoutingRule::POS
+			).
+			
+			// [JAS]: Dynamic table joins
+//			(isset($tables['ra']) ? "INNER JOIN requester r ON (r.ticket_id=t.id)" : " ").
+			
+			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "").
+			(!empty($sortBy) ? sprintf("ORDER BY %s %s",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : "")
+		;
+		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		$results = array();
+		while(!$rs->EOF) {
+			$result = array();
+			foreach($rs->fields as $f => $v) {
+				$result[$f] = $v;
+			}
+			$row_id = intval($rs->fields[SearchFields_TeamRoutingRule::ID]);
+			$results[$row_id] = $result;
+			$rs->MoveNext();
+		}
+
+		// [JAS]: Count all
+		$total = -1;
+		if($withCounts) {
+		    $rs = $db->Execute($sql);
+		    $total = $rs->RecordCount();
+		}
+		
+		return array($results,$total);
+    }
+};
+
+class SearchFields_TeamRoutingRule implements IDevblocksSearchFields {
+	// Table
+	const ID = 'trr_id';
+	const TEAM_ID = 'trr_team_id';
+	const POS = 'trr_pos';
+	
+	/**
+	 * @return DevblocksSearchField[]
+	 */
+	static function getFields() {
+		return array(
+			SearchFields_TeamRoutingRule::ID => new DevblocksSearchField(SearchFields_TeamRoutingRule::ID, 'trr', 'id'),
+			SearchFields_TeamRoutingRule::TEAM_ID => new DevblocksSearchField(SearchFields_TeamRoutingRule::TEAM_ID, 'trr', 'team_id'),
+			SearchFields_TeamRoutingRule::POS => new DevblocksSearchField(SearchFields_TeamRoutingRule::POS, 'trr', 'pos'),
+		);
+	}
+};	
+
 
 ?>

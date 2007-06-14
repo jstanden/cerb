@@ -246,6 +246,16 @@ class ChCorePatchContainer extends DevblocksPatchContainerExtension {
 			value B DEFAULT ''
 		";
 		
+		// Team Routing
+		$tables['team_routing_rule'] = "
+			id I4 DEFAULT 0 NOTNULL PRIMARY,
+			team_id I4 DEFAULT 0 NOTNULL,
+			header C(64) DEFAULT 'from',
+			pattern C(255) DEFAULT '' NOTNULL,
+			pos I2 DEFAULT 0 NOT NULL,
+			params B DEFAULT ''
+		";
+		
 		// [JAS]: [TODO] Platform table?
 		$tables['setting'] = "
 			setting C(32) DEFAULT '' NOTNULL PRIMARY,

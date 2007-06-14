@@ -1,4 +1,25 @@
 <?php
+class Model_TeamRoutingRule {
+    public $id = 0;
+    public $team_id = 0;
+    public $header = '';
+    public $pattern = '';
+    public $pos = 0;
+    public $params = array();
+    
+    function getPatternAsRegexp() {
+		$pattern = str_replace(array('*'),'__any__', $this->pattern);
+		$pattern = sprintf("/%s/i",
+		    str_replace(array('__any__'),'(.*?)', preg_quote($pattern))
+		);
+		
+//		 if(false !== @preg_match($pattern, '')) {
+	    // [TODO] Test the pattern we created?
+
+		return $pattern;
+    }
+}
+
 class Model_WorkerPreference {
     public $setting = '';
     public $value = '';

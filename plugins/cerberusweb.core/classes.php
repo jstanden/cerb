@@ -231,6 +231,75 @@ class ChTicketsPage extends CerberusPageExtension {
 				
 				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/create/index.tpl.php');
 				break;
+			
+			case 'team':
+				$response = DevblocksPlatform::getHttpResponse();
+				$response_path = $response->path;
+				array_shift($response_path); // tickets
+				array_shift($response_path); // team
+				$team_id = array_shift($response_path); // id
+				
+				$team = DAO_Workflow::getTeam($team_id);
+				
+				if(empty($team))
+				    break;
+
+		        $tpl->cache_lifetime = "0";
+			    $tpl->assign('team', $team);
+			    
+	            switch(array_shift($response_path)) {
+	                default:
+	                case 'general':
+						$team_categories = DAO_Category::getByTeam($team_id);
+						$tpl->assign('categories', $team_categories);
+					    
+						$workers = DAO_Worker::getList();
+						$tpl->assign('workers', $workers);
+						
+						// [TODO] Migrate this DAO stub to worker::search
+					    $members = DAO_Workflow::getTeamWorkers($team_id);
+					    $tpl->assign('members', $members);
+						
+	                    $tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/teamwork/manage/index.tpl.php');
+	                    break;
+	                    
+	                case 'routing':
+	                    list($rules, $count) = DAO_TeamRoutingRule::search(
+	                        array(
+	                            new DevblocksSearchCriteria(SearchFields_TeamRoutingRule::TEAM_ID,DevblocksSearchCriteria::OPER_EQ,$team_id)
+	                        ),
+	                        -1,
+	                        0,
+	                        SearchFields_TeamRoutingRule::POS,
+	                        false,
+	                        false
+	                    );
+	                    
+	                    $rule_ids = array_keys($rules);
+	                    $team_rules = DAO_TeamRoutingRule::getList($rule_ids);
+	                    $tpl->assign('team_rules', $team_rules);
+
+	                    //============ Build a hash of team/category names by code [TODO] Api-ize
+	                    $category_name_hash = array();
+	                    $teams = DAO_Workflow::getTeams();
+	                    $team_categories = DAO_Category::getTeams();
+
+	                    foreach($teams as $team_id => $team) {
+	                        $category_name_hash['t'.$team_id] = $team->name;
+	                        
+	                        if(is_array($team_categories[$team_id]))
+	                        foreach($team_categories[$team_id] as $category) {
+	                            $category_name_hash['c'.$category->id] = $team->name . ':' .$category->name;
+	                        }
+	                    }
+	                    $tpl->assign('category_name_hash', $category_name_hash);
+	                    //=========================
+	                    
+						$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/teamwork/manage/routing.tpl.php');
+	                    break;
+	            }
+	            
+			    break;
 				
 			case 'dashboards':
 			default:
@@ -359,20 +428,6 @@ class ChTicketsPage extends CerberusPageExtension {
 		                $tpl->assign('category_counts', $category_counts);
 						
 					    @$team_mode = array_shift($request_path);
-					    // Editing
-					    if(0 == strcasecmp($team_mode,"manage")) {
-						    $tpl->assign('team', $team);
-						    
-						    // [TODO] Migrate this DAO stub to worker::search
-						    $members = DAO_Workflow::getTeamWorkers($team_id);
-						    $tpl->assign('members', $members);
-						    
-					        $tpl->cache_lifetime = "0";
-							$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/teamwork/manage.tpl.php');
-							break;
-					        
-					    // Viewing
-					    } else {
 							// ======================================================
 							// Team Tickets (All)
 							// ======================================================
@@ -468,7 +523,6 @@ class ChTicketsPage extends CerberusPageExtension {
 //								$teamTasksView->id => $teamTasksView
 							);
 							$tpl->assign('views', $views);
-						}
                     }
 				}
 				
@@ -814,6 +868,8 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		$tpl->assign('id',$id);
 		
+        $visit = CerberusApplication::getVisit();
+        		
 		$view = DAO_Dashboard::getView($id);
 		$tpl->assign('view', $view);
 		
@@ -827,6 +883,13 @@ class ChTicketsPage extends CerberusPageExtension {
 		$team_categories = DAO_Category::getTeams();
 		$tpl->assign('team_categories', $team_categories);
 		
+        $active_dashboard_id = $visit->get(CerberusVisit::KEY_DASHBOARD_ID, 0);
+        $active_team_id = 0;
+		if(0 == strcmp('t',substr($active_dashboard_id,0,1))) {
+			$active_team_id = intval(substr($active_dashboard_id,1));
+		}
+		$tpl->assign('dashboard_team_id', $active_team_id);
+		
 		if(!empty($view)) {
 			$tpl->cache_lifetime = "0";
 			$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/ticket_view.tpl.php');
@@ -836,13 +899,15 @@ class ChTicketsPage extends CerberusPageExtension {
 	}
 	
 	// Post
-	function saveTeamManageAction() {
+	function saveTeamGeneralAction() {
 	    @$team_id = DevblocksPlatform::importGPC($_REQUEST['team_id'],'integer');
-	    @$add_str = DevblocksPlatform::importGPC($_REQUEST['add'],'string');
+	    
+	    //========== BUCKETS   
 	    @$ids = DevblocksPlatform::importGPC($_REQUEST['ids'],'array');
+	    @$add_str = DevblocksPlatform::importGPC($_REQUEST['add'],'string');
 	    @$names = DevblocksPlatform::importGPC($_REQUEST['names'],'array');
 	    @$deletes = DevblocksPlatform::importGPC($_REQUEST['deletes'],'array');
-
+	    
 	    // Updates
 	    $cats = DAO_Category::getList($ids);
 	    foreach($ids as $idx => $id) {
@@ -864,9 +929,28 @@ class ChTicketsPage extends CerberusPageExtension {
 	    if(!empty($deletes))
 	        DAO_Category::delete(array_values($deletes));
 	    
-        DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','dashboards','team',$team_id)));   
+	    //========== MEMBERS
+	    @$member_adds = DevblocksPlatform::importGPC($_REQUEST['member_adds'],'array');
+	    @$member_deletes = DevblocksPlatform::importGPC($_REQUEST['member_deletes'],'array');
+
+	    // Adds
+	    if(!empty($team_id) && is_array($member_adds) && !empty($member_adds)) {
+            DAO_Workflow::addTeamWorkers($team_id, $member_adds);
+	    }
+	    
+	    // Removals
+	    if(!empty($team_id) && is_array($member_deletes) && !empty($member_deletes)) {
+	        DAO_Workflow::removeTeamWorkers($team_id, $member_deletes);
+	    }
+	       
+        DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','team',$team_id,'general')));
 	}
 	
+	function saveTeamRoutingAction() {
+	    @$team_id = DevblocksPlatform::importGPC($_REQUEST['team_id'],'integer');
+        DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','team',$team_id,'routing')));   
+   	}
+
 	// Ajax
 	function showTeamPanelAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -949,11 +1033,13 @@ class ChTicketsPage extends CerberusPageExtension {
 	function showBatchPanelAction() {
 		@$ids = DevblocksPlatform::importGPC($_REQUEST['ids']);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
+		@$team_id = DevblocksPlatform::importGPC($_REQUEST['team_id'],'integer',0);
 
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 //		$tpl->assign('id', $id);
 		$tpl->assign('view_id', $view_id);
+		$tpl->assign('team_id', $team_id);
 
 	    $unique_sender_ids = array();
 	    $unique_subjects = array();
@@ -1022,6 +1108,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	    @$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
 	    @$senders = DevblocksPlatform::importGPC($_REQUEST['senders'],'string','');
 	    @$subjects = DevblocksPlatform::importGPC($_REQUEST['subjects'],'string','');
+	    @$always_do_for_team = DevblocksPlatform::importGPC($_REQUEST['always_do_for_team'],'integer',0);
 	    
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 	    $viewMgr = CerberusApplication::getVisit()->get(CerberusVisit::KEY_VIEW_MANAGER); /* @var CerberusStaticViewManager $viewMgr */
@@ -1080,6 +1167,17 @@ class ChTicketsPage extends CerberusPageExtension {
 				        
 	                    $tickets_ids = array_keys($tickets);
 	                    
+				        // Did we want to save this and repeat it in the future?
+					    if($always_do_for_team) {
+						  $fields = array(
+						      DAO_TeamRoutingRule::HEADER => 'subject',
+						      DAO_TeamRoutingRule::PATTERN => $v,
+						      DAO_TeamRoutingRule::TEAM_ID => $always_do_for_team,
+						      DAO_TeamRoutingRule::PARAMS => serialize($do)
+						  );
+						  DAO_TeamRoutingRule::create($fields);
+						}
+	                    
                         $action->run($tickets_ids);
 				        
 //			        } while($count);
@@ -1101,8 +1199,19 @@ class ChTicketsPage extends CerberusPageExtension {
 				        
 	                    $tickets_ids = array_keys($tickets);
 	                    
+				        // Did we want to save this and repeat it in the future?
+					    if($always_do_for_team) {
+						  $fields = array(
+						      DAO_TeamRoutingRule::HEADER => 'from',
+						      DAO_TeamRoutingRule::PATTERN => $v,
+						      DAO_TeamRoutingRule::TEAM_ID => $always_do_for_team,
+						      DAO_TeamRoutingRule::PARAMS => serialize($do)
+						  );
+						  DAO_TeamRoutingRule::create($fields);
+						}
+	                    
                         $action->run($tickets_ids);
-				        
+	                    
 //			        } while($count);
 		        }
 		        break;

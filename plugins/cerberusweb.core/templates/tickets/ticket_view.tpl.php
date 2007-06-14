@@ -133,7 +133,7 @@
 			</span>
 			 -->
 			
-			<span id="tourDashboardBatch"><button type="button" onclick="ajax.showBatchPanel('{$view->id}');">bulk update</button></span> <!-- genericAjaxPanel('c=tickets&a=showBatchPanel&view_id={$view->id}',this,true,'500px'); -->
+			<span id="tourDashboardBatch"><button type="button" onclick="ajax.showBatchPanel('{$view->id}','{$dashboard_team_id}');">bulk update</button></span> <!-- genericAjaxPanel('c=tickets&a=showBatchPanel&view_id={$view->id}',this,true,'500px'); -->
 			<!-- <button type="button" onclick="ajax.showCategorizePanel('{$view->id}');">move</button>  -->
 			<button type="button" onclick="ajax.viewCloseTickets('{$view->id}',0);">close</button>
 			<button type="button" onclick="ajax.viewCloseTickets('{$view->id}',1);">report spam</button>

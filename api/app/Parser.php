@@ -171,9 +171,11 @@ class CerberusParser {
 				DAO_Ticket::LAST_WROTE_ID => intval($fromAddressId),
 				DAO_Ticket::CREATED_DATE => $iDate,
 				DAO_Ticket::UPDATED_DATE => $iDate,
-				DAO_Ticket::TEAM_ID => intval($team_id)
+				DAO_Ticket::TEAM_ID => intval($team_id),
 			);
 			$id = DAO_Ticket::createTicket($fields);
+
+			self::parseTeamRules($team_id, $id, $fromAddress, $sSubject);
 		}
 		
 		// [JAS]: Add requesters to the ticket
@@ -238,6 +240,7 @@ class CerberusParser {
 		unset($message);
 		
 		$ticket = DAO_Ticket::getTicket($id);
+		
 		return $ticket;
 	}
 
@@ -354,6 +357,54 @@ class CerberusParser {
 		}
 		
 		return $out;
+	}
+	
+	/**
+	 * Enter description here...
+	 *
+	 * @param integer $team_id
+	 * @param CerberusTicket $ticket
+	 */
+	static private function parseTeamRules($team_id, $ticket_id, $fromAddress, $sSubject) {
+		// Check the team's inbox rules and see if we have a new destination
+        if(!empty($team_id)) {
+            list($team_rules, $count) = DAO_TeamRoutingRule::search(
+                array(
+                    new DevblocksSearchCriteria(SearchFields_TeamRoutingRule::TEAM_ID,'=',$team_id)
+                ),
+                -1,
+                0,
+                SearchFields_TeamRoutingRule::POS,
+                false,
+                false
+            );
+            
+            $rule_ids = array_keys($team_rules);
+            
+            if(!empty($rule_ids)) {
+   	            $team_rules = DAO_TeamRoutingRule::getList($rule_ids);
+   	            
+   	            echo "Scanning (From: ",$fromAddress,"; Subject: ",$sSubject,")<BR>";
+   	            
+   	            foreach($team_rules as $rule) { /* @var $rule Model_TeamRoutingRule */
+   	                $pattern = $rule->getPatternAsRegexp();
+   	                $haystack = ($rule->header=='from') ? $fromAddress : $sSubject ;
+   	                if(preg_match($pattern, $haystack)) {
+   	                    echo "I matched ($pattern) for ($ticket_id)!<br>";
+   	                    
+   	                    $action = new Model_DashboardViewAction();
+   	                    $action->params = $rule->params;
+   	                    $action->run(array($ticket_id));
+   	                    
+   	                    DAO_TeamRoutingRule::update($rule->id, array(
+   	                        DAO_TeamRoutingRule::POS => intval($rule->pos) + 1
+   	                    ));
+   	                    
+   	                    break;
+   	                }
+   	            }
+            }
+        }
 	}
 };
 ?>

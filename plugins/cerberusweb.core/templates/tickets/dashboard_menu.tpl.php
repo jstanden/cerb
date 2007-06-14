@@ -34,7 +34,7 @@
 				{if substr($active_dashboard_id,0,1) == 't'}
 				<tr>
 					<td width="100%" style="padding:2px;">
-						<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}"> <a href="{devblocks_url}c=tickets&a=dashboards&team=team&id={$dashboard_team_id}&mode=manage{/devblocks_url}">{$translate->_('teamwork.team_management')|capitalize}</a><br>
+						<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}"> <a href="{devblocks_url}c=tickets&team=team&id={$dashboard_team_id}{/devblocks_url}">{$translate->_('teamwork.team_management')|capitalize}</a><br>
 					</td>
 				</tr>
 				{/if}
