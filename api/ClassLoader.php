@@ -88,6 +88,22 @@ class CerberusClassLoader {
 	}
 	
 	private static function _initPEAR() {
+		self::registerClasses('Mail.php',array(
+			'Mail',
+		));
+		
+		self::registerClasses('Mail/Mime.php', array(
+			'Mail_mime',
+		));
+		
+		self::registerClasses('Mail/mimeDecode.php', array(
+			'Mail_mimeDecode',
+		));
+
+		self::registerClasses('Mail/RFC822.php', array(
+			'Mail_RFC822',
+		));
+
 		self::registerClasses('Text/Password.php', array(
 			'Text_Password',
 		));
