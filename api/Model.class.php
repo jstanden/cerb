@@ -41,9 +41,7 @@ class Model_DashboardViewAction {
 	 * @param integer[] $ticket_ids
 	 */
 	function run($ticket_ids) {
-		$session = DevblocksPlatform::getSessionService();
-		$visit = $session->getVisit(); /* @var $visit CerberusVisit */
-		$agent_id = $visit->getWorker()->id;
+	    $agent_id = CerberusApplication::getActiveWorker()->id;
 		
 		if(is_array($ticket_ids))
 		foreach($ticket_ids as $ticket_id) {
@@ -68,13 +66,14 @@ class Model_DashboardViewAction {
 						
 						if($v == CerberusTicketSpamTraining::NOT_SPAM) {
 							CerberusBayes::markTicketAsNotSpam($ticket_id);
-						} else {
+						} elseif($v == CerberusTicketSpamTraining::SPAM) {
 							CerberusBayes::markTicketAsSpam($ticket_id);
 						}
 						
 						break;
 					
 					case 'team':
+					    // [TODO] Make sure the team/bucket still exists
 						list($team_id,$category_id) = CerberusApplication::translateTeamCategoryCode($v);
 						$fields[DAO_Ticket::TEAM_ID] = $team_id;
 						$fields[DAO_Ticket::CATEGORY_ID] = $category_id;
@@ -328,7 +327,7 @@ class CerberusTicket {
 	
 	function getMessages() {
 		$messages = DAO_Ticket::getMessagesByTicket($this->id);
-		return $messages[0];
+		return $messages;
 	}
 	
 	function getRequesters() {

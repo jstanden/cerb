@@ -367,12 +367,12 @@ var cAjaxCalls = function() {
 		});	
 	}
 	
-	this.viewMoveTickets = function(view_id,move_to) {
+	this.viewMoveTickets = function(view_id) {
 		var formName = 'viewForm'+view_id;
 		var viewForm = document.getElementById(formName);
 		if(null == viewForm) return;
 
-		genericAjaxPost(formName, '', 'c=tickets&a=viewMoveTickets', function(o) {
+		genericAjaxPost(formName, '', 'c=tickets&a=viewMoveTickets&view_id='+view_id, function(o) {
 			ajax.getRefresh(view_id);
 		});
 	}

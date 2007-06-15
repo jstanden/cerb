@@ -12,9 +12,9 @@
 			<table cellpadding="2" cellspacing="0" border="0">
 				<tr style="background-color:rgb(240, 240, 240);border-bottom:1px solid rgb(130, 130, 130);">
 					<td nowrap="nowrap"><span style="font-weight:bold;margin:0px 5px 0px 5px;">Priority</span></td>
-					<td nowrap="nowrap"><span style="font-weight:bold;margin:0px 5px 0px 5px;">Sent to</span></td>
+					<td nowrap="nowrap"><span style="font-weight:bold;margin:0px 5px 0px 5px;">Sent to:</span></td>
 					<td></td>
-					<td nowrap="nowrap"><span style="font-weight:bold;margin:0px 5px 0px 5px;">Deliver to team</span></td>
+					<td nowrap="nowrap"><span style="font-weight:bold;margin:0px 5px 0px 5px;">Deliver to inbox:</span></td>
 					<td nowrap="nowrap"><span style="font-weight:bold;">Remove</span></td>
 					<td></td>
 				</tr>
@@ -53,7 +53,7 @@
 			</table>
 			<br>
 			
-			<b>Which team should receive any unrouted mail?</b><br> 
+			<b>Which team inbox should receive any unrouted mail?</b><br> 
 			<select name="default_team_id">
 				<option value="0">-- None (Bounce) --
 			{if !empty($teams)}

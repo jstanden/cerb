@@ -116,7 +116,7 @@
 </table>
 <table cellpadding="2" cellspacing="0" border="0" width="100%" class="tableBg">
 	<tr>
-		<td>
+		<td colspan="2">
 		    {if $first_view}<div id="tourDashboardShortcuts"></div>{/if}
 		    <!-- 
 			<select name="action_id" onchange="toggleDiv('action{$view->id}',(this.selectedIndex>0)?'inline':'none');">
@@ -139,16 +139,17 @@
 			<button type="button" onclick="ajax.viewCloseTickets('{$view->id}',1);">report spam</button>
 			<button type="button" onclick="ajax.viewCloseTickets('{$view->id}',2);">delete</button>
 			
-			<select name="move_to" onchange="ajax.viewMoveTickets('{$view->id}',this.form.move_to[this.selectedIndex].value);">
+			<input type="hidden" name="move_to" value="">
+			<select name="move_to_select" onchange="this.form.move_to.value=this.form.move_to_select[this.selectedIndex].value;ajax.viewMoveTickets('{$view->id}');">
 				<option value="">-- move to --</option>
-				<optgroup label="Team (Inbox)">
+				<optgroup label="Inboxes" style="">
 					{foreach from=$teams item=team}
 						<option value="t{$team->id}">{$team->name}</option>
 					{/foreach}
 					</optgroup>
 					{foreach from=$team_categories item=categories key=teamId}
 						{assign var=team value=$teams.$teamId}
-						<optgroup label="{$team->name}">
+						<optgroup label="-- {$team->name} --">
 						{foreach from=$categories item=category}
 					<option value="c{$category->id}">{$category->name}</option>
 				{/foreach}
@@ -159,7 +160,20 @@
 		</td>
 	</tr>
 	<tr>
-		<td align="right">
+		<td align="left" valign="top">
+			{if !empty($move_to_counts)}
+			<span style="font-size:100%;">
+			<b>Move: </b>
+				{foreach from=$move_to_counts item=move_count key=move_code}
+					{assign var=move_to_name value=$category_name_hash.$move_code}
+					{if !empty($move_to_name)}
+						<b>&raquo;</b><a href="javascript:;" onclick="document.viewForm{$view->id}.move_to.value='{$move_code}';ajax.viewMoveTickets('{$view->id}');" title="Used {$move_count} times.">{$move_to_name}</a>
+					{/if}
+				{/foreach}
+			</span>
+			{/if}
+		</td>
+		<td align="right" valign="top" nowrap="nowrap">
 			{math assign=fromRow equation="(x*y)+1" x=$view->renderPage y=$view->renderLimit}
 			{math assign=toRow equation="(x-1)+y" x=$fromRow y=$view->renderLimit}
 			{math assign=nextPage equation="x+1" x=$view->renderPage}

@@ -44,7 +44,6 @@ abstract class CerberusLoginPageExtension extends DevblocksExtension { //impleme
 	function saveConfiguration() {
 //		$field_value = DevblocksPlatform::importGPC($_POST['field_value']);
 //		$this->params['field_name'] = $field_value;
-//		$this->saveParams()
 	}
 	
 	/**
@@ -107,8 +106,7 @@ abstract class CerberusCronPageExtension extends DevblocksExtension {
 	    }
 	    
 	    $this->setParam(self::PARAM_LASTRUN,$ran_at);
-	    $this->setParam(self::PARAM_LOCKED,false);
-	    $this->saveParams();
+	    $this->setParam(self::PARAM_LOCKED,0);
 	}
 	
 	/**

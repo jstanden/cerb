@@ -13,7 +13,7 @@ class ParseCron extends CerberusCronPageExtension {
         echo "<BR>";
         flush();
 
-        $total = 25;
+        $total = 50;
         
 	    $dir = opendir(APP_MAIL_PATH . 'new');
 	    
@@ -121,9 +121,9 @@ class ParseCron extends CerberusCronPageExtension {
 
         echo "Parsing... ";flush();
         $time = microtime(true);
-        CerberusParser::parseMessage($message);
+        $ticket_id = CerberusParser::parseMessage($message);
         $time = microtime(true) - $time;
-        echo "parsed! (",sprintf("%d",($time*1000))," ms)<br>";
+        echo "parsed! (",sprintf("%d",($time*1000))," ms) (Ticket ID: ",$ticket_id,")<br>";
 
         unlink($full_filename);
 

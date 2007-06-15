@@ -60,6 +60,9 @@ class DAO_Bayes {
 			$tmp[] = $db->escape($word);
 		}
 		
+		if(empty($words))
+		    return array();
+		
 		$sql = sprintf("SELECT id,word,spam,nonspam FROM bayes_words WHERE word IN ('%s')",
 			implode("','", $tmp)
 		);
@@ -135,15 +138,19 @@ class DAO_Bayes {
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 	}
 	
-	static function addOneToSpamWord($word_id) {
+	static function addOneToSpamWord($word_ids=array()) {
+	    if(!is_array($word_ids)) $word_ids = array($word_ids);
+	    if(empty($word_ids)) return;
 		$db = DevblocksPlatform::getDatabaseService();
-		$sql = sprintf("UPDATE bayes_words SET spam = spam + 1 WHERE id = %d", $word_id);
+		$sql = sprintf("UPDATE bayes_words SET spam = spam + 1 WHERE id IN(%s)", implode(',',$word_ids));
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 	}
 	
-	static function addOneToNonSpamWord($word_id) {
+	static function addOneToNonSpamWord($word_ids=array()) {
+	    if(!is_array($word_ids)) $word_ids = array($word_ids);
+	    if(empty($word_ids)) return;
 		$db = DevblocksPlatform::getDatabaseService();
-		$sql = sprintf("UPDATE bayes_words SET nonspam = nonspam + 1 WHERE id = %d", $word_id);
+		$sql = sprintf("UPDATE bayes_words SET nonspam = nonspam + 1 WHERE id IN(%s)", implode(',',$word_ids));
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 	}
 	
@@ -1154,11 +1161,11 @@ class DAO_Ticket extends DevblocksORMHelper {
 			$rs->MoveNext();
 		}
 
-		// [JAS]: Count all
-		$rs = $db->Execute($sql);
-		$total = $rs->RecordCount();
+//		// [JAS]: Count all
+//		$rs = $db->Execute($sql);
+//		$total = $rs->RecordCount();
 		
-		return array($messages,$total);
+		return $messages;
 	}
 	
 	/**
@@ -2294,6 +2301,11 @@ class DAO_Workflow {
 			$id
 		);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+
+		$sql = sprintf("DELETE FROM team_routing_rule WHERE team_id = %d",
+			$id
+		);
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 	}
 	
 //	static function setTeamMailboxes($team_id, $mailbox_ids) {
@@ -2714,6 +2726,24 @@ class DAO_Category extends DevblocksORMHelper {
 		}
 		
 		return $team_categories;
+	}
+	
+	// [JAS]: This belongs in API, not DAO
+	static function getCategoryNameHash() {
+	    $category_name_hash = array();
+	    $teams = DAO_Workflow::getTeams();
+	    $team_categories = self::getTeams();
+	
+	    foreach($teams as $team_id => $team) {
+	        $category_name_hash['t'.$team_id] = $team->name;
+	        
+	        if(is_array($team_categories[$team_id]))
+	        foreach($team_categories[$team_id] as $category) {
+	            $category_name_hash['c'.$category->id] = $team->name . ':' .$category->name;
+	        }
+	    }
+	    
+	    return $category_name_hash;
 	}
 	
 	static function getList($ids=array()) {
@@ -3485,19 +3515,24 @@ class SearchFields_Community implements IDevblocksSearchFields {
 };	
 
 class DAO_WorkerPref extends DevblocksORMHelper {
+    const SETTING_TEAM_MOVE_COUNTS = 'team_move_counts';
     
 	static function set($worker_id, $key, $value) {
 		$db = DevblocksPlatform::getDatabaseService();
 		$db->Replace('worker_pref',array('worker_id'=>$worker_id,'setting'=>$key,'value'=>$value),array('worker_id','setting'),true);
 	}
 	
-	static function get($worker_id, $key) {
+	static function get($worker_id, $key, $default=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 		$sql = sprintf("SELECT value FROM worker_pref WHERE setting = %s AND worker_id = %d",
 			$db->qstr($key),
 			$worker_id
 		);
 		$value = $db->GetOne($sql);
+		
+		if(false == $value && !is_null($default)) {
+		    return $default;
+		}
 		
 		return $value;
 	}
@@ -3598,6 +3633,21 @@ class DAO_TeamRoutingRule extends DevblocksORMHelper {
 		return NULL;
 	}
 	
+	public static function getByTeamId($team_id) {
+	    if(!is_array($ids)) $ids = array($ids);
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = sprintf("SELECT id, team_id, header, pattern, pos, params ".
+		    "FROM team_routing_rule ".
+		    "WHERE team_id = %d ".
+		    "ORDER BY pos DESC",
+		    $team_id
+		);
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		return self::_getResultsAsModel($rs);
+	}
+	
     /**
      * @return Model_TeamRoutingRule[]
      */
@@ -3612,6 +3662,14 @@ class DAO_TeamRoutingRule extends DevblocksORMHelper {
 		;
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
+		return self::_getResultsAsModel($rs);
+	}
+	
+	/**
+	 * @param ADORecordSet $rs
+	 * @return Model_TeamRoutingRule[]
+	 */
+	private static function _getResultsAsModel($rs) {
 		$objects = array();
 		
 		while(!$rs->EOF) {

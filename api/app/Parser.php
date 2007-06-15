@@ -11,21 +11,21 @@ class CerberusParser {
 	/**
 	 * Enter description here...
 	 * @param CerberusParserMessage $message
-	 * @return CerberusTicket ticket object
+	 * @return integer $id
 	 */
 	static public function parseMessage($message) {
 //		if (DEVBLOCKS_DEBUG == 'true') {echo ('Entering parseMessage() with rfcMessage :<br>'); print_r ($message); echo ('<hr>');}
 		
-		$ticket = CerberusParser::parseToTicket($message);
+		$id = CerberusParser::parseToTicket($message);
 		
-		return $ticket;
+		return $id;
 	}
 	
 	/**
 	 * Enter description here...
 	 *
 	 * @param CerberusParserMessage $message
-	 * @return unknown
+	 * @return integer
 	 */
 	static public function parseToTicket($message) {
 //		print_r($rfcMessage);
@@ -175,7 +175,13 @@ class CerberusParser {
 			);
 			$id = DAO_Ticket::createTicket($fields);
 
-			self::parseTeamRules($team_id, $id, $fromAddress, $sSubject);
+			if(false !== ($rule = self::parseTeamRules($team_id, $id, $fromAddress, $sSubject))) { /* @var $rule Model_TeamRoutingRule */
+                //Assume our rule match is not spam
+                if(empty($rule->params['spam'])) { // if we didn't already train
+	                echo "Assuming our match isn't spam!<br>";
+                    $enumSpamTraining = CerberusTicketSpamTraining::NOT_SPAM;
+                }
+			}
 		}
 		
 		// [JAS]: Add requesters to the ticket
@@ -239,9 +245,9 @@ class CerberusParser {
 		
 		unset($message);
 		
-		$ticket = DAO_Ticket::getTicket($id);
-		
-		return $ticket;
+//		$ticket = DAO_Ticket::getTicket($id);
+		return $id;
+//		return $ticket;
 	}
 
 	/**
@@ -368,21 +374,11 @@ class CerberusParser {
 	static private function parseTeamRules($team_id, $ticket_id, $fromAddress, $sSubject) {
 		// Check the team's inbox rules and see if we have a new destination
         if(!empty($team_id)) {
-            list($team_rules, $count) = DAO_TeamRoutingRule::search(
-                array(
-                    new DevblocksSearchCriteria(SearchFields_TeamRoutingRule::TEAM_ID,'=',$team_id)
-                ),
-                -1,
-                0,
-                SearchFields_TeamRoutingRule::POS,
-                false,
-                false
-            );
             
-            $rule_ids = array_keys($team_rules);
-            
-            if(!empty($rule_ids)) {
-   	            $team_rules = DAO_TeamRoutingRule::getList($rule_ids);
+//            if(!empty($rule_ids)) {
+                // [TODO] Cache this call
+//   	            $team_rules = DAO_TeamRoutingRule::getList($rule_ids);
+   	            $team_rules = DAO_TeamRoutingRule::getByTeamId($team_id);
    	            
    	            echo "Scanning (From: ",$fromAddress,"; Subject: ",$sSubject,")<BR>";
    	            
@@ -400,11 +396,13 @@ class CerberusParser {
    	                        DAO_TeamRoutingRule::POS => intval($rule->pos) + 1
    	                    ));
    	                    
-   	                    break;
+   	                    return $rule;
    	                }
    	            }
-            }
+//            }
         }
+        
+        return false;
 	}
 };
 ?>

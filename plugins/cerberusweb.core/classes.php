@@ -264,36 +264,11 @@ class ChTicketsPage extends CerberusPageExtension {
 	                    break;
 	                    
 	                case 'routing':
-	                    list($rules, $count) = DAO_TeamRoutingRule::search(
-	                        array(
-	                            new DevblocksSearchCriteria(SearchFields_TeamRoutingRule::TEAM_ID,DevblocksSearchCriteria::OPER_EQ,$team_id)
-	                        ),
-	                        -1,
-	                        0,
-	                        SearchFields_TeamRoutingRule::POS,
-	                        false,
-	                        false
-	                    );
-	                    
-	                    $rule_ids = array_keys($rules);
-	                    $team_rules = DAO_TeamRoutingRule::getList($rule_ids);
+	                    $team_rules = DAO_TeamRoutingRule::getByTeamId($team_id);
 	                    $tpl->assign('team_rules', $team_rules);
 
-	                    //============ Build a hash of team/category names by code [TODO] Api-ize
-	                    $category_name_hash = array();
-	                    $teams = DAO_Workflow::getTeams();
-	                    $team_categories = DAO_Category::getTeams();
-
-	                    foreach($teams as $team_id => $team) {
-	                        $category_name_hash['t'.$team_id] = $team->name;
-	                        
-	                        if(is_array($team_categories[$team_id]))
-	                        foreach($team_categories[$team_id] as $category) {
-	                            $category_name_hash['c'.$category->id] = $team->name . ':' .$category->name;
-	                        }
-	                    }
+	                    $category_name_hash = DAO_Category::getCategoryNameHash();
 	                    $tpl->assign('category_name_hash', $category_name_hash);
-	                    //=========================
 	                    
 						$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/teamwork/manage/routing.tpl.php');
 	                    break;
@@ -427,6 +402,17 @@ class ChTicketsPage extends CerberusPageExtension {
 						$category_counts = DAO_Category::getCategoryCounts(array_keys($categories));
 		                $tpl->assign('category_counts', $category_counts);
 						
+		                // [TODO] Move to API
+	                    $active_worker = CerberusApplication::getActiveWorker();
+			            $move_counts_str = DAO_WorkerPref::get($active_worker->id,DAO_WorkerPref::SETTING_TEAM_MOVE_COUNTS,serialize(array()));
+			            if(is_string($move_counts_str)) {
+			                $category_name_hash = DAO_Category::getCategoryNameHash();
+			                $tpl->assign('category_name_hash', $category_name_hash);
+			                
+			                $move_counts = unserialize($move_counts_str);
+			                $tpl->assign('move_to_counts', array_slice($move_counts,0,10,true));
+			            }
+		                
 					    @$team_mode = array_shift($request_path);
 							// ======================================================
 							// Team Tickets (All)
@@ -667,7 +653,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl->assign('path', $tpl_path);
 	    
 	    $ticket = DAO_Ticket::getTicket($id); /* @var $ticket CerberusTicket */
-	    list($messages,$null) = DAO_Ticket::getMessagesByTicket($id);
+	    $messages = DAO_Ticket::getMessagesByTicket($id);
 	    
         if(!empty($messages)) {	    
 	        $last = array_pop($messages);
@@ -709,33 +695,33 @@ class ChTicketsPage extends CerberusPageExtension {
 		
 		$message->body = $content;
 	    
-		$ticket = CerberusParser::parseMessage($message); /* @var $ticket CerberusTicket */
+		$ticket_id = CerberusParser::parseMessage($message);
 
-		$messages = $ticket->getMessages();
-		$message = array_shift($messages); /* @var $ticket CerberusMessage */
-		$message_id = $message->id;
-		
-		// if this message was submitted with attachments, store them in the filestore and link them to the message_id in the db.
-		if (is_array($files) && !empty($files)) {
-			$settings = CerberusSettings::getInstance();
-			$attachmentlocation = $settings->get(CerberusSettings::SAVE_FILE_PATH);
-		
-			/*
-			// [TODO] This needs cleaned up
-			if(is_array($files['tmp_name']))
-			foreach ($files['tmp_name'] as $idx => $file) {
-				copy($files['tmp_name'][$idx],$attachmentlocation.$message_id.$idx);
-				DAO_Ticket::createAttachment($message_id, $files['name'][$idx], $message_id.$idx);
-			}
-			*/
-		}
+//		list($messages,$null) = DAO_Ticket::getMessagesByTicket($ticket_id);
+//		$message = array_shift($messages); /* @var $message CerberusMessage */
+//		$message_id = $message->id;
+//		
+//		// if this message was submitted with attachments, store them in the filestore and link them to the message_id in the db.
+//		if (is_array($files) && !empty($files)) {
+//			$settings = CerberusSettings::getInstance();
+//			$attachmentlocation = $settings->get(CerberusSettings::SAVE_FILE_PATH);
+//		
+//			/*
+//			// [TODO] This needs cleaned up
+//			if(is_array($files['tmp_name']))
+//			foreach ($files['tmp_name'] as $idx => $file) {
+//				copy($files['tmp_name'][$idx],$attachmentlocation.$message_id.$idx);
+//				DAO_Ticket::createAttachment($message_id, $files['name'][$idx], $message_id.$idx);
+//			}
+//			*/
+//		}
 		
 		// Routing override
-		DAO_Ticket::updateTicket($ticket->id,array(
+		DAO_Ticket::updateTicket($ticket_id,array(
 			DAO_Ticket::TEAM_ID => $team_id
 		));
 
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('display',$ticket->id)));
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('display',$ticket_id)));
 	}
 	
 	function mailboxAction() {
@@ -755,6 +741,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	function viewMoveTicketsAction() {
 	    @$ticket_ids = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'array');
 	    @$move_to = DevblocksPlatform::importGPC($_REQUEST['move_to'],'string');
+//	    @$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 	    
 	    list($team_id,$category_id) = CerberusApplication::translateTeamCategoryCode($move_to);
 	    
@@ -767,6 +754,21 @@ class ChTicketsPage extends CerberusPageExtension {
 	            DAO_Ticket::CATEGORY_ID => $category_id
 	        );
 	        DAO_Ticket::updateTicket($id, $fields);
+	    }
+	    
+	    // Increment the counter of uses for this move (by # of tickets affected)
+	    // [TODO] Move this into a WorkerPrefs API class
+	    $active_worker = CerberusApplication::getActiveWorker(); /* @var $$active_worker CerberusWorker */
+	    if($active_worker->id) {
+	        $move_counts_str = DAO_WorkerPref::get($active_worker->id,DAO_WorkerPref::SETTING_TEAM_MOVE_COUNTS,serialize(array()));
+	        if(is_string($move_counts_str)) {
+	            $move_counts = unserialize($move_counts_str);
+//	            if(!isset($move_counts[$view_id]))
+//	                $move_counts[$view_id] = array();
+	            @$move_counts[$move_to] = intval($move_counts[$move_to]) + count($ticket_ids);
+	            arsort($move_counts);
+	            DAO_WorkerPref::set($active_worker->id,DAO_WorkerPref::SETTING_TEAM_MOVE_COUNTS,serialize($move_counts));
+	        }
 	    }
 	    
 	    echo ' ';
@@ -887,6 +889,16 @@ class ChTicketsPage extends CerberusPageExtension {
         $active_team_id = 0;
 		if(0 == strcmp('t',substr($active_dashboard_id,0,1))) {
 			$active_team_id = intval(substr($active_dashboard_id,1));
+			// [TODO] Move this into an API
+	        $active_worker = CerberusApplication::getActiveWorker();
+            $move_counts_str = DAO_WorkerPref::get($active_worker->id,DAO_WorkerPref::SETTING_TEAM_MOVE_COUNTS,serialize(array()));
+            if(is_string($move_counts_str)) {
+                $category_name_hash = DAO_Category::getCategoryNameHash();
+                $tpl->assign('category_name_hash', $category_name_hash);
+                 
+                $move_counts = unserialize($move_counts_str);
+                $tpl->assign('move_to_counts', array_slice($move_counts,0,10,true));
+            }
 		}
 		$tpl->assign('dashboard_team_id', $active_team_id);
 		
@@ -1856,42 +1868,11 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	    $job->setParam(CerberusCronPageExtension::PARAM_LOCKED, $locked);
 	    $job->setParam(CerberusCronPageExtension::PARAM_DURATION, $duration);
 	    $job->setParam(CerberusCronPageExtension::PARAM_TERM, $term);
-	    $job->saveParams();
 	    
 	    $job->saveConfigurationAction();
 	    	    
 	    DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','jobs')));
 	}
-	
-	// Ajax
-//	function runJobAction() {
-//	    // [TODO] Need security check
-//	    @$id = DevblocksPlatform::importGPC($_REQUEST['id']);
-//
-//		$tpl = DevblocksPlatform::getTemplateService();
-//		$tpl->cache_lifetime = "0";
-//		$tpl_path = dirname(__FILE__) . '/templates/';
-//		$tpl->assign('path', $tpl_path);
-//	    
-//	    $manifest = DevblocksPlatform::getExtension($id);
-//	    $job = $manifest->createInstance();
-//	    
-//	    if(!$job instanceof CerberusCronPageExtension)
-//	        return;
-//	        
-//        $locked = $job->getParam('locked', false);
-//
-//        if(!$locked) {
-//            $job->setParam('locked', true); $job->saveParams(); // [TODO] Kludgey
-//		    $tpl->assign('job', $job);
-//		    $tpl->display($tpl_path . 'configuration/jobs/run.tpl.php');
-//		    $job->_ran(); // [TODO] Hack
-//        } else {
-//            echo "Job is currently locked.  Try again in a minute.";
-//        }
-//	    
-//	    return;
-//	}
 	
 	// Ajax
 	function getWorkerAction() {
@@ -2441,7 +2422,7 @@ class ChCronController extends DevblocksControllerExtension {
 		echo "<HTML>".
 		"<HEAD>".
 		"<TITLE></TITLE>".
-		"<meta http-equiv='Refresh' content='30;" . $url->write('c=cron') . "'>".
+		(empty($job_id) ?  "<meta http-equiv='Refresh' content='30;" . $url->write('c=cron') . "'>" : ""). // only auto refresh on all jobs
 	    "</HEAD>".
 		"<BODY>";
 
@@ -2487,11 +2468,10 @@ class ChCronController extends DevblocksControllerExtension {
 		if(!empty($jobs)) {
 		    foreach($jobs as $nextjob) {
 		        $nextjob->setParam(CerberusCronPageExtension::PARAM_LOCKED, time());
-	            $nextjob->saveParams(); // [TODO] Kludgey
 	    	    $nextjob->_run();
 	        }
 		} else {
-		    echo "Nothing to do yet!";
+		    echo "Nothing to do yet!  (Waiting 30 seconds)";
 		}
 			
 	    echo "</BODY>".

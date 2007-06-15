@@ -38,8 +38,11 @@ class ChCorePatchContainer extends DevblocksPatchContainerExtension {
 		$datadict = NewDataDictionary($db); /* @var $datadict ADODB_DataDict */ // ,'mysql' 
 		
 		$tables = array();
+		$indexes = array();
 		
 		// ***** CloudGlue
+
+        // [TODO] Nuke these
 		
 		$tables['tag_to_content'] = "
 			index_id I2 DEFAULT 0 NOTNULL PRIMARY,
@@ -108,12 +111,14 @@ class ChCorePatchContainer extends DevblocksPatchContainerExtension {
 			name C(32) DEFAULT '' NOTNULL
 		";
 
+		// [TODO] Nuke
 		$tables['category_to_tag'] = "
 			category_id I4 DEFAULT 0 NOTNULL PRIMARY,
 			tag_id I4 DEFAULT 0 NOTNULL PRIMARY
 		";
 		
 		// [TODO] (priority? created?)
+	    // [TODO] Nuke
 		$tables['task'] = "
 			id I4 DEFAULT 0 NOTNULL PRIMARY,
 			ticket_id I4 DEFAULT 0 NOTNULL,
@@ -123,6 +128,7 @@ class ChCorePatchContainer extends DevblocksPatchContainerExtension {
 			content B DEFAULT '' NOTNULL
 		";
 		
+		// [TODO] Nuke
 		$tables['task_owner'] = "
 			task_id I4 DEFAULT 0 NOTNULL PRIMARY,
 			owner_type C(1) NOTNULL PRIMARY,
@@ -192,11 +198,13 @@ class ChCorePatchContainer extends DevblocksPatchContainerExtension {
 //			agent_id I4 DEFAULT 0 NOTNULL PRIMARY
 //		";
 		
+        // [TODO] Nuke
 		$tables['favorite_worker_to_worker'] = "
 			worker_id I4 DEFAULT 0 NOTNULL PRIMARY,
 			agent_id I4 DEFAULT 0 NOTNULL PRIMARY
 		";
 		
+		// [TODO] Move to POP3 plugin
 		$tables['pop3_account'] = "
 			id I4 DEFAULT 0 NOTNULL PRIMARY,
 			enabled I1 DEFAULT 1 NOTNULL,
@@ -227,6 +235,10 @@ class ChCorePatchContainer extends DevblocksPatchContainerExtension {
 			nonspam I4 DEFAULT 0
 		";
 		
+		$indexes['bayes_words'] = array(
+		    'word' => 'word',
+		);
+		
 		$tables['bayes_stats'] = "
 			spam I4 DEFAULT 0,
 			nonspam I4 DEFAULT 0
@@ -245,6 +257,17 @@ class ChCorePatchContainer extends DevblocksPatchContainerExtension {
 			setting C(32) DEFAULT '' NOTNULL PRIMARY,
 			value B DEFAULT ''
 		";
+
+//		// Worker Learning 
+//		$tables['worker'] = "
+//			id I4 DEFAULT 0 NOTNULL PRIMARY,
+//			team_id I4 DEFAULT 0 NOTNULL,
+//			header C(64) DEFAULT 'from',
+//			pattern C(255) DEFAULT '' NOTNULL,
+//			pos I2 DEFAULT 0 NOT NULL,
+//			created I4 DEFAULT 0 NOT NULL,
+//			params B DEFAULT ''
+//		";
 		
 		// Team Routing
 		$tables['team_routing_rule'] = "
@@ -253,6 +276,7 @@ class ChCorePatchContainer extends DevblocksPatchContainerExtension {
 			header C(64) DEFAULT 'from',
 			pattern C(255) DEFAULT '' NOTNULL,
 			pos I2 DEFAULT 0 NOT NULL,
+			created I4 DEFAULT 0 NOT NULL,
 			params B DEFAULT ''
 		";
 		
@@ -276,6 +300,18 @@ class ChCorePatchContainer extends DevblocksPatchContainerExtension {
 					exit;
 					return FALSE;
 				}
+
+				// Add indexes for this table if we have them
+				if(is_array($indexes) && $indexes[$table])
+				foreach($indexes[$table] as $idxname => $idxflds) {
+					$sqlarray = $dict->CreateIndexSQL($idxname, $table, $idxflds);
+					if(!$datadict->ExecuteSQLArray($sqlarray,false)) {
+						echo '[' . $table . '] ' . $db->ErrorMsg();
+						exit;
+						return FALSE;
+					}
+				}
+				
 			}
 		}
 		

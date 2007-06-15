@@ -5,6 +5,7 @@ class CerberusBayes {
 	const PROBABILITY_UNKNOWN = 0.4;
 	const PROBABILITY_MEDIAN = 0.5;
 	const MAX_INTERESTING_WORDS = 15;
+	const MAX_BODY_LENGTH = 15000;
 	
 	/**
 	 * @param string $text A string of text to break into unique words
@@ -60,11 +61,16 @@ class CerberusBayes {
 	
 	static private function _markTicketAs($ticket_id,$spam=true) {
 		// pull up text of first ticket message
-		@list($message_id, $first_message) = each(array_shift(DAO_Ticket::getMessagesByTicket($ticket_id))); /* @var $first_message CerberusMessage */
-		if(!($first_message instanceOf CerberusMessage)) return FALSE;
+	    $messages = DAO_Ticket::getMessagesByTicket($ticket_id);
+	    $first_message = array_shift($messages);
+
+		if(empty($first_message) || !($first_message instanceOf CerberusMessage)) 
+		    return FALSE;
 		
 		// Pass text to analyze() to get back interesting words
 		$content = $first_message->getContent();
+	    $content = substr($content, 0, strrpos(substr($content, 0, self::MAX_BODY_LENGTH), ' '));
+		
 		$words = self::processText($content);
 		
 		// Train interesting words as spam/notspam
@@ -72,12 +78,16 @@ class CerberusBayes {
 		self::_trainWords($out['words'],$spam);
 		
 		// Increase the bayes_stats spam or notspam total count by 1
-		if($spam) DAO_Bayes::addOneToSpamTotal(); else DAO_Bayes::addOneToNonSpamTotal();
+		if($spam) {
+		    DAO_Bayes::addOneToSpamTotal(); 
+		} else {
+		    DAO_Bayes::addOneToNonSpamTotal();
+		}
 		
 		// Forced training should leave a cache of 0.0001 or 0.9999 on the ticket table
 		$fields = array(
 			'spam_score' => ($spam) ? 0.9999 : 0.0001,
-			'spam_training' => ($spam) ? 'S' : 'N'
+			'spam_training' => ($spam) ? CerberusTicketSpamTraining::SPAM : CerberusTicketSpamTraining::NOT_SPAM
 		);
 		DAO_Ticket::updateTicket($ticket_id,$fields);
 	}
@@ -87,11 +97,21 @@ class CerberusBayes {
 	 * @param boolean $spam
 	 */
 	static private function _trainWords($words, $spam=true) {
-		if(is_array($words))
+		if(!is_array($words))
+		    return;
+	
+		$ids = array();
 		foreach($words as $word) { /* @var $word CerberusBayesWord */
-			if($spam) DAO_Bayes::addOneToSpamWord($word->id); 
-				else DAO_Bayes::addOneToNonSpamWord($word->id);  
+		    $ids[] = $word->id;
 		}
+		    
+		if($spam) {
+		    DAO_Bayes::addOneToSpamWord($ids); 
+		} else { 
+		    DAO_Bayes::addOneToNonSpamWord($ids);
+		}
+		
+		unset($ids);
 	}
 	
 	/**
@@ -99,7 +119,7 @@ class CerberusBayes {
 	 */
 	static private function _lookupWordIds($words) {
 		$pos = 0;
-		$batch_size = 10;
+		$batch_size = 100; //[TODO] Tune this
 		$outwords = array(); // 
 				
 		while(array() != ($batch = array_slice($words,$pos,$batch_size,true))) {
@@ -228,14 +248,17 @@ class CerberusBayes {
 	
 	static function calculateTicketSpamProbability($ticket_id) {
 		// pull up text of first ticket message
-		@list($message_id, $first_message) = each(array_shift(DAO_Ticket::getMessagesByTicket($ticket_id))); /* @var $first_message CerberusMessage */
-		if(!($first_message instanceOf CerberusMessage)) return FALSE;
+	    $messages = DAO_Ticket::getMessagesByTicket($ticket_id);
+	    $first_message = array_shift($messages);
+	    
+		if(empty($first_message) || !($first_message instanceOf CerberusMessage)) 
+		    return FALSE;
 		
 		// Pass text to analyze() to get back interesting words
 		$content = $first_message->getContent();
 		
 		// Only check the first 15000 characters for spam, rounded to a sentence
-	    $content = substr($content, 0, strrpos(substr($content, 0, 15000), ' '));
+	    $content = substr($content, 0, strrpos(substr($content, 0, self::MAX_BODY_LENGTH), ' '));
 
 		$words = self::processText($content);
 		
