@@ -4,18 +4,30 @@
 {foreach from=$ticket->getMessages() item=message name=messages}
 {if $smarty.foreach.messages.last}<a name="latest"></a>{/if}
 <!-- class="displayConversationTable" -->
-<div class="block" id="{$ticket->id}t">
+<div class="block" id="{$message->id}t">
 <table style="text-align: left; width: 100%;" border="0" cellpadding="2" cellspacing="0">
   <tbody>
     <tr>
       <td>
-      {if isset($message->headers.from)}<h3>From: {$message->headers.from|escape:"htmlall"|nl2br}</h3>{/if}
+      <table cellspacing="0" cellpadding="0" width="100%" border="0">
+      	<tr>
+      		<td>
+      			{if isset($message->headers.from)}<h3>From: {$message->headers.from|escape:"htmlall"|nl2br}</h3>{/if}
+      		</td>
+      		<td align="right">
+		      {if !$smarty.foreach.messages.last}
+				<a href=javascript:;" onclick="toggleDiv('{$message->id}c');">toggle message</a>
+			  {else}
+			  	<a href="#{$message->id}b">skip to ending</a>
+		      {/if}
+      		</td>
+      	</tr>
+      </table>
       {if isset($message->headers.to)}<b>To:</b> {$message->headers.to|escape:"htmlall"|nl2br}<br>{/if}
-      {if isset($message->headers.subject)}<b>Subject:</b> {$message->headers.subject|escape:"htmlall"|nl2br}<br>{/if}
+      <!-- {if isset($message->headers.subject)}<b>Subject:</b> {$message->headers.subject|escape:"htmlall"|nl2br}<br>{/if} -->
       {if isset($message->headers.date)}<b>Date:</b> {$message->headers.date|escape:"htmlall"|nl2br}<br>{/if}
       
-      <a href="#{$ticket->id}b">skip to end</a><br>
-
+      <div id="{$message->id}c" style="display:{if $smarty.foreach.messages.last}block{else}none{/if};">
       {* // [TODO] Move this to an Ajax packet for full headers 
       	{if is_array($message->headers)}
       	{foreach from=$message->headers item=headerValue key=headerKey}
@@ -42,7 +54,7 @@
 			      	<a href="javascript:;">more &raquo;</a>
       			</td>
       			<td align="right">
-      				[ <a href="#{$ticket->id}t">top</a> ]
+      				<a href="#{$message->id}t">top</a>
       			</td>
       		</tr>
       	</table>
@@ -66,12 +78,14 @@
 			{/foreach}<br>
 		</ul>
 		{/if}
+		
+		</div> <!-- end visible -->
       </td>
     </tr>
   </tbody>
 </table>
 </div>
-<div id="{$ticket->id}b"></div>
+<div id="{$message->id}b"></div>
 <form id="reply{$message->id}" action="{devblocks_url}{/devblocks_url}" method="POST" enctype="multipart/form-data"></form>
 {if !$smarty.foreach.messages.last}<br>{/if}
 {/foreach}

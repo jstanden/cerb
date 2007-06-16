@@ -25,7 +25,7 @@
 				<blockquote style="margin:2px;margin-left:30px;font-size:90%;color:rgb(130,130,130);">
 				{foreach from=$rule->params item=v key=k name=params}
 					{if $k == 'closed' && !empty($v)}
-						{if $v}Close Ticket{else}Open Ticket{/if}<br>
+						{if $v==1}Close Ticket{elseif $v==0}Open Ticket{elseif $v==2}Delete Ticket{/if}<br>
 					{elseif $k == 'priority' && !empty($v)}
 						Set Priority to '{$v}'<br>
 					{elseif $k == 'spam' && !empty($v)}

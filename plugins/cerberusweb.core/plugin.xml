@@ -42,6 +42,7 @@
  
 		<!-- Routers -->
 		
+		<!-- 
 		<extension point="devblocks.router">
 			<id>core.router</id>
 			<name>Cerberus Helpdesk Router</name>
@@ -52,7 +53,8 @@
 			<params>
 			</params>
 		</extension>
-		
+		 -->
+		 
 		<!-- Controllers -->
 		
 		<extension point="devblocks.controller">

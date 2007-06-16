@@ -12,12 +12,14 @@ class Pop3Cron extends CerberusCronPageExtension {
         $mail = DevblocksPlatform::getMailService();
         $accounts = DAO_Mail::getPop3Accounts(); /* @var $accounts CerberusPop3Account[] */
 
+        $timeout = ini_get('max_execution_time');
+        $max_downloads = ($timeout) ? 20 : 50; // [TODO] Make a job setting?
+        
         foreach ($accounts as $account) { /* @var $account CerberusPop3Account */
             if(!$account->enabled)
                 continue;
             
             echo 'Account being parsed is ', $account->nickname, '<br>';
-            $timeout = ini_get('max_execution_time');
             echo 'Time Limit: ', (($timeout) ? $timeout : 'unlimited') ,' secs<br>';
             echo 'Memory Limit: ', ini_get('memory_limit') ,'<br>';
             	
@@ -56,7 +58,7 @@ class Pop3Cron extends CerberusCronPageExtension {
             $check = imap_check($mailbox);
             	
             // [TODO] Make this an account setting?
-            $total = min(20,$check->Nmsgs);
+            $total = min($max_downloads,$check->Nmsgs);
             	
             //			$info = imap_fetch_overview($mailbox,"1:$total",0);
             //			print_r($info);echo "<BR>";

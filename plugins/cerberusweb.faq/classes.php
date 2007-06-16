@@ -5,11 +5,11 @@ class ChFaqPage extends CerberusPageExtension {
 
 		$path = realpath(dirname(__FILE__)) . DIRECTORY_SEPARATOR;
 		
-		CerberusClassLoader::registerClasses($path. 'api/DAO.php', array(
+		DevblocksPlatform::registerClasses($path. 'api/DAO.php', array(
 		    'DAO_Faq'
 		));
 		
-		CerberusClassLoader::registerClasses($path. 'api/Model.php', array(
+		DevblocksPlatform::registerClasses($path. 'api/Model.php', array(
 		    'Model_Faq'
 		));
 	}

@@ -818,6 +818,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 	const PRIORITY = 'priority';
 	const SPAM_TRAINING = 'spam_training';
 	const SPAM_SCORE = 'spam_score';
+	const INTERESTING_WORDS = 'interesting_words';
 	const NUM_TASKS = 'num_tasks';
 	
 	private function DAO_Ticket() {}
@@ -1072,7 +1073,8 @@ class DAO_Ticket extends DevblocksORMHelper {
 		$tickets = array();
 		
 		$sql = "SELECT t.id , t.mask, t.subject, t.is_closed, t.is_deleted, t.priority, t.team_id, t.category_id, ".
-			"t.first_wrote_address_id, t.last_wrote_address_id, t.created_date, t.updated_date, t.due_date, t.spam_training, t.spam_score ".
+			"t.first_wrote_address_id, t.last_wrote_address_id, t.created_date, t.updated_date, t.due_date, t.spam_training, ". 
+			"t.spam_score, t.interesting_words ".
 			"FROM ticket t ".
 			(!empty($ids) ? sprintf("WHERE t.id IN (%s) ",implode(',',$ids)) : " ").
 			"ORDER BY t.updated_date DESC"
@@ -1096,6 +1098,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 			$ticket->due_date = intval($rs->fields['due_date']);
 			$ticket->spam_score = floatval($rs->fields['spam_score']);
 			$ticket->spam_training = $rs->fields['spam_training'];
+			$ticket->interesting_words = $rs->fields['interesting_words'];
 			$tickets[$ticket->id] = $ticket;
 			$rs->MoveNext();
 		}
@@ -1293,6 +1296,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 			"t.spam_training as %s, ".
 			"t.spam_score as %s, ".
 			"t.num_tasks as %s, ".
+			"t.interesting_words as %s, ".
 			"tm.id as %s, ".
 			"tm.name as %s, ".
 			"t.category_id as %s, ".
@@ -1316,6 +1320,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 			    SearchFields_Ticket::TICKET_SPAM_TRAINING,
 			    SearchFields_Ticket::TICKET_SPAM_SCORE,
 			    SearchFields_Ticket::TICKET_TASKS,
+			    SearchFields_Ticket::TICKET_INTERESTING_WORDS,
 			    SearchFields_Ticket::TEAM_ID,
 			    SearchFields_Ticket::TEAM_NAME,
 			    SearchFields_Ticket::CATEGORY_ID,
@@ -1372,6 +1377,7 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 	const TICKET_SPAM_SCORE = 't_spam_score';
 	const TICKET_SPAM_TRAINING = 't_spam_training';
 	const TICKET_TASKS = 't_tasks';
+	const TICKET_INTERESTING_WORDS = 't_interesting_words';
 	const TICKET_CATEGORY_ID = 't_category_id';
 	
 	// Message
@@ -1417,6 +1423,7 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 			SearchFields_Ticket::TICKET_SPAM_TRAINING => new DevblocksSearchField(SearchFields_Ticket::TICKET_SPAM_TRAINING, 't', 'spam_training'),
 			SearchFields_Ticket::TICKET_SPAM_SCORE => new DevblocksSearchField(SearchFields_Ticket::TICKET_SPAM_SCORE, 't', 'spam_score'),
 			SearchFields_Ticket::TICKET_TASKS => new DevblocksSearchField(SearchFields_Ticket::TICKET_TASKS, 't', 'num_tasks'),
+			SearchFields_Ticket::TICKET_INTERESTING_WORDS => new DevblocksSearchField(SearchFields_Ticket::TICKET_INTERESTING_WORDS, 't', 'interesting_words'),
 			SearchFields_Ticket::TICKET_CATEGORY_ID => new DevblocksSearchField(SearchFields_Ticket::TICKET_CATEGORY_ID, 't', 'category_id'),
 			
 			SearchFields_Ticket::MESSAGE_CONTENT => new DevblocksSearchField(SearchFields_Ticket::MESSAGE_CONTENT, 'msg', 'content'),

@@ -78,6 +78,7 @@ class ChCorePatchContainer extends DevblocksPatchContainerExtension {
 			last_wrote_address_id I4 NOTNULL DEFAULT 0,
 			spam_score F NOTNULL DEFAULT 0,
 			spam_training C(1) NOTNULL DEFAULT '',
+			interesting_words C(255) NOTNULL DEFAULT '',
 			num_tasks I1 NOTNULL DEFAULT 0
 		";
 		
@@ -258,17 +259,6 @@ class ChCorePatchContainer extends DevblocksPatchContainerExtension {
 			value B DEFAULT ''
 		";
 
-//		// Worker Learning 
-//		$tables['worker'] = "
-//			id I4 DEFAULT 0 NOTNULL PRIMARY,
-//			team_id I4 DEFAULT 0 NOTNULL,
-//			header C(64) DEFAULT 'from',
-//			pattern C(255) DEFAULT '' NOTNULL,
-//			pos I2 DEFAULT 0 NOT NULL,
-//			created I4 DEFAULT 0 NOT NULL,
-//			params B DEFAULT ''
-//		";
-		
 		// Team Routing
 		$tables['team_routing_rule'] = "
 			id I4 DEFAULT 0 NOTNULL PRIMARY,
@@ -304,7 +294,7 @@ class ChCorePatchContainer extends DevblocksPatchContainerExtension {
 				// Add indexes for this table if we have them
 				if(is_array($indexes) && $indexes[$table])
 				foreach($indexes[$table] as $idxname => $idxflds) {
-					$sqlarray = $dict->CreateIndexSQL($idxname, $table, $idxflds);
+					$sqlarray = $datadict->CreateIndexSQL($idxname, $table, $idxflds);
 					if(!$datadict->ExecuteSQLArray($sqlarray,false)) {
 						echo '[' . $table . '] ' . $db->ErrorMsg();
 						exit;

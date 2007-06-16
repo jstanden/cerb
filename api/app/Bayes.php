@@ -29,6 +29,9 @@ class CerberusBayes {
 		// Sort unique words w/ condensed spaces
 		$words = array_flip(explode(' ', preg_replace('#\s+#', ' ', $text)));
 		
+		// Toss words that are too common
+	    $words = self::_removeCommonWords($words);
+		
 		// Toss anything over/under the word length bounds
 		foreach($words as $k => $v) {
 			$len = strlen($k);
@@ -36,8 +39,71 @@ class CerberusBayes {
 				unset($words[$k]); // toss
 			}
 		}
-		
+
 		return $words;
+	}
+	
+	static private function _removeCommonWords($words) {
+	    // English
+	    unset($words['']);
+	    unset($words['a']);
+	    unset($words['about']);
+	    unset($words['am']);
+	    unset($words['an']);
+	    unset($words['and']);
+	    unset($words['as']);
+	    unset($words['at']);
+	    unset($words['are']);
+	    unset($words['be']);
+	    unset($words['but']);
+	    unset($words['can']);
+	    unset($words['could']);
+//	    unset($words['com']);
+	    unset($words['did']);
+	    unset($words['do']);
+	    unset($words['doesn\'t']);
+	    unset($words['don\'t']);
+	    unset($words['for']);
+	    unset($words['get']);
+	    unset($words['has']);
+	    unset($words['have']);
+	    unset($words['how']);
+//	    unset($words['http']);
+	    unset($words['i']);
+	    unset($words['i\'m']);
+	    unset($words['if']);
+	    unset($words['in']);
+	    unset($words['into']);
+	    unset($words['is']);
+	    unset($words['it']);
+	    unset($words['it\'s']);
+	    unset($words['me']);
+	    unset($words['my']);
+	    unset($words['not']);
+	    unset($words['of']);
+	    unset($words['on']);
+	    unset($words['that']);
+	    unset($words['the']);
+	    unset($words['then']);
+	    unset($words['there']);
+	    unset($words['these']);
+	    unset($words['they']);
+	    unset($words['this']);
+	    unset($words['to']);
+	    unset($words['was']);
+	    unset($words['we']);
+	    unset($words['were']);
+	    unset($words['what']);
+	    unset($words['which']);
+	    unset($words['while']);
+	    unset($words['why']);
+	    unset($words['will']);
+	    unset($words['with']);
+//	    unset($words['www']);
+	    unset($words['you']);
+	    unset($words['your']);
+	    
+	    return $words;
 	}
 	
 	/**
@@ -62,20 +128,23 @@ class CerberusBayes {
 	static private function _markTicketAs($ticket_id,$spam=true) {
 		// pull up text of first ticket message
 	    $messages = DAO_Ticket::getMessagesByTicket($ticket_id);
-	    $first_message = array_shift($messages);
+	    $first_message = array_shift($messages); /* @var $first_message CerberusMessage */
 
 		if(empty($first_message) || !($first_message instanceOf CerberusMessage)) 
 		    return FALSE;
 		
 		// Pass text to analyze() to get back interesting words
-		$content = $first_message->getContent();
+		$content = (!empty($first_message->headers['subject']) ? $first_message->headers['subject'].' ' : '').
+		    $first_message->getContent();
+		
 	    $content = substr($content, 0, strrpos(substr($content, 0, self::MAX_BODY_LENGTH), ' '));
 		
 		$words = self::processText($content);
 		
 		// Train interesting words as spam/notspam
-		$out = self::_calculateSpamProbability($words);
-		self::_trainWords($out['words'],$spam);
+//		$out = self::_calculateSpamProbability($words);
+//		self::_trainWords($out['words'],$spam);
+		self::_trainWords($words,$spam); // [TODO] Testing, train all words
 		
 		// Increase the bayes_stats spam or notspam total count by 1
 		if($spam) {
@@ -87,7 +156,7 @@ class CerberusBayes {
 		// Forced training should leave a cache of 0.0001 or 0.9999 on the ticket table
 		$fields = array(
 			'spam_score' => ($spam) ? 0.9999 : 0.0001,
-			'spam_training' => ($spam) ? CerberusTicketSpamTraining::SPAM : CerberusTicketSpamTraining::NOT_SPAM
+			'spam_training' => ($spam) ? CerberusTicketSpamTraining::SPAM : CerberusTicketSpamTraining::NOT_SPAM,
 		);
 		DAO_Ticket::updateTicket($ticket_id,$fields);
 	}
@@ -135,7 +204,7 @@ class CerberusBayes {
 		foreach($words as $k => $w) {
 			$words[$k]->probability = self::_calculateWordProbability($w);
 			
-			// [JAS]: If a word appears more than 5 times (counting weight) in the corpus, use it.  Otherwise discard.
+			// [JAS]: If a word appears more than 5 times (counting weight) in the corpus, use it.  Otherwise de-emphasize.
 			if(($w->nonspam * 2) + $w->spam >= 5)
 				$words[$k]->interest_rating = self::_getMedianDeviation($w->probability);
 			else
@@ -261,11 +330,19 @@ class CerberusBayes {
 	    $content = substr($content, 0, strrpos(substr($content, 0, self::MAX_BODY_LENGTH), ' '));
 
 		$words = self::processText($content);
-		
 		$out = self::_calculateSpamProbability($words);
+
+		// Make a word list
+	    $rawwords = array();
+	    foreach($out['words'] as $k=>$v) { /* @var $v CerberusBayesWord */
+	        $rawwords[] = $v->word;
+	    }
 		
 		// Cache probability
-		$fields = array('spam_score' => $out['probability']);
+		$fields = array(
+		    DAO_Ticket::SPAM_SCORE => $out['probability'],
+		    DAO_Ticket::INTERESTING_WORDS => substr(implode(',',array_reverse($rawwords)),0,255),
+		);
 		DAO_Ticket::updateTicket($ticket_id, $fields);
 	}
 	

@@ -5,11 +5,11 @@ class ChFaqApp extends Extension_UsermeetTool {
         
         $filepath = realpath(dirname(__FILE__)) . DIRECTORY_SEPARATOR;
         
-        CerberusClassLoader::registerClasses($filepath.'api/DAO.php',array(
+        DevblocksPlatform::registerClasses($filepath.'api/DAO.php',array(
             'DAO_Faq',
             'SearchFields_Faq'
         ));
-        CerberusClassLoader::registerClasses($filepath.'api/Model.php',array(
+        DevblocksPlatform::registerClasses($filepath.'api/Model.php',array(
             'Model_Faq'
         ));
     }

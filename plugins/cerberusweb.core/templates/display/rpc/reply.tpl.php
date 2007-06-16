@@ -18,15 +18,19 @@
 				<tr>
 					<td width="100%" nowrap="nowrap" valign="top" colspan="2">
 						{foreach from=$ticket->getRequesters() item=requester name=requesters}
+						<!-- 
 						<select name="to_type[]">
 							<option value="to">To:</option>
 							<option value="to">Cc:</option>
 							<option value="to">Bcc:</option>
-						</select><!--  
-						--><input type="text" size="65" name="to[]" value="{$requester->email}">
+						</select> --><!--  
+						<input type="text" size="65" name="to[]" value="{$requester->email}">-->
+						<b>To: </b> {$requester->email}
+						{*
 						{if $smarty.foreach.requesters.first}
 							<button type="button" onclick="">add</button>
 						{/if}
+						*}
 						<br>
 						{/foreach}
 					</td>
@@ -64,73 +68,97 @@
 	</tr>
 	<tr>
 		<td>
-			<textarea name="content" rows="15" cols="80" class="reply">{$message->getContent()|trim|wordwrap:70|indent:1:'> '}</textarea>
+			<textarea name="content" rows="12" cols="80" class="reply">{$message->getContent()|trim|indent:1:'> '}</textarea>
 		</td>
 	</tr>
 	<tr>
 		<td>
 			<table cellpadding="2" cellspacing="0" border="0" width="100%">
 				<tr>
-					<td rowspan="4" width="0%" nowrap="nowrap" valign="top"><b>Properties:</b></td>
+					<td rowspan="2" width="0%" nowrap="nowrap" valign="top"><b>Add Attachments:</b></td>
 				</tr>
+				<tr>
+					<td width="100%" valign="top">
+						<input type="file" name="attachment[]" size="45"></input> 
+						<a href="javascript:;" onclick="appendFileInput('displayReplyAttachments','attachment[]');">attach another file</a>
+						<div id="displayReplyAttachments"></div>
+					</td>
+				</tr>
+			</table>
+			<br>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<table cellpadding="2" cellspacing="0" border="0">
+				<tr>
+					<td rowspan="4" nowrap="nowrap" valign="top">
+					<b>Next step:</b>
+					<!-- <input type="hidden" name="closed" value="{if $ticket->is_closed}1{else}0{/if}"> -->
+					</td>
+				</tr>
+				<tr>
+					<td nowrap="nowrap" valign="top" colspan="2">
+						<label><input type="checkbox" name="closed" value="1" onchange="toggleDiv('replyOpen{$message->id}',this.checked?'none':'block');toggleDiv('replyClosed{$message->id}',this.checked?'block':'none');" {if $ticket->is_closed}checked{/if}>This conversation is completed for now.</label>
+
+						<div id="replyOpen{$message->id}" style="display:{if $ticket->is_closed}none{else}block{/if};margin:5px;padding:5px;background-color:rgb(235,235,255);">
+						<b>Would you like to move this conversation to another bucket?</b><br>  
+				      	<select name="bucket_id">
+				      		<option value="">-- no thanks! --</option>
+				      		{if empty($ticket->category_id)}{assign var=t_or_c value="t"}{else}{assign var=t_or_c value="c"}{/if}
+				      		<optgroup label="Inboxes">
+				      		{foreach from=$teams item=team}
+				      			<option value="t{$team->id}">{$team->name}{if $t_or_c=='t' && $ticket->team_id==$team->id} (current bucket){/if}</option>
+				      		{/foreach}
+				      		</optgroup>
+				      		{foreach from=$team_categories item=categories key=teamId}
+				      			{assign var=team value=$teams.$teamId}
+				      			<optgroup label="-- {$team->name} --">
+				      			{foreach from=$categories item=category}
+				    				<option value="c{$category->id}">{$category->name}{if $t_or_c=='c' && $ticket->category_id==$category->id} (current bucket){/if}</option>
+				    			{/foreach}
+				    			</optgroup>
+				     		{/foreach}
+				      	</select>
+				      	</div>
+				      	
+				      	<div id="replyClosed{$message->id}" style="display:{if $ticket->is_closed}block{else}none{/if};margin:5px;padding:5px;background-color:rgb(235,235,255);">
+				      	<b>When would you like to resume this conversation?</b><br> 
+				      	<input type="text" name="ticket_reopen" size="35"><br>
+				      	examples: "Next Monday", "Tomorrow at 11:15AM", "Dec 31 2010"<br>
+				      	(leave blank to wait for a reply before resuming)<br>
+				      	</div>
+				      	
+				      	<br>
+						
+					</td>
+				</tr>
+				<!-- 
 				<tr>
 					<td width="0%" nowrap="nowrap" valign="top">Status:</td>
 					<td width="100%" valign="top">
 						<label><input type="checkbox" name="closed" value="1" {if $ticket->is_closed}checked{/if}>closed</label>
 					</td>
 				</tr>
-				<tr>
-					<td width="0%" nowrap="nowrap" valign="top">Move to:</td>
-					<td width="100%" valign="top">
-				      	<select name="category_id">
-				      		{if empty($ticket->category_id)}{assign var=t_or_c value="t"}{else}{assign var=t_or_c value="c"}{/if}
-				      		<optgroup label="Team (No Category)">
-				      		{foreach from=$teams item=team}
-				      			<option value="t{$team->id}" {if $t_or_c=='t' && $ticket->team_id==$team->id}selected{/if}>{$team->name}</option>
-				      		{/foreach}
-				      		</optgroup>
-				      		{foreach from=$team_categories item=categories key=teamId}
-				      			{assign var=team value=$teams.$teamId}
-				      			<optgroup label="{$team->name}">
-				      			{foreach from=$categories item=category}
-				    				<option value="c{$category->id}" {if $t_or_c=='c' && $ticket->category_id==$category->id}selected{/if}>{$category->name}</option>
-				    			{/foreach}
-				    			</optgroup>
-				     		{/foreach}
-				      	</select>
-					</td>
-				</tr>
-				<tr>
-					<td width="0%" nowrap="nowrap" valign="top">Priority:</td>
-					<td width="100%" valign="top">
+				 -->
+				      	<!-- 
+				      	Set Priority:
 						<label><input type="radio" name="priority" value="0" {if $ticket->priority==0}checked{/if}><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/star_alpha.gif{/devblocks_url}"></label>
 						<label><input type="radio" name="priority" value="25" {if $ticket->priority==25}checked{/if}><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/star_green.gif{/devblocks_url}"></label>
 						<label><input type="radio" name="priority" value="50" {if $ticket->priority==50}checked{/if}><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/star_yellow.gif{/devblocks_url}"></label>
 						<label><input type="radio" name="priority" value="75" {if $ticket->priority==75}checked{/if}><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/star_red.gif{/devblocks_url}"></label>
-					</td>
-				</tr>
-			</table>
-		</td>
-	</tr>
-	<tr>
-		<td>
-			<table cellpadding="2" cellspacing="0" border="0" width="100%">
-				<tr>
-					<td rowspan="2" width="0%" nowrap="nowrap" valign="top"><b>Send Attachments:</b></td>
-				</tr>
-				<tr>
-					<td width="100%" valign="top">
-						<input type="file" name="attachment[]"></input> 
-						<a href="javascript:;" onclick="appendFileInput('displayReplyAttachments','attachment[]');">attach another file</a>
-						<div id="displayReplyAttachments"></div>
-					</td>
-				</tr>
+				      	<br>
+				      	 -->
 			</table>
 		</td>
 	</tr>
 	<tr>
 		<td>
 			<input type="submit" value="Send">
+			<!-- 
+			{if !$ticket->is_closed}<button type="button" onclick="">Send &amp; Close</button>{/if}
+			{if $ticket->is_closed}<button type="button" onclick="">Send &amp; Re-open</button>{/if}
+			-->
 			<input type="button" value="Discard" onclick="clearDiv('reply{$message->id}');">
 		</td>
 	</tr>

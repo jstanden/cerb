@@ -2,10 +2,43 @@
 define("APP_BUILD", 165);
 define("APP_MAIL_PATH", realpath(APP_PATH . '/storage/mail') . DIRECTORY_SEPARATOR);
 
-include_once(APP_PATH . "/api/ClassLoader.php");
 include_once(APP_PATH . "/api/DAO.class.php");
 include_once(APP_PATH . "/api/Model.class.php");
 include_once(APP_PATH . "/api/Extension.class.php");
+
+// App Scope ClassLoading
+$path = APP_PATH . '/api/app/';
+
+DevblocksPlatform::registerClasses($path . 'Bayes.php', array(
+	'CerberusBayes',
+));
+
+DevblocksPlatform::registerClasses($path . 'Mail.php', array(
+	'CerberusMail',
+));
+
+DevblocksPlatform::registerClasses($path . 'Parser.php', array(
+	'CerberusParser',
+	'CerberusParserMessage',
+));
+
+DevblocksPlatform::registerClasses($path . 'Utils.php', array(
+	'CerberusUtils',
+));
+
+// DAO
+$path = APP_PATH . '/api/dao/';
+	
+// Model
+$path = APP_PATH . '/api/model/';
+
+// Extensions
+$path = APP_PATH . '/api/ext/';
+
+// Libs
+DevblocksPlatform::registerClasses(DEVBLOCKS_PATH . 'libs/markdown/markdown.php',array(
+	'Markdown',
+));
 
 class CerberusApplication extends DevblocksApplication {
 	const INDEX_TICKETS = 'tickets';

@@ -12,7 +12,7 @@ class UmPortalController extends DevblocksControllerExtension {
 		$path = realpath(dirname(__FILE__)) . DIRECTORY_SEPARATOR;
 		
 		// Classes
-		CerberusClassLoader::registerClasses($path. 'api/Extension.php', array(
+		DevblocksPlatform::registerClasses($path. 'api/Extension.php', array(
 		    'Extension_UsermeetTool'
 		));
 		    
@@ -108,10 +108,10 @@ class UmCommunityPage extends CerberusPageExtension {
 
 		$path = realpath(dirname(__FILE__)) . DIRECTORY_SEPARATOR;
 		
-		CerberusClassLoader::registerClasses($path. 'api/DAO.php', array(
+		DevblocksPlatform::registerClasses($path. 'api/DAO.php', array(
 		    'DAO_CommunityTool'
 		));
-		CerberusClassLoader::registerClasses($path. 'api/Model.php', array(
+		DevblocksPlatform::registerClasses($path. 'api/Model.php', array(
 		    'Model_CommunityTool'
 		));
 	}

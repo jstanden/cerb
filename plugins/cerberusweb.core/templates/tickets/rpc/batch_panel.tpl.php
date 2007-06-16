@@ -11,6 +11,7 @@
 <input type="hidden" name="c" value="tickets">
 <input type="hidden" name="a" value="doBatchUpdate">
 <input type="hidden" name="view_id" value="{$view_id}">
+<input type="hidden" name="ticket_ids" value="">
 <div style="height:400px;overflow:auto;border:1px solid rgb(180,180,180);margin:2px;padding:3px;background-color:rgb(255,255,255);">
 
 <h2>With:</h2>
@@ -74,6 +75,7 @@
 			{foreach from=$statuses item=k key=v}
 			<option value="{$v}">{$k}</option>
 			{/foreach}
+			<option value="2">Deleted</option>
 		</select></td>
 	</tr>
 	<tr>

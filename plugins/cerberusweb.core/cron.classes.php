@@ -91,14 +91,14 @@ class ParseCron extends CerberusCronPageExtension {
 		    } else { // no content name
 		        if($info['content-type'] == 'text/plain') {
 		            ob_start();
-		            mailparse_msg_extract_part_file($section, $full_filename);
-		            $message->body .= ob_get_contents();
+		            @mailparse_msg_extract_part_file($section, $full_filename);
+		            @$message->body .= ob_get_contents();
 		            ob_end_clean();
 
 		        } elseif($info['content-type'] == 'text/html') {
 		            ob_start();
-		            mailparse_msg_extract_part_file($section, $full_filename);
-		            $message->htmlbody .= ob_get_contents();
+		            @mailparse_msg_extract_part_file($section, $full_filename);
+		            @$message->htmlbody .= ob_get_contents();
 		            ob_end_clean();
 		            // [TODO] Add the html part as an attachment		            
 

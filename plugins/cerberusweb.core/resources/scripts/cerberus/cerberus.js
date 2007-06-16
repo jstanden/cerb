@@ -8,6 +8,7 @@ function appendFileInput(divName,fieldName) {
 	var fileInput = document.createElement('input');
 	fileInput.setAttribute('type','file');
 	fileInput.setAttribute('name',fieldName);
+	fileInput.setAttribute('size','45');
 	
 	frm.appendChild(fileInput);
 	
@@ -113,14 +114,18 @@ var cAjaxCalls = function() {
 		if(null == viewForm) return;
 		var elements = viewForm.elements['ticket_id[]'];
 		if(null == elements) return;
-		var len = elements.length;
 
+		var len = elements.length;
 		var ids = new Array();
-		
-		for(var x=len-1;x>=0;x--) {
-			if(elements[x].checked) {
-				//frm.appendChild(elements[x]);
-				ids[ids.length] = elements[x].value;
+
+		if(null == len && null != elements.value) {
+			ids[0] = elements.value;
+		} else {
+			for(var x=len-1;x>=0;x--) {
+				if(elements[x].checked) {
+					//frm.appendChild(elements[x]);
+					ids[ids.length] = elements[x].value;
+				}
 			}
 		}
 		
@@ -140,13 +145,28 @@ var cAjaxCalls = function() {
 		if(null == viewForm) return;
 		var elements = viewForm.elements['ticket_id[]'];
 		if(null == elements) return;
-		var len = elements.length;
 		
-		for(var x=len-1;x>=0;x--) {
-			if(elements[x].checked) {
-				frm.appendChild(elements[x]);
+		var len = elements.length;
+		var ids = new Array();
+		
+		if(null == len && null != elements.value) {
+			ids[0] = elements.value;
+		} else {
+			for(var x=len-1;x>=0;x--) {
+				if(elements[x].checked) {
+					//frm.appendChild(elements[x]);
+					ids[ids.length] = elements[x].value;
+				}
 			}
-		}		
+		}
+		
+//		for(var x=len-1;x>=0;x--) {
+//			if(elements[x].checked) {
+//				frm.appendChild(elements[x]);
+//			}
+//		}
+
+		frm.ticket_ids.value = ids.join(',');		
 
 		YAHOO.util.Connect.setForm('formBatchUpdate');
 		

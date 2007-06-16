@@ -54,7 +54,18 @@ class Model_DashboardViewAction {
 				
 				switch($k) {
 					case 'closed':
-						$fields[DAO_Ticket::IS_CLOSED] = intval($v);
+					    switch(intval($v)) {
+					        case CerberusTicketStatus::OPEN:
+					            $fields[DAO_Ticket::IS_CLOSED] = 0;
+					            break;
+					        case CerberusTicketStatus::CLOSED:
+					            $fields[DAO_Ticket::IS_CLOSED] = 1;
+					            break;
+					        case 2:
+					            $fields[DAO_Ticket::IS_CLOSED] = 1;
+					            $fields[DAO_Ticket::IS_DELETED] = 1;
+					            break;
+					    }
 						break;
 					
 					case 'priority':
@@ -62,12 +73,15 @@ class Model_DashboardViewAction {
 						break;
 					
 					case 'spam':
-						$fields[DAO_Ticket::SPAM_TRAINING] = $v;
-						
 						if($v == CerberusTicketSpamTraining::NOT_SPAM) {
 							CerberusBayes::markTicketAsNotSpam($ticket_id);
+							$fields[DAO_Ticket::SPAM_TRAINING] = $v;
+							
 						} elseif($v == CerberusTicketSpamTraining::SPAM) {
 							CerberusBayes::markTicketAsSpam($ticket_id);
+							$fields[DAO_Ticket::SPAM_TRAINING] = $v;
+				            $fields[DAO_Ticket::IS_CLOSED] = 1;
+				            $fields[DAO_Ticket::IS_DELETED] = 1;
 						}
 						
 						break;
@@ -322,6 +336,7 @@ class CerberusTicket {
 	public $due_date;
 	public $spam_score;
 	public $spam_training;
+	public $interesting_words;
 	
 	function CerberusTicket() {}
 	

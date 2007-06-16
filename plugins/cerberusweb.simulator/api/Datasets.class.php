@@ -89,7 +89,7 @@ class HostingDataset extends SimulatorDataset {
 		$this->addToken('##lost##',array('forgot','misplaced','lost'));
 		$this->addToken('##password##',array('password','login','details'));
 		$this->addToken('##emotion##',array('lost','frustrated','annoyed','searching','confused'));
-		$this->addToken('##docs##',array('documentation','support','help','materials'));
+		$this->addToken('##docs##',array('documentation','support','help','support material'));
 		$this->addToken('##signup_past##',array('purchased','signed up','started'));
 		$this->addToken('##online##',array('online','up','working','started'));
 		$this->addToken('##cost##',array('pricing','cost','bundles'));
