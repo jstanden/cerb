@@ -126,7 +126,6 @@
 <table cellpadding="2" cellspacing="0" border="0" width="100%" class="tableBg">
 	<tr>
 		<td colspan="2">
-		    {if $first_view}<div id="tourDashboardShortcuts"></div>{/if}
 		    <!-- 
 			<select name="action_id" onchange="toggleDiv('action{$view->id}',(this.selectedIndex>0)?'inline':'none');">
 				<option value="">-- perform shortcut --</option>

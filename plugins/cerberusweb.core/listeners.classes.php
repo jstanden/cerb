@@ -16,7 +16,6 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension implements IDevb
             'tourHeaderQuickLookup' => new DevblocksTourCallout('tourHeaderQuickLookup','Quick Lookup','Here you can quickly search for tickets from anywhere in the helpdesk.  This is generally most useful when someone calls up and you need to promptly locate their ticket.'),
             'tourDashboardActions' => new DevblocksTourCallout('tourDashboardActions','Dashboard Actions','This is where you may change your active dashboard.'),
             'tourDashboardViews' => new DevblocksTourCallout('tourDashboardViews','Ticket Lists','This is where your customized lists of tickets are displayed.'),
-            'tourDashboardShortcuts' => new DevblocksTourCallout('tourDashboardShortcuts','Shortcuts','Here you may quickly perform multiple pre-defined actions to a list of tickets.  Use a shortcut if you\'re frequently using the same actions on different groups of tickets.'), 
             'tourDashboardBatch' => new DevblocksTourCallout('tourDashboardBatch','Batch Updates','Here you may perform multiple actions to any list of tickets.  Use a batch update for actions you use infrequently.'),
             'tourDisplayTasks' => new DevblocksTourCallout('tourDisplayTasks','Tasks','Tasks allow a team to share responsibilities with other teams or individual workers.  Here you can manage this ticket\'s tasks.'),
             'tourDisplayProperties' => new DevblocksTourCallout('tourDisplayProperties','Properties','This is where you can change the properties of the current ticket.'),
@@ -150,7 +149,6 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension implements IDevb
 						            'callouts' => array(
 		                                $callouts['tourDashboardActions'],
 		                                $callouts['tourDashboardViews'],
-		                                $callouts['tourDashboardShortcuts'],
 		                                $callouts['tourDashboardBatch'],
 						            )
 						        );

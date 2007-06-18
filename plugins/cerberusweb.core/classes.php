@@ -325,11 +325,11 @@ class ChTicketsPage extends CerberusPageExtension {
 						$myView->view_columns = array(
 //							SearchFields_Ticket::TICKET_MASK,
 //							SearchFields_Ticket::TICKET_PRIORITY,
-						SearchFields_Ticket::TEAM_NAME,
-						SearchFields_Ticket::CATEGORY_NAME,
+						SearchFields_Ticket::TICKET_NEXT_ACTION,
 						SearchFields_Ticket::TICKET_UPDATED_DATE,
 						SearchFields_Ticket::TICKET_LAST_WROTE,
-						SearchFields_Ticket::TICKET_NEXT_ACTION,
+						SearchFields_Ticket::TEAM_NAME,
+						SearchFields_Ticket::CATEGORY_NAME,
 						SearchFields_Ticket::TICKET_SPAM_SCORE,
 							);
 						$myView->params = array(
@@ -402,7 +402,8 @@ class ChTicketsPage extends CerberusPageExtension {
 						if(empty($team_filters)) $team_filters = array();
 						$tpl->assign('team_filters', $team_filters);
 						
-						$category_counts = DAO_Category::getCategoryCounts(array_keys($categories));
+//						$category_counts = DAO_Category::getCategoryCounts(array_keys($categories));
+						$category_counts = DAO_Category::getCategoryCountsByTeam($team_id);
 		                $tpl->assign('category_counts', $category_counts);
 						
 		                // [TODO] Move to API
@@ -428,10 +429,10 @@ class ChTicketsPage extends CerberusPageExtension {
 								$teamView->dashboard_id = 0;
 								$teamView->view_columns = array(
 //									SearchFields_Ticket::TEAM_NAME,
-									SearchFields_Ticket::CATEGORY_NAME,
+									SearchFields_Ticket::TICKET_NEXT_ACTION,
 									SearchFields_Ticket::TICKET_LAST_WROTE,
 									SearchFields_Ticket::TICKET_UPDATED_DATE,
-									SearchFields_Ticket::TICKET_NEXT_ACTION,
+									SearchFields_Ticket::CATEGORY_NAME,
 									SearchFields_Ticket::TICKET_SPAM_SCORE,
 									);
 								$teamView->params = array();
@@ -575,6 +576,41 @@ class ChTicketsPage extends CerberusPageExtension {
 	    $_SESSION['team_filters'][$team_id] = $filters;
 	    
 	    DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','dashboards','team',$team_id)));
+	}
+	
+	// Ajax
+	function refreshTeamFiltersAction() {
+//	    @$team_id = DevblocksPlatform::importGPC($_POST['team_id'],'integer');
+
+        $visit = CerberusApplication::getVisit();
+        $active_dashboard_id = $visit->get(CerberusVisit::KEY_DASHBOARD_ID, 0);
+        
+		if(0 == strcmp('t',substr($active_dashboard_id,0,1))) {
+		    $team_id = intval(substr($active_dashboard_id,1));
+        } else { // no team dashboard
+            echo ' ';
+            return;
+        }
+
+		$tpl = DevblocksPlatform::getTemplateService();
+		$path = dirname(__FILE__) . '/templates/';
+		$tpl->assign('path', $path);
+		
+		$tpl->assign('dashboard_team_id', $team_id);
+
+		$categories = DAO_Category::getByTeam($team_id);
+		$tpl->assign('categories', $categories);
+		
+		@$team_filters = $_SESSION['team_filters'][$team_id];
+		if(empty($team_filters)) $team_filters = array();
+		$tpl->assign('team_filters', $team_filters);
+		
+		$category_counts = DAO_Category::getCategoryCountsByTeam($team_id);
+        $tpl->assign('category_counts', $category_counts);
+		
+		$tpl->display($path.'tickets/teamwork/categories.tpl.php');
+	    
+//	    DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','dashboards','team',$team_id)));
 	}
 	
 	// Post	

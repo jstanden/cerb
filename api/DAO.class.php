@@ -2917,28 +2917,36 @@ class DAO_Category extends DevblocksORMHelper {
 	/**
 	 * Returns an array of category ticket counts, indexed by category id.
 	 *
-	 * @param array $ids Category IDs to summarize
+	 * @param array $ids Team IDs to summarize
 	 * @return array
 	 */
-	static function getCategoryCounts($ids) {
-		if(!is_array($ids)) $ids = array($ids);
+	static function getCategoryCountsByTeam($team_id) {
+//		if(!is_array($team_ids)) $team_ids = array($team_ids);
 		$db = DevblocksPlatform::getDatabaseService();
 
-		$cat_totals = array('0' => 0);
-
-		if(empty($ids)) return $cat_totals;
+//		$sql = sprintf("SELECT count(*) as hits ".
+//		    "FROM ticket ".
+//		    "WHERE team_id = %d ".
+//		    "AND category_id = 0",
+//		    $team_id
+//		);
+//		$inbox_count = $db->GetOne($sql);
 		
-		if(is_array($ids))
-		foreach($ids as $id) {
-	        $cat_totals[$id] = 0;
-		}
+		$cat_totals = array('total' => 0);
+
+		if(empty($team_id)) return $cat_totals;
+		
+//		if(is_array($team_ids))
+//		foreach($team_ids as $id) {
+//	        $cat_totals[$id] = 0;
+//		}
 		
 		$sql = sprintf("SELECT count(*) as hits, t.category_id, t.team_id ".
 		    "FROM ticket t ".
-		    "WHERE t.category_id IN (%s) ".
+		    "WHERE t.team_id = %d ".
 		    "AND t.is_closed = 0 ".
 		    "GROUP BY t.category_id, t.team_id ",
-		    implode(',', $ids)
+		    $team_id
 		);
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
@@ -2947,17 +2955,66 @@ class DAO_Category extends DevblocksORMHelper {
 		    $team_id = intval($rs->fields['team_id']);
 		    $hits = intval($rs->fields['hits']);
 		    
-		    if(!isset($cat_totals[$cat_id]))
-		        continue;
+//		    if(!isset($cat_totals[$cat_id]))
+//		        continue;
 		    
-		    $cat_totals[$cat_id] = $hits;
-		    $cat_totals[0] += $hits;
+		    $cat_totals[$cat_id] = intval($hits);
+		    
+		    // Non-inbox
+		    if($cat_id) {
+		        $cat_totals['total'] += $hits;
+		    }
 		        
 		    $rs->MoveNext();
 		}
 		
 		return $cat_totals;
 	}	
+	
+	/**
+	 * Returns an array of category ticket counts, indexed by category id.
+	 *
+	 * @param array $ids Category IDs to summarize
+	 * @return array
+	 */
+//	static function getCategoryCounts($ids) {
+//		if(!is_array($ids)) $ids = array($ids);
+//		$db = DevblocksPlatform::getDatabaseService();
+//
+//		$cat_totals = array('0' => 0);
+//
+//		if(empty($ids)) return $cat_totals;
+//		
+//		if(is_array($ids))
+//		foreach($ids as $id) {
+//	        $cat_totals[$id] = 0;
+//		}
+//		
+//		$sql = sprintf("SELECT count(*) as hits, t.category_id, t.team_id ".
+//		    "FROM ticket t ".
+//		    "WHERE t.category_id IN (%s) ".
+//		    "AND t.is_closed = 0 ".
+//		    "GROUP BY t.category_id, t.team_id ",
+//		    implode(',', $ids)
+//		);
+//		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+//		
+//		while(!$rs->EOF) {
+//		    $cat_id = intval($rs->fields['category_id']);
+//		    $team_id = intval($rs->fields['team_id']);
+//		    $hits = intval($rs->fields['hits']);
+//		    
+//		    if(!isset($cat_totals[$cat_id]))
+//		        continue;
+//		    
+//		    $cat_totals[$cat_id] = $hits;
+//		    $cat_totals[0] += $hits;
+//		        
+//		    $rs->MoveNext();
+//		}
+//		
+//		return $cat_totals;
+//	}	
 	
 };
 

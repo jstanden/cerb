@@ -33,7 +33,7 @@
 			<br>
 			<blockquote style="margin:0px;margin-left:5px;">
 				<div id="getwork_team_{$team_id}" style="display:block;margin-bottom:5px;">
-				<label><input type="checkbox" name="uncategorized[]" value="{$team_id}"> <i>Uncategorized</i></label><br>
+				<label><input type="checkbox" name="uncategorized[]" value="{$team_id}"> Inbox</label><br>
 				
 				{foreach from=$team_categories.$team_id item=category}
 					<label><input type="checkbox" name="categories[]" value="{$category->id}" {if isset($x.$x)}checked{/if} onclick=""> {$category->name} {* ({$category_counts.$category_id})*}</label><br>

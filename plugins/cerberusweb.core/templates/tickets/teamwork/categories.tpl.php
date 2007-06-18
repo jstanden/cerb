@@ -1,3 +1,4 @@
+<div id="teamFilters">
 {if !empty($categories)}
 <div class="block">
 <form action="{devblocks_url}{/devblocks_url}" method="post">
@@ -16,15 +17,15 @@
 			<br>
 			
 			<div id="teamCategories" style="display:{if !$team_filters.categorized}none{else}block{/if};">
-			<label><input type="checkbox" name="categories[]" value="0" {if isset($team_filters.categories.0)}checked{/if} onclick="this.form.categorized[1].checked=true;"> Inbox</label><br>
+			<label><input type="checkbox" name="categories[]" value="0" {if isset($team_filters.categories.0)}checked{/if} onclick="this.form.categorized[1].checked=true;"> Inbox ({if isset($category_counts.0)}{$category_counts.0}{else}0{/if})</label><br>
 			<blockquote style="margin:0px;margin-left:5px;margin-bottom:10px;">
 			<table cellpadding="0" cellspacing="0" border="0" width="100%">
 				{foreach from=$categories item=category key=category_id}
-					{if $category_counts.0}
-						{math assign=percent equation="(x/y)*50" x=$category_counts.$category_id y=$category_counts.0 format="%0.0f"}
+					{if $category_counts.total && $category_counts.$category_id}
+						{math assign=percent equation="(x/y)*50" x=$category_counts.$category_id y=$category_counts.total format="%0.0f"}
 					{/if}
 				<tr>
-					<td width="100%"><label><input type="checkbox" name="categories[]" value="{$category->id}" {if isset($team_filters.categories.$category_id)}checked{/if} onclick="this.form.categorized[1].checked=true;"> {$category->name} ({$category_counts.$category_id})</label></td>
+					<td width="100%"><label><input type="checkbox" name="categories[]" value="{$category->id}" {if isset($team_filters.categories.$category_id)}checked{/if} onclick="this.form.categorized[1].checked=true;"> {$category->name} ({if isset($category_counts.$category_id)}{$category_counts.$category_id}{else}0{/if})</label></td>
 					<td width="0%" nowrap="nowrap" style="width:51px;"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/cerb_graph.gif{/devblocks_url}" width="{$percent}" height="15"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/cer_graph_cap.gif{/devblocks_url}" height="15" width="1"></td>
 				</tr>
 				{/foreach}
@@ -44,3 +45,4 @@
 </form>
 </div>
 {/if}
+</div>
