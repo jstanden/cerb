@@ -4,5 +4,5 @@
 [ <a href="{devblocks_url}c=config&a=workflow{/devblocks_url}">teams</a> ] 
 [ <a href="{devblocks_url}c=config&a=mail{/devblocks_url}">mail</a> ] 
 [ <a href="{devblocks_url}c=config&a=extensions{/devblocks_url}">extensions</a> ] 
-[ <a href="{devblocks_url}c=config&a=jobs{/devblocks_url}">jobs</a> ] 
+[ <a href="{devblocks_url}c=config&a=jobs{/devblocks_url}">scheduler</a> ] 
 <br>

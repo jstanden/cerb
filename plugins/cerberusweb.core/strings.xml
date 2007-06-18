@@ -383,6 +383,9 @@
 				<seg>Mask</seg>
 			</tuv>
 		</tu>
+		<tu tuid='ticket.next_action'>
+			<tuv xml:lang="en"><seg>Next Action</seg></tuv>
+		</tu>
 		<tu tuid='ticket.priority'>
 			<tuv xml:lang="en"><seg>Priority</seg></tuv>
 		</tu>

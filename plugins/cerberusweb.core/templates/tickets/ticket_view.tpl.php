@@ -24,8 +24,10 @@
 		{foreach from=$view->view_columns item=header name=headers}
 			{if $header=="t_mask"}
 			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_mask');">{$translate->_('ticket.id')}</a></th>
+			{*
 			{elseif $header=="t_priority"}
 			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_priority');">{$translate->_('ticket.priority')}</a></th>
+			*}
 			{elseif $header=="t_last_wrote"}
 			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_last_wrote');">{$translate->_('ticket.last_wrote')}</a></th>
 			{elseif $header=="t_first_wrote"}
@@ -42,6 +44,8 @@
 			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','m_name');">{$translate->_('ticket.mailbox')}</a></th>
 			{elseif $header=="t_spam_score"}
 			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_spam_score');">{$translate->_('common.spam')}</a></th>
+			{elseif $header=="t_next_action"}
+			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_next_action');">{$translate->_('ticket.next_action')}</a></th>
 			{elseif $header=="tm_name"}
 			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','tm_name');">{$translate->_('common.team')}</a></th>
 			{elseif $header=="cat_name"}
@@ -71,6 +75,7 @@
 		{foreach from=$view->view_columns item=column name=columns}
 			{if $column=="t_mask"}
 			<td><a href="{devblocks_url}c=display&id={$result.t_mask}{/devblocks_url}">{$result.t_mask}</a></td>
+			{*
 			{elseif $column=="t_priority"}
 			<td>
 				{if $result.t_priority >= 75}
@@ -83,6 +88,7 @@
 					<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/star_alpha.gif{/devblocks_url}" title="{$result.t_priority}">
 				{/if}
 			</td>
+			*}
 			{elseif $column=="t_last_wrote"}
 			<td><a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showContactPanel&address={$ticket->last_wrote}',this);">{$result.t_last_wrote}</a></td>
 			{elseif $column=="t_first_wrote"}
@@ -92,13 +98,15 @@
 			{elseif $column=="t_updated_date"}
 			<td>{$result.t_updated_date|date_format}</td>
 			{elseif $column=="t_due_date"}
-			<td>{$result.t_due_date|date_format}</td>
+			<td>{if $result.t_due_date}{$result.t_due_date|date_format}{/if}</td>
 			{*{elseif $column=="t_tasks"}
 			<td align='center'>{if !empty($result.t_tasks)}{$result.t_tasks}{/if}</td>*}
 			{elseif $column=="tm_name"}
 			<td><a href="{devblocks_url}c=tickets&a=dashboards&m=team&id={$result.tm_id}{/devblocks_url}">{$result.tm_name}</a></td>
 			{elseif $column=="cat_name"}
 			<td>{$result.cat_name}</td>
+			{elseif $column=="t_next_action"}
+			<td title="{$result.t_next_action}">{$result.t_next_action|truncate:35}</td>
 			{elseif $column=="t_spam_score"}
 			<td>
 				{math assign=score equation="x*100" format="%0.2f%%" x=$result.t_spam_score}

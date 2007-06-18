@@ -1,5 +1,5 @@
 <?php
-define("APP_BUILD", 165);
+define("APP_BUILD", 167);
 define("APP_MAIL_PATH", realpath(APP_PATH . '/storage/mail') . DIRECTORY_SEPARATOR);
 
 include_once(APP_PATH . "/api/DAO.class.php");
@@ -46,7 +46,7 @@ class CerberusApplication extends DevblocksApplication {
 	const VIEW_SEARCH = 'search';
 	const VIEW_MY_TICKETS = 'teamwork_my';
 	const VIEW_TEAM_TICKETS = 'teamwork_team';
-	const VIEW_TEAM_TASKS = 'teamwork_tasks';
+//	const VIEW_TEAM_TASKS = 'teamwork_tasks';
 	
 	const CACHE_SETTINGS_DAO = 'ch_settings_dao';
 	
@@ -89,17 +89,17 @@ class CerberusApplication extends DevblocksApplication {
 	    return $callouts;
 	}
 	
-    // [JAS]: [TODO] Cache/Kill this
-	static function getPages() {
-		$pages = array();
-		$extModules = DevblocksPlatform::getExtensions("cerberusweb.page");
-		foreach($extModules as $mod) { /* @var $mod DevblocksExtensionManifest */
-			$instance = $mod->createInstance(); /* @var $instance CerberusPageExtension */
-			if($instance instanceof DevblocksExtension && $instance->isVisible())
-				$pages[$mod->id] = $instance;
-		}
-		return $pages;
-	}	
+//    // [JAS]: [TODO] Cache/Kill this
+//	static function getPages() {
+//		$pages = array();
+//		$extModules = DevblocksPlatform::getExtensions("cerberusweb.page");
+//		foreach($extModules as $mod) { /* @var $mod DevblocksExtensionManifest */
+//			$instance = $mod->createInstance(); /* @var $instance CerberusPageExtension */
+//			if($instance instanceof DevblocksExtension && $instance->isVisible())
+//				$pages[$mod->id] = $instance;
+//		}
+//		return $pages;
+//	}	
 	
 	// [TODO] Move to a FormHelper service?
 	static function parseCrlfString($string) {
@@ -489,7 +489,7 @@ class CerberusApplication extends DevblocksApplication {
 		
 		return array(
 			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_MASK,$translate->_('ticket.id')),
-			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_PRIORITY,$translate->_('ticket.priority')),
+//			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_PRIORITY,$translate->_('ticket.priority')),
 			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_LAST_WROTE,$translate->_('ticket.last_wrote')),
 			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_FIRST_WROTE,$translate->_('ticket.first_wrote')),
 			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_CREATED_DATE,$translate->_('ticket.created')),
@@ -498,6 +498,7 @@ class CerberusApplication extends DevblocksApplication {
 			new CerberusDashboardViewColumn(SearchFields_Ticket::CATEGORY_NAME,$translate->_('common.bucket')),
 			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_DUE_DATE,$translate->_('ticket.due')),
 			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_SPAM_SCORE,$translate->_('ticket.spam_score')),
+			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_NEXT_ACTION,$translate->_('ticket.next_action')),
 //			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_TASKS,$translate->_('common.tasks')),
 			);
 	}
@@ -532,10 +533,11 @@ class CerberusSettings {
 	const DEFAULT_REPLY_FROM = 'default_reply_from'; 
 	const DEFAULT_REPLY_PERSONAL = 'default_reply_personal'; 
 	const HELPDESK_TITLE = 'helpdesk_title'; 
-	const SAVE_FILE_PATH = 'save_file_path'; 
 	const SMTP_HOST = 'smtp_host'; 
 	const SMTP_AUTH_USER = 'smtp_auth_user'; 
 	const SMTP_AUTH_PASS = 'smtp_auth_pass'; 
+	const ATTACHMENTS_ENABLED = 'attachments_enabled'; 
+	const ATTACHMENTS_MAX_SIZE = 'attachments_max_size'; 
 	
 	private static $instance = null;
 	
@@ -547,6 +549,8 @@ class CerberusSettings {
 		self::SMTP_HOST => 'localhost',
 		self::SMTP_AUTH_USER => '',
 		self::SMTP_AUTH_PASS => '',
+		self::ATTACHMENTS_ENABLED => 1,
+		self::ATTACHMENTS_MAX_SIZE => 10, // MB
 	);
 
 	/**
@@ -554,8 +558,6 @@ class CerberusSettings {
 	 */
 	private function __construct() {
 	    // Defaults (dynamic)
-	    $this->settings[self::SAVE_FILE_PATH] = realpath(APP_PATH . '/attachments').DIRECTORY_SEPARATOR;
-	    
 		$saved_settings = DAO_Setting::getSettings();
 		foreach($saved_settings as $k => $v) {
 			$this->settings[$k] = $v;

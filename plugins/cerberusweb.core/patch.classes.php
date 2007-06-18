@@ -40,26 +40,6 @@ class ChCorePatchContainer extends DevblocksPatchContainerExtension {
 		$tables = array();
 		$indexes = array();
 		
-		// ***** CloudGlue
-
-        // [TODO] Nuke these
-		
-		$tables['tag_to_content'] = "
-			index_id I2 DEFAULT 0 NOTNULL PRIMARY,
-			tag_id I4 DEFAULT 0 NOTNULL PRIMARY,
-			content_id I8 DEFAULT 0 NOTNULL PRIMARY
-		";
-		
-		$tables['tag_index'] = "
-			id I2 DEFAULT 0 NOTNULL PRIMARY,
-			name C(64) DEFAULT '' NOTNULL 
-		";
-		
-		$tables['tag'] = "
-			id I4 DEFAULT 0 NOTNULL PRIMARY,
-			name C(32) DEFAULT '' NOTNULL 
-		";
-		
 		// ***** Application
 		
 		$tables['ticket'] = "
@@ -79,7 +59,7 @@ class ChCorePatchContainer extends DevblocksPatchContainerExtension {
 			spam_score F NOTNULL DEFAULT 0,
 			spam_training C(1) NOTNULL DEFAULT '',
 			interesting_words C(255) NOTNULL DEFAULT '',
-			num_tasks I1 NOTNULL DEFAULT 0
+			next_action C(255) NOTNULL DEFAULT ''
 		";
 		
 		$tables['message'] = "
@@ -93,11 +73,14 @@ class ChCorePatchContainer extends DevblocksPatchContainerExtension {
 			headers B DEFAULT '' NOTNULL,
 			content B DEFAULT '' NOTNULL
 		";
+		// Spin headers + content blobs into their own table
 		
 		$tables['attachment'] = "
 			id I4 DEFAULT 0 NOTNULL PRIMARY,
 			message_id I4 DEFAULT 0 NOTNULL,
 			display_name C(128) DEFAULT '' NOTNULL,
+			mime_type C(255) DEFAULT '' NOTNULL,
+			file_size I4 DEFAULT 0 NOTNULL,
 			filepath C(255) DEFAULT '' NOTNULL
 		";
 		
@@ -112,30 +95,6 @@ class ChCorePatchContainer extends DevblocksPatchContainerExtension {
 			name C(32) DEFAULT '' NOTNULL
 		";
 
-		// [TODO] Nuke
-		$tables['category_to_tag'] = "
-			category_id I4 DEFAULT 0 NOTNULL PRIMARY,
-			tag_id I4 DEFAULT 0 NOTNULL PRIMARY
-		";
-		
-		// [TODO] (priority? created?)
-	    // [TODO] Nuke
-		$tables['task'] = "
-			id I4 DEFAULT 0 NOTNULL PRIMARY,
-			ticket_id I4 DEFAULT 0 NOTNULL,
-			title C(128) DEFAULT '' NOTNULL,
-			due_date I8 DEFAULT 0 NOTNULL,
-			is_completed I1 DEFAULT 0 NOTNULL,
-			content B DEFAULT '' NOTNULL
-		";
-		
-		// [TODO] Nuke
-		$tables['task_owner'] = "
-			task_id I4 DEFAULT 0 NOTNULL PRIMARY,
-			owner_type C(1) NOTNULL PRIMARY,
-			owner_id I4 NOTNULL PRIMARY
-		";
-		
 		$tables['dashboard'] = "
 			id I4 DEFAULT 0 NOTNULL PRIMARY,
 			name C(32) DEFAULT '' NOTNULL,
@@ -155,6 +114,7 @@ class ChCorePatchContainer extends DevblocksPatchContainerExtension {
 			params B
 		";
 		
+		// [TODO] Nuke?
 		$tables['dashboard_view_action'] = "
 			id I4 DEFAULT 0 NOTNULL PRIMARY,
 			dashboard_view_id I4 DEFAULT 0 NOTNULL,
@@ -169,13 +129,6 @@ class ChCorePatchContainer extends DevblocksPatchContainerExtension {
 			personal C(255) DEFAULT '',
 			bitflags I2 DEFAULT 0
 		";
-		
-//		$tables['mail_rule'] = "
-//			id I4 DEFAULT 0 NOTNULL PRIMARY,
-//			criteria B DEFAULT '' NOTNULL,
-//			sequence C(4) DEFAULT '',
-//			strictness C(4) DEFAULT ''
-//		";
 		
 		$tables['mail_routing'] = "
 			id I4 DEFAULT 0 NOTNULL PRIMARY,
@@ -192,17 +145,6 @@ class ChCorePatchContainer extends DevblocksPatchContainerExtension {
 		$tables['worker_to_team'] = "
 			agent_id I4 DEFAULT 0 NOTNULL PRIMARY,
 			team_id I4 DEFAULT 0 NOTNULL PRIMARY
-		";
-		
-//		$tables['favorite_tag_to_worker'] = "
-//			tag_id I4 DEFAULT 0 NOTNULL PRIMARY,
-//			agent_id I4 DEFAULT 0 NOTNULL PRIMARY
-//		";
-		
-        // [TODO] Nuke
-		$tables['favorite_worker_to_worker'] = "
-			worker_id I4 DEFAULT 0 NOTNULL PRIMARY,
-			agent_id I4 DEFAULT 0 NOTNULL PRIMARY
 		";
 		
 		// [TODO] Move to POP3 plugin

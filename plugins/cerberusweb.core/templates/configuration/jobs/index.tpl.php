@@ -1,6 +1,9 @@
 {include file="file:$path/configuration/menu.tpl.php"}
 <br>
 
+<H2>Scheduler</H2>
+<br>
+
 <div id="tourConfigTasks"></div>
 <div class="block">
 <h2>Scheduled Jobs</h2>

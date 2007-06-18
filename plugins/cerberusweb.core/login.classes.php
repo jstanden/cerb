@@ -7,7 +7,7 @@ class DefaultLoginModule extends CerberusLoginPageExtension {
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/login/login_form_default.tpl.php');
 	}
 	
-	function authenticate($params) {
+	function authenticate($params=array()) {
 	    $email = $params['email'];
 	    $password = $params['password'];
 	    

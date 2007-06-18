@@ -8,7 +8,7 @@ require_once(dirname(__FILE__) . '/Datasets.class.php');
 class CerberusSimulator {
 	private $surnames = array();
 	private $names = array();
-	private $instance = null;
+	private static $instance = null;
 	
 	private function __construct() {
 		srand( ((int)((double)microtime()*1000003)) );
@@ -123,12 +123,11 @@ class CerberusSimulator {
 		$this->names[] = "Deborah";
 	}
 	
-	public function getInstance() {
-		if(@is_null($this->instance)) {
-			$this->instance = new CerberusSimulator();
+	public static function getInstance() {
+		if(null == self::$instance) {
+			self::$instance = new CerberusSimulator();
 		}
-		
-		return $this->instance;
+		return self::$instance;
 	}
 	
 	private function generatePerson() {

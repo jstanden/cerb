@@ -23,15 +23,16 @@ if(!defined('DEVBLOCKS_WEBPATH')) {
 }
 
 define('STEP_ENVIRONMENT', 1);
-define('STEP_DATABASE', 2);
-define('STEP_SAVE_CONFIG_FILE', 3);
-define('STEP_INIT_DB', 4);
-define('STEP_CONTACT', 5);
-define('STEP_OUTGOING_MAIL', 6);
-define('STEP_INCOMING_MAIL', 7);
-define('STEP_WORKFLOW', 8);
-define('STEP_CATCHALL', 9);
-define('STEP_ANTISPAM', 10);
+define('STEP_LICENSE', 2);
+define('STEP_DATABASE', 3);
+define('STEP_SAVE_CONFIG_FILE', 4);
+define('STEP_INIT_DB', 5);
+define('STEP_CONTACT', 6);
+define('STEP_OUTGOING_MAIL', 7);
+define('STEP_INCOMING_MAIL', 8);
+define('STEP_WORKFLOW', 9);
+define('STEP_CATCHALL', 10);
+//define('STEP_ANTISPAM', x);
 define('STEP_REGISTER', 11);
 define('STEP_UPGRADE', 12);
 define('STEP_FINISHED', 13);
@@ -47,6 +48,10 @@ define('TOTAL_STEPS', 13);
  */
 if(empty($step)) $step = STEP_ENVIRONMENT;
 
+@chmod(DEVBLOCKS_PATH . 'tmp/', 0664);
+@chmod(DEVBLOCKS_PATH . 'tmp/templates_c/', 0664);
+@chmod(DEVBLOCKS_PATH . 'tmp/cache/', 0664);
+
 // Make sure the temporary directories of Devblocks are writeable.
 if(!is_writeable(DEVBLOCKS_PATH . "tmp/")) {
 	die(realpath(DEVBLOCKS_PATH . "tmp/") ." is not writeable by the webserver.  Please adjust permissions and reload this page.");
@@ -60,8 +65,25 @@ if(!is_writeable(DEVBLOCKS_PATH . "tmp/cache/")) {
 	die(realpath(DEVBLOCKS_PATH . "tmp/cache/") . " is not writeable by the webserver.  Please adjust permissions and reload this page.");
 }
 
-if(!is_writeable(APP_PATH . "/attachments/")) {
-	die(realpath(APP_PATH . "/attachments/") ." is not writeable by the webserver.  Please adjust permissions and reload this page.");
+@chmod(APP_PATH . '/storage/', 0664);
+@chmod(APP_PATH . '/storage/attachments/', 0664);
+@chmod(APP_PATH . '/storage/mail/new/', 0664);
+@chmod(APP_PATH . '/storage/mail/fail/', 0664);
+
+if(!is_writeable(APP_PATH . "/storage/")) {
+	die(realpath(APP_PATH . "/storage/") ." is not writeable by the webserver.  Please adjust permissions and reload this page.");
+}
+
+if(!is_writeable(APP_PATH . "/storage/attachments/")) {
+	die(realpath(APP_PATH . "/storage/attachments/") ." is not writeable by the webserver.  Please adjust permissions and reload this page.");
+}
+
+if(!is_writeable(APP_PATH . "/storage/mail/new/")) {
+	die(realpath(APP_PATH . "/storage/mail/new/") ." is not writeable by the webserver.  Please adjust permissions and reload this page.");
+}
+
+if(!is_writeable(APP_PATH . "/storage/mail/fail/")) {
+	die(realpath(APP_PATH . "/storage/mail/fail/") ." is not writeable by the webserver.  Please adjust permissions and reload this page.");
 }
 
 //require_once(DEVBLOCKS_PATH . 'libs/Zend.php');
@@ -148,6 +170,22 @@ switch($step) {
 			$fails++;
 		}
 		
+		// Extension: MailParse
+		if(extension_loaded("mailparse")) {
+			$results['ext_mailparse'] = true;
+		} else {
+			$results['ext_mailparse'] = false;
+			$fails++;
+		}
+		
+		// Extension: mbstring
+		if(extension_loaded("mbstring")) {
+			$results['ext_mbstring'] = true;
+		} else {
+			$results['ext_mbstring'] = false;
+			$fails++;
+		}
+		
 		// Extension: SimpleXML
 		if(extension_loaded("simplexml")) {
 			$results['ext_simplexml'] = true;
@@ -161,7 +199,20 @@ switch($step) {
 		$tpl->assign('template', 'steps/step_environment.tpl.php');
 		
 		break;
+	
+	case STEP_LICENSE:
+	    @$accept = DevblocksPlatform::importGPC($_POST['accept'],'integer', 0);
+	    
+	    if(1 == $accept) {
+			$tpl->assign('step', STEP_DATABASE);
+			$tpl->display('steps/redirect.tpl.php');
+			exit;
+	    }
 		
+		$tpl->assign('template', 'steps/step_license.tpl.php');
+		
+	    break;	
+	
 	// Configure and test the database connection
 	// [TODO] This should also patch in app_id + revision order
 	// [TODO] This should remind the user to make a backup (and refer to a wiki article how)
@@ -314,6 +365,7 @@ switch($step) {
 					switch ($plugin_manifest->id) {
 						case "cerberusweb.core":
 						case "cerberusweb.simulator":
+						case "cerberusweb.pop3":
 							$plugin_manifest->setEnabled(true);
 							break;
 						
@@ -673,7 +725,7 @@ switch($step) {
 			$settings = CerberusSettings::getInstance();
 			$settings->set(CerberusSettings::DEFAULT_TEAM_ID,$default_team_id);
 			
-			$tpl->assign('step', STEP_ANTISPAM);
+			$tpl->assign('step', STEP_REGISTER);
 			$tpl->display('steps/redirect.tpl.php');
 			exit;
 		}
@@ -685,41 +737,41 @@ switch($step) {
 		
 		break;
 		
-	// [TODO] Create an anti-spam rule and mailbox automatically
-	case STEP_ANTISPAM:
-		@$setup_antispam = DevblocksPlatform::importGPC($_POST['setup_antispam'],'integer');
-		@$form_submit = DevblocksPlatform::importGPC($_POST['form_submit'],'integer');
-		
-		if($form_submit) {
-			// [TODO] Implement (to check for dupes)
-			$id = 0;
-//			$id = DAO_Mail::lookupMailbox('Spam');
-			
-			if($setup_antispam && empty($id)) {
-//				$id = DAO_Mail::createMailbox('Spam',0);
-
-				// [TODO] Need to fit antispam into the new team-oriented concepts (no more mailbox)
-				
-				// [TODO] Need to create a mail rule to route spam > 90%
-				
-				// Assign the new mailbox to all existing teams
-//				$teams = DAO_Workflow::getTeams();
-//				if(is_array($teams))
-//				foreach($teams as $team_id => $team) { /* @var $team CerberusTeam */
-//					$mailbox_keys = array_keys($team->getMailboxes());
-//					$mailbox_keys[] = $id;
-//					// [TODO] This could be simplified with the addition of addTeamMailbox(id,id)
-//					DAO_Workflow::setTeamMailboxes($team_id, $mailbox_keys);
-//				}
-			}
-			
-			$tpl->assign('step', STEP_REGISTER);
-			$tpl->display('steps/redirect.tpl.php');
-			exit;
-		}
-		
-		$tpl->assign('template', 'steps/step_antispam.tpl.php');
-		break;
+//	// [TODO] Create an anti-spam rule and mailbox automatically
+//	case STEP_ANTISPAM:
+//		@$setup_antispam = DevblocksPlatform::importGPC($_POST['setup_antispam'],'integer');
+//		@$form_submit = DevblocksPlatform::importGPC($_POST['form_submit'],'integer');
+//		
+//		if($form_submit) {
+//			// [TODO] Implement (to check for dupes)
+//			$id = 0;
+////			$id = DAO_Mail::lookupMailbox('Spam');
+//			
+//			if($setup_antispam && empty($id)) {
+////				$id = DAO_Mail::createMailbox('Spam',0);
+//
+//				// [TODO] Need to fit antispam into the new team-oriented concepts (no more mailbox)
+//				
+//				// [TODO] Need to create a mail rule to route spam > 90%
+//				
+//				// Assign the new mailbox to all existing teams
+////				$teams = DAO_Workflow::getTeams();
+////				if(is_array($teams))
+////				foreach($teams as $team_id => $team) { /* @var $team CerberusTeam */
+////					$mailbox_keys = array_keys($team->getMailboxes());
+////					$mailbox_keys[] = $id;
+////					// [TODO] This could be simplified with the addition of addTeamMailbox(id,id)
+////					DAO_Workflow::setTeamMailboxes($team_id, $mailbox_keys);
+////				}
+//			}
+//			
+//			$tpl->assign('step', STEP_REGISTER);
+//			$tpl->display('steps/redirect.tpl.php');
+//			exit;
+//		}
+//		
+//		$tpl->assign('template', 'steps/step_antispam.tpl.php');
+//		break;
 
 	// [TODO] Automatically collect 'About Me' information? (Register, with benefit)
 	case STEP_REGISTER:
@@ -779,17 +831,11 @@ switch($step) {
 		break;
 }
 
-// [TODO] Configure attachment path (/attachments?)  -- Can remove the is_writeable check in the top if !/attachments
-
 // [TODO] Check PEAR path
-
-// [TODO] Automatically do the spam step?  (no prompt/step)
-
-// [TODO] License Agreement (first step)
 
 // [TODO] Support Center (move to SC installer)
 
-// [TODO] Set up the cron to run using internal timer by default
+// [TODO] Set up the default cron jobs
 
 // [TODO] Check apache rewrite (somehow)
 
@@ -803,9 +849,5 @@ I switched framework.config.php to have mysqli as the db driver (the extension w
 Jeff: k, sweet. I just need to add that to the dropdown, and then have the platform or installer check for any of the possible ones being there and complain if none
 I'll add to install/index.php [TODO]
  */
-
-// [TODO] Test for mailparse extension
-
-// [TODO] Make sure storage/mail/new is writeable
 
 $tpl->display('base.tpl.php');

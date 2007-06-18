@@ -15,20 +15,24 @@
       			{if isset($message->headers.from)}<h3>From: {$message->headers.from|escape:"htmlall"|nl2br}</h3>{/if}
       		</td>
       		<td align="right">
+      		  <a href="javascript:;" onclick="toggleDiv('{$message->id}sh');toggleDiv('{$message->id}h');">toggle headers</a>
+      		   | 
+      		
 		      {if !$smarty.foreach.messages.last}
-				<a href=javascript:;" onclick="toggleDiv('{$message->id}c');">toggle message</a>
+				<a href="javascript:;" onclick="toggleDiv('{$message->id}c');">toggle message</a>
 			  {else}
 			  	<a href="#{$message->id}b">skip to ending</a>
 		      {/if}
       		</td>
       	</tr>
       </table>
-      {if isset($message->headers.to)}<b>To:</b> {$message->headers.to|escape:"htmlall"|nl2br}<br>{/if}
-      <!-- {if isset($message->headers.subject)}<b>Subject:</b> {$message->headers.subject|escape:"htmlall"|nl2br}<br>{/if} -->
-      {if isset($message->headers.date)}<b>Date:</b> {$message->headers.date|escape:"htmlall"|nl2br}<br>{/if}
       
-      <div id="{$message->id}c" style="display:{if $smarty.foreach.messages.last}block{else}none{/if};">
-      {* // [TODO] Move this to an Ajax packet for full headers 
+	  <div id="{$message->id}sh" style="display:block;">      
+      {if isset($message->headers.to)}<b>To:</b> {$message->headers.to|escape:"htmlall"|nl2br}<br>{/if}
+      {if isset($message->headers.date)}<b>Date:</b> {$message->headers.date|escape:"htmlall"|nl2br}<br>{/if}
+      </div>
+
+	  <div id="{$message->id}h" style="display:none;">      
       	{if is_array($message->headers)}
       	{foreach from=$message->headers item=headerValue key=headerKey}
       		<b>{$headerKey|capitalize}:</b> 
@@ -41,8 +45,9 @@
       		{/if}
       	{/foreach}
       	{/if}
-      	*}
+      </div>
       
+      <div id="{$message->id}c" style="display:{if $smarty.foreach.messages.last}block{else}none{/if};">
       	<br>
       	{$message->getContent()|trim|escape:"htmlall"|nl2br}<br>
       	<br>
@@ -54,18 +59,10 @@
 			      	<a href="javascript:;">more &raquo;</a>
       			</td>
       			<td align="right">
-      				<a href="#{$message->id}t">top</a>
+      				<a href="#top">top</a>
       			</td>
       		</tr>
       	</table>
-      	
-      	<!-- [ <a href="javascript:;" onclick="displayAjax.reply('{$message->id}');" style="color: rgb(0, 102, 255);font-weight:bold;">Reply</a> ]  -->
-      	<!--  
-      	[ <a href="javascript:;" onclick="displayAjax.forward('{$message->id}');" style="color: rgb(0, 102, 255);font-weight:bold;">Forward</a> ] 
-      	[ <a href="javascript:;" onclick="displayAjax.comment('{$message->id}');" style="color: rgb(0, 102, 255);font-weight:bold;">Comment</a> ]
-      	[ <a href="javascript:;" onclick="displayAjax.change('{$message->id}');" style="color: rgb(0, 102, 255);font-weight:bold;">Change</a> ]
-      	 -->
-      	<!-- [ <a href="#">More Options...</a> ] --> 
       	<br>
       	
       	{assign var=attachments value=$message->getAttachments()}
@@ -73,7 +70,23 @@
       	<b>Attachments:</b><br>
       	<ul style="margin-top:0px;margin-bottom:5px;">
       		{foreach from=$attachments item=attachment name=attachments}
-				<li><a href="{devblocks_url}c=files&p={$attachment->filepath}&name={$attachment->display_name}{/devblocks_url}">{$attachment->display_name}</a></li>
+				<li>
+					<a href="{devblocks_url}c=files&p={$attachment->id}&name={$attachment->display_name}{/devblocks_url}">{$attachment->display_name}</a>
+					{assign var=bytes value=$attachment->file_size}
+					( 
+					{if !empty($attachment->file_size)} 
+						{if $bytes > 1024000}
+							{math equation="round(x/1024000)" x=$attachment->file_size} MB
+						{elseif $bytes > 1048}
+							{math equation="round(x/1048)" x=$attachment->file_size} KB
+						{else}
+							{$attachment->file_size} bytes
+						{/if}
+						- 
+					{/if}
+					{if !empty($attachment->mime_type)}{$attachment->mime_type}{else}unknown format{/if}
+					 )
+				</li>
 				<!-- {if !$smarty.foreach.requesters.last}, {/if}-->
 			{/foreach}<br>
 		</ul>

@@ -37,6 +37,24 @@
 <br>
 <br>
 
+<b>PHP Extension (MailParse)... </b> 
+{if !$results.ext_mailparse}
+	<span class="bad">Error! PHP must have the 'MailParse' extension enabled.</span>
+{else}
+	<span class="good">Passed!</span>
+{/if}
+<br>
+<br>
+
+<b>PHP Extension (mbstring)... </b> 
+{if !$results.ext_mailparse}
+	<span class="bad">Error! PHP must have the 'mbstring' extension enabled.</span>
+{else}
+	<span class="good">Passed!</span>
+{/if}
+<br>
+<br>
+
 <b>PHP Extension (SimpleXML)... </b> 
 {if !$results.ext_simplexml}
 	<span class="bad">Error! PHP must have the 'SimpleXML' extension enabled.</span>
@@ -65,7 +83,7 @@
 <br>
 
 {if !$fails}
-	<input type="hidden" name="step" value="{$smarty.const.STEP_DATABASE}">
+	<input type="hidden" name="step" value="{$smarty.const.STEP_LICENSE}">
 	<input type="submit" value="Next Step &gt;&gt;">
 {else}
 	<input type="hidden" name="step" value="{$smarty.const.STEP_ENVIRONMENT}">

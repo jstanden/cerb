@@ -21,8 +21,10 @@ class CerberusMail {
 	    'bcc'
 	    'content'
 	    'files'
-	    'priority'
-	    'status'
+	    'closed'
+	    'ticket_reopen'
+	    'next_action'
+	    'bucket_id'
 	    'agent_id'
 		*/
 
@@ -53,18 +55,21 @@ class CerberusMail {
 //	    $mail->setBodyText($content);
 
 	    switch($type) {
-	        case CerberusMessageType::FORWARD:
-	            // Forward to
-	            if(isset($properties['to'])) {
-	                $to[] = $properties['to'];
-	            }
-	            break;
-	            
+//	        case CerberusMessageType::FORWARD:
+//	            // Forward to
+//	            if(isset($properties['to'])) {
+//	                $to[] = $properties['to'];
+//	            }
+//	            break;
+
 	        case CerberusMessageType::EMAIL:
 			    // Recepients
-			    if(is_array($requesters))
-			    foreach($requesters as $requester) { /* @var $requester CerberusAddress */
-                    $to[] = $requester->email;
+			    if(is_array($requesters)) {
+				    foreach($requesters as $requester) { /* @var $requester CerberusAddress */
+	                    $to[] = $requester->email;
+				    }
+				    
+				    $headers['To'] = implode(', ', $to);
 			    }
 	            break;
 	    }
@@ -118,26 +123,38 @@ class CerberusMail {
 
 //		// if this message was submitted with attachments, store them in the filestore and link them in the db.
 		if (is_array($files) && !empty($files)) {
-			$settings = CerberusSettings::getInstance();
-			$attachment_location = $settings->get(CerberusSettings::SAVE_FILE_PATH);
+			$attachment_path = APP_PATH . '/storage/attachments/';
 		
 			foreach ($files['tmp_name'] as $idx => $file) {
 //				copy($files['tmp_name'][$idx],$attachment_location.$message_id.$idx);
-//				DAO_Ticket::createAttachment($message_id, $files['name'][$idx], $message_id.$idx);
+//				DAO_Attachment::create($fields); // $message_id, $files['name'][$idx], $message_id.$idx);
 			}
 		}
 		
 		// Handle post-mail actions
 		$change_fields = array();
 		
-		if(!empty($properties['priority'])) {
-		    $change_fields[DAO_Ticket::PRIORITY] = $properties['priority'];
-		}
+        $change_fields[DAO_Ticket::IS_CLOSED] = intval($properties['closed']);
 		
-		if(!empty($properties['status'])) {
-		    $change_fields[DAO_Ticket::STATUS] = $properties['status'];
-		}
-		
+        if(intval($properties['closed'])) { // Closing
+			if(!empty($properties['ticket_reopen'])) {
+			    $due = strtotime($properties['ticket_reopen']);
+			    if(intval($due) > 0)
+		            $change_fields[DAO_Ticket::DUE_DATE] = $due;
+			}
+			
+        } else { // Open
+    	    $change_fields[DAO_Ticket::NEXT_ACTION] = $properties['next_action'];
+    	    
+			if(!empty($properties['bucket_id'])) {
+			    // [TODO] Use API to move, or fire event
+		        // [TODO] Ensure team/bucket exist
+		        list($team_id, $bucket_id) = CerberusApplication::translateTeamCategoryCode($properties['bucket_id']);
+			    $change_fields[DAO_Ticket::TEAM_ID] = $team_id;
+			    $change_fields[DAO_Ticket::CATEGORY_ID] = $bucket_id;
+			}
+        }
+
 		if(!empty($ticket_id) && !empty($change_fields)) {
 		    DAO_Ticket::updateTicket($ticket_id, $change_fields);
 		}

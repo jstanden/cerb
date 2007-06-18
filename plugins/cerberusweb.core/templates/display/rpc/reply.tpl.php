@@ -93,7 +93,7 @@
 			<table cellpadding="2" cellspacing="0" border="0">
 				<tr>
 					<td rowspan="4" nowrap="nowrap" valign="top">
-					<b>Next step:</b>
+					<b>Then:</b>
 					<!-- <input type="hidden" name="closed" value="{if $ticket->is_closed}1{else}0{/if}"> -->
 					</td>
 				</tr>
@@ -102,7 +102,11 @@
 						<label><input type="checkbox" name="closed" value="1" onchange="toggleDiv('replyOpen{$message->id}',this.checked?'none':'block');toggleDiv('replyClosed{$message->id}',this.checked?'block':'none');" {if $ticket->is_closed}checked{/if}>This conversation is completed for now.</label>
 
 						<div id="replyOpen{$message->id}" style="display:{if $ticket->is_closed}none{else}block{/if};margin:5px;padding:5px;background-color:rgb(235,235,255);">
-						<b>Would you like to move this conversation to another bucket?</b><br>  
+						<b>What is the next action that needs to happen?</b> (max 255 chars)<br>  
+				      	<input type="text" name="next_action" size="55" maxlength="255" value="{$ticket->next_action|escape:"htmlall"}"><br>
+				      	<br>
+				      	
+						<b>Would you like to move this conversation?</b><br>  
 				      	<select name="bucket_id">
 				      		<option value="">-- no thanks! --</option>
 				      		{if empty($ticket->category_id)}{assign var=t_or_c value="t"}{else}{assign var=t_or_c value="c"}{/if}
@@ -124,8 +128,8 @@
 				      	
 				      	<div id="replyClosed{$message->id}" style="display:{if $ticket->is_closed}block{else}none{/if};margin:5px;padding:5px;background-color:rgb(235,235,255);">
 				      	<b>When would you like to resume this conversation?</b><br> 
-				      	<input type="text" name="ticket_reopen" size="35"><br>
-				      	examples: "Next Monday", "Tomorrow at 11:15AM", "Dec 31 2010"<br>
+				      	<input type="text" name="ticket_reopen" size="55" value="{if !empty($ticket->due_date)}{$ticket->due_date|date_format:"%a, %b %d %Y %I:%M %p"}{/if}"><br>
+				      	examples: "Friday", "+7 days", "Tomorrow 11:15AM", "Dec 31 2010"<br>
 				      	(leave blank to wait for a reply before resuming)<br>
 				      	</div>
 				      	

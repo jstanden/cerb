@@ -337,6 +337,7 @@ class CerberusTicket {
 	public $spam_score;
 	public $spam_training;
 	public $interesting_words;
+	public $next_action;
 	
 	function CerberusTicket() {}
 	
@@ -380,7 +381,7 @@ class CerberusMessage {
 	/**
 	 * returns an array of the message's attachments
 	 *
-	 * @return CerberusAttachment[]
+	 * @return Model_Attachment[]
 	 */
 	function getAttachments() {
 		$attachments = DAO_Ticket::getAttachmentsByMessage($this->id);
@@ -398,13 +399,64 @@ class CerberusAddress {
 	function CerberusAddress() {}
 };
 
-class CerberusAttachment {
+class Model_Attachment {
 	public $id;
 	public $message_id;
 	public $display_name;
 	public $filepath;
+	public $file_size = 0;
+	public $mime_type = '';
 	
-	function CerberusAttachment() {}
+	public function getFileContents() {
+	    $file_path = APP_PATH . '/storage/attachments/';
+		if (!empty($this->filepath))
+	        return file_get_contents($file_path.$this->filepath,false);
+	}
+	
+//	public function getMimeType() {
+////	    [TODO] mime_content_type() or php_fileinfo.dll?
+//	    
+//        if(false === ($lpos = strrpos($this->filepath,'.'))) {
+//            return("application/octet-stream");
+//        }
+//
+//		$ext = strtolower(substr($this->filepath,$lpos));
+//		 
+//		$mimetype = array( 
+//		    'bmp'=>'image/bmp',
+//		    'doc'=>'application/msword', 
+//		    'gif'=>'image/gif',
+//		    'gz'=>'application/x-gzip-compressed',
+//		    'htm'=>'text/html', 
+//		    'html'=>'text/html', 
+//		    'jpeg'=>'image/jpeg', 
+//		    'jpg'=>'image/jpeg', 
+//		    'mp3'=>'audio/x-mp3',
+//		    'pdf'=>'application/pdf', 
+//		    'php'=>'text/plain', 
+//		    'swf'=>'application/x-shockwave-flash',
+//		    'tar'=>'application/x-tar',
+//		    'tgz'=>'application/x-gzip-compressed',
+//		    'tif'=>'image/tiff',
+//		    'tiff'=>'image/tiff',
+//		    'txt'=>'text/plain', 
+//		    'vsd'=>'application/vnd.visio',
+//		    'vss'=>'application/vnd.visio',
+//		    'vst'=>'application/vnd.visio',
+//		    'vsw'=>'application/vnd.visio',
+//		    'wav'=>'audio/x-wav',
+//		    'xls'=>'application/vnd.ms-excel',
+//		    'xml'=>'text/xml',
+//		    'zip'=>'application/x-zip-compressed' 
+//		    ); 
+//		        
+//		if(isset($mimetype[$ext])) {
+//			return($mimetype[$ext]);
+//		} else {
+//			return("application/octet-stream");
+//		}
+//	}
+	
 };
 
 class CerberusTeam {

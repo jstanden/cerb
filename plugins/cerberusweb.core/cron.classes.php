@@ -69,6 +69,10 @@ class ParseCron extends CerberusCronPageExtension {
 		$message = new CerberusParserMessage();
 		$message->headers = $msginfo['headers'];
 		
+		$settings = CerberusSettings::getInstance();
+		$is_attachments_enabled = $settings->get(CerberusSettings::ATTACHMENTS_ENABLED,1);
+		$attachments_max_size = $settings->get(CerberusSettings::ATTACHMENTS_MAX_SIZE,10);
+		
 		foreach($struct as $st) {
 //		    echo "PART $st...<br>";
 
@@ -80,8 +84,20 @@ class ParseCron extends CerberusCronPageExtension {
 		        switch($info['content-disposition']) {
 		            case 'inline':
 		            case 'attachment':
+		                if(!$is_attachments_enabled) {
+		                    break; // skip attachment
+		                }
 					    $attach = new ParseCronFileBuffer($section, $info, $full_filename);
+		                
+					    // [TODO] This could be more efficient by not even saving in the first place above:
+	                    // Make sure our attachment is under the max preferred size
+					    if(filesize($attach->tmpname) > ($attachments_max_size * 1024000)) {
+					        @unlink($attach->tmpname);
+					        break;
+					    }
+					    
 					    $message->files[$info['content-name']] = $attach;
+					    
 		                break;
 		                
 		            default: // default?
@@ -100,7 +116,15 @@ class ParseCron extends CerberusCronPageExtension {
 		            @mailparse_msg_extract_part_file($section, $full_filename);
 		            @$message->htmlbody .= ob_get_contents();
 		            ob_end_clean();
-		            // [TODO] Add the html part as an attachment		            
+		            
+		            // [TODO] Add the html part as an attachment
+	                $tmpname = ParserFile::makeTempFilename($tmpname);
+	                $html_attach = new ParserFile();
+	                $html_attach->setTempFile($tmpname,'text/html');
+	                @file_put_contents($tmpname,$message->htmlbody);
+	                $html_attach->file_size = filesize($tmpname);
+	                $message->files["original_message.html"] = $html_attach;
+	                unset($html_attach);
 
 		        } else { } // some non text/html unnamed part
 		    }
@@ -141,6 +165,7 @@ class ParseCron extends CerberusCronPageExtension {
     }
 };
 
+// [TODO] Clear idle temp files (fileatime())
 class MaintCron extends CerberusCronPageExtension {
     function run() {
         @ini_set('memory_limit','64M');
@@ -179,23 +204,44 @@ class MaintCron extends CerberusCronPageExtension {
     }
 };
 
-class ParseCronFileBuffer {
+class ParserFile {
+    public $tmpname = null;
+    public $mime_type = '';
+    public $file_size = 0;
+    
+    public function setTempFile($tmpname,$mimetype='application/octet-stream') {
+        $this->mime_type = $mimetype;
+        
+        if(!empty($tmpname) && file_exists($tmpname)) {
+            $this->tmpname = $tmpname;
+        }
+    }
+    
+    public function getTempFile() {
+        return $this->tmpname;
+    }
+    
+    static public function makeTempFilename() {
+        $path = DEVBLOCKS_PATH . 'tmp' . DIRECTORY_SEPARATOR;
+        return tempnam($path,'mime');
+    }
+};
+
+class ParseCronFileBuffer extends ParserFile {
     private $mime_filename = '';
     private $section = null;
     private $info = array();
     private $fp = null;
-    public $tmpname = null;
     
     function __construct($section, $info, $mime_filename) {
         $this->mime_filename = $mime_filename;
         $this->section = $section;
         $this->info = $info;
         
-        $path = DEVBLOCKS_PATH . 'tmp' . DIRECTORY_SEPARATOR;
-        $this->tmpname = tempnam($path,'mime');
-        $this->fp = fopen($this->tmpname,'wb');
+        $this->setTempFile(ParserFile::makeTempFilename(),@$info['content-type']);
+        $this->fp = fopen($this->getTempFile(),'wb');
         
-        if($this->fp) {
+        if($this->fp && !empty($this->section) && !empty($this->mime_filename)) {
             mailparse_msg_extract_part_file($this->section, $this->mime_filename, array($this, "writeCallback"));
         }
         
@@ -203,9 +249,10 @@ class ParseCronFileBuffer {
     }
     
     function writeCallback($chunk) {
-        fwrite($this->fp, $chunk);
+        $this->file_size += fwrite($this->fp, $chunk);
 //        echo $chunk;
     }
+    
 }
 
 ?>

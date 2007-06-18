@@ -7,6 +7,7 @@ class CerberusParserMessage {
 };
 
 class CerberusParser {
+    const ATTACHMENT_BUCKETS = 100; // hash
 	
 	/**
 	 * Enter description here...
@@ -85,9 +86,9 @@ class CerberusParser {
 
 		if(is_array($to))
 		foreach($to as $recipient) {
-			$toAddress = $recipient->mailbox.'@'.$recipient->host;
-			$toPersonal = $recipient->personal;
-			$toAddressId = DAO_Contact::createAddress($toAddress,$toPersonal);
+			@$toAddress = $recipient->mailbox.'@'.$recipient->host;
+			@$toPersonal = $recipient->personal;
+			@$toAddressId = DAO_Contact::createAddress($toAddress,$toPersonal);
 		}
 		
 		// Message Id / References / In-Reply-To
@@ -178,7 +179,7 @@ class CerberusParser {
 			if(false !== ($rule = self::parseTeamRules($team_id, $id, $fromAddress, $sSubject))) { /* @var $rule Model_TeamRoutingRule */
                 //Assume our rule match is not spam
                 if(empty($rule->params['spam'])) { // if we didn't already train
-	                echo "Assuming our match isn't spam!<br>";
+//	                echo "Assuming our match isn't spam!<br>";
                     $enumSpamTraining = CerberusTicketSpamTraining::NOT_SPAM;
                 }
 			}
@@ -189,7 +190,7 @@ class CerberusParser {
 		    DAO_Ticket::createRequester($fromAddressId,$id);
 		
 		$settings = CerberusSettings::getInstance();
-		$attachmentlocation = $settings->get(CerberusSettings::SAVE_FILE_PATH);
+		$attachment_path = APP_PATH . '/storage/attachments/';
 		
 		// [TODO] Move createMessage to DAO_Message and fix ->create($fields)
 		
@@ -210,21 +211,36 @@ class CerberusParser {
 			    DAO_Message::MESSAGE_ID => $sMessageId
 			));
 		    
-			foreach ($message->files as $filename => $file) {
-			    
-				$file_id = DAO_Ticket::createAttachment($email_id, $filename);
-				if(empty($file_id)) continue;
+			foreach ($message->files as $filename => $file) { /* @var $file ParserFile */
+			    $fields = array(
+			        DAO_Attachment::MESSAGE_ID => $email_id,
+			        DAO_Attachment::DISPLAY_NAME => $filename,
+			        DAO_Attachment::MIME_TYPE => $file->mime_type,
+			        DAO_Attachment::FILE_SIZE => intval($file->file_size),
+			    );
+			    $file_id = DAO_Attachment::create($fields);
 				
-//			    file_put_contents($attachmentlocation.$file_id,$file);
+			    if(empty($file_id)) {
+			        @unlink($file->tmpname); // remove our temp file
+				    continue;
+				}
+				
+			    // Make file attachments use buckets so we have a max per directory
+	            $attachment_bucket = sprintf("%03d/",
+	                rand(1,100)
+	            );
+	            $attachment_file = $file_id;
+	            
+	            if(!file_exists($attachment_path.$attachment_bucket)) {
+	                @mkdir($attachment_path.$attachment_bucket, "664", true);
+	                // [TODO] Needs error checking
+	            }
 
-	            // [TODO] Need to push this out to a generic class (no ->tmpname access)
-	            rename($file->tmpname, $attachmentlocation.$file_id);
-			    
-			    // [TODO] Make file attachments use buckets so we have a max per directory
+	            rename($file->getTempFile(), $attachment_path.$attachment_bucket.$attachment_file);
 			    
 			    // [TODO] Split off attachments into its own DAO
-			    DAO_Ticket::updateAttachment($file_id, array(
-			        'filepath' => $file_id // [TODO] Make this a const later
+			    DAO_Attachment::update($file_id, array(
+			        DAO_Attachment::FILEPATH => $attachment_bucket.$attachment_file
 			    ));
 			}
 		}
@@ -244,6 +260,11 @@ class CerberusParser {
 		}
 		
 		unset($message);
+		
+		DAO_Ticket::updateTicket($id,array(
+		    DAO_Ticket::UPDATED_DATE => time(),
+		    DAO_Ticket::IS_CLOSED => 0
+		));
 		
 //		$ticket = DAO_Ticket::getTicket($id);
 		return $id;
@@ -380,7 +401,7 @@ class CerberusParser {
 //   	            $team_rules = DAO_TeamRoutingRule::getList($rule_ids);
    	            $team_rules = DAO_TeamRoutingRule::getByTeamId($team_id);
    	            
-   	            echo "Scanning (From: ",$fromAddress,"; Subject: ",$sSubject,")<BR>";
+//   	            echo "Scanning (From: ",$fromAddress,"; Subject: ",$sSubject,")<BR>";
    	            
    	            foreach($team_rules as $rule) { /* @var $rule Model_TeamRoutingRule */
    	                $pattern = $rule->getPatternAsRegexp();
