@@ -23,6 +23,8 @@
 				{foreach from=$categories item=category key=category_id}
 					{if $category_counts.total && $category_counts.$category_id}
 						{math assign=percent equation="(x/y)*50" x=$category_counts.$category_id y=$category_counts.total format="%0.0f"}
+					{else}
+						{assign var=percent value=0}
 					{/if}
 				<tr>
 					<td width="100%"><label><input type="checkbox" name="categories[]" value="{$category->id}" {if isset($team_filters.categories.$category_id)}checked{/if} onclick="this.form.categorized[1].checked=true;"> {$category->name} ({if isset($category_counts.$category_id)}{$category_counts.$category_id}{else}0{/if})</label></td>

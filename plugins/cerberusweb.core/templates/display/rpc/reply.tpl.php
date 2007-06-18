@@ -68,7 +68,11 @@
 	</tr>
 	<tr>
 		<td>
-			<textarea name="content" rows="12" cols="80" class="reply">{$message->getContent()|trim|indent:1:'> '}</textarea>
+		{assign var=ticket_team_id value=$ticket->team_id}
+<textarea name="content" rows="12" cols="80" class="reply">{$message->getContent()|trim|indent:1:'> '}
+
+{if !empty($signature)}{$signature}{/if}
+</textarea>
 		</td>
 	</tr>
 	<tr>

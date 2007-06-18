@@ -916,6 +916,13 @@ class ChTicketsPage extends CerberusPageExtension {
 	function saveTeamGeneralAction() {
 	    @$team_id = DevblocksPlatform::importGPC($_REQUEST['team_id'],'integer');
 	    
+	    //========== GENERAL
+	    @$signature = DevblocksPlatform::importGPC($_REQUEST['signature'],'string','');
+	    
+	    DAO_Workflow::updateTeam($team_id, array(
+	        DAO_Workflow::TEAM_SIGNATURE => $signature
+	    ));
+	    
 	    //========== BUCKETS   
 	    @$ids = DevblocksPlatform::importGPC($_REQUEST['ids'],'array');
 	    @$add_str = DevblocksPlatform::importGPC($_REQUEST['add'],'string');
@@ -2057,14 +2064,18 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	function saveOutgoingMailSettingsAction() {
 	    @$default_reply_address = DevblocksPlatform::importGPC($_REQUEST['sender_address'],'string');
 	    @$default_reply_personal = DevblocksPlatform::importGPC($_REQUEST['sender_personal'],'string');
+	    @$default_signature = DevblocksPlatform::importGPC($_POST['default_signature'],'string');
 	    @$smtp_host = DevblocksPlatform::importGPC($_REQUEST['smtp_host'],'string');
+	    @$smtp_auth_enabled = DevblocksPlatform::importGPC($_REQUEST['smtp_auth_enabled'],'integer', 0);
 	    @$smtp_auth_user = DevblocksPlatform::importGPC($_REQUEST['smtp_auth_user'],'string');
 	    @$smtp_auth_pass = DevblocksPlatform::importGPC($_REQUEST['smtp_auth_pass'],'string');
 	    
 	    $settings = CerberusSettings::getInstance();
 	    $settings->set(CerberusSettings::DEFAULT_REPLY_FROM, $default_reply_address);
 	    $settings->set(CerberusSettings::DEFAULT_REPLY_PERSONAL, $default_reply_personal);
+	    $settings->set(CerberusSettings::DEFAULT_SIGNATURE, $default_signature);
 	    $settings->set(CerberusSettings::SMTP_HOST, $smtp_host);
+	    $settings->set(CerberusSettings::SMTP_AUTH_ENABLED, $smtp_auth_enabled);
 	    $settings->set(CerberusSettings::SMTP_AUTH_USER, $smtp_auth_user);
 	    $settings->set(CerberusSettings::SMTP_AUTH_PASS, $smtp_auth_pass);
 	    
@@ -2589,6 +2600,25 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		$team_categories = DAO_Category::getTeams();
 		$tpl->assign('team_categories', $team_categories);
+
+		@$ticket_team = $teams[$ticket->team_id];
+		
+		// Signatures
+		if(null != ($worker = CerberusApplication::getActiveWorker())) { /* @var $worker CerberusWorker */
+			if(!empty($ticket_team) && !empty($ticket_team->signature)) {
+	            $signature = $ticket_team->signature;
+			} else {
+			    // [TODO] Default signature
+		        $settings = CerberusSettings::getInstance();
+		        $signature = $settings->get(CerberusSettings::DEFAULT_SIGNATURE);
+			}
+			
+			$tpl->assign('signature', str_replace(
+			        array('#first_name#','#last_name#','#title#'),
+			        array($worker->first_name,$worker->last_name,$worker->title),
+			        $signature
+			));
+		}
 		
 		$tpl->cache_lifetime = "0";
 		

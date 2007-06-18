@@ -2067,6 +2067,7 @@ class DAO_Workflow {
 	
     const TEAM_ID = 'id';
     const TEAM_NAME = 'name';
+    const TEAM_SIGNATURE = 'signature';
     
 	/**
 	 * Enter description here...
@@ -2197,7 +2198,7 @@ class DAO_Workflow {
 
 		$teams = array();
 		
-		$sql = sprintf("SELECT t.id , t.name ".
+		$sql = sprintf("SELECT t.id , t.name, t.signature ".
 			"FROM team t ".
 			((!empty($ids)) ? sprintf("WHERE t.id IN (%s) ",implode(',',$ids)) : " ").
 			"ORDER BY t.name ASC"
@@ -2207,6 +2208,7 @@ class DAO_Workflow {
 			$team = new CerberusTeam();
 			$team->id = intval($rs->fields['id']);
 			$team->name = $rs->fields['name'];
+			$team->signature = $rs->fields['signature'];
 			$teams[$team->id] = $team;
 			$rs->MoveNext();
 		}
@@ -2322,7 +2324,7 @@ class DAO_Workflow {
 		$db = DevblocksPlatform::getDatabaseService();
 		$newId = $db->GenID('generic_seq');
 		
-		$sql = sprintf("INSERT INTO team (id, name) VALUES (%d,%s)",
+		$sql = sprintf("INSERT INTO team (id, name, signature) VALUES (%d,%s,'')",
 			$newId,
 			$db->qstr($name)
 		);

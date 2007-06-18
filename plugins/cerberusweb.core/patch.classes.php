@@ -86,7 +86,8 @@ class ChCorePatchContainer extends DevblocksPatchContainerExtension {
 		
 		$tables['team'] = "
 			id I4 DEFAULT 0 NOTNULL PRIMARY,
-			name C(32) DEFAULT '' NOTNULL
+			name C(32) DEFAULT '' NOTNULL,
+			signature B DEFAULT ''
 		";
 		
 		$tables['category'] = "

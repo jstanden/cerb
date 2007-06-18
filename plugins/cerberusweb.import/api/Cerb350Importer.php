@@ -28,11 +28,6 @@ class ChCerb350Importer extends CerberusImporterExtension {
 	    $db_user = $this->getParam('db_user', 'importer');
 	    $db_pass = $this->getParam('db_pass', '2718.77');
 	    
-//	    define('DB_HOST', 'xev.webgroupmedia.com');
-//		define('DB_NAME', 'cer_wgm_support_3');
-//		define('DB_USER', 'importer');
-//		define('DB_PASS', '2718.77');
-		
 		define('HELPDESK_EMAIL', 'support@webgroupmedia.com');
 		define('COPY_ATTACHMENTS', true);
 		define('MAGIC_QUOTES', false); // [TODO]

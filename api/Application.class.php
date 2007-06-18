@@ -1,5 +1,5 @@
 <?php
-define("APP_BUILD", 169);
+define("APP_BUILD", 170);
 define("APP_MAIL_PATH", realpath(APP_PATH . '/storage/mail') . DIRECTORY_SEPARATOR);
 
 include_once(APP_PATH . "/api/DAO.class.php");
@@ -532,8 +532,10 @@ class CerberusSettings {
 	const DEFAULT_TEAM_ID = 'default_team_id'; 
 	const DEFAULT_REPLY_FROM = 'default_reply_from'; 
 	const DEFAULT_REPLY_PERSONAL = 'default_reply_personal'; 
+	const DEFAULT_SIGNATURE = 'default_signature'; 
 	const HELPDESK_TITLE = 'helpdesk_title'; 
 	const SMTP_HOST = 'smtp_host'; 
+	const SMTP_AUTH_ENABLED = 'smtp_auth_enabled'; 
 	const SMTP_AUTH_USER = 'smtp_auth_user'; 
 	const SMTP_AUTH_PASS = 'smtp_auth_pass'; 
 	const ATTACHMENTS_ENABLED = 'attachments_enabled'; 
@@ -545,8 +547,10 @@ class CerberusSettings {
 		self::DEFAULT_TEAM_ID => 0,
 		self::DEFAULT_REPLY_FROM => '',
 		self::DEFAULT_REPLY_PERSONAL => '',
+		self::DEFAULT_SIGNATURE => '',
 		self::HELPDESK_TITLE => 'Cerberus Helpdesk :: Team-based E-mail Management',
 		self::SMTP_HOST => 'localhost',
+		self::SMTP_AUTH_ENABLED => 0,
 		self::SMTP_AUTH_USER => '',
 		self::SMTP_AUTH_PASS => '',
 		self::ATTACHMENTS_ENABLED => 1,

@@ -106,7 +106,7 @@
 			{elseif $column=="cat_name"}
 			<td>{$result.cat_name}</td>
 			{elseif $column=="t_next_action"}
-			<td title="{$result.t_next_action}">{$result.t_next_action|truncate:35}</td>
+			<td title="{$result.t_next_action}">{$result.t_next_action|truncate:35:'...'}</td>
 			{elseif $column=="t_spam_score"}
 			<td>
 				{math assign=score equation="x*100" format="%0.2f%%" x=$result.t_spam_score}
