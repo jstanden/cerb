@@ -785,9 +785,10 @@ class ChTicketsPage extends CerberusPageExtension {
         $view_tips = $visit->get($view_key,array());
         $learner = $visit->get($learner_key,null); /* @var $learner Model_TicketViewActionLearner */
         
-        // [TODO] We really need to get at the learner here too.
-        
         $view = $viewMgr->getView($view_id); /* @var $view CerberusDashboardView */
+        
+        // Tracks wildcards so we can clear redundant rules
+        $domains_used = array();
         
         if(is_array($view_tips))
         foreach($view_tips as $tip_hash => $tip) {
@@ -817,12 +818,24 @@ class ChTicketsPage extends CerberusPageExtension {
                 
             } elseif($tip[0]=='domain') {
                 $senders = array('*'.$tip[1]);
+                $domains_used[strtolower($tip[1])] = 1; // used to clear matching unused senders
                 $view->doBulkUpdate('sender', $senders, $do, array(), $team_id);
                 
             } elseif($tip[0]=='subject') {
                 $subjects = array($tip[1]);
                 $view->doBulkUpdate('subject', $subjects, $do, array(), $team_id);
                 
+            }
+        }
+        
+        // Purge any senders from domains we just made rules out of
+	    // [TODO] This could move into the Learner API
+        foreach($learner->flat as $hash => $props) {
+            if($props[0]=='sender') {
+                @$sender_domain = strtolower(substr($props[1],strrpos($props[1],'@')));
+                if(isset($domains_used[$sender_domain])) {
+                    unset($learner->flat[$hash]); // bye bye lesson
+                }
             }
         }
         
@@ -1040,6 +1053,9 @@ class ChTicketsPage extends CerberusPageExtension {
 	        DAO_Ticket::updateTicket($ticket_id, $fields);
 	    }
 	    
+	    $visit = CerberusApplication::getVisit();
+	    $visit->set(CerberusVisit::KEY_VIEW_LAST_ACTION,null);
+	    
 	    echo ' ';
 	    return;
 	}
@@ -1128,10 +1144,14 @@ class ChTicketsPage extends CerberusPageExtension {
 			// [TODO] Move this into an API
 	        $active_worker = CerberusApplication::getActiveWorker();
             $move_counts_str = DAO_WorkerPref::get($active_worker->id,''.DAO_WorkerPref::SETTING_TEAM_MOVE_COUNTS . $active_dashboard_id,serialize(array()));
-    	    // [TODO] We no longer need the move hash, do we?
             if(is_string($move_counts_str)) {
+    	        // [TODO] We no longer need the move hash, do we?
+	            // [TODO] Phase this out.
                 $category_name_hash = DAO_Category::getCategoryNameHash();
                 $tpl->assign('category_name_hash', $category_name_hash);
+                
+	            $categories = DAO_Category::getByTeam($active_team_id);
+	            $tpl->assign('categories', $categories);
                  
                 $move_counts = unserialize($move_counts_str);
                 $tpl->assign('move_to_counts', array_slice($move_counts,0,10,true));

@@ -42,7 +42,7 @@
 		<td nowrap="nowrap" class="tableThBlue">{$view->name}</td>
 		<td nowrap="nowrap" class="tableThBlue" align="right">
 			<a href="javascript:;" onclick="ajax.getRefresh('{$view->id}');" class="tableThLink">{$translate->_('common.refresh')|lower}</a><span style="font-size:12px"> | </span>
-			{if !empty($view->tips)}<a href="javascript:;" onclick="toggleDiv('{$view->id}_tips');" class="tableThLink">{"auto-assist"|lower}</a><span style="font-size:12px"> | </span>{/if}
+			{if !empty($view->tips)}<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/information.gif{/devblocks_url}" align="absmiddle"><a href="javascript:;" onclick="toggleDiv('{$view->id}_tips');" class="tableThLink">{"auto-assist"|lower}</a><span style="font-size:12px"> | </span>{/if}
 			<!-- <a href="javascript:;" onclick="" class="tableThLink">read all</a><span style="font-size:12px"> | </span> -->
 			{if $view->id != 'search'}<a href="{devblocks_url}c=tickets&a=searchview&id={$view->id}{/devblocks_url}" class="tableThLink">{$translate->_('common.search')|lower} list</a><span style="font-size:12px"> | </span>{/if}
 			<a href="javascript:;" onclick="ajax.getCustomize('{$view->id}');" class="tableThLink">{$translate->_('common.customize')|lower}</a>
@@ -212,25 +212,10 @@
 	
 </table>
 <table cellpadding="2" cellspacing="0" border="0" width="100%" class="tableBg">
+	{if $total}
 	<tr>
 		<td colspan="2">
-		    <!-- 
-			<select name="action_id" onchange="toggleDiv('action{$view->id}',(this.selectedIndex>0)?'inline':'none');">
-				<option value="">-- perform shortcut --</option>
-				<optgroup label="Shared Shortcuts" style="color:rgb(0,180,0);">
-				{foreach from=$viewActions item=action}
-				<option value="{$action->id}">{$action->name}</option>
-				{/foreach}
-				</optgroup>
-			</select>
-			<span id="action{$view->id}" style="display:none;">
-				<input type="button" value="Apply" onclick="ajax.viewRunAction('{$view->id}');">
-				<a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showViewActions&id='+selectValue(document.getElementById('viewForm{$view->id}').action_id)+'&view_id={$view->id}',this,true,'500px');">edit shortcut</a> | 
-			</span>
-			 -->
-			
 			<span id="tourDashboardBatch"><button type="button" onclick="ajax.showBatchPanel('{$view->id}','{$dashboard_team_id}');">bulk update</button></span> <!-- genericAjaxPanel('c=tickets&a=showBatchPanel&view_id={$view->id}',this,true,'500px'); -->
-			<!-- <button type="button" onclick="ajax.showCategorizePanel('{$view->id}');">move</button>  -->
 			<button type="button" onclick="ajax.viewCloseTickets('{$view->id}',0);">close</button>
 			<button type="button" onclick="ajax.viewCloseTickets('{$view->id}',1);">report spam</button>
 			<button type="button" onclick="ajax.viewCloseTickets('{$view->id}',2);">delete</button>
@@ -238,11 +223,11 @@
 			<input type="hidden" name="move_to" value="">
 			<select name="move_to_select" onchange="this.form.move_to.value=this.form.move_to_select[this.selectedIndex].value;ajax.viewMoveTickets('{$view->id}');">
 				<option value="">-- move to --</option>
-				{foreach from=$team_categories item=categories key=teamId}
+				{foreach from=$team_categories item=team_category_list key=teamId}
 					{assign var=team value=$teams.$teamId}
 					{if $dashboard_team_id == $teamId}
 						<optgroup label="-- {$team->name} --">
-						{foreach from=$categories item=category}
+						{foreach from=$team_category_list item=category}
 							<option value="c{$category->id}">{$category->name}</option>
 						{/foreach}
 						</optgroup>
@@ -257,16 +242,19 @@
 			
 		</td>
 	</tr>
+	{/if}
 	<tr>
 		<td align="left" valign="top">
-			{if !empty($move_to_counts)}
+			{if $total && !empty($move_to_counts)}
 			<span style="font-size:100%;">
-			<b>Move: </b>
-				{foreach from=$move_to_counts item=move_count key=move_code}
-					{assign var=move_to_name value=$category_name_hash.$move_code}
-					{if !empty($move_to_name)}
-						<b>&raquo;</b><a href="javascript:;" onclick="document.viewForm{$view->id}.move_to.value='{$move_code}';ajax.viewMoveTickets('{$view->id}');" title="Used {$move_count} times.">{$move_to_name}</a>
+			<b>Move to: </b>
+				{foreach from=$move_to_counts item=move_count key=move_code name=move_links}
+					{if substr($move_code,0,1)=='t'}
+						{assign var=move_team_id value=$move_code|regex_replace:"/[t]/":""}
+					{elseif substr($move_code,0,1)=='c'}
+						{assign var=move_bucket_id value=$move_code|regex_replace:"/[c]/":""}
 					{/if}
+					<a href="javascript:;" onclick="document.viewForm{$view->id}.move_to.value='{$move_code}';ajax.viewMoveTickets('{$view->id}');" title="Used {$move_count} times." style="{if !empty($move_team_id)}color:rgb(0,150,0);font-weight:bold;font-style:normal;{else}{/if}">{if !empty($move_team_id)}{$teams.$move_team_id->name}{else}{$categories.$move_bucket_id->name}{/if}</a>{if !$smarty.foreach.move_links.last}, {/if}
 				{/foreach}
 			</span>
 			{/if}
