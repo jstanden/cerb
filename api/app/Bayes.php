@@ -99,6 +99,7 @@ class CerberusBayes {
 	    unset($words['why']);
 	    unset($words['will']);
 	    unset($words['with']);
+	    unset($words['would']);
 //	    unset($words['www']);
 	    unset($words['you']);
 	    unset($words['your']);

@@ -91,9 +91,10 @@
 			<tuv xml:lang="en"><seg>Team</seg></tuv>
 		</tu>
 		<tu tuid='common.ticket'>
-			<tuv xml:lang="en">
-				<seg>ticket</seg>
-			</tuv>
+			<tuv xml:lang="en"><seg>ticket</seg></tuv>
+		</tu>
+		<tu tuid='common.update'>
+			<tuv xml:lang="en"><seg>update</seg></tuv>
 		</tu>
 
 		<!-- Activities -->
@@ -385,6 +386,9 @@
 		</tu>
 		<tu tuid='ticket.next_action'>
 			<tuv xml:lang="en"><seg>Next Action</seg></tuv>
+		</tu>
+		<tu tuid='ticket.owner'>
+			<tuv xml:lang="en"><seg>Owner</seg></tuv>
 		</tu>
 		<tu tuid='ticket.priority'>
 			<tuv xml:lang="en"><seg>Priority</seg></tuv>

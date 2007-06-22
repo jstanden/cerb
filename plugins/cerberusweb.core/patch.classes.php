@@ -50,6 +50,7 @@ class ChCorePatchContainer extends DevblocksPatchContainerExtension {
 			is_deleted I1 DEFAULT 0 NOTNULL,
 			team_id I4 DEFAULT 0 NOTNULL,
 			category_id I4 DEFAULT 0 NOTNULL,
+			owner_id I4 DEFAULT 0 NOTNULL,
 			created_date I4,
 			updated_date I4,
 			due_date I4,
@@ -135,7 +136,7 @@ class ChCorePatchContainer extends DevblocksPatchContainerExtension {
 			id I4 DEFAULT 0 NOTNULL PRIMARY,
 			pattern C(255) DEFAULT '' NOTNULL,
 			team_id I4 DEFAULT 0 NOTNULL,
-			pos I2 DEFAULT 0 NOT NULL
+			pos I4 DEFAULT 0 NOT NULL
 		";
 		
 		$tables['requester'] = "
@@ -210,7 +211,9 @@ class ChCorePatchContainer extends DevblocksPatchContainerExtension {
 			pattern C(255) DEFAULT '' NOTNULL,
 			pos I2 DEFAULT 0 NOT NULL,
 			created I4 DEFAULT 0 NOT NULL,
-			params B DEFAULT ''
+			do_spam C(1) DEFAULT '',
+			do_status C(1) DEFAULT '',
+			do_move C(16) DEFAULT ''
 		";
 		
 		// [JAS]: [TODO] Platform table?

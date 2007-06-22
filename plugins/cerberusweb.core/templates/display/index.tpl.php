@@ -5,10 +5,13 @@
 {assign var=ticket_category_id value=$ticket->category_id}
 {assign var=ticket_team_category_set value=$team_categories.$ticket_team_id}
 {assign var=ticket_category value=$ticket_team_category_set.$ticket_category_id}
+{assign var=ticket_owner_id value=$ticket->owner_id}
 
 {if !empty($ticket->next_action) && !$ticket->is_closed}<b>Next Action:</b> {$ticket->next_action}<br>{/if}
 <b>Team:</b> {$teams.$ticket_team_id->name} &nbsp; 
-<b>Bucket:</b> {if !empty($ticket_category_id)}{$ticket_category->name}{else}Inbox{/if}<br>
+<b>Bucket:</b> {if !empty($ticket_category_id)}{$ticket_category->name}{else}Inbox{/if} &nbsp; 
+<b>Owner:</b> {if !empty($ticket_owner_id) && isset($workers.$ticket_owner_id)}{$workers.$ticket_owner_id->getName()}{else}Not Assigned{/if}
+<br>
 <b>Ticket ID:</b> {$ticket->mask}<br>
 <!-- {if !empty($ticket->interesting_words)}<b>Interesting Words:</b> {$ticket->interesting_words}<br>{/if} -->
 <!-- <b>Next Action:</b> <input type="text" name="next_step" size="80" value="{$ticket->next_action}" maxlength="255"><br>  -->

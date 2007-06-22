@@ -84,18 +84,22 @@ class ChSimulatorPage extends CerberusPageExtension {
 		$emails = $simulator->generateEmails($dataset,$how_many);
 
 		foreach($emails as $template) {
+		    if(preg_match("/\"(.*?)\" \<(.*?)\>/", $template['sender'], $matches)) {
+		        $personal = $matches[1];
+		        $from = $matches[1];
+		    } // [TODO] error checking
+		    
             $message = new CerberusParserMessage();
-            $message->headers['from'] = $template['sender']['address'];
+            $message->headers['from'] = $template['sender'];
             $message->headers['to'] = $address;
             $message->headers['subject'] = $template['subject'];
             
             $message->body = sprintf(
 				"%s\r\n".
 				"\r\n".
-				"--\r\n%s %s\r\n",
+				"--\r\n%s\r\n",
 				$template['body'],
-				$template['sender']['firstname'],
-				$template['sender']['lastname']
+				$personal
 			);
 		    
 			CerberusParser::parseMessage($message);

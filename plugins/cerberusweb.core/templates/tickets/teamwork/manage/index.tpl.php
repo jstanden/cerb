@@ -10,10 +10,15 @@
 <br>
 
 	<div style="margin-left:20px">
-	<h3>Mail</h3>
+	<!-- <h3>Mail</h3>
 	<br>
+	 -->
 	
 	<b>E-mail Signature:</b><br>
+	<div style="display:none">
+		{assign var=default_signature value=$settings->get('default_signature')}
+		{$default_signature}	
+	</div>
 	<textarea name="signature" rows="4" cols="76">{$team->signature}</textarea><br>
 		E-mail Tokens: 
 		<select name="" onchange="this.form.signature.value += this.options[this.selectedIndex].value;scrollElementToBottom(this.form.signature);this.selectedIndex=0;this.form.signature.focus();">

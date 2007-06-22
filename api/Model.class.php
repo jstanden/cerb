@@ -5,7 +5,10 @@ class Model_TeamRoutingRule {
     public $header = '';
     public $pattern = '';
     public $pos = 0;
-    public $params = array();
+//    public $params = array();
+    public $do_move = '';
+    public $do_status = '';
+    public $do_spam = '';
     
     function getPatternAsRegexp() {
 		$pattern = str_replace(array('*'),'__any__', $this->pattern);
@@ -43,64 +46,83 @@ class Model_DashboardViewAction {
 	function run($ticket_ids) {
 	    $agent_id = CerberusApplication::getActiveWorker()->id;
 		
-		if(is_array($ticket_ids))
-		foreach($ticket_ids as $ticket_id) {
-			$fields = array();
+//		if(is_array($ticket_ids))
+//		foreach($ticket_ids as $ticket_id) {
+		$fields = array();
+		
+		// actions
+		if(is_array($this->params))
+		foreach($this->params as $k => $v) {
+			if(empty($v)) continue;
 			
-			// actions
-			if(is_array($this->params))
-			foreach($this->params as $k => $v) {
-				if(empty($v)) continue;
-				
-				switch($k) {
-					case 'closed':
-					    switch(intval($v)) {
-					        case CerberusTicketStatus::OPEN:
-					            $fields[DAO_Ticket::IS_CLOSED] = 0;
-					            break;
-					        case CerberusTicketStatus::CLOSED:
-					            $fields[DAO_Ticket::IS_CLOSED] = 1;
-					            break;
-					        case 2:
-					            $fields[DAO_Ticket::IS_CLOSED] = 1;
-					            $fields[DAO_Ticket::IS_DELETED] = 1;
-					            break;
-					    }
-						break;
-					
-					case 'priority':
-						$fields[DAO_Ticket::PRIORITY] = $v;
-						break;
-					
-					case 'spam':
-						if($v == CerberusTicketSpamTraining::NOT_SPAM) {
-							CerberusBayes::markTicketAsNotSpam($ticket_id);
-							$fields[DAO_Ticket::SPAM_TRAINING] = $v;
-							
-						} elseif($v == CerberusTicketSpamTraining::SPAM) {
-							CerberusBayes::markTicketAsSpam($ticket_id);
-							$fields[DAO_Ticket::SPAM_TRAINING] = $v;
+			switch($k) {
+				case 'closed':
+				    switch(intval($v)) {
+				        case CerberusTicketStatus::OPEN:
+				            $fields[DAO_Ticket::IS_CLOSED] = 0;
+				            break;
+				        case CerberusTicketStatus::CLOSED:
+				            $fields[DAO_Ticket::IS_CLOSED] = 1;
+				            break;
+				        case 2:
 				            $fields[DAO_Ticket::IS_CLOSED] = 1;
 				            $fields[DAO_Ticket::IS_DELETED] = 1;
-						}
+				            break;
+				    }
+					break;
+				
+//				case 'priority':
+//					$fields[DAO_Ticket::PRIORITY] = $v;
+//					break;
+				
+				case 'spam':
+					if($v == CerberusTicketSpamTraining::NOT_SPAM) {
+					    foreach($ticket_ids as $ticket_id) {
+						    CerberusBayes::markTicketAsNotSpam($ticket_id);
+					    }
+						$fields[DAO_Ticket::SPAM_TRAINING] = $v;
 						
-						break;
+					} elseif($v == CerberusTicketSpamTraining::SPAM) {
+					    foreach($ticket_ids as $ticket_id) {
+					        CerberusBayes::markTicketAsSpam($ticket_id);
+                        }
+						$fields[DAO_Ticket::SPAM_TRAINING] = $v;
+			            $fields[DAO_Ticket::IS_CLOSED] = 1;
+			            $fields[DAO_Ticket::IS_DELETED] = 1;
+					}
 					
-					case 'team':
-					    // [TODO] Make sure the team/bucket still exists
-						list($team_id,$category_id) = CerberusApplication::translateTeamCategoryCode($v);
-						$fields[DAO_Ticket::TEAM_ID] = $team_id;
-						$fields[DAO_Ticket::CATEGORY_ID] = $category_id;
-						break;
-					
-					default:
-						// [TODO] Log?
-						break;
-				}
+					break;
+				
+				case 'team':
+				    // [TODO] Make sure the team/bucket still exists
+					list($team_id,$category_id) = CerberusApplication::translateTeamCategoryCode($v);
+					$fields[DAO_Ticket::TEAM_ID] = $team_id;
+					$fields[DAO_Ticket::CATEGORY_ID] = $category_id;
+					break;
+				
+				default:
+					// [TODO] Log?
+					break;
 			}
-			
-			// [TODO] Accept multiple ticket IDs in DAO stub
-			DAO_Ticket::updateTicket($ticket_id,$fields);
+		}
+//		}
+
+		DAO_Ticket::updateTicket($ticket_ids, $fields);
+		
+		if(!empty($this->params['team'])) {
+		    list($team_id,$bucket_id) = CerberusApplication::translateTeamCategoryCode($this->params['team']);
+		    
+		    $eventMgr = DevblocksPlatform::getEventService();
+		    $eventMgr->trigger(
+		        new Model_DevblocksEvent(
+		            'ticket.moved', // [TODO] Const
+	                array(
+	                    'ticket_ids' => $ticket_ids,
+	                    'team_id' => $team_id,
+	                    'bucket_id' => $bucket_id,
+	                )
+	            )
+		    );
 		}
 	}
 };
@@ -132,6 +154,9 @@ class CerberusVisit extends DevblocksVisit {
 	
 	const KEY_VIEW_MANAGER = 'view_manager';
 	const KEY_DASHBOARD_ID = 'cur_dashboard_id';
+	const KEY_VIEW_LAST_ACTION = 'view_last_action';
+	const KEY_VIEW_ACTION_LEARNER = 'view_action_learner';
+	const KEY_VIEW_TIPS = 'view_tips';
 
 	public function __construct() {
 		$this->worker = null;
@@ -199,6 +224,134 @@ class CerberusDashboard {
 	public $agent_id = 0;
 }
 
+class Model_TicketViewLastAction {
+    // [TODO] Recycle the bulk update constants for these actions?
+    const ACTION_SPAM = 'spam';
+    const ACTION_CLOSE = 'close';
+    const ACTION_DELETE = 'delete';
+    const ACTION_MOVE = 'move';
+    
+    public $ticket_ids = array(); // key = ticket id, value=old value
+    public $action = ''; // spam/closed/move, etc.
+	public $action_params = array(); // DAO Actions Taken
+};
+
+class Model_TicketViewActionLearner {
+    public $flat = array();
+    public $instance_id = '';
+    
+    public function __construct($instance_id) {
+        $this->instance_id = $instance_id;
+    }
+    
+    // [TODO] Hash this up by view_id, since move_to is less relevant now.
+    
+    public function analyze($tickets, Model_TicketViewLastAction $last_action) {
+        if(!is_array($tickets) || empty($last_action))
+            return;
+            
+        // Temporary
+        if($last_action->action == Model_TicketViewLastAction::ACTION_MOVE) {
+	
+	        $move_to = !empty($last_action->action_params['category_id']) 
+	            ? 'c'.$last_action->action_params['category_id']
+	            : 't'.$last_action->action_params['team_id']
+	            ; 
+	            
+	        $address_ids = array();
+	        foreach($tickets as $ticket_id => $ticket) { /* @var $ticket CerberusTicket */
+	            $address_ids[] = $ticket->first_wrote_address_id;
+	        }
+	        
+	        $addresses = DAO_Contact::getAddresses($address_ids);
+	                
+	        foreach($tickets as $ticket_id => $ticket) { /* @var $ticket CerberusTicket */
+	            @$address = $addresses[$ticket->first_wrote_address_id];
+	            $sender = ($address instanceof CerberusAddress) ? $address->email : "";
+	            $domain = ($address instanceof CerberusAddress) ? substr($address->email,strrpos($address->email,'@')) : "";
+	            $subject = $ticket->subject;
+	
+	            $sender_hash = md5('sender'.$sender);
+	            $domain_hash = md5('domain'.$domain);
+	            $subject_hash = md5('subject'.$subject);
+	            
+	            /*
+	             * [JAS]: Only store a hit when it's unique.  If we used the same header to do 
+	             * a different action then ignore both hits.
+	             */
+	            
+	            if(!isset($this->flat[$sender_hash])) {
+	                $this->flat[$sender_hash] = array('sender',$sender,$move_to,1);
+	            } else { 
+	                if($this->flat[$sender_hash][2]==$move_to) {
+	                    $this->flat[$sender_hash][3]++;
+	                } else { // Different action
+	                    unset($this->flat[$sender_hash]);
+	                }
+	            }
+	            
+	            if(!isset($this->flat[$domain_hash])) {
+	                $this->flat[$domain_hash] = array('domain',$domain,$move_to,1);
+	            } else { 
+	                if($this->flat[$domain_hash][2]==$move_to) {
+	                    $this->flat[$domain_hash][3]++;
+	                } else { // Different action
+	                    unset($this->flat[$domain_hash]);
+	                }
+	            }
+	            
+	            if(!isset($this->flat[$subject_hash])) {
+	                $this->flat[$subject_hash] = array('subject',$subject,$move_to,1);
+	            } else { 
+	                if($this->flat[$subject_hash][2]==$move_to) {
+	                    $this->flat[$subject_hash][3]++;
+	                } else { // Different action
+	                    unset($this->flat[$subject_hash]);
+	                }
+	            }
+	        }
+	        
+	        $this->purge();
+        } // end if ACTION_MOVE
+
+        $top = array();
+
+        $max = 10;
+        foreach($this->flat as $prop_hash => $props) {
+            $threshold = ($props[0]=="domain") ? 2 : 2;
+            if($props[3] >= $threshold) { // count above threshold
+                $top[$prop_hash] = $props;
+                if(--$max <= 0) 
+                    break;
+            }
+        }
+        
+        $visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
+        $view_key = CerberusVisit::KEY_VIEW_TIPS . $this->instance_id;
+		$visit->set($view_key,$top);
+    }
+    
+    public function clear($hash) {
+        unset($this->flat[$hash]);
+    }
+    
+    private function sortByCount($a,$b) {
+	    if ($a[3] == $b[3]) {
+	        return 0;
+	    }
+        return ($a[3] > $b[3]) ? -1 : 1;        
+    }
+    
+    private function purge() {
+        uasort($this->flat,array($this,'sortByCount'));
+        
+        // Only remember top 200 facts at a time
+        if(count($this->flat) > 300) // a little buffer space so we're not always running
+            $this->flat = array_slice($this->flat,0,200,true);
+    }
+    
+};
+
 class CerberusDashboardView {
 	public $id = 0;
 	public $name = "";
@@ -221,6 +374,170 @@ class CerberusDashboardView {
 			$this->renderSortAsc
 		);
 		return $tickets;	
+	}
+	
+	static public function setLastAction($view_id, Model_TicketViewLastAction $last_action=null) {
+	    $visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
+	    $view_last_actions = $visit->get(CerberusVisit::KEY_VIEW_LAST_ACTION,array());
+	    
+	    if(!is_null($last_action) && !empty($last_action->ticket_ids)) {
+	        $view_last_actions[$view_id] = $last_action;
+	    } else {
+	        if(isset($view_last_actions[$view_id])) {
+	            unset($view_last_actions[$view_id]);
+	        }
+	    }
+	    
+        $visit->set(CerberusVisit::KEY_VIEW_LAST_ACTION,$view_last_actions);
+	}
+	
+	/**
+	 * @param string $view_id
+	 * @return Model_TicketViewLastAction
+	 */
+	static public function getLastAction($view_id) {
+	    $visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
+        $view_last_actions = $visit->get(CerberusVisit::KEY_VIEW_LAST_ACTION,array());
+        return (isset($view_last_actions[$view_id]) ? $view_last_actions[$view_id] : null);
+	}
+	
+	static public function clearLastActions() {
+	    $visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
+	    $visit->set(CerberusVisit::KEY_VIEW_LAST_ACTION,array());
+	}
+	
+	/**
+	 * @param array
+	 * @param array
+	 * @return boolean
+	 */
+	function doBulkUpdate($filter, $data, $do, $ticket_ids=array(), $always_do_for_team_id=0) {
+		$action = new Model_DashboardViewAction();
+		$action->params = $do;
+		$action->dashboard_view_id = $this->id;
+	    
+		$params = $this->params;
+
+		// Sanitize params
+	    if(!empty($filter)) {
+	        $find = ($filter=='subject') ? SearchFields_Ticket::TICKET_SUBJECT : SearchFields_Ticket::SENDER_ADDRESS;
+	    
+	        foreach($params as $k => $v) { /* @var $v DevblocksSearchCriteria */
+	            if(0 == strcasecmp($v->field, $find)) {
+	                unset($params[$k]);
+	                break;
+	            }
+	        }
+	    }
+		
+		switch($filter) {
+		    case 'subject':
+		        foreach($data as $v) {
+		            $new_params = $params;
+		            $new_params[] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_SUBJECT,DevblocksSearchCriteria::OPER_LIKE,$v);
+//		            $count = 0;
+		            
+//			        do {
+				        list($tickets,$count) = DAO_Ticket::search(
+				            $new_params,
+				            -1,
+				            0
+				        );
+				        
+	                    $ticket_ids = array_keys($tickets);
+	                    
+				        // Did we want to save this and repeat it in the future?
+					    if($always_do_for_team_id) {
+						  $fields = array(
+						      DAO_TeamRoutingRule::HEADER => 'subject',
+						      DAO_TeamRoutingRule::PATTERN => $v,
+						      DAO_TeamRoutingRule::TEAM_ID => $always_do_for_team_id,
+						      DAO_TeamRoutingRule::POS => count($ticket_ids),
+						      DAO_TeamRoutingRule::DO_MOVE => $do['team'],
+						      DAO_TeamRoutingRule::DO_SPAM => $do['spam'],
+						      DAO_TeamRoutingRule::DO_STATUS => $do['closed'],
+						  );
+						  DAO_TeamRoutingRule::create($fields);
+						}
+	                    
+                        $action->run($ticket_ids);
+				        
+//			        } while($count);
+		        }
+		        break;
+		        
+		    case 'sender':
+		        foreach($data as $v) {
+		            $new_params = $params;
+		            $new_params[] = new DevblocksSearchCriteria(SearchFields_Ticket::SENDER_ADDRESS,DevblocksSearchCriteria::OPER_LIKE,$v);
+//		            $count = 0;
+		            
+//			        do {
+				        list($tickets,$count) = DAO_Ticket::search(
+				            $new_params,
+				            -1,
+				            0
+				        );
+				        
+	                    $ticket_ids = array_keys($tickets);
+	                    
+				        // Did we want to save this and repeat it in the future?
+					    if($always_do_for_team_id) {
+						  $fields = array(
+						      DAO_TeamRoutingRule::HEADER => 'from',
+						      DAO_TeamRoutingRule::PATTERN => $v,
+						      DAO_TeamRoutingRule::TEAM_ID => $always_do_for_team_id,
+						      DAO_TeamRoutingRule::POS => count($ticket_ids),
+						      DAO_TeamRoutingRule::DO_MOVE => $do['team'],
+						      DAO_TeamRoutingRule::DO_SPAM => $do['spam'],
+						      DAO_TeamRoutingRule::DO_STATUS => $do['closed'],
+						      );
+						  DAO_TeamRoutingRule::create($fields);
+						}
+	                    
+                        $action->run($ticket_ids);
+	                    
+//			        } while($count);
+		        }
+		        break;
+		        
+		    default: // none/selected
+		
+			    // Save shortcut?
+//				if(!empty($shortcut_name)) {
+//					$fields = array(
+//						DAO_DashboardViewAction::$FIELD_NAME => $shortcut_name,
+//						DAO_DashboardViewAction::$FIELD_VIEW_ID => 0,
+//						DAO_DashboardViewAction::$FIELD_WORKER_ID => 1, // [TODO] Should be real
+//						DAO_DashboardViewAction::$FIELD_PARAMS => serialize($params)
+//					);
+//					$action_id = DAO_DashboardViewAction::create($fields);
+//				}
+//				$tickets = DAO_Ticket::getTickets($ticket_ids);
+				
+				$action->run($ticket_ids);
+		        
+		        break;
+		}
+
+		if(!empty($do['team'])) {
+		    list($team_id, $bucket_id) = CerberusApplication::translateTeamCategoryCode($do['team']);
+		    
+		    if(!empty($team_id)) {
+			    $eventMgr = DevblocksPlatform::getEventService();
+			    $eventMgr->trigger(
+			        new Model_DevblocksEvent(
+			            'ticket.moved', // [TODO] Const
+		                array(
+		                    'ticket_ids' => $ticket_ids,
+		                    'team_id' => $team_id,
+		                    'bucket_id' => $bucket_id,
+		                )
+		            )
+			    );
+		    }
+		}
+		
 	}
 };
 
@@ -282,6 +599,7 @@ class CerberusTicketStatus {
 };
 
 class CerberusTicketSpamTraining { // [TODO] Append 'Enum' to class name?
+	const BLANK = '';
 	const NOT_SPAM = 'N';
 	const SPAM = 'S';
 	
@@ -328,6 +646,7 @@ class CerberusTicket {
 	public $is_deleted = 0;
 	public $team_id;
 	public $category_id;
+	public $owner_id = 0;
 	public $priority;
 	public $first_wrote_address_id;
 	public $last_wrote_address_id;

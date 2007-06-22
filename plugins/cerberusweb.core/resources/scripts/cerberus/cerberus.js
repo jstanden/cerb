@@ -400,6 +400,18 @@ var cAjaxCalls = function() {
 		});
 	}
 	
+	this.viewAssignTicket = function(view_id, ticket_id, owner_id) {
+		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=tickets&a=takeTicket&ticket_id='+ticket_id+'&owner_id='+owner_id, {
+				success: function(o) {
+					var id = o.argument.id;
+					var caller = o.argument.caller;
+					caller.getRefresh(id);
+				},
+				failure: function(o) {},
+				argument:{caller:this,id:view_id}
+		});	
+	}
+	
 	this.viewCloseTickets = function(view_id,mode) {
 		var formName = 'viewForm'+view_id;
 		var viewForm = document.getElementById(formName);
@@ -407,24 +419,33 @@ var cAjaxCalls = function() {
 
 		switch(mode) {
 			case 1: // spam
-				genericAjaxPost(formName, '', 'c=tickets&a=viewSpamTickets', function(o) {
+				genericAjaxPost(formName, '', 'c=tickets&a=viewSpamTickets&view_id=' + view_id, function(o) {
 					ajax.getRefresh(view_id);
 					genericAjaxGet('teamFilters','c=tickets&a=refreshTeamFilters');
 				});
 				break;
 			case 2: // delete
-				genericAjaxPost(formName, '', 'c=tickets&a=viewDeleteTickets', function(o) {
+				genericAjaxPost(formName, '', 'c=tickets&a=viewDeleteTickets&view_id=' + view_id, function(o) {
 					ajax.getRefresh(view_id);
 					genericAjaxGet('teamFilters','c=tickets&a=refreshTeamFilters');
 				});
 				break;
 			default: // close
-				genericAjaxPost(formName, '', 'c=tickets&a=viewCloseTickets', function(o) {
+				genericAjaxPost(formName, '', 'c=tickets&a=viewCloseTickets&view_id=' + view_id, function(o) {
 					ajax.getRefresh(view_id);
 					genericAjaxGet('teamFilters','c=tickets&a=refreshTeamFilters');
 				});
 				break;
 		}
+	}
+	
+	this.viewUndo = function(view_id) {
+		genericAjaxGet('','c=tickets&a=viewUndo&view_id=' + view_id,
+			function(o) {
+				ajax.getRefresh(view_id);
+				genericAjaxGet('teamFilters','c=tickets&a=refreshTeamFilters');
+			}
+		);		
 	}
 
 /*	

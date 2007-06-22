@@ -17,12 +17,28 @@
 		<point id=""></point>
 	</extension-points>
 	-->
+	
+	<!-- Event Points -->
+
+	<event_points>
+		<event id="ticket.assigned">
+			<name>Ticket Assigned</name>
+			<param key="ticket_id" />
+			<param key="owner_id" />
+		</event>
+		<event id="ticket.moved">
+			<name>Ticket Moved</name>
+			<param key="ticket_ids" />
+			<param key="tickets" /> <!-- Optional -->
+			<param key="team_id" />
+			<param key="bucket_id" />
+		</event>
+	</event_points>
 
 	<extensions>
 
 		<!-- Event Listeners -->
 		
-		<!-- 
 		<extension point="devblocks.listener.event">
 			<id>cerberusweb.listeners.event</id>
 			<name>Cerberus Helpdesk Event Listener</name>
@@ -31,14 +47,9 @@
 				<name>ChCoreEventListener</name>
 			</class>
 			<params>
-				<param key="events">
-					<value>
-						<data key="event.name" />
-					</value>
-				</param>
+				<!-- Global Event Listener -->
 			</params>
 		</extension>
-		-->
  
 		<!-- Routers -->
 		

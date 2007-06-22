@@ -71,36 +71,51 @@ class GovDataset extends SimulatorDataset {
 class HostingDataset extends SimulatorDataset {
 	
 	public function __construct() {
+	    $domain_extensions = array('com'=>'com','net'=>'net','org'=>'org');
+	    
 		$this->addEmailTemplate('##site## down','I can\'t ##access## my ##site##?');
-		$this->addEmailTemplate('How do I ##login##?','I just finished ##signup_present##, how do I ##login## to my website?');
+		$this->addEmailTemplate('How do I ##login## with ##product##?','I just finished ##signup_present## for ##product##.  How do I ##login## to my account?');
 		$this->addEmailTemplate('##lost## ##password##','I ##lost## my ##password##, how do I get it back?');
 		$this->addEmailTemplate('##docs##?','I\'m ##emotion##.  Where is your ##docs##?');
-		$this->addEmailTemplate('How long?','I just ##signup_past##.  How long does it take to get my new site ##online##?');
-		$this->addEmailTemplate('how much are ##product##?','Where can I find the ##cost## for your ##product##?');
-		$this->addEmailTemplate('Money back?','I don\'t like your ##feature##.  How can I get ##refund##?');
-		$this->addEmailTemplate('alternative ##feature## levels?','Do you ##offer## different ##feature## levels?');
+		$this->addEmailTemplate('How long for new ##product##?','I just ##signup_past## ##product##.  How long does it take to get my new account ##online##?');
+		$this->addEmailTemplate('how much is ##product##?','Where can I find the ##cost## for ##product##?');
+		$this->addEmailTemplate('##refund##?','I don\'t like your ##feature##.  How can I get ##refund##?');
+		$this->addEmailTemplate('different options for ##product##?','Do you ##offer## different options for ##product##?  I could\'nt find the info on your website.');
 		$this->addEmailTemplate('Need help','How do I ##web_action## ##filetype## files?');
-		$this->addEmailTemplate('How can I pay?','What ##types## of ##payment## do you accept?');
+		$this->addEmailTemplate('How can I pay?','What ##types## of ##payment## do you accept for ##product##?');
+		$this->addEmailTemplate('Hosting Industry Newsletter (The Future of ##using_tool##?)',"===============\r\nHOSTING TOOLS\r\n===============\r\nDid you know ##using_percent## website owners are using ##using_tool## compared to last year?\r\n\r\n===============\r\nPRICING\r\n===============\r\nThis week the average website owner surveyed said they would pay ##hosting_mopay##/mo for ##product##.",'"Hosting Industry News" <hosting-news@cerberusdemo.com>');
+		$this->addEmailTemplate('New Order: ##hosting_domain## (##hosting_plan## package)',"A new user signed up for the ##hosting_plan## hosting package!\r\n\r\nDomain: ##hosting_domain##",'"New Orders" <hosting-orders@cerberusdemo.com>');
 		
 		$this->addToken('##site##',array('site','website','webpage','control panel'));
-		$this->addToken('##access##',array('access','retrieve','find','download','surf'));
+		$this->addToken('##access##',array('access','see','find','download','surf','visit'));
 		$this->addToken('##login##',array('setup','upload','login'));
-		$this->addToken('##signup_present##',array('purchasing','Signing up','paying','setting up'));
+		$this->addToken('##signup_present##',array('purchasing','signing up','ordering','buying','paying','setting up'));
 		$this->addToken('##lost##',array('forgot','misplaced','lost'));
 		$this->addToken('##password##',array('password','login','details'));
-		$this->addToken('##emotion##',array('lost','frustrated','annoyed','searching','confused'));
-		$this->addToken('##docs##',array('documentation','support','help','support material'));
+		$this->addToken('##emotion##',array('lost','frustrated','annoyed','searching','confused','feeling like a newbie','just starting out'));
+		$this->addToken('##docs##',array('documentation','support','help','support material','manual'));
 		$this->addToken('##signup_past##',array('purchased','signed up','started'));
-		$this->addToken('##online##',array('online','up','working','started'));
+		$this->addToken('##online##',array('online','up','working','started','activated'));
 		$this->addToken('##cost##',array('pricing','cost','bundles'));
-		$this->addToken('##product##',array('hosting accounts','dedicated accounts','reseller accounts','accounts'));
-		$this->addToken('##feature##',array('product','support','service','policy','contract'));
-		$this->addToken('##refund##',array('a refund','my money back'));
-		$this->addToken('##offer##',array('offer','give','provide'));
+		$this->addToken('##product##',array('dedicated hosting','reseller hosting','PHP hosting','Ruby hosting','developer hosting','professional hosting','business hosting','economy hosting','application hosting','Unix hosting','Windows hosting'));
+		$this->addToken('##feature##',array('control panel','lack of secure ftp','bandwidth limit','corporate mascot','storage limitations','PHP version','server speed'));
+		$this->addToken('##refund##',array('a refund','my money back','refunded','someone to call me'));
+		$this->addToken('##offer##',array('offer','give','provide','allow'));
 		$this->addToken('##web_action##',array('stream','upload','embed'));
-		$this->addToken('##filetype##',array('wav','mpeg','quicktime','flash','video'));
+		$this->addToken('##filetype##',array('mp3','mpeg','quicktime','flash','video','podcast'));
 		$this->addToken('##types##',array('types','forms','kinds'));
-		$this->addToken('##payment##',array('payment','purchases','payment types'));
+		$this->addToken('##payment##',array('payment','purchase','billing','payment types'));
+		$this->addToken('##using_percent##',array('50% more','25% less','30% more'));
+		$this->addToken('##using_tool##',array('PHP','Java','Ruby on Rails','Perl','Coldfusion','ASP.NET'));
+		$this->addToken('##hosting_plan##',array('Platinum','Gold','Silver','Copper'));
+		$this->addToken('##hosting_domain##',array(
+		    'business.'.array_rand($domain_extensions),
+		    'shopping.'.array_rand($domain_extensions),
+		    'fitness.'.array_rand($domain_extensions),
+		    'finance.'.array_rand($domain_extensions),
+		    'coffee.'.array_rand($domain_extensions)
+		    ));
+		$this->addToken('##hosting_mopay##',array('$25-$30','$5-$10','$1.25-$2.50'));
 	}
 	
 };

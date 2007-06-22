@@ -6,13 +6,92 @@
 require_once(dirname(__FILE__) . '/Datasets.class.php');
 
 class CerberusSimulator {
-	private $surnames = array();
-	private $names = array();
 	private static $instance = null;
 	
 	private function __construct() {
 		srand( ((int)((double)microtime()*1000003)) );
+	}
+	
+	public static function getInstance() {
+		if(null == self::$instance) {
+			self::$instance = new CerberusSimulator();
+		}
+		return self::$instance;
+	}
+	
+	public function generateEmails(SimulatorDataset $dataset,$how_many=10) {
+		$emails = array();
+		$generator = new CerberusSimulatorGenerator();
 		
+		for($x=0;$x<$how_many;$x++) {
+			$email = $dataset->getRandomEmail();
+			$email = $generator->generateSender($email); // [TODO] Clean up
+			$emails[] = $email; 
+		}
+		
+		return $emails;
+	}
+	
+};
+
+class SimulatorDataset {
+	protected $emails = array();
+	protected $tokens = array();
+	
+	protected function addEmailTemplate($subject,$body,$sender=null) {
+		$this->emails[] = array(
+			'sender' => $sender,
+			'subject' => $subject,
+			'body' => $body
+		);
+	}
+	
+	protected function addToken($token,$options) {
+		$this->tokens[$token] = $options;
+	}
+	
+	public function getRandomEmail() {
+		$email = $this->emails[rand(0,count($this->emails)-1)];
+		
+		$tokens = array_keys($this->tokens);
+		$values = $this->_randomTokenValues(); 
+		
+		// Subject
+		$email['subject'] = str_replace(
+			$tokens,
+			$values,
+			$email['subject']
+		);
+
+		// Body
+		$email['body'] = str_replace(
+			$tokens,
+			$values,
+			$email['body']
+		);
+		
+		return $email;		
+	}
+	
+	private function _randomTokenValues() {
+		$values = array();
+		
+		if(is_array($this->tokens))
+		foreach($this->tokens as $opts) {
+			shuffle($opts);
+			$values[] = array_shift($opts);
+		}
+		
+		return $values;
+	}
+	
+};
+
+class CerberusSimulatorGenerator {
+	private $surnames = array();
+	private $names = array();
+    
+	function __construct() {
 		/*
 		 * [TODO] Move these into an American dataset for names? Allows for other name datasets 
 		 * to plug in for international customers.
@@ -121,15 +200,8 @@ class CerberusSimulator {
 		$this->names[] = "Sarah";
 		$this->names[] = "Kimberly";
 		$this->names[] = "Deborah";
-	}
-	
-	public static function getInstance() {
-		if(null == self::$instance) {
-			self::$instance = new CerberusSimulator();
-		}
-		return self::$instance;
-	}
-	
+    }
+    
 	private function generatePerson() {
 		$firstname = $this->names[rand(0,sizeof($this->names)-1)];
 		$lastname = $this->surnames[rand(0,sizeof($this->surnames)-1)];
@@ -140,78 +212,23 @@ class CerberusSimulator {
 			strtolower($lastname)
 		);
 		
-		return array(
-			'firstname' => $firstname,
-			'lastname' => $lastname,
-			'address' => $emailaddress,
-		);
-	}
-	
-	public function generateEmails(SimulatorDataset $dataset,$how_many=10) {
-		$emails = array();
+//		return array(
+//			'personal' => $firstname . ' ' . $lastname,
+//			'address' => $emailaddress,
+//		);
 		
-		for($x=0;$x<$how_many;$x++) {
-			$email = $dataset->getRandomEmail();
-			$email['sender'] = $this->generatePerson();
-			$emails[] = $email; 
-		}
-		
-		return $emails;
+		return $emailaddress;
 	}
-	
-};
+    
+	public function generateSender($email) {
 
-class SimulatorDataset {
-	protected $emails = array();
-	protected $tokens = array();
-	
-	protected function addEmailTemplate($subject,$body) {
-		$this->emails[] = array(
-			'sender' => array(),
-			'subject' => $subject,
-			'body' => $body
-		);
-	}
-	
-	protected function addToken($token,$options) {
-		$this->tokens[$token] = $options;
-	}
-	
-	public function getRandomEmail() {
-		$email = $this->emails[rand(0,count($this->emails)-1)];
-		
-		$tokens = array_keys($this->tokens);
-		$values = $this->_randomTokenValues(); 
-		
-		// Subject
-		$email['subject'] = str_replace(
-			$tokens,
-			$values,
-			$email['subject']
-		);
+	    if(empty($email['sender'])) {
+            $email['sender'] = $this->generatePerson();
+	    }
 
-		// Body
-		$email['body'] = str_replace(
-			$tokens,
-			$values,
-			$email['body']
-		);
-		
-		return $email;		
+//		$emailaddress = sprintf("\"%s %s\" <%s.%s@cerberusdemo.com>",
+	    return $email;
 	}
-	
-	private function _randomTokenValues() {
-		$values = array();
-		
-		if(is_array($this->tokens))
-		foreach($this->tokens as $opts) {
-			shuffle($opts);
-			$values[] = array_shift($opts);
-		}
-		
-		return $values;
-	}
-	
 };
 
 ?>

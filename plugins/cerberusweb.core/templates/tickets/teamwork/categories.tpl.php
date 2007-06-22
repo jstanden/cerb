@@ -39,7 +39,7 @@
 			<!-- <label><input type="checkbox" name="hide_assigned" value="1" {if $team_filters.hide_assigned}checked{/if}> Hide with Active Tasks</label><br>  -->
 			
 			<div align="right">
-				<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/funnel.gif{/devblocks_url}" align="top"> {$translate->_('common.filter')|capitalize}</button>
+				<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/replace2.gif{/devblocks_url}" align="top"> {$translate->_('common.refresh')|capitalize}</button>
 			</div>
 		</td>
 	</tr>

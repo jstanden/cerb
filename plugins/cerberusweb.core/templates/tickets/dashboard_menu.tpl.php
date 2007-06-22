@@ -52,11 +52,6 @@
 					</td>
 				</tr>
 				{/if}
-				<tr>
-					<td width="100%" style="padding:2px;">
-						 <a href="{devblocks_url}c=tickets{/devblocks_url}">{$translate->_('common.refresh')|lower}</a>
-					</td>
-				</tr>
 			</table>
 		</td>
 	</tr>

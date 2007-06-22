@@ -192,9 +192,18 @@ class Pop3Cron extends CerberusCronPageExtension {
 				DAO_Mail::updatePop3Account($id, $fields);
 				
 			} else {
-			    // [JAS]: [TODO] Convert to ::create($id,$fields) format
 	            if(!empty($host) && !empty($username)) {
-				    $id = DAO_Mail::createPop3Account($nickname,$host,$username,$password);
+				    // [JAS]: [TODO] convert to field constants
+	                $fields = array(
+					    'enabled' => 1,
+						'nickname' => $nickname,
+						'protocol' => $protocol,
+						'host' => $host,
+						'username' => $username,
+						'password' => $password,
+						'port' => $port
+					);
+				    $id = DAO_Mail::createPop3Account($fields);
 	            }
 			}
 		}

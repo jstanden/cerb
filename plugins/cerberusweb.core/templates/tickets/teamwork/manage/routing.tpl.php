@@ -23,28 +23,28 @@
 				{$rule->header|capitalize}: <b style='color:rgb(0,120,0);'>{$rule->pattern}</b></label><br>
 				<!-- <input type="text" name="patterns[]" value="{$rule->pattern}" size="45">  -->
 				<blockquote style="margin:2px;margin-left:30px;font-size:90%;color:rgb(130,130,130);">
-				{foreach from=$rule->params item=v key=k name=params}
-					{if $k == 'closed' && !empty($v)}
-						{if $v==1}Close Ticket{elseif $v==0}Open Ticket{elseif $v==2}Delete Ticket{/if}<br>
-					{elseif $k == 'priority' && !empty($v)}
-						Set Priority to '{$v}'<br>
-					{elseif $k == 'spam' && !empty($v)}
-						{if $v=='N'}Mark Not Spam{else}Report Spam{/if}<br>
-					{elseif $k == 'team' && !empty($v)}
-						Move to '{$category_name_hash.$v}'<br>
+					{if $rule->do_status != ''}
+						{if $rule->do_status==1}Close Ticket{elseif $rule->do_status==0}Open Ticket{elseif $rule->do_status==2}Delete Ticket{/if}<br>
 					{/if}
-				{/foreach}
+					{if $rule->do_spam != ''}
+						{if $rule->do_spam=='N'}Mark Not Spam{else}Report Spam{/if}<br>
+					{/if}
+					{if $rule->do_move != ''}
+						{assign var=move_code value=$rule->do_move}
+						Move to '{$category_name_hash.$move_code}'<br>
+					{/if}
 				<span>(Matched {$rule->pos} new messages)</span><br>
 				</blockquote>
 			</td>
 		</tr>
 	{/foreach}
 </table>
-</div>
 <br>
+
+<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> Delete Selected Rules</button>
+</div>
 {else}
-No team inbox routing is configured.<br>
+	No team inbox routing is configured.<br>
 {/if}
 	
-<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> Delete Selected Rules</button>
 </form>

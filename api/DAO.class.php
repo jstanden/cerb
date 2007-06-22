@@ -607,6 +607,9 @@ class DAO_Contact {
 	}
 	
 	// [JAS]: [TODO] Move this into MailDAO
+	/*
+	 * @return CerberusAddress[] 
+	 */
 	static function getAddresses($ids=array()) {
 		$db = DevblocksPlatform::getDatabaseService();
 		if(!is_array($ids)) $ids = array($ids);
@@ -634,6 +637,9 @@ class DAO_Contact {
 	}
 	
 	// [JAS]: [TODO] Move this into MailDAO
+	/*
+	 * @return CerberusAddress
+	 */
 	static function getAddress($id) {
 		if(empty($id)) return null;
 		
@@ -900,6 +906,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 	const IS_DELETED = 'is_deleted';
 	const TEAM_ID = 'team_id';
 	const CATEGORY_ID = 'category_id';
+	const OWNER_ID = 'owner_id';
 	const LAST_WROTE_ID = 'last_wrote_address_id';
 	const FIRST_WROTE_ID = 'first_wrote_address_id';
 	const CREATED_DATE = 'created_date';
@@ -998,8 +1005,8 @@ class DAO_Ticket extends DevblocksORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$newId = $db->GenID('ticket_seq');
 		
-		$sql = sprintf("INSERT INTO ticket (id, mask, subject, last_wrote_address_id, first_wrote_address_id, created_date, updated_date, due_date, priority, team_id, category_id) ".
-			"VALUES (%d,'','',0,0,%d,%d,0,0,0,0)",
+		$sql = sprintf("INSERT INTO ticket (id, mask, subject, last_wrote_address_id, first_wrote_address_id, created_date, updated_date, due_date, priority, team_id, category_id, owner_id) ".
+			"VALUES (%d,'','',0,0,%d,%d,0,0,0,0,0)",
 			$newId,
 			time(),
 			time()
@@ -1136,7 +1143,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 		
 		$tickets = array();
 		
-		$sql = "SELECT t.id , t.mask, t.subject, t.is_closed, t.is_deleted, t.priority, t.team_id, t.category_id, ".
+		$sql = "SELECT t.id , t.mask, t.subject, t.is_closed, t.is_deleted, t.priority, t.team_id, t.category_id, t.owner_id, ".
 			"t.first_wrote_address_id, t.last_wrote_address_id, t.created_date, t.updated_date, t.due_date, t.spam_training, ". 
 			"t.spam_score, t.interesting_words, t.next_action ".
 			"FROM ticket t ".
@@ -1152,6 +1159,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 			$ticket->subject = $rs->fields['subject'];
 			$ticket->team_id = intval($rs->fields['team_id']);
 			$ticket->category_id = intval($rs->fields['category_id']);
+			$ticket->owner_id = intval($rs->fields['owner_id']);
 			$ticket->is_closed = intval($rs->fields['is_closed']);
 			$ticket->is_deleted = intval($rs->fields['is_deleted']);
 			$ticket->priority = intval($rs->fields['priority']);
@@ -1366,10 +1374,11 @@ class DAO_Ticket extends DevblocksORMHelper {
 			"tm.id as %s, ".
 			"tm.name as %s, ".
 			"t.category_id as %s, ".
-			"cat.name as %s ".
+			"cat.name as %s, ". // [TODO] BAD LEFT JOINS
+			"t.owner_id as %s ".
 			"FROM ticket t ".
 			"INNER JOIN team tm ON (tm.id = t.team_id) ".
-			"LEFT JOIN category cat ON (cat.id = t.category_id) ".
+			"LEFT JOIN category cat ON (cat.id = t.category_id) ". // [TODO] Remove this and use a hash // [TODO] Optimization
 			"INNER JOIN address a1 ON (t.first_wrote_address_id=a1.id) ".
 			"INNER JOIN address a2 ON (t.last_wrote_address_id=a2.id) ",
 			    SearchFields_Ticket::TICKET_ID,
@@ -1391,7 +1400,8 @@ class DAO_Ticket extends DevblocksORMHelper {
 			    SearchFields_Ticket::TEAM_ID,
 			    SearchFields_Ticket::TEAM_NAME,
 			    SearchFields_Ticket::CATEGORY_ID,
-			    SearchFields_Ticket::CATEGORY_NAME
+			    SearchFields_Ticket::CATEGORY_NAME,
+			    SearchFields_Ticket::TICKET_OWNER_ID
 			).
 			
 			// [JAS]: Dynamic table joins
@@ -1447,6 +1457,7 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 	const TICKET_INTERESTING_WORDS = 't_interesting_words';
 	const TICKET_NEXT_ACTION = 't_next_action';
 	const TICKET_CATEGORY_ID = 't_category_id';
+	const TICKET_OWNER_ID = 't_owner_id';
 	
 	// Message
 	const MESSAGE_CONTENT = 'msg_content';
@@ -1493,6 +1504,7 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 			SearchFields_Ticket::TICKET_INTERESTING_WORDS => new DevblocksSearchField(SearchFields_Ticket::TICKET_INTERESTING_WORDS, 't', 'interesting_words'),
 			SearchFields_Ticket::TICKET_NEXT_ACTION => new DevblocksSearchField(SearchFields_Ticket::TICKET_NEXT_ACTION, 't', 'next_action'),
 			SearchFields_Ticket::TICKET_CATEGORY_ID => new DevblocksSearchField(SearchFields_Ticket::TICKET_CATEGORY_ID, 't', 'category_id'),
+			SearchFields_Ticket::TICKET_OWNER_ID => new DevblocksSearchField(SearchFields_Ticket::TICKET_OWNER_ID, 't', 'owner_id'),
 //			SearchFields_Ticket::TICKET_TASKS => new DevblocksSearchField(SearchFields_Ticket::TICKET_TASKS, 't', 'num_tasks'),
 			
 			SearchFields_Ticket::MESSAGE_CONTENT => new DevblocksSearchField(SearchFields_Ticket::MESSAGE_CONTENT, 'msg', 'content'),
@@ -2384,6 +2396,8 @@ class DAO_Workflow {
 			$id
 		);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+
+        DAO_TeamRoutingRule::deleteByMoveCodes(array('t'.$id));		
 	}
 	
 //	static function setTeamMailboxes($team_id, $mailbox_ids) {
@@ -2908,9 +2922,6 @@ class DAO_Category extends DevblocksORMHelper {
 		$sql = sprintf("DELETE FROM category WHERE id IN (%s)", implode(',',$ids));
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
-		$sql = sprintf("DELETE FROM category_to_tag WHERE category_id IN (%s)", implode(',',$ids));
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
 		// Reset any tickets using this category
 		$sql = sprintf("UPDATE ticket SET category_id = 0 WHERE category_id IN (%s)", implode(',',$ids));
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
@@ -3156,22 +3167,20 @@ class DAO_Mail {
 	// Pop3 Accounts
 	
 	// [TODO] Allow custom ports
-	static function createPop3Account($nickname,$host,$username,$password) {
-		if(empty($nickname) || empty($host) || empty($username) || empty($password)) 
-			return null;
+	static function createPop3Account($fields) {
+//		if(empty($nickname) || empty($host) || empty($username) || empty($password)) 
+//			return null;
 			
 		$db = DevblocksPlatform::getDatabaseService();
 		$newId = $db->GenID('generic_seq');
 		
 		$sql = sprintf("INSERT INTO pop3_account (id, enabled, nickname, host, username, password) ".
-			"VALUES (%d,1,%s,%s,%s,%s)",
-			$newId,
-			$db->qstr($nickname),
-			$db->qstr($host),
-			$db->qstr($username),
-			$db->qstr($password)
+			"VALUES (%d,0,'','','','')",
+			$newId
 		);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		self::updatePop3Account($newId, $fields);
 		
 		return $newId;
 	}
@@ -3409,6 +3418,8 @@ class DAO_Kb {
 		if(empty($id)) return null;
 		$db = DevblocksPlatform::getDatabaseService();
 		$db->Execute(sprintf("DELETE FROM kb_category WHERE id = %d",$id)) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+
+        DAO_TeamRoutingRule::deleteByMoveCodes(array('c'.$id));		
 	}
 	
 	static function createResource($title,$type=CerberusKbResourceTypes::ARTICLE) {
@@ -3706,7 +3717,10 @@ class DAO_TeamRoutingRule extends DevblocksORMHelper {
     const HEADER = 'header';
     const PATTERN = 'pattern';
     const POS = 'pos';
-    const PARAMS = 'params'; // blob
+    const DO_STATUS = 'do_status';
+    const DO_SPAM = 'do_spam';
+    const DO_MOVE = 'do_move';
+//    const PARAMS = 'params'; // blob
     
 	public static function create($fields) {
 	    $db = DevblocksPlatform::getDatabaseService();
@@ -3714,9 +3728,10 @@ class DAO_TeamRoutingRule extends DevblocksORMHelper {
 		
 		self::findDupes($fields);
 		
-		$sql = sprintf("INSERT INTO team_routing_rule (id,team_id,header,pattern,pos,params) ".
-		    "VALUES (%d,0,'','',0,'')",
-		    $id
+		$sql = sprintf("INSERT INTO team_routing_rule (id,created,team_id,header,pattern,pos,do_spam,do_status,do_move) ".
+		    "VALUES (%d,%d,0,'','',0,'','','')",
+		    $id,
+		    time()
 		);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
@@ -3728,11 +3743,11 @@ class DAO_TeamRoutingRule extends DevblocksORMHelper {
 	public static function update($id, $fields) {
 	    self::findDupes($fields);
 	    
-	    if($fields[self::PARAMS]) {
-	        $params = $fields[self::PARAMS];
+//	    if($fields[self::PARAMS]) {
+//	        $params = $fields[self::PARAMS];
 //	        unset($fields[self::PARAMS]);
 	        // [TODO] DO our own DB call here for updateBlob (HACK until new patch system)
-	    }
+//	    }
 	    
         self::_update($id, 'team_routing_rule', $fields);
 	}
@@ -3773,7 +3788,7 @@ class DAO_TeamRoutingRule extends DevblocksORMHelper {
 	    
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = sprintf("SELECT id, team_id, header, pattern, pos, params ".
+		$sql = sprintf("SELECT id, team_id, header, pattern, pos, do_spam, do_status, do_move ".
 		    "FROM team_routing_rule ".
 		    "WHERE team_id = %d ".
 		    "ORDER BY pos DESC",
@@ -3791,7 +3806,7 @@ class DAO_TeamRoutingRule extends DevblocksORMHelper {
 	    if(!is_array($ids)) $ids = array($ids);
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = "SELECT id, team_id, header, pattern, pos, params ".
+		$sql = "SELECT id, team_id, header, pattern, pos, do_spam, do_status, do_move ".
 		    "FROM team_routing_rule ".
 		    (!empty($ids) ? sprintf("WHERE id IN (%s) ", implode(',', $ids)) : " ").
 		    "ORDER BY pos DESC"
@@ -3815,18 +3830,31 @@ class DAO_TeamRoutingRule extends DevblocksORMHelper {
 		    $object->header = $rs->fields['header'];
 		    $object->pattern = $rs->fields['pattern'];
 		    $object->pos = intval($rs->fields['pos']);
-		    
-		    $params = $rs->fields['params'];
-		    
-		    if(!empty($params)) {
-		        @$object->params = unserialize($params);
-		    }
+		    $object->do_spam = $rs->fields['do_spam'];
+            $object->do_status = $rs->fields['do_status'];
+            $object->do_move = $rs->fields['do_move'];
+		    		    
+//		    $params = $rs->fields['params'];
+//		    
+//		    if(!empty($params)) {
+//		        @$object->params = unserialize($params);
+//		    }
 		    
 		    $objects[$object->id] = $object;
 		    $rs->MoveNext();
 		}
 		
 		return $objects;
+	}
+	
+	public static function deleteByMoveCodes($codes) {
+	    if(!is_array($$codes)) $codes = array($codes);
+	    $db = DevblocksPlatform::getDatabaseService();
+	    
+	    $code_list = implode(',', $codes);
+	    
+	    $sql = sprintf("UPDATE team_routing_rule SET do_move = '' WHERE do_move IN (%s)", $code_list);
+	    $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 	}
 	
 	public static function delete($ids) {

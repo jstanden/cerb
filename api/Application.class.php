@@ -1,5 +1,5 @@
 <?php
-define("APP_BUILD", 170);
+define("APP_BUILD", 171);
 define("APP_MAIL_PATH", realpath(APP_PATH . '/storage/mail') . DIRECTORY_SEPARATOR);
 
 include_once(APP_PATH . "/api/DAO.class.php");
@@ -496,11 +496,76 @@ class CerberusApplication extends DevblocksApplication {
 			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_UPDATED_DATE,$translate->_('ticket.updated')),
 			new CerberusDashboardViewColumn(SearchFields_Ticket::TEAM_NAME,$translate->_('common.team')),
 			new CerberusDashboardViewColumn(SearchFields_Ticket::CATEGORY_NAME,$translate->_('common.bucket')),
+			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_OWNER_ID,$translate->_('ticket.owner')),
 			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_DUE_DATE,$translate->_('ticket.due')),
 			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_SPAM_SCORE,$translate->_('ticket.spam_score')),
 			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_NEXT_ACTION,$translate->_('ticket.next_action')),
 //			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_TASKS,$translate->_('common.tasks')),
 			);
+	}
+	
+	/**
+	 * Enter description here...
+	 * [TODO] Move this into a better API holding place
+	 *
+	 * @param integer $team_id
+	 * @param Model_TeamRoutingRule $ticket
+	 */
+	static public function parseTeamRules($team_id, $ticket_id, $fromAddress, $sSubject) {
+	    static $moveMap = array();
+	    
+	    // Check the team's inbox rules and see if we have a new destination
+        if(!empty($team_id)) {
+            
+            //if(!empty($rule_ids)) {
+                // [TODO] Cache this call
+   	            $team_rules = DAO_TeamRoutingRule::getByTeamId($team_id);
+   	            
+   	            //echo "Scanning (From: ",$fromAddress,"; Subject: ",$sSubject,")<BR>";
+   	            
+   	            foreach($team_rules as $rule) { /* @var $rule Model_TeamRoutingRule */
+   	                $pattern = $rule->getPatternAsRegexp();
+   	                $haystack = ($rule->header=='from') ? $fromAddress : $sSubject ;
+   	                if(preg_match($pattern, $haystack)) {
+   	                    //echo "I matched ($pattern) for ($ticket_id)!<br>";
+   	                    
+	                    /* =============== Prevent recursive assignments =============
+	                     * If we ever get into a situation where many rules are sending a ticket
+	                     * back and forth between them, delete the last rule in the chain which 
+	                     * is trying to start over.
+	                     */
+		                if(!isset($moveMap[$ticket_id])) {
+		                    $moveMap[$ticket_id] = array();
+		                } else {
+		                    if(isset($moveMap[$ticket_id][$team_id])) {
+			                    $nuke_rule_id = array_pop($moveMap[$ticket_id]);
+//		                        echo "I need to delete a redundant rule!",$nuke_rule_id,"<BR>";
+			                    DAO_TeamRoutingRule::delete($nuke_rule_id);
+		                        continue;
+		                    }
+		                }
+		                $moveMap[$ticket_id][$team_id] = $rule->id;
+		                
+		                // =============== Run action =============
+   	                    $action = new Model_DashboardViewAction();
+   	                    $action->params = array(
+   	                        'spam' => $rule->do_spam,
+   	                        'closed' => $rule->do_status,
+   	                        'team' => $rule->do_move,
+   	                    );
+   	                    $action->run(array($ticket_id));
+   	                    
+   	                    DAO_TeamRoutingRule::update($rule->id, array(
+   	                        DAO_TeamRoutingRule::POS => intval($rule->pos) + 1
+   	                    ));
+   	                    
+   	                    return $rule;
+   	                }
+   	            }
+//            }
+        }
+        
+        return false;
 	}
 	
 	// ***************** DUMMY

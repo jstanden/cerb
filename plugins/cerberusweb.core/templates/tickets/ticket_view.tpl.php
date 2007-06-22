@@ -1,14 +1,86 @@
+{if !empty($last_action)}
+<div id="{$view->id}_output" style="margin:10px;padding:5px;border:1px solid rgb(200,200,200);background-color:rgb(250,250,150);">
+<table cellspacing="0" cellpadding="0" border="0" width="100%">
+<tr>
+	<td>
+		<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/information.gif{/devblocks_url}" align="absmiddle"> 
+	
+		{$last_action_count} ticket{if $last_action_count!=1}s{/if} 
+	
+		{if $last_action->action == 'spam'}
+			marked spam.
+		{elseif $last_action->action == 'delete'}
+			deleted.
+		{elseif $last_action->action == 'close'}
+			closed.
+		{elseif $last_action->action == 'move'}
+			{assign var=moved_to_team_id value=$last_action->action_params.team_id}
+			{assign var=moved_to_category_id value=$last_action->action_params.category_id}
+	
+			moved to 
+			{if empty($moved_to_category_id)}
+				'{$teams.$moved_to_team_id->name}'.
+			{else}
+				{assign var=moved_team_category value=$team_categories.$moved_to_team_id}
+				'{$teams.$moved_to_team_id->name}: {$moved_team_category.$moved_to_category_id->name}'.
+			{/if}
+		{/if}
+		
+		( <a href="javascript:;" onclick="ajax.viewUndo('{$view->id}');" style="font-weight:bold;">Undo</a> )
+	</td>
+	
+	<td align="right">
+		<a href="javascript:;" onclick="toggleDiv('{$view->id}_output','none');genericAjaxGet('','c=tickets&a=viewUndo&view_id={$view->id}&clear=1');" style="">close</a> 
+	</td>
+</tr>
+</table>
+</div>
+{/if}
+
 <table cellpadding="0" cellspacing="0" border="0" class="tableBlue" width="100%" class="tableBg">
 	<tr>
 		<td nowrap="nowrap" class="tableThBlue">{$view->name}</td>
 		<td nowrap="nowrap" class="tableThBlue" align="right">
 			<a href="javascript:;" onclick="ajax.getRefresh('{$view->id}');" class="tableThLink">{$translate->_('common.refresh')|lower}</a><span style="font-size:12px"> | </span>
+			{if !empty($view->tips)}<a href="javascript:;" onclick="toggleDiv('{$view->id}_tips');" class="tableThLink">{"auto-assist"|lower}</a><span style="font-size:12px"> | </span>{/if}
 			<!-- <a href="javascript:;" onclick="" class="tableThLink">read all</a><span style="font-size:12px"> | </span> -->
-			{if $view->id != 'search'}<a href="{devblocks_url}c=tickets&a=searchview&id={$view->id}{/devblocks_url}" class="tableThLink">{$translate->_('common.search')|lower}</a><span style="font-size:12px"> | </span>{/if}
+			{if $view->id != 'search'}<a href="{devblocks_url}c=tickets&a=searchview&id={$view->id}{/devblocks_url}" class="tableThLink">{$translate->_('common.search')|lower} list</a><span style="font-size:12px"> | </span>{/if}
 			<a href="javascript:;" onclick="ajax.getCustomize('{$view->id}');" class="tableThLink">{$translate->_('common.customize')|lower}</a>
 		</td>
 	</tr>
 </table>
+{if !empty($view->tips)}
+<div id="{$view->id}_tips" class="block" style="display:none;margin:10px;padding:5px;">
+<form action="{devblocks_url}{/devblocks_url}" method="post">
+<input type="hidden" name="c" value="tickets">
+<input type="hidden" name="a" value="viewAutoAssist">
+<input type="hidden" name="view_id" value="{$view->id}">
+<input type="hidden" name="always" value="0">
+<table cellspacing="0" cellpadding="0" border="0" width="100%">
+<tr>
+	<td align="top">
+		<H3 style="font-size:18px;margin:0px;">Recently you've done these actions the most frequently:</H3>
+		
+		<blockquote style="color:rgb(130,130,130);">
+			{foreach from=$view->tips item=stats key=hash}
+				{assign var=move_code value=$stats[2]}
+				{assign var=move_to_name value=$category_name_hash.$move_code}
+				<label><input type="checkbox" name="hashes[]" value="{$hash}"> {$stats[0]} <span style="color:rgb(0,120,0);" title="{$stats[1]|escape:"htmlall"}">{$stats[1]|truncate:45:'...'}</span> moved to <b>{$move_to_name}</b> {$stats[3]} times.</label><br>
+			{/foreach}
+		</blockquote>
+		
+		<button type="button" onclick="this.form.submit();" style="">Repeat for all open tickets</button>
+		<button type="button" onclick="this.form.always.value=1;this.form.submit();" style="">Always do this for me!</button>
+		<button type="button" onclick="toggleDiv('{$view->id}_tips');" style="">Do nothing</button>
+	</td>
+	<td align="right" valign="top">
+		<!-- <a href="javascript:;" onclick="toggleDiv('{$view->id}_tips','none');" style="">close</a> --> 
+	</td>
+</tr>
+</table>
+</form>
+</div>
+{/if}
 <form id="customize{$view->id}" action="#" onsubmit="return false;" style="display:none;"></form>
 <form id="viewForm{$view->id}" name="viewForm{$view->id}">
 <!-- 
@@ -50,6 +122,8 @@
 			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','tm_name');">{$translate->_('common.team')}</a></th>
 			{elseif $header=="cat_name"}
 			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','cat_name');">{$translate->_('common.bucket')|capitalize}</a></th>
+			{elseif $header=="t_owner_id"}
+			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_owner_id');">{$translate->_('ticket.owner')|capitalize}</a></th>
 			{/if}
 		{/foreach}
 	</tr>
@@ -90,9 +164,9 @@
 			</td>
 			*}
 			{elseif $column=="t_last_wrote"}
-			<td><a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showContactPanel&address={$ticket->last_wrote}',this);">{$result.t_last_wrote}</a></td>
+			<td><a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showContactPanel&address={$ticket->last_wrote}',this);" title="{$result.t_last_wrote}">{$result.t_last_wrote|truncate:45:'...':true:true}</a></td>
 			{elseif $column=="t_first_wrote"}
-			<td><a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showContactPanel&address={$ticket->first_wrote}',this);">{$result.t_first_wrote}</a></td>
+			<td><a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showContactPanel&address={$ticket->first_wrote}',this);" title="{$result.t_first_wrote}">{$result.t_first_wrote|truncate:45:'...':true:true}</a></td>
 			{elseif $column=="t_created_date"}
 			<td>{$result.t_created_date|date_format}</td>
 			{elseif $column=="t_updated_date"}
@@ -107,6 +181,20 @@
 			<td>{$result.cat_name}</td>
 			{elseif $column=="t_next_action"}
 			<td title="{$result.t_next_action}">{$result.t_next_action|truncate:35:'...'}</td>
+			{elseif $column=="t_owner_id"}
+			<td>
+				{assign var=owner value=$visit->getWorker()}
+				{if !empty($result.t_owner_id)}
+					{if !empty($owner) && $result.t_owner_id==$owner->id}
+						<a href="javascript:;" onclick="ajax.viewAssignTicket('{$view->id}','{$result.t_id}','0');"><b>Release</b></a>
+					{else}
+						{assign var=ticket_worker_id value=$result.t_owner_id}
+						{if isset($workers.$ticket_worker_id)}{$workers.$ticket_worker_id->getName()}{/if}
+					{/if}
+				{else}
+					<a href="javascript:;" onclick="ajax.viewAssignTicket('{$view->id}','{$result.t_id}','{$owner->id}');">Take</a>
+				{/if}
+			</td>
 			{elseif $column=="t_spam_score"}
 			<td>
 				{math assign=score equation="x*100" format="%0.2f%%" x=$result.t_spam_score}
@@ -150,19 +238,21 @@
 			<input type="hidden" name="move_to" value="">
 			<select name="move_to_select" onchange="this.form.move_to.value=this.form.move_to_select[this.selectedIndex].value;ajax.viewMoveTickets('{$view->id}');">
 				<option value="">-- move to --</option>
-				<optgroup label="Inboxes" style="">
+				{foreach from=$team_categories item=categories key=teamId}
+					{assign var=team value=$teams.$teamId}
+					{if $dashboard_team_id == $teamId}
+						<optgroup label="-- {$team->name} --">
+						{foreach from=$categories item=category}
+							<option value="c{$category->id}">{$category->name}</option>
+						{/foreach}
+						</optgroup>
+					{/if}
+				{/foreach}
+				<optgroup label="Team Inboxes" style="">
 					{foreach from=$teams item=team}
 						<option value="t{$team->id}">{$team->name}</option>
 					{/foreach}
-					</optgroup>
-					{foreach from=$team_categories item=categories key=teamId}
-						{assign var=team value=$teams.$teamId}
-						<optgroup label="-- {$team->name} --">
-						{foreach from=$categories item=category}
-					<option value="c{$category->id}">{$category->name}</option>
-				{/foreach}
 				</optgroup>
-				{/foreach}
 			</select>
 			
 		</td>

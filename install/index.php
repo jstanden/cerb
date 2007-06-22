@@ -660,7 +660,7 @@ switch($step) {
 					DAO_Worker::updateAgent($worker_id, $fields);
 					
 					// Create a default dashboard for each worker
-					$dashboard_id = DAO_Dashboard::createDashboard("Dashboard", $worker_id);
+//					$dashboard_id = DAO_Dashboard::createDashboard("Dashboard", $worker_id);
 					
 					/*
 					// [TODO] Replace these with buttons for delete/spam functionality from config

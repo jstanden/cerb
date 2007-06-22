@@ -18,9 +18,9 @@ class ChFeedEventListener extends DevblocksEventListenerExtension {
             continue;
 
             $fields = array(
-            DAO_FeedItem::EVENT_ID => $event->id,
-            DAO_FeedItem::FEED_ID => $feed->id,
-            DAO_FeedItem::PARAMS => serialize($event->params)
+	            DAO_FeedItem::EVENT_ID => $event->id,
+	            DAO_FeedItem::FEED_ID => $feed->id,
+	            DAO_FeedItem::PARAMS => serialize($event->params)
             );
             DAO_FeedItem::create($fields);
         }
