@@ -35,10 +35,18 @@
 			</blockquote>
 			</div>
 			
+			<div id="teamAddBuckets" style="display:none;">
+			<b>Add Buckets:</b> (one per line)<br>
+			<textarea name="add_buckets" rows="3" cols="24" style="width:98%;" wrap="off"></textarea><br>
+			<button type="button" onclick="this.form.submit();">Add Buckets</button>
+			<button type="button" onclick="this.form.add_buckets.value='';toggleDiv('teamAddBuckets','none');">Cancel</button>
+			</div>
+			
 			<!-- <label><input type="checkbox" name="show_waiting" value="1" {if $team_filters.show_waiting}checked{/if}> Show Waiting Tickets</label><br>  -->
 			<!-- <label><input type="checkbox" name="hide_assigned" value="1" {if $team_filters.hide_assigned}checked{/if}> Hide with Active Tasks</label><br>  -->
 			
 			<div align="right">
+				<a href="javascript:;" onclick="toggleDiv('teamAddBuckets','block');">add buckets</a>
 				<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/replace2.gif{/devblocks_url}" align="top"> {$translate->_('common.refresh')|capitalize}</button>
 			</div>
 		</td>

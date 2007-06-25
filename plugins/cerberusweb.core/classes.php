@@ -570,15 +570,29 @@ class ChTicketsPage extends CerberusPageExtension {
 	    @$categories = DevblocksPlatform::importGPC($_POST['categories'],'array');
 	    @$categorized = DevblocksPlatform::importGPC($_POST['categorized'],'integer');
 //	    @$show_waiting = DevblocksPlatform::importGPC($_POST['show_waiting'],'integer');
-	    @$hide_assigned = DevblocksPlatform::importGPC($_POST['hide_assigned'],'integer');
+//	    @$hide_assigned = DevblocksPlatform::importGPC($_POST['hide_assigned'],'integer');
+	    @$add_buckets = DevblocksPlatform::importGPC($_POST['add_buckets'],'string');
 
+	    // Adds: Sort and insert team categories
+	    if(!empty($add_buckets)) {
+		    $buckets = CerberusApplication::parseCrlfString($add_buckets);
+	
+		    if(is_array($buckets))
+		    foreach($buckets as $bucket) {
+	            if(empty($bucket))
+	                continue;
+	                
+		        $bucket_id = DAO_Category::create($bucket, $team_id);
+		    }
+	    }
+	    
 	    if(!isset($_SESSION['team_filters']))
 	        $_SESSION['team_filters'] = array();
 	    
 	    $filters = array(
 	        'categories' => array_flip($categories),
 	        'categorized' => $categorized,
-	        'hide_assigned' => $hide_assigned,
+//	        'hide_assigned' => $hide_assigned,
 //	        'show_waiting' => $show_waiting
 	    );
 	    $_SESSION['team_filters'][$team_id] = $filters;
@@ -782,10 +796,6 @@ class ChTicketsPage extends CerberusPageExtension {
         $viewMgr = $visit->get(CerberusVisit::KEY_VIEW_MANAGER); /* @var CerberusStaticViewManager $viewMgr */
         $view = $viewMgr->getView($view_id); /* @var $view CerberusDashboardView */
         
-//        $view_key = CerberusVisit::KEY_VIEW_TIPS . $active_dashboard_id;
-        $learner_key = CerberusVisit::KEY_VIEW_ACTION_LEARNER . $active_dashboard_id;
-        $learner = $visit->get($learner_key,null); /* @var $learner Model_TicketViewActionLearner */
-	    
         $tpl->assign('view_id', $view_id);
 
         // [TODO] Clean this up (move into the visit with active dash?)
@@ -804,21 +814,21 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl->assign('category_name_hash', $category_name_hash);
         
         // [JAS]: Compute suggestions from the workers actions
-        $top = array();
-        $max = 10;
-        if(is_array($learner->flat))
-        foreach($learner->flat as $prop_hash => $props) {
-            $threshold = ($props[0]=="domain") ? 2 : (($props[0]=="sender") ? 2 : 2);
-            if($props[3] >= $threshold) { // count above threshold
-                $top[$prop_hash] = $props;
-                if(--$max <= 0) 
-                    break;
-            }
-        }
-        $tpl->assign('tips', $top);
+//        $top = array();
+//        $max = 10;
+//        if(is_array($learner->flat))
+//        foreach($learner->flat as $prop_hash => $props) {
+//            $threshold = ($props[0]=="domain") ? 2 : (($props[0]=="sender") ? 2 : 2);
+//            if($props[3] >= $threshold) { // count above threshold
+//                $top[$prop_hash] = $props;
+//                if(--$max <= 0) 
+//                    break;
+//            }
+//        }
+//        $tpl->assign('tips', $top);
         
         // [JAS]: Calculate statistics about the current view (top unique senders/subjects/domains)
-	    $biggest = DAO_Ticket::analyze($view->params, 15);
+	    $biggest = DAO_Ticket::analyze($view->params, 10);
 	    $tpl->assign('biggest', $biggest);
         
         $tpl->display($tpl_path.'tickets/ticket_view_assist.tpl.php');
@@ -828,7 +838,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	    @$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
 
         $visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
-        $viewMgr = $visit->get(CerberusVisit::KEY_VIEW_MANAGER); /* @var CerberusStaticViewManager $viewMgr */
+        $viewMgr = $visit->get(CerberusVisit::KEY_VIEW_MANAGER); /* @var $viewMgr CerberusStaticViewManager */
         $view = $viewMgr->getView($view_id); /* @var $view CerberusDashboardView */
 
         $active_dashboard_id = $visit->get(CerberusVisit::KEY_DASHBOARD_ID, 0);
@@ -839,122 +849,53 @@ class ChTicketsPage extends CerberusPageExtension {
 		    $dashboard_team_id = intval(substr($active_dashboard_id,1));
         }
         
-	    @$based_on = DevblocksPlatform::importGPC($_POST['based_on'],'string', '');
+	    @$piles_always = DevblocksPlatform::importGPC($_POST['piles_always'],'array', array());
+	    @$piles_hash = DevblocksPlatform::importGPC($_POST['piles_hash'],'array', array());
+	    @$piles_moveto = DevblocksPlatform::importGPC($_POST['piles_moveto'],'array', array());
+	    @$piles_type = DevblocksPlatform::importGPC($_POST['piles_type'],'array', array());
+	    @$piles_value = DevblocksPlatform::importGPC($_POST['piles_value'],'array', array());
+        
+	    $piles_always = array_flip($piles_always); // Flip hash
 
-	    if($based_on=='recent') {
-		    @$hashes = DevblocksPlatform::importGPC($_POST['hashes'],'array', array());
-		    @$repeat = DevblocksPlatform::importGPC($_POST['repeat'],'array', array());
-		    @$always = DevblocksPlatform::importGPC($_POST['always'],'array', array());
-		    
-		    // Turn values into keys for quick hash lookup
-		    $repeat = array_flip($repeat);
-		    $always = array_flip($always);
-		    
-	        $learner_key = CerberusVisit::KEY_VIEW_ACTION_LEARNER . $active_dashboard_id;
-	        $learner = $visit->get($learner_key,null); /* @var $learner Model_TicketViewActionLearner */
+        $senders = array();
+        $subjects = array();
+        $do = array();
+           
+	    foreach($piles_hash as $idx => $hash) {
+	        $moveto = $piles_moveto[$idx];
+	        $type = $piles_type[$idx];
+	        $val = $piles_value[$idx];
+	        $always = (isset($piles_always[$hash])) ? 1 : 0;
 	        
-	        // Tracks wildcards so we can clear redundant rules
-	        $domains_used = array();
+	        /*
+	         * [TODO] [JAS]: Somewhere here we should be ignoring these values for a bit
+	         * so other options have a chance to bubble up
+	         */
+	        if(empty($hash) || empty($moveto) || empty($type) || empty($val))
+	            continue;
 	        
-	        if(is_array($hashes))
-	        foreach($hashes as $tip_hash) {
-	            $tip = $learner->flat[$tip_hash]; // copy
-	            
-	            if(!is_null($learner))
-	                $learner->clear($tip_hash);
-	            
-	            // Did the user want this tip? (and does the tip exist?)
-	            if((!isset($repeat[$tip_hash]) && !isset($always[$tip_hash])) || empty($tip)) {
-	                continue;
-	            }
-	            
-	            $do = array('team' => $tip[2]);
-	            
-	            $team_id = 0;
-	            if(isset($always[$tip_hash]) && !empty($dashboard_team_id)) {
-                    $team_id = $dashboard_team_id;
-	            }
-	            
-	            if($tip[0]=='sender') {
-	                $senders = array($tip[1]);
-	                $view->doBulkUpdate('sender', $senders, $do, array(), $team_id);
-	                
-	            } elseif($tip[0]=='domain') {
-	                $senders = array('*'.$tip[1]);
-	                $domains_used[strtolower($tip[1])] = 1; // used to clear matching unused senders
-	                $view->doBulkUpdate('sender', $senders, $do, array(), $team_id);
-	                
-	            } elseif($tip[0]=='subject') {
-	                $subjects = array($tip[1]);
-	                $view->doBulkUpdate('subject', $subjects, $do, array(), $team_id);
-	                
-	            }
-	        }
-	        
-	        // Purge any senders from domains we just made rules out of
-		    // [TODO] This could move into the Learner API
-	        foreach($learner->flat as $hash => $props) {
-	            if($props[0]=='sender') {
-	                @$sender_domain = strtolower(substr($props[1],strrpos($props[1],'@')));
-	                if(isset($domains_used[$sender_domain])) {
-	                    unset($learner->flat[$hash]); // bye bye lesson
-	                }
-	            }
-	        }
-	        
-	        if(!is_null($learner))
-	            $visit->set($learner_key, $learner);
-	            
-	        unset($subjects);
-	        unset($senders);
-	    }
+            $doActions = array('team' => $moveto);
             
-	    if($based_on=='piles') {
-		    @$piles_always = DevblocksPlatform::importGPC($_POST['piles_always'],'array', array());
-		    @$piles_hash = DevblocksPlatform::importGPC($_POST['piles_hash'],'array', array());
-		    @$piles_moveto = DevblocksPlatform::importGPC($_POST['piles_moveto'],'array', array());
-		    @$piles_type = DevblocksPlatform::importGPC($_POST['piles_type'],'array', array());
-		    @$piles_value = DevblocksPlatform::importGPC($_POST['piles_value'],'array', array());
-	        
-		    $piles_always = array_flip($piles_always); // Flip hash
+            // Domains and senders are both sender batch actions
+            $doType = ($type=="subject") ? 'subject' : 'sender';
+            
+            // Make wildcards
+            $doData = array();
+            if($type=="domain") {
+                $doData = array('*'.$val);
+            } else {
+                $doData = array($val);
+            }
+            
+            $doAlways = ($always && $dashboard_team_id) ? $dashboard_team_id : 0;
+            
+            $view->doBulkUpdate($doType, $doData, $doActions, array(), $doAlways);
+	    }
 
-            $senders = array();
-            $subjects = array();
-            $do = array();
-            
-		    foreach($piles_hash as $idx => $hash) {
-		        $moveto = $piles_moveto[$idx];
-		        $type = $piles_type[$idx];
-		        $val = $piles_value[$idx];
-		        $always = (isset($piles_always[$hash])) ? 1 : 0;
-		        
-		        /*
-		         * [TODO] [JAS]: Somewhere here we should be ignoring these values for a bit
-		         * so other options have a chance to bubble up
-		         */
-		        if(empty($hash) || empty($moveto) || empty($type) || empty($val))
-		            continue;
-		        
-	            $doActions = array('team' => $moveto);
-	            
-	            // Domains and senders are both sender batch actions
-	            $doType = ($type=="subject") ? 'subject' : 'sender';
-	            
-	            // Make wildcards
-	            $doData = array();
-	            if($type=="domain") {
-	                $doData = array('*'.$val);
-	            } else {
-	                $doData = array($val);
-	            }
-	            
-	            $doAlways = ($always && $dashboard_team_id) ? $dashboard_team_id : 0;
-	            
-	            $view->doBulkUpdate($doType, $doData, $doActions, array(), $doAlways);
-		    }
-		    
-	    }
-            
+	    // Reset the paging since we may have reduced our list size
+	    $view->renderPage = 0;
+	    $viewMgr->setView($view_id, $view);
+	    	    
         DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets')));
 	}
 	
@@ -992,17 +933,7 @@ class ChTicketsPage extends CerberusPageExtension {
             $orig_tickets[$orig_ticket_idx] = $orig_ticket;
         }
         
-        // Start Learning
-	    $learner_key = CerberusVisit::KEY_VIEW_ACTION_LEARNER.$active_dashboard_id;
-		$learner = $visit->get($learner_key,new Model_TicketViewActionLearner($active_dashboard_id)); /* @var $learner Model_TicketViewActionLearner */
-	    if($learner instanceof Model_TicketViewActionLearner) {
-	        $learner->analyze($orig_tickets, $last_action);
-	    }
-	    $visit->set($learner_key,$learner);
-        // End Learning
-        
         CerberusDashboardView::setLastAction($view_id,$last_action);
-        //====================================
 	    
 	    // Make our changes to the entire list of tickets
 	    if(!empty($ticket_ids) && !empty($team_id)) {

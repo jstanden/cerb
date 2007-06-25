@@ -43,7 +43,7 @@
 	<table cellspacing="2" cellpadding="0">
 		<tr>
 			<td><b>Bucket Name</b></td>
-			<td><b>Access</b></td>
+			<!-- <td><b>Access</b></td> -->
 			<td><b>Remove</b></td>
 		</tr>
 		{foreach from=$categories item=cat key=cat_id name=cats}
@@ -52,12 +52,14 @@
 					<input type="hidden" name="ids[]" value="{$cat->id}">
 					<input type="text" name="names[]" value="{$cat->name}" size="35">
 				</td>
+				<!-- 
 				<td>
 					<select name="access[]">
 						<option value="">Private</option>
 						<option value="">Shared</option>
 					</select>
 				</td>
+				 -->
 				<td align="center">
 					<input type="checkbox" name="deletes[]" value="{$cat_id}">
 				</td>

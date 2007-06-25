@@ -155,8 +155,6 @@ class CerberusVisit extends DevblocksVisit {
 	const KEY_VIEW_MANAGER = 'view_manager';
 	const KEY_DASHBOARD_ID = 'cur_dashboard_id';
 	const KEY_VIEW_LAST_ACTION = 'view_last_action';
-	const KEY_VIEW_ACTION_LEARNER = 'view_action_learner';
-	const KEY_VIEW_TIPS = 'view_tips';
 
 	public function __construct() {
 		$this->worker = null;
@@ -234,106 +232,6 @@ class Model_TicketViewLastAction {
     public $ticket_ids = array(); // key = ticket id, value=old value
     public $action = ''; // spam/closed/move, etc.
 	public $action_params = array(); // DAO Actions Taken
-};
-
-class Model_TicketViewActionLearner {
-    public $flat = array();
-    public $instance_id = '';
-    
-    public function __construct($instance_id) {
-        $this->instance_id = $instance_id;
-    }
-    
-    // [TODO] Hash this up by view_id, since move_to is less relevant now.
-    
-    public function analyze($tickets, Model_TicketViewLastAction $last_action) {
-        if(!is_array($tickets) || empty($last_action))
-            return;
-            
-        // Temporary
-        if($last_action->action == Model_TicketViewLastAction::ACTION_MOVE) {
-	
-	        $move_to = !empty($last_action->action_params['category_id']) 
-	            ? 'c'.$last_action->action_params['category_id']
-	            : 't'.$last_action->action_params['team_id']
-	            ; 
-	            
-	        $address_ids = array();
-	        foreach($tickets as $ticket_id => $ticket) { /* @var $ticket CerberusTicket */
-	            $address_ids[] = $ticket->first_wrote_address_id;
-	        }
-	        
-	        $addresses = DAO_Contact::getAddresses($address_ids);
-	                
-	        foreach($tickets as $ticket_id => $ticket) { /* @var $ticket CerberusTicket */
-	            @$address = $addresses[$ticket->first_wrote_address_id];
-	            $sender = ($address instanceof CerberusAddress) ? $address->email : "";
-	            $domain = ($address instanceof CerberusAddress) ? substr($address->email,strrpos($address->email,'@')) : "";
-	            $subject = $ticket->subject;
-	
-	            $sender_hash = md5('sender'.$sender);
-	            $domain_hash = md5('domain'.$domain);
-	            $subject_hash = md5('subject'.$subject);
-	            
-	            /*
-	             * [JAS]: Only store a hit when it's unique.  If we used the same header to do 
-	             * a different action then ignore both hits.
-	             */
-	            
-	            if(!isset($this->flat[$sender_hash])) {
-	                $this->flat[$sender_hash] = array('sender',$sender,$move_to,1);
-	            } else { 
-	                if($this->flat[$sender_hash][2]==$move_to) {
-	                    $this->flat[$sender_hash][3]++;
-	                } else { // Different action
-	                    unset($this->flat[$sender_hash]);
-	                }
-	            }
-	            
-	            if(!isset($this->flat[$domain_hash])) {
-	                $this->flat[$domain_hash] = array('domain',$domain,$move_to,1);
-	            } else { 
-	                if($this->flat[$domain_hash][2]==$move_to) {
-	                    $this->flat[$domain_hash][3]++;
-	                } else { // Different action
-	                    unset($this->flat[$domain_hash]);
-	                }
-	            }
-	            
-	            if(!isset($this->flat[$subject_hash])) {
-	                $this->flat[$subject_hash] = array('subject',$subject,$move_to,1);
-	            } else { 
-	                if($this->flat[$subject_hash][2]==$move_to) {
-	                    $this->flat[$subject_hash][3]++;
-	                } else { // Different action
-	                    unset($this->flat[$subject_hash]);
-	                }
-	            }
-	        }
-	        
-	        $this->purge();
-        } // end if ACTION_MOVE
-    }
-    
-    public function clear($hash) {
-        unset($this->flat[$hash]);
-    }
-    
-    private function sortByCount($a,$b) {
-	    if ($a[3] == $b[3]) {
-	        return 0;
-	    }
-        return ($a[3] > $b[3]) ? -1 : 1;        
-    }
-    
-    private function purge() {
-        uasort($this->flat,array($this,'sortByCount'));
-        
-        // Only remember top 200 facts at a time
-        if(count($this->flat) > 300) // a little buffer space so we're not always running
-            $this->flat = array_slice($this->flat,0,200,true);
-    }
-    
 };
 
 class CerberusDashboardView {

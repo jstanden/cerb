@@ -1347,7 +1347,7 @@ class DAO_Ticket extends DevblocksORMHelper {
         $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 	}
 	
-	static function analyze($params, $limit=25) {
+	static function analyze($params, $limit=10) {
 		$db = DevblocksPlatform::getDatabaseService();
 		list($tables,$wheres) = parent::_parseSearchParams($params, SearchFields_Ticket::getFields());
 
@@ -1401,7 +1401,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 	    
 	    while(!$rs_senders->EOF) {
 	        $hash = md5('sender'.$rs_senders->fields['email']);
-	        $tops[$hash] = array('sender',$$rs_senders->fields['email'],$rs_senders->fields['hits']);
+	        $tops[$hash] = array('sender',$rs_senders->fields['email'],$rs_senders->fields['hits']);
 	        $rs_senders->MoveNext();
 	    }
 	    
@@ -1431,9 +1431,13 @@ class DAO_Ticket extends DevblocksORMHelper {
 	        $rs_subjects->MoveNext();
 	    }
 	    
+	    // [TODO] Toss any empty subjects/senders
+	    
 	    uasort($tops, array('DAO_Ticket','sortByCount'));
 	    
-	    return array_slice($tops, 0, $limit,true);
+	    return $tops;
+	    
+//	    return array_slice($tops, 0, $limit,true);
 	}
 	
     private function sortByCount($a,$b) {
