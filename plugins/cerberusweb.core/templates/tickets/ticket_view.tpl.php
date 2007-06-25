@@ -42,45 +42,15 @@
 		<td nowrap="nowrap" class="tableThBlue">{$view->name}</td>
 		<td nowrap="nowrap" class="tableThBlue" align="right">
 			<a href="javascript:;" onclick="ajax.getRefresh('{$view->id}');" class="tableThLink">{$translate->_('common.refresh')|lower}</a><span style="font-size:12px"> | </span>
-			{if !empty($view->tips)}<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/information.gif{/devblocks_url}" align="absmiddle"><a href="javascript:;" onclick="toggleDiv('{$view->id}_tips');" class="tableThLink">{"auto-assist"|lower}</a><span style="font-size:12px"> | </span>{/if}
+			{*if !empty($view->tips)*}<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/information.gif{/devblocks_url}" align="absmiddle"><a href="javascript:;" onclick="genericAjaxGet('{$view->id}_tips','c=tickets&a=showViewAutoAssist&view_id={$view->id}');toggleDiv('{$view->id}_tips','block');" class="tableThLink">{"auto-assist"|lower}</a><span style="font-size:12px"> | </span>{*/if*}
 			<!-- <a href="javascript:;" onclick="" class="tableThLink">read all</a><span style="font-size:12px"> | </span> -->
 			{if $view->id != 'search'}<a href="{devblocks_url}c=tickets&a=searchview&id={$view->id}{/devblocks_url}" class="tableThLink">{$translate->_('common.search')|lower} list</a><span style="font-size:12px"> | </span>{/if}
 			<a href="javascript:;" onclick="ajax.getCustomize('{$view->id}');" class="tableThLink">{$translate->_('common.customize')|lower}</a>
 		</td>
 	</tr>
 </table>
-{if !empty($view->tips)}
-<div id="{$view->id}_tips" class="block" style="display:none;margin:10px;padding:5px;">
-<form action="{devblocks_url}{/devblocks_url}" method="post">
-<input type="hidden" name="c" value="tickets">
-<input type="hidden" name="a" value="viewAutoAssist">
-<input type="hidden" name="view_id" value="{$view->id}">
-<input type="hidden" name="always" value="0">
-<table cellspacing="0" cellpadding="0" border="0" width="100%">
-<tr>
-	<td align="top">
-		<H3 style="font-size:18px;margin:0px;">Recently you've done these actions the most frequently:</H3>
-		
-		<blockquote style="color:rgb(130,130,130);">
-			{foreach from=$view->tips item=stats key=hash}
-				{assign var=move_code value=$stats[2]}
-				{assign var=move_to_name value=$category_name_hash.$move_code}
-				<label><input type="checkbox" name="hashes[]" value="{$hash}"> {$stats[0]} <span style="color:rgb(0,120,0);" title="{$stats[1]|escape:"htmlall"}">{$stats[1]|truncate:45:'...'}</span> moved to <b>{$move_to_name}</b> {$stats[3]} times.</label><br>
-			{/foreach}
-		</blockquote>
-		
-		<button type="button" onclick="this.form.submit();" style="">Repeat for all open tickets</button>
-		<button type="button" onclick="this.form.always.value=1;this.form.submit();" style="">Always do this for me!</button>
-		<button type="button" onclick="toggleDiv('{$view->id}_tips');" style="">Do nothing</button>
-	</td>
-	<td align="right" valign="top">
-		<!-- <a href="javascript:;" onclick="toggleDiv('{$view->id}_tips','none');" style="">close</a> --> 
-	</td>
-</tr>
-</table>
-</form>
-</div>
-{/if}
+
+<div id="{$view->id}_tips" class="block" style="display:none;margin:10px;padding:5px;">Analyzing...</div>
 <form id="customize{$view->id}" action="#" onsubmit="return false;" style="display:none;"></form>
 <form id="viewForm{$view->id}" name="viewForm{$view->id}">
 <!-- 

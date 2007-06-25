@@ -313,22 +313,6 @@ class Model_TicketViewActionLearner {
 	        
 	        $this->purge();
         } // end if ACTION_MOVE
-
-        $top = array();
-
-        $max = 10;
-        foreach($this->flat as $prop_hash => $props) {
-            $threshold = ($props[0]=="domain") ? 2 : 2;
-            if($props[3] >= $threshold) { // count above threshold
-                $top[$prop_hash] = $props;
-                if(--$max <= 0) 
-                    break;
-            }
-        }
-        
-        $visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
-        $view_key = CerberusVisit::KEY_VIEW_TIPS . $this->instance_id;
-		$visit->set($view_key,$top);
     }
     
     public function clear($hash) {
@@ -537,7 +521,6 @@ class CerberusDashboardView {
 			    );
 		    }
 		}
-		
 	}
 };
 

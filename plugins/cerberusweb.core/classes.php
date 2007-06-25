@@ -478,9 +478,9 @@ class ChTicketsPage extends CerberusPageExtension {
                                 							    
 							}
 							
-					        $view_key = CerberusVisit::KEY_VIEW_TIPS . $active_dashboard_id;
-					        $view_tips = $visit->get($view_key,array());
-					        $teamView->tips = $view_tips;
+//					        $view_key = CerberusVisit::KEY_VIEW_TIPS . $active_dashboard_id;
+//					        $view_tips = $visit->get($view_key,array());
+//					        $teamView->tips = $view_tips;
 							
 							$views = array(
 								$teamView->id => $teamView
@@ -769,80 +769,192 @@ class ChTicketsPage extends CerberusPageExtension {
 	    );
 	}
 	
-	function viewAutoAssistAction() {
-	    @$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
-	    @$hashes = DevblocksPlatform::importGPC($_POST['hashes'],'array', array());
-	    @$always = DevblocksPlatform::importGPC($_POST['always'],'integer', 0);
-	    
-	    $hashes = array_flip($hashes);
-	    
-        $visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
-        $viewMgr = CerberusApplication::getVisit()->get(CerberusVisit::KEY_VIEW_MANAGER); /* @var CerberusStaticViewManager $viewMgr */
-        $active_dashboard_id = $visit->get(CerberusVisit::KEY_DASHBOARD_ID, 0);
-        	    
-        $view_key = CerberusVisit::KEY_VIEW_TIPS . $active_dashboard_id;
-        $learner_key = CerberusVisit::KEY_VIEW_ACTION_LEARNER . $active_dashboard_id;
-        $view_tips = $visit->get($view_key,array());
-        $learner = $visit->get($learner_key,null); /* @var $learner Model_TicketViewActionLearner */
+	function showViewAutoAssistAction() {
+        @$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
+
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl_path = dirname(__FILE__) . '/templates/';
+		$tpl->assign('path', $tpl_path);
         
+        $visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
+        $active_dashboard_id = $visit->get(CerberusVisit::KEY_DASHBOARD_ID, 0);
+        
+        $viewMgr = $visit->get(CerberusVisit::KEY_VIEW_MANAGER); /* @var CerberusStaticViewManager $viewMgr */
         $view = $viewMgr->getView($view_id); /* @var $view CerberusDashboardView */
         
-        // Tracks wildcards so we can clear redundant rules
-        $domains_used = array();
+//        $view_key = CerberusVisit::KEY_VIEW_TIPS . $active_dashboard_id;
+        $learner_key = CerberusVisit::KEY_VIEW_ACTION_LEARNER . $active_dashboard_id;
+        $learner = $visit->get($learner_key,null); /* @var $learner Model_TicketViewActionLearner */
+	    
+        $tpl->assign('view_id', $view_id);
+
+        // [TODO] Clean this up (move into the visit with active dash?)
+		if(0 == strcmp('t',substr($active_dashboard_id,0,1))) {
+		    $team_id = intval(substr($active_dashboard_id,1));
+		    $tpl->assign('dashboard_team_id', $team_id);
+        }
         
-        if(is_array($view_tips))
-        foreach($view_tips as $tip_hash => $tip) {
-            if(!is_null($learner))
-                $learner->clear($tip_hash);
-            
-            // Did the user want this tip?
-            if(!isset($hashes[$tip_hash])) {
-                continue;
+		$teams = DAO_Workflow::getTeams();
+		$tpl->assign('teams', $teams);
+		
+		$team_categories = DAO_Category::getTeams();
+		$tpl->assign('team_categories', $team_categories);
+		
+		$category_name_hash = DAO_Category::getCategoryNameHash();
+		$tpl->assign('category_name_hash', $category_name_hash);
+        
+        // [JAS]: Compute suggestions from the workers actions
+        $top = array();
+        $max = 10;
+        if(is_array($learner->flat))
+        foreach($learner->flat as $prop_hash => $props) {
+            $threshold = ($props[0]=="domain") ? 2 : (($props[0]=="sender") ? 2 : 2);
+            if($props[3] >= $threshold) { // count above threshold
+                $top[$prop_hash] = $props;
+                if(--$max <= 0) 
+                    break;
             }
-            
-            $do = array(
-                'team' => $tip[2]
-            );
-            
-            $team_id = 0;
-            if($always) {
-                $team_id = intval(substr($active_dashboard_id,1));
-            
-	            if(empty($team_id) || substr($active_dashboard_id,0,1) != 't')
+        }
+        $tpl->assign('tips', $top);
+        
+        // [JAS]: Calculate statistics about the current view (top unique senders/subjects/domains)
+	    $biggest = DAO_Ticket::analyze($view->params, 15);
+	    $tpl->assign('biggest', $biggest);
+        
+        $tpl->display($tpl_path.'tickets/ticket_view_assist.tpl.php');
+	}
+	
+	function viewAutoAssistAction() {
+	    @$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+
+        $visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
+        $viewMgr = $visit->get(CerberusVisit::KEY_VIEW_MANAGER); /* @var CerberusStaticViewManager $viewMgr */
+        $view = $viewMgr->getView($view_id); /* @var $view CerberusDashboardView */
+
+        $active_dashboard_id = $visit->get(CerberusVisit::KEY_DASHBOARD_ID, 0);
+        
+        // [TODO] Clean this up (move into the visit with active dash?)
+	    $dashboard_team_id = 0;
+		if(0 == strcmp('t',substr($active_dashboard_id,0,1))) {
+		    $dashboard_team_id = intval(substr($active_dashboard_id,1));
+        }
+        
+	    @$based_on = DevblocksPlatform::importGPC($_POST['based_on'],'string', '');
+
+	    if($based_on=='recent') {
+		    @$hashes = DevblocksPlatform::importGPC($_POST['hashes'],'array', array());
+		    @$repeat = DevblocksPlatform::importGPC($_POST['repeat'],'array', array());
+		    @$always = DevblocksPlatform::importGPC($_POST['always'],'array', array());
+		    
+		    // Turn values into keys for quick hash lookup
+		    $repeat = array_flip($repeat);
+		    $always = array_flip($always);
+		    
+	        $learner_key = CerberusVisit::KEY_VIEW_ACTION_LEARNER . $active_dashboard_id;
+	        $learner = $visit->get($learner_key,null); /* @var $learner Model_TicketViewActionLearner */
+	        
+	        // Tracks wildcards so we can clear redundant rules
+	        $domains_used = array();
+	        
+	        if(is_array($hashes))
+	        foreach($hashes as $tip_hash) {
+	            $tip = $learner->flat[$tip_hash]; // copy
+	            
+	            if(!is_null($learner))
+	                $learner->clear($tip_hash);
+	            
+	            // Did the user want this tip? (and does the tip exist?)
+	            if((!isset($repeat[$tip_hash]) && !isset($always[$tip_hash])) || empty($tip)) {
 	                continue;
-            }
+	            }
+	            
+	            $do = array('team' => $tip[2]);
+	            
+	            $team_id = 0;
+	            if(isset($always[$tip_hash]) && !empty($dashboard_team_id)) {
+                    $team_id = $dashboard_team_id;
+	            }
+	            
+	            if($tip[0]=='sender') {
+	                $senders = array($tip[1]);
+	                $view->doBulkUpdate('sender', $senders, $do, array(), $team_id);
+	                
+	            } elseif($tip[0]=='domain') {
+	                $senders = array('*'.$tip[1]);
+	                $domains_used[strtolower($tip[1])] = 1; // used to clear matching unused senders
+	                $view->doBulkUpdate('sender', $senders, $do, array(), $team_id);
+	                
+	            } elseif($tip[0]=='subject') {
+	                $subjects = array($tip[1]);
+	                $view->doBulkUpdate('subject', $subjects, $do, array(), $team_id);
+	                
+	            }
+	        }
+	        
+	        // Purge any senders from domains we just made rules out of
+		    // [TODO] This could move into the Learner API
+	        foreach($learner->flat as $hash => $props) {
+	            if($props[0]=='sender') {
+	                @$sender_domain = strtolower(substr($props[1],strrpos($props[1],'@')));
+	                if(isset($domains_used[$sender_domain])) {
+	                    unset($learner->flat[$hash]); // bye bye lesson
+	                }
+	            }
+	        }
+	        
+	        if(!is_null($learner))
+	            $visit->set($learner_key, $learner);
+	            
+	        unset($subjects);
+	        unset($senders);
+	    }
             
-            if($tip[0]=='sender') {
-                $senders = array($tip[1]);
-                $view->doBulkUpdate('sender', $senders, $do, array(), $team_id);
-                
-            } elseif($tip[0]=='domain') {
-                $senders = array('*'.$tip[1]);
-                $domains_used[strtolower($tip[1])] = 1; // used to clear matching unused senders
-                $view->doBulkUpdate('sender', $senders, $do, array(), $team_id);
-                
-            } elseif($tip[0]=='subject') {
-                $subjects = array($tip[1]);
-                $view->doBulkUpdate('subject', $subjects, $do, array(), $team_id);
-                
-            }
-        }
-        
-        // Purge any senders from domains we just made rules out of
-	    // [TODO] This could move into the Learner API
-        foreach($learner->flat as $hash => $props) {
-            if($props[0]=='sender') {
-                @$sender_domain = strtolower(substr($props[1],strrpos($props[1],'@')));
-                if(isset($domains_used[$sender_domain])) {
-                    unset($learner->flat[$hash]); // bye bye lesson
-                }
-            }
-        }
-        
-        $visit->set($view_key,array());
-        if(!is_null($learner))
-            $visit->set($learner_key, $learner);
-        
+	    if($based_on=='piles') {
+		    @$piles_always = DevblocksPlatform::importGPC($_POST['piles_always'],'array', array());
+		    @$piles_hash = DevblocksPlatform::importGPC($_POST['piles_hash'],'array', array());
+		    @$piles_moveto = DevblocksPlatform::importGPC($_POST['piles_moveto'],'array', array());
+		    @$piles_type = DevblocksPlatform::importGPC($_POST['piles_type'],'array', array());
+		    @$piles_value = DevblocksPlatform::importGPC($_POST['piles_value'],'array', array());
+	        
+		    $piles_always = array_flip($piles_always); // Flip hash
+
+            $senders = array();
+            $subjects = array();
+            $do = array();
+            
+		    foreach($piles_hash as $idx => $hash) {
+		        $moveto = $piles_moveto[$idx];
+		        $type = $piles_type[$idx];
+		        $val = $piles_value[$idx];
+		        $always = (isset($piles_always[$hash])) ? 1 : 0;
+		        
+		        /*
+		         * [TODO] [JAS]: Somewhere here we should be ignoring these values for a bit
+		         * so other options have a chance to bubble up
+		         */
+		        if(empty($hash) || empty($moveto) || empty($type) || empty($val))
+		            continue;
+		        
+	            $doActions = array('team' => $moveto);
+	            
+	            // Domains and senders are both sender batch actions
+	            $doType = ($type=="subject") ? 'subject' : 'sender';
+	            
+	            // Make wildcards
+	            $doData = array();
+	            if($type=="domain") {
+	                $doData = array('*'.$val);
+	            } else {
+	                $doData = array($val);
+	            }
+	            
+	            $doAlways = ($always && $dashboard_team_id) ? $dashboard_team_id : 0;
+	            
+	            $view->doBulkUpdate($doType, $doData, $doActions, array(), $doAlways);
+		    }
+		    
+	    }
+            
         DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets')));
 	}
 	
@@ -1132,10 +1244,10 @@ class ChTicketsPage extends CerberusPageExtension {
 	        $tpl->assign('last_action_count', count($last_action->ticket_ids));
 	    }
 
-	    // View Suggestions
-        $view_key = CerberusVisit::KEY_VIEW_TIPS . $active_dashboard_id;
-        $view_tips = $visit->get($view_key,array());
-        $view->tips = $view_tips; // [TODO] Formalize
+//	    // View Suggestions
+//        $view_key = CerberusVisit::KEY_VIEW_TIPS . $active_dashboard_id;
+//        $view_tips = $visit->get($view_key,array());
+//        $view->tips = $view_tips; // [TODO] Formalize
 	    
         // View Quick Moves
         $active_team_id = 0;
