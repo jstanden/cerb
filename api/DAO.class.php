@@ -2370,13 +2370,14 @@ class DAO_Workflow {
 
 		if(is_array($ids))
 		foreach($ids as $id) {
-	        $team_totals[$id] = array('tickets'=>0,'unassigned'=>0);
+	        $team_totals[$id] = array('tickets'=>0); // ,'unassigned'=>0
 		}
 		
 		if($with_tickets) {
 			$sql = sprintf("SELECT count(*) as hits, t.team_id ".
 			    "FROM ticket t ".
 			    "WHERE t.team_id IN (%s) ".
+			    "AND t.category_id = 0 ".
 			    "AND t.is_closed = 0 ".
 			    "GROUP BY t.team_id ",
 			    implode(',', $ids)

@@ -1287,8 +1287,8 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl->assign('teams', $teams);
 
 		// [TODO] Be sure we're caching this
-		$team_counts = DAO_Workflow::getTeamCounts(array_keys($teams),true,false,false);
-		$tpl->assign('team_counts', $team_counts);
+//		$team_counts = DAO_Workflow::getTeamCounts(array_keys($teams),true,false,false);
+//		$tpl->assign('team_counts', $team_counts);
 		
 		$tpl->cache_lifetime = "0";
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/rpc/team_load_panel.tpl.php');
@@ -1350,8 +1350,8 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl->assign('teams', $teams);
 		
 		// [TODO] Be sure we're caching this
-		$team_counts = DAO_Workflow::getTeamCounts(array_keys($teams),false,false,true);
-		$tpl->assign('team_counts', $team_counts);
+//		$team_counts = DAO_Workflow::getTeamCounts(array_keys($teams),false,false,true);
+//		$tpl->assign('team_counts', $team_counts);
 		
 		$tpl->cache_lifetime = "0";
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/rpc/assign_panel.tpl.php');
