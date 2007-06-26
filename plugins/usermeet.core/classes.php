@@ -15,6 +15,12 @@ class UmPortalController extends DevblocksControllerExtension {
 		DevblocksPlatform::registerClasses($path. 'api/Extension.php', array(
 		    'Extension_UsermeetTool'
 		));
+		DevblocksPlatform::registerClasses($path. 'api/Model.php', array(
+		    'Model_CommunityTool'
+		));
+		DevblocksPlatform::registerClasses($path. 'api/DAO.php', array(
+		    'DAO_CommunityTool'
+		));
 		    
 	    // Routing
 	    $router = DevblocksPlatform::getRoutingService();
