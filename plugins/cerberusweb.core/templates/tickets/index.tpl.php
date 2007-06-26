@@ -26,11 +26,6 @@
 
       {include file="file:$path/tickets/dashboard_menu.tpl.php"}
       
-      <br>
-      
-      {* [TODO] Only show if on a team dashboard *}
-      {include file="file:$path/tickets/teamwork/categories.tpl.php"}
-      
       {* Only show if on 'my' dashboard *}
       {if empty($active_dashboard_id)}
       {include file="file:$path/tickets/teamwork/getwork.tpl.php"}

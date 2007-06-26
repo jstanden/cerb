@@ -618,19 +618,26 @@ class ChTicketsPage extends CerberusPageExtension {
 		$path = dirname(__FILE__) . '/templates/';
 		$tpl->assign('path', $path);
 		
+		$tpl->assign('active_dashboard_id', $active_dashboard_id);
 		$tpl->assign('dashboard_team_id', $team_id);
 
 		$categories = DAO_Category::getByTeam($team_id);
 		$tpl->assign('categories', $categories);
 		
+		$teams = DAO_Workflow::getTeams();
+		$tpl->assign('teams', $teams);
+		
 		@$team_filters = $_SESSION['team_filters'][$team_id];
 		if(empty($team_filters)) $team_filters = array();
 		$tpl->assign('team_filters', $team_filters);
 		
+		$team_counts = DAO_Workflow::getTeamCounts(array_keys($teams));
+		$tpl->assign('team_counts', $team_counts);
+		
 		$category_counts = DAO_Category::getCategoryCountsByTeam($team_id);
         $tpl->assign('category_counts', $category_counts);
 		
-		$tpl->display($path.'tickets/teamwork/categories.tpl.php');
+		$tpl->display($path.'tickets/dashboard_menu.tpl.php');
 	    
 //	    DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','dashboards','team',$team_id)));
 	}

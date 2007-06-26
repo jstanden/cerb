@@ -2362,34 +2362,34 @@ class DAO_Workflow {
 	 * @param array $ids Team IDs to summarize
 	 * @return array
 	 */
-	static function getTeamCounts($ids,$with_tickets=true) { // ,$with_tasks=true,$with_unassigned=false
+	static function getTeamCounts($ids=array(),$with_tickets=true) { // ,$with_tasks=true,$with_unassigned=false
 		if(!is_array($ids)) $ids = array($ids);
 		$db = DevblocksPlatform::getDatabaseService();
 
 		$team_totals = array('0' => array('tickets'=>0));
 
-		if(is_array($ids))
-		foreach($ids as $id) {
-	        $team_totals[$id] = array('tickets'=>0); // ,'unassigned'=>0
-		}
+//		if(is_array($ids))
+//		foreach($ids as $id) {
+//	        $team_totals[$id] = array('tickets'=>0); // ,'unassigned'=>0
+//		}
 		
 		if($with_tickets) {
-			$sql = sprintf("SELECT count(*) as hits, t.team_id ".
+			$sql = "SELECT count(*) as hits, t.team_id ".
 			    "FROM ticket t ".
-			    "WHERE t.team_id IN (%s) ".
-			    "AND t.category_id = 0 ".
+			    "WHERE t.category_id = 0 ".
 			    "AND t.is_closed = 0 ".
-			    "GROUP BY t.team_id ",
-			    implode(',', $ids)
-			);
+			    (!empty($ids) ? sprintf("AND t.team_id IN (%s) ", implode(',', $ids)) : " ").
+			    "GROUP BY t.team_id "
+			;
 			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 			
 			while(!$rs->EOF) {
 			    $team_id = intval($rs->fields['team_id']);
 			    $hits = intval($rs->fields['hits']);
 			    
-			    if(!isset($team_totals[$team_id]))
-			        continue;
+			    if(!isset($team_totals[$team_id])) {
+	                $team_totals[$team_id] = array('tickets'=>0);
+			    }
 			    
 			    $team_totals[$team_id]['tickets'] = $hits;
 			    $team_totals[0]['tickets'] += $hits;
