@@ -1445,7 +1445,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 	    // Thread senders into domains
 	    foreach($senders as $hash => $sender) {
             $domain = substr($sender[1],strpos($sender[1],'@'));
-            $domain_hash = 'domain' . $domain;
+            $domain_hash = md5('domain' . $domain);
             if(!isset($tops[$domain_hash])) {
                 $tops[$domain_hash] = array('domain', $domain, $sender[2]);
             }
