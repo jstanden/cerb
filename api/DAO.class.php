@@ -1347,7 +1347,7 @@ class DAO_Ticket extends DevblocksORMHelper {
         $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 	}
 	
-	static function analyze($params, $limit=10) {
+	static function analyze($params, $limit=15) {
 		$db = DevblocksPlatform::getDatabaseService();
 		list($tables,$wheres) = parent::_parseSearchParams($params, SearchFields_Ticket::getFields());
 
@@ -1374,11 +1374,19 @@ class DAO_Ticket extends DevblocksORMHelper {
 		
 	    $rs_domains = $db->SelectLimit($sql, $limit, 0) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs_domains ADORecordSet */
 	    
+		$domains = array(); // [TODO] Temporary
 	    while(!$rs_domains->EOF) {
 	        $hash = md5('domain'.$rs_domains->fields['domain']);
+	        $domains[] = $rs_domains->fields['domain']; // [TODO] Temporary
 	        $tops[$hash] = array('domain',$rs_domains->fields['domain'],$rs_domains->fields['hits']);
 	        $rs_domains->MoveNext();
 	    }
+	    
+	    // [TODO] Temporary
+	    $sender_wheres = $wheres;
+	    $sender_wheres[] = sprintf("substring(a1.email from position('@' in a1.email)) IN ('%s')",
+	        implode("','", $domains)
+	    );
 	    
 		// [JAS]: Most common senders in work pile
 		$sql = sprintf("SELECT ".
@@ -1394,11 +1402,11 @@ class DAO_Ticket extends DevblocksORMHelper {
 			(isset($tables['ra']) ? "INNER JOIN address ra ON (ra.id=r.address_id) " : " ").
 			(isset($tables['msg']) ? "INNER JOIN message msg ON (msg.ticket_id=t.id) " : " ").
 			
-			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "").
+			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$sender_wheres)) : "").
 	        "GROUP BY a1.email HAVING count(*) > 1 ".
 	        "ORDER BY hits DESC ";
-		
-	    $rs_senders = $db->SelectLimit($sql, $limit, 0) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs_senders ADORecordSet */
+
+	    $rs_senders = $db->SelectLimit($sql, $limit*2, 0) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs_senders ADORecordSet */
 	    
 	    while(!$rs_senders->EOF) {
 	        $hash = md5('sender'.$rs_senders->fields['email']);
@@ -1407,30 +1415,30 @@ class DAO_Ticket extends DevblocksORMHelper {
 	    }
 	    
 		// [JAS]: Most common subjects in work pile
-		$sql = sprintf("SELECT ".
-		    "count(*) as hits, t.subject ".
-			"FROM ticket t ".
-			"INNER JOIN team tm ON (tm.id = t.team_id) ".
-			"LEFT JOIN category cat ON (cat.id = t.category_id) ". // [TODO] Remove this and use a hash // [TODO] Optimization
-			"INNER JOIN address a1 ON (t.first_wrote_address_id=a1.id) ".
-			"INNER JOIN address a2 ON (t.last_wrote_address_id=a2.id) "
-			).
-			
-			(isset($tables['ra']) ? "INNER JOIN requester r ON (r.ticket_id=t.id)" : " ").
-			(isset($tables['ra']) ? "INNER JOIN address ra ON (ra.id=r.address_id) " : " ").
-			(isset($tables['msg']) ? "INNER JOIN message msg ON (msg.ticket_id=t.id) " : " ").
-			
-			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "").
-	        "GROUP BY t.subject HAVING count(*) > 2 ".
-	        "ORDER BY hits DESC ";
-		
-	    $rs_subjects = $db->SelectLimit($sql, $limit, 0) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs_subjects ADORecordSet */
-	    
-	    while(!$rs_subjects->EOF) {
-	        $hash = md5('subject'.$rs_subjects->fields['subject']);
-	        $tops[$hash] = array('subject',$rs_subjects->fields['subject'],$rs_subjects->fields['hits']);
-	        $rs_subjects->MoveNext();
-	    }
+//		$sql = sprintf("SELECT ".
+//		    "count(*) as hits, t.subject ".
+//			"FROM ticket t ".
+//			"INNER JOIN team tm ON (tm.id = t.team_id) ".
+//			"LEFT JOIN category cat ON (cat.id = t.category_id) ". // [TODO] Remove this and use a hash // [TODO] Optimization
+//			"INNER JOIN address a1 ON (t.first_wrote_address_id=a1.id) ".
+//			"INNER JOIN address a2 ON (t.last_wrote_address_id=a2.id) "
+//			).
+//			
+//			(isset($tables['ra']) ? "INNER JOIN requester r ON (r.ticket_id=t.id)" : " ").
+//			(isset($tables['ra']) ? "INNER JOIN address ra ON (ra.id=r.address_id) " : " ").
+//			(isset($tables['msg']) ? "INNER JOIN message msg ON (msg.ticket_id=t.id) " : " ").
+//			
+//			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "").
+//	        "GROUP BY t.subject HAVING count(*) > 2 ".
+//	        "ORDER BY hits DESC ";
+//		
+//	    $rs_subjects = $db->SelectLimit($sql, $limit, 0) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs_subjects ADORecordSet */
+//	    
+//	    while(!$rs_subjects->EOF) {
+//	        $hash = md5('subject'.$rs_subjects->fields['subject']);
+//	        $tops[$hash] = array('subject',$rs_subjects->fields['subject'],$rs_subjects->fields['hits']);
+//	        $rs_subjects->MoveNext();
+//	    }
 
         $biggest = array();
 
@@ -1447,7 +1455,8 @@ class DAO_Ticket extends DevblocksORMHelper {
             $domain = substr($sender[1],strpos($sender[1],'@'));
             $domain_hash = md5('domain' . $domain);
             if(!isset($tops[$domain_hash])) {
-                $tops[$domain_hash] = array('domain', $domain, $sender[2]);
+//                $tops[$domain_hash] = array('domain', $domain, $sender[2]);
+	            continue; // [TODO] Temporary
             }
             $tops[$domain_hash][3][$hash] = $sender;
         }

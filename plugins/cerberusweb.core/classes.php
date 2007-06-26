@@ -828,7 +828,7 @@ class ChTicketsPage extends CerberusPageExtension {
 //        $tpl->assign('tips', $top);
         
         // [JAS]: Calculate statistics about the current view (top unique senders/subjects/domains)
-	    $biggest = DAO_Ticket::analyze($view->params, 10);
+	    $biggest = DAO_Ticket::analyze($view->params);
 	    $tpl->assign('biggest', $biggest);
         
         $tpl->display($tpl_path.'tickets/ticket_view_assist.tpl.php');
@@ -859,8 +859,7 @@ class ChTicketsPage extends CerberusPageExtension {
 
         $senders = array();
         $subjects = array();
-        $do = array();
-           
+        
 	    foreach($piles_hash as $idx => $hash) {
 	        $moveto = $piles_moveto[$idx];
 	        $type = $piles_type[$idx];
