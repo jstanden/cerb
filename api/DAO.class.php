@@ -1352,6 +1352,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 		list($tables,$wheres) = parent::_parseSearchParams($params, SearchFields_Ticket::getFields());
 
 		$tops = array();
+		$senders = array();
 		
 		// [JAS]: Most common sender domains in work pile
 		$sql = sprintf("SELECT ".
@@ -1401,7 +1402,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 	    
 	    while(!$rs_senders->EOF) {
 	        $hash = md5('sender'.$rs_senders->fields['email']);
-	        $tops[$hash] = array('sender',$rs_senders->fields['email'],$rs_senders->fields['hits']);
+	        $senders[$hash] = array('sender',$rs_senders->fields['email'],$rs_senders->fields['hits']);
 	        $rs_senders->MoveNext();
 	    }
 	    
@@ -1420,7 +1421,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 			(isset($tables['msg']) ? "INNER JOIN message msg ON (msg.ticket_id=t.id) " : " ").
 			
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "").
-	        "GROUP BY t.subject HAVING count(*) > 1 ".
+	        "GROUP BY t.subject HAVING count(*) > 2 ".
 	        "ORDER BY hits DESC ";
 		
 	    $rs_subjects = $db->SelectLimit($sql, $limit, 0) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs_subjects ADORecordSet */
@@ -1430,11 +1431,29 @@ class DAO_Ticket extends DevblocksORMHelper {
 	        $tops[$hash] = array('subject',$rs_subjects->fields['subject'],$rs_subjects->fields['hits']);
 	        $rs_subjects->MoveNext();
 	    }
+
+        $biggest = array();
+
+	    uasort($senders, array('DAO_Ticket','sortByCount'));
+        
+	    // Toss any empty subjects/senders
+//	    foreach($tops as $idx => $top) {
+//	        if(empty($top[1]))
+//	            unset($tops[$idx]);
+//	    }
 	    
-	    // [TODO] Toss any empty subjects/senders
-	    
+	    // Thread senders into domains
+	    foreach($senders as $hash => $sender) {
+            $domain = substr($sender[1],strpos($sender[1],'@'));
+            $domain_hash = 'domain' . $domain;
+            if(!isset($tops[$domain_hash])) {
+                $tops[$domain_hash] = array('domain', $domain, $sender[2]);
+            }
+            $tops[$domain_hash][3][$hash] = $sender;
+        }
+
 	    uasort($tops, array('DAO_Ticket','sortByCount'));
-	    
+        
 	    return $tops;
 	    
 //	    return array_slice($tops, 0, $limit,true);
