@@ -3147,6 +3147,22 @@ class ChPreferencesPage extends CerberusPageExtension {
 		switch(strtolower(array_shift($path))) {
 		    case 'general':
 		    default:
+		    	$new_password = DevblocksPlatform::importGPC($_REQUEST['change_pass'],'string');
+		    	$verify_password = DevblocksPlatform::importGPC($_REQUEST['change_pass_verify'],'string');
+
+		    	//if nonempty passwords match, update worker's password
+		    	if($new_password != "" && $new_password===$verify_password) {
+					$session = DevblocksPlatform::getSessionService();
+
+					$visit = CerberusApplication::getVisit();
+					$worker = CerberusApplication::getActiveWorker();
+
+					$fields = array(
+						DAO_Worker::PASSWORD => md5($new_password)
+					);
+					DAO_Worker::updateAgent($worker->id, $fields);
+		    	}
+		    	
                 $tpl->display('file:' . $tpl_path . '/preferences/general.tpl.php');
 		        break;
 		}
