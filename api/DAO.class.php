@@ -3054,6 +3054,10 @@ class DAO_Category extends DevblocksORMHelper {
 		// Reset any tickets using this category
 		$sql = sprintf("UPDATE ticket SET category_id = 0 WHERE category_id IN (%s)", implode(',',$ids));
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		// Clear any view's move counts involving this bucket for all workers
+		DAO_WorkerPref::clearMoveCounts($ids);
+
 	}
 	
 	/**
@@ -3810,6 +3814,46 @@ class DAO_WorkerPref extends DevblocksORMHelper {
 		}
 		
 		return $value;
+	}
+	
+	static function getAll() {
+		$db = DevblocksPlatform::getDatabaseService();
+		$sql = sprintf("SELECT worker_id, setting, value FROM worker_pref ");
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+
+		$objects = array();
+		
+		while(!$rs->EOF) {
+		    $object = new Model_WorkerPreference();
+		    $object->setting = $rs->fields['setting'];
+		    $object->value = $rs->fields['value'];
+		    $object->worker_id = $rs->fields['worker_id'];
+		    $objects[md5($worker_id.$setting)] = $object;
+		    $rs->MoveNext();
+		}
+		
+		return $objects;
+	}
+	
+	// Clear any view's move counts for all workers involving the buckets specified 
+	static function clearMoveCounts($category_ids) {
+		if(!is_array($category_ids)) $category_ids = array($category_ids);
+		
+		$worker_prefs = self::getAll();
+		foreach($worker_prefs AS $worker_pref) {
+			$move_counts_const = 'team_move_counts';
+			// Make sure this worker pref is a move count
+			if(substr($worker_pref->setting, 0, strlen($move_counts_const)) == $move_counts_const) {
+				$moveCounts = unserialize($worker_pref->value);
+				foreach($category_ids as $id) {
+					if(isset($moveCounts['c'.$id])) {
+						unset($moveCounts['c'.$id]);
+					}
+				}
+				self::set($worker_pref->worker_id, $worker_pref->setting, serialize($moveCounts));
+			}
+		}
+		
 	}
 	
 	// [TODO] Cache as static/singleton or load up in a page scope object?

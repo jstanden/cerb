@@ -12,7 +12,7 @@ New Password <input type="password" name="change_pass" value=""><br>
 Verify Password <input type="password" name="change_pass_verify"=""><br><br>
 
 <b>Assist Mode:</b><br>
-<label><input type="checkbox" name="assist_mode" value="1"> Enable Helpdesk Assistant</label><br>
+<label><input type="checkbox" name="assist_mode" value="1" {if $assist_mode eq 1}checked{/if}> Enable Helpdesk Assistant</label><br>
 <br>
 
 <b>Timezone:</b><br>

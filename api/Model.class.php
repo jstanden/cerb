@@ -26,6 +26,7 @@ class Model_TeamRoutingRule {
 class Model_WorkerPreference {
     public $setting = '';
     public $value = '';
+    public $worker_id = '';
 };
 
 class Model_DashboardViewAction {

@@ -10,7 +10,7 @@
 </tr>
 </table>
 --->
-{if !empty($tour)}{include file="tour.tpl.php"}{/if}
+{if !empty($tour_enabled)}{include file="tour.tpl.php"}{/if}
 <table cellspacing="0" cellpadding="2" border="0" width="100%">
 	<tr>
 		<td align="left" valign="bottom"><img src="{devblocks_url}images/logo.jpg{/devblocks_url}"></td>

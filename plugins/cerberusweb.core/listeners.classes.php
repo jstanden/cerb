@@ -32,11 +32,6 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension implements IDevb
 
     function run(DevblocksHttpResponse $response, Smarty $tpl) {
         $path = $response->path;
-        $visit = CerberusApplication::getVisit();
-
-        // [TODO] This should be more shared in the listener/parent
-        if(!$visit || !$visit->get('TOUR_ENABLED',0))
-        return;
 
         $callouts = CerberusApplication::getTourCallouts();
 

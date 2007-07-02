@@ -15,12 +15,7 @@ class ChSimulatorTour extends DevblocksHttpResponseListenerExtension implements 
     
     function run(DevblocksHttpResponse $response, Smarty $tpl) {
         $path = $response->path;
-        $visit = CerberusApplication::getVisit();
 
-        // [TODO] This should be more shared in the listener/parent
-        if(!$visit || !$visit->get('TOUR_ENABLED',0))
-            return;
-        
         switch(array_shift($path)) {
             case NULL:
             case "simulator":
