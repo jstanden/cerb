@@ -257,7 +257,7 @@ class CerberusParser {
 	            $attachment_file = $file_id;
 	            
 	            if(!file_exists($attachment_path.$attachment_bucket)) {
-	                @mkdir($attachment_path.$attachment_bucket, "664", true);
+	                @mkdir($attachment_path.$attachment_bucket, 0770, true);
 	                // [TODO] Needs error checking
 	            }
 
