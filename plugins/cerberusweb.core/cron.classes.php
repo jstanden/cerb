@@ -13,7 +13,7 @@ class ParseCron extends CerberusCronPageExtension {
         echo "<BR>";
 //        flush();
 
-        $total = 100;
+        $total = 250;
         
 	    $dir = opendir(APP_MAIL_PATH . 'new');
 	    
@@ -47,8 +47,6 @@ class ParseCron extends CerberusCronPageExtension {
 		        $this->_parseFile($parsefile);
 		        $total--;
 	        }
-	        
-	        if($total % 10) flush();
 	    }
 	    
 	    @closedir($dir);
@@ -153,7 +151,7 @@ class ParseCron extends CerberusCronPageExtension {
         unlink($full_filename);
 
 		echo "<hr>";
-//		flush();
+		flush();
     }
     
     function configure($instance) {
