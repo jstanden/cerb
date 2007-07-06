@@ -2,6 +2,7 @@
 <!-- <h2>Ticket Conversation</h2> -->
 {if !empty($ticket)}
 {foreach from=$ticket->getMessages() item=message name=messages}
+{assign var=headers value=$message->getHeaders()}
 {if $smarty.foreach.messages.last}<a name="latest"></a>{/if}
 <!-- class="displayConversationTable" -->
 <div class="block" id="{$message->id}t">
@@ -12,7 +13,7 @@
       <table cellspacing="0" cellpadding="0" width="100%" border="0">
       	<tr>
       		<td>
-      			{if isset($message->headers.from)}<h3>From: {$message->headers.from|escape:"htmlall"|nl2br}</h3>{/if}
+      			{if isset($headers.from)}<h3>From: {$headers.from|escape:"htmlall"|nl2br}</h3>{/if}
       		</td>
       		<td align="right">
       		  <a href="javascript:;" onclick="toggleDiv('{$message->id}sh');toggleDiv('{$message->id}h');">toggle headers</a>
@@ -28,21 +29,23 @@
       </table>
       
 	  <div id="{$message->id}sh" style="display:block;">      
-      {if isset($message->headers.to)}<b>To:</b> {$message->headers.to|escape:"htmlall"|nl2br}<br>{/if}
-      {if isset($message->headers.date)}<b>Date:</b> {$message->headers.date|escape:"htmlall"|nl2br}<br>{/if}
+      {if isset($headers.to)}<b>To:</b> {$headers.to|escape:"htmlall"|nl2br}<br>{/if}
+      {if isset($headers.date)}<b>Date:</b> {$headers.date|escape:"htmlall"|nl2br}<br>{/if}
       </div>
 
 	  <div id="{$message->id}h" style="display:none;">      
-      	{if is_array($message->headers)}
-      	{foreach from=$message->headers item=headerValue key=headerKey}
-      		<b>{$headerKey|capitalize}:</b> 
+      	{if is_array($headers)}
+      	{foreach from=$headers item=headerValue key=headerKey}
+      		<b>{$headerKey|capitalize}:</b>
+      		{* 
       		{if is_array($headerValue)}
       			{foreach from=$headerValue item=subHeader}
       				&nbsp;&nbsp;&nbsp;{$subHeader|escape:"htmlall"|nl2br}<br>
       			{/foreach}
       		{else}
-      			{$headerValue|escape:"htmlall"|nl2br}<br>
       		{/if}
+      		*}
+   			{$headerValue|escape:"htmlall"|nl2br}<br>
       	{/foreach}
       	{/if}
       </div>

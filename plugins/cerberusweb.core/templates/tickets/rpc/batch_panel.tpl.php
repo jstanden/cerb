@@ -79,15 +79,6 @@
 		</select></td>
 	</tr>
 	<tr>
-		<td width="0%" nowrap="nowrap">Priority:</td>
-		<td width="100%"><select name="priority">
-			<option value=""></option>
-			{foreach from=$priorities item=v key=k}
-			<option value="{$k}">{$v}</option>
-			{/foreach}
-		</select></td>
-	</tr>
-	<tr>
 		<td width="0%" nowrap="nowrap">Spam:</td>
 		<td width="100%"><select name="spam">
 			<option value=""></option>

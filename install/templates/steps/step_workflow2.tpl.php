@@ -5,7 +5,7 @@
 <input type="hidden" name="form_submit" value="2">
 
 This step will help you quickly create your initial workflow.  Once installed you may always add 
-additional workers and teams from the Configuration page.  To skip a section simply 
+additional workers and groups from the Configuration page.  To skip a section simply 
 leave it blank.<br>
 
 {if !empty($worker_ids)}
@@ -55,11 +55,11 @@ By default, workers will be automatically e-mailed a randomly-generated password
 -->
 
 {if !empty($team_ids)}
-<H3>Team Details</H3>
+<H3>Group Details</H3>
 
 <table cellpadding="0" cellspacing="0" border="0">
 	<tr>
-		<th>Team</th>
+		<th>Group</th>
 		<th>Members</th>
 	</tr>
 {foreach from=$team_ids key=team_id item=team_name}

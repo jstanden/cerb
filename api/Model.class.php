@@ -72,10 +72,6 @@ class Model_DashboardViewAction {
 				    }
 					break;
 				
-//				case 'priority':
-//					$fields[DAO_Ticket::PRIORITY] = $v;
-//					break;
-				
 				case 'spam':
 					if($v == CerberusTicketSpamTraining::NOT_SPAM) {
 					    foreach($ticket_ids as $ticket_id) {
@@ -110,8 +106,7 @@ class Model_DashboardViewAction {
 
 		DAO_Ticket::updateTicket($ticket_ids, $fields);
 		
-		if(!empty($this->params['team'])) {
-		    list($team_id,$bucket_id) = CerberusApplication::translateTeamCategoryCode($this->params['team']);
+		if(!empty($this->params['team']) && !empty($team_id)) {
 		    
 		    $eventMgr = DevblocksPlatform::getEventService();
 		    $eventMgr->trigger(
@@ -120,7 +115,7 @@ class Model_DashboardViewAction {
 	                array(
 	                    'ticket_ids' => $ticket_ids,
 	                    'team_id' => $team_id,
-	                    'bucket_id' => $bucket_id,
+	                    'bucket_id' => $category_id,
 	                )
 	            )
 		    );
@@ -295,131 +290,96 @@ class CerberusDashboardView {
 	 * @return boolean
 	 */
 	function doBulkUpdate($filter, $data, $do, $ticket_ids=array(), $always_do_for_team_id=0) {
+	    @set_time_limit(0); // [TODO] Temp!
+	    
 		$action = new Model_DashboardViewAction();
 		$action->params = $do;
 		$action->dashboard_view_id = $this->id;
 	    
 		$params = $this->params;
 
-		// Sanitize params
-	    if(!empty($filter)) {
-	        $find = ($filter=='subject') ? SearchFields_Ticket::TICKET_SUBJECT : SearchFields_Ticket::SENDER_ADDRESS;
-	    
-	        foreach($params as $k => $v) { /* @var $v DevblocksSearchCriteria */
-	            if(0 == strcasecmp($v->field, $find)) {
-	                unset($params[$k]);
-	                break;
-	            }
-	        }
-	    }
+		$team_id = 0;
+		$bucket_id = 0;
+		
+		if(!empty($do['team']))
+	        list($team_id, $bucket_id) = CerberusApplication::translateTeamCategoryCode($do['team']);
 		
 		switch($filter) {
 		    case 'subject':
+            case 'sender':
+            case 'import':
+
 		        foreach($data as $v) {
-		            $new_params = $params;
-		            $new_params[] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_SUBJECT,DevblocksSearchCriteria::OPER_LIKE,$v);
-//		            $count = 0;
+					switch($filter) {
+					    case 'subject':
+					        $new_params = array(
+					            new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_SUBJECT,DevblocksSearchCriteria::OPER_LIKE,$v)
+					        );
+		                    $do_header = 'subject';
+					        break;
+					    case 'sender':
+			                $new_params = array(
+			                    new DevblocksSearchCriteria(SearchFields_Ticket::SENDER_ADDRESS,DevblocksSearchCriteria::OPER_LIKE,$v)
+			                );
+                            $do_header = 'from';
+			                break;
+			            case 'import':
+	                        $new_params = array(
+	                            // [TODO] It will eventually come up that we need multiple header matches (which need to be pair grouped as OR)
+	                            new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_MESSAGE_HEADER,DevblocksSearchCriteria::OPER_EQ,'x-cerberusimportpile'),
+	                            new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_MESSAGE_HEADER_VALUE,DevblocksSearchCriteria::OPER_EQ,$v)
+	                        );
+	                        break;
+   					}	                
 		            
-//			        do {
-				        list($tickets,$count) = DAO_Ticket::search(
+		            $ticket_ids = array();
+		            $new_params = array_merge($new_params, $params);
+	                $pg = 0;
+
+			        do {
+				        list($tickets,$null) = DAO_Ticket::search(
 				            $new_params,
-				            -1,
-				            0
+				            500,
+				            $pg++,
+				            SearchFields_Ticket::TICKET_ID,
+				            true,
+				            false
 				        );
 				        
-	                    $ticket_ids = array_keys($tickets);
-	                    
-				        // Did we want to save this and repeat it in the future?
-					    if($always_do_for_team_id) {
-						  $fields = array(
-						      DAO_TeamRoutingRule::HEADER => 'subject',
-						      DAO_TeamRoutingRule::PATTERN => $v,
-						      DAO_TeamRoutingRule::TEAM_ID => $always_do_for_team_id,
-						      DAO_TeamRoutingRule::POS => count($ticket_ids),
-						      DAO_TeamRoutingRule::DO_MOVE => $do['team'],
-						      DAO_TeamRoutingRule::DO_SPAM => $do['spam'],
-						      DAO_TeamRoutingRule::DO_STATUS => $do['closed'],
-						  );
-						  DAO_TeamRoutingRule::create($fields);
-						}
-	                    
-                        $action->run($ticket_ids);
+				        $ticket_ids = array_merge($ticket_ids, array_keys($tickets));
 				        
-//			        } while($count);
+			        } while(!empty($tickets));
+			        
+			        // Did we want to save this and repeat it in the future?
+				    if($always_do_for_team_id && !empty($do_header)) {
+					  $fields = array(
+					      DAO_TeamRoutingRule::HEADER => $do_header,
+					      DAO_TeamRoutingRule::PATTERN => $v,
+					      DAO_TeamRoutingRule::TEAM_ID => $always_do_for_team_id,
+					      DAO_TeamRoutingRule::POS => count($ticket_ids),
+					      DAO_TeamRoutingRule::DO_MOVE => $do['team'],
+					      DAO_TeamRoutingRule::DO_SPAM => $do['spam'],
+					      DAO_TeamRoutingRule::DO_STATUS => $do['closed'],
+					  );
+					  DAO_TeamRoutingRule::create($fields);
+					}
+					
+			        $batch_total = count($ticket_ids);
+			        for($x=0;$x<=$batch_total;$x+=500) {
+			            $batch_ids = array_slice($ticket_ids,$x,500);
+	                    $action->run($batch_ids);
+			            unset($batch_ids);
+			        }
 		        }
-		        break;
 		        
-		    case 'sender':
-		        foreach($data as $v) {
-		            $new_params = $params;
-		            $new_params[] = new DevblocksSearchCriteria(SearchFields_Ticket::SENDER_ADDRESS,DevblocksSearchCriteria::OPER_LIKE,$v);
-//		            $count = 0;
-		            
-//			        do {
-				        list($tickets,$count) = DAO_Ticket::search(
-				            $new_params,
-				            -1,
-				            0
-				        );
-				        
-	                    $ticket_ids = array_keys($tickets);
-	                    
-				        // Did we want to save this and repeat it in the future?
-					    if($always_do_for_team_id) {
-						  $fields = array(
-						      DAO_TeamRoutingRule::HEADER => 'from',
-						      DAO_TeamRoutingRule::PATTERN => $v,
-						      DAO_TeamRoutingRule::TEAM_ID => $always_do_for_team_id,
-						      DAO_TeamRoutingRule::POS => count($ticket_ids),
-						      DAO_TeamRoutingRule::DO_MOVE => $do['team'],
-						      DAO_TeamRoutingRule::DO_SPAM => $do['spam'],
-						      DAO_TeamRoutingRule::DO_STATUS => $do['closed'],
-						      );
-						  DAO_TeamRoutingRule::create($fields);
-						}
-	                    
-                        $action->run($ticket_ids);
-	                    
-//			        } while($count);
-		        }
 		        break;
 		        
 		    default: // none/selected
-		
-			    // Save shortcut?
-//				if(!empty($shortcut_name)) {
-//					$fields = array(
-//						DAO_DashboardViewAction::$FIELD_NAME => $shortcut_name,
-//						DAO_DashboardViewAction::$FIELD_VIEW_ID => 0,
-//						DAO_DashboardViewAction::$FIELD_WORKER_ID => 1, // [TODO] Should be real
-//						DAO_DashboardViewAction::$FIELD_PARAMS => serialize($params)
-//					);
-//					$action_id = DAO_DashboardViewAction::create($fields);
-//				}
-//				$tickets = DAO_Ticket::getTickets($ticket_ids);
-				
 				$action->run($ticket_ids);
-		        
 		        break;
 		}
 
-		if(!empty($do['team'])) {
-		    list($team_id, $bucket_id) = CerberusApplication::translateTeamCategoryCode($do['team']);
-		    
-		    if(!empty($team_id)) {
-			    $eventMgr = DevblocksPlatform::getEventService();
-			    $eventMgr->trigger(
-			        new Model_DevblocksEvent(
-			            'ticket.moved', // [TODO] Const
-		                array(
-		                    'ticket_ids' => $ticket_ids,
-		                    'team_id' => $team_id,
-		                    'bucket_id' => $bucket_id,
-		                )
-		            )
-			    );
-		    }
-		}
+        unset($ticket_ids);
 	}
 };
 
@@ -528,7 +488,6 @@ class CerberusTicket {
 	public $is_deleted = 0;
 	public $team_id;
 	public $category_id;
-	public $owner_id = 0;
 	public $priority;
 	public $first_wrote_address_id;
 	public $last_wrote_address_id;
@@ -570,13 +529,15 @@ class CerberusMessage {
 	public $created_date;
 	public $address_id;
 	public $message_id;
-	public $headers;
-	private $content; // use getter
 	
 	function CerberusMessage() {}
 	
 	function getContent() {
-		return DAO_Ticket::getMessageContent($this->id);
+		return DAO_MessageContent::get($this->id);
+	}
+	
+	function getHeaders() {
+	    return DAO_MessageHeader::getAll($this->id);
 	}
 
 	/**
@@ -595,7 +556,6 @@ class CerberusAddress {
 	public $id;
 	public $email;
 	public $personal;
-	public $bitflags;
 	
 	function CerberusAddress() {}
 };
@@ -760,34 +720,6 @@ class CerberusKbResource {
 class CerberusKbResourceTypes {
 	const ARTICLE = 'A';
 	const URL = 'U';
-};
-
-class CerberusPatch extends DevblocksPatch {
-	private $plugin_id = null;
-	private $revision = null;
-	private $container = null;
-	
-	function __construct($plugin_id, $revision, DevblocksPatchContainerExtension $container) {
-		parent::__construct($plugin_id, $revision);
-		$this->revision = intval($revision);
-		$this->container = $container;
-	}
-	
-	public function run() {
-		if(empty($this->container) || !is_object($this->container)) {
-			return FALSE;
-		}
-		
-		// Callback
-		$result = $this->container->runRevision($this->revision);
-		
-		if($result) {
-			$this->_ran();
-			return TRUE;
-		} else {
-			return FALSE;
-		}
-	}
 };
 
 class Model_Community {

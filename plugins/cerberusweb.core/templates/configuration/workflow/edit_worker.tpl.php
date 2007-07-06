@@ -45,7 +45,7 @@
 	
 	<tr>
 		<td width="0%" nowrap="nowrap" valign="top">
-			<b>Teams:</b><br>
+			<b>Groups:</b><br>
 			<a href="javascript:;" onclick="checkAll('configWorkerTeams',true);">check all</a><br>
 			<a href="javascript:;" onclick="checkAll('configWorkerTeams',false);">check none</a>
 		</td>

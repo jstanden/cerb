@@ -212,7 +212,7 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 
     private function _handleTicketMoved($event) {
         $ticket_ids = $event->params['ticket_ids'];
-        $tickets = $event->params['tickets'];
+        @$tickets = $event->params['tickets'];
         $team_id = $event->params['team_id'];
         $bucket_id = $event->params['bucket_id'];
 
@@ -230,7 +230,7 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
             unset($from_ids);
 
             foreach($tickets as $ticket_id => $ticket) {
-                $rule = CerberusApplication::parseTeamRules($team_id, $ticket_id, $from_ids[$ticket_id], $ticket->subject);
+                $rule = CerberusApplication::parseTeamRules($team_id, $ticket_id, @$from_ids[$ticket_id], $ticket->subject);
             }
         }
         

@@ -5,8 +5,9 @@
 	</tr>
 </table>
 
-<b>To:</b> {$message->headers.to|escape:"htmlall"}<br>
-<b>From:</b> {$message->headers.from|escape:"htmlall"}<br>
+{assign var=headers value=$message->getHeaders()}
+<b>To:</b> {$headers.to|escape:"htmlall"}<br>
+<b>From:</b> {$headers.from|escape:"htmlall"}<br>
 <div style="width:98%;height:300px;overflow:auto;border:1px solid rgb(180,180,180);margin:2px;padding:3px;background-color:rgb(255,255,255);">
 {$content|escape:"htmlall"|nl2br}
 </div>

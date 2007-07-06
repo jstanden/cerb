@@ -167,7 +167,6 @@ class ChFaqPage extends CerberusPageExtension {
 	
 };
 
-
 class ChDisplayFaq extends CerberusDisplayPageExtension {
 	function __construct($manifest) {
 		parent::__construct($manifest);
@@ -194,6 +193,6 @@ class ChDisplayFaq extends CerberusDisplayPageExtension {
 				
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/faq/index.tpl.php');
 	}
-}
+};
 
 ?>

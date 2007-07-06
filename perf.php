@@ -11,6 +11,7 @@ require(APP_PATH . '/api/Application.class.php');
 
 $db = DevblocksPlatform::getDatabaseService();
 $perf = NewPerfMonitor($db);
-echo $perf->SuspiciousSQL();
-echo $perf->ExpensiveSQL();
+echo $perf->SuspiciousSQL(50);
+echo $perf->ExpensiveSQL(50);
+echo $perf->InvalidSQL(10);
 exit;

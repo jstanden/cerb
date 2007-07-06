@@ -7,7 +7,7 @@
 
 {if !empty($team_rules)}
 <div class="block">
-<h2>Team Inbox Routing</h2>
+<h2>Inbox Assistant</h2>
 <table cellspacing="2" cellpadding="0">
 	{counter start=0 print=false}
 	{foreach from=$team_rules item=rule key=rule_id name=rules}
@@ -44,7 +44,11 @@
 <button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> Delete Selected Rules</button>
 </div>
 {else}
-	No team inbox routing is configured.<br>
+	<div class="block">
+	<h2>No training data available</h2>
+	<br>
+	Use 'Auto-Assist' or 'Bulk Update' in ticket lists to teach the system how to sort your team's incoming mail.<br>
+	</div>
 {/if}
 	
 </form>

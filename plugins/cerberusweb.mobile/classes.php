@@ -100,10 +100,10 @@ class MobileController extends DevblocksControllerExtension {
 				}
 				
 				if (!is_numeric($ticket_id)) {
-					$ticket = DAO_Ticket::getTicketByMask($ticket_id);
-				} else {
-					$ticket = DAO_Ticket::getTicket($ticket_id);
+					$ticket_id = DAO_Ticket::getTicketIdByMask($ticket_id);
 				}
+				$ticket = DAO_Ticket::getTicket($ticket_id);
+				
 				$tpl->assign('ticket', $ticket);
 				$tpl->assign('ticket_id', $ticket_id);
 				$tpl->assign('message_id', $message_id);

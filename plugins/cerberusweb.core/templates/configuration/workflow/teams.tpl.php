@@ -6,10 +6,10 @@
 			<div class="block">
 			<table cellpadding="2" cellspacing="0" border="0" width="100%">
 				<tr>
-					<td><h2>Teams</h2></td>
+					<td><h2>Groups</h2></td>
 				</tr>
 				<tr>
-					<td>[ <a href="javascript:;" onclick="configAjax.getTeam('0');">add new team</a> ]</td>
+					<td>[ <a href="javascript:;" onclick="configAjax.getTeam('0');">add new group</a> ]</td>
 				</tr>
 				<tr>
 					<td>

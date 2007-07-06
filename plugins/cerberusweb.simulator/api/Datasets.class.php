@@ -204,7 +204,7 @@ class SpamDataset extends SimulatorDataset {
 		$this->addEmailTemplate('##cheap## ##product##!','At Prestige Replica, we specialize in the sales of brand name quality replica ##product##, at some of the lowest prices possible.  Take a moment to select your choice... With our large selection of ##product## you can be sure to find that perfect one that will suit you best');
 		$this->addEmailTemplate('Paying too much for your ##debt##?  Lower your payments now!','Are you paying too much for your ##debt##?  Would you like to know how to have more money to spend on toys like your neighbors?  Call loan-shark lending today!');
 		$this->addEmailTemplate('##workfromhome##, Full-time and part-time','Are you sick of going to work?  Well, now you can ##workfromhome## and make as much as $6,000 per week!  Log in to http://scams-r-us.edu to find out how!');
-		$this->addEmailTemplate('##random##','##random## ##random## ##random## ##random## ##random## ##random## #random## ##random## ##random## ##random## ##random## ##random## ##random## ##random##');
+		$this->addEmailTemplate('##random##','##random## ##random## ##random## ##random## ##random## ##random## ##random## ##random## ##random## ##random## ##random## ##random## ##random## ##random##');
 		
 		$this->addToken('##account##',array('Account','Login','Payment','Credit card','Bank account'));
 		$this->addToken('##updated##',array('updated','changed','confirmed','renewed'));

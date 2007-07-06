@@ -42,8 +42,7 @@
 		<td nowrap="nowrap" class="tableThBlue">{$view->name}</td>
 		<td nowrap="nowrap" class="tableThBlue" align="right">
 			<a href="javascript:;" onclick="ajax.getRefresh('{$view->id}');" class="tableThLink">{$translate->_('common.refresh')|lower}</a><span style="font-size:12px"> | </span>
-			{*if !empty($view->tips)*}<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/information.gif{/devblocks_url}" align="absmiddle"><a href="javascript:;" onclick="genericAjaxGet('{$view->id}_tips','c=tickets&a=showViewAutoAssist&view_id={$view->id}');toggleDiv('{$view->id}_tips','block');" class="tableThLink">{"auto-assist"|lower}</a><span style="font-size:12px"> | </span>{*/if*}
-			<!-- <a href="javascript:;" onclick="" class="tableThLink">read all</a><span style="font-size:12px"> | </span> -->
+			<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/information.gif{/devblocks_url}" align="absmiddle"><a href="javascript:;" onclick="genericAjaxGet('{$view->id}_tips','c=tickets&a=showViewAutoAssist&view_id={$view->id}');toggleDiv('{$view->id}_tips','block');" class="tableThLink">{"super sort"|lower}</a><span style="font-size:12px"> | </span>
 			{if $view->id != 'search'}<a href="{devblocks_url}c=tickets&a=searchview&id={$view->id}{/devblocks_url}" class="tableThLink">{$translate->_('common.search')|lower} list</a><span style="font-size:12px"> | </span>{/if}
 			<a href="javascript:;" onclick="ajax.getCustomize('{$view->id}');" class="tableThLink">{$translate->_('common.customize')|lower}</a>
 		</td>
@@ -90,10 +89,8 @@
 			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_next_action');">{$translate->_('ticket.next_action')}</a></th>
 			{elseif $header=="tm_name"}
 			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','tm_name');">{$translate->_('common.team')}</a></th>
-			{elseif $header=="cat_name"}
-			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','cat_name');">{$translate->_('common.bucket')|capitalize}</a></th>
-			{elseif $header=="t_owner_id"}
-			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_owner_id');">{$translate->_('ticket.owner')|capitalize}</a></th>
+			{elseif $header=="t_category_id"}
+			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_category_id');">{$translate->_('common.bucket')|capitalize}</a></th>
 			{/if}
 		{/foreach}
 	</tr>
@@ -146,25 +143,11 @@
 			{*{elseif $column=="t_tasks"}
 			<td align='center'>{if !empty($result.t_tasks)}{$result.t_tasks}{/if}</td>*}
 			{elseif $column=="tm_name"}
-			<td><a href="{devblocks_url}c=tickets&a=dashboards&m=team&id={$result.tm_id}{/devblocks_url}">{$result.tm_name}</a></td>
-			{elseif $column=="cat_name"}
-			<td>{$result.cat_name}</td>
+			<td><a href="{devblocks_url}c=tickets&a=organize&m=team&id={$result.tm_id}{/devblocks_url}">{$result.tm_name}</a></td>
+			{elseif $column=="t_category_id"}
+			<td>{$result.t_category_id}</td>
 			{elseif $column=="t_next_action"}
-			<td title="{$result.t_next_action}">{$result.t_next_action|truncate:35:'...'}</td>
-			{elseif $column=="t_owner_id"}
-			<td>
-				{assign var=owner value=$visit->getWorker()}
-				{if !empty($result.t_owner_id)}
-					{if !empty($owner) && $result.t_owner_id==$owner->id}
-						<a href="javascript:;" onclick="ajax.viewAssignTicket('{$view->id}','{$result.t_id}','0');"><b>Release</b></a>
-					{else}
-						{assign var=ticket_worker_id value=$result.t_owner_id}
-						{if isset($workers.$ticket_worker_id)}{$workers.$ticket_worker_id->getName()}{/if}
-					{/if}
-				{else}
-					<a href="javascript:;" onclick="ajax.viewAssignTicket('{$view->id}','{$result.t_id}','{$owner->id}');">Take</a>
-				{/if}
-			</td>
+			<td title="{$result.t_next_action}"><span style="color:rgb(130,130,130);">{$result.t_next_action|truncate:35:'...'|indent:2:"&nbsp;"}</span></td>
 			{elseif $column=="t_spam_score"}
 			<td>
 				{math assign=score equation="x*100" format="%0.2f%%" x=$result.t_spam_score}
@@ -185,7 +168,7 @@
 	{if $total}
 	<tr>
 		<td colspan="2">
-			<span id="tourDashboardBatch"><button type="button" onclick="ajax.showBatchPanel('{$view->id}','{$dashboard_team_id}');">bulk update</button></span> <!-- genericAjaxPanel('c=tickets&a=showBatchPanel&view_id={$view->id}',this,true,'500px'); -->
+			<span id="tourDashboardBatch"><button type="button" onclick="ajax.showBatchPanel('{$view->id}','{$dashboard_team_id}');">bulk update</button></span>
 			<button type="button" onclick="ajax.viewCloseTickets('{$view->id}',0);">close</button>
 			<button type="button" onclick="ajax.viewCloseTickets('{$view->id}',1);">report spam</button>
 			<button type="button" onclick="ajax.viewCloseTickets('{$view->id}',2);">delete</button>
@@ -203,7 +186,7 @@
 						</optgroup>
 					{/if}
 				{/foreach}
-				<optgroup label="Team Inboxes" style="">
+				<optgroup label="Group Inboxes" style="">
 					{foreach from=$teams item=team}
 						<option value="t{$team->id}">{$team->name}</option>
 					{/foreach}

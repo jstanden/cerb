@@ -615,7 +615,7 @@ class DAO_Contact {
 		if(!is_array($ids)) $ids = array($ids);
 		$addresses = array();
 		
-		$sql = sprintf("SELECT a.id, a.email, a.personal, a.bitflags ".
+		$sql = sprintf("SELECT a.id, a.email, a.personal ".
 			"FROM address a ".
 			((!empty($ids)) ? "WHERE a.id IN (%s) " : " ").
 			"ORDER BY a.email ",
@@ -628,7 +628,6 @@ class DAO_Contact {
 			$address->id = intval($rs->fields['id']);
 			$address->email = $rs->fields['email'];
 			$address->personal = $rs->fields['personal'];
-			$address->bitflags = intval($rs->fields['bitflags']);
 			$addresses[$address->id] = $address;
 			$rs->MoveNext();
 		}
@@ -683,19 +682,19 @@ class DAO_Contact {
 	 */
 	static function createAddress($email,$personal='') {
 		$db = DevblocksPlatform::getDatabaseService();
-		
+
 		if(null != ($id = DAO_Contact::lookupAddress($email,false)))
 			return $id;
-
+		
 		$id = $db->GenID('address_seq');
 		
-		$sql = sprintf("INSERT INTO address (id,email,personal,bitflags) VALUES (%d,%s,%s,0)",
+		$sql = sprintf("INSERT INTO address (id,email,personal) VALUES (%d,%s,%s)",
 			$id,
 			$db->qstr(trim(strtolower($email))),
 			$db->qstr($personal)
 		);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
+
 		return $id;
 	}
 	
@@ -708,10 +707,23 @@ class DAO_Message extends DevblocksORMHelper {
     const MESSAGE_TYPE = 'message_type';
     const CREATED_DATE = 'created_date';
     const ADDRESS_ID = 'address_id';
-    const MESSAGE_ID = 'message_id';
-    const HEADERS = 'headers';
-    const CONTENT = 'content';
 
+	static function create($fields) {
+		$db = DevblocksPlatform::getDatabaseService();
+		$newId = $db->GenID('message_seq');
+		
+		$sql = sprintf("INSERT INTO message (id,ticket_id,message_type,created_date,address_id) ".
+			"VALUES (%d,0,'',0,0)",
+			$newId
+		);
+		
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+
+		self::update($newId, $fields);
+		
+		return $newId;
+	}
+    
     static function update($id, $fields) {
         parent::_update($id, 'message', $fields);
     }
@@ -726,6 +738,14 @@ class DAO_Message extends DevblocksORMHelper {
         $sql = sprintf("DELETE FROM message WHERE id IN (%s)", $message_ids);
         $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 
+        // Content
+        $sql = sprintf("DELETE FROM message_content WHERE message_id IN (%s)", $message_ids);
+        $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+
+        // Headers
+        $sql = sprintf("DELETE FROM message_header WHERE message_id IN (%s)", $message_ids);
+        $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+        
         // Attachments
         $sql = sprintf("DELETE FROM attachment WHERE message_id IN (%s)", $message_ids);
         $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
@@ -758,7 +778,8 @@ class DAO_Message extends DevblocksORMHelper {
 			).
 			
 			// [JAS]: Dynamic table joins
-//			(isset($tables['ra']) ? "INNER JOIN requester r ON (r.ticket_id=t.id)" : " ").
+			(isset($tables['mh']) ? "INNER JOIN message_header mh ON (mh.message_id=m.id)" : " ").
+			(isset($tables['mc']) ? "INNER JOIN message_content mc ON (mc.message_id=m.id)" : " ").
 			
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "").
 			(!empty($sortBy) ? sprintf("ORDER BY %s %s",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : "")
@@ -792,6 +813,13 @@ class SearchFields_Message implements IDevblocksSearchFields {
 	const ID = 'm_id';
 	const TICKET_ID = 'm_ticket_id';
 	
+	// Headers
+	const MESSAGE_HEADER_NAME = 'mh_header_name';
+	const MESSAGE_HEADER_VALUE = 'mh_header_value';
+
+    // Content
+	const MESSAGE_CONTENT = 'mc_content';
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
@@ -799,8 +827,104 @@ class SearchFields_Message implements IDevblocksSearchFields {
 		return array(
 			SearchFields_Message::ID => new DevblocksSearchField(SearchFields_Message::ID, 'm', 'id'),
 			SearchFields_Message::TICKET_ID => new DevblocksSearchField(SearchFields_Message::TICKET_ID, 'm', 'ticket_id'),
+			
+			SearchFields_Message::MESSAGE_HEADER_NAME => new DevblocksSearchField(SearchFields_Message::MESSAGE_HEADER_NAME, 'mh', 'header_name'),
+			SearchFields_Message::MESSAGE_HEADER_VALUE => new DevblocksSearchField(SearchFields_Message::MESSAGE_HEADER_VALUE, 'mh', 'header_value'),
+
+			SearchFields_Message::MESSAGE_CONTENT => new DevblocksSearchField(SearchFields_Message::MESSAGE_CONTENT, 'mc', 'content'),
 		);
 	}
+};
+
+class DAO_MessageContent {
+    const MESSAGE_ID = 'message_id';
+    const CONTENT = 'content';
+    
+    static function update($message_id, $content) {
+        $db = DevblocksPlatform::getDatabaseService();
+        
+        $db->Replace(
+            'message_content',
+            array(
+                self::MESSAGE_ID => $message_id,
+                self::CONTENT => '',
+            ),
+            array('message_id'),
+            true
+        );
+        
+        if(!empty($content))
+            $db->UpdateBlob('message_content', self::CONTENT, $content, 'message_id='.$message_id);
+    }
+    
+	static function get($message_id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		$content = '';
+		
+		$sql = sprintf("SELECT m.content ".
+			"FROM message_content m ".
+			"WHERE m.message_id = %d ",
+			$message_id
+		);
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		if(!$rs->EOF) {
+			return $rs->fields['content'];
+		}
+		
+		return '';
+	}
+};
+
+class DAO_MessageHeader {
+    const MESSAGE_ID = 'message_id';
+    const TICKET_ID = 'ticket_id';
+    const HEADER_NAME = 'header_name';
+    const HEADER_VALUE = 'header_value';
+    
+    static function update($message_id, $ticket_id, $header, $value) {
+        $db = DevblocksPlatform::getDatabaseService();
+        
+        $header = strtolower($header);
+        
+        if(empty($header))
+            return;
+        
+        // Insert not replace?  (Can be multiple stacked headers like received?)
+        $db->Replace(
+            'message_header',
+            array(
+                self::MESSAGE_ID => $message_id,
+                self::TICKET_ID => $ticket_id,
+                self::HEADER_NAME => $header,
+                self::HEADER_VALUE => ''
+            ),
+            array('message_id','header_name'),
+            true
+        );
+        
+        $db->UpdateBlob('message_header', self::HEADER_VALUE, $value, 'message_id='.$message_id.' AND header_name='.$db->qstr($header));
+    }
+    
+    static function getAll($message_id) {
+        $db = DevblocksPlatform::getDatabaseService();
+        
+        $sql = "SELECT header_name, header_value ".
+            "FROM message_header ".
+            "WHERE message_id = ?";
+            
+        $rs = $db->Execute($sql, array($message_id))
+            or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+
+        $headers = array();
+            
+        while(!$rs->EOF) {
+            $headers[$rs->fields['header_name']] = $rs->fields['header_value'];
+            $rs->MoveNext();
+        }
+        
+        return $headers;
+    }
 };
 
 class DAO_Attachment extends DevblocksORMHelper {
@@ -906,7 +1030,6 @@ class DAO_Ticket extends DevblocksORMHelper {
 	const IS_DELETED = 'is_deleted';
 	const TEAM_ID = 'team_id';
 	const CATEGORY_ID = 'category_id';
-	const OWNER_ID = 'owner_id';
 	const LAST_WROTE_ID = 'last_wrote_address_id';
 	const FIRST_WROTE_ID = 'first_wrote_address_id';
 	const CREATED_DATE = 'created_date';
@@ -927,7 +1050,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 	 * @param string $mask
 	 * @return CerberusTicket
 	 */
-	static function getTicketByMask($mask) {
+	static function getTicketIdByMask($mask) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		$sql = sprintf("SELECT t.id FROM ticket t WHERE t.mask = %s",
@@ -936,8 +1059,8 @@ class DAO_Ticket extends DevblocksORMHelper {
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		if(!$rs->EOF) {
-			$ticket_id = intval($rs->fields['id']);
-			return DAO_Ticket::getTicket($ticket_id);
+			return intval($rs->fields['id']);
+//			return DAO_Ticket::getTicket($ticket_id);
 		}
 		
 		return null;
@@ -946,9 +1069,9 @@ class DAO_Ticket extends DevblocksORMHelper {
 	static function getTicketByMessageId($message_id) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = sprintf("SELECT m.ticket_id ".
-			"FROM message m ".
-			"WHERE m.message_id = %s",
+		$sql = sprintf("SELECT mh.ticket_id ".
+			"FROM message_header mh ".
+			"WHERE mh.header_name = 'message-id' AND mh.header_value = %s",
 			$db->qstr($message_id)
 		);
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
@@ -1005,8 +1128,8 @@ class DAO_Ticket extends DevblocksORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$newId = $db->GenID('ticket_seq');
 		
-		$sql = sprintf("INSERT INTO ticket (id, mask, subject, last_wrote_address_id, first_wrote_address_id, created_date, updated_date, due_date, priority, team_id, category_id, owner_id) ".
-			"VALUES (%d,'','',0,0,%d,%d,0,0,0,0,0)",
+		$sql = sprintf("INSERT INTO ticket (id, mask, subject, last_wrote_address_id, first_wrote_address_id, created_date, updated_date, due_date, priority, team_id, category_id) ".
+			"VALUES (%d,'','',0,0,%d,%d,0,0,0,0)",
 			$newId,
 			time(),
 			time()
@@ -1017,45 +1140,6 @@ class DAO_Ticket extends DevblocksORMHelper {
 		
 		// send new ticket auto-response
 //		DAO_Mail::sendAutoresponse($id, 'new');
-		
-		return $newId;
-	}
-
-	// [JAS]: [TODO] Convert to create($fields) format
-	static function createMessage($ticket_id,$type,$created_date,$address_id,$headers=array(),$content='') {
-		$db = DevblocksPlatform::getDatabaseService();
-		$newId = $db->GenID('message_seq');
-		
-		// [JAS]: Flatten an array of headers into a string.
-		$sHeaders = !empty($headers) ? serialize($headers) : serialize(array());
-
-		$message_id = (!@empty($headers['message-id']) && @is_array($headers['message-id'])) 
-		    ? @array_shift($headers['message-id']) : @$headers['message-id'];
-		
-		//str_replace(array("'","\\"),array("\\'","\\\\"),$content)
-		
-//		echo "<pre>",$content,"</pre><br>";
-//		exit;
-		
-		$sql = sprintf("INSERT INTO message (id,ticket_id,message_type,created_date,address_id,message_id) ". // ,headers,content
-			"VALUES (%d,%d,%s,%d,%d,%s)", // ,'%s','%s'
-				$newId,
-				$ticket_id,
-				$db->qstr($type),
-				$created_date,
-				$address_id,
-				((!empty($message_id)) ? $db->qstr($message_id) : "''")
-//				$db->BlobEncode($sHeaders),
-//				$db->BlobEncode($content) // [TODO] Errr, why does PGSQL hate \\ from qstr?
-		);
-		
-//		echo "<pre>",$sql,"</pre><br>";
-//		exit;
-				
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-
-		$db->UpdateBlob('message', 'headers', $sHeaders, 'id='.$newId);
-		$db->UpdateBlob('message', 'content', $content, 'id='.$newId);
 		
 		return $newId;
 	}
@@ -1143,7 +1227,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 		
 		$tickets = array();
 		
-		$sql = "SELECT t.id , t.mask, t.subject, t.is_closed, t.is_deleted, t.priority, t.team_id, t.category_id, t.owner_id, ".
+		$sql = "SELECT t.id , t.mask, t.subject, t.is_closed, t.is_deleted, t.priority, t.team_id, t.category_id, ".
 			"t.first_wrote_address_id, t.last_wrote_address_id, t.created_date, t.updated_date, t.due_date, t.spam_training, ". 
 			"t.spam_score, t.interesting_words, t.next_action ".
 			"FROM ticket t ".
@@ -1159,7 +1243,6 @@ class DAO_Ticket extends DevblocksORMHelper {
 			$ticket->subject = $rs->fields['subject'];
 			$ticket->team_id = intval($rs->fields['team_id']);
 			$ticket->category_id = intval($rs->fields['category_id']);
-			$ticket->owner_id = intval($rs->fields['owner_id']);
 			$ticket->is_closed = intval($rs->fields['is_closed']);
 			$ticket->is_deleted = intval($rs->fields['is_deleted']);
 			$ticket->priority = intval($rs->fields['priority']);
@@ -1214,7 +1297,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$messages = array();
 		
-		$sql = sprintf("SELECT m.id , m.ticket_id, m.message_type, m.created_date, m.address_id, m.message_id, m.headers ".
+		$sql = sprintf("SELECT m.id , m.ticket_id, m.message_type, m.created_date, m.address_id ".
 			"FROM message m ".
 			"WHERE m.ticket_id = %d ".
 			"ORDER BY m.created_date ASC ",
@@ -1228,11 +1311,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 			$message->message_type = $rs->fields['message_type'];
 			$message->created_date = intval($rs->fields['created_date']);
 			$message->address_id = intval($rs->fields['address_id']);
-			$message->message_id = $rs->fields['message_id'];
 			
-			$headers = unserialize($rs->fields['headers']);
-			$message->headers = $headers;
-
 			$messages[$message->id] = $message;
 			$rs->MoveNext();
 		}
@@ -1254,7 +1333,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$message = null;
 		
-		$sql = sprintf("SELECT m.id , m.ticket_id, m.message_type, m.created_date, m.address_id, m.message_id, m.headers ".
+		$sql = sprintf("SELECT m.id , m.ticket_id, m.message_type, m.created_date, m.address_id ".
 			"FROM message m ".
 			"WHERE m.id = %d ".
 			"ORDER BY m.created_date ASC ",
@@ -1268,10 +1347,6 @@ class DAO_Ticket extends DevblocksORMHelper {
 			$message->message_type = $rs->fields['message_type'];
 			$message->created_date = intval($rs->fields['created_date']);
 			$message->address_id = intval($rs->fields['address_id']);
-			$message->message_id = $rs->fields['message_id'];
-			
-			$headers = unserialize($rs->fields['headers']);
-			$message->headers = $headers;
 		}
 
 		// [JAS]: Count all
@@ -1310,27 +1385,13 @@ class DAO_Ticket extends DevblocksORMHelper {
 		return $addresses;
 	}
 	
-	static function getMessageContent($id) {
-		$db = DevblocksPlatform::getDatabaseService();
-		$content = '';
-		
-		$sql = sprintf("SELECT m.id, m.content ".
-			"FROM message m ".
-			"WHERE m.id = %d ",
-			$id
-		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-		if(!$rs->EOF) {
-			$content = $rs->fields['content'];
-		}
-		
-		return $content;
-	}
-	
 	static function createRequester($address_id,$ticket_id) {
 		$db = DevblocksPlatform::getDatabaseService();
-		$db->Replace("requester",array("address_id"=>$address_id,"ticket_id"=>$ticket_id),array("address_id","ticket_id")); 
+		$db->Replace(
+		    'requester',
+		    array("address_id"=>$address_id,"ticket_id"=>$ticket_id),
+		    array('address_id','ticket_id')
+		);
 		return true;
 	}
 	
@@ -1347,119 +1408,150 @@ class DAO_Ticket extends DevblocksORMHelper {
         $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 	}
 	
-	static function analyze($params, $limit=15) {
+	static function analyze($params, $limit=15, $mode="senders") { // or "subjects"
 		$db = DevblocksPlatform::getDatabaseService();
 		list($tables,$wheres) = parent::_parseSearchParams($params, SearchFields_Ticket::getFields());
 
 		$tops = array();
-		$senders = array();
 		
-		// [JAS]: Most common sender domains in work pile
-		$sql = sprintf("SELECT ".
-		    "count(*) as hits, substring(a1.email from position('@' in a1.email)) as domain ".
-			"FROM ticket t ".
-			"INNER JOIN team tm ON (tm.id = t.team_id) ".
-			"LEFT JOIN category cat ON (cat.id = t.category_id) ". // [TODO] Remove this and use a hash // [TODO] Optimization
-			"INNER JOIN address a1 ON (t.first_wrote_address_id=a1.id) ".
-			"INNER JOIN address a2 ON (t.last_wrote_address_id=a2.id) "
-			).
+		if($mode=="senders") {
+			$senders = array();
 			
-			(isset($tables['ra']) ? "INNER JOIN requester r ON (r.ticket_id=t.id)" : " ").
-			(isset($tables['ra']) ? "INNER JOIN address ra ON (ra.id=r.address_id) " : " ").
-			(isset($tables['msg']) ? "INNER JOIN message msg ON (msg.ticket_id=t.id) " : " ").
+			// [JAS]: Most common sender domains in work pile
+			$sql = sprintf("SELECT ".
+			    "count(*) as hits, substring(a1.email from position('@' in a1.email)) as domain ".
+				"FROM ticket t ".
+				"INNER JOIN team tm ON (tm.id = t.team_id) ".
+//				"LEFT JOIN category cat ON (cat.id = t.category_id) ". // [TODO] Remove this and use a hash // [TODO] Optimization
+				"INNER JOIN address a1 ON (t.first_wrote_address_id=a1.id) ".
+				"INNER JOIN address a2 ON (t.last_wrote_address_id=a2.id) "
+				).
+				
+				(isset($tables['ra']) ? "INNER JOIN requester r ON (r.ticket_id=t.id)" : " ").
+				(isset($tables['ra']) ? "INNER JOIN address ra ON (ra.id=r.address_id) " : " ").
+				(isset($tables['msg']) ? "INNER JOIN message msg ON (msg.ticket_id=t.id) " : " ").
+				
+				(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "").
+		        "GROUP BY domain HAVING count(*) > 1 ".
+		        "ORDER BY hits DESC ";
 			
-			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "").
-	        "GROUP BY domain HAVING count(*) > 1 ".
-	        "ORDER BY hits DESC ";
-		
-	    $rs_domains = $db->SelectLimit($sql, $limit, 0) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs_domains ADORecordSet */
-	    
-		$domains = array(); // [TODO] Temporary
-	    while(!$rs_domains->EOF) {
-	        $hash = md5('domain'.$rs_domains->fields['domain']);
-	        $domains[] = $rs_domains->fields['domain']; // [TODO] Temporary
-	        $tops[$hash] = array('domain',$rs_domains->fields['domain'],$rs_domains->fields['hits']);
-	        $rs_domains->MoveNext();
+		    $rs_domains = $db->SelectLimit($sql, $limit, 0) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs_domains ADORecordSet */
+		    
+			$domains = array(); // [TODO] Temporary
+		    while(!$rs_domains->EOF) {
+		        $hash = md5('domain'.$rs_domains->fields['domain']);
+		        $domains[] = $rs_domains->fields['domain']; // [TODO] Temporary
+		        $tops[$hash] = array('domain',$rs_domains->fields['domain'],$rs_domains->fields['hits']);
+		        $rs_domains->MoveNext();
+		    }
+		    
+		    // [TODO] Temporary
+		    $sender_wheres = $wheres;
+		    $sender_wheres[] = sprintf("substring(a1.email from position('@' in a1.email)) IN ('%s')",
+		        implode("','", $domains)
+		    );
+		    
+			// [JAS]: Most common senders in work pile
+			$sql = sprintf("SELECT ".
+			    "count(*) as hits, a1.email ".
+				"FROM ticket t ".
+				"INNER JOIN team tm ON (tm.id = t.team_id) ".
+//				"LEFT JOIN category cat ON (cat.id = t.category_id) ". // [TODO] Remove this and use a hash // [TODO] Optimization
+				"INNER JOIN address a1 ON (t.first_wrote_address_id=a1.id) ".
+				"INNER JOIN address a2 ON (t.last_wrote_address_id=a2.id) "
+				).
+				
+				(isset($tables['ra']) ? "INNER JOIN requester r ON (r.ticket_id=t.id)" : " ").
+				(isset($tables['ra']) ? "INNER JOIN address ra ON (ra.id=r.address_id) " : " ").
+				(isset($tables['msg']) ? "INNER JOIN message msg ON (msg.ticket_id=t.id) " : " ").
+				
+				(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$sender_wheres)) : "").
+		        "GROUP BY a1.email HAVING count(*) > 1 ".
+		        "ORDER BY hits DESC ";
+	
+		    $rs_senders = $db->SelectLimit($sql, $limit*2, 0) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs_senders ADORecordSet */
+		    
+		    while(!$rs_senders->EOF) {
+		        $hash = md5('sender'.$rs_senders->fields['email']);
+		        $senders[$hash] = array('sender',$rs_senders->fields['email'],$rs_senders->fields['hits']);
+		        $rs_senders->MoveNext();
+		    }
+		    
+		    uasort($senders, array('DAO_Ticket','sortByCount'));
+	        
+		    // Toss any empty subjects/senders
+	//	    foreach($tops as $idx => $top) {
+	//	        if(empty($top[1]))
+	//	            unset($tops[$idx]);
+	//	    }
+		    
+		    // Thread senders into domains
+		    foreach($senders as $hash => $sender) {
+	            $domain = substr($sender[1],strpos($sender[1],'@'));
+	            $domain_hash = md5('domain' . $domain);
+	            if(!isset($tops[$domain_hash])) {
+	//                $tops[$domain_hash] = array('domain', $domain, $sender[2]);
+		            continue; // [TODO] Temporary
+	            }
+	            $tops[$domain_hash][3][$hash] = $sender;
+	        }
+		    
+		} elseif ($mode=="subjects") {
+			// [JAS]: Most common subjects in work pile
+			$sql = sprintf("SELECT ".
+			    "count(*) as hits, t.subject ".
+				"FROM ticket t ".
+				"INNER JOIN team tm ON (tm.id = t.team_id) ".
+//				"LEFT JOIN category cat ON (cat.id = t.category_id) ". // [TODO] Remove this and use a hash // [TODO] Optimization
+				"INNER JOIN address a1 ON (t.first_wrote_address_id=a1.id) ".
+				"INNER JOIN address a2 ON (t.last_wrote_address_id=a2.id) "
+				).
+				
+				(isset($tables['ra']) ? "INNER JOIN requester r ON (r.ticket_id=t.id)" : " ").
+				(isset($tables['ra']) ? "INNER JOIN address ra ON (ra.id=r.address_id) " : " ").
+				(isset($tables['msg']) ? "INNER JOIN message msg ON (msg.ticket_id=t.id) " : " ").
+				
+				(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "").
+		        "GROUP BY t.subject HAVING count(*) > 2 ".
+		        "ORDER BY hits DESC ";
+			
+		    $rs_subjects = $db->SelectLimit($sql, $limit, 0) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs_subjects ADORecordSet */
+		    
+		    while(!$rs_subjects->EOF) {
+		        $hash = md5('subject'.$rs_subjects->fields['subject']);
+		        $tops[$hash] = array('subject',$rs_subjects->fields['subject'],$rs_subjects->fields['hits']);
+		        $rs_subjects->MoveNext();
+		    }
+		    
+		} elseif ($mode=="import") {
+			$tables['mh'] = 'mh';
+			$wheres[] = sprintf("mh.header_name=%s",$db->qstr('x-cerberusimportpile'));
+				
+		    $sql = sprintf("SELECT ".
+			    "count(*) as hits, mh.header_value ".
+				"FROM ticket t ".
+				"INNER JOIN team tm ON (tm.id = t.team_id) ".
+//				"LEFT JOIN category cat ON (cat.id = t.category_id) ". // [TODO] Remove this and use a hash // [TODO] Optimization
+				"INNER JOIN address a1 ON (t.first_wrote_address_id=a1.id) ".
+				"INNER JOIN address a2 ON (t.last_wrote_address_id=a2.id) "
+				).
+				
+				(isset($tables['ra']) ? "INNER JOIN requester r ON (r.ticket_id=t.id)" : " ").
+				(isset($tables['ra']) ? "INNER JOIN address ra ON (ra.id=r.address_id) " : " ").
+				(isset($tables['msg']) ? "INNER JOIN message msg ON (msg.ticket_id=t.id) " : " ").
+				(isset($tables['mh']) ? "INNER JOIN message_header mh ON (mh.ticket_id=t.id) " : " ").
+				
+				(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "").
+		        "GROUP BY mh.header_value HAVING mh.header_value <> '' ";
+		    $rs_imports = $db->SelectLimit($sql, -1, 0) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs_subjects ADORecordSet */
+		    
+		    while(!$rs_imports->EOF) {
+		        $hash = md5('import'.$rs_imports->fields['header_value']);
+		        $tops[$hash] = array('import',$rs_imports->fields['header_value'],$rs_imports->fields['hits']);
+		        $rs_imports->MoveNext();
+		    }
+		    
 	    }
-	    
-	    // [TODO] Temporary
-	    $sender_wheres = $wheres;
-	    $sender_wheres[] = sprintf("substring(a1.email from position('@' in a1.email)) IN ('%s')",
-	        implode("','", $domains)
-	    );
-	    
-		// [JAS]: Most common senders in work pile
-		$sql = sprintf("SELECT ".
-		    "count(*) as hits, a1.email ".
-			"FROM ticket t ".
-			"INNER JOIN team tm ON (tm.id = t.team_id) ".
-			"LEFT JOIN category cat ON (cat.id = t.category_id) ". // [TODO] Remove this and use a hash // [TODO] Optimization
-			"INNER JOIN address a1 ON (t.first_wrote_address_id=a1.id) ".
-			"INNER JOIN address a2 ON (t.last_wrote_address_id=a2.id) "
-			).
-			
-			(isset($tables['ra']) ? "INNER JOIN requester r ON (r.ticket_id=t.id)" : " ").
-			(isset($tables['ra']) ? "INNER JOIN address ra ON (ra.id=r.address_id) " : " ").
-			(isset($tables['msg']) ? "INNER JOIN message msg ON (msg.ticket_id=t.id) " : " ").
-			
-			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$sender_wheres)) : "").
-	        "GROUP BY a1.email HAVING count(*) > 1 ".
-	        "ORDER BY hits DESC ";
-
-	    $rs_senders = $db->SelectLimit($sql, $limit*2, 0) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs_senders ADORecordSet */
-	    
-	    while(!$rs_senders->EOF) {
-	        $hash = md5('sender'.$rs_senders->fields['email']);
-	        $senders[$hash] = array('sender',$rs_senders->fields['email'],$rs_senders->fields['hits']);
-	        $rs_senders->MoveNext();
-	    }
-	    
-		// [JAS]: Most common subjects in work pile
-//		$sql = sprintf("SELECT ".
-//		    "count(*) as hits, t.subject ".
-//			"FROM ticket t ".
-//			"INNER JOIN team tm ON (tm.id = t.team_id) ".
-//			"LEFT JOIN category cat ON (cat.id = t.category_id) ". // [TODO] Remove this and use a hash // [TODO] Optimization
-//			"INNER JOIN address a1 ON (t.first_wrote_address_id=a1.id) ".
-//			"INNER JOIN address a2 ON (t.last_wrote_address_id=a2.id) "
-//			).
-//			
-//			(isset($tables['ra']) ? "INNER JOIN requester r ON (r.ticket_id=t.id)" : " ").
-//			(isset($tables['ra']) ? "INNER JOIN address ra ON (ra.id=r.address_id) " : " ").
-//			(isset($tables['msg']) ? "INNER JOIN message msg ON (msg.ticket_id=t.id) " : " ").
-//			
-//			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "").
-//	        "GROUP BY t.subject HAVING count(*) > 2 ".
-//	        "ORDER BY hits DESC ";
-//		
-//	    $rs_subjects = $db->SelectLimit($sql, $limit, 0) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs_subjects ADORecordSet */
-//	    
-//	    while(!$rs_subjects->EOF) {
-//	        $hash = md5('subject'.$rs_subjects->fields['subject']);
-//	        $tops[$hash] = array('subject',$rs_subjects->fields['subject'],$rs_subjects->fields['hits']);
-//	        $rs_subjects->MoveNext();
-//	    }
-
-        $biggest = array();
-
-	    uasort($senders, array('DAO_Ticket','sortByCount'));
-        
-	    // Toss any empty subjects/senders
-//	    foreach($tops as $idx => $top) {
-//	        if(empty($top[1]))
-//	            unset($tops[$idx]);
-//	    }
-	    
-	    // Thread senders into domains
-	    foreach($senders as $hash => $sender) {
-            $domain = substr($sender[1],strpos($sender[1],'@'));
-            $domain_hash = md5('domain' . $domain);
-            if(!isset($tops[$domain_hash])) {
-//                $tops[$domain_hash] = array('domain', $domain, $sender[2]);
-	            continue; // [TODO] Temporary
-            }
-            $tops[$domain_hash][3][$hash] = $sender;
-        }
 
 	    uasort($tops, array('DAO_Ticket','sortByCount'));
         
@@ -1474,7 +1566,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 	    }
         return ($a[2] > $b[2]) ? -1 : 1;        
     }
-	
+
     static function search($params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
 		$total = -1;
@@ -1501,9 +1593,8 @@ class DAO_Ticket extends DevblocksORMHelper {
 			"t.next_action as %s, ".
 			"tm.id as %s, ".
 			"tm.name as %s, ".
-			"t.category_id as %s, ".
-			"cat.name as %s, ". // [TODO] BAD LEFT JOINS
-			"t.owner_id as %s ".
+			"t.category_id as %s ".
+//			"cat.name as %s ". // [TODO] BAD LEFT JOINS
 			"FROM ticket t ".
 			"INNER JOIN team tm ON (tm.id = t.team_id) ".
 			"LEFT JOIN category cat ON (cat.id = t.category_id) ". // [TODO] Remove this and use a hash // [TODO] Optimization
@@ -1527,15 +1618,15 @@ class DAO_Ticket extends DevblocksORMHelper {
 			    SearchFields_Ticket::TICKET_NEXT_ACTION,
 			    SearchFields_Ticket::TEAM_ID,
 			    SearchFields_Ticket::TEAM_NAME,
-			    SearchFields_Ticket::CATEGORY_ID,
-			    SearchFields_Ticket::CATEGORY_NAME,
-			    SearchFields_Ticket::TICKET_OWNER_ID
+			    SearchFields_Ticket::TICKET_CATEGORY_ID
+//			    SearchFields_Ticket::CATEGORY_NAME
 			).
 			
 			// [JAS]: Dynamic table joins
 			(isset($tables['ra']) ? "INNER JOIN requester r ON (r.ticket_id=t.id)" : " ").
 			(isset($tables['ra']) ? "INNER JOIN address ra ON (ra.id=r.address_id) " : " ").
 			(isset($tables['msg']) ? "INNER JOIN message msg ON (msg.ticket_id=t.id) " : " ").
+			(isset($tables['mh']) ? "INNER JOIN message_header mh ON (mh.ticket_id=t.id) " : " ").
 //			(isset($tables['ttt']) ? "INNER JOIN task ttk ON (ttk.ticket_id=t.id) INNER JOIN task_owner ttt ON (ttt.owner_type='T' AND ttk.is_completed=0 AND ttt.task_id=ttk.id) " : " ").
 //			(isset($tables['wtt']) ? "INNER JOIN task wtk ON (wtk.ticket_id=t.id) INNER JOIN task_owner wtt ON (wtt.owner_type='W' AND wtk.is_completed=0 AND wtt.task_id=wtk.id) " : " ").
 			
@@ -1581,14 +1672,15 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 	const TICKET_DUE_DATE = 't_due_date';
 	const TICKET_SPAM_SCORE = 't_spam_score';
 	const TICKET_SPAM_TRAINING = 't_spam_training';
-//	const TICKET_TASKS = 't_tasks';
 	const TICKET_INTERESTING_WORDS = 't_interesting_words';
 	const TICKET_NEXT_ACTION = 't_next_action';
 	const TICKET_CATEGORY_ID = 't_category_id';
-	const TICKET_OWNER_ID = 't_owner_id';
 	
 	// Message
-	const MESSAGE_CONTENT = 'msg_content';
+//	const MESSAGE_CONTENT = 'msg_content';
+	
+	const TICKET_MESSAGE_HEADER = 'mh_header_name';
+    const TICKET_MESSAGE_HEADER_VALUE = 'mh_header_value';	
 	
 	// Sender
 	const SENDER_ID = 'a1_id';
@@ -1603,14 +1695,8 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 	const TEAM_NAME = 'tm_name';
 	
 	// Category
-	const CATEGORY_ID = 'cat_id';
-	const CATEGORY_NAME = 'cat_name';
-	
-	// Tasks->Teams
-//	const TASK_TEAM_ID = 'ttt_owner_id';
-	
-	// Tasks->Workers
-//	const TASK_WORKER_ID = 'wtt_owner_id';
+//	const CATEGORY_ID = 'cat_id';
+//	const CATEGORY_NAME = 'cat_name';
 	
 	/**
 	 * @return DevblocksSearchField[]
@@ -1632,10 +1718,12 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 			SearchFields_Ticket::TICKET_INTERESTING_WORDS => new DevblocksSearchField(SearchFields_Ticket::TICKET_INTERESTING_WORDS, 't', 'interesting_words'),
 			SearchFields_Ticket::TICKET_NEXT_ACTION => new DevblocksSearchField(SearchFields_Ticket::TICKET_NEXT_ACTION, 't', 'next_action'),
 			SearchFields_Ticket::TICKET_CATEGORY_ID => new DevblocksSearchField(SearchFields_Ticket::TICKET_CATEGORY_ID, 't', 'category_id'),
-			SearchFields_Ticket::TICKET_OWNER_ID => new DevblocksSearchField(SearchFields_Ticket::TICKET_OWNER_ID, 't', 'owner_id'),
 //			SearchFields_Ticket::TICKET_TASKS => new DevblocksSearchField(SearchFields_Ticket::TICKET_TASKS, 't', 'num_tasks'),
 			
-			SearchFields_Ticket::MESSAGE_CONTENT => new DevblocksSearchField(SearchFields_Ticket::MESSAGE_CONTENT, 'msg', 'content'),
+//			SearchFields_Ticket::MESSAGE_CONTENT => new DevblocksSearchField(SearchFields_Ticket::MESSAGE_CONTENT, 'msg', 'content'),
+
+			SearchFields_Ticket::TICKET_MESSAGE_HEADER => new DevblocksSearchField(SearchFields_Ticket::TICKET_MESSAGE_HEADER, 'mh', 'header_name'),
+			SearchFields_Ticket::TICKET_MESSAGE_HEADER_VALUE => new DevblocksSearchField(SearchFields_Ticket::TICKET_MESSAGE_HEADER_VALUE, 'mh', 'header_value'),
 
 			SearchFields_Ticket::REQUESTER_ID => new DevblocksSearchField(SearchFields_Ticket::REQUESTER_ID, 'ra', 'id'),
 			SearchFields_Ticket::REQUESTER_ADDRESS => new DevblocksSearchField(SearchFields_Ticket::REQUESTER_ADDRESS, 'ra', 'email'),
@@ -1646,11 +1734,8 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 			SearchFields_Ticket::TEAM_ID => new DevblocksSearchField(SearchFields_Ticket::TEAM_ID,'tm','id'),
 			SearchFields_Ticket::TEAM_NAME => new DevblocksSearchField(SearchFields_Ticket::TEAM_NAME,'tm','name'),
 			
-			SearchFields_Ticket::CATEGORY_ID => new DevblocksSearchField(SearchFields_Ticket::CATEGORY_ID,'cat','id'),
-			SearchFields_Ticket::CATEGORY_NAME => new DevblocksSearchField(SearchFields_Ticket::CATEGORY_NAME,'cat','name'),
-			
-//			SearchFields_Ticket::TASK_TEAM_ID => new DevblocksSearchField(SearchFields_Ticket::TASK_TEAM_ID,'ttt','owner_id'),
-//			SearchFields_Ticket::TASK_WORKER_ID => new DevblocksSearchField(SearchFields_Ticket::TASK_WORKER_ID,'wtt','owner_id'),
+//			SearchFields_Ticket::CATEGORY_ID => new DevblocksSearchField(SearchFields_Ticket::CATEGORY_ID,'cat','id'),
+//			SearchFields_Ticket::CATEGORY_NAME => new DevblocksSearchField(SearchFields_Ticket::CATEGORY_NAME,'cat','name'),
 		);
 	}
 };
@@ -2326,6 +2411,18 @@ class DAO_Workflow {
 		return null;
 	}
 	
+	// [TODO] Think about a master DAO cache registry
+	// [TODO] Save cache keys as constants
+//	static function getAll($nocache=false) {
+//	    $cache = DevblocksPlatform::getCacheService();
+//	    if($nocache || false == ($teams = $cache->load("cerberus.cache.teams_all"))) {
+//    	    $teams = self::getTeams();
+//    	    $cache->save($teams, "cerberus.cache.teams_all");
+//	    }
+//	    
+//	    return $teams;
+//	}
+	
 	/**
 	 * Enter description here...
 	 *
@@ -2397,57 +2494,6 @@ class DAO_Workflow {
 			    $rs->MoveNext();
 			}
 		}
-		
-//		if($with_tasks) {
-//			$sql = sprintf("SELECT count(*) as hits, tko.owner_id as team_id ".
-//			    "FROM task tk ".
-//			    "INNER JOIN task_owner tko ON (tk.id=tko.task_id) ".
-//			    "WHERE tko.owner_id IN (%s) ".
-//			    "AND tko.owner_type = 'T' ".
-//			    "AND tk.is_completed = 0 ".
-//			    "GROUP BY tko.owner_id ",
-//			    implode(',', $ids)
-//			);
-//			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-//			
-//			while(!$rs->EOF) {
-//			    $team_id = intval($rs->fields['team_id']);
-//			    $hits = intval($rs->fields['hits']);
-//			    
-//			    if(!isset($team_totals[$team_id]))
-//			        continue;
-//			    
-//			    $team_totals[$team_id]['tasks'] = $hits;
-//			    $team_totals[0]['tasks'] += $hits;
-//			        
-//			    $rs->MoveNext();
-//			}
-//		}
-		
-//		if($with_unassigned) {
-//			$sql = sprintf("SELECT count(*) as hits, t.team_id ".
-//			    "FROM ticket t ".
-//			    "WHERE t.team_id IN (%s) ".
-//			    "AND t.is_closed = 0 ".
-//			    "AND t.num_tasks = 0 ".
-//			    "GROUP BY t.team_id ",
-//			    implode(',', $ids)
-//			);
-//			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-//			
-//			while(!$rs->EOF) {
-//			    $team_id = intval($rs->fields['team_id']);
-//			    $hits = intval($rs->fields['hits']);
-//			    
-//			    if(!isset($team_totals[$team_id]))
-//			        continue;
-//			    
-//			    $team_totals[$team_id]['unassigned'] = $hits;
-//			    $team_totals[0]['unassigned'] += $hits;
-//			        
-//			    $rs->MoveNext();
-//			}
-//		}
 		
 		return $team_totals;
 	}
@@ -2646,292 +2692,6 @@ class DAO_Workflow {
 	
 }
 
-//class DAO_Task extends DevblocksORMHelper {
-//	const ID = 'id';
-//	const TITLE = 'title';
-//	const TICKET_ID = 'ticket_id';
-//	const COMPLETED = 'is_completed';
-//	const DUE_DATE = 'due_date';
-//	const CONTENT = 'content';
-//	
-//	static private function _cacheTicketTasks($ticket_id) {
-//		$db = DevblocksPlatform::getDatabaseService();
-//		if(empty($ticket_id)) return;
-//		
-//		$sql = sprintf("SELECT count(*) as hits, min(due_date) as due_date FROM task WHERE ticket_id = %d AND is_completed = 0",
-//			$ticket_id
-//		);
-//		$row = $db->GetRow($sql);
-//		
-//  		$count = intval($row['hits']);
-//	   	$min_date = !empty($row['due_date']) ? $row['due_date'] : NULL;
-//	   	
-//		DAO_Ticket::updateTicket($ticket_id, array(
-//			DAO_Ticket::NUM_TASKS => $count,
-//			DAO_Ticket::DUE_DATE => $min_date
-//		));
-//	}
-//	
-//	static function create($fields) {
-//		$db = DevblocksPlatform::getDatabaseService();
-//		$id = $db->GenID('task_seq');
-//		
-//		$sql = sprintf("INSERT INTO task (id,ticket_id,title,due_date,is_completed,content) ".
-//			"VALUES (%d,0,'',0,0,'') ",
-//			$id
-//		);
-//		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-//		
-//		self::update($id, $fields);
-//		
-//		return $id;
-//	}
-//	
-//	static function update($id, $fields) {
-//		self::_update($id,'task',$fields);
-//		
-//		// Recache ticket num_tasks
-//		$task = DAO_Task::get($id);
-//		if(!empty($task->ticket_id)) self::_cacheTicketTasks($task->ticket_id);
-//	}
-//	
-//	static function delete($ids) {
-//	    if(!is_array($ids)) $ids = array($ids);
-//	    if(empty($ids)) return;
-//		$db = DevblocksPlatform::getDatabaseService();
-//		
-//        $task_ids = implode(',', $ids);
-//        
-//        $sql = sprintf("DELETE FROM task WHERE id IN (%s)", $task_ids); 
-//        $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-//        
-//        $sql = sprintf("DELETE FROM task_owner WHERE task_id IN (%s)", $task_ids); 
-//        $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-//		
-//		// recache ticket num_tasks
-//		// [TODO] Fix recache for multiple IDs
-////		if(!empty($task->ticket_id)) self::_cacheTicketTasks($task->ticket_id);
-//	}
-//	
-//	static function get($id) {
-//		$tasks = self::getList(array($id));
-//		if(isset($tasks[$id]))
-//			return $tasks[$id];
-//		return NULL;
-//	}
-//	
-//	static function getList($ids=array()) {
-//		$db = DevblocksPlatform::getDatabaseService();
-//		if(!is_array($ids)) $ids = array($ids);
-//		
-//		$sql = "SELECT tk.id, tk.title, tk.ticket_id, tk.due_date, tk.is_completed ".
-//			"FROM task tk ".
-//			(!empty($ids) ? sprintf("WHERE tk.id IN (%s) ", implode(',', $ids)) : " ").
-//			"ORDER BY tk.due_date ASC "
-//		;
-//		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-//		
-//		$tasks = array();
-//		
-//		while(!$rs->EOF) {
-//			$task = new Model_CerberusTask();
-//			$task->id = intval($rs->Fields('id'));
-//			$task->ticket_id = intval($rs->Fields('ticket_id'));
-//			$task->title = $rs->Fields('title');
-//			$task->due_date = $rs->Fields('due_date');
-//			$task->is_completed = intval($rs->Fields('is_completed'));
-//			$tasks[$task->id] = $task;
-//			$rs->MoveNext();
-//		}
-//		
-//		return $tasks;
-//	}
-//	
-//	// [TODO] Should be a searchDAO thing later
-//	static function getByTicket($ticket_id) {
-//		$db = DevblocksPlatform::getDatabaseService();
-//		
-//		$sql = sprintf("SELECT tk.id ".
-//			"FROM task tk ".
-//			"WHERE tk.ticket_id = %d",
-//			$ticket_id
-//		);
-//		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-//		
-//		$ids = array();
-//		
-//		while(!$rs->EOF) {
-//			$ids[] = intval($rs->Fields('id'));
-//			$rs->MoveNext();
-//		}
-//		
-//		if(empty($ids))
-//			return array();
-//			
-//		return self::getList($ids);
-//	}
-//	
-//	// [TODO] For multiple IDS at once?
-//	static function getContent($id) {
-//		$db = DevblocksPlatform::getDatabaseService();
-//		
-//		$sql = sprintf("SELECT tk.content FROM task AS tk WHERE tk.id = %d",
-//			$id
-//		);
-//		return $db->GetOne($sql);// or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-//	}
-//	
-//	static function getOwners($ids=array()) {
-//		$db = DevblocksPlatform::getDatabaseService();
-//		
-//		if(empty($ids)) return array();
-//		
-//		// [JAS]: [TODO] These should come from a cache
-//		$teams = DAO_Workflow::getTeams();
-//		$workers = DAO_Worker::getList();
-//		
-//		$sql = sprintf("SELECT tko.task_id, tko.owner_type, tko.owner_id ".
-//			"FROM task_owner AS tko ".
-//			"WHERE tko.task_id IN (%s)",
-//			implode(',', $ids)
-//		);
-//		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-//		
-//		$owners = array();
-//		
-//		while(!$rs->EOF) {
-//			$id = intval($rs->fields['task_id']);
-//			$type = $rs->fields['owner_type'];
-//			$owner_id = intval($rs->fields['owner_id']);
-//			
-//			if(!isset($owners[$id]))
-//				$owners[$id] = new Model_CerberusTaskOwners();
-//			
-//			$owner =& $owners[$id]; /* @var $owners Model_CerberusTaskOwners */
-//
-//			if($type == Enum_CerberusTaskOwnerType::TEAM) {
-//				$owner->teams[$owner_id] = $teams[$owner_id];
-//			} else {
-//				$owner->workers[$owner_id] = $workers[$owner_id];
-//			}
-//			
-//			$rs->MoveNext();
-//		}
-//		
-//		return $owners;
-//	}
-//	
-//	function setOwners($task_id,$team_ids=array(),$worker_ids=array(),$replace=false) {
-//		$db = DevblocksPlatform::getDatabaseService();
-//		
-//		if($replace) {
-//			$sql = sprintf("DELETE FROM task_owner WHERE task_id = %d",
-//				$task_id
-//			);
-//			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-//		}
-//		
-//		// Teams
-//		if(!empty($team_ids)) {
-//			if(is_array($team_ids))
-//			foreach($team_ids as $team_id) {
-//				$db->Replace(
-//					'task_owner',
-//					array('task_id' => $task_id,'owner_type' => $db->qstr(Enum_CerberusTaskOwnerType::TEAM),'owner_id' => $team_id),
-//					array('task_id','owner_type','owner_id'),
-//					false
-//				);
-//			}
-//		}
-//		
-//		// Workers
-//		if(!empty($worker_ids)) {
-//			if(is_array($worker_ids))
-//			foreach($worker_ids as $worker_id) {
-//				$db->Replace(
-//					'task_owner',
-//					array('task_id' => $task_id,'owner_type' => $db->qstr(Enum_CerberusTaskOwnerType::WORKER),'owner_id' => $worker_id),
-//					array('task_id','owner_type','owner_id'),
-//					false
-//				);
-//			}
-//		}
-//	}
-//	
-//    /**
-//     * Enter description here...
-//     *
-//     * @param DevblocksSearchCriteria[] $params
-//     * @param integer $limit
-//     * @param integer $page
-//     * @param string $sortBy
-//     * @param boolean $sortAsc
-//     * @param boolean $withCounts
-//     * @return array
-//     */
-//    static function search($params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
-//		$db = DevblocksPlatform::getDatabaseService();
-//
-//        list($tables,$wheres) = parent::_parseSearchParams($params, SearchFields_Task::getFields());
-//		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
-//		
-//		$sql = sprintf("SELECT ".
-//			"tk.id as %s, ".
-//			"tk.title as %s ".
-//			"FROM task tk ",
-////			"INNER JOIN team tm ON (tm.id = t.team_id) ".
-//			    SearchFields_Task::ID,
-//			    SearchFields_Task::TITLE
-//			).
-//			
-//			// [JAS]: Dynamic table joins
-////			(isset($tables['ra']) ? "INNER JOIN requester r ON (r.ticket_id=t.id)" : " ").
-//			
-//			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "").
-//			(!empty($sortBy) ? sprintf("ORDER BY %s %s",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : "")
-//		;
-//		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-//		
-//		$results = array();
-//		while(!$rs->EOF) {
-//			$result = array();
-//			foreach($rs->fields as $f => $v) {
-//				$result[$f] = $v;
-//			}
-//			$ticket_id = intval($rs->fields[SearchFields_Task::ID]);
-//			$results[$ticket_id] = $result;
-//			$rs->MoveNext();
-//		}
-//
-//		// [JAS]: Count all
-//		$total = -1;
-//		if($withCounts) {
-//		    $rs = $db->Execute($sql);
-//		    $total = $rs->RecordCount();
-//		}
-//		
-//		return array($results,$total);
-//    }
-//};
-//
-//class SearchFields_Task implements IDevblocksSearchFields {
-//	// Task
-//	const ID = 'tk_id';
-//	const TITLE = 'tk_title';
-//	const TICKET_ID = 'tk_ticket_id';
-//	
-//	/**
-//	 * @return DevblocksSearchField[]
-//	 */
-//	static function getFields() {
-//		return array(
-//			SearchFields_Task::ID => new DevblocksSearchField(SearchFields_Task::ID, 'tk', 'id'),
-//			SearchFields_Task::TITLE => new DevblocksSearchField(SearchFields_Task::TITLE, 'tk', 'title'),
-//			SearchFields_Task::TICKET_ID => new DevblocksSearchField(SearchFields_Task::TICKET_ID, 'tk', 'ticket_id'),
-//		);
-//	}
-//};	
-	
 class DAO_Category extends DevblocksORMHelper {
 	
     const ID = 'id';
@@ -3270,28 +3030,6 @@ class DAO_Mail {
 		return DAO_Contact::getAddresses($ids);
 	}
 	
-//	static function sendAutoresponse($ticket_id, $type) {
-//		$mailMgr = DevblocksPlatform::getMailService();
-//		$ticket = DAO_Ticket::getTicket($ticket_id);  /* @var $ticket CerberusTicket */
-//		$mailbox = DAO_Mail::getMailbox($ticket->mailbox_id);  /* @var $mailbox CerberusMailbox */
-//		
-//		$body = '';
-//		switch ($type) {
-//			case 'new':
-//				$body = DAO_Mail::getTokenizedText($ticket_id, $mailbox->new_autoresponse);
-//				break;
-//			case 'closed':
-//				$body = DAO_Mail::getTokenizedText($ticket_id, $mailbox->close_autoresponse);
-//				break;
-//		}
-//		if (0 == strcmp($body, '')) return 0; // if there's no body, we must not need to send an autoresponse.
-//		
-//		$headers = DAO_Mail::getHeaders(CerberusMessageType::AUTORESPONSE, $ticket_id);
-//		
-//		$mail_result =& $mailMgr->send('mail.webgroupmedia.com', $headers['x-rcpt'], $headers, $body); // DDH: TODO: this needs to pull the servername from a config, not hardcoded.
-//		if ($mail_result !== true) die("Error message was: " . $mail_result->getMessage());
-//	}
-	
 	static function getTokenizedText($ticket_id, $source_text) {
 		// TODO: actually implement this function...
 		return $source_text;
@@ -3299,11 +3037,7 @@ class DAO_Mail {
 
 	// Pop3 Accounts
 	
-	// [TODO] Allow custom ports
 	static function createPop3Account($fields) {
-//		if(empty($nickname) || empty($host) || empty($username) || empty($password)) 
-//			return null;
-			
 		$db = DevblocksPlatform::getDatabaseService();
 		$newId = $db->GenID('generic_seq');
 		
@@ -3798,7 +3532,16 @@ class DAO_WorkerPref extends DevblocksORMHelper {
     
 	static function set($worker_id, $key, $value) {
 		$db = DevblocksPlatform::getDatabaseService();
-		$db->Replace('worker_pref',array('worker_id'=>$worker_id,'setting'=>$key,'value'=>$value),array('worker_id','setting'),true);
+		$result = $db->Replace(
+		    'worker_pref',
+		    array(
+		        'worker_id'=>$worker_id,
+		        'setting'=>$key,
+		        'value'=>$db->qstr($value) // BlobEncode/UpdateBlob?
+		    ),
+		    array('worker_id','setting'),
+		    true
+		);
 	}
 	
 	static function get($worker_id, $key, $default=null) {
@@ -4021,12 +3764,12 @@ class DAO_TeamRoutingRule extends DevblocksORMHelper {
 	}
 	
 	public static function deleteByMoveCodes($codes) {
-	    if(!is_array($$codes)) $codes = array($codes);
+	    if(!is_array($codes)) $codes = array($codes);
 	    $db = DevblocksPlatform::getDatabaseService();
 	    
-	    $code_list = implode(',', $codes);
+	    $code_list = implode("','", $codes);
 	    
-	    $sql = sprintf("UPDATE team_routing_rule SET do_move = '' WHERE do_move IN (%s)", $code_list);
+	    $sql = sprintf("UPDATE team_routing_rule SET do_move = '' WHERE do_move IN ('%s')", $code_list);
 	    $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 	}
 	

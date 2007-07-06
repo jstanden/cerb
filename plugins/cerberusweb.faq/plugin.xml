@@ -86,6 +86,7 @@
 	
 		<!-- Display Modules -->
 		
+		<!-- 
 		<extension point="cerberusweb.display.module">
 			<id>faq.display.module.faq</id>
 			<name>Fetch &amp; Retrieve Display Module</name>
@@ -98,6 +99,7 @@
 				<param key="icon" value="images/document.gif" />
 			</params>
 		</extension>
+		-->
 
 		<!-- Usermeet Tools -->
 		

@@ -1,6 +1,6 @@
 <table cellpadding="0" cellspacing="0" width="100%" style="padding-bottom:5px;">
 <tr>
-	<td style="padding-right:5px;" width="0%" nowrap="nowrap"><h1>Dashboards</h1></td>
+	<td style="padding-right:5px;" width="0%" nowrap="nowrap"><h1>Organize</h1></td>
 	<td width="0%" nowrap="nowrap">
 		{include file="file:$path/tickets/menu.tpl.php"}
 	</td>
@@ -25,11 +25,6 @@
       <td nowrap="nowrap" width="0%" valign="top">
 
       {include file="file:$path/tickets/dashboard_menu.tpl.php"}
-      
-      {* Only show if on 'my' dashboard *}
-      {if empty($active_dashboard_id)}
-      {include file="file:$path/tickets/teamwork/getwork.tpl.php"}
-      {/if}
       
       </td>
       <td nowrap="nowrap" width="0%"><img src="{devblocks_url}images/c=resource&p=cerberusweb.core&f=spacer.gif{/devblocks_url}" width="5" height="1"></td>

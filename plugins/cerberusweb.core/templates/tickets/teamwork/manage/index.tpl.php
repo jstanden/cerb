@@ -6,7 +6,7 @@
 <input type="hidden" name="team_id" value="{$team->id}">
 
 <div class="block">
-<h2>'{$team->name}' Preferences</h2>
+<h2>Preferences</h2>
 <br>
 
 	<div style="margin-left:20px">
@@ -14,10 +14,34 @@
 	<br>
 	 -->
 	
-	<b>E-mail Signature:</b><br>
+	<h3>Anti-Spam</h3>
+	
+	When new messages have spam probability 
+	<select name="spam_threshold">
+		<option value="80" selected>80%</option>
+		<option value="85">85%</option>
+		<option value="90">90%</option>
+		<option value="95">95%</option>
+		<option value="99">99%</option>
+	</select>
+	 or higher:<br>
+	<blockquote style="margin-top:0px;">
+		<label><input type="radio" name="spam_action" value="0" checked> Do nothing</label><br>
+		<label><input type="radio" name="spam_action" value="1"> Delete</label><br>
+		<label><input type="radio" name="spam_action" value="2"> Move to bucket for review: </label>
+		<select name="spam_action_moveto" onclick="this.form.spam_action[2].checked=true;">
+			{foreach from=$categories item=bucket key=bucket_id}
+				<option value="c{$bucket_id}">{$bucket->name}</option>
+			{/foreach}
+		</select>
+	</blockquote>
+	
+	<h3>E-mail</h3>
+	
+	<b>Team E-mail Signature:</b><br>
 	<div style="display:none">
 		{assign var=default_signature value=$settings->get('default_signature')}
-		{$default_signature}	
+		<textarea name="default_signature">{$default_signature}</textarea>	
 	</div>
 	<textarea name="signature" rows="4" cols="76">{$team->signature}</textarea><br>
 		E-mail Tokens: 
@@ -29,100 +53,16 @@
 				<option value="#title#">#title#</option>
 			</optgroup>
 		</select>
+		
+		{if !empty($default_signature)}
+		<button type="button" onclick="this.form.signature.value=this.form.default_signature.value;">set to default</button>
+		{/if}
 	<br> 
 	<br>
-	</div>
-
-<br>
-
-<h2>'{$team->name}' Buckets</h2>
-<br>
-
-	<div style="margin-left:20px">
-	{if !empty($categories)}
-	<table cellspacing="2" cellpadding="0">
-		<tr>
-			<td><b>Bucket Name</b></td>
-			<!-- <td><b>Access</b></td> -->
-			<td><b>Remove</b></td>
-		</tr>
-		{foreach from=$categories item=cat key=cat_id name=cats}
-			<tr>
-				<td>
-					<input type="hidden" name="ids[]" value="{$cat->id}">
-					<input type="text" name="names[]" value="{$cat->name}" size="35">
-				</td>
-				<!-- 
-				<td>
-					<select name="access[]">
-						<option value="">Private</option>
-						<option value="">Shared</option>
-					</select>
-				</td>
-				 -->
-				<td align="center">
-					<input type="checkbox" name="deletes[]" value="{$cat_id}">
-				</td>
-			</tr>
-		{/foreach}
-	</table>
-	{else}
-		<br>
-		You haven't set up any buckets yet.  Buckets are containers which allow you to quickly organize the '{$team->name}' team workload.<br>
-		<br>
-		Example buckets:<br>
-		<ul style="margin-top:0px;">
-			<li>Receipts</li>
-			<li>Newsletters</li>
-			<li>Orders</li>
-		</ul>
-	{/if}
-	<br>
 	
-	<h3>Add Buckets</h3>
-	<b>Enter bucket names:</b> (one label per line)<br>
-	<textarea rows="5" cols="45" name="add"></textarea><br>
-	</div>
-<br>
-
-<h2>'{$team->name}' Members</h2>
-<br>
-
-	<div style="margin-left:20px">
-	<table cellspacing="2" cellpadding="0">
-		<tr>
-			<td><b>Member</b></td>
-			<td align="center"><b>Remove</b></td>
-		</tr>
+	<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
 	
-		{foreach from=$members item=member key=member_id name=members}
-			<tr>
-				<td>
-					<input type="hidden" name="member_ids[]" value="{$member->id}">
-					{$member->getName()}{if !empty($member->title)} ({$member->title}){/if}
-				</td>
-				<td align="center">
-					<label><input type="checkbox" name="member_deletes[]" value="{$member->id}"></label>
-				</td>
-			</tr>
-		{/foreach}
-	</table>
-	
-	{if !empty($workers)}
-	<br>
-	<h3>Add Members</h3>
-	<select name="member_adds[]" size="5" multiple="multiple">
-		{foreach from=$workers item=worker name=workers}
-			<option value="{$worker->id}">{$worker->getName()}{if !empty($worker->title)} ({$worker->title}){/if}</option>		
-		{/foreach}
-	</select><br>
-	(Tip: Hold the <i>Control</i> or <i>Option</i> key to select multiple members)<br>
-	{/if}
 	</div>
-<br>
-
-<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
 </div>
-<br>
-	
+
 </form>

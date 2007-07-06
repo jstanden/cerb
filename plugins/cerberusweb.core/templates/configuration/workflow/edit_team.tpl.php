@@ -6,7 +6,7 @@
 	<tr>
 		<td colspan="2">
 			{if empty($team->id)}
-			<h2>Add Team</h2>
+			<h2>Add Group</h2>
 			{else}
 			<h2>Modify '{$team->name}'</h2>
 			{/if}

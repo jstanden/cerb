@@ -134,10 +134,12 @@ class CerberusBayes {
 		if(empty($first_message) || !($first_message instanceOf CerberusMessage)) 
 		    return FALSE;
 		
+		$headers = DAO_MessageHeader::getAll($first_message->id);
+		    
 		// Pass text to analyze() to get back interesting words
-		$content = (!empty($first_message->headers['subject']) ? $first_message->headers['subject'].' ' : '').
+		$content = (!empty($headers['subject']) ? $headers['subject'].' ' : '').
 		    $first_message->getContent();
-		
+		    
 	    $content = substr($content, 0, strrpos(substr($content, 0, self::MAX_BODY_LENGTH), ' '));
 		
 		$words = self::processText($content);

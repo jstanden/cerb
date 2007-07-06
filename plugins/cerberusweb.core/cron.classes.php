@@ -11,13 +11,13 @@ class ParseCron extends CerberusCronPageExtension {
         $runtime = microtime(true);
         	
         echo "<BR>";
-        flush();
+//        flush();
 
-        $total = 50;
+        $total = 100;
         
 	    $dir = opendir(APP_MAIL_PATH . 'new');
 	    
-	    while($file = readdir($dir)) {
+	    while(($file = readdir($dir)) && $total > 0) {
 	        $full_filename = APP_MAIL_PATH . 'new' . DIRECTORY_SEPARATOR . $file;
 
 	        if($file == '.' || $file == '..' || $file == '.svn')
@@ -26,7 +26,7 @@ class ParseCron extends CerberusCronPageExtension {
 	        if (is_dir($full_filename)) {
 	            $subdir = opendir($full_filename);
 
-	            while($subfile = readdir($subdir)) {
+	            while(($subfile = readdir($subdir)) && $total > 0) {
 	                $sub_filename = $full_filename . DIRECTORY_SEPARATOR . $subfile;
 	                
 	                if($subfile == '.' || $subfile == '..' || is_dir($sub_filename))
@@ -36,7 +36,7 @@ class ParseCron extends CerberusCronPageExtension {
 	                rename($sub_filename, $parsefile);
 	                    
 			        $this->_parseFile($parsefile);
-			        if(--$total <= 0) break;
+			        $total--;
 	            }
 	            
 	            @closedir($subdir);
@@ -45,9 +45,10 @@ class ParseCron extends CerberusCronPageExtension {
                 $parsefile = APP_MAIL_PATH . 'fail' . DIRECTORY_SEPARATOR . $file;
                 rename($full_filename, $parsefile);
 		        $this->_parseFile($parsefile);
-		        if(--$total <= 0) break;
+		        $total--;
 	        }
-            
+	        
+	        if($total % 10) flush();
 	    }
 	    
 	    @closedir($dir);
@@ -59,7 +60,7 @@ class ParseCron extends CerberusCronPageExtension {
         $fileparts = pathinfo($full_filename);
         echo "Reading ",$fileparts['basename'],"...<br>";
         
-        echo "Decoding... "; flush();
+        echo "Decoding... "; //flush();
         $time = microtime(true);
         
         $mail = mailparse_msg_parse_file($full_filename);
@@ -132,7 +133,7 @@ class ParseCron extends CerberusCronPageExtension {
 		}
 		
         $time = microtime(true) - $time;
-        echo "decoded! (",sprintf("%d",($time*1000))," ms)<br>"; flush();
+        echo "decoded! (",sprintf("%d",($time*1000))," ms)<br>"; //flush();
 		
 //	    echo "<b>Plaintext:</b> ", $message->body,"<BR>";
 //	    echo "<BR>";
@@ -143,7 +144,7 @@ class ParseCron extends CerberusCronPageExtension {
         
 	    mailparse_msg_free($mail);
 
-        echo "Parsing... ";flush();
+        echo "Parsing... ";//flush();
         $time = microtime(true);
         $ticket_id = CerberusParser::parseMessage($message);
         $time = microtime(true) - $time;
@@ -152,7 +153,7 @@ class ParseCron extends CerberusCronPageExtension {
         unlink($full_filename);
 
 		echo "<hr>";
-		flush();
+//		flush();
     }
     
     function configure($instance) {
@@ -170,28 +171,43 @@ class MaintCron extends CerberusCronPageExtension {
     function run() {
         @ini_set('memory_limit','64M');
         
-        $purged = 0;
+        $db = DevblocksPlatform::getDatabaseService();
 
+        // Purge Deleted Content
+        $purged = 0;
+        $max_purges = 2500; // max per maint run // [TODO] Make this configurable from job
+        
         do {	    
-		    list($tickets, $tickets_count) = DAO_Ticket::search(array(
+		    list($tickets, $null) = DAO_Ticket::search(array(
 		            new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,'=',1)
 		        ),
 		        250,
 		        0,
 		        SearchFields_Ticket::TICKET_LAST_WROTE,
 		        0,
-		        true
+		        false
 		    );
 	
-		    $purged += count($tickets);
+		    if(!empty($tickets)) {
+			    $purged += count($tickets);
+			    DAO_Ticket::delete(array_keys($tickets));
+		    }
 		    
-		    DAO_Ticket::delete(array_keys($tickets));
-        } while($tickets_count);
+        } while(!empty($tickets) && ($purged < $max_purges));
 	    
         echo "Deleted ", $purged, " tickets!<br>";
         
+        // Nuke orphaned words from the Bayes index
+	    // [TODO] Make this configurable from job
+	    $sql = "DELETE FROM bayes_words WHERE nonspam + spam < 2"; // only 1 occurrence
+	    $db->Execute($sql);
+        
 	    // [TODO] After deletion, check for any leftover NULL rows and delete them
-	    // [TODO] Optimize/Vaccuum?
+
+	    // Optimize/Vaccuum
+	    // [TODO] Make this configurable from job
+	    $perf = NewPerfMonitor($db); 
+//	    $perf->optimizeDatabase();
     }
     
     function configure($instance) {

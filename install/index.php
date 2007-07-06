@@ -9,8 +9,6 @@ require_once(DEVBLOCKS_PATH . 'Devblocks.class.php');
 require_once(APP_PATH . '/api/Application.class.php');
 require_once(APP_PATH . '/install/classes.php');
 
-require_once(DEVBLOCKS_PATH . 'api/Patch.php'); // [TODO] Temporary
-
 DevblocksPlatform::getCacheService()->clean();
 
 // DevblocksPlatform::init() workaround 
@@ -48,9 +46,9 @@ define('TOTAL_STEPS', 13);
  */
 if(empty($step)) $step = STEP_ENVIRONMENT;
 
-@chmod(DEVBLOCKS_PATH . 'tmp/', 0664);
-@chmod(DEVBLOCKS_PATH . 'tmp/templates_c/', 0664);
-@chmod(DEVBLOCKS_PATH . 'tmp/cache/', 0664);
+@chmod(DEVBLOCKS_PATH . 'tmp/', 0774);
+@chmod(DEVBLOCKS_PATH . 'tmp/templates_c/', 0774);
+@chmod(DEVBLOCKS_PATH . 'tmp/cache/', 0774);
 
 // Make sure the temporary directories of Devblocks are writeable.
 if(!is_writeable(DEVBLOCKS_PATH . "tmp/")) {
@@ -65,10 +63,10 @@ if(!is_writeable(DEVBLOCKS_PATH . "tmp/cache/")) {
 	die(realpath(DEVBLOCKS_PATH . "tmp/cache/") . " is not writeable by the webserver.  Please adjust permissions and reload this page.");
 }
 
-@chmod(APP_PATH . '/storage/', 0664);
-@chmod(APP_PATH . '/storage/attachments/', 0664);
-@chmod(APP_PATH . '/storage/mail/new/', 0664);
-@chmod(APP_PATH . '/storage/mail/fail/', 0664);
+@chmod(APP_PATH . '/storage/', 0774);
+@chmod(APP_PATH . '/storage/attachments/', 0774);
+@chmod(APP_PATH . '/storage/mail/new/', 0774);
+@chmod(APP_PATH . '/storage/mail/fail/', 0774);
 
 if(!is_writeable(APP_PATH . "/storage/")) {
 	die(realpath(APP_PATH . "/storage/") ." is not writeable by the webserver.  Please adjust permissions and reload this page.");
@@ -709,7 +707,7 @@ switch($step) {
 				break;
 				
 			default: // first time
-				$tpl->assign('teams_str', "General\n");
+				$tpl->assign('teams_str', "Dispatch\n");
 				$tpl->assign('template', 'steps/step_workflow.tpl.php');
 				break;
 		}

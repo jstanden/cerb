@@ -21,11 +21,6 @@
 	<!-- Event Points -->
 
 	<event_points>
-		<event id="ticket.assigned">
-			<name>Ticket Assigned</name>
-			<param key="ticket_id" />
-			<param key="owner_id" />
-		</event>
 		<event id="ticket.moved">
 			<name>Ticket Moved</name>
 			<param key="ticket_ids" />
@@ -74,6 +69,17 @@
 			<class>
 				<file>classes.php</file>
 				<name>ChTestsController</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
+		<extension point="devblocks.controller">
+			<id>core.controller.update</id>
+			<name>Update/Patch Controller</name>
+			<class>
+				<file>classes.php</file>
+				<name>ChUpdateController</name>
 			</class>
 			<params>
 			</params>

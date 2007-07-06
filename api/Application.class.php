@@ -1,5 +1,5 @@
 <?php
-define("APP_BUILD", 179);
+define("APP_BUILD", 183);
 define("APP_MAIL_PATH", realpath(APP_PATH . '/storage/mail') . DIRECTORY_SEPARATOR);
 
 include_once(APP_PATH . "/api/DAO.class.php");
@@ -449,7 +449,7 @@ class CerberusApplication extends DevblocksApplication {
 						break;
 				}
 			}
-		} while(null != DAO_Ticket::getTicketByMask($mask));
+		} while(null != DAO_Ticket::getTicketIdByMask($mask));
 		
 //		echo "Generated unique mask: ",$mask,"<BR>";
 		
@@ -495,8 +495,7 @@ class CerberusApplication extends DevblocksApplication {
 			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_CREATED_DATE,$translate->_('ticket.created')),
 			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_UPDATED_DATE,$translate->_('ticket.updated')),
 			new CerberusDashboardViewColumn(SearchFields_Ticket::TEAM_NAME,$translate->_('common.team')),
-			new CerberusDashboardViewColumn(SearchFields_Ticket::CATEGORY_NAME,$translate->_('common.bucket')),
-			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_OWNER_ID,$translate->_('ticket.owner')),
+			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_CATEGORY_ID,$translate->_('common.bucket')),
 			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_DUE_DATE,$translate->_('ticket.due')),
 			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_SPAM_SCORE,$translate->_('ticket.spam_score')),
 			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_NEXT_ACTION,$translate->_('ticket.next_action')),

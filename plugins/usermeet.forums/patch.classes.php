@@ -16,7 +16,7 @@ class UmForumsPatchContainer extends DevblocksPatchContainerExtension {
 		
 		if(is_array($revisions))
 		foreach($revisions as $rev) {
-			$this->registerPatch(new CerberusPatch('usermeet.forums',$rev,$this));
+			$this->registerPatch(new DevblocksPatch('usermeet.forums',$rev,$this));
 		}
 	}
 

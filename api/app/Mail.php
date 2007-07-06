@@ -37,16 +37,17 @@ class CerberusMail {
 	    // properties
 	    @$type = $properties['type'];
 	    @$message_id = $properties['message_id'];
-	    @$content = $properties['content'];
+	    @$content =& $properties['content'];
 	    @$files = $properties['files'];
 	    
 		$message = DAO_Ticket::getMessage($message_id);
+        $headers = DAO_MessageHeader::getAll($message_id);		
 		$ticket_id = $message->ticket_id;
 		$ticket = DAO_Ticket::getTicket($ticket_id);
 		$requesters = DAO_Ticket::getRequestersByTicket($ticket_id);
 
 		// References
-		if(!empty($message) && false !== ($in_reply_to = $message->headers['message-id'])) {
+		if(!empty($message) && false !== ($in_reply_to = $headers['message-id'])) {
 		    $headers['References'] = $in_reply_to;
 		    $headers['In-Reply-To'] = $in_reply_to;
 		}
@@ -118,8 +119,22 @@ class CerberusMail {
 			$mail->send($to, $headers, $content);
 		}
 		
-		// [TODO] Include real address_id
-		$message_id = DAO_Ticket::createMessage($ticket_id,$type,time(),1,self::sanitizeHeaders($headers),$content);
+	    $fields = array(
+	        DAO_Message::TICKET_ID => $ticket_id,
+	        DAO_Message::MESSAGE_TYPE => $type,
+	        DAO_Message::CREATED_DATE => time(),
+	        DAO_Message::ADDRESS_ID => 0 // [TODO] Real sender id
+	    );
+		$message_id = DAO_Message::create($fields);
+	    
+		// Content
+	    DAO_MessageContent::update($message_id, $content);
+	    
+	    // Headers
+	    $sanitizedHeaders = self::sanitizeHeaders($headers);
+	    foreach($sanitizedHeaders as $hk => $hv) {
+	        DAO_MessageHeader::update($message_id, $ticket_id, $hk, $hv);
+	    }
 
 //		// if this message was submitted with attachments, store them in the filestore and link them in the db.
 		if (is_array($files) && !empty($files)) {

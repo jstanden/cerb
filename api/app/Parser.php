@@ -79,8 +79,8 @@ class CerberusParser {
 		if(empty($from) || !is_array($from))
 			return false;
 		
-		$fromAddress = $from[0]->mailbox.'@'.$from[0]->host;
-		$fromPersonal = $from[0]->personal;
+		@$fromAddress = $from[0]->mailbox.'@'.$from[0]->host;
+		@$fromPersonal = $from[0]->personal;
 		$fromAddressId = DAO_Contact::lookupAddress($fromAddress, true); 
 		//DAO_Contact::createAddress($fromAddress, $fromPersonal);
 
@@ -92,12 +92,12 @@ class CerberusParser {
 		}
 		
 		// Message Id / References / In-Reply-To
-		$sInReplyTo = @$headers['in-reply-to'];
-		$sMessageId = @$headers['message-id'];
+		@$sInReplyTo = $headers['in-reply-to'];
+		@$sMessageId = $headers['message-id'];
 //		$sReferences = @$headers['references'];
 
-        $importNew = @$headers['x-cerberusnew'];
-        $importAppend = @$headers['x-cerberusappendto'];
+        @$importNew = $headers['x-cerberusnew'];
+        @$importAppend = $headers['x-cerberusappendto'];
 
 		// [JAS] [TODO] References header may contain multiple message-ids to find
 //		if(!empty($sReferences) || !empty($sInReplyTo)) {
@@ -148,14 +148,14 @@ class CerberusParser {
                     
                 if(!empty($importSpamTraining))
                     $enumSpamTraining = $importSpamTraining;
-                    
-                // [TODO] Mailbox ID/Name mapping to Teams/Categories
             }
             
             if(!empty($importAppend)) {
-                $appendTo = DAO_Ticket::getTicketByMask($importAppend);
-                $id = $appendTo->id;
-                if(!empty($id)) $bIsNew = false;
+                $appendTo = DAO_Ticket::getTicketIdByMask($importAppend);
+                if(!empty($appendTo)) {
+                    $id = $appendTo;
+                    $bIsNew = false;
+                }
 //                echo "IMPORT DETECTED: Appending to existing ",$importAppend," (",$id,")<br>";
             }
         }
@@ -172,7 +172,7 @@ class CerberusParser {
 				DAO_Ticket::LAST_WROTE_ID => intval($fromAddressId),
 				DAO_Ticket::CREATED_DATE => $iDate,
 				DAO_Ticket::UPDATED_DATE => $iDate,
-				DAO_Ticket::TEAM_ID => intval($team_id),
+				DAO_Ticket::TEAM_ID => intval($team_id)
 			);
 			$id = DAO_Ticket::createTicket($fields);
 
@@ -193,24 +193,48 @@ class CerberusParser {
 		$settings = CerberusSettings::getInstance();
 		$attachment_path = APP_PATH . '/storage/attachments/';
 		
-		// [TODO] Move createMessage to DAO_Message and fix ->create($fields)
-		
-		if(!empty($message->body)) {
-			$email_id = DAO_Ticket::createMessage($id,CerberusMessageType::EMAIL,$iDate,$fromAddressId,$headers,$message->body);
-
-		} else { // generate the plaintext part
-			if(!empty($message->htmlbody)) {
-			    $body = CerberusApplication::stripHTML($message->htmlbody);
-				$email_id = DAO_Ticket::createMessage($id,CerberusMessageType::EMAIL,$iDate,$fromAddressId,$headers,$body);
-				unset($body);
+		if(empty($message->body) && !empty($message->htmlbody)) { // generate the plaintext part
+	        $fields = array(
+	            DAO_Message::TICKET_ID => $id,
+	            DAO_Message::MESSAGE_TYPE => CerberusMessageType::EMAIL,
+	            DAO_Message::CREATED_DATE => $iDate,
+	            DAO_Message::ADDRESS_ID => $fromAddressId
+	        );
+		    $email_id = DAO_Message::create($fields);
+		    
+		    // Content
+		    $body = CerberusApplication::stripHTML($message->htmlbody);
+		    DAO_MessageContent::update($email_id, $body);
+			
+		    // Headers
+			foreach($headers as $hk => $hv) {
+			    DAO_MessageHeader::update($email_id, $id, $hk, $hv);
+			}
+		    
+			unset($body);
+		} else { // Insert the plaintext body (even blank)
+	        $fields = array(
+	            DAO_Message::TICKET_ID => $id,
+	            DAO_Message::MESSAGE_TYPE => CerberusMessageType::EMAIL,
+	            DAO_Message::CREATED_DATE => $iDate,
+	            DAO_Message::ADDRESS_ID => $fromAddressId
+	        );
+			$email_id = DAO_Message::create($fields);
+			
+			// Content
+			DAO_MessageContent::update($email_id, $message->body);
+			
+			// Headers
+			foreach($headers as $hk => $hv) {
+			    DAO_MessageHeader::update($email_id, $id, $hk, $hv);
 			}
 		}
 		
 		if(!empty($email_id)) {
-		    // [TODO] Clean up (add to create)
-			DAO_Message::update($email_id,array(
-			    DAO_Message::MESSAGE_ID => $sMessageId
-			));
+		    // No longer needed (it's in the message_header table)
+//			DAO_Message::update($email_id,array(
+//			    DAO_Message::MESSAGE_ID => $sMessageId
+//			));
 		    
 			foreach ($message->files as $filename => $file) { /* @var $file ParserFile */
 			    $fields = array(
@@ -262,10 +286,13 @@ class CerberusParser {
 		
 		unset($message);
 		
-		DAO_Ticket::updateTicket($id,array(
-		    DAO_Ticket::UPDATED_DATE => time(),
-		    DAO_Ticket::IS_CLOSED => 0
-		));
+		// Re-open and update our date on new replies
+		if(!$bIsNew && empty($importAppend)) {
+			DAO_Ticket::updateTicket($id,array(
+			    DAO_Ticket::UPDATED_DATE => time(),
+			    DAO_Ticket::IS_CLOSED => 0
+			));
+		}
 		
 //		$ticket = DAO_Ticket::getTicket($id);
 		return $id;

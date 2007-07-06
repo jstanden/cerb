@@ -400,18 +400,6 @@ var cAjaxCalls = function() {
 		});
 	}
 	
-	this.viewAssignTicket = function(view_id, ticket_id, owner_id) {
-		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=tickets&a=takeTicket&ticket_id='+ticket_id+'&owner_id='+owner_id, {
-				success: function(o) {
-					var id = o.argument.id;
-					var caller = o.argument.caller;
-					caller.getRefresh(id);
-				},
-				failure: function(o) {},
-				argument:{caller:this,id:view_id}
-		});	
-	}
-	
 	this.viewCloseTickets = function(view_id,mode) {
 		var formName = 'viewForm'+view_id;
 		var viewForm = document.getElementById(formName);
