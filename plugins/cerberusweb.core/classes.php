@@ -118,6 +118,7 @@ class ChPageController extends DevblocksControllerExtension {
 		if(!empty($visit) && !is_null($visit->getWorker())) {
         	$worker = $visit->getWorker();
 			$tour_enabled = DAO_WorkerPref::get($worker->id, 'assist_mode');
+			$tour_enabled = ($tour_enabled===false) ? 1 : $tour_enabled;
 		}
 		$tpl->assign('tour_enabled', $tour_enabled);
 		
