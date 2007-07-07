@@ -1,9 +1,15 @@
 <IfModule mod_rewrite.c>
 RewriteEngine on
-
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule . index.php [L]
-IndexIgnore */*
+
+RewriteRule ^(.*/)?\.svn(/|$) - [F,L]
+RewriteRule ^(.*/)?api(/|$) - [F,L]
+RewriteRule ^(.*/)?libs(/|$) - [F,L]
+RewriteRule ^(.*/)?plugins(/|$) - [F,L]
+RewriteRule ^(.*/)?storage(/|$) - [F,L]
+RewriteRule ^(.*/)?templates(/|$) - [F,L]
 </IfModule>
 
+Options -Indexes
