@@ -26,17 +26,22 @@ class ParseCron extends CerberusCronPageExtension {
 	    $subdirs[] = $mailDir; // Add our root directory last
 
 	    foreach($subdirs as $subdir) {
-	        $files = $this->scanDirMessages($subdir);
-	        
-	        foreach($files as $file) {
-	            $filePart = basename($file);
-                $parseFile = APP_MAIL_PATH . 'fail' . DIRECTORY_SEPARATOR . $filePart;
-                rename($file, $parseFile);
-		        $this->_parseFile($parseFile);
-				flush();
-		        if(--$total <= 0) break;
-			}
-			if($total <= 0) break;
+	    	if(is_writable($subdir)) {
+		        $files = $this->scanDirMessages($subdir);
+		        
+		        foreach($files as $file) {
+		            $filePart = basename($file);
+	                $parseFile = APP_MAIL_PATH . 'fail' . DIRECTORY_SEPARATOR . $filePart;
+	                rename($file, $parseFile);
+			        $this->_parseFile($parseFile);
+					flush();
+			        if(--$total <= 0) break;
+				}
+				if($total <= 0) break;
+	    	}
+	    	else {
+	    		echo 'Write permission error, unable parse messages inside: '. $subdir. '...skipping<br>';
+	    	}
 	    }
 	    
 	    unset($files);
