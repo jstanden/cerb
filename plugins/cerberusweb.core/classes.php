@@ -605,12 +605,12 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl->assign('active_dashboard_id', $active_dashboard_id);
 		$tpl->assign('dashboard_team_id', $team_id);
 
-		$categories = DAO_Bucket::getByTeam($team_id);
-		$tpl->assign('categories', $categories);
-		
 		$teams = DAO_Group::getAll();
 		$tpl->assign('teams', $teams);
 		
+		$buckets = DAO_Bucket::getByTeam($team_id);
+		$tpl->assign('buckets', $buckets);
+				
 		@$team_filters = $_SESSION['team_filters'][$team_id];
 		if(empty($team_filters)) $team_filters = array();
 		$tpl->assign('team_filters', $team_filters);

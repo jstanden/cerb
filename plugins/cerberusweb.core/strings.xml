@@ -206,8 +206,8 @@
 				<seg>Create Ticket</seg>
 			</tuv>
 		</tu>
-		<tu tuid='dashboard.team_filters'>
-			<tuv xml:lang="en"><seg>Team Filters</seg></tuv>
+		<tu tuid='dashboard.group_filters'>
+			<tuv xml:lang="en"><seg>Group Filters</seg></tuv>
 		</tu>
 		<tu tuid='dashboard.dashboards'>
 			<tuv xml:lang="en">
@@ -348,9 +348,9 @@
 			</tuv>
 		</tu>
 		
-		<tu tuid='teamwork.team_management'>
+		<tu tuid='teamwork.group_management'>
 			<tuv xml:lang="en">
-				<seg>Team Management</seg>
+				<seg>Manage Group</seg>
 			</tuv>
 		</tu>
 		

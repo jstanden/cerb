@@ -3,14 +3,13 @@
 <div class="block">
 <table cellpadding="0" cellspacing="0" border="0" width="220">
 	<tr>
-		<td nowrap="nowrap"><h2>Teamwork</h2></td>
+		<td nowrap="nowrap"><h2>Group</h2></td>
 	</tr>
 	<tr>
 		<td>
 			<table cellpadding="0" cellspacing="1" border="0" width="100%">
 				<tr>
 					<td width="100%">
-				      	<b>Active Group:</b>
 						<form method="POST" action="{devblocks_url}{/devblocks_url}" id="dashboardMenuForm">
 						<input type="hidden" name="c" value="tickets">
 						<input type="hidden" name="a" value="changeDashboard">
@@ -37,7 +36,7 @@
 				{if substr($active_dashboard_id,0,1) == 't'}
 				<tr>
 					<td width="100%" style="padding:2px;">
-						<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}"> <a href="{devblocks_url}c=tickets&team=team&id={$dashboard_team_id}{/devblocks_url}">{$translate->_('teamwork.team_management')|capitalize}</a><br>
+						<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}"> <a href="{devblocks_url}c=tickets&team=team&id={$dashboard_team_id}{/devblocks_url}">{$translate->_('teamwork.group_management')|capitalize}</a><br>
 					</td>
 				</tr>
 				{/if}
@@ -70,7 +69,7 @@
 <input type="hidden" name="team_id" value="{$dashboard_team_id}">
 <table cellpadding="0" cellspacing="0" border="0" width="220">
 	<tr>
-		<td nowrap="nowrap"> <h2>{$translate->_('dashboard.team_filters')|capitalize}</h2></td>
+		<td nowrap="nowrap"> <h2>{$translate->_('dashboard.group_filters')|capitalize}</h2></td>
 	</tr>
 	<tr>
 		<td width="100%">

@@ -47,7 +47,7 @@
 	<div class="block">
 	<h2>No training data available</h2>
 	<br>
-	Use 'Auto-Assist' or 'Bulk Update' in ticket lists to teach the system how to sort your team's incoming mail.<br>
+	Use 'Auto-Assist' or 'Bulk Update' in ticket lists to teach the system how to sort your group's incoming mail.<br>
 	</div>
 {/if}
 	
