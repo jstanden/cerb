@@ -1493,7 +1493,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 //			"cat.name as %s ". // [TODO] BAD LEFT JOINS
 			"FROM ticket t ".
 			"INNER JOIN team tm ON (tm.id = t.team_id) ".
-			"LEFT JOIN category cat ON (cat.id = t.category_id) ". // [TODO] Remove this and use a hash // [TODO] Optimization
+//			"LEFT JOIN category cat ON (cat.id = t.category_id) ". // [TODO] Remove this and use a hash // [TODO] Optimization
 			"INNER JOIN address a1 ON (t.first_wrote_address_id=a1.id) ".
 			"INNER JOIN address a2 ON (t.last_wrote_address_id=a2.id) ",
 			    SearchFields_Ticket::TICKET_ID,
@@ -1521,11 +1521,9 @@ class DAO_Ticket extends DevblocksORMHelper {
 			// [JAS]: Dynamic table joins
 			(isset($tables['ra']) ? "INNER JOIN requester r ON (r.ticket_id=t.id)" : " ").
 			(isset($tables['ra']) ? "INNER JOIN address ra ON (ra.id=r.address_id) " : " ").
-			(isset($tables['msg']) ? "INNER JOIN message msg ON (msg.ticket_id=t.id) " : " ").
+			(isset($tables['msg']) || isset($tables['mc']) ? "INNER JOIN message msg ON (msg.ticket_id=t.id) " : " ").
 			(isset($tables['mh']) ? "INNER JOIN message_header mh ON (mh.ticket_id=t.id) " : " ").
 			(isset($tables['mc']) ? "INNER JOIN message_content mc ON (mc.message_id=msg.id) " : " ").
-//			(isset($tables['ttt']) ? "INNER JOIN task ttk ON (ttk.ticket_id=t.id) INNER JOIN task_owner ttt ON (ttt.owner_type='T' AND ttk.is_completed=0 AND ttt.task_id=ttk.id) " : " ").
-//			(isset($tables['wtt']) ? "INNER JOIN task wtk ON (wtk.ticket_id=t.id) INNER JOIN task_owner wtt ON (wtt.owner_type='W' AND wtk.is_completed=0 AND wtt.task_id=wtk.id) " : " ").
 			
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "").
 			(!empty($sortBy) ? sprintf("ORDER BY %s %s",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : "")
@@ -1593,10 +1591,6 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 	const TEAM_ID = 'tm_id';
 	const TEAM_NAME = 'tm_name';
 	
-	// Category
-//	const CATEGORY_ID = 'cat_id';
-//	const CATEGORY_NAME = 'cat_name';
-	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
@@ -1617,10 +1611,7 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 			SearchFields_Ticket::TICKET_INTERESTING_WORDS => new DevblocksSearchField(SearchFields_Ticket::TICKET_INTERESTING_WORDS, 't', 'interesting_words'),
 			SearchFields_Ticket::TICKET_NEXT_ACTION => new DevblocksSearchField(SearchFields_Ticket::TICKET_NEXT_ACTION, 't', 'next_action'),
 			SearchFields_Ticket::TICKET_CATEGORY_ID => new DevblocksSearchField(SearchFields_Ticket::TICKET_CATEGORY_ID, 't', 'category_id'),
-//			SearchFields_Ticket::TICKET_TASKS => new DevblocksSearchField(SearchFields_Ticket::TICKET_TASKS, 't', 'num_tasks'),
 			
-//			SearchFields_Ticket::MESSAGE_CONTENT => new DevblocksSearchField(SearchFields_Ticket::MESSAGE_CONTENT, 'msg', 'content'),
-
 			SearchFields_Ticket::TICKET_MESSAGE_HEADER => new DevblocksSearchField(SearchFields_Ticket::TICKET_MESSAGE_HEADER, 'mh', 'header_name'),
 			SearchFields_Ticket::TICKET_MESSAGE_HEADER_VALUE => new DevblocksSearchField(SearchFields_Ticket::TICKET_MESSAGE_HEADER_VALUE, 'mh', 'header_value'),
 
@@ -1635,8 +1626,6 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 			SearchFields_Ticket::TEAM_ID => new DevblocksSearchField(SearchFields_Ticket::TEAM_ID,'tm','id'),
 			SearchFields_Ticket::TEAM_NAME => new DevblocksSearchField(SearchFields_Ticket::TEAM_NAME,'tm','name'),
 			
-//			SearchFields_Ticket::CATEGORY_ID => new DevblocksSearchField(SearchFields_Ticket::CATEGORY_ID,'cat','id'),
-//			SearchFields_Ticket::CATEGORY_NAME => new DevblocksSearchField(SearchFields_Ticket::CATEGORY_NAME,'cat','name'),
 		);
 	}
 };

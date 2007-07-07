@@ -394,6 +394,9 @@
 			<tuv xml:lang="en"><seg>Priority</seg></tuv>
 		</tu>
 		<tu tuid='ticket.spam_score'>
+			<tuv xml:lang="en"><seg>Spam Score</seg></tuv>
+		</tu>
+		<tu tuid='ticket.spam_training'>
 			<tuv xml:lang="en"><seg>Spam Training</seg></tuv>
 		</tu>
 		<tu tuid='ticket.status'>

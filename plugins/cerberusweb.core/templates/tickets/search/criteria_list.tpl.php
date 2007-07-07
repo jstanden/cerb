@@ -1,7 +1,7 @@
 <div class="block">
 <table cellpadding="2" cellspacing="0" width="200" border="0">
 	<tr>
-		<td><h2>Search Criteria</h2></td>
+		<td><h2>Current Criteria</h2></td>
 	</tr>
 	<tr>
 		<td>
@@ -19,12 +19,6 @@
 	<tr>
 		<td>
 			<table cellpadding="2" cellspacing="0" border="0">
-				<tr>
-					<td colspan="2" align="left">
-						<a href="javascript:;" onclick="addCriteria('{$divName}');">Add new criteria</a> 
-						<a href="javascript:;" onclick="addCriteria('{$divName}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/data_add.gif{/devblocks_url}" align="absmiddle" border="0"></a> 
-					</td>
-				</tr>
 				{if !empty($params)}
 				{foreach from=$params item=param}
 					<tr>
@@ -42,6 +36,11 @@
 							<b>{if 0== $p}{$translate->_('status.open')|capitalize}{else}{$translate->_('status.closed')|capitalize}{/if}</b>
 							 {if !$smarty.foreach.params.last} or {/if}
 							{/foreach}
+						{elseif $param->field=='t_spam_score'}
+							<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/data_find.gif{/devblocks_url}" align="absmiddle"> 
+							{$translate->_('ticket.spam_score')|capitalize} 
+							{$param->operator} 
+							<b>{math equation="x*100" x=$param->value}</b>%
 						{elseif $param->field=="tm_id"}
 							<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/data_find.gif{/devblocks_url}" align="absmiddle"> 
 							{$translate->_('common.team')|capitalize}
@@ -63,12 +62,23 @@
 							{$translate->_('ticket.subject')|capitalize} 
 							{$param->operator} 
 							<b>{$param->value}</b>
+						{elseif $param->field=="t_first_wrote"}
+							<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/data_find.gif{/devblocks_url}" align="absmiddle"> 
+							{$translate->_('ticket.first_wrote')|capitalize} 
+							{$param->operator} 
+							<b>{$param->value}</b>
+						{elseif $param->field=="t_last_wrote"}
+							<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/data_find.gif{/devblocks_url}" align="absmiddle"> 
+							{$translate->_('ticket.last_wrote')|capitalize} 
+							{$param->operator} 
+							<b>{$param->value}</b>
+						{*
 						{elseif $param->field=="ra_email"}
 							<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/data_find.gif{/devblocks_url}" align="absmiddle"> 
 							{$translate->_('requester')|capitalize} 
 							{$param->operator} 
-							<b>{$param->value}</b>
-						{elseif $param->field=="msg_content"}
+							<b>{$param->value}</b>*}
+						{elseif $param->field=="mc_content"}
 							<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/data_find.gif{/devblocks_url}" align="absmiddle"> 
 							{$translate->_('message.content')|capitalize} 
 							{$param->operator} 
@@ -84,4 +94,33 @@
 		</td>
 	</tr>
 </table>
+</div>
+
+<br>
+
+<div class="block">
+	<form action="{devblocks_url}{/devblocks_url}" method="POST">
+	<input type="hidden" name="c" value="tickets">
+	<input type="hidden" name="a" value="addCriteria">
+	
+	<h2>Add Criteria</h2>
+	<b>Field:</b><br>
+	<blockquote style="margin:5px;">
+		<select name="field" onchange="genericAjaxGet('addCriteriaOptions','c=tickets&a=getCriteria&field='+selectValue(this));">
+			<option value="">-- choose --</option>
+			<option value="t_subject">{$translate->_('ticket.subject')|capitalize}</option>
+			<option value="t_is_closed">{$translate->_('ticket.status')|capitalize}</option>
+			<option value="tm_id">{$translate->_('common.team')|capitalize}</option>
+			<option value="t_first_wrote">{$translate->_('ticket.first_wrote')|capitalize}</option>
+			<option value="t_last_wrote">{$translate->_('ticket.last_wrote')|capitalize}</option>
+			<option value="t_spam_score">{$translate->_('ticket.spam_score')|capitalize}</option>
+			<option value="t_mask">{$translate->_('ticket.mask')|capitalize}</option>
+			<!-- <option value="ra_email">{$translate->_('requester')|capitalize}</option> -->
+			<option value="mc_content">{$translate->_('message.content')|capitalize}</option>
+		</select>
+	</blockquote>
+
+	<div id="addCriteriaOptions"></div>
+	
+	</form>
 </div>

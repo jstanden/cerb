@@ -1,18 +1,14 @@
 <b>Operator:</b><br>
 <blockquote style="margin:5px;">
 	<select name="oper">
-		<option value="like">matches</option>
-		<option value="not like">doesn't match</option>
-		<option value="=">equals</option>
-		<option value="!=">doesn't equal</option>
+		<option value="&gt;=">&gt;=</option>
+		<option value="&lt;=">&lt;=</option>
 	</select>
 </blockquote>
 
-<b>Value:</b><br>
+<b>Percentage:</b> (0% to 99%)<br>
 <blockquote style="margin:5px;">
-	<input type="text" name="subject"><br>
-	<i>Use an asterisk (*) for wildcards.<br>
-	For example: *receipt*</i><br>
+	<input type="text" name="score" size="3" maxlength="2">%
 </blockquote>
 
 <button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>

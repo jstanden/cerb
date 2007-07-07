@@ -8,11 +8,11 @@
 	</select>
 </blockquote>
 
-<b>Value:</b><br>
+<b>E-mail Address:</b><br>
 <blockquote style="margin:5px;">
-	<input type="text" name="subject"><br>
+	<input type="text" name="email"><br>
 	<i>Use an asterisk (*) for wildcards.<br>
-	For example: *receipt*</i><br>
+	For example: *@webgroupmedia.com</i><br>
 </blockquote>
 
 <button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
