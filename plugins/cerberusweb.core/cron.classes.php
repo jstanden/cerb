@@ -1,5 +1,11 @@
 <?php
 class ParseCron extends CerberusCronPageExtension {
+    function scanDirMessages($dir) {
+        if(substr($dir,-1,1) != DIRECTORY_SEPARATOR) $dir .= DIRECTORY_SEPARATOR;
+        $files = glob($dir . '*.msg');
+        return $files;
+    }
+    
     function run() {
         if (!extension_loaded("imap")) die("IMAP Extension not loaded!");
         @ini_set('memory_limit','64M');
@@ -11,46 +17,31 @@ class ParseCron extends CerberusCronPageExtension {
         $runtime = microtime(true);
         	
         echo "<BR>";
-//        flush();
+        flush();
 
-        $total = 250;
+        $total = 500;
         
-	    $dir = opendir(APP_MAIL_PATH . 'new');
-	    
-	    while(($file = readdir($dir)) && $total > 0) {
-	        $full_filename = APP_MAIL_PATH . 'new' . DIRECTORY_SEPARATOR . $file;
+        $mailDir = APP_MAIL_PATH . 'new' . DIRECTORY_SEPARATOR;
+	    $subdirs = glob($mailDir . '*', GLOB_ONLYDIR);
+	    $subdirs[] = $mailDir; // Add our root directory last
 
-	        if($file == '.' || $file == '..' || $file == '.svn')
-	            continue;
+	    foreach($subdirs as $subdir) {
+	        $files = $this->scanDirMessages($subdir);
 	        
-	        if (is_dir($full_filename)) {
-	            $subdir = opendir($full_filename);
-
-	            while(($subfile = readdir($subdir)) && $total > 0) {
-	                $sub_filename = $full_filename . DIRECTORY_SEPARATOR . $subfile;
-	                
-	                if($subfile == '.' || $subfile == '..' || is_dir($sub_filename))
-	                    continue;
-
-	                $parsefile = APP_MAIL_PATH . 'fail' . DIRECTORY_SEPARATOR . $subfile;
-	                rename($sub_filename, $parsefile);
-	                    
-			        $this->_parseFile($parsefile);
-			        $total--;
-	            }
-	            
-	            @closedir($subdir);
-	            
-	        } else { // file
-                $parsefile = APP_MAIL_PATH . 'fail' . DIRECTORY_SEPARATOR . $file;
-                rename($full_filename, $parsefile);
-		        $this->_parseFile($parsefile);
-		        $total--;
-	        }
+	        foreach($files as $file) {
+	            $filePart = basename($file);
+                $parseFile = APP_MAIL_PATH . 'fail' . DIRECTORY_SEPARATOR . $filePart;
+                rename($file, $parseFile);
+		        $this->_parseFile($parseFile);
+				flush();
+		        if(--$total <= 0) break;
+			}
+			if($total <= 0) break;
 	    }
 	    
-	    @closedir($dir);
-
+	    unset($files);
+	    unset($subdirs);
+	    
         echo "<b>Total Runtime:</b> ",((microtime(true)-$runtime)*1000)," ms<br>";
     }
     

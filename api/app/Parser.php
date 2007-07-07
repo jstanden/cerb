@@ -16,9 +16,7 @@ class CerberusParser {
 	 */
 	static public function parseMessage($message) {
 //		if (DEVBLOCKS_DEBUG == 'true') {echo ('Entering parseMessage() with rfcMessage :<br>'); print_r ($message); echo ('<hr>');}
-		
 		$id = CerberusParser::parseToTicket($message);
-		
 		return $id;
 	}
 	
@@ -81,15 +79,15 @@ class CerberusParser {
 		
 		@$fromAddress = $from[0]->mailbox.'@'.$from[0]->host;
 		@$fromPersonal = $from[0]->personal;
-		$fromAddressId = DAO_Contact::lookupAddress($fromAddress, true); 
-		//DAO_Contact::createAddress($fromAddress, $fromPersonal);
+		$fromAddressId = CerberusApplication::hashLookupAddressId($fromAddress, true); 
 
-		if(is_array($to))
-		foreach($to as $recipient) {
-			@$toAddress = $recipient->mailbox.'@'.$recipient->host;
-			@$toPersonal = $recipient->personal;
-			@$toAddressId = DAO_Contact::createAddress($toAddress,$toPersonal);
-		}
+		// [TODO] This wasn't doing anything
+//		if(is_array($to))
+//		foreach($to as $recipient) {
+//			@$toAddress = $recipient->mailbox.'@'.$recipient->host;
+//			@$toPersonal = $recipient->personal;
+//			@$toAddressId = CerberusApplication::hashLookupAddressId($toAddress, true); // $toPersonal
+//		}
 		
 		// Message Id / References / In-Reply-To
 		@$sInReplyTo = $headers['in-reply-to'];
@@ -151,7 +149,7 @@ class CerberusParser {
             }
             
             if(!empty($importAppend)) {
-                $appendTo = DAO_Ticket::getTicketIdByMask($importAppend);
+                $appendTo = CerberusApplication::hashLookupTicketIdByMask($importAppend);
                 if(!empty($appendTo)) {
                     $id = $appendTo;
                     $bIsNew = false;

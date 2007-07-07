@@ -503,6 +503,63 @@ class CerberusApplication extends DevblocksApplication {
 			);
 	}
 	
+	// [JAS]: Move this to a global cache/hash registry
+	static public function hashLookupAddressId($address, $create=false) {
+	    static $hash_address_to_id = array();
+	    static $hash_hits = array();
+	    static $hash_size = 0;
+	    
+	    if(isset($hash_address_to_id[$address])) {
+	        
+	        @$hash_hits[$address] = intval($hash_hits[$address]) + 1;
+	        $hash_size++;
+	        
+	        // [JAS]: if our hash grows past our limit, crop hits array + intersect keys
+	        if($hash_size > 250) {
+	            arsort($hash_hits);
+	            $hash_hits = array_slice($hash_hits,0,100,true);
+	            $hash_address_to_id = array_intersect_key($hash_address_to_id,$hash_hits);
+	            $hash_size = count($hash_address_to_id);
+	        }
+	        
+	        return $hash_address_to_id[$address];
+	    }
+	    
+	    $address_id = DAO_Contact::lookupAddress($address, $create);
+	    if(!empty($address_id)) {
+	        $hash_address_to_id[$address] = $address_id;
+	    }
+	    return $address_id;
+	}
+
+	// [JAS]: Move this to a global cache/hash registry	
+	static public function hashLookupTicketIdByMask($mask) {
+	    static $hash_mask_to_id = array();
+	    static $hash_hits = array();
+	    static $hash_size = 0;
+	    
+	    if(isset($hash_mask_to_id[$mask])) {
+	        @$hash_hits[$mask] = intval($hash_hits[$mask]) + 1;
+	        $hash_size++;
+
+	        // [JAS]: if our hash grows past our limit, crop hits array + intersect keys
+	        if($hash_size > 250) {
+	            arsort($hash_hits);
+	            $hash_hits = array_slice($hash_hits,0,100,true);
+	            $hash_mask_to_id = array_intersect_key($hash_mask_to_id,$hash_hits);
+	            $hash_size = count($hash_mask_to_id);
+	        }
+	        
+	        return $hash_mask_to_id[$mask];
+	    }
+	    
+	    $ticket_id = DAO_Ticket::getTicketIdByMask($mask);
+	    if(!empty($ticket_id)) {
+	        $hash_mask_to_id[$mask] = $ticket_id;
+	    }
+	    return $ticket_id;
+	}
+	
 	/**
 	 * Enter description here...
 	 * [TODO] Move this into a better API holding place
@@ -511,17 +568,32 @@ class CerberusApplication extends DevblocksApplication {
 	 * @param Model_TeamRoutingRule $ticket
 	 */
 	static public function parseTeamRules($team_id, $ticket_id, $fromAddress, $sSubject) {
+	    static $array_team_routing_rules = null;
 	    static $moveMap = array();
+	    
+	    // Routing rules (index by team id)
+	    if(is_null($array_team_routing_rules)) {
+		    $array_team_routing_rules = array();
+	        $objects = DAO_TeamRoutingRule::getList();
+	        if(is_array($objects))
+			foreach($objects as $idx => $rule) { /* @var $rule Model_TeamRoutingRule */
+	            if(!isset($array_team_routing_rules[$rule->team_id])) {
+	                $array_team_routing_rules[$rule->team_id] = array();
+	            }
+	            $array_team_routing_rules[$rule->team_id][$idx] = $rule;
+			}
+			unset($objects);
+	    }
 	    
 	    // Check the team's inbox rules and see if we have a new destination
         if(!empty($team_id)) {
             
             //if(!empty($rule_ids)) {
-                // [TODO] Cache this call
-   	            $team_rules = DAO_TeamRoutingRule::getByTeamId($team_id);
+   	            @$team_rules = $array_team_routing_rules[$team_id];
    	            
    	            //echo "Scanning (From: ",$fromAddress,"; Subject: ",$sSubject,")<BR>";
    	            
+   	            if(is_array($team_rules))
    	            foreach($team_rules as $rule) { /* @var $rule Model_TeamRoutingRule */
    	                $pattern = $rule->getPatternAsRegexp();
    	                $haystack = ($rule->header=='from') ? $fromAddress : $sSubject ;
