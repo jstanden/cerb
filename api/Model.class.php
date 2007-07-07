@@ -626,7 +626,7 @@ class CerberusTeam {
 	public $count;
 	
 	function getWorkers() {
-		return DAO_Workflow::getTeamWorkers($this->id);
+		return DAO_Group::getTeamWorkers($this->id);
 	}
 }
 
@@ -680,20 +680,6 @@ class CerberusPop3Account {
 	public $password;
 	public $port=110;
 };
-
-//class CerberusTag {
-//	public $id;
-//	public $name;
-//	
-//	function getTerms() {
-//		return DAO_Workflow::getTagTerms($this->id);
-//	}
-//};
-//
-//class CerberusTagTerm {
-//	public $tag_id;
-//	public $term;
-//};
 
 class CerberusKbCategory {
 	public $id;

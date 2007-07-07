@@ -82,9 +82,9 @@
 			<div id="teamCategories" style="display:{if !$team_filters.categorized}none{else}block{/if};">
 			<label><input type="checkbox" name="categories[]" value="0" {if isset($team_filters.categories.0)}checked{/if} onclick="this.form.categorized[1].checked=true;"> Inbox ({if isset($category_counts.0)}{$category_counts.0}{else}0{/if})</label><br>
 			<blockquote style="margin:0px;margin-left:5px;margin-bottom:10px;">
-			{if !empty($categories)}
+			{if !empty($buckets)}
 			<table cellpadding="0" cellspacing="0" border="0" width="100%">
-				{foreach from=$categories item=category key=category_id}
+				{foreach from=$buckets item=category key=category_id}
 					{if $category_counts.total && $category_counts.$category_id}
 						{math assign=percent equation="(x/y)*50" x=$category_counts.$category_id y=$category_counts.total format="%0.0f"}
 					{else}

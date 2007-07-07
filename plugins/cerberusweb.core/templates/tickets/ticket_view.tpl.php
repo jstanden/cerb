@@ -143,9 +143,10 @@
 			{*{elseif $column=="t_tasks"}
 			<td align='center'>{if !empty($result.t_tasks)}{$result.t_tasks}{/if}</td>*}
 			{elseif $column=="tm_name"}
-			<td><a href="{devblocks_url}c=tickets&a=organize&m=team&id={$result.tm_id}{/devblocks_url}">{$result.tm_name}</a></td>
+			<td>{$result.tm_name}</td>
 			{elseif $column=="t_category_id"}
-			<td>{$result.t_category_id}</td>
+				{assign var=ticket_category_id value=$result.t_category_id}
+			<td>{if 0 == $ticket_category_id}{else}{$buckets.$ticket_category_id->name}{/if}</td>
 			{elseif $column=="t_next_action"}
 			<td title="{$result.t_next_action}"><span style="color:rgb(130,130,130);">{$result.t_next_action|truncate:35:'...'|indent:2:"&nbsp;"}</span></td>
 			{elseif $column=="t_spam_score"}
@@ -209,7 +210,7 @@
 						{assign var=move_team_id value=0}
 						{assign var=move_bucket_id value=$move_code|regex_replace:"/[c]/":""}
 					{/if}
-					<a href="javascript:;" onclick="document.viewForm{$view->id}.move_to.value='{$move_code}';ajax.viewMoveTickets('{$view->id}');" title="Used {$move_count} times." style="{if !empty($move_team_id)}color:rgb(0,150,0);font-weight:bold;font-style:normal;{else}{/if}">{if !empty($move_team_id)}{$teams.$move_team_id->name}{else}{$categories.$move_bucket_id->name}{/if}</a>{if !$smarty.foreach.move_links.last}, {/if}
+					<a href="javascript:;" onclick="document.viewForm{$view->id}.move_to.value='{$move_code}';ajax.viewMoveTickets('{$view->id}');" title="Used {$move_count} times." style="{if !empty($move_team_id)}color:rgb(0,150,0);font-weight:bold;font-style:normal;{else}{/if}">{if !empty($move_team_id)}{$teams.$move_team_id->name}{else}{$buckets.$move_bucket_id->name}{/if}</a>{if !$smarty.foreach.move_links.last}, {/if}
 				{/foreach}
 			</span>
 			{/if}

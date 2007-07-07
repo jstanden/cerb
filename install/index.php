@@ -584,7 +584,7 @@ switch($step) {
 				// Create team records
 				if(is_array($teams))
 				foreach($teams as $team_name) {
-					$id = DAO_Workflow::createTeam($team_name);
+					$id = DAO_Group::createTeam($team_name);
 					$team_ids[$id] = $team_name;
 				}
 				
@@ -697,7 +697,7 @@ switch($step) {
 					
 					// Team Members
 					if(is_array($team_members))
-						DAO_Workflow::setTeamWorkers($team_id,$team_members);
+						DAO_Group::setTeamWorkers($team_id,$team_members);
 				}
 				
 				$tpl->assign('step', STEP_CATCHALL);
@@ -728,49 +728,13 @@ switch($step) {
 			exit;
 		}
 		
-		$teams = DAO_Workflow::getTeams();
+		$teams = DAO_Group::getAll();
 		$tpl->assign('teams', $teams);
 		
 		$tpl->assign('template', 'steps/step_catchall.tpl.php');
 		
 		break;
 		
-//	// [TODO] Create an anti-spam rule and mailbox automatically
-//	case STEP_ANTISPAM:
-//		@$setup_antispam = DevblocksPlatform::importGPC($_POST['setup_antispam'],'integer');
-//		@$form_submit = DevblocksPlatform::importGPC($_POST['form_submit'],'integer');
-//		
-//		if($form_submit) {
-//			// [TODO] Implement (to check for dupes)
-//			$id = 0;
-////			$id = DAO_Mail::lookupMailbox('Spam');
-//			
-//			if($setup_antispam && empty($id)) {
-////				$id = DAO_Mail::createMailbox('Spam',0);
-//
-//				// [TODO] Need to fit antispam into the new team-oriented concepts (no more mailbox)
-//				
-//				// [TODO] Need to create a mail rule to route spam > 90%
-//				
-//				// Assign the new mailbox to all existing teams
-////				$teams = DAO_Workflow::getTeams();
-////				if(is_array($teams))
-////				foreach($teams as $team_id => $team) { /* @var $team CerberusTeam */
-////					$mailbox_keys = array_keys($team->getMailboxes());
-////					$mailbox_keys[] = $id;
-////					// [TODO] This could be simplified with the addition of addTeamMailbox(id,id)
-////					DAO_Workflow::setTeamMailboxes($team_id, $mailbox_keys);
-////				}
-//			}
-//			
-//			$tpl->assign('step', STEP_REGISTER);
-//			$tpl->display('steps/redirect.tpl.php');
-//			exit;
-//		}
-//		
-//		$tpl->assign('template', 'steps/step_antispam.tpl.php');
-//		break;
-
 	// [TODO] Automatically collect 'About Me' information? (Register, with benefit)
 	case STEP_REGISTER:
 		@$register = DevblocksPlatform::importGPC($_POST['register'],'integer');

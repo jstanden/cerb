@@ -39,7 +39,7 @@
 							{$translate->_('ticket.status')|capitalize} 
 							{$param->operator}
 							{foreach from=$param->value item=p name=params}
-							<b>{$p}</b>
+							<b>{if 0== $p}{$translate->_('status.open')|capitalize}{else}{$translate->_('status.closed')|capitalize}{/if}</b>
 							 {if !$smarty.foreach.params.last} or {/if}
 							{/foreach}
 						{elseif $param->field=="tm_id"}
@@ -47,15 +47,15 @@
 							{$translate->_('common.team')|capitalize}
 							{$param->operator}
 							{foreach from=$param->value item=p name=params}
-							<b>{$p}</b>
+							<b>{$teams.$p->name}</b>
 							 {if !$smarty.foreach.params.last} or {/if}
 							{/foreach}
-						{elseif $param->field=="t_priority"}
+						{elseif $param->field=="t_category_id"}
 							<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/data_find.gif{/devblocks_url}" align="absmiddle"> 
-							{$translate->_('ticket.priority')|capitalize} 
+							{$translate->_('common.bucket')|capitalize}
 							{$param->operator}
 							{foreach from=$param->value item=p name=params}
-							<b>{$p}</b>
+							<b>{if 0==$p}Inbox{else}{$buckets.$p->name}{/if}</b>
 							 {if !$smarty.foreach.params.last} or {/if}
 							{/foreach}
 						{elseif $param->field=="t_subject"}

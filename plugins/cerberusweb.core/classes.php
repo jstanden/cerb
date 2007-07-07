@@ -201,47 +201,33 @@ class ChTicketsPage extends CerberusPageExtension {
 		switch($section) {
 			case 'search':
 				$visit = CerberusApplication::getVisit();
-				$viewManager = $visit->get(CerberusVisit::KEY_VIEW_MANAGER);
+				$viewManager = $visit->get(CerberusVisit::KEY_VIEW_MANAGER); /* @var $viewManager CerberusStaticViewManager */
 								
 				$view = $viewManager->getView(CerberusApplication::VIEW_SEARCH);
 				
 				// [JAS]: Recover from a bad cached ID.
 				if(null == $view) {
-					$view = new CerberusDashboardView();
-					$view->id = CerberusApplication::VIEW_SEARCH;
-					$view->name = "Search Results";
-					$view->dashboard_id = 0;
-					$view->view_columns = array(
-//						SearchFields_Ticket::TICKET_MASK,
-//						SearchFields_Ticket::TICKET_PRIORITY,
-						SearchFields_Ticket::TEAM_NAME,
-						SearchFields_Ticket::TICKET_CATEGORY_ID,
-						SearchFields_Ticket::TICKET_UPDATED_DATE,
-						SearchFields_Ticket::TICKET_LAST_WROTE,
-						SearchFields_Ticket::TICKET_NEXT_ACTION,
-						SearchFields_Ticket::TICKET_SPAM_SCORE,
-						);
-					$view->params = array();
-					$view->renderLimit = 100;
-					$view->renderPage = 0;
-					$view->renderSortBy = SearchFields_Ticket::TICKET_CREATED_DATE;
-					$view->renderSortAsc = 0;
-
-					$viewManager->setView(CerberusApplication::VIEW_SEARCH,$view);
+				    $view = $viewManager->createSearchView();
 				}
 				
 				$tpl->assign('view', $view);
 				$tpl->assign('params', $view->params);
 				
 				// [TODO]: This should be filterable by a specific view later as well using searchDAO.
-				$viewActions = DAO_DashboardViewAction::getList();
-				$tpl->assign('viewActions', $viewActions);
+//				$viewActions = DAO_DashboardViewAction::getList();
+//				$tpl->assign('viewActions', $viewActions);
+
+				$teams = DAO_Group::getAll();
+				$tpl->assign('teams', $teams);
+				
+				$buckets = DAO_Bucket::getAll();
+				$tpl->assign('buckets', $buckets);
 				
 				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/search/index.tpl.php');
 				break;
 				
 			case 'create':
-				$teams = DAO_Workflow::getTeams();
+				$teams = DAO_Group::getAll();
 				$tpl->assign('teams', $teams);
 				
 				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/create/index.tpl.php');
@@ -254,7 +240,7 @@ class ChTicketsPage extends CerberusPageExtension {
 				array_shift($response_path); // team
 				$team_id = array_shift($response_path); // id
 				
-				$team = DAO_Workflow::getTeam($team_id);
+				$team = DAO_Group::getTeam($team_id);
 				
 				if(empty($team))
 				    break;
@@ -265,7 +251,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	            switch(array_shift($response_path)) {
 	                default:
 	                case 'general':
-						$team_categories = DAO_Category::getByTeam($team_id);
+						$team_categories = DAO_Bucket::getByTeam($team_id);
 						$tpl->assign('categories', $team_categories);
 					    
 	                    $tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/teamwork/manage/index.tpl.php');
@@ -273,7 +259,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	                    
 	                case 'members':
 						// [TODO] Migrate this DAO stub to worker::search
-					    $members = DAO_Workflow::getTeamWorkers($team_id);
+					    $members = DAO_Group::getTeamWorkers($team_id);
 					    $tpl->assign('members', $members);
 					    
 					    $available_workers = array_diff_key($workers, $members);
@@ -283,7 +269,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	                    break;
 	                    
 	                case 'buckets':
-						$team_categories = DAO_Category::getByTeam($team_id);
+						$team_categories = DAO_Bucket::getByTeam($team_id);
 						$tpl->assign('categories', $team_categories);
 	                    
 						$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/teamwork/manage/buckets.tpl.php');
@@ -293,7 +279,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	                    $team_rules = DAO_TeamRoutingRule::getByTeamId($team_id);
 	                    $tpl->assign('team_rules', $team_rules);
 
-	                    $category_name_hash = DAO_Category::getCategoryNameHash();
+	                    $category_name_hash = DAO_Bucket::getCategoryNameHash();
 	                    $tpl->assign('category_name_hash', $category_name_hash);
 	                    
 						$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/teamwork/manage/routing.tpl.php');
@@ -325,14 +311,14 @@ class ChTicketsPage extends CerberusPageExtension {
 				$dashboards = DAO_Dashboard::getDashboards($visit->getWorker()->id);
 				$tpl->assign('dashboards', $dashboards);
 
-				$teams = DAO_Workflow::getTeams();
+				$teams = DAO_Group::getAll();
 				$tpl->assign('teams', $teams);
 				
-				$team_categories = DAO_Category::getTeams();
+				$team_categories = DAO_Bucket::getTeams();
 				$tpl->assign('team_categories', $team_categories);
 				
 				// [TODO] Be sure we're caching this
-				$team_counts = DAO_Workflow::getTeamCounts(array_keys($teams));
+				$team_counts = DAO_Group::getTeamCounts(array_keys($teams));
 				$tpl->assign('team_counts', $team_counts);
 
 				$active_dashboard_id = $visit->get(CerberusVisit::KEY_DASHBOARD_ID, 0);
@@ -397,22 +383,21 @@ class ChTicketsPage extends CerberusPageExtension {
 						
 						$tpl->assign('dashboard_team_id', $team_id);
 
-						$categories = DAO_Category::getByTeam($team_id);
-						$tpl->assign('categories', $categories);
+						$buckets = DAO_Bucket::getByTeam($team_id);
+						$tpl->assign('buckets', $buckets);
 						
 						@$team_filters = $_SESSION['team_filters'][$team_id];
 						if(empty($team_filters)) $team_filters = array();
 						$tpl->assign('team_filters', $team_filters);
 						
-//						$category_counts = DAO_Category::getCategoryCounts(array_keys($categories));
-						$category_counts = DAO_Category::getCategoryCountsByTeam($team_id);
+						$category_counts = DAO_Bucket::getCategoryCountsByTeam($team_id);
 		                $tpl->assign('category_counts', $category_counts);
 						
 		                // [TODO] Move to API
 	                    $active_worker = CerberusApplication::getActiveWorker();
 			            $move_counts_str = DAO_WorkerPref::get($active_worker->id,''.DAO_WorkerPref::SETTING_TEAM_MOVE_COUNTS . $active_dashboard_id,serialize(array()));
 			            if(is_string($move_counts_str)) {
-			                $category_name_hash = DAO_Category::getCategoryNameHash();
+			                $category_name_hash = DAO_Bucket::getCategoryNameHash();
 			                $tpl->assign('category_name_hash', $category_name_hash);
 			                
 			                $move_counts = unserialize($move_counts_str);
@@ -580,7 +565,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	            if(empty($bucket))
 	                continue;
 	                
-		        $bucket_id = DAO_Category::create($bucket, $team_id);
+		        $bucket_id = DAO_Bucket::create($bucket, $team_id);
 		    }
 	    }
 	    
@@ -620,20 +605,20 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl->assign('active_dashboard_id', $active_dashboard_id);
 		$tpl->assign('dashboard_team_id', $team_id);
 
-		$categories = DAO_Category::getByTeam($team_id);
+		$categories = DAO_Bucket::getByTeam($team_id);
 		$tpl->assign('categories', $categories);
 		
-		$teams = DAO_Workflow::getTeams();
+		$teams = DAO_Group::getAll();
 		$tpl->assign('teams', $teams);
 		
 		@$team_filters = $_SESSION['team_filters'][$team_id];
 		if(empty($team_filters)) $team_filters = array();
 		$tpl->assign('team_filters', $team_filters);
 		
-		$team_counts = DAO_Workflow::getTeamCounts(array_keys($teams));
+		$team_counts = DAO_Group::getTeamCounts(array_keys($teams));
 		$tpl->assign('team_counts', $team_counts);
 		
-		$category_counts = DAO_Category::getCategoryCountsByTeam($team_id);
+		$category_counts = DAO_Bucket::getCategoryCountsByTeam($team_id);
         $tpl->assign('category_counts', $category_counts);
 		
 		$tpl->display($path.'tickets/dashboard_menu.tpl.php');
@@ -666,7 +651,7 @@ class ChTicketsPage extends CerberusPageExtension {
                 break;
                 
             case "content":
-                $params[] = new DevblocksSearchCriteria(SearchFields_Ticket::MESSAGE_CONTENT,DevblocksSearchCriteria::OPER_LIKE,'*'.$query.'*');               
+                $params[] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_MESSAGE_CONTENT,DevblocksSearchCriteria::OPER_LIKE,'*'.$query.'*');               
                 break;
         }
         
@@ -717,7 +702,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$content = DevblocksPlatform::importGPC($_POST['content'],'string');
 		@$files = $_FILES['attachment'];
 		
-		$team = DAO_Workflow::getTeam($team_id);
+		$team = DAO_Group::getTeam($team_id);
 
 		$message = new CerberusParserMessage();
 		$message->headers['from'] = $from;
@@ -791,13 +776,13 @@ class ChTicketsPage extends CerberusPageExtension {
 		    $tpl->assign('dashboard_team_id', $team_id);
         }
         
-		$teams = DAO_Workflow::getTeams();
+		$teams = DAO_Group::getAll();
 		$tpl->assign('teams', $teams);
 		
-		$team_categories = DAO_Category::getTeams();
+		$team_categories = DAO_Bucket::getTeams();
 		$tpl->assign('team_categories', $team_categories);
 		
-		$category_name_hash = DAO_Category::getCategoryNameHash();
+		$category_name_hash = DAO_Bucket::getCategoryNameHash();
 		$tpl->assign('category_name_hash', $category_name_hash);
         
         // [JAS]: Calculate statistics about the current view (top unique senders/subjects/domains)
@@ -1147,10 +1132,13 @@ class ChTicketsPage extends CerberusPageExtension {
 		$workers = DAO_Worker::getList();
 		$tpl->assign('workers', $workers);
 		
-		$teams = DAO_Workflow::getTeams();
+		$teams = DAO_Group::getAll();
 		$tpl->assign('teams', $teams);
 		
-		$team_categories = DAO_Category::getTeams();
+		$buckets = DAO_Bucket::getAll();
+		$tpl->assign('buckets', $buckets);
+		
+		$team_categories = DAO_Bucket::getTeams();
 		$tpl->assign('team_categories', $team_categories);
 		
 		// Undo?
@@ -1175,10 +1163,10 @@ class ChTicketsPage extends CerberusPageExtension {
             if(is_string($move_counts_str)) {
     	        // [TODO] We no longer need the move hash, do we?
 	            // [TODO] Phase this out.
-                $category_name_hash = DAO_Category::getCategoryNameHash();
+                $category_name_hash = DAO_Bucket::getCategoryNameHash();
                 $tpl->assign('category_name_hash', $category_name_hash);
                 
-	            $categories = DAO_Category::getByTeam($active_team_id);
+	            $categories = DAO_Bucket::getByTeam($active_team_id);
 	            $tpl->assign('categories', $categories);
                  
                 $move_counts = unserialize($move_counts_str);
@@ -1209,8 +1197,8 @@ class ChTicketsPage extends CerberusPageExtension {
 	    @$spam_moveto = DevblocksPlatform::importGPC($_REQUEST['spam_moveto'],'string','');
 	    
 	    // [TODO] Does this belong in team or in some kind of DAO_TeamSetting registry?
-	    DAO_Workflow::updateTeam($team_id, array(
-	        DAO_Workflow::TEAM_SIGNATURE => $signature
+	    DAO_Group::updateTeam($team_id, array(
+	        DAO_Group::TEAM_SIGNATURE => $signature
 	    ));
 	    
 	       
@@ -1226,12 +1214,12 @@ class ChTicketsPage extends CerberusPageExtension {
 
 	    // Adds
 	    if(!empty($team_id) && is_array($member_adds) && !empty($member_adds)) {
-            DAO_Workflow::addTeamWorkers($team_id, $member_adds);
+            DAO_Group::addTeamWorkers($team_id, $member_adds);
 	    }
 	    
 	    // Removals
 	    if(!empty($team_id) && is_array($member_deletes) && !empty($member_deletes)) {
-	        DAO_Workflow::removeTeamWorkers($team_id, $member_deletes);
+	        DAO_Group::removeTeamWorkers($team_id, $member_deletes);
 	    }
 	    
 	    DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','team',$team_id,'members')));
@@ -1247,11 +1235,11 @@ class ChTicketsPage extends CerberusPageExtension {
 	    @$deletes = DevblocksPlatform::importGPC($_REQUEST['deletes'],'array');
 	    
 	    // Updates
-	    $cats = DAO_Category::getList($ids);
+	    $cats = DAO_Bucket::getList($ids);
 	    foreach($ids as $idx => $id) {
 	        $cat = $cats[$id];
 	        if(0 != strcasecmp($cat->name,$names[$idx])) {
-	            DAO_Category::update($id, $names[$idx]);
+	            DAO_Bucket::update($id, $names[$idx]);
 	        }
 	    }
 	    
@@ -1261,11 +1249,11 @@ class ChTicketsPage extends CerberusPageExtension {
 	    if(is_array($categories))
 	    foreach($categories as $category) {
 	        // [TODO] Dupe checking
-	        $cat_id = DAO_Category::create($category, $team_id);
+	        $cat_id = DAO_Bucket::create($category, $team_id);
 	    }
 	    
 	    if(!empty($deletes))
-	        DAO_Category::delete(array_values($deletes));
+	        DAO_Bucket::delete(array_values($deletes));
 	        
         DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','team',$team_id,'buckets')));	        
 	}
@@ -1286,11 +1274,11 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 
-		$teams = DAO_Workflow::getTeams();
+		$teams = DAO_Group::getAll();
 		$tpl->assign('teams', $teams);
 
 		// [TODO] Be sure we're caching this
-//		$team_counts = DAO_Workflow::getTeamCounts(array_keys($teams),true,false,false);
+//		$team_counts = DAO_Group::getTeamCounts(array_keys($teams),true,false,false);
 //		$tpl->assign('team_counts', $team_counts);
 		
 		$tpl->cache_lifetime = "0";
@@ -1349,11 +1337,11 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 
-		$teams = DAO_Workflow::getTeams();
+		$teams = DAO_Group::getAll();
 		$tpl->assign('teams', $teams);
 		
 		// [TODO] Be sure we're caching this
-//		$team_counts = DAO_Workflow::getTeamCounts(array_keys($teams),false,false,true);
+//		$team_counts = DAO_Group::getTeamCounts(array_keys($teams),false,false,true);
 //		$tpl->assign('team_counts', $team_counts);
 		
 		$tpl->cache_lifetime = "0";
@@ -1413,10 +1401,10 @@ class ChTicketsPage extends CerberusPageExtension {
 		
 		// [TODO] Cache these
 		// Teams
-		$teams = DAO_Workflow::getTeams();
+		$teams = DAO_Group::getAll();
 		$tpl->assign('teams', $teams);
 		// Categories
-		$team_categories = DAO_Category::getTeams();
+		$team_categories = DAO_Bucket::getTeams();
 		$tpl->assign('team_categories', $team_categories);
 				
 		// Load action object to populate fields
@@ -1486,10 +1474,10 @@ class ChTicketsPage extends CerberusPageExtension {
 		$training = CerberusTicketSpamTraining::getOptions();
 		$tpl->assign('training', $training);
 		// Teams
-		$teams = DAO_Workflow::getTeams();
+		$teams = DAO_Group::getAll();
 		$tpl->assign('teams', $teams);
 		// Categories
-		$team_categories = DAO_Category::getTeams();
+		$team_categories = DAO_Bucket::getTeams();
 		$tpl->assign('team_categories', $team_categories);
 				
 		// Load action object to populate fields
@@ -1577,7 +1565,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl->assign('workers', $workers);
 		
 		// Teams
-		$teams = DAO_Workflow::getTeams();
+		$teams = DAO_Group::getAll();
 		$tpl->assign('teams', $teams);
 		
 		// Task
@@ -1677,25 +1665,33 @@ class ChTicketsPage extends CerberusPageExtension {
 	}
 	
 	function searchviewAction() {
+		$visit = CerberusApplication::getVisit();
+		$viewManager = $visit->get(CerberusVisit::KEY_VIEW_MANAGER); /* @var $viewManager CerberusStaticViewManager */
+	    
 	    $response = DevblocksPlatform::getHttpRequest();
 	    $path = $response->path;
 	    array_shift($path); // tickets
 	    array_shift($path); // searchview
 	    $id = array_shift($path);
 
-		$view = DAO_Dashboard::getView($id);
-		
-		$search_view = DAO_Dashboard::getView(CerberusApplication::VIEW_SEARCH);
-		
-		if(!empty($search_view)) {
-			$fields = array(
-				'params' => serialize($view->params)
-			);
-			DAO_Dashboard::updateView($search_view->id, $fields);
-		} else {
-		    // [TODO] Our dashboard view getter should be able to build a default search view
-	        // or we need CerberusApplication:: to be able to create it.
+		$view = $viewManager->getView($id);
+
+		if(!empty($view->params)) {
+		    $params = array();
+		    
+		    // Index by field name for search system
+		    if(is_array($view->params))
+		    foreach($view->params as $criteria) { /* @var $criteria DevblocksSearchCriteria */
+                $params[$criteria->field] = $criteria;
+		    }
 		}
+		
+		if(null == ($search_view = $viewManager->getView(CerberusApplication::VIEW_SEARCH))) {
+		    $search_view = $viewManager->createSearchView();
+		}
+		
+        $search_view->params = $params;
+		$viewManager->setView($search_view->id, $search_view);
 		
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','search')));
 	}
@@ -1758,12 +1754,12 @@ class ChTicketsPage extends CerberusPageExtension {
 				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/search/criteria/requester_email.tpl.php');
 				break;
 				
-			case SearchFields_Ticket::MESSAGE_CONTENT:
+			case SearchFields_Ticket::TICKET_MESSAGE_CONTENT:
 				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/search/criteria/message_content.tpl.php');
 				break;
 				
 			case SearchFields_Ticket::TEAM_ID:
-				$teams = DAO_Workflow::getTeams();
+				$teams = DAO_Group::getAll();
 				$tpl->assign('teams', $teams);
 				
 				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/search/criteria/ticket_team.tpl.php');
@@ -1808,7 +1804,7 @@ class ChTicketsPage extends CerberusPageExtension {
 				@$oper = DevblocksPlatform::importGPC($_REQUEST['oper']);
 				$params[$field] = new DevblocksSearchCriteria($field,$oper,$requester);
 				break;
-			case SearchFields_Ticket::MESSAGE_CONTENT:
+			case SearchFields_Ticket::TICKET_MESSAGE_CONTENT:
 				@$requester = DevblocksPlatform::importGPC($_REQUEST['content']);
 				$params[$field] = new DevblocksSearchCriteria($field,'like',$requester);
 				break;
@@ -1830,16 +1826,16 @@ class ChTicketsPage extends CerberusPageExtension {
 	function removeCriteriaAction() {
 		$view = DAO_Dashboard::getView(CerberusApplication::VIEW_SEARCH);
 
-		@$params = $view->params;
+		@$params =& $view->params;
 		
 		$request = DevblocksPlatform::getHttpRequest();
 		$stack = $request->path;
-		
+
 		@$field = $stack[2];		
 
 		if(isset($params[$field]))
 			unset($params[$field]);
-			
+		
 		$fields = array(
 			'params' => serialize($params)
 		);
@@ -1982,7 +1978,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 				$routing = DAO_Mail::getMailboxRouting();
 				$tpl->assign('routing', $routing);
 		
-				$teams = DAO_Workflow::getTeams();
+				$teams = DAO_Group::getAll();
 				$tpl->assign('teams', $teams);
 				
 				$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/mail/index.tpl.php');				
@@ -1992,7 +1988,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 				$workers = DAO_Worker::getList();
 				$tpl->assign('workers', $workers);
 				
-				$teams = DAO_Workflow::getTeams();
+				$teams = DAO_Group::getAll();
 				$tpl->assign('teams', $teams);
 				
 				$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/workflow/index.tpl.php');				
@@ -2085,7 +2081,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$worker = DAO_Worker::getAgent($id);
 		$tpl->assign('worker', $worker);
 		
-		$teams = DAO_Workflow::getTeams();
+		$teams = DAO_Group::getAll();
 		$tpl->assign('teams', $teams);
 		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/workflow/edit_worker.tpl.php');
@@ -2144,7 +2140,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 
-		$team = DAO_Workflow::getTeam($id);
+		$team = DAO_Group::getTeam($id);
 		$tpl->assign('team', $team);
 		
 		$workers = DAO_Worker::getList();
@@ -2164,76 +2160,24 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		if(empty($name)) $name = "No Name";
 		
 		if(!empty($id) && !empty($delete)) {
-			DAO_Workflow::deleteTeam($id);
+			DAO_Group::deleteTeam($id);
 			
 		} elseif(!empty($id)) {
 			$fields = array(
 				'name' => $name
 			);
-			DAO_Workflow::updateTeam($id, $fields);
-//			DAO_Workflow::setTeamMailboxes($id, $mailbox_id);
-			DAO_Workflow::setTeamWorkers($id, $agent_id);
+			DAO_Group::updateTeam($id, $fields);
+//			DAO_Group::setTeamMailboxes($id, $mailbox_id);
+			DAO_Group::setTeamWorkers($id, $agent_id);
 			
 		} else {
-			$id = DAO_Workflow::createTeam($name);
-//			DAO_Workflow::setTeamMailboxes($id, $mailbox_id);
-			DAO_Workflow::setTeamWorkers($id, $agent_id);
+			$id = DAO_Group::createTeam($name);
+//			DAO_Group::setTeamMailboxes($id, $mailbox_id);
+			DAO_Group::setTeamWorkers($id, $agent_id);
 		}
 		
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','workflow')));
 	}
-	
-	// Ajax
-//	function getMailboxAction() {
-//		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
-//
-//		$tpl = DevblocksPlatform::getTemplateService();
-//		$tpl->cache_lifetime = "0";
-//		$tpl->assign('path', dirname(__FILE__) . '/templates/');
-//
-//		$mailbox = DAO_Mail::getMailbox($id);
-//		$tpl->assign('mailbox', $mailbox);
-//		
-//		$teams = DAO_Workflow::getTeams();
-//		$tpl->assign('teams', $teams);
-//		
-//		$reply_address = DAO_Contact::getAddress($mailbox->reply_address_id);
-//		$tpl->assign('reply_address', $reply_address);
-//		
-//		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/mail/edit_mailbox.tpl.php');
-//	}
-//	
-//	// Post
-//	function saveMailboxAction() {
-//		@$id = DevblocksPlatform::importGPC($_POST['id']);
-//		@$name = DevblocksPlatform::importGPC($_POST['name']);
-//		@$reply_as = DevblocksPlatform::importGPC($_POST['reply_as']);
-//		@$team_id = DevblocksPlatform::importGPC($_POST['team_id']);
-//		@$delete = DevblocksPlatform::importGPC($_POST['delete']);
-//		
-//		if(empty($name)) $name = "No Name";
-//		
-//		if(!empty($id) && !empty($delete)) {
-//			DAO_Mail::deleteMailbox($id);
-//			
-//		} elseif(!empty($id)) {
-//			$reply_id = DAO_Contact::lookupAddress($reply_as, true);
-//
-//			$fields = array(
-//				'name' => $name,
-//				'reply_address_id' => $reply_id
-//			);
-//			DAO_Mail::updateMailbox($id, $fields);
-//			DAO_Mail::setMailboxTeams($id, $team_id);
-//			
-//		} else {
-//			$reply_id = DAO_Contact::lookupAddress($reply_as, true);
-//			$id = DAO_Mail::createMailbox($name,$reply_id);
-//			DAO_Mail::setMailboxTeams($id, $team_id);
-//		}
-//		
-//		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','mail')));
-//	}
 	
 	// Post
 	function saveSettingsAction() {
@@ -2280,7 +2224,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$routing = DAO_Mail::getMailboxRouting();
 		$tpl->assign('routing', $routing);
 
-		$teams = DAO_Workflow::getTeams();
+		$teams = DAO_Group::getAll();
 		$tpl->assign('teams', $teams);
 		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/mail/mail_routing.tpl.php');
@@ -2357,7 +2301,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		
-		$teams = DAO_Workflow::getTeams();
+		$teams = DAO_Group::getTeams();
 		$tpl->assign('teams', $teams);
 
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/mail/mail_routing_add.tpl.php');
@@ -2403,7 +2347,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 //		
 //		// [JAS]: Send the new mailbox name to the server 
 //		// [TODO] Necessary?
-//		$team = DAO_Workflow::getTeam($team_id);
+//		$team = DAO_Group::getTeam($team_id);
 //		echo $team->name;
 //	}
 	
@@ -2761,14 +2705,14 @@ class ChDisplayPage extends CerberusPageExtension {
 	
 		$tpl->assign('ticket', $ticket);
 
-		$teams = DAO_Workflow::getTeams();
+		$teams = DAO_Group::getAll();
 		$tpl->assign('teams', $teams);
 		
 		// [TODO] Cache this
 		$workers = DAO_Worker::getList();
 		$tpl->assign('workers', $workers);
 		
-		$team_categories = DAO_Category::getTeams();
+		$team_categories = DAO_Bucket::getTeams();
 		$tpl->assign('team_categories', $team_categories);
 		
 		$display_module_manifests = DevblocksPlatform::getExtensions("cerberusweb.display.module");
@@ -2796,7 +2740,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		}
 
 //        $ticket = DAO_Ticket::getTicket($id);
-		$categories = DAO_Category::getList();
+		$categories = DAO_Bucket::getAll();
 
 		// Properties
 		$properties = array(
@@ -2859,10 +2803,10 @@ class ChDisplayPage extends CerberusPageExtension {
 		$ticket = DAO_Ticket::getTicket($message->ticket_id);
 		$tpl->assign('ticket',$ticket);
 		
-		$teams = DAO_Workflow::getTeams();
+		$teams = DAO_Group::getAll();
 		$tpl->assign('teams', $teams);
 		
-		$team_categories = DAO_Category::getTeams();
+		$team_categories = DAO_Bucket::getTeams();
 		$tpl->assign('team_categories', $team_categories);
 
 		@$ticket_team = $teams[$ticket->team_id];
@@ -3219,359 +3163,6 @@ class ChPreferencesPage extends CerberusPageExtension {
 		DAO_WorkerPref::set($worker->id, 'assist_mode', $assist_mode);
 	}
 };
-
-class ChDisplayTicketHistory extends CerberusDisplayPageExtension {
-	function __construct($manifest) {
-		parent::__construct($manifest);
-	}
-	
-	function render($ticket) {
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
-//		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/ticket_history.tpl.php');
-	}
-	
-	function renderBody($ticket) {
-		/* @var $ticket CerberusTicket */
-		
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
-		
-//		$requesters = $ticket->getRequesters();
-		
-		$history_tickets = DAO_Ticket::search(
-			array(
-				new DevblocksSearchCriteria(SearchFields_Ticket::SENDER_ID,'=',$ticket->first_wrote_address_id)
-			),
-			10,
-			0,
-			SearchFields_Ticket::TICKET_CREATED_DATE,
-			0
-		);
-		$tpl->assign('history_tickets', $history_tickets[0]);
-		$tpl->assign('history_count', $history_tickets[1]);
-		
-//		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/history/index.tpl.php');
-	}
-}
-
-class ChDisplayTicketLog extends CerberusDisplayPageExtension {
-	function __construct($manifest) {
-		parent::__construct($manifest);
-	}
-	
-	function render($ticket) {
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
-//		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/ticket_log.tpl.php');
-	}
-	
-	function renderBody($ticket) {
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
-		
-//		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/log/index.tpl.php');
-	}
-}
-
-class ChDisplayTicketTasks extends CerberusDisplayPageExtension {
-	function __construct($manifest) {
-		parent::__construct($manifest);
-	}
-	
-	function render($ticket) {
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
-//		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/ticket_tasks.tpl.php');
-	}
-	
-	/**
-	 * @param CerberusTicket $ticket
-	 */
-	function renderBody(CerberusTicket $ticket) {
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
-//		
-		$tasks = DAO_Task::getByTicket($ticket->id);
-		$tpl->assign('tasks', $tasks);
-		
-		$task_owners = DAO_Task::getOwners(array_keys($tasks));
-		$tpl->assign('task_owners', $task_owners);
-		
-		$tpl->assign('ticket', $ticket);
-		
-//		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/tasks/index.tpl.php');
-	}
-	
-//	function getTagDialog() {
-//		@$tag_id = intval(DevblocksPlatform::importGPC($_REQUEST['id']));
-//		@$ticket_id = intval(DevblocksPlatform::importGPC($_REQUEST['ticket_id']));
-//		
-//		$tpl = DevblocksPlatform::getTemplateService();
-//		$tpl->caching = 0;
-//		$tpl->cache_lifetime = 0;
-//		
-//		$tag = DAO_Workflow::getTag($tag_id);
-//		$tpl->assign('tag', $tag);
-//		
-//		$tpl->assign('ticket_id', $ticket_id);
-//		
-//		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/workflow/tag_dialog.tpl.php');
-//	}
-//	
-//	function saveTagDialog() {
-//		@$id = intval(DevblocksPlatform::importGPC($_REQUEST['id']));
-//		@$ticket_id = intval(DevblocksPlatform::importGPC($_REQUEST['ticket_id']));
-//		@$str_terms = DevblocksPlatform::importGPC($_REQUEST['terms']);
-//		@$untag = intval(DevblocksPlatform::importGPC($_REQUEST['untag']));
-//		
-//		if(!empty($untag) && !empty($ticket_id)) {
-////			DAO_Ticket::untagTicket($ticket_id, $id);
-//			// [TODO]: CloudGlue needs to delete specific tags on content ids here.
-//		} else {
-//			// Save Changes
-//			
-//			// Terms
-//			// [TODO] Terms need to be added to CloudGlue
-////			$terms = preg_split("/[\r\n]/", $str_terms);
-////			
-////			if(!empty($terms)) {
-////				DAO_Workflow::setTagTerms($id, $terms);
-////			}
-//		}
-//		
-//		echo ' ';
-//	}
-//	
-//	function autoTag() {
-//		@$q = DevblocksPlatform::importGPC($_REQUEST['q']);
-//		header("Content-Type: text/plain");
-//		
-//		$tags = DAO_Workflow::searchTags($q, 10);
-//		
-//		if(is_array($tags))
-//		foreach($tags as $tag) {
-//			echo $tag->name,"\t",$tag->id,"\n";
-//		}
-//	}
-//	
-//	function autoWorker() {
-//		@$q = DevblocksPlatform::importGPC($_REQUEST['q']);
-//		header("Content-Type: text/plain");
-//		
-//		$workers = DAO_Worker::searchAgents($q, 10);
-//		
-//		if(is_array($workers))
-//		foreach($workers as $worker) {
-//			echo $worker->login,"\t",$worker->id,"\n";
-//		}
-//	}
-//	
-//	function autoAddress() {
-//		@$q = DevblocksPlatform::importGPC($_REQUEST['q']);
-//		header("Content-Type: text/plain");
-//		
-//		$addresses = DAO_Mail::searchAddresses($q, 10);
-//		
-//		if(is_array($addresses))
-//		foreach($addresses as $address) {
-//			echo $address->email,"\t",$address->id,"\n";
-//		}
-//	}
-//	
-//	
-//	function getAgentDialog() {
-//		@$id = intval(DevblocksPlatform::importGPC($_REQUEST['id']));
-//		@$ticket_id = intval(DevblocksPlatform::importGPC($_REQUEST['ticket_id']));
-//		
-//		$tpl = DevblocksPlatform::getTemplateService();
-//		$tpl->caching = 0;
-//		$tpl->cache_lifetime = 0;
-//		
-//		$agent = DAO_Worker::getAgent($id);
-//		$tpl->assign('agent', $agent);
-//		
-//		$tpl->assign('ticket_id', $ticket_id);
-//		
-//		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/workflow/agent_dialog.tpl.php');
-//	}
-//	
-//	function saveAgentDialog() {
-//		@$id = intval(DevblocksPlatform::importGPC($_REQUEST['id']));
-//		@$ticket_id = intval(DevblocksPlatform::importGPC($_REQUEST['ticket_id']));
-//		@$unassign = intval(DevblocksPlatform::importGPC($_REQUEST['unassign']));
-//		
-//		if(!empty($unassign) && !empty($ticket_id)) {
-//			DAO_Ticket::unflagTicket($ticket_id, $id);
-//			DAO_Ticket::unsuggestTicket($ticket_id, $id);
-//		} else {
-//			// save changes
-//		}
-//		
-//		echo ' ';
-//	}
-	
-//	function showApplyTags() {
-//		@$id = intval(DevblocksPlatform::importGPC($_REQUEST['id']));
-//		
-//		$session = DevblocksPlatform::getSessionService();
-//		$visit = $session->getVisit();
-//		
-//		$tpl = DevblocksPlatform::getTemplateService();
-//		$tpl->caching = 0;
-//		$tpl->cache_lifetime = 0;
-//		
-//		$tpl->assign('moduleLabel', $this->manifest->id);
-//		
-//		$ticket = DAO_Ticket::getTicket($id);
-//		$tpl->assign('ticket', $ticket);
-//		
-//		$favoriteTags = DAO_Worker::getFavoriteTags($visit->worker->id);
-//		$tpl->assign('favoriteTags', $favoriteTags);
-//		
-//		$suggestedTags = DAO_Workflow::getTags();
-//		$tpl->assign('suggestedTags', $suggestedTags);
-//		
-//		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/workflow/add_tags.tpl.php');
-//	}
-	
-	/*
-	function showFavTags() {
-		$session = DevblocksPlatform::getSessionService();
-		$visit = $session->getVisit();
-		
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->caching = 0;
-		$tpl->cache_lifetime = 0;
-
-		$favoriteTags = DAO_Worker::getFavoriteTags($visit->worker->id);
-		$tpl->assign('favoriteTags', $favoriteTags);
-		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/workflow/add_favtags.tpl.php');
-	}
-
-	function saveFavoriteTags() {
-		@$favTagEntry = DevblocksPlatform::importGPC($_POST['favTagEntry']);
-		
-		$session = DevblocksPlatform::getSessionService();
-		$visit = $session->getVisit();
-		
-		DAO_Worker::setFavoriteTags($visit->worker->id, $favTagEntry);
-		
-		echo ' ';
-	}
-	
-	function showFavWorkers() {
-		$session = DevblocksPlatform::getSessionService();
-		$visit = $session->getVisit();
-		
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->caching = 0;
-		$tpl->cache_lifetime = 0;
-
-		$tpl->assign('moduleLabel', $this->manifest->id);
-
-		$agents = DAO_Worker::getList();
-		$tpl->assign('agents', $agents);
-		
-		$favoriteWorkers = DAO_Worker::getFavoriteWorkers($visit->worker->id);
-		$tpl->assign('favoriteWorkers', $favoriteWorkers);
-		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/workflow/add_favworkers.tpl.php');
-	}
-
-	function saveFavoriteWorkers() {
-		@$favWorkerEntry = DevblocksPlatform::importGPC($_POST['favWorkerEntry']);
-		
-		$session = DevblocksPlatform::getSessionService();
-		$visit = $session->getVisit();
-		
-		DAO_Worker::setFavoriteWorkers($visit->worker->id, $favWorkerEntry);
-		
-		echo ' ';
-	}
-	
-	function showFlagAgents() {
-		@$id = intval(DevblocksPlatform::importGPC($_REQUEST['id']));
-
-		$session = DevblocksPlatform::getSessionService();
-		$visit = $session->getVisit();
-		
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->caching = 0;
-		$tpl->cache_lifetime = 0;
-
-		$tpl->assign('moduleLabel', $this->manifest->id);
-
-		$ticket = DAO_Ticket::getTicket($id);
-		$tpl->assign('ticket', $ticket);
-		
-		$favoriteWorkers = DAO_Worker::getFavoriteWorkers($visit->worker->id);
-		$tpl->assign('favoriteWorkers', $favoriteWorkers);
-		
-		$agents = DAO_Worker::getList();
-		$tpl->assign('agents', $agents);
-		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/workflow/add_flags.tpl.php');
-	}
-
-	function showSuggestAgents() {
-		@$id = intval(DevblocksPlatform::importGPC($_REQUEST['id']));
-		
-		$session = DevblocksPlatform::getSessionService();
-		$visit = $session->getVisit();
-		
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->caching = 0;
-		$tpl->cache_lifetime = 0;
-
-		$tpl->assign('moduleLabel', $this->manifest->id);
-
-		$ticket = DAO_Ticket::getTicket($id);
-		$tpl->assign('ticket', $ticket);
-		
-		$favoriteWorkers = DAO_Worker::getFavoriteWorkers($visit->worker->id);
-		$tpl->assign('favoriteWorkers', $favoriteWorkers);
-		
-		$agents = DAO_Worker::getList();
-		$tpl->assign('agents', $agents);
-		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/workflow/add_suggestions.tpl.php');
-	}
-
-	function suggestAgents() {
-		@$id = intval(DevblocksPlatform::importGPC($_POST['id']));
-		@$agentEntry = DevblocksPlatform::importGPC($_POST['workerEntry']);
-		
-		$tokens = CerberusApplication::parseCsvString($agentEntry);
-		
-		foreach($tokens as $token) {
-			$agent_id = DAO_Worker::lookupAgentEmail($token);
-			if(empty($agent_id)) continue;
-			DAO_Ticket::suggestTicket($id, $agent_id);
-		}
-		
-		echo ' ';
-	}
-	*/
-	
-}
-
-class ChDisplayTicketFields extends CerberusDisplayPageExtension {
-	function __construct($manifest) {
-		parent::__construct($manifest);
-	}
-	
-	function render($ticket) {
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
-//		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/ticket_fields.tpl.php');
-	}
-	
-	function renderBody($ticket) {
-//		echo "Ticket custom fields content goes here!";
-	}
-}
 
 class ChDisplayTicketConversation extends CerberusDisplayPageExtension {
 	function __construct($manifest) {

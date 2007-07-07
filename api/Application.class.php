@@ -472,7 +472,7 @@ class CerberusApplication extends DevblocksApplication {
 		$t_or_c_id = intval(substr($code,1));
 		
 		if($t_or_c=='c') {
-			$categories = DAO_Category::getList(); // [TODO] Cache
+			$categories = DAO_Bucket::getAll();
 			$team_id = $categories[$t_or_c_id]->team_id;
 			$category_id = $t_or_c_id; 
 		} else {
@@ -644,7 +644,7 @@ class CerberusApplication extends DevblocksApplication {
 };
 
 /**
- * [TODO] This goes in the session
+ * [TODO] Any reason this can't be a static helper without being instanced?
  */
 class CerberusStaticViewManager {
 	private $views = array();
@@ -661,6 +661,30 @@ class CerberusStaticViewManager {
 	
 	public function setView($view_label, $view) {
 		$this->views[$view_label] = $view;
+	}
+	
+	public function createSearchView() {
+		$view = new CerberusDashboardView();
+		$view->id = CerberusApplication::VIEW_SEARCH;
+		$view->name = "Search Results";
+		$view->dashboard_id = 0;
+		$view->view_columns = array(
+			SearchFields_Ticket::TICKET_NEXT_ACTION,
+			SearchFields_Ticket::TICKET_LAST_WROTE,
+			SearchFields_Ticket::TICKET_UPDATED_DATE,
+			SearchFields_Ticket::TEAM_NAME,
+			SearchFields_Ticket::TICKET_CATEGORY_ID,
+			SearchFields_Ticket::TICKET_SPAM_SCORE,
+			);
+		$view->params = array();
+		$view->renderLimit = 100;
+		$view->renderPage = 0;
+		$view->renderSortBy = SearchFields_Ticket::TICKET_CREATED_DATE;
+		$view->renderSortAsc = 0;
+	
+		$this->setView(CerberusApplication::VIEW_SEARCH,$view);
+		
+		return $view;
 	}
 };
 
