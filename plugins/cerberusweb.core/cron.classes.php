@@ -193,6 +193,16 @@ class MaintCron extends CerberusCronPageExtension {
         
 	    // [TODO] After deletion, check for any leftover NULL rows and delete them
 
+	    // [mdf] Remove any empty directories inside storage/mail/new
+        $mailDir = APP_MAIL_PATH . 'new' . DIRECTORY_SEPARATOR;
+	    $subdirs = glob($mailDir . '*', GLOB_ONLYDIR);
+    	foreach($subdirs as $subdir) {
+    		$directory_empty = count(glob($subdir. DIRECTORY_SEPARATOR . '*')) === 0;
+    		if($directory_empty && is_writeable($subdir)) {
+    			rmdir($subdir);
+    		}
+	    }
+	    
 	    // Optimize/Vaccuum
 	    // [TODO] Make this configurable from job
 	    $perf = NewPerfMonitor($db); 
