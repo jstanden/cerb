@@ -15,6 +15,12 @@ class Pop3Cron extends CerberusCronPageExtension {
         $timeout = ini_get('max_execution_time');
         $max_downloads = ($timeout) ? 20 : 50; // [TODO] Make a job setting?
         
+        // [JAS]: Make sure our output directory is writeable
+	    if(!is_writable(APP_MAIL_PATH . 'new' . DIRECTORY_SEPARATOR)) {
+	        echo "The mail storage directory is not writeable.  Skipping POP3 download.<br>";
+	        return;
+	    }
+        
         foreach ($accounts as $account) { /* @var $account CerberusPop3Account */
             if(!$account->enabled)
                 continue;
@@ -95,6 +101,10 @@ class Pop3Cron extends CerberusCronPageExtension {
                 //                $runtime_bytes += strlen($body);
                 //				echo "Length: ",strlen($body),"<BR>";
 
+                // [TODO] [JAS]: We should really download into the temp directory and
+	            // move it once we're successful.  A parser running in another thread 
+	            // could see our partial file and move it.
+                
                 do {
                     $filename = APP_MAIL_PATH . 'new' . DIRECTORY_SEPARATOR . CerberusMail::generateMessageFilename();
                 } while(file_exists($filename));
@@ -113,6 +123,7 @@ class Pop3Cron extends CerberusCronPageExtension {
                 $time = microtime(true) - $time;
                 echo "(",sprintf("%d",($time*1000))," ms)<br>";
                 flush();
+                imap_delete($mailbox, $msgno);
                 continue;
             }
             	
