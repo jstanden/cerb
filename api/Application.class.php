@@ -1,5 +1,5 @@
 <?php
-define("APP_BUILD", 196);
+define("APP_BUILD", 198);
 define("APP_MAIL_PATH", realpath(APP_PATH . '/storage/mail') . DIRECTORY_SEPARATOR);
 
 include_once(APP_PATH . "/api/DAO.class.php");

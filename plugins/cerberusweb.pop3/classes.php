@@ -127,6 +127,7 @@ class Pop3Cron extends CerberusCronPageExtension {
                 continue;
             }
             	
+            imap_expunge($mailbox);
             imap_close($mailbox);
             	
             echo "<b>Total Runtime:</b> ",((microtime(true)-$runtime)*1000)," ms<br>";
