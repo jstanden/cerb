@@ -101,8 +101,45 @@ if(isset($columns['owner_id'])) {
     $datadict->ExecuteSQLArray($sql);
 }
 
+if(isset($columns['priority'])) {
+    $sql = $datadict->DropColumnSQL('ticket', 'priority');
+    $datadict->ExecuteSQLArray($sql);
+}
+
 if(isset($columns['import_pile'])) {
 	$sql = $datadict->DropColumnSQL('ticket', 'import_pile');
+    $datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($columns['first_message_id'])) {
+    $sql = $datadict->AddColumnSQL('ticket', 'first_message_id I4 DEFAULT 0 NOTNULL');
+    $datadict->ExecuteSQLArray($sql);
+}
+
+   // [JAS]: Populate our new foreign key
+   $sql = "SELECT m.ticket_id, min(m.id) as first_message_id ".
+       "FROM message m ".
+       "INNER JOIN ticket t ON (t.id=m.ticket_id) ".
+ 	   "WHERE t.first_message_id = 0 ".
+ 	   "GROUP BY ticket_id";
+   $rs = $db->Execute($sql); /* @var $rs ADORecordSet */
+   
+   while(!$rs->EOF) {
+       if(empty($rs->fields['first_message_id'])) {
+           continue;
+       }
+       
+       $sql = sprintf("UPDATE ticket SET first_message_id = %d WHERE id = %d", 
+			intval($rs->fields['first_message_id']),
+			intval($rs->fields['ticket_id'])
+			);
+       $db->Execute($sql);
+       
+       $rs->MoveNext();
+   }
+
+if(!isset($indexes['first_message_id'])) {
+    $sql = $datadict->CreateIndexSQL('first_message_id','ticket','first_message_id');
     $datadict->ExecuteSQLArray($sql);
 }
 

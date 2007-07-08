@@ -290,6 +290,10 @@ class CerberusParser {
 			    DAO_Ticket::UPDATED_DATE => time(),
 			    DAO_Ticket::IS_CLOSED => 0
 			));
+		} elseif($bIsNew && !empty($email_id)) { // First thread
+			DAO_Ticket::updateTicket($id,array(
+			    DAO_Ticket::FIRST_MESSAGE_ID => $email_id
+		    ));
 		}
 		
 //		$ticket = DAO_Ticket::getTicket($id);

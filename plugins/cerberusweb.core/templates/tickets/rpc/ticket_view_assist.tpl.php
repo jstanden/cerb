@@ -5,8 +5,7 @@
 
 Sort biggest piles by: 
 <label><input type="radio" name="mode" value="senders" {if $mode!="senders"}onclick="genericAjaxGet('{$view_id}_tips','c=tickets&a=showViewAutoAssist&view_id={$view_id}&mode=senders');"{/if} {if $mode=="senders"}checked{/if}>Senders</label>
-<label><input type="radio" name="mode" value="subjects" {if $mode!="subjects"}onclick="genericAjaxGet('{$view_id}_tips','c=tickets&a=showViewAutoAssist&view_id={$view_id}&mode=subjects');"{/if} {if $mode=="subjects"}checked{/if}>Subjects</label>
-<label><input type="radio" name="mode" value="import" {if $mode!="import"}onclick="genericAjaxGet('{$view_id}_tips','c=tickets&a=showViewAutoAssist&view_id={$view_id}&mode=import');"{/if} {if $mode=="import"}checked{/if}>Import Source</label>
+<label><input type="radio" name="mode" value="headers" onclick="genericAjaxGet('{$view_id}_tips','c=tickets&a=showViewAutoAssist&view_id={$view_id}&mode=headers');" {if $mode=="headers"}checked{/if}>Headers</label>
 <br>
 <br>
 
@@ -16,18 +15,18 @@ Sort biggest piles by:
 <table cellspacing="0" cellpadding="2" border="0" width="100%">
 <tr>
 	<td align="top" colspan="3">
-		<H3 style="font-size:18px;margin:0px;">The biggest piles of common {if $mode=="senders"}senders{elseif $mode=="subjects"}subjects{elseif $mode=="import"}import sources{/if} in this list are:</H3>
+		<H3 style="font-size:18px;margin:0px;">The biggest piles of common {if $mode=="senders"}senders{elseif $mode=="subjects"}subjects{elseif $mode=="import"}import sources{elseif $mode=="headers"}message headers{/if} in this list are:</H3>
 	</td>
 </tr>
 <tr>
-	<td width="0%" nowrap align="center">{if $mode!="import"}Always{/if}</td>
+	<td width="0%" nowrap align="center">{if $mode!="headers"}Always{/if}</td>
 	<td width="0%" nowrap>Move to:</td>
 	<td width="100%">From biggest piles:</td>
 </tr>
 {foreach from=$biggest item=stats key=hash}
 <tr>
 	<td width="0%" nowrap="nowrap" align="center">
-		{if $mode!="import"}
+		{if $mode!="headers"}
 		<input type="checkbox" name="piles_always[]" value="{$hash}">
 		{/if}
 	</td>
@@ -44,18 +43,24 @@ Sort biggest piles by:
 					</optgroup>
 				{/if}
 			{/foreach}
-			<optgroup label="Group Inboxes" style="">
+			<optgroup label="Group Inboxes" style="color:rgb(0,150,0);font-weight:bold;">
 				{foreach from=$teams item=team}
 					<option value="t{$team->id}">{$team->name}</option>
 				{/foreach}
+			</optgroup>
+			<optgroup label="Actions" style="color:rgb(150,0,0);font-weight:bold;">
+				<option value="ac">Close</option>
+				<option value="as">Report Spam</option>
+				<option value="ad">Delete</option>
 			</optgroup>
 		</select>
 	</td>
 	<td width="100%" align="top">
 		<input type="hidden" name="piles_hash[]" value="{$hash}">
 		<input type="hidden" name="piles_type[]" value="{$stats[0]}">
+		<input type="hidden" name="piles_type_param[]" value="{$stats[4]}">
 		<input type="hidden" name="piles_value[]" value="{$stats[1]|escape:"htmlall"}">
-		<label>{$stats[0]} <span style="color:rgb(0,120,0);" title="{$stats[1]|escape:"htmlall"}">{$stats[1]|escape:"htmlall"|truncate:45:'...'}</span> ({$stats[2]} hits)</label>
+		<label>{if !empty($stats[4])}{$stats[4]}{else}{$stats[0]}{/if} <span style="color:rgb(0,120,0);" title="{$stats[1]|escape:"htmlall"}">{$stats[1]|truncate:76:'...':true|escape:"htmlall"}</span> ({$stats[2]} hits)</label>
 	</td>
 </tr>
 {if $stats[0] == 'domain' && !empty($stats[3]) && is_array($stats[3])}
@@ -77,10 +82,15 @@ Sort biggest piles by:
 						</optgroup>
 					{/if}
 				{/foreach}
-				<optgroup label="Group Inboxes" style="">
+				<optgroup label="Group Inboxes" style="color:rgb(0,150,0);font-weight:bold;">
 					{foreach from=$teams item=team}
 						<option value="t{$team->id}">{$team->name}</option>
 					{/foreach}
+				</optgroup>
+				<optgroup label="Actions" style="color:rgb(150,0,0);font-weight:bold;">
+					<option value="ac">Close</option>
+					<option value="as">Report Spam</option>
+					<option value="ad">Delete</option>
 				</optgroup>
 			</select>
 		</td>
@@ -89,7 +99,7 @@ Sort biggest piles by:
 				<input type="hidden" name="piles_hash[]" value="{$sender_hash}">
 				<input type="hidden" name="piles_type[]" value="{$sender[0]}">
 				<input type="hidden" name="piles_value[]" value="{$sender[1]|escape:"htmlall"}">
-				<label>{$sender[0]} <span style="color:rgb(0,120,0);" title="{$sender[1]|escape:"htmlall"}">{$sender[1]|escape:"htmlall"|truncate:45:'...'}</span> ({$sender[2]} hits)</label><br>
+				<label>{$sender[0]} <span style="color:rgb(0,120,0);" title="{$sender[1]|escape:"htmlall"}">{$sender[1]|truncate:76:'...':true|escape:"htmlall"}</span> ({$sender[2]} hits)</label><br>
 			</blockquote>
 		</td>
 	</tr>	

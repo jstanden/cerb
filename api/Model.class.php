@@ -289,8 +289,8 @@ class CerberusDashboardView {
 	 * @param array
 	 * @return boolean
 	 */
-	function doBulkUpdate($filter, $data, $do, $ticket_ids=array(), $always_do_for_team_id=0) {
-	    @set_time_limit(0); // [TODO] Temp!
+	function doBulkUpdate($filter, $filter_param, $data, $do, $ticket_ids=array(), $always_do_for_team_id=0) {
+	    @set_time_limit(600); // [TODO] Temp!
 	    
 		$action = new Model_DashboardViewAction();
 		$action->params = $do;
@@ -305,28 +305,29 @@ class CerberusDashboardView {
 	        list($team_id, $bucket_id) = CerberusApplication::translateTeamCategoryCode($do['team']);
 		
 		switch($filter) {
-		    case 'subject':
+//		    case 'subject':
             case 'sender':
-            case 'import':
+            case 'header':
+//            case 'import':
 
 		        foreach($data as $v) {
 					switch($filter) {
-					    case 'subject':
-					        $new_params = array(
-					            new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_SUBJECT,DevblocksSearchCriteria::OPER_LIKE,$v)
-					        );
-		                    $do_header = 'subject';
-					        break;
+//					    case 'subject':
+//					        $new_params = array(
+//					            new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_SUBJECT,DevblocksSearchCriteria::OPER_LIKE,$v)
+//					        );
+//		                    $do_header = 'subject';
+//					        break;
 					    case 'sender':
 			                $new_params = array(
 			                    new DevblocksSearchCriteria(SearchFields_Ticket::SENDER_ADDRESS,DevblocksSearchCriteria::OPER_LIKE,$v)
 			                );
                             $do_header = 'from';
 			                break;
-			            case 'import':
+			            case 'header':
 	                        $new_params = array(
 	                            // [TODO] It will eventually come up that we need multiple header matches (which need to be pair grouped as OR)
-	                            new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_MESSAGE_HEADER,DevblocksSearchCriteria::OPER_EQ,'x-cerberusimportpile'),
+	                            new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_MESSAGE_HEADER,DevblocksSearchCriteria::OPER_EQ,$filter_param),
 	                            new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_MESSAGE_HEADER_VALUE,DevblocksSearchCriteria::OPER_EQ,$v)
 	                        );
 	                        break;
@@ -349,6 +350,8 @@ class CerberusDashboardView {
 				        $ticket_ids = array_merge($ticket_ids, array_keys($tickets));
 				        
 			        } while(!empty($tickets));
+			        
+			        // [TODO] Allow rule creation on headers
 			        
 			        // Did we want to save this and repeat it in the future?
 				    if($always_do_for_team_id && !empty($do_header)) {

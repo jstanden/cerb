@@ -148,21 +148,10 @@ class ChTranslations extends DevblocksTranslationsExtension {
 };
 
 class ChTicketsPage extends CerberusPageExtension {
-	private $tag_chooser_cfg;
-	
 	function __construct($manifest) {
 		parent::__construct($manifest);
-
-//		// Store a Cloud Configuration for the chooser
-//		$this->tag_chooser_cfg = new CloudGlueConfiguration();
-//		$this->tag_chooser_cfg->indexName = 'tickets';
-//		$this->tag_chooser_cfg->extension = 'tickets';
-//		$this->tag_chooser_cfg->divName = 'tagChooserCloud';
-//		$this->tag_chooser_cfg->php_click = 'clickChooserTag';
-//		$this->tag_chooser_cfg->js_click = '';
-//		$this->tag_chooser_cfg->tagLimit = 50;
 	}
-	
+
 	function isVisible() {
 		// check login
 		$session = DevblocksPlatform::getSessionService();
@@ -756,6 +745,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	function showViewAutoAssistAction() {
         @$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
         @$mode = DevblocksPlatform::importGPC($_REQUEST['mode'],'string','senders');
+        @$mode_param = DevblocksPlatform::importGPC($_REQUEST['mode_param'],'string','');
 
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl_path = dirname(__FILE__) . '/templates/';
@@ -770,26 +760,34 @@ class ChTicketsPage extends CerberusPageExtension {
         $tpl->assign('view_id', $view_id);
         $tpl->assign('mode', $mode);
 
-        // [TODO] Clean this up (move into the visit with active dash?)
-		if(0 == strcmp('t',substr($active_dashboard_id,0,1))) {
-		    $team_id = intval(substr($active_dashboard_id,1));
-		    $tpl->assign('dashboard_team_id', $team_id);
+        if($mode == "headers" && empty($mode_param)) {
+            $headers = DAO_MessageHeader::getUnique();
+            $tpl->assign('headers', $headers);
+            
+	        $tpl->display($tpl_path.'tickets/rpc/ticket_view_assist_headers.tpl.php');
+	        
+        } else {
+	        // [TODO] Clean this up (move into the visit with active dash?)
+			if(0 == strcmp('t',substr($active_dashboard_id,0,1))) {
+			    $team_id = intval(substr($active_dashboard_id,1));
+			    $tpl->assign('dashboard_team_id', $team_id);
+	        }
+	        
+			$teams = DAO_Group::getAll();
+			$tpl->assign('teams', $teams);
+			
+			$team_categories = DAO_Bucket::getTeams();
+			$tpl->assign('team_categories', $team_categories);
+			
+			$category_name_hash = DAO_Bucket::getCategoryNameHash();
+			$tpl->assign('category_name_hash', $category_name_hash);
+	        
+	        // [JAS]: Calculate statistics about the current view (top unique senders/subjects/domains)
+		    $biggest = DAO_Ticket::analyze($view->params, 15, $mode, $mode_param);
+		    $tpl->assign('biggest', $biggest);
+	        
+	        $tpl->display($tpl_path.'tickets/rpc/ticket_view_assist.tpl.php');
         }
-        
-		$teams = DAO_Group::getAll();
-		$tpl->assign('teams', $teams);
-		
-		$team_categories = DAO_Bucket::getTeams();
-		$tpl->assign('team_categories', $team_categories);
-		
-		$category_name_hash = DAO_Bucket::getCategoryNameHash();
-		$tpl->assign('category_name_hash', $category_name_hash);
-        
-        // [JAS]: Calculate statistics about the current view (top unique senders/subjects/domains)
-	    $biggest = DAO_Ticket::analyze($view->params, 15, $mode);
-	    $tpl->assign('biggest', $biggest);
-        
-        $tpl->display($tpl_path.'tickets/rpc/ticket_view_assist.tpl.php');
 	}
 	
 	function viewAutoAssistAction() {
@@ -811,18 +809,17 @@ class ChTicketsPage extends CerberusPageExtension {
 	    @$piles_hash = DevblocksPlatform::importGPC($_POST['piles_hash'],'array', array());
 	    @$piles_moveto = DevblocksPlatform::importGPC($_POST['piles_moveto'],'array', array());
 	    @$piles_type = DevblocksPlatform::importGPC($_POST['piles_type'],'array', array());
+	    @$piles_type_param = DevblocksPlatform::importGPC($_POST['piles_type_param'],'array', array());
 	    @$piles_value = DevblocksPlatform::importGPC($_POST['piles_value'],'array', array());
-        
+	    
 	    $piles_always = array_flip($piles_always); // Flip hash
 
-        $senders = array();
-        $subjects = array();
-        
 	    foreach($piles_hash as $idx => $hash) {
-	        $moveto = $piles_moveto[$idx];
-	        $type = $piles_type[$idx];
-	        $val = $piles_value[$idx];
-	        $always = (isset($piles_always[$hash])) ? 1 : 0;
+	        @$moveto = $piles_moveto[$idx];
+	        @$type = $piles_type[$idx];
+	        @$type_param = $piles_type_param[$idx];
+	        @$val = $piles_value[$idx];
+	        @$always = (isset($piles_always[$hash])) ? 1 : 0;
 	        
 	        /*
 	         * [TODO] [JAS]: Somewhere here we should be ignoring these values for a bit
@@ -831,21 +828,44 @@ class ChTicketsPage extends CerberusPageExtension {
 	        if(empty($hash) || empty($moveto) || empty($type) || empty($val))
 	            continue;
 	        
-            $doActions = array('team' => $moveto);
+	        switch(strtolower(substr($moveto,0,1))) {
+	            // Team/Bucket Move
+	            case 't':
+	            case 'c':
+	                $doActions = array('team' => $moveto);
+	                break;
+	                
+	            // Action
+	            case 'a':
+	                switch(strtolower(substr($moveto,1))) {
+	                    case 'c': // close
+	                        $doActions = array('closed' => CerberusTicketStatus::CLOSED);
+	                        break;
+	                    case 's': // spam
+	                        $doActions = array('spam' => CerberusTicketSpamTraining::SPAM);
+	                        break;
+	                    case 'd': // delete
+	                        $doActions = array('closed' => 2);
+	                        break;
+	                }
+	                break;
+	                
+	            default:
+	                $doActions = array();
+	                break;
+	        }
+	        
+            $doTypeParam = $type_param;
             
             // Domains, senders are both sender batch actions
 	        switch($type) {
-	            case 'subject':
-	                $doType = 'subject';
-	                break;
-	                
 	            default:
 	            case 'sender':
 	                $doType = 'sender';
 	                break;
 	                
-	            case 'import':
-	                $doType = 'import';
+	            case 'header':
+	                $doType = 'header';
 	                break;
 	        }
 
@@ -859,7 +879,7 @@ class ChTicketsPage extends CerberusPageExtension {
             
             $doAlways = ($always && $dashboard_team_id) ? $dashboard_team_id : 0;
 
-            $view->doBulkUpdate($doType, $doData, $doActions, array(), $doAlways);
+            $view->doBulkUpdate($doType, $doTypeParam, $doData, $doActions, array(), $doAlways);
 	    }
 
 	    // Reset the paging since we may have reduced our list size
@@ -1285,19 +1305,6 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/rpc/team_load_panel.tpl.php');
 	}
 	
-	function showTagChooserPanelAction() {
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', dirname(__FILE__) . '/templates/');
-
-		$cg = CloudGlue::getInstance();
-		$cloud = $cg->getCloud($this->tag_chooser_cfg);
-		
-		$tpl->assign('cloud', $cloud);
-		
-		$tpl->cache_lifetime = "0";
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/rpc/tag_chooser_panel.tpl.php');
-	}
-	
 	function changeDashboardAction() {
 		$dashboard_id = DevblocksPlatform::importGPC($_POST['dashboard_id'], 'string', '0');
 		
@@ -1305,47 +1312,6 @@ class ChTicketsPage extends CerberusPageExtension {
 		$visit->set(CerberusVisit::KEY_DASHBOARD_ID, $dashboard_id);
 		
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','organize')));
-	}
-	
-	function clickChooserTagAction() {
-		$tag_id = DevblocksPlatform::importGPC($_REQUEST['tag']);
-		$remove = intval($_REQUEST['remove']);
-	
-		$cg = DevblocksPlatform::getCloudGlueService();
-		$tag = $cg->getTagById($tag_id);
-
-		$tagCloud = $cg->getCloud($this->tag_chooser_cfg);
-		
-		if(empty($remove)) {
-			$tagCloud->addToPath($tag);
-		} else {
-			$tagCloud->removeFromPath($tag);
-		}
-		
-		$tagCloud->render();
-	}
-	
-	function showWorkerChooserPanelAction() {
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', dirname(__FILE__) . '/templates/');
-
-		$tpl->cache_lifetime = "0";
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/rpc/worker_chooser_panel.tpl.php');
-	}
-	
-	function showAssignPanelAction() {
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', dirname(__FILE__) . '/templates/');
-
-		$teams = DAO_Group::getAll();
-		$tpl->assign('teams', $teams);
-		
-		// [TODO] Be sure we're caching this
-//		$team_counts = DAO_Group::getTeamCounts(array_keys($teams),false,false,true);
-//		$tpl->assign('team_counts', $team_counts);
-		
-		$tpl->cache_lifetime = "0";
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/rpc/assign_panel.tpl.php');
 	}
 	
 	function showBatchPanelAction() {
@@ -1452,7 +1418,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	    elseif($filter == 'subject')
 	        $data = $subjects;
 			
-		$view->doBulkUpdate($filter, $data, $do, $ticket_ids, $always_do_for_team);
+		$view->doBulkUpdate($filter, '', $data, $do, $ticket_ids, $always_do_for_team);
 		
 		echo ' ';
 		return;
@@ -1546,38 +1512,6 @@ class ChTicketsPage extends CerberusPageExtension {
 		$action->run($ticket_ids);
 		
 		echo ' ';
-	}
-	
-	function showTaskPanelAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer');
-		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer');
-
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', dirname(__FILE__) . '/templates/');
-		$tpl->assign('id', $id);
-
-		// Ticket
-		$ticket = DAO_Ticket::getTicket($ticket_id);
-		$tpl->assign('ticket', $ticket);
-		
-		// Workers
-		$workers = DAO_Worker::getList();
-		$tpl->assign('workers', $workers);
-		
-		// Teams
-		$teams = DAO_Group::getAll();
-		$tpl->assign('teams', $teams);
-		
-		// Task
-		$task = DAO_Task::get($id);
-		$tpl->assign('task', $task);
-		
-		// Task Owners
-		$owners = DAO_Task::getOwners(array($id));
-		$tpl->assign('owners', $owners[$id]);
-		
-		$tpl->cache_lifetime = "0";
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/rpc/task_panel.tpl.php');
 	}
 	
 	function saveTaskPanelAction() {
@@ -2007,7 +1941,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		switch(array_shift($stack)) {
 		    default:
 			case 'general':
-				$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/general/index.tpl.php');				
+				$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/general/index.tpl.php');
 				break;
 				
 			case 'mail':
