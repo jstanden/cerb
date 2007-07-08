@@ -3,10 +3,9 @@ class CerberusMail {
 	private function __construct() {}
 	
 	static function generateMessageFilename() {
-	    return sprintf("%s.%s.%s",
+	    return sprintf("%s.%s.msg",
 	        time(),
-	        rand(0,9999),
-	        $_SERVER['HTTP_HOST']
+	        rand(0,9999)
 	    );
 	}
 	
@@ -47,7 +46,7 @@ class CerberusMail {
 		$requesters = DAO_Ticket::getRequestersByTicket($ticket_id);
 
 		// References
-		if(!empty($message) && false !== ($in_reply_to = $headers['message-id'])) {
+		if(!empty($message) && false !== (@$in_reply_to = $headers['message-id'])) {
 		    $headers['References'] = $in_reply_to;
 		    $headers['In-Reply-To'] = $in_reply_to;
 		}
@@ -119,11 +118,17 @@ class CerberusMail {
 			$mail->send($to, $headers, $content);
 		}
 		
+		// [TODO] Make this properly use team replies 
+	    // (or reflect what the customer sent to), etc.
+		$settings = CerberusSettings::getInstance();
+		$from = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM);
+		$fromAddressId = CerberusApplication::hashLookupAddressId($from);
+		
 	    $fields = array(
 	        DAO_Message::TICKET_ID => $ticket_id,
 	        DAO_Message::MESSAGE_TYPE => $type,
 	        DAO_Message::CREATED_DATE => time(),
-	        DAO_Message::ADDRESS_ID => 0 // [TODO] Real sender id
+	        DAO_Message::ADDRESS_ID => $fromAddressId // [TODO] Real sender id
 	    );
 		$message_id = DAO_Message::create($fields);
 	    

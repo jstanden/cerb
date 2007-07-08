@@ -2884,18 +2884,18 @@ class ChDisplayPage extends CerberusPageExtension {
 	    
 		$properties = array(
 		    'type' => CerberusMessageType::EMAIL,
-		    'message_id' => DevblocksPlatform::importGPC($_REQUEST['id']),
+		    'message_id' => DevblocksPlatform::importGPC(@$_REQUEST['id']),
 		    'ticket_id' => $ticket_id,
-		    'cc' => DevblocksPlatform::importGPC($_REQUEST['cc']),
-		    'bcc' => DevblocksPlatform::importGPC($_REQUEST['bcc']),
-		    'subject' => DevblocksPlatform::importGPC($_REQUEST['subject'],'string'),
-		    'content' => DevblocksPlatform::importGPC($_REQUEST['content']),
+		    'cc' => DevblocksPlatform::importGPC(@$_REQUEST['cc']),
+		    'bcc' => DevblocksPlatform::importGPC(@$_REQUEST['bcc']),
+		    'subject' => DevblocksPlatform::importGPC(@$_REQUEST['subject'],'string'),
+		    'content' => DevblocksPlatform::importGPC(@$_REQUEST['content']),
 		    'files' => $_FILES['attachment'],
-		    'next_action' => DevblocksPlatform::importGPC($_REQUEST['next_action'],'string',''),
-		    'closed' => DevblocksPlatform::importGPC($_REQUEST['closed'],'integer',0),
-		    'bucket_id' => DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'integer',0),
-		    'ticket_reopen' => DevblocksPlatform::importGPC($_REQUEST['ticket_reopen'],'string',''),
-		    'agent_id' => DevblocksPlatform::importGPC($_REQUEST['agent_id'],'integer'),
+		    'next_action' => DevblocksPlatform::importGPC(@$_REQUEST['next_action'],'string',''),
+		    'closed' => DevblocksPlatform::importGPC(@$_REQUEST['closed'],'integer',0),
+		    'bucket_id' => DevblocksPlatform::importGPC(@$_REQUEST['bucket_id'],'integer',0),
+		    'ticket_reopen' => DevblocksPlatform::importGPC(@$_REQUEST['ticket_reopen'],'string',''),
+		    'agent_id' => DevblocksPlatform::importGPC(@$_REQUEST['agent_id'],'integer'),
 		);
 		
 		CerberusMail::sendTicketMessage($properties);
