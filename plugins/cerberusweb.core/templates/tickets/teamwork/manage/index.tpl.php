@@ -32,7 +32,7 @@
 		<label><input type="radio" name="spam_action" value="2" {if $group_spam_action==2}checked{/if}> Move to bucket for review: </label>
 		<select name="spam_action_moveto" onclick="this.form.spam_action[2].checked=true;">
 			{foreach from=$categories item=bucket key=bucket_id}
-				<option value="{$bucket_id}" {if $group_spam_action_value==$bucket_id}selected{/if}>{$bucket->name}</option>
+				<option value="{$bucket_id}" {if $group_spam_action_param==$bucket_id}selected{/if}>{$bucket->name}</option>
 			{/foreach}
 		</select>
 		{/if}
