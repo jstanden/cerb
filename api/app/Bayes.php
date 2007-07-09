@@ -347,6 +347,8 @@ class CerberusBayes {
 		    DAO_Ticket::INTERESTING_WORDS => substr(implode(',',array_reverse($rawwords)),0,255),
 		);
 		DAO_Ticket::updateTicket($ticket_id, $fields);
+		
+		return $out;
 	}
 	
 };

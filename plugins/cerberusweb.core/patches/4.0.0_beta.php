@@ -13,6 +13,17 @@ if(!isset($indexes['email'])) {
     $datadict->ExecuteSQLArray($sql);
 }
 
+// `group_setting` =======================
+if(!isset($tables['group_setting'])) {
+    $flds = "
+		group_id I4 DEFAULT 0 NOTNULL PRIMARY,
+		setting C(64) DEFAULT '' NOTNULL PRIMARY,
+		value B DEFAULT '' NOTNULL
+	";
+    $sql = $datadict->CreateTableSQL('group_setting',$flds);
+    $datadict->ExecuteSQLArray($sql);
+}
+
 // `message_content` =====================
 //$columns = $datadict->MetaColumns('message_content', false, false);
 if(!isset($tables['message_content'])) {

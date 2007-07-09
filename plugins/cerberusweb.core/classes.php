@@ -243,6 +243,12 @@ class ChTicketsPage extends CerberusPageExtension {
 						$team_categories = DAO_Bucket::getByTeam($team_id);
 						$tpl->assign('categories', $team_categories);
 					    
+						$group_settings = DAO_GroupSettings::getSettings($team_id);
+						
+						@$tpl->assign('group_spam_threshold', $group_settings[DAO_GroupSettings::SETTING_SPAM_THRESHOLD]);
+						@$tpl->assign('group_spam_action', $group_settings[DAO_GroupSettings::SETTING_SPAM_ACTION]);
+						@$tpl->assign('group_spam_action_param', $group_settings[DAO_GroupSettings::SETTING_SPAM_ACTION_PARAM]);
+						
 	                    $tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/teamwork/manage/index.tpl.php');
 	                    break;
 	                    
@@ -1214,13 +1220,16 @@ class ChTicketsPage extends CerberusPageExtension {
 	    @$signature = DevblocksPlatform::importGPC($_REQUEST['signature'],'string','');
 	    @$spam_threshold = DevblocksPlatform::importGPC($_REQUEST['spam_threshold'],'integer',80);
 	    @$spam_action = DevblocksPlatform::importGPC($_REQUEST['spam_action'],'integer',0);
-	    @$spam_moveto = DevblocksPlatform::importGPC($_REQUEST['spam_moveto'],'string','');
+	    @$spam_moveto = DevblocksPlatform::importGPC($_REQUEST['spam_action_moveto'],'integer',0);
 	    
 	    // [TODO] Does this belong in team or in some kind of DAO_TeamSetting registry?
 	    DAO_Group::updateTeam($team_id, array(
 	        DAO_Group::TEAM_SIGNATURE => $signature
 	    ));
 	    
+	    DAO_GroupSettings::set($team_id, DAO_GroupSettings::SETTING_SPAM_THRESHOLD, $spam_threshold);
+	    DAO_GroupSettings::set($team_id, DAO_GroupSettings::SETTING_SPAM_ACTION, $spam_action);
+	    DAO_GroupSettings::set($team_id, DAO_GroupSettings::SETTING_SPAM_ACTION_PARAM, $spam_moveto);
 	       
         DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','team',$team_id,'general')));
 	}

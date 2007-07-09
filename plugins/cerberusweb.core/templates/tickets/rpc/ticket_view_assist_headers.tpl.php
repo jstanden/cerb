@@ -9,7 +9,18 @@ Sort biggest piles by:
 <br>
 <br>
 
-<h3>Header:</h3>
+<h3>Most Common Headers:</h3>
+	<blockquote style="margin:5px;">
+		<a href="javascript:;" onclick="genericAjaxGet('{$view_id}_tips','c=tickets&a=showViewAutoAssist&view_id={$view_id}&mode=headers&mode_param=to');">to</a><br>
+	</blockquote>
+	<blockquote style="margin:5px;">
+		<a href="javascript:;" onclick="genericAjaxGet('{$view_id}_tips','c=tickets&a=showViewAutoAssist&view_id={$view_id}&mode=headers&mode_param=from');">from</a><br>
+	</blockquote>
+	<blockquote style="margin:5px;">
+		<a href="javascript:;" onclick="genericAjaxGet('{$view_id}_tips','c=tickets&a=showViewAutoAssist&view_id={$view_id}&mode=headers&mode_param=subject');">subject</a><br>
+	</blockquote>
+
+<h3>All Headers:</h3>
 
 {foreach from=$headers item=header}
 	<blockquote style="margin:5px;">

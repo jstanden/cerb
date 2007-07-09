@@ -228,6 +228,13 @@ class CerberusParser {
 			}
 		}
 		
+		// First Thread
+		if($bIsNew && !empty($email_id)) { // First thread
+			DAO_Ticket::updateTicket($id,array(
+			    DAO_Ticket::FIRST_MESSAGE_ID => $email_id
+		    ));
+		}
+		
 		if(!empty($email_id)) {
 		    // No longer needed (it's in the message_header table)
 //			DAO_Message::update($email_id,array(
@@ -278,7 +285,42 @@ class CerberusParser {
 		            CerberusBayes::markTicketAsNotSpam($id);
 		        }
 			} else { // No overload
-			    CerberusBayes::calculateTicketSpamProbability($id);
+			    $out = CerberusBayes::calculateTicketSpamProbability($id);
+			    
+			    if(!empty($team_id)) {
+				    static $group_settings = null;
+				    if(null == $group_settings) {
+				        $group_settings = DAO_GroupSettings::getSettings();
+				    }
+			    
+			        @$spam_threshold = $group_settings[$team_id][DAO_GroupSettings::SETTING_SPAM_THRESHOLD];
+			        @$spam_action = $group_settings[$team_id][DAO_GroupSettings::SETTING_SPAM_ACTION];
+			        @$spam_action_param = $group_settings[$team_id][DAO_GroupSettings::SETTING_SPAM_ACTION_PARAM];
+			        
+				    if($out['probability']*100 >= $spam_threshold) {
+				        switch($spam_action) {
+				            default:
+				            case 0: // do nothing
+	                            break;
+				            case 1: // delete
+	                            // [TODO] Would have been much nicer to delete before this point
+	                            DAO_Ticket::updateTicket($id,array(
+	                                DAO_Ticket::IS_CLOSED => 1,
+	                                DAO_Ticket::IS_DELETED => 1
+	                            ));
+	                            break;
+				            case 2: // move
+	                            // [TODO] Verify destination bucket exists
+	                            if(!empty($spam_action_param) && !empty($spam_action_param)) {
+		                            DAO_Ticket::updateTicket($id,array(
+		                                DAO_Ticket::TEAM_ID => $team_id,
+		                                DAO_Ticket::CATEGORY_ID => $spam_action_param
+		                            ));
+	                            }	                            
+				                break;
+				        }
+				    }
+			    }
 			}
 		}
 		
@@ -290,10 +332,6 @@ class CerberusParser {
 			    DAO_Ticket::UPDATED_DATE => time(),
 			    DAO_Ticket::IS_CLOSED => 0
 			));
-		} elseif($bIsNew && !empty($email_id)) { // First thread
-			DAO_Ticket::updateTicket($id,array(
-			    DAO_Ticket::FIRST_MESSAGE_ID => $email_id
-		    ));
 		}
 		
 //		$ticket = DAO_Ticket::getTicket($id);
@@ -352,38 +390,6 @@ class CerberusParser {
 		
 		return null; // bounce
 	}
-	
-//	static private function parseMimeParts($parts,&$attachments) {
-//		
-//		foreach($parts as $part) {
-//			CerberusParser::parseMimePart($part,$attachments);
-//		}
-//		
-//		return $attachments;
-//	}
-//	
-//	static private function parseMimePart($part,&$attachments) {
-//		// valid primary types are found at http://www.iana.org/assignments/media-types/
-//		$contentType = @$part->ctype_primary.'/'.@$part->ctype_secondary;
-//		$fileName = @$part->d_parameters['filename'];
-//		if (empty($fileName)) $fileName = @$part->ctype_parameters['name'];
-//		
-//		if(0 == strcasecmp($contentType,'text/plain') && empty($fileName)) {
-//			$attachments['plaintext'] .= $part->body;
-//			
-//		} elseif(0 == strcasecmp($contentType,'text/html') && empty($fileName)) {
-//			$attachments['html'] .= $part->body;
-//			
-//		} elseif(0 == strcasecmp(@$part->ctype_primary,'multipart')) {
-//			CerberusParser::parseMimeParts($part, $attachments);
-//			
-//		} else {
-//			if (empty($fileName))
-//				$attachments['files'][] = $part->body;
-//			else
-//				$attachments['files'][$fileName] = $part->body;
-//		}
-//	}
 	
 	// [TODO] Phase out in favor of the CerberusUtils class
 	static function parseRfcAddress($address_string) {

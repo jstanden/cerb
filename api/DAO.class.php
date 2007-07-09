@@ -949,7 +949,6 @@ class DAO_Ticket extends DevblocksORMHelper {
 	const CREATED_DATE = 'created_date';
 	const UPDATED_DATE = 'updated_date';
 	const DUE_DATE = 'due_date';
-	const PRIORITY = 'priority';
 	const SPAM_TRAINING = 'spam_training';
 	const SPAM_SCORE = 'spam_score';
 	const INTERESTING_WORDS = 'interesting_words';
@@ -1042,8 +1041,8 @@ class DAO_Ticket extends DevblocksORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$newId = $db->GenID('ticket_seq');
 		
-		$sql = sprintf("INSERT INTO ticket (id, mask, subject, last_wrote_address_id, first_wrote_address_id, created_date, updated_date, due_date, priority, team_id, category_id) ".
-			"VALUES (%d,'','',0,0,%d,%d,0,0,0,0)",
+		$sql = sprintf("INSERT INTO ticket (id, mask, subject, last_wrote_address_id, first_wrote_address_id, created_date, updated_date, due_date, team_id, category_id) ".
+			"VALUES (%d,'','',0,0,%d,%d,0,0,0)",
 			$newId,
 			time(),
 			time()
@@ -1141,7 +1140,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 		
 		$tickets = array();
 		
-		$sql = "SELECT t.id , t.mask, t.subject, t.is_closed, t.is_deleted, t.priority, t.team_id, t.category_id, ".
+		$sql = "SELECT t.id , t.mask, t.subject, t.is_closed, t.is_deleted, t.team_id, t.category_id, ".
 			"t.first_wrote_address_id, t.last_wrote_address_id, t.created_date, t.updated_date, t.due_date, t.spam_training, ". 
 			"t.spam_score, t.interesting_words, t.next_action ".
 			"FROM ticket t ".
@@ -1159,7 +1158,6 @@ class DAO_Ticket extends DevblocksORMHelper {
 			$ticket->category_id = intval($rs->fields['category_id']);
 			$ticket->is_closed = intval($rs->fields['is_closed']);
 			$ticket->is_deleted = intval($rs->fields['is_deleted']);
-			$ticket->priority = intval($rs->fields['priority']);
 			$ticket->last_wrote_address_id = intval($rs->fields['last_wrote_address_id']);
 			$ticket->first_wrote_address_id = intval($rs->fields['first_wrote_address_id']);
 			$ticket->created_date = intval($rs->fields['created_date']);
@@ -1456,7 +1454,6 @@ class DAO_Ticket extends DevblocksORMHelper {
 			"t.subject as %s, ".
 			"t.is_closed as %s, ".
 			"t.is_deleted as %s, ".
-			"t.priority as %s, ".
 			"a1.email as %s, ".
 			"a2.email as %s, ".
 			"t.created_date as %s, ".
@@ -1481,7 +1478,6 @@ class DAO_Ticket extends DevblocksORMHelper {
 			    SearchFields_Ticket::TICKET_SUBJECT,
 			    SearchFields_Ticket::TICKET_CLOSED,
 			    SearchFields_Ticket::TICKET_DELETED,
-			    SearchFields_Ticket::TICKET_PRIORITY,
 			    SearchFields_Ticket::TICKET_FIRST_WROTE,
 			    SearchFields_Ticket::TICKET_LAST_WROTE,
 			    SearchFields_Ticket::TICKET_CREATED_DATE,
@@ -1538,7 +1534,6 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 	const TICKET_MASK = 't_mask';
 	const TICKET_CLOSED = 't_is_closed';
 	const TICKET_DELETED = 't_is_deleted';
-	const TICKET_PRIORITY = 't_priority';
 	const TICKET_SUBJECT = 't_subject';
 	const TICKET_LAST_WROTE = 't_last_wrote';
 	const TICKET_FIRST_WROTE = 't_first_wrote';
@@ -1579,7 +1574,6 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 			SearchFields_Ticket::TICKET_MASK => new DevblocksSearchField(SearchFields_Ticket::TICKET_MASK, 't', 'mask'),
 			SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchField(SearchFields_Ticket::TICKET_CLOSED, 't', 'is_closed'),
 			SearchFields_Ticket::TICKET_DELETED => new DevblocksSearchField(SearchFields_Ticket::TICKET_DELETED, 't', 'is_deleted'),
-			SearchFields_Ticket::TICKET_PRIORITY => new DevblocksSearchField(SearchFields_Ticket::TICKET_PRIORITY, 't', 'priority'),
 			SearchFields_Ticket::TICKET_SUBJECT => new DevblocksSearchField(SearchFields_Ticket::TICKET_SUBJECT, 't', 'subject'),
 			SearchFields_Ticket::TICKET_LAST_WROTE => new DevblocksSearchField(SearchFields_Ticket::TICKET_LAST_WROTE, 'a2', 'email'),
 			SearchFields_Ticket::TICKET_FIRST_WROTE => new DevblocksSearchField(SearchFields_Ticket::TICKET_FIRST_WROTE, 'a1', 'email'),
@@ -2420,7 +2414,73 @@ class DAO_Group {
 		return DAO_Worker::getList($ids);
 	}
 	
-}
+};
+
+class DAO_GroupSettings {
+    const SETTING_SPAM_THRESHOLD = 'group_spam_threshold';
+    const SETTING_SPAM_ACTION = 'group_spam_action';
+    const SETTING_SPAM_ACTION_PARAM = 'group_spam_action_param';
+    
+	static function set($group_id, $key, $value) {
+		$db = DevblocksPlatform::getDatabaseService();
+		$result = $db->Replace(
+		    'group_setting',
+		    array(
+		        'group_id'=>$group_id,
+		        'setting'=>$key,
+		        'value'=>$db->qstr($value) // BlobEncode/UpdateBlob?
+		    ),
+		    array('group_id','setting'),
+		    true
+		);
+	}
+	
+	static function get($group_id, $key, $default=null) {
+		$db = DevblocksPlatform::getDatabaseService();
+		$sql = sprintf("SELECT value FROM group_setting WHERE setting = %s AND group_id = %d",
+			$db->qstr($key),
+			$group_id
+		);
+		$value = $db->GetOne($sql);
+		
+		if(false == $value && !is_null($default)) {
+		    return $default;
+		}
+		
+		return $value;
+	}
+	
+	// [TODO] Cache as static/singleton or load up in a page scope object?
+	static function getSettings($group_id=0) {
+		$db = DevblocksPlatform::getDatabaseService();
+
+		$groups = array();
+		
+		$sql = "SELECT group_id, setting, value ".
+		    "FROM group_setting ".
+		    (!empty($group_id) ? sprintf("WHERE group_id = %d",$group_id) : "")
+		;
+		$rs = $db->Execute($sql) or die(__CLASS__ . ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		while(!$rs->EOF) {
+		    $gid = intval($rs->fields['group_id']);
+		    
+		    if(!isset($groups[$gid]))
+		        $groups[$gid] = array();
+		    
+		    $groups[$gid][$rs->Fields('setting')] = $rs->Fields('value');
+			$rs->MoveNext();
+		}
+		
+		if(!empty($group_id)) {
+		    if(!empty($groups))
+		        return $groups[$group_id];
+		    return array();
+		}
+
+		return $groups;
+	}
+};
 
 class DAO_Bucket extends DevblocksORMHelper {
 	const CACHE_ALL = 'cerberus_cache_buckets_all';

@@ -18,22 +18,24 @@
 	
 	When new messages have spam probability 
 	<select name="spam_threshold">
-		<option value="80" selected>80%</option>
-		<option value="85">85%</option>
-		<option value="90">90%</option>
-		<option value="95">95%</option>
-		<option value="99">99%</option>
+		<option value="80" {if $group_spam_threshold=="80"}selected{/if}>80%</option>
+		<option value="85" {if $group_spam_threshold=="85"}selected{/if}>85%</option>
+		<option value="90" {if $group_spam_threshold=="90"}selected{/if}>90%</option>
+		<option value="95" {if $group_spam_threshold=="95"}selected{/if}>95%</option>
+		<option value="99" {if $group_spam_threshold=="99"}selected{/if}>99%</option>
 	</select>
 	 or higher:<br>
 	<blockquote style="margin-top:0px;">
-		<label><input type="radio" name="spam_action" value="0" checked> Do nothing</label><br>
-		<label><input type="radio" name="spam_action" value="1"> Delete</label><br>
-		<label><input type="radio" name="spam_action" value="2"> Move to bucket for review: </label>
+		<label><input type="radio" name="spam_action" value="0" {if $group_spam_action==0}checked{/if}> Do nothing</label><br>
+		<label><input type="radio" name="spam_action" value="1" {if $group_spam_action==1}checked{/if}> Delete</label><br>
+		{if !empty($categories)}
+		<label><input type="radio" name="spam_action" value="2" {if $group_spam_action==2}checked{/if}> Move to bucket for review: </label>
 		<select name="spam_action_moveto" onclick="this.form.spam_action[2].checked=true;">
 			{foreach from=$categories item=bucket key=bucket_id}
-				<option value="c{$bucket_id}">{$bucket->name}</option>
+				<option value="{$bucket_id}" {if $group_spam_action_value==$bucket_id}selected{/if}>{$bucket->name}</option>
 			{/foreach}
 		</select>
+		{/if}
 	</blockquote>
 	
 	<h3>E-mail</h3>
