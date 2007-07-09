@@ -1,5 +1,5 @@
 <?php
-define("APP_BUILD", 203);
+define("APP_BUILD", 204);
 define("APP_MAIL_PATH", realpath(APP_PATH . '/storage/mail') . DIRECTORY_SEPARATOR);
 
 include_once(APP_PATH . "/api/DAO.class.php");
@@ -489,6 +489,8 @@ class CerberusApplication extends DevblocksApplication {
 		
 		return array(
 			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_MASK,$translate->_('ticket.id')),
+			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_NEXT_ACTION,$translate->_('ticket.next_action')),
+			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_LAST_ACTION_CODE,$translate->_('ticket.last_action')),
 			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_LAST_WROTE,$translate->_('ticket.last_wrote')),
 			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_FIRST_WROTE,$translate->_('ticket.first_wrote')),
 			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_CREATED_DATE,$translate->_('ticket.created')),
@@ -497,7 +499,7 @@ class CerberusApplication extends DevblocksApplication {
 			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_CATEGORY_ID,$translate->_('common.bucket')),
 			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_DUE_DATE,$translate->_('ticket.due')),
 			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_SPAM_SCORE,$translate->_('ticket.spam_score')),
-			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_NEXT_ACTION,$translate->_('ticket.next_action')),
+			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_LAST_WORKER_ID,$translate->_('ticket.last_worker')),
 			);
 	}
 	
@@ -668,7 +670,7 @@ class CerberusStaticViewManager {
 		$view->dashboard_id = 0;
 		$view->view_columns = array(
 			SearchFields_Ticket::TICKET_NEXT_ACTION,
-			SearchFields_Ticket::TICKET_LAST_WROTE,
+			SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
 			SearchFields_Ticket::TICKET_UPDATED_DATE,
 			SearchFields_Ticket::TEAM_NAME,
 			SearchFields_Ticket::TICKET_CATEGORY_ID,

@@ -38,6 +38,7 @@ class CerberusMail {
 	    @$message_id = $properties['message_id'];
 	    @$content =& $properties['content'];
 	    @$files = $properties['files'];
+	    @$worker_id = $properties['agent_id'];
 	    
 		$message = DAO_Ticket::getMessage($message_id);
         $message_headers = DAO_MessageHeader::getAll($message_id);		
@@ -75,7 +76,7 @@ class CerberusMail {
 	    }
 	    
 		// Send actual email (if necessary)
-		if ($type != CerberusMessageType::COMMENT) {
+//		if ($type != CerberusMessageType::COMMENT) {
 	    	// TODO: create DAO object for Agent, be able to pull address by having agent id.
     		// From
 			//		$headers['From'] = $agent_address->personal . ' <' . $agent_address->email . '>';
@@ -116,7 +117,7 @@ class CerberusMail {
 			}
 			
 			$mail->send($to, $headers, $content);
-		}
+//		}
 		
 		// [TODO] Make this properly use team replies 
 	    // (or reflect what the customer sent to), etc.
@@ -153,6 +154,11 @@ class CerberusMail {
 		
 		// Handle post-mail actions
 		$change_fields = array();
+		
+	    if(!empty($worker_id)) {
+	        $change_fields[DAO_Ticket::LAST_WORKER_ID] = $worker_id;
+	        $change_fields[DAO_Ticket::LAST_ACTION_CODE] = CerberusTicketActionCode::TICKET_WORKER_REPLY;
+	    }
 		
         $change_fields[DAO_Ticket::IS_CLOSED] = intval($properties['closed']);
 		

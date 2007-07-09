@@ -122,6 +122,16 @@ if(isset($columns['import_pile'])) {
     $datadict->ExecuteSQLArray($sql);
 }
 
+if(!isset($columns['last_worker_id'])) {
+    $sql = $datadict->AddColumnSQL('ticket', 'last_worker_id I4 DEFAULT 0 NOTNULL');
+    $datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($columns['last_action_code'])) {
+    $sql = $datadict->AddColumnSQL('ticket', "last_action_code C(1) DEFAULT 'O' NOTNULL");
+    $datadict->ExecuteSQLArray($sql);
+}
+
 if(!isset($columns['first_message_id'])) {
     $sql = $datadict->AddColumnSQL('ticket', 'first_message_id I4 DEFAULT 0 NOTNULL');
     $datadict->ExecuteSQLArray($sql);

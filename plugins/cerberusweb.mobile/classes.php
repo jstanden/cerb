@@ -29,9 +29,12 @@ class MobileController extends DevblocksControllerExtension {
 				@$content = DevblocksPlatform::importGPC($_REQUEST['content'],'content');
 				@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string'); // used by forward
 				
+				$worker = CerberusApplication::getActiveWorker();
+				
 				$properties = array(
 					'message_id' => $message_id,
 					'content' => $content,
+					'agent_id' => @$worker->id
 			    );
 			    
 				switch (DevblocksPlatform::importGPC($_REQUEST['page_type'])) {

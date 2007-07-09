@@ -87,6 +87,10 @@
 			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_spam_score');">{$translate->_('common.spam')}</a></th>
 			{elseif $header=="t_next_action"}
 			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_next_action');">{$translate->_('ticket.next_action')}</a></th>
+			{elseif $header=="t_last_action_code"}
+			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_last_action_code');">{$translate->_('ticket.last_action')}</a></th>
+			{elseif $header=="t_last_worker_id"}
+			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_last_worker_id');">{$translate->_('ticket.last_worker')}</a></th>
 			{elseif $header=="tm_name"}
 			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','tm_name');">{$translate->_('common.team')}</a></th>
 			{elseif $header=="t_category_id"}
@@ -149,6 +153,32 @@
 			<td>{if 0 == $ticket_category_id}{else}{$buckets.$ticket_category_id->name}{/if}</td>
 			{elseif $column=="t_next_action"}
 			<td title="{$result.t_next_action}"><span style="color:rgb(130,130,130);">{$result.t_next_action|truncate:35:'...'|indent:2:"&nbsp;"}</span></td>
+			{elseif $column=="t_last_action_code"}
+			<td>
+				{assign var=action_worker_id value=$result.t_last_worker_id}
+				<span style="color:rgb(130,130,130);">
+				{if $result.t_last_action_code=='O'}
+					<span title="Opened by {$result.t_first_wrote}">{"Hello: "|cat:$result.t_first_wrote|truncate:45:'...':true:true}</span>
+				{elseif $result.t_last_action_code=='R'}
+					{if isset($workers.$action_worker_id)}
+						In: Contact to {$workers.$action_worker_id->getName()}
+					{else}
+						In: Contact to Helpdesk
+					{/if}
+				{elseif $result.t_last_action_code=='W'}
+					{if isset($workers.$action_worker_id)}
+						Out: {$workers.$action_worker_id->getName()} to Contact
+					{else}
+						Out: Helpdesk to Contact
+					{/if}
+				{/if}
+				</span>
+			</td>
+			{elseif $column=="t_last_worker_id"}
+			<td>
+				{assign var=action_worker_id value=$result.t_last_worker_id}
+				{if isset($workers.$action_worker_id)}{$workers.$action_worker_id->getName()}{/if}
+			</td>
 			{elseif $column=="t_spam_score"}
 			<td>
 				{math assign=score equation="x*100" format="%0.2f%%" x=$result.t_spam_score}

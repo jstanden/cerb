@@ -500,6 +500,8 @@ class CerberusTicket {
 	public $spam_training;
 	public $interesting_words;
 	public $next_action;
+	public $last_action_code;
+	public $last_worker_id;
 	
 	function CerberusTicket() {}
 	
@@ -522,6 +524,12 @@ class CerberusTicket {
 		return $tags;
 	}
 	
+};
+
+class CerberusTicketActionCode {
+  const TICKET_OPENED = 'O';  
+  const TICKET_CUSTOMER_REPLY = 'R';  
+  const TICKET_WORKER_REPLY = 'W';  
 };
 
 class CerberusMessage {

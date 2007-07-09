@@ -180,7 +180,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		$response = DevblocksPlatform::getHttpResponse();
 		@$section = $response->path[1];
 
-		// [TODO] Cache this getter
+		// [TODO] Change to a getAll cache
 		$workers = DAO_Worker::getList();
 		$tpl->assign('workers', $workers);
 		
@@ -412,7 +412,7 @@ class ChTicketsPage extends CerberusPageExtension {
 								$teamView->view_columns = array(
 //									SearchFields_Ticket::TEAM_NAME,
 									SearchFields_Ticket::TICKET_NEXT_ACTION,
-									SearchFields_Ticket::TICKET_LAST_WROTE,
+									SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
 									SearchFields_Ticket::TICKET_UPDATED_DATE,
 									SearchFields_Ticket::TICKET_CATEGORY_ID,
 									SearchFields_Ticket::TICKET_SPAM_SCORE,
@@ -1645,8 +1645,8 @@ class ChTicketsPage extends CerberusPageExtension {
 		
 		$fields = array(
 			'view_columns' => serialize(array(
-				SearchFields_Ticket::TICKET_MASK,
-				SearchFields_Ticket::TICKET_LAST_WROTE,
+				SearchFields_Ticket::TICKET_NEXT_ACTION,
+				SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
 				SearchFields_Ticket::TICKET_CREATED_DATE,
 				SearchFields_Ticket::TEAM_NAME,
 			))
@@ -2825,6 +2825,8 @@ class ChDisplayPage extends CerberusPageExtension {
 	function sendReplyAction() {
 	    @$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer');
 	    
+	    $worker = CerberusApplication::getActiveWorker();
+	    
 		$properties = array(
 		    'type' => CerberusMessageType::EMAIL,
 		    'message_id' => DevblocksPlatform::importGPC(@$_REQUEST['id']),
@@ -2838,7 +2840,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		    'closed' => DevblocksPlatform::importGPC(@$_REQUEST['closed'],'integer',0),
 		    'bucket_id' => DevblocksPlatform::importGPC(@$_REQUEST['bucket_id'],'integer',0),
 		    'ticket_reopen' => DevblocksPlatform::importGPC(@$_REQUEST['ticket_reopen'],'string',''),
-		    'agent_id' => DevblocksPlatform::importGPC(@$_REQUEST['agent_id'],'integer'),
+		    'agent_id' => @$worker->id,
 		);
 		
 		CerberusMail::sendTicketMessage($properties);

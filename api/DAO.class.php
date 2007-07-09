@@ -953,7 +953,8 @@ class DAO_Ticket extends DevblocksORMHelper {
 	const SPAM_SCORE = 'spam_score';
 	const INTERESTING_WORDS = 'interesting_words';
 	const NEXT_ACTION = 'next_action';
-//	const NUM_TASKS = 'num_tasks';
+	const LAST_ACTION_CODE = 'last_action_code';
+	const LAST_WORKER_ID = 'last_worker_id';
 	
 	private function DAO_Ticket() {}
 	
@@ -1464,6 +1465,8 @@ class DAO_Ticket extends DevblocksORMHelper {
 //			"t.num_tasks as %s, ".
 			"t.interesting_words as %s, ".
 			"t.next_action as %s, ".
+			"t.last_action_code as %s, ".
+			"t.last_worker_id as %s, ".
 			"tm.id as %s, ".
 			"tm.name as %s, ".
 			"t.category_id as %s ".
@@ -1488,6 +1491,8 @@ class DAO_Ticket extends DevblocksORMHelper {
 //			    SearchFields_Ticket::TICKET_TASKS,
 			    SearchFields_Ticket::TICKET_INTERESTING_WORDS,
 			    SearchFields_Ticket::TICKET_NEXT_ACTION,
+			    SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
+			    SearchFields_Ticket::TICKET_LAST_WORKER_ID,
 			    SearchFields_Ticket::TEAM_ID,
 			    SearchFields_Ticket::TEAM_NAME,
 			    SearchFields_Ticket::TICKET_CATEGORY_ID
@@ -1544,6 +1549,8 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 	const TICKET_SPAM_TRAINING = 't_spam_training';
 	const TICKET_INTERESTING_WORDS = 't_interesting_words';
 	const TICKET_NEXT_ACTION = 't_next_action';
+	const TICKET_LAST_ACTION_CODE = 't_last_action_code';
+	const TICKET_LAST_WORKER_ID = 't_last_worker_id';
 	const TICKET_CATEGORY_ID = 't_category_id';
 	
 	// Message
@@ -1584,6 +1591,8 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 			SearchFields_Ticket::TICKET_SPAM_SCORE => new DevblocksSearchField(SearchFields_Ticket::TICKET_SPAM_SCORE, 't', 'spam_score'),
 			SearchFields_Ticket::TICKET_INTERESTING_WORDS => new DevblocksSearchField(SearchFields_Ticket::TICKET_INTERESTING_WORDS, 't', 'interesting_words'),
 			SearchFields_Ticket::TICKET_NEXT_ACTION => new DevblocksSearchField(SearchFields_Ticket::TICKET_NEXT_ACTION, 't', 'next_action'),
+			SearchFields_Ticket::TICKET_LAST_ACTION_CODE => new DevblocksSearchField(SearchFields_Ticket::TICKET_LAST_ACTION_CODE, 't', 'last_action_code'),
+			SearchFields_Ticket::TICKET_LAST_WORKER_ID => new DevblocksSearchField(SearchFields_Ticket::TICKET_LAST_WORKER_ID, 't', 'last_worker_id'),
 			SearchFields_Ticket::TICKET_CATEGORY_ID => new DevblocksSearchField(SearchFields_Ticket::TICKET_CATEGORY_ID, 't', 'category_id'),
 			
 			SearchFields_Ticket::TICKET_MESSAGE_HEADER => new DevblocksSearchField(SearchFields_Ticket::TICKET_MESSAGE_HEADER, 'mh', 'header_name'),

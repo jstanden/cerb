@@ -374,6 +374,12 @@
 				<seg>First Wrote</seg>
 			</tuv>
 		</tu>
+		<tu tuid='ticket.last_action'>
+			<tuv xml:lang="en"><seg>Last Action</seg></tuv>
+		</tu>
+		<tu tuid='ticket.last_worker'>
+			<tuv xml:lang="en"><seg>Last Worker</seg></tuv>
+		</tu>
 		<tu tuid='ticket.last_wrote'>
 			<tuv xml:lang="en">
 				<seg>Last Wrote</seg>

@@ -158,7 +158,7 @@ class CerberusParser {
             }
         }
 		
-		if(empty($id)) {
+		if(empty($id)) { // New Ticket
 //		    echo "Creating new ticket<br>";
 			$team_id = CerberusParser::parseDestination($headers);
 			
@@ -170,7 +170,8 @@ class CerberusParser {
 				DAO_Ticket::LAST_WROTE_ID => intval($fromAddressId),
 				DAO_Ticket::CREATED_DATE => $iDate,
 				DAO_Ticket::UPDATED_DATE => $iDate,
-				DAO_Ticket::TEAM_ID => intval($team_id)
+				DAO_Ticket::TEAM_ID => intval($team_id),
+				DAO_Ticket::LAST_ACTION_CODE => CerberusTicketActionCode::TICKET_OPENED,
 			);
 			$id = DAO_Ticket::createTicket($fields);
 
@@ -182,9 +183,19 @@ class CerberusParser {
                     $enumSpamTraining = CerberusTicketSpamTraining::NOT_SPAM;
                 }
 			}
+			
+//		} else { // Reply
+//		    $reply_ticket = DAO_Ticket::getTicket($id);
+//		    if(!empty($reply_ticket)) { //  && !empty($reply_ticket->last_worker_id)
+//		        DAO_Ticket::updateTicket($id,array(
+//		            DAO_Ticket::LAST_ACTION = 'customer replied'
+//		        ));
+//		    }
+		    
 		}
 		
 		// [JAS]: Add requesters to the ticket
+	    // [TODO] Make sure they aren't a worker
 	    if(!empty($fromAddressId) && !empty($id))
 		    DAO_Ticket::createRequester($fromAddressId,$id);
 		
@@ -330,8 +341,11 @@ class CerberusParser {
 		if(!$bIsNew && empty($importAppend)) {
 			DAO_Ticket::updateTicket($id,array(
 			    DAO_Ticket::UPDATED_DATE => time(),
-			    DAO_Ticket::IS_CLOSED => 0
+			    DAO_Ticket::IS_CLOSED => 0,
+			    DAO_Ticket::LAST_ACTION_CODE => CerberusTicketActionCode::TICKET_CUSTOMER_REPLY,
 			));
+			
+			// [TODO] The TICKET_CUSTOMER_REPLY should be sure of this message address not being a worker
 		}
 		
 //		$ticket = DAO_Ticket::getTicket($id);
