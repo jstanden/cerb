@@ -342,6 +342,7 @@ class CerberusParser {
 			DAO_Ticket::updateTicket($id,array(
 			    DAO_Ticket::UPDATED_DATE => time(),
 			    DAO_Ticket::IS_CLOSED => 0,
+			    DAO_Ticket::LAST_WROTE_ID => $fromAddressId,
 			    DAO_Ticket::LAST_ACTION_CODE => CerberusTicketActionCode::TICKET_CUSTOMER_REPLY,
 			));
 			
