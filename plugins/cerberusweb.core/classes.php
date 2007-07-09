@@ -2833,7 +2833,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		    'bcc' => DevblocksPlatform::importGPC(@$_REQUEST['bcc']),
 		    'subject' => DevblocksPlatform::importGPC(@$_REQUEST['subject'],'string'),
 		    'content' => DevblocksPlatform::importGPC(@$_REQUEST['content']),
-		    'files' => $_FILES['attachment'],
+		    'files' => @$_FILES['attachment'],
 		    'next_action' => DevblocksPlatform::importGPC(@$_REQUEST['next_action'],'string',''),
 		    'closed' => DevblocksPlatform::importGPC(@$_REQUEST['closed'],'integer',0),
 		    'bucket_id' => DevblocksPlatform::importGPC(@$_REQUEST['bucket_id'],'integer',0),

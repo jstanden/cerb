@@ -40,13 +40,13 @@ class CerberusMail {
 	    @$files = $properties['files'];
 	    
 		$message = DAO_Ticket::getMessage($message_id);
-        $headers = DAO_MessageHeader::getAll($message_id);		
+        $message_headers = DAO_MessageHeader::getAll($message_id);		
 		$ticket_id = $message->ticket_id;
 		$ticket = DAO_Ticket::getTicket($ticket_id);
 		$requesters = DAO_Ticket::getRequestersByTicket($ticket_id);
 
 		// References
-		if(!empty($message) && false !== (@$in_reply_to = $headers['message-id'])) {
+		if(!empty($message) && false !== (@$in_reply_to = $message_headers['message-id'])) {
 		    $headers['References'] = $in_reply_to;
 		    $headers['In-Reply-To'] = $in_reply_to;
 		}
