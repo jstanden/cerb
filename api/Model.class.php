@@ -305,19 +305,18 @@ class CerberusDashboardView {
 	        list($team_id, $bucket_id) = CerberusApplication::translateTeamCategoryCode($do['team']);
 		
 		switch($filter) {
-//		    case 'subject':
+		    case 'subject':
             case 'sender':
             case 'header':
-//            case 'import':
 
 		        foreach($data as $v) {
 					switch($filter) {
-//					    case 'subject':
-//					        $new_params = array(
-//					            new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_SUBJECT,DevblocksSearchCriteria::OPER_LIKE,$v)
-//					        );
-//		                    $do_header = 'subject';
-//					        break;
+					    case 'subject':
+					        $new_params = array(
+					            new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_SUBJECT,DevblocksSearchCriteria::OPER_LIKE,$v)
+					        );
+		                    $do_header = 'subject';
+					        break;
 					    case 'sender':
 			                $new_params = array(
 			                    new DevblocksSearchCriteria(SearchFields_Ticket::SENDER_ADDRESS,DevblocksSearchCriteria::OPER_LIKE,$v)
