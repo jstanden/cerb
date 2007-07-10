@@ -3113,8 +3113,11 @@ class ChPreferencesPage extends CerberusPageExtension {
 		    case 'general':
 		    default:
 				$worker = CerberusApplication::getActiveWorker();
-				$assist_mode = DAO_WorkerPref::get($worker->id, 'assist_mode');
-				$tpl->assign('assist_mode', $assist_mode);
+				
+				$tour_enabled = DAO_WorkerPref::get($worker->id, 'assist_mode');
+				$tour_enabled = ($tour_enabled===false) ? 1 : $tour_enabled;
+
+				$tpl->assign('assist_mode', $tour_enabled);
 				$tpl->display('file:' . $tpl_path . '/preferences/general.tpl.php');
 				break;
 		}
