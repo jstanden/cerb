@@ -670,11 +670,11 @@ class CerberusStaticViewManager {
 		$view->dashboard_id = 0;
 		$view->view_columns = array(
 			SearchFields_Ticket::TICKET_NEXT_ACTION,
-			SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
 			SearchFields_Ticket::TICKET_UPDATED_DATE,
 			SearchFields_Ticket::TEAM_NAME,
 			SearchFields_Ticket::TICKET_CATEGORY_ID,
 			SearchFields_Ticket::TICKET_SPAM_SCORE,
+			SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
 			);
 		$view->params = array();
 		$view->renderLimit = 100;

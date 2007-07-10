@@ -412,10 +412,10 @@ class ChTicketsPage extends CerberusPageExtension {
 								$teamView->view_columns = array(
 //									SearchFields_Ticket::TEAM_NAME,
 									SearchFields_Ticket::TICKET_NEXT_ACTION,
-									SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
 									SearchFields_Ticket::TICKET_UPDATED_DATE,
 									SearchFields_Ticket::TICKET_CATEGORY_ID,
 									SearchFields_Ticket::TICKET_SPAM_SCORE,
+									SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
 									);
 								$teamView->params = array();
 								$teamView->renderLimit = 10;
