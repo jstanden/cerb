@@ -212,6 +212,9 @@ class ChTicketsPage extends CerberusPageExtension {
 				$buckets = DAO_Bucket::getAll();
 				$tpl->assign('buckets', $buckets);
 				
+				$quick_search_type = $visit->get('quick_search_type');
+				$tpl->assign('quick_search_type', $quick_search_type);
+				
 				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/search/index.tpl.php');
 				break;
 				
@@ -629,6 +632,7 @@ class ChTicketsPage extends CerberusPageExtension {
         $visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
         $viewMgr = $visit->get(CerberusVisit::KEY_VIEW_MANAGER); /* @var $viewMgr CerberusStaticViewManager */
         $searchView = $viewMgr->getView(CerberusApplication::VIEW_SEARCH); /* @var $searchView CerberusDashboardView */
+        $visit->set('quick_search_type', $type);
         
         $params = array();
         
