@@ -158,18 +158,18 @@
 				{assign var=action_worker_id value=$result.t_last_worker_id}
 				<span style="color:rgb(130,130,130);">
 				{if $result.t_last_action_code=='O'}
-					<span title="Opened by {$result.t_first_wrote}">{"Hello: "|cat:$result.t_first_wrote|truncate:45:'...':true:true}</span>
+					<span title="{$result.t_first_wrote}">{"<b>New</b> from "|cat:$result.t_first_wrote|truncate:45:'...':true:true}</span>
 				{elseif $result.t_last_action_code=='R'}
 					{if isset($workers.$action_worker_id)}
-						In: Contact to {$workers.$action_worker_id->getName()}
+						<b>Incoming for {$workers.$action_worker_id->getName()}</b>
 					{else}
-						In: Contact to Helpdesk
+						<b>Incoming for Helpdesk</b>
 					{/if}
 				{elseif $result.t_last_action_code=='W'}
 					{if isset($workers.$action_worker_id)}
-						Out: {$workers.$action_worker_id->getName()} to Contact
+						Outgoing from {$workers.$action_worker_id->getName()}
 					{else}
-						Out: Helpdesk to Contact
+						Outgoing from Helpdesk
 					{/if}
 				{/if}
 				</span>
