@@ -636,21 +636,24 @@ class ChTicketsPage extends CerberusPageExtension {
         
         $params = array();
         
+        if($query && false===strpos($query,'*'))
+            $query = '*' . $query . '*';
+        
         switch($type) {
             case "mask":
-                $params[SearchFields_Ticket::TICKET_MASK] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_MASK,DevblocksSearchCriteria::OPER_LIKE,'*'.strtoupper($query).'*');
+                $params[SearchFields_Ticket::TICKET_MASK] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_MASK,DevblocksSearchCriteria::OPER_LIKE,strtoupper($query));
                 break;
                 
-            case "req":
-                $params[SearchFields_Ticket::REQUESTER_ADDRESS] = new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ADDRESS,DevblocksSearchCriteria::OPER_LIKE,'*'.strtolower($query).'*');               
+            case "sender":
+                $params[SearchFields_Ticket::TICKET_FIRST_WROTE] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_FIRST_WROTE,DevblocksSearchCriteria::OPER_LIKE,strtolower($query));               
                 break;
                 
             case "subject":
-                $params[SearchFields_Ticket::TICKET_SUBJECT] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_SUBJECT,DevblocksSearchCriteria::OPER_LIKE,'*'.$query.'*');               
+                $params[SearchFields_Ticket::TICKET_SUBJECT] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_SUBJECT,DevblocksSearchCriteria::OPER_LIKE,$query);               
                 break;
                 
             case "content":
-                $params[SearchFields_Ticket::TICKET_MESSAGE_CONTENT] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_MESSAGE_CONTENT,DevblocksSearchCriteria::OPER_LIKE,'*'.$query.'*');               
+                $params[SearchFields_Ticket::TICKET_MESSAGE_CONTENT] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_MESSAGE_CONTENT,DevblocksSearchCriteria::OPER_LIKE,$query);               
                 break;
         }
         
@@ -1775,13 +1778,13 @@ class ChTicketsPage extends CerberusPageExtension {
 				@$email = DevblocksPlatform::importGPC($_REQUEST['email']);
 			    if($wildcards && false===strpos($email,'*'))
 			        $email = '*' . $email . '*';
-				$params[$field] = new DevblocksSearchCriteria($field,$oper,$email);
+				$params[$field] = new DevblocksSearchCriteria($field,$oper,strtolower($email));
 				break;
 			case SearchFields_Ticket::TICKET_LAST_WROTE:
 				@$email = DevblocksPlatform::importGPC($_REQUEST['email']);
 			    if($wildcards && false===strpos($email,'*'))
 			        $email = '*' . $email . '*';
-				$params[$field] = new DevblocksSearchCriteria($field,$oper,$email);
+				$params[$field] = new DevblocksSearchCriteria($field,$oper,strtolower($email));
 				break;
 //			case SearchFields_Ticket::REQUESTER_ADDRESS:
 //				@$requester = DevblocksPlatform::importGPC($_REQUEST['requester']);
