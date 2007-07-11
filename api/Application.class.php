@@ -1,5 +1,5 @@
 <?php
-define("APP_BUILD", 222);
+define("APP_BUILD", 223);
 define("APP_MAIL_PATH", realpath(APP_PATH . '/storage/mail') . DIRECTORY_SEPARATOR);
 
 include_once(APP_PATH . "/api/DAO.class.php");
@@ -656,7 +656,14 @@ class CerberusStaticViewManager {
 	}
 	
 	public function &getView($view_label) {
-		if(!$this->exists($view_label)) return NULL;
+		if(!$this->exists($view_label)) {
+			if($view_label == CerberusApplication::VIEW_SEARCH) {
+				self::setView($view_label, self::createSearchView());
+				return $this->views[$view_label];
+			}
+			
+			return NULL;
+		}
 		
 		return $this->views[$view_label];
 	}

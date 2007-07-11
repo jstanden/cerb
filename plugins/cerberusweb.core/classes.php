@@ -197,11 +197,6 @@ class ChTicketsPage extends CerberusPageExtension {
 								
 				$view = $viewManager->getView(CerberusApplication::VIEW_SEARCH);
 				
-				// [JAS]: Recover from a bad cached ID.
-				if(null == $view) {
-				    $view = $viewManager->createSearchView();
-				}
-				
 				$tpl->assign('view', $view);
 				$tpl->assign('params', $view->params);
 				
@@ -632,6 +627,7 @@ class ChTicketsPage extends CerberusPageExtension {
         $visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
         $viewMgr = $visit->get(CerberusVisit::KEY_VIEW_MANAGER); /* @var $viewMgr CerberusStaticViewManager */
         $searchView = $viewMgr->getView(CerberusApplication::VIEW_SEARCH); /* @var $searchView CerberusDashboardView */
+
         $visit->set('quick_search_type', $type);
         
         $params = array();
@@ -1722,10 +1718,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		    }
 		}
 		
-		if(null == ($search_view = $viewManager->getView(CerberusApplication::VIEW_SEARCH))) {
-		    $search_view = $viewManager->createSearchView();
-		}
-		
+		$search_view = $viewManager->getView(CerberusApplication::VIEW_SEARCH);
         $search_view->params = $params;
 		$viewManager->setView($search_view->id, $search_view);
 		
