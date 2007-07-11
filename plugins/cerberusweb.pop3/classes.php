@@ -9,7 +9,6 @@ class Pop3Cron extends CerberusCronPageExtension {
         @set_time_limit(0); // Unlimited (if possible)
         @ini_set('memory_limit','64M');
 
-        $mail = DevblocksPlatform::getMailService();
         $accounts = DAO_Mail::getPop3Accounts(); /* @var $accounts CerberusPop3Account[] */
 
         $timeout = ini_get('max_execution_time');

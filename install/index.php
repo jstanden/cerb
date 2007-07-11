@@ -464,8 +464,7 @@ switch($step) {
 		@$passed = DevblocksPlatform::importGPC($_POST['passed'],'integer');
 		
 		if(!empty($form_submit)) {
-			$mail = DevblocksPlatform::getMailService();
-			$from = $_SERVER['HTTP_HOST'];
+			$mailer = DevblocksPlatform::getMailService();
 			
 			// Did the user receive the test message?
 			if($passed) { // passed
@@ -482,7 +481,7 @@ switch($step) {
 				
 			} else { // fail
 				$from = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM);
-				$mail->testSmtp($smtp_host,$smtp_to,$from,$smtp_auth_user,$smtp_auth_pass);
+				$mailer->testSmtp($smtp_host,$smtp_to,$from,$smtp_auth_user,$smtp_auth_pass);
 				
 				$tpl->assign('smtp_host', $smtp_host);
 				$tpl->assign('smtp_to', $smtp_to);
@@ -616,9 +615,14 @@ switch($step) {
 //					break;
 //				}
 				
+				$replyFrom = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM);
+				$replyPersonal = $settings->get(CerberusSettings::DEFAULT_REPLY_PERSONAL, '');
+				$url = DevblocksPlatform::getUrlService();
+				
 				// Worker Details
 				if(is_array($worker_ids))
 				foreach($worker_ids as $idx => $worker_id) {
+					// [TODO] Phase this out and just write our own
 				    $passGen = new Text_Password();
 				    $password = $passGen->create(8);
 				    
@@ -629,8 +633,10 @@ switch($step) {
 				        $mailer = DevblocksPlatform::getMailService();
 				        $mail = $mailer->createInstance();       
 				        
-				        $headers = $mailer->getDefaultHeaders();
-				        $headers['Subject'] = 'Your new helpdesk login information!';
+				        $mail->addTo($worker->email, $worker->getName());
+				        $mail->setFrom($replyFrom, $replyPersonal);
+				        $mail->setSubject('Your new helpdesk login information!');
+				        $mail->addHeader('Date', gmdate('r'));
 				        
 					    $body = sprintf("Your new helpdesk login information is below:\r\n".
 							"\r\n".
@@ -640,12 +646,14 @@ switch($step) {
 					        "\r\n".
 					        "You should change your password after logging in for the first time.\r\n".
 					        "\r\n",
-						        "http://", // [TODO] URL
+						        $url->write('c=login',true),
 						        $worker->email,
 						        $password
 					    );
 				        
-					    $result = $mail->send($worker->email,$headers,$body);
+					    $mail->setBodyText($body);
+					    
+					    $mail->send();
 				    }
 				    
 					$fields = array(
@@ -656,37 +664,6 @@ switch($step) {
 						DAO_Worker::IS_SUPERUSER => (in_array($worker_id,$worker_superuser) ? 1 : 0)
 					);
 					DAO_Worker::updateAgent($worker_id, $fields);
-					
-					// Create a default dashboard for each worker
-//					$dashboard_id = DAO_Dashboard::createDashboard("Dashboard", $worker_id);
-					
-					/*
-					// [TODO] Replace these with buttons for delete/spam functionality from config
-					//  move to categories, etc.					
-
-					// Trash Action
-					$fields = array(
-						DAO_DashboardViewAction::$FIELD_NAME => 'Trash',
-						DAO_DashboardViewAction::$FIELD_WORKER_ID => $worker_id,
-						DAO_DashboardViewAction::$FIELD_PARAMS => serialize(array(
-							'status' => CerberusTicketStatus::DELETED
-						))
-					);
-					$trash_action_id = DAO_DashboardViewAction::create($fields);
-
-					// Spam Action
-					// [TODO] Look up the spam mailbox id
-					$fields = array(
-						DAO_DashboardViewAction::$FIELD_NAME => 'Report Spam',
-						DAO_DashboardViewAction::$FIELD_WORKER_ID => $worker_id,
-						DAO_DashboardViewAction::$FIELD_PARAMS => serialize(array(
-							'status' => CerberusTicketStatus::DELETED,
-							'spam' => CerberusTicketSpamTraining::SPAM
-						))
-					);
-					$spam_action_id = DAO_DashboardViewAction::create($fields);
-
-					*/
 				}
 				
 				// Team Details
