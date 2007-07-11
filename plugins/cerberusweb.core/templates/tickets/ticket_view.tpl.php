@@ -1,8 +1,5 @@
 {if !empty($last_action)}
-<div id="{$view->id}_output" style="margin:10px;padding:5px;border:1px solid rgb(200,200,200);background-color:rgb(250,250,150);">
-<table cellspacing="0" cellpadding="0" border="0" width="100%">
-<tr>
-	<td>
+<div id="{$view->id}_output" style="position:relative;margin:10px;padding:5px;border:1px solid rgb(200,200,200);background-color:rgb(250,250,150);">
 		<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/information.gif{/devblocks_url}" align="absmiddle"> 
 	
 		{$last_action_count} ticket{if $last_action_count!=1}s{/if} 
@@ -27,13 +24,9 @@
 		{/if}
 		
 		( <a href="javascript:;" onclick="ajax.viewUndo('{$view->id}');" style="font-weight:bold;">Undo</a> )
-	</td>
-	
-	<td align="right">
-		<a href="javascript:;" onclick="toggleDiv('{$view->id}_output','none');genericAjaxGet('','c=tickets&a=viewUndo&view_id={$view->id}&clear=1');" style="">close</a> 
-	</td>
-</tr>
-</table>
+		<span style="position:absolute; right:15;">
+		<a href="javascript:;" onclick="toggleDiv('{$view->id}_output','none');genericAjaxGet('','c=tickets&a=viewUndo&view_id={$view->id}&clear=1');" style="">close</a>
+		</span> 
 </div>
 {/if}
 
