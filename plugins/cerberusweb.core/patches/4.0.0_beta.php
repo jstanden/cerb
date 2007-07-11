@@ -174,5 +174,25 @@ if(!isset($indexes['updated_date'])) {
     $datadict->ExecuteSQLArray($sql);
 }
 
+if(!isset($indexes['first_wrote_address_id'])) {
+    $sql = $datadict->CreateIndexSQL('first_wrote_address_id','ticket','first_wrote_address_id');
+    $datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($indexes['last_wrote_address_id'])) {
+    $sql = $datadict->CreateIndexSQL('last_wrote_address_id','ticket','last_wrote_address_id');
+    $datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($indexes['is_closed'])) {
+    $sql = $datadict->CreateIndexSQL('is_closed','ticket','is_closed');
+    $datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($indexes['category_id'])) {
+    $sql = $datadict->CreateIndexSQL('category_id','ticket','category_id');
+    $datadict->ExecuteSQLArray($sql);
+}
+
 return TRUE;
 ?>
