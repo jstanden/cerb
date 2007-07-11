@@ -1042,8 +1042,8 @@ class DAO_Ticket extends DevblocksORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$newId = $db->GenID('ticket_seq');
 		
-		$sql = sprintf("INSERT INTO ticket (id, mask, subject, last_wrote_address_id, first_wrote_address_id, created_date, updated_date, due_date, team_id, category_id) ".
-			"VALUES (%d,'','',0,0,%d,%d,0,0,0)",
+		$sql = sprintf("INSERT INTO ticket (id, mask, subject, first_message_id, last_wrote_address_id, first_wrote_address_id, created_date, updated_date, due_date, team_id, category_id) ".
+			"VALUES (%d,'','',0,0,0,%d,%d,0,0,0)",
 			$newId,
 			time(),
 			time()
@@ -1097,19 +1097,59 @@ class DAO_Ticket extends DevblocksORMHelper {
 	
         } while($messages_count);
         
-        // Task
-
-//        do {
-//	        list($tasks, $tasks_count) = DAO_Task::search(
-//	            array(
-//	                new DevblocksSearchCriteria(SearchFields_Task::TICKET_ID,DevblocksSearchCriteria::OPER_IN,$ids)
-//	            ),
-//	            100,
-//	            0
-//	        );
-//	        DAO_Task::delete(array_keys($tasks));
-//        } while($tasks_count);
-        
+	}
+	
+	static function merge($ids=array()) {
+		if(!is_array($ids) || empty($ids) || count($ids) < 2) {
+			return false;
+		}
+		
+		$db = DevblocksPlatform::getDatabaseService();
+			
+		list($tickets, $null) = self::search(
+			array(
+				new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_ID,DevblocksSearchCriteria::OPER_IN,$ids),
+			),
+			50, // safety trigger
+			0,
+			SearchFields_Ticket::TICKET_CREATED_DATE,
+			true,
+			false
+		);
+		
+		// Merge the rest of the tickets into the oldest
+		if(is_array($tickets)) {
+			list($oldest_id, $oldest_ticket) = each($tickets);
+			unset($tickets[$oldest_id]);
+			
+			$merge_ticket_ids = array_keys($tickets);
+			
+			if(empty($oldest_id) || empty($merge_ticket_ids))
+				return null;
+			
+			$sql = sprintf("UPDATE message SET ticket_id = %d WHERE ticket_id IN (%s)",
+				$oldest_id,
+				implode(',', $merge_ticket_ids)
+			);
+			$db->Execute($sql);
+			
+			$sql = sprintf("UPDATE message_header SET ticket_id = %d WHERE ticket_id IN (%s)",
+				$oldest_id,
+				implode(',', $merge_ticket_ids)
+			);
+			$db->Execute($sql);
+			
+			// [TODO] This will probably complain about some dupe constraints
+			$sql = sprintf("UPDATE requester SET ticket_id = %d WHERE ticket_id IN (%s)",
+				$oldest_id,
+				implode(',', $merge_ticket_ids)
+			);
+			$db->Execute($sql);
+			
+			self::delete($merge_ticket_ids);
+			
+			return $oldest_id;
+		}
 	}
 	
 	/**
@@ -1141,7 +1181,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 		
 		$tickets = array();
 		
-		$sql = "SELECT t.id , t.mask, t.subject, t.is_closed, t.is_deleted, t.team_id, t.category_id, ".
+		$sql = "SELECT t.id , t.mask, t.subject, t.is_closed, t.is_deleted, t.team_id, t.category_id, t.first_message_id, ".
 			"t.first_wrote_address_id, t.last_wrote_address_id, t.created_date, t.updated_date, t.due_date, t.spam_training, ". 
 			"t.spam_score, t.interesting_words, t.next_action ".
 			"FROM ticket t ".
@@ -1155,6 +1195,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 			$ticket->id = intval($rs->fields['id']);
 			$ticket->mask = $rs->fields['mask'];
 			$ticket->subject = $rs->fields['subject'];
+			$ticket->first_message_id = intval($rs->fields['first_message_id']);
 			$ticket->team_id = intval($rs->fields['team_id']);
 			$ticket->category_id = intval($rs->fields['category_id']);
 			$ticket->is_closed = intval($rs->fields['is_closed']);
@@ -1578,6 +1619,7 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 	 */
 	static function getFields() {
 		return array(
+			SearchFields_Ticket::TICKET_ID => new DevblocksSearchField(SearchFields_Ticket::TICKET_ID, 't', 'id'),
 			SearchFields_Ticket::TICKET_MASK => new DevblocksSearchField(SearchFields_Ticket::TICKET_MASK, 't', 'mask'),
 			SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchField(SearchFields_Ticket::TICKET_CLOSED, 't', 'is_closed'),
 			SearchFields_Ticket::TICKET_DELETED => new DevblocksSearchField(SearchFields_Ticket::TICKET_DELETED, 't', 'is_deleted'),

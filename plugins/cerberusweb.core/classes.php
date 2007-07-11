@@ -973,6 +973,46 @@ class ChTicketsPage extends CerberusPageExtension {
 	    return;
 	}
 	
+	function viewMergeTicketsAction() {
+	    @$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
+	    @$ticket_ids = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'array');
+
+//        $fields = array(
+//            DAO_Ticket::IS_CLOSED => 0,
+//            DAO_Ticket::IS_DELETED => 0,
+//        );
+	    
+        //====================================
+	    // Undo functionality
+//        $last_action = new Model_TicketViewLastAction();
+//        $last_action->action = Model_TicketViewLastAction::ACTION_NOT_SPAM;
+//
+//        if(is_array($ticket_ids))
+//        foreach($ticket_ids as $ticket_id) {
+////            CerberusBayes::calculateTicketSpamProbability($ticket_id); // [TODO] Ugly (optimize -- use the 'interesting_words' to do a word bayes spam score?
+//            
+//            $last_action->ticket_ids[$ticket_id] = array(
+//                DAO_Ticket::SPAM_TRAINING => CerberusTicketSpamTraining::BLANK,
+//                DAO_Ticket::SPAM_SCORE => 0.0001, // [TODO] Fix
+//                DAO_Ticket::IS_CLOSED => 0,
+//                DAO_Ticket::IS_DELETED => 0
+//            );
+//        }
+//
+//        $last_action->action_params = $fields;
+//        
+//        CerberusDashboardView::setLastAction($view_id,$last_action);
+        CerberusDashboardView::setLastAction($view_id,null);
+        //====================================
+
+	    if(!empty($ticket_ids)) {
+	    	$oldest_id = DAO_Ticket::merge($ticket_ids);
+	    }
+	    
+	    echo ' ';
+	    return;
+	}
+	
 	function viewCloseTicketsAction() {
 	    @$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 	    @$ticket_ids = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'array');
@@ -997,6 +1037,49 @@ class ChTicketsPage extends CerberusPageExtension {
         
         CerberusDashboardView::setLastAction($view_id,$last_action);
         //====================================
+	    
+        DAO_Ticket::updateTicket($ticket_ids, $fields);
+	    
+	    echo ' ';
+	    return;
+	}
+	
+	function viewNotSpamTicketsAction() {
+	    @$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
+	    @$ticket_ids = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'array');
+
+        $fields = array(
+            DAO_Ticket::IS_CLOSED => 0,
+            DAO_Ticket::IS_DELETED => 0,
+        );
+	    
+        //====================================
+	    // Undo functionality
+        $last_action = new Model_TicketViewLastAction();
+        $last_action->action = Model_TicketViewLastAction::ACTION_NOT_SPAM;
+
+        if(is_array($ticket_ids))
+        foreach($ticket_ids as $ticket_id) {
+//            CerberusBayes::calculateTicketSpamProbability($ticket_id); // [TODO] Ugly (optimize -- use the 'interesting_words' to do a word bayes spam score?
+            
+            $last_action->ticket_ids[$ticket_id] = array(
+                DAO_Ticket::SPAM_TRAINING => CerberusTicketSpamTraining::BLANK,
+                DAO_Ticket::SPAM_SCORE => 0.0001, // [TODO] Fix
+                DAO_Ticket::IS_CLOSED => 0,
+                DAO_Ticket::IS_DELETED => 0
+            );
+        }
+
+        $last_action->action_params = $fields;
+        
+        CerberusDashboardView::setLastAction($view_id,$last_action);
+        //====================================
+
+        // [TODO] Bayes should really be smart enough to allow training of batches of IDs
+	    if(!empty($ticket_ids))
+	    foreach($ticket_ids as $id) {
+	        CerberusBayes::markTicketAsNotSpam($id);
+	    }
 	    
         DAO_Ticket::updateTicket($ticket_ids, $fields);
 	    
@@ -1035,6 +1118,7 @@ class ChTicketsPage extends CerberusPageExtension {
         CerberusDashboardView::setLastAction($view_id,$last_action);
         //====================================
 	    
+        // {TODO] Batch
 	    if(!empty($ticket_ids))
 	    foreach($ticket_ids as $id) {
 	        CerberusBayes::markTicketAsSpam($id);

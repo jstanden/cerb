@@ -220,6 +220,7 @@ class CerberusDashboard {
 
 class Model_TicketViewLastAction {
     // [TODO] Recycle the bulk update constants for these actions?
+    const ACTION_NOT_SPAM = 'not_spam';
     const ACTION_SPAM = 'spam';
     const ACTION_CLOSE = 'close';
     const ACTION_DELETE = 'delete';
@@ -499,6 +500,7 @@ class CerberusTicket {
 	public $team_id;
 	public $category_id;
 	public $priority;
+	public $first_message_id;
 	public $first_wrote_address_id;
 	public $last_wrote_address_id;
 	public $created_date;

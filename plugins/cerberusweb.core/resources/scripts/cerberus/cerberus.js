@@ -296,6 +296,27 @@ var cAjaxCalls = function() {
 			genericAjaxGet('dashboardPanel','c=tickets&a=refreshTeamFilters');
 		});
 	}
+
+	this.viewTicketsAction = function(view_id,action) {
+		var formName = 'viewForm'+view_id;
+		var viewForm = document.getElementById(formName);
+		if(null == viewForm) return;
+
+		switch(action) {
+			case 'merge':
+				genericAjaxPost(formName, '', 'c=tickets&a=viewMergeTickets&view_id='+view_id, function(o) {
+					ajax.getRefresh(view_id);
+					genericAjaxGet('dashboardPanel','c=tickets&a=refreshTeamFilters');
+				});
+				break;
+			case 'not_spam':
+				genericAjaxPost(formName, '', 'c=tickets&a=viewNotSpamTickets&view_id='+view_id, function(o) {
+					ajax.getRefresh(view_id);
+					genericAjaxGet('dashboardPanel','c=tickets&a=refreshTeamFilters');
+				});
+				break;
+		}
+	}
 	
 	this.viewCloseTickets = function(view_id,mode) {
 		var formName = 'viewForm'+view_id;

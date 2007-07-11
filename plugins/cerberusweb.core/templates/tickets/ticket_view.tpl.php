@@ -6,6 +6,8 @@
 	
 		{if $last_action->action == 'spam'}
 			marked spam.
+		{elseif $last_action->action == 'not_spam'}
+			marked not spam.
 		{elseif $last_action->action == 'delete'}
 			deleted.
 		{elseif $last_action->action == 'close'}
@@ -217,6 +219,13 @@
 				</optgroup>
 			</select>
 			
+			<a href="javascript:;" onclick="toggleDiv('view{$view_id}_more');">More &raquo;</a>
+
+			<div id="view{$view_id}_more" style="display:none;padding-top:5px;padding-bottom:5px;">
+				<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','not_spam');">not spam</button>
+				<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','merge');">merge</button>
+			</div>
+
 		</td>
 	</tr>
 	{/if}

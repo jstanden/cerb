@@ -126,14 +126,23 @@ class CerberusBayes {
 		self::_markTicketAs($ticket_id, false);
 	}
 	
+	// [TODO] Accept batch tickets for training for efficiencies sake
 	static private function _markTicketAs($ticket_id,$spam=true) {
+		// [TODO] Make sure we can't retrain tickets which are already spam trained
+		// [TODO] This is a performance killer
+		$ticket = DAO_Ticket::getTicket($ticket_id);
+		
+		if($ticket->spam_training != CerberusTicketSpamTraining::BLANK)
+			return TRUE;
+			
 		// pull up text of first ticket message
-	    $messages = DAO_Ticket::getMessagesByTicket($ticket_id);
-	    $first_message = array_shift($messages); /* @var $first_message CerberusMessage */
+		// [TODO] This is a performance killer
+		$first_message = DAO_Ticket::getMessage($ticket->first_message_id);
 
-		if(empty($first_message) || !($first_message instanceOf CerberusMessage)) 
+		if(empty($first_message)) 
 		    return FALSE;
 		
+		// [TODO] This is a performance killer
 		$headers = DAO_MessageHeader::getAll($first_message->id);
 		    
 		// Pass text to analyze() to get back interesting words
@@ -150,6 +159,7 @@ class CerberusBayes {
 		self::_trainWords($words,$spam); // [TODO] Testing, train all words
 		
 		// Increase the bayes_stats spam or notspam total count by 1
+		// [TODO] This is a performance killer (could be done in batches)
 		if($spam) {
 		    DAO_Bayes::addOneToSpamTotal(); 
 		} else {
@@ -162,6 +172,8 @@ class CerberusBayes {
 			'spam_training' => ($spam) ? CerberusTicketSpamTraining::SPAM : CerberusTicketSpamTraining::NOT_SPAM,
 		);
 		DAO_Ticket::updateTicket($ticket_id,$fields);
+		
+		return TRUE;
 	}
 
 	/**
