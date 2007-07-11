@@ -1346,6 +1346,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	    
 	    if(!empty($ids)) {
 	        $ticket_ids = CerberusApplication::parseCsvString($ids);
+	        if(empty($ticket_ids)) break;
 	        $tickets = DAO_Ticket::getTickets($ticket_ids);
 		    
 		    foreach($tickets as $ticket) { /* @var $ticket CerberusTicket */
@@ -1368,10 +1369,11 @@ class ChTicketsPage extends CerberusPageExtension {
 		    
 		    unset($senders);
 		    unset($unique_sender_ids);
+		    
+	        @$tpl->assign('ticket_ids', $ticket_ids);
+	        @$tpl->assign('unique_senders', $unique_senders);
+	        @$tpl->assign('unique_subjects', $unique_subjects);
 	    }
-	    
-        @$tpl->assign('unique_senders', $unique_senders);
-        @$tpl->assign('unique_subjects', $unique_subjects);
 		
 		// Status
 		$statuses = CerberusTicketStatus::getOptions();

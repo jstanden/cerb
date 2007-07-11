@@ -301,27 +301,37 @@ class CerberusDashboardView {
 		$team_id = 0;
 		$bucket_id = 0;
 		
+		if(empty($filter)) {
+			$data[] = '*'; // All, just to permit a loop in foreach($data ...)
+		}
+		
 		if(!empty($do['team']))
 	        list($team_id, $bucket_id) = CerberusApplication::translateTeamCategoryCode($do['team']);
 		
 		switch($filter) {
+			default:
 		    case 'subject':
             case 'sender':
             case 'header':
 
 		        foreach($data as $v) {
+		        	$new_params = array();
+		        	$do_header = null;
+		        	
 					switch($filter) {
 					    case 'subject':
 					        $new_params = array(
 					            new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_SUBJECT,DevblocksSearchCriteria::OPER_LIKE,$v)
 					        );
 		                    $do_header = 'subject';
+		                    $ticket_ids = array();
 					        break;
 					    case 'sender':
 			                $new_params = array(
 			                    new DevblocksSearchCriteria(SearchFields_Ticket::SENDER_ADDRESS,DevblocksSearchCriteria::OPER_LIKE,$v)
 			                );
                             $do_header = 'from';
+                            $ticket_ids = array();
 			                break;
 			            case 'header':
 	                        $new_params = array(
@@ -329,26 +339,28 @@ class CerberusDashboardView {
 	                            new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_MESSAGE_HEADER,DevblocksSearchCriteria::OPER_EQ,$filter_param),
 	                            new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_MESSAGE_HEADER_VALUE,DevblocksSearchCriteria::OPER_EQ,$v)
 	                        );
+	                        $ticket_ids = array();
 	                        break;
-   					}	                
+					}               
 		            
-		            $ticket_ids = array();
 		            $new_params = array_merge($new_params, $params);
 	                $pg = 0;
 
-			        do {
-				        list($tickets,$null) = DAO_Ticket::search(
-				            $new_params,
-				            500,
-				            $pg++,
-				            SearchFields_Ticket::TICKET_ID,
-				            true,
-				            false
-				        );
-				        
-				        $ticket_ids = array_merge($ticket_ids, array_keys($tickets));
-				        
-			        } while(!empty($tickets));
+	                if(empty($ticket_ids)) {
+				        do {
+					        list($tickets,$null) = DAO_Ticket::search(
+					            $new_params,
+					            500,
+					            $pg++,
+					            SearchFields_Ticket::TICKET_ID,
+					            true,
+					            false
+					        );
+					        
+					        $ticket_ids = array_merge($ticket_ids, array_keys($tickets));
+					        
+				        } while(!empty($tickets));
+		        	}
 			        
 			        // [TODO] Allow rule creation on headers
 			        
@@ -374,10 +386,6 @@ class CerberusDashboardView {
 			        }
 		        }
 		        
-		        break;
-		        
-		    default: // none/selected
-				$action->run($ticket_ids);
 		        break;
 		}
 

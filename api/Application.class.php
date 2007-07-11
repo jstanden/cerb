@@ -137,6 +137,8 @@ class CerberusApplication extends DevblocksApplication {
 		
 		foreach($tokens as $k => $v) {
 			$tokens[$k] = trim($v);
+			if(empty($tokens[$k]))
+				unset($tokens[$k]);
 		}
 		
 		return $tokens;

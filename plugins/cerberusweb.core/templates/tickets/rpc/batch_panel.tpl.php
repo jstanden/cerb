@@ -16,13 +16,14 @@
 
 <h2>With:</h2>
 
-<label><input type="radio" name="filter" value="" onclick="toggleDiv('bulkUpdateLearn','none');toggleDiv('categoryFilterPanelSender','none');toggleDiv('categoryFilterPanelSubject','none');"> Selected Tickets</label> 
-<label><input type="radio" name="filter" value="sender" onclick="toggleDiv('bulkUpdateLearn','block');toggleDiv('categoryFilterPanelSender','block');toggleDiv('categoryFilterPanelSubject','none');" checked> All similar senders</label>
-<label><input type="radio" name="filter" value="subject" onclick="toggleDiv('bulkUpdateLearn','block');toggleDiv('categoryFilterPanelSender','none');toggleDiv('categoryFilterPanelSubject','block');"> All similar subjects</label>
+<label><input type="radio" name="filter" value="" onclick="toggleDiv('bulkUpdateLearn','none');toggleDiv('categoryFilterPanelSender','none');toggleDiv('categoryFilterPanelSubject','none');" {if empty($ticket_ids)}checked{/if}> Whole list</label> 
+<label><input type="radio" name="filter" value="" onclick="toggleDiv('bulkUpdateLearn','none');toggleDiv('categoryFilterPanelSender','none');toggleDiv('categoryFilterPanelSubject','none');"> Only checked</label> 
+<label><input type="radio" name="filter" value="sender" onclick="toggleDiv('bulkUpdateLearn','block');toggleDiv('categoryFilterPanelSender','block');toggleDiv('categoryFilterPanelSubject','none');" {if !empty($ticket_ids)}checked{/if}> Similar senders</label>
+<label><input type="radio" name="filter" value="subject" onclick="toggleDiv('bulkUpdateLearn','block');toggleDiv('categoryFilterPanelSender','none');toggleDiv('categoryFilterPanelSubject','block');"> Similar subjects</label>
 <br>
 <br>
 
-<div style='display:block;' id='categoryFilterPanelSender'>
+<div style='display:{if empty($ticket_ids)}none{else}block{/if};' id='categoryFilterPanelSender'>
 <label><b>When sender matches:</b> (one per line, use * for wildcards)</label><br>
 <textarea rows='3' cols='45' style='width:95%' name='senders' wrap="off">{foreach from=$unique_senders key=sender item=total name=senders}{$sender}{if !$smarty.foreach.senders.last}{"\n"}{/if}{/foreach}</textarea><br>
 <br>
@@ -101,7 +102,7 @@
 <br>
 </div>
 
-<div id="bulkUpdateLearn" style="display:block;">
+<div id="bulkUpdateLearn" style="display:{if empty($ticket_ids)}none{else}block{/if};">
 {if !empty($team_id)}
 <H2>And in the future:</H2>
 <label><input type="checkbox" name="always_do_for_team" value="{$team_id}"> Do this with all mail entering team inbox</label><br>
