@@ -14,6 +14,11 @@ define('DEVBLOCKS_REWRITE', false);
 //define('DEVBLOCKS_MEMCACHE_HOST','127.0.0.1');
 //define('DEVBLOCKS_MEMCACHE_PORT','11211');
 
+// [TODO] This needs to be coming out of GUI config (system default + worker default)
+@date_default_timezone_set(date_default_timezone_get());
+
+define('APP_PARSER_ALLOW_IMPORTS', true);
+
 /****************************************************************************
  * [JAS]: Don't change the following unless you know what you're doing!
  ***************************************************************************/
@@ -21,13 +26,6 @@ define('APP_DEFAULT_CONTROLLER','core.controller.page');
 define('APP_DB_PREFIX','cerb');
 define('APP_PATH',realpath(dirname(__FILE__)));
 define('DEVBLOCKS_PATH',APP_PATH . '/libs/devblocks/');
-
-// [TODO] Move to config
-//define('DEVBLOCKS_VIRTUAL', serialize(array(
-//    'forum.wgm.local' => '/forums/1/',
-//    'mobile.wgm.local' => '/mobile/',
-//    'helpdesk.wgm.local' => '/',
-//)));
 
 require_once(DEVBLOCKS_PATH . 'framework.defaults.php');
 
