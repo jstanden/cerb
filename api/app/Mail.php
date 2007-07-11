@@ -119,6 +119,9 @@ class CerberusMail {
 		
 			// [TODO] Use API to abstract writing these to disk (share w/ Parser)
 			foreach ($files['tmp_name'] as $idx => $file) {
+				if(empty($file) || empty($files['name'][$idx]))
+					continue;
+					
 				$fields = array(
 					DAO_Attachment::MESSAGE_ID => $message_id,
 					DAO_Attachment::DISPLAY_NAME => $files['name'][$idx],
