@@ -114,14 +114,33 @@ class CerberusMail {
 				}
 		}
 
-//		// if this message was submitted with attachments, store them in the filestore and link them in the db.
 		if (is_array($files) && !empty($files)) {
 			$attachment_path = APP_PATH . '/storage/attachments/';
 		
+			// [TODO] Use API to abstract writing these to disk (share w/ Parser)
 			foreach ($files['tmp_name'] as $idx => $file) {
-				// [TODO] Use API to abstract writing these to disk
-//				DAO_Attachment::create($fields); // $message_id, $files['name'][$idx], $message_id.$idx);
-//				copy($files['tmp_name'][$idx],$attachment_path.$message_id.$idx);
+				$fields = array(
+					DAO_Attachment::MESSAGE_ID => $message_id,
+					DAO_Attachment::DISPLAY_NAME => $files['name'][$idx],
+					DAO_Attachment::MIME_TYPE => $files['type'][$idx],
+					DAO_Attachment::FILE_SIZE => filesize($file)
+				);
+				$file_id = DAO_Attachment::create($fields);
+				
+	            $attachment_bucket = sprintf("%03d/",
+	                rand(1,100)
+	            );
+	            $attachment_file = $file_id;
+	            
+	            if(!file_exists($attachment_path.$attachment_bucket)) {
+	                @mkdir($attachment_path.$attachment_bucket, 0770, true);
+	            }
+
+	            rename($file, $attachment_path.$attachment_bucket.$attachment_file);
+			    
+			    DAO_Attachment::update($file_id, array(
+			        DAO_Attachment::FILEPATH => $attachment_bucket.$attachment_file
+			    ));
 			}
 		}
 		
