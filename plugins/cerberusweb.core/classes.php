@@ -186,7 +186,10 @@ class ChTicketsPage extends CerberusPageExtension {
 		
 		// Clear all undo actions on reload
 	    CerberusDashboardView::clearLastActions();
-		
+	    				
+		$quick_search_type = $visit->get('quick_search_type');
+		$tpl->assign('quick_search_type', $quick_search_type);
+	    
 		switch($section) {
 			case 'search':
 				$visit = CerberusApplication::getVisit();
@@ -211,9 +214,6 @@ class ChTicketsPage extends CerberusPageExtension {
 				
 				$buckets = DAO_Bucket::getAll();
 				$tpl->assign('buckets', $buckets);
-				
-				$quick_search_type = $visit->get('quick_search_type');
-				$tpl->assign('quick_search_type', $quick_search_type);
 				
 				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/search/index.tpl.php');
 				break;
@@ -2718,7 +2718,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		@$closed = DevblocksPlatform::importGPC($_REQUEST['closed'],'integer',0);
 		@$spam = DevblocksPlatform::importGPC($_REQUEST['spam'],'integer',0);
 		@$deleted = DevblocksPlatform::importGPC($_REQUEST['deleted'],'integer',0);
-		@$bucket = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'integer');
+		@$bucket = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'string');
 		
 		// Anti-Spam
 		if(!empty($spam)) {

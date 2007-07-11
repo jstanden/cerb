@@ -9,10 +9,10 @@
 		<input type="hidden" name="c" value="tickets">
 		<input type="hidden" name="a" value="doQuickSearch">
 		<span id="tourHeaderQuickLookup"><b>Quick Search:</b></span> <select name="type">
-			<option value="sender">Sender</option>
-			<option value="mask">Ticket ID</option>
-			<option value="subject">Subject</option>
-			<option value="content">Content</option>
+			<option value="sender"{if $quick_search_type eq 'sender'}selected{/if}>Sender</option>
+			<option value="mask"{if $quick_search_type eq 'mask'}selected{/if}>Ticket ID</option>
+			<option value="subject"{if $quick_search_type eq 'subject'}selected{/if}>Subject</option>
+			<option value="content"{if $quick_search_type eq 'content'}selected{/if}>Content</option>
 		</select><input type="text" name="query" size="24"><input type="submit" value="go!">
 		</form>
 	</td>
