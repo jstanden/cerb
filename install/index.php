@@ -631,12 +631,12 @@ switch($step) {
 				    if(in_array($worker_id,$worker_pw)) {
 				        
 				        $mailer = DevblocksPlatform::getMailService();
-				        $mail = $mailer->createInstance();       
+				        $mail = $mailer->createEmail();       
 				        
-				        $mail->addTo($worker->email, $worker->getName());
+				        $mail->addRecipient($worker->email, $worker->getName());
 				        $mail->setFrom($replyFrom, $replyPersonal);
 				        $mail->setSubject('Your new helpdesk login information!');
-				        $mail->addHeader('Date', gmdate('r'));
+				        $mail->headers->set('Date', gmdate('r'));
 				        
 					    $body = sprintf("Your new helpdesk login information is below:\r\n".
 							"\r\n".
@@ -651,9 +651,9 @@ switch($step) {
 						        $password
 					    );
 				        
-					    $mail->setBodyText($body);
+					    $mail->setTextBody($body);
 					    
-					    $mail->send();
+					    $mailer->send($replyFrom,array($worker->email),$mail);
 				    }
 				    
 					$fields = array(

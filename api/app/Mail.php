@@ -31,8 +31,8 @@ class CerberusMail {
 		*/
 
 		// objects
-	    $mailer = DevblocksPlatform::getMailService();
-        $mail = $mailer->createInstance();
+	    $mail_service = DevblocksPlatform::getMailService();
+	    $mail = $mail_service->createEmail();
         
 	    // properties
 	    @$type = $properties['type']; // [TODO] Phase out
@@ -51,25 +51,27 @@ class CerberusMail {
 		// Headers
 		$mail->setFrom($from_addy, $from_personal);
 		$mail->setSubject('Re: ' . $ticket->subject);
-		$mail->addHeader('Date', gmdate('r'));
-		$mail->addHeader('Message-Id',CerberusApplication::generateMessageId());
-		$mail->addHeader('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
-		$mail->addHeader('X-MailGenerator','Cerberus Helpdesk (Build '.APP_BUILD.')');
+		$mail->headers->set('Date', gmdate('r'));
+		$mail->headers->set('Message-Id',CerberusApplication::generateMessageId());
+		$mail->headers->set('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
+		$mail->headers->set('X-MailGenerator','Cerberus Helpdesk (Build '.APP_BUILD.')');
 		
 		// References
 		if(!empty($message) && false !== (@$in_reply_to = $message_headers['message-id'])) {
-		    $mail->addHeader('References', $in_reply_to);
-		    $mail->addHeader('In-Reply-To', $in_reply_to);
+		    $mail->headers->set('References', $in_reply_to);
+		    $mail->headers->set('In-Reply-To', $in_reply_to);
 		}
 		
 		// Body
-		$mail->setBodyText($content);
+		$mail->setTextBody($content); // , 'iso-8859-1' 
 
 	    // Recepients
+		$to = array();
 		$requesters = DAO_Ticket::getRequestersByTicket($ticket_id);
 	    if(is_array($requesters)) {
 		    foreach($requesters as $requester) { /* @var $requester CerberusAddress */
-				$mail->addTo($requester->email);
+				$mail->addRecipient($requester->email);
+				$to[] = $requester->email;
 		    }
 	    }
 	    
@@ -78,18 +80,16 @@ class CerberusMail {
 			foreach ($files['tmp_name'] as $idx => $file) {
 				if(empty($file) || empty($files['name'][$idx]))
 					continue;
-				$mail->createAttachment(
-					file_get_contents($file),
-					$files['type'][$idx],
-					Zend_Mime::DISPOSITION_ATTACHMENT,
-					Zend_Mime::ENCODING_BASE64,
-					$files['name'][$idx]
-				);
+
+				// $files['type'][$idx]
+										
+				$mail->attachFromString(file_get_contents($file), $files['name'][$idx]);
 			}
 		}
-		
-		$mail->send();	
-//		@$log = $tr->getConnection()->getLog();
+
+		if(!$mail_service->send($from_addy, $to, $mail)) {
+			// [TODO] Do error reporting
+		}
 		
 		// [TODO] Make this properly use team replies 
 	    // (or reflect what the customer sent to), etc.
@@ -106,21 +106,22 @@ class CerberusMail {
 		// Content
 	    DAO_MessageContent::update($message_id, $content);
 	    
-	    // Headers
-	    $sanitizedHeaders = self::sanitizeHeaders($mail->getHeaders());
-	    foreach($sanitizedHeaders as $hk => $hv) {
-	    	if(empty($hk) || empty($hv))
-	    		continue;
-	        DAO_MessageHeader::update($message_id, $ticket_id, $hk, $hv);
-	    }
+		foreach(array('Date', 'From', 'To', 'Subject', 'Message-Id', 'X-Mailer') as $hdr) {
+			if(null != ($hdr_val = $mail->headers->get($hdr)))
+				if(false !== ($pos = strpos($hdr_val,':'))) {
+					$hdr_val = trim(substr($hdr_val, $pos+1));
+		    		DAO_MessageHeader::update($message_id, $ticket_id, $hdr, $hdr_val);
+				}
+		}
 
 //		// if this message was submitted with attachments, store them in the filestore and link them in the db.
 		if (is_array($files) && !empty($files)) {
 			$attachment_path = APP_PATH . '/storage/attachments/';
 		
 			foreach ($files['tmp_name'] as $idx => $file) {
-//				copy($files['tmp_name'][$idx],$attachment_location.$message_id.$idx);
+				// [TODO] Use API to abstract writing these to disk
 //				DAO_Attachment::create($fields); // $message_id, $files['name'][$idx], $message_id.$idx);
+//				copy($files['tmp_name'][$idx],$attachment_path.$message_id.$idx);
 			}
 		}
 		
@@ -157,32 +158,6 @@ class CerberusMail {
 		    DAO_Ticket::updateTicket($ticket_id, $change_fields);
 		}
 		
-	}
-	
-	// [TODO] We should example if there's a way to have the Zend_Mail class do this for us (generateMessage).
-	static private function sanitizeHeaders($headers) {
-	    $clean_headers = array();
-	    
-		if(is_array($headers))
-	    foreach($headers as $k => $v) {
-	        $vals = array();
-	        
-	        if(is_array($v))
-	        foreach($v as $vk => $vv) {
-	            if(is_numeric($vk))
-	                $vals[] = $vv;    
-	        }
-	        
-	        if(isset($v['append'])) {
-	            $val = implode(', ', $vals);
-	        } else {
-	            $val = implode(Zend_Mime::LINEEND, $vals);
-	        }
-	        
-	        $clean_headers[strtolower($k)] = $val;
-	    }	    
-	    
-	    return $clean_headers;
 	}
 	
 };
