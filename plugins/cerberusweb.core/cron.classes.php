@@ -113,7 +113,7 @@ class ParseCron extends CerberusCronPageExtension {
 		            ob_end_clean();
 		            
 		            // [TODO] Add the html part as an attachment
-	                $tmpname = ParserFile::makeTempFilename($tmpname);
+	                $tmpname = ParserFile::makeTempFilename();
 	                $html_attach = new ParserFile();
 	                $html_attach->setTempFile($tmpname,'text/html');
 	                @file_put_contents($tmpname,$message->htmlbody);

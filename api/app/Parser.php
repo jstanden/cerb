@@ -81,42 +81,16 @@ class CerberusParser {
 		@$fromPersonal = $from[0]->personal;
 		$fromAddressId = CerberusApplication::hashLookupAddressId($fromAddress, true); 
 
-		// [TODO] This wasn't doing anything
-//		if(is_array($to))
-//		foreach($to as $recipient) {
-//			@$toAddress = $recipient->mailbox.'@'.$recipient->host;
-//			@$toPersonal = $recipient->personal;
-//			@$toAddressId = CerberusApplication::hashLookupAddressId($toAddress, true); // $toPersonal
-//		}
-		
 		// Message Id / References / In-Reply-To
-		@$sInReplyTo = $headers['in-reply-to'];
 		@$sMessageId = $headers['message-id'];
-//		$sReferences = @$headers['references'];
-
+		
+		// Imports
         @$importNew = $headers['x-cerberusnew'];
         @$importAppend = $headers['x-cerberusappendto'];
 
 		// [JAS] [TODO] References header may contain multiple message-ids to find
-//		if(!empty($sReferences) || !empty($sInReplyTo)) {
-		if(!empty($sInReplyTo) && 0 != strcmp($sMessageId,$sInReplyTo) && empty($importNew) && empty($importAppend)) {
-//			$findMessageId = (!empty($sInReplyTo)) ? $sInReplyTo : $sReferences;
-			$findMessageId = $sInReplyTo;
-			
-//			echo "Find message id (", htmlentities($sInReplyTo), ") for (" . htmlentities($sMessageId) . ")... ";
-			
-			if(0 != strcmp($findMessageId,"''")) {
-				if(null != ($id = DAO_Ticket::getTicketByMessageId($findMessageId))) {
-				    $bIsNew = false;
-//				    echo "matched $id!<br>";
-				} else {
-//				    echo "thought so, but no.<br>";
-				}
-			} else {
-//			    echo "no match!<br>";
-			}
-			
-//			return;
+		if(empty($importNew) && empty($importAppend) && null != ($id = self::findParentMessage($headers))) {
+			$bIsNew = false;
 		}
 
 		// Are we importing a ticket?
@@ -184,14 +158,6 @@ class CerberusParser {
                 }
 			}
 			
-//		} else { // Reply
-//		    $reply_ticket = DAO_Ticket::getTicket($id);
-//		    if(!empty($reply_ticket)) { //  && !empty($reply_ticket->last_worker_id)
-//		        DAO_Ticket::updateTicket($id,array(
-//		            DAO_Ticket::LAST_ACTION = 'customer replied'
-//		        ));
-//		    }
-		    
 		}
 		
 		// [JAS]: Add requesters to the ticket
@@ -349,11 +315,56 @@ class CerberusParser {
 			// [TODO] The TICKET_CUSTOMER_REPLY should be sure of this message address not being a worker
 		}
 		
-//		$ticket = DAO_Ticket::getTicket($id);
 		return $id;
-//		return $ticket;
 	}
 
+	static private function findParentMessage($headers) {
+		@$sSubject = $headers['subject'];
+		@$sMessageId = trim($headers['message-id']);
+		@$sInReplyTo = trim($headers['in-reply-to']);
+		@$sReferences = trim($headers['references']);
+
+		// [TODO] Could turn string comparisons into hashes here for simple equality checks
+		
+		$aReferences = array();
+		
+		// Add all References
+		if(!empty($sReferences)) {
+			if(preg_match("/(\<.*?\@.*?\>)/", $sReferences, $matches)) {
+				unset($matches[0]); // who cares about the pattern
+				foreach($matches as $ref) {
+					$ref = trim($ref);
+					if(!empty($ref) && 0 != strcasecmp($ref,$sMessageId))
+						$aReferences[$ref] = 1;
+				}
+			}
+		}
+
+		unset($matches);
+		
+		// Append first <*> from In-Reply-To
+		if(!empty($sInReplyTo)) {
+			if(preg_match("/(\<.*?\@.*?\>)/", $sInReplyTo, $matches)) {
+				if(isset($matches[1])) { // only use the first In-Reply-To
+					$ref = trim($matches[1]);
+					if(!empty($ref) && 0 != strcasecmp($ref,$sMessageId))
+						$aReferences[$ref] = 1;
+				}
+			}
+		}
+		
+		// Try matching our references or in-reply-to
+		if(is_array($aReferences) && !empty($aReferences)) {
+			foreach(array_keys($aReferences) as $ref) {
+				if(empty($ref)) continue;
+				if(null != ($id = DAO_Ticket::getTicketByMessageId($ref)))
+				    return $id;
+			}
+		}
+		
+		return NULL;
+	}
+	
 	/**
 	 * Enter description here...
 	 *
