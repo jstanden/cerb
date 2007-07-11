@@ -2605,46 +2605,45 @@ class DAO_Bucket extends DevblocksORMHelper {
 	}
 	
 	static function getByTeam($team_id) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$team_buckets = array();
 		
-		$sql = sprintf("SELECT tc.id ".
-			"FROM category tc ".
-			"WHERE tc.team_id = %d ".
-			"ORDER BY tc.name ASC ",
-			$team_id
-		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-		$ids = array();
-		$categories = array();
-		
-		while(!$rs->EOF) {
-			$ids[] = $rs->fields['id'];
-			$rs->MoveNext();
+		$buckets = self::getAll();
+		foreach($buckets as $bucket) {
+			if($team_id==$bucket->team_id) {
+				$team_buckets[$bucket->id] = $bucket;
+			}
 		}
-		
-		if(!empty($ids)) {
-			$categories = self::getList($ids);
-		}
-		
-		return $categories;
+		return $team_buckets;
 	}
 	
 	static function create($name,$team_id) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$id = $db->GenID('generic_seq');
-		
-		$sql = sprintf("INSERT INTO category (id,name,team_id) ".
-			"VALUES (%d,%s,%d)",
-			$id,
-			$db->qstr($name),
-			$team_id
-		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-		$cache = DevblocksPlatform::getCacheService();
-		$cache->remove(self::CACHE_ALL);
+		$buckets = self::getAll();
+		$duplicate = false;
+		foreach($buckets as $bucket) {
+			if($name==$bucket->name && $team_id==$bucket->team_id) {
+				$duplicate = true;
+				$id = $bucket->id;
+				break;
+			}
+		}
+
+		if(!$duplicate) {
+			$id = $db->GenID('generic_seq');
+			
+			$sql = sprintf("INSERT INTO category (id,name,team_id) ".
+				"VALUES (%d,%s,%d)",
+				$id,
+				$db->qstr($name),
+				$team_id
+			);
+
+			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+
+			$cache = DevblocksPlatform::getCacheService();
+			$cache->remove(self::CACHE_ALL);
+		}
 		
 		return $id;
 	}
