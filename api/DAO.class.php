@@ -581,12 +581,23 @@ class DAO_Contact {
 
 		if(null != ($id = DAO_Contact::lookupAddress($email,false)))
 			return $id;
+
+		// [TODO] Validate
+		$addresses = imap_rfc822_parse_adrlist('<'.$email.'>', 'localhost');
+		
+		if(!is_array($addresses) || empty($addresses))
+			return NULL;
+		
+		$address = array_shift($addresses);
+		
+		if(empty($address->host) || $address->host == 'localhost')
+			return NULL;
 		
 		$id = $db->GenID('address_seq');
 		
 		$sql = sprintf("INSERT INTO address (id,email,personal) VALUES (%d,%s,%s)",
 			$id,
-			$db->qstr(trim(strtolower($email))),
+			$db->qstr(trim(strtolower($address->mailbox.'@'.$address->host))),
 			$db->qstr($personal)
 		);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */

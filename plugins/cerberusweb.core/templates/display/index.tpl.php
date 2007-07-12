@@ -61,11 +61,34 @@
    	</select>
    	{/if}
 	
-	&nbsp; <a href="#latest">jump to latest message</a>
-	| 	
-	<a href="{devblocks_url}c=display&id={$ticket->mask}{/devblocks_url}">refresh</a><br>
+	<button type="button" onclick="document.location='#latest';">jump to latest message</button>
+	<button type="button" onclick="document.location='{devblocks_url}c=display&id={$ticket->mask}{/devblocks_url}';">refresh</button>
+	<br>
 </form>
 <br>
+
+<div style="padding:2px;">
+	<div class="block">
+		<h2>Advanced Options</h2>
+		
+		[ <a href="javascript:;" onclick="genericAjaxGet('displayAdvancedOptions','c=display&a=showManageRecipients&ticket_id={$ticket->id}');">manage recipients</a> ] 
+		[ <a href="javascript:;" onclick="genericAjaxGet('displayAdvancedOptions','c=display&a=showContactHistory&ticket_id={$ticket->id}');">contact history</a> ] 
+		[ <a href="javascript:;" onclick="genericAjaxGet('displayAdvancedOptions','c=display&a=showTicketNotepad&ticket_id={$ticket->id}');">ticket notepad</a> ] 
+
+		<!-- 		
+		<form>
+		<button type="button" onclick="">Manage Requesters</button>
+		<button type="button" onclick="">Sender History</button>
+		<button type="button" onclick="">Ticket Notepad</button>
+		</form>
+		-->
+		
+		<div id="displayAdvancedOptions" style="padding:5px;"></div>
+		
+	</div>
+	
+	<br>
+</div>
 
 <table style="text-align: left; width: 100%;" border="0" cellpadding="2" cellspacing="0">
   <tbody>
