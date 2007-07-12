@@ -122,6 +122,14 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension implements IDevb
                         )
                         );
                         break;
+                    case "jobs":
+                        $tour = array(
+                        'title' => 'Scheduler',
+                        'body' => "The scheduler is where you can set up tasks that will periodically run behind-the-scenes.",
+                        'callouts' => array(
+                        )
+                        );
+                    	break;
                 }
                 break;
 
