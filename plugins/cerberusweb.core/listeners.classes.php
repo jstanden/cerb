@@ -42,10 +42,6 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension implements IDevb
                 'body' => "This assistant will help you become familiar with the helpdesk by following along and providing information about the current page.  You may follow the 'Points of Interest' links highlighted below to read tips about nearby functionality.",
                 'callouts' => array(
                 $callouts['tourHeaderMenu'],
-                $callouts['tourHeaderMyTasks'],
-                $callouts['tourHeaderTeamLoads'],
-                $callouts['tourHeaderGetTickets'],
-                $callouts['tourHeaderQuickLookup'],
                 )
                 );
                 break;
