@@ -54,11 +54,11 @@ class Model_DashboardViewAction {
 		// actions
 		if(is_array($this->params))
 		foreach($this->params as $k => $v) {
-			if(!is_numeric($v)) continue;
+			if(empty($v) && !is_numeric($v)) continue;
 			
 			switch($k) {
 				case 'closed':
-				    switch(intval($v)) {
+					switch(intval($v)) {
 				        case CerberusTicketStatus::OPEN:
 				            $fields[DAO_Ticket::IS_CLOSED] = 0;
 				            $fields[DAO_Ticket::IS_DELETED] = 0;
