@@ -61,6 +61,7 @@ class Model_DashboardViewAction {
 				    switch(intval($v)) {
 				        case CerberusTicketStatus::OPEN:
 				            $fields[DAO_Ticket::IS_CLOSED] = 0;
+				            $fields[DAO_Ticket::IS_DELETED] = 0;
 				            break;
 				        case CerberusTicketStatus::CLOSED:
 				            $fields[DAO_Ticket::IS_CLOSED] = 1;
