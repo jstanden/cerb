@@ -583,14 +583,14 @@ class DAO_Contact {
 			return $id;
 
 		// [TODO] Validate
-		$addresses = imap_rfc822_parse_adrlist('<'.$email.'>', 'localhost');
+		$addresses = imap_rfc822_parse_adrlist('<'.$email.'>', 'host');
 		
 		if(!is_array($addresses) || empty($addresses))
 			return NULL;
 		
 		$address = array_shift($addresses);
 		
-		if(empty($address->host) || $address->host == 'localhost')
+		if(empty($address->host) || $address->host == 'host')
 			return NULL;
 		
 		$id = $db->GenID('address_seq');

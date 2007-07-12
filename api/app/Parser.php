@@ -75,11 +75,13 @@ class CerberusParser {
 		if(empty($iDate)) $iDate = time();
 		
 		if(empty($from) || !is_array($from))
-			return false;
+			return NULL;
 		
 		@$fromAddress = $from[0]->mailbox.'@'.$from[0]->host;
 		@$fromPersonal = $from[0]->personal;
-		$fromAddressId = CerberusApplication::hashLookupAddressId($fromAddress, true); 
+		if(null == ($fromAddressId = CerberusApplication::hashLookupAddressId($fromAddress, true))) {
+			return NULL;
+		}
 
 		// Message Id / References / In-Reply-To
 		@$sMessageId = $headers['message-id'];
