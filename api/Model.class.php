@@ -54,7 +54,7 @@ class Model_DashboardViewAction {
 		// actions
 		if(is_array($this->params))
 		foreach($this->params as $k => $v) {
-			if(empty($v)) continue;
+			if(!is_numeric($v)) continue;
 			
 			switch($k) {
 				case 'closed':
