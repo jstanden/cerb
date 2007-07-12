@@ -2,7 +2,7 @@
 <input type="hidden" name="a" value="saveTeam">
 <input type="hidden" name="id" value="{$team->id}">
 <div class="block">
-<table cellpadding="2" cellspacing="0" border="0" width="100%">
+<table cellpadding="2" cellspacing="0" border="0">
 	<tr>
 		<td colspan="2">
 			{if empty($team->id)}

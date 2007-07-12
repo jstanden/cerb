@@ -6,7 +6,7 @@
 {if $smarty.foreach.messages.last}<a name="latest"></a>{/if}
 <!-- class="displayConversationTable" -->
 <div class="block" id="{$message->id}t">
-<table style="text-align: left; width: 100%;" border="0" cellpadding="2" cellspacing="0">
+<table style="text-align: left; width: 98%;" border="0" cellpadding="2" cellspacing="0">
   <tbody>
     <tr>
       <td>

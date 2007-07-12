@@ -2,7 +2,7 @@
 <input type="hidden" name="a" value="saveWorker">
 <input type="hidden" name="id" value="{if !empty($worker->id)}{$worker->id}{else}0{/if}">
 <div class="block">
-<table cellpadding="2" cellspacing="0" border="0" width="100%">
+<table cellpadding="2" cellspacing="0" border="0">
 	<tr>
 		<td colspan="2">
 			{if empty($worker->id)}
