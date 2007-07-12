@@ -2976,7 +2976,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		    'files' => @$_FILES['attachment'],
 		    'next_action' => DevblocksPlatform::importGPC(@$_REQUEST['next_action'],'string',''),
 		    'closed' => DevblocksPlatform::importGPC(@$_REQUEST['closed'],'integer',0),
-		    'bucket_id' => DevblocksPlatform::importGPC(@$_REQUEST['bucket_id'],'integer',0),
+		    'bucket_id' => DevblocksPlatform::importGPC(@$_REQUEST['bucket_id'],'string',''),
 		    'ticket_reopen' => DevblocksPlatform::importGPC(@$_REQUEST['ticket_reopen'],'string',''),
 		    'agent_id' => @$worker->id,
 		);
