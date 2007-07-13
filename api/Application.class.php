@@ -761,6 +761,7 @@ class CerberusSettings {
 	const SMTP_AUTH_PASS = 'smtp_auth_pass'; 
 	const ATTACHMENTS_ENABLED = 'attachments_enabled'; 
 	const ATTACHMENTS_MAX_SIZE = 'attachments_max_size'; 
+	const AUTHORIZED_IPS = 'authorized_ips';
 	
 	private static $instance = null;
 	
@@ -776,6 +777,7 @@ class CerberusSettings {
 		self::SMTP_AUTH_PASS => '',
 		self::ATTACHMENTS_ENABLED => 1,
 		self::ATTACHMENTS_MAX_SIZE => 10, // MB
+		self::AUTHORIZED_IPS => '127.0.0.1', 
 	);
 
 	/**

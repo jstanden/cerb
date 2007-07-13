@@ -2298,11 +2298,15 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	    @$title = DevblocksPlatform::importGPC($_POST['title'],'string');
 	    @$attachments_enabled = DevblocksPlatform::importGPC($_POST['attachments_enabled'],'integer',0);
 	    @$attachments_max_size = DevblocksPlatform::importGPC($_POST['attachments_max_size'],'integer',10);
+	    @$authorized_ips_str = DevblocksPlatform::importGPC($_POST['authorized_ips'],'string','');
+	    
+
 	    
 	    $settings = CerberusSettings::getInstance();
 	    $settings->set(CerberusSettings::HELPDESK_TITLE, $title);
 	    $settings->set(CerberusSettings::ATTACHMENTS_ENABLED, $attachments_enabled);
 	    $settings->set(CerberusSettings::ATTACHMENTS_MAX_SIZE, $attachments_max_size);
+	    $settings->set(CerberusSettings::AUTHORIZED_IPS, $authorized_ips_str);
 	    
 	    DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','general')));
 	}
@@ -2608,6 +2612,20 @@ class ChCronController extends DevblocksControllerExtension {
 	 * Request Overload
 	 */
 	function handleRequest(DevblocksHttpRequest $request) {
+	    $settings = CerberusSettings::getInstance();
+	    $authorized_ips_str = $settings->get(CerberusSettings::AUTHORIZED_IPS);
+	    $authorized_ips = CerberusApplication::parseCrlfString($authorized_ips_str);
+	    $pass = false;
+		foreach ($authorized_ips as $ip)
+		{
+			if(substr($ip,0,strlen($ip)) == substr($_SERVER['REMOTE_ADDR'],0,strlen($ip)))
+		 	{ $pass=true; break; }
+		}
+	    if(!$pass) {
+		    echo 'Your IP address ('.$_SERVER['REMOTE_ADDR'].') is not authorized to run scheduler jobs.';
+		    return;
+	    }
+		
 		$stack = $request->path;
 		
 		array_shift($stack); // cron
@@ -2726,6 +2744,19 @@ class ChUpdateController extends DevblocksControllerExtension {
 	    @set_time_limit(0); // no timelimit (when possible)
 	    
 	    // [TODO] Log out all sessions before patching
+	    $settings = CerberusSettings::getInstance();
+	    $authorized_ips_str = $settings->get(CerberusSettings::AUTHORIZED_IPS);
+	    $authorized_ips = CerberusApplication::parseCrlfString($authorized_ips_str);
+	    $pass = false;
+		foreach ($authorized_ips as $ip)
+		{
+			if(substr($ip,0,strlen($ip)) == substr($_SERVER['REMOTE_ADDR'],0,strlen($ip)))
+		 	{ $pass=true; break; }
+		}
+	    if(!$pass) {
+		    echo 'Your IP address ('.$_SERVER['REMOTE_ADDR'].') is not authorized to update this helpdesk.';
+		    return;
+	    }
 	    
 		$patchMgr = DevblocksPlatform::getPatchService();
 		
@@ -2765,7 +2796,6 @@ class ChUpdateController extends DevblocksControllerExtension {
 			
 			echo "done!<br>";
 		}
-	    
 		exit;
 	}
 }

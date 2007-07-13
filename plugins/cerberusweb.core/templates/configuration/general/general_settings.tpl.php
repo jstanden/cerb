@@ -40,8 +40,15 @@
 			<b>Learning:</b><br>
 			<label><input type="checkbox" value="whitelist"> Whitelist a sender after <input type='text' size='3' value='5'> non-spam messages.</label><br>
 			<br>
-			-->			
-			
+			-->	
+			<h2>IP Security</h2>
+			<br>
+			<b>Allow administration tools from these IPs:</b> (One IP address per line)
+			<br>
+			<textarea name="authorized_ips" rows="5" cols="24" style="width: 400;">{$settings->get('authorized_ips')|escape:"html"}</textarea>	
+			<br>
+			(Partial IP matches OK. For example: 192.168.1.)
+			<br><br>
 			<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
 			</form>
 </div>
