@@ -552,6 +552,36 @@ class ChTicketsPage extends CerberusPageExtension {
 	}
 	
 	//**** Local scope
+
+	function nextGroupAction() {
+		$visit = CerberusApplication::getVisit();
+		$active_dashboard_id = $visit->get(CerberusVisit::KEY_DASHBOARD_ID, 0);
+		
+		$groups = DAO_Group::getAll();
+		$group_ids = array_keys($groups);
+		
+		if(0 == strcasecmp(substr($active_dashboard_id,0,1),'t')) {
+			$group_id = intval(substr($active_dashboard_id,1));
+			$next = false;
+			
+			reset($group_ids);
+			while(false !== ($idx = current($group_ids))) {
+				if($idx == $group_id) {
+					if(false === ($next = next($group_ids))) {
+						$next = reset($group_ids);
+					}
+					break;
+				}
+				next($group_ids);
+			} 
+			
+			if(false !== $next) {
+				$visit->set(CerberusVisit::KEY_DASHBOARD_ID, 't'.$next);
+			}
+		}
+		
+		return new DevblocksHttpResponse(array('tickets','organize'));
+	}
 	
 	// Ajax
 	// [TODO] Move to another page

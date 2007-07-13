@@ -44,3 +44,28 @@
   </tbody>
 </table>
 
+<script type="text/javascript">
+{literal}
+CreateKeyHandler(function doShortcuts(e) {
+
+	var mykey = getKeyboardKey(e);
+	
+	// [JAS]: Header Shortcuts		
+	switch(mykey) {
+		case "n":  // next
+		case "N":
+			var url = new DevblocksUrl();
+			url.addVar('tickets');
+			url.addVar('nextGroup');
+			document.location = url.getUrl();
+			break; // next
+		case "r": // refresh
+		case "R":
+			var url = new DevblocksUrl();
+			url.addVar('tickets');
+			document.location = url.getUrl();
+			break;
+	}
+});
+{/literal}
+</script>
