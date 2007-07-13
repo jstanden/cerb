@@ -73,9 +73,9 @@ class Pop3Cron extends CerberusCronPageExtension {
             if(!$account->enabled)
                 continue;
             
-            echo 'Account being parsed is ', $account->nickname, '<br>\r\n';
-            echo 'Time Limit: ', (($timeout) ? $timeout : 'unlimited') ,' secs<br>\r\n';
-            echo 'Memory Limit: ', ini_get('memory_limit') ,'<br>\r\n';
+            echo 'Account being parsed is ', $account->nickname, "<br>\r\n";
+            echo 'Time Limit: ', (($timeout) ? $timeout : 'unlimited') ," secs<br>\r\n";
+            echo 'Memory Limit: ', ini_get('memory_limit') ,"<br>\r\n";
             	
             switch($account->protocol) {
                 default:
@@ -114,10 +114,7 @@ class Pop3Cron extends CerberusCronPageExtension {
             // [TODO] Make this an account setting?
             $total = min($max_downloads,$check->Nmsgs);
             	
-            //			$info = imap_fetch_overview($mailbox,"1:$total",0);
-            //			print_r($info);echo "<BR>\r\n";
-            	
-            echo 'Init time: ',((microtime(true)-$runtime)*1000),' ms<br>\r\n';
+            echo 'Init time: ',((microtime(true)-$runtime)*1000)," ms<br>\r\n";
 
             echo "<BR>\r\n";
             flush();
@@ -125,45 +122,44 @@ class Pop3Cron extends CerberusCronPageExtension {
             $runtime = microtime(true);
 
             for($i=1;$i<=$total;$i++) {
-                //			foreach($info as $msg) {
                 /*
                 * [TODO] Logic for max message size (>1MB, etc.) handling.  If over a
                 * threshold then use the attachment parser (imap_fetchstructure) to toss
                 * non-plaintext until the message fits.
                 */
                  
-                //	            $msgno = $msg->msgno;
                 $msgno = $i;
                 echo "<b>Downloading message ",$msgno,"</b> ";
                 flush();
                  
                 $time = microtime(true);
                  
-                //			    $struct = imap_fetchstructure($mailbox, $i);
-                //			    echo "Length: ",$msg->size,"<BR>";
-                 
                 $headers = imap_fetchheader($mailbox, $msgno);
-                //				print_r($headers);
-
                 $body = imap_body($mailbox, $msgno);
-                //                $runtime_bytes += strlen($body);
-                //				echo "Length: ",strlen($body),"<BR>";
 
-                // [TODO] [JAS]: We should really download into the temp directory and
-	            // move it once we're successful.  A parser running in another thread 
-	            // could see our partial file and move it.
-                
                 do {
-                    $filename = APP_MAIL_PATH . 'new' . DIRECTORY_SEPARATOR . CerberusMail::generateMessageFilename();
+                	$unique = sprintf("%s.%04d",
+						time(),
+	        			rand(0,9999)
+	    			);
+                    $filename = APP_MAIL_PATH . 'new' . DIRECTORY_SEPARATOR . $unique;
                 } while(file_exists($filename));
-                $fp = fopen($filename,'w');
 
+                $fp = fopen($filename,'w');
+                
                 if($fp) {
                     fwrite($fp,$headers,strlen($headers));
                     fwrite($fp,"\r\n\r\n");
                     fwrite($fp,$body,strlen($body));
                     @fclose($fp);
                 }
+                
+                /*
+                 * [JAS]: We don't add the .msg extension until we're done with the file, 
+                 * since this will safely be ignored by the parser until we're ready
+                 * for it.
+                 */
+                rename($filename, dirname($filename) .DIRECTORY_SEPARATOR . basename($filename) . '.msg');
 
                 unset($headers);
                 unset($body);

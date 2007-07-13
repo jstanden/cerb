@@ -60,8 +60,8 @@ class ParseCron extends CerberusCronPageExtension {
         @ini_set('memory_limit','64M');
 
         $timeout = ini_get('max_execution_time');
-        echo 'Time Limit: ', (($timeout) ? $timeout : 'unlimited') ,' secs<br>\r\n';
-        echo 'Memory Limit: ', ini_get('memory_limit') ,'<br>\r\n';
+        echo 'Time Limit: ', (($timeout) ? $timeout : 'unlimited') ," secs<br>\r\n";
+        echo 'Memory Limit: ', ini_get('memory_limit') ,"<br>\r\n";
 
         $runtime = microtime(true);
         	
@@ -76,7 +76,7 @@ class ParseCron extends CerberusCronPageExtension {
 
 	    foreach($subdirs as $subdir) {
 	    	if(!is_writable($subdir)) {
-	    	    echo 'Write permission error, unable parse messages inside: '. $subdir. '...skipping<br>\r\n';
+	    	    echo 'Write permission error, unable parse messages inside: '. $subdir. "...skipping<br>\r\n";
 	    	    continue;
 	    	}
 	    	

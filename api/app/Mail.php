@@ -51,13 +51,6 @@
 class CerberusMail {
 	private function __construct() {}
 	
-	static function generateMessageFilename() {
-	    return sprintf("%s.%s.msg",
-	        time(),
-	        rand(0,9999)
-	    );
-	}
-	
 	static function sendTicketMessage($properties=array()) {
 	    $settings = CerberusSettings::getInstance();
 		$from_addy = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM, $_SERVER['SERVER_ADMIN']);
@@ -131,8 +124,13 @@ class CerberusMail {
 					continue;
 
 				// $files['type'][$idx]
-										
 				$mail->attachFromString(file_get_contents($file), $files['name'][$idx]);
+				
+//				$tmp = tempnam(DEVBLOCKS_PATH . 'tmp/','mime');
+//				if($mail_service->streamedBase64Encode($file, $tmp)) {
+//					$mail->attachFromString(file_get_contents($tmp), $files['name'][$idx]);
+//				}
+//				@unlink($tmp);
 			}
 		}
 
@@ -228,7 +226,6 @@ class CerberusMail {
 		if(!empty($ticket_id) && !empty($change_fields)) {
 		    DAO_Ticket::updateTicket($ticket_id, $change_fields);
 		}
-		
 	}
 	
 };
