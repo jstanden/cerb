@@ -63,13 +63,21 @@
 					</td>
 				</tr>
 				 -->
+				<tr>
+					<td width="100%" nowrap="nowrap" valign="top" colspan="2">
+						<div style="display:none">
+							<textarea name="team_signature" id="team_signature">{$signature}</textarea>	
+						</div>					
+						<input type="button" value="Append Signature" onclick="txtReply=document.getElementById('reply_content');sigDiv=document.getElementById('team_signature');txtReply.value += '\n'+sigDiv.value+'\n';scrollElementToBottom(txtReply);txtReply.focus();">						
+					</td>
+				</tr>
 			</table>
 		</td>
 	</tr>
 	<tr>
 		<td>
 		{assign var=ticket_team_id value=$ticket->team_id}
-<textarea name="content" rows="12" cols="80" class="reply">{$message->getContent()|trim|indent:1:'> '}
+<textarea name="content" rows="12" cols="80" class="reply" id="reply_content">{$message->getContent()|trim|indent:1:'> '}
 
 {if !empty($signature)}{$signature}{/if}
 </textarea>
