@@ -60,12 +60,12 @@ class ParseCron extends CerberusCronPageExtension {
         @ini_set('memory_limit','64M');
 
         $timeout = ini_get('max_execution_time');
-        echo 'Time Limit: ', (($timeout) ? $timeout : 'unlimited') ,' secs<br>';
-        echo 'Memory Limit: ', ini_get('memory_limit') ,'<br>';
+        echo 'Time Limit: ', (($timeout) ? $timeout : 'unlimited') ,' secs<br>\r\n';
+        echo 'Memory Limit: ', ini_get('memory_limit') ,'<br>\r\n';
 
         $runtime = microtime(true);
         	
-        echo "<BR>";
+        echo "<BR>\r\n";
         flush();
 
         $total = 500;
@@ -76,7 +76,7 @@ class ParseCron extends CerberusCronPageExtension {
 
 	    foreach($subdirs as $subdir) {
 	    	if(!is_writable($subdir)) {
-	    	    echo 'Write permission error, unable parse messages inside: '. $subdir. '...skipping<br>';
+	    	    echo 'Write permission error, unable parse messages inside: '. $subdir. '...skipping<br>\r\n';
 	    	    continue;
 	    	}
 	    	
@@ -96,12 +96,12 @@ class ParseCron extends CerberusCronPageExtension {
 	    unset($files);
 	    unset($subdirs);
 	    
-        echo "<b>Total Runtime:</b> ",((microtime(true)-$runtime)*1000)," ms<br>";
+        echo "<b>Total Runtime:</b> ",((microtime(true)-$runtime)*1000)," ms<br>\r\n";
     }
     
     function _parseFile($full_filename) {
         $fileparts = pathinfo($full_filename);
-        echo "Reading ",$fileparts['basename'],"...<br>";
+        echo "Reading ",$fileparts['basename'],"...<br>\r\n";
         
         echo "Decoding... "; //flush();
         $time = microtime(true);
@@ -118,7 +118,7 @@ class ParseCron extends CerberusCronPageExtension {
 		$attachments_max_size = $settings->get(CerberusSettings::ATTACHMENTS_MAX_SIZE,10);
 		
 		foreach($struct as $st) {
-//		    echo "PART $st...<br>";
+//		    echo "PART $st...<br>\r\n";
 
 		    $section = mailparse_msg_get_part($mail, $st);
 		    $info = mailparse_msg_get_part_data($section);
@@ -176,7 +176,7 @@ class ParseCron extends CerberusCronPageExtension {
 		}
 		
         $time = microtime(true) - $time;
-        echo "decoded! (",sprintf("%d",($time*1000))," ms)<br>"; //flush();
+        echo "decoded! (",sprintf("%d",($time*1000))," ms)<br>\r\n"; //flush();
 		
 //	    echo "<b>Plaintext:</b> ", $message->body,"<BR>";
 //	    echo "<BR>";
@@ -191,7 +191,7 @@ class ParseCron extends CerberusCronPageExtension {
         $time = microtime(true);
         $ticket_id = CerberusParser::parseMessage($message);
         $time = microtime(true) - $time;
-        echo "parsed! (",sprintf("%d",($time*1000))," ms) (Ticket ID: ",$ticket_id,")<br>";
+        echo "parsed! (",sprintf("%d",($time*1000))," ms) (Ticket ID: ",$ticket_id,")<br>\r\n";
 
         unlink($full_filename);
 
@@ -238,7 +238,7 @@ class MaintCron extends CerberusCronPageExtension {
 		    
         } while(!empty($tickets) && ($purged < $max_purges));
 	    
-        echo "Deleted ", $purged, " tickets!<br>";
+        echo "Deleted ", $purged, " tickets!<br>\r\n";
         
         // Nuke orphaned words from the Bayes index
 	    // [TODO] Make this configurable from job

@@ -65,7 +65,7 @@ class Pop3Cron extends CerberusCronPageExtension {
         
         // [JAS]: Make sure our output directory is writeable
 	    if(!is_writable(APP_MAIL_PATH . 'new' . DIRECTORY_SEPARATOR)) {
-	        echo "The mail storage directory is not writeable.  Skipping POP3 download.<br>";
+	        echo "The mail storage directory is not writeable.  Skipping POP3 download.<br>\r\n";
 	        return;
 	    }
         
@@ -73,9 +73,9 @@ class Pop3Cron extends CerberusCronPageExtension {
             if(!$account->enabled)
                 continue;
             
-            echo 'Account being parsed is ', $account->nickname, '<br>';
-            echo 'Time Limit: ', (($timeout) ? $timeout : 'unlimited') ,' secs<br>';
-            echo 'Memory Limit: ', ini_get('memory_limit') ,'<br>';
+            echo 'Account being parsed is ', $account->nickname, '<br>\r\n';
+            echo 'Time Limit: ', (($timeout) ? $timeout : 'unlimited') ,' secs<br>\r\n';
+            echo 'Memory Limit: ', ini_get('memory_limit') ,'<br>\r\n';
             	
             switch($account->protocol) {
                 default:
@@ -115,11 +115,11 @@ class Pop3Cron extends CerberusCronPageExtension {
             $total = min($max_downloads,$check->Nmsgs);
             	
             //			$info = imap_fetch_overview($mailbox,"1:$total",0);
-            //			print_r($info);echo "<BR>";
+            //			print_r($info);echo "<BR>\r\n";
             	
-            echo 'Init time: ',((microtime(true)-$runtime)*1000),' ms<br>';
+            echo 'Init time: ',((microtime(true)-$runtime)*1000),' ms<br>\r\n';
 
-            echo "<BR>";
+            echo "<BR>\r\n";
             flush();
 
             $runtime = microtime(true);
@@ -169,7 +169,7 @@ class Pop3Cron extends CerberusCronPageExtension {
                 unset($body);
 
                 $time = microtime(true) - $time;
-                echo "(",sprintf("%d",($time*1000))," ms)<br>";
+                echo "(",sprintf("%d",($time*1000))," ms)<br>\r\n";
                 flush();
                 imap_delete($mailbox, $msgno);
                 continue;
@@ -179,7 +179,7 @@ class Pop3Cron extends CerberusCronPageExtension {
             imap_close($mailbox);
             imap_errors();
             	
-            echo "<b>Total Runtime:</b> ",((microtime(true)-$runtime)*1000)," ms<br>";
+            echo "<b>Total Runtime:</b> ",((microtime(true)-$runtime)*1000)," ms<br>\r\n";
         }
     }
     
