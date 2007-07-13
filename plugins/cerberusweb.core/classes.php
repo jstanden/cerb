@@ -182,6 +182,12 @@ class ChPageController extends DevblocksControllerExtension {
 		
 		$tpl_path = dirname(__FILE__) . '/templates/';
 		$tpl->assign('tpl_path', $tpl_path);
+
+		// Timings
+		$tpl->assign('render_time', (microtime(true) - DevblocksPlatform::getStartTime()));
+		$tpl->assign('render_memory', memory_get_usage() - DevblocksPlatform::getStartMemory());
+		$tpl->assign('render_peak_memory', memory_get_peak_usage() - DevblocksPlatform::getStartPeakMemory());
+		
 		$tpl->display($tpl_path.'border.php');
 	}
 };
@@ -2847,33 +2853,54 @@ class ChDisplayPage extends CerberusPageExtension {
 		}
 		$ticket = DAO_Ticket::getTicket($id);
 	
+		if(empty($ticket)) {
+			echo "<H1>Invalid Ticket ID.</H1>";
+			return;
+		}
+		
 		$tpl->assign('ticket', $ticket);
 
+		$messages = $ticket->getMessages();
+		arsort($messages);
+		$tpl->assign('messages', $messages);
+		
 		$teams = DAO_Group::getAll();
 		$tpl->assign('teams', $teams);
 		
 		$contact = DAO_Contact::getAddress($ticket->first_wrote_address_id);
 		$tpl->assign('contact', $contact);
 		
-		// [TODO] Cache this
+		// [TODO] Cache this (getAll)
 		$workers = DAO_Worker::getList();
 		$tpl->assign('workers', $workers);
 		
 		$team_categories = DAO_Bucket::getTeams();
 		$tpl->assign('team_categories', $team_categories);
 		
-		// [TODO] Can likely just nuke these and bring conversations into core
-		$display_module_manifests = DevblocksPlatform::getExtensions("cerberusweb.display.module");
-		$display_modules = array();
-		if(is_array($display_module_manifests))
-		foreach($display_module_manifests as $dmm) { /* @var $dmm DevblocksExtensionManifest */
-			$display_modules[] = $dmm->createInstance(1);
-		}
-		$tpl->assign('display_modules', $display_modules);
-		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/index.tpl.php');
 	}
 
+	function getMessageAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id']); // message id
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+
+		$message = DAO_Ticket::getMessage($id);
+		$tpl->assign('message', $message);
+		
+		$ticket = DAO_Ticket::getTicket($message->id);
+		$tpl->assign('ticket', $ticket);
+		
+		$content = DAO_MessageContent::get($id);
+		$tpl->assign('content', $content);
+		
+		$tpl->assign('expanded', true);
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/conversation/message.tpl.php');
+	}
+	
 	function updatePropertiesAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']); // ticket id
 		@$closed = DevblocksPlatform::importGPC($_REQUEST['closed'],'integer',0);
@@ -3333,18 +3360,6 @@ class ChPreferencesPage extends CerberusPageExtension {
 
 		$assist_mode = DevblocksPlatform::importGPC($_REQUEST['assist_mode'],'integer');
 		DAO_WorkerPref::set($worker->id, 'assist_mode', $assist_mode);
-	}
-};
-
-class ChDisplayTicketConversation extends CerberusDisplayPageExtension {
-	function __construct($manifest) {
-		parent::__construct($manifest);
-	}
-	
-	function render($ticket) {
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/ticket_conversation.tpl.php');
 	}
 };
 

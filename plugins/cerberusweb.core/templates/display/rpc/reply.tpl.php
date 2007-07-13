@@ -2,9 +2,10 @@
 <input type="hidden" name="a" value="sendReply">
 <input type="hidden" name="id" value="{$message->id}">
 <input type="hidden" name="ticket_id" value="{$ticket->id}">
-<table cellpadding="2" cellspacing="0" border="0" width="100%" class="displayReplyTable">
+<div class="block" style="margin:20px;">
+<table cellpadding="2" cellspacing="0" border="0" width="100%">
 	<tr>
-		<th>Reply</th>
+		<td><h2>Reply</h2></td>
 	</tr>
 	<tr>
 		<td>
@@ -38,7 +39,7 @@
 				<tr>
 					<td width="0%" nowrap="nowrap"><b>Subject: </b></td>
 					<td width="100%" align="left">
-						<input type="text" size="45" name="subject" value="{$ticket->subject|escape:"htmlall"}" style="width:98%;">					
+						<input type="text" size="45" name="subject" value="{$ticket->subject|escape:"htmlall"}" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;">					
 					</td>
 				</tr>
 				
@@ -63,60 +64,61 @@
 					</td>
 				</tr>
 				 -->
-				<tr>
-					<td width="100%" nowrap="nowrap" valign="top" colspan="2">
-						<div style="display:none">
-							<textarea name="team_signature" id="team_signature">{$signature}</textarea>	
-						</div>					
-						<input type="button" value="Append Signature" onclick="txtReply=document.getElementById('reply_content');sigDiv=document.getElementById('team_signature');txtReply.value += '\n'+sigDiv.value+'\n';scrollElementToBottom(txtReply);txtReply.focus();">						
-					</td>
-				</tr>
 			</table>
 		</td>
 	</tr>
 	<tr>
 		<td>
 		{assign var=ticket_team_id value=$ticket->team_id}
-<textarea name="content" rows="12" cols="80" class="reply" id="reply_content">{$message->getContent()|trim|indent:1:'> '}
+<textarea name="content" rows="20" cols="80" id="reply_content" class="reply" style="width:98%;border:1px solid rgb(180,180,180);padding:5px;">{$message->getContent()|trim|indent:1:'> '}
 
 {if !empty($signature)}{$signature}{/if}
 </textarea>
 		</td>
 	</tr>
 	<tr>
-		<td>
-			<table cellpadding="2" cellspacing="0" border="0" width="100%">
-				<tr>
-					<td rowspan="2" width="0%" nowrap="nowrap" valign="top"><b>Add Attachments:</b></td>
-				</tr>
-				<tr>
-					<td width="100%" valign="top">
-						<input type="file" name="attachment[]" size="45"></input> 
-						<a href="javascript:;" onclick="appendFileInput('displayReplyAttachments','attachment[]');">attach another file</a>
-						(Max upload filesize: {$upload_max_filesize})
-						<div id="displayReplyAttachments"></div>
-					</td>
-				</tr>
-			</table>
-			<br>
+		<tdnowrap="nowrap" valign="top">
+			<div style="display:none"><textarea name="team_signature" id="team_signature">{$signature}</textarea></div>
+								
+			<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> Send Message</button>
+			<button type="button" onclick="clearDiv('reply{$message->id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> Discard</button>
+			
+			&nbsp; &nbsp; 
+
+			<button type="button" onclick="toggleDiv('replyAttachments{$message->id}','block');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_attachment.gif{/devblocks_url}" align="top"> Add Attachments</button>
+			<button type="button" onclick="txtReply=document.getElementById('reply_content');sigDiv=document.getElementById('team_signature');txtReply.value += '\n'+sigDiv.value+'\n';scrollElementToBottom(txtReply);txtReply.focus();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/mail_write.gif{/devblocks_url}" align="top"> Insert Signature</button>
 		</td>
 	</tr>
 	<tr>
 		<td>
-			<table cellpadding="2" cellspacing="0" border="0">
+			<div id="replyAttachments{$message->id}" style="display:none;">
+			<br>
+			<H2>Attachments:</H2>
+			(The maximum attachment size is {$upload_max_filesize})<br>
+			<table cellpadding="2" cellspacing="0" border="0" width="100%">
 				<tr>
-					<td rowspan="4" nowrap="nowrap" valign="top">
-					<b>Then:</b>
-					<!-- <input type="hidden" name="closed" value="{if $ticket->is_closed}1{else}0{/if}"> -->
+					<td width="100%" valign="top">
+						<input type="file" name="attachment[]" size="45"></input> 
+						<a href="javascript:;" onclick="appendFileInput('displayReplyAttachments','attachment[]');">attach more</a>
+						<div id="displayReplyAttachments"></div>
 					</td>
 				</tr>
+			</table>
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+		<br>
+		<H2>Next:</H2>
+			<table cellpadding="2" cellspacing="0" border="0">
 				<tr>
 					<td nowrap="nowrap" valign="top" colspan="2">
 						<label><input type="checkbox" name="closed" value="1" onchange="toggleDiv('replyOpen{$message->id}',this.checked?'none':'block');toggleDiv('replyClosed{$message->id}',this.checked?'block':'none');" {if $ticket->is_closed}checked{/if}>This conversation is completed for now.</label>
 
-						<div id="replyOpen{$message->id}" style="display:{if $ticket->is_closed}none{else}block{/if};margin:5px;padding:5px;background-color:rgb(235,235,255);">
+						<div id="replyOpen{$message->id}" style="display:{if $ticket->is_closed}none{else}block{/if};margin:5px;padding:5px;border:1px solid rgb(180,180,180);">
 						<b>What is the next action that needs to happen?</b> (max 255 chars)<br>  
-				      	<input type="text" name="next_action" size="55" maxlength="255" value="{$ticket->next_action|escape:"htmlall"}"><br>
+				      	<input type="text" name="next_action" size="80" maxlength="255" value="{$ticket->next_action|escape:"htmlall"}"><br>
 				      	<br>
 				      	
 						<b>Would you like to move this conversation?</b><br>  
@@ -139,7 +141,7 @@
 				      	</select>
 				      	</div>
 				      	
-				      	<div id="replyClosed{$message->id}" style="display:{if $ticket->is_closed}block{else}none{/if};margin:5px;padding:5px;background-color:rgb(235,235,255);">
+				      	<div id="replyClosed{$message->id}" style="display:{if $ticket->is_closed}block{else}none{/if};margin:5px;padding:5px;border:1px solid rgb(180,180,180);">
 				      	<b>When would you like to resume this conversation?</b><br> 
 				      	<input type="text" name="ticket_reopen" size="55" value="{if !empty($ticket->due_date)}{$ticket->due_date|date_format:"%a, %b %d %Y %I:%M %p"}{/if}"><br>
 				      	examples: "Friday", "+7 days", "Tomorrow 11:15AM", "Dec 31 2010"<br>
@@ -150,33 +152,8 @@
 						
 					</td>
 				</tr>
-				<!-- 
-				<tr>
-					<td width="0%" nowrap="nowrap" valign="top">Status:</td>
-					<td width="100%" valign="top">
-						<label><input type="checkbox" name="closed" value="1" {if $ticket->is_closed}checked{/if}>closed</label>
-					</td>
-				</tr>
-				 -->
-				      	<!-- 
-				      	Set Priority:
-						<label><input type="radio" name="priority" value="0" {if $ticket->priority==0}checked{/if}><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/star_alpha.gif{/devblocks_url}"></label>
-						<label><input type="radio" name="priority" value="25" {if $ticket->priority==25}checked{/if}><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/star_green.gif{/devblocks_url}"></label>
-						<label><input type="radio" name="priority" value="50" {if $ticket->priority==50}checked{/if}><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/star_yellow.gif{/devblocks_url}"></label>
-						<label><input type="radio" name="priority" value="75" {if $ticket->priority==75}checked{/if}><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/star_red.gif{/devblocks_url}"></label>
-				      	<br>
-				      	 -->
 			</table>
 		</td>
 	</tr>
-	<tr>
-		<td>
-			<input type="submit" value="Send">
-			<!-- 
-			{if !$ticket->is_closed}<button type="button" onclick="">Send &amp; Close</button>{/if}
-			{if $ticket->is_closed}<button type="button" onclick="">Send &amp; Re-open</button>{/if}
-			-->
-			<input type="button" value="Discard" onclick="clearDiv('reply{$message->id}');">
-		</td>
-	</tr>
 </table>
+</div>

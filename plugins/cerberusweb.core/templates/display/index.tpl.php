@@ -25,20 +25,20 @@
 	
 	{if !$ticket->is_deleted}
 		{if $ticket->is_closed}
-			<button type="button" onclick="this.form.closed.value=0;this.form.submit();">Re-open</button>
+			<button type="button" onclick="this.form.closed.value=0;this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_out.gif{/devblocks_url}" align="top"> Re-open</button>
 		{else}
-			<button type="button" onclick="this.form.closed.value=1;this.form.submit();">Close</button>
+			<button type="button" onclick="this.form.closed.value=1;this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_ok.gif{/devblocks_url}" align="top"> Close</button>
 		{/if}
 		
 		{if empty($ticket->spam_training)}
-			<button type="button" onclick="this.form.spam.value=1;this.form.submit();">Report Spam</button>
+			<button type="button" onclick="this.form.spam.value=1;this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/spam.gif{/devblocks_url}" align="top"> Report Spam</button>
 		{/if}
 	{/if}
 	
 	{if $ticket->is_deleted}
-		<button type="button" onclick="this.form.deleted.value=0;this.form.closed.value=0;this.form.submit();">Undelete</button>
+		<button type="button" onclick="this.form.deleted.value=0;this.form.closed.value=0;this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete_gray.gif{/devblocks_url}" align="top"> Undelete</button>
 	{else}
-		<button type="button" onclick="this.form.deleted.value=1;this.form.closed.value=1;this.form.submit();">Delete</button>
+		<button type="button" onclick="this.form.deleted.value=1;this.form.closed.value=1;this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> Delete</button>
 	{/if}
 	
 	{if !$ticket->is_deleted}
@@ -61,8 +61,7 @@
    	</select>
    	{/if}
 	
-	<button type="button" onclick="document.location='#latest';">jump to latest message</button>
-	<button type="button" onclick="document.location='{devblocks_url}c=display&id={$ticket->mask}{/devblocks_url}';">refresh</button>
+	<button type="button" onclick="document.location='{devblocks_url}c=display&id={$ticket->mask}{/devblocks_url}';"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/replace2.gif{/devblocks_url}" align="top"> Refresh</button>
 	<br>
 </form>
 <br>
@@ -75,18 +74,8 @@
 		[ <a href="javascript:;" onclick="genericAjaxGet('displayAdvancedOptions','c=display&a=showContactHistory&ticket_id={$ticket->id}');">contact history</a> ] 
 		[ <a href="javascript:;" onclick="genericAjaxGet('displayAdvancedOptions','c=display&a=showTicketNotepad&ticket_id={$ticket->id}');">ticket notepad</a> ] 
 
-		<!-- 		
-		<form>
-		<button type="button" onclick="">Manage Requesters</button>
-		<button type="button" onclick="">Sender History</button>
-		<button type="button" onclick="">Ticket Notepad</button>
-		</form>
-		-->
-		
 		<div id="displayAdvancedOptions" style="padding:5px;"></div>
-		
 	</div>
-	
 	<br>
 </div>
 
@@ -94,16 +83,11 @@
   <tbody>
     <tr>
       <td style="vertical-align: top;">
-			{foreach from=$display_modules item=display_module}
-				{$display_module->render($ticket)}
-			{foreachelse}
-				No modules.
-			{/foreach}
+			{include file="$path/display/modules/conversation/index.tpl.php"}
 		</td>
     </tr>
   </tbody>
 </table>
 <script>
 	var displayAjax = new cDisplayTicketAjax('{$ticket->id}');
-	//ajax.addAddressAutoComplete("addRequesterEntry","addRequesterContainer", true);
 </script>
