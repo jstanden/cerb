@@ -24,7 +24,7 @@
 			<br>
 			
 			<b>Enabled:</b><br>
-			<label><input type="checkbox" name="attachments_enabled" value="1" {if $settings->get('attachments_enabled')}checked{/if}"> Allow Incoming Attachments</label><br>
+			<label><input type="checkbox" name="attachments_enabled" value="1" {if $settings->get('attachments_enabled')}checked{/if}> Allow Incoming Attachments</label><br>
 			<br>
 			
 			<b>Max. Attachment Size:</b><br>
