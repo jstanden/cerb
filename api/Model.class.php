@@ -94,8 +94,6 @@ class Model_DashboardViewAction {
 	 * @param integer[] $ticket_ids
 	 */
 	function run($ticket_ids) {
-	    $agent_id = CerberusApplication::getActiveWorker()->id;
-		
 //		if(is_array($ticket_ids))
 //		foreach($ticket_ids as $ticket_id) {
 		$fields = array();
