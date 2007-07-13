@@ -2945,6 +2945,8 @@ class ChDisplayPage extends CerberusPageExtension {
 			));
 		}
 		
+		$tpl->assign('upload_max_filesize', ini_get('upload_max_filesize'));
+		
 		$tpl->cache_lifetime = "0";
 		
 		switch ($type) {

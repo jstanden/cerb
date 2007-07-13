@@ -93,6 +93,7 @@
 					<td width="100%" valign="top">
 						<input type="file" name="attachment[]" size="45"></input> 
 						<a href="javascript:;" onclick="appendFileInput('displayReplyAttachments','attachment[]');">attach another file</a>
+						(Max upload filesize: {$upload_max_filesize})
 						<div id="displayReplyAttachments"></div>
 					</td>
 				</tr>
