@@ -707,7 +707,7 @@ class CerberusStaticViewManager {
 		return isset($this->views[$view_label]);
 	}
 	
-	public function &getView($view_label) {
+	public function getView($view_label) {
 		if(!$this->exists($view_label)) {
 			if($view_label == CerberusApplication::VIEW_SEARCH) {
 				self::setView($view_label, self::createSearchView());

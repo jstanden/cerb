@@ -553,6 +553,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	
 	//**** Local scope
 
+	// [TODO] [JAS]: In the future this should only advance groups this worker belongs to
 	function nextGroupAction() {
 		$visit = CerberusApplication::getVisit();
 		$active_dashboard_id = $visit->get(CerberusVisit::KEY_DASHBOARD_ID, 0);
@@ -2897,9 +2898,6 @@ class ChDisplayPage extends CerberusPageExtension {
 		$teams = DAO_Group::getAll();
 		$tpl->assign('teams', $teams);
 		
-		$contact = DAO_Contact::getAddress($ticket->first_wrote_address_id);
-		$tpl->assign('contact', $contact);
-		
 		// [TODO] Cache this (getAll)
 		$workers = DAO_Worker::getList();
 		$tpl->assign('workers', $workers);
@@ -3128,6 +3126,40 @@ class ChDisplayPage extends CerberusPageExtension {
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		
 		$ticket = DAO_Ticket::getTicket($ticket_id);
+		
+		$contact = DAO_Contact::getAddress($ticket->first_wrote_address_id);
+		$tpl->assign('contact', $contact);
+		
+		$visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
+		$viewMgr = $visit->get(CerberusVisit::KEY_VIEW_MANAGER); /* @var $viewMgr CerberusStaticViewManager */
+		
+		if(null == (@$view = $viewMgr->getView('contact_history'))) {
+			$view = new CerberusDashboardView();
+			$view->id = 'contact_history';
+			$view->name = 'Contact History';
+			$view->view_columns = array(
+				SearchFields_Ticket::TICKET_NEXT_ACTION,
+				SearchFields_Ticket::TICKET_CREATED_DATE,
+				SearchFields_Ticket::TEAM_NAME,
+				SearchFields_Ticket::TICKET_CATEGORY_ID,
+				SearchFields_Ticket::TICKET_SPAM_SCORE,
+				SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
+			);
+			$view->params = array(
+				new DevblocksSearchCriteria(SearchFields_Ticket::SENDER_ID,DevblocksSearchCriteria::OPER_EQ,0)
+			);
+			$view->renderLimit = 15;
+			$view->renderPage = 0;
+			$view->renderSortBy = SearchFields_Ticket::TICKET_CREATED_DATE;
+			$view->renderSortAsc = false;
+			$viewMgr->setView('contact_history', $view);
+		}
+		
+		$view->name = "Most recent tickets from " . htmlentities($contact->email);
+		$view->params = array(
+			new DevblocksSearchCriteria(SearchFields_Ticket::SENDER_ID,DevblocksSearchCriteria::OPER_EQ,$ticket->first_wrote_address_id)
+		);
+		$tpl->assign('view', $view);
 		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/history/index.tpl.php');
 	}

@@ -37,7 +37,7 @@
 		<td nowrap="nowrap" class="tableThBlue">{$view->name}</td>
 		<td nowrap="nowrap" class="tableThBlue" align="right">
 			<a href="javascript:;" onclick="ajax.getRefresh('{$view->id}');" class="tableThLink">{$translate->_('common.refresh')|lower}</a><span style="font-size:12px"> | </span>
-			<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/information.gif{/devblocks_url}" align="absmiddle"><a href="javascript:;" onclick="genericAjaxGet('{$view->id}_tips','c=tickets&a=showViewAutoAssist&view_id={$view->id}');toggleDiv('{$view->id}_tips','block');" class="tableThLink">{"super sort"|lower}</a><span style="font-size:12px"> | </span>
+			{if $view->id != 'contact_history'}<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/information.gif{/devblocks_url}" align="absmiddle"><a href="javascript:;" onclick="genericAjaxGet('{$view->id}_tips','c=tickets&a=showViewAutoAssist&view_id={$view->id}');toggleDiv('{$view->id}_tips','block');" class="tableThLink">{"super sort"|lower}</a><span style="font-size:12px"> | </span>{/if}
 			{if $view->id != 'search'}<a href="{devblocks_url}c=tickets&a=searchview&id={$view->id}{/devblocks_url}" class="tableThLink">{$translate->_('common.search')|lower} list</a><span style="font-size:12px"> | </span>{/if}
 			<a href="javascript:;" onclick="ajax.getCustomize('{$view->id}');" class="tableThLink">{$translate->_('common.customize')|lower}</a>
 		</td>
@@ -194,7 +194,7 @@
 	{if $total}
 	<tr>
 		<td colspan="2">
-			<span id="tourDashboardBatch"><button type="button" onclick="ajax.showBatchPanel('{$view->id}','{$dashboard_team_id}');">bulk update</button></span>
+			{if $view->id != 'contact_history'}<span id="tourDashboardBatch"><button type="button" onclick="ajax.showBatchPanel('{$view->id}','{$dashboard_team_id}');">bulk update</button></span>{/if}
 			<button type="button" onclick="ajax.viewCloseTickets('{$view->id}',0);">close</button>
 			<button type="button" onclick="ajax.viewCloseTickets('{$view->id}',1);">report spam</button>
 			<button type="button" onclick="ajax.viewCloseTickets('{$view->id}',2);">delete</button>
@@ -231,7 +231,7 @@
 	{/if}
 	<tr>
 		<td align="left" valign="top">
-			{if $total && !empty($move_to_counts)}
+			{if $total && !empty($move_to_counts) && $view->id != 'contact_history'}
 			<span style="font-size:100%;">
 			<b>Move to: </b>
 				{foreach from=$move_to_counts item=move_count key=move_code name=move_links}
