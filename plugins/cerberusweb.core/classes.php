@@ -3289,21 +3289,30 @@ class ChSignInPage extends CerberusPageExtension {
 	    
 	    $_SESSION[self::KEY_FORGOT_EMAIL] = $email;
 	    
-	    $mail = CerberusMail::createInstance();
+	    $mailer = DevblocksPlatform::getMailService();
 	    $body = "Password recovery.";
 	    
 	    $passGen = new Text_Password();
 	    $code = $passGen->create(10);
 	    
 	    $_SESSION[self::KEY_FORGOT_SENTCODE] = $code;
-	    
-	    $mail->addTo($email,'');
-	    $mail->setSubject("Confirm helpdesk password recovery.");
-	    $mail->setBodyText(sprintf("This confirmation code will allow you to reset your helpdesk login:\n\n%s",
+	    $settings = CerberusSettings::getInstance();
+		$from = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM);
+	    $from_personal = $settings->get(CerberusSettings::DEFAULT_REPLY_PERSONAL);
+		
+		$mail = $mailer->createEmail();
+		
+		// Headers
+		$mail->setFrom($from, $from_personal);
+		$mail->setSubject('Confirm helpdesk password recovery.');
+		$mail->headers->set('Date', gmdate('r'));
+		$mail->headers->set('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
+		$mail->headers->set('X-MailGenerator','Cerberus Helpdesk (Build '.APP_BUILD.')');
+		$mail->addRecipient($email);
+		$mail->setTextBody(sprintf("This confirmation code will allow you to reset your helpdesk login:\n\n%s",
 	        $code
 	    ));
-	    
-	    $mail->send();
+	    $mailer->send($from, array($email), $mail);
 	    
 	    DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('login','forgot','step2')));
 	}
