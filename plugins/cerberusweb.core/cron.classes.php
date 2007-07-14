@@ -68,7 +68,8 @@ class ParseCron extends CerberusCronPageExtension {
         echo "<BR>\r\n";
         flush();
 
-        $total = 500;
+		$total = $this->getParam('max_messages', 500);
+        
         
         $mailDir = APP_MAIL_PATH . 'new' . DIRECTORY_SEPARATOR;
 	    $subdirs = glob($mailDir . '*', GLOB_ONLYDIR);
@@ -204,9 +205,15 @@ class ParseCron extends CerberusCronPageExtension {
 		$tpl->cache_lifetime = "0";
 		$tpl_path = dirname(__FILE__) . '/templates/';
 		$tpl->assign('path', $tpl_path);
-        
+        $tpl->assign('max_messages', $this->getParam('max_messages', 500));
+		
 		$tpl->display($tpl_path . 'cron/parser/config.tpl.php');
     }
+    
+	function saveConfigurationAction() {
+		@$max_messages = DevblocksPlatform::importGPC($_POST['max_messages'],'integer');
+		$this->setParam('max_messages', $max_messages);
+	}
 };
 
 // [TODO] Clear idle temp files (fileatime())

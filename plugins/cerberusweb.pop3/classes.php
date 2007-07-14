@@ -61,7 +61,8 @@ class Pop3Cron extends CerberusCronPageExtension {
         $accounts = DAO_Mail::getPop3Accounts(); /* @var $accounts CerberusPop3Account[] */
 
         $timeout = ini_get('max_execution_time');
-        $max_downloads = ($timeout) ? 20 : 50; // [TODO] Make a job setting?
+		$max_downloads = $this->getParam('max_messages', (($timeout) ? 20 : 50));
+
         
         // [JAS]: Make sure our output directory is writeable
 	    if(!is_writable(APP_MAIL_PATH . 'new' . DIRECTORY_SEPARATOR)) {
@@ -188,6 +189,9 @@ class Pop3Cron extends CerberusCronPageExtension {
 		$pop3_accounts = DAO_Mail::getPop3Accounts();
 		$tpl->assign('pop3_accounts', $pop3_accounts);
 		
+		$timeout = ini_get('max_execution_time');
+		$tpl->assign('max_messages', $this->getParam('max_messages', (($timeout) ? 20 : 50)));
+		
 		$tpl->display($tpl_path . 'cron/pop3/config.tpl.php');
     }
     
@@ -201,6 +205,9 @@ class Pop3Cron extends CerberusCronPageExtension {
 		@$ar_password = DevblocksPlatform::importGPC($_POST['password'],'array');
 		@$ar_port = DevblocksPlatform::importGPC($_POST['port'],'array');
 		@$ar_delete = DevblocksPlatform::importGPC($_POST['delete'],'array');
+		@$max_messages = DevblocksPlatform::importGPC($_POST['max_messages'],'integer');
+		
+		$this->setParam('max_messages', $max_messages);
 		
 		if(!is_array($ar_ids))
 		    return;
