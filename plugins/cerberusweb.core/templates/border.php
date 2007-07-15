@@ -13,7 +13,14 @@
 {if !empty($tour_enabled)}{include file="tour.tpl.php"}{/if}
 <table cellspacing="0" cellpadding="2" border="0" width="100%">
 	<tr>
-		<td align="left" valign="bottom"><img src="{devblocks_url}images/logo.jpg{/devblocks_url}"></td>
+		<td align="left" valign="bottom">
+			{assign var=logo_url value=$settings->get('helpdesk_logo_url','')}
+			{if empty($logo_url)}
+			<img src="{devblocks_url}images/logo.jpg{/devblocks_url}">
+			{else}
+			<img src="{$logo_url}">
+			{/if}
+		</td>
 		<td align="right" valign="bottom" style="line-height:150%;">
 		{if empty($visit)}
 		{$translate->_('header.not_signed_in')} [<a href="{devblocks_url}c=login{/devblocks_url}">{$translate->_('header.signon')|lower}</a>]

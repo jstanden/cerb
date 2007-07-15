@@ -88,7 +88,12 @@ class CerberusMail {
 		$ticket_id = $message->ticket_id;
 		$ticket = DAO_Ticket::getTicket($ticket_id);
 
-		// [TODO] Consider ticket's team for reply from/personal
+		// Allow teams to override the default from/personal
+		$group_settings = DAO_GroupSettings::getSettings($ticket->team_id);
+		if(!empty($group_settings[DAO_GroupSettings::SETTING_REPLY_FROM])) 
+			$from_addy = $group_settings[DAO_GroupSettings::SETTING_REPLY_FROM];
+		if(!empty($group_settings[DAO_GroupSettings::SETTING_REPLY_PERSONAL])) 
+			$from_personal = $group_settings[DAO_GroupSettings::SETTING_REPLY_PERSONAL];
 		
 		// Headers
 		$mail->setFrom($from_addy, $from_personal);

@@ -72,6 +72,24 @@
 							{$translate->_('ticket.last_wrote')|capitalize} 
 							{$param->operator} 
 							<b>{$param->value}</b>
+						{elseif $param->field=="t_created_date"}
+							<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/data_find.gif{/devblocks_url}" align="absmiddle"> 
+							{$translate->_('ticket.created')|capitalize} 
+							{$param->operator}
+							{if is_array($param->value)}
+								<b>{$param->value[0]}</b> and <b>{$param->value[1]}</b>
+							{else}
+								<b>$param->value</b>
+							{/if}
+						{elseif $param->field=="t_updated_date"}
+							<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/data_find.gif{/devblocks_url}" align="absmiddle"> 
+							{$translate->_('ticket.updated')|capitalize} 
+							{$param->operator} 
+							{if is_array($param->value)}
+								<b>{$param->value[0]}</b> and <b>{$param->value[1]}</b>
+							{else}
+								<b>$param->value</b>
+							{/if}
 						{*
 						{elseif $param->field=="ra_email"}
 							<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/data_find.gif{/devblocks_url}" align="absmiddle"> 
@@ -110,10 +128,12 @@
 			<option value="">-- choose --</option>
 			<option value="t_subject">{$translate->_('ticket.subject')|capitalize}</option>
 			<option value="t_is_closed">{$translate->_('ticket.status')|capitalize}</option>
-			<option value="tm_id">{$translate->_('common.team')|capitalize}</option>
+			<option value="tm_id">Group/Bucket</option>
 			<option value="t_first_wrote">{$translate->_('ticket.first_wrote')|capitalize}</option>
 			<option value="t_last_wrote">{$translate->_('ticket.last_wrote')|capitalize}</option>
 			<option value="t_spam_score">{$translate->_('ticket.spam_score')|capitalize}</option>
+			<option value="t_created_date">{$translate->_('ticket.created')|capitalize}</option>
+			<option value="t_updated_date">{$translate->_('ticket.updated')|capitalize}</option>
 			<option value="t_mask">{$translate->_('ticket.mask')|capitalize}</option>
 			<!-- <option value="ra_email">{$translate->_('requester')|capitalize}</option> -->
 			<option value="mc_content">{$translate->_('message.content')|capitalize}</option>

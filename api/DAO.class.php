@@ -2528,6 +2528,8 @@ class DAO_Group {
 };
 
 class DAO_GroupSettings {
+    const SETTING_REPLY_FROM = 'reply_from';
+    const SETTING_REPLY_PERSONAL = 'reply_personal';
     const SETTING_SPAM_THRESHOLD = 'group_spam_threshold';
     const SETTING_SPAM_ACTION = 'group_spam_action';
     const SETTING_SPAM_ACTION_PARAM = 'group_spam_action_param';
@@ -2565,6 +2567,8 @@ class DAO_GroupSettings {
 	static function getSettings($group_id=0) {
 		$db = DevblocksPlatform::getDatabaseService();
 
+		// [TODO] Make this more efficient (cache until a setter comes around)
+		
 		$groups = array();
 		
 		$sql = "SELECT group_id, setting, value ".

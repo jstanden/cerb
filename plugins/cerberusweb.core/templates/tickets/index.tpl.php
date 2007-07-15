@@ -1,6 +1,6 @@
 <table cellpadding="0" cellspacing="0" width="100%" style="padding-bottom:5px;">
 <tr>
-	<td style="padding-right:5px;" width="0%" nowrap="nowrap"><h1>Organize</h1></td>
+	<td style="padding-right:5px;" width="0%" nowrap="nowrap"><h1>Workspaces</h1></td>
 	<td width="0%" nowrap="nowrap">
 		{include file="file:$path/tickets/menu.tpl.php"}
 	</td>

@@ -39,6 +39,15 @@
 	</blockquote>
 	
 	<h3>E-mail</h3>
+
+	<b>Send replies as e-mail:</b> (optional, for example: support@yourcompany.com)<br>
+	<input type="text" name="sender_address" value="{$group_settings.reply_from}" size="65"><br>
+	<span style="color:rgb(30,150,30);">(Make sure the above address delivers to the helpdesk or you won't receive replies!)</span><br>
+	<br>
+	
+	<b>Send replies as name:</b> (optional, for example: Acme Widgets)<br>
+	<input type="text" name="sender_personal" value="{$group_settings.reply_personal}" size="65"><br>
+	<br>
 	
 	<b>Team E-mail Signature:</b><br>
 	<div style="display:none">

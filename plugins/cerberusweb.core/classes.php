@@ -270,9 +270,40 @@ class ChTicketsPage extends CerberusPageExtension {
 				
 			case 'create':
 				$teams = DAO_Group::getAll();
-				$tpl->assign('teams', $teams);
+				
+				// [TODO] Port to 'active_team_id'
+				$active_dashboard_id = $visit->get(CerberusVisit::KEY_DASHBOARD_ID, 0);
+				if(0 == strcmp('t',substr($active_dashboard_id,0,1))) {
+					$team_id = intval(substr($active_dashboard_id,1));
+					$tpl->assign('team', $teams[$team_id]);
+				}
 				
 				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/create/index.tpl.php');
+				break;
+			
+			case 'compose':
+				$teams = DAO_Group::getAll();
+				$settings = CerberusSettings::getInstance();
+
+				// [TODO] Port to 'active_team_id'
+				// [TODO] This really needs to go into the API, it's super redundant
+				$active_dashboard_id = $visit->get(CerberusVisit::KEY_DASHBOARD_ID, 0);
+				if(0 == strcmp('t',substr($active_dashboard_id,0,1))) {
+					$team_id = intval(substr($active_dashboard_id,1));
+					$tpl->assign('team', $teams[$team_id]);
+					
+					$default_sig = $settings->get(CerberusSettings::DEFAULT_SIGNATURE,'');
+					$team_sig = $teams[$team_id]->signature;
+					$worker = CerberusApplication::getActiveWorker();
+					// Translate
+					$tpl->assign('signature', str_replace(
+			        	array('#first_name#','#last_name#','#title#'),
+			        	array($worker->first_name,$worker->last_name,$worker->title),
+			        	!empty($team_sig) ? $team_sig : $default_sig
+					));
+				}
+					
+				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/compose/index.tpl.php');
 				break;
 			
 			case 'team':
@@ -298,6 +329,7 @@ class ChTicketsPage extends CerberusPageExtension {
 					    
 						$group_settings = DAO_GroupSettings::getSettings($team_id);
 						
+						@$tpl->assign('group_settings', $group_settings);
 						@$tpl->assign('group_spam_threshold', $group_settings[DAO_GroupSettings::SETTING_SPAM_THRESHOLD]);
 						@$tpl->assign('group_spam_action', $group_settings[DAO_GroupSettings::SETTING_SPAM_ACTION]);
 						@$tpl->assign('group_spam_action_param', $group_settings[DAO_GroupSettings::SETTING_SPAM_ACTION_PARAM]);
@@ -771,6 +803,80 @@ class ChTicketsPage extends CerberusPageExtension {
 	
 	function clickteamAction() {
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','search')));
+	}
+	
+	function composeMailAction() {
+		@$team_id = DevblocksPlatform::importGPC($_POST['team_id'],'integer'); 
+		@$to = DevblocksPlatform::importGPC($_POST['to'],'string');
+		@$subject = DevblocksPlatform::importGPC($_POST['subject'],'string');
+		@$content = DevblocksPlatform::importGPC($_POST['content'],'string');
+		@$files = $_FILES['attachment'];
+		
+		$settings = CerberusSettings::getInstance();
+		$default_from = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM);
+		$default_personal = $settings->get(CerberusSettings::DEFAULT_REPLY_PERSONAL);
+		$group_settings = DAO_GroupSettings::getSettings($team_id);
+		@$team_from = $group_settings[DAO_GroupSettings::SETTING_REPLY_FROM];
+		@$team_personal = $group_settings[DAO_GroupSettings::SETTING_REPLY_PERSONAL];
+		
+		$from = !empty($team_from) ? $team_from : $default_from;
+		$personal = !empty($team_personal) ? $team_personal : $default_personal;
+
+		$mailer = DevblocksPlatform::getMailService();
+		$email = $mailer->createEmail();
+		
+		// [TODO] Allow seperated addresses (parseRfcAddress)
+		$email->addRecipient($to);
+		$email->setFrom($from, $personal);
+		$email->headers->set('Date', gmdate('r'));
+		$email->setSubject($subject);
+		$email->setTextBody($content);
+		$email->headers->set('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
+		$email->headers->set('X-MailGenerator','Cerberus Helpdesk (Build '.APP_BUILD.')');
+		
+		$mailer->send($from,array($to),$email);
+		
+		$worker = CerberusApplication::getActiveWorker();
+		$fromAddressId = CerberusApplication::hashLookupAddressId($from, true);
+		
+		// [TODO] This really should be in the Mail API
+		$fields = array(
+			DAO_Ticket::MASK => CerberusApplication::generateTicketMask(),
+			DAO_Ticket::SUBJECT => $subject,
+			DAO_Ticket::CREATED_DATE => time(),
+			DAO_Ticket::FIRST_WROTE_ID => $fromAddressId,
+			DAO_Ticket::LAST_WROTE_ID => $fromAddressId,
+			DAO_Ticket::LAST_ACTION_CODE => CerberusTicketActionCode::TICKET_WORKER_REPLY,
+			DAO_Ticket::LAST_WORKER_ID => $worker->id,
+			DAO_Ticket::TEAM_ID => $team_id,
+		);
+		$ticket_id = DAO_Ticket::createTicket($fields);
+		
+	    $fields = array(
+	        DAO_Message::TICKET_ID => $ticket_id,
+	        DAO_Message::CREATED_DATE => time(),
+	        DAO_Message::ADDRESS_ID => $fromAddressId
+	    );
+		$message_id = DAO_Message::create($fields);
+	    
+		// Content
+	    DAO_MessageContent::update($message_id, $content);
+	    
+	    // Headers
+		foreach(array('Date', 'From', 'To', 'Subject', 'Message-Id', 'X-Mailer') as $hdr) {
+			if(null != ($hdr_val = $email->headers->get($hdr)))
+				if(false !== ($pos = strpos($hdr_val,':'))) {
+					$hdr_val = trim(substr($hdr_val, $pos+1));
+		    		DAO_MessageHeader::update($message_id, $ticket_id, $hdr, $hdr_val);
+				}
+		}
+		
+		// Set recipients to requesters
+		// [TODO] Allow seperated addresses (parseRfcAddress)
+		if(null != ($reqAddressId = CerberusApplication::hashLookupAddressId($to, true)))
+			DAO_Ticket::createRequester($reqAddressId, $ticket_id);
+			
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','compose')));
 	}
 	
 	// [TODO] Nuke the message_id redundancy here, and such
@@ -1391,15 +1497,23 @@ class ChTicketsPage extends CerberusPageExtension {
 	    
 	    //========== GENERAL
 	    @$signature = DevblocksPlatform::importGPC($_REQUEST['signature'],'string','');
+	    @$sender_address = DevblocksPlatform::importGPC($_REQUEST['sender_address'],'string','');
+	    @$sender_personal = DevblocksPlatform::importGPC($_REQUEST['sender_personal'],'string','');
 	    @$spam_threshold = DevblocksPlatform::importGPC($_REQUEST['spam_threshold'],'integer',80);
 	    @$spam_action = DevblocksPlatform::importGPC($_REQUEST['spam_action'],'integer',0);
 	    @$spam_moveto = DevblocksPlatform::importGPC($_REQUEST['spam_action_moveto'],'integer',0);
 	    
-	    // [TODO] Does this belong in team or in some kind of DAO_TeamSetting registry?
+	    // [TODO] Move this into DAO_GroupSettings
 	    DAO_Group::updateTeam($team_id, array(
 	        DAO_Group::TEAM_SIGNATURE => $signature
 	    ));
 	    
+	    // [TODO] Verify the sender address has been used in a 'To' header in the past
+		// select count(header_value) from message_header where header_name = 'to' AND (header_value = 'sales@webgroupmedia.com' OR header_value = '<sales@webgroupmedia.com>');
+		// DAO_MessageHeader::
+	    
+	    DAO_GroupSettings::set($team_id, DAO_GroupSettings::SETTING_REPLY_FROM, $sender_address);
+	    DAO_GroupSettings::set($team_id, DAO_GroupSettings::SETTING_REPLY_PERSONAL, $sender_personal);
 	    DAO_GroupSettings::set($team_id, DAO_GroupSettings::SETTING_SPAM_THRESHOLD, $spam_threshold);
 	    DAO_GroupSettings::set($team_id, DAO_GroupSettings::SETTING_SPAM_ACTION, $spam_action);
 	    DAO_GroupSettings::set($team_id, DAO_GroupSettings::SETTING_SPAM_ACTION_PARAM, $spam_moveto);
@@ -1869,6 +1983,14 @@ class ChTicketsPage extends CerberusPageExtension {
 				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/search/criteria/ticket_subject.tpl.php');
 				break;
 				
+			case SearchFields_Ticket::TICKET_CREATED_DATE:
+				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/search/criteria/ticket_created.tpl.php');
+				break;
+				
+			case SearchFields_Ticket::TICKET_UPDATED_DATE:
+				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/search/criteria/ticket_updated.tpl.php');
+				break;
+				
 			case SearchFields_Ticket::TICKET_FIRST_WROTE:
 				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/search/criteria/ticket_first_wrote.tpl.php');
 				break;
@@ -1888,6 +2010,9 @@ class ChTicketsPage extends CerberusPageExtension {
 			case SearchFields_Ticket::TEAM_ID:
 				$teams = DAO_Group::getAll();
 				$tpl->assign('teams', $teams);
+				
+				$team_categories = DAO_Bucket::getTeams();
+				$tpl->assign('team_categories', $team_categories);
 				
 				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/search/criteria/ticket_team.tpl.php');
 				break;
@@ -1939,6 +2064,16 @@ class ChTicketsPage extends CerberusPageExtension {
 			        $subject = '*' . $subject . '*';
 				$params[$field] = new DevblocksSearchCriteria($field,$oper,$subject);
 				break;
+			case SearchFields_Ticket::TICKET_CREATED_DATE:
+				@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','yesterday');
+				@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','today');
+				$params[$field] = new DevblocksSearchCriteria($field,$oper,array($from,$to));
+				break;
+			case SearchFields_Ticket::TICKET_UPDATED_DATE:
+				@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','yesterday');
+				@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','today');
+				$params[$field] = new DevblocksSearchCriteria($field,$oper,array($from,$to));
+				break;
 			case SearchFields_Ticket::TICKET_FIRST_WROTE:
 				@$email = DevblocksPlatform::importGPC($_REQUEST['email']);
 			    if($wildcards && false===strpos($email,'*'))
@@ -1961,7 +2096,13 @@ class ChTicketsPage extends CerberusPageExtension {
 				break;
 			case SearchFields_Ticket::TEAM_ID:
 				@$team_ids = DevblocksPlatform::importGPC($_REQUEST['team_id'],'array');
-				$params[$field] = new DevblocksSearchCriteria($field,$oper,$team_ids);
+				@$bucket_ids = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'array');
+				
+				if(!empty($team_ids))
+					$params[SearchFields_Ticket::TEAM_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,$oper,$team_ids);
+				if(!empty($bucket_ids))
+					$params[SearchFields_Ticket::TICKET_CATEGORY_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CATEGORY_ID,$oper,$bucket_ids);
+					
 				break;
 		}
 		
@@ -2333,14 +2474,14 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	// Post
 	function saveSettingsAction() {
 	    @$title = DevblocksPlatform::importGPC($_POST['title'],'string');
+	    @$logo = DevblocksPlatform::importGPC($_POST['logo'],'string');
 	    @$attachments_enabled = DevblocksPlatform::importGPC($_POST['attachments_enabled'],'integer',0);
 	    @$attachments_max_size = DevblocksPlatform::importGPC($_POST['attachments_max_size'],'integer',10);
 	    @$authorized_ips_str = DevblocksPlatform::importGPC($_POST['authorized_ips'],'string','');
 	    
-
-	    
 	    $settings = CerberusSettings::getInstance();
 	    $settings->set(CerberusSettings::HELPDESK_TITLE, $title);
+	    $settings->set(CerberusSettings::HELPDESK_LOGO_URL, $logo); // [TODO] Enforce some kind of max resolution?
 	    $settings->set(CerberusSettings::ATTACHMENTS_ENABLED, $attachments_enabled);
 	    $settings->set(CerberusSettings::ATTACHMENTS_MAX_SIZE, $attachments_max_size);
 	    $settings->set(CerberusSettings::AUTHORIZED_IPS, $authorized_ips_str);
@@ -3148,7 +3289,7 @@ class ChDisplayPage extends CerberusPageExtension {
 			$view->params = array(
 				new DevblocksSearchCriteria(SearchFields_Ticket::SENDER_ID,DevblocksSearchCriteria::OPER_EQ,0)
 			);
-			$view->renderLimit = 15;
+			$view->renderLimit = 10;
 			$view->renderPage = 0;
 			$view->renderSortBy = SearchFields_Ticket::TICKET_CREATED_DATE;
 			$view->renderSortAsc = false;

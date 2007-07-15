@@ -36,10 +36,24 @@
 				{if substr($active_dashboard_id,0,1) == 't'}
 				<tr>
 					<td width="100%" style="padding:2px;">
-						<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}"> <a href="{devblocks_url}c=tickets&team=team&id={$dashboard_team_id}{/devblocks_url}">{$translate->_('teamwork.group_management')|capitalize}</a><br>
+						<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> <a href="{devblocks_url}c=tickets&team=team&id={$dashboard_team_id}{/devblocks_url}">{$translate->_('teamwork.group_management')|capitalize}</a><br>
 					</td>
 				</tr>
 				{/if}
+
+				<tr>
+					<td width="100%" style="padding:2px;">
+						<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/mail2.gif{/devblocks_url}" align="top"> <a href="{devblocks_url}c=tickets&a=compose{/devblocks_url}">Send Mail</a><br>
+					</td>
+				</tr>
+				<!-- 
+				<tr>
+					<td width="100%" style="padding:2px;">
+						<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_into.gif{/devblocks_url}" align="top"> <a href="{devblocks_url}c=tickets&a=create{/devblocks_url}">Log Ticket</a><br>
+					</td>
+				</tr>
+				 -->
+
 				{if !empty($active_dashboard_id) && is_numeric($active_dashboard_id)}
 				<tr>
 					<td width="100%" style="padding:2px;">

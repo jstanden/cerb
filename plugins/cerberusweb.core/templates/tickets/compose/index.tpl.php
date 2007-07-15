@@ -1,6 +1,6 @@
 <table cellpadding="0" cellspacing="0" style="padding-bottom:5px;">
 <tr>
-	<td style="padding-right:5px;"><h1>Log New Ticket</h1></td>
+	<td style="padding-right:5px;"><h1>Send Mail</h1></td>
 	<td>
 		{include file="file:$path/tickets/menu.tpl.php"}
 	</td>
@@ -8,10 +8,10 @@
 </table>
 
 <div class="block">
-<h2>Ticket Details</h2>
+<h2>Message Details</h2>
 <form enctype="multipart/form-data" method="post" action="{devblocks_url}{/devblocks_url}">
 <input type="hidden" name="c" value="tickets">
-<input type="hidden" name="a" value="createTicket">
+<input type="hidden" name="a" value="composeMail">
 
 <table cellpadding="2" cellspacing="0" border="0" width="100%">
   <tbody>
@@ -19,24 +19,31 @@
 		<td>
 			<table cellpadding="1" cellspacing="0" border="0" width="100%">
 				<tr>
-					<td width="0%" nowrap="nowrap" valign="top"><b>For:</b>&nbsp; </td>
+					<td width="0%" nowrap="nowrap" valign="top"><b>From:</b></td>
 					<td width="100%">
 						<input type="hidden" name="team_id" value="{$team->id}">
 						{$team->name}
 					</td>
 				</tr>
 				<tr>
-					<td width="0%" nowrap="nowrap" valign="top"><b>Contact E-mail:</b></td>
-					<td width="100%"><input type="text" size="100" name="from"></td>
+					<td width="0%" nowrap="nowrap" valign="top"><b>To:</b>&nbsp; </td>
+					<td width="100%">
+						<input type="text" size="100" name="to" style="width:98%;">
+					</td>
 				</tr>
 				<tr>
 					<td width="0%" nowrap="nowrap" valign="top"><b>Subject:</b></td>
-					<td width="100%"><input type="text" size="100" name="subject"></td>
+					<td width="100%"><input type="text" size="100" name="subject" style="width:98%;"></td>
 				</tr>
 				<tr>
 					<td width="0%" nowrap="nowrap" valign="top"><b>Message:</b></td>
 					<td width="100%">
-						<textarea name="content" rows="10" cols="80" class="reply"></textarea>
+						<textarea name="content" rows="15" cols="80" class="reply" style="width:98%;">{if !empty($signature)}
+
+
+{$signature}
+{/if}
+</textarea>
 					</td>
 				</tr>
 				<tr>
@@ -52,7 +59,7 @@
 	</tr>
 	<tr>
 		<td>
-			<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
+			<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> Send Message</button>
 			<button type="button" onclick="document.location='{devblocks_url}c=tickets{/devblocks_url}';"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> Discard</button>
 		</td>
 	</tr>
