@@ -77,7 +77,7 @@
 		</td>
 	</tr>
 	<tr>
-		<tdnowrap="nowrap" valign="top">
+		<td nowrap="nowrap" valign="top">
 			<div style="display:none"><textarea name="team_signature" id="team_signature">{$signature}</textarea></div>
 								
 			<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> Send Message</button>

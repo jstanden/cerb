@@ -57,6 +57,7 @@
 	      		<tr>
 	      			<td align="left">
 				      	<button type="button" onclick="displayAjax.reply('{$message->id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/message_edit.gif{/devblocks_url}" align="top"> Reply</button>
+				      	<button type="button" onclick="displayAjax.addNote('{$message->id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/note_edit.gif{/devblocks_url}" align="top"> Add Note</button>
 				      	<!-- <a href="javascript:;">more &raquo;</a> -->
 	      			</td>
 	      			<td align="right">
@@ -100,5 +101,8 @@
 </table>
 </div>
 <div id="{$message->id}b"></div>
+<div id="{$message->id}notes" style="background-color:rgb(255,255,255);">
+	{include file="$path/display/modules/conversation/notes.tpl.php"}
+</div>
 <form id="reply{$message->id}" action="{devblocks_url}{/devblocks_url}" method="POST" enctype="multipart/form-data"></form>
 <br>

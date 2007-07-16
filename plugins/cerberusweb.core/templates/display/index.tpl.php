@@ -72,9 +72,8 @@
 		
 		[ <a href="javascript:;" onclick="genericAjaxGet('displayAdvancedOptions','c=display&a=showManageRecipients&ticket_id={$ticket->id}');">manage recipients</a> ] 
 		[ <a href="javascript:;" onclick="genericAjaxGet('displayAdvancedOptions','c=display&a=showContactHistory&ticket_id={$ticket->id}');">contact history</a> ] 
-		[ <a href="javascript:;" onclick="genericAjaxGet('displayAdvancedOptions','c=display&a=showTicketNotepad&ticket_id={$ticket->id}');">ticket notepad</a> ] 
 
-		<div id="displayAdvancedOptions" style="padding:5px;"></div>
+		<div id="displayAdvancedOptions" style="padding:5px;background-color:rgb(255,255,255);"></div>
 	</div>
 	<br>
 </div>

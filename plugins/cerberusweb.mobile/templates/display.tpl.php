@@ -5,7 +5,7 @@ We did not find a ticket to match the supplied ID / mask.
 <h2 style="color: rgb(102,102,102);">Ticket #{$ticket_id}</h2>
 {foreach from=$ticket->getMessages() item=message name=messages}
 {assign var=headers value=$message->getHeaders()}
-<table style="text-align: left; width: 100%;" class="displayConversationTable" border="0" cellpadding="2" cellspacing="0">
+<table style="text-align: left; width: 100%;" border="0" cellpadding="2" cellspacing="0">
   <tbody>
     <tr>
       <td>

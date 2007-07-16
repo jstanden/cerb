@@ -31,6 +31,9 @@
 		<tu tuid='common.filter'>
 			<tuv xml:lang="en"><seg>filter</seg></tuv>
 		</tu>
+		<tu tuid='common.group'>
+			<tuv xml:lang="en"><seg>group</seg></tuv>
+		</tu>
 		<tu tuid='common.name'>
 			<tuv xml:lang="en">
 				<seg>Name</seg>

@@ -43,7 +43,7 @@
 							<b>{math equation="x*100" x=$param->value}</b>%
 						{elseif $param->field=="tm_id"}
 							<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/data_find.gif{/devblocks_url}" align="absmiddle"> 
-							{$translate->_('common.team')|capitalize}
+							{$translate->_('common.group')|capitalize}
 							{$param->operator}
 							{foreach from=$param->value item=p name=params}
 							<b>{$teams.$p->name}</b>

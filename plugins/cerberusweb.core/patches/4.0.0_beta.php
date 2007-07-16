@@ -108,6 +108,19 @@ if(!isset($indexes['ticket_id'])) {
     $datadict->ExecuteSQLArray($sql);
 }
 
+// `message_note` ==================
+if(!isset($tables['message_note'])) {
+    $flds = "
+		id I4 DEFAULT 0 NOTNULL PRIMARY,
+		message_id I4 DEFAULT 0 NOTNULL,
+		worker_id I4 DEFAULT 0 NOTNULL,
+		created I4 DEFAULT 0 NOTNULL,
+		content B DEFAULT '' NOTNULL
+	";
+    $sql = $datadict->CreateTableSQL('message_note',$flds);
+    $datadict->ExecuteSQLArray($sql);
+}
+
 // `message` ========================
 $columns = $datadict->MetaColumns('message', false, false);
 $indexes = $datadict->MetaIndexes('message',false);

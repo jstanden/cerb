@@ -620,6 +620,14 @@ class CerberusMessage {
 
 };
 
+class Model_MessageNote {
+	public $id;
+	public $message_id;
+	public $created;
+	public $worker_id;
+	public $content;
+};
+
 class CerberusAddress {
 	public $id;
 	public $email;

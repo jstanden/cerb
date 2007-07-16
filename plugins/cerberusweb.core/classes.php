@@ -368,7 +368,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	            
 			    break;
 				
-			case 'organize':
+			case 'workspaces':
 			default:
 				$viewManager = $visit->get(CerberusVisit::KEY_VIEW_MANAGER);
 				$request = DevblocksPlatform::getHttpRequest();
@@ -613,7 +613,7 @@ class ChTicketsPage extends CerberusPageExtension {
 			}
 		}
 		
-		return new DevblocksHttpResponse(array('tickets','organize'));
+		return new DevblocksHttpResponse(array('tickets','workspaces'));
 	}
 	
 	// Ajax
@@ -691,7 +691,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	    );
 	    $_SESSION['team_filters'][$team_id] = $filters;
 	    
-	    DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','organize','team',$team_id)));
+	    DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','workspaces','team',$team_id)));
 	}
 	
 	// Ajax
@@ -1585,29 +1585,13 @@ class ChTicketsPage extends CerberusPageExtension {
         DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','team',$team_id,'routing')));   
    	}
 
-	// Ajax
-	function showTeamPanelAction() {
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', dirname(__FILE__) . '/templates/');
-
-		$teams = DAO_Group::getAll();
-		$tpl->assign('teams', $teams);
-
-		// [TODO] Be sure we're caching this
-//		$team_counts = DAO_Group::getTeamCounts(array_keys($teams),true,false,false);
-//		$tpl->assign('team_counts', $team_counts);
-		
-		$tpl->cache_lifetime = "0";
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/rpc/team_load_panel.tpl.php');
-	}
-	
 	function changeDashboardAction() {
 		$dashboard_id = DevblocksPlatform::importGPC($_POST['dashboard_id'], 'string', '0');
 		
 		$visit = DevblocksPlatform::getSessionService()->getVisit();
 		$visit->set(CerberusVisit::KEY_DASHBOARD_ID, $dashboard_id);
 		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','organize')));
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','workspaces')));
 	}
 	
 	function showBatchPanelAction() {
@@ -1939,7 +1923,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		);
 		DAO_Dashboard::updateView($view_id,$fields);
 		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','organize')));
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','workspaces')));
 	}
 	
 	function showContactPanelAction() {
@@ -2097,7 +2081,7 @@ class ChTicketsPage extends CerberusPageExtension {
 			case SearchFields_Ticket::TEAM_ID:
 				@$team_ids = DevblocksPlatform::importGPC($_REQUEST['team_id'],'array');
 				@$bucket_ids = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'array');
-				
+
 				if(!empty($team_ids))
 					$params[SearchFields_Ticket::TEAM_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,$oper,$team_ids);
 				if(!empty($bucket_ids))
@@ -3036,6 +3020,17 @@ class ChDisplayPage extends CerberusPageExtension {
 		arsort($messages);
 		$tpl->assign('messages', $messages);
 		
+		$notes = DAO_MessageNote::getByTicketId($id);
+		$message_notes = array();
+		// Index notes by message id
+		if(is_array($notes))
+		foreach($notes as $note) {
+			if(!isset($message_notes[$note->message_id]))
+				$message_notes[$note->message_id] = array();
+			$message_notes[$note->message_id][$note->id] = $note;
+		}
+		$tpl->assign('message_notes', $message_notes);
+		
 		$teams = DAO_Group::getAll();
 		$tpl->assign('teams', $teams);
 		
@@ -3064,6 +3059,11 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		$content = DAO_MessageContent::get($id);
 		$tpl->assign('content', $content);
+		
+		$notes = DAO_MessageNote::getByMessageId($id);
+		$tpl->assign('message_notes', $notes);
+		
+		// [TODO] Workers?
 		
 		$tpl->assign('expanded', true);
 		
@@ -3119,6 +3119,80 @@ class ChDisplayPage extends CerberusPageExtension {
 		}
 		
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('display',$id)));
+	}
+
+	/**
+	 * Enter description here...
+	 * @param string $message_id
+	 */
+	private function _renderNotes($message_id) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		$tpl->assign('message_id', $message_id);
+		
+		$notes = DAO_MessageNote::getByMessageId($message_id);
+		$message_notes = array();
+		
+		// [TODO] DAO-ize? (shared in render())
+		if(is_array($notes))
+		foreach($notes as $note) {
+			if(!isset($message_notes[$note->message_id]))
+				$message_notes[$note->message_id] = array();
+			$message_notes[$note->message_id][$note->id] = $note;
+		}
+		$tpl->assign('message_notes', $message_notes);
+				
+		$workers = DAO_Worker::getList();
+		$tpl->assign('workers', $workers);
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/conversation/notes.tpl.php');
+	}
+	
+	function addNoteAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
+
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		$tpl->assign('id',$id);
+		
+		$message = DAO_Ticket::getMessage($id);
+		$tpl->assign('message',$message);
+		
+		$worker = CerberusApplication::getActiveWorker();
+		$tpl->assign('worker', $worker);
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/rpc/add_note.tpl.php');
+	}
+	
+	function doAddNoteAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer',0);
+		@$content = DevblocksPlatform::importGPC($_REQUEST['content'],'string','');
+		
+		$worker = CerberusApplication::getActiveWorker();
+		
+		$fields = array(
+			DAO_MessageNote::MESSAGE_ID => $id,
+			DAO_MessageNote::CREATED => time(),
+			DAO_MessageNote::WORKER_ID => $worker->id,
+			DAO_MessageNote::CONTENT => $content,
+		);
+		$note_id = DAO_MessageNote::create($fields);
+		
+		// [TODO] This really should use an anchor to go back to the message (#r100)
+//		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('display',$ticket_id)));
+
+		$this->_renderNotes($id);
+	}
+	
+	function deleteNoteAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+		$note = DAO_MessageNote::get($id);
+		$message_id = $note->message_id;
+		DAO_MessageNote::delete($id);
+		unset($note);
+		
+		$this->_renderNotes($message_id);
 	}
 	
 	function replyAction() { 
