@@ -88,6 +88,10 @@ class CerberusMail {
 		$ticket_id = $message->ticket_id;
 		$ticket = DAO_Ticket::getTicket($ticket_id);
 
+		if($ticket->spam_training == "") {
+			CerberusBayes::markTicketAsNotSpam($ticket_id);
+		} 
+		
 		// Allow teams to override the default from/personal
 		$group_settings = DAO_GroupSettings::getSettings($ticket->team_id);
 		if(!empty($group_settings[DAO_GroupSettings::SETTING_REPLY_FROM])) 
