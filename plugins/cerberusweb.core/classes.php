@@ -3080,6 +3080,9 @@ class ChDisplayPage extends CerberusPageExtension {
 		// Anti-Spam
 		if(!empty($spam)) {
 		    CerberusBayes::markTicketAsSpam($id);
+		    // [mdf] if the spam button was clicked override the default params for deleted/closed
+		    $closed=1;
+		    $deleted=1;
 		}
 
 //        $ticket = DAO_Ticket::getTicket($id);
