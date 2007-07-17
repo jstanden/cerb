@@ -47,7 +47,7 @@
 <br>
 
 <b>PHP Extension (mbstring)... </b> 
-{if !$results.ext_mailparse}
+{if !$results.ext_mbstring}
 	<span class="bad">Error! PHP must have the 'mbstring' extension enabled.</span>
 {else}
 	<span class="good">Passed!</span>

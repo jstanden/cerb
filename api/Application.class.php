@@ -760,6 +760,7 @@ class CerberusSettings {
 	const SMTP_AUTH_ENABLED = 'smtp_auth_enabled'; 
 	const SMTP_AUTH_USER = 'smtp_auth_user'; 
 	const SMTP_AUTH_PASS = 'smtp_auth_pass'; 
+	const SMTP_PORT = 'smtp_port'; 
 	const ATTACHMENTS_ENABLED = 'attachments_enabled'; 
 	const ATTACHMENTS_MAX_SIZE = 'attachments_max_size'; 
 	const AUTHORIZED_IPS = 'authorized_ips';
