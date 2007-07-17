@@ -834,6 +834,24 @@ class ChTicketsPage extends CerberusPageExtension {
 		$email->headers->set('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
 		$email->headers->set('X-MailGenerator','Cerberus Helpdesk (Build '.APP_BUILD.')');
 		
+			// Mime Attachments
+		if (is_array($files) && !empty($files)) {
+			foreach ($files['tmp_name'] as $idx => $file) {
+				if(empty($file) || empty($files['name'][$idx]))
+					continue;
+
+				// $files['type'][$idx]
+				$email->attachFromString(file_get_contents($file), $files['name'][$idx]);
+				
+//				$tmp = tempnam(DEVBLOCKS_PATH . 'tmp/','mime');
+//				if($mail_service->streamedBase64Encode($file, $tmp)) {
+//					$mail->attachFromString(file_get_contents($tmp), $files['name'][$idx]);
+//				}
+//				@unlink($tmp);
+			}
+		}
+		
+		
 		$mailer->send($from,array($to),$email);
 		
 		$worker = CerberusApplication::getActiveWorker();
