@@ -1,10 +1,8 @@
-<table cellpadding="0" cellspacing="0" width="100%" style="padding-bottom:5px;">
-<tr>
-	<td style="padding-right:5px;" width="0%" nowrap="nowrap"><h1>Workspaces</h1></td>
-	<td width="0%" nowrap="nowrap">
+<div style="position: relative; width:100%; height: 30;">
+	<span style="position: absolute; left: 0; top:0;"><h1 style="display:inline;">Workspaces</h1>
 		{include file="file:$path/tickets/menu.tpl.php"}
-	</td>
-	<td align="right" width="100%">
+	</span>
+	<span style="position: absolute; right: 0; top:0;">
 		<form action="{devblocks_url}{/devblocks_url}" method="post">
 		<input type="hidden" name="c" value="tickets">
 		<input type="hidden" name="a" value="doQuickSearch">
@@ -15,10 +13,8 @@
 			<option value="content"{if $quick_search_type eq 'content'}selected{/if}>Content</option>
 		</select><input type="text" name="query" size="24"><input type="submit" value="go!">
 		</form>
-	</td>
-</tr>
-</table>
-
+	</span>
+</div>
 <table border="0" cellpadding="0" cellspacing="0" width="100%">
   <tbody>
     <tr>
