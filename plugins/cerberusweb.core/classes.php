@@ -3040,6 +3040,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		$team_categories = DAO_Bucket::getTeams();
 		$tpl->assign('team_categories', $team_categories);
+		$tpl->register_modifier('makehrefs', array('CerberusUtils', 'smarty_modifier_makehrefs')); 
 		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/index.tpl.php');
 	}
@@ -3066,10 +3067,10 @@ class ChDisplayPage extends CerberusPageExtension {
 		// [TODO] Workers?
 		
 		$tpl->assign('expanded', true);
-		
+		$tpl->register_modifier('makehrefs', array('CerberusUtils', 'smarty_modifier_makehrefs')); 
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/conversation/message.tpl.php');
 	}
-	
+
 	function updatePropertiesAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']); // ticket id
 		@$closed = DevblocksPlatform::importGPC($_REQUEST['closed'],'integer',0);
