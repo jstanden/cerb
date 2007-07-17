@@ -64,7 +64,7 @@
 			</select><br>
 			<br>
 
-			<b>Add routing rule (Pattern -> Group):</b> [<a href="javascript:;">Explain</a>]<br>
+			<b>Add routing rule (Pattern -> Group):</b> <!-- [<a href="javascript:;">Explain</a>] --><br>
 			{include file="$path/configuration/mail/mail_routing_add.tpl.php"} 
 			<a href="javascript:;" onclick="genericAjaxGet('configMailRoutingAdd','c=config&a=getMailRoutingAdd',configAjax.cbMailRoutingAdd);">add another rule</a>
 			<br>
