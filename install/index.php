@@ -530,8 +530,15 @@ switch($step) {
 				
 			} else { // fail
 				$from = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM);
-				$mailer->testSmtp($smtp_host,$smtp_to,$from,$smtp_auth_user,$smtp_auth_pass);
-				
+				try {
+					error_reporting (1);
+					$mailer->testSmtp($smtp_host,$smtp_to,$from,$smtp_auth_user,$smtp_auth_pass);
+				}
+				catch(Exception $e) {
+					$form_submit = 0;
+					
+					$tpl->assign('smtp_error_display', 'SMTP Connection Failed. Try again.');
+				}
 				$tpl->assign('smtp_host', $smtp_host);
 				$tpl->assign('smtp_to', $smtp_to);
 				$tpl->assign('smtp_auth_user', $smtp_auth_user);

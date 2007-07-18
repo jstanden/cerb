@@ -6,6 +6,8 @@
 
 <H3>SMTP</H3>
 
+{if $smtp_error_display}<div style="color: red; font-weight: Bold;">{$smtp_error_display}</div><br><br>{/if}
+
 <b>SMTP Server:</b><br>
 <input type="text" name="smtp_host" value="{$smtp_host}" size="45"><br>
 <br>
