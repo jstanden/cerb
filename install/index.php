@@ -730,7 +730,9 @@ switch($step) {
 					
 					// Team Members
 					if(is_array($team_members))
-						DAO_Group::setTeamWorkers($team_id,$team_members);
+					foreach($team_members as $team_member_id) {
+						DAO_Group::setTeamMember($team_id, $team_member_id, false);
+					}
 				}
 				
 				$tpl->assign('step', STEP_CATCHALL);

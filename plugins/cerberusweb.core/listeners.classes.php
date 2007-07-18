@@ -65,7 +65,7 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension implements IDevb
         'tourHeaderQuickLookup' => new DevblocksTourCallout('tourHeaderQuickLookup','Quick Lookup','Here you can quickly search for tickets from anywhere in the helpdesk.  This is generally most useful when someone calls up and you need to promptly locate their ticket.'),
         'tourDashboardActions' => new DevblocksTourCallout('tourDashboardActions','Dashboard Actions','This is where you may change your active dashboard.'),
         'tourDashboardViews' => new DevblocksTourCallout('tourDashboardViews','Ticket Lists','This is where your customized lists of tickets are displayed.'),
-        'tourDashboardBatch' => new DevblocksTourCallout('tourDashboardBatch','Batch Updates','Here you may perform multiple actions to any list of tickets.  Use a batch update for actions you use infrequently.'),
+        'tourDashboardBatch' => new DevblocksTourCallout('tourDashboardBatch','Bulk Updates','Here you may perform multiple actions to any list of tickets.  Use a bulk update for actions you use infrequently.'),
         'tourDisplayProperties' => new DevblocksTourCallout('tourDisplayProperties','Properties','This is where you can change the properties of the current ticket.'),
         'tourDisplayManageRecipients' => new DevblocksTourCallout('tourDisplayManageRecipients','Recipients','Situations often arise where your points-of-contact change.  These are the people who will currently receive updates about this ticket.'),
         'tourDisplayContactHistory' => new DevblocksTourCallout('tourDisplayContactHistory','Contact History','All of your previous conversations with this customer are a click away.'),
