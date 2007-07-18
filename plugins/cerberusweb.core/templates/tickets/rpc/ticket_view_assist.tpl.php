@@ -51,7 +51,7 @@ Sort biggest piles by:
 			<optgroup label="Actions" style="color:rgb(150,0,0);font-weight:bold;">
 				<option value="ac">Close</option>
 				<option value="as">Report Spam</option>
-				<option value="ad">Delete</option>
+				{if $active_worker && ($active_worker->is_superuser || $active_worker->can_delete)}<option value="ad">Delete</option>{/if}
 			</optgroup>
 		</select>
 	</td>

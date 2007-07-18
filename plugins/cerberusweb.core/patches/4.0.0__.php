@@ -157,7 +157,8 @@ $tables['requester'] = "
 
 $tables['worker_to_team'] = "
 	agent_id I4 DEFAULT 0 NOTNULL PRIMARY,
-	team_id I4 DEFAULT 0 NOTNULL PRIMARY
+	team_id I4 DEFAULT 0 NOTNULL PRIMARY,
+	is_manager I1 DEFAULT 0 NOTNULL
 ";
 
 // [TODO] Move to POP3 plugin
@@ -180,6 +181,7 @@ $tables['worker'] ="
 	email C(128) DEFAULT '',
 	pass C(32) DEFAULT '',
 	is_superuser I1 DEFAULT 0 NOTNULL,
+	can_delete I1 DEFAULT 0 NOTNULL,
 	last_activity_date I4,
 	last_activity B DEFAULT ''
 ";

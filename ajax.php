@@ -62,11 +62,13 @@ DevblocksPlatform::init();
 
 $session = DevblocksPlatform::getSessionService();
 $settings = CerberusSettings::getInstance();
+$worker = CerberusApplication::getActiveWorker();
 
 $tpl = DevblocksPlatform::getTemplateService();
 $tpl->assign('translate', DevblocksPlatform::getTranslationService());
 $tpl->assign('session', $_SESSION);
 $tpl->assign('visit', $session->getVisit());
+$tpl->assign('active_worker', $worker);
 $tpl->assign('settings', $settings);
 
 DevblocksPlatform::processRequest($request,true);

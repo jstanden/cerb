@@ -147,8 +147,9 @@ class ChPageController extends DevblocksControllerExtension {
         if(empty($page)) return; // 404
 	    
 		// [TODO] Reimplement
-		if(!empty($visit) && !is_null($visit->getWorker()))
+		if(!empty($visit) && !is_null($visit->getWorker())) {
 		    DAO_Worker::logActivity($visit->getWorker()->id, $page->getActivity());
+		}
 		
 		// [JAS]: Listeners (Step-by-step guided tour, etc.)
 	    $listenerManifests = DevblocksPlatform::getExtensions('devblocks.listener.http');
@@ -176,6 +177,14 @@ class ChPageController extends DevblocksControllerExtension {
 		$tpl->assign('session', $_SESSION);
 		$tpl->assign('translate', $translate);
 		$tpl->assign('visit', $visit);
+		
+	    $active_worker = CerberusApplication::getActiveWorker();
+	    $tpl->assign('active_worker', $active_worker);
+	
+	    if(!empty($active_worker)) {
+	    	$active_worker_memberships = $active_worker->getMemberships();
+	    	$tpl->assign('active_worker_memberships', $active_worker_memberships);
+	    }
 		
 		$tpl->assign('pages',$pages);		
 		$tpl->assign('page',$page);
@@ -338,11 +347,14 @@ class ChTicketsPage extends CerberusPageExtension {
 	                    break;
 	                    
 	                case 'members':
-						// [TODO] Migrate this DAO stub to worker::search
-					    $members = DAO_Group::getTeamWorkers($team_id);
+						$members = DAO_Group::getTeamMembers($team_id);
 					    $tpl->assign('members', $members);
 					    
-					    $available_workers = array_diff_key($workers, $members);
+					    $available_workers = array();
+					    foreach($workers as $worker) {
+					    	if(!isset($members[$worker->id]))
+					    		$available_workers[$worker->id] = $worker;
+					    }
 					    $tpl->assign('available_workers', $available_workers);
 					    
 	                    $tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/teamwork/manage/members.tpl.php');
@@ -589,9 +601,17 @@ class ChTicketsPage extends CerberusPageExtension {
 	function nextGroupAction() {
 		$visit = CerberusApplication::getVisit();
 		$active_dashboard_id = $visit->get(CerberusVisit::KEY_DASHBOARD_ID, 0);
+		$worker = CerberusApplication::getActiveWorker();
+		$memberships = DAO_Worker::getGroupMemberships($worker->id);
 		
 		$groups = DAO_Group::getAll();
 		$group_ids = array_keys($groups);
+		
+		// Only show memberships
+		foreach($group_ids as $idx => $gid) {
+			if(!isset($memberships[$gid]))
+				unset($group_ids[$idx]);
+		}
 		
 		if(0 == strcasecmp(substr($active_dashboard_id,0,1),'t')) {
 			$group_id = intval(substr($active_dashboard_id,1));
@@ -1539,24 +1559,25 @@ class ChTicketsPage extends CerberusPageExtension {
         DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','team',$team_id,'general')));
 	}
 	
-	function saveTeamMembersAction() {
-	    @$team_id = DevblocksPlatform::importGPC($_REQUEST['team_id'],'integer');
+	function addTeamMemberAction() {
+		@$team_id = DevblocksPlatform::importGPC($_REQUEST['team_id'],'integer');
+		@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_ids'],'array');
+		@$is_manager = DevblocksPlatform::importGPC($_REQUEST['is_manager'],'integer');
 
-	    //========== MEMBERS
-	    @$member_adds = DevblocksPlatform::importGPC($_REQUEST['member_adds'],'array');
-	    @$member_deletes = DevblocksPlatform::importGPC($_REQUEST['member_deletes'],'array');
+		foreach($worker_ids as $worker_id) {
+			DAO_Group::setTeamMember($team_id, $worker_id, $is_manager);
+		}
+		
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','team',$team_id,'members')));
+	}
+	
+	function removeTeamMemberAction() {
+		@$team_id = DevblocksPlatform::importGPC($_REQUEST['team_id'],'integer');
+		@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'integer');
 
-	    // Adds
-	    if(!empty($team_id) && is_array($member_adds) && !empty($member_adds)) {
-            DAO_Group::addTeamWorkers($team_id, $member_adds);
-	    }
-	    
-	    // Removals
-	    if(!empty($team_id) && is_array($member_deletes) && !empty($member_deletes)) {
-	        DAO_Group::removeTeamWorkers($team_id, $member_deletes);
-	    }
-	    
-	    DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','team',$team_id,'members')));
+		DAO_Group::unsetTeamMember($team_id, $worker_id);
+		
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','team',$team_id,'members')));
 	}
 	
 	function saveTeamBucketsAction() {
@@ -2238,13 +2259,13 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		parent::__construct($manifest);
 	}
 	
+	// [TODO] Refactor to isAuthorized
 	function isVisible() {
-		$session = DevblocksPlatform::getSessionService();
-		$visit = $session->getVisit();
+		$worker = CerberusApplication::getActiveWorker();
 		
-		if(empty($visit)) {
+		if(empty($worker)) {
 			return false;
-		} else {
+		} elseif($worker->is_superuser) {
 			return true;
 		}
 	}
@@ -2258,6 +2279,12 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 
+		$worker = CerberusApplication::getActiveWorker();
+		if(!$worker || !$worker->is_superuser) {
+			echo "Access denied.";
+			return;
+		}
+		
 		$response = DevblocksPlatform::getHttpResponse();
 		$stack = $response->path;
 		$command = array_shift($stack);
@@ -2281,7 +2308,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 			case 'workflow':
 				$workers = DAO_Worker::getList();
 				$tpl->assign('workers', $workers);
-				
+
 				$teams = DAO_Group::getAll();
 				$tpl->assign('teams', $teams);
 				
@@ -2332,6 +2359,12 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	
 	// Post
 	function saveJobAction() {
+		$worker = CerberusApplication::getActiveWorker();
+		if(!$worker || !$worker->is_superuser) {
+			echo "Access denied.";
+			return;
+		}
+		
 	    // [TODO] Save the job changes
 	    @$id = DevblocksPlatform::importGPC($_REQUEST['id'],'string','');
 	    @$enabled = DevblocksPlatform::importGPC($_REQUEST['enabled'],'integer',0);
@@ -2366,6 +2399,12 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	
 	// Ajax
 	function getWorkerAction() {
+		$worker = CerberusApplication::getActiveWorker();
+		if(!$worker || !$worker->is_superuser) {
+			echo "Access denied.";
+			return;
+		}
+		
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
 
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -2383,6 +2422,12 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	
 	// Post
 	function saveWorkerAction() {
+		$worker = CerberusApplication::getActiveWorker();
+		if(!$worker || !$worker->is_superuser) {
+			echo "Access denied.";
+			return;
+		}
+		
 		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer');
 		@$first_name = DevblocksPlatform::importGPC($_POST['first_name'],'string');
 		@$last_name = DevblocksPlatform::importGPC($_POST['last_name'],'string');
@@ -2393,6 +2438,9 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		@$is_superuser = DevblocksPlatform::importGPC($_POST['is_superuser'],'integer');
 		@$team_id = DevblocksPlatform::importGPC($_POST['team_id'],'array');
 		@$delete = DevblocksPlatform::importGPC($_POST['delete'],'integer');
+
+		// Global privs
+		@$can_delete = DevblocksPlatform::importGPC($_POST['can_delete'],'integer');
 		
 		// [TODO] The superuser set bit here needs to be protected by ACL
 		
@@ -2412,6 +2460,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 				DAO_Worker::TITLE => $title,
 				DAO_Worker::EMAIL => $email,
 				DAO_Worker::IS_SUPERUSER => $is_superuser,
+				DAO_Worker::CAN_DELETE => $can_delete,
 			);
 			
 			// if we're resetting the password
@@ -2428,13 +2477,22 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	
 	// Ajax
 	function getTeamAction() {
+		$worker = CerberusApplication::getActiveWorker();
+		if(!$worker || !$worker->is_superuser) {
+			echo "Access denied.";
+			return;
+		}
+		
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
 
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 
-		$team = DAO_Group::getTeam($id);
+		$teams = DAO_Group::getAll();
+		$tpl->assign('teams', $teams);
+		
+		@$team = $teams[$id];
 		$tpl->assign('team', $team);
 		
 		$workers = DAO_Worker::getList();
@@ -2445,29 +2503,47 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	
 	// Post
 	function saveTeamAction() {
+		$worker = CerberusApplication::getActiveWorker();
+		if(!$worker || !$worker->is_superuser) {
+			echo "Access denied.";
+			return;
+		}
+		
 		@$id = DevblocksPlatform::importGPC($_POST['id']);
 		@$name = DevblocksPlatform::importGPC($_POST['name']);
-//		@$mailbox_id = DevblocksPlatform::importGPC($_POST['mailbox_id']);
-		@$agent_id = DevblocksPlatform::importGPC($_POST['agent_id'],'array');
-		@$delete = DevblocksPlatform::importGPC($_POST['delete']);
+		@$leader_id = DevblocksPlatform::importGPC($_POST['leader_id'],'integer',0);
+		@$delete = DevblocksPlatform::importGPC($_POST['delete_box']);
+		@$delete_move_id = DevblocksPlatform::importGPC($_POST['delete_move_id'],'integer',0);
 		
 		if(empty($name)) $name = "No Name";
 		
 		if(!empty($id) && !empty($delete)) {
-			DAO_Group::deleteTeam($id);
+			if(!empty($delete_move_id)) {
+				$fields = array(
+					DAO_Ticket::TEAM_ID => $delete_move_id
+				);
+				$where = sprintf("%s=%d",
+					DAO_Ticket::TEAM_ID,
+					$id
+				);
+				DAO_Ticket::updateWhere($fields, $where);
+				
+				DAO_Group::deleteTeam($id);
+			}
 			
 		} elseif(!empty($id)) {
 			$fields = array(
-				'name' => $name
+				DAO_Group::TEAM_NAME => $name,
 			);
 			DAO_Group::updateTeam($id, $fields);
-//			DAO_Group::setTeamMailboxes($id, $mailbox_id);
-			DAO_Group::setTeamWorkers($id, $agent_id);
 			
 		} else {
-			$id = DAO_Group::createTeam($name);
-//			DAO_Group::setTeamMailboxes($id, $mailbox_id);
-			DAO_Group::setTeamWorkers($id, $agent_id);
+			$fields = array(
+				DAO_Group::TEAM_NAME => $name,
+			);
+			$id = DAO_Group::createTeam($fields);
+			
+			DAO_Group::setTeamMember($id, $leader_id, true);
 		}
 		
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','workflow')));
@@ -2475,6 +2551,12 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	
 	// Post
 	function saveSettingsAction() {
+		$worker = CerberusApplication::getActiveWorker();
+		if(!$worker || !$worker->is_superuser) {
+			echo "Access denied.";
+			return;
+		}
+		
 	    @$title = DevblocksPlatform::importGPC($_POST['title'],'string');
 	    @$logo = DevblocksPlatform::importGPC($_POST['logo'],'string');
 	    @$attachments_enabled = DevblocksPlatform::importGPC($_POST['attachments_enabled'],'integer',0);
@@ -2493,6 +2575,12 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	
 	// Form Submit
 	function saveOutgoingMailSettingsAction() {
+		$worker = CerberusApplication::getActiveWorker();
+		if(!$worker || !$worker->is_superuser) {
+			echo "Access denied.";
+			return;
+		}
+		
 	    @$default_reply_address = DevblocksPlatform::importGPC($_REQUEST['sender_address'],'string');
 	    @$default_reply_personal = DevblocksPlatform::importGPC($_REQUEST['sender_personal'],'string');
 	    @$default_signature = DevblocksPlatform::importGPC($_POST['default_signature'],'string');
@@ -2515,6 +2603,12 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	
 	// Ajax
 	function ajaxGetRoutingAction() {
+		$worker = CerberusApplication::getActiveWorker();
+		if(!$worker || !$worker->is_superuser) {
+			echo "Access denied.";
+			return;
+		}
+		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
@@ -2530,6 +2624,12 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	
 	// Form Submit
 	function saveRoutingAction() {
+		$worker = CerberusApplication::getActiveWorker();
+		if(!$worker || !$worker->is_superuser) {
+			echo "Access denied.";
+			return;
+		}
+		
 		@$positions = DevblocksPlatform::importGPC($_POST['positions'],'array');
 		@$route_ids = DevblocksPlatform::importGPC($_POST['route_ids'],'array');
 		@$route_team_id = DevblocksPlatform::importGPC($_POST['route_team_id'],'array');
@@ -2589,12 +2689,24 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	
 	// Ajax
 	function ajaxDeleteRoutingAction() {
+		$worker = CerberusApplication::getActiveWorker();
+		if(!$worker || !$worker->is_superuser) {
+			echo "Access denied.";
+			return;
+		}
+		
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
 		DAO_Mail::deleteMailboxRouting($id);
 	}
 	
 	// Ajax
 	function getMailRoutingAddAction() {
+		$worker = CerberusApplication::getActiveWorker();
+		if(!$worker || !$worker->is_superuser) {
+			echo "Access denied.";
+			return;
+		}
+		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
@@ -2606,51 +2718,13 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	}
 	
 	// Ajax
-//	function getMailboxRoutingDialogAction() {
-//		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
-//		
-//		$tpl = DevblocksPlatform::getTemplateService();
-//		$tpl->cache_lifetime = "0";
-//		$tpl->assign('path', dirname(__FILE__) . '/templates/');
-//
-//		$tpl->assign('id', $id);
-//
-//
-//		$routing = DAO_Mail::getMailboxRouting();
-//		$tpl->assign('routing', $routing);
-//
-//		if(!empty($id)) {
-//			@$route = $routing[$id];
-//			$tpl->assign('route', $route);
-//		}
-//		
-//		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/mail/edit_mailbox_routing.tpl.php');
-//	}
-//	
-//	// Ajax
-//	function saveMailboxRoutingDialogAction() {
-//		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer');
-//		@$pattern = DevblocksPlatform::importGPC($_POST['pattern'],'string');
-//		@$team_id = DevblocksPlatform::importGPC($_POST['team_id'],'integer');
-//		
-//		if(empty($id)) {
-//			$id = DAO_Mail::createMailboxRouting();
-//		}
-//		
-//		$fields = array(
-//			DAO_Mail::ROUTING_PATTERN => $pattern,
-//			DAO_Mail::ROUTING_TEAM_ID => $team_id,
-//		);
-//		DAO_Mail::updateMailboxRouting($id, $fields);
-//		
-//		// [JAS]: Send the new mailbox name to the server 
-//		// [TODO] Necessary?
-//		$team = DAO_Group::getTeam($team_id);
-//		echo $team->name;
-//	}
-	
-	// Ajax
 	function refreshPluginsAction() {
+		$worker = CerberusApplication::getActiveWorker();
+		if(!$worker || !$worker->is_superuser) {
+			echo "Access denied.";
+			return;
+		}
+		
 //		if(!ACL_TypeMonkey::hasPriv(ACL_TypeMonkey::SETUP)) return;
 		
 		DevblocksPlatform::clearCache();
@@ -2659,6 +2733,12 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	}
 	
 	function savePluginsAction() {
+		$worker = CerberusApplication::getActiveWorker();
+		if(!$worker || !$worker->is_superuser) {
+			echo "Access denied.";
+			return;
+		}
+		
 //		if(!ACL_TypeMonkey::hasPriv(ACL_TypeMonkey::SETUP)) return;
 		
 		@$plugins_enabled = DevblocksPlatform::importGPC($_REQUEST['plugins_enabled'],'array');
@@ -3383,7 +3463,7 @@ class ChDisplayPage extends CerberusPageExtension {
 				SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
 			);
 			$view->params = array(
-				new DevblocksSearchCriteria(SearchFields_Ticket::SENDER_ID,DevblocksSearchCriteria::OPER_EQ,0)
+//				SearchFields_Ticket::TICKET_FIRST_WROTE => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_FIRST_WROTE,DevblocksSearchCriteria::OPER_EQ,0)
 			);
 			$view->renderLimit = 10;
 			$view->renderPage = 0;
@@ -3391,10 +3471,10 @@ class ChDisplayPage extends CerberusPageExtension {
 			$view->renderSortAsc = false;
 			$viewMgr->setView('contact_history', $view);
 		}
-		
+
 		$view->name = "Most recent tickets from " . htmlentities($contact->email);
 		$view->params = array(
-			new DevblocksSearchCriteria(SearchFields_Ticket::SENDER_ID,DevblocksSearchCriteria::OPER_EQ,$ticket->first_wrote_address_id)
+			SearchFields_Ticket::TICKET_FIRST_WROTE => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_FIRST_WROTE,DevblocksSearchCriteria::OPER_EQ,$contact->email)
 		);
 		$tpl->assign('view', $view);
 		

@@ -25,10 +25,6 @@
 		<td width="100%"><input type="text" name="title" value="{$worker->title}"></td>
 	</tr>
 	<tr>
-		<td width="0%" nowrap="nowrap">Administrator:</td>
-		<td width="100%"><input type="checkbox" name="is_superuser" value="1" {if $worker->is_superuser}checked{/if}></td>
-	</tr>
-	<tr>
 		<td width="0%" nowrap="nowrap"><b>E-mail:</b></td>
 		<td width="100%"><input type="text" name="email" value="{$worker->email}" size="45"></td>
 	</tr>
@@ -50,11 +46,23 @@
 			<a href="javascript:;" onclick="checkAll('configWorkerTeams',false);">check none</a>
 		</td>
 		<td width="100%" id="configWorkerTeams" valign="top">
-			{if $worker->id}{assign var=workerTeams value=$worker->getTeams()}{/if}
+			{if $worker->id}{assign var=workerTeams value=$worker->getMemberships()}{/if}
 			{foreach from=$teams item=team key=team_id}
 			<label><input type="checkbox" name="team_id[]" value="{$team->id}" {if $workerTeams.$team_id}checked{/if}>{$team->name}</label><br>
 			{/foreach}
 		</td>
+	</tr>
+	
+	<tr><td colspan="2">&nbsp;</td></tr>
+	
+	<tr>
+		<td width="0%" nowrap="nowrap" valign="top"><b>Permissions:</b></td>
+		<td width="100%" valign="top">
+			<label><input type="checkbox" name="is_superuser" value="1" {if $worker->is_superuser}checked{/if}> Administrator</label><br>
+			<label style="padding-left:10px;"><input type="checkbox" name="can_delete" value="1" {if $worker->can_delete}checked{/if}> Can Permanently Delete Tickets</label><br>
+		</td>
+	</tr>
+	<tr>
 	</tr>
 	
 	<tr><td colspan="2">&nbsp;</td></tr>

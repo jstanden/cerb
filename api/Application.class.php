@@ -48,7 +48,7 @@
  * 		and Joe Geck.
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-define("APP_BUILD", 248);
+define("APP_BUILD", 258);
 define("APP_MAIL_PATH", realpath(APP_PATH . '/storage/mail') . DIRECTORY_SEPARATOR);
 
 include_once(APP_PATH . "/api/DAO.class.php");
@@ -140,18 +140,6 @@ class CerberusApplication extends DevblocksApplication {
 	    
 	    return $callouts;
 	}
-	
-//    // [JAS]: [TODO] Cache/Kill this
-//	static function getPages() {
-//		$pages = array();
-//		$extModules = DevblocksPlatform::getExtensions("cerberusweb.page");
-//		foreach($extModules as $mod) { /* @var $mod DevblocksExtensionManifest */
-//			$instance = $mod->createInstance(); /* @var $instance CerberusPageExtension */
-//			if($instance instanceof DevblocksExtension && $instance->isVisible())
-//				$pages[$mod->id] = $instance;
-//		}
-//		return $pages;
-//	}	
 	
 	// [TODO] Move to a FormHelper service?
 	static function parseCrlfString($string) {

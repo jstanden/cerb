@@ -165,6 +165,11 @@ if(!isset($indexes['pos'])) {
     $datadict->ExecuteSQLArray($sql);
 }
 
+// `team` ========================
+$columns = $datadict->MetaColumns('team', false, false);
+$indexes = $datadict->MetaIndexes('team',false);
+
+
 // `ticket` ========================
 $columns = $datadict->MetaColumns('ticket', false, false);
 $indexes = $datadict->MetaIndexes('ticket',false);
@@ -253,6 +258,24 @@ if(!isset($indexes['is_closed'])) {
 
 if(!isset($indexes['category_id'])) {
     $sql = $datadict->CreateIndexSQL('category_id','ticket','category_id');
+    $datadict->ExecuteSQLArray($sql);
+}
+
+// `worker`
+$columns = $datadict->MetaColumns('worker', false, false);
+$indexes = $datadict->MetaIndexes('worker',false);
+
+if(!isset($columns['can_delete'])) {
+    $sql = $datadict->AddColumnSQL('worker', 'can_delete I1 DEFAULT 0 NOTNULL');
+    $datadict->ExecuteSQLArray($sql);
+}
+
+// `worker_to_team`
+$columns = $datadict->MetaColumns('worker_to_team', false, false);
+$indexes = $datadict->MetaIndexes('worker_to_team',false);
+
+if(!isset($columns['is_manager'])) {
+    $sql = $datadict->AddColumnSQL('worker_to_team', 'is_manager I1 DEFAULT 0 NOTNULL');
     $datadict->ExecuteSQLArray($sql);
 }
 

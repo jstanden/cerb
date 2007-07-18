@@ -17,8 +17,10 @@
 				      		<!-- <option value="0" {if empty($active_dashboard_id)}selected{/if}>My Tickets</option>  -->
 				      		<!-- <optgroup label="Teamwork">  -->
 				      			{foreach from=$teams item=team key=team_id}
+				      			{if isset($active_worker_memberships.$team_id)}
 				      			{assign var=team_count value=$team_counts.$team_id}
 				      			<option value="t{$team->id}" {if substr($active_dashboard_id,1)==$team->id}selected{/if}>{$team->name} ({if $team_count.tickets}{$team_count.tickets}{else}0{/if} new)</option>
+				      			{/if}
 				      			{/foreach}
 				      		<!-- </optgroup>  -->
 				      		<!-- 
@@ -33,12 +35,13 @@
 				      	</form>
 					</td>
 				</tr>
-				{if substr($active_dashboard_id,0,1) == 't'}
-				<tr>
-					<td width="100%" style="padding:2px;">
-						<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> <a href="{devblocks_url}c=tickets&team=team&id={$dashboard_team_id}{/devblocks_url}">{$translate->_('teamwork.group_management')|capitalize}</a><br>
-					</td>
-				</tr>
+				{assign var=team_member value=$active_worker_memberships.$team_id}
+				{if substr($active_dashboard_id,0,1) == 't' && (1 == $active_worker->is_superuser || 1 == $team_member->is_manager)}
+					<tr>
+						<td width="100%" style="padding:2px;">
+							<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> <a href="{devblocks_url}c=tickets&team=team&id={$dashboard_team_id}{/devblocks_url}">{$translate->_('teamwork.group_management')|capitalize}</a><br>
+						</td>
+					</tr>
 				{/if}
 
 				<tr>
@@ -96,7 +99,7 @@
 			<label><input type="checkbox" name="categories[]" value="0" {if isset($team_filters.categories.0)}checked{/if} onclick="this.form.categorized[1].checked=true;"> Inbox ({if isset($category_counts.0)}{$category_counts.0}{else}0{/if})</label><br>
 			<blockquote style="margin:0px;margin-left:5px;margin-bottom:10px;">
 			{if !empty($buckets)}
-			<table cellpadding="0" cellspacing="0" border="0" width="100%">
+			<table cellpadding="0" cellspacing="0" border="0" width="98%">
 				{foreach from=$buckets item=category key=category_id}
 					{if $category_counts.total && $category_counts.$category_id}
 						{math assign=percent equation="(x/y)*50" x=$category_counts.$category_id y=$category_counts.total format="%0.0f"}
@@ -124,7 +127,7 @@
 			<!-- <label><input type="checkbox" name="hide_assigned" value="1" {if $team_filters.hide_assigned}checked{/if}> Hide with Active Tasks</label><br>  -->
 			
 			<div align="right">
-				<a href="javascript:;" onclick="toggleDiv('teamAddBuckets','block');">add buckets</a>
+				<a href="javascript:;" onclick="toggleDiv('teamAddBuckets','block');">add buckets</a>&nbsp;
 				<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/replace2.gif{/devblocks_url}" align="top"> {$translate->_('common.refresh')|capitalize}</button>
 			</div>
 		</td>

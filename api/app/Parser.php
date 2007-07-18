@@ -427,23 +427,34 @@ class CerberusParser {
 		
 		$settings = CerberusSettings::getInstance();
 		
-		// [TODO] The split could be handled by ::parseAddressList (commas, semi-colons, etc.)
-		$aTo = CerberusApplication::parseCsvString(@$headers['to']);
-		$aCc = CerberusApplication::parseCsvString(@$headers['cc']);
+		$aTo = array();
+		$aCc = array();
+		$aEnvelopeTo = array();
+		$aXEnvelopeTo = array();
+		$aDeliveredTo = array();
 		
-		$destinations = $aTo + $aCc; // [TODO] Can we count on this?
+		$aTo = imap_rfc822_parse_adrlist(@$headers['to'],'localhost');
+		if(isset($headers['cc']))
+			$aCc = imap_rfc822_parse_adrlist($headers['cc'],'localhost');
+		if(isset($headers['envelope-to']))
+			$aEnvelopeTo = imap_rfc822_parse_adrlist(@$headers['envelope-to'],'localhost');
+		if(isset($headers['x-envelope-to']))
+			$aXEnvelopeTo = imap_rfc822_parse_adrlist($headers['x-envelope-to'],'localhost');
+		if(isset($headers['delivered-to']))
+			$aDeliveredTo = imap_rfc822_parse_adrlist($headers['delivered-to'],'localhost');
+		
+		// [TODO] Can we count on this?
+		$destinations = $aTo + $aCc + $aEnvelopeTo + $aXEnvelopeTo + $aDeliveredTo;
 
 		// [TODO] Should this cache be at the class level?
 		if(is_null($routing))
 			$routing = DAO_Mail::getMailboxRouting();
 		
 		foreach($destinations as $destination) {
-			$structure = CerberusParser::parseRfcAddress($destination);
-			
-			if(empty($structure[0]->mailbox) || empty($structure[0]->host))
+			if(empty($destination->mailbox) || empty($destination->host))
 				continue;
 			
-			$address = $structure[0]->mailbox.'@'.$structure[0]->host;
+			$address = $destination->mailbox.'@'.$destination->host;
 			
 			// Test each pattern successively
 			foreach($routing as $route) { /* @var $route Model_MailRoute */
@@ -454,9 +465,6 @@ class CerberusParser {
 					return $route->team_id;
 			}
 		}
-		
-		// envelope + delivered 'Delivered-To'
-		// received
 		
 		// Check if we have a default mailbox configured before returning NULL.		
 		$default_team_id = $settings->get(CerberusSettings::DEFAULT_TEAM_ID,0);

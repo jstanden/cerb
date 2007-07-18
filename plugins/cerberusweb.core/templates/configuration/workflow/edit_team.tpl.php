@@ -17,24 +17,23 @@
 		<td width="100%"><input type="text" name="name" value="{$team->name|escape:"html"}" size="45"></td>
 	</tr>
 	
-	<tr><td colspan="2">&nbsp;</td></tr>
-	
+	{if empty($team->id)}
 	<tr>
 		<td width="0%" nowrap="nowrap" valign="top">
-			<b>Workers:</b><br>
-			<a href="javascript:;" onclick="checkAll('configTeamWorkers',true);">check all</a><br>
-			<a href="javascript:;" onclick="checkAll('configTeamWorkers',false);">check none</a>
+			<b>Initial Manager:</b><br>
 		</td>
 		<td width="100%" id="configTeamWorkers" valign="top">
-			{if $team->id}{assign var=teamWorkers value=$team->getWorkers()}{/if}
+			<select name="leader_id">
+			<option value="0">-- none --</option>
 			{foreach from=$workers item=worker key=worker_id}
-			<label><input type="checkbox" name="agent_id[]" value="{$worker_id}" {if $teamWorkers.$worker_id}checked{/if}>{$worker->getName()}</label><br>
+				<option value="{$worker->id}" {if $team->leader_id==$worker->id}selected{/if}>{$worker->getName()}{if !empty($worker->title)} ({$worker->title}){/if}</option>
 			{/foreach}
+			</select>
 		</td>
 	</tr>
-	
-	<tr><td colspan="2">&nbsp;</td></tr>
-	
+	{/if}
+
+	<!-- 	
 	<tr>
 		<td width="0%" nowrap="nowrap" valign="top">
 			<b>Permissions:</b><br>
@@ -45,15 +44,27 @@
 			<label><input type="checkbox" name="acl[]" value="">Can ...</label><br>
 		</td>
 	</tr>
-	{if !empty($team->id)}
-	<tr>
-		<td width="0%" nowrap="nowrap"><b>Delete:</b></td>
-		<td width="100%"><label style="background-color:rgb(255,220,220);"><input type="checkbox" name="delete" value="1"> Delete this team</label></td>
-	</tr>
-	{/if}
+	 -->
+
 	<tr>
 		<td colspan="2">
+			<input type="hidden" name="delete_box" value="0">
+			<div id="deleteGroup" style="display:none;">
+				<div style="background-color:rgb(255,220,220);border:1px solid rgb(200,50,50);margin:10px;padding:5px;">
+					<h3>Delete Group</h3>
+					<b>Move tickets to:</b><br>
+					<select name="delete_move_id">
+						{foreach from=$teams item=move_team key=move_team_id}
+							{if $move_team_id != $team->id}<option value="{$move_team_id}">{$move_team->name}</option>{/if}
+						{/foreach}
+					</select>
+					<button type="button" onclick="this.form.delete_box.value='1';this.form.submit();">Delete</button>
+					<button type="button" onclick="toggleDiv('deleteGroup','none');">Cancel</button>
+				</div>
+				<br>
+			</div>
 			<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
+			{if !empty($team->id)}<button type="button" onclick="toggleDiv('deleteGroup','block');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> {$translate->_('common.remove')|capitalize}</button>{/if}
 		</td>
 	</tr>
 </table>

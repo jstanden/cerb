@@ -197,7 +197,7 @@
 			{if $view->id != 'contact_history'}<span id="tourDashboardBatch"><button type="button" onclick="ajax.showBatchPanel('{$view->id}','{$dashboard_team_id}');">bulk update</button></span>{/if}
 			<button type="button" onclick="ajax.viewCloseTickets('{$view->id}',0);">close</button>
 			<button type="button" onclick="ajax.viewCloseTickets('{$view->id}',1);">report spam</button>
-			<button type="button" onclick="ajax.viewCloseTickets('{$view->id}',2);">delete</button>
+			{if $active_worker && ($active_worker->is_superuser || $active_worker->can_delete)}<button type="button" onclick="ajax.viewCloseTickets('{$view->id}',2);">delete</button>{/if}
 			
 			<input type="hidden" name="move_to" value="">
 			<select name="move_to_select" onchange="this.form.move_to.value=this.form.move_to_select[this.selectedIndex].value;ajax.viewMoveTickets('{$view->id}');">

@@ -48,11 +48,6 @@
  * 		and Joe Geck.
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-/*
- * [TODO] Mike's suggestion of using a self::update($id,$fields) call inside
- * the create function makes it much cleaner to do creates passing arbitrary lists
- * of arguments.  Voila!
- */
 
 class DAO_Setting extends DevblocksORMHelper {
 	static function set($key, $value) {
@@ -205,6 +200,7 @@ class DAO_Bayes {
 	
 };
 
+// [TODO] Add a cached ::getAll()
 class DAO_Worker extends DevblocksORMHelper {
 	private function DAO_Worker() {}
 	
@@ -215,6 +211,7 @@ class DAO_Worker extends DevblocksORMHelper {
 	const EMAIL = 'email';
 	const PASSWORD = 'pass';
 	const IS_SUPERUSER = 'is_superuser';
+	const CAN_DELETE = 'can_delete';
 	const LAST_ACTIVITY_DATE = 'last_activity_date';
 	const LAST_ACTIVITY = 'last_activity';
 	
@@ -226,8 +223,8 @@ class DAO_Worker extends DevblocksORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$id = $db->GenID('generic_seq');
 		
-		$sql = sprintf("INSERT INTO worker (id, email, pass, first_name, last_name, title) ".
-			"VALUES (%d, %s, %s, %s, %s, %s)",
+		$sql = sprintf("INSERT INTO worker (id, email, pass, first_name, last_name, title, is_superuser, can_delete) ".
+			"VALUES (%d, %s, %s, %s, %s, %s,0,0)",
 			$id,
 			$db->qstr($email),
 			$db->qstr(md5($password)),
@@ -246,7 +243,7 @@ class DAO_Worker extends DevblocksORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$workers = array();
 		
-		$sql = "SELECT a.id, a.first_name, a.last_name, a.email, a.title, a.is_superuser, a.last_activity_date, a.last_activity ".
+		$sql = "SELECT a.id, a.first_name, a.last_name, a.email, a.title, a.is_superuser, a.can_delete, a.last_activity_date, a.last_activity ".
 			"FROM worker a ".
 			((!empty($ids) ? sprintf("WHERE a.id IN (%s)",implode(',',$ids)) : " ").
 			"ORDER BY a.last_name, a.first_name "
@@ -260,7 +257,8 @@ class DAO_Worker extends DevblocksORMHelper {
 			$worker->last_name = $rs->fields['last_name'];
 			$worker->email = $rs->fields['email'];
 			$worker->title = $rs->fields['title'];
-			$worker->is_superuser = $rs->fields['is_superuser'];
+			$worker->is_superuser = intval($rs->fields['is_superuser']);
+			$worker->can_delete = intval($rs->fields['can_delete']);
 			$worker->last_activity_date = intval($rs->fields['last_activity_date']);
 			
 			if(!empty($rs->fields['last_activity']))
@@ -392,25 +390,37 @@ class DAO_Worker extends DevblocksORMHelper {
 		}
 	}
 	
-	static function getAgentTeams($agent_id) {
+	/**
+	 * @return Model_TeamMember[]
+	 */
+	static function getGroupMemberships($agent_id) {
 		if(empty($agent_id)) return;
 		$db = DevblocksPlatform::getDatabaseService();
 		$ids = array();
 		
-		$sql = sprintf("SELECT wt.team_id FROM worker_to_team wt WHERE wt.agent_id = %d",
+		$sql = sprintf("SELECT wt.team_id, wt.is_manager ".
+			"FROM worker_to_team wt ".
+			"WHERE wt.agent_id = %d ",
 			$agent_id
 		);
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
+		$groups = array();
+		
 		while(!$rs->EOF) {
-			$ids[] = intval($rs->fields['team_id']);
+			$team_id = intval($rs->fields['team_id']); 
+			$is_manager = intval($rs->fields['is_manager']);
+			
+			$member = new Model_TeamMember();
+			$member->id = $agent_id;
+			$member->team_id = $team_id;
+			$member->is_manager = $is_manager;
+			$groups[$team_id] = $member;
+			
 			$rs->MoveNext();
 		}
 		
-		if(empty($ids))
-			return array();
-		
-		return DAO_Group::getTeams($ids);
+		return $groups;
 	}
 	
 	// [TODO] Test where this is used
@@ -1393,6 +1403,10 @@ class DAO_Ticket extends DevblocksORMHelper {
 		return $tickets;
 	}
 	
+	static function updateWhere($fields, $where) {
+		parent::_updateWhere('ticket', $fields, $where);
+	}
+	
 	static function updateTicket($id,$fields) {
 //		$db = DevblocksPlatform::getDatabaseService();
 //		$sets = array();
@@ -1673,6 +1687,8 @@ class DAO_Ticket extends DevblocksORMHelper {
 			"t.subject as %s, ".
 			"t.is_closed as %s, ".
 			"t.is_deleted as %s, ".
+//			"t.first_wrote_address_id as %s, ".
+//			"t.last_wrote_address_id as %s, ".
 			"a1.email as %s, ".
 			"a2.email as %s, ".
 			"t.created_date as %s, ".
@@ -1699,6 +1715,8 @@ class DAO_Ticket extends DevblocksORMHelper {
 			    SearchFields_Ticket::TICKET_SUBJECT,
 			    SearchFields_Ticket::TICKET_CLOSED,
 			    SearchFields_Ticket::TICKET_DELETED,
+//			    SearchFields_Ticket::TICKET_FIRST_WROTE_ID,
+//			    SearchFields_Ticket::TICKET_LAST_WROTE_ID,
 			    SearchFields_Ticket::TICKET_FIRST_WROTE,
 			    SearchFields_Ticket::TICKET_LAST_WROTE,
 			    SearchFields_Ticket::TICKET_CREATED_DATE,
@@ -1758,8 +1776,10 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 	const TICKET_CLOSED = 't_is_closed';
 	const TICKET_DELETED = 't_is_deleted';
 	const TICKET_SUBJECT = 't_subject';
-	const TICKET_LAST_WROTE = 't_last_wrote';
+	const TICKET_FIRST_WROTE_ID = 't_first_wrote_id';
 	const TICKET_FIRST_WROTE = 't_first_wrote';
+	const TICKET_LAST_WROTE_ID = 't_last_wrote_id';
+	const TICKET_LAST_WROTE = 't_last_wrote';
 	const TICKET_CREATED_DATE = 't_created_date';
 	const TICKET_UPDATED_DATE = 't_updated_date';
 	const TICKET_DUE_DATE = 't_due_date';
@@ -1780,7 +1800,6 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 	const TICKET_MESSAGE_CONTENT = 'mc_content';
     
 	// Sender
-	const SENDER_ID = 'a1_id';
 	const SENDER_ADDRESS = 'a1_address';
 	
 	// Requester
@@ -1801,8 +1820,10 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 			SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchField(SearchFields_Ticket::TICKET_CLOSED, 't', 'is_closed'),
 			SearchFields_Ticket::TICKET_DELETED => new DevblocksSearchField(SearchFields_Ticket::TICKET_DELETED, 't', 'is_deleted'),
 			SearchFields_Ticket::TICKET_SUBJECT => new DevblocksSearchField(SearchFields_Ticket::TICKET_SUBJECT, 't', 'subject'),
-			SearchFields_Ticket::TICKET_LAST_WROTE => new DevblocksSearchField(SearchFields_Ticket::TICKET_LAST_WROTE, 'a2', 'email'),
+			SearchFields_Ticket::TICKET_FIRST_WROTE_ID => new DevblocksSearchField(SearchFields_Ticket::TICKET_FIRST_WROTE_ID, 't', 'first_wrote_address_id'),
 			SearchFields_Ticket::TICKET_FIRST_WROTE => new DevblocksSearchField(SearchFields_Ticket::TICKET_FIRST_WROTE, 'a1', 'email'),
+			SearchFields_Ticket::TICKET_LAST_WROTE_ID => new DevblocksSearchField(SearchFields_Ticket::TICKET_LAST_WROTE_ID, 't', 'last_wrote_address_id'),
+			SearchFields_Ticket::TICKET_LAST_WROTE => new DevblocksSearchField(SearchFields_Ticket::TICKET_LAST_WROTE, 'a2', 'email'),
 			SearchFields_Ticket::TICKET_CREATED_DATE => new DevblocksSearchField(SearchFields_Ticket::TICKET_CREATED_DATE, 't', 'created_date'),
 			SearchFields_Ticket::TICKET_UPDATED_DATE => new DevblocksSearchField(SearchFields_Ticket::TICKET_FIRST_WROTE, 't', 'updated_date'),
 			SearchFields_Ticket::TICKET_DUE_DATE => new DevblocksSearchField(SearchFields_Ticket::TICKET_DUE_DATE, 't', 'due_date'),
@@ -1822,7 +1843,6 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 			SearchFields_Ticket::REQUESTER_ID => new DevblocksSearchField(SearchFields_Ticket::REQUESTER_ID, 'ra', 'id'),
 			SearchFields_Ticket::REQUESTER_ADDRESS => new DevblocksSearchField(SearchFields_Ticket::REQUESTER_ADDRESS, 'ra', 'email'),
 			
-			SearchFields_Ticket::SENDER_ID => new DevblocksSearchField(SearchFields_Ticket::SENDER_ID, 'a1', 'id'),
 			SearchFields_Ticket::SENDER_ADDRESS => new DevblocksSearchField(SearchFields_Ticket::SENDER_ADDRESS, 'a1', 'email'),
 			
 			SearchFields_Ticket::TEAM_ID => new DevblocksSearchField(SearchFields_Ticket::TEAM_ID,'tm','id'),
@@ -2490,18 +2510,17 @@ class DAO_Group {
 	 * @param string $name
 	 * @return integer
 	 */
-	static function createTeam($name) {
-		if(empty($name))
-			return;
-		
+	static function createTeam($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
 		$newId = $db->GenID('generic_seq');
 		
-		$sql = sprintf("INSERT INTO team (id, name, signature) VALUES (%d,%s,'')",
-			$newId,
-			$db->qstr($name)
+		$sql = sprintf("INSERT INTO team (id, name, signature) ".
+			"VALUES (%d,'','')",
+			$newId
 		);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		self::updateTeam($newId, $fields);
 		
 		$cache = DevblocksPlatform::getCacheService();
 		$cache->remove(self::CACHE_ALL);
@@ -2558,6 +2577,11 @@ class DAO_Group {
 		);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 
+		$sql = sprintf("DELETE FROM mail_routing WHERE team_id = %d",
+			$id
+		);
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
 		$sql = sprintf("DELETE FROM team_routing_rule WHERE team_id = %d",
 			$id
 		);
@@ -2569,77 +2593,52 @@ class DAO_Group {
 		$cache->remove(self::CACHE_ALL);
 	}
 	
-    static function addTeamWorkers($team_id, $worker_ids=array()) {
-        if(!is_array($worker_ids)) $worker_ids = array($worker_ids);
-        
-        if(empty($worker_ids) || empty($team_id))
+	static function setTeamMember($team_id, $worker_id, $is_manager=false) {
+        if(empty($worker_id) || empty($team_id))
             return FALSE;
-            
+		
         $db = DevblocksPlatform::getDatabaseService();
         
-        foreach($worker_ids as $worker_id) {
-	        $db->Replace(
-	            'worker_to_team',
-	            array('agent_id' => $worker_id, 'team_id' => $team_id),
-	            array('agent_id','team_id')
-	        );
-        }
-    }
-    
-    static function removeTeamWorkers($team_id, $worker_ids=array()) {
-        if(!is_array($worker_ids)) $worker_ids = array($worker_ids);
-        
-        if(empty($worker_ids) || empty($team_id))
+        $db->Replace(
+            'worker_to_team',
+            array('agent_id' => $worker_id, 'team_id' => $team_id, 'is_manager' => ($is_manager?1:0)),
+            array('agent_id','team_id')
+        );
+	}
+	
+	static function unsetTeamMember($team_id, $worker_id) {
+        if(empty($worker_id) || empty($team_id))
             return FALSE;
             
         $db = DevblocksPlatform::getDatabaseService();
         
 		$sql = sprintf("DELETE FROM worker_to_team WHERE team_id = %d AND agent_id IN (%s)",
 		    $team_id,
-		    implode(',', $worker_ids)
+		    $worker_id
 		);
 		$db->Execute($sql);
-    }
-
-	static function setTeamWorkers($team_id, $agent_ids) {
-		if(!is_array($agent_ids)) $agent_ids = array($agent_ids);
-		if(empty($team_id)) return;
-		$db = DevblocksPlatform::getDatabaseService();
-
-		$sql = sprintf("DELETE FROM worker_to_team WHERE team_id = %d",
-			$team_id
-		);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-		foreach($agent_ids as $agent_id) {
-			$sql = sprintf("INSERT INTO worker_to_team (agent_id, team_id) ".
-				"VALUES (%d,%d)",
-				$agent_id,
-				$team_id
-			);
-			$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-		}
 	}
 	
-	static function getTeamWorkers($team_id) {
-		if(empty($team_id)) return;
+	static function getTeamMembers($team_id) {
 		$db = DevblocksPlatform::getDatabaseService();
-		$ids = array();
+		$members = array();
 		
-		$sql = sprintf("SELECT wt.agent_id FROM worker_to_team wt WHERE wt.team_id = %d",
-			$team_id
-		);
+		$sql = "SELECT wt.agent_id, wt.is_manager ".
+			"FROM worker_to_team wt ".
+			(!empty($id) ? sprintf("WHERE wt.team_id = %d ", $team_id) : " ")
+		;
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		while(!$rs->EOF) {
-			$ids[] = intval($rs->fields['agent_id']);
+			$member = new Model_TeamMember();
+			$member->id = intval($rs->fields['agent_id']);
+			$member->is_manager = intval($rs->fields['is_manager']);
+			$member->team_id = intval($rs->fields['team_id']);
+			$members[$member->id] = $member;
 			$rs->MoveNext();
 		}
 		
-		if(empty($ids))
-			return array();
-		
-		return DAO_Worker::getList($ids);
+		return $members;
 	}
 	
 };

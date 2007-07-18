@@ -76,7 +76,9 @@
 			{foreach from=$statuses item=k key=v}
 			<option value="{$v}">{$k}</option>
 			{/foreach}
+			{if $active_worker && ($active_worker->is_superuser || $active_worker->can_delete)}
 			<option value="2">Deleted</option>
+			{/if}
 		</select></td>
 	</tr>
 	<tr>

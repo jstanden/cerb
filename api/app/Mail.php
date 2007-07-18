@@ -88,7 +88,7 @@ class CerberusMail {
 		$ticket_id = $message->ticket_id;
 		$ticket = DAO_Ticket::getTicket($ticket_id);
 
-		if($ticket->spam_training == "") {
+		if($ticket->spam_training == CerberusTicketSpamTraining::BLANK) {
 			CerberusBayes::markTicketAsNotSpam($ticket_id);
 		} 
 		

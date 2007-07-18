@@ -38,7 +38,9 @@
 	{if $ticket->is_deleted}
 		<button type="button" onclick="this.form.deleted.value=0;this.form.closed.value=0;this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete_gray.gif{/devblocks_url}" align="top"> Undelete</button>
 	{else}
+		{if $active_worker && ($active_worker->is_superuser || $active_worker->can_delete)}
 		<button type="button" onclick="this.form.deleted.value=1;this.form.closed.value=1;this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> Delete</button>
+		{/if}
 	{/if}
 	
 	{if !$ticket->is_deleted}

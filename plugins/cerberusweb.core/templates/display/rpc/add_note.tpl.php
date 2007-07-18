@@ -17,7 +17,7 @@
 	</tr>
 	<tr>
 		<td nowrap="nowrap" valign="top">
-			<button type="button" onclick="genericAjaxPost('reply{$message->id}','{$message->id}notes','c=display&a=doAddNote');toggleDiv('reply{$message->id}','none');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> Add Note</button>
+			<button type="button" onclick="genericAjaxPost('reply{$message->id}','{$message->id}notes','c=display&a=doAddNote');clearDiv('reply{$message->id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> Add Note</button>
 			<button type="button" onclick="clearDiv('reply{$message->id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> Cancel</button>
 		</td>
 	</tr>

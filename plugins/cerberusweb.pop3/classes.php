@@ -62,7 +62,6 @@ class Pop3Cron extends CerberusCronPageExtension {
 
         $timeout = ini_get('max_execution_time');
 		$max_downloads = $this->getParam('max_messages', (($timeout) ? 20 : 50));
-
         
         // [JAS]: Make sure our output directory is writeable
 	    if(!is_writable(APP_MAIL_PATH . 'new' . DIRECTORY_SEPARATOR)) {

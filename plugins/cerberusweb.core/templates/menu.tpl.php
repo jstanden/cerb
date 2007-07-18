@@ -4,8 +4,10 @@
 		{if !empty($visit)}
 			{foreach from=$pages item=m}
 				{if !empty($m->manifest->params.menutitle)}
+					{if $m->id=="core.page.configuration" && !$active_worker->is_superuser}{*Messy Hack*}{else}
 					<td width="0%" nowrap="nowrap" {if $page->id==$m->id}id="headerMenuSelected"{/if}><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/spacer.gif{/devblocks_url}" width="10" height="1"><a href="{devblocks_url}c={$m->manifest->params.uri}{/devblocks_url}">{$m->manifest->params.menutitle|lower}</a><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/spacer.gif{/devblocks_url}" width="10" height="1"></td>
 					<td width="0%" nowrap="nowrap" valign="bottom"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/menuSep.gif{/devblocks_url}"></td>
+					{/if}
 				{/if}
 			{/foreach}
 		{/if}

@@ -233,11 +233,16 @@ class CerberusWorker {
 	public $last_name;
 	public $email;
 	public $title;
+	public $is_superuser=0;
+	public $can_delete=0;
 	public $last_activity;
 	public $last_activity_date;
 	
-	function getTeams() {
-		return DAO_Worker::getAgentTeams($this->id);
+	/**
+	 * @return Model_TeamMember[]
+	 */
+	function getMemberships() {
+		return DAO_Worker::getGroupMemberships($this->id);
 	}
 	
 	function getName() {
@@ -649,61 +654,18 @@ class Model_Attachment {
 		if (!empty($this->filepath))
 	        return file_get_contents($file_path.$this->filepath,false);
 	}
-	
-//	public function getMimeType() {
-////	    [TODO] mime_content_type() or php_fileinfo.dll?
-//	    
-//        if(false === ($lpos = strrpos($this->filepath,'.'))) {
-//            return("application/octet-stream");
-//        }
-//
-//		$ext = strtolower(substr($this->filepath,$lpos));
-//		 
-//		$mimetype = array( 
-//		    'bmp'=>'image/bmp',
-//		    'doc'=>'application/msword', 
-//		    'gif'=>'image/gif',
-//		    'gz'=>'application/x-gzip-compressed',
-//		    'htm'=>'text/html', 
-//		    'html'=>'text/html', 
-//		    'jpeg'=>'image/jpeg', 
-//		    'jpg'=>'image/jpeg', 
-//		    'mp3'=>'audio/x-mp3',
-//		    'pdf'=>'application/pdf', 
-//		    'php'=>'text/plain', 
-//		    'swf'=>'application/x-shockwave-flash',
-//		    'tar'=>'application/x-tar',
-//		    'tgz'=>'application/x-gzip-compressed',
-//		    'tif'=>'image/tiff',
-//		    'tiff'=>'image/tiff',
-//		    'txt'=>'text/plain', 
-//		    'vsd'=>'application/vnd.visio',
-//		    'vss'=>'application/vnd.visio',
-//		    'vst'=>'application/vnd.visio',
-//		    'vsw'=>'application/vnd.visio',
-//		    'wav'=>'audio/x-wav',
-//		    'xls'=>'application/vnd.ms-excel',
-//		    'xml'=>'text/xml',
-//		    'zip'=>'application/x-zip-compressed' 
-//		    ); 
-//		        
-//		if(isset($mimetype[$ext])) {
-//			return($mimetype[$ext]);
-//		} else {
-//			return("application/octet-stream");
-//		}
-//	}
-	
 };
 
 class CerberusTeam {
 	public $id;
 	public $name;
 	public $count;
-	
-	function getWorkers() {
-		return DAO_Group::getTeamWorkers($this->id);
-	}
+}
+
+class Model_TeamMember {
+	public $id;
+	public $team_id;
+	public $is_manager = 0;
 }
 
 class CerberusCategory {
