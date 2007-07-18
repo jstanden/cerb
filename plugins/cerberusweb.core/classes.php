@@ -736,6 +736,12 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl->assign('active_dashboard_id', $active_dashboard_id);
 		$tpl->assign('dashboard_team_id', $team_id);
 
+	    $active_worker = CerberusApplication::getActiveWorker();
+	    if(!empty($active_worker)) {
+	    	$active_worker_memberships = $active_worker->getMemberships();
+	    	$tpl->assign('active_worker_memberships', $active_worker_memberships);
+	    }
+		
 		$teams = DAO_Group::getAll();
 		$tpl->assign('teams', $teams);
 		
