@@ -14,7 +14,7 @@
 <!-- {if !empty($ticket->interesting_words)}<b>Interesting Words:</b> {$ticket->interesting_words}<br>{/if} -->
 <!-- <b>Next Action:</b> <input type="text" name="next_step" size="80" value="{$ticket->next_action}" maxlength="255"><br>  -->
 <br>
-
+<div id="tourDisplayProperties"></div>
 <form action="{devblocks_url}{/devblocks_url}" method="post">
 	<input type="hidden" name="c" value="display">
 	<input type="hidden" name="a" value="updateProperties">
@@ -66,11 +66,14 @@
 </form>
 <br>
 
-<div style="padding:2px;">
+<div style="padding:2px; position: relative;">
+	
+	<div id="tourDisplayManageRecipients" style="position: absolute; left: 100;"></div>
+	<div id="tourDisplayContactHistory" style="position: absolute; left: 200;"></div> 
+	
 	<div class="block">
 		<h2>Advanced Options</h2>
-		
-		[ <a href="javascript:;" onclick="genericAjaxGet('displayAdvancedOptions','c=display&a=showManageRecipients&ticket_id={$ticket->id}');">manage recipients</a> ] 
+		[ <a href="javascript:;" onclick="genericAjaxGet('displayAdvancedOptions','c=display&a=showManageRecipients&ticket_id={$ticket->id}');">manage recipients</a> ]
 		[ <a href="javascript:;" onclick="genericAjaxGet('displayAdvancedOptions','c=display&a=showContactHistory&ticket_id={$ticket->id}');">contact history</a> ] 
 
 		<div id="displayAdvancedOptions" style="padding:5px;background-color:rgb(255,255,255);"></div>

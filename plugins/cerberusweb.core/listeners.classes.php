@@ -66,9 +66,9 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension implements IDevb
         'tourDashboardActions' => new DevblocksTourCallout('tourDashboardActions','Dashboard Actions','This is where you may change your active dashboard.'),
         'tourDashboardViews' => new DevblocksTourCallout('tourDashboardViews','Ticket Lists','This is where your customized lists of tickets are displayed.'),
         'tourDashboardBatch' => new DevblocksTourCallout('tourDashboardBatch','Batch Updates','Here you may perform multiple actions to any list of tickets.  Use a batch update for actions you use infrequently.'),
-        'tourDisplayTasks' => new DevblocksTourCallout('tourDisplayTasks','Tasks','Tasks allow a team to share responsibilities with other teams or individual workers.  Here you can manage this ticket\'s tasks.'),
         'tourDisplayProperties' => new DevblocksTourCallout('tourDisplayProperties','Properties','This is where you can change the properties of the current ticket.'),
-        'tourDisplayRequesters' => new DevblocksTourCallout('tourDisplayRequesters','Requesters','Situations often arise where your points-of-contact change.  These are the people who will currently receive updates about this ticket.'),
+        'tourDisplayManageRecipients' => new DevblocksTourCallout('tourDisplayManageRecipients','Recipients','Situations often arise where your points-of-contact change.  These are the people who will currently receive updates about this ticket.'),
+        'tourDisplayContactHistory' => new DevblocksTourCallout('tourDisplayContactHistory','Contact History','All of your previous conversations with this customer are a click away.'),
         'tourDisplayConversation' => new DevblocksTourCallout('tourDisplayConversation','Conversation','This is where all e-mail replies will be displayed for this ticket.  Your responses will be sent to all requesters.'),
         'tourConfigMaintPurge' => new DevblocksTourCallout('tourConfigMaintPurge','Purge Deleted','Here you may purge any deleted tickets from the database.'),
         'tourDashboardSearchCriteria' => new DevblocksTourCallout('tourDashboardSearchCriteria','Search Criteria','Here you can change the criteria of the current search.'),
@@ -101,8 +101,8 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension implements IDevb
                 'body' => "This screen displays the currently selected ticket.  Here you can modify the ticket or send a new reply to all requesters.",
                 'callouts' => array(
                 $callouts['tourDisplayProperties'],
-                $callouts['tourDisplayTasks'],
-                $callouts['tourDisplayRequesters'],
+                $callouts['tourDisplayManageRecipients'],
+                $callouts['tourDisplayContactHistory'],
                 $callouts['tourDisplayConversation'],
                 )
                 );
