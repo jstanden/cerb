@@ -231,15 +231,32 @@ class ChTicketsPage extends CerberusPageExtension {
 	}
 	
 	function getActivity() {
-	    return new Model_Activity('activity.tickets');
+		$visit = CerberusApplication::getVisit();
+		$team_name = "";
+		
+		/*
+		 * [TODO] This could be a lot cleaner.  The visit could save so much of this 
+		 * nonsense clutter by just caching the team_id and team_name of the current
+		 * workspace.
+		 */
+		$active_dashboard_id = $visit->get(CerberusVisit::KEY_DASHBOARD_ID, 0);
+		if(0 == strcmp('t',substr($active_dashboard_id,0,1))) {
+			$team_id = intval(substr($active_dashboard_id,1));
+			if(null !== ($team = DAO_Group::getTeam($team_id))) {
+				$team_name = $team->name;
+			}
+		}
+		
+		return new Model_Activity('activity.tickets',array(
+	    	$team_name
+	    ));
 	}
 	
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 
-		$session = DevblocksPlatform::getSessionService();
-		$visit = $session->getVisit();
+		$visit = CerberusApplication::getVisit();
 		
 		$response = DevblocksPlatform::getHttpResponse();
 		@$section = $response->path[1];

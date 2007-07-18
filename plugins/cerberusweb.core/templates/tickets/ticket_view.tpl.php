@@ -34,7 +34,7 @@
 
 <table cellpadding="0" cellspacing="0" border="0" class="tableBlue" width="100%" class="tableBg">
 	<tr>
-		<td nowrap="nowrap" class="tableThBlue">{$view->name}</td>
+		<td nowrap="nowrap" class="tableThBlue">{$view->name} {if $view->id == 'search'}<a href="#{$view->id}_actions" style="color:rgb(255,255,255);font-size:11px;">jump to actions</a>{/if}</td>
 		<td nowrap="nowrap" class="tableThBlue" align="right">
 			<a href="javascript:;" onclick="ajax.getRefresh('{$view->id}');" class="tableThLink">{$translate->_('common.refresh')|lower}</a><span style="font-size:12px"> | </span>
 			{if $view->id != 'contact_history'}<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/information.gif{/devblocks_url}" align="absmiddle"><a href="javascript:;" onclick="genericAjaxGet('{$view->id}_tips','c=tickets&a=showViewAutoAssist&view_id={$view->id}');toggleDiv('{$view->id}_tips','block');" class="tableThLink">{"super sort"|lower}</a><span style="font-size:12px"> | </span>{/if}
@@ -190,7 +190,7 @@
 	{/foreach}
 	
 </table>
-<table cellpadding="2" cellspacing="0" border="0" width="100%" class="tableBg">
+<table cellpadding="2" cellspacing="0" border="0" width="100%" class="tableBg" id="{$view->id}_actions">
 	{if $total}
 	<tr>
 		<td colspan="2">

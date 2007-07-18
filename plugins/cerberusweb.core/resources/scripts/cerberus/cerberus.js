@@ -170,6 +170,8 @@ var cAjaxCalls = function() {
 					var view_id = o.argument.view_id;
 					caller.getRefresh(view_id);
 					
+					document.location = '#top';
+					
 					genericAjaxGet('dashboardPanel','c=tickets&a=refreshTeamFilters');
 				},
 				failure: function(o) {},

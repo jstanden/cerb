@@ -118,7 +118,7 @@
 		</tu>
 
 		<tu tuid='activity.tickets'>
-			<tuv xml:lang="en"><seg>is browsing tickets</seg></tuv>
+			<tuv xml:lang="en"><seg>is browsing %s tickets</seg></tuv>
 		</tu>
 
 		<!-- Header -->
