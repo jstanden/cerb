@@ -1965,9 +1965,10 @@ class ChTicketsPage extends CerberusPageExtension {
 		}
 		
 		$search_view = $viewManager->getView(CerberusApplication::VIEW_SEARCH);
-        $search_view->params = $params;
+		$search_view->params = $params;
+		$search_view->renderPage = 0;
 		$viewManager->setView($search_view->id, $search_view);
-		
+
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','search')));
 	}
 	
