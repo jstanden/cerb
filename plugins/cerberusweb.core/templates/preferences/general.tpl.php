@@ -3,11 +3,12 @@
 <div class="block">
 <h2>General</h2>
 
-<form action="{devblocks_url}{/devblocks_url}" method="post">
+<form action="{devblocks_url}{/devblocks_url}" onsubmit="pwsMatch=(this.change_pass.value==this.change_pass_verify.value);if(!pwsMatch)document.getElementById('preferences_error').innerHTML='The passwords entered do not match.  Try again.';return pwsMatch;" method="post">
 <input type="hidden" name="c" value="preferences">
 <input type="hidden" name="a" value="saveDefaults">
 
 <b>Change Password:</b><br>
+<div id="preferences_error" style="color: red; font-weight: bold;"></div>
 New Password <input type="password" name="change_pass" value=""><br>
 Verify Password <input type="password" name="change_pass_verify"=""><br><br>
 
