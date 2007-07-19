@@ -112,7 +112,7 @@ class CerberusParser {
 		}
 		
 		// Subject
-		$sSubject = isset($headers['subject']) ? $headers['subject'] : '(no subject)';
+		$sSubject = (isset($headers['subject']) && !empty($headers['subject'])) ? $headers['subject'] : '(no subject)';
 		
 		// If quote printable subject
 		if(0 == strcmp(substr($sSubject,0,2),'=?')) {

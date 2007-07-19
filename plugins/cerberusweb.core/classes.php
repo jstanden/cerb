@@ -3656,6 +3656,8 @@ class ChSignInPage extends CerberusPageExtension {
 	function signoutAction() {
 //		echo "Sign out: " . __CLASS__ . "->" . __FUNCTION__ . "!<br>";
 		$session = DevblocksPlatform::getSessionService();
+		$visit = $session->getVisit();
+		DAO_Worker::logActivity($visit->getWorker()->id, new Model_Activity(null));
 		$session->clear();
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('login')));
 	}
