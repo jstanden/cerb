@@ -2612,7 +2612,7 @@ class DAO_Group {
             
         $db = DevblocksPlatform::getDatabaseService();
         
-		$sql = sprintf("DELETE FROM worker_to_team WHERE team_id = %d AND agent_id IN (%s)",
+		$sql = sprintf("DELETE FROM worker_to_team WHERE team_id = %d AND agent_id IN (%d)",
 		    $team_id,
 		    $worker_id
 		);
@@ -2625,7 +2625,7 @@ class DAO_Group {
 		
 		$sql = "SELECT wt.agent_id, wt.is_manager ".
 			"FROM worker_to_team wt ".
-			(!empty($id) ? sprintf("WHERE wt.team_id = %d ", $team_id) : " ")
+			(!empty($team_id) ? sprintf("WHERE wt.team_id = %d ", $team_id) : " ")
 		;
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		

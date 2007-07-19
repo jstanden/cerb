@@ -21,11 +21,11 @@
 				<td style="padding-left:20px;">{$worker->getName()}{if !empty($worker->title)} (<span style="color:rgb(0,120,0);">{$worker->title}</span>){/if}</td>
 				<td align="right"><button type="button" onclick="this.form.worker_id.value='{$member_id}';this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="middle"></button></td>
 			</tr>
-		{/if}	
+		{/if}
 	{/foreach}
 	
 	<tr>
-		<td colspan="2"><h2>Members</h2></td>
+		<td colspan="2"><br><h2>Members</h2></td>
 	</tr>
 	
 	{foreach from=$members item=member key=member_id name=members}
@@ -49,10 +49,9 @@
 	<input type="hidden" name="team_id" value="{$team->id}">
 	<h2>Add:</h2>
 	<select name="worker_ids[]" size="5" multiple="multiple">
-		{foreach from=$available_workers item=worker name=workers key=worker_id}
-			{if !isset($members.$worker_id)}
+		{foreach from=$available_workers item=member name=members key=member_id}
+			{assign var=worker value=$workers.$member_id}
 			<option value="{$worker->id}">{$worker->getName()}{if !empty($worker->title)} ({$worker->title}){/if}</option>
-			{/if}
 		{/foreach}
 	</select>
 	<label><input type="radio" name="is_manager" value="0" checked> Member</label>

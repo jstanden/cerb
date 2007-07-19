@@ -369,7 +369,7 @@ class ChTicketsPage extends CerberusPageExtension {
 					    
 					    $available_workers = array();
 					    foreach($workers as $worker) {
-					    	if(!isset($members[$worker->id]))
+//					    	if(!isset($members[$worker->id]))
 					    		$available_workers[$worker->id] = $worker;
 					    }
 					    $tpl->assign('available_workers', $available_workers);
