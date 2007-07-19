@@ -68,6 +68,9 @@ class DefaultLoginModule extends CerberusLoginPageExtension {
 			$visit = new CerberusVisit();
 				$visit->setWorker($worker);
 				
+			$memberships = DAO_Worker::getGroupMemberships($worker->id);
+			$visit->set(CerberusVisit::KEY_DASHBOARD_ID, 't'.key($memberships));
+				
 			$session->setVisit($visit);
 			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('welcome')));
 			return true;

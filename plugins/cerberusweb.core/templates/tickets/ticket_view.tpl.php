@@ -27,25 +27,26 @@
 	<tr class="tableTh">
 		<th style="text-align:center"><input type="checkbox" onclick="checkAll('view{$view->id}',this.checked);"></th>
 		{foreach from=$view->view_columns item=header name=headers}
-			{* start table header *}
-			{if $header=="t_mask"}					<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_mask');">{$translate->_('ticket.id')}</a>
-		{*	{elseif $header=="t_priority"}			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_priority');">{$translate->_('ticket.priority')}</a>*}
-			{elseif $header=="t_last_wrote"}		<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_last_wrote');">{$translate->_('ticket.last_wrote')}</a>
-			{elseif $header=="t_first_wrote"}		<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_first_wrote');">{$translate->_('ticket.first_wrote')}</a>
-			{elseif $header=="t_created_date"}		<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_created_date');">{$translate->_('ticket.created')}</a>
-			{elseif $header=="t_updated_date"}		<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_updated_date');">{$translate->_('ticket.updated')}</a>
-			{elseif $header=="t_due_date"}			<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_due_date');">{$translate->_('ticket.due')}</a>
-		{*	{elseif $header=="t_tasks"}				<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_tasks');">{$translate->_('common.tasks')}</a>*}
-			{elseif $header=="m_name"}				<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','m_name');">{$translate->_('ticket.mailbox')}</a>
-			{elseif $header=="t_spam_score"}		<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_spam_score');">{$translate->_('common.spam')}</a>
-			{elseif $header=="t_next_action"}		<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_next_action');">{$translate->_('ticket.next_action')}</a>
-			{elseif $header=="t_last_action_code"}	<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_last_action_code');">{$translate->_('ticket.last_action')}</a>
-			{elseif $header=="t_last_worker_id"}	<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_last_worker_id');">{$translate->_('ticket.last_worker')}</a>
-			{elseif $header=="tm_name"}				<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','tm_name');">{$translate->_('common.team')}</a>
-			{elseif $header=="t_category_id"}		<th><a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_category_id');">{$translate->_('common.bucket')|capitalize}</a></a>
+			{* start table header, insert column title and link *}
+			<th>
+			{if $header=="t_mask"}<a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_mask');">{$translate->_('ticket.id')}</a>
+		{*	{elseif $header=="t_priority"}<a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_priority');">{$translate->_('ticket.priority')}</a>*}
+			{elseif $header=="t_last_wrote"}<a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_last_wrote');">{$translate->_('ticket.last_wrote')}</a>
+			{elseif $header=="t_first_wrote"}<a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_first_wrote');">{$translate->_('ticket.first_wrote')}</a>
+			{elseif $header=="t_created_date"}<a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_created_date');">{$translate->_('ticket.created')}</a>
+			{elseif $header=="t_updated_date"}<a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_updated_date');">{$translate->_('ticket.updated')}</a>
+			{elseif $header=="t_due_date"}<a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_due_date');">{$translate->_('ticket.due')}</a>
+		{*	{elseif $header=="t_tasks"}<a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_tasks');">{$translate->_('common.tasks')}</a>*}
+			{elseif $header=="m_name"}<a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','m_name');">{$translate->_('ticket.mailbox')}</a>
+			{elseif $header=="t_spam_score"}<a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_spam_score');">{$translate->_('common.spam')}</a>
+			{elseif $header=="t_next_action"}<a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_next_action');">{$translate->_('ticket.next_action')}</a>
+			{elseif $header=="t_last_action_code"}<a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_last_action_code');">{$translate->_('ticket.last_action')}</a>
+			{elseif $header=="t_last_worker_id"}<a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_last_worker_id');">{$translate->_('ticket.last_worker')}</a>
+			{elseif $header=="tm_name"}<a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','tm_name');">{$translate->_('common.team')}</a>
+			{elseif $header=="t_category_id"}<a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_category_id');">{$translate->_('common.bucket')|capitalize}</a></a>
 			{/if}
 			
-			{* finish table header tag, add arrow if sorting by this column *}
+			{* add arrow if sorting by this column, finish table header tag *}
 			{if $header==$view->renderSortBy}
 				{if $view->renderSortAsc}	<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/arrow_up.gif{/devblocks_url}" align="absmiddle">
 				{else}						<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/arrow_down.gif{/devblocks_url}" align="absmiddle">{/if}
