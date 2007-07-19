@@ -676,8 +676,32 @@ class ChTicketsPage extends CerberusPageExtension {
 	// Ajax
 	function reportSpamAction() {
 	    @$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer');
+	    @$view_id = DevblocksPlatform::importGPC($_REQUEST['viewId'],'string');
 	    if(empty($id)) return;
 
+		$fields = array(
+				DAO_Ticket::IS_CLOSED => 1,
+				DAO_Ticket::IS_DELETED => 1,
+		);
+	    
+	    
+        //====================================
+	    // Undo functionality
+        $last_action = new Model_TicketViewLastAction();
+        $last_action->action = Model_TicketViewLastAction::ACTION_SPAM;
+
+		$last_action->ticket_ids[$id] = array(
+				DAO_Ticket::SPAM_TRAINING => CerberusTicketSpamTraining::BLANK,
+				DAO_Ticket::SPAM_SCORE => 0.5000, // [TODO] Fix
+				DAO_Ticket::IS_CLOSED => 0,
+				DAO_Ticket::IS_DELETED => 0
+		);
+
+        $last_action->action_params = $fields;
+        
+        CerberusDashboardView::setLastAction($view_id,$last_action);
+        //====================================	    
+	    
 	    CerberusBayes::markTicketAsSpam($id);
 	    
 	    // [TODO] Move categories (according to config)
@@ -686,6 +710,23 @@ class ChTicketsPage extends CerberusPageExtension {
 	        DAO_Ticket::IS_CLOSED => CerberusTicketStatus::CLOSED
 	    );
 	    DAO_Ticket::updateTicket($id, $fields);
+	    
+	    $tpl = DevblocksPlatform::getTemplateService();
+		$path = dirname(__FILE__) . '/templates/';
+		$tpl->assign('path', $path);
+
+	    $visit = CerberusApplication::getVisit();
+		$viewManager = $visit->get(CerberusVisit::KEY_VIEW_MANAGER); /* @var $viewManager CerberusStaticViewManager */
+		$view = $viewManager->getView($view_id);
+		$tpl->assign('view', $view);
+		
+		if(!empty($last_action) && !is_null($last_action->ticket_ids)) {
+			$tpl->assign('last_action_count', count($last_action->ticket_ids));
+		}
+		
+		$tpl->assign('last_action', $last_action);
+		$tpl->cache_lifetime = "0";
+		$tpl->display($path.'tickets/rpc/ticket_view_output.tpl.php');
 	} 
 	
 	// Post

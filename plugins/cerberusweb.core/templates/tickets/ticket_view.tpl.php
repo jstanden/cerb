@@ -1,37 +1,6 @@
-{if !empty($last_action)}
-<div id="{$view->id}_output" style="position:relative;margin:10px;padding:5px;border:1px solid rgb(200,200,200);background-color:rgb(250,250,150);">
-		<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/information.gif{/devblocks_url}" align="absmiddle"> 
-	
-		{$last_action_count} ticket{if $last_action_count!=1}s{/if} 
-	
-		{if $last_action->action == 'spam'}
-			marked spam.
-		{elseif $last_action->action == 'not_spam'}
-			marked not spam.
-		{elseif $last_action->action == 'delete'}
-			deleted.
-		{elseif $last_action->action == 'close'}
-			closed.
-		{elseif $last_action->action == 'move'}
-			{assign var=moved_to_team_id value=$last_action->action_params.team_id}
-			{assign var=moved_to_category_id value=$last_action->action_params.category_id}
-	
-			moved to 
-			{if empty($moved_to_category_id)}
-				'{$teams.$moved_to_team_id->name}'.
-			{else}
-				{assign var=moved_team_category value=$team_categories.$moved_to_team_id}
-				'{$teams.$moved_to_team_id->name}: {$moved_team_category.$moved_to_category_id->name}'.
-			{/if}
-		{/if}
-		
-		( <a href="javascript:;" onclick="ajax.viewUndo('{$view->id}');" style="font-weight:bold;">Undo</a> )
-		<span style="position:absolute; right:15;">
-		<a href="javascript:;" onclick="toggleDiv('{$view->id}_output','none');genericAjaxGet('','c=tickets&a=viewUndo&view_id={$view->id}&clear=1');" style="">close</a>
-		</span> 
+<div id="{$view->id}_output_container">
+	{include file="file:$path/tickets/rpc/ticket_view_output.tpl.php"}
 </div>
-{/if}
-
 <table cellpadding="0" cellspacing="0" border="0" class="tableBlue" width="100%" class="tableBg">
 	<tr>
 		<td nowrap="nowrap" class="tableThBlue">{$view->name} {if $view->id == 'search'}<a href="#{$view->id}_actions" style="color:rgb(255,255,255);font-size:11px;">jump to actions</a>{/if}</td>
@@ -171,7 +140,7 @@
 				{if empty($result.t_spam_training)}
 				<!---<a href="javascript:;"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/warning.gif{/devblocks_url}" align="top" border="0" title="Not Spam ({$score})"></a>--->
 				<!---<a href="javascript:;"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check_gray.gif{/devblocks_url}" align="top" border="0" title="Not Spam ({$score})"></a>--->
-				<a href="javascript:;" onclick="toggleDiv('{$rowIdPrefix}_s','none');toggleDiv('{$rowIdPrefix}','none');genericAjaxGet(null,'c=tickets&a=reportSpam&id={$result.t_id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/{if $result.t_spam_score >= .90}warning.gif{else}warning_gray.gif{/if}{/devblocks_url}" align="top" border="0" title="Report Spam ({$score})
+				<a href="javascript:;" onclick="toggleDiv('{$rowIdPrefix}_s','none');toggleDiv('{$rowIdPrefix}','none');genericAjaxGet('{$view->id}_output_container','c=tickets&a=reportSpam&id={$result.t_id}&viewId={$view->id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/{if $result.t_spam_score >= .90}warning.gif{else}warning_gray.gif{/if}{/devblocks_url}" align="top" border="0" title="Report Spam ({$score})
 				{if !empty($result.t_interesting_words)}{$result.t_interesting_words}{/if}"></a>
 				{/if}
 			</td>
