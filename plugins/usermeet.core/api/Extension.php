@@ -49,6 +49,8 @@
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
 abstract class Extension_UsermeetTool extends DevblocksExtension implements DevblocksHttpRequestHandler {
+	private $portal = '';
+	
     function __construct($manifest) {
         // [TODO] Refactor to __construct
         parent::DevblocksExtension($manifest);
@@ -88,6 +90,37 @@ abstract class Extension_UsermeetTool extends DevblocksExtension implements Devb
 	            break;
 	    }
 	}
+	
+	/**
+	 * @return Model_CommunitySession
+	 */
+	protected function getSession() {
+		$fingerprint = $this->getFingerprint();
+		
+		$session_id = md5($fingerprint['ip'] . $fingerprint['local_sessid']);
+		$session = DAO_CommunitySession::get($session_id);
+		
+		return $session;
+	}
+	
+	protected function getFingerprint() {
+		$sFingerPrint = DevblocksPlatform::importGPC($_COOKIE['GroupLoginPassport'],'string','');
+		$fingerprint = null;
+		if(!empty($sFingerPrint)) {
+			$fingerprint = unserialize($sFingerPrint);
+		}
+		return $fingerprint;
+	}
+	
+	// [TODO] Experimental ==========================================
+	public function setPortal($code) {
+		$this->portal = $code;
+	}
+	
+	public function getPortal() {
+		return $this->portal;
+	}
+	//===============================================================
 	
 	public function writeResponse(DevblocksHttpResponse $response) {
 	}

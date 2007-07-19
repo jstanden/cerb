@@ -48,23 +48,42 @@
  * 		and Joe Geck.
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-class UmPatchContainer extends DevblocksPatchContainerExtension {
-	
-	function __construct($manifest) {
-		parent::__construct($manifest);
-		
-		/*
-		 * [JAS]: Just add a sequential build number here (and update plugin.xml) and
-		 * write a case in runVersion().  You should comment the milestone next to your build 
-		 * number.
-		 */
-		
-		$file_prefix = dirname(__FILE__) . '/patches/';
-		
-		$this->registerPatch(new DevblocksPatch('usermeet.core',0,$file_prefix.'1.0.0.php',''));
-		$this->registerPatch(new DevblocksPatch('usermeet.core',1,$file_prefix.'1.0.0_beta.php',''));
-	}
+$db = DevblocksPlatform::getDatabaseService();
+$datadict = NewDataDictionary($db); /* @var $datadict ADODB_DataDict */ // ,'mysql' 
 
-};
+$tables = $datadict->MetaTables();
 
+// `community` ========================
+$columns = $datadict->MetaColumns('community', false, false);
+$indexes = $datadict->MetaIndexes('community',false);
+
+if(isset($columns['url'])) {
+	$sql = $datadict->DropColumnSQL('community', 'url');
+	$datadict->ExecuteSQLArray($sql);
+}
+
+// `community_session` ========================
+if(!isset($tables['community_session'])) {
+	$flds ="
+		session_id C(32) DEFAULT '' NOTNULL PRIMARY,
+		created I4 DEFAULT 0 NOTNULL,
+		updated I4 DEFAULT 0 NOTNULL,
+		properties B DEFAULT '' NOTNULL
+	";
+	$sql = $datadict->CreateTableSQL('community_session', $flds);
+	$datadict->ExecuteSQLArray($sql);
+}
+
+// `community_tool_property` ========================
+if(!isset($tables['community_tool_property'])) {
+	$flds ="
+		tool_code C(8) DEFAULT '' NOTNULL PRIMARY,
+		property_key C(64) DEFAULT '' NOTNULL PRIMARY,
+		property_value B DEFAULT '' NOTNULL
+	";
+	$sql = $datadict->CreateTableSQL('community_tool_property', $flds);
+	$datadict->ExecuteSQLArray($sql);
+}
+
+return TRUE;
 ?>

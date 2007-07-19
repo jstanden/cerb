@@ -52,5 +52,29 @@ class Model_CommunityTool {
     public $id = 0;
     public $community_id = 0;
     public $extension_id = '';
-}
+};
+
+class Model_CommunitySession {
+	public $session_id = '';
+	public $created = 0;
+	public $updated = 0;
+	private $_properties = array();
+
+	function setProperties($properties) {
+		$this->_properties = $properties;
+	}
+	
+	function getProperties() {
+		return $this->_properties;
+	}
+	
+	function setProperty($key, $value) {
+		$this->_properties[$key] = $value;
+		DAO_CommunitySession::save($this);
+	}
+	
+	function getProperty($key, $default = null) {
+		return isset($this->_properties[$key]) ? $this->_properties[$key] : $default;
+	}
+};
 ?>

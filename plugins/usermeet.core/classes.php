@@ -48,6 +48,7 @@
  * 		and Joe Geck.
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
+
 class UmPortalController extends DevblocksControllerExtension {
     const ID = 'usermeet.controller.portal';
 //    private $apps = array();
@@ -97,6 +98,7 @@ class UmPortalController extends DevblocksControllerExtension {
 	        // [TODO] Don't double instance any apps (add instance registry to ::getExtension?)
 	        $manifest = DevblocksPlatform::getExtension($tool->extension_id);
             $tool = $manifest->createInstance(); /* @var $app Extension_UsermeetTool */
+			$tool->setPortal($code); // [TODO] Kinda hacky
 	        return $tool->handleRequest(new DevblocksHttpRequest($stack));
         } else {
             die("Tool not found.");
@@ -116,6 +118,7 @@ class UmPortalController extends DevblocksControllerExtension {
 	        // [TODO] Don't double instance any apps (add instance registry to ::getExtension?)
 	        $manifest = DevblocksPlatform::getExtension($tool->extension_id);
             $tool = $manifest->createInstance(); /* @var $app Extension_UsermeetTool */
+			$tool->setPortal($code); // [TODO] Kinda hacky
 	        $tool->writeResponse(new DevblocksHttpResponse($stack));
         } else {
             die("Tool not found.");
@@ -197,16 +200,6 @@ class UmCommunityPage extends CerberusPageExtension {
 		array_shift($stack); // community
 		
 		switch(array_shift($stack)) {
-		    case 'add_tool':
-		        $communities = DAO_Community::getList();
-			    $tpl->assign('communities', $communities);
-		        
-			    // Tool Manifests
-			    $tools = DevblocksPlatform::getExtensions('usermeet.tool', false);
-			    $tpl->assign('tool_manifests', $tools);
-			    
-		        $tpl->display('file:' . dirname(__FILE__) . '/templates/community/add_tool.tpl.php');
-		        break;
 		        
 		    case 'add_widget':
 		        $communities = DAO_Community::getList();
@@ -245,6 +238,7 @@ class UmCommunityPage extends CerberusPageExtension {
 		        // Tool Manifest
 		        $toolManifest = DevblocksPlatform::getExtension($instance[SearchFields_CommunityTool::EXTENSION_ID]);
 		        $tool = $toolManifest->createInstance();
+		        $tool->setPortal($code); // [TODO] Kinda hacky
 		        $tpl->assign('tool', $tool);
 		        
 		        $tpl->display('file:' . dirname(__FILE__) . '/templates/community/tool_config.tpl.php');
@@ -287,15 +281,38 @@ class UmCommunityPage extends CerberusPageExtension {
 		
 	}
 	
+	// Facade
+	function saveConfigurationAction() {
+		@$code = DevblocksPlatform::importGPC($_POST['code'],'string');
+		
+        list($instances, $count) = DAO_CommunityTool::search(
+            array(
+                new DevblocksSearchCriteria(SearchFields_CommunityTool::CODE,DevblocksSearchCriteria::OPER_EQ,$code)
+            ),
+            1,
+            0,
+            null,
+            null,
+            false
+        );
+        $instance = array_shift($instances);
+		
+        if(null != ($toolManifest = DevblocksPlatform::getExtension($instance[SearchFields_CommunityTool::EXTENSION_ID]))) {
+        	$tool = $toolManifest->createInstance(); /* @var $app Extension_UsermeetTool */
+			$tool->setPortal($code); // [TODO] Kinda hacky
+	        $tool->handleRequest(new DevblocksHttpRequest(array('saveConfiguration')));
+        } else {
+            echo "Tool not found."; // [TODO] Better error handling
+        }
+	}
+	
 	function createCommunityAction() {
 	    @$name = DevblocksPlatform::importGPC($_POST['name'],'string');	    
-	    @$url = DevblocksPlatform::importGPC($_POST['url'],'string');
 
 	    if(empty($name)) return;
 	    
 	    $fields = array(
 	        DAO_Community::NAME => $name,
-	        DAO_Community::URL => $url,
 	    );
 	    $id = DAO_Community::create($fields);
 	    

@@ -3363,14 +3363,13 @@ class DAO_Kb {
 class DAO_Community extends DevblocksORMHelper {
     const ID = 'id';
     const NAME = 'name';
-    const URL = 'url';
     
 	public static function create($fields) {
 	    $db = DevblocksPlatform::getDatabaseService();
 		$id = $db->GenID('generic_seq');
 		
-		$sql = sprintf("INSERT INTO community (id,name,url) ".
-		    "VALUES (%d,'','')",
+		$sql = sprintf("INSERT INTO community (id,name) ".
+		    "VALUES (%d,'')",
 		    $id
 		);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
@@ -3397,7 +3396,7 @@ class DAO_Community extends DevblocksORMHelper {
 	    if(!is_array($ids)) $ids = array($ids);
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = "SELECT id,name,url ".
+		$sql = "SELECT id,name ".
 		    "FROM community ".
 		    (!empty($ids) ? sprintf("WHERE id IN (%s) ", implode(',', $ids)) : " ").
 		    "ORDER BY name ASC "
@@ -3410,7 +3409,6 @@ class DAO_Community extends DevblocksORMHelper {
 		    $object = new Model_Community();
 		    $object->id = intval($rs->fields['id']);
 		    $object->name = $rs->fields['name'];
-		    $object->url = $rs->fields['url'];
 		    $objects[$object->id] = $object;
 		    $rs->MoveNext();
 		}
@@ -3490,7 +3488,6 @@ class SearchFields_Community implements IDevblocksSearchFields {
 	// Table
 	const ID = 'c_id';
 	const NAME = 'c_name';
-	const URL = 'c_url';
 	
 	/**
 	 * @return DevblocksSearchField[]
@@ -3499,7 +3496,6 @@ class SearchFields_Community implements IDevblocksSearchFields {
 		return array(
 			SearchFields_Community::ID => new DevblocksSearchField(SearchFields_Community::ID, 'c', 'id'),
 			SearchFields_Community::NAME => new DevblocksSearchField(SearchFields_Community::NAME, 'c', 'name'),
-			SearchFields_Community::URL => new DevblocksSearchField(SearchFields_Community::URL, 'c', 'url'),
 		);
 	}
 };	

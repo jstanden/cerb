@@ -216,5 +216,138 @@ class SearchFields_CommunityTool implements IDevblocksSearchFields {
 	}
 };	
 
+class DAO_CommunityToolProperty {
+	const TOOL_CODE = 'tool_code';
+	const PROPERTY_KEY = 'property_key';
+	const PROPERTY_VALUE = 'property_value';
+	
+	static function get($tool_code, $key, $default=null) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = sprintf("SELECT property_value ".
+			"FROM community_tool_property ".
+			"WHERE tool_code = %s ".
+			"AND property_key = %s",
+			$db->qstr($tool_code),
+			$db->qstr($key)
+		);
+		$val = $db->GetOne($sql);
+		
+		return (!is_null($val)) ? $val : $default;
+	}
+	
+	static function set($tool_code, $key, $value) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$db->Replace(
+			'community_tool_property',
+			array(
+				self::TOOL_CODE => $tool_code,
+				self::PROPERTY_KEY => $key,
+				self::PROPERTY_VALUE => '',
+			),
+			array(self::TOOL_CODE, self::PROPERTY_KEY),
+			true
+		);
+		
+		$db->UpdateBlob(
+			'community_tool_property', 
+			self::PROPERTY_VALUE, 
+			$value, 
+			sprintf('%s=%s AND %s=%s',
+				self::TOOL_CODE,
+				$db->qstr($tool_code),
+				self::PROPERTY_KEY,
+				$db->qstr($key)
+			)
+		);
+	}
+};
+
+class DAO_CommunitySession {
+	const SESSION_ID = 'session_id';
+	const CREATED = 'created';
+	const UPDATED = 'updated';
+	const PROPERTIES = 'properties';
+	
+	static public function save(Model_CommunitySession $session) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = sprintf("UPDATE community_session SET updated = %d WHERE session_id = %s",
+			time(),
+			$db->qstr($session->session_id)
+		);
+		$db->Execute($sql);
+		
+		$db->UpdateBlob(
+			'community_session', 
+			self::PROPERTIES, 
+			serialize($session->getProperties()), 
+			"session_id=".$db->qstr($session->session_id)
+		);
+	}
+	
+	/**
+	 * @param string $session_id
+	 * @return Model_CommunitySession
+	 */
+	static public function get($session_id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = sprintf("SELECT session_id, created, updated, properties ".
+			"FROM community_session ".
+			"WHERE session_id = %s",
+			$db->qstr($session_id)
+		);
+		$row = $db->GetRow($sql);
+		
+		if(empty($row)) {
+			$session = self::create($session_id);
+		} else {
+			$session = new Model_CommunitySession();
+			$session->session_id = $row['session_id'];
+			$session->created = $row['created'];
+			$session->updated = $row['updated'];
+			
+			if(!empty($row['properties']))
+				@$session->setProperties(unserialize($row['properties']));
+		}
+		
+		return $session;
+	}
+	
+	/**
+	 * @param string $session_id
+	 * @return Model_CommunitySession
+	 */
+	static private function create($session_id) {
+		$db = DevblocksPlatform::getDatabaseService();
+
+		$session = new Model_CommunitySession();
+		$session->session_id = $session_id;
+		$session->created = time();
+		$session->updated = time();
+		
+		$sql = sprintf("INSERT INTO community_session (session_id, created, updated, properties) ".
+			"VALUES (%s, %d, %d, '')",
+			$db->qstr($session->session_id),
+			$session->created,
+			$session->updated
+		);
+		$db->Execute($sql);
+		
+		self::gc(); // garbage collection
+		
+		return $session;
+	}
+	
+	static private function gc() {
+		$db = DevblocksPlatform::getDatabaseService();
+		$sql = sprintf("DELETE FROM community_session WHERE updated < %d",
+			(time()-(60*60)) // 1 hr
+		);
+		$db->Execute($sql);
+	}
+};
 
 ?>
