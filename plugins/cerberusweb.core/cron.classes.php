@@ -151,16 +151,9 @@ class ParseCron extends CerberusCronPageExtension {
 			    
 		    } else { // no content name
 		        if($info['content-type'] == 'text/plain') {
-		            ob_start();
-		            @mailparse_msg_extract_part_file($section, $full_filename);
-		            @$message->body .= ob_get_contents();
-		            ob_end_clean();
-
+		            @$message->body .= @mailparse_msg_extract_part_file($section, $full_filename, NULL);
 		        } elseif($info['content-type'] == 'text/html') {
-		            ob_start();
-		            @mailparse_msg_extract_part_file($section, $full_filename);
-		            @$message->htmlbody .= ob_get_contents();
-		            ob_end_clean();
+		            $message->htmlbody .= @mailparse_msg_extract_part_file($section, $full_filename, NULL);
 		            
 		            // [TODO] Add the html part as an attachment
 	                $tmpname = ParserFile::makeTempFilename();
@@ -171,7 +164,19 @@ class ParseCron extends CerberusCronPageExtension {
 	                $message->files["original_message.html"] = $html_attach;
 	                unset($html_attach);
 
-		        } else { } // some non text/html unnamed part
+		        } elseif($info['content-type'] == 'message/rfc822') {
+					$message_content = mailparse_msg_extract_part_file($section, $full_filename, NULL);
+					
+		        	$message_counter = empty($message_counter) ? 1 : $message_counter + 1;
+	                $tmpname = ParserFile::makeTempFilename();
+	                $html_attach = new ParserFile();
+	                $html_attach->setTempFile($tmpname,'message/rfc822');
+	                @file_put_contents($tmpname,$message_content);
+	                $html_attach->file_size = filesize($tmpname);
+	                $message->files['inline'.$message_counter.'.msg'] = $html_attach;
+	                unset($html_attach);		        	 
+		        }
+		        else { } // some non text/html unnamed part
 		    }
 		    
 		}

@@ -139,11 +139,6 @@ class CerberusParser {
         @$importNew = $headers['x-cerberusnew'];
         @$importAppend = $headers['x-cerberusappendto'];
 
-		// [JAS] [TODO] References header may contain multiple message-ids to find
-		if(empty($importNew) && empty($importAppend) && null != ($id = self::findParentMessage($headers))) {
-			$bIsNew = false;
-		}
-
 		// Are we importing a ticket?
         if(APP_PARSER_ALLOW_IMPORTS && (!empty($importNew) || !empty($importAppend))) {
             
@@ -182,7 +177,44 @@ class CerberusParser {
 //                echo "IMPORT DETECTED: Appending to existing ",$importAppend," (",$id,")<br>";
             }
         }
-		
+        
+        $body_append_text = array();
+        $body_append_html = array();
+        // [mdf]Check attached files before creating the ticket because we may need to overwrite the message-id
+		// also store any contents of rfc822 files so we can include them after the body
+		foreach ($message->files as $filename => $file) { /* @var $file ParserFile */
+			
+			switch($file->mime_type) {
+				case 'message/rfc822':
+					$full_filename = $file->tmpname;
+					$mail = mailparse_msg_parse_file($full_filename);
+					$struct = mailparse_msg_get_structure($mail);
+					$msginfo = mailparse_msg_get_part_data($mail);
+					
+					$inline_headers = $msginfo['headers'];
+					if(strtolower(substr($headers['from'], 0, 11))=='postmaster@' || strtolower(substr($headers['from'], 0, 14))=='mailer-daemon@') {
+						$headers['in-reply-to'] = $inline_headers['message-id'];
+					}
+
+					if(empty($info['content-name'])) {
+						if($info['content-type'] == 'text/plain') {
+							$body_append_text[] = @mailparse_msg_extract_part_file($section, $full_filename, NULL);
+						}
+						elseif($info['content-type'] == 'text/html') {
+							$body_append_html[] = @mailparse_msg_extract_part_file($section, $full_filename, NULL);
+						}
+					}
+					//[mdf] [TODO] nuke the attachment 
+						
+				break;
+			}
+		}
+        
+		// [JAS] [TODO] References header may contain multiple message-ids to find
+		if(empty($importNew) && empty($importAppend) && null != ($id = self::findParentMessage($headers))) {
+        	$bIsNew = false;
+        }
+        
 		if(empty($id)) { // New Ticket
 //		    echo "Creating new ticket<br>";
 			$team_id = CerberusParser::parseDestination($headers);
@@ -230,6 +262,13 @@ class CerberusParser {
 		    
 		    // Content
 		    $body = CerberusApplication::stripHTML($message->htmlbody);
+		    // [mdf] append the contents of any message bodies found in message attachments earlier 
+		    if(!empty($body_append_html)) {
+		    	// [TODO] make the appended content formatted better so we can tell what it is
+		    	for($i=0; $i < count($body_append_html); $i++) {
+					$body .= "\r\n\r\n" . CerberusApplication::stripHTML($body_append_html[$i]);
+		    	}
+		    }
 		    DAO_MessageContent::update($email_id, $body);
 			
 		    // Headers
@@ -247,8 +286,15 @@ class CerberusParser {
 	        );
 			$email_id = DAO_Message::create($fields);
 			
+			$body = $message->body;
+			//[mdf] append the contents of any message bodies found in message attachments earlier
+			if(!empty($body_append_text)) {
+				// [TODO] make the appended content formatted better so we can tell what it is 
+				$body .= implode("\r\n\r\n", $body_append_text);
+			}
+			
 			// Content
-			DAO_MessageContent::update($email_id, $message->body);
+			DAO_MessageContent::update($email_id, $body);
 			
 			// Headers
 			foreach($headers as $hk => $hv) {
@@ -256,20 +302,14 @@ class CerberusParser {
 			}
 		}
 		
-		// First Thread
-		if($bIsNew && !empty($email_id)) { // First thread
-			DAO_Ticket::updateTicket($id,array(
-			    DAO_Ticket::FIRST_MESSAGE_ID => $email_id
-		    ));
-		}
-		
+		// [mdf] Loop through files to insert attachment records in the db, and move temporary files
 		if(!empty($email_id)) {
 		    // No longer needed (it's in the message_header table)
 //			DAO_Message::update($email_id,array(
 //			    DAO_Message::MESSAGE_ID => $sMessageId
 //			));
-		    
 			foreach ($message->files as $filename => $file) { /* @var $file ParserFile */
+				//[mdf] [TODO] We might want to just skip rfc822 messages since we extracted their content above
 			    $fields = array(
 			        DAO_Attachment::MESSAGE_ID => $email_id,
 			        DAO_Attachment::DISPLAY_NAME => $filename,
@@ -303,6 +343,13 @@ class CerberusParser {
 			}
 		}
 
+		// First Thread
+		if($bIsNew && !empty($email_id)) { // First thread
+			DAO_Ticket::updateTicket($id,array(
+			    DAO_Ticket::FIRST_MESSAGE_ID => $email_id
+		    ));
+		}
+		
 		// Spam scoring
 		if($bIsNew) {
     		// Allow spam training overloading
