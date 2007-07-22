@@ -54,10 +54,10 @@ $datadict = NewDataDictionary($db); /* @var $datadict ADODB_DataDict */ // ,'mys
 $tables = $datadict->MetaTables();
 
 // `community` ========================
-$columns = $datadict->MetaColumns('community', false, false);
+$columns = $datadict->MetaColumns('community');
 $indexes = $datadict->MetaIndexes('community',false);
 
-if(isset($columns['url'])) {
+if(isset($columns['URL'])) {
 	$sql = $datadict->DropColumnSQL('community', 'url');
 	$datadict->ExecuteSQLArray($sql);
 }

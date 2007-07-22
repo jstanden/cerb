@@ -54,7 +54,7 @@ $datadict = NewDataDictionary($db); /* @var $datadict ADODB_DataDict */ // ,'mys
 $tables = $datadict->MetaTables();
 
 // `address` ========================
-$columns = $datadict->MetaColumns('address', false, false);
+$columns = $datadict->MetaColumns('address');
 $indexes = $datadict->MetaIndexes('address',false);
 
 if(!isset($indexes['email'])) {
@@ -85,7 +85,6 @@ if(!isset($tables['message_content'])) {
 }
 
 // `message_header` =====================
-//$columns = $datadict->MetaColumns('message_header', false, false);
 $indexes = $datadict->MetaIndexes('message_header',false);
 if(!isset($tables['message_header'])) {
     $flds = "
@@ -122,7 +121,7 @@ if(!isset($tables['message_note'])) {
 }
 
 // `message` ========================
-$columns = $datadict->MetaColumns('message', false, false);
+$columns = $datadict->MetaColumns('message');
 $indexes = $datadict->MetaIndexes('message',false);
 
 if(!isset($indexes['created_date'])) {
@@ -135,29 +134,29 @@ if(!isset($indexes['ticket_id'])) {
     $datadict->ExecuteSQLArray($sql);
 }
 
-if(isset($columns['headers'])) {
+if(isset($columns['HEADERS'])) {
     $sql = $datadict->DropColumnSQL('message','headers');
     $datadict->ExecuteSQLArray($sql);
 }
 
-if(isset($columns['message_id'])) {
+if(isset($columns['MESSAGE_ID'])) {
     $sql = $datadict->DropColumnSQL('message','message_id');
     $datadict->ExecuteSQLArray($sql);
 }
 
-if(isset($columns['content'])) {
+if(isset($columns['CONTENT'])) {
     // insert into message_content (message_id, content) select id,content FROM message
     $sql = $datadict->DropColumnSQL('message','content');
     $datadict->ExecuteSQLArray($sql);
 }
 
 // `setting` ==================================
-$columns = $datadict->MetaColumns('setting', false, false);
+$columns = $datadict->MetaColumns('setting');
 //$indexes = $datadict->MetaIndexes('setting',false);
 
-if(255 == @$columns['value']->max_length) {
-	@$datadict->ExecuteSQLArray($datadict->RenameColumnSQL('setting', 'value', 'value_old'));
-	@$datadict->ExecuteSQLArray($datadict->AddColumnSQL('setting', "value B DEFAULT '' NOTNULL"));
+if(255 == $columns['VALUE']->max_length) {
+	$datadict->ExecuteSQLArray($datadict->RenameColumnSQL('setting', 'value', 'value_old'));
+	$datadict->ExecuteSQLArray($datadict->AddColumnSQL('setting', "value B DEFAULT '' NOTNULL"));
 	
 	$sql = "SELECT setting, value_old FROM setting ";
 	$rs = $db->Execute($sql);
@@ -174,11 +173,10 @@ if(255 == @$columns['value']->max_length) {
 		$rs->MoveNext();
 	}
 	
-	@$datadict->ExecuteSQLArray($datadict->DropColumnSQL('setting', 'value_old'));
+	$datadict->ExecuteSQLArray($datadict->DropColumnSQL('setting', 'value_old'));
 }
 
 // `team_routing_rule` ========================
-$columns = $datadict->MetaColumns('team_routing_rule', false, false);
 $indexes = $datadict->MetaIndexes('team_routing_rule',false);
 
 if(!isset($indexes['team_id'])) {
@@ -191,41 +189,36 @@ if(!isset($indexes['pos'])) {
     $datadict->ExecuteSQLArray($sql);
 }
 
-// `team` ========================
-$columns = $datadict->MetaColumns('team', false, false);
-$indexes = $datadict->MetaIndexes('team',false);
-
-
 // `ticket` ========================
-$columns = $datadict->MetaColumns('ticket', false, false);
+$columns = $datadict->MetaColumns('ticket');
 $indexes = $datadict->MetaIndexes('ticket',false);
 
-if(isset($columns['owner_id'])) {
+if(isset($columns['OWNER_ID'])) {
     $sql = $datadict->DropColumnSQL('ticket', 'owner_id');
     $datadict->ExecuteSQLArray($sql);
 }
 
-if(isset($columns['priority'])) {
+if(isset($columns['PRIORITY'])) {
     $sql = $datadict->DropColumnSQL('ticket', 'priority');
     $datadict->ExecuteSQLArray($sql);
 }
 
-if(isset($columns['import_pile'])) {
+if(isset($columns['IMPORT_PILE'])) {
 	$sql = $datadict->DropColumnSQL('ticket', 'import_pile');
     $datadict->ExecuteSQLArray($sql);
 }
 
-if(!isset($columns['last_worker_id'])) {
+if(!isset($columns['LAST_WORKER_ID'])) {
     $sql = $datadict->AddColumnSQL('ticket', 'last_worker_id I4 DEFAULT 0 NOTNULL');
     $datadict->ExecuteSQLArray($sql);
 }
 
-if(!isset($columns['last_action_code'])) {
+if(!isset($columns['LAST_ACTION_CODE'])) {
     $sql = $datadict->AddColumnSQL('ticket', "last_action_code C(1) DEFAULT 'O' NOTNULL");
     $datadict->ExecuteSQLArray($sql);
 }
 
-if(!isset($columns['first_message_id'])) {
+if(!isset($columns['FIRST_MESSAGE_ID'])) {
     $sql = $datadict->AddColumnSQL('ticket', 'first_message_id I4 DEFAULT 0 NOTNULL');
     $datadict->ExecuteSQLArray($sql);
 }
@@ -288,19 +281,19 @@ if(!isset($indexes['category_id'])) {
 }
 
 // `worker`
-$columns = $datadict->MetaColumns('worker', false, false);
+$columns = $datadict->MetaColumns('worker');
 $indexes = $datadict->MetaIndexes('worker',false);
 
-if(!isset($columns['can_delete'])) {
+if(!isset($columns['CAN_DELETE'])) {
     $sql = $datadict->AddColumnSQL('worker', 'can_delete I1 DEFAULT 0 NOTNULL');
     $datadict->ExecuteSQLArray($sql);
 }
 
 // `worker_to_team`
-$columns = $datadict->MetaColumns('worker_to_team', false, false);
+$columns = $datadict->MetaColumns('worker_to_team');
 $indexes = $datadict->MetaIndexes('worker_to_team',false);
 
-if(!isset($columns['is_manager'])) {
+if(!isset($columns['IS_MANAGER'])) {
     $sql = $datadict->AddColumnSQL('worker_to_team', 'is_manager I1 DEFAULT 0 NOTNULL');
     $datadict->ExecuteSQLArray($sql);
 }
