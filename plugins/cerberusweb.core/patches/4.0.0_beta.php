@@ -155,12 +155,13 @@ $columns = $datadict->MetaColumns('setting');
 //$indexes = $datadict->MetaIndexes('setting',false);
 
 if(255 == $columns['VALUE']->max_length) {
-	$datadict->ExecuteSQLArray($datadict->RenameColumnSQL('setting', 'value', 'value_old'));
+	$datadict->ExecuteSQLArray($datadict->RenameColumnSQL('setting', 'value', 'value_old',"value_old C(255) DEFAULT '' NOTNULL"));
 	$datadict->ExecuteSQLArray($datadict->AddColumnSQL('setting', "value B DEFAULT '' NOTNULL"));
 	
 	$sql = "SELECT setting, value_old FROM setting ";
 	$rs = $db->Execute($sql);
 	
+	if($rs)
 	while(!$rs->EOF) {
 		@$db->UpdateBlob(
 			'setting',
@@ -173,7 +174,8 @@ if(255 == $columns['VALUE']->max_length) {
 		$rs->MoveNext();
 	}
 	
-	$datadict->ExecuteSQLArray($datadict->DropColumnSQL('setting', 'value_old'));
+	if($rs)
+		$datadict->ExecuteSQLArray($datadict->DropColumnSQL('setting', 'value_old'));
 }
 
 // `team_routing_rule` ========================
