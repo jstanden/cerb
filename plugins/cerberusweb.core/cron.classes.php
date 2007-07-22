@@ -285,6 +285,229 @@ class MaintCron extends CerberusCronPageExtension {
     }
 };
 
+class Pop3Cron extends CerberusCronPageExtension {
+    function run() {
+        if (!extension_loaded("imap")) die("IMAP Extension not loaded!");
+        @set_time_limit(0); // Unlimited (if possible)
+        @ini_set('memory_limit','64M');
+
+        $accounts = DAO_Mail::getPop3Accounts(); /* @var $accounts CerberusPop3Account[] */
+
+        $timeout = ini_get('max_execution_time');
+		$max_downloads = $this->getParam('max_messages', (($timeout) ? 20 : 50));
+        
+        // [JAS]: Make sure our output directory is writeable
+	    if(!is_writable(APP_MAIL_PATH . 'new' . DIRECTORY_SEPARATOR)) {
+	        echo "The mail storage directory is not writeable.  Skipping POP3 download.<br>\r\n";
+	        return;
+	    }
+        
+        foreach ($accounts as $account) { /* @var $account CerberusPop3Account */
+            if(!$account->enabled)
+                continue;
+            
+            echo 'Account being parsed is ', $account->nickname, "<br>\r\n";
+            echo 'Time Limit: ', (($timeout) ? $timeout : 'unlimited') ," secs<br>\r\n";
+            echo 'Memory Limit: ', ini_get('memory_limit') ,"<br>\r\n";
+            	
+            switch($account->protocol) {
+                default:
+                case 'pop3': // 110
+                    $connect = sprintf("{%s:%d/pop3/notls}INBOX",
+                    $account->host,
+                    $account->port
+                    );
+                    break;
+                     
+                case 'pop3-ssl': // 995
+                    $connect = sprintf("{%s:%d/pop3/ssl/novalidate-cert}INBOX",
+                    $account->host,
+                    $account->port
+                    );
+                    break;
+                     
+                case 'imap': // 143
+                    $connect = sprintf("{%s:%d/notls}INBOX",
+                    $account->host,
+                    $account->port
+                    );
+                    break;
+            }
+
+            $runtime = microtime(true);
+             
+            $mailbox = imap_open($connect,
+            !empty($account->username)?$account->username:"",
+            !empty($account->password)?$account->password:"")
+            or die("Failed with error: ".imap_last_error());
+            	
+            $messages = array();
+            $check = imap_check($mailbox);
+            	
+            // [TODO] Make this an account setting?
+            $total = min($max_downloads,$check->Nmsgs);
+            	
+            echo 'Init time: ',((microtime(true)-$runtime)*1000)," ms<br>\r\n";
+
+            echo "<BR>\r\n";
+            flush();
+
+            $runtime = microtime(true);
+
+            for($i=1;$i<=$total;$i++) {
+                /*
+                * [TODO] Logic for max message size (>1MB, etc.) handling.  If over a
+                * threshold then use the attachment parser (imap_fetchstructure) to toss
+                * non-plaintext until the message fits.
+                */
+                 
+                $msgno = $i;
+                echo "<b>Downloading message ",$msgno,"</b> ";
+                flush();
+                 
+                $time = microtime(true);
+                 
+                $headers = imap_fetchheader($mailbox, $msgno);
+                $body = imap_body($mailbox, $msgno);
+
+                do {
+                	$unique = sprintf("%s.%04d",
+						time(),
+	        			rand(0,9999)
+	    			);
+                    $filename = APP_MAIL_PATH . 'new' . DIRECTORY_SEPARATOR . $unique;
+                } while(file_exists($filename));
+
+                $fp = fopen($filename,'w');
+                
+                if($fp) {
+                    fwrite($fp,$headers,strlen($headers));
+                    fwrite($fp,"\r\n\r\n");
+                    fwrite($fp,$body,strlen($body));
+                    @fclose($fp);
+                }
+                
+                /*
+                 * [JAS]: We don't add the .msg extension until we're done with the file, 
+                 * since this will safely be ignored by the parser until we're ready
+                 * for it.
+                 */
+                rename($filename, dirname($filename) .DIRECTORY_SEPARATOR . basename($filename) . '.msg');
+
+                unset($headers);
+                unset($body);
+
+                $time = microtime(true) - $time;
+                echo "(",sprintf("%d",($time*1000))," ms)<br>\r\n";
+                flush();
+                imap_delete($mailbox, $msgno);
+                continue;
+            }
+            	
+            imap_expunge($mailbox);
+            imap_close($mailbox);
+            imap_errors();
+            	
+            echo "<b>Total Runtime:</b> ",((microtime(true)-$runtime)*1000)," ms<br>\r\n";
+        }
+    }
+    
+    function configure($instance) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl_path = dirname(__FILE__) . '/templates/';
+		$tpl->assign('path', $tpl_path);
+        
+		$pop3_accounts = DAO_Mail::getPop3Accounts();
+		$tpl->assign('pop3_accounts', $pop3_accounts);
+		
+		$timeout = ini_get('max_execution_time');
+		$tpl->assign('max_messages', $this->getParam('max_messages', (($timeout) ? 20 : 50)));
+		
+		$tpl->display($tpl_path . 'cron/pop3/config.tpl.php');
+    }
+    
+    function saveConfigurationAction() {
+		@$ar_ids = DevblocksPlatform::importGPC($_POST['account_id'],'array');
+		@$ar_enabled = DevblocksPlatform::importGPC($_POST['pop3_enabled'],'array');
+		@$ar_nickname = DevblocksPlatform::importGPC($_POST['nickname'],'array');
+		@$ar_protocol = DevblocksPlatform::importGPC($_POST['protocol'],'array');
+		@$ar_host = DevblocksPlatform::importGPC($_POST['host'],'array');
+		@$ar_username = DevblocksPlatform::importGPC($_POST['username'],'array');
+		@$ar_password = DevblocksPlatform::importGPC($_POST['password'],'array');
+		@$ar_port = DevblocksPlatform::importGPC($_POST['port'],'array');
+		@$ar_delete = DevblocksPlatform::importGPC($_POST['delete'],'array');
+		@$max_messages = DevblocksPlatform::importGPC($_POST['max_messages'],'integer');
+		
+		$this->setParam('max_messages', $max_messages);
+		
+		if(!is_array($ar_ids))
+		    return;
+		    
+		foreach($ar_ids as $idx => $id) {
+		    $nickname = $ar_nickname[$idx];
+		    $protocol = $ar_protocol[$idx];
+		    $host = $ar_host[$idx];
+		    $username = $ar_username[$idx];
+		    $password = $ar_password[$idx];
+		    $port = $ar_port[$idx];
+		    
+			if(empty($nickname)) $nickname = "No Nickname";
+			
+			// Defaults
+			if(empty($port)) {
+			    switch($protocol) {
+			        case 'pop3':
+			            $port = 110; 
+			            break;
+			        case 'pop3-ssl':
+			            $port = 995;
+			            break;
+			        case 'imap':
+			            $port = 143;
+			            break;
+			    }
+			}
+			
+			if(!empty($id) && is_numeric(array_search($id, $ar_delete))) {
+				DAO_Mail::deletePop3Account($id);
+				
+			} elseif(!empty($id)) {
+			    $enabled = (is_array($ar_enabled) && is_numeric(array_search($id, $ar_enabled))) ? 1 : 0;
+			    
+			    // [JAS]: [TODO] convert to field constants
+				$fields = array(
+				    'enabled' => $enabled,
+					'nickname' => $nickname,
+					'protocol' => $protocol,
+					'host' => $host,
+					'username' => $username,
+					'password' => $password,
+					'port' => $port
+				);
+				DAO_Mail::updatePop3Account($id, $fields);
+				
+			} else {
+	            if(!empty($host) && !empty($username)) {
+				    // [JAS]: [TODO] convert to field constants
+	                $fields = array(
+					    'enabled' => 1,
+						'nickname' => $nickname,
+						'protocol' => $protocol,
+						'host' => $host,
+						'username' => $username,
+						'password' => $password,
+						'port' => $port
+					);
+				    $id = DAO_Mail::createPop3Account($fields);
+	            }
+			}
+		}
+		
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','jobs')));
+    }
+};
+
 class ParserFile {
     public $tmpname = null;
     public $mime_type = '';

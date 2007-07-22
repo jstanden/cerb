@@ -506,17 +506,22 @@ switch($step) {
 		$settings = CerberusSettings::getInstance();
 		
 		@$smtp_host = DevblocksPlatform::importGPC($_POST['smtp_host'],'string',$settings->get(CerberusSettings::SMTP_HOST));
-		@$smtp_to = DevblocksPlatform::importGPC($_POST['smtp_to'],'string');
+//		@$smtp_to = DevblocksPlatform::importGPC($_POST['smtp_to'],'string');
 		@$smtp_auth_user = DevblocksPlatform::importGPC($_POST['smtp_auth_user'],'string');
 		@$smtp_auth_pass = DevblocksPlatform::importGPC($_POST['smtp_auth_pass'],'string');
 		@$form_submit = DevblocksPlatform::importGPC($_POST['form_submit'],'integer');
 		@$passed = DevblocksPlatform::importGPC($_POST['passed'],'integer');
 		
 		if(!empty($form_submit)) {
-			$mailer = DevblocksPlatform::getMailService();
+			$mail_service = DevblocksPlatform::getMailService();
 			
 			// Did the user receive the test message?
-			if($passed) { // passed
+			$mailer = null;
+			try {
+				$mailer = $mail_service->getMailer($smtp_host, $smtp_auth_user, $smtp_auth_pass, 25); // [TODO] port
+				$mailer->connect();
+				$mailer->disconnect();
+				
 				if(!empty($smtp_host))
 					$settings->set(CerberusSettings::SMTP_HOST, $smtp_host);
 				if(!empty($smtp_auth_user))
@@ -528,23 +533,17 @@ switch($step) {
 				$tpl->display('steps/redirect.tpl.php');
 				exit;
 				
-			} else { // fail
-				$from = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM);
-				try {
-					error_reporting (1);
-					$mailer->testSmtp($smtp_host,$smtp_to,$from,$smtp_auth_user,$smtp_auth_pass);
-				}
-				catch(Exception $e) {
-					$form_submit = 0;
-					
-					$tpl->assign('smtp_error_display', 'SMTP Connection Failed. Try again.');
-				}
-				$tpl->assign('smtp_host', $smtp_host);
-				$tpl->assign('smtp_to', $smtp_to);
-				$tpl->assign('smtp_auth_user', $smtp_auth_user);
-				$tpl->assign('smtp_auth_pass', $smtp_auth_pass);
-				$tpl->assign('form_submit', $form_submit);
 			}
+			catch(Exception $e) {
+				$form_submit = 0;
+				$tpl->assign('smtp_error_display', 'SMTP Connection Failed!  Please check your settings.');
+			}
+			$tpl->assign('smtp_host', $smtp_host);
+			$tpl->assign('smtp_auth_user', $smtp_auth_user);
+			$tpl->assign('smtp_auth_pass', $smtp_auth_pass);
+			$tpl->assign('form_submit', $form_submit);
+		} else {
+			$tpl->assign('smtp_host', 'localhost');
 		}
 		
 		// First time, or retry
@@ -639,7 +638,10 @@ switch($step) {
 				// Create team records
 				if(is_array($teams))
 				foreach($teams as $team_name) {
-					$id = DAO_Group::createTeam($team_name);
+					$fields = array(
+						DAO_Group::TEAM_NAME => $team_name
+					);
+					$id = DAO_Group::createTeam($fields);
 					$team_ids[$id] = $team_name;
 				}
 				
@@ -686,13 +688,16 @@ switch($step) {
 				    
 				    if(in_array($worker_id,$worker_pw)) {
 				        
-				        $mailer = DevblocksPlatform::getMailService();
-				        $mail = $mailer->createEmail();       
+				        $mail_service = DevblocksPlatform::getMailService();
+				        $mailer = $mail_service->getMailer();
+				        $mail = $mail_service->createMessage();
 				        
-				        $mail->addRecipient($worker->email, $worker->getName());
-				        $mail->setFrom($replyFrom, $replyPersonal);
+				        $sendTo = new Swift_Address($worker->email, $worker->getName());
+				        $sendFrom = new Swift_Address($replyFrom, $replyPersonal);
+				        
 				        $mail->setSubject('Your new helpdesk login information!');
-				        $mail->headers->set('Date', gmdate('r'));
+				        $mail->generateId();
+				        $mail->headers->set('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
 				        
 					    $body = sprintf("Your new helpdesk login information is below:\r\n".
 							"\r\n".
@@ -700,16 +705,18 @@ switch($step) {
 					        "Login: %s\r\n".
 					        "Password: %s\r\n".
 					        "\r\n".
-					        "You should change your password after logging in for the first time.\r\n".
+					        "You should change your password from Preferences after logging in for the first time.\r\n".
 					        "\r\n",
-						        $url->write('c=login',true),
+						        $url->write('',true),
 						        $worker->email,
 						        $password
 					    );
 				        
-					    $mail->setTextBody($body);
-					    
-					    $mailer->send($replyFrom,array($worker->email),$mail);
+					    $mail->attach(new Swift_Message_Part($body));
+
+						if(!$mailer->send($mail, $sendTo, $sendFrom)) {
+							// [TODO] Report when the message wasn't sent.
+						}
 				    }
 				    
 					$fields = array(
@@ -824,15 +831,39 @@ switch($step) {
 		
 	// [TODO] Delete the /install/ directory (security)
 	case STEP_FINISHED:
+		
+		// Set up the default cron jobs
+		$crons = DevblocksPlatform::getExtensions('cerberusweb.cron', true);
+		if(is_array($crons))
+		foreach($crons as $id => $cron) { /* @var $cron CerberusCronPageExtension */
+			switch($id) {
+				case 'cron.pop3':
+					$cron->setParam(CerberusCronPageExtension::PARAM_ENABLED, true);
+					$cron->setParam(CerberusCronPageExtension::PARAM_DURATION, '5');
+					$cron->setParam(CerberusCronPageExtension::PARAM_TERM, 'm');
+					$cron->setParam(CerberusCronPageExtension::PARAM_LASTRUN, strtotime('Today'));
+					break;
+				case 'cron.parser':
+					$cron->setParam(CerberusCronPageExtension::PARAM_ENABLED, true);
+					$cron->setParam(CerberusCronPageExtension::PARAM_DURATION, '1');
+					$cron->setParam(CerberusCronPageExtension::PARAM_TERM, 'm');
+					$cron->setParam(CerberusCronPageExtension::PARAM_LASTRUN, strtotime('Today'));
+					break;
+				case 'cron.maint':
+					$cron->setParam(CerberusCronPageExtension::PARAM_ENABLED, true);
+					$cron->setParam(CerberusCronPageExtension::PARAM_DURATION, '24');
+					$cron->setParam(CerberusCronPageExtension::PARAM_TERM, 'h');
+					$cron->setParam(CerberusCronPageExtension::PARAM_LASTRUN, strtotime('Yesterday'));
+					break;
+			}
+			
+		}
+		
 		$tpl->assign('template', 'steps/step_finished.tpl.php');
 		break;
 }
 
 // [TODO] Check PEAR path
-
-// [TODO] Support Center (move to SC installer)
-
-// [TODO] Set up the default cron jobs
 
 // [TODO] Check apache rewrite (somehow)
 

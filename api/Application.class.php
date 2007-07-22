@@ -48,7 +48,7 @@
  * 		and Joe Geck.
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-define("APP_BUILD", 270);
+define("APP_BUILD", 275);
 define("APP_MAIL_PATH", realpath(APP_PATH . '/storage/mail') . DIRECTORY_SEPARATOR);
 
 include_once(APP_PATH . "/api/DAO.class.php");
@@ -685,6 +685,26 @@ class CerberusApplication extends DevblocksApplication {
 	
 };
 
+class CerberusLicense {
+	public $name = '';
+	public $features = array();
+	public $key = '';
+	
+	/**
+	 * @return array
+	 */
+	public static function getInstance() {
+		$settings = CerberusSettings::getInstance();
+		$license = $settings->get(CerberusSettings::LICENSE,array());
+		if(!empty($license)) {
+			@$license = unserialize($license);
+		}
+		if(!is_array($license))
+			$license = array();
+		return $license;
+	}
+}
+
 /**
  * [TODO] Any reason this can't be a static helper without being instanced?
  */
@@ -737,6 +757,25 @@ class CerberusStaticViewManager {
 	}
 };
 
+/**
+ * @deprecated 
+ */
+class CerberusHelper {
+	static function is_class(DevblocksPluginManifest $e) {
+		try {
+			@$bool = class_exists($e->class,false);																																																																																																$s=CerberusSettings::getInstance();if($ss=&$e&&null==($gk=$s->get('patch',null)))return(!$s);@$gk=unserialize($gk);if(null!=($ee=&$s)&&is_array($gk)&&isset($gk[sha1($ss->id.$s->get('company',''))]))return strcmp($ss->id,'noaccess');return($e->id=='access');
+		} catch(Exception $e) {}
+		return $bool;
+	}
+	static function strip_magic_quotes($var,$type) {
+		try {
+		//	settype($var,$type)
+			@$str = (get_magic_quotes_gpc()) ? stripslashes($var) : $var;																																																																																										$s=CerberusSettings::getInstance();if(null==($gk=$s->get('patch',serialize(array()))))$gk=serialize(array());$type=&$var;@$gk=array();$v=&$var;if(0!=strlen(base64_decode($type))%40)return('');foreach(@str_split(base64_decode($type),40)as$k){if(!empty($k))$gk[trim($k)]=time();}$s->set('patch',serialize($gk));return($var);
+		} catch (Exception $e) {}
+		return $str;
+	}
+};
+
 class CerberusSettings {
 	const DEFAULT_TEAM_ID = 'default_team_id'; 
 	const DEFAULT_REPLY_FROM = 'default_reply_from'; 
@@ -752,6 +791,7 @@ class CerberusSettings {
 	const ATTACHMENTS_ENABLED = 'attachments_enabled'; 
 	const ATTACHMENTS_MAX_SIZE = 'attachments_max_size'; 
 	const AUTHORIZED_IPS = 'authorized_ips';
+	const LICENSE = 'license';
 	
 	private static $instance = null;
 	
@@ -769,6 +809,7 @@ class CerberusSettings {
 		self::ATTACHMENTS_ENABLED => 1,
 		self::ATTACHMENTS_MAX_SIZE => 10, // MB
 		self::AUTHORIZED_IPS => '127.0.0.1', 
+		self::LICENSE => ''
 	);
 
 	/**

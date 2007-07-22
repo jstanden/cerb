@@ -1,10 +1,14 @@
 <!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
 <plugin>
 	<id>cerberusweb.core</id>
-	<name>Cerberus Helpdesk Core</name>
+	<name>Cerberus Helpdesk</name>
 	<description>The core functionality of Cerberus Helpdesk.</description>
 	<author>WebGroup Media, LLC.</author>
 	<revision>0</revision>
+	<class>
+		<file>classes.php</file>
+		<name>ChCorePlugin</name>
+	</class>
 	
 	<!-- 
 	<requires>
@@ -194,8 +198,8 @@
 			</class>
 			<params>
 				<param key="uri" value="tickets" />
-				<param key="title" value="Tickets" />
-				<param key="menutitle" value="Tickets" />
+				<param key="title" value="Mail" />
+				<param key="menutitle" value="mail" />
 				<!--<param key="summary" value="support resources" />-->
 			</params>
 		</extension>
@@ -283,6 +287,17 @@
 		-->		
 		 
 		<!-- Cron Extensions -->
+		
+		<extension point="cerberusweb.cron">
+			<id>cron.pop3</id>
+			<name>POP3 Mail Checker</name>
+			<class>
+				<file>cron.classes.php</file>
+				<name>Pop3Cron</name>
+			</class>
+			<params>
+			</params>
+		</extension>		
 		
 		<extension point="cerberusweb.cron">
 			<id>cron.parser</id>

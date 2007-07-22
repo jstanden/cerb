@@ -4,6 +4,7 @@
 <br>
 
 <div class="block">
+{if !empty($communities)}
 {foreach from=$communities item=community key=community_id}
 	<H2>{$community->name}</H2>
 	
@@ -32,7 +33,9 @@
 	</blockquote>
 {/foreach}
 <br>
+{/if}
 
+{if !empty($communities)}
 <form action="{devblocks_url}{/devblocks_url}" method="post">
 <input type="hidden" name="c" value="community">
 <input type="hidden" name="a" value="addCommunityTool">
@@ -49,6 +52,7 @@ to community <select name="community_id">
 <button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
 </form>
 <br>
+{/if}
 
 <form action="{devblocks_url}{/devblocks_url}" method="post">
 <input type="hidden" name="c" value="community">

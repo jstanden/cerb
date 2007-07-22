@@ -91,8 +91,7 @@
 	</tr>
 	<tr>
 		<td>
-			<div id="replyAttachments{$message->id}" style="display:none;">
-			<br>
+			<div id="replyAttachments{$message->id}" style="display:none;margin:5px;padding:5px;background-color:rgb(235,255,211);">
 			<H2>Attachments:</H2>
 			(The maximum attachment size is {$upload_max_filesize})<br>
 			<table cellpadding="2" cellspacing="0" border="0" width="100%">
@@ -109,7 +108,7 @@
 	</tr>
 	<tr>
 		<td>
-		<br>
+		<div style="background-color:rgb(239,245,255);margin:5px;padding:5px;">
 		<H2>Next:</H2>
 			<table cellpadding="2" cellspacing="0" border="0">
 				<tr>
@@ -153,6 +152,7 @@
 					</td>
 				</tr>
 			</table>
+			</div>
 		</td>
 	</tr>
 </table>

@@ -151,6 +151,32 @@ if(isset($columns['content'])) {
     $datadict->ExecuteSQLArray($sql);
 }
 
+// `setting` ==================================
+$columns = $datadict->MetaColumns('setting', false, false);
+//$indexes = $datadict->MetaIndexes('setting',false);
+
+if(255 == @$columns['value']->max_length) {
+	@$datadict->ExecuteSQLArray($datadict->RenameColumnSQL('setting', 'value', 'value_old'));
+	@$datadict->ExecuteSQLArray($datadict->AddColumnSQL('setting', "value B DEFAULT '' NOTNULL"));
+	
+	$sql = "SELECT setting, value_old FROM setting ";
+	$rs = $db->Execute($sql);
+	
+	while(!$rs->EOF) {
+		@$db->UpdateBlob(
+			'setting',
+			'value',
+			$rs->fields['value_old'],
+			sprintf("setting = %s",
+				$db->qstr($rs->fields['setting'])
+			)
+		);
+		$rs->MoveNext();
+	}
+	
+	@$datadict->ExecuteSQLArray($datadict->DropColumnSQL('setting', 'value_old'));
+}
+
 // `team_routing_rule` ========================
 $columns = $datadict->MetaColumns('team_routing_rule', false, false);
 $indexes = $datadict->MetaIndexes('team_routing_rule',false);

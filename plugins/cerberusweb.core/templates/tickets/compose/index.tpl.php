@@ -47,9 +47,12 @@
 					</td>
 				</tr>
 				<tr>
+					<td colspan="2"><h2>Attachments</h2></td>
+				</tr>
+				<tr>
 					<td width="0%" nowrap="nowrap" valign="top"><b>Attachments:</b>&nbsp; </td>
 					<td width="100%">
-						<input type="file" name="attachment[]"></input> 
+						<input type="file" name="attachment[]" size="45"></input> 
 						<a href="javascript:;" onclick="appendFileInput('displayReplyAttachments','attachment[]');">attach another file</a>
 						<div id="displayReplyAttachments"></div>
 					</td>
@@ -59,6 +62,7 @@
 	</tr>
 	<tr>
 		<td>
+			<br>
 			<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> Send Message</button>
 			<button type="button" onclick="document.location='{devblocks_url}c=tickets{/devblocks_url}';"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> Discard</button>
 		</td>

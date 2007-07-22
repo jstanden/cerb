@@ -48,6 +48,11 @@
  * 		and Joe Geck.
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
+
+class ChCorePlugin extends DevblocksPlugin {
+	
+};
+
 class ChPageController extends DevblocksControllerExtension {
     const ID = 'core.controller.page';
     
@@ -177,6 +182,7 @@ class ChPageController extends DevblocksControllerExtension {
 		$tpl->assign('session', $_SESSION);
 		$tpl->assign('translate', $translate);
 		$tpl->assign('visit', $visit);
+		$tpl->assign('license',CerberusLicense::getInstance());
 		
 	    $active_worker = CerberusApplication::getActiveWorker();
 	    $tpl->assign('active_worker', $active_worker);
@@ -521,7 +527,7 @@ class ChTicketsPage extends CerberusPageExtension {
 							if(null == $teamView) {
 								$teamView = new CerberusDashboardView();
 								$teamView->id = CerberusApplication::VIEW_TEAM_TICKETS;
-								$teamView->name = "Active Team Tickets";
+								$teamView->name = "Active Tickets";
 								$teamView->dashboard_id = 0;
 								$teamView->view_columns = array(
 //									SearchFields_Ticket::TEAM_NAME,
@@ -540,7 +546,7 @@ class ChTicketsPage extends CerberusPageExtension {
 								$viewManager->setView(CerberusApplication::VIEW_TEAM_TICKETS,$teamView);
 							}
 							
-							$teamView->name = $team->name . ": Active Tickets";
+							$teamView->name = $team->name . ": Active";
 							$teamView->params = array(
 								new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'=',$team_id),
 							);
@@ -906,37 +912,40 @@ class ChTicketsPage extends CerberusPageExtension {
 		$from = !empty($team_from) ? $team_from : $default_from;
 		$personal = !empty($team_personal) ? $team_personal : $default_personal;
 
-		$mailer = DevblocksPlatform::getMailService();
-		$email = $mailer->createEmail();
+		$sendTo = new Swift_Address($to);
+		$sendFrom = new Swift_Address($from, $personal);
 		
-		// [TODO] Allow seperated addresses (parseRfcAddress)
-		$email->addRecipient($to);
-		$email->setFrom($from, $personal);
-		$email->headers->set('Date', gmdate('r'));
+		$mail_service = DevblocksPlatform::getMailService();
+		$mailer = $mail_service->getMailer();
+		$email = $mail_service->createMessage();
+
+		$email->setTo($sendTo);
+		$email->setFrom($sendFrom);
 		$email->setSubject($subject);
-		$email->setTextBody($content);
+		$email->generateId();
 		$email->headers->set('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
-		$email->headers->set('X-MailGenerator','Cerberus Helpdesk (Build '.APP_BUILD.')');
 		
-			// Mime Attachments
+		$email->attach(new Swift_Message_Part($content));
+		
+		// [TODO] These attachments should probably save to the DB
+		
+		// Mime Attachments
 		if (is_array($files) && !empty($files)) {
 			foreach ($files['tmp_name'] as $idx => $file) {
 				if(empty($file) || empty($files['name'][$idx]))
 					continue;
 
-				// $files['type'][$idx]
-				$email->attachFromString(file_get_contents($file), $files['name'][$idx]);
-				
-//				$tmp = tempnam(DEVBLOCKS_PATH . 'tmp/','mime');
-//				if($mail_service->streamedBase64Encode($file, $tmp)) {
-//					$mail->attachFromString(file_get_contents($tmp), $files['name'][$idx]);
-//				}
-//				@unlink($tmp);
+				$email->attach(new Swift_Message_Attachment(
+					new Swift_File($file), $files['name'][$idx], $files['type'][$idx]));
 			}
 		}
 		
-		
-		$mailer->send($from,array($to),$email);
+		// [TODO] Allow seperated addresses (parseRfcAddress)
+//		$mailer->log->enable();
+		if(!$mailer->send($email, $sendTo, $sendFrom)) {
+			// [TODO] Report when the message wasn't sent.
+		}
+//		$mailer->log->dump();
 		
 		$worker = CerberusApplication::getActiveWorker();
 		$fromAddressId = CerberusApplication::hashLookupAddressId($from, true);
@@ -957,27 +966,26 @@ class ChTicketsPage extends CerberusPageExtension {
 	    $fields = array(
 	        DAO_Message::TICKET_ID => $ticket_id,
 	        DAO_Message::CREATED_DATE => time(),
-	        DAO_Message::ADDRESS_ID => $fromAddressId
+	        DAO_Message::ADDRESS_ID => $fromAddressId,
 	    );
 		$message_id = DAO_Message::create($fields);
 	    
 		// Content
 	    DAO_MessageContent::update($message_id, $content);
-	    
+
 	    // Headers
-		foreach(array('Date', 'From', 'To', 'Subject', 'Message-Id', 'X-Mailer') as $hdr) {
-			if(null != ($hdr_val = $email->headers->get($hdr)))
-				if(false !== ($pos = strpos($hdr_val,':'))) {
-					$hdr_val = trim(substr($hdr_val, $pos+1));
-		    		DAO_MessageHeader::update($message_id, $ticket_id, $hdr, $hdr_val);
-				}
+		foreach($email->headers->getList() as $hdr => $v) {
+			if(null != ($hdr_val = $email->headers->getEncoded($hdr))) {
+				if(!empty($hdr_val))
+	    			DAO_MessageHeader::update($message_id, $ticket_id, $hdr, $hdr_val);
+			}
 		}
 		
 		// Set recipients to requesters
 		// [TODO] Allow seperated addresses (parseRfcAddress)
 		if(null != ($reqAddressId = CerberusApplication::hashLookupAddressId($to, true)))
 			DAO_Ticket::createRequester($reqAddressId, $ticket_id);
-			
+		
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','compose')));
 	}
 	
@@ -2371,6 +2379,12 @@ class ChConfigurationPage extends CerberusPageExtension  {
 				break;
 				
 			case 'workflow':
+				/*
+				 * [IMPORTANT -- Yes, this is simply a line in the sand.]
+				 * You're welcome to modify the code to meet your needs, but please respect 
+				 * our licensing.  Buy a legitimate copy to help support the project!
+				 * http://www.cerberusweb.com/
+				 */
 				$workers = DAO_Worker::getList();
 				$tpl->assign('workers', $workers);
 
@@ -2381,6 +2395,9 @@ class ChConfigurationPage extends CerberusPageExtension  {
 				break;
 				
 			case 'extensions':
+				// Auto synchronize when viewing Config->Extensions
+		        DevblocksPlatform::readPlugins();
+				
 				$plugins = DevblocksPlatform::getPluginRegistry();
 				unset($plugins['cerberusweb.core']);
 				$tpl->assign('plugins', $plugins);
@@ -2389,6 +2406,13 @@ class ChConfigurationPage extends CerberusPageExtension  {
 				$tpl->assign('points', $points);
 				
 				$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/extensions/index.tpl.php');				
+				break;
+
+			case 'licenses':
+				$license = CerberusLicense::getInstance();
+				$tpl->assign('license', $license);
+
+				$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/licenses/index.tpl.php');				
 				break;
 				
 			case 'jobs':
@@ -2460,6 +2484,64 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	    $job->saveConfigurationAction();
 	    	    
 	    DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','jobs')));
+	}
+	
+	// Post
+	function saveLicensesAction() {
+		@$key = DevblocksPlatform::importGPC($_POST['key'],'string','');
+
+		if(empty($key)) {
+			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','licenses','empty')));
+			return;
+		}
+		
+		// Clean off the wrapper
+		@$lines = explode("\r\n", trim($key));
+		$company = '';
+		$features = array();
+		$key = '';
+		$valid=0;
+		if(is_array($lines))
+		foreach($lines as $line) {
+			if(0==strcmp(substr($line,0,3),'---')) {
+				$valid++;continue;
+			}
+			if(preg_match("/^(.*?)\: (.*?)$/",$line,$matches)) {
+				if(0==strcmp($matches[1],"Company"))
+					$company = $matches[2];
+				if(0==strcmp($matches[1],"Feature"))
+					$features[$matches[2]] = true;
+			} else {
+				$key .= trim($line);
+			}
+		}
+		
+		if(2!=$valid || 0!=$key%4) {
+			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','licenses','invalid')));
+			return;
+		}
+		
+		// Save for reuse in form in case we need to redraw
+		$settings = CerberusSettings::getInstance();
+		$settings->set('company', trim($company));
+		
+		ksort($features);
+		
+		/*
+		 * [IMPORTANT -- Yes, this is simply a line in the sand.]
+		 * You're welcome to modify the code to meet your needs, but please respect 
+		 * our licensing.  Buy a legitimate copy to help support the project!
+		 * http://www.cerberusweb.com/
+		 */
+		$license = CerberusLicense::getInstance();
+		// $license['name'] = CerberusHelper::strip_magic_quotes($company,'string');
+		$license['name'] = $company;
+		$license['features'] = $features;
+		$license['key'] = CerberusHelper::strip_magic_quotes($key,'string');
+		
+		$settings->set(CerberusSettings::LICENSE, serialize($license));
+		
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','licenses')));
 	}
 	
 	// Ajax
@@ -2782,21 +2864,6 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/mail/mail_routing_add.tpl.php');
 	}
 	
-	// Ajax
-	function refreshPluginsAction() {
-		$worker = CerberusApplication::getActiveWorker();
-		if(!$worker || !$worker->is_superuser) {
-			echo "Access denied.";
-			return;
-		}
-		
-//		if(!ACL_TypeMonkey::hasPriv(ACL_TypeMonkey::SETUP)) return;
-		
-		DevblocksPlatform::clearCache();
-        DevblocksPlatform::readPlugins();
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','extensions')));
-	}
-	
 	function savePluginsAction() {
 		$worker = CerberusApplication::getActiveWorker();
 		if(!$worker || !$worker->is_superuser) {
@@ -3067,6 +3134,7 @@ class ChUpdateController extends DevblocksControllerExtension {
 	 */
 	function handleRequest(DevblocksHttpRequest $request) {
 	    @set_time_limit(0); // no timelimit (when possible)
+	    DevblocksPlatform::clearCache();
 	    
 	    // [TODO] Log out all sessions before patching
 	    $settings = CerberusSettings::getInstance();
@@ -3673,8 +3741,9 @@ class ChSignInPage extends CerberusPageExtension {
 	    
 	    $_SESSION[self::KEY_FORGOT_EMAIL] = $email;
 	    
-	    $mailer = DevblocksPlatform::getMailService();
-	    $body = "Password recovery.";
+	    $mail_service = DevblocksPlatform::getMailService();
+	    $mailer = $mail_service->getMailer();
+		$mail = $mail_service->createMessage();
 	    
 	    $passGen = new Text_Password();
 	    $code = $passGen->create(10);
@@ -3682,21 +3751,26 @@ class ChSignInPage extends CerberusPageExtension {
 	    $_SESSION[self::KEY_FORGOT_SENTCODE] = $code;
 	    $settings = CerberusSettings::getInstance();
 		$from = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM);
-	    $from_personal = $settings->get(CerberusSettings::DEFAULT_REPLY_PERSONAL);
+	    $personal = $settings->get(CerberusSettings::DEFAULT_REPLY_PERSONAL);
 		
-		$mail = $mailer->createEmail();
-		
+		$sendTo = new Swift_Address($email);
+		$sendFrom = new Swift_Address($from, $personal);
+	    
 		// Headers
-		$mail->setFrom($from, $from_personal);
-		$mail->setSubject('Confirm helpdesk password recovery.');
-		$mail->headers->set('Date', gmdate('r'));
+		$mail->setTo($sendTo);
+		$mail->setFrom($sendFrom);
+		$mail->setSubject("Confirm helpdesk password recovery.");
+		$mail->generateId();
 		$mail->headers->set('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
-		$mail->headers->set('X-MailGenerator','Cerberus Helpdesk (Build '.APP_BUILD.')');
-		$mail->addRecipient($email);
-		$mail->setTextBody(sprintf("This confirmation code will allow you to reset your helpdesk login:\n\n%s",
-	        $code
-	    ));
-	    $mailer->send($from, array($email), $mail);
+
+		$mail->attach(new Swift_Message_Part(
+			sprintf("This confirmation code will allow you to reset your helpdesk login:\n\n%s",
+	        	$code
+	    )));
+		
+		if(!$mailer->send($mail, $sendTo, $sendFrom)) {
+			// [TODO] Report when the message wasn't sent.
+		}
 	    
 	    DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('login','forgot','step2')));
 	}

@@ -3,10 +3,19 @@
 <table align="center" border="0" cellpadding="2" cellspacing="0" width="100%">
     <tr>
       <td nowrap="nowrap">
-      	<b>Cerberus Helpdesk</b>&trade; &copy; Copyright 2002-2007, WebGroup Media&trade; LLC - Version 4.0 Beta (Build {$smarty.const.APP_BUILD})
+      	<b>Cerberus Helpdesk</b>&trade; &copy; 2002-2007, WebGroup Media&trade; LLC - Version 4.0 Beta (Build {$smarty.const.APP_BUILD}) 
       	<br>
+      	{if 1 || $debug}
 		<span style="color:rgb(180,180,180);font-size:90%;">
-		page generated in: {math equation="x*1000" x=$render_time format="%d"} ms; memory used (current/peak): {math equation="x/1024000" x=$render_memory format="%0.1f"} MB / {math equation="x/1024000" x=$render_peak_memory format="%0.1f"} MB
+		page generated in: {math equation="x*1000" x=$render_time format="%d"} ms; peak memory used: {math equation="x/1024000" x=$render_peak_memory format="%0.1f"} MB 
+		 -  
+      	{if empty($license) || empty($license.key)}
+      	No License (Free Mode)
+      	{elseif !empty($license.name)}
+      	Licensed to {$license.name}
+      	{/if}
+      	<br>
+      	{/if}
 		</span>
       </td>
       <td align="right">

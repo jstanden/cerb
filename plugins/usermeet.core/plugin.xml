@@ -1,10 +1,14 @@
 <!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
 <plugin>
 	<id>usermeet.core</id>
-	<name>Usermeet Community Tools</name>
-	<description>Portal tools ...</description>
+	<name>Cerberus Helpdesk Community Tools</name>
+	<description>Support for customer-focused public tools for your websites</description>
 	<author>WebGroup Media, LLC.</author>
 	<revision>0</revision>
+	<class>
+		<file>classes.php</file>
+		<name>UmCorePlugin</name>
+	</class>
 	
 	<extensions>
 	
@@ -43,6 +47,19 @@
 				<param key="uri" value="community" />
 				<param key="title" value="Communities" />
 				<param key="menutitle" value="Communities" />
+			</params>
+		</extension>
+		
+		<!-- Usermeet Tools -->
+		
+		<extension point="usermeet.tool">
+			<id>support.tool</id>
+			<name>Support Center</name>
+			<class>
+				<file>classes.php</file>
+				<name>UmSupportApp</name>
+			</class>
+			<params>
 			</params>
 		</extension>
 		

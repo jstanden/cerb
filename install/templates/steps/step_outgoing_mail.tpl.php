@@ -6,14 +6,14 @@
 
 <H3>SMTP</H3>
 
-{if $smtp_error_display}<div style="color: red; font-weight: Bold;">{$smtp_error_display}</div><br><br>{/if}
+{if $smtp_error_display}
+	<div style="color:rgb(255,0,0);font-weight:bold;padding:10px;margin:5px;border:1px solid rgb(180,0,0);background-color:rgb(255,230,230);">
+		{$smtp_error_display}
+	</div>
+{/if}
 
 <b>SMTP Server:</b><br>
 <input type="text" name="smtp_host" value="{$smtp_host}" size="45"><br>
-<br>
-
-<b>Send test message to:</b><br>
-<input type="text" name="smtp_to" value="{$smtp_to}" size="45"><br>
 <br>
 
 <i>SMTP Auth. User (optional):</i><br>

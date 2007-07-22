@@ -49,6 +49,18 @@
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
 
+// Classes
+$path = realpath(dirname(__FILE__)) . DIRECTORY_SEPARATOR;
+DevblocksPlatform::registerClasses($path. 'api/Extension.php', array(
+    'Extension_UsermeetTool'
+));
+DevblocksPlatform::registerClasses($path. 'api/Model.php', array(
+    'Model_CommunityTool'
+));
+DevblocksPlatform::registerClasses($path. 'api/DAO.php', array(
+    'DAO_CommunityTool'
+));
+
 class UmPortalController extends DevblocksControllerExtension {
     const ID = 'usermeet.controller.portal';
 //    private $apps = array();
@@ -59,19 +71,6 @@ class UmPortalController extends DevblocksControllerExtension {
 	function __construct($manifest) {
 		parent::__construct($manifest);
 
-		$path = realpath(dirname(__FILE__)) . DIRECTORY_SEPARATOR;
-		
-		// Classes
-		DevblocksPlatform::registerClasses($path. 'api/Extension.php', array(
-		    'Extension_UsermeetTool'
-		));
-		DevblocksPlatform::registerClasses($path. 'api/Model.php', array(
-		    'Model_CommunityTool'
-		));
-		DevblocksPlatform::registerClasses($path. 'api/DAO.php', array(
-		    'DAO_CommunityTool'
-		));
-		    
 	    // Routing
 	    $router = DevblocksPlatform::getRoutingService();
 	    $router->addRoute('portal', self::ID);
@@ -165,13 +164,6 @@ class UmCommunityPage extends CerberusPageExtension {
 		parent::__construct($manifest);
 
 		$path = realpath(dirname(__FILE__)) . DIRECTORY_SEPARATOR;
-		
-		DevblocksPlatform::registerClasses($path. 'api/DAO.php', array(
-		    'DAO_CommunityTool'
-		));
-		DevblocksPlatform::registerClasses($path. 'api/Model.php', array(
-		    'Model_CommunityTool'
-		));
 	}
 		
 	function isVisible() {
@@ -230,6 +222,18 @@ class UmCommunityPage extends CerberusPageExtension {
 		        $instance = array_shift($instances);
 		        $tpl->assign('instance', $instance);
 
+		        $url_writer = DevblocksPlatform::getUrlService();
+		        $url = $url_writer->write('c=portal&a='.$code,true);
+		        $url_parts = parse_url($url);
+		        
+		        $host = $url_parts['host'];
+				$base = substr(DEVBLOCKS_WEBPATH,0,-1); // consume trailing
+		        $path = substr($url_parts['path'],strlen(DEVBLOCKS_WEBPATH)-1); // consume trailing slash
+				
+				$tpl->assign('host', $host);
+				$tpl->assign('base', $base);
+				$tpl->assign('path', $path);
+		        
 		        // Community Record
 		        $community_id = $instance[SearchFields_CommunityTool::COMMUNITY_ID];
 		        $community = DAO_Community::get($community_id);
@@ -338,5 +342,258 @@ class UmCommunityPage extends CerberusPageExtension {
 	
 };
 
+class UmSupportApp extends Extension_UsermeetTool {
+	const PARAM_DISPATCH = 'dispatch';
+	const PARAM_LOGO_URL = 'logo_url';
+	const PARAM_THEME_URL = 'theme_url';
+	const SESSION_CAPTCHA = 'write_captcha';
+	
+    function __construct($manifest) {
+        parent::__construct($manifest);
+        
+        $filepath = realpath(dirname(__FILE__)) . DIRECTORY_SEPARATOR;
+        
+        DevblocksPlatform::registerClasses('Text/CAPTCHA.php',array(
+        	'Text_CAPTCHA',
+        ));
+    }
+    
+	public function writeResponse(DevblocksHttpResponse $response) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		
+        $umsession = $this->getSession();
+		$stack = $response->path;
+		
+		$logo_url = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_LOGO_URL, '');
+		$tpl->assign('logo_url', $logo_url);
+		
+		// Usermeet Session
+		if(null == ($fingerprint = parent::getFingerprint())) {
+			die("A problem occurred.");
+		}
+        $tpl->assign('fingerprint', $fingerprint);
+
+		switch(array_shift($stack)) {
+			case 'captcha':
+				/*
+				 * CAPTCHA [TODO] API-ize
+				 */
+		        $imageOptions = array(
+		            'font_size' => 24,
+		            'font_path' => DEVBLOCKS_PATH . 'resources/font/',
+		            'font_file' => 'ryanlerch_-_Tuffy_Bold(2).ttf'
+		        );
+		
+		        // Set CAPTCHA options
+		        $options = array(
+		            'width' => 200,
+		            'height' => 75,
+		            'output' => 'jpg',
+		//            'phrase' => $pass,
+		            'imageOptions' => $imageOptions
+		        );
+				
+		        // Generate a new Text_CAPTCHA object, Image driver
+		        $c = Text_CAPTCHA::factory('Image');
+		        $retval = $c->init($options);
+		        if (PEAR::isError($retval)) {
+		            echo 'Error initializing CAPTCHA!';
+		            exit;
+		        }
+		    
+		        // Get CAPTCHA secret passphrase
+		        $umsession->setProperty(self::SESSION_CAPTCHA, $c->getPhrase());
+		    
+		        // Get CAPTCHA image (as PNG)
+		        $jpg = $c->getCAPTCHA($options);
+		        
+		        if (PEAR::isError($jpg)) {
+		            echo 'Error generating CAPTCHA!';
+		            exit;
+		        }
+		    	
+		        // Headers, don't allow to be cached
+                header('Cache-control: max-age=0', true); // 1 wk // , must-revalidate
+                header('Expires: ' . gmdate('D, d M Y H:i:s',time()-604800) . ' GMT'); // 1 wk
+                header('Content-length: '. count($jpg));
+		        echo $jpg;
+		        exit;
+		        
+				break;
+			
+		    case 'write':
+		    	switch(array_shift($stack)) {
+		    		case 'confirm':
+		    			$tpl->assign('last_opened',$umsession->getProperty('support.write.last_opened',''));
+		    			$tpl->display('file:' . dirname(__FILE__) . '/templates/portal/support/write/confirm.tpl.php');
+		    			break;
+		    			
+		    		default:
+		    			$tpl->assign('last_from',$umsession->getProperty('support.write.last_from',''));
+						$tpl->assign('last_nature',$umsession->getProperty('support.write.last_nature',''));
+						$tpl->assign('last_content',$umsession->getProperty('support.write.last_content',''));
+						$tpl->assign('last_error',$umsession->getProperty('support.write.last_error',''));
+		    			
+        				$sDispatch = DAO_CommunityToolProperty::get($this->getPortal(),self::PARAM_DISPATCH, '');
+		    			$dispatch = !empty($sDispatch) ? unserialize($sDispatch) : array();
+				        $tpl->assign('dispatch', $dispatch);
+				        $tpl->display('file:' . dirname(__FILE__) . '/templates/portal/support/write/index.tpl.php');
+				        break;
+		    	}
+		    	break;
+		        
+		    default:
+		        $tpl->display('file:' . dirname(__FILE__) . '/templates/portal/support/index.tpl.php');
+		        break;
+		}
+	}
+	
+	function doSendMessageAction() {
+		@$sFrom = DevblocksPlatform::importGPC($_POST['from'],'string','');
+		@$sNature = DevblocksPlatform::importGPC($_POST['nature'],'string','');
+		@$sContent = DevblocksPlatform::importGPC($_POST['content'],'string','');
+		@$sCaptcha = DevblocksPlatform::importGPC($_POST['captcha'],'string','');
+		
+		$umsession = $this->getSession();
+		$fingerprint = parent::getFingerprint();
+
+        $settings = CerberusSettings::getInstance();
+        $default_from = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM);
+
+        // [TODO] These could be combined into a single property
+		$umsession->setProperty('support.write.last_from',$sFrom);
+		$umsession->setProperty('support.write.last_nature',$sNature);
+		$umsession->setProperty('support.write.last_content',$sContent);
+        
+		if(empty($sFrom) || 0 != strcasecmp($sCaptcha,@$umsession->getProperty(self::SESSION_CAPTCHA,'***'))) {
+			
+			if(empty($sFrom)) {
+				$umsession->setProperty('support.write.last_error','Invalid e-mail address.');
+			} else {
+				$umsession->setProperty('support.write.last_error','What you typed did not match the image.');
+			}
+			
+			// [TODO] Need to report the captcha didn't match and redraw the form
+			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',$this->getPortal(),'write')));
+			return;
+		}
+
+		// Dispatch
+		$to = $default_from;
+		$subject = 'Contact me: Other';
+        $sDispatch = DAO_CommunityToolProperty::get($this->getPortal(),self::PARAM_DISPATCH, '');
+        $dispatch = !empty($sDispatch) ? unserialize($sDispatch) : array();
+
+        foreach($dispatch as $k => $v) {
+        	if(md5($k)==$sNature) {
+        		$to = $v;
+        		$subject = 'Contact me: ' . $k;
+        		break;
+        	}
+        }
+		
+		$message = new CerberusParserMessage();
+		$message->headers['date'] = date('r'); 
+		$message->headers['to'] = $to;
+		$message->headers['subject'] = $subject;
+		$message->headers['message-id'] = CerberusApplication::generateMessageId();
+		$message->headers['x-cerberus-portal'] = 1; 
+		
+		// Sender
+		$fromList = imap_rfc822_parse_adrlist($sFrom,'');
+		if(empty($fromList) || !is_array($fromList)) {
+			return; // abort with message
+		}
+		$from = array_shift($fromList);
+		$message->headers['from'] = $from->mailbox . '@' . $from->host; 
+
+		$message->body = 'IP: ' . $fingerprint['ip'] . "\r\n\r\n" . $sContent;
+
+		$ticket_id = CerberusParser::parseMessage($message);
+		$ticket = DAO_Ticket::getTicket($ticket_id);
+		
+//		echo "Created Ticket ID: $ticket_id<br>";
+		// [TODO] Could set this ID/mask into the UMsession
+
+		// Clear any errors
+		$umsession->setProperty('support.write.last_nature',null);
+		$umsession->setProperty('support.write.last_content',null);
+		$umsession->setProperty('support.write.last_error',null);
+		$umsession->setProperty('support.write.last_opened',$ticket->mask);
+		
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',$this->getPortal(),'write','confirm')));
+	}
+	
+	/**
+	 * @param $instance Model_CommunityTool 
+	 */
+    public function configure($instance) {
+        $tpl = DevblocksPlatform::getTemplateService();
+        $tpl_path = realpath(dirname(__FILE__)) . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR;
+        
+        $settings = CerberusSettings::getInstance();
+        
+        $default_from = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM);
+        $tpl->assign('default_from', $default_from);
+        
+        $sDispatch = DAO_CommunityToolProperty::get($this->getPortal(),self::PARAM_DISPATCH, '');
+        $dispatch = !empty($sDispatch) ? unserialize($sDispatch) : array();
+        $tpl->assign('dispatch', $dispatch);
+        
+        $logo_url = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_LOGO_URL, '');
+		$tpl->assign('logo_url', $logo_url);
+        
+        $tpl->display("file:${tpl_path}portal/support/config.tpl.php");
+    }
+    
+    public function saveConfigurationAction() {
+        @$sLogoUrl = DevblocksPlatform::importGPC($_POST['logo_url'],'string','');
+        @$sThemeUrl = DevblocksPlatform::importGPC($_POST['theme_url'],'string','');
+    	    	
+    	@$aReason = DevblocksPlatform::importGPC($_POST['reason'],'array',array());
+        @$aTo = DevblocksPlatform::importGPC($_POST['to'],'array',array());
+
+        $settings = CerberusSettings::getInstance();
+        
+        DAO_CommunityToolProperty::set($this->getPortal(), self::PARAM_LOGO_URL, $sLogoUrl);
+        DAO_CommunityToolProperty::set($this->getPortal(), self::PARAM_THEME_URL, $sThemeUrl);
+        
+        $dispatch = array();
+        $default_from = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM);
+
+        if(is_array($aReason) && is_array($aTo))
+        foreach($aReason as $idx => $reason) {
+        	if(!empty($reason)) {
+        		$to = !empty($aTo[$idx]) ? $aTo[$idx] : $default_from;
+        		$dispatch[$reason] = $to;
+        	}
+        }
+        
+        ksort($dispatch);
+        
+		DAO_CommunityToolProperty::set($this->getPortal(), self::PARAM_DISPATCH, serialize($dispatch));
+    }
+	
+};
+
+class UmCorePlugin extends DevblocksPlugin {
+	function install(DevblocksPluginManifest $manifest) {
+		/*
+		 * [IMPORTANT -- Yes, this is simply a line in the sand.]
+		 * You're welcome to modify the code to meet your needs, but please respect 
+		 * our licensing.  Buy a legitimate copy to help support the project!
+		 * http://www.cerberusweb.com/
+		 */
+		$license = CerberusLicense::getInstance();
+		
+		if(CerberusHelper::is_class($manifest) && @isset($license['features'][$manifest->name])) {
+			return TRUE;
+		}
+		
+		return FALSE;
+	}
+};
 
 ?>

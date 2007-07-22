@@ -1,17 +1,6 @@
 {include file="file:$path/configuration/menu.tpl.php"}
 <br>
 
-<div id="tourConfigExtensionsRefresh"></div>
-<div class="block">
-<h2>Synchronization</h2>
-<form action="{devblocks_url}{/devblocks_url}" method="post">
-<input type="hidden" name="c" value="config">
-<input type="hidden" name="a" value="refreshPlugins">
-<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/data_find.gif{/devblocks_url}" align="top"> Scan for plugin changes</button>
-</form>
-</div>
-<br>
-
 <div class="block">
 <h2>Active Plugins</h2>
 <form action="{devblocks_url}{/devblocks_url}" method="post">
@@ -32,9 +21,9 @@
 						<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/wgm/icon_plus.gif{/devblocks_url}" align="absmiddle" border="0"> 
 						&nbsp;
 						 -->
-						<span style="font-weight:bold;color:rgb(0,120,0);">{$plugin->name}</span> (Revision: {$plugin->revision})
+						<span style="font-weight:bold;color:rgb(0,120,0);">{$plugin->name}</span> <!-- (Revision: {$plugin->revision}) -->
 						<br> 
-						by <a href="#" style="font-weight:normal;color:rgb(120,120,120);">{$plugin->author}</a>
+						by <span style="font-weight:normal;color:rgb(120,120,120);">{$plugin->author}</span>
 					</td>
 				</tr>
 				<tr>

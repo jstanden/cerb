@@ -2,15 +2,13 @@
 <plugin>
 	<id>cerberusweb.simulator</id>
 	<name>Cerberus Helpdesk Simulator</name>
-	<description>A tool to assist evaluators by creating sample tickets, etc.</description>
+	<description>A tool to assist evaluators with creating sample tickets</description>
 	<author>WebGroup Media, LLC.</author>
 	<revision>0</revision>
-	
-	<!-- 
-	<mapping>
-		<uri value="simulator" extension_id="core.page.simulator" />
-	</mapping>	
-	-->
+	<class>
+		<file>classes.php</file>
+		<name>ChSimulatorPlugin</name>
+	</class>
 	
 	<extensions>
 	

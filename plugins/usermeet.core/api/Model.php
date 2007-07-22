@@ -69,7 +69,11 @@ class Model_CommunitySession {
 	}
 	
 	function setProperty($key, $value) {
-		$this->_properties[$key] = $value;
+		if(null==$value) {
+			unset($this->_properties[$key]);	
+		} else {
+			$this->_properties[$key] = $value;
+		}
 		DAO_CommunitySession::save($this);
 	}
 	

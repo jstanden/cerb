@@ -2,13 +2,13 @@
 <plugin>
 	<id>cerberusweb.mobile</id>
 	<name>Cerberus Helpdesk Mobile UI</name>
-	<description>Minimalistic interface for mobile devices.</description>
+	<description>Minimalistic interface for mobile devices</description>
 	<author>WebGroup Media, LLC.</author>
 	<revision>0</revision>
-	
-	<mapping>
-		<uri value="mobile" extension_id="cerberusweb.page.mobile" />
-	</mapping>
+	<class>
+		<file>classes.php</file>
+		<name>ChMobilePlugin</name>
+	</class>
 	
 	<extensions>
 	

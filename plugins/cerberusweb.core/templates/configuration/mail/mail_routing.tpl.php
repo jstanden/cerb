@@ -66,10 +66,15 @@
 
 			<b>Add routing rule (Pattern -> Group):</b> <!-- [<a href="javascript:;">Explain</a>] --><br>
 			{include file="$path/configuration/mail/mail_routing_add.tpl.php"} 
-			<a href="javascript:;" onclick="genericAjaxGet('configMailRoutingAdd','c=config&a=getMailRoutingAdd',configAjax.cbMailRoutingAdd);">add another rule</a>
+			<a href="javascript:;" onclick="genericAjaxGet('configMailRoutingAdd','c=config&a=getMailRoutingAdd',configAjax.cbMailRoutingAdd);">add another rule field</a>
 			<br>
 			<div id="configMailRoutingAdd"></div>
-			(use * for wildcards, for example: support@*)<br>
+			<b>Routing pattern tips:</b><br>
+			<ul style="margin-top:0px;">
+				<li>The easiest pattern is a single address: <i style="color:rgb(0,180,0);">support@webgroupmedia.com</i></li>
+				<li>Use * for wildcards: <i style="color:rgb(0,180,0);">support@*</i></li>
+				<li>A single rule may contain sets: <i style="color:rgb(0,180,0);">(support|help|contact)@*</i></li>
+			</ul>
 			<br>
 			
 			<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>

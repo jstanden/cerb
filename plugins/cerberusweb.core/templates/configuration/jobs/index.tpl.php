@@ -2,6 +2,10 @@
 <br>
 
 <H2>Scheduler</H2>
+<ul style="margin-top:5px;">
+<li>Simple: <a href="{devblocks_url}c=cron{/devblocks_url}" target="_blank">automatically run jobs in a browser window</a></li>
+<li>Advanced: ping <a href="{devblocks_url full=true}c=cron{/devblocks_url}" target="_blank"><b>{devblocks_url full=true}c=cron{/devblocks_url}</b></a> with wget/lynx in an external cron/scheduled task</li>
+</ul>
 <br>
 
 <div id="tourConfigTasks"></div>

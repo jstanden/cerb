@@ -1,14 +1,19 @@
+{if !empty($params)}
 <div class="block">
 <table cellpadding="2" cellspacing="0" width="200" border="0">
 	<tr>
-		<td><h2>Current Criteria</h2></td>
+		<td nowrap="nowrap">
+			<h2 style="display:inline;">Current Criteria</h2> 
+			[ <a href="{devblocks_url}c=tickets&a=resetCriteria{/devblocks_url}">reset</a> ]
+		</td>
 	</tr>
+	<!-- 
 	<tr>
 		<td>
 			{if $view->type=='S'}
 				Search: <b>{$view->name}</b><br>
 			{/if}
-			<a href="{devblocks_url}c=tickets&a=resetCriteria{/devblocks_url}">reset</a> |
+			|
 			<a href="javascript:;" onclick="ajax.getSaveSearch('{$divName}');">save as</a> |
 			<a href="javascript:;" onclick="ajax.getLoadSearch('{$divName}');">load</a>
 			{if $view->type=='S'} | <a href="javascript:;" onclick="ajax.deleteSearch('{$view->id}');">delete</a>{/if}
@@ -16,6 +21,7 @@
 			<form id="{$divName}_control"></form>
 		</td>
 	</tr>
+ -->
 	<tr>
 		<td>
 			<table cellpadding="2" cellspacing="0" border="0">
@@ -113,8 +119,8 @@
 	</tr>
 </table>
 </div>
-
 <br>
+{/if}
 
 <div class="block">
 	<form action="{devblocks_url}{/devblocks_url}" method="POST">

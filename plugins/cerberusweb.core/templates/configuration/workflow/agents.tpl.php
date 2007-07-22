@@ -9,7 +9,13 @@
 					<td><h2>Workers</h2></td>
 				</tr>
 				<tr>
-					<td>[ <a href="javascript:;" onclick="configAjax.getWorker('0');">add new worker</a> ]</td>
+					<td>
+						{if (empty($license) || empty($license.key)) && count($workers) >= 3}
+						[ free version limited to 3 users ]
+						{else}
+						[ <a href="javascript:;" onclick="configAjax.getWorker('0');">add new worker</a> ]
+						{/if}
+					</td>
 				</tr>
 				<tr>
 					<td>

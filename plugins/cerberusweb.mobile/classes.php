@@ -48,7 +48,10 @@
  * 		and Joe Geck.
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-// [TODO] Convert to a controller (not page)
+class ChMobilePlugin extends DevblocksPlugin {
+	
+};
+
 class MobileController extends DevblocksControllerExtension {
     const ID = 'cerberusweb.controller.mobile';
 	

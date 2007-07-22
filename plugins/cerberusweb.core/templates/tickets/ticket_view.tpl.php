@@ -30,13 +30,11 @@
 			{* start table header, insert column title and link *}
 			<th>
 			{if $header=="t_mask"}<a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_mask');">{$translate->_('ticket.id')}</a>
-		{*	{elseif $header=="t_priority"}<a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_priority');">{$translate->_('ticket.priority')}</a>*}
 			{elseif $header=="t_last_wrote"}<a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_last_wrote');">{$translate->_('ticket.last_wrote')}</a>
 			{elseif $header=="t_first_wrote"}<a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_first_wrote');">{$translate->_('ticket.first_wrote')}</a>
 			{elseif $header=="t_created_date"}<a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_created_date');">{$translate->_('ticket.created')}</a>
 			{elseif $header=="t_updated_date"}<a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_updated_date');">{$translate->_('ticket.updated')}</a>
 			{elseif $header=="t_due_date"}<a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_due_date');">{$translate->_('ticket.due')}</a>
-		{*	{elseif $header=="t_tasks"}<a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_tasks');">{$translate->_('common.tasks')}</a>*}
 			{elseif $header=="m_name"}<a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','m_name');">{$translate->_('ticket.mailbox')}</a>
 			{elseif $header=="t_spam_score"}<a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_spam_score');">{$translate->_('common.spam')}</a>
 			{elseif $header=="t_next_action"}<a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_next_action');">{$translate->_('ticket.next_action')}</a>
@@ -155,10 +153,10 @@
 	{if $total}
 	<tr>
 		<td colspan="2">
-			{if $view->id != 'contact_history'}<span id="tourDashboardBatch"><button type="button" onclick="ajax.showBatchPanel('{$view->id}','{$dashboard_team_id}');">bulk update</button></span>{/if}
-			<button type="button" onclick="ajax.viewCloseTickets('{$view->id}',0);">close</button>
-			<button type="button" onclick="ajax.viewCloseTickets('{$view->id}',1);">report spam</button>
-			{if $active_worker && ($active_worker->is_superuser || $active_worker->can_delete)}<button type="button" onclick="ajax.viewCloseTickets('{$view->id}',2);">delete</button>{/if}
+			{if $view->id != 'contact_history'}<span id="tourDashboardBatch"><button type="button" onclick="ajax.showBatchPanel('{$view->id}','{$dashboard_team_id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> bulk update</button></span>{/if}
+			<button type="button" onclick="ajax.viewCloseTickets('{$view->id}',0);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_ok.gif{/devblocks_url}" align="top"> close</button>
+			<button type="button" onclick="ajax.viewCloseTickets('{$view->id}',1);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/spam.gif{/devblocks_url}" align="top"> spam</button>
+			{if $active_worker && ($active_worker->is_superuser || $active_worker->can_delete)}<button type="button" onclick="ajax.viewCloseTickets('{$view->id}',2);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> delete</button>{/if}
 			
 			<input type="hidden" name="move_to" value="">
 			<select name="move_to_select" onchange="this.form.move_to.value=this.form.move_to_select[this.selectedIndex].value;ajax.viewMoveTickets('{$view->id}');">

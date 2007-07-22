@@ -74,7 +74,8 @@ class CerberusMail {
 
 		// objects
 	    $mail_service = DevblocksPlatform::getMailService();
-	    $mail = $mail_service->createEmail();
+	    $mailer = $mail_service->getMailer();
+		$mail = $mail_service->createMessage();
         
 	    // properties
 	    @$type = $properties['type']; // [TODO] Phase out
@@ -82,6 +83,8 @@ class CerberusMail {
 	    @$content =& $properties['content'];
 	    @$files = $properties['files'];
 	    @$worker_id = $properties['agent_id'];
+	    
+//	    $files = $mail_service->persistTempFiles($files);
 	    
 		$message = DAO_Ticket::getMessage($message_id);
         $message_headers = DAO_MessageHeader::getAll($message_id);		
@@ -99,13 +102,13 @@ class CerberusMail {
 		if(!empty($group_settings[DAO_GroupSettings::SETTING_REPLY_PERSONAL])) 
 			$from_personal = $group_settings[DAO_GroupSettings::SETTING_REPLY_PERSONAL];
 		
+		$sendFrom = new Swift_Address($from_addy, $from_personal);
+			
 		// Headers
-		$mail->setFrom($from_addy, $from_personal);
+		$mail->setFrom($sendFrom);
 		$mail->setSubject('Re: ' . $ticket->subject);
-		$mail->headers->set('Date', gmdate('r'));
-		$mail->headers->set('Message-Id',CerberusApplication::generateMessageId());
+		$mail->generateId();
 		$mail->headers->set('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
-		$mail->headers->set('X-MailGenerator','Cerberus Helpdesk (Build '.APP_BUILD.')');
 		
 		// References
 		if(!empty($message) && false !== (@$in_reply_to = $message_headers['message-id'])) {
@@ -113,18 +116,35 @@ class CerberusMail {
 		    $mail->headers->set('In-Reply-To', $in_reply_to);
 		}
 		
+		/*
+		 * [IMPORTANT -- Yes, this is simply a line in the sand.]
+		 * You're welcome to modify the code to meet your needs, but please respect 
+		 * our licensing.  Buy a legitimate copy to help support the project!
+		 * http://www.cerberusweb.com/
+		 */
+		// Free Version Tagline
+		$license = CerberusLicense::getInstance();
+		if(empty($license) || @empty($license['key'])) {
+			$content .= "\r\n\r\n".
+				"---\r\n".
+				"Mail handled by Cerberus Helpdesk -- http://www.cerberusweb.com/\r\n".
+				"Combat Spam. Improve Response Times. Share Knowledge.\r\n";
+		}
+		
 		// Body
-		$mail->setTextBody($content); // , 'iso-8859-1' 
-
+		$mail->attach(new Swift_Message_Part($content));
+		
 	    // Recepients
+		$sendTo = new Swift_RecipientList();
 		$to = array();
 		$requesters = DAO_Ticket::getRequestersByTicket($ticket_id);
 	    if(is_array($requesters)) {
 		    foreach($requesters as $requester) { /* @var $requester CerberusAddress */
-				$mail->addRecipient($requester->email);
-				$to[] = $requester->email;
+				$to[] = new Swift_Address($requester->email);
+				$sendTo->addTo($requester->email);
 		    }
 	    }
+	    $mail->setTo($to);
 	    
 		// Mime Attachments
 		if (is_array($files) && !empty($files)) {
@@ -132,19 +152,13 @@ class CerberusMail {
 				if(empty($file) || empty($files['name'][$idx]))
 					continue;
 
-				// $files['type'][$idx]
-				$mail->attachFromString(file_get_contents($file), $files['name'][$idx]);
-				
-//				$tmp = tempnam(DEVBLOCKS_PATH . 'tmp/','mime');
-//				if($mail_service->streamedBase64Encode($file, $tmp)) {
-//					$mail->attachFromString(file_get_contents($tmp), $files['name'][$idx]);
-//				}
-//				@unlink($tmp);
+				$mail->attach(new Swift_Message_Attachment(
+					new Swift_File($file), $files['name'][$idx], $files['type'][$idx]));
 			}
 		}
 
-		if(!$mail_service->send($from_addy, $to, $mail)) {
-			// [TODO] Do error reporting
+		if(!$mailer->send($mail, $sendTo, $sendFrom)) {
+			// [TODO] Report when the message wasn't sent.
 		}
 		
 		// [TODO] Make this properly use team replies 
@@ -162,20 +176,20 @@ class CerberusMail {
 		// Content
 	    DAO_MessageContent::update($message_id, $content);
 	    
-		foreach(array('Date', 'From', 'To', 'Subject', 'Message-Id', 'X-Mailer') as $hdr) {
-			if(null != ($hdr_val = $mail->headers->get($hdr)))
-				if(false !== ($pos = strpos($hdr_val,':'))) {
-					$hdr_val = trim(substr($hdr_val, $pos+1));
-		    		DAO_MessageHeader::update($message_id, $ticket_id, $hdr, $hdr_val);
-				}
+	    // Headers
+		foreach($mail->headers->getList() as $hdr => $v) {
+			if(null != ($hdr_val = $mail->headers->getEncoded($hdr))) {
+				if(!empty($hdr_val))
+	    			DAO_MessageHeader::update($message_id, $ticket_id, $hdr, $hdr_val);
+			}
 		}
-
+	    
 		if (is_array($files) && !empty($files)) {
 			$attachment_path = APP_PATH . '/storage/attachments/';
 		
-			// [TODO] Use API to abstract writing these to disk (share w/ Parser)
+			reset($files);
 			foreach ($files['tmp_name'] as $idx => $file) {
-				if(empty($file) || empty($files['name'][$idx]))
+				if(empty($file) || empty($files['name'][$idx]) || !file_exists($file))
 					continue;
 					
 				$fields = array(
@@ -192,16 +206,23 @@ class CerberusMail {
 	            $attachment_file = $file_id;
 	            
 	            if(!file_exists($attachment_path.$attachment_bucket)) {
-	                @mkdir($attachment_path.$attachment_bucket, 0770, true);
+	                mkdir($attachment_path.$attachment_bucket, 0775, true);
 	            }
 
-	            rename($file, $attachment_path.$attachment_bucket.$attachment_file);
+	            if(!is_writeable($attachment_path.$attachment_bucket)) {
+	            	echo "Can't write to " . $attachment_path.$attachment_bucket . "<BR>";
+	            }
+	            
+	            copy($file, $attachment_path.$attachment_bucket.$attachment_file);
+	            @unlink($file);
 			    
 			    DAO_Attachment::update($file_id, array(
 			        DAO_Attachment::FILEPATH => $attachment_bucket.$attachment_file
 			    ));
 			}
 		}
+		
+//		$mail_service->cleanTempFiles($files);
 		
 		// Handle post-mail actions
 		$change_fields = array();

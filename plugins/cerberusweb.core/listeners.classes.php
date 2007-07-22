@@ -74,7 +74,6 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension implements IDevb
         'tourDashboardSearchCriteria' => new DevblocksTourCallout('tourDashboardSearchCriteria','Search Criteria','Here you can change the criteria of the current search.'),
         'tourConfigMenu' => new DevblocksTourCallout('tourConfigMenu','Menu','This is where you may choose to configure various components of the helpdesk.'),
         'tourConfigMailRouting' => new DevblocksTourCallout('tourConfigMailRouting','Mail Routing','This is where you instruct the helpdesk how to deliver new messages.'),
-        'tourConfigExtensionsRefresh' => new DevblocksTourCallout('tourConfigExtensionsRefresh','Synchronize','This button will detect any plug-in changes.  Click this after installing or upgrading plug-ins.'),
         '' => new DevblocksTourCallout('',''),
         );
     }
@@ -167,7 +166,6 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension implements IDevb
                         'title' => 'Extensions',
                         'body' => "This is where you may extend Cerberus Helpdesk by installing new functionality through plug-ins.",
                         'callouts' => array(
-                        $callouts['tourConfigExtensionsRefresh'],
                         )
                         );
                         break;

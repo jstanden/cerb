@@ -48,6 +48,10 @@
  * 		and Joe Geck.
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
+class ChSimulatorPlugin extends DevblocksPlugin {
+	
+};
+
 class ChSimulatorPage extends CerberusPageExtension {
 	function __construct($manifest) {
 		parent::__construct($manifest);
