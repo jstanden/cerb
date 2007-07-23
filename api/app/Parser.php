@@ -196,33 +196,38 @@ class CerberusParser {
 						$headers['in-reply-to'] = $inline_headers['message-id'];
 					}
 					
-					foreach($struct as $st) {
-						$section = mailparse_msg_get_part($mail, $st);
-						$info = mailparse_msg_get_part_data($section);
-						if(empty($info['content-name'])) {
-							if($info['content-type'] == 'text/plain') {
-								$str = '';								
-								if(sizeof($body_append_text) == 0 ) {
-									foreach($inline_headers as $in_header_key=>$in_header_val) {
-										$str.=$in_header_key.': '. $in_header_val . "\r\n";
-									}
-								}
-								$str .= @mailparse_msg_extract_part_file($section, $full_filename, NULL);
-								$body_append_text[] = $str;
-							}
-							elseif($info['content-type'] == 'text/html') {
-								$str = '';								
-								if(sizeof($body_append_html) == 0 ) {
-									foreach($inline_headers as $in_header_key=>$in_header_val) {
-										$str.=$in_header_key.': '. $in_header_val . "\r\n";
-									}
-								}
-								$str .= "\r\n";
-								$str .= @mailparse_msg_extract_part_file($section, $full_filename, NULL);
-								$body_append_html[] = @mailparse_msg_extract_part_file($section, $full_filename, NULL);
-							}
-						}						
-					}
+					//[mdf] commented out this block because the text of such messages seems to already
+					//be included in the message because of code in cron.classes.php
+					//this probably does it better, but for now isn't needed because
+					//it results in redundant inclusion of the attached text from forwards and bounces
+					// [TODO] Make sure the body of forwards/bounces are formatted clearly properly
+//					foreach($struct as $st) {
+//						$section = mailparse_msg_get_part($mail, $st);
+//						$info = mailparse_msg_get_part_data($section);
+//						if(empty($info['content-name'])) {
+//							if($info['content-type'] == 'text/plain') {
+//								$str = '';								
+//								if(sizeof($body_append_text) == 0 ) {
+//									foreach($inline_headers as $in_header_key=>$in_header_val) {
+//										$str.=$in_header_key.': '. $in_header_val . "\r\n";
+//									}
+//								}
+//								$str .= @mailparse_msg_extract_part_file($section, $full_filename, NULL);
+//								$body_append_text[] = $str;
+//							}
+//							elseif($info['content-type'] == 'text/html') {
+//								$str = '';								
+//								if(sizeof($body_append_html) == 0 ) {
+//									foreach($inline_headers as $in_header_key=>$in_header_val) {
+//										$str.=$in_header_key.': '. $in_header_val . "\r\n";
+//									}
+//								}
+//								$str .= "\r\n";
+//								$str .= @mailparse_msg_extract_part_file($section, $full_filename, NULL);
+//								$body_append_html[] = @mailparse_msg_extract_part_file($section, $full_filename, NULL);
+//							}
+//						}						
+//					}
 
 
 				break;
@@ -281,14 +286,14 @@ class CerberusParser {
 		    
 		    // Content
 		    $body = CerberusApplication::stripHTML($message->htmlbody);
-		    // [mdf] append the contents of any message bodies found in message attachments earlier 
-		    if(!empty($body_append_html)) {
-				$body .= "\r\n\r\n----- Original message -----\r\n"; 
-		    	for($i=0; $i < count($body_append_html); $i++) {
-					$body .= "\r\n\r\n" . CerberusApplication::stripHTML($body_append_html[$i]);
-		    	}
-				$body .= "\r\n----- End of message -----\r\n";
-		    }
+//		    // [mdf] append the contents of any message bodies found in message attachments earlier 
+//		    if(!empty($body_append_html)) {
+//				$body .= "\r\n\r\n----- Original message -----\r\n"; 
+//		    	for($i=0; $i < count($body_append_html); $i++) {
+//					$body .= "\r\n\r\n" . CerberusApplication::stripHTML($body_append_html[$i]);
+//		    	}
+//				$body .= "\r\n----- End of message -----\r\n";
+//		    }
 		    DAO_MessageContent::update($email_id, $body);
 			
 		    // Headers
@@ -307,12 +312,12 @@ class CerberusParser {
 			$email_id = DAO_Message::create($fields);
 			
 			$body = $message->body;
-			//[mdf] append the contents of any message bodies found in message attachments earlier
-			if(!empty($body_append_text)) {
-				$body .= "\r\n\r\n----- Original message -----\r\n"; 
-				$body .= implode("\r\n\r\n", $body_append_text);
-				$body .= "\r\n----- End of message -----\r\n";
-			}
+//			//[mdf] append the contents of any message bodies found in message attachments earlier
+//			if(!empty($body_append_text)) {
+//				$body .= "\r\n\r\n----- Original message -----\r\n"; 
+//				$body .= implode("\r\n\r\n", $body_append_text);
+//				$body .= "\r\n----- End of message -----\r\n";
+//			}
 			// Content
 			DAO_MessageContent::update($email_id, $body);
 			
