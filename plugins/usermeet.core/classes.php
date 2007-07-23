@@ -93,6 +93,7 @@ class UmPortalController extends DevblocksControllerExtension {
 		array_shift($stack); // portal
 		$code = array_shift($stack); // xxxxxxxx
 
+		// [TODO] Convert to Model_CommunityTool::getByCode()
         if(null != ($tool = $this->hash[$code])) {
 	        // [TODO] Don't double instance any apps (add instance registry to ::getExtension?)
 	        $manifest = DevblocksPlatform::getExtension($tool->extension_id);
@@ -113,6 +114,7 @@ class UmPortalController extends DevblocksControllerExtension {
 		array_shift($stack); // portal
 		$code = array_shift($stack); // xxxxxxxx
 
+		// [TODO] Convert to Model_CommunityTool::getByCode()
         if(null != ($tool = $this->hash[$code])) {
 	        // [TODO] Don't double instance any apps (add instance registry to ::getExtension?)
 	        $manifest = DevblocksPlatform::getExtension($tool->extension_id);
@@ -178,6 +180,26 @@ class UmCommunityPage extends CerberusPageExtension {
 		}
 	}
 	
+	// Ajax
+	function actionAction() {
+    	if(null == ($worker = CerberusApplication::getActiveWorker()))
+    		die();
+		
+    	@$sCode = DevblocksPlatform::importGPC($_REQUEST['code'],'string','');
+    	@$sAction = DevblocksPlatform::importGPC($_REQUEST['action'],'string','');
+
+		if(null != ($instance = DAO_CommunityTool::getByCode($sCode))) {
+			$manifest = DevblocksPlatform::getExtension($instance->extension_id);
+            $tool = $manifest->createInstance(); /* @var $app Extension_UsermeetTool */
+			$tool->setPortal($sCode); // [TODO] Kinda hacky
+			
+			// Passthrough [TODO] need to secure to agent logins
+			if(method_exists($tool, $sAction)) {
+				call_user_method($sAction, $tool);
+			}
+		}
+	}
+	
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
@@ -207,45 +229,41 @@ class UmCommunityPage extends CerberusPageExtension {
 		    case 'tool':
 		        $code = array_shift($stack);
 
-		        // Instance (Tool Fields)
-	            // [TODO] This makes templates a bit wacky, convert to a DAO call returning a Model obj?
-		        list($instances, $count) = DAO_CommunityTool::search(
-		            array(
-		                new DevblocksSearchCriteria(SearchFields_CommunityTool::CODE,DevblocksSearchCriteria::OPER_EQ,$code)
-		            ),
-		            1,
-		            0,
-		            null,
-		            null,
-		            false
-		        );
-		        $instance = array_shift($instances);
-		        $tpl->assign('instance', $instance);
-
-		        $url_writer = DevblocksPlatform::getUrlService();
-		        $url = $url_writer->write('c=portal&a='.$code,true);
-		        $url_parts = parse_url($url);
-		        
-		        $host = $url_parts['host'];
-				$base = substr(DEVBLOCKS_WEBPATH,0,-1); // consume trailing
-		        $path = substr($url_parts['path'],strlen(DEVBLOCKS_WEBPATH)-1); // consume trailing slash
-				
-				$tpl->assign('host', $host);
-				$tpl->assign('base', $base);
-				$tpl->assign('path', $path);
+				if(null != ($instance = DAO_CommunityTool::getByCode($code))) {
+					$tpl->assign('instance', $instance);
+					$manifest = DevblocksPlatform::getExtension($instance->extension_id);
+		            $tool = $manifest->createInstance(); /* @var $app Extension_UsermeetTool */
+					$tool->setPortal($code); // [TODO] Kinda hacky
+		        	$tpl->assign('tool', $tool);
+				}
 		        
 		        // Community Record
-		        $community_id = $instance[SearchFields_CommunityTool::COMMUNITY_ID];
+		        $community_id = $instance->community_id;
 		        $community = DAO_Community::get($community_id);
 		        $tpl->assign('community', $community);
 		        
-		        // Tool Manifest
-		        $toolManifest = DevblocksPlatform::getExtension($instance[SearchFields_CommunityTool::EXTENSION_ID]);
-		        $tool = $toolManifest->createInstance();
-		        $tool->setPortal($code); // [TODO] Kinda hacky
-		        $tpl->assign('tool', $tool);
+		        $action = array_shift($stack);
+		        switch($action) {
+		        	case 'configure': // configure
+				        $url_writer = DevblocksPlatform::getUrlService();
+				        $url = $url_writer->write('c=portal&a='.$code,true);
+				        $url_parts = parse_url($url);
+				        
+				        $host = $url_parts['host'];
+						$base = substr(DEVBLOCKS_WEBPATH,0,-1); // consume trailing
+				        $path = substr($url_parts['path'],strlen(DEVBLOCKS_WEBPATH)-1); // consume trailing slash
+						
+						$tpl->assign('host', $host);
+						$tpl->assign('base', $base);
+						$tpl->assign('path', $path);
+						
+						$tpl->display('file:' . dirname(__FILE__) . '/templates/community/tool_config.tpl.php');						
+		        		break;
+		        		
+		        	default:
+	        			break;
+		        }
 		        
-		        $tpl->display('file:' . dirname(__FILE__) . '/templates/community/tool_config.tpl.php');
 		        break;
 		    
 		    case 'widget':
@@ -288,26 +306,20 @@ class UmCommunityPage extends CerberusPageExtension {
 	// Facade
 	function saveConfigurationAction() {
 		@$code = DevblocksPlatform::importGPC($_POST['code'],'string');
+        @$iFinished = DevblocksPlatform::importGPC($_POST['finished'],'integer',0);
 		
-        list($instances, $count) = DAO_CommunityTool::search(
-            array(
-                new DevblocksSearchCriteria(SearchFields_CommunityTool::CODE,DevblocksSearchCriteria::OPER_EQ,$code)
-            ),
-            1,
-            0,
-            null,
-            null,
-            false
-        );
-        $instance = array_shift($instances);
-		
-        if(null != ($toolManifest = DevblocksPlatform::getExtension($instance[SearchFields_CommunityTool::EXTENSION_ID]))) {
-        	$tool = $toolManifest->createInstance(); /* @var $app Extension_UsermeetTool */
+		if(null != ($instance = DAO_CommunityTool::getByCode($code))) {
+			$manifest = DevblocksPlatform::getExtension($instance->extension_id);
+            $tool = $manifest->createInstance(); /* @var $app Extension_UsermeetTool */
 			$tool->setPortal($code); // [TODO] Kinda hacky
-	        $tool->handleRequest(new DevblocksHttpRequest(array('saveConfiguration')));
-        } else {
-            echo "Tool not found."; // [TODO] Better error handling
-        }
+	        $tool->saveConfiguration();
+		}
+		
+		if($iFinished) {
+			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('community')));
+		} else {
+			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('community','tool',$code,'configure')));
+		}
 	}
 	
 	function createCommunityAction() {
@@ -388,9 +400,10 @@ class UmSupportApp extends Extension_UsermeetTool {
 		
 		        // Set CAPTCHA options
 		        $options = array(
-		            'width' => 200,
+		            'width' => 120,
 		            'height' => 75,
 		            'output' => 'jpg',
+		            'length' => 4,
 		//            'phrase' => $pass,
 		            'imageOptions' => $imageOptions
 		        );
@@ -424,22 +437,54 @@ class UmSupportApp extends Extension_UsermeetTool {
 				break;
 			
 		    case 'write':
-		    	switch(array_shift($stack)) {
+		    	$response = array_shift($stack);
+		    	switch($response) {
 		    		case 'confirm':
 		    			$tpl->assign('last_opened',$umsession->getProperty('support.write.last_opened',''));
 		    			$tpl->display('file:' . dirname(__FILE__) . '/templates/portal/support/write/confirm.tpl.php');
 		    			break;
-		    			
+		    		
 		    		default:
-		    			$tpl->assign('last_from',$umsession->getProperty('support.write.last_from',''));
-						$tpl->assign('last_nature',$umsession->getProperty('support.write.last_nature',''));
-						$tpl->assign('last_content',$umsession->getProperty('support.write.last_content',''));
-						$tpl->assign('last_error',$umsession->getProperty('support.write.last_error',''));
+		    		case 'step1':
+		    		case 'step2':
+		    		case 'step3':
+		    			$sFrom = $umsession->getProperty('support.write.last_from','');
+		    			$sNature = $umsession->getProperty('support.write.last_nature','');
+		    			$sContent = $umsession->getProperty('support.write.last_content','');
+		    			$sError = $umsession->getProperty('support.write.last_error','');
 		    			
+						$tpl->assign('last_from', $sFrom);
+						$tpl->assign('last_nature', $sNature);
+						$tpl->assign('last_content', $sContent);
+						$tpl->assign('last_error', $sError);
+						
         				$sDispatch = DAO_CommunityToolProperty::get($this->getPortal(),self::PARAM_DISPATCH, '');
 		    			$dispatch = !empty($sDispatch) ? unserialize($sDispatch) : array();
 				        $tpl->assign('dispatch', $dispatch);
-				        $tpl->display('file:' . dirname(__FILE__) . '/templates/portal/support/write/index.tpl.php');
+				        
+				        switch($response) {
+				        	default:
+				        		$tpl->display('file:' . dirname(__FILE__) . '/templates/portal/support/write/step1.tpl.php');
+				        		break;
+				        		
+				        	case 'step2':
+				        		// Cache along with answers?
+								if(is_array($dispatch))
+						        foreach($dispatch as $k => $v) {
+						        	if(md5($k)==$sNature) {
+						        		$umsession->setProperty('support.write.last_nature_string', $k);
+						        		$tpl->assign('situation', $k);
+						        		$tpl->assign('situation_params', $v);
+						        		break;
+						        	}
+						        }
+				        		$tpl->display('file:' . dirname(__FILE__) . '/templates/portal/support/write/step2.tpl.php');
+				        		break;
+				        		
+				        	case 'step3':
+				        		$tpl->display('file:' . dirname(__FILE__) . '/templates/portal/support/write/step3.tpl.php');
+				        		break;
+				        }
 				        break;
 		    	}
 		    	break;
@@ -450,9 +495,50 @@ class UmSupportApp extends Extension_UsermeetTool {
 		}
 	}
 	
+	function doStep2Action() {
+		$umsession = $this->getSession();
+		$fingerprint = parent::getFingerprint();
+		
+		@$sNature = DevblocksPlatform::importGPC($_POST['nature'],'string','');
+
+		$umsession->setProperty('support.write.last_nature', $sNature);
+		$umsession->setProperty('support.write.last_error', null);
+		
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',$this->getPortal(),'write','step2')));
+	}
+	
+	function doStep3Action() {
+		$umsession = $this->getSession();
+		$fingerprint = parent::getFingerprint();
+
+		@$aFollowUpQ = DevblocksPlatform::importGPC($_POST['followup_q'],'array',array());
+		@$aFollowUpA = DevblocksPlatform::importGPC($_POST['followup_a'],'array',array());
+		$nature = $umsession->getProperty('support.write.last_nature_string','');
+		$content = '';
+		
+		if(!empty($aFollowUpQ)) {
+			$content = "Comments:\r\n\r\n\r\n";
+			$content .= "--------------------------------------------\r\n";
+			if(!empty($nature)) {
+				$content .= $nature . "\r\n";
+				$content .= "--------------------------------------------\r\n";
+			}
+			foreach($aFollowUpQ as $idx => $q) {
+				$content .= "Q) " . $q . "\r\n" . "A) " . $aFollowUpA[$idx] . "\r\n";
+				if($idx+1 < count($aFollowUpQ)) $content .= "\r\n";
+			}
+			$content .= "--------------------------------------------\r\n";
+			"\r\n";
+		}
+		
+		$umsession->setProperty('support.write.last_content', $content);
+		$umsession->setProperty('support.write.last_error', null);
+		
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',$this->getPortal(),'write','step3')));
+	}
+	
 	function doSendMessageAction() {
 		@$sFrom = DevblocksPlatform::importGPC($_POST['from'],'string','');
-		@$sNature = DevblocksPlatform::importGPC($_POST['nature'],'string','');
 		@$sContent = DevblocksPlatform::importGPC($_POST['content'],'string','');
 		@$sCaptcha = DevblocksPlatform::importGPC($_POST['captcha'],'string','');
 		
@@ -462,11 +548,11 @@ class UmSupportApp extends Extension_UsermeetTool {
         $settings = CerberusSettings::getInstance();
         $default_from = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM);
 
-        // [TODO] These could be combined into a single property
 		$umsession->setProperty('support.write.last_from',$sFrom);
-		$umsession->setProperty('support.write.last_nature',$sNature);
 		$umsession->setProperty('support.write.last_content',$sContent);
         
+		$sNature = $umsession->getProperty('support.write.last_nature', '');
+		
 		if(empty($sFrom) || 0 != strcasecmp($sCaptcha,@$umsession->getProperty(self::SESSION_CAPTCHA,'***'))) {
 			
 			if(empty($sFrom)) {
@@ -476,19 +562,20 @@ class UmSupportApp extends Extension_UsermeetTool {
 			}
 			
 			// [TODO] Need to report the captcha didn't match and redraw the form
-			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',$this->getPortal(),'write')));
+			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',$this->getPortal(),'write','step3')));
 			return;
 		}
 
 		// Dispatch
 		$to = $default_from;
 		$subject = 'Contact me: Other';
+		
         $sDispatch = DAO_CommunityToolProperty::get($this->getPortal(),self::PARAM_DISPATCH, '');
         $dispatch = !empty($sDispatch) ? unserialize($sDispatch) : array();
 
         foreach($dispatch as $k => $v) {
         	if(md5($k)==$sNature) {
-        		$to = $v;
+        		$to = $v['to'];
         		$subject = 'Contact me: ' . $k;
         		break;
         	}
@@ -519,6 +606,7 @@ class UmSupportApp extends Extension_UsermeetTool {
 
 		// Clear any errors
 		$umsession->setProperty('support.write.last_nature',null);
+		$umsession->setProperty('support.write.last_nature_string',null);
 		$umsession->setProperty('support.write.last_content',null);
 		$umsession->setProperty('support.write.last_error',null);
 		$umsession->setProperty('support.write.last_opened',$ticket->mask);
@@ -529,9 +617,10 @@ class UmSupportApp extends Extension_UsermeetTool {
 	/**
 	 * @param $instance Model_CommunityTool 
 	 */
-    public function configure($instance) {
+    public function configure(Model_CommunityTool $instance) {
         $tpl = DevblocksPlatform::getTemplateService();
         $tpl_path = realpath(dirname(__FILE__)) . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR;
+        $tpl->assign('config_path', $tpl_path);
         
         $settings = CerberusSettings::getInstance();
         
@@ -545,30 +634,95 @@ class UmSupportApp extends Extension_UsermeetTool {
         $logo_url = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_LOGO_URL, '');
 		$tpl->assign('logo_url', $logo_url);
         
-        $tpl->display("file:${tpl_path}portal/support/config.tpl.php");
+        $tpl->display("file:${tpl_path}portal/support/config/index.tpl.php");
     }
     
-    public function saveConfigurationAction() {
-        @$sLogoUrl = DevblocksPlatform::importGPC($_POST['logo_url'],'string','');
-        @$sThemeUrl = DevblocksPlatform::importGPC($_POST['theme_url'],'string','');
-    	    	
-    	@$aReason = DevblocksPlatform::importGPC($_POST['reason'],'array',array());
-        @$aTo = DevblocksPlatform::importGPC($_POST['to'],'array',array());
+    // Ajax
+    public function getSituation() {
+		@$sCode = DevblocksPlatform::importGPC($_REQUEST['code'],'string','');
+		@$sReason = DevblocksPlatform::importGPC($_REQUEST['reason'],'string','');
+    	 
+    	$tool = DAO_CommunityTool::getByCode($sCode);
+    	 
+        $tpl = DevblocksPlatform::getTemplateService();
+        $tpl_path = realpath(dirname(__FILE__)) . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR;
 
         $settings = CerberusSettings::getInstance();
         
-        DAO_CommunityToolProperty::set($this->getPortal(), self::PARAM_LOGO_URL, $sLogoUrl);
-        DAO_CommunityToolProperty::set($this->getPortal(), self::PARAM_THEME_URL, $sThemeUrl);
-        
-        $dispatch = array();
         $default_from = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM);
-
-        if(is_array($aReason) && is_array($aTo))
-        foreach($aReason as $idx => $reason) {
-        	if(!empty($reason)) {
-        		$to = !empty($aTo[$idx]) ? $aTo[$idx] : $default_from;
-        		$dispatch[$reason] = $to;
+        $tpl->assign('default_from', $default_from);
+        
+        $sDispatch = DAO_CommunityToolProperty::get($this->getPortal(),self::PARAM_DISPATCH, '');
+        $dispatch = !empty($sDispatch) ? unserialize($sDispatch) : array();
+        
+        if(is_array($dispatch))
+        foreach($dispatch as $reason => $params) {
+        	if(md5($reason)==$sReason) {
+        		$tpl->assign('situation_reason', $reason);
+        		$tpl->assign('situation_params', $params);
+        		break;
         	}
+        }
+        
+        $tpl->display("file:${tpl_path}portal/support/config/add_situation.tpl.php");
+		exit;
+    }
+    
+    public function saveConfiguration() {
+        @$sLogoUrl = DevblocksPlatform::importGPC($_POST['logo_url'],'string','');
+//        @$sThemeUrl = DevblocksPlatform::importGPC($_POST['theme_url'],'string','');
+
+        DAO_CommunityToolProperty::set($this->getPortal(), self::PARAM_LOGO_URL, $sLogoUrl);
+//        DAO_CommunityToolProperty::set($this->getPortal(), self::PARAM_THEME_URL, $sThemeUrl);
+        
+        $settings = CerberusSettings::getInstance();
+        $default_from = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM);
+        
+    	@$sEditReason = DevblocksPlatform::importGPC($_POST['edit_reason'],'string','');
+    	@$sReason = DevblocksPlatform::importGPC($_POST['reason'],'string','');
+        @$sTo = DevblocksPlatform::importGPC($_POST['to'],'string',$default_from);
+        @$aFollowup = DevblocksPlatform::importGPC($_POST['followup'],'array',array());
+        @$aFollowupLong = DevblocksPlatform::importGPC($_POST['followup_long'],'array',array());
+        
+        $sDispatch = DAO_CommunityToolProperty::get($this->getPortal(),self::PARAM_DISPATCH, '');
+        $dispatch = !empty($sDispatch) ? unserialize($sDispatch) : array();
+
+        // [JAS]: [TODO] Only needed temporarily to clean up imports
+		// [TODO] Move to patch
+        if(is_array($dispatch))
+        foreach($dispatch as $d_reason => $d_params) {
+        	if(!is_array($d_params)) {
+        		$dispatch[$d_reason] = array('to'=>$d_params,'followups'=>array());
+        	} else {
+        		unset($d_params['']);
+        	}
+        }
+
+        // Nuke a record we're replacing
+       	if(!empty($sEditReason)) {
+			// will be MD5
+	        if(is_array($dispatch))
+	        foreach($dispatch as $d_reason => $d_params) {
+	        	if(md5($d_reason)==$sEditReason) {
+	        		unset($dispatch[$d_reason]);
+	        	}
+	        }
+       	}
+        
+       	// If we have new data, add it
+        if(!empty($sReason) && !empty($sTo)) {
+			$dispatch[$sReason] = array(
+				'to' => $sTo,
+				'followups' => array()
+			);
+			
+			$followups =& $dispatch[$sReason]['followups'];
+			
+			if(!empty($aFollowup))
+			foreach($aFollowup as $idx => $followup) {
+				if(empty($followup)) continue;
+				$followups[$followup] = (false !== array_search($idx,$aFollowupLong)) ? 1 : 0;
+			}
         }
         
         ksort($dispatch);

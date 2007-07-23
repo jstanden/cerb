@@ -218,12 +218,24 @@ DIV.block H3 {
 }
 
 DIV.error {
-border:1px solid rgb(180,0,0);
-background-color:rgb(255,235,235);
-color:rgb(180,0,0);
-font-weight:bold;
-margin:10px;
-padding:5px;
+	border:1px solid rgb(180,0,0);
+	background-color:rgb(255,235,235);
+	color:rgb(180,0,0);
+	font-weight:bold;
+	margin:10px;
+	padding:5px;
+}
+
+DIV.subtle {
+	background-color:rgb(235,255,211);	
+	margin:5px;
+	padding:5px;
+}
+
+DIV.subtle2 {
+	background-color:rgb(239,245,255);
+	margin:5px;
+	padding:5px;
 }
 
  /*

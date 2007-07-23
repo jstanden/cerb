@@ -37,10 +37,10 @@ border: 1px solid rgb(82, 120, 255);
 color: rgb(80,80,80);
 background-color: rgb(227, 235, 255);
 }
-.search input { border: 1px solid rgb(82, 120, 255);
-font-weight: normal;
-font-size: 24px;
-width: 100%;
+.search h3 { margin-bottom: 5px;
+font-weight: bold;
+color: rgb(80,150,0);
+font-size: 22px;
 }
 .search h4 { margin-bottom: 5px;
 font-weight: bold;

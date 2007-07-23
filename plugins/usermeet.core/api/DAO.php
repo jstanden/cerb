@@ -89,6 +89,12 @@ class DAO_CommunityTool extends DevblocksORMHelper {
         self::_update($id, 'community_tool', $fields);
 	}
 	
+	/**
+	 * Enter description here...
+	 *
+	 * @param integer $id
+	 * @return Model_CommunityTool
+	 */
 	public static function get($id) {
 		$items = self::getList(array($id));
 		
@@ -98,6 +104,34 @@ class DAO_CommunityTool extends DevblocksORMHelper {
 		return NULL;
 	}
 	
+	/**
+	 * Enter description here...
+	 *
+	 * @param string $code
+	 * @return Model_CommunityTool
+	 */
+	public static function getByCode($code) {
+		if(empty($code)) return NULL;
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = sprintf("SELECT id FROM community_tool WHERE code = %s",
+			$db->qstr($code)
+		);
+		$id = $db->GetOne($sql);
+		
+		if(!empty($id)) {
+			return self::get($id);
+		}
+		
+		return NULL;
+	}
+	
+	/**
+	 * Enter description here...
+	 *
+	 * @param array $ids
+	 * @return Model_CommunityTool[]
+	 */
 	public static function getList($ids=array()) {
 	    if(!is_array($ids)) $ids = array($ids);
 		$db = DevblocksPlatform::getDatabaseService();

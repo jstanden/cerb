@@ -10,26 +10,11 @@
 <input type="hidden" name="a" value="doSendMessage">
 <table style="text-align: left; width: 550px;" class="search" border="0" cellpadding="5" cellspacing="5">
   <tbody>
-  	<!-- 
     <tr>
       <td colspan="2">
-      	<h4 style="color:rgb(30,150,30);font-weight:bold;">How can we help?</h4>
-      </td>
-    </tr>
-     -->
-    <tr>
-      <td colspan="2">
-      	<h4>What best describes your situation?</h4>	
-		<select name="nature">
-			{foreach from=$dispatch item=to key=reason}
-			{assign var=dispatchKey value=$reason|md5}
-			<option value="{$dispatchKey}" {if $displayKey==$last_nature}checked{/if}>{$reason}</option>
-			{/foreach}
-		</select><br>
-		
-      	<h4>What e-mail address should we reply to?</h4>	
-		<input name="from" value="{$last_from}" autocomplete="off"><br>
-		<i>(example: bob@yourcompany.com)</i><br>
+      	<h4>What e-mail address should we reply to?</h4>
+      	<input type="hidden" name="nature" value="{$sNature}">	
+		<input name="from" value="{$last_from}" autocomplete="off" style="width:98%;"><br>
 		
       	<h4>Message:</h4>	
 		<textarea name="content" rows="10" cols="60" style="width:98%;">{$last_content}</textarea><br>

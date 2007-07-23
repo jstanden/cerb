@@ -74,7 +74,7 @@ abstract class Extension_UsermeetTool extends DevblocksExtension implements Devb
 		if(empty($a)) {
     	    @$action = array_shift($path) . 'Action';
 		} else {
-		    @$action = $a . 'Action';
+	    	@$action = $a . 'Action';
 		}
 
 	    switch($action) {
@@ -131,7 +131,7 @@ abstract class Extension_UsermeetTool extends DevblocksExtension implements Devb
 	public function configure($instance) {
 	}
 	
-	public function saveConfigurationAction() {
+	public function saveConfiguration() {
 	}
     
 };

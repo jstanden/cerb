@@ -7,7 +7,7 @@
     <tr>
       <td colspan="2">
       	<h4>Where to?</h4>
-      	<button type="button" onclick="document.location='{devblocks_url}c=write{/devblocks_url}';"><img src="{devblocks_url}c=resource&p=usermeet.core&f=images/mail_new.gif{/devblocks_url}" align="top" border="0"> Send us a message</button> 
+      	<button type="button" onclick="document.location='{devblocks_url}c=write{/devblocks_url}';"><img src="{devblocks_url}c=resource&p=usermeet.core&f=images/mail_new.gif{/devblocks_url}" align="top" border="0"> Send a message</button> 
       	<!-- <button type="button" onclick="document.location='{devblocks_url}c=history{/devblocks_url}';"><img src="{devblocks_url}c=resource&p=usermeet.core&f=images/history.gif{/devblocks_url}" align="top" border="0"> Look up a past message</button>  -->
       </td>
     </tr>

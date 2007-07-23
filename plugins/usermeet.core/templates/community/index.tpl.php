@@ -17,7 +17,7 @@
 		<ul style="margin-top:0px;">
 			{foreach from=$tools item=tool_extid key=tool_code}
 				{assign var=tool value=$tool_manifests.$tool_extid}
-				<li><a href="{devblocks_url}c=community&a=tool&id={$tool_code}{/devblocks_url}">{$tool->name}</a></li>
+				<li><a href="{devblocks_url}c=community&a=tool&id={$tool_code}&act=configure{/devblocks_url}">{$tool->name}</a></li>
 			{/foreach}
 		</ul>
 		{/if}
