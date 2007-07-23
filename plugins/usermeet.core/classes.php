@@ -502,6 +502,7 @@ class UmSupportApp extends Extension_UsermeetTool {
 		@$sNature = DevblocksPlatform::importGPC($_POST['nature'],'string','');
 
 		$umsession->setProperty('support.write.last_nature', $sNature);
+		$umsession->setProperty('support.write.last_content', null);
 		$umsession->setProperty('support.write.last_error', null);
 		
 		$sDispatch = DAO_CommunityToolProperty::get($this->getPortal(),self::PARAM_DISPATCH, '');
