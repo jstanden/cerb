@@ -195,17 +195,36 @@ class CerberusParser {
 					if(strtolower(substr($headers['from'], 0, 11))=='postmaster@' || strtolower(substr($headers['from'], 0, 14))=='mailer-daemon@') {
 						$headers['in-reply-to'] = $inline_headers['message-id'];
 					}
-
-					if(empty($info['content-name'])) {
-						if($info['content-type'] == 'text/plain') {
-							$body_append_text[] = @mailparse_msg_extract_part_file($section, $full_filename, NULL);
-						}
-						elseif($info['content-type'] == 'text/html') {
-							$body_append_html[] = @mailparse_msg_extract_part_file($section, $full_filename, NULL);
-						}
+					
+					foreach($struct as $st) {
+						$section = mailparse_msg_get_part($mail, $st);
+						$info = mailparse_msg_get_part_data($section);
+						if(empty($info['content-name'])) {
+							if($info['content-type'] == 'text/plain') {
+								$str = '';								
+								if(sizeof($body_append_text) == 0 ) {
+									foreach($inline_headers as $in_header_key=>$in_header_val) {
+										$str.=$in_header_key.': '. $in_header_val . "\r\n";
+									}
+								}
+								$str .= @mailparse_msg_extract_part_file($section, $full_filename, NULL);
+								$body_append_text[] = $str;
+							}
+							elseif($info['content-type'] == 'text/html') {
+								$str = '';								
+								if(sizeof($body_append_html) == 0 ) {
+									foreach($inline_headers as $in_header_key=>$in_header_val) {
+										$str.=$in_header_key.': '. $in_header_val . "\r\n";
+									}
+								}
+								$str .= "\r\n";
+								$str .= @mailparse_msg_extract_part_file($section, $full_filename, NULL);
+								$body_append_html[] = @mailparse_msg_extract_part_file($section, $full_filename, NULL);
+							}
+						}						
 					}
-					//[mdf] [TODO] nuke the attachment 
-						
+
+
 				break;
 			}
 		}
@@ -264,10 +283,11 @@ class CerberusParser {
 		    $body = CerberusApplication::stripHTML($message->htmlbody);
 		    // [mdf] append the contents of any message bodies found in message attachments earlier 
 		    if(!empty($body_append_html)) {
-		    	// [TODO] make the appended content formatted better so we can tell what it is
+				$body .= "\r\n\r\n----- Original message -----\r\n"; 
 		    	for($i=0; $i < count($body_append_html); $i++) {
 					$body .= "\r\n\r\n" . CerberusApplication::stripHTML($body_append_html[$i]);
 		    	}
+				$body .= "\r\n----- End of message -----\r\n";
 		    }
 		    DAO_MessageContent::update($email_id, $body);
 			
@@ -289,10 +309,10 @@ class CerberusParser {
 			$body = $message->body;
 			//[mdf] append the contents of any message bodies found in message attachments earlier
 			if(!empty($body_append_text)) {
-				// [TODO] make the appended content formatted better so we can tell what it is 
+				$body .= "\r\n\r\n----- Original message -----\r\n"; 
 				$body .= implode("\r\n\r\n", $body_append_text);
+				$body .= "\r\n----- End of message -----\r\n";
 			}
-			
 			// Content
 			DAO_MessageContent::update($email_id, $body);
 			
@@ -309,7 +329,11 @@ class CerberusParser {
 //			    DAO_Message::MESSAGE_ID => $sMessageId
 //			));
 			foreach ($message->files as $filename => $file) { /* @var $file ParserFile */
-				//[mdf] [TODO] We might want to just skip rfc822 messages since we extracted their content above
+				//[mdf] skip rfc822 messages since we extracted their content above
+				if($file->mime_type == 'message/rfc822') {
+					continue;
+				}
+				
 			    $fields = array(
 			        DAO_Attachment::MESSAGE_ID => $email_id,
 			        DAO_Attachment::DISPLAY_NAME => $filename,
