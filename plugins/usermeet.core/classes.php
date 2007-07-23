@@ -504,7 +504,25 @@ class UmSupportApp extends Extension_UsermeetTool {
 		$umsession->setProperty('support.write.last_nature', $sNature);
 		$umsession->setProperty('support.write.last_error', null);
 		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',$this->getPortal(),'write','step2')));
+		$sDispatch = DAO_CommunityToolProperty::get($this->getPortal(),self::PARAM_DISPATCH, '');
+		$dispatch = !empty($sDispatch) ? unserialize($sDispatch) : array();
+		
+		// Check if this nature has followups, if not skip to step3
+		$followups = array();
+		if(is_array($dispatch))
+        foreach($dispatch as $k => $v) {
+        	if(md5($k)==$sNature) {
+        		$umsession->setProperty('support.write.last_nature_string', $k);
+        		@$followups = $v['followups'];
+        		break;
+        	}
+        }
+
+        if(empty($followups)) {		
+			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',$this->getPortal(),'write','step3')));
+        } else {
+			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',$this->getPortal(),'write','step2')));
+        }
 	}
 	
 	function doStep3Action() {
@@ -680,9 +698,12 @@ class UmSupportApp extends Extension_UsermeetTool {
         
     	@$sEditReason = DevblocksPlatform::importGPC($_POST['edit_reason'],'string','');
     	@$sReason = DevblocksPlatform::importGPC($_POST['reason'],'string','');
-        @$sTo = DevblocksPlatform::importGPC($_POST['to'],'string',$default_from);
+        @$sTo = DevblocksPlatform::importGPC($_POST['to'],'string','');
         @$aFollowup = DevblocksPlatform::importGPC($_POST['followup'],'array',array());
         @$aFollowupLong = DevblocksPlatform::importGPC($_POST['followup_long'],'array',array());
+        
+        if(empty($sTo))
+        	$sTo = $default_from;
         
         $sDispatch = DAO_CommunityToolProperty::get($this->getPortal(),self::PARAM_DISPATCH, '');
         $dispatch = !empty($sDispatch) ? unserialize($sDispatch) : array();
