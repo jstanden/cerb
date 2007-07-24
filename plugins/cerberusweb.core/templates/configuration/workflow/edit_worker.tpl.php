@@ -34,7 +34,7 @@
 	</tr>
 	<tr>
 		<td width="0%" nowrap="nowrap">Password (again):</td>
-		<td width="100%"><input type="password" name="" value=""></td>
+		<td width="100%"><input type="password" name="password2" value=""><div id="worker_error" style="color: red; font-weight: bold;"></div></td>
 	</tr>
 	
 	<tr><td colspan="2">&nbsp;</td></tr>
