@@ -2203,7 +2203,8 @@ class ChTicketsPage extends CerberusPageExtension {
 		}
 		
 		$fields = array(
-			'params' => serialize($params)
+			'params' => serialize($params),
+			'page' => 0
 		);
 		DAO_Dashboard::updateView(CerberusApplication::VIEW_SEARCH, $fields);
 		
@@ -2225,7 +2226,8 @@ class ChTicketsPage extends CerberusPageExtension {
 			unset($params[$field]);
 		
 		$fields = array(
-			'params' => serialize($params)
+			'params' => serialize($params),
+			'page' => 0
 		);
 		DAO_Dashboard::updateView(CerberusApplication::VIEW_SEARCH, $fields);
 		
