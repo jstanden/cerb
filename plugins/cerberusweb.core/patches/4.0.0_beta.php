@@ -258,6 +258,11 @@ if(!isset($indexes['mask'])) {
     $datadict->ExecuteSQLArray($sql);
 }
 
+if(!isset($indexes['team_id'])) {
+    $sql = $datadict->CreateIndexSQL('team_id','ticket','team_id');
+    $datadict->ExecuteSQLArray($sql);
+}
+
 if(!isset($indexes['created_date'])) {
     $sql = $datadict->CreateIndexSQL('created_date','ticket','created_date');
     $datadict->ExecuteSQLArray($sql);
