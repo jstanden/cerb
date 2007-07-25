@@ -349,7 +349,7 @@ class UmCommunityPage extends CerberusPageExtension {
 	    
 	    $tool = DAO_CommunityTool::get($id);
 	    
-	    DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('community','tool',$tool->code)));
+	    DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('community','tool',$tool->code,'configure')));
 	}
 	
 };

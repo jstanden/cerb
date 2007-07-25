@@ -107,7 +107,7 @@
 <div id="bulkUpdateLearn" style="display:{if empty($ticket_ids)}none{else}block{/if};">
 {if !empty($team_id)}
 <H2>And in the future:</H2>
-<label><input type="checkbox" name="always_do_for_team" value="{$team_id}"> Do this with all mail entering team inbox</label><br>
+<label><input type="checkbox" name="always_do_for_team" value="{$team_id}"> Do this with all mail entering group inbox</label><br>
 <br>
 {/if}
 </div>

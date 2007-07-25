@@ -247,6 +247,7 @@ if(!isset($columns['FIRST_MESSAGE_ID'])) {
        $rs->MoveNext();
    }
 
+
 if(!isset($indexes['first_message_id'])) {
     $sql = $datadict->CreateIndexSQL('first_message_id','ticket','first_message_id');
     $datadict->ExecuteSQLArray($sql);
@@ -254,6 +255,11 @@ if(!isset($indexes['first_message_id'])) {
 
 if(!isset($indexes['mask'])) {
     $sql = $datadict->CreateIndexSQL('mask','ticket','mask');
+    $datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($indexes['created_date'])) {
+    $sql = $datadict->CreateIndexSQL('created_date','ticket','created_date');
     $datadict->ExecuteSQLArray($sql);
 }
 

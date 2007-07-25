@@ -48,7 +48,7 @@
  * 		and Joe Geck.
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-define("APP_BUILD", 280);
+define("APP_BUILD", 286);
 define("APP_MAIL_PATH", realpath(APP_PATH . '/storage/mail') . DIRECTORY_SEPARATOR);
 
 include_once(APP_PATH . "/api/DAO.class.php");
@@ -748,7 +748,7 @@ class CerberusStaticViewManager {
 		$view->params = array();
 		$view->renderLimit = 100;
 		$view->renderPage = 0;
-		$view->renderSortBy = SearchFields_Ticket::TICKET_CREATED_DATE;
+		$view->renderSortBy = SearchFields_Ticket::TICKET_UPDATED_DATE;
 		$view->renderSortAsc = 0;
 	
 		$this->setView(CerberusApplication::VIEW_SEARCH,$view);

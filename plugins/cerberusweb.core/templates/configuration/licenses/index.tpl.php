@@ -19,7 +19,6 @@
 	<ul style="margin-top:0px;">
 		<li>Cerberus Helpdesk Tagline on All Outgoing E-mail</li>
 		<li>Limited to 3 Users</li>
-		<li>No Community Tools</li>
 	</ul> 
 {/if}
 
