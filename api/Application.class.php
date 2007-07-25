@@ -745,10 +745,12 @@ class CerberusStaticViewManager {
 			SearchFields_Ticket::TICKET_SPAM_SCORE,
 			SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
 			);
-		$view->params = array();
+		$view->params = array(
+			SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,DevblocksSearchCriteria::OPER_EQ,0)
+		);
 		$view->renderLimit = 100;
 		$view->renderPage = 0;
-		$view->renderSortBy = SearchFields_Ticket::TICKET_UPDATED_DATE;
+		$view->renderSortBy = null; // SearchFields_Ticket::TICKET_UPDATED_DATE
 		$view->renderSortAsc = 0;
 	
 		$this->setView(CerberusApplication::VIEW_SEARCH,$view);

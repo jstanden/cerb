@@ -2236,7 +2236,10 @@ class ChTicketsPage extends CerberusPageExtension {
 	
 	function resetCriteriaAction() {
 		DAO_Dashboard::updateView(CerberusApplication::VIEW_SEARCH, array(
-			'params' => serialize(array())
+			'sort_by' => null,
+			'params' => serialize(array(
+				SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,DevblocksSearchCriteria::OPER_EQ,0)
+			))
 		));
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','search')));
 	}
