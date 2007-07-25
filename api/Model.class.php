@@ -445,6 +445,23 @@ class CerberusDashboardView {
 
         unset($ticket_ids);
 	}
+	
+	function getInvolvedGroups() {
+		$groups = array();
+		foreach($this->params as $criteria) {
+			if($criteria->field == SearchFields_Ticket::TEAM_ID) {
+				if(is_array($criteria->value)) {
+					foreach($criteria->value as $val) {
+						$groups[] = $val;
+					}
+				}
+				else {
+					$groups[] = $criteria->value;
+				} 
+			}
+		}
+		return $groups;
+	}
 };
 
 // [JAS] This is no longer needed

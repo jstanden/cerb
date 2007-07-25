@@ -159,11 +159,13 @@
 			{if $active_worker && ($active_worker->is_superuser || $active_worker->can_delete)}<button type="button" onclick="ajax.viewCloseTickets('{$view->id}',2);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> delete</button>{/if}
 			
 			<input type="hidden" name="move_to" value="">
+			{assign var=result_groups value=$view->getInvolvedGroups()}
+
 			<select name="move_to_select" onchange="this.form.move_to.value=this.form.move_to_select[this.selectedIndex].value;ajax.viewMoveTickets('{$view->id}');">
 				<option value="">-- move to --</option>
 				{foreach from=$team_categories item=team_category_list key=teamId}
 					{assign var=team value=$teams.$teamId}
-					{if $dashboard_team_id == $teamId}
+					{if in_array($teamId, $result_groups) && sizeof($result_groups) == 1}
 						<optgroup label="-- {$team->name} --">
 						{foreach from=$team_category_list item=category}
 							<option value="c{$category->id}">{$category->name}</option>

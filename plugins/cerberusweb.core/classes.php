@@ -297,6 +297,9 @@ class ChTicketsPage extends CerberusPageExtension {
 				$buckets = DAO_Bucket::getAll();
 				$tpl->assign('buckets', $buckets);
 				
+				$team_categories = DAO_Bucket::getTeams();
+				$tpl->assign('team_categories', $team_categories);
+				
 				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/search/index.tpl.php');
 				break;
 				
@@ -3615,6 +3618,21 @@ class ChDisplayPage extends CerberusPageExtension {
 			SearchFields_Ticket::TICKET_FIRST_WROTE => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_FIRST_WROTE,DevblocksSearchCriteria::OPER_EQ,$contact->email)
 		);
 		$tpl->assign('view', $view);
+		
+		$viewActions = DAO_DashboardViewAction::getList();
+		$tpl->assign('viewActions', $viewActions);
+		
+		$workers = DAO_Worker::getList();
+		$tpl->assign('workers', $workers);
+		
+		$teams = DAO_Group::getAll();
+		$tpl->assign('teams', $teams);
+		
+		$buckets = DAO_Bucket::getAll();
+		$tpl->assign('buckets', $buckets);
+		
+		$team_categories = DAO_Bucket::getTeams();
+		$tpl->assign('team_categories', $team_categories);
 		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/history/index.tpl.php');
 	}
