@@ -267,7 +267,7 @@ class DAO_CommunityToolProperty {
 		);
 		$val = $db->GetOne($sql);
 		
-		return (!is_null($val)) ? $val : $default;
+		return (is_null($val) || (!is_numeric($val) && empty($val))) ? $default : $val;
 	}
 	
 	static function set($tool_code, $key, $value) {

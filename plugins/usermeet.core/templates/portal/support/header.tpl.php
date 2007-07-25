@@ -3,7 +3,7 @@
 <head>
   <meta content="text/html; charset=ISO-8859-1"
  http-equiv="content-type">
-  <title>Support Center</title>
+  <title>{$page_title}</title>
   <style type="text/css">
   {literal}
 body, td { font-family: Arial,Helvetica,sans-serif;

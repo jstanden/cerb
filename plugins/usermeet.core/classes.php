@@ -354,10 +354,12 @@ class UmCommunityPage extends CerberusPageExtension {
 	
 };
 
-class UmSupportApp extends Extension_UsermeetTool {
+class UmContactApp extends Extension_UsermeetTool {
 	const PARAM_DISPATCH = 'dispatch';
 	const PARAM_LOGO_URL = 'logo_url';
 	const PARAM_THEME_URL = 'theme_url';
+	const PARAM_PAGE_TITLE = 'page_title';
+	const PARAM_CAPTCHA_ENABLED = 'captcha_enabled';
 	const SESSION_CAPTCHA = 'write_captcha';
 	
     function __construct($manifest) {
@@ -380,6 +382,12 @@ class UmSupportApp extends Extension_UsermeetTool {
 		
 		$logo_url = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_LOGO_URL, '');
 		$tpl->assign('logo_url', $logo_url);
+        
+		$page_title = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_PAGE_TITLE, 'Contact Us');
+		$tpl->assign('page_title', $page_title);
+        
+        $captcha_enabled = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_CAPTCHA_ENABLED, 1);
+		$tpl->assign('captcha_enabled', $captcha_enabled);
 		
 		// Usermeet Session
 		if(null == ($fingerprint = parent::getFingerprint())) {
@@ -436,7 +444,8 @@ class UmSupportApp extends Extension_UsermeetTool {
 		        
 				break;
 			
-		    case 'write':
+		    	default:
+				case 'write':
 		    	$response = array_shift($stack);
 		    	switch($response) {
 		    		case 'confirm':
@@ -488,10 +497,6 @@ class UmSupportApp extends Extension_UsermeetTool {
 				        break;
 		    	}
 		    	break;
-		        
-		    default:
-		        $tpl->display('file:' . dirname(__FILE__) . '/templates/portal/support/index.tpl.php');
-		        break;
 		}
 	}
 	
@@ -572,7 +577,9 @@ class UmSupportApp extends Extension_UsermeetTool {
         
 		$sNature = $umsession->getProperty('support.write.last_nature', '');
 		
-		if(empty($sFrom) || 0 != strcasecmp($sCaptcha,@$umsession->getProperty(self::SESSION_CAPTCHA,'***'))) {
+        $captcha_enabled = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_CAPTCHA_ENABLED, 1);
+		
+		if(empty($sFrom) || ($captcha_enabled && 0 != strcasecmp($sCaptcha,@$umsession->getProperty(self::SESSION_CAPTCHA,'***')))) {
 			
 			if(empty($sFrom)) {
 				$umsession->setProperty('support.write.last_error','Invalid e-mail address.');
@@ -653,6 +660,12 @@ class UmSupportApp extends Extension_UsermeetTool {
         $logo_url = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_LOGO_URL, '');
 		$tpl->assign('logo_url', $logo_url);
         
+        $page_title = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_PAGE_TITLE, 'Contact Us');
+		$tpl->assign('page_title', $page_title);
+        
+        $captcha_enabled = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_CAPTCHA_ENABLED, 1);
+		$tpl->assign('captcha_enabled', $captcha_enabled);
+        
         $tpl->display("file:${tpl_path}portal/support/config/index.tpl.php");
     }
     
@@ -689,9 +702,13 @@ class UmSupportApp extends Extension_UsermeetTool {
     
     public function saveConfiguration() {
         @$sLogoUrl = DevblocksPlatform::importGPC($_POST['logo_url'],'string','');
+        @$sPageTitle = DevblocksPlatform::importGPC($_POST['page_title'],'string','Contact Us');
+        @$iCaptcha = DevblocksPlatform::importGPC($_POST['captcha_enabled'],'integer',1);
 //        @$sThemeUrl = DevblocksPlatform::importGPC($_POST['theme_url'],'string','');
 
         DAO_CommunityToolProperty::set($this->getPortal(), self::PARAM_LOGO_URL, $sLogoUrl);
+        DAO_CommunityToolProperty::set($this->getPortal(), self::PARAM_PAGE_TITLE, $sPageTitle);
+        DAO_CommunityToolProperty::set($this->getPortal(), self::PARAM_CAPTCHA_ENABLED, $iCaptcha);
 //        DAO_CommunityToolProperty::set($this->getPortal(), self::PARAM_THEME_URL, $sThemeUrl);
         
         $settings = CerberusSettings::getInstance();
@@ -755,21 +772,6 @@ class UmSupportApp extends Extension_UsermeetTool {
 };
 
 class UmCorePlugin extends DevblocksPlugin {
-	function install(DevblocksPluginManifest $manifest) {
-		/*
-		 * [IMPORTANT -- Yes, this is simply a line in the sand.]
-		 * You're welcome to modify the code to meet your needs, but please respect 
-		 * our licensing.  Buy a legitimate copy to help support the project!
-		 * http://www.cerberusweb.com/
-		 */
-		$license = CerberusLicense::getInstance();
-		
-		if(CerberusHelper::is_class($manifest) && @isset($license['features'][$manifest->name])) {
-			return TRUE;
-		}
-		
-		return FALSE;
-	}
 };
 
 ?>

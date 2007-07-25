@@ -404,6 +404,11 @@ switch($step) {
 				// Read in plugin information from the filesystem to the database
 				DevblocksPlatform::readPlugins();
 				
+				/*
+				 * [TODO] This possibly needs to only start with core, because as soon 
+				 * as we add back another feature with licensing we'll have installer 
+				 * errors trying to license plugins before core runs its DB install.
+				 */
 				$plugins = DevblocksPlatform::getPluginRegistry();
 				
 				// Tailor which plugins are enabled by default
@@ -412,7 +417,7 @@ switch($step) {
 					switch ($plugin_manifest->id) {
 						case "cerberusweb.core":
 						case "cerberusweb.simulator":
-						case "cerberusweb.pop3":
+						case "usermeet.core":
 							$plugin_manifest->setEnabled(true);
 							break;
 						

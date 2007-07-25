@@ -54,10 +54,10 @@
 		
 		<extension point="usermeet.tool">
 			<id>support.tool</id>
-			<name>Support Center</name>
+			<name>Contact Form Builder</name>
 			<class>
 				<file>classes.php</file>
-				<name>UmSupportApp</name>
+				<name>UmContactApp</name>
 			</class>
 			<params>
 			</params>
