@@ -165,7 +165,7 @@
 				<option value="">-- move to --</option>
 				{foreach from=$team_categories item=team_category_list key=teamId}
 					{assign var=team value=$teams.$teamId}
-					{if in_array($teamId, $result_groups) && sizeof($result_groups) == 1}
+					{if in_array($teamId, $result_groups) && sizeof($result_groups) == 1 && !empty($active_worker_memberships.$teamId)}
 						<optgroup label="-- {$team->name} --">
 						{foreach from=$team_category_list item=category}
 							<option value="c{$category->id}">{$category->name}</option>

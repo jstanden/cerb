@@ -71,6 +71,11 @@ $tpl->assign('visit', $session->getVisit());
 $tpl->assign('active_worker', $worker);
 $tpl->assign('settings', $settings);
 
+if(!empty($worker)) {
+	$active_worker_memberships = $worker->getMemberships();
+	$tpl->assign('active_worker_memberships', $active_worker_memberships);
+}
+
 DevblocksPlatform::processRequest($request,true);
 
 exit;
