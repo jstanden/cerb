@@ -3142,7 +3142,7 @@ class ChCronController extends DevblocksControllerExtension {
 		"<TITLE></TITLE>".
 		(empty($job_id) ?  "<meta http-equiv='Refresh' content='30;" . $url->write('c=cron') . "'>" : ""). // only auto refresh on all jobs
 	    "</HEAD>".
-		"<BODY>";
+		"<BODY onload=\"setTimeout(\\\"window.location.replace('".$url->write('c=cron')."')\\\",30);\">";
 
 	    // [TODO] Determine if we're on a time limit under 60 seconds
 		
