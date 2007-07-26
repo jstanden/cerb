@@ -293,6 +293,20 @@ if(!isset($indexes['category_id'])) {
     $datadict->ExecuteSQLArray($sql);
 }
 
+// `ticket_rss` ========================
+if(!isset($tables['ticket_rss'])) {
+    $flds = "
+		id I4 DEFAULT 0 NOTNULL PRIMARY,
+		hash C(32) DEFAULT '' NOTNULL,
+		title C(128) DEFAULT '' NOTNULL,
+		worker_id I4 DEFAULT 0 NOTNULL,
+		created I4 DEFAULT 0 NOTNULL,
+		params B DEFAULT '' NOTNULL
+	";
+    $sql = $datadict->CreateTableSQL('ticket_rss',$flds);
+    $datadict->ExecuteSQLArray($sql);
+}
+
 // `worker`
 $columns = $datadict->MetaColumns('worker');
 $indexes = $datadict->MetaIndexes('worker',false);

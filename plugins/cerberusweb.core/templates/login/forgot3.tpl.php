@@ -1,4 +1,5 @@
-<H1>Reset Password</H1>
+<div class="block">
+<H2>Reset Password</H2>
 <form action="{devblocks_url}{/devblocks_url}" method="post">
 <input type="hidden" name="c" value="login">
 <input type="hidden" name="a" value="doRecoverStep3">
@@ -14,3 +15,4 @@ You may now choose a new password.<br>
 <br>
 <input type="submit" value="Set Password">
 </form>
+</div>

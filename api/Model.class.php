@@ -271,6 +271,15 @@ class CerberusDashboard {
 	public $agent_id = 0;
 }
 
+class Model_TicketRss {
+	public $id = 0;
+	public $title = '';
+	public $hash = '';
+	public $worker_id = 0;
+	public $created = 0;
+	public $params = array();
+}
+
 class Model_TicketViewLastAction {
     // [TODO] Recycle the bulk update constants for these actions?
     const ACTION_NOT_SPAM = 'not_spam';

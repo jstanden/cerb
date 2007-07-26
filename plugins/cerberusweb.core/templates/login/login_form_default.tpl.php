@@ -1,5 +1,6 @@
+<div class="block">
 <form action="{devblocks_url}{/devblocks_url}" method="post">
-<h1>{$translate->_('header.signon')|capitalize}</h1>
+<h2>{$translate->_('header.signon')|capitalize}</h2>
 <input type="hidden" name="c" value="login">
 <input type="hidden" name="a" value="authenticate">
 <table cellpadding="0" cellspacing="2">
@@ -17,3 +18,4 @@
 </table>
 <input type="submit" value="{$translate->_('header.signon')|capitalize}">
 </form>
+</div>

@@ -68,6 +68,17 @@
 		<!-- Controllers -->
 		
 		<extension point="devblocks.controller">
+			<id>core.controller.rss</id>
+			<name>RSS Controller</name>
+			<class>
+				<file>classes.php</file>
+				<name>ChRssController</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
+		<extension point="devblocks.controller">
 			<id>core.controller.tests</id>
 			<name>Unit Testing Controller</name>
 			<class>

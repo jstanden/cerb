@@ -1,4 +1,5 @@
-<H1>Reset Password</H1>
+<div class="block">
+<H2>Reset Password</H2>
 <form action="{devblocks_url}{/devblocks_url}" method="post">
 <input type="hidden" name="c" value="login">
 <input type="hidden" name="a" value="doRecoverStep2">
@@ -10,3 +11,4 @@ If you entered a legitimate e-mail address you will receive a confirmation code 
 <br>
 <input type="submit" value="Reset Password">
 </form>
+</div>

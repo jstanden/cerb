@@ -303,6 +303,15 @@ class ChTicketsPage extends CerberusPageExtension {
 				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/search/index.tpl.php');
 				break;
 				
+			case 'rss':
+				$active_worker = CerberusApplication::getActiveWorker();
+				
+				$feeds = DAO_TicketRss::getByWorker($active_worker->id);
+				$tpl->assign('feeds', $feeds);
+				
+				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/rss/index.tpl.php');
+				break;
+			
 			case 'create':
 				$teams = DAO_Group::getAll();
 				
@@ -865,6 +874,7 @@ class ChTicketsPage extends CerberusPageExtension {
         }
         
         $searchView->params = $params;
+        $searchView->renderSortBy = null;
         $viewMgr->setView(CerberusApplication::VIEW_SEARCH,$searchView);
         
         DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','search')));
@@ -1820,6 +1830,64 @@ class ChTicketsPage extends CerberusPageExtension {
 		return;
 	}
 	
+	// Post
+	function removeRssAction() {
+		@$id = DevblocksPlatform::importGPC($_POST['id']);
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(null != ($feed = DAO_TicketRss::getId($id)) && $feed->worker_id == $active_worker->id) {
+			DAO_TicketRss::delete($id);
+		}
+		
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','rss')));
+	}
+	
+	// ajax
+	function showViewRssAction() {
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
+		
+	    $viewMgr = CerberusApplication::getVisit()->get(CerberusVisit::KEY_VIEW_MANAGER); /* @var CerberusStaticViewManager $viewMgr */
+		$view = $viewMgr->getView($view_id); /* @var $view CerberusDashboardView */
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		$tpl->assign('view_id', $view_id);
+		$tpl->assign('view', $view);
+		
+		$tpl->cache_lifetime = "0";
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/rpc/view_rss_builder.tpl.php');
+	}
+	
+	// post
+	function viewBuildRssAction() {
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id']);
+		@$title = DevblocksPlatform::importGPC($_POST['title']);
+		$active_worker = CerberusApplication::getActiveWorker();
+
+	    $viewMgr = CerberusApplication::getVisit()->get(CerberusVisit::KEY_VIEW_MANAGER); /* @var CerberusStaticViewManager $viewMgr */
+		$view = $viewMgr->getView($view_id); /* @var $view CerberusDashboardView */
+		
+		$now = time();
+		$hash = md5($title.$view_id.$active_worker->id.$now);
+		
+		$params = array(
+			'params' => $view->params,
+			'sort_by' => $view->renderSortBy,
+			'sort_asc' => $view->renderSortAsc
+		);
+		
+		$fields = array(
+			DAO_TicketRss::TITLE => $title, 
+			DAO_TicketRss::HASH => $hash, 
+			DAO_TicketRss::CREATED => $now,
+			DAO_TicketRss::WORKER_ID => $active_worker->id,
+			DAO_TicketRss::PARAMS => serialize($params)
+		);
+		$feed_id = DAO_TicketRss::create($fields);
+				
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','rss')));
+	}
+	
 	function showViewActionsAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
@@ -2101,7 +2169,22 @@ class ChTicketsPage extends CerberusPageExtension {
 //			case SearchFields_Ticket::REQUESTER_ADDRESS:
 //				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/search/criteria/requester_email.tpl.php');
 //				break;
+
+			case SearchFields_Ticket::TICKET_NEXT_ACTION:
+				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/search/criteria/ticket_next_action.tpl.php');
+				break;
 				
+			case SearchFields_Ticket::TICKET_LAST_ACTION_CODE:
+				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/search/criteria/ticket_last_action.tpl.php');
+				break;
+				
+			case SearchFields_Ticket::TICKET_LAST_WORKER_ID:
+				$workers = DAO_Worker::getList(); // [TODO] ::getAll()
+				$tpl->assign('workers', $workers);
+				
+				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/search/criteria/ticket_last_worker.tpl.php');
+				break;
+
 			case SearchFields_Ticket::TICKET_MESSAGE_CONTENT:
 				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/search/criteria/message_content.tpl.php');
 				break;
@@ -2192,6 +2275,20 @@ class ChTicketsPage extends CerberusPageExtension {
 			case SearchFields_Ticket::TICKET_MESSAGE_CONTENT:
 				@$content = DevblocksPlatform::importGPC($_REQUEST['content']);
 				$params[$field] = new DevblocksSearchCriteria($field,$oper,'*'.$content.'*');
+				break;
+			case SearchFields_Ticket::TICKET_NEXT_ACTION:
+				@$action = DevblocksPlatform::importGPC($_REQUEST['action']);
+			    if($wildcards && false===strpos($action,'*'))
+			        $action = '*' . $action . '*';
+				$params[$field] = new DevblocksSearchCriteria($field,$oper,$action);
+				break;
+			case SearchFields_Ticket::TICKET_LAST_ACTION_CODE:
+				@$last_action_code = DevblocksPlatform::importGPC($_REQUEST['last_action'],'array',array());
+				$params[$field] = new DevblocksSearchCriteria($field,$oper,$last_action_code);
+				break;
+			case SearchFields_Ticket::TICKET_LAST_WORKER_ID:
+				@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
+				$params[$field] = new DevblocksSearchCriteria($field,$oper,$worker_id);
 				break;
 			case SearchFields_Ticket::TEAM_ID:
 				@$team_ids = DevblocksPlatform::importGPC($_REQUEST['team_id'],'array');
@@ -3133,6 +3230,117 @@ class ChTestsController extends DevblocksControllerExtension {
 		exit;
 	}
 }
+
+class ChRssController extends DevblocksControllerExtension {
+	function __construct($manifest) {
+		parent::__construct($manifest);
+		$router = DevblocksPlatform::getRoutingService();
+		$router->addRoute('rss','core.controller.rss');
+	}
+	
+	/*
+	 * Request Overload
+	 */
+	function handleRequest(DevblocksHttpRequest $request) {
+		// [TODO] Do we want any concept of authentication here?
+
+        $stack = $request->path;
+        
+        array_shift($stack); // rss
+        $hash = array_shift($stack);
+
+        $feed = DAO_TicketRss::getByHash($hash);
+        
+        if(empty($feed)) {
+            die("Bad feed data.");
+        }
+        
+        // [TODO] Implement logins for the wiretap app
+        header("Content-Type: text/xml");
+
+        $xmlstr = <<<XML
+		<rss version='2.0'>
+		</rss>
+XML;
+
+        $xml = new SimpleXMLElement($xmlstr);
+
+        // Channel
+        $channel = $xml->addChild('channel');
+        
+        $channel->addChild('title', $feed->title);
+
+        $url = DevblocksPlatform::getUrlService();
+        $channel->addChild('link', $url->write('',true));
+
+        $channel->addChild('description', '');
+
+		list($tickets, $null) = DAO_Ticket::search(
+			$feed->params['params'],
+			100,
+			0,
+			SearchFields_Ticket::TICKET_UPDATED_DATE, // $feed->params['sort_by'],
+			false, // $feed->params['sort_asc'],
+			false
+		);
+
+        $translate = DevblocksPlatform::getTranslationService();
+
+        foreach($tickets as $ticket) {
+        	$created = intval($ticket[SearchFields_Ticket::TICKET_UPDATED_DATE]);
+            if(empty($created)) $created = time();
+
+            $eItem = $channel->addChild('item');
+            $eTitle = $eItem->addChild('title', $ticket[SearchFields_Ticket::TICKET_SUBJECT]);
+            $eDesc = $eItem->addChild('description', $this->_getTicketLastAction($ticket));
+            	
+            $url = DevblocksPlatform::getUrlService();
+            $link = $url->write('c=display&id='.$ticket[SearchFields_Ticket::TICKET_MASK], true);
+            $eLink = $eItem->addChild('link', $link);
+            	
+            $eDate = $eItem->addChild('pubDate', gmdate('D, d M Y H:i:s T',$created));
+        }
+
+        echo $xml->asXML();
+	    
+		exit;
+	}
+	
+	private function _getTicketLastAction($ticket) {
+		static $workers = null;
+		$action_code = $ticket[SearchFields_Ticket::TICKET_LAST_ACTION_CODE];
+		$output = '';
+		
+		if(is_null($workers))
+			$workers = DAO_Worker::getList();
+
+		@$worker_id = $ticket[SearchFields_Ticket::TICKET_LAST_WORKER_ID];
+		@$last_worker = $workers[$worker_id];
+		if(!$last_worker instanceof CerberusWorker)
+			$last_worker = null;
+			
+		// [TODO] Translate
+		switch($action_code) {
+			case CerberusTicketActionCode::TICKET_OPENED:
+				$output = sprintf("New from %s",
+					$ticket[SearchFields_Ticket::TICKET_LAST_WROTE]
+				);
+				break;
+			case CerberusTicketActionCode::TICKET_CUSTOMER_REPLY:
+				$output = sprintf("Incoming for %s",
+					(!empty($last_worker) ? $last_worker->getName() : "Helpdesk")
+				);
+				break;
+			case CerberusTicketActionCode::TICKET_WORKER_REPLY:
+				$output = sprintf("Outgoing from %s",
+					(!empty($last_worker) ? $last_worker->getName() : "Helpdesk")
+				);
+				break;
+		}
+		
+		return $output;
+	}
+};
 
 class ChUpdateController extends DevblocksControllerExtension {
 	function __construct($manifest) {

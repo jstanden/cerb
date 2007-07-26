@@ -343,6 +343,12 @@ class DAO_Worker extends DevblocksORMHelper {
 			$id
 		);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+
+		$sql = sprintf("DELETE FROM ticket_rss WHERE worker_id = %d",
+			$id
+		);
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
 		
 //		$sql = sprintf("DELETE FROM favorite_tag_to_worker WHERE agent_id = %d",
 //			$id
@@ -1895,6 +1901,168 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 			SearchFields_Ticket::TEAM_NAME => new DevblocksSearchField(SearchFields_Ticket::TEAM_NAME,'tm','name'),
 			
 		);
+	}
+};
+
+class DAO_TicketRss extends DevblocksORMHelper {
+	const ID = 'id';
+	const TITLE = 'title';
+	const HASH = 'hash';
+	const WORKER_ID = 'worker_id';
+	const CREATED = 'created';
+	const PARAMS = 'params';
+	
+	static function create($fields) {
+		$db = DevblocksPlatform::getDatabaseService();
+		$newId = $db->GenID('generic_seq');
+		
+		$sql = sprintf("INSERT INTO ticket_rss (id,hash,title,worker_id,created,params) ".
+			"VALUES (%d,'','',0,0,'')",
+			$newId
+		);
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		self::update($newId, $fields);
+	}
+	
+	/**
+	 * Enter description here...
+	 *
+	 * @param array $ids
+	 * @return Model_TicketRss[]
+	 */
+	static function getList($ids) {
+		if(!is_array($ids)) $ids = array($ids);
+		
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = "SELECT id,hash,title,worker_id,created,params ".
+			"FROM ticket_rss ".
+			(!empty($ids) ? sprintf("WHERE id IN (%s)",implode(',',$ids)) : " ").
+		"";
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		return self::_getObjectsFromResults($rs);
+	}
+	
+	/**
+	 * Enter description here...
+	 *
+	 * @param string $hash
+	 * @return Model_TicketRss
+	 */
+	static function getByHash($hash) {
+		if(empty($hash)) return array();
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = sprintf("SELECT id,hash,title,worker_id,created,params ".
+			"FROM ticket_rss ".
+			"WHERE hash = %s",
+				$db->qstr($hash)
+		);
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		$objects = self::_getObjectsFromResults($rs);
+		
+		if(empty($objects))
+			return null;
+		
+		return array_shift($objects);
+	}
+	
+	/**
+	 * Enter description here...
+	 *
+	 * @param integer $worker_id
+	 * @return Model_TicketRss[]
+	 */
+	static function getByWorker($worker_id) {
+		if(empty($worker_id)) return array();
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = sprintf("SELECT id,hash,title,worker_id,created,params ".
+			"FROM ticket_rss ".
+			"WHERE worker_id = %d",
+				$worker_id
+		);
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		$objects = self::_getObjectsFromResults($rs);
+		
+		return $objects;
+	}
+	
+	/**
+	 * Enter description here...
+	 *
+	 * @param ADORecordSet $rs
+	 * @return Model_TicketRss[]
+	 */
+	private static function _getObjectsFromResults($rs) { /* @var $rs ADORecordSet */
+		$objects = array();
+		
+		while(!$rs->EOF) {
+			$object = new Model_TicketRss();
+			$object->id = intval($rs->fields['id']);
+			$object->title = $rs->fields['title'];
+			$object->hash = $rs->fields['hash'];
+			$object->worker_id = intval($rs->fields['worker_id']);
+			$object->created = intval($rs->fields['created']);
+			
+			$params = $rs->fields['params'];
+			
+			if(!empty($params))
+				@$object->params = unserialize($params);
+			
+			$objects[$object->id] = $object;
+			$rs->MoveNext();
+		}
+		
+		return $objects;
+	}
+
+	/**
+	 * Enter description here...
+	 *
+	 * @param integer $id
+	 * @return Model_TicketRss
+	 */
+	static function getId($id) {
+		if(empty($id)) return null;
+
+		$feeds = self::getList($id);
+		if(isset($feeds[$id]))
+			return $feeds[$id];
+		
+		return null;
+	}
+	
+	static function update($ids, $fields) {
+		if(!is_array($ids)) $ids = array($ids);
+		$db = DevblocksPlatform::getDatabaseService();
+
+		// [JAS]: Handle our blobs specially
+		if(isset($fields[self::PARAMS])) {
+			$db->UpdateBlob(
+				'ticket_rss',
+				self::PARAMS,
+				$fields[self::PARAMS],
+				sprintf('id IN (%s)',implode(',',$ids))
+			);
+			unset($fields[self::PARAMS]);
+		}
+		
+		parent::_update($ids, 'ticket_rss', $fields);
+	}
+	
+	static function delete($id) {
+		if(empty($id)) return;
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = sprintf("DELETE FROM ticket_rss WHERE id = %d",
+			$id
+		);
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 	}
 };
 
