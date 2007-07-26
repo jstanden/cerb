@@ -3015,6 +3015,10 @@ class ChCronController extends DevblocksControllerExtension {
 	    $settings = CerberusSettings::getInstance();
 	    $authorized_ips_str = $settings->get(CerberusSettings::AUTHORIZED_IPS);
 	    $authorized_ips = CerberusApplication::parseCrlfString($authorized_ips_str);
+	    
+	    $authorized_ip_defaults = CerberusApplication::parseCsvString(AUTHORIZED_IPS_DEFAULTS);
+	    $authorized_ips = array_merge($authorized_ips, $authorized_ip_defaults);
+	    
 	    $pass = false;
 		foreach ($authorized_ips as $ip)
 		{
@@ -3148,6 +3152,10 @@ class ChUpdateController extends DevblocksControllerExtension {
 	    $settings = CerberusSettings::getInstance();
 	    $authorized_ips_str = $settings->get(CerberusSettings::AUTHORIZED_IPS);
 	    $authorized_ips = CerberusApplication::parseCrlfString($authorized_ips_str);
+	    
+   	    $authorized_ip_defaults = CerberusApplication::parseCsvString(AUTHORIZED_IPS_DEFAULTS);
+	    $authorized_ips = array_merge($authorized_ips, $authorized_ip_defaults);
+	    
 	    $pass = false;
 		foreach ($authorized_ips as $ip)
 		{
