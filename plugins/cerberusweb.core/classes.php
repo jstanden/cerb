@@ -462,7 +462,7 @@ class ChTicketsPage extends CerberusPageExtension {
 							);
 						$myView->params = array(
 							new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN),
-							new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_LAST_WORKER_ID,'in',$active_worker->id),
+							new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_LAST_WORKER_ID,'in',array($active_worker->id)),
 							new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_LAST_ACTION_CODE,'in',array('R')),
 						);
 						$myView->renderLimit = 10;
