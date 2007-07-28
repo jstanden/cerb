@@ -106,15 +106,15 @@
 					<span title="{$result.t_first_wrote}">{"<b>New</b> from "|cat:$result.t_first_wrote|truncate:45:'...':true:true}</span>
 				{elseif $result.t_last_action_code=='R'}
 					{if isset($workers.$action_worker_id)}
-						<b>Incoming for {$workers.$action_worker_id->getName()}</b>
+						<span title="{$result.t_last_wrote}"><b>Incoming for {$workers.$action_worker_id->getName()}</b></span>
 					{else}
-						<b>Incoming for Helpdesk</b>
+						<span title="{$result.t_last_wrote}"><b>Incoming for Helpdesk</b></span>
 					{/if}
 				{elseif $result.t_last_action_code=='W'}
 					{if isset($workers.$action_worker_id)}
-						Outgoing from {$workers.$action_worker_id->getName()}
+						<span title="{$result.t_last_wrote}">Outgoing from {$workers.$action_worker_id->getName()}</span>
 					{else}
-						Outgoing from Helpdesk
+						<span title="{$result.t_last_wrote}">Outgoing from Helpdesk</span>
 					{/if}
 				{/if}
 				</span>

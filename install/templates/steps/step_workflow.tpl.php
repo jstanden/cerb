@@ -10,9 +10,10 @@ leave it blank.<br>
 
 <H3>Workers</H3>
 
-{if $failed}
-<span class='bad'>Oops!  You must create at least one worker to continue.  How about yourself?</span>
-<br>
+{if $failed && empty($workers_str)}
+<div class="error">
+Oops!  You must create at least one worker to continue.  How about yourself?
+</div>
 <br>
 {/if}
 
@@ -23,8 +24,16 @@ to multiple groups -- such as a person who performs both Support and Sales roles
 Set up workers by adding <b>one worker e-mail address per line</b> below.  We'll ask for additional 
 details on the next step:<br>
 <textarea rows="5" cols="50" name="workers">{$workers_str}</textarea><br>
+<i>(Don't forget yourself!)</i><br>
 
 <H3>Groups</H3>
+
+{if $failed && empty($teams_str)}
+<div class="error">
+Oops!  You must create at least one group to continue.  How about Dispatch?
+</div>
+<br>
+{/if}
 
 How you define your groups will depend on how you intend to use 
 the helpdesk. Many organizations find it helpful to start with a couple department or project related groups 

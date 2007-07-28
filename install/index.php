@@ -69,6 +69,18 @@ if(!defined('DEVBLOCKS_WEBPATH')) {
 	@define('DEVBLOCKS_WEBPATH',$php_self);
 }
 
+//if('' == APP_DB_DRIVER 
+//	|| '' == APP_DB_HOST 
+//	|| '' == APP_DB_DATABASE 
+//	|| null == ($db = DevblocksPlatform::getDatabaseService())
+//	)
+//	throw new Exception("Database details not set.");
+//	
+//	$tables = $db->MetaTables('table',false);
+//	if(empty($tables))
+//		throw new Exception("Database empty.");
+
+
 define('STEP_ENVIRONMENT', 1);
 define('STEP_LICENSE', 2);
 define('STEP_DATABASE', 3);
@@ -477,7 +489,9 @@ switch($step) {
 		
 		if(!empty($form_submit) && !empty($default_reply_from)) {
 			
-			if(!empty($default_reply_from)) {
+			$validate = imap_rfc822_parse_adrlist(sprintf("<%s>", $default_reply_from),"localhost");
+			
+			if(!empty($default_reply_from) && is_array($validate) && 1==count($validate)) {
 				$settings->set(CerberusSettings::DEFAULT_REPLY_FROM, $default_reply_from);
 			}
 			
@@ -582,13 +596,24 @@ switch($step) {
 			if($mail->testImap($imap_host,$imap_port,$imap_service,$imap_user,$imap_pass)) { // Success!
 				// [TODO] Check to make sure the details aren't duplicate
 	            // [TODO] Set protocol
-				$id = DAO_Mail::createPop3Account($imap_user.'@'.$imap_host,$imap_host,$imap_user,$imap_pass);
+
+                $fields = array(
+				    'enabled' => 1,
+					'nickname' => 'POP3',
+					'protocol' => $imap_service,
+					'host' => $imap_host,
+					'username' => $imap_user,
+					'password' => $imap_pass,
+					'port' => $imap_port
+				);
+			    $id = DAO_Mail::createPop3Account($fields);
 				
 				$tpl->assign('step', STEP_WORKFLOW);
 				$tpl->display('steps/redirect.tpl.php');
 				exit;
 				
 			} else { // Failed
+				$tpl->assign('imap_service', $imap_service);
 				$tpl->assign('imap_host', $imap_host);
 				$tpl->assign('imap_user', $imap_user);
 				$tpl->assign('imap_pass', $imap_pass);
@@ -615,8 +640,8 @@ switch($step) {
 		// Catch the submit
 		switch($form_submit) {
 			case 1: // names form submit
-				@$workers_str = DevblocksPlatform::importGPC($_POST['workers'],'string');
-				@$teams_str = DevblocksPlatform::importGPC($_POST['teams'],'string');
+				@$workers_str = DevblocksPlatform::importGPC($_POST['workers'],'string','');
+				@$teams_str = DevblocksPlatform::importGPC($_POST['teams'],'string','');
 				
 				$worker_ids = array();
 				$team_ids = array();
@@ -624,10 +649,9 @@ switch($step) {
 				$workers = CerberusApplication::parseCrlfString($workers_str);
 				$teams = CerberusApplication::parseCrlfString($teams_str);
 
-				if(empty($workers)) {
+				if(empty($workers) || empty($teams)) {
 					$tpl->assign('failed', true);
 					$tpl->assign('workers_str', $workers_str);
-//					$tpl->assign('mailboxes_str', $mailboxes_str);
 					$tpl->assign('teams_str', $teams_str);
 					$tpl->assign('template', 'steps/step_workflow.tpl.php');
 					break;
@@ -636,7 +660,7 @@ switch($step) {
 				// Create worker records
 				if(is_array($workers))
 				foreach($workers as $worker_email) {
-					$id = DAO_Worker::create($worker_email,'new','Joe','User','');
+					$id = DAO_Worker::create($worker_email,'new','First','Last','');
 					$worker_ids[$id] = $worker_email; 
 				}
 				
@@ -665,19 +689,6 @@ switch($step) {
 				@$worker_pw = DevblocksPlatform::importGPC($_POST['worker_pw'],'array');
 				@$team_ids = DevblocksPlatform::importGPC($_POST['team_ids'],'array');
 
-				/*
-				 * [TODO] Make sure we're setting up at least one superuser.
-				 * This is probably best done through a javascript form validation, 
-				 * since it won't require re-typing everything into the form (or injecting)
-				 * on failure.
-				 */
-				// 
-//				if(empty($workers)) {
-//					$tpl->assign('failed', true);
-//					$tpl->assign('template', 'steps/step_workflow.tpl.php');
-//					break;
-//				}
-				
 				$replyFrom = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM);
 				$replyPersonal = $settings->get(CerberusSettings::DEFAULT_REPLY_PERSONAL, '');
 				$url = DevblocksPlatform::getUrlService();
@@ -685,14 +696,17 @@ switch($step) {
 				// Worker Details
 				if(is_array($worker_ids))
 				foreach($worker_ids as $idx => $worker_id) {
-					// [TODO] Phase this out and just write our own
-				    $passGen = new Text_Password();
-				    $password = $passGen->create(8);
-				    
 				    $worker = DAO_Worker::getAgent($worker_id);
-				    
-				    if(in_array($worker_id,$worker_pw)) {
-				        
+					$worker_email_parts = explode('@', $worker->email);
+					
+					@$sFirst = !empty($worker_first[$idx]) ? $worker_first[$idx] : ucwords($worker_email_parts[0]);
+					@$SLast = !empty($worker_last[$idx]) ? $worker_last[$idx] : '';
+					@$sPassword = !empty($worker_pw[$idx]) ? $worker_pw[$idx] : '';
+					
+				    if(empty($sPassword)) {
+				    	$passGen = new Text_Password();
+				    	$sPassword = $passGen->create(8);
+				    	
 				        $mail_service = DevblocksPlatform::getMailService();
 				        $mailer = $mail_service->getMailer();
 				        $mail = $mail_service->createMessage();
@@ -725,17 +739,16 @@ switch($step) {
 				    }
 				    
 					$fields = array(
-						DAO_Worker::FIRST_NAME => $worker_first[$idx],
-						DAO_Worker::LAST_NAME => $worker_last[$idx],
+						DAO_Worker::FIRST_NAME => $sFirst,
+						DAO_Worker::LAST_NAME => $sLast,
 						DAO_Worker::TITLE => $worker_title[$idx],
-						DAO_Worker::PASSWORD => md5($password),
+						DAO_Worker::PASSWORD => md5($sPassword),
 						DAO_Worker::IS_SUPERUSER => (in_array($worker_id,$worker_superuser) ? 1 : 0)
 					);
 					DAO_Worker::updateAgent($worker_id, $fields);
 				}
 				
 				// Team Details
-				// [TODO] Permissions
 				if(is_array($team_ids))
 				foreach($team_ids as $idx => $team_id) {
 					@$team_members = DevblocksPlatform::importGPC($_POST['team_members_'.$team_id],'array');

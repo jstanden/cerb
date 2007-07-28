@@ -10,7 +10,7 @@ leave it blank.<br>
 
 {if !empty($worker_ids)}
 <H3>Worker Details</H3>
-By default, workers will be automatically e-mailed a randomly-generated password.<br>
+By default workers will be automatically e-mailed a randomly-generated password.  Optionally you may directly set a worker's password (such as your own).<br>
 <br>
 
 <table cellpadding="0" cellspacing="5" border="0">
@@ -19,8 +19,8 @@ By default, workers will be automatically e-mailed a randomly-generated password
 		<th>First Name</th>
 		<th>Last Name</th>
 		<th>Title</th>
+		<th>Set Password?</th>
 		<th>Admin?</th>
-		<th>Send pw?</th>
 	</tr>
 {foreach from=$worker_ids key=worker_id item=worker name=workers}
 	<tr>
@@ -28,8 +28,8 @@ By default, workers will be automatically e-mailed a randomly-generated password
 		<td><input type="text" name="worker_first[]"></td>
 		<td><input type="text" name="worker_last[]"></td>
 		<td><input type="text" name="worker_title[]"></td>
-		<td align="center"><input type="checkbox" name="worker_superuser[]" value="{$worker_id}" {if $smarty.foreach.workers.first}checked{/if}></td>
-		<td align="center"><input type="checkbox" name="worker_pw[]" value="{$worker_id}" checked></td>
+		<td><input type="text" name="worker_pw[]" size="12"></td>
+		<td align="center"><input type="radio" name="worker_superuser[]" value="{$worker_id}" {if $smarty.foreach.workers.first}checked{/if}></td>
 	</tr>
 {/foreach}
 </table>

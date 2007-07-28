@@ -163,7 +163,7 @@ class CerberusMail {
 		
 		// [TODO] Make this properly use team replies 
 	    // (or reflect what the customer sent to), etc.
-		$fromAddressId = CerberusApplication::hashLookupAddressId($from_addy);
+		$fromAddressId = CerberusApplication::hashLookupAddressId($from_addy, true);
 		
 	    $fields = array(
 	        DAO_Message::TICKET_ID => $ticket_id,
@@ -226,6 +226,8 @@ class CerberusMail {
 		
 		// Handle post-mail actions
 		$change_fields = array();
+		
+		$change_fields[DAO_Ticket::LAST_WROTE_ID] = $fromAddressId;
 		
 	    if(!empty($worker_id)) {
 	        $change_fields[DAO_Ticket::LAST_WORKER_ID] = $worker_id;

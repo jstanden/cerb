@@ -6,9 +6,9 @@
 
 <H3>You are now operating in Free Mode</H3>
 
-Each new Cerberus Helpdesk installation defaults to a "Free Mode", allowing nearly 
-full-functionality with no expiration.  Companies with lighter requirements may find the free version 
-does everything they need.  Go ahead, enjoy!<br>
+Each new Cerberus Helpdesk installation defaults to a "Free Mode" allowing nearly 
+full-functionality with no expiration.  In this mode a tagline will be appended to all outgoing e-mail and you are limited to 3 workers. 
+Companies with light requirements may find the free version does everything they need.  Go ahead, enjoy!<br>
 <br>
 For companies that need advanced functionality, or would prefer direct product 
 support options, we offer affordable and flexible licensing options.<br>

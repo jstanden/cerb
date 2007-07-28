@@ -7,7 +7,7 @@
 <H3>SMTP</H3>
 
 {if $smtp_error_display}
-	<div style="color:rgb(255,0,0);font-weight:bold;padding:10px;margin:5px;border:1px solid rgb(180,0,0);background-color:rgb(255,230,230);">
+	<div class="error">
 		{$smtp_error_display}
 	</div>
 {/if}

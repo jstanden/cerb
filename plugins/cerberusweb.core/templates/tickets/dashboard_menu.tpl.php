@@ -14,7 +14,7 @@
 						<input type="hidden" name="c" value="tickets">
 						<input type="hidden" name="a" value="changeDashboard">
 				      	<select name="dashboard_id" onchange="this.form.submit();">
-				      		<!-- <option value="0" {if empty($active_dashboard_id)}selected{/if}>My Tickets</option>  -->
+				      		<option value="0" {if empty($active_dashboard_id)}selected{/if}>My Conversations</option>
 				      		<!-- <optgroup label="Teamwork">  -->
 				      			{foreach from=$teams item=team key=team_id}
 				      			{if isset($active_worker_memberships.$team_id)}
@@ -44,11 +44,13 @@
 					</tr>
 				{/if}
 
+				{if !empty($active_dashboard_id) && is_numeric($active_dashboard_id)}
 				<tr>
 					<td width="100%" style="padding:2px;">
 						<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/mail2.gif{/devblocks_url}" align="top"> <a href="{devblocks_url}c=tickets&a=compose{/devblocks_url}">Send Mail</a><br>
 					</td>
 				</tr>
+				{/if}
 				<!-- 
 				<tr>
 					<td width="100%" style="padding:2px;">
@@ -78,6 +80,26 @@
 </div>
 <br>
 
+{if empty($active_worker_memberships) && !empty($teams)}
+<div class="subtle" style="margin:0px;">
+<table cellpadding="0" cellspacing="0" border="0" width="220">
+	<tr>
+		<td>
+		<b>You aren't a member of any groups!</b><br>
+		You should ask someone to invite you to a group.<br>
+		
+		{if $active_worker->is_superuser}
+			<br>
+			It looks like you have admin privileges, 
+			<a href="{devblocks_url}c=config&a=workflow{/devblocks_url}">you can add yourself to a group here</a>.
+		{/if}
+		</td>
+	</tr>
+</table>
+</div>
+<br>
+{/if}
+
 {if !empty($dashboard_team_id)}
 <div class="block">
 <form action="{devblocks_url}{/devblocks_url}" method="post">
@@ -96,19 +118,20 @@
 			<br>
 			
 			<div id="teamCategories" style="display:{if !$team_filters.categorized}none{else}block{/if};">
-			<label><input type="checkbox" name="categories[]" value="0" {if isset($team_filters.categories.0)}checked{/if} onclick="this.form.categorized[1].checked=true;"> Inbox ({if isset($category_counts.0)}{$category_counts.0}{else}0{/if})</label><br>
+			<label><input type="checkbox" name="categories[]" value="0" {if isset($team_filters.categories.0)}checked{/if} onclick="this.form.categorized[1].checked=true;"> Inbox <span style="font-size:80%;color:rgb(150,150,150);">({if isset($category_counts.0)}{$category_counts.0}{else}0{/if})</span></label><br>
 			<blockquote style="margin:0px;margin-left:5px;margin-bottom:10px;">
 			{if !empty($buckets)}
 			<table cellpadding="0" cellspacing="0" border="0" width="98%">
 				{foreach from=$buckets item=category key=category_id}
 					{if $category_counts.total && $category_counts.$category_id}
-						{math assign=percent equation="(x/y)*50" x=$category_counts.$category_id y=$category_counts.total format="%0.0f"}
+						{math assign=percent equation="(x/y)*25" x=$category_counts.$category_id y=$category_counts.total format="%0.0f"}
 					{else}
 						{assign var=percent value=0}
 					{/if}
 				<tr>
-					<td width="100%"><label><input type="checkbox" name="categories[]" value="{$category->id}" {if isset($team_filters.categories.$category_id)}checked{/if} onclick="this.form.categorized[1].checked=true;"> {$category->name} ({if isset($category_counts.$category_id)}{$category_counts.$category_id}{else}0{/if})</label></td>
-					<td width="0%" nowrap="nowrap" style="width:51px;"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/cerb_graph.gif{/devblocks_url}" width="{$percent}" height="15"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/cer_graph_cap.gif{/devblocks_url}" height="15" width="1"></td>
+					<td width="100%"><label><input type="checkbox" name="categories[]" value="{$category->id}" {if isset($team_filters.categories.$category_id)}checked{/if} onclick="this.form.categorized[1].checked=true;"> {$category->name}</label></td>
+					<td width="0%" nowrap="nowrap" align="right" valign="middle"><span style="font-size:80%;color:rgb(150,150,150);">({if isset($category_counts.$category_id)}{$category_counts.$category_id}{else}0{/if})&nbsp;</span></td>
+					<td width="0%" nowrap="nowrap" style="width:26px;" valign="middle"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/cerb_graph.gif{/devblocks_url}" width="{$percent}" height="15"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/cer_graph_cap.gif{/devblocks_url}" height="15" width="1"></td>
 				</tr>
 				{/foreach}
 			</table>

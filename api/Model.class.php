@@ -198,6 +198,7 @@ class CerberusVisit extends DevblocksVisit {
 	
 	const KEY_VIEW_MANAGER = 'view_manager';
 	const KEY_DASHBOARD_ID = 'cur_dashboard_id';
+	const KEY_WORKSPACE_GROUP_ID = 'cur_group_id';
 	const KEY_VIEW_LAST_ACTION = 'view_last_action';
 
 	public function __construct() {

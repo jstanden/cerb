@@ -5,8 +5,10 @@
 <input type="hidden" name="form_submit" value="1">
 
 {if $failed}
-<span class='bad'>Oops!  Required information was not provided. You must provide a 
-valid Default Sender e-mail address to continue.</span><br>
+<div class="error">
+Oops!  Required information was not provided. 
+You must provide a valid Default Sender e-mail address to continue.
+</div>
 <br>
 {/if}
 

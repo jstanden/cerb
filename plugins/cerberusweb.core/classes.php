@@ -235,14 +235,8 @@ class ChTicketsPage extends CerberusPageExtension {
 		$visit = CerberusApplication::getVisit();
 		$team_name = "";
 		
-		/*
-		 * [TODO] This could be a lot cleaner.  The visit could save so much of this 
-		 * nonsense clutter by just caching the team_id and team_name of the current
-		 * workspace.
-		 */
-		$active_dashboard_id = $visit->get(CerberusVisit::KEY_DASHBOARD_ID, 0);
-		if(0 == strcmp('t',substr($active_dashboard_id,0,1))) {
-			$team_id = intval(substr($active_dashboard_id,1));
+		$team_id = $visit->get(CerberusVisit::KEY_WORKSPACE_GROUP_ID, 0);
+		if($team_id) {
 			if(null !== ($team = DAO_Group::getTeam($team_id))) {
 				$team_name = $team->name;
 			}
@@ -310,10 +304,8 @@ class ChTicketsPage extends CerberusPageExtension {
 			case 'create':
 				$teams = DAO_Group::getAll();
 				
-				// [TODO] Port to 'active_team_id'
-				$active_dashboard_id = $visit->get(CerberusVisit::KEY_DASHBOARD_ID, 0);
-				if(0 == strcmp('t',substr($active_dashboard_id,0,1))) {
-					$team_id = intval(substr($active_dashboard_id,1));
+				$team_id = $visit->get(CerberusVisit::KEY_WORKSPACE_GROUP_ID, 0);
+				if($team_id) {
 					$tpl->assign('team', $teams[$team_id]);
 				}
 				
@@ -324,11 +316,8 @@ class ChTicketsPage extends CerberusPageExtension {
 				$teams = DAO_Group::getAll();
 				$settings = CerberusSettings::getInstance();
 
-				// [TODO] Port to 'active_team_id'
-				// [TODO] This really needs to go into the API, it's super redundant
-				$active_dashboard_id = $visit->get(CerberusVisit::KEY_DASHBOARD_ID, 0);
-				if(0 == strcmp('t',substr($active_dashboard_id,0,1))) {
-					$team_id = intval(substr($active_dashboard_id,1));
+				$team_id = $visit->get(CerberusVisit::KEY_WORKSPACE_GROUP_ID, 0);
+				if($team_id) {
 					$tpl->assign('team', $teams[$team_id]);
 					
 					$default_sig = $settings->get(CerberusSettings::DEFAULT_SIGNATURE,'');
@@ -424,9 +413,7 @@ class ChTicketsPage extends CerberusPageExtension {
 					if(0 == strcmp("team", $mode)) {
 						$team_id = intval(array_shift($request_path));
 						$visit->set(CerberusVisit::KEY_DASHBOARD_ID, 't'.$team_id);
-						
-					} elseif(0 == strcmp('my', $mode)) {
-						$visit->set(CerberusVisit::KEY_DASHBOARD_ID, 0);
+						$visit->set(CerberusVisit::KEY_WORKSPACE_GROUP_ID, $team_id);
 					}
 				}
 				
@@ -445,48 +432,52 @@ class ChTicketsPage extends CerberusPageExtension {
 
 				$active_dashboard_id = $visit->get(CerberusVisit::KEY_DASHBOARD_ID, 0);
 				
-				if(empty($active_dashboard_id)) {
+				$memberships = DAO_Worker::getGroupMemberships($worker->id);
+				if(empty($active_dashboard_id) && !empty($memberships)) {
 				    // [TODO] Set a default when someone first logs in
-	                list($team_key, $team_val) = each($teams);
+	                list($team_key, $team_val) = each($memberships);
 	                $active_dashboard_id = 't' . $team_key;
 	                $visit->set(CerberusVisit::KEY_DASHBOARD_ID, $active_dashboard_id);
+	                $visit->set(CerberusVisit::KEY_WORKSPACE_GROUP_ID, $team_key);
 	            }
 	            
-				$tpl->assign('active_dashboard_id', $active_dashboard_id);
-	            
-					// My Tickets
-//					$myView = $viewManager->getView(CerberusApplication::VIEW_MY_TICKETS);
-//					
-//					// [JAS]: Recover from a bad cached ID.
-//					if(null == $myView) {
-//						$myView = new CerberusDashboardView();
-//						$myView->id = CerberusApplication::VIEW_MY_TICKETS;
-//						$myView->name = "My Assigned Tickets";
-//						$myView->dashboard_id = 0;
-//						$myView->view_columns = array(
-//							SearchFields_Ticket::TICKET_NEXT_ACTION,
-//							SearchFields_Ticket::TICKET_UPDATED_DATE,
+				if(empty($active_dashboard_id)) { // custom dashboards
+	            // My Tickets
+					$myView = $viewManager->getView(CerberusApplication::VIEW_MY_TICKETS);
+					
+					// [JAS]: Recover from a bad cached ID.
+					if(null == $myView) {
+						$myView = new CerberusDashboardView();
+						$myView->id = CerberusApplication::VIEW_MY_TICKETS;
+						$myView->name = "New Messages for Me";
+						$myView->dashboard_id = 0;
+						$myView->view_columns = array(
+							SearchFields_Ticket::TICKET_NEXT_ACTION,
+							SearchFields_Ticket::TICKET_UPDATED_DATE,
 //							SearchFields_Ticket::TICKET_LAST_WROTE,
-//							SearchFields_Ticket::TEAM_NAME,
-//							SearchFields_Ticket::CATEGORY_NAME,
-//							SearchFields_Ticket::TICKET_SPAM_SCORE,
-//							);
-//						$myView->params = array(
-////							new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_OWNER_ID,'=',$visit->getWorker()->id),
-//							new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN),
-//						);
-//						$myView->renderLimit = 10;
-//						$myView->renderPage = 0;
-//						$myView->renderSortBy = SearchFields_Ticket::TICKET_UPDATED_DATE;
-//						$myView->renderSortAsc = 0;
-//						
-//						$viewManager->setView(CerberusApplication::VIEW_MY_TICKETS,$myView);
-//					}
-//					$views = array($myView->id => $myView);
-//					$tpl->assign('views', $views);
-//
+							SearchFields_Ticket::TEAM_NAME,
+//							SearchFields_Ticket::TICKET_CATEGORY_ID,
+							SearchFields_Ticket::TICKET_SPAM_SCORE,
+							SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
+							);
+						$myView->params = array(
+//							new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_OWNER_ID,'=',$visit->getWorker()->id),
+							new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN),
+							new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_LAST_WORKER_ID,'in',$worker->id),
+							new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_LAST_ACTION_CODE,'in',array('R')),
+						);
+						$myView->renderLimit = 10;
+						$myView->renderPage = 0;
+						$myView->renderSortBy = SearchFields_Ticket::TICKET_LAST_ACTION_CODE;
+						$myView->renderSortAsc = 1;
+						
+						$viewManager->setView(CerberusApplication::VIEW_MY_TICKETS,$myView);
+					}
+					$views = array($myView->id => $myView);
+					$tpl->assign('views', $views);
+					
 				// Nuke custom dashboards?
-				if(is_numeric($active_dashboard_id)) { // custom dashboards
+				} elseif(is_numeric($active_dashboard_id)) { // custom dashboards
 					$activeDashboard = $dashboards[$active_dashboard_id];
 					
 					// [JAS]: [TODO] This needs to limit by the selected dashboard
@@ -499,10 +490,10 @@ class ChTicketsPage extends CerberusPageExtension {
 					
 				} else { // virtual dashboards
 					// team dashboard
-                    if(0 == strcmp('t',substr($active_dashboard_id,0,1))) {
-						$team_id = intval(substr($active_dashboard_id,1));
+					$team_id = $visit->get(CerberusVisit::KEY_WORKSPACE_GROUP_ID, 0);
+					
+                    if($team_id) {
 						$team = $teams[$team_id];
-						
 						$tpl->assign('dashboard_team_id', $team_id);
 
 						$buckets = DAO_Bucket::getByTeam($team_id);
@@ -597,7 +588,9 @@ class ChTicketsPage extends CerberusPageExtension {
 				// [TODO]: This should be filterable by a specific view later as well using searchDAO.
 //				$viewActions = DAO_DashboardViewAction::getList();
 //				$tpl->assign('viewActions', $viewActions);
-			
+
+				$tpl->assign('active_dashboard_id', $active_dashboard_id);
+
 				list($whos_online_workers, $whos_online_count) = DAO_Worker::search(
 				    array(
 				        new DevblocksSearchCriteria(SearchFields_Worker::LAST_ACTIVITY_DATE,DevblocksSearchCriteria::OPER_GT,(time()-60*15)), // idle < 15 mins
@@ -630,7 +623,6 @@ class ChTicketsPage extends CerberusPageExtension {
 	// [TODO] [JAS]: In the future this should only advance groups this worker belongs to
 	function nextGroupAction() {
 		$visit = CerberusApplication::getVisit();
-		$active_dashboard_id = $visit->get(CerberusVisit::KEY_DASHBOARD_ID, 0);
 		$worker = CerberusApplication::getActiveWorker();
 		$memberships = DAO_Worker::getGroupMemberships($worker->id);
 		
@@ -642,12 +634,15 @@ class ChTicketsPage extends CerberusPageExtension {
 			if(!isset($memberships[$gid]))
 				unset($group_ids[$idx]);
 		}
+
+		array_unshift($group_ids, 0);
 		
-		if(0 == strcasecmp(substr($active_dashboard_id,0,1),'t')) {
-			$group_id = intval(substr($active_dashboard_id,1));
+		$group_id = $visit->get(CerberusVisit::KEY_WORKSPACE_GROUP_ID, 0);
+		
+		if(!empty($group_ids)) {
 			$next = false;
-			
 			reset($group_ids);
+			
 			while(false !== ($idx = current($group_ids))) {
 				if($idx == $group_id) {
 					if(false === ($next = next($group_ids))) {
@@ -659,7 +654,8 @@ class ChTicketsPage extends CerberusPageExtension {
 			} 
 			
 			if(false !== $next) {
-				$visit->set(CerberusVisit::KEY_DASHBOARD_ID, 't'.$next);
+				$visit->set(CerberusVisit::KEY_DASHBOARD_ID, (empty($next) ? '' : ('t'.$next)));
+				$visit->set(CerberusVisit::KEY_WORKSPACE_GROUP_ID, $next);
 			}
 		}
 		
@@ -793,14 +789,8 @@ class ChTicketsPage extends CerberusPageExtension {
         $visit = CerberusApplication::getVisit();
         $active_dashboard_id = $visit->get(CerberusVisit::KEY_DASHBOARD_ID, 0);
         
-		if(0 == strcmp('t',substr($active_dashboard_id,0,1))) {
-		    $team_id = intval(substr($active_dashboard_id,1));
-        } else { // no team dashboard
-	        $team_id = 0;
-//            echo ' ';
-//            return;
-        }
-
+        $team_id = $visit->get(CerberusVisit::KEY_WORKSPACE_GROUP_ID, 0);
+        
 		$tpl = DevblocksPlatform::getTemplateService();
 		$path = dirname(__FILE__) . '/templates/';
 		$tpl->assign('path', $path);
@@ -1091,11 +1081,8 @@ class ChTicketsPage extends CerberusPageExtension {
 	        $tpl->display($tpl_path.'tickets/rpc/ticket_view_assist_headers.tpl.php');
 	        
         } else {
-	        // [TODO] Clean this up (move into the visit with active dash?)
-			if(0 == strcmp('t',substr($active_dashboard_id,0,1))) {
-			    $team_id = intval(substr($active_dashboard_id,1));
-			    $tpl->assign('dashboard_team_id', $team_id);
-	        }
+			$team_id = $visit->get(CerberusVisit::KEY_WORKSPACE_GROUP_ID, 0);;
+		    $tpl->assign('dashboard_team_id', $team_id);
 	        
 			$teams = DAO_Group::getAll();
 			$tpl->assign('teams', $teams);
@@ -1122,12 +1109,7 @@ class ChTicketsPage extends CerberusPageExtension {
         $view = $viewMgr->getView($view_id); /* @var $view CerberusDashboardView */
 
         $active_dashboard_id = $visit->get(CerberusVisit::KEY_DASHBOARD_ID, 0);
-        
-        // [TODO] Clean this up (move into the visit with active dash?)
-	    $dashboard_team_id = 0;
-		if(0 == strcmp('t',substr($active_dashboard_id,0,1))) {
-		    $dashboard_team_id = intval(substr($active_dashboard_id,1));
-        }
+		$dashboard_team_id = $visit->get(CerberusVisit::KEY_WORKSPACE_GROUP_ID, 0);
         
 	    @$piles_always = DevblocksPlatform::importGPC($_POST['piles_always'],'array', array());
 	    @$piles_hash = DevblocksPlatform::importGPC($_POST['piles_hash'],'array', array());
@@ -1583,9 +1565,8 @@ class ChTicketsPage extends CerberusPageExtension {
 //        $view->tips = $view_tips; // [TODO] Formalize
 	    
         // View Quick Moves
-        $active_team_id = 0;
-		if(0 == strcmp('t',substr($active_dashboard_id,0,1))) {
-			$active_team_id = intval(substr($active_dashboard_id,1));
+        $active_team_id = $visit->get(CerberusVisit::KEY_WORKSPACE_GROUP_ID, 0);
+		if($active_team_id) {
 			// [TODO] Move this into an API
 	        $active_worker = CerberusApplication::getActiveWorker();
             $move_counts_str = DAO_WorkerPref::get($active_worker->id,''.DAO_WorkerPref::SETTING_TEAM_MOVE_COUNTS . $active_dashboard_id,serialize(array()));
@@ -1717,10 +1698,17 @@ class ChTicketsPage extends CerberusPageExtension {
 
 	function changeDashboardAction() {
 		$dashboard_id = DevblocksPlatform::importGPC($_POST['dashboard_id'], 'string', '0');
+		$team_id = 0;
+
+		// Cache the current team id
+		if(0 == strcmp('t',substr($dashboard_id,0,1))) {
+		    $team_id = intval(substr($dashboard_id,1));
+        }
 		
 		$visit = DevblocksPlatform::getSessionService()->getVisit();
 		$visit->set(CerberusVisit::KEY_DASHBOARD_ID, $dashboard_id);
-		
+	    $visit->set(CerberusVisit::KEY_WORKSPACE_GROUP_ID, $team_id);
+        
 		//DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','workspaces')));
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets','workspaces')));
 	}

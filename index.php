@@ -53,10 +53,19 @@ require(getcwd() . '/framework.config.php');
 require(DEVBLOCKS_PATH . 'Devblocks.class.php');
 
 // If this is our first run, redirect to the installer
-if('' == APP_DB_DRIVER || '' == APP_DB_HOST || '' == APP_DB_DATABASE) {
+try {
+	if('' == APP_DB_DRIVER 
+		|| '' == APP_DB_HOST 
+		|| '' == APP_DB_DATABASE 
+		|| null == ($db = DevblocksPlatform::getDatabaseService())
+		|| DevblocksPlatform::isDatabaseEmpty())
+			throw new Exception("Database details not set.");
+} catch(Exception $e) {
     header('Location: install/index.php'); // [TODO] change this to a meta redirect
     exit;
 }
+
+// [TODO] We could also put a temporary lock mode for upgrades here
 
 require(APP_PATH . '/api/Application.class.php');
 

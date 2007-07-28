@@ -22,7 +22,7 @@ the information later from Configuration-&gt;Mail.</i><br>
 <br>
 
 {if $failed}
-<span class='bad'>
+<div class="error">
 Could not connect to your mailbox.  Please correct the following errors:
 {if !empty($error_msgs)}
 <ul>
@@ -31,15 +31,16 @@ Could not connect to your mailbox.  Please correct the following errors:
 	{/foreach}
 </ul>  
 {/if}
-</span>
+</div>
 <br>
 {/if}
 
 <b>Incoming Mail Service:</b><br>
 <select name="imap_service">
-	<option value="pop3">POP3
-	<option value="pop3-ssl">POP3-SSL
-	<option value="imap">IMAP
+	<option value="pop3" {if $imap_service=="pop3"}selected{/if}>POP3
+	<option value="pop3-ssl" {if $imap_service=="pop3-ssl"}selected{/if}>POP3-SSL
+	<option value="imap" {if $imap_service=="imap"}selected{/if}>IMAP
+	<option value="imap-ssl" {if $imap_service=="imap-ssl"}selected{/if}>IMAP-SSL
 </select><br>
 <br>
 
