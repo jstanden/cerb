@@ -90,10 +90,6 @@ class ChPageController extends DevblocksControllerExtension {
 	}
 	
 	public function handleRequest(DevblocksHttpRequest $request) {
-//	    echo "REQUEST";
-	    
-//	    print_r($request);
-	    
 	    $path = $request->path;
 		$controller = array_shift($path);
 
@@ -123,7 +119,6 @@ class ChPageController extends DevblocksControllerExtension {
 	
 	public function writeResponse(DevblocksHttpResponse $response) {
 	    $path = $response->path;
-	    
 		// [JAS]: Ajax? // [TODO] Explore outputting whitespace here for Safari
 //	    if(empty($path))
 //			return;
@@ -787,7 +782,8 @@ class ChTicketsPage extends CerberusPageExtension {
 	    );
 	    $_SESSION['team_filters'][$team_id] = $filters;
 	    
-	    DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','workspaces','team',$team_id)));
+	    //DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','workspaces','team',$team_id)));
+	    DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets','workspaces','team',$team_id)));
 	}
 	
 	// Ajax
@@ -877,7 +873,8 @@ class ChTicketsPage extends CerberusPageExtension {
         $searchView->renderSortBy = null;
         $viewMgr->setView(CerberusApplication::VIEW_SEARCH,$searchView);
         
-        DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','search')));
+        //DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','search')));
+        DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets','search')));
 	}
 	
 	// Ajax
@@ -999,7 +996,8 @@ class ChTicketsPage extends CerberusPageExtension {
 		if(null != ($reqAddressId = CerberusApplication::hashLookupAddressId($to, true)))
 			DAO_Ticket::createRequester($reqAddressId, $ticket_id);
 		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','compose')));
+		//DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','compose')));
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets','compose')));
 	}
 	
 	// [TODO] Nuke the message_id redundancy here, and such
@@ -1049,7 +1047,8 @@ class ChTicketsPage extends CerberusPageExtension {
 			DAO_Ticket::TEAM_ID => $team_id
 		));
 
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('display',$ticket_id)));
+		//DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('display',$ticket_id)));
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('display',$ticket_id)));
 	}
 	
 	function mailboxAction() {
@@ -1063,7 +1062,8 @@ class ChTicketsPage extends CerberusPageExtension {
 			new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=', CerberusTicketStatus::OPEN)
 		);
 		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','search')));
+		//DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','search')));
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets','search')));
 	}
 	
 	function showViewAutoAssistAction() {
@@ -1210,7 +1210,8 @@ class ChTicketsPage extends CerberusPageExtension {
 	    $view->renderPage = 0;
 	    $viewMgr->setView($view_id, $view);
 	    	    
-        DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets')));
+        //DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets')));
+        DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets')));
 	}
 	
 	function viewMoveTicketsAction() {
@@ -1641,7 +1642,8 @@ class ChTicketsPage extends CerberusPageExtension {
 	    DAO_GroupSettings::set($team_id, DAO_GroupSettings::SETTING_SPAM_ACTION, $spam_action);
 	    DAO_GroupSettings::set($team_id, DAO_GroupSettings::SETTING_SPAM_ACTION_PARAM, $spam_moveto);
 	       
-        DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','team',$team_id,'general')));
+        //DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','team',$team_id,'general')));
+        DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets','team',$team_id,'general')));
 	}
 	
 	function addTeamMemberAction() {
@@ -1653,7 +1655,8 @@ class ChTicketsPage extends CerberusPageExtension {
 			DAO_Group::setTeamMember($team_id, $worker_id, $is_manager);
 		}
 		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','team',$team_id,'members')));
+		//DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','team',$team_id,'members')));
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets','team',$team_id,'members')));
 	}
 	
 	function removeTeamMemberAction() {
@@ -1662,7 +1665,8 @@ class ChTicketsPage extends CerberusPageExtension {
 
 		DAO_Group::unsetTeamMember($team_id, $worker_id);
 		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','team',$team_id,'members')));
+		//DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','team',$team_id,'members')));
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets','team',$team_id,'members')));
 	}
 	
 	function saveTeamBucketsAction() {
@@ -1695,7 +1699,8 @@ class ChTicketsPage extends CerberusPageExtension {
 	    if(!empty($deletes))
 	        DAO_Bucket::delete(array_values($deletes));
 	        
-        DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','team',$team_id,'buckets')));	        
+        //DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','team',$team_id,'buckets')));	        
+        DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets','team',$team_id,'buckets')));
 	}
 	
 	function saveTeamRoutingAction() {
@@ -1706,7 +1711,8 @@ class ChTicketsPage extends CerberusPageExtension {
 	        DAO_TeamRoutingRule::delete($deletes);
 	    }
 	    
-        DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','team',$team_id,'routing')));   
+        //DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','team',$team_id,'routing')));   
+        DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets','team',$team_id,'routing')));
    	}
 
 	function changeDashboardAction() {
@@ -1715,7 +1721,8 @@ class ChTicketsPage extends CerberusPageExtension {
 		$visit = DevblocksPlatform::getSessionService()->getVisit();
 		$visit->set(CerberusVisit::KEY_DASHBOARD_ID, $dashboard_id);
 		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','workspaces')));
+		//DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','workspaces')));
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets','workspaces')));
 	}
 	
 	function showBatchPanelAction() {
@@ -1839,7 +1846,8 @@ class ChTicketsPage extends CerberusPageExtension {
 			DAO_TicketRss::delete($id);
 		}
 		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','rss')));
+		//DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','rss')));
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets','rss')));
 	}
 	
 	// ajax
@@ -1885,7 +1893,8 @@ class ChTicketsPage extends CerberusPageExtension {
 		);
 		$feed_id = DAO_TicketRss::create($fields);
 				
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','rss')));
+		//DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','rss')));
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets','rss')));
 	}
 	
 	function showViewActionsAction() {
@@ -2308,7 +2317,8 @@ class ChTicketsPage extends CerberusPageExtension {
 		);
 		DAO_Dashboard::updateView(CerberusApplication::VIEW_SEARCH, $fields);
 		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','search')));
+		//DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','search')));
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets','search')));
 	}
 
 	// Form
@@ -3952,12 +3962,31 @@ class ChSignInPage extends CerberusPageExtension {
 
 	// POST
 	function authenticateAction() {
-		@$email		= DevblocksPlatform::importGPC($_POST['email']);
-		@$password	= DevblocksPlatform::importGPC($_POST['password']);
-	    
+		@$email				= DevblocksPlatform::importGPC($_POST['email']);
+		@$password			= DevblocksPlatform::importGPC($_POST['password']);
+		@$original_path		= explode(',',DevblocksPlatform::importGPC($_POST['original_path']));
+		@$original_query_str= DevblocksPlatform::importGPC($_POST['original_query']);
+		//@$original_url		= DevblocksPlatform::importGPC($_POST['original_url']);
+		
 		$manifest = DevblocksPlatform::getExtension('login.default');
 		$inst = $manifest->createInstance(); /* @var $inst CerberusLoginPageExtension */
-		$inst->authenticate(array('email' => $email, 'password' => $password));
+
+		$url_service = DevblocksPlatform::getUrlService();
+		
+		if($inst->authenticate(array('email' => $email, 'password' => $password))) {
+			//authentication passed
+			$original_query = $url_service->parseQueryString($original_query_str);
+
+			$devblocks_response = new DevblocksHttpResponse($original_path, $original_query);
+			if($devblocks_response->path[0]=='login') {
+				$devblocks_response = new DevblocksHttpResponse(array('welcome'));
+			}
+		}
+		else {
+			//authentication failed
+			$devblocks_response = new DevblocksHttpResponse(array('login'));
+		}
+		DevblocksPlatform::redirect($devblocks_response);
 	}
 	
 	function signoutAction() {
@@ -3966,7 +3995,8 @@ class ChSignInPage extends CerberusPageExtension {
 		$visit = $session->getVisit();
 		DAO_Worker::logActivity($visit->getWorker()->id, new Model_Activity(null));
 		$session->clear();
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('login')));
+		//DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('login')));
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('login')));
 	}
 	
 	// Post
@@ -4011,7 +4041,8 @@ class ChSignInPage extends CerberusPageExtension {
 			// [TODO] Report when the message wasn't sent.
 		}
 	    
-	    DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('login','forgot','step2')));
+	    //DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('login','forgot','step2')));
+	    DevblocksPlatform::redirect(new DevblocksHttpResponse(array('login','forgot','step2')));
 	}
 	
 	// Post
@@ -4028,9 +4059,11 @@ class ChSignInPage extends CerberusPageExtension {
 	        return;
         
 	    if(0 == strcmp($sentcode,$code)) { // passed
+            //DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('login','forgot','step3')));
             DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('login','forgot','step3')));	        
 	    } else {
-            DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('login','forgot','step2')));	        
+            //DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('login','forgot','step2')));	        
+            DevblocksPlatform::redirect(new DevblocksHttpResponse(array('login','forgot','step2')));
 	    }
 	}
 	
@@ -4056,9 +4089,11 @@ class ChSignInPage extends CerberusPageExtension {
             unset($_SESSION[self::KEY_FORGOT_CODE]);
             unset($_SESSION[self::KEY_FORGOT_SENTCODE]);
             
-            DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('login')));
+            //DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('login')));
+            DevblocksPlatform::redirect(new DevblocksHttpResponse(array('login')));
 	    } else {
-	        DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('login','forgot','step2')));
+	        //DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('login','forgot','step2')));
+	        DevblocksPlatform::redirect(new DevblocksHttpResponse(array('login','forgot','step2')));
 	    }
         
 	}

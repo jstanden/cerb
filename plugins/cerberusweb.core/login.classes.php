@@ -53,30 +53,43 @@ class DefaultLoginModule extends CerberusLoginPageExtension {
 		// draws HTML form of controls needed for login information
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
+		
+		$request = DevblocksPlatform::getHttpRequest();
+		$prefix = '';
+		$query_str = '';
+		foreach($request->query as $key=>$val) {
+			$query_str .= $prefix . $key . '=' . $val;
+			$prefix = '&';
+		}
+		
+		//$url_service = DevblocksPlatform::getUrlService();
+		//$original_url = $url_service->writeDevblocksHttpIO($request);
+		
+		//$tpl->assign('original_url', $original_url);
+		$tpl->assign('original_path', implode(',',$request->path));
+		$tpl->assign('original_query', $query_str);
+		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/login/login_form_default.tpl.php');
 	}
 	
 	function authenticate($params=array()) {
 	    $email = $params['email'];
 	    $password = $params['password'];
-	    
 		// pull auth info out of $_POST, check it, return user_id or false
 		$worker = DAO_Worker::login($email, $password);
 		
 		if(!is_null($worker)) {
 			$session = DevblocksPlatform::getSessionService();
 			$visit = new CerberusVisit();
-				$visit->setWorker($worker);
+			$visit->setWorker($worker);
 				
 			$memberships = DAO_Worker::getGroupMemberships($worker->id);
 			$visit->set(CerberusVisit::KEY_DASHBOARD_ID, 't'.key($memberships));
 				
 			$session->setVisit($visit);
-			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('welcome')));
 			return true;
 			
 		} else {
-			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('login')));
 			return false;
 		}
 	}
