@@ -1,5 +1,5 @@
 {if !empty($last_action)}
-<div id="{$view->id}_output" style="position:relative;margin:10px;padding:5px;border:1px solid rgb(200,200,200);background-color:rgb(250,250,150);">
+<div id="{$view->id}_output" style="margin:10px;padding:5px;border:1px solid rgb(200,200,200);background-color:rgb(250,250,150);">
 		<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/information.gif{/devblocks_url}" align="absmiddle"> 
 	
 		{$last_action_count} ticket{if $last_action_count!=1}s{/if} 
@@ -10,6 +10,8 @@
 			marked not spam.
 		{elseif $last_action->action == 'delete'}
 			deleted.
+		{elseif $last_action->action == 'surrender'}
+			surrendered.
 		{elseif $last_action->action == 'close'}
 			closed.
 		{elseif $last_action->action == 'move'}
@@ -25,9 +27,10 @@
 			{/if}
 		{/if}
 		
-		( <a href="javascript:;" onclick="ajax.viewUndo('{$view->id}');" style="font-weight:bold;">Undo</a> )
-		<span style="position:absolute; right:15;">
-		<a href="javascript:;" onclick="toggleDiv('{$view->id}_output','none');genericAjaxGet('','c=tickets&a=viewUndo&view_id={$view->id}&clear=1');" style="">close</a>
-		</span> 
+		 ( 
+		 <a href="javascript:;" onclick="ajax.viewUndo('{$view->id}');" style="font-weight:bold;">Undo</a> 
+		  | 
+		 <a href="javascript:;" onclick="toggleDiv('{$view->id}_output','none');genericAjaxGet('','c=tickets&a=viewUndo&view_id={$view->id}&clear=1');" style="">Dismiss</a>
+		  )  
 </div>
 {/if}

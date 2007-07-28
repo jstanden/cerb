@@ -467,7 +467,7 @@ class ChTicketsPage extends CerberusPageExtension {
 						);
 						$myView->renderLimit = 10;
 						$myView->renderPage = 0;
-						$myView->renderSortBy = SearchFields_Ticket::TICKET_LAST_ACTION_CODE;
+						$myView->renderSortBy = SearchFields_Ticket::TICKET_UPDATED_DATE;
 						$myView->renderSortAsc = 1;
 						
 						$viewManager->setView(CerberusApplication::VIEW_MY_TICKETS,$myView);
@@ -1323,6 +1323,39 @@ class ChTicketsPage extends CerberusPageExtension {
         foreach($ticket_ids as $ticket_id) {
             $last_action->ticket_ids[$ticket_id] = array(
                 DAO_Ticket::IS_CLOSED => CerberusTicketStatus::OPEN
+            );
+        }
+
+        $last_action->action_params = $fields;
+        
+        CerberusDashboardView::setLastAction($view_id,$last_action);
+        //====================================
+	    
+        DAO_Ticket::updateTicket($ticket_ids, $fields);
+	    
+	    echo ' ';
+	    return;
+	}
+	
+	function viewSurrenderTicketsAction() {
+	    @$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
+	    @$ticket_ids = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'array');
+	    
+        $fields = array(
+            DAO_Ticket::LAST_WORKER_ID => 0,
+        );
+	    
+        $worker = CerberusApplication::getActiveWorker();
+        
+        //====================================
+	    // Undo functionality
+        $last_action = new Model_TicketViewLastAction();
+        $last_action->action = Model_TicketViewLastAction::ACTION_SURRENDER;
+
+        if(is_array($ticket_ids))
+        foreach($ticket_ids as $ticket_id) {
+            $last_action->ticket_ids[$ticket_id] = array(
+                DAO_Ticket::LAST_WORKER_ID => $worker->id
             );
         }
 

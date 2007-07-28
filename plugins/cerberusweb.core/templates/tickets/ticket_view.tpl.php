@@ -1,10 +1,9 @@
-<!-- // These don't need to affect spacing 
+<div id="{$view->id}_output_container">
+	{include file="file:$path/tickets/rpc/ticket_view_output.tpl.php"}
+</div>
 {assign var=results value=$view->getTickets()}
 {assign var=total value=$results[1]}
 {assign var=tickets value=$results[0]}
- --><div id="{$view->id}_output_container">
-	{include file="file:$path/tickets/rpc/ticket_view_output.tpl.php"}
-</div>
 <table cellpadding="0" cellspacing="0" border="0" class="tableBlue" width="100%" class="tableBg">
 	<tr>
 		<td nowrap="nowrap" class="tableThBlue">{$view->name} {if $view->id == 'search'}<a href="#{$view->id}_actions" style="color:rgb(255,255,255);font-size:11px;">jump to actions</a>{/if}</td>
@@ -144,7 +143,8 @@
 	{if $total}
 	<tr>
 		<td colspan="2">
-			{if $view->id != 'contact_history'}<span id="tourDashboardBatch"><button type="button" onclick="ajax.showBatchPanel('{$view->id}','{$dashboard_team_id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> bulk update</button></span>{/if}
+			{if $view->id != 'contact_history' && $view->id != 'teamwork_my'}<span id="tourDashboardBatch"><button type="button" onclick="ajax.showBatchPanel('{$view->id}','{$dashboard_team_id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> bulk update</button></span>{/if}
+			{if $view->id == 'teamwork_my'}<button type="button" onclick="ajax.viewCloseTickets('{$view->id}',3);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/flag_white.gif{/devblocks_url}" align="top"> surrender</button>{/if}
 			<button type="button" onclick="ajax.viewCloseTickets('{$view->id}',0);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_ok.gif{/devblocks_url}" align="top"> close</button>
 			<button type="button" onclick="ajax.viewCloseTickets('{$view->id}',1);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/spam.gif{/devblocks_url}" align="top"> spam</button>
 			{if $active_worker && ($active_worker->is_superuser || $active_worker->can_delete)}<button type="button" onclick="ajax.viewCloseTickets('{$view->id}',2);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> delete</button>{/if}

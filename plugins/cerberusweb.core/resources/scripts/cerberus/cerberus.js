@@ -398,6 +398,12 @@ var cAjaxCalls = function() {
 					genericAjaxGet('dashboardPanel','c=tickets&a=refreshTeamFilters');
 				});
 				break;
+			case 3: // release/surrender
+				genericAjaxPost(formName, '', 'c=tickets&a=viewSurrenderTickets&view_id=' + view_id, function(o) {
+					ajax.getRefresh(view_id);
+					genericAjaxGet('dashboardPanel','c=tickets&a=refreshTeamFilters');
+				});
+				break;
 			default: // close
 				genericAjaxPost(formName, '', 'c=tickets&a=viewCloseTickets&view_id=' + view_id, function(o) {
 					ajax.getRefresh(view_id);
