@@ -129,8 +129,8 @@
 						{assign var=percent value=0}
 					{/if}
 				<tr>
-					<td width="100%"><label><input type="checkbox" name="categories[]" value="{$category->id}" {if isset($team_filters.categories.$category_id)}checked{/if} onclick="this.form.categorized[1].checked=true;"> {$category->name}</label></td>
-					<td width="0%" nowrap="nowrap" align="right" valign="middle"><span style="font-size:80%;color:rgb(150,150,150);">({if isset($category_counts.$category_id)}{$category_counts.$category_id}{else}0{/if})&nbsp;</span></td>
+					<td width="100%"><label><input type="checkbox" name="categories[]" value="{$category->id}" {if isset($team_filters.categories.$category_id)}checked{/if} onclick="this.form.categorized[1].checked=true;"> {$category->name}</label> <span style="font-size:80%;color:rgb(150,150,150);">({if isset($category_counts.$category_id)}{$category_counts.$category_id}{else}0{/if})</td>
+					<td width="0%" nowrap="nowrap" align="right" valign="middle">&nbsp;</span></td>
 					<td width="0%" nowrap="nowrap" style="width:26px;" valign="middle"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/cerb_graph.gif{/devblocks_url}" width="{$percent}" height="15"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/cer_graph_cap.gif{/devblocks_url}" height="15" width="1"></td>
 				</tr>
 				{/foreach}
