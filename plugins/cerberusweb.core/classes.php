@@ -260,6 +260,8 @@ class ChTicketsPage extends CerberusPageExtension {
 		$workers = DAO_Worker::getList();
 		$tpl->assign('workers', $workers);
 		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		// Clear all undo actions on reload
 	    CerberusDashboardView::clearLastActions();
 	    				
@@ -293,8 +295,6 @@ class ChTicketsPage extends CerberusPageExtension {
 				break;
 				
 			case 'rss':
-				$active_worker = CerberusApplication::getActiveWorker();
-				
 				$feeds = DAO_TicketRss::getByWorker($active_worker->id);
 				$tpl->assign('feeds', $feeds);
 				
@@ -432,14 +432,14 @@ class ChTicketsPage extends CerberusPageExtension {
 
 				$active_dashboard_id = $visit->get(CerberusVisit::KEY_DASHBOARD_ID, 0);
 				
-				$memberships = DAO_Worker::getGroupMemberships($worker->id);
-				if(empty($active_dashboard_id) && !empty($memberships)) {
-				    // [TODO] Set a default when someone first logs in
-	                list($team_key, $team_val) = each($memberships);
-	                $active_dashboard_id = 't' . $team_key;
-	                $visit->set(CerberusVisit::KEY_DASHBOARD_ID, $active_dashboard_id);
-	                $visit->set(CerberusVisit::KEY_WORKSPACE_GROUP_ID, $team_key);
-	            }
+//				$memberships = DAO_Worker::getGroupMemberships($active_worker->id);
+//				if(empty($active_dashboard_id) && !empty($memberships)) {
+//				    // [TODO] Set a default when someone first logs in
+//	                list($team_key, $team_val) = each($memberships);
+//	                $active_dashboard_id = 't' . $team_key;
+//	                $visit->set(CerberusVisit::KEY_DASHBOARD_ID, $active_dashboard_id);
+//	                $visit->set(CerberusVisit::KEY_WORKSPACE_GROUP_ID, $team_key);
+//	            }
 	            
 				if(empty($active_dashboard_id)) { // custom dashboards
 	            // My Tickets
@@ -461,9 +461,8 @@ class ChTicketsPage extends CerberusPageExtension {
 							SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
 							);
 						$myView->params = array(
-//							new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_OWNER_ID,'=',$visit->getWorker()->id),
 							new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN),
-							new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_LAST_WORKER_ID,'in',$worker->id),
+							new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_LAST_WORKER_ID,'in',$active_worker->id),
 							new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_LAST_ACTION_CODE,'in',array('R')),
 						);
 						$myView->renderLimit = 10;
@@ -1697,7 +1696,7 @@ class ChTicketsPage extends CerberusPageExtension {
    	}
 
 	function changeDashboardAction() {
-		$dashboard_id = DevblocksPlatform::importGPC($_POST['dashboard_id'], 'string', '0');
+		$dashboard_id = DevblocksPlatform::importGPC($_POST['dashboard_id'], 'string', '');
 		$team_id = 0;
 
 		// Cache the current team id
@@ -1707,9 +1706,9 @@ class ChTicketsPage extends CerberusPageExtension {
 		
 		$visit = DevblocksPlatform::getSessionService()->getVisit();
 		$visit->set(CerberusVisit::KEY_DASHBOARD_ID, $dashboard_id);
-	    $visit->set(CerberusVisit::KEY_WORKSPACE_GROUP_ID, $team_id);
+		$visit->set(CerberusVisit::KEY_WORKSPACE_GROUP_ID, $team_id);
         
-		//DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','workspaces')));
+//		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','workspaces')));
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets','workspaces')));
 	}
 	

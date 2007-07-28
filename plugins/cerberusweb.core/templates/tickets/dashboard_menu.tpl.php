@@ -14,7 +14,7 @@
 						<input type="hidden" name="c" value="tickets">
 						<input type="hidden" name="a" value="changeDashboard">
 				      	<select name="dashboard_id" onchange="this.form.submit();">
-				      		<option value="0" {if empty($active_dashboard_id)}selected{/if}>My Conversations</option>
+				      		<option value="" {if empty($active_dashboard_id)}selected{/if}>My Conversations</option>
 				      		<!-- <optgroup label="Teamwork">  -->
 				      			{foreach from=$teams item=team key=team_id}
 				      			{if isset($active_worker_memberships.$team_id)}
@@ -44,7 +44,7 @@
 					</tr>
 				{/if}
 
-				{if !empty($active_dashboard_id) && is_numeric($active_dashboard_id)}
+				{if !empty($active_dashboard_id)}
 				<tr>
 					<td width="100%" style="padding:2px;">
 						<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/mail2.gif{/devblocks_url}" align="top"> <a href="{devblocks_url}c=tickets&a=compose{/devblocks_url}">Send Mail</a><br>
