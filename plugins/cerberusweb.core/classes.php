@@ -98,8 +98,16 @@ class ChPageController extends DevblocksControllerExtension {
 
         $page_id = $this->_getPageIdByUri($controller);
         @$page = $pages[$page_id];
-        
-        if(empty($page)) return; // 404
+
+		if(empty($page)) {
+			switch($controller) {
+				case "portal":
+					die(); // 404
+				break;
+				default:
+				return;
+			}
+		}
         
 	    @$action = array_shift($path) . 'Action';
 
@@ -3968,7 +3976,6 @@ class ChSignInPage extends CerberusPageExtension {
                 }
                 
                 break;
-            
             default:
 				$manifest = DevblocksPlatform::getExtension('login.default');
 				$inst = $manifest->createInstance(1); /* @var $inst CerberusLoginPageExtension */
