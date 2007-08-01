@@ -4010,7 +4010,16 @@ class ChSignInPage extends CerberusPageExtension {
 			
 			$devblocks_response = new DevblocksHttpResponse($original_path, $original_query);
 			if($devblocks_response->path[0]=='login') {
-				$devblocks_response = new DevblocksHttpResponse(array('welcome'));
+				$session = DevblocksPlatform::getSessionService();
+				$visit = $session->getVisit();
+		        $tour_enabled = false;
+				if(!empty($visit) && !is_null($visit->getWorker())) {
+		        	$worker = $visit->getWorker();
+					$tour_enabled = DAO_WorkerPref::get($worker->id, 'assist_mode');
+					$tour_enabled = ($tour_enabled===false) ? 1 : $tour_enabled;
+				}
+				$next_page = ($tour_enabled) ?  'welcome' : 'tickets';				
+				$devblocks_response = new DevblocksHttpResponse(array($next_page));
 			}
 		}
 		else {
