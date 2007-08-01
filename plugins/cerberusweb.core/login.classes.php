@@ -66,7 +66,9 @@ class DefaultLoginModule extends CerberusLoginPageExtension {
 		//$original_url = $url_service->writeDevblocksHttpIO($request);
 		
 		//$tpl->assign('original_url', $original_url);
-		$tpl->assign('original_path', implode(',',$request->path));
+		$original_path = (sizeof($request->path)==0) ? 'login' : implode(',',$request->path);
+		
+		$tpl->assign('original_path', $original_path);
 		$tpl->assign('original_query', $query_str);
 		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/login/login_form_default.tpl.php');
