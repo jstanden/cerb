@@ -3331,9 +3331,14 @@ XML;
             if(empty($created)) $created = time();
 
             $eItem = $channel->addChild('item');
-            $eTitle = $eItem->addChild('title', htmlentities($ticket[SearchFields_Ticket::TICKET_SUBJECT]));
-            $eDesc = $eItem->addChild('description', htmlentities($this->_getTicketLastAction($ticket)));
-            	
+            
+            $escapedSubject = htmlentities($ticket[SearchFields_Ticket::TICKET_SUBJECT]);
+            //filter out a couple non-UTF-8 characters (0xC and ESC)
+            $escapedSubject = preg_replace("/[]/", '', $escapedSubject);
+            $eTitle = $eItem->addChild('title',$escapedSubject );
+
+            $eDesc = $eItem->addChild('description', $this->_getTicketLastAction($ticket));
+            
             $url = DevblocksPlatform::getUrlService();
             $link = $url->write('c=display&id='.$ticket[SearchFields_Ticket::TICKET_MASK], true);
             $eLink = $eItem->addChild('link', $link);
