@@ -3363,6 +3363,8 @@ XML;
             $eLink = $eItem->addChild('link', $link);
             	
             $eDate = $eItem->addChild('pubDate', gmdate('D, d M Y H:i:s T',$created));
+            
+            $eGuid = $eItem->addChild('guid', md5($escapedSubject .$created));
         }
 
         echo $xml->asXML();
