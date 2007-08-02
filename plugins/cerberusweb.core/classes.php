@@ -3669,6 +3669,8 @@ class ChDisplayPage extends CerberusPageExtension {
 				
 		$workers = DAO_Worker::getList();
 		$tpl->assign('workers', $workers);
+
+		$tpl->register_modifier('makehrefs', array('CerberusUtils', 'smarty_modifier_makehrefs')); 
 		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/conversation/notes.tpl.php');
 	}

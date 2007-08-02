@@ -7,7 +7,7 @@
 			&nbsp;
 			<a href="javascript:;" onclick="genericAjaxGet('{$message_id}notes','c=display&a=deleteNote&id={$note_id}');">delete note</a>
 			<br>
-			{if !empty($note->content)}{$note->content|escape:"htmlall"|nl2br}<br>{/if}
+			{if !empty($note->content)}{$note->content|escape:"htmlall"|makehrefs|nl2br}<br>{/if}
 		</div>
 	{/foreach}
 {/if}
