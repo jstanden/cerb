@@ -440,6 +440,20 @@ class ChTicketsPage extends CerberusPageExtension {
 				$team_counts = DAO_Group::getTeamCounts(array_keys($teams));
 				$tpl->assign('team_counts', $team_counts);
 
+				
+				// [mdf] Set the dashboard and group being browsed to "my tickets" if we were deleted 
+				// from the group we attempted to access while browsing
+				$active_worker = CerberusApplication::getActiveWorker();
+				$memberships = $active_worker->getMemberships();
+				$group_id = $visit->get(CerberusVisit::KEY_WORKSPACE_GROUP_ID, 0);
+				if(!isset($memberships[$group_id])) {
+					//we need to overwrite the activity that was set in ChPageController
+					DAO_Worker::logActivity($active_worker->id, $this->getActivity());
+					
+					$visit->set(CerberusVisit::KEY_DASHBOARD_ID, 0);
+					$visit->set(CerberusVisit::KEY_WORKSPACE_GROUP_ID, 0);
+				}
+				
 				$active_dashboard_id = $visit->get(CerberusVisit::KEY_DASHBOARD_ID, 0);
 				
 //				$memberships = DAO_Worker::getGroupMemberships($active_worker->id);
