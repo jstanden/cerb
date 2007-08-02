@@ -2754,7 +2754,12 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		
 		if(!empty($id) && !empty($delete)) {
 			DAO_Worker::deleteAgent($id);
-			
+			$active_worker = CerberusApplication::getActiveWorker();
+			//[mdf] if deleting one's self, logout
+			if($active_worker->id == $id) {
+				DevblocksPlatform::redirect(new DevblocksHttpResponse(array('login','signout')));
+				exit;
+			}
 		} else {
 			if(empty($id) && null == DAO_Worker::lookupAgentEmail($email)) {
 				$id = DAO_Worker::create($email, $password, '', '', '');
