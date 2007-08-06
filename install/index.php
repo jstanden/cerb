@@ -700,7 +700,7 @@ switch($step) {
 					$worker_email_parts = explode('@', $worker->email);
 					
 					@$sFirst = !empty($worker_first[$idx]) ? $worker_first[$idx] : ucwords($worker_email_parts[0]);
-					@$SLast = !empty($worker_last[$idx]) ? $worker_last[$idx] : '';
+					@$sLast = !empty($worker_last[$idx]) ? $worker_last[$idx] : '';
 					@$sPassword = !empty($worker_pw[$idx]) ? $worker_pw[$idx] : '';
 					
 				    if(empty($sPassword)) {
@@ -728,7 +728,7 @@ switch($step) {
 					        "\r\n",
 						        $url->write('',true),
 						        $worker->email,
-						        $password
+						        $sPassword
 					    );
 				        
 					    $mail->attach(new Swift_Message_Part($body));
