@@ -216,6 +216,20 @@
 		</extension>
 
 		<extension point="cerberusweb.page">
+			<id>core.page.contacts</id>
+			<name>Contacts Page</name>
+			<class>
+				<file>classes.php</file>
+				<name>ChContactsPage</name>
+			</class>
+			<params>
+				<param key="uri" value="contacts" />
+				<param key="title" value="Contacts" />
+				<param key="menutitle" value="contacts" />
+			</params>
+		</extension>
+
+		<extension point="cerberusweb.page">
 			<id>core.page.display</id>
 			<name>Display Ticket Page</name>
 			<class>
@@ -254,7 +268,7 @@
 			<params>
 				<param key="uri" value="config" />
 				<param key="title" value="Configuration" />
-				<param key="menutitle" value="Configuration" />
+				<param key="menutitle" value="" />
 			</params>
 		</extension>
 

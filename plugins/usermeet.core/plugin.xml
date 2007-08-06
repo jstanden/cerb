@@ -53,6 +53,17 @@
 		<!-- Usermeet Tools -->
 		
 		<extension point="usermeet.tool">
+			<id>sc.tool</id>
+			<name>Support Center</name>
+			<class>
+				<file>classes.php</file>
+				<name>UmScApp</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
+		<extension point="usermeet.tool">
 			<id>support.tool</id>
 			<name>Contact Form Builder</name>
 			<class>

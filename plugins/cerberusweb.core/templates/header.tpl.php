@@ -11,18 +11,14 @@
 	-->
 
   <title>{$settings->get('helpdesk_title')}</title>
-  <link type="text/css" rel="stylesheet" href="{devblocks_url}styles/default/cerberus.css?v={$smarty.const.APP_BUILD}{/devblocks_url}">
-  <link type="text/css" rel="stylesheet" href="{devblocks_url}styles/default/container/container.css?v={$smarty.const.APP_BUILD}{/devblocks_url}">
   <link rel="shortcut icon" href="{devblocks_url}favicon.ico{/devblocks_url}" type="image/x-icon">
-  
-  <script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yahoo/yahoo-min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
-  <script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yahoo/dom-min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
-  <script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yahoo/event-min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
-  <script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yahoo/connection-min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
-  <script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yahoo/animation-min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
-  <!-- <script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yahoo/dragdrop-min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script> -->
-  <!-- <script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yahoo/autocomplete-min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script> -->
-  <script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yahoo/container-min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
+  <link type="text/css" rel="stylesheet" href="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yui/container/assets/container.css?v={$smarty.const.APP_BUILD}{/devblocks_url}">
+  <link rel="stylesheet" type="text/css" href="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yui/tabview/assets/skins/sam/tabview.css?v={$smarty.const.APP_BUILD}{/devblocks_url}" />  
+  <link type="text/css" rel="stylesheet" href="{devblocks_url}styles/default/cerberus.css?v={$smarty.const.APP_BUILD}{/devblocks_url}">
+
+  <script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yui/utilities/utilities.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script> 
+  <script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yui/container/container-min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script> 
+  <script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yui/tabview/tabview-min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script> 
 
   <script language="javascript" type="text/javascript">{php}DevblocksPlatform::printJavascriptLibrary();{/php}</script>
   
@@ -33,4 +29,4 @@
   
 </head>
 
-<body>
+<body class="yui-skin-sam">

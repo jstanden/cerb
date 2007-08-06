@@ -94,7 +94,7 @@ class UmPortalController extends DevblocksControllerExtension {
 		$code = array_shift($stack); // xxxxxxxx
 
 		// [TODO] Convert to Model_CommunityTool::getByCode()
-        if(null != ($tool = $this->hash[$code])) {
+        if(null != (@$tool = $this->hash[$code])) {
 	        // [TODO] Don't double instance any apps (add instance registry to ::getExtension?)
 	        $manifest = DevblocksPlatform::getExtension($tool->extension_id);
             $tool = $manifest->createInstance(); /* @var $app Extension_UsermeetTool */
@@ -450,7 +450,7 @@ class UmContactApp extends Extension_UsermeetTool {
 		    	switch($response) {
 		    		case 'confirm':
 		    			$tpl->assign('last_opened',$umsession->getProperty('support.write.last_opened',''));
-		    			$tpl->display('file:' . dirname(__FILE__) . '/templates/portal/support/write/confirm.tpl.php');
+		    			$tpl->display('file:' . dirname(__FILE__) . '/templates/portal/contact/write/confirm.tpl.php');
 		    			break;
 		    		
 		    		default:
@@ -473,7 +473,7 @@ class UmContactApp extends Extension_UsermeetTool {
 				        
 				        switch($response) {
 				        	default:
-				        		$tpl->display('file:' . dirname(__FILE__) . '/templates/portal/support/write/step1.tpl.php');
+				        		$tpl->display('file:' . dirname(__FILE__) . '/templates/portal/contact/write/step1.tpl.php');
 				        		break;
 				        		
 				        	case 'step2':
@@ -487,11 +487,11 @@ class UmContactApp extends Extension_UsermeetTool {
 						        		break;
 						        	}
 						        }
-				        		$tpl->display('file:' . dirname(__FILE__) . '/templates/portal/support/write/step2.tpl.php');
+				        		$tpl->display('file:' . dirname(__FILE__) . '/templates/portal/contact/write/step2.tpl.php');
 				        		break;
 				        		
 				        	case 'step3':
-				        		$tpl->display('file:' . dirname(__FILE__) . '/templates/portal/support/write/step3.tpl.php');
+				        		$tpl->display('file:' . dirname(__FILE__) . '/templates/portal/contact/write/step3.tpl.php');
 				        		break;
 				        }
 				        break;
@@ -666,7 +666,7 @@ class UmContactApp extends Extension_UsermeetTool {
         $captcha_enabled = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_CAPTCHA_ENABLED, 1);
 		$tpl->assign('captcha_enabled', $captcha_enabled);
         
-        $tpl->display("file:${tpl_path}portal/support/config/index.tpl.php");
+        $tpl->display("file:${tpl_path}portal/contact/config/index.tpl.php");
     }
     
     // Ajax
@@ -696,7 +696,7 @@ class UmContactApp extends Extension_UsermeetTool {
         	}
         }
         
-        $tpl->display("file:${tpl_path}portal/support/config/add_situation.tpl.php");
+        $tpl->display("file:${tpl_path}portal/contact/config/add_situation.tpl.php");
 		exit;
     }
     
@@ -769,6 +769,152 @@ class UmContactApp extends Extension_UsermeetTool {
 		DAO_CommunityToolProperty::set($this->getPortal(), self::PARAM_DISPATCH, serialize($dispatch));
     }
 	
+};
+
+class UmScApp extends Extension_UsermeetTool {
+	const PARAM_LOGO_URL = 'logo_url';
+	const PARAM_THEME_URL = 'theme_url';
+	const PARAM_PAGE_TITLE = 'page_title';
+	const PARAM_CAPTCHA_ENABLED = 'captcha_enabled';
+	const SESSION_CAPTCHA = 'write_captcha';
+	
+    function __construct($manifest) {
+        parent::__construct($manifest);
+        
+        $filepath = realpath(dirname(__FILE__)) . DIRECTORY_SEPARATOR;
+        
+        DevblocksPlatform::registerClasses('Text/CAPTCHA.php',array(
+        	'Text_CAPTCHA',
+        ));
+    }
+    
+	public function writeResponse(DevblocksHttpResponse $response) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		
+        $umsession = $this->getSession();
+		$stack = $response->path;
+		
+		$logo_url = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_LOGO_URL, '');
+		$tpl->assign('logo_url', $logo_url);
+        
+		$page_title = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_PAGE_TITLE, 'Fetch &amp; Retrieve');
+		$tpl->assign('page_title', $page_title);
+        
+        $captcha_enabled = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_CAPTCHA_ENABLED, 1);
+		$tpl->assign('captcha_enabled', $captcha_enabled);
+		
+		// Usermeet Session
+		if(null == ($fingerprint = parent::getFingerprint())) {
+			die("A problem occurred.");
+		}
+        $tpl->assign('fingerprint', $fingerprint);
+
+		switch(array_shift($stack)) {
+			case 'captcha':
+				/*
+				 * CAPTCHA [TODO] API-ize
+				 */
+		        $imageOptions = array(
+		            'font_size' => 24,
+		            'font_path' => DEVBLOCKS_PATH . 'resources/font/',
+		            'font_file' => 'ryanlerch_-_Tuffy_Bold(2).ttf'
+		        );
+		
+		        // Set CAPTCHA options
+		        $options = array(
+		            'width' => 120,
+		            'height' => 75,
+		            'output' => 'jpg',
+		            'length' => 4,
+		//            'phrase' => $pass,
+		            'imageOptions' => $imageOptions
+		        );
+				
+		        // Generate a new Text_CAPTCHA object, Image driver
+		        $c = Text_CAPTCHA::factory('Image');
+		        $retval = $c->init($options);
+		        if (PEAR::isError($retval)) {
+		            echo 'Error initializing CAPTCHA!';
+		            exit;
+		        }
+		    
+		        // Get CAPTCHA secret passphrase
+		        $umsession->setProperty(self::SESSION_CAPTCHA, $c->getPhrase());
+		    
+		        // Get CAPTCHA image (as PNG)
+		        $jpg = $c->getCAPTCHA($options);
+		        
+		        if (PEAR::isError($jpg)) {
+		            echo 'Error generating CAPTCHA!';
+		            exit;
+		        }
+		    	
+		        // Headers, don't allow to be cached
+                header('Cache-control: max-age=0', true); // 1 wk // , must-revalidate
+                header('Expires: ' . gmdate('D, d M Y H:i:s',time()-604800) . ' GMT'); // 1 wk
+                header('Content-length: '. count($jpg));
+		        echo $jpg;
+		        exit;
+		        
+				break;
+			
+	    	default:
+//		    	$response = array_shift($stack);
+       			$tpl->display('file:' . dirname(__FILE__) . '/templates/portal/sc/index.tpl.php');
+		    	break;
+		    	
+		    case 'results':
+//		    	$response = array_shift($stack);
+		    	$tpl->display('file:' . dirname(__FILE__) . '/templates/portal/sc/index.tpl.php');
+		    	break;
+		    	
+		}
+	}
+	
+	// Post
+	function doSearchAction() {
+		@$q = DevblocksPlatform::importGPC($_POST['q'], 'string', '');
+		@$sources = DevblocksPlatform::importGPC($_POST['sources'], 'array', array());
+
+		@$sources = array_flip($sources);
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+    	$rss_jira = "http://www.wgmdev.com/jira/secure/IssueNavigator.jspa?view=rss&pid=10060&summary=true&description=true&tempMax=25&reset=true&decorator=none&query=".urlencode($q);
+    	$atom_forums = "http://forum.cerberusweb.com/search.php?PostBackAction=Search&Type=Topics&btnSubmit=Search&Feed=Atom&Keywords=".urlencode($q);
+    	$rss_wiki = "http://wiki.cerberusdemo.com/index.php/Special:SearchFeed?term=".urlencode($q);
+    	
+    	$feeds = array();
+    	
+    	if(empty($sources) || isset($sources['jira']))
+    	try {
+   			$feed = new Zend_Feed_Rss($rss_jira);
+   			if($feed->count())
+   				$feeds[] = $feed;
+    	} catch(Zend_Feed_Exception $e) {}
+    	
+    	if(empty($sources) || isset($sources['forums']))
+    	try {
+    		$feed = new Zend_Feed_Atom($atom_forums);
+   			if($feed->count())
+   				$feeds[] = $feed;
+    	} catch(Zend_Feed_Exception $e) {}
+    	
+    	if(empty($sources) || isset($sources['wiki']))
+    	try {
+    		$feed= new Zend_Feed_Rss($rss_wiki);
+   			if($feed->count())
+   				$feeds[] = $feed;
+		} catch(Zend_Feed_Exception $e) {}
+    	
+    	$tpl->assign('terms', $q);
+    	$tpl->assign('feeds', $feeds);
+    	$tpl->assign('sources', $sources);
+    	
+    	DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',$this->getPortal(),'results')));
+	}
 };
 
 class UmCorePlugin extends DevblocksPlugin {

@@ -27,6 +27,7 @@
 		{else}
 		{$common_translated.header_signed_in} 
 		[ <a href="{devblocks_url}c=preferences{/devblocks_url}">{$translate->_('header.preferences')|lower}</a> ] 
+		{if $active_worker->is_superuser}[ <a href="{devblocks_url}c=config{/devblocks_url}">{$translate->_('header.config')|lower}</a> ]{/if} 
 		[ <a href="{devblocks_url}c=login&a=signout{/devblocks_url}">{$translate->_('header.signoff')|lower}</a> ]
 		{*
 		<span id="tourHeaderMyTasks"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/hand_paper.gif{/devblocks_url}" align="bottom" border="0"> <a href="{devblocks_url}c=tickets&a=workspaces&i=my{/devblocks_url}" title="{$translate->_('header.my_flagged_tickets')|capitalize}">my tasks</a></span>

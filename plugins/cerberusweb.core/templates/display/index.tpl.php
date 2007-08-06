@@ -68,30 +68,36 @@
 </form>
 <br>
 
-<div style="padding:2px; position: relative;">
-	
-	<div id="tourDisplayManageRecipients" style="position: absolute; left: 100;"></div>
-	<div id="tourDisplayContactHistory" style="position: absolute; left: 200;"></div> 
-	
-	<div class="block">
-		<h2>Advanced Options</h2>
-		[ <a href="javascript:;" onclick="genericAjaxGet('displayAdvancedOptions','c=display&a=showManageRecipients&ticket_id={$ticket->id}');">manage recipients</a> ]
-		[ <a href="javascript:;" onclick="genericAjaxGet('displayAdvancedOptions','c=display&a=showContactHistory&ticket_id={$ticket->id}');">contact history</a> ] 
+<div id="displayOptions"></div> 
+<br>
 
-		<div id="displayAdvancedOptions" style="padding:5px;background-color:rgb(255,255,255);"></div>
-	</div>
-	<br>
-</div>
+<script>
+{literal}
+var tabView = new YAHOO.widget.TabView();
 
-<table style="text-align: left; width: 100%;" border="0" cellpadding="2" cellspacing="0">
-  <tbody>
-    <tr>
-      <td style="vertical-align: top;">
-			{include file="$path/display/modules/conversation/index.tpl.php"}
-		</td>
-    </tr>
-  </tbody>
-</table>
+tabView.addTab( new YAHOO.widget.Tab({
+    label: 'Conversation',
+    dataSrc: '{/literal}{devblocks_url}ajax.php?c=display&a=showConversation&ticket_id={$ticket->id}{/devblocks_url}{literal}',
+    cacheData: true,
+    active: true
+}));
+
+tabView.addTab( new YAHOO.widget.Tab({
+    label: 'Recipients',
+    dataSrc: '{/literal}{devblocks_url}ajax.php?c=display&a=showManageRecipients&ticket_id={$ticket->id}{/devblocks_url}{literal}',
+    cacheData: true
+}));
+
+tabView.addTab( new YAHOO.widget.Tab({
+    label: 'History',
+    dataSrc: '{/literal}{devblocks_url}ajax.php?c=display&a=showContactHistory&ticket_id={$ticket->id}{/devblocks_url}{literal}',
+    cacheData: true
+}));
+
+tabView.appendTo('displayOptions');
+{/literal}
+</script>
+
 <script>
 	var displayAjax = new cDisplayTicketAjax('{$ticket->id}');
 </script>

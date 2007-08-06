@@ -133,6 +133,8 @@
 				{if !empty($result.t_interesting_words)}{$result.t_interesting_words}{/if}"></a>
 				{/if}
 			</td>
+			{else}
+			<td></td>
 			{/if}
 		{/foreach}
 		</tr>

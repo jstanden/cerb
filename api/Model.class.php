@@ -72,6 +72,377 @@ class Model_TeamRoutingRule {
     }
 }
 
+// [TODO] This should move somewhere more generic (App/API)
+abstract class C4_AbstractView {
+	public $id = 0;
+	public $name = "";
+	public $view_columns = array();
+	public $params = array();
+	
+	public $renderPage = 0;
+	public $renderLimit = 10;
+	public $renderSortBy = '';
+	public $renderSortAsc = 1;
+	
+	function getData() {
+	}
+	
+	function renderCriteria($field) {
+		echo ' '; // Expect Override
+	}
+	
+	function render() {
+		echo ' '; // Expect Override
+	}
+
+	/**
+	 * Enter description here...
+	 *
+	 * @param string $field
+	 * @param string $oper
+	 * @param string $value
+	 * @abstract
+	 */
+	function doSetCriteria($field, $oper, $value) {
+		// Expect Override
+	}
+	
+	function getSearchFields() {
+		// Expect Override
+		return array();
+	}
+	
+	function doCustomize($columns, $num_rows=10) {
+		$this->renderLimit = $num_rows;
+		
+		$viewColumns = array();
+		foreach($columns as $col) {
+			if(empty($col))
+				continue;
+			$viewColumns[] = $col;
+		}
+		
+		$this->view_columns = $viewColumns;
+	}
+	
+	function doSortBy($sortBy) {
+		$iSortAsc = intval($this->renderSortAsc);
+		
+		// [JAS]: If clicking the same header, toggle asc/desc.
+		if(0 == strcasecmp($sortBy,$this->renderSortBy)) {
+			$iSortAsc = (0 == $iSortAsc) ? 1 : 0;
+		} else { // [JAS]: If a new header, start with asc.
+			$iSortAsc = 1;
+		}
+		
+		$this->renderSortBy = $sortBy;
+		$this->renderSortAsc = $iSortAsc;
+	}
+	
+	function doPage($page) {
+		$this->renderPage = $page;
+	}
+	
+	function doRemoveCriteria($field) {
+		unset($this->params[$field]);
+		$this->renderPage = 0;
+	}
+	
+	function doResetCriteria() {
+		$this->params = array();
+		$this->renderPage = 0;
+	}
+};
+
+class C4_AbstractViewLoader {
+	static $views = null;
+	const VISIT_ABSTRACTVIEWS = 'abstractviews_list';
+	
+	static private function _init() {
+		$visit = CerberusApplication::getVisit();
+		self::$views = $visit->get(self::VISIT_ABSTRACTVIEWS,array());
+	}
+	
+	/**
+	 * @param string $view_label Abstract view identifier
+	 * @return boolean
+	 */
+	static function exists($view_label) {
+		if(is_null(self::$views)) self::_init();
+		return isset(self::$views[$view_label]);
+	}
+	
+	/**
+	 * Enter description here...
+	 *
+	 * @param string $class C4_AbstractView
+	 * @param string $view_label ID
+	 * @return C4_AbstractView instance
+	 */
+	static function getView($class, $view_label) {
+		if(is_null(self::$views)) self::_init();
+		if(!self::exists($view_label)) {
+			// [JAS]: [TODO] port this to working generically on any ID
+//			if($view_label == CerberusApplication::VIEW_SEARCH) {
+//				self::setView($view_label, self::createSearchView());
+//				return self::views[$view_label];
+//			}
+
+			if(empty($class) || !class_exists($class))
+				return null;
+			
+			$view = new $class;
+			self::setView($class, $view_label, $view);
+			return $view;
+		}
+		
+		return self::$views[$view_label];
+	}
+	
+	/**
+	 * Enter description here...
+	 *
+	 * @param string $class C4_AbstractView
+	 * @param string $view_label ID
+	 * @param C4_AbstractView $view
+	 */
+	static function setView($class, $view_label, $view) {
+		if(is_null(self::$views)) self::_init();
+		self::$views[$view_label] = $view;
+		self::_save();
+	}
+	
+	static private function _save() {
+		// persist
+		$visit = CerberusApplication::getVisit();
+		$visit->set(self::VISIT_ABSTRACTVIEWS, self::$views);
+	}
+};
+
+class C4_ContactOrgView extends C4_AbstractView {
+	const DEFAULT_ID = 'contact_orgs';
+	
+	function __construct() {
+		$this->id = self::DEFAULT_ID;
+		$this->name = 'Organizations';
+		$this->renderSortBy = 'c_name';
+		$this->renderSortAsc = true;
+		
+		$this->view_columns = array(
+			SearchFields_ContactOrg::ACCOUNT_NUMBER,
+			SearchFields_ContactOrg::PHONE,
+			SearchFields_ContactOrg::COUNTRY,
+			SearchFields_ContactOrg::WEBSITE,
+		);
+	}
+	
+	function getData() {
+		$objects = DAO_ContactOrg::search(
+			$this->params,
+			$this->renderLimit,
+			$this->renderPage,
+			$this->renderSortBy,
+			$this->renderSortAsc
+		);
+		return $objects;	
+	}
+	
+	function render() {
+		$tpl = DevblocksPlatform::getTemplateService();
+//		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		$tpl->assign('id', $this->id);
+		$tpl->assign('view', $this);
+		
+//		// Undo?
+//	    $last_action = CerberusDashboardView::getLastAction($id);
+//	    $tpl->assign('last_action', $last_action);
+//	    if(!empty($last_action) && !is_null($last_action->ticket_ids)) {
+//	        $tpl->assign('last_action_count', count($last_action->ticket_ids));
+//	    }
+
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('search_columns', SearchFields_ContactOrg::getFields());
+		$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/contacts/orgs/contact_view.tpl.php');
+	}
+	
+	function renderCriteria($field) {
+		$tpl = DevblocksPlatform::getTemplateService();
+//		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		$tpl->assign('id', $this->id);
+		
+		switch($field) {
+			case SearchFields_ContactOrg::NAME:
+			case SearchFields_ContactOrg::ACCOUNT_NUMBER:
+			case SearchFields_ContactOrg::PHONE:
+			case SearchFields_ContactOrg::PROVINCE:
+			case SearchFields_ContactOrg::COUNTRY:
+			case SearchFields_ContactOrg::WEBSITE:
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/contacts/criteria/org__string.tpl.php');
+				break;
+			default:
+				echo '';
+				break;
+		}
+	}
+	
+	function getSearchFields() {
+		return SearchFields_ContactOrg::getFields();
+	}
+	
+	function doSetCriteria($field, $oper, $value) {
+		$criteria = null;
+		
+		switch($field) {
+			case SearchFields_ContactOrg::NAME:
+			case SearchFields_ContactOrg::ACCOUNT_NUMBER:
+			case SearchFields_ContactOrg::PHONE:
+			case SearchFields_ContactOrg::PROVINCE:
+			case SearchFields_ContactOrg::COUNTRY:
+			case SearchFields_ContactOrg::WEBSITE:
+				// force wildcards if none used on a LIKE
+				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE) 
+					&& false === (strpos($value,'*'))) {
+						$value = '*'.$value.'*';
+				}
+				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
+				break;
+		}
+		
+		if(!empty($criteria)) {
+			$this->params[$field] = $criteria;
+			$this->renderPage = 0;
+		}
+	}
+};
+
+class Model_ContactOrg {
+	public $id;
+	public $account_number;
+	public $name;
+	public $street;
+	public $city;
+	public $province;
+	public $postal;
+	public $country;
+	public $phone;
+	public $fax;
+	public $website;
+	public $created;
+	public $sync_id = '';
+};
+
+class C4_ContactPersonView extends C4_AbstractView {
+	const DEFAULT_ID = 'contact_people';
+	
+	function __construct() {
+		$this->id = self::DEFAULT_ID;
+		$this->name = 'People';
+		$this->renderSortBy = 'c_last_name';
+		$this->renderSortAsc = true;
+		
+		$this->view_columns = array(
+			SearchFields_ContactPerson::LAST_NAME,
+			SearchFields_ContactPerson::CONTACT_ORG_ID,
+			SearchFields_ContactPerson::COUNTRY,
+			SearchFields_ContactPerson::PHONE,
+			SearchFields_ContactPerson::EMAIL,
+			SearchFields_ContactPerson::CREATED,
+		);
+	}
+	
+	function getData() {
+		$objects = DAO_ContactPerson::search(
+			$this->params,
+			$this->renderLimit,
+			$this->renderPage,
+			$this->renderSortBy,
+			$this->renderSortAsc
+		);
+		return $objects;	
+	}
+	
+	function render() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('id', $this->id);
+		$tpl->assign('view', $this);
+		
+//		// Undo?
+//	    $last_action = CerberusDashboardView::getLastAction($id);
+//	    $tpl->assign('last_action', $last_action);
+//	    if(!empty($last_action) && !is_null($last_action->ticket_ids)) {
+//	        $tpl->assign('last_action_count', count($last_action->ticket_ids));
+//	    }
+
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('search_columns', SearchFields_ContactPerson::getFields());
+		$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/contacts/people/contact_view.tpl.php');
+	}
+	
+	function renderCriteria($field) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('id', $this->id);
+		
+		switch($field) {
+			default:
+//			case SearchFields_ContactPerson::FIRST_NAME:
+//			case SearchFields_ContactPerson::LAST_NAME:
+//			case SearchFields_ContactPerson::TITLE:
+//			case SearchFields_ContactPerson::CONTACT_ORG_ID:
+//			case SearchFields_ContactPerson::CREATED:
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/contacts/criteria/org__string.tpl.php');
+				break;
+//			default:
+//				echo '';
+//				break;
+		}
+	}
+	
+	function getSearchFields() {
+		return SearchFields_ContactPerson::getFields();
+	}
+	
+	function doSetCriteria($field, $oper, $value) {
+		$criteria = null;
+		
+		switch($field) {
+			default:
+//			case SearchFields_ContactPerson::FIRST_NAME:
+//			case SearchFields_ContactPerson::LAST_NAME:
+//			case SearchFields_ContactPerson::TITLE:
+				// force wildcards if none used on a LIKE
+				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE) 
+					&& false === (strpos($value,'*'))) {
+						$value = '*'.$value.'*';
+				}
+				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
+				break;
+		}
+		
+		if(!empty($criteria)) {
+			$this->params[$field] = $criteria;
+			$this->renderPage = 0;
+		}
+	}
+	
+};
+
+class Model_ContactPerson {
+	public $id = 0;
+	public $first_name = '';
+	public $last_name = '';
+	public $title = '';
+	public $contact_org_id = 0;
+	public $street;
+	public $city;
+	public $province;
+	public $postal;
+	public $country;
+	public $phone;
+	public $fax;
+	public $created = 0;
+	public $sync_id = '';
+};
+
 class Model_WorkerPreference {
     public $setting = '';
     public $value = '';

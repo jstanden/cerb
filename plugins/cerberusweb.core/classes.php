@@ -99,16 +99,18 @@ class ChPageController extends DevblocksControllerExtension {
         $page_id = $this->_getPageIdByUri($controller);
         @$page = $pages[$page_id];
 
-		if(empty($page)) {
-			switch($controller) {
-				case "portal":
-					die(); // 404
-				break;
-				default:
-				return;
-			}
-		}
-        
+        if(empty($page)) {
+	        switch($controller) {
+	        	case "portal":
+	        		die(); // 404
+	        		break;
+	        		
+	        	default:
+	        		return; // default page
+	        		break;
+	        }
+        }
+
 	    @$action = array_shift($path) . 'Action';
 
 	    switch($action) {
@@ -3106,10 +3108,496 @@ class ChWelcomePage extends CerberusPageExtension {
 		$response = DevblocksPlatform::getHttpResponse();
 		$stack = $response->path;
 
-		
-		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/welcome/index.tpl.php');
 	}
+};
+
+class ChContactsPage extends CerberusPageExtension {
+	function __construct($manifest) {
+		parent::__construct($manifest);
+
+//		$path = realpath(dirname(__FILE__)) . DIRECTORY_SEPARATOR;
+//		
+//		DevblocksPlatform::registerClasses($path. 'api/DAO.php', array(
+//		    'DAO_Faq'
+//		));
+	}
+		
+	function isVisible() {
+		// check login
+		$visit = CerberusApplication::getVisit();
+		
+		if(empty($visit)) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+	
+	function render() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		
+		$visit = CerberusApplication::getVisit();
+		
+		$response = DevblocksPlatform::getHttpResponse();
+		$stack = $response->path;
+
+		array_shift($stack); // contacts
+		
+		switch(array_shift($stack)) {
+			case 'import':
+				switch(array_shift($stack)) {
+					case 'step2':
+						$type = $visit->get('import.last.type', '');
+						
+						switch($type) {
+							case 'orgs':
+								$fields = DAO_ContactOrg::getFields();
+								$tpl->assign('fields',$fields);
+								break;
+							case 'people':
+								$fields = DAO_ContactPerson::getFields();
+								$tpl->assign('fields',$fields);
+								break;
+						}
+						
+						$tpl->display('file:' . dirname(__FILE__) . '/templates/contacts/import/mapping.tpl.php');
+						break;
+					default:
+						$tpl->display('file:' . dirname(__FILE__) . '/templates/contacts/import/index.tpl.php');
+						break;
+				}
+				break;
+
+			case 'people':
+				$view = C4_AbstractViewLoader::getView('C4_ContactPersonView', C4_ContactPersonView::DEFAULT_ID);
+				$tpl->assign('view', $view);
+				$tpl->assign('contacts_page', 'people');
+				$tpl->assign('search_columns', SearchFields_ContactPerson::getFields());
+				$tpl->display('file:' . dirname(__FILE__) . '/templates/contacts/people/index.tpl.php');
+				break;
+				
+			default:
+			case 'orgs':
+				$param = array_shift($stack);
+				
+				if(!is_null($param) && is_numeric($param)) { // display
+					$contact = DAO_ContactOrg::get($param);
+					$tpl->assign('contact', $contact);
+					$tpl->display('file:' . dirname(__FILE__) . '/templates/contacts/orgs/display.tpl.php');
+					
+				} else { // list
+					$view = C4_AbstractViewLoader::getView('C4_ContactOrgView', C4_ContactOrgView::DEFAULT_ID);
+					$tpl->assign('view', $view);
+					$tpl->assign('contacts_page', 'orgs');
+					$tpl->assign('search_columns', SearchFields_ContactOrg::getFields());
+					$tpl->display('file:' . dirname(__FILE__) . '/templates/contacts/orgs/index.tpl.php');
+				}
+				break;
+		}	
+	}
+	
+	// Ajax
+	function viewRefreshAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
+		$view = C4_AbstractViewLoader::getView('', $id);
+		$view->render();
+	}
+	
+	function viewSortByAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
+		@$sortBy = DevblocksPlatform::importGPC($_REQUEST['sortBy']);
+		
+		$view = C4_AbstractViewLoader::getView('', $id);
+		$view->doSortBy($sortBy);
+		C4_AbstractViewLoader::setView('', $id, $view);
+		
+		$view->render();
+	}
+	
+	function viewPageAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
+		@$page = DevblocksPlatform::importGPC(DevblocksPlatform::importGPC($_REQUEST['page']));
+		
+		$view = C4_AbstractViewLoader::getView('', $id);
+		$view->doPage($page);
+		C4_AbstractViewLoader::setView('', $id, $view);
+		
+		$view->render();
+	}
+	
+	function viewGetCriteriaAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
+		@$field = DevblocksPlatform::importGPC($_REQUEST['field']);
+		
+		$view = C4_AbstractViewLoader::getView('', $id);
+		$view->renderCriteria($field);		
+	}
+	
+	// Post
+	function viewAddCriteriaAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
+		@$contacts_page = DevblocksPlatform::importGPC($_REQUEST['contacts_page']);
+		@$field = DevblocksPlatform::importGPC($_REQUEST['field']);
+		@$oper = DevblocksPlatform::importGPC($_REQUEST['oper']);
+		@$value = DevblocksPlatform::importGPC($_REQUEST['value']);
+		
+		$view = C4_AbstractViewLoader::getView('', $id);
+		$view->doSetCriteria($field, $oper, $value);
+		C4_AbstractViewLoader::setView('', $id, $view);
+		
+		// [TODO] Need to put them back on org or person (depending on which was active)
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('contacts',$contacts_page)));
+	}
+	
+	function viewRemoveCriteriaAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
+		@$contacts_page = DevblocksPlatform::importGPC($_REQUEST['contacts_page']);
+		@$field = DevblocksPlatform::importGPC($_REQUEST['field']);
+		
+		$view = C4_AbstractViewLoader::getView('', $id);
+		$view->doRemoveCriteria($field);
+		C4_AbstractViewLoader::setView('', $id, $view);
+		
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('contacts',$contacts_page)));
+	}
+	
+	function viewResetCriteriaAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
+		@$contacts_page = DevblocksPlatform::importGPC($_REQUEST['contacts_page']);
+		
+		$view = C4_AbstractViewLoader::getView('', $id);
+		$view->doResetCriteria();
+		C4_AbstractViewLoader::setView('', $id, $view);
+		
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('contacts',$contacts_page)));
+	}
+	
+	// Ajax
+	function viewCustomizeAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('id', $id);
+
+		$view = C4_AbstractViewLoader::getView('', $id);
+		$tpl->assign('view', $view);
+
+		$tpl->assign('optColumns', $view->getSearchFields());
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/contacts/customize_view.tpl.php');
+	}
+	
+	// Post?
+	function viewSaveCustomizeAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
+		@$columns = DevblocksPlatform::importGPC($_REQUEST['columns'],'array', array());
+		@$num_rows = DevblocksPlatform::importGPC($_REQUEST['num_rows'],'integer',10);
+		
+		$view = C4_AbstractViewLoader::getView('', $id);
+		$view->doCustomize($columns, $num_rows);		
+		C4_AbstractViewLoader::setView('', $id, $view);
+		
+		$view->render();
+	}
+	
+	// Post
+	function parseUploadAction() {
+		@$type = DevblocksPlatform::importGPC($_REQUEST['type'],'string','');
+		$csv_file = $_FILES['csv_file'];
+
+		$visit = CerberusApplication::getVisit();
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		$filename = basename($csv_file['tmp_name']);
+		$newfilename = DEVBLOCKS_PATH . 'tmp/' . $filename;
+		
+		if(!rename($csv_file['tmp_name'], $newfilename)) {
+			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('contacts','import')));
+			return; // [TODO] Throw error
+		}
+		
+		// [TODO] Move these to a request holding object?
+		$visit->set('import.last.type', $type);
+		$visit->set('import.last.csv', $newfilename);
+		
+		$fp = fopen($newfilename, "rt");
+		if($fp) {
+			$parts = fgetcsv($fp, 8192, ',', '"');
+			$tpl->assign('parts', $parts);
+		}
+		
+		@fclose($fp);
+		
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('contacts','import','step2')));
+	}
+	
+	// Post
+	function doImportAction() {
+		@$pos = DevblocksPlatform::importGPC($_REQUEST['pos'],'array',array());
+		@$field = DevblocksPlatform::importGPC($_REQUEST['field'],'array',array());
+		@$sync_column = DevblocksPlatform::importGPC($_REQUEST['sync_column'],'string','');
+		@$include_first = DevblocksPlatform::importGPC($_REQUEST['include_first'],'integer',0);
+		
+		$visit = CerberusApplication::getVisit();
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$csv_file = $visit->get('import.last.csv','');
+		$type = $visit->get('import.last.type','');
+		
+		$fp = fopen($csv_file, "rt");
+		if(!$fp) return;
+
+		// [JAS]: Do we need to consume a first row of headings?
+		if(!$include_first)
+			@fgetcsv($fp, 8192, ',', '"');
+		
+		while(!feof($fp)) {
+			$parts = fgetcsv($fp, 8192, ',', '"');
+			$fields = array();
+			$sync_field = '';
+			$sync_val = '';
+			
+			foreach($pos as $idx => $p) {
+				$key = $field[$idx];
+				$val = $parts[$idx];
+				if(!empty($key) && !empty($val)) {
+					
+					// [JAS]: Special overrides
+					switch($key) {
+						// Multi-Line
+						case 'street':
+							@$val = isset($fields[$key]) ? ($fields[$key].', '.$val) : ($val);
+							break;
+						
+						// Dates
+						case 'created':
+							@$val = !is_numeric($val) ? strtotime($val) : $val;
+							break;
+					}
+					
+					$fields[$key] = $val;
+					
+					// [JAS]: Are we looking for matches in a certain field?
+					if($sync_column==$key && !empty($val)) {
+						$sync_field = $key;
+						$sync_val = $val;
+					}
+				}
+			}
+			
+			if(!empty($fields)) {
+				if($type=="orgs") {
+					@$orgs = DAO_ContactOrg::getWhere(
+						(!empty($sync_field) && !empty($sync_val)) 
+							? sprintf('%s = %s', $sync_field, $db->qstr($sync_val))
+							: sprintf('name = %s', $db->qstr($fields['name']))
+					);
+						
+					if(empty($orgs)) {
+						$id = DAO_ContactOrg::create($fields);
+					} else {
+						DAO_ContactOrg::update(key($orgs), $fields);
+					}
+					
+				} elseif ($type=="people") {
+					if(!empty($sync_field) && !empty($sync_val))
+					@$persons = DAO_ContactPerson::getWhere(
+//						(!empty($sync_column) && !empty($sync_id)) ? 
+							sprintf('%s = %s', $sync_field, $db->qstr($sync_val))
+//							: sprintf('name = %s', 'first_name = %s AND last_name = %s', $db->qstr($fields['first_name']),$db->qstr($fields['last_name']))
+					);
+					
+					if(empty($persons)) {
+						$id = DAO_ContactPerson::create($fields);
+					} else {
+//						echo "DUPE: ",$fields['first_name'],' ',$fields['last_name'],"<BR>";
+						DAO_ContactPerson::update(key($persons), $fields);
+					}
+				}
+			}
+		}
+		
+		$visit->set('import.last.csv',null);
+		$visit->set('import.last.type',null);
+	}
+	
+	// Form (Step1)
+	function importOrgsAction() {
+		$csv_file = $_FILES['csv_file'];
+		$db = DevblocksPlatform::getDatabaseService();
+		@set_time_limit(0);
+
+		$primary_column = 1; // dupe checking // [TODO] Pull from form
+		$inserts = 0;
+		$updates = 0;
+		$invalids = 0;
+		
+		$fp = fopen($csv_file['tmp_name'], "rt");
+		if($fp) {
+			$line = fgets($fp, 8192); // Header Row
+			while(!feof($fp)) {
+				$line = fgets($fp, 8192);
+				$line = substr($line, 1, strlen($line)-2); // get rid of outer
+
+				if(empty($line))
+					continue;
+				
+				$parts = explode('","', $line);
+				
+				if(13 != count($parts)) {
+					echo "BAD ROW: $line<BR>";
+					$invalids++;
+					continue;
+				}
+				
+				$hits = array();
+				if(strlen($primary_column)) {
+					$hits = DAO_ContactOrg::getWhere(
+						sprintf("%s = %s",
+							DAO_ContactOrg::ACCOUNT_NUMBER,
+							$db->qstr($parts[$primary_column])
+					));
+				}
+				
+				@$row_created = (is_numeric($parts[12]) ? $parts[12] : strftime($parts[12]));
+				if(empty($row_created)) $row_created = time();
+				
+				$fields = array(
+					DAO_ContactOrg::ACCOUNT_NUMBER => $parts[1],
+					DAO_ContactOrg::NAME => $parts[0],
+					DAO_ContactOrg::STREET => $parts[2], // [TODO] +3+4
+					DAO_ContactOrg::CITY => $parts[5],
+					DAO_ContactOrg::PROVINCE => $parts[6],
+					DAO_ContactOrg::POSTAL => $parts[7],
+					DAO_ContactOrg::COUNTRY => $parts[8],
+					DAO_ContactOrg::PHONE => $parts[9],
+					DAO_ContactOrg::FAX => $parts[10],
+					DAO_ContactOrg::WEBSITE => $parts[11],
+					DAO_ContactOrg::CREATED => $row_created,
+				);
+				
+				if(empty($hits)) { // insert
+					$id = DAO_ContactOrg::create($fields);
+					$inserts++;
+				} else { // update/sync
+					DAO_ContactOrg::update(key($hits), $fields);
+					$updates++;
+				}
+			}
+			@fclose($fp);
+		}
+		
+		$total = $inserts + $updates;
+		echo "IMPORTED: $total contacts ($inserts inserts, $updates updates, $invalids invalids)<br>";
+		
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('contacts','import')));
+	}
+	
+	function showTabDetailsAction() {
+		@$org = DevblocksPlatform::importGPC($_REQUEST['org']);
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+
+		$contact = DAO_ContactOrg::get($org);
+		$tpl->assign('contact', $contact);
+
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/contacts/orgs/tabs/details.tpl.php');
+		exit;
+	}
+	
+	function showTabPeopleAction() {
+		@$org = DevblocksPlatform::importGPC($_REQUEST['org']);
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		
+		$contact = DAO_ContactOrg::get($org);
+		$tpl->assign('contact', $contact);
+		
+		$view = C4_AbstractViewLoader::getView('C4_ContactPersonView', 'org_contacts');
+		$view->id = 'org_contacts';
+		$view->name = 'Organization Contacts';
+		$view->view_columns = array(
+			SearchFields_ContactPerson::LAST_NAME,
+			SearchFields_ContactPerson::TITLE,
+			SearchFields_ContactPerson::EMAIL,
+			SearchFields_ContactPerson::PHONE,
+		);
+		$tpl->assign('view', $view);
+		
+		$tpl->assign('contacts_page', 'orgs');
+		$tpl->assign('search_columns', SearchFields_ContactPerson::getFields());
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/contacts/orgs/tabs/people.tpl.php');
+		exit;
+	}
+	
+	function showTabHistoryAction() {
+		@$org = DevblocksPlatform::importGPC($_REQUEST['org']);
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		
+		$contact = DAO_ContactOrg::get($org);
+		$tpl->assign('contact', $contact);
+		
+		$visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
+		$viewMgr = $visit->get(CerberusVisit::KEY_VIEW_MANAGER); /* @var $viewMgr CerberusStaticViewManager */
+		
+		if(null == (@$tickets_view = $viewMgr->getView('contact_history'))) {
+			$tickets_view = new CerberusDashboardView();
+			$tickets_view->id = 'contact_history';
+			$tickets_view->name = 'Contact History';
+			$tickets_view->view_columns = array(
+				SearchFields_Ticket::TICKET_NEXT_ACTION,
+				SearchFields_Ticket::TICKET_CREATED_DATE,
+				SearchFields_Ticket::TEAM_NAME,
+				SearchFields_Ticket::TICKET_CATEGORY_ID,
+				SearchFields_Ticket::TICKET_SPAM_SCORE,
+				SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
+			);
+			$tickets_view->params = array(
+				//SearchFields_Ticket::TICKET_FIRST_WROTE => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_FIRST_WROTE,DevblocksSearchCriteria::OPER_EQ,0)
+			);
+			$tickets_view->renderLimit = 10;
+			$tickets_view->renderPage = 0;
+			$tickets_view->renderSortBy = SearchFields_Ticket::TICKET_CREATED_DATE;
+			$tickets_view->renderSortAsc = false;
+			$viewMgr->setView('contact_history', $tickets_view);
+		}
+
+		@$tickets_view->name = "Most recent tickets from " . htmlentities($contact->name);
+		$tickets_view->params = array(
+			//SearchFields_Ticket::TICKET_FIRST_WROTE => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_FIRST_WROTE,DevblocksSearchCriteria::OPER_EQ,$contact->email)
+		);
+		$tpl->assign('contact_history', $tickets_view);
+		
+		//$viewActions = DAO_DashboardViewAction::getList();
+		//$tpl->assign('viewActions', $viewActions);
+		
+		$workers = DAO_Worker::getList();
+		$tpl->assign('workers', $workers);
+		
+		$teams = DAO_Group::getAll();
+		$tpl->assign('teams', $teams);
+		
+		$buckets = DAO_Bucket::getAll();
+		$tpl->assign('buckets', $buckets);
+		
+		$team_categories = DAO_Bucket::getTeams();
+		$tpl->assign('team_categories', $team_categories);
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/contacts/orgs/tabs/history.tpl.php');
+		exit;
+	}
+	
 };
 
 class ChFilesController extends DevblocksControllerExtension {
@@ -3537,31 +4025,11 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		$tpl->assign('ticket', $ticket);
 
-		$messages = $ticket->getMessages();
-		arsort($messages);
-		$tpl->assign('messages', $messages);
-		
-		$notes = DAO_MessageNote::getByTicketId($id);
-		$message_notes = array();
-		// Index notes by message id
-		if(is_array($notes))
-		foreach($notes as $note) {
-			if(!isset($message_notes[$note->message_id]))
-				$message_notes[$note->message_id] = array();
-			$message_notes[$note->message_id][$note->id] = $note;
-		}
-		$tpl->assign('message_notes', $message_notes);
-		
 		$teams = DAO_Group::getAll();
 		$tpl->assign('teams', $teams);
 		
-		// [TODO] Cache this (getAll)
-		$workers = DAO_Worker::getList();
-		$tpl->assign('workers', $workers);
-		
 		$team_categories = DAO_Bucket::getTeams();
 		$tpl->assign('team_categories', $team_categories);
-		$tpl->register_modifier('makehrefs', array('CerberusUtils', 'smarty_modifier_makehrefs')); 
 		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/index.tpl.php');
 	}
@@ -3813,6 +4281,39 @@ class ChDisplayPage extends CerberusPageExtension {
 		CerberusMail::sendTicketMessage($properties);
 
         DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('display',$ticket_id)));
+	}
+	
+	function showConversationAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer');
+
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		
+		$ticket = DAO_Ticket::getTicket($id);
+		$tpl->assign('ticket', $ticket);
+
+		$messages = $ticket->getMessages();
+		arsort($messages);
+		$tpl->assign('messages', $messages);
+		
+		$notes = DAO_MessageNote::getByTicketId($id);
+		$message_notes = array();
+		// Index notes by message id
+		if(is_array($notes))
+		foreach($notes as $note) {
+			if(!isset($message_notes[$note->message_id]))
+				$message_notes[$note->message_id] = array();
+			$message_notes[$note->message_id][$note->id] = $note;
+		}
+		$tpl->assign('message_notes', $message_notes);
+		
+		// [TODO] Cache this (getAll)
+		$workers = DAO_Worker::getList();
+		$tpl->assign('workers', $workers);
+		
+		$tpl->register_modifier('makehrefs', array('CerberusUtils', 'smarty_modifier_makehrefs')); 
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/conversation/index.tpl.php');
 	}
 	
 	function showManageRecipientsAction() {

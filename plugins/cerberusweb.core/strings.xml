@@ -5,9 +5,11 @@
 	<body>
 
 		<!-- Temporary Events -->
+		<!-- 
 		<tu tuid='event.faq.question_asked'>
 			<tuv xml:lang="en"><seg>Someone just asked, '%2$s' (question %1$s)</seg></tuv>
 		</tu>
+		 -->
 
 		<!-- Common Strings -->
 
@@ -99,6 +101,94 @@
 		<tu tuid='common.update'>
 			<tuv xml:lang="en"><seg>update</seg></tuv>
 		</tu>
+		<tu tuid='common.upload'>
+			<tuv xml:lang="en"><seg>upload</seg></tuv>
+		</tu>
+
+		<!-- Contact orgs -->
+		<tu tuid='contact_org.account_number'>
+			<tuv xml:lang="en"><seg>acct #</seg></tuv>
+		</tu>
+		<tu tuid='contact_org.city'>
+			<tuv xml:lang="en"><seg>city</seg></tuv>
+		</tu>
+		<tu tuid='contact_org.country'>
+			<tuv xml:lang="en"><seg>country</seg></tuv>
+		</tu>
+		<tu tuid='contact_org.created'>
+			<tuv xml:lang="en"><seg>created</seg></tuv>
+		</tu>
+		<tu tuid='contact_org.fax'>
+			<tuv xml:lang="en"><seg>fax</seg></tuv>
+		</tu>
+		<tu tuid='contact_org.id'>
+			<tuv xml:lang="en"><seg>id</seg></tuv>
+		</tu>
+		<tu tuid='contact_org.name'>
+			<tuv xml:lang="en"><seg>organization</seg></tuv>
+		</tu>
+		<tu tuid='contact_org.phone'>
+			<tuv xml:lang="en"><seg>phone</seg></tuv>
+		</tu>
+		<tu tuid='contact_org.postal'>
+			<tuv xml:lang="en"><seg>postal</seg></tuv>
+		</tu>
+		<tu tuid='contact_org.province'>
+			<tuv xml:lang="en"><seg>state/prov</seg></tuv>
+		</tu>
+		<tu tuid='contact_org.street'>
+			<tuv xml:lang="en"><seg>street</seg></tuv>
+		</tu>
+		<tu tuid='contact_org.website'>
+			<tuv xml:lang="en"><seg>website</seg></tuv>
+		</tu>
+
+		<!-- Contact People -->
+		<tu tuid='contact_person.city'>
+			<tuv xml:lang="en"><seg>city</seg></tuv>
+		</tu>
+		<tu tuid='contact_person.contact_org_id'>
+			<tuv xml:lang="en"><seg>organization</seg></tuv>
+		</tu>
+		<tu tuid='contact_person.city'>
+			<tuv xml:lang="en"><seg>city</seg></tuv>
+		</tu>
+		<tu tuid='contact_person.country'>
+			<tuv xml:lang="en"><seg>country</seg></tuv>
+		</tu>
+		<tu tuid='contact_person.created'>
+			<tuv xml:lang="en"><seg>created</seg></tuv>
+		</tu>
+		<tu tuid='contact_person.email'>
+			<tuv xml:lang="en"><seg>primary email</seg></tuv>
+		</tu>
+		<tu tuid='contact_person.fax'>
+			<tuv xml:lang="en"><seg>fax</seg></tuv>
+		</tu>
+		<tu tuid='contact_person.first_name'>
+			<tuv xml:lang="en"><seg>first name</seg></tuv>
+		</tu>
+		<tu tuid='contact_person.id'>
+			<tuv xml:lang="en"><seg>id</seg></tuv>
+		</tu>
+		<tu tuid='contact_person.last_name'>
+			<tuv xml:lang="en"><seg>last name</seg></tuv>
+		</tu>
+		<tu tuid='contact_person.phone'>
+			<tuv xml:lang="en"><seg>phone</seg></tuv>
+		</tu>
+		<tu tuid='contact_person.postal'>
+			<tuv xml:lang="en"><seg>postal</seg></tuv>
+		</tu>
+		<tu tuid='contact_person.province'>
+			<tuv xml:lang="en"><seg>province</seg></tuv>
+		</tu>
+		<tu tuid='contact_person.title'>
+			<tuv xml:lang="en"><seg>title</seg></tuv>
+		</tu>
+		<tu tuid='contact_person.street'>
+			<tuv xml:lang="en"><seg>street</seg></tuv>
+		</tu>
 
 		<!-- Activities -->
 		<tu tuid='activity.default'>
@@ -123,6 +213,11 @@
 
 		<!-- Header -->
 
+		<tu tuid='header.config'>
+			<tuv xml:lang="en">
+				<seg>configuration</seg>
+			</tuv>
+		</tu>
 		<tu tuid='header.history'>
 			<tuv xml:lang="en">
 				<seg>history</seg>
@@ -145,7 +240,7 @@
 		</tu>
 		<tu tuid='header.preferences'>
 			<tuv xml:lang="en">
-				<seg>preferences</seg>
+				<seg>my preferences</seg>
 			</tuv>
 		</tu>
 		<tu tuid='header.signed_in'>

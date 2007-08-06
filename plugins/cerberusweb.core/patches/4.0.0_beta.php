@@ -57,8 +57,81 @@ $tables = $datadict->MetaTables();
 $columns = $datadict->MetaColumns('address');
 $indexes = $datadict->MetaIndexes('address',false);
 
+if(!isset($columns['CONTACT_ID'])) {
+    $sql = $datadict->AddColumnSQL('address', 'contact_id I4 DEFAULT 0 NOTNULL');
+    $datadict->ExecuteSQLArray($sql);
+}
+
 if(!isset($indexes['email'])) {
     $sql = $datadict->CreateIndexSQL('email','address','email',array('UNIQUE'));
+    $datadict->ExecuteSQLArray($sql);
+}
+
+// `contact_org` =============================
+if(!isset($tables['contact_org'])) {
+    $flds = "
+		id I4 DEFAULT 0 NOTNULL PRIMARY,
+		account_number C(32) DEFAULT '' NOTNULL,
+		name C(128) DEFAULT '' NOTNULL,
+		street C(128) DEFAULT '' NOTNULL,
+		city C(64) DEFAULT '' NOTNULL,
+		province C(64) DEFAULT '' NOTNULL,
+		postal C(20) DEFAULT '' NOTNULL,
+		country C(64) DEFAULT '' NOTNULL,
+		phone C(32) DEFAULT '' NOTNULL,
+		fax C(32) DEFAULT '' NOTNULL,
+		website C(128) DEFAULT '' NOTNULL,
+		created I4 DEFAULT 0 NOTNULL
+	";
+    $sql = $datadict->CreateTableSQL('contact_org',$flds);
+    $datadict->ExecuteSQLArray($sql);
+}
+
+$columns = $datadict->MetaColumns('contact_org');
+$indexes = $datadict->MetaIndexes('contact_org',false);
+
+if(!isset($indexes['name'])) {
+    $sql = $datadict->CreateIndexSQL('name','contact_org','name'); // ,array('UNIQUE')
+    $datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($indexes['account_number'])) {
+    $sql = $datadict->CreateIndexSQL('account_number','contact_org','account_number'); // array('UNIQUE')
+    $datadict->ExecuteSQLArray($sql);
+}
+
+// `contact_person` =============================
+if(!isset($tables['contact_person'])) {
+    $flds = "
+		id I4 DEFAULT 0 NOTNULL PRIMARY,
+		first_name C(32) DEFAULT '' NOTNULL,
+		last_name C(32) DEFAULT '' NOTNULL,
+		title C(64) DEFAULT '' NOTNULL,
+		contact_org_id I4 DEFAULT 0 NOTNULL,
+		street C(128) DEFAULT '' NOTNULL,
+		city C(64) DEFAULT '' NOTNULL,
+		province C(64) DEFAULT '' NOTNULL,
+		postal C(32) DEFAULT '' NOTNULL,
+		country C(64) DEFAULT '' NOTNULL,
+		phone C(32) DEFAULT '' NOTNULL,
+		fax C(32) DEFAULT '' NOTNULL,
+		email C(128) DEFAULT '' NOTNULL,
+		created I4 DEFAULT 0 NOTNULL
+	";
+    $sql = $datadict->CreateTableSQL('contact_person',$flds);
+    $datadict->ExecuteSQLArray($sql);
+}
+
+$columns = $datadict->MetaColumns('contact_person');
+$indexes = $datadict->MetaIndexes('contact_person',false);
+
+if(!isset($indexes['contact_org_id'])) {
+    $sql = $datadict->CreateIndexSQL('email','contact_person','email');
+    $datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($indexes['contact_org_id'])) {
+    $sql = $datadict->CreateIndexSQL('contact_org_id','contact_person','contact_org_id');
     $datadict->ExecuteSQLArray($sql);
 }
 

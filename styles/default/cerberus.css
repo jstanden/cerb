@@ -259,4 +259,27 @@ DIV.subtle2 {
 .autocontainer li {padding:0 5px;margin:0px;cursor:default;white-space:nowrap;}
 .autocontainer li.yui-ac-highlight {background:#ddddff;}
 .autocontainer li.yui-ac-prehighlight {background:#FFFFCC;}
-          
+
+/* Tabs */
+.yui-skin-sam .yui-navset .yui-content {
+	padding:5px;
+	background-image:url(bg_block.jpg);
+	background-repeat: repeat-x;
+	background-color: rgb(255,255,255);
+	border:1px solid rgb(120,120,120);
+}
+
+.yui-skin-sam .yui-navset .yui-content H2 {
+	font-weight: bold;
+    font-family: Arial,Helvetica,sans-serif;
+    font-size: 18px;
+	margin:0px;
+	color: rgb(0,150,0);
+}
+
+.yui-skin-sam .yui-navset .yui-content,
+.yui-skin-sam .yui-navset .yui-navset-top .yui-content {
+    border:0px; /* content border */
+    border-top-color:#243356; /* different border color */
+    padding:0.25em 0.5em; /* content padding */
+}
