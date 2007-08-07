@@ -3598,6 +3598,36 @@ class ChContactsPage extends CerberusPageExtension {
 		exit;
 	}
 	
+	function updateContactOrgAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer');
+		@$org_name = DevblocksPlatform::importGPC($_REQUEST['org_name'], 'string');
+		@$account_num = DevblocksPlatform::importGPC($_REQUEST['account_num'], 'string');
+		@$street = DevblocksPlatform::importGPC($_REQUEST['street'], 'string');
+		@$city = DevblocksPlatform::importGPC($_REQUEST['city'], 'string');
+		@$province = DevblocksPlatform::importGPC($_REQUEST['province'], 'string');
+		@$postal = DevblocksPlatform::importGPC($_REQUEST['postal'], 'string');
+		@$country = DevblocksPlatform::importGPC($_REQUEST['country'], 'string');
+		@$phone =  DevblocksPlatform::importGPC($_REQUEST['phone'], 'string');
+		@$fax =  DevblocksPlatform::importGPC($_REQUEST['fax'], 'string');
+		@$website = DevblocksPlatform::importGPC($_REQUEST['website'], 'string');
+		
+		$fields = array(
+				DAO_ContactOrg::ACCOUNT_NUMBER => $account_num,
+				DAO_ContactOrg::CITY => $city,
+				DAO_ContactOrg::COUNTRY => $country,
+				DAO_ContactOrg::CREATED => time(),
+				DAO_ContactOrg::FAX => $fax,
+				DAO_ContactOrg::NAME => $org_name,
+				DAO_ContactOrg::PHONE => $phone,
+				DAO_ContactOrg::POSTAL => $postal,
+				DAO_ContactOrg::PROVINCE => $province,
+				DAO_ContactOrg::STREET => $street,
+				DAO_ContactOrg::WEBSITE => $website
+		);
+		
+		DAO_ContactOrg::update($id, $fields);
+		
+	}
 };
 
 class ChFilesController extends DevblocksControllerExtension {
