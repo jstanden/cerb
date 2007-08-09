@@ -79,7 +79,7 @@
 		<td colspan="2">
 			<span id="tourDashboardBatch"><button type="button" onclick="ajax.showBatchPanel('{$view->id}','{$dashboard_team_id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> bulk update</button></span>
 			
-			<a href="javascript:;" onclick="toggleDiv('view{$view_id}_more');">More &raquo;</a>
+			<a href="javascript:;" onclick="toggleDiv('view{$view->id}_more');">More &raquo;</a>
 
 			<div id="view{$view_id}_more" style="display:none;padding-top:5px;padding-bottom:5px;">
 				<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','merge');">merge</button>

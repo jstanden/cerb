@@ -3364,7 +3364,6 @@ class ChContactsPage extends CerberusPageExtension {
 				$key = $field[$idx];
 				$val = $parts[$idx];
 				if(!empty($key) && !empty($val)) {
-					
 					// [JAS]: Special overrides
 					switch($key) {
 						// Multi-Line
@@ -3387,7 +3386,6 @@ class ChContactsPage extends CerberusPageExtension {
 					}
 				}
 			}
-			
 			if(!empty($fields)) {
 				if($type=="orgs") {
 					@$orgs = DAO_ContactOrg::getWhere(
@@ -3395,13 +3393,14 @@ class ChContactsPage extends CerberusPageExtension {
 							? sprintf('%s = %s', $sync_field, $db->qstr($sync_val))
 							: sprintf('name = %s', $db->qstr($fields['name']))
 					);
-						
-					if(empty($orgs)) {
-						$id = DAO_ContactOrg::create($fields);
-					} else {
-						DAO_ContactOrg::update(key($orgs), $fields);
+
+					if(isset($fields['name'])) {
+						if(empty($orgs)) {
+							$id = DAO_ContactOrg::create($fields);
+						} else {
+							DAO_ContactOrg::update(key($orgs), $fields);
+						}
 					}
-					
 				} elseif ($type=="people") {
 					if(!empty($sync_field) && !empty($sync_val))
 					@$persons = DAO_ContactPerson::getWhere(
@@ -3410,11 +3409,13 @@ class ChContactsPage extends CerberusPageExtension {
 //							: sprintf('name = %s', 'first_name = %s AND last_name = %s', $db->qstr($fields['first_name']),$db->qstr($fields['last_name']))
 					);
 					
-					if(empty($persons)) {
-						$id = DAO_ContactPerson::create($fields);
-					} else {
-//						echo "DUPE: ",$fields['first_name'],' ',$fields['last_name'],"<BR>";
-						DAO_ContactPerson::update(key($persons), $fields);
+					if(isset($fields['email'])) {
+						if(empty($persons)) {
+							$id = DAO_ContactPerson::create($fields);
+						} else {
+	//						echo "DUPE: ",$fields['first_name'],' ',$fields['last_name'],"<BR>";
+							DAO_ContactPerson::update(key($persons), $fields);
+						}
 					}
 				}
 			}

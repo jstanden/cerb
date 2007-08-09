@@ -173,7 +173,7 @@
 				</optgroup>
 			</select>
 			
-			<a href="javascript:;" onclick="toggleDiv('view{$view_id}_more');">More &raquo;</a>
+			<a href="javascript:;" onclick="toggleDiv('view{$view->id}_more');">More &raquo;</a>
 
 			<div id="view{$view_id}_more" style="display:none;padding-top:5px;padding-bottom:5px;">
 				<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','not_spam');">not spam</button>
