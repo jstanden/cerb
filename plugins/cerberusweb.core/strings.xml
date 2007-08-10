@@ -26,9 +26,7 @@
 			<tuv xml:lang="en"><seg>close</seg></tuv>
 		</tu>
 		<tu tuid='common.customize'>
-			<tuv xml:lang="en">
-				<seg>customize</seg>
-			</tuv>
+			<tuv xml:lang="en"><seg>customize</seg></tuv>
 		</tu>
 		<tu tuid='common.filter'>
 			<tuv xml:lang="en"><seg>filter</seg></tuv>
@@ -82,9 +80,7 @@
 			</tuv>
 		</tu>
 		<tu tuid='common.spam'>
-			<tuv xml:lang="en">
-				<seg>Spam</seg>
-			</tuv>
+			<tuv xml:lang="en"><seg>Spam</seg></tuv>
 		</tu>
 		<tu tuid='common.task'>
 			<tuv xml:lang="en"><seg>Task</seg></tuv>
@@ -103,6 +99,23 @@
 		</tu>
 		<tu tuid='common.upload'>
 			<tuv xml:lang="en"><seg>upload</seg></tuv>
+		</tu>
+
+		<!-- Addresses -->
+		<tu tuid='address.id'>
+			<tuv xml:lang="en"><seg>id</seg></tuv>
+		</tu>
+		<tu tuid='address.email'>
+			<tuv xml:lang="en"><seg>email</seg></tuv>
+		</tu>
+		<tu tuid='address.first_name'>
+			<tuv xml:lang="en"><seg>first name</seg></tuv>
+		</tu>
+		<tu tuid='address.last_name'>
+			<tuv xml:lang="en"><seg>last name</seg></tuv>
+		</tu>
+		<tu tuid='address.contact_org_id'>
+			<tuv xml:lang="en"><seg>org id</seg></tuv>
 		</tu>
 
 		<!-- Contact orgs -->
@@ -219,34 +232,22 @@
 			</tuv>
 		</tu>
 		<tu tuid='header.history'>
-			<tuv xml:lang="en">
-				<seg>history</seg>
-			</tuv>
+			<tuv xml:lang="en"><seg>history</seg></tuv>
 		</tu>
 		<tu tuid='header.last_viewed'>
-			<tuv xml:lang="en">
-				<seg>last viewed</seg>
-			</tuv>
+			<tuv xml:lang="en"><seg>last viewed</seg></tuv>
 		</tu>
 		<tu tuid='header.no_page'>
-			<tuv xml:lang="en">
-				<seg>No page selected.</seg>
-			</tuv>
+			<tuv xml:lang="en"><seg>No page selected.</seg></tuv>
 		</tu>
 		<tu tuid='header.not_signed_in'>
-			<tuv xml:lang="en">
-				<seg>Not signed in</seg>
-			</tuv>
+			<tuv xml:lang="en"><seg>Not signed in</seg></tuv>
 		</tu>
 		<tu tuid='header.preferences'>
-			<tuv xml:lang="en">
-				<seg>my preferences</seg>
-			</tuv>
+			<tuv xml:lang="en"><seg>my preferences</seg></tuv>
 		</tu>
 		<tu tuid='header.signed_in'>
-			<tuv xml:lang="en">
-				<seg>Signed in as %s</seg>
-			</tuv>
+			<tuv xml:lang="en"><seg>Signed in as %s</seg></tuv>
 		</tu>
 		<tu tuid='header.signoff'>
 			<tuv xml:lang="en">

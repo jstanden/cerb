@@ -682,6 +682,27 @@ class DAO_ContactOrg extends DevblocksORMHelper {
 		return null;
 	}	
 
+	static function lookup($name, $create_if_null=false) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		@$orgs = self::getWhere(
+			sprintf('%s = %s', self::NAME, $db->qstr($name))
+		);
+		
+		if(empty($orgs)) {
+			if($create_if_null) {
+				$fields = array(
+					self::NAME => $name
+				);
+				return self::create($fields);
+			}
+		} else {
+			return key($orgs);
+		}
+		
+		return NULL;
+	}
+	
     /**
      * Enter description here...
      *
@@ -792,149 +813,133 @@ class SearchFields_ContactOrg {
 	}
 };
 
-class DAO_ContactPerson extends DevblocksORMHelper {
+class DAO_Address extends DevblocksORMHelper {
 	const ID = 'id';
-	const FIRST_NAME = 'first_name';
-	const LAST_NAME = 'last_name';
-	const TITLE = 'title';
-	const CONTACT_ORG_ID = 'contact_org_id';
-	const STREET = 'street';
-	const CITY = 'city';
-	const PROVINCE = 'province';
-	const POSTAL = 'postal';
-	const COUNTRY = 'country';
-	const PHONE = 'phone';
-	const EMAIL = 'email';
-	const FAX = 'fax';
-	const CREATED = 'created';
-	
+	const EMAIL = 'email';	
+	const FIRST_NAME = 'first_name';	
+	const LAST_NAME = 'last_name';	
+	const CONTACT_ORG_ID = 'contact_org_id';	
+
 	private function __construct() {}
 	
 	public static function getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		return array(
-			'id' => $translate->_('contact_person.id'),
-			'first_name' => $translate->_('contact_person.first_name'),
-			'last_name' => $translate->_('contact_person.last_name'),
-			'title' => $translate->_('contact_person.title'),
-			'contact_org_id' => $translate->_('contact_person.contact_org_id'),
-			'street' => $translate->_('contact_person.street'),
-			'city' => $translate->_('contact_person.city'),
-			'province' => $translate->_('contact_person.province'),
-			'postal' => $translate->_('contact_person.postal'),
-			'country' => $translate->_('contact_person.country'),
-			'phone' => $translate->_('contact_person.phone'),
-			'fax' => $translate->_('contact_person.fax'),
-			'email' => $translate->_('contact_person.email'),
-			'created' => $translate->_('contact_person.created'),
+			'id' => $translate->_('address.id'),
+			'email' => $translate->_('address.email'),
+			'first_name' => $translate->_('address.first_name'),
+			'last_name' => $translate->_('address.last_name'),
+			'contact_org_id' => $translate->_('address.contact_org_id'),
 		);
 	}
 	
-	/**
-	 * Enter description here...
-	 *
-	 * @param array $fields
-	 * @return integer
-	 */
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
-		$id = $db->GenID('contact_person_seq');
 		
-		$sql = sprintf("INSERT INTO contact_person (id,first_name,last_name,title,street,city,province,postal,country,phone,fax,email,contact_org_id,created) ".
-  			"VALUES (%d,'','','','','','','','','','','',0,%d)",
+		$id = $db->GenID('address_seq');
+
+		if(null == ($email = @$fields[self::EMAIL]))
+			return NULL;
+		
+		// [TODO] Validate
+		$addresses = imap_rfc822_parse_adrlist('<'.$email.'>', 'host');
+		
+		if(!is_array($addresses) || empty($addresses))
+			return NULL;
+		
+		$address = array_shift($addresses);
+		
+		if(empty($address->host) || $address->host == 'host')
+			return NULL;
+		
+		$sql = sprintf("INSERT INTO address (id,email,first_name,last_name,contact_org_id) ".
+			"VALUES (%d,%s,'','',0)",
 			$id,
-			time()
+			$db->qstr(trim(strtolower($address->mailbox.'@'.$address->host)))
 		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-		self::update($id, $fields);
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+
 		return $id;
 	}
 	
-	/**
-	 * Enter description here...
-	 *
-	 * @param array $ids
-	 * @param array $fields
-	 * @return Model_ContactOrg
-	 */
 	static function update($ids, $fields) {
-		if(!is_array($ids)) $ids = array($ids);
-		parent::_update($ids, 'contact_person', $fields);
+		parent::_update($ids, 'address', $fields);
 	}
 	
-	/**
-	 * @param array $ids
-	 */
-	static function delete($ids) {
-		if(!is_array($ids)) $ids = array($ids);
+    static function delete($ids) {
+        if(!is_array($ids)) $ids = array($ids);
+        if(empty($ids)) return;
+
 		$db = DevblocksPlatform::getDatabaseService();
+        
+        $address_ids = implode(',', $ids);
+        $sql = sprintf("DELETE FROM address WHERE id IN (%s)", $address_ids);
+        $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+    }
 		
-		$sql = sprintf("DELETE FROM contact_person WHERE id IN (%s)",
-			implode(',', $ids)
-		);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-	}
-	
-	/**
-	 * @param string $where
-	 * @return Model_ContactOrg[]
-	 */
 	static function getWhere($where=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = "SELECT id,first_name,last_name,title,street,city,province,postal,country,phone,email,fax,contact_org_id,created ".
-			"FROM contact_person ".
-			(!empty($where) ? sprintf("WHERE %s ", $where) : " ")
-		;
+		$addresses = array();
+		
+		$sql = sprintf("SELECT a.id, a.email, a.first_name, a.last_name, a.contact_org_id ".
+			"FROM address a ".
+			((!empty($where)) ? "WHERE %s " : " ").
+			"ORDER BY a.email ",
+			$where
+		);
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-
-		return self::_getObjectsFromResultSet($rs);
-	}
-	
-	static private function _getObjectsFromResultSet($rs) {
-		$objects = array();
 		
 		while(!$rs->EOF) {
-			$object = new Model_ContactPerson();
-			$object->id = intval($rs->fields['id']);
-			$object->first_name = $rs->fields['first_name'];
-			$object->last_name = $rs->fields['last_name'];
-			$object->title = $rs->fields['title'];
-			$object->contact_org_id = intval($rs->fields['contact_org_id']);
-			$object->street = $rs->fields['street'];
-			$object->city = $rs->fields['city'];
-			$object->province = $rs->fields['province'];
-			$object->postal = $rs->fields['postal'];
-			$object->country = $rs->fields['country'];
-			$object->phone = $rs->fields['phone'];
-			$object->email = $rs->fields['email'];
-			$object->fax = $rs->fields['fax'];
-			$object->created = intval($rs->fields['created']);
-			$objects[$object->id] = $object;
+			$address = new Model_Address();
+			$address->id = intval($rs->fields['id']);
+			$address->email = $rs->fields['email'];
+			$address->first_name = $rs->fields['first_name'];
+			$address->last_name = $rs->fields['last_name'];
+			$address->contact_org_id = intval($rs->fields['contact_org_id']);
+			$addresses[$address->id] = $address;
 			$rs->MoveNext();
 		}
 		
-		return $objects;
+		return $addresses;
 	}
 	
-	/**
-	 * @param integer $id
-	 * @return Model_ContactOrg
-	 */
 	static function get($id) {
-		$where = sprintf("%s = %d",
-			self::ID,
-			$id
-		);
-		$objects = self::getWhere($where);
-
-		if(isset($objects[$id]))
-			return $objects[$id];
+		if(empty($id)) return null;
+		
+		$addresses = DAO_Address::getWhere(
+			sprintf("%s = %d",
+				self::ID,
+				$id
+		));
+		
+		if(isset($addresses[$id]))
+			return $addresses[$id];
 			
-		return null;
+		return null;		
 	}
-
+	
+	static function lookupAddress($email,$create_if_null=false) {
+		$db = DevblocksPlatform::getDatabaseService();
+		$id = null;
+		
+		$sql = sprintf("SELECT id FROM address WHERE email = %s",
+			$db->qstr(trim(strtolower($email)))
+		);
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		if(!$rs->EOF) {
+			$id = $rs->fields['id'];
+		} elseif($create_if_null) {
+			$fields = array(
+				self::EMAIL => $email
+			);
+			$id = DAO_Address::create($fields);
+		}
+		
+		return $id;
+	}
+	
     /**
      * Enter description here...
      *
@@ -949,54 +954,34 @@ class DAO_ContactPerson extends DevblocksORMHelper {
     static function search($params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
 
-        list($tables,$wheres) = parent::_parseSearchParams($params, SearchFields_ContactPerson::getFields());
+        list($tables,$wheres) = parent::_parseSearchParams($params, SearchFields_Address::getFields());
 		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
-		$total = -1;
 		
 		$sql = sprintf("SELECT ".
-			"c.id as %s, ".
-			"c.first_name as %s, ".
-			"c.last_name as %s, ".
-			"c.title as %s, ".
-			"c.contact_org_id as %s, ".
-			"c.street as %s, ".
-			"c.city as %s, ".
-			"c.province as %s, ".
-			"c.postal as %s, ".
-			"c.country as %s, ".
-			"c.phone as %s, ".
-			"c.email as %s, ".
-			"c.created as %s ".
-			"FROM contact_person c ",
-//			"INNER JOIN team tm ON (tm.id = t.team_id) ".
-			    SearchFields_ContactPerson::ID,
-			    SearchFields_ContactPerson::FIRST_NAME,
-			    SearchFields_ContactPerson::LAST_NAME,
-			    SearchFields_ContactPerson::TITLE,
-			    SearchFields_ContactPerson::CONTACT_ORG_ID,
-			    SearchFields_ContactPerson::STREET,
-			    SearchFields_ContactPerson::CITY,
-			    SearchFields_ContactPerson::PROVINCE,
-			    SearchFields_ContactPerson::POSTAL,
-			    SearchFields_ContactPerson::COUNTRY,
-			    SearchFields_ContactPerson::PHONE,
-			    SearchFields_ContactPerson::EMAIL,
-			    SearchFields_ContactPerson::CREATED
+			"a.id as %s, ".
+			"a.email as %s, ".
+			"a.first_name as %s, ".
+			"a.last_name as %s, ".
+			"a.contact_org_id as %s, ".
+			"o.name as %s ".
+			"FROM address a ".
+			"LEFT JOIN contact_org o ON (o.id=a.contact_org_id) ",
+			    SearchFields_Address::ID,
+			    SearchFields_Address::EMAIL,
+			    SearchFields_Address::FIRST_NAME,
+			    SearchFields_Address::LAST_NAME,
+			    SearchFields_Address::CONTACT_ORG_ID,
+			    SearchFields_Address::ORG_NAME
 			).
-		
+			
 			// [JAS]: Dynamic table joins
-//			(isset($tables['ra']) ? "INNER JOIN requester r ON (r.ticket_id=t.id)" : " ").
+//			(isset($tables['o']) ? "LEFT JOIN contact_org o ON (o.id=a.contact_org_id)" : " ").
+//			(isset($tables['mc']) ? "INNER JOIN message_content mc ON (mc.message_id=m.id)" : " ").
 			
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "").
 			(!empty($sortBy) ? sprintf("ORDER BY %s %s",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : "")
 		;
-		// [TODO] Could push the select logic down a level too
-		if($limit > 0) {
-    		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-		} else {
-		    $rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-            $total = $rs->RecordCount();
-		}
+		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		$results = array();
 		while(!$rs->EOF) {
@@ -1004,206 +989,48 @@ class DAO_ContactPerson extends DevblocksORMHelper {
 			foreach($rs->fields as $f => $v) {
 				$result[$f] = $v;
 			}
-			$ticket_id = intval($rs->fields[SearchFields_ContactPerson::ID]);
-			$results[$ticket_id] = $result;
+			$id = intval($rs->fields[SearchFields_Address::ID]);
+			$results[$id] = $result;
 			$rs->MoveNext();
 		}
 
 		// [JAS]: Count all
+		$total = -1;
 		if($withCounts) {
 		    $rs = $db->Execute($sql);
 		    $total = $rs->RecordCount();
 		}
 		
 		return array($results,$total);
-    }	
+    }
 };
 
-class SearchFields_ContactPerson {
-	const ID = 'c_id';
-	const FIRST_NAME = 'c_first_name';
-	const LAST_NAME = 'c_last_name';
-	const TITLE = 'c_title';
-	const CONTACT_ORG_ID = 'c_contact_org_id';
-	const STREET = 'c_street';
-	const CITY = 'c_city';
-	const PROVINCE = 'c_province';
-	const POSTAL = 'c_postal';
-	const COUNTRY = 'c_country';
-	const PHONE = 'c_phone';
-	const EMAIL = 'c_email';
-	const CREATED = 'c_created';
+class SearchFields_Address implements IDevblocksSearchFields {
+	// Address
+	const ID = 'a_id';
+	const EMAIL = 'a_email';
+	const FIRST_NAME = 'a_first_name';
+	const LAST_NAME = 'a_last_name';
+	const CONTACT_ORG_ID = 'a_contact_org_id';
+	
+	const ORG_NAME = 'o_name';
 	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
 	static function getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
-		
 		return array(
-			self::ID => new DevblocksSearchField(self::ID, 'c', 'id', null, $translate->_('contact_person.id')),
-			self::FIRST_NAME => new DevblocksSearchField(self::FIRST_NAME, 'c', 'first_name', null, $translate->_('contact_person.first_name')),
-			self::LAST_NAME => new DevblocksSearchField(self::LAST_NAME, 'c', 'last_name', null, $translate->_('contact_person.last_name')),
-			self::TITLE => new DevblocksSearchField(self::TITLE, 'c', 'title', null, $translate->_('contact_person.title')),
-			self::CONTACT_ORG_ID => new DevblocksSearchField(self::CONTACT_ORG_ID, 'c', 'contact_org_id', null, $translate->_('contact_person.contact_org_id')),
-			self::STREET => new DevblocksSearchField(self::STREET, 'c', 'street', null, $translate->_('contact_person.street')),
-			self::CITY => new DevblocksSearchField(self::CITY, 'c', 'city', null, $translate->_('contact_person.city')),
-			self::PROVINCE => new DevblocksSearchField(self::PROVINCE, 'c', 'province', null, $translate->_('contact_person.province')),
-			self::POSTAL => new DevblocksSearchField(self::POSTAL, 'c', 'postal', null, $translate->_('contact_person.postal')),
-			self::COUNTRY => new DevblocksSearchField(self::COUNTRY, 'c', 'country', null, $translate->_('contact_person.country')),
-			self::PHONE => new DevblocksSearchField(self::PHONE, 'c', 'phone', null, $translate->_('contact_person.phone')),
-			self::EMAIL => new DevblocksSearchField(self::EMAIL, 'c', 'email', null, $translate->_('contact_person.email')),
-			self::CREATED => new DevblocksSearchField(self::CREATED, 'c', 'created', null, $translate->_('contact_person.created')),
+			self::ID => new DevblocksSearchField(self::ID, 'a', 'id', null, $translate->_('address.id')),
+			self::EMAIL => new DevblocksSearchField(self::EMAIL, 'a', 'email', null, $translate->_('address.email')),
+			self::FIRST_NAME => new DevblocksSearchField(self::FIRST_NAME, 'a', 'first_name', null, $translate->_('address.first_name')),
+			self::LAST_NAME => new DevblocksSearchField(self::LAST_NAME, 'a', 'last_name', null, $translate->_('address.last_name')),
+			self::CONTACT_ORG_ID => new DevblocksSearchField(self::CONTACT_ORG_ID, 'a', 'contact_org_id', null, $translate->_('address.contact_org_id')),
+			
+			self::ORG_NAME => new DevblocksSearchField(self::ORG_NAME, 'o', 'name', null, $translate->_('contact_org.name')),
 		);
 	}
 };
-
-class DAO_Contact extends DevblocksORMHelper {
-	private function __construct() {}
-	
-	static function create($fields) {
-		$db = DevblocksPlatform::getDatabaseService();
-	}
-	
-	static function update($ids, $fields) {
-		$db = DevblocksPlatform::getDatabaseService();
-	}
-	
-	static function delete($ids) {
-		$db = DevblocksPlatform::getDatabaseService();
-	}
-	
-	static function getList($ids) {
-		$db = DevblocksPlatform::getDatabaseService();
-	}
-	
-	static function get($id) {
-		
-	}
-	
-	// [JAS]: [TODO] Move this into MailDAO
-	static function lookupAddress($email,$create_if_null=false) {
-		$db = DevblocksPlatform::getDatabaseService();
-		$id = null;
-		
-		$sql = sprintf("SELECT id FROM address WHERE email = %s",
-			$db->qstr(trim(strtolower($email)))
-		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-		if(!$rs->EOF) {
-			$id = $rs->fields['id'];
-		} elseif($create_if_null) {
-			$id = DAO_Contact::createAddress($email);
-		}
-		
-		return $id;
-	}
-	
-	// [JAS]: [TODO] Move this into MailDAO
-	/*
-	 * @return CerberusAddress[] 
-	 */
-	static function getAddresses($ids=array()) {
-		$db = DevblocksPlatform::getDatabaseService();
-		if(!is_array($ids)) $ids = array($ids);
-		$addresses = array();
-		
-		$sql = sprintf("SELECT a.id, a.email, a.personal ".
-			"FROM address a ".
-			((!empty($ids)) ? "WHERE a.id IN (%s) " : " ").
-			"ORDER BY a.email ",
-			implode(',', $ids)
-		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-		while(!$rs->EOF) {
-			$address = new CerberusAddress();
-			$address->id = intval($rs->fields['id']);
-			$address->email = $rs->fields['email'];
-			$address->personal = $rs->fields['personal'];
-			$addresses[$address->id] = $address;
-			$rs->MoveNext();
-		}
-		
-		return $addresses;
-	}
-	
-	// [JAS]: [TODO] Move this into MailDAO
-	/*
-	 * @return CerberusAddress
-	 */
-	static function getAddress($id) {
-		if(empty($id)) return null;
-		
-		$addresses = DAO_Contact::getAddresses(array($id));
-		
-		if(isset($addresses[$id]))
-			return $addresses[$id];
-			
-		return null;		
-	}
-
-//	// [JAS]: [TODO] Move this into MailDAO
-//	static function getMailboxIdByAddress($email) {
-//		$db = DevblocksPlatform::getDatabaseService();
-//		$id = DAO_Contact::lookupAddress($email,false);
-//		$mailbox_id = null;
-//		
-//		if(empty($id))
-//			return null;
-//		
-//		$sql = sprintf("SELECT am.mailbox_id FROM address_to_mailbox am WHERE am.address_id = %d",
-//			$id
-//		);
-//		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-//		
-//		if(!$rs->EOF) {
-//			$mailbox_id = intval($rs->fields['mailbox_id']);
-//		}
-//		
-//		return $mailbox_id;
-//	}
-	
-	// [JAS]: [TODO] Move this into MailDAO
-	/**
-	 * creates an address entry in the database if it doesn't exist already
-	 *
-	 * @param string $email
-	 * @param string $personal
-	 * @return integer
-	 * @throws exception on invalid address
-	 */
-	static function createAddress($email,$personal='') {
-		$db = DevblocksPlatform::getDatabaseService();
-
-		if(null != ($id = DAO_Contact::lookupAddress($email,false)))
-			return $id;
-
-		// [TODO] Validate
-		$addresses = imap_rfc822_parse_adrlist('<'.$email.'>', 'host');
-		
-		if(!is_array($addresses) || empty($addresses))
-			return NULL;
-		
-		$address = array_shift($addresses);
-		
-		if(empty($address->host) || $address->host == 'host')
-			return NULL;
-		
-		$id = $db->GenID('address_seq');
-		
-		$sql = sprintf("INSERT INTO address (id,email,personal) VALUES (%d,%s,%s)",
-			$id,
-			$db->qstr(trim(strtolower($address->mailbox.'@'.$address->host))),
-			$db->qstr($personal)
-		);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-
-		return $id;
-	}
-	
-}
 
 class DAO_Message extends DevblocksORMHelper {
     const ID = 'id';
@@ -2091,7 +1918,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$addresses = array();
 		
-		$sql = sprintf("SELECT a.id , a.email, a.personal ".
+		$sql = sprintf("SELECT a.id , a.email ".
 			"FROM address a ".
 			"INNER JOIN requester r ON (r.ticket_id = %d AND a.id=r.address_id) ".
 			"ORDER BY a.email ASC ",
@@ -2099,10 +1926,9 @@ class DAO_Ticket extends DevblocksORMHelper {
 		);
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		while(!$rs->EOF) {
-			$address = new CerberusAddress();
+			$address = new Model_Address();
 			$address->id = intval($rs->fields['id']);
 			$address->email = $rs->fields['email'];
-			$address->personal = $rs->fields['personal'];
 			$addresses[$address->id] = $address;
 			$rs->MoveNext();
 		}
@@ -2967,119 +2793,6 @@ class DAO_Search {
 	/**
 	 * Enter description here...
 	 *
-	 * @param DevblocksSearchCriteria[] $params
-	 * @param integer $limit
-	 * @param integer $page
-	 * @param string $sortBy
-	 * @param boolean $sortAsc
-	 * @return array
-	 * 
-	 * @todo [TODO] This and the ticket search could really share a lot of the operator/field functionality 
-	 */
-	static function searchResources($params,$limit=10,$page=0,$sortBy=null,$sortAsc=null) {
-		$db = DevblocksPlatform::getDatabaseService();
-
-		$fields = CerberusResourceSearchFields::getFields();
-		$start = min($page * $limit,1);
-		
-		$results = array();
-		$tables = array();
-		$wheres = array();
-		
-		// [JAS]: Search Builder
-		if(is_array($params))
-		foreach($params as $param) { /* @var $param DevblocksSearchCriteria */
-			if(!($param instanceOf DevblocksSearchCriteria)) continue;
-			$where = "";
-			
-			// [JAS]: Filter allowed columns (ignore invalid/deprecated)
-			if(!isset($fields[$param->field]))
-				continue;
-
-			$db_field_name = $fields[$param->field]->db_table . '.' . $fields[$param->field]->db_column; 
-			
-			// [JAS]: Indexes for optimization
-			$tables[$fields[$param->field]->db_table] = $fields[$param->field]->db_table;
-				
-			// [JAS]: Operators
-			switch($param->operator) {
-				case "=":
-					$where = sprintf("%s = %s",
-						$db_field_name,
-						$db->qstr($param->value)
-					);
-					break;
-					
-				case "!=":
-					$where = sprintf("%s != %s",
-						$db_field_name,
-						$db->qstr($param->value)
-					);
-					break;
-				
-				case "in":
-					if(!is_array($param->value)) break;
-					$where = sprintf("%s IN ('%s')",
-						$db_field_name,
-						implode("','",$param->value)
-					);
-					break;
-					
-				case "like":
-//					if(!is_array($param->value)) break;
-					$where = sprintf("%s LIKE %s",
-						$db_field_name,
-						$db->qstr(str_replace('*','%%',$param->value))
-					);
-					break;
-					
-				default:
-					break;
-			}
-			
-			if(!empty($where)) $wheres[] = $where;
-		}
-		
-		// [JAS]: 1-based [TODO] clean up + document
-		$start = ($page * $limit);
-		
-		$sql = sprintf("SELECT ".
-			"kb.id as kb_id, ".
-			"kb.title as kb_title, ".
-			"kb.type as kb_type ".
-			"FROM kb ".
-			
-			// [JAS]: Dynamic table joins
-			(isset($tables['kbc']) ? "INNER JOIN kb_content kbc ON (kbc.kb_id=kb.id) " : " ").
-			(isset($tables['kbcat']) ? "LEFT JOIN kb_to_category kbtc ON (kbtc.kb_id=kb.id) " : " ").
-			(isset($tables['kbcat']) ? "LEFT JOIN kb_category kbcat ON (kbcat.id=kbtc.category_id) " : " ").
-			
-			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "").
-//			"GROUP BY kb.id ".
-			(!empty($sortBy) ? sprintf("ORDER BY %s %s",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : "")
-		);
-		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-		while(!$rs->EOF) {
-			$result = array();
-			foreach($rs->fields as $f => $v) {
-				$result[$f] = $v;
-			}
-			$id = intval($rs->fields[CerberusResourceSearchFields::KB_ID]);
-			$results[$id] = $result;
-			$rs->MoveNext();
-		}
-
-		// [JAS]: Count all
-		$rs = $db->Execute($sql);
-		$total = $rs->RecordCount();
-		
-		return array($results,$total);
-	}	
-	
-	/**
-	 * Enter description here...
-	 *
 	 * @param integer $agent_id
 	 * @return CerberusDashboardView[]
 	 */
@@ -3731,28 +3444,27 @@ class DAO_Mail {
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 	}
 	
-	static function searchAddresses($query, $limit=10) {
-		$db = DevblocksPlatform::getDatabaseService();
-		if(empty($query)) return null;
-		
-		$sql = sprintf("SELECT a.id FROM address a WHERE a.email LIKE '%s%%' LIMIT 0,%d",
-			$query,
-			$limit
-		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-		$ids = array();
-		
-		while(!$rs->EOF) {
-			$ids[] = intval($rs->fields['id']);
-			$rs->MoveNext();
-		}
-		
-		if(empty($ids))
-			return array();
-			
-		return DAO_Contact::getAddresses($ids);
-	}
+//	static function searchAddresses($query, $limit=10) {
+//		$db = DevblocksPlatform::getDatabaseService();
+//		if(empty($query)) return null;
+//		
+//		$sql = sprintf("SELECT a.id FROM address a WHERE a.email LIKE '%s%%' LIMIT 0,%d",
+//			$query,
+//			$limit
+//		);
+//		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+//		
+//		$ids = array();
+//		
+//		while(!$rs->EOF) {
+//			$ids[] = intval($rs->fields['id']);
+//			$rs->MoveNext();
+//		}
+//		
+//		if(empty($ids))
+//			return array();
+//			
+//	}
 	
 	static function getTokenizedText($ticket_id, $source_text) {
 		// TODO: actually implement this function...

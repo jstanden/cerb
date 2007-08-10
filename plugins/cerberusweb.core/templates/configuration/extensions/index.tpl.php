@@ -44,7 +44,7 @@
 </div>
 <br>
 
-<div class="block">
+<!-- <div class="block">
 <h2>Extension Points</h2>
 {if !empty($points)}
 <ul style="list-style:none;margin-left:0;padding-left:1em;text-indent:1em;">
@@ -66,6 +66,7 @@
 </ul>
 {/if}
 </div>
+ -->
 
 <script>
 	var configAjax = new cConfigAjax();

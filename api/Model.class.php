@@ -219,6 +219,99 @@ class C4_AbstractViewLoader {
 	}
 };
 
+class Model_Address {
+	public $id;
+	public $email;
+	public $first_name;
+	public $last_name;
+	public $contact_org_id;
+	
+	function Model_Address() {}
+};
+
+class C4_AddressView extends C4_AbstractView {
+	const DEFAULT_ID = 'addresses';
+	
+	function __construct() {
+		$this->id = self::DEFAULT_ID;
+		$this->name = 'E-mail Addresses';
+		$this->renderLimit = 10;
+		$this->renderSortBy = 'a_email';
+		$this->renderSortAsc = true;
+		
+		$this->view_columns = array(
+			SearchFields_Address::FIRST_NAME,
+			SearchFields_Address::LAST_NAME,
+			SearchFields_Address::ORG_NAME,
+		);
+	}
+	
+	function getData() {
+		$objects = DAO_Address::search(
+			$this->params,
+			$this->renderLimit,
+			$this->renderPage,
+			$this->renderSortBy,
+			$this->renderSortAsc
+		);
+		return $objects;	
+	}
+	
+	function render() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('id', $this->id);
+		$tpl->assign('view', $this);
+		
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('search_columns', SearchFields_Address::getFields());
+		$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/contacts/addresses/address_view.tpl.php');
+	}
+	
+	function renderCriteria($field) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('id', $this->id);
+		
+		switch($field) {
+			case SearchFields_Address::EMAIL:
+			case SearchFields_Address::FIRST_NAME:
+			case SearchFields_Address::LAST_NAME:
+			case SearchFields_Address::ORG_NAME:
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/contacts/criteria/org__string.tpl.php');
+				break;
+			default:
+				echo '';
+				break;
+		}
+	}
+	
+	function getSearchFields() {
+		return SearchFields_Address::getFields();
+	}
+	
+	function doSetCriteria($field, $oper, $value) {
+		$criteria = null;
+		
+		switch($field) {
+			case SearchFields_Address::EMAIL:
+			case SearchFields_Address::FIRST_NAME:
+			case SearchFields_Address::LAST_NAME:
+			case SearchFields_Address::ORG_NAME:
+				// force wildcards if none used on a LIKE
+				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE) 
+					&& false === (strpos($value,'*'))) {
+						$value = '*'.$value.'*';
+				}
+				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
+				break;
+		}
+		
+		if(!empty($criteria)) {
+			$this->params[$field] = $criteria;
+			$this->renderPage = 0;
+		}
+	}
+};
+
 class C4_ContactOrgView extends C4_AbstractView {
 	const DEFAULT_ID = 'contact_orgs';
 	
@@ -229,10 +322,11 @@ class C4_ContactOrgView extends C4_AbstractView {
 		$this->renderSortAsc = true;
 		
 		$this->view_columns = array(
-			SearchFields_ContactOrg::ACCOUNT_NUMBER,
 			SearchFields_ContactOrg::PHONE,
+			SearchFields_ContactOrg::PROVINCE,
 			SearchFields_ContactOrg::COUNTRY,
 			SearchFields_ContactOrg::WEBSITE,
+			SearchFields_ContactOrg::CREATED,
 		);
 	}
 	
@@ -328,118 +422,6 @@ class Model_ContactOrg {
 	public $fax;
 	public $website;
 	public $created;
-	public $sync_id = '';
-};
-
-class C4_ContactPersonView extends C4_AbstractView {
-	const DEFAULT_ID = 'contact_people';
-	
-	function __construct() {
-		$this->id = self::DEFAULT_ID;
-		$this->name = 'People';
-		$this->renderSortBy = 'c_last_name';
-		$this->renderSortAsc = true;
-		
-		$this->view_columns = array(
-			SearchFields_ContactPerson::LAST_NAME,
-			SearchFields_ContactPerson::CONTACT_ORG_ID,
-			SearchFields_ContactPerson::COUNTRY,
-			SearchFields_ContactPerson::PHONE,
-			SearchFields_ContactPerson::EMAIL,
-			SearchFields_ContactPerson::CREATED,
-		);
-	}
-	
-	function getData() {
-		$objects = DAO_ContactPerson::search(
-			$this->params,
-			$this->renderLimit,
-			$this->renderPage,
-			$this->renderSortBy,
-			$this->renderSortAsc
-		);
-		return $objects;	
-	}
-	
-	function render() {
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('id', $this->id);
-		$tpl->assign('view', $this);
-		
-//		// Undo?
-//	    $last_action = CerberusDashboardView::getLastAction($id);
-//	    $tpl->assign('last_action', $last_action);
-//	    if(!empty($last_action) && !is_null($last_action->ticket_ids)) {
-//	        $tpl->assign('last_action_count', count($last_action->ticket_ids));
-//	    }
-
-		$tpl->cache_lifetime = "0";
-		$tpl->assign('search_columns', SearchFields_ContactPerson::getFields());
-		$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/contacts/people/contact_view.tpl.php');
-	}
-	
-	function renderCriteria($field) {
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('id', $this->id);
-		
-		switch($field) {
-			default:
-//			case SearchFields_ContactPerson::FIRST_NAME:
-//			case SearchFields_ContactPerson::LAST_NAME:
-//			case SearchFields_ContactPerson::TITLE:
-//			case SearchFields_ContactPerson::CONTACT_ORG_ID:
-//			case SearchFields_ContactPerson::CREATED:
-				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/contacts/criteria/org__string.tpl.php');
-				break;
-//			default:
-//				echo '';
-//				break;
-		}
-	}
-	
-	function getSearchFields() {
-		return SearchFields_ContactPerson::getFields();
-	}
-	
-	function doSetCriteria($field, $oper, $value) {
-		$criteria = null;
-		
-		switch($field) {
-			default:
-//			case SearchFields_ContactPerson::FIRST_NAME:
-//			case SearchFields_ContactPerson::LAST_NAME:
-//			case SearchFields_ContactPerson::TITLE:
-				// force wildcards if none used on a LIKE
-				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE) 
-					&& false === (strpos($value,'*'))) {
-						$value = '*'.$value.'*';
-				}
-				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
-				break;
-		}
-		
-		if(!empty($criteria)) {
-			$this->params[$field] = $criteria;
-			$this->renderPage = 0;
-		}
-	}
-	
-};
-
-class Model_ContactPerson {
-	public $id = 0;
-	public $first_name = '';
-	public $last_name = '';
-	public $title = '';
-	public $contact_org_id = 0;
-	public $street;
-	public $city;
-	public $province;
-	public $postal;
-	public $country;
-	public $phone;
-	public $fax;
-	public $created = 0;
 	public $sync_id = '';
 };
 
@@ -846,44 +828,11 @@ class CerberusDashboardView {
 	}
 };
 
-// [JAS] This is no longer needed
-class CerberusResourceSearchFields implements IDevblocksSearchFields {
-	// Resource
-	const KB_ID = 'kb_id';
-	const KB_TITLE = 'kb_title';
-	const KB_TYPE = 'kb_type';
-	
-	// Content
-	const KB_CONTENT = 'kb_content';
-	
-	// Category
-	const KB_CATEGORY_ID = 'kbc_id';
-	
-	/**
-	 * @return DevblocksSearchField[]
-	 */
-	static function getFields() {
-		return array(
-			CerberusResourceSearchFields::KB_ID => new DevblocksSearchField(CerberusResourceSearchFields::KB_ID, 'kb', 'id'),
-			CerberusResourceSearchFields::KB_TITLE => new DevblocksSearchField(CerberusResourceSearchFields::KB_TITLE, 'kb', 'title'),
-			CerberusResourceSearchFields::KB_TYPE => new DevblocksSearchField(CerberusResourceSearchFields::KB_TYPE, 'kb', 'type'),
-			
-			CerberusResourceSearchFields::KB_CONTENT => new DevblocksSearchField(CerberusResourceSearchFields::KB_CONTENT, 'kbc', 'content'),
-			
-			CerberusResourceSearchFields::KB_CATEGORY_ID => new DevblocksSearchField(CerberusResourceSearchFields::KB_CATEGORY_ID, 'kbcat', 'id'),
-		);
-	}
-};
-
 class CerberusMessageType { // [TODO] Append 'Enum' to class name?
 	const EMAIL = 'E';
 	const FORWARD = 'F';
 	const COMMENT = 'C';
 	const AUTORESPONSE = 'A';
-};
-
-class CerberusTicketBits {
-	const CREATED_FROM_WEB = 1;
 };
 
 class CerberusTicketStatus {
@@ -916,31 +865,6 @@ class CerberusTicketSpamTraining { // [TODO] Append 'Enum' to class name?
 			self::SPAM => $translate->_('training.report_spam'),
 		);
 	}
-};
-
-class CerberusTicketPriority { // [TODO] Append 'Enum' to class name?
-	const NONE = 0;
-	const LOW = 25;
-	const MODERATE = 50;
-	const HIGH = 75;
-	
-	public static function getOptions() {
-		$translate = DevblocksPlatform::getTranslationService();
-		
-		return array(
-			self::NONE => $translate->_('priority.none'),
-			self::LOW => $translate->_('priority.low'),
-			self::MODERATE => $translate->_('priority.moderate'),
-			self::HIGH => $translate->_('priority.high'),
-		);
-	}
-};
-
-// [TODO] Is this used?
-class CerberusAddressBits {
-	const AGENT = 1;
-	const BANNED = 2;
-	const QUEUE = 4;
 };
 
 class CerberusTicket {
@@ -1032,14 +956,6 @@ class Model_MessageNote {
 	public $content;
 };
 
-class CerberusAddress {
-	public $id;
-	public $email;
-	public $personal;
-	
-	function CerberusAddress() {}
-};
-
 class Model_Attachment {
 	public $id;
 	public $message_id;
@@ -1074,39 +990,6 @@ class CerberusCategory {
 	public $tags = array();
 }
 
-class Enum_CerberusTaskOwnerType {
-	const WORKER = 'W';
-	const TEAM = 'T';
-};
-
-class Model_CerberusTask {
-	public $id;
-	public $ticket_id;
-	public $title;
-	public $due_date;
-	public $is_completed;
-	
-	/**
-	 * @return string
-	 */
-	function getContent() {
-		return DAO_Task::getContent($this->id);
-	}
-	
-	/**
-	 * @return Model_CerberusTaskOwners[]
-	 */
-	function getOwners() {
-		$owners = DAO_Task::getOwners(array($this->id));
-		return $owners[$this->id];
-	}
-}
-
-class Model_CerberusTaskOwners {
-	public $workers = array();
-	public $teams = array();
-}
-
 class CerberusPop3Account {
 	public $id;
 	public $enabled=1;
@@ -1118,40 +1001,36 @@ class CerberusPop3Account {
 	public $port=110;
 };
 
-class CerberusKbCategory {
-	public $id;
-	public $name;
-	public $parent_id;
-	
-	public $hits=0;
-	public $level=0;
-	public $children = array(); // ptr array
-};
-
-class CerberusKbResource {
-	public $id;
-	public $title;
-	public $type; // CerberusKbResourceTypes
-	public $categories = array();
-	
-	function getContent() { 
-		
-		return '';
-	}
-};
-
-class CerberusKbResourceTypes {
-	const ARTICLE = 'A';
-	const URL = 'U';
-};
+//class CerberusKbCategory {
+//	public $id;
+//	public $name;
+//	public $parent_id;
+//	
+//	public $hits=0;
+//	public $level=0;
+//	public $children = array(); // ptr array
+//};
+//
+//class CerberusKbResource {
+//	public $id;
+//	public $title;
+//	public $type; // CerberusKbResourceTypes
+//	public $categories = array();
+//	
+//	function getContent() { 
+//		
+//		return '';
+//	}
+//};
+//
+//class CerberusKbResourceTypes {
+//	const ARTICLE = 'A';
+//	const URL = 'U';
+//};
 
 class Model_Community {
     public $id = 0;
     public $name = '';
 }
-
-interface ICerberusCriterion {
-	public function getValue($rfcMessage);
-};
 
 ?>

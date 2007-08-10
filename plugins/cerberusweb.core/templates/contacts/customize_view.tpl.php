@@ -11,7 +11,12 @@
 <select name="columns[]">
 	<option value=""></option>
 	{foreach from=$optColumns item=optColumn}
+		{if $optColumn->token=="a_contact_org_id"}
+		{elseif $optColumn->token=="a_id"}
+		{elseif $optColumn->token=="c_id"}
+		{else}
 		<option value="{$optColumn->token}" {if $view->view_columns.$index==$optColumn->token}selected{/if}>{$optColumn->db_label|capitalize}</option>
+		{/if}
 	{/foreach}
 </select>
 <br>

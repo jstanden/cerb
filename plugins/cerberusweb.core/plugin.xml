@@ -224,8 +224,8 @@
 			</class>
 			<params>
 				<param key="uri" value="contacts" />
-				<param key="title" value="Contacts" />
-				<param key="menutitle" value="contacts" />
+				<param key="title" value="Address Book" />
+				<param key="menutitle" value="address book" />
 			</params>
 		</extension>
 

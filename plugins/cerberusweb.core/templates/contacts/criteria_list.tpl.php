@@ -60,6 +60,8 @@
 			<option value="">-- choose --</option>
 			{foreach from=$search_columns item=column key=token}
 				{if $token=="c_id"}
+				{elseif $token=="a_id"}
+				{elseif $token=="a_contact_org_id"}
 				{else}
 				<option value="{$token}">{$translate->_($column->db_label)|capitalize}</option>
 				{/if}

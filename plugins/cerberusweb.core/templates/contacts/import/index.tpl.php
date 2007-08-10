@@ -10,7 +10,7 @@
 
 <b>Record Type:</b><br>
 <label><input type="radio" name="type" value="orgs" checked>Organizations</label>
-<label><input type="radio" name="type" value="people">People</label>
+<label><input type="radio" name="type" value="addys">E-mail Addresses</label>
 <br>
 <br>
 

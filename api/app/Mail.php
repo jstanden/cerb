@@ -139,7 +139,7 @@ class CerberusMail {
 		$to = array();
 		$requesters = DAO_Ticket::getRequestersByTicket($ticket_id);
 	    if(is_array($requesters)) {
-		    foreach($requesters as $requester) { /* @var $requester CerberusAddress */
+		    foreach($requesters as $requester) { /* @var $requester Model_Address */
 				$to[] = new Swift_Address($requester->email);
 				$sendTo->addTo($requester->email);
 		    }

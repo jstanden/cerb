@@ -52,18 +52,44 @@ $db = DevblocksPlatform::getDatabaseService();
 $datadict = NewDataDictionary($db); /* @var $datadict ADODB_DataDict */ // ,'mysql' 
 
 $tables = $datadict->MetaTables();
+$tables = array_flip($tables);
 
 // `address` ========================
 $columns = $datadict->MetaColumns('address');
 $indexes = $datadict->MetaIndexes('address',false);
 
-if(!isset($columns['CONTACT_ID'])) {
-    $sql = $datadict->AddColumnSQL('address', 'contact_id I4 DEFAULT 0 NOTNULL');
+if(isset($columns['CONTACT_ID'])) {
+    $sql = $datadict->DropColumnSQL('address', 'contact_id');
+    $datadict->ExecuteSQLArray($sql);
+}
+
+if(isset($columns['PERSONAL'])) {
+    $sql = $datadict->DropColumnSQL('address', 'personal');
+    $datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($columns['FIRST_NAME'])) {
+    $sql = $datadict->AddColumnSQL('address', "first_name C(32) DEFAULT '' NOTNULL");
+    $datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($columns['LAST_NAME'])) {
+    $sql = $datadict->AddColumnSQL('address', "last_name C(32) DEFAULT '' NOTNULL");
+    $datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($columns['CONTACT_ORG_ID'])) {
+    $sql = $datadict->AddColumnSQL('address', "contact_org_id I4 DEFAULT 0 NOTNULL");
     $datadict->ExecuteSQLArray($sql);
 }
 
 if(!isset($indexes['email'])) {
     $sql = $datadict->CreateIndexSQL('email','address','email',array('UNIQUE'));
+    $datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($indexes['contact_org_id'])) {
+    $sql = $datadict->CreateIndexSQL('contact_org_id','address','contact_org_id');
     $datadict->ExecuteSQLArray($sql);
 }
 
@@ -101,38 +127,14 @@ if(!isset($indexes['account_number'])) {
 }
 
 // `contact_person` =============================
-if(!isset($tables['contact_person'])) {
-    $flds = "
-		id I4 DEFAULT 0 NOTNULL PRIMARY,
-		first_name C(32) DEFAULT '' NOTNULL,
-		last_name C(32) DEFAULT '' NOTNULL,
-		title C(64) DEFAULT '' NOTNULL,
-		contact_org_id I4 DEFAULT 0 NOTNULL,
-		street C(128) DEFAULT '' NOTNULL,
-		city C(64) DEFAULT '' NOTNULL,
-		province C(64) DEFAULT '' NOTNULL,
-		postal C(32) DEFAULT '' NOTNULL,
-		country C(64) DEFAULT '' NOTNULL,
-		phone C(32) DEFAULT '' NOTNULL,
-		fax C(32) DEFAULT '' NOTNULL,
-		email C(128) DEFAULT '' NOTNULL,
-		created I4 DEFAULT 0 NOTNULL
-	";
-    $sql = $datadict->CreateTableSQL('contact_person',$flds);
-    $datadict->ExecuteSQLArray($sql);
+if(isset($tables['contact_person'])) {
+	$sql = $datadict->DropTableSQL('contact_person');
+	$datadict->ExecuteSQLArray($sql);
 }
 
-$columns = $datadict->MetaColumns('contact_person');
-$indexes = $datadict->MetaIndexes('contact_person',false);
-
-if(!isset($indexes['contact_org_id'])) {
-    $sql = $datadict->CreateIndexSQL('email','contact_person','email');
-    $datadict->ExecuteSQLArray($sql);
-}
-
-if(!isset($indexes['contact_org_id'])) {
-    $sql = $datadict->CreateIndexSQL('contact_org_id','contact_person','contact_org_id');
-    $datadict->ExecuteSQLArray($sql);
+if(isset($tables['contact_person_seq'])) {
+	$sql = $datadict->DropTableSQL('contact_person_seq');
+	$datadict->ExecuteSQLArray($sql);
 }
 
 // `group_setting` =======================

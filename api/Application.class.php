@@ -48,7 +48,7 @@
  * 		and Joe Geck.
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-define("APP_BUILD", 311);
+define("APP_BUILD", 316);
 define("APP_MAIL_PATH", realpath(APP_PATH . '/storage/mail') . DIRECTORY_SEPARATOR);
 
 include_once(APP_PATH . "/api/DAO.class.php");
@@ -567,7 +567,7 @@ class CerberusApplication extends DevblocksApplication {
 	        return $hash_address_to_id[$address];
 	    }
 	    
-	    $address_id = DAO_Contact::lookupAddress($address, $create);
+	    $address_id = DAO_Address::lookupAddress($address, $create);
 	    if(!empty($address_id)) {
 	        $hash_address_to_id[$address] = $address_id;
 	    }

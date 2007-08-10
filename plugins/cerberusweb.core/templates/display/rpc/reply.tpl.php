@@ -85,6 +85,7 @@
 			
 			&nbsp; &nbsp; 
 
+			<button type="button" onclick="genericAjaxPanel('c=display&a=showFnrPanel',this,true,'500px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/link_add.gif{/devblocks_url}" align="top"> Link to Info</button>
 			<button type="button" onclick="toggleDiv('replyAttachments{$message->id}','block');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_attachment.gif{/devblocks_url}" align="top"> Add Attachments</button>
 			<button type="button" onclick="txtReply=document.getElementById('reply_content');sigDiv=document.getElementById('team_signature');txtReply.value += '\n'+sigDiv.value+'\n';scrollElementToBottom(txtReply);txtReply.focus();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/mail_write.gif{/devblocks_url}" align="top"> Insert Signature</button>
 		</td>

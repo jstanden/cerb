@@ -27,7 +27,7 @@
 		{foreach from=$view->view_columns item=header name=headers}
 			{* start table header, insert column title and link *}
 			<th nowrap="nowrap">
-			{if $header=="x"}<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=contacts&a=viewSortBy&id={$view->id}&sortBy=c_id');">{$translate->_('contact_org.id')|capitalize}</a>
+			{if $header=="x"}<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=contacts&a=viewSortBy&id={$view->id}&sortBy=a_id');">{$translate->_('contact_org.id')|capitalize}</a>
 			{else}<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=contacts&a=viewSortBy&id={$view->id}&sortBy={$header}');">{$search_columns.$header->db_label|capitalize}</a>
 			{/if}
 			
@@ -46,7 +46,7 @@
 	{* Column Data *}
 	{foreach from=$data item=result key=idx name=results}
 
-	{assign var=rowIdPrefix value="row_"|cat:$view->id|cat:"_"|cat:$result.c_id}
+	{assign var=rowIdPrefix value="row_"|cat:$view->id|cat:"_"|cat:$result.a_id}
 	{if $smarty.foreach.results.iteration % 2}
 		{assign var=tableRowBg value="tableRowBg"}
 	{else}
@@ -54,17 +54,17 @@
 	{/if}
 	
 		<tr class="{$tableRowBg}" id="{$rowIdPrefix}_s" onmouseover="toggleClass(this.id,'tableRowHover');toggleClass('{$rowIdPrefix}','tableRowHover');" onmouseout="toggleClass(this.id,'{$tableRowBg}');toggleClass('{$rowIdPrefix}','{$tableRowBg}');" onclick="if(getEventTarget(event)=='TD') checkAll('{$rowIdPrefix}_s');">
-			<td align="center" rowspan="2"><input type="checkbox" name="row_id[]" value="{$result.c_id}"></td>
-			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}"><a href="{devblocks_url}c=contacts&a=people&id={$result.c_id}{/devblocks_url}" class="ticketLink" style="font-size:12px;"><b id="subject_{$result.c_id}_{$view->id}">{$result.c_first_name} {$result.c_last_name}</b></a> <a href="javascript:;" onclick="ajax.scheduleTicketPreview('{$result.t_id}',this);" style="color:rgb(180,180,180);font-size:90%;">(peek)</a></td>
+			<td align="center" rowspan="2"><input type="checkbox" name="row_id[]" value="{$result.a_id}"></td>
+			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}"><a href="javascript:;" class="ticketLink" style="font-size:12px;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$result.a_email}',this,false,'500px');"><b id="subject_{$result.a_id}_{$view->id}">{$result.a_email}</b></a></td>
 		</tr>
 		<tr class="{$tableRowBg}" id="{$rowIdPrefix}" onmouseover="toggleClass(this.id,'tableRowHover');toggleClass('{$rowIdPrefix}_s','tableRowHover');" onmouseout="toggleClass(this.id,'{$tableRowBg}');toggleClass('{$rowIdPrefix}_s','{$tableRowBg}');" onclick="if(getEventTarget(event)=='TD') checkAll('{$rowIdPrefix}_s');">
 		{foreach from=$view->view_columns item=column name=columns}
-			{if $column=="c_id"}
-			<td>{$result.c_id}&nbsp;</td>
-			{elseif $column=="c_created"}
-			<td>{$result.c_created|date_format}&nbsp;</td>
+			{if $column=="a_id"}
+			<td>{$result.a_id}&nbsp;</td>
+			{elseif $column=="a_created"}
+			<td>{$result.a_created|date_format}&nbsp;</td>
 			{else}
-			<td>{$result.$column}</td>
+			<td>{$result.$column}&nbsp;</td>
 			{/if}
 		{/foreach}
 		</tr>
@@ -75,9 +75,9 @@
 	{if $total}
 	<tr>
 		<td colspan="2">
-			<span id="tourDashboardBatch"><button type="button" onclick="ajax.showBatchPanel('{$view->id}','{$dashboard_team_id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> bulk update</button></span>
+			<!-- <span id="tourDashboardBatch"><button type="button" onclick="ajax.showBatchPanel('{$view->id}','{$dashboard_team_id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> bulk update</button></span>  -->
 			
-			<a href="javascript:;" onclick="toggleDiv('view{$view->id}_more');">More &raquo;</a>
+			<a href="javascript:;" onclick="toggleDiv('view{$view_id}_more');">More &raquo;</a>
 
 			<div id="view{$view_id}_more" style="display:none;padding-top:5px;padding-bottom:5px;">
 				<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','merge');">merge</button>

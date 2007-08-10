@@ -277,7 +277,12 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
             foreach($tickets as $ticket) { /* @var $ticket CerberusTicket */
                 $from_ids[$ticket->id] = $ticket->first_wrote_address_id;
             }
-            $from_addresses = DAO_Contact::getAddresses($from_ids);
+            
+            $from_addresses = DAO_Address::getWhere(
+            	sprintf("%s IN (%s)",
+            		DAO_Address::ID,
+            		implode(',', $from_ids)
+            ));
             unset($from_ids);
 
             foreach($tickets as $ticket_id => $ticket) {

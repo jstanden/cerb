@@ -8,8 +8,8 @@
 
 {if $type=="orgs"}
 <H2>Import Organizations</H2>
-{elseif $type=="people"}
-<H2>Import People</H2>
+{elseif $type=="addys"}
+<H2>Import E-mail Addresses</H2>
 {/if}
 <br>
 
@@ -57,7 +57,7 @@
 		<option value="account_number">{$fields.account_number|capitalize}</option>
 		<option value="phone">{$fields.phone|capitalize}</option>
 		 -->
-	{elseif $type=="people"}
+	{elseif $type=="addys"}
 		<option value="email" selected>{$fields.email|capitalize}</option>
 		<!-- 
 		<option value="phone">{$fields.phone|capitalize}</option>

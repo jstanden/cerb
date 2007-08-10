@@ -13,7 +13,7 @@
 <h2>Scheduled Jobs</h2>
 
 <blockquote>
-{foreach from=$jobs item=job key=job_id}
+{foreach from=$jobs item=job key=job_id name=jobs}
 	{assign var=enabled value=$job->getParam('enabled',0)}
 	{assign var=locked value=$job->getParam('locked',0)}
 	{assign var=lastrun value=$job->getParam('lastrun',0)}
@@ -50,7 +50,9 @@
 		{if $locked}Locked: {$locked|date_format:"%a, %b %d %Y %I:%M %p"}<br>{/if}
 	</div>
 	
-	<br>
+	{if !$smarty.foreach.jobs.last}
+		<br>
+	{/if}
 {/foreach}
 </blockquote>
 
