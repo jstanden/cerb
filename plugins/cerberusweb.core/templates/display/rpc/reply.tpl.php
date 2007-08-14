@@ -2,7 +2,7 @@
 <input type="hidden" name="a" value="sendReply">
 <input type="hidden" name="id" value="{$message->id}">
 <input type="hidden" name="ticket_id" value="{$ticket->id}">
-<div class="block" style="margin:20px;">
+<div class="block" style="width:98%;margin:10px;">
 <table cellpadding="2" cellspacing="0" border="0" width="100%">
 	<tr>
 		<td><h2>Reply</h2></td>
@@ -85,7 +85,7 @@
 			
 			&nbsp; &nbsp; 
 
-			<button type="button" onclick="genericAjaxPanel('c=display&a=showFnrPanel',this,true,'500px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/link_add.gif{/devblocks_url}" align="top"> Link to Info</button>
+			<button type="button" onclick="genericAjaxPanel('c=display&a=showFnrPanel',this,false,'550px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/book_blue_view.gif{/devblocks_url}" align="top"> Find Answers</button>
 			<button type="button" onclick="toggleDiv('replyAttachments{$message->id}','block');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_attachment.gif{/devblocks_url}" align="top"> Add Attachments</button>
 			<button type="button" onclick="txtReply=document.getElementById('reply_content');sigDiv=document.getElementById('team_signature');txtReply.value += '\n'+sigDiv.value+'\n';scrollElementToBottom(txtReply);txtReply.focus();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/mail_write.gif{/devblocks_url}" align="top"> Insert Signature</button>
 		</td>

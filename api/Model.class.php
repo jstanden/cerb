@@ -1001,36 +1001,30 @@ class CerberusPop3Account {
 	public $port=110;
 };
 
-//class CerberusKbCategory {
-//	public $id;
-//	public $name;
-//	public $parent_id;
-//	
-//	public $hits=0;
-//	public $level=0;
-//	public $children = array(); // ptr array
-//};
-//
-//class CerberusKbResource {
-//	public $id;
-//	public $title;
-//	public $type; // CerberusKbResourceTypes
-//	public $categories = array();
-//	
-//	function getContent() { 
-//		
-//		return '';
-//	}
-//};
-//
-//class CerberusKbResourceTypes {
-//	const ARTICLE = 'A';
-//	const URL = 'U';
-//};
-
 class Model_Community {
     public $id = 0;
     public $name = '';
+}
+
+class Model_FnrTopic {
+	public $id = 0;
+	public $name = '';
+	
+	function getResources() {
+		$where = sprintf("%s = %d",
+			DAO_FnrExternalResource::TOPIC_ID,
+			$this->id
+		);
+		$resources = DAO_FnrExternalResource::getWhere($where);
+		return $resources;
+	}
+}
+
+class Model_FnrExternalResource {
+	public $id = 0;
+	public $name = '';
+	public $url = '';
+	public $topic_id = 0;
 }
 
 ?>

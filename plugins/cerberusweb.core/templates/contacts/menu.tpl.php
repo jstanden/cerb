@@ -1,5 +1,5 @@
 <div style="position: relative; width:100%; height: 30;">
-	<span style="position: absolute; left: 0;"><h1 style="display:inline;">Address Book</h1>
+	<span style="position: absolute; left: 0;"><h1 style="display:inline;">Address Book</h1>&nbsp;
 		[ <a href="{devblocks_url}c=contacts&a=orgs{/devblocks_url}">orgs</a> ]
 		[ <a href="{devblocks_url}c=contacts&a=addresses{/devblocks_url}">addresses</a> ]
 		[ <a href="{devblocks_url}c=contacts&a=import{/devblocks_url}">import</a> ]
@@ -11,7 +11,7 @@
 		<input type="hidden" name="a" value="doQuickSearch">
 		<span id="tourHeaderQuickLookup"><b>Quick Search:</b></span> <select name="type">
 			<!-- 
-			<option value="c_name"{if $quick_search_type eq 'c_name'}selected{/if}>Org Name</option>
+			<option value="c_name"{if $quick_search_type eq 'c_name'}selected{/if}>Company Name</option>
 			<option value="c_account_number"{if $quick_search_type eq 'c_account_number'}selected{/if}>Acct #</option>
 			 -->
 		</select><input type="text" name="query" size="24"><input type="submit" value="go!">

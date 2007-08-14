@@ -234,6 +234,9 @@
 		<tu tuid='header.history'>
 			<tuv xml:lang="en"><seg>history</seg></tuv>
 		</tu>
+		<tu tuid='header.knowledge'>
+			<tuv xml:lang="en"><seg>knowledgebase</seg></tuv>
+		</tu>
 		<tu tuid='header.last_viewed'>
 			<tuv xml:lang="en"><seg>last viewed</seg></tuv>
 		</tu>

@@ -12,7 +12,7 @@
 
   <title>{$settings->get('helpdesk_title')}</title>
   <link rel="shortcut icon" href="{devblocks_url}favicon.ico{/devblocks_url}" type="image/x-icon">
-  <link type="text/css" rel="stylesheet" href="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yui/container/assets/container.css?v={$smarty.const.APP_BUILD}{/devblocks_url}">
+  <link type="text/css" rel="stylesheet" href="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yui/container/assets/skins/sam/container.css?v={$smarty.const.APP_BUILD}{/devblocks_url}">
   <link rel="stylesheet" type="text/css" href="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yui/tabview/assets/skins/sam/tabview.css?v={$smarty.const.APP_BUILD}{/devblocks_url}" />  
   <link type="text/css" rel="stylesheet" href="{devblocks_url}styles/default/cerberus.css?v={$smarty.const.APP_BUILD}{/devblocks_url}">
 

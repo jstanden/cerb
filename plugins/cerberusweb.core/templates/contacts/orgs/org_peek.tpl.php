@@ -2,7 +2,6 @@
 	<tr>
 		<td align="left" width="0%" nowrap="nowrap" style="padding-right:5px;"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/businessmen.gif{/devblocks_url}" align="absmiddle"></td>
 		<td align="left" width="100%" nowrap="nowrap"><h1>Address Book</h1></td>
-		<td align="right" width="0%" nowrap="nowrap"><form><input type="button" value=" X " onclick="genericPanel.hide();"></form></td>
 	</tr>
 </table>
 

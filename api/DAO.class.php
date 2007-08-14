@@ -4293,5 +4293,160 @@ class SearchFields_TeamRoutingRule implements IDevblocksSearchFields {
 	}
 };	
 
+class DAO_FnrTopic extends DevblocksORMHelper {
+	const _TABLE = 'fnr_topic';
+	
+	const ID = 'id';
+	const NAME = 'name';
+	
+	public static function create($fields) {
+		$db = DevblocksPlatform::getDatabaseService();
+		$id = $db->GenID('generic_seq');
+		
+		$sql = sprintf("INSERT INTO %s (id,name) ".
+			"VALUES (%d,'')",
+			self::_TABLE,
+			$id
+		);
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+
+		self::update($id, $fields);
+		
+		return $id;
+	}
+	
+	public static function update($ids, $fields) {
+		parent::_update($ids, self::_TABLE, $fields);
+	}
+	
+	public static function delete($ids) {
+		if(!is_array($ids)) $ids = array($ids);
+		$db = DevblocksPlatform::getDatabaseService();
+
+		$ids_string = implode(',', $ids);
+		
+		$sql = sprintf("DELETE FROM fnr_topic WHERE id IN (%s)", $ids_string);
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		
+		$sql = sprintf("DELETE FROM fnr_external_resource WHERE topic_id IN (%s)", $ids_string);
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+	}
+	
+	public function getWhere($where=null) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = sprintf("SELECT id, name ".
+			"FROM %s ".
+			(!empty($where) ? ("WHERE $where ") : " ").
+			" ORDER BY name ",
+			self::_TABLE
+		);
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+
+		return self::_createObjectsFromResultSet($rs);
+	}
+	
+	public static function get($id) {
+		$objects = self::getWhere(sprintf("id = %d", $id));
+		
+		if(isset($objects[$id]))
+			return $objects[$id];
+			
+		return null;
+	}
+	
+	public static function _createObjectsFromResultSet(ADORecordSet $rs) {
+		$objects = array();
+		
+		while(!$rs->EOF) {
+			$object = new Model_FnrTopic();
+			$object->id = intval($rs->fields['id']);
+			$object->name = $rs->fields['name'];
+			$objects[$object->id] = $object;
+			$rs->MoveNext();
+		}
+		
+		return $objects;
+	}
+};
+
+class DAO_FnrExternalResource extends DevblocksORMHelper {
+	const _TABLE = 'fnr_external_resource';
+	
+	const ID = 'id';
+	const NAME = 'name';
+	const URL = 'url';
+	const TOPIC_ID = 'topic_id';
+	
+	public static function create($fields) {
+		$db = DevblocksPlatform::getDatabaseService();
+		$id = $db->GenID('generic_seq');
+		
+		$sql = sprintf("INSERT INTO %s (id,name,url,topic_id) ".
+			"VALUES (%d,'','',0)",
+			self::_TABLE,
+			$id
+		);
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+
+		self::update($id, $fields);
+		
+		return $id;
+	}
+	
+	public static function update($ids, $fields) {
+		parent::_update($ids, self::_TABLE, $fields);
+	}
+	
+	public static function delete($ids) {
+		if(!is_array($ids)) $ids = array($ids);
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = sprintf("DELETE FROM %s WHERE id IN (%s)",
+			self::_TABLE,
+			implode(',', $ids)
+		);
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+	}
+	
+	public function getWhere($where=null) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = sprintf("SELECT id, name, url, topic_id ".
+			"FROM %s ".
+			(!empty($where) ? ("WHERE $where ") : " ").
+			" ORDER BY name ",
+			self::_TABLE
+		);
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+
+		return self::_createObjectsFromResultSet($rs);
+	}
+	
+	public static function get($id) {
+		$objects = self::getWhere(sprintf("id = %d", $id));
+		
+		if(isset($objects[$id]))
+			return $objects[$id];
+			
+		return null;
+	}
+	
+	public static function _createObjectsFromResultSet(ADORecordSet $rs) {
+		$objects = array();
+		
+		while(!$rs->EOF) {
+			$object = new Model_FnrTopic();
+			$object->id = intval($rs->fields['id']);
+			$object->name = $rs->fields['name'];
+			$object->topic_id = intval($rs->fields['topic_id']);
+			$object->url = $rs->fields['url'];
+			$objects[$object->id] = $object;
+			$rs->MoveNext();
+		}
+		
+		return $objects;
+	}
+};
 
 ?>

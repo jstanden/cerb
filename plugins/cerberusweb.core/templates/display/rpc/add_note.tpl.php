@@ -2,7 +2,7 @@
 <input type="hidden" name="a" value="doAddNote">
 <input type="hidden" name="id" value="{$message->id}">
 <input type="hidden" name="ticket_id" value="{$message->ticket_id}">
-<div class="block" style="margin:20px;">
+<div class="block" style="width:98%;margin:10px;">
 <table cellpadding="2" cellspacing="0" border="0" width="100%">
 	<tr>
 		<td><h2>Add Note</h2></td>

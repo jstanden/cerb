@@ -137,6 +137,28 @@ if(isset($tables['contact_person_seq'])) {
 	$datadict->ExecuteSQLArray($sql);
 }
 
+// `fnr_external_resource` =======================
+if(!isset($tables['fnr_external_resource'])) {
+    $flds = "
+		id I4 DEFAULT 0 NOTNULL PRIMARY,
+		name C(64) DEFAULT '' NOTNULL,
+		url C(255) DEFAULT '' NOTNULL,
+		topic_id I4 DEFAULT 0 NOTNULL
+	";
+    $sql = $datadict->CreateTableSQL('fnr_external_resource',$flds);
+    $datadict->ExecuteSQLArray($sql);
+}
+
+// `fnr_topic` =======================
+if(!isset($tables['fnr_topic'])) {
+    $flds = "
+		id I4 DEFAULT 0 NOTNULL PRIMARY,
+		name C(64) DEFAULT '' NOTNULL
+	";
+    $sql = $datadict->CreateTableSQL('fnr_topic',$flds);
+    $datadict->ExecuteSQLArray($sql);
+}
+
 // `group_setting` =======================
 if(!isset($tables['group_setting'])) {
     $flds = "

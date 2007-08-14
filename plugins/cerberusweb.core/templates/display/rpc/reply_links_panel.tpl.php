@@ -1,21 +1,53 @@
 <table cellpadding="0" cellspacing="0" border="0" width="98%">
 	<tr>
-		<td align="left" width="0%" nowrap="nowrap" style="padding-right:5px;"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/link_add.gif{/devblocks_url}" align="absmiddle"></td>
-		<td align="left" width="100%" nowrap="nowrap"><h1>Fetch &amp; Retrieve</h1></td>
-		<td align="right" width="0%" nowrap="nowrap"><form><input type="button" value=" X " onclick="genericPanel.hide();"></form></td>
+		<td align="left" width="0%" nowrap="nowrap" style="padding-right:5px;"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/book_blue_view.gif{/devblocks_url}" align="absmiddle"></td>
+		<td align="left" width="100%" nowrap="nowrap"><h1>Search Knowledge</h1></td>
 	</tr>
 </table>
 
-<form action="{devblocks_url}{/devblocks_url}" method="POST" id="formBatchUpdate" name="formBatchUpdate">
-<!-- <input type="hidden" name="action_id" value="{$id}"> -->
-<input type="hidden" name="c" value="tickets">
-<input type="hidden" name="a" value="doBatchUpdate">
+<div style="height:400px;overflow:auto;">
+<form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmDisplayFnr" name="frmDisplayFnr" onsubmit="toggleDiv('displayFnrSources','none');document.getElementById('displayFnrMatches').innerHTML='<br>Searching knowledge...';genericAjaxPost('frmDisplayFnr','displayFnrMatches','c=display&a=doFnr');return false;">
+<input type="hidden" name="c" value="display">
+<input type="hidden" name="a" value="doFnr">
 <input type="hidden" name="view_id" value="{$view_id}">
-<input type="hidden" name="ticket_ids" value="">
 
-<div style="height:400px;overflow:auto;border:1px solid rgb(180,180,180);margin:2px;padding:3px;background-color:rgb(255,255,255);">
+<table cellpadding="0" cellspacing="0" width="98%">
+<tr>
+	<td width="0%" nowrap="nowrap"><b>Keywords: </b></td>
+	<td width="100%">
+		<input type="text" name="q" size="24" value="{$terms}" autocomplete="off">
+		<button type="submit">go!</button>
+		&nbsp;<a href="javascript:;" onclick="toggleDiv('displayFnrSources');" style="font-size:90%;">show/hide sources</a>
+	</td>
+</tr>
+</table>
+
+<div class="block" id="displayFnrSources" style="display:block;padding:5px;">
+{foreach from=$topics item=topic key=topic_id name=topics}
+{assign var=resources value=$topic->getResources()}
+{if !empty($topic) && !empty($resources)}
+	<h2 style="display:inline;margin:0px;">{$topic->name}:</h2> <a href="javascript:;" onclick="checkAll('fnrTopic{$topic_id}')">all</a><br>
+	<div id="fnrTopic{$topic_id}">
+	{foreach from=$resources item=resource key=resource_id}
+		<label><input type="checkbox" name="sources[]" value="{$resource_id}" {if isset($sources.$resource_id)}checked{/if}> {$resource->name}</label>
+	{/foreach}
+	</div>
+{/if}
+{if !$smarty.foreach.topics.last}<br>{/if}
+{/foreach}
 </div>
 
+</form>
+
+<form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmDisplayFnr" name="frmDisplayFnr" onsubmit="document.getElementById('displayFnrMatches').innerHTML='Searching knowledge...';genericAjaxPost('frmDisplayFnr','displayFnrMatches','c=display&a=doFnr');return false;">
+<input type="hidden" name="c" value="display">
+<input type="hidden" name="a" value="doFnrLinks">
+<input type="hidden" name="view_id" value="{$view_id}">
+<div id="displayFnrMatches"></div>
+</form>
+</div>
+
+<!-- 
 <input type="button" value="{$translate->_('common.save_changes')}" onclick="ajax.s('{$view_id}');">
 <br>
-</form>
+ -->

@@ -2518,6 +2518,13 @@ class ChConfigurationPage extends CerberusPageExtension  {
 				$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/general/index.tpl.php');
 				break;
 				
+			case 'fnr':
+				$topics = DAO_FnrTopic::getWhere();
+				$tpl->assign('topics', $topics);
+				
+				$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/fnr/index.tpl.php');
+				break;
+				
 			case 'mail':
 				$routing = DAO_Mail::getMailboxRouting();
 				$tpl->assign('routing', $routing);
@@ -2594,6 +2601,110 @@ class ChConfigurationPage extends CerberusPageExtension  {
 			    
 		} // end switch
 		
+	}
+	
+	// Ajax
+	function showFnrTopicPanelAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
+
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+
+		if(!empty($id)) {
+			$topic = DAO_FnrTopic::get($id);
+			$tpl->assign('topic', $topic);
+		}
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/fnr/topic_panel.tpl.php');
+	}
+	
+	// Ajax
+	function showFnrResourcePanelAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
+
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+
+		$topics = DAO_FnrTopic::getWhere();
+		$tpl->assign('topics', $topics);
+		
+		if(!empty($id)) {
+			$resource = DAO_FnrExternalResource::get($id);
+			$tpl->assign('resource', $resource);
+		}
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/fnr/external_resource_panel.tpl.php');
+	}
+	
+	// Post
+	function doFnrTopicAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+		@$name = DevblocksPlatform::importGPC($_REQUEST['name'],'string','');
+		@$delete = DevblocksPlatform::importGPC($_REQUEST['delete'],'integer',0);
+
+		if(empty($id)) { // add
+			$fields = array(
+				DAO_FnrTopic::NAME => $name
+			);
+			$topic_id = DAO_FnrTopic::create($fields);
+			
+		} else { // edit
+			if(!empty($delete)) {
+				DAO_FnrTopic::delete($id);
+				
+			} else {
+				$fields = array(
+					DAO_FnrTopic::NAME => $name
+				);
+				$topic_id = DAO_FnrTopic::update($id, $fields);
+			}
+			
+		}
+		
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','fnr')));
+	}
+	
+	// Post
+	function doFnrResourceAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+		@$name = DevblocksPlatform::importGPC($_REQUEST['name'],'string','');
+		@$url = DevblocksPlatform::importGPC($_REQUEST['url'],'string','');
+		@$topic_id = DevblocksPlatform::importGPC($_REQUEST['topic_id'],'integer',0);
+		@$topic_name = DevblocksPlatform::importGPC($_REQUEST['topic_name'],'string','');
+		@$delete = DevblocksPlatform::importGPC($_REQUEST['delete'],'integer',0);
+		
+		if(empty($topic_id) && !empty($topic_name)) {
+			$fields = array(
+				DAO_FnrTopic::NAME => $topic_name
+			);
+			$topic_id = DAO_FnrTopic::create($fields);
+		}
+		
+		if(empty($id)) { // add
+			$fields = array(
+				DAO_FnrExternalResource::NAME => $name,
+				DAO_FnrExternalResource::TOPIC_ID => $topic_id,
+				DAO_FnrExternalResource::URL => $url,
+			);
+			$id = DAO_FnrExternalResource::create($fields);
+			
+		} else { // edit
+			if(!empty($delete)) {
+				DAO_FnrExternalResource::delete($id);
+				
+			} else {
+				$fields = array(
+					DAO_FnrExternalResource::NAME => $name,
+					DAO_FnrExternalResource::TOPIC_ID => $topic_id,
+					DAO_FnrExternalResource::URL => $url,
+				);
+				DAO_FnrExternalResource::update($id, $fields);
+			}
+		}
+		
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','fnr')));
 	}
 	
 	// Post
@@ -4504,20 +4615,10 @@ class ChDisplayPage extends CerberusPageExtension {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		
-		
+		$topics = DAO_FnrTopic::getWhere();
+		$tpl->assign('topics', $topics);
 		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/rpc/reply_links_panel.tpl.php');
-	}
-	
-	function showFnrAction() {
-		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer');
-		
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', dirname(__FILE__) . '/templates/');
-		
-//		$ticket = DAO_Ticket::getTicket($ticket_id);
-		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/fnr/index.tpl.php');
 	}
 	
 	function doFnrAction() {
@@ -4529,68 +4630,43 @@ class ChDisplayPage extends CerberusPageExtension {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		
-    	$rss_jira = "http://www.wgmdev.com/jira/secure/IssueNavigator.jspa?view=rss&pid=10060&summary=true&description=true&tempMax=25&reset=true&decorator=none&query=".urlencode($q);
-    	$atom_forums = "http://forum.cerberusweb.com/search.php?PostBackAction=Search&Type=Topics&btnSubmit=Search&Feed=Atom&Keywords=".urlencode($q);
-    	$rss_wiki = "http://wiki.cerberusdemo.com/index.php/Special:SearchFeed?term=".urlencode($q);
-    	
+		$topics = DAO_FnrTopic::getWhere();
+		
     	$feeds = array();
+    	$where = null;
     	
-    	if(empty($sources) || isset($sources['jira']))
-    	try {
-   			$feed = new Zend_Feed_Rss($rss_jira);
-   			if($feed->count())
-   				$feeds[] = $feed;
-    	} catch(Zend_Feed_Exception $e) {}
+    	if(!empty($sources)) {
+    		$where = sprintf("%s IN (%s)",
+    			DAO_FnrExternalResource::ID,
+    			implode(',', array_keys($sources))
+    		);
+    	}
     	
-    	if(empty($sources) || isset($sources['forums']))
-    	try {
-    		$feed = new Zend_Feed_Atom($atom_forums);
-   			if($feed->count())
-   				$feeds[] = $feed;
-    	} catch(Zend_Feed_Exception $e) {}
+    	$resources = DAO_FnrExternalResource::getWhere($where);
     	
-    	if(empty($sources) || isset($sources['wiki']))
-    	try {
-    		$feed= new Zend_Feed_Rss($rss_wiki);
-   			if($feed->count())
-   				$feeds[] = $feed;
-		} catch(Zend_Feed_Exception $e) {}
-    	
+    	foreach($resources as $resource) { /* @var $resource Model_FnrExternalResource */
+	    	try {
+	    		$url = str_replace("#find#",urlencode($q),$resource->url);
+	    		$feed = Zend_Feed::import($url);
+	   			if($feed->count())
+	   				$feeds[] = array(
+	   					'name' => $resource->name,
+	   					'topic_name' => @$topics[$resource->topic_id]->name, 
+	   					'feed' => $feed
+	   				);
+	    	} catch(Exception $e) {}
+    	}
+
+		// $rss_jira = "http://www.wgmdev.com/jira/secure/IssueNavigator.jspa?view=rss&pid=10060&summary=true&description=true&tempMax=25&reset=true&decorator=none&query=".urlencode($q);
+		// $atom_forums = "http://forum.cerberusweb.com/search.php?PostBackAction=Search&Type=Topics&btnSubmit=Search&Feed=Atom&Keywords=".urlencode($q);
+		// $rss_wiki = "http://wiki.cerberusdemo.com/index.php/Special:SearchFeed?term=".urlencode($q);
+
     	$tpl->assign('terms', $q);
     	$tpl->assign('feeds', $feeds);
     	$tpl->assign('sources', $sources);		
 		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/fnr/results.tpl.php');
 	}
-	
-//	function refreshRequestersAction() {
-//		$tpl = DevblocksPlatform::getTemplateService();
-//		@$id = DevblocksPlatform::importGPC($_REQUEST['id']); // ticket id
-//		
-//		$ticket = DAO_Ticket::getTicket($id);
-//
-//		$tpl->assign('ticket',$ticket);
-//		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/requesters.tpl.php');
-//	}
-//
-//	function removeRequesterAction() {
-//		@$id = DevblocksPlatform::importGPC($_REQUEST['id']); // ticket id
-//		@$address_id = DevblocksPlatform::importGPC($_REQUEST['address_id']); // address id
-//	    
-//		DAO_Ticket::deleteRequester($id, $address_id);
-//		
-//		echo ' ';
-//	}
-//	
-//	function saveRequesterAction() {
-//		@$id = DevblocksPlatform::importGPC($_REQUEST['id']); // ticket id
-//		@$add_requester = DevblocksPlatform::importGPC($_POST['add_requester']);
-//		
-//		$address_id = DAO_Address::lookupAddress($add_requester, true);
-//		DAO_Ticket::createRequester($address_id, $id);
-//		
-//		echo ' ';
-//	}
 	
 };
 

@@ -2,7 +2,6 @@
 	<tr>
 		<td align="left" width="0%" nowrap="nowrap" style="padding-right:5px;"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/gear.gif{/devblocks_url}" align="absmiddle"></td>
 		<td align="left" width="100%" nowrap="nowrap"><h1>Bulk Update</h1></td>
-		<td align="right" width="0%" nowrap="nowrap"><form><input type="button" value=" X " onclick="genericPanel.hide();"></form></td>
 	</tr>
 </table>
 
@@ -12,7 +11,7 @@
 <input type="hidden" name="a" value="doBatchUpdate">
 <input type="hidden" name="view_id" value="{$view_id}">
 <input type="hidden" name="ticket_ids" value="">
-<div style="height:400px;overflow:auto;border:1px solid rgb(180,180,180);margin:2px;padding:3px;background-color:rgb(255,255,255);">
+<div style="height:400px;overflow:auto;">
 
 <h2>With:</h2>
 
@@ -112,6 +111,6 @@
 {/if}
 </div>
 
-<input type="button" value="{$translate->_('common.save_changes')}" onclick="ajax.saveBatchPanel('{$view_id}');">
+<button type="button" onclick="ajax.saveBatchPanel('{$view_id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
 <br>
 </form>

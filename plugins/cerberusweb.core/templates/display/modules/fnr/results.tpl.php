@@ -1,9 +1,15 @@
 {if !empty($feeds)}
 {foreach from=$feeds item=matches name=matches}
-	<h3>{$matches->title()}</h3>
-	   	
-	<blockquote style="margin:0px;margin-left:20px;">
-	{foreach from=$matches item=item name=items}
+	<br>
+	<div class="block">
+	<table cellspacing="0" cellpadding="0" border="0" width="98%">
+		<tr>
+			<td width="100%"><h2 style="margin:0px;">{$matches.name}</h2></td>
+			<td width="0%" nowrap="nowrap" align="right" style="color:rgb(0,150,0);">&nbsp;<b>{$matches.topic_name}</b></td>
+		</tr>
+	</table>
+	
+	{foreach from=$matches.feed item=item name=items}
 		{assign var=link value=''}
 		{assign var=title value=''}
 		{assign var=description value=''}
@@ -23,19 +29,17 @@
 		{assign var=item_guid value=''|cat:$title|cat:'_'|cat:$link|md5}
 		
 			<label>
-				<input type="checkbox" name="items[]" value="{$item_guid}" onclick=""> 
-				<span style="font-size:120%;font-weight:bold;color:rgb(50,180,50);">{$title}</span>
+			<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document.gif{/devblocks_url}" align="absmiddle"> <a href="javascript:;" onclick="toggleDiv('{$item_guid}_preview');" style="font-weight:bold;">{$title}</a> 
 			</label>
-			<div style="margin-bottom:0px;margin-left:20px;padding:5px;background-color:rgb(242,242,242);">
+			<br>
+
+			<div class="subtle" style="margin-bottom:5px;margin-left:10px;padding:5px;display:none;" id="{$item_guid}_preview">
 				{$description}
+				<br>
+				<b>Link:</b> <a href="{$link}" style="color:rgb(50,180,50);" target="_blank">{$link}</a>
 			</div>
-			<div style="margin-bottom:10px;margin-left:20px;padding:0px;">
-				<a href="{$link}" style="font-size:90%;" target="_blank">{$link}</a>
-			</div>
-			<!-- <span style="font-size:90%;color:rgb(160,160,160);">{$date}</span> -->
 	{/foreach}
-	</blockquote>
+	</div>
 {/foreach}
 {/if} {*feeds*}
-
-<button type="button" onclick="">Use Selected Matches</button>
+<br>
