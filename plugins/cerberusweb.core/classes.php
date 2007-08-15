@@ -3747,6 +3747,7 @@ class ChContactsPage extends CerberusPageExtension {
 	
 	function showAddressPeekAction() {
 		@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string','');
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
@@ -3768,12 +3769,13 @@ class ChContactsPage extends CerberusPageExtension {
 //		$id = DAO_Address::lookupAddress($email, false);
 //		$address = DAO_Address::get($id);
 		$tpl->assign('address', $address);
-
+		$tpl->assign('view_id', $view_id);
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/contacts/addresses/address_peek.tpl.php');
 	}
 	
 	function showOrgPeekAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer','');
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
@@ -3781,8 +3783,109 @@ class ChContactsPage extends CerberusPageExtension {
 		
 		$contact = DAO_ContactOrg::get($id);
 		$tpl->assign('contact', $contact);
+		$tpl->assign('view_id', $view_id);
 		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/contacts/orgs/org_peek.tpl.php');
+	}
+	
+	function saveContactAction() {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
+		@$first_name = DevblocksPlatform::importGPC($_REQUEST['first_name'],'string','');
+		@$last_name = DevblocksPlatform::importGPC($_REQUEST['last_name'],'string','');
+		@$contact_org = DevblocksPlatform::importGPC($_REQUEST['contact_org'],'string','');
+		//@$contact_org_id = DevblocksPlatform::importGPC($_REQUEST['contact_orgid'],'integer', 0);
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string', '');
+
+		$fields = array(DAO_ContactOrg::NAME => $contact_org);
+		@$orgs = DAO_ContactOrg::getWhere(sprintf('name = %s', $db->qstr($contact_org)));
+		if(empty($orgs)) {
+			$contact_org_id = DAO_ContactOrg::create($fields);
+		} else {
+			$contact_org_id = key($orgs);
+			DAO_ContactOrg::update(key($orgs), $fields);
+		}
+		
+		$fields = array(DAO_Address::FIRST_NAME => $first_name,
+				DAO_Address::LAST_NAME => $last_name,
+				DAO_Address::CONTACT_ORG_ID => $contact_org_id
+				);
+		
+		DAO_Address::update($id, $fields);
+		
+		$view = C4_AbstractViewLoader::getView('', $view_id);
+		$view->render();
+	}
+	
+	function saveOrgPeekAction() {
+		$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
+		$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
+		$org_name = DevblocksPlatform::importGPC($_REQUEST['org_name'],'string','');
+		$account_num = DevblocksPlatform::importGPC($_REQUEST['account_num'],'string','');
+		$street = DevblocksPlatform::importGPC($_REQUEST['street'],'string','');
+		$city = DevblocksPlatform::importGPC($_REQUEST['city'],'string','');
+		$province = DevblocksPlatform::importGPC($_REQUEST['province'],'string','');
+		$postal = DevblocksPlatform::importGPC($_REQUEST['postal'],'string','');
+		$country = DevblocksPlatform::importGPC($_REQUEST['country'],'string','');
+		$phone = DevblocksPlatform::importGPC($_REQUEST['phone'],'string','');
+		$fax = DevblocksPlatform::importGPC($_REQUEST['fax'],'string','');
+		$website = DevblocksPlatform::importGPC($_REQUEST['website'],'string','');
+		
+
+		$fields = array(DAO_ContactOrg::NAME => $org_name,
+				DAO_ContactOrg::ACCOUNT_NUMBER => $account_num,
+				DAO_ContactOrg::STREET => $street,
+				DAO_ContactOrg::CITY => $city,
+				DAO_ContactOrg::PROVINCE => $province,
+				DAO_ContactOrg::POSTAL => $postal,
+				DAO_ContactOrg::COUNTRY => $country,
+				DAO_ContactOrg::PHONE => $phone,
+				DAO_ContactOrg::FAX => $fax,
+				DAO_ContactOrg::WEBSITE => $website
+				);
+
+		DAO_ContactOrg::update($id, $fields);
+		
+		$view = C4_AbstractViewLoader::getView('', $view_id);
+		$view->render();		
+	}
+	
+	function getOrgsAutoCompletionsAction() {
+		@$starts_with = DevblocksPlatform::importGPC($_REQUEST['query'],'string','');
+		
+		$params = array(DAO_ContactOrg::NAME => $starts_with);
+		
+		list($orgs,$null) = DAO_ContactOrg::search(
+				array(
+					new DevblocksSearchCriteria(SearchFields_ContactOrg::NAME,DevblocksSearchCriteria::OPER_LIKE, $starts_with. '*'), 
+					),
+				-1,
+			    0,
+			    SearchFields_ContactOrg::NAME,
+			    false,
+			    false
+		);
+		
+//		$prefix='';
+//		echo '{';
+//		echo '"result": ['; 
+//		foreach($orgs AS $val){
+//			echo $prefix;
+//	        echo '{"name":"' . $val[SearchFields_ContactOrg::NAME] . '",'; 
+//	        echo '"id":"' . $val[SearchFields_ContactOrg::ID] . '"'; 
+//	        echo '}';
+//	        $prefix = ',';
+//	    } 
+//		echo ']';	
+//		echo '}';
+//		exit();
+		
+		foreach($orgs AS $val){
+			echo $val[SearchFields_ContactOrg::NAME] . "\t";
+			echo $val[SearchFields_ContactOrg::ID] . "\n";
+		}
+		exit();
 	}
 };
 

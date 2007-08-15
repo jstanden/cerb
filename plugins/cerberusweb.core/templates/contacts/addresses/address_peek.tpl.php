@@ -8,7 +8,7 @@
 <form action="{devblocks_url}{/devblocks_url}" method="POST" id="formAddressPeek" name="formAddressPeek">
 <!-- <input type="hidden" name="action_id" value="{$id}"> -->
 <input type="hidden" name="c" value="contacts">
-<input type="hidden" name="a" value="">
+<input type="hidden" name="a" value="saveContact">
 <input type="hidden" name="id" value="{$address.a_id}">
 <input type="hidden" name="view_id" value="{$view_id}">
 
@@ -28,11 +28,15 @@
 	</tr>
 	<tr>
 		<td width="0%" nowrap="nowrap" align="right">Organization: </td>
-		<td width="100%"><input type="text" name="contact_org" value="{$address.o_name}" style="width:50%;"></td>
+		<td width="100%"><input type="text" name="contact_org" id="contact_org" value="{$address.o_name}" style="width:50%;">
+		<div id="org_autocomplete"></div>
+		<input type="hidden" name="contact_orgid" value="{$address.a_contact_org_id}"/>
+		
+		</td>
 	</tr>
 </table>
 </div>
 
-<input type="button" value="{$translate->_('common.save_changes')}" onclick="ajax.s('{$view_id}');">
+<input type="button" value="{$translate->_('common.save_changes')}" onclick="genericPanel.hide();genericAjaxPost('formAddressPeek', 'view{$view_id}')">
 <br>
 </form>

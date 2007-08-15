@@ -451,6 +451,83 @@ var cAjaxCalls = function() {
 				argument:{caller:this,id:id}
 		});	
 	}
+	
+	
+	this.contactOrgAjaxPanel = function contactOrgAjaxPanel(request,target,modal,width) {
+		if(null != genericPanel) {
+			genericPanel.hide();
+		}
+	
+		var options = { 
+		  width : "300px",
+		  fixedcenter : false,
+		  visible : false, 
+		  constraintoviewport : true,
+		  underlay : "shadow",
+		  modal : false,
+		  close : true,
+		  draggable : true
+		};
+	
+		if(null != width) options.width = width;
+		if(null != modal) options.modal = modal;
+		if(true == modal) options.fixedcenter = true;
+		
+		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?'+request, {
+				success: function(o) {
+					var caller = o.argument.caller;
+					var target = o.argument.target;
+					var options = o.argument.options;
+						
+					genericPanel = new YAHOO.widget.Panel("genericPanel", options);
+					
+					genericPanel.setBody('');
+					genericPanel.render(document.body);
+					
+					genericPanel.hide();
+					genericPanel.setBody(o.responseText);
+					
+					if(null != target && !options.fixedcenter) {
+						genericPanel.cfg.setProperty('context',[target,"bl","tl"]);
+					}
+					
+					genericPanel.show();
+
+					var myDataSource = new YAHOO.widget.DS_XHR(DevblocksAppPath+"ajax.php", ["\n", "\t"] );
+					myDataSource.scriptQueryAppend = "c=contacts&a=getOrgsAutoCompletions"; 
+
+					myDataSource.responseType = YAHOO.widget.DS_XHR.TYPE_FLAT;
+					myDataSource.maxCacheEntries = 60;
+					myDataSource.queryMatchSubset = true;
+					myDataSource.connTimeout = 3000;
+
+	    			var myInput = document.getElementById('contact_org'); 
+				    var myContainer = document.getElementById('org_autocomplete'); 
+
+					var myAutoComp = new YAHOO.widget.AutoComplete(myInput,myContainer, myDataSource);
+					// myAutoComp.delimChar = ",";
+					myAutoComp.queryDelay = 1;
+					//myAutoComp.useIFrame = true; 
+					myAutoComp.typeAhead = false;
+					myAutoComp.useShadow = true;
+					//myAutoComp.prehighlightClassName = "yui-ac-prehighlight"; 
+					myAutoComp.allowBrowserAutocomplete = false;
+
+					var contactOrgAutoCompSelected = function contactOrgAutoCompSelected(sType, args, me) {
+								org_str = new String(args[2]);
+								org_arr = org_str.split(',');
+								document.formAddressPeek.contact_orgid.value=org_arr[1];
+							};
+					
+					obj=new Object();
+					myAutoComp.itemSelectEvent.subscribe(contactOrgAutoCompSelected, obj);
+				
+				},
+				failure: function(o) {},
+				argument:{request:request,target:target,options:options}
+			}
+		);	
+	}	
 
 }
 
