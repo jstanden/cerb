@@ -238,28 +238,6 @@ DIV.subtle2 {
 	padding:5px;
 }
 
- /*
-.searchcontainer {position:relative;width:100%;}
-.searchcontainer .yui-ac-content {position:relative;width:100%;border:1px solid #404040;background:#fff;overflow:hidden;z-index:9050;}
-.searchcontainer .yui-ac-shadow {position:relative;margin:.3em;width:100%;background:#a0a0a0;z-index:9049;}
-.searchcontainer ul {margin:5px;padding:0px 0;width:100%;}
-.searchcontainer li {margin:0px;padding:0px;cursor:default;white-space:nowrap;}
-.searchcontainer li.yui-ac-highlight {background:#ff0;}
-.searchcontainer li.yui-ac-prehighlight {background:#FFFFCC;}
-*/
-  
-/*.automod {position:relative;}*/
-/*.autocomplete {position:relative;} */ /* set width of widget here*/ /* width:15em;margin-bottom:1em; */
-/*.autocomplete {z-index:9000} */ /* for IE z-index of absolute divs inside relative divs issue */
-/* .autoinput {position:absolute;z-index:0;} */ /* abs for ie quirks */
-.autocontainer {position:relative;width:100%;}
-.autocontainer .yui-ac-content {position:absolute;width:100%;border:1px solid #404040;background:#fff;overflow:hidden;z-index:9050;}
-.autocontainer .yui-ac-shadow {position:absolute;margin:.3em;width:100%;background:#a0a0a0;z-index:9049;}
-.autocontainer ul {padding:5px 0;margin:0px;width:100%;}
-.autocontainer li {padding:0 5px;margin:0px;cursor:default;white-space:nowrap;}
-.autocontainer li.yui-ac-highlight {background:#ddddff;}
-.autocontainer li.yui-ac-prehighlight {background:#FFFFCC;}
-
 /* Tabs */
 .yui-skin-sam .yui-navset .yui-content {
 	padding:5px;
@@ -283,3 +261,4 @@ DIV.subtle2 {
     border-top-color:#243356; /* different border color */
     padding:0.25em 0.5em; /* content padding */
 }
+

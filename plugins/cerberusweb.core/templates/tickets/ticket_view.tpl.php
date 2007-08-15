@@ -166,7 +166,7 @@
 						</optgroup>
 					{/if}
 				{/foreach}
-				<optgroup label="Group Inboxes" style="">
+				<optgroup label="Move to Group" style="">
 					{foreach from=$teams item=team}
 						<option value="t{$team->id}">{$team->name}</option>
 					{/foreach}

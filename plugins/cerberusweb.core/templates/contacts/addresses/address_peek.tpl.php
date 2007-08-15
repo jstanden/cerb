@@ -12,7 +12,6 @@
 <input type="hidden" name="id" value="{$address.a_id}">
 <input type="hidden" name="view_id" value="{$view_id}">
 
-<div style="height:150px;overflow:auto;border:1px solid rgb(180,180,180);margin:2px;padding:3px;background-color:rgb(255,255,255);">
 <table cellpadding="0" cellspacing="2" border="0">
 	<tr>
 		<td width="0%" nowrap="nowrap" align="right">E-mail: </td>
@@ -20,22 +19,25 @@
 	</tr>
 	<tr>
 		<td width="0%" nowrap="nowrap" align="right">First Name: </td>
-		<td width="100%"><input type="text" name="first_name" value="{$address.a_first_name}" style="width:50%;"></td>
+		<td width="100%"><input type="text" name="first_name" value="{$address.a_first_name}" style="width:98%;"></td>
 	</tr>
 	<tr>
 		<td width="0%" nowrap="nowrap" align="right">Last Name: </td>
-		<td width="100%"><input type="text" name="last_name" value="{$address.a_last_name}" style="width:50%;"></td>
+		<td width="100%"><input type="text" name="last_name" value="{$address.a_last_name}" style="width:98%;"></td>
 	</tr>
 	<tr>
-		<td width="0%" nowrap="nowrap" align="right">Organization: </td>
-		<td width="100%"><input type="text" name="contact_org" id="contact_org" value="{$address.o_name}" style="width:50%;">
-		<div id="org_autocomplete"></div>
-		<input type="hidden" name="contact_orgid" value="{$address.a_contact_org_id}"/>
-		
+		<td width="0%" nowrap="nowrap" align="right" valign="top">Organization: </td>
+		<td width="100%" valign="top">
+			<div id="contactautocomplete" style="width:98%;" class="yui-ac">
+				<input type="text" name="contact_org" id="contactinput" value="{$address.o_name}" class="yui-ac-input">
+				<div id="contactcontainer" class="yui-ac-container"></div>
+			</div>			
+			<input type="hidden" name="contact_orgid" value="{$address.a_contact_org_id}"/>
+			<br>
+			<br>
 		</td>
 	</tr>
 </table>
-</div>
 
 <input type="button" value="{$translate->_('common.save_changes')}" onclick="genericPanel.hide();genericAjaxPost('formAddressPeek', 'view{$view_id}')">
 <br>

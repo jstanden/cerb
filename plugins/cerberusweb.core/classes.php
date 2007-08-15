@@ -3863,7 +3863,7 @@ class ChContactsPage extends CerberusPageExtension {
 				-1,
 			    0,
 			    SearchFields_ContactOrg::NAME,
-			    false,
+			    true,
 			    false
 		);
 		

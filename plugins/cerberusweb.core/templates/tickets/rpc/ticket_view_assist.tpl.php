@@ -43,7 +43,7 @@ Sort biggest piles by:
 					</optgroup>
 				{/if}
 			{/foreach}
-			<optgroup label="Group Inboxes" style="color:rgb(0,150,0);font-weight:bold;">
+			<optgroup label="Move to Group" style="color:rgb(0,150,0);font-weight:bold;">
 				{foreach from=$teams item=team}
 					<option value="t{$team->id}">{$team->name}</option>
 				{/foreach}
@@ -82,7 +82,7 @@ Sort biggest piles by:
 						</optgroup>
 					{/if}
 				{/foreach}
-				<optgroup label="Group Inboxes" style="color:rgb(0,150,0);font-weight:bold;">
+				<optgroup label="Move to Group" style="color:rgb(0,150,0);font-weight:bold;">
 					{foreach from=$teams item=team}
 						<option value="t{$team->id}">{$team->name}</option>
 					{/foreach}
