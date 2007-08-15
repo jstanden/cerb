@@ -4503,6 +4503,9 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		$message = DAO_Ticket::getMessage($id);
 		$tpl->assign('message',$message);
+
+		$headers = DAO_MessageHeader::getAll($id);
+		$tpl->assign('headers', $headers);
 		
 		$ticket = DAO_Ticket::getTicket($message->ticket_id);
 		$tpl->assign('ticket',$ticket);

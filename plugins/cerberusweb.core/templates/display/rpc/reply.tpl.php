@@ -70,7 +70,9 @@
 	<tr>
 		<td>
 		{assign var=ticket_team_id value=$ticket->team_id}
-<textarea name="content" rows="20" cols="80" id="reply_content" class="reply" style="width:98%;border:1px solid rgb(180,180,180);padding:5px;">{$message->getContent()|trim|indent:1:'> '}
+<textarea name="content" rows="20" cols="80" id="reply_content" class="reply" style="width:98%;border:1px solid rgb(180,180,180);padding:5px;">
+On {$message->created_date|date_format}, {$headers.from} wrote:
+{$message->getContent()|trim|indent:1:'> '}
 
 {if !empty($signature)}{$signature}{/if}
 </textarea>
