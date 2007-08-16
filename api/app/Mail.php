@@ -222,8 +222,6 @@ class CerberusMail {
 			}
 		}
 		
-//		$mail_service->cleanTempFiles($files);
-		
 		// Handle post-mail actions
 		$change_fields = array();
 		
@@ -236,8 +234,11 @@ class CerberusMail {
 	    }
 		
         $change_fields[DAO_Ticket::IS_CLOSED] = intval($properties['closed']);
+        
+        // Who should handle the followup?
+        $change_fields[DAO_Ticket::NEXT_WORKER_ID] = $properties['next_worker_id'];
 		
-        if(intval($properties['closed'])) { // Closing
+		if(intval($properties['closed'])) { // Closing
 			if(!empty($properties['ticket_reopen'])) {
 			    $due = strtotime($properties['ticket_reopen']);
 			    if(intval($due) > 0)

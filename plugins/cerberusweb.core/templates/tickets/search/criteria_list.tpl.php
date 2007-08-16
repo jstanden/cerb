@@ -109,10 +109,24 @@
 							{$translate->_('ticket.last_worker')|capitalize} 
 							{$param->operator}
 							{foreach from=$param->value item=p name=params}
-							{if isset($workers.$p)}
+							{if empty($p)}
+								<b>Nobody</b>
+							{elseif isset($workers.$p)}
 								<b>{$workers.$p->getName()|capitalize}</b>
-								 {if !$smarty.foreach.params.last} or {/if}
 							 {/if}
+							{if !$smarty.foreach.params.last} or {/if}
+							{/foreach}
+						{elseif $param->field=="t_next_worker_id"}
+							<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/data_find.gif{/devblocks_url}" align="absmiddle"> 
+							{$translate->_('ticket.next_worker')|capitalize} 
+							{$param->operator}
+							{foreach from=$param->value item=p name=params}
+							{if empty($p)}
+								<b>Nobody</b>
+							{elseif isset($workers.$p)}
+								<b>{$workers.$p->getName()|capitalize}</b>
+							 {/if}
+							 {if !$smarty.foreach.params.last} or {/if}
 							{/foreach}
 						{elseif $param->field=="t_next_action"}
 							<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/data_find.gif{/devblocks_url}" align="absmiddle"> 
@@ -166,9 +180,10 @@
 			<option value="t_mask">{$translate->_('ticket.mask')|capitalize}</option>
 			<!-- <option value="ra_email">{$translate->_('requester')|capitalize}</option> -->
 			<option value="mc_content">{$translate->_('message.content')|capitalize}</option>
-			<option value="t_next_action">{$translate->_('ticket.next_action')|capitalize}</option>
 			<option value="t_last_action_code">{$translate->_('ticket.last_action')|capitalize}</option>
 			<option value="t_last_worker_id">{$translate->_('ticket.last_worker')|capitalize}</option>
+			<option value="t_next_action">{$translate->_('ticket.next_action')|capitalize}</option>
+			<option value="t_next_worker_id">{$translate->_('ticket.next_worker')|capitalize}</option>
 		</select>
 	</blockquote>
 

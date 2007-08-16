@@ -44,6 +44,7 @@
 			{elseif $header=="t_next_action"}<a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_next_action');">{$translate->_('ticket.next_action')}</a>
 			{elseif $header=="t_last_action_code"}<a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_last_action_code');">{$translate->_('ticket.last_action')}</a>
 			{elseif $header=="t_last_worker_id"}<a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_last_worker_id');">{$translate->_('ticket.last_worker')}</a>
+			{elseif $header=="t_next_worker_id"}<a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_next_worker_id');">{$translate->_('ticket.next_worker')}</a>
 			{elseif $header=="tm_name"}<a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','tm_name');">{$translate->_('common.team')}</a>
 			{elseif $header=="t_category_id"}<a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_category_id');">{$translate->_('common.bucket')|capitalize}</a></a>
 			{/if}
@@ -79,9 +80,9 @@
 			{if $column=="t_mask"}
 			<td><a href="{devblocks_url}c=display&id={$result.t_mask}{/devblocks_url}">{$result.t_mask}</a></td>
 			{elseif $column=="t_last_wrote"}
-			<td><a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$ticket->last_wrote}',this);" title="{$result.t_last_wrote}">{$result.t_last_wrote|truncate:45:'...':true:true}</a></td>
+			<td><a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$result.t_first_wrote}&view_id={$view->id}',this,false,'500px',ajax.cbAddressPeek);" title="{$result.t_last_wrote}">{$result.t_last_wrote|truncate:45:'...':true:true}</a></td>
 			{elseif $column=="t_first_wrote"}
-			<td><a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$ticket->first_wrote}',this);" title="{$result.t_first_wrote}">{$result.t_first_wrote|truncate:45:'...':true:true}</a></td>
+			<td><a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$result.t_last_wrote}&view_id={$view->id}',this,false,'500px',ajax.cbAddressPeek);" title="{$result.t_first_wrote}">{$result.t_first_wrote|truncate:45:'...':true:true}</a></td>
 			{elseif $column=="t_created_date"}
 			<td>{$result.t_created_date|date_format}</td>
 			{elseif $column=="t_updated_date"}
@@ -99,17 +100,20 @@
 			<td title="{$result.t_next_action}"><span style="color:rgb(130,130,130);">{$result.t_next_action|truncate:35:'...'|indent:2:"&nbsp;"}</span></td>
 			{elseif $column=="t_last_action_code"}
 			<td>
-				{assign var=action_worker_id value=$result.t_last_worker_id}
 				<span style="color:rgb(130,130,130);">
 				{if $result.t_last_action_code=='O'}
-					<span title="{$result.t_first_wrote}">{"<b>New</b> from "|cat:$result.t_first_wrote|truncate:45:'...':true:true}</span>
+					{assign var=action_worker_id value=$result.t_next_worker_id}
+					<span title="{$result.t_first_wrote}"><b>New</b> 
+					{if isset($workers.$action_worker_id)}for {$workers.$action_worker_id->getName()}{else}from <a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$result.t_first_wrote}&view_id={$view->id}',this,false,'500px',ajax.cbAddressPeek);">{$result.t_first_wrote|truncate:35:'...':true}</a>{/if}</span>
 				{elseif $result.t_last_action_code=='R'}
+					{assign var=action_worker_id value=$result.t_next_worker_id}
 					{if isset($workers.$action_worker_id)}
 						<span title="{$result.t_last_wrote}"><b>Incoming for {$workers.$action_worker_id->getName()}</b></span>
 					{else}
 						<span title="{$result.t_last_wrote}"><b>Incoming for Helpdesk</b></span>
 					{/if}
 				{elseif $result.t_last_action_code=='W'}
+					{assign var=action_worker_id value=$result.t_last_worker_id}
 					{if isset($workers.$action_worker_id)}
 						<span title="{$result.t_last_wrote}">Outgoing from {$workers.$action_worker_id->getName()}</span>
 					{else}
@@ -121,6 +125,11 @@
 			{elseif $column=="t_last_worker_id"}
 			<td>
 				{assign var=action_worker_id value=$result.t_last_worker_id}
+				{if isset($workers.$action_worker_id)}{$workers.$action_worker_id->getName()}{/if}
+			</td>
+			{elseif $column=="t_next_worker_id"}
+			<td>
+				{assign var=action_worker_id value=$result.t_next_worker_id}
 				{if isset($workers.$action_worker_id)}{$workers.$action_worker_id->getName()}{/if}
 			</td>
 			{elseif $column=="t_spam_score"}
@@ -175,7 +184,7 @@
 			
 			<a href="javascript:;" onclick="toggleDiv('view{$view->id}_more');">More &raquo;</a>
 
-			<div id="view{$view_id}_more" style="display:none;padding-top:5px;padding-bottom:5px;">
+			<div id="view{$view->id}_more" style="display:none;padding-top:5px;padding-bottom:5px;">
 				<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','not_spam');">not spam</button>
 				<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','merge');">merge</button>
 			</div>

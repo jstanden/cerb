@@ -1554,6 +1554,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 	const NEXT_ACTION = 'next_action';
 	const LAST_ACTION_CODE = 'last_action_code';
 	const LAST_WORKER_ID = 'last_worker_id';
+	const NEXT_WORKER_ID = 'next_worker_id';
 	
 	private function DAO_Ticket() {}
 	
@@ -1782,7 +1783,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 		
 		$sql = "SELECT t.id , t.mask, t.subject, t.is_closed, t.is_deleted, t.team_id, t.category_id, t.first_message_id, ".
 			"t.first_wrote_address_id, t.last_wrote_address_id, t.created_date, t.updated_date, t.due_date, t.spam_training, ". 
-			"t.spam_score, t.interesting_words, t.next_action ".
+			"t.spam_score, t.interesting_words, t.next_action, t.last_worker_id, t.next_worker_id ".
 			"FROM ticket t ".
 			(!empty($ids) ? sprintf("WHERE t.id IN (%s) ",implode(',',$ids)) : " ").
 			"ORDER BY t.updated_date DESC"
@@ -1808,6 +1809,8 @@ class DAO_Ticket extends DevblocksORMHelper {
 			$ticket->spam_training = $rs->fields['spam_training'];
 			$ticket->interesting_words = $rs->fields['interesting_words'];
 			$ticket->next_action = $rs->fields['next_action'];
+			$ticket->last_worker_id = intval($rs->fields['last_worker_id']);
+			$ticket->next_worker_id = intval($rs->fields['next_worker_id']);
 			$tickets[$ticket->id] = $ticket;
 			$rs->MoveNext();
 		}
@@ -2112,6 +2115,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 			"t.next_action as %s, ".
 			"t.last_action_code as %s, ".
 			"t.last_worker_id as %s, ".
+			"t.next_worker_id as %s, ".
 			"tm.id as %s, ".
 			"tm.name as %s, ".
 			"t.category_id as %s ".
@@ -2140,6 +2144,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 			    SearchFields_Ticket::TICKET_NEXT_ACTION,
 			    SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
 			    SearchFields_Ticket::TICKET_LAST_WORKER_ID,
+			    SearchFields_Ticket::TICKET_NEXT_WORKER_ID,
 			    SearchFields_Ticket::TEAM_ID,
 			    SearchFields_Ticket::TEAM_NAME,
 			    SearchFields_Ticket::TICKET_CATEGORY_ID
@@ -2200,6 +2205,7 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 	const TICKET_NEXT_ACTION = 't_next_action';
 	const TICKET_LAST_ACTION_CODE = 't_last_action_code';
 	const TICKET_LAST_WORKER_ID = 't_last_worker_id';
+	const TICKET_NEXT_WORKER_ID = 't_next_worker_id';
 	const TICKET_CATEGORY_ID = 't_category_id';
 	
 	// Message
@@ -2244,6 +2250,7 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 			SearchFields_Ticket::TICKET_NEXT_ACTION => new DevblocksSearchField(SearchFields_Ticket::TICKET_NEXT_ACTION, 't', 'next_action'),
 			SearchFields_Ticket::TICKET_LAST_ACTION_CODE => new DevblocksSearchField(SearchFields_Ticket::TICKET_LAST_ACTION_CODE, 't', 'last_action_code'),
 			SearchFields_Ticket::TICKET_LAST_WORKER_ID => new DevblocksSearchField(SearchFields_Ticket::TICKET_LAST_WORKER_ID, 't', 'last_worker_id'),
+			self::TICKET_NEXT_WORKER_ID => new DevblocksSearchField(self::TICKET_NEXT_WORKER_ID, 't', 'next_worker_id'),
 			SearchFields_Ticket::TICKET_CATEGORY_ID => new DevblocksSearchField(SearchFields_Ticket::TICKET_CATEGORY_ID, 't', 'category_id'),
 			
 			SearchFields_Ticket::TICKET_MESSAGE_HEADER => new DevblocksSearchField(SearchFields_Ticket::TICKET_MESSAGE_HEADER, 'mh', 'header_name'),

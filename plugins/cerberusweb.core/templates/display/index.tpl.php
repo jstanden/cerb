@@ -6,11 +6,17 @@
 {assign var=ticket_team_category_set value=$team_categories.$ticket_team_id}
 {assign var=ticket_category value=$ticket_team_category_set.$ticket_category_id}
 
-{if !empty($ticket->next_action) && !$ticket->is_closed}<b>Next Action:</b> {$ticket->next_action}<br>{/if}
 <b>Team:</b> {$teams.$ticket_team_id->name} &nbsp; 
 <b>Bucket:</b> {if !empty($ticket_category_id)}{$ticket_category->name}{else}Inbox{/if} &nbsp; 
+<b>Ticket ID:</b> {$ticket->mask}
 <br>
-<b>Ticket ID:</b> {$ticket->mask}<br>
+{if !empty($ticket->next_action) && !$ticket->is_closed}
+	<b>Next Action:</b> {$ticket->next_action}<br>
+{/if}
+{if !empty($ticket->next_worker_id)}
+	{assign var=next_worker_id value=$ticket->next_worker_id}
+	<b>Next Worker:</b> {$workers.$next_worker_id->getName()}<br>
+{/if}
 <!-- {if !empty($ticket->interesting_words)}<b>Interesting Words:</b> {$ticket->interesting_words}<br>{/if} -->
 <!-- <b>Next Action:</b> <input type="text" name="next_step" size="80" value="{$ticket->next_action}" maxlength="255"><br>  -->
 <br>
@@ -83,13 +89,13 @@ tabView.addTab( new YAHOO.widget.Tab({
 }));
 
 tabView.addTab( new YAHOO.widget.Tab({
-    label: 'Recipients',
-    dataSrc: '{/literal}{devblocks_url}ajax.php?c=display&a=showManageRecipients&ticket_id={$ticket->id}{/devblocks_url}{literal}',
+    label: 'Properties',
+    dataSrc: '{/literal}{devblocks_url}ajax.php?c=display&a=showProperties&ticket_id={$ticket->id}{/devblocks_url}{literal}',
     cacheData: true
 }));
 
 tabView.addTab( new YAHOO.widget.Tab({
-    label: 'Sender History',
+    label: 'Ticket History',
     dataSrc: '{/literal}{devblocks_url}ajax.php?c=display&a=showContactHistory&ticket_id={$ticket->id}{/devblocks_url}{literal}',
     cacheData: true
 }));

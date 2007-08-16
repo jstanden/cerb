@@ -116,9 +116,19 @@ On {$message->created_date|date_format}, {$headers.from} wrote:
 			<table cellpadding="2" cellspacing="0" border="0">
 				<tr>
 					<td nowrap="nowrap" valign="top" colspan="2">
-						<label><input type="checkbox" name="closed" value="1" onchange="toggleDiv('replyOpen{$message->id}',this.checked?'none':'block');toggleDiv('replyClosed{$message->id}',this.checked?'block':'none');" {if $ticket->is_closed}checked{/if}>This conversation is completed for now.</label>
+						<label><input type="checkbox" name="closed" value="1" onchange="toggleDiv('replyOpen{$message->id}',this.checked?'none':'block');toggleDiv('replyClosed{$message->id}',this.checked?'block':'none');" {if $ticket->is_closed}checked{/if}>This conversation is completed for now.</label><br>
+						<br>
 
-						<div id="replyOpen{$message->id}" style="display:{if $ticket->is_closed}none{else}block{/if};margin:5px;padding:5px;border:1px solid rgb(180,180,180);">
+						<b>Who should handle the follow-up?</b><br>
+				      	<select name="next_worker_id">
+				      		<option value="0" {if 0==$ticket->next_worker_id}selected{/if}>Anybody
+				      		{foreach from=$workers item=worker key=worker_id}
+				      			<option value="{$worker_id}" {if $worker_id==$ticket->next_worker_id}selected{/if}>{$worker->getName()}
+				      		{/foreach}
+				      	</select><br>
+				      	<br>
+
+						<div id="replyOpen{$message->id}" style="display:{if $ticket->is_closed}none{else}block{/if};">
 						<b>What is the next action that needs to happen?</b> (max 255 chars)<br>  
 				      	<input type="text" name="next_action" size="80" maxlength="255" value="{$ticket->next_action|escape:"htmlall"}"><br>
 				      	<br>
@@ -140,18 +150,18 @@ On {$message->created_date|date_format}, {$headers.from} wrote:
 				    			{/foreach}
 				    			</optgroup>
 				     		{/foreach}
-				      	</select>
+				      	</select><br>
+				      	<br>
 				      	</div>
 				      	
-				      	<div id="replyClosed{$message->id}" style="display:{if $ticket->is_closed}block{else}none{/if};margin:5px;padding:5px;border:1px solid rgb(180,180,180);">
+				      	<div id="replyClosed{$message->id}" style="display:{if $ticket->is_closed}block{else}none{/if};">
 				      	<b>When would you like to resume this conversation?</b><br> 
 				      	<input type="text" name="ticket_reopen" size="55" value="{if !empty($ticket->due_date)}{$ticket->due_date|date_format:"%a, %b %d %Y %I:%M %p"}{/if}"><br>
 				      	examples: "Friday", "+7 days", "Tomorrow 11:15AM", "Dec 31 2010"<br>
 				      	(leave blank to wait for a reply before resuming)<br>
-				      	</div>
-				      	
 				      	<br>
-						
+				      	</div>
+
 					</td>
 				</tr>
 			</table>

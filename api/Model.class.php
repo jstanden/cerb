@@ -888,6 +888,7 @@ class CerberusTicket {
 	public $next_action;
 	public $last_action_code;
 	public $last_worker_id;
+	public $next_worker_id;
 	
 	function CerberusTicket() {}
 	

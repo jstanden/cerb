@@ -495,6 +495,9 @@
 		<tu tuid='ticket.next_action'>
 			<tuv xml:lang="en"><seg>Next Action</seg></tuv>
 		</tu>
+		<tu tuid='ticket.next_worker'>
+			<tuv xml:lang="en"><seg>Next Worker</seg></tuv>
+		</tu>
 		<tu tuid='ticket.owner'>
 			<tuv xml:lang="en"><seg>Owner</seg></tuv>
 		</tu>

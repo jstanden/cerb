@@ -317,6 +317,13 @@ if(!isset($columns['LAST_ACTION_CODE'])) {
     $datadict->ExecuteSQLArray($sql);
 }
 
+if(!isset($columns['NEXT_WORKER_ID'])) {
+    $sql = $datadict->AddColumnSQL('ticket', 'next_worker_id I4 DEFAULT 0 NOTNULL');
+    $datadict->ExecuteSQLArray($sql);
+    
+    $db->Execute("UPDATE ticket SET next_worker_id = last_worker_id");
+}
+
 if(!isset($columns['FIRST_MESSAGE_ID'])) {
     $sql = $datadict->AddColumnSQL('ticket', 'first_message_id I4 DEFAULT 0 NOTNULL');
     $datadict->ExecuteSQLArray($sql);
@@ -387,6 +394,16 @@ if(!isset($indexes['is_closed'])) {
 
 if(!isset($indexes['category_id'])) {
     $sql = $datadict->CreateIndexSQL('category_id','ticket','category_id');
+    $datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($indexes['last_worker_id'])) {
+    $sql = $datadict->CreateIndexSQL('last_worker_id','ticket','last_worker_id');
+    $datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($indexes['next_worker_id'])) {
+    $sql = $datadict->CreateIndexSQL('next_worker_id','ticket','next_worker_id');
     $datadict->ExecuteSQLArray($sql);
 }
 
