@@ -10,22 +10,9 @@
 	<tr>
 		<td>
 			<table cellpadding="1" cellspacing="0" border="0" width="100%">
-				<!-- 
-				<tr>
-					<td width="0%" nowrap="nowrap" valign="top"><b>From:</b></td>
-					<td width="100%" align="left">[[ team address via agent address ]]</td>
-				</tr>
-				 -->
 				<tr>
 					<td width="100%" nowrap="nowrap" valign="top" colspan="2">
 						{foreach from=$ticket->getRequesters() item=requester name=requesters}
-						<!-- 
-						<select name="to_type[]">
-							<option value="to">To:</option>
-							<option value="to">Cc:</option>
-							<option value="to">Bcc:</option>
-						</select> --><!--  
-						<input type="text" size="65" name="to[]" value="{$requester->email}">-->
 						<b>To: </b> {$requester->email}
 						{*
 						{if $smarty.foreach.requesters.first}
@@ -52,17 +39,6 @@
 					<td width="0%" nowrap="nowrap" valign="top"><b>Bcc:</b></td>
 					<td width="100%" align="left"><textarea rows="2" cols="80" name="bcc"></textarea></td>
 				</tr>
-				<tr>
-					<td colspan="2">
-						<a href="javascript:;" onclick="toggleDiv('replyCc','inline');">cc</a>
-						| 
-						<a href="javascript:;" onclick="toggleDiv('replyBcc','inline');">bcc</a>
-						| 
-						<a href="javascript:;">bigger reply</a> 
-						| 
-						<a href="javascript:;">smaller reply</a>
-					</td>
-				</tr>
 				 -->
 			</table>
 		</td>
@@ -70,6 +46,7 @@
 	<tr>
 		<td>
 		{assign var=ticket_team_id value=$ticket->team_id}
+		{assign var=headers value=$message->getHeaders()}
 <textarea name="content" rows="20" cols="80" id="reply_content" class="reply" style="width:98%;border:1px solid rgb(180,180,180);padding:5px;">
 On {$message->created_date|date_format}, {$headers.from} wrote:
 {$message->getContent()|trim|indent:1:'> '}
