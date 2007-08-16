@@ -53,7 +53,7 @@
 		<td width="0%" nowrap="nowrap">Move to:</td>
 		<td width="100%"><select name="team">
 			<option value=""></option>
-      		<optgroup label="Team (Inbox)">
+      		<optgroup label="Move to Group">
       		{foreach from=$teams item=team}
       			<option value="t{$team->id}">{$team->name}</option>
       		{/foreach}

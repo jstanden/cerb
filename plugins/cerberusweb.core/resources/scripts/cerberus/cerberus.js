@@ -104,7 +104,7 @@ var cAjaxCalls = function() {
 	}
 */
 
-	this.showBatchPanel = function(view_id,team_id) {
+	this.showBatchPanel = function(view_id,team_id,target) {
 		var viewForm = document.getElementById('viewForm'+view_id);
 		if(null == viewForm) return;
 		var elements = viewForm.elements['ticket_id[]'];
@@ -129,7 +129,7 @@ var cAjaxCalls = function() {
 	
 		var ticket_ids = ids.join(','); // [TODO] Encode?
 	
-		genericAjaxPanel('c=tickets&a=showBatchPanel&view_id=' + view_id + '&ids=' + ticket_ids + '&team_id=' + team_id,null,true,'500px');
+		genericAjaxPanel('c=tickets&a=showBatchPanel&view_id=' + view_id + '&ids=' + ticket_ids + '&team_id=' + team_id,target,false,'500px');
 	}
 
 	this.saveBatchPanel = function(view_id) {
