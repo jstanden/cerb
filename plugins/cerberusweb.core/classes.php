@@ -619,6 +619,7 @@ class ChTicketsPage extends CerberusPageExtension {
 				list($whos_online_workers, $whos_online_count) = DAO_Worker::search(
 				    array(
 				        new DevblocksSearchCriteria(SearchFields_Worker::LAST_ACTIVITY_DATE,DevblocksSearchCriteria::OPER_GT,(time()-60*15)), // idle < 15 mins
+				        new DevblocksSearchCriteria(SearchFields_Worker::LAST_ACTIVITY,DevblocksSearchCriteria::OPER_NOT_LIKE,'%translation_code";N;%'), // translation code not null (not just logged out)
 				    ),
 				    -1,
 				    0,

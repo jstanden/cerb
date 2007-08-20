@@ -532,6 +532,7 @@ class DAO_Worker extends DevblocksORMHelper {
 class SearchFields_Worker implements IDevblocksSearchFields {
 	// Worker
 	const ID = 'w_id';
+	const LAST_ACTIVITY = 'w_last_activity';
 	const LAST_ACTIVITY_DATE = 'w_last_activity_date';
 	
 	/**
@@ -540,6 +541,7 @@ class SearchFields_Worker implements IDevblocksSearchFields {
 	static function getFields() {
 		return array(
 			SearchFields_Worker::ID => new DevblocksSearchField(SearchFields_Worker::ID, 'w', 'id'),
+			SearchFields_Worker::LAST_ACTIVITY => new DevblocksSearchField(SearchFields_Worker::LAST_ACTIVITY, 'w', 'last_activity'),
 			SearchFields_Worker::LAST_ACTIVITY_DATE => new DevblocksSearchField(SearchFields_Worker::LAST_ACTIVITY_DATE, 'w', 'last_activity_date'),
 		);
 	}
