@@ -1,4 +1,4 @@
-<h1>{$ticket->subject}</h1>
+<h1>{$ticket->subject|escape:"htmlall"}</h1>
 
 {assign var=ticket_team_id value=$ticket->team_id}
 {assign var=ticket_team value=$teams.$ticket_team_id}
