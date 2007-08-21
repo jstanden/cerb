@@ -3889,7 +3889,12 @@ class ChContactsPage extends CerberusPageExtension {
 				DAO_ContactOrg::WEBSITE => $website
 				);
 
-		DAO_ContactOrg::update($id, $fields);
+		if($id==0) {
+			$id = DAO_ContactOrg::create($fields);
+		}
+		else {
+			DAO_ContactOrg::update($id, $fields);	
+		}		
 		
 		$view = C4_AbstractViewLoader::getView('', $view_id);
 		$view->render();		
