@@ -7,7 +7,7 @@
 
 {if !empty($team_rules)}
 <div class="block">
-<h2>Inbox Assistant</h2>
+<h2>Inbox Auto-Sorting</h2>
 <table cellspacing="2" cellpadding="0">
 	{counter start=0 print=false}
 	{foreach from=$team_rules item=rule key=rule_id name=rules}

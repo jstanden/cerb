@@ -49,7 +49,8 @@
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
 class ChMobilePlugin extends DevblocksPlugin {
-	
+	function load(DevblocksPluginManifest $manifest) {
+	}
 };
 
 class MobileController extends DevblocksControllerExtension {

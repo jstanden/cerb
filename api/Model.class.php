@@ -1019,13 +1019,65 @@ class Model_FnrTopic {
 		$resources = DAO_FnrExternalResource::getWhere($where);
 		return $resources;
 	}
-}
+};
 
 class Model_FnrExternalResource {
 	public $id = 0;
 	public $name = '';
 	public $url = '';
 	public $topic_id = 0;
-}
+};
+
+class Model_MailTemplateReply {
+	public $id = 0;
+	public $title = '';
+	public $description = '';
+	public $folder = '';
+	public $owner_id = 0;
+	public $content = '';
+	
+	public function getRenderedContent($message_id) {
+		$raw = $this->content;
+		
+		if(empty($message_id))
+			return $raw;
+		
+		$message = DAO_Ticket::getMessage($message_id);
+		$ticket = DAO_Ticket::getTicket($message->ticket_id);
+		$sender = DAO_Address::get($message->address_id);
+		$sender_org = DAO_ContactOrg::get($sender->contact_org_id);
+		$worker = CerberusApplication::getActiveWorker();
+		
+		$out = str_replace(
+			array(
+				'#sender_first_name#',
+				'#sender_last_name#',
+				'#sender_org#',
+
+				'#ticket_mask#',
+				'#ticket_subject#',
+				
+				'#worker_first_name#',
+				'#worker_last_name#',
+				'#worker_title#',
+			),
+			array(
+				$sender->first_name,
+				$sender->last_name,
+				(!empty($sender_org)?$sender_org->name:""),
+				
+				$ticket->mask,
+				$ticket->subject,
+				
+				$worker->first_name,
+				$worker->last_name,
+				$worker->title,
+			),
+			$raw
+		);
+		
+		return $out;
+	}
+};
 
 ?>

@@ -24,7 +24,7 @@
       {include file="file:$path/tickets/dashboard_menu.tpl.php"}
       
       </td>
-      <td nowrap="nowrap" width="0%"><img src="{devblocks_url}images/c=resource&p=cerberusweb.core&f=spacer.gif{/devblocks_url}" width="5" height="1"></td>
+      <td nowrap="nowrap" width="0%"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/spacer.gif{/devblocks_url}" width="5" height="1"></td>
       <td nowrap="nowrap" width="100%" valign="top">
       
       <div id="tourDashboardViews"></div>

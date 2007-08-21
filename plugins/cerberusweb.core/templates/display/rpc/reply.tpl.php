@@ -47,6 +47,11 @@
 		<td>
 		{assign var=ticket_team_id value=$ticket->team_id}
 		{assign var=headers value=$message->getHeaders()}
+<button type="button" onclick="toggleDiv('replyAttachments{$message->id}','block');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_attachment.gif{/devblocks_url}" align="top"> Add Files</button>
+<button type="button" onclick="genericAjaxPanel('c=display&a=showFnrPanel',this,false,'550px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/book_blue_view.gif{/devblocks_url}" align="top"> Find Answers</button>
+<button type="button" onclick="displayAjax.showTemplatesPanel(this,'{$message->id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/text_rich.gif{/devblocks_url}" align="top"> E-mail Templates</button>
+<button type="button" onclick="txtReply=document.getElementById('reply_content');sigDiv=document.getElementById('team_signature');txtReply.value += '\n'+sigDiv.value+'\n';scrollElementToBottom(txtReply);txtReply.focus();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_edit.gif{/devblocks_url}" align="top"> Insert Signature</button>
+<br>
 <textarea name="content" rows="20" cols="80" id="reply_content" class="reply" style="width:98%;border:1px solid rgb(180,180,180);padding:5px;">
 On {$message->created_date|date_format}, {$headers.from} wrote:
 {$message->getContent()|trim|indent:1:'> '}
@@ -58,15 +63,8 @@ On {$message->created_date|date_format}, {$headers.from} wrote:
 	<tr>
 		<td nowrap="nowrap" valign="top">
 			<div style="display:none"><textarea name="team_signature" id="team_signature">{$signature}</textarea></div>
-								
 			<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> Send Message</button>
 			<button type="button" onclick="clearDiv('reply{$message->id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> Discard</button>
-			
-			&nbsp; &nbsp; 
-
-			<button type="button" onclick="genericAjaxPanel('c=display&a=showFnrPanel',this,false,'550px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/book_blue_view.gif{/devblocks_url}" align="top"> Find Answers</button>
-			<button type="button" onclick="toggleDiv('replyAttachments{$message->id}','block');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_attachment.gif{/devblocks_url}" align="top"> Add Attachments</button>
-			<button type="button" onclick="txtReply=document.getElementById('reply_content');sigDiv=document.getElementById('team_signature');txtReply.value += '\n'+sigDiv.value+'\n';scrollElementToBottom(txtReply);txtReply.focus();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/mail_write.gif{/devblocks_url}" align="top"> Insert Signature</button>
 		</td>
 	</tr>
 	<tr>

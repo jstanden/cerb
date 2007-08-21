@@ -4463,4 +4463,122 @@ class DAO_FnrExternalResource extends DevblocksORMHelper {
 	}
 };
 
+class DAO_MailTemplateReply extends DevblocksORMHelper {
+	const _TABLE = 'mail_template_reply';
+	
+	const ID = 'id';
+	const TITLE = 'title';
+	const DESCRIPTION = 'description';
+	const FOLDER = 'folder';
+	const OWNER_ID = 'owner_id';
+	const CONTENT = 'content';
+	
+	public static function create($fields) {
+		$db = DevblocksPlatform::getDatabaseService();
+		$id = $db->GenID('generic_seq');
+		
+		$sql = sprintf("INSERT INTO %s (id,title,description,folder,owner_id,content) ".
+			"VALUES (%d,'','','',0,'')",
+			self::_TABLE,
+			$id
+		);
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+
+		self::update($id, $fields);
+		
+		return $id;
+	}
+	
+	/**
+	 * Enter description here...
+	 *
+	 * @return array
+	 */
+	public static function getFolders() {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$folders = array();
+		
+		$sql = sprintf("SELECT DISTINCT folder FROM %s ORDER BY folder",
+			self::_TABLE
+		);
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+
+		while(!$rs->EOF) {
+			$folders[] = $rs->fields['folder'];
+			$rs->MoveNext();
+		}
+		
+		return $folders;
+	}
+	
+	public static function update($ids, $fields) {
+		// [TODO] Overload CONTENT as BlobUpdate
+		parent::_update($ids, self::_TABLE, $fields);
+	}
+	
+	public static function delete($ids) {
+		if(!is_array($ids)) $ids = array($ids);
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = sprintf("DELETE FROM %s WHERE id IN (%s)",
+			self::_TABLE,
+			implode(',', $ids)
+		);
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+	}
+	
+	/**
+	 * Enter description here...
+	 *
+	 * @param string $where
+	 * @return Model_MailTemplateReply[]
+	 */
+	public function getWhere($where=null) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = sprintf("SELECT id,title,description,folder,owner_id,content ".
+			"FROM %s ".
+			(!empty($where) ? ("WHERE $where ") : " ").
+			" ORDER BY folder, title ",
+			self::_TABLE
+		);
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+
+		return self::_createObjectsFromResultSet($rs);
+	}
+	
+	/**
+	 * Enter description here...
+	 *
+	 * @param integer $id
+	 * @return Model_MailTemplateReply
+	 */
+	public static function get($id) {
+		$objects = self::getWhere(sprintf("id = %d", $id));
+		
+		if(isset($objects[$id]))
+			return $objects[$id];
+			
+		return null;
+	}
+	
+	public static function _createObjectsFromResultSet(ADORecordSet $rs) {
+		$objects = array();
+		while(!$rs->EOF) {
+			$object = new Model_MailTemplateReply();
+			$object->id = intval($rs->fields['id']);
+			$object->title = $rs->fields['title'];
+			$object->description = $rs->fields['description'];
+			$object->folder = $rs->fields['folder'];
+			$object->owner_id = intval($rs->fields['owner_id']);
+			$object->content = $rs->fields['content'];
+			$objects[$object->id] = $object;
+			$rs->MoveNext();
+		}
+		
+		return $objects;
+	}
+};
+
 ?>

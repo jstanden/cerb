@@ -51,6 +51,7 @@
 
 // Classes
 $path = realpath(dirname(__FILE__)) . DIRECTORY_SEPARATOR;
+
 DevblocksPlatform::registerClasses($path. 'api/Extension.php', array(
     'Extension_UsermeetTool'
 ));
@@ -61,10 +62,13 @@ DevblocksPlatform::registerClasses($path. 'api/DAO.php', array(
     'DAO_CommunityTool'
 ));
 
+class UmCorePlugin extends DevblocksPlugin {
+	function load(DevblocksPluginManifest $manifest) {
+	}
+};
+
 class UmPortalController extends DevblocksControllerExtension {
     const ID = 'usermeet.controller.portal';
-//    private $apps = array();
-//    private $uri_map = array();
 	private $tools = array();
 	private $hash = array();
     
@@ -915,9 +919,6 @@ class UmScApp extends Extension_UsermeetTool {
     	
     	DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',$this->getPortal(),'results')));
 	}
-};
-
-class UmCorePlugin extends DevblocksPlugin {
 };
 
 ?>

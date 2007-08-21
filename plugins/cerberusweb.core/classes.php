@@ -50,7 +50,8 @@
  */
 
 class ChCorePlugin extends DevblocksPlugin {
-	
+	function load(DevblocksPluginManifest $manifest) {
+	}
 };
 
 class ChPageController extends DevblocksControllerExtension {
@@ -3658,30 +3659,33 @@ class ChContactsPage extends CerberusPageExtension {
 	}
 	
 	function showTabPeopleAction() {
-//		@$org = DevblocksPlatform::importGPC($_REQUEST['org']);
-//		
-//		$tpl = DevblocksPlatform::getTemplateService();
-//		$tpl->cache_lifetime = "0";
-//		$tpl->assign('path', dirname(__FILE__) . '/templates/');
-//		
-//		$contact = DAO_ContactOrg::get($org);
-//		$tpl->assign('contact', $contact);
-//		
-//		$view = C4_AbstractViewLoader::getView('C4_ContactPersonView', 'org_contacts');
-//		$view->id = 'org_contacts';
-//		$view->name = 'Organization Contacts';
-//		$view->view_columns = array(
-//			SearchFields_ContactPerson::LAST_NAME,
-//			SearchFields_ContactPerson::TITLE,
-//			SearchFields_ContactPerson::EMAIL,
-//			SearchFields_ContactPerson::PHONE,
-//		);
-//		$tpl->assign('view', $view);
-//		
-//		$tpl->assign('contacts_page', 'orgs');
-//		$tpl->assign('search_columns', SearchFields_ContactPerson::getFields());
-//		
-//		$tpl->display('file:' . dirname(__FILE__) . '/templates/contacts/orgs/tabs/people.tpl.php');
+		@$org = DevblocksPlatform::importGPC($_REQUEST['org']);
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		
+		$contact = DAO_ContactOrg::get($org);
+		$tpl->assign('contact', $contact);
+		
+		$view = C4_AbstractViewLoader::getView('C4_AddressView', 'org_contacts');
+		$view->id = 'org_contacts';
+		$view->name = 'Organization Contacts';
+		$view->view_columns = array(
+			SearchFields_Address::FIRST_NAME,
+			SearchFields_Address::LAST_NAME,
+//			SearchFields_Address::EMAIL,
+			SearchFields_Address::ORG_NAME,
+		);
+		$view->params = array(
+			new DevblocksSearchCriteria(SearchFields_Address::CONTACT_ORG_ID,'=',$org)
+		);
+		$tpl->assign('view', $view);
+		
+		$tpl->assign('contacts_page', 'orgs');
+		$tpl->assign('search_columns', SearchFields_Address::getFields());
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/contacts/orgs/tabs/people.tpl.php');
 		exit;
 	}
 	
@@ -3711,7 +3715,7 @@ class ChContactsPage extends CerberusPageExtension {
 				SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
 			);
 			$tickets_view->params = array(
-				//SearchFields_Ticket::TICKET_FIRST_WROTE => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_FIRST_WROTE,DevblocksSearchCriteria::OPER_EQ,0)
+//				SearchFields_Ticket::TICKET_FIRST_WROTE_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_FIRST_WROTE_ID,DevblocksSearchCriteria::OPER_IN,$address_ids)
 			);
 			$tickets_view->renderLimit = 10;
 			$tickets_view->renderPage = 0;
@@ -3720,14 +3724,17 @@ class ChContactsPage extends CerberusPageExtension {
 			$viewMgr->setView('contact_history', $tickets_view);
 		}
 
+		$addresses = DAO_Address::getWhere(sprintf("%s=%d",
+			DAO_Address::CONTACT_ORG_ID,
+			$contact->id
+		));
+		$address_ids = !empty($addresses) ? array_keys($addresses) : array(-1);
+		
 		@$tickets_view->name = "Most recent tickets from " . htmlentities($contact->name);
 		$tickets_view->params = array(
-			//SearchFields_Ticket::TICKET_FIRST_WROTE => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_FIRST_WROTE,DevblocksSearchCriteria::OPER_EQ,$contact->email)
+			SearchFields_Ticket::TICKET_FIRST_WROTE_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_FIRST_WROTE_ID,DevblocksSearchCriteria::OPER_IN,$address_ids)
 		);
 		$tpl->assign('contact_history', $tickets_view);
-		
-		//$viewActions = DAO_DashboardViewAction::getList();
-		//$tpl->assign('viewActions', $viewActions);
 		
 		$workers = DAO_Worker::getList();
 		$tpl->assign('workers', $workers);
@@ -4784,6 +4791,132 @@ class ChDisplayPage extends CerberusPageExtension {
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/history/index.tpl.php');
 	}
 
+	// Ajax
+	function showTemplatesPanelAction() {
+		@$reply_id = DevblocksPlatform::importGPC($_REQUEST['reply_id'],'integer');
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		
+		$tpl->assign('reply_id', $reply_id);
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/rpc/email_templates/templates_panel.tpl.php');
+	}
+	
+	// Ajax
+	function showTemplateEditPanelAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer');
+		@$reply_id = DevblocksPlatform::importGPC($_REQUEST['reply_id'],'integer');
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		
+		$tpl->assign('reply_id', $reply_id);
+
+		$folders = DAO_MailTemplateReply::getFolders();
+		$tpl->assign('folders', $folders);
+		
+		$template = DAO_MailTemplateReply::get($id);
+		$tpl->assign('template', $template);
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/rpc/email_templates/template_edit_panel.tpl.php');
+	}
+	
+	// Ajax
+	function saveReplyTemplateAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+		@$title = DevblocksPlatform::importGPC($_REQUEST['title'],'string','');
+		@$description = DevblocksPlatform::importGPC($_REQUEST['description'],'string','');
+		@$folder = DevblocksPlatform::importGPC($_REQUEST['folder'],'string','');
+		@$folder_new = DevblocksPlatform::importGPC($_REQUEST['folder_new'],'string','');
+		@$content = DevblocksPlatform::importGPC($_REQUEST['template'],'string','');
+		@$delete = DevblocksPlatform::importGPC($_REQUEST['delete'],'integer',0);
+		
+		$worker = CerberusApplication::getActiveWorker();
+		
+		// [TODO] DAO
+		// [TODO] Delete
+
+		if(empty($delete)) {
+			$fields = array(
+				DAO_MailTemplateReply::TITLE => $title,
+				DAO_MailTemplateReply::FOLDER => (!empty($folder)?$folder:$folder_new),
+				DAO_MailTemplateReply::DESCRIPTION => $description,
+				DAO_MailTemplateReply::CONTENT => $content,
+				DAO_MailTemplateReply::OWNER_ID => $worker->id,
+			);
+			
+			if(empty($id)) { // new
+				$id = DAO_MailTemplateReply::create($fields);
+				
+			} else { // edit
+				DAO_MailTemplateReply::update($id, $fields);			
+				
+			}
+			
+		} else { // delete
+			DAO_MailTemplateReply::delete($id);
+		}
+		
+	}
+	
+	// Ajax
+	function getTemplateAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer');
+		@$reply_id = DevblocksPlatform::importGPC($_REQUEST['reply_id'],'integer');
+
+		$template = DAO_MailTemplateReply::get($id);
+		echo $template->getRenderedContent($reply_id);
+	}
+
+	// Ajax
+	function getTemplatesAction() {
+		@$reply_id = DevblocksPlatform::importGPC($_REQUEST['reply_id'],'integer');
+		@$folder = DevblocksPlatform::importGPC($_REQUEST['folder'],'string','');
+		
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		
+		$tpl->assign('reply_id', $reply_id);
+		
+		if(empty($folder)) {
+			$where = null;
+		} else {
+			$where = sprintf("%s=%s",
+				DAO_MailTemplateReply::FOLDER,
+				$db->qstr($folder)
+			);
+		} 
+		
+		$templates = DAO_MailTemplateReply::getWhere($where);
+		$tpl->assign('templates', $templates);
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/rpc/email_templates/template_results.tpl.php');
+	} 
+	
+	// Ajax
+	function showTemplateListAction() {
+		@$reply_id = DevblocksPlatform::importGPC($_REQUEST['reply_id'],'integer');
+		@$folder = DevblocksPlatform::importGPC($_REQUEST['folder'],'string','');
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		
+		$tpl->assign('reply_id', $reply_id);
+		
+		// [TODO] Folder filter
+		$folders = DAO_MailTemplateReply::getFolders();
+		$tpl->assign('folders', $folders);
+		
+		$templates = DAO_MailTemplateReply::getWhere();
+		$tpl->assign('templates', $templates);
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/rpc/email_templates/template_list.tpl.php');
+	}
+	
+	// Ajax
 	function showFnrPanelAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');

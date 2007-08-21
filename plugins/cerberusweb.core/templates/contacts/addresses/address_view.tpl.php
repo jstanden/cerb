@@ -61,6 +61,12 @@
 		{foreach from=$view->view_columns item=column name=columns}
 			{if $column=="a_id"}
 			<td>{$result.a_id}&nbsp;</td>
+			{elseif $column=="o_name"}
+			<td>
+				{if !empty($result.o_name)}
+				<a href="{devblocks_url}c=contacts&a=orgs&id={$result.a_contact_org_id}{/devblocks_url}">{$result.o_name}</a>&nbsp;
+				{/if}
+			</td>
 			{elseif $column=="a_created"}
 			<td>{$result.a_created|date_format}&nbsp;</td>
 			{else}

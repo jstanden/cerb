@@ -28,6 +28,9 @@
 		<tu tuid='common.customize'>
 			<tuv xml:lang="en"><seg>customize</seg></tuv>
 		</tu>
+		<tu tuid='common.delete'>
+			<tuv xml:lang="en"><seg>delete</seg></tuv>
+		</tu>
 		<tu tuid='common.filter'>
 			<tuv xml:lang="en"><seg>filter</seg></tuv>
 		</tu>

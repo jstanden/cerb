@@ -170,6 +170,20 @@ if(!isset($tables['group_setting'])) {
     $datadict->ExecuteSQLArray($sql);
 }
 
+// `mail_template_reply` =======================
+if(!isset($tables['mail_template_reply'])) {
+    $flds = "
+		id I4 DEFAULT 0 NOTNULL PRIMARY,
+		title C(64) DEFAULT '' NOTNULL,
+		description C(255) DEFAULT '' NOTNULL,
+		folder C(64) DEFAULT '' NOTNULL,
+		content B DEFAULT '' NOTNULL,
+		owner_id I4 DEFAULT 0 NOTNULL
+	";
+    $sql = $datadict->CreateTableSQL('mail_template_reply',$flds);
+    $datadict->ExecuteSQLArray($sql);
+}
+
 // `message_content` =====================
 //$columns = $datadict->MetaColumns('message_content', false, false);
 if(!isset($tables['message_content'])) {
