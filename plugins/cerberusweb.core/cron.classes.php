@@ -332,6 +332,13 @@ class Pop3Cron extends CerberusCronPageExtension {
                     $account->port
                     );
                     break;
+                    
+                case 'imap-ssl': // 993
+                    $connect = sprintf("{%s:%d/imap/ssl/novalidate-cert}INBOX",
+                    $account->host,
+                    $account->port
+                    );
+                    break;
             }
 
             $runtime = microtime(true);
@@ -465,6 +472,9 @@ class Pop3Cron extends CerberusCronPageExtension {
 			            break;
 			        case 'imap':
 			            $port = 143;
+			            break;
+			        case 'imap-ssl':
+			            $port = 993;
 			            break;
 			    }
 			}

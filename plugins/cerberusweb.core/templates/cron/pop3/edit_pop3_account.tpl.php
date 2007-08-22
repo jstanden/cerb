@@ -26,6 +26,7 @@
 			<option value="pop3" {if $pop3_account->protocol=='pop3'}selected{/if}>POP3
 			<option value="pop3-ssl" {if $pop3_account->protocol=='pop3-ssl'}selected{/if}>POP3-SSL
 			<option value="imap" {if $pop3_account->protocol=='imap'}selected{/if}>IMAP
+			<option value="imap-ssl" {if $pop3_account->protocol=='imap-ssl'}selected{/if}>IMAP-SSL
 		</select></td>
 	</tr>
 	<tr>
