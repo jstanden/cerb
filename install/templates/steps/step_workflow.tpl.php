@@ -21,9 +21,11 @@ Workers are your people, those in your organization who perform various roles th
 answering e-mail, troubleshooting issues, contacting leads, and so on.  A single worker may belong 
 to multiple groups -- such as a person who performs both Support and Sales roles.<br>
 <br>
-Set up workers by adding <b>one worker e-mail address per line</b> below.  We'll ask for additional 
+Set up workers by adding <b>one worker e-mail address per field</b> below.  We'll ask for additional 
 details on the next step:<br>
-<textarea rows="5" cols="50" name="workers">{$workers_str}</textarea><br>
+<input type="text" name="worker1" style="width:350;"><br>
+<input type="text" name="worker2" style="width:350;"><br>
+<input type="text" name="worker3" style="width:350;"><br>
 <i>(Don't forget yourself!)</i><br>
 
 <H3>Groups</H3>

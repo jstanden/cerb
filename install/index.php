@@ -640,15 +640,18 @@ switch($step) {
 		// Catch the submit
 		switch($form_submit) {
 			case 1: // names form submit
-				@$workers_str = DevblocksPlatform::importGPC($_POST['workers'],'string','');
+				@$worker1_str = DevblocksPlatform::importGPC($_POST['worker1'],'string','');
+				@$worker2_str = DevblocksPlatform::importGPC($_POST['worker2'],'string','');
+				@$worker3_str = DevblocksPlatform::importGPC($_POST['worker3'],'string','');
+				
 				@$teams_str = DevblocksPlatform::importGPC($_POST['teams'],'string','');
 				
 				$worker_ids = array();
 				$team_ids = array();
 
-				$workers = CerberusApplication::parseCrlfString($workers_str);
+				$workers = array($worker1_str, $worker2_str, $worker3_str);
 				$teams = CerberusApplication::parseCrlfString($teams_str);
-
+				
 				if(empty($workers) || empty($teams)) {
 					$tpl->assign('failed', true);
 					$tpl->assign('workers_str', $workers_str);
