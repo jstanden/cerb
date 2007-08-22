@@ -90,6 +90,17 @@
 		</extension>
 
 		<extension point="devblocks.controller">
+			<id>core.controller.internal</id>
+			<name>Internal Controller</name>
+			<class>
+				<file>classes.php</file>
+				<name>ChInternalController</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
+		<extension point="devblocks.controller">
 			<id>core.controller.update</id>
 			<name>Update/Patch Controller</name>
 			<class>

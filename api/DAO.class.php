@@ -861,6 +861,8 @@ class DAO_Address extends DevblocksORMHelper {
 		);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 
+		self::update($id, $fields);
+		
 		return $id;
 	}
 	

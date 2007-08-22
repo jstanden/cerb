@@ -69,11 +69,17 @@ try {
 
 require(APP_PATH . '/api/Application.class.php');
 
+// [JAS]: [TODO] Is an explicit init() really required?  No anonymous static blocks?
+DevblocksPlatform::init();
+
 // Request
 $request = DevblocksPlatform::readRequest();
 
-// [JAS]: [TODO] Is an explicit init() really required?  No anonymous static blocks?
-DevblocksPlatform::init();
+// Patches (if not on the patch page)
+if(@0 != strcasecmp(@$request->path[0],"update")
+	&& !DevblocksPlatform::versionConsistencyCheck())
+	DevblocksPlatform::redirect(new DevblocksHttpResponse(array('update','locked')));
+
 //DevblocksPlatform::readPlugins();
 $session = DevblocksPlatform::getSessionService();
 

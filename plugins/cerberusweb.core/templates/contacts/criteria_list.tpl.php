@@ -1,10 +1,10 @@
 {if !empty($view->params)}
 <div class="block">
 <form action="{devblocks_url}{/devblocks_url}" method="POST" name="{$view->id}_criteriaForm">
-<input type="hidden" name="c" value="contacts">
+<input type="hidden" name="c" value="internal">
 <input type="hidden" name="a" value="viewRemoveCriteria">
 <input type="hidden" name="id" value="{$view->id}">
-<input type="hidden" name="contacts_page" value="{$contacts_page}">
+<input type="hidden" name="response_uri" value="{$response_uri}">
 <input type="hidden" name="field" value="">
 <table cellpadding="2" cellspacing="0" width="200" border="0">
 	<tr>
@@ -48,15 +48,15 @@
 
 <div class="block">
 	<form action="{devblocks_url}{/devblocks_url}" method="POST">
-	<input type="hidden" name="c" value="contacts">
+	<input type="hidden" name="c" value="internal">
 	<input type="hidden" name="a" value="viewAddCriteria">
 	<input type="hidden" name="id" value="{$view->id}">
-	<input type="hidden" name="contacts_page" value="{$contacts_page}">
+	<input type="hidden" name="response_uri" value="{$response_uri}">
 	
 	<h2>Add Criteria</h2>
 	<b>Field:</b><br>
 	<blockquote style="margin:5px;">
-		<select name="field" onchange="genericAjaxGet('addCriteriaOptions','c=contacts&a=viewGetCriteria&id={$view->id}&field='+selectValue(this));">
+		<select name="field" onchange="genericAjaxGet('addCriteriaOptions','c=internal&a=viewGetCriteria&id={$view->id}&field='+selectValue(this));">
 			<option value="">-- choose --</option>
 			{foreach from=$search_columns item=column key=token}
 				{if $token=="c_id"}

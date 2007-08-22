@@ -1,4 +1,4 @@
-<input type="hidden" name="c" value="contacts">
+<input type="hidden" name="c" value="internal">
 <input type="hidden" name="a" value="viewSaveCustomize">
 <input type="hidden" name="id" value="{$view->id}">
 <div style="background-color: #EEEEEE;padding:5px;">

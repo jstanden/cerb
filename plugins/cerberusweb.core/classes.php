@@ -200,6 +200,8 @@ class ChPageController extends DevblocksControllerExtension {
 		
 		$tpl->assign('pages',$pages);		
 		$tpl->assign('page',$page);
+
+		$tpl->assign('response_uri', implode('/', $response->path));
 		
 		$tpl_path = dirname(__FILE__) . '/templates/';
 		$tpl->assign('tpl_path', $tpl_path);
@@ -3332,110 +3334,6 @@ class ChContactsPage extends CerberusPageExtension {
 		}	
 	}
 	
-	// Ajax
-	function viewRefreshAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
-		$view = C4_AbstractViewLoader::getView('', $id);
-		$view->render();
-	}
-	
-	function viewSortByAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
-		@$sortBy = DevblocksPlatform::importGPC($_REQUEST['sortBy']);
-		
-		$view = C4_AbstractViewLoader::getView('', $id);
-		$view->doSortBy($sortBy);
-		C4_AbstractViewLoader::setView('', $id, $view);
-		
-		$view->render();
-	}
-	
-	function viewPageAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
-		@$page = DevblocksPlatform::importGPC(DevblocksPlatform::importGPC($_REQUEST['page']));
-		
-		$view = C4_AbstractViewLoader::getView('', $id);
-		$view->doPage($page);
-		C4_AbstractViewLoader::setView('', $id, $view);
-		
-		$view->render();
-	}
-	
-	function viewGetCriteriaAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
-		@$field = DevblocksPlatform::importGPC($_REQUEST['field']);
-		
-		$view = C4_AbstractViewLoader::getView('', $id);
-		$view->renderCriteria($field);		
-	}
-	
-	// Post
-	function viewAddCriteriaAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
-		@$contacts_page = DevblocksPlatform::importGPC($_REQUEST['contacts_page']);
-		@$field = DevblocksPlatform::importGPC($_REQUEST['field']);
-		@$oper = DevblocksPlatform::importGPC($_REQUEST['oper']);
-		@$value = DevblocksPlatform::importGPC($_REQUEST['value']);
-		
-		$view = C4_AbstractViewLoader::getView('', $id);
-		$view->doSetCriteria($field, $oper, $value);
-		C4_AbstractViewLoader::setView('', $id, $view);
-		
-		// [TODO] Need to put them back on org or person (depending on which was active)
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('contacts',$contacts_page)));
-	}
-	
-	function viewRemoveCriteriaAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
-		@$contacts_page = DevblocksPlatform::importGPC($_REQUEST['contacts_page']);
-		@$field = DevblocksPlatform::importGPC($_REQUEST['field']);
-		
-		$view = C4_AbstractViewLoader::getView('', $id);
-		$view->doRemoveCriteria($field);
-		C4_AbstractViewLoader::setView('', $id, $view);
-		
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('contacts',$contacts_page)));
-	}
-	
-	function viewResetCriteriaAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
-		@$contacts_page = DevblocksPlatform::importGPC($_REQUEST['contacts_page']);
-		
-		$view = C4_AbstractViewLoader::getView('', $id);
-		$view->doResetCriteria();
-		C4_AbstractViewLoader::setView('', $id, $view);
-		
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('contacts',$contacts_page)));
-	}
-	
-	// Ajax
-	function viewCustomizeAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
-		
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('id', $id);
-
-		$view = C4_AbstractViewLoader::getView('', $id);
-		$tpl->assign('view', $view);
-
-		$tpl->assign('optColumns', $view->getSearchFields());
-		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/contacts/customize_view.tpl.php');
-	}
-	
-	// Post?
-	function viewSaveCustomizeAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
-		@$columns = DevblocksPlatform::importGPC($_REQUEST['columns'],'array', array());
-		@$num_rows = DevblocksPlatform::importGPC($_REQUEST['num_rows'],'integer',10);
-		
-		$view = C4_AbstractViewLoader::getView('', $id);
-		$view->doCustomize($columns, $num_rows);		
-		C4_AbstractViewLoader::setView('', $id, $view);
-		
-		$view->render();
-	}
-	
 	// Post
 	function parseUploadAction() {
 		@$type = DevblocksPlatform::importGPC($_REQUEST['type'],'string','');
@@ -3533,6 +3431,7 @@ class ChContactsPage extends CerberusPageExtension {
 					}
 				}
 			}
+			
 			if(!empty($fields)) {
 				if($type=="orgs") {
 					@$orgs = DAO_ContactOrg::getWhere(
@@ -3550,9 +3449,9 @@ class ChContactsPage extends CerberusPageExtension {
 					}
 				} elseif ($type=="addys") {
 					if(!empty($sync_field) && !empty($sync_val))
-					@$addys = DAO_Address::getWhere(
+						@$addys = DAO_Address::getWhere(
 							sprintf('%s = %s', $sync_field, $db->qstr($sync_val))
-					);
+						);
 					
 					if(isset($fields['email'])) {
 						if(empty($addys)) {
@@ -4247,67 +4146,198 @@ class ChUpdateController extends DevblocksControllerExtension {
 	    @set_time_limit(0); // no timelimit (when possible)
 	    DevblocksPlatform::clearCache();
 	    
-	    // Log out all sessions before patching
-		$db = DevblocksPlatform::getDatabaseService();
-		$db->Execute(sprintf("DELETE FROM %s_session", APP_DB_PREFIX));
-	    
-	    $settings = CerberusSettings::getInstance();
-	    $authorized_ips_str = $settings->get(CerberusSettings::AUTHORIZED_IPS);
-	    $authorized_ips = CerberusApplication::parseCrlfString($authorized_ips_str);
-	    
-   	    $authorized_ip_defaults = CerberusApplication::parseCsvString(AUTHORIZED_IPS_DEFAULTS);
-	    $authorized_ips = array_merge($authorized_ips, $authorized_ip_defaults);
-	    
-	    $pass = false;
-		foreach ($authorized_ips as $ip)
-		{
-			if(substr($ip,0,strlen($ip)) == substr($_SERVER['REMOTE_ADDR'],0,strlen($ip)))
-		 	{ $pass=true; break; }
-		}
-	    if(!$pass) {
-		    echo 'Your IP address ('.$_SERVER['REMOTE_ADDR'].') is not authorized to update this helpdesk.';
-		    return;
+	    $stack = $request->path;
+	    array_shift($stack); // update
+
+	    switch(array_shift($stack)) {
+	    	case 'locked':
+	    		if(!DevblocksPlatform::versionConsistencyCheck()) {
+	    			$url = DevblocksPlatform::getUrlService();
+	    			echo "<h1>Cerberus Helpdesk 4.0</h1>";
+	    			echo "The helpdesk is currently waiting for an administrator to finish upgrading. ".
+	    				"Please wait a few minutes and then ". 
+		    			sprintf("<a href='%s'>try again</a>.<br><br>",
+							$url->write('c=update&a=locked')
+		    			);
+	    			echo sprintf("If you're an admin you may <a href='%s'>finish the upgrade</a>.",
+	    				$url->write('c=update')
+	    			);
+	    		} else {
+	    			DevblocksPlatform::redirect(new DevblocksHttpResponse(array('login')));
+	    		}
+	    		break;
+	    		
+	    	default:
+			    $settings = CerberusSettings::getInstance();
+			    $authorized_ips_str = $settings->get(CerberusSettings::AUTHORIZED_IPS);
+			    $authorized_ips = CerberusApplication::parseCrlfString($authorized_ips_str);
+			    
+		   	    $authorized_ip_defaults = CerberusApplication::parseCsvString(AUTHORIZED_IPS_DEFAULTS);
+			    $authorized_ips = array_merge($authorized_ips, $authorized_ip_defaults);
+			    
+			    $pass = false;
+				foreach ($authorized_ips as $ip)
+				{
+					if(substr($ip,0,strlen($ip)) == substr($_SERVER['REMOTE_ADDR'],0,strlen($ip)))
+				 	{ $pass=true; break; }
+				}
+			    if(!$pass) {
+				    echo 'Your IP address ('.$_SERVER['REMOTE_ADDR'].') is not authorized to update this helpdesk.';
+				    return;
+			    }
+		
+			    if(DevblocksPlatform::runPluginPatches()) {
+			    	DevblocksPlatform::redirect(new DevblocksHttpResponse(array('login')));
+			    } else {
+			    	echo "Failure!"; // [TODO] Needs elaboration
+			    } 
+			    break;
 	    }
 	    
-		$patchMgr = DevblocksPlatform::getPatchService();
-		
-		echo "Patching platform... ";
-		
-		// [JAS]: Run our overloaded container for the platform
-		$patchMgr->registerPatchContainer(new PlatformPatchContainer());
-		
-		// Clean script
-		if(!$patchMgr->run()) {
-		    die("Failed patching platform."); // [TODO] Improve
-		    
-		} else { // success
-	        echo "done!<br>";
-
-			// Read in plugin information from the filesystem to the database
-			DevblocksPlatform::readPlugins();
-			
-			$plugins = DevblocksPlatform::getPluginRegistry();
-			
-			DevblocksPlatform::clearCache();
-			
-			// Run enabled plugin patches
-			$patches = DevblocksPlatform::getExtensions("devblocks.patch.container");
-			
-			if(is_array($patches))
-			foreach($patches as $patch_manifest) { /* @var $patch_manifest DevblocksExtensionManifest */ 
-				 $container = $patch_manifest->createInstance(); /* @var $container DevblocksPatchContainerExtension */
-				 $patchMgr->registerPatchContainer($container);
-			}
-			
-			echo "Patching plugins... ";
-			
-			if(!$patchMgr->run()) { // fail
-	            die("Failed on a patch."); // [TODO] Improve
-			}
-			
-			echo "done!<br>";
-		}
 		exit;
+	}
+}
+
+class ChInternalController extends DevblocksControllerExtension {
+	const ID = 'core.controller.internal';
+	
+	function __construct($manifest) {
+		parent::__construct($manifest);
+		$router = DevblocksPlatform::getRoutingService();
+		$router->addRoute('internal',self::ID);
+	}
+	
+	/*
+	 * Request Overload
+	 */
+	function handleRequest(DevblocksHttpRequest $request) {
+		$worker = CerberusApplication::getActiveWorker();
+		if(empty($worker)) return;
+		
+		$stack = $request->path;
+		array_shift($stack); // internal
+		
+	    @$action = array_shift($stack) . 'Action';
+
+	    switch($action) {
+	        case NULL:
+	            // [TODO] Index/page render
+	            break;
+	            
+	        default:
+			    // Default action, call arg as a method suffixed with Action
+				if(method_exists($this,$action)) {
+					call_user_func(array(&$this, $action));
+				}
+	            break;
+	    }
+	}
+	
+	// Ajax
+	function viewRefreshAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
+		$view = C4_AbstractViewLoader::getView('', $id);
+		$view->render();
+	}
+	
+	function viewSortByAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
+		@$sortBy = DevblocksPlatform::importGPC($_REQUEST['sortBy']);
+		
+		$view = C4_AbstractViewLoader::getView('', $id);
+		$view->doSortBy($sortBy);
+		C4_AbstractViewLoader::setView('', $id, $view);
+		
+		$view->render();
+	}
+	
+	function viewPageAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
+		@$page = DevblocksPlatform::importGPC(DevblocksPlatform::importGPC($_REQUEST['page']));
+		
+		$view = C4_AbstractViewLoader::getView('', $id);
+		$view->doPage($page);
+		C4_AbstractViewLoader::setView('', $id, $view);
+		
+		$view->render();
+	}
+	
+	function viewGetCriteriaAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
+		@$field = DevblocksPlatform::importGPC($_REQUEST['field']);
+		
+		$view = C4_AbstractViewLoader::getView('', $id);
+		$view->renderCriteria($field);		
+	}
+	
+	// Post
+	function viewAddCriteriaAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
+		@$response_uri = DevblocksPlatform::importGPC($_REQUEST['response_uri']);
+		@$field = DevblocksPlatform::importGPC($_REQUEST['field']);
+		@$oper = DevblocksPlatform::importGPC($_REQUEST['oper']);
+		@$value = DevblocksPlatform::importGPC($_REQUEST['value']);
+		
+		$view = C4_AbstractViewLoader::getView('', $id);
+		$view->doSetCriteria($field, $oper, $value);
+		C4_AbstractViewLoader::setView('', $id, $view);
+		
+		// [TODO] Need to put them back on org or person (depending on which was active)
+		if(!empty($response_uri))
+			DevblocksPlatform::redirect(new DevblocksHttpResponse(explode('/', $response_uri)));
+	}
+	
+	function viewRemoveCriteriaAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
+		@$response_uri = DevblocksPlatform::importGPC($_REQUEST['response_uri']);
+		@$field = DevblocksPlatform::importGPC($_REQUEST['field']);
+		
+		$view = C4_AbstractViewLoader::getView('', $id);
+		$view->doRemoveCriteria($field);
+		C4_AbstractViewLoader::setView('', $id, $view);
+		
+		if(!empty($response_uri))
+			DevblocksPlatform::redirect(new DevblocksHttpResponse(explode('/', $response_uri)));
+	}
+	
+	function viewResetCriteriaAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
+		@$response_uri = DevblocksPlatform::importGPC($_REQUEST['response_uri']);
+		
+		$view = C4_AbstractViewLoader::getView('', $id);
+		$view->doResetCriteria();
+		C4_AbstractViewLoader::setView('', $id, $view);
+
+		if(!empty($response_uri))
+			DevblocksPlatform::redirect(new DevblocksHttpResponse(explode('/', $response_uri)));
+	}
+	
+	// Ajax
+	function viewCustomizeAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('id', $id);
+
+		$view = C4_AbstractViewLoader::getView('', $id);
+		$tpl->assign('view', $view);
+
+		$tpl->assign('optColumns', $view->getSearchFields());
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/contacts/customize_view.tpl.php');
+	}
+	
+	// Post?
+	function viewSaveCustomizeAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
+		@$columns = DevblocksPlatform::importGPC($_REQUEST['columns'],'array', array());
+		@$num_rows = DevblocksPlatform::importGPC($_REQUEST['num_rows'],'integer',10);
+		
+		$view = C4_AbstractViewLoader::getView('', $id);
+		$view->doCustomize($columns, $num_rows);		
+		C4_AbstractViewLoader::setView('', $id, $view);
+		
+		$view->render();
 	}
 }
 

@@ -8,9 +8,9 @@
 	<tr>
 		<td nowrap="nowrap" class="tableThBlue">{$view->name} {if $view->id == 'search'}<a href="#{$view->id}_actions" style="color:rgb(255,255,255);font-size:11px;">jump to actions</a>{/if}</td>
 		<td nowrap="nowrap" class="tableThBlue" align="right">
-			<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=contacts&a=viewRefresh&id={$view->id}');" class="tableThLink">{$translate->_('common.refresh')|lower}</a>
-			<!-- {if $view->id != 'search'}<span style="font-size:12px"> | </span><a href="{devblocks_url}c=contacts&a=searchview&id={$view->id}{/devblocks_url}" class="tableThLink">{$translate->_('common.search')|lower} list</a>{/if} -->
-			<span style="font-size:12px"> | </span><a href="javascript:;" onclick="genericAjaxGet('customize{$view->id}','c=contacts&a=viewCustomize&id={$view->id}');toggleDiv('customize{$view->id}','block');" class="tableThLink">{$translate->_('common.customize')|lower}</a>
+			<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');" class="tableThLink">{$translate->_('common.refresh')|lower}</a>
+			<!-- {if $view->id != 'search'}<span style="font-size:12px"> | </span><a href="{devblocks_url}c=internal&a=searchview&id={$view->id}{/devblocks_url}" class="tableThLink">{$translate->_('common.search')|lower} list</a>{/if} -->
+			<span style="font-size:12px"> | </span><a href="javascript:;" onclick="genericAjaxGet('customize{$view->id}','c=internal&a=viewCustomize&id={$view->id}');toggleDiv('customize{$view->id}','block');" class="tableThLink">{$translate->_('common.customize')|lower}</a>
 		</td>
 	</tr>
 </table>
@@ -27,8 +27,8 @@
 		{foreach from=$view->view_columns item=header name=headers}
 			{* start table header, insert column title and link *}
 			<th nowrap="nowrap">
-			{if $header=="x"}<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=contacts&a=viewSortBy&id={$view->id}&sortBy=a_id');">{$translate->_('contact_org.id')|capitalize}</a>
-			{else}<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=contacts&a=viewSortBy&id={$view->id}&sortBy={$header}');">{$search_columns.$header->db_label|capitalize}</a>
+			{if $header=="x"}<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewSortBy&id={$view->id}&sortBy=a_id');">{$translate->_('contact_org.id')|capitalize}</a>
+			{else}<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewSortBy&id={$view->id}&sortBy={$header}');">{$search_columns.$header->db_label|capitalize}</a>
 			{/if}
 			
 			{* add arrow if sorting by this column, finish table header tag *}
@@ -105,13 +105,13 @@
 			{if $fromRow > $toRow}{assign var=fromRow value=$toRow}{/if}
 			
 			{if $view->renderPage > 0}
-				<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=contacts&a=viewPage&id={$view->id}&page=0');">&lt;&lt;</a>
-				<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=contacts&a=viewPage&id={$view->id}&page={$prevPage}');">&lt;{$translate->_('common.prev')|capitalize}</a>
+				<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewPage&id={$view->id}&page=0');">&lt;&lt;</a>
+				<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewPage&id={$view->id}&page={$prevPage}');">&lt;{$translate->_('common.prev')|capitalize}</a>
 			{/if}
 			(Showing {$fromRow}-{$toRow} of {$total})
 			{if $toRow < $total}
-				<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=contacts&a=viewPage&id={$view->id}&page={$nextPage}');">{$translate->_('common.next')|capitalize}&gt;</a>
-				<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=contacts&a=viewPage&id={$view->id}&page={$lastPage}');">&gt;&gt;</a>
+				<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewPage&id={$view->id}&page={$nextPage}');">{$translate->_('common.next')|capitalize}&gt;</a>
+				<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewPage&id={$view->id}&page={$lastPage}');">&gt;&gt;</a>
 			{/if}
 		</td>
 	</tr>

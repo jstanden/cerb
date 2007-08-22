@@ -118,7 +118,7 @@
 			<tuv xml:lang="en"><seg>last name</seg></tuv>
 		</tu>
 		<tu tuid='address.contact_org_id'>
-			<tuv xml:lang="en"><seg>org id</seg></tuv>
+			<tuv xml:lang="en"><seg>organization</seg></tuv>
 		</tu>
 
 		<!-- Contact orgs -->
