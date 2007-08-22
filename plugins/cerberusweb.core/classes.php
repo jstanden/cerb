@@ -4168,30 +4168,45 @@ class ChUpdateController extends DevblocksControllerExtension {
 	    		break;
 	    		
 	    	default:
-			    $settings = CerberusSettings::getInstance();
-			    $authorized_ips_str = $settings->get(CerberusSettings::AUTHORIZED_IPS);
-			    $authorized_ips = CerberusApplication::parseCrlfString($authorized_ips_str);
-			    
-		   	    $authorized_ip_defaults = CerberusApplication::parseCsvString(AUTHORIZED_IPS_DEFAULTS);
-			    $authorized_ips = array_merge($authorized_ips, $authorized_ip_defaults);
-			    
-			    $pass = false;
-				foreach ($authorized_ips as $ip)
-				{
-					if(substr($ip,0,strlen($ip)) == substr($_SERVER['REMOTE_ADDR'],0,strlen($ip)))
-				 	{ $pass=true; break; }
+			    $path = DEVBLOCKS_PATH . 'tmp' . DIRECTORY_SEPARATOR;
+				$file = $path . 'c4update_lock';	    		
+				$fp = fopen($file, "w+");
+				
+				if (flock($fp, LOCK_EX+LOCK_NB) && !DevblocksPlatform::versionConsistencyCheck()) { // do an exclusive lock
+					fwrite($fp, "Write something here\n");
+	    		
+				    $settings = CerberusSettings::getInstance();
+				    $authorized_ips_str = $settings->get(CerberusSettings::AUTHORIZED_IPS);
+				    $authorized_ips = CerberusApplication::parseCrlfString($authorized_ips_str);
+				    
+			   	    $authorized_ip_defaults = CerberusApplication::parseCsvString(AUTHORIZED_IPS_DEFAULTS);
+				    $authorized_ips = array_merge($authorized_ips, $authorized_ip_defaults);
+				    
+				    $pass = false;
+					foreach ($authorized_ips as $ip)
+					{
+						if(substr($ip,0,strlen($ip)) == substr($_SERVER['REMOTE_ADDR'],0,strlen($ip)))
+					 	{ $pass=true; break; }
+					}
+				    if(!$pass) {
+					    echo 'Your IP address ('.$_SERVER['REMOTE_ADDR'].') is not authorized to update this helpdesk.';
+					    return;
+				    }
+
+				    //echo "Running plugin patches...<br>";
+				    if(DevblocksPlatform::runPluginPatches()) {
+						flock($fp, LOCK_UN); // release the lock
+				    	DevblocksPlatform::redirect(new DevblocksHttpResponse(array('login')));
+				    } else {
+   						flock($fp, LOCK_UN); // release the lock
+				    	echo "Failure!"; // [TODO] Needs elaboration
+				    } 
+				    break;
 				}
-			    if(!$pass) {
-				    echo 'Your IP address ('.$_SERVER['REMOTE_ADDR'].') is not authorized to update this helpdesk.';
-				    return;
-			    }
-		
-			    if(DevblocksPlatform::runPluginPatches()) {
-			    	DevblocksPlatform::redirect(new DevblocksHttpResponse(array('login')));
-			    } else {
-			    	echo "Failure!"; // [TODO] Needs elaboration
-			    } 
-			    break;
+				else {
+					//echo 'This helpdesk is already up to date';
+					DevblocksPlatform::redirect(new DevblocksHttpResponse(array('login')));
+				}
 	    }
 	    
 		exit;
