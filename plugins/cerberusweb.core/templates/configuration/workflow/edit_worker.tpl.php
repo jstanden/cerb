@@ -14,27 +14,27 @@
 	</tr>
 	<tr>
 		<td width="0%" nowrap="nowrap"><b>First Name:</b></td>
-		<td width="100%"><input type="text" name="first_name" value="{$worker->first_name}"></td>
+		<td width="100%"><input type="text" name="first_name" value="{$worker->first_name}"{if (empty($license) || empty($license.key)) && count($workers) >= 3} disabled{/if}></td>
 	</tr>
 	<tr>
 		<td width="0%" nowrap="nowrap">Last Name:</td>
-		<td width="100%"><input type="text" name="last_name" value="{$worker->last_name}"></td>
+		<td width="100%"><input type="text" name="last_name" value="{$worker->last_name}"{if (empty($license) || empty($license.key)) && count($workers) >= 3} disabled{/if}></td>
 	</tr>
 	<tr>
 		<td width="0%" nowrap="nowrap">Title:</td>
-		<td width="100%"><input type="text" name="title" value="{$worker->title}"></td>
+		<td width="100%"><input type="text" name="title" value="{$worker->title}"{if (empty($license) || empty($license.key)) && count($workers) >= 3} disabled{/if}></td>
 	</tr>
 	<tr>
 		<td width="0%" nowrap="nowrap"><b>E-mail:</b></td>
-		<td width="100%"><input type="text" name="email" value="{$worker->email}" size="45"></td>
+		<td width="100%"><input type="text" name="email" value="{$worker->email}" size="45"{if (empty($license) || empty($license.key)) && count($workers) >= 3} disabled{/if}></td>
 	</tr>
 	<tr>
 		<td width="0%" nowrap="nowrap">Password:</td>
-		<td width="100%"><input type="password" name="password" value=""></td>
+		<td width="100%"><input type="password" name="password" value=""{if (empty($license) || empty($license.key)) && count($workers) >= 3} disabled{/if}></td>
 	</tr>
 	<tr>
 		<td width="0%" nowrap="nowrap">Password (again):</td>
-		<td width="100%"><input type="password" name="password2" value=""><div id="worker_error" style="color: red; font-weight: bold;"></div></td>
+		<td width="100%"><input type="password" name="password2" value=""{if (empty($license) || empty($license.key)) && count($workers) >= 3} disabled{/if}><div id="worker_error" style="color: red; font-weight: bold;"></div></td>
 	</tr>
 	
 	<tr><td colspan="2">&nbsp;</td></tr>
@@ -42,13 +42,16 @@
 	<tr>
 		<td width="0%" nowrap="nowrap" valign="top">
 			<b>Groups:</b><br>
+			{if (empty($license) || empty($license.key)) && count($workers) >= 3}
+			{else}
 			<a href="javascript:;" onclick="checkAll('configWorkerTeams',true);">check all</a><br>
 			<a href="javascript:;" onclick="checkAll('configWorkerTeams',false);">check none</a>
+			{/if}
 		</td>
 		<td width="100%" id="configWorkerTeams" valign="top">
 			{if $worker->id}{assign var=workerTeams value=$worker->getMemberships()}{/if}
 			{foreach from=$teams item=team key=team_id}
-			<label><input type="checkbox" name="team_id[]" value="{$team->id}" {if $workerTeams.$team_id}checked{/if}>{$team->name}</label><br>
+			<label><input type="checkbox" name="team_id[]" value="{$team->id}" {if $workerTeams.$team_id}checked{/if}{if (empty($license) || empty($license.key)) && count($workers) >= 3} disabled{/if}>{$team->name}</label><br>
 			{/foreach}
 		</td>
 	</tr>
@@ -58,8 +61,8 @@
 	<tr>
 		<td width="0%" nowrap="nowrap" valign="top"><b>Permissions:</b></td>
 		<td width="100%" valign="top">
-			<label><input type="checkbox" name="is_superuser" value="1" {if $worker->is_superuser}checked{/if}> Administrator</label><br>
-			<label style="padding-left:10px;"><input type="checkbox" name="can_delete" value="1" {if $worker->can_delete}checked{/if}> Can Permanently Delete Tickets</label><br>
+			<label><input type="checkbox" name="is_superuser" value="1" {if $worker->is_superuser}checked{/if}{if (empty($license) || empty($license.key)) && count($workers) >= 3} disabled{/if}> Administrator</label><br>
+			<label style="padding-left:10px;"><input type="checkbox" name="can_delete" value="1" {if $worker->can_delete}checked{/if}{if (empty($license) || empty($license.key)) && count($workers) >= 3} disabled{/if}> Can Permanently Delete Tickets</label><br>
 		</td>
 	</tr>
 	<tr>
@@ -75,7 +78,7 @@
 	{/if}
 	<tr>
 		<td colspan="2">
-			<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
+			<button type="submit"{if (empty($license) || empty($license.key)) && count($workers) >= 3} disabled{/if}><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
 		</td>
 	</tr>
 </table>
