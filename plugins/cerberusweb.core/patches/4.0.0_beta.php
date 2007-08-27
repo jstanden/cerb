@@ -453,5 +453,36 @@ if(!isset($columns['IS_MANAGER'])) {
     $datadict->ExecuteSQLArray($sql);
 }
 
+// ***** CloudGlue
+
+if(!isset($tables['tag_to_content'])) {
+    $flds = "
+		index_id I2 DEFAULT 0 NOTNULL PRIMARY,
+		tag_id I4 DEFAULT 0 NOTNULL PRIMARY,
+		content_id I8 DEFAULT 0 NOTNULL PRIMARY
+	";
+    $sql = $datadict->CreateTableSQL('tag_to_content',$flds);
+    $datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($tables['tag_index'])) {
+    $flds = "
+		id I2 DEFAULT 0 NOTNULL PRIMARY,
+		name C(64) DEFAULT '' NOTNULL 
+	";
+    $sql = $datadict->CreateTableSQL('tag_index',$flds);
+    $datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($tables['tag'])) {
+    $flds = "
+		id I4 DEFAULT 0 NOTNULL PRIMARY,
+		name C(32) DEFAULT '' NOTNULL 
+	";
+    $sql = $datadict->CreateTableSQL('tag',$flds);
+    $datadict->ExecuteSQLArray($sql);
+}
+
+
 return TRUE;
 ?>

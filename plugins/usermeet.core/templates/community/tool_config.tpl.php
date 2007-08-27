@@ -45,7 +45,7 @@ define('REMOTE_URI', '{$path}'); // NO trailing slash!
  */
 define('LOCAL_HOST', $_SERVER['HTTP_HOST']);
 define('LOCAL_BASE', DevblocksRouter::getLocalBase()); // NO trailing slash!
-define('SCRIPT_LAST_MODIFY', 2007071701); // last change
+define('SCRIPT_LAST_MODIFY', 2007082501); // last change
 
 @session_start();
 
@@ -56,6 +56,23 @@ class DevblocksProxy {
             header('Pragma: cache'); 
             header('Cache-control: max-age=86400, must-revalidate'); // 1d
             header('Expires: ' . gmdate('D, d M Y H:i:s',time()+86400) . ' GMT'); // 1d
+            
+            @$pathinfo = pathinfo($local_path);
+            switch(@$pathinfo['extension']) {
+            	case 'css':
+            		header('Content-type: text/css;');
+            		break;
+            	case 'js':
+            		header('Content-type: text/javascript;');
+            		break;
+            	case 'xml':
+            		header('Content-type: text/xml;');
+            		break;
+            	default:
+            		header('Content-type: text/html;');
+            		break;
+            }
+            
             $remote_uri = REMOTE_BASE;
         }
         

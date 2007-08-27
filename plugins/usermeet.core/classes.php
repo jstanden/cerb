@@ -115,6 +115,12 @@ class UmPortalController extends DevblocksControllerExtension {
 	function writeResponse(DevblocksHttpResponse $response) {
 		$stack = $response->path;
 
+		$tpl = DevblocksPlatform::getTemplateService();
+
+		// Globals for Community Tool template scope
+		$translate = DevblocksPlatform::getTranslationService();
+		$tpl->assign('translate', $translate);
+		
 		array_shift($stack); // portal
 		$code = array_shift($stack); // xxxxxxxx
 
@@ -775,16 +781,17 @@ class UmContactApp extends Extension_UsermeetTool {
 	
 };
 
-class UmScApp extends Extension_UsermeetTool {
+class UmKbApp extends Extension_UsermeetTool {
 	const PARAM_LOGO_URL = 'logo_url';
 	const PARAM_THEME_URL = 'theme_url';
 	const PARAM_PAGE_TITLE = 'page_title';
 	const PARAM_CAPTCHA_ENABLED = 'captcha_enabled';
 	const SESSION_CAPTCHA = 'write_captcha';
 	
+	const TAG_INDEX_KB = 'ch_kb';
+	
     function __construct($manifest) {
         parent::__construct($manifest);
-        
         $filepath = realpath(dirname(__FILE__)) . DIRECTORY_SEPARATOR;
         
         DevblocksPlatform::registerClasses('Text/CAPTCHA.php',array(
@@ -795,7 +802,7 @@ class UmScApp extends Extension_UsermeetTool {
 	public function writeResponse(DevblocksHttpResponse $response) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
-		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		$tpl->assign('tpl_path', dirname(__FILE__) . '/templates/');
 		
         $umsession = $this->getSession();
 		$stack = $response->path;
@@ -803,7 +810,7 @@ class UmScApp extends Extension_UsermeetTool {
 		$logo_url = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_LOGO_URL, '');
 		$tpl->assign('logo_url', $logo_url);
         
-		$page_title = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_PAGE_TITLE, 'Fetch &amp; Retrieve');
+		$page_title = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_PAGE_TITLE, 'Knowledgebase');
 		$tpl->assign('page_title', $page_title);
         
         $captcha_enabled = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_CAPTCHA_ENABLED, 1);
@@ -864,61 +871,131 @@ class UmScApp extends Extension_UsermeetTool {
 		        
 				break;
 			
+			case 'search':
+				$tpl->display('file:' . dirname(__FILE__) . '/templates/portal/kb/search.tpl.php');
+				break;
+			
+			case 'edit':
+				$id = intval(array_shift($stack));
+
+				$article = DAO_KbArticle::get($id);
+				$tpl->assign('article', $article);
+				
+				$tags = DAO_CloudGlue::getTagsOnContents($id, self::TAG_INDEX_KB);
+				$tpl->assign('tags', @$tags[$id]);
+				
+				$tpl->display('file:' . dirname(__FILE__) . '/templates/portal/kb/article_edit.tpl.php');
+				break;
+				
+			case 'article':
+				$id = intval(array_shift($stack));
+
+				$article = DAO_KbArticle::get($id);
+				$tpl->assign('article', $article);
+
+				@$tags = array_shift(DAO_CloudGlue::getTagsOnContents($id, self::TAG_INDEX_KB));
+				if(!empty($tags)) {
+					$parts = array();
+					foreach($tags as $tag) {
+						$parts[] = $tag->name;
+					}
+					$tpl->assign('location', rawurlencode(implode('+', $parts)));
+					$tpl->assign('tags', $tags);
+				}
+				
+		    	$tpl->display('file:' . dirname(__FILE__) . '/templates/portal/kb/article.tpl.php');
+				break;
+			
+			case 'login':
+		    	$tpl->display('file:' . dirname(__FILE__) . '/templates/portal/kb/login.tpl.php');
+				break;
+
+			case 'browse':
 	    	default:
-//		    	$response = array_shift($stack);
-       			$tpl->display('file:' . dirname(__FILE__) . '/templates/portal/sc/index.tpl.php');
+	    		// ----
+	    		$cg = DevblocksPlatform::getCloudGlueService();
+	    		$cfg = new CloudGlueConfiguration();
+	    		$cfg->indexName = self::TAG_INDEX_KB;
+	    		$cfg->divName = 'kbTagCloud'; // [TODO] Make optional (move to render)
+	    		$cfg->extension = 'kb'; // [TODO] Make optional (move to render)
+	    		$cfg->php_click = '_'; // [TODO] Make optional (move to render)
+				$cfg->maxWeight = 36;
+				$cfg->minWeight = 12;
+	    		$cloud = $cg->getCloud($cfg);
+	    		// ----
+
+	    		if(!empty($stack)) {
+	    			$tag_str = rawurldecode(array_shift($stack));
+	    			$tags = explode('+', $tag_str);
+	    			foreach($tags as $tag_name) {
+		    			if(null != ($tag = DAO_CloudGlue::lookupTag($tag_name,false)))
+			    			$cloud->addToPath($tag);
+	    			}
+	    			$tpl->assign('tags_prefix', $tag_str);
+	    			
+					$ids = DAO_CloudGlue::getTagContentIds(self::TAG_INDEX_KB, $cloud->getPath());
+					$articles = DAO_KbArticle::getWhere(sprintf("%s IN (%s)",
+						DAO_KbArticle::ID,
+						implode(',', $ids)
+					));
+					$tpl->assign('articles', $articles);
+	    		}	    		
+	    		
+	    		$tpl->assign('cloud', $cloud);
+	    		
+   				$tpl->display('file:' . dirname(__FILE__) . '/templates/portal/kb/index.tpl.php');
 		    	break;
-		    	
-		    case 'results':
-//		    	$response = array_shift($stack);
-		    	$tpl->display('file:' . dirname(__FILE__) . '/templates/portal/sc/index.tpl.php');
-		    	break;
-		    	
 		}
 	}
 	
-	// Post
-	function doSearchAction() {
-		@$q = DevblocksPlatform::importGPC($_POST['q'], 'string', '');
-		@$sources = DevblocksPlatform::importGPC($_POST['sources'], 'array', array());
-
-		@$sources = array_flip($sources);
-		
-		$tpl = DevblocksPlatform::getTemplateService();
-		
-    	$rss_jira = "http://www.wgmdev.com/jira/secure/IssueNavigator.jspa?view=rss&pid=10060&summary=true&description=true&tempMax=25&reset=true&decorator=none&query=".urlencode($q);
-    	$atom_forums = "http://forum.cerberusweb.com/search.php?PostBackAction=Search&Type=Topics&btnSubmit=Search&Feed=Atom&Keywords=".urlencode($q);
-    	$rss_wiki = "http://wiki.cerberusdemo.com/index.php/Special:SearchFeed?term=".urlencode($q);
+	/**
+	 * @param $instance Model_CommunityTool 
+	 */
+    public function configure(Model_CommunityTool $instance) {
+        $tpl = DevblocksPlatform::getTemplateService();
+        $tpl_path = realpath(dirname(__FILE__)) . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR;
+        $tpl->assign('config_path', $tpl_path);
+        
+        $logo_url = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_LOGO_URL, '');
+		$tpl->assign('logo_url', $logo_url);
+        
+        $page_title = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_PAGE_TITLE, 'Knowledgebase');
+		$tpl->assign('page_title', $page_title);
+        
+        $captcha_enabled = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_CAPTCHA_ENABLED, 1);
+		$tpl->assign('captcha_enabled', $captcha_enabled);
+        
+        $tpl->display("file:${tpl_path}portal/kb/config/index.tpl.php");
+    }
+    
+    public function doArticleEditAction() {
+    	// [TODO] Permissions
     	
-    	$feeds = array();
+    	@$id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
+    	@$title = DevblocksPlatform::importGPC($_POST['title'],'string','No article title');
+    	@$content = DevblocksPlatform::importGPC($_POST['content'],'string','');
+    	@$tags_csv = DevblocksPlatform::importGPC($_POST['tags'],'string','');
     	
-    	if(empty($sources) || isset($sources['jira']))
-    	try {
-   			$feed = new Zend_Feed_Rss($rss_jira);
-   			if($feed->count())
-   				$feeds[] = $feed;
-    	} catch(Zend_Feed_Exception $e) {}
+		$fields = array(
+			DAO_KbArticle::TITLE => $title,
+			DAO_KbArticle::CONTENT => $content,
+		);
     	
-    	if(empty($sources) || isset($sources['forums']))
-    	try {
-    		$feed = new Zend_Feed_Atom($atom_forums);
-   			if($feed->count())
-   				$feeds[] = $feed;
-    	} catch(Zend_Feed_Exception $e) {}
+    	if(empty($id)) { // insert
+			$id = DAO_KbArticle::create($fields);
+    		
+    	} else { // edit
+			 DAO_KbArticle::update($id, $fields);
+			
+    	}
     	
-    	if(empty($sources) || isset($sources['wiki']))
-    	try {
-    		$feed= new Zend_Feed_Rss($rss_wiki);
-   			if($feed->count())
-   				$feeds[] = $feed;
-		} catch(Zend_Feed_Exception $e) {}
+    	// Tagging
+    	$tags = CerberusApplication::parseCsvString($tags_csv);
+		DAO_CloudGlue::applyTags($tags, $id, self::TAG_INDEX_KB, true);
     	
-    	$tpl->assign('terms', $q);
-    	$tpl->assign('feeds', $feeds);
-    	$tpl->assign('sources', $sources);
-    	
-    	DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',$this->getPortal(),'results')));
-	}
+    	DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',$this->getPortal(),'article',$id)));
+    }
+	
 };
 
 ?>

@@ -4179,11 +4179,10 @@ class ChUpdateController extends DevblocksControllerExtension {
 	    	default:
 			    $path = DEVBLOCKS_PATH . 'tmp' . DIRECTORY_SEPARATOR;
 				$file = $path . 'c4update_lock';	    		
-				$fp = fopen($file, "w+");
 				
-				if (flock($fp, LOCK_EX+LOCK_NB) && !DevblocksPlatform::versionConsistencyCheck()) { // do an exclusive lock
-					fwrite($fp, "Write something here\n");
-	    		
+				if(!file_exists($file) || @filectime($file)+600 < time()) { // 10 min lock
+					touch($file);
+
 				    $settings = CerberusSettings::getInstance();
 				    $authorized_ips_str = $settings->get(CerberusSettings::AUTHORIZED_IPS);
 				    $authorized_ips = CerberusApplication::parseCrlfString($authorized_ips_str);
@@ -4204,17 +4203,17 @@ class ChUpdateController extends DevblocksControllerExtension {
 
 				    //echo "Running plugin patches...<br>";
 				    if(DevblocksPlatform::runPluginPatches()) {
-						flock($fp, LOCK_UN); // release the lock
+						@unlink($file);
 				    	DevblocksPlatform::redirect(new DevblocksHttpResponse(array('login')));
 				    } else {
-   						flock($fp, LOCK_UN); // release the lock
+						@unlink($file);
 				    	echo "Failure!"; // [TODO] Needs elaboration
 				    } 
 				    break;
 				}
 				else {
-					//echo 'This helpdesk is already up to date';
-					DevblocksPlatform::redirect(new DevblocksHttpResponse(array('login')));
+					echo "Another administrator is currently running update.  Please wait...";
+//					DevblocksPlatform::redirect(new DevblocksHttpResponse(array('update','locked')));
 				}
 	    }
 	    

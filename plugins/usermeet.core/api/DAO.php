@@ -384,4 +384,106 @@ class DAO_CommunitySession {
 	}
 };
 
+class DAO_KbArticle extends DevblocksORMHelper {
+	const ID = 'id';
+	const TITLE = 'title';
+	const CONTENT = 'content';
+	
+	static function create($fields) {
+		$db = DevblocksPlatform::getDatabaseService();
+		$id = $db->GenID('kb_seq');
+		
+		$sql = sprintf("INSERT INTO kb_article (id,title,content) ".
+			"VALUES (%s,'','')",
+			$id
+		);
+		$db->Execute($sql);
+		
+		self::update($id, $fields);
+		
+		return $id;
+	}
+	
+	static function get($id) {
+		$objects = self::getWhere(sprintf("%s = %d",
+			self::ID,
+			$id
+		));
+		
+		if(isset($objects[$id]))
+			return $objects[$id];
+
+		return null;
+	}
+
+	static function getWhere($where=null) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = "SELECT id, title, content ".
+			"FROM kb_article ".
+			(!empty($where)?sprintf("WHERE %s ",$where):" ").
+			"ORDER BY title "
+			;
+		$rs = $db->Execute($sql);
+		
+		return self::_createObjectsFromResultSet($rs);
+	}
+	
+	/**
+	 * Enter description here...
+	 *
+	 * @param ADORecordSet $rs
+	 */
+	static private function _createObjectsFromResultSet(ADORecordSet $rs) {
+		$objects = array();
+		
+		while(!$rs->EOF) {
+			$object = new Model_KbArticle();
+			$object->id = intval($rs->fields['id']);
+			$object->title = $rs->fields['title'];
+			$object->content = $rs->fields['content'];
+			$objects[$object->id] = $object;
+			$rs->MoveNext();
+		}
+		
+		return $objects;
+	}
+
+	static function update($ids, $fields) {
+		if(!is_array($ids)) $ids = array($ids);
+		
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		// Blob special handling
+		if(isset($fields[self::CONTENT])) {
+			$db->UpdateBlob(
+				'kb_article',
+				self::CONTENT,
+				$fields[self::CONTENT],
+				sprintf("id IN (%s)",implode(',',$ids))
+			);
+			unset($fields[self::CONTENT]);
+		}
+		
+		parent::_update($ids, 'kb_article', $fields);
+	}
+	
+	static function delete($ids) {
+		if(!is_array($ids)) $ids = array($ids);
+		
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$id_string = implode(',', $ids);
+		
+		$db->Execute(sprintf("DELETE FROM kb_article WHERE id IN (%s)", $id_string));
+		
+		// CloudGlue removes tags from nuked articles
+		DAO_CloudGlue::deleteContentIds(UmKbApp::TAG_INDEX_KB, $ids);
+	}
+	
+	static function search() {
+		
+	}
+};
+
 ?>

@@ -85,5 +85,16 @@ if(!isset($tables['community_tool_property'])) {
 	$datadict->ExecuteSQLArray($sql);
 }
 
+// `kb_article` ========================
+if(!isset($tables['kb_article'])) {
+	$flds ="
+		id I4 DEFAULT 0 NOTNULL PRIMARY,
+		title C(128) DEFAULT '' NOTNULL,
+		content B DEFAULT '' NOTNULL
+	";
+	$sql = $datadict->CreateTableSQL('kb_article', $flds);
+	$datadict->ExecuteSQLArray($sql);
+}
+
 return TRUE;
 ?>

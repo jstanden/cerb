@@ -82,4 +82,11 @@ class Model_CommunitySession {
 		return isset($this->_properties[$key]) ? $this->_properties[$key] : $default;
 	}
 };
+
+class Model_KbArticle {
+	public $id = 0;
+	public $title = '';
+	public $content = '';
+};
+
 ?>
