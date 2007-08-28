@@ -19,7 +19,7 @@
 				<input type="text" name="tags" size="64" value="{if !empty($tags)}{foreach from=$tags item=tag name=tags}{$tag->name}{if !$smarty.foreach.tags.last}, {/if}{/foreach}{/if}" maxlength="255"><br>
 				<br>
 				
-				<button type="submit">{$translate->_('common.save_changes')}</button>
+				<button type="submit"><img src="{devblocks_url}c=resource&p=usermeet.core&f=images/check.gif{/devblocks_url}" alt="Save" align="top"> {$translate->_('common.save_changes')}</button>
 				</form>
 			</td>
 		</tr>

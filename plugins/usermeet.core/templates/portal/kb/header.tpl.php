@@ -22,12 +22,6 @@
 		#kbArticle {
 		}
 		
-		/*
-		#kbArticle UL, #kbArticle OL {
-			margin: 0px;
-		}
-		*/
-		
 		#kbNavMenu A {
 			color: rgb(50,50,50);
 		}
@@ -41,7 +35,7 @@
 		}
 		
 		#kbTagCloud A {
-			color: rgb(255,80,0);
+			color: rgb(80,180,0);
 		}
 		
 		#kbTagCloudArticles {

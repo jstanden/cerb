@@ -1,7 +1,7 @@
 {include file="$tpl_path/portal/kb/header.tpl.php"}
 
 <div style="margin:10px;">
-<form action="{devblocks_url}c=search{/devblocks_url}" method="post">
+<form action="{devblocks_url}{/devblocks_url}" method="post">
 <input type="hidden" name="a" value="doSearch">
 <table style="border: 1px solid rgb(0, 128, 255); width: 100%; padding: 5px; background-color: rgb(237, 241, 255);" border="0" cellpadding="0" cellspacing="0">
   <tbody>
@@ -11,14 +11,16 @@
   <tr>
   	<td width="0%" nowrap="nowrap"><b>Search for:&nbsp; </td>
   	<td width="100%">
-  		<input type="text" name="query" value="" size="35" style="width:98%;">
+  		<input type="text" name="query" value="{$query}" size="35" style="width:98%;">
   	</td>
   </tr>
   <tr>
   	<td width="0%" nowrap="nowrap"><b>Match:&nbsp; </td>
   	<td width="100%">
-  		<label><input type="radio" name="match" value=""> any words</label>
-  		<label><input type="radio" name="match" value=""> all words</label>
+  		<!-- 
+  		<label><input type="radio" name="match" value="any"> any words</label>
+  		<label><input type="radio" name="match" value="all"> all words</label>
+  		 -->
   		<label><input type="radio" name="match" value="" checked> exact phrase</label>
   	</td>
   </tr>
@@ -38,22 +40,19 @@
     </tr>
     <tr>
       <td>
+      {if !empty($articles)}
       <ul>
-        <li><a href="{devblocks_url}c=article&id=1000{/devblocks_url}">Installing with cPanel</a><br>
+      	{foreach from=$articles item=article name=articles key=article_id}
+        <li><a href="{devblocks_url}c=article&id={$article_id}{/devblocks_url}">{$article.kb_title}</a><br>
           <span style="font-size: 90%;">
-	          Cerberus Helpdesk lets you blah to XML documents and then micro ferment them with a special sauce that ends up tasting like something missing from your wallet.<br>
-	          <span style="color: rgb(120, 120, 120);">{devblocks_url full=true}c=article&id=1000{/devblocks_url}</span><br>
+	          {$article.kb_content|strip_tags|truncate:255:'...':false}<br>
+	          <span style="color: rgb(120, 120, 120);">{devblocks_url full=true}c=article&id={$article_id}{/devblocks_url}</span><br>
 	          <br>
           </span>
         </li>
-        <li><a href="{devblocks_url}c=article&id=2000{/devblocks_url}">Installing the C Parser in Linux</a><br>
-          <span style="font-size: 90%;">
-	          Sauce that ends up tasting like something missing from your wallet Cerberus Helpdesk lets you blah to XML documents and then micro ferment them with a special.<br>
-	          <span style="color: rgb(120, 120, 120);">{devblocks_url full=true}c=article&id=2000{/devblocks_url}</span><br>
-	          <br>
-          </span>
-        </li>
+        {/foreach}
       </ul>
+      {/if}
       </td>
     </tr>
   </tbody>

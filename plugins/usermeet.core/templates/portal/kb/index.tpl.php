@@ -12,18 +12,23 @@
 						<a href="{devblocks_url}c=browse&path={$part->name|escape:"url"}{/devblocks_url}">{$part->name}</a>{if !$smarty.foreach.parts.last} + {/if}
 					{/foreach}
 					</div>
+				{else}
+					Choose a topic:
 				{/if}
 				
 				{assign var=taginfo value=$cloud->getPathTagInfo()}
 				{assign var=tags value=$taginfo.tags}
 				{assign var=weights value=$taginfo.weights}
 				{assign var=font_weights value=$taginfo.font_weights}
+				{if !empty($tags)}
 				<div id="kbTagCloud">
 					{foreach from=$tags item=tag key=tag_id name=tags}
 						<span style="font-size:{$font_weights.$tag_id}px;"><a href="{devblocks_url}c=browse&path={if !empty($tags_prefix)}{$tags_prefix|escape:"url"}+{/if}{$tag->name|escape:"url"}{/devblocks_url}">{$tag->name}</a>{if !$smarty.foreach.tags.last},{/if}</span> 
 					{/foreach}
 				</div>
-				<br>
+				{else}
+					<br>
+				{/if}
 				
 				{if !empty($articles)}
 				<h2 style="margin:0px;">Articles</h2>
@@ -36,7 +41,7 @@
 			</td>
 			<td style="width: 200px; white-space: nowrap; vertical-align: top;">
 				<div style="border-left: 1px solid rgb(200, 200, 200); border-right: 1px solid rgb(200, 200, 180); padding: 10px; margin-right: 5px; background-color: rgb(245, 245, 255);">
-					<form action="{devblocks_url}c=search{/devblocks_url}" method="post">
+					<form action="{devblocks_url}{/devblocks_url}" method="post">
 					<input type="hidden" name="a" value="doSearch">
 					<b>Search</b><br>
 					<input name="query" value="" size="16" style="width: 150px;" type="text"><button type="submit">&raquo;</button>

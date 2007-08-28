@@ -86,6 +86,7 @@ class Model_CommunitySession {
 class Model_KbArticle {
 	public $id = 0;
 	public $title = '';
+	public $code = '';
 	public $content = '';
 };
 

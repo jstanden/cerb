@@ -872,13 +872,48 @@ class UmKbApp extends Extension_UsermeetTool {
 				break;
 			
 			case 'search':
+				$session = $this->getSession();
+				$query = $session->getProperty('last_query', '');
+				$match = $session->setProperty('last_query_type', '');
+				
+				$tpl->assign('query', $query);
+				$tpl->assign('match', $match);
+				
+				// Matching types (any, all, phrase)
+				switch($match) {
+					default: // phrase
+						$query = '*'.$query.'*';
+						break;
+				}
+				
+				$params = array(
+					new DevblocksSearchCriteria(SearchFields_KbArticle::CONTENT,DevblocksSearchCriteria::OPER_LIKE,$query),
+					new DevblocksSearchCriteria(SearchFields_KbArticle::CODE,'=',$this->getPortal())
+				);
+				
+				list($articles, $null) = DAO_KbArticle::search(
+					$params,
+					25,
+					0,
+					SearchFields_KbArticle::TITLE,
+					true,
+					false
+				);
+				$tpl->assign('articles', $articles);
+				
 				$tpl->display('file:' . dirname(__FILE__) . '/templates/portal/kb/search.tpl.php');
 				break;
 			
 			case 'edit':
 				$id = intval(array_shift($stack));
 
-				$article = DAO_KbArticle::get($id);
+				$articles = DAO_KbArticle::getWhere(sprintf("%s = %d AND %s = '%s'",
+					DAO_KbArticle::ID,
+					$id,
+					DAO_KbArticle::CODE,
+					$this->getPortal()
+				));
+				@$article = $articles[$id];
 				$tpl->assign('article', $article);
 				
 				$tags = DAO_CloudGlue::getTagsOnContents($id, self::TAG_INDEX_KB);
@@ -890,7 +925,13 @@ class UmKbApp extends Extension_UsermeetTool {
 			case 'article':
 				$id = intval(array_shift($stack));
 
-				$article = DAO_KbArticle::get($id);
+				$articles = DAO_KbArticle::getWhere(sprintf("%s = %d AND %s = '%s'",
+					DAO_KbArticle::ID,
+					$id,
+					DAO_KbArticle::CODE,
+					$this->getPortal()
+				));
+				@$article = $articles[$id];
 				$tpl->assign('article', $article);
 
 				@$tags = array_shift(DAO_CloudGlue::getTagsOnContents($id, self::TAG_INDEX_KB));
@@ -933,12 +974,15 @@ class UmKbApp extends Extension_UsermeetTool {
 	    			}
 	    			$tpl->assign('tags_prefix', $tag_str);
 	    			
-					$ids = DAO_CloudGlue::getTagContentIds(self::TAG_INDEX_KB, $cloud->getPath());
-					$articles = DAO_KbArticle::getWhere(sprintf("%s IN (%s)",
-						DAO_KbArticle::ID,
-						implode(',', $ids)
-					));
-					$tpl->assign('articles', $articles);
+					if(null != ($ids = DAO_CloudGlue::getTagContentIds(self::TAG_INDEX_KB, $cloud->getPath()))) {
+						$articles = DAO_KbArticle::getWhere(sprintf("%s IN (%s) AND %s = '%s'",
+							DAO_KbArticle::ID,
+							implode(',', $ids),
+							DAO_KbArticle::CODE,
+							$this->getPortal()
+						));
+						$tpl->assign('articles', $articles);
+					}
 	    		}	    		
 	    		
 	    		$tpl->assign('cloud', $cloud);
@@ -968,6 +1012,17 @@ class UmKbApp extends Extension_UsermeetTool {
         $tpl->display("file:${tpl_path}portal/kb/config/index.tpl.php");
     }
     
+    public function doSearchAction() {
+		@$query = DevblocksPlatform::importGPC($_REQUEST['query'],'string','');
+		@$match = DevblocksPlatform::importGPC($_REQUEST['match'],'string','');
+    	
+		$session = $this->getSession();
+		$session->setProperty('last_query', $query);
+		$session->setProperty('last_query_type', $match);
+		
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',$this->getPortal(),'search')));
+    }
+    
     public function doArticleEditAction() {
     	// [TODO] Permissions
     	
@@ -978,6 +1033,7 @@ class UmKbApp extends Extension_UsermeetTool {
     	
 		$fields = array(
 			DAO_KbArticle::TITLE => $title,
+			DAO_KbArticle::CODE => $this->getPortal(),
 			DAO_KbArticle::CONTENT => $content,
 		);
     	

@@ -90,9 +90,18 @@ if(!isset($tables['kb_article'])) {
 	$flds ="
 		id I4 DEFAULT 0 NOTNULL PRIMARY,
 		title C(128) DEFAULT '' NOTNULL,
-		content B DEFAULT '' NOTNULL
+		code C(12) DEFAULT '' NOTNULL,
+		content XL DEFAULT '' NOTNULL
 	";
 	$sql = $datadict->CreateTableSQL('kb_article', $flds);
+	$datadict->ExecuteSQLArray($sql);
+}
+
+$columns = $datadict->MetaColumns('kb_article');
+$indexes = $datadict->MetaIndexes('kb_article',false);
+
+if(!isset($columns['CODE'])) {
+	$sql = $datadict->AddColumnSQL('kb_article', "code C(12) DEFAULT '' NOTNULL");
 	$datadict->ExecuteSQLArray($sql);
 }
 

@@ -387,14 +387,15 @@ class DAO_CommunitySession {
 class DAO_KbArticle extends DevblocksORMHelper {
 	const ID = 'id';
 	const TITLE = 'title';
+	const CODE = 'code';
 	const CONTENT = 'content';
 	
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
 		$id = $db->GenID('kb_seq');
 		
-		$sql = sprintf("INSERT INTO kb_article (id,title,content) ".
-			"VALUES (%s,'','')",
+		$sql = sprintf("INSERT INTO kb_article (id,title,code,content) ".
+			"VALUES (%s,'','','')",
 			$id
 		);
 		$db->Execute($sql);
@@ -419,7 +420,7 @@ class DAO_KbArticle extends DevblocksORMHelper {
 	static function getWhere($where=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = "SELECT id, title, content ".
+		$sql = "SELECT id, title, code, content ".
 			"FROM kb_article ".
 			(!empty($where)?sprintf("WHERE %s ",$where):" ").
 			"ORDER BY title "
@@ -434,13 +435,14 @@ class DAO_KbArticle extends DevblocksORMHelper {
 	 *
 	 * @param ADORecordSet $rs
 	 */
-	static private function _createObjectsFromResultSet(ADORecordSet $rs) {
+	static private function _createObjectsFromResultSet(ADORecordSet $rs=null) {
 		$objects = array();
 		
 		while(!$rs->EOF) {
 			$object = new Model_KbArticle();
 			$object->id = intval($rs->fields['id']);
 			$object->title = $rs->fields['title'];
+			$object->code = $rs->fields['code'];
 			$object->content = $rs->fields['content'];
 			$objects[$object->id] = $object;
 			$rs->MoveNext();
@@ -480,10 +482,74 @@ class DAO_KbArticle extends DevblocksORMHelper {
 		// CloudGlue removes tags from nuked articles
 		DAO_CloudGlue::deleteContentIds(UmKbApp::TAG_INDEX_KB, $ids);
 	}
-	
-	static function search() {
+
+    static function search($params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
+		$db = DevblocksPlatform::getDatabaseService();
+
+        list($tables,$wheres) = parent::_parseSearchParams($params, SearchFields_KbArticle::getFields());
+		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
 		
-	}
+		$sql = sprintf("SELECT ".
+			"kb.id as %s, ".
+			"kb.title as %s, ".
+			"kb.code as %s, ".
+			"kb.content as %s ".
+			"FROM kb_article kb ",
+//			"INNER JOIN team tm ON (tm.id = t.team_id) ".
+			    SearchFields_KbArticle::ID,
+			    SearchFields_KbArticle::TITLE,
+			    SearchFields_KbArticle::CODE,
+			    SearchFields_KbArticle::CONTENT
+			).
+			
+			// [JAS]: Dynamic table joins
+//			(isset($tables['ra']) ? "INNER JOIN requester r ON (r.ticket_id=t.id)" : " ").
+			
+			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "").
+			(!empty($sortBy) ? sprintf("ORDER BY %s %s",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : "")
+		;
+		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		$results = array();
+		while(!$rs->EOF) {
+			$result = array();
+			foreach($rs->fields as $f => $v) {
+				$result[$f] = $v;
+			}
+			$ticket_id = intval($rs->fields[SearchFields_KbArticle::ID]);
+			$results[$ticket_id] = $result;
+			$rs->MoveNext();
+		}
+
+		// [JAS]: Count all
+		$total = -1;
+		if($withCounts) {
+		    $rs = $db->Execute($sql);
+		    $total = $rs->RecordCount();
+		}
+		
+		return array($results,$total);
+    }
 };
+
+class SearchFields_KbArticle implements IDevblocksSearchFields {
+	// Table
+	const ID = 'kb_id';
+	const CODE = 'kb_code';
+	const TITLE = 'kb_title';
+	const CONTENT = 'kb_content';
+	
+	/**
+	 * @return DevblocksSearchField[]
+	 */
+	static function getFields() {
+		return array(
+			self::ID => new DevblocksSearchField(self::ID, 'kb', 'id'),
+			self::TITLE => new DevblocksSearchField(self::TITLE, 'kb', 'title'),
+			self::CODE => new DevblocksSearchField(self::CODE, 'kb', 'code'),
+			self::CONTENT => new DevblocksSearchField(self::CONTENT, 'kb', 'content'),
+		);
+	}
+};	
 
 ?>
