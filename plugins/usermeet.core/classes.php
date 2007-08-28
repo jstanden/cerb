@@ -1051,7 +1051,18 @@ class UmKbApp extends Extension_UsermeetTool {
     	
     	DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',$this->getPortal(),'article',$id)));
     }
-	
+
+    public function getTagAutoCompletionsAction() {
+    	@$starts_with = DevblocksPlatform::importGPC($_REQUEST['query'],'string','');
+    	$tags = DAO_CloudGlue::getTagsWhere(sprintf("name LIKE '%s%%'", $starts_with));
+		
+		foreach($tags AS $val){
+			echo $val->name . "\t";
+			echo $val->id . "\n";
+		}
+		exit();
+    }
+    
 };
 
 ?>

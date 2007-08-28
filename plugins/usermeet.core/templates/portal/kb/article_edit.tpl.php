@@ -16,8 +16,14 @@
 				<textarea name="content" id="article_content" rows="10" cols="80">{$article->content}</textarea><br>
 				
 				<b>Tags:</b> (comma-separated)<br>
-				<input type="text" name="tags" size="64" value="{if !empty($tags)}{foreach from=$tags item=tag name=tags}{$tag->name}{if !$smarty.foreach.tags.last}, {/if}{/foreach}{/if}" maxlength="255"><br>
+				
+				
+				<div id="tagsautocomplete" style="width:98%;" class="yui-ac">
+				<input type="text" name="tags" id="tags" size="64" value="{if !empty($tags)}{foreach from=$tags item=tag name=tags}{$tag->name}{if !$smarty.foreach.tags.last}, {/if}{/foreach}{/if}" maxlength="255" class="yui-ac-input"><br>
 				<br>
+				<div id="tagscontainer" class="yui-ac-container"></div>
+				</div>			
+				<input type="hidden" name="contact_orgid" value="{$address.a_contact_org_id}"/>
 				
 				<button type="submit"><img src="{devblocks_url}c=resource&p=usermeet.core&f=images/check.gif{/devblocks_url}" alt="Save" align="top"> {$translate->_('common.save_changes')}</button>
 				</form>
@@ -38,6 +44,36 @@ YAHOO.util.Event.addListener(window,"load",function() {
 		});	    
 	myEditor.render();
 	});
+
+
+var myDataSource = new YAHOO.widget.DS_XHR({/literal}"{devblocks_url}ajax.php{/devblocks_url}"{literal}, ["\n", "\t"] );
+myDataSource.scriptQueryAppend = "c=contacts&a=getTagAutoCompletions"; 
+myDataSource.responseType = YAHOO.widget.DS_XHR.TYPE_FLAT;
+myDataSource.maxCacheEntries = 60;
+myDataSource.queryMatchSubset = true;
+myDataSource.connTimeout = 3000;
+
+var myInput = document.getElementById('tags'); 
+var myContainer = document.getElementById('tagscontainer'); 
+	
+var myAutoComp = new YAHOO.widget.AutoComplete(myInput,myContainer, myDataSource);
+myAutoComp.delimChar = ",";
+myAutoComp.queryDelay = 1;
+//myAutoComp.useIFrame = true; 
+myAutoComp.typeAhead = false;
+myAutoComp.useShadow = true;
+myAutoComp.prehighlightClassName = "yui-ac-prehighlight"; 
+myAutoComp.allowBrowserAutocomplete = false;
+
+var contactOrgAutoCompSelected = function contactOrgAutoCompSelected(sType, args, me) {
+			org_str = new String(args[2]);
+			org_arr = org_str.split(',');
+			document.articleForm.contact_orgid.value=org_arr[1];
+		};
+
+obj=new Object();
+myAutoComp.itemSelectEvent.subscribe(contactOrgAutoCompSelected, obj);	
+	
 {/literal}
 </script>
 
