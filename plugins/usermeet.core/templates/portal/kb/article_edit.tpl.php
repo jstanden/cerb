@@ -10,7 +10,7 @@
 				<h2>Article Editor</h2>
 				
 				<b>Title:</b><br>
-				<input type="text" name="title" size="64" maxlength="128" value="{$article->title}"><br>
+				<input type="text" name="title" size="64" maxlength="128" value="{$article->title|escape}"><br>
 				<br>
 				
 				<textarea name="content" id="article_content" rows="10" cols="80">{$article->content}</textarea><br>
@@ -18,7 +18,7 @@
 				<b>Tags:</b> (comma-separated)<br>
 				
 				<div id="tagsautocomplete" style="width:98%" class="yui-ac">
-				<input type="text" name="tags" id="tags" size="64" value="{if !empty($tags)}{foreach from=$tags item=tag name=tags}{$tag->name}{if !$smarty.foreach.tags.last}, {/if}{/foreach}{/if}" maxlength="255" class="yui-ac-input"><br>
+				<input type="text" name="tags" id="tags" size="64" value="{if !empty($tags)}{foreach from=$tags item=tag name=tags}{$tag->name|escape}{if !$smarty.foreach.tags.last}, {/if}{/foreach}{/if}" maxlength="255" class="yui-ac-input"><br>
 				<br>
 				<div id="tagscontainer" class="yui-ac-container"></div>
 				</div>			
