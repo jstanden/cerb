@@ -43,10 +43,10 @@
       {if !empty($articles)}
       <ul>
       	{foreach from=$articles item=article name=articles key=article_id}
-        <li><a href="{devblocks_url}c=article&id={$article_id}{/devblocks_url}">{$article.kb_title}</a><br>
+        <li><a href="{devblocks_url}c=article&id={$article_id|string_format:"%06d"}{/devblocks_url}">{$article.kb_title}</a><br>
           <span style="font-size: 90%;">
 	          {$article.kb_content|strip_tags|truncate:255:'...':false}<br>
-	          <span style="color: rgb(120, 120, 120);">{devblocks_url full=true}c=article&id={$article_id}{/devblocks_url}</span><br>
+	          <span style="color: rgb(120, 120, 120);">{devblocks_url full=true}c=article&id={$article_id|string_format:"%06d"}{/devblocks_url}</span><br>
 	          <br>
           </span>
         </li>

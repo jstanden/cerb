@@ -17,15 +17,14 @@
 				
 				<b>Tags:</b> (comma-separated)<br>
 				
-				
-				<div id="tagsautocomplete" style="width:98%;" class="yui-ac">
+				<div id="tagsautocomplete" style="width:98%" class="yui-ac">
 				<input type="text" name="tags" id="tags" size="64" value="{if !empty($tags)}{foreach from=$tags item=tag name=tags}{$tag->name}{if !$smarty.foreach.tags.last}, {/if}{/foreach}{/if}" maxlength="255" class="yui-ac-input"><br>
 				<br>
 				<div id="tagscontainer" class="yui-ac-container"></div>
 				</div>			
-				<input type="hidden" name="contact_orgid" value="{$address.a_contact_org_id}"/>
 				
 				<button type="submit"><img src="{devblocks_url}c=resource&p=usermeet.core&f=images/check.gif{/devblocks_url}" alt="Save" align="top"> {$translate->_('common.save_changes')}</button>
+				<button type="button" onclick="document.location='{if !empty($article)}{devblocks_url}c=article&id={$article->id}{/devblocks_url}{else}{devblocks_url}{/devblocks_url}{/if}';"><img src="{devblocks_url}c=resource&p=usermeet.core&f=images/delete.gif{/devblocks_url}" alt="Cancel" align="top"> {$translate->_('common.cancel')|capitalize}</button>
 				</form>
 			</td>
 		</tr>

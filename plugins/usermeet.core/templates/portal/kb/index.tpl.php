@@ -34,7 +34,7 @@
 				<h2 style="margin:0px;">Articles</h2>
 				<div id="kbTagCloudArticles">
 			      	{foreach from=$articles item=article key=article_id}
-				        <img src="{devblocks_url}c=resource&p=usermeet.core&f=images/document.gif{/devblocks_url}" alt="Search" align="top"> <a href="{devblocks_url}c=article&id={$article_id}{/devblocks_url}">{$article->title}</a><br>
+				        <img src="{devblocks_url}c=resource&p=usermeet.core&f=images/document.gif{/devblocks_url}" alt="Search" align="top"> <a href="{devblocks_url}c=article&id={$article_id|string_format:"%06d"}{/devblocks_url}">{$article->title}</a><br>
 			        {/foreach}
 				</div>
 				{/if}

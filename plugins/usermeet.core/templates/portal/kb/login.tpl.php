@@ -1,14 +1,4 @@
-{include file="$path/portal/kb/header.tpl.php"}
-
-<table id="kbNavMenu" style="" border="0" cellpadding="0" cellspacing="0">
-	<tbody>
-		<tr>
-			<td>
-				 &nbsp; <a href="{devblocks_url}{/devblocks_url}"><b>Knowledgebase</b></a> 
-			</td>
-		</tr>
-	</tbody>
-</table>
+{include file="$tpl_path/portal/kb/header.tpl.php"}
 
 <div style="margin:10px;">
 
@@ -17,14 +7,14 @@
 <table style="border: 1px solid rgb(0, 128, 255); text-align: left;" border="0" cellpadding="3" cellspacing="0">
   <tbody>
     <tr>
-      <td style="background-color: rgb(237, 241, 255);"><span style="font-weight: bold;">Log in</span></td>
+      <td style="background-color: rgb(237, 241, 255);"><span style="font-weight: bold;">Editor Log in</span></td>
     </tr>
     <tr>
       <td>
-      	Username:<br>
-      	<input type="text" name="user" value="" size="35"><br>
+      	E-mail Address:<br>
+      	<input type="text" name="editor_email" value="" size="35"><br>
       	Password:<br>
-      	<input type="password" name="pass" value="" size="35"><br>
+      	<input type="password" name="editor_pass" value="" size="35"><br>
       </td>
      </tr>
      <tr>
@@ -38,4 +28,4 @@
 
 </div>
 
-{include file="$path/portal/kb/footer.tpl.php"}
+{include file="$tpl_path/portal/kb/footer.tpl.php"}

@@ -238,41 +238,19 @@ class UmCommunityPage extends CerberusPageExtension {
 		    
 		    case 'tool':
 		        $code = array_shift($stack);
-
-				if(null != ($instance = DAO_CommunityTool::getByCode($code))) {
-					$tpl->assign('instance', $instance);
-					$manifest = DevblocksPlatform::getExtension($instance->extension_id);
-		            $tool = $manifest->createInstance(); /* @var $app Extension_UsermeetTool */
-					$tool->setPortal($code); // [TODO] Kinda hacky
-		        	$tpl->assign('tool', $tool);
-				}
-		        
-		        // Community Record
-		        $community_id = $instance->community_id;
-		        $community = DAO_Community::get($community_id);
-		        $tpl->assign('community', $community);
-		        
 		        $action = array_shift($stack);
-		        switch($action) {
-		        	case 'configure': // configure
-				        $url_writer = DevblocksPlatform::getUrlService();
-				        $url = $url_writer->write('c=portal&a='.$code,true);
-				        $url_parts = parse_url($url);
-				        
-				        $host = $url_parts['host'];
-						$base = substr(DEVBLOCKS_WEBPATH,0,-1); // consume trailing
-				        $path = substr($url_parts['path'],strlen(DEVBLOCKS_WEBPATH)-1); // consume trailing slash
-						
-						$tpl->assign('host', $host);
-						$tpl->assign('base', $base);
-						$tpl->assign('path', $path);
-						
-						$tpl->display('file:' . dirname(__FILE__) . '/templates/community/tool_config.tpl.php');						
-		        		break;
-		        		
-		        	default:
-	        			break;
-		        }
+		        
+		        $tpl->assign('portal', $code);
+				
+		        $tpl->display('file:' . dirname(__FILE__) . '/templates/community/tool_display.tpl.php');						
+		        
+//		        switch($action) {
+//		        	case 'configure': // configure
+//		        		break;
+//		        		
+//		        	default:
+//	        			break;
+//		        }
 		        
 		        break;
 		    
@@ -311,6 +289,55 @@ class UmCommunityPage extends CerberusPageExtension {
 		        break;
 		}
 		
+	}
+	
+	function showToolConfigAction() {
+		@$portal = DevblocksPlatform::importGPC($_REQUEST['portal'],'string','');
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		
+		$tpl->assign('portal', $portal);
+		
+		if(null != ($instance = DAO_CommunityTool::getByCode($portal))) {
+			$tpl->assign('instance', $instance);
+			$manifest = DevblocksPlatform::getExtension($instance->extension_id);
+            $tool = $manifest->createInstance(); /* @var $app Extension_UsermeetTool */
+			$tool->setPortal($portal); // [TODO] Kinda hacky
+        	$tpl->assign('tool', $tool);
+		}
+        
+        // Community Record
+        $community_id = $instance->community_id;
+        $community = DAO_Community::get($community_id);
+        $tpl->assign('community', $community);
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/community/tool_config.tpl.php');
+	}
+	
+	function showToolInstallAction() {
+		@$portal = DevblocksPlatform::importGPC($_REQUEST['portal'],'string','');
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		
+		$tpl->assign('portal', $portal);
+		
+        $url_writer = DevblocksPlatform::getUrlService();
+        $url = $url_writer->write('c=portal&a='.$portal,true);
+        $url_parts = parse_url($url);
+        
+        $host = $url_parts['host'];
+		$base = substr(DEVBLOCKS_WEBPATH,0,-1); // consume trailing
+        $path = substr($url_parts['path'],strlen(DEVBLOCKS_WEBPATH)-1); // consume trailing slash
+		
+		$tpl->assign('host', $host);
+		$tpl->assign('base', $base);
+		$tpl->assign('path', $path);
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/community/tool_install.tpl.php');
 	}
 	
 	// Facade
@@ -786,7 +813,10 @@ class UmKbApp extends Extension_UsermeetTool {
 	const PARAM_THEME_URL = 'theme_url';
 	const PARAM_PAGE_TITLE = 'page_title';
 	const PARAM_CAPTCHA_ENABLED = 'captcha_enabled';
+	const PARAM_EDITORS = 'editors';
+	
 	const SESSION_CAPTCHA = 'write_captcha';
+	const SESSION_EDITOR = 'kb_editor';
 	
 	const TAG_INDEX_KB = 'ch_kb';
 	
@@ -815,6 +845,9 @@ class UmKbApp extends Extension_UsermeetTool {
         
         $captcha_enabled = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_CAPTCHA_ENABLED, 1);
 		$tpl->assign('captcha_enabled', $captcha_enabled);
+		
+        $editor = $umsession->getProperty(self::SESSION_EDITOR, null);
+		$tpl->assign('editor', $editor);
 		
 		// Usermeet Session
 		if(null == ($fingerprint = parent::getFingerprint())) {
@@ -905,6 +938,7 @@ class UmKbApp extends Extension_UsermeetTool {
 				break;
 			
 			case 'edit':
+				if(empty($editor)) break;
 				$id = intval(array_shift($stack));
 
 				$articles = DAO_KbArticle::getWhere(sprintf("%s = %d AND %s = '%s'",
@@ -920,6 +954,13 @@ class UmKbApp extends Extension_UsermeetTool {
 				$tpl->assign('tags', @$tags[$id]);
 				
 				$tpl->display('file:' . dirname(__FILE__) . '/templates/portal/kb/article_edit.tpl.php');
+				break;
+			
+			case 'import':
+				if(empty($editor))
+					break;
+				
+				$tpl->display('file:' . dirname(__FILE__) . '/templates/portal/kb/import.tpl.php');
 				break;
 				
 			case 'article':
@@ -1009,7 +1050,59 @@ class UmKbApp extends Extension_UsermeetTool {
         $captcha_enabled = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_CAPTCHA_ENABLED, 1);
 		$tpl->assign('captcha_enabled', $captcha_enabled);
         
+		$sEditors = DAO_CommunityToolProperty::get($this->getPortal(),self::PARAM_EDITORS, '');
+        $editors = !empty($sEditors) ? unserialize($sEditors) : array();
+		
+        $tpl->assign('editors', $editors);
+		
         $tpl->display("file:${tpl_path}portal/kb/config/index.tpl.php");
+    }
+    
+    public function saveConfiguration() {
+        @$sLogoUrl = DevblocksPlatform::importGPC($_POST['logo_url'],'string','');
+        @$sPageTitle = DevblocksPlatform::importGPC($_POST['page_title'],'string','Contact Us');
+        @$iCaptcha = DevblocksPlatform::importGPC($_POST['captcha_enabled'],'integer',1);
+//        @$sThemeUrl = DevblocksPlatform::importGPC($_POST['theme_url'],'string','');
+
+        DAO_CommunityToolProperty::set($this->getPortal(), self::PARAM_LOGO_URL, $sLogoUrl);
+        DAO_CommunityToolProperty::set($this->getPortal(), self::PARAM_PAGE_TITLE, $sPageTitle);
+        DAO_CommunityToolProperty::set($this->getPortal(), self::PARAM_CAPTCHA_ENABLED, $iCaptcha);
+//        DAO_CommunityToolProperty::set($this->getPortal(), self::PARAM_THEME_URL, $sThemeUrl);
+        
+        @$sEditorEmail = DevblocksPlatform::importGPC($_POST['editor_email'],'string','');
+        @$sEditorPass = DevblocksPlatform::importGPC($_POST['editor_pass'],'string','');
+        @$aEditorsEmail = DevblocksPlatform::importGPC($_POST['editors_email'],'array',array());
+        @$aEditorsPass = DevblocksPlatform::importGPC($_POST['editors_pass'],'array',array());
+        @$aEditorsDelete = DevblocksPlatform::importGPC($_POST['editors_delete'],'array',array());
+
+        @$aEditorsDelete = array_flip($aEditorsDelete); // values to keys
+        
+        $sEditors = DAO_CommunityToolProperty::get($this->getPortal(),self::PARAM_EDITORS, '');
+        $editors = !empty($sEditors) ? unserialize($sEditors) : array();
+        
+        // Adding
+        if(!empty($sEditorEmail) && !empty($sEditorPass)) {
+        	$editors[$sEditorEmail] = array(
+        		'email' => $sEditorEmail,
+        		'password' => md5($sEditorPass)
+        	);
+        }
+        
+        // Modifying/Deleting
+		foreach($aEditorsEmail as $idx => $email) {
+			if(isset($aEditorsDelete[$email])) { // Deleting
+				unset($editors[$email]);
+				
+			} elseif (!empty($aEditorsPass[$idx])) { // Modifying
+				$editors[$email] = array(
+					'email' => $email,
+					'password' => md5($aEditorsPass[$idx])
+				);
+				
+			}
+		}
+
+        DAO_CommunityToolProperty::set($this->getPortal(), self::PARAM_EDITORS, serialize($editors));
     }
     
     public function doSearchAction() {
@@ -1023,8 +1116,59 @@ class UmKbApp extends Extension_UsermeetTool {
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',$this->getPortal(),'search')));
     }
     
+    public function doLoginAction() {
+		@$editor_email = DevblocksPlatform::importGPC($_REQUEST['editor_email'],'string','');
+		@$editor_pass = DevblocksPlatform::importGPC($_REQUEST['editor_pass'],'string','');
+    	
+        $sEditors = DAO_CommunityToolProperty::get($this->getPortal(),self::PARAM_EDITORS, '');
+        $editors = !empty($sEditors) ? unserialize($sEditors) : array();
+		
+        @$editor =& $editors[$editor_email]; 
+		if(!empty($editor) && $editor['password']==md5($editor_pass)) {
+			$session = $this->getSession(); /* @var $session Model_CommunitySession */
+			$session->setProperty(self::SESSION_EDITOR, $editor_email);
+			
+			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',$this->getPortal())));
+		} else {
+			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',$this->getPortal(),'login')));
+		}		
+    }
+    
+    public function doLogoutAction() {
+    	$umsession = $this->getSession();
+    	$umsession->setProperty(self::SESSION_EDITOR, null);
+    	
+    	DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',$this->getPortal())));
+    }
+    
+    public function doImportAction() {
+    	@$import_file = $_FILES['import_file'];
+    	
+    	if(!empty($import_file)) {
+    		$xml = file_get_contents($import_file['tmp_name']);
+    		
+    		// [TODO] Parse XML
+
+//    		[TODO] foreach
+//    		[TODO] set $title and $content
+//    		$fields = array(
+//    			DAO_KbArticle::CODE => $this->getPortal(),
+//    			DAO_KbArticle::TITLE => $title,
+//    			DAO_KbArticle::CONTENT => $content,
+//    		);
+//    		$id = DAO_KbArticle::create($fields);
+//			DAO_CloudGlue::applyTags($tags, $id, self::TAG_INDEX_KB, false); // 4th argument = replace
+//    		[TODO] /foreach
+    	}
+    }
+    
     public function doArticleEditAction() {
-    	// [TODO] Permissions
+    	// Permissions
+		$session = $this->getSession(); /* @var $session Model_CommunitySession */
+		$editor = $session->getProperty(self::SESSION_EDITOR, null);
+		if(empty($editor)) {
+			die("Access denied.");
+		}
     	
     	@$id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
     	@$title = DevblocksPlatform::importGPC($_POST['title'],'string','No article title');

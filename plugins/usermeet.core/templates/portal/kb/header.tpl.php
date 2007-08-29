@@ -74,7 +74,14 @@
 		{/if}
 	</td>
 	<td align="right" valign="bottom">
+		{if !empty($editor)}
+		<form action="{devblocks_url}{/devblocks_url}" method="post" name="loginForm">
+		<input type="hidden" name="a" value="doLogout">
+		Logged in as <b>{$editor}</b> [ <a href="javascript:;" onclick="document.loginForm.submit();" style="color:rgb(0,0,0);">logout</a> ]
+		</form> 
+		{else}
 		<a href="{devblocks_url}c=login{/devblocks_url}" style="color:rgb(0,0,0);">not logged in</a>
+		{/if}
 	</td>
 </tr>
 </table>
@@ -84,7 +91,8 @@
 			<td>
 				 &nbsp;<img src="{devblocks_url}c=resource&p=usermeet.core&f=images/book_open2.gif{/devblocks_url}" alt="Home" align="top"> <a href="{devblocks_url}{/devblocks_url}"><b>home</b></a> 
 				 | <img src="{devblocks_url}c=resource&p=usermeet.core&f=images/book_blue_view.gif{/devblocks_url}" alt="Search" align="top"> <a href="{devblocks_url}c=search{/devblocks_url}"><b>search</b></a> 
-				 | <img src="{devblocks_url}c=resource&p=usermeet.core&f=images/document_new.gif{/devblocks_url}" alt="New Article" align="top"> <a href="{devblocks_url}c=edit{/devblocks_url}"><b>add new article</b></a> 
+				 {if !empty($editor)} | <img src="{devblocks_url}c=resource&p=usermeet.core&f=images/document_new.gif{/devblocks_url}" alt="New Article" align="top"> <a href="{devblocks_url}c=edit{/devblocks_url}"><b>add new article</b></a>{/if} 
+				 {if !empty($editor)} | <img src="{devblocks_url}c=resource&p=usermeet.core&f=images/document_into.gif{/devblocks_url}" alt="Import" align="top"> <a href="{devblocks_url}c=import{/devblocks_url}"><b>import articles</b></a>{/if} 
 			</td>
 		</tr>
 	</tbody>
