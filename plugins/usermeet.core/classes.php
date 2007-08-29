@@ -1145,20 +1145,35 @@ class UmKbApp extends Extension_UsermeetTool {
     	@$import_file = $_FILES['import_file'];
     	
     	if(!empty($import_file)) {
-    		$xml = file_get_contents($import_file['tmp_name']);
+    		$xmlstr = file_get_contents($import_file['tmp_name']);
     		
     		// [TODO] Parse XML
+			$xml = new SimpleXMLElement($xmlstr);
+			
+			foreach($xml->articles->article AS $article) {
+				$title = $article->title;
+				settype($title,'string');
+				
+				$content = $article->content;
+				settype($content,'string');
+				
+				$fields = array(
+						DAO_KbArticle::CODE => $this->getPortal(),
+						DAO_KbArticle::TITLE => $title,
+						DAO_KbArticle::CONTENT => $content,
+				);
+				$id = DAO_KbArticle::create($fields);
+				$tags = array();
+				if(!empty($article->categories->category))
+				foreach($article->categories->category AS $category) {
+					settype($category,'string');
+					$tags[] = $category;
+				}
 
-//    		[TODO] foreach
-//    		[TODO] set $title and $content
-//    		$fields = array(
-//    			DAO_KbArticle::CODE => $this->getPortal(),
-//    			DAO_KbArticle::TITLE => $title,
-//    			DAO_KbArticle::CONTENT => $content,
-//    		);
-//    		$id = DAO_KbArticle::create($fields);
-//			DAO_CloudGlue::applyTags($tags, $id, self::TAG_INDEX_KB, false); // 4th argument = replace
-//    		[TODO] /foreach
+				if(!empty($tags)) {
+					DAO_CloudGlue::applyTags($tags, $id, self::TAG_INDEX_KB, false); // 4th argument = replace
+				}
+			}
     	}
     }
     
