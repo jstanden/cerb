@@ -76,7 +76,7 @@ class DevblocksProxy {
     function _generateMimeBoundary() {
     	return md5(rand(0,10000).time().microtime());
     }
-    
+
     /**
      * @return string
      */
@@ -92,8 +92,8 @@ class DevblocksProxy {
 						"\r\n".
 						"%s\r\n",
 						$boundary,
-						urlencode($k.'[]'),
-						urlencode((get_magic_quotes_gpc() ? stripslashes($vv) : $vv))
+						$k.'[]',
+						(get_magic_quotes_gpc() ? stripslashes($vv) : $vv)
 					);
 				}
 			} else {
@@ -102,8 +102,8 @@ class DevblocksProxy {
 					"\r\n".
 					"%s\r\n",
 					$boundary,
-					urlencode($k),
-					urlencode((get_magic_quotes_gpc() ? stripslashes($v) : $v))
+					$k,
+					(get_magic_quotes_gpc() ? stripslashes($v) : $v)
 				);
 			}
 		}
@@ -116,7 +116,7 @@ class DevblocksProxy {
 				"\r\n".
 				"%s\r\n",
 				$boundary,
-				urlencode($k),
+				$k,
 				$file['name'],
 				file_get_contents($file['tmp_name']) // [JAS] replace with a PHP4 friendly function?
 			);
