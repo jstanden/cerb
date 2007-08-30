@@ -92,7 +92,7 @@
 				 &nbsp;<img src="{devblocks_url}c=resource&p=usermeet.core&f=images/book_open2.gif{/devblocks_url}" alt="Home" align="top"> <a href="{devblocks_url}{/devblocks_url}"><b>home</b></a> 
 				 | <img src="{devblocks_url}c=resource&p=usermeet.core&f=images/book_blue_view.gif{/devblocks_url}" alt="Search" align="top"> <a href="{devblocks_url}c=search{/devblocks_url}"><b>search</b></a> 
 				 {if !empty($editor)} | <img src="{devblocks_url}c=resource&p=usermeet.core&f=images/document_new.gif{/devblocks_url}" alt="New Article" align="top"> <a href="{devblocks_url}c=edit{/devblocks_url}"><b>add new article</b></a>{/if} 
-				 {if !empty($editor)} | <img src="{devblocks_url}c=resource&p=usermeet.core&f=images/document_into.gif{/devblocks_url}" alt="Import" align="top"> <a href="{devblocks_url}c=import{/devblocks_url}"><b>import articles</b></a>{/if} 
+				 {if !empty($editor)} | <img src="{devblocks_url}c=resource&p=usermeet.core&f=images/gear.gif{/devblocks_url}" alt="Configuration" align="top"> <a href="{devblocks_url}c=config{/devblocks_url}"><b>configuration</b></a>{/if} 
 			</td>
 		</tr>
 	</tbody>

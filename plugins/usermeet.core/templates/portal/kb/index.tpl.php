@@ -48,8 +48,10 @@
 					<input name="query" value="" size="16" style="width: 150px;" type="text"><button type="submit">&raquo;</button>
 					</form>
 					<br>
+					<!-- 
 					<b>Other Resources</b><br>
 					<a href="#">Contact Us</a><br>
+					 -->
 					<!-- 
 					<br>
 					<b>Article Tools</b><br>

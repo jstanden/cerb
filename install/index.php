@@ -128,6 +128,7 @@ if(!is_writeable(DEVBLOCKS_PATH . "tmp/cache/")) {
 @chmod(APP_PATH . '/storage/attachments/', 0774);
 @chmod(APP_PATH . '/storage/mail/new/', 0774);
 @chmod(APP_PATH . '/storage/mail/fail/', 0774);
+@chmod(APP_PATH . '/storage/indexes/', 0774);
 
 if(!is_writeable(APP_PATH . "/storage/")) {
 	die(realpath(APP_PATH . "/storage/") ." is not writeable by the webserver.  Please adjust permissions and reload this page.");
@@ -143,6 +144,10 @@ if(!is_writeable(APP_PATH . "/storage/mail/new/")) {
 
 if(!is_writeable(APP_PATH . "/storage/mail/fail/")) {
 	die(realpath(APP_PATH . "/storage/mail/fail/") ." is not writeable by the webserver.  Please adjust permissions and reload this page.");
+}
+
+if(!is_writeable(APP_PATH . "/storage/indexes/")) {
+	die(realpath(APP_PATH . "/storage/indexes/") ." is not writeable by the webserver.  Please adjust permissions and reload this page.");
 }
 
 //require_once(DEVBLOCKS_PATH . 'libs/Zend.php');

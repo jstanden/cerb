@@ -39,9 +39,11 @@
 					<input name="query" value="" size="16" style="width: 150px;" type="text"><button type="submit">&raquo;</button>
 					</form>
 					<br>
+					<!-- 
 					<b>Other Resources</b><br>
 					<a href="#">Contact Us</a><br>
 					<br>
+					 -->
 					<b>Article Tools</b><br>
 					{if !empty($editor) && !empty($article)}<img src="{devblocks_url}c=resource&p=usermeet.core&f=images/document_edit.gif{/devblocks_url}" alt="Edit" align="top"> <a href="{devblocks_url}c=edit&id={$article->id}{/devblocks_url}">Edit</a><br>{/if}
 					<img src="{devblocks_url}c=resource&p=usermeet.core&f=images/printer.gif{/devblocks_url}" alt="Printer" align="top"> <a href="javascript:;" onclick="window.print();">Print</a><br>

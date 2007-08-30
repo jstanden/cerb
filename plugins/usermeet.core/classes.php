@@ -907,26 +907,10 @@ class UmKbApp extends Extension_UsermeetTool {
 			case 'rss':
 				switch(array_shift($stack)) {
 					case 'search':
-						$query = '*'.rawurldecode(array_shift($stack)).'*';
+						$query = rawurldecode(array_shift($stack));
 						
-						$params = array(
-							array(
-								DevblocksSearchCriteria::GROUP_OR,
-								new DevblocksSearchCriteria(SearchFields_KbArticle::TITLE,DevblocksSearchCriteria::OPER_LIKE,$query),
-								new DevblocksSearchCriteria(SearchFields_KbArticle::CONTENT,DevblocksSearchCriteria::OPER_LIKE,$query),
-							),
-							new DevblocksSearchCriteria(SearchFields_KbArticle::CODE,'=',$this->getPortal())
-						);
+						$articles = $this->_searchIndex($query);
 						
-						list($articles, $null) = DAO_KbArticle::search(
-							$params,
-							25,
-							0,
-							SearchFields_KbArticle::TITLE,
-							true,
-							false
-						);
-		
 						$url_writer = DevblocksPlatform::getUrlService();
 		
 						$aFeed = array(
@@ -937,13 +921,13 @@ class UmKbApp extends Extension_UsermeetTool {
 						);
 						
 						foreach($articles as $article_id => $article) {
-							$summary = substr(strip_tags($article[SearchFields_KbArticle::CONTENT]),0,255) . (strlen($article[SearchFields_KbArticle::CONTENT])>255?'...':'');
+							$summary = substr(strip_tags($article->content),0,255) . (strlen($article->content)>255?'...':'');
 							
 							$aEntry = array(
-								'title' => $article[SearchFields_KbArticle::TITLE],
+								'title' => $article->title,
 								'link' => $url_writer->write('c=article&id='.$article_id, true), // [TODO] Use UrlService
 								'description' => $summary,
-								'content' => $article[SearchFields_KbArticle::CONTENT],
+								'content' => $article->content,
 							);
 							$aFeed['entries'][] = $aEntry;
 						}
@@ -1059,39 +1043,21 @@ class UmKbApp extends Extension_UsermeetTool {
 				break;
 				
 			case 'search':
+				@$query = urldecode(array_shift($stack));
+				
 				$session = $this->getSession();
-				$query = $session->getProperty('last_query', '');
-				$match = $session->setProperty('last_query_type', '');
+				
+				if(!empty($query)) {
+					$session->setProperty('last_query', $query);
+				} else {
+					$query = $session->getProperty('last_query', '');
+				}
+
+				$articles = $this->_searchIndex($query);
 				
 				$tpl->assign('query', $query);
-				$tpl->assign('match', $match);
-				
-				// Matching types (any, all, phrase)
-				switch($match) {
-					default: // phrase
-						$query = '*'.$query.'*';
-						break;
-				}
-				
-				$params = array(
-					array(
-						DevblocksSearchCriteria::GROUP_OR,
-						new DevblocksSearchCriteria(SearchFields_KbArticle::TITLE,DevblocksSearchCriteria::OPER_LIKE,$query),
-						new DevblocksSearchCriteria(SearchFields_KbArticle::CONTENT,DevblocksSearchCriteria::OPER_LIKE,$query),
-					),
-					new DevblocksSearchCriteria(SearchFields_KbArticle::CODE,'=',$this->getPortal())
-				);
-				
-				list($articles, $null) = DAO_KbArticle::search(
-					$params,
-					25,
-					0,
-					SearchFields_KbArticle::TITLE,
-					true,
-					false
-				);
 				$tpl->assign('articles', $articles);
-				
+
 				$tpl->display('file:' . dirname(__FILE__) . '/templates/portal/kb/search.tpl.php');
 				break;
 			
@@ -1114,11 +1080,56 @@ class UmKbApp extends Extension_UsermeetTool {
 				$tpl->display('file:' . dirname(__FILE__) . '/templates/portal/kb/article_edit.tpl.php');
 				break;
 			
+			case 'config':
+				if(empty($editor))
+					break;
+				
+				$tpl->display('file:' . dirname(__FILE__) . '/templates/portal/kb/public_config/index.tpl.php');
+				break;
+				
 			case 'import':
 				if(empty($editor))
 					break;
 				
-				$tpl->display('file:' . dirname(__FILE__) . '/templates/portal/kb/import.tpl.php');
+				$tpl->display('file:' . dirname(__FILE__) . '/templates/portal/kb/public_config/import.tpl.php');
+				break;
+				
+			case 'reindex':
+				if(empty($editor)) break;
+
+				$index = $this->_getSearchIndex();
+				
+				// Nuke all the existing documents
+				if(0 != ($len = $index->count())) {
+					for($x=0;$x<$len;$x++) {
+						if(!$index->isDeleted($x))
+							$index->delete($x);
+					}
+				}
+				
+				// Purge
+				$index->optimize();
+				
+				list($articles,$null) = DAO_KbArticle::search(
+					array(
+					),
+					-1,
+					0,
+					null,
+					null,
+					false
+				);
+				
+				// Add back fresh content
+				foreach($articles as $article_id => $article) {
+					$doc = new Zend_Search_Lucene_Document();
+					$doc->addField(Zend_Search_Lucene_Field::Text('article_id', $article_id));
+					$doc->addField(Zend_Search_Lucene_Field::Text('title', $article[SearchFields_KbArticle::TITLE]));
+					$doc->addField(Zend_Search_Lucene_Field::UnStored('contents', $article[SearchFields_KbArticle::CONTENT]));		
+					$index->addDocument($doc);
+				}
+				
+				$tpl->display('file:' . dirname(__FILE__) . '/templates/portal/kb/public_config/reindex.tpl.php');
 				break;
 				
 			case 'article':
@@ -1342,6 +1353,8 @@ class UmKbApp extends Extension_UsermeetTool {
 		if(empty($editor)) {
 			die("Access denied.");
 		}
+		
+		$index = $this->_getSearchIndex();
     	
     	@$id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
     	@$title = DevblocksPlatform::importGPC($_POST['title'],'string','No article title');
@@ -1359,6 +1372,15 @@ class UmKbApp extends Extension_UsermeetTool {
 			$id = DAO_KbArticle::create($fields);
     		
     	} else { // edit
+			// Clear any copies of this document out before editing
+			if(0 != ($len = $index->count())) {
+				for($x=0;$x<$len;$x++) {
+					$hit = $index->getDocument($x);
+					if(!$index->isDeleted($x) && $hit->article_id==$id)
+						$index->delete($x);
+				}
+			}
+			 		
 			 if(!empty($delete)) {
 			 	$tags = array();
 			 	
@@ -1390,9 +1412,52 @@ class UmKbApp extends Extension_UsermeetTool {
     	$tags = CerberusApplication::parseCsvString($tags_csv);
 		DAO_CloudGlue::applyTags($tags, $id, self::TAG_INDEX_KB, true);
     	
+		// Search Indexing
+		$doc = new Zend_Search_Lucene_Document();
+		$doc->addField(Zend_Search_Lucene_Field::Text('article_id', $id));
+		$doc->addField(Zend_Search_Lucene_Field::Text('title', $title));
+		$doc->addField(Zend_Search_Lucene_Field::UnStored('contents', $content));		
+		
+		$index->addDocument($doc);
+		
     	DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',$this->getPortal(),'article',$id)));
     }
 
+    /**
+     * @return Zend_Search_Lucene_Interface
+     */
+    private function _getSearchIndex() {
+    	$path = APP_PATH . '/storage/indexes/kb-'.$this->getPortal();
+    	if(!is_dir($path)) {
+    		$index = Zend_Search_Lucene::create($path);
+    	} else {
+    		$index = Zend_Search_Lucene::open($path);
+    	}
+    	
+    	return $index;
+    }
+    
+    private function _searchIndex($query) {
+    	try {
+			$index = $this->_getSearchIndex();
+			$hits = $index->find($query);
+    	} catch(Exception $e) {
+    		return array();
+    	}
+		
+		$articles = array();
+		
+		foreach($hits as $hit) { /* @var $hit Zend_Search_Lucene_Search_QueryHit */
+			@$article = DAO_KbArticle::get($hit->article_id);
+			if(!empty($article)) {
+				$article->score = $hit->score;
+				$articles[$hit->article_id] = $article;
+			}
+		}
+		
+		return $articles;
+    }
+    
     public function getTagAutoCompletionsAction() {
     	@$starts_with = DevblocksPlatform::importGPC($_REQUEST['query'],'string','');
     	$tags = DAO_CloudGlue::getTagsWhere(sprintf("name LIKE '%s%%'", $starts_with));
