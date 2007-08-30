@@ -7,6 +7,7 @@
 				<form action="{devblocks_url}{/devblocks_url}" method="post" name="articleForm" onsubmit="myEditor.saveHTML();">
 				<input type="hidden" name="a" value="doArticleEdit">
 				<input type="hidden" name="id" value="{if !empty($article)}{$article->id}{else}0{/if}">
+				<input type="hidden" name="delete" value="0">
 				<h2>Article Editor</h2>
 				
 				<b>Title:</b><br>
@@ -25,6 +26,7 @@
 				
 				<button type="submit"><img src="{devblocks_url}c=resource&p=usermeet.core&f=images/check.gif{/devblocks_url}" alt="Save" align="top"> {$translate->_('common.save_changes')}</button>
 				<button type="button" onclick="document.location='{if !empty($article)}{devblocks_url}c=article&id={$article->id}{/devblocks_url}{else}{devblocks_url}{/devblocks_url}{/if}';"><img src="{devblocks_url}c=resource&p=usermeet.core&f=images/delete.gif{/devblocks_url}" alt="Cancel" align="top"> {$translate->_('common.cancel')|capitalize}</button>
+				{if !empty($article)}<button type="button" onclick="{literal}if(confirm('Are you sure you want to permanently delete this article?')){this.form.delete.value='1';this.form.submit();}{/literal}"><img src="{devblocks_url}c=resource&p=usermeet.core&f=images/delete2.gif{/devblocks_url}" alt="Delete" align="top"> {$translate->_('common.delete')|capitalize}</button>{/if}
 				</form>
 			</td>
 		</tr>

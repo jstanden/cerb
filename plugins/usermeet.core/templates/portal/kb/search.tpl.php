@@ -37,6 +37,7 @@
   <tbody>
     <tr>
       <td style="background-color: rgb(237, 241, 255);"><span style="font-weight: bold;">Search Results</span></td>
+      <td style="background-color: rgb(237, 241, 255); text-align: right;"><a href="{devblocks_url}c=rss&a=search&q={$query|escape:"url"}{/devblocks_url}"><img src="{devblocks_url}c=resource&p=usermeet.core&f=images/feed-icon-16x16.gif{/devblocks_url}" alt="Search" align="top" border="0"></a></td>
     </tr>
     <tr>
       <td>

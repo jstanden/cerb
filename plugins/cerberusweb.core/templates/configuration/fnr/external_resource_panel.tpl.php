@@ -15,7 +15,7 @@
 	{foreach from=$topics item=topic key=topic_id name=topics}
 		<option value="{$topic_id}" {if $resource->topic_id==$topic_id}selected{/if}>{$topic->name}</option>
 	{/foreach}
-	<option value=""> -- add new topic -- </option>
+	<option value=""> -- add new topic: (below) -- </option>
 </select>
 <div id="fnrAddTopic" style="display:{if empty($topics)}inline{else}none{/if};"> <input type="text" name="topic_name" size="24" value="" style="width:98%;"></div>
 <br>

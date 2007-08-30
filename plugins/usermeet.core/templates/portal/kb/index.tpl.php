@@ -7,6 +7,7 @@
 				{assign var=cloudpath value=$cloud->getPath()}
 				{if !empty($cloudpath)}
 					<div id="kbTagCloudNav">
+					<a href="{devblocks_url}c=rss&a=tags&tags={$tags_prefix|escape:"url"}{/devblocks_url}"><img src="{devblocks_url}c=resource&p=usermeet.core&f=images/feed-icon-16x16.gif{/devblocks_url}" alt="RSS Feed" align="top" border="0"></a>
 					<b>Location:</b>
 					{foreach from=$cloudpath item=part name=parts}
 						<a href="{devblocks_url}c=browse&path={$part->name|escape:"url"}{/devblocks_url}">{$part->name}</a>{if !$smarty.foreach.parts.last} + {/if}
