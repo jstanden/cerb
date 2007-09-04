@@ -3867,6 +3867,19 @@ class DAO_Community extends DevblocksORMHelper {
 		return NULL;
 	}
 	
+	static function getWhere($where=null) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = "SELECT id, name ".
+			"FROM community ".
+			(!empty($where)?sprintf("WHERE %s ",$where):" ").
+			"ORDER BY name "
+			;
+		$rs = $db->Execute($sql);
+		
+		return self::_createObjectsFromResultSet($rs);
+	}
+	
 	public static function getList($ids=array()) {
 	    if(!is_array($ids)) $ids = array($ids);
 		$db = DevblocksPlatform::getDatabaseService();
@@ -3877,7 +3890,11 @@ class DAO_Community extends DevblocksORMHelper {
 		    "ORDER BY name ASC "
 		;
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
+
+		return self::_createObjectsFromResultSet($rs);
+	}
+	
+	private static function _createObjectsFromResultSet($rs) {
 		$objects = array();
 		
 		while(!$rs->EOF) {
@@ -3900,6 +3917,13 @@ class DAO_Community extends DevblocksORMHelper {
 	    $sql = sprintf("DELETE FROM community WHERE id IN (%s)", $id_list);
 	    $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 
+	    // Community Tools
+		$tools = DAO_CommunityTool::getWhere(sprintf("%s IN (%s)",
+			DAO_CommunityTool::COMMUNITY_ID,
+			$id_list
+		));
+		DAO_CommunityTool::delete(array_keys($tools));
+	    
 	    // [TODO] cascade foreign key constraints	
 	}
 

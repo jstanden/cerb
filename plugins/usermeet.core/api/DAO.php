@@ -142,7 +142,24 @@ class DAO_CommunityTool extends DevblocksORMHelper {
 		    "ORDER BY community_id"
 		;
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+
+		return self::_createObjectsFromResultSet($rs);
+	}
+	
+	static function getWhere($where=null) {
+		$db = DevblocksPlatform::getDatabaseService();
 		
+		$sql = "SELECT id,code,community_id,extension_id ".
+			"FROM community_tool ".
+			(!empty($where)?sprintf("WHERE %s ",$where):" ").
+			"ORDER BY community_id "
+			;
+		$rs = $db->Execute($sql);
+		
+		return self::_createObjectsFromResultSet($rs);
+	}
+	
+	static private function _createObjectsFromResultSet($rs) {
 		$objects = array();
 		
 		while(!$rs->EOF) {
@@ -162,12 +179,26 @@ class DAO_CommunityTool extends DevblocksORMHelper {
 	    if(!is_array($ids)) $ids = array($ids);
 	    $db = DevblocksPlatform::getDatabaseService();
 	    
-	    $id_list = implode(',', $ids);
-	    
-	    $sql = sprintf("DELETE FROM community_tool WHERE id IN (%s)", $id_list);
-	    $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		foreach($ids as $id) {
+			@$tool = DAO_CommunityTool::get($id);
+			if(empty($tool)) continue;
 
-	    // [TODO] cascade foreign key constraints	
+		    /**
+		     * [TODO] [JAS] Deleting a community tool needs to run a hook first so the 
+		     * tool has a chance to clean up its own DB tables abstractly.
+		     * 
+		     * e.g. Knowledgebase instances which store data outside the tool property table
+		     * 
+		     * After this is done, a future DB patch for those plugins should clean up any 
+		     * orphaned data.
+		     */
+			
+		    $sql = sprintf("DELETE FROM community_tool WHERE id = %d", $id);
+		    $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+			
+		    $sql = sprintf("DELETE FROM community_tool_property WHERE tool_code = '%s'", $tool->code);
+		    $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		}
 	}
 
     /**
