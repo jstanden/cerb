@@ -621,8 +621,16 @@ class DAO_ContactOrg extends DevblocksORMHelper {
 		if(!is_array($ids)) $ids = array($ids);
 		$db = DevblocksPlatform::getDatabaseService();
 		
+		$id_list = implode(',', $ids);
+		
 		$sql = sprintf("DELETE FROM contact_org WHERE id IN (%s)",
-			implode(',', $ids)
+			$id_list
+		);
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+
+		// Clear any associated addresses
+		$sql = sprintf("UPDATE address SET contact_org_id = 0 WHERE contact_org_id IN (%s)",
+			$id_list
 		);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 	}

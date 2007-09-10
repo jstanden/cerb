@@ -3747,22 +3747,19 @@ class ChContactsPage extends CerberusPageExtension {
 		@$first_name = DevblocksPlatform::importGPC($_REQUEST['first_name'],'string','');
 		@$last_name = DevblocksPlatform::importGPC($_REQUEST['last_name'],'string','');
 		@$contact_org = DevblocksPlatform::importGPC($_REQUEST['contact_org'],'string','');
-		//@$contact_org_id = DevblocksPlatform::importGPC($_REQUEST['contact_orgid'],'integer', 0);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string', '');
 
-		$fields = array(DAO_ContactOrg::NAME => $contact_org);
-		@$orgs = DAO_ContactOrg::getWhere(sprintf('name = %s', $db->qstr($contact_org)));
-		if(empty($orgs)) {
-			$contact_org_id = DAO_ContactOrg::create($fields);
-		} else {
-			$contact_org_id = key($orgs);
-			DAO_ContactOrg::update(key($orgs), $fields);
+		$contact_org_id = 0;
+		
+		if(!empty($contact_org)) {
+			$contact_org_id = DAO_ContactOrg::lookup($contact_org, true);
 		}
 		
-		$fields = array(DAO_Address::FIRST_NAME => $first_name,
-				DAO_Address::LAST_NAME => $last_name,
-				DAO_Address::CONTACT_ORG_ID => $contact_org_id
-				);
+		$fields = array(
+			DAO_Address::FIRST_NAME => $first_name,
+			DAO_Address::LAST_NAME => $last_name,
+			DAO_Address::CONTACT_ORG_ID => $contact_org_id
+		);
 		
 		DAO_Address::update($id, $fields);
 		
@@ -3783,25 +3780,30 @@ class ChContactsPage extends CerberusPageExtension {
 		$phone = DevblocksPlatform::importGPC($_REQUEST['phone'],'string','');
 		$fax = DevblocksPlatform::importGPC($_REQUEST['fax'],'string','');
 		$website = DevblocksPlatform::importGPC($_REQUEST['website'],'string','');
-		
+		$delete = DevblocksPlatform::importGPC($_REQUEST['delete'],'integer',0);
 
-		$fields = array(DAO_ContactOrg::NAME => $org_name,
-				DAO_ContactOrg::ACCOUNT_NUMBER => $account_num,
-				DAO_ContactOrg::STREET => $street,
-				DAO_ContactOrg::CITY => $city,
-				DAO_ContactOrg::PROVINCE => $province,
-				DAO_ContactOrg::POSTAL => $postal,
-				DAO_ContactOrg::COUNTRY => $country,
-				DAO_ContactOrg::PHONE => $phone,
-				DAO_ContactOrg::FAX => $fax,
-				DAO_ContactOrg::WEBSITE => $website
-				);
-
-		if($id==0) {
-			$id = DAO_ContactOrg::create($fields);
-		}
-		else {
-			DAO_ContactOrg::update($id, $fields);	
+		if(!empty($id) && !empty($delete)) { // delete
+			DAO_ContactOrg::delete($id);
+			
+		} else { // create/edit
+			$fields = array(DAO_ContactOrg::NAME => $org_name,
+					DAO_ContactOrg::ACCOUNT_NUMBER => $account_num,
+					DAO_ContactOrg::STREET => $street,
+					DAO_ContactOrg::CITY => $city,
+					DAO_ContactOrg::PROVINCE => $province,
+					DAO_ContactOrg::POSTAL => $postal,
+					DAO_ContactOrg::COUNTRY => $country,
+					DAO_ContactOrg::PHONE => $phone,
+					DAO_ContactOrg::FAX => $fax,
+					DAO_ContactOrg::WEBSITE => $website
+					);
+	
+			if($id==0) {
+				$id = DAO_ContactOrg::create($fields);
+			}
+			else {
+				DAO_ContactOrg::update($id, $fields);	
+			}
 		}		
 		
 		$view = C4_AbstractViewLoader::getView('', $view_id);

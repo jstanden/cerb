@@ -133,9 +133,10 @@ class CerberusMail {
 		
 		// Body
 		$mail->attach(new Swift_Message_Part($content));
+
+		$sendTo = new Swift_RecipientList();
 		
 	    // Recepients
-		$sendTo = new Swift_RecipientList();
 		$to = array();
 		$requesters = DAO_Ticket::getRequestersByTicket($ticket_id);
 	    if(is_array($requesters)) {
@@ -145,6 +146,18 @@ class CerberusMail {
 		    }
 	    }
 	    $mail->setTo($to);
+
+	    // Ccs
+	    if(!empty($properties['cc'])) {
+		    $ccs = array();
+		    $aCc = CerberusApplication::parseCsvString($properties['cc']);
+		    foreach($aCc as $addy) {
+		    	$sendTo->addCc($addy);
+		    	$ccs[] = new Swift_Address($addy);
+		    }
+		    if(!empty($ccs))
+		    	$mail->setCc($ccs);
+	    }
 	    
 		// Mime Attachments
 		if (is_array($files) && !empty($files)) {

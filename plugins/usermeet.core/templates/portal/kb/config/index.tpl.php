@@ -31,7 +31,6 @@ These are users who can log in and modify articles through the public interface.
 			<td><input type="password" name="editors_pass[]" size="16" value=""></td>
 			<td align="center"><input type="checkbox" name="editors_delete[]" value="{$editor.email}"></td>
 		</tr>
-		<br>
 	{/foreach}
 	</table>
 {else}

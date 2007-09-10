@@ -27,4 +27,5 @@
 		</td>
 	</tr>
 </table>
+<br>
 {/if}

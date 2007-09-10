@@ -64,6 +64,51 @@
 <br>
 <br>
 
+<b>PHP PEAR (Mail)... </b> 
+{if !$results.pear_mail}
+	<span class="bad">Error! PHP must have the 'Mail' PEAR package installed.</span>
+{else}
+	<span class="good">Passed!</span>
+{/if}
+<br>
+<br>
+
+<b>PHP PEAR (Mail_Mime)... </b> 
+{if !$results.pear_mail_mime}
+	<span class="bad">Error! PHP must have the 'Mail_Mime' PEAR package installed.</span>
+{else}
+	<span class="good">Passed!</span>
+{/if}
+<br>
+<br>
+
+<b>PHP PEAR (Mail_mimeDecode)... </b> 
+{if !$results.pear_mail_mimedecode}
+	<span class="bad">Error! PHP must have the 'Mail_mimeDecode' PEAR package installed.</span>
+{else}
+	<span class="good">Passed!</span>
+{/if}
+<br>
+<br>
+
+<b>PHP PEAR (Mail_RFC822)... </b> 
+{if !$results.pear_mail_rfc822}
+	<span class="bad">Error! PHP must have the 'Mail_RFC822' PEAR package installed.</span>
+{else}
+	<span class="good">Passed!</span>
+{/if}
+<br>
+<br>
+
+<b>PHP PEAR (Text_Password)... </b> 
+{if !$results.pear_text_password}
+	<span class="bad">Error! PHP must have the 'Text_Password' PEAR package installed.</span>
+{else}
+	<span class="good">Passed!</span>
+{/if}
+<br>
+<br>
+
 <b>PHP.INI File_Uploads... </b> 
 {if !$results.file_uploads}
 	<span class="bad">Failure!  file_uploads must be enabled in your php.ini file.</span>

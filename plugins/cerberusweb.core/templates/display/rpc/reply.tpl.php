@@ -11,16 +11,20 @@
 		<td>
 			<table cellpadding="1" cellspacing="0" border="0" width="100%">
 				<tr>
-					<td width="100%" nowrap="nowrap" valign="top" colspan="2">
+					<td width="0%" nowrap="nowrap"><b>To: </b></td>
+					<td width="100%" align="left">
 						{foreach from=$ticket->getRequesters() item=requester name=requesters}
-						<b>To: </b> {$requester->email}
-						{*
-						{if $smarty.foreach.requesters.first}
-							<button type="button" onclick="">add</button>
-						{/if}
-						*}
-						<br>
+						{$requester->email}{if !$smarty.foreach.requesters.last}, {/if}
 						{/foreach}
+						<!-- 
+						<input type="text" size="45" name="to" value="" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;">
+						-->					
+					</td>
+				</tr>
+				<tr>
+					<td width="0%" nowrap="nowrap"><b>Cc: </b></td>
+					<td width="100%" align="left">
+						<input type="text" size="45" name="cc" value="" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;">					
 					</td>
 				</tr>
 				<tr>

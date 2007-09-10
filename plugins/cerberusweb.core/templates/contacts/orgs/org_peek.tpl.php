@@ -11,6 +11,7 @@
 <input type="hidden" name="a" value="saveOrgPeek">
 <input type="hidden" name="view_id" value="{$view_id}">
 <input type="hidden" name="id" value="{$contact->id}">
+<input type="hidden" name="delete" value="0">
 
 <div style="height:300px;overflow:auto;border:1px solid rgb(180,180,180);margin:2px;padding:3px;background-color:rgb(255,255,255);">
 
@@ -59,6 +60,7 @@
 
 </div>
 
-<input type="button" value="{$translate->_('common.save_changes')}" onclick="genericPanel.hide();genericAjaxPost('formBatchUpdate', 'view{$view_id}')">
+<button type="button" onclick="genericPanel.hide();genericAjaxPost('formBatchUpdate', 'view{$view_id}')"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
+{if !empty($contact->id)}<button type="button" onclick="this.form.delete.value='1';genericPanel.hide();genericAjaxPost('formBatchUpdate', 'view{$view_id}')"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete2.gif{/devblocks_url}" align="top"> {$translate->_('common.delete')|capitalize}</button>{/if}
 <br>
 </form>
