@@ -78,7 +78,7 @@
 	{/if}
 	<tr>
 		<td colspan="2">
-			<button type="submit"{if (empty($license) || empty($license.key)) && count($workers) >= 3} disabled{/if}><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
+			{if (empty($license) || empty($license.key)) && count($workers) >= 3}{else}<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>{/if}
 		</td>
 	</tr>
 </table>

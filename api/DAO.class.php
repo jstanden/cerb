@@ -735,11 +735,13 @@ class DAO_ContactOrg extends DevblocksORMHelper {
 			"c.id as %s, ".
 			"c.account_number as %s, ".
 			"c.name as %s, ".
+			"c.street as %s, ".
 			"c.city as %s, ".
 			"c.province as %s, ".
 			"c.postal as %s, ".
 			"c.country as %s, ".
 			"c.phone as %s, ".
+			"c.fax as %s, ".
 			"c.website as %s, ".
 			"c.created as %s ".
 			"FROM contact_org c ",
@@ -747,11 +749,13 @@ class DAO_ContactOrg extends DevblocksORMHelper {
 			    SearchFields_ContactOrg::ID,
 			    SearchFields_ContactOrg::ACCOUNT_NUMBER,
 			    SearchFields_ContactOrg::NAME,
+			    SearchFields_ContactOrg::STREET,
 			    SearchFields_ContactOrg::CITY,
 			    SearchFields_ContactOrg::PROVINCE,
 			    SearchFields_ContactOrg::POSTAL,
 			    SearchFields_ContactOrg::COUNTRY,
 			    SearchFields_ContactOrg::PHONE,
+			    SearchFields_ContactOrg::FAX,
 			    SearchFields_ContactOrg::WEBSITE,
 			    SearchFields_ContactOrg::CREATED
 			).
@@ -795,11 +799,13 @@ class SearchFields_ContactOrg {
 	const ID = 'c_id';
 	const ACCOUNT_NUMBER = 'c_account_number';
 	const NAME = 'c_name';
+	const STREET = 'c_street';
 	const CITY = 'c_city';
 	const PROVINCE = 'c_province';
 	const POSTAL = 'c_postal';
 	const COUNTRY = 'c_country';
 	const PHONE = 'c_phone';
+	const FAX = 'c_fax';
 	const WEBSITE = 'c_website';
 	const CREATED = 'c_created';
 	
@@ -812,11 +818,13 @@ class SearchFields_ContactOrg {
 			self::ID => new DevblocksSearchField(self::ID, 'c', 'id', null, $translate->_('contact_org.id')),
 			self::ACCOUNT_NUMBER => new DevblocksSearchField(self::ACCOUNT_NUMBER, 'c', 'account_number', null, $translate->_('contact_org.account_number')),
 			self::NAME => new DevblocksSearchField(self::NAME, 'c', 'name', null, $translate->_('contact_org.name')),
+			self::STREET => new DevblocksSearchField(self::STREET, 'c', 'street', null, $translate->_('contact_org.street')),
 			self::CITY => new DevblocksSearchField(self::CITY, 'c', 'city', null, $translate->_('contact_org.city')),
 			self::PROVINCE => new DevblocksSearchField(self::PROVINCE, 'c', 'province', null, $translate->_('contact_org.province')),
 			self::POSTAL => new DevblocksSearchField(self::POSTAL, 'c', 'postal', null, $translate->_('contact_org.postal')),
 			self::COUNTRY => new DevblocksSearchField(self::COUNTRY, 'c', 'country', null, $translate->_('contact_org.country')),
 			self::PHONE => new DevblocksSearchField(self::PHONE, 'c', 'phone', null, $translate->_('contact_org.phone')),
+			self::FAX => new DevblocksSearchField(self::FAX, 'c', 'fax', null, $translate->_('contact_org.fax')),
 			self::WEBSITE => new DevblocksSearchField(self::WEBSITE, 'c', 'website', null, $translate->_('contact_org.website')),
 			self::CREATED => new DevblocksSearchField(self::CREATED, 'c', 'created', null, $translate->_('contact_org.created')),
 		);
@@ -2117,6 +2125,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 //			"t.last_wrote_address_id as %s, ".
 			"a1.email as %s, ".
 			"a2.email as %s, ".
+			"a1.contact_org_id as %s, ".
 			"t.created_date as %s, ".
 			"t.updated_date as %s, ".
 			"t.due_date as %s, ".
@@ -2146,6 +2155,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 //			    SearchFields_Ticket::TICKET_LAST_WROTE_ID,
 			    SearchFields_Ticket::TICKET_FIRST_WROTE,
 			    SearchFields_Ticket::TICKET_LAST_WROTE,
+			    SearchFields_Ticket::TICKET_FIRST_CONTACT_ORG_ID,
 			    SearchFields_Ticket::TICKET_CREATED_DATE,
 			    SearchFields_Ticket::TICKET_UPDATED_DATE,
 			    SearchFields_Ticket::TICKET_DUE_DATE,
@@ -2211,6 +2221,7 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 	const TICKET_SUBJECT = 't_subject';
 	const TICKET_FIRST_WROTE_ID = 't_first_wrote_id';
 	const TICKET_FIRST_WROTE = 't_first_wrote';
+	const TICKET_FIRST_CONTACT_ORG_ID = 't_first_contact_org_id';
 	const TICKET_LAST_WROTE_ID = 't_last_wrote_id';
 	const TICKET_LAST_WROTE = 't_last_wrote';
 	const TICKET_CREATED_DATE = 't_created_date';
@@ -2256,6 +2267,7 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 			SearchFields_Ticket::TICKET_SUBJECT => new DevblocksSearchField(SearchFields_Ticket::TICKET_SUBJECT, 't', 'subject'),
 			SearchFields_Ticket::TICKET_FIRST_WROTE_ID => new DevblocksSearchField(SearchFields_Ticket::TICKET_FIRST_WROTE_ID, 't', 'first_wrote_address_id'),
 			SearchFields_Ticket::TICKET_FIRST_WROTE => new DevblocksSearchField(SearchFields_Ticket::TICKET_FIRST_WROTE, 'a1', 'email'),
+			SearchFields_Ticket::TICKET_FIRST_CONTACT_ORG_ID => new DevblocksSearchField(SearchFields_Ticket::TICKET_FIRST_CONTACT_ORG_ID, 'a1', 'contact_org_id'),
 			SearchFields_Ticket::TICKET_LAST_WROTE_ID => new DevblocksSearchField(SearchFields_Ticket::TICKET_LAST_WROTE_ID, 't', 'last_wrote_address_id'),
 			SearchFields_Ticket::TICKET_LAST_WROTE => new DevblocksSearchField(SearchFields_Ticket::TICKET_LAST_WROTE, 'a2', 'email'),
 			SearchFields_Ticket::TICKET_CREATED_DATE => new DevblocksSearchField(SearchFields_Ticket::TICKET_CREATED_DATE, 't', 'created_date'),

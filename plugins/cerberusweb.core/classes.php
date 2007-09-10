@@ -1250,6 +1250,11 @@ class ChTicketsPage extends CerberusPageExtension {
 	    @$ticket_ids = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'array');
 	    @$move_to = DevblocksPlatform::importGPC($_REQUEST['move_to'],'string');
 	    
+	    if(empty($ticket_ids)) {
+	    	echo ' ';
+	    	return;
+	    }
+	    
         $visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
 	    $active_dashboard_id = $visit->get(CerberusVisit::KEY_DASHBOARD_ID, 0);	    
 	    
@@ -3632,15 +3637,21 @@ class ChContactsPage extends CerberusPageExtension {
 			$viewMgr->setView('contact_history', $tickets_view);
 		}
 
-		$addresses = DAO_Address::getWhere(sprintf("%s=%d",
-			DAO_Address::CONTACT_ORG_ID,
-			$contact->id
-		));
-		$address_ids = !empty($addresses) ? array_keys($addresses) : array(-1);
+//		$addresses = DAO_Address::getWhere(sprintf("%s=%d",
+//			DAO_Address::CONTACT_ORG_ID,
+//			$contact->id
+//		));
+//
+//		$addys = array();
+//		foreach($addresses as $addy) {
+//			if(!empty($addy))
+//				$addys[] = $addy->email;
+//		}
+//		$address_ids = !empty($addresses) ? array_keys($addresses) : array(-1);
 		
 		@$tickets_view->name = "Most recent tickets from " . htmlentities($contact->name);
 		$tickets_view->params = array(
-			SearchFields_Ticket::TICKET_FIRST_WROTE_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_FIRST_WROTE_ID,DevblocksSearchCriteria::OPER_IN,$address_ids)
+			SearchFields_Ticket::TICKET_FIRST_CONTACT_ORG_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_FIRST_CONTACT_ORG_ID,DevblocksSearchCriteria::OPER_EQ,$contact->id)
 		);
 		$tpl->assign('contact_history', $tickets_view);
 		
@@ -3813,7 +3824,9 @@ class ChContactsPage extends CerberusPageExtension {
 	function getOrgsAutoCompletionsAction() {
 		@$starts_with = DevblocksPlatform::importGPC($_REQUEST['query'],'string','');
 		
-		$params = array(DAO_ContactOrg::NAME => $starts_with);
+		$params = array(
+			DAO_ContactOrg::NAME => $starts_with
+		);
 		
 		list($orgs,$null) = DAO_ContactOrg::search(
 				array(
@@ -4773,9 +4786,9 @@ class ChDisplayPage extends CerberusPageExtension {
 			foreach($adds as $addy) {
 				if(null != ($address_id = DAO_Address::lookupAddress($addy, true))) {
 					DAO_Ticket::createRequester($address_id, $ticket_id);
-					echo "Added <b>$addy</b> as a recipient.<br>";
+//					echo "Added <b>$addy</b> as a recipient.<br>";
 				} else {
-					echo "Ignored invalid e-mail address: <b>$addy</b><br>";
+//					echo "Ignored invalid e-mail address: <b>$addy</b><br>";
 				}
 			}
 		}
@@ -4784,7 +4797,7 @@ class ChDisplayPage extends CerberusPageExtension {
 			foreach($remove as $address_id) {
 				$addy = DAO_Address::get($address_id);
 				DAO_Ticket::deleteRequester($ticket_id, $address_id);
-				echo "Removed <b>" . $addy->email . "</b> as a recipient.<br>";
+//				echo "Removed <b>" . $addy->email . "</b> as a recipient.<br>";
 			}
 		}
 		

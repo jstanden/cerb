@@ -13,10 +13,10 @@ Companies with light requirements may find the free version does everything they
 For companies that need advanced functionality, or would prefer direct product 
 support options, we offer affordable and flexible licensing options.<br>
 
-<H3>Register your copy of Cerberus Helpdesk</H3>
+<H3>Register for 30 days of free Corporate Product Support (optional)</H3>
 
 We love to hear from companies using Cerberus Helpdesk.  Registration is free and entitles 
-you to 30 days of direct product support.  This helps you get quick, priority assistance from 
+you to 30 days of Corporate Product Support at no cost.  This helps you get quick, priority assistance from 
 WebGroup Media during your evaluation or implementation.<br>
 <br>
 We abhor spam and completely respect your privacy.  The information you provide will only be used to 
@@ -24,9 +24,9 @@ follow up with you about Cerberus Helpdesk and related projects from WebGroup Me
 Feel free to do your own research about our privacy track record (via Google, WebHosting Talk, 
 Community Forums, Client References).<br>
 <br>
-<b>Register for free?</b><br>
-<label><input type="radio" name="register" value="1" checked> Yes! You had me at 'E-mail Management'.</label><br> 
-<label><input type="radio" name="register" value="0"> Look, I like you, I do -- but not in that way.</label><br>
+
+<b>So, introduce yourself!</b> (opens in a new browser window)<br>
+<a href="http://www.cerberusweb.com/about-you/" target="_blank">http://www.cerberusweb.com/about-you/</a><br>
 <br>
 
 <input type="submit" value="Continue &gt;&gt;">

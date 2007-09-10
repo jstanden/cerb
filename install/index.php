@@ -690,16 +690,13 @@ switch($step) {
 		// Catch the submit
 		switch($form_submit) {
 			case 1: // names form submit
-				@$worker1_str = DevblocksPlatform::importGPC($_POST['worker1'],'string','');
-				@$worker2_str = DevblocksPlatform::importGPC($_POST['worker2'],'string','');
-				@$worker3_str = DevblocksPlatform::importGPC($_POST['worker3'],'string','');
-				
+				@$workers = DevblocksPlatform::importGPC($_POST['worker'],'array',array());
 				@$teams_str = DevblocksPlatform::importGPC($_POST['teams'],'string','');
 				
 				$worker_ids = array();
 				$team_ids = array();
 
-				$workers = array($worker1_str, $worker2_str, $worker3_str);
+//				$workers = array($worker1_str, $worker2_str, $worker3_str);
 				$teams = CerberusApplication::parseCrlfString($teams_str);
 				
 				if(empty($workers) || empty($teams)) {
@@ -711,8 +708,8 @@ switch($step) {
 				}
 				
 				// Create worker records
-				if(is_array($workers))
 				foreach($workers as $worker_email) {
+					if(empty($worker_email)) continue;
 					$id = DAO_Worker::create($worker_email,'new','First','Last','');
 					$worker_ids[$id] = $worker_email; 
 				}
@@ -720,6 +717,7 @@ switch($step) {
 				// Create team records
 				if(is_array($teams))
 				foreach($teams as $team_name) {
+					if(empty($team_name)) continue;
 					$fields = array(
 						DAO_Group::TEAM_NAME => $team_name
 					);
@@ -848,9 +846,7 @@ switch($step) {
 		
 		break;
 		
-	// [TODO] Automatically collect 'About Me' information? (Register, with benefit)
 	case STEP_REGISTER:
-		@$register = DevblocksPlatform::importGPC($_POST['register'],'integer');
 		@$form_submit = DevblocksPlatform::importGPC($_POST['form_submit'],'integer');
 		
 		if(!empty($form_submit)) {

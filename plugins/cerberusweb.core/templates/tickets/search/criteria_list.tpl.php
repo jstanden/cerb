@@ -73,6 +73,11 @@
 							{$translate->_('ticket.first_wrote')|capitalize} 
 							{$param->operator} 
 							<b>{$param->value}</b>
+						{elseif $param->field=="t_first_contact_org_id"}
+							<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/data_find.gif{/devblocks_url}" align="absmiddle"> 
+							{$translate->_('contact_org.name')|capitalize} 
+							{$param->operator} 
+							<b>{$param->value}</b>
 						{elseif $param->field=="t_last_wrote"}
 							<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/data_find.gif{/devblocks_url}" align="absmiddle"> 
 							{$translate->_('ticket.last_wrote')|capitalize} 

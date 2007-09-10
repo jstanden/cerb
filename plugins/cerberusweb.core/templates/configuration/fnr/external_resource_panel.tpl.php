@@ -32,7 +32,7 @@
 
 <button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
 {if !empty($resource->id)}
-	<button type="button" onclick="this.form.delete.value='1';this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete2.gif{/devblocks_url}" align="top"> {$translate->_('common.remove')|capitalize}</button>
+	<button type="button" onclick="{literal}if(confirm('Are you sure you want to permanently delete this resource?')){this.form.delete.value='1';this.form.submit();}{/literal}"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete2.gif{/devblocks_url}" align="top"> {$translate->_('common.remove')|capitalize}</button>
 {/if}
 
 </form>
