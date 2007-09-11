@@ -180,6 +180,7 @@ class ChPageController extends DevblocksControllerExtension {
         	$worker = $visit->getWorker();
 			$tour_enabled = DAO_WorkerPref::get($worker->id, 'assist_mode');
 			$tour_enabled = ($tour_enabled===false) ? 1 : $tour_enabled;
+			if(DEMO_MODE) $tour_enabled = 1; // override for DEMO
 		}
 		$tpl->assign('tour_enabled', $tour_enabled);
 		
@@ -5369,7 +5370,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 			DAO_Worker::updateAgent($worker->id, $fields);
 		}
 
-		$assist_mode = DevblocksPlatform::importGPC($_REQUEST['assist_mode'],'integer');
+		@$assist_mode = DevblocksPlatform::importGPC($_REQUEST['assist_mode'],'integer',0);
 		DAO_WorkerPref::set($worker->id, 'assist_mode', $assist_mode);
 	}
 };
