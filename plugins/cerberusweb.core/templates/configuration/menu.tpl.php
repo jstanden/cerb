@@ -1,4 +1,7 @@
 <h1>Configuration</h1>
+{if $smarty.const.DEMO_MODE}
+<div style="color:red;padding:2px;font-weight:bold;">NOTE: This helpdesk is in Demo Mode and changes will not be saved.</div>
+{/if}
 <div id="tourConfigMenu"></div>
 [ <a href="{devblocks_url}c=config&a=general{/devblocks_url}">general settings</a> ] 
 [ <a href="{devblocks_url}c=config&a=workflow{/devblocks_url}">users &amp; groups</a> ] 

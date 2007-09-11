@@ -170,8 +170,10 @@ class CerberusMail {
 			}
 		}
 
-		if(!$mailer->send($mail, $sendTo, $sendFrom)) {
-			// [TODO] Report when the message wasn't sent.
+		if(!DEMO_MODE) {
+			if(!$mailer->send($mail, $sendTo, $sendFrom)) {
+				// [TODO] Report when the message wasn't sent.
+			}
 		}
 		
 		// [TODO] Make this properly use team replies 
