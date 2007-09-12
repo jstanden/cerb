@@ -208,10 +208,10 @@ class ChPageController extends DevblocksControllerExtension {
 		$tpl->assign('tpl_path', $tpl_path);
 
 		// Timings
-		if(function_exists('memory_get_usage')) {
 		$tpl->assign('render_time', (microtime(true) - DevblocksPlatform::getStartTime()));
-		$tpl->assign('render_memory', memory_get_usage() - DevblocksPlatform::getStartMemory());
-		$tpl->assign('render_peak_memory', memory_get_peak_usage() - DevblocksPlatform::getStartPeakMemory());
+		if(function_exists('memory_get_usage') && function_exists('memory_get_peak_usage')) {
+			$tpl->assign('render_memory', memory_get_usage() - DevblocksPlatform::getStartMemory());
+			$tpl->assign('render_peak_memory', memory_get_peak_usage() - DevblocksPlatform::getStartPeakMemory());
 		}
 		
 		$tpl->display($tpl_path.'border.php');

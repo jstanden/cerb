@@ -7,7 +7,7 @@
       	<br>
       	{if (1 || $debug) && !empty($render_time)}
 		<span style="color:rgb(180,180,180);font-size:90%;">
-		page generated in: {math equation="x*1000" x=$render_time format="%d"} ms; peak memory used: {math equation="x/1024000" x=$render_peak_memory format="%0.1f"} MB 
+		page generated in: {math equation="x*1000" x=$render_time format="%d"} ms; {if !empty($render_peak_memory)} peak memory used: {math equation="x/1024000" x=$render_peak_memory format="%0.1f"} MB{/if} 
 		 -  
       	{if empty($license) || empty($license.key)}
       	No License (Free Mode)
