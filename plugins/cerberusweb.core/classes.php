@@ -2935,8 +2935,8 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		} else {
 			if(empty($id) && null == DAO_Worker::lookupAgentEmail($email)) {
 				$workers = DAO_Worker::getList();
-				if (!empty($license) && !empty($license['key']) || count($workers) < 3) {
-					$license = CerberusLicense::getInstance();
+				$license = CerberusLicense::getInstance();
+				if ((!empty($license) && !empty($license['key'])) || count($workers) < 3) {
 					$id = DAO_Worker::create($email, $password, '', '', '');
 				}
 				else {
