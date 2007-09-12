@@ -441,9 +441,9 @@ class UmContactApp extends Extension_UsermeetTool {
         
         $filepath = realpath(dirname(__FILE__)) . DIRECTORY_SEPARATOR;
         
-        DevblocksPlatform::registerClasses('Text/CAPTCHA.php',array(
-        	'Text_CAPTCHA',
-        ));
+//        DevblocksPlatform::registerClasses('Text/CAPTCHA.php',array(
+//        	'Text_CAPTCHA',
+//        ));
     }
     
 	public function writeResponse(DevblocksHttpResponse $response) {
@@ -471,51 +471,24 @@ class UmContactApp extends Extension_UsermeetTool {
 
 		switch(array_shift($stack)) {
 			case 'captcha':
-				/*
-				 * CAPTCHA [TODO] API-ize
-				 */
-		        $imageOptions = array(
-		            'font_size' => 24,
-		            'font_path' => DEVBLOCKS_PATH . 'resources/font/',
-		            'font_file' => 'ryanlerch_-_Tuffy_Bold(2).ttf'
-		        );
-		
-		        // Set CAPTCHA options
-		        $options = array(
-		            'width' => 120,
-		            'height' => 75,
-		            'output' => 'jpg',
-		            'length' => 4,
-		//            'phrase' => $pass,
-		            'imageOptions' => $imageOptions
-		        );
-				
-		        // Generate a new Text_CAPTCHA object, Image driver
-		        $c = Text_CAPTCHA::factory('Image');
-		        $retval = $c->init($options);
-		        if (PEAR::isError($retval)) {
-		            echo 'Error initializing CAPTCHA!';
-		            exit;
-		        }
-		    
-		        // Get CAPTCHA secret passphrase
-		        $umsession->setProperty(self::SESSION_CAPTCHA, $c->getPhrase());
-		    
-		        // Get CAPTCHA image (as PNG)
-		        $jpg = $c->getCAPTCHA($options);
-		        
-		        if (PEAR::isError($jpg)) {
-		            echo 'Error generating CAPTCHA!';
-		            exit;
-		        }
-		    	
-		        // Headers, don't allow to be cached
                 header('Cache-control: max-age=0', true); // 1 wk // , must-revalidate
                 header('Expires: ' . gmdate('D, d M Y H:i:s',time()-604800) . ' GMT'); // 1 wk
-                header('Content-length: '. count($jpg));
-		        echo $jpg;
-		        exit;
-		        
+				header('Content-type: image/jpeg');
+                //header('Content-length: '. count($jpg));
+
+//		        // Get CAPTCHA secret passphrase
+				$phrase = CerberusApplication::generatePassword(6);
+		        $umsession->setProperty(self::SESSION_CAPTCHA, $phrase);
+                
+				$im = @imagecreate(150, 50) or die("Cannot Initialize new GD image stream");
+				$background_color = imagecolorallocate($im, 0, 0, 0);
+				$text_color = imagecolorallocate($im, 255, 255, 255); //233, 14, 91
+				$font = DEVBLOCKS_PATH . 'resources/font/ryanlerch_-_Tuffy_Bold(2).ttf';
+				imagettftext($im, 24, 0, 5, 25+6, $text_color, $font, $phrase);
+				$im = imagerotate($im, rand(-20,20), $background_color);
+				imagejpeg($im,null,85);
+				imagedestroy($im);
+				exit;
 				break;
 			
 		    	default:
@@ -860,10 +833,6 @@ class UmKbApp extends Extension_UsermeetTool {
     function __construct($manifest) {
         parent::__construct($manifest);
         $filepath = realpath(dirname(__FILE__)) . DIRECTORY_SEPARATOR;
-        
-        DevblocksPlatform::registerClasses('Text/CAPTCHA.php',array(
-        	'Text_CAPTCHA',
-        ));
     }
     
 	public function writeResponse(DevblocksHttpResponse $response) {
@@ -893,54 +862,6 @@ class UmKbApp extends Extension_UsermeetTool {
         $tpl->assign('fingerprint', $fingerprint);
 
 		switch(array_shift($stack)) {
-			case 'captcha':
-				/*
-				 * CAPTCHA [TODO] API-ize
-				 */
-		        $imageOptions = array(
-		            'font_size' => 24,
-		            'font_path' => DEVBLOCKS_PATH . 'resources/font/',
-		            'font_file' => 'ryanlerch_-_Tuffy_Bold(2).ttf'
-		        );
-		
-		        // Set CAPTCHA options
-		        $options = array(
-		            'width' => 120,
-		            'height' => 75,
-		            'output' => 'jpg',
-		            'length' => 4,
-		//            'phrase' => $pass,
-		            'imageOptions' => $imageOptions
-		        );
-				
-		        // Generate a new Text_CAPTCHA object, Image driver
-		        $c = Text_CAPTCHA::factory('Image');
-		        $retval = $c->init($options);
-		        if (PEAR::isError($retval)) {
-		            echo 'Error initializing CAPTCHA!';
-		            exit;
-		        }
-		    
-		        // Get CAPTCHA secret passphrase
-		        $umsession->setProperty(self::SESSION_CAPTCHA, $c->getPhrase());
-		    
-		        // Get CAPTCHA image (as PNG)
-		        $jpg = $c->getCAPTCHA($options);
-		        
-		        if (PEAR::isError($jpg)) {
-		            echo 'Error generating CAPTCHA!';
-		            exit;
-		        }
-		    	
-		        // Headers, don't allow to be cached
-                header('Cache-control: max-age=0', true); // 1 wk // , must-revalidate
-                header('Expires: ' . gmdate('D, d M Y H:i:s',time()-604800) . ' GMT'); // 1 wk
-                header('Content-length: '. count($jpg));
-		        echo $jpg;
-		        exit;
-		        
-				break;
-			
 			case 'rss':
 				switch(array_shift($stack)) {
 					case 'search':

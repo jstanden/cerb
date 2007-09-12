@@ -28,6 +28,15 @@
 <br>
 <br>
 
+<b>PHP Extension (GD)... </b> 
+{if !$results.ext_gd}
+	<span class="bad">Error! PHP must have the 'GD' extension enabled.</span>
+{else}
+	<span class="good">Passed!</span>
+{/if}
+<br>
+<br>
+
 <b>PHP Extension (IMAP)... </b> 
 {if !$results.ext_imap}
 	<span class="bad">Error! PHP must have the 'IMAP' extension enabled.</span>
@@ -58,51 +67,6 @@
 <b>PHP Extension (SimpleXML)... </b> 
 {if !$results.ext_simplexml}
 	<span class="bad">Error! PHP must have the 'SimpleXML' extension enabled.</span>
-{else}
-	<span class="good">Passed!</span>
-{/if}
-<br>
-<br>
-
-<b>PHP PEAR (Mail)... </b> 
-{if !$results.pear_mail}
-	<span class="bad">Error! PHP must have the 'Mail' PEAR package installed.</span>
-{else}
-	<span class="good">Passed!</span>
-{/if}
-<br>
-<br>
-
-<b>PHP PEAR (Mail_Mime)... </b> 
-{if !$results.pear_mail_mime}
-	<span class="bad">Error! PHP must have the 'Mail_Mime' PEAR package installed.</span>
-{else}
-	<span class="good">Passed!</span>
-{/if}
-<br>
-<br>
-
-<b>PHP PEAR (Mail_mimeDecode)... </b> 
-{if !$results.pear_mail_mimedecode}
-	<span class="bad">Error! PHP must have the 'Mail_mimeDecode' PEAR package installed.</span>
-{else}
-	<span class="good">Passed!</span>
-{/if}
-<br>
-<br>
-
-<b>PHP PEAR (Mail_RFC822)... </b> 
-{if !$results.pear_mail_rfc822}
-	<span class="bad">Error! PHP must have the 'Mail_RFC822' PEAR package installed.</span>
-{else}
-	<span class="good">Passed!</span>
-{/if}
-<br>
-<br>
-
-<b>PHP PEAR (Text_Password)... </b> 
-{if !$results.pear_text_password}
-	<span class="bad">Error! PHP must have the 'Text_Password' PEAR package installed.</span>
 {else}
 	<span class="good">Passed!</span>
 {/if}

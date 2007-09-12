@@ -48,7 +48,7 @@
  * 		and Joe Geck.
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-define("APP_BUILD", 355);
+define("APP_BUILD", 356);
 define("APP_MAIL_PATH", realpath(APP_PATH . '/storage/mail') . DIRECTORY_SEPARATOR);
 
 include_once(APP_PATH . "/api/DAO.class.php");
@@ -116,6 +116,19 @@ class CerberusApplication extends DevblocksApplication {
 			? $visit->getWorker()
 			: null
 			;
+	}
+	
+	static function generatePassword($length=8) {
+		$chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ123456789';
+		$len = strlen($chars)-1;
+		$password = '';
+		
+		for($x=0;$x<$length;$x++) {
+			$chars = str_shuffle($chars);
+			$password .= substr($chars,rand(0,$len),1);
+		}
+		
+		return $password;		
 	}
 	
 	// [JAS]: [TODO] Cleanup + move (platform, diff ext point, DAO?)

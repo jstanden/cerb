@@ -226,6 +226,14 @@ switch($step) {
 			$fails++;
 		}
 
+		// Extension: GD
+		if(extension_loaded("gd")) {
+			$results['ext_gd'] = true;
+		} else {
+			$results['ext_gd'] = false;
+			$fails++;
+		}
+		
 		// Extension: IMAP
 		if(extension_loaded("imap")) {
 			$results['ext_imap'] = true;
@@ -255,51 +263,6 @@ switch($step) {
 			$results['ext_simplexml'] = true;
 		} else {
 			$results['ext_simplexml'] = false;
-			$fails++;
-		}
-		
-		// PEAR: Mail
-		@include_once('Mail.php'); 
-		if(class_exists('Mail')) {
-			$results['pear_mail'] = true;
-		} else {
-			$results['pear_mail'] = false;
-			$fails++;
-		}
-		
-		// PEAR: Mail_mime
-		@include_once('Mail/Mime.php'); 
-		if(class_exists('Mail_mime')) {
-			$results['pear_mail_mime'] = true;
-		} else {
-			$results['pear_mail_mime'] = false;
-			$fails++;
-		}
-		
-		// PEAR: Mail_mimeDecode
-		@include_once('Mail/mimeDecode.php'); 
-		if(class_exists('Mail_mimeDecode')) {
-			$results['pear_mail_mimedecode'] = true;
-		} else {
-			$results['pear_mail_mimedecode'] = false;
-			$fails++;
-		}
-		
-		// PEAR: RFC822
-		@include_once('Mail/RFC822.php'); 
-		if(class_exists('Mail_RFC822')) {
-			$results['pear_mail_rfc822'] = true;
-		} else {
-			$results['pear_mail_rfc822'] = false;
-			$fails++;
-		}
-		
-		// PEAR: Text_Password
-		@include_once('Text/Password.php'); 
-		if(class_exists('Text_Password')) {
-			$results['pear_text_password'] = true;
-		} else {
-			$results['pear_text_password'] = false;
 			$fails++;
 		}
 		
@@ -755,8 +718,7 @@ switch($step) {
 					@$sPassword = !empty($worker_pw[$idx]) ? $worker_pw[$idx] : '';
 					
 				    if(empty($sPassword)) {
-				    	$passGen = new Text_Password();
-				    	$sPassword = $passGen->create(8);
+				    	$sPassword = CerberusApplication::generatePassword(8);
 				    	
 				        $mail_service = DevblocksPlatform::getMailService();
 				        $mailer = $mail_service->getMailer();

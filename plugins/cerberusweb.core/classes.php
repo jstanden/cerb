@@ -5223,8 +5223,7 @@ class ChSignInPage extends CerberusPageExtension {
 	    $mailer = $mail_service->getMailer();
 		$mail = $mail_service->createMessage();
 	    
-	    $passGen = new Text_Password();
-	    $code = $passGen->create(10);
+	    $code = CerberusApplication::generatePassword(10);
 	    
 	    $_SESSION[self::KEY_FORGOT_SENTCODE] = $code;
 	    $settings = CerberusSettings::getInstance();
