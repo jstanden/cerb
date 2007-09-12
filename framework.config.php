@@ -1,11 +1,11 @@
 <?php
-define('APP_DB_DRIVER','mysql');
-define('APP_DB_HOST','localhost');
-define('APP_DB_DATABASE','cerb4');
-define('APP_DB_USER','cerb4');
-define('APP_DB_PASS','cerb4');
+define('APP_DB_DRIVER','');
+define('APP_DB_HOST','');
+define('APP_DB_DATABASE','');
+define('APP_DB_USER','');
+define('APP_DB_PASS','');
 
-define('DEVBLOCKS_REWRITE', true);
+define('DEVBLOCKS_REWRITE', false);
 //define('DEVBLOCKS_LANGUAGE','en');
 //define('DEVBLOCKS_THEME','default');
 //define('DEVBLOCKS_DEBUG',true);
