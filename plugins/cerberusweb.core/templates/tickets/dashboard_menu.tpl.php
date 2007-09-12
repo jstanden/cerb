@@ -35,7 +35,7 @@
 				      	</form>
 					</td>
 				</tr>
-				{assign var=team_member value=$active_worker_memberships.$team_id}
+				{assign var=team_member value=$active_worker_memberships.$dashboard_team_id}
 				{if substr($active_dashboard_id,0,1) == 't' && (1 == $active_worker->is_superuser || 1 == $team_member->is_manager)}
 					<tr>
 						<td width="100%" style="padding:2px;">
