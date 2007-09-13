@@ -91,6 +91,15 @@
 <br>
 <br>
 
+<b>PHP.INI Memory_Limit... </b> 
+{if !$results.memory_limit}
+	<span class="bad">Failure! memory_limit should be 16M or higher in your php.ini file.</span>
+{else}
+	<span class="good">Passed!</span>
+{/if}
+<br>
+<br>
+
 {if !$fails}
 	<input type="hidden" name="step" value="{$smarty.const.STEP_LICENSE}">
 	<input type="submit" value="Next Step &gt;&gt;">

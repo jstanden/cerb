@@ -4470,6 +4470,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 
+		$visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
 		$response = DevblocksPlatform::getHttpResponse();
 		$stack = $response->path;
 
@@ -4488,6 +4489,42 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		$tpl->assign('ticket', $ticket);
 
+		// Does a series exist?
+		if(null != ($series_info = $visit->get('ch_display_series', null))) {
+			@$series = $series_info['series'];
+			// Is this ID part of the series?  If not, invalidate
+			if(!isset($series[$id])) {
+				$visit->set('ch_display_series', null);
+			} else {
+				$series_stats = array(
+					'title' => $series_info['title'],
+					'total' => $series_info['total'],
+					'count' => count($series)
+				);
+				reset($series);
+				$cur = 1;
+				while(current($series)) {
+					$pos = key($series);
+					if(intval($pos)==intval($id)) {
+						$series_stats['cur'] = $cur;
+						if(false !== prev($series)) {
+							@$series_stats['prev'] = $series[key($series)][SearchFields_Ticket::TICKET_MASK];
+							next($series); // skip to current
+						} else {
+							reset($series);
+						}
+						next($series); // next
+						@$series_stats['next'] = $series[key($series)][SearchFields_Ticket::TICKET_MASK];
+						break;
+					}
+					next($series);
+					$cur++;
+				}
+				
+				$tpl->assign('series_stats', $series_stats);
+			}
+		}
+		
 		$workers = DAO_Worker::getList();  // [TODO] ::getAll();
 		$tpl->assign('workers', $workers);
 		
@@ -4498,6 +4535,54 @@ class ChDisplayPage extends CerberusPageExtension {
 		$tpl->assign('team_categories', $team_categories);
 		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/index.tpl.php');
+	}
+	
+	function browseAction() {
+		$visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
+		$request = DevblocksPlatform::getHttpRequest();
+		$stack = $request->path;
+		
+		array_shift($stack); // display
+		array_shift($stack); // browse
+		
+		@$id = array_shift($stack);
+		
+		// [JAS]: Mask
+		if(!is_numeric($id)) {
+			$id = DAO_Ticket::getTicketIdByMask($id);
+		}
+		$ticket = DAO_Ticket::getTicket($id);
+	
+		if(empty($ticket)) {
+			echo "<H1>Invalid Ticket ID.</H1>";
+			return;
+		}
+		
+		// Display series support (inherited paging from Display)
+		@$view_id = array_shift($stack);
+		if(!empty($view_id)) {
+			$view = DAO_Dashboard::getView($view_id);
+			
+			$range = 100;
+			$pos = $view->renderLimit * $view->renderPage;
+			$page = floor($pos / $range);
+			
+			list($series, $series_count) = DAO_Ticket::search(
+				$view->params,
+				$range,
+				$page,
+				$view->renderSortBy,
+				$view->renderSortAsc,
+				false
+			);
+			$series_info = array(
+				'title' => $view->name,
+				'total' => count($series),
+				'series' => $series
+			);
+			$visit->set('ch_display_series', $series_info);
+		}
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('display',$ticket->mask)));
 	}
 
 	function getMessageAction() {

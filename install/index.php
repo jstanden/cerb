@@ -210,6 +210,14 @@ switch($step) {
 			//$fails++; // Not fatal
 		}
 
+		$ini_memory_limit = intval(ini_get("memory_limit"));
+		if($ini_memory_limit >= 16) {
+			$results['memory_limit'] = true;
+		} else {
+			$results['memory_limit'] = false;
+			$fails++;
+		}
+		
 		// Extension: Sessions
 		if(extension_loaded("session")) {
 			$results['ext_session'] = true;
