@@ -477,15 +477,15 @@ class UmContactApp extends Extension_UsermeetTool {
                 //header('Content-length: '. count($jpg));
 
 //		        // Get CAPTCHA secret passphrase
-				$phrase = CerberusApplication::generatePassword(6);
+				$phrase = CerberusApplication::generatePassword(4);
 		        $umsession->setProperty(self::SESSION_CAPTCHA, $phrase);
                 
-				$im = @imagecreate(150, 50) or die("Cannot Initialize new GD image stream");
+				$im = @imagecreate(150, 80) or die("Cannot Initialize new GD image stream");
 				$background_color = imagecolorallocate($im, 0, 0, 0);
 				$text_color = imagecolorallocate($im, 255, 255, 255); //233, 14, 91
 				$font = DEVBLOCKS_PATH . 'resources/font/ryanlerch_-_Tuffy_Bold(2).ttf';
-				imagettftext($im, 24, 0, 5, 25+6, $text_color, $font, $phrase);
-				$im = imagerotate($im, rand(-20,20), $background_color);
+				imagettftext($im, 24, rand(0,20), 5, 60+6, $text_color, $font, $phrase);
+//				$im = imagerotate($im, rand(-20,20), $background_color);
 				imagejpeg($im,null,85);
 				imagedestroy($im);
 				exit;

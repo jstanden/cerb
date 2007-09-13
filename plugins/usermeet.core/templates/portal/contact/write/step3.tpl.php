@@ -20,7 +20,7 @@
 		<textarea name="content" rows="10" cols="60" style="width:98%;">{$last_content}</textarea><br>
 		
 		{if $captcha_enabled}
-	      	<h4>Please type the letters from the image below:</h4>	
+	      	<h4>Please type the characters from the image below:</h4>	
 			<input name="captcha" class="question" value="" size="10" autocomplete="off"><br>
 			<img src="{devblocks_url}c=captcha{/devblocks_url}"><br>
 		{/if}
