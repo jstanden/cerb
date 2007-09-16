@@ -57,26 +57,20 @@ class CerberusParserMessage {
 
 class CerberusParser {
     const ATTACHMENT_BUCKETS = 100; // hash
-	
-	/**
-	 * Enter description here...
-	 * @param CerberusParserMessage $message
-	 * @return integer $id
-	 */
-	static public function parseMessage($message) {
-//		if (DEVBLOCKS_DEBUG == 'true') {echo ('Entering parseMessage() with rfcMessage :<br>'); print_r ($message); echo ('<hr>');}
-		$id = CerberusParser::parseToTicket($message);
-		return $id;
-	}
-	
+
 	/**
 	 * Enter description here...
 	 *
 	 * @param CerberusParserMessage $message
 	 * @return integer
 	 */
-	static public function parseToTicket($message) {
+	static public function parseMessage($message, $options=array()) {
 //		print_r($rfcMessage);
+		
+		/*
+		 * options:
+		 * 'no_autoreply'
+		 */
 
 		$headers =& $message->headers;
 
@@ -243,8 +237,11 @@ class CerberusParser {
 //		    echo "Creating new ticket<br>";
 			$team_id = CerberusParser::parseDestination($headers);
 			
+			if(empty($sMask))
+				$sMask = CerberusApplication::generateTicketMask();
+			
 			$fields = array(
-				DAO_Ticket::MASK => (!empty($sMask) ? $sMask : CerberusApplication::generateTicketMask()),
+				DAO_Ticket::MASK => $sMask,
 				DAO_Ticket::SUBJECT => $sSubject,
 				DAO_Ticket::IS_CLOSED => $iClosed,
 				DAO_Ticket::FIRST_WROTE_ID => intval($fromAddressId),
@@ -378,9 +375,13 @@ class CerberusParser {
 			    DAO_Ticket::FIRST_MESSAGE_ID => $email_id
 		    ));
 		}
-		
-		// Spam scoring
+
+		// New ticket processing
 		if($bIsNew) {
+			static $group_settings = null;
+			if(null == $group_settings)
+				$group_settings = DAO_GroupSettings::getSettings();
+			
     		// Allow spam training overloading
 		    if(!empty($enumSpamTraining)) {
 			    if($enumSpamTraining == CerberusTicketSpamTraining::SPAM) {
@@ -390,18 +391,15 @@ class CerberusParser {
 		        }
 			} else { // No overload
 			    $out = CerberusBayes::calculateTicketSpamProbability($id);
-			    
+
 			    if(!empty($team_id)) {
-				    static $group_settings = null;
-				    if(null == $group_settings) {
-				        $group_settings = DAO_GroupSettings::getSettings();
-				    }
-			    
-			        @$spam_threshold = $group_settings[$team_id][DAO_GroupSettings::SETTING_SPAM_THRESHOLD];
+			    	@$spam_threshold = $group_settings[$team_id][DAO_GroupSettings::SETTING_SPAM_THRESHOLD];
 			        @$spam_action = $group_settings[$team_id][DAO_GroupSettings::SETTING_SPAM_ACTION];
 			        @$spam_action_param = $group_settings[$team_id][DAO_GroupSettings::SETTING_SPAM_ACTION_PARAM];
 			        
 				    if($out['probability']*100 >= $spam_threshold) {
+				    	$enumSpamTraining = CerberusTicketSpamTraining::SPAM;
+				    	
 				        switch($spam_action) {
 				            default:
 				            case 0: // do nothing
@@ -425,8 +423,34 @@ class CerberusParser {
 				        }
 				    }
 			    }
+			} // end spam training
+
+			// Auto reply
+			@$autoreply_enabled = $group_settings[$team_id][DAO_GroupSettings::SETTING_AUTO_REPLY_ENABLED];
+			@$autoreply = $group_settings[$team_id][DAO_GroupSettings::SETTING_AUTO_REPLY];
+			
+			/*
+			 * Send the group's autoreply if one exists, as long as this ticket isn't spam and
+			 * we aren't importing this message.
+			 */
+			if(!isset($options['no_autoreply'])
+				&& $autoreply_enabled 
+				&& !empty($autoreply) 
+				&& $enumSpamTraining != CerberusTicketSpamTraining::SPAM
+				&& (empty($importNew) && empty($importAppend))) {
+					CerberusMail::sendTicketMessage(array(
+						'ticket_id' => $id,
+						'message_id' => $email_id,
+						'content' => str_replace(
+				        	array('#mask#','#subject#','#sender#'), // ,'#group#','#bucket#'
+				        	array($sMask, $sSubject, $fromAddress),
+				        	$autoreply
+						),
+						'dont_keep_copy' => true
+					));
 			}
-		}
+			
+		} // end bIsNew
 		
 		unset($message);
 		
@@ -435,6 +459,7 @@ class CerberusParser {
 			DAO_Ticket::updateTicket($id,array(
 			    DAO_Ticket::UPDATED_DATE => time(),
 			    DAO_Ticket::IS_CLOSED => 0,
+			    DAO_Ticket::IS_DELETED => 0,
 			    DAO_Ticket::LAST_WROTE_ID => $fromAddressId,
 			    DAO_Ticket::LAST_ACTION_CODE => CerberusTicketActionCode::TICKET_CUSTOMER_REPLY,
 			));

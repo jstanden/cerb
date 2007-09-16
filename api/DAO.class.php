@@ -3145,6 +3145,8 @@ class DAO_GroupSettings {
     const SETTING_SPAM_THRESHOLD = 'group_spam_threshold';
     const SETTING_SPAM_ACTION = 'group_spam_action';
     const SETTING_SPAM_ACTION_PARAM = 'group_spam_action_param';
+    const SETTING_AUTO_REPLY = 'auto_reply';
+    const SETTING_AUTO_REPLY_ENABLED = 'auto_reply_enabled';
     
 	static function set($group_id, $key, $value) {
 		$db = DevblocksPlatform::getDatabaseService();

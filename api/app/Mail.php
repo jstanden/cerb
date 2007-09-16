@@ -53,7 +53,8 @@ class CerberusMail {
 	
 	static function sendTicketMessage($properties=array()) {
 	    $settings = CerberusSettings::getInstance();
-		$from_addy = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM, $_SERVER['SERVER_ADMIN']);
+		@$from_addy = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM, $_SERVER['SERVER_ADMIN']);
+	    // [TODO] If we still don't have a $from_addy we need a graceful failure. 
 		$from_personal = $settings->get(CerberusSettings::DEFAULT_REPLY_PERSONAL,'');
 		
 		/*
@@ -69,7 +70,8 @@ class CerberusMail {
 	    'ticket_reopen'
 	    'next_action'
 	    'bucket_id'
-	    'agent_id'
+	    'agent_id',
+		'dont_save_copy'
 		*/
 
 		// objects
@@ -122,13 +124,12 @@ class CerberusMail {
 		 * our licensing.  Buy a legitimate copy to help support the project!
 		 * http://www.cerberusweb.com/
 		 */
-		// Free Version Tagline
 		$license = CerberusLicense::getInstance();
 		if(empty($license) || @empty($license['key'])) {
-			$content .= "\r\n\r\n".
-				"---\r\n".
-				"Mail handled by Cerberus Helpdesk -- http://www.cerberusweb.com/\r\n".
-				"Combat Spam. Improve Response Times. Share Knowledge.\r\n";
+			$content .= base64_decode("DQoNCi0tLQ0KQ29tYmF0IHNwYW0gYW5kIGltcHJvdmUgcmVzc".
+				"G9uc2UgdGltZXMgd2l0aCBDZXJiZXJ1cyBIZWxwZGVzayA0LjAhDQpodHRwOi8vd3d3LmNlc".
+				"mJlcnVzd2ViLmNvbS8NCg"
+			);
 		}
 		
 		// Body
@@ -175,102 +176,112 @@ class CerberusMail {
 				// [TODO] Report when the message wasn't sent.
 			}
 		}
+
+		// Handle post-mail actions
+		$change_fields = array();
 		
 		// [TODO] Make this properly use team replies 
 	    // (or reflect what the customer sent to), etc.
 		$fromAddressId = CerberusApplication::hashLookupAddressId($from_addy, true);
 		
-	    $fields = array(
-	        DAO_Message::TICKET_ID => $ticket_id,
-	        DAO_Message::MESSAGE_TYPE => $type, // [TODO] Phase out
-	        DAO_Message::CREATED_DATE => time(),
-	        DAO_Message::ADDRESS_ID => $fromAddressId // [TODO] Real sender id
-	    );
-		$message_id = DAO_Message::create($fields);
-	    
-		// Content
-	    DAO_MessageContent::update($message_id, $content);
-	    
-	    // Headers
-		foreach($mail->headers->getList() as $hdr => $v) {
-			if(null != ($hdr_val = $mail->headers->getEncoded($hdr))) {
-				if(!empty($hdr_val))
-	    			DAO_MessageHeader::update($message_id, $ticket_id, $hdr, $hdr_val);
+		if(empty($properties['dont_keep_copy']) || !$properties['dont_keep_copy']) {
+			$change_fields[DAO_Ticket::LAST_WROTE_ID] = $fromAddressId;
+			$change_fields[DAO_Ticket::UPDATED_DATE] = time();
+			
+		    if(!empty($worker_id)) {
+		        $change_fields[DAO_Ticket::LAST_WORKER_ID] = $worker_id;
+		        $change_fields[DAO_Ticket::LAST_ACTION_CODE] = CerberusTicketActionCode::TICKET_WORKER_REPLY;
+		    }
+			
+		    $fields = array(
+		        DAO_Message::TICKET_ID => $ticket_id,
+		        DAO_Message::MESSAGE_TYPE => $type, // [TODO] Phase out
+		        DAO_Message::CREATED_DATE => time(),
+		        DAO_Message::ADDRESS_ID => $fromAddressId // [TODO] Real sender id
+		    );
+			$message_id = DAO_Message::create($fields);
+		    
+			// Content
+		    DAO_MessageContent::update($message_id, $content);
+		    
+		    // Headers
+			foreach($mail->headers->getList() as $hdr => $v) {
+				if(null != ($hdr_val = $mail->headers->getEncoded($hdr))) {
+					if(!empty($hdr_val))
+		    			DAO_MessageHeader::update($message_id, $ticket_id, $hdr, $hdr_val);
+				}
 			}
-		}
-	    
-		if (is_array($files) && !empty($files)) {
-			$attachment_path = APP_PATH . '/storage/attachments/';
-		
-			reset($files);
-			foreach ($files['tmp_name'] as $idx => $file) {
-				if(empty($file) || empty($files['name'][$idx]) || !file_exists($file))
-					continue;
+		    
+			if (is_array($files) && !empty($files)) {
+				$attachment_path = APP_PATH . '/storage/attachments/';
+			
+				reset($files);
+				foreach ($files['tmp_name'] as $idx => $file) {
+					if(empty($file) || empty($files['name'][$idx]) || !file_exists($file))
+						continue;
+						
+					$fields = array(
+						DAO_Attachment::MESSAGE_ID => $message_id,
+						DAO_Attachment::DISPLAY_NAME => $files['name'][$idx],
+						DAO_Attachment::MIME_TYPE => $files['type'][$idx],
+						DAO_Attachment::FILE_SIZE => filesize($file)
+					);
+					$file_id = DAO_Attachment::create($fields);
 					
-				$fields = array(
-					DAO_Attachment::MESSAGE_ID => $message_id,
-					DAO_Attachment::DISPLAY_NAME => $files['name'][$idx],
-					DAO_Attachment::MIME_TYPE => $files['type'][$idx],
-					DAO_Attachment::FILE_SIZE => filesize($file)
-				);
-				$file_id = DAO_Attachment::create($fields);
-				
-	            $attachment_bucket = sprintf("%03d/",
-	                rand(1,100)
-	            );
-	            $attachment_file = $file_id;
-	            
-	            if(!file_exists($attachment_path.$attachment_bucket)) {
-	                mkdir($attachment_path.$attachment_bucket, 0775, true);
-	            }
-
-	            if(!is_writeable($attachment_path.$attachment_bucket)) {
-	            	echo "Can't write to " . $attachment_path.$attachment_bucket . "<BR>";
-	            }
-	            
-	            copy($file, $attachment_path.$attachment_bucket.$attachment_file);
-	            @unlink($file);
-			    
-			    DAO_Attachment::update($file_id, array(
-			        DAO_Attachment::FILEPATH => $attachment_bucket.$attachment_file
-			    ));
+		            $attachment_bucket = sprintf("%03d/",
+		                rand(1,100)
+		            );
+		            $attachment_file = $file_id;
+		            
+		            if(!file_exists($attachment_path.$attachment_bucket)) {
+		                mkdir($attachment_path.$attachment_bucket, 0775, true);
+		            }
+	
+		            if(!is_writeable($attachment_path.$attachment_bucket)) {
+		            	echo "Can't write to " . $attachment_path.$attachment_bucket . "<BR>";
+		            }
+		            
+		            copy($file, $attachment_path.$attachment_bucket.$attachment_file);
+		            @unlink($file);
+				    
+				    DAO_Attachment::update($file_id, array(
+				        DAO_Attachment::FILEPATH => $attachment_bucket.$attachment_file
+				    ));
+				}
 			}
 		}
-		
-		// Handle post-mail actions
-		$change_fields = array();
-		
-		$change_fields[DAO_Ticket::LAST_WROTE_ID] = $fromAddressId;
-		$change_fields[DAO_Ticket::UPDATED_DATE] = time();
-		
-	    if(!empty($worker_id)) {
-	        $change_fields[DAO_Ticket::LAST_WORKER_ID] = $worker_id;
-	        $change_fields[DAO_Ticket::LAST_ACTION_CODE] = CerberusTicketActionCode::TICKET_WORKER_REPLY;
-	    }
-		
-        $change_fields[DAO_Ticket::IS_CLOSED] = intval($properties['closed']);
+
+		// Post-Reply Change Properties
+
+		if(isset($properties['closed'])) {
+        	$change_fields[DAO_Ticket::IS_CLOSED] = intval($properties['closed']);
+        	
+			if(intval($properties['closed'])) { // Closing
+				if(isset($properties['ticket_reopen'])) {
+					if(!empty($properties['ticket_reopen'])) {
+					    $due = strtotime($properties['ticket_reopen']);
+					    if(intval($due) > 0)
+				            $change_fields[DAO_Ticket::DUE_DATE] = $due;
+					}
+				}
+				
+	        } else { // Open
+				if(isset($properties['next_action']))
+	    	    	$change_fields[DAO_Ticket::NEXT_ACTION] = $properties['next_action'];
+	    	    
+				if(!empty($properties['bucket_id'])) {
+				    // [TODO] Use API to move, or fire event
+			        // [TODO] Ensure team/bucket exist
+			        list($team_id, $bucket_id) = CerberusApplication::translateTeamCategoryCode($properties['bucket_id']);
+				    $change_fields[DAO_Ticket::TEAM_ID] = $team_id;
+				    $change_fields[DAO_Ticket::CATEGORY_ID] = $bucket_id;
+				}
+	        }
+		}
         
         // Who should handle the followup?
-        $change_fields[DAO_Ticket::NEXT_WORKER_ID] = $properties['next_worker_id'];
-		
-		if(intval($properties['closed'])) { // Closing
-			if(!empty($properties['ticket_reopen'])) {
-			    $due = strtotime($properties['ticket_reopen']);
-			    if(intval($due) > 0)
-		            $change_fields[DAO_Ticket::DUE_DATE] = $due;
-			}
-			
-        } else { // Open
-    	    $change_fields[DAO_Ticket::NEXT_ACTION] = $properties['next_action'];
-    	    
-			if(!empty($properties['bucket_id'])) {
-			    // [TODO] Use API to move, or fire event
-		        // [TODO] Ensure team/bucket exist
-		        list($team_id, $bucket_id) = CerberusApplication::translateTeamCategoryCode($properties['bucket_id']);
-			    $change_fields[DAO_Ticket::TEAM_ID] = $team_id;
-			    $change_fields[DAO_Ticket::CATEGORY_ID] = $bucket_id;
-			}
-        }
+		if(isset($properties['next_worker_id']))
+        	$change_fields[DAO_Ticket::NEXT_WORKER_ID] = $properties['next_worker_id'];
 
 		if(!empty($ticket_id) && !empty($change_fields)) {
 		    DAO_Ticket::updateTicket($ticket_id, $change_fields);

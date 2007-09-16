@@ -9,7 +9,7 @@ For example: <i>http://www.cerberusweb.com/support/</i><br>
 <textarea rows="10" cols="80" style="width:98%;margin:10px;">
 &lt;?php
 define('REMOTE_HOST', '{$host}');
-define('REMOTE_BASE', '{$base}'); // NO trailing slash!
+define('REMOTE_BASE', '{$base}{if !$smarty.const.DEVBLOCKS_REWRITE}/index.php{/if}'); // NO trailing slash!
 define('REMOTE_URI', '{$path}'); // NO trailing slash!
 {literal}
 /*
@@ -17,14 +17,18 @@ define('REMOTE_URI', '{$path}'); // NO trailing slash!
  * [JAS]: Don't modify the following unless you know what you're doing!
  * ====================================================================
  */
+define('URL_REWRITE', file_exists('.htaccess'));
 define('LOCAL_HOST', $_SERVER['HTTP_HOST']);
 define('LOCAL_BASE', DevblocksRouter::getLocalBase()); // NO trailing slash!
-define('SCRIPT_LAST_MODIFY', 2007082801); // last change
+define('SCRIPT_LAST_MODIFY', 2007091502); // last change
 
 @session_start();
 
 class DevblocksProxy {
     function proxy($remote_host, $remote_uri, $local_path) {
+//    	echo "RH: $remote_host<BR>";    	
+//    	echo "RU: $remote_uri<BR>";    	
+//    	echo "LP: $local_path<BR>";    	
         $path = explode('/', substr($local_path,1));
         
         if(0==strcasecmp($path[0],'resource')) {
@@ -121,19 +125,6 @@ class DevblocksProxy {
 				file_get_contents($file['tmp_name']) // [JAS] replace with a PHP4 friendly function?
 			);
 
-//			if(is_array($v)) {
-//				foreach($v as $vk => $vv) {
-//				    $posts[] = sprintf("%s=%s",
-//					    urlencode($k.'[]'),
-//					    urlencode((get_magic_quotes_gpc() ? stripslashes($vv) : $vv))
-//				    );
-//				}
-//			} else {
-//			    $posts[] = sprintf("%s=%s",
-//				    $k,
-//				    urlencode((get_magic_quotes_gpc() ? stripslashes($v) : $v))
-//			    );
-//			}
 		}
 
 		$content .= sprintf("--%s--\r\n",
@@ -262,7 +253,10 @@ class DevblocksProxy_Curl extends DevblocksProxy {
 
 class DevblocksRouter {
     function connect() {
-        list($local_path) = sscanf($_SERVER['REQUEST_URI'], LOCAL_BASE ."%s");
+        list($local_path) = sscanf($_SERVER['REQUEST_URI'],LOCAL_BASE ."%s");
+//        echo "SRU: ",$_SERVER['REQUEST_URI'],"<BR>";
+//        echo "Localbase: ",LOCAL_BASE,"<BR>";
+//        echo $local_path,"<BR>";
         $proxy = $this->_factory();
         $proxy->proxy(REMOTE_HOST, REMOTE_BASE . REMOTE_URI, $local_path);
     }
@@ -288,8 +282,13 @@ class DevblocksRouter {
      * @return string
      */
     function getLocalBase() {
-        $path = explode('/', $_SERVER['PHP_SELF']);
-        array_pop($path);
+    	$uri = $_SERVER['PHP_SELF'];
+    	if(substr($uri,-1,1)=='/') // strip trailing slash
+    		$uri = substr($uri,0,-1);
+        $path = explode('/', $uri);
+        if(false !== ($pos = array_search("index.php",$path))) {
+        	$path = array_slice($path, 0, (URL_REWRITE?$pos:$pos+1));
+        }
         return implode('/', $path);
     }
 };
@@ -299,7 +298,7 @@ $router->connect();
 {/literal}?&gt;</textarea><br>
 <br>
 
-<b>.htaccess:</b> (Apache Web Server)<br>
+<b>.htaccess:</b> (optional, friendly URLs for Apache Web Server users)<br>
 <textarea rows="10" cols="80" style="width:98%;margin:10px;">{literal}
 &lt;IfModule mod_rewrite.c&gt;
 RewriteEngine on

@@ -154,7 +154,7 @@ class ChSimulatorPage extends CerberusPageExtension {
 				$personal
 			);
 		    
-			CerberusParser::parseMessage($message);
+			CerberusParser::parseMessage($message,array('no_autoreply'=>true));
 		}
 		
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('simulator')));

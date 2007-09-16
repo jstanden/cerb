@@ -332,7 +332,12 @@ class UmCommunityPage extends CerberusPageExtension {
         $host = $url_parts['host'];
 		$base = substr(DEVBLOCKS_WEBPATH,0,-1); // consume trailing
         $path = substr($url_parts['path'],strlen(DEVBLOCKS_WEBPATH)-1); // consume trailing slash
-		
+
+        @$parts = explode('/', $path);
+        if($parts[1]=='index.php') // 0 is null from /part1/part2 paths.
+        	unset($parts[1]);
+        $path = implode('/', $parts);
+        
 		$tpl->assign('host', $host);
 		$tpl->assign('base', $base);
 		$tpl->assign('path', $path);

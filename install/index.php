@@ -545,8 +545,8 @@ switch($step) {
 	case STEP_OUTGOING_MAIL:
 		$settings = CerberusSettings::getInstance();
 		
-		@$smtp_host = DevblocksPlatform::importGPC($_POST['smtp_host'],'string',$settings->get(CerberusSettings::SMTP_HOST));
-//		@$smtp_to = DevblocksPlatform::importGPC($_POST['smtp_to'],'string');
+		@$smtp_host = DevblocksPlatform::importGPC($_POST['smtp_host'],'string',$settings->get(CerberusSettings::SMTP_HOST,'localhost'));
+		@$smtp_port = DevblocksPlatform::importGPC($_POST['smtp_port'],'integer',$settings->get(CerberusSettings::SMTP_PORT,25));
 		@$smtp_auth_user = DevblocksPlatform::importGPC($_POST['smtp_auth_user'],'string');
 		@$smtp_auth_pass = DevblocksPlatform::importGPC($_POST['smtp_auth_pass'],'string');
 		@$form_submit = DevblocksPlatform::importGPC($_POST['form_submit'],'integer');
@@ -555,19 +555,23 @@ switch($step) {
 		if(!empty($form_submit)) {
 			$mail_service = DevblocksPlatform::getMailService();
 			
-			// Did the user receive the test message?
 			$mailer = null;
 			try {
-				$mailer = $mail_service->getMailer($smtp_host, $smtp_auth_user, $smtp_auth_pass, 25); // [TODO] port
+				$mailer = $mail_service->getMailer($smtp_host, $smtp_auth_user, $smtp_auth_pass, $smtp_port); // [TODO] port
 				$mailer->connect();
 				$mailer->disconnect();
 				
 				if(!empty($smtp_host))
 					$settings->set(CerberusSettings::SMTP_HOST, $smtp_host);
-				if(!empty($smtp_auth_user))
+				if(!empty($smtp_port))
+					$settings->set(CerberusSettings::SMTP_PORT, $smtp_port);
+				if(!empty($smtp_auth_user)) {
+					$settings->set(CerberusSettings::SMTP_AUTH_ENABLED, 1);
 					$settings->set(CerberusSettings::SMTP_AUTH_USER, $smtp_auth_user);
-				if(!empty($smtp_auth_pass))
 					$settings->set(CerberusSettings::SMTP_AUTH_PASS, $smtp_auth_pass);
+				} else {
+					$settings->set(CerberusSettings::SMTP_AUTH_ENABLED, 0);
+				}
 				
 				$tpl->assign('step', STEP_INCOMING_MAIL);
 				$tpl->display('steps/redirect.tpl.php');
@@ -576,14 +580,16 @@ switch($step) {
 			}
 			catch(Exception $e) {
 				$form_submit = 0;
-				$tpl->assign('smtp_error_display', 'SMTP Connection Failed!  Please check your settings.');
+				$tpl->assign('smtp_error_display', 'SMTP Connection Failed! ' . $e->getMessage());
 			}
 			$tpl->assign('smtp_host', $smtp_host);
+			$tpl->assign('smtp_port', $smtp_port);
 			$tpl->assign('smtp_auth_user', $smtp_auth_user);
 			$tpl->assign('smtp_auth_pass', $smtp_auth_pass);
 			$tpl->assign('form_submit', $form_submit);
 		} else {
 			$tpl->assign('smtp_host', 'localhost');
+			$tpl->assign('smtp_port', '25');
 		}
 		
 		// First time, or retry
@@ -667,12 +673,17 @@ switch($step) {
 				$worker_ids = array();
 				$team_ids = array();
 
-//				$workers = array($worker1_str, $worker2_str, $worker3_str);
+				// Clear any empties
+				foreach($workers as $idx => $w) {
+					if(empty($w))
+						unset($workers[$idx]);
+				}
+				
 				$teams = CerberusApplication::parseCrlfString($teams_str);
 				
 				if(empty($workers) || empty($teams)) {
 					$tpl->assign('failed', true);
-					$tpl->assign('workers_str', $workers_str);
+					$tpl->assign('workers', $workers);
 					$tpl->assign('teams_str', $teams_str);
 					$tpl->assign('template', 'steps/step_workflow.tpl.php');
 					break;

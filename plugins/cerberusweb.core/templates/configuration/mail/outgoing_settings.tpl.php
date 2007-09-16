@@ -5,12 +5,29 @@
 	</tr>
 	<tr>
 		<td>
-			<form action="{devblocks_url}{/devblocks_url}" method="post">
+			<form action="{devblocks_url}{/devblocks_url}#outgoing" method="post">
 			<input type="hidden" name="c" value="config">
 			<input type="hidden" name="a" value="saveOutgoingMailSettings">
 
+			{if !$smtp_test && !empty($smtp_test_output)}
+				<div class="error">
+					{$smtp_test_output}
+				</div>
+				<br>
+			{elseif $smtp_test===true}
+				<div class="success">
+					Outgoing mail settings were tested successfully.
+				</div>
+				<br>
+			{/if}
+
+
 			<b>SMTP Server:</b><br>
-			<input type="text" name="smtp_host" value="{$settings->get('smtp_host')}" size="45"><br>
+			<input type="text" name="smtp_host" value="{$settings->get('smtp_host','localhost')}" size="45"><br>
+			<br>
+
+			<b>SMTP Port:</b><br>
+			<input type="text" name="smtp_port" value="{$settings->get('smtp_port',25)}" size="45"><br>
 			<br>
 
 			<b>SMTP Server Requires Login:</b> (optional)<br>

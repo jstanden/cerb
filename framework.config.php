@@ -25,7 +25,7 @@ define('APP_DEFAULT_CONTROLLER','core.controller.page');
 define('APP_DB_PREFIX','cerb');
 define('APP_PATH',realpath(dirname(__FILE__)));
 define('DEVBLOCKS_PATH',APP_PATH . '/libs/devblocks/');
-define('DEVBLOCKS_REWRITE', file_exists('.htaccess'));
+define('DEVBLOCKS_REWRITE', file_exists(dirname(__FILE__).'/.htaccess'));
 define('DEMO_MODE',false);
 define('AUTHORIZED_IPS_DEFAULTS', '');
 

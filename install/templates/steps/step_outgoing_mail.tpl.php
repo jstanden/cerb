@@ -16,6 +16,10 @@
 <input type="text" name="smtp_host" value="{$smtp_host}" size="45"><br>
 <br>
 
+<b>SMTP Port:</b><br>
+<input type="text" name="smtp_port" value="{$smtp_port}" size="5"><br>
+<br>
+
 <i>SMTP Auth. User (optional):</i><br>
 <input type="text" name="smtp_auth_user" value="{$smtp_auth_user}"><br>
 <br>

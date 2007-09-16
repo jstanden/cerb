@@ -48,7 +48,7 @@
  * 		and Joe Geck.
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-define("APP_BUILD", 363);
+define("APP_BUILD", 366);
 define("APP_MAIL_PATH", realpath(APP_PATH . '/storage/mail') . DIRECTORY_SEPARATOR);
 
 include_once(APP_PATH . "/api/DAO.class.php");
@@ -470,7 +470,7 @@ class CerberusApplication extends DevblocksApplication {
 	 */
 	static function generateTicketMask($pattern = "LLL-NNNNN-NNN") {
 		$letters = "ABCDEFGHIJKLMNPQRSTUVWXYZ";
-		$numbers = "1234567890";
+		$numbers = "123456789";
 //		$pattern = "Y-M-D-LLLL";
 
 		do {		
@@ -489,6 +489,13 @@ class CerberusApplication extends DevblocksApplication {
 						break;
 					case 'N':
 						$mask .= substr($numbers,rand(0,strlen($numbers)-1),1);
+						break;
+					case 'C': // L or N
+						if(rand(0,100) >= 50) { // L
+							$mask .= substr($letters,rand(0,strlen($letters)-1),1);	
+						} else { // N
+							$mask .= substr($numbers,rand(0,strlen($numbers)-1),1);	
+						}
 						break;
 					case 'Y':
 						$mask .= date('Y');
@@ -514,11 +521,6 @@ class CerberusApplication extends DevblocksApplication {
 	static function generateMessageId() {
 		$message_id = sprintf('<%s.%s@%s>', base_convert(time(), 10, 36), base_convert(rand(), 10, 36), !empty($_SERVER['HTTP_HOST']) ?  $_SERVER['HTTP_HOST'] : $_SERVER['SERVER_NAME']);
 		return $message_id;
-	}
-	
-	// [TODO] Rethink
-	static function getDashboardGlobalActions() {
-		return array();
 	}
 	
 	// [TODO] This needs a better name and home (and hell, while at it, implementation)

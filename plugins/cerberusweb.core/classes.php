@@ -1694,6 +1694,8 @@ class ChTicketsPage extends CerberusPageExtension {
 	    
 	    //========== GENERAL
 	    @$signature = DevblocksPlatform::importGPC($_REQUEST['signature'],'string','');
+	    @$auto_reply_enabled = DevblocksPlatform::importGPC($_REQUEST['auto_reply_enabled'],'integer',0);
+	    @$auto_reply = DevblocksPlatform::importGPC($_REQUEST['auto_reply'],'string','');
 	    @$sender_address = DevblocksPlatform::importGPC($_REQUEST['sender_address'],'string','');
 	    @$sender_personal = DevblocksPlatform::importGPC($_REQUEST['sender_personal'],'string','');
 	    @$spam_threshold = DevblocksPlatform::importGPC($_REQUEST['spam_threshold'],'integer',80);
@@ -1714,6 +1716,8 @@ class ChTicketsPage extends CerberusPageExtension {
 	    DAO_GroupSettings::set($team_id, DAO_GroupSettings::SETTING_SPAM_THRESHOLD, $spam_threshold);
 	    DAO_GroupSettings::set($team_id, DAO_GroupSettings::SETTING_SPAM_ACTION, $spam_action);
 	    DAO_GroupSettings::set($team_id, DAO_GroupSettings::SETTING_SPAM_ACTION_PARAM, $spam_moveto);
+	    DAO_GroupSettings::set($team_id, DAO_GroupSettings::SETTING_AUTO_REPLY_ENABLED, $auto_reply_enabled);
+	    DAO_GroupSettings::set($team_id, DAO_GroupSettings::SETTING_AUTO_REPLY, $auto_reply);
 	       
         //DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','team',$team_id,'general')));
         DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets','team',$team_id,'general')));
@@ -2571,11 +2575,45 @@ class ChConfigurationPage extends CerberusPageExtension  {
 				break;
 				
 			case 'mail':
+				@$test_connection = array_shift($stack);
+				
+				$settings = CerberusSettings::getInstance();
+				$mail_service = DevblocksPlatform::getMailService();
+				
 				$routing = DAO_Mail::getMailboxRouting();
 				$tpl->assign('routing', $routing);
 		
 				$teams = DAO_Group::getAll();
 				$tpl->assign('teams', $teams);
+				
+				$smtp_host = $settings->get(CerberusSettings::SMTP_HOST,'');
+				$smtp_port = $settings->get(CerberusSettings::SMTP_PORT,25);
+				$smtp_auth_enabled = $settings->get(CerberusSettings::SMTP_AUTH_ENABLED,false);
+				$smtp_auth_user = $settings->get(CerberusSettings::SMTP_AUTH_USER,'');
+				$smtp_auth_pass = $settings->get(CerberusSettings::SMTP_AUTH_PASS,''); 
+				
+				// [JAS]: Test the provided SMTP settings and give form feedback
+				if(!empty($test_connection) && !empty($smtp_host)) {
+					$mailer = null;
+					try {
+						$mailer = $mail_service->getMailer($smtp_host, $smtp_auth_user, $smtp_auth_pass, $smtp_port); // [TODO] port
+						$mailer->connect();
+						$mailer->disconnect();
+						
+						if(!empty($smtp_host))
+							$settings->set(CerberusSettings::SMTP_HOST, $smtp_host);
+						if(!empty($smtp_auth_user))
+							$settings->set(CerberusSettings::SMTP_AUTH_USER, $smtp_auth_user);
+						if(!empty($smtp_auth_pass))
+							$settings->set(CerberusSettings::SMTP_AUTH_PASS, $smtp_auth_pass);
+						
+						$tpl->assign('smtp_test', true);
+						
+					} catch(Exception $e) {
+						$tpl->assign('smtp_test', false);
+						$tpl->assign('smtp_test_output', 'SMTP Connection Failed: '.$e->getMessage());
+					}
+				}
 				
 				$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/mail/index.tpl.php');				
 				break;
@@ -3091,7 +3129,8 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	    @$default_reply_address = DevblocksPlatform::importGPC($_REQUEST['sender_address'],'string');
 	    @$default_reply_personal = DevblocksPlatform::importGPC($_REQUEST['sender_personal'],'string');
 	    @$default_signature = DevblocksPlatform::importGPC($_POST['default_signature'],'string');
-	    @$smtp_host = DevblocksPlatform::importGPC($_REQUEST['smtp_host'],'string');
+	    @$smtp_host = DevblocksPlatform::importGPC($_REQUEST['smtp_host'],'string','localhost');
+	    @$smtp_port = DevblocksPlatform::importGPC($_REQUEST['smtp_port'],'integer',25);
 	    @$smtp_auth_enabled = DevblocksPlatform::importGPC($_REQUEST['smtp_auth_enabled'],'integer', 0);
 	    @$smtp_auth_user = DevblocksPlatform::importGPC($_REQUEST['smtp_auth_user'],'string');
 	    @$smtp_auth_pass = DevblocksPlatform::importGPC($_REQUEST['smtp_auth_pass'],'string');
@@ -3101,11 +3140,12 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	    $settings->set(CerberusSettings::DEFAULT_REPLY_PERSONAL, $default_reply_personal);
 	    $settings->set(CerberusSettings::DEFAULT_SIGNATURE, $default_signature);
 	    $settings->set(CerberusSettings::SMTP_HOST, $smtp_host);
+	    $settings->set(CerberusSettings::SMTP_PORT, $smtp_port);
 	    $settings->set(CerberusSettings::SMTP_AUTH_ENABLED, $smtp_auth_enabled);
 	    $settings->set(CerberusSettings::SMTP_AUTH_USER, $smtp_auth_user);
 	    $settings->set(CerberusSettings::SMTP_AUTH_PASS, $smtp_auth_pass);
 	    
-	    DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','mail')));
+	    DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','mail','test')));
 	}
 	
 	// Ajax

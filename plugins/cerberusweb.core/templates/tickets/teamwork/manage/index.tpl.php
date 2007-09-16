@@ -8,12 +8,7 @@
 <div class="block">
 <h2>Preferences</h2>
 <br>
-
 	<div style="margin-left:20px">
-	<!-- <h3>Mail</h3>
-	<br>
-	 -->
-	
 	<h3>Anti-Spam</h3>
 	
 	When new messages have spam probability 
@@ -38,18 +33,19 @@
 		{/if}
 	</blockquote>
 	
-	<h3>E-mail</h3>
+	<div class="subtle2" style="margin:0px;">
+	<h3>Group E-mail Preferences</h3>
 
-	<b>Send replies as e-mail:</b> (optional, for example: support@yourcompany.com)<br>
+	<b>Send replies as e-mail:</b> (optional, defaults to: {$settings->get('default_reply_from','')})<br>
 	<input type="text" name="sender_address" value="{$group_settings.reply_from}" size="65"><br>
 	<span style="color:rgb(30,150,30);">(Make sure the above address delivers to the helpdesk or you won't receive replies!)</span><br>
 	<br>
 	
-	<b>Send replies as name:</b> (optional, for example: Acme Widgets)<br>
+	<b>Send replies as name:</b> (optional, defaults to: {$settings->get('default_reply_personal','')})<br>
 	<input type="text" name="sender_personal" value="{$group_settings.reply_personal}" size="65"><br>
 	<br>
 	
-	<b>Team E-mail Signature:</b><br>
+	<b>Group E-mail Signature:</b><br>
 	<div style="display:none">
 		{assign var=default_signature value=$settings->get('default_signature')}
 		<textarea name="default_signature">{$default_signature}</textarea>	
@@ -59,15 +55,40 @@
 		<select name="" onchange="this.form.signature.value += this.options[this.selectedIndex].value;scrollElementToBottom(this.form.signature);this.selectedIndex=0;this.form.signature.focus();">
 			<option value="">-- choose --</option>
 			<optgroup label="Worker">
-				<option value="#first_name#">#first_name#</option>
-				<option value="#last_name#">#last_name#</option>
-				<option value="#title#">#title#</option>
+				<option value="#first_name#">First Name</option>
+				<option value="#last_name#">Last Name</option>
+				<option value="#title#">Title</option>
 			</optgroup>
 		</select>
 		
 		{if !empty($default_signature)}
 		<button type="button" onclick="this.form.signature.value=this.form.default_signature.value;">set to default</button>
 		{/if}
+	<br> 
+	</div>
+	<br>
+	
+	<h3>New Ticket Auto-Response</h3>
+	
+	<b>Send an auto-response when this group receives a new ticket?</b><br>
+	<label><input type="checkbox" name="auto_reply_enabled" value="1" {if $group_settings.auto_reply_enabled}checked{/if}>Enabled</label><br>
+	<br>
+	
+	<b>Send the following message:</b><br>
+	<textarea name="auto_reply" rows="6" cols="76">{$group_settings.auto_reply}</textarea><br>
+		E-mail Tokens: 
+		<select name="" onchange="this.form.auto_reply.value += this.options[this.selectedIndex].value;scrollElementToBottom(this.form.auto_reply);this.selectedIndex=0;this.form.auto_reply.focus();">
+			<option value="">-- choose --</option>
+			<optgroup label="Ticket">
+				<option value="#mask#">Mask/ID</option>
+				<option value="#subject#">Subject</option>
+				<option value="#sender#">Sender Address</option>
+				<!-- 
+				<option value="#group#">Group Name</option>
+				<option value="#bucket#">Bucket Name</option>
+				 -->
+			</optgroup>
+		</select>
 	<br> 
 	<br>
 	

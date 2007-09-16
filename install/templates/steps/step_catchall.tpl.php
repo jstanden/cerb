@@ -21,7 +21,7 @@ you have two choices:<br>
 <select name="default_team_id">
 	<option value="">-- None (Bounce) --
 	{foreach from=$teams item=team key=team_id name=teams}
-	<option value="{$team_id}" {if $smarty.foreach.teams.first}selected{/if}>{$team->name}
+	<option value="{$team_id}" {if $team->name=="Dispatch"}selected{/if}>{$team->name}
 	{/foreach}
 </select>
 <br>
