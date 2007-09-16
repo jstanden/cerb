@@ -5,7 +5,6 @@ define('APP_DB_DATABASE','');
 define('APP_DB_USER','');
 define('APP_DB_PASS','');
 
-define('DEVBLOCKS_REWRITE', file_exists('.htaccess'));
 //define('DEVBLOCKS_LANGUAGE','en');
 //define('DEVBLOCKS_THEME','default');
 //define('DEVBLOCKS_DEBUG',true);
@@ -26,6 +25,7 @@ define('APP_DEFAULT_CONTROLLER','core.controller.page');
 define('APP_DB_PREFIX','cerb');
 define('APP_PATH',realpath(dirname(__FILE__)));
 define('DEVBLOCKS_PATH',APP_PATH . '/libs/devblocks/');
+define('DEVBLOCKS_REWRITE', file_exists('.htaccess'));
 define('DEMO_MODE',false);
 define('AUTHORIZED_IPS_DEFAULTS', '');
 
