@@ -3,7 +3,7 @@
 <table cellpadding="0" cellspacing="0" border="0">
 	<tr>
 		<td valign="top" width="0%" nowrap="nowrap">
-			{include file="file:$path/contacts/criteria_list.tpl.php" divName="searchCriteriaDialog"}
+			{include file="file:$path/internal/views/criteria_list.tpl.php" divName="searchCriteriaDialog"}
 			<div id="searchCriteriaDialog" style="visibility:visible;"></div>
 			<a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showOrgPeek&id=0&view_id={$view->id}',this,false,'500px');">Add Organization</a>
 		</td>

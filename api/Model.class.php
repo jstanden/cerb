@@ -54,7 +54,6 @@ class Model_TeamRoutingRule {
     public $header = '';
     public $pattern = '';
     public $pos = 0;
-//    public $params = array();
     public $do_move = '';
     public $do_status = '';
     public $do_spam = '';
@@ -72,7 +71,6 @@ class Model_TeamRoutingRule {
     }
 }
 
-// [TODO] This should move somewhere more generic (App/API)
 abstract class C4_AbstractView {
 	public $id = 0;
 	public $name = "";
@@ -87,11 +85,11 @@ abstract class C4_AbstractView {
 	function getData() {
 	}
 	
-	function renderCriteria($field) {
+	function render() {
 		echo ' '; // Expect Override
 	}
 	
-	function render() {
+	function renderCriteria($field) {
 		echo ' '; // Expect Override
 	}
 
@@ -107,7 +105,49 @@ abstract class C4_AbstractView {
 		// Expect Override
 	}
 	
-	function getSearchFields() {
+	function renderCriteriaParam($param) {
+		$field = $param->field;
+		$vals = $param->value;
+		
+		if(!is_array($vals))
+			$vals	= array($vals);
+		
+		$count = count($vals);
+			
+		for($i=0;$i<$count;$i++) {
+			echo sprintf("%s%s",
+				$vals[$i],
+				($i+1<$count?', ':'')
+			);
+		}
+	}
+	
+	/**
+	 * All the view's available fields
+	 *
+	 * @return array
+	 */
+	static function getFields() {
+		// Expect Override
+		return array();
+	}
+	
+	/**
+	 * All searchable fields
+	 *
+	 * @return array
+	 */
+	static function getSearchFields() {
+		// Expect Override
+		return array();
+	}
+	
+	/**
+	 * All fields that can be displayed as columns in the view
+	 *
+	 * @return array
+	 */
+	static function getColumns() {
 		// Expect Override
 		return array();
 	}
@@ -182,12 +222,6 @@ class C4_AbstractViewLoader {
 	static function getView($class, $view_label) {
 		if(is_null(self::$views)) self::_init();
 		if(!self::exists($view_label)) {
-			// [JAS]: [TODO] port this to working generically on any ID
-//			if($view_label == CerberusApplication::VIEW_SEARCH) {
-//				self::setView($view_label, self::createSearchView());
-//				return self::views[$view_label];
-//			}
-
 			if(empty($class) || !class_exists($class))
 				return null;
 			
@@ -229,6 +263,487 @@ class Model_Address {
 	function Model_Address() {}
 };
 
+class C4_TicketView extends C4_AbstractView {
+	const DEFAULT_ID = 'tickets_workspace';
+	
+	function __construct() {
+		$this->id = self::DEFAULT_ID;
+		$this->name = 'Tickets';
+		$this->renderLimit = 10;
+		$this->renderSortBy = SearchFields_Ticket::TICKET_UPDATED_DATE;
+		$this->renderSortAsc = false;
+		
+		$this->view_columns = array(
+			SearchFields_Ticket::TICKET_NEXT_ACTION,
+			SearchFields_Ticket::TICKET_UPDATED_DATE,
+			SearchFields_Ticket::TICKET_CATEGORY_ID,
+			SearchFields_Ticket::TICKET_SPAM_SCORE,
+			SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
+		);
+	}
+	
+	function getData() {
+		$objects = DAO_Ticket::search(
+			$this->params,
+			$this->renderLimit,
+			$this->renderPage,
+			$this->renderSortBy,
+			$this->renderSortAsc
+		);
+		return $objects;	
+	}
+	
+	function render() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('id', $this->id);
+		$view_path = DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/tickets/';
+		$tpl->assign('view_path',$view_path);
+		$tpl->assign('view', $this);
+		
+		$visit = CerberusApplication::getVisit();
+		
+		$active_dashboard_id = $visit->get(CerberusVisit::KEY_DASHBOARD_ID, 0);
+		
+		$teams = DAO_Group::getAll();
+		$tpl->assign('teams', $teams);
+		
+		$buckets = DAO_Bucket::getAll();
+		$tpl->assign('buckets', $buckets);
+		
+		$team_categories = DAO_Bucket::getTeams();
+		$tpl->assign('team_categories', $team_categories);
+		
+		// Undo?
+	    $last_action = C4_TicketView::getLastAction($this->id);
+	    $tpl->assign('last_action', $last_action);
+	    if(!empty($last_action) && !is_null($last_action->ticket_ids)) {
+	        $tpl->assign('last_action_count', count($last_action->ticket_ids));
+	    }
+
+        // View Quick Moves
+        $active_team_id = $visit->get(CerberusVisit::KEY_WORKSPACE_GROUP_ID, 0);
+		if($active_team_id) {
+			// [TODO] Move this into an API
+	        $active_worker = CerberusApplication::getActiveWorker();
+            $move_counts_str = DAO_WorkerPref::get($active_worker->id,''.DAO_WorkerPref::SETTING_TEAM_MOVE_COUNTS . $active_dashboard_id,serialize(array()));
+            if(is_string($move_counts_str)) {
+    	        // [TODO] We no longer need the move hash, do we?
+	            // [TODO] Phase this out.
+                $category_name_hash = DAO_Bucket::getCategoryNameHash();
+                $tpl->assign('category_name_hash', $category_name_hash);
+                
+	            $categories = DAO_Bucket::getByTeam($active_team_id);
+	            $tpl->assign('categories', $categories);
+                 
+                $move_counts = unserialize($move_counts_str);
+                $tpl->assign('move_to_counts', array_slice($move_counts,0,10,true));
+            }
+		}
+		$tpl->assign('dashboard_team_id', $active_team_id);
+		
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('view_fields', $this->getColumns());
+		$tpl->display('file:' . $view_path . 'ticket_view.tpl.php');
+	}
+	
+	function renderCriteria($field) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('id', $this->id);
+		
+		$tpl_path = DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/';
+		
+		switch($field) {
+			case SearchFields_Ticket::TICKET_MASK:
+			case SearchFields_Ticket::TICKET_SUBJECT:
+			case SearchFields_Ticket::TICKET_FIRST_WROTE:
+			case SearchFields_Ticket::TICKET_LAST_WROTE:
+			case SearchFields_Ticket::TICKET_NEXT_ACTION:
+			case SearchFields_Ticket::TICKET_MESSAGE_CONTENT:
+				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__string.tpl.php');
+				break;
+				
+			case SearchFields_Ticket::TICKET_DELETED:
+			case SearchFields_Ticket::TICKET_CLOSED:
+				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__bool.tpl.php');
+				break;
+			
+			case SearchFields_Ticket::TICKET_CREATED_DATE:
+			case SearchFields_Ticket::TICKET_UPDATED_DATE:
+			case SearchFields_Ticket::TICKET_DUE_DATE:
+				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__date.tpl.php');
+				break;
+			
+			case SearchFields_Ticket::TICKET_SPAM_SCORE:
+				$tpl->display('file:' . $tpl_path . 'tickets/search/criteria/ticket_spam_score.tpl.php');
+				break;
+				
+			case SearchFields_Ticket::TICKET_LAST_ACTION_CODE:
+				$tpl->display('file:' . $tpl_path . 'tickets/search/criteria/ticket_last_action.tpl.php');
+				break;
+				
+			case SearchFields_Ticket::TICKET_NEXT_WORKER_ID:
+			case SearchFields_Ticket::TICKET_LAST_WORKER_ID:
+				$workers = DAO_Worker::getList();
+				$tpl->assign('workers', $workers);
+				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__worker.tpl.php');
+				break;
+			
+			case SearchFields_Ticket::TEAM_NAME:
+				$teams = DAO_Group::getAll();
+				$tpl->assign('teams', $teams);
+				
+				$team_categories = DAO_Bucket::getTeams();
+				$tpl->assign('team_categories', $team_categories);
+				
+				$tpl->display('file:' . $tpl_path . 'tickets/search/criteria/ticket_team.tpl.php');
+				break;
+				
+			default:
+				echo ' ';
+				break;
+		}
+	}
+	
+	function renderCriteriaParam($param) {
+		$field = $param->field;
+		$values = !is_array($param->value) ? array($param->value) : $param->value;
+		
+		switch($field) {
+			case SearchFields_Ticket::TICKET_LAST_WORKER_ID:
+			case SearchFields_Ticket::TICKET_NEXT_WORKER_ID:
+				static $workers = null;
+				if(null == $workers) $workers = DAO_Worker::getList(); // cache
+				$strings = array();
+				
+				foreach($values as $val) {
+					if(empty($val))
+						$strings[] = "Nobody";
+					elseif(!isset($workers[$val]))
+						continue;
+					else
+						$strings[] = $workers[$val]->getName();
+				}
+				echo implode(", ", $strings);
+				break;
+				
+			case SearchFields_Ticket::TEAM_ID:
+				$teams = DAO_Group::getAll();
+				$strings = array();
+				
+				foreach($values as $val) {
+					if(!isset($teams[$val]))
+						continue;
+					$strings[] = $teams[$val]->name;
+				}
+				echo implode(", ", $strings);
+				break;
+			
+			case SearchFields_Ticket::TICKET_CATEGORY_ID:
+				$buckets = DAO_Bucket::getAll();
+				$strings = array();
+				
+				foreach($values as $val) {
+					if(!isset($buckets[$val]))
+						continue;
+					$strings[] = $buckets[$val]->name;
+				}
+				echo implode(", ", $strings);
+				break;
+				
+			case SearchFields_Ticket::TICKET_LAST_ACTION_CODE:
+				$strings = array();
+				
+				foreach($values as $val) {
+					switch($val) {
+						case 'O':
+							$strings[] = "New Ticket";
+							break;
+						case 'R':
+							$strings[] = "Customer Reply";
+							break;
+						case 'W':
+							$strings[] = "Worker Reply";
+							break;
+					}
+				}
+				echo implode(", ", $strings);
+				break;
+				
+			default:
+				parent::renderCriteriaParam($param);
+				break;	
+		}
+	}
+	
+	static function getFields() {
+		return SearchFields_Ticket::getFields();
+	}
+	
+	static function getSearchFields() {
+		$fields = self::getFields();
+		unset($fields[SearchFields_Ticket::TEAM_ID]);
+		unset($fields[SearchFields_Ticket::TICKET_CATEGORY_ID]);
+		return $fields;
+	}
+	
+	static function getColumns() {
+		$fields = self::getFields();
+		unset($fields[SearchFields_Ticket::TEAM_ID]);
+		unset($fields[SearchFields_Ticket::TICKET_MESSAGE_CONTENT]);
+		return $fields;
+	}
+	
+	function doSetCriteria($field, $oper, $value) {
+		$criteria = null;
+		
+		switch($field) {
+			case SearchFields_Ticket::TICKET_MASK:
+			case SearchFields_Ticket::TICKET_SUBJECT:
+			case SearchFields_Ticket::TICKET_FIRST_WROTE:
+			case SearchFields_Ticket::TICKET_LAST_WROTE:
+			case SearchFields_Ticket::TICKET_NEXT_ACTION:
+			case SearchFields_Ticket::TICKET_MESSAGE_CONTENT:
+				// force wildcards if none used on a LIKE
+				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE) 
+					&& false === (strpos($value,'*'))) {
+						$value = '*'.$value.'*';
+				}
+				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
+				break;
+				
+			case SearchFields_Ticket::TICKET_DELETED:
+			case SearchFields_Ticket::TICKET_CLOSED:
+				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
+				break;
+				
+			case SearchFields_Ticket::TICKET_CREATED_DATE:
+			case SearchFields_Ticket::TICKET_UPDATED_DATE:
+			case SearchFields_Ticket::TICKET_DUE_DATE:
+				@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','yesterday');
+				@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','today');
+				$criteria = new DevblocksSearchCriteria($field,$oper,array($from,$to));
+				break;
+				
+			case SearchFields_Ticket::TICKET_SPAM_SCORE:
+			    @$score = DevblocksPlatform::importGPC($_REQUEST['score'],'integer',null);
+				if(!is_null($score) && is_numeric($score)) {
+				    $criteria = new DevblocksSearchCriteria($field,$oper,intval($score)/100);
+				}
+				break;
+				
+			case SearchFields_Ticket::TICKET_LAST_ACTION_CODE:
+				@$last_action_code = DevblocksPlatform::importGPC($_REQUEST['last_action'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,$oper,$last_action_code);
+				break;
+				
+			case SearchFields_Ticket::TICKET_LAST_WORKER_ID:
+			case SearchFields_Ticket::TICKET_NEXT_WORKER_ID:
+				@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_id);
+				break;
+				
+			case SearchFields_Ticket::TEAM_NAME:
+				@$team_ids = DevblocksPlatform::importGPC($_REQUEST['team_id'],'array');
+				@$bucket_ids = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'array');
+
+				if(!empty($team_ids))
+					$this->params[SearchFields_Ticket::TEAM_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,$oper,$team_ids);
+				if(!empty($bucket_ids))
+					$this->params[SearchFields_Ticket::TICKET_CATEGORY_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CATEGORY_ID,$oper,$bucket_ids);
+				
+				break;
+		}
+		
+		if(!empty($criteria)) {
+			$this->params[$field] = $criteria;
+			$this->renderPage = 0;
+		}
+	}
+
+	// [TODO] Find a better home for this?
+	function getInvolvedGroups() {
+		$groups = array();
+		foreach($this->params as $criteria) {
+			if($criteria->field == SearchFields_Ticket::TEAM_ID) {
+				if(is_array($criteria->value)) {
+					foreach($criteria->value as $val) {
+						$groups[] = $val;
+					}
+				}
+				else {
+					$groups[] = $criteria->value;
+				} 
+			}
+		}
+		return $groups;
+	}
+	
+	/**
+	 * @param array
+	 * @param array
+	 * @return boolean
+	 * [TODO] Find a better home for this?
+	 */
+	function doBulkUpdate($filter, $filter_param, $data, $do, $ticket_ids=array(), $always_do_for_team_id=0) {
+	    @set_time_limit(600); // [TODO] Temp!
+	    
+		$action = new Model_DashboardViewAction();
+		$action->params = $do;
+		$action->dashboard_view_id = $this->id;
+	    
+		$params = $this->params;
+
+		$team_id = 0;
+		$bucket_id = 0;
+		
+		if(empty($filter)) {
+			$data[] = '*'; // All, just to permit a loop in foreach($data ...)
+		}
+		
+		if(!empty($do['team']))
+	        list($team_id, $bucket_id) = CerberusApplication::translateTeamCategoryCode($do['team']);
+		
+		switch($filter) {
+			default:
+		    case 'subject':
+            case 'sender':
+            case 'header':
+
+		        foreach($data as $v) {
+		        	$new_params = array();
+		        	$do_header = null;
+		        	
+					switch($filter) {
+					    case 'subject':
+					        $new_params = array(
+					            new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_SUBJECT,DevblocksSearchCriteria::OPER_LIKE,$v)
+					        );
+		                    $do_header = 'subject';
+		                    $ticket_ids = array();
+					        break;
+					    case 'sender':
+			                $new_params = array(
+			                    new DevblocksSearchCriteria(SearchFields_Ticket::SENDER_ADDRESS,DevblocksSearchCriteria::OPER_LIKE,$v)
+			                );
+                            $do_header = 'from';
+                            $ticket_ids = array();
+			                break;
+			            case 'header':
+	                        $new_params = array(
+	                            // [TODO] It will eventually come up that we need multiple header matches (which need to be pair grouped as OR)
+	                            new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_MESSAGE_HEADER,DevblocksSearchCriteria::OPER_EQ,$filter_param),
+	                            new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_MESSAGE_HEADER_VALUE,DevblocksSearchCriteria::OPER_EQ,$v)
+	                        );
+	                        $ticket_ids = array();
+	                        break;
+					}               
+		            
+		            $new_params = array_merge($new_params, $params);
+	                $pg = 0;
+
+	                if(empty($ticket_ids)) {
+				        do {
+					        list($tickets,$null) = DAO_Ticket::search(
+					            $new_params,
+					            500,
+					            $pg++,
+					            SearchFields_Ticket::TICKET_ID,
+					            true,
+					            false
+					        );
+					        
+					        $ticket_ids = array_merge($ticket_ids, array_keys($tickets));
+					        
+				        } while(!empty($tickets));
+		        	}
+			        
+			        // [TODO] Allow rule creation on headers
+			        
+			        // Did we want to save this and repeat it in the future?
+				    if($always_do_for_team_id && !empty($do_header)) {
+					  $fields = array(
+					      DAO_TeamRoutingRule::HEADER => $do_header,
+					      DAO_TeamRoutingRule::PATTERN => $v,
+					      DAO_TeamRoutingRule::TEAM_ID => $always_do_for_team_id,
+					      DAO_TeamRoutingRule::POS => count($ticket_ids),
+					      DAO_TeamRoutingRule::DO_MOVE => $do['team'],
+					      DAO_TeamRoutingRule::DO_SPAM => $do['spam'],
+					      DAO_TeamRoutingRule::DO_STATUS => $do['closed'],
+					  );
+					  DAO_TeamRoutingRule::create($fields);
+					}
+					
+			        $batch_total = count($ticket_ids);
+			        for($x=0;$x<=$batch_total;$x+=500) {
+			            $batch_ids = array_slice($ticket_ids,$x,500);
+	                    $action->run($batch_ids);
+			            unset($batch_ids);
+			        }
+		        }
+		        
+		        break;
+		}
+
+        unset($ticket_ids);
+	}
+	
+	static function createSearchView() {
+		$view = new C4_TicketView();
+		$view->id = CerberusApplication::VIEW_SEARCH;
+		$view->name = "Search Results";
+		$view->dashboard_id = 0;
+		$view->view_columns = array(
+			SearchFields_Ticket::TICKET_NEXT_ACTION,
+			SearchFields_Ticket::TICKET_UPDATED_DATE,
+			SearchFields_Ticket::TEAM_NAME,
+			SearchFields_Ticket::TICKET_CATEGORY_ID,
+			SearchFields_Ticket::TICKET_SPAM_SCORE,
+			SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
+			);
+		$view->params = array(
+			SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,DevblocksSearchCriteria::OPER_EQ,0)
+		);
+		$view->renderLimit = 100;
+		$view->renderPage = 0;
+		$view->renderSortBy = null; // SearchFields_Ticket::TICKET_UPDATED_DATE
+		$view->renderSortAsc = 0;
+		
+		return $view;
+	}
+	
+	static public function setLastAction($view_id, Model_TicketViewLastAction $last_action=null) {
+	    $visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
+	    $view_last_actions = $visit->get(CerberusVisit::KEY_VIEW_LAST_ACTION,array());
+	    
+	    if(!is_null($last_action) && !empty($last_action->ticket_ids)) {
+	        $view_last_actions[$view_id] = $last_action;
+	    } else {
+	        if(isset($view_last_actions[$view_id])) {
+	            unset($view_last_actions[$view_id]);
+	        }
+	    }
+	    
+        $visit->set(CerberusVisit::KEY_VIEW_LAST_ACTION,$view_last_actions);
+	}
+	
+	/**
+	 * @param string $view_id
+	 * @return Model_TicketViewLastAction
+	 */
+	static public function getLastAction($view_id) {
+	    $visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
+        $view_last_actions = $visit->get(CerberusVisit::KEY_VIEW_LAST_ACTION,array());
+        return (isset($view_last_actions[$view_id]) ? $view_last_actions[$view_id] : null);
+	}
+	
+	static public function clearLastActions() {
+	    $visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
+	    $visit->set(CerberusVisit::KEY_VIEW_LAST_ACTION,array());
+	}
+	
+};
+
 class C4_AddressView extends C4_AbstractView {
 	const DEFAULT_ID = 'addresses';
 	
@@ -263,7 +778,7 @@ class C4_AddressView extends C4_AbstractView {
 		$tpl->assign('view', $this);
 		
 		$tpl->cache_lifetime = "0";
-		$tpl->assign('search_columns', SearchFields_Address::getFields());
+		$tpl->assign('view_fields', $this->getColumns());
 		$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/contacts/addresses/address_view.tpl.php');
 	}
 	
@@ -276,16 +791,27 @@ class C4_AddressView extends C4_AbstractView {
 			case SearchFields_Address::FIRST_NAME:
 			case SearchFields_Address::LAST_NAME:
 			case SearchFields_Address::ORG_NAME:
-				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/contacts/criteria/org__string.tpl.php');
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__string.tpl.php');
 				break;
 			default:
 				echo '';
 				break;
 		}
 	}
-	
-	function getSearchFields() {
+
+	static function getFields() {
 		return SearchFields_Address::getFields();
+	}
+	
+	static function getSearchFields() {
+		$fields = self::getFields();
+		unset($fields[SearchFields_Address::ID]);
+		unset($fields[SearchFields_Address::CONTACT_ORG_ID]);
+		return $fields;
+	}
+	
+	static function getColumns() {
+		return self::getFields();
 	}
 	
 	function doSetCriteria($field, $oper, $value) {
@@ -347,15 +873,9 @@ class C4_ContactOrgView extends C4_AbstractView {
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 		
-//		// Undo?
-//	    $last_action = CerberusDashboardView::getLastAction($id);
-//	    $tpl->assign('last_action', $last_action);
-//	    if(!empty($last_action) && !is_null($last_action->ticket_ids)) {
-//	        $tpl->assign('last_action_count', count($last_action->ticket_ids));
-//	    }
 
 		$tpl->cache_lifetime = "0";
-		$tpl->assign('search_columns', SearchFields_ContactOrg::getFields());
+		$tpl->assign('view_fields', $this->getColumns());
 		$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/contacts/orgs/contact_view.tpl.php');
 	}
 	
@@ -371,7 +891,7 @@ class C4_ContactOrgView extends C4_AbstractView {
 			case SearchFields_ContactOrg::PROVINCE:
 			case SearchFields_ContactOrg::COUNTRY:
 			case SearchFields_ContactOrg::WEBSITE:
-				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/contacts/criteria/org__string.tpl.php');
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__string.tpl.php');
 				break;
 			default:
 				echo '';
@@ -379,8 +899,18 @@ class C4_ContactOrgView extends C4_AbstractView {
 		}
 	}
 	
-	function getSearchFields() {
+	static function getFields() {
 		return SearchFields_ContactOrg::getFields();
+	}
+	
+	static function getSearchFields() {
+		$fields = self::getFields();
+		unset($fields[SearchFields_ContactOrg::ID]);
+		return $fields;
+	}
+	
+	static function getColumns() {
+		return self::getFields();
 	}
 	
 	function doSetCriteria($field, $oper, $value) {
@@ -549,14 +1079,12 @@ class Model_MailRoute {
 class CerberusVisit extends DevblocksVisit {
 	private $worker;
 	
-	const KEY_VIEW_MANAGER = 'view_manager';
 	const KEY_DASHBOARD_ID = 'cur_dashboard_id';
 	const KEY_WORKSPACE_GROUP_ID = 'cur_group_id';
 	const KEY_VIEW_LAST_ACTION = 'view_last_action';
 
 	public function __construct() {
 		$this->worker = null;
-		$this->set(self::KEY_VIEW_MANAGER, new CerberusStaticViewManager());
 	}
 	
 	/**
@@ -609,22 +1137,6 @@ class CerberusWorker {
 	
 }
 
-class CerberusDashboardViewColumn {
-	public $column;
-	public $name;
-	
-	public function CerberusDashboardViewColumn($column, $name) {
-		$this->column = $column;
-		$this->name = $name;
-	}
-}
-
-class CerberusDashboard {
-	public $id = 0;
-	public $name = "";
-	public $agent_id = 0;
-}
-
 class Model_TicketRss {
 	public $id = 0;
 	public $title = '';
@@ -646,186 +1158,6 @@ class Model_TicketViewLastAction {
     public $ticket_ids = array(); // key = ticket id, value=old value
     public $action = ''; // spam/closed/move, etc.
 	public $action_params = array(); // DAO Actions Taken
-};
-
-class CerberusDashboardView {
-	public $id = 0;
-	public $name = "";
-	public $dashboard_id = 0;
-	public $type = '';
-	public $view_columns = array();
-	public $params = array();
-	
-	public $renderPage = 0;
-	public $renderLimit = 10;
-	public $renderSortBy = 't_subject';
-	public $renderSortAsc = 1;
-	
-	function getTickets() {
-		$tickets = DAO_Ticket::search(
-			$this->params,
-			$this->renderLimit,
-			$this->renderPage,
-			$this->renderSortBy,
-			$this->renderSortAsc
-		);
-		return $tickets;	
-	}
-	
-	static public function setLastAction($view_id, Model_TicketViewLastAction $last_action=null) {
-	    $visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
-	    $view_last_actions = $visit->get(CerberusVisit::KEY_VIEW_LAST_ACTION,array());
-	    
-	    if(!is_null($last_action) && !empty($last_action->ticket_ids)) {
-	        $view_last_actions[$view_id] = $last_action;
-	    } else {
-	        if(isset($view_last_actions[$view_id])) {
-	            unset($view_last_actions[$view_id]);
-	        }
-	    }
-	    
-        $visit->set(CerberusVisit::KEY_VIEW_LAST_ACTION,$view_last_actions);
-	}
-	
-	/**
-	 * @param string $view_id
-	 * @return Model_TicketViewLastAction
-	 */
-	static public function getLastAction($view_id) {
-	    $visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
-        $view_last_actions = $visit->get(CerberusVisit::KEY_VIEW_LAST_ACTION,array());
-        return (isset($view_last_actions[$view_id]) ? $view_last_actions[$view_id] : null);
-	}
-	
-	static public function clearLastActions() {
-	    $visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
-	    $visit->set(CerberusVisit::KEY_VIEW_LAST_ACTION,array());
-	}
-	
-	/**
-	 * @param array
-	 * @param array
-	 * @return boolean
-	 */
-	function doBulkUpdate($filter, $filter_param, $data, $do, $ticket_ids=array(), $always_do_for_team_id=0) {
-	    @set_time_limit(600); // [TODO] Temp!
-	    
-		$action = new Model_DashboardViewAction();
-		$action->params = $do;
-		$action->dashboard_view_id = $this->id;
-	    
-		$params = $this->params;
-
-		$team_id = 0;
-		$bucket_id = 0;
-		
-		if(empty($filter)) {
-			$data[] = '*'; // All, just to permit a loop in foreach($data ...)
-		}
-		
-		if(!empty($do['team']))
-	        list($team_id, $bucket_id) = CerberusApplication::translateTeamCategoryCode($do['team']);
-		
-		switch($filter) {
-			default:
-		    case 'subject':
-            case 'sender':
-            case 'header':
-
-		        foreach($data as $v) {
-		        	$new_params = array();
-		        	$do_header = null;
-		        	
-					switch($filter) {
-					    case 'subject':
-					        $new_params = array(
-					            new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_SUBJECT,DevblocksSearchCriteria::OPER_LIKE,$v)
-					        );
-		                    $do_header = 'subject';
-		                    $ticket_ids = array();
-					        break;
-					    case 'sender':
-			                $new_params = array(
-			                    new DevblocksSearchCriteria(SearchFields_Ticket::SENDER_ADDRESS,DevblocksSearchCriteria::OPER_LIKE,$v)
-			                );
-                            $do_header = 'from';
-                            $ticket_ids = array();
-			                break;
-			            case 'header':
-	                        $new_params = array(
-	                            // [TODO] It will eventually come up that we need multiple header matches (which need to be pair grouped as OR)
-	                            new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_MESSAGE_HEADER,DevblocksSearchCriteria::OPER_EQ,$filter_param),
-	                            new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_MESSAGE_HEADER_VALUE,DevblocksSearchCriteria::OPER_EQ,$v)
-	                        );
-	                        $ticket_ids = array();
-	                        break;
-					}               
-		            
-		            $new_params = array_merge($new_params, $params);
-	                $pg = 0;
-
-	                if(empty($ticket_ids)) {
-				        do {
-					        list($tickets,$null) = DAO_Ticket::search(
-					            $new_params,
-					            500,
-					            $pg++,
-					            SearchFields_Ticket::TICKET_ID,
-					            true,
-					            false
-					        );
-					        
-					        $ticket_ids = array_merge($ticket_ids, array_keys($tickets));
-					        
-				        } while(!empty($tickets));
-		        	}
-			        
-			        // [TODO] Allow rule creation on headers
-			        
-			        // Did we want to save this and repeat it in the future?
-				    if($always_do_for_team_id && !empty($do_header)) {
-					  $fields = array(
-					      DAO_TeamRoutingRule::HEADER => $do_header,
-					      DAO_TeamRoutingRule::PATTERN => $v,
-					      DAO_TeamRoutingRule::TEAM_ID => $always_do_for_team_id,
-					      DAO_TeamRoutingRule::POS => count($ticket_ids),
-					      DAO_TeamRoutingRule::DO_MOVE => $do['team'],
-					      DAO_TeamRoutingRule::DO_SPAM => $do['spam'],
-					      DAO_TeamRoutingRule::DO_STATUS => $do['closed'],
-					  );
-					  DAO_TeamRoutingRule::create($fields);
-					}
-					
-			        $batch_total = count($ticket_ids);
-			        for($x=0;$x<=$batch_total;$x+=500) {
-			            $batch_ids = array_slice($ticket_ids,$x,500);
-	                    $action->run($batch_ids);
-			            unset($batch_ids);
-			        }
-		        }
-		        
-		        break;
-		}
-
-        unset($ticket_ids);
-	}
-	
-	function getInvolvedGroups() {
-		$groups = array();
-		foreach($this->params as $criteria) {
-			if($criteria->field == SearchFields_Ticket::TEAM_ID) {
-				if(is_array($criteria->value)) {
-					foreach($criteria->value as $val) {
-						$groups[] = $val;
-					}
-				}
-				else {
-					$groups[] = $criteria->value;
-				} 
-			}
-		}
-		return $groups;
-	}
 };
 
 class CerberusMessageType { // [TODO] Append 'Enum' to class name?

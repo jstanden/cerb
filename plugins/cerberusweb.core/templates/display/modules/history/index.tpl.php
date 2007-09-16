@@ -1,1 +1,1 @@
-<div id="viewcontact_history">{include file="file:$path/tickets/ticket_view.tpl.php"}</div>
+<div id="viewcontact_history">{$view->render()}</div>

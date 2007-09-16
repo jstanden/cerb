@@ -1,17 +1,17 @@
 <div id="{$view->id}_output_container">
-	{include file="file:$path/tickets/rpc/ticket_view_output.tpl.php"}
+	{include file="file:$view_path/rpc/ticket_view_output.tpl.php"}
 </div>
-{assign var=results value=$view->getTickets()}
+{assign var=results value=$view->getData()}
 {assign var=total value=$results[1]}
 {assign var=tickets value=$results[0]}
 <table cellpadding="0" cellspacing="0" border="0" class="tableBlue" width="100%" class="tableBg">
 	<tr>
 		<td nowrap="nowrap" class="tableThBlue">{$view->name} {if $view->id == 'search'}<a href="#{$view->id}_actions" style="color:rgb(255,255,255);font-size:11px;">jump to actions</a>{/if}</td>
 		<td nowrap="nowrap" class="tableThBlue" align="right">
-			<a href="javascript:;" onclick="ajax.getRefresh('{$view->id}');" class="tableThLink">{$translate->_('common.refresh')|lower}</a>
+			<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');" class="tableThLink">{$translate->_('common.refresh')|lower}</a>
 			{if $view->id != 'contact_history'}<span style="font-size:12px"> | </span>{if $total >= 50}<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/information.gif{/devblocks_url}" align="absmiddle">{/if}<a href="javascript:;" onclick="genericAjaxGet('{$view->id}_tips','c=tickets&a=showViewAutoAssist&view_id={$view->id}');toggleDiv('{$view->id}_tips','block');" class="tableThLink">{"super sort"|lower}</a>{/if}
 			{if $view->id != 'search'}<span style="font-size:12px"> | </span><a href="{devblocks_url}c=tickets&a=searchview&id={$view->id}{/devblocks_url}" class="tableThLink">{$translate->_('common.search')|lower} list</a>{/if}
-			<span style="font-size:12px"> | </span><a href="javascript:;" onclick="ajax.getCustomize('{$view->id}');" class="tableThLink">{$translate->_('common.customize')|lower}</a>
+			<span style="font-size:12px"> | </span><a href="javascript:;" onclick="genericAjaxGet('customize{$view->id}','c=internal&a=viewCustomize&id={$view->id}');toggleDiv('customize{$view->id}','block');" class="tableThLink">{$translate->_('common.customize')|lower}</a>
 			<span style="font-size:12px"> | </span><a href="javascript:;" onclick="genericAjaxGet('{$view->id}_tips','c=tickets&a=showViewRss&view_id={$view->id}');toggleDiv('{$view->id}_tips','block');" class="tableThLink"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/feed-icon-16x16.gif{/devblocks_url}" border="0" align="absmiddle"></a>
 		</td>
 	</tr>
@@ -20,10 +20,6 @@
 <div id="{$view->id}_tips" class="block" style="display:none;margin:10px;padding:5px;">Analyzing...</div>
 <form id="customize{$view->id}" action="#" onsubmit="return false;" style="display:none;"></form>
 <form id="viewForm{$view->id}" name="viewForm{$view->id}">
-<!-- 
-<input type="hidden" name="c" value="tickets">
-<input type="hidden" name="a" value="runAction">
- -->
 <input type="hidden" name="id" value="{$view->id}">
 <table cellpadding="0" cellspacing="0" border="0" width="100%" class="tableRowBg">
 
@@ -33,21 +29,7 @@
 		{foreach from=$view->view_columns item=header name=headers}
 			{* start table header, insert column title and link *}
 			<th>
-			{if $header=="t_mask"}<a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_mask');">{$translate->_('ticket.id')}</a>
-			{elseif $header=="t_last_wrote"}<a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_last_wrote');">{$translate->_('ticket.last_wrote')}</a>
-			{elseif $header=="t_first_wrote"}<a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_first_wrote');">{$translate->_('ticket.first_wrote')}</a>
-			{elseif $header=="t_created_date"}<a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_created_date');">{$translate->_('ticket.created')}</a>
-			{elseif $header=="t_updated_date"}<a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_updated_date');">{$translate->_('ticket.updated')}</a>
-			{elseif $header=="t_due_date"}<a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_due_date');">{$translate->_('ticket.due')}</a>
-			{elseif $header=="m_name"}<a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','m_name');">{$translate->_('ticket.mailbox')}</a>
-			{elseif $header=="t_spam_score"}<a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_spam_score');">{$translate->_('common.spam')}</a>
-			{elseif $header=="t_next_action"}<a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_next_action');">{$translate->_('ticket.next_action')}</a>
-			{elseif $header=="t_last_action_code"}<a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_last_action_code');">{$translate->_('ticket.last_action')}</a>
-			{elseif $header=="t_last_worker_id"}<a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_last_worker_id');">{$translate->_('ticket.last_worker')}</a>
-			{elseif $header=="t_next_worker_id"}<a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_next_worker_id');">{$translate->_('ticket.next_worker')}</a>
-			{elseif $header=="tm_name"}<a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','tm_name');">{$translate->_('common.team')}</a>
-			{elseif $header=="t_category_id"}<a href="javascript:;" onclick="ajax.getSortBy('{$view->id}','t_category_id');">{$translate->_('common.bucket')|capitalize}</a></a>
-			{/if}
+			<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewSortBy&id={$view->id}&sortBy={$header}');">{$view_fields.$header->db_label|capitalize}</a>
 			
 			{* add arrow if sorting by this column, finish table header tag *}
 			{if $header==$view->renderSortBy}
@@ -222,13 +204,13 @@
 			{if $fromRow > $toRow}{assign var=fromRow value=$toRow}{/if}
 			
 			{if $view->renderPage > 0}
-				<a href="javascript:;" onclick="ajax.getPage('{$view->id}',0);">&lt;&lt;</a>
-				<a href="javascript:;" onclick="ajax.getPage('{$view->id}','{$prevPage}');">&lt;{$translate->_('common.prev')|capitalize}</a>
+				<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewPage&id={$view->id}&page=0');">&lt;&lt;</a>
+				<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewPage&id={$view->id}&page={$prevPage}');">&lt;{$translate->_('common.prev')|capitalize}</a>
 			{/if}
 			(Showing {$fromRow}-{$toRow} of {$total})
 			{if $toRow < $total}
-				<a href="javascript:;" onclick="ajax.getPage('{$view->id}','{$nextPage}');">{$translate->_('common.next')|capitalize}&gt;</a>
-				<a href="javascript:;" onclick="ajax.getPage('{$view->id}','{$lastPage}');">&gt;&gt;</a>
+				<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewPage&id={$view->id}&page={$nextPage}');">{$translate->_('common.next')|capitalize}&gt;</a>
+				<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewPage&id={$view->id}&page={$lastPage}');">&gt;&gt;</a>
 			{/if}
 		</td>
 	</tr>

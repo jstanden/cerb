@@ -35,7 +35,7 @@
 			<tuv xml:lang="en"><seg>filter</seg></tuv>
 		</tu>
 		<tu tuid='common.group'>
-			<tuv xml:lang="en"><seg>group</seg></tuv>
+			<tuv xml:lang="en"><seg>Group</seg></tuv>
 		</tu>
 		<tu tuid='common.name'>
 			<tuv xml:lang="en">
@@ -90,9 +90,6 @@
 		</tu>
 		<tu tuid='common.tasks'>
 			<tuv xml:lang="en"><seg>Tasks</seg></tuv>
-		</tu>
-		<tu tuid='common.team'>
-			<tuv xml:lang="en"><seg>Team</seg></tuv>
 		</tu>
 		<tu tuid='common.ticket'>
 			<tuv xml:lang="en"><seg>ticket</seg></tuv>
@@ -237,8 +234,8 @@
 		<tu tuid='header.history'>
 			<tuv xml:lang="en"><seg>history</seg></tuv>
 		</tu>
-		<tu tuid='header.knowledge'>
-			<tuv xml:lang="en"><seg>knowledgebase</seg></tuv>
+		<tu tuid='header.fnr'>
+			<tuv xml:lang="en"><seg>fetch &amp; retrieve</seg></tuv>
 		</tu>
 		<tu tuid='header.last_viewed'>
 			<tuv xml:lang="en"><seg>last viewed</seg></tuv>
@@ -414,23 +411,10 @@
 				<seg>Closed</seg>
 			</tuv>
 		</tu>
-
-		<!--  Tasks -->
-		
-		<tu tuid='task.comments'>
-			<tuv xml:lang="en"><seg>Comments</seg></tuv>
-		</tu>
-		<tu tuid='task.complete'>
-			<tuv xml:lang="en"><seg>Complete</seg></tuv>
-		</tu>
-		<tu tuid='task.due_date'>
-			<tuv xml:lang="en"><seg>Due</seg></tuv>
-		</tu>
-		<tu tuid='task.owners'>
-			<tuv xml:lang="en"><seg>Owner(s)</seg></tuv>
-		</tu>
-		<tu tuid='task.title'>
-			<tuv xml:lang="en"><seg>Title</seg></tuv>
+		<tu tuid='status.deleted'>
+			<tuv xml:lang="en">
+				<seg>Deleted</seg>
+			</tuv>
 		</tu>
 
 		<!-- Teamwork -->

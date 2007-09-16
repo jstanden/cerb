@@ -76,34 +76,6 @@ function appendFileInput(divName,fieldName) {
 }
 
 var cAjaxCalls = function() {
-
-/*
-	this.addAddressAutoComplete = function(txt,con,single) {
-		// [JAS]: [TODO] Move to a tag autocompletion shared method
-		myXHRDataSource = new YAHOO.widget.DS_XHR(DevblocksAppPath+"ajax.php", ["\n", "\t"]);
-		myXHRDataSource.scriptQueryParam = "q"; 
-		myXHRDataSource.scriptQueryAppend = "c=core.display.module.workflow&a=autoAddress"; 
-		myXHRDataSource.responseType = myXHRDataSource.TYPE_FLAT;
-		myXHRDataSource.maxCacheEntries = 60;
-		myXHRDataSource.queryMatchSubset = true;
-		myXHRDataSource.connTimeout = 3000;
-
-		var myAutoComp = new YAHOO.widget.AutoComplete(txt, con, myXHRDataSource); 
-		if(null == single || false == single) myAutoComp.delimChar = ",";
-		myAutoComp.queryDelay = 1;
-		myAutoComp.useIFrame = true; 
-		myAutoComp.typeAhead = false;
-		myAutoComp.useShadow = true;
-//					myAutoComp.prehighlightClassName = "yui-ac-prehighlight"; 
-		myAutoComp.allowBrowserAutocomplete = false;
-		myAutoComp.formatResult = function(oResultItem, sQuery) {
-       var sKey = oResultItem[0];
-       var aMarkup = [sKey];
-       return (aMarkup.join(""));
-		}
-	}
-*/
-
 	this.showBatchPanel = function(view_id,team_id,target) {
 		var viewForm = document.getElementById('viewForm'+view_id);
 		if(null == viewForm) return;
@@ -168,7 +140,8 @@ var cAjaxCalls = function() {
 					}
 					
 					var view_id = o.argument.view_id;
-					caller.getRefresh(view_id);
+					var div = document.getElementById('view'+view_id);
+					div.innerHTML = o.responseText;
 					
 					document.location = '#top';
 					
@@ -192,188 +165,36 @@ var cAjaxCalls = function() {
 //			genericPanel.hide();
 //	};
 
-	this.saveViewActionPanel = function(id,view_id) {
-		YAHOO.util.Connect.setForm('formViewActions');
-		
-		var cObj = YAHOO.util.Connect.asyncRequest('POST', DevblocksAppPath+'ajax.php', {
-				success: function(o) {
-					var caller = o.argument.caller;
-					
-					if(null != genericPanel) {
-						genericPanel.hide();
-					}
-					
-					var view_id = o.argument.view_id;
-					caller.getRefresh(view_id);
-				},
-				failure: function(o) {},
-				argument:{caller:this,view_id:view_id}
-		});	
-	}
-	
-	this.getLoadSearch = function(divName) {
-		var div = document.getElementById(divName + '_control');
-		if(null == div) return;
-		
-		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=tickets&a=getLoadSearch&divName='+divName, {
-				success: function(o) {
-					var divName = o.argument.divName;
-					var div = document.getElementById(divName + '_control');
-					if(null == div) return;
-					
-					div.innerHTML = o.responseText;
-				},
-				failure: function(o) {},
-				argument:{caller:this,divName:divName}
-				}
-		);
-	}
-
-	this.getSaveSearch = function(divName) {
-		var div = document.getElementById(divName + '_control');
-		if(null == div) return;
-		
-		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=tickets&a=getSaveSearch&divName='+divName, {
-				success: function(o) {
-					var divName = o.argument.divName;
-					var div = document.getElementById(divName + '_control');
-					if(null == div) return;
-					
-					div.innerHTML = o.responseText;
-				},
-				failure: function(o) {},
-				argument:{caller:this,divName:divName}
-				}
-		);
-	}
-	
-	this.deleteSearch = function(id) {
-		if(confirm('Are you sure you want to delete this search?')) {
-			var url = new DevblocksUrl();
-			url.addVar('search');
-			url.addVar('deleteSearch');
-			url.addVar('id');
-		
-			document.location = url.getUrl();
-		}
-	}
-	
-	this.saveSearch = function(divName) {
-		var div = document.getElementById(divName + '_control');
-		if(null == div) return;
-		
-		YAHOO.util.Connect.setForm(divName + '_control');
-		var cObj = YAHOO.util.Connect.asyncRequest('POST', DevblocksAppPath+'ajax.php', {
-				success: function(o) {
-					var divName = o.argument.divName;
-					var div = document.getElementById(divName + '_control');
-					if(null == div) return;
-					
-					div.innerHTML = o.responseText;
-				},
-				failure: function(o) {},
-				argument:{caller:this,divName:divName}
-				}
-		);
-	}
-	
-	this.getCustomize = function(id) {
-		var div = document.getElementById('customize' + id);
-		if(null == div) return;
-	
-		if(0 != div.innerHTML.length) {
-			div.innerHTML = '';
-			div.style.display = 'inline';
-		} else {
-			var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=tickets&a=customize&id=' + id, {
-					success: function(o) {
-						var id = o.argument.id;
-						var div = document.getElementById('customize' + id);
-						if(null == div) return;
-						
-						div.innerHTML = o.responseText;
-						div.style.display = 'block';
-					},
-					failure: function(o) {},
-					argument:{caller:this,id:id}
-				}
-			);	
-		}
-	}
-	
-	this.saveCustomize = function(id) {
-		var div = document.getElementById('customize' + id);
-		if(null == div) return;
-
-		YAHOO.util.Connect.setForm('customize' + id);
-		var cObj = YAHOO.util.Connect.asyncRequest('POST', DevblocksAppPath+'ajax.php', {
-				success: function(o) {
-					var id = o.argument.id;
-					var div = document.getElementById('customize' + id);
-					if(null == div) return;
-					
-					div.innerHTML = '';
-					div.style.display = 'inline';
-					
-					var caller = o.argument.caller;
-					caller.getRefresh(id);
-				},
-				failure: function(o) {},
-				argument:{caller:this,id:id}
-			}
-		);	
-	}
-	
-	this.getSortBy = function(id,sortBy) {
-		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=tickets&a=viewSortBy&id=' + id + '&sortBy=' + sortBy, {
-				success: function(o) {
-					var id = o.argument.id;
-					var caller = o.argument.caller;
-					caller.getRefresh(id);
-				},
-				failure: function(o) {},
-				argument:{caller:this,id:id}
-		});	
-	}
-	
-	this.getPage = function(id,page) {
-		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=tickets&a=viewPage&id=' + id + '&page=' + page, {
-				success: function(o) {
-					var id = o.argument.id;
-					var caller = o.argument.caller;
-					caller.getRefresh(id);
-				},
-				failure: function(o) {},
-				argument:{caller:this,id:id}
-		});	
-	}
-	
 	this.viewMoveTickets = function(view_id) {
+		var divName = 'view'+view_id;
 		var formName = 'viewForm'+view_id;
+		var viewDiv = document.getElementById(divName);
 		var viewForm = document.getElementById(formName);
-		if(null == viewForm) return;
+		if(null == viewForm || null == viewDiv) return;
 
 		genericAjaxPost(formName, '', 'c=tickets&a=viewMoveTickets&view_id='+view_id, function(o) {
-			ajax.getRefresh(view_id);
+			viewDiv.innerHTML = o.responseText;
 			genericAjaxGet('dashboardPanel','c=tickets&a=refreshTeamFilters');
 		});
 	}
 
 	this.viewTicketsAction = function(view_id,action) {
+		var divName = 'view'+view_id;
 		var formName = 'viewForm'+view_id;
+		var viewDiv = document.getElementById(divName);
 		var viewForm = document.getElementById(formName);
-		if(null == viewForm) return;
+		if(null == viewForm || null == viewDiv) return;
 
 		switch(action) {
 			case 'merge':
 				genericAjaxPost(formName, '', 'c=tickets&a=viewMergeTickets&view_id='+view_id, function(o) {
-					ajax.getRefresh(view_id);
+					viewDiv.innerHTML = o.responseText;
 					genericAjaxGet('dashboardPanel','c=tickets&a=refreshTeamFilters');
 				});
 				break;
 			case 'not_spam':
 				genericAjaxPost(formName, '', 'c=tickets&a=viewNotSpamTickets&view_id='+view_id, function(o) {
-					ajax.getRefresh(view_id);
+					viewDiv.innerHTML = o.responseText;
 					genericAjaxGet('dashboardPanel','c=tickets&a=refreshTeamFilters');
 				});
 				break;
@@ -381,32 +202,34 @@ var cAjaxCalls = function() {
 	}
 	
 	this.viewCloseTickets = function(view_id,mode) {
+		var divName = 'view'+view_id;
 		var formName = 'viewForm'+view_id;
+		var viewDiv = document.getElementById(divName);
 		var viewForm = document.getElementById(formName);
-		if(null == viewForm) return;
+		if(null == viewForm || null == viewDiv) return;
 
 		switch(mode) {
 			case 1: // spam
 				genericAjaxPost(formName, '', 'c=tickets&a=viewSpamTickets&view_id=' + view_id, function(o) {
-					ajax.getRefresh(view_id);
+					viewDiv.innerHTML = o.responseText;
 					genericAjaxGet('dashboardPanel','c=tickets&a=refreshTeamFilters');
 				});
 				break;
 			case 2: // delete
 				genericAjaxPost(formName, '', 'c=tickets&a=viewDeleteTickets&view_id=' + view_id, function(o) {
-					ajax.getRefresh(view_id);
+					viewDiv.innerHTML = o.responseText;
 					genericAjaxGet('dashboardPanel','c=tickets&a=refreshTeamFilters');
 				});
 				break;
 			case 3: // release/surrender
 				genericAjaxPost(formName, '', 'c=tickets&a=viewSurrenderTickets&view_id=' + view_id, function(o) {
-					ajax.getRefresh(view_id);
+					viewDiv.innerHTML = o.responseText;
 					genericAjaxGet('dashboardPanel','c=tickets&a=refreshTeamFilters');
 				});
 				break;
 			default: // close
 				genericAjaxPost(formName, '', 'c=tickets&a=viewCloseTickets&view_id=' + view_id, function(o) {
-					ajax.getRefresh(view_id);
+					viewDiv.innerHTML = o.responseText;
 					genericAjaxGet('dashboardPanel','c=tickets&a=refreshTeamFilters');
 				});
 				break;
@@ -414,44 +237,17 @@ var cAjaxCalls = function() {
 	}
 	
 	this.viewUndo = function(view_id) {
+		var viewDiv = document.getElementById('view'+view_id);
+		if(null == viewDiv) return;
+	
 		genericAjaxGet('','c=tickets&a=viewUndo&view_id=' + view_id,
 			function(o) {
-				ajax.getRefresh(view_id);
+				viewDiv.innerHTML = o.responseText;
 				genericAjaxGet('dashboardPanel','c=tickets&a=refreshTeamFilters');
 			}
 		);		
 	}
 
-	this.getRefresh = function(id) {
-		var div = document.getElementById('view' + id);
-		if(null == div) return;
-
-		var anim = new YAHOO.util.Anim(div, { opacity: { to: 0.2 } }, 1, YAHOO.util.Easing.easeOut);
-		anim.animate();
-		
-		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=tickets&a=viewRefresh&id=' + id, {
-				success: function(o) {
-					var id = o.argument.id;
-					var div = document.getElementById('view' + id);
-					if(null == div) return;
-					
-					if(1 == o.responseText.length) {
-						div.innerHTML = '';
-						div.style.display = 'inline';
-						
-					} else {
-						div.innerHTML = o.responseText;
-						div.style.display = 'block';
-						
-						var anim = new YAHOO.util.Anim(div, { opacity: { to: 1 } }, 1, YAHOO.util.Easing.easeOut);
-						anim.animate();
-					}
-				},
-				failure: function(o) {},
-				argument:{caller:this,id:id}
-		});	
-	}
-	
 	this.cbAddressPeek = function(o) {
 		var myDataSource = new YAHOO.widget.DS_XHR(DevblocksAppPath+"ajax.php", ["\n", "\t"] );
 		myDataSource.scriptQueryAppend = "c=contacts&a=getOrgsAutoCompletions"; 

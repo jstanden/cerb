@@ -28,7 +28,7 @@
 			{$common_translated.header_signed_in}
 			[ <a href="{devblocks_url}c=login&a=signout{/devblocks_url}">{$translate->_('header.signoff')|lower}</a> ]
 			<br> 
-			[ <a href="javascript:;" onclick="genericAjaxPanel('c=display&a=showFnrPanel',this,false,'550px');">{$translate->_('header.knowledge')|lower}</a> ] 
+			[ <a href="javascript:;" onclick="genericAjaxPanel('c=display&a=showFnrPanel',this,false,'550px');">{$translate->_('header.fnr')|lower}</a> ] 
 			[ <a href="{devblocks_url}c=preferences{/devblocks_url}">{$translate->_('header.preferences')|lower}</a> ]
 			{if $active_worker->is_superuser}[ <a href="{devblocks_url}c=config{/devblocks_url}">{$translate->_('header.config')|lower}</a> ]{/if} 
 			<br> 

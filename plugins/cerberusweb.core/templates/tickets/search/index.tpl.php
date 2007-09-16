@@ -21,12 +21,12 @@
 	<tr>
 		<td valign="top" width="0%" nowrap="nowrap">
 			<div id="tourDashboardSearchCriteria"></div>
-			{include file="file:$path/tickets/search/criteria_list.tpl.php" divName="searchCriteriaDialog"}
+			{include file="file:$path/internal/views/criteria_list.tpl.php" divName="searchCriteriaDialog"}
 			<div id="searchCriteriaDialog" style="visibility:visible;"></div>
 		</td>
 		<td valign="top" width="0%" nowrap="nowrap"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/spacer.gif{/devblocks_url}" width="5" height="1"></td>
 		<td valign="top" width="100%">
-			<div id="view{$view->id}">{include file="file:$path/tickets/ticket_view.tpl.php"}</div>
+			<div id="view{$view->id}">{$view->render()}</div>
 		</td>
 	</tr>
 </table>

@@ -30,7 +30,7 @@
       <div id="tourDashboardViews"></div>
       {foreach from=$views item=view name=views}
       	<div id="view{$view->id}">
-	      	{include file="file:$path/tickets/ticket_view.tpl.php" first_view=$smarty.foreach.views.first}
+	      	{$view->render()}
 	    </div>
       {/foreach}
       

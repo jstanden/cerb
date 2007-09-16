@@ -35,25 +35,6 @@ By default workers will be automatically e-mailed a randomly-generated password.
 </table>
 {/if}
 
-<!--
-{if !empty($mailbox_ids)}
-<H3>Mailbox Details</H3>
-
-<table cellpadding="0" cellspacing="0" border="0">
-	<tr>
-		<th>Mailbox</th>
-		<th>Reply As E-mail Address</th>
-	</tr>
-{foreach from=$mailbox_ids key=mailbox_id item=mailbox}
-	<tr>
-		<td style="padding-right:10px;"><input type="hidden" name="mailbox_ids[]" value="{$mailbox_id}">{$mailbox}</td>
-		<td><input type="text" name="mailbox_from[]" size="45" value="{$default_reply_from}"></td>
-	</tr>
-{/foreach}
-</table>
-{/if}
--->
-
 {if !empty($team_ids)}
 <H3>Group Details</H3>
 

@@ -21,17 +21,10 @@
 				{assign var=field value=$param->field}
 					<tr>
 						<td width="100%">
-						{if $param->field=='c_name'}
-							<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/data_find.gif{/devblocks_url}" align="absmiddle"> 
-							{$translate->_($search_columns.$field->db_label)|capitalize} 
-							{$param->operator} 
-							<b>{$param->value}</b>
-						{else}
-							<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/data_find.gif{/devblocks_url}" align="absmiddle"> 
-							{$translate->_($search_columns.$field->db_label)|capitalize} 
-							{$param->operator}
-							<b>{$param->value}</b>
-						{/if}
+						<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/data_find.gif{/devblocks_url}" align="absmiddle"> 
+						{$translate->_($view_fields.$field->db_label)|capitalize} 
+						{$param->operator}
+						<b>{$view->renderCriteriaParam($param)}</b>
 						</td>
 						<td width="0%" nowrap="nowrap" valign="top"><a href="javascript:;" onclick="document.{$view->id}_criteriaForm.field.value='{$param->field}';document.{$view->id}_criteriaForm.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/data_error.gif{/devblocks_url}" border="0" align="absmiddle"></a></td>
 					</tr>
@@ -58,11 +51,8 @@
 	<blockquote style="margin:5px;">
 		<select name="field" onchange="genericAjaxGet('addCriteriaOptions','c=internal&a=viewGetCriteria&id={$view->id}&field='+selectValue(this));">
 			<option value="">-- choose --</option>
-			{foreach from=$search_columns item=column key=token}
-				{if $token=="c_id"}
-				{elseif $token=="a_id"}
-				{elseif $token=="a_contact_org_id"}
-				{else}
+			{foreach from=$view_searchable_fields item=column key=token}
+				{if !empty($column->db_label) && !empty($token)}
 				<option value="{$token}">{$translate->_($column->db_label)|capitalize}</option>
 				{/if}
 			{/foreach}

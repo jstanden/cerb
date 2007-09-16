@@ -48,7 +48,7 @@
  * 		and Joe Geck.
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-define("APP_BUILD", 367);
+define("APP_BUILD", 368);
 define("APP_MAIL_PATH", realpath(APP_PATH . '/storage/mail') . DIRECTORY_SEPARATOR);
 
 include_once(APP_PATH . "/api/DAO.class.php");
@@ -211,101 +211,6 @@ class CerberusApplication extends DevblocksApplication {
 				'&amp;',
 				'&quot;',
 				'&nbsp;',
-//				'&iexcl;',
-//				'&cent;',
-//				'&pound;',
-//				'&curren;',
-//				'&yen;',
-//				'&brvbar;',
-//				'&sect;',
-//				'&uml;',
-//				'&copy;',
-//				'&ordf;',
-//				'&laquo;',
-//				'&not;',
-//				'&shy;',
-//				'&reg;',
-//				'&macr;',
-//				'&deg;',
-//				'&plusmn;',
-//				'&sup2;',
-//				'&sup3;',
-//				'&acute;',
-//				'&micro;',
-//				'&para;',
-//				'&middot;',
-//				'&cedil;',
-//				'&sup1;',
-//				'&ordm;',
-//				'&raquo;',
-//				'&frac14;',
-//				'&frac12;',
-//				'&frac34;',
-//				'&iquest;',
-//				'&Agrave;',
-//				'&Acute;',
-//				'&Acirc;',
-//				'&Atilde;',
-//				'&Auml;',
-//				'&Aring;',
-//				'&AElig;',
-//				'&Ccedil;',
-//				'&Egrave;',
-//				'&Eacute;',
-//				'&Ecirc;',
-//				'&Euml;',
-//				'&Igrave;',
-//				'&Iacute;',
-//				'&Icirc;',
-//				'&Iuml;',
-//				'&ETH;',
-//				'&Ntilde;',
-//				'&Ograve;',
-//				'&Oacute;',
-//				'&Ocirc;',
-//				'&Otilde;',
-//				'&Ouml;',
-//				'&times;',
-//				'&Oslash;',
-//				'&Ugrave;',
-//				'&Uacute;',
-//				'&Ucirc;',
-//				'&Uuml;',
-//				'&Yacute;',
-//				'&THORN;',
-//				'&szlig;',
-//				'&agrave;',
-//				'&aacute;',
-//				'&acirc;',
-//				'&atilde;',
-//				'&auml;',
-//				'&aring;',
-//				'&aelig;',
-//				'&ccedil;',
-//				'&egrave;',
-//				'&eacute;',
-//				'&ecirc;',
-//				'&euml;',
-//				'&igrave;',
-//				'&iacute;',
-//				'&icirc;',
-//				'&iuml;',
-//				'&eth;',
-//				'&ntilde;',
-//				'&ograve;',
-//				'&oacute;',
-//				'&ocirc;',
-//				'&otilde;',
-//				'&ouml;',
-//				'&divide;',
-//				'&oslash;',
-//				'&ugrave;',
-//				'&uacute;',
-//				'&ucirc;',
-//				'&uuml;',
-//				'&yacute;',
-//				'&thorn;',
-//				'&yuml'
 			);
 			
 			$ENT_WITH = array(
@@ -314,101 +219,6 @@ class CerberusApplication extends DevblocksApplication {
 				'&;',
 				'";',
 				chr(32),
-//				chr(161),
-//				chr(162),
-//				chr(163),
-//				chr(164),
-//				chr(165),
-//				chr(166),
-//				chr(167),
-//				chr(168),
-//				chr(169),
-//				chr(170),
-//				chr(171),
-//				chr(172),
-//				chr(173),
-//				chr(174),
-//				chr(175),
-//				chr(176),
-//				chr(177),
-//				chr(178),
-//				chr(179),
-//				chr(180),
-//				chr(181),
-//				chr(182),
-//				chr(183),
-//				chr(184),
-//				chr(185),
-//				chr(186),
-//				chr(187),
-//				chr(188),
-//				chr(189),
-//				chr(190),
-//				chr(191),
-//				chr(192),
-//				chr(193),
-//				chr(194),
-//				chr(195),
-//				chr(196),
-//				chr(197),
-//				chr(198),
-//				chr(199),
-//				chr(200),
-//				chr(201),
-//				chr(202),
-//				chr(203),
-//				chr(204),
-//				chr(205),
-//				chr(206),
-//				chr(207),
-//				chr(208),
-//				chr(209),
-//				chr(210),
-//				chr(211),
-//				chr(212),
-//				chr(213),
-//				chr(214),
-//				chr(215),
-//				chr(216),
-//				chr(217),
-//				chr(218),
-//				chr(219),
-//				chr(220),
-//				chr(221),
-//				chr(222),
-//				chr(223),
-//				chr(224),
-//				chr(225),
-//				chr(226),
-//				chr(227),
-//				chr(228),
-//				chr(229),
-//				chr(230),
-//				chr(231),
-//				chr(232),
-//				chr(233),
-//				chr(234),
-//				chr(235),
-//				chr(236),
-//				chr(237),
-//				chr(238),
-//				chr(239),
-//				chr(240),
-//				chr(241),
-//				chr(242),
-//				chr(243),
-//				chr(244),
-//				chr(245),
-//				chr(246),
-//				chr(247),
-//				chr(248),
-//				chr(249),
-//				chr(250),
-//				chr(251),
-//				chr(252),
-//				chr(253),
-//				chr(254),
-//				chr(255)
 			);
 		    
 			for($c=1;$c<256;$c++) { 
@@ -471,7 +281,6 @@ class CerberusApplication extends DevblocksApplication {
 	static function generateTicketMask($pattern = "LLL-NNNNN-NNN") {
 		$letters = "ABCDEFGHIJKLMNPQRSTUVWXYZ";
 		$numbers = "123456789";
-//		$pattern = "Y-M-D-LLLL";
 
 		do {		
 			// [JAS]: Seed randomness
@@ -538,27 +347,6 @@ class CerberusApplication extends DevblocksApplication {
 		}
 		
 		return array($team_id, $category_id);
-	}
-	
-	// ***************** DUMMY [TODO] Move to Model?  Combine with search fields?
-	static function getDashboardViewColumns() {
-		$translate = DevblocksPlatform::getTranslationService();
-		
-		return array(
-			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_MASK,$translate->_('ticket.id')),
-			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_NEXT_ACTION,$translate->_('ticket.next_action')),
-			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_LAST_ACTION_CODE,$translate->_('ticket.last_action')),
-			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_LAST_WROTE,$translate->_('ticket.last_wrote')),
-			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_FIRST_WROTE,$translate->_('ticket.first_wrote')),
-			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_CREATED_DATE,$translate->_('ticket.created')),
-			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_UPDATED_DATE,$translate->_('ticket.updated')),
-			new CerberusDashboardViewColumn(SearchFields_Ticket::TEAM_NAME,$translate->_('common.team')),
-			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_CATEGORY_ID,$translate->_('common.bucket')),
-			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_DUE_DATE,$translate->_('ticket.due')),
-			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_SPAM_SCORE,$translate->_('ticket.spam_score')),
-			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_LAST_WORKER_ID,$translate->_('ticket.last_worker')),
-			new CerberusDashboardViewColumn(SearchFields_Ticket::TICKET_NEXT_WORKER_ID,$translate->_('ticket.next_worker')),
-			);
 	}
 	
 	// [JAS]: Move this to a global cache/hash registry
@@ -720,60 +508,6 @@ class CerberusLicense {
 		return $license;
 	}
 }
-
-/**
- * [TODO] Any reason this can't be a static helper without being instanced?
- */
-class CerberusStaticViewManager {
-	private $views = array();
-	
-	public function exists($view_label) {
-		return isset($this->views[$view_label]);
-	}
-	
-	public function getView($view_label) {
-		if(!$this->exists($view_label)) {
-			if($view_label == CerberusApplication::VIEW_SEARCH) {
-				self::setView($view_label, self::createSearchView());
-				return $this->views[$view_label];
-			}
-			
-			return NULL;
-		}
-		
-		return $this->views[$view_label];
-	}
-	
-	public function setView($view_label, $view) {
-		$this->views[$view_label] = $view;
-	}
-	
-	public function createSearchView() {
-		$view = new CerberusDashboardView();
-		$view->id = CerberusApplication::VIEW_SEARCH;
-		$view->name = "Search Results";
-		$view->dashboard_id = 0;
-		$view->view_columns = array(
-			SearchFields_Ticket::TICKET_NEXT_ACTION,
-			SearchFields_Ticket::TICKET_UPDATED_DATE,
-			SearchFields_Ticket::TEAM_NAME,
-			SearchFields_Ticket::TICKET_CATEGORY_ID,
-			SearchFields_Ticket::TICKET_SPAM_SCORE,
-			SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
-			);
-		$view->params = array(
-			SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,DevblocksSearchCriteria::OPER_EQ,0)
-		);
-		$view->renderLimit = 100;
-		$view->renderPage = 0;
-		$view->renderSortBy = null; // SearchFields_Ticket::TICKET_UPDATED_DATE
-		$view->renderSortAsc = 0;
-	
-		$this->setView(CerberusApplication::VIEW_SEARCH,$view);
-		
-		return $view;
-	}
-};
 
 /**
  * @deprecated 

@@ -28,7 +28,7 @@
 			{* start table header, insert column title and link *}
 			<th nowrap="nowrap">
 			{if $header=="x"}<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewSortBy&id={$view->id}&sortBy=a_id');">{$translate->_('contact_org.id')|capitalize}</a>
-			{else}<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewSortBy&id={$view->id}&sortBy={$header}');">{$search_columns.$header->db_label|capitalize}</a>
+			{else}<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewSortBy&id={$view->id}&sortBy={$header}');">{$view_fields.$header->db_label|capitalize}</a>
 			{/if}
 			
 			{* add arrow if sorting by this column, finish table header tag *}
@@ -83,11 +83,13 @@
 		<td colspan="2">
 			<!-- <span id="tourDashboardBatch"><button type="button" onclick="ajax.showBatchPanel('{$view->id}','{$dashboard_team_id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> bulk update</button></span>  -->
 			
-			<a href="javascript:;" onclick="toggleDiv('view{$view->id}_more');">More &raquo;</a>
+			<!-- <a href="javascript:;" onclick="toggleDiv('view{$view->id}_more');">More &raquo;</a>-->
 
+			<!-- 
 			<div id="view{$view_id}_more" style="display:none;padding-top:5px;padding-bottom:5px;">
 				<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','merge');">merge</button>
 			</div>
+			 -->
 
 		</td>
 	</tr>

@@ -349,12 +349,6 @@ class DAO_Worker extends DevblocksORMHelper {
 		);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
-		
-//		$sql = sprintf("DELETE FROM favorite_tag_to_worker WHERE agent_id = %d",
-//			$id
-//		);
-//		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
 	}
 	
 	static function login($email, $password) {
@@ -1843,30 +1837,6 @@ class DAO_Ticket extends DevblocksORMHelper {
 	}
 	
 	static function updateTicket($id,$fields) {
-//		$db = DevblocksPlatform::getDatabaseService();
-//		$sets = array();
-//		
-//		if(!is_array($fields) || empty($fields) || empty($id))
-//			return;
-//		
-//		foreach($fields as $k => $v) {
-//			switch ($k) {
-//				case 'status':
-////					if (0 == strcasecmp($v, 'C')) // if ticket is being closed
-////						DAO_Mail::sendAutoresponse($id, 'closed');
-//					break;
-//			}
-//			$sets[] = sprintf("%s = %s",
-//				$k,
-//				$db->qstr($v)
-//			);
-//		}
-//			
-//		$sql = sprintf("UPDATE ticket SET %s WHERE id = %d",
-//			implode(', ', $sets),
-//			$id
-//		);
-//		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
         parent::_update($id,'ticket',$fields);
 	}
 	
@@ -1896,10 +1866,6 @@ class DAO_Ticket extends DevblocksORMHelper {
 			$rs->MoveNext();
 		}
 
-//		// [JAS]: Count all
-//		$rs = $db->Execute($sql);
-//		$total = $rs->RecordCount();
-		
 		return $messages;
 	}
 	
@@ -1929,12 +1895,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 			$message->address_id = intval($rs->fields['address_id']);
 		}
 
-		// [JAS]: Count all
-//		$rs = $db->Execute($sql);
-//		$total = $rs->RecordCount();
-		
 		return $message;
-//		return array($messages,$total);
 	}
 	
 	static function getRequestersByTicket($ticket_id) {
@@ -1955,11 +1916,6 @@ class DAO_Ticket extends DevblocksORMHelper {
 			$addresses[$address->id] = $address;
 			$rs->MoveNext();
 		}
-
-		// [JAS]: Count all
-//		$rs = $db->Execute($sql);
-//		$total = $rs->RecordCount();
-//		return array($addresses,$total);
 
 		return $addresses;
 	}
@@ -2259,42 +2215,43 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 	 * @return DevblocksSearchField[]
 	 */
 	static function getFields() {
+		$translate = DevblocksPlatform::getTranslationService();
+		
 		return array(
-			SearchFields_Ticket::TICKET_ID => new DevblocksSearchField(SearchFields_Ticket::TICKET_ID, 't', 'id'),
-			SearchFields_Ticket::TICKET_MASK => new DevblocksSearchField(SearchFields_Ticket::TICKET_MASK, 't', 'mask'),
-			SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchField(SearchFields_Ticket::TICKET_CLOSED, 't', 'is_closed'),
-			SearchFields_Ticket::TICKET_DELETED => new DevblocksSearchField(SearchFields_Ticket::TICKET_DELETED, 't', 'is_deleted'),
-			SearchFields_Ticket::TICKET_SUBJECT => new DevblocksSearchField(SearchFields_Ticket::TICKET_SUBJECT, 't', 'subject'),
-			SearchFields_Ticket::TICKET_FIRST_WROTE_ID => new DevblocksSearchField(SearchFields_Ticket::TICKET_FIRST_WROTE_ID, 't', 'first_wrote_address_id'),
-			SearchFields_Ticket::TICKET_FIRST_WROTE => new DevblocksSearchField(SearchFields_Ticket::TICKET_FIRST_WROTE, 'a1', 'email'),
-			SearchFields_Ticket::TICKET_FIRST_CONTACT_ORG_ID => new DevblocksSearchField(SearchFields_Ticket::TICKET_FIRST_CONTACT_ORG_ID, 'a1', 'contact_org_id'),
-			SearchFields_Ticket::TICKET_LAST_WROTE_ID => new DevblocksSearchField(SearchFields_Ticket::TICKET_LAST_WROTE_ID, 't', 'last_wrote_address_id'),
-			SearchFields_Ticket::TICKET_LAST_WROTE => new DevblocksSearchField(SearchFields_Ticket::TICKET_LAST_WROTE, 'a2', 'email'),
-			SearchFields_Ticket::TICKET_CREATED_DATE => new DevblocksSearchField(SearchFields_Ticket::TICKET_CREATED_DATE, 't', 'created_date'),
-			SearchFields_Ticket::TICKET_UPDATED_DATE => new DevblocksSearchField(SearchFields_Ticket::TICKET_FIRST_WROTE, 't', 'updated_date'),
-			SearchFields_Ticket::TICKET_DUE_DATE => new DevblocksSearchField(SearchFields_Ticket::TICKET_DUE_DATE, 't', 'due_date'),
-			SearchFields_Ticket::TICKET_SPAM_TRAINING => new DevblocksSearchField(SearchFields_Ticket::TICKET_SPAM_TRAINING, 't', 'spam_training'),
-			SearchFields_Ticket::TICKET_SPAM_SCORE => new DevblocksSearchField(SearchFields_Ticket::TICKET_SPAM_SCORE, 't', 'spam_score'),
-			SearchFields_Ticket::TICKET_INTERESTING_WORDS => new DevblocksSearchField(SearchFields_Ticket::TICKET_INTERESTING_WORDS, 't', 'interesting_words'),
-			SearchFields_Ticket::TICKET_NEXT_ACTION => new DevblocksSearchField(SearchFields_Ticket::TICKET_NEXT_ACTION, 't', 'next_action'),
-			SearchFields_Ticket::TICKET_LAST_ACTION_CODE => new DevblocksSearchField(SearchFields_Ticket::TICKET_LAST_ACTION_CODE, 't', 'last_action_code'),
-			SearchFields_Ticket::TICKET_LAST_WORKER_ID => new DevblocksSearchField(SearchFields_Ticket::TICKET_LAST_WORKER_ID, 't', 'last_worker_id'),
-			self::TICKET_NEXT_WORKER_ID => new DevblocksSearchField(self::TICKET_NEXT_WORKER_ID, 't', 'next_worker_id'),
-			SearchFields_Ticket::TICKET_CATEGORY_ID => new DevblocksSearchField(SearchFields_Ticket::TICKET_CATEGORY_ID, 't', 'category_id'),
+			self::TICKET_ID => new DevblocksSearchField(self::TICKET_ID, 't', 'id'),
+			self::TICKET_MASK => new DevblocksSearchField(self::TICKET_MASK, 't', 'mask', null, $translate->_('ticket.mask')),
+			self::TICKET_CLOSED => new DevblocksSearchField(self::TICKET_CLOSED, 't', 'is_closed',null,$translate->_('status.closed')),
+			self::TICKET_DELETED => new DevblocksSearchField(self::TICKET_DELETED, 't', 'is_deleted',null,$translate->_('status.deleted')),
+			self::TICKET_SUBJECT => new DevblocksSearchField(self::TICKET_SUBJECT, 't', 'subject',null,$translate->_('ticket.subject')),
+			self::TICKET_FIRST_WROTE_ID => new DevblocksSearchField(self::TICKET_FIRST_WROTE_ID, 't', 'first_wrote_address_id'),
+			self::TICKET_FIRST_WROTE => new DevblocksSearchField(self::TICKET_FIRST_WROTE, 'a1', 'email',null,$translate->_('ticket.first_wrote')),
+			self::TICKET_FIRST_CONTACT_ORG_ID => new DevblocksSearchField(self::TICKET_FIRST_CONTACT_ORG_ID, 'a1', 'contact_org_id'),
+			self::TICKET_LAST_WROTE_ID => new DevblocksSearchField(self::TICKET_LAST_WROTE_ID, 't', 'last_wrote_address_id'),
+			self::TICKET_LAST_WROTE => new DevblocksSearchField(self::TICKET_LAST_WROTE, 'a2', 'email',null,$translate->_('ticket.last_wrote')),
+			self::TICKET_CREATED_DATE => new DevblocksSearchField(self::TICKET_CREATED_DATE, 't', 'created_date',null,$translate->_('ticket.created')),
+			self::TICKET_UPDATED_DATE => new DevblocksSearchField(self::TICKET_UPDATED_DATE, 't', 'updated_date',null,$translate->_('ticket.updated')),
+			self::TICKET_DUE_DATE => new DevblocksSearchField(self::TICKET_DUE_DATE, 't', 'due_date',null,$translate->_('ticket.due')),
+			self::TICKET_SPAM_TRAINING => new DevblocksSearchField(self::TICKET_SPAM_TRAINING, 't', 'spam_training'),
+			self::TICKET_SPAM_SCORE => new DevblocksSearchField(self::TICKET_SPAM_SCORE, 't', 'spam_score',null,$translate->_('ticket.spam_score')),
+			self::TICKET_INTERESTING_WORDS => new DevblocksSearchField(self::TICKET_INTERESTING_WORDS, 't', 'interesting_words'),
+			self::TICKET_NEXT_ACTION => new DevblocksSearchField(self::TICKET_NEXT_ACTION, 't', 'next_action',null,$translate->_('ticket.next_action')),
+			self::TICKET_LAST_ACTION_CODE => new DevblocksSearchField(self::TICKET_LAST_ACTION_CODE, 't', 'last_action_code',null,$translate->_('ticket.last_action')),
+			self::TICKET_LAST_WORKER_ID => new DevblocksSearchField(self::TICKET_LAST_WORKER_ID, 't', 'last_worker_id',null,$translate->_('ticket.last_worker')),
+			self::TICKET_NEXT_WORKER_ID => new DevblocksSearchField(self::TICKET_NEXT_WORKER_ID, 't', 'next_worker_id',null,$translate->_('ticket.next_worker')),
+			self::TICKET_CATEGORY_ID => new DevblocksSearchField(self::TICKET_CATEGORY_ID, 't', 'category_id',null,$translate->_('common.bucket')),
 			
-			SearchFields_Ticket::TICKET_MESSAGE_HEADER => new DevblocksSearchField(SearchFields_Ticket::TICKET_MESSAGE_HEADER, 'mh', 'header_name'),
-			SearchFields_Ticket::TICKET_MESSAGE_HEADER_VALUE => new DevblocksSearchField(SearchFields_Ticket::TICKET_MESSAGE_HEADER_VALUE, 'mh', 'header_value', 'B'),
+			self::TICKET_MESSAGE_HEADER => new DevblocksSearchField(self::TICKET_MESSAGE_HEADER, 'mh', 'header_name'),
+			self::TICKET_MESSAGE_HEADER_VALUE => new DevblocksSearchField(self::TICKET_MESSAGE_HEADER_VALUE, 'mh', 'header_value', 'B'),
 
-			SearchFields_Ticket::TICKET_MESSAGE_CONTENT => new DevblocksSearchField(SearchFields_Ticket::TICKET_MESSAGE_CONTENT, 'mc', 'content', 'B'),
+			self::TICKET_MESSAGE_CONTENT => new DevblocksSearchField(self::TICKET_MESSAGE_CONTENT, 'mc', 'content', 'B', $translate->_('message.content')),
 			
-			SearchFields_Ticket::REQUESTER_ID => new DevblocksSearchField(SearchFields_Ticket::REQUESTER_ID, 'ra', 'id'),
-			SearchFields_Ticket::REQUESTER_ADDRESS => new DevblocksSearchField(SearchFields_Ticket::REQUESTER_ADDRESS, 'ra', 'email'),
+			self::REQUESTER_ID => new DevblocksSearchField(self::REQUESTER_ID, 'ra', 'id'),
+			self::REQUESTER_ADDRESS => new DevblocksSearchField(self::REQUESTER_ADDRESS, 'ra', 'email'),
 			
-			SearchFields_Ticket::SENDER_ADDRESS => new DevblocksSearchField(SearchFields_Ticket::SENDER_ADDRESS, 'a1', 'email'),
+			self::SENDER_ADDRESS => new DevblocksSearchField(self::SENDER_ADDRESS, 'a1', 'email'),
 			
-			SearchFields_Ticket::TEAM_ID => new DevblocksSearchField(SearchFields_Ticket::TEAM_ID,'tm','id'),
-			SearchFields_Ticket::TEAM_NAME => new DevblocksSearchField(SearchFields_Ticket::TEAM_NAME,'tm','name'),
-			
+			self::TEAM_ID => new DevblocksSearchField(self::TEAM_ID,'tm','id',null,$translate->_('common.group')),
+			self::TEAM_NAME => new DevblocksSearchField(self::TEAM_NAME,'tm','name',null,$translate->_('common.group')),
 		);
 	}
 };
@@ -2460,436 +2417,6 @@ class DAO_TicketRss extends DevblocksORMHelper {
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 	}
 };
-
-/**
- * Enter description here...
- *
- * @addtogroup dao
- */
-class DAO_Dashboard {
-	private function DAO_Dashboard() {}
-	
-	static function createDashboard($name, $agent_id) {
-		$db = DevblocksPlatform::getDatabaseService();
-		$newId = $db->GenID('generic_seq');
-		
-		$sql = sprintf("INSERT INTO dashboard (id, name, agent_id) ".
-			"VALUES (%d, %s, %d)",
-			$newId,
-			$db->qstr($name),
-			$agent_id
-		);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-		return $newId;
-	}
-	
-	// [JAS]: Convert this over to pulling by a list of IDs?
-	static function getDashboards($agent_id=0) {
-		$db = DevblocksPlatform::getDatabaseService();
-		
-		$sql = sprintf("SELECT id, name ".
-			"FROM dashboard "
-//			(($agent_id) ? sprintf("WHERE agent_id = %d ",$agent_id) : " ")
-		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-		$dashboards = array();
-		
-		while(!$rs->EOF) {
-			$dashboard = new CerberusDashboard();
-			$dashboard->id = intval($rs->fields['id']);
-			$dashboard->name = $rs->fields['name'];
-			$dashboard->agent_id = intval($rs->fields['agent_id']);
-			$dashboards[$dashboard->id] = $dashboard;
-			$rs->MoveNext();
-		}
-		
-		return $dashboards;
-	}
-	
-	static function createView($name,$dashboard_id,$num_rows=10,$sort_by=null,$sort_asc=1,$type='D') {
-		$db = DevblocksPlatform::getDatabaseService();
-		$newId = $db->GenID('generic_seq');
-		
-		$sql = sprintf("INSERT INTO dashboard_view (id, name, dashboard_id, type, num_rows, sort_by, sort_asc, page, params) ".
-			"VALUES (%d, %s, %d, %s, %d, %s, %s, %d, '')",
-			$newId,
-			$db->qstr($name),
-			$dashboard_id,
-			$db->qstr($type),
-			$num_rows,
-			$db->qstr($sort_by),
-			$sort_asc,
-			0
-		);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-		return $newId;
-	}
-	
-	static private function _updateView($id,$fields) {
-		$db = DevblocksPlatform::getDatabaseService();
-		$sets = array();
-		
-		if(!is_array($fields) || empty($fields) || empty($id))
-			return;
-		
-		foreach($fields as $k => $v) {
-			$sets[] = sprintf("%s = %s",
-				$k,
-				$db->qstr($v)
-			);
-		}
-			
-		$sql = sprintf("UPDATE dashboard_view SET %s WHERE id = %d",
-			implode(', ', $sets),
-			$id
-		);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-	}
-	
-	static function deleteView($id) {
-		if(empty($id)) return;
-		$db = DevblocksPlatform::getDatabaseService();
-		
-		$sql = sprintf("DELETE FROM dashboard_view WHERE id = %d",
-			$id
-		);
-		
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-	}
-	
-	/**
-	 * Enter description here...
-	 *
-	 * @param integer $dashboard_id
-	 * @return CerberusDashboardView[]
-	 */
-	static function getViews($dashboard_id=0) {
-		$db = DevblocksPlatform::getDatabaseService();
-		
-		$sql = sprintf("SELECT v.id, v.name, v.dashboard_id, v.type, v.view_columns, v.num_rows, v.sort_by, v.sort_asc, v.page, v.params ".
-			"FROM dashboard_view v ".
-			"WHERE v.dashboard_id > 0 "
-//			(!empty($dashboard_id) ? sprintf("WHERE v.dashboard_id = %d ", $dashboard_id) : " ")
-		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-		$views = array();
-		
-		while(!$rs->EOF) {
-			$view = new CerberusDashboardView();
-			$view->id = $rs->fields['id'];
-			$view->name = $rs->fields['name'];
-			$view->dashboard_id = intval($rs->fields['dashboard_id']);
-			$view->type = $rs->fields['type'];
-			$view->view_columns = unserialize($rs->fields['view_columns']);
-			$view->params = unserialize($rs->fields['params']);
-			$view->renderLimit = intval($rs->fields['num_rows']);
-			$view->renderSortBy = $rs->fields['sort_by'];
-			$view->renderSortAsc = intval($rs->fields['sort_asc']);
-			$view->renderPage = intval($rs->fields['page']);
-			$views[$view->id] = $view; 
-			$rs->MoveNext();
-		}
-		
-		return $views;
-	}
-	
-	/**
-	 * Loads or creates a view for a given agent
-	 *
-	 * @param integer $view_id
-	 * @return CerberusDashboardView
-	 */
-	static function getView($view_id) {
-		$view = NULL;
-		$visit = CerberusApplication::getVisit();
-		$viewManager = $visit->get(CerberusVisit::KEY_VIEW_MANAGER);
-		
-		if(!empty($view_id) && is_numeric($view_id)) { // custom view
-			$view = DAO_Dashboard::_getView($view_id);
-			
-		} elseif($viewManager->exists($view_id)) {
-			$view =& $viewManager->getView($view_id);
-		}
-		
-		return $view;
-	}
-	
-	static function updateView($view_id, $fields) {
-		$visit = CerberusApplication::getVisit();
-		
-		if(method_exists($visit,'get')) {
-			$viewManager = $visit->get(CerberusVisit::KEY_VIEW_MANAGER);
-		}
-		
-		if(is_numeric($view_id)) { // db-driven view
-			DAO_Dashboard::_updateView($view_id, $fields);
-			
-		} elseif($viewManager->exists($view_id)) { // virtual view
-			$view =& $viewManager->getView($view_id); /* @var $view CerberusDashboardView */
-			
-			foreach($fields as $key => $value) {
-				switch($key) {
-					case 'name':
-						$view->name = $value;
-						break;
-					case 'view_columns':
-						$view->view_columns = unserialize($value);
-						break;
-					case 'params':
-						$view->params = unserialize($value);
-						break;
-					case 'num_rows':
-						$view->renderLimit = intval($value);
-						break;
-					case 'page':
-						$view->renderPage = intval($value);
-						break;
-					case 'type':
-						$view->type = $value;
-						break;
-					case 'sort_by':
-						$view->renderSortBy = $value;
-						break;
-					case 'sort_asc':
-						$view->renderSortAsc = (boolean) $value;
-						break;
-				}
-			}
-		}		
-	}
-	
-	/**
-	 * Enter description here...
-	 *
-	 * @param integer $view_id
-	 * @return CerberusDashboardView
-	 * [TODO] This should wrap getViews()
-	 */
-	static private function _getView($view_id) {
-		$db = DevblocksPlatform::getDatabaseService();
-		
-		$sql = sprintf("SELECT v.id, v.name, v.dashboard_id, v.type, v.view_columns, v.num_rows, v.sort_by, v.sort_asc, v.page, v.params ".
-			"FROM dashboard_view v ".
-			"WHERE v.id = %d ",
-			$view_id
-		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-
-		if(!$rs->EOF) {
-			$view = new CerberusDashboardView();
-			$view->id = $rs->fields['id'];
-			$view->name = $rs->fields['name'];
-			$view->dashboard_id = intval($rs->fields['dashboard_id']);
-			$view->type = $rs->fields['type'];
-			$view->view_columns = unserialize($rs->fields['view_columns']);
-			$view->params = unserialize($rs->fields['params']);
-			$view->renderLimit = intval($rs->fields['num_rows']);
-			$view->renderSortBy = $rs->fields['sort_by'];
-			$view->renderSortAsc = intval($rs->fields['sort_asc']);
-			$view->renderPage = intval($rs->fields['page']);
-			$views[$view->id] = $view; 
-			return $view;
-		}
-		
-		return null;
-	}
-	
-};
-
-class DAO_DashboardViewAction extends DevblocksORMHelper {
-	static $properties = array(
-		'table' => 'dashboard_view_action',
-		'id_column' => 'id'
-	);
-
-	// [TODO] Const? (Fix references)
-	static public $FIELD_ID = 'id';
-	static public $FIELD_VIEW_ID = 'dashboard_view_id';
-	static public $FIELD_NAME = 'name';
-	static public $FIELD_WORKER_ID = 'worker_id';
-	static public $FIELD_PARAMS = 'params';
-	
-	/**
-	 * Create a DAO entity.
-	 *
-	 * @return integer
-	 */
-	static function create($fields) {
-		$db = DevblocksPlatform::getDatabaseService();
-		
-		$id = $db->GenID('generic_seq');
-		
-		$sql = sprintf("INSERT INTO %s (id,dashboard_view_id,name,worker_id,params) ".
-			"VALUES (%d,0,'',0,'')",
-			self::$properties['table'],
-			$id
-		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-		self::update($id, $fields);
-		
-		return $id;
-	}
-
-	/**
-	 * Update a DAO entity.
-	 *
-	 * @param integer $id
-	 * @param array $fields
-	 */
-	static function update($id, $fields) {
-		parent::_update($id,self::$properties['table'],$fields);
-	}
-	
-	/**
-	 * Get multiple DAO entities.
-	 *
-	 * @param array $ids
-	 * @return Model_DashboardViewAction[]
-	 */
-	static function getList($ids=array()) {
-		if(!is_array($ids)) $ids = array($ids);
-		$db = DevblocksPlatform::getDatabaseService();
-		$objects = array();
-		
-		$sql = sprintf("SELECT id, dashboard_view_id, name, worker_id, params ".
-			"FROM %s ".
-			(!empty($ids) ? sprintf("WHERE id IN (%s) ",implode(',',$ids)) : ""),
-				self::$properties['table']
-		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-		if($rs->NumRows())
-		while(!$rs->EOF) {
-			$object = new Model_DashboardViewAction();
-			$object->id = intval($rs->Fields('id'));
-			$object->dashboard_view_id = intval($rs->Fields('dashboard_view_id'));
-			$object->name = $rs->Fields('name');
-			$object->worker_id = intval($rs->Fields('worker_id'));
-			
-			$params = $rs->Fields('params');
-			$object->params = !empty($params) ? unserialize($params) : array();
-			
-			$objects[$object->id] = $object;
-			$rs->MoveNext();
-		}
-		
-		return $objects;
-	}
-	
-	/**
-	 * Get a single DAO entity.
-	 *
-	 * @param integer $id
-	 * @return Model_DashboardViewAction
-	 */
-	static function get($id) {
-		if(empty($id)) return NULL;
-		
-		$results = self::getList(array($id));
-		
-		if(isset($results[$id])) 
-			return $results[$id];
-			
-		return NULL;
-	}
-	
-	/**
-	 * Delete a DAO entity.
-	 *
-	 * @param integer $id
-	 */
-	static function delete($id) {
-		$db = DevblocksPlatform::getDatabaseService();
-		
-		$sql = sprintf("DELETE FROM %s WHERE %s = %d",
-			self::$properties['table'],
-			self::$properties['id_column'],
-			$id
-		);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-		// [TODO]: Don't forget to also cascade deletes for foreign keys.
-	}
-	
-};
-
-/**
- * Enter description here...
- * 
- * @addtogroup dao
- */
-class DAO_Search {
-	// [JAS]: [TODO] Implement Agent ID lookup
-	
-	/**
-	 * Enter description here...
-	 *
-	 * @param integer $agent_id
-	 * @return CerberusDashboardView[]
-	 */
-	static function getSavedSearches($agent_id) {
-		$db = DevblocksPlatform::getDatabaseService();
-		$searches = array();
-		
-		$sql = sprintf("SELECT v.id, v.name, v.dashboard_id, v.type, v.view_columns, v.num_rows, v.sort_by, v.sort_asc, v.page, v.params ".
-			"FROM dashboard_view v ".
-			"WHERE v.type = 'S' "
-		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-
-		while(!$rs->EOF) {
-			$view = new CerberusDashboardView();
-			$view->id = $rs->fields['id'];
-			$view->name = $rs->fields['name'];
-			$view->dashboard_id = intval($rs->fields['dashboard_id']);
-			$view->type = $rs->fields['type'];
-//			$view->agent_id = intval($rs->fields['agent_id']);
-			$view->columns = unserialize($rs->fields['view_columns']);
-			$view->params = unserialize($rs->fields['params']);
-			$view->renderLimit = intval($rs->fields['num_rows']);
-			$view->renderSortBy = $rs->fields['sort_by'];
-			$view->renderSortAsc = intval($rs->fields['sort_asc']);
-			$view->renderPage = intval($rs->fields['page']);
-			$searches[$view->id] = $view; 
-			$rs->MoveNext();
-		}
-		
-		return $searches;
-	}
-};
-
-//class DAO_TeamCategory {
-//	public static function create($fields) {
-//		$db = DevblocksPlatform::getDatabaseService();
-//		$id = $db->GenID('generic_seq');
-//		
-//		$sql = sprintf("INSERT INTO team",
-//			
-//		);
-//		$rs= $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-//		
-//	}
-//	public static function update($id,$fields) {
-//		
-//	}
-//	public static function get($id) {
-//		
-//	}
-//	public static function getList($ids=array()) {
-//		
-//	}
-//	public static function delete($id) {
-//		// [TODO] cascade foreign key constraints	
-//	}
-//	public static function search() {
-//		
-//	}
-//};
 
 /**
  * Enter description here...
@@ -3482,28 +3009,6 @@ class DAO_Mail {
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 	}
 	
-//	static function searchAddresses($query, $limit=10) {
-//		$db = DevblocksPlatform::getDatabaseService();
-//		if(empty($query)) return null;
-//		
-//		$sql = sprintf("SELECT a.id FROM address a WHERE a.email LIKE '%s%%' LIMIT 0,%d",
-//			$query,
-//			$limit
-//		);
-//		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-//		
-//		$ids = array();
-//		
-//		while(!$rs->EOF) {
-//			$ids[] = intval($rs->fields['id']);
-//			$rs->MoveNext();
-//		}
-//		
-//		if(empty($ids))
-//			return array();
-//			
-//	}
-	
 	static function getTokenizedText($ticket_id, $source_text) {
 		// TODO: actually implement this function...
 		return $source_text;
@@ -3603,258 +3108,6 @@ class DAO_Mail {
 		
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 	}
-};
-
-// [TODO] Nuke/Move to KB Plugin
-class DAO_Kb {
-	
-	/**
-	 * @return integer
-	 */
-	static function createCategory($name, $parent_id=0) {
-		if(empty($name)) return null;
-		
-		$db = DevblocksPlatform::getDatabaseService();
-		$id = $db->GenID('generic_seq');
-		
-		$sql = sprintf("INSERT INTO kb_category (id,name,parent_id) ".
-			"VALUES (%d,%s,%d)",
-			$id,
-			$db->qstr($name),
-			$parent_id
-		);
-		
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-		return $id;
-	}
-	
-	static function getCategory($id) {
-		$categories = DAO_Kb::getCategories(array($id));
-		
-		if(isset($categories[$id]))
-			return $categories[$id];
-			
-		return null;
-	}
-	
-	static function getBreadcrumbTrail(&$tree,$id) {
-		$trail = array();
-		$p = $id;
-		do {
-			$trail[] =& $tree[$p];
-			$p = $tree[$p]->parent_id; 		
-		} while($p >= 0);
-		$trail = array_reverse($trail,true);
-		return $trail;
-	}
-	
-	/*
-	 * @return array
-	 */
-	static private function _getCategoryResourceTotals() {
-		$db = DevblocksPlatform::getDatabaseService();
-		$totals = array();
-		
-		$sql = sprintf("SELECT kbc.category_id, count(kb.id) as hits ".
-			"FROM kb ".
-			"INNER JOIN kb_to_category kbc ON (kb.id=kbc.kb_id) ".
-			"GROUP BY kbc.category_id"
-		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-		while(!$rs->EOF) {
-			$id = intval($rs->fields['category_id']);
-			$hits = intval($rs->fields['hits']);
-			$totals[$id] = $hits;
-			$rs->MoveNext();
-		}
-		
-		return $totals;
-	}
-	
-	static function getCategoryTree() {
-
-		// [JAS]: Root node
-		$rootNode = new CerberusKbCategory();
-		$rootNode->id = 0;
-		$rootNode->name = 'Top';
-		$rootNode->parent_id = -1;
-		
-		$tree = DAO_Kb::getCategories();
-		$tree[0] = $rootNode;
-		
-		// [JAS]: Pointer hash
-		foreach($tree as $catid => $cat) { /* @var $cat CerberusKbCategory */
-			if(isset($tree[$cat->parent_id]) && $cat->parent_id != $catid) {
-				$children =& $tree[$cat->parent_id]->children;
-				$children[$catid] =& $tree[$catid];
-			}
-		}
-
-		// [JAS]: Alphabetize children
-		foreach($tree as $catid => $cat) { /* @var $cat CerberusKbCategory */
-			$func = create_function('$a,$b', 'return strcasecmp($a->name,$b->name);');
-			uasort($cat->children, $func);
-		}
-		
-		// [JAS]: Recursively total resources
-		$totals = DAO_Kb::_getCategoryResourceTotals();
-		foreach($totals as $catid => $hits) {
-			$ptrid = $catid;
-			do {
-				$ptr =& $tree[$ptrid];
-				$ptr->hits += $hits;
-				$ptrid = $ptr->parent_id;
-			} while($ptrid >= 0);
-		}
-		
-		return $tree;
-	}
-	
-	static function buildTreeMap($tree,&$map,$position=0) {
-		static $level = 0;
-		$node =& $tree[$position];
-		
-		$level++;
-		
-		if(is_array($node->children))
-		foreach($node->children as $ck => $cv) {
-			$map[$ck] = $level;
-			DAO_Kb::buildTreeMap($tree,$map,$ck);
-		}
-		
-		$level--;
-	}
-	
-	static function getCategories($ids=array()) {
-		if(!is_array($ids)) $ids = array($ids);
-		
-		$db = DevblocksPlatform::getDatabaseService();
-		$categories = array();
-		
-		$sql = "SELECT kc.id, kc.name, kc.parent_id ".
-			"FROM kb_category kc ".
-			(!empty($ids) ? sprintf("WHERE kc.id IN (%s) ",implode(',', $ids)) : " ").
-			"ORDER BY kc.id";
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-		while(!$rs->EOF) {
-			$category = new CerberusKbCategory();
-			$category->id = intval($rs->fields['id']);
-			$category->name = $rs->fields['name'];
-			$category->parent_id = intval($rs->fields['parent_id']);
-			$categories[$category->id] = $category;
-			$rs->MoveNext();
-		}
-		
-		return $categories;
-	}
-	
-	static function updateCategory($id, $fields) {
-		
-	}
-	
-	static function deleteCategory($id) {
-		if(empty($id)) return null;
-		$db = DevblocksPlatform::getDatabaseService();
-		$db->Execute(sprintf("DELETE FROM kb_category WHERE id = %d",$id)) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-
-        DAO_TeamRoutingRule::deleteByMoveCodes(array('c'.$id));		
-	}
-	
-	static function createResource($title,$type=CerberusKbResourceTypes::ARTICLE) {
-		if(empty($title)) return null;
-		
-		$db = DevblocksPlatform::getDatabaseService();
-		$id = $db->GenID('kb_seq');
-		
-		$sql = sprintf("INSERT INTO (id,title,type) ".
-			"VALUES (%d,%s,%s)",
-			$id,
-			$db->qstr($title),
-			$db->qstr($type)
-		);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-		return $id;
-	}
-	
-	static function getResource($id) {
-		if(empty($id)) return null;
-		
-		$resources = DAO_Kb::getResources(array($id));
-		
-		if(isset($resources[$id]))
-			return $resources[$id];
-			
-		return null;
-	}
-	
-	static function getResources($ids=array()) {
-		if(!is_array($ids)) $ids = array($ids);
-		
-		$db = DevblocksPlatform::getDatabaseService();
-		$resources = array();
-		
-		$sql = "SELECT kb.id, kb.title, kb.type ".
-			"FROM kb ".
-			((!empty($ids)) ? sprintf("WHERE kb.id IN (%s) ",implode(',',$ids)) : " ").
-			"ORDER BY kb.title";
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-		while(!$rs->EOF) {
-			$resource = new CerberusKbResource();
-			$resource->id = intval($rs->fields['id']);
-			$resource->title = $rs->fields['title'];
-			$resource->type = $rs->fields['type'];
-			$resources[$resource->id] = $resource;
-			$rs->MoveNext();
-		}
-			
-		return $resources;		
-	}
-	
-	static function updateResource($id, $fields) {
-		
-	}
-	
-	static function deleteResource($id) {
-		if(empty($id)) return null;
-		$db = DevblocksPlatform::getDatabaseService();
-		
-		$sql = sprintf("DELETE FROM kb WHERE id = %d",$id);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-		$sql = sprintf("DELETE FROM kb_content WHERE kb_id = %d",$id);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-		$sql = sprintf("DELETE FROM kb_to_category WHERE kb_id = %d",$id);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-	}
-	
-	/**
-	 * Enter description here...
-	 *
-	 * @param integer $id
-	 * @param string $content
-	 */
-	static function setResourceContent($id, $content) {
-		$db = DevblocksPlatform::getDatabaseService();
-		$db->Replace('kb_content',array('kb_id'=>$id,'content'=>$db->qstr($content)),array('kb_id'),false);
-	}
-	
-	/**
-	 * Enter description here...
-	 *
-	 * @param integer $id
-	 * @return string
-	 */
-	static function getResourceContent($id) {
-		$content = "Content";
-		return $content;
-	}
-	
 };
 
 class DAO_Community extends DevblocksORMHelper {

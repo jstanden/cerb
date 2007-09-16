@@ -1,7 +1,7 @@
 <table cellpadding="0" cellspacing="0" border="0" width="98%">
 	<tr>
 		<td align="left" width="0%" nowrap="nowrap" style="padding-right:5px;"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/book_blue_view.gif{/devblocks_url}" align="absmiddle"></td>
-		<td align="left" width="100%" nowrap="nowrap"><h1>Search Knowledge</h1></td>
+		<td align="left" width="100%" nowrap="nowrap"><h1>Fetch &amp; Retrieve</h1></td>
 	</tr>
 </table>
 
@@ -11,6 +11,7 @@
 <input type="hidden" name="a" value="doFnr">
 <input type="hidden" name="view_id" value="{$view_id}">
 
+{if !empty($topics)}
 <table cellpadding="0" cellspacing="0" width="98%">
 <tr>
 	<td width="0%" nowrap="nowrap"><b>Keywords: </b></td>
@@ -46,6 +47,14 @@
 <div id="displayFnrMatches"></div>
 </form>
 </div>
+
+{else}{* end !empty($topics)*}
+
+No topics or resources have been configured.<br>
+<br>
+{if $active_worker->is_superuser}You're an administrator, why don't you <a href="{devblocks_url}c=config&a=fnr{/devblocks_url}">configure Fetch &amp; Retrieve?</a>{/if}
+
+{/if}
 
 <!-- 
 <input type="button" value="{$translate->_('common.save_changes')}" onclick="ajax.s('{$view_id}');">
