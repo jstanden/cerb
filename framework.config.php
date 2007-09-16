@@ -5,7 +5,7 @@ define('APP_DB_DATABASE','');
 define('APP_DB_USER','');
 define('APP_DB_PASS','');
 
-define('DEVBLOCKS_REWRITE', false);
+define('DEVBLOCKS_REWRITE', file_exists('.htaccess'));
 //define('DEVBLOCKS_LANGUAGE','en');
 //define('DEVBLOCKS_THEME','default');
 //define('DEVBLOCKS_DEBUG',true);
