@@ -253,7 +253,8 @@ class DevblocksProxy_Curl extends DevblocksProxy {
 
 class DevblocksRouter {
     function connect() {
-        list($local_path) = sscanf($_SERVER['REQUEST_URI'],LOCAL_BASE ."%s");
+   		$url = URL_REWRITE ? $_SERVER['REQUEST_URI'] : $_SERVER['PHP_SELF'];
+        list($local_path) = sscanf($url,LOCAL_BASE ."%s");
 //        echo "SRU: ",$_SERVER['REQUEST_URI'],"<BR>";
 //        echo "Localbase: ",LOCAL_BASE,"<BR>";
 //        echo $local_path,"<BR>";

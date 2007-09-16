@@ -11,3 +11,11 @@
 [ <a href="{devblocks_url}c=config&a=jobs{/devblocks_url}">scheduler</a> ] 
 [ <a href="{devblocks_url}c=config&a=licenses{/devblocks_url}">licenses</a> ] 
 <br>
+
+{if $install_dir_warning}
+<br>
+<div class="error">
+	Warning: The 'install' directory still exists.  This is a potential security risk.  Please delete it.
+</div>
+{/if}
+

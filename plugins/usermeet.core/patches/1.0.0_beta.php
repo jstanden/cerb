@@ -71,7 +71,7 @@ if(!isset($tables['community_session'])) {
 		session_id C(32) DEFAULT '' NOTNULL PRIMARY,
 		created I4 DEFAULT 0 NOTNULL,
 		updated I4 DEFAULT 0 NOTNULL,
-		properties B DEFAULT '' NOTNULL
+		properties B
 	";
 	$sql = $datadict->CreateTableSQL('community_session', $flds);
 	$datadict->ExecuteSQLArray($sql);
@@ -82,7 +82,7 @@ if(!isset($tables['community_tool_property'])) {
 	$flds ="
 		tool_code C(8) DEFAULT '' NOTNULL PRIMARY,
 		property_key C(64) DEFAULT '' NOTNULL PRIMARY,
-		property_value B DEFAULT '' NOTNULL
+		property_value B
 	";
 	$sql = $datadict->CreateTableSQL('community_tool_property', $flds);
 	$datadict->ExecuteSQLArray($sql);
@@ -94,7 +94,7 @@ if(!isset($tables['kb_article'])) {
 		id I4 DEFAULT 0 NOTNULL PRIMARY,
 		title C(128) DEFAULT '' NOTNULL,
 		code C(12) DEFAULT '' NOTNULL,
-		content XL DEFAULT '' NOTNULL
+		content XL
 	";
 	$sql = $datadict->CreateTableSQL('kb_article', $flds);
 	$datadict->ExecuteSQLArray($sql);

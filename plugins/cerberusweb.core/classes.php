@@ -2556,6 +2556,10 @@ class ChConfigurationPage extends CerberusPageExtension  {
 			echo "Access denied.";
 			return;
 		}
+
+		if(file_exists(APP_PATH . '/install/')) {
+			$tpl->assign('install_dir_warning', true);
+		}
 		
 		$response = DevblocksPlatform::getHttpResponse();
 		$stack = $response->path;

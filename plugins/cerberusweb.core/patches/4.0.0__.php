@@ -83,8 +83,8 @@ $tables['message'] = "
 	message_type C(1),
 	created_date I4,
 	address_id I4,
-	headers B DEFAULT '' NOTNULL,
-	content B DEFAULT '' NOTNULL
+	headers B,
+	content B
 ";
 // Spin headers + content blobs into their own table
 
@@ -100,7 +100,7 @@ $tables['attachment'] = "
 $tables['team'] = "
 	id I4 DEFAULT 0 NOTNULL PRIMARY,
 	name C(32) DEFAULT '' NOTNULL,
-	signature B DEFAULT ''
+	signature B
 ";
 
 $tables['category'] = "
@@ -183,7 +183,7 @@ $tables['worker'] ="
 	is_superuser I1 DEFAULT 0 NOTNULL,
 	can_delete I1 DEFAULT 0 NOTNULL,
 	last_activity_date I4,
-	last_activity B DEFAULT ''
+	last_activity B
 ";
 
 $tables['bayes_words'] = "
@@ -213,7 +213,7 @@ $tables['community'] = "
 $tables['worker_pref'] = "
 	worker_id I4 DEFAULT 0 NOTNULL PRIMARY,
 	setting C(32) DEFAULT '' NOTNULL PRIMARY,
-	value B DEFAULT ''
+	value B
 ";
 
 // Team Routing

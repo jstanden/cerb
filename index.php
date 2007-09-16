@@ -61,7 +61,7 @@ try {
 		|| DevblocksPlatform::isDatabaseEmpty())
 			throw new Exception("Database details not set.");
 } catch(Exception $e) {
-    header('Location: install/index.php'); // [TODO] change this to a meta redirect
+    header('Location: '.dirname($_SERVER['PHP_SELF']).'/install/index.php'); // [TODO] change this to a meta redirect
     exit;
 }
 

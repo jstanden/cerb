@@ -164,7 +164,7 @@ if(!isset($tables['group_setting'])) {
     $flds = "
 		group_id I4 DEFAULT 0 NOTNULL PRIMARY,
 		setting C(64) DEFAULT '' NOTNULL PRIMARY,
-		value B DEFAULT '' NOTNULL
+		value B
 	";
     $sql = $datadict->CreateTableSQL('group_setting',$flds);
     $datadict->ExecuteSQLArray($sql);
@@ -177,7 +177,7 @@ if(!isset($tables['mail_template_reply'])) {
 		title C(64) DEFAULT '' NOTNULL,
 		description C(255) DEFAULT '' NOTNULL,
 		folder C(64) DEFAULT '' NOTNULL,
-		content B DEFAULT '' NOTNULL,
+		content B,
 		owner_id I4 DEFAULT 0 NOTNULL
 	";
     $sql = $datadict->CreateTableSQL('mail_template_reply',$flds);
@@ -189,7 +189,7 @@ if(!isset($tables['mail_template_reply'])) {
 if(!isset($tables['message_content'])) {
     $flds = "
 		message_id I4 DEFAULT 0 NOTNULL PRIMARY,
-		content B DEFAULT '' NOTNULL
+		content B
 	";
     $sql = $datadict->CreateTableSQL('message_content',$flds);
     $datadict->ExecuteSQLArray($sql);
@@ -202,7 +202,7 @@ if(!isset($tables['message_header'])) {
 		message_id I4 DEFAULT 0 NOTNULL PRIMARY,
 		header_name C(64) DEFAULT '' NOTNULL PRIMARY,
 		ticket_id I4 DEFAULT 0 NOTNULL,
-		header_value B DEFAULT '' NOTNULL
+		header_value B
 	";
     $sql = $datadict->CreateTableSQL('message_header',$flds);
     $datadict->ExecuteSQLArray($sql);
@@ -225,7 +225,7 @@ if(!isset($tables['message_note'])) {
 		message_id I4 DEFAULT 0 NOTNULL,
 		worker_id I4 DEFAULT 0 NOTNULL,
 		created I4 DEFAULT 0 NOTNULL,
-		content B DEFAULT '' NOTNULL
+		content B
 	";
     $sql = $datadict->CreateTableSQL('message_note',$flds);
     $datadict->ExecuteSQLArray($sql);
@@ -267,7 +267,7 @@ $columns = $datadict->MetaColumns('setting');
 
 if(255 == $columns['VALUE']->max_length) {
 	$datadict->ExecuteSQLArray($datadict->RenameColumnSQL('setting', 'value', 'value_old',"value_old C(255) DEFAULT '' NOTNULL"));
-	$datadict->ExecuteSQLArray($datadict->AddColumnSQL('setting', "value B DEFAULT '' NOTNULL"));
+	$datadict->ExecuteSQLArray($datadict->AddColumnSQL('setting', "value B"));
 	
 	$sql = "SELECT setting, value_old FROM setting ";
 	$rs = $db->Execute($sql);
@@ -429,7 +429,7 @@ if(!isset($tables['ticket_rss'])) {
 		title C(128) DEFAULT '' NOTNULL,
 		worker_id I4 DEFAULT 0 NOTNULL,
 		created I4 DEFAULT 0 NOTNULL,
-		params B DEFAULT '' NOTNULL
+		params B
 	";
     $sql = $datadict->CreateTableSQL('ticket_rss',$flds);
     $datadict->ExecuteSQLArray($sql);

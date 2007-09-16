@@ -42,7 +42,7 @@
 <div class="block">
 <h2>IP Security</h2>
 <br>
-<b>Allow administration tools from these IPs:</b> (one IP address per line)
+<b>Allow remote administration tools (upgrade, cron) from these IPs:</b> (one IP per line)
 <br>
 <textarea name="authorized_ips" rows="5" cols="24" style="width: 400;">{$settings->get('authorized_ips')|escape:"html"}</textarea>	
 <br>
