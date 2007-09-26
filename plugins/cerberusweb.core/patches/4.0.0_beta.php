@@ -93,6 +93,17 @@ if(!isset($indexes['contact_org_id'])) {
     $datadict->ExecuteSQLArray($sql);
 }
 
+// `address_auth` =============================
+if(!isset($tables['address_auth'])) {
+    $flds = "
+		address_id I4 DEFAULT 0 NOTNULL PRIMARY,
+		confirm C(16) DEFAULT '' NOTNULL,
+		pass C(32) DEFAULT '' NOTNULL
+	";
+    $sql = $datadict->CreateTableSQL('address_auth',$flds);
+    $datadict->ExecuteSQLArray($sql);
+}
+
 // `contact_org` =============================
 if(!isset($tables['contact_org'])) {
     $flds = "

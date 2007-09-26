@@ -52,6 +52,9 @@
  * @author Jeff Standen <jeff@webgroupmedia.com> [JAS]
  */
 
+if(version_compare(PHP_VERSION, "5.1.2", "<"))
+	die("Cerberus Helpdesk 4.0 requires PHP 5.1.2 or later.");
+
 @set_time_limit(3600);
 require('../framework.config.php');
 require_once(DEVBLOCKS_PATH . 'Devblocks.class.php');

@@ -101,9 +101,10 @@ class UmPortalController extends DevblocksControllerExtension {
         if(null != (@$tool = $this->hash[$code])) {
 	        // [TODO] Don't double instance any apps (add instance registry to ::getExtension?)
 	        $manifest = DevblocksPlatform::getExtension($tool->extension_id);
-            $tool = $manifest->createInstance(); /* @var $app Extension_UsermeetTool */
-			$tool->setPortal($code); // [TODO] Kinda hacky
-	        return $tool->handleRequest(new DevblocksHttpRequest($stack));
+            if(null != ($tool = $manifest->createInstance())) { /* @var $app Extension_UsermeetTool */
+				$tool->setPortal($code); // [TODO] Kinda hacky
+	        	return $tool->handleRequest(new DevblocksHttpRequest($stack));
+            }
         } else {
             die("Tool not found.");
         }
@@ -128,9 +129,10 @@ class UmPortalController extends DevblocksControllerExtension {
         if(null != ($tool = $this->hash[$code])) {
 	        // [TODO] Don't double instance any apps (add instance registry to ::getExtension?)
 	        $manifest = DevblocksPlatform::getExtension($tool->extension_id);
-            $tool = $manifest->createInstance(); /* @var $app Extension_UsermeetTool */
-			$tool->setPortal($code); // [TODO] Kinda hacky
-	        $tool->writeResponse(new DevblocksHttpResponse($stack));
+            if(null != ($tool = $manifest->createInstance())) { /* @var $app Extension_UsermeetTool */
+				$tool->setPortal($code); // [TODO] Kinda hacky
+		        $tool->writeResponse(new DevblocksHttpResponse($stack));
+            }
         } else {
             die("Tool not found.");
         }
@@ -303,9 +305,10 @@ class UmCommunityPage extends CerberusPageExtension {
 		if(null != ($instance = DAO_CommunityTool::getByCode($portal))) {
 			$tpl->assign('instance', $instance);
 			$manifest = DevblocksPlatform::getExtension($instance->extension_id);
-            $tool = $manifest->createInstance(); /* @var $app Extension_UsermeetTool */
-			$tool->setPortal($portal); // [TODO] Kinda hacky
-        	$tpl->assign('tool', $tool);
+            if(null != ($tool = $manifest->createInstance())) { /* @var $app Extension_UsermeetTool */
+				$tool->setPortal($portal); // [TODO] Kinda hacky
+        		$tpl->assign('tool', $tool);
+            }
 		}
         
         // Community Record

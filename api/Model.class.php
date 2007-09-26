@@ -263,6 +263,12 @@ class Model_Address {
 	function Model_Address() {}
 };
 
+class Model_AddressAuth {
+	public $address_id;
+	public $confirm;
+	public $pass;
+}
+
 class C4_TicketView extends C4_AbstractView {
 	const DEFAULT_ID = 'tickets_workspace';
 	
@@ -811,7 +817,8 @@ class C4_AddressView extends C4_AbstractView {
 	}
 	
 	static function getColumns() {
-		return self::getFields();
+		$fields = self::getFields();
+		return $fields;
 	}
 	
 	function doSetCriteria($field, $oper, $value) {
@@ -1358,6 +1365,28 @@ class Model_FnrExternalResource {
 	public $name = '';
 	public $url = '';
 	public $topic_id = 0;
+	
+	public static function searchResources($resources, $query) {
+		$feeds = array();
+		
+		$topics = DAO_FnrTopic::getWhere();
+		
+		if(is_array($resources))
+    	foreach($resources as $resource) { /* @var $resource Model_FnrExternalResource */
+	    	try {
+	    		$url = str_replace("#find#",rawurlencode($query),$resource->url);
+	    		$feed = Zend_Feed::import($url);
+	   			if($feed->count())
+	   				$feeds[] = array(
+	   					'name' => $resource->name,
+	   					'topic_name' => @$topics[$resource->topic_id]->name, 
+	   					'feed' => $feed
+	   				);
+	    	} catch(Exception $e) {}
+    	}
+    	
+    	return $feeds;
+	}
 };
 
 class Model_MailTemplateReply {

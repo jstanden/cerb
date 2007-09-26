@@ -52,6 +52,9 @@
 				<seg>next</seg>
 			</tuv>
 		</tu>
+		<tu tuid='common.password'>
+			<tuv xml:lang="en"><seg>password</seg></tuv>
+		</tu>
 		<tu tuid='common.prev'>
 			<tuv xml:lang="en">
 				<seg>prev</seg>

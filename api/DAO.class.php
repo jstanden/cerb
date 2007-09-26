@@ -887,8 +887,11 @@ class DAO_Address extends DevblocksORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
         
         $address_ids = implode(',', $ids);
+        
         $sql = sprintf("DELETE FROM address WHERE id IN (%s)", $address_ids);
         $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+
+        DAO_AddressAuth::delete($ids);
     }
 		
 	static function getWhere($where=null) {
@@ -917,7 +920,13 @@ class DAO_Address extends DevblocksORMHelper {
 		
 		return $addresses;
 	}
-	
+
+	/**
+	 * Enter description here...
+	 *
+	 * @param unknown_type $id
+	 * @return Model_Address
+	 */
 	static function get($id) {
 		if(empty($id)) return null;
 		
@@ -933,6 +942,13 @@ class DAO_Address extends DevblocksORMHelper {
 		return null;		
 	}
 	
+	/**
+	 * Enter description here...
+	 *
+	 * @param unknown_type $email
+	 * @param unknown_type $create_if_null
+	 * @return Model_Address
+	 */
 	static function lookupAddress($email,$create_if_null=false) {
 		$db = DevblocksPlatform::getDatabaseService();
 		$id = null;
@@ -1046,6 +1062,84 @@ class SearchFields_Address implements IDevblocksSearchFields {
 	}
 };
 
+class DAO_AddressAuth extends DevblocksORMHelper  {
+	const ADDRESS_ID = 'address_id';
+	const CONFIRM = 'confirm';
+	const PASS = 'pass';
+	
+	static function update($id, $fields) {
+		$db = DevblocksPlatform::getDatabaseService();
+		$auth = self::get($id);
+		
+		// Create if necessary
+		if(empty($auth)) {
+			$sql = sprintf("INSERT INTO address_auth (address_id, confirm, pass) ".
+				"VALUES (%d, '', '')",
+				$id
+			);
+			$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		}
+		unset($auth);
+		
+		parent::_update($id, 'address_auth', $fields, self::ADDRESS_ID);
+	}
+	
+	/**
+	 * Enter description here...
+	 *
+	 * @param unknown_type $id
+	 * @return Model_AddressAuth
+	 */
+	static function get($id) {
+		$addresses = self::getWhere(sprintf("%s = %d",self::ADDRESS_ID,$id));
+		
+		if(isset($addresses[$id]))
+			return $addresses[$id];
+			
+		return null;		
+	}
+
+	/**
+	 * Enter description here...
+	 *
+	 * @param unknown_type $where
+	 * @return Model_AddressAuth[]
+	 */
+	static function getWhere($where=null) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = "SELECT address_id, confirm, pass ".
+			"FROM address_auth ".
+			(!empty($where) ? sprintf("WHERE %s ", $where) : "")
+		;
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+
+		$objects = array();
+		
+		while(!$rs->EOF) {
+			$object = new Model_AddressAuth();
+			$object->address_id = intval($rs->fields['address_id']);
+			$object->confirm = $rs->fields['confirm'];
+			$object->pass = $rs->fields['pass'];
+			$objects[$object->address_id] = $object;
+			$rs->MoveNext();
+		}
+		
+		return $objects;
+	}
+	
+	static function delete($ids) {
+        if(!is_array($ids)) $ids = array($ids);
+        if(empty($ids)) return;
+
+		$db = DevblocksPlatform::getDatabaseService();
+        
+        $address_ids = implode(',', $ids);
+        $sql = sprintf("DELETE FROM address_auth WHERE address_id IN (%s)", $address_ids);
+        $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+	}
+};
+
 class DAO_Message extends DevblocksORMHelper {
     const ID = 'id';
     const TICKET_ID = 'ticket_id';
@@ -1062,7 +1156,6 @@ class DAO_Message extends DevblocksORMHelper {
 			"VALUES (%d,0,'',0,0)",
 			$newId
 		);
-		
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 
 		self::update($newId, $fields);
@@ -3762,6 +3855,7 @@ class DAO_FnrExternalResource extends DevblocksORMHelper {
 		
 		return $objects;
 	}
+	
 };
 
 class DAO_MailTemplateReply extends DevblocksORMHelper {

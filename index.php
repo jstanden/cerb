@@ -49,21 +49,21 @@
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
 
+if(version_compare(PHP_VERSION, "5.1.2", "<"))
+	die("Cerberus Helpdesk 4.0 requires PHP 5.1.2 or later.");
+
 require(getcwd() . '/framework.config.php');
 require(DEVBLOCKS_PATH . 'Devblocks.class.php');
 
 // If this is our first run, redirect to the installer
-try {
-	if('' == APP_DB_DRIVER 
-		|| '' == APP_DB_HOST 
-		|| '' == APP_DB_DATABASE 
-		|| null == ($db = DevblocksPlatform::getDatabaseService())
-		|| DevblocksPlatform::isDatabaseEmpty())
-			throw new Exception("Database details not set.");
-} catch(Exception $e) {
-    header('Location: '.dirname($_SERVER['PHP_SELF']).'/install/index.php'); // [TODO] change this to a meta redirect
-    exit;
-}
+if('' == APP_DB_DRIVER 
+	|| '' == APP_DB_HOST 
+	|| '' == APP_DB_DATABASE 
+	|| null == ($db = DevblocksPlatform::getDatabaseService())
+	|| DevblocksPlatform::isDatabaseEmpty()) {
+   		header('Location: '.dirname($_SERVER['PHP_SELF']).'/install/index.php'); // [TODO] change this to a meta redirect
+   		exit;
+	}
 
 // [TODO] We could also put a temporary lock mode for upgrades here
 

@@ -54,7 +54,7 @@
 		
 		<extension point="usermeet.tool">
 			<id>kb.tool</id>
-			<name>Knowledgebase</name>
+			<name>Public Knowledgebase</name>
 			<class>
 				<file>classes.php</file>
 				<name>UmKbApp</name>

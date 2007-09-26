@@ -10,11 +10,13 @@ Community: <b>{$community->name}</b><br>
 Profile ID: <b>{$instance->code}</b><br>
 <br>
 
+{if !empty($instance) && !empty($tool)}
 {$tool->configure($instance)}
+{/if}
 
 <br>
 <button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/disk_blue_ok.gif{/devblocks_url}" align="top"> {'Save & Continue'|capitalize}</button>
 <button type="button" onclick="this.form.finished.value='1';this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {'Save & Finish'|capitalize}</button>
-{if !empty($tool)}<button type="button" onclick="{literal}if(confirm('Are you sure you want to permanently delete this community tool?')){this.form.delete.value='1';this.form.submit();}{/literal}"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete2.gif{/devblocks_url}" align="top"> {$translate->_('common.delete')|capitalize}</button>{/if}
+{if !empty($instance)}<button type="button" onclick="{literal}if(confirm('Are you sure you want to permanently delete this community tool?')){this.form.delete.value='1';this.form.submit();}{/literal}"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete2.gif{/devblocks_url}" align="top"> {$translate->_('common.delete')|capitalize}</button>{/if}
 <button type="button" onclick="javascript:document.location='{devblocks_url}c=community{/devblocks_url}';"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> {$translate->_('common.cancel')|capitalize}</button>
 

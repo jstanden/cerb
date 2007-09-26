@@ -4440,8 +4440,6 @@ class ChDisplayPage extends CerberusPageExtension {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		
-		$topics = DAO_FnrTopic::getWhere();
-		
     	$feeds = array();
     	$where = null;
     	
@@ -4453,19 +4451,7 @@ class ChDisplayPage extends CerberusPageExtension {
     	}
     	
     	$resources = DAO_FnrExternalResource::getWhere($where);
-    	
-    	foreach($resources as $resource) { /* @var $resource Model_FnrExternalResource */
-	    	try {
-	    		$url = str_replace("#find#",urlencode($q),$resource->url);
-	    		$feed = Zend_Feed::import($url);
-	   			if($feed->count())
-	   				$feeds[] = array(
-	   					'name' => $resource->name,
-	   					'topic_name' => @$topics[$resource->topic_id]->name, 
-	   					'feed' => $feed
-	   				);
-	    	} catch(Exception $e) {}
-    	}
+    	$feeds = Model_FnrExternalResource::searchResources($resources, $q);
 
     	$tpl->assign('terms', $q);
     	$tpl->assign('feeds', $feeds);
