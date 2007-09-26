@@ -454,7 +454,7 @@ class DAO_KbArticle extends DevblocksORMHelper {
 		$sql = "SELECT id, title, code, content ".
 			"FROM kb_article ".
 			(!empty($where)?sprintf("WHERE %s ",$where):" ").
-			"ORDER BY title "
+			"ORDER BY id DESC "
 			;
 		$rs = $db->Execute($sql);
 		
