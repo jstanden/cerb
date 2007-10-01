@@ -15,4 +15,3 @@
 	&nbsp; Jan 9 2002<br>
 </blockquote>
 
-<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>

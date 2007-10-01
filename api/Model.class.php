@@ -439,6 +439,7 @@ class C4_TicketView extends C4_AbstractView {
 				foreach($values as $val) {
 					if(!isset($teams[$val]))
 						continue;
+						
 					$strings[] = $teams[$val]->name;
 				}
 				echo implode(", ", $strings);
@@ -449,9 +450,13 @@ class C4_TicketView extends C4_AbstractView {
 				$strings = array();
 				
 				foreach($values as $val) {
-					if(!isset($buckets[$val]))
+					if(0==$val) {
+						$strings[] = "Inbox";
+					} elseif(!isset($buckets[$val])) {
 						continue;
-					$strings[] = $buckets[$val]->name;
+					} else {
+						$strings[] = $buckets[$val]->name;
+					}
 				}
 				echo implode(", ", $strings);
 				break;
@@ -962,6 +967,21 @@ class Model_ContactOrg {
 	public $sync_id = '';
 };
 
+class Model_WorkerWorkspaceList {
+	public $id = 0;
+	public $worker_id = 0;
+	public $workspace = '';
+	public $list_view = '';
+};
+
+class Model_WorkerWorkspaceListView {
+	public $title = 'New List';
+//	public $workspace = '';
+	public $columns = array();
+	public $num_rows = 10;
+	public $params = array();
+};
+
 class Model_WorkerPreference {
     public $setting = '';
     public $value = '';
@@ -1089,6 +1109,8 @@ class CerberusVisit extends DevblocksVisit {
 	const KEY_DASHBOARD_ID = 'cur_dashboard_id';
 	const KEY_WORKSPACE_GROUP_ID = 'cur_group_id';
 	const KEY_VIEW_LAST_ACTION = 'view_last_action';
+	const KEY_MY_WORKSPACE = 'view_my_workspace';
+	const KEY_MAIL_MODE = 'mail_mode';
 
 	public function __construct() {
 		$this->worker = null;

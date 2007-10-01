@@ -128,7 +128,7 @@ class HostingDataset extends SimulatorDataset {
 		$this->addEmailTemplate('How long for new ##product##?','I just ##signup_past## ##product##.  How long does it take to get my new account ##online##?');
 		$this->addEmailTemplate('how much is ##product##?','Where can I find the ##cost## for ##product##?');
 		$this->addEmailTemplate('##refund##?','I don\'t like your ##feature##.  How can I get ##refund##?');
-		$this->addEmailTemplate('different options for ##product##?','Do you ##offer## different options for ##product##?  I could\'nt find the info on your website.');
+		$this->addEmailTemplate('different options for ##product##?','Do you ##offer## different options for ##product##?  I couldn\'t find the info on your website.');
 		$this->addEmailTemplate('Need help','How do I ##web_action## ##filetype## files?');
 		$this->addEmailTemplate('How can I pay?','What ##types## of ##payment## do you accept for ##product##?');
 		$this->addEmailTemplate('Hosting Industry Newsletter (The Future of ##using_tool##?)',"===============\r\nHOSTING TOOLS\r\n===============\r\nDid you know ##using_percent## website owners are using ##using_tool## compared to last year?\r\n\r\n===============\r\nPRICING\r\n===============\r\nThis week the average website owner surveyed said they would pay ##hosting_mopay##/mo for ##product##.",'"Hosting Industry News" <hosting-news@cerberusdemo.com>');

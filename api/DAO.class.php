@@ -348,12 +348,18 @@ class DAO_Worker extends DevblocksORMHelper {
 			$id
 		);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
+
+		// [TODO] Cascade using DAO_WorkerWorkspaceList::delete
+		$sql = sprintf("DELETE FROM worker_workspace_list WHERE worker_id = %d",
+			$id
+		);
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 	}
 	
 	static function login($email, $password) {
 		$db = DevblocksPlatform::getDatabaseService();
 
+		// [TODO] Uniquely salt hashes
 		$sql = sprintf("SELECT id ".
 			"FROM worker ".
 			"WHERE email = %s ".
@@ -3366,6 +3372,116 @@ class SearchFields_Community implements IDevblocksSearchFields {
 		);
 	}
 };	
+
+class DAO_WorkerWorkspaceList extends DevblocksORMHelper {
+	const ID = 'id';
+	const WORKER_ID = 'worker_id';
+	const WORKSPACE = 'workspace';
+	const LIST_VIEW = 'list_view';
+	
+	static function create($fields) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		if(empty($fields))
+			return NULL;
+		
+		$id = $db->GenID('generic_seq');
+		
+		$sql = sprintf("INSERT INTO worker_workspace_list (id, worker_id, workspace, list_view) ".
+			"VALUES (%d, 0, '', '')",
+			$id
+		);
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+
+		self::update($id, $fields);
+		
+		return $id;
+	}
+	
+	/**
+	 * Enter description here...
+	 *
+	 * @param integer $id
+	 * @return Model_WorkerWorkspaceList
+	 */
+	static function get($id) {
+		$objects = self::getWhere(sprintf("%s = %d",
+			self::ID,
+			$id
+		));
+		
+		if(isset($objects[$id]))
+			return $objects[$id];
+			
+		return null;
+	}
+	
+	/**
+	 * Enter description here...
+	 *
+	 * @param string $where
+	 * @return Model_WorkerWorkspaceList[]
+	 */
+	static function getWhere($where) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = "SELECT id, worker_id, workspace, list_view ".
+			"FROM worker_workspace_list ".
+			(!empty($where) ? sprintf("WHERE %s ",$where) : " ")
+			;
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+
+		$objects = array();
+		
+		while(!$rs->EOF) {
+			$object = new Model_WorkerWorkspaceList();
+			$object->id = intval($rs->fields['id']);
+			$object->worker_id = intval($rs->fields['worker_id']);
+			$object->workspace = $rs->fields['workspace'];
+			
+			$list_view = $rs->fields['list_view'];
+			if(!empty($list_view)) {
+				@$object->list_view = unserialize($list_view);
+			}
+			
+			$objects[$object->id] = $object;
+			$rs->MoveNext();
+		}
+		
+		return $objects;
+	}
+	
+	static function getWorkspaces($worker_id = 0) {
+		$workspaces = array();
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = "SELECT DISTINCT workspace AS workspace ".
+			"FROM worker_workspace_list ".
+			(!empty($worker_id) ? sprintf("WHERE worker_id = %d ",$worker_id) : " ").
+			"ORDER BY workspace";
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+
+		while(!$rs->EOF) {
+			$workspaces[] = $rs->fields['workspace'];
+			$rs->MoveNext();
+		}
+		
+		return $workspaces;
+	}
+	
+	static function update($ids, $fields) {
+		parent::_update($ids, 'worker_workspace_list', $fields);
+	}
+	
+	static function delete($ids) {
+		if(!is_array($ids)) $ids = array($ids);
+		
+		$db = DevblocksPlatform::getDatabaseService();
+		$ids_list = implode(',', $ids);
+		
+		$db->Execute(sprintf("DELETE FROM worker_workspace_list WHERE id IN (%s)", $ids_list)) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+	}
+};
 
 class DAO_WorkerPref extends DevblocksORMHelper {
     const SETTING_TEAM_MOVE_COUNTS = 'team_move_counts';

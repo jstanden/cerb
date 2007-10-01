@@ -464,6 +464,29 @@ if(!isset($columns['IS_MANAGER'])) {
     $datadict->ExecuteSQLArray($sql);
 }
 
+// `worker_workspace_list` =============================
+if(!isset($tables['worker_workspace_list'])) {
+    $flds = "
+		id I4 DEFAULT 0 NOTNULL PRIMARY,
+		worker_id I4 DEFAULT 0 NOTNULL,
+		workspace C(32) DEFAULT '' NOTNULL,
+		list_view XL
+	";
+    $sql = $datadict->CreateTableSQL('worker_workspace_list',$flds);
+    $datadict->ExecuteSQLArray($sql);
+}
+
+$indexes = $datadict->MetaIndexes('worker_workspace_list',false);
+
+if(!isset($indexes['worker_id'])) {
+    $sql = $datadict->CreateIndexSQL('worker_id','worker_workspace_list','worker_id');
+    $datadict->ExecuteSQLArray($sql);
+}
+if(!isset($indexes['workspace'])) {
+    $sql = $datadict->CreateIndexSQL('workspace','worker_workspace_list','workspace');
+    $datadict->ExecuteSQLArray($sql);
+}
+
 // ***** CloudGlue
 
 if(!isset($tables['tag_to_content'])) {

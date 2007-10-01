@@ -288,7 +288,7 @@
 		</tu>
 		<tu tuid='dashboard.add_view'>
 			<tuv xml:lang="en">
-				<seg>add ticket list</seg>
+				<seg>add worklist</seg>
 			</tuv>
 		</tu>
 		<tu tuid='dashboard.choose_column'>

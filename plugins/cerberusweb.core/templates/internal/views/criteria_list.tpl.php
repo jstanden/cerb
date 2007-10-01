@@ -49,7 +49,7 @@
 	<h2>Add Criteria</h2>
 	<b>Field:</b><br>
 	<blockquote style="margin:5px;">
-		<select name="field" onchange="genericAjaxGet('addCriteriaOptions','c=internal&a=viewGetCriteria&id={$view->id}&field='+selectValue(this));">
+		<select name="field" onchange="genericAjaxGet('addCriteriaOptions','c=internal&a=viewGetCriteria&id={$view->id}&field='+selectValue(this));toggleDiv('addCriteriaSave',(selectValue(this)!='')?'block':'none');">
 			<option value="">-- choose --</option>
 			{foreach from=$view_searchable_fields item=column key=token}
 				{if !empty($column->db_label) && !empty($token)}
@@ -60,6 +60,7 @@
 	</blockquote>
 
 	<div id="addCriteriaOptions"></div>
+	<div id="addCriteriaSave" style="display:none;"><br><button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button></div>
 	
 	</form>
 </div>

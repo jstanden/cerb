@@ -1,5 +1,5 @@
 <div style="position: relative; width:100%; height: 30;">
-	<span style="position: absolute; left: 0; top:0;"><h1 style="display:inline;">Workspaces</h1>&nbsp;
+	<span style="position: absolute; left: 0; top:0;"><h1 style="display:inline;">Group Workspaces</h1>&nbsp;
 		{include file="file:$path/tickets/menu.tpl.php"}
 	</span>
 	<span style="position: absolute; right: 0; top:0;">
