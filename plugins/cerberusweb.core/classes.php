@@ -121,7 +121,10 @@ class ChPageController extends DevblocksControllerExtension {
 	            
 	        default:
 			    // Default action, call arg as a method suffixed with Action
-				if($page->isVisible() && method_exists($page,$action)) {
+				if(!$page->isVisible())
+					die("Access denied.  Session expired?");
+					
+				if(method_exists($page,$action)) {
 					call_user_func(array(&$page, $action)); // [TODO] Pass HttpRequest as arg?
 				}
 	            break;
