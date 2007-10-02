@@ -3,7 +3,7 @@
 <form action="index.php" method="POST">
 <b>PHP Version... </b> 
 {if !$results.php_version}
-	<span class="bad">{$translate->_('installer.failed')}!  PHP 5.0.0 or later is required.</span>
+	<span class="bad">{$translate->_('installer.failed')}!  PHP 5.1.4 or later is required.</span>
 {else}
 	<span class="good">{$translate->_('installer.passed')}! (PHP {$results.php_version})</span>
 {/if}

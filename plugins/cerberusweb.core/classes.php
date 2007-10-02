@@ -98,7 +98,7 @@ class ChPageController extends DevblocksControllerExtension {
         $pages = DevblocksPlatform::getExtensions('cerberusweb.page', true);
 
         $page_id = $this->_getPageIdByUri($controller);
-        @$page = $pages[$page_id];
+        @$page = $pages[$page_id]; /* @var $page CerberusPageExtension */
 
         if(empty($page)) {
 	        switch($controller) {
@@ -121,7 +121,7 @@ class ChPageController extends DevblocksControllerExtension {
 	            
 	        default:
 			    // Default action, call arg as a method suffixed with Action
-				if(method_exists($page,$action)) {
+				if($page->isVisible() && method_exists($page,$action)) {
 					call_user_func(array(&$page, $action)); // [TODO] Pass HttpRequest as arg?
 				}
 	            break;
@@ -1783,7 +1783,7 @@ class ChTicketsPage extends CerberusPageExtension {
    	}
 
 	function changeDashboardAction() {
-		$dashboard_id = DevblocksPlatform::importGPC($_POST['dashboard_id'], 'string', '');
+		@$dashboard_id = DevblocksPlatform::importGPC($_POST['dashboard_id'], 'string', '');
 		$team_id = 0;
 
 		// Cache the current team id
