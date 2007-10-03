@@ -1,7 +1,7 @@
-<table cellpadding="2" cellspacing="0" border="0" width="100%">
+<table cellpadding="2" cellspacing="0" border="0" width="98%">
 <tr>
-	<td width="300" valign="top">
-		<div class="block">
+	<td width="0%" nowrap="nowrap" valign="top">
+		<div class="block" style="width:300px;">
 		<table cellpadding="2" cellspacing="0" border="0">
 		<tr>
 			<td><h2>Filters</h2></td>
@@ -23,8 +23,8 @@
 		<button type="button" onclick="this.form.a.value='viewAddFilter';genericAjaxPost('customize{$view->id}','viewCustomFilters{$view->id}','c=internal');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/data_error.gif{/devblocks_url}" align="top"> Delete</button>
 		</div>
 	</td>
-	<td valign="top">
-		<div class="block">
+	<td valign="top" width="100%">
+		<div class="block" style="width:98%;">
 			<h2>Add Filter</h2>
 			<b>Field:</b><br>
 			<blockquote style="margin:5px;">
@@ -38,7 +38,7 @@
 				</select>
 			</blockquote>
 		
-			<div id="addCriteria{$view->id}"></div>
+			<div id="addCriteria{$view->id}" style="background-color:rgb(255,255,255);"></div>
 			<button type="button" onclick="this.form.a.value='viewAddFilter';genericAjaxPost('customize{$view->id}','viewCustomFilters{$view->id}','c=internal');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/data_new.gif{/devblocks_url}" align="top"> Add Filter</button>
 		</div>		
 	</td>

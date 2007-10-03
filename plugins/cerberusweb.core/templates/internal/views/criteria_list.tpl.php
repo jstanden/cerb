@@ -59,7 +59,7 @@
 		</select>
 	</blockquote>
 
-	<div id="addCriteriaOptions"></div>
+	<div id="addCriteriaOptions" style="background-color:rgb(255,255,255);"></div>
 	<div id="addCriteriaSave" style="display:none;"><br><button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button></div>
 	
 	</form>

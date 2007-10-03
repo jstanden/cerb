@@ -97,7 +97,7 @@ abstract class Extension_UsermeetTool extends DevblocksExtension implements Devb
 	protected function getSession() {
 		$fingerprint = $this->getFingerprint();
 		
-		$session_id = md5($fingerprint['ip'] . $fingerprint['local_sessid']);
+		$session_id = md5($fingerprint['ip'] . $this->getPortal() . $fingerprint['local_sessid']);
 		$session = DAO_CommunitySession::get($session_id);
 		
 		return $session;

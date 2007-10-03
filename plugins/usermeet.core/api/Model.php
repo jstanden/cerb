@@ -87,6 +87,8 @@ class Model_KbArticle {
 	public $id = 0;
 	public $title = '';
 	public $code = '';
+	public $views = 0;
+	public $updated = 0;
 	public $content = '';
 };
 

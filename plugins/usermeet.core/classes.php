@@ -835,12 +835,48 @@ class UmKbApp extends Extension_UsermeetTool {
 	
 	const SESSION_CAPTCHA = 'write_captcha';
 	const SESSION_EDITOR = 'kb_editor';
+	const SESSION_ARTICLE_LIST = 'kb_article_list';
 	
-	const TAG_INDEX_KB = 'ch_kb';
+	const TAG_INDEX_PREFIX = 'ch_kb';
 	
     function __construct($manifest) {
         parent::__construct($manifest);
         $filepath = realpath(dirname(__FILE__)) . DIRECTORY_SEPARATOR;
+    }
+    
+    private function _getTagIndex() {
+    	return self::TAG_INDEX_PREFIX . $this->getPortal();
+    }
+    
+    private function _writeArticlesAsRss($articles, $title) {
+		$url_writer = DevblocksPlatform::getUrlService();
+	
+		$aFeed = array(
+			'title' => $title,
+	    	'link' => $url_writer->write('', true),
+			'charset' => 'iso-8859-1',
+			'entries' => array(),
+		);
+		
+		foreach($articles as $article_id => $article) {
+			$summary = substr(strip_tags($article->content),0,255) . (strlen($article->content)>255?'...':'');
+			
+			$aEntry = array(
+				'title' => $article->title,
+				'link' => $url_writer->write('c=article&id='.$article_id, true),
+				'lastUpdate' => $article->updated,
+				'published' => $article->updated,
+				'guid' => md5($article->title.$article->updated),
+				'description' => $summary,
+				'content' => $article->content,
+			);
+			$aFeed['entries'][] = $aEntry;
+		}
+		unset($articles);
+	
+		$rssFeed = Zend_Feed::importArray($aFeed, 'rss');
+		
+		echo $rssFeed->saveXML();				
     }
     
 	public function writeResponse(DevblocksHttpResponse $response) {
@@ -872,37 +908,69 @@ class UmKbApp extends Extension_UsermeetTool {
 		switch(array_shift($stack)) {
 			case 'rss':
 				switch(array_shift($stack)) {
+					case 'recent_changes':
+						list($results, $null) = DAO_KbArticle::search(
+							array(
+								new DevblocksSearchCriteria(SearchFields_KbArticle::CODE,'=',$this->getPortal())
+							),
+							25,
+							0,
+							SearchFields_KbArticle::UPDATED,
+							false,
+							false
+						);
+						
+						if(is_array($results) && !empty($results))
+						$full_articles = DAO_KbArticle::getWhere(sprintf("%s IN (%s)",
+							DAO_KbArticle::ID,
+							implode(',', array_keys($results))
+						));
+						
+						$order= array_keys($results);
+						$articles = array();
+						foreach($order as $id) {
+							$articles[$id] =& $full_articles[$id];
+						}
+						
+						$this->_writeArticlesAsRss($articles, $page_title);
+						
+						break;
+						
+					case 'most_popular':
+						list($results, $null) = DAO_KbArticle::search(
+							array(
+								new DevblocksSearchCriteria(SearchFields_KbArticle::CODE,'=',$this->getPortal())
+							),
+							25,
+							0,
+							SearchFields_KbArticle::VIEWS,
+							false,
+							false
+						);
+						
+						if(is_array($results) && !empty($results))
+						$full_articles = DAO_KbArticle::getWhere(sprintf("%s IN (%s)",
+							DAO_KbArticle::ID,
+							implode(',', array_keys($results))
+						));
+
+						$order= array_keys($results);
+						$articles = array();
+						foreach($order as $id) {
+							$articles[$id] =& $full_articles[$id];
+						}
+						
+						$this->_writeArticlesAsRss($articles, $page_title);
+													
+						break;
+					
 					case 'search':
 						$query = rawurldecode(array_shift($stack));
 						
 						$articles = $this->_searchIndex($query);
-						
-						$url_writer = DevblocksPlatform::getUrlService();
-		
-						$aFeed = array(
-							'title' => $page_title,
-					    	'link' => $url_writer->write('', true),
-							'charset' => 'iso-8859-1',
-							'entries' => array(),
-						);
-						
-						foreach($articles as $article_id => $article) {
-							$summary = substr(strip_tags($article->content),0,255) . (strlen($article->content)>255?'...':'');
-							
-							$aEntry = array(
-								'title' => $article->title,
-								'link' => $url_writer->write('c=article&id='.$article_id, true), // [TODO] Use UrlService
-								'description' => $summary,
-								'content' => $article->content,
-							);
-							$aFeed['entries'][] = $aEntry;
-						}
-						unset($articles);
-		
-						$rssFeed = Zend_Feed::importArray($aFeed, 'rss');
-						
-						echo $rssFeed->saveXML();				
 
+						$this->_writeArticlesAsRss($articles, $page_title);
+						
 						break;
 					
 					case 'article':
@@ -914,32 +982,8 @@ class UmKbApp extends Extension_UsermeetTool {
 							DAO_KbArticle::CODE,
 							$this->getPortal()
 						));
-						@$article = $articles[$id];
-						
-						$url_writer = DevblocksPlatform::getUrlService();
-		
-						$aFeed = array(
-							'title' => $page_title,
-					    	'link' => $url_writer->write('', true),
-							'charset' => 'iso-8859-1',
-							'entries' => array(),
-						);
 
-						if(!empty($article)) {
-							// [TODO] [JAS]: Move to Model?  (this is used in a couple places)
-							$summary = substr(strip_tags($article->content),0,255) . (strlen($article->content)>255?'...':'');
-							
-							$aFeed['entries'][] = array(
-								'title' => $article->title,
-								'link' => $url_writer->write('c=article&id='.$article->id, true), // [TODO] Use UrlService
-								'description' => $summary,
-								'content' => $article->content,
-							);
-						}
-						
-						$rssFeed = Zend_Feed::importArray($aFeed, 'rss');
-						
-						echo $rssFeed->saveXML();				
+						$this->_writeArticlesAsRss($articles, $page_title);
 						
 						break;
 						
@@ -948,7 +992,7 @@ class UmKbApp extends Extension_UsermeetTool {
 			    		// ----
 			    		$cg = DevblocksPlatform::getCloudGlueService();
 			    		$cfg = new CloudGlueConfiguration();
-			    		$cfg->indexName = self::TAG_INDEX_KB;
+			    		$cfg->indexName = $this->_getTagIndex();
 			    		$cfg->divName = 'kbTagCloud'; // [TODO] Make optional (move to render)
 			    		$cfg->extension = 'kb'; // [TODO] Make optional (move to render)
 			    		$cfg->php_click = '_'; // [TODO] Make optional (move to render)
@@ -967,7 +1011,7 @@ class UmKbApp extends Extension_UsermeetTool {
 					    			$cloud->addToPath($tag);
 			    			}
 			    			
-							if(null != ($ids = DAO_CloudGlue::getTagContentIds(self::TAG_INDEX_KB, $cloud->getPath()))) {
+							if(null != ($ids = DAO_CloudGlue::getTagContentIds($this->_getTagIndex(), $cloud->getPath()))) {
 								$articles = DAO_KbArticle::getWhere(sprintf("%s IN (%s) AND %s = '%s'",
 									DAO_KbArticle::ID,
 									implode(',', $ids),
@@ -976,31 +1020,7 @@ class UmKbApp extends Extension_UsermeetTool {
 								));
 							}
 							
-							$url_writer = DevblocksPlatform::getUrlService();
-			
-							$aFeed = array(
-								'title' => $page_title,
-						    	'link' => $url_writer->write('', true),
-								'charset' => 'iso-8859-1',
-								'entries' => array(),
-							);
-							
-							foreach($articles as $article_id => $article) {
-								$summary = substr(strip_tags($article->content),0,255) . (strlen($article->content)>255?'...':'');
-								
-								$aEntry = array(
-									'title' => $article->title,
-									'link' => $url_writer->write('c=article&id='.$article_id, true), // [TODO] Use UrlService
-									'description' => $summary,
-									'content' => $article->content,
-								);
-								$aFeed['entries'][] = $aEntry;
-							}
-							unset($articles);
-			
-							$rssFeed = Zend_Feed::importArray($aFeed, 'rss');
-							
-							echo $rssFeed->saveXML();				
+							$this->_writeArticlesAsRss($articles, $page_title);
 			    		}	    		
 			    		
 						break;
@@ -1040,7 +1060,7 @@ class UmKbApp extends Extension_UsermeetTool {
 				@$article = $articles[$id];
 				$tpl->assign('article', $article);
 				
-				$tags = DAO_CloudGlue::getTagsOnContents($id, self::TAG_INDEX_KB);
+				$tags = DAO_CloudGlue::getTagsOnContents($id, $this->_getTagIndex());
 				$tpl->assign('tags', @$tags[$id]);
 				
 				$tpl->display('file:' . dirname(__FILE__) . '/templates/portal/kb/article_edit.tpl.php');
@@ -1110,7 +1130,16 @@ class UmKbApp extends Extension_UsermeetTool {
 				@$article = $articles[$id];
 				$tpl->assign('article', $article);
 
-				@$tags = array_shift(DAO_CloudGlue::getTagsOnContents($id, self::TAG_INDEX_KB));
+				@$article_list = $umsession->getProperty(self::SESSION_ARTICLE_LIST, array());
+				if(!empty($article) && !isset($article_list[$id])) {
+					DAO_KbArticle::update($article->id, array(
+						DAO_KbArticle::VIEWS => ++$article->views
+					));
+					$article_list[$id] = $id;
+					$umsession->setProperty(self::SESSION_ARTICLE_LIST, $article_list);
+				}
+				
+				@$tags = array_shift(DAO_CloudGlue::getTagsOnContents($id, $this->_getTagIndex()));
 				if(!empty($tags)) {
 					$parts = array();
 					foreach($tags as $tag) {
@@ -1132,7 +1161,7 @@ class UmKbApp extends Extension_UsermeetTool {
 	    		// ----
 	    		$cg = DevblocksPlatform::getCloudGlueService();
 	    		$cfg = new CloudGlueConfiguration();
-	    		$cfg->indexName = self::TAG_INDEX_KB;
+	    		$cfg->indexName = $this->_getTagIndex();
 	    		$cfg->divName = 'kbTagCloud'; // [TODO] Make optional (move to render)
 	    		$cfg->extension = 'kb'; // [TODO] Make optional (move to render)
 	    		$cfg->php_click = '_'; // [TODO] Make optional (move to render)
@@ -1150,7 +1179,7 @@ class UmKbApp extends Extension_UsermeetTool {
 	    			}
 	    			$tpl->assign('tags_prefix', $tag_str);
 	    			
-					if(null != ($ids = DAO_CloudGlue::getTagContentIds(self::TAG_INDEX_KB, $cloud->getPath()))) {
+					if(null != ($ids = DAO_CloudGlue::getTagContentIds($this->_getTagIndex(), $cloud->getPath()))) {
 						$articles = DAO_KbArticle::getWhere(sprintf("%s IN (%s) AND %s = '%s'",
 							DAO_KbArticle::ID,
 							implode(',', $ids),
@@ -1306,7 +1335,7 @@ class UmKbApp extends Extension_UsermeetTool {
 				}
 
 				if(!empty($tags)) {
-					DAO_CloudGlue::applyTags($tags, $id, self::TAG_INDEX_KB, false); // 4th argument = replace
+					DAO_CloudGlue::applyTags($tags, $id, $this->_getTagIndex(), false); // 4th argument = replace
 				}
 			}
     	}
@@ -1331,6 +1360,7 @@ class UmKbApp extends Extension_UsermeetTool {
 		$fields = array(
 			DAO_KbArticle::TITLE => $title,
 			DAO_KbArticle::CODE => $this->getPortal(),
+			DAO_KbArticle::UPDATED => time(),
 			DAO_KbArticle::CONTENT => $content,
 		);
     	
@@ -1350,7 +1380,7 @@ class UmKbApp extends Extension_UsermeetTool {
 			 if(!empty($delete)) {
 			 	$tags = array();
 			 	
-			 	@$set_tags = array_shift(DAO_CloudGlue::getTagsOnContents(array($id),self::TAG_INDEX_KB));
+			 	@$set_tags = array_shift(DAO_CloudGlue::getTagsOnContents(array($id),$this->_getTagIndex()));
 			 	if(is_array($set_tags) && !empty($set_tags)) {
 				 	foreach($set_tags as $tag) {
 				 		$tags[] = $tag->name;
@@ -1376,7 +1406,7 @@ class UmKbApp extends Extension_UsermeetTool {
     	
     	// Tagging
     	$tags = CerberusApplication::parseCsvString($tags_csv);
-		DAO_CloudGlue::applyTags($tags, $id, self::TAG_INDEX_KB, true);
+		DAO_CloudGlue::applyTags($tags, $id, $this->_getTagIndex(), true);
     	
 		// Search Indexing
 		$doc = new Zend_Search_Lucene_Document();
@@ -1394,6 +1424,12 @@ class UmKbApp extends Extension_UsermeetTool {
      */
     private function _getSearchIndex() {
     	$path = APP_PATH . '/storage/indexes/kb-'.$this->getPortal();
+    	
+    	// Allow Numeric Text
+    	Zend_Search_Lucene_Analysis_Analyzer::setDefault(
+    		new Zend_Search_Lucene_Analysis_Analyzer_Common_TextNum_CaseInsensitive()
+    	);
+    	
     	if(!is_dir($path)) {
     		$index = Zend_Search_Lucene::create($path);
     	} else {
@@ -1415,7 +1451,7 @@ class UmKbApp extends Extension_UsermeetTool {
 		
 		foreach($hits as $hit) { /* @var $hit Zend_Search_Lucene_Search_QueryHit */
 			@$article = DAO_KbArticle::get($hit->article_id);
-			if(!empty($article)) {
+			if(!empty($article) && 0 == strcasecmp($article->code,$this->getPortal())) {
 				$article->score = $hit->score;
 				$articles[$hit->article_id] = $article;
 			}

@@ -80,7 +80,7 @@ class ChPageController extends DevblocksControllerExtension {
 	 * @param string $uri
 	 * @return string $id
 	 */
-	private function _getPageIdByUri($uri) {
+	public function _getPageIdByUri($uri) {
         $pages = DevblocksPlatform::getExtensions('cerberusweb.page', false);
         foreach($pages as $manifest) { /* @var $manifest DevblocksExtensionManifest */
             if(0 == strcasecmp($uri,$manifest->params['uri'])) {

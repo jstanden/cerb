@@ -419,15 +419,18 @@ class DAO_KbArticle extends DevblocksORMHelper {
 	const ID = 'id';
 	const TITLE = 'title';
 	const CODE = 'code';
+	const UPDATED = 'updated';
+	const VIEWS = 'views';
 	const CONTENT = 'content';
 	
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
 		$id = $db->GenID('kb_seq');
 		
-		$sql = sprintf("INSERT INTO kb_article (id,title,code,content) ".
-			"VALUES (%s,'','','')",
-			$id
+		$sql = sprintf("INSERT INTO kb_article (id,title,code,views,updated,content) ".
+			"VALUES (%s,'','',0,%d,'')",
+			$id,
+			time()
 		);
 		$db->Execute($sql);
 		
@@ -451,10 +454,10 @@ class DAO_KbArticle extends DevblocksORMHelper {
 	static function getWhere($where=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = "SELECT id, title, code, content ".
+		$sql = "SELECT id, title, code, views, updated, content ".
 			"FROM kb_article ".
 			(!empty($where)?sprintf("WHERE %s ",$where):" ").
-			"ORDER BY id DESC "
+			"ORDER BY updated DESC "
 			;
 		$rs = $db->Execute($sql);
 		
@@ -474,6 +477,8 @@ class DAO_KbArticle extends DevblocksORMHelper {
 			$object->id = intval($rs->fields['id']);
 			$object->title = $rs->fields['title'];
 			$object->code = $rs->fields['code'];
+			$object->updated = $rs->fields['updated'];
+			$object->views = $rs->fields['views'];
 			$object->content = $rs->fields['content'];
 			$objects[$object->id] = $object;
 			$rs->MoveNext();
@@ -508,10 +513,16 @@ class DAO_KbArticle extends DevblocksORMHelper {
 		
 		$id_string = implode(',', $ids);
 		
-		$db->Execute(sprintf("DELETE FROM kb_article WHERE id IN (%s)", $id_string));
-		
 		// CloudGlue removes tags from nuked articles
-		DAO_CloudGlue::deleteContentIds(UmKbApp::TAG_INDEX_KB, $ids);
+		$code_rs = $db->Execute(sprintf("SELECT DISTINCT code AS code FROM kb_article WHERE id IN (%s)", $id_string));
+		while(!$code_rs->EOF) {
+			$code = $code_rs->fields['code'];
+			DAO_CloudGlue::deleteContentIds(UmKbApp::TAG_INDEX_PREFIX.$code, $ids);
+			$code_rs->MoveNext();
+		}
+
+		// Articles
+		$db->Execute(sprintf("DELETE FROM kb_article WHERE id IN (%s)", $id_string));
 	}
 
     static function search($params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
@@ -524,12 +535,16 @@ class DAO_KbArticle extends DevblocksORMHelper {
 			"kb.id as %s, ".
 			"kb.title as %s, ".
 			"kb.code as %s, ".
+			"kb.updated as %s, ".
+			"kb.views as %s, ".
 			"kb.content as %s ".
 			"FROM kb_article kb ",
 //			"INNER JOIN team tm ON (tm.id = t.team_id) ".
 			    SearchFields_KbArticle::ID,
 			    SearchFields_KbArticle::TITLE,
 			    SearchFields_KbArticle::CODE,
+			    SearchFields_KbArticle::UPDATED,
+			    SearchFields_KbArticle::VIEWS,
 			    SearchFields_KbArticle::CONTENT
 			).
 			
@@ -568,6 +583,8 @@ class SearchFields_KbArticle implements IDevblocksSearchFields {
 	const ID = 'kb_id';
 	const CODE = 'kb_code';
 	const TITLE = 'kb_title';
+	const UPDATED = 'kb_updated';
+	const VIEWS = 'kb_views';
 	const CONTENT = 'kb_content';
 	
 	/**
@@ -578,6 +595,8 @@ class SearchFields_KbArticle implements IDevblocksSearchFields {
 			self::ID => new DevblocksSearchField(self::ID, 'kb', 'id'),
 			self::TITLE => new DevblocksSearchField(self::TITLE, 'kb', 'title'),
 			self::CODE => new DevblocksSearchField(self::CODE, 'kb', 'code'),
+			self::UPDATED => new DevblocksSearchField(self::UPDATED, 'kb', 'updated'),
+			self::VIEWS => new DevblocksSearchField(self::VIEWS, 'kb', 'views'),
 			self::CONTENT => new DevblocksSearchField(self::CONTENT, 'kb', 'content'),
 		);
 	}

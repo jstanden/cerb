@@ -70,6 +70,8 @@
         </li>
         {/foreach}
       </ul>
+      {else}
+      	No results found.<br>
       {/if}
       </td>
     </tr>

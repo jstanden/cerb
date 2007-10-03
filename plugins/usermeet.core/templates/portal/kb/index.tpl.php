@@ -48,15 +48,14 @@
 					<input name="query" value="" size="16" style="width: 150px;" type="text"><button type="submit">&raquo;</button>
 					</form>
 					<br>
-					<!-- 
-					<b>Other Resources</b><br>
-					<a href="#">Contact Us</a><br>
-					 -->
-					<!-- 
-					<br>
-					<b>Article Tools</b><br>
-					<img src="{devblocks_url}c=resource&p=usermeet.core&f=images/printer.gif{/devblocks_url}" alt="Printer" align="top"> <a href="#">Print</a><br>
-					 -->
+					<div style="margin-bottom:5px;">
+						<img src="{devblocks_url}c=resource&p=usermeet.core&f=images/feed-icon-16x16.gif{/devblocks_url}" alt="RSS Feed" align="top" border="0">
+						<a href="{devblocks_url full=true}c=rss&a=recent_changes{/devblocks_url}">Recent Changes</a>
+					</div> 
+					<div style="margin-bottom:5px;">
+						<img src="{devblocks_url}c=resource&p=usermeet.core&f=images/feed-icon-16x16.gif{/devblocks_url}" alt="RSS Feed" align="top" border="0">
+						<a href="{devblocks_url full=true}c=rss&a=most_popular{/devblocks_url}">Most Popular Articles</a>
+					</div>
 				</div>
 			</td>
 		</tr>
