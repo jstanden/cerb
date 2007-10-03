@@ -57,9 +57,9 @@
 	
   	<script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yui/utilities/utilities.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script> 
   	<script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yui/container/container-min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script> 
-  	<script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yui/menu/menu-min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script> 
-  	<script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yui/button/button-beta-min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script> 
-  	<script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yui/editor/editor-beta-min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
+  	<script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yui/menu/menu.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script> 
+  	<script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yui/button/button-beta.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script> 
+  	<script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yui/editor/editor-beta.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
 	<script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yui/autocomplete/autocomplete-min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
 </head>
 

@@ -39,13 +39,13 @@ var myEditor = null;
 YAHOO.util.Event.addListener(window,"load",function() {
 	myEditor = new YAHOO.widget.Editor('article_content', {
 	    height: '300px',
-	    width: '650px',
-	    dompath: false,
-	    animate: false
-		});	    
+	    width: '530px',
+	    dompath: true,
+	    animate: true,
+	    focusAtStart: true
+		});
 	myEditor.render();
 	});
-
 
 var myDataSource = new YAHOO.widget.DS_XHR({/literal}"{devblocks_url}ajax.php{/devblocks_url}"{literal}, ["\n", "\t"] );
 myDataSource.scriptQueryAppend = "c=contacts&a=getTagAutoCompletions"; 
