@@ -152,19 +152,6 @@ var cAjaxCalls = function() {
 		});	
 	}
 
-	this.previewTip = null;	
-	this.scheduleTicketPreview = function(id, at) {
-//		var func = function() {
-			genericAjaxPanel('c=tickets&a=showPreview&id=' + id, at, false, '500px');
-//		}
-//		this.previewTip = setTimeout(func, 1);
-	};
-//	this.cancelTicketPreview = function() {
-//		clearTimeout(this.previewTip);
-//		if(null != genericPanel)
-//			genericPanel.hide();
-//	};
-
 	this.viewMoveTickets = function(view_id) {
 		var divName = 'view'+view_id;
 		var formName = 'viewForm'+view_id;

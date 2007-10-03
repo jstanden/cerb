@@ -1011,14 +1011,14 @@ class ChTicketsPage extends CerberusPageExtension {
 	
 	// Ajax
 	function showPreviewAction() {
-	    @$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer');
+	    @$tid = DevblocksPlatform::importGPC($_REQUEST['tid'],'integer',0);
 	    
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl_path = dirname(__FILE__) . '/templates/';
 		$tpl->assign('path', $tpl_path);
 
-		$ticket = DAO_Ticket::getTicket($id); /* @var $ticket CerberusTicket */
-	    $messages = DAO_Ticket::getMessagesByTicket($id);
+		$ticket = DAO_Ticket::getTicket($tid); /* @var $ticket CerberusTicket */
+	    $messages = DAO_Ticket::getMessagesByTicket($tid);
 	    
         if(!empty($messages)) {	    
 	        $last = array_pop($messages);
