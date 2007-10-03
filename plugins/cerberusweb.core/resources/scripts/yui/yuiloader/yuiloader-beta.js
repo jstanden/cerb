@@ -2,7 +2,7 @@
 Copyright (c) 2007, Yahoo! Inc. All rights reserved.
 Code licensed under the BSD License:
 http://developer.yahoo.net/yui/license.txt
-version: 2.3.0
+version: 2.3.1
 */
 /**
  * Provides dynamic loading for the YUI library.  It includes the dependency
@@ -42,7 +42,7 @@ version: 2.3.0
          */
         info: {
 
-    'base': 'http://yui.yahooapis.com/2.3.0/build/',
+    'base': 'http://yui.yahooapis.com/2.3.1/build/',
 
     'skin': {
         'defaultSkin': 'sam',
@@ -143,7 +143,7 @@ version: 2.3.0
         'editor': {
             'type': 'js',
             'path': 'editor/editor-beta-min.js',
-            'requires': ['menu', 'container', 'element', 'button'],
+            'requires': ['menu', 'element', 'button'],
             'optional': ['animation', 'dragdrop'],
             'skinnable': true
         },
@@ -755,7 +755,8 @@ version: 2.3.0
 
             var o = {};
             o[name] = true;
-            s = mod && mod.supersedes;
+
+            var s = mod && mod.supersedes;
 
             YUI.ObjectUtil.appendArray(o, s);
 
@@ -856,7 +857,7 @@ version: 2.3.0
             for (i in r) {
                 mod = this.moduleInfo[i];
                 if (mod && mod.skinnable) {
-                    var o=this.skin.override, j;
+                    var o=this.skin.overrides, j;
                     if (o && o[i]) {
                         for (j=0; j<o[i].length; j=j+1) {
                             this.require(this.formatSkin(o[i][j], i));
@@ -1072,7 +1073,7 @@ version: 2.3.0
 
                 var ss=info[bb] && info[bb].supersedes;
                 if (ss) {
-                    for (ii=0; ii<ss.length; ii=i+1) {
+                    for (ii=0; ii<ss.length; ii=ii+1) {
                         if (requires(aa, ss[ii])) {
                             return true;
                         }

@@ -2,7 +2,7 @@
 Copyright (c) 2007, Yahoo! Inc. All rights reserved.
 Code licensed under the BSD License:
 http://developer.yahoo.net/yui/license.txt
-version: 2.3.0
+version: 2.3.1
 */
 /* Menu & MenuBar styles */
 
@@ -101,7 +101,6 @@ when one of its submenus is visible.
 
 .yuimenubar ul {
 
-    list-style-type:none;
     margin:0;
     padding:0;
 
@@ -109,7 +108,6 @@ when one of its submenus is visible.
 
 .yuimenu ul {
 
-    list-style-type:none;
     border:solid 1px #c4c4be;
     border-width:1px 0 0 0;
     margin:0;
@@ -122,6 +120,19 @@ when one of its submenus is visible.
 .yuimenu h6.first-of-type {
 
     border-width:0;
+
+}
+
+.yuimenubar li, 
+.yuimenu li {
+
+    list-style-type: none;    
+
+}
+
+.yuimenu .yui-menu-body-scrolled {
+
+    overflow: hidden;
 
 }
 
@@ -221,7 +232,7 @@ li.first-of-type .yuimenubaritemlabel {
     overflow:hidden;
     vertical-align:middle;
     text-indent:9px;
-    background-image:url(http://yui.yahooapis.com/2.2.2/build/menu/assets/map.gif);
+    background-image:url(map.gif);
     background-repeat:no-repeat;
 
 }

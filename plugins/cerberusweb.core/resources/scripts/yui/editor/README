@@ -1,3 +1,45 @@
+**** version 2.3.1 ***
+
+* New methods were added (show and hide) that need to be called when the Editor is placed inside an element that will be set to display: none.
+    For example: Placing an Editor inside of a TabView or Panel. You should now hook into the other widgets show/hide event and call myEditor.show() or myEditor.hide() when needed.
+* Dependency on the full Container family was removed, you can now use only the container-core package.
+* The editor CSS has changed to allow for easier customizing.
+* The CSS patch that was issued for the 2.3.0 release of the Editor should be removed when installing 2.3.1.
+* Safari performace issue: If you are experiencing extreme performance issues with Safari
+    (keys taking a long time to respond, enter key not working, CPU spiking).
+    Please check to see if you have AcidSearch from pozytron.com installed.
+    It has been determined that the latest release if AcidSearch is interfering
+    with the Rich Text Editor. Currently the only solution is to un-install
+    the plugin. The maker of AcidSearch has been notified of the issue and should respond soon.
+* Several performance enhancements and bug fixes.
+
+    *All
+        1. [1406169] - Fixed Toolbar performance issues
+        2. [1406176] - You can now set the height and width of the editor after it has been rendered       
+        3. [1413456] - Group Labels can now be turned off after the editor has been rendered
+        4. [1413750] - Editor now supports delayed render (script block above the textarea markup)
+        5. [1416349] - cleanHTML now supports markup config options better (added xhtml option)
+        6. [1422334] - Added a link field to the image property editor
+        7. [1425540] - [SF 1775187] Fixed adding a link to an LI
+        8. [1406370] - [SF 1767246 ] Using Back button causes breaking behavior. Fixed.
+        9. [1435809] - Base href config fails when on a page with a port number. Fixed.
+
+    *Safari
+        1. [1390926] - Fixed Safari handleSubmit issue
+        2. [1433563] - Editor becomes unstable when rendered inside an element set to display: none (added show() method)
+
+    *Opera
+        1. [1396921] - Fixed clicking the Toolbar while typing loses insertion point
+        2. [1406700] - [SF 1767251] Background color can not be overridden in Opera.. Fixed.
+
+    *Gecko
+        1. [1411911] - [SF 1769657] RTE looks strange on Firefox when base.css - Fixed style collisions
+        2. [1433563] - Editor becomes unstable when rendered inside an element set to display: none (added show() method)
+
+    *Internet Explorer
+        1. [1396921] - Fixed clicking the Toolbar while typing loses insertion point
+
+
 **** version 2.3.0 ***
 
 * Beta release.

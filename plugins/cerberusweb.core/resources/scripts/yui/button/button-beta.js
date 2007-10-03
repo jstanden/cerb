@@ -2,7 +2,7 @@
 Copyright (c) 2007, Yahoo! Inc. All rights reserved.
 Code licensed under the BSD License:
 http://developer.yahoo.net/yui/license.txt
-version: 2.3.0
+version: 2.3.1
 */
 /**
 * @module button
@@ -202,7 +202,7 @@ version: 2.3.0
         */
         function setAttributeFromDOMAttribute(p_sAttribute) {
     
-            if ( !(p_sAttribute in p_oAttributes) ) {
+            if (!(p_sAttribute in p_oAttributes)) {
     
                 /*
                     Need to use "getAttributeNode" instead of "getAttribute" 
@@ -243,7 +243,7 @@ version: 2.3.0
             
             }
     
-            if ( !("disabled" in p_oAttributes) ) {
+            if (!("disabled" in p_oAttributes)) {
     
                 p_oAttributes.disabled = p_oElement.disabled;
     
@@ -271,7 +271,7 @@ version: 2.3.0
 
             setFormElementProperties();
 
-            if ( !("checked" in p_oAttributes) ) {
+            if (!("checked" in p_oAttributes)) {
     
                 p_oAttributes.checked = p_oElement.checked;
     
@@ -308,13 +308,13 @@ version: 2.3.0
         p_oElement.removeAttribute("id");
         p_oElement.removeAttribute("name");
         
-        if ( !("tabindex" in p_oAttributes) ) {
+        if (!("tabindex" in p_oAttributes)) {
 
             p_oAttributes.tabindex = p_oElement.tabIndex;
 
         }
     
-        if ( !("label" in p_oAttributes) ) {
+        if (!("label" in p_oAttributes)) {
     
             // Set the "label" property
         
@@ -795,7 +795,35 @@ version: 2.3.0
         */
         _setLabel: function (p_sLabel) {
 
-            this._button.innerHTML = p_sLabel;             
+            this._button.innerHTML = p_sLabel;
+            
+            /*
+                Remove and add the default class name from the root element
+                for Gecko to ensure that the button shrinkwraps to the label.
+                Without this the button will not be rendered at the correct 
+                width when the label changes.  The most likely cause for this 
+                bug is button's use of the Gecko-specific CSS display type of 
+                "-moz-inline-box" to simulate "inline-block" supported by IE, 
+                Safari and Opera.
+            */
+            
+            var sClass,
+                me;
+            
+            if (YAHOO.env.ua.gecko && Dom.inDocument(this.get("element"))) {
+            
+                me = this;
+                sClass = this.CSS_CLASS_NAME;                
+
+                this.removeClass(sClass);
+                
+                window.setTimeout(function () {
+                
+                    me.addClass(sClass);
+                
+                }, 0);
+            
+            }
         
         },
         
@@ -900,6 +928,10 @@ version: 2.3.0
                     this._button.setAttribute("disabled", "disabled");
         
                     this.addStateCSSClasses("disabled");
+
+                    this.removeStateCSSClasses("hover");
+                    this.removeStateCSSClasses("active");
+                    this.removeStateCSSClasses("focus");
         
                 }
                 else {
@@ -1002,6 +1034,7 @@ version: 2.3.0
 
             var bLazyLoad = this.get("lazyloadmenu"),
                 oButtonElement = this.get("element"),
+                sMenuCSSClassName = Menu.prototype.CSS_CLASS_NAME,
         
                 /*
                     Boolean indicating if the value of p_oMenu is an instance 
@@ -1063,7 +1096,7 @@ version: 2.3.0
                         oMenu.keyDownEvent.subscribe(this._onMenuKeyDown, 
                             this, true);
 
-                        oMenu.clickEvent.subscribe(this._onMenuClick, 
+                        oMenu.subscribe("click", this._onMenuClick, 
                             this, true);
 
                         oMenu.itemAddedEvent.subscribe(this._onMenuItemAdded, 
@@ -1196,9 +1229,8 @@ version: 2.3.0
         
                 if (oMenuElement) {
         
-                    if (Dom.hasClass(oMenuElement, 
-                        Menu.prototype.CSS_CLASS_NAME) || 
-                        oMenuElement.nodeName == "SELECT") {
+                    if (Dom.hasClass(oMenuElement, sMenuCSSClassName) || 
+                        oMenuElement.nodeName.toUpperCase() == "SELECT") {
             
                         oMenu = new Menu(p_oMenu, { lazyload: bLazyLoad });
             
@@ -1219,8 +1251,8 @@ version: 2.3.0
             }
             else if (p_oMenu && p_oMenu.nodeName) {
         
-                if (Dom.hasClass(p_oMenu, Menu.prototype.CSS_CLASS_NAME) || 
-                        p_oMenu.nodeName == "SELECT") {
+                if (Dom.hasClass(p_oMenu, sMenuCSSClassName) || 
+                        p_oMenu.nodeName.toUpperCase() == "SELECT") {
         
                     oMenu = new Menu(p_oMenu, { lazyload: bLazyLoad });
                 
@@ -1381,11 +1413,12 @@ version: 2.3.0
         _addListenersToForm: function () {
         
             var oForm = this.getForm(),
+                onFormKeyPress = YAHOO.widget.Button.onFormKeyPress,
+                bHasKeyPressListener,
                 oSrcElement,
                 aListeners,
                 nListeners,
-                i,
-                bHasKeyPressListener;
+                i;
         
         
             if (oForm) {
@@ -1413,9 +1446,7 @@ version: 2.3.0
                             
                             do {
                
-                                if (aListeners[i].fn == 
-                                    YAHOO.widget.Button.onFormKeyPress) 
-                                {
+                                if (aListeners[i].fn == onFormKeyPress) {
                 
                                     bHasKeyPressListener = true;
                                     break;
@@ -1431,9 +1462,8 @@ version: 2.3.0
             
             
                     if (!bHasKeyPressListener) {
-        
-                        Event.on(oForm, "keypress", 
-                            YAHOO.widget.Button.onFormKeyPress);
+               
+                        Event.on(oForm, "keypress", onFormKeyPress);
             
                     }
         
@@ -1863,7 +1893,7 @@ version: 2.3.0
             if (this.get("type") != "menu") {
         
                 this.removeStateCSSClasses("active");
-        
+
             }    
         
             if (this._activationKeyPressed) {
@@ -2097,10 +2127,10 @@ version: 2.3.0
         _onAppendTo: function (p_oEvent) {
         
             /*
-                It is necessary to call "getForm" using "setTimeout" to make 
-                sure that the button's "form" property returns a node 
-                reference.  Sometimes, if you try to get the reference 
-                immediately after appending the field, it is null.
+                It is necessary to call "_addListenersToForm" using 
+                "setTimeout" to make sure that the button's "form" property 
+                returns a node reference.  Sometimes, if you try to get the 
+                reference immediately after appending the field, it is null.
             */
         
             var me = this;
@@ -2411,7 +2441,7 @@ version: 2.3.0
         * was fired.
         */
         _onMenuClick: function (p_sType, p_aArgs) {
-        
+
             var oItem = p_aArgs[1],
                 oSrcElement;
         
@@ -2562,34 +2592,38 @@ version: 2.3.0
         
                     oMenuField = oMenu.srcElement;
                     oMenuItem = oMenu.getItem(this.get("selectedMenuItem"));
-        
-                    if (oMenuField && 
-                        oMenuField.nodeName.toUpperCase() == "SELECT") {
-        
-                        oForm.appendChild(oMenuField);
-                        oMenuField.selectedIndex = oMenuItem.index;
-        
-                    }
-                    else {
-        
-                        oValue = (oMenuItem.value === null || 
-                                    oMenuItem.value === "") ? 
-                                    oMenuItem.cfg.getProperty("text") : 
-                                    oMenuItem.value;
-        
-                        sName = this.get("name");
-        
-                        if (oValue && sName) {
-        
-                            oMenuField = createInputElement("hidden", 
-                                                (sName + "_options"),
-                                                oValue);
-        
+
+                    if (oMenuItem) {
+
+                        if (oMenuField && 
+                            oMenuField.nodeName.toUpperCase() == "SELECT") {
+            
                             oForm.appendChild(oMenuField);
-        
+                            oMenuField.selectedIndex = oMenuItem.index;
+            
                         }
-        
-                    }  
+                        else {
+            
+                            oValue = (oMenuItem.value === null || 
+                                        oMenuItem.value === "") ? 
+                                        oMenuItem.cfg.getProperty("text") : 
+                                        oMenuItem.value;
+            
+                            sName = this.get("name");
+            
+                            if (oValue && sName) {
+            
+                                oMenuField = createInputElement("hidden", 
+                                                    (sName + "_options"),
+                                                    oValue);
+            
+                                oForm.appendChild(oMenuField);
+            
+                            }
+            
+                        }  
+                    
+                    }
         
                 }
             
@@ -2766,7 +2800,7 @@ version: 2.3.0
         */
         init: function (p_oElement, p_oAttributes) {
         
-            var sNodeName = p_oAttributes.type == "link" ? "A" : "BUTTON",
+            var sNodeName = p_oAttributes.type == "link" ? "a" : "button",
                 oSrcElement = p_oAttributes.srcelement,
                 oButton = p_oElement.getElementsByTagName(sNodeName)[0],
                 oInput;
@@ -2774,12 +2808,12 @@ version: 2.3.0
 
             if (!oButton) {
 
-                oInput = p_oElement.getElementsByTagName("INPUT")[0];
+                oInput = p_oElement.getElementsByTagName("input")[0];
 
 
                 if (oInput) {
 
-                    oButton = document.createElement("BUTTON");
+                    oButton = document.createElement("button");
                     oButton.setAttribute("type", "button");
 
                     oInput.parentNode.replaceChild(oButton, oInput);
@@ -2892,7 +2926,7 @@ version: 2.3.0
         
         
             /**
-            * @config type
+            * @attribute type
             * @description String specifying the button's type.  Possible 
             * values are: "push," "link," "submit," "reset," "checkbox," 
             * "radio," "menu," and "split."
@@ -2910,7 +2944,7 @@ version: 2.3.0
         
         
             /**
-            * @config label
+            * @attribute label
             * @description String specifying the button's text label 
             * or innerHTML.
             * @default null
@@ -2926,7 +2960,7 @@ version: 2.3.0
         
         
             /**
-            * @config value
+            * @attribute value
             * @description Object specifying the value for the button.
             * @default null
             * @type Object
@@ -2939,7 +2973,7 @@ version: 2.3.0
         
         
             /**
-            * @config name
+            * @attribute name
             * @description String specifying the name for the button.
             * @default null
             * @type String
@@ -2953,7 +2987,7 @@ version: 2.3.0
         
         
             /**
-            * @config tabindex
+            * @attribute tabindex
             * @description Number specifying the tabindex for the button.
             * @default null
             * @type Number
@@ -2968,7 +3002,7 @@ version: 2.3.0
         
         
             /**
-            * @config title
+            * @attribute title
             * @description String specifying the title for the button.
             * @default null
             * @type String
@@ -2983,7 +3017,7 @@ version: 2.3.0
         
         
             /**
-            * @config disabled
+            * @attribute disabled
             * @description Boolean indicating if the button should be disabled.  
             * (Disabled buttons are dimmed and will not respond to user input 
             * or fire events.  Does not apply to button's of type "link.")
@@ -3000,7 +3034,7 @@ version: 2.3.0
         
         
             /**
-            * @config href
+            * @attribute href
             * @description String specifying the href for the button.  Applies
             * only to buttons of type "link."
             * @type String
@@ -3015,7 +3049,7 @@ version: 2.3.0
         
         
             /**
-            * @config target
+            * @attribute target
             * @description String specifying the target for the button.  
             * Applies only to buttons of type "link."
             * @type String
@@ -3030,7 +3064,7 @@ version: 2.3.0
         
         
             /**
-            * @config checked
+            * @attribute checked
             * @description Boolean indicating if the button is checked. 
             * Applies only to buttons of type "radio" and "checkbox."
             * @default false
@@ -3046,7 +3080,7 @@ version: 2.3.0
         
         
             /**
-            * @config container
+            * @attribute container
             * @description HTML element reference or string specifying the id 
             * attribute of the HTML element that the button's markup should be 
             * rendered into.
@@ -3063,7 +3097,7 @@ version: 2.3.0
         
         
             /**
-            * @config srcelement
+            * @attribute srcelement
             * @description Object reference to the HTML element (either 
             * <code>&#60;input&#62;</code> or <code>&#60;span&#62;</code>) 
             * used to create the button.
@@ -3080,7 +3114,7 @@ version: 2.3.0
         
         
             /**
-            * @config menu
+            * @attribute menu
             * @description Object specifying the menu for the button.  
             * The value can be one of the following:
             * <ul>
@@ -3124,7 +3158,7 @@ version: 2.3.0
         
         
             /**
-            * @config lazyloadmenu
+            * @attribute lazyloadmenu
             * @description Boolean indicating the value to set for the 
             * <a href="YAHOO.widget.Menu.html#lazyLoad">"lazyload"</a>
             * configuration property of the button's menu.  Setting 
@@ -3157,7 +3191,7 @@ version: 2.3.0
 
 
             /**
-            * @config menuclassname
+            * @attribute menuclassname
             * @description String representing the CSS class name to be 
             * applied to the root element of the button's menu.
             * @type String
@@ -3174,7 +3208,7 @@ version: 2.3.0
 
 
             /**
-            * @config selectedMenuItem
+            * @attribute selectedMenuItem
             * @description Number representing the index of the item in the 
             * button's menu that is currently selected.
             * @type Number
@@ -3190,7 +3224,7 @@ version: 2.3.0
         
         
             /**
-            * @config onclick
+            * @attribute onclick
             * @description Object literal representing the code to be executed  
             * when the button is clicked.  Format:<br> <code> {<br> 
             * <strong>fn:</strong> Function,   &#47;&#47; The handler to call 
@@ -3210,7 +3244,7 @@ version: 2.3.0
 
 
             /**
-            * @config focusmenu
+            * @attribute focusmenu
             * @description Boolean indicating whether or not the button's menu 
             * should be focused when it is made visible.
             * @type Boolean
@@ -3336,10 +3370,17 @@ version: 2.3.0
         
             var oElement = this.get("element"),
                 oParentNode = oElement.parentNode,
-                oMenu = this._menu;
+                oMenu = this._menu,
+                aButtons;
         
             if (oMenu) {
         
+
+                if (m_oOverlayManager.find(oMenu)) {
+
+                    m_oOverlayManager.remove(oMenu);
+
+                }
         
                 oMenu.destroy();
         
@@ -3362,13 +3403,29 @@ version: 2.3.0
                 Event.removeListener(oForm, "submit", this.createHiddenFields);
         
             }
-        
-        
-            oParentNode.removeChild(oElement);
+
+
+            this.unsubscribeAll();
+
+            if (oParentNode) {
+
+                oParentNode.removeChild(oElement);
+            
+            }
         
         
             delete m_oButtons[this.get("id")];
-        
+
+            aButtons = Dom.getElementsByClassName(this.CSS_CLASS_NAME, 
+                                this.NODE_NAME, oForm); 
+
+            if (Lang.isArray(aButtons) && aButtons.length === 0) {
+
+                Event.removeListener(oForm, "keypress", 
+                        YAHOO.widget.Button.onFormKeyPress);
+
+            }
+
         
         },
         
@@ -3513,7 +3570,7 @@ version: 2.3.0
     
         if (nCharCode == 13 && ((sNodeName == "INPUT" && (sType == "text" || 
             sType == "password" || sType == "checkbox" || sType == "radio" || 
-            sType == "file") ) || sNodeName == "SELECT"))
+            sType == "file")) || sNodeName == "SELECT"))
         {
     
             Dom.getElementsBy(isSubmitButton, "*", this);
@@ -3555,7 +3612,7 @@ version: 2.3.0
     
     
     /**
-    * @method addHiddenFieldsToForm
+    * @method YAHOO.widget.Button.addHiddenFieldsToForm
     * @description Searches the specified form and adds hidden fields for  
     * instances of YAHOO.widget.Button that are of type "radio," "checkbox," 
     * "menu," and "split."
@@ -3713,7 +3770,7 @@ version: 2.3.0
         }
         else {
     
-            sNodeName = p_oElement.nodeName;
+            sNodeName = p_oElement.nodeName.toUpperCase();
     
             if (sNodeName && sNodeName == this.NODE_NAME) {
         
@@ -4031,7 +4088,7 @@ version: 2.3.0
         
         
             /**
-            * @config name
+            * @attribute name
             * @description String specifying the name for the button group.  
             * This name will be applied to each button in the button group.
             * @default null
@@ -4046,7 +4103,7 @@ version: 2.3.0
         
         
             /**
-            * @config disabled
+            * @attribute disabled
             * @description Boolean indicating if the button group should be 
             * disabled.  Disabling the button group will disable each button 
             * in the button group.  Disabled buttons are dimmed and will not 
@@ -4064,7 +4121,7 @@ version: 2.3.0
         
         
             /**
-            * @config value
+            * @attribute value
             * @description Object specifying the value for the button group.
             * @default null
             * @type Object
@@ -4077,7 +4134,7 @@ version: 2.3.0
         
         
             /**
-            * @config container
+            * @attribute container
             * @description HTML element reference or string specifying the id 
             * attribute of the HTML element that the button group's markup
             * should be rendered into.
@@ -4094,7 +4151,7 @@ version: 2.3.0
         
         
             /**
-            * @config checkedButton
+            * @attribute checkedButton
             * @description Reference for the button in the button group that 
             * is checked.
             * @type {<a href="YAHOO.widget.Button.html">YAHOO.widget.Button</a>}
@@ -4474,4 +4531,4 @@ version: 2.3.0
     });
 
 })();
-YAHOO.register("button", YAHOO.widget.Button, {version: "2.3.0", build: "442"});
+YAHOO.register("button", YAHOO.widget.Button, {version: "2.3.1", build: "541"});

@@ -2,7 +2,7 @@
 Copyright (c) 2007, Yahoo! Inc. All rights reserved.
 Code licensed under the BSD License:
 http://developer.yahoo.net/yui/license.txt
-version: 2.3.0
+version: 2.3.1
 */
 /**
  * Provides color conversion and validation utils
@@ -204,13 +204,29 @@ YAHOO.util.Color = function() {
 
 (function() {
 
-    var pickercount = 0;
+    var _pickercount = 0;
 
     /**
      * The colorpicker module provides a widget for selecting colors
      * @module colorpicker
      * @requires yahoo, dom, event, element, slider
      */
+
+
+    /**
+     * Creates the host element if it doesn't exist
+     * @method _createHostElement
+     * @private
+     */
+    var _createHostElement = function() {
+        var el = document.createElement('div');
+
+        if (this.CSS.BASE) {
+            el.className = this.CSS.BASE;
+        }
+        
+        return el;
+    };
 
     /**
      * A widget to select colors
@@ -225,7 +241,7 @@ YAHOO.util.Color = function() {
      * initial attributes.  Ignored if first arg is attributes object.
      */
     YAHOO.widget.ColorPicker = function(el, attr) {
-        pickercount = pickercount + 1;
+        _pickercount = _pickercount + 1;
         attr = attr || {};
         if (arguments.length === 1 && !YAHOO.lang.isString(el) && !el.nodeName) {
             attr = el; // treat first arg as attr object
@@ -543,6 +559,58 @@ YAHOO.util.Color = function() {
     };
 
     /**
+     * Moves the hue slider into the position dictated by the current state
+     * of the control
+     * @method _updateHueSlider
+     * @private
+     */
+    var _updateHueSlider = function() {
+        var size = this.get(this.OPT.PICKER_SIZE),
+            h = this.get(this.OPT.HUE);
+
+        h = size - Math.round(h / 360 * size);
+        
+        // 0 is at the top and bottom of the hue slider.  Always go to
+        // the top so we don't end up sending the thumb to the bottom
+        // when the value didn't actually change (e.g., a conversion
+        // produced 360 instead of 0 and the value was already 0).
+        if (h === size) {
+            h = 0;
+        }
+
+        this.hueSlider.setValue(h);
+    };
+
+    /**
+     * Moves the picker slider into the position dictated by the current state
+     * of the control
+     * @method _updatePickerSlider
+     * @private
+     */
+    var _updatePickerSlider = function() {
+        var size = this.get(this.OPT.PICKER_SIZE),
+            s = this.get(this.OPT.SATURATION),
+            v = this.get(this.OPT.VALUE);
+
+        s = Math.round(s * size / 100);
+        v = Math.round(size - (v * size / 100));
+
+
+        this.pickerSlider.setRegionValue(s, v);
+    };
+
+    /**
+     * Moves the sliders into the position dictated by the current state
+     * of the control
+     * @method _updateSliders
+     * @private
+     */
+    var _updateSliders = function() {
+        _updateHueSlider.call(this);
+        _updatePickerSlider.call(this);
+    };
+
+    /**
      * Sets the control to the specified rgb value and
      * moves the sliders to the proper positions
      * @method setValue
@@ -642,9 +710,9 @@ YAHOO.util.Color = function() {
     var _getValuesFromSliders = function() {
         var h=_getH.call(this), s=_getS.call(this), v=_getV.call(this);
 
-        rgb = Color.hsv2rgb(h, s, v);
-        var websafe = Color.websafe(rgb);
-        var hex = Color.rgb2hex(rgb[0], rgb[1], rgb[2]);
+        var rgb = Color.hsv2rgb(h, s, v);
+        //var websafe = Color.websafe(rgb);
+        //var hex = Color.rgb2hex(rgb[0], rgb[1], rgb[2]);
 
         this.set(this.OPT.RGB, rgb);
     };
@@ -760,6 +828,26 @@ YAHOO.util.Color = function() {
     };
 
     /**
+     * Use the value of the text field to update the control
+     * @method _hexFieldKeypress
+     * @param e {Event} an event
+     * @param el {HTMLElement} the field
+     * @param prop {string} the key to the linked property
+     * @private
+     */
+    var _useFieldValue = function(e, el, prop) {
+        var val = el.value;
+
+        if (prop !== this.OPT.HEX) {
+            val = parseInt(val, 10);
+        }
+
+        if (val !== this.get(prop)) {
+            this.set(prop, val);
+        }
+    };
+
+    /**
      * Handle keypress on one of the rgb or hsv fields.
      * @method _rgbFieldKeypress
      * @param e {Event} the keypress event
@@ -806,38 +894,6 @@ YAHOO.util.Color = function() {
         }
     };
 
-    /**
-     * Use the value of the text field to update the control
-     * @method _hexFieldKeypress
-     * @param e {Event} an event
-     * @param el {HTMLElement} the field
-     * @param prop {string} the key to the linked property
-     * @private
-     */
-    var _useFieldValue = function(e, el, prop) {
-        var val = el.value;
-
-        if (prop !== this.OPT.HEX) {
-            val = parseInt(val, 10);
-        }
-
-        if (val !== this.get(prop)) {
-            this.set(prop, val);
-        }
-    };
-
-    /** 
-     * Allows numbers and special chars only.  Used for the
-     * rgb and hsv fields keypress handler.
-     * @method _numbersOnly
-     * @param e {Event} the event
-     * @private
-     * @return {boolean} false if we are canceling the event
-     */
-    var _numbersOnly = function(e) {
-        return _hexOnly(e, true);
-    };
-
     /** 
      * Allows numbers and special chars, and by default allows a-f.  
      * Used for the hex field keypress handler.
@@ -867,6 +923,18 @@ YAHOO.util.Color = function() {
         }
     };
 
+    /** 
+     * Allows numbers and special chars only.  Used for the
+     * rgb and hsv fields keypress handler.
+     * @method _numbersOnly
+     * @param e {Event} the event
+     * @private
+     * @return {boolean} false if we are canceling the event
+     */
+    var _numbersOnly = function(e) {
+        return _hexOnly(e, true);
+    };
+
     /**
      * Returns the element reference that is saved.  The id can be either
      * the element id, or the key for this id in the "id" config attribute.
@@ -879,7 +947,7 @@ YAHOO.util.Color = function() {
         return this.get(this.OPT.ELEMENTS)[this.get(this.OPT.IDS)[id]]; 
     };
 
-    _createElements = function() {
+    var _createElements = function() {
         var el, child, img, fld, i, 
             ids = this.get(this.OPT.IDS),
             txt = this.get(this.OPT.TXT),
@@ -1129,6 +1197,16 @@ YAHOO.util.Color = function() {
 
     };
 
+    var _attachRGBHSV = function(id, config) {
+        Event.on(this.getElement(id), "keydown", function(e, me) {
+                _rgbFieldKeypress.call(me, e, this, config);
+            }, this);
+        Event.on(this.getElement(id), "keypress", _numbersOnly, this);
+        Event.on(this.getElement(id), "blur", function(e, me) {
+                _useFieldValue.call(me, e, this, config);
+            }, this);
+    };
+
     /**
      * Sets the initial state of the sliders
      * @method initPicker
@@ -1225,362 +1303,7 @@ YAHOO.util.Color = function() {
             }, this);
     };
 
-    _attachRGBHSV = function(id, config) {
-        Event.on(this.getElement(id), "keydown", function(e, me) {
-                _rgbFieldKeypress.call(me, e, this, config);
-            }, this);
-        Event.on(this.getElement(id), "keypress", _numbersOnly, this);
-        Event.on(this.getElement(id), "blur", function(e, me) {
-                _useFieldValue.call(me, e, this, config);
-            }, this);
-    };
 
-
-    /**
-     * Sets up the config attributes and the change listeners for this
-     * properties
-     * @method initAttributes
-     * @param attr An object containing default attribute values
-     */
-    proto.initAttributes = function(attr) {
-
-        attr = attr || {};
-        YAHOO.widget.ColorPicker.superclass.initAttributes.call(this, attr);
-        
-        /**
-         * The size of the picker. Trying to change this is not recommended.
-         * @config pickersize
-         * @default 180
-         * @type int
-         */
-        this.setAttributeConfig(this.OPT.PICKER_SIZE, {
-                value: attr.size || this.DEFAULT.PICKER_SIZE
-            });
-
-        /**
-         * The current hue value 0-360
-         * @config hue
-         * @type int
-         */
-        this.setAttributeConfig(this.OPT.HUE, {
-                value: attr.hue || 0,
-                validator: lang.isNumber
-            });
-
-        /**
-         * The current saturation value 0-100
-         * @config saturation
-         * @type int
-         */
-        this.setAttributeConfig(this.OPT.SATURATION, {
-                value: attr.saturation || 0,
-                validator: lang.isNumber
-            });
-
-        /**
-         * The current value/brightness value 0-100
-         * @config value
-         * @type int
-         */
-        this.setAttributeConfig(this.OPT.VALUE, {
-                value: attr.value || 100,
-                validator: lang.isNumber
-            });
-
-        /**
-         * The current red value 0-255
-         * @config red
-         * @type int
-         */
-        this.setAttributeConfig(this.OPT.RED, {
-                value: attr.red || 255,
-                validator: lang.isNumber
-            });
-
-        /**
-         * The current green value 0-255
-         * @config green 
-         * @type int
-         */
-        this.setAttributeConfig(this.OPT.GREEN, {
-                value: attr.red || 255,
-                validator: lang.isNumber
-            });
-
-        /**
-         * The current blue value 0-255
-         * @config blue
-         * @type int
-         */
-        this.setAttributeConfig(this.OPT.BLUE, {
-                value: attr.blue || 255,
-                validator: lang.isNumber
-            });
-
-        /**
-         * The current hex value #000000-#FFFFFF, without the #
-         * @config hex
-         * @type string
-         */
-        this.setAttributeConfig(this.OPT.HEX, {
-                value: attr.hex || "FFFFFF",
-                validator: lang.isString
-            });
-
-        /**
-         * The current rgb value.  Updates the state of all of the
-         * other value fields.  Read-only: use setValue to set the
-         * controls rgb value.
-         * @config hex
-         * @type [int, int, int]
-         * @readonly
-         */
-        this.setAttributeConfig(this.OPT.RGB, {
-                value: attr.rgb || [255,255,255],
-                method: function(rgb) {
-
-                    this.set(this.OPT.RED, rgb[0], true);
-                    this.set(this.OPT.GREEN, rgb[1], true);
-                    this.set(this.OPT.BLUE, rgb[2], true);
-
-                    var websafe = Color.websafe(rgb);
-                    this.set(this.OPT.WEBSAFE, websafe, true);
-
-                    var hex = Color.rgb2hex(rgb);
-                    this.set(this.OPT.HEX, hex, true);
-
-                    var hsv = Color.rgb2hsv(rgb);
-
-
-                    this.set(this.OPT.HUE, hsv[0], true);
-                    this.set(this.OPT.SATURATION, Math.round(hsv[1]*100), true);
-                    this.set(this.OPT.VALUE, Math.round(hsv[2]*100), true);
-                },
-                readonly: true
-            });
-
-        /**
-         * If the color picker will live inside of a container object,
-         * set, provide a reference to it so the control can use the
-         * container's events.
-         * @config container
-         * @type YAHOO.widget.Panel
-         */
-        this.setAttributeConfig(this.OPT.CONTAINER, {
-                    value: null,
-                    method: function(container) {
-                        if (container) {
-                            // Position can get out of sync when the
-                            // control is manipulated while display is
-                            // none.  Resetting the slider constraints
-                            // when it is visible gets the state back in
-                            // order.
-                            container.showEvent.subscribe(function() {
-                                // this.pickerSlider.thumb.resetConstraints();
-                                // this.hueSlider.thumb.resetConstraints();
-                                this.pickerSlider.focus();
-                            }, this, true);
-                        }
-                    }
-                });
-        /**
-         * The closest current websafe value
-         * @config websafe
-         * @type int
-         */
-        this.setAttributeConfig(this.OPT.WEBSAFE, {
-                value: attr.websafe || [255,255,255]
-            });
-
-
-        ids = attr.ids || lang.merge({}, this.ID);
-
-        if (!attr.ids && pickercount > 1) {
-            for (var i in ids) {
-                if (lang.hasOwnProperty(ids, i)) {
-                    ids[i] = ids[i] + pickercount;
-                }
-            }
-        }
-
-
-        /**
-         * A list of element ids and/or element references used by the 
-         * control.  The default is the this.ID list, and can be customized
-         * by passing a list in the contructor
-         * @config ids
-         * @type {referenceid: realid}
-         * @writeonce
-         */
-        this.setAttributeConfig(this.OPT.IDS, {
-                value: ids,
-                writeonce: true
-            });
-
-        /**
-         * A list of txt strings for internationalization.  Default
-         * is this.TXT
-         * @config txt
-         * @type {key: txt}
-         * @writeonce
-         */
-        this.setAttributeConfig(this.OPT.TXT, {
-                value: attr.txt || this.TXT,
-                writeonce: true
-            });
-
-        /**
-         * The img src default list
-         * is this.IMAGES
-         * @config images
-         * @type {key: image}
-         * @writeonce
-         */
-        this.setAttributeConfig(this.OPT.IMAGES, {
-                value: attr.images || this.IMAGE,
-                writeonce: true
-            });
-        /**
-         * The element refs used by this control.  Set at initialization
-         * @config elements
-         * @type {id: HTMLElement}
-         * @readonly
-         */
-        this.setAttributeConfig(this.OPT.ELEMENTS, {
-                value: {},
-                readonly: true
-            });
-
-        /**
-         * Returns the cached element reference.  If the id is not a string, it
-         * is assumed that it is an element and this is returned.
-         * @param id {string|HTMLElement} the element key, id, or ref
-         * @param on {boolean} hide or show.  If true, show
-         * @private */
-        _hideShowEl = function(id, on) {
-            var el = (lang.isString(id) ? this.getElement(id) : id);
-            //Dom.setStyle(id, "visibility", (on) ? "" : "hidden");
-            Dom.setStyle(el, "display", (on) ? "" : "none");
-        };
-
-        /**
-         * Hide/show the entire set of controls
-         * @config showcontrols
-         * @type boolean
-         * @default true
-         */
-        this.setAttributeConfig(this.OPT.SHOW_CONTROLS, {
-                value: (attr.showcontrols) || true,
-                method: function(on) {
-
-                    var el = Dom.getElementsByClassName("bd", "div", 
-                            this.getElement(this.ID.CONTROLS))[0];
-
-                    _hideShowEl.call(this, el, on);
-
-                    this.getElement(this.ID.CONTROLS_LABEL).innerHTML = 
-                        (on) ? this.get(this.OPT.TXT).HIDE_CONTROLS :
-                               this.get(this.OPT.TXT).SHOW_CONTROLS;
-
-                }
-            });
-
-        /**
-         * Hide/show the rgb controls
-         * @config showrgbcontrols
-         * @type boolean
-         * @default true
-         */
-        this.setAttributeConfig(this.OPT.SHOW_RGB_CONTROLS, {
-                value: (attr.showrgbcontrols) || true,
-                method: function(on) {
-                    //Dom.setStyle(this.getElement(this.ID.RBG_CONTROLS), "visibility", (on) ? "" : "hidden");
-                    _hideShowEl.call(this, this.ID.RGB_CONTROLS, on);
-                }
-            });
-
-        /**
-         * Hide/show the hsv controls
-         * @config showhsvcontrols
-         * @type boolean
-         * @default false
-         */
-        this.setAttributeConfig(this.OPT.SHOW_HSV_CONTROLS, {
-                value: (attr.showhsvcontrols) || false,
-                method: function(on) {
-                    //Dom.setStyle(this.getElement(this.ID.HSV_CONTROLS), "visibility", (on) ? "" : "hidden");
-                    _hideShowEl.call(this, this.ID.HSV_CONTROLS, on);
-
-                    // can't show both the hsv controls and the rbg hex summary
-                    if (on && this.get(this.OPT.SHOW_HEX_SUMMARY)) {
-                        this.set(this.OPT.SHOW_HEX_SUMMARY, false);
-                    }
-                }
-            });
-
-        /**
-         * Hide/show the hex controls
-         * @config showhexcontrols
-         * @type boolean
-         * @default true
-         */
-        this.setAttributeConfig(this.OPT.SHOW_HEX_CONTROLS, {
-                value: (attr.showhexcontrols) || false,
-                method: function(on) {
-                    _hideShowEl.call(this, this.ID.HEX_CONTROLS, on);
-                }
-            });
-
-        /**
-         * Hide/show the websafe swatch
-         * @config showwebsafe
-         * @type boolean
-         * @default true
-         */
-        this.setAttributeConfig(this.OPT.SHOW_WEBSAFE, {
-                value: (attr.showwebsafe) || true,
-                method: function(on) {
-                    _hideShowEl.call(this, this.ID.WEBSAFE_SWATCH, on);
-                }
-            });
-
-        /**
-         * Hide/show the hex summary
-         * @config showhexsummary
-         * @type boolean
-         * @default true
-         */
-        this.setAttributeConfig(this.OPT.SHOW_HEX_SUMMARY, {
-                value: (attr.showhexsummary) || true,
-                method: function(on) {
-                    _hideShowEl.call(this, this.ID.HEX_SUMMARY, on);
-
-                    // can't show both the hsv controls and the rbg hex summary
-                    if (on && this.get(this.OPT.SHOW_HSV_CONTROLS)) {
-                        this.set(this.OPT.SHOW_HSV_CONTROLS, false);
-                    }
-                }
-            });
-        this.setAttributeConfig(this.OPT.ANIMATE, {
-                value: (attr.animate) || true,
-                method: function(on) {
-                    this.pickerSlider.animate = on;
-                    this.hueSlider.animate = on;
-                }
-            });
-
-        this.on(this.OPT.HUE + "Change", _updateRGBFromHSV, this, true);
-        this.on(this.OPT.SATURATION + "Change", _updateRGBFromHSV, this, true);
-        this.on(this.OPT.VALUE + "Change", _updatePickerSlider, this, true);
-
-        this.on(this.OPT.RED + "Change", _updateRGB, this, true);
-        this.on(this.OPT.GREEN + "Change", _updateRGB, this, true);
-        this.on(this.OPT.BLUE + "Change", _updateRGB, this, true);
-
-        this.on(this.OPT.HEX + "Change", _updateHex, this, true);
-
-        this.initPicker();
-    };
 
     /**
      * Updates the rgb attribute with the current state of the r,g,b
@@ -1653,73 +1376,356 @@ YAHOO.util.Color = function() {
 
     };
 
-    /**
-     * Moves the sliders into the position dictated by the current state
-     * of the control
-     * @method _updateSliders
-     * @private
-     */
-    var _updateSliders = function() {
-        _updateHueSlider.call(this);
-        _updatePickerSlider.call(this);
-    };
+
 
     /**
-     * Moves the hue slider into the position dictated by the current state
-     * of the control
-     * @method _updateHueSlider
-     * @private
+     * Sets up the config attributes and the change listeners for this
+     * properties
+     * @method initAttributes
+     * @param attr An object containing default attribute values
      */
-    var _updateHueSlider = function() {
-        var size = this.get(this.OPT.PICKER_SIZE),
-            h = this.get(this.OPT.HUE);
+    proto.initAttributes = function(attr) {
 
-        h = size - Math.round(h / 360 * size);
+        attr = attr || {};
+        YAHOO.widget.ColorPicker.superclass.initAttributes.call(this, attr);
         
-        // 0 is at the top and bottom of the hue slider.  Always go to
-        // the top so we don't end up sending the thumb to the bottom
-        // when the value didn't actually change (e.g., a conversion
-        // produced 360 instead of 0 and the value was already 0).
-        if (h === size) {
-            h = 0;
+        /**
+         * The size of the picker. Trying to change this is not recommended.
+         * @attribute pickersize
+         * @default 180
+         * @type int
+         */
+        this.setAttributeConfig(this.OPT.PICKER_SIZE, {
+                value: attr.size || this.DEFAULT.PICKER_SIZE
+            });
+
+        /**
+         * The current hue value 0-360
+         * @attribute hue
+         * @type int
+         */
+        this.setAttributeConfig(this.OPT.HUE, {
+                value: attr.hue || 0,
+                validator: lang.isNumber
+            });
+
+        /**
+         * The current saturation value 0-100
+         * @attribute saturation
+         * @type int
+         */
+        this.setAttributeConfig(this.OPT.SATURATION, {
+                value: attr.saturation || 0,
+                validator: lang.isNumber
+            });
+
+        /**
+         * The current value/brightness value 0-100
+         * @attribute value
+         * @type int
+         */
+        this.setAttributeConfig(this.OPT.VALUE, {
+                value: attr.value || 100,
+                validator: lang.isNumber
+            });
+
+        /**
+         * The current red value 0-255
+         * @attribute red
+         * @type int
+         */
+        this.setAttributeConfig(this.OPT.RED, {
+                value: attr.red || 255,
+                validator: lang.isNumber
+            });
+
+        /**
+         * The current green value 0-255
+         * @attribute green 
+         * @type int
+         */
+        this.setAttributeConfig(this.OPT.GREEN, {
+                value: attr.red || 255,
+                validator: lang.isNumber
+            });
+
+        /**
+         * The current blue value 0-255
+         * @attribute blue
+         * @type int
+         */
+        this.setAttributeConfig(this.OPT.BLUE, {
+                value: attr.blue || 255,
+                validator: lang.isNumber
+            });
+
+        /**
+         * The current hex value #000000-#FFFFFF, without the #
+         * @attribute hex
+         * @type string
+         */
+        this.setAttributeConfig(this.OPT.HEX, {
+                value: attr.hex || "FFFFFF",
+                validator: lang.isString
+            });
+
+        /**
+         * The current rgb value.  Updates the state of all of the
+         * other value fields.  Read-only: use setValue to set the
+         * controls rgb value.
+         * @attribute hex
+         * @type [int, int, int]
+         * @readonly
+         */
+        this.setAttributeConfig(this.OPT.RGB, {
+                value: attr.rgb || [255,255,255],
+                method: function(rgb) {
+
+                    this.set(this.OPT.RED, rgb[0], true);
+                    this.set(this.OPT.GREEN, rgb[1], true);
+                    this.set(this.OPT.BLUE, rgb[2], true);
+
+                    var websafe = Color.websafe(rgb);
+                    this.set(this.OPT.WEBSAFE, websafe, true);
+
+                    var hex = Color.rgb2hex(rgb);
+                    this.set(this.OPT.HEX, hex, true);
+
+                    var hsv = Color.rgb2hsv(rgb);
+
+
+                    this.set(this.OPT.HUE, hsv[0], true);
+                    this.set(this.OPT.SATURATION, Math.round(hsv[1]*100), true);
+                    this.set(this.OPT.VALUE, Math.round(hsv[2]*100), true);
+                },
+                readonly: true
+            });
+
+        /**
+         * If the color picker will live inside of a container object,
+         * set, provide a reference to it so the control can use the
+         * container's events.
+         * @attribute container
+         * @type YAHOO.widget.Panel
+         */
+        this.setAttributeConfig(this.OPT.CONTAINER, {
+                    value: null,
+                    method: function(container) {
+                        if (container) {
+                            // Position can get out of sync when the
+                            // control is manipulated while display is
+                            // none.  Resetting the slider constraints
+                            // when it is visible gets the state back in
+                            // order.
+                            container.showEvent.subscribe(function() {
+                                // this.pickerSlider.thumb.resetConstraints();
+                                // this.hueSlider.thumb.resetConstraints();
+                                this.pickerSlider.focus();
+                            }, this, true);
+                        }
+                    }
+                });
+        /**
+         * The closest current websafe value
+         * @attribute websafe
+         * @type int
+         */
+        this.setAttributeConfig(this.OPT.WEBSAFE, {
+                value: attr.websafe || [255,255,255]
+            });
+
+
+        var ids = attr.ids || lang.merge({}, this.ID);
+
+        if (!attr.ids && _pickercount > 1) {
+            for (var i in ids) {
+                if (lang.hasOwnProperty(ids, i)) {
+                    ids[i] = ids[i] + _pickercount;
+                }
+            }
         }
 
-        this.hueSlider.setValue(h);
+
+        /**
+         * A list of element ids and/or element references used by the 
+         * control.  The default is the this.ID list, and can be customized
+         * by passing a list in the contructor
+         * @attribute ids
+         * @type {referenceid: realid}
+         * @writeonce
+         */
+        this.setAttributeConfig(this.OPT.IDS, {
+                value: ids,
+                writeonce: true
+            });
+
+        /**
+         * A list of txt strings for internationalization.  Default
+         * is this.TXT
+         * @attribute txt
+         * @type {key: txt}
+         * @writeonce
+         */
+        this.setAttributeConfig(this.OPT.TXT, {
+                value: attr.txt || this.TXT,
+                writeonce: true
+            });
+
+        /**
+         * The img src default list
+         * is this.IMAGES
+         * @attribute images
+         * @type {key: image}
+         * @writeonce
+         */
+        this.setAttributeConfig(this.OPT.IMAGES, {
+                value: attr.images || this.IMAGE,
+                writeonce: true
+            });
+        /**
+         * The element refs used by this control.  Set at initialization
+         * @attribute elements
+         * @type {id: HTMLElement}
+         * @readonly
+         */
+        this.setAttributeConfig(this.OPT.ELEMENTS, {
+                value: {},
+                readonly: true
+            });
+
+        /**
+         * Returns the cached element reference.  If the id is not a string, it
+         * is assumed that it is an element and this is returned.
+         * @param id {string|HTMLElement} the element key, id, or ref
+         * @param on {boolean} hide or show.  If true, show
+         * @private */
+        var _hideShowEl = function(id, on) {
+            var el = (lang.isString(id) ? this.getElement(id) : id);
+            //Dom.setStyle(id, "visibility", (on) ? "" : "hidden");
+            Dom.setStyle(el, "display", (on) ? "" : "none");
+        };
+
+        /**
+         * Hide/show the entire set of controls
+         * @attribute showcontrols
+         * @type boolean
+         * @default true
+         */
+        this.setAttributeConfig(this.OPT.SHOW_CONTROLS, {
+                value: (attr.showcontrols) || true,
+                method: function(on) {
+
+                    var el = Dom.getElementsByClassName("bd", "div", 
+                            this.getElement(this.ID.CONTROLS))[0];
+
+                    _hideShowEl.call(this, el, on);
+
+                    this.getElement(this.ID.CONTROLS_LABEL).innerHTML = 
+                        (on) ? this.get(this.OPT.TXT).HIDE_CONTROLS :
+                               this.get(this.OPT.TXT).SHOW_CONTROLS;
+
+                }
+            });
+
+        /**
+         * Hide/show the rgb controls
+         * @attribute showrgbcontrols
+         * @type boolean
+         * @default true
+         */
+        this.setAttributeConfig(this.OPT.SHOW_RGB_CONTROLS, {
+                value: (attr.showrgbcontrols) || true,
+                method: function(on) {
+                    //Dom.setStyle(this.getElement(this.ID.RBG_CONTROLS), "visibility", (on) ? "" : "hidden");
+                    _hideShowEl.call(this, this.ID.RGB_CONTROLS, on);
+                }
+            });
+
+        /**
+         * Hide/show the hsv controls
+         * @attribute showhsvcontrols
+         * @type boolean
+         * @default false
+         */
+        this.setAttributeConfig(this.OPT.SHOW_HSV_CONTROLS, {
+                value: (attr.showhsvcontrols) || false,
+                method: function(on) {
+                    //Dom.setStyle(this.getElement(this.ID.HSV_CONTROLS), "visibility", (on) ? "" : "hidden");
+                    _hideShowEl.call(this, this.ID.HSV_CONTROLS, on);
+
+                    // can't show both the hsv controls and the rbg hex summary
+                    if (on && this.get(this.OPT.SHOW_HEX_SUMMARY)) {
+                        this.set(this.OPT.SHOW_HEX_SUMMARY, false);
+                    }
+                }
+            });
+
+        /**
+         * Hide/show the hex controls
+         * @attribute showhexcontrols
+         * @type boolean
+         * @default true
+         */
+        this.setAttributeConfig(this.OPT.SHOW_HEX_CONTROLS, {
+                value: (attr.showhexcontrols) || false,
+                method: function(on) {
+                    _hideShowEl.call(this, this.ID.HEX_CONTROLS, on);
+                }
+            });
+
+        /**
+         * Hide/show the websafe swatch
+         * @attribute showwebsafe
+         * @type boolean
+         * @default true
+         */
+        this.setAttributeConfig(this.OPT.SHOW_WEBSAFE, {
+                value: (attr.showwebsafe) || true,
+                method: function(on) {
+                    _hideShowEl.call(this, this.ID.WEBSAFE_SWATCH, on);
+                }
+            });
+
+        /**
+         * Hide/show the hex summary
+         * @attribute showhexsummary
+         * @type boolean
+         * @default true
+         */
+        this.setAttributeConfig(this.OPT.SHOW_HEX_SUMMARY, {
+                value: (attr.showhexsummary) || true,
+                method: function(on) {
+                    _hideShowEl.call(this, this.ID.HEX_SUMMARY, on);
+
+                    // can't show both the hsv controls and the rbg hex summary
+                    if (on && this.get(this.OPT.SHOW_HSV_CONTROLS)) {
+                        this.set(this.OPT.SHOW_HSV_CONTROLS, false);
+                    }
+                }
+            });
+        this.setAttributeConfig(this.OPT.ANIMATE, {
+                value: (attr.animate) || true,
+                method: function(on) {
+                    this.pickerSlider.animate = on;
+                    this.hueSlider.animate = on;
+                }
+            });
+
+        this.on(this.OPT.HUE + "Change", _updateRGBFromHSV, this, true);
+        this.on(this.OPT.SATURATION + "Change", _updateRGBFromHSV, this, true);
+        this.on(this.OPT.VALUE + "Change", _updatePickerSlider, this, true);
+
+        this.on(this.OPT.RED + "Change", _updateRGB, this, true);
+        this.on(this.OPT.GREEN + "Change", _updateRGB, this, true);
+        this.on(this.OPT.BLUE + "Change", _updateRGB, this, true);
+
+        this.on(this.OPT.HEX + "Change", _updateHex, this, true);
+
+        this.initPicker();
     };
 
-    /**
-     * Moves the picker slider into the position dictated by the current state
-     * of the control
-     * @method _updatePickerSlider
-     * @private
-     */
-    var _updatePickerSlider = function() {
-        var size = this.get(this.OPT.PICKER_SIZE),
-            s = this.get(this.OPT.SATURATION),
-            v = this.get(this.OPT.VALUE);
 
-        s = Math.round(s * size / 100);
-        v = Math.round(size - (v * size / 100));
-
-
-        this.pickerSlider.setRegionValue(s, v);
-    };
-
-    /**
-     * Creates the host element if it doesn't exist
-     * @method _createHostElement
-     * @private
-     */
-    var _createHostElement = function() {
-        var el = document.createElement('div');
-
-        if (this.CSS.BASE) {
-            el.className = this.CSS.BASE;
-        }
-        
-        return el;
-    };
 
 
 })();
-YAHOO.register("colorpicker", YAHOO.widget.ColorPicker, {version: "2.3.0", build: "442"});
+YAHOO.register("colorpicker", YAHOO.widget.ColorPicker, {version: "2.3.1", build: "541"});

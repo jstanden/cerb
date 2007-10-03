@@ -2,7 +2,7 @@
 Copyright (c) 2007, Yahoo! Inc. All rights reserved.
 Code licensed under the BSD License:
 http://developer.yahoo.net/yui/license.txt
-version: 2.3.0
+version: 2.3.1
 */
 /**
  * The YAHOO object is the single global object used by YUI Library.  It
@@ -323,7 +323,7 @@ YAHOO.env.ua = function() {
  */
 (function() {
     YAHOO.namespace("util", "widget", "example");
-    if (typeof YAHOO_config != "undefined") {
+    if ("undefined" !== typeof YAHOO_config) {
         var l=YAHOO_config.listener,ls=YAHOO.env.listeners,unique=true,i;
         if (l) {
             // if YAHOO is loaded multiple times we need to check to see if
@@ -479,7 +479,7 @@ return (o && (typeof o === 'object' || YAHOO.lang.isFunction(o))) || false;
      */
     _IEEnumFix: function(r, s) {
         if (YAHOO.env.ua.ie) {
-            var add=["toString", "valueOf"];
+            var add=["toString", "valueOf"], i;
             for (i=0;i<add.length;i=i+1) {
                 var fname=add[i],f=s[fname];
                 if (YAHOO.lang.isFunction(f) && f!=Object.prototype[fname]) {
@@ -610,12 +610,13 @@ return (o && (typeof o === 'object' || YAHOO.lang.isFunction(o))) || false;
         var l=YAHOO.lang,i,len,s=[],OBJ="{...}",FUN="f(){...}",
             COMMA=', ', ARROW=' => ';
 
-        // Skip non-objects
+        // Cast non-objects to string
         // Skip dates because the std toString is what we want
         // Skip HTMLElement-like objects because trying to dump 
         // an element will cause an unhandled exception in FF 2.x
-        if (!l.isObject(o) || o instanceof Date || 
-            ("nodeType" in o && "tagName" in o)) {
+        if (!l.isObject(o)) {
+            return o + "";
+        } else if (o instanceof Date || ("nodeType" in o && "tagName" in o)) {
             return o;
         } else if  (l.isFunction(o)) {
             return FUN;
@@ -865,4 +866,4 @@ YAHOO.augment = YAHOO.lang.augmentProto;
  */
 YAHOO.extend = YAHOO.lang.extend;
 
-YAHOO.register("yahoo", YAHOO, {version: "2.3.0", build: "442"});
+YAHOO.register("yahoo", YAHOO, {version: "2.3.1", build: "541"});

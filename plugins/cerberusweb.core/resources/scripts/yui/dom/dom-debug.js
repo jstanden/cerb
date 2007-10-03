@@ -2,7 +2,7 @@
 Copyright (c) 2007, Yahoo! Inc. All rights reserved.
 Code licensed under the BSD License:
 http://developer.yahoo.net/yui/license.txt
-version: 2.3.0
+version: 2.3.1
 */
 /**
  * The dom module provides helper methods for manipulating Dom elements.
@@ -149,15 +149,15 @@ version: 2.3.0
          * @return {HTMLElement | Array} A DOM reference to an HTML element or an array of HTMLElements.
          */
         get: function(el) {
-            if (!el || el.tagName || el.item) { // null, HTMLElement, or HTMLCollection
+            if (el && (el.tagName || el.item)) { // HTMLElement, or HTMLCollection
                 return el;
             }
 
-            if (YAHOO.lang.isString(el)) { // HTMLElement or null
+            if (YAHOO.lang.isString(el) || !el) { // HTMLElement or null
                 return document.getElementById(el);
             }
             
-            if (el.splice) { // Array of HTMLElements/IDs
+            if (el.length !== undefined) { // array-like 
                 var c = [];
                 for (var i = 0, len = el.length; i < len; ++i) {
                     c[c.length] = Y.Dom.get(el[i]);
@@ -479,6 +479,7 @@ version: 2.3.0
          * @method addClass         
          * @param {String | HTMLElement | Array} el The element or collection to add the class to
          * @param {String} className the class name to add to the class attribute
+         * @return {Boolean | Array} A pass/fail boolean or array of booleans
          */
         addClass: function(el, className) {
             var f = function(el) {
@@ -500,6 +501,7 @@ version: 2.3.0
          * @method removeClass         
          * @param {String | HTMLElement | Array} el The element or collection to remove the class from
          * @param {String} className the class name to remove from the class attribute
+         * @return {Boolean | Array} A pass/fail boolean or array of booleans
          */
         removeClass: function(el, className) {
             var re = getClassRegEx(className);
@@ -531,6 +533,7 @@ version: 2.3.0
          * @param {String | HTMLElement | Array} el The element or collection to remove the class from
          * @param {String} oldClassName the class name to be replaced
          * @param {String} newClassName the class name that will be replacing the old class name
+         * @return {Boolean | Array} A pass/fail boolean or array of booleans
          */
         replaceClass: function(el, oldClassName, newClassName) {
             if (!newClassName || oldClassName === newClassName) { // avoid infinite loop
@@ -680,17 +683,17 @@ version: 2.3.0
         },
         
         /**
-         * Returns an the method(s) return value(s).
+         * Runs the supplied method against each item in the Collection/Array.
          * The method is called with the element(s) as the first arg, and the optional param as the second ( method(el, o) ).
          * @method batch
          * @param {String | HTMLElement | Array} el (optional) An element or array of elements to apply the method to
          * @param {Function} method The method to apply to the element(s)
          * @param {Any} o (optional) An optional arg that is passed to the supplied method
          * @param {Boolean} override (optional) Whether or not to override the scope of "method" with "o"
-         * @return {Any | Array} The return value(s) from the supplied methods
+         * @return {Any | Array} The return value(s) from the supplied method
          */
         batch: function(el, method, o, override) {
-            el = (el && el.tagName) ? el : Y.Dom.get(el); // skip get() when possible
+            el = (el && (el.tagName || el.item)) ? el : Y.Dom.get(el); // skip get() when possible
 
             if (!el || !method) {
                 YAHOO.log('batch failed: invalid arguments', 'error', 'Dom');
@@ -698,7 +701,7 @@ version: 2.3.0
             } 
             var scope = (override) ? o : window;
             
-            if (el.tagName || (!el.item && !el.slice)) { // not a collection or array, just run the method
+            if (el.tagName || el.length === undefined) { // element or not array-like 
                 return method.call(scope, el, o);
             } 
 
@@ -1247,4 +1250,4 @@ YAHOO.util.Point = function(x, y) {
 
 YAHOO.util.Point.prototype = new YAHOO.util.Region();
 
-YAHOO.register("dom", YAHOO.util.Dom, {version: "2.3.0", build: "442"});
+YAHOO.register("dom", YAHOO.util.Dom, {version: "2.3.1", build: "541"});

@@ -2,7 +2,7 @@
 Copyright (c) 2007, Yahoo! Inc. All rights reserved.
 Code licensed under the BSD License:
 http://developer.yahoo.net/yui/license.txt
-version: 2.3.0
+version: 2.3.1
 */
 /**
  * The image loader is a framework to dynamically load images
@@ -439,4 +439,4 @@ YAHOO.util.ImageLoader.pngBgImgObj.prototype._applyUrl = function(el) {
 		el.style.backgroundImage = "url('" + this.url + "')";
 	}
 };
-YAHOO.register("imageloader", YAHOO.util.ImageLoader, {version: "2.3.0", build: "442"});
+YAHOO.register("imageloader", YAHOO.util.ImageLoader, {version: "2.3.1", build: "541"});

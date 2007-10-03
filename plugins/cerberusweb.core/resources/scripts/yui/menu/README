@@ -1,4 +1,49 @@
-*** version 2.3.0 ***
+*** version 2.3.1 ***
+
+Fixed the following bugs:
+-------------------------
+
++ Including both the Container and Menu CSS on a page will no longer result in 
+  statically positioned Menu instances rendering as hidden.
+
++ The focus outline for MenuItem instances no longer sticks in Opera.
+
++ Clicking MenuItem instances without a value for the "url" configuration 
+  property will no longer result in the MenuItem losing focus.
+  
++ Menu and MenuBar instances will no longer be rendered with bullets when a 
+  page includes the YUI Base CSS.
+
++ Submenus of scrolling menus are now able to be displayed.
+
++ MenuItem instances now correctly navigate to the URL specified by their 
+  "url" configuration property when clicked in Opera.
+
++ Applying the "yui-sam-skin" CSS class name to elements other than the <BODY>
+  will no longer result in submenus of Menu instances being rendered at 
+  an incorrect width.
+
++ Replaced hard coded absolute path in Menu CSS file with correct relative path.
+
++ Menu instances will now render at the correct with if the browser's font size 
+  is changed prior its initial display.
+
++ Clearing and repopulating Menu instances via the "clearContent" method no
+  longer triggers JavaScript errors.
+
++ Submenus are now rendered at their correct width in Opera.
+
+
+Added the following features:
+-----------------------------
+
++ Added new CSS class "yui-menu-body-scrolled" that is applied to the body 
+  element of a Menu instance when it is scrolled via use of the "maxheight" 
+  cofiguration property.
+
+
+
+*** version 2.3 ***
 
 Fixed the following bugs:
 -------------------------

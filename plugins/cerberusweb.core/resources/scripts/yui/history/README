@@ -1,5 +1,9 @@
 YUI Library - History - Release Notes
 
+2.3.1
+
+  * No Change
+
 2.3.0
 
   * The Browser History Manager now works on IE if used inside an IFrame

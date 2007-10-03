@@ -2,7 +2,7 @@
 Copyright (c) 2007, Yahoo! Inc. All rights reserved.
 Code licensed under the BSD License:
 http://developer.yahoo.net/yui/license.txt
-version: 2.3.0
+version: 2.3.1
 */
 /* basic skin styles */
 .yui-skin-sam .yui-dt-table {margin:0;padding:0;font-family:arial;font-size:inherit;border-collapse:collapse;border:1px solid #7F7F7F;}
@@ -21,7 +21,6 @@ version: 2.3.0
     border-right:1px solid #CBCBCB; /* inner column border */
 }
 .yui-skin-sam .yui-dt-table td {
-    white-space:nowrap;
     text-align:left;
 }
 .yui-skin-sam .yui-dt-table th.yui-dt-last,

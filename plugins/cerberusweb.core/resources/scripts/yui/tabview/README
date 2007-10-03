@@ -1,5 +1,8 @@
 TabView Release Notes
 
+*** version 2.3.1 ***
+* removed Xoutline from tabview-core.css
+
 ** version 2.3.0 ***
 * no longer firing tabChange if already selected
 * multiple clicks no longer trigger extra xhr if in progress
