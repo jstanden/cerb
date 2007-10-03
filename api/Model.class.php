@@ -1156,6 +1156,20 @@ class CerberusWorker {
 		return DAO_Worker::getGroupMemberships($this->id);
 	}
 	
+	function isTeamManager($team_id) {
+	    @$memberships = $this->getMemberships();
+	    $teams = DAO_Group::getAll();
+		if(
+			empty($team_id) // null 
+			|| !isset($teams[$team_id]) // doesn't exist 
+			|| !isset($memberships[$team_id])  // not a member
+			|| (!$memberships[$team_id]->is_manager && !$this->is_superuser) // not a manager or superuser
+			){
+			return false;
+		}
+		return true;
+	}
+	
 	function getName() {
 		return sprintf("%s%s%s",
 			$this->first_name,

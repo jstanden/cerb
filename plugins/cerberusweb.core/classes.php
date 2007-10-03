@@ -309,10 +309,16 @@ class ChTicketsPage extends CerberusPageExtension {
 		);
 		$tpl->assign('translated', $translated);
 		
-		if(!empty($section)) {
-			$visit->set(CerberusVisit::KEY_MAIL_MODE, $section);
-		} else {
-			$section = $visit->get(CerberusVisit::KEY_MAIL_MODE, '');
+		// Remember the last subsection
+		switch($section) {
+			case 'search':
+			case 'lists':
+			case 'workspaces':
+				$visit->set(CerberusVisit::KEY_MAIL_MODE, $section);
+				break;
+			case NULL:
+				$section = $visit->get(CerberusVisit::KEY_MAIL_MODE, '');
+				break;
 		}
 		
 		// ====== Renders
@@ -399,7 +405,12 @@ class ChTicketsPage extends CerberusPageExtension {
 				array_shift($response_path); // team
 				$team_id = array_shift($response_path); // id
 				
-				$team = DAO_Group::getTeam($team_id);
+				if(!$active_worker->isTeamManager($team_id)) {
+					return;
+				} else {
+					$teams = DAO_Group::getAll();
+					$team =& $teams[$team_id];					
+				}
 				
 				if(empty($team))
 				    break;
@@ -1684,6 +1695,10 @@ class ChTicketsPage extends CerberusPageExtension {
 	// Post
 	function saveTeamGeneralAction() {
 	    @$team_id = DevblocksPlatform::importGPC($_REQUEST['team_id'],'integer');
+
+	    @$active_worker = CerberusApplication::getActiveWorker();
+	    if(!$active_worker->isTeamManager($team_id))
+	    	return;
 	    
 	    //========== GENERAL
 	    @$signature = DevblocksPlatform::importGPC($_REQUEST['signature'],'string','');
@@ -1721,6 +1736,10 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_ids'],'array');
 		@$is_manager = DevblocksPlatform::importGPC($_REQUEST['is_manager'],'integer');
 
+	    @$active_worker = CerberusApplication::getActiveWorker();
+	    if(!$active_worker->isTeamManager($team_id))
+	    	return;
+		
 		foreach($worker_ids as $worker_id) {
 			DAO_Group::setTeamMember($team_id, $worker_id, $is_manager);
 		}
@@ -1733,6 +1752,10 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$team_id = DevblocksPlatform::importGPC($_REQUEST['team_id'],'integer');
 		@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'integer');
 
+	    @$active_worker = CerberusApplication::getActiveWorker();
+	    if(!$active_worker->isTeamManager($team_id))
+	    	return;
+		
 		DAO_Group::unsetTeamMember($team_id, $worker_id);
 		
 		//DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','team',$team_id,'members')));
@@ -1741,6 +1764,10 @@ class ChTicketsPage extends CerberusPageExtension {
 	
 	function saveTeamBucketsAction() {
 	    @$team_id = DevblocksPlatform::importGPC($_REQUEST['team_id'],'integer');
+	    
+	    @$active_worker = CerberusApplication::getActiveWorker();
+	    if(!$active_worker->isTeamManager($team_id))
+	    	return;
 	    
 	    //========== BUCKETS   
 	    @$ids = DevblocksPlatform::importGPC($_REQUEST['ids'],'array');
@@ -1776,6 +1803,10 @@ class ChTicketsPage extends CerberusPageExtension {
 	function saveTeamRoutingAction() {
 	    @$team_id = DevblocksPlatform::importGPC($_REQUEST['team_id'],'integer');
 	    @$deletes = DevblocksPlatform::importGPC($_REQUEST['deletes'],'array');
+	    
+	    @$active_worker = CerberusApplication::getActiveWorker();
+	    if(!$active_worker->isTeamManager($team_id))
+	    	return;
 	    
 	    if(!empty($team_id) && !empty($deletes)) {
 	        DAO_TeamRoutingRule::delete($deletes);
