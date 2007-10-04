@@ -9,18 +9,29 @@
 
 <b>Change Password:</b><br>
 <div id="preferences_error" style="color: red; font-weight: bold;"></div>
-New Password <input type="password" name="change_pass" value=""><br>
-Verify Password <input type="password" name="change_pass_verify"=""><br><br>
+<table cellspacing="1" cellpadding="0" border="0">
+<tr>
+	<td>Change Password: </td>
+	<td><input type="password" name="change_pass" value=""></td>
+</tr>
+<tr>
+	<td>Verify Password: </td>
+	<td><input type="password" name="change_pass_verify"=""></td>
+</tr>
+</table>
+<br>
 
 <b>Assist Mode:</b><br>
 <label><input type="checkbox" name="assist_mode" value="1" {if $assist_mode eq 1}checked{/if}> Enable Helpdesk Assistant</label><br>
 <br>
 
+<!-- 
 <b>Timezone:</b><br>
 <select name="timezone">
 	<option value="">---</option>
 </select><br>
 <br>
+ -->
 
 <input type="submit" value="{$translate->_('common.save_changes')}">
 </form>

@@ -459,6 +459,7 @@ switch($step) {
 						case "cerberusweb.core":
 						case "cerberusweb.simulator":
 						case "usermeet.core":
+						case "usermeet.sc":
 							$plugin_manifest->setEnabled(true);
 							break;
 						
@@ -848,41 +849,7 @@ switch($step) {
 		break;
 		
 	case STEP_UPGRADE:
-		$patchMgr = DevblocksPlatform::getPatchService();
-		$patchMgr->clear();
-		
-		// [JAS]: Run our overloaded container for the platform
-		$patchMgr->registerPatchContainer(new PlatformPatchContainer());
-		
-		// Clean script
-		if(!$patchMgr->run()) {
-			// [TODO] Show more info on the error
-			$tpl->assign('template', 'steps/step_upgrade.tpl.php');
-			
-		} else { // success
-			// Read in plugin information from the filesystem to the database
-			DevblocksPlatform::readPlugins();
-			DevblocksPlatform::clearCache();
-			
-			// Run enabled plugin patches
-			$patches = DevblocksPlatform::getExtensions("devblocks.patch.container");
-			
-			if(is_array($patches))
-			foreach($patches as $patch_manifest) { /* @var $patch_manifest DevblocksExtensionManifest */ 
-				 $container = $patch_manifest->createInstance(); /* @var $container DevblocksPatchContainerExtension */
-				 $patchMgr->registerPatchContainer($container);
-			}
-			
-			if(!$patchMgr->run()) { // fail
-				$tpl->assign('template', 'steps/step_upgrade.tpl.php');
-				
-			} else { // pass
-				$tpl->assign('step', STEP_FINISHED);
-				$tpl->display('steps/redirect.tpl.php');
-				exit;
-			}
-		}
-		
+		$tpl->assign('template', 'steps/step_upgrade.tpl.php');
 		break;
 		
 	// [TODO] Delete the /install/ directory (security)
