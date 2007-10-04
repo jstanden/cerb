@@ -105,11 +105,17 @@ var cAjaxCalls = function() {
 	}
 
 	this.saveBatchPanel = function(view_id) {
+		var divName = 'view'+view_id;
+		var formName = 'viewForm'+view_id;
+		var viewDiv = document.getElementById(divName);
+		var viewForm = document.getElementById(formName);
+		if(null == viewForm || null == viewDiv) return;
+
 		var frm = document.getElementById('formBatchUpdate');
-		
 		// [JAS]: Compile a list of checked ticket IDs
-		var viewForm = document.getElementById('viewForm'+view_id);
-		if(null == viewForm) return;
+	//	var viewForm = document.getElementById('viewForm'+view_id);
+	//	if(null == viewForm) return;
+
 		var elements = viewForm.elements['ticket_id[]'];
 		if(null == elements) return;
 		
@@ -129,27 +135,16 @@ var cAjaxCalls = function() {
 		
 		frm.ticket_ids.value = ids.join(',');		
 
-		YAHOO.util.Connect.setForm('formBatchUpdate');
-		
-		var cObj = YAHOO.util.Connect.asyncRequest('POST', DevblocksAppPath+'ajax.php', {
-				success: function(o) {
-					var caller = o.argument.caller;
-					
-					if(null != genericPanel) {
-						genericPanel.hide();
-					}
-					
-					var view_id = o.argument.view_id;
-					var div = document.getElementById('view'+view_id);
-					div.innerHTML = o.responseText;
-					
-					document.location = '#top';
-					
-					genericAjaxGet('dashboardPanel','c=tickets&a=refreshTeamFilters');
-				},
-				failure: function(o) {},
-				argument:{caller:this,view_id:view_id}
-		});	
+		genericAjaxPost('formBatchUpdate', '', 'c=tickets&a=doBatchUpdate', function(o) {
+			viewDiv.innerHTML = o.responseText;
+
+			if(null != genericPanel) {
+				genericPanel.hide();
+			}
+			
+			document.location = '#top';
+			genericAjaxGet('dashboardPanel','c=tickets&a=refreshTeamFilters');
+		});
 	}
 
 	this.viewMoveTickets = function(view_id) {
