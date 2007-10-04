@@ -213,12 +213,17 @@ switch($step) {
 			//$fails++; // Not fatal
 		}
 
-		$ini_memory_limit = intval(ini_get("memory_limit"));
-		if($ini_memory_limit >= 16) {
+		$memory_limit = ini_get("memory_limit");
+		if ($memory_limit == '') { // empty string means failure or not defined, assume no compiled memory limits
 			$results['memory_limit'] = true;
 		} else {
-			$results['memory_limit'] = false;
-			$fails++;
+			$ini_memory_limit = intval($memory_limit);
+			if($ini_memory_limit >= 16) {
+				$results['memory_limit'] = true;
+			} else {
+				$results['memory_limit'] = false;
+				$fails++;
+			}
 		}
 		
 		// Extension: Sessions
