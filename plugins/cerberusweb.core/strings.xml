@@ -250,7 +250,7 @@
 			<tuv xml:lang="en"><seg>Not signed in</seg></tuv>
 		</tu>
 		<tu tuid='header.preferences'>
-			<tuv xml:lang="en"><seg>my preferences</seg></tuv>
+			<tuv xml:lang="en"><seg>my account</seg></tuv>
 		</tu>
 		<tu tuid='header.signed_in'>
 			<tuv xml:lang="en"><seg>Signed in as %s</seg></tuv>

@@ -71,15 +71,20 @@ This Support Center will allow your community to search your external knowledge 
 Cerberus Helpdesk's <b>Fetch & Retrieve</b> system, returning direct links to content like knowledgebase 
 articles, wiki articles, forum posts, documentation pages, blog entries, wishlist/bug reports, etc.<br>
 <br>
-Choose which resources to expose to this portal:<br>
-<br>
-{foreach from=$topics item=topic}
-<b>{$topic->name}</b><br>
-{foreach from=$topic->getResources() item=resource key=rid}
-<label><input type="checkbox" name="fnr_sources[]" value="{$resource->id}" {if isset($fnr_sources.$rid)}checked{/if}> {$resource->name}</label><br>
-{/foreach}
-<br>
-{/foreach}
+
+{if !empty($topics)}
+	Choose which resources to expose to this portal:<br>
+	<br>
+	{foreach from=$topics item=topic}
+	<b>{$topic->name}</b><br>
+	{foreach from=$topic->getResources() item=resource key=rid}
+	<label><input type="checkbox" name="fnr_sources[]" value="{$resource->id}" {if isset($fnr_sources.$rid)}checked{/if}> {$resource->name}</label><br>
+	{/foreach}
+	<br>
+	{/foreach}
+{else}
+	<div class="error">Fetch & Retrieve has not been configured.</div>
+{/if}
 </div>
 <br>
 

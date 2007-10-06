@@ -52,5 +52,7 @@ Search results for '<b>{$query}</b>':<br>
 	</div>
 	
 {/foreach}
+{else}
+	No results found.
 {/if} {*feeds*}
 <br>

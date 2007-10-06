@@ -104,10 +104,16 @@ class ChSimulatorPage extends CerberusPageExtension {
 	
 	function generateTicketsAction() {
 		require_once(dirname(__FILE__) . '/api/API.class.php');
+		$tpl = DevblocksPlatform::getTemplateService();
 		
 		@$address = DevblocksPlatform::importGPC($_POST['address'],'string'); 
 		@$dataset = DevblocksPlatform::importGPC($_POST['dataset'],'string');
 		@$how_many = DevblocksPlatform::importGPC($_POST['how_many'],'integer');
+
+		if(empty($address)) {
+			$tpl->assign('error', sprintf("Oops! '%s' is not a valid e-mail address.", htmlentities($address)));
+			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('simulator')));
+		}
 		
 		// [JAS]: [TODO] This should probably move to an extension point later
 		switch($dataset) {
@@ -157,6 +163,7 @@ class ChSimulatorPage extends CerberusPageExtension {
 			CerberusParser::parseMessage($message,array('no_autoreply'=>true));
 		}
 		
+		$tpl->assign('output', sprintf("Success!  %d simulated tickets were generated for %s", $how_many, htmlentities($address)));
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('simulator')));
 	}
 	

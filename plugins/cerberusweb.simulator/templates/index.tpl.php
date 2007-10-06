@@ -1,5 +1,12 @@
 <H1>Simulator</H1>
+
+{if !empty($error)}
+<div class="error">{$error}</div>
+{elseif !empty($output)}
+<div class="success">{$output}</div>
+{else}
 <br>
+{/if}
 
 <div class="block">
 <form method="post" action="{devblocks_url}{/devblocks_url}">

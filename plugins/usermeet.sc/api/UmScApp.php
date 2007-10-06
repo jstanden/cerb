@@ -922,6 +922,11 @@ class UmScCoreController extends Extension_UmScController {
 				
 			case 'contact':
 		    	$response = array_shift($stack);
+		    	
+		    	$settings = CerberusSettings::getInstance();
+        		$default_from = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM);
+        		$tpl->assign('default_from', $default_from);
+		    	
 		    	switch($response) {
 		    		case 'confirm':
 		    			$tpl->assign('last_opened',$umsession->getProperty('support.write.last_opened',''));

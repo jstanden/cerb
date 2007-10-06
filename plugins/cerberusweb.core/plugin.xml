@@ -32,6 +32,17 @@
 			<param key="team_id" />
 			<param key="bucket_id" />
 		</event>
+		<event id="ticket.reply.inbound">
+			<name>Ticket Inbound Reply</name>
+			<param key="ticket_id" />
+			<param key="message_id" />
+		</event>
+		<event id="ticket.reply.outbound">
+			<name>Ticket Outbound Reply</name>
+			<param key="ticket_id" />
+			<param key="message_id" />
+			<param key="worker_id" />
+		</event>
 	</event_points>
 
 	<extensions>

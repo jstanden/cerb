@@ -4,6 +4,7 @@
 	</div>
 {/if}
 
+{if !empty($dispatch)}
 <form action="{devblocks_url}{/devblocks_url}" method="post">
 <input type="hidden" name="a" value="doContactStep2">
 <table border="0" cellpadding="0" cellspacing="0" width="100%">
@@ -22,15 +23,17 @@
 		
 		<br>
 		<button type="submit"><img src="{devblocks_url}c=resource&p=usermeet.core&f=images/check.gif{/devblocks_url}" align="top" border="0"> OK</button>
-		<!-- 
-		<button type="button" onclick="document.location='{devblocks_url}{/devblocks_url}';"><img src="{devblocks_url}c=resource&p=usermeet.core&f=images/delete.gif{/devblocks_url}" align="top" border="0"> Cancel</button>
-		 -->
-		
       </td>
     </tr>
     
   </tbody>
 </table>
 </form>
+{elseif !empty($default_from)}
+	<div style="border-bottom:1px solid rgb(180,180,180);margin-bottom:10px;">
+   	<h2 style="margin-bottom:0px;">Contact us</h2>
+   	</div>
+	You can write to us at: <a href="mailto:{$default_from}">{$default_from}</a>
+{/if}
 <br>
 

@@ -16,10 +16,13 @@
 <input type="text" name="logo" value="{$settings->get('helpdesk_logo_url')|escape:"html"}" size="64"><br>
 <br>
 
+<!-- 
 <b>Timezone:</b><br>
 <select name="timezone">
 	<option value="">---</option>
 </select><br>
+ -->
+
 </div>
 <br>
 

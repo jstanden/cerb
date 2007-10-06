@@ -251,7 +251,7 @@ foreach($tables as $table => $flds) {
 		}
 
 		// Add indexes for this table if we have them
-		if(is_array($indexes) && $indexes[$table])
+		if(is_array($indexes) && isset($indexes[$table]))
 		foreach($indexes[$table] as $idxname => $idxflds) {
 			$sqlarray = $datadict->CreateIndexSQL($idxname, $table, $idxflds);
 			if(!$datadict->ExecuteSQLArray($sqlarray,false)) {

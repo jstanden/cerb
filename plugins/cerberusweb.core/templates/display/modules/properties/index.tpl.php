@@ -21,11 +21,22 @@
 
 <h2>Send responses to:</h2>
 <blockquote style="margin:10px;">
-	{foreach from=$requesters item=requester}
-		<label><input type="checkbox" name="remove[]" value="{$requester->id}"> {$requester->email}</label><br>
-	{/foreach}
+	{if !empty($requesters)}
+		<table cellpadding="2" cellspacing="0" border="0">
+		<tr>
+			<td><b>E-mail</b></td>
+			<td align="center"><b>{$translate->_('common.delete')|capitalize}</b></td>
+		</tr>
+		{foreach from=$requesters item=requester}
+			<tr>
+				<td align="left">{$requester->email}</td>
+				<td align="center"><input type="checkbox" name="remove[]" value="{$requester->id}"></td>
+			</tr>
+		{/foreach}
+		</table>
+		<br>
+	{/if}
 	
-	<br>
 	<b>Add more recipients:</b> (one e-mail address per line)<br>
 	<textarea rows="3" cols="50" name="add"></textarea><br>
 	

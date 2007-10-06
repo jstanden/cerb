@@ -5,6 +5,8 @@
 		<tr>
 			<td style="padding: 5px; vertical-align: top;">
 				{assign var=cloudpath value=$cloud->getPath()}
+				{assign var=taginfo value=$cloud->getPathTagInfo()}
+				
 				{if !empty($cloudpath)}
 					<div id="kbTagCloudNav">
 					<a href="{devblocks_url}c=rss&a=tags&tags={$tags_prefix|escape:"url"}{/devblocks_url}"><img src="{devblocks_url}c=resource&p=usermeet.core&f=images/feed-icon-16x16.gif{/devblocks_url}" alt="RSS Feed" align="top" border="0"></a>
@@ -13,11 +15,12 @@
 						<a href="{devblocks_url}c=browse&path={$part->name|escape:"url"}{/devblocks_url}">{$part->name}</a>{if !$smarty.foreach.parts.last} + {/if}
 					{/foreach}
 					</div>
-				{else}
+				{elseif !empty($taginfo)}
 					Choose a topic:
+				{else}
+					Nothing to see here yet!
 				{/if}
 				
-				{assign var=taginfo value=$cloud->getPathTagInfo()}
 				{assign var=tags value=$taginfo.tags}
 				{assign var=weights value=$taginfo.weights}
 				{assign var=font_weights value=$taginfo.font_weights}
