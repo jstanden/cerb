@@ -93,11 +93,12 @@ abstract class Extension_UmScController extends DevblocksExtension implements De
 	
 	/**
 	 * @return Model_CommunitySession
+	 * // [TODO] This should inherit from usermeet.core (if they lose sync we lose sessions)
 	 */
 	protected function getSession() {
 		$fingerprint = $this->getFingerprint();
 		
-		$session_id = md5($fingerprint['ip'] . $fingerprint['local_sessid']);
+		$session_id = md5($fingerprint['ip'] . $this->getPortal() . $fingerprint['local_sessid']);
 		$session = DAO_CommunitySession::get($session_id);
 		
 		return $session;
