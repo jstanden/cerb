@@ -48,6 +48,7 @@
  * 		and Joe Geck.
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
+
 abstract class CerberusPageExtension extends DevblocksExtension {
 	function __construct($manifest) {
 		$this->DevblocksExtension($manifest,1);
@@ -62,6 +63,15 @@ abstract class CerberusPageExtension extends DevblocksExtension {
 	public function getActivity() {
         return new Model_Activity();
 	}
+};
+
+abstract class Extension_PreferenceTab extends DevblocksExtension {
+	function __construct($manifest) {
+		$this->DevblocksExtension($manifest,1);
+	}
+	
+	function showTab() {}
+	function saveTab() {}
 };
 
 abstract class CerberusDisplayPageExtension extends DevblocksExtension {

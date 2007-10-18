@@ -269,6 +269,14 @@ class Model_AddressAuth {
 	public $pass;
 }
 
+class Model_AddressToWorker {
+	public $address;
+	public $worker_id;
+	public $is_confirmed;
+	public $code;
+	public $code_expire;
+}
+
 class C4_TicketView extends C4_AbstractView {
 	const DEFAULT_ID = 'tickets_workspace';
 	

@@ -151,6 +151,7 @@ class ChSimulatorPage extends CerberusPageExtension {
             $message->headers['from'] = $template['sender'];
             $message->headers['to'] = $address;
             $message->headers['subject'] = $template['subject'];
+            $message->headers['message-id'] = CerberusApplication::generateMessageId();
             
             $message->body = sprintf(
 				"%s\r\n".

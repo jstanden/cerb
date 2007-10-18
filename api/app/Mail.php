@@ -51,17 +51,42 @@
 class CerberusMail {
 	private function __construct() {}
 	
+	static function quickSend($to, $subject, $body) {
+		$mail_service = DevblocksPlatform::getMailService();
+		$mailer = $mail_service->getMailer();
+		$mail = $mail_service->createMessage();
+
+	    $settings = CerberusSettings::getInstance();
+		@$from_addy = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM, $_SERVER['SERVER_ADMIN']);
+		@$from_personal = $settings->get(CerberusSettings::DEFAULT_REPLY_PERSONAL,'');
+		
+		$sendTo = new Swift_Address($to);
+		$sendFrom = new Swift_Address($from_addy, $from_personal);
+		
+		$mail->setSubject($subject);
+		$mail->generateId();
+		$mail->headers->set('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
+	    $mail->attach(new Swift_Message_Part($body));
+	
+		if(!$mailer->send($mail, $sendTo, $sendFrom)) {
+			// [TODO] Report when the message wasn't sent.
+			return false;
+		}
+		
+		return true;
+	}
+	
 	static function sendTicketMessage($properties=array()) {
 	    $settings = CerberusSettings::getInstance();
 		@$from_addy = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM, $_SERVER['SERVER_ADMIN']);
+		@$from_personal = $settings->get(CerberusSettings::DEFAULT_REPLY_PERSONAL,'');
 	    // [TODO] If we still don't have a $from_addy we need a graceful failure. 
-		$from_personal = $settings->get(CerberusSettings::DEFAULT_REPLY_PERSONAL,'');
 		
 		/*
 	     * [TODO] Move these into constants?
 	    'message_id'
-	    'ticket_id'
-		'to' // if type==FORWARD
+	    -----'ticket_id'
+		-----'to' // if type==FORWARD
 	    'cc'
 	    'bcc'
 	    'content'
@@ -285,6 +310,21 @@ class CerberusMail {
 
 		if(!empty($ticket_id) && !empty($change_fields)) {
 		    DAO_Ticket::updateTicket($ticket_id, $change_fields);
+		}
+		
+		// Outbound Reply Event (not automated reply, etc.)
+		if(!empty($worker_id)) {
+		    $eventMgr = DevblocksPlatform::getEventService();
+		    $eventMgr->trigger(
+		        new Model_DevblocksEvent(
+		            'ticket.reply.outbound',
+	                array(
+	                    'ticket_id' => $ticket_id,
+	                    'message_id' => $message_id,
+	                    'worker_id' => $worker_id
+	                )
+	            )
+		    );
 		}
 	}
 	

@@ -104,6 +104,30 @@ if(!isset($tables['address_auth'])) {
     $datadict->ExecuteSQLArray($sql);
 }
 
+// `address_to_worker` =============================
+if(!isset($tables['address_to_worker'])) {
+    $flds = "
+		address C(128) DEFAULT '' NOTNULL PRIMARY,
+		worker_id I4 DEFAULT 0 NOTNULL,
+		is_confirmed I1 DEFAULT 0 NOTNULL,
+		code C(32) DEFAULT '' NOTNULL,
+		code_expire I4 DEFAULT 0 NOTNULL
+	";
+    $sql = $datadict->CreateTableSQL('address_to_worker',$flds);
+    $datadict->ExecuteSQLArray($sql);
+    
+    // Migrate any existing workers
+	$rs = $db->Execute("SELECT id, email FROM worker");
+	while(!$rs->EOF) {
+		$db->Execute(sprintf("INSERT INTO address_to_worker (address, worker_id, is_confirmed, code_expire) ".
+			"VALUES (%s,%d,1,0)",
+			$db->qstr($rs->fields['email']),
+			intval($rs->fields['id'])
+		));
+		$rs->MoveNext();
+	}
+}
+
 // `contact_org` =============================
 if(!isset($tables['contact_org'])) {
     $flds = "

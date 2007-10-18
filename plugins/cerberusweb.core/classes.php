@@ -121,12 +121,16 @@ class ChPageController extends DevblocksControllerExtension {
 	            
 	        default:
 			    // Default action, call arg as a method suffixed with Action
-				if(!$page->isVisible())
-					die("Access denied.  Session expired?");
-					
-				if(method_exists($page,$action)) {
-					call_user_func(array(&$page, $action)); // [TODO] Pass HttpRequest as arg?
+			    
+			    if($page->isVisible()) {
+					if(method_exists($page,$action)) {
+						call_user_func(array(&$page, $action)); // [TODO] Pass HttpRequest as arg?
+					}
+				} else {
+					// if Ajax [TODO] percolate isAjax from platform to handleRequest
+					// die("Access denied.  Session expired?");
 				}
+
 	            break;
 	    }
 	}
@@ -358,13 +362,6 @@ class ChTicketsPage extends CerberusPageExtension {
 				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/search/index.tpl.php');
 				break;
 				
-			case 'rss':
-				$feeds = DAO_TicketRss::getByWorker($active_worker->id);
-				$tpl->assign('feeds', $feeds);
-				
-				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/rss/index.tpl.php');
-				break;
-			
 			case 'create':
 				$teams = DAO_Group::getAll();
 				
@@ -1952,20 +1949,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		$view->render();
 		return;
 	}
-	
-	// Post
-	function removeRssAction() {
-		@$id = DevblocksPlatform::importGPC($_POST['id']);
-		$active_worker = CerberusApplication::getActiveWorker();
-		
-		if(null != ($feed = DAO_TicketRss::getId($id)) && $feed->worker_id == $active_worker->id) {
-			DAO_TicketRss::delete($id);
-		}
-		
-		//DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','rss')));
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets','rss')));
-	}
-	
+
 	// ajax
 	function showViewRssAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
@@ -2008,7 +1992,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		$feed_id = DAO_TicketRss::create($fields);
 				
 		//DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','rss')));
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets','rss')));
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('preferences','rss')));
 	}
 	
 	function searchviewAction() {
@@ -2521,7 +2505,13 @@ class ChConfigurationPage extends CerberusPageExtension  {
 			}
 			
 			DAO_Worker::updateAgent($id, $fields);
-			DAO_Worker::setAgentTeams($id, $team_id);
+			
+			if(null == DAO_AddressToWorker::getByAddress($email)) {
+				DAO_AddressToWorker::assign($email, $id);
+				DAO_AddressToWorker::update($email, array(
+					DAO_AddressToWorker::IS_CONFIRMED => 1
+				));
+			}
 		}
 		
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','workflow')));
@@ -3478,7 +3468,7 @@ class ChCronController extends DevblocksControllerExtension {
 		"<TITLE></TITLE>".
 		(empty($job_id) ?  "<meta http-equiv='Refresh' content='30;" . $url->write('c=cron') . "'>" : ""). // only auto refresh on all jobs
 	    "</HEAD>".
-		"<BODY onload=\"setTimeout(\\\"window.location.replace('".$url->write('c=cron')."')\\\",30);\">";
+		"<BODY>"; // onload=\"setTimeout(\\\"window.location.replace('".$url->write('c=cron')."')\\\",30);\"
 
 	    // [TODO] Determine if we're on a time limit under 60 seconds
 		
@@ -4440,7 +4430,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		// Properties
 
-		if(!empty($next_worker_id))
+		if(isset($next_worker_id))
 			$fields[DAO_Ticket::NEXT_WORKER_ID] = $next_worker_id;
 			
 		if(!empty($next_action))
@@ -4926,30 +4916,133 @@ class ChPreferencesPage extends CerberusPageExtension {
 		
 		array_shift($path); // preferences
 		
-		switch(strtolower(array_shift($path))) {
-		    case 'general':
-		    default:
-				$worker = CerberusApplication::getActiveWorker();
+		$tab_manifests = DevblocksPlatform::getExtensions('cerberusweb.preferences.tab', false);
+		$tpl->assign('tab_manifests', $tab_manifests);
+		
+		@$section = array_shift($path); // section
+		switch($section) {
+			case 'confirm_email':
+				@$code = array_shift($path);
+				$active_worker = CerberusApplication::getActiveWorker();
 				
-				$tour_enabled = DAO_WorkerPref::get($worker->id, 'assist_mode');
-				$tour_enabled = ($tour_enabled===false) ? 1 : $tour_enabled;
+				$worker_addresses = DAO_AddressToWorker::getWhere(sprintf("%s = '%s' AND %s = %d",
+					DAO_AddressToWorker::CODE,
+					addslashes(str_replace(' ','',$code)),
+					DAO_AddressToWorker::WORKER_ID,
+					$active_worker->id
+				));
 
-				$tpl->assign('assist_mode', $tour_enabled);
-				$tpl->display('file:' . $tpl_path . '/preferences/general.tpl.php');
+				@$worker_address = array_shift($worker_addresses);
+				
+				if(!empty($code) 
+					&& null != $worker_address 
+					&& $worker_address->code == $code 
+					&& $worker_address->code_expire > time()) {
+						
+						DAO_AddressToWorker::update($worker_address->address,array(
+							DAO_AddressToWorker::CODE => '',
+							DAO_AddressToWorker::IS_CONFIRMED => 1,
+							DAO_AddressToWorker::CODE_EXPIRE => 0
+						));
+						
+						$output = array(sprintf("%s as been confirmed!", $worker_address->address));
+						$tpl->assign('pref_success', $output);
+					
+				} else {
+					$errors = array('The confirmation code you provided is not valid.');
+					$tpl->assign('pref_errors', $errors);
+				}
+				
+				$tpl->display('file:' . $tpl_path . '/preferences/index.tpl.php');
+				break;
+			
+		    default:
+		    	$tpl->assign('tab', $section);
+				$tpl->display('file:' . $tpl_path . '/preferences/index.tpl.php');
 				break;
 		}
 	}
 	
+	// Ajax
+	function showTabAction() {
+		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
+		
+		if(null != ($tab_mft = DevblocksPlatform::getExtension($ext_id)) 
+			&& null != ($inst = $tab_mft->createInstance()) 
+			&& $inst instanceof Extension_PreferenceTab) {
+			$inst->showTab();
+		}
+	}
+	
 	// Post
+	function saveTabAction() {
+		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
+		
+		if(null != ($tab_mft = DevblocksPlatform::getExtension($ext_id)) 
+			&& null != ($inst = $tab_mft->createInstance()) 
+			&& $inst instanceof Extension_PreferenceTab) {
+			$inst->saveTab();
+		}
+	}
+	
+	/*
+	 * [TODO] Proxy any func requests to be handled by the tab directly, 
+	 * instead of forcing tabs to implement controllers.  This should check 
+	 * for the *Action() functions just as a handleRequest would
+	 */
+	/*
+	function handleTabRequestAction() {
+	}
+	*/
+	
+	// Ajax [TODO] This should probably turn into Extension_PreferenceTab
+	function showGeneralAction() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl_path = dirname(__FILE__) . '/templates';
+		$tpl->assign('path', $tpl_path);
+		$tpl->cache_lifetime = "0";
+		
+		$worker = CerberusApplication::getActiveWorker();
+		$tpl->assign('worker', $worker);
+		
+		$tour_enabled = DAO_WorkerPref::get($worker->id, 'assist_mode');
+		$tour_enabled = ($tour_enabled===false) ? 1 : $tour_enabled;
+		$tpl->assign('assist_mode', $tour_enabled);
+		
+		$addresses = DAO_AddressToWorker::getByWorker($worker->id);
+		$tpl->assign('addresses', $addresses);
+		
+		$tpl->display('file:' . $tpl_path . '/preferences/modules/general.tpl.php');
+	}
+	
+	
+	// Ajax [TODO] This should probably turn into Extension_PreferenceTab
+	function showRssAction() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl_path = dirname(__FILE__) . '/templates';
+		$tpl->assign('path', $tpl_path);
+		$tpl->cache_lifetime = "0";
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		$feeds = DAO_TicketRss::getByWorker($active_worker->id);
+		$tpl->assign('feeds', $feeds);
+		
+		$tpl->display('file:' . $tpl_path . '/preferences/modules/rss.tpl.php');
+	}
+	
+	// Post [TODO] This should probably turn into Extension_PreferenceTab
 	function saveDefaultsAction() {
 		@$timezone = DevblocksPlatform::importGPC($_REQUEST['timezone'],'string');
 		@$default_signature = DevblocksPlatform::importGPC($_REQUEST['default_signature'],'string');
 		@$reply_box_height = DevblocksPlatform::importGPC($_REQUEST['reply_box_height'],'integer');
 	    
 		$worker = CerberusApplication::getActiveWorker();
+   		$tpl = DevblocksPlatform::getTemplateService();
+   		$pref_errors = array();
    		
-		$new_password = DevblocksPlatform::importGPC($_REQUEST['change_pass'],'string');
-		$verify_password = DevblocksPlatform::importGPC($_REQUEST['change_pass_verify'],'string');
+		@$new_password = DevblocksPlatform::importGPC($_REQUEST['change_pass'],'string');
+		@$verify_password = DevblocksPlatform::importGPC($_REQUEST['change_pass_verify'],'string');
     	
 		//[mdf] if nonempty passwords match, update worker's password
 		if($new_password != "" && $new_password===$verify_password) {
@@ -4962,7 +5055,92 @@ class ChPreferencesPage extends CerberusPageExtension {
 
 		@$assist_mode = DevblocksPlatform::importGPC($_REQUEST['assist_mode'],'integer',0);
 		DAO_WorkerPref::set($worker->id, 'assist_mode', $assist_mode);
+		
+		// Alternate Email Addresses
+		@$new_email = DevblocksPlatform::importGPC($_REQUEST['new_email'],'string','');
+		@$email_delete = DevblocksPlatform::importGPC($_REQUEST['email_delete'],'array',array());
+
+		// Confirm deletions are assigned to the current worker
+		if(!empty($email_delete))
+		foreach($email_delete as $e) {
+			if(null != ($worker_address = DAO_AddressToWorker::getByAddress($e))
+				&& $worker_address->worker_id == $worker->id)
+				DAO_AddressToWorker::unassign($e);
+		}
+		
+		// Assign a new e-mail address if it's legitimate
+		if(!empty($new_email)) {
+			if(null != ($address_id = DAO_Address::lookupAddress($new_email, true))) {
+				if(null == ($assigned = DAO_AddressToWorker::getByAddress($new_email))) {
+					$this->_sendConfirmationEmail($new_email, $worker);
+				} else {
+					$pref_errors[] = sprintf("'%s' is already assigned to a worker.", $new_email);
+				}
+			} else {
+				$pref_errors[] = sprintf("'%s' is not a valid e-mail address.", $new_email);
+			}
+		}
+		
+		$tpl->assign('pref_errors', $pref_errors);
+		
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('preferences')));
 	}
+	
+	function resendConfirmationAction() {
+		@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string','');
+		
+		$worker = CerberusApplication::getActiveWorker();
+		$this->_sendConfirmationEmail($email, $worker);
+		
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('preferences')));
+	}
+	
+	private function _sendConfirmationEmail($to, $worker) {
+		$settings = CerberusSettings::getInstance();
+		$url_writer = DevblocksPlatform::getUrlService();
+		$tpl = DevblocksPlatform::getTemplateService();
+							
+		// Tentatively assign the e-mail address to this worker
+		DAO_AddressToWorker::assign($to, $worker->id);
+		
+		// Create a confirmation code and save it
+		$code = CerberusApplication::generatePassword(20);
+		DAO_AddressToWorker::update($to, array(
+			DAO_AddressToWorker::CODE => $code,
+			DAO_AddressToWorker::CODE_EXPIRE => (time() + 24*60*60) 
+		));
+		
+		// Email the confirmation code to the address
+		CerberusMail::quickSend(
+			$to, 
+			sprintf("New E-mail Address Confirmation (%s)", 
+				$settings->get(CerberusSettings::HELPDESK_TITLE)
+			),
+			sprintf("%s has just added this e-mail address to their helpdesk account.\r\n\r\n".
+				"To approve and continue, click the following link:\r\n".
+				"%s\r\n\r\n".
+				"If you did not request this, do not click the link above.  This request will expire in 24 hours.\r\n",
+				$worker->getName(),
+				$url_writer->write('c=preferences&a=confirm_email&code='.$code,true)
+			)
+		);
+		
+		$output = array(sprintf("A confirmation e-mail has been sent to %s", $to));
+		$tpl->assign('pref_success', $output);
+	}
+	
+	// Post [TODO] This should probably turn into Extension_PreferenceTab
+	function saveRssAction() {
+		@$id = DevblocksPlatform::importGPC($_POST['id']);
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(null != ($feed = DAO_TicketRss::getId($id)) && $feed->worker_id == $active_worker->id) {
+			DAO_TicketRss::delete($id);
+		}
+		
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('preferences','rss')));
+	}
+	
 };
 
 ?>

@@ -702,7 +702,14 @@ switch($step) {
 				foreach($workers as $worker_email) {
 					if(empty($worker_email)) continue;
 					$id = DAO_Worker::create($worker_email,'new','First','Last','');
-					$worker_ids[$id] = $worker_email; 
+					$worker_ids[$id] = $worker_email;
+					
+					if(null == DAO_AddressToWorker::getByAddress($worker_email)) {
+						DAO_AddressToWorker::assign($worker_email, $id);
+						DAO_AddressToWorker::update($worker_email, array(
+							DAO_AddressToWorker::IS_CONFIRMED => 1
+						));
+					}
 				}
 				
 				// Create team records

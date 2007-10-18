@@ -229,12 +229,26 @@ class CerberusParser {
 		}
         
 		// [JAS] [TODO] References header may contain multiple message-ids to find
-		if(empty($importNew) && empty($importAppend) && null != ($id = self::findParentMessage($headers))) {
+		if(empty($importNew) && empty($importAppend) && null != ($ids = self::findParentMessage($headers))) {
         	$bIsNew = false;
+        	$id = $ids['ticket_id'];
+        	$msgid = $ids['message_id'];
+
+        	// Is it a worker reply from an external client?  If so, proxy
+        	if(null != ($worker_address = DAO_AddressToWorker::getByAddress($fromAddress))) {
+//        		echo "Proxying reply to ticket $id for $fromAddress<br>";
+        		CerberusMail::sendTicketMessage(array(
+					'message_id' => $msgid,
+					'content' => $message->body, 	
+					//'files' => $message->files, // [TODO] Proxy attachments 	
+					'agent_id' => $worker_address->worker_id,
+				));
+        		
+        		return $id;
+        	}
         }
         
 		if(empty($id)) { // New Ticket
-//		    echo "Creating new ticket<br>";
 			$team_id = CerberusParser::parseDestination($headers);
 			
 			if(empty($sMask))
@@ -257,7 +271,6 @@ class CerberusParser {
 			if(false !== ($rule = CerberusApplication::parseTeamRules($team_id, $id, $fromAddress, $sSubject))) { /* @var $rule Model_TeamRoutingRule */
                 //Assume our rule match is not spam
                 if(empty($rule->do_spam)) { // if we didn't already train
-//	                echo "Assuming our match isn't spam!<br>";
                     $enumSpamTraining = CerberusTicketSpamTraining::NOT_SPAM;
                 }
 			}
@@ -466,6 +479,18 @@ class CerberusParser {
 			
 			// [TODO] The TICKET_CUSTOMER_REPLY should be sure of this message address not being a worker
 		}
+		
+		// Inbound Reply Event
+	    $eventMgr = DevblocksPlatform::getEventService();
+	    $eventMgr->trigger(
+	        new Model_DevblocksEvent(
+	            'ticket.reply.inbound',
+                array(
+                    'ticket_id' => $id,
+                    'message_id' => $email_id,
+                )
+            )
+	    );
 		
 		return $id;
 	}

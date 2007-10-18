@@ -24,6 +24,8 @@
 			<params>
 			</params>
 		</extension>
+
+		<!-- Controllers -->
 	
 		<extension point="devblocks.controller">
 			<id>usermeet.controller.portal</id>
@@ -35,6 +37,8 @@
 			<params>
 			</params>
 		</extension>
+		
+		<!-- Pages -->
 		
 		<extension point="cerberusweb.page">
 			<id>usermeet.page.community</id>

@@ -1,0 +1,64 @@
+<!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
+<plugin>
+	<id>cerberusweb.watchers</id>
+	<name>E-mail Notifications</name>
+	<description>Create mail forwards to send copies of group mail any e-mail address, such as a desktop e-mail client or handheld device.</description>
+	<author>WebGroup Media, LLC.</author>
+	<revision>0</revision>
+	<class>
+		<file>api/App.php</file>
+		<name>ChWatchersPlugin</name>
+	</class>
+	
+	<extensions>
+
+		<!-- Patch Containers -->
+		
+		<extension point="devblocks.patch.container">
+			<id>watchers.patches</id>
+			<name>Watchers Patches</name>
+			<class>
+				<file>api/Patch.php</file>
+				<name>ChWatchersPatchContainer</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
+		<!-- Event Listeners -->
+		
+		<extension point="devblocks.listener.event">
+			<id>cerberusweb.listeners.watchers</id>
+			<name>Watchers Listener</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChWatchersEventListener</name>
+			</class>
+			<params>
+				<!-- E-mail Event Listener -->
+				<param key="events">
+					<value>
+						<data key="ticket.reply.inbound" />
+						<data key="ticket.reply.outbound" />						
+					</value>
+				</param>
+			</params>
+		</extension>
+	
+		<!-- Preference Tabs  -->
+		
+		<extension point="cerberusweb.preferences.tab">
+			<id>core.pref.notifications</id>
+			<name>Notification Preferences</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChWatchersPreferences</name>
+			</class>
+			<params>
+				<param key="uri" value="notifications" />
+				<param key="title" value="E-mail Notifications" />
+			</params>
+		</extension>
+	
+	</extensions>
+</plugin>

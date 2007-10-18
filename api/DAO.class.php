@@ -406,7 +406,9 @@ class DAO_Worker extends DevblocksORMHelper {
 		
 		$sql = sprintf("SELECT wt.team_id, wt.is_manager ".
 			"FROM worker_to_team wt ".
-			"WHERE wt.agent_id = %d ",
+			"INNER JOIN team t ON (wt.team_id=t.id) ".
+			"WHERE wt.agent_id = %d ".
+			"ORDER BY t.name ASC ",
 			$agent_id
 		);
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
@@ -1146,6 +1148,160 @@ class DAO_AddressAuth extends DevblocksORMHelper  {
 	}
 };
 
+class DAO_AddressToWorker { // extends DevblocksORMHelper
+	const ADDRESS = 'address';
+	const WORKER_ID = 'worker_id';
+	const IS_CONFIRMED = 'is_confirmed';
+	const CODE = 'code';
+	const CODE_EXPIRE = 'code_expire';
+
+	static function assign($address, $worker_id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		if(empty($address) || empty($worker_id))
+			return NULL;
+
+		$sql = sprintf("INSERT INTO address_to_worker (address, worker_id, is_confirmed, code, code_expire) ".
+			"VALUES (%s, %d, 0, '', 0)",
+			$db->qstr($address),
+			$worker_id
+		);
+		$db->Execute($sql);
+
+		return $address;
+	}
+
+	static function unassign($address) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		if(empty($address))
+			return NULL;
+			
+		$sql = sprintf("DELETE FROM address_to_worker WHERE address = %s",
+			$db->qstr($address)
+		);
+		$db->Execute($sql);
+	}
+	
+	static function unassignAll($worker_id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		if(empty($worker_id))
+			return NULL;
+			
+		$sql = sprintf("DELETE FROM address_to_worker WHERE worker_id = %d",
+			$worker_id
+		);
+		$db->Execute($sql);
+	}
+	
+	static function update($addresses, $fields) {
+	    if(!is_array($addresses)) $addresses = array($addresses);
+		$db = DevblocksPlatform::getDatabaseService();
+		$sets = array();
+		
+		if(!is_array($fields) || empty($fields) || empty($addresses))
+			return;
+		
+		foreach($fields as $k => $v) {
+		    if(is_null($v))
+		        $value = 'NULL';
+		    else
+		        $value = $db->qstr($v);
+		    
+			$sets[] = sprintf("%s = %s",
+				$k,
+				$value
+			);
+		}
+		
+		$sql = sprintf("UPDATE %s SET %s WHERE %s IN ('%s')",
+			'address_to_worker',
+			implode(', ', $sets),
+			self::ADDRESS,
+			implode("','", $addresses)
+		);
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+	}
+	
+	/**
+	 * Enter description here...
+	 *
+	 * @param integer $worker_id
+	 * @return Model_AddressToWorker[]
+	 */
+	static function getByWorker($worker_id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = sprintf("SELECT address, worker_id, is_confirmed, code, code_expire ".
+			"FROM address_to_worker ".
+			"WHERE worker_id = %d",
+			$worker_id
+		);
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */ 
+		
+		return self::_getObjectsFromResult($rs);
+	}
+	
+	/**
+	 * Enter description here...
+	 *
+	 * @param integer $address
+	 * @return Model_AddressToWorker
+	 */
+	static function getByAddress($address) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = sprintf("SELECT address, worker_id, is_confirmed, code, code_expire ".
+			"FROM address_to_worker ".
+			"WHERE address = %s",
+			$db->qstr($address)
+		);
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */ 
+		
+		$addresses = self::_getObjectsFromResult($rs);
+		
+		if(isset($addresses[$address]))
+			return $addresses[$address];
+			
+		return NULL;
+	}
+	
+	static function getWhere($where) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = "SELECT address, worker_id, is_confirmed, code, code_expire ".
+			"FROM address_to_worker ".
+			(!empty($where) ? sprintf("WHERE %s ", $where) : " ");
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */ 
+
+		return self::_getObjectsFromResult($rs);		
+	}
+	
+	/**
+	 * Enter description here...
+	 *
+	 * @param ADORecordSet $rs
+	 * @return Model_AddressToWorker[]
+	 */
+	private static function _getObjectsFromResult($rs) {
+		$objects = array();
+		
+		while(!$rs->EOF) {
+			$object = new Model_AddressToWorker();
+			$object->worker_id = intval($rs->fields['worker_id']);
+			$object->address = $rs->fields['address'];
+			$object->is_confirmed = intval($rs->fields['is_confirmed']);
+			$object->code = $rs->fields['code'];
+			$object->code_expire = intval($rs->fields['code_expire']);
+			$objects[$object->address] = $object;
+			$rs->MoveNext();
+		}
+		
+		return $objects;
+	}
+};
+
 class DAO_Message extends DevblocksORMHelper {
     const ID = 'id';
     const TICKET_ID = 'ticket_id';
@@ -1696,7 +1852,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 	static function getTicketByMessageId($message_id) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = sprintf("SELECT mh.ticket_id ".
+		$sql = sprintf("SELECT mh.ticket_id, mh.message_id ".
 			"FROM message_header mh ".
 			"WHERE mh.header_name = 'message-id' AND mh.header_value = %s",
 			$db->qstr($message_id)
@@ -1704,8 +1860,10 @@ class DAO_Ticket extends DevblocksORMHelper {
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		if(!$rs->EOF) {
-			$ticket_id = intval($rs->fields['ticket_id']);
-			return $ticket_id;
+			return array(
+				'ticket_id' => intval($rs->fields['ticket_id']),
+				'message_id' => intval($rs->fields['message_id'])
+			);
 		}
 		
 		return null;
@@ -3515,6 +3673,7 @@ class DAO_WorkerPref extends DevblocksORMHelper {
 		return $value;
 	}
 	
+	// [JAS]: [TODO] Cache
 	static function getAll() {
 		$db = DevblocksPlatform::getDatabaseService();
 		$sql = sprintf("SELECT worker_id, setting, value FROM worker_pref ");
@@ -3527,7 +3686,11 @@ class DAO_WorkerPref extends DevblocksORMHelper {
 		    $object->setting = $rs->fields['setting'];
 		    $object->value = $rs->fields['value'];
 		    $object->worker_id = $rs->fields['worker_id'];
-		    $objects[md5($worker_id.$setting)] = $object;
+		    
+		    if(!isset($objects[$object->worker_id]))
+		    	$objects[$object->worker_id] = array();
+		    
+		    $objects[$object->worker_id][$object->setting] = $object;
 		    $rs->MoveNext();
 		}
 		
