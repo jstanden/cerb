@@ -854,7 +854,7 @@ class UmKbApp extends Extension_UsermeetTool {
 		$aFeed = array(
 			'title' => $title,
 	    	'link' => $url_writer->write('', true),
-			'charset' => 'iso-8859-1',
+			'charset' => 'utf-8',
 			'entries' => array(),
 		);
 		
