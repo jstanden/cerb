@@ -862,13 +862,13 @@ class UmKbApp extends Extension_UsermeetTool {
 			$summary = substr(strip_tags($article->content),0,255) . (strlen($article->content)>255?'...':'');
 			
 			$aEntry = array(
-				'title' => $article->title,
+				'title' => utf8_encode($article->title),
 				'link' => $url_writer->write('c=article&id='.$article_id, true),
 				'lastUpdate' => $article->updated,
 				'published' => $article->updated,
 				'guid' => md5($article->title.$article->updated),
-				'description' => $summary,
-				'content' => $article->content,
+				'description' => utf8_encode($summary),
+				'content' => utf8_encode($article->content),
 			);
 			$aFeed['entries'][] = $aEntry;
 		}
