@@ -48,7 +48,7 @@
  * 		and Joe Geck.
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-class ChCorePatchContainer extends DevblocksPatchContainerExtension {
+class ChAuditLogPatchContainer extends DevblocksPatchContainerExtension {
 	function __construct($manifest) {
 		parent::__construct($manifest);
 		
@@ -58,10 +58,9 @@ class ChCorePatchContainer extends DevblocksPatchContainerExtension {
 		 * number.
 		 */
 
-		$file_prefix = dirname(__FILE__) . '/patches/';
+		$file_prefix = realpath(dirname(__FILE__) . '/../patches');
 		
-		$this->registerPatch(new DevblocksPatch('cerberusweb.core',180,$file_prefix.'4.0.0__.php',''));
-		$this->registerPatch(new DevblocksPatch('cerberusweb.core',390,$file_prefix.'4.0.0_beta.php',''));
+		$this->registerPatch(new DevblocksPatch('cerberusweb.auditlog',1,$file_prefix.'/1.0.0.php',''));
 	}
 };
 

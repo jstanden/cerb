@@ -1,6 +1,3 @@
-<div id="{$view->id}_output_container">
-	{*include file="file:$path/tickets/rpc/ticket_view_output.tpl.php"*}
-</div>
 {assign var=results value=$view->getData()}
 {assign var=total value=$results[1]}
 {assign var=data value=$results[0]}
@@ -15,7 +12,6 @@
 	</tr>
 </table>
 
-<div id="{$view->id}_tips" class="block" style="display:none;margin:10px;padding:5px;">Analyzing...</div>
 <form id="customize{$view->id}" name="customize{$view->id}" action="#" onsubmit="return false;" style="display:none;"></form>
 <form id="viewForm{$view->id}" name="viewForm{$view->id}">
 <input type="hidden" name="id" value="{$view->id}">

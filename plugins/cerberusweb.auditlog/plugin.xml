@@ -1,0 +1,63 @@
+<!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
+<plugin>
+	<id>cerberusweb.auditlog</id>
+	<name>Cerberus Helpdesk: Ticket Audit Log</name>
+	<description>Track iterative changes and events on tickets.</description>
+	<author>WebGroup Media, LLC.</author>
+	<revision>0</revision>
+	<class>
+		<file>api/App.php</file>
+		<name>ChAuditLogPlugin</name>
+	</class>
+	
+	<extensions>
+
+		<!-- Patch Containers -->
+		
+		<extension point="devblocks.patch.container">
+			<id>auditlog.patches</id>
+			<name>Audit Log Patches</name>
+			<class>
+				<file>api/Patch.php</file>
+				<name>ChAuditLogPatchContainer</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
+		<!-- Event Listeners -->
+		
+		<extension point="devblocks.listener.event">
+			<id>auditlog.listener.core</id>
+			<name>Audit Log Listener</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChAuditLogEventListener</name>
+			</class>
+			<params>
+				<!-- Event Listener -->
+				<param key="events">
+					<value>
+						<data key="ticket.property.changed" />
+					</value>
+				</param>
+			</params>
+		</extension>
+	
+		<!-- Ticket Tabs  -->
+		
+		<extension point="cerberusweb.ticket.tab">
+			<id>auditlog.ticket.tab</id>
+			<name>Audit Log Ticket Tab</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChAuditLogTicketTab</name>
+			</class>
+			<params>
+				<param key="uri" value="log" />
+				<param key="title" value="Audit Log" />
+			</params>
+		</extension>
+	
+	</extensions>
+</plugin>

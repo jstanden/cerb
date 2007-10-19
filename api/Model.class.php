@@ -194,6 +194,28 @@ abstract class C4_AbstractView {
 	}
 };
 
+/**
+ * Used to persist a C4_AbstractView instance and not be encumbered by 
+ * classloading issues (out of the session) from plugins that might have 
+ * concrete AbstractView implementations.
+ */
+class C4_AbstractViewModel {
+	public $class_name = '';
+	
+	public $id = 0;
+	public $name = "";
+	public $view_columns = array();
+	public $params = array();
+	
+	public $renderPage = 0;
+	public $renderLimit = 10;
+	public $renderSortBy = '';
+	public $renderSortAsc = 1;
+};
+
+/**
+ * This is essentially an AbstractView Factory
+ */
 class C4_AbstractViewLoader {
 	static $views = null;
 	const VISIT_ABSTRACTVIEWS = 'abstractviews_list';
@@ -221,16 +243,20 @@ class C4_AbstractViewLoader {
 	 */
 	static function getView($class, $view_label) {
 		if(is_null(self::$views)) self::_init();
+		
 		if(!self::exists($view_label)) {
 			if(empty($class) || !class_exists($class))
 				return null;
 			
 			$view = new $class;
-			self::setView($class, $view_label, $view);
+			self::setView($view_label, $view);
 			return $view;
 		}
 		
-		return self::$views[$view_label];
+		$model = self::$views[$view_label];
+		$view = self::unserializeAbstractView($model);
+		
+		return $view;
 	}
 	
 	/**
@@ -240,9 +266,9 @@ class C4_AbstractViewLoader {
 	 * @param string $view_label ID
 	 * @param C4_AbstractView $view
 	 */
-	static function setView($class, $view_label, $view) {
+	static function setView($view_label, $view) {
 		if(is_null(self::$views)) self::_init();
-		self::$views[$view_label] = $view;
+		self::$views[$view_label] = self::serializeAbstractView($view);
 		self::_save();
 	}
 	
@@ -250,6 +276,44 @@ class C4_AbstractViewLoader {
 		// persist
 		$visit = CerberusApplication::getVisit();
 		$visit->set(self::VISIT_ABSTRACTVIEWS, self::$views);
+	}
+	
+	static function serializeAbstractView($view) {
+		if(!$view instanceof C4_AbstractView)
+			return null;
+		
+		$model = new C4_AbstractViewModel();
+			
+		$model->class_name = get_class($view);
+		
+		$model->id = $view->id;
+		$model->name = $view->name;
+		$model->view_columns = $view->view_columns;
+		$model->params = $view->params;
+		
+		$model->renderPage = $view->renderPage;
+		$model->renderLimit = $view->renderLimit;
+		$model->renderSortBy = $view->renderSortBy;
+		$model->renderSortAsc = $view->renderSortAsc;
+
+		return $model;
+	}
+	
+	static function unserializeAbstractView(C4_AbstractViewModel $model) {
+		if(null == ($inst = new $model->class_name)) /* @var $inst C4_AbstractView */
+			return null;
+		
+		$inst->id = $model->id;
+		$inst->name = $model->name;
+		$inst->view_columns = $model->view_columns;
+		$inst->params = $model->params;
+		
+		$inst->renderPage = $model->renderPage;
+		$inst->renderLimit = $model->renderLimit;
+		$inst->renderSortBy = $model->renderSortBy;
+		$inst->renderSortAsc = $model->renderSortAsc;
+		
+		return $inst;
 	}
 };
 
@@ -1071,21 +1135,6 @@ class Model_DashboardViewAction {
 //		}
 
 		DAO_Ticket::updateTicket($ticket_ids, $fields);
-		
-		if(!empty($this->params['team']) && !empty($team_id)) {
-		    
-		    $eventMgr = DevblocksPlatform::getEventService();
-		    $eventMgr->trigger(
-		        new Model_DevblocksEvent(
-		            'ticket.moved', // [TODO] Const
-	                array(
-	                    'ticket_ids' => $ticket_ids,
-	                    'team_id' => $team_id,
-	                    'bucket_id' => $category_id,
-	                )
-	            )
-		    );
-		}
 	}
 };
 

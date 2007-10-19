@@ -12,6 +12,7 @@ define('REMOTE_HOST', '{$host}');
 define('REMOTE_BASE', '{$base}{if !$smarty.const.DEVBLOCKS_REWRITE}/index.php{/if}'); // NO trailing slash!
 define('REMOTE_URI', '{$path}'); // NO trailing slash!
 {literal}
+
 /*
  * ====================================================================
  * [JAS]: Don't modify the following unless you know what you're doing!
@@ -28,8 +29,15 @@ class DevblocksProxy {
     function proxy($remote_host, $remote_uri, $local_path) {
 //    	echo "RH: $remote_host<BR>";    	
 //    	echo "RU: $remote_uri<BR>";    	
-//    	echo "LP: $local_path<BR>";    	
+//    	echo "LP: $local_path<BR>";
         $path = explode('/', substr($local_path,1));
+        
+        // Encode all our parts
+        if(is_array($path))
+        foreach($path as $idx => $p) {
+        	$path[$idx] = rawurlencode($p);
+        }
+        $local_path = '/'.implode('/', $path);
         
         if(0==strcasecmp($path[0],'resource')) {
             header('Pragma: cache'); 
@@ -264,7 +272,8 @@ class DevblocksRouter {
 			$location = $_SERVER['ORIG_PATH_INFO'];
 		}
     
-        list($local_path) = sscanf($location,LOCAL_BASE ."%s");
+		$local_path = substr($location,strlen(LOCAL_BASE));
+		
 //        echo "SRU: ",$_SERVER['REQUEST_URI'],"<BR>";
 //        echo "Localbase: ",LOCAL_BASE,"<BR>";
 //        echo $local_path,"<BR>";

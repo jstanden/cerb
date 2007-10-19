@@ -1,7 +1,7 @@
 <!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
 <plugin>
 	<id>cerberusweb.simulator</id>
-	<name>Cerberus Helpdesk Simulator</name>
+	<name>Cerberus Helpdesk: Simulator</name>
 	<description>A tool to assist evaluators with creating sample tickets</description>
 	<author>WebGroup Media, LLC.</author>
 	<revision>0</revision>

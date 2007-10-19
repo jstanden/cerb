@@ -5,7 +5,6 @@ You can reply normally to this forwarded mail as if it was sent directly to you 
 will route it back to the appropriate people.<br>
 <br>
 
-<div style="subtle2">
 <form action="{devblocks_url}{/devblocks_url}" method="post">
 <input type="hidden" name="c" value="preferences">
 <input type="hidden" name="a" value="saveTab">
@@ -97,4 +96,3 @@ You are not a member of any groups.<br>
 
 <button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')}</button>
 </form>
-</div>

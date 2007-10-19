@@ -2093,8 +2093,25 @@ class DAO_Ticket extends DevblocksORMHelper {
 		parent::_updateWhere('ticket', $fields, $where);
 	}
 	
-	static function updateTicket($id,$fields) {
-        parent::_update($id,'ticket',$fields);
+	static function updateTicket($ids,$fields) {
+		if(!is_array($ids)) $ids = array($ids);
+		
+        // [TODO] Consider the impact of events in DAO
+		/* This event fires before the change takes place in the db,
+		 * so we can denote what is actually changing against the db state
+		 */
+	    $eventMgr = DevblocksPlatform::getEventService();
+	    $eventMgr->trigger(
+	        new Model_DevblocksEvent(
+	            'ticket.property.changed',
+                array(
+                    'ticket_ids' => $ids,
+                    'changed_fields' => $fields,
+                )
+            )
+	    );
+		
+        parent::_update($ids,'ticket',$fields);
 	}
 	
 	/**
@@ -2488,7 +2505,7 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 			self::TICKET_CREATED_DATE => new DevblocksSearchField(self::TICKET_CREATED_DATE, 't', 'created_date',null,$translate->_('ticket.created')),
 			self::TICKET_UPDATED_DATE => new DevblocksSearchField(self::TICKET_UPDATED_DATE, 't', 'updated_date',null,$translate->_('ticket.updated')),
 			self::TICKET_DUE_DATE => new DevblocksSearchField(self::TICKET_DUE_DATE, 't', 'due_date',null,$translate->_('ticket.due')),
-			self::TICKET_SPAM_TRAINING => new DevblocksSearchField(self::TICKET_SPAM_TRAINING, 't', 'spam_training'),
+			self::TICKET_SPAM_TRAINING => new DevblocksSearchField(self::TICKET_SPAM_TRAINING, 't', 'spam_training',null,$translate->_('ticket.spam_training')),
 			self::TICKET_SPAM_SCORE => new DevblocksSearchField(self::TICKET_SPAM_SCORE, 't', 'spam_score',null,$translate->_('ticket.spam_score')),
 			self::TICKET_INTERESTING_WORDS => new DevblocksSearchField(self::TICKET_INTERESTING_WORDS, 't', 'interesting_words'),
 			self::TICKET_NEXT_ACTION => new DevblocksSearchField(self::TICKET_NEXT_ACTION, 't', 'next_action',null,$translate->_('ticket.next_action')),

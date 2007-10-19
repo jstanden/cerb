@@ -1,7 +1,7 @@
 <!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
 <plugin>
 	<id>usermeet.core</id>
-	<name>Cerberus Helpdesk Community Tools</name>
+	<name>Cerberus Helpdesk: Community Tools</name>
 	<description>Support for customer-focused public tools for your websites</description>
 	<author>WebGroup Media, LLC.</author>
 	<revision>0</revision>

@@ -48,21 +48,38 @@
  * 		and Joe Geck.
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-class ChCorePatchContainer extends DevblocksPatchContainerExtension {
-	function __construct($manifest) {
-		parent::__construct($manifest);
-		
-		/*
-		 * [JAS]: Just add a sequential build number here (and update plugin.xml) and
-		 * write a case in runVersion().  You should comment the milestone next to your build 
-		 * number.
-		 */
 
-		$file_prefix = dirname(__FILE__) . '/patches/';
-		
-		$this->registerPatch(new DevblocksPatch('cerberusweb.core',180,$file_prefix.'4.0.0__.php',''));
-		$this->registerPatch(new DevblocksPatch('cerberusweb.core',390,$file_prefix.'4.0.0_beta.php',''));
-	}
-};
+$db = DevblocksPlatform::getDatabaseService();
+$datadict = NewDataDictionary($db); /* @var $datadict ADODB_DataDict */ // ,'mysql' 
 
+$tables = $datadict->MetaTables();
+
+// `ticket_audit_log` ========================
+if(!isset($tables['ticket_audit_log'])) {
+	$flds ="
+		id I4 DEFAULT 0 NOTNULL PRIMARY,
+		ticket_id I4 DEFAULT 0 NOTNULL,
+		worker_id I4 DEFAULT 0 NOTNULL,
+		change_date I4 DEFAULT 0 NOTNULL,
+		change_field C(64) DEFAULT '' NOTNULL,
+		change_value C(128) DEFAULT '' NOTNULL
+	";
+	$sql = $datadict->CreateTableSQL('ticket_audit_log', $flds);
+	$datadict->ExecuteSQLArray($sql);
+}
+
+$columns = $datadict->MetaColumns('ticket_audit_log');
+$indexes = $datadict->MetaIndexes('ticket_audit_log',false);
+
+if(!isset($indexes['ticket_id'])) {
+	$sql = $datadict->CreateIndexSQL('ticket_id','ticket_audit_log','ticket_id');
+	$datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($indexes['worker_id'])) {
+	$sql = $datadict->CreateIndexSQL('worker_id','ticket_audit_log','worker_id');
+	$datadict->ExecuteSQLArray($sql);
+}
+
+return TRUE;
 ?>

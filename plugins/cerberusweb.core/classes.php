@@ -334,7 +334,7 @@ class ChTicketsPage extends CerberusPageExtension {
 				if(null == $view) {
 					$view = C4_TicketView::createSearchView();
 				
-					C4_AbstractViewLoader::setView('',$view->id,$view);
+					C4_AbstractViewLoader::setView($view->id,$view);
 //					$this->setView(CerberusApplication::VIEW_SEARCH,$view);
 				}
 				
@@ -509,7 +509,7 @@ class ChTicketsPage extends CerberusPageExtension {
 						$view->renderPage = 0;
 						$view->view_columns = $list_view->columns;
 						$view->params = $list_view->params;
-						C4_AbstractViewLoader::setView('',$view_id, $view);
+						C4_AbstractViewLoader::setView($view_id, $view);
 					}
 					$views[] = $view;
 				}
@@ -600,7 +600,7 @@ class ChTicketsPage extends CerberusPageExtension {
 						$myView->renderSortBy = SearchFields_Ticket::TICKET_UPDATED_DATE;
 						$myView->renderSortAsc = 1;
 						
-						C4_AbstractViewLoader::setView('',$myView->id,$myView);
+						C4_AbstractViewLoader::setView($myView->id,$myView);
 					}
 					$views = array($myView->id => $myView);
 					$tpl->assign('views', $views);
@@ -657,8 +657,6 @@ class ChTicketsPage extends CerberusPageExtension {
 								$teamView->renderPage = 0;
 								$teamView->renderSortBy = SearchFields_Ticket::TICKET_UPDATED_DATE;
 								$teamView->renderSortAsc = 0;
-								
-								C4_AbstractViewLoader::setView('',$teamView->id,$teamView);
 							}
 							
 							$teamView->name = $team->name . ": Active";
@@ -694,6 +692,7 @@ class ChTicketsPage extends CerberusPageExtension {
 //					        $view_key = CerberusVisit::KEY_VIEW_TIPS . $active_dashboard_id;
 //					        $view_tips = $visit->get($view_key,array());
 //					        $teamView->tips = $view_tips;
+							C4_AbstractViewLoader::setView($teamView->id,$teamView);
 							
 							$views = array(
 								$teamView->id => $teamView
@@ -1011,7 +1010,7 @@ class ChTicketsPage extends CerberusPageExtension {
         $searchView->params = $params;
         $searchView->renderSortBy = null;
         
-        C4_AbstractViewLoader::setView('',$searchView->id,$searchView);
+        C4_AbstractViewLoader::setView($searchView->id,$searchView);
         
         //DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','search')));
         DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets','search')));
@@ -1348,7 +1347,7 @@ class ChTicketsPage extends CerberusPageExtension {
 
 	    // Reset the paging since we may have reduced our list size
 	    $view->renderPage = 0;
-	    C4_AbstractViewLoader::setView('',$view_id,$view);
+	    C4_AbstractViewLoader::setView($view_id,$view);
 	    	    
         //DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets')));
         DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets')));
@@ -1398,19 +1397,6 @@ class ChTicketsPage extends CerberusPageExtension {
 	    // Make our changes to the entire list of tickets
 	    if(!empty($ticket_ids) && !empty($team_id)) {
 	        DAO_Ticket::updateTicket($ticket_ids, $fields);
-	        
-		    $eventMgr = DevblocksPlatform::getEventService();
-		    $eventMgr->trigger(
-		        new Model_DevblocksEvent(
-		            'ticket.moved', // [TODO] Const
-	                array(
-	                    'ticket_ids' => $ticket_ids,
-	                    'tickets' => $orig_tickets,
-	                    'team_id' => $team_id,
-	                    'bucket_id' => $category_id,
-	                )
-	            )
-	        );
 	    }
 	    
 	    // Increment the counter of uses for this move (by # of tickets affected)
@@ -2021,7 +2007,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		}
 		$search_view->params = $params;
 		$search_view->renderPage = 0;
-		C4_AbstractViewLoader::setView('',$search_view->id,$search_view);
+		C4_AbstractViewLoader::setView($search_view->id,$search_view);
 
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','search')));
 	}
@@ -3171,8 +3157,6 @@ class ChContactsPage extends CerberusPageExtension {
 			$tickets_view->renderPage = 0;
 			$tickets_view->renderSortBy = SearchFields_Ticket::TICKET_CREATED_DATE;
 			$tickets_view->renderSortAsc = false;
-			
-			C4_AbstractViewLoader::setView('',$tickets_view->id,$tickets_view);
 		}
 
 		@$tickets_view->name = "Most recent tickets from " . htmlentities($contact->name);
@@ -3180,6 +3164,8 @@ class ChContactsPage extends CerberusPageExtension {
 			SearchFields_Ticket::TICKET_FIRST_CONTACT_ORG_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_FIRST_CONTACT_ORG_ID,DevblocksSearchCriteria::OPER_EQ,$contact->id)
 		);
 		$tpl->assign('contact_history', $tickets_view);
+		
+		C4_AbstractViewLoader::setView($tickets_view->id,$tickets_view);
 		
 		$workers = DAO_Worker::getList();
 		$tpl->assign('workers', $workers);
@@ -3801,7 +3787,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		$view = C4_AbstractViewLoader::getView('', $id);
 		$view->doSortBy($sortBy);
-		C4_AbstractViewLoader::setView('', $id, $view);
+		C4_AbstractViewLoader::setView($id, $view);
 		
 		$view->render();
 	}
@@ -3812,7 +3798,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		$view = C4_AbstractViewLoader::getView('', $id);
 		$view->doPage($page);
-		C4_AbstractViewLoader::setView('', $id, $view);
+		C4_AbstractViewLoader::setView($id, $view);
 		
 		$view->render();
 	}
@@ -3835,7 +3821,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		$view = C4_AbstractViewLoader::getView('', $id);
 		$view->doSetCriteria($field, $oper, $value);
-		C4_AbstractViewLoader::setView('', $id, $view);
+		C4_AbstractViewLoader::setView($id, $view);
 		
 		// [TODO] Need to put them back on org or person (depending on which was active)
 		if(!empty($response_uri))
@@ -3849,7 +3835,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		$view = C4_AbstractViewLoader::getView('', $id);
 		$view->doRemoveCriteria($field);
-		C4_AbstractViewLoader::setView('', $id, $view);
+		C4_AbstractViewLoader::setView($id, $view);
 		
 		if(!empty($response_uri))
 			DevblocksPlatform::redirect(new DevblocksHttpResponse(explode('/', $response_uri)));
@@ -3861,7 +3847,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		$view = C4_AbstractViewLoader::getView('', $id);
 		$view->doResetCriteria();
-		C4_AbstractViewLoader::setView('', $id, $view);
+		C4_AbstractViewLoader::setView($id, $view);
 
 		if(!empty($response_uri))
 			DevblocksPlatform::redirect(new DevblocksHttpResponse(explode('/', $response_uri)));
@@ -3917,7 +3903,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl->assign('view_fields', C4_TicketView::getFields());
 		$tpl->assign('view_searchable_fields', C4_TicketView::getSearchFields());
 
-		C4_AbstractViewLoader::setView('', $id, $view);
+		C4_AbstractViewLoader::setView($id, $view);
 		$tpl->assign('view', $view);
 		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/internal/views/customize_view_criteria.tpl.php');
@@ -3952,7 +3938,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			DAO_WorkerWorkspaceList::update($list_view_id, $fields);
 		}
 		
-		C4_AbstractViewLoader::setView('', $id, $view);
+		C4_AbstractViewLoader::setView($id, $view);
 		
 		$view->render();
 	}
@@ -4012,6 +3998,9 @@ class ChDisplayPage extends CerberusPageExtension {
 		$stack = $response->path;
 
 		@$id = $stack[1];
+		
+		$tab_manifests = DevblocksPlatform::getExtensions('cerberusweb.ticket.tab', false);
+		$tpl->assign('tab_manifests', $tab_manifests);
 		
 		// [JAS]: Mask
 		if(!is_numeric($id)) {
@@ -4073,6 +4062,38 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/index.tpl.php');
 	}
+	
+	// Ajax
+	function showTabAction() {
+		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
+		
+		if(null != ($tab_mft = DevblocksPlatform::getExtension($ext_id)) 
+			&& null != ($inst = $tab_mft->createInstance()) 
+			&& $inst instanceof Extension_TicketTab) {
+			$inst->showTab();
+		}
+	}
+	
+	// Post
+	function saveTabAction() {
+		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
+		
+		if(null != ($tab_mft = DevblocksPlatform::getExtension($ext_id)) 
+			&& null != ($inst = $tab_mft->createInstance()) 
+			&& $inst instanceof Extension_TicketTab) {
+			$inst->saveTab();
+		}
+	}
+	
+	/*
+	 * [TODO] Proxy any func requests to be handled by the tab directly, 
+	 * instead of forcing tabs to implement controllers.  This should check 
+	 * for the *Action() functions just as a handleRequest would
+	 */
+	/*
+	function handleTabRequestAction() {
+	}
+	*/
 	
 	function browseAction() {
 		$visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
@@ -4184,20 +4205,6 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		DAO_Ticket::updateTicket($id, $properties);
 
-		if(!empty($team_id)) {
-		    $eventMgr = DevblocksPlatform::getEventService();
-		    $eventMgr->trigger(
-		        new Model_DevblocksEvent(
-		            'ticket.moved', // [TODO] Const
-	                array(
-	                    'ticket_ids' => array($id),
-	                    'team_id' => $team_id,
-	                    'bucket_id' => $bucket_id,
-	                )
-	            )
-		    );
-		}
-		
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('display',$id)));
 	}
 
@@ -4420,6 +4427,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		@$remove = DevblocksPlatform::importGPC($_POST['remove'],'array',array());
 		@$next_worker_id = DevblocksPlatform::importGPC($_POST['next_worker_id'],'integer',0);
 		@$next_action = DevblocksPlatform::importGPC($_POST['next_action'],'string','');
+		@$subject = DevblocksPlatform::importGPC($_POST['subject'],'string','');
 		
 		@$ticket = DAO_Ticket::getTicket($ticket_id);
 		
@@ -4433,11 +4441,15 @@ class ChDisplayPage extends CerberusPageExtension {
 		if(isset($next_worker_id))
 			$fields[DAO_Ticket::NEXT_WORKER_ID] = $next_worker_id;
 			
-		if(!empty($next_action))
+		if(isset($next_action))
 			$fields[DAO_Ticket::NEXT_ACTION] = $next_action;
 
-		if(!empty($fields))
+		if(!empty($subject))
+			$fields[DAO_Ticket::SUBJECT] = $subject;
+
+		if(!empty($fields)) {
 			DAO_Ticket::updateTicket($ticket_id, $fields);
+		}
 			
 		// Requesters
 			
@@ -4498,7 +4510,6 @@ class ChDisplayPage extends CerberusPageExtension {
 			$view->renderPage = 0;
 			$view->renderSortBy = SearchFields_Ticket::TICKET_CREATED_DATE;
 			$view->renderSortAsc = false;
-			C4_AbstractViewLoader::setView('',$view->id,$view);
 		}
 
 		$view->name = "Most recent tickets from " . htmlentities($contact->email);
@@ -4506,6 +4517,8 @@ class ChDisplayPage extends CerberusPageExtension {
 			SearchFields_Ticket::TICKET_FIRST_WROTE => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_FIRST_WROTE,DevblocksSearchCriteria::OPER_EQ,$contact->email)
 		);
 		$tpl->assign('view', $view);
+		
+		C4_AbstractViewLoader::setView($view->id,$view);
 		
 		$workers = DAO_Worker::getList();
 		$tpl->assign('workers', $workers);

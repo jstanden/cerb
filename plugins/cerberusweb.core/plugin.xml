@@ -25,12 +25,10 @@
 	<!-- Event Points -->
 
 	<event_points>
-		<event id="ticket.moved">
-			<name>Ticket Moved</name>
+		<event id="ticket.property.changed">
+			<name>Ticket Property Change</name>
 			<param key="ticket_ids" />
-			<param key="tickets" /> <!-- Optional -->
-			<param key="team_id" />
-			<param key="bucket_id" />
+			<param key="changed_fields" />
 		</event>
 		<event id="ticket.reply.inbound">
 			<name>Ticket Inbound Reply</name>

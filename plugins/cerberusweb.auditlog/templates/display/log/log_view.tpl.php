@@ -3,11 +3,11 @@
 {assign var=data value=$results[0]}
 <table cellpadding="0" cellspacing="0" border="0" class="tableBlue" width="100%" class="tableBg">
 	<tr>
-		<td nowrap="nowrap" class="tableThBlue">{$view->name} {if $view->id == 'search'}<a href="#{$view->id}_actions" style="color:rgb(255,255,255);font-size:11px;">jump to actions</a>{/if}</td>
+		<td nowrap="nowrap" class="tableThBlue">{$view->name}</td>
 		<td nowrap="nowrap" class="tableThBlue" align="right">
 			<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');" class="tableThLink">{$translate->_('common.refresh')|lower}</a>
-			<!-- {if $view->id != 'search'}<span style="font-size:12px"> | </span><a href="{devblocks_url}c=contacts&a=searchview&id={$view->id}{/devblocks_url}" class="tableThLink">{$translate->_('common.search')|lower} list</a>{/if} -->
-			<span style="font-size:12px"> | </span><a href="javascript:;" onclick="genericAjaxGet('customize{$view->id}','c=internal&a=viewCustomize&id={$view->id}');toggleDiv('customize{$view->id}','block');" class="tableThLink">{$translate->_('common.customize')|lower}</a>
+			<!-- {if $view->id != 'search'}<span style="font-size:12px"> | </span><a href="{devblocks_url}c=internal&a=searchview&id={$view->id}{/devblocks_url}" class="tableThLink">{$translate->_('common.search')|lower} list</a>{/if} -->
+			<!-- <span style="font-size:12px"> | </span><a href="javascript:;" onclick="genericAjaxGet('customize{$view->id}','c=internal&a=viewCustomize&id={$view->id}');toggleDiv('customize{$view->id}','block');" class="tableThLink">{$translate->_('common.customize')|lower}</a> -->
 		</td>
 	</tr>
 </table>
@@ -23,7 +23,7 @@
 		{foreach from=$view->view_columns item=header name=headers}
 			{* start table header, insert column title and link *}
 			<th nowrap="nowrap">
-			{if $header=="c_id"}<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewSortBy&id={$view->id}&sortBy=c_id');">{$translate->_('contact_org.id')|capitalize}</a>
+			{if $header=="x"}<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewSortBy&id={$view->id}&sortBy=a_id');">{$translate->_('contact_org.id')|capitalize}</a>
 			{else}<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewSortBy&id={$view->id}&sortBy={$header}');">{$view_fields.$header->db_label|capitalize}</a>
 			{/if}
 			
@@ -42,7 +42,7 @@
 	{* Column Data *}
 	{foreach from=$data item=result key=idx name=results}
 
-	{assign var=rowIdPrefix value="row_"|cat:$view->id|cat:"_"|cat:$result.c_id}
+	{assign var=rowIdPrefix value="row_"|cat:$view->id|cat:"_"|cat:$result.l_id}
 	{if $smarty.foreach.results.iteration % 2}
 		{assign var=tableRowBg value="tableRowBg"}
 	{else}
@@ -50,19 +50,52 @@
 	{/if}
 	
 		<tr class="{$tableRowBg}" id="{$rowIdPrefix}_s" onmouseover="toggleClass(this.id,'tableRowHover');toggleClass('{$rowIdPrefix}','tableRowHover');" onmouseout="toggleClass(this.id,'{$tableRowBg}');toggleClass('{$rowIdPrefix}','{$tableRowBg}');" onclick="if(getEventTarget(event)=='TD') checkAll('{$rowIdPrefix}_s');">
-			<td align="center" rowspan="2"><input type="checkbox" name="row_id[]" value="{$result.c_id}"></td>
-			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}"><a href="{devblocks_url}c=contacts&a=orgs&id={$result.c_id}{/devblocks_url}" class="ticketLink" style="font-size:12px;"><b id="subject_{$result.c_id}_{$view->id}">{$result.c_name}</b></a> <a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showOrgPeek&id={$result.c_id}&view_id={$view->id}',this,false,'500px');" style="color:rgb(180,180,180);font-size:90%;">(peek)</a></td>
+			<td align="center" rowspan="1"><input type="checkbox" name="row_id[]" value="{$result.l_id}"></td>
+			<!-- <td colspan="{math equation="x" x=$smarty.foreach.headers.total}"><a href="javascript:;" class="ticketLink" style="font-size:12px;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$result.a_email}&view_id={$view->id}',this,false,'500px',ajax.cbAddressPeek);"><b id="subject_{$result.a_id}_{$view->id}">{$result.a_email}</b></a></td>-->
+		<!-- 
 		</tr>
 		<tr class="{$tableRowBg}" id="{$rowIdPrefix}" onmouseover="toggleClass(this.id,'tableRowHover');toggleClass('{$rowIdPrefix}_s','tableRowHover');" onmouseout="toggleClass(this.id,'{$tableRowBg}');toggleClass('{$rowIdPrefix}_s','{$tableRowBg}');" onclick="if(getEventTarget(event)=='TD') checkAll('{$rowIdPrefix}_s');">
+		 -->
 		{foreach from=$view->view_columns item=column name=columns}
-			{if $column=="c_id"}
-			<td>{$result.c_id}&nbsp;</td>
-			{elseif $column=="c_website"}
-			<td><a href="{$result.c_website}" target="_blank">{$result.c_website|truncate:45:'...':true}</a>&nbsp;</td>
-			{elseif $column=="c_created"}
-			<td>{$result.c_created|date_format}&nbsp;</td>
+			{if $column=="l_id"}
+			<td>{$result.l_id}&nbsp;</td>
+			{elseif $column=="l_worker_id"}
+			<td>
+				{assign var=log_worker_id value=$result.l_worker_id}
+				{if isset($workers.$log_worker_id)}{$workers.$log_worker_id->getName()}{else}(auto){/if}&nbsp;
+			</td>
+			{elseif $column=="l_change_date"}
+			<td>{$result.l_change_date|date_format:"%a, %x %X"}&nbsp;</td>
+			{elseif $column=="l_change_field"}
+				<td>
+					{assign var=change_field value='t_'|cat:$result.l_change_field}
+					{if isset($ticket_fields.$change_field)}
+						{$ticket_fields.$change_field->db_label}
+					{else}
+						{$change_field}&nbsp;
+					{/if}
+				</td>
+			{elseif $column=="l_change_value"}
+				<td>
+					{assign var=change_field value=$result.l_change_field}
+					{if $change_field=="updated_date"}
+						{$result.l_change_value|date_format}
+					{elseif $change_field=="next_worker_id"}
+						{assign var=change_worker_id value=$result.l_change_value}
+						{if isset($workers.$change_worker_id)}{$workers.$change_worker_id->getName()}{else}Anybody{/if}&nbsp;
+					{elseif $change_field=="is_deleted" || $change_field=="is_closed"}
+						{if $result.l_change_value==1}True{else}False{/if}
+					{elseif $change_field=="spam_training"}
+						{if $result.l_change_value=='S'}{$translate->_('training.report_spam')}{else}{$translate->_('training.not_spam')}{/if}
+					{elseif $change_field=="spam_score"}
+						{math equation="x*100" format="%0.2f" x=$result.l_change_value}%
+					{else}
+						{$result.l_change_value}
+					{/if}
+					&nbsp;
+				</td>
 			{else}
-			<td>{$result.$column}</td>
+			<td>{$result.$column}&nbsp;</td>
 			{/if}
 		{/foreach}
 		</tr>
@@ -73,11 +106,11 @@
 	{if $total}
 	<tr>
 		<td colspan="2">
+			<!-- <span id="tourDashboardBatch"><button type="button" onclick="ajax.showBatchPanel('{$view->id}','{$dashboard_team_id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> bulk update</button></span>  -->
+			
+			<!-- <a href="javascript:;" onclick="toggleDiv('view{$view->id}_more');">More &raquo;</a>-->
+
 			<!-- 
-			<span id="tourDashboardBatch"><button type="button" onclick="ajax.showBatchPanel('{$view->id}','{$dashboard_team_id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> bulk update</button></span>
-
-			<a href="javascript:;" onclick="toggleDiv('view{$view->id}_more');">More &raquo;</a>
-
 			<div id="view{$view_id}_more" style="display:none;padding-top:5px;padding-bottom:5px;">
 				<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','merge');">merge</button>
 			</div>

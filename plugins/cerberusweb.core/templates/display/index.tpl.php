@@ -111,13 +111,22 @@ tabView.addTab( new YAHOO.widget.Tab({
 }));
 
 tabView.addTab( new YAHOO.widget.Tab({
-    label: 'Ticket History',
+    label: 'Sender History',
     dataSrc: '{/literal}{devblocks_url}ajax.php?c=display&a=showContactHistory&ticket_id={$ticket->id}{/devblocks_url}{literal}',
     cacheData: true
 }));
+{/literal}
+
+{foreach from=$tab_manifests item=tab_manifest}
+{literal}tabView.addTab( new YAHOO.widget.Tab({{/literal}
+    label: '{$tab_manifest->params.title}',
+    dataSrc: '{devblocks_url}ajax.php?c=display&a=showTab&ext_id={$tab_manifest->id}&ticket_id={$ticket->id}{/devblocks_url}',
+    {if $tab==$tab_manifest->params.uri}active: true,{/if}
+    cacheData: false
+{literal}}));{/literal}
+{/foreach}
 
 tabView.appendTo('displayOptions');
-{/literal}
 </script>
 
 <script>

@@ -251,7 +251,7 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
     function handleEvent(Model_DevblocksEvent $event) {
         // Cerberus Helpdesk Workflow
         switch($event->id) {
-            case 'ticket.moved': // [TODO] Const
+            case 'ticket.property.changed':
 	            $this->_handleTicketMoved($event);
                 break;
 
@@ -262,17 +262,21 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
     }
 
     private function _handleTicketMoved($event) {
-        $ticket_ids = $event->params['ticket_ids'];
-        @$tickets = $event->params['tickets'];
-        $team_id = $event->params['team_id'];
-        $bucket_id = $event->params['bucket_id'];
+        @$ticket_ids = $event->params['ticket_ids'];
+        @$changed_fields = $event->params['changed_fields'];
+        
+        if(!isset($changed_fields[DAO_Ticket::TEAM_ID]) 
+        	|| !isset($changed_fields[DAO_Ticket::CATEGORY_ID]))
+        	return;
+        
+        @$team_id = $changed_fields[DAO_Ticket::TEAM_ID];
+        @$bucket_id = $changed_fields[DAO_Ticket::CATEGORY_ID];
 
         //============ Check Team Inbox Rules ================
-        if(!empty($ticket_ids) && empty($bucket_id)) { // moving to an inbox
+        if(!empty($ticket_ids) && !empty($team_id) && empty($bucket_id)) { // moving to an inbox
             // [JAS]: Build hashes for our event ([TODO] clean up)
-	        if(empty($tickets)) {
-                $tickets = DAO_Ticket::getTickets($ticket_ids);
-	        }
+			$tickets = DAO_Ticket::getTickets($ticket_ids);
+                
             $from_ids = array();
             foreach($tickets as $ticket) { /* @var $ticket CerberusTicket */
                 $from_ids[$ticket->id] = $ticket->first_wrote_address_id;
@@ -286,8 +290,9 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
             unset($from_ids);
 
             foreach($tickets as $ticket_id => $ticket) {
-                $rule = CerberusApplication::parseTeamRules($team_id, $ticket_id, @$from_ids[$ticket_id], $ticket->subject);
+                $rule = CerberusApplication::parseTeamRules($team_id, $ticket_id, @$from_addresses[$ticket->first_wrote_address_id], $ticket->subject);
             }
+            unset($from_addresses);
         }
         
     }

@@ -3,7 +3,6 @@
 <input type="hidden" name="a" value="saveProperties">
 <input type="hidden" name="ticket_id" value="{$ticket->id}">
 
-<div class="block">
 <h2>Properties</h2>
 <blockquote style="margin:10px;">
 	<b>Next Action:</b><br>
@@ -17,6 +16,12 @@
 			<option value="{$worker_id}" {if $worker_id==$ticket->next_worker_id}selected{/if}>{$worker->getName()}
 		{/foreach}
 	</select><br>
+	<br>
+	
+	<b>Subject:</b><br>
+	<input type="text" name="subject" size="45" maxlength="255" value="{$ticket->subject|escape:"htmlall"}" style="width:90%;"><br>
+	<br>
+	
 </blockquote>
 
 <h2>Send responses to:</h2>
@@ -43,6 +48,5 @@
 	<br>
 	<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
 </blockquote>
-</div>
 
 </form>

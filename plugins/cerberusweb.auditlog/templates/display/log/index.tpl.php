@@ -1,0 +1,1 @@
+<div id="viewaudit_log">{$view->render()}</div>
