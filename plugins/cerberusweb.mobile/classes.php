@@ -89,22 +89,6 @@ class MobileController extends DevblocksControllerExtension {
 					'content' => $content,
 					'agent_id' => @$worker->id
 			    );
-			    
-				switch (DevblocksPlatform::importGPC($_REQUEST['page_type'])) {
-					case "comment":
-						$properties['type'] = CerberusMessageType::COMMENT;
-						break;
-					case "display":
-						$properties['type'] = CerberusMessageType::EMAIL;
-						break;
-					case "forward":
-						$properties['type'] = CerberusMessageType::FORWARD;
-						$properties['to'] = $to;
-						break;
-						
-					default:
-						break;
-				}
 				
 				CerberusMail::sendTicketMessage($properties);
 				

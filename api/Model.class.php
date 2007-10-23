@@ -572,6 +572,7 @@ class C4_TicketView extends C4_AbstractView {
 	static function getColumns() {
 		$fields = self::getFields();
 		unset($fields[SearchFields_Ticket::TEAM_ID]);
+		unset($fields[SearchFields_Ticket::TICKET_SUBJECT]);
 		unset($fields[SearchFields_Ticket::TICKET_MESSAGE_CONTENT]);
 		return $fields;
 	}
@@ -1260,13 +1261,6 @@ class Model_TicketViewLastAction {
 	public $action_params = array(); // DAO Actions Taken
 };
 
-class CerberusMessageType { // [TODO] Append 'Enum' to class name?
-	const EMAIL = 'E';
-	const FORWARD = 'F';
-	const COMMENT = 'C';
-	const AUTORESPONSE = 'A';
-};
-
 class CerberusTicketStatus {
 	const OPEN = 0;
 	const CLOSED = 1;
@@ -1354,10 +1348,10 @@ class CerberusTicketActionCode {
 class CerberusMessage {
 	public $id;
 	public $ticket_id;
-	public $message_type;
 	public $created_date;
 	public $address_id;
-	public $message_id;
+	public $is_outgoing;
+	public $worker_id;
 	
 	function CerberusMessage() {}
 	

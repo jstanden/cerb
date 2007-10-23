@@ -1305,17 +1305,17 @@ class DAO_AddressToWorker { // extends DevblocksORMHelper
 class DAO_Message extends DevblocksORMHelper {
     const ID = 'id';
     const TICKET_ID = 'ticket_id';
-    const IS_ADMIN = 'is_admin';
-    const MESSAGE_TYPE = 'message_type';
     const CREATED_DATE = 'created_date';
     const ADDRESS_ID = 'address_id';
+    const IS_OUTGOING = 'is_outgoing';
+    const WORKER_ID = 'worker_id';
 
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
 		$newId = $db->GenID('message_seq');
 		
-		$sql = sprintf("INSERT INTO message (id,ticket_id,message_type,created_date,address_id) ".
-			"VALUES (%d,0,'',0,0)",
+		$sql = sprintf("INSERT INTO message (id,ticket_id,created_date,is_outgoing,worker_id,address_id) ".
+			"VALUES (%d,0,0,0,0,0)",
 			$newId
 		);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
@@ -2121,7 +2121,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$messages = array();
 		
-		$sql = sprintf("SELECT m.id , m.ticket_id, m.message_type, m.created_date, m.address_id ".
+		$sql = sprintf("SELECT m.id , m.ticket_id, m.created_date, m.address_id ".
 			"FROM message m ".
 			"WHERE m.ticket_id = %d ".
 			"ORDER BY m.created_date ASC ",
@@ -2132,7 +2132,6 @@ class DAO_Ticket extends DevblocksORMHelper {
 			$message = new CerberusMessage();
 			$message->id = intval($rs->fields['id']);
 			$message->ticket_id = intval($rs->fields['ticket_id']);
-			$message->message_type = $rs->fields['message_type'];
 			$message->created_date = intval($rs->fields['created_date']);
 			$message->address_id = intval($rs->fields['address_id']);
 			
@@ -2153,7 +2152,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$message = null;
 		
-		$sql = sprintf("SELECT m.id , m.ticket_id, m.message_type, m.created_date, m.address_id ".
+		$sql = sprintf("SELECT m.id , m.ticket_id, m.created_date, m.address_id ".
 			"FROM message m ".
 			"WHERE m.id = %d ".
 			"ORDER BY m.created_date ASC ",
@@ -2164,7 +2163,6 @@ class DAO_Ticket extends DevblocksORMHelper {
 			$message = new CerberusMessage();
 			$message->id = intval($rs->fields['id']);
 			$message->ticket_id = intval($rs->fields['ticket_id']);
-			$message->message_type = $rs->fields['message_type'];
 			$message->created_date = intval($rs->fields['created_date']);
 			$message->address_id = intval($rs->fields['address_id']);
 		}

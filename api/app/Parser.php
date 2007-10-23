@@ -288,7 +288,6 @@ class CerberusParser {
 		if(empty($message->body) && !empty($message->htmlbody)) { // generate the plaintext part
 	        $fields = array(
 	            DAO_Message::TICKET_ID => $id,
-	            DAO_Message::MESSAGE_TYPE => CerberusMessageType::EMAIL,
 	            DAO_Message::CREATED_DATE => $iDate,
 	            DAO_Message::ADDRESS_ID => $fromAddressId
 	        );
@@ -296,14 +295,7 @@ class CerberusParser {
 		    
 		    // Content
 		    $body = CerberusApplication::stripHTML($message->htmlbody);
-//		    // [mdf] append the contents of any message bodies found in message attachments earlier 
-//		    if(!empty($body_append_html)) {
-//				$body .= "\r\n\r\n----- Original message -----\r\n"; 
-//		    	for($i=0; $i < count($body_append_html); $i++) {
-//					$body .= "\r\n\r\n" . CerberusApplication::stripHTML($body_append_html[$i]);
-//		    	}
-//				$body .= "\r\n----- End of message -----\r\n";
-//		    }
+
 		    DAO_MessageContent::update($email_id, $body);
 			
 		    // Headers
@@ -315,19 +307,13 @@ class CerberusParser {
 		} else { // Insert the plaintext body (even blank)
 	        $fields = array(
 	            DAO_Message::TICKET_ID => $id,
-	            DAO_Message::MESSAGE_TYPE => CerberusMessageType::EMAIL,
 	            DAO_Message::CREATED_DATE => $iDate,
 	            DAO_Message::ADDRESS_ID => $fromAddressId
 	        );
 			$email_id = DAO_Message::create($fields);
 			
 			$body = $message->body;
-//			//[mdf] append the contents of any message bodies found in message attachments earlier
-//			if(!empty($body_append_text)) {
-//				$body .= "\r\n\r\n----- Original message -----\r\n"; 
-//				$body .= implode("\r\n\r\n", $body_append_text);
-//				$body .= "\r\n----- End of message -----\r\n";
-//			}
+
 			// Content
 			DAO_MessageContent::update($email_id, $body);
 			
@@ -339,10 +325,6 @@ class CerberusParser {
 		
 		// [mdf] Loop through files to insert attachment records in the db, and move temporary files
 		if(!empty($email_id)) {
-		    // No longer needed (it's in the message_header table)
-//			DAO_Message::update($email_id,array(
-//			    DAO_Message::MESSAGE_ID => $sMessageId
-//			));
 			foreach ($message->files as $filename => $file) { /* @var $file ParserFile */
 				//[mdf] skip rfc822 messages since we extracted their content above
 				if($file->mime_type == 'message/rfc822') {

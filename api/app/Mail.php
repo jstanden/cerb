@@ -105,7 +105,6 @@ class CerberusMail {
 		$mail = $mail_service->createMessage();
         
 	    // properties
-	    @$type = $properties['type']; // [TODO] Phase out
 	    @$message_id = $properties['message_id'];
 	    @$content =& $properties['content'];
 	    @$files = $properties['files'];
@@ -220,9 +219,10 @@ class CerberusMail {
 			
 		    $fields = array(
 		        DAO_Message::TICKET_ID => $ticket_id,
-		        DAO_Message::MESSAGE_TYPE => $type, // [TODO] Phase out
 		        DAO_Message::CREATED_DATE => time(),
-		        DAO_Message::ADDRESS_ID => $fromAddressId // [TODO] Real sender id
+		        DAO_Message::ADDRESS_ID => $fromAddressId,
+		        DAO_Message::IS_OUTGOING => 1,
+		        DAO_Message::WORKER_ID => (!empty($worker_id) ? $worker_id : 0),
 		    );
 			$message_id = DAO_Message::create($fields);
 		    

@@ -631,7 +631,8 @@ class ChTicketsPage extends CerberusPageExtension {
 			                $tpl->assign('category_name_hash', $category_name_hash);
 			                
 			                $move_counts = unserialize($move_counts_str);
-			                $tpl->assign('move_to_counts', array_slice($move_counts,0,10,true));
+			                if(is_array($move_counts) && !empty($move_counts))
+			                	$tpl->assign('move_to_counts', array_slice($move_counts,0,10,true));
 			            }
 		                
 					    @$team_mode = array_shift($request_path);
@@ -1141,6 +1142,8 @@ class ChTicketsPage extends CerberusPageExtension {
 	        DAO_Message::TICKET_ID => $ticket_id,
 	        DAO_Message::CREATED_DATE => time(),
 	        DAO_Message::ADDRESS_ID => $fromAddressId,
+	        DAO_Message::IS_OUTGOING => 1,
+	        DAO_Message::WORKER_ID => (!empty($worker->id) ? $worker->id : 0)
 	    );
 		$message_id = DAO_Message::create($fields);
 	    
@@ -4284,11 +4287,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		$this->_renderNotes($message_id);
 	}
 	
-	function replyAction() { 
-	    ChDisplayPage::loadMessageTemplate(CerberusMessageType::EMAIL);
-	}
-	
-	function loadMessageTemplate($type) {
+	function replyAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
 
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -4332,12 +4331,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		$tpl->assign('upload_max_filesize', ini_get('upload_max_filesize'));
 		
 		$tpl->cache_lifetime = "0";
-		
-		switch ($type) {
-			case CerberusMessageType::EMAIL :
-				$tpl->display('file:' . dirname(__FILE__) . '/templates/display/rpc/reply.tpl.php');
-				break;
-		}
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/rpc/reply.tpl.php');
 	}
 	
 	function sendReplyAction() {
@@ -4346,7 +4340,6 @@ class ChDisplayPage extends CerberusPageExtension {
 	    $worker = CerberusApplication::getActiveWorker();
 	    
 		$properties = array(
-		    'type' => CerberusMessageType::EMAIL,
 		    'message_id' => DevblocksPlatform::importGPC(@$_REQUEST['id']),
 		    'ticket_id' => $ticket_id,
 		    'cc' => DevblocksPlatform::importGPC(@$_REQUEST['cc']),

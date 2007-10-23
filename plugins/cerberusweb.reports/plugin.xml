@@ -1,0 +1,32 @@
+<!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
+<plugin>
+	<id>cerberusweb.reports</id>
+	<name>Cerberus Helpdesk: Reports</name>
+	<description>Reporting area with helpdesk metrics.</description>
+	<author>WebGroup Media, LLC.</author>
+	<revision>0</revision>
+	<class>
+		<file>api/App.php</file>
+		<name>ChReportsPlugin</name>
+	</class>
+	
+	<extensions>
+
+	<!-- Page Extensions -->
+	
+	<extension point="cerberusweb.page">
+		<id>reports.page</id>
+		<name>Reports Page</name>
+		<class>
+			<file>api/App.php</file>
+			<name>ChReportsPage</name>
+		</class>
+		<params>
+			<param key="uri" value="reports" />
+			<param key="title" value="Reports" />
+			<param key="menutitle" value="Reports" />
+		</params>
+	</extension>
+	
+	</extensions>
+</plugin>

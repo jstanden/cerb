@@ -268,6 +268,92 @@ if(!isset($tables['message_note'])) {
 
 // `message` ========================
 $columns = $datadict->MetaColumns('message');
+
+if(isset($columns['HEADERS'])) {
+    $sql = $datadict->DropColumnSQL('message','headers');
+    $datadict->ExecuteSQLArray($sql);
+}
+
+if(isset($columns['MESSAGE_ID'])) {
+    $sql = $datadict->DropColumnSQL('message','message_id');
+    $datadict->ExecuteSQLArray($sql);
+}
+
+if(isset($columns['IS_ADMIN'])) {
+    $sql = $datadict->DropColumnSQL('message','is_admin');
+    $datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($columns['IS_OUTGOING'])) {
+    $sql = $datadict->AddColumnSQL('message','is_outgoing I1 DEFAULT 0 NOTNULL');
+    $datadict->ExecuteSQLArray($sql);
+    
+    // Gather Helpdesk/Group addresses
+	try {
+		$froms = array();
+		
+		$settings = CerberusSettings::getInstance();
+		if(null != ($default_from = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM,''))) {
+			$froms[$default_from] = 1;
+		}
+		
+		if(null != ($group_settings = DAO_GroupSettings::getSettings()) && is_array($group_settings)) {
+			foreach($group_settings as $group_id => $gs) {
+				if(is_array($gs) && isset($gs[DAO_GroupSettings::SETTING_REPLY_FROM])) {
+					$group_from = $gs[DAO_GroupSettings::SETTING_REPLY_FROM];
+					$froms[$group_from] = 1;
+				}
+			}
+		}
+		
+		if(!empty($froms)) {
+			$sql = sprintf("SELECT id FROM address WHERE email IN ('%s')",
+				implode("','", array_keys($froms))
+			);
+			if(null != ($rs = $db->Execute($sql))) {
+				while(!$rs->EOF) {
+    				$address_id = intval($rs->fields['id']);
+					$db->Execute(sprintf("UPDATE message SET is_outgoing = 1 WHERE address_id = %d",
+			    		$address_id
+			    	));
+					$rs->MoveNext();
+				}
+			}
+		}
+		
+	} catch(Exception $e) {}
+}
+
+if(!isset($columns['WORKER_ID'])) {
+    $sql = $datadict->AddColumnSQL('message','worker_id I4 DEFAULT 0 NOTNULL');
+    $datadict->ExecuteSQLArray($sql);
+    
+    // Link direct replies from worker addresses as outgoing messages (Cerb 1,2,3.x)
+    $sql = "SELECT a.id as address_id,w.id as worker_id FROM address a INNER JOIN worker w ON (a.email=w.email)";
+    $rs = $db->Execute($sql);
+    
+    while(!@$rs->EOF) {
+    	$address_id = intval($rs->fields['address_id']);
+    	$worker_id = intval($rs->fields['worker_id']);
+    	$db->Execute(sprintf("UPDATE message SET is_outgoing = 1 AND worker_id = %d WHERE address_id = %d",
+    		$worker_id,
+    		$address_id
+    	));
+    	$rs->MoveNext();
+    }
+}
+
+if(isset($columns['MESSAGE_TYPE'])) {
+    $sql = $datadict->DropColumnSQL('message','message_type');
+    $datadict->ExecuteSQLArray($sql);
+}
+
+if(isset($columns['CONTENT'])) {
+    // insert into message_content (message_id, content) select id,content FROM message
+    $sql = $datadict->DropColumnSQL('message','content');
+    $datadict->ExecuteSQLArray($sql);
+}
+
 $indexes = $datadict->MetaIndexes('message',false);
 
 if(!isset($indexes['created_date'])) {
@@ -280,19 +366,13 @@ if(!isset($indexes['ticket_id'])) {
     $datadict->ExecuteSQLArray($sql);
 }
 
-if(isset($columns['HEADERS'])) {
-    $sql = $datadict->DropColumnSQL('message','headers');
+if(!isset($indexes['is_outgoing'])) {
+    $sql = $datadict->CreateIndexSQL('is_outgoing','message','is_outgoing');
     $datadict->ExecuteSQLArray($sql);
 }
 
-if(isset($columns['MESSAGE_ID'])) {
-    $sql = $datadict->DropColumnSQL('message','message_id');
-    $datadict->ExecuteSQLArray($sql);
-}
-
-if(isset($columns['CONTENT'])) {
-    // insert into message_content (message_id, content) select id,content FROM message
-    $sql = $datadict->DropColumnSQL('message','content');
+if(!isset($indexes['worker_id'])) {
+    $sql = $datadict->CreateIndexSQL('worker_id','message','worker_id');
     $datadict->ExecuteSQLArray($sql);
 }
 
