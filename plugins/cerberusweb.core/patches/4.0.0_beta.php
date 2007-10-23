@@ -314,7 +314,7 @@ if(!isset($columns['IS_OUTGOING'])) {
 			);
 			$rs = $db->Execute($sql);
 			
-			while($rs && !$rs->EOF) {
+			while(!$rs->EOF) {
    				$address_id = intval($rs->fields['id']);
 				$db->Execute(sprintf("UPDATE message SET is_outgoing = 1 WHERE address_id = %d",
 		    		$address_id
@@ -334,7 +334,7 @@ if(!isset($columns['WORKER_ID'])) {
     $sql = "SELECT a.id as address_id,w.id as worker_id FROM address a INNER JOIN worker w ON (a.email=w.email)";
     $rs = $db->Execute($sql);
     
-    while($rs && !$rs->EOF) {
+    while(!$rs->EOF) {
     	$address_id = intval($rs->fields['address_id']);
     	$worker_id = intval($rs->fields['worker_id']);
     	$db->Execute(sprintf("UPDATE message SET is_outgoing = 1 AND worker_id = %d WHERE address_id = %d",
