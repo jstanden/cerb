@@ -293,7 +293,7 @@ if(!isset($columns['IS_OUTGOING'])) {
 		$froms = array();
 		
 		$settings = CerberusSettings::getInstance();
-		if(null != ($default_from = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM,''))) {
+		if(null != ($default_from = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM,null))) {
 			$froms[$default_from] = 1;
 		}
 		
@@ -301,23 +301,25 @@ if(!isset($columns['IS_OUTGOING'])) {
 			foreach($group_settings as $group_id => $gs) {
 				if(is_array($gs) && isset($gs[DAO_GroupSettings::SETTING_REPLY_FROM])) {
 					$group_from = $gs[DAO_GroupSettings::SETTING_REPLY_FROM];
-					$froms[$group_from] = 1;
+					if(!empty($group_from))
+						$froms[$group_from] = 1;
 				}
 			}
 		}
 		
-		if(!empty($froms)) {
+		if(is_array($froms) && !empty($froms)) {
+			$froms = array_keys($froms);
 			$sql = sprintf("SELECT id FROM address WHERE email IN ('%s')",
-				implode("','", array_keys($froms))
+				implode("','", $froms)
 			);
-			if(null != ($rs = $db->Execute($sql))) {
-				while(!$rs->EOF) {
-    				$address_id = intval($rs->fields['id']);
-					$db->Execute(sprintf("UPDATE message SET is_outgoing = 1 WHERE address_id = %d",
-			    		$address_id
-			    	));
-					$rs->MoveNext();
-				}
+			$rs = $db->Execute($sql);
+			
+			while($rs && !$rs->EOF) {
+   				$address_id = intval($rs->fields['id']);
+				$db->Execute(sprintf("UPDATE message SET is_outgoing = 1 WHERE address_id = %d",
+		    		$address_id
+		    	));
+				$rs->MoveNext();
 			}
 		}
 		
@@ -332,7 +334,7 @@ if(!isset($columns['WORKER_ID'])) {
     $sql = "SELECT a.id as address_id,w.id as worker_id FROM address a INNER JOIN worker w ON (a.email=w.email)";
     $rs = $db->Execute($sql);
     
-    while(!@$rs->EOF) {
+    while($rs && !$rs->EOF) {
     	$address_id = intval($rs->fields['address_id']);
     	$worker_id = intval($rs->fields['worker_id']);
     	$db->Execute(sprintf("UPDATE message SET is_outgoing = 1 AND worker_id = %d WHERE address_id = %d",
