@@ -19,7 +19,7 @@
 		{if !empty($worker_counts.$worker_id)}
 		<tr>
 			<td style="padding-right:20px;"><b>{$workers.$worker_id->getName()}</b></td>
-			<td>{$worker_counts.$worker_id}</td>
+			<td>{$worker_counts.$worker_id} &nbsp; (avg: {math equation="x/y" x=$worker_counts.$worker_id y=$age format="%0.2f"}/day)</td>
 		</tr>
 		{/if}
 	{/foreach}

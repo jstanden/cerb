@@ -20,7 +20,7 @@
 	{if !empty($counts.total)}
 		<tr>
 			<td style="padding-right:20px;"><b>{$groups.$group_id->name}</b></td>
-			<td>{$counts.total}</td>
+			<td>{$counts.total} &nbsp; (avg: {math equation="x/y" x=$counts.total y=$age format="%0.2f"}/day)</td>
 		</tr>
 		{*
 		{if !empty($counts.0)}
