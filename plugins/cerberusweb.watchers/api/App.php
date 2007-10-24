@@ -35,6 +35,11 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 		$message = DAO_Ticket::getMessage($message_id);
 		$headers = $message->getHeaders();
 		
+		// [JAS]: Don't send obvious spam to watchers.
+		if($ticket->spam_score > 0.9000) {
+			return true;
+		}
+		
 		$mail_service = DevblocksPlatform::getMailService();
 		$mailer = $mail_service->getMailer();
 

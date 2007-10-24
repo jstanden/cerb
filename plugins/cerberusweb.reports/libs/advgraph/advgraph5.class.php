@@ -1032,9 +1032,12 @@ class graph {
 
                         // [JAS]: MMM DD format
                         if($format==5) {
-                        	$text = sprintf("%s %d",
+                        	$year = date('y',$date['0']);
+                        	 
+                        	$text = sprintf("%s %d%s",
                         		substr($date['month'],0,3),
-                        		$date['mday']
+                        		$date['mday'],
+								(($year != date('y')) ? sprintf(" '%02d",$year) : '')                    		
                         	); 	
                         } else {
 	                        $text = ($format<=2?substr($date['month'],0,3):$date['month']);
@@ -1055,7 +1058,7 @@ class graph {
                         $text);
 
                     if ($this->mode=="image") {
-                        imagettftext($this->img,$this->getProp("textsize",8),
+                        imagettftext($this->img,$this->getProp("textsize",7),
                             $this->getProp("textAngle",0),
                             round(($i*($this->width/$this->getProp("xincpts")))-($i!=$this->getProp("xincpts")?($i!=0?(.5*$size[2]):0):$size[2]),0)-($this->getProp("type","line")=="bar"?.5*($this->width/count($this->xPts[0])):0),
                             $this->height+abs($size[5])+3,
