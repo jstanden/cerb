@@ -9,6 +9,7 @@
 | <a href="javascript:;" onclick="genericAjaxGet('reportNewTickets','c=reports&a=getNewTicketsReport&age=90');">90 days</a>
 | <a href="javascript:;" onclick="genericAjaxGet('reportNewTickets','c=reports&a=getNewTicketsReport&age=30');">30 days</a>
 | <a href="javascript:;" onclick="genericAjaxGet('reportNewTickets','c=reports&a=getNewTicketsReport&age=7');">7 days</a>
+| <a href="javascript:;" onclick="genericAjaxGet('reportNewTickets','c=reports&a=getNewTicketsReport&age=1');">past 24 hours</a>
 <br>
 </div>
 <br>
@@ -20,7 +21,8 @@
 	{if !empty($counts.total)}
 		<tr>
 			<td style="padding-right:20px;"><b>{$groups.$group_id->name}</b></td>
-			<td>{$counts.total} &nbsp; (avg: {math equation="x/y" x=$counts.total y=$age format="%0.2f"}/day)</td>
+			<td>{$counts.total} &nbsp; </td>
+			<td>(avg: {math equation="x/y" x=$counts.total y=$age format="%0.2f"}/day)</td>
 		</tr>
 		{*
 		{if !empty($counts.0)}

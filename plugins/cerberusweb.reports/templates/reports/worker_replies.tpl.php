@@ -9,6 +9,7 @@
 | <a href="javascript:;" onclick="genericAjaxGet('reportWorkerReplies','c=reports&a=getWorkerRepliesReport&age=90');">90 days</a>
 | <a href="javascript:;" onclick="genericAjaxGet('reportWorkerReplies','c=reports&a=getWorkerRepliesReport&age=30');">30 days</a>
 | <a href="javascript:;" onclick="genericAjaxGet('reportWorkerReplies','c=reports&a=getWorkerRepliesReport&age=7');">7 days</a>
+| <a href="javascript:;" onclick="genericAjaxGet('reportWorkerReplies','c=reports&a=getWorkerRepliesReport&age=1');">past 24 hrs</a>
 <br>
 </div>
 <br>
@@ -19,7 +20,8 @@
 		{if !empty($worker_counts.$worker_id)}
 		<tr>
 			<td style="padding-right:20px;"><b>{$workers.$worker_id->getName()}</b></td>
-			<td>{$worker_counts.$worker_id} &nbsp; (avg: {math equation="x/y" x=$worker_counts.$worker_id y=$age format="%0.2f"}/day)</td>
+			<td>{$worker_counts.$worker_id} &nbsp; </td>
+			<td>(avg: {math equation="x/y" x=$worker_counts.$worker_id y=$age format="%0.2f"}/day)</td>
 		</tr>
 		{/if}
 	{/foreach}
