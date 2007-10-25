@@ -31,7 +31,7 @@
 				<div id="expandGroup{$group_id}" style="display:none;padding-left:15px;padding-bottom:2px;">
 				{if !empty($counts.0)}Inbox: {$counts.0}{/if}
 				{foreach from=$group_buckets.$group_id key=bucket_id item=b}
-				{if !empty($counts.$bucket_id)}	{$b->name}: {$counts.$bucket_id}{/if}
+				{if !empty($counts.$bucket_id)}	{$b->name}: {$counts.$bucket_id}<br>{/if}
 				{/foreach}
 				</div>
 			</td>
