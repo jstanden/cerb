@@ -60,7 +60,7 @@ class ChAuditLogPatchContainer extends DevblocksPatchContainerExtension {
 
 		$file_prefix = realpath(dirname(__FILE__) . '/../patches');
 		
-		$this->registerPatch(new DevblocksPatch('cerberusweb.auditlog',1,$file_prefix.'/1.0.0.php',''));
+		$this->registerPatch(new DevblocksPatch('cerberusweb.auditlog',2,$file_prefix.'/1.0.0.php',''));
 	}
 };
 

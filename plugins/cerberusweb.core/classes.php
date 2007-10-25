@@ -374,9 +374,10 @@ class ChTicketsPage extends CerberusPageExtension {
 				break;
 			
 			case 'compose':
-				$teams = DAO_Group::getAll();
 				$settings = CerberusSettings::getInstance();
-
+				$teams = DAO_Group::getAll();
+				$tpl->assign_by_ref('teams', $teams);
+				
 				$team_id = $visit->get(CerberusVisit::KEY_WORKSPACE_GROUP_ID, 0);
 				if($team_id) {
 					$tpl->assign('team', $teams[$team_id]);
@@ -1037,6 +1038,12 @@ class ChTicketsPage extends CerberusPageExtension {
 	    $tpl->assign('message', $last);
 	    $tpl->assign('content', $content);
 	    
+		$teams = DAO_Group::getAll();
+		$tpl->assign('teams', $teams);
+		
+		$team_categories = DAO_Bucket::getTeams();
+		$tpl->assign('team_categories', $team_categories);
+	    
 	    $workers = DAO_Worker::getList(); // ::getAll();
 		$tpl->assign('workers', $workers);
 	    
@@ -1050,11 +1057,23 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		@$next_action = DevblocksPlatform::importGPC($_REQUEST['next_action'],'string','');
 		@$next_worker_id = DevblocksPlatform::importGPC($_REQUEST['next_worker_id'],'integer',0);
+		@$bucket = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'string','');
 		
 		$fields = array(
 			DAO_Ticket::NEXT_ACTION => $next_action,
 			DAO_Ticket::NEXT_WORKER_ID => $next_worker_id,
 		);
+		
+		// Team/Category
+		if(!empty($bucket)) {
+			list($team_id,$bucket_id) = CerberusApplication::translateTeamCategoryCode($bucket);
+
+			if(!empty($team_id)) {
+			    $fields[DAO_Ticket::TEAM_ID] = $team_id;
+			    $fields[DAO_Ticket::CATEGORY_ID] = $bucket_id;
+			}
+		}
+		
 		DAO_Ticket::updateTicket($id, $fields);
 		
 		// [TODO] Abstract View Redraw

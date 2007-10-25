@@ -18,5 +18,27 @@
 		<option value="{$worker_id}" {if $worker_id==$ticket->next_worker_id}selected{/if}>{$worker->getName()}
 	{/foreach}
 </select><br>
+
+<b>Bucket:</b>
+<select name="bucket_id">
+<option value="">-- move to --</option>
+{if empty($ticket->category_id)}{assign var=t_or_c value="t"}{else}{assign var=t_or_c value="c"}{/if}
+<optgroup label="Inboxes">
+{foreach from=$teams item=team}
+	<option value="t{$team->id}">{$team->name}{if $t_or_c=='t' && $ticket->team_id==$team->id} (current bucket){/if}</option>
+{/foreach}
+</optgroup>
+{foreach from=$team_categories item=categories key=teamId}
+	{assign var=team value=$teams.$teamId}
+	{if !empty($active_worker_memberships.$teamId)}
+		<optgroup label="-- {$team->name} --">
+		{foreach from=$categories item=category}
+		<option value="c{$category->id}">{$category->name}{if $t_or_c=='c' && $ticket->category_id==$category->id} (current bucket){/if}</option>
+		{/foreach}
+		</optgroup>
+	{/if}
+{/foreach}
+</select><br>
+
 <button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
 </form>

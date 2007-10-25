@@ -789,7 +789,7 @@ class UmScCoreController extends Extension_UmScController {
         foreach($dispatch as $k => $v) {
         	if(md5($k)==$sNature) {
         		$to = $v['to'];
-        		$subject = 'Contact me: ' . $k;
+        		$subject = 'Contact me: ' . strip_tags($k);
         		break;
         	}
         }

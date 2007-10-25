@@ -44,13 +44,11 @@
 					</tr>
 				{/if}
 
-				{if !empty($active_dashboard_id)}
 				<tr>
 					<td width="100%" style="padding:2px;">
 						<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/mail2.gif{/devblocks_url}" align="top"> <a href="{devblocks_url}c=tickets&a=compose{/devblocks_url}">Send Mail</a><br>
 					</td>
 				</tr>
-				{/if}
 				<!-- 
 				<tr>
 					<td width="100%" style="padding:2px;">

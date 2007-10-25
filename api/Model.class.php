@@ -382,6 +382,9 @@ class C4_TicketView extends C4_AbstractView {
 		
 		$active_dashboard_id = $visit->get(CerberusVisit::KEY_DASHBOARD_ID, 0);
 		
+		$workers = DAO_Worker::getList(); // [TODO] cache ::getAll()
+		$tpl->assign('workers', $workers);
+		
 		$teams = DAO_Group::getAll();
 		$tpl->assign('teams', $teams);
 		
@@ -645,24 +648,6 @@ class C4_TicketView extends C4_AbstractView {
 		}
 	}
 
-	// [TODO] Find a better home for this?
-	function getInvolvedGroups() {
-		$groups = array();
-		foreach($this->params as $criteria) {
-			if($criteria->field == SearchFields_Ticket::TEAM_ID) {
-				if(is_array($criteria->value)) {
-					foreach($criteria->value as $val) {
-						$groups[] = $val;
-					}
-				}
-				else {
-					$groups[] = $criteria->value;
-				} 
-			}
-		}
-		return $groups;
-	}
-	
 	/**
 	 * @param array
 	 * @param array

@@ -207,7 +207,7 @@ class UmCommunityPage extends CerberusPageExtension {
 			
 			// Passthrough [TODO] need to secure to agent logins
 			if(method_exists($tool, $sAction)) {
-				call_user_method($sAction, $tool);
+				call_user_func(array($tool,$sAction));
 			}
 		}
 	}
@@ -657,7 +657,7 @@ class UmContactApp extends Extension_UsermeetTool {
         foreach($dispatch as $k => $v) {
         	if(md5($k)==$sNature) {
         		$to = $v['to'];
-        		$subject = 'Contact me: ' . $k;
+        		$subject = 'Contact me: ' . strip_tags($k);
         		break;
         	}
         }

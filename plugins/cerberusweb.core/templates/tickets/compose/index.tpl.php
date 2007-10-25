@@ -24,8 +24,11 @@
 				<tr>
 					<td width="0%" nowrap="nowrap" valign="top"><b>From:</b></td>
 					<td width="100%">
-						<input type="hidden" name="team_id" value="{$team->id}">
-						{$team->name}
+						<select name="team_id">
+							{foreach from=$active_worker_memberships item=membership key=group_id}
+							<option value="{$group_id}" {if $group_id==$team->id}selected{/if}">{$teams.$group_id->name}</option>
+							{/foreach}
+						</select>
 					</td>
 				</tr>
 				<tr>

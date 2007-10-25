@@ -81,5 +81,8 @@ if(!isset($indexes['worker_id'])) {
 	$datadict->ExecuteSQLArray($sql);
 }
 
+// Cleanup (these fields made no sense to audit, as they will automatically change often)
+$db->Execute("DELETE FROM ticket_audit_log WHERE change_field IN ('updated_date','last_worker_id','first_wrote_address_id','last_wrote_address_id','first_message_id','mask');");
+
 return TRUE;
 ?>

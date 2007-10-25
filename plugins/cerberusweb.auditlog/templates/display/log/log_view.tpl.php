@@ -69,8 +69,10 @@
 			{elseif $column=="l_change_field"}
 				<td>
 					{assign var=change_field value='t_'|cat:$result.l_change_field}
-					{if isset($ticket_fields.$change_field)}
-						{$ticket_fields.$change_field->db_label}
+					{if $result.l_change_field=='team_id'}
+						{$ticket_fields.tm_name->db_label}
+					{elseif isset($ticket_fields.$change_field)}
+						{$ticket_fields.$change_field->db_label|capitalize}
 					{else}
 						{$change_field}&nbsp;
 					{/if}
@@ -80,15 +82,19 @@
 					{assign var=change_field value=$result.l_change_field}
 					{if $change_field=="updated_date"}
 						{$result.l_change_value|date_format}
-					{elseif $change_field=="next_worker_id"}
+					{elseif $change_field=="next_worker_id" || $change_field=="last_worker_id"}
 						{assign var=change_worker_id value=$result.l_change_value}
 						{if isset($workers.$change_worker_id)}{$workers.$change_worker_id->getName()}{else}Anybody{/if}&nbsp;
 					{elseif $change_field=="is_deleted" || $change_field=="is_closed"}
 						{if $result.l_change_value==1}True{else}False{/if}
 					{elseif $change_field=="spam_training"}
 						{if $result.l_change_value=='S'}{$translate->_('training.report_spam')}{else}{$translate->_('training.not_spam')}{/if}
-					{elseif $change_field=="spam_score"}
-						{math equation="x*100" format="%0.2f" x=$result.l_change_value}%
+					{elseif $change_field=="team_id"}
+						{assign var=change_team_id value=$result.l_change_value}
+						{if isset($groups.$change_team_id)}{$groups.$change_team_id->name}{else}{/if}&nbsp;
+					{elseif $change_field=="category_id"}
+						{assign var=change_category_id value=$result.l_change_value}
+						{if isset($buckets.$change_category_id)}{$buckets.$change_category_id->name}{else}Inbox{/if}&nbsp;
 					{else}
 						{$result.l_change_value}
 					{/if}

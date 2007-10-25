@@ -24,19 +24,18 @@
 					</td>
 				</tr>
 
-				{if 0}
-				<tr>
-					<td width="100%" style="padding:2px;">
-						<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/mail2.gif{/devblocks_url}" align="top"> <a href="{devblocks_url}c=tickets&a=compose{/devblocks_url}">Send Mail</a><br>
-					</td>
-				</tr>
-				{/if}
-
 				<tr>
 					<td width="100%" style="padding:2px;">
 						 <a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showAddListPanel',this,false,'450px');">{$translate->_('dashboard.add_view')|lower}</a>
 					</td>
 				</tr>
+
+				<tr>
+					<td width="100%" style="padding:2px;">
+						<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/mail2.gif{/devblocks_url}" align="top"> <a href="{devblocks_url}c=tickets&a=compose{/devblocks_url}">Send Mail</a><br>
+					</td>
+				</tr>
+				
 			</table>
 		</td>
 	</tr>

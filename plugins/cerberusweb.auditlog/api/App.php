@@ -24,8 +24,13 @@ class ChAuditLogEventListener extends DevblocksEventListenerExtension {
             	@$ticket_ids = $event->params['ticket_ids'];
             	@$changed_fields = $event->params['changed_fields'];
 
-            	// Filter out any changes we could care less about
+            	// Filter out any mandatory changes we could care less about
 				unset($changed_fields[DAO_Ticket::UPDATED_DATE]);
+				unset($changed_fields[DAO_Ticket::MASK]);
+				unset($changed_fields[DAO_Ticket::FIRST_MESSAGE_ID]);
+				unset($changed_fields[DAO_Ticket::FIRST_WROTE_ID]);
+				unset($changed_fields[DAO_Ticket::LAST_WROTE_ID]);
+				unset($changed_fields[DAO_Ticket::LAST_WORKER_ID]);
             	
             	@$tickets = DAO_Ticket::getTickets($ticket_ids);
             	// Is a worker around to invoke this change?  0 = automatic
@@ -327,6 +332,12 @@ class C4_TicketAuditLogView extends C4_AbstractView {
 		$workers = DAO_Worker::getList();
 		$tpl->assign('workers', $workers);
 
+		$groups = DAO_Group::getAll();
+		$tpl->assign('groups', $groups);
+		
+		$buckets = DAO_Bucket::getAll();
+		$tpl->assign('buckets', $buckets);
+		
 		$ticket_fields = SearchFields_Ticket::getFields();
 		$tpl->assign('ticket_fields', $ticket_fields);
 		

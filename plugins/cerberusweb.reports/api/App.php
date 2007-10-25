@@ -51,15 +51,21 @@ class ChReportsPage extends CerberusPageExtension {
 	}
 	
 	function getNewTicketsReportAction() {
-		@$age = DevblocksPlatform::importGPC($_REQUEST['age'],'integer', 30);
+		@$age = DevblocksPlatform::importGPC($_REQUEST['age'],'string','30d');
 		
 		$db = DevblocksPlatform::getDatabaseService();
 
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->tpl_path);
+
+		@list($age_dur, $age_term) = sscanf($age,"%d%s");
+		if(empty($age_dur)) $age_dur = 30;
+		if(empty($age_term)) $age_term = 'd';
 		
 		$tpl->assign('age', $age);
+		$tpl->assign('age_dur', $age_dur);
+		$tpl->assign('age_term', $age_term);
 		
 	   	// Top Buckets
 		$groups = DAO_Group::getAll();
@@ -71,9 +77,8 @@ class ChReportsPage extends CerberusPageExtension {
 		$sql = sprintf("SELECT count(*) AS hits, team_id, category_id ".
 			"FROM ticket ".
 			"WHERE created_date > %d AND created_date <= %d ".
-			"GROUP BY team_id, category_id ".
-			"ORDER BY team_id, category_id ",
-			strtotime("-".$age." days"),
+			"GROUP BY team_id, category_id ",
+			strtotime("-".$age_dur." ".($age_term=='d'?'days':'months')),
 			time()
 		);
 		$rs_buckets = $db->Execute($sql);
@@ -98,7 +103,7 @@ class ChReportsPage extends CerberusPageExtension {
 	}
 	
 	function getWorkerRepliesReportAction() {
-		@$age = DevblocksPlatform::importGPC($_REQUEST['age'],'integer', 30);
+		@$age = DevblocksPlatform::importGPC($_REQUEST['age'],'string', '30d');
 		
 		$db = DevblocksPlatform::getDatabaseService();
 		
@@ -106,19 +111,28 @@ class ChReportsPage extends CerberusPageExtension {
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->tpl_path);
 		
+		@list($age_dur, $age_term) = sscanf($age,"%d%s");
+		if(empty($age_dur)) $age_dur = 30;
+		if(empty($age_term)) $age_term = 'd';
+		
 		$tpl->assign('age', $age);
+		$tpl->assign('age_dur', $age_dur);
+		$tpl->assign('age_term', $age_term);
 		
 		// Top Workers
 		$workers = DAO_Worker::getList();
 		$tpl->assign('workers', $workers);
 		
-		$sql = sprintf("SELECT count(*) AS hits, worker_id ".
-			"FROM message ".
-			"WHERE created_date > %d AND created_date <= %d ".
-			"AND is_outgoing = 1 ".
-			"GROUP BY worker_id ".
-			"ORDER BY hits desc ",
-			strtotime("-".$age." days"),
+		$groups = DAO_Group::getAll();
+		$tpl->assign('groups', $groups);
+		
+		$sql = sprintf("SELECT count(*) AS hits, t.team_id, m.worker_id ".
+			"FROM message m ".
+			"INNER JOIN ticket t ON (t.id=m.ticket_id) ".
+			"WHERE m.created_date > %d AND m.created_date <= %d ".
+			"AND m.is_outgoing = 1 ".
+			"GROUP BY t.team_id, m.worker_id ",
+			strtotime("-".$age_dur." ".($age_term=='d'?'days':'months')),
 			time()
 		);
 		$rs_workers = $db->Execute($sql);
@@ -126,8 +140,14 @@ class ChReportsPage extends CerberusPageExtension {
 		$worker_counts = array();
 		while(!$rs_workers->EOF) {
 			$hits = intval($rs_workers->fields['hits']);
+			$team_id = intval($rs_workers->fields['team_id']);
 			$worker_id = intval($rs_workers->fields['worker_id']);
-			$worker_counts[$worker_id] = $hits;
+			
+			if(!isset($worker_counts[$worker_id]))
+				$worker_counts[$worker_id] = array();
+			
+			$worker_counts[$worker_id][$team_id] = $hits;
+			@$worker_counts[$worker_id]['total'] = intval($worker_counts[$worker_id]['total']) + $hits;
 			$rs_workers->MoveNext();
 		}
 		$tpl->assign('worker_counts', $worker_counts);
@@ -144,21 +164,27 @@ class ChReportsPage extends CerberusPageExtension {
 		@array_shift($stack); // graph
 		@$age = array_shift($stack); // age
 		
-		$db = DevblocksPlatform::getDatabaseService();
-		$now_day = floor(time()/86400);
+		@list($age_dur, $age_term) = sscanf($age,"%d%s");
+		if(empty($age_dur)) $age_dur = 30;
+		if(empty($age_term)) $age_term = 'd';
 		
-		$sql = sprintf("SELECT count(*) as hits, floor(created_date/86400) AS day ".
+		$db = DevblocksPlatform::getDatabaseService();
+		$block = $age_term=='mo'?2629800:86400;
+		$now_day = floor(time()/$block);
+		
+		$sql = sprintf("SELECT count(*) as hits, floor(created_date/%d) AS day ".
 			"FROM ticket ".
 			"WHERE created_date > %d AND created_date <= %d ".
 			"GROUP BY day",
-			strtotime("-".$age." days"),
+			$block,
+			strtotime("-".$age_dur." ".($age_term=='d'?'days':'months')),
 			time()
 		);
 		$rs = $db->Execute($sql);
 
 	    $graph = new graph();
 	    $graph->setProp('font', $path.'/ryanlerch_-_Tuffy.ttf');
-	    $graph->setProp('title', 'New Tickets (Past '.$age.' Days)');
+	    $graph->setProp('title', 'Created Tickets (Past '.$age_dur." ".($age_term=='d'?'Days':'Months').')');
 	    $graph->setProp('titlesize', 14);
 //	    $graph->setProp('actwidth', 400);
 	    $graph->setProp('actheight', 225);
@@ -168,7 +194,7 @@ class ChReportsPage extends CerberusPageExtension {
 	    $graph->setProp('yincpts', 5);
 	    $graph->setProp('scale', 'date');
 //	    $graph->setProp('sort', false);
-	    $graph->setProp('startdate', '-'.$age.' days');
+	    $graph->setProp('startdate', "-".$age_dur." ".($age_term=='d'?'days':'months'));
 //	    $graph->setProp('enddate', '10/31/2007');
 	    $graph->setProp('dateformat', 5);
 //	    $graph->setProp('xlabel', 'Day');
@@ -185,7 +211,7 @@ class ChReportsPage extends CerberusPageExtension {
 	    $graph->setProp('keysize', 10);
 
 	    $days = array();
-	    for($x=-1*$age;$x<=0;$x++) {
+	    for($x=-1*$age_dur;$x<=0;$x++) {
 	    	$days[$x] = 0;
 	    }
 	    
@@ -197,7 +223,7 @@ class ChReportsPage extends CerberusPageExtension {
 	    }
 	    
 	    foreach($days as $d => $hits) {
-	    	$graph->addPoint($hits,'d:'.$d.' days',0);
+	    	$graph->addPoint($hits,'d:'.$d.' '.($age_term=='d'?'days':'months'),0);
 	    }
 	    
 //		$graph->setProp("key","Jeff Standen",0);
@@ -216,22 +242,28 @@ class ChReportsPage extends CerberusPageExtension {
 		@array_shift($stack); // graph
 		@$age = array_shift($stack); // age
 		
-		$db = DevblocksPlatform::getDatabaseService();
-		$now_day = floor(time()/86400);
+		@list($age_dur, $age_term) = sscanf($age,"%d%s");
+		if(empty($age_dur)) $age_dur = 30;
+		if(empty($age_term)) $age_term = 'd';
 		
-		$sql = sprintf("SELECT count(*) as hits, floor(created_date/86400) AS day ".
+		$db = DevblocksPlatform::getDatabaseService();
+		$block = $age_term=='mo'?2629800:86400;
+		$now_day = floor(time()/$block);
+		
+		$sql = sprintf("SELECT count(*) as hits, floor(created_date/%d) AS day ".
 			"FROM message ".
 			"WHERE created_date > %d AND created_date <= %d ".
 			"AND is_outgoing = 1 ".
 			"GROUP BY day",
-			strtotime("-".$age." days"),
+			$block,
+			strtotime("-".$age_dur." ".($age_term=='d'?'days':'months')),
 			time()
 		);
 		$rs = $db->Execute($sql);
 		
 	    $graph = new graph();
 	    $graph->setProp('font', $path.'/ryanlerch_-_Tuffy.ttf');
-	    $graph->setProp('title', 'Outgoing Replies (Past '.$age.' Days)');
+	    $graph->setProp('title', 'Outgoing Replies (Past '.$age_dur." ".($age_term=='d'?'Days':'Months').')');
 	    $graph->setProp('titlesize', 14);
 //	    $graph->setProp('actwidth', 400);
 	    $graph->setProp('actheight', 225);
@@ -241,7 +273,7 @@ class ChReportsPage extends CerberusPageExtension {
 	    $graph->setProp('yincpts', 5);
 	    $graph->setProp('scale', 'date');
 //	    $graph->setProp('sort', false);
-	    $graph->setProp('startdate', '-'.$age.' days');
+	    $graph->setProp('startdate', "-".$age_dur." ".($age_term=='d'?'days':'months'));
 //	    $graph->setProp('enddate', '10/31/2007');
 	    $graph->setProp('dateformat', 5);
 //	    $graph->setProp('xlabel', 'Day');
@@ -258,7 +290,7 @@ class ChReportsPage extends CerberusPageExtension {
 	    $graph->setProp('keysize', 10);
 	    
 	    $days = array();
-	    for($x=-1*$age;$x<=0;$x++) {
+	    for($x=-1*$age_dur;$x<=0;$x++) {
 	    	$days[$x] = 0;
 	    }
 	    
@@ -270,7 +302,7 @@ class ChReportsPage extends CerberusPageExtension {
 	    }
 	    
 	    foreach($days as $d => $hits) {
-	    	$graph->addPoint($hits,'d:'.$d.' days',0);
+	    	$graph->addPoint($hits,'d:'.$d.' '.($age_term=='d'?'days':'months'),0);
 	    }
 	    
 //		$graph->setProp("key","Jeff Standen",0);

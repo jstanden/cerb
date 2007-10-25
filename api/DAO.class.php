@@ -2447,10 +2447,10 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 	const TICKET_CLOSED = 't_is_closed';
 	const TICKET_DELETED = 't_is_deleted';
 	const TICKET_SUBJECT = 't_subject';
-	const TICKET_FIRST_WROTE_ID = 't_first_wrote_id';
+	const TICKET_FIRST_WROTE_ID = 't_first_wrote_address_id';
 	const TICKET_FIRST_WROTE = 't_first_wrote';
 	const TICKET_FIRST_CONTACT_ORG_ID = 't_first_contact_org_id';
-	const TICKET_LAST_WROTE_ID = 't_last_wrote_id';
+	const TICKET_LAST_WROTE_ID = 't_last_wrote_address_id';
 	const TICKET_LAST_WROTE = 't_last_wrote';
 	const TICKET_CREATED_DATE = 't_created_date';
 	const TICKET_UPDATED_DATE = 't_updated_date';
@@ -2733,7 +2733,7 @@ class DAO_Group {
 		
 		$sql = sprintf("SELECT t.id , t.name, t.signature ".
 			"FROM team t ".
-			((!empty($ids)) ? sprintf("WHERE t.id IN (%s) ",implode(',',$ids)) : " ").
+			((is_array($ids) && !empty($ids)) ? sprintf("WHERE t.id IN (%s) ",implode(',',$ids)) : " ").
 			"ORDER BY t.name ASC"
 		);
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */

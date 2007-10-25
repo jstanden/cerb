@@ -86,7 +86,7 @@ class CerberusMail {
 	     * [TODO] Move these into constants?
 	    'message_id'
 	    -----'ticket_id'
-		-----'to' // if type==FORWARD
+		'subject'
 	    'cc'
 	    'bcc'
 	    'content'
@@ -109,6 +109,7 @@ class CerberusMail {
 	    @$content =& $properties['content'];
 	    @$files = $properties['files'];
 	    @$worker_id = $properties['agent_id'];
+	    @$subject = $properties['subject'];
 	    
 //	    $files = $mail_service->persistTempFiles($files);
 	    
@@ -132,7 +133,7 @@ class CerberusMail {
 			
 		// Headers
 		$mail->setFrom($sendFrom);
-		$mail->setSubject('Re: ' . $ticket->subject);
+		$mail->setSubject('Re: ' . (!empty($subject) ? $subject : $ticket->subject));
 		$mail->generateId();
 		$mail->headers->set('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
 		
@@ -215,6 +216,10 @@ class CerberusMail {
 		    if(!empty($worker_id)) {
 		        $change_fields[DAO_Ticket::LAST_WORKER_ID] = $worker_id;
 		        $change_fields[DAO_Ticket::LAST_ACTION_CODE] = CerberusTicketActionCode::TICKET_WORKER_REPLY;
+		    }
+		    
+		    if(!empty($subject)) {
+		    	$change_fields[DAO_Ticket::SUBJECT] = $subject;
 		    }
 			
 		    $fields = array(
