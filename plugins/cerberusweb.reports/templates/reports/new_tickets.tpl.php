@@ -29,7 +29,7 @@
 			<td style="padding-right:20px;">
 				<a href="javascript:;" style="font-weight:bold;" onclick="toggleDiv('expandGroup{$group_id}');">{$groups.$group_id->name}</a>
 				<div id="expandGroup{$group_id}" style="display:none;padding-left:15px;padding-bottom:2px;">
-				{if !empty($counts.0)}Inbox: {$counts.0}{/if}
+				{if !empty($counts.0)}Inbox: {$counts.0}<br>{/if}
 				{foreach from=$group_buckets.$group_id key=bucket_id item=b}
 				{if !empty($counts.$bucket_id)}	{$b->name}: {$counts.$bucket_id}<br>{/if}
 				{/foreach}
