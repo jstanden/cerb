@@ -9,7 +9,7 @@
 <input type="hidden" name="c" value="display">
 <input type="hidden" name="a" value="saveReplyTemplate">
 <input type="hidden" name="id" value="{$template->id}">
-<input type="hidden" name="delete" value="0">
+<input type="hidden" name="do_delete" value="0">
 
 <b>Title:</b><br>
 <input type="text" name="title" size="35" value="{$template->title|escape:"htmlall"}" style="width:100%;"><br>
@@ -55,7 +55,7 @@
 
 <button type="button" onclick="saveGenericAjaxPanel('replyTemplateEditForm',true,displayAjax.onSaveReplyTemplate);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_ok.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
 {if $template->id}
-<button type="button" onclick="this.form.delete.value='1';saveGenericAjaxPanel('replyTemplateEditForm',true,displayAjax.onSaveReplyTemplate);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_delete.gif{/devblocks_url}" align="top"> {$translate->_('common.delete')|capitalize}</button>
+<button type="button" onclick="this.form.do_delete.value='1';saveGenericAjaxPanel('replyTemplateEditForm',true,displayAjax.onSaveReplyTemplate);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_delete.gif{/devblocks_url}" align="top"> {$translate->_('common.delete')|capitalize}</button>
 {/if}
 
 </form>

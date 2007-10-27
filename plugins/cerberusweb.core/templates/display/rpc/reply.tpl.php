@@ -28,6 +28,12 @@
 					</td>
 				</tr>
 				<tr>
+					<td width="0%" nowrap="nowrap"><b>Bcc: </b></td>
+					<td width="100%" align="left">
+						<input type="text" size="45" name="bcc" value="" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;">					
+					</td>
+				</tr>
+				<tr>
 					<td width="0%" nowrap="nowrap"><b>Subject: </b></td>
 					<td width="100%" align="left">
 						<input type="text" size="45" name="subject" value="{$ticket->subject|escape:"htmlall"}" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;">					

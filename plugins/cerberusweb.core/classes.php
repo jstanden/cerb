@@ -599,11 +599,45 @@ class ChTicketsPage extends CerberusPageExtension {
 						$myView->renderLimit = 10;
 						$myView->renderPage = 0;
 						$myView->renderSortBy = SearchFields_Ticket::TICKET_UPDATED_DATE;
-						$myView->renderSortAsc = 1;
+						$myView->renderSortAsc = 0;
 						
 						C4_AbstractViewLoader::setView($myView->id,$myView);
 					}
-					$views = array($myView->id => $myView);
+					
+					$myWaitingView = C4_AbstractViewLoader::getView('', CerberusApplication::VIEW_MY_WAITING);
+					
+					// [JAS]: Recover from a bad cached ID.
+					if(null == $myWaitingView) {
+						$myWaitingView = new C4_TicketView();
+						$myWaitingView->id = CerberusApplication::VIEW_MY_WAITING;
+						$myWaitingView->name = "Waiting for Replies";
+						$myWaitingView->dashboard_id = 0;
+						$myWaitingView->view_columns = array(
+							SearchFields_Ticket::TICKET_NEXT_ACTION,
+							SearchFields_Ticket::TICKET_UPDATED_DATE,
+//							SearchFields_Ticket::TICKET_LAST_WROTE,
+							SearchFields_Ticket::TEAM_NAME,
+//							SearchFields_Ticket::TICKET_CATEGORY_ID,
+							SearchFields_Ticket::TICKET_SPAM_SCORE,
+							SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
+							);
+						$myWaitingView->params = array(
+//							new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN),
+							new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_NEXT_WORKER_ID,'in',array($active_worker->id)),
+							new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_LAST_ACTION_CODE,'in',array('W')),
+						);
+						$myWaitingView->renderLimit = 10;
+						$myWaitingView->renderPage = 0;
+						$myWaitingView->renderSortBy = SearchFields_Ticket::TICKET_UPDATED_DATE;
+						$myWaitingView->renderSortAsc = 1;
+						
+						C4_AbstractViewLoader::setView($myWaitingView->id,$myWaitingView);
+					}
+					
+					$views = array(
+						$myView->id => $myView,
+						$myWaitingView->id => $myWaitingView,
+					);
 					$tpl->assign('views', $views);
 					
 				} else { // virtual dashboards
@@ -2239,7 +2273,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	function doFnrTopicAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		@$name = DevblocksPlatform::importGPC($_REQUEST['name'],'string','');
-		@$delete = DevblocksPlatform::importGPC($_REQUEST['delete'],'integer',0);
+		@$delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
 
 		if(DEMO_MODE) {
 			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','fnr')));
@@ -2275,7 +2309,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		@$url = DevblocksPlatform::importGPC($_REQUEST['url'],'string','');
 		@$topic_id = DevblocksPlatform::importGPC($_REQUEST['topic_id'],'integer',0);
 		@$topic_name = DevblocksPlatform::importGPC($_REQUEST['topic_name'],'string','');
-		@$delete = DevblocksPlatform::importGPC($_REQUEST['delete'],'integer',0);
+		@$delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
 		
 		if(DEMO_MODE) {
 			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','fnr')));
@@ -2467,7 +2501,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		@$password = DevblocksPlatform::importGPC($_POST['password'],'string');
 		@$is_superuser = DevblocksPlatform::importGPC($_POST['is_superuser'],'integer');
 		@$team_id = DevblocksPlatform::importGPC($_POST['team_id'],'array');
-		@$delete = DevblocksPlatform::importGPC($_POST['delete'],'integer');
+		@$delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer');
 
 		// Global privs
 		@$can_delete = DevblocksPlatform::importGPC($_POST['can_delete'],'integer');
@@ -3324,7 +3358,7 @@ class ChContactsPage extends CerberusPageExtension {
 		$phone = DevblocksPlatform::importGPC($_REQUEST['phone'],'string','');
 		$fax = DevblocksPlatform::importGPC($_REQUEST['fax'],'string','');
 		$website = DevblocksPlatform::importGPC($_REQUEST['website'],'string','');
-		$delete = DevblocksPlatform::importGPC($_REQUEST['delete'],'integer',0);
+		$delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
 
 		if(!empty($id) && !empty($delete)) { // delete
 			DAO_ContactOrg::delete($id);
@@ -4587,7 +4621,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		@$folder = DevblocksPlatform::importGPC($_REQUEST['folder'],'string','');
 		@$folder_new = DevblocksPlatform::importGPC($_REQUEST['folder_new'],'string','');
 		@$content = DevblocksPlatform::importGPC($_REQUEST['template'],'string','');
-		@$delete = DevblocksPlatform::importGPC($_REQUEST['delete'],'integer',0);
+		@$delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
 		
 		$worker = CerberusApplication::getActiveWorker();
 		

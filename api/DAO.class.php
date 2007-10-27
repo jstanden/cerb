@@ -49,6 +49,9 @@
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
 
+/**
+ * Global Settings DAO
+ */
 class DAO_Setting extends DevblocksORMHelper {
 	static function set($key, $value) {
 		$db = DevblocksPlatform::getDatabaseService();
@@ -87,6 +90,9 @@ class DAO_Setting extends DevblocksORMHelper {
 	}
 };
 
+/**
+ * Bayesian Anti-Spam DAO
+ */
 class DAO_Bayes {
 	private function DAO_Bayes() {}
 	
@@ -200,7 +206,11 @@ class DAO_Bayes {
 	
 };
 
-// [TODO] Add a cached ::getAll()
+/**
+ * Worker DAO
+ *  
+ * @todo [JAS]: Add a cached ::getAll()
+ */
 class DAO_Worker extends DevblocksORMHelper {
 	private function DAO_Worker() {}
 	
@@ -531,6 +541,10 @@ class DAO_Worker extends DevblocksORMHelper {
     	
 }
 
+/**
+ * ...
+ * 
+ */
 class SearchFields_Worker implements IDevblocksSearchFields {
 	// Worker
 	const ID = 'w_id';
@@ -833,12 +847,16 @@ class SearchFields_ContactOrg {
 	}
 };
 
+/**
+ * Address DAO
+ * 
+ */
 class DAO_Address extends DevblocksORMHelper {
 	const ID = 'id';
-	const EMAIL = 'email';	
-	const FIRST_NAME = 'first_name';	
-	const LAST_NAME = 'last_name';	
-	const CONTACT_ORG_ID = 'contact_org_id';	
+	const EMAIL = 'email';
+	const FIRST_NAME = 'first_name';
+	const LAST_NAME = 'last_name';
+	const CONTACT_ORG_ID = 'contact_org_id';
 
 	private function __construct() {}
 	
@@ -853,6 +871,17 @@ class DAO_Address extends DevblocksORMHelper {
 		);
 	}
 	
+	/**
+	 * Creates a new e-mail address record.
+	 *
+	 * @param array $fields An array of fields=>values
+	 * @return integer The new address ID
+	 * 
+	 * DAO_Address::create(array(
+	 *   DAO_Address::EMAIL => 'user@domain'
+	 * ));
+	 * 
+	 */
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
 		

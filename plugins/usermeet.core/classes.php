@@ -352,7 +352,7 @@ class UmCommunityPage extends CerberusPageExtension {
 	function saveConfigurationAction() {
 		@$code = DevblocksPlatform::importGPC($_POST['code'],'string');
         @$iFinished = DevblocksPlatform::importGPC($_POST['finished'],'integer',0);
-        @$iDelete = DevblocksPlatform::importGPC($_POST['delete'],'integer',0);
+        @$iDelete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer',0);
 		
 		if(null != ($instance = DAO_CommunityTool::getByCode($code))) {
 			// Deleting?
@@ -396,7 +396,7 @@ class UmCommunityPage extends CerberusPageExtension {
 		// [TODO] Privs
 		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
 		@$name = DevblocksPlatform::importGPC($_POST['name'],'string','New Community');	
-		@$delete = DevblocksPlatform::importGPC($_POST['delete'],'integer',0);	
+		@$delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer',0);	
 
 		if(!empty($delete)) {
 			DAO_Community::delete($id);
@@ -1354,7 +1354,7 @@ class UmKbApp extends Extension_UsermeetTool {
     	@$id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
     	@$title = DevblocksPlatform::importGPC($_POST['title'],'string','No article title');
     	@$content = DevblocksPlatform::importGPC($_POST['content'],'string','');
-    	@$delete = DevblocksPlatform::importGPC($_POST['delete'],'integer',0);
+    	@$delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer',0);
     	@$tags_csv = DevblocksPlatform::importGPC($_POST['tags'],'string','');
     	
 		$fields = array(

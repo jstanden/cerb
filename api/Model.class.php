@@ -71,6 +71,10 @@ class Model_TeamRoutingRule {
     }
 }
 
+/**
+ * Enter description here...
+ *
+ */
 abstract class C4_AbstractView {
 	public $id = 0;
 	public $name = "";

@@ -53,7 +53,7 @@
 			</table>
 			<br>
 			
-			<b>Which team inbox should receive any unrouted mail?</b><br> 
+			<b>Which group inbox should receive any unrouted mail?</b><br> 
 			<select name="default_team_id">
 				<option value="0">-- None (Bounce) --
 			{if !empty($teams)}

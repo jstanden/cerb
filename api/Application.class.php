@@ -48,7 +48,7 @@
  * 		and Joe Geck.
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-define("APP_BUILD", 398);
+define("APP_BUILD", 401);
 define("APP_MAIL_PATH", realpath(APP_PATH . '/storage/mail') . DIRECTORY_SEPARATOR);
 
 include_once(APP_PATH . "/api/DAO.class.php");
@@ -89,11 +89,15 @@ DevblocksPlatform::registerClasses(DEVBLOCKS_PATH . 'libs/markdown/markdown.php'
 	'Markdown',
 ));
 
+/**
+ * Application-level Facade
+ */
 class CerberusApplication extends DevblocksApplication {
 	const INDEX_TICKETS = 'tickets';
 		
 	const VIEW_SEARCH = 'search';
 	const VIEW_MY_TICKETS = 'teamwork_my';
+	const VIEW_MY_WAITING = 'teamwork_my_waiting';
 	const VIEW_TEAM_TICKETS = 'teamwork_team';
 //	const VIEW_TEAM_TASKS = 'teamwork_tasks';
 	
@@ -327,12 +331,20 @@ class CerberusApplication extends DevblocksApplication {
 		return $mask;
 	}
 	
+	/**
+	 * Generate an RFC-compliant Message-ID
+	 */
 	static function generateMessageId() {
 		$message_id = sprintf('<%s.%s@%s>', base_convert(time(), 10, 36), base_convert(rand(), 10, 36), !empty($_SERVER['HTTP_HOST']) ?  $_SERVER['HTTP_HOST'] : $_SERVER['SERVER_NAME']);
 		return $message_id;
 	}
 	
-	// [TODO] This needs a better name and home (and hell, while at it, implementation)
+	/**
+	 * Translates the string version of a group/bucket combo into their 
+	 * respective IDs.
+	 * 
+	 * @todo This needs a better name and home
+	 */
 	static function translateTeamCategoryCode($code) {
 		$t_or_c = substr($code,0,1);
 		$t_or_c_id = intval(substr($code,1));
@@ -349,7 +361,18 @@ class CerberusApplication extends DevblocksApplication {
 		return array($team_id, $category_id);
 	}
 	
-	// [JAS]: Move this to a global cache/hash registry
+	/**
+	 * Looks up an e-mail address using a revolving cache.  This is helpful 
+	 * in situations where you may look up the same e-mail address multiple 
+	 * times (reports, audit log, views) and you don't want to waste code 
+	 * filtering out dupes.
+	 * 
+	 * @param string $address The e-mail address to look up
+	 * @param bool $create Should the address be created if not found?
+	 * @return integer The address id, or NULL 
+	 * 
+	 * @todo [JAS]: Move this to a global cache/hash registry
+	 */
 	static public function hashLookupAddressId($address, $create=false) {
 	    static $hash_address_to_id = array();
 	    static $hash_hits = array();
@@ -378,7 +401,17 @@ class CerberusApplication extends DevblocksApplication {
 	    return $address_id;
 	}
 
-	// [JAS]: Move this to a global cache/hash registry	
+	/**
+	 * Looks up a ticket ID by the provided mask using a revolving cache.
+	 * This is useful if you need to translate several ticket masks into 
+	 * IDs where there may be a lot of redundancy (batches in the e-mail 
+	 * parser, etc.)
+	 * 
+	 * @param string $mask The ticket mask to look up
+	 * @return integer The ticket id, or NULL if not found
+	 *  
+	 * @todo [JAS]: Move this to a global cache/hash registry 
+	 */
 	static public function hashLookupTicketIdByMask($mask) {
 	    static $hash_mask_to_id = array();
 	    static $hash_hits = array();
@@ -443,7 +476,7 @@ class CerberusApplication extends DevblocksApplication {
    	            foreach($team_rules as $rule) { /* @var $rule Model_TeamRoutingRule */
    	                $pattern = $rule->getPatternAsRegexp();
    	                $haystack = ($rule->header=='from') ? $fromAddress : $sSubject ;
-   	                if(preg_match($pattern, $haystack)) {
+   	                if(is_string($haystack) && preg_match($pattern, $haystack)) {
    	                    //echo "I matched ($pattern) for ($ticket_id)!<br>";
    	                    
 	                    /* =============== Prevent recursive assignments =============
@@ -509,9 +542,6 @@ class CerberusLicense {
 	}
 }
 
-/**
- * @deprecated 
- */
 class CerberusHelper {
 	static function is_class(DevblocksPluginManifest $e) {
 		try {

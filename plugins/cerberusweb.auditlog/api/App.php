@@ -31,6 +31,7 @@ class ChAuditLogEventListener extends DevblocksEventListenerExtension {
 				unset($changed_fields[DAO_Ticket::FIRST_WROTE_ID]);
 				unset($changed_fields[DAO_Ticket::LAST_WROTE_ID]);
 				unset($changed_fields[DAO_Ticket::LAST_WORKER_ID]);
+				unset($changed_fields[DAO_Ticket::INTERESTING_WORDS]);
             	
             	@$tickets = DAO_Ticket::getTickets($ticket_ids);
             	// Is a worker around to invoke this change?  0 = automatic

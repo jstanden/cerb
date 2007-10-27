@@ -15,13 +15,13 @@
 <input type="hidden" name="c" value="community">
 <input type="hidden" name="a" value="editCommunity">
 <input type="hidden" name="id" value="{$community->id}">
-<input type="hidden" name="delete" value="0">
+<input type="hidden" name="do_delete" value="0">
 
 <b>Community Name:</b><br>
 <input type="text" name="name" size="" value="{$community->name}" style="width:98%;">
 
 <button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="absmiddle"> {$translate->_('common.save_changes')|capitalize}</button>
-{if !empty($community)}<button type="button" onclick="{literal}if(confirm('Are you sure you want to permanently delete this community?')){this.form.delete.value='1';this.form.submit();}{/literal}"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete2.gif{/devblocks_url}" align="absmiddle"> {$translate->_('common.delete')|capitalize}</button>{/if}
+{if !empty($community)}<button type="button" onclick="{literal}if(confirm('Are you sure you want to permanently delete this community?')){this.form.do_delete.value='1';this.form.submit();}{/literal}"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete2.gif{/devblocks_url}" align="absmiddle"> {$translate->_('common.delete')|capitalize}</button>{/if}
 
 </form>
 

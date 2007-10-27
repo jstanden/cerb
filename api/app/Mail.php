@@ -185,6 +185,18 @@ class CerberusMail {
 		    	$mail->setCc($ccs);
 	    }
 	    
+	    // Bccs
+	    if(!empty($properties['bcc'])) {
+		    $bccs = array();
+		    $aBcc = CerberusApplication::parseCsvString($properties['bcc']);
+		    foreach($aBcc as $addy) {
+		    	$sendTo->addBcc($addy);
+//		    	$bccs[] = new Swift_Address($addy);
+		    }
+//		    if(!empty($bccs))
+//		    	$mail->setBcc($bccs);
+	    }
+	    
 		// Mime Attachments
 		if (is_array($files) && !empty($files)) {
 			foreach ($files['tmp_name'] as $idx => $file) {

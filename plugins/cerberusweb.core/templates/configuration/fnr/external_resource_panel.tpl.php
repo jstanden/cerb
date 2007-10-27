@@ -1,7 +1,7 @@
 <form action="{devblocks_url}{/devblocks_url}" method="POST" id="formAddressPeek" name="formAddressPeek">
 <input type="hidden" name="c" value="config">
 <input type="hidden" name="a" value="doFnrResource">
-<input type="hidden" name="delete" value="0">
+<input type="hidden" name="do_delete" value="0">
 
 {if !empty($resource)}
 	<h2>Edit External Knowledge Resource</h2>
@@ -32,7 +32,7 @@
 
 <button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
 {if !empty($resource->id)}
-	<button type="button" onclick="{literal}if(confirm('Are you sure you want to permanently delete this resource?')){this.form.delete.value='1';this.form.submit();}{/literal}"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete2.gif{/devblocks_url}" align="top"> {$translate->_('common.remove')|capitalize}</button>
+	<button type="button" onclick="{literal}if(confirm('Are you sure you want to permanently delete this resource?')){this.form.do_delete.value='1';this.form.submit();}{/literal}"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete2.gif{/devblocks_url}" align="top"> {$translate->_('common.remove')|capitalize}</button>
 {/if}
 
 </form>
