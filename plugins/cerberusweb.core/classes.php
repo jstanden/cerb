@@ -562,6 +562,10 @@ class ChTicketsPage extends CerberusPageExtension {
 					C4_AbstractViewLoader::setView($overView->id,$overView);
 				}
 				
+				$overView->params = array(
+					new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN),
+				);
+				
 				$overView->renderPage = 0;
 				
 				// View Filter
@@ -612,6 +616,7 @@ class ChTicketsPage extends CerberusPageExtension {
 				}
 				
 				$overView->name = $title;
+				C4_AbstractViewLoader::setView($overView->id, $overView);
 				$views[] = $overView;
 				
 				$tpl->assign('views', $views);

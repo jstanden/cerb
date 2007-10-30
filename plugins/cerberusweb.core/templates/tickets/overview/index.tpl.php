@@ -24,6 +24,11 @@
       	<div class="block">
 		<h2>Group Loads</h2>
 		<table cellspacing="0" cellpadding="2" border="0" width="220">
+		<tr>
+			<td style="padding-right:20px;" nowrap="nowrap" valign="top">
+				<a href="{devblocks_url}c=tickets&a=overview{/devblocks_url}">All</a></span>
+			</td>
+		</tr>
 		{foreach from=$groups key=group_id item=group}
 			{assign var=counts value=$group_counts.$group_id}
 			{if !empty($counts.total)}

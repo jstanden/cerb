@@ -1024,30 +1024,35 @@ class DAO_Address extends DevblocksORMHelper {
         list($tables,$wheres) = parent::_parseSearchParams($params, SearchFields_Address::getFields());
 		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
 		
-		$sql = sprintf("SELECT ".
+		$select_sql = sprintf("SELECT ".
 			"a.id as %s, ".
 			"a.email as %s, ".
 			"a.first_name as %s, ".
 			"a.last_name as %s, ".
 			"a.contact_org_id as %s, ".
-			"o.name as %s ".
-			"FROM address a ".
-			"LEFT JOIN contact_org o ON (o.id=a.contact_org_id) ",
+			"o.name as %s ",
 			    SearchFields_Address::ID,
 			    SearchFields_Address::EMAIL,
 			    SearchFields_Address::FIRST_NAME,
 			    SearchFields_Address::LAST_NAME,
 			    SearchFields_Address::CONTACT_ORG_ID,
 			    SearchFields_Address::ORG_NAME
-			).
-			
+		);
+		
+		$join_sql = 
+			"FROM address a ".
+			"LEFT JOIN contact_org o ON (o.id=a.contact_org_id) "
+		;
 			// [JAS]: Dynamic table joins
 //			(isset($tables['o']) ? "LEFT JOIN contact_org o ON (o.id=a.contact_org_id)" : " ").
 //			(isset($tables['mc']) ? "INNER JOIN message_content mc ON (mc.message_id=m.id)" : " ").
+
+		$where_sql = "".
+			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "");
 			
-			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "").
-			(!empty($sortBy) ? sprintf("ORDER BY %s %s",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : "")
-		;
+		$sql = $select_sql . $join_sql . $where_sql .  
+			(!empty($sortBy) ? sprintf("ORDER BY %s %s",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : "");
+		
 		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		$results = array();
@@ -1064,8 +1069,8 @@ class DAO_Address extends DevblocksORMHelper {
 		// [JAS]: Count all
 		$total = -1;
 		if($withCounts) {
-		    $rs = $db->Execute($sql);
-		    $total = $rs->RecordCount();
+			$count_sql = "SELECT count(*) " . $join_sql . $where_sql;
+			$total = $db->GetOne($count_sql);
 		}
 		
 		return array($results,$total);
@@ -2372,7 +2377,7 @@ class DAO_Ticket extends DevblocksORMHelper {
         list($tables,$wheres) = parent::_parseSearchParams($params, SearchFields_Ticket::getFields());
 		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
 		
-		$sql = sprintf("SELECT ".
+		$select_sql = sprintf("SELECT ".
 			"t.id as %s, ".
 			"t.mask as %s, ".
 			"t.subject as %s, ".
@@ -2396,13 +2401,8 @@ class DAO_Ticket extends DevblocksORMHelper {
 			"t.next_worker_id as %s, ".
 			"tm.id as %s, ".
 			"tm.name as %s, ".
-			"t.category_id as %s ".
+			"t.category_id as %s ",
 //			"cat.name as %s ". // [TODO] BAD LEFT JOINS
-			"FROM ticket t ".
-			"INNER JOIN team tm ON (tm.id = t.team_id) ".
-//			"LEFT JOIN category cat ON (cat.id = t.category_id) ". // [TODO] Remove this and use a hash // [TODO] Optimization
-			"INNER JOIN address a1 ON (t.first_wrote_address_id=a1.id) ".
-			"INNER JOIN address a2 ON (t.last_wrote_address_id=a2.id) ",
 			    SearchFields_Ticket::TICKET_ID,
 			    SearchFields_Ticket::TICKET_MASK,
 			    SearchFields_Ticket::TICKET_SUBJECT,
@@ -2428,18 +2428,28 @@ class DAO_Ticket extends DevblocksORMHelper {
 			    SearchFields_Ticket::TEAM_NAME,
 			    SearchFields_Ticket::TICKET_CATEGORY_ID
 //			    SearchFields_Ticket::CATEGORY_NAME
-			).
-			
+			);
+
+		$join_sql = 
+			"FROM ticket t ".
+			"INNER JOIN team tm ON (tm.id = t.team_id) ".
+//			"LEFT JOIN category cat ON (cat.id = t.category_id) ". // [TODO] Remove this and use a hash // [TODO] Optimization
+			"INNER JOIN address a1 ON (t.first_wrote_address_id=a1.id) ".
+			"INNER JOIN address a2 ON (t.last_wrote_address_id=a2.id) ".
 			// [JAS]: Dynamic table joins
 			(isset($tables['ra']) ? "INNER JOIN requester r ON (r.ticket_id=t.id)" : " ").
 			(isset($tables['ra']) ? "INNER JOIN address ra ON (ra.id=r.address_id) " : " ").
 			(isset($tables['msg']) || isset($tables['mc']) ? "INNER JOIN message msg ON (msg.ticket_id=t.id) " : " ").
 			(isset($tables['mh']) ? "INNER JOIN message_header mh ON (mh.message_id=t.first_message_id) " : " "). // [TODO] Choose between first message and all?
-			(isset($tables['mc']) ? "INNER JOIN message_content mc ON (mc.message_id=msg.id) " : " ").
+			(isset($tables['mc']) ? "INNER JOIN message_content mc ON (mc.message_id=msg.id) " : " ")
+			;
 			
-			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "").
-			(!empty($sortBy) ? sprintf("ORDER BY %s %s",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : "")
-		;
+		$where_sql = "".
+			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "");
+			
+		$sql = $select_sql . $join_sql . $where_sql .
+			(!empty($sortBy) ? sprintf("ORDER BY %s %s",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : "");
+			
 		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		$results = array();
@@ -2460,8 +2470,8 @@ class DAO_Ticket extends DevblocksORMHelper {
 
 		// [JAS]: Count all
 		if($withCounts) {
-		    $rs = $db->Execute($sql);
-		    $total = $rs->RecordCount();
+			$sort_sql = "SELECT count(*) " . $join_sql . $where_sql;
+		    $total = $db->GetOne($sort_sql);
 		}
 		
 		return array($results,$total);
