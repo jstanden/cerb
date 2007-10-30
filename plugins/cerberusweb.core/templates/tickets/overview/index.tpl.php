@@ -86,6 +86,8 @@
 		      	{$view->render()}
 		    </div>
 	      {/foreach}
+	      
+	      {include file="file:$path/tickets/whos_online.tpl.php"}
       </td>
       
     </tr>
