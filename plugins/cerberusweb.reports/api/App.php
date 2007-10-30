@@ -76,7 +76,7 @@ class ChReportsPage extends CerberusPageExtension {
 		
 		$sql = sprintf("SELECT count(*) AS hits, team_id, category_id ".
 			"FROM ticket ".
-			"WHERE created_date > %d AND created_date <= %d ".
+			"WHERE created_date > %d AND created_date <= %d AND is_deleted = 0 ".
 			"GROUP BY team_id, category_id ",
 			strtotime("-".$age_dur." ".($age_term=='d'?'days':'months')),
 			time()
@@ -131,6 +131,7 @@ class ChReportsPage extends CerberusPageExtension {
 			"INNER JOIN ticket t ON (t.id=m.ticket_id) ".
 			"WHERE m.created_date > %d AND m.created_date <= %d ".
 			"AND m.is_outgoing = 1 ".
+			"AND t.is_deleted = 0 ".
 			"GROUP BY t.team_id, m.worker_id ",
 			strtotime("-".$age_dur." ".($age_term=='d'?'days':'months')),
 			time()

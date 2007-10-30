@@ -22,8 +22,12 @@
       <td nowrap="nowrap" width="0%" nowrap="nowrap" valign="top">
    		{if !empty($group_counts)}
       	<div class="block">
-		<h2>Group Loads</h2>
+		<h2>Unassigned</h2>
 		<table cellspacing="0" cellpadding="2" border="0" width="220">
+		<tr>
+			<td><a href="{devblocks_url}c=tickets&a=overview{/devblocks_url}">All</a></td>
+			<td></td>
+		</tr>
 		{foreach from=$groups key=group_id item=group}
 			{assign var=counts value=$group_counts.$group_id}
 			{if !empty($counts.total)}
@@ -34,7 +38,7 @@
 						<a href="{devblocks_url}c=tickets&a=overview&s=group&gid={$group_id}{/devblocks_url}">- All -</a><br>
 						{if !empty($counts.0)}<a href="{devblocks_url}c=tickets&a=overview&s=group&gid={$group_id}&bid=0{/devblocks_url}">Inbox</a> <span style="color:rgb(150,150,150);">({$counts.0})</span><br>{/if}
 						{foreach from=$group_buckets.$group_id key=bucket_id item=b}
-						{if !empty($counts.$bucket_id)}	<a href="{devblocks_url}c=tickets&a=overview&s=group&gid={$group_id}&bid={$bucket_id}{/devblocks_url}">{$b->name}</a> <span style="color:rgb(150,150,150);"> ({$counts.$bucket_id})</span><br>{/if}
+							{if !empty($counts.$bucket_id)}	<a href="{devblocks_url}c=tickets&a=overview&s=group&gid={$group_id}&bid={$bucket_id}{/devblocks_url}">{$b->name}</a> <span style="color:rgb(150,150,150);"> ({$counts.$bucket_id})</span><br>{/if}
 						{/foreach}
 						</div>
 					</td>
@@ -49,7 +53,7 @@
 
 		{if !empty($worker_counts)}
 		<div class="block">
-		<h2>Worker Loads</h2>
+		<h2>Assigned</h2>
 		<table cellspacing="0" cellpadding="2" border="0" width="220">
 			{foreach from=$workers item=worker key=worker_id}
 				{if !empty($worker_counts.$worker_id)}

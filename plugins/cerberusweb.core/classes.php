@@ -484,11 +484,14 @@ class ChTicketsPage extends CerberusPageExtension {
 				$workers = DAO_Worker::getList();
 				$tpl->assign('workers', $workers);
 				
+				$memberships = $active_worker->getMemberships();
+				
 			   	// Group Loads
 				$sql = sprintf("SELECT count(*) AS hits, team_id, category_id ".
 					"FROM ticket ".
 					"WHERE is_closed = 0 AND is_deleted = 0 ".
 					"AND last_action_code IN ('O','R') ".
+					"AND next_worker_id = 0 ".
 					"GROUP BY team_id, category_id "
 				);
 				$rs_buckets = $db->Execute($sql);
@@ -499,11 +502,13 @@ class ChTicketsPage extends CerberusPageExtension {
 					$category_id = intval($rs_buckets->fields['category_id']);
 					$hits = intval($rs_buckets->fields['hits']);
 					
-					if(!isset($group_counts[$team_id]))
-						$group_counts[$team_id] = array();
+					if(isset($memberships[$team_id])) {
+						if(!isset($group_counts[$team_id]))
+							$group_counts[$team_id] = array();
 						
-					$group_counts[$team_id][$category_id] = $hits;
-					@$group_counts[$team_id]['total'] = intval($group_counts[$team_id]['total']) + $hits;
+						$group_counts[$team_id][$category_id] = $hits;
+						@$group_counts[$team_id]['total'] = intval($group_counts[$team_id]['total']) + $hits;
+					}
 					
 					$rs_buckets->MoveNext();
 				}
@@ -537,7 +542,7 @@ class ChTicketsPage extends CerberusPageExtension {
 				// All Open
 				$overView = C4_AbstractViewLoader::getView('', CerberusApplication::VIEW_OVERVIEW_ALL);
 				
-				$title = "Tickets";
+				$title = "All Groups (Spam Filtered)";
 				
 				// [JAS]: Recover from a bad cached ID.
 				if(null == $overView) {
@@ -549,7 +554,7 @@ class ChTicketsPage extends CerberusPageExtension {
 						SearchFields_Ticket::TICKET_NEXT_ACTION,
 						SearchFields_Ticket::TICKET_UPDATED_DATE,
 						SearchFields_Ticket::TEAM_NAME,
-						SearchFields_Ticket::TICKET_SPAM_SCORE,
+						SearchFields_Ticket::TICKET_CATEGORY_ID,
 						SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
 						);
 					$overView->params = array(
@@ -571,11 +576,6 @@ class ChTicketsPage extends CerberusPageExtension {
 				// View Filter
 				@$filter = array_shift($response_path);
 				
-				if(empty($filter) && !empty($group_counts)) {
-					$filter = 'group';
-					$response_path = array(key($group_counts));
-				}
-				
 				switch($filter) {
 					case 'group':
 						@$filter_group_id = array_shift($response_path);
@@ -583,6 +583,7 @@ class ChTicketsPage extends CerberusPageExtension {
 						$overView->params = array(
 							SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN),
 							SearchFields_Ticket::TICKET_LAST_ACTION_CODE => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_LAST_ACTION_CODE,'in',array('O','R')),
+							SearchFields_Ticket::TICKET_NEXT_WORKER_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_NEXT_WORKER_ID,'=',0),
 						);
 						
 						if(!is_null($filter_group_id) && isset($groups[$filter_group_id])) {
@@ -623,7 +624,15 @@ class ChTicketsPage extends CerberusPageExtension {
 								$overView->params[SearchFields_Ticket::TEAM_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'=',$filter_group_id);
 							}
 						}
+						break;
 						
+					default:
+						$overView->params = array(
+							SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN),
+							SearchFields_Ticket::TICKET_LAST_ACTION_CODE => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_LAST_ACTION_CODE,'in',array('O','R')),
+							SearchFields_Ticket::TICKET_SPAM_SCORE => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_SPAM_SCORE,'<=','0.9000'),
+							SearchFields_Ticket::TEAM_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'in',array_keys($memberships)),
+						);
 						break;
 				}
 				
