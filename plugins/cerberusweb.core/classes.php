@@ -1445,6 +1445,90 @@ class ChTicketsPage extends CerberusPageExtension {
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('display',$ticket_id)));
 	}
 	
+	function showViewAutoAssignAction() {
+        @$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
+
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl_path = dirname(__FILE__) . '/templates/';
+		$tpl->assign('path', $tpl_path);
+        
+        $view = C4_AbstractViewLoader::getView('',$view_id);
+        
+        // Not assigned
+        $view->params[SearchFields_Ticket::TICKET_NEXT_WORKER_ID] = 
+        	new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_NEXT_WORKER_ID,'=',0);
+        
+        // Not closed
+        $view->params[SearchFields_Ticket::TICKET_CLOSED] = 
+        	new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',0);
+        
+        // Not already replied to
+        $view->params[SearchFields_Ticket::TICKET_LAST_ACTION_CODE] = 
+        	new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_LAST_ACTION_CODE,'in',array('O','R'));
+        
+        $tpl->assign('view_id', $view_id);
+        
+        $results = $view->getData();
+        $tpl->assign('num_assignable', $results[1]);
+        
+        $tpl->display($tpl_path.'tickets/rpc/ticket_view_assign.tpl.php');
+	}
+	
+	function doViewAutoAssignAction() {
+	    @$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+	    @$how_many = DevblocksPlatform::importGPC($_POST['how_many'],'integer',5);
+	    
+	    $active_worker = CerberusApplication::getActiveWorker();
+	    
+	    $search_view = C4_AbstractViewLoader::getView('', CerberusApplication::VIEW_SEARCH);
+	    $view = C4_AbstractViewLoader::getView('',$view_id);
+	    
+	    if(empty($search_view)) {
+	    	$search_view = C4_TicketView::createSearchView();
+	    }
+
+        // Not assigned
+        $view->params[SearchFields_Ticket::TICKET_NEXT_WORKER_ID] = 
+        	new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_NEXT_WORKER_ID,'=',0);
+        
+        // Not closed
+        $view->params[SearchFields_Ticket::TICKET_CLOSED] = 
+        	new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',0);
+        
+        // Not already replied to
+        $view->params[SearchFields_Ticket::TICKET_LAST_ACTION_CODE] = 
+        	new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_LAST_ACTION_CODE,'in',array('O','R'));
+	    
+       	// Sort by [TODO] Priority
+		$view->renderSortBy = SearchFields_Ticket::TICKET_CREATED_DATE;	
+		$view->renderSortAsc = 0;
+        
+		// Grab $how_many rows from the top
+		$results = $view->getData();
+		$assign_tickets = array_slice($results[0], 0, $how_many, true);
+		
+		if(is_array($assign_tickets)) {
+			DAO_Ticket::updateTicket(array_keys($assign_tickets),array(
+				DAO_Ticket::NEXT_WORKER_ID => $active_worker->id
+			));
+			
+			// Set our new search parameters and persist
+			$search_view->renderPage = 0;
+			$search_view->params = array(
+				SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',0),
+				SearchFields_Ticket::TICKET_NEXT_WORKER_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_NEXT_WORKER_ID,'=',$active_worker->id),
+				SearchFields_Ticket::TICKET_LAST_ACTION_CODE => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_LAST_ACTION_CODE,'in',array('O','R')),
+			);
+			list($my_tickets,$null) = $search_view->getData();
+			C4_AbstractViewLoader::setView($search_view->id, $search_view);
+			
+			// View our current tickets, displaying the first one
+			if(null != ($first_ticket = reset($my_tickets))) {
+				DevblocksPlatform::redirect(new DevblocksHttpResponse(array('display','browse',$first_ticket[SearchFields_Ticket::TICKET_MASK],'search')));
+			}
+		}
+	}
+	
 	function showViewAutoAssistAction() {
         @$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
         @$mode = DevblocksPlatform::importGPC($_REQUEST['mode'],'string','senders');
