@@ -48,7 +48,7 @@
  * 		and Joe Geck.
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-define("APP_BUILD", 401);
+define("APP_BUILD", 402);
 define("APP_MAIL_PATH", realpath(APP_PATH . '/storage/mail') . DIRECTORY_SEPARATOR);
 
 include_once(APP_PATH . "/api/DAO.class.php");
@@ -96,6 +96,7 @@ class CerberusApplication extends DevblocksApplication {
 	const INDEX_TICKETS = 'tickets';
 		
 	const VIEW_SEARCH = 'search';
+	const VIEW_OVERVIEW_ALL = 'overview_all';
 	const VIEW_MY_TICKETS = 'teamwork_my';
 	const VIEW_MY_WAITING = 'teamwork_my_waiting';
 	const VIEW_TEAM_TICKETS = 'teamwork_team';

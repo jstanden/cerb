@@ -14,7 +14,6 @@
 						<input type="hidden" name="c" value="tickets">
 						<input type="hidden" name="a" value="changeDashboard">
 				      	<select name="dashboard_id" onchange="this.form.submit();">
-				      		<option value="" {if empty($active_dashboard_id)}selected{/if}>My Conversations</option>
 				      		<!-- <optgroup label="Teamwork">  -->
 				      			{foreach from=$teams item=team key=team_id}
 				      			{if isset($active_worker_memberships.$team_id)}

@@ -16,6 +16,7 @@
 						<input type="hidden" name="c" value="tickets">
 						<input type="hidden" name="a" value="changeMyWorkspace">
 				      	<select name="workspace" onchange="this.form.submit();">
+				      		<option value="" {if empty($current_workspace)}selected{/if}>- My Tickets -</option>
 			      			{foreach from=$workspaces item=workspace}
 				      			<option value="{$workspace|escape}" {if $current_workspace==$workspace}selected{/if}>{$workspace}</option>
 			      			{/foreach}
