@@ -24,22 +24,16 @@
       	<div class="block">
 		<h2>Group Loads</h2>
 		<table cellspacing="0" cellpadding="2" border="0" width="220">
-		<tr>
-			<td style="padding-right:20px;" nowrap="nowrap" valign="top">
-				<a href="{devblocks_url}c=tickets&a=overview{/devblocks_url}">All</a></span>
-			</td>
-		</tr>
 		{foreach from=$groups key=group_id item=group}
 			{assign var=counts value=$group_counts.$group_id}
 			{if !empty($counts.total)}
 				<tr>
 					<td style="padding-right:20px;" nowrap="nowrap" valign="top">
-						<!-- [<a href="javascript:;" onclick="toggleDiv('expandGroup{$group_id}');">+</a>] --> 
-						<a href="{devblocks_url}c=tickets&a=overview&s=group&gid={$group_id}{/devblocks_url}" style="font-weight:bold;">{$groups.$group_id->name}</a> <span style="font-size:85%;color:rgb(150,150,150);">({$counts.total})</span>
-						<div id="expandGroup{$group_id}" style="display:block;padding-left:10px;padding-bottom:0px;">
-						{if !empty($counts.0)}<span style="font-size:85%;"><a href="{devblocks_url}c=tickets&a=overview&s=group&gid={$group_id}&bid=0{/devblocks_url}">Inbox</a> <span style="color:rgb(150,150,150);">({$counts.0})</span></span><br>{/if}
+						<a href="javascript:;" onclick="toggleDiv('expandGroup{$group_id}');" style="font-weight:bold;">{$groups.$group_id->name}</a> <span style="color:rgb(150,150,150);">({$counts.total})</span>
+						<div id="expandGroup{$group_id}" style="display:{if $filter_group_id==$group_id}block{else}none{/if};padding-left:10px;padding-bottom:0px;">
+						{if !empty($counts.0)}<a href="{devblocks_url}c=tickets&a=overview&s=group&gid={$group_id}&bid=0{/devblocks_url}">Inbox</a> <span style="color:rgb(150,150,150);">({$counts.0})</span><br>{/if}
 						{foreach from=$group_buckets.$group_id key=bucket_id item=b}
-						{if !empty($counts.$bucket_id)}	<span style="font-size:85%;"><a href="{devblocks_url}c=tickets&a=overview&s=group&gid={$group_id}&bid={$bucket_id}{/devblocks_url}">{$b->name}</a> <span style="color:rgb(150,150,150);">({$counts.$bucket_id})</span></span><br>{/if}
+						{if !empty($counts.$bucket_id)}	<a href="{devblocks_url}c=tickets&a=overview&s=group&gid={$group_id}&bid={$bucket_id}{/devblocks_url}">{$b->name}</a> <span style="color:rgb(150,150,150);"> ({$counts.$bucket_id})</span><br>{/if}
 						{/foreach}
 						</div>
 					</td>
@@ -62,11 +56,11 @@
 				<tr>
 					<td style="padding-right:20px;" nowrap="nowrap" valign="top">
 						<!-- [<a href="javascript:;" onclick="toggleDiv('expandWorker{$worker_id}');">+</a>] --> 
-						<a href="{devblocks_url}c=tickets&a=overview&s=worker&wid={$worker_id}{/devblocks_url}" style="font-weight:bold;">{$workers.$worker_id->getName()}</a> <span style="font-size:85%;color:rgb(150,150,150);">({$counts.total})</span>
+						<a href="{devblocks_url}c=tickets&a=overview&s=worker&wid={$worker_id}{/devblocks_url}" style="font-weight:bold;">{$workers.$worker_id->getName()}</a> <span style="color:rgb(150,150,150);">({$counts.total})</span>
 						<div id="expandWorker{$worker_id}" style="display:none;padding-left:10px;padding-bottom:0px;">
 							{foreach from=$counts item=team_hits key=team_id}
 								{if is_numeric($team_id)}
-									<span style="font-size:85%;"><a href="{devblocks_url}c=tickets&a=overview&s=worker&wid={$worker_id}&gid={$team_id}{/devblocks_url}">{$groups.$team_id->name}</a> <span style="color:rgb(150,150,150);">({$team_hits})</span></span><br>
+									<a href="{devblocks_url}c=tickets&a=overview&s=worker&wid={$worker_id}&gid={$team_id}{/devblocks_url}">{$groups.$team_id->name}</a> <span style="color:rgb(150,150,150);">({$team_hits})</span><br>
 								{/if}
 							{/foreach}
 						</div>

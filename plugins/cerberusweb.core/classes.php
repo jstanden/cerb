@@ -535,7 +535,7 @@ class ChTicketsPage extends CerberusPageExtension {
 				// All Open
 				$overView = C4_AbstractViewLoader::getView('', CerberusApplication::VIEW_OVERVIEW_ALL);
 				
-				$title = "All Open Tickets";
+				$title = "Tickets";
 				
 				// [JAS]: Recover from a bad cached ID.
 				if(null == $overView) {
@@ -551,8 +551,6 @@ class ChTicketsPage extends CerberusPageExtension {
 						SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
 						);
 					$overView->params = array(
-						new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN),
-//						new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_LAST_ACTION_CODE,'in',array('O','R')),
 					);
 					$overView->renderLimit = 10;
 					$overView->renderPage = 0;
@@ -569,7 +567,14 @@ class ChTicketsPage extends CerberusPageExtension {
 				$overView->renderPage = 0;
 				
 				// View Filter
-				switch(array_shift($response_path)) {
+				@$filter = array_shift($response_path);
+				
+				if(empty($filter) && !empty($group_counts)) {
+					$filter = 'group';
+					$response_path = array(key($group_counts));
+				}
+				
+				switch($filter) {
 					case 'group':
 						@$filter_group_id = array_shift($response_path);
 						
@@ -578,16 +583,21 @@ class ChTicketsPage extends CerberusPageExtension {
 						);
 						
 						if(!is_null($filter_group_id) && isset($groups[$filter_group_id])) {
+							$tpl->assign('filter_group_id', $filter_group_id);
 							$title = $groups[$filter_group_id]->name;
 							$overView->params[SearchFields_Ticket::TEAM_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'=',$filter_group_id);
 							
 							@$filter_bucket_id = array_shift($response_path);
 							if(!is_null($filter_bucket_id)) {
+								$tpl->assign('filter_bucket_id', $filter_bucket_id);
 								@$title .= ': '.
 									(($filter_bucket_id == 0) ? 'Inbox' : $group_buckets[$filter_group_id][$filter_bucket_id]->name);
 								$overView->params[SearchFields_Ticket::TICKET_CATEGORY_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CATEGORY_ID,'=',$filter_bucket_id);
+							} else {
+								@$title .= ' (Spam Filtered)';
+								$overView->params[SearchFields_Ticket::TICKET_SPAM_SCORE] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_SPAM_SCORE,'<=','0.9000');								
 							}
-						}
+						}							
 						
 						break;
 						
@@ -599,6 +609,7 @@ class ChTicketsPage extends CerberusPageExtension {
 						);
 
 						if(!is_null($filter_worker_id)) {
+							$tpl->assign('filter_bucket_id', $filter_bucket_id);
 							$title = "For ".$workers[$filter_worker_id]->getName();
 							$overView->params[SearchFields_Ticket::TICKET_NEXT_WORKER_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_NEXT_WORKER_ID,'=',$filter_worker_id);
 							
@@ -609,9 +620,6 @@ class ChTicketsPage extends CerberusPageExtension {
 							}
 						}
 						
-						break;
-						
-					default:
 						break;
 				}
 				
