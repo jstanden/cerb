@@ -488,6 +488,7 @@ class ChTicketsPage extends CerberusPageExtension {
 				$sql = sprintf("SELECT count(*) AS hits, team_id, category_id ".
 					"FROM ticket ".
 					"WHERE is_closed = 0 AND is_deleted = 0 ".
+					"AND last_action_code IN ('O','R') ".
 					"GROUP BY team_id, category_id "
 				);
 				$rs_buckets = $db->Execute($sql);
@@ -581,6 +582,7 @@ class ChTicketsPage extends CerberusPageExtension {
 						
 						$overView->params = array(
 							SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN),
+							SearchFields_Ticket::TICKET_LAST_ACTION_CODE => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_LAST_ACTION_CODE,'in',array('O','R')),
 						);
 						
 						if(!is_null($filter_group_id) && isset($groups[$filter_group_id])) {
