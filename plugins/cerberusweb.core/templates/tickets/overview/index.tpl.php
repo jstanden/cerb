@@ -34,7 +34,7 @@
 						<div id="expandGroup{$group_id}" style="display:block;padding-left:10px;padding-bottom:0px;">
 						{if !empty($counts.0)}<span style="font-size:85%;"><a href="{devblocks_url}c=tickets&a=overview&s=group&gid={$group_id}&bid=0{/devblocks_url}">Inbox</a> <span style="color:rgb(150,150,150);">({$counts.0})</span></span><br>{/if}
 						{foreach from=$group_buckets.$group_id key=bucket_id item=b}
-						{if !empty($counts.$bucket_id)}	<span style="font-size:85%;"><a href="{devblocks_url}c=tickets&a=overview&s=group&gid={$group_id}&bid={$bucket_id}{/devblocks_url}">{$b->name}</a> <span style="color:rgb(150,150,150);">({$counts.$bucket_id})</span><br>{/if}
+						{if !empty($counts.$bucket_id)}	<span style="font-size:85%;"><a href="{devblocks_url}c=tickets&a=overview&s=group&gid={$group_id}&bid={$bucket_id}{/devblocks_url}">{$b->name}</a> <span style="color:rgb(150,150,150);">({$counts.$bucket_id})</span></span><br>{/if}
 						{/foreach}
 						</div>
 					</td>
