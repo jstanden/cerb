@@ -629,7 +629,10 @@ class ChTicketsPage extends CerberusPageExtension {
 								@$title .= ' (Spam Filtered)';
 								$overView->params[SearchFields_Ticket::TICKET_SPAM_SCORE] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_SPAM_SCORE,'<=','0.9000');								
 							}
-						}							
+						}
+
+						$overView->renderSortBy = SearchFields_Ticket::TICKET_SLA_PRIORITY;
+						$overView->renderSortAsc = 0;
 						
 						break;
 						
@@ -652,6 +655,10 @@ class ChTicketsPage extends CerberusPageExtension {
 								$overView->params[SearchFields_Ticket::TEAM_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'=',$filter_group_id);
 							}
 						}
+						
+						$overView->renderSortBy = SearchFields_Ticket::TICKET_SLA_PRIORITY;
+						$overView->renderSortAsc = 0;
+						
 						break;
 						
 					case 'sla':
@@ -668,6 +675,10 @@ class ChTicketsPage extends CerberusPageExtension {
 							$title = "".$slas[$filter_sla_id]->name;
 							$overView->params[SearchFields_Ticket::TICKET_SLA_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_SLA_ID,'=',$filter_sla_id);
 						}
+						
+						$overView->renderSortBy = SearchFields_Ticket::TICKET_UPDATED_DATE;
+						$overView->renderSortAsc = 0;
+						
 						break;
 						
 					default:
@@ -3249,7 +3260,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		if(!empty($add_sla)) {
 			$sla_id = DAO_Sla::create(array(
 				DAO_Sla::NAME => $add_sla,
-				DAO_Sla::PRIORITY => 100
+				DAO_Sla::PRIORITY => 1
 			));
 		}
 		
@@ -3829,6 +3840,62 @@ class ChContactsPage extends CerberusPageExtension {
 		
 		$view = C4_AbstractViewLoader::getView('', $view_id);
 		$view->render();		
+	}
+	
+	function doAddressQuickSearchAction() {
+        @$type = DevblocksPlatform::importGPC($_POST['type'],'string'); 
+        @$query = DevblocksPlatform::importGPC($_POST['query'],'string');
+
+		$view = C4_AbstractViewLoader::getView('C4_AddressView', C4_AddressView::DEFAULT_ID);
+
+        $params = array();
+        
+        if($query && false===strpos($query,'*'))
+            $query = '*' . $query . '*';
+        
+        switch($type) {
+            case "email":
+                $params[SearchFields_Address::EMAIL] = new DevblocksSearchCriteria(SearchFields_Address::EMAIL,DevblocksSearchCriteria::OPER_LIKE,strtolower($query));               
+                break;
+            case "org":
+                $params[SearchFields_Address::ORG_NAME] = new DevblocksSearchCriteria(SearchFields_Address::ORG_NAME,DevblocksSearchCriteria::OPER_LIKE,strtolower($query));               
+                break;
+        }
+        
+        $view->params = $params;
+        $view->renderSortBy = null;
+        
+        C4_AbstractViewLoader::setView(C4_AddressView::DEFAULT_ID,$view);
+        
+        DevblocksPlatform::redirect(new DevblocksHttpResponse(array('contacts','addresses')));
+	}
+	
+	function doOrgQuickSearchAction() {
+        @$type = DevblocksPlatform::importGPC($_POST['type'],'string'); 
+        @$query = DevblocksPlatform::importGPC($_POST['query'],'string');
+
+		$view = C4_AbstractViewLoader::getView('C4_ContactOrgView', C4_ContactOrgView::DEFAULT_ID);
+
+        $params = array();
+        
+        if($query && false===strpos($query,'*'))
+            $query = '*' . $query . '*';
+        
+        switch($type) {
+            case "name":
+                $params[SearchFields_ContactOrg::NAME] = new DevblocksSearchCriteria(SearchFields_ContactOrg::NAME,DevblocksSearchCriteria::OPER_LIKE,strtolower($query));               
+                break;
+            case "phone":
+                $params[SearchFields_ContactOrg::PHONE] = new DevblocksSearchCriteria(SearchFields_ContactOrg::PHONE,DevblocksSearchCriteria::OPER_LIKE,strtolower($query));               
+                break;
+        }
+        
+        $view->params = $params;
+        $view->renderSortBy = null;
+        
+        C4_AbstractViewLoader::setView(C4_ContactOrgView::DEFAULT_ID,$view);
+        
+        DevblocksPlatform::redirect(new DevblocksHttpResponse(array('contacts','orgs')));
 	}
 	
 	function getOrgsAutoCompletionsAction() {
