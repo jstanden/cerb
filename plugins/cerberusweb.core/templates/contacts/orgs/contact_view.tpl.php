@@ -15,6 +15,8 @@
 <form id="customize{$view->id}" name="customize{$view->id}" action="#" onsubmit="return false;" style="display:none;"></form>
 <form id="viewForm{$view->id}" name="viewForm{$view->id}">
 <input type="hidden" name="id" value="{$view->id}">
+<input type="hidden" name="c" value="contacts">
+<input type="hidden" name="a" value="">
 <table cellpadding="0" cellspacing="0" border="0" width="100%" class="tableRowBg">
 
 	{* Column Headers *}
@@ -61,6 +63,13 @@
 			<td><a href="{$result.c_website}" target="_blank">{$result.c_website|truncate:45:'...':true}</a>&nbsp;</td>
 			{elseif $column=="c_created"}
 			<td>{$result.c_created|date_format}&nbsp;</td>
+			{elseif $column=="c_sla_id"}
+			<td>
+				{assign var=sla_id value=$result.c_sla_id}
+				{if !empty($sla_id) && isset($slas.$sla_id)}
+					{$slas.$sla_id->name}
+				{/if}
+			</td>
 			{else}
 			<td>{$result.$column}</td>
 			{/if}
@@ -73,6 +82,16 @@
 	{if $total}
 	<tr>
 		<td colspan="2">
+			{if !empty($slas)}
+			<select name="sla_id" onchange="this.form.a.value='doSetOrgSla';genericAjaxPost('viewForm{$view->id}','view{$view->id}','c=contacts&a=doSetOrgSla');">
+				<option value="">-- set service level --</option>
+				<option value="0">None</option>
+				{foreach from=$slas item=sla key=sla_id}
+					<option value="{$sla_id}">{$sla->name}</option>
+				{/foreach}
+			</select>
+			{/if}
+		
 			<!-- 
 			<span id="tourDashboardBatch"><button type="button" onclick="ajax.showBatchPanel('{$view->id}','{$dashboard_team_id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> bulk update</button></span>
 

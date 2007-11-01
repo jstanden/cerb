@@ -48,7 +48,7 @@
  * 		and Joe Geck.
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-define("APP_BUILD", 410);
+define("APP_BUILD", 411);
 define("APP_MAIL_PATH", realpath(APP_PATH . '/storage/mail') . DIRECTORY_SEPARATOR);
 
 include_once(APP_PATH . "/api/DAO.class.php");
@@ -374,14 +374,14 @@ class CerberusApplication extends DevblocksApplication {
 	 * 
 	 * @todo [JAS]: Move this to a global cache/hash registry
 	 */
-	static public function hashLookupAddressId($address, $create=false) {
+	static public function hashLookupAddress($email, $create=false) {
 	    static $hash_address_to_id = array();
 	    static $hash_hits = array();
 	    static $hash_size = 0;
 	    
-	    if(isset($hash_address_to_id[$address])) {
+	    if(isset($hash_address_to_id[$email])) {
 	        
-	        @$hash_hits[$address] = intval($hash_hits[$address]) + 1;
+	        @$hash_hits[$email] = intval($hash_hits[$email]) + 1;
 	        $hash_size++;
 	        
 	        // [JAS]: if our hash grows past our limit, crop hits array + intersect keys
@@ -392,14 +392,14 @@ class CerberusApplication extends DevblocksApplication {
 	            $hash_size = count($hash_address_to_id);
 	        }
 	        
-	        return $hash_address_to_id[$address];
+	        return $hash_address_to_id[$email];
 	    }
 	    
-	    $address_id = DAO_Address::lookupAddress($address, $create);
-	    if(!empty($address_id)) {
-	        $hash_address_to_id[$address] = $address_id;
+	    $address = DAO_Address::lookupAddress($email, $create);
+	    if(!empty($address)) {
+	        $hash_address_to_id[$email] = $address;
 	    }
-	    return $address_id;
+	    return $address;
 	}
 
 	/**

@@ -7,7 +7,7 @@
 
 <H2>Quick Assign</H2>
 
-There are <b>{$num_assignable}</b> assignable tickets in this list.<br>
+There are <b>{$num_assignable}</b> assignable tickets in this list.  They will be assigned by their service level priority.<br>
 <br>
 
 <b>Take how many?</b><br>

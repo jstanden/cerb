@@ -37,6 +37,19 @@
 			<br>
 		</td>
 	</tr>
+	{if !empty($slas)}
+	<tr>
+		<td width="0%" nowrap="nowrap" align="right">Service Level: </td>
+		<td width="100%">
+			<select name="sla_id">
+				<option value="0">-- none --</option>
+				{foreach from=$slas item=sla key=sla_id}
+					<option value="{$sla_id}" {if $sla_id==$address.a_sla_id}selected{/if}>{$sla->name|escape}</option>
+				{/foreach}
+			</select>
+		</td>
+	</tr>
+	{/if}
 </table>
 
 <input type="button" value="{$translate->_('common.save_changes')}" onclick="genericPanel.hide();genericAjaxPost('formAddressPeek', 'view{$view_id}')">

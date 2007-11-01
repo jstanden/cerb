@@ -6,6 +6,7 @@
 [ <a href="{devblocks_url}c=config&a=general{/devblocks_url}">general settings</a> ] 
 [ <a href="{devblocks_url}c=config&a=workflow{/devblocks_url}">users &amp; groups</a> ] 
 [ <a href="{devblocks_url}c=config&a=mail{/devblocks_url}">mail</a> ] 
+[ <a href="{devblocks_url}c=config&a=sla{/devblocks_url}">service levels</a> ] 
 [ <a href="{devblocks_url}c=config&a=fnr{/devblocks_url}">fetch &amp; retrieve</a> ] 
 [ <a href="{devblocks_url}c=config&a=extensions{/devblocks_url}">plugins</a> ] 
 [ <a href="{devblocks_url}c=config&a=jobs{/devblocks_url}">scheduler</a> ] 

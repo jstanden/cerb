@@ -402,6 +402,17 @@
 			</tuv>
 		</tu>
 
+		<!-- SLA -->
+		<tu tuid='sla.name'>
+			<tuv xml:lang="en"><seg>Service Level</seg></tuv>
+		</tu>
+		<tu tuid='sla.priority'>
+			<tuv xml:lang="en"><seg>Service Priority</seg></tuv>
+		</tu>
+		<tu tuid='sla.expires'>
+			<tuv xml:lang="en"><seg>Expires</seg></tuv>
+		</tu>
+
 		<!-- Statuses -->
 
 		<tu tuid='status.open'>

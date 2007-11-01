@@ -79,9 +79,26 @@
 		<br>
 		{/if}
 			
-			<!-- <h2>SLA counts</h2> -->
+		{if !empty($sla_counts) && count($sla_counts) > 1}
+		<div class="block">
+		<h2>Service Levels</h2>
+		<table cellspacing="0" cellpadding="2" border="0" width="220">
+			{foreach from=$sla_counts item=counts key=sla_id}
+				{if is_numeric($sla_id)}
+				<tr>
+					<td style="padding-right:20px;" nowrap="nowrap" valign="top">
+						<!-- [<a href="javascript:;" onclick="toggleDiv('expandWorker{$worker_id}');">+</a>] --> 
+						<a href="{devblocks_url}c=tickets&a=overview&s=sla&sid={$sla_id}{/devblocks_url}" style="font-weight:bold;">{$slas.$sla_id->name}</a> <span style="color:rgb(150,150,150);">({$counts})</span>
+					</td>
+					<td valign="top"></td>
+				</tr>
+				{/if}
+			{/foreach}
+		</table>
 		</div>
-      
+		<br>
+		{/if}
+		
       </td>
       <td nowrap="nowrap" width="0%"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/spacer.gif{/devblocks_url}" width="5" height="1"></td>
       <td width="100%" valign="top">

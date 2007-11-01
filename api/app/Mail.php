@@ -217,9 +217,8 @@ class CerberusMail {
 		// Handle post-mail actions
 		$change_fields = array();
 		
-		// [TODO] Make this properly use team replies 
-	    // (or reflect what the customer sent to), etc.
-		$fromAddressId = CerberusApplication::hashLookupAddressId($from_addy, true);
+		$fromAddressInst = CerberusApplication::hashLookupAddress($from_addy, true);
+		$fromAddressId = $fromAddressInst->id;
 		
 		if(empty($properties['dont_keep_copy']) || !$properties['dont_keep_copy']) {
 			$change_fields[DAO_Ticket::LAST_WROTE_ID] = $fromAddressId;

@@ -327,6 +327,8 @@ class Model_Address {
 	public $first_name;
 	public $last_name;
 	public $contact_org_id;
+	public $sla_id;
+	public $sla_expires;
 	
 	function Model_Address() {}
 };
@@ -398,6 +400,9 @@ class C4_TicketView extends C4_AbstractView {
 		$team_categories = DAO_Bucket::getTeams();
 		$tpl->assign('team_categories', $team_categories);
 		
+		$slas = DAO_Sla::getWhere(); // [TODO] getAll cache
+		$tpl->assign('slas', $slas);
+		
 		// Undo?
 	    $last_action = C4_TicketView::getLastAction($this->id);
 	    $tpl->assign('last_action', $last_action);
@@ -460,6 +465,16 @@ class C4_TicketView extends C4_AbstractView {
 			
 			case SearchFields_Ticket::TICKET_SPAM_SCORE:
 				$tpl->display('file:' . $tpl_path . 'tickets/search/criteria/ticket_spam_score.tpl.php');
+				break;
+				
+			case SearchFields_Ticket::TICKET_SLA_ID:
+				$slas = DAO_Sla::getWhere();
+				$tpl->assign('slas', $slas);
+				$tpl->display('file:' . $tpl_path . 'tickets/search/criteria/ticket_sla.tpl.php');
+				break;
+				
+			case SearchFields_Ticket::TICKET_SLA_PRIORITY:
+				$tpl->display('file:' . $tpl_path . 'tickets/search/criteria/ticket_sla_priority.tpl.php');
 				break;
 				
 			case SearchFields_Ticket::TICKET_LAST_ACTION_CODE:
@@ -535,6 +550,22 @@ class C4_TicketView extends C4_AbstractView {
 						continue;
 					} else {
 						$strings[] = $buckets[$val]->name;
+					}
+				}
+				echo implode(", ", $strings);
+				break;
+				
+			case SearchFields_Ticket::TICKET_SLA_ID:
+				$slas = DAO_Sla::getWhere();
+				$strings = array();
+				
+				foreach($values as $val) {
+					if(0==$val) {
+						$strings[] = "None";
+					} else {
+						if(!isset($slas[$val]))
+							continue;
+						$strings[] = $slas[$val]->name;
 					}
 				}
 				echo implode(", ", $strings);
@@ -620,6 +651,20 @@ class C4_TicketView extends C4_AbstractView {
 			    @$score = DevblocksPlatform::importGPC($_REQUEST['score'],'integer',null);
 				if(!is_null($score) && is_numeric($score)) {
 				    $criteria = new DevblocksSearchCriteria($field,$oper,intval($score)/100);
+				}
+				break;
+				
+			case SearchFields_Ticket::TICKET_SLA_ID:
+			    @$sla_ids = DevblocksPlatform::importGPC($_REQUEST['sla_ids'],'array',array());
+				if(is_array($sla_ids) && !empty($sla_ids)) {
+				    $criteria = new DevblocksSearchCriteria($field,$oper,$sla_ids);
+				}
+				break;
+				
+			case SearchFields_Ticket::TICKET_SLA_PRIORITY:
+			    @$priority = DevblocksPlatform::importGPC($_REQUEST['priority'],'integer',null);
+				if(!is_null($priority) && is_numeric($priority)) {
+				    $criteria = new DevblocksSearchCriteria($field,$oper,$priority);
 				}
 				break;
 				
@@ -831,6 +876,7 @@ class C4_AddressView extends C4_AbstractView {
 			SearchFields_Address::FIRST_NAME,
 			SearchFields_Address::LAST_NAME,
 			SearchFields_Address::ORG_NAME,
+			SearchFields_Address::SLA_ID
 		);
 	}
 	
@@ -850,6 +896,9 @@ class C4_AddressView extends C4_AbstractView {
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 		
+		$slas = DAO_Sla::getWhere(); // [TODO] getAll cache
+		$tpl->assign('slas', $slas);
+		
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('view_fields', $this->getColumns());
 		$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/contacts/addresses/address_view.tpl.php');
@@ -866,12 +915,44 @@ class C4_AddressView extends C4_AbstractView {
 			case SearchFields_Address::ORG_NAME:
 				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__string.tpl.php');
 				break;
+			case SearchFields_Address::SLA_ID:
+				$slas = DAO_Sla::getWhere(); // [TODO] from cache
+				$tpl->assign('slas', $slas);
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/contacts/addresses/criteria/sla.tpl.php');
+				break;
 			default:
 				echo '';
 				break;
 		}
 	}
-
+	
+	function renderCriteriaParam($param) {
+		$field = $param->field;
+		$values = !is_array($param->value) ? array($param->value) : $param->value;
+		
+		switch($field) {
+			case SearchFields_Address::SLA_ID:
+				$slas = DAO_Sla::getWhere();
+				$strings = array();
+				
+				foreach($values as $val) {
+					if(0==$val) {
+						$strings[] = "None";
+					} else {
+						if(!isset($slas[$val]))
+							continue;
+						$strings[] = $slas[$val]->name;
+					}
+				}
+				echo implode(", ", $strings);
+				break;
+				
+			default:
+				parent::renderCriteriaParam($param);
+				break;	
+		}
+	}
+	
 	static function getFields() {
 		return SearchFields_Address::getFields();
 	}
@@ -903,6 +984,10 @@ class C4_AddressView extends C4_AbstractView {
 				}
 				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
 				break;
+			case SearchFields_Address::SLA_ID:
+				@$sla_ids = DevblocksPlatform::importGPC($_REQUEST['sla_ids'], 'array', array());
+				$criteria = new DevblocksSearchCriteria($field, $oper, $sla_ids);
+				break;
 		}
 		
 		if(!empty($criteria)) {
@@ -927,6 +1012,7 @@ class C4_ContactOrgView extends C4_AbstractView {
 			SearchFields_ContactOrg::COUNTRY,
 			SearchFields_ContactOrg::WEBSITE,
 			SearchFields_ContactOrg::CREATED,
+			SearchFields_ContactOrg::SLA_ID,
 		);
 	}
 	
@@ -947,6 +1033,8 @@ class C4_ContactOrgView extends C4_AbstractView {
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 		
+		$slas = DAO_Sla::getWhere(); // [TODO] getAll cache
+		$tpl->assign('slas', $slas);
 
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('view_fields', $this->getColumns());
@@ -967,9 +1055,41 @@ class C4_ContactOrgView extends C4_AbstractView {
 			case SearchFields_ContactOrg::WEBSITE:
 				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__string.tpl.php');
 				break;
+			case SearchFields_ContactOrg::SLA_ID:
+				$slas = DAO_Sla::getWhere(); // [TODO] from cache
+				$tpl->assign('slas', $slas);
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/contacts/orgs/criteria/sla.tpl.php');
+				break;
 			default:
 				echo '';
 				break;
+		}
+	}
+		
+	function renderCriteriaParam($param) {
+		$field = $param->field;
+		$values = !is_array($param->value) ? array($param->value) : $param->value;
+		
+		switch($field) {
+			case SearchFields_ContactOrg::SLA_ID:
+				$slas = DAO_Sla::getWhere();
+				$strings = array();
+				
+				foreach($values as $val) {
+					if(0==$val) {
+						$strings[] = "None";
+					} else {
+						if(!isset($slas[$val]))
+							continue;
+						$strings[] = $slas[$val]->name;
+					}
+				}
+				echo implode(", ", $strings);
+				break;
+				
+			default:
+				parent::renderCriteriaParam($param);
+				break;	
 		}
 	}
 	
@@ -1004,6 +1124,10 @@ class C4_ContactOrgView extends C4_AbstractView {
 				}
 				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
 				break;
+			case SearchFields_ContactOrg::SLA_ID:
+				@$sla_ids = DevblocksPlatform::importGPC($_REQUEST['sla_ids'], 'array', array());
+				$criteria = new DevblocksSearchCriteria($field, $oper, $sla_ids);
+				break;
 		}
 		
 		if(!empty($criteria)) {
@@ -1027,6 +1151,8 @@ class Model_ContactOrg {
 	public $website;
 	public $created;
 	public $sync_id = '';
+	public $sla_id;
+	public $sla_expires;
 };
 
 class Model_WorkerWorkspaceList {
@@ -1227,6 +1353,12 @@ class CerberusWorker {
 	
 }
 
+class Model_Sla {
+	public $id = 0;
+	public $name = '';
+	public $priority = 100;
+}
+
 class Model_TicketRss {
 	public $id = 0;
 	public $title = '';
@@ -1304,6 +1436,8 @@ class CerberusTicket {
 	public $last_action_code;
 	public $last_worker_id;
 	public $next_worker_id;
+	public $sla_id;
+	public $sla_priority;
 	
 	function CerberusTicket() {}
 	

@@ -122,8 +122,10 @@ class CerberusParser {
 		
 		@$fromAddress = $from[0]->mailbox.'@'.$from[0]->host;
 		@$fromPersonal = $from[0]->personal;
-		if(null == ($fromAddressId = CerberusApplication::hashLookupAddressId($fromAddress, true))) {
+		if(null == ($fromAddressInst = CerberusApplication::hashLookupAddress($fromAddress, true))) {
 			return NULL;
+		} else {
+			$fromAddressId = $fromAddressInst->id;
 		}
 
 		// Message Id / References / In-Reply-To
@@ -254,6 +256,16 @@ class CerberusParser {
 			if(empty($sMask))
 				$sMask = CerberusApplication::generateTicketMask();
 			
+			// Is this address covered by an SLA?
+			$sla_id = 0;
+			$sla_priority = 0;
+			if(!empty($fromAddressInst->sla_id)) {
+				if(null != ($fromAddressSla = DAO_Sla::get($fromAddressInst->sla_id))) {
+					@$sla_id = $fromAddressSla->id;
+					@$sla_priority = $fromAddressSla->priority;
+				}
+			}
+				
 			$fields = array(
 				DAO_Ticket::MASK => $sMask,
 				DAO_Ticket::SUBJECT => $sSubject,
@@ -264,6 +276,8 @@ class CerberusParser {
 				DAO_Ticket::UPDATED_DATE => $iDate,
 				DAO_Ticket::TEAM_ID => intval($team_id),
 				DAO_Ticket::LAST_ACTION_CODE => CerberusTicketActionCode::TICKET_OPENED,
+				DAO_Ticket::SLA_ID => $sla_id,
+				DAO_Ticket::SLA_PRIORITY => $sla_priority,
 			);
 			$id = DAO_Ticket::createTicket($fields);
 

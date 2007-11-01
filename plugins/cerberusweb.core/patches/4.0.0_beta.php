@@ -83,6 +83,16 @@ if(!isset($columns['CONTACT_ORG_ID'])) {
     $datadict->ExecuteSQLArray($sql);
 }
 
+if(!isset($columns['SLA_ID'])) {
+    $sql = $datadict->AddColumnSQL('address', "sla_id I4 DEFAULT 0 NOTNULL");
+    $datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($columns['SLA_EXPIRES'])) {
+    $sql = $datadict->AddColumnSQL('address', "sla_expires I4 DEFAULT 0 NOTNULL");
+    $datadict->ExecuteSQLArray($sql);
+}
+
 if(!isset($indexes['email'])) {
     $sql = $datadict->CreateIndexSQL('email','address','email',array('UNIQUE'));
     $datadict->ExecuteSQLArray($sql);
@@ -90,6 +100,11 @@ if(!isset($indexes['email'])) {
 
 if(!isset($indexes['contact_org_id'])) {
     $sql = $datadict->CreateIndexSQL('contact_org_id','address','contact_org_id');
+    $datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($indexes['sla_id'])) {
+    $sql = $datadict->CreateIndexSQL('sla_id','address','sla_id');
     $datadict->ExecuteSQLArray($sql);
 }
 
@@ -151,6 +166,16 @@ if(!isset($tables['contact_org'])) {
 $columns = $datadict->MetaColumns('contact_org');
 $indexes = $datadict->MetaIndexes('contact_org',false);
 
+if(!isset($columns['SLA_ID'])) {
+    $sql = $datadict->AddColumnSQL('contact_org','sla_id I4 DEFAULT 0 NOTNULL');
+    $datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($columns['SLA_EXPIRES'])) {
+    $sql = $datadict->AddColumnSQL('contact_org','sla_expires I4 DEFAULT 0 NOTNULL');
+    $datadict->ExecuteSQLArray($sql);
+}
+
 if(!isset($indexes['name'])) {
     $sql = $datadict->CreateIndexSQL('name','contact_org','name'); // ,array('UNIQUE')
     $datadict->ExecuteSQLArray($sql);
@@ -158,6 +183,11 @@ if(!isset($indexes['name'])) {
 
 if(!isset($indexes['account_number'])) {
     $sql = $datadict->CreateIndexSQL('account_number','contact_org','account_number'); // array('UNIQUE')
+    $datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($indexes['sla_id'])) {
+    $sql = $datadict->CreateIndexSQL('sla_id','contact_org','sla_id'); // ,array('UNIQUE')
     $datadict->ExecuteSQLArray($sql);
 }
 
@@ -406,6 +436,17 @@ if(255 == $columns['VALUE']->max_length) {
 		$datadict->ExecuteSQLArray($datadict->DropColumnSQL('setting', 'value_old'));
 }
 
+// `sla` ========================
+if(!isset($tables['sla'])) {
+    $flds = "
+		id I4 DEFAULT 0 NOTNULL PRIMARY,
+		name C(64) DEFAULT '' NOTNULL,
+		priority I1 DEFAULT 0 NOTNULL
+	";
+    $sql = $datadict->CreateTableSQL('sla',$flds);
+    $datadict->ExecuteSQLArray($sql);
+}
+
 // `team_routing_rule` ========================
 $indexes = $datadict->MetaIndexes('team_routing_rule',false);
 
@@ -455,6 +496,16 @@ if(!isset($columns['NEXT_WORKER_ID'])) {
     $db->Execute("UPDATE ticket SET next_worker_id = last_worker_id");
 }
 
+if(!isset($columns['SLA_ID'])) {
+    $sql = $datadict->AddColumnSQL('ticket', 'sla_id I4 DEFAULT 0 NOTNULL');
+	$datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($columns['SLA_PRIORITY'])) {
+    $sql = $datadict->AddColumnSQL('ticket', 'sla_priority I1 DEFAULT 0 NOTNULL');
+	$datadict->ExecuteSQLArray($sql);
+}
+
 if(!isset($columns['FIRST_MESSAGE_ID'])) {
     $sql = $datadict->AddColumnSQL('ticket', 'first_message_id I4 DEFAULT 0 NOTNULL');
     $datadict->ExecuteSQLArray($sql);
@@ -490,6 +541,16 @@ if(!isset($indexes['first_message_id'])) {
 
 if(!isset($indexes['mask'])) {
     $sql = $datadict->CreateIndexSQL('mask','ticket','mask');
+    $datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($indexes['sla_id'])) {
+    $sql = $datadict->CreateIndexSQL('sla_id','ticket','sla_id');
+    $datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($indexes['sla_priority'])) {
+    $sql = $datadict->CreateIndexSQL('sla_priority','ticket','sla_priority');
     $datadict->ExecuteSQLArray($sql);
 }
 

@@ -576,6 +576,7 @@ class DAO_ContactOrg extends DevblocksORMHelper {
 	const FAX = 'fax';
 	const WEBSITE = 'website';
 	const CREATED = 'created';
+	const SLA_ID = 'sla_id';
 	
 	private function __construct() {}
 	
@@ -594,6 +595,7 @@ class DAO_ContactOrg extends DevblocksORMHelper {
 			'fax' => $translate->_('contact_org.fax'),
 			'website' => $translate->_('contact_org.website'),
 			'created' => $translate->_('contact_org.created'),
+			'sla_id' => $translate->_('sla.name'),
 		);
 	}
 	
@@ -658,7 +660,7 @@ class DAO_ContactOrg extends DevblocksORMHelper {
 	static function getWhere($where=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = "SELECT id,account_number,name,street,city,province,postal,country,phone,fax,website,created ".
+		$sql = "SELECT id,account_number,name,street,city,province,postal,country,phone,fax,website,created,sla_id,sla_expires ".
 			"FROM contact_org ".
 			(!empty($where) ? sprintf("WHERE %s ", $where) : " ")
 		;
@@ -684,6 +686,8 @@ class DAO_ContactOrg extends DevblocksORMHelper {
 			$object->fax = $rs->fields['fax'];
 			$object->website = $rs->fields['website'];
 			$object->created = intval($rs->fields['created']);
+			$object->sla_id = intval($rs->fields['sla_id']);
+			$object->sla_expires = intval($rs->fields['sla_expires']);
 			$objects[$object->id] = $object;
 			$rs->MoveNext();
 		}
@@ -759,7 +763,8 @@ class DAO_ContactOrg extends DevblocksORMHelper {
 			"c.phone as %s, ".
 			"c.fax as %s, ".
 			"c.website as %s, ".
-			"c.created as %s ".
+			"c.created as %s, ".
+			"c.sla_id as %s ".
 			"FROM contact_org c ",
 //			"INNER JOIN team tm ON (tm.id = t.team_id) ".
 			    SearchFields_ContactOrg::ID,
@@ -773,7 +778,8 @@ class DAO_ContactOrg extends DevblocksORMHelper {
 			    SearchFields_ContactOrg::PHONE,
 			    SearchFields_ContactOrg::FAX,
 			    SearchFields_ContactOrg::WEBSITE,
-			    SearchFields_ContactOrg::CREATED
+			    SearchFields_ContactOrg::CREATED,
+			    SearchFields_ContactOrg::SLA_ID
 			).
 		
 			// [JAS]: Dynamic table joins
@@ -824,6 +830,7 @@ class SearchFields_ContactOrg {
 	const FAX = 'c_fax';
 	const WEBSITE = 'c_website';
 	const CREATED = 'c_created';
+	const SLA_ID = 'c_sla_id';
 	
 	/**
 	 * @return DevblocksSearchField[]
@@ -843,6 +850,7 @@ class SearchFields_ContactOrg {
 			self::FAX => new DevblocksSearchField(self::FAX, 'c', 'fax', null, $translate->_('contact_org.fax')),
 			self::WEBSITE => new DevblocksSearchField(self::WEBSITE, 'c', 'website', null, $translate->_('contact_org.website')),
 			self::CREATED => new DevblocksSearchField(self::CREATED, 'c', 'created', null, $translate->_('contact_org.created')),
+			self::SLA_ID => new DevblocksSearchField(self::SLA_ID, 'c', 'sla_id', null, $translate->_('sla.name')),
 		);
 	}
 };
@@ -857,7 +865,9 @@ class DAO_Address extends DevblocksORMHelper {
 	const FIRST_NAME = 'first_name';
 	const LAST_NAME = 'last_name';
 	const CONTACT_ORG_ID = 'contact_org_id';
-
+	const SLA_ID = 'sla_id';
+	const SLA_EXPIRES = 'sla_expires';
+	
 	private function __construct() {}
 	
 	public static function getFields() {
@@ -868,6 +878,7 @@ class DAO_Address extends DevblocksORMHelper {
 			'first_name' => $translate->_('address.first_name'),
 			'last_name' => $translate->_('address.last_name'),
 			'contact_org_id' => $translate->_('address.contact_org_id'),
+			'sla_id' => $translate->_('sla.name'),
 		);
 	}
 	
@@ -917,6 +928,10 @@ class DAO_Address extends DevblocksORMHelper {
 		parent::_update($ids, 'address', $fields);
 	}
 	
+	static function updateWhere($fields, $where) {
+		parent::_updateWhere('address', $fields, $where);
+	}
+	
     static function delete($ids) {
         if(!is_array($ids)) $ids = array($ids);
         if(empty($ids)) return;
@@ -936,7 +951,7 @@ class DAO_Address extends DevblocksORMHelper {
 		
 		$addresses = array();
 		
-		$sql = sprintf("SELECT a.id, a.email, a.first_name, a.last_name, a.contact_org_id ".
+		$sql = sprintf("SELECT a.id, a.email, a.first_name, a.last_name, a.contact_org_id, a.sla_id, a.sla_expires ".
 			"FROM address a ".
 			((!empty($where)) ? "WHERE %s " : " ").
 			"ORDER BY a.email ",
@@ -951,6 +966,8 @@ class DAO_Address extends DevblocksORMHelper {
 			$address->first_name = $rs->fields['first_name'];
 			$address->last_name = $rs->fields['last_name'];
 			$address->contact_org_id = intval($rs->fields['contact_org_id']);
+			$address->sla_id = intval($rs->fields['sla_id']);
+			$address->sla_expires = intval($rs->fields['sla_expires']);
 			$addresses[$address->id] = $address;
 			$rs->MoveNext();
 		}
@@ -988,23 +1005,22 @@ class DAO_Address extends DevblocksORMHelper {
 	 */
 	static function lookupAddress($email,$create_if_null=false) {
 		$db = DevblocksPlatform::getDatabaseService();
-		$id = null;
 		
-		$sql = sprintf("SELECT id FROM address WHERE email = %s",
+		$addresses = self::getWhere(sprintf("email = %s",
 			$db->qstr(trim(strtolower($email)))
-		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		));
 		
-		if(!$rs->EOF) {
-			$id = $rs->fields['id'];
+		if(is_array($addresses) && !empty($addresses)) {
+			$address = array_shift($addresses);
 		} elseif($create_if_null) {
 			$fields = array(
 				self::EMAIL => $email
 			);
 			$id = DAO_Address::create($fields);
+			$address = DAO_Address::get($id);
 		}
 		
-		return $id;
+		return $address;
 	}
 	
     /**
@@ -1030,14 +1046,16 @@ class DAO_Address extends DevblocksORMHelper {
 			"a.first_name as %s, ".
 			"a.last_name as %s, ".
 			"a.contact_org_id as %s, ".
-			"o.name as %s ",
+			"o.name as %s, ".
+			"a.sla_id as %s ",
 			    SearchFields_Address::ID,
 			    SearchFields_Address::EMAIL,
 			    SearchFields_Address::FIRST_NAME,
 			    SearchFields_Address::LAST_NAME,
 			    SearchFields_Address::CONTACT_ORG_ID,
-			    SearchFields_Address::ORG_NAME
-		);
+			    SearchFields_Address::ORG_NAME,
+			    SearchFields_Address::SLA_ID
+			 );
 		
 		$join_sql = 
 			"FROM address a ".
@@ -1084,6 +1102,7 @@ class SearchFields_Address implements IDevblocksSearchFields {
 	const FIRST_NAME = 'a_first_name';
 	const LAST_NAME = 'a_last_name';
 	const CONTACT_ORG_ID = 'a_contact_org_id';
+	const SLA_ID = 'a_sla_id';
 	
 	const ORG_NAME = 'o_name';
 	
@@ -1098,6 +1117,7 @@ class SearchFields_Address implements IDevblocksSearchFields {
 			self::FIRST_NAME => new DevblocksSearchField(self::FIRST_NAME, 'a', 'first_name', null, $translate->_('address.first_name')),
 			self::LAST_NAME => new DevblocksSearchField(self::LAST_NAME, 'a', 'last_name', null, $translate->_('address.last_name')),
 			self::CONTACT_ORG_ID => new DevblocksSearchField(self::CONTACT_ORG_ID, 'a', 'contact_org_id', null, $translate->_('address.contact_org_id')),
+			self::SLA_ID => new DevblocksSearchField(self::SLA_ID, 'a', 'sla_id', null, $translate->_('sla.name')),
 			
 			self::ORG_NAME => new DevblocksSearchField(self::ORG_NAME, 'o', 'name', null, $translate->_('contact_org.name')),
 		);
@@ -1831,6 +1851,155 @@ class DAO_Attachment extends DevblocksORMHelper {
 	}
 };
 
+class DAO_Sla extends DevblocksORMHelper {
+	const ID = 'id';
+	const NAME = 'name';
+	const PRIORITY = 'priority';
+	
+	public static function create($fields) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$id = $db->GenID('generic_seq');
+		
+		$sql = sprintf("INSERT INTO sla (id,name,priority) ".
+			"VALUES (%d,'',0)",
+			$id
+		);
+		$db->Execute($sql);
+		
+		self::update($id, $fields);
+		
+		return $id;
+	}
+	
+	public static function get($id) {
+		$objects = self::getWhere(sprintf("%s = %d",
+			self::ID,
+			$id
+		));
+		
+		if(isset($objects[$id]))
+			return $objects[$id];
+			
+		return null;
+	}
+	
+	public static function getWhere($where=null) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = "SELECT id, name, priority ".
+			"FROM sla ".
+			(!empty($where) ? sprintf("WHERE %s ",$where) : "").
+			"ORDER BY priority DESC";
+		$rs = $db->Execute($sql);
+		
+		return self::_getObjectsFromResult($rs);
+	}
+	
+	private static function _getObjectsFromResult($rs) {
+		$objects = array();
+		
+		if(is_null($rs))
+			return array();
+		
+		while(!$rs->EOF) {
+			$object = new Model_Sla();
+			$object->id = intval($rs->fields['id']);
+			$object->name = $rs->fields['name'];
+			$object->priority = intval($rs->fields['priority']);
+			$objects[$object->id] = $object;
+			$rs->MoveNext();
+		}
+		
+		return $objects;
+	}
+	
+	public static function update($ids, $fields) {
+		return parent::_update($ids, 'sla', $fields);
+	}
+	
+	
+	public static function delete($ids) {
+		if(!is_array($ids)) $ids = array($ids);
+		
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		if(empty($ids))
+			return;
+		
+		$id_list = implode(',', $ids);
+		
+		$sql = sprintf("DELETE FROM sla WHERE id IN (%s)", $id_list);
+		$db->Execute($sql);
+		
+		// Ticket
+		$sql = sprintf("UPDATE ticket SET sla_id = 0 WHERE sla_id IN (%s)", $id_list);
+		$db->Execute($sql);
+		
+		// Address
+		$sql = sprintf("UPDATE address SET sla_id = 0 WHERE sla_id IN (%s)", $id_list);
+		$db->Execute($sql);
+		
+		// Orgs
+		$sql = sprintf("UPDATE contact_org SET sla_id = 0 WHERE sla_id IN (%s)", $id_list);
+		$db->Execute($sql);
+	}
+	
+	static public function cascadeOrgSla($org_id, $sla_id) {
+		// Update all addresses from this org
+		DAO_Address::updateWhere(
+			array(
+				DAO_Address::SLA_ID => $sla_id
+			),
+			sprintf("%s = %d",
+				DAO_Address::CONTACT_ORG_ID,
+				$org_id
+			)
+		);
+		
+		// Update SLA+Priority on any open tickets from this org
+		$sla_priority = 0;
+		if(!empty($sla_id) && null != ($sla = DAO_Sla::get($sla_id))) {
+			$sla_priority = $sla->priority;
+		}
+		
+		$org_addresses = DAO_Address::getWhere(sprintf("%s = %d",
+			DAO_Address::CONTACT_ORG_ID,
+			$org_id
+		));
+		
+		if(!empty($org_addresses)) {
+			DAO_Ticket::updateWhere(
+				array(
+					DAO_Ticket::SLA_ID => $sla_id,
+					DAO_Ticket::SLA_PRIORITY => $sla_priority
+				),
+				sprintf("%s IN (%s)",
+					DAO_Ticket::FIRST_WROTE_ID,
+					implode(',',array_keys($org_addresses))
+				)
+			);
+		}
+	}
+	
+	static public function cascadeAddressSla($address_id, $sla_id) {
+		$sla_priority = 0;
+		if(!empty($sla_id) && null != ($sla = DAO_Sla::get($sla_id))) {
+			$sla_priority = $sla->priority;
+		}
+		
+		DAO_Ticket::updateWhere(
+			array(
+				DAO_Ticket::SLA_ID => $sla_id,
+				DAO_Ticket::SLA_PRIORITY => $sla_priority
+			),
+			sprintf("%s = %d",
+				DAO_Ticket::FIRST_WROTE_ID,
+				$address_id
+			)
+		);
+	}
+};
 
 /**
  * Enter description here...
@@ -1858,6 +2027,8 @@ class DAO_Ticket extends DevblocksORMHelper {
 	const LAST_ACTION_CODE = 'last_action_code';
 	const LAST_WORKER_ID = 'last_worker_id';
 	const NEXT_WORKER_ID = 'next_worker_id';
+	const SLA_ID = 'sla_id';
+	const SLA_PRIORITY = 'sla_priority';
 	
 	private function DAO_Ticket() {}
 	
@@ -2088,7 +2259,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 		
 		$sql = "SELECT t.id , t.mask, t.subject, t.is_closed, t.is_deleted, t.team_id, t.category_id, t.first_message_id, ".
 			"t.first_wrote_address_id, t.last_wrote_address_id, t.created_date, t.updated_date, t.due_date, t.spam_training, ". 
-			"t.spam_score, t.interesting_words, t.next_action, t.last_worker_id, t.next_worker_id ".
+			"t.spam_score, t.interesting_words, t.next_action, t.last_worker_id, t.next_worker_id, t.sla_id, t.sla_priority ".
 			"FROM ticket t ".
 			(!empty($ids) ? sprintf("WHERE t.id IN (%s) ",implode(',',$ids)) : " ").
 			"ORDER BY t.updated_date DESC"
@@ -2116,6 +2287,8 @@ class DAO_Ticket extends DevblocksORMHelper {
 			$ticket->next_action = $rs->fields['next_action'];
 			$ticket->last_worker_id = intval($rs->fields['last_worker_id']);
 			$ticket->next_worker_id = intval($rs->fields['next_worker_id']);
+			$ticket->sla_id = intval($rs->fields['sla_id']);
+			$ticket->sla_priority = intval($rs->fields['sla_priority']);
 			$tickets[$ticket->id] = $ticket;
 			$rs->MoveNext();
 		}
@@ -2155,7 +2328,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$messages = array();
 		
-		$sql = sprintf("SELECT m.id , m.ticket_id, m.created_date, m.address_id ".
+		$sql = sprintf("SELECT m.id , m.ticket_id, m.created_date, m.address_id, m.is_outgoing, m.worker_id ".
 			"FROM message m ".
 			"WHERE m.ticket_id = %d ".
 			"ORDER BY m.created_date ASC ",
@@ -2168,6 +2341,8 @@ class DAO_Ticket extends DevblocksORMHelper {
 			$message->ticket_id = intval($rs->fields['ticket_id']);
 			$message->created_date = intval($rs->fields['created_date']);
 			$message->address_id = intval($rs->fields['address_id']);
+			$message->is_outgoing = intval($rs->fields['is_outgoing']);
+			$message->worker_id = intval($rs->fields['worker_id']);
 			
 			$messages[$message->id] = $message;
 			$rs->MoveNext();
@@ -2186,7 +2361,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$message = null;
 		
-		$sql = sprintf("SELECT m.id , m.ticket_id, m.created_date, m.address_id ".
+		$sql = sprintf("SELECT m.id , m.ticket_id, m.created_date, m.address_id, m.is_outgoing, m.worker_id ".
 			"FROM message m ".
 			"WHERE m.id = %d ".
 			"ORDER BY m.created_date ASC ",
@@ -2199,6 +2374,8 @@ class DAO_Ticket extends DevblocksORMHelper {
 			$message->ticket_id = intval($rs->fields['ticket_id']);
 			$message->created_date = intval($rs->fields['created_date']);
 			$message->address_id = intval($rs->fields['address_id']);
+			$message->is_outgoing = intval($rs->fields['is_outgoing']);
+			$message->worker_id = intval($rs->fields['worker_id']);
 		}
 
 		return $message;
@@ -2401,7 +2578,9 @@ class DAO_Ticket extends DevblocksORMHelper {
 			"t.next_worker_id as %s, ".
 			"tm.id as %s, ".
 			"tm.name as %s, ".
-			"t.category_id as %s ",
+			"t.category_id as %s, ".
+			"t.sla_id as %s, ".
+			"t.sla_priority as %s ",
 //			"cat.name as %s ". // [TODO] BAD LEFT JOINS
 			    SearchFields_Ticket::TICKET_ID,
 			    SearchFields_Ticket::TICKET_MASK,
@@ -2426,7 +2605,9 @@ class DAO_Ticket extends DevblocksORMHelper {
 			    SearchFields_Ticket::TICKET_NEXT_WORKER_ID,
 			    SearchFields_Ticket::TEAM_ID,
 			    SearchFields_Ticket::TEAM_NAME,
-			    SearchFields_Ticket::TICKET_CATEGORY_ID
+			    SearchFields_Ticket::TICKET_CATEGORY_ID,
+			    SearchFields_Ticket::TICKET_SLA_ID,
+			    SearchFields_Ticket::TICKET_SLA_PRIORITY
 //			    SearchFields_Ticket::CATEGORY_NAME
 			);
 
@@ -2502,6 +2683,8 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 	const TICKET_LAST_WORKER_ID = 't_last_worker_id';
 	const TICKET_NEXT_WORKER_ID = 't_next_worker_id';
 	const TICKET_CATEGORY_ID = 't_category_id';
+	const TICKET_SLA_ID = 't_sla_id';
+	const TICKET_SLA_PRIORITY = 't_sla_priority';
 	
 	// Message
 //	const MESSAGE_CONTENT = 'msg_content';
@@ -2550,6 +2733,8 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 			self::TICKET_LAST_WORKER_ID => new DevblocksSearchField(self::TICKET_LAST_WORKER_ID, 't', 'last_worker_id',null,$translate->_('ticket.last_worker')),
 			self::TICKET_NEXT_WORKER_ID => new DevblocksSearchField(self::TICKET_NEXT_WORKER_ID, 't', 'next_worker_id',null,$translate->_('ticket.next_worker')),
 			self::TICKET_CATEGORY_ID => new DevblocksSearchField(self::TICKET_CATEGORY_ID, 't', 'category_id',null,$translate->_('common.bucket')),
+			self::TICKET_SLA_ID => new DevblocksSearchField(self::TICKET_SLA_ID, 't', 'sla_id',null,$translate->_('sla.name')),
+			self::TICKET_SLA_PRIORITY => new DevblocksSearchField(self::TICKET_SLA_PRIORITY, 't', 'sla_priority',null,$translate->_('sla.priority')),
 			
 			self::TICKET_MESSAGE_HEADER => new DevblocksSearchField(self::TICKET_MESSAGE_HEADER, 'mh', 'header_name'),
 			self::TICKET_MESSAGE_HEADER_VALUE => new DevblocksSearchField(self::TICKET_MESSAGE_HEADER_VALUE, 'mh', 'header_value', 'B'),

@@ -46,6 +46,19 @@
 		<td align="right">Website: </td>
 		<td><input type="text" name="website" value="{$contact->website}" style="width:50%;"></td>
 	</tr>
+	{if !empty($slas)}
+	<tr>
+		<td width="0%" nowrap="nowrap" align="right">Service Level: </td>
+		<td width="100%">
+			<select name="sla_id">
+				<option value="0">-- none --</option>
+				{foreach from=$slas item=sla key=sla_id}
+					<option value="{$sla_id}" {if $sla_id==$contact->sla_id}selected{/if}>{$sla->name|escape}</option>
+				{/foreach}
+			</select>
+		</td>
+	</tr>
+	{/if}
 </table>
 <button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
 <!-- <button type="button" onclick="document.location='{devblocks_url}c=contacts&a=orgs{/devblocks_url}';"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> {$translate->_('common.cancel')|capitalize}</button>  -->
