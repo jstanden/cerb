@@ -50,6 +50,14 @@
 		</td>
 	</tr>
 	{/if}
+	<tr>
+		<td colspan="2" align="center">
+			<input type="hidden" name="closed" value="0">
+			<a href="javascript:;" onclick="document.formAddressPeek.a.value='showAddressTickets';document.formAddressPeek.closed.value='0';document.formAddressPeek.submit();">{$open_count} open ticket(s)</a>
+			 | 
+			<a href="javascript:;" onclick="document.formAddressPeek.a.value='showAddressTickets';document.formAddressPeek.closed.value='1';document.formAddressPeek.submit();">{$closed_count} closed ticket(s)</a>
+		</td>
+	</tr>
 </table>
 
 <input type="button" value="{$translate->_('common.save_changes')}" onclick="genericPanel.hide();genericAjaxPost('formAddressPeek', 'view{$view_id}')">

@@ -9,9 +9,9 @@
       		<td>
       			{if isset($headers.from)}
       				{if $expanded}
-      					<h3>From: {$headers.from|escape:"htmlall"|nl2br}</h3>
+      					<h3 style="display:inline;">From: {$headers.from|escape:"htmlall"|nl2br}</h3> (<a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&address_id={$message->address_id}', this, false, '500px',ajax.cbAddressPeek);">address book</a>)<br>
       				{else}
-      					<b style="color:rgb(50,120,50);">From: {$headers.from|escape:"htmlall"|nl2br}</b>
+      					<b style="color:rgb(50,120,50);">From: {$headers.from|escape:"htmlall"|nl2br}</b>  (<a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&address_id={$message->address_id}', this, false, '500px',ajax.cbAddressPeek);">address book</a>)<br>
       				{/if}
       			{/if}
       		</td>
