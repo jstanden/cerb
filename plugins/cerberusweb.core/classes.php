@@ -3740,7 +3740,7 @@ class ChContactsPage extends CerberusPageExtension {
 		
 		$search_view->params = array(
 			SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',$closed),
-			SearchFields_Ticket::TICKET_FIRST_WROTE_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_FIRST_WROTE,'=',$address->email),
+			SearchFields_Ticket::TICKET_FIRST_WROTE => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_FIRST_WROTE,'=',$address->email),
 		);
 		$search_view->renderPage = 0;
 		
