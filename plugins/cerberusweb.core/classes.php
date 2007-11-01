@@ -467,6 +467,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	            
 			    break;
 			
+			default:
 			case 'overview':
 				$db = DevblocksPlatform::getDatabaseService();
 				$views = array();
@@ -701,7 +702,6 @@ class ChTicketsPage extends CerberusPageExtension {
 	        	$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/overview/index.tpl.php');
 	        	break;
 			    
-			default:
 	        case 'lists':
 				$request = DevblocksPlatform::getHttpRequest();
 				$request_path = $request->path;
@@ -721,75 +721,11 @@ class ChTicketsPage extends CerberusPageExtension {
 				
 				$views = array();
 					
-				if(empty($current_workspace)) {
-					//@$current_workspace = reset($workspaces);
-	            // My Tickets
-					$myView = C4_AbstractViewLoader::getView('', CerberusApplication::VIEW_MY_TICKETS);
-					
-					// [JAS]: Recover from a bad cached ID.
-					if(null == $myView) {
-						$myView = new C4_TicketView();
-						$myView->id = CerberusApplication::VIEW_MY_TICKETS;
-						$myView->name = "New Messages for Me";
-						$myView->dashboard_id = 0;
-						$myView->view_columns = array(
-							SearchFields_Ticket::TICKET_NEXT_ACTION,
-							SearchFields_Ticket::TICKET_UPDATED_DATE,
-//							SearchFields_Ticket::TICKET_LAST_WROTE,
-							SearchFields_Ticket::TEAM_NAME,
-//							SearchFields_Ticket::TICKET_CATEGORY_ID,
-							SearchFields_Ticket::TICKET_SPAM_SCORE,
-							SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
-							);
-						$myView->params = array(
-							new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN),
-							new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_NEXT_WORKER_ID,'in',array($active_worker->id)),
-							new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_LAST_ACTION_CODE,'in',array('O','R')),
-						);
-						$myView->renderLimit = 10;
-						$myView->renderPage = 0;
-						$myView->renderSortBy = SearchFields_Ticket::TICKET_UPDATED_DATE;
-						$myView->renderSortAsc = 0;
-						
-						C4_AbstractViewLoader::setView($myView->id,$myView);
-					}
-					
-					$myWaitingView = C4_AbstractViewLoader::getView('', CerberusApplication::VIEW_MY_WAITING);
-					
-					// [JAS]: Recover from a bad cached ID.
-					if(null == $myWaitingView) {
-						$myWaitingView = new C4_TicketView();
-						$myWaitingView->id = CerberusApplication::VIEW_MY_WAITING;
-						$myWaitingView->name = "Replies I'm Waiting For";
-						$myWaitingView->dashboard_id = 0;
-						$myWaitingView->view_columns = array(
-							SearchFields_Ticket::TICKET_NEXT_ACTION,
-							SearchFields_Ticket::TICKET_UPDATED_DATE,
-//							SearchFields_Ticket::TICKET_LAST_WROTE,
-							SearchFields_Ticket::TEAM_NAME,
-//							SearchFields_Ticket::TICKET_CATEGORY_ID,
-							SearchFields_Ticket::TICKET_SPAM_SCORE,
-							SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
-							);
-						$myWaitingView->params = array(
-//							new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN),
-							new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_NEXT_WORKER_ID,'in',array($active_worker->id)),
-							new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_LAST_ACTION_CODE,'in',array('W')),
-						);
-						$myWaitingView->renderLimit = 10;
-						$myWaitingView->renderPage = 0;
-						$myWaitingView->renderSortBy = SearchFields_Ticket::TICKET_UPDATED_DATE;
-						$myWaitingView->renderSortAsc = 1;
-						
-						C4_AbstractViewLoader::setView($myWaitingView->id,$myWaitingView);
-					}
-					
-					$views = array(
-						$myView->id => $myView,
-						$myWaitingView->id => $myWaitingView,
-					);
-					
-				} else {
+				if(empty($current_workspace) && !empty($workspaces)) { // custom dashboards
+					$current_workspace = reset($workspaces);
+				}
+				
+				if(!empty($current_workspace)) {
 					$lists = DAO_WorkerWorkspaceList::getWhere(sprintf("%s = %d AND %s = %s",
 						DAO_WorkerWorkspaceList::WORKER_ID,
 						$active_worker->id,
@@ -814,11 +750,10 @@ class ChTicketsPage extends CerberusPageExtension {
 						}
 						$views[] = $view;
 					}
+				
+					$tpl->assign('current_workspace', $current_workspace);
+					$tpl->assign('views', $views);
 				}
-				
-				$tpl->assign('current_workspace', $current_workspace);
-				
-				$tpl->assign('views', $views);
 				
 				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/lists/index.tpl.php');
 				break;
@@ -1275,6 +1210,7 @@ class ChTicketsPage extends CerberusPageExtension {
         }
         
         $searchView->params = $params;
+        $searchView->renderPage = 0;
         $searchView->renderSortBy = null;
         
         C4_AbstractViewLoader::setView($searchView->id,$searchView);
@@ -1503,6 +1439,63 @@ class ChTicketsPage extends CerberusPageExtension {
 
 		//DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('display',$ticket_id)));
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('display',$ticket_id)));
+	}
+	
+	function showViewCopyAction() {
+        @$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
+
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl_path = dirname(__FILE__) . '/templates/';
+		$tpl->assign('path', $tpl_path);
+        
+        $view = C4_AbstractViewLoader::getView('',$view_id);
+        
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		$workspaces = DAO_WorkerWorkspaceList::getWorkspaces($active_worker->id);
+		$tpl->assign('workspaces', $workspaces);
+        
+        $tpl->assign('view_id', $view_id);
+		$tpl->assign('view', $view);
+
+        $tpl->display($tpl_path.'tickets/rpc/ticket_view_copy.tpl.php');
+	}
+	
+	function doViewCopyAction() {
+	    @$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+		$view = C4_AbstractViewLoader::getView('', $view_id);
+	    
+		@$list_title = DevblocksPlatform::importGPC($_POST['list_title'],'string', '');
+		@$workspace = DevblocksPlatform::importGPC($_POST['workspace'],'string', '');
+		@$new_workspace = DevblocksPlatform::importGPC($_POST['new_workspace'],'string', '');
+		
+		if(empty($workspace) && empty($new_workspace))
+			$new_workspace = "New Workspace";
+			
+		if(empty($list_title))
+			$list_title = "New List";
+		
+		$workspace_name = (!empty($new_workspace) ? $new_workspace : $workspace);
+			
+		// [TODO] Fix crossing layers (app->DAO)
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		// List
+		$list_view = new Model_WorkerWorkspaceListView();
+		$list_view->title = $list_title;
+		$list_view->num_rows = $view->renderLimit;
+		$list_view->columns = $view->view_columns;
+		$list_view->params = $view->params;
+		
+		$fields = array(
+			DAO_WorkerWorkspaceList::WORKER_ID => $active_worker->id,
+			DAO_WorkerWorkspaceList::WORKSPACE => $workspace_name,
+			DAO_WorkerWorkspaceList::LIST_VIEW => serialize($list_view)
+		);
+		$list_id = DAO_WorkerWorkspaceList::create($fields);
+		
+		// [TODO] Switch response to proper workspace
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets','lists')));
 	}
 	
 	function showViewAutoAssignAction() {
@@ -3863,6 +3856,7 @@ class ChContactsPage extends CerberusPageExtension {
         }
         
         $view->params = $params;
+        $view->renderPage = 0;
         $view->renderSortBy = null;
         
         C4_AbstractViewLoader::setView(C4_AddressView::DEFAULT_ID,$view);
@@ -3891,6 +3885,7 @@ class ChContactsPage extends CerberusPageExtension {
         }
         
         $view->params = $params;
+        $view->renderPage = 0;
         $view->renderSortBy = null;
         
         C4_AbstractViewLoader::setView(C4_ContactOrgView::DEFAULT_ID,$view);
