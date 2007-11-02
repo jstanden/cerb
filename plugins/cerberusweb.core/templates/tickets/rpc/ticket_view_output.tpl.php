@@ -10,8 +10,6 @@
 			marked not spam.
 		{elseif $last_action->action == 'delete'}
 			deleted.
-		{elseif $last_action->action == 'surrender'}
-			surrendered.
 		{elseif $last_action->action == 'close'}
 			closed.
 		{elseif $last_action->action == 'move'}

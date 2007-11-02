@@ -1,10 +1,10 @@
-{include file="$path/tickets/teamwork/manage/menu.tpl.php"}
+{include file="$path/groups/manage/menu.tpl.php"}
 
 <div class="block">
 
 <blockquote style="margin:5px;">
 	<form action="{devblocks_url}{/devblocks_url}" method="post">
-	<input type="hidden" name="c" value="tickets">
+	<input type="hidden" name="c" value="groups">
 	<input type="hidden" name="a" value="removeTeamMember">
 	<input type="hidden" name="team_id" value="{$team->id}">
 	<input type="hidden" name="worker_id" value="">
@@ -44,7 +44,7 @@
 	{if !empty($available_workers)}
 	<br>
 	<form action="{devblocks_url}{/devblocks_url}" method="post">
-	<input type="hidden" name="c" value="tickets">
+	<input type="hidden" name="c" value="groups">
 	<input type="hidden" name="a" value="addTeamMember">
 	<input type="hidden" name="team_id" value="{$team->id}">
 	<h2>Add:</h2>

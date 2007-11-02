@@ -86,15 +86,7 @@
 	{if $total}
 	<tr>
 		<td colspan="2">
-			{if !empty($slas)}
-			<select name="sla_id" onchange="this.form.a.value='doSetAddressSla';genericAjaxPost('viewForm{$view->id}','view{$view->id}','c=contacts&a=doSetAddressSla');">
-				<option value="">-- set service level --</option>
-				<option value="0">None</option>
-				{foreach from=$slas item=sla key=sla_id}
-					<option value="{$sla_id}">{$sla->name}</option>
-				{/foreach}
-			</select>
-			{/if}
+			<button type="button" onclick="ajax.showAddressBatchPanel('{$view->id}',this);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> bulk update</button>
 		
 			<!-- <span id="tourDashboardBatch"><button type="button" onclick="ajax.showBatchPanel('{$view->id}','{$dashboard_team_id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> bulk update</button></span>  -->
 			

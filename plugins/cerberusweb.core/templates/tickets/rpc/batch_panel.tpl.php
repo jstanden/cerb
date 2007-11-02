@@ -6,7 +6,6 @@
 </table>
 
 <form action="{devblocks_url}{/devblocks_url}" method="POST" id="formBatchUpdate" name="formBatchUpdate">
-<!-- <input type="hidden" name="action_id" value="{$id}"> -->
 <input type="hidden" name="c" value="tickets">
 <input type="hidden" name="a" value="doBatchUpdate">
 <input type="hidden" name="view_id" value="{$view_id}">
@@ -33,18 +32,6 @@
 <textarea rows='3' cols='45' style='width:95%' name='subjects' wrap="off">{foreach from=$unique_subjects key=subject item=total name=subjects}{$subject}{if !$smarty.foreach.subjects.last}{"\n"}{/if}{/foreach}</textarea><br>
 <br>
 </div>
-
-<!-- 
-<b>Do Shortcut:</b>
-<select name="action_id" onchange="toggleDiv('bulkUpdateCustom',(this.selectedIndex>0)?'none':'block');">
-	<option value="">-- no shortcut --</option>
-	<optgroup label="Shared Shortcuts" style="color:rgb(0,180,0);">
-	{foreach from=$viewActions item=action}
-	<option value="{$action->id}">{$action->name}</option>
-	{/foreach}
-	</optgroup>
-</select><br>
- -->
 
 <div id="bulkUpdateCustom" style="display:block;">
 <H2>Do:</H2>
@@ -89,17 +76,18 @@
 			{/foreach}
 		</select></td>
 	</tr>
+	<tr>
+		<td width="0%" nowrap="nowrap">Next Worker:</td>
+		<td width="100%"><select name="next_worker">
+			<option value=""></option>
+			<option value="0">Anybody</option>
+			{foreach from=$workers item=worker key=worker_id}
+			<option value="{$worker_id}">{$worker->getName()}</option>
+			{/foreach}
+		</select></td>
+	</tr>
 </table>
 
-<!-- 
-<br>
-<H2>Save as shortcut?</H2>
-
-<b>Label:</b><br>
-<input type="text" name="shortcut_name" size="45" style='width:95%;'><br>
-<i>(leave blank to skip shortcut)</i><br>
-<br>
- -->
 <br>
 </div>
 

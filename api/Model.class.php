@@ -995,6 +995,59 @@ class C4_AddressView extends C4_AbstractView {
 			$this->renderPage = 0;
 		}
 	}
+	
+	function doBulkUpdate($filter, $do, $ids=array()) {
+	    @set_time_limit(600); // [TODO] Temp!
+	    
+		$change_fields = array();
+		
+		if(empty($do))
+			return;	
+		
+		if(is_array($do))
+		foreach($do as $k => $v) {
+			switch($k) {
+				case 'sla':
+					$change_fields[DAO_Address::SLA_ID] = intval($v);
+					break;
+			}
+		}
+		
+		$pg = 0;
+
+        if(empty($ids))
+        do {
+	        list($objects,$null) = DAO_Address::search(
+	            $this->params,
+	            100,
+	            $pg++,
+	            SearchFields_Address::ID,
+	            true,
+	            false
+	        );
+	        
+	        $ids = array_merge($ids, array_keys($objects));
+	        
+        } while(!empty($objects));
+        
+        $batch_total = count($ids);
+        for($x=0;$x<=$batch_total;$x+=100) {
+            $batch_ids = array_slice($ids,$x,100);
+            DAO_Address::update($batch_ids, $change_fields);
+
+            // Cascade SLA changes
+            if(isset($do['sla'])) {
+	            foreach($batch_ids as $id) {
+	            	DAO_Sla::cascadeAddressSla($id, $do['sla']);
+	            }
+            }
+
+            unset($batch_ids);
+        }
+
+        unset($ids);
+	}
+	
 };
 
 class C4_ContactOrgView extends C4_AbstractView {
@@ -1243,6 +1296,10 @@ class Model_DashboardViewAction {
 					$fields[DAO_Ticket::CATEGORY_ID] = $category_id;
 					break;
 				
+				case 'next_worker':
+					$fields[DAO_Ticket::NEXT_WORKER_ID] = intval($v);
+					break;
+				
 				default:
 					// [TODO] Log?
 					break;
@@ -1375,7 +1432,6 @@ class Model_TicketViewLastAction {
     const ACTION_CLOSE = 'close';
     const ACTION_DELETE = 'delete';
     const ACTION_MOVE = 'move';
-    const ACTION_SURRENDER = 'surrender';
     
     public $ticket_ids = array(); // key = ticket id, value=old value
     public $action = ''; // spam/closed/move, etc.

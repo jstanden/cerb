@@ -147,6 +147,71 @@ var cAjaxCalls = function() {
 		});
 	}
 
+	this.showAddressBatchPanel = function(view_id,target) {
+		var viewForm = document.getElementById('viewForm'+view_id);
+		if(null == viewForm) return;
+		var elements = viewForm.elements['row_id[]'];
+		if(null == elements) return;
+
+		var len = elements.length;
+		var ids = new Array();
+
+		if(null == len && null != elements.value) {
+			ids[0] = elements.value;
+		} else {
+			for(var x=len-1;x>=0;x--) {
+				if(elements[x].checked) {
+					//frm.appendChild(elements[x]);
+					ids[ids.length] = elements[x].value;
+				}
+			}
+		}
+		
+		var row_ids = ids.join(','); // [TODO] Encode?
+	
+		genericAjaxPanel('c=contacts&a=showAddressBatchPanel&view_id=' + view_id + '&ids=' + row_ids,target,false,'500px');
+	}
+	
+	this.saveAddressBatchPanel = function(view_id) {
+		var divName = 'view'+view_id;
+		var formName = 'viewForm'+view_id;
+		var viewDiv = document.getElementById(divName);
+		var viewForm = document.getElementById(formName);
+		if(null == viewForm || null == viewDiv) return;
+
+		var frm = document.getElementById('formBatchUpdate');
+
+		var elements = viewForm.elements['row_id[]'];
+		if(null == elements) return;
+		
+		var len = elements.length;
+		var ids = new Array();
+		
+		if(null == len && null != elements.value) {
+			ids[0] = elements.value;
+		} else {
+			for(var x=len-1;x>=0;x--) {
+				if(elements[x].checked) {
+					//frm.appendChild(elements[x]);
+					ids[ids.length] = elements[x].value;
+				}
+			}
+		}
+		
+		frm.address_ids.value = ids.join(',');		
+
+		genericAjaxPost('formBatchUpdate', '', 'c=contacts&a=doAddressBatchUpdate', function(o) {
+			viewDiv.innerHTML = o.responseText;
+
+			if(null != genericPanel) {
+				genericPanel.hide();
+			}
+			
+			document.location = '#top';
+			//genericAjaxGet('dashboardPanel','c=tickets&a=refreshTeamFilters');
+		});
+	}
+
 	this.viewMoveTickets = function(view_id) {
 		var divName = 'view'+view_id;
 		var formName = 'viewForm'+view_id;
@@ -199,12 +264,6 @@ var cAjaxCalls = function() {
 				break;
 			case 2: // delete
 				genericAjaxPost(formName, '', 'c=tickets&a=viewDeleteTickets&view_id=' + view_id, function(o) {
-					viewDiv.innerHTML = o.responseText;
-					genericAjaxGet('dashboardPanel','c=tickets&a=refreshTeamFilters');
-				});
-				break;
-			case 3: // release/surrender
-				genericAjaxPost(formName, '', 'c=tickets&a=viewSurrenderTickets&view_id=' + view_id, function(o) {
 					viewDiv.innerHTML = o.responseText;
 					genericAjaxGet('dashboardPanel','c=tickets&a=refreshTeamFilters');
 				});

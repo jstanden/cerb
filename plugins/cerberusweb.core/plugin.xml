@@ -216,7 +216,6 @@
 				<param key="uri" value="welcome" />
 				<param key="title" value="" />
 				<param key="menutitle" value="" />
-				<!--<param key="summary" value="support resources" />-->
 			</params>
 		</extension>
 
@@ -231,7 +230,20 @@
 				<param key="uri" value="tickets" />
 				<param key="title" value="Mail" />
 				<param key="menutitle" value="mail" />
-				<!--<param key="summary" value="support resources" />-->
+			</params>
+		</extension>
+
+		<extension point="cerberusweb.page">
+			<id>core.page.groups</id>
+			<name>Groups Page</name>
+			<class>
+				<file>classes.php</file>
+				<name>ChGroupsPage</name>
+			</class>
+			<params>
+				<param key="uri" value="groups" />
+				<param key="title" value="Groups" />
+				<param key="menutitle" value="" />
 			</params>
 		</extension>
 
@@ -260,7 +272,6 @@
 				<param key="uri" value="display" />
 				<param key="title" value="Display" />
 				<param key="menutitle" value="" />
-				<!--<param key="summary" value="support resources" />-->
 			</params>
 		</extension>
 
