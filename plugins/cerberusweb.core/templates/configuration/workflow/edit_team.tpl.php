@@ -17,22 +17,31 @@
 		<td width="100%"><input type="text" name="name" value="{$team->name|escape:"html"}" size="45"></td>
 	</tr>
 	
-	{if empty($team->id)}
 	<tr>
-		<td width="0%" nowrap="nowrap" valign="top">
-			<b>Initial Manager:</b><br>
-		</td>
-		<td width="100%" id="configTeamWorkers" valign="top">
-			<select name="leader_id">
-			<option value="0">-- none --</option>
-			{foreach from=$workers item=worker key=worker_id}
-				<option value="{$worker->id}" {if $team->leader_id==$worker->id}selected{/if}>{$worker->getName()}{if !empty($worker->title)} ({$worker->title}){/if}</option>
-			{/foreach}
-			</select>
+		<td width="0%" nowrap="nowrap" valign="top"><b>Members:</b></td>
+		<td width="100%">
+			<blockquote style="margin:5px;">
+				<table cellspacing="0" cellpadding="3" border="0">
+				{foreach from=$workers item=worker key=worker_id name=workers}
+					{assign var=member value=$members.$worker_id}
+					<tr>
+						<td>
+							<input type="hidden" name="worker_ids[]" value="{$worker_id}">
+							<select name="worker_levels[]">
+								<option value=""></option>
+								<option value="1" {if $member && !$member->is_manager}selected{/if}>Member</option>
+								<option value="2" {if $member && $member->is_manager}selected{/if}>Manager</option>
+							</select>
+							<span style="{if $member}font-weight:bold;{/if}">{$worker->getName()}</span>
+							{if !empty($worker->title)} (<span style="color:rgb(0,120,0);">{$worker->title}</span>){/if}
+						</td>
+					</tr>
+				{/foreach}
+				</table>
+			</blockquote>
 		</td>
 	</tr>
-	{/if}
-
+	
 	<!-- 	
 	<tr>
 		<td width="0%" nowrap="nowrap" valign="top">

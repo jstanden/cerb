@@ -2490,6 +2490,11 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		@$team = $teams[$id];
 		$tpl->assign('team', $team);
 		
+		if(!empty($id)) {
+			@$members = DAO_Group::getTeamMembers($id);
+			$tpl->assign('members', $members);
+		}
+		
 		$workers = DAO_Worker::getList();
 		$tpl->assign('workers', $workers);
 		
@@ -2511,7 +2516,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		
 		@$id = DevblocksPlatform::importGPC($_POST['id']);
 		@$name = DevblocksPlatform::importGPC($_POST['name']);
-		@$leader_id = DevblocksPlatform::importGPC($_POST['leader_id'],'integer',0);
+//		@$leader_id = DevblocksPlatform::importGPC($_POST['leader_id'],'integer',0);
 		@$delete = DevblocksPlatform::importGPC($_POST['delete_box']);
 		@$delete_move_id = DevblocksPlatform::importGPC($_POST['delete_move_id'],'integer',0);
 		
@@ -2542,9 +2547,23 @@ class ChConfigurationPage extends CerberusPageExtension  {
 				DAO_Group::TEAM_NAME => $name,
 			);
 			$id = DAO_Group::createTeam($fields);
-			
-			DAO_Group::setTeamMember($id, $leader_id, true);
+//			DAO_Group::setTeamMember($id, $leader_id, true);
 		}
+		
+		@$worker_ids = DevblocksPlatform::importGPC($_POST['worker_ids'],'array',array());
+		@$worker_levels = DevblocksPlatform::importGPC($_POST['worker_levels'],'array',array());
+		
+	    @$members = DAO_Group::getTeamMembers($id);
+	    
+	    if(is_array($worker_ids) && !empty($worker_ids))
+	    foreach($worker_ids as $idx => $worker_id) {
+	    	@$level = $worker_levels[$idx];
+	    	if(isset($members[$worker_id]) && empty($level)) {
+	    		DAO_Group::unsetTeamMember($id, $worker_id);
+	    	} elseif(!empty($level)) { // member|manager
+				 DAO_Group::setTeamMember($id, $worker_id, (1==$level)?false:true);
+	    	}
+	    }
 		
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','workflow')));
 	}
@@ -3721,12 +3740,12 @@ class ChGroupsPage extends CerberusPageExtension  {
 						$workers = DAO_Worker::getList();
 					    $tpl->assign('workers', $workers);
 					    
-					    $available_workers = array();
-					    foreach($workers as $worker) {
+//					    $available_workers = array();
+//					    foreach($workers as $worker) {
 //					    	if(!isset($members[$worker->id]))
-					    		$available_workers[$worker->id] = $worker;
-					    }
-					    $tpl->assign('available_workers', $available_workers);
+//					    		$available_workers[$worker->id] = $worker;
+//					    }
+//					    $tpl->assign('available_workers', $available_workers);
 					    
 	                    $tpl->display('file:' . dirname(__FILE__) . '/templates/groups/manage/members.tpl.php');
 	                    break;
@@ -3794,35 +3813,28 @@ class ChGroupsPage extends CerberusPageExtension  {
         DevblocksPlatform::redirect(new DevblocksHttpResponse(array('groups','config',$team_id,'general')));
 	}
 	
-	function addTeamMemberAction() {
+	function changeTeamMembersAction() {
 		@$team_id = DevblocksPlatform::importGPC($_REQUEST['team_id'],'integer');
-		@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_ids'],'array');
-		@$is_manager = DevblocksPlatform::importGPC($_REQUEST['is_manager'],'integer');
-
+		@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_ids'],'array',array());
+		@$worker_levels = DevblocksPlatform::importGPC($_REQUEST['worker_levels'],'array',array());
+		
 	    @$active_worker = CerberusApplication::getActiveWorker();
+	    @$members = DAO_Group::getTeamMembers($team_id);
+	    
 	    if(!$active_worker->isTeamManager($team_id))
 	    	return;
-		
-		foreach($worker_ids as $worker_id) {
-			DAO_Group::setTeamMember($team_id, $worker_id, $is_manager);
-		}
-		
-		//DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','team',$team_id,'members')));
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('groups','config',$team_id,'members')));
-	}
-	
-	function removeTeamMemberAction() {
-		@$team_id = DevblocksPlatform::importGPC($_REQUEST['team_id'],'integer');
-		@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'integer');
-
-	    @$active_worker = CerberusApplication::getActiveWorker();
-	    if(!$active_worker->isTeamManager($team_id))
-	    	return;
-		
-		DAO_Group::unsetTeamMember($team_id, $worker_id);
-		
-		//DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','team',$team_id,'members')));
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('groups','config',$team_id,'members')));
+	    
+	    if(is_array($worker_ids) && !empty($worker_ids))
+	    foreach($worker_ids as $idx => $worker_id) {
+	    	@$level = $worker_levels[$idx];
+	    	if(isset($members[$worker_id]) && empty($level)) {
+	    		DAO_Group::unsetTeamMember($team_id, $worker_id);
+	    	} elseif(!empty($level)) { // member|manager
+				 DAO_Group::setTeamMember($team_id, $worker_id, (1==$level)?false:true);
+	    	}
+	    }
+	    
+	    DevblocksPlatform::redirect(new DevblocksHttpResponse(array('groups','config',$team_id,'members')));
 	}
 	
 	function saveTeamBucketsAction() {

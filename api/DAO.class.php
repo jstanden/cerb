@@ -3142,7 +3142,7 @@ class DAO_Group {
 		$db = DevblocksPlatform::getDatabaseService();
 		$members = array();
 		
-		$sql = "SELECT wt.agent_id, wt.is_manager ".
+		$sql = "SELECT wt.agent_id, wt.team_id, wt.is_manager ".
 			"FROM worker_to_team wt ".
 			(!empty($team_id) ? sprintf("WHERE wt.team_id = %d ", $team_id) : " ")
 		;
