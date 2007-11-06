@@ -264,7 +264,8 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
     private function _handleCronHeartbeat($event) {
     	// Re-open any conversations past their 'reopen at' due time
 		$fields = array(
-			DAO_Ticket::IS_CLOSED => 0
+			DAO_Ticket::IS_CLOSED => 0,
+			DAO_Ticket::DUE_DATE => 0
 		);
 		$where = sprintf("%s = %d AND %s > 0 AND %s < %d",
 			DAO_Ticket::IS_CLOSED,
