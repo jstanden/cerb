@@ -8,8 +8,8 @@
 
 <b>Groups:</b><br>
 {foreach from=$teams item=team key=team_id}
-<label><input name="team_id[]" type="checkbox" value="{$team_id}" onclick="toggleDiv('searchGroup{$team_id}',(this.checked)?'block':'none');"><span style="font-weight:bold;color:rgb(0,120,0);">{$team->name}</span></label><br>
-<blockquote style="margin:0px;margin-left:10px;display:none;" id="searchGroup{$team_id}">
+<label><input name="team_id[]" type="checkbox" value="{$team_id}" onclick="toggleDiv('searchGroup{$id}{$team_id}',(this.checked)?'block':'none');"><span style="font-weight:bold;color:rgb(0,120,0);">{$team->name}</span></label><br>
+<blockquote style="margin:0px;margin-left:10px;display:none;" id="searchGroup{$id}{$team_id}">
 	<label><input name="bucket_id[]" type="checkbox" value="0"><span style="font-size:90%;">Inbox</span></label><br>
 	{if isset($team_categories.$team_id)}
 	{foreach from=$team_categories.$team_id item=cat}

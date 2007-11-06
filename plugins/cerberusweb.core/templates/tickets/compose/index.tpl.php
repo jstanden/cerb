@@ -26,7 +26,7 @@
 					<td width="100%">
 						<select name="team_id">
 							{foreach from=$active_worker_memberships item=membership key=group_id}
-							<option value="{$group_id}" {if $group_id==$team->id}selected{/if}">{$teams.$group_id->name}</option>
+							<option value="{$group_id}" {if $group_id==$team->id}selected{/if}>{$teams.$group_id->name}</option>
 							{/foreach}
 						</select>
 					</td>

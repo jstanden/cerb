@@ -29,7 +29,7 @@
 		<td width="100%"><input type="text" name="email" value="{$worker->email}" size="45"{if (empty($license) || empty($license.key)) && count($workers) >= 3} disabled{/if}></td>
 	</tr>
 	<tr>
-		<td width="0%" nowrap="nowrap">Password:</td>
+		<td width="0%" nowrap="nowrap">{if empty($worker->id)}<b>Password:</b>{else}Password:{/if}</td>
 		<td width="100%"><input type="password" name="password" value=""{if (empty($license) || empty($license.key)) && count($workers) >= 3} disabled{/if}></td>
 	</tr>
 	<tr>
@@ -61,7 +61,13 @@
 	<tr>
 		<td width="0%" nowrap="nowrap" valign="top"><b>Permissions:</b></td>
 		<td width="100%" valign="top">
-			<label><input type="checkbox" name="is_superuser" value="1" {if $worker->is_superuser}checked{/if}{if (empty($license) || empty($license.key)) && count($workers) >= 3} disabled{/if}> Administrator</label><br>
+			{* Superuser -- Can't remove self *}
+			{if $active_worker->id == $worker->id}
+				<input type="hidden" name="is_superuser" value="{$worker->is_superuser}">
+			{else}
+				<label><input type="checkbox" name="is_superuser" value="1" {if $worker->is_superuser}checked{/if}{if (empty($license) || empty($license.key)) && count($workers) >= 3} disabled{/if}> Administrator</label><br>
+			{/if}
+			
 			<label style="padding-left:10px;"><input type="checkbox" name="can_delete" value="1" {if $worker->can_delete}checked{/if}{if (empty($license) || empty($license.key)) && count($workers) >= 3} disabled{/if}> Can Permanently Delete Tickets</label><br>
 		</td>
 	</tr>

@@ -64,7 +64,7 @@
 <br>
 <textarea name="content" rows="20" cols="80" id="reply_content" class="reply" style="width:98%;border:1px solid rgb(180,180,180);padding:5px;">
 On {$message->created_date|date_format}, {$headers.from} wrote:
-{$message->getContent()|trim|indent:1:'> '}
+{$message->getContent()|trim|escape|indent:1:'> '}
 
 {if !empty($signature)}{$signature}{/if}
 </textarea>
@@ -101,7 +101,7 @@ On {$message->created_date|date_format}, {$headers.from} wrote:
 			<table cellpadding="2" cellspacing="0" border="0">
 				<tr>
 					<td nowrap="nowrap" valign="top" colspan="2">
-						<label><input type="checkbox" name="closed" value="1" onchange="toggleDiv('replyOpen{$message->id}',this.checked?'none':'block');toggleDiv('replyClosed{$message->id}',this.checked?'block':'none');" {if $ticket->is_closed}checked{/if}>This conversation is completed for now.</label><br>
+						<label><input type="checkbox" name="closed" value="1" onclick="toggleDiv('replyOpen{$message->id}',this.checked?'none':'block');toggleDiv('replyClosed{$message->id}',this.checked?'block':'none');" {if $ticket->is_closed}checked{/if}>This conversation is completed for now.</label><br>
 						<br>
 
 						<b>Who should handle the follow-up?</b><br>

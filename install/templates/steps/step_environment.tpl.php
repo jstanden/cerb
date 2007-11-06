@@ -28,6 +28,15 @@
 <br>
 <br>
 
+<b>PHP Extension (SPL)... </b> 
+{if !$results.ext_spl}
+	<span class="bad">Error! PHP must have the 'SPL' extension enabled.</span>
+{else}
+	<span class="good">Passed!</span>
+{/if}
+<br>
+<br>
+
 <b>PHP Extension (GD)... </b> 
 {if !$results.ext_gd}
 	<span class="bad">Error! PHP must have the 'GD' extension enabled.</span>
@@ -58,6 +67,24 @@
 <b>PHP Extension (mbstring)... </b> 
 {if !$results.ext_mbstring}
 	<span class="bad">Error! PHP must have the 'mbstring' extension enabled.</span>
+{else}
+	<span class="good">Passed!</span>
+{/if}
+<br>
+<br>
+
+<b>PHP Extension (DOM)... </b> 
+{if !$results.ext_dom}
+	<span class="bad">Error! PHP must have the 'DOM' extension enabled.</span>
+{else}
+	<span class="good">Passed!</span>
+{/if}
+<br>
+<br>
+
+<b>PHP Extension (XML)... </b> 
+{if !$results.ext_xml}
+	<span class="bad">Error! PHP must have the 'XML' extension enabled.</span>
 {else}
 	<span class="good">Passed!</span>
 {/if}

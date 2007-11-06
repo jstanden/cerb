@@ -55,7 +55,7 @@
 
 <button type="button" onclick="saveGenericAjaxPanel('replyTemplateEditForm',true,displayAjax.onSaveReplyTemplate);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_ok.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
 {if $template->id}
-<button type="button" onclick="this.form.do_delete.value='1';saveGenericAjaxPanel('replyTemplateEditForm',true,displayAjax.onSaveReplyTemplate);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_delete.gif{/devblocks_url}" align="top"> {$translate->_('common.delete')|capitalize}</button>
+<button type="button" onclick="if(confirm('Are you sure you want to permanently delete this template?')){literal}{{/literal}this.form.do_delete.value='1';saveGenericAjaxPanel('replyTemplateEditForm',true,displayAjax.onSaveReplyTemplate);{literal}}{/literal}"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_delete.gif{/devblocks_url}" align="top"> {$translate->_('common.delete')|capitalize}</button>
 {/if}
 
 </form>

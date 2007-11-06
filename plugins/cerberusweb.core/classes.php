@@ -4187,26 +4187,28 @@ class ChUpdateController extends DevblocksControllerExtension {
 			    $path = DEVBLOCKS_PATH . 'tmp' . DIRECTORY_SEPARATOR;
 				$file = $path . 'c4update_lock';	    		
 				
+			    $settings = CerberusSettings::getInstance();
+			    $authorized_ips_str = $settings->get(CerberusSettings::AUTHORIZED_IPS);
+			    $authorized_ips = CerberusApplication::parseCrlfString($authorized_ips_str);
+			    
+		   	    $authorized_ip_defaults = CerberusApplication::parseCsvString(AUTHORIZED_IPS_DEFAULTS);
+			    $authorized_ips = array_merge($authorized_ips, $authorized_ip_defaults);
+			    
+			    // Is this IP authorized?
+			    $pass = false;
+				foreach ($authorized_ips as $ip)
+				{
+					if(substr($ip,0,strlen($ip)) == substr($_SERVER['REMOTE_ADDR'],0,strlen($ip)))
+				 	{ $pass=true; break; }
+				}
+			    if(!$pass) {
+				    echo 'Your IP address ('.$_SERVER['REMOTE_ADDR'].') is not authorized to update this helpdesk.';
+				    return;
+			    }
+				
+			    // If authorized, lock and attempt update
 				if(!file_exists($file) || @filectime($file)+600 < time()) { // 10 min lock
 					touch($file);
-
-				    $settings = CerberusSettings::getInstance();
-				    $authorized_ips_str = $settings->get(CerberusSettings::AUTHORIZED_IPS);
-				    $authorized_ips = CerberusApplication::parseCrlfString($authorized_ips_str);
-				    
-			   	    $authorized_ip_defaults = CerberusApplication::parseCsvString(AUTHORIZED_IPS_DEFAULTS);
-				    $authorized_ips = array_merge($authorized_ips, $authorized_ip_defaults);
-				    
-				    $pass = false;
-					foreach ($authorized_ips as $ip)
-					{
-						if(substr($ip,0,strlen($ip)) == substr($_SERVER['REMOTE_ADDR'],0,strlen($ip)))
-					 	{ $pass=true; break; }
-					}
-				    if(!$pass) {
-					    echo 'Your IP address ('.$_SERVER['REMOTE_ADDR'].') is not authorized to update this helpdesk.';
-					    return;
-				    }
 
 				    //echo "Running plugin patches...<br>";
 				    if(DevblocksPlatform::runPluginPatches()) {

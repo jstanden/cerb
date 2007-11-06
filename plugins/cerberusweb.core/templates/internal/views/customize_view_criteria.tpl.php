@@ -1,4 +1,4 @@
-<table cellpadding="2" cellspacing="0" border="0" width="98%">
+<table cellpadding="2" cellspacing="0" border="0" width="97%">
 <tr>
 	<td width="0%" nowrap="nowrap" valign="top">
 		<div class="block" style="width:300px;">

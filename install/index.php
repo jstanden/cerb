@@ -242,6 +242,14 @@ switch($step) {
 			$fails++;
 		}
 
+		// Extension: SPL
+		if(extension_loaded("spl")) {
+			$results['ext_spl'] = true;
+		} else {
+			$results['ext_spl'] = false;
+			$fails++;
+		}
+
 		// Extension: GD
 		if(extension_loaded("gd")) {
 			$results['ext_gd'] = true;
@@ -271,6 +279,22 @@ switch($step) {
 			$results['ext_mbstring'] = true;
 		} else {
 			$results['ext_mbstring'] = false;
+			$fails++;
+		}
+		
+		// Extension: DOM
+		if(extension_loaded("dom")) {
+			$results['ext_dom'] = true;
+		} else {
+			$results['ext_dom'] = false;
+			$fails++;
+		}
+		
+		// Extension: XML
+		if(extension_loaded("xml")) {
+			$results['ext_xml'] = true;
+		} else {
+			$results['ext_xml'] = false;
 			$fails++;
 		}
 		

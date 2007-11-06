@@ -104,6 +104,14 @@ if(extension_loaded("mbstring")) {
 	$fails++;
 }
 
+// Extension: XML
+if(extension_loaded("xml")) {
+	$results['ext_xml'] = true;
+} else {
+	$results['ext_xml'] = false;
+	$fails++;
+}
+
 // Extension: SimpleXML
 if(extension_loaded("simplexml")) {
 	$results['ext_simplexml'] = true;
@@ -140,6 +148,10 @@ enable it.</li>";
 		echo "<li>The 'PCRE' PHP extension is required.  Please enable
 it.</li>";
 		
+	if(!$results['ext_spl'])
+		echo "<li>The 'SPL' PHP extension is required.  Please enable
+it.</li>";
+		
 	if(!$results['ext_gd'])
 		echo "<li>The 'GD' PHP extension is required.  Please enable
 it.</li>";
@@ -156,7 +168,15 @@ enable it.</li>";
 		echo "<li>The 'MbString' PHP extension is required.  Please
 enable it.</li>";
 		
-	if(!$results['ext_simplexml'])
+	if(!$results['ext_xml'])
+		echo "<li>The 'XML' PHP extension is required.  Please
+enable it.</li>";
+		
+	if(!$results['ext_dom'])
+		echo "<li>The 'DOM' PHP extension is required.  Please
+enable it.</li>";
+		
+		if(!$results['ext_simplexml'])
 		echo "<li>The 'SimpleXML' PHP extension is required.  Please
 enable it.</li>";
 		
