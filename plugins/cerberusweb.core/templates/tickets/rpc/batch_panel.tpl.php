@@ -92,11 +92,11 @@
 </div>
 
 <div id="bulkUpdateLearn" style="display:{if empty($ticket_ids)}none{else}block{/if};">
-{if !empty($team_id)}
+{*
 <H2>And in the future:</H2>
-<label><input type="checkbox" name="always_do_for_team" value="{$team_id}"> Do this with all mail entering group inbox</label><br>
+<label><input type="checkbox" name="always" value="1"> Do this with mail in selected groups</label><br>
 <br>
-{/if}
+*}
 </div>
 
 <button type="button" onclick="ajax.saveBatchPanel('{$view_id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>

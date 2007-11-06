@@ -1441,9 +1441,7 @@ class ChTicketsPage extends CerberusPageExtension {
                 $doData = array($val);
             }
             
-            $doAlways = ($always && $dashboard_team_id) ? $dashboard_team_id : 0;
-
-            $view->doBulkUpdate($doType, $doTypeParam, $doData, $doActions, array(), $doAlways);
+            $view->doBulkUpdate($doType, $doTypeParam, $doData, $doActions, array(), $always);
 	    }
 
 	    // Reset the paging since we may have reduced our list size
@@ -1849,7 +1847,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	    @$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
 	    @$senders = DevblocksPlatform::importGPC($_REQUEST['senders'],'string','');
 	    @$subjects = DevblocksPlatform::importGPC($_REQUEST['subjects'],'string','');
-	    @$always_do_for_team = DevblocksPlatform::importGPC($_REQUEST['always_do_for_team'],'integer',0);
+	    @$always = DevblocksPlatform::importGPC($_REQUEST['always'],'integer',0);
 	    
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		$view = C4_AbstractViewLoader::getView('',$view_id);
@@ -1879,8 +1877,9 @@ class ChTicketsPage extends CerberusPageExtension {
 	        $data = $senders;
 	    elseif($filter == 'subject')
 	        $data = $subjects;
-			
-		$view->doBulkUpdate($filter, '', $data, $do, $ticket_ids, $always_do_for_team);
+		
+	    // [TODO] Reimplement 'always'
+		$view->doBulkUpdate($filter, '', $data, $do, $ticket_ids, $always);
 		
 		$view->render();
 		return;

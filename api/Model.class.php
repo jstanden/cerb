@@ -704,7 +704,7 @@ class C4_TicketView extends C4_AbstractView {
 	 * @return boolean
 	 * [TODO] Find a better home for this?
 	 */
-	function doBulkUpdate($filter, $filter_param, $data, $do, $ticket_ids=array(), $always_do_for_team_id=0) {
+	function doBulkUpdate($filter, $filter_param, $data, $do, $ticket_ids=array(), $always=0) {
 	    @set_time_limit(600); // [TODO] Temp!
 	    
 		$action = new Model_DashboardViewAction();
@@ -732,6 +732,7 @@ class C4_TicketView extends C4_AbstractView {
 		        foreach($data as $v) {
 		        	$new_params = array();
 		        	$do_header = null;
+		        	$unique_groups = array();
 		        	
 					switch($filter) {
 					    case 'subject':
@@ -765,7 +766,7 @@ class C4_TicketView extends C4_AbstractView {
 				        do {
 					        list($tickets,$null) = DAO_Ticket::search(
 					            $new_params,
-					            500,
+					            100,
 					            $pg++,
 					            SearchFields_Ticket::TICKET_ID,
 					            true,
@@ -774,28 +775,37 @@ class C4_TicketView extends C4_AbstractView {
 					        
 					        $ticket_ids = array_merge($ticket_ids, array_keys($tickets));
 					        
+					        // Creating a rule?
+							if($always) {
+								foreach($tickets as $t) {
+									@$unique_groups[$t[SearchFields_Ticket::TEAM_ID]] = intval($unique_groups[$t[SearchFields_Ticket::TEAM_ID]]) + 1;
+								}
+							}
+					        
 				        } while(!empty($tickets));
 		        	}
 			        
 			        // [TODO] Allow rule creation on headers
 			        
 			        // Did we want to save this and repeat it in the future?
-				    if($always_do_for_team_id && !empty($do_header)) {
-					  $fields = array(
-					      DAO_TeamRoutingRule::HEADER => $do_header,
-					      DAO_TeamRoutingRule::PATTERN => $v,
-					      DAO_TeamRoutingRule::TEAM_ID => $always_do_for_team_id,
-					      DAO_TeamRoutingRule::POS => count($ticket_ids),
-					      DAO_TeamRoutingRule::DO_MOVE => $do['team'],
-					      DAO_TeamRoutingRule::DO_SPAM => $do['spam'],
-					      DAO_TeamRoutingRule::DO_STATUS => $do['closed'],
-					  );
-					  DAO_TeamRoutingRule::create($fields);
+				    if($always && !empty($do_header) && !empty($unique_groups)) {
+				    	foreach($unique_groups as $unique_group_id => $unique_group_hits) {
+							$fields = array(
+							    DAO_TeamRoutingRule::HEADER => $do_header,
+							    DAO_TeamRoutingRule::PATTERN => $v,
+							    DAO_TeamRoutingRule::TEAM_ID => $unique_group_id,
+							    DAO_TeamRoutingRule::POS => $unique_group_hits,
+							    DAO_TeamRoutingRule::DO_MOVE => @$do['team'],
+							    DAO_TeamRoutingRule::DO_SPAM => @$do['spam'],
+							    DAO_TeamRoutingRule::DO_STATUS => @$do['closed'],
+							);
+							DAO_TeamRoutingRule::create($fields);
+				    	}
 					}
 					
 			        $batch_total = count($ticket_ids);
-			        for($x=0;$x<=$batch_total;$x+=500) {
-			            $batch_ids = array_slice($ticket_ids,$x,500);
+			        for($x=0;$x<=$batch_total;$x+=200) {
+			            $batch_ids = array_slice($ticket_ids,$x,200);
 	                    $action->run($batch_ids);
 			            unset($batch_ids);
 			        }

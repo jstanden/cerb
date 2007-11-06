@@ -66,7 +66,7 @@ Sort biggest piles by:
 	{foreach from=$stats[3] item=sender key=sender_hash}
 	<tr>
 		<td width="0%" nowrap="nowrap" align="center">
-			<input type="checkbox" name="piles_always[]" value="{$hash}">
+			<input type="checkbox" name="piles_always[]" value="{$sender_hash}">
 		</td>
 		<td width="0%" nowrap="nowrap">
 			<select name="piles_moveto[]">
