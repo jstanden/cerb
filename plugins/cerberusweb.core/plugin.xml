@@ -41,6 +41,9 @@
 			<param key="message_id" />
 			<param key="worker_id" />
 		</event>
+		<event id="cron.heartbeat">
+			<name>Heartbeat</name>
+		</event>
 	</event_points>
 
 	<extensions>
@@ -372,6 +375,17 @@
 			<class>
 				<file>cron.classes.php</file>
 				<name>MaintCron</name>
+			</class>
+			<params>
+			</params>
+		</extension>		
+		
+		<extension point="cerberusweb.cron">
+			<id>cron.heartbeat</id>
+			<name>Heartbeat</name>
+			<class>
+				<file>cron.classes.php</file>
+				<name>HeartbeatCron</name>
 			</class>
 			<params>
 			</params>

@@ -51,6 +51,27 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 		
 		$sender = DAO_Address::get($message->address_id);
 
+		$sender_email = strtolower($sender->email);
+		$sender_split = explode('@', $sender_email);
+
+		if(!is_array($sender_split) || count($sender_split) != 2)
+			return;
+
+		// If return-path is blank
+		if(isset($headers['return-path']) && $headers['return-path'] == '<>')
+			return;
+			
+		// Ignore bounces
+		if($sender_split[1]=="postmaster" || $sender_split[1] == "mailer-daemon")
+			return;
+		
+		// Ignore autoresponses autoresponses
+		if(isset($headers['auto-submitted']) && $headers['auto-submitted'] != 'no')
+			return;
+			
+		// Headers
+		//==========
+
 		$send_to = array();
 		
 		@$notifications = DAO_WorkerMailForward::getWhere(sprintf("%s = %d",

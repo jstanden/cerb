@@ -255,12 +255,27 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 	            $this->_handleTicketMoved($event);
                 break;
 
-            case 'ticket.assigned': // [TODO] Const
-             
-            break;
+            case 'cron.heartbeat':
+            	$this->_handleCronHeartbeat($event);
+	            break;
         }
     }
 
+    private function _handleCronHeartbeat($event) {
+    	// Re-open any conversations past their 'reopen at' due time
+		$fields = array(
+			DAO_Ticket::IS_CLOSED => 0
+		);
+		$where = sprintf("%s = %d AND %s > 0 AND %s < %d",
+			DAO_Ticket::IS_CLOSED,
+			CerberusTicketStatus::CLOSED,
+			DAO_Ticket::DUE_DATE,
+			DAO_Ticket::DUE_DATE,
+			time()
+		);
+		DAO_Ticket::updateWhere($fields, $where);
+    }
+    
     private function _handleTicketMoved($event) {
         @$ticket_ids = $event->params['ticket_ids'];
         @$changed_fields = $event->params['changed_fields'];

@@ -329,6 +329,7 @@ class Model_Address {
 	public $contact_org_id;
 	public $sla_id;
 	public $sla_expires;
+	public $last_autoreply;
 	
 	function Model_Address() {}
 };

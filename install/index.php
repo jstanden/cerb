@@ -909,6 +909,12 @@ switch($step) {
 					$cron->setParam(CerberusCronPageExtension::PARAM_TERM, 'h');
 					$cron->setParam(CerberusCronPageExtension::PARAM_LASTRUN, strtotime('Yesterday'));
 					break;
+				case 'cron.heartbeat':
+					$cron->setParam(CerberusCronPageExtension::PARAM_ENABLED, true);
+					$cron->setParam(CerberusCronPageExtension::PARAM_DURATION, '5');
+					$cron->setParam(CerberusCronPageExtension::PARAM_TERM, 'm');
+					$cron->setParam(CerberusCronPageExtension::PARAM_LASTRUN, strtotime('Yesterday'));
+					break;
 			}
 			
 		}

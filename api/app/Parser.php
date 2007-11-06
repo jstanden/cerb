@@ -421,8 +421,10 @@ class CerberusParser {
 	                            ));
 	                            break;
 				            case 2: // move
-	                            // [TODO] Verify destination bucket exists
-	                            if(!empty($spam_action_param) && !empty($spam_action_param)) {
+								$buckets = DAO_Bucket::getAll();
+								
+								// Verify bucket exists
+	                            if(!empty($spam_action_param) && isset($buckets[$spam_action_param])) {
 		                            DAO_Ticket::updateTicket($id,array(
 		                                DAO_Ticket::TEAM_ID => $team_id,
 		                                DAO_Ticket::CATEGORY_ID => $spam_action_param
@@ -455,6 +457,7 @@ class CerberusParser {
 				        	array($sMask, $sSubject, $fromAddress),
 				        	$autoreply
 						),
+						'is_autoreply' => true,
 						'dont_keep_copy' => true
 					));
 			}

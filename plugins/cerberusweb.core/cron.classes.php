@@ -269,6 +269,22 @@ class MaintCron extends CerberusCronPageExtension {
     		}
 	    }
 	    
+		// Recover any tickets assigned to a NULL bucket
+		$sql = "SELECT DISTINCT t.category_id as id ".
+			"FROM ticket t ".
+			"LEFT JOIN category c ON (t.category_id=c.id) ".
+			"WHERE c.id IS NULL AND t.category_id > 0";
+		$rs = $db->Execute($sql);
+		
+		while(!$rs->EOF) {
+			$sql = sprintf("UPDATE ticket SET category_id = 0 WHERE category_id = %d",
+				$rs->fields['id']
+			);
+			$db->Execute($sql);
+			$rs->MoveNext();
+		}
+
+	    
 	    // Optimize/Vaccuum
 	    // [TODO] Make this configurable from job
 	    $perf = NewPerfMonitor($db); 
@@ -282,6 +298,34 @@ class MaintCron extends CerberusCronPageExtension {
 		$tpl->assign('path', $tpl_path);
         
 		$tpl->display($tpl_path . 'cron/maint/config.tpl.php');
+    }
+};
+
+/**
+ * Plugins can implement an event listener on the heartbeat to do any kind of 
+ * time-dependent or interval-based events.  For example, doing a workflow 
+ * action every 5 minutes.
+ */
+class HeartbeatCron extends CerberusCronPageExtension {
+    function run() {
+		// Heartbeat Event
+	    $eventMgr = DevblocksPlatform::getEventService();
+	    $eventMgr->trigger(
+	        new Model_DevblocksEvent(
+	            'cron.heartbeat',
+                array(
+                )
+            )
+	    );
+    }
+    
+    function configure($instance) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl_path = dirname(__FILE__) . '/templates/';
+		$tpl->assign('path', $tpl_path);
+        
+		$tpl->display($tpl_path . 'cron/heartbeat/config.tpl.php');
     }
 };
 

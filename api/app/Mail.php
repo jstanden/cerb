@@ -75,7 +75,7 @@ class CerberusMail {
 		
 		return true;
 	}
-	
+
 	static function sendTicketMessage($properties=array()) {
 	    $settings = CerberusSettings::getInstance();
 		@$from_addy = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM, $_SERVER['SERVER_ADMIN']);
@@ -96,6 +96,7 @@ class CerberusMail {
 	    'next_action'
 	    'bucket_id'
 	    'agent_id',
+		'is_autoreply',
 		'dont_save_copy'
 		*/
 
@@ -110,8 +111,6 @@ class CerberusMail {
 	    @$files = $properties['files'];
 	    @$worker_id = $properties['agent_id'];
 	    @$subject = $properties['subject'];
-	    
-//	    $files = $mail_service->persistTempFiles($files);
 	    
 		$message = DAO_Ticket::getMessage($message_id);
         $message_headers = DAO_MessageHeader::getAll($message_id);		
@@ -137,10 +136,90 @@ class CerberusMail {
 		$mail->generateId();
 		$mail->headers->set('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
 		
+		$sendTo = new Swift_RecipientList();
+		
 		// References
 		if(!empty($message) && false !== (@$in_reply_to = $message_headers['message-id'])) {
 		    $mail->headers->set('References', $in_reply_to);
 		    $mail->headers->set('In-Reply-To', $in_reply_to);
+		}
+
+		// Auto-reply handling (RFC-3834 compliant)
+		if(isset($properties['is_autoreply']) && $properties['is_autoreply']) {
+			$mail->headers->set('Auto-Submitted','auto-replied');
+			
+			if(null == ($first_address = DAO_Address::get($ticket->first_wrote_address_id)))
+				return;
+
+			// Make sure we haven't mailed this address an autoreply within 10 minutes
+			if($first_address->last_autoreply > 0 && $first_address->last_autoreply > time()-600) {
+				return;
+			}
+				
+			$first_email = strtolower($first_address->email);
+			$first_split = explode('@', $first_email);
+	
+			if(!is_array($first_split) || count($first_split) != 2)
+				return;
+	
+			// If return-path is blank
+			if(isset($message_headers['return-path']) && $message_headers['return-path'] == '<>')
+				return;
+				
+			// Ignore bounces
+			if($first_split[1]=="postmaster" || $first_split[1] == "mailer-daemon")
+				return;
+			
+			// Ignore autoresponses to autoresponses
+			if(isset($message_headers['auto-submitted']) && $message_headers['auto-submitted'] != 'no')
+				return;
+				
+			if(isset($message_headers['precedence']) && 
+				($message_headers['precedence']=='list' || $message_headers['precedence'] == 'junk' || $message_headers['precedence'] = 'bulk'))
+				return;
+				
+			// Set the auto-reply date for this address to right now
+			DAO_Address::update($ticket->first_wrote_address_id, array(
+				DAO_Address::LAST_AUTOREPLY => time()
+			));
+			
+			// Auto-reply just to the initial requester
+			$sendTo->addTo($first_address->email);
+			$mail->setTo($first_address->email);
+			
+		// Not an auto-reply
+		} else {
+		    // Recepients
+			$to = array();
+			$requesters = DAO_Ticket::getRequestersByTicket($ticket_id);
+		    if(is_array($requesters)) {
+			    foreach($requesters as $requester) { /* @var $requester Model_Address */
+					$to[] = new Swift_Address($requester->email);
+					$sendTo->addTo($requester->email);
+			    }
+		    }
+		    $mail->setTo($to);
+	
+		    // Ccs
+		    if(!empty($properties['cc'])) {
+			    $ccs = array();
+			    $aCc = CerberusApplication::parseCsvString($properties['cc']);
+			    foreach($aCc as $addy) {
+			    	$sendTo->addCc($addy);
+			    	$ccs[] = new Swift_Address($addy);
+			    }
+			    if(!empty($ccs))
+			    	$mail->setCc($ccs);
+		    }
+		    
+		    // Bccs
+		    if(!empty($properties['bcc'])) {
+			    $bccs = array();
+			    $aBcc = CerberusApplication::parseCsvString($properties['bcc']);
+			    foreach($aBcc as $addy) {
+			    	$sendTo->addBcc($addy);
+			    }
+		    }
 		}
 		
 		/*
@@ -160,43 +239,6 @@ class CerberusMail {
 		// Body
 		$mail->attach(new Swift_Message_Part($content));
 
-		$sendTo = new Swift_RecipientList();
-		
-	    // Recepients
-		$to = array();
-		$requesters = DAO_Ticket::getRequestersByTicket($ticket_id);
-	    if(is_array($requesters)) {
-		    foreach($requesters as $requester) { /* @var $requester Model_Address */
-				$to[] = new Swift_Address($requester->email);
-				$sendTo->addTo($requester->email);
-		    }
-	    }
-	    $mail->setTo($to);
-
-	    // Ccs
-	    if(!empty($properties['cc'])) {
-		    $ccs = array();
-		    $aCc = CerberusApplication::parseCsvString($properties['cc']);
-		    foreach($aCc as $addy) {
-		    	$sendTo->addCc($addy);
-		    	$ccs[] = new Swift_Address($addy);
-		    }
-		    if(!empty($ccs))
-		    	$mail->setCc($ccs);
-	    }
-	    
-	    // Bccs
-	    if(!empty($properties['bcc'])) {
-		    $bccs = array();
-		    $aBcc = CerberusApplication::parseCsvString($properties['bcc']);
-		    foreach($aBcc as $addy) {
-		    	$sendTo->addBcc($addy);
-//		    	$bccs[] = new Swift_Address($addy);
-		    }
-//		    if(!empty($bccs))
-//		    	$mail->setBcc($bccs);
-	    }
-	    
 		// Mime Attachments
 		if (is_array($files) && !empty($files)) {
 			foreach ($files['tmp_name'] as $idx => $file) {
@@ -220,7 +262,8 @@ class CerberusMail {
 		$fromAddressInst = CerberusApplication::hashLookupAddress($from_addy, true);
 		$fromAddressId = $fromAddressInst->id;
 		
-		if(empty($properties['dont_keep_copy']) || !$properties['dont_keep_copy']) {
+		if((!isset($properties['dont_keep_copy']) || !$properties['dont_keep_copy'])
+			&& (!isset($properties['is_autoreply']) || !$properties['is_autoreply'])) {
 			$change_fields[DAO_Ticket::LAST_WROTE_ID] = $fromAddressId;
 			$change_fields[DAO_Ticket::UPDATED_DATE] = time();
 			

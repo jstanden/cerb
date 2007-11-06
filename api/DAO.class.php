@@ -867,6 +867,7 @@ class DAO_Address extends DevblocksORMHelper {
 	const CONTACT_ORG_ID = 'contact_org_id';
 	const SLA_ID = 'sla_id';
 	const SLA_EXPIRES = 'sla_expires';
+	const LAST_AUTOREPLY = 'last_autoreply';
 	
 	private function __construct() {}
 	
@@ -879,6 +880,7 @@ class DAO_Address extends DevblocksORMHelper {
 			'last_name' => $translate->_('address.last_name'),
 			'contact_org_id' => $translate->_('address.contact_org_id'),
 			'sla_id' => $translate->_('sla.name'),
+//			'last_autoreply' => $translate->_('sla.name'),
 		);
 	}
 	
@@ -912,8 +914,8 @@ class DAO_Address extends DevblocksORMHelper {
 		if(empty($address->host) || $address->host == 'host')
 			return NULL;
 		
-		$sql = sprintf("INSERT INTO address (id,email,first_name,last_name,contact_org_id) ".
-			"VALUES (%d,%s,'','',0)",
+		$sql = sprintf("INSERT INTO address (id,email,first_name,last_name,contact_org_id,last_autoreply) ".
+			"VALUES (%d,%s,'','',0,0)",
 			$id,
 			$db->qstr(trim(strtolower($address->mailbox.'@'.$address->host)))
 		);
@@ -951,7 +953,7 @@ class DAO_Address extends DevblocksORMHelper {
 		
 		$addresses = array();
 		
-		$sql = sprintf("SELECT a.id, a.email, a.first_name, a.last_name, a.contact_org_id, a.sla_id, a.sla_expires ".
+		$sql = sprintf("SELECT a.id, a.email, a.first_name, a.last_name, a.contact_org_id, a.sla_id, a.sla_expires, a.last_autoreply ".
 			"FROM address a ".
 			((!empty($where)) ? "WHERE %s " : " ").
 			"ORDER BY a.email ",
@@ -968,6 +970,7 @@ class DAO_Address extends DevblocksORMHelper {
 			$address->contact_org_id = intval($rs->fields['contact_org_id']);
 			$address->sla_id = intval($rs->fields['sla_id']);
 			$address->sla_expires = intval($rs->fields['sla_expires']);
+			$address->last_autoreply = intval($rs->fields['last_autoreply']);
 			$addresses[$address->id] = $address;
 			$rs->MoveNext();
 		}
@@ -3372,6 +3375,11 @@ class DAO_Bucket extends DevblocksORMHelper {
 		// Reset any tickets using this category
 		$sql = sprintf("UPDATE ticket SET category_id = 0 WHERE category_id IN (%s)", implode(',',$ids));
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+
+		// Team Routing Rules
+		foreach($ids as $id) {
+			DAO_TeamRoutingRule::deleteByMoveCodes(array('c'.$id));
+		}
 		
 		// Clear any view's move counts involving this bucket for all workers
 		DAO_WorkerPref::clearMoveCounts($ids);
@@ -3940,18 +3948,20 @@ class DAO_WorkerPref extends DevblocksORMHelper {
 	static function clearMoveCounts($category_ids) {
 		if(!is_array($category_ids)) $category_ids = array($category_ids);
 		
-		$worker_prefs = self::getAll();
-		foreach($worker_prefs AS $worker_pref) {
-			$move_counts_const = 'team_move_counts';
-			// Make sure this worker pref is a move count
-			if(substr($worker_pref->setting, 0, strlen($move_counts_const)) == $move_counts_const) {
-				$moveCounts = unserialize($worker_pref->value);
-				foreach($category_ids as $id) {
-					if(isset($moveCounts['c'.$id])) {
-						unset($moveCounts['c'.$id]);
+		$prefs = self::getAll();
+		foreach($prefs as $worker_id => $worker_prefs) {
+			foreach($worker_prefs as $worker_pref) {
+				$move_counts_const = 'team_move_counts';
+				// Make sure this worker pref is a move count
+				if(substr($worker_pref->setting, 0, strlen($move_counts_const)) == $move_counts_const) {
+					$moveCounts = unserialize($worker_pref->value);
+					foreach($category_ids as $id) {
+						if(isset($moveCounts['c'.$id])) {
+							unset($moveCounts['c'.$id]);
+						}
 					}
+					self::set($worker_pref->worker_id, $worker_pref->setting, serialize($moveCounts));
 				}
-				self::set($worker_pref->worker_id, $worker_pref->setting, serialize($moveCounts));
 			}
 		}
 		

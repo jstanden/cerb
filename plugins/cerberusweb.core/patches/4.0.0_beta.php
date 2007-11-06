@@ -93,6 +93,11 @@ if(!isset($columns['SLA_EXPIRES'])) {
     $datadict->ExecuteSQLArray($sql);
 }
 
+if(!isset($columns['LAST_AUTOREPLY'])) {
+    $sql = $datadict->AddColumnSQL('address', "last_autoreply I4 DEFAULT 0 NOTNULL");
+    $datadict->ExecuteSQLArray($sql);
+}
+
 if(!isset($indexes['email'])) {
     $sql = $datadict->CreateIndexSQL('email','address','email',array('UNIQUE'));
     $datadict->ExecuteSQLArray($sql);
@@ -105,6 +110,11 @@ if(!isset($indexes['contact_org_id'])) {
 
 if(!isset($indexes['sla_id'])) {
     $sql = $datadict->CreateIndexSQL('sla_id','address','sla_id');
+    $datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($indexes['last_autoreply'])) {
+    $sql = $datadict->CreateIndexSQL('last_autoreply','address','last_autoreply');
     $datadict->ExecuteSQLArray($sql);
 }
 
@@ -685,17 +695,46 @@ if(!isset($tables['tag'])) {
 }
 
 // Recover any tickets assigned to a NULL bucket
-$sql = "SELECT t.id as id ".
+$sql = "SELECT DISTINCT t.category_id as id ".
 	"FROM ticket t ".
 	"LEFT JOIN category c ON (t.category_id=c.id) ".
 	"WHERE c.id IS NULL AND t.category_id > 0";
 $rs = $db->Execute($sql);
 
 while(!$rs->EOF) {
-	$sql = sprintf("UPDATE ticket SET category_id = 0 WHERE id = %d",
+	$sql = sprintf("UPDATE ticket SET category_id = 0 WHERE category_id = %d",
 		$rs->fields['id']
 	);
+	$db->Execute($sql);
 	$rs->MoveNext();
+}
+
+// Remove any bad routing rules (null bucket)
+$buckets = DAO_Bucket::getAll();
+$rules = DAO_TeamRoutingRule::getList();
+
+if(is_array($rules) && !empty($rules))
+foreach($rules as $rule_id => $rule) {
+	if(empty($rule->do_move))
+		continue;
+	
+	// If bucket move
+	if(substr($rule->do_move,0,1)=='c') {
+		$id = intval(substr($rule->do_move,1));
+		// If invalid bucket
+		if(!isset($buckets[$id]))
+			DAO_TeamRoutingRule::delete($rule_id);
+	}
+}
+
+// Enable heartbeat cron
+if(null != ($cron_mf = DevblocksPlatform::getExtension('cron.heartbeat'))) {
+	if(null != ($cron = $cron_mf->createInstance())) {
+		$cron->setParam(CerberusCronPageExtension::PARAM_ENABLED, true);
+		$cron->setParam(CerberusCronPageExtension::PARAM_DURATION, '5');
+		$cron->setParam(CerberusCronPageExtension::PARAM_TERM, 'm');
+		$cron->setParam(CerberusCronPageExtension::PARAM_LASTRUN, strtotime('Yesterday'));
+	}
 }
 
 return TRUE;

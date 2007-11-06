@@ -514,6 +514,7 @@ class ChTicketsPage extends CerberusPageExtension {
 						SearchFields_Ticket::TEAM_NAME,
 						SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
 						SearchFields_Ticket::TICKET_SLA_PRIORITY,
+						SearchFields_Ticket::TICKET_SPAM_SCORE,
 						);
 					$overView->params = array(
 					);
@@ -561,9 +562,6 @@ class ChTicketsPage extends CerberusPageExtension {
 							}
 						}
 
-						$overView->renderSortBy = SearchFields_Ticket::TICKET_SLA_PRIORITY;
-						$overView->renderSortAsc = 0;
-						
 						break;
 						
 					case 'worker':
@@ -586,9 +584,6 @@ class ChTicketsPage extends CerberusPageExtension {
 							}
 						}
 						
-						$overView->renderSortBy = SearchFields_Ticket::TICKET_SLA_PRIORITY;
-						$overView->renderSortAsc = 0;
-						
 						break;
 						
 					case 'sla':
@@ -606,9 +601,6 @@ class ChTicketsPage extends CerberusPageExtension {
 							$overView->params[SearchFields_Ticket::TICKET_SLA_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_SLA_ID,'=',$filter_sla_id);
 						}
 						
-						$overView->renderSortBy = SearchFields_Ticket::TICKET_UPDATED_DATE;
-						$overView->renderSortAsc = 0;
-						
 						break;
 						
 					default:
@@ -619,9 +611,6 @@ class ChTicketsPage extends CerberusPageExtension {
 							SearchFields_Ticket::TICKET_SPAM_SCORE => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_SPAM_SCORE,'<=','0.9000'),
 							SearchFields_Ticket::TEAM_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'in',array_keys($memberships)),
 						);
-						
-						$overView->renderSortBy = SearchFields_Ticket::TICKET_SLA_PRIORITY;
-						$overView->renderSortAsc = 0;
 						
 						break;
 				}
@@ -3857,8 +3846,8 @@ class ChGroupsPage extends CerberusPageExtension  {
 	    // Updates
 	    $cats = DAO_Bucket::getList($ids);
 	    foreach($ids as $idx => $id) {
-	        $cat = $cats[$id];
-	        if(0 != strcasecmp($cat->name,$names[$idx])) {
+	        @$cat = $cats[$id];
+	        if(is_object($cat) && 0 != strcasecmp($cat->name,$names[$idx])) {
 	            DAO_Bucket::update($id, $names[$idx]);
 	        }
 	    }
