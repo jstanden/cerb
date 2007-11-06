@@ -47,6 +47,8 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 		$default_from = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM, '');
 		$default_personal = $settings->get(CerberusSettings::DEFAULT_REPLY_PERSONAL, '');
 		
+//		$group_settings = DAO_GroupSettings::getSettings(); // Cache
+		
 		$sender = DAO_Address::get($message->address_id);
 
 		$send_to = array();

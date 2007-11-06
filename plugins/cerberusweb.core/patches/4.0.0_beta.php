@@ -684,6 +684,19 @@ if(!isset($tables['tag'])) {
     $datadict->ExecuteSQLArray($sql);
 }
 
+// Recover any tickets assigned to a NULL bucket
+$sql = "SELECT t.id as id ".
+	"FROM ticket t ".
+	"LEFT JOIN category c ON (t.category_id=c.id) ".
+	"WHERE c.id IS NULL AND t.category_id > 0";
+$rs = $db->Execute($sql);
+
+while(!$rs->EOF) {
+	$sql = sprintf("UPDATE ticket SET category_id = 0 WHERE id = %d",
+		$rs->fields['id']
+	);
+	$rs->MoveNext();
+}
 
 return TRUE;
 ?>

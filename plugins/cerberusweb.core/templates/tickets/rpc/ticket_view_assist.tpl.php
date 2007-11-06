@@ -10,7 +10,6 @@ Sort biggest piles by:
 <br>
 
 {if !empty($biggest)}
-
 <div id="{$view_id}_piles" style="display:{if empty($tips)}block{else}none{/if};">
 <table cellspacing="0" cellpadding="2" border="0" width="100%">
 <tr>
@@ -33,9 +32,14 @@ Sort biggest piles by:
 	<td width="0%" nowrap="nowrap">
 		<select name="piles_moveto[]">
 			<option value=""></option>
+			<optgroup label="Move to Group" style="color:rgb(0,150,0);font-weight:bold;">
+				{foreach from=$teams item=team}
+					<option value="t{$team->id}">{$team->name}</option>
+				{/foreach}
+			</optgroup>
 			{foreach from=$team_categories item=team_category_list key=teamId}
 				{assign var=team value=$teams.$teamId}
-				{if $dashboard_team_id == $teamId}
+				{if isset($active_worker_memberships.$teamId)}
 					<optgroup label="-- {$team->name} --">
 					{foreach from=$team_category_list item=category}
 						<option value="c{$category->id}">{$category->name}</option>
@@ -43,11 +47,6 @@ Sort biggest piles by:
 					</optgroup>
 				{/if}
 			{/foreach}
-			<optgroup label="Move to Group" style="color:rgb(0,150,0);font-weight:bold;">
-				{foreach from=$teams item=team}
-					<option value="t{$team->id}">{$team->name}</option>
-				{/foreach}
-			</optgroup>
 			<optgroup label="Actions" style="color:rgb(150,0,0);font-weight:bold;">
 				<option value="ac">Close</option>
 				<option value="as">Report Spam</option>
@@ -72,9 +71,14 @@ Sort biggest piles by:
 		<td width="0%" nowrap="nowrap">
 			<select name="piles_moveto[]">
 				<option value=""></option>
+				<optgroup label="Move to Group" style="color:rgb(0,150,0);font-weight:bold;">
+					{foreach from=$teams item=team}
+						<option value="t{$team->id}">{$team->name}</option>
+					{/foreach}
+				</optgroup>
 				{foreach from=$team_categories item=team_category_list key=teamId}
 					{assign var=team value=$teams.$teamId}
-					{if $dashboard_team_id == $teamId}
+					{if isset($active_worker_memberships.$teamId)}
 						<optgroup label="-- {$team->name} --">
 						{foreach from=$team_category_list item=category}
 							<option value="c{$category->id}">{$category->name}</option>
@@ -82,11 +86,6 @@ Sort biggest piles by:
 						</optgroup>
 					{/if}
 				{/foreach}
-				<optgroup label="Move to Group" style="color:rgb(0,150,0);font-weight:bold;">
-					{foreach from=$teams item=team}
-						<option value="t{$team->id}">{$team->name}</option>
-					{/foreach}
-				</optgroup>
 				<optgroup label="Actions" style="color:rgb(150,0,0);font-weight:bold;">
 					<option value="ac">Close</option>
 					<option value="as">Report Spam</option>

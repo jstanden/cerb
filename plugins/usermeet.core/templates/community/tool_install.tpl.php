@@ -21,7 +21,7 @@ define('REMOTE_URI', '{$path}'); // NO trailing slash!
 define('URL_REWRITE', file_exists('.htaccess'));
 define('LOCAL_HOST', $_SERVER['HTTP_HOST']);
 define('LOCAL_BASE', DevblocksRouter::getLocalBase()); // NO trailing slash!
-define('SCRIPT_LAST_MODIFY', 2007091502); // last change
+define('SCRIPT_LAST_MODIFY', 2007110501); // last change
 
 @session_start();
 
@@ -88,6 +88,18 @@ class DevblocksProxy {
     function _generateMimeBoundary() {
     	return md5(rand(0,10000).time().microtime());
     }
+
+	function _isSSL() {
+		if(@$_SERVER["HTTPS"] == "on"){
+			return true;
+		} elseif (@$_SERVER["HTTPS"] == 1){
+			return true;
+		} elseif (@$_SERVER['SERVER_PORT'] == 443) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 
     /**
      * @return string
@@ -170,6 +182,7 @@ class DevblocksProxy_Socket extends DevblocksProxy {
             $out = "GET " . $remote_uri . $local_path . " HTTP/1.1\r\n";
             $out .= "Host: $remote_host\r\n";
             $out .= 'Via: 1.1 ' . LOCAL_HOST . "\r\n";
+            if($this->_isSSL()) $out .= 'DevblocksProxySSL: ' . '1' . "\r\n";
             $out .= 'DevblocksProxyHost: ' . LOCAL_HOST . "\r\n";
             $out .= 'DevblocksProxyBase: ' . LOCAL_BASE . "\r\n";
             $out .= 'Cookie: GroupLoginPassport=' . urlencode(serialize($this->_getFingerprint())) . ';' . "\r\n";
@@ -188,6 +201,7 @@ class DevblocksProxy_Socket extends DevblocksProxy {
             $out = "POST " . $remote_uri . $local_path . " HTTP/1.1\r\n";
             $out .= "Host: $remote_host\r\n";
             $out .= 'Via: 1.1 ' . LOCAL_HOST . "\r\n";
+            if($this->_isSSL()) $out .= 'DevblocksProxySSL: ' . '1' . "\r\n";
             $out .= 'DevblocksProxyHost: ' . LOCAL_HOST . "\r\n";
             $out .= 'DevblocksProxyBase: ' . LOCAL_BASE . "\r\n";
             $out .= 'Cookie: GroupLoginPassport=' . urlencode(serialize($this->_getFingerprint())) . ';' . "\r\n";
@@ -225,6 +239,7 @@ class DevblocksProxy_Curl extends DevblocksProxy {
         $url = 'http://' . $remote_host . $remote_uri . $local_path;
         $header = array();
         $header[] = 'Via: 1.1 ' . LOCAL_HOST;
+        if($this->_isSSL()) $header[] = 'DevblocksProxySSL: 1';
         $header[] = 'DevblocksProxyHost: ' . LOCAL_HOST;
         $header[] = 'DevblocksProxyBase: ' . LOCAL_BASE;
         $header[] = 'Cookie: GroupLoginPassport=' . urlencode(serialize($this->_getFingerprint())) . ';';
@@ -245,6 +260,7 @@ class DevblocksProxy_Curl extends DevblocksProxy {
         $header[] = 'Content-Type: multipart/form-data; boundary='.$boundary;
         $header[] = 'Content-Length: ' .  strlen($content);
         $header[] = 'Via: 1.1 ' . LOCAL_HOST;
+        if($this->_isSSL()) $header[] = 'DevblocksProxySSL: 1';
         $header[] = 'DevblocksProxyHost: ' . LOCAL_HOST;
         $header[] = 'DevblocksProxyBase: ' . LOCAL_BASE;
         $header[] = 'Cookie: GroupLoginPassport=' . urlencode(serialize($this->_getFingerprint())) . ';';

@@ -1,1 +1,1 @@
-<div id="vieworg_contacts">{include file="file:$path/contacts/addresses/address_view.tpl.php"}</div>
+<div id="vieworg_contacts">{$view->render()}</div>

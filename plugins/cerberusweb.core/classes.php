@@ -1028,7 +1028,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	function composeMailAction() {
 		@$team_id = DevblocksPlatform::importGPC($_POST['team_id'],'integer'); 
 		@$to = DevblocksPlatform::importGPC($_POST['to'],'string');
-		@$subject = DevblocksPlatform::importGPC($_POST['subject'],'string');
+		@$subject = DevblocksPlatform::importGPC($_POST['subject'],'string','(no subject)');
 		@$content = DevblocksPlatform::importGPC($_POST['content'],'string');
 		@$files = $_FILES['attachment'];
 		
@@ -1046,6 +1046,8 @@ class ChTicketsPage extends CerberusPageExtension {
 		$from = !empty($team_from) ? $team_from : $default_from;
 		$personal = !empty($team_personal) ? $team_personal : $default_personal;
 
+		if(empty($subject)) $subject = '(no subject)';
+		
 		$sendTo = new Swift_Address($to);
 		$sendFrom = new Swift_Address($from, $personal);
 		
@@ -3170,6 +3172,8 @@ class ChContactsPage extends CerberusPageExtension {
 			new DevblocksSearchCriteria(SearchFields_Address::CONTACT_ORG_ID,'=',$org)
 		);
 		$tpl->assign('view', $view);
+		
+		C4_AbstractViewLoader::setView($view->id, $view);
 		
 		$tpl->assign('contacts_page', 'orgs');
 		$tpl->assign('search_columns', SearchFields_Address::getFields());
