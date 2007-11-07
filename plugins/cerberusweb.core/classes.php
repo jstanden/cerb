@@ -452,7 +452,7 @@ class ChTicketsPage extends CerberusPageExtension {
 					"FROM ticket t ".
 					"WHERE t.is_closed = 0 AND t.is_deleted = 0 ".
 					"AND t.next_worker_id > 0 ".
-					"AND t.last_action_code IN ('O','R') ".
+//					"AND t.last_action_code IN ('O','R') ".
 					"GROUP BY t.team_id, t.next_worker_id "
 				);
 				$rs_workers = $db->Execute($sql);
@@ -477,7 +477,7 @@ class ChTicketsPage extends CerberusPageExtension {
 					"FROM ticket t ".
 					"INNER JOIN sla s ON (s.id=t.sla_id) ".
 					"WHERE t.is_closed = 0 AND t.is_deleted = 0 ".
-					"AND t.last_action_code IN ('O','R') ".
+//					"AND t.last_action_code IN ('O','R') ".
 					"AND t.next_worker_id = 0 ".
 					"GROUP BY t.sla_id ".
 					"ORDER BY s.priority DESC "
@@ -569,7 +569,7 @@ class ChTicketsPage extends CerberusPageExtension {
 
 						$overView->params = array(
 							SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN),
-							SearchFields_Ticket::TICKET_LAST_ACTION_CODE => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_LAST_ACTION_CODE,'in',array('O','R')),
+//							SearchFields_Ticket::TICKET_LAST_ACTION_CODE => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_LAST_ACTION_CODE,'in',array('O','R')),
 						);
 
 						if(!is_null($filter_worker_id)) {
@@ -591,7 +591,7 @@ class ChTicketsPage extends CerberusPageExtension {
 						
 						$overView->params = array(
 							SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN),
-							SearchFields_Ticket::TICKET_LAST_ACTION_CODE => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_LAST_ACTION_CODE,'in',array('O','R')),
+//							SearchFields_Ticket::TICKET_LAST_ACTION_CODE => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_LAST_ACTION_CODE,'in',array('O','R')),
 							SearchFields_Ticket::TICKET_NEXT_WORKER_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_NEXT_WORKER_ID,'=',0),
 						);
 
