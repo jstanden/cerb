@@ -280,10 +280,10 @@ class DevblocksRouter {
 		// Read the relative URL into an array
 		if(@isset($_SERVER['HTTP_X_REWRITE_URL'])) { // IIS Rewrite
 			$location = $_SERVER['HTTP_X_REWRITE_URL'];
-		} elseif(@isset($_SERVER['REDIRECT_URL'])) { // Apache mod_rewrite
-			$location = $_SERVER['REDIRECT_URL'];
 		} elseif(@isset($_SERVER['REQUEST_URI'])) { // Apache
 			$location = $_SERVER['REQUEST_URI'];
+		} elseif(@isset($_SERVER['REDIRECT_URL'])) { // Apache mod_rewrite (breaks on CGI)
+			$location = $_SERVER['REDIRECT_URL'];
 		} elseif(@isset($_SERVER['ORIG_PATH_INFO'])) { // IIS + CGI
 			$location = $_SERVER['ORIG_PATH_INFO'];
 		}
