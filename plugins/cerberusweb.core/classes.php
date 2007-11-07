@@ -541,7 +541,7 @@ class ChTicketsPage extends CerberusPageExtension {
 						
 						$overView->params = array(
 							SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN),
-							SearchFields_Ticket::TICKET_LAST_ACTION_CODE => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_LAST_ACTION_CODE,'in',array('O','R')),
+//							SearchFields_Ticket::TICKET_LAST_ACTION_CODE => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_LAST_ACTION_CODE,'in',array('O','R')),
 							SearchFields_Ticket::TICKET_NEXT_WORKER_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_NEXT_WORKER_ID,'=',0),
 						);
 						
@@ -606,7 +606,7 @@ class ChTicketsPage extends CerberusPageExtension {
 					default:
 						$overView->params = array(
 							SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN),
-							SearchFields_Ticket::TICKET_LAST_ACTION_CODE => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_LAST_ACTION_CODE,'in',array('O','R')),
+//							SearchFields_Ticket::TICKET_LAST_ACTION_CODE => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_LAST_ACTION_CODE,'in',array('O','R')),
 							SearchFields_Ticket::TICKET_NEXT_WORKER_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_NEXT_WORKER_ID,'=',0),
 							SearchFields_Ticket::TICKET_SPAM_SCORE => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_SPAM_SCORE,'<=','0.9000'),
 							SearchFields_Ticket::TEAM_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'in',array_keys($memberships)),
