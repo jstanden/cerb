@@ -423,7 +423,7 @@ class ChTicketsPage extends CerberusPageExtension {
 				$sql = sprintf("SELECT count(*) AS hits, team_id, category_id ".
 					"FROM ticket ".
 					"WHERE is_closed = 0 AND is_deleted = 0 ".
-					"AND last_action_code IN ('O','R') ".
+//					"AND last_action_code IN ('O','R') ".
 					"AND next_worker_id = 0 ".
 					"GROUP BY team_id, category_id "
 				);
