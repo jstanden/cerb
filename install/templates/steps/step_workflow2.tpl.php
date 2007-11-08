@@ -19,8 +19,8 @@ By default workers will be automatically e-mailed a randomly-generated password.
 		<th>First Name</th>
 		<th>Last Name</th>
 		<th>Title</th>
-		<th>Set Password?</th>
-		<th>Admin?</th>
+		<th>Password</th>
+		<th>Admin</th>
 	</tr>
 {foreach from=$worker_ids key=worker_id item=worker name=workers}
 	<tr>

@@ -10,6 +10,16 @@
 	<tr>
 		<td>
 			<table cellpadding="1" cellspacing="0" border="0" width="100%">
+				{assign var=assigned_worker_id value=$ticket->next_worker_id}
+				{if $assigned_worker_id > 0 && $assigned_worker_id != $active_worker->id && isset($workers.$assigned_worker_id)}
+				<tr>
+					<td width="100%" colspan="2">
+						<div class="error">
+							Warning: You are replying to a ticket assigned to {$workers.$assigned_worker_id->getName()}.
+						</div>
+					</td>
+				</tr>
+				{/if}
 				<tr>
 					<td width="0%" nowrap="nowrap"><b>To: </b></td>
 					<td width="100%" align="left">
@@ -57,7 +67,7 @@
 		<td>
 		{assign var=ticket_team_id value=$ticket->team_id}
 		{assign var=headers value=$message->getHeaders()}
-<button type="button" onclick="toggleDiv('replyAttachments{$message->id}','block');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_attachment.gif{/devblocks_url}" align="top"> Add Files</button>
+<button type="button" onclick="toggleDiv('replyAttachments{$message->id}','block');document.location='#replyAttachments{$message->id}';"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_attachment.gif{/devblocks_url}" align="top"> Add Files</button>
 <button type="button" onclick="genericAjaxPanel('c=display&a=showFnrPanel',this,false,'550px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/book_blue_view.gif{/devblocks_url}" align="top"> Fetch & Retrieve</button>
 <button type="button" onclick="displayAjax.showTemplatesPanel(this,'{$message->id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/text_rich.gif{/devblocks_url}" align="top"> E-mail Templates</button>
 <button type="button" onclick="txtReply=document.getElementById('reply_content');sigDiv=document.getElementById('team_signature');txtReply.value += '\n'+sigDiv.value+'\n';scrollElementToBottom(txtReply);txtReply.focus();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_edit.gif{/devblocks_url}" align="top"> Insert Signature</button>
@@ -101,23 +111,29 @@ On {$message->created_date|date_format}, {$headers.from} wrote:
 			<table cellpadding="2" cellspacing="0" border="0">
 				<tr>
 					<td nowrap="nowrap" valign="top" colspan="2">
-						<label><input type="checkbox" name="closed" value="1" onclick="toggleDiv('replyOpen{$message->id}',this.checked?'none':'block');toggleDiv('replyClosed{$message->id}',this.checked?'block':'none');" {if $ticket->is_closed}checked{/if}>This conversation is completed for now.</label><br>
+						<label><input type="checkbox" name="closed" value="1" onclick="toggleDiv('replyOpen{$message->id}',this.checked?'none':'block');toggleDiv('replyClosed{$message->id}',this.checked?'block':'none');" {if $ticket->is_closed}checked{/if}>This conversation is completed for now (close)</label><br>
 						<br>
 
 						<b>Who should handle the follow-up?</b><br>
 				      	<select name="next_worker_id">
 				      		<option value="0" {if 0==$ticket->next_worker_id}selected{/if}>Anybody
-				      		{foreach from=$workers item=worker key=worker_id}
+				      		{foreach from=$workers item=worker key=worker_id name=workers}
+				      			{if $worker_id==$active_worker->id}{assign var=next_worker_id_sel value=$smarty.foreach.workers.iteration}{/if}
 				      			<option value="{$worker_id}" {if $worker_id==$ticket->next_worker_id}selected{/if}>{$worker->getName()}
 				      		{/foreach}
-				      	</select><br>
+				      	</select>&nbsp;
+				      	{if !empty($next_worker_id_sel)}
+				      		<button type="button" onclick="this.form.next_worker_id.selectedIndex = {$next_worker_id_sel};">me</button>
+				      		<button type="button" onclick="this.form.next_worker_id.selectedIndex = 0;">anybody</button>
+				      	{/if}
+				      	<br>
 				      	<br>
 
-						<div id="replyOpen{$message->id}" style="display:{if $ticket->is_closed}none{else}block{/if};">
 						<b>What is the next action that needs to happen?</b> (max 255 chars)<br>  
 				      	<input type="text" name="next_action" size="80" maxlength="255" value="{$ticket->next_action|escape:"htmlall"}"><br>
 				      	<br>
-				      	
+
+						<div id="replyOpen{$message->id}" style="display:{if $ticket->is_closed}none{else}block{/if};">
 						<b>Would you like to move this conversation?</b><br>  
 				      	<select name="bucket_id">
 				      		<option value="">-- no thanks! --</option>

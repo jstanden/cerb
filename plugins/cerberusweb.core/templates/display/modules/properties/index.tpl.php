@@ -12,10 +12,16 @@
 	<b>Next Worker:</b><br> 
 	<select name="next_worker_id">
 		<option value="0" {if 0==$ticket->next_worker_id}selected{/if}>Anybody
-		{foreach from=$workers item=worker key=worker_id}
+		{foreach from=$workers item=worker key=worker_id name=workers}
+			{if $worker_id==$active_worker->id}{assign var=next_worker_id_sel value=$smarty.foreach.workers.iteration}{/if}
 			<option value="{$worker_id}" {if $worker_id==$ticket->next_worker_id}selected{/if}>{$worker->getName()}
 		{/foreach}
-	</select><br>
+	</select>&nbsp;
+   	{if !empty($next_worker_id_sel)}
+   		<button type="button" onclick="this.form.next_worker_id.selectedIndex = {$next_worker_id_sel};">me</button>
+   		<button type="button" onclick="this.form.next_worker_id.selectedIndex = 0;">anybody</button>
+   	{/if}
+	<br>
 	<br>
 	
 	<b>Subject:</b><br>

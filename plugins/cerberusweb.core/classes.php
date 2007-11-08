@@ -479,8 +479,7 @@ class ChTicketsPage extends CerberusPageExtension {
 					"WHERE t.is_closed = 0 AND t.is_deleted = 0 ".
 //					"AND t.last_action_code IN ('O','R') ".
 					"AND t.next_worker_id = 0 ".
-					"GROUP BY t.sla_id ".
-					"ORDER BY s.priority DESC "
+					"GROUP BY t.sla_id"
 				);
 				$rs_sla = $db->Execute($sql);
 			
@@ -4804,8 +4803,21 @@ class ChDisplayPage extends CerberusPageExtension {
 
 		@$ticket_team = $teams[$ticket->team_id];
 		
-		// Signatures
 		if(null != ($worker = CerberusApplication::getActiveWorker())) { /* @var $worker CerberusWorker */
+			/* [JAS]:
+			 * If the worker is replying to an unassigned ticket, assign it to them to warn
+			 * other workers.  By default the 'next worker' followup propery will revert back 
+			 * to 'anybody' when desired.
+			 * 
+			 * We're intentionally not telling the template about the new owner.
+			 */
+			if(0 == $ticket->next_worker_id) {
+				DAO_Ticket::updateTicket($ticket->id,array(
+					DAO_Ticket::NEXT_WORKER_ID => $worker->id
+				));
+			}
+
+			// Signatures
 			if(!empty($ticket_team) && !empty($ticket_team->signature)) {
 	            $signature = $ticket_team->signature;
 			} else {

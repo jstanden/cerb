@@ -81,10 +81,16 @@
 		<td width="100%"><select name="next_worker">
 			<option value=""></option>
 			<option value="0">Anybody</option>
-			{foreach from=$workers item=worker key=worker_id}
-			<option value="{$worker_id}">{$worker->getName()}</option>
+			{foreach from=$workers item=worker key=worker_id name=workers}
+				{if $worker_id==$active_worker->id}{math assign=next_worker_id_sel equation="x+1" x=$smarty.foreach.workers.iteration}{/if}
+				<option value="{$worker_id}">{$worker->getName()}</option>
 			{/foreach}
-		</select></td>
+		</select>
+      	{if !empty($next_worker_id_sel)}
+      		<button type="button" onclick="this.form.next_worker.selectedIndex = {$next_worker_id_sel};">me</button>
+      		<button type="button" onclick="this.form.next_worker.selectedIndex = 1;">anybody</button>
+      	{/if}
+		</td>
 	</tr>
 </table>
 
