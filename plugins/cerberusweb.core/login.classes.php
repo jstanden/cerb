@@ -54,6 +54,10 @@ class DefaultLoginModule extends CerberusLoginPageExtension {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
 		
+		// add translations for calls from classes that aren't Page Extensions (mobile plugin, specifically)
+		$translate = DevblocksPlatform::getTranslationService();
+		$tpl->assign('translate', $translate);
+		
 		$request = DevblocksPlatform::getHttpRequest();
 		$prefix = '';
 		$query_str = '';

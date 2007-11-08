@@ -69,8 +69,10 @@ class MobileController extends DevblocksControllerExtension {
 		
 		// [TODO] Implement a mobile login system
 		
-		if(empty($visit))
-		    die("Not logged in.");
+		if(empty($visit)) {
+		    DefaultLoginModule::renderLoginForm();
+		    exit();
+		}
 	    
 		$stack = $request->path;
 		$uri = array_shift($stack);		// $uri should be "mobile"

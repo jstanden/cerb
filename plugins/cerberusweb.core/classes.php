@@ -2921,6 +2921,9 @@ class ChContactsPage extends CerberusPageExtension {
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		
+		$tab_manifests = DevblocksPlatform::getExtensions('cerberusweb.contacts.tab', false);
+		$tpl->assign('tab_manifests', $tab_manifests);
+		
 		$visit = CerberusApplication::getVisit();
 		
 		$response = DevblocksPlatform::getHttpResponse();
@@ -3118,6 +3121,17 @@ class ChContactsPage extends CerberusPageExtension {
 		
 		$visit->set('import.last.csv',null);
 		$visit->set('import.last.type',null);
+	}
+	
+	// Ajax
+	function showTabAction() {
+		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
+		
+		if(null != ($tab_mft = DevblocksPlatform::getExtension($ext_id)) 
+			&& null != ($inst = $tab_mft->createInstance()) 
+			&& $inst instanceof Extension_ContactsTab) {
+			$inst->showTab();
+		}
 	}
 	
 	function showTabDetailsAction() {
