@@ -120,6 +120,22 @@ if(extension_loaded("simplexml")) {
 	$fails++;
 }
 
+// Extension: DOM
+if(extension_loaded("dom")) {
+	$results['ext_dom'] = true;
+} else {
+	$results['ext_dom'] = false;
+	$fails++;
+}
+
+// Extension: SPL
+if(extension_loaded("spl")) {
+	$results['ext_spl'] = true;
+} else {
+	$results['ext_spl'] = false;
+	$fails++;
+}
+
 if($fails) {
 	echo "The following problems prevent you from running Cerberus
 Helpdesk 4.0:<span class='fail'><ul>";
