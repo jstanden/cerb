@@ -5,7 +5,7 @@
 <div class="block" style="width:98%;margin:10px;">
 <table cellpadding="2" cellspacing="0" border="0" width="100%">
 	<tr>
-		<td><h2>Reply</h2></td>
+		<td><h2>{if $is_forward}Forward{else}Reply{/if}</h2></td>
 	</tr>
 	<tr>
 		<td>
@@ -20,46 +20,46 @@
 					</td>
 				</tr>
 				{/if}
-				<tr>
-					<td width="0%" nowrap="nowrap"><b>To: </b></td>
-					<td width="100%" align="left">
-						{foreach from=$ticket->getRequesters() item=requester name=requesters}
-						{$requester->email}{if !$smarty.foreach.requesters.last}, {/if}
-						{/foreach}
-						<!-- 
-						<input type="text" size="45" name="to" value="" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;">
-						-->					
-					</td>
-				</tr>
-				<tr>
-					<td width="0%" nowrap="nowrap"><b>Cc: </b></td>
-					<td width="100%" align="left">
-						<input type="text" size="45" name="cc" value="" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;">					
-					</td>
-				</tr>
-				<tr>
-					<td width="0%" nowrap="nowrap"><b>Bcc: </b></td>
-					<td width="100%" align="left">
-						<input type="text" size="45" name="bcc" value="" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;">					
-					</td>
-				</tr>
-				<tr>
-					<td width="0%" nowrap="nowrap"><b>Subject: </b></td>
-					<td width="100%" align="left">
-						<input type="text" size="45" name="subject" value="{$ticket->subject|escape:"htmlall"}" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;">					
-					</td>
-				</tr>
 				
-				<!-- 
-				<tr id="replyCc" style="display:none;">
-					<td width="0%" nowrap="nowrap" valign="top"><b>Cc:</b></td>
-					<td width="100%" align="left"><textarea rows="2" cols="80" name="cc"></textarea></td>
+				{if $is_forward}
+					<tr>
+						<td width="0%" nowrap="nowrap"><b>To: </b></td>
+						<td width="100%" align="left">
+							<input type="text" size="45" id="replyForm_to" name="to" value="" style="width:50%;border:1px solid rgb(180,180,180);padding:2px;">
+						</td>
+					</tr>
+				{else}
+					<tr>
+						<td width="0%" nowrap="nowrap">To: </td>
+						<td width="100%" align="left">
+							{foreach from=$ticket->getRequesters() item=requester name=requesters}
+							{$requester->email}{if !$smarty.foreach.requesters.last}, {/if}
+							{/foreach}
+							<!-- 
+							<input type="text" size="45" name="to" value="" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;">
+							-->					
+						</td>
+					</tr>
+				{/if}
+				
+				<tr>
+					<td width="0%" nowrap="nowrap">Cc: </td>
+					<td width="100%" align="left">
+						<input type="text" size="45" id="replyForm_cc" name="cc" value="" style="width:50%;border:1px solid rgb(180,180,180);padding:2px;">					
+					</td>
 				</tr>
-				<tr id="replyBcc" style="display:none;">
-					<td width="0%" nowrap="nowrap" valign="top"><b>Bcc:</b></td>
-					<td width="100%" align="left"><textarea rows="2" cols="80" name="bcc"></textarea></td>
+				<tr>
+					<td width="0%" nowrap="nowrap">Bcc: </td>
+					<td width="100%" align="left">
+						<input type="text" size="45" id="replyForm_bcc" name="bcc" value="" style="width:50%;border:1px solid rgb(180,180,180);padding:2px;">					
+					</td>
 				</tr>
-				 -->
+				<tr>
+					<td width="0%" nowrap="nowrap">Subject: </td>
+					<td width="100%" align="left">
+						<input type="text" size="45" id="replyForm_subject" name="subject" value="{if $is_forward}Fwd: {/if}{$ticket->subject|escape:"htmlall"}" style="width:50%;border:1px solid rgb(180,180,180);padding:2px;">					
+					</td>
+				</tr>
 			</table>
 		</td>
 	</tr>
@@ -72,18 +72,37 @@
 <button type="button" onclick="displayAjax.showTemplatesPanel(this,'{$message->id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/text_rich.gif{/devblocks_url}" align="top"> E-mail Templates</button>
 <button type="button" onclick="txtReply=document.getElementById('reply_content');sigDiv=document.getElementById('team_signature');txtReply.value += '\n'+sigDiv.value+'\n';scrollElementToBottom(txtReply);txtReply.focus();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_edit.gif{/devblocks_url}" align="top"> Insert Signature</button>
 <br>
+{if $is_forward}
+<textarea name="content" rows="20" cols="80" id="reply_content" class="reply" style="width:98%;border:1px solid rgb(180,180,180);padding:5px;">
+{if !empty($signature)}{$signature}{/if}
+
+
+---- Forwarded message ----
+{if isset($headers.subject)}Subject: {$headers.subject|escape:"htmlall"|cat:"\n"}{/if}
+{if isset($headers.from)}From: {$headers.from|escape:"htmlall"|cat:"\n"}{/if}
+{if isset($headers.date)}Date: {$headers.date|escape:"htmlall"|cat:"\n"}{/if}
+{if isset($headers.to)}To: {$headers.to|escape:"htmlall"|cat:"\n"}{/if}
+
+{$message->getContent()|trim|escape}
+</textarea>
+{else}
 <textarea name="content" rows="20" cols="80" id="reply_content" class="reply" style="width:98%;border:1px solid rgb(180,180,180);padding:5px;">
 On {$message->created_date|date_format}, {$headers.from} wrote:
 {$message->getContent()|trim|escape|indent:1:'> '}
 
 {if !empty($signature)}{$signature}{/if}
 </textarea>
+{/if}
 		</td>
 	</tr>
 	<tr>
 		<td nowrap="nowrap" valign="top">
 			<div style="display:none"><textarea name="team_signature" id="team_signature">{$signature}</textarea></div>
-			<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> Send Message</button>
+			{if $is_forward}
+				<button type="button" onclick="if(this.form.to.value.length > 0) this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> Forward Message</button>
+			{else}
+				<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> Send Message</button>
+			{/if}
 			<button type="button" onclick="clearDiv('reply{$message->id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> Discard</button>
 		</td>
 	</tr>

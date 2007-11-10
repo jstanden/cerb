@@ -28,6 +28,8 @@
   <script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/cerberus/display.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
   <script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/cerberus/config.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
   
+  <script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/livevalidation/livevalidation.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
+  
 </head>
 
 <body class="yui-skin-sam">

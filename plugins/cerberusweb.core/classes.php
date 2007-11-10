@@ -4780,11 +4780,13 @@ class ChDisplayPage extends CerberusPageExtension {
 	}
 	
 	function replyAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+		@$is_forward = DevblocksPlatform::importGPC($_REQUEST['forward'],'integer',0);
 
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		$tpl->assign('id',$id);
+		$tpl->assign('is_forward',$is_forward);
 		
 		$message = DAO_Ticket::getMessage($id);
 		$tpl->assign('message',$message);
@@ -4847,6 +4849,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		$properties = array(
 		    'message_id' => DevblocksPlatform::importGPC(@$_REQUEST['id']),
 		    'ticket_id' => $ticket_id,
+		    'to' => DevblocksPlatform::importGPC(@$_REQUEST['to']),
 		    'cc' => DevblocksPlatform::importGPC(@$_REQUEST['cc']),
 		    'bcc' => DevblocksPlatform::importGPC(@$_REQUEST['bcc']),
 		    'subject' => DevblocksPlatform::importGPC(@$_REQUEST['subject'],'string'),

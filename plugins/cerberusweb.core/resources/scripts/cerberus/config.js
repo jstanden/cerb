@@ -47,6 +47,23 @@ var cConfigAjax = function() {
 
 					var anim = new YAHOO.util.Anim(frm, { opacity: { to: 1.0 } }, 1, YAHOO.util.Easing.easeOut);
 					anim.animate();
+					
+					// Form validation
+					if(null != document.getElementById('workerForm_firstName')) {
+						var f = new LiveValidation('workerForm_firstName');
+						f.add( Validate.Presence );
+					}
+					
+					if(null != document.getElementById('workerForm_email')) {
+						var f = new LiveValidation('workerForm_email');
+						f.add( Validate.Presence );
+						f.add( Validate.Email );
+					}
+					
+					if(null != document.getElementById('workerForm_password2')) {
+						var f = new LiveValidation('workerForm_password2');
+						f.add( Validate.Confirmation, { match: 'workerForm_password' } );
+					}
 				},
 				failure: function(o) {},
 				argument:{caller:this}

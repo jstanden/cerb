@@ -14,7 +14,7 @@
 	</tr>
 	<tr>
 		<td width="0%" nowrap="nowrap"><b>First Name:</b></td>
-		<td width="100%"><input type="text" name="first_name" value="{$worker->first_name}"{if (empty($license) || empty($license.key)) && count($workers) >= 3} disabled{/if}></td>
+		<td width="100%"><input type="text" id="workerForm_firstName" name="first_name" value="{$worker->first_name}"{if (empty($license) || empty($license.key)) && count($workers) >= 3} disabled{/if}></td>
 	</tr>
 	<tr>
 		<td width="0%" nowrap="nowrap">Last Name:</td>
@@ -26,15 +26,15 @@
 	</tr>
 	<tr>
 		<td width="0%" nowrap="nowrap"><b>E-mail:</b></td>
-		<td width="100%"><input type="text" name="email" value="{$worker->email}" size="45"{if (empty($license) || empty($license.key)) && count($workers) >= 3} disabled{/if}></td>
+		<td width="100%"><input type="text" id="workerForm_email" name="email" value="{$worker->email}" size="45"{if (empty($license) || empty($license.key)) && count($workers) >= 3} disabled{/if}></td>
 	</tr>
 	<tr>
 		<td width="0%" nowrap="nowrap">{if empty($worker->id)}<b>Password:</b>{else}Password:{/if}</td>
-		<td width="100%"><input type="password" name="password" value=""{if (empty($license) || empty($license.key)) && count($workers) >= 3} disabled{/if}></td>
+		<td width="100%"><input type="password" id="workerForm_password" name="password" value=""{if (empty($license) || empty($license.key)) && count($workers) >= 3} disabled{/if}></td>
 	</tr>
 	<tr>
 		<td width="0%" nowrap="nowrap">Password (again):</td>
-		<td width="100%"><input type="password" name="password2" value=""{if (empty($license) || empty($license.key)) && count($workers) >= 3} disabled{/if}><div id="worker_error" style="color: red; font-weight: bold;"></div></td>
+		<td width="100%"><input type="password" id="workerForm_password2" name="password2" value=""{if (empty($license) || empty($license.key)) && count($workers) >= 3} disabled{/if}></td>
 	</tr>
 	
 	<tr><td colspan="2">&nbsp;</td></tr>

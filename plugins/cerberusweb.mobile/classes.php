@@ -109,12 +109,15 @@ class MobileController extends DevblocksControllerExtension {
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		switch ($page) {
 			default:
 			case "home":
 				$mytickets = DAO_Ticket::search(
 					array(
-						new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN)
+						new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN),
+						new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_NEXT_WORKER_ID,'=',$active_worker->id)
 					),
 					25,
 					0,

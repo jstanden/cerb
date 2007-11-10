@@ -37,7 +37,7 @@
 		</td>
 		
 		<td width="100%" valign="top">
-			<form action="{devblocks_url}{/devblocks_url}#workers" method="post" id="configWorker" onsubmit="pwsMatch=(this.password.value==this.password2.value);if(!pwsMatch)document.getElementById('worker_error').innerHTML='The passwords entered do not match.  Try again.';return pwsMatch;">
+			<form action="{devblocks_url}{/devblocks_url}#workers" method="post" id="configWorker">
 				{include file="$path/configuration/workflow/edit_worker.tpl.php" worker=null}
 			</form>
 		</td>

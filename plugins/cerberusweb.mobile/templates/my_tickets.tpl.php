@@ -2,6 +2,7 @@
 
 <h2 style="color: rgb(102,102,102);">My Tickets</h2>
 
+{if $mytickets}
 <table border="0" cellpadding="0" cellspacing="5">
 {foreach from=$mytickets item=ticket}
 	<tr>
@@ -10,3 +11,6 @@
 	</tr>
 {/foreach}
 </table>
+{else}
+You have no active tickets.<br>
+{/if}

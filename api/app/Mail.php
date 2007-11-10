@@ -87,6 +87,7 @@ class CerberusMail {
 	    'message_id'
 	    -----'ticket_id'
 		'subject'
+	    'to'
 	    'cc'
 	    'bcc'
 	    'content'
@@ -132,9 +133,15 @@ class CerberusMail {
 			
 		// Headers
 		$mail->setFrom($sendFrom);
-		$mail->setSubject('Re: ' . (!empty($subject) ? $subject : $ticket->subject));
 		$mail->generateId();
 		$mail->headers->set('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
+
+		// Subject
+		if(!empty($properties['to'])) { // forward
+			$mail->setSubject((!empty($subject) ? $subject : $ticket->subject));
+		} else { // reply
+			$mail->setSubject('Re: ' . (!empty($subject) ? $subject : $ticket->subject));
+		}
 		
 		$sendTo = new Swift_RecipientList();
 		
@@ -189,16 +196,30 @@ class CerberusMail {
 			
 		// Not an auto-reply
 		} else {
-		    // Recepients
-			$to = array();
-			$requesters = DAO_Ticket::getRequestersByTicket($ticket_id);
-		    if(is_array($requesters)) {
-			    foreach($requesters as $requester) { /* @var $requester Model_Address */
-					$to[] = new Swift_Address($requester->email);
-					$sendTo->addTo($requester->email);
+			// Forwards
+			if(!empty($properties['to'])) {
+			    $to = array();
+			    $aTo = CerberusApplication::parseCsvString($properties['to']);
+			    foreach($aTo as $addy) {
+			    	$to[] = new Swift_Address($addy);
+			    	$sendTo->addTo($addy);
 			    }
-		    }
-		    $mail->setTo($to);
+			    if(!empty($to))
+			    	$mail->setTo($to);
+			    
+			// Replies
+			} else {
+			    // Recipients
+				$to = array();
+				$requesters = DAO_Ticket::getRequestersByTicket($ticket_id);
+			    if(is_array($requesters)) {
+				    foreach($requesters as $requester) { /* @var $requester Model_Address */
+						$to[] = new Swift_Address($requester->email);
+						$sendTo->addTo($requester->email);
+				    }
+			    }
+			    $mail->setTo($to);
+			}
 	
 		    // Ccs
 		    if(!empty($properties['cc'])) {
@@ -272,7 +293,8 @@ class CerberusMail {
 		        $change_fields[DAO_Ticket::LAST_ACTION_CODE] = CerberusTicketActionCode::TICKET_WORKER_REPLY;
 		    }
 		    
-		    if(!empty($subject)) {
+		    // Only change the subject if not forwarding
+		    if(!empty($subject) && empty($properties['to'])) {
 		    	$change_fields[DAO_Ticket::SUBJECT] = $subject;
 		    }
 			
