@@ -55,7 +55,7 @@
 class DAO_Setting extends DevblocksORMHelper {
 	static function set($key, $value) {
 		$db = DevblocksPlatform::getDatabaseService();
-		$db->Replace('setting',array('setting'=>$key,'value'=>$value),array('setting'),true);
+		$db->Replace('setting',array('setting'=>$db->qstr($key),'value'=>$db->qstr($value)),array('setting'),false);
 	}
 	
 	static function get($key) {
@@ -1009,6 +1009,8 @@ class DAO_Address extends DevblocksORMHelper {
 	static function lookupAddress($email,$create_if_null=false) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
+		$address = null;
+		
 		$addresses = self::getWhere(sprintf("email = %s",
 			$db->qstr(trim(strtolower($email)))
 		));
@@ -1622,10 +1624,10 @@ class DAO_MessageContent {
             'message_content',
             array(
                 self::MESSAGE_ID => $message_id,
-                self::CONTENT => '',
+                self::CONTENT => $db->qstr(''),
             ),
             array('message_id'),
-            true
+            false
         );
         
         if(!empty($content))
@@ -1671,11 +1673,11 @@ class DAO_MessageHeader {
             array(
                 self::MESSAGE_ID => $message_id,
                 self::TICKET_ID => $ticket_id,
-                self::HEADER_NAME => $header,
-                self::HEADER_VALUE => ''
+                self::HEADER_NAME => $db->qstr($header),
+                self::HEADER_VALUE => $db->qstr('')
             ),
             array('message_id','header_name'),
-            true
+            false
         );
         
         $db->UpdateBlob('message_header', self::HEADER_VALUE, $value, 'message_id='.$message_id.' AND header_name='.$db->qstr($header));
@@ -3180,11 +3182,11 @@ class DAO_GroupSettings {
 		    'group_setting',
 		    array(
 		        'group_id'=>$group_id,
-		        'setting'=>$key,
+		        'setting'=>$db->qstr($key),
 		        'value'=>$db->qstr($value) // BlobEncode/UpdateBlob?
 		    ),
 		    array('group_id','setting'),
-		    true
+		    false
 		);
 	}
 	
@@ -3897,11 +3899,11 @@ class DAO_WorkerPref extends DevblocksORMHelper {
 		    'worker_pref',
 		    array(
 		        'worker_id'=>$worker_id,
-		        'setting'=>$key,
+		        'setting'=>$db->qstr($key),
 		        'value'=>$db->qstr($value) // BlobEncode/UpdateBlob?
 		    ),
 		    array('worker_id','setting'),
-		    true
+		    false
 		);
 	}
 	
@@ -4075,7 +4077,7 @@ class DAO_TeamRoutingRule extends DevblocksORMHelper {
 		$sql = sprintf("SELECT id, team_id, header, pattern, pos, do_spam, do_status, do_move ".
 		    "FROM team_routing_rule ".
 		    "WHERE team_id = %d ".
-		    "ORDER BY pos DESC",
+		    "ORDER BY header DESC, pos DESC", // subject first + from last, by popularity
 		    $team_id
 		);
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
@@ -4093,7 +4095,7 @@ class DAO_TeamRoutingRule extends DevblocksORMHelper {
 		$sql = "SELECT id, team_id, header, pattern, pos, do_spam, do_status, do_move ".
 		    "FROM team_routing_rule ".
 		    (!empty($ids) ? sprintf("WHERE id IN (%s) ", implode(',', $ids)) : " ").
-		    "ORDER BY pos DESC"
+		    "ORDER BY header DESC, pos DESC" // subject first + from last, by popularity
 		;
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		

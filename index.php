@@ -65,11 +65,8 @@ if('' == APP_DB_DRIVER
    		exit;
 	}
 
-// [TODO] We could also put a temporary lock mode for upgrades here
-
 require(APP_PATH . '/api/Application.class.php');
 
-// [JAS]: [TODO] Is an explicit init() really required?  No anonymous static blocks?
 DevblocksPlatform::init();
 
 // Request

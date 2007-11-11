@@ -2659,7 +2659,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		@$route_ids = DevblocksPlatform::importGPC($_POST['route_ids'],'array');
 		@$route_team_id = DevblocksPlatform::importGPC($_POST['route_team_id'],'array');
 		@$route_pattern = DevblocksPlatform::importGPC($_POST['route_pattern'],'array');
-		@$default_team_id = DevblocksPlatform::importGPC($_POST['default_team_id'],'integer');
+		@$default_team_id = DevblocksPlatform::importGPC($_POST['default_team_id'],'integer',0);
 		@$add_pattern = DevblocksPlatform::importGPC($_POST['add_pattern'],'array');
 		@$add_team_id = DevblocksPlatform::importGPC($_POST['add_team_id'],'array');
 		@$route_remove = DevblocksPlatform::importGPC($_POST['route_remove'],'array');

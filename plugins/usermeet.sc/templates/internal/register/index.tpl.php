@@ -1,6 +1,4 @@
-<div style="border-bottom:1px solid rgb(180,180,180);margin-bottom:10px;">
-<h2 style="margin-bottom:0px;">Register</h2>
-</div>
+<h1>Register</h1>
 
 {if !empty($register_error)}
 <div class="error">{$register_error}</div>

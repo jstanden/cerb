@@ -1,6 +1,4 @@
-<div style="border-bottom:1px solid rgb(180,180,180);">
-<h2 style="margin-bottom:0px;">Subject: {$ticket.t_subject|escape}</h2>
-</div>
+<h1>Subject: {$ticket.t_subject|escape}</h1>
 
 <form action="{devblocks_url}{/devblocks_url}" method="post" name="">
 <input type="hidden" name="a" value="saveTicketProperties">

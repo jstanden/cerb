@@ -6,6 +6,14 @@
 <input type="text" size="65" name="page_title" value="{$page_title}"><br>
 <br>
 
+<b>Theme:</b> (default if blank)<br>
+<select name="theme">
+	{foreach from=$themes item=th}
+	<option value="{$th}" {if $theme==$th}selected{/if}>{$th}</option>
+	{/foreach}
+</select><br>
+<br>
+
 <b>CAPTCHA:</b> (displays a CAPTCHA image in the form to help block automated spam)<br>
 <label><input type="radio" name="captcha_enabled" value="1" {if $captcha_enabled}checked{/if}> Enabled</label>
 <label><input type="radio" name="captcha_enabled" value="0" {if !$captcha_enabled}checked{/if}> Disabled</label>
@@ -56,6 +64,29 @@ all your interesting and helpful content, related to this portal, so the communi
 <br>
 
 <div style="border-bottom:1px solid rgb(180,180,180);margin-bottom:10px;">
+<h2 style="margin-bottom:0px;color:rgb(0,128,255);">Footer</h2>
+</div>
+
+<div style="margin-left:10px;">
+	<table cellpadding="0" cellspacing="0" border="0">
+	<tr>
+		<td valign="top" width="0%" nowrap="nowrap">
+			<b>HTML:</b> (e.g., organization, address, phone, fax, analytics)<br>
+			<textarea cols="65" rows="8" name="footer_html">{$footer_html|escape}</textarea><br>
+		</td>
+		<td valign="top" width="100%" style="padding:10px;">
+		<i>Example:</i><br>
+		&lt;b&gt;Webgroup Media, LLC.&lt;/b&gt;&lt;br&gt;<br>
+		451 W. Lambert Rd., Suite #201&lt;br&gt;<br>
+		Brea, CA 92821 USA&lt;br&gt;<br>
+		+1 714 681 9090&lt;br&gt;<br>
+		</td>
+	</tr>
+	</table>
+</div>
+<br>
+
+<div style="border-bottom:1px solid rgb(180,180,180);margin-bottom:10px;">
 <h2 style="margin-bottom:0px;color:rgb(0,128,255);">Login/Registration</h2>
 </div>
 
@@ -89,7 +120,7 @@ articles, wiki articles, forum posts, documentation pages, blog entries, wishlis
 <br>
 
 <div style="border-bottom:1px solid rgb(180,180,180);margin-bottom:10px;">
-<h2 style="margin-bottom:0px;color:rgb(0,128,255);">Contact Form</h2>
+<h2 style="margin-bottom:0px;color:rgb(0,128,255);">Open a Ticket</h2>
 </div>
 
 {foreach from=$dispatch item=params key=reason}

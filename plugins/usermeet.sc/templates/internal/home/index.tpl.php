@@ -1,8 +1,6 @@
 {if !empty($feeds)}
 	{foreach from=$feeds item=matches name=matches}
-		<div style="border-bottom:1px solid rgb(180,180,180);margin-bottom:10px;">
-		<h2 style="margin-bottom:0px;">{$matches.name}</h2>
-		</div>
+		<h1>{$matches.name}</h1>
 	
 		<div style="margin:10px;">
 		{foreach from=$matches.feed item=item name=items}

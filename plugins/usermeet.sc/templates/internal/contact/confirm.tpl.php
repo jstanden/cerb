@@ -4,9 +4,7 @@
   <tbody>
     <tr>
       <td colspan="2">
-		<div style="border-bottom:1px solid rgb(180,180,180);margin-bottom:10px;">
-      	<h2 style="margin-bottom:0px;">Thanks for contacting us</h2>
-      	</div>
+      	<h1>Thanks for contacting us</h1>
       	
       	Your message has been received! We will respond to you as soon as possible.<br>
       	<br>

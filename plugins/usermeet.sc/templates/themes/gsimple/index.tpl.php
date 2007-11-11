@@ -1,7 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-	<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
 	<title>{$page_title}</title>
 	<style type="text/css">
 	{literal}
@@ -9,7 +9,12 @@
 		body, td { color:rgb(80,80,80); }
 		form { margin: 0px; padding:0px; }
 		a { color: rgb(51, 102, 255); }
-		h2 { font-size:140%; color:rgb(50,180,50); }
+		h1 {
+			border-bottom:1px solid rgb(180,180,180);
+			margin-bottom:10px;
+			font-size:140%;
+			color:rgb(50,180,50);
+		}
 		
 		#navMenu {
 			border-bottom: 1px solid rgb(180, 180, 180);
@@ -92,11 +97,8 @@
 			<td>
 				 &nbsp;
 				 {foreach from=$menu item=item name=menu}
-				 	{if !empty($item.menu_title) && !empty($item.uri)}
-				 	{if !isset($item.requires_login) || (isset($item.requires_login) && !empty($active_user))}
-					 	{if !empty($item.icon)}<img src="{devblocks_url}c=resource&p=usermeet.sc&f={$item.icon}{/devblocks_url}" align="top">{/if} <a href="{devblocks_url}c={$item.uri}{/devblocks_url}">{$item.menu_title}</a> | 
-				 	{/if}
-				 	{/if}
+				 	{if !empty($item.icon)}<img src="{devblocks_url}c=resource&p=usermeet.sc&f={$item.icon}{/devblocks_url}" align="top">{/if} <a href="{devblocks_url}c={$item.uri}{/devblocks_url}">{$item.menu_title}</a>
+				 	{if !$smarty.foreach.menu.last} | {/if}
 				 {/foreach}
 			</td>
 			<td align="right" nowrap="nowrap" valign="top">
@@ -119,14 +121,19 @@
 	</tbody>
 </table>
 
-<br>
-<table style="padding: 5px; text-align: left; width: 100%;" border="0" cellpadding="0" cellspacing="0">
+<table style="padding-left: 5px; text-align: left; width: 100%;" border="0" cellpadding="0" cellspacing="0">
 	<tbody>
+		<tr>
+			<td colspan="2" style="padding-left:10px;">{$footer_html}</td>
+		</tr>
 		<tr>
 			<td></td>
 			<td style="text-align:right;color:rgb(150,150,150);font-size:11px;">powered by <a href="http://www.cerberusweb.com/" style="color:rgb(50,120,50);font-weight:bold;">Cerberus Helpdesk 4.0</a></td>
 		</tr>
 	</tbody>
 </table>
+<br>
+<br>
+
 </body>
 </html>

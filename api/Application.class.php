@@ -48,7 +48,7 @@
  * 		and Joe Geck.
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-define("APP_BUILD", 435);
+define("APP_BUILD", 436);
 define("APP_MAIL_PATH", realpath(APP_PATH . '/storage/mail') . DIRECTORY_SEPARATOR);
 
 include_once(APP_PATH . "/api/DAO.class.php");
@@ -201,35 +201,6 @@ class CerberusApplication extends DevblocksApplication {
 	}
 	
 	static function stripHTML($str) {
-	    static $ENT_REPLACE = null;
-	    static $ENT_WITH = null;
-	    
-	    // [TODO] Get a better entity list with ASCII replacements
-	    
-		// [JAS]: HTML 2.0 Entity Replacement
-	    if(is_null($ENT_REPLACE)) {
-		    $ENT_REPLACE = array(
-				'&lt;',
-				'&gt;',
-				'&amp;',
-				'&quot;',
-				'&nbsp;',
-			);
-			
-			$ENT_WITH = array(
-				'<;',
-				'>;',
-				'&;',
-				'";',
-				chr(32),
-			);
-		    
-			for($c=1;$c<256;$c++) { 
-			    array_push($ENT_REPLACE,'&#' . sprintf("%03d",$c) . ';');
-			    array_push($ENT_WITH, chr($c));
-			}
-	    }
-		
 		$prev_str = "";
 		
 		// [JAS]: Remove carriage returns and linefeeds only after HTML tags
@@ -259,19 +230,11 @@ class CerberusApplication extends DevblocksApplication {
 			// [JAS]: Clean up any HTML tags that are left.
 			$str = preg_replace("'<(.*?)>'si", "", $str);
 
-			$str = str_replace($ENT_REPLACE,$ENT_WITH,$str);
+			// Replace any encoded characters (spam loves doing this with every character)
+			$str = html_entity_decode($str);
 		}
 
-		$str = preg_replace('# +#', ' ', $str);
-		
-//		$lines = split("\n", $str);
-//		$str = '';
-//		
-//		foreach($lines as $line) {
-//		    $str .= ltrim($line);
-//		}
-//		
-//		unset($lines);
+		$str = preg_replace('# +#', ' ', trim($str));
 		
 		return $str;
 	}

@@ -81,8 +81,6 @@ class CerberusParser {
 		$sTo = @$headers['to'];
 		$bIsNew = true;
 
-//		echo htmlentities($sTo),' ',htmlentities($sFrom),' ',htmlentities($sReplyTo),' ',htmlentities($sReturnPath),"<BR>";
-		
 		// Overloadable
 		$sMask = '';
 		$iClosed = 0;
@@ -251,7 +249,11 @@ class CerberusParser {
         }
         
 		if(empty($id)) { // New Ticket
-			$team_id = CerberusParser::parseDestination($headers);
+			// Are we delivering or bouncing?
+			if(null == ($team_id = CerberusParser::parseDestination($headers))) {
+				// Bounce
+				return null;
+			}
 			
 			if(empty($sMask))
 				$sMask = CerberusApplication::generateTicketMask();

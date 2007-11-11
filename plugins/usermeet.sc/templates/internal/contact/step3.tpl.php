@@ -10,21 +10,15 @@
   <tbody>
     <tr>
       <td colspan="2">
-      	<div style="border-bottom:1px solid rgb(180,180,180);margin-bottom:10px;">
-      	<h2 style="margin-bottom:0px;">What e-mail address should we reply to?</h2>
-      	</div>
+      	<h1>What e-mail address should we reply to?</h1>
       	<input type="hidden" name="nature" value="{$sNature}">	
 		<input name="from" value="{$last_from}" autocomplete="off" style="width:98%;"><br>
 		
-		<div style="border-bottom:1px solid rgb(180,180,180);margin-bottom:10px;">
-      	<h2 style="margin-bottom:0px;">Message:</h2>	
-      	</div>
+      	<h1>Message:</h1>	
 		<textarea name="content" rows="10" cols="60" style="width:98%;">{$last_content}</textarea><br>
 		
 		{if $captcha_enabled}
-			<div style="border-bottom:1px solid rgb(180,180,180);margin-bottom:10px;">
-	      	<h2 style="margin-bottom:0px;">Please type the text from the image below:</h2>	
-	      	</div>
+	      	<h1>Please type the text from the image below:</h1>	
 			<b>Text:</b> <input name="captcha" class="question" value="" size="10" autocomplete="off"><br>
 			<img src="{devblocks_url}c=captcha{/devblocks_url}"><br>
 		{/if}

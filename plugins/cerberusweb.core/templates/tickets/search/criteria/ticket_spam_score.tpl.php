@@ -3,6 +3,7 @@
 	<select name="oper">
 		<option value="&gt;=">&gt;=</option>
 		<option value="&lt;=">&lt;=</option>
+		<option value="=">=</option>
 	</select>
 </blockquote>
 
@@ -10,4 +11,3 @@
 <blockquote style="margin:5px;">
 	<input type="text" name="score" size="3" maxlength="2">%
 </blockquote>
-

@@ -3,9 +3,7 @@ Search results for '<b>{$query}</b>':<br>
 
 {if !empty($feeds)}
 {foreach from=$feeds item=matches name=matches}
-	<div style="border-bottom:1px solid rgb(180,180,180);margin-bottom:10px;">
-	<h2 style="margin:0px;">{$matches.name}</h2>
-	</div>
+	<h1>{$matches.name}</h1>
 
 	<div style="margin:10px;">
 	{foreach from=$matches.feed item=item name=items}
@@ -34,7 +32,7 @@ Search results for '<b>{$query}</b>':<br>
 			<br>
 			<div style="margin-left:20px;">
 			{if !empty($description)}
-				{$description|strip_tags}
+				{$description|strip_tags|truncate:500:'...'}
 				<br>
 			{/if}
 			<b>Source:</b> <a href="{$link}" style="color:rgb(50,50,50);" target="_blank">{$link|truncate:65:'...':true:true}</a><br>

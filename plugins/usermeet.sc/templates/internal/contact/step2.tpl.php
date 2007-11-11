@@ -10,9 +10,7 @@
   <tbody>
     <tr>
       <td colspan="2">
-		<div style="border-bottom:1px solid rgb(180,180,180);margin-bottom:10px;">
-      	<h2 style="margin-bottom:0px;">{$situation}</h2>
-      	</div>
+      	<h1>{$situation}</h1>
       
       	{if !empty($situation_params.followups)}
 		{foreach from=$situation_params.followups key=question item=long name=situations}

@@ -1,15 +1,5 @@
 {include file="$tpl_path/header.tpl.php"}
-<!--- 
-<table cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color:rgb(240,240,240);padding:2px;">
-<tr>
-	<td align="left">
-		<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/wgm/usermeet_powered.gif{/devblocks_url}">
-	</td>
-	<td align="right">
-	</td>
-</tr>
-</table>
---->
+
 {if !empty($tour_enabled)}{include file="tour.tpl.php"}{/if}
 <table cellspacing="0" cellpadding="2" border="0" width="100%">
 	<tr>

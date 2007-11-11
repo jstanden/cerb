@@ -11,9 +11,7 @@
   <tbody>
     <tr>
       <td colspan="2">
-		<div style="border-bottom:1px solid rgb(180,180,180);margin-bottom:10px;">
-      	<h2 style="margin-bottom:0px;">Which best describes your situation?</h2>
-      	</div>
+      	<h1>Which best describes your situation?</h1>
       	
 		{foreach from=$dispatch item=to key=reason}
 		{assign var=dispatchKey value=$reason|md5}

@@ -1,6 +1,4 @@
-<div style="border-bottom:1px solid rgb(180,180,180);margin-bottom:10px;">
-<H2 style="margin-bottom:0px;">My Account</H2>
-</div>
+<h1>My Account</h1>
 
 {if !empty($account_success)}
 <div class="success">Account settings saved!</div>

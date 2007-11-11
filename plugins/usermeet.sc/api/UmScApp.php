@@ -13,13 +13,17 @@ class UmScPlugin extends DevblocksPlugin {
 
 class UmScApp extends Extension_UsermeetTool {
 	const PARAM_LOGO_URL = 'logo_url';
-	const PARAM_THEME_URL = 'theme_url';
+	const PARAM_THEME = 'theme';
+//	const PARAM_THEME_URL = 'theme_url';
 	const PARAM_PAGE_TITLE = 'page_title';
+	const PARAM_FOOTER_HTML = 'footer_html';
 	const PARAM_CAPTCHA_ENABLED = 'captcha_enabled';
 	const PARAM_DISPATCH = 'dispatch';
 	const PARAM_HOME_RSS = 'home_rss';
 	const PARAM_FNR_SOURCES = 'fnr_sources';
 	const PARAM_ALLOW_LOGINS = 'allow_logins';
+	
+	const DEFAULT_THEME = 'cerb4';
 	
 	const SESSION_CAPTCHA = 'write_captcha';
 	
@@ -59,13 +63,13 @@ class UmScApp extends Extension_UsermeetTool {
     }
     
 	public function writeResponse(DevblocksHttpResponse $response) {
+        $umsession = $this->getSession();
+		$stack = $response->path;
+
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
 		$tpl_path = realpath(dirname(__FILE__).'/../') . '/templates/';
 		$tpl->assign('tpl_path', $tpl_path);
-		
-        $umsession = $this->getSession();
-		$stack = $response->path;
 		
 		$logo_url = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_LOGO_URL, '');
 		$tpl->assign('logo_url', $logo_url);
@@ -73,15 +77,23 @@ class UmScApp extends Extension_UsermeetTool {
 		$page_title = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_PAGE_TITLE, 'Support Center');
 		$tpl->assign('page_title', $page_title);
         
+        $footer_html = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_FOOTER_HTML, '');
+		$tpl->assign('footer_html', $footer_html);
+		
         $captcha_enabled = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_CAPTCHA_ENABLED, 1);
 		$tpl->assign('captcha_enabled', $captcha_enabled);
 
         $allow_logins = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_ALLOW_LOGINS, 0);
 		$tpl->assign('allow_logins', $allow_logins);
 		
+        $theme = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_THEME, self::DEFAULT_THEME);
+        if(!is_dir($tpl_path . 'themes/'.$theme))
+        	$theme = self::DEFAULT_THEME;
+		$tpl->assign('theme', $theme);
+		
         @$active_user = $umsession->getProperty('sc_login',null);
         $tpl->assign('active_user', $active_user);
-		
+
 		// Usermeet Session
 		if(null == ($fingerprint = parent::getFingerprint())) {
 			die("A problem occurred.");
@@ -96,7 +108,19 @@ class UmScApp extends Extension_UsermeetTool {
         	$mf = DevblocksPlatform::getExtension($this->default_controller);
         }
 
-        $tpl->assign('menu', $this->modules);
+        $menu_modules = array();
+        
+		if(is_array($this->modules))
+		foreach($this->modules as $idx => $item) {
+			// Must be menu renderable
+			if(!empty($item['menu_title']) && !empty($item['uri'])) {
+				// Must not require login, or we must be logged in
+				if(!isset($item['requires_login']) || (isset($item['requires_login']) && !empty($active_user))) {
+					$menu_modules[$idx] = $item;
+				}
+			}			
+		}
+        $tpl->assign('menu', $menu_modules);
         
         array_unshift($stack, $module_uri);
         $controller = $mf->createInstance();
@@ -128,7 +152,7 @@ class UmScApp extends Extension_UsermeetTool {
 			
 	    	default:
 	    		// Look up the current module
-   				$tpl->display('file:' . $tpl_path . 'index.tpl.php');
+   				$tpl->display('file:' . $tpl_path . 'themes/'.$theme.'/index.tpl.php');
 		    	break;
 		}
 	}
@@ -164,16 +188,35 @@ class UmScApp extends Extension_UsermeetTool {
         $page_title = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_PAGE_TITLE, 'Support Center');
 		$tpl->assign('page_title', $page_title);
         
+        $footer_html = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_FOOTER_HTML, '');
+		$tpl->assign('footer_html', $footer_html);
+        
+        $theme = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_THEME, self::DEFAULT_THEME);
+        if(!is_dir($tpl_path . 'themes/'.$theme))
+        	$theme = self::DEFAULT_THEME;
+        $tpl->assign('theme', $theme);
+        
         $captcha_enabled = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_CAPTCHA_ENABLED, 1);
 		$tpl->assign('captcha_enabled', $captcha_enabled);
 
         $allow_logins = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_ALLOW_LOGINS, 0);
 		$tpl->assign('allow_logins', $allow_logins);
 
-//		$resources = DAO_FnrExternalResource::getWhere();
+		// F&R
 		$topics = DAO_FnrTopic::getWhere();
-//		$tpl->assign('resources', $resources);
 		$tpl->assign('topics', $topics);
+		
+		// Themes
+		$themes = array();
+		if(false !== ($dir = opendir($tpl_path . 'themes'))) {
+			while($file = readdir($dir)) {
+				if(is_dir($tpl_path.'themes/'.$file) && substr($file,0,1) != '.') {
+					$themes[] = $file;
+				}
+			}
+			@closedir($dir);
+		}
+		$tpl->assign('themes', $themes);
 		
         $tpl->display("file:${tpl_path}config/index.tpl.php");
     }
@@ -181,14 +224,17 @@ class UmScApp extends Extension_UsermeetTool {
     public function saveConfiguration() {
         @$sLogoUrl = DevblocksPlatform::importGPC($_POST['logo_url'],'string','');
         @$sPageTitle = DevblocksPlatform::importGPC($_POST['page_title'],'string','Contact Us');
+        @$sTheme = DevblocksPlatform::importGPC($_POST['theme'],'string',UmScApp::DEFAULT_THEME);
         @$iCaptcha = DevblocksPlatform::importGPC($_POST['captcha_enabled'],'integer',1);
         @$iAllowLogins = DevblocksPlatform::importGPC($_POST['allow_logins'],'integer',0);
 
         DAO_CommunityToolProperty::set($this->getPortal(), self::PARAM_LOGO_URL, $sLogoUrl);
         DAO_CommunityToolProperty::set($this->getPortal(), self::PARAM_PAGE_TITLE, $sPageTitle);
+        DAO_CommunityToolProperty::set($this->getPortal(), self::PARAM_THEME, $sTheme);
         DAO_CommunityToolProperty::set($this->getPortal(), self::PARAM_CAPTCHA_ENABLED, $iCaptcha);
         DAO_CommunityToolProperty::set($this->getPortal(), self::PARAM_ALLOW_LOGINS, $iAllowLogins);
 
+        // Home RSS Feeds
         @$aHomeRssTitles = DevblocksPlatform::importGPC($_POST['home_rss_title'],'array',array());
         @$aHomeRssUrls = DevblocksPlatform::importGPC($_POST['home_rss_url'],'array',array());
         @$aFnrSources = DevblocksPlatform::importGPC($_POST['fnr_sources'],'array',array());
@@ -203,11 +249,17 @@ class UmScApp extends Extension_UsermeetTool {
         	$aHomeRss[$aHomeRssTitles[$idx]] = $rss;
         }
         
+        // Footer
+        @$sFooterHtml = DevblocksPlatform::importGPC($_POST['footer_html'],'string','');
+        DAO_CommunityToolProperty::set($this->getPortal(), self::PARAM_FOOTER_HTML, $sFooterHtml);
+        
+        // F&R
         $aFnrSources = array_flip($aFnrSources);
         
 		DAO_CommunityToolProperty::set($this->getPortal(), self::PARAM_HOME_RSS, serialize($aHomeRss));
 		DAO_CommunityToolProperty::set($this->getPortal(), self::PARAM_FNR_SOURCES, serialize($aFnrSources));
 
+		// Contact Form
         $settings = CerberusSettings::getInstance();
         $default_from = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM);
         
@@ -848,9 +900,13 @@ class UmScCoreController extends Extension_UmScController {
 	}
 	
 	function writeResponse(DevblocksHttpResponse $response) {
-        $tpl = DevblocksPlatform::getTemplateService();
-        $tpl_path = realpath(dirname(__FILE__).'/../') . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR;
+		$tpl = DevblocksPlatform::getTemplateService();
+        $tpl_path = realpath(dirname(__FILE__).'/../') . '/templates/';
 		
+        $theme = DAO_CommunityToolProperty::get($this->getPortal(), UmScApp::PARAM_THEME, UmScApp::DEFAULT_THEME);
+        if(!is_dir($tpl_path . 'themes/'.$theme))
+        	$theme = UmScApp::DEFAULT_THEME;
+        
 		$umsession = $this->getSession();
 		$active_user = $umsession->getProperty('sc_login', null);
 
@@ -881,7 +937,7 @@ class UmScCoreController extends Extension_UmScController {
 	    		
 	    		$tpl->assign('feeds', $feeds);
 				
-				$tpl->display("file:${tpl_path}modules/home/index.tpl.php");
+				$tpl->display("file:${tpl_path}internal/home/index.tpl.php");
 				break;
 				
 			case 'account':
@@ -891,7 +947,7 @@ class UmScCoreController extends Extension_UmScController {
 				$address = DAO_Address::get($active_user->id);
 				$tpl->assign('address',$address);
 				
-				$tpl->display("file:${tpl_path}modules/account/index.tpl.php");
+				$tpl->display("file:${tpl_path}internal/account/index.tpl.php");
 				break;
 				
 			case 'answers':
@@ -916,7 +972,7 @@ class UmScCoreController extends Extension_UmScController {
 					$tpl->assign('feeds', $feeds);
 				}
 				
-				$tpl->display("file:${tpl_path}modules/answers/index.tpl.php");
+				$tpl->display("file:${tpl_path}internal/answers/index.tpl.php");
 				break;
 				
 			case 'contact':
@@ -929,7 +985,7 @@ class UmScCoreController extends Extension_UmScController {
 		    	switch($response) {
 		    		case 'confirm':
 		    			$tpl->assign('last_opened',$umsession->getProperty('support.write.last_opened',''));
-		    			$tpl->display("file:${tpl_path}modules/contact/confirm.tpl.php");
+		    			$tpl->display("file:${tpl_path}internal/contact/confirm.tpl.php");
 		    			break;
 		    		
 		    		default:
@@ -952,7 +1008,7 @@ class UmScCoreController extends Extension_UmScController {
 				        
 				        switch($response) {
 				        	default:
-				        		$tpl->display("file:${tpl_path}modules/contact/step1.tpl.php");
+				        		$tpl->display("file:${tpl_path}internal/contact/step1.tpl.php");
 				        		break;
 				        		
 				        	case 'step2':
@@ -966,18 +1022,18 @@ class UmScCoreController extends Extension_UmScController {
 						        		break;
 						        	}
 						        }
-				        		$tpl->display("file:${tpl_path}modules/contact/step2.tpl.php");
+				        		$tpl->display("file:${tpl_path}internal/contact/step2.tpl.php");
 				        		break;
 				        		
 				        	case 'step3':
-				        		$tpl->display("file:${tpl_path}modules/contact/step3.tpl.php");
+				        		$tpl->display("file:${tpl_path}internal/contact/step3.tpl.php");
 				        		break;
 				        }
 				        break;
 		    		}
 		    		
 		    	break;
-//				$tpl->display("file:${tpl_path}modules/contact/index.tpl.php");
+//				$tpl->display("file:${tpl_path}internal/contact/index.tpl.php");
 //				break;
 				
 			case 'history':
@@ -1012,7 +1068,7 @@ class UmScCoreController extends Extension_UmScController {
 						false
 					);
 					$tpl->assign('closed_tickets', $closed_tickets);
-					$tpl->display("file:${tpl_path}modules/history/index.tpl.php");
+					$tpl->display("file:${tpl_path}internal/history/index.tpl.php");
 					
 				} else {
 					// Secure retrieval (address + mask)
@@ -1036,7 +1092,7 @@ class UmScCoreController extends Extension_UmScController {
 						
 						$tpl->assign('ticket', $ticket);
 						$tpl->assign('messages', $messages);
-						$tpl->display("file:${tpl_path}modules/history/display.tpl.php");						
+						$tpl->display("file:${tpl_path}internal/history/display.tpl.php");						
 					}
 				}
 				
@@ -1050,16 +1106,16 @@ class UmScCoreController extends Extension_UmScController {
 				
 				switch($step) {
 					case 'forgot':
-						$tpl->display("file:${tpl_path}modules/register/forgot.tpl.php");
+						$tpl->display("file:${tpl_path}internal/register/forgot.tpl.php");
 						break;
 					case 'forgot2':
-						$tpl->display("file:${tpl_path}modules/register/forgot_confirm.tpl.php");
+						$tpl->display("file:${tpl_path}internal/register/forgot_confirm.tpl.php");
 						break;
 					case 'confirm':
-						$tpl->display("file:${tpl_path}modules/register/confirm.tpl.php");
+						$tpl->display("file:${tpl_path}internal/register/confirm.tpl.php");
 						break;
 					default:
-						$tpl->display("file:${tpl_path}modules/register/index.tpl.php");
+						$tpl->display("file:${tpl_path}internal/register/index.tpl.php");
 						break;
 				}
 				

@@ -307,12 +307,12 @@ class DAO_CommunityToolProperty {
 		$db->Replace(
 			'community_tool_property',
 			array(
-				self::TOOL_CODE => $tool_code,
-				self::PROPERTY_KEY => $key,
-				self::PROPERTY_VALUE => '',
+				self::TOOL_CODE => $db->qstr($tool_code),
+				self::PROPERTY_KEY => $db->qstr($key),
+				self::PROPERTY_VALUE => $db->qstr(''),
 			),
 			array(self::TOOL_CODE, self::PROPERTY_KEY),
-			true
+			false
 		);
 		
 		$db->UpdateBlob(
