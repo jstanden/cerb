@@ -202,7 +202,7 @@
 							</tr>
 							<tr>
 								<td><input type="text" name="email" size="12"></td>
-								<td><input type="text" name="pass" size="12"></td>
+								<td><input type="password" name="pass" size="12"></td>
 								<td valign="bottom"><button type="submit"><img src="{devblocks_url}c=resource&p=usermeet.sc&f=images/lock.gif{/devblocks_url}"></button></td>
 							</tr>
 						</table>
