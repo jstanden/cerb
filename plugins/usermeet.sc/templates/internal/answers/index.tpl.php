@@ -28,7 +28,7 @@ Search results for '<b>{$query}</b>':<br>
 			{assign var=item_guid value=''|cat:$title|cat:'_'|cat:$link|md5}
 			
 			<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document.gif{/devblocks_url}" align="absmiddle"> 
-			<a href="{$link}" style="font-weight:normal;">{$title}</a> 
+			<a href="{$link}" style="font-weight:normal;" target="_blank">{$title}</a> 
 			<br>
 			<div style="margin-left:20px;">
 			{if !empty($description)}

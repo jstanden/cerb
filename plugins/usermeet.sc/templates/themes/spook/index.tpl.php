@@ -5,7 +5,7 @@
 		{literal}
 		BODY {
 			margin:0px;
-			background-color:rgb(66,66,66);
+			background-color:rgb(28,28,28);
 		}
 		
 		BODY, TD {
@@ -14,7 +14,8 @@
 		}
 		
 		BODY A, TD A {
-			color: rgb(40,120,40);
+			color: rgb(255,255,255); /* 140,255,86 */
+			font-weight:normal;
 		}
 		
 		FORM {
@@ -28,21 +29,21 @@
 		
 		#headerTable {
 			width:100%;
-			background-color:rgb(66,66,66);
-			color:rgb(255,255,255);
+			background-color:rgb(117,168,15);
+			color:rgb(174,254,7);
 		}
 		
 		#headerTable A {
-			color:rgb(255,176,0);
+			color:rgb(174,254,7);
 		}
 	
 		#headerBand {
-			background-color:rgb(166,166,166);
+			background-color:rgb(79,118,3);
 			height:5px;
 		}
 		
 		#headerLoginTable {
-			color: rgb(255,255,255);
+			color: rgb(174,254,7);
 		}
 		
 		#headerLoginTable BUTTON {
@@ -55,13 +56,13 @@
 		}
 		
 		#menu {
-			color: rgb(127,127,127);
+			color: rgb(160,160,160);
 			padding-top:5px;
 			padding-bottom:10px;
 		}
 	
 		#menu A {
-			color: rgb(120,120,120);
+			color: rgb(235,235,235);
 		}
 		
 		#logo {
@@ -71,43 +72,47 @@
 		}
 		
 		#content {
-			padding:5px;
-			padding-bottom:30px;
-			background-color:rgb(255,255,255);
-			background-image: url('{/literal}{devblocks_url}c=resource&p=usermeet.sc&f=images/cerb4/bg_whitegray.jpg{/devblocks_url}{literal}');
+			background-color:rgb(148,148,148);
+			background-image: url('{/literal}{devblocks_url}c=resource&p=usermeet.sc&f=images/spook/bg_graygrad.jpg{/devblocks_url}{literal}');
 			background-repeat: repeat-x;
 		}
 		
+		#contentCell {
+			padding:5px;
+			padding-bottom:30px;
+		}
+		
 		#content H1 {
-			color:rgb(244,47,0);
+			color:rgb(254,229,5);
 			font-size:24px;
 			margin-top:0px;
 			margin-bottom:0px;
 		}
 		
 		#sidebar {
-			padding-left:5px;
+			padding:10px;
+			background-color:rgb(47,47,47);
 		}
 		
 		#sidebar .header {
-			background-image: url('{/literal}{devblocks_url}c=resource&p=usermeet.sc&f=images/cerb4/bg_dkgray_ltgray.jpg{/devblocks_url}{literal}');
+			background-image: url('{/literal}{devblocks_url}c=resource&p=usermeet.sc&f=images/spook/bg_orangegrad.jpg{/devblocks_url}{literal}');
 			background-repeat: repeat-x;
-			border-bottom:2px solid rgb(251,105,2);
+			border-bottom:2px solid rgb(155,155,155);
 		}
 	
 		#sidebar .header H2 {
-			color:rgb(216,255,2);
+			color:rgb(255,255,255);
 			font-size:16px;
 			margin:5px;
 		}
 		
 		#sidebar .body {
 			padding:8px;
-			background-color:rgb(241,241,241);
+			background-color:rgb(231,231,231);
 		}
 		
 		#sidebar .footer {
-			background-color:rgb(113,113,113);
+			background-color:rgb(160,160,160);
 			height:2px;
 		}
 		
@@ -122,14 +127,13 @@
 		}
 		
 		#footerBand {
-			background-image: url('{/literal}{devblocks_url}c=resource&p=usermeet.sc&f=images/cerb4/bg_blackgray.jpg{/devblocks_url}{literal}');
-			background-repeat: repeat-x;
-			height:20px;
+			background-color:rgb(94,94,94);
+			height:8px;
 		}
 		
 		#footer {
-			color:rgb(200,200,200);
-			background-color:rgb(89,89,89);
+			color:rgb(155,155,155);
+			background-color:rgb(66,66,66);
 			padding:5px;
 		}
 		
@@ -182,7 +186,7 @@
 				<tr>
 					<td>
 					{if empty($logo_url)}
-						<a href="{devblocks_url}c=home{/devblocks_url}"><img src="{devblocks_url}c=resource&p=usermeet.sc&f=images/logo.jpg{/devblocks_url}" alt="Logo" border="0"></a><br>
+						<a href="{devblocks_url}c=home{/devblocks_url}"><img src="{devblocks_url}c=resource&p=usermeet.sc&f=images/spook/logo.jpg{/devblocks_url}" alt="Logo" border="0"></a><br>
 					{else}
 						<a href="{devblocks_url}c=home{/devblocks_url}"><img src="{$logo_url}" alt="Logo" border="0"></a><br>
 					{/if}
@@ -230,7 +234,7 @@
 			<table cellpadding="0" cellspacing="0" border="0" width="100%">
 				<tr>
 					<!-- Main Content -->
-					<td width="100%" valign="top">
+					<td width="100%" valign="top" id="contentCell">
 						<div id="menu">
 						 {foreach from=$menu item=item name=menu}
 						 	{if !empty($item.icon)}<img src="{devblocks_url}c=resource&p=usermeet.sc&f={$item.icon}{/devblocks_url}" align="top">{/if} <a href="{devblocks_url}c={$item.uri}{/devblocks_url}">{$item.menu_title}</a>
@@ -273,7 +277,7 @@
 	</tr>
 	
 	<!-- Footer Band -->
-	<tr><td id="footerBand">&nbsp;</td></tr>
+	<tr><td id="footerBand"></td></tr>
 	
 	<!-- Footer -->
 	<tr>

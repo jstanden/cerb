@@ -121,14 +121,11 @@
 	</tbody>
 </table>
 
-<table style="padding-left: 5px; text-align: left; width: 100%;" border="0" cellpadding="0" cellspacing="0">
+<table style="padding: 10px;padding-top:15px; width: 100%;" border="0" cellpadding="0" cellspacing="0">
 	<tbody>
 		<tr>
-			<td colspan="2" style="padding-left:10px;">{$footer_html}</td>
-		</tr>
-		<tr>
-			<td></td>
-			<td style="text-align:right;color:rgb(150,150,150);font-size:11px;">powered by <a href="http://www.cerberusweb.com/" style="color:rgb(50,120,50);font-weight:bold;">Cerberus Helpdesk 4.0</a></td>
+			<td>{$footer_html}</td>
+			<td style="text-align:right;vertical-align:top;color:rgb(150,150,150);font-size:11px;">powered by <a href="http://www.cerberusweb.com/" style="color:rgb(50,120,50);font-weight:bold;">Cerberus Helpdesk 4.0</a></td>
 		</tr>
 	</tbody>
 </table>
