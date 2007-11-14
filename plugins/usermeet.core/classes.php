@@ -1315,11 +1315,9 @@ class UmKbApp extends Extension_UsermeetTool {
 			$xml = new SimpleXMLElement($xmlstr);
 			
 			foreach($xml->articles->article AS $article) {
-				$title = $article->title;
-				settype($title,'string');
+				$title = (string) $article->title;
 				
-				$content = $article->content;
-				settype($content,'string');
+				$content = (string) $article->content;
 				
 				$fields = array(
 						DAO_KbArticle::CODE => $this->getPortal(),
@@ -1330,8 +1328,7 @@ class UmKbApp extends Extension_UsermeetTool {
 				$tags = array();
 				if(!empty($article->categories->category))
 				foreach($article->categories->category AS $category) {
-					settype($category,'string');
-					$tags[] = $category;
+					$tags[] = (string) $category;
 				}
 
 				if(!empty($tags)) {
