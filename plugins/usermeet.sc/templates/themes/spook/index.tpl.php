@@ -24,7 +24,6 @@
 		
 		#mainTable {
 			width: 900px;
-			padding-bottom:50px;
 		}
 		
 		#headerTable {

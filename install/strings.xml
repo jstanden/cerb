@@ -1,16 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE tmx SYSTEM "tmx14.dtd">
 <tmx version="1.4">
- <header datatype="winres" segtype="sentence" adminlang="en-us" srclang="en-us" o-tmf="abc" >
- </header>
- <body>
-  <tu tuid='installer.passed'>
-   <tuv xml:lang="en"><seg>Passed</seg></tuv>
-   <tuv xml:lang="de"><seg>Erfolg</seg></tuv>
-  </tu>
-  <tu tuid='installer.failed'>
-   <tuv xml:lang="en"><seg>Failed</seg></tuv>
-   <tuv xml:lang="de"><seg>Erfolglos</seg></tuv>
-  </tu>
-  </body>
+	<header datatype="winres" segtype="sentence" adminlang="en-us"
+		srclang="en-us" o-tmf="abc" />
+
+	<body>
+		<tu tuid='installer.passed'>
+			<tuv xml:lang="en">
+				<seg>Passed</seg>
+			</tuv>
+			<tuv xml:lang="de">
+				<seg>Erfolg</seg>
+			</tuv>
+		</tu>
+		<tu tuid='installer.failed'>
+			<tuv xml:lang="en">
+				<seg>Failed</seg>
+			</tuv>
+			<tuv xml:lang="de">
+				<seg>Erfolglos</seg>
+			</tuv>
+		</tu>
+	</body>
 </tmx>
