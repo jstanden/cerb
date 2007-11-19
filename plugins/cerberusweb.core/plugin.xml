@@ -320,7 +320,7 @@
 		</extension>
 		
 		<!--  Login Extensions -->
-		
+
 		<extension point="cerberusweb.login">
 			<id>login.default</id>
 			<name>Default Login Module</name>
@@ -332,7 +332,6 @@
 			</params>
 		</extension>
 
-		<!-- 
 		<extension point="cerberusweb.login">
 			<id>login.ldap</id>
 			<name>LDAP Login Module</name>
@@ -343,7 +342,6 @@
 			<params>
 			</params>
 		</extension>
-		-->		
 		 
 		<!-- Cron Extensions -->
 		

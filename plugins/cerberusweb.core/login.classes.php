@@ -107,42 +107,106 @@ class DefaultLoginModule extends CerberusLoginPageExtension {
 	}
 };
 
-//class LDAPLoginModule extends CerberusLoginPageExtension {
-//	function renderLoginForm() {
-//		// draws HTML form of controls needed for login information
-//		$tpl = DevblocksPlatform::getTemplateService();
-//		$tpl->cache_lifetime = "0";
-//		$tpl->display('file:' . dirname(__FILE__) . '/templates/login/login_form_ldap.tpl.php');
-//	}
-//	
-//	function authenticate() {
-//		// pull auth info out of $_POST, check it, return user_id or false
-//		@$server	= DevblocksPlatform::importGPC($_POST['server']);
-//		@$port		= DevblocksPlatform::importGPC($_POST['port']);
-//		@$dn		= DevblocksPlatform::importGPC($_POST['dn']);
-//		@$password	= DevblocksPlatform::importGPC($_POST['password']);
-//
-//		$conn = ldap_connect($server, $port);
-//		ldap_set_option($conn, LDAP_OPT_PROTOCOL_VERSION, 3);
-//		
-//		if ($conn) {
-//			$auth = ldap_bind($conn, $dn, $password);
-//			if (1 == $auth) {
-//				$session = DevblocksPlatform::getSessionService();
-//				$visit = new DevblocksSession();
-//					// [TODO]: Need to set real properties here
-//					$visit->id = 1;
-//					$visit->login = 'ldap_user';
-//					$visit->admin = 1;
-//				$session->visit = $visit;
-//				$_SESSION['um_visit'] = $visit;
-//
-//				return true;
-//			}
-//		}
-//		
-//		return false;
-//	}
-//};
+class LDAPLoginModule extends CerberusLoginPageExtension {
+	/**
+	 * draws html form for adding necessary settings (host, port, etc) to be stored in the db
+	 */
+	function renderConfigForm() {
+	}
+	
+	/**
+	 * Receives posted config form, saves to manifest
+	 */
+	function saveConfiguration() {
+//		$field_value = DevblocksPlatform::importGPC($_POST['field_value']);
+//		$this->params['field_name'] = $field_value;
+	}
+	
+	// draws HTML form of controls needed for login information
+	function renderLoginForm() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		
+		// add translations for calls from classes that aren't Page Extensions (mobile plugin, specifically)
+		$translate = DevblocksPlatform::getTranslationService();
+		$tpl->assign('translate', $translate);
+		
+		// set up redirect (to return to original page if redirected to login page)
+		$request = DevblocksPlatform::getHttpRequest();
+		$prefix = '';
+		$query_str = '';
+		foreach($request->query as $key=>$val) {
+			$query_str .= $prefix . $key . '=' . $val;
+			$prefix = '&';
+		}
+		$original_path = (sizeof($request->path)==0) ? 'login' : implode(',',$request->path);
+		$tpl->assign('original_path', $original_path);
+		$tpl->assign('original_query', $query_str);
+
+		// TODO: pull this from a config area
+		$server = 'localhost';
+		$port = '10389';
+		$default_dn = 'cn=William Bush,ou=people,o=sevenSeas';
+		$tpl->assign('server', $server);
+		$tpl->assign('port', $port);
+		$tpl->assign('default_dn', $default_dn);
+		
+		// display login form
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/login/login_form_ldap.tpl.php');
+	}
+	
+	function authenticate($params=array()) {
+	    $server = $params['server'];
+	    $port = $params['port'];
+	    $dn = $params['dn'];
+	    $password = $params['password'];
+	    
+		$worker_id = null;
+		
+	    // attempt login
+		$conn = ldap_connect($server, $port);
+		ldap_set_option($conn, LDAP_OPT_PROTOCOL_VERSION, 3);
+		
+		if ($conn) {
+			$auth = ldap_bind($conn, $dn, $password);
+			if ($auth) {
+				// search for this user
+				$search_results = ldap_search($conn, $dn, '(objectclass=*)', array('mail'));
+				if ($search_results) {
+					$user_entry = ldap_first_entry($conn, $search_results);
+					if ($user_entry) {
+						// get email addresses for this user
+						$emails = ldap_get_values($conn, $user_entry, 'mail');
+						if ($emails) {
+							foreach($emails as $email) {
+								if (is_null($worker_id)) {
+									$worker_id = DAO_Worker::lookupAgentEmail($email);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+				
+		// we found a worker, continue login
+		if (!is_null($worker_id)) {
+			$worker = DAO_Worker::getAgent($worker_id);
+			$session = DevblocksPlatform::getSessionService();
+			$visit = new CerberusVisit();
+			$visit->setWorker($worker);
+				
+			$visit->set(CerberusVisit::KEY_DASHBOARD_ID, ''); // 't'.$team_id
+			$visit->set(CerberusVisit::KEY_WORKSPACE_GROUP_ID, 0); // $team_id
+
+			$session->setVisit($visit);
+			
+			return true;
+		} else {
+			return false;
+		}
+	}
+};
+
 
 ?>
