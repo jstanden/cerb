@@ -30,7 +30,8 @@
 	</tr>
 	<tr>
 		<td width="0%" nowrap="nowrap">{if empty($worker->id)}<b>Password:</b>{else}Password:{/if}</td>
-		<td width="100%"><input type="password" id="workerForm_password" name="password" value=""{if (empty($license) || empty($license.key)) && count($workers) >= 3} disabled{/if}></td>
+		<td width="100%"><input type="password" id="workerForm_password" name="password" value=""{if (empty($license) || empty($license.key)) && count($workers) >= 3} disabled{/if}>
+		{if empty($worker->id)}&nbsp(Leave blank to automatically e-mail a randomly-generated password.){/if}</td>
 	</tr>
 	<tr>
 		<td width="0%" nowrap="nowrap">Password (again):</td>

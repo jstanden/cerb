@@ -2422,6 +2422,46 @@ class ChConfigurationPage extends CerberusPageExtension  {
 				$workers = DAO_Worker::getList();
 				$license = CerberusLicense::getInstance();
 				if ((!empty($license) && !empty($license['key'])) || count($workers) < 3) {
+					// Creating new worker.  If password is empty, email it to them
+				    if(empty($password)) {
+				    	$settings = CerberusSettings::getInstance();
+						$replyFrom = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM);
+						$replyPersonal = $settings->get(CerberusSettings::DEFAULT_REPLY_PERSONAL, '');
+						$url = DevblocksPlatform::getUrlService();
+				    	
+						$password = CerberusApplication::generatePassword(8);
+				    	
+				        $mail_service = DevblocksPlatform::getMailService();
+				        $mailer = $mail_service->getMailer();
+				        $mail = $mail_service->createMessage();
+				        
+				        $sendTo = new Swift_Address($email, $first_name . $last_name);
+				        $sendFrom = new Swift_Address($replyFrom, $replyPersonal);
+				        
+				        $mail->setSubject('Your new helpdesk login information!');
+				        $mail->generateId();
+				        $mail->headers->set('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
+				        
+					    $body = sprintf("Your new helpdesk login information is below:\r\n".
+							"\r\n".
+					        "URL: %s\r\n".
+					        "Login: %s\r\n".
+					        "Password: %s\r\n".
+					        "\r\n".
+					        "You should change your password from Preferences after logging in for the first time.\r\n".
+					        "\r\n",
+						        $url->write('',true),
+						        $email,
+						        $password
+					    );
+				        
+					    $mail->attach(new Swift_Message_Part($body));
+
+						if(!$mailer->send($mail, $sendTo, $sendFrom)) {
+							// [TODO] Report when the message wasn't sent.
+						}
+				    }
+					
 					$id = DAO_Worker::create($email, $password, '', '', '');
 				}
 				else {
