@@ -1027,10 +1027,20 @@ class ChTicketsPage extends CerberusPageExtension {
 		$settings = CerberusSettings::getInstance();
 		$default_from = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM);
 		$default_personal = $settings->get(CerberusSettings::DEFAULT_REPLY_PERSONAL);
+		$default_sig = $settings->get(CerberusSettings::DEFAULT_SIGNATURE,'');
 		$group_settings = DAO_GroupSettings::getSettings($team_id);
+		$team = DAO_Group::getTeam($team_id);
 		@$team_from = $group_settings[DAO_GroupSettings::SETTING_REPLY_FROM];
 		@$team_personal = $group_settings[DAO_GroupSettings::SETTING_REPLY_PERSONAL];
+		@$team_sig = $team->signature;
 		
+		$signature = str_replace(
+        	array('#first_name#','#last_name#','#title#'),
+        	array($worker->first_name,$worker->last_name,$worker->title),
+        	!empty($team_sig) ? $team_sig : $default_sig
+		);
+		$content = empty($signature) ? $content : $content . "\r\n" . $signature;
+
 		$from = !empty($team_from) ? $team_from : $default_from;
 		$personal = !empty($team_personal) ? $team_personal : $default_personal;
 
