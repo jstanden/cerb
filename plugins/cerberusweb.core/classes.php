@@ -1033,6 +1033,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$team_from = $group_settings[DAO_GroupSettings::SETTING_REPLY_FROM];
 		@$team_personal = $group_settings[DAO_GroupSettings::SETTING_REPLY_PERSONAL];
 		@$team_sig = $team->signature;
+		$worker = CerberusApplication::getActiveWorker();
 		
 		$signature = str_replace(
         	array('#first_name#','#last_name#','#title#'),
