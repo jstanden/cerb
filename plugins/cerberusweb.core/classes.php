@@ -518,7 +518,7 @@ class ChTicketsPage extends CerberusPageExtension {
 					$overViewDefaults->renderSortAsc = 0;
 
 					// If the worker has other default preferences, load them instead
-					if(null != ($overViewPrefsStr = DAO_WorkerPref::get($active_worker->id, DAO_WorkerPref::SETTING_OVERVIEW, null))) {
+					if(!DEMO_MODE && null != ($overViewPrefsStr = DAO_WorkerPref::get($active_worker->id, DAO_WorkerPref::SETTING_OVERVIEW, null))) {
 						@$overViewPrefs = unserialize($overViewPrefsStr); /* @var C4_AbstractViewModel $overViewPrefs */
 
 						if($overViewPrefs instanceof C4_AbstractViewModel) {
