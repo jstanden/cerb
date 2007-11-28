@@ -450,6 +450,7 @@ class C4_TicketView extends C4_AbstractView {
 			case SearchFields_Ticket::TICKET_LAST_WROTE:
 			case SearchFields_Ticket::TICKET_NEXT_ACTION:
 			case SearchFields_Ticket::TICKET_MESSAGE_CONTENT:
+			case SearchFields_Ticket::TICKET_INTERESTING_WORDS:
 				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__string.tpl.php');
 				break;
 				
@@ -626,6 +627,7 @@ class C4_TicketView extends C4_AbstractView {
 			case SearchFields_Ticket::TICKET_LAST_WROTE:
 			case SearchFields_Ticket::TICKET_NEXT_ACTION:
 			case SearchFields_Ticket::TICKET_MESSAGE_CONTENT:
+			case SearchFields_Ticket::TICKET_INTERESTING_WORDS:
 				// force wildcards if none used on a LIKE
 				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE) 
 					&& false === (strpos($value,'*'))) {
@@ -1224,6 +1226,7 @@ class Model_WorkerWorkspaceList {
 	public $worker_id = 0;
 	public $workspace = '';
 	public $list_view = '';
+	public $list_pos = 0;
 };
 
 class Model_WorkerWorkspaceListView {

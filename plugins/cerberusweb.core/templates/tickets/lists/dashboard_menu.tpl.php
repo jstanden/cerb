@@ -29,6 +29,12 @@
 						 <a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showAddListPanel',this,false,'450px');">{$translate->_('dashboard.add_view')|lower}</a>
 					</td>
 				</tr>
+				
+				<tr>
+					<td width="100%" style="padding:2px;">
+						 <a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showReorderWorkspacePanel&workspace={$current_workspace|escape:'url'}',this,false,'450px');">{$translate->_('dashboard.reorder')|lower}</a>
+					</td>
+				</tr>
 
 			</table>
 		</td>

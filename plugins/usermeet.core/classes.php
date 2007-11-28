@@ -1316,15 +1316,15 @@ class UmKbApp extends Extension_UsermeetTool {
 			
 			foreach($xml->articles->article AS $article) {
 				$title = (string) $article->title;
-				
 				$content = (string) $article->content;
-				
+
 				$fields = array(
 						DAO_KbArticle::CODE => $this->getPortal(),
 						DAO_KbArticle::TITLE => $title,
 						DAO_KbArticle::CONTENT => $content,
 				);
 				$id = DAO_KbArticle::create($fields);
+				
 				$tags = array();
 				if(!empty($article->categories->category))
 				foreach($article->categories->category AS $category) {

@@ -364,6 +364,12 @@ class DAO_Worker extends DevblocksORMHelper {
 			$id
 		);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+
+		// Clear assigned workers
+		$sql = sprintf("UPDATE ticket SET next_worker_id = 0 WHERE worker_id = %d",
+			$id
+		);
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 	}
 	
 	static function login($email, $password) {
@@ -2732,7 +2738,7 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 			self::TICKET_DUE_DATE => new DevblocksSearchField(self::TICKET_DUE_DATE, 't', 'due_date',null,$translate->_('ticket.due')),
 			self::TICKET_SPAM_TRAINING => new DevblocksSearchField(self::TICKET_SPAM_TRAINING, 't', 'spam_training',null,$translate->_('ticket.spam_training')),
 			self::TICKET_SPAM_SCORE => new DevblocksSearchField(self::TICKET_SPAM_SCORE, 't', 'spam_score',null,$translate->_('ticket.spam_score')),
-			self::TICKET_INTERESTING_WORDS => new DevblocksSearchField(self::TICKET_INTERESTING_WORDS, 't', 'interesting_words'),
+			self::TICKET_INTERESTING_WORDS => new DevblocksSearchField(self::TICKET_INTERESTING_WORDS, 't', 'interesting_words',null,$translate->_('ticket.interesting_words')),
 			self::TICKET_NEXT_ACTION => new DevblocksSearchField(self::TICKET_NEXT_ACTION, 't', 'next_action',null,$translate->_('ticket.next_action')),
 			self::TICKET_LAST_ACTION_CODE => new DevblocksSearchField(self::TICKET_LAST_ACTION_CODE, 't', 'last_action_code',null,$translate->_('ticket.last_action')),
 			self::TICKET_LAST_WORKER_ID => new DevblocksSearchField(self::TICKET_LAST_WORKER_ID, 't', 'last_worker_id',null,$translate->_('ticket.last_worker')),
@@ -3785,6 +3791,7 @@ class DAO_WorkerWorkspaceList extends DevblocksORMHelper {
 	const WORKER_ID = 'worker_id';
 	const WORKSPACE = 'workspace';
 	const LIST_VIEW = 'list_view';
+	const LIST_POS = 'list_pos';
 	
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
@@ -3794,8 +3801,8 @@ class DAO_WorkerWorkspaceList extends DevblocksORMHelper {
 		
 		$id = $db->GenID('generic_seq');
 		
-		$sql = sprintf("INSERT INTO worker_workspace_list (id, worker_id, workspace, list_view) ".
-			"VALUES (%d, 0, '', '')",
+		$sql = sprintf("INSERT INTO worker_workspace_list (id, worker_id, workspace, list_view, list_pos) ".
+			"VALUES (%d, 0, '', '',0)",
 			$id
 		);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
@@ -3832,10 +3839,10 @@ class DAO_WorkerWorkspaceList extends DevblocksORMHelper {
 	static function getWhere($where) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = "SELECT id, worker_id, workspace, list_view ".
+		$sql = "SELECT id, worker_id, workspace, list_view, list_pos ".
 			"FROM worker_workspace_list ".
-			(!empty($where) ? sprintf("WHERE %s ",$where) : " ")
-			;
+			(!empty($where) ? sprintf("WHERE %s ",$where) : " ").
+			"ORDER BY list_pos ASC";
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 
 		$objects = array();
@@ -3845,6 +3852,7 @@ class DAO_WorkerWorkspaceList extends DevblocksORMHelper {
 			$object->id = intval($rs->fields['id']);
 			$object->worker_id = intval($rs->fields['worker_id']);
 			$object->workspace = $rs->fields['workspace'];
+			$object->list_pos = intval($rs->fields['list_pos']);
 			
 			$list_view = $rs->fields['list_view'];
 			if(!empty($list_view)) {
@@ -3892,6 +3900,7 @@ class DAO_WorkerWorkspaceList extends DevblocksORMHelper {
 
 class DAO_WorkerPref extends DevblocksORMHelper {
     const SETTING_TEAM_MOVE_COUNTS = 'team_move_counts';
+    const SETTING_OVERVIEW = 'worker_overview';
     
 	static function set($worker_id, $key, $value) {
 		$db = DevblocksPlatform::getDatabaseService();

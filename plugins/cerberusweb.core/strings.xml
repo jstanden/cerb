@@ -467,6 +467,11 @@
 				<seg>Remove ticket list from dashboard</seg>
 			</tuv>
 		</tu>
+		<tu tuid='dashboard.reorder'>
+			<tuv xml:lang="en">
+				<seg>arrange workspace</seg>
+			</tuv>
+		</tu>
 		<tu tuid='dashboard.switch'>
 			<tuv xml:lang="en">
 				<seg>Switch</seg>
@@ -606,6 +611,11 @@
 		<tu tuid='ticket.first_wrote'>
 			<tuv xml:lang="en">
 				<seg>First Wrote</seg>
+			</tuv>
+		</tu>
+		<tu tuid='ticket.interesting_words'>
+			<tuv xml:lang="en">
+				<seg>Interesting Words</seg>
 			</tuv>
 		</tu>
 		<tu tuid='ticket.last_action'>

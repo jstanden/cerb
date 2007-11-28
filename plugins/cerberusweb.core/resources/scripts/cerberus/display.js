@@ -125,4 +125,5 @@ var cDisplayTicketAjax = function(ticket_id) {
 				argument:{caller:this,msgid:msgid}
 		});	
 	}
+	
 }

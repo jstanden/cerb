@@ -77,6 +77,8 @@
 			<td align='center'>{if !empty($result.t_tasks)}{$result.t_tasks}{/if}</td>*}
 			{elseif $column=="tm_name"}
 			<td>{$result.tm_name}</td>
+			{elseif $column=="t_interesting_words"}
+			<td>{$result.t_interesting_words|replace:',':', '}</td>
 			{elseif $column=="t_category_id"}
 				{assign var=ticket_category_id value=$result.t_category_id}
 			<td>{if 0 == $ticket_category_id}{else}{$buckets.$ticket_category_id->name}{/if}</td>

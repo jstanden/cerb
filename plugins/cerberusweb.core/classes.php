@@ -503,24 +503,46 @@ class ChTicketsPage extends CerberusPageExtension {
 				
 				// [JAS]: Recover from a bad cached ID.
 				if(null == $overView) {
-					$overView = new C4_TicketView();
-					$overView->id = CerberusApplication::VIEW_OVERVIEW_ALL;
-					$overView->name = $title;
-					$overView->dashboard_id = 0;
-					$overView->view_columns = array(
+					// Defaults
+					$overViewDefaults = new C4_AbstractViewModel();
+					$overViewDefaults->view_columns = array(
 						SearchFields_Ticket::TICKET_NEXT_ACTION,
 						SearchFields_Ticket::TICKET_UPDATED_DATE,
 						SearchFields_Ticket::TEAM_NAME,
 						SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
 						SearchFields_Ticket::TICKET_SLA_PRIORITY,
 						SearchFields_Ticket::TICKET_SPAM_SCORE,
-						);
-					$overView->params = array(
 					);
-					$overView->renderLimit = 10;
+					$overViewDefaults->renderLimit = 10;
+					$overViewDefaults->renderSortBy = SearchFields_Ticket::TICKET_SLA_PRIORITY;
+					$overViewDefaults->renderSortAsc = 0;
+
+					// If the worker has other default preferences, load them instead
+					if(null != ($overViewPrefsStr = DAO_WorkerPref::get($active_worker->id, DAO_WorkerPref::SETTING_OVERVIEW, null))) {
+						@$overViewPrefs = unserialize($overViewPrefsStr); /* @var C4_AbstractViewModel $overViewPrefs */
+
+						if($overViewPrefs instanceof C4_AbstractViewModel) {
+							if(!is_null($overViewPrefs->view_columns)) 
+								$overViewDefaults->view_columns = $overViewPrefs->view_columns;
+							if(!is_null($overViewPrefs->renderLimit)) 
+								$overViewDefaults->renderLimit = $overViewPrefs->renderLimit;
+							if(!is_null($overViewPrefs->renderSortBy)) 
+								$overViewDefaults->renderSortBy = $overViewPrefs->renderSortBy;
+							if(!is_null($overViewPrefs->renderSortAsc)) 
+								$overViewDefaults->renderSortAsc = $overViewPrefs->renderSortAsc;
+						}
+					}
+					
+					$overView = new C4_TicketView();
+					$overView->id = CerberusApplication::VIEW_OVERVIEW_ALL;
+					$overView->name = $title;
+					$overView->dashboard_id = 0;
+					$overView->view_columns = $overViewDefaults->view_columns;
+					$overView->params = array();
+					$overView->renderLimit = $overViewDefaults->renderLimit;
 					$overView->renderPage = 0;
-					$overView->renderSortBy = SearchFields_Ticket::TICKET_SLA_PRIORITY;
-					$overView->renderSortAsc = 0;
+					$overView->renderSortBy = $overViewDefaults->renderSortBy;
+					$overView->renderSortAsc = $overViewDefaults->renderSortAsc;
 					
 					C4_AbstractViewLoader::setView($overView->id,$overView);
 				}
@@ -766,6 +788,45 @@ class ChTicketsPage extends CerberusPageExtension {
 		DAO_WorkerPref::set($worker->id, 'assist_mode', 0);
 	}
 	
+	function showReorderWorkspacePanelAction() {
+		@$workspace = DevblocksPlatform::importGPC($_REQUEST['workspace'],'string', '');
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl_path = dirname(__FILE__) . '/templates/';
+		$tpl->assign('path', $tpl_path);
+
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		$tpl->assign('workspace', $workspace);
+		
+		$worklists = DAO_WorkerWorkspaceList::getWhere(sprintf("%s = %s AND %s = %d",
+			DAO_WorkerWorkspaceList::WORKSPACE,
+			$db->qstr($workspace),
+			DAO_WorkerWorkspaceList::WORKER_ID,
+			$active_worker->id
+		));
+		$tpl->assign('worklists', $worklists);
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/lists/reorder_workspace_panel.tpl.php');
+	}
+	
+	function doReorderWorkspaceAction() {
+		@$workspace = DevblocksPlatform::importGPC($_POST['workspace'],'string', '');
+		@$ids = DevblocksPlatform::importGPC($_POST['ids'],'array', array());
+		@$pos = DevblocksPlatform::importGPC($_POST['pos'],'array', array());
+		
+		if(is_array($ids) && !empty($ids))
+		foreach($ids as $idx => $id) {
+			DAO_WorkerWorkspaceList::update($id,array(
+				DAO_WorkerWorkspaceList::LIST_POS => @intval($pos[$idx])
+			));
+		}
+		
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets','lists')));	
+	}
+	
 	function showAddListPanelAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl_path = dirname(__FILE__) . '/templates/';
@@ -813,7 +874,8 @@ class ChTicketsPage extends CerberusPageExtension {
 		$fields = array(
 			DAO_WorkerWorkspaceList::WORKER_ID => $active_worker->id,
 			DAO_WorkerWorkspaceList::WORKSPACE => $workspace_name,
-			DAO_WorkerWorkspaceList::LIST_VIEW => serialize($list_view)
+			DAO_WorkerWorkspaceList::LIST_VIEW => serialize($list_view),
+			DAO_WorkerWorkspaceList::LIST_POS => 0 // [TODO] Add to end?
 		);
 		$list_id = DAO_WorkerWorkspaceList::create($fields);
 		
@@ -4463,25 +4525,38 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		$view = C4_AbstractViewLoader::getView('', $id);
 		$view->doCustomize($columns, $num_rows);
+
+		$active_worker = CerberusApplication::getActiveWorker();
 		
-		if(substr($id,0,5)=="cust_") {
+		// Conditional Persist
+		if(substr($id,0,5)=="cust_") { // custom workspace
 			$list_view_id = intval(substr($id,5));
 			
 			// Special custom view fields
 			@$title = DevblocksPlatform::importGPC($_REQUEST['title'],'string', 'New List');
-			$view->name = $title;
 			
-			// Persist
+			$view->name = $title;
+
+			// Persist Object
 			$list_view = new Model_WorkerWorkspaceListView();
 			$list_view->title = $title;
 			$list_view->columns = $view->view_columns;
 			$list_view->num_rows = $view->renderLimit;
 			$list_view->params = $view->params;
 			
-			$fields = array(
+			DAO_WorkerWorkspaceList::update($list_view_id, array(
 				DAO_WorkerWorkspaceList::LIST_VIEW => serialize($list_view)
-			);
-			DAO_WorkerWorkspaceList::update($list_view_id, $fields);
+			));
+			
+		} elseif($id == CerberusApplication::VIEW_OVERVIEW_ALL) { // overview
+			$overview_prefs = new C4_AbstractViewModel();
+			$overview_prefs->view_columns = $view->view_columns;
+			$overview_prefs->renderLimit = $view->renderLimit;
+			$overview_prefs->renderSortBy = $view->renderSortBy;
+			$overview_prefs->renderSortAsc = $view->renderSortAsc;
+
+			DAO_WorkerPref::set($active_worker->id, DAO_WorkerPref::SETTING_OVERVIEW, serialize($overview_prefs));
+			
 		}
 		
 		C4_AbstractViewLoader::setView($id, $view);
@@ -5028,6 +5103,76 @@ class ChDisplayPage extends CerberusPageExtension {
 		}
 		
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('display',$ticket->mask)));
+	}
+	
+	function doSplitMessageAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+		
+		if(null == ($orig_message = DAO_Ticket::getMessage($id)))
+			return;
+		
+		if(null == ($orig_headers = $orig_message->getHeaders()))
+			return;
+			
+		if(null == ($orig_ticket = DAO_Ticket::getTicket($orig_message->ticket_id)))
+			return;
+
+		if(null == ($messages = DAO_Ticket::getMessagesByTicket($orig_message->ticket_id)))
+			return;
+			
+		// Create a new ticket
+		$new_ticket_mask = CerberusApplication::generateTicketMask();
+		
+		$new_ticket_id = DAO_Ticket::createTicket(array(
+			DAO_Ticket::CREATED_DATE => $orig_message->created_date,
+			DAO_Ticket::UPDATED_DATE => $orig_message->created_date,
+			DAO_Ticket::CATEGORY_ID => $orig_ticket->category_id,
+			DAO_Ticket::FIRST_MESSAGE_ID => $orig_message->id,
+			DAO_Ticket::FIRST_WROTE_ID => $orig_message->address_id,
+			DAO_Ticket::LAST_WROTE_ID => $orig_message->address_id,
+			DAO_Ticket::LAST_ACTION_CODE => CerberusTicketActionCode::TICKET_OPENED,
+			DAO_Ticket::IS_CLOSED => CerberusTicketStatus::OPEN,
+			DAO_Ticket::IS_DELETED => 0,
+			DAO_Ticket::MASK => $new_ticket_mask,
+			DAO_Ticket::SUBJECT => (isset($orig_headers['subject']) ? $orig_headers['subject'] : $orig_ticket->subject),
+			DAO_Ticket::TEAM_ID => $orig_ticket->team_id,
+		));
+
+		// [TODO] SLA?
+		
+		// Requester
+		DAO_Ticket::createRequester($orig_message->address_id,$new_ticket_id);
+		
+		// Pull the message off the ticket (reparent)
+		unset($messages[$orig_message->id]);
+		
+		DAO_Message::update($orig_message->id,array(
+			DAO_Message::TICKET_ID => $new_ticket_id
+		));
+		
+		// Reindex the original ticket (last wrote, etc.)
+		$last_message = end($messages); /* @var CerberusMessage $last_message */
+		
+		DAO_Ticket::updateTicket($orig_ticket->id, array(
+			DAO_Ticket::LAST_WROTE_ID => $last_message->address_id
+		));
+		
+		// Remove requester if they don't still have messages on the original ticket
+		reset($messages);
+		$found = false;
+		
+		if(is_array($messages))
+		foreach($messages as $msgid => $msg) {
+			if($msg->address_id == $orig_message->address_id) {
+				$found = true;	
+				break;
+			}
+		}
+		
+		if(!$found)
+			DAO_Ticket::deleteRequester($orig_ticket->id,$orig_message->address_id);		
+			
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('display',$new_ticket_mask)));
 	}
 	
 	function showContactHistoryAction() {

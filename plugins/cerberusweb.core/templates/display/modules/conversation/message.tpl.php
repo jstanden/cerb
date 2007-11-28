@@ -59,13 +59,29 @@
 				      	<button type="button" onclick="displayAjax.reply('{$message->id}',0);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/message_edit.gif{/devblocks_url}" align="top"> Reply</button>
 				      	<button type="button" onclick="displayAjax.reply('{$message->id}',1);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/mail_forward.gif{/devblocks_url}" align="top"> Forward</button>
 				      	<button type="button" onclick="displayAjax.addNote('{$message->id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/note_edit.gif{/devblocks_url}" align="top"> Add Note</button>
-				      	<!-- <a href="javascript:;">more &raquo;</a> -->
+				      	&nbsp;
+				      	
+				      	{if count($messages) > 1}
+				      	<a href="javascript:;" onclick="toggleDiv('{$message->id}options');">more &raquo;</a>
+				      	{/if}
 	      			</td>
+	      			<!-- 
 	      			<td align="right">
-	      				<!-- <a href="#top">top</a> -->
+	      				<a href="#top">top</a>
 	      			</td>
+	      			-->
 	      		</tr>
 	      	</table>
+	      	
+	      	<form id="{$message->id}options" style="padding-top:10px;display:none;" method="post" action="{devblocks_url}{/devblocks_url}">
+	      		<input type="hidden" name="c" value="display">
+	      		<input type="hidden" name="a" value="">
+	      		<input type="hidden" name="id" value="{$message->id}">
+	      		
+	      		{if !$messages.last && count($messages) > 1} {* Don't allow splitting of a single message *}
+	      		<button type="button" onclick="this.form.a.value='doSplitMessage';this.form.submit();" title="Split message into new ticket">Split Ticket</button>
+	      		{/if}
+	      	</form>
 	      	
 	      	{assign var=attachments value=$message->getAttachments()}
 	      	{if !empty($attachments)}

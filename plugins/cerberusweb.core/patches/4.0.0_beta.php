@@ -653,7 +653,13 @@ if(!isset($tables['worker_workspace_list'])) {
     $datadict->ExecuteSQLArray($sql);
 }
 
+$columns = $datadict->MetaColumns('worker_workspace_list');
 $indexes = $datadict->MetaIndexes('worker_workspace_list',false);
+
+if(!isset($columns['LIST_POS'])) {
+	$sql = $datadict->AddColumnSQL('worker_workspace_list', 'list_pos I2 DEFAULT 0');
+	$datadict->ExecuteSQLArray($sql);
+}
 
 if(!isset($indexes['worker_id'])) {
     $sql = $datadict->CreateIndexSQL('worker_id','worker_workspace_list','worker_id');
