@@ -532,6 +532,7 @@ class CerberusSettings {
 	const SMTP_AUTH_USER = 'smtp_auth_user'; 
 	const SMTP_AUTH_PASS = 'smtp_auth_pass'; 
 	const SMTP_PORT = 'smtp_port'; 
+	const SMTP_ENCRYPTION_TYPE = 'smtp_enc';
 	const ATTACHMENTS_ENABLED = 'attachments_enabled'; 
 	const ATTACHMENTS_MAX_SIZE = 'attachments_max_size'; 
 	const AUTHORIZED_IPS = 'authorized_ips';
@@ -550,6 +551,8 @@ class CerberusSettings {
 		self::SMTP_AUTH_ENABLED => 0,
 		self::SMTP_AUTH_USER => '',
 		self::SMTP_AUTH_PASS => '',
+		self::SMTP_PORT => 25,
+		self::SMTP_ENCRYPTION_TYPE => 'None',
 		self::ATTACHMENTS_ENABLED => 1,
 		self::ATTACHMENTS_MAX_SIZE => 10, // MB
 		self::AUTHORIZED_IPS => '127.0.0.1', 

@@ -580,6 +580,7 @@ switch($step) {
 		
 		@$smtp_host = DevblocksPlatform::importGPC($_POST['smtp_host'],'string',$settings->get(CerberusSettings::SMTP_HOST,'localhost'));
 		@$smtp_port = DevblocksPlatform::importGPC($_POST['smtp_port'],'integer',$settings->get(CerberusSettings::SMTP_PORT,25));
+		@$smtp_enc = DevblocksPlatform::importGPC($_POST['smtp_enc'],'string',$settings->get(CerberusSettings::SMTP_ENCRYPTION_TYPE,'None'));
 		@$smtp_auth_user = DevblocksPlatform::importGPC($_POST['smtp_auth_user'],'string');
 		@$smtp_auth_pass = DevblocksPlatform::importGPC($_POST['smtp_auth_pass'],'string');
 		@$form_submit = DevblocksPlatform::importGPC($_POST['form_submit'],'integer');
@@ -590,7 +591,7 @@ switch($step) {
 			
 			$mailer = null;
 			try {
-				$mailer = $mail_service->getMailer($smtp_host, $smtp_auth_user, $smtp_auth_pass, $smtp_port); // [TODO] port
+				$mailer = $mail_service->getMailer($smtp_host, $smtp_auth_user, $smtp_auth_pass, $smtp_port, $smtp_enc); // [TODO] port
 				$mailer->connect();
 				$mailer->disconnect();
 				
@@ -605,6 +606,8 @@ switch($step) {
 				} else {
 					$settings->set(CerberusSettings::SMTP_AUTH_ENABLED, 0);
 				}
+				if(!empty($smtp_enc))
+					$settings->set(CerberusSettings::SMTP_ENCRYPTION_TYPE, $smtp_enc);
 				
 				$tpl->assign('step', STEP_INCOMING_MAIL);
 				$tpl->display('steps/redirect.tpl.php');
@@ -619,10 +622,12 @@ switch($step) {
 			$tpl->assign('smtp_port', $smtp_port);
 			$tpl->assign('smtp_auth_user', $smtp_auth_user);
 			$tpl->assign('smtp_auth_pass', $smtp_auth_pass);
+			$tpl->assign('smtp_enc', $smtp_enc);
 			$tpl->assign('form_submit', $form_submit);
 		} else {
 			$tpl->assign('smtp_host', 'localhost');
 			$tpl->assign('smtp_port', '25');
+			$tpl->assign('smtp_enc', 'None');
 		}
 		
 		// First time, or retry

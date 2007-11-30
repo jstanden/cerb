@@ -2111,12 +2111,13 @@ class ChConfigurationPage extends CerberusPageExtension  {
 				$smtp_auth_enabled = $settings->get(CerberusSettings::SMTP_AUTH_ENABLED,false);
 				$smtp_auth_user = $settings->get(CerberusSettings::SMTP_AUTH_USER,'');
 				$smtp_auth_pass = $settings->get(CerberusSettings::SMTP_AUTH_PASS,''); 
+				$smtp_enc = $settings->get(CerberusSettings::SMTP_ENCRYPTION_TYPE,'None');
 				
 				// [JAS]: Test the provided SMTP settings and give form feedback
 				if(!empty($test_connection) && !empty($smtp_host)) {
 					$mailer = null;
 					try {
-						$mailer = $mail_service->getMailer($smtp_host, $smtp_auth_user, $smtp_auth_pass, $smtp_port); // [TODO] port
+						$mailer = $mail_service->getMailer($smtp_host, $smtp_auth_user, $smtp_auth_pass, $smtp_port, $smtp_enc); // [TODO] port
 						$mailer->connect();
 						$mailer->disconnect();
 						
@@ -2126,6 +2127,8 @@ class ChConfigurationPage extends CerberusPageExtension  {
 							$settings->set(CerberusSettings::SMTP_AUTH_USER, $smtp_auth_user);
 						if(!empty($smtp_auth_pass))
 							$settings->set(CerberusSettings::SMTP_AUTH_PASS, $smtp_auth_pass);
+						if(!empty($smtp_enc))
+							$settings->set(CerberusSettings::SMTP_ENCRYPTION_TYPE, $smtp_enc);
 						
 						$tpl->assign('smtp_test', true);
 						
@@ -2720,6 +2723,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	    @$smtp_auth_enabled = DevblocksPlatform::importGPC($_REQUEST['smtp_auth_enabled'],'integer', 0);
 	    @$smtp_auth_user = DevblocksPlatform::importGPC($_REQUEST['smtp_auth_user'],'string');
 	    @$smtp_auth_pass = DevblocksPlatform::importGPC($_REQUEST['smtp_auth_pass'],'string');
+	    @$smtp_enc = DevblocksPlatform::importGPC($_REQUEST['smtp_enc'],'string','None');
 	    
 	    $settings = CerberusSettings::getInstance();
 	    $settings->set(CerberusSettings::DEFAULT_REPLY_FROM, $default_reply_address);
@@ -2730,6 +2734,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	    $settings->set(CerberusSettings::SMTP_AUTH_ENABLED, $smtp_auth_enabled);
 	    $settings->set(CerberusSettings::SMTP_AUTH_USER, $smtp_auth_user);
 	    $settings->set(CerberusSettings::SMTP_AUTH_PASS, $smtp_auth_pass);
+	    $settings->set(CerberusSettings::SMTP_ENCRYPTION_TYPE, $smtp_enc);
 	    
 	    DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','mail','test')));
 	}

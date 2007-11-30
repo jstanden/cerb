@@ -42,6 +42,12 @@
 			<b>SMTP Auth Password:</b><br>
 			<input type="text" name="smtp_auth_pass" value="{$settings->get('smtp_auth_pass')}" size="45"><br>
 			<br>
+			
+			<b>SMTP Encryption:</b><br>
+			<input type="radio" name="smtp_enc" value="TLS" {if $settings->get('smtp_enc') == 'TLS'}checked{/if}>TLS<br>
+			<input type="radio" name="smtp_enc" value="SSL" {if $settings->get('smtp_enc') == 'SSL'}checked{/if}>SSL<br>
+			<input type="radio" name="smtp_enc" value="None" {if $settings->get('smtp_enc') == 'None'}checked{/if}>None<br>
+			<br>
 			</div>
 			
 			<b>By default, reply to mail as:</b> (E-mail Address)<br>

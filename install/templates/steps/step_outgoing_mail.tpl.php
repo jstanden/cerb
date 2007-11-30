@@ -28,6 +28,12 @@
 <input type="text" name="smtp_auth_pass" value="{$smtp_auth_pass}"><br>
 <br>
 
+<i>SMTP Encryption (optional):</i><br>
+<input type="radio" name="smtp_enc" value="TLS" {if $smtp_enc == 'TLS'}checked{/if}>TLS<br>
+<input type="radio" name="smtp_enc" value="SSL" {if $smtp_enc == 'SSL'}checked{/if}>SSL<br>
+<input type="radio" name="smtp_enc" value="None" {if $smtp_enc == 'None'}checked{/if}>None<br>
+<br>
+
 {if !empty($form_submit)}
 	<b>SENT! Did you receive the test e-mail to {$smtp_to}?</b> (It may take a few moments)<br>
 	<label><input type="radio" name="passed" value="1" checked> Yes!</label> 
