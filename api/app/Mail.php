@@ -235,7 +235,6 @@ class CerberusMail {
 		    
 		    // Bccs
 		    if(!empty($properties['bcc'])) {
-			    $bccs = array();
 			    $aBcc = CerberusApplication::parseCsvString($properties['bcc']);
 			    foreach($aBcc as $addy) {
 			    	$sendTo->addBcc($addy);

@@ -378,6 +378,9 @@ class ChTicketsPage extends CerberusPageExtension {
 				$teams = DAO_Group::getAll();
 				$tpl->assign_by_ref('teams', $teams);
 				
+				$team_categories = DAO_Bucket::getTeams();
+				$tpl->assign('team_categories', $team_categories);
+				
 				$team_id = $visit->get(CerberusVisit::KEY_WORKSPACE_GROUP_ID, 0);
 				if($team_id) {
 					$tpl->assign('team', $teams[$team_id]);
@@ -1078,6 +1081,8 @@ class ChTicketsPage extends CerberusPageExtension {
 	function composeMailAction() {
 		@$team_id = DevblocksPlatform::importGPC($_POST['team_id'],'integer'); 
 		@$to = DevblocksPlatform::importGPC($_POST['to'],'string');
+		@$cc = DevblocksPlatform::importGPC($_POST['cc'],'string','');
+		@$bcc = DevblocksPlatform::importGPC($_POST['bcc'],'string','');
 		@$subject = DevblocksPlatform::importGPC($_POST['subject'],'string','(no subject)');
 		@$content = DevblocksPlatform::importGPC($_POST['content'],'string');
 		@$files = $_FILES['attachment'];
@@ -1109,14 +1114,35 @@ class ChTicketsPage extends CerberusPageExtension {
 
 		if(empty($subject)) $subject = '(no subject)';
 		
-		$sendTo = new Swift_Address($to);
+		$sendTo = new Swift_RecipientList();
+		$sendTo->addTo($to);
+		
 		$sendFrom = new Swift_Address($from, $personal);
 		
 		$mail_service = DevblocksPlatform::getMailService();
 		$mailer = $mail_service->getMailer();
 		$email = $mail_service->createMessage();
 
-		$email->setTo($sendTo);
+//		$email->setTo($sendTo);
+		
+		// cc
+		$ccs = array();
+		if(!empty($cc) && null != ($ccList = CerberusApplication::parseCsvString($cc))) {
+			foreach($ccList as $ccAddy) {
+				$sendTo->addCc($ccAddy);
+				$ccs[] = new Swift_Address($ccAddy);
+			}
+			if(!empty($ccs))
+				$email->setCc($ccs);
+		}
+		
+		// bcc
+		if(!empty($bcc) && null != ($bccList = CerberusApplication::parseCsvString($bcc))) {
+			foreach($bccList as $bccAddy) {
+				$sendTo->addBcc($bccAddy);
+			}
+		}
+		
 		$email->setFrom($sendFrom);
 		$email->setSubject($subject);
 		$email->generateId();
@@ -1160,6 +1186,31 @@ class ChTicketsPage extends CerberusPageExtension {
 			DAO_Ticket::NEXT_WORKER_ID => 0, // [TODO] Implement
 			DAO_Ticket::TEAM_ID => $team_id,
 		);
+		
+		// "Next:" [TODO] This is highly redundant with CerberusMail
+		@$closed = DevblocksPlatform::importGPC($_POST['closed'],'integer',0);
+		@$move_bucket = DevblocksPlatform::importGPC($_POST['bucket_id'],'string','');
+		@$next_worker_id = DevblocksPlatform::importGPC($_POST['next_worker_id'],'integer',0);
+		@$next_action = DevblocksPlatform::importGPC($_POST['next_action'],'string','');
+		@$ticket_reopen = DevblocksPlatform::importGPC($_POST['ticket_reopen'],'string','');
+		
+		if(isset($closed))
+			$fields[DAO_Ticket::IS_CLOSED] = intval($closed);
+		if(!empty($move_bucket)) {
+	        list($team_id, $bucket_id) = CerberusApplication::translateTeamCategoryCode($move_bucket);
+		    $fields[DAO_Ticket::TEAM_ID] = $team_id;
+		    $fields[DAO_Ticket::CATEGORY_ID] = $bucket_id;
+		}
+		if(isset($next_worker_id))
+			$fields[DAO_Ticket::NEXT_WORKER_ID] = intval($next_worker_id);
+		if(!empty($next_action))
+			$fields[DAO_Ticket::NEXT_ACTION] = $next_action;
+		if(!empty($ticket_reopen)) {
+			$due = strtotime($ticket_reopen);
+			if($due) $fields[DAO_Ticket::DUE_DATE] = $due;
+		}
+		// End "Next:"
+		
 		$ticket_id = DAO_Ticket::createTicket($fields);
 		
 	    $fields = array(
