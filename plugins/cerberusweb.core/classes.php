@@ -1123,8 +1123,6 @@ class ChTicketsPage extends CerberusPageExtension {
 		$mailer = $mail_service->getMailer();
 		$email = $mail_service->createMessage();
 
-//		$email->setTo($sendTo);
-		
 		// cc
 		$ccs = array();
 		if(!empty($cc) && null != ($ccList = CerberusApplication::parseCsvString($cc))) {

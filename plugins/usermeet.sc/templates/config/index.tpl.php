@@ -123,6 +123,9 @@ articles, wiki articles, forum posts, documentation pages, blog entries, wishlis
 <h2 style="margin-bottom:0px;color:rgb(0,128,255);">Open a Ticket</h2>
 </div>
 
+<label><input type="checkbox" name="allow_subjects" value="1" {if $allow_subjects}checked{/if}> Allow visitors to enter custom ticket subjects.</label><br>
+<br> 
+
 {foreach from=$dispatch item=params key=reason}
 <div class="subtle" style="margin-bottom:10px;">
 	<h2 style="display:inline;">{$reason}</h2>&nbsp;

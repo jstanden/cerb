@@ -13,6 +13,11 @@
       	<h1>What e-mail address should we reply to?</h1>
       	<input type="hidden" name="nature" value="{$sNature}">	
 		<input name="from" value="{$last_from}" autocomplete="off" style="width:98%;"><br>
+
+		{if $allow_subjects}
+      	<h1>Subject:</h1>
+		<input name="subject" value="{$last_subject}" autocomplete="off" style="width:98%;"><br>
+		{/if}
 		
       	<h1>Message:</h1>	
 		<textarea name="content" rows="10" cols="60" style="width:98%;">{$last_content}</textarea><br>

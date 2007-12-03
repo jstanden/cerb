@@ -1,4 +1,4 @@
-<h1>My Account</h1>
+<h1>My Account</h1><br>
 
 {if !empty($account_success)}
 <div class="success">Account settings saved!</div>

@@ -22,6 +22,7 @@ class UmScApp extends Extension_UsermeetTool {
 	const PARAM_HOME_RSS = 'home_rss';
 	const PARAM_FNR_SOURCES = 'fnr_sources';
 	const PARAM_ALLOW_LOGINS = 'allow_logins';
+	const PARAM_ALLOW_SUBJECTS = 'allow_subjects';
 	
 	const DEFAULT_THEME = 'cerb4';
 	
@@ -85,6 +86,9 @@ class UmScApp extends Extension_UsermeetTool {
 
         $allow_logins = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_ALLOW_LOGINS, 0);
 		$tpl->assign('allow_logins', $allow_logins);
+		
+        $allow_subjects = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_ALLOW_SUBJECTS, 0);
+		$tpl->assign('allow_subjects', $allow_subjects);
 		
         $theme = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_THEME, self::DEFAULT_THEME);
         if(!is_dir($tpl_path . 'themes/'.$theme))
@@ -202,6 +206,9 @@ class UmScApp extends Extension_UsermeetTool {
         $allow_logins = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_ALLOW_LOGINS, 0);
 		$tpl->assign('allow_logins', $allow_logins);
 
+        $allow_subjects = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_ALLOW_SUBJECTS, 0);
+		$tpl->assign('allow_subjects', $allow_subjects);
+
 		// F&R
 		$topics = DAO_FnrTopic::getWhere();
 		$tpl->assign('topics', $topics);
@@ -227,12 +234,14 @@ class UmScApp extends Extension_UsermeetTool {
         @$sTheme = DevblocksPlatform::importGPC($_POST['theme'],'string',UmScApp::DEFAULT_THEME);
         @$iCaptcha = DevblocksPlatform::importGPC($_POST['captcha_enabled'],'integer',1);
         @$iAllowLogins = DevblocksPlatform::importGPC($_POST['allow_logins'],'integer',0);
+        @$iAllowSubjects = DevblocksPlatform::importGPC($_POST['allow_subjects'],'integer',0);
 
         DAO_CommunityToolProperty::set($this->getPortal(), self::PARAM_LOGO_URL, $sLogoUrl);
         DAO_CommunityToolProperty::set($this->getPortal(), self::PARAM_PAGE_TITLE, $sPageTitle);
         DAO_CommunityToolProperty::set($this->getPortal(), self::PARAM_THEME, $sTheme);
         DAO_CommunityToolProperty::set($this->getPortal(), self::PARAM_CAPTCHA_ENABLED, $iCaptcha);
         DAO_CommunityToolProperty::set($this->getPortal(), self::PARAM_ALLOW_LOGINS, $iAllowLogins);
+        DAO_CommunityToolProperty::set($this->getPortal(), self::PARAM_ALLOW_SUBJECTS, $iAllowSubjects);
 
         // Home RSS Feeds
         @$aHomeRssTitles = DevblocksPlatform::importGPC($_POST['home_rss_title'],'array',array());
@@ -745,6 +754,7 @@ class UmScCoreController extends Extension_UmScController {
 		@$sNature = DevblocksPlatform::importGPC($_POST['nature'],'string','');
 
 		$umsession->setProperty('support.write.last_nature', $sNature);
+		$umsession->setProperty('support.write.last_subject', null);
 		$umsession->setProperty('support.write.last_content', null);
 		$umsession->setProperty('support.write.last_error', null);
 		
@@ -801,6 +811,7 @@ class UmScCoreController extends Extension_UmScController {
 	
 	function doContactSendAction() {
 		@$sFrom = DevblocksPlatform::importGPC($_POST['from'],'string','');
+		@$sSubject = DevblocksPlatform::importGPC($_POST['subject'],'string','');
 		@$sContent = DevblocksPlatform::importGPC($_POST['content'],'string','');
 		@$sCaptcha = DevblocksPlatform::importGPC($_POST['captcha'],'string','');
 		
@@ -811,6 +822,7 @@ class UmScCoreController extends Extension_UmScController {
         $default_from = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM);
 
 		$umsession->setProperty('support.write.last_from',$sFrom);
+		$umsession->setProperty('support.write.last_subject',$sSubject);
 		$umsession->setProperty('support.write.last_content',$sContent);
         
 		$sNature = $umsession->getProperty('support.write.last_nature', '');
@@ -844,6 +856,9 @@ class UmScCoreController extends Extension_UmScController {
         		break;
         	}
         }
+        
+        if(!empty($sSubject))
+        	$subject = $sSubject;
 		
 		$message = new CerberusParserMessage();
 		$message->headers['date'] = date('r'); 
@@ -993,11 +1008,13 @@ class UmScCoreController extends Extension_UmScController {
 		    		case 'step2':
 		    		case 'step3':
 		    			$sFrom = $umsession->getProperty('support.write.last_from','');
+		    			$sSubject = $umsession->getProperty('support.write.last_subject','');
 		    			$sNature = $umsession->getProperty('support.write.last_nature','');
 		    			$sContent = $umsession->getProperty('support.write.last_content','');
 		    			$sError = $umsession->getProperty('support.write.last_error','');
 		    			
 						$tpl->assign('last_from', $sFrom);
+						$tpl->assign('last_subject', $sSubject);
 						$tpl->assign('last_nature', $sNature);
 						$tpl->assign('last_content', $sContent);
 						$tpl->assign('last_error', $sError);
