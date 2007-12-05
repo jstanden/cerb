@@ -609,28 +609,7 @@ class CerberusParser {
 	}
 	
 	static private function fixQuotePrintableString($str) {
-		preg_match("/\=\?(.*?)\?(.*?)\?(.*?)\?\=/", $str, $matches);
-		
-		if(count($matches) != 4) {
-		    return $str;
-		}
-		
-		$encoding = $matches[1];
-		$code = $matches[2];
-		$s = $matches[3];
-		
-		switch(strtolower($code)) {
-		    case 'b':
-		        $out = base64_decode($s);
-		        break;
-		    case 'q':
-		        $out = quoted_printable_decode($s);
-		        break;
-		    default:
-		        $out = $s;
-		        break;
-		}
-		
+		$out = imap_utf8($str);		
 		return $out;
 	}
 
