@@ -172,21 +172,21 @@
 			<input type="hidden" name="a" value="doLogin">
 			<table cellpadding="0" cellspacing="0" border="0" class="box">
 				<tr>
-					<th colspan="2">Login</th>
+					<th width="100%" colspan="2">Login</th>
 				</tr>
 				<tr>
-					<td>E-mail:</td>
-					<td><input type="text" name="email" style="width:98%;border:1px solid rgb(153,153,153);"></td>
+					<td width="0%">E-mail:</td>
+					<td width="100%"><input type="text" name="email" style="width:98%;border:1px solid rgb(153,153,153);"></td>
 				</tr>
 				<tr>
-					<td>Password:</td>
-					<td><input type="password" name="pass" style="width:98%;border:1px solid rgb(153,153,153);"></td>
+					<td width="0%">Password:</td>
+					<td width="100%"><input type="password" name="pass" style="width:98%;border:1px solid rgb(153,153,153);"></td>
 				</tr>
 				<tr>
-					<td colspan="2"><button type="submit">Log in</button></td>
+					<td width="100%" colspan="2"><button type="submit">Log in</button></td>
 				</tr>
 				<tr>
-					<td colspan="2" align="center">
+					<td width="100%" colspan="2" align="center">
 						<a href="{devblocks_url}c=register{/devblocks_url}">register</a> | <a href="{devblocks_url}c=register&a=forgot{/devblocks_url}">forgot?</a>
 					</td>
 				</tr>
