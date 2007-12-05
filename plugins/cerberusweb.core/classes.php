@@ -376,26 +376,24 @@ class ChTicketsPage extends CerberusPageExtension {
 			case 'compose':
 				$settings = CerberusSettings::getInstance();
 				$teams = DAO_Group::getAll();
+				
+				$worker = CerberusApplication::getActiveWorker();
+				foreach($teams as $team){
+					$team->signature = rawurlencode(str_replace(
+			        	array('#first_name#','#last_name#','#title#'),
+			        	array($worker->first_name,$worker->last_name,$worker->title),
+			        	$team->signature
+			        ));
+				}
+				
 				$tpl->assign_by_ref('teams', $teams);
+				
+				$default_sig = $settings->get(CerberusSettings::DEFAULT_SIGNATURE,'');
+				$tpl->assign('default_sig',$default_sig);
 				
 				$team_categories = DAO_Bucket::getTeams();
 				$tpl->assign('team_categories', $team_categories);
 				
-				$team_id = $visit->get(CerberusVisit::KEY_WORKSPACE_GROUP_ID, 0);
-				if($team_id) {
-					$tpl->assign('team', $teams[$team_id]);
-					
-					$default_sig = $settings->get(CerberusSettings::DEFAULT_SIGNATURE,'');
-					$team_sig = $teams[$team_id]->signature;
-					$worker = CerberusApplication::getActiveWorker();
-					// Translate
-					$tpl->assign('signature', str_replace(
-			        	array('#first_name#','#last_name#','#title#'),
-			        	array($worker->first_name,$worker->last_name,$worker->title),
-			        	!empty($team_sig) ? $team_sig : $default_sig
-					));
-				}
-					
 				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/compose/index.tpl.php');
 				break;
 			
@@ -1094,21 +1092,10 @@ class ChTicketsPage extends CerberusPageExtension {
 		$settings = CerberusSettings::getInstance();
 		$default_from = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM);
 		$default_personal = $settings->get(CerberusSettings::DEFAULT_REPLY_PERSONAL);
-		$default_sig = $settings->get(CerberusSettings::DEFAULT_SIGNATURE,'');
 		$group_settings = DAO_GroupSettings::getSettings($team_id);
-		$team = DAO_Group::getTeam($team_id);
 		@$team_from = $group_settings[DAO_GroupSettings::SETTING_REPLY_FROM];
 		@$team_personal = $group_settings[DAO_GroupSettings::SETTING_REPLY_PERSONAL];
-		@$team_sig = $team->signature;
-		$worker = CerberusApplication::getActiveWorker();
 		
-		$signature = str_replace(
-        	array('#first_name#','#last_name#','#title#'),
-        	array($worker->first_name,$worker->last_name,$worker->title),
-        	!empty($team_sig) ? $team_sig : $default_sig
-		);
-		$content = empty($signature) ? $content : $content . "\r\n" . $signature;
-
 		$from = !empty($team_from) ? $team_from : $default_from;
 		$personal = !empty($team_personal) ? $team_personal : $default_personal;
 

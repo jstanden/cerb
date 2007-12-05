@@ -10,9 +10,27 @@
 <div style="color:red;padding:2px;font-weight:bold;">NOTE: This helpdesk is in Demo Mode and mail will not be sent.</div>
 {/if}
 
+{literal}
+<script language="javascript" type="text/javascript">
+	function getSig() {
+		var sigArray = new Array();
+		sigArray[0] = "{/literal}{$default_sig}{literal}";
+			{/literal}{foreach from=$teams item=team}{literal}
+		sigArray[{/literal}{$team->id}{literal}] = "{/literal}{$team->signature}{literal}";
+			{/literal}{/foreach}{literal}
+		
+		var group_id = document.getElementById('team_id').value;
+		var sigValue = sigArray[group_id];
+		if (sigValue == '') { sigValue = sigArray[0]; }
+		
+		return unescape(sigValue);
+	}
+</script>
+{/literal}
+
 <div class="block">
 <h2>Outgoing Message</h2>
-<form enctype="multipart/form-data" method="post" action="{devblocks_url}{/devblocks_url}">
+<form name="compose" enctype="multipart/form-data" method="post" action="{devblocks_url}{/devblocks_url}">
 <input type="hidden" name="c" value="tickets">
 <input type="hidden" name="a" value="composeMail">
 
@@ -24,7 +42,7 @@
 				<tr>
 					<td width="0%" nowrap="nowrap" valign="top"><b>From:</b></td>
 					<td width="100%">
-						<select name="team_id" style="border:1px solid rgb(180,180,180);padding:2px;">
+						<select name="team_id" id="team_id" style="border:1px solid rgb(180,180,180);padding:2px;">
 							{foreach from=$active_worker_memberships item=membership key=group_id}
 							<option value="{$group_id}" {if $group_id==$team->id}selected{/if}>{$teams.$group_id->name}</option>
 							{/foreach}
@@ -56,13 +74,12 @@
 				<tr>
 					<td width="0%" nowrap="nowrap" valign="top"><b>Message:</b></td>
 					<td width="100%">
-						<textarea name="content" rows="15" cols="80" class="reply" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;">{if !empty($signature)}
-
-
-{$signature}
-{/if}
-</textarea>
+						<textarea name="content" id="content" rows="15" cols="80" class="reply" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;"></textarea>
 					</td>
+				</tr>
+				<tr>
+					<td></td>
+					<td><input type="button" value="Insert Signature" onclick="insertAtCursor(this.form.content,'\r\n'+getSig());"></td>
 				</tr>
 				
 				<tr>
