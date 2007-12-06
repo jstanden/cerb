@@ -19,6 +19,7 @@
 		<td valign="top" width="0%" nowrap="nowrap">
 			{include file="file:$path/internal/views/criteria_list.tpl.php" divName="searchCriteriaDialog"}
 			<div id="searchCriteriaDialog" style="visibility:visible;"></div>
+			<a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&id=0&view_id={$view->id}',this,false,'500px',ajax.cbAddressPeek);">Add Contact</a>
 		</td>
 		<td valign="top" width="0%" nowrap="nowrap"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/spacer.gif{/devblocks_url}" width="5" height="1"></td>
 		<td valign="top" width="100%">

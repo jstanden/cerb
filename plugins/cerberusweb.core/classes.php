@@ -3438,6 +3438,7 @@ class ChContactsPage extends CerberusPageExtension {
 	}
 	
 	function showAddressPeekAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer','');
 		@$address_id = DevblocksPlatform::importGPC($_REQUEST['address_id'],'integer',0);
 		@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string','');
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
@@ -3470,6 +3471,7 @@ class ChContactsPage extends CerberusPageExtension {
 			
 			$address = array_shift($addresses);
 			$tpl->assign('address', $address);
+			$id = $address[SearchFields_Address::ID];
 			
 			list($open_tickets, $open_count) = DAO_Ticket::search(
 				array(
@@ -3490,6 +3492,7 @@ class ChContactsPage extends CerberusPageExtension {
 			$tpl->assign('closed_count', $closed_count);
 		}
 		
+		$tpl->assign('id', $id);
 		$tpl->assign('view_id', $view_id);
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/contacts/addresses/address_peek.tpl.php');
 	}
@@ -3561,6 +3564,7 @@ class ChContactsPage extends CerberusPageExtension {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
+		@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string','');
 		@$first_name = DevblocksPlatform::importGPC($_REQUEST['first_name'],'string','');
 		@$last_name = DevblocksPlatform::importGPC($_REQUEST['last_name'],'string','');
 		@$contact_org = DevblocksPlatform::importGPC($_REQUEST['contact_org'],'string','');
@@ -3585,7 +3589,13 @@ class ChContactsPage extends CerberusPageExtension {
 			DAO_Address::SLA_ID => $sla_id
 		);
 		
-		DAO_Address::update($id, $fields);
+		if($id==0) {
+			$fields = $fields + array(DAO_Address::EMAIL => $email);
+			$id = DAO_Address::create($fields);
+		}
+		else {
+			DAO_Address::update($id, $fields);	
+		}
 
 		// Update SLA+Priority on any open tickets from this address
 		DAO_Sla::cascadeAddressSla($id, $sla_id);

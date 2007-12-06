@@ -15,7 +15,8 @@
 <table cellpadding="0" cellspacing="2" border="0">
 	<tr>
 		<td width="0%" nowrap="nowrap" align="right">E-mail: </td>
-		<td width="100%"><b>{$address.a_email}</b></td>
+		{if $id == 0}<td width="100%"><input type="text" name="email" style="width:98%;"></td>
+		{else}<td width="100%"><b>{$address.a_email}</b></td>{/if}
 	</tr>
 	<tr>
 		<td width="0%" nowrap="nowrap" align="right">First Name: </td>
@@ -50,6 +51,7 @@
 		</td>
 	</tr>
 	{/if}
+	{if $id != 0}
 	<tr>
 		<td colspan="2" align="center">
 			<input type="hidden" name="closed" value="0">
@@ -58,6 +60,7 @@
 			<a href="javascript:;" onclick="document.formAddressPeek.a.value='showAddressTickets';document.formAddressPeek.closed.value='1';document.formAddressPeek.submit();">{$closed_count} closed ticket(s)</a>
 		</td>
 	</tr>
+	{/if}
 </table>
 
 <input type="button" value="{$translate->_('common.save_changes')}" onclick="genericPanel.hide();genericAjaxPost('formAddressPeek', 'view{$view_id}')">
