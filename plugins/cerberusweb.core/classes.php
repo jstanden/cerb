@@ -388,7 +388,7 @@ class ChTicketsPage extends CerberusPageExtension {
 				$tpl->assign_by_ref('teams', $teams);
 				
 				$default_sig = $settings->get(CerberusSettings::DEFAULT_SIGNATURE,'');
-				$tpl->assign('default_sig',$default_sig);
+				$tpl->assign('default_sig',rawurlencode($default_sig));
 				
 				$team_categories = DAO_Bucket::getTeams();
 				$tpl->assign('team_categories', $team_categories);
