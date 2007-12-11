@@ -38,6 +38,10 @@
 			<br>
 		</td>
 	</tr>
+	<tr>
+		<td width="0%" nowrap="nowrap" align="right">Phone: </td>
+		<td width="100%"><input type="text" name="phone" value="{$address.a_phone}" style="width:98%;"></td>
+	</tr>
 	{if !empty($slas)}
 	<tr>
 		<td width="0%" nowrap="nowrap" align="right">Service Level: </td>

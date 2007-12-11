@@ -2,7 +2,7 @@
 Copyright (c) 2007, Yahoo! Inc. All rights reserved.
 Code licensed under the BSD License:
 http://developer.yahoo.net/yui/license.txt
-version: 2.3.1
+version: 2.4.0
 */
 /**
  * The treeview widget is a generic tree building tool.
@@ -97,9 +97,7 @@ YAHOO.widget.TreeView.prototype = {
      * in YAHOO.widget.TVAnim)
      */
     setExpandAnim: function(type) {
-        if (YAHOO.widget.TVAnim.isValid(type)) {
-            this._expandAnim = type;
-        }
+        this._expandAnim = (YAHOO.widget.TVAnim.isValid(type)) ? type : null;
     },
 
     /**
@@ -109,9 +107,7 @@ YAHOO.widget.TreeView.prototype = {
      * YAHOO.widget.TVAnim)
      */
     setCollapseAnim: function(type) {
-        if (YAHOO.widget.TVAnim.isValid(type)) {
-            this._collapseAnim = type;
-        }
+        this._collapseAnim = (YAHOO.widget.TVAnim.isValid(type)) ? type : null;
     },
 
     /**
@@ -428,6 +424,39 @@ YAHOO.widget.TreeView.prototype = {
     },
 
     /**
+     * Returns the treeview node reference for an anscestor element
+     * of the node, or null if it is not contained within any node
+     * in this tree.
+     * @method getNodeByElement
+     * @param {HTMLElement} the element to test
+     * @return {YAHOO.widget.Node} a node reference or null
+     */
+    getNodeByElement: function(el) {
+
+        var p=el, m, re=/ygtv([^\d]*)(.*)/;
+
+        do {
+
+            if (p && p.id) {
+                m = p.id.match(re);
+                if (m && m[2]) {
+                    return this.getNodeByIndex(m[2]);
+                }
+            }
+
+            p = p.parentNode;
+
+            if (!p || !p.tagName) {
+                break;
+            }
+
+        } 
+        while (p.id !== this.id && p.tagName.toLowerCase() !== "body");
+
+        return null;
+    },
+
+    /**
      * Removes the node and its children, and optionally refreshes the 
      * branch of the tree that was affected.
      * @method removeNode
@@ -487,7 +516,7 @@ YAHOO.widget.TreeView.prototype = {
             if (this._collapseAnim) {
                 this.subscribe("animComplete", 
                         this._removeChildren_animComplete, this, true);
-                node.collapse();
+                YAHOO.widget.Node.prototype.collapse.call(node);
                 return;
             }
 
@@ -497,6 +526,10 @@ YAHOO.widget.TreeView.prototype = {
         this.logger.log("Removing children for " + node);
         while (node.children.length) {
             this._deleteNode(node.children[0]);
+        }
+
+        if (node.isRoot()) {
+            YAHOO.widget.Node.prototype.expand.call(node);
         }
 
         node.childrenRendered = false;
@@ -1316,7 +1349,9 @@ YAHOO.widget.Node.prototype = {
      */
     expand: function(lazySource) {
         // Only expand if currently collapsed.
-        if (this.expanded) { return; }
+        if (this.expanded && !lazySource) { 
+            return; 
+        }
 
         var ret = true;
 
@@ -1345,11 +1380,11 @@ YAHOO.widget.Node.prototype = {
             return;
         }
 
-        if (! this.childrenRendered) {
+        if (!this.childrenRendered) {
             this.logger.log("children not rendered yet");
             this.getChildrenEl().innerHTML = this.renderChildren();
         } else {
-            this.logger.log("CHILDREN RENDERED");
+            this.logger.log("children already rendered");
         }
 
         this.expanded = true;
@@ -1585,6 +1620,12 @@ YAHOO.widget.Node.prototype = {
         }
         sb[sb.length] = '>';
 
+        // this.logger.log(["index", this.index, 
+                         // "hasChildren", this.hasChildren(true), 
+                         // "expanded", this.expanded, 
+                         // "renderHidden", this.renderHidden, 
+                         // "isDynamic", this.isDynamic()]);
+
         // Don't render the actual child node HTML unless this node is expanded.
         if ( (this.hasChildren(true) && this.expanded) ||
                 (this.renderHidden && !this.isDynamic()) ) {
@@ -1672,7 +1713,7 @@ YAHOO.widget.Node.prototype = {
      * @method loadComplete
      */
     loadComplete: function() {
-        this.logger.log("loadComplete: " + this.index);
+        this.logger.log(this.index + " loadComplete, children: " + this.children.length);
         this.getChildrenEl().innerHTML = this.completeRender();
         this.dynamicLoadComplete = true;
         this.isLoading = false;
@@ -1845,7 +1886,7 @@ YAHOO.extend(YAHOO.widget.TextNode, YAHOO.widget.Node, {
         
         // update the link
         if (oData.href) {
-            this.href = oData.href;
+            this.href = encodeURI(oData.href);
         }
 
         // set the target
@@ -1855,6 +1896,10 @@ YAHOO.extend(YAHOO.widget.TextNode, YAHOO.widget.Node, {
 
         if (oData.style) {
             this.labelStyle = oData.style;
+        }
+
+        if (oData.title) {
+            this.title = oData.title;
         }
 
         this.labelElId = "ygtvlabelel" + this.index;
@@ -1921,6 +1966,9 @@ YAHOO.extend(YAHOO.widget.TextNode, YAHOO.widget.Node, {
         sb[sb.length] = ' >';
         sb[sb.length] = '<a';
         sb[sb.length] = ' id="' + this.labelElId + '"';
+        if (this.title) {
+            sb[sb.length] = ' title="' + this.title + '"';
+        }
         sb[sb.length] = ' class="' + this.labelStyle + '"';
         sb[sb.length] = ' href="' + this.href + '"';
         sb[sb.length] = ' target="' + this.target + '"';
@@ -2349,4 +2397,4 @@ YAHOO.widget.TVFadeOut.prototype = {
     }
 };
 
-YAHOO.register("treeview", YAHOO.widget.TreeView, {version: "2.3.1", build: "541"});
+YAHOO.register("treeview", YAHOO.widget.TreeView, {version: "2.4.0", build: "733"});

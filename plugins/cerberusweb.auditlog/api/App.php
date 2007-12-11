@@ -30,7 +30,6 @@ class ChAuditLogEventListener extends DevblocksEventListenerExtension {
 				unset($changed_fields[DAO_Ticket::FIRST_MESSAGE_ID]);
 				unset($changed_fields[DAO_Ticket::FIRST_WROTE_ID]);
 				unset($changed_fields[DAO_Ticket::LAST_WROTE_ID]);
-				unset($changed_fields[DAO_Ticket::LAST_WORKER_ID]);
 				unset($changed_fields[DAO_Ticket::INTERESTING_WORDS]);
             	
             	@$tickets = DAO_Ticket::getTickets($ticket_ids);
@@ -330,7 +329,7 @@ class C4_TicketAuditLogView extends C4_AbstractView {
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('view_fields', $this->getColumns());
 		
-		$workers = DAO_Worker::getList();
+		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 
 		$groups = DAO_Group::getAll();

@@ -208,11 +208,11 @@ class DAO_Bayes {
 
 /**
  * Worker DAO
- *  
- * @todo [JAS]: Add a cached ::getAll()
  */
 class DAO_Worker extends DevblocksORMHelper {
 	private function DAO_Worker() {}
+	
+	const CACHE_ALL = 'cerberus_cache_workers_all';
 	
 	const ID = 'id';
 	const FIRST_NAME = 'first_name';
@@ -244,7 +244,20 @@ class DAO_Worker extends DevblocksORMHelper {
 		);
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
+		$cache = DevblocksPlatform::getCacheService();
+		$cache->remove(self::CACHE_ALL);
+		
 		return $id;
+	}
+
+	static function getAll($nocache=false) {
+	    $cache = DevblocksPlatform::getCacheService();
+	    if($nocache || false == ($workers = $cache->load(self::CACHE_ALL))) {
+    	    $workers = self::getList();
+    	    $cache->save($workers, self::CACHE_ALL);
+	    }
+	    
+	    return $workers;
 	}
 	
 	static function getList($ids=array()) {
@@ -337,6 +350,8 @@ class DAO_Worker extends DevblocksORMHelper {
 		);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
+		$cache = DevblocksPlatform::getCacheService();
+		$cache->remove(self::CACHE_ALL);
 	}
 	
 	static function deleteAgent($id) {
@@ -370,6 +385,9 @@ class DAO_Worker extends DevblocksORMHelper {
 			$id
 		);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+
+		$cache = DevblocksPlatform::getCacheService();
+		$cache->remove(self::CACHE_ALL);
 	}
 	
 	static function login($email, $password) {
@@ -445,30 +463,6 @@ class DAO_Worker extends DevblocksORMHelper {
 		}
 		
 		return $groups;
-	}
-	
-	// [TODO] Test where this is used
-	static function searchAgents($query, $limit=10) {
-		$db = DevblocksPlatform::getDatabaseService();
-		if(empty($query)) return null;
-		
-		$sql = sprintf("SELECT w.id FROM worker w WHERE w.email LIKE '%s%%' LIMIT 0,%d",
-			$query,
-			$limit
-		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-		$ids = array();
-		
-		while(!$rs->EOF) {
-			$ids[] = intval($rs->fields['id']);
-			$rs->MoveNext();
-		}
-		
-		if(empty($ids))
-			return array();
-			
-		return DAO_Worker::getList($ids);
 	}
 	
 	/**
@@ -871,6 +865,7 @@ class DAO_Address extends DevblocksORMHelper {
 	const FIRST_NAME = 'first_name';
 	const LAST_NAME = 'last_name';
 	const CONTACT_ORG_ID = 'contact_org_id';
+	const PHONE = 'phone';
 	const SLA_ID = 'sla_id';
 	const SLA_EXPIRES = 'sla_expires';
 	const LAST_AUTOREPLY = 'last_autoreply';
@@ -884,6 +879,7 @@ class DAO_Address extends DevblocksORMHelper {
 			'email' => $translate->_('address.email'),
 			'first_name' => $translate->_('address.first_name'),
 			'last_name' => $translate->_('address.last_name'),
+			'phone' => $translate->_('address.phone'),
 			'contact_org_id' => $translate->_('address.contact_org_id'),
 			'sla_id' => $translate->_('sla.name'),
 //			'last_autoreply' => $translate->_('sla.name'),
@@ -920,8 +916,8 @@ class DAO_Address extends DevblocksORMHelper {
 		if(empty($address->host) || $address->host == 'host')
 			return NULL;
 		
-		$sql = sprintf("INSERT INTO address (id,email,first_name,last_name,contact_org_id,last_autoreply) ".
-			"VALUES (%d,%s,'','',0,0)",
+		$sql = sprintf("INSERT INTO address (id,email,first_name,last_name,phone,contact_org_id,last_autoreply) ".
+			"VALUES (%d,%s,'','','',0,0)",
 			$id,
 			$db->qstr(trim(strtolower($address->mailbox.'@'.$address->host)))
 		);
@@ -959,7 +955,7 @@ class DAO_Address extends DevblocksORMHelper {
 		
 		$addresses = array();
 		
-		$sql = sprintf("SELECT a.id, a.email, a.first_name, a.last_name, a.contact_org_id, a.sla_id, a.sla_expires, a.last_autoreply ".
+		$sql = sprintf("SELECT a.id, a.email, a.first_name, a.last_name, a.contact_org_id, a.phone, a.sla_id, a.sla_expires, a.last_autoreply ".
 			"FROM address a ".
 			((!empty($where)) ? "WHERE %s " : " ").
 			"ORDER BY a.email ",
@@ -974,6 +970,7 @@ class DAO_Address extends DevblocksORMHelper {
 			$address->first_name = $rs->fields['first_name'];
 			$address->last_name = $rs->fields['last_name'];
 			$address->contact_org_id = intval($rs->fields['contact_org_id']);
+			$address->phone = $rs->fields['phone'];
 			$address->sla_id = intval($rs->fields['sla_id']);
 			$address->sla_expires = intval($rs->fields['sla_expires']);
 			$address->last_autoreply = intval($rs->fields['last_autoreply']);
@@ -1058,6 +1055,7 @@ class DAO_Address extends DevblocksORMHelper {
 			"a.last_name as %s, ".
 			"a.contact_org_id as %s, ".
 			"o.name as %s, ".
+			"a.phone as %s, ".
 			"a.sla_id as %s ",
 			    SearchFields_Address::ID,
 			    SearchFields_Address::EMAIL,
@@ -1065,6 +1063,7 @@ class DAO_Address extends DevblocksORMHelper {
 			    SearchFields_Address::LAST_NAME,
 			    SearchFields_Address::CONTACT_ORG_ID,
 			    SearchFields_Address::ORG_NAME,
+			    SearchFields_Address::PHONE,
 			    SearchFields_Address::SLA_ID
 			 );
 		
@@ -1113,6 +1112,7 @@ class SearchFields_Address implements IDevblocksSearchFields {
 	const FIRST_NAME = 'a_first_name';
 	const LAST_NAME = 'a_last_name';
 	const CONTACT_ORG_ID = 'a_contact_org_id';
+	const PHONE = 'a_phone';
 	const SLA_ID = 'a_sla_id';
 	
 	const ORG_NAME = 'o_name';
@@ -1128,6 +1128,7 @@ class SearchFields_Address implements IDevblocksSearchFields {
 			self::FIRST_NAME => new DevblocksSearchField(self::FIRST_NAME, 'a', 'first_name', null, $translate->_('address.first_name')),
 			self::LAST_NAME => new DevblocksSearchField(self::LAST_NAME, 'a', 'last_name', null, $translate->_('address.last_name')),
 			self::CONTACT_ORG_ID => new DevblocksSearchField(self::CONTACT_ORG_ID, 'a', 'contact_org_id', null, $translate->_('address.contact_org_id')),
+			self::PHONE => new DevblocksSearchField(self::PHONE, 'a', 'phone', null, $translate->_('address.phone')),
 			self::SLA_ID => new DevblocksSearchField(self::SLA_ID, 'a', 'sla_id', null, $translate->_('sla.name')),
 			
 			self::ORG_NAME => new DevblocksSearchField(self::ORG_NAME, 'o', 'name', null, $translate->_('contact_org.name')),
@@ -1863,6 +1864,8 @@ class DAO_Attachment extends DevblocksORMHelper {
 };
 
 class DAO_Sla extends DevblocksORMHelper {
+	const CACHE_ALL = 'cerberus_cache_sla_all';
+	
 	const ID = 'id';
 	const NAME = 'name';
 	const PRIORITY = 'priority';
@@ -1880,6 +1883,9 @@ class DAO_Sla extends DevblocksORMHelper {
 		
 		self::update($id, $fields);
 		
+		$cache = DevblocksPlatform::getCacheService();
+		$cache->remove(self::CACHE_ALL);
+		
 		return $id;
 	}
 	
@@ -1893,6 +1899,16 @@ class DAO_Sla extends DevblocksORMHelper {
 			return $objects[$id];
 			
 		return null;
+	}
+	
+	static function getAll($nocache=false) {
+	    $cache = DevblocksPlatform::getCacheService();
+	    if($nocache || false == ($slas = $cache->load(self::CACHE_ALL))) {
+    	    $slas = self::getWhere();
+    	    $cache->save($slas, self::CACHE_ALL);
+	    }
+	    
+	    return $slas;
 	}
 	
 	public static function getWhere($where=null) {
@@ -1926,6 +1942,9 @@ class DAO_Sla extends DevblocksORMHelper {
 	}
 	
 	public static function update($ids, $fields) {
+		$cache = DevblocksPlatform::getCacheService();
+		$cache->remove(self::CACHE_ALL);
+		
 		return parent::_update($ids, 'sla', $fields);
 	}
 	
@@ -1954,6 +1973,9 @@ class DAO_Sla extends DevblocksORMHelper {
 		// Orgs
 		$sql = sprintf("UPDATE contact_org SET sla_id = 0 WHERE sla_id IN (%s)", $id_list);
 		$db->Execute($sql);
+		
+		$cache = DevblocksPlatform::getCacheService();
+		$cache->remove(self::CACHE_ALL);
 	}
 	
 	static public function cascadeOrgSla($org_id, $sla_id) {
@@ -4015,6 +4037,7 @@ class DAO_TeamRoutingRule extends DevblocksORMHelper {
     const DO_STATUS = 'do_status';
     const DO_SPAM = 'do_spam';
     const DO_MOVE = 'do_move';
+    const DO_ASSIGN = 'do_assign';
 //    const PARAMS = 'params'; // blob
     
 	public static function create($fields) {
@@ -4023,8 +4046,8 @@ class DAO_TeamRoutingRule extends DevblocksORMHelper {
 		
 		self::findDupes($fields);
 		
-		$sql = sprintf("INSERT INTO team_routing_rule (id,created,team_id,header,pattern,pos,do_spam,do_status,do_move) ".
-		    "VALUES (%d,%d,0,'','',0,'','','')",
+		$sql = sprintf("INSERT INTO team_routing_rule (id,created,team_id,header,pattern,pos,do_spam,do_status,do_move,do_assign) ".
+		    "VALUES (%d,%d,0,'','',0,'','','',0)",
 		    $id,
 		    time()
 		);
@@ -4083,7 +4106,7 @@ class DAO_TeamRoutingRule extends DevblocksORMHelper {
 	    
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = sprintf("SELECT id, team_id, header, pattern, pos, do_spam, do_status, do_move ".
+		$sql = sprintf("SELECT id, team_id, header, pattern, pos, do_spam, do_status, do_move, do_assign ".
 		    "FROM team_routing_rule ".
 		    "WHERE team_id = %d ".
 		    "ORDER BY header DESC, pos DESC", // subject first + from last, by popularity
@@ -4101,7 +4124,7 @@ class DAO_TeamRoutingRule extends DevblocksORMHelper {
 	    if(!is_array($ids)) $ids = array($ids);
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = "SELECT id, team_id, header, pattern, pos, do_spam, do_status, do_move ".
+		$sql = "SELECT id, team_id, header, pattern, pos, do_spam, do_status, do_move, do_assign ".
 		    "FROM team_routing_rule ".
 		    (!empty($ids) ? sprintf("WHERE id IN (%s) ", implode(',', $ids)) : " ").
 		    "ORDER BY header DESC, pos DESC" // subject first + from last, by popularity
@@ -4128,6 +4151,7 @@ class DAO_TeamRoutingRule extends DevblocksORMHelper {
 		    $object->do_spam = $rs->fields['do_spam'];
             $object->do_status = $rs->fields['do_status'];
             $object->do_move = $rs->fields['do_move'];
+            $object->do_assign = $rs->fields['do_assign'];
 		    		    
 //		    $params = $rs->fields['params'];
 //		    

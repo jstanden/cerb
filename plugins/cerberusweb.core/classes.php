@@ -279,8 +279,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		$response = DevblocksPlatform::getHttpResponse();
 		@$section = $response->path[1];
 
-		// [TODO] Change to a getAll cache
-		$workers = DAO_Worker::getList();
+		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 		
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -344,7 +343,7 @@ class ChTicketsPage extends CerberusPageExtension {
 				$tpl->assign('params', $view->params);
 
 //				// [TODO] Once this moves to the global scope and is cached I don't need to include it everywhere
-//				$workers = DAO_Worker::getList();
+//				$workers = DAO_Worker::getAll();
 //				$tpl->assign('workers', $workers);
 				
 				$teams = DAO_Group::getAll();
@@ -412,10 +411,10 @@ class ChTicketsPage extends CerberusPageExtension {
 				$group_buckets = DAO_Bucket::getTeams();
 				$tpl->assign('group_buckets', $group_buckets);
 				
-				$workers = DAO_Worker::getList();
+				$workers = DAO_Worker::getAll();
 				$tpl->assign('workers', $workers);
 				
-				$slas = DAO_Sla::getWhere();
+				$slas = DAO_Sla::getAll();
 				$tpl->assign('slas', $slas);
 				
 				$memberships = $active_worker->getMemberships();
@@ -1036,7 +1035,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		$team_categories = DAO_Bucket::getTeams();
 		$tpl->assign('team_categories', $team_categories);
 	    
-	    $workers = DAO_Worker::getList(); // ::getAll();
+	    $workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 	    
 		$tpl->cache_lifetime = "0";
@@ -1939,8 +1938,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		$team_categories = DAO_Bucket::getTeams();
 		$tpl->assign('team_categories', $team_categories);
 		
-		// [TODO] Cache
-		$workers = DAO_Worker::getList();
+		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 		
 		$tpl->cache_lifetime = "0";
@@ -2117,7 +2115,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 				break;
 				
 			case 'sla':
-				$slas = DAO_Sla::getWhere(); // [TODO] use getAll() cache
+				$slas = DAO_Sla::getAll();
 				$tpl->assign('slas', $slas);
 				
 				$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/sla/index.tpl.php');
@@ -2184,7 +2182,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 				 * our licensing.  Buy a legitimate copy to help support the project!
 				 * http://www.cerberusweb.com/
 				 */
-				$workers = DAO_Worker::getList();
+				$workers = DAO_Worker::getAll();
 				$tpl->assign('workers', $workers);
 
 				$teams = DAO_Group::getAll();
@@ -2531,7 +2529,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 			}
 		} else {
 			if(empty($id) && null == DAO_Worker::lookupAgentEmail($email)) {
-				$workers = DAO_Worker::getList();
+				$workers = DAO_Worker::getAll();
 				$license = CerberusLicense::getInstance();
 				if ((!empty($license) && !empty($license['key'])) || count($workers) < 3) {
 					// Creating new worker.  If password is empty, email it to them
@@ -2636,7 +2634,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 			$tpl->assign('members', $members);
 		}
 		
-		$workers = DAO_Worker::getList();
+		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/workflow/edit_team.tpl.php');
@@ -2754,6 +2752,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	    @$default_reply_address = DevblocksPlatform::importGPC($_REQUEST['sender_address'],'string');
 	    @$default_reply_personal = DevblocksPlatform::importGPC($_REQUEST['sender_personal'],'string');
 	    @$default_signature = DevblocksPlatform::importGPC($_POST['default_signature'],'string');
+	    @$default_signature_pos = DevblocksPlatform::importGPC($_POST['default_signature_pos'],'integer',0);
 	    @$smtp_host = DevblocksPlatform::importGPC($_REQUEST['smtp_host'],'string','localhost');
 	    @$smtp_port = DevblocksPlatform::importGPC($_REQUEST['smtp_port'],'integer',25);
 	    @$smtp_auth_enabled = DevblocksPlatform::importGPC($_REQUEST['smtp_auth_enabled'],'integer', 0);
@@ -2765,6 +2764,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	    $settings->set(CerberusSettings::DEFAULT_REPLY_FROM, $default_reply_address);
 	    $settings->set(CerberusSettings::DEFAULT_REPLY_PERSONAL, $default_reply_personal);
 	    $settings->set(CerberusSettings::DEFAULT_SIGNATURE, $default_signature);
+	    $settings->set(CerberusSettings::DEFAULT_SIGNATURE_POS, $default_signature_pos);
 	    $settings->set(CerberusSettings::SMTP_HOST, $smtp_host);
 	    $settings->set(CerberusSettings::SMTP_PORT, $smtp_port);
 	    $settings->set(CerberusSettings::SMTP_AUTH_ENABLED, $smtp_auth_enabled);
@@ -2959,7 +2959,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		@$sla_names = DevblocksPlatform::importGPC($_POST['sla_names'],'array',array());
 		@$sla_priorities = DevblocksPlatform::importGPC($_POST['sla_priorities'],'array',array());
 		
-		$orig_slas = DAO_Sla::getWhere();
+		$orig_slas = DAO_Sla::getAll();
 		
 		if(is_array($sla_ids) && !empty($sla_ids))
 		foreach($sla_ids as $idx => $sla_id) {
@@ -3297,7 +3297,7 @@ class ChContactsPage extends CerberusPageExtension {
 		$contact = DAO_ContactOrg::get($org);
 		$tpl->assign('contact', $contact);
 
-		$slas = DAO_Sla::getWhere(); // [TODO] use getAll() cache
+		$slas = DAO_Sla::getAll();
 		$tpl->assign('slas', $slas);
 		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/contacts/orgs/tabs/details.tpl.php');
@@ -3379,7 +3379,7 @@ class ChContactsPage extends CerberusPageExtension {
 		
 		C4_AbstractViewLoader::setView($tickets_view->id,$tickets_view);
 		
-		$workers = DAO_Worker::getList();
+		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 		
 		$teams = DAO_Group::getAll();
@@ -3447,7 +3447,7 @@ class ChContactsPage extends CerberusPageExtension {
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		
-		$slas = DAO_Sla::getWhere(); // [TODO] use getAll() cache
+		$slas = DAO_Sla::getAll();
 		$tpl->assign('slas', $slas);
 		
 		if(!empty($address_id)) {
@@ -3535,7 +3535,7 @@ class ChContactsPage extends CerberusPageExtension {
 	    }
 		
 	    // SLAs
-		$slas = DAO_Sla::getWhere();
+		$slas = DAO_Sla::getAll();
 		$tpl->assign('slas', $slas);
 	    
 		$tpl->cache_lifetime = "0";
@@ -3550,7 +3550,7 @@ class ChContactsPage extends CerberusPageExtension {
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		
-		$slas = DAO_Sla::getWhere(); // [TODO] use getAll() cache
+		$slas = DAO_Sla::getAll();
 		$tpl->assign('slas', $slas);
 		
 		$contact = DAO_ContactOrg::get($id);
@@ -3567,6 +3567,7 @@ class ChContactsPage extends CerberusPageExtension {
 		@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string','');
 		@$first_name = DevblocksPlatform::importGPC($_REQUEST['first_name'],'string','');
 		@$last_name = DevblocksPlatform::importGPC($_REQUEST['last_name'],'string','');
+		@$phone = DevblocksPlatform::importGPC($_REQUEST['phone'],'string','');
 		@$contact_org = DevblocksPlatform::importGPC($_REQUEST['contact_org'],'string','');
 		@$sla_id = DevblocksPlatform::importGPC($_REQUEST['sla_id'],'integer',0);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string', '');
@@ -3586,6 +3587,7 @@ class ChContactsPage extends CerberusPageExtension {
 			DAO_Address::FIRST_NAME => $first_name,
 			DAO_Address::LAST_NAME => $last_name,
 			DAO_Address::CONTACT_ORG_ID => $contact_org_id,
+			DAO_Address::PHONE => $phone,
 			DAO_Address::SLA_ID => $sla_id
 		);
 		
@@ -3906,7 +3908,7 @@ class ChGroupsPage extends CerberusPageExtension  {
 						$members = DAO_Group::getTeamMembers($team_id);
 					    $tpl->assign('members', $members);
 					    
-						$workers = DAO_Worker::getList();
+						$workers = DAO_Worker::getAll();
 					    $tpl->assign('workers', $workers);
 					    
 //					    $available_workers = array();
@@ -3932,6 +3934,23 @@ class ChGroupsPage extends CerberusPageExtension  {
 
 	                    $category_name_hash = DAO_Bucket::getCategoryNameHash();
 	                    $tpl->assign('category_name_hash', $category_name_hash);
+
+						$teams = DAO_Group::getAll();
+						$tpl->assign('teams', $teams);
+						
+						$team_categories = DAO_Bucket::getTeams();
+						$tpl->assign('team_categories', $team_categories);
+	                    
+	                    $workers = DAO_Worker::getAll();
+	                    $tpl->assign('workers', $workers);
+	                    
+						// Status
+						$statuses = CerberusTicketStatus::getOptions();
+						$tpl->assign('statuses', $statuses);
+				
+						// Spam Training
+						$training = CerberusTicketSpamTraining::getOptions();
+						$tpl->assign('training', $training);
 	                    
 						$tpl->display('file:' . dirname(__FILE__) . '/templates/groups/manage/routing.tpl.php');
 	                    break;
@@ -4058,6 +4077,42 @@ class ChGroupsPage extends CerberusPageExtension  {
 	    
         //DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','team',$team_id,'routing')));   
         DevblocksPlatform::redirect(new DevblocksHttpResponse(array('groups','config',$team_id,'routing')));
+   	}
+   	
+   	function addTeamRoutingAction() {
+   		@$team_id = DevblocksPlatform::importGPC($_REQUEST['team_id'],'integer');
+   		
+   		@$field = DevblocksPlatform::importGPC($_REQUEST['field'],'string');
+   		@$value = DevblocksPlatform::importGPC($_REQUEST['value'],'string');
+
+   		@$move = DevblocksPlatform::importGPC($_REQUEST['move'],'string');
+   		@$status = DevblocksPlatform::importGPC($_REQUEST['status'],'string');
+   		@$spam = DevblocksPlatform::importGPC($_REQUEST['spam'],'string');
+   		@$assign = DevblocksPlatform::importGPC($_REQUEST['assign'],'string');
+
+   		$fields = array(
+   			DAO_TeamRoutingRule::TEAM_ID => $team_id,
+   			DAO_TeamRoutingRule::HEADER => $field,
+   			DAO_TeamRoutingRule::PATTERN => $value,
+   			DAO_TeamRoutingRule::POS => 0
+   		);
+
+   		if(!empty($move)) {
+			$fields[DAO_TeamRoutingRule::DO_MOVE] = $move;   			
+   		}
+   		if(0 != strlen($status)) {
+			$fields[DAO_TeamRoutingRule::DO_STATUS] = intval($status);   			
+   		}
+   		if(0 != strlen($spam)) {
+			$fields[DAO_TeamRoutingRule::DO_SPAM] = intval($spam);   			
+   		}
+   		if(0 != strlen($assign)) {
+			$fields[DAO_TeamRoutingRule::DO_ASSIGN] = intval($assign);
+   		}
+   		
+   		$routing_id = DAO_TeamRoutingRule::create($fields);
+   		
+   		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('groups','config',$team_id,'routing')));
    	}
 	
 };
@@ -4288,7 +4343,7 @@ XML;
 		$output = '';
 		
 		if(is_null($workers))
-			$workers = DAO_Worker::getList();
+			$workers = DAO_Worker::getAll();
 
 		// [TODO] Translate
 		switch($action_code) {
@@ -4723,7 +4778,7 @@ class ChDisplayPage extends CerberusPageExtension {
 			}
 		}
 		
-		$workers = DAO_Worker::getList();  // [TODO] ::getAll();
+		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 		
 		$teams = DAO_Group::getAll();
@@ -4901,7 +4956,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		}
 		$tpl->assign('message_notes', $message_notes);
 				
-		$workers = DAO_Worker::getList();
+		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 
 		$tpl->register_modifier('makehrefs', array('CerberusUtils', 'smarty_modifier_makehrefs')); 
@@ -4971,7 +5026,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		$ticket = DAO_Ticket::getTicket($message->ticket_id);
 		$tpl->assign('ticket',$ticket);
 		
-		$workers = DAO_Worker::getList(); // [TODO] ::getAll()
+		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 		
 		$teams = DAO_Group::getAll();
@@ -5004,12 +5059,15 @@ class ChDisplayPage extends CerberusPageExtension {
 		        $settings = CerberusSettings::getInstance();
 		        $signature = $settings->get(CerberusSettings::DEFAULT_SIGNATURE);
 			}
-			
+
 			$tpl->assign('signature', str_replace(
 			        array('#first_name#','#last_name#','#title#'),
 			        array($worker->first_name,$worker->last_name,$worker->title),
 			        $signature
 			));
+			
+		    $signature_pos = $settings->get(CerberusSettings::DEFAULT_SIGNATURE_POS,0);
+			$tpl->assign('signature_pos', $signature_pos);
 		}
 		
 		$tpl->assign('upload_max_filesize', ini_get('upload_max_filesize'));
@@ -5069,8 +5127,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		}
 		$tpl->assign('message_notes', $message_notes);
 		
-		// [TODO] Cache this (getAll)
-		$workers = DAO_Worker::getList();
+		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 		
 		$tpl->register_modifier('makehrefs', array('CerberusUtils', 'smarty_modifier_makehrefs')); 
@@ -5092,7 +5149,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		$requesters = DAO_Ticket::getRequestersByTicket($ticket_id);
 		$tpl->assign('requesters', $requesters);
 		
-		$workers = DAO_Worker::getList();
+		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/properties/index.tpl.php');
@@ -5268,7 +5325,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		C4_AbstractViewLoader::setView($view->id,$view);
 		
-		$workers = DAO_Worker::getList();
+		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 		
 		$teams = DAO_Group::getAll();
@@ -5747,7 +5804,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 							DAO_AddressToWorker::CODE_EXPIRE => 0
 						));
 						
-						$output = array(sprintf("%s as been confirmed!", $worker_address->address));
+						$output = array(sprintf("%s has been confirmed!", $worker_address->address));
 						$tpl->assign('pref_success', $output);
 					
 				} else {
@@ -5837,6 +5894,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 	function saveDefaultsAction() {
 		@$timezone = DevblocksPlatform::importGPC($_REQUEST['timezone'],'string');
 		@$default_signature = DevblocksPlatform::importGPC($_REQUEST['default_signature'],'string');
+		@$default_signature_pos = DevblocksPlatform::importGPC($_REQUEST['default_signature_pos'],'integer',0);
 		@$reply_box_height = DevblocksPlatform::importGPC($_REQUEST['reply_box_height'],'integer');
 	    
 		$worker = CerberusApplication::getActiveWorker();

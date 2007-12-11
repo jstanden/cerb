@@ -237,13 +237,35 @@ class CerberusParser {
         	// Is it a worker reply from an external client?  If so, proxy
         	if(null != ($worker_address = DAO_AddressToWorker::getByAddress($fromAddress))) {
 //        		echo "Proxying reply to ticket $id for $fromAddress<br>";
+
+				// Watcher Commands [TODO] Document on wiki/etc
+				if(0 != ($matches = @preg_match("/^\[(.*?)\]$/i",$message->headers['subject'],$commands))) {
+					@$command = strtolower($commands[1]);
+					switch($command) {
+						case 'close':
+							DAO_Ticket::updateTicket($id,array(
+								DAO_Ticket::IS_CLOSED => CerberusTicketStatus::CLOSED
+							));
+							break;
+						case 'take':
+							DAO_Ticket::updateTicket($id,array(
+								DAO_Ticket::NEXT_WORKER_ID => $worker_address->worker_id
+							));
+							return $id;
+							break;
+						default:
+							// Typo?
+							break;
+					}
+				}
+
         		CerberusMail::sendTicketMessage(array(
 					'message_id' => $msgid,
-					'content' => $message->body, 	
+					'content' => $message->body,
 					//'files' => $message->files, // [TODO] Proxy attachments 	
 					'agent_id' => $worker_address->worker_id,
 				));
-        		
+				
         		return $id;
         	}
         }

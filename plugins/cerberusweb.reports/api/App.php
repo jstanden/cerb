@@ -120,7 +120,7 @@ class ChReportsPage extends CerberusPageExtension {
 		$tpl->assign('age_term', $age_term);
 		
 		// Top Workers
-		$workers = DAO_Worker::getList();
+		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 		
 		$groups = DAO_Group::getAll();

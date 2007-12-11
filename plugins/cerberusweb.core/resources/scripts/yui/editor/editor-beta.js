@@ -2,19 +2,317 @@
 Copyright (c) 2007, Yahoo! Inc. All rights reserved.
 Code licensed under the BSD License:
 http://developer.yahoo.net/yui/license.txt
-version: 2.3.1
+version: 2.4.0
 */
-/*
-Copyright (c) 2007, Yahoo! Inc. All rights reserved.
-Code licensed under the BSD License:
-http://developer.yahoo.net/yui/license.txt
-*/
+(function() {
+    /**
+    * @private
+    **/
+var Dom = YAHOO.util.Dom,
+    Event = YAHOO.util.Event,
+    Lang = YAHOO.lang;
+    /**
+     * @description <p>Creates a rich custom Toolbar Button. Primarily used with the Rich Text Editor's Toolbar</p>
+     * @class ToolbarButtonAdvanced
+     * @namespace YAHOO.widget
+     * @requires yahoo, dom, element, event, container_core, menu, button
+     * @beta
+     * 
+     * Provides a toolbar button based on the button and menu widgets.
+     * @constructor
+     * @param {String/HTMLElement} el The element to turn into a button.
+     * @param {Object} attrs Object liternal containing configuration parameters.
+    */
+    if (YAHOO.widget.Button) {
+        YAHOO.widget.ToolbarButtonAdvanced = YAHOO.widget.Button;
+        /**
+        * @property buttonType
+        * @private
+        * @description Tells if the Button is a Rich Button or a Simple Button
+        */
+        YAHOO.widget.ToolbarButtonAdvanced.prototype.buttonType = 'rich';
+        /**
+        * @method checkValue
+        * @param {String} value The value of the option that we want to mark as selected
+        * @description Select an option by value
+        */
+        YAHOO.widget.ToolbarButtonAdvanced.prototype.checkValue = function(value) {
+            var _menuItems = this.getMenu().getItems();
+            if (_menuItems.length === 0) {
+                this.getMenu()._onBeforeShow();
+                _menuItems = this.getMenu().getItems();
+            }
+            for (var i = 0; i < _menuItems.length; i++) {
+                _menuItems[i].cfg.setProperty('checked', false);
+                if (_menuItems[i].value == value) {
+                    _menuItems[i].cfg.setProperty('checked', true);
+                }
+            }      
+        };
+    } else {
+        YAHOO.widget.ToolbarButtonAdvanced = function() {};
+    }
+
+
+    /**
+     * @description <p>Creates a basic custom Toolbar Button. Primarily used with the Rich Text Editor's Toolbar</p>
+     * @class ToolbarButton
+     * @namespace YAHOO.widget
+     * @requires yahoo, dom, element, event
+     * @Extends YAHOO.util.Element
+     * @beta
+     * 
+     * Provides a toolbar button based on the button and menu widgets, <select> elements are used in place of menu's.
+     * @constructor
+     * @param {String/HTMLElement} el The element to turn into a button.
+     * @param {Object} attrs Object liternal containing configuration parameters.
+    */
+
+    YAHOO.widget.ToolbarButton = function(el, attrs) {
+        
+        if (Lang.isObject(arguments[0]) && !Dom.get(el).nodeType) {
+            attrs = el;
+        }
+        var local_attrs = (attrs || {});
+
+        var oConfig = {
+            element: null,
+            attributes: local_attrs
+        };
+
+        if (!oConfig.attributes.type) {
+            oConfig.attributes.type = 'push';
+        }
+        
+        oConfig.element = document.createElement('span');
+        oConfig.element.setAttribute('unselectable', 'on');
+        oConfig.element.className = 'yui-button yui-' + oConfig.attributes.type + '-button';
+        oConfig.element.innerHTML = '<span class="first-child"><a href="#">LABEL</a></span>';
+        oConfig.attributes.id = Dom.generateId();
+
+        YAHOO.widget.ToolbarButton.superclass.constructor.call(this, oConfig.element, oConfig.attributes);
+    };
+
+    YAHOO.extend(YAHOO.widget.ToolbarButton, YAHOO.util.Element, {
+        /**
+        * @property buttonType
+        * @private
+        * @description Tells if the Button is a Rich Button or a Simple Button
+        */
+        buttonType: 'normal',
+        /**
+        * @method _handleMouseOver
+        * @private
+        * @description Adds classes to the button elements on mouseover (hover)
+        */
+        _handleMouseOver: function() {
+            if (!this.get('disabled')) {
+                this.addClass('yui-button-hover');
+                this.addClass('yui-' + this.get('type') + '-button-hover');
+            }
+        },
+        /**
+        * @method _handleMouseOut
+        * @private
+        * @description Removes classes from the button elements on mouseout (hover)
+        */
+        _handleMouseOut: function() {
+            this.removeClass('yui-button-hover');
+            this.removeClass('yui-' + this.get('type') + '-button-hover');
+        },
+        /**
+        * @method checkValue
+        * @param {String} value The value of the option that we want to mark as selected
+        * @description Select an option by value
+        */
+        checkValue: function(value) {
+            if (this.get('type') == 'menu') {
+                var opts = this._button.options;
+                for (var i = 0; i < opts.length; i++) {
+                    if (opts[i].value == value) {
+                        opts.selectedIndex = i;
+                    }
+                }
+            }
+        },
+        /** 
+        * @method init
+        * @description The ToolbarButton class's initialization method
+        */        
+        init: function(p_oElement, p_oAttributes) {
+            YAHOO.widget.ToolbarButton.superclass.init.call(this, p_oElement, p_oAttributes);
+
+            this.on('mouseover', this._handleMouseOver, this, true);
+            this.on('mouseout', this._handleMouseOut, this, true);
+        },
+        /**
+        * @method initAttributes
+        * @description Initializes all of the configuration attributes used to create 
+        * the toolbar.
+        * @param {Object} attr Object literal specifying a set of 
+        * configuration attributes used to create the toolbar.
+        */        
+        initAttributes: function(attr) {
+            YAHOO.widget.ToolbarButton.superclass.initAttributes.call(this, attr);
+            /**
+            * @attribute value
+            * @description The value of the button
+            * @type String
+            */            
+            this.setAttributeConfig('value', {
+                value: attr.value
+            });
+            /**
+            * @attribute menu
+            * @description The menu attribute, see YAHOO.widget.Button
+            * @type Object
+            */            
+            this.setAttributeConfig('menu', {
+                value: attr.menu || false
+            });
+            /**
+            * @attribute type
+            * @description The type of button to create: push, menu, color, select, spin
+            * @type String
+            */            
+            this.setAttributeConfig('type', {
+                value: attr.type,
+                writeOnce: true,
+                method: function(type) {
+                    var el, opt;
+                    if (!this._button) {
+                        this._button = this.get('element').getElementsByTagName('a')[0];
+                    }
+                    switch (type) {
+                        case 'select':
+                        case 'menu':
+                            el = document.createElement('select');
+                            var menu = this.get('menu');
+                            for (var i = 0; i < menu.length; i++) {
+                                opt = document.createElement('option');
+                                opt.innerHTML = menu[i].text;
+                                opt.value = menu[i].value;
+                                if (menu[i].checked) {
+                                    opt.selected = true;
+                                }
+                                el.appendChild(opt);
+                            }
+                            this._button.parentNode.replaceChild(el, this._button);
+                            Event.on(el, 'change', this._handleSelect, this, true);
+                            this._button = el;
+                            break;
+                    }
+                }
+            });
+
+            /**
+            * @attribute disabled
+            * @description Set the button into a disabled state
+            * @type String
+            */            
+            this.setAttributeConfig('disabled', {
+                value: attr.disabled || false,
+                method: function(disabled) {
+                    if (disabled) {
+                        this.addClass('yui-button-disabled');
+                        this.addClass('yui-' + this.get('type') + '-button-disabled');
+                    } else {
+                        this.removeClass('yui-button-disabled');
+                        this.removeClass('yui-' + this.get('type') + '-button-disabled');
+                    }
+                    if (this.get('type') == 'menu') {
+                        this._button.disabled = disabled;
+                    }
+                }
+            });
+
+            /**
+            * @attribute label
+            * @description The text label for the button
+            * @type String
+            */            
+            this.setAttributeConfig('label', {
+                value: attr.label,
+                method: function(label) {
+                    if (!this._button) {
+                        this._button = this.get('element').getElementsByTagName('a')[0];
+                    }
+                    if (this.get('type') == 'push') {
+                        this._button.innerHTML = label;
+                    }
+                }
+            });
+
+            /**
+            * @attribute title
+            * @description The title of the button
+            * @type String
+            */            
+            this.setAttributeConfig('title', {
+                value: attr.title
+            });
+
+            /**
+            * @config container
+            * @description The container that the button is rendered to, handled by Toolbar
+            * @type String
+            */            
+            this.setAttributeConfig('container', {
+                value: null,
+                writeOnce: true,
+                method: function(cont) {
+                    this.appendTo(cont);
+                }
+            });
+
+        },
+        /** 
+        * @private
+        * @method _handleSelect
+        * @description The event fired when a change event gets fired on a select element
+        * @param {Event} ev The change event.
+        */        
+        _handleSelect: function(ev) {
+            var tar = Event.getTarget(ev);
+            var value = tar.options[tar.selectedIndex].value;
+            this.fireEvent('change', {type: 'change', value: value });
+        },
+        /** 
+        * @method getMenu
+        * @description A stub function to mimic YAHOO.widget.Button's getMenu method
+        */        
+        getMenu: function() {
+            return this.get('menu');
+        },
+        /** 
+        * @method fireEvent
+        * @description Overridden fireEvent method to prevent DOM events from firing if the button is disabled.
+        */        
+        fireEvent: function (p_sType , p_aArgs) {
+            //  Disabled buttons should not respond to DOM events
+            if (this.DOM_EVENTS[p_sType] && this.get('disabled')) {
+                return;
+            }
+        
+            YAHOO.widget.ToolbarButton.superclass.fireEvent.call(this, p_sType, p_aArgs);
+        },
+        /**
+        * @method toString
+        * @description Returns a string representing the toolbar.
+        * @return {String}
+        */        
+        toString: function() {
+            return 'ToolbarButton (' + this.get('id') + ')';
+        }
+        
+    });
+})();
 /**
  * @description <p>Creates a rich Toolbar widget based on Button. Primarily used with the Rich Text Editor</p>
  * @class Toolbar
  * @namespace YAHOO.widget
- * @requires yahoo, dom, element, event
- * @optional container, menu, button, dragdrop
+ * @requires yahoo, dom, element, event, toolbarbutton
+ * @optional container_core, dragdrop
  * @beta
  */
 (function() {
@@ -99,6 +397,12 @@ var Dom = YAHOO.util.Dom,
     }
 
     YAHOO.extend(YAHOO.widget.Toolbar, YAHOO.util.Element, {
+        /** 
+        * @property buttonType
+        * @description The default button to use
+        * @type Object
+        */
+        buttonType: YAHOO.widget.ToolbarButton,
         /** 
         * @property dd
         * @description The DragDrop instance associated with the Toolbar
@@ -295,12 +599,6 @@ var Dom = YAHOO.util.Dom,
         */
         _titlebar: null,
         /** 
-        * @property _disabled
-        * @description Object to track button status when enabling/disabling the toolbar
-        * @type Object
-        */
-        _disabled: null,
-        /** 
         * @property browser
         * @description Standard browser detection
         * @type Object
@@ -399,8 +697,36 @@ var Dom = YAHOO.util.Dom,
         */
         initAttributes: function(attr) {
             YAHOO.widget.Toolbar.superclass.initAttributes.call(this, attr);
-            var el = this.get('element');
             this.addClass(this.CLASS_CONTAINER);
+
+            /**
+            * @attribute buttonType
+            * @description The buttonType to use (advanced or basic)
+            * @type String
+            */
+            this.setAttributeConfig('buttonType', {
+                value: attr.buttonType || 'basic',
+                writeOnce: true,
+                validator: function(type) {
+                    switch (type) {
+                        case 'advanced':
+                        case 'basic':
+                            return true;
+                    }
+                    return false;
+                },
+                method: function(type) {
+                    if (type == 'advanced') {
+                        if (YAHOO.widget.Button) {
+                            this.buttonType = YAHOO.widget.ToolbarButtonAdvanced;
+                        } else {
+                            this.buttonType = YAHOO.widget.ToolbarButton;
+                        }
+                    } else {
+                        this.buttonType = YAHOO.widget.ToolbarButton;
+                    }
+                }
+            });
 
 
             /**
@@ -453,49 +779,23 @@ var Dom = YAHOO.util.Dom,
                     if (this.get('disabled') === disabled) {
                         return false;
                     }
-                    if (!Lang.isObject(this._disabled)) {
-                        this._disabled = {};
-                    }
                     if (disabled) {
                         this.addClass(this.CLASS_DISABLED);
                         this.set('draggable', false);
+                        this.disableAllButtons();
                     } else {
                         this.removeClass(this.CLASS_DISABLED);
                         if (this._configs.draggable._initialConfig.value) {
                             //Draggable by default, set it back
                             this.set('draggable', true);
                         }
-                    }
-                    var len = this._buttonList.length;
-                    for (var i = 0; i < len; i++) {
-                        if (disabled) {
-                            //If it's already disabled, flag it
-                            if (this._buttonList[i].get('disabled')) {
-                                this._disabled[i] = true;
-                            } else {
-                                this._disabled[i] = null;
-                            }
-                            this.disableButton(this._buttonList[i].get('id'));
-                        } else {
-                            //Check to see if it was disabled by default and skip it
-                            var _button = this._buttonList[i];
-                            var _check = _button._configs.disabled._initialConfig.value;
-                            if (this._disabled[i] === true) {
-                                _check = true;
-                            }
-                            if (!_check) {
-                                this.enableButton(_button.get('id'));
-                            }
-                        }
-                    }
-                    if (!disabled) {
-                        this._disabled = {};
+                        this.resetAllButtons();
                     }
                 }
             });
 
             /**
-            * @attribute cont
+            * @config cont
             * @description The container for the toolbar.
             * @type HTMLElement
             */
@@ -613,8 +913,6 @@ var Dom = YAHOO.util.Dom,
             this.setAttributeConfig('draggable', {
                 value: (attr.draggable || false),
                 method: function(draggable) {
-                    var el = this.get('element');
-
                     if (draggable && !this.get('titlebar')) {
                         if (!this._dragHandle) {
                             this._dragHandle = document.createElement('SPAN');
@@ -749,8 +1047,6 @@ var Dom = YAHOO.util.Dom,
             if (!this._buttonList) {
                 this._buttonList = [];
             }
-            //Add to .get('buttons') manually
-            this._configs.buttons.value[this._configs.buttons.value.length] = oButton;
             if (!oButton.container) {
                 oButton.container = this.get('cont');
             }
@@ -776,7 +1072,7 @@ var Dom = YAHOO.util.Dom,
                     }
                 }
             }
-            var _oButton = {};
+            var _oButton = {}, skip = false;
             for (var o in oButton) {
                 if (Lang.hasOwnProperty(oButton, o)) {
                     if (!this._toolbarConfigs[o]) {
@@ -791,10 +1087,14 @@ var Dom = YAHOO.util.Dom,
                 _oButton.type = 'push';
             }
             if (_oButton.type == 'color') {
-                _oButton = this._makeColorButton(_oButton);
+                if (YAHOO.widget.Overlay) {
+                    _oButton = this._makeColorButton(_oButton);
+                } else {
+                    skip = true;
+                }
             }
             if (_oButton.menu) {
-                if (oButton.menu instanceof YAHOO.widget.Overlay) {
+                if ((YAHOO.widget.Overlay) && (oButton.menu instanceof YAHOO.widget.Overlay)) {
                     oButton.menu.showEvent.subscribe(function() {
                         this._button = _oButton;
                     });
@@ -809,83 +1109,155 @@ var Dom = YAHOO.util.Dom,
                     }
                 }
             }
-            var tmp = new YAHOO.widget.Button(_oButton);
-            if (this.get('disabled')) {
-                //Toolbar is disabled, disable the new button too!
-                tmp.set('disabled', true);
-            }
-            if (!oButton.id) {
-                oButton.id = tmp.get('id');
-            }
-            
-            if (after) {
-                var el = tmp.get('element');
-                var nextSib = null;
-                if (after.get) {
-                    nextSib = after.get('element').nextSibling;
-                } else if (after.nextSibling) {
-                    nextSib = after.nextSibling;
-                }
-                if (nextSib) {
-                    nextSib.parentNode.insertBefore(el, nextSib);
-                }
-            }
-            tmp.addClass(this.CLASS_PREFIX + '-' + tmp.get('value'));
-            var icon = document.createElement('span');
-            icon.className = this.CLASS_PREFIX + '-icon';
-            tmp.get('element').insertBefore(icon, tmp.get('firstChild'));
-            //Replace the Button HTML Element with an a href
-            var a = document.createElement('a');
-            a.innerHTML = tmp._button.innerHTML;
-            a.href = '#';
-            Event.on(a, 'click', function(ev) {
-                Event.stopEvent(ev);
-            });
-            tmp._button.parentNode.replaceChild(a, tmp._button);
-            tmp._button = a;
+            if (skip) {
+                oButton = false;
+            } else {
+                //Add to .get('buttons') manually
+                this._configs.buttons.value[this._configs.buttons.value.length] = oButton;
 
-            if (oButton.type == 'select') {
-                tmp.addClass(this.CLASS_PREFIX + '-select');
-            }
-            if (oButton.type == 'spin') {
-                if (!Lang.isArray(oButton.range)) {
-                    oButton.range = [ 10, 100 ];
-                }
-                this._makeSpinButton(tmp, oButton);
-            }
-
-            tmp.get('element').setAttribute('title', tmp.get('label'));
-
-            if (oButton.type != 'spin') {
-                if (_oButton.menu instanceof YAHOO.widget.Overlay) {
-                    var showPicker = function(ev) {
-                        var exec = true;
-                        if (ev.keyCode && (ev.keyCode == 9)) {
-                            exec = false;
+                var tmp = new this.buttonType(_oButton);
+                if (!tmp.buttonType) {
+                    tmp.buttonType = 'rich';
+                    tmp.checkValue = function(value) {
+                        var _menuItems = this.getMenu().getItems();
+                        if (_menuItems.length === 0) {
+                            this.getMenu()._onBeforeShow();
+                            _menuItems = this.getMenu().getItems();
                         }
-                        if (exec) {
-                            this._colorPicker._button = oButton.value;
-                            var menuEL = tmp.getMenu().element;
-                            if (menuEL.style.visibility == 'hidden') {
-                                tmp.getMenu().show();
-                            } else {
-                                tmp.getMenu().hide();
+                        for (var i = 0; i < _menuItems.length; i++) {
+                            _menuItems[i].cfg.setProperty('checked', false);
+                            if (_menuItems[i].value == value) {
+                                _menuItems[i].cfg.setProperty('checked', true);
                             }
-                        }
-                        YAHOO.util.Event.stopEvent(ev);
+                        }      
                     };
-                    tmp.on('mousedown', showPicker, oButton, this);
-                    tmp.on('keydown', showPicker, oButton, this);
-                    
-                } else if ((oButton.type != 'menu') && (oButton.type != 'select')) {
-                    tmp.on('keypress', this._buttonClick, oButton, this);
-                    tmp.on('mousedown', function(ev) {
-                        YAHOO.util.Event.stopEvent(ev);
-                        this._buttonClick(ev, oButton);
-                    }, oButton, this);
-                    tmp.on('click', function(ev) {
-                        YAHOO.util.Event.stopEvent(ev);
+                }
+                
+                if (this.get('disabled')) {
+                    //Toolbar is disabled, disable the new button too!
+                    tmp.set('disabled', true);
+                }
+                if (!oButton.id) {
+                    oButton.id = tmp.get('id');
+                }
+                
+                if (after) {
+                    var el = tmp.get('element');
+                    var nextSib = null;
+                    if (after.get) {
+                        nextSib = after.get('element').nextSibling;
+                    } else if (after.nextSibling) {
+                        nextSib = after.nextSibling;
+                    }
+                    if (nextSib) {
+                        nextSib.parentNode.insertBefore(el, nextSib);
+                    }
+                }
+                tmp.addClass(this.CLASS_PREFIX + '-' + tmp.get('value'));
+
+                var icon = document.createElement('span');
+                icon.className = this.CLASS_PREFIX + '-icon';
+                tmp.get('element').insertBefore(icon, tmp.get('firstChild'));
+                if (tmp._button.tagName.toLowerCase() == 'button') {
+                    tmp.get('element').setAttribute('unselectable', 'on');
+                    //Replace the Button HTML Element with an a href if it exists
+                    var a = document.createElement('a');
+                    a.innerHTML = tmp._button.innerHTML;
+                    a.href = '#';
+                    Event.on(a, 'click', function(ev) {
+                        Event.stopEvent(ev);
                     });
+                    tmp._button.parentNode.replaceChild(a, tmp._button);
+                    tmp._button = a;
+                }
+
+                if (oButton.type == 'select') {
+                    if (tmp._button.tagName.toLowerCase() == 'select') {
+                        icon.parentNode.removeChild(icon);
+                        var iel = tmp._button;
+                        var parEl = tmp.get('element');
+                        parEl.parentNode.replaceChild(iel, parEl);
+                    } else {
+                        //Don't put a class on it if it's a real select element
+                        tmp.addClass(this.CLASS_PREFIX + '-select');
+                    }
+                }
+                if (oButton.type == 'spin') {
+                    if (!Lang.isArray(oButton.range)) {
+                        oButton.range = [ 10, 100 ];
+                    }
+                    this._makeSpinButton(tmp, oButton);
+                }
+                tmp.get('element').setAttribute('title', tmp.get('label'));
+                if (oButton.type != 'spin') {
+                    if ((YAHOO.widget.Overlay) && (_oButton.menu instanceof YAHOO.widget.Overlay)) {
+                        var showPicker = function(ev) {
+                            var exec = true;
+                            if (ev.keyCode && (ev.keyCode == 9)) {
+                                exec = false;
+                            }
+                            if (exec) {
+                                this._colorPicker._button = oButton.value;
+                                var menuEL = tmp.getMenu().element;
+                                if (Dom.getStyle(menuEL, 'visibility') == 'hidden') {
+                                    tmp.getMenu().show();
+                                } else {
+                                    tmp.getMenu().hide();
+                                }
+                            }
+                            YAHOO.util.Event.stopEvent(ev);
+                        };
+                        tmp.on('mousedown', showPicker, oButton, this);
+                        tmp.on('keydown', showPicker, oButton, this);
+                        
+                    } else if ((oButton.type != 'menu') && (oButton.type != 'select')) {
+                        tmp.on('keypress', this._buttonClick, oButton, this);
+                        tmp.on('mousedown', function(ev) {
+                            YAHOO.util.Event.stopEvent(ev);
+                            this._buttonClick(ev, oButton);
+                        }, oButton, this);
+                        tmp.on('click', function(ev) {
+                            YAHOO.util.Event.stopEvent(ev);
+                        });
+                    } else {
+                        //Stop the mousedown event so we can trap the selection in the editor!
+                        tmp.on('mousedown', function(ev) {
+                            YAHOO.util.Event.stopEvent(ev);
+                        });
+                        tmp.on('click', function(ev) {
+                            YAHOO.util.Event.stopEvent(ev);
+                        });
+                        tmp.on('change', function(ev) {
+                            if (!oButton.menucmd) {
+                                oButton.menucmd = oButton.value;
+                            }
+                            oButton.value = ev.value;
+                            this._buttonClick(ev, oButton);
+                        }, this, true);
+                        var self = this;
+                        //Hijack the mousedown event in the menu and make it fire a button click..
+                        if (tmp.getMenu().mouseDownEvent) {
+                            tmp.getMenu().mouseDownEvent.subscribe(function(ev, args) {
+                                var oMenu = args[1];
+                                YAHOO.util.Event.stopEvent(args[0]);
+                                tmp._onMenuClick(args[0], tmp);
+                                if (!oButton.menucmd) {
+                                    oButton.menucmd = oButton.value;
+                                }
+                                oButton.value = ((oMenu.value) ? oMenu.value : oMenu._oText.nodeValue);
+                                self._buttonClick.call(self, args[1], oButton);
+                                tmp._hideMenu();
+                                return false;
+                            });
+                            tmp.getMenu().clickEvent.subscribe(function(ev, args) {
+                                YAHOO.util.Event.stopEvent(args[0]);
+                            });
+                            tmp.getMenu().mouseUpEvent.subscribe(function(ev, args) {
+                                YAHOO.util.Event.stopEvent(args[0]);
+                            });
+                        }
+                        
+                    }
                 } else {
                     //Stop the mousedown event so we can trap the selection in the editor!
                     tmp.on('mousedown', function(ev) {
@@ -894,64 +1266,41 @@ var Dom = YAHOO.util.Dom,
                     tmp.on('click', function(ev) {
                         YAHOO.util.Event.stopEvent(ev);
                     });
-                    var self = this;
-                    //Hijack the mousedown event in the menu and make it fire a button click..
-                    tmp.getMenu().mouseDownEvent.subscribe(function(ev, args) {
-                        var oMenu = args[1];
-                        YAHOO.util.Event.stopEvent(args[0]);
-                        tmp._onMenuClick(args[0], tmp);
-                        if (!oButton.menucmd) {
-                            oButton.menucmd = oButton.value;
-                        }
-                        oButton.value = ((oMenu.value) ? oMenu.value : oMenu._oText.nodeValue);
-                        self._buttonClick.call(self, args[1], oButton);
-                        tmp._hideMenu();
-                        return false;
-                    });
-                    tmp.getMenu().clickEvent.subscribe(function(ev, args) {
-                        YAHOO.util.Event.stopEvent(args[0]);
-                    });
                 }
-            } else {
-                //Stop the mousedown event so we can trap the selection in the editor!
-                tmp.on('mousedown', function(ev) {
-                    YAHOO.util.Event.stopEvent(ev);
-                });
-                tmp.on('click', function(ev) {
-                    YAHOO.util.Event.stopEvent(ev);
-                });
-            }
-            if (this.browser.ie) {
-                //Add a couple of new events for IE
-                tmp.DOM_EVENTS.focusin = true;
-                tmp.DOM_EVENTS.focusout = true;
-                
-                //Stop them so we don't loose focus in the Editor
-                tmp.on('focusin', function(ev) {
-                    YAHOO.util.Event.stopEvent(ev);
-                }, oButton, this);
-                
-                tmp.on('focusout', function(ev) {
-                    YAHOO.util.Event.stopEvent(ev);
-                }, oButton, this);
-                tmp.on('click', function(ev) {
-                    YAHOO.util.Event.stopEvent(ev);
-                }, oButton, this);
-            }
-            if (this.browser.webkit) {
-                //This will keep the document from gaining focus and the editor from loosing it..
-                //Forcefully remove the focus calls in button!
-                tmp.hasFocus = function() {
-                    return true;
-                };
-            }
-            this._buttonList[this._buttonList.length] = tmp;
-            if ((oButton.type == 'menu') || (oButton.type == 'split') || (oButton.type == 'select')) {
-                if (Lang.isArray(oButton.menu)) {
-                    var menu = tmp.getMenu();
-                    menu.renderEvent.subscribe(_addMenuClasses, tmp);
-                    if (oButton.renderer) {
-                        menu.renderEvent.subscribe(oButton.renderer, tmp);
+                if (this.browser.ie) {
+                    //Add a couple of new events for IE
+                    tmp.DOM_EVENTS.focusin = true;
+                    tmp.DOM_EVENTS.focusout = true;
+                    
+                    //Stop them so we don't loose focus in the Editor
+                    tmp.on('focusin', function(ev) {
+                        YAHOO.util.Event.stopEvent(ev);
+                    }, oButton, this);
+                    
+                    tmp.on('focusout', function(ev) {
+                        YAHOO.util.Event.stopEvent(ev);
+                    }, oButton, this);
+                    tmp.on('click', function(ev) {
+                        YAHOO.util.Event.stopEvent(ev);
+                    }, oButton, this);
+                }
+                if (this.browser.webkit) {
+                    //This will keep the document from gaining focus and the editor from loosing it..
+                    //Forcefully remove the focus calls in button!
+                    tmp.hasFocus = function() {
+                        return true;
+                    };
+                }
+                this._buttonList[this._buttonList.length] = tmp;
+                if ((oButton.type == 'menu') || (oButton.type == 'split') || (oButton.type == 'select')) {
+                    if (Lang.isArray(oButton.menu)) {
+                        var menu = tmp.getMenu();
+                        if (menu.renderEvent) {
+                            menu.renderEvent.subscribe(_addMenuClasses, tmp);
+                            if (oButton.renderer) {
+                                menu.renderEvent.subscribe(oButton.renderer, tmp);
+                            }
+                        }
                     }
                 }
             }
@@ -1073,16 +1422,18 @@ var Dom = YAHOO.util.Dom,
         * @method _makeColorButton
         * @private
         * @description Called to turn a "color" button into a menu button with an Overlay for the menu.
-        * @param {Object} _oButton <a href="YAHOO.widget.Button.html">YAHOO.widget.Button</a> reference
+        * @param {Object} _oButton <a href="YAHOO.widget.ToolbarButton.html">YAHOO.widget.ToolbarButton</a> reference
         */
         _makeColorButton: function(_oButton) {
             if (!this._colorPicker) {   
                 this._createColorPicker(this.get('id'));
             }
             _oButton.type = 'color';
-            _oButton.menu = new YAHOO.widget.Overlay(this.get('id') + '_' + _oButton.value + '_menu', { visbile: false, position: 'absolute' });
+            _oButton.menu = new YAHOO.widget.Overlay(this.get('id') + '_' + _oButton.value + '_menu', { visible: false, position: 'absolute', iframe: true });
             _oButton.menu.setBody('');
             _oButton.menu.render(this.get('cont'));
+            Dom.addClass(_oButton.menu.element, 'yui-button-menu');
+            Dom.addClass(_oButton.menu.element, 'yui-color-button-menu');
             _oButton.menu.beforeShowEvent.subscribe(function() {
                 _oButton.menu.cfg.setProperty('zindex', 5); //Re Adjust the overlays zIndex.. not sure why.
                 _oButton.menu.cfg.setProperty('context', [this.getButtonById(_oButton.id).get('element'), 'tl', 'bl']); //Re Adjust the overlay.. not sure why.
@@ -1090,9 +1441,7 @@ var Dom = YAHOO.util.Dom,
                 this._resetColorPicker();
                 var _p = this._colorPicker;
                 if (_p.parentNode) {
-                    //if (_p.parentNode != _oButton.menu.body) {
-                        _p.parentNode.removeChild(_p);
-                    //}
+                    _p.parentNode.removeChild(_p);
                 }
                 _oButton.menu.setBody('');
                 _oButton.menu.appendToBody(_p);
@@ -1104,7 +1453,7 @@ var Dom = YAHOO.util.Dom,
         * @private
         * @method _makeSpinButton
         * @description Create a button similar to an OS Spin button.. It has an up/down arrow combo to scroll through a range of int values.
-        * @param {Object} _button <a href="YAHOO.widget.Button.html">YAHOO.widget.Button</a> reference
+        * @param {Object} _button <a href="YAHOO.widget.ToolbarButton.html">YAHOO.widget.ToolbarButton</a> reference
         * @param {Object} oButton Object literal containing the buttons initial config
         */
         _makeSpinButton: function(_button, oButton) {
@@ -1247,20 +1596,22 @@ var Dom = YAHOO.util.Dom,
 
                 if (info.type == 'select') {
                     var button = this.getButtonById(info.id);
-                    var txt = info.value;
-                    for (var i = 0; i < info.menu.length; i++) {
-                        if (info.menu[i].value == info.value) {
-                            txt = info.menu[i].text;
-                            break;
+                    if (button.buttonType == 'rich') {
+                        var txt = info.value;
+                        for (var i = 0; i < info.menu.length; i++) {
+                            if (info.menu[i].value == info.value) {
+                                txt = info.menu[i].text;
+                                break;
+                            }
                         }
-                    }
-                    button.set('label', '<span class="yui-toolbar-' + info.menucmd + '-' + (info.value).replace(/ /g, '-').toLowerCase() + '">' + txt + '</span>');
-                    var _items = button.getMenu().getItems();
-                    for (var m = 0; m < _items.length; m++) {
-                        if (_items[m].value.toLowerCase() == info.value.toLowerCase()) {
-                            _items[m].cfg.setProperty('checked', true);
-                        } else {
-                            _items[m].cfg.setProperty('checked', false);
+                        button.set('label', '<span class="yui-toolbar-' + info.menucmd + '-' + (info.value).replace(/ /g, '-').toLowerCase() + '">' + txt + '</span>');
+                        var _items = button.getMenu().getItems();
+                        for (var m = 0; m < _items.length; m++) {
+                            if (_items[m].value.toLowerCase() == info.value.toLowerCase()) {
+                                _items[m].cfg.setProperty('checked', true);
+                            } else {
+                                _items[m].cfg.setProperty('checked', false);
+                            }
                         }
                     }
                 }
@@ -1273,7 +1624,7 @@ var Dom = YAHOO.util.Dom,
         * @method getButtonById
         * @description Gets a button instance from the toolbar by is Dom id.
         * @param {String} id The Dom id to query for.
-        * @return {<a href="YAHOO.widget.Button.html">YAHOO.widget.Button</a>}
+        * @return {<a href="YAHOO.widget.ToolbarButton.html">YAHOO.widget.ToolbarButton</a>}
         */
         getButtonById: function(id) {
             var len = this._buttonList.length;
@@ -1288,7 +1639,7 @@ var Dom = YAHOO.util.Dom,
         * @method getButtonByValue
         * @description Gets a button instance or a menuitem instance from the toolbar by it's value.
         * @param {String} value The button value to query for.
-        * @return {<a href="YAHOO.widget.Button.html">YAHOO.widget.Button</a> or <a href="YAHOO.widget.MenuItem.html">YAHOO.widget.MenuItem</a>}
+        * @return {<a href="YAHOO.widget.ToolbarButton.html">YAHOO.widget.ToolbarButton</a> or <a href="YAHOO.widget.MenuItem.html">YAHOO.widget.MenuItem</a>}
         */
         getButtonByValue: function(value) {
             var _buttons = this.get('buttons');
@@ -1326,7 +1677,7 @@ var Dom = YAHOO.util.Dom,
         * @method getButtonByIndex
         * @description Gets a button instance from the toolbar by is index in _buttonList.
         * @param {Number} index The index of the button in _buttonList.
-        * @return {<a href="YAHOO.widget.Button.html">YAHOO.widget.Button</a>}
+        * @return {<a href="YAHOO.widget.ToolbarButton.html">YAHOO.widget.ToolbarButton</a>}
         */
         getButtonByIndex: function(index) {
             if (this._buttonList[index]) {
@@ -1357,10 +1708,10 @@ var Dom = YAHOO.util.Dom,
             if (Lang.isNumber(id)) {
                 button = this.getButtonByIndex(id);
             }
-            if (!(button instanceof YAHOO.widget.Button)) {
+            if ((!(button instanceof YAHOO.widget.ToolbarButton)) && (!(button instanceof YAHOO.widget.ToolbarButtonAdvanced))) {
                 button = this.getButtonByValue(id);
             }
-            if (button instanceof YAHOO.widget.Button) {
+            if ((button instanceof YAHOO.widget.ToolbarButton) || (button instanceof YAHOO.widget.ToolbarButtonAdvanced)) {
                 button.set('disabled', true);
             } else {
                 return false;
@@ -1383,10 +1734,10 @@ var Dom = YAHOO.util.Dom,
             if (Lang.isNumber(id)) {
                 button = this.getButtonByIndex(id);
             }
-            if (!(button instanceof YAHOO.widget.Button)) {
+            if ((!(button instanceof YAHOO.widget.ToolbarButton)) && (!(button instanceof YAHOO.widget.ToolbarButtonAdvanced))) {
                 button = this.getButtonByValue(id);
             }
-            if (button instanceof YAHOO.widget.Button) {
+            if ((button instanceof YAHOO.widget.ToolbarButton) || (button instanceof YAHOO.widget.ToolbarButtonAdvanced)) {
                 if (button.get('disabled')) {
                     button.set('disabled', false);
                 }
@@ -1409,20 +1760,22 @@ var Dom = YAHOO.util.Dom,
                 if (Lang.isNumber(id)) {
                     button = this.getButtonByIndex(id);
                 }
-                if (!(button instanceof YAHOO.widget.Button)) {
+                if ((!(button instanceof YAHOO.widget.ToolbarButton)) && (!(button instanceof YAHOO.widget.ToolbarButtonAdvanced))) {
                     button = this.getButtonByValue(id);
                 }
-                if (button instanceof YAHOO.widget.Button) {
+                if ((button instanceof YAHOO.widget.ToolbarButton) || (button instanceof YAHOO.widget.ToolbarButtonAdvanced)) {
                     button.addClass('yui-button-selected');
                     button.addClass('yui-button-' + button.get('value') + '-selected');
                     if (value) {
-                        var _items = button.getMenu().getItems();
-                        for (var m = 0; m < _items.length; m++) {
-                            if (_items[m].value == value) {
-                                _items[m].cfg.setProperty('checked', true);
-                                button.set('label', '<span class="yui-toolbar-' + button.get('value') + '-' + (value).replace(/ /g, '-').toLowerCase() + '">' + _items[m]._oText.nodeValue + '</span>');
-                            } else {
-                                _items[m].cfg.setProperty('checked', false);
+                        if (button.buttonType == 'rich') {
+                            var _items = button.getMenu().getItems();
+                            for (var m = 0; m < _items.length; m++) {
+                                if (_items[m].value == value) {
+                                    _items[m].cfg.setProperty('checked', true);
+                                    button.set('label', '<span class="yui-toolbar-' + button.get('value') + '-' + (value).replace(/ /g, '-').toLowerCase() + '">' + _items[m]._oText.nodeValue + '</span>');
+                                } else {
+                                    _items[m].cfg.setProperty('checked', false);
+                                }
                             }
                         }
                     }
@@ -1445,10 +1798,10 @@ var Dom = YAHOO.util.Dom,
             if (Lang.isNumber(id)) {
                 button = this.getButtonByIndex(id);
             }
-            if (!(button instanceof YAHOO.widget.Button)) {
+            if ((!(button instanceof YAHOO.widget.ToolbarButton)) && (!(button instanceof YAHOO.widget.ToolbarButtonAdvanced))) {
                 button = this.getButtonByValue(id);
             }
-            if (button instanceof YAHOO.widget.Button) {
+            if ((button instanceof YAHOO.widget.ToolbarButton) || (button instanceof YAHOO.widget.ToolbarButtonAdvanced)) {
                 button.removeClass('yui-button-selected');
                 button.removeClass('yui-button-' + button.get('value') + '-selected');
                 button.removeClass('yui-button-hover');
@@ -1539,10 +1892,10 @@ var Dom = YAHOO.util.Dom,
             if (Lang.isNumber(id)) {
                 button = this.getButtonByIndex(id);
             }
-            if (!(button instanceof YAHOO.widget.Button)) {
+            if ((!(button instanceof YAHOO.widget.ToolbarButton)) && (!(button instanceof YAHOO.widget.ToolbarButtonAdvanced))) {
                 button = this.getButtonByValue(id);
             }
-            if (button instanceof YAHOO.widget.Button) {
+            if ((button instanceof YAHOO.widget.ToolbarButton) || (button instanceof YAHOO.widget.ToolbarButtonAdvanced)) {
                 var thisID = button.get('id');
                 button.destroy();
 
@@ -1635,17 +1988,11 @@ var Dom = YAHOO.util.Dom,
 * @type YAHOO.util.CustomEvent
 */
 })();
-/*
-Copyright (c) 2007, Yahoo! Inc. All rights reserved.
-Code licensed under the BSD License:
-http://developer.yahoo.net/yui/license.txt
-*/
 /**
- * @module editor
  * @description <p>The Rich Text Editor is a UI control that replaces a standard HTML textarea; it allows for the rich formatting of text content, including common structural treatments like lists, formatting treatments like bold and italic text, and drag-and-drop inclusion and sizing of images. The Rich Text Editor's toolbar is extensible via a plugin architecture so that advanced implementations can achieve a high degree of customization.</p>
  * @namespace YAHOO.widget
- * @requires yahoo, dom, element, event, toolbar, container, menu, button
- * @optional dragdrop, animation
+ * @requires yahoo, dom, element, event, toolbar
+ * @optional animation, container_core
  * @beta
  */
 
@@ -1658,13 +2005,13 @@ var Dom = YAHOO.util.Dom,
     /**
      * The Rich Text Editor is a UI control that replaces a standard HTML textarea; it allows for the rich formatting of text content, including common structural treatments like lists, formatting treatments like bold and italic text, and drag-and-drop inclusion and sizing of images. The Rich Text Editor's toolbar is extensible via a plugin architecture so that advanced implementations can achieve a high degree of customization.
      * @constructor
-     * @class Editor
+     * @class SimpleEditor
      * @extends YAHOO.util.Element
      * @param {String/HTMLElement} el The textarea element to turn into an editor.
      * @param {Object} attrs Object liternal containing configuration parameters.
     */
     
-    YAHOO.widget.Editor = function(el, attrs) {
+    YAHOO.widget.SimpleEditor = function(el, attrs) {
 
         var oConfig = {
             element: null,
@@ -1691,16 +2038,16 @@ var Dom = YAHOO.util.Dom,
             oConfig.attributes.toolbar_cont.id = id + '_toolbar';
             div.appendChild(oConfig.attributes.toolbar_cont);
         }
-        
         var editorWrapper = document.createElement('DIV');
         div.appendChild(editorWrapper);
         oConfig.attributes.editor_wrapper = editorWrapper;
 
-        YAHOO.widget.Editor.superclass.constructor.call(this, oConfig.element, oConfig.attributes);
+        YAHOO.widget.SimpleEditor.superclass.constructor.call(this, oConfig.element, oConfig.attributes);
     };
 
     /**
-    * @private _cleanClassName
+    * @private
+    * @method _cleanClassName
     * @description Makes a useable classname from dynamic data, by dropping it to lowercase and replacing spaces with -'s.
     * @param {String} str The classname to clean up
     * @returns {String}
@@ -1710,7 +2057,82 @@ var Dom = YAHOO.util.Dom,
     }
 
 
-    YAHOO.extend(YAHOO.widget.Editor, YAHOO.util.Element, {
+    YAHOO.extend(YAHOO.widget.SimpleEditor, YAHOO.util.Element, {
+        /**
+        * @property _docType
+        * @description The DOCTYPE to use in the editable container.
+        * @type String
+        */
+        _docType: '<!DOCTYPE HTML PUBLIC "-/'+'/W3C/'+'/DTD HTML 4.01/'+'/EN" "http:/'+'/www.w3.org/TR/html4/strict.dtd">',
+        /**
+        * @property editorDirty
+        * @description This flag will be set when certain things in the Editor happen. It is to be used by the developer to check to see if content has changed.
+        * @type Boolean
+        */
+        editorDirty: false,
+        /**
+        * @property _defaultCSS
+        * @description The default CSS used in the config for 'css'. This way you can add to the config like this: { css: YAHOO.widget.SimpleEditor.prototype._defaultCSS + 'ADD MYY CSS HERE' }
+        * @type String
+        */
+        _defaultCSS: 'html { height: 95%; } body { height: 100%; padding: 7px; background-color: #fff; font:13px/1.22 arial,helvetica,clean,sans-serif;*font-size:small;*font:x-small; } a { color: blue; text-decoration: underline; cursor: pointer; } .warning-localfile { border-bottom: 1px dashed red !important; } .yui-busy { cursor: wait !important; } img.selected { border: 2px dotted #808080; } img { cursor: pointer !important; border: none; }',
+        /**
+        * @property _defaultToolbar
+        * @private
+        * @description Default toolbar config.
+        * @type Object
+        */
+        _defaultToolbar: {
+            collapse: true,
+            titlebar: 'Text Editing Tools',
+            draggable: false,
+            buttons: [
+                { group: 'fontstyle', label: 'Font Name and Size',
+                    buttons: [
+                        { type: 'select', label: 'Arial', value: 'fontname', disabled: true,
+                            menu: [
+                                { text: 'Arial', checked: true },
+                                { text: 'Arial Black' },
+                                { text: 'Comic Sans MS' },
+                                { text: 'Courier New' },
+                                { text: 'Lucida Console' },
+                                { text: 'Tahoma' },
+                                { text: 'Times New Roman' },
+                                { text: 'Trebuchet MS' },
+                                { text: 'Verdana' }
+                            ]
+                        },
+                        { type: 'spin', label: '13', value: 'fontsize', range: [ 9, 75 ], disabled: true }
+                    ]
+                },
+                { type: 'separator' },
+                { group: 'textstyle', label: 'Font Style',
+                    buttons: [
+                        { type: 'push', label: 'Bold CTRL + SHIFT + B', value: 'bold' },
+                        { type: 'push', label: 'Italic CTRL + SHIFT + I', value: 'italic' },
+                        { type: 'push', label: 'Underline CTRL + SHIFT + U', value: 'underline' },
+                        { type: 'separator' },
+                        { type: 'color', label: 'Font Color', value: 'forecolor', disabled: true },
+                        { type: 'color', label: 'Background Color', value: 'backcolor', disabled: true }
+                        
+                    ]
+                },
+                { type: 'separator' },
+                { group: 'indentlist', label: 'Lists',
+                    buttons: [
+                        { type: 'push', label: 'Create an Unordered List', value: 'insertunorderedlist' },
+                        { type: 'push', label: 'Create an Ordered List', value: 'insertorderedlist' }
+                    ]
+                },
+                { type: 'separator' },
+                { group: 'insertitem', label: 'Insert Item',
+                    buttons: [
+                        { type: 'push', label: 'HTML Link CTRL + SHIFT + L', value: 'createlink', disabled: true },
+                        { type: 'push', label: 'Insert Image', value: 'insertimage' }
+                    ]
+                }
+            ]
+        },
         /**
         * @property _lastButton
         * @private
@@ -1860,7 +2282,7 @@ var Dom = YAHOO.util.Dom,
         afterElement: null,
         /**
         * @property invalidHTML
-        * @description Contains a list of HTML elements that are invalid inside the editor. They will be removed when they are found.
+        * @description Contains a list of HTML elements that are invalid inside the editor. They will be removed when they are found. If you set the value of a key to "{ keepContents: true }", then the element will be replaced with a yui-non span to be filtered out when cleanHTML is called. The only tag that is ignored here is the span tag as it will force the Editor into a loop and freeze the browser. However.. all of these tags will be removed in the cleanHTML routine.
         * @type Object
         */
         invalidHTML: {
@@ -1900,21 +2322,21 @@ var Dom = YAHOO.util.Dom,
         * @description The Toolbar items that should be disabled if there is no selection present in the editor.
         * @type Array
         */
-        _disabled: [ 'createlink', 'forecolor', 'backcolor', 'fontname', 'fontsize', 'superscript', 'subscript', 'removeformat', 'heading', 'indent' ],
+        _disabled: [ 'createlink', 'fontname', 'fontsize', 'forecolor', 'backcolor' ],
         /**
         * @private
         * @property _alwaysDisabled
         * @description The Toolbar items that should ALWAYS be disabled event if there is a selection present in the editor.
         * @type Object
         */
-        _alwaysDisabled: { 'outdent': true },
+        _alwaysDisabled: { },
         /**
         * @private
         * @property _alwaysEnabled
         * @description The Toolbar items that should ALWAYS be enabled event if there isn't a selection present in the editor.
         * @type Object
         */
-        _alwaysEnabled: { hiddenelements: true },
+        _alwaysEnabled: { },
         /**
         * @private
         * @property _semantic
@@ -1968,11 +2390,13 @@ var Dom = YAHOO.util.Dom,
             }
             var isrc = 'javascript:;';
             if (this.browser.ie) {
-                isrc = 'about:blank';
+                if (window.location.href.toLowerCase().indexOf("https") !== 0) {
+                    isrc = 'about:blank';
+                }
             }
             ifrmDom.setAttribute('src', isrc);
             var ifrm = new YAHOO.util.Element(ifrmDom);
-            ifrm.setStyle('zIndex', '-1');
+            //ifrm.setStyle('zIndex', '-1');
             return ifrm;
         },
         /**
@@ -1988,6 +2412,30 @@ var Dom = YAHOO.util.Dom,
             }
             if (el && el.getAttribute && (el.getAttribute('tag') == tag)) {
                 return true;
+            }
+            return false;
+        },
+        /**
+        * @private _hasParent
+        * @description Checks to see if an Element reference or one of it's parents is a valid one and has a certain tag type
+        * @param {HTMLElement} el The element to check
+        * @param {String} tag The tag that the element needs to be
+        * @returns HTMLElement
+        */
+        _hasParent: function(el, tag) {
+            if (!el || !el.parentNode) {
+                return false;
+            }
+            
+            while (el.parentNode) {
+                if (this._isElement(el, tag)) {
+                    return el;
+                }
+                if (el.parentNode) {
+                    el = el.parentNode;
+                } else {
+                    return false;
+                }
             }
             return false;
         },
@@ -2142,12 +2590,19 @@ var Dom = YAHOO.util.Dom,
 
             if (this.browser.ie) {
                 try { //IE freaks out here sometimes..
-                    range = this.getDoc().body.createTextRange();
+                    range = this._getDoc().body.createTextRange();
                     range.moveToElementText(node);
                     range.select();
-                } catch (e) {}
+                } catch (e) {
+                }
             } else if (this.browser.webkit) {
 				sel.setBaseAndExtent(node, 0, node, node.innerText.length);
+            } else if (this.browser.opera) {
+                sel = this._getWindow().getSelection();
+                range = this._getDoc().createRange();
+                range.selectNode(node);
+                sel.removeAllRanges();
+                sel.addRange(range);
             } else {
                 range = this._getDoc().createRange();
                 range.selectNodeContents(node);
@@ -2206,7 +2661,7 @@ var Dom = YAHOO.util.Dom,
         * @returns {String} The state that it was set to.
         */
         _toggleDesignMode: function() {
-            var _dMode = this._getDoc().designMode,
+            var _dMode = this._getDoc().designMode.toLowerCase(),
                 _state = 'on';
             if (_dMode == 'on') {
                 _state = 'off';
@@ -2223,7 +2678,9 @@ var Dom = YAHOO.util.Dom,
             if (this.browser.ie) {
                 this._getDoc().body.style.margin = '0';
             }
-            this._setDesignMode('on');
+            if (!this.get('disabled')) {
+                this._setDesignMode('on');
+            }
             
             this.toolbar.on('buttonClick', this._handleToolbarClick, this, true);
             //Setup Listeners on iFrame
@@ -2234,7 +2691,9 @@ var Dom = YAHOO.util.Dom,
             Event.on(this._getDoc(), 'keypress', this._handleKeyPress, this, true);
             Event.on(this._getDoc(), 'keyup', this._handleKeyUp, this, true);
             Event.on(this._getDoc(), 'keydown', this._handleKeyDown, this, true);
-            this.toolbar.set('disabled', false);
+            if (!this.get('disabled')) {
+                this.toolbar.set('disabled', false);
+            }
             this.fireEvent('editorContentLoaded', { type: 'editorLoaded', target: this });
             if (this.get('dompath')) {
                 var self = this;
@@ -2285,12 +2744,19 @@ var Dom = YAHOO.util.Dom,
         _setInitialContent: function() {
             var html = Lang.substitute(this.get('html'), {
                 TITLE: this.STR_TITLE,
-                CONTENT: this.get('element').value,
+                CONTENT: this._cleanIncomingHTML(this.get('element').value),
                 CSS: this.get('css'),
-                HIDDEN_CSS: this.get('hiddencss')
+                HIDDEN_CSS: ((this.get('hiddencss')) ? this.get('hiddencss') : '/* No Hidden CSS */'),
+                EXTRA_CSS: ((this.get('extracss')) ? this.get('extracss') : '/* No Extra CSS */')
             }),
             check = true;
-            if (this.browser.ie || this.browser.webkit || this.browser.opera) {
+            if (document.compatMode != 'BackCompat') {
+                html = this._docType + "\n" + html;
+            } else {
+            }
+
+            if (this.browser.ie || this.browser.webkit || this.browser.opera || (navigator.userAgent.indexOf('Firefox/1.5') != -1)) {
+                //Firefox 1.5 doesn't like setting designMode on an document created with a data url
                 try {
                     this._getDoc().open();
                     this._getDoc().write(html);
@@ -2300,7 +2766,7 @@ var Dom = YAHOO.util.Dom,
                     check = false;
                 }
             } else {
-                //This keeps Firefox from writing the iframe to history preserving the back buttons functionality
+                //This keeps Firefox 2 from writing the iframe to history preserving the back buttons functionality
                 this.get('iframe').get('element').src = 'data:text/html;charset=utf-8,' + encodeURIComponent(html);
             }
             if (check) {
@@ -2372,7 +2838,7 @@ var Dom = YAHOO.util.Dom,
                 if (!sel || !range) {
                     return null;
                 }
-                if (!this._hasSelection() && !this.browser.webkit) {
+                if (!this._hasSelection()) {
                     if (sel.anchorNode && (sel.anchorNode.nodeType == 3)) {
                         if (sel.anchorNode.parentNode) { //next check parentNode
                             elm = sel.anchorNode.parentNode;
@@ -2381,11 +2847,9 @@ var Dom = YAHOO.util.Dom,
                             elm = sel.anchorNode.nextSibling;
                         }
                     }
-                    
                     if (this._isElement(elm, 'br')) {
                         elm = null;
                     }
-                
                     if (!elm) {
                         elm = range.commonAncestorContainer;
                         if (!range.collapsed) {
@@ -2401,26 +2865,27 @@ var Dom = YAHOO.util.Dom,
                 }
             }
             if (this.currentEvent !== null) {
-                switch (this.currentEvent.type) {
-                    case 'click':
-                    case 'mousedown':
-                    case 'mouseup':
-                        elm = Event.getTarget(this.currentEvent);
-                        break;
-                    default:
-                        //Do nothing
-                        break;
+                try {
+                    switch (this.currentEvent.type) {
+                        case 'click':
+                        case 'mousedown':
+                        case 'mouseup':
+                            elm = Event.getTarget(this.currentEvent);
+                            break;
+                        default:
+                            //Do nothing
+                            break;
+                    }
+                } catch (e) {
                 }
             } else if (this.currentElement && this.currentElement[0]) {
                 elm = this.currentElement[0];
             }
-
             if (this.browser.opera || this.browser.webkit) {
                 if (this.currentEvent && !elm) {
                     elm = YAHOO.util.Event.getTarget(this.currentEvent);
                 }
             }
-
             if (!elm || !elm.tagName) {
                 elm = doc.body;
             }
@@ -2444,10 +2909,13 @@ var Dom = YAHOO.util.Dom,
         * @private
         * @method _getDomPath
         * @description This method will attempt to build the DOM path from the currently selected element.
+        * @param HTMLElement el The element to start with, if not provided _getSelectedElement is used
         * @returns {Array} An array of node references that will create the DOM Path.
         */
-        _getDomPath: function() {
-			var el = this._getSelectedElement();
+        _getDomPath: function(el) {
+            if (!el) {
+			    el = this._getSelectedElement();
+            }
 			var domPath = [];
             while (el !== null) {
                 if (el.ownerDocument != this._getDoc()) {
@@ -2508,8 +2976,8 @@ var Dom = YAHOO.util.Dom,
                     }
                     switch (tag) {
                         case 'a':
-                            if (path[i].getAttribute('href')) {
-                                pathStr += ':' + path[i].getAttribute('href').replace('mailto:', '').replace('http:/'+'/', '').replace('https:/'+'/', ''); //May need to add others here ftp
+                            if (path[i].getAttribute('href', 2)) {
+                                pathStr += ':' + path[i].getAttribute('href', 2).replace('mailto:', '').replace('http:/'+'/', '').replace('https:/'+'/', ''); //May need to add others here ftp
                             }
                             break;
                         case 'img':
@@ -2545,58 +3013,73 @@ var Dom = YAHOO.util.Dom,
         * @description Fix href and imgs as well as remove invalid HTML.
         */
         _fixNodes: function() {
+            var doc = this._getDoc(),
+                els = [];
+
             for (var v in this.invalidHTML) {
-                if (Lang.hasOwnProperty(this.invalidHTML, v)) {
-                    var tags = this._getDoc().body.getElementsByTagName(v);
-                    for (var h = 0; h < tags.length; h++) {
-                        if (tags[h].parentNode) {
-                            tags[h].parentNode.removeChild(tags[h]);
+                if (YAHOO.lang.hasOwnProperty(this.invalidHTML, v)) {
+                    if (v.toLowerCase() != 'span') {
+                        var tags = doc.body.getElementsByTagName(v);
+                        if (tags.length) {
+                            for (var i = 0; i < tags.length; i++) {
+                                els.push(tags[i]);
+                            }
                         }
                     }
                 }
             }
+            for (var h = 0; h < els.length; h++) {
+                if (els[h].parentNode) {
+                    if (Lang.isObject(this.invalidHTML[els[h].tagName.toLowerCase()]) && this.invalidHTML[els[h].tagName.toLowerCase()].keepContents) {
+                        this._swapEl(els[h], 'span', function(el) {
+                            el.className = 'yui-non';
+                        });
+                    } else {
+                        els[h].parentNode.removeChild(els[h]);
+                    }
+                }
+            }
             var imgs = this._getDoc().getElementsByTagName('img');
-            Dom.addClass(imgs, 'yui-img');
-            
-            var url = '';
-
-            for (var im = 0; im < imgs.length; im++) {
-                if (imgs[im].getAttribute('href', 2)) {
-                    url = imgs[im].getAttribute('src', 2);
-                    if (this._isLocalFile(url)) {
-                        Dom.addClass(imgs[im], this.CLASS_LOCAL_FILE);
-                    } else {
-                        Dom.removeClass(imgs[im], this.CLASS_LOCAL_FILE);
-                    }
-                }
-            }
-            var fakeAs = this._getDoc().body.getElementsByTagName('a');
-            for (var a = 0; a < fakeAs.length; a++) {
-                if (fakeAs[a].getAttribute('href', 2)) {
-                    url = fakeAs[a].getAttribute('href', 2);
-                    if (this._isLocalFile(url)) {
-                        Dom.addClass(fakeAs[a], this.CLASS_LOCAL_FILE);
-                    } else {
-                        Dom.removeClass(fakeAs[a], this.CLASS_LOCAL_FILE);
-                    }
-                }
-            }
+            Dom.addClass(imgs, 'yui-img');   
         },
         /**
         * @private
-        * @method _showHidden
-        * @description Toggle on/off the hidden.css file.
+        * @method _isNonEditable
+        * @param Event ev The Dom event being checked
+        * @description Method is called at the beginning of all event handlers to check if this element or a parent element has the class yui-noedit (this.CLASS_NOEDIT) applied.
+        * If it does, then this method will stop the event and return true. The event handlers will then return false and stop the nodeChange from occuring. This method will also
+        * disable and enable the Editor's toolbar based on the noedit state.
+        * @returns Boolean
         */
-        _showHidden: function() {
-            if (this._showingHiddenElements) {
-                this._showingHiddenElements = false;
-                this.toolbar.deselectButton('hiddenelements');
-                Dom.removeClass(this._getDoc().body, this.CLASS_HIDDEN);
-            } else {
-                this._showingHiddenElements = true;
-                Dom.addClass(this._getDoc().body, this.CLASS_HIDDEN);
-                this.toolbar.selectButton('hiddenelements');
+        _isNonEditable: function(ev) {
+            if (this.get('allowNoEdit')) {
+                var el = Event.getTarget(ev);
+                if (this._isElement(el, 'html')) {
+                    el = null;
+                }
+                var path = this._getDomPath(el);
+                for (var i = (path.length - 1); i > -1; i--) {
+                    if (Dom.hasClass(path[i], this.CLASS_NOEDIT)) {
+                        //if (this.toolbar.get('disabled') === false) {
+                        //    this.toolbar.set('disabled', true);
+                        //}
+                        try {
+                             this._getDoc().execCommand('enableObjectResizing', false, 'false');
+                        } catch (e) {}
+                        this.nodeChange();
+                        Event.stopEvent(ev);
+                        return true;
+                    }
+                }
+                //if (this.toolbar.get('disabled') === true) {
+                    //Should only happen once..
+                    //this.toolbar.set('disabled', false);
+                    try {
+                         this._getDoc().execCommand('enableObjectResizing', false, 'true');
+                    } catch (e) {}
+                //}
             }
+            return false;
         },
         /**
         * @private
@@ -2614,6 +3097,9 @@ var Dom = YAHOO.util.Dom,
         * @description Handles all click events inside the iFrame document.
         */
         _handleClick: function(ev) {
+            if (this._isNonEditable(ev)) {
+                return false;
+            }
             this._setCurrentEvent(ev);
             if (this.currentWindow) {
                 this.closeWindow();
@@ -2638,7 +3124,12 @@ var Dom = YAHOO.util.Dom,
         * @description Handles all mouseup events inside the iFrame document.
         */
         _handleMouseUp: function(ev) {
-            this._setCurrentEvent(ev);
+            if (this._isNonEditable(ev)) {
+                return false;
+            }
+            //Don't set current event for mouseup.
+            //It get's fired after a menu is closed and gives up a bogus event to work with
+            //this._setCurrentEvent(ev);
             var self = this;
             if (this.browser.opera) {
                 /**
@@ -2676,6 +3167,9 @@ var Dom = YAHOO.util.Dom,
         * @description Handles all mousedown events inside the iFrame document.
         */
         _handleMouseDown: function(ev) {
+            if (this._isNonEditable(ev)) {
+                return false;
+            }
             this._setCurrentEvent(ev);
             var sel = Event.getTarget(ev);
             if (this.browser.webkit && this._hasSelection()) {
@@ -2709,18 +3203,22 @@ var Dom = YAHOO.util.Dom,
         * @description Handles all doubleclick events inside the iFrame document.
         */
         _handleDoubleClick: function(ev) {
+            if (this._isNonEditable(ev)) {
+                return false;
+            }
             this._setCurrentEvent(ev);
             var sel = Event.getTarget(ev);
             if (this._isElement(sel, 'img')) {
                 this.currentElement[0] = sel;
                 this.toolbar.fireEvent('insertimageClick', { type: 'insertimageClick', target: this.toolbar });
                 this.fireEvent('afterExecCommand', { type: 'afterExecCommand', target: this });
-            } else if (this._isElement(sel, 'a')) {
-                this.currentElement[0] = sel;
+            } else if (this._hasParent(sel, 'a')) { //Handle elements inside an a
+                this.currentElement[0] = this._hasParent(sel, 'a');
                 this.toolbar.fireEvent('createlinkClick', { type: 'createlinkClick', target: this.toolbar });
                 this.fireEvent('afterExecCommand', { type: 'afterExecCommand', target: this });
             }
             this.nodeChange();
+            this.editorDirty = false;
             this.fireEvent('editorDoubleClick', { type: 'editorDoubleClick', target: this, ev: ev });
         },
         /**
@@ -2730,6 +3228,9 @@ var Dom = YAHOO.util.Dom,
         * @description Handles all keyup events inside the iFrame document.
         */
         _handleKeyUp: function(ev) {
+            if (this._isNonEditable(ev)) {
+                return false;
+            }
             this._setCurrentEvent(ev);
             switch (ev.keyCode) {
                 case 37: //Left Arrow
@@ -2754,6 +3255,7 @@ var Dom = YAHOO.util.Dom,
                         } else {
                             this.nodeChange();
                         }
+                        this.editorDirty = true;
                     }
                     break;
             }
@@ -2766,8 +3268,163 @@ var Dom = YAHOO.util.Dom,
         * @description Handles all keypress events inside the iFrame document.
         */
         _handleKeyPress: function(ev) {
+            if (this.get('allowNoEdit')) {
+                if (ev && ev.keyCode && ((ev.keyCode == 46) || ev.keyCode == 63272)) {
+                    //Forward delete key
+                    Event.stopEvent(ev);
+                }
+            }
+            if (this._isNonEditable(ev)) {
+                return false;
+            }
             this._setCurrentEvent(ev);
+            if (this.browser.webkit) {
+                if (!this.browser.webkit3) {
+                    if (ev.keyCode && (ev.keyCode == 122) && (ev.metaKey)) {
+                        //This is CMD + z (for undo)
+                        if (this._hasParent(this._getSelectedElement(), 'li')) {
+                            Event.stopEvent(ev);
+                        }
+                    }
+                }
+                /* This was removed because it crashes Safari 2.x in some cases
+                if (ev.keyCode && (ev.keyCode == 8)) {
+                    //Delete Key
+                    if (this._isElement(this._getSelectedElement(), 'br')) {
+                        var el = this._getSelectedElement();
+                        el.parentNode.removeChild(el);
+                    }
+                }
+                */
+                this._listFix(ev);
+            }
             this.fireEvent('editorKeyPress', { type: 'editorKeyPress', target: this, ev: ev });
+        },
+        /**
+        * @private
+        * @method _listFix
+        * @param {Event} ev The event we are working on.
+        * @description Handles the Enter key, Tab Key and Shift + Tab keys for List Items.
+        */
+        _listFix: function(ev) {
+            var testLi = null, par = null, preContent = false, range = null;
+            //Enter Key
+            if (this.browser.webkit) {
+                if (ev.keyCode && (ev.keyCode == 13)) {
+                    if (this._hasParent(this._getSelectedElement(), 'li')) {
+                        var tar = this._hasParent(this._getSelectedElement(), 'li');
+                        var li = this._getDoc().createElement('li');
+                        li.innerHTML = '<span class="yui-non">&nbsp;</span>&nbsp;';
+                        if (tar.nextSibling) {
+                            tar.parentNode.insertBefore(li, tar.nextSibling);
+                        } else {
+                            tar.parentNode.appendChild(li);
+                        }
+                        this.currentElement[0] = li;
+                        this._selectNode(li.firstChild);
+                        if (!this.browser.webkit3) {
+                            tar.parentNode.style.display = 'list-item';
+                            setTimeout(function() {
+                                tar.parentNode.style.display = 'block';
+                            }, 1);
+                        }
+                        Event.stopEvent(ev);
+                    }
+                }
+            }
+            //Shift + Tab Key
+            if (ev.keyCode && ((!this.browser.webkit3 && (ev.keyCode == 25)) || ((this.browser.webkit3 || !this.browser.webkit) && ((ev.keyCode == 9) && ev.shiftKey)))) {
+                testLi = this._getSelectedElement();
+                if (this._hasParent(testLi, 'li')) {
+                    testLi = this._hasParent(testLi, 'li');
+                    if (this._hasParent(testLi, 'ul') || this._hasParent(testLi, 'ol')) {
+                        par = this._hasParent(testLi, 'ul');
+                        if (!par) {
+                            par = this._hasParent(testLi, 'ol');
+                        }
+                        if (this._isElement(par.previousSibling, 'li')) {
+                            par.removeChild(testLi);
+                            par.parentNode.insertBefore(testLi, par.nextSibling);
+                            if (this.browser.ie) {
+                                range = this._getDoc().body.createTextRange();
+                                range.moveToElementText(testLi);
+                                range.collapse(false);
+                                range.select();
+                            }
+                            if (this.browser.webkit) {
+                                if (!this.browser.webkit3) {
+                                    par.style.display = 'list-item';
+                                    par.parentNode.style.display = 'list-item';
+                                    setTimeout(function() {
+                                        par.style.display = 'block';
+                                        par.parentNode.style.display = 'block';
+                                    }, 1);
+                                }
+                            }
+                            Event.stopEvent(ev);
+                        }
+                    }
+                }
+            }
+            //Tab Key
+            if (ev.keyCode && ((ev.keyCode == 9) && (!ev.shiftKey))) {
+                var preLi = this._getSelectedElement();
+                if (this._hasParent(preLi, 'li')) {
+                    preContent = this._hasParent(preLi, 'li').innerHTML;
+                }
+                if (this.browser.webkit) {
+                    this._getDoc().execCommand('inserttext', false, '\t');
+                }
+                testLi = this._getSelectedElement();
+                if (this._hasParent(testLi, 'li')) {
+                    par = this._hasParent(testLi, 'li');
+                    var newUl = this._getDoc().createElement(par.parentNode.tagName.toLowerCase());
+                    if (this.browser.webkit) {
+                        var span = Dom.getElementsByClassName('Apple-tab-span', 'span', par);
+                        //Remove the span element that Safari puts in
+                        if (span[0]) {
+                            par.removeChild(span[0]);
+                            par.innerHTML = Lang.trim(par.innerHTML);
+                            //Put the HTML from the LI into this new LI
+                            if (preContent) {
+                                par.innerHTML = '<span class="yui-non">' + preContent + '</span>&nbsp;';
+                            } else {
+                                par.innerHTML = '<span class="yui-non">&nbsp;</span>&nbsp;';
+                            }
+                        }
+                    } else {
+                        if (preContent) {
+                            par.innerHTML = preContent + '&nbsp;';
+                        } else {
+                            par.innerHTML = '&nbsp;';
+                        }
+                    }
+
+                    par.parentNode.replaceChild(newUl, par);
+                    newUl.appendChild(par);
+                    if (this.browser.webkit) {
+                        this._getSelection().setBaseAndExtent(par.firstChild, 1, par.firstChild, par.firstChild.innerText.length);
+                        if (!this.browser.webkit3) {
+                            par.parentNode.parentNode.style.display = 'list-item';
+                            setTimeout(function() {
+                                par.parentNode.parentNode.style.display = 'block';
+                            }, 1);
+                        }
+                    } else if (this.browser.ie) {
+                        range = this._getDoc().body.createTextRange();
+                        range.moveToElementText(par);
+                        range.collapse(false);
+                        range.select();
+                    } else {
+                        this._selectNode(par);
+                    }
+                    Event.stopEvent(ev);
+                }
+                if (this.browser.webkit) {
+                    Event.stopEvent(ev);
+                }
+                this.nodeChange();
+            }
         },
         /**
         * @private
@@ -2776,6 +3433,9 @@ var Dom = YAHOO.util.Dom,
         * @description Handles all keydown events inside the iFrame document.
         */
         _handleKeyDown: function(ev) {
+            if (this._isNonEditable(ev)) {
+                return false;
+            }
             this._setCurrentEvent(ev);
             if (this.currentWindow) {
                 this.closeWindow();
@@ -2805,22 +3465,21 @@ var Dom = YAHOO.util.Dom,
                         exec = false;
                     }
                     break;
-                case 219: //Left
-                    action = 'justifyleft';
-                    break;
-                case 220: //Center
-                    action = 'justifycenter';
-                    break;
-                case 221: //Right
-                    action = 'justifyright';
-                    break;
                 case 76: //L
                     if (this._hasSelection()) {
                         if (ev.shiftKey && ev.ctrlKey) {
-                            this.execCommand('createlink', '');
-                            this.toolbar.fireEvent('createlinkClick', { type: 'createlinkClick', target: this.toolbar });
-                            this.fireEvent('afterExecCommand', { type: 'afterExecCommand', target: this });
-                            doExec = false;
+                            var makeLink = true;
+                            if (this.get('limitCommands')) {
+                                if (!this.toolbar.getButtonByValue('createlink')) {
+                                    makeLink = false;
+                                }
+                            }
+                            if (makeLink) {
+                                this.execCommand('createlink', '');
+                                this.toolbar.fireEvent('createlinkClick', { type: 'createlinkClick', target: this.toolbar });
+                                this.fireEvent('afterExecCommand', { type: 'afterExecCommand', target: this });
+                                doExec = false;
+                            }
                         }
                     }
                     break;
@@ -2840,12 +3499,6 @@ var Dom = YAHOO.util.Dom,
                 case 85: //U
                     action = 'underline';
                     break;
-                case 9: //Tab Key
-                    if (this.browser.safari) {
-                        this._getDoc().execCommand('inserttext', false, '\t');
-                        Event.stopEvent(ev);
-                    }
-                    break;
                 case 13:
                     if (this.browser.ie) {
                         //Insert a <br> instead of a <p></p> in Internet Explorer
@@ -2860,6 +3513,10 @@ var Dom = YAHOO.util.Dom,
                             Event.stopEvent(ev);
                         }
                     }
+            }
+            //if (!this.browser.gecko && !this.browser.webkit) {
+            if (this.browser.ie) {
+                this._listFix(ev);
             }
             if (doExec && action) {
                 this.execCommand(action, null);
@@ -2879,6 +3536,7 @@ var Dom = YAHOO.util.Dom,
             if (force === true) {
                 this._lastNodeChange = 0;
             }
+            
             if ((this._lastNodeChange + threshold) < thisNodeChange) {
                 var self = this;
                 if (this._fixNodesTimer === null) {
@@ -2912,6 +3570,10 @@ var Dom = YAHOO.util.Dom,
                         el = this._getSelectedElement(),
                         fn_button = this.toolbar.getButtonByValue('fontname'),
                         fs_button = this.toolbar.getButtonByValue('fontsize');
+
+                    if (force !== true) {
+                        this.editorDirty = true;
+                    }
 
                     //Handle updating the toolbar with active buttons
                     var _ex = {};
@@ -2956,7 +3618,7 @@ var Dom = YAHOO.util.Dom,
                         }
                     }
                     var path = this._getDomPath();
-                    var olType = null, tag = null, cmd = null;
+                    var tag = null, cmd = null;
                     for (var i = 0; i < path.length; i++) {
                         tag = path[i].tagName.toLowerCase();
                         if (path[i].getAttribute('tag')) {
@@ -3041,17 +3703,7 @@ var Dom = YAHOO.util.Dom,
                 tbar = this.toolbar;
             }
             var _button = tbar.getButtonByValue(button);
-            var _menuItems = _button.getMenu().getItems();
-            if (_menuItems.length === 0) {
-                _button.getMenu()._onBeforeShow();
-                _menuItems = _button.getMenu().getItems();
-            }
-            for (var i = 0; i < _menuItems.length; i++) {
-                _menuItems[i].cfg.setProperty('checked', false);
-                if (_menuItems[i].value == value) {
-                    _menuItems[i].cfg.setProperty('checked', true);
-                }
-            }
+            _button.checkValue(value);
         },
         /**
         * @private
@@ -3097,6 +3749,45 @@ var Dom = YAHOO.util.Dom,
             }
         },
         /**
+        * @private
+        * @method _disableEditor
+        * @param {Boolean} disabled Pass true to disable, false to enable
+        * @description Creates a mask to place over the Editor.
+        */
+        _disableEditor: function(disabled) {
+            if (disabled) {
+                if (!this._mask) {
+                    this._setDesignMode('off');
+                    if (this.toolbar) {
+                        this.toolbar.set('disabled', true);
+                    }
+                    this._mask = document.createElement('DIV');
+                    Dom.setStyle(this._mask, 'height', '100%');
+                    Dom.setStyle(this._mask, 'width', '100%');
+                    Dom.setStyle(this._mask, 'position', 'absolute');
+                    Dom.setStyle(this._mask, 'top', '0');
+                    Dom.setStyle(this._mask, 'left', '0');
+                    Dom.setStyle(this._mask, 'opacity', '.5');
+                    Dom.addClass(this._mask, 'yui-editor-masked');
+                    this.get('iframe').get('parentNode').appendChild(this._mask);
+                }
+            } else {
+                if (this._mask) {
+                    this._mask.parentNode.removeChild(this._mask);
+                    this._mask = null;
+                    if (this.toolbar) {
+                        this.toolbar.set('disabled', false);
+                    }
+                    this._setDesignMode('on');
+                    this._focusWindow();
+                    var self = this;
+                    window.setTimeout(function() {
+                        self.nodeChange.call(self);
+                    }, 100);
+                }
+            }
+        },
+        /**
         * @property EDITOR_PANEL_ID
         * @description HTML id to give the properties window in the DOM.
         * @type String
@@ -3119,19 +3810,7 @@ var Dom = YAHOO.util.Dom,
         * @description The accessibility string for the element before the iFrame
         * @type String
         */
-        STR_BEFORE_EDITOR: 'This text field can contain stylized text and graphics. To cycle through all formatting options, use the keyboard shortcut Control + Shift + T to place focus on the toolbar and navigate between option heading names. <h4>Common formatting keyboard shortcuts:</h4><ul><li>Control Shift B sets text to bold</li> <li>Control Shift I sets text to italic</li> <li>Control Shift U underlines text</li> <li>Control Shift [ aligns text left</li> <li>Control Shift | centers text</li> <li>Control Shift ] aligns text right</li> <li>Control Shift L adds an HTML link</li> <li>To exit this text editor use the keyboard shortcut Control + Shift + ESC.</li></ul>',
-        /**
-        * @property STR_CLOSE_WINDOW
-        * @description The Title of the close button in the Editor Window
-        * @type String
-        */
-        STR_CLOSE_WINDOW: 'Close Window',
-        /**
-        * @property STR_CLOSE_WINDOW_NOTE
-        * @description A note appearing in the Editor Window to tell the user that the Escape key will close the window
-        * @type String
-        */
-        STR_CLOSE_WINDOW_NOTE: 'To close this window use the Control + Shift + W key',
+        STR_BEFORE_EDITOR: 'This text field can contain stylized text and graphics. To cycle through all formatting options, use the keyboard shortcut Control + Shift + T to place focus on the toolbar and navigate between option heading names. <h4>Common formatting keyboard shortcuts:</h4><ul><li>Control Shift B sets text to bold</li> <li>Control Shift I sets text to italic</li> <li>Control Shift U underlines text</li> <li>Control Shift L adds an HTML link</li> <li>To exit this text editor use the keyboard shortcut Control + Shift + ESC.</li></ul>',
         /**
         * @property STR_TITLE
         * @description The Title of the HTML document that is created in the iFrame
@@ -3145,95 +3824,11 @@ var Dom = YAHOO.util.Dom,
         */
         STR_IMAGE_HERE: 'Image Url Here',
         /**
-        * @property STR_IMAGE_PROP_TITLE
-        * @description The title for the Image Property Editor Window
-        * @type String
-        */
-        STR_IMAGE_PROP_TITLE: 'Image Options',
-        /**
-        * @property STR_IMAGE_URL
-        * @description The label string for Image URL
-        * @type String
-        */
-        STR_IMAGE_URL: 'Image Url',
-        /**
-        * @property STR_IMAGE_TITLE
-        * @description The label string for Image Description
-        * @type String
-        */
-        STR_IMAGE_TITLE: 'Description',
-        /**
-        * @property STR_IMAGE_SIZE
-        * @description The label string for Image Size
-        * @type String
-        */
-        STR_IMAGE_SIZE: 'Size',
-        /**
-        * @property STR_IMAGE_ORIG_SIZE
-        * @description The label string for Original Image Size
-        * @type String
-        */
-        STR_IMAGE_ORIG_SIZE: 'Original Size',
-        /**
-        * @property STR_IMAGE_COPY
-        * @description The label string for the image copy and paste message for Opera and Safari
-        * @type String
-        */
-        STR_IMAGE_COPY: '<span class="tip"><span class="icon icon-info"></span><strong>Note:</strong>To move this image just highlight it, cut, and paste where ever you\'d like.</span>',
-        /**
-        * @property STR_IMAGE_PADDING
-        * @description The label string for the image padding.
-        * @type String
-        */
-        STR_IMAGE_PADDING: 'Padding',
-        /**
-        * @property STR_IMAGE_BORDER
-        * @description The label string for the image border.
-        * @type String
-        */
-        STR_IMAGE_BORDER: 'Border',
-        /**
-        * @property STR_IMAGE_TEXTFLOW
-        * @description The label string for the image text flow.
-        * @type String
-        */
-        STR_IMAGE_TEXTFLOW: 'Text Flow',
-        /**
-        * @property STR_LOCAL_FILE_WARNING
-        * @description The label string for the local file warning.
-        * @type String
-        */
-        STR_LOCAL_FILE_WARNING: '<span class="tip"><span class="icon icon-warn"></span><strong>Note:</strong>This image/link points to a file on your computer and will not be accessible to others on the internet.</span>',
-        /**
-        * @property STR_LINK_PROP_TITLE
-        * @description The label string for the Link Property Editor Window.
-        * @type String
-        */
-        STR_LINK_PROP_TITLE: 'Link Options',
-        /**
-        * @property STR_LINK_PROP_REMOVE
-        * @description The label string for the Remove link from text link inside the property editor.
-        * @type String
-        */
-        STR_LINK_PROP_REMOVE: 'Remove link from text',
-        /**
         * @property STR_LINK_URL
         * @description The label string for the Link URL.
         * @type String
         */
         STR_LINK_URL: 'Link URL',
-        /**
-        * @property STR_LINK_NEW_WINDOW
-        * @description The string for the open in a new window label.
-        * @type String
-        */
-        STR_LINK_NEW_WINDOW: 'Open in a new window.',
-        /**
-        * @property STR_LINK_TITLE
-        * @description The string for the link description.
-        * @type String
-        */
-        STR_LINK_TITLE: 'Description',
         /**
         * @protected
         * @property STOP_EXEC_COMMAND
@@ -3250,18 +3845,11 @@ var Dom = YAHOO.util.Dom,
         STOP_NODE_CHANGE: false,
         /**
         * @protected
-        * @property CLASS_HIDDEN
-        * @description CSS class applied to the body when the hiddenelements button is pressed.
+        * @property CLASS_NOEDIT
+        * @description CSS class applied to elements that are not editable.
         * @type String
         */
-        CLASS_HIDDEN: 'hidden',
-        /**
-        * @protected
-        * @property CLASS_LOCAL_FILE
-        * @description CSS class applied to an element when it's found to have a local url.
-        * @type String
-        */
-        CLASS_LOCAL_FILE: 'warning-localfile',
+        CLASS_NOEDIT: 'yui-noedit',
         /**
         * @protected
         * @property CLASS_CONTAINER
@@ -3310,13 +3898,14 @@ var Dom = YAHOO.util.Dom,
         * @description The Editor class' initialization method
         */
         init: function(p_oElement, p_oAttributes) {
-            YAHOO.widget.Editor.superclass.init.call(this, p_oElement, p_oAttributes);
+            YAHOO.widget.SimpleEditor.superclass.init.call(this, p_oElement, p_oAttributes);
             YAHOO.widget.EditorInfo._instances[this.get('id')] = this;
 
             this.on('contentReady', function() {
                 this.DOMReady = true;
                 this.fireQueue();
             }, this, true);
+
         },
         /**
         * @method initAttributes
@@ -3326,12 +3915,12 @@ var Dom = YAHOO.util.Dom,
         * configuration attributes used to create the editor.
         */
         initAttributes: function(attr) {
-            YAHOO.widget.Editor.superclass.initAttributes.call(this, attr);
+            YAHOO.widget.SimpleEditor.superclass.initAttributes.call(this, attr);
             var self = this;
 
             /**
             * @private
-            * @attribute iframe
+            * @config iframe
             * @description Internal config for holding the iframe element.
             * @default null
             * @type HTMLElement
@@ -3342,7 +3931,7 @@ var Dom = YAHOO.util.Dom,
             /**
             * @private
             * @depreciated
-            * @attribute textarea
+            * @config textarea
             * @description Internal config for holding the textarea element (replaced with element).
             * @default null
             * @type HTMLElement
@@ -3352,7 +3941,7 @@ var Dom = YAHOO.util.Dom,
                 writeOnce: true
             });
             /**
-            * @attribute nodeChangeThreshold
+            * @config nodeChangeThreshold
             * @description The number of seconds that need to be in between nodeChange processing
             * @default 3
             * @type Number
@@ -3362,7 +3951,28 @@ var Dom = YAHOO.util.Dom,
                 validator: YAHOO.lang.isNumber
             });
             /**
-            * @attribute element_cont
+            * @config allowNoEdit
+            * @description Should the editor check for non-edit fields. It should be noted that this technique is not perfect. If the user does the right things, they will still be able to make changes.
+            * Such as highlighting an element below and above the content and hitting a toolbar button or a shortcut key.
+            * @default false
+            * @type Boolean
+            */            
+            this.setAttributeConfig('allowNoEdit', {
+                value: attr.allowNoEdit || false,
+                validator: YAHOO.lang.isBoolean
+            });
+            /**
+            * @config limitCommands
+            * @description Should the Editor limit the allowed execCommands to the ones available in the toolbar. If true, then execCommand and keyboard shortcuts will fail if they are not defined in the toolbar.
+            * @default false
+            * @type Boolean
+            */            
+            this.setAttributeConfig('limitCommands', {
+                value: attr.limitCommands || false,
+                validator: YAHOO.lang.isBoolean
+            });
+            /**
+            * @config element_cont
             * @description Internal config for the editors container
             * @default false
             * @type HTMLElement
@@ -3372,7 +3982,7 @@ var Dom = YAHOO.util.Dom,
             });
             /**
             * @private
-            * @attribute editor_wrapper
+            * @config editor_wrapper
             * @description The outter wrapper for the entire editor.
             * @default null
             * @type HTMLElement
@@ -3432,31 +4042,12 @@ var Dom = YAHOO.util.Dom,
                         
             /**
             * @attribute blankimage
-            * @description The CSS used to show/hide hidden elements on the page
-            * @default 'assets/blankimage.png'
+            * @description The URL for the image placeholder to put in when inserting an image.
+            * @default The yahooapis.com address for the current release + 'assets/blankimage.png'
             * @type String
             */            
             this.setAttributeConfig('blankimage', {
                 value: attr.blankimage || this._getBlankImage()
-            });
-            /**
-            * @attribute hiddencss
-            * @description The CSS used to show/hide hidden elements on the page, these rules must be prefixed with the class provided in <code>this.CLASS_HIDDEN</code>
-            * @default <code><pre>
-            .hidden font, .hidden strong, .hidden b, .hidden em, .hidden i, .hidden u, .hidden div, .hidden p, .hidden span, .hidden img, .hidden ul, .hidden ol, .hidden li, .hidden table {
-                border: 1px dotted #ccc;
-            }
-            .hidden .yui-non {
-                border: none;
-            }
-            .hidden img {
-                padding: 2px;
-            }</pre></code>
-            * @type String
-            */            
-            this.setAttributeConfig('hiddencss', {
-                value: attr.hiddencss || '.hidden font, .hidden strong, .hidden b, .hidden em, .hidden i, .hidden u, .hidden div,.hidden p,.hidden span,.hidden img, .hidden ul, .hidden ol, .hidden li, .hidden table { border: 1px dotted #ccc; } .hidden .yui-non { border: none; } .hidden img { padding: 2px; }',
-                writeOnce: true
             });
             /**
             * @attribute css
@@ -3490,18 +4081,17 @@ var Dom = YAHOO.util.Dom,
             * @type String
             */            
             this.setAttributeConfig('css', {
-                value: attr.css || 'html { height: 95%; } body { height: 100%; padding: 7px; background-color: #fff; font:13px/1.22 arial,helvetica,clean,sans-serif;*font-size:small;*font:x-small; } a { color: blue; text-decoration: underline; cursor: pointer; } .warning-localfile { border-bottom: 1px dashed red !important; } .yui-busy { cursor: wait !important; } img.selected { border: 2px dotted #808080; } img { cursor: pointer !important; border: none; }',
+                value: attr.css || this._defaultCSS,
                 writeOnce: true
             });
             /**
             * @attribute html
-            * @description The default HTML to be written to the iframe document before the contents are loaded
+            * @description The default HTML to be written to the iframe document before the contents are loaded (Note that the DOCTYPE attr will be added at render item)
             * @default This HTML requires a few things if you are to override:
-                <p><code>{TITLE}, {CSS}, {HIDDEN_CSS}</code> and <code>{CONTENT}</code> need to be there, they are passed to YAHOO.lang.substitute to be replace with other strings.<p>
+                <p><code>{TITLE}, {CSS}, {HIDDEN_CSS}, {EXTRA_CSS}</code> and <code>{CONTENT}</code> need to be there, they are passed to YAHOO.lang.substitute to be replace with other strings.<p>
                 <p><code>onload="document.body._rteLoaded = true;"</code> : the onload statement must be there or the editor will not finish loading.</p>
                 <code>
                 <pre>
-                &lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd"&gt;
                 &lt;html&gt;
                     &lt;head&gt;
                         &lt;title&gt;{TITLE}&lt;/title&gt;
@@ -3511,6 +4101,9 @@ var Dom = YAHOO.util.Dom,
                         &lt;/style&gt;
                         &lt;style&gt;
                         {HIDDEN_CSS}
+                        &lt;/style&gt;
+                        &lt;style&gt;
+                        {EXTRA_CSS}
                         &lt;/style&gt;
                     &lt;/head&gt;
                 &lt;body onload="document.body._rteLoaded = true;"&gt;
@@ -3522,7 +4115,18 @@ var Dom = YAHOO.util.Dom,
             * @type String
             */            
             this.setAttributeConfig('html', {
-                value: attr.html || '<!DOCTYPE HTML PUBLIC "-/'+'/W3C/'+'/DTD HTML 4.01/'+'/EN" "http:/'+'/www.w3.org/TR/html4/strict.dtd"><html><head><title>{TITLE}</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><base href="' + this._baseHREF + '"><style>{CSS}</style><style>{HIDDEN_CSS}</style></head><body onload="document.body._rteLoaded = true;">{CONTENT}</body></html>',
+                value: attr.html || '<html><head><title>{TITLE}</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><base href="' + this._baseHREF + '"><style>{CSS}</style><style>{HIDDEN_CSS}</style><style>{EXTRA_CSS}</style></head><body onload="document.body._rteLoaded = true;">{CONTENT}</body></html>',
+                writeOnce: true
+            });
+
+            /**
+            * @attribute extracss
+            * @description Extra user defined css to load after the default SimpleEditor CSS
+            * @default ''
+            * @type String
+            */            
+            this.setAttributeConfig('extracss', {
+                value: attr.css || '',
                 writeOnce: true
             });
 
@@ -3565,33 +4169,13 @@ var Dom = YAHOO.util.Dom,
             this.setAttributeConfig('disabled', {
                 value: false,
                 method: function(disabled) {
-                    if (disabled) {
-                        if (!this._mask) {
-                            this._setDesignMode('off');
-                            this.toolbar.set('disabled', true);
-                            this._mask = document.createElement('DIV');
-                            Dom.setStyle(this._mask, 'height', '100%');
-                            Dom.setStyle(this._mask, 'width', '100%');
-                            Dom.setStyle(this._mask, 'position', 'absolute');
-                            Dom.setStyle(this._mask, 'top', '0');
-                            Dom.setStyle(this._mask, 'left', '0');
-                            Dom.setStyle(this._mask, 'opacity', '.5');
-                            Dom.addClass(this._mask, 'yui-editor-masked');
-                            this.get('iframe').get('parentNode').appendChild(this._mask);
-                        }
-                    } else {
-                        if (this._mask) {
-                            this._mask.parentNode.removeChild(this._mask);
-                            this._mask = null;
-                            this.toolbar.set('disabled', false);
-                            this._setDesignMode('on');
-                            this._focusWindow();
-                        }
+                    if (this._rendered) {
+                        this._disableEditor(disabled);
                     }
                 }
             });
             /**
-            * @attribute toolbar_cont
+            * @config toolbar_cont
             * @description Internal config for the toolbars container
             * @default false
             * @type Boolean
@@ -3603,97 +4187,16 @@ var Dom = YAHOO.util.Dom,
             /**
             * @attribute toolbar
             * @description The default toolbar config.
-            * @default This config is too large to display here, view the code to see it: <a href="editor.js.html"></a>
             * @type Object
             */            
             this.setAttributeConfig('toolbar', {
-                value: attr.toolbar || {
-                    /* {{{ Defaut Toolbar Config */
-                    collapse: true,
-                    titlebar: 'Text Editing Tools',
-                    draggable: false,
-                    buttons: [
-                        { group: 'fontstyle', label: 'Font Name and Size',
-                            buttons: [
-                                { type: 'select', label: 'Arial', value: 'fontname', disabled: true,
-                                    menu: [
-                                        { text: 'Arial', checked: true },
-                                        { text: 'Arial Black' },
-                                        { text: 'Comic Sans MS' },
-                                        { text: 'Courier New' },
-                                        { text: 'Lucida Console' },
-                                        { text: 'Tahoma' },
-                                        { text: 'Times New Roman' },
-                                        { text: 'Trebuchet MS' },
-                                        { text: 'Verdana' }
-                                    ]
-                                },
-                                { type: 'spin', label: '13', value: 'fontsize', range: [ 9, 75 ], disabled: true }
-                            ]
-                        },
-                        { type: 'separator' },
-                        { group: 'textstyle', label: 'Font Style',
-                            buttons: [
-                                { type: 'push', label: 'Bold CTRL + SHIFT + B', value: 'bold' },
-                                { type: 'push', label: 'Italic CTRL + SHIFT + I', value: 'italic' },
-                                { type: 'push', label: 'Underline CTRL + SHIFT + U', value: 'underline' },
-                                { type: 'separator' },
-                                { type: 'push', label: 'Subscript', value: 'subscript', disabled: true },
-                                { type: 'push', label: 'Superscript', value: 'superscript', disabled: true },
-                                { type: 'separator' },
-                                { type: 'color', label: 'Font Color', value: 'forecolor', disabled: true },
-                                { type: 'color', label: 'Background Color', value: 'backcolor', disabled: true },
-                                { type: 'separator' },
-                                { type: 'push', label: 'Remove Formatting', value: 'removeformat', disabled: true },
-                                { type: 'push', label: 'Show/Hide Hidden Elements', value: 'hiddenelements' }
-                            ]
-                        },
-                        { type: 'separator' },
-                        { group: 'alignment', label: 'Alignment',
-                            buttons: [
-                                { type: 'push', label: 'Align Left CTRL + SHIFT + [', value: 'justifyleft' },
-                                { type: 'push', label: 'Align Center CTRL + SHIFT + |', value: 'justifycenter' },
-                                { type: 'push', label: 'Align Right CTRL + SHIFT + ]', value: 'justifyright' },
-                                { type: 'push', label: 'Justify', value: 'justifyfull' }
-                            ]
-                        },
-                        { type: 'separator' },
-                        { group: 'parastyle', label: 'Paragraph Style',
-                            buttons: [
-                            { type: 'select', label: 'Normal', value: 'heading', disabled: true,
-                                menu: [
-                                    { text: 'Normal', value: 'none', checked: true },
-                                    { text: 'Header 1', value: 'h1' },
-                                    { text: 'Header 2', value: 'h2' },
-                                    { text: 'Header 3', value: 'h3' },
-                                    { text: 'Header 4', value: 'h4' },
-                                    { text: 'Header 5', value: 'h5' },
-                                    { text: 'Header 6', value: 'h6' }
-                                ]
-                            }
-                            ]
-                        },
-                        { type: 'separator' },
-                        { group: 'indentlist', label: 'Indenting and Lists',
-                            buttons: [
-                                { type: 'push', label: 'Indent', value: 'indent', disabled: true },
-                                { type: 'push', label: 'Outdent', value: 'outdent', disabled: true },
-                                { type: 'push', label: 'Create an Unordered List', value: 'insertunorderedlist' },
-                                { type: 'push', label: 'Create an Ordered List', value: 'insertorderedlist' }
-                            ]
-                        },
-                        { type: 'separator' },
-                        { group: 'insertitem', label: 'Insert Item',
-                            buttons: [
-                                { type: 'push', label: 'HTML Link CTRL + SHIFT + L', value: 'createlink', disabled: true },
-                                { type: 'push', label: 'Insert Image', value: 'insertimage' }
-                            ]
-                        }
-                    ]
-                    /* }}} */
-                },
+                value: attr.toolbar || this._defaultToolbar,
                 writeOnce: true,
                 method: function(toolbar) {
+                    if (!toolbar.buttonType) {
+                        toolbar.buttonType = this._defaultToolbar.buttonType;
+                    }
+                    this._defaultToolbar = toolbar;
                 }
             });
             /**
@@ -3703,7 +4206,7 @@ var Dom = YAHOO.util.Dom,
             * @type Boolean
             */            
             this.setAttributeConfig('animate', {
-                value: false,
+                value: ((attr.animate) ? ((YAHOO.util.Anim) ? true : false) : false),
                 validator: function(value) {
                     var ret = true;
                     if (!YAHOO.util.Anim) {
@@ -3713,7 +4216,7 @@ var Dom = YAHOO.util.Dom,
                 }               
             });
             /**
-            * @attribute panel
+            * @config panel
             * @description A reference to the panel we are using for windows.
             * @default false
             * @type Boolean
@@ -3730,15 +4233,6 @@ var Dom = YAHOO.util.Dom,
                 }               
             });
             /**
-            * @attribute localFileWarning
-            * @description Should we throw the warning if we detect a file that is local to their machine?
-            * @default true
-            * @type Boolean
-            */            
-            this.setAttributeConfig('localFileWarning', {
-                value: attr.locaFileWarning || true
-            });
-            /**
             * @attribute focusAtStart
             * @description Should we focus the window when the content is ready?
             * @default false
@@ -3752,6 +4246,7 @@ var Dom = YAHOO.util.Dom,
                         var self = this;
                         setTimeout(function() {
                             self._focusWindow.call(self, true);
+                            self.editorDirty = false;
                         }, 400);
                     }, this, true);
                 }
@@ -3857,7 +4352,6 @@ var Dom = YAHOO.util.Dom,
         },
         /**
         * @private
-        * @method _handleColorPicker
         * @description Handles the colorpicker buttons in the toolbar.
         * @param {Object} o Object returned from Toolbar's buttonClick Event
         */
@@ -3875,7 +4369,6 @@ var Dom = YAHOO.util.Dom,
         * @param {Object} o Object returned from Toolbar's buttonClick Event
         */
         _handleAlign: function(o) {
-            var button = this.toolbar.getButtonById(o.button.id);
             var cmd = null;
             for (var i = 0; i < o.button.menu.length; i++) {
                 if (o.button.menu[i].value == o.button.value) {
@@ -3961,18 +4454,23 @@ var Dom = YAHOO.util.Dom,
                 this.toolbar.enableButton('backcolor');
             }
             if (this._isElement(elm, 'img')) {
-                this.toolbar.enableButton('createlink');
+                if (YAHOO.widget.Overlay) {
+                    this.toolbar.enableButton('createlink');
+                }
             }
             if (this._isElement(elm, 'blockquote')) {
                 this.toolbar.selectButton('indent');
                 this.toolbar.disableButton('indent');
                 this.toolbar.enableButton('outdent');
             }
+            //if (this._isElement(elm, 'ol') || this._isElement(elm, 'ul') || this._isElement(elm, 'li')) {
+            if (this._hasParent(elm, 'ol') || this._hasParent(elm, 'ul')) {
+                this.toolbar.disableButton('indent');
+            }
             this._lastButton = null;
             
         },
         _setBusy: function(off) {
-            /*
             if (off) {
                 Dom.removeClass(document.body, 'yui-busy');
                 Dom.removeClass(this._getDoc().body, 'yui-busy');
@@ -3980,7 +4478,6 @@ var Dom = YAHOO.util.Dom,
                 Dom.addClass(document.body, 'yui-busy');
                 Dom.addClass(this._getDoc().body, 'yui-busy');
             }
-            */
         },
         /**
         * @private
@@ -3988,6 +4485,1928 @@ var Dom = YAHOO.util.Dom,
         * @description Opens the Image Properties Window when the insert Image button is clicked or an Image is Double Clicked.
         */
         _handleInsertImageClick: function() {
+            if (this.get('limitCommands')) {
+                if (!this.toolbar.getButtonByValue('insertimage')) {
+                    return false;
+                }
+            }
+        
+            this.toolbar.set('disabled', true); //Disable the toolbar when the prompt is showing
+            this.on('afterExecCommand', function() {
+                var el = this.currentElement[0],
+                    src = 'http://';
+                if (!el) {
+                    el = this._getSelectedElement();
+                }
+                if (el) {
+                    if (el.getAttribute('src')) {
+                        src = el.getAttribute('src', 2);
+                        if (src.indexOf(this.get('blankimage')) != -1) {
+                            src = this.STR_IMAGE_HERE;
+                        }
+                    }
+                }
+                var str = prompt(this.STR_LINK_URL + ': ', src);
+                if ((str !== '') && (str !== null)) {
+                    el.setAttribute('src', str);
+                } else if (str !== null) {
+                    el.parentNode.removeChild(el);
+                    this.currentElement = [];
+                }
+                this.closeWindow();
+                this.toolbar.set('disabled', false);
+            }, this, true);
+        },
+        /**
+        * @private
+        * @method _handleInsertImageWindowClose
+        * @description Handles the closing of the Image Properties Window.
+        */
+        _handleInsertImageWindowClose: function() {
+            this.nodeChange();
+        },
+        /**
+        * @private
+        * @method _isLocalFile
+        * @param {String} url THe url/string to check
+        * @description Checks to see if a string (href or img src) is possibly a local file reference..
+        */
+        _isLocalFile: function(url) {
+            if ((url !== '') && ((url.indexOf('file:/') != -1) || (url.indexOf(':\\') != -1))) {
+                return true;
+            }
+            return false;
+        },
+        /**
+        * @private
+        * @method _handleCreateLinkClick
+        * @description Handles the opening of the Link Properties Window when the Create Link button is clicked or an href is doubleclicked.
+        */
+        _handleCreateLinkClick: function() {
+            if (this.get('limitCommands')) {
+                if (!this.toolbar.getButtonByValue('createlink')) {
+                    return false;
+                }
+            }
+        
+            this.toolbar.set('disabled', true); //Disable the toolbar when the prompt is showing
+            this.on('afterExecCommand', function() {
+                var el = this.currentElement[0],
+                    url = '';
+
+                if (el) {
+                    if (el.getAttribute('href', 2) !== null) {
+                        url = el.getAttribute('href', 2);
+                    }
+                }
+                var str = prompt(this.STR_LINK_URL + ': ', url);
+                if ((str !== '') && (str !== null)) {
+                    var urlValue = str;
+                    if ((urlValue.indexOf(':/'+'/') == -1) && (urlValue.substring(0,1) != '/') && (urlValue.substring(0, 6).toLowerCase() != 'mailto')) {
+                        if ((urlValue.indexOf('@') != -1) && (urlValue.substring(0, 6).toLowerCase() != 'mailto')) {
+                            //Found an @ sign, prefix with mailto:
+                            urlValue = 'mailto:' + urlValue;
+                        } else {
+                            /* :// not found adding */
+                            if (urlValue.substring(0, 1) != '#') {
+                                urlValue = 'http:/'+'/' + urlValue;
+                            }
+                        }
+                    }
+                    el.setAttribute('href', urlValue);
+                } else if (str !== null) {
+                    var _span = this._getDoc().createElement('span');
+                    _span.innerHTML = el.innerHTML;
+                    Dom.addClass(_span, 'yui-non');
+                    el.parentNode.replaceChild(_span, el);
+                }
+                this.closeWindow();
+                this.toolbar.set('disabled', false);
+            });
+        },
+        /**
+        * @private
+        * @method _handleCreateLinkWindowClose
+        * @description Handles the closing of the Link Properties Window.
+        */
+        _handleCreateLinkWindowClose: function() {
+            this.nodeChange();
+            this.currentElement = [];
+        },
+        /**
+        * @method render
+        * @description Causes the toolbar and the editor to render and replace the textarea.
+        */
+        render: function() {
+            if (this._rendered) {
+                return false;
+            }
+            if (!this.DOMReady) {
+                this._queue[this._queue.length] = ['render', arguments];
+                return false;
+            }
+            this._setBusy();
+            this._rendered = true;
+            var self = this;
+
+            this.set('textarea', this.get('element'));
+
+            this.get('element_cont').setStyle('display', 'none');
+            this.get('element_cont').addClass(this.CLASS_CONTAINER);
+
+            this.set('iframe', this._createIframe());
+            window.setTimeout(function() {
+                self._setInitialContent.call(self);
+            }, 10);
+
+            this.get('editor_wrapper').appendChild(this.get('iframe').get('element'));
+
+            if (this.get('disabled')) {
+                this._disableEditor(true);
+            }
+
+            var tbarConf = this.get('toolbar');
+            //Create Toolbar instance
+            if (tbarConf instanceof Toolbar) {
+                this.toolbar = tbarConf;
+                //Set the toolbar to disabled until content is loaded
+                this.toolbar.set('disabled', true);
+            } else {
+                //Set the toolbar to disabled until content is loaded
+                tbarConf.disabled = true;
+                this.toolbar = new Toolbar(this.get('toolbar_cont'), tbarConf);
+            }
+
+            this.fireEvent('toolbarLoaded', { type: 'toolbarLoaded', target: this.toolbar });
+
+            
+            this.toolbar.on('toolbarCollapsed', function() {
+                if (this.currentWindow) {
+                    this.moveWindow();
+                }
+            }, this, true);
+            this.toolbar.on('toolbarExpanded', function() {
+                if (this.currentWindow) {
+                    this.moveWindow();
+                }
+            }, this, true);
+            this.toolbar.on('fontsizeClick', function(o) {
+                this._handleFontSize(o);
+            }, this, true);
+            
+            this.toolbar.on('colorPickerClicked', function(o) {
+                this._handleColorPicker(o);
+            }, this, true);
+
+            this.toolbar.on('alignClick', function(o) {
+                this._handleAlign(o);
+            }, this, true);
+            this.on('afterNodeChange', function() {
+                this._handleAfterNodeChange();
+            }, this, true);
+            this.toolbar.on('insertimageClick', function() {
+                this._handleInsertImageClick();
+            }, this, true);
+            this.on('windowinsertimageClose', function() {
+                this._handleInsertImageWindowClose();
+            }, this, true);
+            this.toolbar.on('createlinkClick', function() {
+                this._handleCreateLinkClick();
+            }, this, true);
+            this.on('windowcreatelinkClose', function() {
+                this._handleCreateLinkWindowClose();
+            }, this, true);
+            
+
+            //Replace Textarea with editable area
+            
+            this.get('parentNode').replaceChild(this.get('element_cont').get('element'), this.get('element'));
+
+            
+            if (!this.beforeElement) {
+                this.beforeElement = document.createElement('h2');
+                this.beforeElement.className = 'yui-editor-skipheader';
+                this.beforeElement.tabIndex = '-1';
+                this.beforeElement.innerHTML = this.STR_BEFORE_EDITOR;
+                this.get('element_cont').get('firstChild').insertBefore(this.beforeElement, this.toolbar.get('nextSibling'));
+            }
+
+            this.setStyle('visibility', 'hidden');
+            this.setStyle('position', 'absolute');
+            this.setStyle('top', '-9999px');
+            this.setStyle('left', '-9999px');
+            this.get('element_cont').appendChild(this.get('element'));
+            this.get('element_cont').setStyle('display', 'block');
+
+
+            Dom.addClass(this.get('iframe').get('parentNode'), this.CLASS_EDITABLE_CONT);
+            this.get('iframe').addClass(this.CLASS_EDITABLE);
+
+            //Set height and width of editor container
+            this.get('element_cont').setStyle('width', this.get('width'));
+            Dom.setStyle(this.get('iframe').get('parentNode'), 'height', this.get('height'));
+
+            this.get('iframe').setStyle('width', '100%'); //WIDTH
+            this.get('iframe').setStyle('height', '100%');
+
+            if (this.browser.ie == 7) {
+            }
+
+            this.fireEvent('afterRender', { type: 'afterRender', target: this });
+        },
+        /**
+        * @method execCommand
+        * @param {String} action The "execCommand" action to try to execute (Example: bold, insertimage, inserthtml)
+        * @param {String} value (optional) The value for a given action such as action: fontname value: 'Verdana'
+        * @description This method attempts to try and level the differences in the various browsers and their support for execCommand actions
+        */
+        execCommand: function(action, value) {
+            var beforeExec = this.fireEvent('beforeExecCommand', { type: 'beforeExecCommand', target: this, args: arguments });
+            if ((beforeExec === false) || (this.STOP_EXEC_COMMAND)) {
+                this.STOP_EXEC_COMMAND = false;
+                return false;
+            }
+            this._setMarkupType(action);
+            if (this.browser.ie) {
+                this._getWindow().focus();
+            }
+            var exec = true;
+            
+            if (this.get('limitCommands')) {
+                if (!this.toolbar.getButtonByValue(action)) {
+                    exec = false;
+                }
+            }
+
+            this.editorDirty = true;
+            
+            if ((typeof this['cmd_' + action.toLowerCase()] == 'function') && exec) {
+                var retValue = this['cmd_' + action.toLowerCase()](value);
+                exec = retValue[0];
+                if (retValue[1]) {
+                    action = retValue[1];
+                }
+                if (retValue[2]) {
+                    value = retValue[2];
+                }
+            }
+            if (exec) {
+                try {
+                    this._getDoc().execCommand(action, false, value);
+                } catch(e) {
+                }
+            } else {
+            }
+            this.on('afterExecCommand', function() {
+                this.unsubscribeAll('afterExecCommand');
+                this.nodeChange();
+            });
+            this.fireEvent('afterExecCommand', { type: 'afterExecCommand', target: this });
+            
+        },
+    /* {{{  Command Overrides */
+
+        /**
+        * @method cmd_backcolor
+        * @param value Value passed from the execCommand method
+        * @description This is an execCommand override method. It is called from execCommand when the execCommand('backcolor') is used.
+        */
+        cmd_backcolor: function(value) {
+            var exec = true,
+                el = this._getSelectedElement(),
+                action = 'backcolor';
+
+            if (this.browser.gecko || this.browser.opera) {
+                this._setEditorStyle(true);
+                action = 'hilitecolor';
+            }
+            /**
+            * @browser opera
+            * @knownissue - Opera fails to assign a background color on an element that already has one.
+            *
+            if (this.browser.opera) {
+                if (!this._isElement(el, 'body') && Dom.getStyle(el, 'background-color')) {
+                    Dom.setStyle(el, 'background-color', value);
+                } else {
+                    this._createCurrentElement('span', { backgroundColor: value });
+                }
+                exec = false;
+            //} else if (!this._hasSelection()) {
+            } else if (el !== this._getDoc().body) {
+                Dom.setStyle(el, 'background-color', value);
+                this._selectNode(el);
+                exec = false;
+            } else {
+                this._createCurrentElement('span', { backgroundColor: value });
+                this._selectNode(this.currentElement[0]);
+                exec = false;
+            }*/
+
+            if (!this._isElement(el, 'body')) {
+                Dom.setStyle(el, 'background-color', value);
+                this._selectNode(el);
+                exec = false;
+            } else {
+                this._createCurrentElement('span', { backgroundColor: value });
+                this._selectNode(this.currentElement[0]);
+                exec = false;
+            }
+
+            return [exec, action];
+        },
+        /**
+        * @method cmd_forecolor
+        * @param value Value passed from the execCommand method
+        * @description This is an execCommand override method. It is called from execCommand when the execCommand('forecolor') is used.
+        */
+        cmd_forecolor: function(value) {
+            var exec = true,
+                el = this._getSelectedElement();
+
+                if (!this._isElement(el, 'body')) {
+                    Dom.setStyle(el, 'color', value);
+                    this._selectNode(el);
+                    exec = false;
+                } else {
+                    this._createCurrentElement('span', { color: value });
+                    this._selectNode(this.currentElement[0]);
+                    exec = false;
+                }
+                return [exec];
+        },
+        /**
+        * @method cmd_unlink
+        * @param value Value passed from the execCommand method
+        * @description This is an execCommand override method. It is called from execCommand when the execCommand('unlink') is used.
+        */
+        cmd_unlink: function(value) {
+            this._swapEl(this.currentElement[0], 'span', function(el) {
+                el.className = 'yui-non';
+            });
+            return [false];
+        },
+        /**
+        * @method cmd_createlink
+        * @param value Value passed from the execCommand method
+        * @description This is an execCommand override method. It is called from execCommand when the execCommand('createlink') is used.
+        */
+        cmd_createlink: function(value) {
+            var el = this._getSelectedElement(), _a = null;
+            if (this._hasParent(el, 'a')) {
+                this.currentElement[0] = this._hasParent(el, 'a');
+            } else if (!this._isElement(el, 'a')) {
+                this._createCurrentElement('a');
+                _a = this._swapEl(this.currentElement[0], 'a');
+                this.currentElement[0] = _a;
+            } else {
+                this.currentElement[0] = el;
+            }
+            return [false];
+        },
+        /**
+        * @method cmd_insertimage
+        * @param value Value passed from the execCommand method
+        * @description This is an execCommand override method. It is called from execCommand when the execCommand('insertimage') is used.
+        */
+        cmd_insertimage: function(value) {
+            var exec = true, _img = null, action = 'insertimage',
+                el = this._getSelectedElement();
+
+            if (value === '') {
+                value = this.get('blankimage');
+            }
+
+            /**
+            * @knownissue
+            * @browser Safari 2.x
+            * @description The issue here is that we have no way of knowing where the cursor position is
+            * inside of the iframe, so we have to place the newly inserted data in the best place that we can.
+            */
+            
+            if (this._isElement(el, 'img')) {
+                this.currentElement[0] = el;
+                exec = false;
+            } else {
+                if (this._getDoc().queryCommandEnabled(action)) {
+                    this._getDoc().execCommand('insertimage', false, value);
+                    var imgs = this._getDoc().getElementsByTagName('img');
+                    for (var i = 0; i < imgs.length; i++) {
+                        if (!YAHOO.util.Dom.hasClass(imgs[i], 'yui-img')) {
+                            YAHOO.util.Dom.addClass(imgs[i], 'yui-img');
+                            this.currentElement[0] = imgs[i];
+                        }
+                    }
+                    exec = false;
+                } else {
+                    if (el == this._getDoc().body) {
+                        _img = this._getDoc().createElement('img');
+                        _img.setAttribute('src', value);
+                        YAHOO.util.Dom.addClass(_img, 'yui-img');
+                        this._getDoc().body.appendChild(_img);
+                    } else {
+                        this._createCurrentElement('img');
+                        _img = this._getDoc().createElement('img');
+                        _img.setAttribute('src', value);
+                        YAHOO.util.Dom.addClass(_img, 'yui-img');
+                        this.currentElement[0].parentNode.replaceChild(_img, this.currentElement[0]);
+                    }
+                    this.currentElement[0] = _img;
+                    exec = false;
+                }
+            }
+            return [exec];
+        },
+        /**
+        * @method cmd_inserthtml
+        * @param value Value passed from the execCommand method
+        * @description This is an execCommand override method. It is called from execCommand when the execCommand('inserthtml') is used.
+        */
+        cmd_inserthtml: function(value) {
+            var exec = true, action = 'inserthtml', _span = null, _range = null;
+            /**
+            * @knownissue
+            * @browser Safari 2.x
+            * @description The issue here is that we have no way of knowing where the cursor position is
+            * inside of the iframe, so we have to place the newly inserted data in the best place that we can.
+            */
+            if (this.browser.webkit && !this._getDoc().queryCommandEnabled(action)) {
+                this._createCurrentElement('img');
+                _span = this._getDoc().createElement('span');
+                _span.innerHTML = value;
+                this.currentElement[0].parentNode.replaceChild(_span, this.currentElement[0]);
+                exec = false;
+            } else if (this.browser.ie) {
+                _range = this._getRange();
+                if (_range.item) {
+                    _range.item(0).outerHTML = value;
+                } else {
+                    _range.pasteHTML(value);
+                }
+                exec = false;                    
+            }
+            return [exec];
+        },
+        /**
+        * @method cmd_list
+        * @param tag The tag of the list you want to create (eg, ul or ol)
+        * @description This is a combined execCommand override method. It is called from the cmd_insertorderedlist and cmd_insertunorderedlist methods.
+        */
+        cmd_list: function(tag) {
+            var exec = true, list = null, li = 0, el = null, str = '',
+                selEl = this._getSelectedElement(), action = 'insertorderedlist';
+                if (tag == 'ul') {
+                    action = 'insertunorderedlist';
+                }
+            /**
+            * @knownissue Safari 2.+ doesn't support ordered and unordered lists
+            * @browser Safari 2.x
+            * The issue with this workaround is that when applied to a set of text
+            * that has BR's in it, Safari may or may not pick up the individual items as
+            * list items. This is fixed in WebKit (Safari 3)
+            */
+            if ((this.browser.webkit && !this._getDoc().queryCommandEnabled(action))) {
+                if (this._isElement(selEl, 'li') && this._isElement(selEl.parentNode, tag)) {
+                    el = selEl.parentNode;
+                    list = this._getDoc().createElement('span');
+                    YAHOO.util.Dom.addClass(list, 'yui-non');
+                    str = '';
+                    var lis = el.getElementsByTagName('li');
+                    for (li = 0; li < lis.length; li++) {
+                        str += '<div>' + lis[li].innerHTML + '</div>';
+                    }
+                    list.innerHTML = str;
+                    this.currentElement[0] = el;
+                    this.currentElement[0].parentNode.replaceChild(list, this.currentElement[0]);
+                } else {
+                    this._createCurrentElement(tag.toLowerCase());
+                    list = this._getDoc().createElement(tag);
+                    for (li = 0; li < this.currentElement.length; li++) {
+                        var newli = this._getDoc().createElement('li');
+                        newli.innerHTML = this.currentElement[li].innerHTML + '<span class="yui-non">&nbsp;</span>&nbsp;';
+                        list.appendChild(newli);
+                        if (li > 0) {
+                            this.currentElement[li].parentNode.removeChild(this.currentElement[li]);
+                        }
+                    }
+                    this.currentElement[0].parentNode.replaceChild(list, this.currentElement[0]);
+                    this.currentElement[0] = list;
+                    var _h = this.currentElement[0].firstChild;
+                    _h = Dom.getElementsByClassName('yui-non', 'span', _h)[0];
+                    this._getSelection().setBaseAndExtent(_h, 1, _h, _h.innerText.length);
+                }
+                exec = false;
+            } else {
+                el = this._getSelectedElement();
+                if (this._isElement(el, 'li') && this._isElement(el.parentNode, tag) || (this.browser.ie && this._isElement(this._getRange().parentElement, 'li'))) { //we are in a list..
+                    if (this.browser.ie) {
+                        str = '';
+                        var lis2 = el.parentNode.getElementsByTagName('li');
+                        for (var j = 0; j < lis2.length; j++) {
+                            str += lis2[j].innerHTML + '<br>';
+                        }
+                        var newEl = this._getDoc().createElement('span');
+                        newEl.innerHTML = str;
+                        el.parentNode.parentNode.replaceChild(newEl, el.parentNode);
+                    } else {
+                        this.nodeChange();
+                        this._getDoc().execCommand(action, '', el.parentNode);
+                        this.nodeChange();
+                    }
+                    exec = false;
+                }
+                if (this.browser.opera) {
+                    var self = this;
+                    window.setTimeout(function() {
+                        var liso = self._getDoc().getElementsByTagName('li');
+                        for (var i = 0; i < liso.length; i++) {
+                            if (liso[i].innerHTML.toLowerCase() == '<br>') {
+                                liso[i].parentNode.parentNode.removeChild(liso[i].parentNode);
+                            }
+                        }
+                    },30);
+                }
+                if (this.browser.ie && exec) {
+                    var html = '';
+                    if (this._getRange().html) {
+                        html = '<li>' + this._getRange().html+ '</li>';
+                    } else {
+                        html = '<li>' + this._getRange().text + '</li>';
+                    }
+
+                    this._getRange().pasteHTML('<' + tag + '>' + html + '</' + tag + '>');
+                    exec = false;
+                }
+            }
+            return exec;
+        },
+        /**
+        * @method cmd_insertorderedlist
+        * @param value Value passed from the execCommand method
+        * @description This is an execCommand override method. It is called from execCommand when the execCommand('insertorderedlist ') is used.
+        */
+        cmd_insertorderedlist: function(value) {
+            return [this.cmd_list('ol')];
+        },
+        /**
+        * @method cmd_insertunorderedlist 
+        * @param value Value passed from the execCommand method
+        * @description This is an execCommand override method. It is called from execCommand when the execCommand('insertunorderedlist') is used.
+        */
+        cmd_insertunorderedlist: function(value) {
+            return [this.cmd_list('ul')];
+        },
+        /**
+        * @method cmd_fontname
+        * @param value Value passed from the execCommand method
+        * @description This is an execCommand override method. It is called from execCommand when the execCommand('fontname') is used.
+        */
+        cmd_fontname: function(value) {
+            var exec = true,
+                selEl = this._getSelectedElement();
+
+            this.currentFont = value;
+            if (selEl && selEl.tagName && !this._hasSelection()) {
+                YAHOO.util.Dom.setStyle(selEl, 'font-family', value);
+                exec = false;
+            }
+            return [exec];
+        },
+        /**
+        * @method cmd_fontsize
+        * @param value Value passed from the execCommand method
+        * @description This is an execCommand override method. It is called from execCommand when the execCommand('fontsize') is used.
+        */
+        cmd_fontsize: function(value) {
+            if ((this.currentElement.length > 0) && (!this._hasSelection())) {
+                YAHOO.util.Dom.setStyle(this.currentElement, 'fontSize', value);
+            } else if (!this._isElement(this._getSelectedElement(), 'body')) {
+                var el = this._getSelectedElement();
+                YAHOO.util.Dom.setStyle(el, 'fontSize', value);
+                this._selectNode(el);
+            } else {
+                this._createCurrentElement('span', {'fontSize': value });
+                this._selectNode(this.currentElement[0]);
+            }
+            return [false];
+        },
+    /* }}} */
+        /**
+        * @private
+        * @method _swapEl
+        * @param {HTMLElement} el The element to swap with
+        * @param {String} tagName The tagname of the element that you wish to create
+        * @param {Function} callback (optional) A function to run on the element after it is created, but before it is replaced. An element reference is passed to this function.
+        * @description This function will create a new element in the DOM and populate it with the contents of another element. Then it will assume it's place.
+        */
+        _swapEl: function(el, tagName, callback) {
+            var _el = this._getDoc().createElement(tagName);
+            _el.innerHTML = el.innerHTML;
+            if (typeof callback == 'function') {
+                callback.call(this, _el);
+            }
+            el.parentNode.replaceChild(_el, el);
+            return _el;
+        },
+        /**
+        * @private
+        * @method _createCurrentElement
+        * @param {String} tagName (optional defaults to a) The tagname of the element that you wish to create
+        * @param {Object} tagStyle (optional) Object literal containing styles to apply to the new element.
+        * @description This is a work around for the various browser issues with execCommand. This method will run <code>execCommand('fontname', false, 'yui-tmp')</code> on the given selection.
+        * It will then search the document for an element with the font-family set to <strong>yui-tmp</strong> and replace that with another span that has other information in it, then assign the new span to the 
+        * <code>this.currentElement</code> array, so we now have element references to the elements that were just modified. At this point we can use standard DOM manipulation to change them as we see fit.
+        */
+        _createCurrentElement: function(tagName, tagStyle) {
+            tagName = ((tagName) ? tagName : 'a');
+            var tar = null,
+                el = [],
+                _doc = this._getDoc();
+            
+            if (this.currentFont) {
+                if (!tagStyle) {
+                    tagStyle = {};
+                }
+                tagStyle.fontFamily = this.currentFont;
+                this.currentFont = null;
+            }
+            this.currentElement = [];
+
+            var _elCreate = function() {
+                var el = null;
+                switch (tagName) {
+                    case 'h1':
+                    case 'h2':
+                    case 'h3':
+                    case 'h4':
+                    case 'h5':
+                    case 'h6':
+                        el = _doc.createElement(tagName);
+                        break;
+                    default:
+                        el = _doc.createElement('span');
+                        YAHOO.util.Dom.addClass(el, 'yui-tag-' + tagName);
+                        YAHOO.util.Dom.addClass(el, 'yui-tag');
+                        el.setAttribute('tag', tagName);
+
+                        for (var k in tagStyle) {
+                            if (YAHOO.util.Lang.hasOwnProperty(tagStyle, k)) {
+                                el.style[k] = tagStyle[k];
+                            }
+                        }
+                        break;
+                }
+                return el;
+            };
+
+            if (!this._hasSelection()) {
+                if (this._getDoc().queryCommandEnabled('insertimage')) {
+                    this._getDoc().execCommand('insertimage', false, 'yui-tmp-img');
+                    var imgs = this._getDoc().getElementsByTagName('img');
+                    for (var j = 0; j < imgs.length; j++) {
+                        if (imgs[j].getAttribute('src', 2) == 'yui-tmp-img') {
+                            el = _elCreate();
+                            imgs[j].parentNode.replaceChild(el, imgs[j]);
+                            this.currentElement[this.currentElement.length] = el;
+                        }
+                    }
+                } else {
+                    if (this.currentEvent) {
+                        tar = YAHOO.util.Event.getTarget(this.currentEvent);
+                    } else {
+                        //For Safari..
+                        tar = this._getDoc().body;                        
+                    }
+                }
+                if (tar) {
+                    /**
+                    * @knownissue
+                    * @browser Safari 2.x
+                    * @description The issue here is that we have no way of knowing where the cursor position is
+                    * inside of the iframe, so we have to place the newly inserted data in the best place that we can.
+                    */
+                    el = _elCreate();
+                    if (this._isElement(tar, 'body') || this._isElement(tar, 'html')) {
+                        if (this._isElement(tar, 'html')) {
+                            tar = this._getDoc().body;
+                        }
+                        tar.appendChild(el);
+                    } else if (tar.nextSibling) {
+                        tar.parentNode.insertBefore(el, tar.nextSibling);
+                    } else {
+                        tar.parentNode.appendChild(el);
+                    }
+                    //this.currentElement = el;
+                    this.currentElement[this.currentElement.length] = el;
+                    this.currentEvent = null;
+                    if (this.browser.webkit) {
+                        //Force Safari to focus the new element
+                        this._getSelection().setBaseAndExtent(el, 0, el, 0);
+                        if (this.browser.webkit3) {
+                            this._getSelection().collapseToStart();
+                        } else {
+                            this._getSelection().collapse(true);
+                        }
+                    }
+                }
+            } else {
+                //Force CSS Styling for this action...
+                this._setEditorStyle(true);
+                this._getDoc().execCommand('fontname', false, 'yui-tmp');
+                var _tmp = [];
+                /* TODO: This needs to be cleaned up.. */
+                var _tmp1 = this._getDoc().getElementsByTagName('font');
+                var _tmp2 = this._getDoc().getElementsByTagName(this._getSelectedElement().tagName);
+                var _tmp3 = this._getDoc().getElementsByTagName('span');
+                var _tmp4 = this._getDoc().getElementsByTagName('i');
+                var _tmp5 = this._getDoc().getElementsByTagName('b');
+                var _tmp6 = this._getDoc().getElementsByTagName(this._getSelectedElement().parentNode.tagName);
+                for (var e1 = 0; e1 < _tmp1.length; e1++) {
+                    _tmp[_tmp.length] = _tmp1[e1];
+                }
+                for (var e6 = 0; e6 < _tmp6.length; e6++) {
+                    _tmp[_tmp.length] = _tmp6[e6];
+                }
+                for (var e2 = 0; e2 < _tmp2.length; e2++) {
+                    _tmp[_tmp.length] = _tmp2[e2];
+                }
+                for (var e3 = 0; e3 < _tmp3.length; e3++) {
+                    _tmp[_tmp.length] = _tmp3[e3];
+                }
+                for (var e4 = 0; e4 < _tmp4.length; e4++) {
+                    _tmp[_tmp.length] = _tmp4[e4];
+                }
+                for (var e5 = 0; e5 < _tmp5.length; e5++) {
+                    _tmp[_tmp.length] = _tmp5[e5];
+                }
+                for (var i = 0; i < _tmp.length; i++) {
+                    if ((YAHOO.util.Dom.getStyle(_tmp[i], 'font-family') == 'yui-tmp') || (_tmp[i].face && (_tmp[i].face == 'yui-tmp'))) {
+                        el = _elCreate();
+                        el.innerHTML = _tmp[i].innerHTML;
+                        if (this._isElement(_tmp[i], 'ol') || (this._isElement(_tmp[i], 'ul'))) {
+                            var fc = _tmp[i].getElementsByTagName('li')[0];
+                            _tmp[i].style.fontFamily = 'inherit';
+                            fc.style.fontFamily = 'inherit';
+                            el.innerHTML = fc.innerHTML;
+                            fc.innerHTML = '';
+                            fc.appendChild(el);
+                            this.currentElement[this.currentElement.length] = el;
+                        } else if (this._isElement(_tmp[i], 'li')) {
+                            _tmp[i].innerHTML = '';
+                            _tmp[i].appendChild(el);
+                            _tmp[i].style.fontFamily = 'inherit';
+                            this.currentElement[this.currentElement.length] = el;
+                        } else {
+                            if (_tmp[i].parentNode) {
+                                _tmp[i].parentNode.replaceChild(el, _tmp[i]);
+                                this.currentElement[this.currentElement.length] = el;
+                                this.currentEvent = null;
+                                if (this.browser.webkit) {
+                                    //Force Safari to focus the new element
+                                    this._getSelection().setBaseAndExtent(el, 0, el, 0);
+                                    if (this.browser.webkit3) {
+                                        this._getSelection().collapseToStart();
+                                    } else {
+                                        this._getSelection().collapse(true);
+                                    }
+                                }
+                                if (this.browser.ie && tagStyle && tagStyle.fontSize) {
+                                    this._getSelection().empty();
+                                }
+                                if (this.browser.gecko) {
+                                    this._getSelection().collapseToStart();
+                                }
+                            }
+                        }
+                    }
+                }
+                var len = this.currentElement.length;
+                for (var e = 0; e < len; e++) {
+                    if ((e + 1) != len) { //Skip the last one in the list
+                        if (this.currentElement[e] && this.currentElement[e].nextSibling) {
+                            if (this._isElement(this.currentElement[e], 'br')) {
+                                this.currentElement[this.currentElement.length] = this.currentElement[e].nextSibling;
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        /**
+        * @method saveHTML
+        * @description Cleans the HTML with the cleanHTML method then places that string back into the textarea.
+        */
+        saveHTML: function() {
+            var html = this.cleanHTML();
+            this.get('element').value = html;
+            return html;
+        },
+        /**
+        * @method setEditorHTML
+        * @param {String} html The html content to load into the editor
+        * @description Loads HTML into the editors body
+        */
+        setEditorHTML: function(html) {
+            html = this._cleanIncomingHTML(html);
+            this._getDoc().body.innerHTML = html;
+            this.nodeChange();
+        },
+        /**
+        * @method getEditorHTML
+        * @description Gets the unprocessed/unfiltered HTML from the editor
+        */
+        getEditorHTML: function() {
+            return this._getDoc().body.innerHTML;
+        },
+        /**
+        * @method show
+        * @description This method needs to be called if the Editor was hidden (like in a TabView or Panel). It is used to reset the editor after being in a container that was set to display none.
+        */
+        show: function() {
+            if (this.browser.gecko) {
+                this._setDesignMode('on');
+                this._focusWindow();
+            }
+            if (this.browser.webkit) {
+                var self = this;
+                window.setTimeout(function() {
+                    self._setInitialContent.call(self);
+                }, 10);
+            }
+            //Adding this will close all other Editor window's when showing this one.
+            if (YAHOO.widget.EditorInfo.window.win && YAHOO.widget.EditorInfo.window.scope) {
+                YAHOO.widget.EditorInfo.window.scope.closeWindow.call(YAHOO.widget.EditorInfo.window.scope);
+            }
+            //Put the iframe back in place
+            this.get('iframe').setStyle('position', 'static');
+            this.get('iframe').setStyle('left', '');
+        },
+        /**
+        * @method hide
+        * @description This method needs to be called if the Editor is to be hidden (like in a TabView or Panel). It should be called to clear timeouts and close open editor windows.
+        */
+        hide: function() {
+            //Adding this will close all other Editor window's.
+            if (YAHOO.widget.EditorInfo.window.win && YAHOO.widget.EditorInfo.window.scope) {
+                YAHOO.widget.EditorInfo.window.scope.closeWindow.call(YAHOO.widget.EditorInfo.window.scope);
+            }
+            if (this._fixNodesTimer) {
+                clearTimeout(this._fixNodesTimer);
+                this._fixNodesTimer = null;
+            }
+            if (this._nodeChangeTimer) {
+                clearTimeout(this._nodeChangeTimer);
+                this._nodeChangeTimer = null;
+            }
+            this._lastNodeChange = 0;
+            //Move the iframe off of the screen, so that in containers with visiblity hidden, IE will not cover other elements.
+            this.get('iframe').setStyle('position', 'absolute');
+            this.get('iframe').setStyle('left', '-9999px');
+        },
+        /**
+        * @method _cleanIncomingHTML
+        * @param {String} html The unfiltered HTML
+        * @description Process the HTML with a few regexes to clean it up and stabilize the input
+        * @returns {String} The filtered HTML
+        */
+        _cleanIncomingHTML: function(html) {
+            html = html.replace(/<strong([^>]*)>/gi, '<b$1>');
+            html = html.replace(/<\/strong>/gi, '</b>');   
+            html = html.replace(/<em([^>]*)>/gi, '<i$1>');
+            html = html.replace(/<\/em>/gi, '</i>');
+            return html;
+        },
+        /**
+        * @method cleanHTML
+        * @param {String} html The unfiltered HTML
+        * @description Process the HTML with a few regexes to clean it up and stabilize the output
+        * @returns {String} The filtered HTML
+        */
+        cleanHTML: function(html) {
+            //Start Filtering Output
+            //Begin RegExs..
+            if (!html) { 
+                html = this.getEditorHTML();
+            }
+            var markup = this.get('markup');
+            //Make some backups...
+            html = this.pre_filter_linebreaks(html, markup);
+
+		    html = html.replace(/<img([^>]*)\/>/gi, '<YUI_IMG$1>');
+		    html = html.replace(/<img([^>]*)>/gi, '<YUI_IMG$1>');
+
+		    html = html.replace(/<input([^>]*)\/>/gi, '<YUI_INPUT$1>');
+		    html = html.replace(/<input([^>]*)>/gi, '<YUI_INPUT$1>');
+
+		    html = html.replace(/<ul([^>]*)>/gi, '<YUI_UL$1>');
+		    html = html.replace(/<\/ul>/gi, '<\/YUI_UL>');
+		    html = html.replace(/<blockquote([^>]*)>/gi, '<YUI_BQ$1>');
+		    html = html.replace(/<\/blockquote>/gi, '<\/YUI_BQ>');
+
+            //Convert b and i tags to strong and em tags
+            if ((markup == 'semantic') || (markup == 'xhtml')) {
+                html = html.replace(/<i([^>]*)>/gi, '<em$1>');
+                html = html.replace(/<\/i>/gi, '</em>');
+                html = html.replace(/<b([^>]*)>/gi, '<strong$1>');
+                html = html.replace(/<\/b>/gi, '</strong>');
+            }
+            
+            //Case Changing
+		    html = html.replace(/<font/gi, '<font');
+		    html = html.replace(/<\/font>/gi, '</font>');
+		    html = html.replace(/<span/gi, '<span');
+		    html = html.replace(/<\/span>/gi, '</span>');
+            if ((markup == 'semantic') || (markup == 'xhtml') || (markup == 'css')) {
+                html = html.replace(new RegExp('<font([^>]*)face="([^>]*)">(.*?)<\/font>', 'gi'), '<span $1 style="font-family: $2;">$3</span>');
+                html = html.replace(/<u/gi, '<span style="text-decoration: underline;"');
+                html = html.replace(/\/u>/gi, '/span>');
+                if (markup == 'css') {
+                    html = html.replace(/<em([^>]*)>/gi, '<i$1>');
+                    html = html.replace(/<\/em>/gi, '</i>');
+                    html = html.replace(/<strong([^>]*)>/gi, '<b$1>');
+                    html = html.replace(/<\/strong>/gi, '</b>');
+                    html = html.replace(/<b/gi, '<span style="font-weight: bold;"');
+                    html = html.replace(/\/b>/gi, '/span>');
+                    html = html.replace(/<i/gi, '<span style="font-style: italic;"');
+                    html = html.replace(/\/i>/gi, '/span>');
+                }
+                html = html.replace(/  /gi, ' '); //Replace all double spaces and replace with a single
+            } else {
+		        html = html.replace(/<u/gi, '<u');
+		        html = html.replace(/\/u>/gi, '/u>');
+            }
+		    html = html.replace(/<ol([^>]*)>/gi, '<ol$1>');
+		    html = html.replace(/\/ol>/gi, '/ol>');
+		    html = html.replace(/<li/gi, '<li');
+		    html = html.replace(/\/li>/gi, '/li>');
+            html = this.filter_safari(html);
+
+            html = this.filter_internals(html);
+
+            html = this.filter_all_rgb(html);
+
+            //Replace our backups with the real thing
+            html = this.post_filter_linebreaks(html, markup);
+
+            if (markup == 'xhtml') {
+		        html = html.replace(/<YUI_IMG([^>]*)>/g, '<img $1/>');
+		        html = html.replace(/<YUI_INPUT([^>]*)>/g, '<input $1/>');
+            } else {
+		        html = html.replace(/<YUI_IMG([^>]*)>/g, '<img $1>');
+		        html = html.replace(/<YUI_INPUT([^>]*)>/g, '<input $1>');
+            }
+		    html = html.replace(/<YUI_UL([^>]*)>/g, '<ul$1>');
+		    html = html.replace(/<\/YUI_UL>/g, '<\/ul>');
+
+            html = this.filter_invalid_lists(html);
+
+		    html = html.replace(/<YUI_BQ([^>]*)>/g, '<blockquote$1>');
+		    html = html.replace(/<\/YUI_BQ>/g, '<\/blockquote>');
+
+            //Trim the output, removing whitespace from the beginning and end
+            html = YAHOO.lang.trim(html);
+
+            if (this.get('removeLineBreaks')) {
+                html = html.replace(/\n/g, '').replace(/\r/g, '');
+                html = html.replace(/  /gi, ' '); //Replace all double spaces and replace with a single
+            }
+            
+            //First empty span
+            if (html.substring(0, 6).toLowerCase() == '<span>')  {
+                html = html.substring(6);
+            }
+            //Last empty span
+            if (html.substring(html.length - 7, html.length).toLowerCase() == '</span>')  {
+                html = html.substring(0, html.length - 7);
+            }
+
+
+            for (var v in this.invalidHTML) {
+                if (YAHOO.lang.hasOwnProperty(this.invalidHTML, v)) {
+                    if (Lang.isObject(v) && v.keepContents) {
+                        html = html.replace(new RegExp('<' + v + '([^>]*)>(.*?)<\/' + v + '>', 'gi'), '$1');
+                    } else {
+                        html = html.replace(new RegExp('<' + v + '([^>]*)>(.*?)<\/' + v + '>', 'gi'), '');
+                    }
+                }
+            }
+
+            this.fireEvent('cleanHTML', { type: 'cleanHTML', target: this, html: html });
+
+            return html;
+        },
+        /**
+        * @method filter_invalid_lists
+        * @param String html The HTML string to filter
+        * @description Filters invalid ol and ul list markup, converts this: <li></li><ol>..</ol> to this: <li></li><li><ol>..</ol></li>
+        * @returns String
+        */
+        filter_invalid_lists: function(html) {
+            html = html.replace(/<\/li>\n/gi, '</li>');
+
+            html = html.replace(/<\/li><ol>/gi, '</li><li><ol>');
+            html = html.replace(/<\/ol>/gi, '</ol></li>');
+            html = html.replace(/<\/ol><\/li>\n/gi, "</ol>\n");
+
+            html = html.replace(/<\/li><ul>/gi, '</li><li><ul>');
+            html = html.replace(/<\/ul>/gi, '</ul></li>');
+            html = html.replace(/<\/ul><\/li>\n/gi, "</ul>\n");
+
+            html = html.replace(/<\/li>/gi, "</li>\n");
+            html = html.replace(/<\/ol>/gi, "</ol>\n");
+            html = html.replace(/<ol>/gi, "<ol>\n");
+            html = html.replace(/<ul>/gi, "<ul>\n");
+            return html;
+        },
+        /**
+        * @method filter_safari
+        * @param String html The HTML string to filter
+        * @description Filters strings specific to Safari
+        * @returns String
+        */
+        filter_safari: function(html) {
+            if (this.browser.webkit) {
+                html = html.replace(/Apple-style-span/gi, '');
+                html = html.replace(/style="line-height: normal;"/gi, '');
+                //Remove bogus LI's
+                html = html.replace(/<li><\/li>/gi, '');
+                html = html.replace(/<li> <\/li>/gi, '');
+                html = html.replace(/<li>  <\/li>/gi, '');
+                //Remove bogus DIV's
+                html = html.replace(/<div><\/div>/gi, '');
+                html = html.replace(/<div> <\/div>/gi, '');
+            }
+            return html;
+        },
+        /**
+        * @method filter_internals
+        * @param String html The HTML string to filter
+        * @description Filters internal RTE strings and bogus attrs we don't want
+        * @returns String
+        */
+        filter_internals: function(html) {
+		    html = html.replace(/\r/g, '');
+            //Fix stuff we don't want
+	        html = html.replace(/<\/?(body|head|html)[^>]*>/gi, '');
+            //Fix last BR in LI
+		    html = html.replace(/<YUI_BR><\/li>/gi, '</li>');
+
+		    html = html.replace(/yui-tag-span/gi, '');
+		    html = html.replace(/yui-tag/gi, '');
+		    html = html.replace(/yui-non/gi, '');
+		    html = html.replace(/yui-img/gi, '');
+		    html = html.replace(/ tag="span"/gi, '');
+		    html = html.replace(/ class=""/gi, '');
+		    html = html.replace(/ style=""/gi, '');
+		    html = html.replace(/ class=" "/gi, '');
+		    html = html.replace(/ class="  "/gi, '');
+		    html = html.replace(/ target=""/gi, '');
+		    html = html.replace(/ title=""/gi, '');
+
+            if (this.browser.ie) {
+		        html = html.replace(/ class= /gi, '');
+		        html = html.replace(/ class= >/gi, '');
+		        html = html.replace(/_height="([^>])"/gi, '');
+		        html = html.replace(/_width="([^>])"/gi, '');
+            }
+            
+            return html;
+        },
+        /**
+        * @method filter_all_rgb
+        * @param String str The HTML string to filter
+        * @description Converts all RGB color strings found in passed string to a hex color, example: style="color: rgb(0, 255, 0)" converts to style="color: #00ff00"
+        * @returns String
+        */
+        filter_all_rgb: function(str) {
+            var exp = new RegExp("rgb\\s*?\\(\\s*?([0-9]+).*?,\\s*?([0-9]+).*?,\\s*?([0-9]+).*?\\)", "gi");
+            var arr = str.match(exp);
+            if (Lang.isArray(arr)) {
+                for (var i = 0; i < arr.length; i++) {
+                    var color = this.filter_rgb(arr[i]);
+                    str = str.replace(arr[i].toString(), color);
+                }
+            }
+            
+            return str;
+        },
+        /**
+        * @method filter_rgb
+        * @param String css The CSS string containing rgb(#,#,#);
+        * @description Converts an RGB color string to a hex color, example: rgb(0, 255, 0) converts to #00ff00
+        * @returns String
+        */
+        filter_rgb: function(css) {
+            if (css.toLowerCase().indexOf('rgb') != -1) {
+                var exp = new RegExp("(.*?)rgb\\s*?\\(\\s*?([0-9]+).*?,\\s*?([0-9]+).*?,\\s*?([0-9]+).*?\\)(.*?)", "gi");
+                var rgb = css.replace(exp, "$1,$2,$3,$4,$5").split(',');
+            
+                if (rgb.length == 5) {
+                    var r = parseInt(rgb[1], 10).toString(16);
+                    var g = parseInt(rgb[2], 10).toString(16);
+                    var b = parseInt(rgb[3], 10).toString(16);
+
+                    r = r.length == 1 ? '0' + r : r;
+                    g = g.length == 1 ? '0' + g : g;
+                    b = b.length == 1 ? '0' + b : b;
+
+                    css = "#" + r + g + b;
+                }
+            }
+            return css;
+        },
+        /**
+        * @method pre_filter_linebreaks
+        * @param String html The HTML to filter
+        * @param String markup The markup type to filter to
+        * @description HTML Pre Filter
+        * @returns String
+        */
+        pre_filter_linebreaks: function(html, markup) {
+            if (this.browser.webkit) {
+		        html = html.replace(/<br class="khtml-block-placeholder">/gi, '<YUI_BR>');
+		        html = html.replace(/<br class="webkit-block-placeholder">/gi, '<YUI_BR>');
+            }
+		    html = html.replace(/<br>/gi, '<YUI_BR>');
+		    html = html.replace(/<br (.*?)>/gi, '<YUI_BR>');
+		    html = html.replace(/<br\/>/gi, '<YUI_BR>');
+		    html = html.replace(/<br \/>/gi, '<YUI_BR>');
+		    html = html.replace(/<div><YUI_BR><\/div>/gi, '<YUI_BR>');
+		    html = html.replace(/<p>(&nbsp;|&#160;)<\/p>/g, '<YUI_BR>');            
+		    html = html.replace(/<p><br>&nbsp;<\/p>/gi, '<YUI_BR>');
+		    html = html.replace(/<p>&nbsp;<\/p>/gi, '<YUI_BR>');
+            //Fix last BR
+	        html = html.replace(/<YUI_BR>$/, '');
+            //Fix last BR in P
+	        html = html.replace(/<YUI_BR><\/p>/g, '</p>');
+            return html;
+        },
+        /**
+        * @method post_filter_linebreaks
+        * @param String html The HTML to filter
+        * @param String markup The markup type to filter to
+        * @description HTML Pre Filter
+        * @returns String
+        */
+        post_filter_linebreaks: function(html, markup) {
+            if (markup == 'xhtml') {
+		        html = html.replace(/<YUI_BR>/g, '<br/>');
+            } else {
+		        html = html.replace(/<YUI_BR>/g, '<br>');
+            }
+            return html;
+        },
+        /**
+        * @method clearEditorDoc
+        * @description Clear the doc of the Editor
+        */
+        clearEditorDoc: function() {
+            this._getDoc().body.innerHTML = '&nbsp;';
+        },
+        /**
+        * @private
+        * @method _renderPanel
+        * @description Override Method for Advanced Editor
+        */
+        _renderPanel: function() {
+        },
+        /**
+        * @method openWindow
+        * @description Override Method for Advanced Editor
+        */
+        openWindow: function(win) {
+        },
+        /**
+        * @method moveWindow
+        * @description Override Method for Advanced Editor
+        */
+        moveWindow: function() {
+        },
+        /**
+        * @private
+        * @method _closeWindow
+        * @description Override Method for Advanced Editor
+        */
+        _closeWindow: function() {
+        },
+        /**
+        * @method closeWindow
+        * @description Override Method for Advanced Editor
+        */
+        closeWindow: function() {
+            this.unsubscribeAll('afterExecCommand');
+            this.toolbar.resetAllButtons();
+            this._focusWindow();        
+        },
+        /**
+        * @method destroy
+        * @description Destroys the editor, all of it's elements and objects.
+        * @return {Boolean}
+        */
+        destroy: function() {
+            this.saveHTML();
+            this.toolbar.destroy();
+            this.setStyle('visibility', 'hidden');
+            this.setStyle('position', 'absolute');
+            this.setStyle('top', '-9999px');
+            this.setStyle('left', '-9999px');
+            var textArea = this.get('element');
+            this.get('element_cont').get('parentNode').replaceChild(textArea, this.get('element_cont').get('element'));
+            this.get('element_cont').get('element').innerHTML = '';
+            //Brutal Object Destroy
+            for (var i in this) {
+                if (Lang.hasOwnProperty(this, i)) {
+                    this[i] = null;
+                }
+            }
+            return true;
+        },        
+        /**
+        * @method toString
+        * @description Returns a string representing the editor.
+        * @return {String}
+        */
+        toString: function() {
+            var str = 'SimpleEditor';
+            if (this.get && this.get('element_cont')) {
+                str = 'SimpleEditor (#' + this.get('element_cont').get('id') + ')' + ((this.get('disabled') ? ' Disabled' : ''));
+            }
+            return str;
+        }
+    });
+
+/**
+* @event toolbarLoaded
+* @description Event is fired during the render process directly after the Toolbar is loaded. Allowing you to attach events to the toolbar. See <a href="YAHOO.util.Element.html#addListener">Element.addListener</a> for more information on listening for this event.
+* @type YAHOO.util.CustomEvent
+*/
+/**
+* @event cleanHTML
+* @description Event is fired after the cleanHTML method is called.
+* @type YAHOO.util.CustomEvent
+*/
+/**
+* @event afterRender
+* @description Event is fired after the render process finishes. See <a href="YAHOO.util.Element.html#addListener">Element.addListener</a> for more information on listening for this event.
+* @type YAHOO.util.CustomEvent
+*/
+/**
+* @event editorContentLoaded
+* @description Event is fired after the editor iframe's document fully loads and fires it's onload event. From here you can start injecting your own things into the document. See <a href="YAHOO.util.Element.html#addListener">Element.addListener</a> for more information on listening for this event.
+* @type YAHOO.util.CustomEvent
+*/
+/**
+* @event editorMouseUp
+* @param {Event} ev The DOM Event that occured
+* @description Passed through HTML Event. See <a href="YAHOO.util.Element.html#addListener">Element.addListener</a> for more information on listening for this event.
+* @type YAHOO.util.CustomEvent
+*/
+/**
+* @event editorMouseDown
+* @param {Event} ev The DOM Event that occured
+* @description Passed through HTML Event. See <a href="YAHOO.util.Element.html#addListener">Element.addListener</a> for more information on listening for this event.
+* @type YAHOO.util.CustomEvent
+*/
+/**
+* @event editorDoubleClick
+* @param {Event} ev The DOM Event that occured
+* @description Passed through HTML Event. See <a href="YAHOO.util.Element.html#addListener">Element.addListener</a> for more information on listening for this event.
+* @type YAHOO.util.CustomEvent
+*/
+/**
+* @event editorKeyUp
+* @param {Event} ev The DOM Event that occured
+* @description Passed through HTML Event. See <a href="YAHOO.util.Element.html#addListener">Element.addListener</a> for more information on listening for this event.
+* @type YAHOO.util.CustomEvent
+*/
+/**
+* @event editorKeyPress
+* @param {Event} ev The DOM Event that occured
+* @description Passed through HTML Event. See <a href="YAHOO.util.Element.html#addListener">Element.addListener</a> for more information on listening for this event.
+* @type YAHOO.util.CustomEvent
+*/
+/**
+* @event editorKeyDown
+* @param {Event} ev The DOM Event that occured
+* @description Passed through HTML Event. See <a href="YAHOO.util.Element.html#addListener">Element.addListener</a> for more information on listening for this event.
+* @type YAHOO.util.CustomEvent
+*/
+/**
+* @event beforeNodeChange
+* @description Event fires at the beginning of the nodeChange process. See <a href="YAHOO.util.Element.html#addListener">Element.addListener</a> for more information on listening for this event.
+* @type YAHOO.util.CustomEvent
+*/
+/**
+* @event afterNodeChange
+* @description Event fires at the end of the nodeChange process. See <a href="YAHOO.util.Element.html#addListener">Element.addListener</a> for more information on listening for this event.
+* @type YAHOO.util.CustomEvent
+*/
+/**
+* @event beforeExecCommand
+* @description Event fires at the beginning of the execCommand process. See <a href="YAHOO.util.Element.html#addListener">Element.addListener</a> for more information on listening for this event.
+* @type YAHOO.util.CustomEvent
+*/
+/**
+* @event afterExecCommand
+* @description Event fires at the end of the execCommand process. See <a href="YAHOO.util.Element.html#addListener">Element.addListener</a> for more information on listening for this event.
+* @type YAHOO.util.CustomEvent
+*/
+
+/**
+     * @description Singleton object used to track the open window objects and panels across the various open editors
+     * @class EditorInfo
+     * @static
+    */
+    YAHOO.widget.EditorInfo = {
+        /**
+        * @private
+        * @property _instances
+        * @description A reference to all editors on the page.
+        * @type Object
+        */
+        _instances: {},
+        /**
+        * @private
+        * @property window
+        * @description A reference to the currently open window object in any editor on the page.
+        * @type Object <a href="YAHOO.widget.EditorWindow.html">YAHOO.widget.EditorWindow</a>
+        */
+        window: {},
+        /**
+        * @private
+        * @property panel
+        * @description A reference to the currently open panel in any editor on the page.
+        * @type Object <a href="YAHOO.widget.Overlay.html">YAHOO.widget.Overlay</a>
+        */
+        panel: null,
+        /**
+        * @method getEditorById
+        * @description Returns a reference to the Editor object associated with the given textarea
+        * @param {String/HTMLElement} id The id or reference of the textarea to return the Editor instance of
+        * @returns Object <a href="YAHOO.widget.Editor.html">YAHOO.widget.Editor</a>
+        */
+        getEditorById: function(id) {
+            if (!YAHOO.lang.isString(id)) {
+                //Not a string, assume a node Reference
+                id = id.id;
+            }
+            if (this._instances[id]) {
+                return this._instances[id];
+            }
+            return false;
+        },
+        /**
+        * @method toString
+        * @description Returns a string representing the EditorInfo.
+        * @return {String}
+        */
+        toString: function() {
+            var len = 0;
+            for (var i in this._instances) {
+                len++;
+            }
+            return 'Editor Info (' + len + ' registered intance' + ((len > 1) ? 's' : '') + ')';
+        }
+    };
+
+
+
+    
+})();
+/**
+ * @module editor
+ * @description <p>The Rich Text Editor is a UI control that replaces a standard HTML textarea; it allows for the rich formatting of text content, including common structural treatments like lists, formatting treatments like bold and italic text, and drag-and-drop inclusion and sizing of images. The Rich Text Editor's toolbar is extensible via a plugin architecture so that advanced implementations can achieve a high degree of customization.</p>
+ * @namespace YAHOO.widget
+ * @requires yahoo, dom, element, event, container_core, simpleeditor
+ * @optional dragdrop, animation, menu, button
+ * @beta
+ */
+
+(function() {
+var Dom = YAHOO.util.Dom,
+    Event = YAHOO.util.Event,
+    Lang = YAHOO.lang,
+    Toolbar = YAHOO.widget.Toolbar;
+
+    /**
+     * The Rich Text Editor is a UI control that replaces a standard HTML textarea; it allows for the rich formatting of text content, including common structural treatments like lists, formatting treatments like bold and italic text, and drag-and-drop inclusion and sizing of images. The Rich Text Editor's toolbar is extensible via a plugin architecture so that advanced implementations can achieve a high degree of customization.
+     * @constructor
+     * @class Editor
+     * @extends YAHOO.widget.SimpleEditor
+     * @param {String/HTMLElement} el The textarea element to turn into an editor.
+     * @param {Object} attrs Object liternal containing configuration parameters.
+    */
+    
+    YAHOO.widget.Editor = function(el, attrs) {
+        
+        var oConfig = {
+            element: null,
+            attributes: (attrs || {})
+        }, id = null;
+
+        if (Lang.isString(el)) {
+            id = el;
+        } else {
+            id = el.id;
+        }
+        oConfig.element = el;
+        YAHOO.widget.Editor.superclass.constructor.call(this, oConfig.element, oConfig.attributes);
+    };
+
+    /**
+    * @private
+    * @method _cleanClassName
+    * @description Makes a useable classname from dynamic data, by dropping it to lowercase and replacing spaces with -'s.
+    * @param {String} str The classname to clean up
+    * @returns {String}
+    */
+    function _cleanClassName(str) {
+        return str.replace(/ /g, '-').toLowerCase();
+    }
+
+
+    YAHOO.extend(YAHOO.widget.Editor, YAHOO.widget.SimpleEditor, {
+        /**
+        * @property STR_BEFORE_EDITOR
+        * @description The accessibility string for the element before the iFrame
+        * @type String
+        */
+        STR_BEFORE_EDITOR: 'This text field can contain stylized text and graphics. To cycle through all formatting options, use the keyboard shortcut Control + Shift + T to place focus on the toolbar and navigate between option heading names. <h4>Common formatting keyboard shortcuts:</h4><ul><li>Control Shift B sets text to bold</li> <li>Control Shift I sets text to italic</li> <li>Control Shift U underlines text</li> <li>Control Shift [ aligns text left</li> <li>Control Shift | centers text</li> <li>Control Shift ] aligns text right</li> <li>Control Shift L adds an HTML link</li> <li>To exit this text editor use the keyboard shortcut Control + Shift + ESC.</li></ul>',    
+        /**
+        * @property STR_CLOSE_WINDOW
+        * @description The Title of the close button in the Editor Window
+        * @type String
+        */
+        STR_CLOSE_WINDOW: 'Close Window',
+        /**
+        * @property STR_CLOSE_WINDOW_NOTE
+        * @description A note appearing in the Editor Window to tell the user that the Escape key will close the window
+        * @type String
+        */
+        STR_CLOSE_WINDOW_NOTE: 'To close this window use the Control + Shift + W key',
+        /**
+        * @property STR_IMAGE_PROP_TITLE
+        * @description The title for the Image Property Editor Window
+        * @type String
+        */
+        STR_IMAGE_PROP_TITLE: 'Image Options',
+        /**
+        * @property STR_IMAGE_URL
+        * @description The label string for Image URL
+        * @type String
+        */
+        STR_IMAGE_URL: 'Image Url',
+        /**
+        * @property STR_IMAGE_TITLE
+        * @description The label string for Image Description
+        * @type String
+        */
+        STR_IMAGE_TITLE: 'Description',
+        /**
+        * @property STR_IMAGE_SIZE
+        * @description The label string for Image Size
+        * @type String
+        */
+        STR_IMAGE_SIZE: 'Size',
+        /**
+        * @property STR_IMAGE_ORIG_SIZE
+        * @description The label string for Original Image Size
+        * @type String
+        */
+        STR_IMAGE_ORIG_SIZE: 'Original Size',
+        /**
+        * @property STR_IMAGE_COPY
+        * @description The label string for the image copy and paste message for Opera and Safari
+        * @type String
+        */
+        STR_IMAGE_COPY: '<span class="tip"><span class="icon icon-info"></span><strong>Note:</strong>To move this image just highlight it, cut, and paste where ever you\'d like.</span>',
+        /**
+        * @property STR_IMAGE_PADDING
+        * @description The label string for the image padding.
+        * @type String
+        */
+        STR_IMAGE_PADDING: 'Padding',
+        /**
+        * @property STR_IMAGE_BORDER
+        * @description The label string for the image border.
+        * @type String
+        */
+        STR_IMAGE_BORDER: 'Border',
+        /**
+        * @property STR_IMAGE_TEXTFLOW
+        * @description The label string for the image text flow.
+        * @type String
+        */
+        STR_IMAGE_TEXTFLOW: 'Text Flow',
+        /**
+        * @property STR_LOCAL_FILE_WARNING
+        * @description The label string for the local file warning.
+        * @type String
+        */
+        STR_LOCAL_FILE_WARNING: '<span class="tip"><span class="icon icon-warn"></span><strong>Note:</strong>This image/link points to a file on your computer and will not be accessible to others on the internet.</span>',
+        /**
+        * @property STR_LINK_PROP_TITLE
+        * @description The label string for the Link Property Editor Window.
+        * @type String
+        */
+        STR_LINK_PROP_TITLE: 'Link Options',
+        /**
+        * @property STR_LINK_PROP_REMOVE
+        * @description The label string for the Remove link from text link inside the property editor.
+        * @type String
+        */
+        STR_LINK_PROP_REMOVE: 'Remove link from text',
+        /**
+        * @property STR_LINK_NEW_WINDOW
+        * @description The string for the open in a new window label.
+        * @type String
+        */
+        STR_LINK_NEW_WINDOW: 'Open in a new window.',
+        /**
+        * @property STR_LINK_TITLE
+        * @description The string for the link description.
+        * @type String
+        */
+        STR_LINK_TITLE: 'Description',
+        /**
+        * @protected
+        * @property CLASS_LOCAL_FILE
+        * @description CSS class applied to an element when it's found to have a local url.
+        * @type String
+        */
+        CLASS_LOCAL_FILE: 'warning-localfile',
+        /**
+        * @protected
+        * @property CLASS_HIDDEN
+        * @description CSS class applied to the body when the hiddenelements button is pressed.
+        * @type String
+        */
+        CLASS_HIDDEN: 'yui-hidden',
+        /** 
+        * @method init
+        * @description The Editor class' initialization method
+        */
+        init: function(p_oElement, p_oAttributes) {
+            YAHOO.widget.Editor.superclass.init.call(this, p_oElement, p_oAttributes);
+        },
+        /**
+        * @method initAttributes
+        * @description Initializes all of the configuration attributes used to create 
+        * the editor.
+        * @param {Object} attr Object literal specifying a set of 
+        * configuration attributes used to create the editor.
+        */
+        initAttributes: function(attr) {
+            YAHOO.widget.Editor.superclass.initAttributes.call(this, attr);
+
+            /**
+            * @attribute localFileWarning
+            * @description Should we throw the warning if we detect a file that is local to their machine?
+            * @default true
+            * @type Boolean
+            */            
+            this.setAttributeConfig('localFileWarning', {
+                value: attr.locaFileWarning || true
+            });
+
+            /**
+            * @attribute hiddencss
+            * @description The CSS used to show/hide hidden elements on the page, these rules must be prefixed with the class provided in <code>this.CLASS_HIDDEN</code>
+            * @default <code><pre>
+            .yui-hidden font, .yui-hidden strong, .yui-hidden b, .yui-hidden em, .yui-hidden i, .yui-hidden u, .yui-hidden div, .yui-hidden p, .yui-hidden span, .yui-hidden img, .yui-hidden ul, .yui-hidden ol, .yui-hidden li, .yui-hidden table {
+                border: 1px dotted #ccc;
+            }
+            .yui-hidden .yui-non {
+                border: none;
+            }
+            .yui-hidden img {
+                padding: 2px;
+            }</pre></code>
+            * @type String
+            */            
+            this.setAttributeConfig('hiddencss', {
+                value: attr.hiddencss || '.yui-hidden font, .yui-hidden strong, .yui-hidden b, .yui-hidden em, .yui-hidden i, .yui-hidden u, .yui-hidden div,.yui-hidden p,.yui-hidden span,.yui-hidden img, .yui-hidden ul, .yui-hidden ol, .yui-hidden li, .yui-hidden table { border: 1px dotted #ccc; } .yui-hidden .yui-non { border: none; } .yui-hidden img { padding: 2px; }',
+                writeOnce: true
+            });
+           
+        },
+        /**
+        * @private
+        * @method _fixNodes
+        * @description Fix href and imgs as well as remove invalid HTML.
+        */
+        _fixNodes: function() {
+            YAHOO.widget.Editor.superclass._fixNodes.call(this);
+            var url = '';
+
+            var imgs = this._getDoc().getElementsByTagName('img');
+            for (var im = 0; im < imgs.length; im++) {
+                if (imgs[im].getAttribute('href', 2)) {
+                    url = imgs[im].getAttribute('src', 2);
+                    if (this._isLocalFile(url)) {
+                        Dom.addClass(imgs[im], this.CLASS_LOCAL_FILE);
+                    } else {
+                        Dom.removeClass(imgs[im], this.CLASS_LOCAL_FILE);
+                    }
+                }
+            }
+            var fakeAs = this._getDoc().body.getElementsByTagName('a');
+            for (var a = 0; a < fakeAs.length; a++) {
+                if (fakeAs[a].getAttribute('href', 2)) {
+                    url = fakeAs[a].getAttribute('href', 2);
+                    if (this._isLocalFile(url)) {
+                        Dom.addClass(fakeAs[a], this.CLASS_LOCAL_FILE);
+                    } else {
+                        Dom.removeClass(fakeAs[a], this.CLASS_LOCAL_FILE);
+                    }
+                }
+            }
+        },
+        /**
+        * @private
+        * @property _disabled
+        * @description The Toolbar items that should be disabled if there is no selection present in the editor.
+        * @type Array
+        */
+        _disabled: [ 'createlink', 'forecolor', 'backcolor', 'fontname', 'fontsize', 'superscript', 'subscript', 'removeformat', 'heading', 'indent' ],
+        /**
+        * @private
+        * @property _alwaysDisabled
+        * @description The Toolbar items that should ALWAYS be disabled event if there is a selection present in the editor.
+        * @type Object
+        */
+        _alwaysDisabled: { 'outdent': true },
+        /**
+        * @private
+        * @property _alwaysEnabled
+        * @description The Toolbar items that should ALWAYS be enabled event if there isn't a selection present in the editor.
+        * @type Object
+        */
+        _alwaysEnabled: { hiddenelements: true },
+        /**
+        * @property _defaultToolbar
+        * @private
+        * @description Default toolbar config.
+        * @type Object
+        */
+        _defaultToolbar: {
+            collapse: true,
+            titlebar: 'Text Editing Tools',
+            draggable: false,
+            buttonType: 'advanced',
+            buttons: [
+                { group: 'fontstyle', label: 'Font Name and Size',
+                    buttons: [
+                        { type: 'select', label: 'Arial', value: 'fontname', disabled: true,
+                            menu: [
+                                { text: 'Arial', checked: true },
+                                { text: 'Arial Black' },
+                                { text: 'Comic Sans MS' },
+                                { text: 'Courier New' },
+                                { text: 'Lucida Console' },
+                                { text: 'Tahoma' },
+                                { text: 'Times New Roman' },
+                                { text: 'Trebuchet MS' },
+                                { text: 'Verdana' }
+                            ]
+                        },
+                        { type: 'spin', label: '13', value: 'fontsize', range: [ 9, 75 ], disabled: true }
+                    ]
+                },
+                { type: 'separator' },
+                { group: 'textstyle', label: 'Font Style',
+                    buttons: [
+                        { type: 'push', label: 'Bold CTRL + SHIFT + B', value: 'bold' },
+                        { type: 'push', label: 'Italic CTRL + SHIFT + I', value: 'italic' },
+                        { type: 'push', label: 'Underline CTRL + SHIFT + U', value: 'underline' },
+                        { type: 'separator' },
+                        { type: 'push', label: 'Subscript', value: 'subscript', disabled: true },
+                        { type: 'push', label: 'Superscript', value: 'superscript', disabled: true },
+                        { type: 'separator' },
+                        { type: 'color', label: 'Font Color', value: 'forecolor', disabled: true },
+                        { type: 'color', label: 'Background Color', value: 'backcolor', disabled: true },
+                        { type: 'separator' },
+                        { type: 'push', label: 'Remove Formatting', value: 'removeformat', disabled: true },
+                        { type: 'push', label: 'Show/Hide Hidden Elements', value: 'hiddenelements' }
+                    ]
+                },
+                { type: 'separator' },
+                { group: 'alignment', label: 'Alignment',
+                    buttons: [
+                        { type: 'push', label: 'Align Left CTRL + SHIFT + [', value: 'justifyleft' },
+                        { type: 'push', label: 'Align Center CTRL + SHIFT + |', value: 'justifycenter' },
+                        { type: 'push', label: 'Align Right CTRL + SHIFT + ]', value: 'justifyright' },
+                        { type: 'push', label: 'Justify', value: 'justifyfull' }
+                    ]
+                },
+                { type: 'separator' },
+                { group: 'parastyle', label: 'Paragraph Style',
+                    buttons: [
+                    { type: 'select', label: 'Normal', value: 'heading', disabled: true,
+                        menu: [
+                            { text: 'Normal', value: 'none', checked: true },
+                            { text: 'Header 1', value: 'h1' },
+                            { text: 'Header 2', value: 'h2' },
+                            { text: 'Header 3', value: 'h3' },
+                            { text: 'Header 4', value: 'h4' },
+                            { text: 'Header 5', value: 'h5' },
+                            { text: 'Header 6', value: 'h6' }
+                        ]
+                    }
+                    ]
+                },
+                { type: 'separator' },
+                { group: 'indentlist', label: 'Indenting and Lists',
+                    buttons: [
+                        { type: 'push', label: 'Indent', value: 'indent', disabled: true },
+                        { type: 'push', label: 'Outdent', value: 'outdent', disabled: true },
+                        { type: 'push', label: 'Create an Unordered List', value: 'insertunorderedlist' },
+                        { type: 'push', label: 'Create an Ordered List', value: 'insertorderedlist' }
+                    ]
+                },
+                { type: 'separator' },
+                { group: 'insertitem', label: 'Insert Item',
+                    buttons: [
+                        { type: 'push', label: 'HTML Link CTRL + SHIFT + L', value: 'createlink', disabled: true },
+                        { type: 'push', label: 'Insert Image', value: 'insertimage' }
+                    ]
+                }
+            ]
+        },
+        /**
+        * @private
+        * @method _handleKeyDown
+        * @param {Event} ev The event we are working on.
+        * @description Override method that handles some new keydown events inside the iFrame document.
+        */
+        _handleKeyDown: function(ev) {
+            YAHOO.widget.Editor.superclass._handleKeyDown.call(this, ev);
+            var doExec = false,
+                action = null,
+                exec = false;
+
+            if (ev.shiftKey && ev.ctrlKey) {
+                doExec = true;
+            }
+            switch (ev.keyCode) {
+                case 219: //Left
+                    action = 'justifyleft';
+                    break;
+                case 220: //Center
+                    action = 'justifycenter';
+                    break;
+                case 221: //Right
+                    action = 'justifyright';
+                    break;
+            }
+            if (doExec && action) {
+                this.execCommand(action, null);
+                Event.stopEvent(ev);
+                this.nodeChange();
+            }
+        },        
+        _handleCreateLinkClick: function() {
+            var el = this._getSelectedElement();
+            if (this._isElement(el, 'img')) {
+                this.STOP_EXEC_COMMAND = true;
+                this.currentElement[0] = el;
+                this.toolbar.fireEvent('insertimageClick', { type: 'insertimageClick', target: this.toolbar });
+                this.fireEvent('afterExecCommand', { type: 'afterExecCommand', target: this });
+                return false;
+            }
+            if (this.get('limitCommands')) {
+                if (!this.toolbar.getButtonByValue('createlink')) {
+                    return false;
+                }
+            }
+            
+            this.on('afterExecCommand', function() {
+
+                var win = new YAHOO.widget.EditorWindow('createlink', {
+                    width: '350px'
+                });
+                
+                var el = this.currentElement[0],
+                    url = '',
+                    title = '',
+                    target = '',
+                    localFile = false;
+                if (el) {
+                    if (el.getAttribute('href', 2) !== null) {
+                        url = el.getAttribute('href', 2);
+                        if (this._isLocalFile(url)) {
+                            //Local File throw Warning
+                            win.setFooter(this.STR_LOCAL_FILE_WARNING);
+                            localFile = true;
+                        } else {
+                            win.setFooter(' ');
+                        }
+                    }
+                    if (el.getAttribute('title') !== null) {
+                        title = el.getAttribute('title');
+                    }
+                    if (el.getAttribute('target') !== null) {
+                        target = el.getAttribute('target');
+                    }
+                }
+                var str = '<label for="createlink_url"><strong>' + this.STR_LINK_URL + ':</strong> <input type="text" name="createlink_url" id="createlink_url" value="' + url + '"' + ((localFile) ? ' class="warning"' : '') + '></label>';
+                str += '<label for="createlink_target"><strong>&nbsp;</strong><input type="checkbox" name="createlink_target_" id="createlink_target" value="_blank"' + ((target) ? ' checked' : '') + '> ' + this.STR_LINK_NEW_WINDOW + '</label>';
+                str += '<label for="createlink_title"><strong>' + this.STR_LINK_TITLE + ':</strong> <input type="text" name="createlink_title" id="createlink_title" value="' + title + '"></label>';
+                
+                var body = document.createElement('div');
+                body.innerHTML = str;
+
+                var unlinkCont = document.createElement('div');
+                unlinkCont.className = 'removeLink';
+                var unlink = document.createElement('a');
+                unlink.href = '#';
+                unlink.innerHTML = this.STR_LINK_PROP_REMOVE;
+                unlink.title = this.STR_LINK_PROP_REMOVE;
+                Event.on(unlink, 'click', function(ev) {
+                    Event.stopEvent(ev);
+                    this.execCommand('unlink');
+                    this.closeWindow();
+                }, this, true);
+                unlinkCont.appendChild(unlink);
+                body.appendChild(unlinkCont);
+
+                win.setHeader(this.STR_LINK_PROP_TITLE);
+                win.setBody(body);
+
+                Event.onAvailable('createlink_url', function() {
+                    window.setTimeout(function() {
+                        try {
+                            YAHOO.util.Dom.get('createlink_url').focus();
+                        } catch (e) {}
+                    }, 50);
+                    Event.on('createlink_url', 'blur', function() {
+                        var url = Dom.get('createlink_url');
+                        if (this._isLocalFile(url.value)) {
+                            //Local File throw Warning
+                            Dom.addClass(url, 'warning');
+                            this.get('panel').setFooter(this.STR_LOCAL_FILE_WARNING);
+                        } else {
+                            Dom.removeClass(url, 'warning');
+                            this.get('panel').setFooter(' ');
+                        }
+                    }, this, true);
+                }, this, true);
+
+                this.openWindow(win);
+            });
+        },
+        /**
+        * @private
+        * @method _handleCreateLinkWindowClose
+        * @description Handles the closing of the Link Properties Window.
+        */
+        _handleCreateLinkWindowClose: function() {
+            var url = Dom.get('createlink_url'),
+                target = Dom.get('createlink_target'),
+                title = Dom.get('createlink_title'),
+                el = this.currentElement[0],
+                a = el;
+            if (url && url.value) {
+                var urlValue = url.value;
+                if ((urlValue.indexOf(':/'+'/') == -1) && (urlValue.substring(0,1) != '/') && (urlValue.substring(0, 6).toLowerCase() != 'mailto')) {
+                    if ((urlValue.indexOf('@') != -1) && (urlValue.substring(0, 6).toLowerCase() != 'mailto')) {
+                        //Found an @ sign, prefix with mailto:
+                        urlValue = 'mailto:' + urlValue;
+                    } else {
+                        /* :// not found adding */
+                        if (urlValue.substring(0, 1) != '#') {
+                            urlValue = 'http:/'+'/' + urlValue;
+                        }
+                        
+                    }
+                }
+                el.setAttribute('href', urlValue);
+                if (target.checked) {
+                    el.setAttribute('target', target.value);
+                } else {
+                    el.setAttribute('target', '');
+                }
+                el.setAttribute('title', ((title.value) ? title.value : ''));
+
+            } else {
+                var _span = this._getDoc().createElement('span');
+                _span.innerHTML = el.innerHTML;
+                Dom.addClass(_span, 'yui-non');
+                el.parentNode.replaceChild(_span, el);
+            }
+            this.nodeChange();
+            this.currentElement = [];
+        },
+        /**
+        * @private
+        * @method _handleInsertImageClick
+        * @description Opens the Image Properties Window when the insert Image button is clicked or an Image is Double Clicked.
+        */
+        _handleInsertImageClick: function() {
+            if (this.get('limitCommands')) {
+                if (!this.toolbar.getButtonByValue('insertimage')) {
+                    return false;
+                }
+            }
             this._setBusy();
             this.on('afterExecCommand', function() {
                 var el = this.currentElement[0],
@@ -4026,7 +6445,7 @@ var Dom = YAHOO.util.Dom,
                     }
 
                     if (el.parentNode && this._isElement(el.parentNode, 'a')) {
-                        link = el.parentNode.getAttribute('href');
+                        link = el.parentNode.getAttribute('href', 2);
                         if (el.parentNode.getAttribute('target') !== null) {
                             target = el.parentNode.getAttribute('target');
                         }
@@ -4069,6 +6488,7 @@ var Dom = YAHOO.util.Dom,
 
                 var tbar = new YAHOO.widget.Toolbar(tbarCont, {
                     /* {{{ */ 
+                    buttonType: this._defaultToolbar.buttonType,
                     buttons: [
                         { group: 'textflow', label: this.STR_IMAGE_TEXTFLOW + ':',
                             buttons: [
@@ -4090,18 +6510,18 @@ var Dom = YAHOO.util.Dom,
                                 { type: 'select', label: 'Border Size', value: 'bordersize',
                                     menu: [
                                         { text: 'none', value: '0', checked: true },
-                                        { text: ' ', value: '1' },
-                                        { text: ' ', value: '2' },
-                                        { text: ' ', value: '3' },
-                                        { text: ' ', value: '4' },
-                                        { text: ' ', value: '5' }
+                                        { text: '1px', value: '1' },
+                                        { text: '2px', value: '2' },
+                                        { text: '3px', value: '3' },
+                                        { text: '4px', value: '4' },
+                                        { text: '5px', value: '5' }
                                     ]
                                 },
                                 { type: 'select', label: 'Border Type', value: 'bordertype', disabled: true,
                                     menu: [
-                                        { text: ' ', value: 'solid', checked: true },
-                                        { text: ' ', value: 'dashed' },
-                                        { text: ' ', value: 'dotted' }
+                                        { text: 'Solid', value: 'solid', checked: true },
+                                        { text: 'Dashed', value: 'dashed' },
+                                        { text: 'Dotted', value: 'dotted' }
                                     ]
                                 },
                                 { type: 'color', label: 'Border Color', value: 'bordercolor', disabled: true }
@@ -4304,7 +6724,7 @@ var Dom = YAHOO.util.Dom,
                                 //Local File throw Warning
                                 Dom.addClass(url, 'warning');
                                 this.get('panel').setFooter(this.STR_LOCAL_FILE_WARNING);
-                            } else {
+                            } else if (this.currentElement[0]) {
                                 Dom.removeClass(url, 'warning');
                                 this.get('panel').setFooter(' ');
                                 if ((this.browser.webkit && !this.browser.webkit3) || this.browser.opera) {
@@ -4406,1081 +6826,6 @@ var Dom = YAHOO.util.Dom,
         },
         /**
         * @private
-        * @method _isLocalFile
-        * @param {String} url THe url/string to check
-        * @description Checks to see if a string (href or img src) is possibly a local file reference..
-        */
-        _isLocalFile: function(url) {
-            if ((url !== '') && ((url.indexOf('file:/') != -1) || (url.indexOf(':\\') != -1))) {
-                return true;
-            }
-            return false;
-        },
-        /**
-        * @private
-        * @method _handleCreateLinkClick
-        * @description Handles the opening of the Link Properties Window when the Create Link button is clicked or an href is doubleclicked.
-        */
-        _handleCreateLinkClick: function() {
-            var el = this._getSelectedElement();
-            if (this._isElement(el, 'img')) {
-                this.STOP_EXEC_COMMAND = true;
-                this.currentElement[0] = el;
-                this.toolbar.fireEvent('insertimageClick', { type: 'insertimageClick', target: this.toolbar });
-                this.fireEvent('afterExecCommand', { type: 'afterExecCommand', target: this });
-                return false;
-            }
-            this.on('afterExecCommand', function() {
-
-                var win = new YAHOO.widget.EditorWindow('createlink', {
-                    width: '350px'
-                });
-                
-                var el = this.currentElement[0],
-                    url = '',
-                    title = '',
-                    target = '',
-                    localFile = false;
-                if (el) {
-                    if (el.getAttribute('href') !== null) {
-                        url = el.getAttribute('href');
-                        if (this._isLocalFile(url)) {
-                            //Local File throw Warning
-                            win.setFooter(this.STR_LOCAL_FILE_WARNING);
-                            localFile = true;
-                        } else {
-                            win.setFooter(' ');
-                        }
-                    }
-                    if (el.getAttribute('title') !== null) {
-                        title = el.getAttribute('title');
-                    }
-                    if (el.getAttribute('target') !== null) {
-                        target = el.getAttribute('target');
-                    }
-                }
-                var str = '<label for="createlink_url"><strong>' + this.STR_LINK_URL + ':</strong> <input type="text" name="createlink_url" id="createlink_url" value="' + url + '"' + ((localFile) ? ' class="warning"' : '') + '></label>';
-                str += '<label for="createlink_target"><strong>&nbsp;</strong><input type="checkbox" name="createlink_target_" id="createlink_target" value="_blank"' + ((target) ? ' checked' : '') + '> ' + this.STR_LINK_NEW_WINDOW + '</label>';
-                str += '<label for="createlink_title"><strong>' + this.STR_LINK_TITLE + ':</strong> <input type="text" name="createlink_title" id="createlink_title" value="' + title + '"></label>';
-                
-                var body = document.createElement('div');
-                body.innerHTML = str;
-
-                var unlinkCont = document.createElement('div');
-                unlinkCont.className = 'removeLink';
-                var unlink = document.createElement('a');
-                unlink.href = '#';
-                unlink.innerHTML = this.STR_LINK_PROP_REMOVE;
-                unlink.title = this.STR_LINK_PROP_REMOVE;
-                Event.on(unlink, 'click', function(ev) {
-                    Event.stopEvent(ev);
-                    this.execCommand('unlink');
-                    this.closeWindow();
-                }, this, true);
-                unlinkCont.appendChild(unlink);
-                body.appendChild(unlinkCont);
-
-                win.setHeader(this.STR_LINK_PROP_TITLE);
-                win.setBody(body);
-
-                Event.onAvailable('createlink_url', function() {
-                    window.setTimeout(function() {
-                        try {
-                            YAHOO.util.Dom.get('createlink_url').focus();
-                        } catch (e) {}
-                    }, 50);
-                    Event.on('createlink_url', 'blur', function() {
-                        var url = Dom.get('createlink_url');
-                        if (this._isLocalFile(url.value)) {
-                            //Local File throw Warning
-                            Dom.addClass(url, 'warning');
-                            this.get('panel').setFooter(this.STR_LOCAL_FILE_WARNING);
-                        } else {
-                            Dom.removeClass(url, 'warning');
-                            this.get('panel').setFooter(' ');
-                        }
-                    }, this, true);
-                }, this, true);
-
-                this.openWindow(win);
-            });
-        },
-        /**
-        * @private
-        * @method _handleCreateLinkWindowClose
-        * @description Handles the closing of the Link Properties Window.
-        */
-        _handleCreateLinkWindowClose: function() {
-            var url = Dom.get('createlink_url'),
-                target = Dom.get('createlink_target'),
-                title = Dom.get('createlink_title'),
-                el = this.currentElement[0],
-                a = el;
-            if (url && url.value) {
-                var urlValue = url.value;
-                if ((urlValue.indexOf(':/'+'/') == -1) && (urlValue.substring(0,1) != '/') && (urlValue.substring(0, 6).toLowerCase() != 'mailto')) {
-                    if ((urlValue.indexOf('@') != -1) && (urlValue.substring(0, 6).toLowerCase() != 'mailto')) {
-                        //Found an @ sign, prefix with mailto:
-                        urlValue = 'mailto:' + urlValue;
-                    } else {
-                        /* :// not found adding */
-                        urlValue = 'http:/'+'/' + urlValue;
-                    }
-                }
-                el.setAttribute('href', urlValue);
-                if (target.checked) {
-                    el.setAttribute('target', target.value);
-                } else {
-                    el.setAttribute('target', '');
-                }
-                el.setAttribute('title', ((title.value) ? title.value : ''));
-
-            } else {
-                var _span = this._getDoc().createElement('span');
-                _span.innerHTML = el.innerHTML;
-                Dom.addClass(_span, 'yui-non');
-                el.parentNode.replaceChild(_span, el);
-            }
-            this.nodeChange();
-            this.currentElement = [];
-        },
-        /**
-        * @method render
-        * @description Causes the toolbar and the editor to render and replace the textarea.
-        */
-        render: function() {
-            if (this._rendered) {
-                return false;
-            }
-            if (!this.DOMReady) {
-                this._queue[this._queue.length] = ['render', arguments];
-                return false;
-            }
-            this._setBusy();
-            this._rendered = true;
-            var self = this;
-
-            this.set('textarea', this.get('element'));
-
-            this.get('element_cont').setStyle('display', 'none');
-            this.get('element_cont').addClass(this.CLASS_CONTAINER);
-
-            this.set('iframe', this._createIframe());
-            window.setTimeout(function() {
-                self._setInitialContent.call(self);
-            }, 10);
-
-            this.get('editor_wrapper').appendChild(this.get('iframe').get('element'));
-            Dom.addClass(this.get('iframe').get('parentNode'), this.CLASS_EDITABLE_CONT);
-            this.get('iframe').addClass(this.CLASS_EDITABLE);
-
-
-            var tbarConf = this.get('toolbar');
-            //Set the toolbar to disabled until content is loaded
-            tbarConf.disabled = true;
-            //Create Toolbar instance
-            this.toolbar = new Toolbar(this.get('toolbar_cont'), tbarConf);
-            this.fireEvent('toolbarLoaded', { type: 'toolbarLoaded', target: this.toolbar });
-
-            
-            this.toolbar.on('toolbarCollapsed', function() {
-                if (this.currentWindow) {
-                    this.moveWindow();
-                }
-            }, this, true);
-            this.toolbar.on('toolbarExpanded', function() {
-                if (this.currentWindow) {
-                    this.moveWindow();
-                }
-            }, this, true);
-            this.toolbar.on('fontsizeClick', function(o) {
-                this._handleFontSize(o);
-            }, this, true);
-            
-            this.toolbar.on('colorPickerClicked', function(o) {
-                this._handleColorPicker(o);
-            }, this, true);
-
-            this.toolbar.on('alignClick', function(o) {
-                this._handleAlign(o);
-            }, this, true);
-            this.on('afterNodeChange', function() {
-                this._handleAfterNodeChange();
-            }, this, true);
-            this.toolbar.on('insertimageClick', function() {
-                this._handleInsertImageClick();
-            }, this, true);
-            this.on('windowinsertimageClose', function() {
-                this._handleInsertImageWindowClose();
-            }, this, true);
-            this.toolbar.on('createlinkClick', function() {
-                this._handleCreateLinkClick();
-            }, this, true);
-            this.on('windowcreatelinkClose', function() {
-                this._handleCreateLinkWindowClose();
-            }, this, true);
-
-
-            //Replace Textarea with editable area
-            
-            this.get('parentNode').replaceChild(this.get('element_cont').get('element'), this.get('element'));
-
-
-            if (!this.beforeElement) {
-                this.beforeElement = document.createElement('h2');
-                this.beforeElement.className = 'yui-editor-skipheader';
-                this.beforeElement.tabIndex = '-1';
-                this.beforeElement.innerHTML = this.STR_BEFORE_EDITOR;
-                this.get('element_cont').get('firstChild').insertBefore(this.beforeElement, this.toolbar.get('nextSibling'));
-            }
-            this.setStyle('visibility', 'hidden');
-            this.setStyle('position', 'absolute');
-            this.setStyle('top', '-9999px');
-            this.setStyle('left', '-9999px');
-            this.get('element_cont').appendChild(this.get('element'));
-            this.get('element_cont').setStyle('display', 'block');
-
-
-            //Set height and width of editor container
-            this.get('element_cont').setStyle('width', this.get('width'));
-            Dom.setStyle(this.get('iframe').get('parentNode'), 'height', this.get('height'));
-
-            this.get('iframe').setStyle('width', '100%'); //WIDTH
-            //this.get('iframe').setStyle('_width', '99%'); //WIDTH
-            this.get('iframe').setStyle('height', '100%');
-
-            this.fireEvent('afterRender', { type: 'afterRender', target: this });
-        },
-        /**
-        * @method execCommand
-        * @param {String} action The "execCommand" action to try to execute (Example: bold, insertimage, inserthtml)
-        * @param {String} value (optional) The value for a given action such as action: fontname value: 'Verdana'
-        * @description This method attempts to try and level the differences in the various browsers and their support for execCommand actions
-        */
-        execCommand: function(action, value) {
-            var beforeExec = this.fireEvent('beforeExecCommand', { type: 'beforeExecCommand', target: this, args: arguments });
-            if ((beforeExec === false) || (this.STOP_EXEC_COMMAND)) {
-                this.STOP_EXEC_COMMAND = false;
-                return false;
-            }
-            this._setMarkupType(action);
-            if (this.browser.ie) {
-                this._getWindow().focus();
-            }
-            var exec = true,
-                selEl = null,
-                el = null,
-                tag = '',
-                str = '',
-                _span = null,
-                _sel = this._getSelection(),
-                _range = this._getRange(),
-                _selEl = this._getSelectedElement();
-
-            if (_selEl) {
-                _sel = _selEl;
-            }
-            switch (action.toLowerCase()) {
-                case 'heading':
-                    if (this.browser.ie) {
-                        action = 'formatblock';
-                    }
-                    var h = 0;
-                    if (value == 'none') {
-                        if ((_sel && _sel.tagName && (_sel.tagName.toLowerCase().substring(0,1) == 'h')) || (_sel && _sel.parentNode && _sel.parentNode.tagName && (_sel.parentNode.tagName.toLowerCase().substring(0,1) == 'h'))) {
-                            if (_sel.parentNode.tagName.toLowerCase().substring(0,1) == 'h') {
-                                if (!this._isElement(_sel.parentNode, 'html')) {
-                                    _sel = _sel.parentNode;
-                                }
-                            }
-                            if (this._isElement(_sel, 'body')) {
-                                return false;
-                            }
-                            for (h = 0; h < this.currentElement.length; h++) {
-                                if (this._isElement(this.currentElement[h], 'h1') || this._isElement(this.currentElement[h], 'h2') || this._isElement(this.currentElement[h], 'h3') || this._isElement(this.currentElement[h], 'h4') || this._isElement(this.currentElement[h], 'h5') || this._isElement(this.currentElement[h], 'h6')) {
-                                    el = this._swapEl(this.currentElement[h], 'span', function(el) {
-                                        el.className = 'yui-non';
-                                        el.innerHTML = el.innerHTML.replace(new RegExp('<span class="yui-non">(.*?)<\/span>', 'gi'), '$1');
-                                    });
-                                    this.currentElement[h] = el;
-                                }
-                                if (this.currentElement[h].nextSibling && !this._isElement(this.currentElement[h].nextSibling, 'br')) {
-                                    var _br = this._getDoc().createElement('br');
-                                    this.currentElement[h].parentNode.insertBefore(_br, this.currentElement[h].nextSibling);
-                                }
-                            }
-                        }
-                        exec = false;
-                    } else {
-                        if (this._isElement(_selEl, 'h1') || this._isElement(_selEl, 'h2') || this._isElement(_selEl, 'h3') || this._isElement(_selEl, 'h4') || this._isElement(_selEl, 'h5') || this._isElement(_selEl, 'h6')) {
-                            el = this._swapEl(_selEl, value);
-                            this._selectNode(el);
-                            this.currentElement[0] = el;
-                        } else {
-                            this._createCurrentElement(value);
-                            this._selectNode(this.currentElement[0]);
-                            //If the next sibling is a br, remove it
-                            for (h = 0; h < this.currentElement.length; h++) {
-                                if (this.currentElement[h].nextSibling && this._isElement(this.currentElement[h].nextSibling, 'br')) {
-                                    this.currentElement[h].nextSibling.parentNode.removeChild(this.currentElement[h].nextSibling);
-                                }
-                            }
-                        }
-                        exec = false;
-                    }
-                    break;
-                case 'backcolor':
-                    if (this.browser.gecko || this.browser.opera) {
-                        this._setEditorStyle(true);
-                        action = 'hilitecolor';
-                    }
-                    /**
-                    * @browser opera
-                    * @knownissue - Opera fails to assign a background color on an element that already has one.
-                    */
-                    el = this._getSelectedElement();
-                    if (this.browser.opera) {
-                        if (!this._isElement(el, 'body') && Dom.getStyle(el, 'background-color')) {
-                            Dom.setStyle(el, 'background-color', value);
-                        } else {
-                            this._createCurrentElement('span', { backgroundColor: value });
-                        }
-                        exec = false;
-                    } else if (!this._hasSelection()) {
-                        if (el !== this._getDoc().body) {
-                            Dom.setStyle(el, 'background-color', value);
-                            exec = false;
-                        }
-                    }
-                    break;
-                case 'forecolor':
-                    el = this._getSelectedElement();
-                    if ((el !== this._getDoc().body) && (!this._hasSelection())) {
-                        Dom.setStyle(el, 'color', value);
-                        exec = false;
-                    }
-                    break;
-                case 'hiddenelements':
-                    this._showHidden();
-                    exec = false;
-                    break;
-                case 'unlink':
-                    el = this._swapEl(this.currentElement[0], 'span', function(el) {
-                        el.className = 'yui-non';
-                    });
-                    exec = false;
-                    break;
-                case 'createlink':
-                    el = this._getSelectedElement();
-                    var _a = null;
-                    if (!this._isElement(el, 'a')) {
-                        this._createCurrentElement('a');
-                        _a = this._swapEl(this.currentElement[0], 'a');
-                        this.currentElement[0] = _a;
-                    } else {
-                        this.currentElement[0] = el;
-                    }
-                    exec = false;
-                    break;
-                case 'insertimage':
-                    if (value === '') {
-                        value = this.get('blankimage');
-                    }
-                    /**
-                    * @knownissue
-                    * @browser Safari 2.x
-                    * @description The issue here is that we have no way of knowing where the cursor position is
-                    * inside of the iframe, so we have to place the newly inserted data in the best place that we can.
-                    */
-                    
-                    el = this._getSelectedElement();
-                    if (this._isElement(el, 'img')) {
-                        this.currentElement[0] = el;
-                        exec = false;
-                    } else {
-                        if (this._getDoc().queryCommandEnabled(action)) {
-                            this._getDoc().execCommand('insertimage', false, value);
-                            var imgs = this._getDoc().getElementsByTagName('img');
-                            for (var i = 0; i < imgs.length; i++) {
-                                if (!YAHOO.util.Dom.hasClass(imgs[i], 'yui-img')) {
-                                    YAHOO.util.Dom.addClass(imgs[i], 'yui-img');
-                                    this.currentElement[0] = imgs[i];
-                                }
-                            }
-                            exec = false;
-                        } else {
-                            var _img = null;
-                            if (el == this._getDoc().body) {
-                                _img = this._getDoc().createElement('img');
-                                _img.setAttribute('src', value);
-                                YAHOO.util.Dom.addClass(_img, 'yui-img');
-                                this._getDoc().body.appendChild(_img);
-                            } else {
-                                this._createCurrentElement('img');
-                                _img = this._getDoc().createElement('img');
-                                _img.setAttribute('src', value);
-                                YAHOO.util.Dom.addClass(_img, 'yui-img');
-                                this.currentElement[0].parentNode.replaceChild(_img, this.currentElement[0]);
-                            }
-                            this.currentElement[0] = _img;
-                            exec = false;
-                        }
-                    }
-                    
-                    break;
-                case 'inserthtml':
-                    /**
-                    * @knownissue
-                    * @browser Safari 2.x
-                    * @description The issue here is that we have no way of knowing where the cursor position is
-                    * inside of the iframe, so we have to place the newly inserted data in the best place that we can.
-                    */
-                    if (this.browser.webkit && !this._getDoc().queryCommandEnabled(action)) {
-                        this._createCurrentElement('img');
-                        _span = this._getDoc().createElement('span');
-                        _span.innerHTML = value;
-                        this.currentElement[0].parentNode.replaceChild(_span, this.currentElement[0]);
-                        exec = false;
-                    } else if (this.browser.ie) {
-                        _range = this._getRange();
-                        if (_range.item) {
-                            _range.item(0).outerHTML = value;
-                        } else {
-                            _range.pasteHTML(value);
-                        }
-                        exec = false;                    
-                    }
-                    break;
-                case 'removeformat':
-                    /**
-                    * @knownissue Remove Format issue
-                    * @browser Safari 2.x
-                    * @description There is an issue here with Safari, that it may not always remove the format of the item that is selected.
-                    * Due to the way that Safari 2.x handles ranges, it is very difficult to determine what the selection holds.
-                    * So here we are making the best possible guess and acting on it.
-                    */
-                    if (this.browser.webkit && !this._getDoc().queryCommandEnabled(action)) {
-                        this._createCurrentElement('span');
-                        YAHOO.util.Dom.addClass(this.currentElement[0], 'yui-non');
-                        var re= /<\S[^><]*>/g;
-                        str = this.currentElement[0].innerHTML.replace(re, '');
-                        var _txt = this._getDoc().createTextNode(str);
-                        this.currentElement[0].parentNode.parentNode.replaceChild(_txt, this.currentElement[0].parentNode);
-                        
-                        exec = false;
-                    }
-                    break;
-                case 'superscript':
-                case 'subscript':
-                    if (this.browser.webkit) {
-                        tag = action.toLowerCase().substring(0, 3);
-                        if (this._isElement(_selEl, tag)) {
-                            _span = this._swapEl(this.currentElement[0], 'span', function(el) {
-                                el.className = 'yui-non';
-                            });
-                            this._selectNode(_span);
-                        } else {
-                            this._createCurrentElement(tag);
-                            var _sub = this._swapEl(this.currentElement[0], tag);
-                            this._selectNode(_sub);
-                            this.currentElement[0] = _sub;
-                        }
-                        exec = false;
-                    }
-                    break;
-                case 'formatblock':
-                    value = 'blockquote';
-                    if (this.browser.webkit) {
-                        this._createCurrentElement('blockquote');
-                        if (YAHOO.util.Dom.hasClass(this.currentElement[0].parentNode, 'yui-tag-blockquote')) {
-                            _span = this._getDoc().createElement('span');
-                            _span.innerHTML = this.currentElement[0].innerHTML;
-                            YAHOO.util.Dom.addClass(_span, 'yui-non');
-                            this.currentElement[0].parentNode.parentNode.replaceChild(_span, this.currentElement[0].parentNode);
-                        }
-                        exec = false;
-                    } else {
-                        var tar = Event.getTarget(this.currentEvent);
-                        if (this._isElement(tar, 'blockquote')) {
-                            _span = this._getDoc().createElement('span');
-                            _span.innerHTML = tar.innerHTML;
-                            YAHOO.util.Dom.addClass(_span, 'yui-non');
-                            tar.parentNode.replaceChild(_span, tar);
-                            exec = false;
-                        }
-                    }
-                    break;
-                case 'indent':
-                case 'outdent':
-                    if (this.browser.webkit || this.browser.ie || this.browser.gecko) {
-                        selEl = this._getSelectedElement();
-                        var _bq = null;
-                        if (this._isElement(selEl, 'blockquote')) {
-                            if (action == 'indent') {
-                                _bq = this._getDoc().createElement('blockquote');
-                                _bq.innerHTML = selEl.innerHTML;
-                                selEl.innerHTML = '';
-                                selEl.appendChild(_bq);
-                                this._selectNode(_bq);
-                            } else {
-                                var par = selEl.parentNode;
-                                if (this._isElement(selEl.parentNode, 'blockquote')) {
-                                    par.innerHTML = selEl.innerHTML;
-                                    this._selectNode(par);
-                                } else {
-                                    _span = this._getDoc().createElement('span');
-                                    _span.innerHTML = selEl.innerHTML;
-                                    YAHOO.util.Dom.addClass(_span, 'yui-non');
-                                    par.replaceChild(_span, selEl);
-                                    this._selectNode(_span);
-                                }
-                            }
-                        } else {
-                            if (action == 'indent') {
-                                this._createCurrentElement('blockquote');
-                                _bq = this._getDoc().createElement('blockquote');
-                                _bq.innerHTML = this.currentElement[0].innerHTML;
-                                this.currentElement[0].parentNode.replaceChild(_bq, this.currentElement[0]);
-                                this.currentElement[0] = _bq;
-                                this._selectNode(_bq);
-                            } else {
-                            }
-                        }
-                        exec = false;
-                    } else {
-                        //action = 'formatblock';
-                        value = 'blockquote';
-                    }
-                    break;
-                case 'insertorderedlist':
-                case 'insertunorderedlist':
-                    /**
-                    * @knownissue Safari 2.+ doesn't support ordered and unordered lists
-                    * @browser Safari 2.x
-                    * The issue with this workaround is that when applied to a set of text
-                    * that has BR's in it, Safari may or may not pick up the individual items as
-                    * list items. This is fixed in WebKit (Safari 3)
-                    */
-                    tag = ((action.toLowerCase() == 'insertorderedlist') ? 'ol' : 'ul');
-                    if ((this.browser.webkit && !this._getDoc().queryCommandEnabled(action))) {
-                        var list = null;
-                        selEl = this._getSelectedElement();
-                        var li = 0;
-                        if (this._isElement(selEl, 'li') && this._isElement(selEl.parentNode, tag)) {
-                            el = selEl.parentNode;
-                            list = this._getDoc().createElement('span');
-                            YAHOO.util.Dom.addClass(list, 'yui-non');
-                            str = '';
-                            var lis = el.getElementsByTagName('li');
-                            for (li = 0; li < lis.length; li++) {
-                                str += '<div>' + lis[li].innerHTML + '</div>';
-                            }
-                            list.innerHTML = str;
-                            this.currentElement[0] = el;
-                        } else {
-                            this._createCurrentElement(tag.toLowerCase());
-                            list = this._getDoc().createElement(tag);
-                            var els = this.currentElement;
-                            for (li = 0; li < this.currentElement.length; li++) {
-                                var newli = this._getDoc().createElement('li');
-                                newli.innerHTML = this.currentElement[li].innerHTML + '&nbsp;';
-                                list.appendChild(newli);
-                                if (li > 0) {
-                                    this.currentElement[li].parentNode.removeChild(this.currentElement[li]);
-                                }
-                            }
-                        }
-                        this.currentElement[0].parentNode.replaceChild(list, this.currentElement[0]);
-                        exec = false;
-                    } else {
-                        el = this._getSelectedElement();
-                        if (this._isElement(el, 'li') && this._isElement(el.parentNode, tag) || (this.browser.ie && this._isElement(this._getRange().parentElement, 'li'))) { //we are in a list..
-                            if (this.browser.ie) {
-                                str = '';
-                                var lis2 = el.parentNode.getElementsByTagName('li');
-                                for (var j = 0; j < lis2.length; j++) {
-                                    str += lis2[j].innerHTML + '<br>';
-                                }
-                                var newEl = this._getDoc().createElement('span');
-                                newEl.innerHTML = str;
-                                el.parentNode.parentNode.replaceChild(newEl, el.parentNode);
-                            } else {
-                                this.nodeChange();
-                                this._getDoc().execCommand(action, '', el.parentNode);
-                                this.nodeChange();
-                            }
-                            exec = false;
-                        }
-                        if (this.browser.opera) {
-                            var self = this;
-                            window.setTimeout(function() {
-                                var liso = self._getDoc().getElementsByTagName('li');
-                                for (var i = 0; i < liso.length; i++) {
-                                    if (liso[i].innerHTML.toLowerCase() == '<br>') {
-                                        liso[i].parentNode.parentNode.removeChild(liso[i].parentNode);
-                                    }
-                                }
-                            },30);
-                        }
-                        if (this.browser.ie && exec) {
-                            var html = '';
-                            if (this._getRange().html) {
-                                html = '<li>' + this._getRange().html+ '</li>';
-                            } else {
-                                html = '<li>' + this._getRange().text + '</li>';
-                            }
-
-                            this._getRange().pasteHTML('<' + tag + '>' + html + '</' + tag + '>');
-                            exec = false;
-                        }
-                    }
-                    break;
-                case 'fontname':
-                    selEl = this._getSelectedElement();
-                    this.currentFont = value;
-                    if (selEl && selEl.tagName && !this._hasSelection()) {
-                        YAHOO.util.Dom.setStyle(selEl, 'font-family', value);
-                        exec = false;
-                    }
-                    break;
-                case 'fontsize':
-                    if ((this.currentElement.length > 0) && (!this._hasSelection())) {
-                        YAHOO.util.Dom.setStyle(this.currentElement, 'fontSize', value);
-                    } else if (!this._isElement(this._getSelectedElement(), 'body')) {
-                        YAHOO.util.Dom.setStyle(this._getSelectedElement(), 'fontSize', value);
-                    } else {
-                        this._createCurrentElement('span', {'fontSize': value });
-                    }
-                    exec = false;
-                    break;
-            }
-            if (exec) {
-                try {
-                    this._getDoc().execCommand(action, false, value);
-                } catch(e) {
-                }
-            } else {
-            }
-            this.on('afterExecCommand', function() {
-                this.unsubscribeAll('afterExecCommand');
-                this.nodeChange();
-            });
-            this.fireEvent('afterExecCommand', { type: 'afterExecCommand', target: this });
-            
-        },
-        /**
-        * @private
-        * @method _swapEl
-        * @param {HTMLElement} el The element to swap with
-        * @param {String} tagName The tagname of the element that you wish to create
-        * @param {Function} callback (optional) A function to run on the element after it is created, but before it is replaced. An element reference is passed to this function.
-        * @description This function will create a new element in the DOM and populate it with the contents of another element. Then it will assume it's place.
-        */
-        _swapEl: function(el, tagName, callback) {
-            var _el = this._getDoc().createElement(tagName);
-            _el.innerHTML = el.innerHTML;
-            if (typeof callback == 'function') {
-                callback.call(this, _el);
-            }
-            el.parentNode.replaceChild(_el, el);
-            return _el;
-        },
-        /**
-        * @private
-        * @method _createCurrentElement
-        * @param {String} tagName (optional defaults to a) The tagname of the element that you wish to create
-        * @param {Object} tagStyle (optional) Object literal containing styles to apply to the new element.
-        * @description This is a work around for the various browser issues with execCommand. This method will run <code>execCommand('fontname', false, 'yui-tmp')</code> on the given selection.
-        * It will then search the document for an element with the font-family set to <strong>yui-tmp</strong> and replace that with another span that has other information in it, then assign the new span to the 
-        * <code>this.currentElement</code> array, so we now have element references to the elements that were just modified. At this point we can use standard DOM manipulation to change them as we see fit.
-        */
-        _createCurrentElement: function(tagName, tagStyle) {
-            tagName = ((tagName) ? tagName : 'a');
-            var sel = this._getSelection(),
-                tar = null,
-                el = [],
-                _doc = this._getDoc();
-            
-            if (this.currentFont) {
-                if (!tagStyle) {
-                    tagStyle = {};
-                }
-                tagStyle.fontFamily = this.currentFont;
-                this.currentFont = null;
-            }
-            this.currentElement = [];
-
-            var _elCreate = function() {
-                var el = null;
-                switch (tagName) {
-                    case 'h1':
-                    case 'h2':
-                    case 'h3':
-                    case 'h4':
-                    case 'h5':
-                    case 'h6':
-                        el = _doc.createElement(tagName);
-                        break;
-                    default:
-                        el = _doc.createElement('span');
-                        YAHOO.util.Dom.addClass(el, 'yui-tag-' + tagName);
-                        YAHOO.util.Dom.addClass(el, 'yui-tag');
-                        el.setAttribute('tag', tagName);
-
-                        for (var k in tagStyle) {
-                            if (YAHOO.util.Lang.hasOwnProperty(tagStyle, k)) {
-                                el.style[k] = tagStyle[k];
-                            }
-                        }
-                        break;
-                }
-                return el;
-            };
-
-            if (!this._hasSelection()) {
-                if (this._getDoc().queryCommandEnabled('insertimage')) {
-                    this._getDoc().execCommand('insertimage', false, 'yui-tmp-img');
-                    var imgs = this._getDoc().getElementsByTagName('img');
-                    for (var j = 0; j < imgs.length; j++) {
-                        if (imgs[j].getAttribute('src', 2) == 'yui-tmp-img') {
-                            el = _elCreate();
-                            imgs[j].parentNode.replaceChild(el, imgs[j]);
-                            this.currentElement[this.currentElement.length] = el;
-                        }
-                    }
-                } else {
-                    if (this.currentEvent) {
-                        tar = YAHOO.util.Event.getTarget(this.currentEvent);
-                    } else {
-                        //For Safari..
-                        tar = this._getDoc().body;                        
-                    }
-                }
-                if (tar) {
-                    /**
-                    * @knownissue
-                    * @browser Safari 2.x
-                    * @description The issue here is that we have no way of knowing where the cursor position is
-                    * inside of the iframe, so we have to place the newly inserted data in the best place that we can.
-                    */
-                    el = _elCreate();
-                    if (this._isElement(tar, 'body')) {
-                        tar.appendChild(el);
-                    } else if (tar.nextSibling) {
-                        tar.parentNode.insertBefore(el, tar.nextSibling);
-                    } else {
-                        tar.parentNode.appendChild(el);
-                    }
-                    //this.currentElement = el;
-                    this.currentElement[this.currentElement.length] = el;
-                    this.currentEvent = null;
-                    if (this.browser.webkit) {
-                        //Force Safari to focus the new element
-                        this._getSelection().setBaseAndExtent(el, 0, el, 0);
-                        if (this.browser.webkit3) {
-                            this._getSelection().collapseToStart();
-                        } else {
-                            this._getSelection().collapse(true);
-                        }
-                    }
-                }
-            } else {
-                //Force CSS Styling for this action...
-                this._setEditorStyle(true);
-                this._getDoc().execCommand('fontname', false, 'yui-tmp');
-                var _tmp = [];
-                /* TODO: This needs to be cleaned up.. */
-                var _tmp1 = this._getDoc().getElementsByTagName('font');
-                var _tmp2 = this._getDoc().getElementsByTagName(this._getSelectedElement().tagName);
-                var _tmp3 = this._getDoc().getElementsByTagName('span');
-                var _tmp4 = this._getDoc().getElementsByTagName('i');
-                var _tmp5 = this._getDoc().getElementsByTagName('b');
-                var _tmp6 = this._getDoc().getElementsByTagName(this._getSelectedElement().parentNode.tagName);
-                for (var e1 = 0; e1 < _tmp1.length; e1++) {
-                    _tmp[_tmp.length] = _tmp1[e1];
-                }
-                for (var e6 = 0; e6 < _tmp6.length; e6++) {
-                    _tmp[_tmp.length] = _tmp6[e6];
-                }
-                for (var e2 = 0; e2 < _tmp2.length; e2++) {
-                    _tmp[_tmp.length] = _tmp2[e2];
-                }
-                for (var e3 = 0; e3 < _tmp3.length; e3++) {
-                    _tmp[_tmp.length] = _tmp3[e3];
-                }
-                for (var e4 = 0; e4 < _tmp4.length; e4++) {
-                    _tmp[_tmp.length] = _tmp4[e4];
-                }
-                for (var e5 = 0; e5 < _tmp5.length; e5++) {
-                    _tmp[_tmp.length] = _tmp5[e5];
-                }
-                for (var i = 0; i < _tmp.length; i++) {
-                    if ((YAHOO.util.Dom.getStyle(_tmp[i], 'font-family') == 'yui-tmp') || (_tmp[i].face && (_tmp[i].face == 'yui-tmp'))) {
-                        el = _elCreate();
-                        el.innerHTML = _tmp[i].innerHTML;
-                        if (this._isElement(_tmp[i], 'ol') || (this._isElement(_tmp[i], 'ul'))) {
-                            var fc = _tmp[i].getElementsByTagName('li')[0];
-                            _tmp[i].style.fontFamily = 'inherit';
-                            fc.style.fontFamily = 'inherit';
-                            el.innerHTML = fc.innerHTML;
-                            fc.innerHTML = '';
-                            fc.appendChild(el);
-                            this.currentElement[this.currentElement.length] = el;
-                        } else if (this._isElement(_tmp[i], 'li')) {
-                            _tmp[i].innerHTML = '';
-                            _tmp[i].appendChild(el);
-                            _tmp[i].style.fontFamily = 'inherit';
-                            this.currentElement[this.currentElement.length] = el;
-                        } else {
-                            if (_tmp[i].parentNode) {
-                                _tmp[i].parentNode.replaceChild(el, _tmp[i]);
-                                this.currentElement[this.currentElement.length] = el;
-                                this.currentEvent = null;
-                                if (this.browser.webkit) {
-                                    //Force Safari to focus the new element
-                                    this._getSelection().setBaseAndExtent(el, 0, el, 0);
-                                    if (this.browser.webkit3) {
-                                        this._getSelection().collapseToStart();
-                                    } else {
-                                        this._getSelection().collapse(true);
-                                    }
-                                }
-                                if (this.browser.ie && tagStyle && tagStyle.fontSize) {
-                                    this._getSelection().empty();
-                                }
-                                if (this.browser.gecko) {
-                                    this._getSelection().collapseToStart();
-                                }
-                            }
-                        }
-                    }
-                }
-                var len = this.currentElement.length;
-                for (var e = 0; e < len; e++) {
-                    if ((e + 1) != len) { //Skip the last one in the list
-                        if (this.currentElement[e] && this.currentElement[e].nextSibling) {
-                            if (this._isElement(this.currentElement[e], 'br')) {
-                                this.currentElement[this.currentElement.length] = this.currentElement[e].nextSibling;
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        /**
-        * @method saveHTML
-        * @description Cleans the HTML with the cleanHTML method then places that string back into the textarea.
-        */
-        saveHTML: function() {
-            var html = this.cleanHTML();
-            this.get('element').value = html;
-            return html;
-        },
-        /**
-        * @method setEditorHTML
-        * @param {String} html The html content to load into the editor
-        * @description Loads HTML into the editors body
-        */
-        setEditorHTML: function(html) {
-            this._getDoc().body.innerHTML = html;
-            this.nodeChange();
-        },
-        /**
-        * @method getEditorHTML
-        * @description Gets the unprocessed/unfiltered HTML from the editor
-        */
-        getEditorHTML: function() {
-            return this._getDoc().body.innerHTML;
-        },
-        /**
-        * @method show
-        * @description This method needs to be called if the Editor was hidden (like in a TabView or Panel). It is used to reset the editor after being in a container that was set to display none.
-        */
-        show: function() {
-            if (this.browser.gecko) {
-                this._setDesignMode('on');
-                this._focusWindow();
-            }
-            if (this.browser.webkit) {
-                var self = this;
-                window.setTimeout(function() {
-                    self._setInitialContent.call(self);
-                }, 10);
-            }
-            //Adding this will close all other Editor window's when showing this one.
-            if (YAHOO.widget.EditorInfo.window.win && YAHOO.widget.EditorInfo.window.scope) {
-                YAHOO.widget.EditorInfo.window.scope.closeWindow.call(YAHOO.widget.EditorInfo.window.scope);
-            }
-            //Put the iframe back in place
-            this.get('iframe').setStyle('position', 'static');
-            this.get('iframe').setStyle('left', '');
-        },
-        /**
-        * @method hide
-        * @description This method needs to be called if the Editor is to be hidden (like in a TabView or Panel). It should be called to clear timeouts and close open editor windows.
-        */
-        hide: function() {
-            //Adding this will close all other Editor window's.
-            if (YAHOO.widget.EditorInfo.window.win && YAHOO.widget.EditorInfo.window.scope) {
-                YAHOO.widget.EditorInfo.window.scope.closeWindow.call(YAHOO.widget.EditorInfo.window.scope);
-            }
-            if (this._fixNodesTimer) {
-                clearTimeout(this._fixNodesTimer);
-                this._fixNodesTimer = null;
-            }
-            if (this._nodeChangeTimer) {
-                clearTimeout(this._nodeChangeTimer);
-                this._nodeChangeTimer = null;
-            }
-            this._lastNodeChange = 0;
-            //Move the iframe off of the screen, so that in containers with visiblity hidden, IE will not cover other elements.
-            this.get('iframe').setStyle('position', 'absolute');
-            this.get('iframe').setStyle('left', '-9999px');
-        },
-        /**
-        * @method cleanHTML
-        * @param {String} html The unfiltered HTML
-        * @description Process the HTML with a few regexes to clean it up and stabilize the output
-        * @returns {String} The filtered HTML
-        */
-        cleanHTML: function(html) {
-            //Start Filtering Output
-            //Begin RegExs..
-            if (!html) { 
-                html = this.getEditorHTML();
-            }
-            var markup = this.get('markup');
-            //Make some backups...
-            if (this.browser.webkit) {
-		        html = html.replace(/<br class="khtml-block-placeholder">/gi, '<YUI_BR>');
-		        html = html.replace(/<br class="webkit-block-placeholder">/gi, '<YUI_BR>');
-            }
-		    html = html.replace(/<br>/gi, '<YUI_BR>');
-		    html = html.replace(/<br\/>/gi, '<YUI_BR>');
-		    html = html.replace(/<br \/>/gi, '<YUI_BR>');
-		    html = html.replace(/<div><YUI_BR><\/div>/gi, '<YUI_BR>');
-		    html = html.replace(/<p>(&nbsp;|&#160;)<\/p>/g, '<YUI_BR>');            
-		    html = html.replace(/<p><br>&nbsp;<\/p>/gi, '<YUI_BR>');
-		    html = html.replace(/<p>&nbsp;<\/p>/gi, '<YUI_BR>');
-		    html = html.replace(/<img([^>]*)\/>/gi, '<YUI_IMG$1>');
-		    html = html.replace(/<img([^>]*)>/gi, '<YUI_IMG$1>');
-		    html = html.replace(/<ul([^>]*)>/gi, '<YUI_UL$1>');
-		    html = html.replace(/<\/ul>/gi, '<\/YUI_UL>');
-		    html = html.replace(/<blockquote([^>]*)>/gi, '<YUI_BQ$1>');
-		    html = html.replace(/<\/blockquote>/gi, '<\/YUI_BQ>');
-
-            //Convert b and i tags to strong and em tags
-            if ((markup == 'semantic') || (markup == 'xhtml')) {
-                html = html.replace(/<i([^>]*)>/gi, '<em$1>');
-                html = html.replace(/<\/i>/gi, '</em>');
-                html = html.replace(/<b([^>]*)>/gi, '<strong$1>');
-                html = html.replace(/<\/b>/gi, '</strong>');
-            }
-            
-            //Case Changing
-		    html = html.replace(/<font/gi, '<font');
-		    html = html.replace(/<\/font>/gi, '</font>');
-		    html = html.replace(/<span/gi, '<span');
-		    html = html.replace(/<\/span>/gi, '</span>');
-            if ((markup == 'semantic') || (markup == 'xhtml') || (markup == 'css')) {
-                html = html.replace(new RegExp('<font([^>]*)face="([^>]*)">(.*?)<\/font>', 'gi'), '<span $1 style="font-family: $2;">$3</span>');
-                html = html.replace(/<u/gi, '<span style="text-decoration: underline;"');
-                html = html.replace(/\/u>/gi, '/span>');
-                if (markup == 'css') {
-                    html = html.replace(/<em([^>]*)>/gi, '<i$1>');
-                    html = html.replace(/<\/em>/gi, '</i>');
-                    html = html.replace(/<strong([^>]*)>/gi, '<b$1>');
-                    html = html.replace(/<\/strong>/gi, '</b>');
-                    html = html.replace(/<b/gi, '<span style="font-weight: bold;"');
-                    html = html.replace(/\/b>/gi, '/span>');
-                    html = html.replace(/<i/gi, '<span style="font-style: italic;"');
-                    html = html.replace(/\/i>/gi, '/span>');
-                }
-                html = html.replace(/  /gi, ' '); //Replace all double spaces and replace with a single
-            } else {
-		        html = html.replace(/<u/gi, '<u');
-		        html = html.replace(/\/u>/gi, '/u>');
-            }
-		    html = html.replace(/<ol([^>]*)>/gi, '<ol$1>');
-		    html = html.replace(/\/ol>/gi, '/ol>');
-		    html = html.replace(/<li/gi, '<li');
-		    html = html.replace(/\/li>/gi, '/li>');
-
-            //Fix stuff we don't want
-	        html = html.replace(/<\/?(body|head|html)[^>]*>/gi, '');
-            //Fix last BR
-	        html = html.replace(/<YUI_BR>$/, '');
-            //Fix last BR in P
-	        html = html.replace(/<YUI_BR><\/p>/g, '</p>');
-            //Fix last BR in LI
-		    html = html.replace(/<YUI_BR><\/li>/gi, '</li>');
-
-            //Safari only regexes
-            if (this.browser.webkit) {
-                //<DIV><SPAN class="Apple-style-span" style="line-height: normal;">Test THis</SPAN></DIV>
-                html = html.replace(/Apple-style-span/gi, '');
-                html = html.replace(/style="line-height: normal;"/gi, '');
-                //Remove bogus LI's
-                html = html.replace(/<li><\/li>/gi, '');
-                html = html.replace(/<li> <\/li>/gi, '');
-                //Remove bogus DIV's
-                html = html.replace(/<div><\/div>/gi, '');
-                html = html.replace(/<div> <\/div>/gi, '');
-            }
-
-		    html = html.replace(/yui-tag-span/gi, '');
-		    html = html.replace(/yui-tag/gi, '');
-		    html = html.replace(/yui-non/gi, '');
-		    html = html.replace(/yui-img/gi, '');
-		    html = html.replace(/ tag="span"/gi, '');
-		    html = html.replace(/ class=""/gi, '');
-		    html = html.replace(/ style=""/gi, '');
-		    html = html.replace(/ class=" "/gi, '');
-		    html = html.replace(/ class="  "/gi, '');
-		    html = html.replace(/ target=""/gi, '');
-		    html = html.replace(/ title=""/gi, '');
-            for (var i = 0; i < 5; i++) {
-                html = html.replace(new RegExp('<span>(.*?)<\/span>', 'gi'), '$1');
-            }
-
-            if (this.browser.ie) {
-		        html = html.replace(/ class= /gi, '');
-		        html = html.replace(/ class= >/gi, '');
-		        html = html.replace(/_height="([^>])"/gi, '');
-		        html = html.replace(/_width="([^>])"/gi, '');
-            }
-            
-            //Replace our backups with the real thing
-            if (markup == 'xhtml') {
-		        html = html.replace(/<YUI_BR>/g, '<br/>');
-		        html = html.replace(/<YUI_IMG([^>]*)>/g, '<img $1/>');
-            } else {
-		        html = html.replace(/<YUI_BR>/g, '<br>');
-		        html = html.replace(/<YUI_IMG([^>]*)>/g, '<img $1>');
-            }
-		    html = html.replace(/<YUI_UL([^>]*)>/g, '<ul$1>');
-		    html = html.replace(/<\/YUI_UL>/g, '<\/ul>');
-		    html = html.replace(/<YUI_BQ([^>]*)>/g, '<blockquote$1>');
-		    html = html.replace(/<\/YUI_BQ>/g, '<\/blockquote>');
-
-            //Trim the output, removing whitespace from the beginning and end
-            html = html.replace(/^\s+/g, '').replace(/\s+$/g, '');
-
-            if (this.get('removeLineBreaks')) {
-                html = html.replace(/\n/g, '').replace(/\r/g, '');
-                html = html.replace(/  /gi, ' '); //Replace all double spaces and replace with a single
-            }
-            return html;
-        },
-        /**
-        * @method clearEditorDoc
-        * @description Clear the doc of the Editor
-        */
-        clearEditorDoc: function() {
-            this._getDoc().body.innerHTML = '&nbsp;';
-        },
-        /**
-        * @private
         * @method _renderPanel
         * @description Renders the panel used for Editor Windows to the document so we can start using it..
         * @returns {<a href="YAHOO.widget.Overlay.html">YAHOO.widget.Overlay</a>}
@@ -5552,6 +6897,7 @@ var Dom = YAHOO.util.Dom,
                     break;
                 }
             }
+            Dom.addClass(body, ((YAHOO.widget.Button && (this._defaultToolbar.buttonType == 'advanced')) ? 'good-button' : 'no-button'));
 
             var _note = document.createElement('h3');
             _note.className = 'yui-editor-skipheader';
@@ -5795,29 +7141,211 @@ var Dom = YAHOO.util.Dom,
             this._focusWindow();
             Event.removeListener(document, 'keypress', this._closeWindow);
         },
+        /* {{{  Command Overrides - These commands are only over written when we are using the advanced version */
         /**
-        * @method destroy
-        * @description Destroys the editor, all of it's elements and objects.
-        * @return {Boolean}
+        * @method cmd_heading
+        * @param value Value passed from the execCommand method
+        * @description This is an execCommand override method. It is called from execCommand when the execCommand('heading') is used.
         */
-        destroy: function() {
-            this.saveHTML();
-            this.toolbar.destroy();
-            this.setStyle('visibility', 'hidden');
-            this.setStyle('position', 'absolute');
-            this.setStyle('top', '-9999px');
-            this.setStyle('left', '-9999px');
-            var textArea = this.get('element');
-            this.get('element_cont').get('parentNode').replaceChild(textArea, this.get('element_cont').get('element'));
-            this.get('element_cont').get('element').innerHTML = '';
-            //Brutal Object Destroy
-            for (var i in this) {
-                if (Lang.hasOwnProperty(this, i)) {
-                    this[i] = null;
-                }
+        cmd_heading: function(value) {
+            var exec = true,
+                el = null,
+                action = 'heading',
+                _sel = this._getSelection(),
+                _selEl = this._getSelectedElement();
+
+            if (_selEl) {
+                _sel = _selEl;
             }
-            return true;
-        },        
+            
+            if (this.browser.ie) {
+                action = 'formatblock';
+            }
+            if (value == 'none') {
+                if ((_sel && _sel.tagName && (_sel.tagName.toLowerCase().substring(0,1) == 'h')) || (_sel && _sel.parentNode && _sel.parentNode.tagName && (_sel.parentNode.tagName.toLowerCase().substring(0,1) == 'h'))) {
+                    if (_sel.parentNode.tagName.toLowerCase().substring(0,1) == 'h') {
+                        _sel = _sel.parentNode;
+                    }
+                    if (this._isElement(_sel, 'html')) {
+                        return [false];
+                    }
+                    el = this._swapEl(_selEl, 'span', function(el) {
+                        el.className = 'yui-non';
+                    });
+                    this._selectNode(el);
+                    this.currentElement[0] = el;
+                }
+                exec = false;
+            } else {
+                if (this._isElement(_selEl, 'h1') || this._isElement(_selEl, 'h2') || this._isElement(_selEl, 'h3') || this._isElement(_selEl, 'h4') || this._isElement(_selEl, 'h5') || this._isElement(_selEl, 'h6')) {
+                    el = this._swapEl(_selEl, value);
+                    this._selectNode(el);
+                    this.currentElement[0] = el;
+                } else {
+                    this._createCurrentElement(value);
+                    this._selectNode(this.currentElement[0]);
+                }
+                exec = false;
+            }
+            return [exec, action];
+        },
+        /**
+        * @method cmd_hiddenelements
+        * @param value Value passed from the execCommand method
+        * @description This is an execCommand override method. It is called from execCommand when the execCommand('hiddenelements') is used.
+        */
+        cmd_hiddenelements: function(value) {
+            if (this._showingHiddenElements) {
+                //Don't auto highlight the hidden button
+                this._lastButton = null;
+                this._showingHiddenElements = false;
+                this.toolbar.deselectButton('hiddenelements');
+                Dom.removeClass(this._getDoc().body, this.CLASS_HIDDEN);
+            } else {
+                this._showingHiddenElements = true;
+                Dom.addClass(this._getDoc().body, this.CLASS_HIDDEN);
+                this.toolbar.selectButton('hiddenelements');
+            }
+            return [false];
+        },
+        /**
+        * @method cmd_removeformat
+        * @param value Value passed from the execCommand method
+        * @description This is an execCommand override method. It is called from execCommand when the execCommand('removeformat') is used.
+        */
+        cmd_removeformat: function(value) {
+            var exec = true;
+            /**
+            * @knownissue Remove Format issue
+            * @browser Safari 2.x
+            * @description There is an issue here with Safari, that it may not always remove the format of the item that is selected.
+            * Due to the way that Safari 2.x handles ranges, it is very difficult to determine what the selection holds.
+            * So here we are making the best possible guess and acting on it.
+            */
+            if (this.browser.webkit && !this._getDoc().queryCommandEnabled('removeformat')) {
+                var _txt = this._getSelection()+'';
+                this._createCurrentElement('span');
+                this.currentElement[0].className = 'yui-non';
+                this.currentElement[0].innerHTML = _txt;
+                for (var i = 1; i < this.currentElement.length; i++) {
+                    this.currentElement[i].parentNode.removeChild(this.currentElement[i]);
+                }
+                /*
+                this._createCurrentElement('span');
+                YAHOO.util.Dom.addClass(this.currentElement[0], 'yui-non');
+                var re= /<\S[^><]*>/g;
+                var str = this.currentElement[0].innerHTML.replace(re, '');
+                var _txt = this._getDoc().createTextNode(str);
+                this.currentElement[0].parentNode.parentNode.replaceChild(_txt, this.currentElement[0].parentNode);
+                */
+                
+                exec = false;
+            }
+            return [exec];
+        },
+        /**
+        * @method cmd_script
+        * @param action action passed from the execCommand method
+        * @param value Value passed from the execCommand method
+        * @description This is a combined execCommand override method. It is called from the cmd_superscript and cmd_subscript methods.
+        */
+        cmd_script: function(action, value) {
+            var exec = true, tag = action.toLowerCase().substring(0, 3),
+                _span = null, _selEl = this._getSelectedElement();
+
+            if (this.browser.webkit) {
+                if (this._isElement(_selEl, tag)) {
+                    _span = this._swapEl(this.currentElement[0], 'span', function(el) {
+                        el.className = 'yui-non';
+                    });
+                    this._selectNode(_span);
+                } else {
+                    this._createCurrentElement(tag);
+                    var _sub = this._swapEl(this.currentElement[0], tag);
+                    this._selectNode(_sub);
+                    this.currentElement[0] = _sub;
+                }
+                exec = false;
+            }
+            return exec;
+        },
+        /**
+        * @method cmd_superscript
+        * @param value Value passed from the execCommand method
+        * @description This is an execCommand override method. It is called from execCommand when the execCommand('superscript') is used.
+        */
+        cmd_superscript: function(value) {
+            return [this.cmd_script('superscript', value)];
+        },
+        /**
+        * @method cmd_subscript
+        * @param value Value passed from the execCommand method
+        * @description This is an execCommand override method. It is called from execCommand when the execCommand('subscript') is used.
+        */
+        cmd_subscript: function(value) {
+            return [this.cmd_script('subscript', value)];
+        },
+        /**
+        * @method cmd_indent
+        * @param value Value passed from the execCommand method
+        * @description This is an execCommand override method. It is called from execCommand when the execCommand('indent') is used.
+        */
+        cmd_indent: function(value) {
+            var exec = true, selEl = this._getSelectedElement(), _bq = null;
+
+            if (this.browser.webkit || this.browser.ie || this.browser.gecko) {
+                if (this._isElement(selEl, 'blockquote')) {
+                    _bq = this._getDoc().createElement('blockquote');
+                    _bq.innerHTML = selEl.innerHTML;
+                    selEl.innerHTML = '';
+                    selEl.appendChild(_bq);
+                    this._selectNode(_bq);
+                } else {
+                    this._createCurrentElement('blockquote');
+                    for (var i = 0; i < this.currentElement.length; i++) {
+                        _bq = this._getDoc().createElement('blockquote');
+                        _bq.innerHTML = this.currentElement[i].innerHTML;
+                        this.currentElement[i].parentNode.replaceChild(_bq, this.currentElement[i]);
+                        this.currentElement[i] = _bq;
+                    }
+                    this._selectNode(this.currentElement[0]);
+                }
+                exec = false;
+            } else {
+                value = 'blockquote';
+            }
+            return [exec, 'indent', value];
+        },
+        /**
+        * @method cmd_outdent
+        * @param value Value passed from the execCommand method
+        * @description This is an execCommand override method. It is called from execCommand when the execCommand('outdent') is used.
+        */
+        cmd_outdent: function(value) {
+            var exec = true, selEl = this._getSelectedElement(), _bq = null, _span = null;
+            if (this.browser.webkit || this.browser.ie || this.browser.gecko) {
+                selEl = this._getSelectedElement();
+                if (this._isElement(selEl, 'blockquote')) {
+                    var par = selEl.parentNode;
+                    if (this._isElement(selEl.parentNode, 'blockquote')) {
+                        par.innerHTML = selEl.innerHTML;
+                        this._selectNode(par);
+                    } else {
+                        _span = this._getDoc().createElement('span');
+                        _span.innerHTML = selEl.innerHTML;
+                        YAHOO.util.Dom.addClass(_span, 'yui-non');
+                        par.replaceChild(_span, selEl);
+                        this._selectNode(_span);
+                    }
+                } else {
+                }
+                exec = false;
+            } else {
+                value = 'blockquote';
+            }
+            return [exec, 'indent', value];
+        },
+        /* }}}*/        
         /**
         * @method toString
         * @description Returns a string representing the editor.
@@ -5831,170 +7359,6 @@ var Dom = YAHOO.util.Dom,
             return str;
         }
     });
-
-/**
-* @event toolbarLoaded
-* @description Event is fired during the render process directly after the Toolbar is loaded. Allowing you to attach events to the toolbar. See <a href="YAHOO.util.Element.html#addListener">Element.addListener</a> for more information on listening for this event.
-* @type YAHOO.util.CustomEvent
-*/
-/**
-* @event afterRender
-* @description Event is fired after the render process finishes. See <a href="YAHOO.util.Element.html#addListener">Element.addListener</a> for more information on listening for this event.
-* @type YAHOO.util.CustomEvent
-*/
-/**
-* @event editorContentLoaded
-* @description Event is fired after the editor iframe's document fully loads and fires it's onload event. From here you can start injecting your own things into the document. See <a href="YAHOO.util.Element.html#addListener">Element.addListener</a> for more information on listening for this event.
-* @type YAHOO.util.CustomEvent
-*/
-/**
-* @event editorMouseUp
-* @param {Event} ev The DOM Event that occured
-* @description Passed through HTML Event. See <a href="YAHOO.util.Element.html#addListener">Element.addListener</a> for more information on listening for this event.
-* @type YAHOO.util.CustomEvent
-*/
-/**
-* @event editorMouseDown
-* @param {Event} ev The DOM Event that occured
-* @description Passed through HTML Event. See <a href="YAHOO.util.Element.html#addListener">Element.addListener</a> for more information on listening for this event.
-* @type YAHOO.util.CustomEvent
-*/
-/**
-* @event editorDoubleClick
-* @param {Event} ev The DOM Event that occured
-* @description Passed through HTML Event. See <a href="YAHOO.util.Element.html#addListener">Element.addListener</a> for more information on listening for this event.
-* @type YAHOO.util.CustomEvent
-*/
-/**
-* @event editorKeyUp
-* @param {Event} ev The DOM Event that occured
-* @description Passed through HTML Event. See <a href="YAHOO.util.Element.html#addListener">Element.addListener</a> for more information on listening for this event.
-* @type YAHOO.util.CustomEvent
-*/
-/**
-* @event editorKeyPress
-* @param {Event} ev The DOM Event that occured
-* @description Passed through HTML Event. See <a href="YAHOO.util.Element.html#addListener">Element.addListener</a> for more information on listening for this event.
-* @type YAHOO.util.CustomEvent
-*/
-/**
-* @event editorKeyDown
-* @param {Event} ev The DOM Event that occured
-* @description Passed through HTML Event. See <a href="YAHOO.util.Element.html#addListener">Element.addListener</a> for more information on listening for this event.
-* @type YAHOO.util.CustomEvent
-*/
-/**
-* @event beforeNodeChange
-* @description Event fires at the beginning of the nodeChange process. See <a href="YAHOO.util.Element.html#addListener">Element.addListener</a> for more information on listening for this event.
-* @type YAHOO.util.CustomEvent
-*/
-/**
-* @event afterNodeChange
-* @description Event fires at the end of the nodeChange process. See <a href="YAHOO.util.Element.html#addListener">Element.addListener</a> for more information on listening for this event.
-* @type YAHOO.util.CustomEvent
-*/
-/**
-* @event beforeExecCommand
-* @description Event fires at the beginning of the execCommand process. See <a href="YAHOO.util.Element.html#addListener">Element.addListener</a> for more information on listening for this event.
-* @type YAHOO.util.CustomEvent
-*/
-/**
-* @event afterExecCommand
-* @description Event fires at the end of the execCommand process. See <a href="YAHOO.util.Element.html#addListener">Element.addListener</a> for more information on listening for this event.
-* @type YAHOO.util.CustomEvent
-*/
-/**
-* @event beforeOpenWindow
-* @param {<a href="YAHOO.widget.EditorWindow.html">EditorWindow</a>} win The EditorWindow object
-* @param {Overlay} panel The Overlay object that is used to create the window.
-* @description Event fires before an Editor Window is opened. See <a href="YAHOO.util.Element.html#addListener">Element.addListener</a> for more information on listening for this event.
-* @type YAHOO.util.CustomEvent
-*/
-/**
-* @event afterOpenWindow
-* @param {<a href="YAHOO.widget.EditorWindow.html">EditorWindow</a>} win The EditorWindow object
-* @param {Overlay} panel The Overlay object that is used to create the window.
-* @description Event fires after an Editor Window is opened. See <a href="YAHOO.util.Element.html#addListener">Element.addListener</a> for more information on listening for this event.
-* @type YAHOO.util.CustomEvent
-*/
-/**
-* @event closeWindow
-* @param {<a href="YAHOO.widget.EditorWindow.html">EditorWindow</a>} win The EditorWindow object
-* @description Event fires after an Editor Window is closed. See <a href="YAHOO.util.Element.html#addListener">Element.addListener</a> for more information on listening for this event.
-* @type YAHOO.util.CustomEvent
-*/
-/**
-* @event windowCMDOpen
-* @param {<a href="YAHOO.widget.EditorWindow.html">EditorWindow</a>} win The EditorWindow object
-* @param {Overlay} panel The Overlay object that is used to create the window.
-* @description Dynamic event fired when an <a href="YAHOO.widget.EditorWindow.html">EditorWindow</a> is opened.. The dynamic event is based on the name of the window. Example Window: createlink, opening this window would fire the windowcreatelinkOpen event. See <a href="YAHOO.util.Element.html#addListener">Element.addListener</a> for more information on listening for this event.
-* @type YAHOO.util.CustomEvent
-*/
-/**
-* @event windowCMDClose
-* @param {<a href="YAHOO.widget.EditorWindow.html">EditorWindow</a>} win The EditorWindow object
-* @param {Overlay} panel The Overlay object that is used to create the window.
-* @description Dynamic event fired when an <a href="YAHOO.widget.EditorWindow.html">EditorWindow</a> is closed.. The dynamic event is based on the name of the window. Example Window: createlink, opening this window would fire the windowcreatelinkClose event. See <a href="YAHOO.util.Element.html#addListener">Element.addListener</a> for more information on listening for this event.
-* @type YAHOO.util.CustomEvent
-*/
-
-/**
-     * @description Singleton object used to track the open window objects and panels across the various open editors
-     * @class EditorInfo
-     * @static
-    */
-    YAHOO.widget.EditorInfo = {
-        /**
-        * @private
-        * @property _instances
-        * @description A reference to all editors on the page.
-        * @type Object
-        */
-        _instances: {},
-        /**
-        * @private
-        * @property window
-        * @description A reference to the currently open window object in any editor on the page.
-        * @type Object <a href="YAHOO.widget.EditorWindow.html">YAHOO.widget.EditorWindow</a>
-        */
-        window: {},
-        /**
-        * @private
-        * @property panel
-        * @description A reference to the currently open panel in any editor on the page.
-        * @type Object <a href="YAHOO.widget.Overlay.html">YAHOO.widget.Overlay</a>
-        */
-        panel: null,
-        /**
-        * @method getEditorById
-        * @description Returns a reference to the Editor object associated with the given textarea
-        * @param {String/HTMLElement} id The id or reference of the textarea to return the Editor instance of
-        * @returns Object <a href="YAHOO.widget.Editor.html">YAHOO.widget.Editor</a>
-        */
-        getEditorById: function(id) {
-            if (!YAHOO.lang.isString(id)) {
-                //Not a string, assume a node Reference
-                id = id.id;
-            }
-            if (this._instances[id]) {
-                return this._instances[id];
-            }
-            return false;
-        },
-        /**
-        * @method toString
-        * @description Returns a string representing the EditorInfo.
-        * @return {String}
-        */
-        toString: function() {
-            var len = 0;
-            for (var i in this._instances) {
-                len++;
-            }
-            return 'Editor Info (' + len + ' registered intance' + ((len > 1) ? 's' : '') + ')';
-        }
-    };
-
     /**
      * @description Class to hold Window information between uses. We use the same panel to show the windows, so using this will allow you to configure a window before it is shown.
      * This is what you pass to Editor.openWindow();. These parameters will not take effect until the openWindow() is called in the editor.
@@ -6075,8 +7439,40 @@ var Dom = YAHOO.util.Dom,
             return 'Editor Window (' + this.name + ')';
         }
     };
+/**
+* @event beforeOpenWindow
+* @param {<a href="YAHOO.widget.EditorWindow.html">EditorWindow</a>} win The EditorWindow object
+* @param {Overlay} panel The Overlay object that is used to create the window.
+* @description Event fires before an Editor Window is opened. See <a href="YAHOO.util.Element.html#addListener">Element.addListener</a> for more information on listening for this event.
+* @type YAHOO.util.CustomEvent
+*/
+/**
+* @event afterOpenWindow
+* @param {<a href="YAHOO.widget.EditorWindow.html">EditorWindow</a>} win The EditorWindow object
+* @param {Overlay} panel The Overlay object that is used to create the window.
+* @description Event fires after an Editor Window is opened. See <a href="YAHOO.util.Element.html#addListener">Element.addListener</a> for more information on listening for this event.
+* @type YAHOO.util.CustomEvent
+*/
+/**
+* @event closeWindow
+* @param {<a href="YAHOO.widget.EditorWindow.html">EditorWindow</a>} win The EditorWindow object
+* @description Event fires after an Editor Window is closed. See <a href="YAHOO.util.Element.html#addListener">Element.addListener</a> for more information on listening for this event.
+* @type YAHOO.util.CustomEvent
+*/
+/**
+* @event windowCMDOpen
+* @param {<a href="YAHOO.widget.EditorWindow.html">EditorWindow</a>} win The EditorWindow object
+* @param {Overlay} panel The Overlay object that is used to create the window.
+* @description Dynamic event fired when an <a href="YAHOO.widget.EditorWindow.html">EditorWindow</a> is opened.. The dynamic event is based on the name of the window. Example Window: createlink, opening this window would fire the windowcreatelinkOpen event. See <a href="YAHOO.util.Element.html#addListener">Element.addListener</a> for more information on listening for this event.
+* @type YAHOO.util.CustomEvent
+*/
+/**
+* @event windowCMDClose
+* @param {<a href="YAHOO.widget.EditorWindow.html">EditorWindow</a>} win The EditorWindow object
+* @param {Overlay} panel The Overlay object that is used to create the window.
+* @description Dynamic event fired when an <a href="YAHOO.widget.EditorWindow.html">EditorWindow</a> is closed.. The dynamic event is based on the name of the window. Example Window: createlink, opening this window would fire the windowcreatelinkClose event. See <a href="YAHOO.util.Element.html#addListener">Element.addListener</a> for more information on listening for this event.
+* @type YAHOO.util.CustomEvent
+*/
 
-
-    
 })();
-YAHOO.register("editor", YAHOO.widget.Editor, {version: "2.3.1", build: "541"});
+YAHOO.register("editor", YAHOO.widget.Editor, {version: "2.4.0", build: "733"});

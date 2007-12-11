@@ -1,12 +1,12 @@
 <!-- ************** -->
 
-<div class="block">
-<h2>System Settings</h2>
-<br>
-
 <form action="{devblocks_url}{/devblocks_url}" method="post">
 <input type="hidden" name="c" value="config">
 <input type="hidden" name="a" value="saveSettings">
+
+<div class="block">
+<h2>System Settings</h2>
+<br>
 
 <b>Helpdesk Title:</b><br>
 <input type="text" name="title" value="{$settings->get('helpdesk_title')|escape:"html"}" size="64"><br>
@@ -19,7 +19,6 @@
 <!-- 
 <b>Timezone:</b><br>
 <select name="timezone">
-	<option value="">---</option>
 </select><br>
  -->
 

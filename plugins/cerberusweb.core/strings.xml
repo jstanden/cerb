@@ -156,6 +156,11 @@
 				<seg>last name</seg>
 			</tuv>
 		</tu>
+		<tu tuid='address.phone'>
+			<tuv xml:lang="en">
+				<seg>phone</seg>
+			</tuv>
+		</tu>
 		<tu tuid='address.contact_org_id'>
 			<tuv xml:lang="en">
 				<seg>organization</seg>

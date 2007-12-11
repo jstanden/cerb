@@ -87,10 +87,15 @@
 </textarea>
 {else}
 <textarea name="content" rows="20" cols="80" id="reply_content" class="reply" style="width:98%;border:1px solid rgb(180,180,180);padding:5px;">
-On {$message->created_date|date_format}, {$headers.from} wrote:
+{if !empty($signature) && $signature_pos}
+
+{$signature}{*Sig above, 2 lines necessary whitespace*}
+
+
+{/if}On {$message->created_date|date_format}, {$headers.from} wrote:
 {$message->getContent()|trim|escape|indent:1:'> '}
 
-{if !empty($signature)}{$signature}{/if}
+{if !empty($signature) && !$signature_pos}{$signature}{/if}{*Sig below*}
 </textarea>
 {/if}
 		</td>

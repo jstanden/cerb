@@ -60,16 +60,24 @@
 			
 			<b>Default E-mail Signature:</b><br>
 			<textarea name="default_signature" rows="4" cols="76">{$settings->get('default_signature')|escape:"html"}</textarea><br>
-				E-mail Tokens: 
-				<select name="" onchange="this.form.default_signature.value += this.options[this.selectedIndex].value;scrollElementToBottom(this.form.default_signature);this.selectedIndex=0;this.form.default_signature.focus();">
-					<option value="">-- choose --</option>
-					<optgroup label="Worker">
-						<option value="#first_name#">#first_name#</option>
-						<option value="#last_name#">#last_name#</option>
-						<option value="#title#">#title#</option>
-					</optgroup>
-				</select>
+			E-mail Tokens: 
+			<select name="" onchange="this.form.default_signature.value += this.options[this.selectedIndex].value;scrollElementToBottom(this.form.default_signature);this.selectedIndex=0;this.form.default_signature.focus();">
+				<option value="">-- choose --</option>
+				<optgroup label="Worker">
+					<option value="#first_name#">#first_name#</option>
+					<option value="#last_name#">#last_name#</option>
+					<option value="#title#">#title#</option>
+				</optgroup>
+			</select>
 			<br> 
+			<br>
+			
+			<b>Insert E-mail Signatures:</b><br>
+			<select name="default_signature_pos">
+				<option value="0" {if $settings->get('default_signature_pos',0)==0}selected{/if}>Below quoted text in reply</option>
+				<option value="1" {if $settings->get('default_signature_pos',0)==1}selected{/if}>Above quoted text in reply</option>
+			</select>
+			<br>
 			<br>
 			
 			<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>

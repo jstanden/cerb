@@ -34,7 +34,6 @@
 			</class>
 			<params>
 				<param key="uri" value="simulator" />
-				<param key="title" value="Simulator" />
 				<param key="menutitle" value="Simulator" />
 			</params>
 		</extension>

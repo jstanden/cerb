@@ -23,7 +23,6 @@
 		</class>
 		<params>
 			<param key="uri" value="reports" />
-			<param key="title" value="Reports" />
 			<param key="menutitle" value="Reports" />
 		</params>
 	</extension>

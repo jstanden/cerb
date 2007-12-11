@@ -2,7 +2,7 @@
 Copyright (c) 2007, Yahoo! Inc. All rights reserved.
 Code licensed under the BSD License:
 http://developer.yahoo.net/yui/license.txt
-version: 2.3.1
+version: 2.4.0
 */
 .yui-overlay,
 .yui-panel-container {
@@ -30,10 +30,6 @@ version: 2.3.1
     overflow: auto;
 }
 
-.yui-panel-container select {
-    _visibility: inherit;
-}
-
 /* 
     PLEASE NOTE:
 
@@ -51,14 +47,15 @@ version: 2.3.1
 
 */
 
-.masked select, 
-.drag select, 
+.masked select,
+.drag select,
 .hide-select select {
-
-    _visibility: hidden;   
-
+    _visibility: hidden;
 }
 
+.yui-panel-container select {
+    _visibility: inherit;
+}
 
 /*
 
@@ -135,6 +132,19 @@ PLEASE NOTE:
 
 }
 
+/* 
+   Workaround for Safari 2.x - the yui-force-redraw class is applied, and then removed when
+   the Panel's content changes, to force Safari 2.x to redraw the underlay.
+   We attempt to choose a CSS property which has no visual impact when added,
+   removed.
+*/
+.yui-panel-container.shadow .underlay.yui-force-redraw {
+    padding-bottom: 1px;
+}
+
+.yui-effect-fade .underlay {
+    display:none;
+}
 
 /*
     PLEASE NOTE: The <DIV> element used for a Tooltip's shadow is appended 

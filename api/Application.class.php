@@ -48,7 +48,7 @@
  * 		and Joe Geck.
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-define("APP_BUILD", 448);
+define("APP_BUILD", 455);
 define("APP_MAIL_PATH", realpath(APP_PATH . '/storage/mail') . DIRECTORY_SEPARATOR);
 
 include_once(APP_PATH . "/api/DAO.class.php");
@@ -464,11 +464,12 @@ class CerberusApplication extends DevblocksApplication {
    	                        'spam' => $rule->do_spam,
    	                        'closed' => $rule->do_status,
    	                        'team' => $rule->do_move,
+   	                        'assign' => $rule->do_assign,
    	                    );
    	                    $action->run(array($ticket_id));
-   	                    
+
    	                    DAO_TeamRoutingRule::update($rule->id, array(
-   	                        DAO_TeamRoutingRule::POS => intval($rule->pos) + 1
+   	                        DAO_TeamRoutingRule::POS => ++$rule->pos
    	                    ));
    	                    
    	                    return $rule;
@@ -525,6 +526,7 @@ class CerberusSettings {
 	const DEFAULT_REPLY_FROM = 'default_reply_from'; 
 	const DEFAULT_REPLY_PERSONAL = 'default_reply_personal'; 
 	const DEFAULT_SIGNATURE = 'default_signature'; 
+	const DEFAULT_SIGNATURE_POS = 'default_signature_pos'; 
 	const HELPDESK_TITLE = 'helpdesk_title'; 
 	const HELPDESK_LOGO_URL = 'helpdesk_logo_url'; 
 	const SMTP_HOST = 'smtp_host'; 
@@ -545,6 +547,7 @@ class CerberusSettings {
 		self::DEFAULT_REPLY_FROM => '',
 		self::DEFAULT_REPLY_PERSONAL => '',
 		self::DEFAULT_SIGNATURE => '',
+		self::DEFAULT_SIGNATURE_POS => 0,
 		self::HELPDESK_TITLE => 'Cerberus Helpdesk :: Team-based E-mail Management',
 		self::HELPDESK_LOGO_URL => '',
 		self::SMTP_HOST => 'localhost',

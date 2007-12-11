@@ -2,7 +2,7 @@
 Copyright (c) 2007, Yahoo! Inc. All rights reserved.
 Code licensed under the BSD License:
 http://developer.yahoo.net/yui/license.txt
-version: 2.3.1
+version: 2.4.0
 */
 /**
  * Provides Attribute configurations.
@@ -964,4 +964,4 @@ var _registerHTMLAttr = function(key, map) {
 YAHOO.augment(YAHOO.util.Element, AttributeProvider);
 })();
 
-YAHOO.register("element", YAHOO.util.Element, {version: "2.3.1", build: "541"});
+YAHOO.register("element", YAHOO.util.Element, {version: "2.4.0", build: "733"});

@@ -1,5 +1,18 @@
 TreeView - Release Notes
 
+2.4.0
+  * added TreeView getNodeByElement, which will return a YAHOO.widget.Node 
+    reference for any ancestor HTML element of a node in the tree.
+  * Added 'title' property to TextNode
+  * Added treeview/tooltip example
+  * Passing a null or invalid animation type to setExpandAnim/setCollapseAnim
+    will turn off animation for the tree.
+  * Spacer style set to 12px width to fix layout inside overflow containers.
+  * Fixed removeAll() when executed on the root node.
+  * TextNode's href property is now escaped.
+  * The 'expanded' property in a node's constructor now works for dynamically
+    loaded nodes.
+
 2.3.1
 
   * The "expand" event no longer fires twice for dynamically loaded nodes.

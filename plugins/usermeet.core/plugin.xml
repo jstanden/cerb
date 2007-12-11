@@ -49,7 +49,6 @@
 			</class>
 			<params>
 				<param key="uri" value="community" />
-				<param key="title" value="Communities" />
 				<param key="menutitle" value="Communities" />
 			</params>
 		</extension>

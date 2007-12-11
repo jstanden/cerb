@@ -8,6 +8,6 @@
 {include file="file:$path/configuration/general/general_settings.tpl.php"}
 <br>
 
-<script>
+<script type="text/javascript">
 	var configAjax = new cConfigAjax();
 </script>

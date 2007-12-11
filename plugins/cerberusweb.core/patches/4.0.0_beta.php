@@ -78,6 +78,11 @@ if(!isset($columns['LAST_NAME'])) {
     $datadict->ExecuteSQLArray($sql);
 }
 
+if(!isset($columns['PHONE'])) {
+    $sql = $datadict->AddColumnSQL('address', "phone C(32) DEFAULT '' NOTNULL");
+    $datadict->ExecuteSQLArray($sql);
+}
+
 if(!isset($columns['CONTACT_ORG_ID'])) {
     $sql = $datadict->AddColumnSQL('address', "contact_org_id I4 DEFAULT 0 NOTNULL");
     $datadict->ExecuteSQLArray($sql);
@@ -458,7 +463,13 @@ if(!isset($tables['sla'])) {
 }
 
 // `team_routing_rule` ========================
+$columns = $datadict->MetaColumns('team_routing_rule');
 $indexes = $datadict->MetaIndexes('team_routing_rule',false);
+
+if(!isset($columns['DO_ASSIGN'])) {
+    $sql = $datadict->AddColumnSQL('team_routing_rule', "do_assign I8 DEFAULT '0' NOTNULL");
+    $datadict->ExecuteSQLArray($sql);
+}
 
 if(!isset($indexes['team_id'])) {
     $sql = $datadict->CreateIndexSQL('team_id','team_routing_rule','team_id');

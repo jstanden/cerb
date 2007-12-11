@@ -57,6 +57,7 @@ class Model_TeamRoutingRule {
     public $do_move = '';
     public $do_status = '';
     public $do_spam = '';
+    public $do_assign = '';
     
     function getPatternAsRegexp() {
 		$pattern = str_replace(array('*'),'__any__', $this->pattern);
@@ -389,7 +390,7 @@ class C4_TicketView extends C4_AbstractView {
 		
 		$active_dashboard_id = $visit->get(CerberusVisit::KEY_DASHBOARD_ID, 0);
 		
-		$workers = DAO_Worker::getList(); // [TODO] cache ::getAll()
+		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 		
 		$teams = DAO_Group::getAll();
@@ -401,7 +402,7 @@ class C4_TicketView extends C4_AbstractView {
 		$team_categories = DAO_Bucket::getTeams();
 		$tpl->assign('team_categories', $team_categories);
 		
-		$slas = DAO_Sla::getWhere(); // [TODO] getAll cache
+		$slas = DAO_Sla::getAll();
 		$tpl->assign('slas', $slas);
 		
 		// Undo?
@@ -470,7 +471,7 @@ class C4_TicketView extends C4_AbstractView {
 				break;
 				
 			case SearchFields_Ticket::TICKET_SLA_ID:
-				$slas = DAO_Sla::getWhere();
+				$slas = DAO_Sla::getAll();
 				$tpl->assign('slas', $slas);
 				$tpl->display('file:' . $tpl_path . 'tickets/search/criteria/ticket_sla.tpl.php');
 				break;
@@ -485,7 +486,7 @@ class C4_TicketView extends C4_AbstractView {
 				
 			case SearchFields_Ticket::TICKET_NEXT_WORKER_ID:
 			case SearchFields_Ticket::TICKET_LAST_WORKER_ID:
-				$workers = DAO_Worker::getList();
+				$workers = DAO_Worker::getAll();
 				$tpl->assign('workers', $workers);
 				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__worker.tpl.php');
 				break;
@@ -513,8 +514,7 @@ class C4_TicketView extends C4_AbstractView {
 		switch($field) {
 			case SearchFields_Ticket::TICKET_LAST_WORKER_ID:
 			case SearchFields_Ticket::TICKET_NEXT_WORKER_ID:
-				static $workers = null;
-				if(null == $workers) $workers = DAO_Worker::getList(); // cache
+				$workers = DAO_Worker::getAll();
 				$strings = array();
 				
 				foreach($values as $val) {
@@ -558,7 +558,7 @@ class C4_TicketView extends C4_AbstractView {
 				break;
 				
 			case SearchFields_Ticket::TICKET_SLA_ID:
-				$slas = DAO_Sla::getWhere();
+				$slas = DAO_Sla::getAll();
 				$strings = array();
 				
 				foreach($values as $val) {
@@ -889,6 +889,7 @@ class C4_AddressView extends C4_AbstractView {
 			SearchFields_Address::FIRST_NAME,
 			SearchFields_Address::LAST_NAME,
 			SearchFields_Address::ORG_NAME,
+			SearchFields_Address::PHONE,
 			SearchFields_Address::SLA_ID
 		);
 	}
@@ -909,7 +910,7 @@ class C4_AddressView extends C4_AbstractView {
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 		
-		$slas = DAO_Sla::getWhere(); // [TODO] getAll cache
+		$slas = DAO_Sla::getAll();
 		$tpl->assign('slas', $slas);
 		
 		$tpl->cache_lifetime = "0";
@@ -926,10 +927,11 @@ class C4_AddressView extends C4_AbstractView {
 			case SearchFields_Address::FIRST_NAME:
 			case SearchFields_Address::LAST_NAME:
 			case SearchFields_Address::ORG_NAME:
+			case SearchFields_Address::PHONE:
 				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__string.tpl.php');
 				break;
 			case SearchFields_Address::SLA_ID:
-				$slas = DAO_Sla::getWhere(); // [TODO] from cache
+				$slas = DAO_Sla::getAll();
 				$tpl->assign('slas', $slas);
 				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/contacts/addresses/criteria/sla.tpl.php');
 				break;
@@ -945,7 +947,7 @@ class C4_AddressView extends C4_AbstractView {
 		
 		switch($field) {
 			case SearchFields_Address::SLA_ID:
-				$slas = DAO_Sla::getWhere();
+				$slas = DAO_Sla::getAll();
 				$strings = array();
 				
 				foreach($values as $val) {
@@ -990,6 +992,7 @@ class C4_AddressView extends C4_AbstractView {
 			case SearchFields_Address::FIRST_NAME:
 			case SearchFields_Address::LAST_NAME:
 			case SearchFields_Address::ORG_NAME:
+			case SearchFields_Address::PHONE:
 				// force wildcards if none used on a LIKE
 				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE) 
 					&& false === (strpos($value,'*'))) {
@@ -1099,7 +1102,7 @@ class C4_ContactOrgView extends C4_AbstractView {
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 		
-		$slas = DAO_Sla::getWhere(); // [TODO] getAll cache
+		$slas = DAO_Sla::getAll();
 		$tpl->assign('slas', $slas);
 
 		$tpl->cache_lifetime = "0";
@@ -1122,7 +1125,7 @@ class C4_ContactOrgView extends C4_AbstractView {
 				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__string.tpl.php');
 				break;
 			case SearchFields_ContactOrg::SLA_ID:
-				$slas = DAO_Sla::getWhere(); // [TODO] from cache
+				$slas = DAO_Sla::getAll();
 				$tpl->assign('slas', $slas);
 				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/contacts/orgs/criteria/sla.tpl.php');
 				break;
@@ -1138,7 +1141,7 @@ class C4_ContactOrgView extends C4_AbstractView {
 		
 		switch($field) {
 			case SearchFields_ContactOrg::SLA_ID:
-				$slas = DAO_Sla::getWhere();
+				$slas = DAO_Sla::getAll();
 				$strings = array();
 				
 				foreach($values as $val) {
@@ -1311,6 +1314,7 @@ class Model_DashboardViewAction {
 					break;
 				
 				case 'next_worker':
+				case 'assign':
 					$fields[DAO_Ticket::NEXT_WORKER_ID] = intval($v);
 					break;
 				

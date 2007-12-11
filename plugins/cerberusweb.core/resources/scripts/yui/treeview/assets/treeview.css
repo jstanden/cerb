@@ -2,7 +2,7 @@
 Copyright (c) 2007, Yahoo! Inc. All rights reserved.
 Code licensed under the BSD License:
 http://developer.yahoo.net/yui/license.txt
-version: 2.3.1
+version: 2.4.0
 */
 /* first or middle sibling, no children */
 .ygtvtn {
@@ -100,4 +100,4 @@ version: 2.3.1
     background-color: white; /* workaround for IE font smoothing bug */
 }
 
-.ygtvspacer { height: 22px; width: 18px; }
+.ygtvspacer { height: 22px; width: 12px; }
