@@ -1509,6 +1509,7 @@ class SearchFields_Message implements IDevblocksSearchFields {
 
 class DAO_MessageNote extends DevblocksORMHelper {
     const ID = 'id';
+    const TYPE = 'type';
     const MESSAGE_ID = 'message_id';
     const WORKER_ID = 'worker_id';
     const CREATED = 'created';
@@ -1519,8 +1520,8 @@ class DAO_MessageNote extends DevblocksORMHelper {
     	
     	$id = $db->GenID('message_note_seq');
     	
-    	$sql = sprintf("INSERT INTO message_note (id,message_id,worker_id,created,content) ".
-    		"VALUES (%d,0,0,%d,'')",
+    	$sql = sprintf("INSERT INTO message_note (id,type,message_id,worker_id,created,content) ".
+    		"VALUES (%d,0,0,0,%d,'')",
     		$id,
     		time()
     	);
@@ -1532,7 +1533,7 @@ class DAO_MessageNote extends DevblocksORMHelper {
     static function getByMessageId($message_id) {
     	$db = DevblocksPlatform::getDatabaseService();
     	
-    	$sql = sprintf("SELECT id,message_id,worker_id,created,content ".
+    	$sql = sprintf("SELECT id,type,message_id,worker_id,created,content ".
     		"FROM message_note ".
     		"WHERE message_id = %d ".
     		"ORDER BY id ASC",
@@ -1546,7 +1547,7 @@ class DAO_MessageNote extends DevblocksORMHelper {
     static function getByTicketId($ticket_id) {
     	$db = DevblocksPlatform::getDatabaseService();
     	
-    	$sql = sprintf("SELECT n.id,n.message_id,n.worker_id,n.created,n.content ".
+    	$sql = sprintf("SELECT n.id,n.type,n.message_id,n.worker_id,n.created,n.content ".
     		"FROM message_note n ".
     		"INNER JOIN message m ON (m.id=n.message_id) ".
     		"WHERE m.ticket_id = %d ".
@@ -1562,7 +1563,7 @@ class DAO_MessageNote extends DevblocksORMHelper {
     	if(!is_array($ids)) $ids = array($ids);
     	$db = DevblocksPlatform::getDatabaseService();
     	
-    	$sql = sprintf("SELECT n.id,n.message_id,n.worker_id,n.created,n.content ".
+    	$sql = sprintf("SELECT n.id,n.type,n.message_id,n.worker_id,n.created,n.content ".
     		"FROM message_note n ".
     		"WHERE n.id IN (%s) ".
     		"ORDER BY n.id ASC",
@@ -1584,6 +1585,7 @@ class DAO_MessageNote extends DevblocksORMHelper {
     	while(!$rs->EOF) {
     		$object = new Model_MessageNote();
     		$object->id = intval($rs->fields['id']);
+    		$object->type = intval($rs->fields['type']);
     		$object->message_id = intval($rs->fields['message_id']);
     		$object->created = intval($rs->fields['created']);
     		$object->worker_id = intval($rs->fields['worker_id']);

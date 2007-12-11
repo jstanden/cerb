@@ -1573,7 +1573,12 @@ class CerberusMessage {
 };
 
 class Model_MessageNote {
+	const TYPE_NOTE = 0;
+	const TYPE_WARNING = 1;
+	const TYPE_ERROR = 2;
+	
 	public $id;
+	public $type;
 	public $message_id;
 	public $created;
 	public $worker_id;

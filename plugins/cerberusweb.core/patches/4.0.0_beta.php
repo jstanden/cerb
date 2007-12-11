@@ -311,6 +311,19 @@ if(!isset($tables['message_note'])) {
     $datadict->ExecuteSQLArray($sql);
 }
 
+$columns = $datadict->MetaColumns('message_note');
+$indexes = $datadict->MetaIndexes('message_note',false);
+
+if(!isset($columns['TYPE'])) {
+    $sql = $datadict->AddColumnSQL('message_note','type I1 DEFAULT 0 NOTNULL');
+    $datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($indexes['type'])) {
+    $sql = $datadict->CreateIndexSQL('type','message_note','type');
+    $datadict->ExecuteSQLArray($sql);
+}
+
 // `message` ========================
 $columns = $datadict->MetaColumns('message');
 
