@@ -67,6 +67,7 @@
 	{/if}
 </table>
 
-<input type="button" value="{$translate->_('common.save_changes')}" onclick="genericPanel.hide();genericAjaxPost('formAddressPeek', 'view{$view_id}')">
+<button type="submit" onclick="genericPanel.hide();genericAjaxPost('formAddressPeek', 'view{$view_id}')"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')}</button>
+<button type="button" onclick="genericPanel.hide();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> {$translate->_('common.close')|capitalize}</button>
 <br>
 </form>

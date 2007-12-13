@@ -645,8 +645,12 @@ class C4_TicketView extends C4_AbstractView {
 			case SearchFields_Ticket::TICKET_CREATED_DATE:
 			case SearchFields_Ticket::TICKET_UPDATED_DATE:
 			case SearchFields_Ticket::TICKET_DUE_DATE:
-				@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','yesterday');
-				@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','today');
+				@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','');
+				@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
+				
+				if(empty($from)) $from = 0;
+				if(empty($to)) $to = 'today';
+				
 				$criteria = new DevblocksSearchCriteria($field,$oper,array($from,$to));
 				break;
 				

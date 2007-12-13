@@ -15,7 +15,7 @@
 <h2>With:</h2>
 
 <label><input type="radio" name="filter" value="" onclick="toggleDiv('bulkUpdateLearn','none');toggleDiv('categoryFilterPanelSender','none');toggleDiv('categoryFilterPanelSubject','none');" {if empty($ticket_ids)}checked{/if}> Whole list</label> 
-<label><input type="radio" name="filter" value="" onclick="toggleDiv('bulkUpdateLearn','none');toggleDiv('categoryFilterPanelSender','none');toggleDiv('categoryFilterPanelSubject','none');"> Only checked</label> 
+<label><input type="radio" name="filter" value="checks" onclick="toggleDiv('bulkUpdateLearn','none');toggleDiv('categoryFilterPanelSender','none');toggleDiv('categoryFilterPanelSubject','none');"> Only checked</label> 
 <label><input type="radio" name="filter" value="sender" onclick="toggleDiv('bulkUpdateLearn','block');toggleDiv('categoryFilterPanelSender','block');toggleDiv('categoryFilterPanelSubject','none');" {if !empty($ticket_ids)}checked{/if}> Similar senders</label>
 <label><input type="radio" name="filter" value="subject" onclick="toggleDiv('bulkUpdateLearn','block');toggleDiv('categoryFilterPanelSender','none');toggleDiv('categoryFilterPanelSubject','block');"> Similar subjects</label>
 <br>

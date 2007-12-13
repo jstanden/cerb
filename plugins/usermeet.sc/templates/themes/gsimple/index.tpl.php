@@ -102,10 +102,12 @@
 				 {/foreach}
 			</td>
 			<td align="right" nowrap="nowrap" valign="top">
+				{if $show_search}
 				<form action="{devblocks_url}{/devblocks_url}" method="post">
 				<input type="hidden" name="a" value="doSearch">
 				<b style="color:rgb(20,120,20);">search help:</b> <input name="query" value="" size="16" type="text"><button type="submit"><img src="{devblocks_url}c=resource&p=usermeet.sc&f=images/data_view.gif{/devblocks_url}" align="top"></button>
 				</form>
+				{/if}
 			</td>
 		</tr>
 	</tbody>

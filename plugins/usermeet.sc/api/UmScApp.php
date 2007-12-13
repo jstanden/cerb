@@ -89,6 +89,10 @@ class UmScApp extends Extension_UsermeetTool {
 		
         $allow_subjects = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_ALLOW_SUBJECTS, 0);
 		$tpl->assign('allow_subjects', $allow_subjects);
+
+		$sFnrSources = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_FNR_SOURCES, '');
+		$fnr_sources = !empty($sFnrSources) ? unserialize($sFnrSources) : array();
+		$tpl->assign('show_search', !empty($fnr_sources) ? true : false);
 		
         $theme = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_THEME, self::DEFAULT_THEME);
         if(!is_dir($tpl_path . 'themes/'.$theme))

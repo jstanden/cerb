@@ -196,6 +196,7 @@
 			{/if}
 			
 			<!-- Search Box -->
+			{if $show_search}
 			<form action="{devblocks_url}{/devblocks_url}" method="post">
 			<input type="hidden" name="a" value="doSearch">
 			<table cellpadding="0" cellspacing="0" border="0" class="box" id="searchBox">
@@ -210,6 +211,7 @@
 				</tr>
 			</table>
 			</form>
+			{/if}
 			
 		</td>
 		

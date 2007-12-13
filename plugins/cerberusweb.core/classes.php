@@ -1565,8 +1565,9 @@ class ChTicketsPage extends CerberusPageExtension {
 	    @$move_to = DevblocksPlatform::importGPC($_REQUEST['move_to'],'string');
 	    
 	    if(empty($ticket_ids)) {
-	    	echo ' ';
-	    	return;
+		    $view = C4_AbstractViewLoader::getView('',$view_id);
+		    $view->render();
+		    return;
 	    }
 	    
         $visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
@@ -1963,7 +1964,6 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$team = DevblocksPlatform::importGPC($_POST['team'],'string','');
 		@$next_worker = DevblocksPlatform::importGPC($_POST['next_worker'],'string','');
 
-		$ticket_ids = CerberusApplication::parseCsvString($ticket_id_str);
         $subjects = CerberusApplication::parseCrlfString($subjects);
         $senders = CerberusApplication::parseCrlfString($senders);
 		
@@ -1979,10 +1979,16 @@ class ChTicketsPage extends CerberusPageExtension {
 			$do['next_worker'] = $next_worker;
 		
 	    $data = array();
-	    if($filter == 'sender')
+	    $ticket_ids = array();
+	    
+	    if($filter == 'sender') {
 	        $data = $senders;
-	    elseif($filter == 'subject')
+		} elseif($filter == 'subject') {
 	        $data = $subjects;
+	    } elseif($filter == 'checks') {
+	    	$filter = ''; // bulk update just looks for $ticket_ids == !null
+	        $ticket_ids = CerberusApplication::parseCsvString($ticket_id_str);
+	    }
 		
 	    // [TODO] Reimplement 'always'
 		$view->doBulkUpdate($filter, '', $data, $do, $ticket_ids, $always);
@@ -2868,6 +2874,10 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	
 	// Ajax
 	function ajaxDeleteRoutingAction() {
+		if(DEMO_MODE) {
+			return;
+		}
+		
 		$worker = CerberusApplication::getActiveWorker();
 		if(!$worker || !$worker->is_superuser) {
 			echo "Access denied.";
@@ -2951,6 +2961,11 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$worker = CerberusApplication::getActiveWorker();
 		if(!$worker || !$worker->is_superuser) {
 			echo "Access denied.";
+			return;
+		}
+		
+		if(DEMO_MODE) {
+			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','sla')));
 			return;
 		}
 		
@@ -4713,7 +4728,6 @@ class ChDisplayPage extends CerberusPageExtension {
 		);
 	    return new Model_Activity('activity.display_ticket',array($link));
 	}
-	
 	
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();

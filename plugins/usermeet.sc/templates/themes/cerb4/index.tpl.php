@@ -242,6 +242,7 @@
 					
 					<!-- Sidebar -->
 					<td id="sidebar" width="0%" nowrap="nowrap" valign="top">
+						{if $show_search}
 						<table cellpadding="0" cellspacing="0" border="0">
 							<tr>
 								<td class="header">
@@ -265,6 +266,8 @@
 								<td class="footer"></td>
 							</tr>
 						</table>
+						{/if}{*search*}
+						
 					</td>
 				</tr>
 			</table>
