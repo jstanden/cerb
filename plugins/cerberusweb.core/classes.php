@@ -5015,6 +5015,8 @@ class ChDisplayPage extends CerberusPageExtension {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		@$is_forward = DevblocksPlatform::importGPC($_REQUEST['forward'],'integer',0);
 
+		$settings = CerberusSettings::getInstance();
+		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		$tpl->assign('id',$id);
@@ -5056,7 +5058,6 @@ class ChDisplayPage extends CerberusPageExtension {
 	            $signature = $ticket_team->signature;
 			} else {
 			    // [TODO] Default signature
-		        $settings = CerberusSettings::getInstance();
 		        $signature = $settings->get(CerberusSettings::DEFAULT_SIGNATURE);
 			}
 
