@@ -1,8 +1,8 @@
 <div id="tourHeaderMenu"></div>
 <table cellpadding="0" cellspacing="0" border="0" width="100%" class="headerMenu">
 	<tr>
+		{assign var=rows value=0}
 		{if !empty($visit)}
-			{assign var=rows value=0}
 			{foreach from=$pages item=m}
 				{if !empty($m->manifest->params.menutitle)}
 					{math assign=rows equation="x+1" x=$rows}
