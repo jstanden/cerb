@@ -2168,9 +2168,15 @@ class ChConfigurationPage extends CerberusPageExtension  {
 				$smtp_host = $settings->get(CerberusSettings::SMTP_HOST,'');
 				$smtp_port = $settings->get(CerberusSettings::SMTP_PORT,25);
 				$smtp_auth_enabled = $settings->get(CerberusSettings::SMTP_AUTH_ENABLED,false);
-				$smtp_auth_user = $settings->get(CerberusSettings::SMTP_AUTH_USER,'');
-				$smtp_auth_pass = $settings->get(CerberusSettings::SMTP_AUTH_PASS,''); 
-				$smtp_enc = $settings->get(CerberusSettings::SMTP_ENCRYPTION_TYPE,'None');
+				if ($smtp_auth_enabled) {
+					$smtp_auth_user = $settings->get(CerberusSettings::SMTP_AUTH_USER,'');
+					$smtp_auth_pass = $settings->get(CerberusSettings::SMTP_AUTH_PASS,''); 
+					$smtp_enc = $settings->get(CerberusSettings::SMTP_ENCRYPTION_TYPE,'None');
+				} else {
+					$smtp_auth_user = '';
+					$smtp_auth_pass = ''; 
+					$smtp_enc = 'None';
+				}
 				
 				// [JAS]: Test the provided SMTP settings and give form feedback
 				if(!empty($test_connection) && !empty($smtp_host)) {
@@ -2182,9 +2188,9 @@ class ChConfigurationPage extends CerberusPageExtension  {
 						
 						if(!empty($smtp_host))
 							$settings->set(CerberusSettings::SMTP_HOST, $smtp_host);
-						if(!empty($smtp_auth_user))
+						if(!empty($smtp_auth_user) || $smtp_auth_user == '')
 							$settings->set(CerberusSettings::SMTP_AUTH_USER, $smtp_auth_user);
-						if(!empty($smtp_auth_pass))
+						if(!empty($smtp_auth_pass) || $smtp_auth_user == '')
 							$settings->set(CerberusSettings::SMTP_AUTH_PASS, $smtp_auth_pass);
 						if(!empty($smtp_enc))
 							$settings->set(CerberusSettings::SMTP_ENCRYPTION_TYPE, $smtp_enc);
