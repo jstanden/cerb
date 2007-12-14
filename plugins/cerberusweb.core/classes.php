@@ -1100,59 +1100,66 @@ class ChTicketsPage extends CerberusPageExtension {
 
 		if(empty($subject)) $subject = '(no subject)';
 		
-		$sendTo = new Swift_RecipientList();
-		$sendTo->addTo($to);
-		
-		$sendFrom = new Swift_Address($from, $personal);
-		
-		$mail_service = DevblocksPlatform::getMailService();
-		$mailer = $mail_service->getMailer();
-		$email = $mail_service->createMessage();
-
-		// cc
-		$ccs = array();
-		if(!empty($cc) && null != ($ccList = CerberusApplication::parseCsvString($cc))) {
-			foreach($ccList as $ccAddy) {
-				$sendTo->addCc($ccAddy);
-				$ccs[] = new Swift_Address($ccAddy);
+		$mail_succeeded = true;
+		try {
+			$sendTo = new Swift_RecipientList();
+			$sendTo->addTo($to);
+			
+			$sendFrom = new Swift_Address($from, $personal);
+			
+			$mail_service = DevblocksPlatform::getMailService();
+			$mailer = $mail_service->getMailer();
+			$email = $mail_service->createMessage();
+	
+			// cc
+			$ccs = array();
+			if(!empty($cc) && null != ($ccList = CerberusApplication::parseCsvString($cc))) {
+				foreach($ccList as $ccAddy) {
+					$sendTo->addCc($ccAddy);
+					$ccs[] = new Swift_Address($ccAddy);
+				}
+				if(!empty($ccs))
+					$email->setCc($ccs);
 			}
-			if(!empty($ccs))
-				$email->setCc($ccs);
-		}
-		
-		// bcc
-		if(!empty($bcc) && null != ($bccList = CerberusApplication::parseCsvString($bcc))) {
-			foreach($bccList as $bccAddy) {
-				$sendTo->addBcc($bccAddy);
+			
+			// bcc
+			if(!empty($bcc) && null != ($bccList = CerberusApplication::parseCsvString($bcc))) {
+				foreach($bccList as $bccAddy) {
+					$sendTo->addBcc($bccAddy);
+				}
 			}
-		}
-		
-		$email->setFrom($sendFrom);
-		$email->setSubject($subject);
-		$email->generateId();
-		$email->headers->set('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
-		
-		$email->attach(new Swift_Message_Part($content));
-		
-		// [TODO] These attachments should probably save to the DB
-		
-		// Mime Attachments
-		if (is_array($files) && !empty($files)) {
-			foreach ($files['tmp_name'] as $idx => $file) {
-				if(empty($file) || empty($files['name'][$idx]))
-					continue;
-
-				$email->attach(new Swift_Message_Attachment(
-					new Swift_File($file), $files['name'][$idx], $files['type'][$idx]));
+			
+			$email->setFrom($sendFrom);
+			$email->setSubject($subject);
+			$email->generateId();
+			$email->headers->set('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
+			
+			$email->attach(new Swift_Message_Part($content));
+			
+			// [TODO] These attachments should probably save to the DB
+			
+			// Mime Attachments
+			if (is_array($files) && !empty($files)) {
+				foreach ($files['tmp_name'] as $idx => $file) {
+					if(empty($file) || empty($files['name'][$idx]))
+						continue;
+	
+					$email->attach(new Swift_Message_Attachment(
+						new Swift_File($file), $files['name'][$idx], $files['type'][$idx]));
+				}
 			}
+			
+			// [TODO] Allow seperated addresses (parseRfcAddress)
+	//		$mailer->log->enable();
+			if(!$mailer->send($email, $sendTo, $sendFrom)) {
+				// [TODO] Report when the message wasn't sent. (Even with the exception trapping, we should still notify the user.)
+				$mail_succeeded = false;
+			}
+	//		$mailer->log->dump();
+		} catch (Exception $e) {
+			// tag mail as failed, add note to message after message gets created			
+			$mail_succeeded = false;
 		}
-		
-		// [TODO] Allow seperated addresses (parseRfcAddress)
-//		$mailer->log->enable();
-		if(!$mailer->send($email, $sendTo, $sendFrom)) {
-			// [TODO] Report when the message wasn't sent.
-		}
-//		$mailer->log->dump();
 		
 		$worker = CerberusApplication::getActiveWorker();
 		$fromAddressInst = CerberusApplication::hashLookupAddress($from, true);
@@ -1222,6 +1229,18 @@ class ChTicketsPage extends CerberusPageExtension {
 		if(null != ($reqAddressInst = CerberusApplication::hashLookupAddress($to, true))) {
 			$reqAddressId = $reqAddressInst->id;
 			DAO_Ticket::createRequester($reqAddressId, $ticket_id);
+		}
+		
+		// if email sending failed, add an error note to the message
+		if ($mail_succeeded === false) {
+			$fields = array(
+				DAO_MessageNote::MESSAGE_ID => $message_id,
+				DAO_MessageNote::CREATED => time(),
+				DAO_MessageNote::WORKER_ID => 0,
+				DAO_MessageNote::CONTENT => 'Exception thrown while sending email: ' . $e->getMessage(),
+				DAO_MessageNote::TYPE => Model_MessageNote::TYPE_ERROR,
+			);
+			DAO_MessageNote::create($fields);
 		}
 		
 		//DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','compose')));
@@ -2547,34 +2566,39 @@ class ChConfigurationPage extends CerberusPageExtension  {
 				    	
 						$password = CerberusApplication::generatePassword(8);
 				    	
-				        $mail_service = DevblocksPlatform::getMailService();
-				        $mailer = $mail_service->getMailer();
-				        $mail = $mail_service->createMessage();
-				        
-				        $sendTo = new Swift_Address($email, $first_name . $last_name);
-				        $sendFrom = new Swift_Address($replyFrom, $replyPersonal);
-				        
-				        $mail->setSubject('Your new helpdesk login information!');
-				        $mail->generateId();
-				        $mail->headers->set('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
-				        
-					    $body = sprintf("Your new helpdesk login information is below:\r\n".
-							"\r\n".
-					        "URL: %s\r\n".
-					        "Login: %s\r\n".
-					        "Password: %s\r\n".
-					        "\r\n".
-					        "You should change your password from Preferences after logging in for the first time.\r\n".
-					        "\r\n",
-						        $url->write('',true),
-						        $email,
-						        $password
-					    );
-				        
-					    $mail->attach(new Swift_Message_Part($body));
-
-						if(!$mailer->send($mail, $sendTo, $sendFrom)) {
-							// [TODO] Report when the message wasn't sent.
+						try {
+					        $mail_service = DevblocksPlatform::getMailService();
+					        $mailer = $mail_service->getMailer();
+					        $mail = $mail_service->createMessage();
+					        
+					        $sendTo = new Swift_Address($email, $first_name . $last_name);
+					        $sendFrom = new Swift_Address($replyFrom, $replyPersonal);
+					        
+					        $mail->setSubject('Your new helpdesk login information!');
+					        $mail->generateId();
+					        $mail->headers->set('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
+					        
+						    $body = sprintf("Your new helpdesk login information is below:\r\n".
+								"\r\n".
+						        "URL: %s\r\n".
+						        "Login: %s\r\n".
+						        "Password: %s\r\n".
+						        "\r\n".
+						        "You should change your password from Preferences after logging in for the first time.\r\n".
+						        "\r\n",
+							        $url->write('',true),
+							        $email,
+							        $password
+						    );
+					        
+						    $mail->attach(new Swift_Message_Part($body));
+	
+							if(!$mailer->send($mail, $sendTo, $sendFrom)) {
+								throw new Exception('Password notification email failed to send.');
+							}
+						} catch (Exception $e) {
+							// [TODO] need to report to the admin when the password email doesn't send.  The try->catch
+							// will keep it from killing php, but the password will be empty and the user will never get an email.
 						}
 				    }
 					
@@ -5031,6 +5055,8 @@ class ChDisplayPage extends CerberusPageExtension {
 
 		$settings = CerberusSettings::getInstance();
 		
+		$settings = CerberusSettings::getInstance();
+		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		$tpl->assign('id',$id);
@@ -5550,6 +5576,9 @@ class ChSignInPage extends CerberusPageExtension {
                 switch($step) {
                     default:
                     case "step1":
+                    	if ((@$failed = array_shift($stack)) == "failed") {
+                    		$tpl->assign('failed',true);
+                    	}
                         $tpl->display("file:${path}/login/forgot1.tpl.php");
                         break;
                     
@@ -5679,35 +5708,39 @@ class ChSignInPage extends CerberusPageExtension {
 	    
 	    $_SESSION[self::KEY_FORGOT_EMAIL] = $email;
 	    
-	    $mail_service = DevblocksPlatform::getMailService();
-	    $mailer = $mail_service->getMailer();
-		$mail = $mail_service->createMessage();
-	    
-	    $code = CerberusApplication::generatePassword(10);
-	    
-	    $_SESSION[self::KEY_FORGOT_SENTCODE] = $code;
-	    $settings = CerberusSettings::getInstance();
-		$from = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM);
-	    $personal = $settings->get(CerberusSettings::DEFAULT_REPLY_PERSONAL);
-		
-		$sendTo = new Swift_Address($email);
-		$sendFrom = new Swift_Address($from, $personal);
-	    
-		// Headers
-		$mail->setTo($sendTo);
-		$mail->setFrom($sendFrom);
-		$mail->setSubject("Confirm helpdesk password recovery.");
-		$mail->generateId();
-		$mail->headers->set('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
-
-		$mail->attach(new Swift_Message_Part(
-			sprintf("This confirmation code will allow you to reset your helpdesk login:\n\n%s",
-	        	$code
-	    )));
-		
-		if(!$mailer->send($mail, $sendTo, $sendFrom)) {
-			// [TODO] Report when the message wasn't sent.
-		}
+	    try {
+		    $mail_service = DevblocksPlatform::getMailService();
+		    $mailer = $mail_service->getMailer();
+			$mail = $mail_service->createMessage();
+		    
+		    $code = CerberusApplication::generatePassword(10);
+		    
+		    $_SESSION[self::KEY_FORGOT_SENTCODE] = $code;
+		    $settings = CerberusSettings::getInstance();
+			$from = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM);
+		    $personal = $settings->get(CerberusSettings::DEFAULT_REPLY_PERSONAL);
+			
+			$sendTo = new Swift_Address($email);
+			$sendFrom = new Swift_Address($from, $personal);
+		    
+			// Headers
+			$mail->setTo($sendTo);
+			$mail->setFrom($sendFrom);
+			$mail->setSubject("Confirm helpdesk password recovery.");
+			$mail->generateId();
+			$mail->headers->set('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
+	
+			$mail->attach(new Swift_Message_Part(
+				sprintf("This confirmation code will allow you to reset your helpdesk login:\n\n%s",
+		        	$code
+		    )));
+			
+			if(!$mailer->send($mail, $sendTo, $sendFrom)) {
+				throw new Exception('Password Forgot confirmation email failed to send.');
+			}
+	    } catch (Exception $e) {
+	    	DevblocksPlatform::redirect(new DevblocksHttpResponse(array('login','forgot','step1','failed')));
+	    }
 	    
 	    DevblocksPlatform::redirect(new DevblocksHttpResponse(array('login','forgot','step2')));
 	}
@@ -5986,6 +6019,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 		));
 		
 		// Email the confirmation code to the address
+		// [TODO] This function can return false, and we need to do something different if it does.
 		CerberusMail::quickSend(
 			$to, 
 			sprintf("New E-mail Address Confirmation (%s)", 

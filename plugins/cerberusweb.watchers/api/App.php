@@ -40,102 +40,114 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 			return true;
 		}
 		
-		$mail_service = DevblocksPlatform::getMailService();
-		$mailer = $mail_service->getMailer();
-
-		$settings = CerberusSettings::getInstance();
-		$default_from = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM, '');
-		$default_personal = $settings->get(CerberusSettings::DEFAULT_REPLY_PERSONAL, '');
-		
-//		$group_settings = DAO_GroupSettings::getSettings(); // Cache
-		
-		$sender = DAO_Address::get($message->address_id);
-
-		$sender_email = strtolower($sender->email);
-		$sender_split = explode('@', $sender_email);
-
-		if(!is_array($sender_split) || count($sender_split) != 2)
-			return;
-
-		// If return-path is blank
-		if(isset($headers['return-path']) && $headers['return-path'] == '<>')
-			return;
+		// The whole flipping Swift section needs wrapped to catch exceptions
+		try {
+			$mail_service = DevblocksPlatform::getMailService();
+			$mailer = $mail_service->getMailer();
+	
+			$settings = CerberusSettings::getInstance();
+			$default_from = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM, '');
+			$default_personal = $settings->get(CerberusSettings::DEFAULT_REPLY_PERSONAL, '');
 			
-		// Ignore bounces
-		if($sender_split[1]=="postmaster" || $sender_split[1] == "mailer-daemon")
-			return;
-		
-		// Ignore autoresponses autoresponses
-		if(isset($headers['auto-submitted']) && $headers['auto-submitted'] != 'no')
-			return;
+	//		$group_settings = DAO_GroupSettings::getSettings(); // Cache
 			
-		// Headers
-		//==========
-
-		$send_to = array();
-		
-		@$notifications = DAO_WorkerMailForward::getWhere(sprintf("%s = %d",
-			DAO_WorkerMailForward::GROUP_ID,
-			$ticket->team_id
-		));
+			$sender = DAO_Address::get($message->address_id);
+	
+			$sender_email = strtolower($sender->email);
+			$sender_split = explode('@', $sender_email);
+	
+			if(!is_array($sender_split) || count($sender_split) != 2)
+				return;
+	
+			// If return-path is blank
+			if(isset($headers['return-path']) && $headers['return-path'] == '<>')
+				return;
 				
-		// Build mailing list
-		foreach($notifications as $n) { /* @var $n Model_WorkerMailForward */
-			// Don't send from ourselves to ourselves
-			if(!$is_inbound && $n->worker_id == $send_worker_id) {
-				continue;
-			}
+			// Ignore bounces
+			if($sender_split[1]=="postmaster" || $sender_split[1] == "mailer-daemon")
+				return;
+			
+			// Ignore autoresponses autoresponses
+			if(isset($headers['auto-submitted']) && $headers['auto-submitted'] != 'no')
+				return;
 				
-			if(!isset($n->group_id) || !isset($n->bucket_id))
-				continue;
+			// Headers
+			//==========
+	
+			$send_to = array();
 			
-			if($n->group_id == $ticket->team_id && ($n->bucket_id==-1 || $n->bucket_id==$ticket->category_id)) {
-				// Event checking
-				if(($is_inbound && ($n->event=='i' || $n->event=='io'))
-					|| (!$is_inbound && ($n->event=='o' || $n->event=='io'))
-					|| ($is_inbound && $n->event=='r' && $ticket->next_worker_id==$n->worker_id)) {
-					$send_to[$n->email] = true;
-				}
-			}
-    	}
-    	
-    	// Send copies
-		if(is_array($send_to) && !empty($send_to))
-		foreach($send_to as $to => $bool) {
-			// Proxy the message
-			$rcpt_to = new Swift_RecipientList();
-			$a_rcpt_to = array();
-			$mail_from = new Swift_Address($sender->email);
-			$rcpt_to->addTo($to);
-			$a_rcpt_to = new Swift_Address($to);
-			
-			$mail = $mail_service->createMessage();
-			$mail->setTo($a_rcpt_to);
-			$mail->setFrom($mail_from);
-			$mail->setReplyTo($default_from);
-			$mail->setSubject(sprintf("[%s #%s]: %s",
-				($is_inbound ? 'inbound' : 'outbound'),
-				$ticket->mask,
-				$ticket->subject
+			@$notifications = DAO_WorkerMailForward::getWhere(sprintf("%s = %d",
+				DAO_WorkerMailForward::GROUP_ID,
+				$ticket->team_id
 			));
+					
+			// Build mailing list
+			foreach($notifications as $n) { /* @var $n Model_WorkerMailForward */
+				// Don't send from ourselves to ourselves
+				if(!$is_inbound && $n->worker_id == $send_worker_id) {
+					continue;
+				}
+					
+				if(!isset($n->group_id) || !isset($n->bucket_id))
+					continue;
+				
+				if($n->group_id == $ticket->team_id && ($n->bucket_id==-1 || $n->bucket_id==$ticket->category_id)) {
+					// Event checking
+					if(($is_inbound && ($n->event=='i' || $n->event=='io'))
+						|| (!$is_inbound && ($n->event=='o' || $n->event=='io'))
+						|| ($is_inbound && $n->event=='r' && $ticket->next_worker_id==$n->worker_id)) {
+						$send_to[$n->email] = true;
+					}
+				}
+	    	}
+	    	
+	    	// Send copies
+			if(is_array($send_to) && !empty($send_to))
+			foreach($send_to as $to => $bool) {
+				// Proxy the message
+				$rcpt_to = new Swift_RecipientList();
+				$a_rcpt_to = array();
+				$mail_from = new Swift_Address($sender->email);
+				$rcpt_to->addTo($to);
+				$a_rcpt_to = new Swift_Address($to);
+				
+				$mail = $mail_service->createMessage();
+				$mail->setTo($a_rcpt_to);
+				$mail->setFrom($mail_from);
+				$mail->setReplyTo($default_from);
+				$mail->setSubject(sprintf("[%s #%s]: %s",
+					($is_inbound ? 'inbound' : 'outbound'),
+					$ticket->mask,
+					$ticket->subject
+				));
+				
+				if(false !== (@$msgid = $headers['message-id'])) {
+					$mail->headers->set('Message-Id',$msgid);
+				}
+				
+				if(false !== (@$in_reply_to = $headers['in-reply-to'])) {
+				    $mail->headers->set('References', $in_reply_to);
+				    $mail->headers->set('In-Reply-To', $in_reply_to);
+				}
+				
+				$mail->headers->set('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
+				$mail->attach(new Swift_Message_Part($message->getContent()));
+				
+				// [TODO] Send attachments with watcher
 			
-			if(false !== (@$msgid = $headers['message-id'])) {
-				$mail->headers->set('Message-Id',$msgid);
+				$mailer->send($mail,$rcpt_to,$mail_from);
 			}
-			
-			if(false !== (@$in_reply_to = $headers['in-reply-to'])) {
-			    $mail->headers->set('References', $in_reply_to);
-			    $mail->headers->set('In-Reply-To', $in_reply_to);
-			}
-			
-			$mail->headers->set('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
-			$mail->attach(new Swift_Message_Part($message->getContent()));
-			
-			// [TODO] Send attachments with watcher
-			
-			$mailer->send($mail,$rcpt_to,$mail_from);
 		}
-    	
+		catch(Exception $e) {
+			$fields = array(
+				DAO_MessageNote::MESSAGE_ID => $message_id,
+				DAO_MessageNote::CREATED => time(),
+				DAO_MessageNote::WORKER_ID => 0,
+				DAO_MessageNote::CONTENT => 'Exception thrown while sending watcher email: ' . $e->getMessage(),
+				DAO_MessageNote::TYPE => Model_MessageNote::TYPE_ERROR,
+			);
+			DAO_MessageNote::create($fields);
+		}
     }
 };
 

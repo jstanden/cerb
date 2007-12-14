@@ -381,7 +381,7 @@ class DAO_Worker extends DevblocksORMHelper {
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 
 		// Clear assigned workers
-		$sql = sprintf("UPDATE ticket SET next_worker_id = 0 WHERE worker_id = %d",
+		$sql = sprintf("UPDATE ticket SET next_worker_id = 0 WHERE next_worker_id = %d",
 			$id
 		);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */

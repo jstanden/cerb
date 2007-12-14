@@ -452,46 +452,53 @@ class UmScCoreController extends Extension_UmScController {
 		$from_personal = $settings->get(CerberusSettings::DEFAULT_REPLY_PERSONAL,"Support Dept.");
 		
 		$url = DevblocksPlatform::getUrlService();
-		$mail_service = DevblocksPlatform::getMailService();
-		$mailer = $mail_service->getMailer();
-		
-		$code = CerberusApplication::generatePassword(8);
-		
-		if(!empty($email) && null != ($addy = DAO_Address::lookupAddress($email, false))) {
-			$fields = array(
-				DAO_AddressAuth::CONFIRM => $code
-			);
-			DAO_AddressAuth::update($addy->id, $fields);
+		try {
+			$mail_service = DevblocksPlatform::getMailService();
+			$mailer = $mail_service->getMailer();
 			
-		} else {
-			$tpl->assign('register_error', sprintf("'%s' is not a registered e-mail address.",$email));
+			$code = CerberusApplication::generatePassword(8);
+			
+			if(!empty($email) && null != ($addy = DAO_Address::lookupAddress($email, false))) {
+				$fields = array(
+					DAO_AddressAuth::CONFIRM => $code
+				);
+				DAO_AddressAuth::update($addy->id, $fields);
+				
+			} else {
+				$tpl->assign('register_error', sprintf("'%s' is not a registered e-mail address.",$email));
+				DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',$this->getPortal(),'register','forgot')));
+				return;
+			}
+			
+			$message = $mail_service->createMessage();
+			$message->setTo($email);
+			$send_from = new Swift_Address($from, $from_personal);
+			$message->setFrom($send_from);
+			$message->setSubject("Did you forget your support password?");
+			$message->setBody(sprintf("This is a message to confirm your 'forgot password' request at:\r\n".
+				"%s\r\n".
+				"\r\n".
+				"Your confirmation code is: %s\r\n".
+				"\r\n".
+				"If you've closed the browser window, you can continue by visiting:\r\n".
+				"%s\r\n".
+				"\r\n".
+				"Thanks!\r\n".
+				"%s\r\n",
+				$url->write('',true),
+				$code,
+				$url->write('c=register&a=forgot2',true),
+				$from_personal
+			));
+			$message->headers->set('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
+			
+			$mailer->send($message,$email,$send_from);
+		}
+		catch (Exception $e) {
+			$tpl->assign('register_error', 'Fatal error encountered while sending forgot password confirmation code.');
 			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',$this->getPortal(),'register','forgot')));
 			return;
 		}
-		
-		$message = $mail_service->createMessage();
-		$message->setTo($email);
-		$send_from = new Swift_Address($from, $from_personal);
-		$message->setFrom($send_from);
-		$message->setSubject("Did you forget your support password?");
-		$message->setBody(sprintf("This is a message to confirm your 'forgot password' request at:\r\n".
-			"%s\r\n".
-			"\r\n".
-			"Your confirmation code is: %s\r\n".
-			"\r\n".
-			"If you've closed the browser window, you can continue by visiting:\r\n".
-			"%s\r\n".
-			"\r\n".
-			"Thanks!\r\n".
-			"%s\r\n",
-			$url->write('',true),
-			$code,
-			$url->write('c=register&a=forgot2',true),
-			$from_personal
-		));
-		$message->headers->set('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
-		
-		$mailer->send($message,$email,$send_from);
 		
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',$this->getPortal(),'register','forgot2')));
 	}		

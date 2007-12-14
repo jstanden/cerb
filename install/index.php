@@ -784,35 +784,39 @@ switch($step) {
 				    if(empty($sPassword)) {
 				    	$sPassword = CerberusApplication::generatePassword(8);
 				    	
-				        $mail_service = DevblocksPlatform::getMailService();
-				        $mailer = $mail_service->getMailer();
-				        $mail = $mail_service->createMessage();
-				        
-				        $sendTo = new Swift_Address($worker->email, $worker->getName());
-				        $sendFrom = new Swift_Address($replyFrom, $replyPersonal);
-				        
-				        $mail->setSubject('Your new helpdesk login information!');
-				        $mail->generateId();
-				        $mail->headers->set('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
-				        
-					    $body = sprintf("Your new helpdesk login information is below:\r\n".
-							"\r\n".
-					        "URL: %s\r\n".
-					        "Login: %s\r\n".
-					        "Password: %s\r\n".
-					        "\r\n".
-					        "You should change your password from Preferences after logging in for the first time.\r\n".
-					        "\r\n",
-						        $url->write('',true),
-						        $worker->email,
-						        $sPassword
-					    );
-				        
-					    $mail->attach(new Swift_Message_Part($body));
-
-						if(!$mailer->send($mail, $sendTo, $sendFrom)) {
-							// [TODO] Report when the message wasn't sent.
-						}
+				    	try {
+					        $mail_service = DevblocksPlatform::getMailService();
+					        $mailer = $mail_service->getMailer();
+					        $mail = $mail_service->createMessage();
+					        
+					        $sendTo = new Swift_Address($worker->email, $sFirst . ' ' . $sLast);
+					        $sendFrom = new Swift_Address($replyFrom, $replyPersonal);
+					        
+					        $mail->setSubject('Your new helpdesk login information!');
+					        $mail->generateId();
+					        $mail->headers->set('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
+					        
+						    $body = sprintf("Your new helpdesk login information is below:\r\n".
+								"\r\n".
+						        "URL: %s\r\n".
+						        "Login: %s\r\n".
+						        "Password: %s\r\n".
+						        "\r\n".
+						        "You should change your password from Preferences after logging in for the first time.\r\n".
+						        "\r\n",
+							        $url->write('',true),
+							        $worker->email,
+							        $sPassword
+						    );
+					        
+						    $mail->attach(new Swift_Message_Part($body));
+	
+							if(!$mailer->send($mail, $sendTo, $sendFrom)) {
+								throw new Exception('Failed to send email with worker password.');
+							}
+				    	} catch (Exception $e) {
+				    		// [TODO] need to do something productive with this error condition.
+				    	}
 				    }
 				    
 					$fields = array(
