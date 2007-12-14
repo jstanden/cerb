@@ -354,7 +354,12 @@ class UmCommunityPage extends CerberusPageExtension {
         @$iFinished = DevblocksPlatform::importGPC($_POST['finished'],'integer',0);
         @$iDelete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer',0);
 		
-		if(null != ($instance = DAO_CommunityTool::getByCode($code))) {
+		if(DEMO_MODE) {
+			DevblocksPlatform::redirect(new DevblocksHttpResponse(array('community')));
+			return;
+		}
+
+        if(null != ($instance = DAO_CommunityTool::getByCode($code))) {
 			// Deleting?
 			if(!empty($iDelete)) {
 				$tool = DAO_CommunityTool::getByCode($code); /* @var $tool Model_CommunityTool */
@@ -397,6 +402,11 @@ class UmCommunityPage extends CerberusPageExtension {
 		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
 		@$name = DevblocksPlatform::importGPC($_POST['name'],'string','New Community');	
 		@$delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer',0);	
+
+		if(DEMO_MODE) {
+			DevblocksPlatform::redirect(new DevblocksHttpResponse(array('community')));
+			return;
+		}
 
 		if(!empty($delete)) {
 			DAO_Community::delete($id);
