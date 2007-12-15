@@ -2588,7 +2588,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 					(isset($tables['msg']) ? "INNER JOIN message msg ON (msg.ticket_id=t.id) " : " ").
 					
 					(!empty($prefix_wheres) ? sprintf("WHERE %s ",implode(' AND ',$prefix_wheres)) : "").
-			        "GROUP BY t.id, t.subject ";
+			        "GROUP BY t.subject ";
 		
 				// [TODO] $limit here is completely arbitrary
 			    $rs_subjects = $db->SelectLimit($sql, 2500, 0) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs_senders ADORecordSet */
@@ -2603,7 +2603,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 			        $rs_subjects->MoveNext();
 			    }
 			    
-			    $patterns = self::findPatterns($lines);
+			    $patterns = self::findPatterns($lines, 8);
 			    
 			    if(!empty($patterns)) {
 			    	@$pattern = array_shift($patterns);
@@ -2663,7 +2663,7 @@ class DAO_Ticket extends DevblocksORMHelper {
         return ($a[2] > $b[2]) ? -1 : 1;        
     }
 
-	private function findPatterns($list) {
+	private function findPatterns($list, $min_chars=8) {
 		$patterns = array();
 		$simil = array();
 		$simil_hash = array();
@@ -2681,7 +2681,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 			for($y=0;$y<$len;$y++) {
 				if($x==$y) continue; // skip ourselves
 				if(!isset($list[$x]) || !isset($list[$y])) break;
-				if(0 != ($max = self::str_similar_prefix($list[$x],$list[$y]))) {
+				if(0 != ($max = self::str_similar_prefix($list[$x],$list[$y])) && $max >= $min_chars) {
 					@$simil[$max] = intval($simil[$max]) + 1;
 					@$simil_hash[$max] = trim(substr($list[$x],0,$max));
 				}
