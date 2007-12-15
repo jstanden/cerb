@@ -2545,7 +2545,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 			
 			// [JAS]: Most common subjects in work pile
 			$sql = sprintf("SELECT ".
-			    "substring(t.subject from 1 for 8) as prefix ".
+			    "count(*) as hits, substring(t.subject from 1 for 8) as prefix ".
 				"FROM ticket t ".
 				"INNER JOIN team tm ON (tm.id = t.team_id) ".
 				"INNER JOIN address a1 ON (t.first_wrote_address_id=a1.id) ".
@@ -2557,7 +2557,8 @@ class DAO_Ticket extends DevblocksORMHelper {
 				(isset($tables['msg']) ? "INNER JOIN message msg ON (msg.ticket_id=t.id) " : " ").
 				
 				(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "").
-		        "GROUP BY substring(t.subject from 1 for 8) ";
+		        "GROUP BY substring(t.subject from 1 for 8) ".
+		        "ORDER BY hits DESC ";
 			
 		    $rs_subjects = $db->SelectLimit($sql, $limit, 0) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs_domains ADORecordSet */
 		    
