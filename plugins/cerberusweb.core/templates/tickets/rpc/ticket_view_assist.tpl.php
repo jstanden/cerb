@@ -63,11 +63,13 @@ Sort biggest piles by:
 		<label>{if !empty($stats[4])}{$stats[4]}{else}{$stats[0]}{/if} <span style="color:rgb(0,120,0);" title="{$stats[1]|escape:"htmlall"}">{$stats[1]|truncate:76:'...':true|escape:"htmlall"}</span> {if !empty($stats[2])}({$stats[2]} hits){/if}</label>
 	</td>
 </tr>
-{if $stats[0] == 'domain' && !empty($stats[3]) && is_array($stats[3])}
+{if !empty($stats[3]) && is_array($stats[3])} {*$stats[0] == 'domain' && *}
 	{foreach from=$stats[3] item=sender key=sender_hash}
 	<tr>
 		<td width="0%" nowrap="nowrap" align="center">
+			{if $mode=="senders"}
 			<input type="checkbox" name="piles_always[]" value="{$sender_hash}">
+			{/if}
 		</td>
 		<td width="0%" nowrap="nowrap">
 			<select name="piles_moveto[]">
@@ -99,7 +101,7 @@ Sort biggest piles by:
 				<input type="hidden" name="piles_hash[]" value="{$sender_hash}">
 				<input type="hidden" name="piles_type[]" value="{$sender[0]}">
 				<input type="hidden" name="piles_value[]" value="{$sender[1]|escape:"htmlall"}">
-				<label>{$sender[0]} <span style="color:rgb(0,120,0);" title="{$sender[1]|escape:"htmlall"}">{$sender[1]|truncate:76:'...':true|escape:"htmlall"}</span> ({$sender[2]} hits)</label><br>
+				<label>{$sender[0]} <span style="color:rgb(0,120,0);" title="{$sender[1]|escape:"htmlall"}">{$sender[1]|truncate:76:'...':true|escape:"htmlall"}</span> {if !empty($sender[2])}({$sender[2]} hits){/if}</label><br>
 			</blockquote>
 		</td>
 	</tr>	

@@ -2593,9 +2593,10 @@ class DAO_Ticket extends DevblocksORMHelper {
 				// [TODO] $limit here is completely arbitrary
 			    $rs_subjects = $db->SelectLimit($sql, 2500, 0) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs_senders ADORecordSet */
 			    
-			    $subjects = array();
 			    $lines = array();
+			    $subjects = array();
 			    $patterns = array();
+			    $subpatterns = array();
 			    
 			    while(!$rs_subjects->EOF) {
 			    	$lines[] = $rs_subjects->fields['subject'];
@@ -2604,28 +2605,22 @@ class DAO_Ticket extends DevblocksORMHelper {
 			    
 			    $patterns = self::findPatterns($lines);
 			    
-			    if(!empty($patterns))
-			    foreach($patterns as $hits => $pattern) {
-			        $hash = md5('subject'.$pattern.'*');
-//			        $subjects[$hash] = array('subject',$pattern.'*',$hits);
-			        $tops[$hash] = array('subject',$pattern.'*',0);
+			    if(!empty($patterns)) {
+			    	@$pattern = array_shift($patterns);
+			        $tophash = md5('subject'.$pattern.'*');
+			        $tops[$tophash] = array('subject',$pattern.'*',0);
+
+			        if(!empty($patterns)) // thread subpatterns
+			    	foreach($patterns as $hits => $pattern) {
+				        $hash = md5('subject'.$pattern.'*');
+				        $subjects[$hash] = array('subject',$pattern.'*',$hits);
+				        $tops[$tophash][3][$hash] = array('subject',$pattern.'*',0);
+				    }
 			    }
 			    
 			    unset($lines);
 		    }
-		    
-//		    uasort($subjects, array('DAO_Ticket','sortByCount'));
-	        
-		    // Thread senders into domains
-//		    foreach($subjects as $hash => $subject) {
-//	            $s = $subject[1];
-//	            $s_hash = md5('subject' . $s);
-//	            if(!isset($tops[$s_hash])) {
-//		            continue; // [TODO] Temporary
-//	            }
-//	            $tops[$s_hash][3][$hash] = $sender;
-//	        }
-	        
+
 		} elseif ($mode=="headers") {
 			$tables['mh'] = 'mh';
 			$wheres[] = sprintf("mh.header_name=%s",$db->qstr($mode_param));
