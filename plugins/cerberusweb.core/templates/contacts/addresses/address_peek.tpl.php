@@ -5,7 +5,7 @@
 	</tr>
 </table>
 
-<form action="{devblocks_url}{/devblocks_url}" method="POST" id="formAddressPeek" name="formAddressPeek">
+<form action="{devblocks_url}{/devblocks_url}" method="POST" id="formAddressPeek" name="formAddressPeek" onsubmit="return false;">
 <!-- <input type="hidden" name="action_id" value="{$id}"> -->
 <input type="hidden" name="c" value="contacts">
 <input type="hidden" name="a" value="saveContact">
@@ -67,7 +67,7 @@
 	{/if}
 </table>
 
-<button type="submit" onclick="genericPanel.hide();genericAjaxPost('formAddressPeek', 'view{$view_id}')"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')}</button>
+<button type="button" onclick="genericPanel.hide();genericAjaxPost('formAddressPeek', 'view{$view_id}')"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')}</button>
 <button type="button" onclick="genericPanel.hide();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> {$translate->_('common.close')|capitalize}</button>
 <br>
 </form>

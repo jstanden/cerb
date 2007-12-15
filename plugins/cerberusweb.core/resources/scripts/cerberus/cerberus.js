@@ -143,7 +143,7 @@ var cAjaxCalls = function() {
 			}
 			
 			document.location = '#top';
-			genericAjaxGet('dashboardPanel','c=tickets&a=refreshTeamFilters');
+			genericAjaxGet('overviewTotals','c=tickets&a=refreshOverviewTotals');
 		});
 	}
 
@@ -208,7 +208,7 @@ var cAjaxCalls = function() {
 			}
 			
 			document.location = '#top';
-			//genericAjaxGet('dashboardPanel','c=tickets&a=refreshTeamFilters');
+			//genericAjaxGet('overviewTotals','c=tickets&a=refreshOverviewTotals');
 		});
 	}
 
@@ -221,7 +221,7 @@ var cAjaxCalls = function() {
 
 		genericAjaxPost(formName, '', 'c=tickets&a=viewMoveTickets&view_id='+view_id, function(o) {
 			viewDiv.innerHTML = o.responseText;
-			genericAjaxGet('dashboardPanel','c=tickets&a=refreshTeamFilters');
+			genericAjaxGet('overviewTotals','c=tickets&a=refreshOverviewTotals');
 		});
 	}
 
@@ -236,13 +236,13 @@ var cAjaxCalls = function() {
 			case 'merge':
 				genericAjaxPost(formName, '', 'c=tickets&a=viewMergeTickets&view_id='+view_id, function(o) {
 					viewDiv.innerHTML = o.responseText;
-					genericAjaxGet('dashboardPanel','c=tickets&a=refreshTeamFilters');
+					genericAjaxGet('overviewTotals','c=tickets&a=refreshOverviewTotals');
 				});
 				break;
 			case 'not_spam':
 				genericAjaxPost(formName, '', 'c=tickets&a=viewNotSpamTickets&view_id='+view_id, function(o) {
 					viewDiv.innerHTML = o.responseText;
-					genericAjaxGet('dashboardPanel','c=tickets&a=refreshTeamFilters');
+					genericAjaxGet('overviewTotals','c=tickets&a=refreshOverviewTotals');
 				});
 				break;
 		}
@@ -259,19 +259,19 @@ var cAjaxCalls = function() {
 			case 1: // spam
 				genericAjaxPost(formName, '', 'c=tickets&a=viewSpamTickets&view_id=' + view_id, function(o) {
 					viewDiv.innerHTML = o.responseText;
-					genericAjaxGet('dashboardPanel','c=tickets&a=refreshTeamFilters');
+					genericAjaxGet('overviewTotals','c=tickets&a=refreshOverviewTotals');
 				});
 				break;
 			case 2: // delete
 				genericAjaxPost(formName, '', 'c=tickets&a=viewDeleteTickets&view_id=' + view_id, function(o) {
 					viewDiv.innerHTML = o.responseText;
-					genericAjaxGet('dashboardPanel','c=tickets&a=refreshTeamFilters');
+					genericAjaxGet('overviewTotals','c=tickets&a=refreshOverviewTotals');
 				});
 				break;
 			default: // close
 				genericAjaxPost(formName, '', 'c=tickets&a=viewCloseTickets&view_id=' + view_id, function(o) {
 					viewDiv.innerHTML = o.responseText;
-					genericAjaxGet('dashboardPanel','c=tickets&a=refreshTeamFilters');
+					genericAjaxGet('overviewTotals','c=tickets&a=refreshOverviewTotals');
 				});
 				break;
 		}
@@ -284,7 +284,7 @@ var cAjaxCalls = function() {
 		genericAjaxGet('','c=tickets&a=viewUndo&view_id=' + view_id,
 			function(o) {
 				viewDiv.innerHTML = o.responseText;
-				genericAjaxGet('dashboardPanel','c=tickets&a=refreshTeamFilters');
+				genericAjaxGet('overviewTotals','c=tickets&a=refreshOverviewTotals');
 			}
 		);		
 	}

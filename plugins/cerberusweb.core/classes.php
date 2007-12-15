@@ -418,82 +418,14 @@ class ChTicketsPage extends CerberusPageExtension {
 				$tpl->assign('slas', $slas);
 				
 				$memberships = $active_worker->getMemberships();
-				
-			   	// Group Loads
-				$sql = sprintf("SELECT count(*) AS hits, team_id, category_id ".
-					"FROM ticket ".
-					"WHERE is_closed = 0 AND is_deleted = 0 ".
-//					"AND last_action_code IN ('O','R') ".
-					"AND next_worker_id = 0 ".
-					"GROUP BY team_id, category_id "
-				);
-				$rs_buckets = $db->Execute($sql);
-			
-				$group_counts = array();
-				while(!$rs_buckets->EOF) {
-					$team_id = intval($rs_buckets->fields['team_id']);
-					$category_id = intval($rs_buckets->fields['category_id']);
-					$hits = intval($rs_buckets->fields['hits']);
-					
-					if(isset($memberships[$team_id])) {
-						if(!isset($group_counts[$team_id]))
-							$group_counts[$team_id] = array();
-						
-						$group_counts[$team_id][$category_id] = $hits;
-						@$group_counts[$team_id]['total'] = intval($group_counts[$team_id]['total']) + $hits;
-					}
-					
-					$rs_buckets->MoveNext();
-				}
+
+				$group_counts = C4_Overview::getGroupTotals();
 				$tpl->assign('group_counts', $group_counts);
-	        	
-				// Worker Loads
-				$sql = sprintf("SELECT count(*) AS hits, t.team_id, t.next_worker_id ".
-					"FROM ticket t ".
-					"WHERE t.is_closed = 0 AND t.is_deleted = 0 ".
-					"AND t.next_worker_id > 0 ".
-//					"AND t.last_action_code IN ('O','R') ".
-					"GROUP BY t.team_id, t.next_worker_id "
-				);
-				$rs_workers = $db->Execute($sql);
 				
-				$worker_counts = array();
-				while(!$rs_workers->EOF) {
-					$hits = intval($rs_workers->fields['hits']);
-					$team_id = intval($rs_workers->fields['team_id']);
-					$worker_id = intval($rs_workers->fields['next_worker_id']);
-					
-					if(!isset($worker_counts[$worker_id]))
-						$worker_counts[$worker_id] = array();
-					
-					$worker_counts[$worker_id][$team_id] = $hits;
-					@$worker_counts[$worker_id]['total'] = intval($worker_counts[$worker_id]['total']) + $hits;
-					$rs_workers->MoveNext();
-				}
+				$worker_counts = C4_Overview::getWorkerTotals();
 				$tpl->assign('worker_counts', $worker_counts);
 				
-			   	// SLA Loads
-				$sql = sprintf("SELECT count(*) AS hits, t.sla_id ".
-					"FROM ticket t ".
-					"INNER JOIN sla s ON (s.id=t.sla_id) ".
-					"WHERE t.is_closed = 0 AND t.is_deleted = 0 ".
-//					"AND t.last_action_code IN ('O','R') ".
-					"AND t.next_worker_id = 0 ".
-					"GROUP BY t.sla_id"
-				);
-				$rs_sla = $db->Execute($sql);
-			
-				$sla_counts = array();
-				while(!$rs_sla->EOF) {
-					$sla_id = intval($rs_sla->fields['sla_id']);
-					$hits = intval($rs_sla->fields['hits']);
-					
-					$sla_counts[$sla_id] = $hits;
-					
-					@$sla_counts['total'] = intval($sla_counts['total']) + $hits;
-					
-					$rs_sla->MoveNext();
-				}
+				$sla_counts = C4_Overview::getSlaTotals();
 				$tpl->assign('sla_counts', $sla_counts);
 				
 				// All Open
@@ -553,7 +485,14 @@ class ChTicketsPage extends CerberusPageExtension {
 				
 				$overView->renderPage = 0;
 				
-				// View Filter
+				// Filter persistence
+				if(empty($response_path)) {
+					@$response_path = explode('/',$visit->get(CerberusVisit::KEY_OVERVIEW_FILTER, 'all'));
+				} else {
+					// View Filter
+					$visit->set(CerberusVisit::KEY_OVERVIEW_FILTER, implode('/',$response_path));
+				}
+				
 				@$filter = array_shift($response_path);
 				
 				switch($filter) {
@@ -562,7 +501,6 @@ class ChTicketsPage extends CerberusPageExtension {
 						
 						$overView->params = array(
 							SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN),
-//							SearchFields_Ticket::TICKET_LAST_ACTION_CODE => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_LAST_ACTION_CODE,'in',array('O','R')),
 							SearchFields_Ticket::TICKET_NEXT_WORKER_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_NEXT_WORKER_ID,'=',0),
 						);
 						
@@ -590,7 +528,6 @@ class ChTicketsPage extends CerberusPageExtension {
 
 						$overView->params = array(
 							SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN),
-//							SearchFields_Ticket::TICKET_LAST_ACTION_CODE => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_LAST_ACTION_CODE,'in',array('O','R')),
 						);
 
 						if(!is_null($filter_worker_id)) {
@@ -612,7 +549,6 @@ class ChTicketsPage extends CerberusPageExtension {
 						
 						$overView->params = array(
 							SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN),
-//							SearchFields_Ticket::TICKET_LAST_ACTION_CODE => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_LAST_ACTION_CODE,'in',array('O','R')),
 							SearchFields_Ticket::TICKET_NEXT_WORKER_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_NEXT_WORKER_ID,'=',0),
 						);
 
@@ -624,10 +560,10 @@ class ChTicketsPage extends CerberusPageExtension {
 						
 						break;
 						
+					case 'all':
 					default:
 						$overView->params = array(
 							SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN),
-//							SearchFields_Ticket::TICKET_LAST_ACTION_CODE => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_LAST_ACTION_CODE,'in',array('O','R')),
 							SearchFields_Ticket::TICKET_NEXT_WORKER_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_NEXT_WORKER_ID,'=',0),
 							SearchFields_Ticket::TICKET_SPAM_SCORE => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_SPAM_SCORE,'<=','0.9000'),
 							SearchFields_Ticket::TEAM_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'in',array_keys($memberships)),
@@ -706,6 +642,51 @@ class ChTicketsPage extends CerberusPageExtension {
 	
 	//**** Local scope
 
+		// Ajax
+	function refreshOverviewTotalsAction() {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+
+		$visit = CerberusApplication::getVisit();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		@$response_path = explode('/',$visit->get(CerberusVisit::KEY_OVERVIEW_FILTER, 'all'));
+		@$filter = array_shift($response_path);
+		
+		switch($filter) {
+			case 'group':
+				@$filter_group_id = array_shift($response_path);
+				if(!empty($filter_group_id))
+					$tpl->assign('filter_group_id', $filter_group_id);
+				break;
+		}
+		
+		$groups = DAO_Group::getAll();
+		$tpl->assign('groups', $groups);
+		
+		$group_buckets = DAO_Bucket::getTeams();
+		$tpl->assign('group_buckets', $group_buckets);
+		
+		$workers = DAO_Worker::getAll();
+		$tpl->assign('workers', $workers);
+		
+		$slas = DAO_Sla::getAll();
+		$tpl->assign('slas', $slas);
+		
+		$group_counts = C4_Overview::getGroupTotals();
+		$tpl->assign('group_counts', $group_counts);
+		
+		$worker_counts = C4_Overview::getWorkerTotals();
+		$tpl->assign('worker_counts', $worker_counts);
+		
+		$sla_counts = C4_Overview::getSlaTotals();
+		$tpl->assign('sla_counts', $sla_counts);
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/overview/sidebar.tpl.php');
+	}
+	
 	// Ajax
 	// [TODO] Move to another page
 	function showCalloutAction() {
@@ -1444,7 +1425,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	
 	function showViewAutoAssistAction() {
         @$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
-        @$mode = DevblocksPlatform::importGPC($_REQUEST['mode'],'string','senders');
+        @$mode = DevblocksPlatform::importGPC($_REQUEST['mode'],'string','subjects');
         @$mode_param = DevblocksPlatform::importGPC($_REQUEST['mode_param'],'string','');
 
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -1633,12 +1614,12 @@ class ChTicketsPage extends CerberusPageExtension {
 	    // [TODO] Move this into a WorkerPrefs API class
 	    $active_worker = CerberusApplication::getActiveWorker(); /* @var $$active_worker CerberusWorker */
 	    if($active_worker->id) {
-	        $move_counts_str = DAO_WorkerPref::get($active_worker->id,''.DAO_WorkerPref::SETTING_TEAM_MOVE_COUNTS . $active_dashboard_id,serialize(array()));
+	        $move_counts_str = DAO_WorkerPref::get($active_worker->id,''.DAO_WorkerPref::SETTING_MOVE_COUNTS,serialize(array()));
 	        if(is_string($move_counts_str)) {
 	            $move_counts = unserialize($move_counts_str);
 	            @$move_counts[$move_to] = intval($move_counts[$move_to]) + count($ticket_ids);
 	            arsort($move_counts);
-	            DAO_WorkerPref::set($active_worker->id,''.DAO_WorkerPref::SETTING_TEAM_MOVE_COUNTS . $active_dashboard_id,serialize($move_counts));
+	            DAO_WorkerPref::set($active_worker->id,''.DAO_WorkerPref::SETTING_MOVE_COUNTS,serialize($move_counts));
 	        }
 	    }
 	    
@@ -3651,8 +3632,10 @@ class ChContactsPage extends CerberusPageExtension {
 		// Update SLA+Priority on any open tickets from this address
 		DAO_Sla::cascadeAddressSla($id, $sla_id);
 		
-		$view = C4_AbstractViewLoader::getView('', $view_id);
-		$view->render();
+		if(!empty($view_id)) {
+			$view = C4_AbstractViewLoader::getView('', $view_id);
+			$view->render();
+		}
 	}
 	
 	function saveOrgPeekAction() {

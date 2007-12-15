@@ -199,11 +199,13 @@
 					{if substr($move_code,0,1)=='t'}
 						{assign var=move_team_id value=$move_code|regex_replace:"/[t]/":""}
 						{assign var=move_bucket_id value=0}
+						{assign var=move_bucket_team_id value=0}
 					{elseif substr($move_code,0,1)=='c'}
 						{assign var=move_team_id value=0}
 						{assign var=move_bucket_id value=$move_code|regex_replace:"/[c]/":""}
+						{assign var=move_bucket_team_id value=$buckets.$move_bucket_id->team_id}
 					{/if}
-					<a href="javascript:;" onclick="document.viewForm{$view->id}.move_to.value='{$move_code}';ajax.viewMoveTickets('{$view->id}');" title="Used {$move_count} times." style="{if !empty($move_team_id)}color:rgb(0,150,0);font-weight:bold;font-style:normal;{else}{/if}">{if !empty($move_team_id)}{$teams.$move_team_id->name}{else}{$buckets.$move_bucket_id->name}{/if}</a>{if !$smarty.foreach.move_links.last}, {/if}
+					<a href="javascript:;" onclick="document.viewForm{$view->id}.move_to.value='{$move_code}';ajax.viewMoveTickets('{$view->id}');" title="{if !empty($move_bucket_team_id)}({$teams.$move_bucket_team_id->name}){/if} Used {$move_count} times." style="{if !empty($move_team_id)}color:rgb(0,150,0);font-weight:bold;font-style:normal;{else}{/if}">{if !empty($move_team_id)}{$teams.$move_team_id->name}{else}{$buckets.$move_bucket_id->name}{/if}</a>{if !$smarty.foreach.move_links.last}, {/if}
 				{/foreach}
 			</span>
 			{/if}

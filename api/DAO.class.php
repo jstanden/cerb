@@ -2669,7 +2669,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 		$simil = array();
 		$simil_hash = array();
 		$MAX_PASS = 15;
-		$PERCENTILE = 0.05; // [TODO] Could also just crop to X top results
+		$MAX_HITS = 5;
 	
 		// Remove dupes (not sure this makes much diff)
 	//	array_unique($list);
@@ -2693,11 +2693,13 @@ class DAO_Ticket extends DevblocksORMHelper {
 		arsort($simil);
 	
 		$max = current($simil);
+		$hits = 0;
 		foreach($simil as $k=>$v) {
-			if($v/$max<$PERCENTILE)
+			if($hits>$MAX_HITS)
 				continue;
 	
-			$patterns[$v] = $simil_hash[$k]; 
+			$patterns[$v] = $simil_hash[$k];
+			$hits++; 
 		}
 	
 		return $patterns;
@@ -4065,7 +4067,7 @@ class DAO_WorkerWorkspaceList extends DevblocksORMHelper {
 };
 
 class DAO_WorkerPref extends DevblocksORMHelper {
-    const SETTING_TEAM_MOVE_COUNTS = 'team_move_counts';
+    const SETTING_MOVE_COUNTS = 'move_counts';
     const SETTING_OVERVIEW = 'worker_overview';
     
 	static function set($worker_id, $key, $value) {
@@ -4121,27 +4123,23 @@ class DAO_WorkerPref extends DevblocksORMHelper {
 		return $objects;
 	}
 	
-	// Clear any view's move counts for all workers involving the buckets specified 
+	// Clear any view's move counts for all workers involving the buckets specified
+	// [TODO] Check use 
 	static function clearMoveCounts($category_ids) {
 		if(!is_array($category_ids)) $category_ids = array($category_ids);
 		
 		$prefs = self::getAll();
 		foreach($prefs as $worker_id => $worker_prefs) {
-			foreach($worker_prefs as $worker_pref) {
-				$move_counts_const = 'team_move_counts';
-				// Make sure this worker pref is a move count
-				if(substr($worker_pref->setting, 0, strlen($move_counts_const)) == $move_counts_const) {
-					$moveCounts = unserialize($worker_pref->value);
-					foreach($category_ids as $id) {
-						if(isset($moveCounts['c'.$id])) {
-							unset($moveCounts['c'.$id]);
-						}
-					}
-					self::set($worker_pref->worker_id, $worker_pref->setting, serialize($moveCounts));
+			@$moveCountsSetting = $worker_prefs[DAO_WorkerPref::SETTING_MOVE_COUNTS];
+			if($moveCountsSetting instanceof Model_WorkerPreference && !empty($moveCountsSetting->value)) {
+				@$moveCounts = unserialize($moveCountsSetting->value);
+				foreach($category_ids as $id) {
+					if(isset($moveCounts['c'.$id]))
+						unset($moveCounts['c'.$id]);
 				}
+				self::set($worker_id, DAO_WorkerPref::SETTING_MOVE_COUNTS, serialize($moveCounts));
 			}
 		}
-		
 	}
 	
 	// [TODO] Cache as static/singleton or load up in a page scope object?
