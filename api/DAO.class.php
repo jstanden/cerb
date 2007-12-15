@@ -2563,12 +2563,15 @@ class DAO_Ticket extends DevblocksORMHelper {
 		    $rs_subjects = $db->SelectLimit($sql, $limit, 0) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs_domains ADORecordSet */
 		    
 			$prefixes = array(); // [TODO] Temporary
+			$prefixes_hits = array(); // [TODO] Temporary
+
 		    while(!$rs_subjects->EOF) {
-		        $prefixes[] = $rs_subjects->fields['prefix']; // [TODO] Temporary
+		        $prefixes[] = $rs_subjects->fields['prefix'];
+		        $prefixes_hits[] = $rs_subjects->fields['hits'];
 		        $rs_subjects->MoveNext();
 		    }
 
-		    foreach($prefixes as $prefix) {
+		    foreach($prefixes as $prefix_idx => $prefix) {
 			    $prefix_wheres = $wheres;
 			    $prefix_wheres[] = sprintf("substring(t.subject from 1 for 8) = %s",
 			        $db->qstr($prefix)
@@ -2591,16 +2594,16 @@ class DAO_Ticket extends DevblocksORMHelper {
 			        "GROUP BY t.subject ";
 		
 				// [TODO] $limit here is completely arbitrary
-			    $rs_subjects = $db->SelectLimit($sql, 2500, 0) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs_senders ADORecordSet */
+			    $rs_full_subjects = $db->SelectLimit($sql, 2500, 0) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs_senders ADORecordSet */
 			    
 			    $lines = array();
 			    $subjects = array();
 			    $patterns = array();
 			    $subpatterns = array();
 			    
-			    while(!$rs_subjects->EOF) {
-			    	$lines[] = $rs_subjects->fields['subject'];
-			        $rs_subjects->MoveNext();
+			    while(!$rs_full_subjects->EOF) {
+			    	$lines[] = $rs_full_subjects->fields['subject'];
+			        $rs_full_subjects->MoveNext();
 			    }
 			    
 			    $patterns = self::findPatterns($lines, 8);
@@ -2608,12 +2611,12 @@ class DAO_Ticket extends DevblocksORMHelper {
 			    if(!empty($patterns)) {
 			    	@$pattern = array_shift($patterns);
 			        $tophash = md5('subject'.$pattern.'*');
-			        $tops[$tophash] = array('subject',$pattern.'*',0);
+			        $tops[$tophash] = array('subject',$pattern.'*',$prefixes_hits[$prefix_idx]);
 
 			        if(!empty($patterns)) // thread subpatterns
 			    	foreach($patterns as $hits => $pattern) {
 				        $hash = md5('subject'.$pattern.'*');
-				        $subjects[$hash] = array('subject',$pattern.'*',$hits);
+//				        $subjects[$hash] = array('subject',$pattern.'*',$hits);
 				        $tops[$tophash][3][$hash] = array('subject',$pattern.'*',0);
 				    }
 			    }
