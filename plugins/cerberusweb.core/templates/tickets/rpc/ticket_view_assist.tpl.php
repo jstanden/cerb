@@ -5,6 +5,7 @@
 
 Sort biggest piles by: 
 <label><input type="radio" name="mode" value="senders" {if $mode!="senders"}onclick="genericAjaxGet('{$view_id}_tips','c=tickets&a=showViewAutoAssist&view_id={$view_id}&mode=senders');"{/if} {if $mode=="senders"}checked{/if}>Senders</label>
+<label><input type="radio" name="mode" value="subjects" {if $mode!="subjects"}onclick="genericAjaxGet('{$view_id}_tips','c=tickets&a=showViewAutoAssist&view_id={$view_id}&mode=subjects');"{/if} {if $mode=="subjects"}checked{/if}>Subjects</label>
 <label><input type="radio" name="mode" value="headers" onclick="genericAjaxGet('{$view_id}_tips','c=tickets&a=showViewAutoAssist&view_id={$view_id}&mode=headers');" {if $mode=="headers"}checked{/if}>Headers</label>
 <br>
 <br>
@@ -18,14 +19,14 @@ Sort biggest piles by:
 	</td>
 </tr>
 <tr>
-	<td width="0%" nowrap align="center">{if $mode!="headers"}Always{/if}</td>
+	<td width="0%" nowrap align="center">{if $mode=="senders"}Always{/if}</td>
 	<td width="0%" nowrap>Move to:</td>
 	<td width="100%">From biggest piles:</td>
 </tr>
 {foreach from=$biggest item=stats key=hash}
 <tr>
 	<td width="0%" nowrap="nowrap" align="center">
-		{if $mode!="headers"}
+		{if $mode=="senders"}
 		<input type="checkbox" name="piles_always[]" value="{$hash}">
 		{/if}
 	</td>
@@ -59,7 +60,7 @@ Sort biggest piles by:
 		<input type="hidden" name="piles_type[]" value="{$stats[0]}">
 		<input type="hidden" name="piles_type_param[]" value="{$stats[4]}">
 		<input type="hidden" name="piles_value[]" value="{$stats[1]|escape:"htmlall"}">
-		<label>{if !empty($stats[4])}{$stats[4]}{else}{$stats[0]}{/if} <span style="color:rgb(0,120,0);" title="{$stats[1]|escape:"htmlall"}">{$stats[1]|truncate:76:'...':true|escape:"htmlall"}</span> ({$stats[2]} hits)</label>
+		<label>{if !empty($stats[4])}{$stats[4]}{else}{$stats[0]}{/if} <span style="color:rgb(0,120,0);" title="{$stats[1]|escape:"htmlall"}">{$stats[1]|truncate:76:'...':true|escape:"htmlall"}</span> {if !empty($stats[2])}({$stats[2]} hits){/if}</label>
 	</td>
 </tr>
 {if $stats[0] == 'domain' && !empty($stats[3]) && is_array($stats[3])}

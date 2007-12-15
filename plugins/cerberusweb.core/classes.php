@@ -1554,6 +1554,10 @@ class ChTicketsPage extends CerberusPageExtension {
 	                $doType = 'sender';
 	                break;
 	                
+	            case 'subject':
+	                $doType = 'subject';
+	                break;
+	                
 	            case 'header':
 	                $doType = 'header';
 	                break;

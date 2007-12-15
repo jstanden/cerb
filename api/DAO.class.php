@@ -2516,7 +2516,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 				(isset($tables['ra']) ? "INNER JOIN address ra ON (ra.id=r.address_id) " : " ").
 				(isset($tables['msg']) ? "INNER JOIN message msg ON (msg.ticket_id=t.id) " : " ").
 				
-				(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$sender_wheres)) : "").
+				(!empty($sender_wheres) ? sprintf("WHERE %s ",implode(' AND ',$sender_wheres)) : "").
 		        "GROUP BY a1.email HAVING count(*) > 1 ".
 		        "ORDER BY hits DESC ";
 	
@@ -2539,7 +2539,92 @@ class DAO_Ticket extends DevblocksORMHelper {
 	            }
 	            $tops[$domain_hash][3][$hash] = $sender;
 	        }
+		 
+		} elseif ($mode=="subjects") {
+			$prefixes = array();
+			
+			// [JAS]: Most common subjects in work pile
+			$sql = sprintf("SELECT ".
+			    "substring(t.subject from 1 for 8) as prefix ".
+				"FROM ticket t ".
+				"INNER JOIN team tm ON (tm.id = t.team_id) ".
+				"INNER JOIN address a1 ON (t.first_wrote_address_id=a1.id) ".
+				"INNER JOIN address a2 ON (t.last_wrote_address_id=a2.id) "
+				).
+				
+				(isset($tables['ra']) ? "INNER JOIN requester r ON (r.ticket_id=t.id)" : " ").
+				(isset($tables['ra']) ? "INNER JOIN address ra ON (ra.id=r.address_id) " : " ").
+				(isset($tables['msg']) ? "INNER JOIN message msg ON (msg.ticket_id=t.id) " : " ").
+				
+				(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "").
+		        "GROUP BY substring(t.subject from 1 for 8) ";
+			
+		    $rs_subjects = $db->SelectLimit($sql, $limit, 0) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs_domains ADORecordSet */
 		    
+			$prefixes = array(); // [TODO] Temporary
+		    while(!$rs_subjects->EOF) {
+		        $prefixes[] = $rs_subjects->fields['prefix']; // [TODO] Temporary
+		        $rs_subjects->MoveNext();
+		    }
+
+		    foreach($prefixes as $prefix) {
+			    $prefix_wheres = $wheres;
+			    $prefix_wheres[] = sprintf("substring(t.subject from 1 for 8) = %s",
+			        $db->qstr($prefix)
+			    );
+		    	
+				// [JAS]: Most common subjects in work pile
+				$sql = sprintf("SELECT ".
+				    "t.subject ".
+					"FROM ticket t ".
+					"INNER JOIN team tm ON (tm.id = t.team_id) ".
+					"INNER JOIN address a1 ON (t.first_wrote_address_id=a1.id) ".
+					"INNER JOIN address a2 ON (t.last_wrote_address_id=a2.id) "
+					).
+					
+					(isset($tables['ra']) ? "INNER JOIN requester r ON (r.ticket_id=t.id)" : " ").
+					(isset($tables['ra']) ? "INNER JOIN address ra ON (ra.id=r.address_id) " : " ").
+					(isset($tables['msg']) ? "INNER JOIN message msg ON (msg.ticket_id=t.id) " : " ").
+					
+					(!empty($prefix_wheres) ? sprintf("WHERE %s ",implode(' AND ',$prefix_wheres)) : "").
+			        "GROUP BY t.id, t.subject ";
+		
+				// [TODO] $limit here is completely arbitrary
+			    $rs_subjects = $db->SelectLimit($sql, 2500, 0) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs_senders ADORecordSet */
+			    
+			    $subjects = array();
+			    $lines = array();
+			    $patterns = array();
+			    
+			    while(!$rs_subjects->EOF) {
+			    	$lines[] = $rs_subjects->fields['subject'];
+			        $rs_subjects->MoveNext();
+			    }
+			    
+			    $patterns = self::findPatterns($lines);
+			    
+			    if(!empty($patterns))
+			    foreach($patterns as $hits => $pattern) {
+			        $hash = md5('subject'.$pattern.'*');
+//			        $subjects[$hash] = array('subject',$pattern.'*',$hits);
+			        $tops[$hash] = array('subject',$pattern.'*',0);
+			    }
+			    
+			    unset($lines);
+		    }
+		    
+//		    uasort($subjects, array('DAO_Ticket','sortByCount'));
+	        
+		    // Thread senders into domains
+//		    foreach($subjects as $hash => $subject) {
+//	            $s = $subject[1];
+//	            $s_hash = md5('subject' . $s);
+//	            if(!isset($tops[$s_hash])) {
+//		            continue; // [TODO] Temporary
+//	            }
+//	            $tops[$s_hash][3][$hash] = $sender;
+//	        }
+	        
 		} elseif ($mode=="headers") {
 			$tables['mh'] = 'mh';
 			$wheres[] = sprintf("mh.header_name=%s",$db->qstr($mode_param));
@@ -2582,6 +2667,66 @@ class DAO_Ticket extends DevblocksORMHelper {
         return ($a[2] > $b[2]) ? -1 : 1;        
     }
 
+	private function findPatterns($list) {
+		$patterns = array();
+		$simil = array();
+		$simil_hash = array();
+		$MAX_PASS = 15;
+		$PERCENTILE = 0.05; // [TODO] Could also just crop to X top results
+	
+		// Remove dupes (not sure this makes much diff)
+	//	array_unique($list);
+		
+		// Sort by longest subjects
+		usort($list,array('DAO_Ticket','sortByLen'));
+		
+		$len = count($list);
+		for($x=0;$x<$MAX_PASS;$x++) {
+			for($y=0;$y<$len;$y++) {
+				if($x==$y) continue; // skip ourselves
+				if(!isset($list[$x]) || !isset($list[$y])) break;
+				if(0 != ($max = self::str_similar_prefix($list[$x],$list[$y]))) {
+					@$simil[$max] = intval($simil[$max]) + 1;
+					@$simil_hash[$max] = trim(substr($list[$x],0,$max));
+				}
+			}
+		}
+		
+		// Results from optimial # of chars similar from left
+		arsort($simil);
+	
+		$max = current($simil);
+		foreach($simil as $k=>$v) {
+			if($v/$max<$PERCENTILE)
+				continue;
+	
+			$patterns[$v] = $simil_hash[$k]; 
+		}
+	
+		return $patterns;
+	}
+	
+	// Sort by strlen (longest to shortest)
+	private function sortByLen($a,$b) {
+		$asize = strlen($a);
+		$bsize = strlen($b);
+		if($asize==$bsize) return 0;
+		return ($asize>$bsize)?-1:1;
+	}
+	
+	private function str_similar_prefix($str1,$str2) {
+		$pos = 0;
+		while(isset($str1[$pos]) && $str1[$pos]==$str2[$pos]) {
+			$pos++;
+		}
+		
+		// Trailing whitespace doesn't count
+		if($pos && $str1[$pos-1]==' ')
+			$pos--;
+			
+		return $pos;
+	}
+    
     static function search($params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
 		$total = -1;
