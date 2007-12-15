@@ -2563,11 +2563,9 @@ class DAO_Ticket extends DevblocksORMHelper {
 		    $rs_subjects = $db->SelectLimit($sql, $limit, 0) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs_domains ADORecordSet */
 		    
 			$prefixes = array(); // [TODO] Temporary
-			$prefixes_hits = array(); // [TODO] Temporary
 
 		    while(!$rs_subjects->EOF) {
 		        $prefixes[] = $rs_subjects->fields['prefix'];
-		        $prefixes_hits[] = $rs_subjects->fields['hits'];
 		        $rs_subjects->MoveNext();
 		    }
 
@@ -2591,7 +2589,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 					(isset($tables['msg']) ? "INNER JOIN message msg ON (msg.ticket_id=t.id) " : " ").
 					
 					(!empty($prefix_wheres) ? sprintf("WHERE %s ",implode(' AND ',$prefix_wheres)) : "").
-			        "GROUP BY t.subject ";
+			        "GROUP BY t.id, t.subject ";
 		
 				// [TODO] $limit here is completely arbitrary
 			    $rs_full_subjects = $db->SelectLimit($sql, 2500, 0) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs_senders ADORecordSet */
@@ -2611,16 +2609,16 @@ class DAO_Ticket extends DevblocksORMHelper {
 			    if(!empty($patterns)) {
 			    	@$pattern = array_shift($patterns);
 			        $tophash = md5('subject'.$pattern.'*');
-			        $tops[$tophash] = array('subject',$pattern.'*',$prefixes_hits[$prefix_idx]);
+			        $tops[$tophash] = array('subject',$pattern.'*',$rs_full_subjects->RecordCount());
 
 			        if(!empty($patterns)) // thread subpatterns
 			    	foreach($patterns as $hits => $pattern) {
 				        $hash = md5('subject'.$pattern.'*');
-//				        $subjects[$hash] = array('subject',$pattern.'*',$hits);
 				        $tops[$tophash][3][$hash] = array('subject',$pattern.'*',0);
 				    }
 			    }
 			    
+			    @$rs_full_subjects->free();
 			    unset($lines);
 		    }
 
