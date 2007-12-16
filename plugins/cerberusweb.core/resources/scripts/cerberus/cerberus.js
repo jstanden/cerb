@@ -245,6 +245,18 @@ var cAjaxCalls = function() {
 					genericAjaxGet('overviewTotals','c=tickets&a=refreshOverviewTotals');
 				});
 				break;
+			case 'take':
+				genericAjaxPost(formName, '', 'c=tickets&a=viewTakeTickets&view_id='+view_id, function(o) {
+					viewDiv.innerHTML = o.responseText;
+					genericAjaxGet('overviewTotals','c=tickets&a=refreshOverviewTotals');
+				});
+				break;
+			case 'surrender':
+				genericAjaxPost(formName, '', 'c=tickets&a=viewSurrenderTickets&view_id='+view_id, function(o) {
+					viewDiv.innerHTML = o.responseText;
+					genericAjaxGet('overviewTotals','c=tickets&a=refreshOverviewTotals');
+				});
+				break;
 		}
 	}
 	

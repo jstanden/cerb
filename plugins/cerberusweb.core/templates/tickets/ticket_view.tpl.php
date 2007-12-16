@@ -180,11 +180,13 @@
 				{/foreach}
 			</select>
 			
-			<a href="javascript:;" onclick="toggleDiv('view{$view->id}_more');">More &raquo;</a>
+			<a href="javascript:;" onclick="toggleDiv('view{$view->id}_more');">more options &raquo;</a>
 
 			<div id="view{$view->id}_more" style="display:none;padding-top:5px;padding-bottom:5px;">
 				<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','not_spam');">not spam</button>
 				<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','merge');">merge</button>
+				<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','take');">take</button>
+				<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','surrender');">surrender</button>
 			</div>
 
 		</td>

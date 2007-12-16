@@ -12,6 +12,10 @@
 			deleted.
 		{elseif $last_action->action == 'close'}
 			closed.
+		{elseif $last_action->action == 'take'}
+			assigned to you.
+		{elseif $last_action->action == 'surrender'}
+			surrendered.
 		{elseif $last_action->action == 'move'}
 			{assign var=moved_to_team_id value=$last_action->action_params.team_id}
 			{assign var=moved_to_category_id value=$last_action->action_params.category_id}

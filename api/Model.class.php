@@ -1547,6 +1547,8 @@ class Model_TicketViewLastAction {
 	const ACTION_CLOSE = 'close';
 	const ACTION_DELETE = 'delete';
 	const ACTION_MOVE = 'move';
+	const ACTION_TAKE = 'take';
+	const ACTION_SURRENDER = 'surrender';
 
 	public $ticket_ids = array(); // key = ticket id, value=old value
 	public $action = ''; // spam/closed/move, etc.

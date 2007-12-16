@@ -1562,7 +1562,7 @@ class ChTicketsPage extends CerberusPageExtension {
         //DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets')));
         DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets')));
 	}
-	
+
 	function viewMoveTicketsAction() {
 	    @$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 	    @$ticket_ids = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'array');
@@ -1622,6 +1622,86 @@ class ChTicketsPage extends CerberusPageExtension {
 	            DAO_WorkerPref::set($active_worker->id,''.DAO_WorkerPref::SETTING_MOVE_COUNTS,serialize($move_counts));
 	        }
 	    }
+	    
+	    $view = C4_AbstractViewLoader::getView('',$view_id);
+	    $view->render();
+	    return;
+	}
+
+	function viewTakeTicketsAction() {
+	    @$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
+	    @$ticket_ids = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'array');
+	    
+	    $active_worker = CerberusApplication::getActiveWorker();
+	    
+        $fields = array(
+            DAO_Ticket::NEXT_WORKER_ID => $active_worker->id,
+        );
+	    
+        //====================================
+	    // Undo functionality
+        $last_action = new Model_TicketViewLastAction();
+        $last_action->action = Model_TicketViewLastAction::ACTION_TAKE;
+
+        if(is_array($ticket_ids)) {
+			@$orig_tickets = DAO_Ticket::getTickets($ticket_ids); /* @var CerberusTicket[] $orig_tickets */
+
+	        foreach($ticket_ids as $ticket_id) {
+	            $last_action->ticket_ids[$ticket_id] = array(
+	                DAO_Ticket::NEXT_WORKER_ID => $orig_tickets[$ticket_id]->next_worker_id
+	            );
+	        }
+        }
+
+        $last_action->action_params = $fields;
+        
+        C4_TicketView::setLastAction($view_id,$last_action);
+        //====================================
+	    
+        DAO_Ticket::updateTicket($ticket_ids, $fields);
+	    
+	    $view = C4_AbstractViewLoader::getView('',$view_id);
+	    $view->render();
+	    return;
+	}
+
+	function viewSurrenderTicketsAction() {
+	    @$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
+	    @$ticket_ids = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'array');
+	    
+	    $active_worker = CerberusApplication::getActiveWorker();
+	    
+        $fields = array(
+            DAO_Ticket::NEXT_WORKER_ID => 0,
+        );
+	    
+        //====================================
+	    // Undo functionality
+        $last_action = new Model_TicketViewLastAction();
+        $last_action->action = Model_TicketViewLastAction::ACTION_SURRENDER;
+
+        if(is_array($ticket_ids)) {
+			@$orig_tickets = DAO_Ticket::getTickets($ticket_ids); /* @var CerberusTicket[] $orig_tickets */
+
+	        foreach($ticket_ids as $ticket_id) {
+	        	// Only surrender what we own
+	        	if($orig_tickets[$ticket_id]->next_worker_id != $active_worker->id) {
+	        		unset($ticket_ids[$ticket_id]);
+	        		continue;
+	        	}
+	        	
+	            $last_action->ticket_ids[$ticket_id] = array(
+	                DAO_Ticket::NEXT_WORKER_ID => $active_worker->id
+	            );
+	        }
+        }
+
+        $last_action->action_params = $fields;
+        
+        C4_TicketView::setLastAction($view_id,$last_action);
+        //====================================
+	    
+        DAO_Ticket::updateTicket($ticket_ids, $fields);
 	    
 	    $view = C4_AbstractViewLoader::getView('',$view_id);
 	    $view->render();
