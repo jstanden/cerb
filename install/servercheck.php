@@ -73,7 +73,7 @@ if(extension_loaded("pcre")) {
 }
 
 // Extension: GD
-if(extension_loaded("gd")) {
+if(extension_loaded("gd") && function_exists('imagettfbbox')) {
 	$results['ext_gd'] = true;
 } else {
 	$results['ext_gd'] = false;
@@ -169,8 +169,8 @@ it.</li>";
 it.</li>";
 		
 	if(!$results['ext_gd'])
-		echo "<li>The 'GD' PHP extension is required.  Please enable
-it.</li>";
+		echo "<li>The 'GD' PHP extension (with FreeType library support) is required.  Please enable
+them.</li>";
 		
 	if(!$results['ext_imap'])
 		echo "<li>The 'IMAP' PHP extension is required.  Please enable

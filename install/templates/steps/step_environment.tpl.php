@@ -39,7 +39,7 @@
 
 <b>PHP Extension (GD)... </b> 
 {if !$results.ext_gd}
-	<span class="bad">Error! PHP must have the 'GD' extension enabled.</span>
+	<span class="bad">Error! PHP must have the 'GD' extension enabled (with FreeType library support).</span>
 {else}
 	<span class="good">Passed!</span>
 {/if}

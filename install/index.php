@@ -251,7 +251,7 @@ switch($step) {
 		}
 
 		// Extension: GD
-		if(extension_loaded("gd")) {
+		if(extension_loaded("gd") && function_exists('imagettfbbox')) {
 			$results['ext_gd'] = true;
 		} else {
 			$results['ext_gd'] = false;
