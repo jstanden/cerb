@@ -1198,12 +1198,14 @@ class ChTicketsPage extends CerberusPageExtension {
 	    DAO_MessageContent::update($message_id, $content);
 
 	    // Headers
-		foreach($email->headers->getList() as $hdr => $v) {
-			if(null != ($hdr_val = $email->headers->getEncoded($hdr))) {
-				if(!empty($hdr_val))
-	    			DAO_MessageHeader::update($message_id, $ticket_id, $hdr, $hdr_val);
+	    if (!empty($email) && !empty($email->headers)) {
+			foreach($email->headers->getList() as $hdr => $v) {
+				if(null != ($hdr_val = $email->headers->getEncoded($hdr))) {
+					if(!empty($hdr_val))
+		    			DAO_MessageHeader::update($message_id, $ticket_id, $hdr, $hdr_val);
+				}
 			}
-		}
+	    }
 		
 		// Set recipients to requesters
 		// [TODO] Allow seperated addresses (parseRfcAddress)
