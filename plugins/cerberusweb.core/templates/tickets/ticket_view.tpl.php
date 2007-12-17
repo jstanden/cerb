@@ -68,11 +68,11 @@
 			{elseif $column=="t_first_wrote"}
 			<td><a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$result.t_first_wrote}&view_id={$view->id}',this,false,'500px',ajax.cbAddressPeek);" title="{$result.t_first_wrote}">{$result.t_first_wrote|truncate:45:'...':true:true}</a></td>
 			{elseif $column=="t_created_date"}
-			<td>{$result.t_created_date|date_format}</td>
+			<td title="{$result.t_created_date|date_format:'%b %e, %Y  %H:%M:%S'}">{$result.t_created_date|date_format}</td>
 			{elseif $column=="t_updated_date"}
-			<td>{$result.t_updated_date|date_format}</td>
+			<td title="{$result.t_updated_date|date_format:'%b %e, %Y  %H:%M:%S'}">{$result.t_updated_date|date_format}</td>
 			{elseif $column=="t_due_date"}
-			<td>{if $result.t_due_date}{$result.t_due_date|date_format}{/if}</td>
+			<td title="{if $result.t_due_date}{$result.t_due_date|date_format:'%b %e, %Y  %H:%M:%S'}{/if}">{if $result.t_due_date}{$result.t_due_date|date_format}{/if}</td>
 			{*{elseif $column=="t_tasks"}
 			<td align='center'>{if !empty($result.t_tasks)}{$result.t_tasks}{/if}</td>*}
 			{elseif $column=="tm_name"}
