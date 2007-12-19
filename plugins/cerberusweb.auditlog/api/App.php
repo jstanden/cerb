@@ -203,7 +203,7 @@ class DAO_TicketAuditLog extends DevblocksORMHelper {
     static function search($params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
 
-        list($tables,$wheres) = parent::_parseSearchParams($params, SearchFields_TicketAuditLog::getFields());
+        list($tables,$wheres) = parent::_parseSearchParams($params, array(), SearchFields_TicketAuditLog::getFields());
 		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
 		$total = -1;
 		

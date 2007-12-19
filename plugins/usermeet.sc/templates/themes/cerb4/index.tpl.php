@@ -79,7 +79,14 @@
 		
 		#content H1 {
 			color:rgb(244,47,0);
-			font-size:24px;
+			font-size:22px;
+			margin-top:0px;
+			margin-bottom:0px;
+		}
+		
+		#content H2 {
+			color:rgb(120,120,120);
+			font-size:17px;
 			margin-top:0px;
 			margin-bottom:0px;
 		}

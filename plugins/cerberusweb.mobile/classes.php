@@ -115,6 +115,7 @@ class MobileController extends DevblocksControllerExtension {
 			default:
 			case "home":
 				$mytickets = DAO_Ticket::search(
+					array(),
 					array(
 						new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN),
 						new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_NEXT_WORKER_ID,'=',$active_worker->id)

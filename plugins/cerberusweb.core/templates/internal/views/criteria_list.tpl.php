@@ -51,11 +51,26 @@
 	<blockquote style="margin:5px;">
 		<select name="field" onchange="genericAjaxGet('addCriteriaOptions','c=internal&a=viewGetCriteria&id={$view->id}&field='+selectValue(this));toggleDiv('addCriteriaSave',(selectValue(this)!='')?'block':'none');">
 			<option value="">-- choose --</option>
+			
+			<optgroup label="Ticket">
 			{foreach from=$view_searchable_fields item=column key=token}
-				{if !empty($column->db_label) && !empty($token)}
-				<option value="{$token}">{$translate->_($column->db_label)|capitalize}</option>
+				{if substr($token,0,3) != "cf_"}
+					{if !empty($column->db_label) && !empty($token)}
+					<option value="{$token}">{$translate->_($column->db_label)|capitalize}</option>
+					{/if}
 				{/if}
 			{/foreach}
+			</optgroup>
+			
+			<optgroup label="Custom Fields">
+			{foreach from=$view_searchable_fields item=column key=token}
+				{if substr($token,0,3) == "cf_"}
+					{if !empty($column->db_label) && !empty($token)}
+					<option value="{$token}">{$translate->_($column->db_label)|capitalize}</option>
+					{/if}
+				{/if}
+			{/foreach}
+			</optgroup>
 		</select>
 	</blockquote>
 

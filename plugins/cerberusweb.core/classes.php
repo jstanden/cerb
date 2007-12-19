@@ -2303,6 +2303,22 @@ class ChConfigurationPage extends CerberusPageExtension  {
 				$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/extensions/index.tpl.php');				
 				break;
 
+			case 'fields':
+				$types = Model_TicketField::getTypes();
+				$tpl->assign('types', $types);
+				
+				$fields = DAO_TicketField::getWhere(sprintf("%s = %d",
+					DAO_TicketField::GROUP_ID,
+					0
+				));
+				$tpl->assign('ticket_fields', $fields);
+				
+				$groups = DAO_Group::getAll();
+				$tpl->assign('groups', $groups);
+				
+				$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/fields/index.tpl.php');				
+				break;
+				
 			case 'licenses':
 				$license = CerberusLicense::getInstance();
 				$tpl->assign('license', $license);
@@ -2453,6 +2469,79 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		}
 		
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','fnr')));
+	}
+	
+	// Post
+	function addCustomFieldAction() {
+		$worker = CerberusApplication::getActiveWorker();
+		if(!$worker || !$worker->is_superuser) {
+			echo "Access denied.";
+			return;
+		}
+		
+		if(DEMO_MODE) {
+			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','fields')));
+			return;
+		}
+		
+		@$name = DevblocksPlatform::importGPC($_POST['name'],'string','');
+		@$type = DevblocksPlatform::importGPC($_POST['type'],'string','');
+		@$options = DevblocksPlatform::importGPC($_POST['options'],'string','');
+		@$group_id = DevblocksPlatform::importGPC($_POST['group_id'],'integer',0);
+		
+		$fields = array(
+			DAO_TicketField::NAME => $name,
+			DAO_TicketField::TYPE => $type,
+			DAO_TicketField::GROUP_ID => $group_id,
+			DAO_TicketField::OPTIONS => $options,
+		);
+		
+		$id = DAO_TicketField::create($fields);
+		
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','fields')));
+	}
+	
+	// Post
+	function saveCustomFieldsAction() {
+		$worker = CerberusApplication::getActiveWorker();
+		if(!$worker || !$worker->is_superuser) {
+			echo "Access denied.";
+			return;
+		}
+		
+		if(DEMO_MODE) {
+			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','fields')));
+			return;
+		}
+		
+		@$ids = DevblocksPlatform::importGPC($_POST['ids'],'array',array());
+		@$names = DevblocksPlatform::importGPC($_POST['names'],'array',array());
+		@$orders = DevblocksPlatform::importGPC($_POST['orders'],'array',array());
+		@$options = DevblocksPlatform::importGPC($_POST['options'],'array',array());
+		@$allow_delete = DevblocksPlatform::importGPC($_POST['allow_delete'],'integer',0);
+		@$deletes = DevblocksPlatform::importGPC($_POST['deletes'],'array',array());
+		
+		if(!empty($ids))
+		foreach($ids as $idx => $id) {
+			@$name = $names[$idx];
+			@$order = intval($orders[$idx]);
+			@$option = $options[$idx];
+			@$delete = (false !== array_search($id,$deletes) ? 1 : 0);
+			
+			if($allow_delete && $delete) {
+				DAO_TicketField::delete($id);
+				
+			} else {
+				$fields = array(
+					DAO_TicketField::NAME => $name, 
+					DAO_TicketField::POS => $order, 
+					DAO_TicketField::OPTIONS => !is_null($option) ? $option : '', 
+				);
+				DAO_TicketField::update($id, $fields);
+			}
+		}		
+		
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','fields')));
 	}
 	
 	// Post
@@ -3586,6 +3675,7 @@ class ChContactsPage extends CerberusPageExtension {
 			$id = $address[SearchFields_Address::ID];
 			
 			list($open_tickets, $open_count) = DAO_Ticket::search(
+				array(),
 				array(
 					new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',0),
 					new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_FIRST_WROTE_ID,'=',$address[SearchFields_Address::ID]),
@@ -3595,6 +3685,7 @@ class ChContactsPage extends CerberusPageExtension {
 			$tpl->assign('open_count', $open_count);
 			
 			list($closed_tickets, $closed_count) = DAO_Ticket::search(
+				array(),
 				array(
 					new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',1),
 					new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_FIRST_WROTE_ID,'=',$address[SearchFields_Address::ID]),
@@ -4035,6 +4126,19 @@ class ChGroupsPage extends CerberusPageExtension  {
 	                    $tpl->display('file:' . dirname(__FILE__) . '/templates/groups/manage/members.tpl.php');
 	                    break;
 	                    
+	                case 'fields':
+	                	$group_fields = DAO_TicketField::getWhere(sprintf("%s = %d",
+	                		DAO_TicketField::GROUP_ID,
+	                		$team_id
+	                	));
+	                	$tpl->assign('group_fields', $group_fields);
+	                    
+						$types = Model_TicketField::getTypes();
+						$tpl->assign('types', $types);
+	                	
+						$tpl->display('file:' . dirname(__FILE__) . '/templates/groups/manage/fields.tpl.php');
+	                    break;
+	                    
 	                case 'buckets':
 						$team_categories = DAO_Bucket::getByTeam($team_id);
 						$tpl->assign('categories', $team_categories);
@@ -4228,6 +4332,59 @@ class ChGroupsPage extends CerberusPageExtension  {
    		
    		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('groups','config',$team_id,'routing')));
    	}
+   	
+	// Post
+	function addCustomFieldAction() {
+		@$name = DevblocksPlatform::importGPC($_POST['name'],'string','');
+		@$type = DevblocksPlatform::importGPC($_POST['type'],'string','');
+		@$group_id = DevblocksPlatform::importGPC($_POST['team_id'],'integer');
+		@$options = DevblocksPlatform::importGPC($_POST['options'],'string','');
+		
+		$fields = array(
+			DAO_TicketField::NAME => $name,
+			DAO_TicketField::TYPE => $type,
+			DAO_TicketField::GROUP_ID => $group_id,
+			DAO_TicketField::OPTIONS => $options,
+		);
+		
+		$id = DAO_TicketField::create($fields);
+		
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('groups','config',$group_id,'fields')));
+	}
+	
+	// Post
+	function saveCustomFieldsAction() {
+		@$group_id = DevblocksPlatform::importGPC($_POST['team_id'],'integer');
+		
+		@$ids = DevblocksPlatform::importGPC($_POST['ids'],'array',array());
+		@$names = DevblocksPlatform::importGPC($_POST['names'],'array',array());
+		@$orders = DevblocksPlatform::importGPC($_POST['orders'],'array',array());
+		@$options = DevblocksPlatform::importGPC($_POST['options'],'array',array());
+		@$allow_delete = DevblocksPlatform::importGPC($_POST['allow_delete'],'integer',0);
+		@$deletes = DevblocksPlatform::importGPC($_POST['deletes'],'array',array());
+		
+		if(!empty($ids))
+		foreach($ids as $idx => $id) {
+			@$name = $names[$idx];
+			@$order = intval($orders[$idx]);
+			@$option = $options[$idx];
+			@$delete = (false !== array_search($id,$deletes) ? 1 : 0);
+			
+			if($allow_delete && $delete) {
+				DAO_TicketField::delete($id);
+				
+			} else {
+				$fields = array(
+					DAO_TicketField::NAME => $name, 
+					DAO_TicketField::POS => $order, 
+					DAO_TicketField::OPTIONS => !is_null($option) ? $option : '',
+				);
+				DAO_TicketField::update($id, $fields);
+			}
+		}		
+		
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('groups','config',$group_id,'fields')));
+	}
 	
 };
 
@@ -4414,6 +4571,7 @@ XML;
         $channel->addChild('description', '');
 
 		list($tickets, $null) = DAO_Ticket::search(
+			array(),
 			$feed->params['params'],
 			100,
 			0,
@@ -4966,6 +5124,7 @@ class ChDisplayPage extends CerberusPageExtension {
 			$page = floor($pos / $range);
 			
 			list($series, $series_count) = DAO_Ticket::search(
+				$view->view_columns,
 				$view->params,
 				$range,
 				$page,
@@ -5456,6 +5615,73 @@ class ChDisplayPage extends CerberusPageExtension {
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/history/index.tpl.php');
 	}
 
+	function showCustomFieldsAction() {
+		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer');
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+
+		$ticket = DAO_Ticket::getTicket($ticket_id);
+		$tpl->assign('ticket', $ticket);
+		$tpl->assign('ticket_id', $ticket_id);
+		
+		$fields = DAO_TicketField::getWhere();
+		$tpl->assign('ticket_fields', $fields);
+		
+		$groups = DAO_Group::getAll();
+		$tpl->assign('groups', $groups);
+		
+		$field_values = DAO_TicketFieldValue::getValuesByTickets($ticket_id);
+		if(isset($field_values[$ticket_id]))
+			$tpl->assign('ticket_field_values', $field_values[$ticket_id]);
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/fields/index.tpl.php');
+		exit;
+	}
+	
+	// Post
+	function setCustomFieldsAction() {
+		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer');
+		
+		@$ticket = DAO_Ticket::getTicket($ticket_id);
+		$fields = DAO_TicketField::getWhere();
+		
+		@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'],'array',array());
+
+		if(is_array($field_ids))
+		foreach($field_ids as $field_id) {
+			if(!isset($fields[$field_id]))
+				continue;
+			
+			@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'string','');
+			
+			switch($fields[$field_id]->type) {
+				case Model_TicketField::TYPE_MULTI_LINE:
+				case Model_TicketField::TYPE_SINGLE_LINE:
+					DAO_TicketFieldValue::setFieldValue($ticket_id, $field_id, $field_value);
+					break;
+					
+				case Model_TicketField::TYPE_DROPDOWN:
+					// [TODO] Handle null as unset
+					DAO_TicketFieldValue::setFieldValue($ticket_id, $field_id, $field_value);
+					break;
+					
+				case Model_TicketField::TYPE_CHECKBOX:
+					$set = !empty($field_value) ? 1 : 0;
+					DAO_TicketFieldValue::setFieldValue($ticket_id, $field_id, $set);
+					break;
+					
+				case Model_TicketField::TYPE_DATE:
+					@$date = strtotime($field_value);
+					DAO_TicketFieldValue::setFieldValue($ticket_id, $field_id, $date);
+					break;
+			}
+		}
+		
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('display',$ticket->mask)));
+	}
+	
 	// Ajax
 	function showTemplatesPanelAction() {
 		@$reply_id = DevblocksPlatform::importGPC($_REQUEST['reply_id'],'integer');

@@ -360,26 +360,29 @@ class C4_TicketView extends C4_AbstractView {
 		$this->renderSortAsc = false;
 
 		$this->view_columns = array(
-		SearchFields_Ticket::TICKET_NEXT_ACTION,
-		SearchFields_Ticket::TICKET_UPDATED_DATE,
-		SearchFields_Ticket::TICKET_CATEGORY_ID,
-		SearchFields_Ticket::TICKET_SPAM_SCORE,
-		SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
+			SearchFields_Ticket::TICKET_NEXT_ACTION,
+			SearchFields_Ticket::TICKET_UPDATED_DATE,
+			SearchFields_Ticket::TICKET_CATEGORY_ID,
+			SearchFields_Ticket::TICKET_SPAM_SCORE,
+			SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
 		);
 	}
 
 	function getData() {
 		$objects = DAO_Ticket::search(
-		$this->params,
-		$this->renderLimit,
-		$this->renderPage,
-		$this->renderSortBy,
-		$this->renderSortAsc
+			$this->view_columns,
+			$this->params,
+			$this->renderLimit,
+			$this->renderPage,
+			$this->renderSortBy,
+			$this->renderSortAsc
 		);
 		return $objects;
 	}
 
 	function render() {
+		$this->_sanitize();
+		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('id', $this->id);
 		$view_path = DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/tickets/';
@@ -390,6 +393,11 @@ class C4_TicketView extends C4_AbstractView {
 
 		$active_dashboard_id = $visit->get(CerberusVisit::KEY_DASHBOARD_ID, 0);
 
+		$results = self::getData();
+		$tpl->assign('results', $results);
+		
+		@$ids = array_keys($results[0]);
+		
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 
@@ -405,6 +413,9 @@ class C4_TicketView extends C4_AbstractView {
 		$slas = DAO_Sla::getAll();
 		$tpl->assign('slas', $slas);
 
+		$ticket_fields = DAO_TicketField::getWhere(); // [TODO] Cache ::getAll()
+		$tpl->assign('ticket_fields', $ticket_fields);
+		
 		// Undo?
 		$last_action = C4_TicketView::getLastAction($this->id);
 		$tpl->assign('last_action', $last_action);
@@ -435,6 +446,58 @@ class C4_TicketView extends C4_AbstractView {
 		$tpl->display('file:' . $view_path . 'ticket_view.tpl.php');
 	}
 
+	/**
+	 * This method automatically fixes any cached strange options, like 
+	 * deleted custom fields.
+	 *
+	 */
+	private function _sanitize() {
+		$custom_fields = DAO_TicketField::getWhere(); // [TODO] Cache ::getAll()
+		$needs_save = false;
+		
+		// Parameter sanity check
+		foreach($this->params as $pidx => $null) {
+			if(substr($pidx,0,3)!="cf_")
+				continue;
+				
+			if(0 != ($cf_id = intval(substr($pidx,3)))) {
+				// Make sure our custom fields still exist
+				if(!isset($custom_fields[$cf_id])) {
+					unset($this->params[$pidx]);
+					$needs_save = true;
+				}
+			}
+		}
+		
+		// View column sanity check
+		foreach($this->view_columns as $cidx => $c) {
+			if(substr($c,0,3)!="cf_")
+				continue;
+			
+			if(0 != ($cf_id = intval(substr($c,3)))) {
+				// Make sure our custom fields still exist
+				if(!isset($custom_fields[$cf_id])) {
+					unset($this->view_columns[$cidx]);
+					$needs_save = true;
+				}
+			}
+		}
+		
+		// Sort by sanity check
+		if(substr($this->renderSortBy,0,3)=="cf_") {
+			if(0 != ($cf_id = intval(substr($this->renderSortBy,3)))) {
+				if(!isset($custom_fields[$cf_id])) {
+					$this->renderSortBy = null;
+					$needs_save = true;
+				}
+			}
+    	}
+    	
+    	if($needs_save) {
+    		C4_AbstractViewLoader::setView($this->id, $this);
+    	}
+	}
+	
 	function renderCriteria($field) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('id', $this->id);
@@ -499,7 +562,26 @@ class C4_TicketView extends C4_AbstractView {
 				break;
 
 			default:
-				echo ' ';
+				// Custom Fields
+				if(substr($field,0,3)=='cf_') {
+					$cfield_id = substr($field,3);
+					$cfield = DAO_TicketField::get($cfield_id);
+					switch($cfield->type) {
+						case Model_TicketField::TYPE_DROPDOWN:
+							$tpl->assign('cfield', $cfield);
+							$tpl->display('file:' . $tpl_path . 'tickets/search/criteria/cfield_dropdown.tpl.php');
+							break;
+						case Model_TicketField::TYPE_CHECKBOX:
+							$tpl->assign('cfield', $cfield);
+							$tpl->display('file:' . $tpl_path . 'tickets/search/criteria/cfield_checkbox.tpl.php');
+							break;
+						default:
+							$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__string.tpl.php');
+							break;
+					}
+				} else {
+					echo ' ';
+				}
 				break;
 		}
 	}
@@ -693,6 +775,38 @@ class C4_TicketView extends C4_AbstractView {
 				$this->params[SearchFields_Ticket::TICKET_CATEGORY_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CATEGORY_ID,$oper,$bucket_ids);
 
 				break;
+				
+			default:
+				// Custom Fields
+				if(substr($field,0,3)=='cf_') {
+					$cfield_id = substr($field,3);
+					$cfield = DAO_TicketField::get($cfield_id);
+					switch($cfield->type) {
+						case Model_TicketField::TYPE_DROPDOWN:
+							@$options = DevblocksPlatform::importGPC($_POST['options'],'array',array());
+							if(!empty($options)) {
+								$criteria = new DevblocksSearchCriteria($field,$oper,$options);
+							} else {
+								$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IS_NULL);
+							}
+							break;
+						case Model_TicketField::TYPE_CHECKBOX:
+							if(!empty($options)) {
+								$criteria = new DevblocksSearchCriteria($field,$oper,$value);
+							} else {
+								$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IS_NULL);
+							}
+							break;
+						default:
+							if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
+							&& false === (strpos($value,'*'))) {
+								$value = '*'.$value.'*';
+							}
+							$criteria = new DevblocksSearchCriteria($field,$oper,$value);
+							break;
+					}
+				}
+				break;
 		}
 
 		if(!empty($criteria)) {
@@ -768,6 +882,7 @@ class C4_TicketView extends C4_AbstractView {
 					if(empty($ticket_ids)) {
 						do {
 							list($tickets,$null) = DAO_Ticket::search(
+							array(),
 							$new_params,
 							100,
 							$pg++,
@@ -1826,6 +1941,31 @@ class Model_MailTemplateReply {
 		);
 
 		return $out;
+	}
+};
+
+class Model_TicketField {
+	const TYPE_SINGLE_LINE = 'S';
+	const TYPE_MULTI_LINE = 'T';
+	const TYPE_CHECKBOX = 'C';
+	const TYPE_DROPDOWN = 'D';
+	const TYPE_DATE = 'E';
+	
+	public $id = 0;
+	public $name = '';
+	public $type = '';
+	public $group_id = 0;
+	public $pos = 0;
+	public $options = array();
+	
+	static function getTypes() {
+		return array(
+			self::TYPE_SINGLE_LINE => 'Text: Single Line',
+			self::TYPE_MULTI_LINE => 'Text: Multi-Line',
+			self::TYPE_CHECKBOX => 'Checkbox',
+			self::TYPE_DROPDOWN => 'Dropdown',
+			self::TYPE_DATE => 'Date',
+		);
 	}
 };
 

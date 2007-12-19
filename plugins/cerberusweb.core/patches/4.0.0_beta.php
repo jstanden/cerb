@@ -633,6 +633,47 @@ if(!isset($indexes['next_worker_id'])) {
     $datadict->ExecuteSQLArray($sql);
 }
 
+// `ticket_field` ==================
+if(!isset($tables['ticket_field'])) {
+    $flds = "
+		id I4 DEFAULT 0 NOTNULL PRIMARY,
+		name C(32) DEFAULT '' NOTNULL,
+		type C(1) DEFAULT 'S' NOTNULL,
+		group_id I4 DEFAULT 0 NOTNULL,
+		pos I2 DEFAULT 0 NOTNULL,
+		options XL DEFAULT '' NOTNULL
+	";
+    $sql = $datadict->CreateTableSQL('ticket_field',$flds);
+    $datadict->ExecuteSQLArray($sql);
+}
+
+$columns = $datadict->MetaColumns('ticket_field');
+$indexes = $datadict->MetaIndexes('ticket_field',false);
+
+if(!isset($indexes['group_id'])) {
+    $sql = $datadict->CreateIndexSQL('group_id','ticket_field','group_id');
+    $datadict->ExecuteSQLArray($sql);
+}
+
+// `ticket_field_value` ==================
+if(!isset($tables['ticket_field_value'])) {
+    $flds = "
+		field_id I4 DEFAULT 0 NOTNULL PRIMARY,
+		ticket_id I4 DEFAULT 0 NOTNULL PRIMARY,
+		field_value XL DEFAULT '' NOTNULL
+	";
+    $sql = $datadict->CreateTableSQL('ticket_field_value',$flds);
+    $datadict->ExecuteSQLArray($sql);
+}
+
+$columns = $datadict->MetaColumns('ticket_field_value');
+$indexes = $datadict->MetaIndexes('ticket_field_value',false);
+
+if(!isset($indexes['ticket_id'])) {
+    $sql = $datadict->CreateIndexSQL('ticket_id','ticket_field_value','ticket_id');
+    $datadict->ExecuteSQLArray($sql);
+}
+
 // `ticket_rss` ========================
 if(!isset($tables['ticket_rss'])) {
     $flds = "

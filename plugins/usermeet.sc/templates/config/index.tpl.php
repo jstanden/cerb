@@ -133,8 +133,14 @@ articles, wiki articles, forum posts, documentation pages, blog entries, wishlis
 	<br>
 	<b>Send to:</b> {$params.to}<br>
 	{if is_array($params.followups)}
-	{foreach from=$params.followups key=question item=long}
-	<b>Ask:</b> {$question} {if $long}(Long Answer){/if}<br>
+	{foreach from=$params.followups key=question item=field_id}
+	<b>Ask:</b> {$question} 
+	{if $field_id}
+		{assign var=field value=$ticket_fields.$field_id}
+		{assign var=field_group_id value=$field->group_id}
+		({$groups.$field_group_id->name}: {$field->name|escape})
+	{/if}
+	<br>
 	{/foreach}
 	{/if}
 </div>

@@ -249,7 +249,9 @@ class MaintCron extends CerberusCronPageExtension {
         $max_purges = 2500; // max per maint run // [TODO] Make this configurable from job
         
         do {	    
-		    list($tickets, $null) = DAO_Ticket::search(array(
+		    list($tickets, $null) = DAO_Ticket::search(
+		    	array(),
+		    	array(
 		            new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,'=',1)
 		        ),
 		        250,

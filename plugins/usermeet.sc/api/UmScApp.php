@@ -229,6 +229,13 @@ class UmScApp extends Extension_UsermeetTool {
 		}
 		$tpl->assign('themes', $themes);
 		
+		$groups = DAO_Group::getAll();
+		$tpl->assign('groups', $groups);
+		
+		// Contact: Fields
+		$ticket_fields = DAO_TicketField::getWhere();
+		$tpl->assign('ticket_fields', $ticket_fields);
+		
         $tpl->display("file:${tpl_path}config/index.tpl.php");
     }
     
@@ -280,7 +287,8 @@ class UmScApp extends Extension_UsermeetTool {
     	@$sReason = DevblocksPlatform::importGPC($_POST['reason'],'string','');
         @$sTo = DevblocksPlatform::importGPC($_POST['to'],'string','');
         @$aFollowup = DevblocksPlatform::importGPC($_POST['followup'],'array',array());
-        @$aFollowupLong = DevblocksPlatform::importGPC($_POST['followup_long'],'array',array());
+        @$aFollowupField = DevblocksPlatform::importGPC($_POST['followup_fields'],'array',array());
+//        @$aFollowupLong = DevblocksPlatform::importGPC($_POST['followup_long'],'array',array());
         
         if(empty($sTo))
         	$sTo = $default_from;
@@ -322,7 +330,8 @@ class UmScApp extends Extension_UsermeetTool {
 			if(!empty($aFollowup))
 			foreach($aFollowup as $idx => $followup) {
 				if(empty($followup)) continue;
-				$followups[$followup] = (false !== array_search($idx,$aFollowupLong)) ? 1 : 0;
+//				$followups[$followup] = (false !== array_search($idx,$aFollowupLong)) ? 1 : 0;
+				$followups[$followup] = @$aFollowupField[$idx];
 			}
         }
         
@@ -357,6 +366,13 @@ class UmScApp extends Extension_UsermeetTool {
         		break;
         	}
         }
+        
+		$groups = DAO_Group::getAll();
+		$tpl->assign('groups', $groups);
+        
+		// Contact: Fields
+		$ticket_fields = DAO_TicketField::getWhere();
+		$tpl->assign('ticket_fields', $ticket_fields);
         
         $tpl->display("file:${tpl_path}config/add_situation.tpl.php");
 		exit;
@@ -676,6 +692,7 @@ class UmScCoreController extends Extension_UmScController {
 		
 		// Secure retrieval (address + mask)
 		list($tickets) = DAO_Ticket::search(
+			array(),
 			array(
 				new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_MASK,'=',$mask),
 				new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_FIRST_WROTE_ID,'=',$active_user->id),
@@ -709,6 +726,7 @@ class UmScCoreController extends Extension_UmScController {
 
 		// Secure retrieval (address + mask)
 		list($tickets) = DAO_Ticket::search(
+			array(),
 			array(
 				new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_MASK,'=',$mask),
 				new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_FIRST_WROTE_ID,'=',$active_user->id),
@@ -768,11 +786,12 @@ class UmScCoreController extends Extension_UmScController {
 		$umsession->setProperty('support.write.last_subject', null);
 		$umsession->setProperty('support.write.last_content', null);
 		$umsession->setProperty('support.write.last_error', null);
+		$umsession->setProperty('support.write.last_followup_a', null);
 		
 		$sDispatch = DAO_CommunityToolProperty::get($this->getPortal(),UmScApp::PARAM_DISPATCH, '');
 		$dispatch = !empty($sDispatch) ? unserialize($sDispatch) : array();
 		
-		// Check if this nature has followups, if not skip to step3
+		// Check if this nature has followups, if not skip to send
 		$followups = array();
 		if(is_array($dispatch))
         foreach($dispatch as $k => $v) {
@@ -782,42 +801,8 @@ class UmScCoreController extends Extension_UmScController {
         		break;
         	}
         }
-
-        if(empty($followups)) {		
-			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',$this->getPortal(),'contact','step3')));
-        } else {
-			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',$this->getPortal(),'contact','step2')));
-        }
-	}
-	
-	function doContactStep3Action() {
-		$umsession = $this->getSession();
-		$fingerprint = parent::getFingerprint();
-
-		@$aFollowUpQ = DevblocksPlatform::importGPC($_POST['followup_q'],'array',array());
-		@$aFollowUpA = DevblocksPlatform::importGPC($_POST['followup_a'],'array',array());
-		$nature = $umsession->getProperty('support.write.last_nature_string','');
-		$content = '';
-		
-		if(!empty($aFollowUpQ)) {
-			$content = "Comments:\r\n\r\n\r\n";
-			$content .= "--------------------------------------------\r\n";
-			if(!empty($nature)) {
-				$content .= $nature . "\r\n";
-				$content .= "--------------------------------------------\r\n";
-			}
-			foreach($aFollowUpQ as $idx => $q) {
-				$content .= "Q) " . $q . "\r\n" . "A) " . $aFollowUpA[$idx] . "\r\n";
-				if($idx+1 < count($aFollowUpQ)) $content .= "\r\n";
-			}
-			$content .= "--------------------------------------------\r\n";
-			"\r\n";
-		}
-		
-		$umsession->setProperty('support.write.last_content', $content);
-		$umsession->setProperty('support.write.last_error', null);
-		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',$this->getPortal(),'contact','step3')));
+        
+        DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',$this->getPortal(),'contact','step2')));
 	}
 	
 	function doContactSendAction() {
@@ -825,6 +810,10 @@ class UmScCoreController extends Extension_UmScController {
 		@$sSubject = DevblocksPlatform::importGPC($_POST['subject'],'string','');
 		@$sContent = DevblocksPlatform::importGPC($_POST['content'],'string','');
 		@$sCaptcha = DevblocksPlatform::importGPC($_POST['captcha'],'string','');
+		
+		@$aFieldIds = DevblocksPlatform::importGPC($_POST['field_ids'],'array',array());
+		@$aFollowUpQ = DevblocksPlatform::importGPC($_POST['followup_q'],'array',array());
+		@$aFollowUpA = DevblocksPlatform::importGPC($_POST['followup_a'],'array',array());
 		
 		$umsession = $this->getSession();
 		$fingerprint = parent::getFingerprint();
@@ -835,6 +824,8 @@ class UmScCoreController extends Extension_UmScController {
 		$umsession->setProperty('support.write.last_from',$sFrom);
 		$umsession->setProperty('support.write.last_subject',$sSubject);
 		$umsession->setProperty('support.write.last_content',$sContent);
+//		$umsession->setProperty('support.write.last_followup_q',$aFollowUpQ);
+		$umsession->setProperty('support.write.last_followup_a',$aFollowUpA);
         
 		$sNature = $umsession->getProperty('support.write.last_nature', '');
 		
@@ -849,7 +840,7 @@ class UmScCoreController extends Extension_UmScController {
 			}
 			
 			// [TODO] Need to report the captcha didn't match and redraw the form
-			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',$this->getPortal(),'contact','step3')));
+			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',$this->getPortal(),'contact','step2')));
 			return;
 		}
 
@@ -871,6 +862,23 @@ class UmScCoreController extends Extension_UmScController {
         if(!empty($sSubject))
         	$subject = $sSubject;
 		
+		$fieldContent = '';
+		
+		if(!empty($aFollowUpQ)) {
+			$fieldContent = "\r\n\r\n";
+			$fieldContent .= "--------------------------------------------\r\n";
+			if(!empty($sNature)) {
+				$fieldContent .= $subject . "\r\n";
+				$fieldContent .= "--------------------------------------------\r\n";
+			}
+			foreach($aFollowUpQ as $idx => $q) {
+				$fieldContent .= "Q) " . $q . "\r\n" . "A) " . $aFollowUpA[$idx] . "\r\n";
+				if($idx+1 < count($aFollowUpQ)) $fieldContent .= "\r\n";
+			}
+			$fieldContent .= "--------------------------------------------\r\n";
+			"\r\n";
+		}
+		
 		$message = new CerberusParserMessage();
 		$message->headers['date'] = date('r'); 
 		$message->headers['to'] = $to;
@@ -886,14 +894,19 @@ class UmScCoreController extends Extension_UmScController {
 		$from = array_shift($fromList);
 		$message->headers['from'] = $from->mailbox . '@' . $from->host; 
 
-		$message->body = 'IP: ' . $fingerprint['ip'] . "\r\n\r\n" . $sContent;
+		$message->body = 'IP: ' . $fingerprint['ip'] . "\r\n\r\n" . $sContent . $fieldContent;
 
 		$ticket_id = CerberusParser::parseMessage($message);
 		$ticket = DAO_Ticket::getTicket($ticket_id);
 		
-//		echo "Created Ticket ID: $ticket_id<br>";
-		// [TODO] Could set this ID/mask into the UMsession
-
+		// Auto-save any custom fields
+		if(!empty($aFieldIds))
+		foreach($aFieldIds as $iIdx => $iFieldId) {
+			if(!empty($iFieldId)) {
+				DAO_TicketFieldValue::setFieldValue($ticket_id,$iFieldId,$aFollowUpA[$iIdx]);
+			}
+		}
+		
 		// Clear any errors
 		$umsession->setProperty('support.write.last_nature',null);
 		$umsession->setProperty('support.write.last_nature_string',null);
@@ -1016,18 +1029,22 @@ class UmScCoreController extends Extension_UmScController {
 		    		
 		    		default:
 		    		case 'step1':
+		    			$umsession->setProperty('support.write.last_error', null);
 		    		case 'step2':
-		    		case 'step3':
 		    			$sFrom = $umsession->getProperty('support.write.last_from','');
 		    			$sSubject = $umsession->getProperty('support.write.last_subject','');
 		    			$sNature = $umsession->getProperty('support.write.last_nature','');
 		    			$sContent = $umsession->getProperty('support.write.last_content','');
+//		    			$aLastFollowupQ = $umsession->getProperty('support.write.last_followup_q','');
+		    			$aLastFollowupA = $umsession->getProperty('support.write.last_followup_a','');
 		    			$sError = $umsession->getProperty('support.write.last_error','');
 		    			
 						$tpl->assign('last_from', $sFrom);
 						$tpl->assign('last_subject', $sSubject);
 						$tpl->assign('last_nature', $sNature);
 						$tpl->assign('last_content', $sContent);
+//						$tpl->assign('last_followup_q', $aLastFollowupQ);
+						$tpl->assign('last_followup_a', $aLastFollowupA);
 						$tpl->assign('last_error', $sError);
 						
 	       				$sDispatch = DAO_CommunityToolProperty::get($this->getPortal(),UmScApp::PARAM_DISPATCH, '');
@@ -1050,11 +1067,11 @@ class UmScCoreController extends Extension_UmScController {
 						        		break;
 						        	}
 						        }
+						        
+						        $ticket_fields = DAO_TicketField::getWhere();
+        						$tpl->assign('ticket_fields', $ticket_fields);
+						        
 				        		$tpl->display("file:${tpl_path}internal/contact/step2.tpl.php");
-				        		break;
-				        		
-				        	case 'step3':
-				        		$tpl->display("file:${tpl_path}internal/contact/step3.tpl.php");
 				        		break;
 				        }
 				        break;
@@ -1072,6 +1089,7 @@ class UmScCoreController extends Extension_UmScController {
 				
 				if(empty($mask)) {
 					list($open_tickets) = DAO_Ticket::search(
+						array(),
 						array(
 							new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_FIRST_WROTE_ID,'=',$active_user->id),
 							new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',0)
@@ -1085,6 +1103,7 @@ class UmScCoreController extends Extension_UmScController {
 					$tpl->assign('open_tickets', $open_tickets);
 					
 					list($closed_tickets) = DAO_Ticket::search(
+						array(),
 						array(
 							new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_FIRST_WROTE_ID,'=',$active_user->id),
 							new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',1)
@@ -1101,6 +1120,7 @@ class UmScCoreController extends Extension_UmScController {
 				} else {
 					// Secure retrieval (address + mask)
 					list($tickets) = DAO_Ticket::search(
+						array(),
 						array(
 							new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_MASK,'=',$mask),
 							new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_FIRST_WROTE_ID,'=',$active_user->id),

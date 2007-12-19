@@ -1,7 +1,6 @@
 <div id="{$view->id}_output_container">
 	{include file="file:$view_path/rpc/ticket_view_output.tpl.php"}
 </div>
-{assign var=results value=$view->getData()}
 {assign var=total value=$results[1]}
 {assign var=tickets value=$results[0]}
 <table cellpadding="0" cellspacing="0" border="0" class="tableBlue" width="100%" class="tableBg">
@@ -31,7 +30,11 @@
 		{foreach from=$view->view_columns item=header name=headers}
 			{* start table header, insert column title and link *}
 			<th>
-			<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewSortBy&id={$view->id}&sortBy={$header}');">{$view_fields.$header->db_label|capitalize}</a>
+			{if !empty($view_fields.$header->db_column)}
+				<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewSortBy&id={$view->id}&sortBy={$header}');">{$view_fields.$header->db_label|capitalize}</a>
+			{else}
+				<a href="javascript:;" style="text-decoration:none;">{$view_fields.$header->db_label|capitalize}</a>
+			{/if}
 			
 			{* add arrow if sorting by this column, finish table header tag *}
 			{if $header==$view->renderSortBy}
@@ -61,7 +64,23 @@
 		</tr>
 		<tr class="{$tableRowBg}" id="{$rowIdPrefix}" onmouseover="toggleClass(this.id,'tableRowHover');toggleClass('{$rowIdPrefix}_s','tableRowHover');" onmouseout="toggleClass(this.id,'{$tableRowBg}');toggleClass('{$rowIdPrefix}_s','{$tableRowBg}');" onclick="if(getEventTarget(event)=='TD') checkAll('{$rowIdPrefix}_s');">
 		{foreach from=$view->view_columns item=column name=columns}
-			{if $column=="t_mask"}
+			{if substr($column,0,3)=="cf_"}
+				{assign var=col value=$column|explode:'_'}
+				{assign var=col_id value=$col.1}
+				{assign var=col value=$ticket_fields.$col_id}
+				
+				{if $col->type=='S'}
+				<td>{$result.$column}</td>
+				{elseif $col->type=='T'}
+				<td title="{$result.$column|escape}">{$result.$column|truncate:32}</td>
+				{elseif $col->type=='D'}
+				<td>{$result.$column}</td>
+				{elseif $col->type=='E'}
+				<td>{$result.$column|date_format}</td>
+				{elseif $col->type=='C'}
+				<td>{if '1'==$result.$column}Yes{elseif '0'==$result.$column}No{/if}</td>
+				{/if}
+			{elseif $column=="t_mask"}
 			<td><a href="{devblocks_url}c=display&id={$result.t_mask}{/devblocks_url}">{$result.t_mask}</a></td>
 			{elseif $column=="t_last_wrote"}
 			<td><a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$result.t_last_wrote}&view_id={$view->id}',this,false,'500px',ajax.cbAddressPeek);" title="{$result.t_last_wrote}">{$result.t_last_wrote|truncate:45:'...':true:true}</a></td>

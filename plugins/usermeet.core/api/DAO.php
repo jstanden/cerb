@@ -215,7 +215,7 @@ class DAO_CommunityTool extends DevblocksORMHelper {
     static function search($params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
 
-        list($tables,$wheres) = parent::_parseSearchParams($params, SearchFields_CommunityTool::getFields());
+        list($tables,$wheres) = parent::_parseSearchParams($params, array(), SearchFields_CommunityTool::getFields());
 		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
 		
 		$sql = sprintf("SELECT ".
@@ -528,7 +528,7 @@ class DAO_KbArticle extends DevblocksORMHelper {
     static function search($params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
 
-        list($tables,$wheres) = parent::_parseSearchParams($params, SearchFields_KbArticle::getFields());
+        list($tables,$wheres) = parent::_parseSearchParams($params, array(), SearchFields_KbArticle::getFields());
 		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
 		
 		$sql = sprintf("SELECT ".
