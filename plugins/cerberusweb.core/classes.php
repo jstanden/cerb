@@ -3643,6 +3643,7 @@ class ChContactsPage extends CerberusPageExtension {
 		@$address_id = DevblocksPlatform::importGPC($_REQUEST['address_id'],'integer',0);
 		@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string','');
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
+		@$org_id = DevblocksPlatform::importGPC($_REQUEST['org_id'],'string','');
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
@@ -3693,6 +3694,12 @@ class ChContactsPage extends CerberusPageExtension {
 				1
 			);
 			$tpl->assign('closed_count', $closed_count);
+		}
+		
+		if (!empty($org_id)) {
+			$org = DAO_ContactOrg::get($org_id);
+			$tpl->assign('org_name',$org->name);
+			$tpl->assign('org_id',$org->id);
 		}
 		
 		$tpl->assign('id', $id);

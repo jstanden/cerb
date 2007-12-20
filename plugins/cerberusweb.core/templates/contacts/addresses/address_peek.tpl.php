@@ -30,10 +30,10 @@
 		<td width="0%" nowrap="nowrap" align="right" valign="top">Organization: </td>
 		<td width="100%" valign="top">
 			<div id="contactautocomplete" style="width:98%;" class="yui-ac">
-				<input type="text" name="contact_org" id="contactinput" value="{$address.o_name}" class="yui-ac-input">
+				<input type="text" name="contact_org" id="contactinput" value="{if !empty($address.a_contact_org_id)}{$address.o_name}{else}{$org_name}{/if}" class="yui-ac-input">
 				<div id="contactcontainer" class="yui-ac-container"></div>
 			</div>			
-			<input type="hidden" name="contact_orgid" value="{$address.a_contact_org_id}"/>
+			<input type="hidden" name="contact_orgid" value="{if !empty($address.a_contact_org_id)}{$address.a_contact_org_id}{else}{$org_id}{/if}"/>
 			<br>
 			<br>
 		</td>
