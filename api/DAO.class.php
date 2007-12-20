@@ -2225,6 +2225,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 			
 		list($tickets, $null) = self::search(
+			array(),
 			array(
 				new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_ID,DevblocksSearchCriteria::OPER_IN,$ids),
 			),
@@ -4896,7 +4897,7 @@ class DAO_TicketFieldValue extends DevblocksORMHelper {
 	public static function clearTicketValues($ticket_id) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = sprintf("DELETE FROM ticket_field_value WHERE ticket_id = %d",ticket_id);
+		$sql = sprintf("DELETE FROM ticket_field_value WHERE ticket_id = %d",$ticket_id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 	}
 };
