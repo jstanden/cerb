@@ -2238,12 +2238,11 @@ class ChConfigurationPage extends CerberusPageExtension  {
 				if ($smtp_auth_enabled) {
 					$smtp_auth_user = $settings->get(CerberusSettings::SMTP_AUTH_USER,'');
 					$smtp_auth_pass = $settings->get(CerberusSettings::SMTP_AUTH_PASS,''); 
-					$smtp_enc = $settings->get(CerberusSettings::SMTP_ENCRYPTION_TYPE,'None');
 				} else {
 					$smtp_auth_user = '';
 					$smtp_auth_pass = ''; 
-					$smtp_enc = 'None';
 				}
+				$smtp_enc = $settings->get(CerberusSettings::SMTP_ENCRYPTION_TYPE,'None');
 				
 				// [JAS]: Test the provided SMTP settings and give form feedback
 				if(!empty($test_connection) && !empty($smtp_host)) {
