@@ -3377,6 +3377,8 @@ class ChContactsPage extends CerberusPageExtension {
 		@$sync_column = DevblocksPlatform::importGPC($_REQUEST['sync_column'],'string','');
 		@$include_first = DevblocksPlatform::importGPC($_REQUEST['include_first'],'integer',0);
 		
+		@$replace_passwords = DevblocksPlatform::importGPC($_REQUEST['replace_passwords'],'integer',0);
+		
 		$visit = CerberusApplication::getVisit();
 		$db = DevblocksPlatform::getDatabaseService();
 		
@@ -3395,6 +3397,9 @@ class ChContactsPage extends CerberusPageExtension {
 			$fields = array();
 			$sync_field = '';
 			$sync_val = '';
+			
+			// Overrides
+			$contact_password = '';
 			
 			foreach($pos as $idx => $p) {
 				$key = $field[$idx];
@@ -3422,17 +3427,22 @@ class ChContactsPage extends CerberusPageExtension {
 								} else {
 									$val = 0;
 								}
-								
+								break;
+							case 'password':
+								$key = null;
+								$contact_password = $val;
 								break;
 						}
 					}
+
+					if(!empty($key)) {
+						$fields[$key] = $val;
 					
-					$fields[$key] = $val;
-					
-					// [JAS]: Are we looking for matches in a certain field?
-					if($sync_column==$key && !empty($val)) {
-						$sync_field = $key;
-						$sync_val = $val;
+						// [JAS]: Are we looking for matches in a certain field?
+						if($sync_column==$key && !empty($val)) {
+							$sync_field = $key;
+							$sync_val = $val;
+						}
 					}
 				}
 			}
@@ -3453,6 +3463,7 @@ class ChContactsPage extends CerberusPageExtension {
 						}
 					}
 				} elseif ($type=="addys") {
+					
 					if(!empty($sync_field) && !empty($sync_val))
 						@$addys = DAO_Address::getWhere(
 							sprintf('%s = %s', $sync_field, $db->qstr($sync_val))
@@ -3462,8 +3473,25 @@ class ChContactsPage extends CerberusPageExtension {
 						if(empty($addys)) {
 							$id = DAO_Address::create($fields);
 						} else {
-	//						echo "DUPE: ",$fields['first_name'],' ',$fields['last_name'],"<BR>";
-							DAO_Address::update(key($addys), $fields);
+							$id = key($addys);
+							DAO_Address::update($id, $fields);
+						}
+
+						// Overrides
+						if(!empty($contact_password) && !empty($id)) {
+							if($replace_passwords) { // always replace
+								DAO_AddressAuth::update(
+									$id,
+									array(DAO_AddressAuth::PASS => $contact_password) 
+								);
+							} else { // only replace if null
+								if(null == ($auth = DAO_AddressAuth::get($id))) {
+									DAO_AddressAuth::update(
+										$id,
+										array(DAO_AddressAuth::PASS => $contact_password) 
+									);
+								}
+							}
 						}
 					}
 				}
@@ -4662,7 +4690,10 @@ class ChUpdateController extends DevblocksControllerExtension {
 	 */
 	function handleRequest(DevblocksHttpRequest $request) {
 	    @set_time_limit(0); // no timelimit (when possible)
-	    DevblocksPlatform::clearCache();
+
+		// [JAS]: Clear all caches
+		$cache = DevblocksPlatform::getCacheService(); /* @var $cache Zend_Cache_Core */
+		$cache->clean();
 	    
 	    $stack = $request->path;
 	    array_shift($stack); // update

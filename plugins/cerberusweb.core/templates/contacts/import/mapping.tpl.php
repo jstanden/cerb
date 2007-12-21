@@ -52,6 +52,7 @@
 			<option value="{$field}">{$label|capitalize}</option>
 		{/if}
 		{/foreach}
+		<option value="password">Password</option>
 	</select>
 	</td>
 </tr>
@@ -59,8 +60,9 @@
 </table>
 <br>
 
-<b>Include the sample record above in the import?</b><br>
-<label><input type="checkbox" name="include_first" value="1"> Yes, the sample record above includes real data.</label><br>
+<b>Options:</b><br>
+<label><input type="checkbox" name="include_first" value="1"> Import the first row (only check this if the dropdowns contain real data)</label><br>
+<label><input type="checkbox" name="replace_passwords" value="1"> Replace all passwords with import values, even if they already exist</label><br>
 <br>
 
 <h2>Synchronization</h2>
