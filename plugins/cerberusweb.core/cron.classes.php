@@ -226,6 +226,7 @@ class ParseCron extends CerberusCronPageExtension {
 		$tpl->cache_lifetime = "0";
 		$tpl_path = dirname(__FILE__) . '/templates/';
 		$tpl->assign('path', $tpl_path);
+		
         $tpl->assign('max_messages', $this->getParam('max_messages', 500));
 		
 		$tpl->display($tpl_path . 'cron/parser/config.tpl.php');
@@ -248,11 +249,15 @@ class MaintCron extends CerberusCronPageExtension {
         $purged = 0;
         $max_purges = 2500; // max per maint run // [TODO] Make this configurable from job
         
+        $purge_waitdays = intval($this->getParam('purge_waitdays', 7));
+        $purge_waitsecs = $purge_waitdays*24*60*60;
+        
         do {	    
 		    list($tickets, $null) = DAO_Ticket::search(
 		    	array(),
 		    	array(
-		            new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,'=',1)
+		            new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,'=',1),
+		            new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_UPDATED_DATE,DevblocksSearchCriteria::OPER_LT,time()-$purge_waitsecs)
 		        ),
 		        250,
 		        0,
@@ -315,8 +320,15 @@ class MaintCron extends CerberusCronPageExtension {
 		$tpl_path = dirname(__FILE__) . '/templates/';
 		$tpl->assign('path', $tpl_path);
         
+		$tpl->assign('purge_waitdays', $this->getParam('purge_waitdays', 7));
+		
 		$tpl->display($tpl_path . 'cron/maint/config.tpl.php');
     }
+    
+	function saveConfigurationAction() {
+		@$purge_waitdays = DevblocksPlatform::importGPC($_POST['purge_waitdays'],'integer');
+		$this->setParam('purge_waitdays', $purge_waitdays);
+	}
 };
 
 /**
