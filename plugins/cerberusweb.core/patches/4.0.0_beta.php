@@ -641,7 +641,7 @@ if(!isset($tables['ticket_field'])) {
 		type C(1) DEFAULT 'S' NOTNULL,
 		group_id I4 DEFAULT 0 NOTNULL,
 		pos I2 DEFAULT 0 NOTNULL,
-		options XL DEFAULT '' NOTNULL
+		options XL
 	";
     $sql = $datadict->CreateTableSQL('ticket_field',$flds);
     $datadict->ExecuteSQLArray($sql);
@@ -660,7 +660,7 @@ if(!isset($tables['ticket_field_value'])) {
     $flds = "
 		field_id I4 DEFAULT 0 NOTNULL PRIMARY,
 		ticket_id I4 DEFAULT 0 NOTNULL PRIMARY,
-		field_value XL DEFAULT '' NOTNULL
+		field_value XL
 	";
     $sql = $datadict->CreateTableSQL('ticket_field_value',$flds);
     $datadict->ExecuteSQLArray($sql);
