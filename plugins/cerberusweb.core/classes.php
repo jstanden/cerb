@@ -4705,13 +4705,12 @@ class ChUpdateController extends DevblocksControllerExtension {
 	function handleRequest(DevblocksHttpRequest $request) {
 	    @set_time_limit(0); // no timelimit (when possible)
 
-		// [JAS]: Clear all caches
-		$cache = DevblocksPlatform::getCacheService(); /* @var $cache Zend_Cache_Core */
-		$cache->clean();
-	    
 	    $stack = $request->path;
 	    array_shift($stack); // update
 
+	    $cache = DevblocksPlatform::getCacheService(); /* @var $cache Zend_Cache_Core */
+		$settings = CerberusSettings::getInstance();
+	    
 	    switch(array_shift($stack)) {
 	    	case 'locked':
 	    		if(!DevblocksPlatform::versionConsistencyCheck()) {
@@ -4734,7 +4733,6 @@ class ChUpdateController extends DevblocksControllerExtension {
 			    $path = DEVBLOCKS_PATH . 'tmp' . DIRECTORY_SEPARATOR;
 				$file = $path . 'c4update_lock';	    		
 				
-			    $settings = CerberusSettings::getInstance();
 			    $authorized_ips_str = $settings->get(CerberusSettings::AUTHORIZED_IPS);
 			    $authorized_ips = CerberusApplication::parseCrlfString($authorized_ips_str);
 			    
@@ -4760,6 +4758,10 @@ class ChUpdateController extends DevblocksControllerExtension {
 				    //echo "Running plugin patches...<br>";
 				    if(DevblocksPlatform::runPluginPatches()) {
 						@unlink($file);
+
+						// [JAS]: Clear all caches
+						$cache->clean();
+						
 				    	DevblocksPlatform::redirect(new DevblocksHttpResponse(array('login')));
 				    } else {
 						@unlink($file);
