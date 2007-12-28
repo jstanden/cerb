@@ -1133,8 +1133,8 @@ class ChTicketsPage extends CerberusPageExtension {
 			// [TODO] Allow seperated addresses (parseRfcAddress)
 	//		$mailer->log->enable();
 			if(!$mailer->send($email, $sendTo, $sendFrom)) {
-				// [TODO] Report when the message wasn't sent. (Even with the exception trapping, we should still notify the user.)
 				$mail_succeeded = false;
+				throw new Exception('Mail failed to send: unknown reason');
 			}
 	//		$mailer->log->dump();
 		} catch (Exception $e) {
@@ -1226,6 +1226,46 @@ class ChTicketsPage extends CerberusPageExtension {
 		if(null != ($reqAddressInst = CerberusApplication::hashLookupAddress($to, true))) {
 			$reqAddressId = $reqAddressInst->id;
 			DAO_Ticket::createRequester($reqAddressId, $ticket_id);
+		}
+		
+		// add files to ticket
+		// [TODO] redundant with parser (like most of the rest of this function)
+		if (is_array($files) && !empty($files)) {
+			$attachment_path = APP_PATH . '/storage/attachments/';
+		
+			reset($files);
+			foreach ($files['tmp_name'] as $idx => $file) {
+				if(empty($file) || empty($files['name'][$idx]) || !file_exists($file))
+					continue;
+					
+				$fields = array(
+					DAO_Attachment::MESSAGE_ID => $message_id,
+					DAO_Attachment::DISPLAY_NAME => $files['name'][$idx],
+					DAO_Attachment::MIME_TYPE => $files['type'][$idx],
+					DAO_Attachment::FILE_SIZE => filesize($file)
+				);
+				$file_id = DAO_Attachment::create($fields);
+				
+	            $attachment_bucket = sprintf("%03d/",
+	                rand(1,100)
+	            );
+	            $attachment_file = $file_id;
+	            
+	            if(!file_exists($attachment_path.$attachment_bucket)) {
+	                mkdir($attachment_path.$attachment_bucket, 0775, true);
+	            }
+
+	            if(!is_writeable($attachment_path.$attachment_bucket)) {
+	            	echo "Can't write to " . $attachment_path.$attachment_bucket . "<BR>";
+	            }
+	            
+	            copy($file, $attachment_path.$attachment_bucket.$attachment_file);
+	            @unlink($file);
+			    
+			    DAO_Attachment::update($file_id, array(
+			        DAO_Attachment::FILEPATH => $attachment_bucket.$attachment_file
+			    ));
+			}
 		}
 		
 		// if email sending failed, add an error note to the message
