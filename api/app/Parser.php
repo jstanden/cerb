@@ -116,23 +116,25 @@ class CerberusParser {
 		if(empty($iDate)) $iDate = time();
 		
 		if(empty($from) || !is_array($from))
-			return NULL;
+			return NULL; // [TODO] Log
 		
 		@$fromAddress = $from[0]->mailbox.'@'.$from[0]->host;
 		@$fromPersonal = $from[0]->personal;
 		if(null == ($fromAddressInst = CerberusApplication::hashLookupAddress($fromAddress, true))) {
-			return NULL;
+			return NULL; // [TODO] Log
 		} else {
 			$fromAddressId = $fromAddressInst->id;
 		}
 
-		// Message Id / References / In-Reply-To
-		@$sMessageId = $headers['message-id'];
-		
 		// Imports
         @$importNew = $headers['x-cerberusnew'];
         @$importAppend = $headers['x-cerberusappendto'];
-
+		
+		// Message Id / References / In-Reply-To
+		@$sMessageId = $headers['message-id'];
+		
+		$helpdesk_senders = CerberusApplication::getHelpdeskSenders();
+		
 		// Are we importing a ticket?
         if(APP_PARSER_ALLOW_IMPORTS && (!empty($importNew) || !empty($importAppend))) {
             
@@ -170,6 +172,13 @@ class CerberusParser {
                 }
 //                echo "IMPORT DETECTED: Appending to existing ",$importAppend," (",$id,")<br>";
             }
+            
+        // Not importing
+        } else {
+			// Is this from the helpdesk to itself?  If so, bail out
+			if(isset($helpdesk_senders[$fromAddressInst->email])) {
+				return NULL; // [TODO] Log
+			}
         }
         
         $body_append_text = array();
@@ -272,7 +281,9 @@ class CerberusParser {
         
 		if(empty($id)) { // New Ticket
 			// Are we delivering or bouncing?
-			if(null == ($team_id = CerberusParser::parseDestination($headers))) {
+			@list($team_id,$matchingToAddress) = CerberusParser::findDestination($headers);
+			
+			if(empty($team_id)) {
 				// Bounce
 				return null;
 			}
@@ -312,13 +323,25 @@ class CerberusParser {
                     $enumSpamTraining = CerberusTicketSpamTraining::NOT_SPAM;
                 }
 			}
-			
 		}
 		
 		// [JAS]: Add requesters to the ticket
 	    // [TODO] Make sure they aren't a worker
-	    if(!empty($fromAddressId) && !empty($id))
-		    DAO_Ticket::createRequester($fromAddressId,$id);
+		if(!empty($fromAddressId) && !empty($id))
+			DAO_Ticket::createRequester($fromAddressId,$id);
+	    
+		// Add the other TO/CC addresses to the ticket
+		$destinations = self::getDestinations($headers);
+		if(!empty($destinations))
+		foreach($destinations as $dest) {
+			if(null != ($destInst = CerberusApplication::hashLookupAddress($dest, true))) {
+				// Skip if the destination is one of our senders or the matching TO
+				if(isset($helpdesk_senders[$destInst->email]) || 0 == strcasecmp($matchingToAddress,$destInst->email))
+					continue;
+			 	
+				DAO_Ticket::createRequester($destInst->id,$id);
+			}
+		}
 		
 		$settings = CerberusSettings::getInstance();
 		$attachment_path = APP_PATH . '/storage/attachments/';
@@ -565,17 +588,7 @@ class CerberusParser {
 		return NULL;
 	}
 	
-	/**
-	 * Enter description here...
-	 *
-	 * @param array $headers
-	 * @return integer team id
-	 */
-	static private function parseDestination($headers) {
-		static $routing = null;
-		
-		$settings = CerberusSettings::getInstance();
-		
+	static public function getDestinations($headers) {
 		$aTo = array();
 		$aCc = array();
 		$aEnvelopeTo = array();
@@ -583,35 +596,64 @@ class CerberusParser {
 		$aDeliveredTo = array();
 		
 		$aTo = imap_rfc822_parse_adrlist(@$headers['to'],'localhost');
-		if(isset($headers['cc']))
-			$aCc = imap_rfc822_parse_adrlist($headers['cc'],'localhost');
-		if(isset($headers['envelope-to']))
-			$aEnvelopeTo = imap_rfc822_parse_adrlist(@$headers['envelope-to'],'localhost');
-		if(isset($headers['x-envelope-to']))
-			$aXEnvelopeTo = imap_rfc822_parse_adrlist($headers['x-envelope-to'],'localhost');
-		if(isset($headers['delivered-to']))
-			$aDeliveredTo = imap_rfc822_parse_adrlist($headers['delivered-to'],'localhost');
 		
-		// [TODO] Can we count on this?
-		$destinations = $aTo + $aCc + $aEnvelopeTo + $aXEnvelopeTo + $aDeliveredTo;
+		if(isset($headers['cc'])) {
+			$aCc = imap_rfc822_parse_adrlist($headers['cc'],'localhost');
+			if(!is_array($aCc)) $aCc = array($aCc);
+		}
+		if(isset($headers['envelope-to'])) {
+			$aEnvelopeTo = imap_rfc822_parse_adrlist(@$headers['envelope-to'],'localhost');
+			if(!is_array($aEnvelopeTo)) $aEnvelopeTo = array($aEnvelopeTo);
+		}
+		if(isset($headers['x-envelope-to'])) {
+			$aXEnvelopeTo = imap_rfc822_parse_adrlist($headers['x-envelope-to'],'localhost');
+			if(!is_array($aXEnvelopeTo)) $aXEnvelopeTo = array($aXEnvelopeTo);
+		}
+		if(isset($headers['delivered-to'])) {
+			$aDeliveredTo = imap_rfc822_parse_adrlist($headers['delivered-to'],'localhost');
+			if(!is_array($aDeliveredTo)) $aDeliveredTo = array($aDeliveredTo);
+		}
+		
+		$d = array_merge($aTo, $aCc, $aEnvelopeTo, $aXEnvelopeTo, $aDeliveredTo);
+		
+		$addresses = array();
+		
+		if(is_array($d))
+		foreach($d as $destination) {
+			if(empty($destination->mailbox) || empty($destination->host))
+				continue;
+			
+			$addresses[] = $destination->mailbox.'@'.$destination->host;
+		}
+		
+		return $addresses;
+	}
+	
+	/**
+	 * Enter description here...
+	 *
+	 * @param array $headers
+	 * @return array (group_id,address)
+	 */
+	static private function findDestination($headers) {
+		static $routing = null;
+		
+		$settings = CerberusSettings::getInstance();
 
 		// [TODO] Should this cache be at the class level?
 		if(is_null($routing))
 			$routing = DAO_Mail::getMailboxRouting();
 		
-		foreach($destinations as $destination) {
-			if(empty($destination->mailbox) || empty($destination->host))
-				continue;
-			
-			$address = $destination->mailbox.'@'.$destination->host;
-			
+		$destinations = self::getDestinations($headers);
+		if(is_array($destinations))
+		foreach($destinations as $address) {
 			// Test each pattern successively
 			foreach($routing as $route) { /* @var $route Model_MailRoute */
 				$pattern = sprintf("/^%s$/i",
 					str_replace(array('*'),array('.*?'),$route->pattern)
 				);
 				if(preg_match($pattern,$address)) 
-					return $route->team_id;
+					return array($route->team_id,$address);
 			}
 		}
 		
@@ -619,7 +661,7 @@ class CerberusParser {
 		$default_team_id = $settings->get(CerberusSettings::DEFAULT_TEAM_ID,0);
 		
 		if(!empty($default_team_id)) { // catchall
-			return $default_team_id;
+			return array($default_team_id,'');
 		}
 		
 		return null; // bounce

@@ -3409,6 +3409,12 @@ class DAO_GroupSettings {
 		    array('group_id','setting'),
 		    false
 		);
+
+		// Nuke our sender cache
+		if($key==self::SETTING_REPLY_FROM) {
+			$cache = DevblocksPlatform::getCacheService();
+			$cache->remove(CerberusApplication::CACHE_HELPDESK_FROMS);
+		}
 	}
 	
 	static function get($group_id, $key, $default=null) {

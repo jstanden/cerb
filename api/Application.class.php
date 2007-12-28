@@ -101,6 +101,7 @@ class CerberusApplication extends DevblocksApplication {
 //	const VIEW_TEAM_TASKS = 'teamwork_tasks';
 	
 	const CACHE_SETTINGS_DAO = 'ch_settings_dao';
+	const CACHE_HELPDESK_FROMS = 'ch_helpdesk_froms';
 	
 	/**
 	 * @return CerberusVisit
@@ -483,6 +484,32 @@ class CerberusApplication extends DevblocksApplication {
 	
 	// ***************** DUMMY
 	
+	// [TODO] This probably has a better home
+	public static function getHelpdeskSenders() {
+		$cache = DevblocksPlatform::getCacheService();
+
+		if(null == ($froms = $cache->load(self::CACHE_HELPDESK_FROMS))) {
+			$froms = array();
+			$settings = CerberusSettings::getInstance();
+			$group_settings = DAO_GroupSettings::getSettings(); // [TODO] cache?
+			
+			// Global sender
+			$from = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM);
+			@$froms[$from] = $from;
+			
+			// Group senders
+			if(is_array($group_settings))
+			foreach($group_settings as $group_id => $gs) {
+				@$from = $gs[DAO_GroupSettings::SETTING_REPLY_FROM];
+				if(!empty($from))
+					@$froms[$from] = $from;
+			}
+			
+			$cache->save($froms, self::CACHE_HELPDESK_FROMS);
+		}
+		
+		return $froms;
+	}
 };
 
 class CerberusLicense {
@@ -590,6 +617,11 @@ class CerberusSettings {
 		
 	    $cache = DevblocksPlatform::getCacheService();
 		$cache->remove(CerberusApplication::CACHE_SETTINGS_DAO);
+		
+		// Nuke sender cache
+		if($key == self::DEFAULT_REPLY_FROM) {
+			$cache->remove(CerberusApplication::CACHE_HELPDESK_FROMS);
+		}
 		
 		return TRUE;
 	}

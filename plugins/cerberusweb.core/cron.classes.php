@@ -70,7 +70,6 @@ class ParseCron extends CerberusCronPageExtension {
 
 		$total = $this->getParam('max_messages', 500);
         
-        
         $mailDir = APP_MAIL_PATH . 'new' . DIRECTORY_SEPARATOR;
 	    $subdirs = glob($mailDir . '*', GLOB_ONLYDIR);
 	    $subdirs[] = $mailDir; // Add our root directory last
@@ -158,7 +157,7 @@ class ParseCron extends CerberusCronPageExtension {
 		    }
 		    
 		    // whether or not it has a content-name, we need to add it as an attachment (if not already handled)
-		    if ($handled == 0) {
+		    if ($handled == 0 && isset($info['content-disposition'])) {
 		        switch($info['content-disposition']) {
 		            case 'inline':
 		            case 'attachment':
