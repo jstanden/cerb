@@ -80,6 +80,8 @@
 				{elseif $col->type=='C'}
 				<td>{if '1'==$result.$column}Yes{elseif '0'==$result.$column}No{/if}</td>
 				{/if}
+			{elseif $column=="t_id"}
+			<td><a href="{devblocks_url}c=display&id={$result.t_id}{/devblocks_url}">{$result.t_id}</a></td>
 			{elseif $column=="t_mask"}
 			<td><a href="{devblocks_url}c=display&id={$result.t_mask}{/devblocks_url}">{$result.t_mask}</a></td>
 			{elseif $column=="t_last_wrote"}

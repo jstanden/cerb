@@ -505,6 +505,7 @@ class C4_TicketView extends C4_AbstractView {
 		$tpl_path = DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/';
 
 		switch($field) {
+			case SearchFields_Ticket::TICKET_ID:
 			case SearchFields_Ticket::TICKET_MASK:
 			case SearchFields_Ticket::TICKET_SUBJECT:
 			case SearchFields_Ticket::TICKET_FIRST_WROTE:
@@ -700,6 +701,7 @@ class C4_TicketView extends C4_AbstractView {
 		$criteria = null;
 
 		switch($field) {
+			case SearchFields_Ticket::TICKET_ID:
 			case SearchFields_Ticket::TICKET_MASK:
 			case SearchFields_Ticket::TICKET_SUBJECT:
 			case SearchFields_Ticket::TICKET_FIRST_WROTE:
