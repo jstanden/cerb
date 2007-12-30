@@ -1412,7 +1412,7 @@ class UmKbApp extends Extension_UsermeetTool {
     	}
     	
     	// Tagging
-    	$tags = CerberusApplication::parseCsvString($tags_csv);
+    	$tags = DevblocksPlatform::parseCsvString($tags_csv);
 		DAO_CloudGlue::applyTags($tags, $id, $this->_getTagIndex(), true);
     	
 		// Search Indexing

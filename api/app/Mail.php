@@ -205,7 +205,7 @@ class CerberusMail {
 				// Forwards
 				if(!empty($properties['to'])) {
 				    $to = array();
-				    $aTo = CerberusApplication::parseCsvString($properties['to']);
+				    $aTo = DevblocksPlatform::parseCsvString($properties['to']);
 				    foreach($aTo as $addy) {
 				    	$to[] = new Swift_Address($addy);
 				    	$sendTo->addTo($addy);
@@ -230,7 +230,7 @@ class CerberusMail {
 			    // Ccs
 			    if(!empty($properties['cc'])) {
 				    $ccs = array();
-				    $aCc = CerberusApplication::parseCsvString($properties['cc']);
+				    $aCc = DevblocksPlatform::parseCsvString($properties['cc']);
 				    foreach($aCc as $addy) {
 				    	$sendTo->addCc($addy);
 				    	$ccs[] = new Swift_Address($addy);
@@ -241,7 +241,7 @@ class CerberusMail {
 			    
 			    // Bccs
 			    if(!empty($properties['bcc'])) {
-				    $aBcc = CerberusApplication::parseCsvString($properties['bcc']);
+				    $aBcc = DevblocksPlatform::parseCsvString($properties['bcc']);
 				    foreach($aBcc as $addy) {
 				    	$sendTo->addBcc($addy);
 				    }

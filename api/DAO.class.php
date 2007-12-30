@@ -4811,7 +4811,7 @@ class DAO_TicketField extends DevblocksORMHelper {
 			$object->type = $rs->fields['type'];
 			$object->group_id = intval($rs->fields['group_id']);
 			$object->pos = intval($rs->fields['pos']);
-			$object->options = CerberusApplication::parseCrlfString($rs->fields['options']);
+			$object->options = DevblocksPlatform::parseCrlfString($rs->fields['options']);
 			$objects[$object->id] = $object;
 			$rs->MoveNext();
 		}

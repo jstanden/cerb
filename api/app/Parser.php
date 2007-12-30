@@ -72,6 +72,8 @@ class CerberusParser {
 		 * 'no_autoreply'
 		 */
 
+		$settings = CerberusSettings::getInstance();
+		
 		$headers =& $message->headers;
 
 		// To/From/Cc/Bcc
@@ -324,27 +326,52 @@ class CerberusParser {
                 }
 			}
 		}
-		
+
 		// [JAS]: Add requesters to the ticket
 	    // [TODO] Make sure they aren't a worker
-		if(!empty($fromAddressId) && !empty($id))
+		if(!empty($fromAddressId) && !empty($id)) {
 			DAO_Ticket::createRequester($fromAddressId,$id);
+		}
 	    
 		// Add the other TO/CC addresses to the ticket
-		$destinations = self::getDestinations($headers);
-		if(!empty($destinations))
-		foreach($destinations as $dest) {
-			if(null != ($destInst = CerberusApplication::hashLookupAddress($dest, true))) {
-				// Skip if the destination is one of our senders or the matching TO
-				if(isset($helpdesk_senders[$destInst->email]) || 0 == strcasecmp($matchingToAddress,$destInst->email))
-					continue;
-			 	
-				DAO_Ticket::createRequester($destInst->id,$id);
+		// [TODO] This should be cleaned up and optimized
+		if($settings->get(CerberusSettings::PARSER_AUTO_REQ,0)) {
+			@$autoreq_exclude_list = $settings->get(CerberusSettings::PARSER_AUTO_REQ_EXCLUDE,'');
+			$destinations = self::getDestinations($headers);
+			
+			if(is_array($destinations) && !empty($destinations)) {
+				
+				// Filter out any excluded requesters
+				if(!empty($autoreq_exclude_list)) {
+					@$autoreq_exclude = DevblocksPlatform::parseCrlfString($autoreq_exclude_list);
+					
+					if(is_array($autoreq_exclude) && !empty($autoreq_exclude))
+					foreach($autoreq_exclude as $excl_pattern) {
+						// [TODO] DevblocksPlatform::parseStringAsRegexp();
+						$excl_regexp = DevblocksPlatform::parseStringAsRegExp($excl_pattern);
+						
+						// Check all destinations for this pattern
+						foreach($destinations as $idx => $dest) {
+							if(@preg_match($excl_regexp, $dest)) {
+								unset($destinations[$idx]);
+							}
+						}
+					}
+				}
+				
+				foreach($destinations as $dest) {
+					if(null != ($destInst = CerberusApplication::hashLookupAddress($dest, true))) {
+						// Skip if the destination is one of our senders or the matching TO
+						if(isset($helpdesk_senders[$destInst->email]) || 0 == strcasecmp($matchingToAddress,$destInst->email))
+							continue;
+					 	
+						DAO_Ticket::createRequester($destInst->id,$id);
+					}
+				}
 			}
 		}
 		
-		$settings = CerberusSettings::getInstance();
-		$attachment_path = APP_PATH . '/storage/attachments/';
+		$attachment_path = APP_PATH . '/storage/attachments/'; // [TODO] This should allow external attachments (S3)
 		
 		if(empty($message->body) && !empty($message->htmlbody)) { // generate the plaintext part
 	        $fields = array(

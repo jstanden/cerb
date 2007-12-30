@@ -30,11 +30,14 @@
 					</tr>
 				{else}
 					<tr>
-						<td width="0%" nowrap="nowrap">To: </td>
+						<td width="0%" nowrap="nowrap">Requesters: </td>
 						<td width="100%" align="left">
+							<span id="displayRequesters{$message->id}">
 							{foreach from=$ticket->getRequesters() item=requester name=requesters}
 							{$requester->email}{if !$smarty.foreach.requesters.last}, {/if}
 							{/foreach}
+							</span>
+							(<a href="javascript:;" onclick="genericAjaxPanel('c=display&a=showRequestersPanel&msg_id={$message->id}&ticket_id={$ticket->id}',this,false);" style="color:rgb(00,120,0);">change</a>)
 							<!-- 
 							<input type="text" size="45" name="to" value="" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;">
 							-->					

@@ -1,6 +1,9 @@
 {include file="file:$path/configuration/menu.tpl.php"}
 <br>
 
+<h2>Plugins</h2>
+<br>
+
 <div class="block">
 <h2>Active Plugins</h2>
 <form action="{devblocks_url}{/devblocks_url}" method="post">

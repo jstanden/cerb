@@ -78,10 +78,15 @@
 	<tr><td colspan="2">&nbsp;</td></tr>
 	
 	{if !empty($worker->id)}
+	
+	{* Superuser -- Can't delete self *}
+	{if $active_worker->id != $worker->id}
 	<tr>
 		<td width="0%" nowrap="nowrap"><b>Delete:</b></td>
 		<td width="100%"><label style="background-color:rgb(255,220,220);"><input type="checkbox" name="do_delete" value="1"> Delete this worker</label></td>
 	</tr>
+	{/if}
+	
 	{/if}
 	<tr>
 		<td colspan="2">

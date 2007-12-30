@@ -28,20 +28,6 @@
 <!-- ************** -->
 
 <div class="block">
-<h2>Attachments</h2>
-<br>
-
-<b>Enabled:</b><br>
-<label><input type="checkbox" name="attachments_enabled" value="1" {if $settings->get('attachments_enabled')}checked{/if}> Allow Incoming Attachments</label><br>
-<br>
-
-<b>Max. Attachment Size:</b><br>
-<input type="text" name="attachments_max_size" value="{$settings->get('attachments_max_size')|escape:"html"}" size="5"> MB<br>
-</div>
-
-<br>
-
-<div class="block">
 <h2>IP Security</h2>
 <br>
 <b>Allow remote administration tools (upgrade, cron) from these IPs:</b> (one IP per line)

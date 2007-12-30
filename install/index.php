@@ -717,7 +717,7 @@ switch($step) {
 						unset($workers[$idx]);
 				}
 				
-				$teams = CerberusApplication::parseCrlfString($teams_str);
+				$teams = DevblocksPlatform::parseCrlfString($teams_str);
 				
 				if(empty($workers) || empty($teams)) {
 					$tpl->assign('failed', true);

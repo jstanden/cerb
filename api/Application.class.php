@@ -48,7 +48,7 @@
  * 		and Joe Geck.
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-define("APP_BUILD", 484);
+define("APP_BUILD", 488);
 define("APP_MAIL_PATH", realpath(APP_PATH . '/storage/mail') . DIRECTORY_SEPARATOR);
 
 include_once(APP_PATH . "/api/DAO.class.php");
@@ -156,49 +156,6 @@ class CerberusApplication extends DevblocksApplication {
 	    }
 	    
 	    return $callouts;
-	}
-	
-	// [TODO] Move to a FormHelper service?
-	static function parseCrlfString($string) {
-		// Make linefeeds uniform (CR to LF)
-//		$string = str_replace("\r","\n",$string);
-		
-		// Condense repeat LF into a single LF
-//		$string = preg_replace('#\n+#', '\n', $string);
-		
-		// 
-		$parts = split("[\r\n]", $string);
-		
-		// Remove any empty tokens
-		foreach($parts as $idx => $part) {
-			$parts[$idx] = trim($part);
-			if(empty($parts[$idx])) 
-				unset($parts[$idx]);
-		}
-		
-		return $parts;
-	}
-	
-	/**
-	 * Takes a comma-separated value string and returns an array of tokens.
-	 * [TODO] Move to a FormHelper service?
-	 * 
-	 * @param string $string
-	 * @return array
-	 */
-	static function parseCsvString($string) {
-		$tokens = explode(',', $string);
-
-		if(!is_array($tokens))
-			return array();
-		
-		foreach($tokens as $k => $v) {
-			$tokens[$k] = trim($v);
-			if(empty($tokens[$k]))
-				unset($tokens[$k]);
-		}
-		
-		return $tokens;
 	}
 	
 	static function stripHTML($str) {
@@ -437,7 +394,7 @@ class CerberusApplication extends DevblocksApplication {
    	            
    	            if(is_array($team_rules))
    	            foreach($team_rules as $rule) { /* @var $rule Model_TeamRoutingRule */
-   	                $pattern = $rule->getPatternAsRegexp();
+   	                $pattern = DevblocksPlatform::parseStringAsRegExp($rule->pattern);
    	                $haystack = ($rule->header=='from') ? $fromAddress : $sSubject ;
    	                if(is_string($haystack) && preg_match($pattern, $haystack)) {
    	                    //echo "I matched ($pattern) for ($ticket_id)!<br>";
@@ -564,6 +521,8 @@ class CerberusSettings {
 	const SMTP_ENCRYPTION_TYPE = 'smtp_enc';
 	const ATTACHMENTS_ENABLED = 'attachments_enabled'; 
 	const ATTACHMENTS_MAX_SIZE = 'attachments_max_size'; 
+	const PARSER_AUTO_REQ = 'parser_autoreq'; 
+	const PARSER_AUTO_REQ_EXCLUDE = 'parser_autoreq_exclude'; 
 	const AUTHORIZED_IPS = 'authorized_ips';
 	const LICENSE = 'license';
 	

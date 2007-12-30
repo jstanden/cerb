@@ -875,7 +875,7 @@ class ChTicketsPage extends CerberusPageExtension {
 //
 //	    // Adds: Sort and insert team categories
 //	    if(!empty($add_buckets)) {
-//		    $buckets = CerberusApplication::parseCrlfString($add_buckets);
+//		    $buckets = DevblocksPlatform::parseCrlfString($add_buckets);
 //	
 //		    if(is_array($buckets))
 //		    foreach($buckets as $bucket) {
@@ -1094,7 +1094,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	
 			// cc
 			$ccs = array();
-			if(!empty($cc) && null != ($ccList = CerberusApplication::parseCsvString($cc))) {
+			if(!empty($cc) && null != ($ccList = DevblocksPlatform::parseCsvString($cc))) {
 				foreach($ccList as $ccAddy) {
 					$sendTo->addCc($ccAddy);
 					$ccs[] = new Swift_Address($ccAddy);
@@ -1104,7 +1104,7 @@ class ChTicketsPage extends CerberusPageExtension {
 			}
 			
 			// bcc
-			if(!empty($bcc) && null != ($bccList = CerberusApplication::parseCsvString($bcc))) {
+			if(!empty($bcc) && null != ($bccList = DevblocksPlatform::parseCsvString($bcc))) {
 				foreach($bccList as $bccAddy) {
 					$sendTo->addBcc($bccAddy);
 				}
@@ -2029,7 +2029,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	    $unique_subjects = array();
 	    
 	    if(!empty($ids)) {
-	        $ticket_ids = CerberusApplication::parseCsvString($ids);
+	        $ticket_ids = DevblocksPlatform::parseCsvString($ids);
 	        if(empty($ticket_ids)) break;
 	        $tickets = DAO_Ticket::getTickets($ticket_ids);
 		    
@@ -2104,8 +2104,8 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$team = DevblocksPlatform::importGPC($_POST['team'],'string','');
 		@$next_worker = DevblocksPlatform::importGPC($_POST['next_worker'],'string','');
 
-        $subjects = CerberusApplication::parseCrlfString($subjects);
-        $senders = CerberusApplication::parseCrlfString($senders);
+        $subjects = DevblocksPlatform::parseCrlfString($subjects);
+        $senders = DevblocksPlatform::parseCrlfString($senders);
 		
 		$do = array();
 		
@@ -2127,7 +2127,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	        $data = $subjects;
 	    } elseif($filter == 'checks') {
 	    	$filter = ''; // bulk update just looks for $ticket_ids == !null
-	        $ticket_ids = CerberusApplication::parseCsvString($ticket_id_str);
+	        $ticket_ids = DevblocksPlatform::parseCsvString($ticket_id_str);
 	    }
 		
 	    // [TODO] Reimplement 'always'
@@ -2967,18 +2967,40 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		
 	    @$title = DevblocksPlatform::importGPC($_POST['title'],'string');
 	    @$logo = DevblocksPlatform::importGPC($_POST['logo'],'string');
-	    @$attachments_enabled = DevblocksPlatform::importGPC($_POST['attachments_enabled'],'integer',0);
-	    @$attachments_max_size = DevblocksPlatform::importGPC($_POST['attachments_max_size'],'integer',10);
 	    @$authorized_ips_str = DevblocksPlatform::importGPC($_POST['authorized_ips'],'string','');
 	    
 	    $settings = CerberusSettings::getInstance();
 	    $settings->set(CerberusSettings::HELPDESK_TITLE, $title);
 	    $settings->set(CerberusSettings::HELPDESK_LOGO_URL, $logo); // [TODO] Enforce some kind of max resolution?
-	    $settings->set(CerberusSettings::ATTACHMENTS_ENABLED, $attachments_enabled);
-	    $settings->set(CerberusSettings::ATTACHMENTS_MAX_SIZE, $attachments_max_size);
 	    $settings->set(CerberusSettings::AUTHORIZED_IPS, $authorized_ips_str);
 	    
 	    DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','general')));
+	}
+	
+	function saveIncomingMailSettingsAction() {
+		$worker = CerberusApplication::getActiveWorker();
+		if(!$worker || !$worker->is_superuser) {
+			echo "Access denied.";
+			return;
+		}
+		
+		if(DEMO_MODE) {
+			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','mail')));
+			return;
+		}
+		
+	    @$attachments_enabled = DevblocksPlatform::importGPC($_POST['attachments_enabled'],'integer',0);
+	    @$attachments_max_size = DevblocksPlatform::importGPC($_POST['attachments_max_size'],'integer',10);
+	    @$parser_autoreq = DevblocksPlatform::importGPC($_POST['parser_autoreq'],'integer',0);
+	    @$parser_autoreq_exclude = DevblocksPlatform::importGPC($_POST['parser_autoreq_exclude'],'string','');
+		
+	    $settings = CerberusSettings::getInstance();
+	    $settings->set(CerberusSettings::ATTACHMENTS_ENABLED, $attachments_enabled);
+	    $settings->set(CerberusSettings::ATTACHMENTS_MAX_SIZE, $attachments_max_size);
+	    $settings->set(CerberusSettings::PARSER_AUTO_REQ, $parser_autoreq);
+	    $settings->set(CerberusSettings::PARSER_AUTO_REQ_EXCLUDE, $parser_autoreq_exclude);
+		
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','mail')));
 	}
 	
 	// Form Submit
@@ -3819,7 +3841,7 @@ class ChContactsPage extends CerberusPageExtension {
 		$tpl->assign('view_id', $view_id);
 
 	    if(!empty($ids)) {
-	        $address_ids = CerberusApplication::parseCsvString($ids);
+	        $address_ids = DevblocksPlatform::parseCsvString($ids);
 	        $tpl->assign('address_ids', $address_ids);
 //	        if(empty($ticket_ids)) break;
 //	        $tickets = DAO_Ticket::getTickets($ticket_ids);
@@ -3976,7 +3998,7 @@ class ChContactsPage extends CerberusPageExtension {
 
 		@$sla = DevblocksPlatform::importGPC($_POST['sla'],'string','');
 
-		$address_ids = CerberusApplication::parseCsvString($address_id_str);
+		$address_ids = DevblocksPlatform::parseCsvString($address_id_str);
 		
 		$do = array();
 		
@@ -4354,7 +4376,7 @@ class ChGroupsPage extends CerberusPageExtension  {
 	    }
 	    
 	    // Adds: Sort and insert team categories
-	    $categories = CerberusApplication::parseCrlfString($add_str);
+	    $categories = DevblocksPlatform::parseCrlfString($add_str);
 
 	    if(is_array($categories))
 	    foreach($categories as $category) {
@@ -4494,9 +4516,9 @@ class ChCronController extends DevblocksControllerExtension {
 	function handleRequest(DevblocksHttpRequest $request) {
 	    $settings = CerberusSettings::getInstance();
 	    $authorized_ips_str = $settings->get(CerberusSettings::AUTHORIZED_IPS);
-	    $authorized_ips = CerberusApplication::parseCrlfString($authorized_ips_str);
+	    $authorized_ips = DevblocksPlatform::parseCrlfString($authorized_ips_str);
 	    
-	    $authorized_ip_defaults = CerberusApplication::parseCsvString(AUTHORIZED_IPS_DEFAULTS);
+	    $authorized_ip_defaults = DevblocksPlatform::parseCsvString(AUTHORIZED_IPS_DEFAULTS);
 	    $authorized_ips = array_merge($authorized_ips, $authorized_ip_defaults);
 	    
 	    $pass = false;
@@ -4774,9 +4796,9 @@ class ChUpdateController extends DevblocksControllerExtension {
 				$file = $path . 'c4update_lock';	    		
 				
 			    $authorized_ips_str = $settings->get(CerberusSettings::AUTHORIZED_IPS);
-			    $authorized_ips = CerberusApplication::parseCrlfString($authorized_ips_str);
+			    $authorized_ips = DevblocksPlatform::parseCrlfString($authorized_ips_str);
 			    
-		   	    $authorized_ip_defaults = CerberusApplication::parseCsvString(AUTHORIZED_IPS_DEFAULTS);
+		   	    $authorized_ip_defaults = DevblocksPlatform::parseCsvString(AUTHORIZED_IPS_DEFAULTS);
 			    $authorized_ips = array_merge($authorized_ips, $authorized_ip_defaults);
 			    
 			    // Is this IP authorized?
@@ -5557,7 +5579,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		// Requesters
 			
 		if(!empty($add)) {
-			$adds = CerberusApplication::parseCrlfString($add);
+			$adds = DevblocksPlatform::parseCrlfString($add);
 			$adds = array_unique($adds);
 			
 			foreach($adds as $addy) {
@@ -5898,6 +5920,56 @@ class ChDisplayPage extends CerberusPageExtension {
 		$tpl->assign('templates', $templates);
 		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/rpc/email_templates/template_list.tpl.php');
+	}
+	
+	function showRequestersPanelAction() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+
+		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer');
+		@$msg_id = DevblocksPlatform::importGPC($_REQUEST['msg_id'],'integer');
+		
+		$tpl->assign('ticket_id', $ticket_id);
+		$tpl->assign('msg_id', $msg_id);
+		
+		$requesters = DAO_Ticket::getRequestersByTicket($ticket_id);
+		$tpl->assign('requesters', $requesters);
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/rpc/requester_panel.tpl.php');
+	}
+	
+	function saveRequestersPanelAction() {
+		@$ticket_id = DevblocksPlatform::importGPC($_POST['ticket_id'],'integer');
+		@$msg_id = DevblocksPlatform::importGPC($_POST['msg_id'],'integer');
+
+		// Dels
+		@$req_deletes = DevblocksPlatform::importGPC($_POST['req_deletes'],'array',array());
+		if(!empty($req_deletes))
+		foreach($req_deletes as $del_id) {
+			DAO_Ticket::deleteRequester($ticket_id, $del_id);
+		}		
+
+		// Adds
+		@$req_adds = DevblocksPlatform::importGPC($_POST['req_adds'],'string','');
+		$req_list = DevblocksPlatform::parseCrlfString($req_adds);
+		
+		if(is_array($req_list) && !empty($req_list))
+		foreach($req_list as $req) {
+			if(empty($req))
+				continue;
+			if(null != ($req_addy = CerberusApplication::hashLookupAddress($req, true)))
+				DAO_Ticket::createRequester($req_addy->id, $ticket_id);
+		}
+		
+		$requesters = DAO_Ticket::getRequestersByTicket($ticket_id);
+
+		$list = array();		
+		foreach($requesters as $requester) {
+			$list[] = $requester->email;
+		}
+		
+		echo implode(', ', $list);
+		exit;
 	}
 	
 	// Ajax

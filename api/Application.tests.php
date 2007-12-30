@@ -57,7 +57,7 @@ class ApplicationTest extends PHPUnit_Framework_TestCase {
 	}
 	
 	function testParseCsvString() {
-		$array = CerberusApplication::parseCsvString("1,2,3,4");
+		$array = DevblocksPlatform::parseCsvString("1,2,3,4");
 		$this->assertEquals(4,count($array));
 		$this->assertEquals(3,$array[2]);
 	}
@@ -68,10 +68,10 @@ class ApplicationTest extends PHPUnit_Framework_TestCase {
 		$string3 = "this\r\nhas\nmixed\r\nlinefeeds\n";
 		$string4 = "\r\two\n\n\r\nlines\n";
 		
-		$array = CerberusApplication::parseCrlfString($string);
-		$array2 = CerberusApplication::parseCrlfString($string2);
-		$array3 = CerberusApplication::parseCrlfString($string3);
-		$array4 = CerberusApplication::parseCrlfString($string4);
+		$array = DevblocksPlatform::parseCrlfString($string);
+		$array2 = DevblocksPlatform::parseCrlfString($string2);
+		$array3 = DevblocksPlatform::parseCrlfString($string3);
+		$array4 = DevblocksPlatform::parseCrlfString($string4);
 		
 		$this->assertEquals(4,count($array),"Just linefeeds");
 		$this->assertEquals(4,count($array2),"CRLF");

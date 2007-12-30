@@ -2,6 +2,7 @@
 <br>
 
 <h2>Workflow</h2>
+<br>
 
 <a name="workers"></a>
 {include file="file:$path/configuration/workflow/agents.tpl.php"}

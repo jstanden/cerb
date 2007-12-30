@@ -1,6 +1,30 @@
 var cDisplayTicketAjax = function(ticket_id) {
 	this.ticket_id = ticket_id;
 
+	this.saveRequesterPanel = function(div,label) {
+		YAHOO.util.Connect.setForm(div);
+		
+		var cObj = YAHOO.util.Connect.asyncRequest('POST', DevblocksAppPath+'ajax.php', {
+				success: function(o) {
+					if(null != genericPanel) {
+						try {
+							genericPanel.destroy();
+							genericPanel = null;
+						} catch(e) {}
+					}
+					
+					var eLabel = document.getElementById(label);
+					if(null == eLabel) return;
+					
+					eLabel.innerHTML = o.responseText;
+				},
+				failure: function(o) {},
+				argument:{div:div,label:label}
+		});
+	
+		YAHOO.util.Connect.setForm(0);
+	}
+
 	this.showTemplatesPanel = function(target,msgid) {
 		var div = document.getElementById('reply' + msgid);
 		if(null == div) return;

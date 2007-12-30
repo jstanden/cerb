@@ -58,19 +58,7 @@ class Model_TeamRoutingRule {
 	public $do_status = '';
 	public $do_spam = '';
 	public $do_assign = '';
-
-	function getPatternAsRegexp() {
-		$pattern = str_replace(array('*'),'__any__', $this->pattern);
-		$pattern = sprintf("/%s/i",
-		str_replace(array('__any__'),'(.*?)', preg_quote($pattern))
-		);
-
-		//		 if(false !== @preg_match($pattern, '')) {
-		// [TODO] Test the pattern we created?
-
-		return $pattern;
-	}
-}
+};
 
 /**
  * Enter description here...
