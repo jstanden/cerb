@@ -17,7 +17,7 @@
       		</td>
       		<td align="right">
 		      {if !$expanded}
-				<a href="javascript:;" onclick="genericAjaxGet('{$message->id}t','c=display&a=getMessage&id={$message->id}');">retrieve full message</a>
+				<a href="javascript:;" onclick="genericAjaxGet('{$message->id}t','c=display&a=getMessage&id={$message->id}',function(o){literal}{{/literal}document.getElementById('{$message->id}t').innerHTML = o.responseText;document.location='#{$message->id}t';{literal}}{/literal});">retrieve full message</a>
 			  {else}
 			  	<a href="javascript:;" onclick="toggleDiv('{$message->id}sh');toggleDiv('{$message->id}h');">show full headers</a>
       		  {/if}
