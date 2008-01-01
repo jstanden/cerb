@@ -6,16 +6,16 @@
 <input type="hidden" name="edit_reason" value="{$situation_reason|md5}">
 
 <b>Reason for contacting:</b> (e.g. "I'd like more info on your products")<br>
-<input type="text" name="reason" size="65" value="{$situation_reason}"><br>
+<input type="text" name="reason" size="65" value="{$situation_reason|escape}"><br>
 <br>
 
 <b>Deliver to:</b> (helpdesk e-mail address, blank for {$default_from})<br>
-<input type="text" name="to" size="65" value="{$situation_params.to}"><br>
+<input type="text" name="to" size="65" value="{$situation_params.to|escape}"><br>
 <br>
 
 <b>Follow-up Questions:</b> (e.g. "Which product are you considering?") -- optionally save to ticket field<br>
 {foreach from=$situation_params.followups key=q item=field_id name=followups}
-	<input type="text" name="followup[]" size="65" value="{$q}"> 
+	<input type="text" name="followup[]" size="65" value="{$q|escape}"> 
 	<!-- <label><input type="checkbox" name="followup_long[]" value="{$smarty.foreach.followups.index}" {if $long}checked{/if}> Long Answer</label><br>-->
 	<select name="followup_fields[]">
 		<option value="">-- append to message --</option>
@@ -35,7 +35,7 @@
 		<option value="">-- append to message --</option>
 		{foreach from=$ticket_fields item=f key=f_id}
 		{assign var=field_group_id value=$f->group_id}
-		<option value="{$f_id}">{$groups.$field_group_id->name}: {$f->name|escape}</option>
+		<option value="{$f_id}">{if isset($groups.$field_group_id)}{$groups.$field_group_id->name}: {/if}{$f->name|escape}</option>
 		{/foreach}
 	</select>
 	<br>

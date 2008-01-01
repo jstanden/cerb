@@ -21,7 +21,6 @@
 		<br>
 		{/if}
 		
-
       	{if !empty($situation_params.followups)}
       	<h1>{$situation}:</h1>
       	
@@ -30,16 +29,16 @@
 			{math assign=idx equation="x-1" x=$smarty.foreach.situations.iteration}
 	      	
 	      	<h2>{$question}</h2>
-	      	<input type="hidden" name="followup_q[]" value="{$question}">
+	      	<input type="hidden" name="followup_q[]" value="{$question|escape}">
 	      	{if !empty($field_id)}
 	      		{assign var=field value=$ticket_fields.$field_id}
 
-				<input type="hidden" name="field_ids[]" value="{$field_id}">
+				<input type="hidden" name="field_ids[]" value="{$field_id|escape}">
 	      		
 	      		{if $field->type=='S'}
-	      			<input name="followup_a[]" value="{$last_followup_a.$idx}" autocomplete="off" style="width:98%;">
+	      			<input name="followup_a[]" value="{$last_followup_a.$idx|escape}" autocomplete="off" style="width:98%;">
 	      		{elseif $field->type=='T'}
-	      			<textarea name="followup_a[]" rows="5" cols="60" style="width:98%;">{$last_followup_a.$idx}</textarea>
+	      			<textarea name="followup_a[]" rows="5" cols="60" style="width:98%;">{$last_followup_a.$idx|escape}</textarea>
 	      		{elseif $field->type=='D'}
 	      			<select name="followup_a[]">
 	      				<option value=""></option>
@@ -48,14 +47,14 @@
 	      				{/foreach}
 	      			</select>
 	      		{elseif $field->type=='E'}
-	      			<input name="followup_a[]" value="{$last_followup_a.$idx}" autocomplete="off"><br>
+	      			<input name="followup_a[]" value="{$last_followup_a.$idx|escape}" autocomplete="off"><br>
 	      		{elseif $field->type=='C'}
 	      			<label><input name="followup_a[]" type="checkbox" value="1" {if $last_followup_a.$idx}checked{/if}> Yes</label>
 	      		{/if}
 	      		
 	      	{else}
 	      		<input type="hidden" name="field_ids[]" value="0">
-				<input name="followup_a[]" value="{$last_followup_a.$idx}" autocomplete="off" style="width:98%;">
+				<input name="followup_a[]" value="{$last_followup_a.$idx|escape}" autocomplete="off" style="width:98%;">
 			{/if}
 			<br>
 			<br>
