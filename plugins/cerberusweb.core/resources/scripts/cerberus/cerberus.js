@@ -65,10 +65,12 @@ function appendFileInput(divName,fieldName) {
 	var frm = document.getElementById(divName);
 	if(null == frm) return;
 
-	var fileInput = document.createElement('input');
-	fileInput.setAttribute('type','file');
-	fileInput.setAttribute('name',fieldName);
-	fileInput.setAttribute('size','45');
+	// Why is IE such a PITA?  it doesn't allow post-creation specification of the "name" attribute.  Who thought that one up?
+	var fileInput = document.createElement('<input type="file" name="'+fieldName+'" size="45">');
+//	var fileInput = document.createElement('input');
+//	fileInput.setAttribute('type','file');
+//	fileInput.setAttribute('name',fieldName);
+//	fileInput.setAttribute('size','45');
 	
 	frm.appendChild(fileInput);
 	
