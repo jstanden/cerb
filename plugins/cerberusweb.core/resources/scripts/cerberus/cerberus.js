@@ -75,9 +75,15 @@ function appendFileInput(divName,fieldName) {
 		fileInput.setAttribute('size','45');
 	}
 	
-	frm.appendChild(fileInput);
+	// Gotta add the <br> as a child, see below
+	var brTag = document.createElement('br');
 	
-	frm.innerHTML += "<BR>";
+	frm.appendChild(fileInput);
+	frm.appendChild(brTag);
+
+	// This is effectively the same as frm.innerHTML = frm.innerHTML + "<br>".
+	// The innerHTML element doesn't know jack about the selected files of the child elements, so it throws that away.	
+	//frm.innerHTML += "<BR>";
 }
 
 var cAjaxCalls = function() {
