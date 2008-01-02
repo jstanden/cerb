@@ -74,22 +74,24 @@
 	<label><input type="checkbox" name="auto_reply_enabled" value="1" {if $group_settings.auto_reply_enabled}checked{/if}>Enabled</label><br>
 	<br>
 	
-	<b>Send the following message:</b><br>
-	<textarea name="auto_reply" rows="6" cols="76">{$group_settings.auto_reply}</textarea><br>
-		E-mail Tokens: 
-		<select name="" onchange="this.form.auto_reply.value += this.options[this.selectedIndex].value;scrollElementToBottom(this.form.auto_reply);this.selectedIndex=0;this.form.auto_reply.focus();">
-			<option value="">-- choose --</option>
-			<optgroup label="Ticket">
-				<option value="#mask#">Mask/ID</option>
-				<option value="#subject#">Subject</option>
-				<option value="#sender#">Sender Address</option>
-				<!-- 
-				<option value="#group#">Group Name</option>
-				<option value="#bucket#">Bucket Name</option>
-				 -->
-			</optgroup>
-		</select>
-	<br> 
+	<div style="margin-left:10px;">
+		<b>Send the following message:</b><br>
+		<textarea name="auto_reply" rows="6" cols="76">{$group_settings.auto_reply}</textarea><br>
+			E-mail Tokens: 
+			<select name="" onchange="this.form.auto_reply.value += this.options[this.selectedIndex].value;scrollElementToBottom(this.form.auto_reply);this.selectedIndex=0;this.form.auto_reply.focus();">
+				<option value="">-- choose --</option>
+				<optgroup label="Ticket">
+					<option value="#mask#">Mask/ID</option>
+					<option value="#subject#">Subject</option>
+					<option value="#sender#">Sender Address</option>
+					<!-- 
+					<option value="#group#">Group Name</option>
+					<option value="#bucket#">Bucket Name</option>
+					 -->
+				</optgroup>
+			</select>
+		<br>
+	</div> 
 	<br>
 	
 	<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>

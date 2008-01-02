@@ -2045,6 +2045,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 	const ID = 'id';
 	const MASK = 'mask';
 	const SUBJECT = 'subject';
+	const IS_WAITING = 'is_waiting';
 	const IS_CLOSED = 'is_closed';
 	const IS_DELETED = 'is_deleted';
 	const TEAM_ID = 'team_id';
@@ -2300,7 +2301,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 		
 		$tickets = array();
 		
-		$sql = "SELECT t.id , t.mask, t.subject, t.is_closed, t.is_deleted, t.team_id, t.category_id, t.first_message_id, ".
+		$sql = "SELECT t.id , t.mask, t.subject, t.is_waiting, t.is_closed, t.is_deleted, t.team_id, t.category_id, t.first_message_id, ".
 			"t.first_wrote_address_id, t.last_wrote_address_id, t.created_date, t.updated_date, t.due_date, t.spam_training, ". 
 			"t.spam_score, t.interesting_words, t.next_action, t.last_worker_id, t.next_worker_id, t.sla_id, t.sla_priority ".
 			"FROM ticket t ".
@@ -2317,6 +2318,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 			$ticket->first_message_id = intval($rs->fields['first_message_id']);
 			$ticket->team_id = intval($rs->fields['team_id']);
 			$ticket->category_id = intval($rs->fields['category_id']);
+			$ticket->is_waiting = intval($rs->fields['is_waiting']);
 			$ticket->is_closed = intval($rs->fields['is_closed']);
 			$ticket->is_deleted = intval($rs->fields['is_deleted']);
 			$ticket->last_wrote_address_id = intval($rs->fields['last_wrote_address_id']);
@@ -2747,6 +2749,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 			"t.id as %s, ".
 			"t.mask as %s, ".
 			"t.subject as %s, ".
+			"t.is_waiting as %s, ".
 			"t.is_closed as %s, ".
 			"t.is_deleted as %s, ".
 //			"t.first_wrote_address_id as %s, ".
@@ -2774,6 +2777,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 			    SearchFields_Ticket::TICKET_ID,
 			    SearchFields_Ticket::TICKET_MASK,
 			    SearchFields_Ticket::TICKET_SUBJECT,
+			    SearchFields_Ticket::TICKET_WAITING,
 			    SearchFields_Ticket::TICKET_CLOSED,
 			    SearchFields_Ticket::TICKET_DELETED,
 //			    SearchFields_Ticket::TICKET_FIRST_WROTE_ID,
@@ -2879,6 +2883,7 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 	// Ticket
 	const TICKET_ID = 't_id';
 	const TICKET_MASK = 't_mask';
+	const TICKET_WAITING = 't_is_waiting';
 	const TICKET_CLOSED = 't_is_closed';
 	const TICKET_DELETED = 't_is_deleted';
 	const TICKET_SUBJECT = 't_subject';
@@ -2929,6 +2934,7 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 		$columns = array(
 			self::TICKET_ID => new DevblocksSearchField(self::TICKET_ID, 't', 'id', null, $translate->_('ticket.id')),
 			self::TICKET_MASK => new DevblocksSearchField(self::TICKET_MASK, 't', 'mask', null, $translate->_('ticket.mask')),
+			self::TICKET_WAITING => new DevblocksSearchField(self::TICKET_WAITING, 't', 'is_waiting',null,$translate->_('status.waiting')),
 			self::TICKET_CLOSED => new DevblocksSearchField(self::TICKET_CLOSED, 't', 'is_closed',null,$translate->_('status.closed')),
 			self::TICKET_DELETED => new DevblocksSearchField(self::TICKET_DELETED, 't', 'is_deleted',null,$translate->_('status.deleted')),
 			self::TICKET_SUBJECT => new DevblocksSearchField(self::TICKET_SUBJECT, 't', 'subject',null,$translate->_('ticket.subject')),
@@ -3472,6 +3478,7 @@ class DAO_Bucket extends DevblocksORMHelper {
     const ID = 'id';
     const NAME = 'name';
     const TEAM_ID = 'team_id';
+    const RESPONSE_HRS = 'response_hrs';
     
 	static function getTeams() {
 		$categories = self::getAll();
@@ -3515,7 +3522,7 @@ class DAO_Bucket extends DevblocksORMHelper {
 	static function getList($ids=array()) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = "SELECT tc.id, tc.name, tc.team_id ".
+		$sql = "SELECT tc.id, tc.name, tc.team_id, tc.response_hrs ".
 			"FROM category tc ".
 			"INNER JOIN team t ON (tc.team_id=t.id) ".
 			(!empty($ids) ? sprintf("WHERE tc.id IN (%s) ", implode(',', $ids)) : "").
@@ -3530,6 +3537,7 @@ class DAO_Bucket extends DevblocksORMHelper {
 			$category->id = intval($rs->Fields('id'));
 			$category->name = $rs->Fields('name');
 			$category->team_id = intval($rs->Fields('team_id'));
+			$category->response_hrs = intval($rs->Fields('response_hrs'));
 			$categories[$category->id] = $category;
 			$rs->MoveNext();
 		}
@@ -3565,8 +3573,8 @@ class DAO_Bucket extends DevblocksORMHelper {
 		if(!$duplicate) {
 			$id = $db->GenID('generic_seq');
 			
-			$sql = sprintf("INSERT INTO category (id,name,team_id) ".
-				"VALUES (%d,%s,%d)",
+			$sql = sprintf("INSERT INTO category (id,name,team_id,response_hrs) ".
+				"VALUES (%d,%s,%d,0)",
 				$id,
 				$db->qstr($name),
 				$team_id
@@ -3581,14 +3589,8 @@ class DAO_Bucket extends DevblocksORMHelper {
 		return $id;
 	}
 	
-	static function update($id,$name) {
-		$db = DevblocksPlatform::getDatabaseService();
-		
-		$sql = sprintf("UPDATE category SET name=%s WHERE id = %d",
-			$db->qstr($name),
-			$id
-		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+	static function update($id,$fields) {
+		parent::_update($id,'category',$fields);
 
 		$cache = DevblocksPlatform::getCacheService();
 		$cache->remove(self::CACHE_ALL);

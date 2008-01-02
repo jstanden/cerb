@@ -442,11 +442,10 @@ class ChTicketsPage extends CerberusPageExtension {
 						SearchFields_Ticket::TICKET_UPDATED_DATE,
 						SearchFields_Ticket::TEAM_NAME,
 						SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
-						SearchFields_Ticket::TICKET_SLA_PRIORITY,
 						SearchFields_Ticket::TICKET_SPAM_SCORE,
 					);
 					$overViewDefaults->renderLimit = 10;
-					$overViewDefaults->renderSortBy = SearchFields_Ticket::TICKET_SLA_PRIORITY;
+					$overViewDefaults->renderSortBy = SearchFields_Ticket::TICKET_UPDATED_DATE;
 					$overViewDefaults->renderSortAsc = 0;
 
 					// If the worker has other default preferences, load them instead
@@ -481,6 +480,7 @@ class ChTicketsPage extends CerberusPageExtension {
 				
 				$overView->params = array(
 					new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN),
+					new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_WAITING,'=',0),
 				);
 				
 				$overView->renderPage = 0;
@@ -501,6 +501,7 @@ class ChTicketsPage extends CerberusPageExtension {
 						
 						$overView->params = array(
 							SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN),
+							SearchFields_Ticket::TICKET_WAITING => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_WAITING,'=',0),
 							SearchFields_Ticket::TICKET_NEXT_WORKER_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_NEXT_WORKER_ID,'=',0),
 						);
 						
@@ -528,6 +529,7 @@ class ChTicketsPage extends CerberusPageExtension {
 
 						$overView->params = array(
 							SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN),
+							SearchFields_Ticket::TICKET_WAITING => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_WAITING,'=',0),
 						);
 
 						if(!is_null($filter_worker_id)) {
@@ -549,6 +551,7 @@ class ChTicketsPage extends CerberusPageExtension {
 						
 						$overView->params = array(
 							SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN),
+							SearchFields_Ticket::TICKET_WAITING => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_WAITING,'=',0),							
 							SearchFields_Ticket::TICKET_NEXT_WORKER_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_NEXT_WORKER_ID,'=',0),
 						);
 
@@ -564,6 +567,7 @@ class ChTicketsPage extends CerberusPageExtension {
 					default:
 						$overView->params = array(
 							SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN),
+							SearchFields_Ticket::TICKET_WAITING => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_WAITING,'=',0),
 							SearchFields_Ticket::TICKET_NEXT_WORKER_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_NEXT_WORKER_ID,'=',0),
 							SearchFields_Ticket::TICKET_SPAM_SCORE => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_SPAM_SCORE,'<=','0.9000'),
 							SearchFields_Ticket::TEAM_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'in',array_keys($memberships)),
@@ -959,24 +963,33 @@ class ChTicketsPage extends CerberusPageExtension {
         
         $params = array();
         
-        if($query && false===strpos($query,'*'))
-            $query = '*' . $query . '*';
-        
         switch($type) {
             case "mask":
-                $params[SearchFields_Ticket::TICKET_MASK] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_MASK,DevblocksSearchCriteria::OPER_LIKE,strtoupper($query));
+            	if(is_numeric($query)) {
+            		$params[SearchFields_Ticket::TICKET_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_ID,DevblocksSearchCriteria::OPER_EQ,intval($query));
+            	} else {
+			        if($query && false===strpos($query,'*'))
+			            $query = '*' . $query . '*';
+            		$params[SearchFields_Ticket::TICKET_MASK] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_MASK,DevblocksSearchCriteria::OPER_LIKE,strtoupper($query));
+            	}
                 break;
                 
             case "sender":
+		        if($query && false===strpos($query,'*'))
+		            $query = '*' . $query . '*';
                 $params[SearchFields_Ticket::TICKET_FIRST_WROTE] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_FIRST_WROTE,DevblocksSearchCriteria::OPER_LIKE,strtolower($query));               
                 break;
                 
             case "subject":
-                $params[SearchFields_Ticket::TICKET_SUBJECT] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_SUBJECT,DevblocksSearchCriteria::OPER_LIKE,$query);               
+		        if($query && false===strpos($query,'*'))
+		            $query = '*' . $query . '*';
+            	$params[SearchFields_Ticket::TICKET_SUBJECT] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_SUBJECT,DevblocksSearchCriteria::OPER_LIKE,$query);               
                 break;
                 
             case "content":
-                $params[SearchFields_Ticket::TICKET_MESSAGE_CONTENT] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_MESSAGE_CONTENT,DevblocksSearchCriteria::OPER_LIKE,$query);               
+		        if($query && false===strpos($query,'*'))
+		            $query = '*' . $query . '*';
+            	$params[SearchFields_Ticket::TICKET_MESSAGE_CONTENT] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_MESSAGE_CONTENT,DevblocksSearchCriteria::OPER_LIKE,$query);               
                 break;
         }
         
@@ -4364,14 +4377,19 @@ class ChGroupsPage extends CerberusPageExtension  {
 	    @$ids = DevblocksPlatform::importGPC($_REQUEST['ids'],'array');
 	    @$add_str = DevblocksPlatform::importGPC($_REQUEST['add'],'string');
 	    @$names = DevblocksPlatform::importGPC($_REQUEST['names'],'array');
+	    @$response_hrs = DevblocksPlatform::importGPC($_REQUEST['response_hrs'],'array');
 	    @$deletes = DevblocksPlatform::importGPC($_REQUEST['deletes'],'array');
 	    
 	    // Updates
 	    $cats = DAO_Bucket::getList($ids);
 	    foreach($ids as $idx => $id) {
 	        @$cat = $cats[$id];
-	        if(is_object($cat) && 0 != strcasecmp($cat->name,$names[$idx])) {
-	            DAO_Bucket::update($id, $names[$idx]);
+	        if(is_object($cat)) {
+	        	$fields = array(
+	        		DAO_Bucket::NAME => $names[$idx],
+	        		DAO_Bucket::RESPONSE_HRS => intval($response_hrs[$idx]),
+	        	);
+	            DAO_Bucket::update($id, $fields);
 	        }
 	    }
 	    

@@ -382,9 +382,10 @@ class CerberusMail {
 		// Post-Reply Change Properties
 
 		if(isset($properties['closed'])) {
-        	$change_fields[DAO_Ticket::IS_CLOSED] = intval($properties['closed']);
-        	
-			if(intval($properties['closed'])) { // Closing
+			if(1==intval($properties['closed'])) { // Closing
+				$change_fields[DAO_Ticket::IS_CLOSED] = 1;
+				$change_fields[DAO_Ticket::IS_WAITING] = 0;
+
 				if(isset($properties['ticket_reopen'])) {
 					if(!empty($properties['ticket_reopen'])) {
 					    $due = strtotime($properties['ticket_reopen']);
@@ -392,8 +393,15 @@ class CerberusMail {
 				            $change_fields[DAO_Ticket::DUE_DATE] = $due;
 					}
 				}
-				
-	        } else { // Open
+	        } else { // Open or Waiting
+				$change_fields[DAO_Ticket::IS_CLOSED] = 0;
+				$change_fields[DAO_Ticket::IS_WAITING] = 0;
+
+				// Waiting for Reply
+				if(2==intval($properties['closed'])) {
+					$change_fields[DAO_Ticket::IS_WAITING] = 1;
+				}
+
 				if(isset($properties['next_action']))
 	    	    	$change_fields[DAO_Ticket::NEXT_ACTION] = $properties['next_action'];
 	    	    

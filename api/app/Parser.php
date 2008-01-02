@@ -544,6 +544,7 @@ class CerberusParser {
 		if(!$bIsNew && empty($importAppend)) {
 			DAO_Ticket::updateTicket($id,array(
 			    DAO_Ticket::UPDATED_DATE => time(),
+			    DAO_Ticket::IS_WAITING => 0,
 			    DAO_Ticket::IS_CLOSED => 0,
 			    DAO_Ticket::IS_DELETED => 0,
 			    DAO_Ticket::LAST_WROTE_ID => $fromAddressId,

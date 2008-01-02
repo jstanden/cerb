@@ -569,6 +569,11 @@
 				<seg>Deleted</seg>
 			</tuv>
 		</tu>
+		<tu tuid='status.waiting'>
+			<tuv xml:lang="en">
+				<seg>Waiting</seg>
+			</tuv>
+		</tu>
 
 		<!-- Teamwork -->
 

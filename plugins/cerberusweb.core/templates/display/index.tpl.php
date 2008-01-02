@@ -9,9 +9,11 @@
 	{assign var=ticket_team_category_set value=$team_categories.$ticket_team_id}
 	{assign var=ticket_category value=$ticket_team_category_set.$ticket_category_id}
 	
+	<b>Status:</b> {if $ticket->is_deleted}{$translate->_('status.deleted')}{elseif $ticket->is_closed}{$translate->_('status.closed')}{elseif $ticket->is_waiting}{$translate->_('status.waiting')}{else}{$translate->_('status.open')}{/if} &nbsp; 
 	<b>Team:</b> {$teams.$ticket_team_id->name} &nbsp; 
 	<b>Bucket:</b> {if !empty($ticket_category_id)}{$ticket_category->name}{else}Inbox{/if} &nbsp; 
-	<b>Ticket ID:</b> {$ticket->mask}
+	<b>Mask:</b> {$ticket->mask} &nbsp; 
+	<b>Internal ID:</b> {$ticket->id} &nbsp; 
 	<br>
 	{if !empty($ticket->next_action) && !$ticket->is_closed}
 		<b>Next Action:</b> {$ticket->next_action}<br>

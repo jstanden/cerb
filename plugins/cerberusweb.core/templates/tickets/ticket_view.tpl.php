@@ -60,7 +60,7 @@
 	
 		<tr class="{$tableRowBg}" id="{$rowIdPrefix}_s" onmouseover="toggleClass(this.id,'tableRowHover');toggleClass('{$rowIdPrefix}','tableRowHover');" onmouseout="toggleClass(this.id,'{$tableRowBg}');toggleClass('{$rowIdPrefix}','{$tableRowBg}');" onclick="if(getEventTarget(event)=='TD') checkAll('{$rowIdPrefix}_s');">
 			<td align="center" rowspan="2"><input type="checkbox" name="ticket_id[]" value="{$result.t_id}"></td>
-			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}"><a href="{devblocks_url}c=display&a=browse&id={$result.t_mask}&view={$view->id}{/devblocks_url}" class="ticketLink" style="font-size:12px;"><b id="subject_{$result.t_id}_{$view->id}">{if $result.t_is_closed}<strike>{$result.t_subject|escape:"htmlall"}</strike>{else}{$result.t_subject|escape:"htmlall"}{/if}</b></a> <a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showPreview&tid={$result.t_id}', this, false, '500px');" style="color:rgb(180,180,180);font-size:90%;">(peek)</a></td>
+			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}"><a href="{devblocks_url}c=display&a=browse&id={$result.t_mask}&view={$view->id}{/devblocks_url}" class="ticketLink" style="font-size:12px;"><b id="subject_{$result.t_id}_{$view->id}">{if $result.t_is_deleted}<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete2_gray.gif{/devblocks_url}" width="16" height="16" align="top" border="0" title="{$translate->_('status.deleted')}"> {elseif $result.t_is_closed}<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check_gray.gif{/devblocks_url}" width="16" height="16" align="top" border="0" title="{$translate->_('status.closed')}"> {elseif $result.t_is_waiting}<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/clock.gif{/devblocks_url}" width="16" height="16" align="top" border="0" title="{$translate->_('status.waiting')}"> {/if}{$result.t_subject|escape:"htmlall"}</b></a> <a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showPreview&tid={$result.t_id}', this, false, '500px');" style="color:rgb(180,180,180);font-size:90%;">(peek)</a></td>
 		</tr>
 		<tr class="{$tableRowBg}" id="{$rowIdPrefix}" onmouseover="toggleClass(this.id,'tableRowHover');toggleClass('{$rowIdPrefix}_s','tableRowHover');" onmouseout="toggleClass(this.id,'{$tableRowBg}');toggleClass('{$rowIdPrefix}_s','{$tableRowBg}');" onclick="if(getEventTarget(event)=='TD') checkAll('{$rowIdPrefix}_s');">
 		{foreach from=$view->view_columns item=column name=columns}
@@ -84,6 +84,12 @@
 			<td><a href="{devblocks_url}c=display&id={$result.t_id}{/devblocks_url}">{$result.t_id}</a></td>
 			{elseif $column=="t_mask"}
 			<td><a href="{devblocks_url}c=display&id={$result.t_mask}{/devblocks_url}">{$result.t_mask}</a></td>
+			{elseif $column=="t_is_waiting"}
+			<td>{if $result.t_is_waiting}<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/clock.gif{/devblocks_url}" width="16" height="16" border="0" title="{$translate->_('status.waiting')}">{else}{/if}</td>
+			{elseif $column=="t_is_closed"}
+			<td>{if $result.t_is_closed}<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check_gray.gif{/devblocks_url}" width="16" height="16" border="0" title="{$translate->_('status.closed')}">{else}{/if}</td>
+			{elseif $column=="t_is_deleted"}
+			<td>{if $result.t_is_deleted}<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete2_gray.gif{/devblocks_url}" width="16" height="16" border="0" title="{$translate->_('status.deleted')}">{else}{/if}</td>
 			{elseif $column=="t_last_wrote"}
 			<td><a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$result.t_last_wrote}&view_id={$view->id}',this,false,'500px',ajax.cbAddressPeek);" title="{$result.t_last_wrote}">{$result.t_last_wrote|truncate:45:'...':true:true}</a></td>
 			{elseif $column=="t_first_wrote"}
@@ -91,7 +97,15 @@
 			{elseif $column=="t_created_date"}
 			<td title="{$result.t_created_date|date_format:'%b %e, %Y  %H:%M:%S'}">{$result.t_created_date|prettytime}</td>
 			{elseif $column=="t_updated_date"}
-			<td title="{$result.t_updated_date|date_format:'%b %e, %Y  %H:%M:%S'}">{$result.t_updated_date|prettytime}</td>
+				{assign var=overdue value=0}
+				{if $result.t_category_id}
+					{assign var=ticket_category_id value=$result.t_category_id}
+					{assign var=bucket value=$buckets.$ticket_category_id}
+					{if $bucket->response_hrs}
+						{math assign=overdue equation="(t-x)/3600" t=$timestamp_now x=$result.t_updated_date h=$bucket->response_hrs format="%d"}
+					{/if}
+				{/if}
+				<td title="{$result.t_updated_date|date_format:'%b %e, %Y  %H:%M:%S'}" style="{if $overdue && $overdue>=$bucket->response_hrs}color:rgb(220,0,0);font-weight:bold;{/if}">{$result.t_updated_date|prettytime}</td>
 			{elseif $column=="t_due_date"}
 			<td title="{if $result.t_due_date}{$result.t_due_date|date_format:'%b %e, %Y  %H:%M:%S'}{/if}">{if $result.t_due_date}{$result.t_due_date|prettytime}{/if}</td>
 			{*{elseif $column=="t_tasks"}
@@ -102,7 +116,7 @@
 			<td>{$result.t_interesting_words|replace:',':', '}</td>
 			{elseif $column=="t_category_id"}
 				{assign var=ticket_category_id value=$result.t_category_id}
-			<td>{if 0 == $ticket_category_id}{else}{$buckets.$ticket_category_id->name}{/if}</td>
+				<td>{if 0 == $ticket_category_id}{else}{$buckets.$ticket_category_id->name}{/if}</td>
 			{elseif $column=="t_sla_id"}
 			<td>
 				{assign var=sla_id value=$result.t_sla_id}

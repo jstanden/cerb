@@ -138,7 +138,10 @@
 			<table cellpadding="2" cellspacing="0" border="0">
 				<tr>
 					<td nowrap="nowrap" valign="top" colspan="2">
-						<label><input type="checkbox" name="closed" value="1" onclick="toggleDiv('replyOpen{$message->id}',this.checked?'none':'block');toggleDiv('replyClosed{$message->id}',this.checked?'block':'none');" {if $ticket->is_closed}checked{/if}>This conversation is completed for now (close)</label><br>
+						<label><input type="radio" name="closed" value="0" onclick="toggleDiv('replyOpen{$message->id}','block');toggleDiv('replyClosed{$message->id}','none');">Open</label>
+						<label><input type="radio" name="closed" value="2" onclick="toggleDiv('replyOpen{$message->id}','block');toggleDiv('replyClosed{$message->id}','none');" {if !$ticket->is_closed}checked{/if}>Waiting for reply</label>
+						<label><input type="radio" name="closed" value="1" onclick="toggleDiv('replyOpen{$message->id}','none');toggleDiv('replyClosed{$message->id}','block');" {if $ticket->is_closed}checked{/if}>Closed</label>
+						<br>
 						<br>
 
 						<b>Who should handle the follow-up?</b><br>

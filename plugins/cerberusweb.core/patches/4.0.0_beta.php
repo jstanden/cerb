@@ -252,6 +252,15 @@ if(!isset($tables['fnr_query'])) {
     $datadict->ExecuteSQLArray($sql);
 }
 
+// `category` ========================
+$columns = $datadict->MetaColumns('category');
+$indexes = $datadict->MetaIndexes('category',false);
+
+if(!isset($columns['RESPONSE_HRS'])) {
+	$sql = $datadict->AddColumnSQL('category','response_hrs I2 DEFAULT 0 NOTNULL');
+    $datadict->ExecuteSQLArray($sql);
+}
+
 // `group_setting` =======================
 if(!isset($tables['group_setting'])) {
     $flds = "
@@ -521,6 +530,11 @@ if(isset($columns['PRIORITY'])) {
     $datadict->ExecuteSQLArray($sql);
 }
 
+if(!isset($columns['IS_WAITING'])) {
+    $sql = $datadict->AddColumnSQL('ticket', 'is_waiting I1 DEFAULT 0 NOTNULL');
+    $datadict->ExecuteSQLArray($sql);
+}
+
 if(isset($columns['IMPORT_PILE'])) {
 	$sql = $datadict->DropColumnSQL('ticket', 'import_pile');
     $datadict->ExecuteSQLArray($sql);
@@ -588,6 +602,11 @@ if(!isset($indexes['first_message_id'])) {
 
 if(!isset($indexes['mask'])) {
     $sql = $datadict->CreateIndexSQL('mask','ticket','mask');
+    $datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($indexes['is_waiting'])) {
+    $sql = $datadict->CreateIndexSQL('is_waiting','ticket','is_waiting');
     $datadict->ExecuteSQLArray($sql);
 }
 

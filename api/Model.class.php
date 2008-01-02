@@ -429,6 +429,7 @@ class C4_TicketView extends C4_AbstractView {
 				$tpl->assign('move_to_counts', array_slice($move_counts,0,10,true));
 		}
 
+		$tpl->assign('timestamp_now', time());
 		$tpl->register_modifier('prettytime', array('CerberusUtils', 'smarty_modifier_prettytime'));
 		
 		$tpl->cache_lifetime = "0";
@@ -506,6 +507,7 @@ class C4_TicketView extends C4_AbstractView {
 				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__string.tpl.php');
 				break;
 
+			case SearchFields_Ticket::TICKET_WAITING:
 			case SearchFields_Ticket::TICKET_DELETED:
 			case SearchFields_Ticket::TICKET_CLOSED:
 				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__bool.tpl.php');
@@ -707,6 +709,7 @@ class C4_TicketView extends C4_AbstractView {
 				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
 				break;
 
+			case SearchFields_Ticket::TICKET_WAITING:
 			case SearchFields_Ticket::TICKET_DELETED:
 			case SearchFields_Ticket::TICKET_CLOSED:
 				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'array',array());
@@ -1496,7 +1499,7 @@ class C4_Overview {
 		// Group Loads
 		$sql = sprintf("SELECT count(*) AS hits, team_id, category_id ".
 		"FROM ticket ".
-		"WHERE is_closed = 0 AND is_deleted = 0 ".
+		"WHERE is_waiting = 0 AND is_closed = 0 AND is_deleted = 0 ".
 		"AND next_worker_id = 0 ".
 		"GROUP BY team_id, category_id "
 		);
@@ -1528,7 +1531,7 @@ class C4_Overview {
 		// Worker Loads
 		$sql = sprintf("SELECT count(*) AS hits, t.team_id, t.next_worker_id ".
 		"FROM ticket t ".
-		"WHERE t.is_closed = 0 AND t.is_deleted = 0 ".
+		"WHERE t.is_waiting = 0 AND t.is_closed = 0 AND t.is_deleted = 0 ".
 		"AND t.next_worker_id > 0 ".
 		"GROUP BY t.team_id, t.next_worker_id "
 		);
@@ -1558,7 +1561,7 @@ class C4_Overview {
 		$sql = sprintf("SELECT count(*) AS hits, t.sla_id ".
 		"FROM ticket t ".
 		"INNER JOIN sla s ON (s.id=t.sla_id) ".
-		"WHERE t.is_closed = 0 AND t.is_deleted = 0 ".
+		"WHERE t.is_waiting = 0 AND t.is_closed = 0 AND t.is_deleted = 0 ".
 		"AND t.next_worker_id = 0 ".
 		"GROUP BY t.sla_id"
 		);
@@ -1698,6 +1701,7 @@ class CerberusTicket {
 	public $id;
 	public $mask;
 	public $subject;
+	public $is_waiting = 0;
 	public $is_closed = 0;
 	public $is_deleted = 0;
 	public $team_id;
@@ -1820,8 +1824,9 @@ class Model_TeamMember {
 
 class CerberusCategory {
 	public $id;
-	public $name;
-	public $team_id;
+	public $name = '';
+	public $team_id = 0;
+	public $response_hrs = 0;
 	public $tags = array();
 }
 
