@@ -429,6 +429,8 @@ class C4_TicketView extends C4_AbstractView {
 				$tpl->assign('move_to_counts', array_slice($move_counts,0,10,true));
 		}
 
+		$tpl->register_modifier('prettytime', array('CerberusUtils', 'smarty_modifier_prettytime'));
+		
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('view_fields', $this->getColumns());
 		$tpl->display('file:' . $view_path . 'ticket_view.tpl.php');
@@ -1853,6 +1855,14 @@ class Model_FnrTopic {
 	}
 };
 
+class Model_FnrQuery {
+	public $id;
+	public $query;
+	public $created;
+	public $source;
+	public $no_match;
+};
+
 class Model_FnrExternalResource {
 	public $id = 0;
 	public $name = '';
@@ -1861,7 +1871,6 @@ class Model_FnrExternalResource {
 
 	public static function searchResources($resources, $query) {
 		$feeds = array();
-
 		$topics = DAO_FnrTopic::getWhere();
 
 		if(is_array($resources))
@@ -1870,14 +1879,14 @@ class Model_FnrExternalResource {
 				$url = str_replace("#find#",rawurlencode($query),$resource->url);
 				$feed = Zend_Feed::import($url);
 				if($feed->count())
-				$feeds[] = array(
-				'name' => $resource->name,
-				'topic_name' => @$topics[$resource->topic_id]->name,
-				'feed' => $feed
+					$feeds[] = array(
+					'name' => $resource->name,
+					'topic_name' => @$topics[$resource->topic_id]->name,
+					'feed' => $feed
 				);
 			} catch(Exception $e) {}
 		}
-   
+		
 		return $feeds;
 	}
 };

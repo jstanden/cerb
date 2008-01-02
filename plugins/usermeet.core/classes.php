@@ -333,6 +333,7 @@ class UmCommunityPage extends CerberusPageExtension {
         $url_parts = parse_url($url);
         
         $host = $url_parts['host'];
+        @$port = $_SERVER['SERVER_PORT']; 
 		$base = substr(DEVBLOCKS_WEBPATH,0,-1); // consume trailing
         $path = substr($url_parts['path'],strlen(DEVBLOCKS_WEBPATH)-1); // consume trailing slash
 
@@ -342,6 +343,7 @@ class UmCommunityPage extends CerberusPageExtension {
         $path = implode('/', $parts);
         
 		$tpl->assign('host', $host);
+		$tpl->assign('port', $port);
 		$tpl->assign('base', $base);
 		$tpl->assign('path', $path);
 		

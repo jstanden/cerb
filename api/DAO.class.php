@@ -4459,6 +4459,94 @@ class SearchFields_TeamRoutingRule implements IDevblocksSearchFields {
 	}
 };	
 
+class DAO_FnrQuery extends DevblocksORMHelper {
+	const ID = 'id';
+	const QUERY = 'query';
+	const CREATED = 'created';
+	const SOURCE = 'source';
+	const NO_MATCH = 'no_match';
+
+	static function create($fields) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$id = $db->GenID('fnr_query_seq');
+		
+		$sql = sprintf("INSERT INTO fnr_query (id) ".
+			"VALUES (%d)",
+			$id
+		);
+		$db->Execute($sql);
+		
+		self::update($id, $fields);
+		
+		return $id;
+	}
+	
+	static function update($ids, $fields) {
+		parent::_update($ids, 'fnr_query', $fields);
+	}
+	
+	/**
+	 * @param string $where
+	 * @return Model_FnrQuery[]
+	 */
+	static function getWhere($where=null) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = "SELECT id, query, created, source, no_match ".
+			"FROM fnr_query ".
+			(!empty($where) ? sprintf("WHERE %s ",$where) : "").
+			"ORDER BY id asc";
+		$rs = $db->Execute($sql);
+		
+		return self::_getObjectsFromResult($rs);
+	}
+
+	/**
+	 * @param integer $id
+	 * @return Model_FnrQuery	 */
+	static function get($id) {
+		$objects = self::getWhere(sprintf("%s = %d",
+			self::ID,
+			$id
+		));
+		
+		if(isset($objects[$id]))
+			return $objects[$id];
+		
+		return null;
+	}
+	
+	/**
+	 * @param ADORecordSet $rs
+	 * @return Model_FnrQuery[]
+	 */
+	static private function _getObjectsFromResult($rs) {
+		$objects = array();
+		
+		while(!$rs->EOF) {
+			$object = new Model_FnrQuery();
+			$object->id = $rs->fields['id'];
+			$object->query = $rs->fields['query'];
+			$object->created = $rs->fields['created'];
+			$object->source = $rs->fields['source'];
+			$object->no_match = $rs->fields['no_match'];
+			$objects[$object->id] = $object;
+			$rs->MoveNext();
+		}
+		
+		return $objects;
+	}
+	
+	static function delete($ids) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$id_list = implode(',', $ids);
+		$db->Execute(sprintf("DELETE FROM fnr_query WHERE id IN (%s)",$id_list));
+	}
+
+};
+
 class DAO_FnrTopic extends DevblocksORMHelper {
 	const _TABLE = 'fnr_topic';
 	

@@ -9,10 +9,14 @@
       		<td>
       			{if isset($headers.from)}
       				{if $expanded}
-      					<h3 style="display:inline;">From: {$headers.from|escape:"htmlall"|nl2br}</h3> (<a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&address_id={$message->address_id}', this, false, '500px',ajax.cbAddressPeek);">address book</a>)<br>
+      					<h3 style="display:inline;">From: {$headers.from|escape:"htmlall"|nl2br}</h3>
       				{else}
-      					<b style="color:rgb(50,120,50);">From: {$headers.from|escape:"htmlall"|nl2br}</b>  (<a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&address_id={$message->address_id}', this, false, '500px',ajax.cbAddressPeek);">address book</a>)<br>
+      					<b style="color:rgb(50,120,50);">From: {$headers.from|escape:"htmlall"|nl2br}</b>
       				{/if}
+      				<a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&address_id={$message->address_id}', this, false, '500px',ajax.cbAddressPeek);">address book</a>
+      				
+      				{if $expanded} | <a href="#{$message->id}act">actions</a>{/if}
+      				<br>
       			{/if}
       		</td>
       		<td align="right">
@@ -55,7 +59,7 @@
     	  	<br>
 	      	<table width="100%" cellpadding="0" cellspacing="0" border="0">
 	      		<tr>
-	      			<td align="left">
+	      			<td align="left" id="{$message->id}act">
 				      	<button type="button" onclick="displayAjax.reply('{$message->id}',0);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/message_edit.gif{/devblocks_url}" align="top"> Reply</button>
 				      	<button type="button" onclick="displayAjax.reply('{$message->id}',1);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/mail_forward.gif{/devblocks_url}" align="top"> Forward</button>
 				      	<button type="button" onclick="displayAjax.addNote('{$message->id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/note_edit.gif{/devblocks_url}" align="top"> Add Note</button>
@@ -65,11 +69,6 @@
 				      	<a href="javascript:;" onclick="toggleDiv('{$message->id}options');">more &raquo;</a>
 				      	{/if}
 	      			</td>
-	      			<!-- 
-	      			<td align="right">
-	      				<a href="#top">top</a>
-	      			</td>
-	      			-->
 	      		</tr>
 	      	</table>
 	      	

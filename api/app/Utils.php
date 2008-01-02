@@ -64,8 +64,7 @@ class CerberusUtils {
 		return imap_rfc822_parse_adrlist($string, 'localhost');
 	}
 	
-	function smarty_modifier_makehrefs($string, $sanitize = false, $style="")
-	{
+	function smarty_modifier_makehrefs($string, $sanitize = false, $style="") {
 		$from = array("&gt;");
 		$to = array(">");
 		
@@ -76,6 +75,23 @@ class CerberusUtils {
 			return preg_replace("/((http|https):\/\/(.*?))(\s|\>|&lt;|&quot;)/ie","'<a href=\"goto.php?url='.htmlentities(urlencode('\\1')).'\" target=\"_blank\">\\1</a>\\4\\5'",$string);
 	   else
 			return preg_replace("/((http|https):\/\/(.*?))(\s|\>|&lt;|&quot;)/ie","'<a href=\"'.htmlentities('\\1').'\" target=\"_blank\">\\1</a>\\4\\5'",$string);
+	}
+	
+	function smarty_modifier_prettytime($string) {
+		$diffsecs = time() - intval($string);
+		$whole = '';		
+		
+		if($diffsecs >= 86400) { // days
+			$whole = floor($diffsecs/86400).'d ago';
+		} elseif($diffsecs >= 3600) { // hours
+			$whole = floor($diffsecs/3600).'h ago';
+		} elseif($diffsecs >= 60) { // mins
+			$whole = floor($diffsecs/60).'m ago';
+		} elseif($diffsecs >= 0) { // secs
+			$whole = $diffsecs.'s ago';
+		}
+		
+		echo $whole;
 	}
 }
 ?>

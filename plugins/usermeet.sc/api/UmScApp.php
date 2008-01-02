@@ -24,7 +24,7 @@ class UmScApp extends Extension_UsermeetTool {
 	const PARAM_ALLOW_LOGINS = 'allow_logins';
 	const PARAM_ALLOW_SUBJECTS = 'allow_subjects';
 	
-	const DEFAULT_THEME = 'cerb4';
+	const DEFAULT_THEME = 'classic_green';
 	
 	const SESSION_CAPTCHA = 'write_captcha';
 	
@@ -1024,6 +1024,14 @@ class UmScCoreController extends Extension_UmScController {
 					$resources = DAO_FnrExternalResource::getWhere($where);
 					$feeds = Model_FnrExternalResource::searchResources($resources, $query);
 					$tpl->assign('feeds', $feeds);
+					
+					$fields = array(
+						DAO_FnrQuery::QUERY => $query,
+						DAO_FnrQuery::CREATED => time(),
+						DAO_FnrQuery::SOURCE => $this->getPortal(),
+						DAO_FnrQuery::NO_MATCH => (empty($feeds) ? 1 : 0)
+					);
+					DAO_FnrQuery::create($fields);
 				}
 				
 				$tpl->display("file:${tpl_path}internal/answers/index.tpl.php");

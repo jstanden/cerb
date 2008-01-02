@@ -239,6 +239,19 @@ if(!isset($tables['fnr_topic'])) {
     $datadict->ExecuteSQLArray($sql);
 }
 
+// `fnr_query` =======================
+if(!isset($tables['fnr_query'])) {
+    $flds = "
+		id I4 DEFAULT 0 NOTNULL PRIMARY,
+		query C(255) DEFAULT '' NOTNULL,
+		created I4 DEFAULT 0 NOTNULL,
+		source C(32) DEFAULT '' NOTNULL,
+		no_match I1 DEFAULT 0 NOTNULL
+	";
+    $sql = $datadict->CreateTableSQL('fnr_query',$flds);
+    $datadict->ExecuteSQLArray($sql);
+}
+
 // `group_setting` =======================
 if(!isset($tables['group_setting'])) {
     $flds = "

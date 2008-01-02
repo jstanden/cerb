@@ -8,7 +8,7 @@ For example: <i>http://www.cerberusweb.com/support/</i><br>
 <b>index.php:</b><br>
 <textarea rows="10" cols="80" style="width:98%;margin:10px;">
 &lt;?php
-define('REMOTE_HOST', '{$host}');
+define('REMOTE_HOST', '{$host}{if !empty($port) && 80!=$port}:{$port}{/if}');
 define('REMOTE_BASE', '{$base}{if !$smarty.const.DEVBLOCKS_REWRITE}/index.php{/if}'); // NO trailing slash!
 define('REMOTE_URI', '{$path}'); // NO trailing slash!
 {literal}
