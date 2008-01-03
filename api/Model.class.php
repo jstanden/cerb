@@ -510,6 +510,11 @@ class C4_TicketView extends C4_AbstractView {
 				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__string.tpl.php');
 				break;
 
+			case SearchFields_Ticket::TICKET_FIRST_WROTE_SPAM:
+			case SearchFields_Ticket::TICKET_FIRST_WROTE_NONSPAM:
+				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__number.tpl.php');
+				break;
+					
 			case SearchFields_Ticket::TICKET_WAITING:
 			case SearchFields_Ticket::TICKET_DELETED:
 			case SearchFields_Ticket::TICKET_CLOSED:
@@ -717,6 +722,11 @@ class C4_TicketView extends C4_AbstractView {
 			case SearchFields_Ticket::TICKET_CLOSED:
 				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
+				break;
+				
+			case SearchFields_Ticket::TICKET_FIRST_WROTE_SPAM:
+			case SearchFields_Ticket::TICKET_FIRST_WROTE_NONSPAM:
+				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 
 			case SearchFields_Ticket::TICKET_CREATED_DATE:
@@ -939,15 +949,15 @@ class C4_TicketView extends C4_AbstractView {
 		$view->name = "Search Results";
 		$view->dashboard_id = 0;
 		$view->view_columns = array(
-		SearchFields_Ticket::TICKET_NEXT_ACTION,
-		SearchFields_Ticket::TICKET_UPDATED_DATE,
-		SearchFields_Ticket::TEAM_NAME,
-		SearchFields_Ticket::TICKET_CATEGORY_ID,
-		SearchFields_Ticket::TICKET_SPAM_SCORE,
-		SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
+			SearchFields_Ticket::TICKET_NEXT_ACTION,
+			SearchFields_Ticket::TICKET_UPDATED_DATE,
+			SearchFields_Ticket::TEAM_NAME,
+			SearchFields_Ticket::TICKET_CATEGORY_ID,
+			SearchFields_Ticket::TICKET_SPAM_SCORE,
+			SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
 		);
 		$view->params = array(
-		SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,DevblocksSearchCriteria::OPER_EQ,0)
+			SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,DevblocksSearchCriteria::OPER_EQ,0)
 		);
 		$view->renderLimit = 100;
 		$view->renderPage = 0;

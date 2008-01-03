@@ -167,6 +167,10 @@
 				{assign var=action_worker_id value=$result.t_next_worker_id}
 				{if isset($workers.$action_worker_id)}{$workers.$action_worker_id->getName()}{/if}
 			</td>
+			{elseif $column=="t_first_wrote_spam"}
+			<td>{$result.t_first_wrote_spam}</td>
+			{elseif $column=="t_first_wrote_nonspam"}
+			<td>{$result.t_first_wrote_nonspam}</td>
 			{elseif $column=="t_spam_score"}
 			<td>
 				{math assign=score equation="x*100" format="%0.2f%%" x=$result.t_spam_score}

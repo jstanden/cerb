@@ -2787,6 +2787,8 @@ class DAO_Ticket extends DevblocksORMHelper {
 //			"t.first_wrote_address_id as %s, ".
 //			"t.last_wrote_address_id as %s, ".
 			"a1.email as %s, ".
+			"a1.num_spam as %s, ".
+			"a1.num_nonspam as %s, ".
 			"a2.email as %s, ".
 			"a1.contact_org_id as %s, ".
 			"t.created_date as %s, ".
@@ -2815,6 +2817,8 @@ class DAO_Ticket extends DevblocksORMHelper {
 //			    SearchFields_Ticket::TICKET_FIRST_WROTE_ID,
 //			    SearchFields_Ticket::TICKET_LAST_WROTE_ID,
 			    SearchFields_Ticket::TICKET_FIRST_WROTE,
+			    SearchFields_Ticket::TICKET_FIRST_WROTE_SPAM,
+			    SearchFields_Ticket::TICKET_FIRST_WROTE_NONSPAM,
 			    SearchFields_Ticket::TICKET_LAST_WROTE,
 			    SearchFields_Ticket::TICKET_FIRST_CONTACT_ORG_ID,
 			    SearchFields_Ticket::TICKET_CREATED_DATE,
@@ -2921,6 +2925,8 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 	const TICKET_SUBJECT = 't_subject';
 	const TICKET_FIRST_WROTE_ID = 't_first_wrote_address_id';
 	const TICKET_FIRST_WROTE = 't_first_wrote';
+	const TICKET_FIRST_WROTE_SPAM = 't_first_wrote_spam';
+	const TICKET_FIRST_WROTE_NONSPAM = 't_first_wrote_nonspam';
 	const TICKET_FIRST_CONTACT_ORG_ID = 't_first_contact_org_id';
 	const TICKET_LAST_WROTE_ID = 't_last_wrote_address_id';
 	const TICKET_LAST_WROTE = 't_last_wrote';
@@ -2972,6 +2978,8 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 			self::TICKET_SUBJECT => new DevblocksSearchField(self::TICKET_SUBJECT, 't', 'subject',null,$translate->_('ticket.subject')),
 			self::TICKET_FIRST_WROTE_ID => new DevblocksSearchField(self::TICKET_FIRST_WROTE_ID, 't', 'first_wrote_address_id'),
 			self::TICKET_FIRST_WROTE => new DevblocksSearchField(self::TICKET_FIRST_WROTE, 'a1', 'email',null,$translate->_('ticket.first_wrote')),
+			self::TICKET_FIRST_WROTE_SPAM => new DevblocksSearchField(self::TICKET_FIRST_WROTE_SPAM, 'a1', 'num_spam',null,$translate->_('address.num_spam')),
+			self::TICKET_FIRST_WROTE_NONSPAM => new DevblocksSearchField(self::TICKET_FIRST_WROTE_NONSPAM, 'a1', 'num_nonspam',null,$translate->_('address.num_nonspam')),
 			self::TICKET_FIRST_CONTACT_ORG_ID => new DevblocksSearchField(self::TICKET_FIRST_CONTACT_ORG_ID, 'a1', 'contact_org_id'),
 			self::TICKET_LAST_WROTE_ID => new DevblocksSearchField(self::TICKET_LAST_WROTE_ID, 't', 'last_wrote_address_id'),
 			self::TICKET_LAST_WROTE => new DevblocksSearchField(self::TICKET_LAST_WROTE, 'a2', 'email',null,$translate->_('ticket.last_wrote')),
