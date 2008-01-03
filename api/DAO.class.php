@@ -866,6 +866,9 @@ class DAO_Address extends DevblocksORMHelper {
 	const LAST_NAME = 'last_name';
 	const CONTACT_ORG_ID = 'contact_org_id';
 	const PHONE = 'phone';
+	const NUM_SPAM = 'num_spam';
+	const NUM_NONSPAM = 'num_nonspam';
+	const IS_BANNED = 'is_banned';
 	const SLA_ID = 'sla_id';
 	const SLA_EXPIRES = 'sla_expires';
 	const LAST_AUTOREPLY = 'last_autoreply';
@@ -881,6 +884,9 @@ class DAO_Address extends DevblocksORMHelper {
 			'last_name' => $translate->_('address.last_name'),
 			'phone' => $translate->_('address.phone'),
 			'contact_org_id' => $translate->_('address.contact_org_id'),
+			'num_spam' => $translate->_('address.num_spam'),
+			'num_nonspam' => $translate->_('address.num_nonspam'),
+			'is_banned' => $translate->_('sla.is_banned'),
 			'sla_id' => $translate->_('sla.name'),
 //			'last_autoreply' => $translate->_('sla.name'),
 		);
@@ -916,8 +922,8 @@ class DAO_Address extends DevblocksORMHelper {
 		if(empty($address->host) || $address->host == 'host')
 			return NULL;
 		
-		$sql = sprintf("INSERT INTO address (id,email,first_name,last_name,phone,contact_org_id,last_autoreply) ".
-			"VALUES (%d,%s,'','','',0,0)",
+		$sql = sprintf("INSERT INTO address (id,email,first_name,last_name,phone,contact_org_id,num_spam,num_nonspam,is_banned,last_autoreply) ".
+			"VALUES (%d,%s,'','','',0,0,0,0,0)",
 			$id,
 			$db->qstr(trim(strtolower($address->mailbox.'@'.$address->host)))
 		);
@@ -955,7 +961,7 @@ class DAO_Address extends DevblocksORMHelper {
 		
 		$addresses = array();
 		
-		$sql = sprintf("SELECT a.id, a.email, a.first_name, a.last_name, a.contact_org_id, a.phone, a.sla_id, a.sla_expires, a.last_autoreply ".
+		$sql = sprintf("SELECT a.id, a.email, a.first_name, a.last_name, a.contact_org_id, a.phone, a.num_spam, a.num_nonspam, a.is_banned, a.sla_id, a.sla_expires, a.last_autoreply ".
 			"FROM address a ".
 			((!empty($where)) ? "WHERE %s " : " ").
 			"ORDER BY a.email ",
@@ -971,6 +977,8 @@ class DAO_Address extends DevblocksORMHelper {
 			$address->last_name = $rs->fields['last_name'];
 			$address->contact_org_id = intval($rs->fields['contact_org_id']);
 			$address->phone = $rs->fields['phone'];
+			$address->num_spam = intval($rs->fields['num_spam']);
+			$address->num_nonspam = intval($rs->fields['num_nonspam']);
 			$address->sla_id = intval($rs->fields['sla_id']);
 			$address->sla_expires = intval($rs->fields['sla_expires']);
 			$address->last_autoreply = intval($rs->fields['last_autoreply']);
@@ -1031,6 +1039,18 @@ class DAO_Address extends DevblocksORMHelper {
 		return $address;
 	}
 	
+	static function addOneToSpamTotal($address_id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		$sql = sprintf("UPDATE address SET num_spam = num_spam + 1 WHERE id = %d",$address_id);
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+	}
+	
+	static function addOneToNonSpamTotal($address_id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		$sql = sprintf("UPDATE address SET num_nonspam = num_nonspam + 1 WHERE id = %d",$address_id);
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+	}
+	
     /**
      * Enter description here...
      *
@@ -1056,6 +1076,9 @@ class DAO_Address extends DevblocksORMHelper {
 			"a.contact_org_id as %s, ".
 			"o.name as %s, ".
 			"a.phone as %s, ".
+			"a.num_spam as %s, ".
+			"a.num_nonspam as %s, ".
+			"a.is_banned as %s, ".
 			"a.sla_id as %s ",
 			    SearchFields_Address::ID,
 			    SearchFields_Address::EMAIL,
@@ -1064,6 +1087,9 @@ class DAO_Address extends DevblocksORMHelper {
 			    SearchFields_Address::CONTACT_ORG_ID,
 			    SearchFields_Address::ORG_NAME,
 			    SearchFields_Address::PHONE,
+			    SearchFields_Address::NUM_SPAM,
+			    SearchFields_Address::NUM_NONSPAM,
+			    SearchFields_Address::IS_BANNED,
 			    SearchFields_Address::SLA_ID
 			 );
 		
@@ -1113,6 +1139,9 @@ class SearchFields_Address implements IDevblocksSearchFields {
 	const LAST_NAME = 'a_last_name';
 	const CONTACT_ORG_ID = 'a_contact_org_id';
 	const PHONE = 'a_phone';
+	const NUM_SPAM = 'a_num_spam';
+	const NUM_NONSPAM = 'a_num_nonspam';
+	const IS_BANNED = 'a_is_banned';
 	const SLA_ID = 'a_sla_id';
 	
 	const ORG_NAME = 'o_name';
@@ -1129,6 +1158,9 @@ class SearchFields_Address implements IDevblocksSearchFields {
 			self::LAST_NAME => new DevblocksSearchField(self::LAST_NAME, 'a', 'last_name', null, $translate->_('address.last_name')),
 			self::CONTACT_ORG_ID => new DevblocksSearchField(self::CONTACT_ORG_ID, 'a', 'contact_org_id', null, $translate->_('address.contact_org_id')),
 			self::PHONE => new DevblocksSearchField(self::PHONE, 'a', 'phone', null, $translate->_('address.phone')),
+			self::NUM_SPAM => new DevblocksSearchField(self::NUM_SPAM, 'a', 'num_spam', null, $translate->_('address.num_spam')),
+			self::NUM_NONSPAM => new DevblocksSearchField(self::NUM_NONSPAM, 'a', 'num_nonspam', null, $translate->_('address.num_nonspam')),
+			self::IS_BANNED => new DevblocksSearchField(self::IS_BANNED, 'a', 'is_banned', null, $translate->_('address.is_banned')),
 			self::SLA_ID => new DevblocksSearchField(self::SLA_ID, 'a', 'sla_id', null, $translate->_('sla.name')),
 			
 			self::ORG_NAME => new DevblocksSearchField(self::ORG_NAME, 'o', 'name', null, $translate->_('contact_org.name')),

@@ -312,12 +312,15 @@ class C4_AbstractViewLoader {
 
 class Model_Address {
 	public $id;
-	public $email;
-	public $first_name;
-	public $last_name;
-	public $contact_org_id;
-	public $sla_id;
-	public $sla_expires;
+	public $email = '';
+	public $first_name = '';
+	public $last_name = '';
+	public $contact_org_id = 0;
+	public $num_spam = 0;
+	public $num_nonspam = 0;
+	public $is_banned = 0;
+	public $sla_id = 0;
+	public $sla_expires = 0;
 	public $last_autoreply;
 
 	function Model_Address() {}
@@ -997,21 +1000,27 @@ class C4_AddressView extends C4_AbstractView {
 		$this->renderSortAsc = true;
 
 		$this->view_columns = array(
-		SearchFields_Address::FIRST_NAME,
-		SearchFields_Address::LAST_NAME,
-		SearchFields_Address::ORG_NAME,
-		SearchFields_Address::PHONE,
-		SearchFields_Address::SLA_ID
+			SearchFields_Address::FIRST_NAME,
+			SearchFields_Address::LAST_NAME,
+			SearchFields_Address::ORG_NAME,
+			SearchFields_Address::PHONE,
+			SearchFields_Address::SLA_ID,
+			SearchFields_Address::NUM_NONSPAM,
+			SearchFields_Address::NUM_SPAM,
+		);
+		
+		$this->params = array(
+			SearchFields_Address::NUM_NONSPAM => new DevblocksSearchCriteria(SearchFields_Address::NUM_NONSPAM,'>',0),
 		);
 	}
 
 	function getData() {
 		$objects = DAO_Address::search(
-		$this->params,
-		$this->renderLimit,
-		$this->renderPage,
-		$this->renderSortBy,
-		$this->renderSortAsc
+			$this->params,
+			$this->renderLimit,
+			$this->renderPage,
+			$this->renderSortBy,
+			$this->renderSortAsc
 		);
 		return $objects;
 	}
@@ -1040,6 +1049,13 @@ class C4_AddressView extends C4_AbstractView {
 			case SearchFields_Address::ORG_NAME:
 			case SearchFields_Address::PHONE:
 				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__string.tpl.php');
+				break;
+			case SearchFields_Address::NUM_SPAM:
+			case SearchFields_Address::NUM_NONSPAM:
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__number.tpl.php');
+				break;
+			case SearchFields_Address::IS_BANNED:
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__bool.tpl.php');
 				break;
 			case SearchFields_Address::SLA_ID:
 				$slas = DAO_Sla::getAll();
@@ -1095,6 +1111,14 @@ class C4_AddressView extends C4_AbstractView {
 		return $fields;
 	}
 
+	function doResetCriteria() {
+		parent::doResetCriteria();
+		
+		$this->params = array(
+			SearchFields_Address::NUM_NONSPAM => new DevblocksSearchCriteria(SearchFields_Address::NUM_NONSPAM,'>',0),
+		);
+	}
+	
 	function doSetCriteria($field, $oper, $value) {
 		$criteria = null;
 
@@ -1110,6 +1134,15 @@ class C4_AddressView extends C4_AbstractView {
 					$value = '*'.$value.'*';
 				}
 				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
+				break;
+			case SearchFields_Address::NUM_SPAM:
+			case SearchFields_Address::NUM_NONSPAM:
+				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
+				break;
+				
+			case SearchFields_Address::IS_BANNED:
+				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
 			case SearchFields_Address::SLA_ID:
 				@$sla_ids = DevblocksPlatform::importGPC($_REQUEST['sla_ids'], 'array', array());

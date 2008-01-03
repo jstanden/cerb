@@ -151,6 +151,21 @@
 				<seg>first name</seg>
 			</tuv>
 		</tu>
+		<tu tuid='address.num_spam'>
+			<tuv xml:lang="en">
+				<seg># Spam</seg>
+			</tuv>
+		</tu>
+		<tu tuid='address.num_nonspam'>
+			<tuv xml:lang="en">
+				<seg># Nonspam</seg>
+			</tuv>
+		</tu>
+		<tu tuid='address.is_banned'>
+			<tuv xml:lang="en">
+				<seg>Banned</seg>
+			</tuv>
+		</tu>
 		<tu tuid='address.last_name'>
 			<tuv xml:lang="en">
 				<seg>last name</seg>

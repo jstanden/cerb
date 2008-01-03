@@ -210,9 +210,11 @@ class CerberusBayes {
 		// Increase the bayes_stats spam or notspam total count by 1
 		// [TODO] This is a performance killer (could be done in batches)
 		if($spam) {
-		    DAO_Bayes::addOneToSpamTotal(); 
+		    DAO_Bayes::addOneToSpamTotal();
+		    DAO_Address::addOneToSpamTotal($ticket->first_wrote_address_id); 
 		} else {
 		    DAO_Bayes::addOneToNonSpamTotal();
+		    DAO_Address::addOneToNonSpamTotal($ticket->first_wrote_address_id);
 		}
 		
 		// Forced training should leave a cache of 0.0001 or 0.9999 on the ticket table
@@ -223,7 +225,7 @@ class CerberusBayes {
 			'is_closed' => ($spam) ? '1' : '0',
 		);
 		DAO_Ticket::updateTicket($ticket_id,$fields);
-		
+
 		return TRUE;
 	}
 

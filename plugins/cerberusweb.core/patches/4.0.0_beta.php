@@ -88,6 +88,45 @@ if(!isset($columns['CONTACT_ORG_ID'])) {
     $datadict->ExecuteSQLArray($sql);
 }
 
+if(!isset($columns['NUM_SPAM'])) {
+    $sql = $datadict->AddColumnSQL('address', "num_spam I4 DEFAULT 0 NOTNULL");
+    $datadict->ExecuteSQLArray($sql);
+    
+    // Update totals
+	$sql = "SELECT count(id) as hits,first_wrote_address_id FROM ticket WHERE spam_training = 'S' GROUP BY first_wrote_address_id,spam_training";
+	$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+	
+	while(!$rs->EOF) {
+		$hits = intval($rs->fields['hits']);
+		$address_id = intval($rs->fields['first_wrote_address_id']);
+		$db->Execute(sprintf("UPDATE address SET num_spam = %d WHERE id = %d", $hits, $address_id));
+		$rs->MoveNext();
+	}
+	@$rs->Free();
+}
+
+if(!isset($columns['NUM_NONSPAM'])) {
+    $sql = $datadict->AddColumnSQL('address', "num_nonspam I4 DEFAULT 0 NOTNULL");
+    $datadict->ExecuteSQLArray($sql);
+    
+    // Update totals
+	$sql = "SELECT count(id) as hits,first_wrote_address_id FROM ticket WHERE spam_training = 'N' GROUP BY first_wrote_address_id,spam_training";
+	$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+	
+	while(!$rs->EOF) {
+		$hits = intval($rs->fields['hits']);
+		$address_id = intval($rs->fields['first_wrote_address_id']);
+		$db->Execute(sprintf("UPDATE address SET num_nonspam = %d WHERE id = %d", $hits, $address_id));
+		$rs->MoveNext();
+	}
+	@$rs->Free();
+}
+
+if(!isset($columns['IS_BANNED'])) {
+    $sql = $datadict->AddColumnSQL('address', "is_banned I1 DEFAULT 0 NOTNULL");
+    $datadict->ExecuteSQLArray($sql);
+}
+
 if(!isset($columns['SLA_ID'])) {
     $sql = $datadict->AddColumnSQL('address', "sla_id I4 DEFAULT 0 NOTNULL");
     $datadict->ExecuteSQLArray($sql);
@@ -115,6 +154,21 @@ if(!isset($indexes['contact_org_id'])) {
 
 if(!isset($indexes['sla_id'])) {
     $sql = $datadict->CreateIndexSQL('sla_id','address','sla_id');
+    $datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($indexes['num_spam'])) {
+    $sql = $datadict->CreateIndexSQL('num_spam','address','num_spam');
+    $datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($indexes['num_nonspam'])) {
+    $sql = $datadict->CreateIndexSQL('num_nonspam','address','num_nonspam');
+    $datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($indexes['is_banned'])) {
+    $sql = $datadict->CreateIndexSQL('is_banned','address','is_banned');
     $datadict->ExecuteSQLArray($sql);
 }
 
