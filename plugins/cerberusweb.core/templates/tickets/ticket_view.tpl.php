@@ -115,8 +115,17 @@
 			{elseif $column=="t_interesting_words"}
 			<td>{$result.t_interesting_words|replace:',':', '}</td>
 			{elseif $column=="t_category_id"}
+				{assign var=ticket_team_id value=$result.tm_id}
 				{assign var=ticket_category_id value=$result.t_category_id}
-				<td>{if 0 == $ticket_category_id}{else}{$buckets.$ticket_category_id->name}{/if}</td>
+				<td>
+					{if 0 == $ticket_category_id}
+						{if (isset($active_worker_memberships.$ticket_team_id)) && $active_worker_memberships.$ticket_team_id->is_manager || $active_worker->is_superuser}
+							[<a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showAddInboxRulePanel&view_id={$view->id}&id={$result.t_id}',this,false,'400px');">add inbox routing</a>]
+						{/if}
+					{else}
+						{$buckets.$ticket_category_id->name}
+					{/if}
+				</td>
 			{elseif $column=="t_sla_id"}
 			<td>
 				{assign var=sla_id value=$result.t_sla_id}

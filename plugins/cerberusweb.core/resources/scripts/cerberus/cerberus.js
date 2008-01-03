@@ -300,6 +300,41 @@ var cAjaxCalls = function() {
 		}
 	}
 	
+	this.saveAddInboxRulePanel = function(frm,view_id) {
+		YAHOO.util.Connect.setForm(frm);
+		
+		var div = document.getElementById(view_id);
+		if(null == div) return;
+		
+		var anim = new YAHOO.util.Anim(div, { opacity: { to: 0.2 } }, 1, YAHOO.util.Easing.easeOut);
+		anim.animate();
+		
+		var cObj = YAHOO.util.Connect.asyncRequest('POST', DevblocksAppPath+'ajax.php', {
+				success: function(o) {
+					var div = document.getElementById(o.argument.view_id);
+					if(null == div) return;
+
+					div.innerHTML = o.responseText;
+					genericAjaxGet('overviewTotals','c=tickets&a=refreshOverviewTotals');					
+
+					var anim = new YAHOO.util.Anim(div, { opacity: { to: 1.0 } }, 1, YAHOO.util.Easing.easeOut);
+					anim.animate();
+
+					if(null != genericPanel) {
+						try {
+							genericPanel.destroy();
+							genericPanel = null;
+						} catch(e) {}
+					}
+					
+				},
+				failure: function(o) {},
+				argument:{frm:frm,view_id:view_id}
+		});
+		
+		YAHOO.util.Connect.setForm(0);
+	}
+	
 	this.viewUndo = function(view_id) {
 		var viewDiv = document.getElementById('view'+view_id);
 		if(null == viewDiv) return;

@@ -41,13 +41,13 @@
 			<select name="move">
 				<option value=""></option>
 	      		<optgroup label="Move to Group">
-	      		{foreach from=$teams item=team}
-	      			<option value="t{$team->id}">{$team->name}</option>
+	      		{foreach from=$teams item=tm}
+	      			<option value="t{$team->id}">{$tm->name}</option>
 	      		{/foreach}
 	      		</optgroup>
 	      		{foreach from=$team_categories item=categories key=teamId}
-	      			{assign var=team value=$teams.$teamId}
-	      			<optgroup label="{$team->name}">
+	      			{assign var=tm value=$teams.$teamId}
+	      			<optgroup label="{$tm->name}">
 	      			{foreach from=$categories item=category}
 	    				<option value="c{$category->id}">{$category->name}</option>
 	    			{/foreach}

@@ -441,8 +441,8 @@ class ChTicketsPage extends CerberusPageExtension {
 						SearchFields_Ticket::TICKET_NEXT_ACTION,
 						SearchFields_Ticket::TICKET_UPDATED_DATE,
 						SearchFields_Ticket::TEAM_NAME,
+						SearchFields_Ticket::TICKET_CATEGORY_ID,
 						SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
-						SearchFields_Ticket::TICKET_SPAM_SCORE,
 					);
 					$overViewDefaults->renderLimit = 10;
 					$overViewDefaults->renderSortBy = SearchFields_Ticket::TICKET_UPDATED_DATE;
@@ -1001,6 +1001,102 @@ class ChTicketsPage extends CerberusPageExtension {
         
         //DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','search')));
         DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets','search')));
+	}
+
+	// Ajax
+	function showAddInboxRulePanelAction() {
+	    @$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
+		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+	    
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl_path = dirname(__FILE__) . '/templates/';
+		$tpl->assign('path', $tpl_path);
+		
+		$tpl->assign('ticket_id', $ticket_id);
+		$tpl->assign('view_id', $view_id);
+		
+		@$ticket = DAO_Ticket::getTicket($ticket_id);
+		$tpl->assign('ticket', $ticket);
+
+		@$first_address = DAO_Address::get($ticket->first_wrote_address_id);
+		$tpl->assign('first_address', $first_address);
+		
+		// Status
+		$statuses = CerberusTicketStatus::getOptions();
+		$tpl->assign('statuses', $statuses);
+
+		// Spam Training
+		$training = CerberusTicketSpamTraining::getOptions();
+		$tpl->assign('training', $training);
+
+		// Grops
+		$teams = DAO_Group::getAll();
+		$tpl->assign('teams', $teams);
+		
+		// Buckets
+		$team_categories = DAO_Bucket::getTeams();
+		$tpl->assign('team_categories', $team_categories);
+	    
+		// Workers
+	    $workers = DAO_Worker::getAll();
+		$tpl->assign('workers', $workers);
+		
+		$tpl->cache_lifetime = "0";
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/rpc/inbox_rule_panel.tpl.php');
+	}
+	
+	// Ajax
+	function saveAddInboxRulePanelAction() {
+   		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
+   		@$team_id = DevblocksPlatform::importGPC($_REQUEST['team_id'],'integer');
+   		@$field = DevblocksPlatform::importGPC($_REQUEST['field'],'string');
+   		@$value = DevblocksPlatform::importGPC($_REQUEST['val'],'string');
+
+   		$view = C4_AbstractViewLoader::getView('C4_TicketView', $view_id); /* @var $view C4_TicketView */
+   		
+   		if(empty($team_id) || empty($field) || empty($value)) {
+   			$view->render();
+   			exit;
+   		}
+   		
+   		@$move = DevblocksPlatform::importGPC($_REQUEST['move'],'string');
+   		@$status = DevblocksPlatform::importGPC($_REQUEST['status'],'string');
+   		@$spam = DevblocksPlatform::importGPC($_REQUEST['spam'],'string');
+   		@$assign = DevblocksPlatform::importGPC($_REQUEST['assign'],'string');
+   		@$whole_list = DevblocksPlatform::importGPC($_REQUEST['whole_list'],'integer',0);
+   		
+		$do = array();
+	    $fields = array(
+   			DAO_TeamRoutingRule::TEAM_ID => $team_id,
+   			DAO_TeamRoutingRule::HEADER => (($field=='sender')?'from':'subject'),
+   			DAO_TeamRoutingRule::PATTERN => $value,
+   			DAO_TeamRoutingRule::POS => 0
+   		);
+
+   		if(!empty($move)) {
+			$fields[DAO_TeamRoutingRule::DO_MOVE] = $move;
+			$do['team'] = $move;   			
+   		}
+   		if(0 != strlen($status)) {
+			$fields[DAO_TeamRoutingRule::DO_STATUS] = intval($status);
+			$do['closed'] = $status;   			
+   		}
+   		if(0 != strlen($spam)) {
+			$fields[DAO_TeamRoutingRule::DO_SPAM] = intval($spam);
+			$do['spam'] = $spam;   			
+   		}
+   		if(0 != strlen($assign)) {
+			$fields[DAO_TeamRoutingRule::DO_ASSIGN] = intval($assign);
+			$do['next_worker'] = $assign;
+   		}
+   		
+   		$routing_id = DAO_TeamRoutingRule::create($fields);
+   		
+   		// Apply rule to current view
+		$view->doBulkUpdate($field, '', array($value), $do, array(), 0);
+
+   		$view->render();
+   		exit;
 	}
 	
 	// Ajax
