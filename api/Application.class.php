@@ -234,10 +234,10 @@ class CerberusApplication extends DevblocksApplication {
 						$mask .= date('Y');
 						break;
 					case 'M':
-						$mask .= date('n');
+						$mask .= date('m');
 						break;
 					case 'D':
-						$mask .= date('j');
+						$mask .= date('d');
 						break;
 					default:
 						$mask .= $byte;
