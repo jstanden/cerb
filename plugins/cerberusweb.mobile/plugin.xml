@@ -23,13 +23,11 @@
 			</params>
 		</extension>
 		
-
-		 
 		<extension point="cerberusweb.mobile.page">
 			<id>mobile.login</id>
 			<name>Mobile Login Page</name>
 			<class>
-				<file>classes/page/ChMobileLoginPage.php</file>
+				<file>classes.php</file>
 				<name>ChMobileLoginPage</name>
 			</class>
 			<params>
@@ -38,25 +36,11 @@
 			</params>
 		</extension>
 		
-		 
-		<extension point="cerberusweb.mobile.page">
-			<id>mobile.mytickets</id>
-			<name>My Tickets</name>
-			<class>
-				<file>classes/page/ChMobileMyTicketsPage.php</file>
-				<name>ChMobileMyTicketsPage</name>
-			</class>
-			<params>
-				<param key="uri" value="mytickets" />
-				<param key="menutitle" value="My Tickets" />
-			</params>
-		</extension>
-				
 		<extension point="cerberusweb.mobile.page">
 			<id>mobile.tickets</id>
 			<name>Tickets</name>
 			<class>
-				<file>classes/page/ChMobileTicketsPage.php</file>
+				<file>classes.php</file>
 				<name>ChMobileTicketsPage</name>
 			</class>
 			<params>
@@ -69,7 +53,7 @@
 			<id>mobile.display</id>
 			<name>Display Ticket</name>
 			<class>
-				<file>classes/page/ChMobileDisplayPage.php</file>
+				<file>classes.php</file>
 				<name>ChMobileDisplayPage</name>
 			</class>
 			<params>

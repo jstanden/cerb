@@ -307,4 +307,233 @@ class CerberusMobilePageExtension extends DevblocksExtension {
 	}
 }
 
+class ChMobileDisplayPage  extends CerberusMobilePageExtension  {
+    
+	function __construct($manifest) {
+		parent::__construct($manifest);
+	}
+	
+	function isVisible() {
+		return true;
+	}
+	
+	function render() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$response = DevblocksPlatform::getHttpResponse();
+		//@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['page'],'integer');
+		@$ticket_id = $response->path[2];
+	
+		$message_id = $response->path[3];
+		
+		if (empty($ticket_id)) {
+			$session = DevblocksPlatform::getSessionService();
+			$visit = $session->getVisit();
+			return;
+		}
+		
+		if (!is_numeric($ticket_id)) {
+			$ticket_id = DAO_Ticket::getTicketIdByMask($ticket_id);
+		}
+		
+		$ticket = DAO_Ticket::getTicket($ticket_id);
+		
+		$tpl->assign('ticket', $ticket);
+		$tpl->assign('ticket_id', $ticket_id);
+		$tpl->assign('message_id', $message_id);
+		$tpl->assign('page_type', $page);
+
+		if (0 == strcasecmp($message_id, 'full')) {
+			$tpl->display('file:' . dirname(__FILE__) . '/templates/display.tpl.php');
+		} else {
+			$message = DAO_Ticket::getMessage($message_id);
+			if (empty($message))
+				$message = array_pop($ticket->getMessages());
+			$tpl->assign('message', $message);
+			$tpl->display('file:' . dirname(__FILE__) . '/templates/display_brief.tpl.php');
+		}
+		
+	}
+};
+
+class ChMobileLoginPage  extends CerberusMobilePageExtension  {
+    const KEY_FORGOT_EMAIL = 'login.recover.email';
+    const KEY_FORGOT_SENTCODE = 'login.recover.sentcode';
+    const KEY_FORGOT_CODE = 'login.recover.code';
+    
+	function __construct($manifest) {
+		parent::__construct($manifest);
+	}
+	
+	function isVisible() {
+		return true;
+	}
+	
+	function render() {
+		// draws HTML form of controls needed for login information
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		
+		// add translations for calls from classes that aren't Page Extensions (mobile plugin, specifically)
+		$translate = DevblocksPlatform::getTranslationService();
+		$tpl->assign('translate', $translate);
+		
+		$request = DevblocksPlatform::getHttpRequest();
+		$prefix = '';
+		$query_str = '';
+		foreach($request->query as $key=>$val) {
+			$query_str .= $prefix . $key . '=' . $val;
+			$prefix = '&';
+		}
+		
+		//$url_service = DevblocksPlatform::getUrlService();
+		//$original_url = $url_service->writeDevblocksHttpIO($request);
+		
+		//$tpl->assign('original_url', $original_url);
+		$original_path = (sizeof($request->path)==0) ? 'login' : implode(',',$request->path);
+		
+		$tpl->assign('original_path', $original_path);
+		$tpl->assign('original_query', $query_str);
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/login/login_form_default.tpl.php');
+	}
+	
+	function authenticateAction() {
+		//echo "authing!";
+		@$email = DevblocksPlatform::importGPC($_POST['email']);
+		@$password = DevblocksPlatform::importGPC($_POST['password']);
+	    
+		// pull auth info out of $_POST, check it, return user_id or false
+		$worker = DAO_Worker::login($email, $password);
+		//echo $email. '-'.$password;print_r($worker);exit();
+		if(!is_null($worker)) {
+			$session = DevblocksPlatform::getSessionService();
+			$visit = new CerberusVisit();
+			$visit->setWorker($worker);
+				
+//			$memberships = DAO_Worker::getGroupMemberships($worker->id);
+//			$team_id = key($memberships);
+//			if(null != ($team_id = key($memberships))) {
+			$visit->set(CerberusVisit::KEY_DASHBOARD_ID, ''); // 't'.$team_id
+			$visit->set(CerberusVisit::KEY_WORKSPACE_GROUP_ID, 0); // $team_id
+//			}
+
+			$session->setVisit($visit);
+			
+			//$devblocks_response = new DevblocksHttpResponse(array('mobile','mytickets'));
+			$devblocks_response = new DevblocksHttpResponse(array('mobile','tickets'));
+			
+		} else {
+			$devblocks_response = new DevblocksHttpResponse(array('mobile', 'login'));
+			//return false;
+		}
+		DevblocksPlatform::redirect($devblocks_response);
+	}
+};
+
+class ChMobileTicketsPage extends CerberusMobilePageExtension  {
+    
+	function __construct($manifest) {
+		parent::__construct($manifest);
+	}
+	
+	function isVisible() {
+		return true;
+	}
+	
+	function render() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$active_worker = CerberusApplication::getActiveWorker();
+		$memberships = $active_worker->getMemberships();
+		
+		$response = DevblocksPlatform::getHttpResponse();
+		@$section = $response->path[1];
+		
+		//print_r($_REQUEST);exit();
+		//@$page = DevblocksPlatform::importGPC($_GET['password']);
+		@$page = DevblocksPlatform::importGPC($_REQUEST['page'],'integer');
+		if($page==NULL) $page=0;
+		
+		if(isset($_POST['a2'])) {
+			@$section = $_POST['a2'];
+		}
+		else {
+			@$section = $response->path[2];	
+		}
+		
+		//print_r($section);
+		//echo $section;
+		switch($section) {
+			case 'search':
+				$title = 'Search';
+				$query = $_POST['query'];
+				if($query && false===strpos($query,'*'))
+					$query = '*' . $query . '*';
+				
+				if(!is_null($query)) {
+					$params = array();
+					$type = $_POST['type'];
+					switch($type) {
+			            case "mask":
+			                $params[SearchFields_Ticket::TICKET_MASK] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_MASK,DevblocksSearchCriteria::OPER_LIKE,strtoupper($query));
+			                break;
+			                
+			            case "sender":
+			                $params[SearchFields_Ticket::TICKET_FIRST_WROTE] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_FIRST_WROTE,DevblocksSearchCriteria::OPER_LIKE,strtolower($query));               
+			                break;
+			                
+			            case "subject":
+			                $params[SearchFields_Ticket::TICKET_SUBJECT] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_SUBJECT,DevblocksSearchCriteria::OPER_LIKE,$query);               
+			                break;
+			                
+			            case "content":
+			                $params[SearchFields_Ticket::TICKET_MESSAGE_CONTENT] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_MESSAGE_CONTENT,DevblocksSearchCriteria::OPER_LIKE,$query);               
+			                break;
+					}
+				}
+				else {
+					//show the search form because no search has been submitted
+					$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/search.tpl.php');
+					return;
+				}
+			break;
+			case 'overview':
+			default:
+				$params = array(
+						new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN),
+						new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_NEXT_WORKER_ID,'=',0),
+						new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_SPAM_SCORE,'<=','0.9000'),
+						new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'in',array_keys($memberships))					
+				);
+				$title = "Overview";				
+			break;
+		}
+		
+		
+		$mobileView = new C4_MobileTicketView();//C4_TicketView();
+		$mobileView->id = "VIEW_MOBILE";
+		$mobileView->name = $title;
+		$mobileView->dashboard_id = 0;
+		$mobileView->view_columns = array(SearchFields_Ticket::TICKET_LAST_ACTION_CODE);
+		$mobileView->params = $params;
+		$mobileView->renderLimit = 10;//$overViewDefaults->renderLimit;
+		$mobileView->renderPage = $page;
+		$mobileView->renderSortBy = SearchFields_Ticket::TICKET_SLA_PRIORITY;
+		$mobileView->renderSortAsc = 0;
+		
+		C4_AbstractViewLoader::setView($mobileView->id,$mobileView);		
+		
+		$views[] = $mobileView;
+	
+		$tpl->assign('views', $views);
+
+		$tpl->assign('tickets', $tickets[0]);
+		$tpl->assign('next_page', $page+1);
+		$tpl->assign('prev_page', $page-1);
+		
+		//print_r($tickets);exit();
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets.tpl.php');
+	}
+	
+};
+
 ?>

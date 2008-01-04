@@ -1,7 +1,7 @@
 <h2 style="color: rgb(102,102,102);">Search</h2>
 
 <span>
-	<form action="/cerberus4/" method="post">
+	<form action="{devblocks_url}{/devblocks_url}" method="post">
 	<input type="hidden" name="c" value="mobile">
 	<input type="hidden" name="a" value="tickets">
 	<input type="hidden" name="a2" value="search">

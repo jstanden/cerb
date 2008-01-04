@@ -1,12 +1,10 @@
 {assign var=total value=$results[1]}
 {assign var=tickets value=$results[0]}
 
-
 <form id="customize{$view->id}" action="#" onsubmit="return false;" style="display:none;"></form>
 <form id="viewForm{$view->id}" name="viewForm{$view->id}">
 <input type="hidden" name="id" value="{$view->id}">
 <table cellpadding="0" cellspacing="0" border="0" width="100%">
-
 
 	{* Column Data *}
 	{foreach from=$tickets item=result key=idx name=results}
@@ -52,15 +50,9 @@
 						{/if}
 						</span>
 					</td>
-				
-					
-					
-					<!-- <a href="/cerberus4/mobile/display/EQT-77126-101">test</a> -->
-					</td>
 				</tr>
 			</table>
 		</div>
-			
 	
 	{/foreach}
 	
