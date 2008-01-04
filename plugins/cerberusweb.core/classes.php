@@ -337,8 +337,6 @@ class ChTicketsPage extends CerberusPageExtension {
 //					$this->setView(CerberusApplication::VIEW_SEARCH,$view);
 				}
 				
-//				$visit = CerberusApplication::getVisit();
-				
 				$tpl->assign('view', $view);
 				$tpl->assign('params', $view->params);
 
@@ -376,6 +374,12 @@ class ChTicketsPage extends CerberusPageExtension {
 				$settings = CerberusSettings::getInstance();
 				$teams = DAO_Group::getAll();
 				
+				if($visit->exists('compose.last_ticket')) {
+					$ticket_mask = $visit->get('compose.last_ticket');
+					$tpl->assign('last_ticket_mask', $ticket_mask);
+					$visit->set('compose.last_ticket',null); // clear
+				}
+				
 				$worker = CerberusApplication::getActiveWorker();
 				foreach($teams as $team){
 					$team->signature = rawurlencode(str_replace(
@@ -388,7 +392,11 @@ class ChTicketsPage extends CerberusPageExtension {
 				$tpl->assign_by_ref('teams', $teams);
 				
 				$default_sig = $settings->get(CerberusSettings::DEFAULT_SIGNATURE,'');
-				$tpl->assign('default_sig',rawurlencode($default_sig));
+				$tpl->assign('default_sig',rawurlencode(str_replace(
+		        	array('#first_name#','#last_name#','#title#'),
+		        	array($worker->first_name,$worker->last_name,$worker->title),
+		        	$default_sig
+		        )));
 				
 				$team_categories = DAO_Bucket::getTeams();
 				$tpl->assign('team_categories', $team_categories);
@@ -1102,11 +1110,14 @@ class ChTicketsPage extends CerberusPageExtension {
 	// Ajax
 	function showPreviewAction() {
 	    @$tid = DevblocksPlatform::importGPC($_REQUEST['tid'],'integer',0);
+	    @$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
 	    
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl_path = dirname(__FILE__) . '/templates/';
 		$tpl->assign('path', $tpl_path);
 
+		$tpl->assign('view_id', $view_id);
+		
 		$ticket = DAO_Ticket::getTicket($tid); /* @var $ticket CerberusTicket */
 	    $messages = DAO_Ticket::getMessagesByTicket($tid);
 	    
@@ -1132,10 +1143,10 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/rpc/preview_panel.tpl.php');
 	}
 	
-	// Post
-	// [TODO] Change to Ajax Post?
+	// Ajax
 	function savePreviewAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
 		@$next_action = DevblocksPlatform::importGPC($_REQUEST['next_action'],'string','');
 		@$next_worker_id = DevblocksPlatform::importGPC($_REQUEST['next_worker_id'],'integer',0);
 		@$bucket = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'string','');
@@ -1157,8 +1168,9 @@ class ChTicketsPage extends CerberusPageExtension {
 		
 		DAO_Ticket::updateTicket($id, $fields);
 		
-		// [TODO] Abstract View Redraw
-		
+		$view = C4_AbstractViewLoader::getView('C4_TicketView', $view_id);
+		$view->render();
+		exit;
 	}
 	
 	function clickteamAction() {
@@ -1175,8 +1187,16 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$files = $_FILES['attachment'];
 		
 		if(DEMO_MODE) {
+			DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets','compose')));
 			return;
 		}
+
+		if(empty($to)) {
+			DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets','compose')));
+			return;
+		}
+		
+		// [TODO] [JAS] This method is pretty horribly redundant with CerberusMail::*
 		
 		$settings = CerberusSettings::getInstance();
 		$default_from = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM);
@@ -1201,6 +1221,8 @@ class ChTicketsPage extends CerberusPageExtension {
 			$mailer = $mail_service->getMailer();
 			$email = $mail_service->createMessage();
 	
+			$email->setTo($to);
+			
 			// cc
 			$ccs = array();
 			if(!empty($cc) && null != ($ccList = DevblocksPlatform::parseCsvString($cc))) {
@@ -1289,8 +1311,10 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$next_action = DevblocksPlatform::importGPC($_POST['next_action'],'string','');
 		@$ticket_reopen = DevblocksPlatform::importGPC($_POST['ticket_reopen'],'string','');
 		
-		if(isset($closed))
-			$fields[DAO_Ticket::IS_CLOSED] = intval($closed);
+		if(isset($closed) && 1==$closed)
+			$fields[DAO_Ticket::IS_CLOSED] = 1;
+		if(isset($closed) && 2==$closed)
+			$fields[DAO_Ticket::IS_WAITING] = 1;
 		if(!empty($move_bucket)) {
 	        list($team_id, $bucket_id) = CerberusApplication::translateTeamCategoryCode($move_bucket);
 		    $fields[DAO_Ticket::TEAM_ID] = $team_id;
@@ -1388,6 +1412,11 @@ class ChTicketsPage extends CerberusPageExtension {
 			);
 			DAO_MessageNote::create($fields);
 		}
+		
+		$ticket = DAO_Ticket::getTicket($ticket_id);
+		
+		$visit = CerberusApplication::getVisit(); /* @var CerberusVisit $visit */
+		$visit->set('compose.last_ticket', $ticket->mask);
 		
 		//DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','compose')));
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets','compose')));
@@ -1877,31 +1906,6 @@ class ChTicketsPage extends CerberusPageExtension {
 	    @$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 	    @$ticket_ids = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'array');
 
-//        $fields = array(
-//            DAO_Ticket::IS_CLOSED => 0,
-//            DAO_Ticket::IS_DELETED => 0,
-//        );
-	    
-        //====================================
-	    // Undo functionality
-//        $last_action = new Model_TicketViewLastAction();
-//        $last_action->action = Model_TicketViewLastAction::ACTION_NOT_SPAM;
-//
-//        if(is_array($ticket_ids))
-//        foreach($ticket_ids as $ticket_id) {
-////            CerberusBayes::calculateTicketSpamProbability($ticket_id); // [TODO] Ugly (optimize -- use the 'interesting_words' to do a word bayes spam score?
-//            
-//            $last_action->ticket_ids[$ticket_id] = array(
-//                DAO_Ticket::SPAM_TRAINING => CerberusTicketSpamTraining::BLANK,
-//                DAO_Ticket::SPAM_SCORE => 0.0001, // [TODO] Fix
-//                DAO_Ticket::IS_CLOSED => 0,
-//                DAO_Ticket::IS_DELETED => 0
-//            );
-//        }
-//
-//        $last_action->action_params = $fields;
-//        
-//        C4_TicketView::setLastAction($view_id,$last_action);
         C4_TicketView::setLastAction($view_id,null);
         //====================================
 

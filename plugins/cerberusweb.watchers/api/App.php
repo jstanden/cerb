@@ -83,11 +83,6 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 					
 			// Build mailing list
 			foreach($notifications as $n) { /* @var $n Model_WorkerMailForward */
-				// Don't send from ourselves to ourselves
-				if(!$is_inbound && $n->worker_id == $send_worker_id) {
-					continue;
-				}
-					
 				if(!isset($n->group_id) || !isset($n->bucket_id))
 					continue;
 				

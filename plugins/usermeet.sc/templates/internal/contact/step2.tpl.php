@@ -12,17 +12,19 @@
       <td colspan="2">
       	<h1>What e-mail address should we reply to?</h1>
       	<input type="hidden" name="nature" value="{$sNature}">	
-		<input name="from" value="{$last_from}" autocomplete="off" style="width:98%;"><br>
+		<input name="from" value="{$last_from|escape}" autocomplete="off" style="width:98%;"><br>
 		<br>
 
-		{if $allow_subjects}
       	<h1>Subject:</h1>
-		<input name="subject" value="{$last_subject}" autocomplete="off" style="width:98%;"><br>
-		<br>
+      	{if $allow_subjects}
+		<input type="text" name="subject"value="{if !empty($last_subject)}{$last_subject|escape}{else}{$situation|escape}{/if}" autocomplete="off" style="width:98%;"><br>
+		{else}
+		{$situation}<br>
 		{/if}
+		<br>
 		
       	{if !empty($situation_params.followups)}
-      	<h1>{$situation}:</h1>
+      	<h1>Additional Information:</h1>
       	
       	<blockquote style="margin:20px;">
 		{foreach from=$situation_params.followups key=question item=field_id name=situations}
@@ -63,7 +65,7 @@
 		{/if}
 		
       	<h1>Message:</h1>	
-		<textarea name="content" rows="10" cols="60" style="width:98%;">{$last_content}</textarea><br>
+		<textarea name="content" rows="10" cols="60" style="width:98%;">{$last_content|escape}</textarea><br>
 		<br>
 		
 		{if $captcha_enabled}

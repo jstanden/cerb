@@ -9,6 +9,9 @@
 {if $smarty.const.DEMO_MODE}
 <div style="color:red;padding:2px;font-weight:bold;">NOTE: This helpdesk is in Demo Mode and mail will not be sent.</div>
 {/if}
+{if !empty($last_ticket_mask)}
+<div class="success">Your message has been sent! &nbsp; &nbsp; <a href="{devblocks_url}c=display&mask={$last_ticket_mask}{/devblocks_url}" style="font-weight:normal;color:rgb(80,80,80);">view</a></div>
+{/if}
 
 {literal}
 <script language="javascript" type="text/javascript">
@@ -79,7 +82,7 @@
 				</tr>
 				<tr>
 					<td></td>
-					<td><input type="button" value="Insert Signature" onclick="insertAtCursor(this.form.content,'\r\n'+getSig());"></td>
+					<td><button type="button" onclick="insertAtCursor(this.form.content,'\r\n'+getSig());"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_edit.gif{/devblocks_url}" align="top"> Insert Signature</button></td>
 				</tr>
 				
 				<tr>
@@ -107,7 +110,10 @@
 							<table cellpadding="2" cellspacing="0" border="0">
 								<tr>
 									<td nowrap="nowrap" valign="top" colspan="2">
-										<label><input type="checkbox" name="closed" value="1" onclick="toggleDiv('replyOpen',this.checked?'none':'block');toggleDiv('replyClosed',this.checked?'block':'none');">This conversation is completed for now (close)</label><br>
+										<label><input type="radio" name="closed" value="0" onclick="toggleDiv('replyOpen','block');toggleDiv('replyClosed','none');">Open</label>
+										<label><input type="radio" name="closed" value="2" onclick="toggleDiv('replyOpen','block');toggleDiv('replyClosed','none');" checked>Waiting for reply</label>
+										<label><input type="radio" name="closed" value="1" onclick="toggleDiv('replyOpen','none');toggleDiv('replyClosed','block');">Closed</label>
+										<br>
 										<br>
 				
 										<b>Who should handle the follow-up?</b><br>

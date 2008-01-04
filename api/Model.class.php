@@ -692,7 +692,6 @@ class C4_TicketView extends C4_AbstractView {
 	static function getColumns() {
 		$fields = self::getFields();
 		unset($fields[SearchFields_Ticket::TEAM_ID]);
-		unset($fields[SearchFields_Ticket::TICKET_SUBJECT]);
 		unset($fields[SearchFields_Ticket::TICKET_MESSAGE_CONTENT]);
 		return $fields;
 	}
@@ -720,7 +719,7 @@ class C4_TicketView extends C4_AbstractView {
 			case SearchFields_Ticket::TICKET_WAITING:
 			case SearchFields_Ticket::TICKET_DELETED:
 			case SearchFields_Ticket::TICKET_CLOSED:
-				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'array',array());
+				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
 				
@@ -1151,7 +1150,7 @@ class C4_AddressView extends C4_AbstractView {
 				break;
 				
 			case SearchFields_Address::IS_BANNED:
-				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'array',array());
+				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
 			case SearchFields_Address::SLA_ID:

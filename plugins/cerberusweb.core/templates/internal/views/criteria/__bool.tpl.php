@@ -1,9 +1,9 @@
-<input type="hidden" name="oper" value="in">
+<input type="hidden" name="oper" value="=">
 
 <b>Value:</b><br>
 <blockquote style="margin:5px;">
-	<label><input type="checkbox" name="bool[]" value="1">True</label>
-	<label><input type="checkbox" name="bool[]" value="0">False</label>
+	<label><input type="radio" name="bool" value="1" checked>True</label>
+	<label><input type="radio" name="bool" value="0">False</label>
 	<br>
 </blockquote>
 

@@ -147,9 +147,9 @@ class UmScApp extends Extension_UsermeetTool {
 				$phrase = CerberusApplication::generatePassword(4);
 		        $umsession->setProperty(UmScApp::SESSION_CAPTCHA, $phrase);
                 
-				$im = @imagecreate(150, 80) or die("Cannot Initialize new GD image stream");
-				$background_color = imagecolorallocate($im, 0, 0, 0);
-				$text_color = imagecolorallocate($im, 255, 255, 255); //233, 14, 91
+				$im = @imagecreate(150, 70) or die("Cannot Initialize new GD image stream");
+				$background_color = imagecolorallocate($im, 240, 240, 240);
+				$text_color = imagecolorallocate($im, 40, 40, 40); //233, 14, 91
 				$font = DEVBLOCKS_PATH . 'resources/font/ryanlerch_-_Tuffy_Bold(2).ttf';
 				imagettftext($im, 24, rand(0,20), 5, 60+6, $text_color, $font, $phrase);
 //				$im = imagerotate($im, rand(-20,20), $background_color);

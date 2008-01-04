@@ -2279,12 +2279,14 @@ class DAO_Ticket extends DevblocksORMHelper {
 			if(empty($oldest_id) || empty($merge_ticket_ids))
 				return null;
 			
+			// Messages
 			$sql = sprintf("UPDATE message SET ticket_id = %d WHERE ticket_id IN (%s)",
 				$oldest_id,
 				implode(',', $merge_ticket_ids)
 			);
 			$db->Execute($sql);
 			
+			// Message headers			
 			$sql = sprintf("UPDATE message_header SET ticket_id = %d WHERE ticket_id IN (%s)",
 				$oldest_id,
 				implode(',', $merge_ticket_ids)
@@ -2297,6 +2299,12 @@ class DAO_Ticket extends DevblocksORMHelper {
 				implode(',', $merge_ticket_ids)
 			);
 			$db->Execute($sql);
+			
+			// [TODO] Audit log entries?
+			/*
+			 * [TODO] Since the audit log is a plugin, this should be an event point the 
+			 * audit log can watch and trigger on.
+			 */
 			
 			self::delete($merge_ticket_ids);
 			
@@ -2972,35 +2980,31 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 		$columns = array(
 			self::TICKET_ID => new DevblocksSearchField(self::TICKET_ID, 't', 'id', null, $translate->_('ticket.id')),
 			self::TICKET_MASK => new DevblocksSearchField(self::TICKET_MASK, 't', 'mask', null, $translate->_('ticket.mask')),
+			self::TICKET_SUBJECT => new DevblocksSearchField(self::TICKET_SUBJECT, 't', 'subject',null,$translate->_('ticket.subject')),
+			self::TEAM_NAME => new DevblocksSearchField(self::TEAM_NAME,'tm','name',null,$translate->_('common.group')),
+			self::TICKET_CATEGORY_ID => new DevblocksSearchField(self::TICKET_CATEGORY_ID, 't', 'category_id',null,$translate->_('common.bucket')),
+			self::TICKET_CREATED_DATE => new DevblocksSearchField(self::TICKET_CREATED_DATE, 't', 'created_date',null,$translate->_('ticket.created')),
+			self::TICKET_UPDATED_DATE => new DevblocksSearchField(self::TICKET_UPDATED_DATE, 't', 'updated_date',null,$translate->_('ticket.updated')),
 			self::TICKET_WAITING => new DevblocksSearchField(self::TICKET_WAITING, 't', 'is_waiting',null,$translate->_('status.waiting')),
 			self::TICKET_CLOSED => new DevblocksSearchField(self::TICKET_CLOSED, 't', 'is_closed',null,$translate->_('status.closed')),
 			self::TICKET_DELETED => new DevblocksSearchField(self::TICKET_DELETED, 't', 'is_deleted',null,$translate->_('status.deleted')),
-			self::TICKET_SUBJECT => new DevblocksSearchField(self::TICKET_SUBJECT, 't', 'subject',null,$translate->_('ticket.subject')),
 			self::TICKET_FIRST_WROTE_ID => new DevblocksSearchField(self::TICKET_FIRST_WROTE_ID, 't', 'first_wrote_address_id'),
 			self::TICKET_FIRST_WROTE => new DevblocksSearchField(self::TICKET_FIRST_WROTE, 'a1', 'email',null,$translate->_('ticket.first_wrote')),
-			self::TICKET_FIRST_WROTE_SPAM => new DevblocksSearchField(self::TICKET_FIRST_WROTE_SPAM, 'a1', 'num_spam',null,$translate->_('address.num_spam')),
-			self::TICKET_FIRST_WROTE_NONSPAM => new DevblocksSearchField(self::TICKET_FIRST_WROTE_NONSPAM, 'a1', 'num_nonspam',null,$translate->_('address.num_nonspam')),
-			self::TICKET_FIRST_CONTACT_ORG_ID => new DevblocksSearchField(self::TICKET_FIRST_CONTACT_ORG_ID, 'a1', 'contact_org_id'),
 			self::TICKET_LAST_WROTE_ID => new DevblocksSearchField(self::TICKET_LAST_WROTE_ID, 't', 'last_wrote_address_id'),
 			self::TICKET_LAST_WROTE => new DevblocksSearchField(self::TICKET_LAST_WROTE, 'a2', 'email',null,$translate->_('ticket.last_wrote')),
-			self::TICKET_CREATED_DATE => new DevblocksSearchField(self::TICKET_CREATED_DATE, 't', 'created_date',null,$translate->_('ticket.created')),
-			self::TICKET_UPDATED_DATE => new DevblocksSearchField(self::TICKET_UPDATED_DATE, 't', 'updated_date',null,$translate->_('ticket.updated')),
-			self::TICKET_DUE_DATE => new DevblocksSearchField(self::TICKET_DUE_DATE, 't', 'due_date',null,$translate->_('ticket.due')),
-			self::TICKET_SPAM_TRAINING => new DevblocksSearchField(self::TICKET_SPAM_TRAINING, 't', 'spam_training',null,$translate->_('ticket.spam_training')),
-			self::TICKET_SPAM_SCORE => new DevblocksSearchField(self::TICKET_SPAM_SCORE, 't', 'spam_score',null,$translate->_('ticket.spam_score')),
-			self::TICKET_INTERESTING_WORDS => new DevblocksSearchField(self::TICKET_INTERESTING_WORDS, 't', 'interesting_words',null,$translate->_('ticket.interesting_words')),
-			self::TICKET_NEXT_ACTION => new DevblocksSearchField(self::TICKET_NEXT_ACTION, 't', 'next_action',null,$translate->_('ticket.next_action')),
 			self::TICKET_LAST_ACTION_CODE => new DevblocksSearchField(self::TICKET_LAST_ACTION_CODE, 't', 'last_action_code',null,$translate->_('ticket.last_action')),
 			self::TICKET_LAST_WORKER_ID => new DevblocksSearchField(self::TICKET_LAST_WORKER_ID, 't', 'last_worker_id',null,$translate->_('ticket.last_worker')),
+			self::TICKET_NEXT_ACTION => new DevblocksSearchField(self::TICKET_NEXT_ACTION, 't', 'next_action',null,$translate->_('ticket.next_action')),
 			self::TICKET_NEXT_WORKER_ID => new DevblocksSearchField(self::TICKET_NEXT_WORKER_ID, 't', 'next_worker_id',null,$translate->_('ticket.next_worker')),
-			self::TICKET_CATEGORY_ID => new DevblocksSearchField(self::TICKET_CATEGORY_ID, 't', 'category_id',null,$translate->_('common.bucket')),
+			self::TICKET_SPAM_TRAINING => new DevblocksSearchField(self::TICKET_SPAM_TRAINING, 't', 'spam_training',null,$translate->_('ticket.spam_training')),
+			self::TICKET_SPAM_SCORE => new DevblocksSearchField(self::TICKET_SPAM_SCORE, 't', 'spam_score',null,$translate->_('ticket.spam_score')),
+			self::TICKET_FIRST_WROTE_SPAM => new DevblocksSearchField(self::TICKET_FIRST_WROTE_SPAM, 'a1', 'num_spam',null,$translate->_('address.num_spam')),
+			self::TICKET_FIRST_WROTE_NONSPAM => new DevblocksSearchField(self::TICKET_FIRST_WROTE_NONSPAM, 'a1', 'num_nonspam',null,$translate->_('address.num_nonspam')),
+			self::TICKET_INTERESTING_WORDS => new DevblocksSearchField(self::TICKET_INTERESTING_WORDS, 't', 'interesting_words',null,$translate->_('ticket.interesting_words')),
+			self::TICKET_DUE_DATE => new DevblocksSearchField(self::TICKET_DUE_DATE, 't', 'due_date',null,$translate->_('ticket.due')),
 			self::TICKET_SLA_ID => new DevblocksSearchField(self::TICKET_SLA_ID, 't', 'sla_id',null,$translate->_('sla.name')),
 			self::TICKET_SLA_PRIORITY => new DevblocksSearchField(self::TICKET_SLA_PRIORITY, 't', 'sla_priority',null,$translate->_('sla.priority')),
-			
-			self::TICKET_MESSAGE_HEADER => new DevblocksSearchField(self::TICKET_MESSAGE_HEADER, 'mh', 'header_name'),
-			self::TICKET_MESSAGE_HEADER_VALUE => new DevblocksSearchField(self::TICKET_MESSAGE_HEADER_VALUE, 'mh', 'header_value', 'B'),
-
-			self::TICKET_MESSAGE_CONTENT => new DevblocksSearchField(self::TICKET_MESSAGE_CONTENT, 'mc', 'content', 'B', $translate->_('message.content')),
+			self::TICKET_FIRST_CONTACT_ORG_ID => new DevblocksSearchField(self::TICKET_FIRST_CONTACT_ORG_ID, 'a1', 'contact_org_id'),
 			
 			self::REQUESTER_ID => new DevblocksSearchField(self::REQUESTER_ID, 'ra', 'id'),
 			self::REQUESTER_ADDRESS => new DevblocksSearchField(self::REQUESTER_ADDRESS, 'ra', 'email'),
@@ -3008,7 +3012,11 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 			self::SENDER_ADDRESS => new DevblocksSearchField(self::SENDER_ADDRESS, 'a1', 'email'),
 			
 			self::TEAM_ID => new DevblocksSearchField(self::TEAM_ID,'tm','id',null,$translate->_('common.group')),
-			self::TEAM_NAME => new DevblocksSearchField(self::TEAM_NAME,'tm','name',null,$translate->_('common.group')),
+			
+			self::TICKET_MESSAGE_HEADER => new DevblocksSearchField(self::TICKET_MESSAGE_HEADER, 'mh', 'header_name'),
+			self::TICKET_MESSAGE_HEADER_VALUE => new DevblocksSearchField(self::TICKET_MESSAGE_HEADER_VALUE, 'mh', 'header_value', 'B'),
+			
+			self::TICKET_MESSAGE_CONTENT => new DevblocksSearchField(self::TICKET_MESSAGE_CONTENT, 'mc', 'content', 'B', $translate->_('message.content')),
 		);
 		
 		// Custom Fields

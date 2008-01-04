@@ -146,6 +146,8 @@ var cAjaxCalls = function() {
 		
 		frm.ticket_ids.value = ids.join(',');		
 
+		showLoadingPanel();
+
 		genericAjaxPost('formBatchUpdate', '', 'c=tickets&a=doBatchUpdate', function(o) {
 			viewDiv.innerHTML = o.responseText;
 
@@ -155,6 +157,8 @@ var cAjaxCalls = function() {
 			
 			document.location = '#top';
 			genericAjaxGet('overviewTotals','c=tickets&a=refreshOverviewTotals');
+			
+			hideLoadingPanel();
 		});
 	}
 
@@ -243,30 +247,39 @@ var cAjaxCalls = function() {
 		var viewForm = document.getElementById(formName);
 		if(null == viewForm || null == viewDiv) return;
 
+		showLoadingPanel();
+
 		switch(action) {
 			case 'merge':
 				genericAjaxPost(formName, '', 'c=tickets&a=viewMergeTickets&view_id='+view_id, function(o) {
 					viewDiv.innerHTML = o.responseText;
 					genericAjaxGet('overviewTotals','c=tickets&a=refreshOverviewTotals');
+					hideLoadingPanel();
 				});
 				break;
 			case 'not_spam':
 				genericAjaxPost(formName, '', 'c=tickets&a=viewNotSpamTickets&view_id='+view_id, function(o) {
 					viewDiv.innerHTML = o.responseText;
 					genericAjaxGet('overviewTotals','c=tickets&a=refreshOverviewTotals');
+					hideLoadingPanel();
 				});
 				break;
 			case 'take':
 				genericAjaxPost(formName, '', 'c=tickets&a=viewTakeTickets&view_id='+view_id, function(o) {
 					viewDiv.innerHTML = o.responseText;
 					genericAjaxGet('overviewTotals','c=tickets&a=refreshOverviewTotals');
+					hideLoadingPanel();
 				});
 				break;
 			case 'surrender':
 				genericAjaxPost(formName, '', 'c=tickets&a=viewSurrenderTickets&view_id='+view_id, function(o) {
 					viewDiv.innerHTML = o.responseText;
 					genericAjaxGet('overviewTotals','c=tickets&a=refreshOverviewTotals');
+					hideLoadingPanel();
 				});
+				break;
+			default:
+				hideLoadingPanel();
 				break;
 		}
 	}
@@ -278,29 +291,34 @@ var cAjaxCalls = function() {
 		var viewForm = document.getElementById(formName);
 		if(null == viewForm || null == viewDiv) return;
 
+		showLoadingPanel();
+
 		switch(mode) {
 			case 1: // spam
 				genericAjaxPost(formName, '', 'c=tickets&a=viewSpamTickets&view_id=' + view_id, function(o) {
 					viewDiv.innerHTML = o.responseText;
 					genericAjaxGet('overviewTotals','c=tickets&a=refreshOverviewTotals');
+					hideLoadingPanel();
 				});
 				break;
 			case 2: // delete
 				genericAjaxPost(formName, '', 'c=tickets&a=viewDeleteTickets&view_id=' + view_id, function(o) {
 					viewDiv.innerHTML = o.responseText;
 					genericAjaxGet('overviewTotals','c=tickets&a=refreshOverviewTotals');
+					hideLoadingPanel();
 				});
 				break;
 			default: // close
 				genericAjaxPost(formName, '', 'c=tickets&a=viewCloseTickets&view_id=' + view_id, function(o) {
 					viewDiv.innerHTML = o.responseText;
 					genericAjaxGet('overviewTotals','c=tickets&a=refreshOverviewTotals');
+					hideLoadingPanel();
 				});
 				break;
 		}
 	}
 	
-	this.saveAddInboxRulePanel = function(frm,view_id) {
+	this.postAndReloadView = function(frm,view_id) {
 		YAHOO.util.Connect.setForm(frm);
 		
 		var div = document.getElementById(view_id);
@@ -356,7 +374,7 @@ var cAjaxCalls = function() {
 		myDataSource.queryMatchSubset = true;
 		myDataSource.connTimeout = 3000;
 	
-	 			var myInput = document.getElementById('contactinput'); 
+	 	var myInput = document.getElementById('contactinput'); 
 	    var myContainer = document.getElementById('contactcontainer'); 
 	
 		var myAutoComp = new YAHOO.widget.AutoComplete(myInput,myContainer, myDataSource);

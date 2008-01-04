@@ -6,10 +6,11 @@
 {$content|escape:"htmlall"|nl2br}
 </div>
 
-<form action="{devblocks_url}{/devblocks_url}" method="post">
+<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmTicketPeek">
 <input type="hidden" name="c" value="tickets">
 <input type="hidden" name="a" value="savePreview">
 <input type="hidden" name="id" value="{$ticket->id}">
+<input type="hidden" name="view_id" value="{$view_id}">
 <b>Next Action:</b> <input type="text" name="next_action" size="45" maxlength="255" value="{$ticket->next_action|escape:"htmlall"}"><br>
 <b>Next Worker:</b> 
 <select name="next_worker_id">
@@ -40,6 +41,6 @@
 {/foreach}
 </select><br>
 
-<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
+<button type="button" onclick="ajax.postAndReloadView('frmTicketPeek','view{$view_id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
 <button type="button" onclick="genericPanel.hide();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> {$translate->_('common.close')|capitalize}</button>
 </form>
