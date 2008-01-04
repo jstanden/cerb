@@ -16,15 +16,28 @@
 	</span>
 </div>
 
+{if !empty($workspaces)}
+<div class="subtle2">
+<form method="POST" action="{devblocks_url}{/devblocks_url}" id="dashboardMenuForm">
+	<input type="hidden" name="c" value="tickets">
+	<input type="hidden" name="a" value="changeMyWorkspace">
+	<b>Workspace:</b> 
+	<select name="workspace" onchange="this.form.submit();">
+		{foreach from=$workspaces item=workspace}
+		<option value="{$workspace|escape}" {if $current_workspace==$workspace}selected{/if}>{$workspace}</option>
+		{/foreach}
+	</select>
+	&nbsp;
+	<a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showAddListPanel',this,false,'450px');">{$translate->_('dashboard.add_view')|lower}</a>
+	 | 
+	<a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showReorderWorkspacePanel&workspace={$current_workspace|escape:'url'}',this,false,'450px');">{$translate->_('dashboard.reorder')|lower}</a>
+</form>
+</div>
+{/if}
+
 <table border="0" cellpadding="0" cellspacing="0" width="100%">
   <tbody>
     <tr>
-      <td nowrap="nowrap" width="0%" valign="top">
-
-      {include file="file:$path/tickets/lists/dashboard_menu.tpl.php"}
-      
-      </td>
-      <td nowrap="nowrap" width="0%"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/spacer.gif{/devblocks_url}" width="5" height="1"></td>
       <td nowrap="nowrap" width="100%" valign="top">
       
       <div id="tourDashboardViews"></div>
@@ -35,11 +48,19 @@
 			</div>
 		{/foreach}
       {else}
-      	<div class="block">
-			<h2>No Worklists</h2>
-			No worklists have been created.<br>
+		{if empty($workspaces)}
+		<div class="subtle" style="margin:0px;">
+		<table cellpadding="0" cellspacing="0" border="0" width="98%">
+			<tr>
+				<td>
+				<b>You haven't created any custom worklists.</b><br>
+				<a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showAddListPanel',this,false,'450px');">Click here</a> to create your first worklist.<br>
+				</td>
+			</tr>
+		</table>
 		</div>
 		<br>
+		{/if}
       {/if}
       
       {include file="file:$path/tickets/whos_online.tpl.php"}

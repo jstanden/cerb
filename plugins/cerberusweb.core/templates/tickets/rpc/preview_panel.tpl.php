@@ -6,7 +6,7 @@
 {$content|escape:"htmlall"|nl2br}
 </div>
 
-<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmTicketPeek">
+<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmTicketPeek" onsubmit="ajax.postAndReloadView('frmTicketPeek','view{$view_id}');return false;">
 <input type="hidden" name="c" value="tickets">
 <input type="hidden" name="a" value="savePreview">
 <input type="hidden" name="id" value="{$ticket->id}">
@@ -41,6 +41,6 @@
 {/foreach}
 </select><br>
 
-<button type="button" onclick="ajax.postAndReloadView('frmTicketPeek','view{$view_id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
+<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
 <button type="button" onclick="genericPanel.hide();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> {$translate->_('common.close')|capitalize}</button>
 </form>

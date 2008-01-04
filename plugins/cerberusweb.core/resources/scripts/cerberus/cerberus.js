@@ -278,6 +278,20 @@ var cAjaxCalls = function() {
 					hideLoadingPanel();
 				});
 				break;
+			case 'waiting':
+				genericAjaxPost(formName, '', 'c=tickets&a=viewWaitingTickets&view_id='+view_id, function(o) {
+					viewDiv.innerHTML = o.responseText;
+					genericAjaxGet('overviewTotals','c=tickets&a=refreshOverviewTotals');
+					hideLoadingPanel();
+				});
+				break;
+			case 'not_waiting':
+				genericAjaxPost(formName, '', 'c=tickets&a=viewNotWaitingTickets&view_id='+view_id, function(o) {
+					viewDiv.innerHTML = o.responseText;
+					genericAjaxGet('overviewTotals','c=tickets&a=refreshOverviewTotals');
+					hideLoadingPanel();
+				});
+				break;
 			default:
 				hideLoadingPanel();
 				break;

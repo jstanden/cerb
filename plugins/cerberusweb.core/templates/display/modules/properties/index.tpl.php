@@ -28,6 +28,10 @@
 	<input type="text" name="subject" size="45" maxlength="255" value="{$ticket->subject|escape:"htmlall"}" style="width:90%;"><br>
 	<br>
 	
+	<b>Waiting For Reply:</b><br>
+	<label><input type="checkbox" name="waiting" value="1" {if $ticket->is_waiting}checked{/if}> Yes</label><br>
+	<br>
+	
 </blockquote>
 
 <h2>Send responses to:</h2>

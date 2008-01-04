@@ -1701,6 +1701,8 @@ class Model_TicketViewLastAction {
 	const ACTION_MOVE = 'move';
 	const ACTION_TAKE = 'take';
 	const ACTION_SURRENDER = 'surrender';
+	const ACTION_WAITING = 'waiting';
+	const ACTION_NOT_WAITING = 'not_waiting';
 
 	public $ticket_ids = array(); // key = ticket id, value=old value
 	public $action = ''; // spam/closed/move, etc.

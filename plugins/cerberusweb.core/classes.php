@@ -1950,6 +1950,70 @@ class ChTicketsPage extends CerberusPageExtension {
 	    return;
 	}
 	
+	function viewWaitingTicketsAction() {
+	    @$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
+	    @$ticket_ids = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'array');
+
+        $fields = array(
+            DAO_Ticket::IS_WAITING => 1,
+        );
+	    
+        //====================================
+	    // Undo functionality
+        $last_action = new Model_TicketViewLastAction();
+        $last_action->action = Model_TicketViewLastAction::ACTION_WAITING;
+
+        if(is_array($ticket_ids))
+        foreach($ticket_ids as $ticket_id) {
+            $last_action->ticket_ids[$ticket_id] = array(
+                DAO_Ticket::IS_WAITING => 0,
+            );
+        }
+
+        $last_action->action_params = $fields;
+        
+        C4_TicketView::setLastAction($view_id,$last_action);
+        //====================================
+
+        DAO_Ticket::updateTicket($ticket_ids, $fields);
+	    
+	    $view = C4_AbstractViewLoader::getView('',$view_id);
+	    $view->render();
+	    return;
+	}
+	
+	function viewNotWaitingTicketsAction() {
+	    @$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
+	    @$ticket_ids = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'array');
+
+        $fields = array(
+            DAO_Ticket::IS_WAITING => 0,
+        );
+	    
+        //====================================
+	    // Undo functionality
+        $last_action = new Model_TicketViewLastAction();
+        $last_action->action = Model_TicketViewLastAction::ACTION_NOT_WAITING;
+
+        if(is_array($ticket_ids))
+        foreach($ticket_ids as $ticket_id) {
+            $last_action->ticket_ids[$ticket_id] = array(
+                DAO_Ticket::IS_WAITING => 1,
+            );
+        }
+
+        $last_action->action_params = $fields;
+        
+        C4_TicketView::setLastAction($view_id,$last_action);
+        //====================================
+
+        DAO_Ticket::updateTicket($ticket_ids, $fields);
+	    
+	    $view = C4_AbstractViewLoader::getView('',$view_id);
+	    $view->render();
+	    return;
+	}
+	
 	function viewNotSpamTicketsAction() {
 	    @$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 	    @$ticket_ids = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'array');
@@ -5671,6 +5735,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		@$next_worker_id = DevblocksPlatform::importGPC($_POST['next_worker_id'],'integer',0);
 		@$next_action = DevblocksPlatform::importGPC($_POST['next_action'],'string','');
 		@$subject = DevblocksPlatform::importGPC($_POST['subject'],'string','');
+		@$waiting = DevblocksPlatform::importGPC($_POST['waiting'],'waiting',0);
 		
 		@$ticket = DAO_Ticket::getTicket($ticket_id);
 		
@@ -5681,6 +5746,9 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		// Properties
 
+		if(isset($waiting))
+			$fields[DAO_Ticket::IS_WAITING] = $waiting;
+			
 		if(isset($next_worker_id))
 			$fields[DAO_Ticket::NEXT_WORKER_ID] = $next_worker_id;
 			

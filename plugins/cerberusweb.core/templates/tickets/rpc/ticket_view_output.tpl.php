@@ -16,6 +16,10 @@
 			assigned to you.
 		{elseif $last_action->action == 'surrender'}
 			surrendered.
+		{elseif $last_action->action == 'waiting'}
+			marked waiting for reply.
+		{elseif $last_action->action == 'not_waiting'}
+			marked not waiting for reply.
 		{elseif $last_action->action == 'move'}
 			{assign var=moved_to_team_id value=$last_action->action_params.team_id}
 			{assign var=moved_to_category_id value=$last_action->action_params.category_id}

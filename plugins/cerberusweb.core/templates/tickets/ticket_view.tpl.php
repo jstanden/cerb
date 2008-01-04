@@ -237,6 +237,8 @@
 				<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','merge');">merge</button>
 				<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','take');">take</button>
 				<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','surrender');">surrender</button>
+				<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','waiting');">waiting</button>
+				<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','not_waiting');">not waiting</button>
 			</div>
 
 		</td>
