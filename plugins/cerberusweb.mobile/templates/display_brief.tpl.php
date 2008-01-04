@@ -1,4 +1,3 @@
-<img alt="powered by cerberus helpdesk" src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/cerberus_logo_small.gif{/devblocks_url}" border="0">
 {if empty($ticket)}
 We did not find a ticket to match the supplied ID / mask.
 {else}

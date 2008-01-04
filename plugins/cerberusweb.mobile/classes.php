@@ -58,115 +58,253 @@ class MobileController extends DevblocksControllerExtension {
 	
     public function __construct($manifest) {
         parent::__construct($manifest);
-        
+
         $router = DevblocksPlatform::getRoutingService();
         $router->addRoute('mobile', self::ID);
     }
     
+	/**
+	 * Enter description here...
+	 *
+	 * @param string $uri
+	 * @return string $id
+	 */
+	public function _getPageIdByUri($uri) {
+        $pages = DevblocksPlatform::getExtensions('cerberusweb.mobile.page', false);
+        foreach($pages as $manifest) { /* @var $manifest DevblocksExtensionManifest */
+            if(0 == strcasecmp($uri,$manifest->params['uri'])) {
+                return $manifest->id;
+            }
+        }
+        return NULL;
+	}    
+    
 	public function handleRequest(DevblocksHttpRequest $request) { /* @var $request DevblocksHttpRequest */
-		$session = DevblocksPlatform::getSessionService();
-		$visit = $session->getVisit();
-		
-		// [TODO] Implement a mobile login system
-		
-		if(empty($visit)) {
-		    DefaultLoginModule::renderLoginForm();
-		    exit();
-		}
-	    
-		$stack = $request->path;
-		$uri = array_shift($stack);		// $uri should be "mobile"
-		$page = array_shift($stack);	// action to take (login, display, etc)
-		
-		switch ($page) {
-			case "reply":
-				@$message_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer');
-				@$content = DevblocksPlatform::importGPC($_REQUEST['content'],'content');
-				@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string'); // used by forward
-				
-				$worker = CerberusApplication::getActiveWorker();
-				
-				$properties = array(
-					'message_id' => $message_id,
-					'content' => $content,
-					'agent_id' => @$worker->id
-			    );
-				
-				CerberusMail::sendTicketMessage($properties);
-				
-				DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array($uri,'home')));
-				break;
+		$path = $request->path;
+		$prefixUri = array_shift($path);		// $uri should be "mobile"
+		$controller = array_shift($path);	// sub controller to take (login, display, etc)
 
-			default:
-				break;
-		} // end switch (page)
+
+        $page_id = $this->_getPageIdByUri($controller);
+
+        $pages = DevblocksPlatform::getExtensions('cerberusweb.mobile.page', true);
+        @$page = $pages[$page_id]; /* @var $page CerberusPageExtension */
+
+		if(empty($page)) {
+			switch($controller) {
+//				case "portal":
+//					die(); // 404
+//					break;
+//	        		
+				default:
+					return; // default page
+					break;
+			}
+		}
+		//@$action = array_shift($path) . 'Action';
+		@$action_post_var = DevblocksPlatform::importGPC($_POST['a2'],'string', '');
+		if($action_post_var == null) {
+			@$action_post_var = array_shift($path);
+		}
+		
+		@$action = $action_post_var . 'Action';
+		
+	    switch($action) {
+	        case NULL:
+	            // [TODO] Index/page render
+	            break;
+	            
+	        default:
+			    // Default action, call arg as a method suffixed with Action
+			    if($page->isVisible()) {
+					if(method_exists($page,$action)) {
+						call_user_func(array(&$page, $action)); // [TODO] Pass HttpRequest as arg?
+					}
+				} else {
+					// if Ajax [TODO] percolate isAjax from platform to handleRequest
+					// die("Access denied.  Session expired?");
+				}
+
+	            break;
+	    }		
 	}
 	
 	public function writeResponse(DevblocksHttpResponse $response) { /* @var $response DevblocksHttpResponse */
-		$stack = $response->path;
-		$uri = array_shift($stack);		// $uri should be "mobile"
-		$page = array_shift($stack);	// action to take (login, display, etc)
-		
+	    $path = $response->path;
+	    $uri_prefix = array_shift($path); // should be mobile
+	    
+		// [JAS]: Ajax? // [TODO] Explore outputting whitespace here for Safari
+//	    if(empty($path))
+//			return;
+
 		$tpl = DevblocksPlatform::getTemplateService();
-		
-		$active_worker = CerberusApplication::getActiveWorker();
-		
-		switch ($page) {
-			default:
-			case "home":
-				$mytickets = DAO_Ticket::search(
-					array(),
-					array(
-						new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN),
-						new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_NEXT_WORKER_ID,'=',$active_worker->id)
-					),
-					25,
-					0,
-					SearchFields_Ticket::TICKET_UPDATED_DATE,
-					0,
-					false
-				);
-				$tpl->assign('mytickets', $mytickets[0]);
-				$tpl->display('file:' . dirname(__FILE__) . '/templates/my_tickets.tpl.php');
-				break;
+		$session = DevblocksPlatform::getSessionService();
+		$settings = CerberusSettings::getInstance();
+		$translate = DevblocksPlatform::getTranslationService();
+		$visit = $session->getVisit();
 
-			case "login":
-				break;
-				
-			case "comment":
-			case "display":
-			case "forward":
-				$ticket_id = array_shift($stack);
-				$message_id = array_shift($stack);
-				
-				if (empty($ticket_id)) {
-					$session = DevblocksPlatform::getSessionService();
-					$visit = $session->getVisit();
-					break;
-				}
-				
-				if (!is_numeric($ticket_id)) {
-					$ticket_id = DAO_Ticket::getTicketIdByMask($ticket_id);
-				}
-				$ticket = DAO_Ticket::getTicket($ticket_id);
-				
-				$tpl->assign('ticket', $ticket);
-				$tpl->assign('ticket_id', $ticket_id);
-				$tpl->assign('message_id', $message_id);
-				$tpl->assign('page_type', $page);
+		$controller = array_shift($path);
+		$pages = DevblocksPlatform::getExtensions('cerberusweb.mobile.page', true);
 
-				if (0 == strcasecmp($message_id, 'full')) {
-					$tpl->display('file:' . dirname(__FILE__) . '/templates/display.tpl.php');
-				} else {
-					$message = DAO_Ticket::getMessage($message_id);
-					if (empty($message))
-						$message = array_pop($ticket->getMessages());
-					$tpl->assign('message', $message);
-					$tpl->display('file:' . dirname(__FILE__) . '/templates/display_brief.tpl.php');
-				}
-				break;
+		// Default page [TODO] This is supposed to come from framework.config.php
+		if(empty($controller)) 
+			$controller = 'tickets';
+
+	    // [JAS]: Require us to always be logged in for Cerberus pages
+	    // [TODO] This should probably consult with the page itself for ::authenticated()
+		if(empty($visit))
+			$controller = 'login';
+
+	    $page_id = $this->_getPageIdByUri($controller); /* @var $page CerberusPageExtension */
+	    @$page = $pages[$page_id];
+        
+        if(empty($page)) return; // 404
+	    
+		// [TODO] Reimplement
+		if(!empty($visit) && !is_null($visit->getWorker())) {
+		    DAO_Worker::logActivity($visit->getWorker()->id, $page->getActivity());
 		}
+		
+		// [JAS]: Listeners (Step-by-step guided tour, etc.)
+	    $listenerManifests = DevblocksPlatform::getExtensions('devblocks.listener.http');
+	    foreach($listenerManifests as $listenerManifest) { /* @var $listenerManifest DevblocksExtensionManifest */
+	         $inst = $listenerManifest->createInstance(); /* @var $inst DevblocksHttpRequestListenerExtension */
+	         $inst->run($response, $tpl);
+	    }
+		
+		// [JAS]: Pre-translate any dynamic strings
+        $common_translated = array();
+        if(!empty($visit) && !is_null($visit->getWorker()))
+            $common_translated['header_signed_in'] = vsprintf($translate->_('header.signed_in'), array('<b>'.$visit->getWorker()->getName().'</b>'));
+        $tpl->assign('common_translated', $common_translated);
+		
+//        $tour_enabled = false;
+//		if(!empty($visit) && !is_null($visit->getWorker())) {
+//        	$worker = $visit->getWorker();
+//			$tour_enabled = DAO_WorkerPref::get($worker->id, 'assist_mode');
+//			$tour_enabled = ($tour_enabled===false) ? 1 : $tour_enabled;
+//			if(DEMO_MODE) $tour_enabled = 1; // override for DEMO
+//		}
+//		$tpl->assign('tour_enabled', $tour_enabled);
+		
+        // [JAS]: Variables provided to all page templates
+		$tpl->assign('settings', $settings);
+		$tpl->assign('session', $_SESSION);
+		$tpl->assign('translate', $translate);
+		$tpl->assign('visit', $visit);
+		$tpl->assign('license',CerberusLicense::getInstance());
+		
+	    $active_worker = CerberusApplication::getActiveWorker();
+	    $tpl->assign('active_worker', $active_worker);
+	
+	    if(!empty($active_worker)) {
+	    	$active_worker_memberships = $active_worker->getMemberships();
+	    	$tpl->assign('active_worker_memberships', $active_worker_memberships);
+	    }
+		
+		$tpl->assign('pages',$pages);		
+		$tpl->assign('page',$page);
+
+		$tpl->assign('response_uri', implode('/', $response->path));
+		
+		$tpl_path = dirname(__FILE__) . '/templates/';
+		$tpl->assign('tpl_path', $tpl_path);
+
+		// Timings
+		$tpl->assign('render_time', (microtime(true) - DevblocksPlatform::getStartTime()));
+		if(function_exists('memory_get_usage') && function_exists('memory_get_peak_usage')) {
+			$tpl->assign('render_memory', memory_get_usage() - DevblocksPlatform::getStartMemory());
+			$tpl->assign('render_peak_memory', memory_get_peak_usage() - DevblocksPlatform::getStartPeakMemory());
+		}
+		$tpl->display($tpl_path.'border.php');
 	}
 };
+
+class C4_MobileTicketView extends C4_TicketView {
+	
+	function render() {
+		//$this->_sanitize();
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('id', $this->id);
+		$view_path = DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.mobile/templates/tickets/';
+		$tpl->assign('view_path_mobile',$view_path_mobile);
+		$tpl->assign('view', $this);
+
+		$visit = CerberusApplication::getVisit();
+
+		$active_dashboard_id = $visit->get(CerberusVisit::KEY_DASHBOARD_ID, 0);
+
+		$results = self::getData();
+		$tpl->assign('results', $results);
+		
+		@$ids = array_keys($results[0]);
+		
+		$workers = DAO_Worker::getAll();
+		$tpl->assign('workers', $workers);
+
+		$teams = DAO_Group::getAll();
+		$tpl->assign('teams', $teams);
+
+		$buckets = DAO_Bucket::getAll();
+		$tpl->assign('buckets', $buckets);
+
+		$team_categories = DAO_Bucket::getTeams();
+		$tpl->assign('team_categories', $team_categories);
+
+		$slas = DAO_Sla::getAll();
+		$tpl->assign('slas', $slas);
+
+		$ticket_fields = DAO_TicketField::getWhere(); // [TODO] Cache ::getAll()
+		$tpl->assign('ticket_fields', $ticket_fields);
+		
+		// Undo?
+		$last_action = C4_TicketView::getLastAction($this->id);
+		$tpl->assign('last_action', $last_action);
+		if(!empty($last_action) && !is_null($last_action->ticket_ids)) {
+			$tpl->assign('last_action_count', count($last_action->ticket_ids));
+		}
+
+		// View Quick Moves
+		// [TODO] Move this into an API
+		$active_worker = CerberusApplication::getActiveWorker();
+		$move_counts_str = DAO_WorkerPref::get($active_worker->id,''.DAO_WorkerPref::SETTING_MOVE_COUNTS,serialize(array()));
+		if(is_string($move_counts_str)) {
+			// [TODO] We no longer need the move hash, do we?
+			// [TODO] Phase this out.
+			$category_name_hash = DAO_Bucket::getCategoryNameHash();
+			$tpl->assign('category_name_hash', $category_name_hash);
+			 
+			$categories = DAO_Bucket::getAll();
+			$tpl->assign('categories', $categories);
+
+			@$move_counts = unserialize($move_counts_str);
+			if(!empty($move_counts))
+				$tpl->assign('move_to_counts', array_slice($move_counts,0,10,true));
+		}
+
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('view_fields', $this->getColumns());
+		
+		$tpl->display('file:' . $view_path . 'ticket_view.tpl.php');
+	}
+	
+};
+
+class CerberusMobilePageExtension extends DevblocksExtension {
+	function __construct($manifest) {
+		$this->DevblocksExtension($manifest,1);
+	}
+	
+	function isVisible() { return true; }
+	function render() { }
+	
+	/**
+	 * @return Model_Activity
+	 */
+	public function getActivity() {
+        return new Model_Activity();
+	}
+}
 
 ?>

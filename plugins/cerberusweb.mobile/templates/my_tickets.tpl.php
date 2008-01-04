@@ -1,4 +1,3 @@
-<img alt="powered by cerberus helpdesk" src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/cerberus_logo_small.gif{/devblocks_url}" border="0">
 
 <h2 style="color: rgb(102,102,102);">My Tickets</h2>
 
