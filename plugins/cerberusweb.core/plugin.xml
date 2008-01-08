@@ -5,6 +5,7 @@
 	<description>The core functionality of Cerberus Helpdesk.</description>
 	<author>WebGroup Media, LLC.</author>
 	<revision>0</revision>
+	<link>http://wiki.cerberusdemo.com/index.php/New_Changes</link>
 	<class>
 		<file>classes.php</file>
 		<name>ChCorePlugin</name>

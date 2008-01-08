@@ -5,6 +5,7 @@
 	<description>A public client area allowing logins to view ticket history and other custom modules.</description>
 	<author>WebGroup Media, LLC.</author>
 	<revision>0</revision>
+	<link>http://wiki.cerberusdemo.com/index.php/New_Changes#Support_Center_.28Community_Tool.29</link>
 	<class>
 		<file>api/UmScApp.php</file>
 		<name>UmScPlugin</name>

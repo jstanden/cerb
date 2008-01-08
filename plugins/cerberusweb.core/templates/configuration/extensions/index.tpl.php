@@ -19,12 +19,15 @@
 					<td nowrap="nowrap" width="0%" valign="middle" rowspan="2" style="background-color:{if $plugin->enabled}rgb(200,200,255){else}rgb(200,200,200){/if};border-right:1px solid rgb(180,180,255);">
 						<input type="checkbox" name="plugins_enabled[]" value="{$plugin->id}" {if $plugin->enabled}checked{/if}>
 					</td>
-					<td width="100%" onclick="checkAll('config_plugin_{$plugin->id}');" style="padding-left:5px;">
+					<td width="100%" style="padding-left:5px;" onclick="if(getEventTarget(event)=='TD') checkAll('config_plugin_{$plugin->id}');">
 						<!-- 
 						<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/wgm/icon_plus.gif{/devblocks_url}" align="absmiddle" border="0"> 
 						&nbsp;
 						 -->
-						<span style="font-weight:bold;color:rgb(0,120,0);">{$plugin->name}</span> <!-- (Revision: {$plugin->revision}) -->
+						<span style="font-weight:bold;color:rgb(0,120,0);">{$plugin->name}</span> &nbsp; 
+						{if $plugin->enabled && $plugin->is_configurable}<a href="{devblocks_url}c=config&a=extensions&p={$plugin->id}{/devblocks_url}">configure</a> &nbsp;{/if}
+						<!-- (Revision: {$plugin->revision}) -->
+						{if !empty($plugin->link)}<a href="{$plugin->link}" target="_blank">website</a> &nbsp;{/if}
 						<br> 
 						by <span style="font-weight:normal;color:rgb(120,120,120);">{$plugin->author}</span>
 					</td>

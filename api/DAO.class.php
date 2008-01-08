@@ -2100,6 +2100,29 @@ class DAO_Ticket extends DevblocksORMHelper {
 	
 	private function DAO_Ticket() {}
 	
+	public static function getFields() {
+		$translate = DevblocksPlatform::getTranslationService();
+		
+		return array(
+			'id' => $translate->_('ticket.id'),
+			'mask' => $translate->_('ticket.mask'),
+			'subject' => $translate->_('ticket.subject'),
+			'is_waiting' => $translate->_('status.waiting'),
+			'is_closed' => $translate->_('status.closed'),
+			'is_deleted' => $translate->_('status.deleted'),
+			'team_id' => $translate->_('ticket.group'),
+			'category_id' => $translate->_('ticket.bucket'),
+			'updated_date' => $translate->_('ticket.updated'),
+			'spam_training' => $translate->_('ticket.spam_training'),
+			'spam_score' => $translate->_('ticket.spam_score'),
+			'interesting_words' => $translate->_('ticket.interesting_words'),
+			'next_action' => $translate->_('ticket.next_action'),
+			'next_worker_id' => $translate->_('ticket.next_worker'),
+			'sla_id' => $translate->_('ticket.sla_id'),
+			'sla_priority' => $translate->_('ticket.sla_priority'),
+		);
+	}
+	
 	/**
 	 * Enter description here...
 	 *
@@ -2792,8 +2815,8 @@ class DAO_Ticket extends DevblocksORMHelper {
 			"t.is_waiting as %s, ".
 			"t.is_closed as %s, ".
 			"t.is_deleted as %s, ".
-//			"t.first_wrote_address_id as %s, ".
-//			"t.last_wrote_address_id as %s, ".
+			"t.first_wrote_address_id as %s, ".
+			"t.last_wrote_address_id as %s, ".
 			"a1.email as %s, ".
 			"a1.num_spam as %s, ".
 			"a1.num_nonspam as %s, ".
@@ -2822,8 +2845,8 @@ class DAO_Ticket extends DevblocksORMHelper {
 			    SearchFields_Ticket::TICKET_WAITING,
 			    SearchFields_Ticket::TICKET_CLOSED,
 			    SearchFields_Ticket::TICKET_DELETED,
-//			    SearchFields_Ticket::TICKET_FIRST_WROTE_ID,
-//			    SearchFields_Ticket::TICKET_LAST_WROTE_ID,
+			    SearchFields_Ticket::TICKET_FIRST_WROTE_ID,
+			    SearchFields_Ticket::TICKET_LAST_WROTE_ID,
 			    SearchFields_Ticket::TICKET_FIRST_WROTE,
 			    SearchFields_Ticket::TICKET_FIRST_WROTE_SPAM,
 			    SearchFields_Ticket::TICKET_FIRST_WROTE_NONSPAM,

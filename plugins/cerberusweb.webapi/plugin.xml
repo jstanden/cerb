@@ -1,0 +1,44 @@
+<!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
+<plugin>
+	<id>cerberusweb.webapi</id>
+	<name>Cerberus Helpdesk: Web Services API</name>
+	<description>A RESTful XML/JSON interface for integrating Cerberus Helpdesk with other applications and tools.</description>
+	<author>WebGroup Media, LLC.</author>
+	<revision>0</revision>
+	<link>http://wiki.cerberusdemo.com/index.php/Web-API</link>
+	<is_configurable>1</is_configurable>
+	<class>
+		<file>api/App.php</file>
+		<name>ChRestPlugin</name>
+	</class>
+	
+	<extensions>
+	
+		<!-- Patch Containers -->
+		
+		<extension point="devblocks.patch.container">
+			<id>cerberusweb.patches.webapi</id>
+			<name>Web Services API Patches</name>
+			<class>
+				<file>api/Patch.php</file>
+				<name>ChWebApiPatchContainer</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
+		<!-- Controllers -->
+	
+		<extension point="devblocks.controller">
+			<id>cerberusweb.controller.rest</id>
+			<name>REST Controller</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChRestFrontController</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
+	</extensions>
+</plugin>

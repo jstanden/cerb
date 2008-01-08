@@ -2520,17 +2520,27 @@ class ChConfigurationPage extends CerberusPageExtension  {
 				break;
 				
 			case 'extensions':
-				// Auto synchronize when viewing Config->Extensions
-		        DevblocksPlatform::readPlugins();
+				@$plugin_id = array_shift($stack);
 				
-				$plugins = DevblocksPlatform::getPluginRegistry();
-				unset($plugins['cerberusweb.core']);
-				$tpl->assign('plugins', $plugins);
-				
-				$points = DevblocksPlatform::getExtensionPoints();
-				$tpl->assign('points', $points);
-				
-				$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/extensions/index.tpl.php');				
+				if(!empty($plugin_id) && null != ($plugin = DevblocksPlatform::getPlugin($plugin_id))) {
+					$inst = $plugin->createInstance();
+					$tpl->assign('plugin', $plugin);
+					$tpl->assign('inst', $inst);
+					$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/extensions/configure_plugin.tpl.php');
+					
+				} else {
+					// Auto synchronize when viewing Config->Extensions
+			        DevblocksPlatform::readPlugins();
+					
+					$plugins = DevblocksPlatform::getPluginRegistry();
+					unset($plugins['cerberusweb.core']);
+					$tpl->assign('plugins', $plugins);
+					
+					$points = DevblocksPlatform::getExtensionPoints();
+					$tpl->assign('points', $points);
+					
+					$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/extensions/index.tpl.php');
+				}				
 				break;
 
 			case 'fields':
@@ -3392,7 +3402,19 @@ class ChConfigurationPage extends CerberusPageExtension  {
 			die("Failed updating plugins."); // [TODO] Make this more graceful
 		}
 		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','extensions')));
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('config','extensions')));
+	}
+	
+	// POST
+	function saveConfigurePluginAction() {
+		@$plugin_id = DevblocksPlatform::importGPC($_REQUEST['plugin_id'],'string');
+
+		if(!empty($plugin_id) && null != ($plugin = DevblocksPlatform::getPlugin($plugin_id))) {
+			$inst = $plugin->createInstance();
+			$inst->saveConfiguration($plugin);
+		}
+		
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('config','extensions')));
 	}
 	
 	function saveSlaAction() {

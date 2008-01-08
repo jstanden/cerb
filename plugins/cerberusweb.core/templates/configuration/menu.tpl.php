@@ -11,7 +11,7 @@
 [ <a href="{devblocks_url}c=config&a=fnr{/devblocks_url}">fetch &amp; retrieve</a> ] 
 [ <a href="{devblocks_url}c=config&a=extensions{/devblocks_url}">plugins</a> ] 
 [ <a href="{devblocks_url}c=config&a=jobs{/devblocks_url}">scheduler</a> ] 
-[ <a href="{devblocks_url}c=config&a=licenses{/devblocks_url}">licenses</a> ] 
+[ <a href="{devblocks_url}c=config&a=licenses{/devblocks_url}">licenses</a> ]
 <br>
 
 {if $install_dir_warning}

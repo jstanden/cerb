@@ -5,6 +5,7 @@
 	<description>Track iterative changes and events on tickets.</description>
 	<author>WebGroup Media, LLC.</author>
 	<revision>0</revision>
+	<link>http://wiki.cerberusdemo.com/index.php/New_Changes#Audit_Log</link>
 	<class>
 		<file>api/App.php</file>
 		<name>ChAuditLogPlugin</name>
