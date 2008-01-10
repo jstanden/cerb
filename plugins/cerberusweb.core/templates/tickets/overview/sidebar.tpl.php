@@ -1,3 +1,4 @@
+<div id="tourOverviewSummaries"></div>
 {if !empty($sla_counts) && count($sla_counts) > 1}
 <div class="block">
 <h2>Service Levels</h2>
