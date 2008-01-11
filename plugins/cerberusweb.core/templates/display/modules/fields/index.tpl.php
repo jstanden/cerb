@@ -22,7 +22,7 @@
 			
 			<tr>
 				<td valign="top"><b>{$f->name}:</b></td>
-				<td valign="top">
+				<td valign="top" width="100%">
 					{* [TODO]: Filter by groups+global *}
 					{if $f->type=='S'}
 						<input type="text" name="field_{$f_id}" size="45" maxlength="255" value="{$ticket_field_values.$f_id|escape:"htmlall"}"><br>
