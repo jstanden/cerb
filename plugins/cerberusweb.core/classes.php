@@ -777,8 +777,12 @@ class ChTicketsPage extends CerberusPageExtension {
 	// Post
 	// [TODO] Move to another page
 	function doStopTourAction() {
+//		$request = DevblocksPlatform::getHttpRequest();
+
 		$worker = CerberusApplication::getActiveWorker();
 		DAO_WorkerPref::set($worker->id, 'assist_mode', 0);
+		
+//		DevblocksPlatform::redirect(new DevblocksHttpResponse($request->path, $request->query));
 	}
 	
 	function showReorderWorkspacePanelAction() {

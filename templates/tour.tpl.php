@@ -1,4 +1,5 @@
 {if !empty($tour)}
+<div id="tourDiv" style="display:block;">
 <table width="100%" style="background-color:rgb(240,240,255);border:1px solid rgb(0,0,255);">
 	<tr>
 		<td align="left" width="10%" nowrap="nowrap"></td>
@@ -7,7 +8,7 @@
 			<form action="{devblocks_url}{/devblocks_url}" method="post" name="tourForm">
 				<input type="hidden" name="c" value="tickets">
 				<input type="hidden" name="a" value="doStopTour">
-				<a href="javascript:;" onclick="document.tourForm.submit();">close assistant</a>
+				<a href="javascript:;" onclick="toggleDiv('tourDiv');document.tourForm.submit();">close assistant</a>
 				&nbsp;
 			</form>
 		</td>
@@ -28,4 +29,5 @@
 	</tr>
 </table>
 <br>
+</div>
 {/if}
