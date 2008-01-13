@@ -1,7 +1,7 @@
 {assign var=results value=$view->getData()}
 {assign var=total value=$results[1]}
 {assign var=data value=$results[0]}
-<table cellpadding="0" cellspacing="0" border="0" class="tableBlue" width="100%" class="tableBg">
+<table cellpadding="0" cellspacing="0" border="0" class="tableBlue" width="100%">
 	<tr>
 		<td nowrap="nowrap" class="tableThBlue">{$view->name} {if $view->id == 'search'}<a href="#{$view->id}_actions" style="color:rgb(255,255,255);font-size:11px;">jump to actions</a>{/if}</td>
 		<td nowrap="nowrap" class="tableThBlue" align="right">
@@ -13,7 +13,7 @@
 </table>
 
 <form id="customize{$view->id}" name="customize{$view->id}" action="#" onsubmit="return false;" style="display:none;"></form>
-<form id="viewForm{$view->id}" name="viewForm{$view->id}">
+<form id="viewForm{$view->id}" name="viewForm{$view->id}" action="#">
 <input type="hidden" name="id" value="{$view->id}">
 <input type="hidden" name="c" value="contacts">
 <input type="hidden" name="a" value="">
@@ -32,9 +32,9 @@
 			{* add arrow if sorting by this column, finish table header tag *}
 			{if $header==$view->renderSortBy}
 				{if $view->renderSortAsc}
-					<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/arrow_up.gif{/devblocks_url}" align="absmiddle">
+					<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/arrow_up.gif{/devblocks_url}" align="top">
 				{else}
-					<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/arrow_down.gif{/devblocks_url}" align="absmiddle">
+					<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/arrow_down.gif{/devblocks_url}" align="top">
 				{/if}
 			{/if}
 			</th>

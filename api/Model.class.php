@@ -1961,35 +1961,43 @@ class Model_MailTemplateReply {
 		$worker = CerberusApplication::getActiveWorker();
 
 		$out = str_replace(
-		array(
-		'#sender_first_name#',
-		'#sender_last_name#',
-		'#sender_org#',
-
-		'#ticket_mask#',
-		'#ticket_subject#',
-
-		'#worker_first_name#',
-		'#worker_last_name#',
-		'#worker_title#',
-		),
-		array(
-		$sender->first_name,
-		$sender->last_name,
-		(!empty($sender_org)?$sender_org->name:""),
-
-		$ticket->mask,
-		$ticket->subject,
-
-		$worker->first_name,
-		$worker->last_name,
-		$worker->title,
-		),
-		$raw
+			array(
+				'#sender_first_name#',
+				'#sender_last_name#',
+				'#sender_org#',
+		
+				'#ticket_mask#',
+				'#ticket_subject#',
+		
+				'#worker_first_name#',
+				'#worker_last_name#',
+				'#worker_title#',
+			),
+			array(
+				$sender->first_name,
+				$sender->last_name,
+				(!empty($sender_org)?$sender_org->name:""),
+		
+				$ticket->mask,
+				$ticket->subject,
+		
+				$worker->first_name,
+				$worker->last_name,
+				$worker->title,
+			),
+			$raw
 		);
 
 		return $out;
 	}
+};
+
+class Model_TicketComment {
+	public $id;
+	public $ticket_id;
+	public $worker_id;
+	public $created;
+	public $comment;
 };
 
 class Model_TicketField {

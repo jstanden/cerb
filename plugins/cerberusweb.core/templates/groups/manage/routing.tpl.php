@@ -39,7 +39,7 @@
 		<td>Move to:</td>
 		<td>
 			<select name="move">
-				<option value=""></option>
+				<option value="">&nbsp;</option>
 	      		<optgroup label="Move to Group">
 	      		{foreach from=$teams item=tm}
 	      			<option value="t{$team->id}">{$tm->name}</option>
@@ -60,7 +60,7 @@
 		<td>Status:</td>
 		<td>
 			<select name="status">
-				<option value=""></option>
+				<option value="">&nbsp;</option>
 				{foreach from=$statuses item=k key=v}
 				<option value="{$v}">{$k}</option>
 				{/foreach}
@@ -74,7 +74,7 @@
 		<td>Spam:</td>
 		<td>
 			<select name="spam">
-				<option value=""></option>
+				<option value="">&nbsp;</option>
 				{foreach from=$training item=k key=v}
 				<option value="{$v}">{$k}</option>
 				{/foreach}
@@ -85,7 +85,7 @@
 		<td>Assign:</td>
 		<td>
 			<select name="assign">
-				<option value=""></option>
+				<option value="">&nbsp;</option>
 				<!-- <option value="0">Anybody</option>  -->
 				{foreach from=$workers item=worker key=worker_id name=workers}
 					{if $worker_id==$active_worker->id}{math assign=next_worker_id_sel equation="x" x=$smarty.foreach.workers.iteration}{/if}

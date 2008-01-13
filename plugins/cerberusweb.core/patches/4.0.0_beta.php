@@ -719,6 +719,19 @@ if(!isset($indexes['next_worker_id'])) {
     $datadict->ExecuteSQLArray($sql);
 }
 
+// `ticket_comment` =============================
+if(!isset($tables['ticket_comment'])) {
+    $flds = "
+		id I4 DEFAULT 0 NOTNULL PRIMARY,
+		ticket_id I4 DEFAULT 0 NOTNULL,
+		worker_id I4 DEFAULT 0 NOTNULL,
+		created I4 DEFAULT 0 NOTNULL,
+		comment XL
+	";
+    $sql = $datadict->CreateTableSQL('ticket_comment',$flds);
+    $datadict->ExecuteSQLArray($sql);
+}
+
 // `ticket_field` ==================
 if(!isset($tables['ticket_field'])) {
     $flds = "

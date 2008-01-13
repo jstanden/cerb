@@ -10,6 +10,6 @@
 <a name="teams"></a>
 {include file="file:$path/configuration/workflow/teams.tpl.php"}
 
-<script>
+<script type="text/javascript">
 	var configAjax = new cConfigAjax();
 </script>

@@ -49,6 +49,22 @@ remote control of your helpdesk.<br>
 					</td>
 				</tr>
 				<tr>
+					<td>Fetch &amp; Retrieve:</td>
+					<td>
+						<label><input type="radio" name="aclFnr{$access_key_id}" value="0" {if !$access_key->rights.acl_fnr}checked{/if}> None</label> 
+						<label><input type="radio" name="aclFnr{$access_key_id}" value="1" {if 1==$access_key->rights.acl_fnr}checked{/if}> Read Only</label> 
+						<label><input type="radio" name="aclFnr{$access_key_id}" value="2" {if 2==$access_key->rights.acl_fnr}checked{/if}> Change</label> 
+					</td>
+				</tr>
+				<tr>
+					<td>Parser:</td>
+					<td>
+						<label><input type="radio" name="aclParser{$access_key_id}" value="0" {if !$access_key->rights.acl_parser}checked{/if}> None</label> 
+						<label><input type="radio" name="aclParser{$access_key_id}" value="1" {if 1==$access_key->rights.acl_parser}checked{/if}> Read Only</label> 
+						<label><input type="radio" name="aclParser{$access_key_id}" value="2" {if 2==$access_key->rights.acl_parser}checked{/if}> Change</label> 
+					</td>
+				</tr>
+				<tr>
 					<td>Tickets:</td>
 					<td>
 						<label><input type="radio" name="aclTickets{$access_key_id}" value="0" {if !$access_key->rights.acl_tickets}checked{/if}> None</label> 

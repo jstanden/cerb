@@ -23,7 +23,7 @@
 <div id="prefOptions"></div> 
 <br>
 
-<script>
+<script type="text/javascript" language="javascript">
 {literal}
 var tabView = new YAHOO.widget.TabView();
 

@@ -3,7 +3,7 @@
 </div>
 {assign var=total value=$results[1]}
 {assign var=tickets value=$results[0]}
-<table cellpadding="0" cellspacing="0" border="0" class="tableBlue" width="100%" class="tableBg">
+<table cellpadding="0" cellspacing="0" border="0" class="tableBlue" width="100%">
 	<tr>
 		<td nowrap="nowrap" class="tableThBlue">{$view->name} {if $view->id == 'search'}<a href="#{$view->id}_actions" style="color:rgb(255,255,255);font-size:11px;">jump to actions</a>{/if}</td>
 		<td nowrap="nowrap" class="tableThBlue" align="right">
@@ -20,7 +20,7 @@
 
 <div id="{$view->id}_tips" class="block" style="display:none;margin:10px;padding:5px;">Analyzing...</div>
 <form id="customize{$view->id}" action="#" onsubmit="return false;" style="display:none;"></form>
-<form id="viewForm{$view->id}" name="viewForm{$view->id}">
+<form id="viewForm{$view->id}" name="viewForm{$view->id}" action="#">
 <input type="hidden" name="id" value="{$view->id}">
 <table cellpadding="0" cellspacing="0" border="0" width="100%" class="tableRowBg">
 
@@ -186,8 +186,8 @@
 			<td>
 				{math assign=score equation="x*100" format="%0.2f%%" x=$result.t_spam_score}
 				{if empty($result.t_spam_training)}
-				<!---<a href="javascript:;"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/warning.gif{/devblocks_url}" align="top" border="0" title="Not Spam ({$score})"></a>--->
-				<!---<a href="javascript:;"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check_gray.gif{/devblocks_url}" align="top" border="0" title="Not Spam ({$score})"></a>--->
+				<!--<a href="javascript:;"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/warning.gif{/devblocks_url}" align="top" border="0" title="Not Spam ({$score})"></a>-->
+				<!--<a href="javascript:;"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check_gray.gif{/devblocks_url}" align="top" border="0" title="Not Spam ({$score})"></a>-->
 				<a href="javascript:;" onclick="toggleDiv('{$rowIdPrefix}_s','none');toggleDiv('{$rowIdPrefix}','none');genericAjaxGet('{$view->id}_output_container','c=tickets&a=reportSpam&id={$result.t_id}&viewId={$view->id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/{if $result.t_spam_score >= .90}warning.gif{else}warning_gray.gif{/if}{/devblocks_url}" align="top" border="0" title="Report Spam ({$score})
 				{if !empty($result.t_interesting_words)}{$result.t_interesting_words}{/if}"></a>
 				{/if}
@@ -204,7 +204,7 @@
 	{if $total}
 	<tr>
 		<td colspan="2">
-			{if $view->id != 'contact_history'}<span id="tourDashboardBatch"><button type="button" onclick="ajax.showBatchPanel('{$view->id}','{$dashboard_team_id}',this);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> bulk update</button></span>{/if}
+			{if $view->id != 'contact_history'}<button type="button" onclick="ajax.showBatchPanel('{$view->id}','{$dashboard_team_id}',this);" id="tourDashboardBatch"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> bulk update</button>{/if}
 			<button type="button" onclick="ajax.viewCloseTickets('{$view->id}',0);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_ok.gif{/devblocks_url}" align="top"> close</button>
 			<button type="button" onclick="ajax.viewCloseTickets('{$view->id}',1);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/spam.gif{/devblocks_url}" align="top"> spam</button>
 			{if $active_worker && ($active_worker->is_superuser || $active_worker->can_delete)}<button type="button" onclick="ajax.viewCloseTickets('{$view->id}',2);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> delete</button>{/if}

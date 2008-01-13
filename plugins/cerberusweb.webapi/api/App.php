@@ -93,11 +93,15 @@ class ChRestPlugin extends DevblocksPlugin {
 			
 			// ACL
 			@$aclAddresses = DevblocksPlatform::importGPC($_REQUEST['aclAddresses'.$access_id],'integer',0);
+			@$aclFnr = DevblocksPlatform::importGPC($_REQUEST['aclFnr'.$access_id],'integer',0);
 			@$aclOrgs = DevblocksPlatform::importGPC($_REQUEST['aclOrgs'.$access_id],'integer',0);
+			@$aclParser = DevblocksPlatform::importGPC($_REQUEST['aclParser'.$access_id],'integer',0);
 			@$aclTickets = DevblocksPlatform::importGPC($_REQUEST['aclTickets'.$access_id],'integer',0);
 			
 			$rights['acl_addresses'] = $aclAddresses;
+			$rights['acl_fnr'] = $aclFnr;
 			$rights['acl_orgs'] = $aclOrgs;
+			$rights['acl_parser'] = $aclParser;
 			$rights['acl_tickets'] = $aclTickets;
 			
 			// IPs
@@ -260,7 +264,9 @@ class ChRestFrontController extends DevblocksControllerExtension {
 	function handleRequest(DevblocksHttpRequest $request) {
 		$controllers = array(
 			'addresses' => 'Rest_AddressesController',
+			'fnr' => 'Rest_FnrController',
 			'orgs' => 'Rest_OrgsController',
+			'parser' => 'Rest_ParserController',
 			'tickets' => 'Rest_TicketsController',
 		);
 
@@ -400,7 +406,7 @@ abstract class Ch_RestController implements DevblocksHttpRequestHandler {
 
 class Rest_AddressesController extends Ch_RestController {
 	protected function getAction($path,$keychain) {
-		if(Model_WebapiKey::ACL_NONE==intval($keychain->rights['acl_addresses']))
+		if(Model_WebapiKey::ACL_NONE == intval(@$keychain->rights['acl_addresses']))
 			$this->_error("Action not permitted.");
 		
 		// Single GET
@@ -416,7 +422,7 @@ class Rest_AddressesController extends Ch_RestController {
 	}
 
 	protected function putAction($path,$keychain) {
-		if(Model_WebapiKey::ACL_FULL!=intval($keychain->rights['acl_addresses']))
+		if(Model_WebapiKey::ACL_FULL!=intval(@$keychain->rights['acl_addresses']))
 			$this->_error("Action not permitted.");
 		
 		// Single PUT
@@ -428,12 +434,12 @@ class Rest_AddressesController extends Ch_RestController {
 		// Actions
 		switch(array_shift($path)) {
 			case 'create':
-				if(Model_WebapiKey::ACL_FULL!=intval($keychain->rights['acl_addresses']))
+				if(Model_WebapiKey::ACL_FULL!=intval(@$keychain->rights['acl_addresses']))
 					$this->_error("Action not permitted.");
 				$this->_postCreateAction($path);
 				break;
 			case 'search':
-				if(Model_WebapiKey::ACL_NONE==intval($keychain->rights['acl_addresses']))
+				if(Model_WebapiKey::ACL_NONE==intval(@$keychain->rights['acl_addresses']))
 					$this->_error("Action not permitted.");
 				$this->_postSearchAction($path);
 				break;
@@ -441,7 +447,7 @@ class Rest_AddressesController extends Ch_RestController {
 	}
 	
 	protected function deleteAction($path,$keychain) {
-		if(Model_WebapiKey::ACL_FULL!=intval($keychain->rights['acl_addresses']))
+		if(Model_WebapiKey::ACL_FULL!=intval(@$keychain->rights['acl_addresses']))
 			$this->_error("Action not permitted.");
 	}
 	
@@ -596,7 +602,7 @@ class Rest_OrgsController extends Ch_RestController {
 	//****
 
 	protected function getAction($path,$keychain) {
-		if(Model_WebapiKey::ACL_NONE==intval($keychain->rights['acl_orgs']))
+		if(Model_WebapiKey::ACL_NONE==intval(@$keychain->rights['acl_orgs']))
 			$this->_error("Action not permitted.");
 		
 		// Single GET
@@ -612,7 +618,7 @@ class Rest_OrgsController extends Ch_RestController {
 	}
 
 	protected function putAction($path,$keychain) {
-		if(Model_WebapiKey::ACL_FULL!=intval($keychain->rights['acl_orgs']))
+		if(Model_WebapiKey::ACL_FULL!=intval(@$keychain->rights['acl_orgs']))
 			$this->_error("Action not permitted.");
 		
 		// Single PUT
@@ -624,12 +630,12 @@ class Rest_OrgsController extends Ch_RestController {
 		// Actions
 		switch(array_shift($path)) {
 			case 'create':
-				if(Model_WebapiKey::ACL_FULL!=intval($keychain->rights['acl_orgs']))
+				if(Model_WebapiKey::ACL_FULL!=intval(@$keychain->rights['acl_orgs']))
 					$this->_error("Action not permitted.");
 				$this->_postCreateAction($path);
 				break;
 			case 'search':
-				if(Model_WebapiKey::ACL_NONE==intval($keychain->rights['acl_orgs']))
+				if(Model_WebapiKey::ACL_NONE==intval(@$keychain->rights['acl_orgs']))
 					$this->_error("Action not permitted.");
 				$this->_postSearchAction($path);
 				break;
@@ -637,7 +643,7 @@ class Rest_OrgsController extends Ch_RestController {
 	}
 	
 	protected function deleteAction($path,$keychain) {
-		if(Model_WebapiKey::ACL_FULL!=intval($keychain->rights['acl_orgs']))
+		if(Model_WebapiKey::ACL_FULL!=intval(@$keychain->rights['acl_orgs']))
 			$this->_error("Action not permitted.");
 		
 		// Single DELETE
@@ -790,7 +796,7 @@ class Rest_TicketsController extends Ch_RestController {
 	//****
 
 	protected function getAction($path,$keychain) {
-		if(Model_WebapiKey::ACL_NONE==intval($keychain->rights['acl_tickets']))
+		if(Model_WebapiKey::ACL_NONE==intval(@$keychain->rights['acl_tickets']))
 			$this->_error("Action not permitted.");
 		
 		// Single GET
@@ -806,7 +812,7 @@ class Rest_TicketsController extends Ch_RestController {
 	}
 
 	protected function putAction($path,$keychain) {
-		if(Model_WebapiKey::ACL_FULL!=intval($keychain->rights['acl_tickets']))
+		if(Model_WebapiKey::ACL_FULL!=intval(@$keychain->rights['acl_tickets']))
 			$this->_error("Action not permitted.");
 		
 		// Single PUT
@@ -821,7 +827,7 @@ class Rest_TicketsController extends Ch_RestController {
 //				$this->_postCreateAction($path);
 //				break;
 			case 'search':
-				if(Model_WebapiKey::ACL_NONE==intval($keychain->rights['acl_tickets']))
+				if(Model_WebapiKey::ACL_NONE==intval(@$keychain->rights['acl_tickets']))
 					$this->_error("Action not permitted.");
 				$this->_postSearchAction($path);
 				break;
@@ -829,7 +835,7 @@ class Rest_TicketsController extends Ch_RestController {
 	}
 	
 	protected function deleteAction($path,$keychain) {
-		if(Model_WebapiKey::ACL_FULL!=intval($keychain->rights['acl_tickets']))
+		if(Model_WebapiKey::ACL_FULL!=intval(@$keychain->rights['acl_tickets']))
 			$this->_error("Action not permitted.");
 		
 		// Single DELETE
@@ -838,31 +844,6 @@ class Rest_TicketsController extends Ch_RestController {
 	}
 	
 	//****
-	
-//	private function _postCreateAction($path) {
-//		$xmlstr = $this->getPayload();
-//		$xml_in = simplexml_load_string($xmlstr);
-//
-//		$fields = array();
-//		
-//		$flds = DAO_ContactOrg::getFields();
-//		unset($flds[DAO_ContactOrg::ID]);
-//		
-//		foreach($flds as $idx => $f) {
-//			@$value = (string) $xml_in->$idx;
-//			if(!empty($value)) {
-//				$fields[$idx] = $value;
-//			}
-//		}
-//		
-//		if(empty($fields[DAO_ContactOrg::NAME]))
-//			$this->_error("All required fields were not provided.");
-//		
-//		$id = DAO_ContactOrg::create($fields);
-//		
-//		// Render
-//		$this->_getIdAction(array($id));		
-//	}
 	
 	private function _postSearchAction($path) {
 		@$p_page = DevblocksPlatform::importGPC($_REQUEST['p'],'integer',0);		
@@ -1000,6 +981,248 @@ class Rest_TicketsController extends Ch_RestController {
 		$out_xml = new SimpleXMLElement('<success></success>');
 		$this->_render($out_xml->asXML());
 	}
+};
+
+class Rest_ParserController extends Ch_RestController {
+
+	//****
+
+	protected function getAction($path,$keychain) {
+//		if(Model_WebapiKey::ACL_NONE==intval(@$keychain->rights['acl_tickets']))
+//			$this->_error("Action not permitted.");
+//		
+//		// Single GET
+//		if(1==count($path) && is_numeric($path[0]))
+//			$this->_getIdAction($path);
+//		
+//		// Actions
+//		switch(array_shift($path)) {
+//			case 'list':
+//				$this->_getListAction($path);
+//				break;
+//		}
+	}
+
+	protected function putAction($path,$keychain) {
+//		if(Model_WebapiKey::ACL_FULL!=intval(@$keychain->rights['acl_tickets']))
+//			$this->_error("Action not permitted.");
+//		
+//		// Single PUT
+//		if(1==count($path) && is_numeric($path[0]))
+//			$this->_putIdAction($path);
+	}
+	
+	protected function postAction($path,$keychain) {
+		if(Model_WebapiKey::ACL_FULL != intval(@$keychain->rights['acl_parser']))
+			$this->_error("Action not permitted.");
+		
+		// Actions
+		switch(array_shift($path)) {
+			case 'parse':
+				$this->_postSourceParseAction($path);
+				break;
+			case 'queue':
+				$this->_postSourceQueueAction($path);
+				break;
+		}
+	}
+	
+	protected function deleteAction($path,$keychain) {
+//		if(Model_WebapiKey::ACL_FULL!=intval(@$keychain->rights['acl_tickets']))
+//			$this->_error("Action not permitted.");
+//		
+//		// Single DELETE
+//		if(1==count($path) && is_numeric($path[0]))
+//			$this->_deleteIdAction($path);
+	}
+	
+	//****
+	
+	private function _postSourceParseAction($path) {
+		$xml_in = simplexml_load_string($this->getPayload());
+
+		@$source = (string) $xml_in->source;
+		
+		if(empty($source))
+			$this->_error("No message source was provided.");
+		
+		$file = CerberusParser::saveMimeToFile($source);
+		$message = CerberusParser::parseMimeFile($file);
+		@unlink($file);
+		
+		$ticket_id = CerberusParser::parseMessage($message);
+
+		$ticket = DAO_Ticket::getTicket($ticket_id);
+		
+		$xml_out = new SimpleXMLElement("<ticket></ticket>");
+		$xml_out->addChild("id", $ticket_id);
+		$xml_out->addChild("mask", $ticket->mask);
+
+		// [TODO] Denote if ticket is new or reply?
+		
+		$this->_render($xml_out->asXML());
+	}
+	
+	private function _postSourceQueueAction($path) {
+		$xml_in = simplexml_load_string($this->getPayload());
+
+		@$source = (string) $xml_in->source;
+		
+		if(empty($source))
+			$this->_error("No message source was provided.");
+		
+		// Queue up in the new mail directory
+		$path = APP_MAIL_PATH . DIRECTORY_SEPARATOR . 'new';
+		$file = CerberusParser::saveMimeToFile($source, $path);
+		
+		$out_xml = new SimpleXMLElement('<success></success>');
+		$this->_render($out_xml->asXML());
+	}
+	
+};
+
+class Rest_FnrController extends Ch_RestController {
+
+	//****
+
+	protected function getAction($path,$keychain) {
+		if(Model_WebapiKey::ACL_NONE==intval(@$keychain->rights['acl_fnr']))
+			$this->_error("Action not permitted.");
+		
+		// Single GET
+//		if(1==count($path) && is_numeric($path[0]))
+//			$this->_getIdAction($path);
+		
+		// Actions
+		switch(array_shift($path)) {
+			case 'search':
+				$this->_getSearchAction($path);
+				break;
+			case 'topics':
+				switch(array_shift($path)) {
+					case 'list':
+						$this->_getTopicsListAction($path);
+						break;
+				}
+				break;
+		}
+	}
+
+	protected function putAction($path,$keychain) {
+//		if(Model_WebapiKey::ACL_FULL!=intval($keychain->rights['acl_tickets']))
+//			$this->_error("Action not permitted.");
+//		
+//		// Single PUT
+//		if(1==count($path) && is_numeric($path[0]))
+//			$this->_putIdAction($path);
+	}
+	
+	protected function postAction($path,$keychain) {
+//		if(Model_WebapiKey::ACL_FULL != intval(@$keychain->rights['acl_parser']))
+//			$this->_error("Action not permitted.");
+//		
+//		// Actions
+//		switch(array_shift($path)) {
+//			case 'parse':
+//				$this->_postSourceParseAction($path);
+//				break;
+//			case 'queue':
+//				$this->_postSourceQueueAction($path);
+//				break;
+//		}
+	}
+	
+	protected function deleteAction($path,$keychain) {
+//		if(Model_WebapiKey::ACL_FULL!=intval($keychain->rights['acl_tickets']))
+//			$this->_error("Action not permitted.");
+//		
+//		// Single DELETE
+//		if(1==count($path) && is_numeric($path[0]))
+//			$this->_deleteIdAction($path);
+	}
+	
+	//****
+	
+	private function _getTopicsListAction($path) {
+		$topics = DAO_FnrTopic::getWhere();
+
+		$xml_out = new SimpleXMLElement("<topics></topics>");
+		
+		foreach($topics as $topic_id => $topic) { /* @var $topic Model_FnrTopic */
+			$eTopic = $xml_out->addChild('topic');
+			$eTopic->addChild('id', $topic->id);
+			$eTopic->addChild('name', $topic->name);
+
+			$eResources = $eTopic->addChild('resources');
+			$resources = $topic->getResources();
+
+			foreach($resources as $resource) { /* @var $resource Model_FnrExternalResource */
+				$eResource = $eResources->addChild('resource');
+				$eResource->addChild('id', $resource->id);
+				$eResource->addChild('name', $resource->name);
+				$eResource->addChild('topic_id', $resource->topic_id);
+//				$eResource->addChild('url', $resource->url);
+			}
+		}
+		
+		$this->_render($xml_out->asXML());
+	}
+	
+	private function _getSearchAction($path) {
+		@$p_query = DevblocksPlatform::importGPC($_REQUEST['query'],'string','');
+		@$p_resources = DevblocksPlatform::importGPC($_REQUEST['resources'],'string','');
+		
+		$resource_where = null;
+		
+		// Specific topics only?
+		if(!empty($p_resources)) {
+			$db = DevblocksPlatform::getDatabaseService();
+			$resource_ids = DevblocksPlatform::parseCsvString($p_resources);
+			if(!empty($resource_ids)) {
+				$resource_where = sprintf("%s IN (%s)",
+					DAO_FnrExternalResource::ID,
+					$db->qstr(implode(',', $resource_ids))
+				);
+			}
+		}
+
+		$resources = DAO_FnrExternalResource::getWhere($resource_where);
+		
+		$feeds = Model_FnrExternalResource::searchResources(
+			$resources,
+			$p_query
+		);
+		
+		$xml_out = new SimpleXMLElement("<resources></resources>");
+		
+		foreach($feeds as $matches) {
+			$eMatch = $xml_out->addChild("resource");
+			$eMatch->addChild('name', $matches['name']);
+			$eMatch->addChild('topic', $matches['topic_name']);
+			$eMatch->addChild('link', $matches['feed']->link);
+			$eResults = $eMatch->addChild("results");
+			
+			foreach($matches['feed'] as $item) {
+				$eResult = $eResults->addChild("result");
+				
+				if($item instanceof Zend_Feed_Entry_Rss) {
+					$eResult->addChild('title', (string) $item->title());
+					$eResult->addChild('link', (string) $item->link());
+					$eResult->addChild('date', (string) $item->pubDate());
+					$eResult->addChild('description', (string) $item->description());
+					
+				} elseif($item instanceof Zend_Feed_Atom) {
+					$eResult->addChild('title', (string) $item->title());
+					$eResult->addChild('link', (string) $item->link['href']);
+					$eResult->addChild('date', (string) $item->published());
+					$eResult->addChild('description', (string) $item->summary());
+				}
+			}
+		}
+		
+		$this->_render($xml_out->asXML());
+	}
+	
 };
 
 ?>

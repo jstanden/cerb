@@ -106,96 +106,8 @@ class ParseCron extends CerberusCronPageExtension {
         echo "Decoding... "; //flush();
         $time = microtime(true);
         
-        $mail = mailparse_msg_parse_file($full_filename);
-		$struct = mailparse_msg_get_structure($mail);
-		$msginfo = mailparse_msg_get_part_data($mail);
-		
-		$message = new CerberusParserMessage();
-		$message->headers = $msginfo['headers'];
-		
-		$settings = CerberusSettings::getInstance();
-		$is_attachments_enabled = $settings->get(CerberusSettings::ATTACHMENTS_ENABLED,1);
-		$attachments_max_size = $settings->get(CerberusSettings::ATTACHMENTS_MAX_SIZE,10);
-		
-		foreach($struct as $st) {
-//		    echo "PART $st...<br>\r\n";
-
-		    $section = mailparse_msg_get_part($mail, $st);
-		    $info = mailparse_msg_get_part_data($section);
-		    
-		    // handle parts that shouldn't have a contact-name, don't handle twice
-		    $handled = 0;
-		    if(empty($info['content-name'])) {
-		        if($info['content-type'] == 'text/plain') {
-		            @$message->body .= @mailparse_msg_extract_part_file($section, $full_filename, NULL);
-		            $handled = 1;
-		        } elseif($info['content-type'] == 'text/html') {
-		            $message->htmlbody .= @mailparse_msg_extract_part_file($section, $full_filename, NULL);
-		            
-		            // [TODO] Add the html part as an attachment
-	                $tmpname = ParserFile::makeTempFilename();
-	                $html_attach = new ParserFile();
-	                $html_attach->setTempFile($tmpname,'text/html');
-	                @file_put_contents($tmpname,$message->htmlbody);
-	                $html_attach->file_size = filesize($tmpname);
-	                $message->files["original_message.html"] = $html_attach;
-	                unset($html_attach);
-		            $handled = 1;
-		        } elseif($info['content-type'] == 'message/rfc822') {
-					$message_content = mailparse_msg_extract_part_file($section, $full_filename, NULL);
-					
-		        	$message_counter = empty($message_counter) ? 1 : $message_counter + 1;
-	                $tmpname = ParserFile::makeTempFilename();
-	                $html_attach = new ParserFile();
-	                $html_attach->setTempFile($tmpname,'message/rfc822');
-	                @file_put_contents($tmpname,$message_content);
-	                $html_attach->file_size = filesize($tmpname);
-	                $message->files['inline'.$message_counter.'.msg'] = $html_attach;
-	                unset($html_attach);		        	 
-		            $handled = 1;
-		        }
-		    }
-		    
-		    // whether or not it has a content-name, we need to add it as an attachment (if not already handled)
-		    if ($handled == 0 && isset($info['content-disposition'])) {
-		        switch($info['content-disposition']) {
-		            case 'inline':
-		            case 'attachment':
-		                if(!$is_attachments_enabled) {
-		                    break; // skip attachment
-		                }
-					    $attach = new ParseCronFileBuffer($section, $info, $full_filename);
-		                
-					    // [TODO] This could be more efficient by not even saving in the first place above:
-	                    // Make sure our attachment is under the max preferred size
-					    if(filesize($attach->tmpname) > ($attachments_max_size * 1024000)) {
-					        @unlink($attach->tmpname);
-					        break;
-					    }
-					    
-					    // if un-named, call it "unnamed message part"
-					    if (!$info['content-name']) { $info['content-name'] = 'unnamed message part'; }
-	
-					    // content-name is not necessarily unique...
-						if ($message->files[$info['content-name']]) {
-							$j=1;
-							while ($message->files[$info['content-name'] . '(' . $j . ')']) {
-								$j++;
-							}
-							$info['content-name'] = $info['content-name'] . '(' . $j . ')';
-						}
-						$message->files[$info['content-name']] = $attach;
-					    
-		                break;
-		                
-		            default: // default?
-		                break;
-		        }
-		    }
-			    
-		    
-		}
-		
+		$message = CerberusParser::parseMimeFile($full_filename);
+				
         $time = microtime(true) - $time;
         echo "decoded! (",sprintf("%d",($time*1000))," ms)<br>\r\n"; //flush();
 		
@@ -206,15 +118,13 @@ class ParseCron extends CerberusCronPageExtension {
 //	    echo "<b>Files:</b> "; print_r($message->files); echo "<BR>";
 //	    echo "<HR>";
         
-	    mailparse_msg_free($mail);
-
         echo "Parsing... ";//flush();
         $time = microtime(true);
         $ticket_id = CerberusParser::parseMessage($message);
         $time = microtime(true) - $time;
         echo "parsed! (",sprintf("%d",($time*1000))," ms) (Ticket ID: ",$ticket_id,")<br>\r\n";
 
-        unlink($full_filename);
+        @unlink($full_filename);
 
 		echo "<hr>";
 		flush();

@@ -72,6 +72,9 @@
 		<td valign="middle">
 			<input type="hidden" name="ids[]" value="{$field_id}">
 			<input type="text" name="names[]" value="{$f->name|escape}" size="35" style="width:300;">
+			{if $type_code != 'D'}
+				<input type="hidden" name="options[]" value="">
+			{/if}
 		</td>
 	</tr>
 	{if $type_code=='D'}
@@ -86,8 +89,6 @@
 			</div>
 		</td>
 	</tr>
-	{else}
-		<input type="hidden" name="options[]" value="">
 	{/if}
 {/foreach}
 </table>
@@ -99,6 +100,6 @@
 </div>
 <br>
 
-<script>
+<script type="text/javascript">
 	var configAjax = new cConfigAjax();
 </script>

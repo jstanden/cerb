@@ -9,13 +9,12 @@
       		<td>
       			{if isset($headers.from)}
       				{if $expanded}
-      					<h3 style="display:inline;">From: {$headers.from|escape:"htmlall"|nl2br}</h3>
+      					<h3 style="display:inline;color:rgb(50,120,50);">From: {$headers.from|escape:"htmlall"|nl2br}</h3>
       				{else}
       					<b style="color:rgb(50,120,50);">From: {$headers.from|escape:"htmlall"|nl2br}</b>
       				{/if}
       				<a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&address_id={$message->address_id}', this, false, '500px',ajax.cbAddressPeek);">address book</a>
       				
-      				{if $expanded} | <a href="#{$message->id}act">actions</a>{/if}
       				<br>
       			{/if}
       		</td>
@@ -23,7 +22,7 @@
 		      {if !$expanded}
 				<a href="javascript:;" onclick="genericAjaxGet('{$message->id}t','c=display&a=getMessage&id={$message->id}',function(o){literal}{{/literal}document.getElementById('{$message->id}t').innerHTML = o.responseText;document.location='#{$message->id}t';{literal}}{/literal});">retrieve full message</a>
 			  {else}
-			  	<a href="javascript:;" onclick="toggleDiv('{$message->id}sh');toggleDiv('{$message->id}h');">show full headers</a>
+			  	<a href="javascript:;" onclick="genericAjaxGet('{$message->id}t','c=display&a=getMessage&id={$message->id}&hide=1',function(o){literal}{{/literal}document.getElementById('{$message->id}t').innerHTML = o.responseText;document.location='#{$message->id}t';{literal}}{/literal});">hide message</a>
       		  {/if}
       		</td>
       	</tr>
@@ -50,6 +49,13 @@
       	{/foreach}
       	{/if}
       </div>
+      
+      {if $expanded}
+      <div style="margin:2px;margin-left:10px;">
+      	 <a href="javascript:;" onclick="toggleDiv('{$message->id}sh');toggleDiv('{$message->id}h');">full headers</a>
+      	 | <a href="#{$message->id}act">skip to bottom</a>
+      </div>
+      {/if}
       
       <div style="display:block;">
       	{if $expanded}

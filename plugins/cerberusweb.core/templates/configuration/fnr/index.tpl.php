@@ -28,6 +28,6 @@
 
 </div>
 
-<script>
+<script type="text/javascript">
 	var configAjax = new cConfigAjax();
 </script>

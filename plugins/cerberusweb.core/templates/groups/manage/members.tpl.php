@@ -18,7 +18,7 @@
 			<td style="padding-left:20px;">
 				<input type="hidden" name="worker_ids[]" value="{$worker_id}">
 				<select name="worker_levels[]">
-					<option value=""></option>
+					<option value="">&nbsp;</option>
 					<option value="1" {if $member && !$member->is_manager}selected{/if}>Member</option>
 					<option value="2" {if $member && $member->is_manager}selected{/if}>Manager</option>
 				</select>

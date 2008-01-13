@@ -32,7 +32,7 @@
       		{/foreach}
       	</select></td>
 	</tr>
-	<!---
+	<!--
 	<tr>
 		<td width="0%" nowrap="nowrap">Organization:</td>
 		<td width="100%">
@@ -45,7 +45,7 @@
 			<input type="text" name="country" value="" size="35">
 		</td>
 	</tr>
-	--->
+	-->
 </table>
 
 <br>

@@ -1,4 +1,4 @@
-<div class="block">
+<div class="block" id="configMailboxOutgoing">
 <table cellpadding="2" cellspacing="0" border="0">
 	<tr>
 		<td><h2>Outgoing Mail</h2></td>
@@ -62,7 +62,7 @@
 			<textarea name="default_signature" rows="4" cols="76">{$settings->get('default_signature')|escape:"html"}</textarea><br>
 			<div style="padding-left:10px;">
 				E-mail Signature Variables: 
-				<select name="" onchange="this.form.default_signature.value += this.options[this.selectedIndex].value;scrollElementToBottom(this.form.default_signature);this.selectedIndex=0;this.form.default_signature.focus();">
+				<select name="sig_vars" onchange="this.form.default_signature.value += this.options[this.selectedIndex].value;scrollElementToBottom(this.form.default_signature);this.selectedIndex=0;this.form.default_signature.focus();">
 					<option value="">-- choose --</option>
 					<optgroup label="Worker">
 						<option value="#first_name#">#first_name#</option>

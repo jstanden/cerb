@@ -1,8 +1,12 @@
-<div style="position: relative; width:100%; height: 30;">
-	<span style="position: absolute; left: 0; top:0;"><h1 style="display:inline;">Organizations</h1>&nbsp;
+<table cellspacing="0" cellpadding="0" border="0" width="100%" style="padding-bottom:5px;">
+<tr>
+	<td width="1%" nowrap="nowrap" valign="top" style="padding-right:5px;">
+		<h1>Organizations</h1>
+	</td>
+	<td width="98%" valign="middle">
 		{include file="file:$path/contacts/menu.tpl.php"}
-	</span>
-	<span style="position: absolute; right: 0; top:0;">
+	</td>
+	<td width="1%" nowrap="nowrap" valign="middle" align="right">
 		<form action="{devblocks_url}{/devblocks_url}" method="post">
 		<input type="hidden" name="c" value="contacts">
 		<input type="hidden" name="a" value="doOrgQuickSearch">
@@ -11,8 +15,9 @@
 			<option value="phone">Phone</option>
 		</select><input type="text" name="query" size="24"><input type="submit" value="go!">
 		</form>
-	</span>
-</div>
+	</td>
+</tr>
+</table>
 
 <table cellpadding="0" cellspacing="0" border="0">
 	<tr>

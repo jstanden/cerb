@@ -6,17 +6,17 @@
 
 <a name="routing"></a>
 <div id="tourConfigMailRouting"></div>
-<span id="configMailboxRouting">{include file="file:$path/configuration/mail/mail_routing.tpl.php"}</span>
+{include file="file:$path/configuration/mail/mail_routing.tpl.php"}
 <br>
 
 <a name="incoming"></a>
-<span id="configMailboxIncoming">{include file="file:$path/configuration/mail/incoming_settings.tpl.php"}</span>
+{include file="file:$path/configuration/mail/incoming_settings.tpl.php"}
 <br>
 
 <a name="outgoing"></a>
-<span id="configMailboxOutgoing">{include file="file:$path/configuration/mail/outgoing_settings.tpl.php"}</span>
+{include file="file:$path/configuration/mail/outgoing_settings.tpl.php"}
 <br>
 
-<script>
+<script type="text/javascript">
 	var configAjax = new cConfigAjax();
 </script>

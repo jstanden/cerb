@@ -52,7 +52,7 @@
 	</div>
 	<textarea name="signature" rows="4" cols="76">{$team->signature}</textarea><br>
 		E-mail Tokens: 
-		<select name="" onchange="this.form.signature.value += this.options[this.selectedIndex].value;scrollElementToBottom(this.form.signature);this.selectedIndex=0;this.form.signature.focus();">
+		<select name="sig_token" onchange="this.form.signature.value += this.options[this.selectedIndex].value;scrollElementToBottom(this.form.signature);this.selectedIndex=0;this.form.signature.focus();">
 			<option value="">-- choose --</option>
 			<optgroup label="Worker">
 				<option value="#first_name#">First Name</option>
@@ -78,7 +78,7 @@
 		<b>Send the following message:</b><br>
 		<textarea name="auto_reply" rows="6" cols="76">{$group_settings.auto_reply}</textarea><br>
 			E-mail Tokens: 
-			<select name="" onchange="this.form.auto_reply.value += this.options[this.selectedIndex].value;scrollElementToBottom(this.form.auto_reply);this.selectedIndex=0;this.form.auto_reply.focus();">
+			<select name="autoreply_token" onchange="this.form.auto_reply.value += this.options[this.selectedIndex].value;scrollElementToBottom(this.form.auto_reply);this.selectedIndex=0;this.form.auto_reply.focus();">
 				<option value="">-- choose --</option>
 				<optgroup label="Ticket">
 					<option value="#mask#">Mask/ID</option>

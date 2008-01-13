@@ -93,7 +93,7 @@
 							<tr>
 								<td width="0%" nowrap="nowrap" valign="top"><b>Attachments:</b>&nbsp; </td>
 								<td width="100%">
-									<input type="file" name="attachment[]" size="45"></input> 
+									<input type="file" name="attachment[]" size="45"> 
 									<a href="javascript:;" onclick="appendFileInput('displayReplyAttachments','attachment[]');">attach another file</a>
 									<div id="displayReplyAttachments"></div>
 								</td>

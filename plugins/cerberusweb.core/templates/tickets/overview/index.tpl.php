@@ -1,8 +1,12 @@
-<div style="position: relative; width:100%; height: 30;">
-	<span style="position: absolute; left: 0; top:0;"><h1 style="display:inline;">Overview</h1>&nbsp;
+<table cellspacing="0" cellpadding="0" border="0" width="100%" style="padding-bottom:5px;">
+<tr>
+	<td width="1%" nowrap="nowrap" valign="top" style="padding-right:5px;">
+		<h1>Overview</h1>
+	</td>
+	<td width="98%" valign="middle">
 		{include file="file:$path/tickets/menu.tpl.php"}
-	</span>
-	<span style="position: absolute; right: 0; top:0;">
+	</td>
+	<td width="1%" valign="middle" nowrap="nowrap">
 		<form action="{devblocks_url}{/devblocks_url}" method="post">
 		<input type="hidden" name="c" value="tickets">
 		<input type="hidden" name="a" value="doQuickSearch">
@@ -13,13 +17,14 @@
 			<option value="content"{if $quick_search_type eq 'content'}selected{/if}>Content</option>
 		</select><input type="text" name="query" size="24"><input type="submit" value="go!">
 		</form>
-	</span>
-</div>
+	</td>
+</tr>
+</table>
 
 <table border="0" cellpadding="0" cellspacing="0" width="100%">
   <tbody>
     <tr>
-      <td nowrap="nowrap" width="0%" nowrap="nowrap" valign="top">
+      <td width="0%" nowrap="nowrap" valign="top">
       	<div id="overviewTotals">
       		{include file="file:$path/tickets/overview/sidebar.tpl.php"}
 		</div>			

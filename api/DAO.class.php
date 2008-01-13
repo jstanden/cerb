@@ -4074,8 +4074,8 @@ class SearchFields_Community implements IDevblocksSearchFields {
 	 */
 	static function getFields() {
 		return array(
-			SearchFields_Community::ID => new DevblocksSearchField(SearchFields_Community::ID, 'c', 'id'),
-			SearchFields_Community::NAME => new DevblocksSearchField(SearchFields_Community::NAME, 'c', 'name'),
+			self::ID => new DevblocksSearchField(self::ID, 'c', 'id'),
+			self::NAME => new DevblocksSearchField(self::NAME, 'c', 'name'),
 		);
 	}
 };	
@@ -4895,6 +4895,114 @@ class DAO_MailTemplateReply extends DevblocksORMHelper {
 	}
 };
 
+class DAO_TicketComment extends DevblocksORMHelper {
+	const ID = 'id';
+	const TICKET_ID = 'ticket_id';
+	const WORKER_ID = 'worker_id';
+	const CREATED = 'created';
+	const COMMENT = 'comment';
+
+	static function create($fields) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$id = $db->GenID('ticket_comment_seq');
+		
+		$sql = sprintf("INSERT INTO ticket_comment (id) ".
+			"VALUES (%d)",
+			$id
+		);
+		$db->Execute($sql);
+		
+		self::update($id, $fields);
+		
+		return $id;
+	}
+	
+	static function update($ids, $fields) {
+		parent::_update($ids, 'ticket_comment', $fields);
+	}
+	
+	/**
+	 * @param string $where
+	 * @return Model_TicketComment[]
+	 */
+	static function getWhere($where=null) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = "SELECT id, ticket_id, worker_id, created, comment ".
+			"FROM ticket_comment ".
+			(!empty($where) ? sprintf("WHERE %s ",$where) : "").
+			"ORDER BY created asc";
+		$rs = $db->Execute($sql);
+		
+		return self::_getObjectsFromResult($rs);
+	}
+	
+	static function getByTicketId($id) {
+		return self::getWhere(sprintf("%s = %d",
+			self::TICKET_ID,
+			$id
+		));
+	}
+	
+	static function getCountByTicketId($id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = sprintf("SELECT count(id) FROM ticket_comment WHERE ticket_id = %d",
+			$id
+		);
+		return $db->GetOne($sql);
+	}
+
+	/**
+	 * @param integer $id
+	 * @return Model_TicketComment	 */
+	static function get($id) {
+		$objects = self::getWhere(sprintf("%s = %d",
+			self::ID,
+			$id
+		));
+		
+		if(isset($objects[$id]))
+			return $objects[$id];
+		
+		return null;
+	}
+	
+	/**
+	 * @param ADORecordSet $rs
+	 * @return Model_TicketComment[]
+	 */
+	static private function _getObjectsFromResult($rs) {
+		$objects = array();
+		
+		while(!$rs->EOF) {
+			$object = new Model_TicketComment();
+			$object->id = $rs->fields['id'];
+			$object->ticket_id = $rs->fields['ticket_id'];
+			$object->worker_id = $rs->fields['worker_id'];
+			$object->created = $rs->fields['created'];
+			$object->comment = $rs->fields['comment'];
+			$objects[$object->id] = $object;
+			$rs->MoveNext();
+		}
+		
+		return $objects;
+	}
+	
+	static function delete($ids) {
+		if(!is_array($ids)) $ids = array($ids);
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$ids_list = implode(',', $ids);
+		
+		$db->Execute(sprintf("DELETE FROM ticket_comment WHERE id IN (%s)", $ids_list));
+		
+		return true;
+	}
+
+};
+
 class DAO_TicketField extends DevblocksORMHelper {
 	const ID = 'id';
 	const NAME = 'name';
@@ -5021,6 +5129,17 @@ class DAO_TicketFieldValue extends DevblocksORMHelper {
 		);
 	}
 	
+	public static function unsetFieldValue($ticket_id, $field_id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = sprintf("DELETE FROM ticket_field_value WHERE ticket_id = %d AND field_id = %d",
+			$ticket_id,
+			$field_id
+		);
+		
+		return $db->Execute($sql);
+	}
+	
 	public static function getValuesByTickets($ticket_ids) {
 		if(!is_array($ticket_ids)) $ticket_ids = array($ticket_ids);
 		$db = DevblocksPlatform::getDatabaseService();
@@ -5052,6 +5171,21 @@ class DAO_TicketFieldValue extends DevblocksORMHelper {
 		}
 		
 		return $tickets;
+	}
+	
+	public static function getValueCountByTicketId($id, $group_id=null) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = sprintf("SELECT count(v.field_value) ".
+			"FROM ticket_field_value v ".
+			"INNER JOIN ticket_field f ON (f.id=v.field_id) ".
+			"WHERE v.ticket_id = %d ".
+			"%s",
+			$id,
+			(!is_null($group_id) ? sprintf("AND (f.group_id=0 OR f.group_id=%d) ",$group_id) : " ")
+		);
+		
+		return $db->GetOne($sql);
 	}
 	
 	public static function clearFieldValues($field_id) {

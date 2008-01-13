@@ -78,14 +78,31 @@
 		<br>
 	</form>
 	</td>
-	<td width="0%" nowrap="nowrap" valign="middle">
+	<td width="0%" nowrap="nowrap" valign="top" align="right">
+		<form action="{devblocks_url}{/devblocks_url}" method="post">
+		<input type="hidden" name="c" value="tickets">
+		<input type="hidden" name="a" value="doQuickSearch">
+		<span id="tourHeaderQuickLookup"><b>Quick Search:</b></span> <select name="type">
+			<option value="sender"{if $quick_search_type eq 'sender'}selected{/if}>Sender</option>
+			<option value="mask"{if $quick_search_type eq 'mask'}selected{/if}>Ticket ID</option>
+			<option value="subject"{if $quick_search_type eq 'subject'}selected{/if}>Subject</option>
+			<option value="content"{if $quick_search_type eq 'content'}selected{/if}>Content</option>
+		</select><input type="text" name="query" size="24"><input type="submit" value="go!">
+		</form>
+
 		{if !empty($series_stats.next) || !empty($series_stats.prev)}
-		<div style="padding:10px;margin:10px;border:1px solid rgb(180,180,255);background-color:rgb(245,245,255);text-align:center;">
-			Active list: <b>{$series_stats.title}</b><br>
-			{if !empty($series_stats.prev)}<a href="{devblocks_url}c=display&id={$series_stats.prev}{/devblocks_url}">&laquo;Prev</a>{/if} 
-			 ({$series_stats.cur}-{$series_stats.count} of {$series_stats.total}) 
-			{if !empty($series_stats.next)}<a href="{devblocks_url}c=display&id={$series_stats.next}{/devblocks_url}">Next&raquo;</a>{/if}
-		</div>
+		<table cellpadding="0" cellspacing="0" border="0" style="margin:0px;">
+			<tr>
+				<td>	
+				<div style="padding:10px;margin-top:5px;border:1px solid rgb(180,180,255);background-color:rgb(245,245,255);text-align:center;">
+					Active list: <b>{$series_stats.title}</b><br>
+					{if !empty($series_stats.prev)}<a href="{devblocks_url}c=display&id={$series_stats.prev}{/devblocks_url}">&laquo;Prev</a>{/if} 
+					 ({$series_stats.cur}-{$series_stats.count} of {$series_stats.total}) 
+					{if !empty($series_stats.next)}<a href="{devblocks_url}c=display&id={$series_stats.next}{/devblocks_url}">Next&raquo;</a>{/if}
+				</div>
+				</td>
+			</tr>
+		</table>
 		{/if}
 	</td>
 </tr>
@@ -95,7 +112,7 @@
 <div id="displayOptions"></div> 
 <br>
 
-<script>
+<script type="text/javascript">
 {literal}
 var tabView = new YAHOO.widget.TabView();
 
@@ -103,25 +120,35 @@ tabView.addTab( new YAHOO.widget.Tab({
     label: 'Conversation',
     dataSrc: '{/literal}{devblocks_url}ajax.php?c=display&a=showConversation&ticket_id={$ticket->id}{/devblocks_url}{literal}',
     cacheData: true,
-    active: true
+    {/literal}active: {if empty($tab_selected)}true{else}false{/if}{literal}
+}));
+
+tabView.addTab( new YAHOO.widget.Tab({
+    label: 'Comments ({/literal}{$comments_total}{literal})',
+    dataSrc: '{/literal}{devblocks_url}ajax.php?c=display&a=showComments&ticket_id={$ticket->id}{/devblocks_url}{literal}',
+    cacheData: true,
+    {/literal}active: {if 'comments'==$tab_selected}true{else}false{/if}{literal}
 }));
 
 tabView.addTab( new YAHOO.widget.Tab({
     label: 'Properties',
     dataSrc: '{/literal}{devblocks_url}ajax.php?c=display&a=showProperties&ticket_id={$ticket->id}{/devblocks_url}{literal}',
-    cacheData: true
+    cacheData: true,
+    {/literal}active: {if 'properties'==$tab_selected}true{else}false{/if}{literal}
 }));
 
 tabView.addTab( new YAHOO.widget.Tab({
-    label: 'Custom Fields',
+    label: 'Custom Fields ({/literal}{$field_values_total}{literal})',
     dataSrc: '{/literal}{devblocks_url}ajax.php?c=display&a=showCustomFields&ticket_id={$ticket->id}{/devblocks_url}{literal}',
-    cacheData: true
+    cacheData: true,
+    {/literal}active: {if 'fields'==$tab_selected}true{else}false{/if}{literal}
 }));
 
 tabView.addTab( new YAHOO.widget.Tab({
     label: 'Sender History',
     dataSrc: '{/literal}{devblocks_url}ajax.php?c=display&a=showContactHistory&ticket_id={$ticket->id}{/devblocks_url}{literal}',
-    cacheData: true
+    cacheData: true,
+    {/literal}active: {if 'history'==$tab_selected}true{else}false{/if}{literal}
 }));
 {/literal}
 
@@ -137,6 +164,6 @@ tabView.addTab( new YAHOO.widget.Tab({
 tabView.appendTo('displayOptions');
 </script>
 
-<script>
+<script type="text/javascript">
 	var displayAjax = new cDisplayTicketAjax('{$ticket->id}');
 </script>

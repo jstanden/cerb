@@ -5318,10 +5318,15 @@ class ChDisplayPage extends CerberusPageExtension {
 		$response = DevblocksPlatform::getHttpResponse();
 		$stack = $response->path;
 
-		@$id = $stack[1];
+		@array_shift($stack); // display
+		
+		@$id = array_shift($stack);
 		
 		$tab_manifests = DevblocksPlatform::getExtensions('cerberusweb.ticket.tab', false);
 		$tpl->assign('tab_manifests', $tab_manifests);
+
+		@$tab_selected = array_shift($stack);
+		$tpl->assign('tab_selected', $tab_selected);
 		
 		// [JAS]: Mask
 		if(!is_numeric($id)) {
@@ -5371,6 +5376,17 @@ class ChDisplayPage extends CerberusPageExtension {
 				$tpl->assign('series_stats', $series_stats);
 			}
 		}
+		
+		$quick_search_type = $visit->get('quick_search_type');
+		$tpl->assign('quick_search_type', $quick_search_type);
+				
+		// Comments [TODO] Eventually this can be cached on ticket.num_comments
+		$comments_total = DAO_TicketComment::getCountByTicketId($id);
+		$tpl->assign('comments_total', $comments_total);
+		
+		// Custom Field Values [TODO] Eventually this can be cached on ticket.num_custom_fields
+		$field_values_total = DAO_TicketFieldValue::getValueCountByTicketId($id, $ticket->team_id);
+		$tpl->assign('field_values_total', $field_values_total);
 		
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
@@ -5467,6 +5483,7 @@ class ChDisplayPage extends CerberusPageExtension {
 
 	function getMessageAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']); // message id
+		@$hide = DevblocksPlatform::importGPC($_REQUEST['hide'],'integer',0);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
@@ -5486,7 +5503,8 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		// [TODO] Workers?
 		
-		$tpl->assign('expanded', true);
+		$tpl->assign('expanded', (empty($hide) ? true : false));
+		
 		$tpl->register_modifier('makehrefs', array('CerberusUtils', 'smarty_modifier_makehrefs')); 
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/conversation/message.tpl.php');
 	}
@@ -5731,6 +5749,65 @@ class ChDisplayPage extends CerberusPageExtension {
 		$tpl->register_modifier('makehrefs', array('CerberusUtils', 'smarty_modifier_makehrefs')); 
 		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/conversation/index.tpl.php');
+	}
+	
+	function showCommentsAction() {
+		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer');
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+
+		$tpl->assign('ticket_id', $ticket_id);
+		
+		$comments = DAO_TicketComment::getByTicketId($ticket_id);
+		arsort($comments);
+		$tpl->assign('comments', $comments);
+		
+		$workers = DAO_Worker::getAll();
+		$tpl->assign('workers', $workers);
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/comments/index.tpl.php');
+	}
+	
+	function saveCommentAction() {
+		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer');
+		@$comment = DevblocksPlatform::importGPC($_REQUEST['comment'],'string','');
+		
+		@$worker_id = CerberusApplication::getActiveWorker()->id;
+		
+		if(empty($worker_id) || empty($ticket_id) || empty($comment))
+			DevblocksPlatform::redirect(new DevblocksHttpResponse(array('display',$ticket_id)));
+			
+		$fields = array(
+			DAO_TicketComment::CREATED => time(),
+			DAO_TicketComment::TICKET_ID => $ticket_id,
+			DAO_TicketComment::WORKER_ID => $worker_id,
+			DAO_TicketComment::COMMENT => $comment,
+		);
+		$comment_id = DAO_TicketComment::create($fields);
+		
+		@$ticket = DAO_Ticket::getTicket($ticket_id);
+		
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('display',$ticket->mask,'comments')));
+	}
+	
+	function deleteCommentAction() {
+		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer',0);
+		@$comment_id = DevblocksPlatform::importGPC($_REQUEST['comment_id'],'integer',0);
+		
+		@$worker_id = CerberusApplication::getActiveWorker()->id;
+		
+		if(empty($worker_id) || empty($ticket_id) || empty($comment_id))
+			DevblocksPlatform::redirect(new DevblocksHttpResponse(array('display',$ticket_id)));
+		
+		@$active_worker = CerberusApplication::getActiveWorker();
+
+		$comment = DAO_TicketComment::get($comment_id);
+		
+		if(!empty($active_worker) && ($active_worker->is_superuser || $active_worker->id==$comment->worker_id))
+			DAO_TicketComment::delete($comment_id);
+		
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('display',$ticket_id,'comments')));
 	}
 	
 	function showPropertiesAction() {
@@ -5986,12 +6063,19 @@ class ChDisplayPage extends CerberusPageExtension {
 			switch($fields[$field_id]->type) {
 				case Model_TicketField::TYPE_MULTI_LINE:
 				case Model_TicketField::TYPE_SINGLE_LINE:
-					DAO_TicketFieldValue::setFieldValue($ticket_id, $field_id, $field_value);
+					if(!empty($field_value)) {
+						DAO_TicketFieldValue::setFieldValue($ticket_id, $field_id, $field_value);
+					} else {
+						DAO_TicketFieldValue::unsetFieldValue($ticket_id, $field_id);
+					}
 					break;
 					
 				case Model_TicketField::TYPE_DROPDOWN:
-					// [TODO] Handle null as unset
-					DAO_TicketFieldValue::setFieldValue($ticket_id, $field_id, $field_value);
+					if(!empty($field_value)) {
+						DAO_TicketFieldValue::setFieldValue($ticket_id, $field_id, $field_value);
+					} else {
+						DAO_TicketFieldValue::unsetFieldValue($ticket_id, $field_id);
+					}
 					break;
 					
 				case Model_TicketField::TYPE_CHECKBOX:
@@ -6006,7 +6090,7 @@ class ChDisplayPage extends CerberusPageExtension {
 			}
 		}
 		
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('display',$ticket->mask)));
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('display',$ticket->mask))); //,'fields'
 	}
 	
 	// Ajax

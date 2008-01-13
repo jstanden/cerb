@@ -21,12 +21,12 @@
 				{assign var=field value=$param->field}
 					<tr>
 						<td width="100%">
-						<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/data_find.gif{/devblocks_url}" align="absmiddle"> 
+						<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/data_find.gif{/devblocks_url}" align="top"> 
 						{$translate->_($view_fields.$field->db_label)|capitalize} 
 						{$param->operator}
 						<b>{$view->renderCriteriaParam($param)}</b>
 						</td>
-						<td width="0%" nowrap="nowrap" valign="top"><a href="javascript:;" onclick="document.{$view->id}_criteriaForm.field.value='{$param->field}';document.{$view->id}_criteriaForm.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/data_error.gif{/devblocks_url}" border="0" align="absmiddle"></a></td>
+						<td width="0%" nowrap="nowrap" valign="top"><a href="javascript:;" onclick="document.{$view->id}_criteriaForm.field.value='{$param->field}';document.{$view->id}_criteriaForm.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/data_error.gif{/devblocks_url}" border="0" align="top"></a></td>
 					</tr>
 				{/foreach}
 				{/if}

@@ -40,6 +40,7 @@
 	{/foreach}
 	</optgroup>
 	
+	{if 1}
 	<optgroup label="Custom Fields">
 	{foreach from=$optColumns item=optColumn}
 		{if substr($optColumn->token,0,3) == "cf_"}
@@ -49,6 +50,7 @@
 		{/if}
 	{/foreach}
 	</optgroup>
+	{/if}
 	
 </select>
 <br>
