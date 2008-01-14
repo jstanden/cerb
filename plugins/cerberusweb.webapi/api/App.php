@@ -1052,15 +1052,18 @@ class Rest_ParserController extends Ch_RestController {
 		
 		$ticket_id = CerberusParser::parseMessage($message);
 
-		$ticket = DAO_Ticket::getTicket($ticket_id);
-		
-		$xml_out = new SimpleXMLElement("<ticket></ticket>");
-		$xml_out->addChild("id", $ticket_id);
-		$xml_out->addChild("mask", $ticket->mask);
+		if(null != ($ticket = DAO_Ticket::getTicket($ticket_id))) {
+			// [TODO] Denote if ticket is new or reply?
+			$xml_out = new SimpleXMLElement("<ticket></ticket>");
+			$xml_out->addChild("id", $ticket_id);
+			$xml_out->addChild("mask", $ticket->mask);
+			$this->_render($xml_out->asXML());
+			
+		} else {
+			$this->_error("Message could not be parsed.");
+			
+		}
 
-		// [TODO] Denote if ticket is new or reply?
-		
-		$this->_render($xml_out->asXML());
 	}
 	
 	private function _postSourceQueueAction($path) {

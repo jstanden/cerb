@@ -912,7 +912,7 @@ class DAO_Address extends DevblocksORMHelper {
 			return NULL;
 		
 		// [TODO] Validate
-		$addresses = imap_rfc822_parse_adrlist('<'.$email.'>', 'host');
+		@$addresses = imap_rfc822_parse_adrlist('<'.$email.'>', 'host');
 		
 		if(!is_array($addresses) || empty($addresses))
 			return NULL;

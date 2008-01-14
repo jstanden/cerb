@@ -49,6 +49,7 @@
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
 class CerberusParserMessage {
+    public $encoding = '';
     public $headers = array();
     public $body = '';
     public $htmlbody = '';
@@ -111,7 +112,8 @@ class CerberusParser {
 		$msginfo = mailparse_msg_get_part_data($mime);
 		
 		$message = new CerberusParserMessage();
-		$message->headers = $msginfo['headers'];
+		@$message->encoding = $msginfo['content-charset'];
+		@$message->headers = $msginfo['headers'];
 		
 		$settings = CerberusSettings::getInstance();
 		$is_attachments_enabled = $settings->get(CerberusSettings::ATTACHMENTS_ENABLED,1);
@@ -127,8 +129,15 @@ class CerberusParser {
 		    $handled = 0;
 		    if(empty($info['content-name'])) {
 		        if($info['content-type'] == 'text/plain') {
-	            	@$message->body .= mailparse_msg_extract_part_file($section, $full_filename, NULL);
-		            $handled = 1;
+					$text = mailparse_msg_extract_part_file($section, $full_filename, NULL);
+					
+					if(isset($info['content-charset']) && !empty($info['content-charset']))
+						$text = mb_convert_encoding($text, "ISO-8859-1", $info['content-charset']);
+					
+	            	@$message->body .= $text;
+	            	
+	            	unset($text);
+	            	$handled = 1;
 		            
 		        } elseif($info['content-type'] == 'text/html') {
 	        		@$message->htmlbody .= mailparse_msg_extract_part_file($section, $full_filename, NULL);
@@ -251,10 +260,8 @@ class CerberusParser {
 		// Subject
 		$sSubject = (isset($headers['subject']) && !empty($headers['subject'])) ? $headers['subject'] : '(no subject)';
 		
-		// If quote printable subject
-		if(0 == strcmp(substr($sSubject,0,2),'=?')) {
-		    $sSubject = self::fixQuotePrintableString($sSubject);
-		}
+		// If quote printable subject (quoted blocks can appear anywhere in subject)
+	    $sSubject = self::fixQuotePrintableString($sSubject);
 		
 		// Date
 		$iDate = @strtotime($headers['date']);
@@ -709,6 +716,8 @@ class CerberusParser {
             )
 	    );
 		
+	    @imap_errors(); // Prevent errors from spilling out into STDOUT
+	    
 		return $id;
 	}
 
@@ -766,22 +775,22 @@ class CerberusParser {
 		$aXEnvelopeTo = array();
 		$aDeliveredTo = array();
 		
-		$aTo = imap_rfc822_parse_adrlist(@$headers['to'],'localhost');
+		@$aTo = imap_rfc822_parse_adrlist(@$headers['to'],'localhost');
 		
 		if(isset($headers['cc'])) {
-			$aCc = imap_rfc822_parse_adrlist($headers['cc'],'localhost');
+			@$aCc = imap_rfc822_parse_adrlist($headers['cc'],'localhost');
 			if(!is_array($aCc)) $aCc = array($aCc);
 		}
 		if(isset($headers['envelope-to'])) {
-			$aEnvelopeTo = imap_rfc822_parse_adrlist(@$headers['envelope-to'],'localhost');
+			@$aEnvelopeTo = imap_rfc822_parse_adrlist(@$headers['envelope-to'],'localhost');
 			if(!is_array($aEnvelopeTo)) $aEnvelopeTo = array($aEnvelopeTo);
 		}
 		if(isset($headers['x-envelope-to'])) {
-			$aXEnvelopeTo = imap_rfc822_parse_adrlist($headers['x-envelope-to'],'localhost');
+			@$aXEnvelopeTo = imap_rfc822_parse_adrlist($headers['x-envelope-to'],'localhost');
 			if(!is_array($aXEnvelopeTo)) $aXEnvelopeTo = array($aXEnvelopeTo);
 		}
 		if(isset($headers['delivered-to'])) {
-			$aDeliveredTo = imap_rfc822_parse_adrlist($headers['delivered-to'],'localhost');
+			@$aDeliveredTo = imap_rfc822_parse_adrlist($headers['delivered-to'],'localhost');
 			if(!is_array($aDeliveredTo)) $aDeliveredTo = array($aDeliveredTo);
 		}
 		
@@ -796,6 +805,8 @@ class CerberusParser {
 			
 			$addresses[] = $destination->mailbox.'@'.$destination->host;
 		}
+		
+		@imap_errors(); // Prevent errors from spilling out into STDOUT
 		
 		return $addresses;
 	}
@@ -844,10 +855,10 @@ class CerberusParser {
 	}
 	
 	static private function fixQuotePrintableString($str) {
-		$out = imap_utf8($str);		
+//		$text = mb_convert_encoding($text, "ISO-8859-1", $info['content-charset']);
+		$out = utf8_decode(imap_utf8($str)); // [TODO] to ISO is temporary
 		return $out;
 	}
-
 	
 };
 ?>
