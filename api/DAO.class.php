@@ -922,12 +922,22 @@ class DAO_Address extends DevblocksORMHelper {
 		if(empty($address->host) || $address->host == 'host')
 			return NULL;
 		
-		$sql = sprintf("INSERT INTO address (id,email,first_name,last_name,phone,contact_org_id,num_spam,num_nonspam,is_banned,last_autoreply) ".
-			"VALUES (%d,%s,'','','',0,0,0,0,0)",
-			$id,
-			$db->qstr(trim(strtolower($address->mailbox.'@'.$address->host)))
-		);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$full_address = trim(strtolower($address->mailbox.'@'.$address->host));
+			
+		// Make sure the address doesn't exist already
+		if(null == ($check = self::getByEmail($full_address))) {
+			$sql = sprintf("INSERT INTO address (id,email,first_name,last_name,phone,contact_org_id,num_spam,num_nonspam,is_banned,last_autoreply) ".
+				"VALUES (%d,%s,'','','',0,0,0,0,0)",
+				$id,
+				$db->qstr($full_address)
+			);
+			$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+
+		} else { // update
+			$id = $check->id;
+			unset($fields[self::ID]);
+			unset($fields[self::EMAIL]);
+		}
 
 		self::update($id, $fields);
 		
@@ -989,6 +999,23 @@ class DAO_Address extends DevblocksORMHelper {
 		return $addresses;
 	}
 
+	/**
+	 * @return Model_Address|null
+	 */
+	static function getByEmail($email) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$results = self::getWhere(sprintf("%s = %s",
+			self::EMAIL,
+			$db->qstr($email)
+		));
+
+		if(!empty($results))
+			return array_shift($results);
+			
+		return NULL;
+	}
+	
 	/**
 	 * Enter description here...
 	 *
