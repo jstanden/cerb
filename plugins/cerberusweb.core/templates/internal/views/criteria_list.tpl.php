@@ -10,11 +10,12 @@
 	<tr>
 		<td nowrap="nowrap">
 			<h2 style="display:inline;">Current Criteria</h2>
-			[ <a href="javascript:;" onclick="document.{$view->id}_criteriaForm.a.value='viewResetCriteria';document.{$view->id}_criteriaForm.submit();">reset</a> ]
+			[ <a href="javascript:;" onclick="document.{$view->id}_criteriaForm.a.value='viewResetCriteria';document.{$view->id}_criteriaForm.submit();toggleDiv('criteriaDiv');">reset</a> ]
 		</td>
 	</tr>
 	<tr>
 		<td>
+		<div id="criteriaDiv" style="display:block;">
 			<table cellpadding="2" cellspacing="0" border="0">
 				{if !empty($view->params)}
 				{foreach from=$view->params item=param}
@@ -31,6 +32,7 @@
 				{/foreach}
 				{/if}
 			</table>
+		</div>
 		</td>
 	</tr>
 </table>
