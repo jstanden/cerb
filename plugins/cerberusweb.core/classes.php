@@ -543,7 +543,6 @@ class ChTicketsPage extends CerberusPageExtension {
 						$overView->params = array(
 							SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN),
 							SearchFields_Ticket::TICKET_WAITING => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_WAITING,'=',1),
-//							SearchFields_Ticket::TICKET_NEXT_WORKER_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_NEXT_WORKER_ID,'=',0),
 						);
 						
 						if(!is_null($filter_waiting_id) && isset($groups[$filter_waiting_id])) {
@@ -557,9 +556,6 @@ class ChTicketsPage extends CerberusPageExtension {
 								@$title .= ': '.
 									(($filter_bucket_id == 0) ? 'Inbox' : $group_buckets[$filter_waiting_id][$filter_bucket_id]->name);
 								$overView->params[SearchFields_Ticket::TICKET_CATEGORY_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CATEGORY_ID,'=',$filter_bucket_id);
-							} else {
-								@$title .= ' (Spam Filtered)';
-								$overView->params[SearchFields_Ticket::TICKET_SPAM_SCORE] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_SPAM_SCORE,'<=','0.9000');								
 							}
 						}
 
@@ -2894,6 +2890,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		// Clean off the wrapper
 		@$lines = explode("\r\n", trim($key));
 		$company = '';
+		$users = 0;
 		$features = array();
 		$key = '';
 		$valid=0;
@@ -2905,6 +2902,8 @@ class ChConfigurationPage extends CerberusPageExtension  {
 			if(preg_match("/^(.*?)\: (.*?)$/",$line,$matches)) {
 				if(0==strcmp($matches[1],"Company"))
 					$company = $matches[2];
+				if(0==strcmp($matches[1],"Users"))
+					$users = $matches[2];
 				if(0==strcmp($matches[1],"Feature"))
 					$features[$matches[2]] = true;
 			} else {
@@ -2917,9 +2916,10 @@ class ChConfigurationPage extends CerberusPageExtension  {
 			return;
 		}
 		
-		// Save for reuse in form in case we need to redraw
+		// Save for reuse in form in case we need to redraw on error
 		$settings = CerberusSettings::getInstance();
 		$settings->set('company', trim($company));
+		$_SESSION['lk_users'] = intval($users);
 		
 		ksort($features);
 		
@@ -2932,6 +2932,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$license = CerberusLicense::getInstance();
 		// $license['name'] = CerberusHelper::strip_magic_quotes($company,'string');
 		$license['name'] = $company;
+		$license['users'] = intval($users);
 		$license['features'] = $features;
 		$license['key'] = CerberusHelper::strip_magic_quotes($key,'string');
 		

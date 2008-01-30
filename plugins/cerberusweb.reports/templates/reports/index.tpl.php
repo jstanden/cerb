@@ -10,6 +10,7 @@
 		</td>
 	</tr>
 	
+	<!-- 
 	<tr>
 		<td valign="top">
 			<div id="reportAverageResponseTime"></div>
@@ -18,6 +19,7 @@
 			<div id="xxxxx"></div>
 		</td>
 	</tr>
+	 -->
 	
 	<tr>
 		<td><br></td>
@@ -31,7 +33,7 @@
 YAHOO.util.Event.addListener(window,'load',function(e) {
 	genericAjaxGet('reportNewTickets','c=reports&a=getNewTicketsReport&age=30');
 	genericAjaxGet('reportWorkerReplies','c=reports&a=getWorkerRepliesReport&age=30');
-	genericAjaxGet('reportAverageResponseTime','c=reports&a=getAverageResponseTimeReport&age=30');
+	//genericAjaxGet('reportAverageResponseTime','c=reports&a=getAverageResponseTimeReport&age=30');
 });
 {/literal}
 </script>

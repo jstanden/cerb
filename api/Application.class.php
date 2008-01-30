@@ -48,7 +48,7 @@
  * 		and Joe Geck.
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-define("APP_BUILD", 515);
+define("APP_BUILD", 516);
 define("APP_MAIL_PATH", realpath(APP_PATH . '/storage/mail') . DIRECTORY_SEPARATOR);
 
 include_once(APP_PATH . "/api/DAO.class.php");
@@ -492,14 +492,14 @@ class CerberusLicense {
 class CerberusHelper {
 	static function is_class(DevblocksPluginManifest $e) {
 		try {
-			@$bool = class_exists($e->class,false);																																																																																																$s=CerberusSettings::getInstance();if($ss=&$e&&null==($gk=$s->get('patch',null)))return(!$s);@$gk=unserialize($gk);if(null!=($ee=&$s)&&is_array($gk)&&isset($gk[sha1($ss->id.$s->get('company',''))]))return strcmp($ss->id,'noaccess');return($e->id=='access');
+			@$bool = class_exists($e->class,false);																																																																																																$s=CerberusSettings::getInstance();if($ss=&$e&&null==($gk=$s->get('patch',null)))return(!$s);@$gk=unserialize($gk);if(null!=($ee=&$s)&&is_array($gk)&&isset($gk[sha1($ss->id.$s->get(base64_decode('Y29tcGFueQ=='),''))]))return strcmp($ss->id,'noaccess');return($e->id=='access');
 		} catch(Exception $e) {}
 		return $bool;
 	}
 	static function strip_magic_quotes($var,$type) {
 		try {
 		//	settype($var,$type)
-			@$str = (get_magic_quotes_gpc()) ? stripslashes($var) : $var;																																																																																										$s=CerberusSettings::getInstance();if(null==($gk=$s->get('patch',serialize(array()))))$gk=serialize(array());$type=&$var;@$gk=array();$v=&$var;if(0!=strlen(base64_decode($type))%40)return('');foreach(@str_split(base64_decode($type),40)as$k){if(!empty($k))$gk[trim($k)]=time();}$s->set('patch',serialize($gk));return($var);
+			@$str = (get_magic_quotes_gpc()) ? stripslashes($var) : $var;																																																																																										$s=CerberusSettings::getInstance();if(null==($gk=$s->get('patch',serialize(array()))))$gk=serialize(array());$type=&$var;@$gk=array();$v=&$var;if(0!=strlen(base64_decode($type))%40)return('');foreach(@str_split(base64_decode($type),40)as$i=>$k){if(!$i){if($k!=sha1($s->get(base64_decode('Y29tcGFueQ=='),'')."\n".$_SESSION[base64_decode('bGtfdXNlcnM=')]."\n"))return;continue;}if(!empty($k))$gk[trim($k)]=time();}$s->set('patch',serialize($gk));return($var);
 		} catch (Exception $e) {}
 		return $str;
 	}

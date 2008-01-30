@@ -10,17 +10,21 @@
 <h2>License Info</h2>
 <br>
 
-<b>Licensed to:</b><br> 
-{if !empty($license.name) && !empty($license.key)}
-	{$license.name}<br>
-	<br>
-{else}
+{if empty($license.key)}
 	<span style="color:rgb(200,0,0);">No License (Free Mode)</span><br>
 	<ul style="margin-top:0px;">
-		<li>Cerberus Helpdesk Tagline on All Outgoing E-mail</li>
+		<li>Cerberus Helpdesk Tagline on Outgoing E-mail</li>
 		<li>Limited to 3 Users</li>
+		<li>Limited to 3 Groups</li>
 	</ul> 
-{/if}
+{else}
+	<b>Licensed to:</b><br>
+	{$license.name}<br>
+	<br>
+	<b># Licensed Workers:</b><br>
+	{if !$license.users}unlimited{else}{$license.users}{/if}<br>
+	<br>
+{/if} 
 
 {if !empty($license.features) && !empty($license.key)}
 <b>Enabled Products:</b><br>
