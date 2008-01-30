@@ -897,6 +897,85 @@ foreach($rules as $rule_id => $rule) {
 	}
 }
 
+// Merge any addresses that managed to get into the DB mixed case
+$rs = $db->Execute("SELECT count(id) AS hits, lower(email) AS email FROM address GROUP BY lower(email) HAVING count(id) > 1"); /* @var $rs ADORecordSet */
+
+if(!$rs->EOF) {
+	while(!$rs->EOF) {
+		$rs2 = $db->Execute(sprintf("SELECT id,email,lower(email) as orig_email FROM address WHERE lower(email) = %s",
+			$db->qstr($rs->fields['email'])
+		));
+	
+		$ids = array();
+		$best_id = 0;
+		$ids_not_best = array();
+		
+		if(!$rs2->EOF)
+		while(!$rs2->EOF) {
+			$ids[] = intval($rs2->fields['id']);
+			if(0==strcmp($rs2->fields['orig_email'], $rs2->fields['email'])) {
+				$best_id = intval($rs2->fields['id']);
+			} else {
+				$ids_not_best[] = intval($rs2->fields['id']);
+			}
+			$rs2->MoveNext();
+		}
+		
+		if(empty($ids_not_best))
+			$best_id = array_shift($ids_not_best);
+
+		if(!empty($best_id) && !empty($ids_not_best)) {
+			// Address Auth (remove dupes)
+			$db->Execute(sprintf("DELETE FROM address_auth WHERE address_id IN (%s)",
+				implode(',', $ids_not_best)
+			));
+	
+			// Messages (merge dupe senders)
+			$db->Execute(sprintf("UPDATE message SET address_id = %d WHERE address_id IN (%s)",
+				$best_id,
+				implode(',', $ids_not_best)
+			));
+			
+			// Requester (merge dupe reqs)
+			$db->Execute(sprintf("UPDATE requester SET address_id = %d WHERE address_id IN (%s)",
+				$best_id,
+				implode(',', $ids_not_best)
+			));
+			$db->Execute(sprintf("DELETE FROM requester WHERE address_id IN (%s)",
+				implode(',', $ids_not_best)
+			));
+			
+			// Ticket: First Wrote (merge dupe reqs)
+			$db->Execute(sprintf("UPDATE ticket SET first_wrote_address_id = %d WHERE first_wrote_address_id IN (%s)",
+				$best_id,
+				implode(',', $ids_not_best)
+			));
+			$db->Execute(sprintf("DELETE FROM ticket WHERE first_wrote_address_id IN (%s)",
+				implode(',', $ids_not_best)
+			));
+	
+			// Ticket: Last Wrote (merge dupe reqs)
+			$db->Execute(sprintf("UPDATE ticket SET last_wrote_address_id = %d WHERE last_wrote_address_id IN (%s)",
+				$best_id,
+				implode(',', $ids_not_best)
+			));
+			$db->Execute(sprintf("DELETE FROM ticket WHERE last_wrote_address_id IN (%s)",
+				implode(',', $ids_not_best)
+			));
+	
+			// Addresses
+			$db->Execute(sprintf("DELETE FROM address WHERE id IN (%s)",
+				implode(',', $ids_not_best)
+			));
+		}
+		
+		$rs->MoveNext();
+	}
+}
+
+// [TODO] This should probably be checked (though MySQL needs special BINARY syntax)
+$db->Execute("UPDATE address SET email = LOWER(email)");
+
 // Enable heartbeat cron
 if(null != ($cron_mf = DevblocksPlatform::getExtension('cron.heartbeat'))) {
 	if(null != ($cron = $cron_mf->createInstance())) {

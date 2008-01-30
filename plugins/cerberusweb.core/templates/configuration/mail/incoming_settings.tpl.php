@@ -9,6 +9,22 @@
 			<input type="hidden" name="c" value="config">
 			<input type="hidden" name="a" value="saveIncomingMailSettings">
 
+			{if !empty($pop3_accounts)}
+				{foreach from=$pop3_accounts item=pop3}
+					{include file="$path/configuration/mail/edit_pop3_account.tpl.php" pop3_account=$pop3}
+				{/foreach}
+			{/if}
+			
+			[ <a href="javascript:;" onclick="toggleDiv('configMailAddMailbox');">Add New Mailbox</a> ]
+			<br>
+			<br>
+			
+			<div id="configMailAddMailbox" style="display:none;margin-left:20px;">
+			{include file="$path/configuration/mail/edit_pop3_account.tpl.php" pop3_account=null}
+			</div>
+
+			<h3>Incoming Mail Settings</h3>
+
 			<b>Reply to All:</b><br>
 			<label><input type="checkbox" name="parser_autoreq" value="1" {if $settings->get('parser_autoreq')}checked{/if}> Add All TO/CC Recipients As Ticket Requesters</label><br>
 			<br>

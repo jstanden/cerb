@@ -1,4 +1,4 @@
-<h1>Create Inbox Routing Rule</h1>
+<h1>Create Inbox Filter</h1>
 
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="frmSaveAddInboxRule">
 <input type="hidden" name="c" value="tickets">

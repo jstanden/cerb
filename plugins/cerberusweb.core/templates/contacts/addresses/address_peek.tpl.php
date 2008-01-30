@@ -12,11 +12,27 @@
 <input type="hidden" name="id" value="{$address.a_id}">
 <input type="hidden" name="view_id" value="{$view_id}">
 
-<table cellpadding="0" cellspacing="2" border="0">
+<table cellpadding="0" cellspacing="2" border="0" width="98%">
 	<tr>
 		<td width="0%" nowrap="nowrap" align="right">E-mail: </td>
-		{if $id == 0}<td width="100%"><input type="text" name="email" style="width:98%;"></td>
-		{else}<td width="100%"><b>{$address.a_email}</b></td>{/if}
+		<td width="100%">
+			{if $id == 0}
+				{if !empty($email)}
+					<input type="hidden" name="email" value="{$email}">
+					<b>{$email}</b>
+				{else}
+					<input type="text" name="email" style="width:98%;" value="{$email}">
+				{/if}
+			{else}
+				<b>{$address.a_email}</b>
+
+				{* Domain Shortcut *}
+				{assign var=email_parts value=$address.a_email|explode:'@'}
+				{if is_array($email_parts) && 2==count($email_parts)}
+					(<a href="http://{$email_parts.1}" target="_blank">{$email_parts.1}</a>)
+				{/if}
+			{/if}
+		</td>
 	</tr>
 	<tr>
 		<td width="0%" nowrap="nowrap" align="right">First Name: </td>

@@ -5,7 +5,7 @@
 <input type="hidden" name="c" value="groups">
 <input type="hidden" name="a" value="addTeamRouting">
 <input type="hidden" name="team_id" value="{$team->id}">
-<h2>Add Inbox Mail Rule</h2>
+<h2>Add Inbox Filter</h2>
 
 <b>If incoming ticket:</b>
 <!-- 
@@ -115,7 +115,7 @@
 
 {if !empty($team_rules)}
 <div class="block">
-<h2>Inbox Auto-Sorting</h2>
+<h2>Inbox Filters</h2>
 <table cellspacing="2" cellpadding="0">
 	{counter start=0 print=false}
 	{foreach from=$team_rules item=rule key=rule_id name=rules}

@@ -315,6 +315,7 @@ class Model_Address {
 	public $email = '';
 	public $first_name = '';
 	public $last_name = '';
+	public $phone = '';
 	public $contact_org_id = 0;
 	public $num_spam = 0;
 	public $num_nonspam = 0;
@@ -1528,8 +1529,7 @@ class CerberusVisit extends DevblocksVisit {
 	public function setWorker(CerberusWorker $worker=null) {
 		$this->worker = $worker;
 	}
-
-}
+};
 
 class C4_Overview {
 	static function getGroupTotals() {
@@ -1565,6 +1565,41 @@ class C4_Overview {
 		}
 
 		return $group_counts;
+	}
+
+	static function getWaitingTotals() {
+		$db = DevblocksPlatform::getDatabaseService();
+
+		$active_worker = CerberusApplication::getActiveWorker();
+		$memberships = $active_worker->getMemberships();
+
+		// Waiting For Reply Loads
+		$sql = sprintf("SELECT count(*) AS hits, team_id, category_id ".
+		"FROM ticket ".
+		"WHERE is_waiting = 1 AND is_closed = 0 AND is_deleted = 0 ".
+//		"AND next_worker_id = 0 ".
+		"GROUP BY team_id, category_id "
+		);
+		$rs_buckets = $db->Execute($sql);
+
+		$waiting_counts = array();
+		while(!$rs_buckets->EOF) {
+			$team_id = intval($rs_buckets->fields['team_id']);
+			$category_id = intval($rs_buckets->fields['category_id']);
+			$hits = intval($rs_buckets->fields['hits']);
+				
+			if(isset($memberships[$team_id])) {
+				if(!isset($waiting_counts[$team_id]))
+				$waiting_counts[$team_id] = array();
+
+				$waiting_counts[$team_id][$category_id] = $hits;
+				@$waiting_counts[$team_id]['total'] = intval($waiting_counts[$team_id]['total']) + $hits;
+			}
+				
+			$rs_buckets->MoveNext();
+		}
+
+		return $waiting_counts;
 	}
 
 	static function getWorkerTotals() {

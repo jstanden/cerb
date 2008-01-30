@@ -21,7 +21,7 @@
     
 {if !empty($group_counts)}
 <div class="block">
-<h2>Unassigned</h2>
+<h2>Available</h2>
 <table cellspacing="0" cellpadding="2" border="0" width="220">
 <tr>
 	<td><a href="{devblocks_url}c=tickets&a=overview&all=all{/devblocks_url}">All</a></td>
@@ -38,6 +38,39 @@
 				{if !empty($counts.0)}<a href="{devblocks_url}c=tickets&a=overview&s=group&gid={$group_id}&bid=0{/devblocks_url}">Inbox</a> <span style="color:rgb(150,150,150);">({$counts.0})</span><br>{/if}
 				{foreach from=$group_buckets.$group_id key=bucket_id item=b}
 					{if !empty($counts.$bucket_id)}	<a href="{devblocks_url}c=tickets&a=overview&s=group&gid={$group_id}&bid={$bucket_id}{/devblocks_url}">{$b->name}</a> <span style="color:rgb(150,150,150);"> ({$counts.$bucket_id})</span><br>{/if}
+				{/foreach}
+				</div>
+			</td>
+			<td valign="top"> &nbsp; </td>
+		</tr>
+	{/if}
+{/foreach}
+</table>
+</div>
+<br>
+{/if}
+
+{if !empty($waiting_counts)}
+<div class="block">
+<h2>Waiting</h2>
+<table cellspacing="0" cellpadding="2" border="0" width="220">
+<!-- 
+<tr>
+	<td><a href="{devblocks_url}c=tickets&a=overview&all=all{/devblocks_url}">All</a></td>
+	<td></td>
+</tr>
+ -->
+{foreach from=$groups key=group_id item=group}
+	{assign var=counts value=$waiting_counts.$group_id}
+	{if !empty($counts.total)}
+		<tr>
+			<td style="padding-right:20px;" nowrap="nowrap" valign="top">
+				<a href="javascript:;" onclick="toggleDiv('expandWaiting{$group_id}');" style="font-weight:bold;">{$groups.$group_id->name}</a> <span style="color:rgb(150,150,150);">({$counts.total})</span>
+				<div id="expandWaiting{$group_id}" style="display:{if $filter_waiting_id==$group_id}block{else}none{/if};padding-left:10px;padding-bottom:0px;">
+				<a href="{devblocks_url}c=tickets&a=overview&s=waiting&gid={$group_id}{/devblocks_url}">- All -</a><br>
+				{if !empty($counts.0)}<a href="{devblocks_url}c=tickets&a=overview&s=waiting&gid={$group_id}&bid=0{/devblocks_url}">Inbox</a> <span style="color:rgb(150,150,150);">({$counts.0})</span><br>{/if}
+				{foreach from=$group_buckets.$group_id key=bucket_id item=b}
+					{if !empty($counts.$bucket_id)}	<a href="{devblocks_url}c=tickets&a=overview&s=waiting&gid={$group_id}&bid={$bucket_id}{/devblocks_url}">{$b->name}</a> <span style="color:rgb(150,150,150);"> ({$counts.$bucket_id})</span><br>{/if}
 				{/foreach}
 				</div>
 			</td>

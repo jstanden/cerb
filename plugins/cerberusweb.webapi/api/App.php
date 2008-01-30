@@ -303,6 +303,10 @@ abstract class Ch_RestController implements DevblocksHttpRequestHandler {
 		@$this->_payload = $this->_getRawPost();
 		@list($auth_access_key,$auth_signature) = explode(":", $header_signature, 2);
 		
+		if(!$this->_validateRfcDate($header_date)) {
+			$this->_error("Access denied! (Invalid timestamp)");
+		}
+		
 		$stored_keychains = DAO_WebapiKey::getWhere(sprintf("%s = %s",
 			DAO_WebapiKey::ACCESS_KEY,
 			$db->qstr(str_replace(' ','',$auth_access_key))
@@ -313,11 +317,15 @@ abstract class Ch_RestController implements DevblocksHttpRequestHandler {
 			@$auth_secret_key = $stored_keychain->secret_key;
 			@$auth_rights = $stored_keychain->rights;
 			
-			$string_to_sign = "$verb\n$header_date\n$this->_payload\n$auth_secret_key\n";
-			$compare_hash = base64_encode(sha1($string_to_sign));
+			$url_parts = parse_url(DevblocksPlatform::getWebPath());
+			$url_path = $url_parts['path'];
+			$url_query = $this->_sortQueryString($_SERVER['QUERY_STRING']);
+			
+			$string_to_sign = "$verb\n$header_date\n$url_path\n$url_query\n$this->_payload\n$auth_secret_key\n";
+			$compare_hash = base64_encode(sha1($string_to_sign,true));
 
 			if(0 != strcmp($auth_signature,$compare_hash)) {
-				$this->_error("Access denied!");
+				$this->_error("Access denied! (Invalid signature)");
 			}
 			
 			// Check that this IP is allowed to perform the VERB
@@ -326,7 +334,7 @@ abstract class Ch_RestController implements DevblocksHttpRequestHandler {
 			}
 
 		} else {
-			$this->_error("Access denied! (Invalid signature)");
+			$this->_error("Access denied! (Unknown access key)");
 		}
 		// **** END AUTH
 		
@@ -340,6 +348,34 @@ abstract class Ch_RestController implements DevblocksHttpRequestHandler {
 		if(method_exists($this,$method)) {
 			call_user_func(array(&$this,$method),$stack,$stored_keychain);
 		}
+	}
+	
+	private function _sortQueryString($query) {
+		// Strip the leading ?
+		if(substr($query,0,1)=='?') $query = substr($query,1);
+		$args = array();
+		$parts = explode('&', $query);
+		foreach($parts as $part) {
+			$pair = explode('=', $part, 2);
+			if(is_array($pair) && 2==count($pair))
+				$args[$pair[0]] = $part;
+		}
+		ksort($args);
+		return implode("&", $args);
+	}
+	
+	/**
+	 * Enter description here...
+	 *
+	 * @param string $rfcDate
+	 * @return boolean
+	 */
+	private function _validateRfcDate($rfcDate) {
+		$diff_allowed = 600; // 10 min
+		$mktime_rfcdate = strtotime($rfcDate);
+		$mktime_rfcnow = strtotime(date('r'));
+		$diff = $mktime_rfcnow - $mktime_rfcdate;
+		return ($diff > (-1*$diff_allowed) && $diff < $diff_allowed) ? true : false;
 	}
 	
 	protected function _render($xml) {

@@ -42,6 +42,11 @@
 			<param key="message_id" />
 			<param key="worker_id" />
 		</event>
+		<event id="address.peek.saved">
+			<name>Address Peek Saved</name>
+			<param key="address_id" />
+			<param key="changed_fields" />
+		</event>
 		<event id="cron.heartbeat">
 			<name>Heartbeat</name>
 		</event>

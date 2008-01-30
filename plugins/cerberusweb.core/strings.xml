@@ -35,9 +35,7 @@
 			</tuv>
 		</tu>
 		<tu tuid='common.customize'>
-			<tuv xml:lang="en">
-				<seg>customize</seg>
-			</tuv>
+			<tuv xml:lang="en"><seg>customize</seg></tuv>
 		</tu>
 		<tu tuid='common.delete'>
 			<tuv xml:lang="en">

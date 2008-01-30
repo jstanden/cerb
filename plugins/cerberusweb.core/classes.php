@@ -427,8 +427,13 @@ class ChTicketsPage extends CerberusPageExtension {
 				
 				$memberships = $active_worker->getMemberships();
 
+				// Totals
+				
 				$group_counts = C4_Overview::getGroupTotals();
 				$tpl->assign('group_counts', $group_counts);
+
+				$waiting_counts = C4_Overview::getWaitingTotals();
+				$tpl->assign('waiting_counts', $waiting_counts);
 				
 				$worker_counts = C4_Overview::getWorkerTotals();
 				$tpl->assign('worker_counts', $worker_counts);
@@ -523,6 +528,34 @@ class ChTicketsPage extends CerberusPageExtension {
 								$tpl->assign('filter_bucket_id', $filter_bucket_id);
 								@$title .= ': '.
 									(($filter_bucket_id == 0) ? 'Inbox' : $group_buckets[$filter_group_id][$filter_bucket_id]->name);
+								$overView->params[SearchFields_Ticket::TICKET_CATEGORY_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CATEGORY_ID,'=',$filter_bucket_id);
+							} else {
+								@$title .= ' (Spam Filtered)';
+								$overView->params[SearchFields_Ticket::TICKET_SPAM_SCORE] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_SPAM_SCORE,'<=','0.9000');								
+							}
+						}
+
+						break;
+						
+					case 'waiting':
+						@$filter_waiting_id = array_shift($response_path);
+						
+						$overView->params = array(
+							SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN),
+							SearchFields_Ticket::TICKET_WAITING => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_WAITING,'=',1),
+//							SearchFields_Ticket::TICKET_NEXT_WORKER_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_NEXT_WORKER_ID,'=',0),
+						);
+						
+						if(!is_null($filter_waiting_id) && isset($groups[$filter_waiting_id])) {
+							$tpl->assign('filter_waiting_id', $filter_waiting_id);
+							$title = '[Waiting] ' . $groups[$filter_waiting_id]->name;
+							$overView->params[SearchFields_Ticket::TEAM_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'=',$filter_waiting_id);
+							
+							@$filter_bucket_id = array_shift($response_path);
+							if(!is_null($filter_bucket_id)) {
+								$tpl->assign('filter_bucket_id', $filter_bucket_id);
+								@$title .= ': '.
+									(($filter_bucket_id == 0) ? 'Inbox' : $group_buckets[$filter_waiting_id][$filter_bucket_id]->name);
 								$overView->params[SearchFields_Ticket::TICKET_CATEGORY_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CATEGORY_ID,'=',$filter_bucket_id);
 							} else {
 								@$title .= ' (Spam Filtered)';
@@ -673,6 +706,11 @@ class ChTicketsPage extends CerberusPageExtension {
 				if(!empty($filter_group_id))
 					$tpl->assign('filter_group_id', $filter_group_id);
 				break;
+			case 'waiting':
+				@$filter_waiting_id = array_shift($response_path);
+				if(!empty($filter_waiting_id))
+					$tpl->assign('filter_waiting_id', $filter_waiting_id);
+				break;
 		}
 		
 		$groups = DAO_Group::getAll();
@@ -689,6 +727,9 @@ class ChTicketsPage extends CerberusPageExtension {
 		
 		$group_counts = C4_Overview::getGroupTotals();
 		$tpl->assign('group_counts', $group_counts);
+		
+		$waiting_counts = C4_Overview::getWaitingTotals();
+		$tpl->assign('waiting_counts', $waiting_counts);
 		
 		$worker_counts = C4_Overview::getWorkerTotals();
 		$tpl->assign('worker_counts', $worker_counts);
@@ -2463,9 +2504,12 @@ class ChConfigurationPage extends CerberusPageExtension  {
 				
 				$routing = DAO_Mail::getMailboxRouting();
 				$tpl->assign('routing', $routing);
-		
+
 				$teams = DAO_Group::getAll();
 				$tpl->assign('teams', $teams);
+
+				$pop3_accounts = DAO_Mail::getPop3Accounts();
+				$tpl->assign('pop3_accounts', $pop3_accounts);
 				
 				$smtp_host = $settings->get(CerberusSettings::SMTP_HOST,'');
 				$smtp_port = $settings->get(CerberusSettings::SMTP_PORT,25);
@@ -3190,6 +3234,84 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	    $settings->set(CerberusSettings::ATTACHMENTS_MAX_SIZE, $attachments_max_size);
 	    $settings->set(CerberusSettings::PARSER_AUTO_REQ, $parser_autoreq);
 	    $settings->set(CerberusSettings::PARSER_AUTO_REQ_EXCLUDE, $parser_autoreq_exclude);
+		
+	    // Pop3 Accounts
+
+		@$ar_ids = DevblocksPlatform::importGPC($_POST['account_id'],'array');
+		@$ar_enabled = DevblocksPlatform::importGPC($_POST['pop3_enabled'],'array');
+		@$ar_nickname = DevblocksPlatform::importGPC($_POST['nickname'],'array');
+		@$ar_protocol = DevblocksPlatform::importGPC($_POST['protocol'],'array');
+		@$ar_host = DevblocksPlatform::importGPC($_POST['host'],'array');
+		@$ar_username = DevblocksPlatform::importGPC($_POST['username'],'array');
+		@$ar_password = DevblocksPlatform::importGPC($_POST['password'],'array');
+		@$ar_port = DevblocksPlatform::importGPC($_POST['port'],'array');
+		@$ar_delete = DevblocksPlatform::importGPC($_POST['delete'],'array');
+
+		if(!is_array($ar_ids))
+		    return;
+		    
+		foreach($ar_ids as $idx => $id) {
+		    $nickname = $ar_nickname[$idx];
+		    $protocol = $ar_protocol[$idx];
+		    $host = $ar_host[$idx];
+		    $username = $ar_username[$idx];
+		    $password = $ar_password[$idx];
+		    $port = $ar_port[$idx];
+		    
+			if(empty($nickname)) $nickname = "No Nickname";
+			
+			// Defaults
+			if(empty($port)) {
+			    switch($protocol) {
+			        case 'pop3':
+			            $port = 110; 
+			            break;
+			        case 'pop3-ssl':
+			            $port = 995;
+			            break;
+			        case 'imap':
+			            $port = 143;
+			            break;
+			        case 'imap-ssl':
+			            $port = 993;
+			            break;
+			    }
+			}
+			
+			if(!empty($id) && is_numeric(array_search($id, $ar_delete))) {
+				DAO_Mail::deletePop3Account($id);
+				
+			} elseif(!empty($id)) {
+			    $enabled = (is_array($ar_enabled) && is_numeric(array_search($id, $ar_enabled))) ? 1 : 0;
+			    
+			    // [JAS]: [TODO] convert to field constants
+				$fields = array(
+				    'enabled' => $enabled,
+					'nickname' => $nickname,
+					'protocol' => $protocol,
+					'host' => $host,
+					'username' => $username,
+					'password' => $password,
+					'port' => $port
+				);
+				DAO_Mail::updatePop3Account($id, $fields);
+				
+			} else {
+	            if(!empty($host) && !empty($username)) {
+				    // [JAS]: [TODO] convert to field constants
+	                $fields = array(
+					    'enabled' => 1,
+						'nickname' => $nickname,
+						'protocol' => $protocol,
+						'host' => $host,
+						'username' => $username,
+						'password' => $password,
+						'port' => $port
+					);
+				    $id = DAO_Mail::createPop3Account($fields);
+	            }
+			}
+		}
 		
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','mail')));
 	}
@@ -3964,6 +4086,7 @@ class ChContactsPage extends CerberusPageExtension {
 				@$email = $addy->email;
 			}
 		}
+		$tpl->assign('email', $email);
 		
 		if(!empty($email)) {
 			list($addresses,$null) = DAO_Address::search(
@@ -4080,11 +4203,11 @@ class ChContactsPage extends CerberusPageExtension {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
-		@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string','');
-		@$first_name = DevblocksPlatform::importGPC($_REQUEST['first_name'],'string','');
-		@$last_name = DevblocksPlatform::importGPC($_REQUEST['last_name'],'string','');
-		@$phone = DevblocksPlatform::importGPC($_REQUEST['phone'],'string','');
-		@$contact_org = DevblocksPlatform::importGPC($_REQUEST['contact_org'],'string','');
+		@$email = trim(DevblocksPlatform::importGPC($_REQUEST['email'],'string',''));
+		@$first_name = trim(DevblocksPlatform::importGPC($_REQUEST['first_name'],'string',''));
+		@$last_name = trim(DevblocksPlatform::importGPC($_REQUEST['last_name'],'string',''));
+		@$phone = trim(DevblocksPlatform::importGPC($_REQUEST['phone'],'string',''));
+		@$contact_org = trim(DevblocksPlatform::importGPC($_REQUEST['contact_org'],'string',''));
 		@$sla_id = DevblocksPlatform::importGPC($_REQUEST['sla_id'],'integer',0);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string', '');
 		
@@ -4115,6 +4238,20 @@ class ChContactsPage extends CerberusPageExtension {
 			DAO_Address::update($id, $fields);	
 		}
 
+		/*
+		 * Notify anything that wants to know when Address Peek saves.
+		 */
+	    $eventMgr = DevblocksPlatform::getEventService();
+	    $eventMgr->trigger(
+	        new Model_DevblocksEvent(
+	            'address.peek.saved',
+                array(
+                    'address_id' => $id,
+                    'changed_fields' => $fields,
+                )
+            )
+	    );
+		
 		// Update SLA+Priority on any open tickets from this address
 		DAO_Sla::cascadeAddressSla($id, $sla_id);
 		

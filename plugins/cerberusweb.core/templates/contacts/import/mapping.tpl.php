@@ -62,7 +62,9 @@
 
 <b>Options:</b><br>
 <label><input type="checkbox" name="include_first" value="1"> Import the first row (only check this if the dropdowns contain real data)</label><br>
+{if $type=="addys"}
 <label><input type="checkbox" name="replace_passwords" value="1"> Replace all passwords with import values, even if they already exist</label><br>
+{/if}
 <br>
 
 <h2>Synchronization</h2>

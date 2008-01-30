@@ -886,7 +886,7 @@ class DAO_Address extends DevblocksORMHelper {
 			'contact_org_id' => $translate->_('address.contact_org_id'),
 			'num_spam' => $translate->_('address.num_spam'),
 			'num_nonspam' => $translate->_('address.num_nonspam'),
-			'is_banned' => $translate->_('sla.is_banned'),
+			'is_banned' => $translate->_('address.is_banned'),
 			'sla_id' => $translate->_('sla.name'),
 //			'last_autoreply' => $translate->_('sla.name'),
 		);
@@ -1007,7 +1007,7 @@ class DAO_Address extends DevblocksORMHelper {
 		
 		$results = self::getWhere(sprintf("%s = %s",
 			self::EMAIL,
-			$db->qstr($email)
+			$db->qstr(strtolower($email))
 		));
 
 		if(!empty($results))
@@ -1049,8 +1049,10 @@ class DAO_Address extends DevblocksORMHelper {
 		
 		$address = null;
 		
+		$email = trim(strtolower($email));
+		
 		$addresses = self::getWhere(sprintf("email = %s",
-			$db->qstr(trim(strtolower($email)))
+			$db->qstr($email)
 		));
 		
 		if(is_array($addresses) && !empty($addresses)) {
