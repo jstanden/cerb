@@ -28,6 +28,11 @@ tabView.addTab( new YAHOO.widget.Tab({
     dataSrc: '{/literal}{devblocks_url}ajax.php?c=contacts&a=showTabHistory&org={$contact->id}{/devblocks_url}{literal}',
     cacheData: true
 }));
+
+var tabDetails = tabView.getTab(0);
+
+tabDetails.addListener('contentChange', ajax.cbOrgCountryPeek);
+
 {/literal}
 
 {* Add any plugin-contributed tabs to the addresses view *}

@@ -42,7 +42,17 @@
 	</tr>
 	<tr>
 		<td align="right">Country: </td>
-		<td><input type="text" name="country" value="{$contact->country}" style="width:98%;"></td>
+		<td>
+		
+			<div id="org_country_autocomplete" style="width:98%;" class="yui-ac">
+				<input type="text" name="country" id="org_country_input" value="{$contact->country}" class="yui-ac-input">
+				<div id="org_country_container" class="yui-ac-container"></div>
+			</div>			
+			
+			<br>
+			<br>
+		
+		</td>
 	</tr>
 	<tr>
 		<td align="right">Phone: </td>

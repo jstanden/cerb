@@ -1,4 +1,4 @@
-<form action="{devblocks_url}{/devblocks_url}" method="post">
+<form action="{devblocks_url}{/devblocks_url}" name="formOrgEdit" method="post">
 <input type="hidden" name="c" value="contacts">
 <input type="hidden" name="a" value="updateContactOrg">
 <input type="hidden" name="id" value="{$contact->id}">
@@ -32,7 +32,13 @@
 	</tr>
 	<tr>
 		<td align="right">Country: </td>
-		<td><input type="text" name="country" value="{$contact->country}" style="width:50%;"></td>
+		<td>
+			<div id="org_country_autocomplete" style="width:100%;" class="yui-ac">
+				<input type="text" name="country" id="org_country_input" value="{$contact->country}" class="yui-ac-input"  style="width:50%;">
+				<div id="org_country_container" class="yui-ac-container"></div>
+			</div>		
+			<br><br>
+		</td>
 	</tr>
 	<tr>
 		<td align="right">Phone: </td>

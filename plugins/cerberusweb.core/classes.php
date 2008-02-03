@@ -4194,6 +4194,7 @@ class ChContactsPage extends CerberusPageExtension {
 		$tpl->assign('slas', $slas);
 		
 		$contact = DAO_ContactOrg::get($id);
+		
 		$tpl->assign('contact', $contact);
 		$tpl->assign('view_id', $view_id);
 		
@@ -4431,6 +4432,31 @@ class ChContactsPage extends CerberusPageExtension {
 		foreach($orgs AS $val){
 			echo $val[SearchFields_ContactOrg::NAME] . "\t";
 			echo $val[SearchFields_ContactOrg::ID] . "\n";
+		}
+		exit();
+	}
+	
+	function getCountryAutoCompletionsAction() {
+		@$starts_with = DevblocksPlatform::importGPC($_REQUEST['query'],'string','');
+		
+		$params = array(
+			DAO_ContactOrg::NAME => $starts_with
+		);
+		
+		list($orgs,$null) = DAO_ContactOrg::search(
+				array(
+					new DevblocksSearchCriteria(SearchFields_ContactOrg::COUNTRY,DevblocksSearchCriteria::OPER_LIKE, $starts_with. '*'), 
+					),
+				-1,
+			    0,
+			    SearchFields_ContactOrg::NAME,
+			    true,
+			    false
+		);
+		foreach($orgs AS $val){
+			echo $val[SearchFields_ContactOrg::COUNTRY];
+			//echo $val[SearchFields_ContactOrg::ID];
+			echo "\n";
 		}
 		exit();
 	}

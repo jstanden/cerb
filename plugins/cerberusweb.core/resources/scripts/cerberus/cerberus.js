@@ -410,6 +410,31 @@ var cAjaxCalls = function() {
 		myAutoComp.itemSelectEvent.subscribe(contactOrgAutoCompSelected, obj);
 	}
 
+	this.cbOrgCountryPeek = function(o) {
+		var myDataSource = new YAHOO.widget.DS_XHR(DevblocksAppPath+"ajax.php", ["\n", "\t"] );
+		myDataSource.scriptQueryAppend = "c=contacts&a=getCountryAutoCompletions"; 
+	
+		myDataSource.responseType = YAHOO.widget.DS_XHR.TYPE_FLAT;
+		myDataSource.maxCacheEntries = 60;
+		myDataSource.queryMatchSubset = true;
+		myDataSource.connTimeout = 3000;
+	
+	 	var myInput = document.getElementById('org_country_input'); 
+	    var myContainer = document.getElementById('org_country_container'); 
+	
+		var myAutoComp = new YAHOO.widget.AutoComplete(myInput,myContainer, myDataSource);
+		// myAutoComp.delimChar = ",";
+		myAutoComp.queryDelay = 1;
+		//myAutoComp.useIFrame = true; 
+		myAutoComp.typeAhead = false;
+		myAutoComp.useShadow = true;
+		//myAutoComp.prehighlightClassName = "yui-ac-prehighlight"; 
+		myAutoComp.allowBrowserAutocomplete = false;
+	
+		//obj=new Object();
+		//myAutoComp.itemSelectEvent.subscribe(contactOrgAutoCompSelected, obj);
+	}
+
 }
 
 var ajax = new cAjaxCalls();
