@@ -24,7 +24,10 @@
 		<td valign="top" width="0%" nowrap="nowrap">
 			{include file="file:$path/internal/views/criteria_list.tpl.php" divName="searchCriteriaDialog"}
 			<div id="searchCriteriaDialog" style="visibility:visible;"></div>
-			<a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showOrgPeek&id=0&view_id={$view->id}',this,false,'500px');">Add Organization</a>
+			
+			<form action="{devblocks_url}{/devblocks_url}" style="margin-top:5px;">
+				<button type="button" onclick="genericAjaxPanel('c=contacts&a=showOrgPeek&id=0&view_id={$view->id}',this,false,'500px',ajax.cbAddressPeek);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/office-building.gif{/devblocks_url}" align="top"> Add Org</button>
+			</form>
 		</td>
 		<td valign="top" width="0%" nowrap="nowrap"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/spacer.gif{/devblocks_url}" width="5" height="1"></td>
 		<td valign="top" width="100%">

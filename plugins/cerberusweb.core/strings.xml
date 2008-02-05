@@ -521,9 +521,9 @@
 				<seg>Low</seg>
 			</tuv>
 		</tu>
-		<tu tuid='priority.moderate'>
+		<tu tuid='priority.normal'>
 			<tuv xml:lang="en">
-				<seg>Moderate</seg>
+				<seg>Normal</seg>
 			</tuv>
 		</tu>
 		<tu tuid='priority.high'>
@@ -586,6 +586,48 @@
 			<tuv xml:lang="en">
 				<seg>Waiting</seg>
 			</tuv>
+		</tu>
+
+		<!-- Tasks -->
+
+		<tu tuid='tasks.complete'>
+			<tuv xml:lang="en"><seg>Complete</seg></tuv>
+		</tu>
+		<tu tuid='tasks.postpone'>
+			<tuv xml:lang="en"><seg>Postpone</seg></tuv>
+		</tu>
+		
+		<!-- Task -->
+
+		<tu tuid='task.completed_date'>
+			<tuv xml:lang="en"><seg>Completed Date</seg></tuv>
+		</tu>
+		<tu tuid='task.content'>
+			<tuv xml:lang="en"><seg>Content</seg></tuv>
+		</tu>
+		<tu tuid='task.due_date'>
+			<tuv xml:lang="en"><seg>Due Date</seg></tuv>
+		</tu>
+		<tu tuid='task.id'>
+			<tuv xml:lang="en"><seg>Id</seg></tuv>
+		</tu>
+		<tu tuid='task.is_completed'>
+			<tuv xml:lang="en"><seg>Completed</seg></tuv>
+		</tu>
+		<tu tuid='task.priority'>
+			<tuv xml:lang="en"><seg>Priority</seg></tuv>
+		</tu>
+		<tu tuid='task.source_extension'>
+			<tuv xml:lang="en"><seg>Source</seg></tuv>
+		</tu>
+		<tu tuid='task.source_id'>
+			<tuv xml:lang="en"><seg>Source ID</seg></tuv>
+		</tu>
+		<tu tuid='task.title'>
+			<tuv xml:lang="en"><seg>Title</seg></tuv>
+		</tu>
+		<tu tuid='task.worker_id'>
+			<tuv xml:lang="en"><seg>Worker</seg></tuv>
 		</tu>
 
 		<!-- Teamwork -->

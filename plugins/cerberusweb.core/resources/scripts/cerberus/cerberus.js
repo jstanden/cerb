@@ -14,7 +14,7 @@ function CreateKeyHandler(cb) {
 	document.onkeydown = cb;
 }
 
-function getKeyboardKey(evt) {
+function getKeyboardKey(evt,as_code) {
 	var browser=navigator.userAgent.toLowerCase();
 	var is_ie=(browser.indexOf("msie")!=-1 && document.all);
 	
@@ -32,7 +32,7 @@ function getKeyboardKey(evt) {
    		mykey = evt.keyCode
 	  }
 	  
-	  mykey = String.fromCharCode(mykey);
+	  mychar = String.fromCharCode(mykey);
 	  
 	var src=null;
 	
@@ -56,7 +56,7 @@ function getKeyboardKey(evt) {
 			{ return; }
 	}
 	
-	return mykey;
+	return (null==as_code||!as_code) ? mychar : mykey;
 }
 
 // ***********

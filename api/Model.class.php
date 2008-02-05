@@ -1360,6 +1360,193 @@ class C4_ContactOrgView extends C4_AbstractView {
 	}
 };
 
+class C4_TaskView extends C4_AbstractView {
+	const DEFAULT_ID = 'tasks';
+	const DEFAULT_TITLE = 'All Open Tasks';
+
+	function __construct() {
+		$this->id = self::DEFAULT_ID;
+		$this->name = self::DEFAULT_TITLE;
+		$this->renderLimit = 25;
+		$this->renderSortBy = SearchFields_Task::PRIORITY;
+		$this->renderSortAsc = true;
+
+		$this->view_columns = array(
+			SearchFields_Task::SOURCE_EXTENSION,
+			SearchFields_Task::TITLE,
+			SearchFields_Task::PRIORITY,
+			SearchFields_Task::DUE_DATE,
+			SearchFields_Task::WORKER_ID,
+			);
+		
+		$this->params = array(
+			SearchFields_Task::IS_COMPLETED => new DevblocksSearchCriteria(SearchFields_Task::IS_COMPLETED,'=',0),
+		);
+	}
+
+	function getData() {
+		$objects = DAO_Task::search(
+			$this->params,
+			$this->renderLimit,
+			$this->renderPage,
+			$this->renderSortBy,
+			$this->renderSortAsc
+		);
+		return $objects;
+	}
+
+	function render() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('id', $this->id);
+		$tpl->assign('view', $this);
+
+		$workers = DAO_Worker::getAll();
+		$tpl->assign('workers', $workers);
+
+		$tpl->assign('timestamp_now', time());
+		$tpl->register_modifier('prettytime', array('CerberusUtils', 'smarty_modifier_prettytime'));
+
+		// Pull the results so we can do some row introspection
+		$results = $this->getData();
+		$tpl->assign('results', $results);
+
+//		$source_renderers = DevblocksPlatform::getExtensions('cerberusweb.task.source', true);
+		
+		// Make a list of unique source_extension and load their renderers
+		$source_extensions = array();
+		if(is_array($results) && isset($results[0]))
+		foreach($results[0] as $rows) {
+			$source_extension = $rows[SearchFields_Task::SOURCE_EXTENSION];
+			if(!isset($source_extensions[$source_extension]) 
+				&& !empty($source_extension)
+				&& null != ($mft = DevblocksPlatform::getExtension($source_extension))) {
+				$source_extensions[$source_extension] = $mft->createInstance();
+			} 
+		}
+		$tpl->assign('source_renderers', $source_extensions);
+		
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('view_fields', $this->getColumns());
+		$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/tasks/view.tpl.php');
+	}
+
+	function renderCriteria($field) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('id', $this->id);
+
+		switch($field) {
+			case SearchFields_Task::TITLE:
+			case SearchFields_Task::CONTENT:
+			case SearchFields_Task::SOURCE_EXTENSION:
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__string.tpl.php');
+				break;
+			case SearchFields_Task::PRIORITY:
+			case SearchFields_Task::SOURCE_ID:
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__number.tpl.php');
+				break;
+			case SearchFields_Task::IS_COMPLETED:
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__bool.tpl.php');
+				break;
+			case SearchFields_Task::COMPLETED_DATE:
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__date.tpl.php');
+				break;
+			default:
+				echo '';
+				break;
+		}
+	}
+
+	function renderCriteriaParam($param) {
+		$field = $param->field;
+		$values = !is_array($param->value) ? array($param->value) : $param->value;
+
+		switch($field) {
+//			case SearchFields_Task::SLA_ID:
+//				$slas = DAO_Sla::getAll();
+//				$strings = array();
+//
+//				foreach($values as $val) {
+//					if(0==$val) {
+//						$strings[] = "None";
+//					} else {
+//						if(!isset($slas[$val]))
+//						continue;
+//						$strings[] = $slas[$val]->name;
+//					}
+//				}
+//				echo implode(", ", $strings);
+//				break;
+
+			default:
+				parent::renderCriteriaParam($param);
+				break;
+		}
+	}
+
+	static function getFields() {
+		return SearchFields_Task::getFields();
+	}
+
+	static function getSearchFields() {
+		$fields = self::getFields();
+		unset($fields[SearchFields_Task::ID]);
+		return $fields;
+	}
+
+	static function getColumns() {
+		$fields = self::getFields();
+		unset($fields[SearchFields_Task::ID]);
+		unset($fields[SearchFields_Task::CONTENT]);
+		unset($fields[SearchFields_Task::SOURCE_ID]);
+		return $fields;
+	}
+
+	function doResetCriteria() {
+		parent::doResetCriteria();
+		
+		$this->params = array(
+			SearchFields_Task::IS_COMPLETED => new DevblocksSearchCriteria(SearchFields_Task::IS_COMPLETED,'=',0)
+		);
+	}
+	
+	function doSetCriteria($field, $oper, $value) {
+		$criteria = null;
+
+		switch($field) {
+			case SearchFields_Task::TITLE:
+			case SearchFields_Task::CONTENT:
+			case SearchFields_Task::SOURCE_EXTENSION:
+				// force wildcards if none used on a LIKE
+				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
+				&& false === (strpos($value,'*'))) {
+					$value = '*'.$value.'*';
+				}
+				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
+				break;
+			case SearchFields_Task::PRIORITY:
+			case SearchFields_Task::SOURCE_ID:
+				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
+				break;
+				
+			case SearchFields_Task::COMPLETED_DATE:
+//				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
+//				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
+				break;
+
+			// Bool
+			case SearchFields_Task::IS_COMPLETED:
+				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
+				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
+				break;
+		}
+
+		if(!empty($criteria)) {
+			$this->params[$field] = $criteria;
+			$this->renderPage = 0;
+		}
+	}
+};
+
 class Model_ContactOrg {
 	public $id;
 	public $account_number;
@@ -2058,6 +2245,19 @@ class Model_TicketField {
 			self::TYPE_DATE => 'Date',
 		);
 	}
+};
+
+class Model_Task {
+	public $id;
+	public $title;
+	public $worker_id;
+	public $priority;
+	public $due_date;
+	public $is_completed;
+	public $completed_date;
+	public $content;
+	public $source_extension;
+	public $source_id;
 };
 
 ?>

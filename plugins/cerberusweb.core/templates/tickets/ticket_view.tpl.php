@@ -122,7 +122,7 @@
 				<td>
 					{if 0 == $ticket_category_id}
 						{if (isset($active_worker_memberships.$ticket_team_id)) && $active_worker_memberships.$ticket_team_id->is_manager || $active_worker->is_superuser}
-							[<a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showAddInboxRulePanel&view_id={$view->id}&id={$result.t_id}',this,false,'400px');">add inbox filter</a>]
+							<a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showAddInboxRulePanel&view_id={$view->id}&id={$result.t_id}',this,false,'400px');">-add filter-</a>
 						{/if}
 					{else}
 						{$buckets.$ticket_category_id->name}
@@ -204,10 +204,10 @@
 	{if $total}
 	<tr>
 		<td colspan="2">
-			{if $view->id != 'contact_history'}<button type="button" onclick="ajax.showBatchPanel('{$view->id}','{$dashboard_team_id}',this);" id="tourDashboardBatch"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> bulk update</button>{/if}
-			<button type="button" onclick="ajax.viewCloseTickets('{$view->id}',0);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_ok.gif{/devblocks_url}" align="top"> close</button>
-			<button type="button" onclick="ajax.viewCloseTickets('{$view->id}',1);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/spam.gif{/devblocks_url}" align="top"> spam</button>
-			{if $active_worker && ($active_worker->is_superuser || $active_worker->can_delete)}<button type="button" onclick="ajax.viewCloseTickets('{$view->id}',2);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> delete</button>{/if}
+			{if $view->id != 'contact_history'}<button type="button"  id="btn{$view->id}BulkUpdate" onclick="ajax.showBatchPanel('{$view->id}','{$dashboard_team_id}',this);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> bulk update</button>{/if}
+			<button type="button" id="btn{$view->id}Close" onclick="ajax.viewCloseTickets('{$view->id}',0);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_ok.gif{/devblocks_url}" align="top"> close</button>
+			<button type="button"  id="btn{$view->id}Spam" onclick="ajax.viewCloseTickets('{$view->id}',1);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/spam.gif{/devblocks_url}" align="top"> spam</button>
+			{if $active_worker && ($active_worker->is_superuser || $active_worker->can_delete)}<button type="button"  id="btn{$view->id}Delete" onclick="ajax.viewCloseTickets('{$view->id}',2);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> delete</button>{/if}
 			
 			<input type="hidden" name="move_to" value="">
 
@@ -230,16 +230,20 @@
 				{/foreach}
 			</select>
 			
-			<a href="javascript:;" onclick="toggleDiv('view{$view->id}_more');">more options &raquo;</a>
+			<a href="javascript:;" onclick="toggleDiv('view{$view->id}_more');">more options &raquo;</a><br>
 
 			<div id="view{$view->id}_more" style="display:none;padding-top:5px;padding-bottom:5px;">
 				<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','not_spam');">not spam</button>
 				<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','merge');">merge</button>
-				<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','take');">take</button>
-				<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','surrender');">surrender</button>
+				<button type="button" id="btn{$view->id}Take" onclick="ajax.viewTicketsAction('{$view->id}','take');">take</button>
+				<button type="button" id="btn{$view->id}Surrender" onclick="ajax.viewTicketsAction('{$view->id}','surrender');">surrender</button>
 				<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','waiting');">waiting</button>
 				<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','not_waiting');">not waiting</button>
 			</div>
+
+			{if $view->id=='overview_all'}{*Only on Overview*}
+				keyboard: (<b>b</b>) bulk update, (<b>c</b>) close, (<b>s</b>) spam, (<b>t</b>) take, (<b>u</b>) surrender, {if $active_worker && ($active_worker->is_superuser || $active_worker->can_delete)}(<b>x</b>) delete{/if}<br>
+			{/if}
 
 		</td>
 	</tr>

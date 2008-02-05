@@ -551,6 +551,83 @@ if(!isset($tables['sla'])) {
     $datadict->ExecuteSQLArray($sql);
 }
 
+// `task` =============================
+if(!isset($tables['task'])) {
+    $flds = "
+		id I4 DEFAULT 0 NOTNULL PRIMARY,
+		title C(255) DEFAULT '' NOTNULL,
+		worker_id I4 DEFAULT 0 NOTNULL,
+		priority I1 DEFAULT 4 NOTNULL,
+		due_date I4 DEFAULT 0 NOTNULL,
+		is_completed I1 DEFAULT 0 NOTNULL,
+		completed_date I4 DEFAULT 0 NOTNULL,
+		source_extension C(255) DEFAULT '' NOTNULL,
+		source_id I4 DEFAULT 0 NOTNULL,
+		content XL
+	";
+    $sql = $datadict->CreateTableSQL('task',$flds);
+    $datadict->ExecuteSQLArray($sql);
+}
+
+$columns = $datadict->MetaColumns('task');
+$indexes = $datadict->MetaIndexes('task',false);
+
+if(!isset($indexes['is_completed'])) {
+    $sql = $datadict->CreateIndexSQL('is_completed','task','is_completed');
+    $datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($indexes['completed_date'])) {
+    $sql = $datadict->CreateIndexSQL('completed_date','task','completed_date');
+    $datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($indexes['priority'])) {
+    $sql = $datadict->CreateIndexSQL('priority','task','priority');
+    $datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($indexes['worker_id'])) {
+    $sql = $datadict->CreateIndexSQL('worker_id','task','worker_id');
+    $datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($indexes['source_extension'])) {
+    $sql = $datadict->CreateIndexSQL('source_extension','task','source_extension');
+    $datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($indexes['source_id'])) {
+    $sql = $datadict->CreateIndexSQL('source_id','task','source_id');
+    $datadict->ExecuteSQLArray($sql);
+}
+
+/*
+// `task_to_object` =============================
+if(!isset($tables['task_to_object'])) {
+    $flds = "
+		task_id I4 DEFAULT 0 NOTNULL PRIMARY,
+		namespace C(64) DEFAULT '' NOTNULL,
+		object_id I4 DEFAULT 0 NOTNULL
+	";
+    $sql = $datadict->CreateTableSQL('task_to_object',$flds);
+    $datadict->ExecuteSQLArray($sql);
+}
+
+$columns = $datadict->MetaColumns('task_to_object');
+$indexes = $datadict->MetaIndexes('task_to_object',false);
+
+if(!isset($indexes['namespace'])) {
+    $sql = $datadict->CreateIndexSQL('namespace','task_to_object','namespace');
+    $datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($indexes['entity_id'])) {
+    $sql = $datadict->CreateIndexSQL('entity_id','task_to_object','entity_id');
+    $datadict->ExecuteSQLArray($sql);
+}
+*/
+
 // `team_routing_rule` ========================
 $columns = $datadict->MetaColumns('team_routing_rule');
 $indexes = $datadict->MetaIndexes('team_routing_rule',false);

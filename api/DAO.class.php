@@ -651,6 +651,9 @@ class DAO_ContactOrg extends DevblocksORMHelper {
 			$id_list
 		);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		// Tasks
+        DAO_Task::deleteBySourceIds('cerberusweb.tasks.org', $ids);
 	}
 	
 	/**
@@ -2277,7 +2280,6 @@ class DAO_Ticket extends DevblocksORMHelper {
         $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
         
         // Messages
-        
         do{
 	        list($messages, $messages_count) = DAO_Message::search(
 	            array(
@@ -2299,7 +2301,9 @@ class DAO_Ticket extends DevblocksORMHelper {
 		foreach($ids as $id) {
 			DAO_TicketFieldValue::clearTicketValues($id);
 		}
-        
+
+        // Tasks
+        DAO_Task::deleteBySourceIds('cerberusweb.tasks.ticket', $ticket_ids);
 	}
 	
 	static function merge($ids=array()) {
@@ -5229,6 +5233,288 @@ class DAO_TicketFieldValue extends DevblocksORMHelper {
 		
 		$sql = sprintf("DELETE FROM ticket_field_value WHERE ticket_id = %d",$ticket_id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+	}
+};
+
+class DAO_Task extends DevblocksORMHelper {
+	const ID = 'id';
+	const TITLE = 'title';
+	const WORKER_ID = 'worker_id';
+	const PRIORITY = 'priority';
+	const DUE_DATE = 'due_date';
+	const IS_COMPLETED = 'is_completed';
+	const COMPLETED_DATE = 'completed_date';
+	const CONTENT = 'content';
+	const SOURCE_EXTENSION = 'source_extension';
+	const SOURCE_ID = 'source_id';
+
+	static function create($fields) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$id = $db->GenID('task_seq');
+		
+		$sql = sprintf("INSERT INTO task (id) ".
+			"VALUES (%d)",
+			$id
+		);
+		$db->Execute($sql);
+		
+		self::update($id, $fields);
+		
+		return $id;
+	}
+	
+	static function update($ids, $fields) {
+		parent::_update($ids, 'task', $fields);
+	}
+	
+	static function updateWhere($fields, $where) {
+		parent::_updateWhere('task', $fields, $where);
+	}
+	
+	/**
+	 * @param string $where
+	 * @return Model_Task[]
+	 */
+	static function getWhere($where=null) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = "SELECT id, title, worker_id, priority, due_date, content, is_completed, completed_date, source_extension, source_id ".
+			"FROM task ".
+			(!empty($where) ? sprintf("WHERE %s ",$where) : "").
+			"ORDER BY id asc";
+		$rs = $db->Execute($sql);
+		
+		return self::_getObjectsFromResult($rs);
+	}
+
+	/**
+	 * @param integer $id
+	 * @return Model_Task	 */
+	static function get($id) {
+		$objects = self::getWhere(sprintf("%s = %d",
+			self::ID,
+			$id
+		));
+		
+		if(isset($objects[$id]))
+			return $objects[$id];
+		
+		return null;
+	}
+	
+	static function getUnassignedSourceTotals() {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$totals = array();
+		
+		$sql = "SELECT count(id) as hits, source_extension ".
+			"FROM task ".
+			"WHERE is_completed = 0 ".
+			"GROUP BY source_extension ";
+		$rs = $db->Execute($sql);
+		
+		while(!$rs->EOF) {
+			$key = !empty($rs->fields['source_extension']) ? $rs->fields['source_extension'] : 'none';
+			$totals[$key] = intval($rs->fields['hits']);
+			$rs->MoveNext();
+		}
+		
+		return $totals;
+	}
+	
+	static function getAssignedSourceTotals() {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$totals = array();
+		
+		$sql = "SELECT count(id) as hits, worker_id ".
+			"FROM task ".
+			"WHERE worker_id > 0 ".
+			"AND is_completed = 0 ".
+			"GROUP BY worker_id ";
+		$rs = $db->Execute($sql);
+		
+		while(!$rs->EOF) {
+			$totals[$rs->fields['worker_id']] = intval($rs->fields['hits']);
+			$rs->MoveNext();
+		}
+		
+		return $totals;
+	}
+	
+	/**
+	 * @param ADORecordSet $rs
+	 * @return Model_Task[]
+	 */
+	static private function _getObjectsFromResult($rs) {
+		$objects = array();
+		
+		while(!$rs->EOF) {
+			$object = new Model_Task();
+			$object->id = $rs->fields['id'];
+			$object->title = $rs->fields['title'];
+			$object->worker_id = $rs->fields['worker_id'];
+			$object->priority = $rs->fields['priority'];
+			$object->due_date = $rs->fields['due_date'];
+			$object->content = $rs->fields['content'];
+			$object->is_completed = $rs->fields['is_completed'];
+			$object->completed_date = $rs->fields['completed_date'];
+			$object->source_extension = $rs->fields['source_extension'];
+			$object->source_id = $rs->fields['source_id'];
+			$objects[$object->id] = $object;
+			$rs->MoveNext();
+		}
+		
+		return $objects;
+	}
+	
+	/**
+	 * Enter description here...
+	 *
+	 * @param array $ids
+	 */
+	static function delete($ids) {
+		if(!is_array($ids)) $ids = array($ids);
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$ids_list = implode(',', $ids);
+		
+		// Tasks
+		$db->Execute(sprintf("DELETE FROM task WHERE id IN (%s)", $ids_list));
+		
+		return true;
+	}
+
+	/**
+	 * Enter description here...
+	 *
+	 * @param string $source
+	 * @param array $ids
+	 */
+	static function deleteBySourceIds($source_extension, $ids) {
+		if(!is_array($ids)) $ids = array($ids);
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$ids_list = implode(',', $ids);
+		
+		// Tasks
+		$db->Execute(sprintf("DELETE FROM task WHERE source_extension = %s AND source_id IN (%s)",
+			$db->qstr($source_extension), 
+			$ids_list
+		));
+		
+		return true;
+	}
+
+    /**
+     * Enter description here...
+     *
+     * @param DevblocksSearchCriteria[] $params
+     * @param integer $limit
+     * @param integer $page
+     * @param string $sortBy
+     * @param boolean $sortAsc
+     * @param boolean $withCounts
+     * @return array
+     */
+    static function search($params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
+		$db = DevblocksPlatform::getDatabaseService();
+
+        list($tables,$wheres) = parent::_parseSearchParams($params, array(),SearchFields_Task::getFields());
+		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
+		
+		$select_sql = sprintf("SELECT ".
+			"t.id as %s, ".
+			"t.due_date as %s, ".
+			"t.is_completed as %s, ".
+			"t.completed_date as %s, ".
+			"t.priority as %s, ".
+			"t.title as %s, ".
+			"t.worker_id as %s, ".
+			"t.source_extension as %s, ".
+			"t.source_id as %s ",
+//			"o.name as %s ".
+			    SearchFields_Task::ID,
+			    SearchFields_Task::DUE_DATE,
+			    SearchFields_Task::IS_COMPLETED,
+			    SearchFields_Task::COMPLETED_DATE,
+			    SearchFields_Task::PRIORITY,
+			    SearchFields_Task::TITLE,
+			    SearchFields_Task::WORKER_ID,
+			    SearchFields_Task::SOURCE_EXTENSION,
+			    SearchFields_Task::SOURCE_ID
+			 );
+		
+		$join_sql = 
+			"FROM task t ";
+//			"LEFT JOIN contact_org o ON (o.id=a.contact_org_id) "
+
+			// [JAS]: Dynamic table joins
+//			(isset($tables['o']) ? "LEFT JOIN contact_org o ON (o.id=a.contact_org_id)" : " ").
+//			(isset($tables['mc']) ? "INNER JOIN message_content mc ON (mc.message_id=m.id)" : " ").
+
+		$where_sql = "".
+			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "");
+			
+		$sql = $select_sql . $join_sql . $where_sql .  
+			(!empty($sortBy) ? sprintf("ORDER BY %s %s",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : "");
+		
+		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		$results = array();
+		while(!$rs->EOF) {
+			$result = array();
+			foreach($rs->fields as $f => $v) {
+				$result[$f] = $v;
+			}
+			$id = intval($rs->fields[SearchFields_Task::ID]);
+			$results[$id] = $result;
+			$rs->MoveNext();
+		}
+
+		// [JAS]: Count all
+		$total = -1;
+		if($withCounts) {
+			$count_sql = "SELECT count(*) " . $join_sql . $where_sql;
+			$total = $db->GetOne($count_sql);
+		}
+		
+		return array($results,$total);
+    }	
+	
+};
+
+class SearchFields_Task implements IDevblocksSearchFields {
+	// Task
+	const ID = 't_id';
+	const DUE_DATE = 't_due_date';
+	const IS_COMPLETED = 't_is_completed';
+	const COMPLETED_DATE = 't_completed_date';
+	const PRIORITY = 't_priority';
+	const TITLE = 't_title';
+	const CONTENT = 't_content';
+	const WORKER_ID = 't_worker_id';
+	const SOURCE_EXTENSION = 't_source_extension';
+	const SOURCE_ID = 't_source_id';
+	
+	/**
+	 * @return DevblocksSearchField[]
+	 */
+	static function getFields() {
+		$translate = DevblocksPlatform::getTranslationService();
+		return array(
+			self::ID => new DevblocksSearchField(self::ID, 't', 'id', null, $translate->_('task.id')),
+			self::DUE_DATE => new DevblocksSearchField(self::DUE_DATE, 't', 'due_date', null, $translate->_('task.due_date')),
+			self::IS_COMPLETED => new DevblocksSearchField(self::IS_COMPLETED, 't', 'is_completed', null, $translate->_('task.is_completed')),
+			self::COMPLETED_DATE => new DevblocksSearchField(self::COMPLETED_DATE, 't', 'completed_date', null, $translate->_('task.completed_date')),
+			self::PRIORITY => new DevblocksSearchField(self::PRIORITY, 't', 'priority', null, $translate->_('task.priority')),
+			self::TITLE => new DevblocksSearchField(self::TITLE, 't', 'title', null, $translate->_('task.title')),
+			self::CONTENT => new DevblocksSearchField(self::CONTENT, 't', 'content', null, $translate->_('task.content')),
+			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 't', 'worker_id', null, $translate->_('task.worker_id')),
+			self::SOURCE_EXTENSION => new DevblocksSearchField(self::SOURCE_EXTENSION, 't', 'source_extension', null, $translate->_('task.source_extension')),
+			self::SOURCE_ID => new DevblocksSearchField(self::SOURCE_ID, 't', 'source_id', null, $translate->_('task.source_id')),
+		);
 	}
 };
 

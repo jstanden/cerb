@@ -44,3 +44,50 @@
   </tbody>
 </table>
 
+<script type="text/javascript">
+{literal}
+CreateKeyHandler(function doShortcuts(e) {
+
+	var mykey = getKeyboardKey(e);
+	
+	switch(mykey) {
+		case "b":  // bulk update
+		case "B":
+			try {
+				document.getElementById('btnoverview_allBulkUpdate').click();
+			} catch(e){}
+			break;
+		case "c":  // close
+		case "C":
+			try {
+				document.getElementById('btnoverview_allClose').click();
+			} catch(e){}
+			break;
+		case "s":  // spam
+		case "S":
+			try {
+				document.getElementById('btnoverview_allSpam').click();
+			} catch(e){}
+			break;
+		case "t":  // take
+		case "T":
+			try {
+				document.getElementById('btnoverview_allTake').click();
+			} catch(e){}
+			break;
+		case "u":  // surrender
+		case "U":
+			try {
+				document.getElementById('btnoverview_allSurrender').click();
+			} catch(e){}
+			break;
+		case "x":  // delete
+		case "X":
+			try {
+				document.getElementById('btnoverview_allDelete').click();
+			} catch(e){}
+			break;
+	}
+});
+{/literal}
+</script>

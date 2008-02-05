@@ -1,7 +1,8 @@
 <table cellpadding="0" cellspacing="0" border="0" width="98%">
 	<tr>
-		<td align="left" width="0%" nowrap="nowrap" style="padding-right:5px;"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/businessmen.gif{/devblocks_url}" align="absmiddle"></td>
-		<td align="left" width="100%" nowrap="nowrap"><h1>Address Book</h1></td>
+		<td align="left" width="1%" nowrap="nowrap" style="padding-right:5px;"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/businessmen.gif{/devblocks_url}" align="absmiddle"></td>
+		<td align="left" width="98%"><h1>Address Book: Contact</h1></td>
+		{*<td align="left" width="1%" nowrap="nowrap"><a href="{devblocks_url}&c=contacts&a=addresses&id={$address.a_id}{/devblocks_url}">view full record</a></td>*}
 	</tr>
 </table>
 

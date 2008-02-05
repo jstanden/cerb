@@ -6,7 +6,7 @@
 <div id="contactOptions"></div> 
 <br>
 
-<script>
+<script type="text/javascript">
 {literal}
 var tabView = new YAHOO.widget.TabView();
 
@@ -26,6 +26,12 @@ tabView.addTab( new YAHOO.widget.Tab({
 tabView.addTab( new YAHOO.widget.Tab({
     label: 'History',
     dataSrc: '{/literal}{devblocks_url}ajax.php?c=contacts&a=showTabHistory&org={$contact->id}{/devblocks_url}{literal}',
+    cacheData: true
+}));
+
+tabView.addTab( new YAHOO.widget.Tab({
+    label: 'Tasks',
+    dataSrc: '{/literal}{devblocks_url}ajax.php?c=contacts&a=showTabTasks&org={$contact->id}{/devblocks_url}{literal}',
     cacheData: true
 }));
 

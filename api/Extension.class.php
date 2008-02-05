@@ -92,17 +92,26 @@ abstract class Extension_ContactsTab extends DevblocksExtension {
 	function saveTab() {}
 };
 
-abstract class CerberusDisplayPageExtension extends DevblocksExtension {
+abstract class Extension_TaskSource extends DevblocksExtension {
 	function __construct($manifest) {
 		$this->DevblocksExtension($manifest,1);
 	}
-	
-	/**
-	 * Enter description here...
-	 */
-	function render($ticket) {}
-	
-}
+
+	function getSourceName() {}
+	function getSourceInfo($object_id) {}
+};
+
+//abstract class CerberusDisplayPageExtension extends DevblocksExtension {
+//	function __construct($manifest) {
+//		$this->DevblocksExtension($manifest,1);
+//	}
+//	
+//	/**
+//	 * Enter description here...
+//	 */
+//	function render($ticket) {}
+//	
+//}
 
 abstract class CerberusLoginPageExtension extends DevblocksExtension { //implements DevblocksHttpRequestHandler {
 	function __construct($manifest) {

@@ -38,11 +38,11 @@
 			{if $ticket->is_closed}
 				<button type="button" onclick="this.form.closed.value=0;this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_out.gif{/devblocks_url}" align="top"> Re-open</button>
 			{else}
-				<button type="button" onclick="this.form.closed.value=1;this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_ok.gif{/devblocks_url}" align="top"> Close</button>
+				<button id="btnClose" type="button" onclick="this.form.closed.value=1;this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_ok.gif{/devblocks_url}" align="top"> Close</button>
 			{/if}
 			
 			{if empty($ticket->spam_training)}
-				<button type="button" onclick="this.form.spam.value=1;this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/spam.gif{/devblocks_url}" align="top"> Report Spam</button>
+				<button id="btnSpam" type="button" onclick="this.form.spam.value=1;this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/spam.gif{/devblocks_url}" align="top"> Report Spam</button>
 			{/if}
 		{/if}
 		
@@ -50,7 +50,7 @@
 			<button type="button" onclick="this.form.deleted.value=0;this.form.closed.value=0;this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete_gray.gif{/devblocks_url}" align="top"> Undelete</button>
 		{else}
 			{if $active_worker && ($active_worker->is_superuser || $active_worker->can_delete)}
-			<button type="button" onclick="this.form.deleted.value=1;this.form.closed.value=1;this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> Delete</button>
+			<button id="btnDelete" type="button" onclick="this.form.deleted.value=1;this.form.closed.value=1;this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> Delete</button>
 			{/if}
 		{/if}
 		
@@ -96,9 +96,9 @@
 				<td>	
 				<div style="padding:10px;margin-top:5px;border:1px solid rgb(180,180,255);background-color:rgb(245,245,255);text-align:center;">
 					Active list: <b>{$series_stats.title}</b><br>
-					{if !empty($series_stats.prev)}<a href="{devblocks_url}c=display&id={$series_stats.prev}{/devblocks_url}">&laquo;Prev</a>{/if} 
+					{if !empty($series_stats.prev)}<button style="display:none;visibility:hidden;" id="btnPagePrev" onclick="document.location='{devblocks_url}c=display&id={$series_stats.prev}{/devblocks_url}';">&laquo;Prev</button><a href="{devblocks_url}c=display&id={$series_stats.prev}{/devblocks_url}">&laquo;Prev</a>{/if} 
 					 ({$series_stats.cur}-{$series_stats.count} of {$series_stats.total}) 
-					{if !empty($series_stats.next)}<a href="{devblocks_url}c=display&id={$series_stats.next}{/devblocks_url}">Next&raquo;</a>{/if}
+					{if !empty($series_stats.next)}<button style="display:none;visibility:hidden;" id="btnPageNext" onclick="document.location='{devblocks_url}c=display&id={$series_stats.next}{/devblocks_url}';">Next&raquo;</button><a href="{devblocks_url}c=display&id={$series_stats.next}{/devblocks_url}">Next&raquo;</a>{/if}
 				</div>
 				</td>
 			</tr>
@@ -131,6 +131,13 @@ tabView.addTab( new YAHOO.widget.Tab({
 }));
 
 tabView.addTab( new YAHOO.widget.Tab({
+    label: 'Tasks',
+    dataSrc: '{/literal}{devblocks_url}ajax.php?c=display&a=showTasks&ticket_id={$ticket->id}{/devblocks_url}{literal}',
+    cacheData: true,
+    {/literal}active: {if 'tasks'==$tab_selected}true{else}false{/if}{literal}
+}));
+
+tabView.addTab( new YAHOO.widget.Tab({
     label: 'Properties',
     dataSrc: '{/literal}{devblocks_url}ajax.php?c=display&a=showProperties&ticket_id={$ticket->id}{/devblocks_url}{literal}',
     cacheData: true,
@@ -150,6 +157,7 @@ tabView.addTab( new YAHOO.widget.Tab({
     cacheData: true,
     {/literal}active: {if 'history'==$tab_selected}true{else}false{/if}{literal}
 }));
+
 {/literal}
 
 {foreach from=$tab_manifests item=tab_manifest}
@@ -162,6 +170,59 @@ tabView.addTab( new YAHOO.widget.Tab({
 {/foreach}
 
 tabView.appendTo('displayOptions');
+</script>
+
+<script type="text/javascript">
+{literal}
+CreateKeyHandler(function doShortcuts(e) {
+
+	var mykey = getKeyboardKey(e);
+	
+	switch(mykey) {
+		case "c":  // close
+		case "C":
+			try {
+				document.getElementById('btnClose').click();
+			} catch(e){}
+			break;
+		case "r":  // reply to first message
+		case "R":
+			try {
+				document.getElementById('btnReplyFirst').click();
+			} catch(e){}
+			break;
+		case "s":  // spam
+		case "S":
+			try {
+				document.getElementById('btnSpam').click();
+			} catch(e){}
+			break;
+		case "x":  // delete
+		case "X":
+			try {
+				document.getElementById('btnDelete').click();
+			} catch(e){}
+			break;
+		default:
+			// We didn't find any obvious keys, try other codes
+			var mycode = getKeyboardKey(e,true);
+
+			switch(mycode) {
+				case 219:  // [ - prev page
+					try {
+						document.getElementById('btnPagePrev').click();
+					} catch(e){}
+					break;
+				case 221:  // ] - next page
+					try {
+						document.getElementById('btnPageNext').click();
+					} catch(e){}
+					break;
+			}
+			break;
+	}
+});
+{/literal}
 </script>
 
 <script type="text/javascript">
