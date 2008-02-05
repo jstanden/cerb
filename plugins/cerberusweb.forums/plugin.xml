@@ -1,0 +1,59 @@
+<!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
+<plugin>
+	<id>cerberusweb.forums</id>
+	<name>Cerberus Helpdesk: Support Forums</name>
+	<description></description>
+	<author>WebGroup Media, LLC.</author>
+	<revision>0</revision>
+	<link></link>
+	<is_configurable>1</is_configurable>
+	<class>
+		<file>api/App.php</file>
+		<name>ChForumsPlugin</name>
+	</class>
+	
+	<extensions>
+	
+		<!-- Patch Containers -->
+		
+		<extension point="devblocks.patch.container">
+			<id>forums.patches</id>
+			<name>Forums Patches</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChForumsPatchContainer</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
+		<!-- Translations -->
+		
+		<extension point="devblocks.i18n.strings">
+			<id>forums.translations</id>
+			<name>Forums Strings</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChForumsTranslations</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
+		<!-- Page Extensions -->
+		
+		<extension point="cerberusweb.page">
+			<id>forums.page</id>
+			<name>Forums Page</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChForumsPage</name>
+			</class>
+			<params>
+				<param key="uri" value="forums" />
+				<param key="menutitle" value="forums" />
+			</params>
+		</extension>
+		
+	</extensions>
+</plugin>

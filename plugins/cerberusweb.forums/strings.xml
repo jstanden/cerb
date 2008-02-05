@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tmx SYSTEM "tmx14.dtd">
+<tmx version="1.4">
+	<header datatype="winres" segtype="sentence" adminlang="en-us"
+		srclang="en-us" o-tmf="abc" />
+	<body>
+
+		<!-- Common Strings -->
+		
+		
+		<!-- Forums -->
+
+		<tu tuid='forumsthread.forum_id'>
+			<tuv xml:lang="en"><seg>forum</seg></tuv>
+		</tu>
+		<tu tuid='forumsthread.id'>
+			<tuv xml:lang="en"><seg>id</seg></tuv>
+		</tu>
+		<tu tuid='forumsthread.is_closed'>
+			<tuv xml:lang="en"><seg>closed</seg></tuv>
+		</tu>
+		<tu tuid='forumsthread.last_poster'>
+			<tuv xml:lang="en"><seg>last poster</seg></tuv>
+		</tu>
+		<tu tuid='forumsthread.last_updated'>
+			<tuv xml:lang="en"><seg>updated</seg></tuv>
+		</tu>
+		<tu tuid='forumsthread.link'>
+			<tuv xml:lang="en"><seg>link</seg></tuv>
+		</tu>
+		<tu tuid='forumsthread.thread_id'>
+			<tuv xml:lang="en"><seg>thread id</seg></tuv>
+		</tu>
+		<tu tuid='forumsthread.title'>
+			<tuv xml:lang="en"><seg>title</seg></tuv>
+		</tu>
+		<tu tuid='forumsthread.worker_id'>
+			<tuv xml:lang="en"><seg>worker</seg></tuv>
+		</tu>
+	</body>
+</tmx>
