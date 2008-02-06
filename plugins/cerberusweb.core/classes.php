@@ -6033,15 +6033,26 @@ class ChDisplayPage extends CerberusPageExtension {
 
 		$message = DAO_Ticket::getMessage($id);
 		$tpl->assign('message', $message);
+		$tpl->assign('message_id', $message->id);
 		
 		$ticket = DAO_Ticket::getTicket($message->id);
 		$tpl->assign('ticket', $ticket);
 		
-		$content = DAO_MessageContent::get($id);
-		$tpl->assign('content', $content);
-		
-		$notes = DAO_MessageNote::getByMessageId($id);
-		$tpl->assign('message_notes', $notes);
+		if(empty($hide)) {
+			$content = DAO_MessageContent::get($id);
+			$tpl->assign('content', $content);
+			
+			$notes = DAO_MessageNote::getByTicketId($message->ticket_id);
+			$message_notes = array();
+			// Index notes by message id
+			if(is_array($notes))
+			foreach($notes as $note) {
+				if(!isset($message_notes[$note->message_id]))
+					$message_notes[$note->message_id] = array();
+				$message_notes[$note->message_id][$note->id] = $note;
+			}
+			$tpl->assign('message_notes', $message_notes);
+		}
 		
 		// [TODO] Workers?
 		

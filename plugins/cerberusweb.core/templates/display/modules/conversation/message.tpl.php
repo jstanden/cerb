@@ -71,7 +71,7 @@
 				      	<button type="button" onclick="displayAjax.addNote('{$message->id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/note_edit.gif{/devblocks_url}" align="top"> Add Note</button>
 				      	&nbsp;
 				      	
-				      	{if count($messages) > 1}
+				      	{if $ticket->first_message_id != $message->id}
 				      	<a href="javascript:;" onclick="toggleDiv('{$message->id}options');">more &raquo;</a>
 				      	{/if}
 	      			</td>
@@ -83,7 +83,7 @@
 	      		<input type="hidden" name="a" value="">
 	      		<input type="hidden" name="id" value="{$message->id}">
 	      		
-	      		{if !$messages.last && count($messages) > 1} {* Don't allow splitting of a single message *}
+	      		{if $ticket->first_message_id != $message->id} {* Don't allow splitting of a single message *}
 	      		<button type="button" onclick="this.form.a.value='doSplitMessage';this.form.submit();" title="Split message into new ticket">Split Ticket</button>
 	      		{/if}
 	      	</form>

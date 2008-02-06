@@ -317,7 +317,7 @@ class ChForumsPage extends CerberusPageExtension {
 				@$thread_last_poster = (string) $thread->last_poster;
 				@$thread_link = (string) $thread->link;
 				
-				if(null == ($thread = DAO_ForumsThread::getByThreadId($thread_id))) {
+				if(null == ($th = DAO_ForumsThread::getBySourceThreadId($source->id, $thread_id))) {
 					$fields = array(
 						DAO_ForumsThread::FORUM_ID => $source->id,
 						DAO_ForumsThread::THREAD_ID => $thread_id,
@@ -334,7 +334,7 @@ class ChForumsPage extends CerberusPageExtension {
 						DAO_ForumsThread::LAST_POSTER => $thread_last_poster,
 						DAO_ForumsThread::IS_CLOSED => 0,
 					);
-					DAO_ForumsThread::update($thread->id, $fields);
+					DAO_ForumsThread::update($th->id, $fields);
 				}
 				
 				$last_postid = $thread_last_postid;
@@ -419,8 +419,10 @@ class DAO_ForumsThread extends DevblocksORMHelper {
 	 * @param integer $thread_id
 	 * @return Model_ForumsThread
 	 */
-	static function getByThreadId($thread_id) {
-		$objects = self::getWhere(sprintf("%s = %d",
+	static function getBySourceThreadId($source_id,$thread_id) {
+		$objects = self::getWhere(sprintf("%s = %d AND %s = %d",
+			self::FORUM_ID,
+			$source_id,
 			self::THREAD_ID,
 			$thread_id
 		));
