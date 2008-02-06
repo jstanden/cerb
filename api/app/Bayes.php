@@ -195,7 +195,7 @@ class CerberusBayes {
 		$headers = DAO_MessageHeader::getAll($first_message->id);
 		    
 		// Pass text to analyze() to get back interesting words
-		$content = (!empty($headers['subject']) ? $headers['subject'].' ' : '').
+		$content = (!empty($ticket->subject) ? $ticket->subject.' ' : '').
 		    $first_message->getContent();
 		    
 	    $content = substr($content, 0, strrpos(substr($content, 0, self::MAX_BODY_LENGTH), ' '));
@@ -387,12 +387,13 @@ class CerberusBayes {
 		// pull up text of first ticket message
 	    $messages = DAO_Ticket::getMessagesByTicket($ticket_id);
 	    $first_message = array_shift($messages);
+	    $ticket = DAO_Ticket::getTicket($ticket_id);
 	    
-		if(empty($first_message) || !($first_message instanceOf CerberusMessage)) 
+		if(empty($ticket) || empty($first_message) || !($first_message instanceOf CerberusMessage)) 
 		    return FALSE;
 		
 		// Pass text to analyze() to get back interesting words
-		$content = $first_message->getContent();
+		$content = $ticket->subject . ' ' . $first_message->getContent();
 		
 		// Only check the first 15000 characters for spam, rounded to a sentence
 	    $content = substr($content, 0, strrpos(substr($content, 0, self::MAX_BODY_LENGTH), ' '));
