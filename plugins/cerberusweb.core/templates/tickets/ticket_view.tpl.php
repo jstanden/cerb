@@ -58,146 +58,159 @@
 		{assign var=tableRowBg value="tableRowAltBg"}
 	{/if}
 	
-		<tr class="{$tableRowBg}" id="{$rowIdPrefix}_s" onmouseover="toggleClass(this.id,'tableRowHover');toggleClass('{$rowIdPrefix}','tableRowHover');" onmouseout="toggleClass(this.id,'{$tableRowBg}');toggleClass('{$rowIdPrefix}','{$tableRowBg}');" onclick="if(getEventTarget(event)=='TD') checkAll('{$rowIdPrefix}_s');">
-			<td align="center" rowspan="2"><input type="checkbox" name="ticket_id[]" value="{$result.t_id}"></td>
-			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}"><a href="{devblocks_url}c=display&a=browse&id={$result.t_mask}&view={$view->id}{/devblocks_url}" class="ticketLink" style="font-size:12px;"><b id="subject_{$result.t_id}_{$view->id}">{if $result.t_is_deleted}<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete2_gray.gif{/devblocks_url}" width="16" height="16" align="top" border="0" title="{$translate->_('status.deleted')}"> {elseif $result.t_is_closed}<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check_gray.gif{/devblocks_url}" width="16" height="16" align="top" border="0" title="{$translate->_('status.closed')}"> {elseif $result.t_is_waiting}<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/clock.gif{/devblocks_url}" width="16" height="16" align="top" border="0" title="{$translate->_('status.waiting')}"> {/if}{$result.t_subject|escape:"htmlall"}</b></a> <a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showPreview&view_id={$view->id}&tid={$result.t_id}', this, false, '500px');" style="color:rgb(180,180,180);font-size:90%;">(peek)</a></td>
+	{assign var=ticket_group_id value=$result.tm_id}
+	{if !isset($active_worker_memberships.$ticket_group_id)}{*censor*}
+		<tr class="{$tableRowBg}">
+			<td>&nbsp;</td>
+			<td rowspan="2" colspan="{math equation="x" x=$smarty.foreach.headers.total}" style="color:rgb(140,140,140);font-size:10px;text-align:left;vertical-align:middle;">[Access Denied: {$result.tm_name} #{$result.t_mask}]</td>
 		</tr>
-		<tr class="{$tableRowBg}" id="{$rowIdPrefix}" onmouseover="toggleClass(this.id,'tableRowHover');toggleClass('{$rowIdPrefix}_s','tableRowHover');" onmouseout="toggleClass(this.id,'{$tableRowBg}');toggleClass('{$rowIdPrefix}_s','{$tableRowBg}');" onclick="if(getEventTarget(event)=='TD') checkAll('{$rowIdPrefix}_s');">
-		{foreach from=$view->view_columns item=column name=columns}
-			{if substr($column,0,3)=="cf_"}
-				{assign var=col value=$column|explode:'_'}
-				{assign var=col_id value=$col.1}
-				{assign var=col value=$ticket_fields.$col_id}
-				
-				{if $col->type=='S'}
-				<td>{$result.$column}</td>
-				{elseif $col->type=='T'}
-				<td title="{$result.$column|escape}">{$result.$column|truncate:32}</td>
-				{elseif $col->type=='D'}
-				<td>{$result.$column}</td>
-				{elseif $col->type=='E'}
-				<td>{$result.$column|date_format}</td>
-				{elseif $col->type=='C'}
-				<td>{if '1'==$result.$column}Yes{elseif '0'==$result.$column}No{/if}</td>
-				{/if}
-			{elseif $column=="t_id"}
-			<td><a href="{devblocks_url}c=display&id={$result.t_id}{/devblocks_url}">{$result.t_id}</a></td>
-			{elseif $column=="t_mask"}
-			<td><a href="{devblocks_url}c=display&id={$result.t_mask}{/devblocks_url}">{$result.t_mask}</a></td>
-			{elseif $column=="t_subject"}
-			<td title="{$result.t_subject}">{$result.t_subject|truncate:35:'...'}</td>
-			{elseif $column=="t_is_waiting"}
-			<td>{if $result.t_is_waiting}<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/clock.gif{/devblocks_url}" width="16" height="16" border="0" title="{$translate->_('status.waiting')}">{else}{/if}</td>
-			{elseif $column=="t_is_closed"}
-			<td>{if $result.t_is_closed}<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check_gray.gif{/devblocks_url}" width="16" height="16" border="0" title="{$translate->_('status.closed')}">{else}{/if}</td>
-			{elseif $column=="t_is_deleted"}
-			<td>{if $result.t_is_deleted}<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete2_gray.gif{/devblocks_url}" width="16" height="16" border="0" title="{$translate->_('status.deleted')}">{else}{/if}</td>
-			{elseif $column=="t_last_wrote"}
-			<td><a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$result.t_last_wrote}&view_id={$view->id}',this,false,'500px',ajax.cbAddressPeek);" title="{$result.t_last_wrote}">{$result.t_last_wrote|truncate:45:'...':true:true}</a></td>
-			{elseif $column=="t_first_wrote"}
-			<td><a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$result.t_first_wrote}&view_id={$view->id}',this,false,'500px',ajax.cbAddressPeek);" title="{$result.t_first_wrote}">{$result.t_first_wrote|truncate:45:'...':true:true}</a></td>
-			{elseif $column=="t_created_date"}
-			<td title="{$result.t_created_date|date_format:'%b %e, %Y  %H:%M:%S'}">{$result.t_created_date|prettytime}</td>
-			{elseif $column=="t_updated_date"}
-				{assign var=overdue value=0}
-				{if $result.t_category_id}
-					{assign var=ticket_category_id value=$result.t_category_id}
-					{assign var=bucket value=$buckets.$ticket_category_id}
-					{if $bucket->response_hrs}
-						{math assign=overdue equation="(t-x)/3600" t=$timestamp_now x=$result.t_updated_date h=$bucket->response_hrs format="%d"}
-					{/if}
-				{/if}
-				<td title="{$result.t_updated_date|date_format:'%b %e, %Y  %H:%M:%S'}" style="{if $overdue && $overdue>=$bucket->response_hrs}color:rgb(220,0,0);font-weight:bold;{/if}">{$result.t_updated_date|prettytime}</td>
-			{elseif $column=="t_due_date"}
-			<td title="{if $result.t_due_date}{$result.t_due_date|date_format:'%b %e, %Y  %H:%M:%S'}{/if}">{if $result.t_due_date}{$result.t_due_date|prettytime}{/if}</td>
-			{*{elseif $column=="t_tasks"}
-			<td align='center'>{if !empty($result.t_tasks)}{$result.t_tasks}{/if}</td>*}
-			{elseif $column=="tm_name"}
-			<td>{$result.tm_name}</td>
-			{elseif $column=="t_interesting_words"}
-			<td>{$result.t_interesting_words|replace:',':', '}</td>
-			{elseif $column=="t_category_id"}
-				{assign var=ticket_team_id value=$result.tm_id}
-				{assign var=ticket_category_id value=$result.t_category_id}
-				<td>
-					{if 0 == $ticket_category_id}
-						{if (isset($active_worker_memberships.$ticket_team_id)) && $active_worker_memberships.$ticket_team_id->is_manager || $active_worker->is_superuser}
-							<a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showAddInboxRulePanel&view_id={$view->id}&id={$result.t_id}',this,false,'400px');">-add filter-</a>
-						{/if}
-					{else}
-						{$buckets.$ticket_category_id->name}
-					{/if}
-				</td>
-			{elseif $column=="t_sla_id"}
-			<td>
-				{assign var=sla_id value=$result.t_sla_id}
-				{if !empty($sla_id) && isset($slas.$sla_id)}
-					{$slas.$sla_id->name}
-				{/if}
-			</td>
-			{elseif $column=="t_sla_priority"}
-			<td>
-				{assign var=sla_id value=$result.t_sla_id}
-				{if !empty($sla_id) && isset($slas.$sla_id)}
-					{$slas.$sla_id->name} ({$result.t_sla_priority})
-				{/if}
-			</td>
-			{elseif $column=="t_next_action"}
-			<td title="{$result.t_next_action}"><span style="color:rgb(130,130,130);">{$result.t_next_action|truncate:35:'...'|indent:2:"&nbsp;"}</span></td>
-			{elseif $column=="t_last_action_code"}
-			<td>
-				<span style="color:rgb(130,130,130);">
-				{if $result.t_last_action_code=='O'}
-					{assign var=action_worker_id value=$result.t_next_worker_id}
-					<span title="{$result.t_first_wrote}"><b>New</b> 
-					{if isset($workers.$action_worker_id)}for {$workers.$action_worker_id->getName()}{else}from <a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$result.t_first_wrote}&view_id={$view->id}',this,false,'500px',ajax.cbAddressPeek);">{$result.t_first_wrote|truncate:45:'...':true:true}</a>{/if}</span>
-				{elseif $result.t_last_action_code=='R'}
-					{assign var=action_worker_id value=$result.t_next_worker_id}
-					{if isset($workers.$action_worker_id)}
-						<span title="{$result.t_last_wrote}"><b>Incoming for {$workers.$action_worker_id->getName()}</b></span>
-					{else}
-						<span title="{$result.t_last_wrote}"><b>Incoming for Helpdesk</b></span>
-					{/if}
-				{elseif $result.t_last_action_code=='W'}
-					{assign var=action_worker_id value=$result.t_last_worker_id}
-					{if isset($workers.$action_worker_id)}
-						<span title="{$result.t_last_wrote}">Outgoing from {$workers.$action_worker_id->getName()}</span>
-					{else}
-						<span title="{$result.t_last_wrote}">Outgoing from Helpdesk</span>
-					{/if}
-				{/if}
-				</span>
-			</td>
-			{elseif $column=="t_last_worker_id"}
-			<td>
-				{assign var=action_worker_id value=$result.t_last_worker_id}
-				{if isset($workers.$action_worker_id)}{$workers.$action_worker_id->getName()}{/if}
-			</td>
-			{elseif $column=="t_next_worker_id"}
-			<td>
-				{assign var=action_worker_id value=$result.t_next_worker_id}
-				{if isset($workers.$action_worker_id)}{$workers.$action_worker_id->getName()}{/if}
-			</td>
-			{elseif $column=="t_first_wrote_spam"}
-			<td>{$result.t_first_wrote_spam}</td>
-			{elseif $column=="t_first_wrote_nonspam"}
-			<td>{$result.t_first_wrote_nonspam}</td>
-			{elseif $column=="t_spam_score"}
-			<td>
-				{math assign=score equation="x*100" format="%0.2f%%" x=$result.t_spam_score}
-				{if empty($result.t_spam_training)}
-				<!--<a href="javascript:;"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/warning.gif{/devblocks_url}" align="top" border="0" title="Not Spam ({$score})"></a>-->
-				<!--<a href="javascript:;"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check_gray.gif{/devblocks_url}" align="top" border="0" title="Not Spam ({$score})"></a>-->
-				<a href="javascript:;" onclick="toggleDiv('{$rowIdPrefix}_s','none');toggleDiv('{$rowIdPrefix}','none');genericAjaxGet('{$view->id}_output_container','c=tickets&a=reportSpam&id={$result.t_id}&viewId={$view->id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/{if $result.t_spam_score >= .90}warning.gif{else}warning_gray.gif{/if}{/devblocks_url}" align="top" border="0" title="Report Spam ({$score})
-				{if !empty($result.t_interesting_words)}{$result.t_interesting_words}{/if}"></a>
-				{/if}
-			</td>
-			{else}
-			<td></td>
+		<tr class="{$tableRowBg}">
+			<td>&nbsp;</td>
+		</tr>
+	
+	{else}
+	<tr class="{$tableRowBg}" id="{$rowIdPrefix}_s" onmouseover="toggleClass(this.id,'tableRowHover');toggleClass('{$rowIdPrefix}','tableRowHover');" onmouseout="toggleClass(this.id,'{$tableRowBg}');toggleClass('{$rowIdPrefix}','{$tableRowBg}');" onclick="if(getEventTarget(event)=='TD') checkAll('{$rowIdPrefix}_s');">
+		<td align="center" rowspan="2"><input type="checkbox" name="ticket_id[]" value="{$result.t_id}"></td>
+		<td colspan="{math equation="x" x=$smarty.foreach.headers.total}"><a href="{devblocks_url}c=display&a=browse&id={$result.t_mask}&view={$view->id}{/devblocks_url}" class="ticketLink" style="font-size:12px;"><b id="subject_{$result.t_id}_{$view->id}">{if $result.t_is_deleted}<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete2_gray.gif{/devblocks_url}" width="16" height="16" align="top" border="0" title="{$translate->_('status.deleted')}"> {elseif $result.t_is_closed}<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check_gray.gif{/devblocks_url}" width="16" height="16" align="top" border="0" title="{$translate->_('status.closed')}"> {elseif $result.t_is_waiting}<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/clock.gif{/devblocks_url}" width="16" height="16" align="top" border="0" title="{$translate->_('status.waiting')}"> {/if}{$result.t_subject|escape:"htmlall"}</b></a> <a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showPreview&view_id={$view->id}&tid={$result.t_id}', this, false, '500px');" style="color:rgb(180,180,180);font-size:90%;">(peek)</a></td>
+	</tr>
+	<tr class="{$tableRowBg}" id="{$rowIdPrefix}" onmouseover="toggleClass(this.id,'tableRowHover');toggleClass('{$rowIdPrefix}_s','tableRowHover');" onmouseout="toggleClass(this.id,'{$tableRowBg}');toggleClass('{$rowIdPrefix}_s','{$tableRowBg}');" onclick="if(getEventTarget(event)=='TD') checkAll('{$rowIdPrefix}_s');">
+	{foreach from=$view->view_columns item=column name=columns}
+		{if substr($column,0,3)=="cf_"}
+			{assign var=col value=$column|explode:'_'}
+			{assign var=col_id value=$col.1}
+			{assign var=col value=$ticket_fields.$col_id}
+			
+			{if $col->type=='S'}
+			<td>{$result.$column}</td>
+			{elseif $col->type=='T'}
+			<td title="{$result.$column|escape}">{$result.$column|truncate:32}</td>
+			{elseif $col->type=='D'}
+			<td>{$result.$column}</td>
+			{elseif $col->type=='E'}
+			<td>{$result.$column|date_format}</td>
+			{elseif $col->type=='C'}
+			<td>{if '1'==$result.$column}Yes{elseif '0'==$result.$column}No{/if}</td>
 			{/if}
-		{/foreach}
-		</tr>
+		{elseif $column=="t_id"}
+		<td><a href="{devblocks_url}c=display&id={$result.t_id}{/devblocks_url}">{$result.t_id}</a></td>
+		{elseif $column=="t_mask"}
+		<td><a href="{devblocks_url}c=display&id={$result.t_mask}{/devblocks_url}">{$result.t_mask}</a></td>
+		{elseif $column=="t_subject"}
+		<td title="{$result.t_subject}">{$result.t_subject|truncate:35:'...'}</td>
+		{elseif $column=="t_is_waiting"}
+		<td>{if $result.t_is_waiting}<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/clock.gif{/devblocks_url}" width="16" height="16" border="0" title="{$translate->_('status.waiting')}">{else}{/if}</td>
+		{elseif $column=="t_is_closed"}
+		<td>{if $result.t_is_closed}<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check_gray.gif{/devblocks_url}" width="16" height="16" border="0" title="{$translate->_('status.closed')}">{else}{/if}</td>
+		{elseif $column=="t_is_deleted"}
+		<td>{if $result.t_is_deleted}<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete2_gray.gif{/devblocks_url}" width="16" height="16" border="0" title="{$translate->_('status.deleted')}">{else}{/if}</td>
+		{elseif $column=="t_last_wrote"}
+		<td><a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$result.t_last_wrote}&view_id={$view->id}',this,false,'500px',ajax.cbAddressPeek);" title="{$result.t_last_wrote}">{$result.t_last_wrote|truncate:45:'...':true:true}</a></td>
+		{elseif $column=="t_first_wrote"}
+		<td><a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$result.t_first_wrote}&view_id={$view->id}',this,false,'500px',ajax.cbAddressPeek);" title="{$result.t_first_wrote}">{$result.t_first_wrote|truncate:45:'...':true:true}</a></td>
+		{elseif $column=="t_created_date"}
+		<td title="{$result.t_created_date|date_format:'%b %e, %Y  %H:%M:%S'}">{$result.t_created_date|prettytime}</td>
+		{elseif $column=="t_updated_date"}
+			{assign var=overdue value=0}
+			{if $result.t_category_id}
+				{assign var=ticket_category_id value=$result.t_category_id}
+				{assign var=bucket value=$buckets.$ticket_category_id}
+				{if $bucket->response_hrs}
+					{math assign=overdue equation="(t-x)/3600" t=$timestamp_now x=$result.t_updated_date h=$bucket->response_hrs format="%d"}
+				{/if}
+			{/if}
+			<td title="{$result.t_updated_date|date_format:'%b %e, %Y  %H:%M:%S'}" style="{if $overdue && $overdue>=$bucket->response_hrs}color:rgb(220,0,0);font-weight:bold;{/if}">{$result.t_updated_date|prettytime}</td>
+		{elseif $column=="t_due_date"}
+		<td title="{if $result.t_due_date}{$result.t_due_date|date_format:'%b %e, %Y  %H:%M:%S'}{/if}">{if $result.t_due_date}{$result.t_due_date|prettytime}{/if}</td>
+		{*{elseif $column=="t_tasks"}
+		<td align='center'>{if !empty($result.t_tasks)}{$result.t_tasks}{/if}</td>*}
+		{elseif $column=="tm_name"}
+		<td>{$result.tm_name}</td>
+		{elseif $column=="t_interesting_words"}
+		<td>{$result.t_interesting_words|replace:',':', '}</td>
+		{elseif $column=="t_category_id"}
+			{assign var=ticket_team_id value=$result.tm_id}
+			{assign var=ticket_category_id value=$result.t_category_id}
+			<td>
+				{if 0 == $ticket_category_id}
+					{if (isset($active_worker_memberships.$ticket_team_id)) && $active_worker_memberships.$ticket_team_id->is_manager || $active_worker->is_superuser}
+						<a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showAddInboxRulePanel&view_id={$view->id}&id={$result.t_id}',this,false,'400px');">-add filter-</a>
+					{/if}
+				{else}
+					{$buckets.$ticket_category_id->name}
+				{/if}
+			</td>
+		{elseif $column=="t_sla_id"}
+		<td>
+			{assign var=sla_id value=$result.t_sla_id}
+			{if !empty($sla_id) && isset($slas.$sla_id)}
+				{$slas.$sla_id->name}
+			{/if}
+		</td>
+		{elseif $column=="t_sla_priority"}
+		<td>
+			{assign var=sla_id value=$result.t_sla_id}
+			{if !empty($sla_id) && isset($slas.$sla_id)}
+				{$slas.$sla_id->name} ({$result.t_sla_priority})
+			{/if}
+		</td>
+		{elseif $column=="t_next_action"}
+		<td title="{$result.t_next_action}"><span style="color:rgb(130,130,130);">{$result.t_next_action|truncate:35:'...'|indent:2:"&nbsp;"}</span></td>
+		{elseif $column=="t_last_action_code"}
+		<td>
+			<span style="color:rgb(130,130,130);">
+			{if $result.t_last_action_code=='O'}
+				{assign var=action_worker_id value=$result.t_next_worker_id}
+				<span title="{$result.t_first_wrote}"><b>New</b> 
+				{if isset($workers.$action_worker_id)}for {$workers.$action_worker_id->getName()}{else}from <a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$result.t_first_wrote}&view_id={$view->id}',this,false,'500px',ajax.cbAddressPeek);">{$result.t_first_wrote|truncate:45:'...':true:true}</a>{/if}</span>
+			{elseif $result.t_last_action_code=='R'}
+				{assign var=action_worker_id value=$result.t_next_worker_id}
+				{if isset($workers.$action_worker_id)}
+					<span title="{$result.t_last_wrote}"><b>Incoming for {$workers.$action_worker_id->getName()}</b></span>
+				{else}
+					<span title="{$result.t_last_wrote}"><b>Incoming for Helpdesk</b></span>
+				{/if}
+			{elseif $result.t_last_action_code=='W'}
+				{assign var=action_worker_id value=$result.t_last_worker_id}
+				{if isset($workers.$action_worker_id)}
+					<span title="{$result.t_last_wrote}">Outgoing from {$workers.$action_worker_id->getName()}</span>
+				{else}
+					<span title="{$result.t_last_wrote}">Outgoing from Helpdesk</span>
+				{/if}
+			{/if}
+			</span>
+		</td>
+		{elseif $column=="t_last_worker_id"}
+		<td>
+			{assign var=action_worker_id value=$result.t_last_worker_id}
+			{if isset($workers.$action_worker_id)}{$workers.$action_worker_id->getName()}{/if}
+		</td>
+		{elseif $column=="t_next_worker_id"}
+		<td>
+			{assign var=action_worker_id value=$result.t_next_worker_id}
+			{if isset($workers.$action_worker_id)}{$workers.$action_worker_id->getName()}{/if}
+		</td>
+		{elseif $column=="t_first_wrote_spam"}
+		<td>{$result.t_first_wrote_spam}</td>
+		{elseif $column=="t_first_wrote_nonspam"}
+		<td>{$result.t_first_wrote_nonspam}</td>
+		{elseif $column=="t_spam_score"}
+		<td>
+			{math assign=score equation="x*100" format="%0.2f%%" x=$result.t_spam_score}
+			{if empty($result.t_spam_training)}
+			<!--<a href="javascript:;"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/warning.gif{/devblocks_url}" align="top" border="0" title="Not Spam ({$score})"></a>-->
+			<!--<a href="javascript:;"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check_gray.gif{/devblocks_url}" align="top" border="0" title="Not Spam ({$score})"></a>-->
+			<a href="javascript:;" onclick="toggleDiv('{$rowIdPrefix}_s','none');toggleDiv('{$rowIdPrefix}','none');genericAjaxGet('{$view->id}_output_container','c=tickets&a=reportSpam&id={$result.t_id}&viewId={$view->id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/{if $result.t_spam_score >= .90}warning.gif{else}warning_gray.gif{/if}{/devblocks_url}" align="top" border="0" title="Report Spam ({$score})
+			{if !empty($result.t_interesting_words)}{$result.t_interesting_words}{/if}"></a>
+			{/if}
+		</td>
+		{else}
+		<td></td>
+		{/if}
 	{/foreach}
+	</tr>
+	{/if}{*!censor*}
+	
+{/foreach}
 	
 </table>
 <table cellpadding="2" cellspacing="0" border="0" width="100%" class="tableBg" id="{$view->id}_actions">

@@ -1,3 +1,15 @@
+{if empty($sla_counts) && empty($group_counts) && empty($waiting_counts) && empty($worker_groups)}
+<div class="block">
+<h2>All Done!</h2>
+<table cellspacing="0" cellpadding="2" border="0" width="220">
+	<tr>
+		<td>There are currently no open tickets.</td>
+	</tr>
+</table>
+</div>
+<br>
+{/if}
+
 <div id="tourOverviewSummaries"></div>
 {if !empty($sla_counts) && count($sla_counts) > 1}
 <div class="block">

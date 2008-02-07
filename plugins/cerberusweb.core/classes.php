@@ -492,8 +492,9 @@ class ChTicketsPage extends CerberusPageExtension {
 				}
 				
 				$overView->params = array(
-					new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN),
-					new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_WAITING,'=',0),
+					SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN),
+					SearchFields_Ticket::TICKET_WAITING => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_WAITING,'=',0),
+					SearchFields_Ticket::TEAM_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'in',array_keys($memberships)), // censor
 				);
 				
 				$overView->renderPage = 0;
@@ -567,6 +568,7 @@ class ChTicketsPage extends CerberusPageExtension {
 						$overView->params = array(
 							SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN),
 							SearchFields_Ticket::TICKET_WAITING => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_WAITING,'=',0),
+							$overView->params[SearchFields_Ticket::TEAM_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'in',array_keys($memberships)), // censor
 						);
 
 						if(!is_null($filter_worker_id)) {
@@ -590,6 +592,7 @@ class ChTicketsPage extends CerberusPageExtension {
 							SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN),
 							SearchFields_Ticket::TICKET_WAITING => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_WAITING,'=',0),							
 							SearchFields_Ticket::TICKET_NEXT_WORKER_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_NEXT_WORKER_ID,'=',0),
+							$overView->params[SearchFields_Ticket::TEAM_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'in',array_keys($memberships)), // censor
 						);
 
 						if(!is_null($filter_sla_id)) {
@@ -1592,6 +1595,12 @@ class ChTicketsPage extends CerberusPageExtension {
         $view->params[SearchFields_Ticket::TICKET_LAST_ACTION_CODE] = 
         	new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_LAST_ACTION_CODE,'in',array('O','R'));
         
+        // In my groups
+        // [TODO] Test impact
+		$active_worker = CerberusApplication::getActiveWorker();
+		$memberships = $active_worker->getMemberships();
+		$view->params[] = new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID, 'in', array_keys($memberships)); 
+        	
         $tpl->assign('view_id', $view_id);
         
         $results = $view->getData();
@@ -1625,6 +1634,12 @@ class ChTicketsPage extends CerberusPageExtension {
         $view->params[SearchFields_Ticket::TICKET_LAST_ACTION_CODE] = 
         	new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_LAST_ACTION_CODE,'in',array('O','R'));
 	    
+        // In my groups
+       	// [TODO] Test impact
+        $active_worker = CerberusApplication::getActiveWorker();
+		$memberships = $active_worker->getMemberships();
+		$view->params[] = new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID, 'in', array_keys($memberships)); 
+        	
        	// Sort by Service Level priority
 		$view->renderLimit = $how_many;
 		$view->renderSortBy = SearchFields_Ticket::TICKET_SLA_PRIORITY;	
@@ -1694,6 +1709,12 @@ class ChTicketsPage extends CerberusPageExtension {
 			$category_name_hash = DAO_Bucket::getCategoryNameHash();
 			$tpl->assign('category_name_hash', $category_name_hash);
 	        
+			// Enforce group memberships
+	       	// [TODO] Test impact
+			$active_worker = CerberusApplication::getActiveWorker();
+			$memberships = $active_worker->getMemberships();
+			$view->params[] = new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID, 'in', array_keys($memberships)); 
+			
 	        // [JAS]: Calculate statistics about the current view (top unique senders/subjects/domains)
 		    $biggest = DAO_Ticket::analyze($view->params, 15, $mode, $mode_param);
 		    $tpl->assign('biggest', $biggest);
@@ -2348,8 +2369,16 @@ class ChTicketsPage extends CerberusPageExtension {
 	        $ticket_ids = DevblocksPlatform::parseCsvString($ticket_id_str);
 	    }
 		
+	    // Restrict to current worker groups
+		$active_worker = CerberusApplication::getActiveWorker();
+		$memberships = $active_worker->getMemberships();
+		$view->params['tmp'] = new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID, 'in', array_keys($memberships)); 
+	    
 	    // [TODO] Reimplement 'always'
 		$view->doBulkUpdate($filter, '', $data, $do, $ticket_ids, $always);
+		
+		// Clear our temporary group restriction before re-rendering
+		unset($view->params['tmp']);
 		
 		$view->render();
 		return;
@@ -2380,6 +2409,11 @@ class ChTicketsPage extends CerberusPageExtension {
 		
 		$now = time();
 		$hash = md5($title.$view_id.$active_worker->id.$now);
+		
+	    // Restrict to current worker groups
+		$active_worker = CerberusApplication::getActiveWorker();
+		$memberships = $active_worker->getMemberships();
+		$view->params[] = new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID, 'in', array_keys($memberships)); 
 		
 		$params = array(
 			'params' => $view->params,
@@ -5880,6 +5914,15 @@ class ChDisplayPage extends CerberusPageExtension {
 			echo "<H1>Invalid Ticket ID.</H1>";
 			return;
 		}
+
+		$active_worker = CerberusApplication::getActiveWorker();
+		$active_worker_memberships = $active_worker->getMemberships();
+		
+		// Check group membership ACL
+		if(!isset($active_worker_memberships[$ticket->team_id])) {
+			echo "<H1>Access Denied</H1>";
+			return;
+		}
 		
 		$tpl->assign('ticket', $ticket);
 
@@ -5999,6 +6042,11 @@ class ChDisplayPage extends CerberusPageExtension {
 		@$view_id = array_shift($stack);
 		if(!empty($view_id)) {
 			$view = C4_AbstractViewLoader::getView('',$view_id);
+
+			// Restrict to the active worker's groups
+			$active_worker = CerberusApplication::getActiveWorker();
+			$memberships = $active_worker->getMemberships();
+			$view->params['tmp'] = new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID, 'in', array_keys($memberships)); 
 			
 			$range = 100;
 			$pos = $view->renderLimit * $view->renderPage;

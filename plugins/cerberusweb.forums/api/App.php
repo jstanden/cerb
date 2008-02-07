@@ -121,6 +121,8 @@ class ChForumsPage extends CerberusPageExtension {
 			default:
 				$visit = CerberusApplication::getVisit();
 				
+				@$start = DevblocksPlatform::importGPC($_REQUEST['start'],'integer', 0);
+				
 				// Load results cache
 				if(null == ($forums_view = C4_AbstractViewLoader::getView('', C4_ForumsThreadView::DEFAULT_ID))) {
 					// Do something
@@ -139,6 +141,14 @@ class ChForumsPage extends CerberusPageExtension {
 					$forums_view->renderSortAsc,
 					false
 				);
+
+				if(!empty($start))
+				foreach($posts as $post_id => $post) {
+					if($start == $post_id)
+						break;
+					unset($posts[$post_id]);
+				}
+				
 				$visit->set('forums_explorer_results', $posts);
 				
 				$tpl->assign('current_post', current($posts));
@@ -332,6 +342,7 @@ class ChForumsPage extends CerberusPageExtension {
 					$fields = array(
 						DAO_ForumsThread::LAST_UPDATED => intval($thread_last_updated),
 						DAO_ForumsThread::LAST_POSTER => $thread_last_poster,
+						DAO_ForumsThread::LINK => $thread_link,
 						DAO_ForumsThread::IS_CLOSED => 0,
 					);
 					DAO_ForumsThread::update($th->id, $fields);

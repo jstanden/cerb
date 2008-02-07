@@ -493,6 +493,17 @@ class C4_TicketView extends C4_AbstractView {
     	}
 	}
 	
+	function doResetCriteria() {
+		$active_worker = CerberusApplication::getActiveWorker(); /* @var $active_worker CerberusWorker */
+		$active_worker_memberships = $active_worker->getMemberships();
+		
+		$this->params = array(
+			SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',0),
+			SearchFields_Ticket::TEAM_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'in',array_keys($active_worker_memberships)), // censor
+		);
+		$this->renderPage = 0;
+	}
+	
 	function renderCriteria($field) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('id', $this->id);
@@ -944,6 +955,9 @@ class C4_TicketView extends C4_AbstractView {
 	}
 
 	static function createSearchView() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		$memberships = $active_worker->getMemberships();
+		
 		$view = new C4_TicketView();
 		$view->id = CerberusApplication::VIEW_SEARCH;
 		$view->name = "Search Results";
@@ -957,7 +971,8 @@ class C4_TicketView extends C4_AbstractView {
 			SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
 		);
 		$view->params = array(
-			SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,DevblocksSearchCriteria::OPER_EQ,0)
+			SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,DevblocksSearchCriteria::OPER_EQ,0),
+			SearchFields_Ticket::TEAM_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'in',array_keys($memberships)), // censor
 		);
 		$view->renderLimit = 100;
 		$view->renderPage = 0;
@@ -1373,7 +1388,6 @@ class C4_TaskView extends C4_AbstractView {
 
 		$this->view_columns = array(
 			SearchFields_Task::SOURCE_EXTENSION,
-			SearchFields_Task::TITLE,
 			SearchFields_Task::PRIORITY,
 			SearchFields_Task::DUE_DATE,
 			SearchFields_Task::WORKER_ID,
@@ -1712,7 +1726,7 @@ class CerberusVisit extends DevblocksVisit {
 	public function getWorker() {
 		return $this->worker;
 	}
-
+	
 	public function setWorker(CerberusWorker $worker=null) {
 		$this->worker = $worker;
 	}
@@ -1725,6 +1739,9 @@ class C4_Overview {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$memberships = $active_worker->getMemberships();
 
+		if(empty($memberships))
+			return array();
+		
 		// Group Loads
 		$sql = sprintf("SELECT count(*) AS hits, team_id, category_id ".
 		"FROM ticket ".
@@ -1760,6 +1777,9 @@ class C4_Overview {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$memberships = $active_worker->getMemberships();
 
+		if(empty($memberships))
+			return array();
+		
 		// Waiting For Reply Loads
 		$sql = sprintf("SELECT count(*) AS hits, team_id, category_id ".
 		"FROM ticket ".
@@ -1792,12 +1812,20 @@ class C4_Overview {
 	static function getWorkerTotals() {
 		$db = DevblocksPlatform::getDatabaseService();
 
+		$active_worker = CerberusApplication::getActiveWorker();
+		$memberships = $active_worker->getMemberships();
+		
+		if(empty($memberships))
+			return array();
+		
 		// Worker Loads
 		$sql = sprintf("SELECT count(*) AS hits, t.team_id, t.next_worker_id ".
-		"FROM ticket t ".
-		"WHERE t.is_waiting = 0 AND t.is_closed = 0 AND t.is_deleted = 0 ".
-		"AND t.next_worker_id > 0 ".
-		"GROUP BY t.team_id, t.next_worker_id "
+			"FROM ticket t ".
+			"WHERE t.is_waiting = 0 AND t.is_closed = 0 AND t.is_deleted = 0 ".
+			"AND t.next_worker_id > 0 ".
+			"AND t.team_id IN (%s) ".
+			"GROUP BY t.team_id, t.next_worker_id ",
+			implode(',', array_keys($memberships))
 		);
 		$rs_workers = $db->Execute($sql);
 
@@ -1821,13 +1849,21 @@ class C4_Overview {
 	static function getSlaTotals() {
 		$db = DevblocksPlatform::getDatabaseService();
 
+		$active_worker = CerberusApplication::getActiveWorker();
+		$memberships = $active_worker->getMemberships();
+		
+		if(empty($memberships))
+			return array();
+		
 		// SLA Loads
 		$sql = sprintf("SELECT count(*) AS hits, t.sla_id ".
-		"FROM ticket t ".
-		"INNER JOIN sla s ON (s.id=t.sla_id) ".
-		"WHERE t.is_waiting = 0 AND t.is_closed = 0 AND t.is_deleted = 0 ".
-		"AND t.next_worker_id = 0 ".
-		"GROUP BY t.sla_id"
+			"FROM ticket t ".
+			"INNER JOIN sla s ON (s.id=t.sla_id) ".
+			"WHERE t.is_waiting = 0 AND t.is_closed = 0 AND t.is_deleted = 0 ".
+			"AND t.next_worker_id = 0 ".
+			"AND t.team_id IN (%s) ".
+			"GROUP BY t.sla_id",
+			implode(',', array_keys($memberships))
 		);
 		$rs_sla = $db->Execute($sql);
 
@@ -1872,7 +1908,12 @@ class CerberusWorker {
 	 * @return Model_TeamMember[]
 	 */
 	function getMemberships() {
-		return DAO_Worker::getGroupMemberships($this->id);
+		// Cache for one page cycle
+		static $memberships = null;
+		if(null == $memberships) {
+			$memberships = DAO_Worker::getGroupMemberships($this->id); 
+		}
+		return $memberships;
 	}
 
 	function isTeamManager($team_id) {
@@ -1889,6 +1930,19 @@ class CerberusWorker {
 		return true;
 	}
 
+	function isTeamMember($team_id) {
+		@$memberships = $this->getMemberships();
+		$teams = DAO_Group::getAll();
+		if(
+			empty($team) // null
+			|| !isset($teams[$team_id]) // not a team
+			|| !isset($memberships[$team_id]) // not a member
+		) {
+			return false;
+		}
+		return true;
+	}
+	
 	function getName() {
 		return sprintf("%s%s%s",
 		$this->first_name,

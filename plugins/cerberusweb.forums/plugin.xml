@@ -1,11 +1,11 @@
 <!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
 <plugin>
 	<id>cerberusweb.forums</id>
-	<name>Cerberus Helpdesk: Support Forums</name>
-	<description></description>
+	<name>Cerberus Helpdesk: Forum Explorer</name>
+	<description>The Forum Explorer synchronizes with your various support forums (e.g. vBulletin, phpBB2) to allow you to efficiently handle forum threads like tickets.</description>
 	<author>WebGroup Media, LLC.</author>
 	<revision>0</revision>
-	<link></link>
+	<link>http://wiki.cerberusdemo.com/index.php/Forum_Explorer_(Plugin)</link>
 	<is_configurable>1</is_configurable>
 	<class>
 		<file>api/App.php</file>
