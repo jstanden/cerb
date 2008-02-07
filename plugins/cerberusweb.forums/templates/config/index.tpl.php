@@ -19,23 +19,28 @@
 		<br>
 	{/foreach}
 {else}
-	No forums defined.
+	No forums defined.<br>
 {/if}
+	<br>
+	<b>Treat these forum posters as helpdesk workers:</b><br>
+	<textarea style="height:80px;width:98%;" name="poster_workers">{$poster_workers_str}</textarea><br>
 </blockquote>
 
 <h2>Add Forum</h2>
 
-<b>Name:</b><br>
-<input type="text" name="name" size="64"><br>
-<br>
-
-<b>URL:</b><br>
-<input type="text" name="url" size="64"><br>
-<br>
-
-<b>Secret Key:</b><br>
-<input type="text" name="secret_key" size="64"><br>
-<br>
+<blockquote>
+	<b>Name:</b><br>
+	<input type="text" name="name" size="64"><br>
+	<br>
+	
+	<b>URL:</b><br>
+	<input type="text" name="url" size="64"><br>
+	<br>
+	
+	<b>Secret Key:</b><br>
+	<input type="text" name="secret_key" size="64"><br>
+	<br>
+</blockquote>
 
 <button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
 

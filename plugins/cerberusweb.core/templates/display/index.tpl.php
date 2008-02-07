@@ -26,7 +26,6 @@
 					{/if}
 					<!-- {if !empty($ticket->interesting_words)}<b>Interesting Words:</b> {$ticket->interesting_words}<br>{/if} -->
 					<!-- <b>Next Action:</b> <input type="text" name="next_step" size="80" value="{$ticket->next_action}" maxlength="255"><br>  -->
-					<br>
 				</td>
 				<td align="right">
 					<form action="{devblocks_url}{/devblocks_url}" method="post">
@@ -47,7 +46,7 @@
 <tr>
 	<td valign="top">
 		<div id="tourDisplayProperties"></div>
-		<form action="{devblocks_url}{/devblocks_url}" method="post">
+		<form action="{devblocks_url}{/devblocks_url}" method="post" style="margin-bottom:10px;margin-top:5px;">
 			<input type="hidden" name="c" value="display">
 			<input type="hidden" name="a" value="updateProperties">
 			<input type="hidden" name="id" value="{$ticket->id}">
@@ -139,7 +138,7 @@ tabView.addTab( new YAHOO.widget.Tab({
 }));
 
 tabView.addTab( new YAHOO.widget.Tab({
-    label: 'Tasks',
+    label: 'Tasks ({/literal}{$tasks_total}{literal})',
     dataSrc: '{/literal}{devblocks_url}ajax.php?c=display&a=showTasks&ticket_id={$ticket->id}{/devblocks_url}{literal}',
     cacheData: true,
     {/literal}active: {if 'tasks'==$tab_selected}true{else}false{/if}{literal}

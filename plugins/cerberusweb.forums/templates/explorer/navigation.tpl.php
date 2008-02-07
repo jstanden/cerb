@@ -7,6 +7,12 @@
 			background-color: rgb(220,220,220);
 			font-family: Arial,sans-serif,Helvetica,Verdana;
 		}
+		TD {
+			font-size:14px;
+		}
+		A {
+			color:rgb(50,50,200);
+		}
 	{/literal}
 	</style>
 
@@ -21,24 +27,34 @@
 			<form action="{devblocks_url}{/devblocks_url}" name="formForumThreadActions">
 				<input type="hidden" name="c" value="forums">
 				<input type="hidden" name="a" value="">
-				<input type="hidden" name="id" value="{$current_post.t_id}">
-				
-				<button type="button" onclick="genericAjaxGet('','c=forums&a=ajaxClose&id={$current_post.t_id}');this.innerHTML='Closed!';"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_ok.gif{/devblocks_url}" align="top"> Close</button>
+				<input type="hidden" name="id" value="{$current_post->id}">
+
+				{if $current_post->is_closed}
+					<button type="button" onclick="genericAjaxGet('','c=forums&a=ajaxReopen&id={$current_post->id}');this.innerHTML='Opened!';"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_out.gif{/devblocks_url}" align="top"> Re-open</button>
+				{else}				
+					<button type="button" onclick="genericAjaxGet('','c=forums&a=ajaxClose&id={$current_post->id}');this.innerHTML='Closed!';"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_ok.gif{/devblocks_url}" align="top"> Close</button>
+				{/if}
 				 &nbsp; 
-				Assign: <select name="worker_id" onchange="genericAjaxGet('','c=forums&a=ajaxAssign&id={$current_post.t_id}&worker_id='+selectValue(this));">
+				Assign: <select name="worker_id" onchange="genericAjaxGet('','c=forums&a=ajaxAssign&id={$current_post->id}&worker_id='+selectValue(this));">
 					<option value="">-- assign --</option>
 					{foreach from=$workers item=worker key=worker_id name=forums_workers}
 						{if $worker_id==$active_worker->id}{assign var=active_worker_pos value=$smarty.foreach.forums_workers.iteration}{/if}
-						<option value="{$worker_id}" {if $worker_id==$current_post.t_worker_id}selected{/if}>{$worker->getName()}</option>
+						<option value="{$worker_id}" {if $worker_id==$current_post->worker_id}selected{/if}>{$worker->getName()}</option>
 					{/foreach}
 					<option value="0">- unassign -</option>
-				</select>{if !empty($active_worker_pos)}<button type="button" onclick="this.form.worker_id.selectedIndex={$active_worker_pos};genericAjaxGet('','c=forums&a=ajaxAssign&id={$current_post.t_id}&worker_id={$active_worker->id}');">me</button>{/if}
+				</select>{if !empty($active_worker_pos)}<button type="button" onclick="this.form.worker_id.selectedIndex={$active_worker_pos};genericAjaxGet('','c=forums&a=ajaxAssign&id={$current_post->id}&worker_id={$active_worker->id}');">me</button>{/if}
 			</form>
 		</td>
 		
 		<td align="right" valign="top">
+			{if !empty($prev_post)}
+				<a href="{$prev_post.t_link}" onclick="document.location='{devblocks_url}c=forums&a=explorer&n=navigation&prev=prev{/devblocks_url}';" target="frameForums" title="{$prev_post.t_title|escape}">&laquo; {$prev_post.t_title|truncate:50:'...':true}</a> 
+			{/if}
+			{if !empty($prev_post) && !empty($next_post)}
+				&nbsp;|&nbsp;  
+			{/if}
 			{if !empty($next_post)}
-				Next: <a href="{$next_post.t_link}" onclick="document.location='{devblocks_url}c=forums&a=explorer&n=navigation&next=next{/devblocks_url}';" target="frameForums">{$next_post.t_title|truncate:60:'...':true}</a>
+				<a href="{$next_post.t_link}" onclick="document.location='{devblocks_url}c=forums&a=explorer&n=navigation&next=next{/devblocks_url}';" target="frameForums" title="{$next_post.t_title|escape}">{$next_post.t_title|truncate:50:'...':true} &raquo;</a>
 			{/if}
 		</td>
 	</tr>

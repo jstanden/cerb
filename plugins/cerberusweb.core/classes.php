@@ -5969,6 +5969,10 @@ class ChDisplayPage extends CerberusPageExtension {
 		$comments_total = DAO_TicketComment::getCountByTicketId($id);
 		$tpl->assign('comments_total', $comments_total);
 		
+		// Tasks Total [TODO] Eventually this can be ticket.num_tasks
+		$tasks_total = DAO_Task::getCountBySourceObjectId('cerberusweb.tasks.ticket',$id);
+		$tpl->assign('tasks_total', $tasks_total);
+		
 		// Custom Field Values [TODO] Eventually this can be cached on ticket.num_custom_fields
 		$field_values_total = DAO_TicketFieldValue::getValueCountByTicketId($id, $ticket->team_id);
 		$tpl->assign('field_values_total', $field_values_total);

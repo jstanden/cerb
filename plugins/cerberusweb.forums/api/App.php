@@ -8,10 +8,14 @@ DevblocksPlatform::registerClasses($path. 'api/App.php', array(
 class ChForumsPlugin extends DevblocksPlugin {
 	const ID = 'cerberusweb.forums';
 	
+	const SETTING_POSTER_WORKERS = 'forums.forum_workers';
+	
 	function load(DevblocksPluginManifest $manifest) {
 	}
 	
 	function configure(DevblocksPluginManifest $manifest) {
+		$settings = CerberusSettings::getInstance();
+		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
 		$tpl_path = realpath(dirname(__FILE__) . '/../templates/');
@@ -21,10 +25,15 @@ class ChForumsPlugin extends DevblocksPlugin {
 		@$sources = DAO_ForumsSource::getWhere();
 		$tpl->assign('sources', $sources);
 
+		if(null != ($poster_workers_str = $settings->get(self::SETTING_POSTER_WORKERS, null))) {
+			$tpl->assign('poster_workers_str', $poster_workers_str);
+		}
+		
 		$tpl->display($tpl_path.'/config/index.tpl.php');
 	}
 	
 	function saveConfiguration(DevblocksPluginManifest $manifest) {
+		$settings = CerberusSettings::getInstance();
 		@$plugin_id = DevblocksPlatform::importGPC($_REQUEST['plugin_id'],'string');
 
 		// Edit|Delete
@@ -34,6 +43,8 @@ class ChForumsPlugin extends DevblocksPlugin {
 		@$keys = DevblocksPlatform::importGPC($_REQUEST['keys'],'array',array());
 		@$deletes = DevblocksPlatform::importGPC($_REQUEST['deletes'],'array',array());
 				
+		@$poster_workers = DevblocksPlatform::importGPC($_REQUEST['poster_workers'],'string','');
+		
 		// Add
 		@$name = DevblocksPlatform::importGPC($_REQUEST['name'],'string','');
 		@$url = DevblocksPlatform::importGPC($_REQUEST['url'],'string','');
@@ -44,6 +55,10 @@ class ChForumsPlugin extends DevblocksPlugin {
 			DAO_ForumsSource::delete($deletes);
 		}
 
+		if(!empty($poster_workers)) {
+			$settings->set(ChForumsPlugin::SETTING_POSTER_WORKERS, strtolower($poster_workers));
+		}
+		
 		// Edits
 		if(is_array($ids) && !empty($ids)) {
 			foreach($ids as $idx => $source_id) {
@@ -133,29 +148,40 @@ class ChForumsPage extends CerberusPageExtension {
 				$tpl->cache_lifetime = "0";
 				$tpl->assign('path', $this->tpl_path);
 				
-				list($posts, $null) = DAO_ForumsThread::search(
+				$view_start = $forums_view->renderLimit * $forums_view->renderPage;
+				$view_page = floor($view_start/100);
+				
+				list($posts, $count) = DAO_ForumsThread::search(
 					$forums_view->params,
 					100, // $forums_view->renderLimit
-					0, // $forums_view->renderPage
+					$view_page, // $forums_view->renderPage
 					$forums_view->renderSortBy,
 					$forums_view->renderSortAsc,
-					false
+					true
 				);
-
-				if(!empty($start))
-				foreach($posts as $post_id => $post) {
-					if($start == $post_id)
-						break;
-					unset($posts[$post_id]);
+				
+				// Advance the internal pointer to the requested start position
+				if(!empty($start) && isset($posts[$start])) {
+					while(key($posts) != $start) {
+						next($posts);
+					}
 				}
+
+				if(empty($start))
+					$start = key($posts);
 				
+				$current = current($posts);
+					
 				$visit->set('forums_explorer_results', $posts);
+				$visit->set('forums_explorer_results_pos', $start);
+//				$visit->set('forums_explorer_results_total', $count);
 				
-				$tpl->assign('current_post', current($posts));
+				$tpl->assign('current_post', $current);
 				$tpl->display('file:' . $this->tpl_path . '/explorer/index.tpl.php');
 				break;
 		}
 		
+		session_write_close();
 		exit;
 	}
 	
@@ -166,6 +192,14 @@ class ChForumsPage extends CerberusPageExtension {
 			return;
 		}
 		
+		$pos = $visit->get('forums_explorer_results_pos', -1);
+
+		// Advance our pointer
+		if(!empty($pos) && isset($posts[$pos]))
+			while(key($posts)!=$pos) {
+				next($posts);
+			}
+		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->tpl_path);
@@ -175,13 +209,38 @@ class ChForumsPage extends CerberusPageExtension {
 		
 		switch(array_shift($stack)) {
 			case 'next':
-				array_shift($posts); // poof
-				$visit->set('forums_explorer_results', $posts);
+				next($posts);
+				$key = key($posts);
+				$visit->set('forums_explorer_results_pos', $key);
+				break;
+				
+			case 'prev':
+				prev($posts);
+				$key = key($posts);
+				$visit->set('forums_explorer_results_pos', $key);
 				break;
 		}
 		
-		$tpl->assign('current_post', array_shift($posts));
-		$tpl->assign('next_post', array_shift($posts));
+		if(null != $post = DAO_ForumsThread::get(key($posts))) {
+			$tpl->assign('current_post', $post);
+		}
+
+		// Check for previous position
+		if(prev($posts)) {
+			$current = current($posts);
+			$tpl->assign('prev_post', $current);
+			next($posts); //re-advance
+		} else {
+			reset($posts);
+		}
+		
+		// Check for next position
+		if(next($posts)) {
+			$current = current($posts);
+			$tpl->assign('next_post', $current);
+		} else {
+			end($posts);
+		}
 
 		$tpl->assign('active_worker', $visit->getWorker());
 		
@@ -193,6 +252,16 @@ class ChForumsPage extends CerberusPageExtension {
 		
 		DAO_ForumsThread::update($id, array(
 			DAO_ForumsThread::IS_CLOSED => 1
+		));
+		
+		exit;
+	}
+	
+	function ajaxReopenAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
+		
+		DAO_ForumsThread::update($id, array(
+			DAO_ForumsThread::IS_CLOSED => 0
 		));
 		
 		exit;
@@ -307,6 +376,14 @@ class ChForumsPage extends CerberusPageExtension {
 	function importAction() {
 		$sources = DAO_ForumsSource::getWhere();
 
+		$settings = CerberusSettings::getInstance();
+		
+		// Track posters that are also workers
+		$poster_workers = array();
+		if(null != ($poster_workers_str = $settings->get(ChForumsPlugin::SETTING_POSTER_WORKERS, null))) {
+			$poster_workers = DevblocksPlatform::parseCrlfString($poster_workers_str);
+		}
+		
 		foreach($sources as $source) { /* @var $source Model_ForumsSource */
 			// [TODO] Convert to REST client (move into Devblocks)
 			$source_url = sprintf("%s?lastpostid=%d&limit=100",
@@ -339,11 +416,14 @@ class ChForumsPage extends CerberusPageExtension {
 					DAO_ForumsThread::create($fields);
 					
 				} else {
+					// If the last post was a worker, leave the thread at the current closed state
+					$closed = (false===array_search(strtolower($thread_last_poster),$poster_workers)) ? 0 : $th->is_closed;
+					
 					$fields = array(
 						DAO_ForumsThread::LAST_UPDATED => intval($thread_last_updated),
 						DAO_ForumsThread::LAST_POSTER => $thread_last_poster,
 						DAO_ForumsThread::LINK => $thread_link,
-						DAO_ForumsThread::IS_CLOSED => 0,
+						DAO_ForumsThread::IS_CLOSED => $closed,
 					);
 					DAO_ForumsThread::update($th->id, $fields);
 				}
