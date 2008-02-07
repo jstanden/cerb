@@ -434,6 +434,12 @@ class DAO_Worker extends DevblocksORMHelper {
 	 * @return Model_TeamMember[]
 	 */
 	static function getGroupMemberships($agent_id) {
+		static $cache = array(); // cache calls for one page cycle
+		
+		if(isset($cache[$agent_id])) {
+			return $cache[$agent_id];
+		}
+		
 		if(empty($agent_id)) return;
 		$db = DevblocksPlatform::getDatabaseService();
 		$ids = array();
@@ -461,6 +467,8 @@ class DAO_Worker extends DevblocksORMHelper {
 			
 			$rs->MoveNext();
 		}
+		
+		$cache[$agent_id] = $groups;
 		
 		return $groups;
 	}

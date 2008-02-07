@@ -1908,12 +1908,7 @@ class CerberusWorker {
 	 * @return Model_TeamMember[]
 	 */
 	function getMemberships() {
-		// Cache for one page cycle
-		static $memberships = null;
-		if(null == $memberships) {
-			$memberships = DAO_Worker::getGroupMemberships($this->id); 
-		}
-		return $memberships;
+		return DAO_Worker::getGroupMemberships($this->id); 
 	}
 
 	function isTeamManager($team_id) {
