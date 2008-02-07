@@ -434,6 +434,11 @@ class ChReportsPage extends CerberusPageExtension {
 	    $graph->setProp('keyfont', $path.'/ryanlerch_-_Tuffy.ttf');
 	    $graph->setProp('keysize', 10);
 	    
+	    $days = array();
+	    for($x=-1*$age_dur;$x<=0;$x++) {
+	    	$days[$x] = 0;
+	    }
+	    
 	   	// First, we need the list of Workers
 	   	$workers = DAO_Worker::getAll();
 	   	$worker_names = array();
@@ -491,6 +496,17 @@ class ChReportsPage extends CerberusPageExtension {
 			$worker_responses[$message->worker_id][$message_day + $x]['total_time'] += $curr_message_timestamp - $prev_message_timestamp;
 		}
 		
+//	    while(!$rs->EOF) {
+//	    	$hits = intval($rs->fields['hits']);
+//	    	$d = -1*($now_day - intval($rs->fields['day']));
+//	    	$days[$d] = $hits;
+//		    $rs->MoveNext();
+//	    }
+//	    
+//	    foreach($days as $d => $hits) {
+//	    	$graph->addPoint($hits,'d:'.$d.' '.($age_term=='d'?'days':'months'),0);
+//	    }
+		
 		// go through and add the data points for each worker
 		foreach($worker_responses as $worker_id => $responses) {
 			foreach($days as $day => $totals) {
@@ -500,9 +516,9 @@ class ChReportsPage extends CerberusPageExtension {
 
 //		$graph->setColor('color',0,'red');
 		
-echo("<pre>");
-print_r($graph);
-echo("</pre>");
+//echo("<pre>");
+//print_r($graph);
+//echo("</pre>");
 
 		$graph->graph();
 		$graph->showGraph(true); 		    	
