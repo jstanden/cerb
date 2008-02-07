@@ -5418,7 +5418,7 @@ class DAO_Task extends DevblocksORMHelper {
 	static function getCountBySourceObjectId($source_extension, $source_id) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = sprintf("SELECT count(id) FROM task WHERE source_extension = %s AND source_id = %d",
+		$sql = sprintf("SELECT count(id) FROM task WHERE source_extension = '%s' AND source_id = %d",
 			$source_extension,
 			$source_id
 		);
