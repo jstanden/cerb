@@ -15,9 +15,14 @@ We did not find a ticket to match the supplied ID / mask.
 <br>
   {$message->getContent()|trim|nl2br}
 <br><br>
-<form id="reply{$message->id}" action="{devblocks_url}c=mobile&a=reply&id={$ticket_id}&m_id={$message->id}{/devblocks_url}" method="POST" enctype="multipart/form-data">
+<form id="reply{$message->id}" action="{devblocks_url}{/devblocks_url}" method="POST" enctype="multipart/form-data">
+<input type="hidden" name="c" value="mobile">
+<input type="hidden" name="a" value="display">
+<input type="hidden" name="a2" value="reply">
+
 <input type="hidden" name="page_type" value="{$page_type}">
-<input type="hidden" name="id" value="{$message->id}">
+<input type="hidden" name="ticket_id" value="{$ticket_id}">
+<input type="hidden" name="message_id" value="{$message->id}">
 
 {if $page_type=="forward"}Forward to: <input type="text" name="to" size="32" maxlength="255"/><br>
 {elseif $page_type=="comment"}Add Comment to Ticket:<br>

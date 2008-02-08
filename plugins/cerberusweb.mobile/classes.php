@@ -320,9 +320,8 @@ class ChMobileDisplayPage  extends CerberusMobilePageExtension  {
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$response = DevblocksPlatform::getHttpResponse();
-		//@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['page'],'integer');
 		@$ticket_id = $response->path[2];
-	
+		@$page_type = DevblocksPlatform::importGPC($_REQUEST['page_type'],'string', 'reply');
 		$message_id = $response->path[3];
 		
 		if (empty($ticket_id)) {
@@ -340,7 +339,7 @@ class ChMobileDisplayPage  extends CerberusMobilePageExtension  {
 		$tpl->assign('ticket', $ticket);
 		$tpl->assign('ticket_id', $ticket_id);
 		$tpl->assign('message_id', $message_id);
-		$tpl->assign('page_type', $page);
+		$tpl->assign('page_type', $page_type);
 
 		if (0 == strcasecmp($message_id, 'full')) {
 			$tpl->display('file:' . dirname(__FILE__) . '/templates/display.tpl.php');
@@ -353,6 +352,39 @@ class ChMobileDisplayPage  extends CerberusMobilePageExtension  {
 		}
 		
 	}
+	
+	function replyAction() {
+		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer',0);
+
+		@$message_id = DevblocksPlatform::importGPC($_REQUEST['message_id'],'integer');
+		@$content = DevblocksPlatform::importGPC($_REQUEST['content'],'content');
+		@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string'); // used by forward
+		@$page_type = DevblocksPlatform::importGPC($_REQUEST['page_type'],'string');
+		
+		$worker = CerberusApplication::getActiveWorker();
+		
+		if($page_type == 'comment') {
+			$properties = array(
+				DAO_MessageNote::MESSAGE_ID => $message_id,
+				DAO_MessageNote::CREATED => time(),
+				DAO_MessageNote::WORKER_ID => @$worker->id,
+				DAO_MessageNote::CONTENT => $content,
+			);
+			$note_id = DAO_MessageNote::create($properties);
+		}
+		else {
+			$properties = array(
+				'message_id' => $message_id,
+				'content' => $content,
+				'agent_id' => @$worker->id,
+				'to' => $to
+		    );
+			CerberusMail::sendTicketMessage($properties);
+		}
+		
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('mobile','display', $ticket_id)));
+	}
+	
 };
 
 class ChMobileLoginPage  extends CerberusMobilePageExtension  {
