@@ -71,10 +71,9 @@ class CerberusUtils {
 		$string = str_replace($from,$to,$string);
 
 		if($sanitize !== false)
-	//      return preg_replace("/(^|[\r\n ])((http)+(s)?:\/\/([\.\?,\!\>]?([^\.\?,\!\>\s]))+)/ie", "'\\1<a href=\"goto.php?url='.htmlentities(urlencode('\\2')).'\" class=\"$style\" target=_blank>\\2</a>'", $string);
-			return preg_replace("/((http|https):\/\/(.*?))(\s|\>|&lt;|&quot;)/ie","'<a href=\"goto.php?url='.htmlentities(urlencode('\\1')).'\" target=\"_blank\">\\1</a>\\4\\5'",$string);
+			return preg_replace("/((http|https):\/\/(.*?))(\s|\>|&lt;|&quot;)/ie","'<a href=\"goto.php?url='.'\\1'.'\" target=\"_blank\">\\1</a>\\4\\5'",$string);
 	   else
-			return preg_replace("/((http|https):\/\/(.*?))(\s|\>|&lt;|&quot;)/ie","'<a href=\"'.htmlentities('\\1').'\" target=\"_blank\">\\1</a>\\4\\5'",$string);
+			return preg_replace("/((http|https):\/\/(.*?))(\s|\>|&lt;|&quot;)/ie","'<a href=\"'.'\\1'.'\" target=\"_blank\">\\1</a>\\4\\5'",$string);
 	}
 	
 	function smarty_modifier_prettytime($string) {
