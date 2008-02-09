@@ -528,18 +528,164 @@ class ChMobileTicketsPage extends CerberusMobilePageExtension  {
 					return;
 				}
 			break;
+            case 'sidebar':
+            			
+				$groups = DAO_Group::getAll();
+				$tpl->assign('groups', $groups);
+				
+				$group_buckets = DAO_Bucket::getTeams();
+				$tpl->assign('group_buckets', $group_buckets);
+				
+				$workers = DAO_Worker::getAll();
+				$tpl->assign('workers', $workers);
+				
+				$slas = DAO_Sla::getAll();
+				$tpl->assign('slas', $slas);
+				
+				$group_counts = C4_Overview::getGroupTotals();
+				$tpl->assign('group_counts', $group_counts);
+				
+				$waiting_counts = C4_Overview::getWaitingTotals();
+				$tpl->assign('waiting_counts', $waiting_counts);
+				
+				$worker_counts = C4_Overview::getWorkerTotals();
+				$tpl->assign('worker_counts', $worker_counts);
+				
+				$sla_counts = C4_Overview::getSlaTotals();
+				$tpl->assign('sla_counts', $sla_counts);
+            	
+            	
+            	$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/sidebar.tpl.php');
+            	return;
+           	break;
 			case 'overview':
 			default:
-				$params = array(
-						new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN),
-						new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_NEXT_WORKER_ID,'=',0),
-						new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_SPAM_SCORE,'<=','0.9000'),
-						new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'in',array_keys($memberships))					
-				);
-				$title = "Overview";				
+				
+				$workers = DAO_Worker::getAll();						
+				$group_buckets = DAO_Bucket::getTeams();
+				$slas = DAO_Sla::getAll();
+				$groups = DAO_Group::getAll();
+				@$filter = $response->path[3];	
+				switch($filter) {
+					case 'group':
+						@$filter_group_id = $response->path[4];
+						
+						$params = array(
+							SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN),
+							SearchFields_Ticket::TICKET_WAITING => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_WAITING,'=',0),
+							SearchFields_Ticket::TICKET_NEXT_WORKER_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_NEXT_WORKER_ID,'=',0),
+						);
+						
+						if(!is_null($filter_group_id) && isset($groups[$filter_group_id])) {
+							$tpl->assign('filter_group_id', $filter_group_id);
+							$title = $groups[$filter_group_id]->name;
+							$params[SearchFields_Ticket::TEAM_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'=',$filter_group_id);
+							
+							@$filter_bucket_id = $response->path[5];
+							if(!is_null($filter_bucket_id)) {
+								$tpl->assign('filter_bucket_id', $filter_bucket_id);
+								@$title .= ': '.
+									(($filter_bucket_id == 0) ? 'Inbox' : $group_buckets[$filter_group_id][$filter_bucket_id]->name);
+								$params[SearchFields_Ticket::TICKET_CATEGORY_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CATEGORY_ID,'=',$filter_bucket_id);
+							} else {
+								@$title .= ' (Spam Filtered)';
+								$params[SearchFields_Ticket::TICKET_SPAM_SCORE] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_SPAM_SCORE,'<=','0.9000');								
+							}
+						}
+
+						break;
+						
+					case 'waiting':
+						@$filter_waiting_id = $response->path[4];
+						
+						$params = array(
+							SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN),
+							SearchFields_Ticket::TICKET_WAITING => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_WAITING,'=',1),
+						);
+						
+						if(!is_null($filter_waiting_id) && isset($groups[$filter_waiting_id])) {
+							$tpl->assign('filter_waiting_id', $filter_waiting_id);
+							$title = '[Waiting] ' . $groups[$filter_waiting_id]->name;
+							$params[SearchFields_Ticket::TEAM_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'=',$filter_waiting_id);
+							
+							@$filter_bucket_id = $response->path[5];
+							if(!is_null($filter_bucket_id)) {
+								$tpl->assign('filter_bucket_id', $filter_bucket_id);
+								@$title .= ': '.
+									(($filter_bucket_id == 0) ? 'Inbox' : $group_buckets[$filter_waiting_id][$filter_bucket_id]->name);
+								$params[SearchFields_Ticket::TICKET_CATEGORY_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CATEGORY_ID,'=',$filter_bucket_id);
+							}
+						}
+
+						break;
+						
+					case 'worker':
+						@$filter_worker_id = $response->path[4];
+
+						$params = array(
+							SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN),
+							SearchFields_Ticket::TICKET_WAITING => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_WAITING,'=',0),
+							$params[SearchFields_Ticket::TEAM_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'in',array_keys($memberships)), // censor
+						);
+
+						if(!is_null($filter_worker_id)) {
+							$tpl->assign('filter_bucket_id', $filter_bucket_id);
+							$title = "For ".$workers[$filter_worker_id]->getName();
+							$params[SearchFields_Ticket::TICKET_NEXT_WORKER_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_NEXT_WORKER_ID,'=',$filter_worker_id);
+							
+							@$filter_group_id = $response->path[5];
+							if(!is_null($filter_group_id) && isset($groups[$filter_group_id])) {
+								$title .= ' in '.$groups[$filter_group_id]->name;
+								$params[SearchFields_Ticket::TEAM_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'=',$filter_group_id);
+							}
+						}
+						
+						break;
+						
+					case 'sla':
+						@$filter_sla_id = $response->path[4];
+						
+						$params = array(
+							SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN),
+							SearchFields_Ticket::TICKET_WAITING => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_WAITING,'=',0),							
+							SearchFields_Ticket::TICKET_NEXT_WORKER_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_NEXT_WORKER_ID,'=',0),
+							$params[SearchFields_Ticket::TEAM_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'in',array_keys($memberships)), // censor
+						);
+
+						if(!is_null($filter_sla_id)) {
+							$tpl->assign('filter_sla_id', $filter_sla_id);
+							$title = "".$slas[$filter_sla_id]->name;
+							$params[SearchFields_Ticket::TICKET_SLA_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_SLA_ID,'=',$filter_sla_id);
+						}
+						
+						break;
+						
+					case 'all':
+					default:
+						$title='All (Spam Filtered)';
+						$params = array(
+							SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN),
+							SearchFields_Ticket::TICKET_WAITING => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_WAITING,'=',0),
+							SearchFields_Ticket::TICKET_NEXT_WORKER_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_NEXT_WORKER_ID,'=',0),
+							SearchFields_Ticket::TICKET_SPAM_SCORE => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_SPAM_SCORE,'<=','0.9000'),
+							SearchFields_Ticket::TEAM_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'in',array_keys($memberships)),
+						);
+						
+						break;
+				}
+				
+//				$params = array(
+//						new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN),
+//						new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_NEXT_WORKER_ID,'=',0),
+//						new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_SPAM_SCORE,'<=','0.9000'),
+//						new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'in',array_keys($memberships))					
+//				);
+				
+
+				
+//				$title = "Overview";				
 			break;
 		}
-		
 		
 		$mobileView = new C4_MobileTicketView();//C4_TicketView();
 		$mobileView->id = "VIEW_MOBILE";
@@ -558,6 +704,7 @@ class ChMobileTicketsPage extends CerberusMobilePageExtension  {
 	
 		$tpl->assign('views', $views);
 
+		$tpl->assign('title', $title);
 		$tpl->assign('tickets', $tickets[0]);
 		$tpl->assign('next_page', $page+1);
 		$tpl->assign('prev_page', $page-1);

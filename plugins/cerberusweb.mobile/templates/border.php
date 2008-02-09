@@ -23,7 +23,7 @@
 *}
 
 <div>
-[ <a href="{devblocks_url}c=mobile&a=tickets&a2=tickets{/devblocks_url}">Tickets</a> ]
+[ <a href="{devblocks_url}c=mobile&a=tickets&a2=overview{/devblocks_url}">Mail</a> ]
 [ <a href="{devblocks_url}c=mobile&a=tickets&a2=search{/devblocks_url}">Search</a> ]
 
 
