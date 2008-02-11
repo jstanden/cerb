@@ -9,7 +9,7 @@
 <table cellpadding="2" cellspacing="0" width="200" border="0">
 	<tr>
 		<td nowrap="nowrap">
-			<h2 style="display:inline;">Current Criteria</h2>
+			<h2 style="display:inline;">Current Filters</h2>
 			[ <a href="javascript:;" onclick="document.{$view->id}_criteriaForm.a.value='viewResetCriteria';document.{$view->id}_criteriaForm.submit();toggleDiv('criteriaDiv');">reset</a> ]
 		</td>
 	</tr>
@@ -48,13 +48,12 @@
 	<input type="hidden" name="id" value="{$view->id}">
 	<input type="hidden" name="response_uri" value="{$response_uri}">
 	
-	<h2>Add Criteria</h2>
+	<h2>Add Filter</h2>
 	<b>Field:</b><br>
 	<blockquote style="margin:5px;">
 		<select name="field" onchange="genericAjaxGet('addCriteriaOptions','c=internal&a=viewGetCriteria&id={$view->id}&field='+selectValue(this));toggleDiv('addCriteriaSave',(selectValue(this)!='')?'block':'none');">
 			<option value="">-- choose --</option>
 			
-			<optgroup label="Ticket">
 			{foreach from=$view_searchable_fields item=column key=token}
 				{if substr($token,0,3) != "cf_"}
 					{if !empty($column->db_label) && !empty($token)}
@@ -62,7 +61,6 @@
 					{/if}
 				{/if}
 			{/foreach}
-			</optgroup>
 			
 			<optgroup label="Custom Fields">
 			{foreach from=$view_searchable_fields item=column key=token}

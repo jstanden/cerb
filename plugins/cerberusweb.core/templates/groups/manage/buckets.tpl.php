@@ -10,41 +10,33 @@
 
 	<div style="margin-left:20px">
 	{if !empty($categories)}
-	<table cellspacing="2" cellpadding="0">
-		<tr>
-			<td><b>Bucket Name</b></td>
-			<td style="padding-left:5px;"><b>Response*</b></td>
-			<!-- <td><b>Access</b></td> -->
-			<td style="padding-left:5px;"><b>Del</b></td>
-		</tr>
-		{foreach from=$categories item=cat key=cat_id name=cats}
+		<table cellspacing="2" cellpadding="0">
 			<tr>
-				<td>
-					<input type="hidden" name="ids[]" value="{$cat->id}">
-					<input type="text" name="names[]" value="{$cat->name}" size="35">
-				</td>
-				<td align="center" style="padding-left:5px;">
-					<input type="text" name="response_hrs[]" value="{$cat->response_hrs}" size="3"> hrs
-				</td>
-				<!-- 
-				<td>
-					<select name="access[]">
-						<option value="">Private</option>
-						<option value="">Shared</option>
-					</select>
-				</td>
-				 -->
-				<td align="center" style="padding-left:5px;">
-					<input type="checkbox" name="deletes[]" value="{$cat_id}">
-				</td>
+				<td><b>Bucket Name</b></td>
+				<td style="padding-left:5px;"><b>Response*</b></td>
+				<td style="padding-left:5px;"><b>Del</b></td>
 			</tr>
-		{/foreach}
-	</table>
-	<br>
-	* Response time targets in hours. Leave blank for no target.<br>
+			{foreach from=$categories item=cat key=cat_id name=cats}
+				<tr>
+					<td>
+						<input type="hidden" name="ids[]" value="{$cat->id}">
+						<input type="text" name="names[]" value="{$cat->name}" size="35">
+					</td>
+					<td align="center" style="padding-left:5px;">
+						<input type="text" name="response_hrs[]" value="{$cat->response_hrs}" size="3"> hrs
+					</td>
+					<td align="center" style="padding-left:5px;">
+						<input type="checkbox" name="deletes[]" value="{$cat_id}">
+					</td>
+				</tr>
+			{/foreach}
+		</table>
+		<br>
+		* Response time targets in hours. Leave blank for no target.<br>
+		<br>
 	{else}
 		<br>
-		You haven't set up any buckets yet.  Buckets are containers which allow you to quickly organize the '{$team->name}' team workload.<br>
+		You haven't set up any buckets yet.  Buckets are containers which allow you to quickly organize the '{$team->name}' group workload.<br>
 		<br>
 		Example buckets:<br>
 		<ul style="margin-top:0px;">
@@ -53,7 +45,6 @@
 			<li>Orders</li>
 		</ul>
 	{/if}
-	<br>
 	
 	<h3>Add Buckets</h3>
 	<b>Enter bucket names:</b> (one label per line)<br>

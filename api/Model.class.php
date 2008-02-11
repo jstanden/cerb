@@ -963,12 +963,12 @@ class C4_TicketView extends C4_AbstractView {
 		$view->name = "Search Results";
 		$view->dashboard_id = 0;
 		$view->view_columns = array(
-			SearchFields_Ticket::TICKET_NEXT_ACTION,
+			SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
 			SearchFields_Ticket::TICKET_UPDATED_DATE,
 			SearchFields_Ticket::TEAM_NAME,
 			SearchFields_Ticket::TICKET_CATEGORY_ID,
 			SearchFields_Ticket::TICKET_SPAM_SCORE,
-			SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
+			SearchFields_Ticket::TICKET_NEXT_ACTION,
 		);
 		$view->params = array(
 			SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,DevblocksSearchCriteria::OPER_EQ,0),
@@ -1245,22 +1245,21 @@ class C4_ContactOrgView extends C4_AbstractView {
 		$this->renderSortAsc = true;
 
 		$this->view_columns = array(
-		SearchFields_ContactOrg::PHONE,
-		SearchFields_ContactOrg::PROVINCE,
-		SearchFields_ContactOrg::COUNTRY,
-		SearchFields_ContactOrg::WEBSITE,
-		SearchFields_ContactOrg::CREATED,
-		SearchFields_ContactOrg::SLA_ID,
+			SearchFields_ContactOrg::SLA_ID,
+			SearchFields_ContactOrg::COUNTRY,
+			SearchFields_ContactOrg::CREATED,
+			SearchFields_ContactOrg::PHONE,
+			SearchFields_ContactOrg::WEBSITE,
 		);
 	}
 
 	function getData() {
 		$objects = DAO_ContactOrg::search(
-		$this->params,
-		$this->renderLimit,
-		$this->renderPage,
-		$this->renderSortBy,
-		$this->renderSortAsc
+			$this->params,
+			$this->renderLimit,
+			$this->renderPage,
+			$this->renderSortBy,
+			$this->renderSortAsc
 		);
 		return $objects;
 	}

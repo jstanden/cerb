@@ -451,11 +451,11 @@ class ChTicketsPage extends CerberusPageExtension {
 					// Defaults
 					$overViewDefaults = new C4_AbstractViewModel();
 					$overViewDefaults->view_columns = array(
-						SearchFields_Ticket::TICKET_NEXT_ACTION,
+						SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
 						SearchFields_Ticket::TICKET_UPDATED_DATE,
 						SearchFields_Ticket::TEAM_NAME,
 						SearchFields_Ticket::TICKET_CATEGORY_ID,
-						SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
+						SearchFields_Ticket::TICKET_NEXT_ACTION,
 					);
 					$overViewDefaults->renderLimit = 10;
 					$overViewDefaults->renderSortBy = SearchFields_Ticket::TICKET_UPDATED_DATE;
@@ -898,11 +898,11 @@ class ChTicketsPage extends CerberusPageExtension {
 		$list_view->title = $list_title;
 		$list_view->num_rows = 10;
 		$list_view->columns = array(
-			SearchFields_Ticket::TICKET_NEXT_ACTION,
+			SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
 			SearchFields_Ticket::TICKET_UPDATED_DATE,
 			SearchFields_Ticket::TICKET_CATEGORY_ID,
 			SearchFields_Ticket::TICKET_SPAM_SCORE,
-			SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
+			SearchFields_Ticket::TICKET_NEXT_ACTION,
 		);
 		$list_view->params = array(
 			SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN)
@@ -4110,6 +4110,10 @@ class ChContactsPage extends CerberusPageExtension {
 				if(!is_null($param) && is_numeric($param)) { // display
 					$contact = DAO_ContactOrg::get($param);
 					$tpl->assign('contact', $contact);
+					
+					$task_count = DAO_Task::getCountBySourceObjectId('cerberusweb.tasks.org', $contact->id);
+					$tpl->assign('tasks_total', $task_count);
+					
 					$tpl->display('file:' . dirname(__FILE__) . '/templates/contacts/orgs/display.tpl.php');
 					
 				} else { // list
@@ -4329,12 +4333,12 @@ class ChContactsPage extends CerberusPageExtension {
 		
 		$view = C4_AbstractViewLoader::getView('C4_AddressView', 'org_contacts');
 		$view->id = 'org_contacts';
-		$view->name = 'Organization Contacts';
+		$view->name = 'Contacts: ' . $contact->name;
 		$view->view_columns = array(
 			SearchFields_Address::FIRST_NAME,
 			SearchFields_Address::LAST_NAME,
-//			SearchFields_Address::EMAIL,
-			SearchFields_Address::ORG_NAME,
+			SearchFields_Address::SLA_ID,
+			SearchFields_Address::NUM_NONSPAM,
 		);
 		$view->params = array(
 			new DevblocksSearchCriteria(SearchFields_Address::CONTACT_ORG_ID,'=',$org)
@@ -4362,7 +4366,7 @@ class ChContactsPage extends CerberusPageExtension {
 		
 		$view = C4_AbstractViewLoader::getView('C4_TaskView', 'org_tasks');
 		$view->id = 'org_tasks';
-		$view->name = 'Organization Tasks';
+		$view->name = 'Tasks: ' . $contact->name;
 		$view->view_columns = array(
 			SearchFields_Task::SOURCE_EXTENSION,
 			SearchFields_Task::PRIORITY,
@@ -4404,12 +4408,11 @@ class ChContactsPage extends CerberusPageExtension {
 			$tickets_view->id = 'contact_history';
 			$tickets_view->name = 'Contact History';
 			$tickets_view->view_columns = array(
-				SearchFields_Ticket::TICKET_NEXT_ACTION,
+				SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
 				SearchFields_Ticket::TICKET_CREATED_DATE,
 				SearchFields_Ticket::TEAM_NAME,
 				SearchFields_Ticket::TICKET_CATEGORY_ID,
-				SearchFields_Ticket::TICKET_SPAM_SCORE,
-				SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
+				SearchFields_Ticket::TICKET_NEXT_ACTION,
 			);
 			$tickets_view->params = array(
 			);
@@ -4419,7 +4422,7 @@ class ChContactsPage extends CerberusPageExtension {
 			$tickets_view->renderSortAsc = false;
 		}
 
-		@$tickets_view->name = "Most recent tickets from " . htmlentities($contact->name);
+		@$tickets_view->name = "From: " . htmlentities($contact->name);
 		$tickets_view->params = array(
 			SearchFields_Ticket::TICKET_FIRST_CONTACT_ORG_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_FIRST_CONTACT_ORG_ID,DevblocksSearchCriteria::OPER_EQ,$contact->id)
 		);
@@ -4969,7 +4972,8 @@ class ChGroupsPage extends CerberusPageExtension  {
 		    case 'config':
 				$team_id = array_shift($stack); // id
 				
-				if(!$active_worker->isTeamManager($team_id)) {
+				// Only group managers and superusers can configure
+				if(!$active_worker->isTeamManager($team_id) && !$active_worker->is_superuser) {
 					return;
 				} else {
 					$teams = DAO_Group::getAll();
@@ -5074,7 +5078,7 @@ class ChGroupsPage extends CerberusPageExtension  {
 	    @$team_id = DevblocksPlatform::importGPC($_REQUEST['team_id'],'integer');
 
 	    @$active_worker = CerberusApplication::getActiveWorker();
-	    if(!$active_worker->isTeamManager($team_id))
+	    if(!$active_worker->isTeamManager($team_id) && !$active_worker->is_superuser)
 	    	return;
 	    
 	    //========== GENERAL
@@ -5083,6 +5087,8 @@ class ChGroupsPage extends CerberusPageExtension  {
 	    @$auto_reply = DevblocksPlatform::importGPC($_REQUEST['auto_reply'],'string','');
 	    @$sender_address = DevblocksPlatform::importGPC($_REQUEST['sender_address'],'string','');
 	    @$sender_personal = DevblocksPlatform::importGPC($_REQUEST['sender_personal'],'string','');
+	    @$subject_has_mask = DevblocksPlatform::importGPC($_REQUEST['subject_has_mask'],'integer',0);
+	    @$subject_prefix = DevblocksPlatform::importGPC($_REQUEST['subject_prefix'],'string','');
 	    @$spam_threshold = DevblocksPlatform::importGPC($_REQUEST['spam_threshold'],'integer',80);
 	    @$spam_action = DevblocksPlatform::importGPC($_REQUEST['spam_action'],'integer',0);
 	    @$spam_moveto = DevblocksPlatform::importGPC($_REQUEST['spam_action_moveto'],'integer',0);
@@ -5098,6 +5104,8 @@ class ChGroupsPage extends CerberusPageExtension  {
 	    
 	    DAO_GroupSettings::set($team_id, DAO_GroupSettings::SETTING_REPLY_FROM, $sender_address);
 	    DAO_GroupSettings::set($team_id, DAO_GroupSettings::SETTING_REPLY_PERSONAL, $sender_personal);
+	    DAO_GroupSettings::set($team_id, DAO_GroupSettings::SETTING_SUBJECT_HAS_MASK, $subject_has_mask);
+	    DAO_GroupSettings::set($team_id, DAO_GroupSettings::SETTING_SUBJECT_PREFIX, $subject_prefix);
 	    DAO_GroupSettings::set($team_id, DAO_GroupSettings::SETTING_SPAM_THRESHOLD, $spam_threshold);
 	    DAO_GroupSettings::set($team_id, DAO_GroupSettings::SETTING_SPAM_ACTION, $spam_action);
 	    DAO_GroupSettings::set($team_id, DAO_GroupSettings::SETTING_SPAM_ACTION_PARAM, $spam_moveto);
@@ -5116,7 +5124,7 @@ class ChGroupsPage extends CerberusPageExtension  {
 	    @$active_worker = CerberusApplication::getActiveWorker();
 	    @$members = DAO_Group::getTeamMembers($team_id);
 	    
-	    if(!$active_worker->isTeamManager($team_id))
+	    if(!$active_worker->isTeamManager($team_id) && !$active_worker->is_superuser)
 	    	return;
 	    
 	    if(is_array($worker_ids) && !empty($worker_ids))
@@ -5136,7 +5144,7 @@ class ChGroupsPage extends CerberusPageExtension  {
 	    @$team_id = DevblocksPlatform::importGPC($_REQUEST['team_id'],'integer');
 	    
 	    @$active_worker = CerberusApplication::getActiveWorker();
-	    if(!$active_worker->isTeamManager($team_id))
+	    if(!$active_worker->isTeamManager($team_id) && !$active_worker->is_superuser)
 	    	return;
 	    
 	    //========== BUCKETS   
@@ -5180,7 +5188,7 @@ class ChGroupsPage extends CerberusPageExtension  {
 	    @$deletes = DevblocksPlatform::importGPC($_REQUEST['deletes'],'array');
 	    
 	    @$active_worker = CerberusApplication::getActiveWorker();
-	    if(!$active_worker->isTeamManager($team_id))
+	    if(!$active_worker->isTeamManager($team_id) && !$active_worker->is_superuser)
 	    	return;
 	    
 	    if(!empty($team_id) && !empty($deletes)) {
@@ -5192,6 +5200,10 @@ class ChGroupsPage extends CerberusPageExtension  {
    	}
    	
    	function addTeamRoutingAction() {
+	    @$active_worker = CerberusApplication::getActiveWorker();
+	    if(!$active_worker->isTeamManager($team_id) && !$active_worker->is_superuser)
+	    	return;
+   		
    		@$team_id = DevblocksPlatform::importGPC($_REQUEST['team_id'],'integer');
    		
    		@$field = DevblocksPlatform::importGPC($_REQUEST['field'],'string');
@@ -5229,6 +5241,10 @@ class ChGroupsPage extends CerberusPageExtension  {
    	
 	// Post
 	function addCustomFieldAction() {
+	    @$active_worker = CerberusApplication::getActiveWorker();
+	    if(!$active_worker->isTeamManager($team_id) && !$active_worker->is_superuser)
+	    	return;
+		
 		@$name = DevblocksPlatform::importGPC($_POST['name'],'string','');
 		@$type = DevblocksPlatform::importGPC($_POST['type'],'string','');
 		@$group_id = DevblocksPlatform::importGPC($_POST['team_id'],'integer');
@@ -5248,6 +5264,10 @@ class ChGroupsPage extends CerberusPageExtension  {
 	
 	// Post
 	function saveCustomFieldsAction() {
+	    @$active_worker = CerberusApplication::getActiveWorker();
+	    if(!$active_worker->isTeamManager($team_id) && !$active_worker->is_superuser)
+	    	return;
+		
 		@$group_id = DevblocksPlatform::importGPC($_POST['team_id'],'integer');
 		
 		@$ids = DevblocksPlatform::importGPC($_POST['ids'],'array',array());
@@ -6586,12 +6606,11 @@ class ChDisplayPage extends CerberusPageExtension {
 			$view->id = 'contact_history';
 			$view->name = 'Contact History';
 			$view->view_columns = array(
-				SearchFields_Ticket::TICKET_NEXT_ACTION,
+				SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
 				SearchFields_Ticket::TICKET_CREATED_DATE,
 				SearchFields_Ticket::TEAM_NAME,
 				SearchFields_Ticket::TICKET_CATEGORY_ID,
-				SearchFields_Ticket::TICKET_SPAM_SCORE,
-				SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
+				SearchFields_Ticket::TICKET_NEXT_ACTION,
 			);
 			$view->params = array(
 			);

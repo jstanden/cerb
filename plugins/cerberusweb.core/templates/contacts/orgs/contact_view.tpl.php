@@ -17,7 +17,7 @@
 <input type="hidden" name="id" value="{$view->id}">
 <input type="hidden" name="c" value="contacts">
 <input type="hidden" name="a" value="">
-<table cellpadding="0" cellspacing="0" border="0" width="100%" class="tableRowBg">
+<table cellpadding="1" cellspacing="0" border="0" width="100%" class="tableRowBg">
 
 	{* Column Headers *}
 	<tr class="tableTh">

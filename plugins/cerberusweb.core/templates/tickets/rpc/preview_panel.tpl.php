@@ -26,7 +26,7 @@
 {if empty($ticket->category_id)}{assign var=t_or_c value="t"}{else}{assign var=t_or_c value="c"}{/if}
 <optgroup label="Inboxes">
 {foreach from=$teams item=team}
-	<option value="t{$team->id}">{$team->name}{if $t_or_c=='t' && $ticket->team_id==$team->id} (current bucket){/if}</option>
+	<option value="t{$team->id}">{$team->name}{if $t_or_c=='t' && $ticket->team_id==$team->id} (*){/if}</option>
 {/foreach}
 </optgroup>
 {foreach from=$team_categories item=categories key=teamId}

@@ -31,7 +31,6 @@
 				<select name="field" onchange="genericAjaxGet('addCriteria{$view->id}','c=internal&a=viewGetCriteria&id={$view->id}&field='+selectValue(this));">
 					<option value="">-- choose --</option>
 					
-					<optgroup label="Ticket">
 					{foreach from=$view_searchable_fields item=column key=token}
 						{if substr($token,0,3) != "cf_"}
 							{if !empty($column->db_label) && !empty($token)}
@@ -39,7 +38,6 @@
 							{/if}
 						{/if}
 					{/foreach}
-					</optgroup>
 					
 					<optgroup label="Custom Fields">
 					{foreach from=$view_searchable_fields item=column key=token}

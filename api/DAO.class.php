@@ -2167,7 +2167,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 	 * Enter description here...
 	 *
 	 * @param string $mask
-	 * @return CerberusTicket
+	 * @return integer
 	 */
 	static function getTicketIdByMask($mask) {
 		$db = DevblocksPlatform::getDatabaseService();
@@ -2179,10 +2179,23 @@ class DAO_Ticket extends DevblocksORMHelper {
 		
 		if(!$rs->EOF) {
 			return intval($rs->fields['id']);
-//			return DAO_Ticket::getTicket($ticket_id);
 		}
 		
 		return null;
+	}
+	
+	/**
+	 * Enter description here...
+	 *
+	 * @param string $mask
+	 * return CerberusTicket
+	 */
+	static function getTicketByMask($mask) {
+		if(null != ($id = self::getTicketIdByMask($mask))) {
+			return self::getTicket($id);
+		}
+		
+		return NULL;
 	}
 	
 	static function getTicketByMessageId($message_id) {
@@ -3509,6 +3522,8 @@ class DAO_Group {
 class DAO_GroupSettings {
     const SETTING_REPLY_FROM = 'reply_from';
     const SETTING_REPLY_PERSONAL = 'reply_personal';
+    const SETTING_SUBJECT_HAS_MASK = 'subject_has_mask';
+    const SETTING_SUBJECT_PREFIX = 'subject_prefix';
     const SETTING_SPAM_THRESHOLD = 'group_spam_threshold';
     const SETTING_SPAM_ACTION = 'group_spam_action';
     const SETTING_SPAM_ACTION_PARAM = 'group_spam_action_param';
@@ -5415,14 +5430,17 @@ class DAO_Task extends DevblocksORMHelper {
 		return true;
 	}
 
-	static function getCountBySourceObjectId($source_extension, $source_id) {
+	static function getCountBySourceObjectId($source_extension, $source_id, $include_completed=false) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = sprintf("SELECT count(id) FROM task WHERE source_extension = '%s' AND source_id = %d",
-			$source_extension,
+		$sql = sprintf("SELECT count(id) ".
+			"FROM task ".
+			"WHERE source_extension = %s ".
+			"AND source_id = %d ".
+			(($include_completed) ? " " : "AND is_completed = 0 "),
+			$db->qstr($source_extension),
 			$source_id
 		);
-		
 		$total = intval($db->GetOne($sql));
 		
 		return $total;

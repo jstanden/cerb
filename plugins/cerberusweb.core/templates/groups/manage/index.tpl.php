@@ -45,7 +45,14 @@
 	<input type="text" name="sender_personal" value="{$group_settings.reply_personal}" size="65"><br>
 	<br>
 	
-	<b>Group E-mail Signature:</b><br>
+	<label><input type="checkbox" name="subject_has_mask" value="1" onclick="toggleDiv('divGroupCfgSubject',(this.checked)?'block':'none');" {if $group_settings.subject_has_mask}checked{/if}> <b>Include reference ID in subject line:</b></label><br>
+	<blockquote id="divGroupCfgSubject" style="margin-left:20px;margin-bottom:0px;display:{if $group_settings.subject_has_mask}block{else}none{/if}">
+		<b>Subject prefix:</b> (optional, e.g. "Billing", "Tech Support")<br>
+		Re: [ <input type="text" name="subject_prefix" value="{$group_settings.subject_prefix}" size="24"> #XXX-XXXXX-XXX]: Subject Line<br>
+	</blockquote>
+	<br>
+	
+	<b>Group E-mail Signature:</b> (optional, defaults to helpdesk signature)<br>
 	<div style="display:none">
 		{assign var=default_signature value=$settings->get('default_signature')}
 		<textarea name="default_signature">{$default_signature}</textarea>	
@@ -70,11 +77,8 @@
 	
 	<h3>New Ticket Auto-Response</h3>
 	
-	<b>Send an auto-response when this group receives a new ticket?</b><br>
-	<label><input type="checkbox" name="auto_reply_enabled" value="1" {if $group_settings.auto_reply_enabled}checked{/if}>Enabled</label><br>
-	<br>
-	
-	<div style="margin-left:10px;">
+	<label><input type="checkbox" name="auto_reply_enabled" value="1" onclick="toggleDiv('divGroupCfgAutoReply',(this.checked)?'block':'none');" {if $group_settings.auto_reply_enabled}checked{/if}> <b>Send an auto-response when this group receives a new message?</b></label><br>
+	<div style="margin-top:10px;margin-left:20px;display:{if $group_settings.auto_reply_enabled}block{else}none{/if};" id="divGroupCfgAutoReply">
 		<b>Send the following message:</b><br>
 		<textarea name="auto_reply" rows="6" cols="76">{$group_settings.auto_reply}</textarea><br>
 			E-mail Tokens: 

@@ -30,7 +30,7 @@
 				{* Domain Shortcut *}
 				{assign var=email_parts value=$address.a_email|explode:'@'}
 				{if is_array($email_parts) && 2==count($email_parts)}
-					(<a href="http://{$email_parts.1}" target="_blank">{$email_parts.1}</a>)
+					(<a href="http://www.{$email_parts.1}" target="_blank">www.{$email_parts.1}</a>)
 				{/if}
 			{/if}
 		</td>
@@ -46,12 +46,18 @@
 	<tr>
 		<td width="0%" nowrap="nowrap" align="right" valign="top">Organization: </td>
 		<td width="100%" valign="top">
-			<div id="contactautocomplete" style="width:98%;" class="yui-ac">
-				<input type="text" name="contact_org" id="contactinput" value="{if !empty($address.a_contact_org_id)}{$address.o_name}{else}{$org_name}{/if}" class="yui-ac-input">
-				<div id="contactcontainer" class="yui-ac-container"></div>
-			</div>			
-			<input type="hidden" name="contact_orgid" value="{if !empty($address.a_contact_org_id)}{$address.a_contact_org_id}{else}{$org_id}{/if}"/>
-			<br>
+			{if empty($address.a_contact_org_id)}
+				<div id="contactautocomplete" style="width:98%;" class="yui-ac">
+					<input type="text" name="contact_org" id="contactinput" value="{if !empty($address.a_contact_org_id)}{$address.o_name}{else}{$org_name}{/if}" class="yui-ac-input">
+					<div id="contactcontainer" class="yui-ac-container"></div>
+				</div>			
+				<input type="hidden" name="contact_orgid" value="{if !empty($address.a_contact_org_id)}{$address.a_contact_org_id}{else}{$org_id}{/if}"/>
+				<br>
+			{else}
+				{if !empty($address.o_name)}{$address.o_name}{else if !empty({$org_name})}{$org_name}{/if}
+				(<a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showOrgPeek&id={if !empty($address.a_contact_org_id)}{$address.a_contact_org_id}{else}{$org_id}{/if}&view_id={$view->id}',null,false,'500px',ajax.cbOrgCountryPeek);">peek</a>)
+				<input type="hidden" name="contact_orgid" value="{if !empty($address.a_contact_org_id)}{$address.a_contact_org_id}{else}{$org_id}{/if}"/>
+			{/if}
 			<br>
 		</td>
 	</tr>

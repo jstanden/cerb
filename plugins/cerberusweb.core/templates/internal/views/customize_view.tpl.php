@@ -24,7 +24,6 @@
 <select name="columns[]">
 	<option value=""></option>
 	
-	<optgroup label="Ticket">
 	{foreach from=$optColumns item=optColumn}
 		{if substr($optColumn->token,0,3) != "cf_"}
 			{* [TODO] These should be excluded in the abstract class, not here *}
@@ -38,7 +37,6 @@
 			{/if}
 		{/if}
 	{/foreach}
-	</optgroup>
 	
 	{if 1}
 	<optgroup label="Custom Fields">

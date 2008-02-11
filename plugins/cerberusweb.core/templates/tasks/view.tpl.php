@@ -16,11 +16,11 @@
 <input type="hidden" name="id" value="{$view->id}">
 <input type="hidden" name="c" value="tasks">
 <input type="hidden" name="a" value="">
-<table cellpadding="0" cellspacing="0" border="0" width="100%" class="tableRowBg">
+<table cellpadding="1" cellspacing="0" border="0" width="100%" class="tableRowBg">
 
 	{* Column Headers *}
 	<tr class="tableTh">
-		<th style="text-align:center"><input type="checkbox" onclick="checkAll('view{$view->id}',this.checked);"></th>
+		<th style="text-align:center"><input type="checkbox" onclick="checkAll('view{$view->id}',this.checked);this.blur();"></th>
 		{foreach from=$view->view_columns item=header name=headers}
 			{* start table header, insert column title and link *}
 			<th nowrap="nowrap">

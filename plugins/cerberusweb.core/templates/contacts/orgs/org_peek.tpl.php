@@ -2,7 +2,7 @@
 	<tr>
 		<td align="left" width="1%" nowrap="nowrap" style="padding-right:5px;"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/office-building.gif{/devblocks_url}" align="absmiddle"></td>
 		<td align="left" width="98%"><h1>Address Book: Org</h1></td>
-		<td align="left" width="1%" nowrap="nowrap"><a href="{devblocks_url}&c=contacts&a=orgs&id={$contact->id}{/devblocks_url}">view full record</a></td>
+		<td align="left" width="1%" nowrap="nowrap">{if !empty($contact->id)}<a href="{devblocks_url}&c=contacts&a=orgs&id={$contact->id}{/devblocks_url}">view full record</a>{/if}</td>
 	</tr>
 </table>
 
@@ -34,7 +34,7 @@
 		<td><input type="text" name="city" value="{$contact->city}" style="width:98%;"></td>
 	</tr>
 	<tr>
-		<td align="right">Province: </td>
+		<td align="right">State/Prov.: </td>
 		<td><input type="text" name="province" value="{$contact->province}" style="width:98%;"></td>
 	</tr>
 	<tr>

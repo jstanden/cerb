@@ -22,11 +22,11 @@
 <form id="customize{$view->id}" action="#" onsubmit="return false;" style="display:none;"></form>
 <form id="viewForm{$view->id}" name="viewForm{$view->id}" action="#">
 <input type="hidden" name="id" value="{$view->id}">
-<table cellpadding="0" cellspacing="0" border="0" width="100%" class="tableRowBg">
+<table cellpadding="1" cellspacing="0" border="0" width="100%" class="tableRowBg">
 
 	{* Column Headers *}
 	<tr class="tableTh">
-		<th style="text-align:center"><input type="checkbox" onclick="checkAll('viewForm{$view->id}',this.checked);"></th>
+		<th style="text-align:center"><input type="checkbox" onclick="checkAll('viewForm{$view->id}',this.checked);this.blur();"></th>
 		{foreach from=$view->view_columns item=header name=headers}
 			{* start table header, insert column title and link *}
 			<th>
@@ -160,7 +160,7 @@
 			<span style="color:rgb(130,130,130);">
 			{if $result.t_last_action_code=='O'}
 				{assign var=action_worker_id value=$result.t_next_worker_id}
-				<span title="{$result.t_first_wrote}"><b>New</b> 
+				<span title="{$result.t_first_wrote}">New 
 				{if isset($workers.$action_worker_id)}for {$workers.$action_worker_id->getName()}{else}from <a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$result.t_first_wrote}&view_id={$view->id}',this,false,'500px',ajax.cbAddressPeek);">{$result.t_first_wrote|truncate:45:'...':true:true}</a>{/if}</span>
 			{elseif $result.t_last_action_code=='R'}
 				{assign var=action_worker_id value=$result.t_next_worker_id}

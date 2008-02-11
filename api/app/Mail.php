@@ -113,14 +113,14 @@ class CerberusMail {
 			$mail = $mail_service->createMessage();
 	        
 		    // properties
-		    @$message_id = $properties['message_id'];
+		    @$reply_message_id = $properties['message_id'];
 		    @$content =& $properties['content'];
 		    @$files = $properties['files'];
 		    @$worker_id = $properties['agent_id'];
 		    @$subject = $properties['subject'];
 		    
-			$message = DAO_Ticket::getMessage($message_id);
-	        $message_headers = DAO_MessageHeader::getAll($message_id);		
+			$message = DAO_Ticket::getMessage($reply_message_id);
+	        $message_headers = DAO_MessageHeader::getAll($reply_message_id);		
 			$ticket_id = $message->ticket_id;
 			$ticket = DAO_Ticket::getTicket($ticket_id);
 	
@@ -143,10 +143,24 @@ class CerberusMail {
 			$mail->headers->set('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
 	
 			// Subject
+			if(empty($subject)) $subject = $ticket->subject;
+			
 			if(!empty($properties['to'])) { // forward
-				$mail->setSubject((!empty($subject) ? $subject : $ticket->subject));
+				$mail->setSubject($subject);
+				
 			} else { // reply
-				$mail->setSubject('Re: ' . (!empty($subject) ? $subject : $ticket->subject));
+				@$group_has_subject = intval($group_settings[DAO_GroupSettings::SETTING_SUBJECT_HAS_MASK]);
+				@$group_subject_prefix = $group_settings[DAO_GroupSettings::SETTING_SUBJECT_PREFIX];
+				
+				$prefix = sprintf("[%s#%s] ",
+					!empty($group_subject_prefix) ? ($group_subject_prefix.' ') : '',
+					$ticket->mask
+				);
+				
+				$mail->setSubject(sprintf('Re: %s%s',
+					$group_has_subject ? $prefix : '',
+					$subject
+				));
 			}
 			
 			$sendTo = new Swift_RecipientList();

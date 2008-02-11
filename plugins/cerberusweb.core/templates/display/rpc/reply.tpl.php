@@ -159,7 +159,7 @@
 				      	<br>
 				      	<br>
 
-						<b>What is the next action that needs to happen?</b> (max 255 chars)<br>  
+						<b>What is the next action that needs to happen?</b> (optional, max 255 chars)<br>  
 				      	<input type="text" name="next_action" size="80" maxlength="255" value="{$ticket->next_action|escape:"htmlall"}"><br>
 				      	<br>
 

@@ -428,12 +428,18 @@ class CerberusParser {
 				));
 				
         		return $id;
+        		
+        	} else { // Reply: Not sent by a worker
+	        	/*
+	        	 * [TODO] check that this sender is a requester on the matched ticket
+	        	 * Otherwise blank out the $id
+	        	 */
         	}
         }
         
 		if(empty($id)) { // New Ticket
 			// Are we delivering or bouncing?
-			@list($team_id,$matchingToAddress) = CerberusParser::findDestination($headers);
+			@list($team_id, $matchingToAddress) = CerberusParser::findDestination($headers);
 			
 			if(empty($team_id)) {
 				// Bounce
@@ -721,6 +727,15 @@ class CerberusParser {
 		return $id;
 	}
 
+	/**
+	 * First we check the references and in-reply-to headers to find a 
+	 * historical match in the database. If those don't match we check 
+	 * the subject line for a mask (if one exists). If none of those
+	 * options match we return null.
+	 *
+	 * @param array $headers
+	 * @return array
+	 */
 	static private function findParentMessage($headers) {
 		@$sSubject = $headers['subject'];
 		@$sMessageId = trim($headers['message-id']);
@@ -760,8 +775,23 @@ class CerberusParser {
 		if(is_array($aReferences) && !empty($aReferences)) {
 			foreach(array_keys($aReferences) as $ref) {
 				if(empty($ref)) continue;
-				if(null != ($id = DAO_Ticket::getTicketByMessageId($ref)))
-				    return $id;
+				if(null != ($ids = DAO_Ticket::getTicketByMessageId($ref))) {
+				    return $ids;
+				}
+			}
+		}
+		
+		// Try matching the subject line
+		// [TODO] This should only happen if the destination has subject masks enabled
+		if(preg_match("/.*\[.*?\#(.*?)\].*/", $sSubject, $matches)) {
+			if(isset($matches[1])) {
+				$mask = $matches[1];
+				if(null != ($ticket = DAO_Ticket::getTicketByMask($mask))) {
+					return array(
+						'ticket_id' => intval($ticket->id),
+						'message_id' => intval($ticket->first_message_id)
+					);
+				}
 			}
 		}
 		

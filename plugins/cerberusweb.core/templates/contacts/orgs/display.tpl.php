@@ -1,6 +1,9 @@
-{*include file="file:$path/contacts/menu.tpl.php"*}
+<div style="padding-bottom:5px;">
+<a href="{devblocks_url}c=contacts{/devblocks_url}">address book</a>
+&raquo; <a href="{devblocks_url}c=contacts&a=orgs{/devblocks_url}">organizations</a>
+</div>
 
-<h1>Organization: {$contact->name}</h1>
+<h1>{$contact->name}</h1>
 <br>
 
 <div id="contactOptions"></div> 
@@ -11,8 +14,8 @@
 var tabView = new YAHOO.widget.TabView();
 
 tabView.addTab( new YAHOO.widget.Tab({
-    label: 'Details',
-    dataSrc: '{/literal}{devblocks_url}ajax.php?c=contacts&a=showTabDetails&org={$contact->id}{/devblocks_url}{literal}',
+    label: 'Mail History',
+    dataSrc: '{/literal}{devblocks_url}ajax.php?c=contacts&a=showTabHistory&org={$contact->id}{/devblocks_url}{literal}',
     cacheData: true,
     active: true
 }));
@@ -24,14 +27,14 @@ tabView.addTab( new YAHOO.widget.Tab({
 }));
 
 tabView.addTab( new YAHOO.widget.Tab({
-    label: 'History',
-    dataSrc: '{/literal}{devblocks_url}ajax.php?c=contacts&a=showTabHistory&org={$contact->id}{/devblocks_url}{literal}',
+    label: 'Tasks ({/literal}{$tasks_total}{literal})',
+    dataSrc: '{/literal}{devblocks_url}ajax.php?c=contacts&a=showTabTasks&org={$contact->id}{/devblocks_url}{literal}',
     cacheData: true
 }));
 
 tabView.addTab( new YAHOO.widget.Tab({
-    label: 'Tasks',
-    dataSrc: '{/literal}{devblocks_url}ajax.php?c=contacts&a=showTabTasks&org={$contact->id}{/devblocks_url}{literal}',
+    label: 'Update Details',
+    dataSrc: '{/literal}{devblocks_url}ajax.php?c=contacts&a=showTabDetails&org={$contact->id}{/devblocks_url}{literal}',
     cacheData: true
 }));
 

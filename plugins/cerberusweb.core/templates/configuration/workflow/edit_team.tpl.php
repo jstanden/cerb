@@ -55,6 +55,15 @@
 	</tr>
 	 -->
 
+	{if !empty($team->id)}
+	<tr>
+		<td width="100%" valign="top" colspan="2">
+			<a href="{devblocks_url}c=groups&a=config&id={$team->id}{/devblocks_url}" target="_blank">Group Configuration</a> (new window)<br>
+			<br>
+		</td>
+	</tr>
+	{/if}
+
 	<tr>
 		<td colspan="2">
 			<input type="hidden" name="delete_box" value="0">

@@ -23,7 +23,7 @@
 		<td><input type="text" name="city" value="{$contact->city}" style="width:50%;"></td>
 	</tr>
 	<tr>
-		<td align="right">Province: </td>
+		<td align="right">State/Prov.: </td>
 		<td><input type="text" name="province" value="{$contact->province}" style="width:50%;"></td>
 	</tr>
 	<tr>
