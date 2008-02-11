@@ -58,52 +58,7 @@
 	
 </table>
 <table cellpadding="2" cellspacing="0" border="0" width="100%" class="tableBg" id="{$view->id}_actions">
-	{if $total}
 	<tr>
-		<td colspan="2">
-			<!-- 
-			<select name="move_to_select" onchange="this.form.move_to.value=this.form.move_to_select[this.selectedIndex].value;ajax.viewMoveTickets('{$view->id}');">
-				<option value="">-- move to --</option>
-				<optgroup label="Inboxes" style="">
-					{foreach from=$teams item=team}
-						<option value="t{$team->id}">{$team->name}</option>
-					{/foreach}
-				</optgroup>
-				{foreach from=$team_categories item=team_category_list key=teamId}
-					{assign var=team value=$teams.$teamId}
-					{if !empty($active_worker_memberships.$teamId)}
-						<optgroup label="-- {$team->name} --">
-						{foreach from=$team_category_list item=category}
-							<option value="c{$category->id}">{$category->name}</option>
-						{/foreach}
-						</optgroup>
-					{/if}
-				{/foreach}
-			</select>
- 			-->
-		</td>
-	</tr>
-	{/if}
-	<tr>
-		<td align="left" valign="top">
-			{if $total && !empty($move_to_counts) && $view->id != 'contact_history'}
-			<span style="font-size:100%;">
-			<b>Move to: </b>
-				{foreach from=$move_to_counts item=move_count key=move_code name=move_links}
-					{if substr($move_code,0,1)=='t'}
-						{assign var=move_team_id value=$move_code|regex_replace:"/[t]/":""}
-						{assign var=move_bucket_id value=0}
-						{assign var=move_bucket_team_id value=0}
-					{elseif substr($move_code,0,1)=='c'}
-						{assign var=move_team_id value=0}
-						{assign var=move_bucket_id value=$move_code|regex_replace:"/[c]/":""}
-						{assign var=move_bucket_team_id value=$buckets.$move_bucket_id->team_id}
-					{/if}
-					<a href="javascript:;" onclick="document.viewForm{$view->id}.move_to.value='{$move_code}';ajax.viewMoveTickets('{$view->id}');" title="{if !empty($move_bucket_team_id)}({$teams.$move_bucket_team_id->name}){/if} Used {$move_count} times." style="{if !empty($move_team_id)}color:rgb(0,150,0);font-weight:bold;font-style:normal;{else}{/if}">{if !empty($move_team_id)}{$teams.$move_team_id->name}{else}{$buckets.$move_bucket_id->name}{/if}</a>{if !$smarty.foreach.move_links.last}, {/if}
-				{/foreach}
-			</span>
-			{/if}
-		</td>
 		<td align="right" valign="top" nowrap="nowrap">
 			{math assign=fromRow equation="(x*y)+1" x=$view->renderPage y=$view->renderLimit}
 			{math assign=toRow equation="(x-1)+y" x=$fromRow y=$view->renderLimit}
@@ -116,13 +71,13 @@
 			{if $fromRow > $toRow}{assign var=fromRow value=$toRow}{/if}
 			
 			{if $view->renderPage > 0}
-				<a href="{devblocks_url}c=mobile&a=tickets{/devblocks_url}?page=0">&lt;&lt;</a>
-				<a href="{devblocks_url}c=mobile&a=tickets{/devblocks_url}?page={$prevPage}" >&lt;{$translate->_('common.prev')|capitalize}</a>
+				<a href="{devblocks_url}c=mobile&a=tickets&a2=overview&filter={$filter}&fid={$fid}&b={$bid}{/devblocks_url}?page=0">&lt;&lt;</a>
+				<a href="{devblocks_url}c=mobile&a=tickets&a2=overview&filter={$filter}&fid={$fid}&b={$bid}{/devblocks_url}?page={$prevPage}" >&lt;{$translate->_('common.prev')|capitalize}</a>
 			{/if}
 			(Showing {$fromRow}-{$toRow} of {$total})
 			{if $toRow < $total}
-				<a href="{devblocks_url}c=mobile&a=tickets{/devblocks_url}?page={$nextPage}">{$translate->_('common.next')|capitalize}&gt;</a>
-				<a href="{devblocks_url}c=mobile&a=tickets{/devblocks_url}?page={$lastPage}">&gt;&gt;</a>
+				<a href="{devblocks_url}c=mobile&a=tickets&a2=overview&filter={$filter}&fid={$fid}&b={$bid}{/devblocks_url}?page={$nextPage}">{$translate->_('common.next')|capitalize}&gt;</a>
+				<a href="{devblocks_url}c=mobile&a=tickets&a2=overview&filter={$filter}&fid={$fid}&b={$bid}{/devblocks_url}?page={$lastPage}">&gt;&gt;</a>
 			{/if}
 		</td>
 	</tr>

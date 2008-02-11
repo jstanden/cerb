@@ -687,7 +687,11 @@ class ChMobileTicketsPage extends CerberusMobilePageExtension  {
 			break;
 		}
 		
-		$mobileView = new C4_MobileTicketView();//C4_TicketView();
+		$mobileView = C4_AbstractViewLoader::getView('', "VIEW_MOBILE");
+		//print_r($mobileView);		
+		if($mobileView == NULL) {
+			$mobileView = new C4_MobileTicketView();//C4_TicketView();
+		}
 		$mobileView->id = "VIEW_MOBILE";
 		$mobileView->name = $title;
 		$mobileView->dashboard_id = 0;
@@ -704,6 +708,23 @@ class ChMobileTicketsPage extends CerberusMobilePageExtension  {
 	
 		$tpl->assign('views', $views);
 
+		if($filter==null) {
+			$filter = 'all';
+		}
+		$tpl->assign('filter', $filter);
+		
+		$fid = $response->path[4];
+		if($fid == null ) {
+			$fid = '0';
+		}
+		$tpl->assign('fid', $fid);
+		
+		$bucket_id = $response->path[5];
+		if($bucket_id == null) {
+			$buket_id = 0;
+		}
+		$tpl->assign('bid', $bucket_id);
+		
 		$tpl->assign('title', $title);
 		$tpl->assign('tickets', $tickets[0]);
 		$tpl->assign('next_page', $page+1);
