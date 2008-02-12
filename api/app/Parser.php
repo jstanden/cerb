@@ -168,39 +168,32 @@ class CerberusParser {
 		    }
 		    
 		    // whether or not it has a content-name, we need to add it as an attachment (if not already handled)
-		    if ($handled == 0 && isset($info['content-disposition'])) {
-		        switch($info['content-disposition']) {
-		            case 'inline':
-		            case 'attachment':
-		                if(!$is_attachments_enabled) {
-		                    break; // skip attachment
-		                }
-					    $attach = new ParseCronFileBuffer($section, $info, $full_filename);
-		                
-					    // [TODO] This could be more efficient by not even saving in the first place above:
-	                    // Make sure our attachment is under the max preferred size
-					    if(filesize($attach->tmpname) > ($attachments_max_size * 1024000)) {
-					        @unlink($attach->tmpname);
-					        break;
-					    }
-					    
-					    // if un-named, call it "unnamed message part"
-					    if (!$info['content-name']) { $info['content-name'] = 'unnamed message part'; }
-	
-					    // content-name is not necessarily unique...
-						if (isset($message->files[$info['content-name']])) {
-							$j=1;
-							while ($message->files[$info['content-name'] . '(' . $j . ')']) {
-								$j++;
-							}
-							$info['content-name'] = $info['content-name'] . '(' . $j . ')';
+		    if ($handled == 0) {
+		    	if (false === strpos(strtolower($info['content-type']),'multipart')) {
+	                if(!$is_attachments_enabled) {
+	                    break; // skip attachment
+	                }
+				    $attach = new ParseCronFileBuffer($section, $info, $full_filename);
+	                
+				    // [TODO] This could be more efficient by not even saving in the first place above:
+                    // Make sure our attachment is under the max preferred size
+				    if(filesize($attach->tmpname) > ($attachments_max_size * 1024000)) {
+				        @unlink($attach->tmpname);
+				        break;
+				    }
+				    
+				    // if un-named, call it "unnamed message part"
+				    if (!$info['content-name']) { $info['content-name'] = 'unnamed message part'; }
+
+				    // content-name is not necessarily unique...
+					if (isset($message->files[$info['content-name']])) {
+						$j=1;
+						while ($message->files[$info['content-name'] . '(' . $j . ')']) {
+							$j++;
 						}
-						$message->files[$info['content-name']] = $attach;
-					    
-		                break;
-		                
-		            default: // default?
-		                break;
+						$info['content-name'] = $info['content-name'] . '(' . $j . ')';
+					}
+					$message->files[$info['content-name']] = $attach;
 		        }
 		    }
 		}
