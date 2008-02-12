@@ -878,8 +878,17 @@ class CerberusParser {
 	}
 	
 	static private function fixQuotePrintableString($str) {
-//		$text = mb_convert_encoding($text, "ISO-8859-1", $info['content-charset']);
-		$out = utf8_decode(imap_utf8($str)); // [TODO] to ISO is temporary
+		$out = '';
+		$parts = imap_mime_header_decode($str);
+		
+		if(is_array($parts))
+		foreach($parts as $part) {
+			try {
+				$charset = ($part->charset != 'default') ? $part->charset : 'auto';
+				$out .= mb_convert_encoding($part->text,"ISO-8859-1",$charset);
+			} catch(Exception $e) {}
+		}
+		
 		return $out;
 	}
 	
