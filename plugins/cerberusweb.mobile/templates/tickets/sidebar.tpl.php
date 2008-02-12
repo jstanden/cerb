@@ -18,7 +18,7 @@
 		{if is_numeric($sla_id)}
 		<tr>
 			<td style="padding-right:20px;" nowrap="nowrap" valign="top">
-				<a href="{devblocks_url}c=mobile&a=tickets&a=overview&s=sla&sid={$sla_id}{/devblocks_url}" style="font-weight:bold;">{$slas.$sla_id->name}</a> <span style="color:rgb(150,150,150);">({$counts})</span>
+				<a href="{devblocks_url}c=mobile&a=tickets&a2=overview&s=sla&sid={$sla_id}{/devblocks_url}" style="font-weight:bold;">{$slas.$sla_id->name}</a> <span style="color:rgb(150,150,150);">({$counts})</span>
 			</td>
 			<td valign="top"></td>
 		</tr>
