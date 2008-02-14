@@ -379,6 +379,39 @@ var cAjaxCalls = function() {
 		);		
 	}
 
+	this.cbEmailPeek = function(o) {
+		var myDataSource = new YAHOO.widget.DS_XHR(DevblocksAppPath+"ajax.php", ["\n", "\t"] );
+		myDataSource.scriptQueryAppend = "c=contacts&a=getEmailAutoCompletions"; 
+	
+		myDataSource.responseType = YAHOO.widget.DS_XHR.TYPE_FLAT;
+		myDataSource.maxCacheEntries = 60;
+		myDataSource.queryMatchSubset = true;
+		myDataSource.connTimeout = 3000;
+	
+	 	var myInput = document.getElementById('emailinput'); 
+	    var myContainer = document.getElementById('emailcontainer'); 
+	
+		var myAutoComp = new YAHOO.widget.AutoComplete(myInput,myContainer, myDataSource);
+		myAutoComp.delimChar = ",";
+		myAutoComp.queryDelay = 1;
+		//myAutoComp.useIFrame = true; 
+		myAutoComp.typeAhead = false;
+		myAutoComp.useShadow = true;
+		//myAutoComp.prehighlightClassName = "yui-ac-prehighlight"; 
+		myAutoComp.allowBrowserAutocomplete = false;
+	
+		myAutoComp.formatResult = function(aResultItem, sQuery) {
+		   var sKey = aResultItem[1];
+		   sKey = sKey.replace('<','&lt;');
+		   sKey = sKey.replace('>','&gt;');
+		   
+		   var aMarkup = ["<div id='ysearchresult'>",
+		      sKey,
+		      "</div>"];
+		  return (aMarkup.join(""));
+		};
+	}
+
 	this.cbAddressPeek = function(o) {
 		var myDataSource = new YAHOO.widget.DS_XHR(DevblocksAppPath+"ajax.php", ["\n", "\t"] );
 		myDataSource.scriptQueryAppend = "c=contacts&a=getOrgsAutoCompletions"; 
@@ -399,12 +432,12 @@ var cAjaxCalls = function() {
 		myAutoComp.useShadow = true;
 		//myAutoComp.prehighlightClassName = "yui-ac-prehighlight"; 
 		myAutoComp.allowBrowserAutocomplete = false;
-	
+
 		var contactOrgAutoCompSelected = function contactOrgAutoCompSelected(sType, args, me) {
-					org_str = new String(args[2]);
-					org_arr = org_str.split(',');
-					document.formAddressPeek.contact_orgid.value=org_arr[1];
-				};
+			org_str = new String(args[2]);
+			org_arr = org_str.split(',');
+			myInput.value=org_arr[1];
+		};
 		
 		obj=new Object();
 		myAutoComp.itemSelectEvent.subscribe(contactOrgAutoCompSelected, obj);
@@ -430,9 +463,6 @@ var cAjaxCalls = function() {
 		myAutoComp.useShadow = true;
 		//myAutoComp.prehighlightClassName = "yui-ac-prehighlight"; 
 		myAutoComp.allowBrowserAutocomplete = false;
-	
-		//obj=new Object();
-		//myAutoComp.itemSelectEvent.subscribe(contactOrgAutoCompSelected, obj);
 	}
 
 }

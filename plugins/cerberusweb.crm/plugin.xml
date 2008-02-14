@@ -1,0 +1,90 @@
+<!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
+<plugin>
+	<id>cerberusweb.crm</id>
+	<name>Cerberus Helpdesk: CRM (Experimental)</name>
+	<description>Customer Relationship Management: Leads/Opportunities, Campaigns</description>
+	<author>WebGroup Media, LLC.</author>
+	<revision>0</revision>
+	<link>http://www.cerberusweb.com/</link>
+	<class>
+		<file>api/App.php</file>
+		<name>CrmPlugin</name>
+	</class>
+	
+	<extensions>
+	
+		<!-- Patch Containers -->
+		
+		<extension point="devblocks.patch.container">
+			<id>crm.patches</id>
+			<name>CRM Patches</name>
+			<class>
+				<file>api/Patch.php</file>
+				<name>CrmPatchContainer</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
+		<!-- Event Listeners -->
+		
+		<extension point="devblocks.listener.event">
+			<id>crm.listeners.core</id>
+			<name>CRM Listener</name>
+			<class>
+				<file>api/App.php</file>
+				<name>CrmEventListener</name>
+			</class>
+			<params>
+				<!-- Address Changed Event Listener -->
+				<param key="events">
+					<value>
+						<data key="address.peek.saved" />						
+					</value>
+				</param>
+			</params>
+		</extension>
+
+		<!-- Translations -->
+		
+		<extension point="devblocks.i18n.strings">
+			<id>crm.translations</id>
+			<name>CRM Strings</name>
+			<class>
+				<file>api/App.php</file>
+				<name>CrmTranslations</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
+		<!-- Pages -->
+		
+		<extension point="cerberusweb.page">
+			<id>crm.page.crm</id>
+			<name>CRM Page</name>
+			<class>
+				<file>api/App.php</file>
+				<name>CrmPage</name>
+			</class>
+			<params>
+				<param key="uri" value="crm" />
+				<param key="menutitle" value="crm" />
+			</params>
+		</extension>
+
+		<!-- Task Sources -->
+		
+		<extension point="cerberusweb.task.source">
+			<id>cerberusweb.tasks.opp</id>
+			<name>Opportunity Task</name>
+			<class>
+				<file>api/App.php</file>
+				<name>CrmTaskSource_Opp</name>
+			</class>
+			<params>
+			</params>
+		</extension>		
+		
+	</extensions>
+</plugin>

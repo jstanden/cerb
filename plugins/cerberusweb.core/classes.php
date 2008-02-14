@@ -1151,6 +1151,93 @@ class ChTicketsPage extends CerberusPageExtension {
    		exit;
 	}
 	
+	function showComposePeekAction() {
+	    @$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
+		@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
+	    
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl_path = dirname(__FILE__) . '/templates/';
+		$tpl->assign('path', $tpl_path);
+		
+		$tpl->assign('view_id', $view_id);
+		$tpl->assign('to', $to);
+		
+		$teams = DAO_Group::getAll();
+		$tpl->assign_by_ref('teams', $teams);
+		
+		$workers = DAO_Worker::getAll();
+		$tpl->assign('workers', $workers);
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/compose/peek.tpl.php');
+	}
+	
+	function saveComposePeekAction() {
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
+		
+		@$team_id = DevblocksPlatform::importGPC($_POST['team_id'],'integer'); 
+		@$to = DevblocksPlatform::importGPC($_POST['to'],'string');
+		@$cc = DevblocksPlatform::importGPC($_POST['cc'],'string','');
+		@$bcc = DevblocksPlatform::importGPC($_POST['bcc'],'string','');
+		@$subject = DevblocksPlatform::importGPC($_POST['subject'],'string','(no subject)');
+		@$content = DevblocksPlatform::importGPC($_POST['content'],'string');
+		@$files = $_FILES['attachment'];
+		
+		@$closed = DevblocksPlatform::importGPC($_POST['closed'],'integer',0);
+//		@$move_bucket = DevblocksPlatform::importGPC($_POST['bucket_id'],'string','');
+		@$next_worker_id = DevblocksPlatform::importGPC($_POST['next_worker_id'],'integer',0);
+//		@$next_action = DevblocksPlatform::importGPC($_POST['next_action'],'string','');
+//		@$ticket_reopen = DevblocksPlatform::importGPC($_POST['ticket_reopen'],'string','');
+		
+		$properties = array(
+			'team_id' => $team_id,
+			'to' => $to,
+//			'cc' => $cc,
+//			'bcc' => $bcc,
+			'subject' => $subject,
+			'content' => $content,
+			'files' => $files,
+			'closed' => $closed,
+//			'move_bucket' => $move_bucket,
+			'next_worker_id' => $next_worker_id,
+//			'next_action' => $next_action,
+//			'ticket_reopen' => $ticket_reopen,
+		);
+		
+		$ticket_id = CerberusMail::compose($properties);
+
+		if(!empty($view_id)) {
+			$view = C4_AbstractViewLoader::getView('C4_TicketView', $view_id);
+			$view->render();
+		}
+		exit;
+	}
+	
+	function getComposeSignatureAction() {
+		@$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'integer',0);
+		
+		$settings = CerberusSettings::getInstance();
+		$group = DAO_Group::getTeam($group_id);
+
+		$worker = CerberusApplication::getActiveWorker();
+		$sig = $settings->get(CerberusSettings::DEFAULT_SIGNATURE,'');
+
+		if(!empty($group->signature)) {
+			$sig = $group->signature;
+		}
+
+		/*
+		 * [TODO] This is the 3rd place this replace happens, we really need 
+		 * to move the signature translation into something like CerberusApplication
+		 */
+		echo sprintf("\r\n%s\r\n",
+			str_replace(
+		        array('#first_name#','#last_name#','#title#'),
+		        array($worker->first_name,$worker->last_name,$worker->title),
+		        $sig
+			)
+		);
+	}
+	
 	// Ajax
 	function showPreviewAction() {
 	    @$tid = DevblocksPlatform::importGPC($_REQUEST['tid'],'integer',0);
@@ -1230,6 +1317,12 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$content = DevblocksPlatform::importGPC($_POST['content'],'string');
 		@$files = $_FILES['attachment'];
 		
+		@$closed = DevblocksPlatform::importGPC($_POST['closed'],'integer',0);
+		@$move_bucket = DevblocksPlatform::importGPC($_POST['bucket_id'],'string','');
+		@$next_worker_id = DevblocksPlatform::importGPC($_POST['next_worker_id'],'integer',0);
+		@$next_action = DevblocksPlatform::importGPC($_POST['next_action'],'string','');
+		@$ticket_reopen = DevblocksPlatform::importGPC($_POST['ticket_reopen'],'string','');
+		
 		if(DEMO_MODE) {
 			DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets','compose')));
 			return;
@@ -1239,223 +1332,23 @@ class ChTicketsPage extends CerberusPageExtension {
 			DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets','compose')));
 			return;
 		}
-		
-		// [TODO] [JAS] This method is pretty horribly redundant with CerberusMail::*
-		
-		$settings = CerberusSettings::getInstance();
-		$default_from = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM);
-		$default_personal = $settings->get(CerberusSettings::DEFAULT_REPLY_PERSONAL);
-		$group_settings = DAO_GroupSettings::getSettings($team_id);
-		@$team_from = $group_settings[DAO_GroupSettings::SETTING_REPLY_FROM];
-		@$team_personal = $group_settings[DAO_GroupSettings::SETTING_REPLY_PERSONAL];
-		
-		$from = !empty($team_from) ? $team_from : $default_from;
-		$personal = !empty($team_personal) ? $team_personal : $default_personal;
 
-		if(empty($subject)) $subject = '(no subject)';
-		
-		$mail_succeeded = true;
-		try {
-			$sendTo = new Swift_RecipientList();
-			$sendTo->addTo($to);
-			
-			$sendFrom = new Swift_Address($from, $personal);
-			
-			$mail_service = DevblocksPlatform::getMailService();
-			$mailer = $mail_service->getMailer();
-			$email = $mail_service->createMessage();
-	
-			$email->setTo($to);
-			
-			// cc
-			$ccs = array();
-			if(!empty($cc) && null != ($ccList = DevblocksPlatform::parseCsvString($cc))) {
-				foreach($ccList as $ccAddy) {
-					$sendTo->addCc($ccAddy);
-					$ccs[] = new Swift_Address($ccAddy);
-				}
-				if(!empty($ccs))
-					$email->setCc($ccs);
-			}
-			
-			// bcc
-			if(!empty($bcc) && null != ($bccList = DevblocksPlatform::parseCsvString($bcc))) {
-				foreach($bccList as $bccAddy) {
-					$sendTo->addBcc($bccAddy);
-				}
-			}
-			
-			$email->setFrom($sendFrom);
-			$email->setSubject($subject);
-			$email->generateId();
-			$email->headers->set('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
-			
-			$email->attach(new Swift_Message_Part($content));
-			
-			// [TODO] These attachments should probably save to the DB
-			
-			// Mime Attachments
-			if (is_array($files) && !empty($files)) {
-				foreach ($files['tmp_name'] as $idx => $file) {
-					if(empty($file) || empty($files['name'][$idx]))
-						continue;
-	
-					$email->attach(new Swift_Message_Attachment(
-						new Swift_File($file), $files['name'][$idx], $files['type'][$idx]));
-				}
-			}
-			
-			// [TODO] Allow seperated addresses (parseRfcAddress)
-	//		$mailer->log->enable();
-			if(!$mailer->send($email, $sendTo, $sendFrom)) {
-				$mail_succeeded = false;
-				throw new Exception('Mail failed to send: unknown reason');
-			}
-	//		$mailer->log->dump();
-		} catch (Exception $e) {
-			// tag mail as failed, add note to message after message gets created			
-			$mail_succeeded = false;
-		}
-		
-		$worker = CerberusApplication::getActiveWorker();
-		$fromAddressInst = CerberusApplication::hashLookupAddress($from, true);
-		$fromAddressId = $fromAddressInst->id;
-		
-		// [TODO] this is redundant with the Parser code.  Should be refactored later
-		// Is this address covered by an SLA?
-		$sla_id = 0;
-		$sla_priority = 0;
-		$toAddressInst = CerberusApplication::hashLookupAddress($to, true);
-		if(!empty($toAddressInst->sla_id)) {
-			if(null != ($toAddressSla = DAO_Sla::get($toAddressInst->sla_id))) {
-				@$sla_id = $toAddressSla->id;
-				@$sla_priority = $toAddressSla->priority;
-			}
-		}
-		
-		// [TODO] This really should be in the Mail API
-		$fields = array(
-			DAO_Ticket::MASK => CerberusApplication::generateTicketMask(),
-			DAO_Ticket::SUBJECT => $subject,
-			DAO_Ticket::CREATED_DATE => time(),
-			DAO_Ticket::FIRST_WROTE_ID => $fromAddressId,
-			DAO_Ticket::LAST_WROTE_ID => $fromAddressId,
-			DAO_Ticket::LAST_ACTION_CODE => CerberusTicketActionCode::TICKET_WORKER_REPLY,
-			DAO_Ticket::LAST_WORKER_ID => $worker->id,
-			DAO_Ticket::NEXT_WORKER_ID => 0, // [TODO] Implement
-			DAO_Ticket::TEAM_ID => $team_id,
-			DAO_Ticket::SLA_ID => $sla_id,
-			DAO_Ticket::SLA_PRIORITY => $sla_priority,
+		$properties = array(
+			'team_id' => $team_id,
+			'to' => $to,
+			'cc' => $cc,
+			'bcc' => $bcc,
+			'subject' => $subject,
+			'content' => $content,
+			'files' => $files,
+			'closed' => $closed,
+			'move_bucket' => $move_bucket,
+			'next_worker_id' => $next_worker_id,
+			'next_action' => $next_action,
+			'ticket_reopen' => $ticket_reopen,
 		);
 		
-		// "Next:" [TODO] This is highly redundant with CerberusMail
-		@$closed = DevblocksPlatform::importGPC($_POST['closed'],'integer',0);
-		@$move_bucket = DevblocksPlatform::importGPC($_POST['bucket_id'],'string','');
-		@$next_worker_id = DevblocksPlatform::importGPC($_POST['next_worker_id'],'integer',0);
-		@$next_action = DevblocksPlatform::importGPC($_POST['next_action'],'string','');
-		@$ticket_reopen = DevblocksPlatform::importGPC($_POST['ticket_reopen'],'string','');
-		
-		if(isset($closed) && 1==$closed)
-			$fields[DAO_Ticket::IS_CLOSED] = 1;
-		if(isset($closed) && 2==$closed)
-			$fields[DAO_Ticket::IS_WAITING] = 1;
-		if(!empty($move_bucket)) {
-	        list($team_id, $bucket_id) = CerberusApplication::translateTeamCategoryCode($move_bucket);
-		    $fields[DAO_Ticket::TEAM_ID] = $team_id;
-		    $fields[DAO_Ticket::CATEGORY_ID] = $bucket_id;
-		}
-		if(isset($next_worker_id))
-			$fields[DAO_Ticket::NEXT_WORKER_ID] = intval($next_worker_id);
-		if(!empty($next_action))
-			$fields[DAO_Ticket::NEXT_ACTION] = $next_action;
-		if(!empty($ticket_reopen)) {
-			$due = strtotime($ticket_reopen);
-			if($due) $fields[DAO_Ticket::DUE_DATE] = $due;
-		}
-		// End "Next:"
-		
-		$ticket_id = DAO_Ticket::createTicket($fields);
-		
-	    $fields = array(
-	        DAO_Message::TICKET_ID => $ticket_id,
-	        DAO_Message::CREATED_DATE => time(),
-	        DAO_Message::ADDRESS_ID => $fromAddressId,
-	        DAO_Message::IS_OUTGOING => 1,
-	        DAO_Message::WORKER_ID => (!empty($worker->id) ? $worker->id : 0)
-	    );
-		$message_id = DAO_Message::create($fields);
-	    
-		// Content
-	    DAO_MessageContent::update($message_id, $content);
-
-	    // Headers
-	    if (!empty($email) && !empty($email->headers)) {
-			foreach($email->headers->getList() as $hdr => $v) {
-				if(null != ($hdr_val = $email->headers->getEncoded($hdr))) {
-					if(!empty($hdr_val))
-		    			DAO_MessageHeader::update($message_id, $ticket_id, $hdr, $hdr_val);
-				}
-			}
-	    }
-		
-		// Set recipients to requesters
-		// [TODO] Allow seperated addresses (parseRfcAddress)
-		if(null != ($reqAddressInst = CerberusApplication::hashLookupAddress($to, true))) {
-			$reqAddressId = $reqAddressInst->id;
-			DAO_Ticket::createRequester($reqAddressId, $ticket_id);
-		}
-		
-		// add files to ticket
-		// [TODO] redundant with parser (like most of the rest of this function)
-		if (is_array($files) && !empty($files)) {
-			$attachment_path = APP_PATH . '/storage/attachments/';
-		
-			reset($files);
-			foreach ($files['tmp_name'] as $idx => $file) {
-				if(empty($file) || empty($files['name'][$idx]) || !file_exists($file))
-					continue;
-					
-				$fields = array(
-					DAO_Attachment::MESSAGE_ID => $message_id,
-					DAO_Attachment::DISPLAY_NAME => $files['name'][$idx],
-					DAO_Attachment::MIME_TYPE => $files['type'][$idx],
-					DAO_Attachment::FILE_SIZE => filesize($file)
-				);
-				$file_id = DAO_Attachment::create($fields);
-				
-	            $attachment_bucket = sprintf("%03d/",
-	                rand(1,100)
-	            );
-	            $attachment_file = $file_id;
-	            
-	            if(!file_exists($attachment_path.$attachment_bucket)) {
-	                mkdir($attachment_path.$attachment_bucket, 0775, true);
-	            }
-
-	            if(!is_writeable($attachment_path.$attachment_bucket)) {
-	            	echo "Can't write to " . $attachment_path.$attachment_bucket . "<BR>";
-	            }
-	            
-	            copy($file, $attachment_path.$attachment_bucket.$attachment_file);
-	            @unlink($file);
-			    
-			    DAO_Attachment::update($file_id, array(
-			        DAO_Attachment::FILEPATH => $attachment_bucket.$attachment_file
-			    ));
-			}
-		}
-		
-		// if email sending failed, add an error note to the message
-		if ($mail_succeeded === false) {
-			$fields = array(
-				DAO_MessageNote::MESSAGE_ID => $message_id,
-				DAO_MessageNote::CREATED => time(),
-				DAO_MessageNote::WORKER_ID => 0,
-				DAO_MessageNote::CONTENT => 'Exception thrown while sending email: ' . $e->getMessage(),
-				DAO_MessageNote::TYPE => Model_MessageNote::TYPE_ERROR,
-			);
-			DAO_MessageNote::create($fields);
-		}
+		$ticket_id = CerberusMail::compose($properties);
 		
 		$ticket = DAO_Ticket::getTicket($ticket_id);
 		
@@ -4840,21 +4733,63 @@ class ChContactsPage extends CerberusPageExtension {
 		);
 		
 		list($orgs,$null) = DAO_ContactOrg::search(
-				array(
-					new DevblocksSearchCriteria(SearchFields_ContactOrg::NAME,DevblocksSearchCriteria::OPER_LIKE, $starts_with. '*'), 
-					),
-				-1,
-			    0,
-			    SearchFields_ContactOrg::NAME,
-			    true,
-			    false
+			array(
+				new DevblocksSearchCriteria(SearchFields_ContactOrg::NAME,DevblocksSearchCriteria::OPER_LIKE, $starts_with. '*'), 
+			),
+			-1,
+		    0,
+		    SearchFields_ContactOrg::NAME,
+		    true,
+		    false
 		);
 		
 		foreach($orgs AS $val){
 			echo $val[SearchFields_ContactOrg::NAME] . "\t";
 			echo $val[SearchFields_ContactOrg::ID] . "\n";
 		}
-		exit();
+		exit;
+	}
+	
+	function getEmailAutoCompletionsAction() {
+		$db = DevblocksPlatform::getDatabaseService();
+		@$query = DevblocksPlatform::importGPC($_REQUEST['query'],'string','');
+		
+		$starts_with = strtolower($query) . '%';
+		
+		$sql = sprintf("SELECT first_name,last_name,email ".
+			"FROM address ".
+			"WHERE lower(email) LIKE %s ".
+			"OR lower(%s) LIKE %s ".
+			"OR lower(last_name) LIKE %s ".
+			"ORDER BY first_name, last_name, email",
+			$db->qstr($starts_with),
+			$db->Concat('first_name',"' '",'last_name'),
+			$db->qstr($starts_with),
+			$db->qstr($starts_with)
+		);
+		$rs = $db->Execute($sql);
+		
+		while(!$rs->EOF) {
+			$first = $rs->fields['first_name'];
+			$last = $rs->fields['last_name'];
+			$email = $rs->fields['email'];
+			
+			$personal = sprintf("%s%s%s",
+				(!empty($first)) ? $first : '',
+				(!empty($first) && !empty($last)) ? ' ' : '',
+				(!empty($last)) ? $last : ''
+			);
+			
+			echo sprintf("%s\t%s%s\n",
+				$email,
+				!empty($personal) ? ('"'.$personal.'" ') : '',
+				!empty($personal) ? ("<".$email.">") : $email
+			);
+			
+			$rs->MoveNext();
+		}
+		
+		exit;
 	}
 	
 	function getCountryAutoCompletionsAction() {

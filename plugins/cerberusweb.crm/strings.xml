@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tmx SYSTEM "tmx14.dtd">
+<tmx version="1.4">
+	<header datatype="winres" segtype="sentence" adminlang="en-us"
+		srclang="en-us" o-tmf="abc" />
+	<body>
+
+		<!-- Common Strings -->
+		
+		
+		<!-- Opportunity -->
+
+		<tu tuid='crm.opportunity.campaign_id'>
+			<tuv xml:lang="en"><seg>campaign</seg></tuv>
+		</tu>
+		<tu tuid='crm.opportunity.closed_date'>
+			<tuv xml:lang="en"><seg>closed</seg></tuv>
+		</tu>
+		<tu tuid='crm.opportunity.contact_phone'>
+			<tuv xml:lang="en"><seg>phone</seg></tuv>
+		</tu>
+		<tu tuid='crm.opportunity.created_date'>
+			<tuv xml:lang="en"><seg>created</seg></tuv>
+		</tu>
+		<tu tuid='crm.opportunity.email_address'>
+			<tuv xml:lang="en"><seg>primary email</seg></tuv>
+		</tu>
+		<tu tuid='crm.opportunity.expire_date'>
+			<tuv xml:lang="en"><seg>expire_date</seg></tuv>
+		</tu>
+		<tu tuid='crm.opportunity.is_closed'>
+			<tuv xml:lang="en"><seg>closed</seg></tuv>
+		</tu>
+		<tu tuid='crm.opportunity.is_won'>
+			<tuv xml:lang="en"><seg>won</seg></tuv>
+		</tu>
+		<tu tuid='crm.opportunity.id'>
+			<tuv xml:lang="en"><seg>id</seg></tuv>
+		</tu>
+		<tu tuid='crm.opportunity.name'>
+			<tuv xml:lang="en"><seg>name</seg></tuv>
+		</tu>
+		<tu tuid='crm.opportunity.org_id'>
+			<tuv xml:lang="en"><seg>org id</seg></tuv>
+		</tu>
+		<tu tuid='crm.opportunity.org_name'>
+			<tuv xml:lang="en"><seg>org name</seg></tuv>
+		</tu>
+		<tu tuid='crm.opportunity.org_website'>
+			<tuv xml:lang="en"><seg>website</seg></tuv>
+		</tu>
+		<tu tuid='crm.opportunity.primary_email_id'>
+			<tuv xml:lang="en"><seg>email id</seg></tuv>
+		</tu>
+		<tu tuid='crm.opportunity.source'>
+			<tuv xml:lang="en"><seg>lead source</seg></tuv>
+		</tu>
+		<tu tuid='crm.opportunity.updated_date'>
+			<tuv xml:lang="en"><seg>updated</seg></tuv>
+		</tu>
+		<tu tuid='crm.opportunity.worker_id'>
+			<tuv xml:lang="en"><seg>worker</seg></tuv>
+		</tu>
+		
+		<!-- Campaign -->
+		
+		
+	</body>
+</tmx>

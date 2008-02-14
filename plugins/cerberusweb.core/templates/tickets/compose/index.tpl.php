@@ -55,7 +55,12 @@
 				<tr>
 					<td width="0%" nowrap="nowrap" valign="top"><b>To:</b>&nbsp; </td>
 					<td width="100%">
-						<input type="text" size="100" name="to" style="width:50%;border:1px solid rgb(180,180,180);padding:2px;">
+						<div id="emailautocomplete" style="width:50%;" class="yui-ac">
+							<input type="text" name="to" id="emailinput" value="{$to}" style="border:1px solid rgb(180,180,180);padding:2px;" class="yui-ac-input" autocomplete="off">
+							<div id="emailcontainer" class="yui-ac-container"></div>
+							<br>
+							<br>
+						</div>			
 					</td>
 				</tr>
 				<tr>
@@ -184,3 +189,11 @@
 </table>
 </form>
 </div>
+
+<script type="text/javascript">
+{literal}
+YAHOO.util.Event.addListener(window,'load',function(e) {
+	ajax.cbEmailPeek(null);
+});
+{/literal}
+</script>

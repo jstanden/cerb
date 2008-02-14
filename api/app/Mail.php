@@ -80,6 +80,240 @@ class CerberusMail {
 		return true;
 	}
 
+	static function compose($properties) {
+		@$team_id = $properties['team_id'];
+		@$toStr = $properties['to'];
+		@$cc = $properties['cc'];
+		@$bcc = $properties['bcc'];
+		@$subject = $properties['subject'];
+		@$content = $properties['content'];
+		@$files = $properties['files'];
+
+		@$closed = $properties['closed'];
+		@$bucket_id = $properties['bucket_id'];
+		@$next_worker_id = $properties['next_worker_id'];
+		@$next_action = $properties['next_action'];
+		@$ticket_reopen = $properties['ticket_reopen'];
+		
+		$settings = CerberusSettings::getInstance();
+		$default_from = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM);
+		$default_personal = $settings->get(CerberusSettings::DEFAULT_REPLY_PERSONAL);
+		$group_settings = DAO_GroupSettings::getSettings($team_id);
+		@$team_from = $group_settings[DAO_GroupSettings::SETTING_REPLY_FROM];
+		@$team_personal = $group_settings[DAO_GroupSettings::SETTING_REPLY_PERSONAL];
+		
+		$from = !empty($team_from) ? $team_from : $default_from;
+		$personal = !empty($team_personal) ? $team_personal : $default_personal;
+
+		if(empty($subject)) $subject = '(no subject)';
+		
+		$mail_succeeded = true;
+		try {
+			$toList = DevblocksPlatform::parseCsvString($toStr);
+			
+			$sendTo = new Swift_RecipientList();
+			foreach($toList as $to)
+				$sendTo->addTo($to);
+			
+			$sendFrom = new Swift_Address($from, $personal);
+			
+			$mail_service = DevblocksPlatform::getMailService();
+			$mailer = $mail_service->getMailer();
+			$email = $mail_service->createMessage();
+	
+			$email->setTo($toList);
+			
+			// cc
+			$ccs = array();
+			if(!empty($cc) && null != ($ccList = DevblocksPlatform::parseCsvString($cc))) {
+				foreach($ccList as $ccAddy) {
+					$sendTo->addCc($ccAddy);
+					$ccs[] = new Swift_Address($ccAddy);
+				}
+				if(!empty($ccs))
+					$email->setCc($ccs);
+			}
+			
+			// bcc
+			if(!empty($bcc) && null != ($bccList = DevblocksPlatform::parseCsvString($bcc))) {
+				foreach($bccList as $bccAddy) {
+					$sendTo->addBcc($bccAddy);
+				}
+			}
+			
+			$email->setFrom($sendFrom);
+			$email->setSubject($subject);
+			$email->generateId();
+			$email->headers->set('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
+			
+			$email->attach(new Swift_Message_Part($content));
+			
+			// [TODO] These attachments should probably save to the DB
+			
+			// Mime Attachments
+			if (is_array($files) && !empty($files)) {
+				foreach ($files['tmp_name'] as $idx => $file) {
+					if(empty($file) || empty($files['name'][$idx]))
+						continue;
+	
+					$email->attach(new Swift_Message_Attachment(
+						new Swift_File($file), $files['name'][$idx], $files['type'][$idx]));
+				}
+			}
+			
+			// [TODO] Allow separated addresses (parseRfcAddress)
+	//		$mailer->log->enable();
+			if(!$mailer->send($email, $sendTo, $sendFrom)) {
+				$mail_succeeded = false;
+				throw new Exception('Mail failed to send: unknown reason');
+			}
+	//		$mailer->log->dump();
+		} catch (Exception $e) {
+			// tag mail as failed, add note to message after message gets created			
+			$mail_succeeded = false;
+		}
+		
+		$worker = CerberusApplication::getActiveWorker();
+		$fromAddressInst = CerberusApplication::hashLookupAddress($from, true);
+		$fromAddressId = $fromAddressInst->id;
+		
+		// [TODO] this is redundant with the Parser code.  Should be refactored later
+		// Is this address covered by an SLA?
+		$sla_id = 0;
+		$sla_priority = 0;
+		
+		// [TODO] This has to handle multiple TO
+//		$toAddressInst = CerberusApplication::hashLookupAddress($to, true);
+//		if(!empty($toAddressInst->sla_id)) {
+//			if(null != ($toAddressSla = DAO_Sla::get($toAddressInst->sla_id))) {
+//				@$sla_id = $toAddressSla->id;
+//				@$sla_priority = $toAddressSla->priority;
+//			}
+//		}
+		
+		$fields = array(
+			DAO_Ticket::MASK => CerberusApplication::generateTicketMask(),
+			DAO_Ticket::SUBJECT => $subject,
+			DAO_Ticket::CREATED_DATE => time(),
+			DAO_Ticket::FIRST_WROTE_ID => $fromAddressId,
+			DAO_Ticket::LAST_WROTE_ID => $fromAddressId,
+			DAO_Ticket::LAST_ACTION_CODE => CerberusTicketActionCode::TICKET_WORKER_REPLY,
+			DAO_Ticket::LAST_WORKER_ID => $worker->id,
+			DAO_Ticket::NEXT_WORKER_ID => 0,
+			DAO_Ticket::TEAM_ID => $team_id,
+			DAO_Ticket::SLA_ID => $sla_id,
+			DAO_Ticket::SLA_PRIORITY => $sla_priority,
+		);
+		
+		// "Next:" [TODO] This is highly redundant with CerberusMail::reply
+		
+		if(isset($closed) && 1==$closed)
+			$fields[DAO_Ticket::IS_CLOSED] = 1;
+		if(isset($closed) && 2==$closed)
+			$fields[DAO_Ticket::IS_WAITING] = 1;
+		if(!empty($move_bucket)) {
+	        list($team_id, $bucket_id) = CerberusApplication::translateTeamCategoryCode($move_bucket);
+		    $fields[DAO_Ticket::TEAM_ID] = $team_id;
+		    $fields[DAO_Ticket::CATEGORY_ID] = $bucket_id;
+		}
+		if(isset($next_worker_id))
+			$fields[DAO_Ticket::NEXT_WORKER_ID] = intval($next_worker_id);
+		if(!empty($next_action))
+			$fields[DAO_Ticket::NEXT_ACTION] = $next_action;
+		if(!empty($ticket_reopen)) {
+			$due = strtotime($ticket_reopen);
+			if($due) $fields[DAO_Ticket::DUE_DATE] = $due;
+		}
+		// End "Next:"
+		
+		$ticket_id = DAO_Ticket::createTicket($fields);
+		
+	    $fields = array(
+	        DAO_Message::TICKET_ID => $ticket_id,
+	        DAO_Message::CREATED_DATE => time(),
+	        DAO_Message::ADDRESS_ID => $fromAddressId,
+	        DAO_Message::IS_OUTGOING => 1,
+	        DAO_Message::WORKER_ID => (!empty($worker->id) ? $worker->id : 0)
+	    );
+		$message_id = DAO_Message::create($fields);
+	    
+		// Content
+	    DAO_MessageContent::update($message_id, $content);
+
+	    // Headers
+	    if (!empty($email) && !empty($email->headers)) {
+			foreach($email->headers->getList() as $hdr => $v) {
+				if(null != ($hdr_val = $email->headers->getEncoded($hdr))) {
+					if(!empty($hdr_val))
+		    			DAO_MessageHeader::update($message_id, $ticket_id, $hdr, $hdr_val);
+				}
+			}
+	    }
+		
+		// Set recipients to requesters
+		// [TODO] Allow seperated addresses (parseRfcAddress)
+		foreach($toList as $to) {
+			if(null != ($reqAddressInst = CerberusApplication::hashLookupAddress($to, true))) {
+				$reqAddressId = $reqAddressInst->id;
+				DAO_Ticket::createRequester($reqAddressId, $ticket_id);
+			}
+		}
+		
+		// add files to ticket
+		// [TODO] redundant with parser (like most of the rest of this function)
+		if (is_array($files) && !empty($files)) {
+			$attachment_path = APP_PATH . '/storage/attachments/';
+		
+			reset($files);
+			foreach ($files['tmp_name'] as $idx => $file) {
+				if(empty($file) || empty($files['name'][$idx]) || !file_exists($file))
+					continue;
+					
+				$fields = array(
+					DAO_Attachment::MESSAGE_ID => $message_id,
+					DAO_Attachment::DISPLAY_NAME => $files['name'][$idx],
+					DAO_Attachment::MIME_TYPE => $files['type'][$idx],
+					DAO_Attachment::FILE_SIZE => filesize($file)
+				);
+				$file_id = DAO_Attachment::create($fields);
+				
+	            $attachment_bucket = sprintf("%03d/",
+	                rand(1,100)
+	            );
+	            $attachment_file = $file_id;
+	            
+	            if(!file_exists($attachment_path.$attachment_bucket)) {
+	                mkdir($attachment_path.$attachment_bucket, 0775, true);
+	            }
+
+	            if(!is_writeable($attachment_path.$attachment_bucket)) {
+	            	echo "Can't write to " . $attachment_path.$attachment_bucket . "<BR>";
+	            }
+	            
+	            copy($file, $attachment_path.$attachment_bucket.$attachment_file);
+	            @unlink($file);
+			    
+			    DAO_Attachment::update($file_id, array(
+			        DAO_Attachment::FILEPATH => $attachment_bucket.$attachment_file
+			    ));
+			}
+		}
+		
+		// if email sending failed, add an error note to the message
+		if ($mail_succeeded === false) {
+			$fields = array(
+				DAO_MessageNote::MESSAGE_ID => $message_id,
+				DAO_MessageNote::CREATED => time(),
+				DAO_MessageNote::WORKER_ID => 0,
+				DAO_MessageNote::CONTENT => 'Exception thrown while sending email: ' . $e->getMessage(),
+				DAO_MessageNote::TYPE => Model_MessageNote::TYPE_ERROR,
+			);
+			DAO_MessageNote::create($fields);
+		}
+		
+		return $ticket_id;
+	}
+	
 	static function sendTicketMessage($properties=array()) {
 	    $settings = CerberusSettings::getInstance();
 		@$from_addy = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM, $_SERVER['SERVER_ADMIN']);
