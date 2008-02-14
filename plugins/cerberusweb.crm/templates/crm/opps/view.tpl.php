@@ -107,15 +107,7 @@
 	{if $total}
 	<tr>
 		<td colspan="2">
-			{if !empty($products)}
-			<select name="product_id" onchange="this.form.a.value='viewOppSetProduct';this.form.submit();">
-				<option value="">-- set product --</option>
-				<option value="0">- Inbox -</option>
-				{foreach from=$products item=product key=product_id}
-					<option value="{$product_id}">{$product->name}</option>
-				{/foreach}
-			</select>
-			{/if}
+			<button type="button" onclick="this.form.a.value='viewOppDelete';this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete2.gif{/devblocks_url}" align="top"> Delete</button>
 			{if !empty($workers)}
 			<select name="worker_id" onchange="this.form.a.value='viewOppSetWorker';this.form.submit();">
 				<option value="">-- set worker --</option>

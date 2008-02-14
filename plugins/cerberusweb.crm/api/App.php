@@ -697,17 +697,27 @@ class CrmPage extends CerberusPageExtension {
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('crm','campaigns')));
 	}
 	
-	function viewOppSetCampaignAction() {
-		@$in_campaign_id = DevblocksPlatform::importGPC($_REQUEST['campaign_id'],'integer',0);
+//	function viewOppSetCampaignAction() {
+//		@$in_campaign_id = DevblocksPlatform::importGPC($_REQUEST['campaign_id'],'integer',0);
+//		@$row_ids = DevblocksPlatform::importGPC($_REQUEST['row_id'],'array',array());
+//		
+//		DAO_CrmOpportunity::update($row_ids,array(
+//			DAO_CrmOpportunity::CAMPAIGN_ID => $in_campaign_id
+//		));
+//		
+//		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('crm','opps')));
+//	}
+	
+	// [TODO] Move to a view bulk update
+	function viewOppDeleteAction() {
 		@$row_ids = DevblocksPlatform::importGPC($_REQUEST['row_id'],'array',array());
 		
-		DAO_CrmOpportunity::update($row_ids,array(
-			DAO_CrmOpportunity::CAMPAIGN_ID => $in_campaign_id
-		));
+		DAO_CrmOpportunity::delete($row_ids);
 		
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('crm','opps')));
 	}
 	
+	// [TODO] Move to a view bulk update
 	function viewOppSetWorkerAction() {
 		@$in_worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'integer',0);
 		@$row_ids = DevblocksPlatform::importGPC($_REQUEST['row_id'],'array',array());

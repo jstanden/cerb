@@ -46,19 +46,20 @@
 	<tr>
 		<td width="0%" nowrap="nowrap" align="right" valign="top">Organization: </td>
 		<td width="100%" valign="top">
-			{if empty($address.a_contact_org_id)}
+			{if !empty($address.a_contact_org_id)}
+				{if !empty($address.o_name)}{$address.o_name}{else if !empty({$org_name})}{$org_name}{/if}
+				(<a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showOrgPeek&id={if !empty($address.a_contact_org_id)}{$address.a_contact_org_id}{else}{$org_id}{/if}&view_id={$view->id}',null,false,'500px',ajax.cbOrgCountryPeek);">peek</a>)
+				(<a href="javascript:;" onclick="toggleDiv('divAddressOrg');">change</a>)
+				<br>
+			{/if}
+			<div id="divAddressOrg" style="display:{if empty($address.a_contact_org_id)}block{else}none{/if};">
 				<div id="contactautocomplete" style="width:98%;" class="yui-ac">
 					<input type="text" name="contact_org" id="contactinput" value="{if !empty($address.a_contact_org_id)}{$address.o_name}{else}{$org_name}{/if}" class="yui-ac-input">
 					<div id="contactcontainer" class="yui-ac-container"></div>
-				</div>			
-				<input type="hidden" name="contact_orgid" value="{if !empty($address.a_contact_org_id)}{$address.a_contact_org_id}{else}{$org_id}{/if}"/>
-				<br>
-			{else}
-				{if !empty($address.o_name)}{$address.o_name}{else if !empty({$org_name})}{$org_name}{/if}
-				(<a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showOrgPeek&id={if !empty($address.a_contact_org_id)}{$address.a_contact_org_id}{else}{$org_id}{/if}&view_id={$view->id}',null,false,'500px',ajax.cbOrgCountryPeek);">peek</a>)
-				<input type="hidden" name="contact_orgid" value="{if !empty($address.a_contact_org_id)}{$address.a_contact_org_id}{else}{$org_id}{/if}"/>
-			{/if}
-			<br>
+					<br>
+					<br>
+				</div>
+			</div>
 		</td>
 	</tr>
 	<tr>

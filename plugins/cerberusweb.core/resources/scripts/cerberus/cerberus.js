@@ -433,6 +433,7 @@ var cAjaxCalls = function() {
 		//myAutoComp.prehighlightClassName = "yui-ac-prehighlight"; 
 		myAutoComp.allowBrowserAutocomplete = false;
 
+		/*
 		var contactOrgAutoCompSelected = function contactOrgAutoCompSelected(sType, args, me) {
 			org_str = new String(args[2]);
 			org_arr = org_str.split(',');
@@ -441,6 +442,7 @@ var cAjaxCalls = function() {
 		
 		obj=new Object();
 		myAutoComp.itemSelectEvent.subscribe(contactOrgAutoCompSelected, obj);
+		*/
 	}
 
 	this.cbOrgCountryPeek = function(o) {
