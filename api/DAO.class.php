@@ -1000,6 +1000,7 @@ class DAO_Address extends DevblocksORMHelper {
 			$address->phone = $rs->fields['phone'];
 			$address->num_spam = intval($rs->fields['num_spam']);
 			$address->num_nonspam = intval($rs->fields['num_nonspam']);
+			$address->is_banned = intval($rs->fields['is_banned']);
 			$address->sla_id = intval($rs->fields['sla_id']);
 			$address->sla_expires = intval($rs->fields['sla_expires']);
 			$address->last_autoreply = intval($rs->fields['last_autoreply']);

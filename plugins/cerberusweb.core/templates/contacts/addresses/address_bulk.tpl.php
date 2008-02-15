@@ -32,6 +32,14 @@
       		{/foreach}
       	</select></td>
 	</tr>
+	<tr>
+		<td width="0%" nowrap="nowrap">Banned:</td>
+		<td width="100%"><select name="is_banned">
+			<option value=""></option>
+			<option value="0">No</option>
+			<option value="1">Yes</option>
+      	</select></td>
+	</tr>
 	<!--
 	<tr>
 		<td width="0%" nowrap="nowrap">Organization:</td>

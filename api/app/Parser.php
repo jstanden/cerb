@@ -271,6 +271,11 @@ class CerberusParser {
 			$fromAddressId = $fromAddressInst->id;
 		}
 
+		// Is banned?
+		if(1==$fromAddressInst->is_banned) {
+			return NULL; // [TODO] Log
+		}
+		
 		// Imports
         @$importNew = $headers['x-cerberusnew'];
         @$importAppend = $headers['x-cerberusappendto'];
@@ -531,16 +536,15 @@ class CerberusParser {
 		    $email_id = DAO_Message::create($fields);
 		    
 		    // Content
-		    $body = CerberusApplication::stripHTML($message->htmlbody);
+		    $message->body = CerberusApplication::stripHTML($message->htmlbody);
 
-		    DAO_MessageContent::update($email_id, $body);
+		    DAO_MessageContent::update($email_id, $message->body);
 			
 		    // Headers
 			foreach($headers as $hk => $hv) {
 			    DAO_MessageHeader::update($email_id, $id, $hk, $hv);
 			}
 		    
-			unset($body);
 		} else { // Insert the plaintext body (even blank)
 	        $fields = array(
 	            DAO_Message::TICKET_ID => $id,
@@ -549,10 +553,8 @@ class CerberusParser {
 	        );
 			$email_id = DAO_Message::create($fields);
 			
-			$body = $message->body;
-
 			// Content
-			DAO_MessageContent::update($email_id, $body);
+			DAO_MessageContent::update($email_id, $message->body);
 			
 			// Headers
 			foreach($headers as $hk => $hv) {
@@ -676,8 +678,8 @@ class CerberusParser {
 						'ticket_id' => $id,
 						'message_id' => $email_id,
 						'content' => str_replace(
-				        	array('#mask#','#subject#','#sender#'), // ,'#group#','#bucket#'
-				        	array($sMask, $sSubject, $fromAddress),
+				        	array('#mask#','#subject#','#sender#','#orig_body#'),
+				        	array($sMask, $sSubject, $fromAddress, ltrim($message->body)),
 				        	$autoreply
 						),
 						'is_autoreply' => true,

@@ -54,7 +54,7 @@
 			<td align="center" rowspan="2"><input type="checkbox" name="row_id[]" value="{$result.t_id}"></td>
 			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">
 				{if $result.t_is_completed}
-					<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check2.gif{/devblocks_url}" align="top">
+					<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check_gray.gif{/devblocks_url}" align="top">
 				{else}
 					{if 1==$result.t_priority}
 						<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/nav_up_red.gif{/devblocks_url}" align="top" title="{$translate->_('priority.high')|capitalize}">
@@ -111,7 +111,7 @@
 			{elseif $column=="t_is_completed"}
 				<td>
 					{if $result.t_is_completed}
-					<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check2.gif{/devblocks_url}" align="top">
+					<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check_gray.gif{/devblocks_url}" align="top">
 					{/if}
 				</td>
 			{elseif $column=="t_source_extension"}
@@ -136,7 +136,7 @@
 	{if $total}
 	<tr>
 		<td colspan="2" valign="top">
-			<button type="button" id="btnComplete" onclick="this.form.a.value='viewComplete';this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check2.gif{/devblocks_url}" align="top" title="{$translate->_('tasks.complete')|capitalize}"> {$translate->_('tasks.complete')|capitalize}</button> 
+			<button type="button" id="btnComplete" onclick="this.form.a.value='viewComplete';this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top" title="{$translate->_('tasks.complete')|capitalize}"> {$translate->_('tasks.complete')|capitalize}</button> 
 			<button type="button" id="btnPostpone" onclick="this.form.a.value='viewPostpone';this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/clock.gif{/devblocks_url}" align="top" title="{$translate->_('tasks.postpone')|capitalize}"> {$translate->_('tasks.postpone')|capitalize}</button>
 
 			<button style="display:none;" type="button" id="btnPriorityHigh" onclick="this.form.a.value='viewPriorityHigh';this.form.submit();">&nbsp;<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/nav_up_red.gif{/devblocks_url}" align="top" title="{$translate->_('priority.high')|capitalize}">&nbsp;</button><!--  

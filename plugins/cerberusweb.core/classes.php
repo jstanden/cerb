@@ -4493,6 +4493,7 @@ class ChContactsPage extends CerberusPageExtension {
 		@$phone = trim(DevblocksPlatform::importGPC($_REQUEST['phone'],'string',''));
 		@$contact_org = trim(DevblocksPlatform::importGPC($_REQUEST['contact_org'],'string',''));
 		@$sla_id = DevblocksPlatform::importGPC($_REQUEST['sla_id'],'integer',0);
+		@$is_banned = DevblocksPlatform::importGPC($_REQUEST['is_banned'],'integer',0);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string', '');
 		
 		$contact_org_id = 0;
@@ -4511,7 +4512,8 @@ class ChContactsPage extends CerberusPageExtension {
 			DAO_Address::LAST_NAME => $last_name,
 			DAO_Address::CONTACT_ORG_ID => $contact_org_id,
 			DAO_Address::PHONE => $phone,
-			DAO_Address::SLA_ID => $sla_id
+			DAO_Address::SLA_ID => $sla_id,
+			DAO_Address::IS_BANNED => $is_banned,
 		);
 		
 		if($id==0) {
@@ -4621,6 +4623,7 @@ class ChContactsPage extends CerberusPageExtension {
 		$view = C4_AbstractViewLoader::getView('',$view_id);
 
 		@$sla = DevblocksPlatform::importGPC($_POST['sla'],'string','');
+		@$is_banned = DevblocksPlatform::importGPC($_POST['is_banned'],'integer',0);
 
 		$address_ids = DevblocksPlatform::parseCsvString($address_id_str);
 		
@@ -4628,6 +4631,8 @@ class ChContactsPage extends CerberusPageExtension {
 		
 		if('' != $sla)
 			$do['sla'] = $sla;
+		if(0 != strlen($is_banned))
+			$do['banned'] = $is_banned;
 		
 		$view->doBulkUpdate($filter, $do, $address_ids);
 		

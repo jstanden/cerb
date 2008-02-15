@@ -1195,6 +1195,9 @@ class C4_AddressView extends C4_AbstractView {
 				case 'sla':
 					$change_fields[DAO_Address::SLA_ID] = intval($v);
 					break;
+				case 'banned':
+					$change_fields[DAO_Address::IS_BANNED] = intval($v);
+					break;
 			}
 		}
 

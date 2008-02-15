@@ -84,10 +84,13 @@
 			E-mail Tokens: 
 			<select name="autoreply_token" onchange="this.form.auto_reply.value += this.options[this.selectedIndex].value;scrollElementToBottom(this.form.auto_reply);this.selectedIndex=0;this.form.auto_reply.focus();">
 				<option value="">-- choose --</option>
-				<optgroup label="Ticket">
-					<option value="#mask#">Mask/ID</option>
-					<option value="#subject#">Subject</option>
+				<optgroup label="Received Message">
 					<option value="#sender#">Sender Address</option>
+					<option value="#orig_body#">Message Content</option>
+				</optgroup>
+				<optgroup label="New Ticket">
+					<option value="#mask#">Reference ID</option>
+					<option value="#subject#">Subject</option>
 					<!-- 
 					<option value="#group#">Group Name</option>
 					<option value="#bucket#">Bucket Name</option>

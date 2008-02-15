@@ -289,7 +289,7 @@ class CerberusApplication extends DevblocksApplication {
 	 * 
 	 * @param string $address The e-mail address to look up
 	 * @param bool $create Should the address be created if not found?
-	 * @return integer The address id, or NULL 
+	 * @return Model_Address The address object or NULL 
 	 * 
 	 * @todo [JAS]: Move this to a global cache/hash registry
 	 */

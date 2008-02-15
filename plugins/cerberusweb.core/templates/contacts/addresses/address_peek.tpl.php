@@ -79,6 +79,16 @@
 		</td>
 	</tr>
 	{/if}
+	<tr>
+		<td width="0%" nowrap="nowrap" align="right">Banned: </td>
+		<td width="100%">
+			<select name="is_banned">
+				<option value="0"></option>
+				<option value="0" {if !$address.a_is_banned}selected{/if}>No</option>
+				<option value="1" {if $address.a_is_banned}selected{/if}>Yes</option>
+			</select>
+		</td>
+	</tr>
 	{if $id != 0}
 	<tr>
 		<td colspan="2" align="center">
