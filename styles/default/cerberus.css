@@ -64,24 +64,33 @@
     color: rgb(0, 102, 255);
     }
 
-  .headerMenu { 
-    background-color: rgb(136, 136, 136);
-    color: rgb(255, 255, 255);
-    }
-
-  .headerMenu a { color: rgb(255, 255, 255);
+  .headerMenu, .headerMenu a { 
+    background-color: rgb(240,240,240);
+    color: rgb(60,60,60);
     }
 
   #headerMenuSelected, #headerMenuSelected a, .headerUnderline { 
-  	 background-color: rgb(255, 102, 0);
+  	background-color: rgb(100,135,213);
     color: rgb(255, 255, 255);
-    }
+  }
 
   #headerMenuLinkActive { color: rgb(255, 255, 255);
     font-weight: bold;
     text-decoration: none;
     }
 
+  #headerSubMenu {
+	width:100%;
+	background-color:rgb(100,135,213);
+	color:rgb(255,255,255);
+	font-size:11px;
+	margin-bottom:5px;  
+  }
+  
+  #headerSubMenu a {
+  	color:rgb(255,255,255);
+  }  
+  
   .tableOrange { 
   		border: 1px solid rgb(210, 84, 0);
   		background-color: rgb(247, 247, 255);

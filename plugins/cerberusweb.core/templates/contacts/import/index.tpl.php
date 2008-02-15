@@ -1,10 +1,11 @@
+{include file="file:$path/contacts/submenu.tpl.php"}
+
 <table cellspacing="0" cellpadding="0" border="0" width="100%" style="padding-bottom:5px;">
 <tr>
 	<td width="1%" nowrap="nowrap" valign="top" style="padding-right:5px;">
 		<h1>Import</h1>
 	</td>
 	<td width="98%" valign="middle">
-		{include file="file:$path/contacts/menu.tpl.php"}
 	</td>
 	<td width="1%" nowrap="nowrap" valign="middle" align="right">
 		<!-- 

@@ -1,8 +1,9 @@
+{include file="file:$path/tickets/submenu.tpl.php"}
+
 <table cellpadding="0" cellspacing="0" style="padding-bottom:5px;">
 <tr>
 	<td style="padding-right:5px;"><h1>Compose Mail</h1></td>
 	<td>
-		{include file="file:$path/tickets/menu.tpl.php"}
 	</td>
 </tr>
 </table>

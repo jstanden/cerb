@@ -3561,7 +3561,8 @@ class ChTasksPage extends CerberusPageExtension {
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
-		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		$tpl_path = realpath(dirname(__FILE__) . '/templates') . DIRECTORY_SEPARATOR;
+		$tpl->assign('path', $tpl_path);
 		
 		$response = DevblocksPlatform::getHttpResponse();
 		$stack = $response->path;
@@ -3569,6 +3570,25 @@ class ChTasksPage extends CerberusPageExtension {
 		@array_shift($stack); // tasks
 		
 		switch(array_shift($stack)) {
+			case 'search':
+				if(null == ($view = C4_AbstractViewLoader::getView('', 'tasks_search'))) {
+					$view = new C4_TaskView();
+					$view->id = 'tasks_search';
+					C4_AbstractViewLoader::setView($view->id, $view);
+				}
+
+				$view->name = "Search Results";
+				$tpl->assign('view', $view);
+
+//				$campaigns = DAO_CrmCampaign::getWhere();
+//				$tpl->assign('campaigns', $campaigns);
+				
+				$tpl->assign('view_fields', C4_TaskView::getFields());
+				$tpl->assign('view_searchable_fields', C4_TaskView::getSearchFields());
+				
+				$tpl->display($tpl_path . 'tasks/search.tpl.php');
+				break;
+			
 			default:
 			case 'overview':
 				$source_renderers = DevblocksPlatform::getExtensions('cerberusweb.task.source', true);
@@ -3645,10 +3665,10 @@ class ChTasksPage extends CerberusPageExtension {
 				}
 				
 				$tpl->assign('tasks_view', $tasks_view);
+				$tpl->display('file:' . dirname(__FILE__) . '/templates/tasks/index.tpl.php');
 				break;
 		}
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/tasks/index.tpl.php');
 	}
 	
 	function showTaskPeekAction() {
@@ -3778,7 +3798,12 @@ class ChTasksPage extends CerberusPageExtension {
 		));
 		
 		foreach($tasks as $task) {
-			$time = ($task->due_date) ? $task->due_date : time();
+			/*
+			 * [JAS]: If an existing due date exists and isn't expired, do a  
+			 * relative postpone. Otherwise use today as the starting point.
+			 */
+			$time = ($task->due_date && $task->due_date > time()) ? $task->due_date : time();
+			
 			$fields = array(
 				DAO_Task::DUE_DATE => strtotime('+24 hours',$time)
 			);
@@ -3952,9 +3977,6 @@ class ChContactsPage extends CerberusPageExtension {
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		
-		$tab_manifests = DevblocksPlatform::getExtensions('cerberusweb.contacts.tab', false);
-		$tpl->assign('tab_manifests', $tab_manifests);
-		
 		$visit = CerberusApplication::getVisit();
 		
 		$response = DevblocksPlatform::getHttpResponse();
@@ -3999,6 +4021,9 @@ class ChContactsPage extends CerberusPageExtension {
 			default:
 			case 'orgs':
 				$param = array_shift($stack);
+				
+				$tab_manifests = DevblocksPlatform::getExtensions('cerberusweb.org.tab', false);
+				$tpl->assign('tab_manifests', $tab_manifests);
 				
 				if(!is_null($param) && is_numeric($param)) { // display
 					$contact = DAO_ContactOrg::get($param);
@@ -4053,6 +4078,7 @@ class ChContactsPage extends CerberusPageExtension {
 	}
 	
 	// Post
+	// [TODO] Allow XML also?
 	function doImportAction() {
 		@$pos = DevblocksPlatform::importGPC($_REQUEST['pos'],'array',array());
 		@$field = DevblocksPlatform::importGPC($_REQUEST['field'],'array',array());
@@ -4192,26 +4218,9 @@ class ChContactsPage extends CerberusPageExtension {
 		
 		if(null != ($tab_mft = DevblocksPlatform::getExtension($ext_id)) 
 			&& null != ($inst = $tab_mft->createInstance()) 
-			&& $inst instanceof Extension_ContactsTab) {
+			&& $inst instanceof Extension_OrgTab) {
 			$inst->showTab();
 		}
-	}
-	
-	function showTabDetailsAction() {
-		@$org = DevblocksPlatform::importGPC($_REQUEST['org']);
-		
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
-		$tpl->assign('path', dirname(__FILE__) . '/templates/');
-
-		$contact = DAO_ContactOrg::get($org);
-		$tpl->assign('contact', $contact);
-
-		$slas = DAO_Sla::getAll();
-		$tpl->assign('slas', $slas);
-		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/contacts/orgs/tabs/details.tpl.php');
-		exit;
 	}
 	
 	function showTabPeopleAction() {
@@ -4315,6 +4324,7 @@ class ChContactsPage extends CerberusPageExtension {
 			$tickets_view->renderSortAsc = false;
 		}
 
+		// [TODO] Change over from org_id to contacts<->requesters so we can also see 'sent'?
 		@$tickets_view->name = "From: " . htmlentities($contact->name);
 		$tickets_view->params = array(
 			SearchFields_Ticket::TICKET_FIRST_CONTACT_ORG_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_FIRST_CONTACT_ORG_ID,DevblocksSearchCriteria::OPER_EQ,$contact->id)
@@ -4337,48 +4347,6 @@ class ChContactsPage extends CerberusPageExtension {
 		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/contacts/orgs/tabs/history.tpl.php');
 		exit;
-	}
-	
-	function updateContactOrgAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer');
-		@$org_name = DevblocksPlatform::importGPC($_REQUEST['org_name'], 'string');
-		@$account_num = DevblocksPlatform::importGPC($_REQUEST['account_num'], 'string');
-		@$street = DevblocksPlatform::importGPC($_REQUEST['street'], 'string');
-		@$city = DevblocksPlatform::importGPC($_REQUEST['city'], 'string');
-		@$province = DevblocksPlatform::importGPC($_REQUEST['province'], 'string');
-		@$postal = DevblocksPlatform::importGPC($_REQUEST['postal'], 'string');
-		@$country = DevblocksPlatform::importGPC($_REQUEST['country'], 'string');
-		@$phone =  DevblocksPlatform::importGPC($_REQUEST['phone'], 'string');
-		@$fax =  DevblocksPlatform::importGPC($_REQUEST['fax'], 'string');
-		@$website = DevblocksPlatform::importGPC($_REQUEST['website'], 'string');
-		@$sla_id = DevblocksPlatform::importGPC($_REQUEST['sla_id'],'integer',0);
-		
-		$fields = array(
-				DAO_ContactOrg::ACCOUNT_NUMBER => $account_num,
-				DAO_ContactOrg::CITY => $city,
-				DAO_ContactOrg::COUNTRY => $country,
-				DAO_ContactOrg::CREATED => time(),
-				DAO_ContactOrg::FAX => $fax,
-				DAO_ContactOrg::NAME => $org_name,
-				DAO_ContactOrg::PHONE => $phone,
-				DAO_ContactOrg::POSTAL => $postal,
-				DAO_ContactOrg::PROVINCE => $province,
-				DAO_ContactOrg::STREET => $street,
-				DAO_ContactOrg::WEBSITE => $website,
-				DAO_ContactOrg::SLA_ID => $sla_id
-		);
-		
-		if($id==0) {
-			$id = DAO_ContactOrg::create($fields);
-		}
-		else {
-			DAO_ContactOrg::update($id, $fields);	
-		}
-		
-		// SLA Updates
-		DAO_Sla::cascadeOrgSla($id, $sla_id);
-				
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('contacts','orgs',$id)));
 	}
 	
 	function showAddressPeekAction() {

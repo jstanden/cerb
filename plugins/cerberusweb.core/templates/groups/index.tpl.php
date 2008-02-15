@@ -1,3 +1,5 @@
+{include file="file:$path/groups/submenu.tpl.php"}
+
 <div class="block">
 <h2>Groups</h2>
 

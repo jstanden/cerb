@@ -19,10 +19,10 @@
 		<td width="100%">
 			{if $id == 0}
 				{if !empty($email)}
-					<input type="hidden" name="email" value="{$email}">
+					<input type="hidden" name="email" value="{$email|escape}">
 					<b>{$email}</b>
 				{else}
-					<input type="text" name="email" style="width:98%;" value="{$email}">
+					<input type="text" name="email" style="width:98%;" value="{$email|escape}">
 				{/if}
 			{else}
 				<b>{$address.a_email}</b>
@@ -37,11 +37,11 @@
 	</tr>
 	<tr>
 		<td width="0%" nowrap="nowrap" align="right">First Name: </td>
-		<td width="100%"><input type="text" name="first_name" value="{$address.a_first_name}" style="width:98%;"></td>
+		<td width="100%"><input type="text" name="first_name" value="{$address.a_first_name|escape}" style="width:98%;"></td>
 	</tr>
 	<tr>
 		<td width="0%" nowrap="nowrap" align="right">Last Name: </td>
-		<td width="100%"><input type="text" name="last_name" value="{$address.a_last_name}" style="width:98%;"></td>
+		<td width="100%"><input type="text" name="last_name" value="{$address.a_last_name|escape}" style="width:98%;"></td>
 	</tr>
 	<tr>
 		<td width="0%" nowrap="nowrap" align="right" valign="top">Organization: </td>
@@ -54,7 +54,7 @@
 			{/if}
 			<div id="divAddressOrg" style="display:{if empty($address.a_contact_org_id)}block{else}none{/if};">
 				<div id="contactautocomplete" style="width:98%;" class="yui-ac">
-					<input type="text" name="contact_org" id="contactinput" value="{if !empty($address.a_contact_org_id)}{$address.o_name}{else}{$org_name}{/if}" class="yui-ac-input">
+					<input type="text" name="contact_org" id="contactinput" value="{if !empty($address.a_contact_org_id)}{$address.o_name|escape}{else}{$org_name|escape}{/if}" class="yui-ac-input">
 					<div id="contactcontainer" class="yui-ac-container"></div>
 					<br>
 					<br>
@@ -64,7 +64,7 @@
 	</tr>
 	<tr>
 		<td width="0%" nowrap="nowrap" align="right">Phone: </td>
-		<td width="100%"><input type="text" name="phone" value="{$address.a_phone}" style="width:98%;"></td>
+		<td width="100%"><input type="text" name="phone" value="{$address.a_phone|escape}" style="width:98%;"></td>
 	</tr>
 	{if !empty($slas)}
 	<tr>

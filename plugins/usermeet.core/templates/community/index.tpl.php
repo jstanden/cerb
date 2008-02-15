@@ -1,3 +1,5 @@
+{include file="file:$path/community/submenu.tpl.php"}
+
 <H1 style="display:inline;">Communities</H1>&nbsp;
 [ <a href="javascript:;" onclick="genericAjaxPanel('c=community&a=showCommunityPanel&id=0',this,false,'400px');">add community</a> ]
 <br>

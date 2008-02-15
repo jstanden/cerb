@@ -19,11 +19,11 @@
 <table cellpadding="0" cellspacing="2" border="0" width="98%">
 	<tr>
 		<td width="0%" nowrap="nowrap" align="right">Org. Name: </td>
-		<td width="100%"><input type="text" name="org_name" value="{$contact->name}" style="width:98%;"></td>
+		<td width="100%"><input type="text" name="org_name" value="{$contact->name|escape}" style="width:98%;"></td>
 	</tr>
 	<tr>
 		<td width="0%" nowrap="nowrap" align="right">Account #: </td>
-		<td width="100%"><input type="text" name="account_num" value="{$contact->account_number}" style="width:98%;"></td>
+		<td width="100%"><input type="text" name="account_num" value="{$contact->account_number|escape}" style="width:98%;"></td>
 	</tr>
 	<tr>
 		<td align="right" valign="top">Street: </td>
@@ -31,22 +31,22 @@
 	</tr>
 	<tr>
 		<td align="right">City: </td>
-		<td><input type="text" name="city" value="{$contact->city}" style="width:98%;"></td>
+		<td><input type="text" name="city" value="{$contact->city|escape}" style="width:98%;"></td>
 	</tr>
 	<tr>
 		<td align="right">State/Prov.: </td>
-		<td><input type="text" name="province" value="{$contact->province}" style="width:98%;"></td>
+		<td><input type="text" name="province" value="{$contact->province|escape}" style="width:98%;"></td>
 	</tr>
 	<tr>
 		<td align="right">Postal: </td>
-		<td><input type="text" name="postal" value="{$contact->postal}" style="width:98%;"></td>
+		<td><input type="text" name="postal" value="{$contact->postal|escape}" style="width:98%;"></td>
 	</tr>
 	<tr>
 		<td align="right">Country: </td>
 		<td>
 		
 			<div id="org_country_autocomplete" style="width:98%;" class="yui-ac">
-				<input type="text" name="country" id="org_country_input" value="{$contact->country}" class="yui-ac-input">
+				<input type="text" name="country" id="org_country_input" value="{$contact->country|escape}" class="yui-ac-input">
 				<div id="org_country_container" class="yui-ac-container"></div>
 			</div>			
 			
@@ -57,15 +57,15 @@
 	</tr>
 	<tr>
 		<td align="right">Phone: </td>
-		<td><input type="text" name="phone" value="{$contact->phone}" style="width:98%;"></td>
+		<td><input type="text" name="phone" value="{$contact->phone|escape}" style="width:98%;"></td>
 	</tr>
 	<tr>
 		<td align="right">Fax: </td>
-		<td><input type="text" name="fax" value="{$contact->fax}" style="width:98%;"></td>
+		<td><input type="text" name="fax" value="{$contact->fax|escape}" style="width:98%;"></td>
 	</tr>
 	<tr>
 		<td align="right">Website: </td>
-		<td><input type="text" name="website" value="{$contact->website}" style="width:98%;"></td>
+		<td><input type="text" name="website" value="{$contact->website|escape}" style="width:98%;"></td>
 	</tr>
 	{if !empty($slas)}
 	<tr>

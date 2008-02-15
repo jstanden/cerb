@@ -119,6 +119,25 @@ class CrmPage extends CerberusPageExtension {
 						$tpl->display($tpl_path . 'crm/opps/display/index.tpl.php');
 						break;
 					
+					case 'search':
+						if(null == ($view = C4_AbstractViewLoader::getView('', 'opps_search'))) {
+							$view = new C4_CrmOpportunityView();
+							$view->id = 'opps_search';
+							C4_AbstractViewLoader::setView($view->id, $view);
+						}
+
+						$view->name = "Search Results";
+						$tpl->assign('view', $view);
+
+						$campaigns = DAO_CrmCampaign::getWhere();
+						$tpl->assign('campaigns', $campaigns);
+						
+						$tpl->assign('view_fields', C4_CrmOpportunityView::getFields());
+						$tpl->assign('view_searchable_fields', C4_CrmOpportunityView::getSearchFields());
+						
+						$tpl->display($tpl_path . 'crm/opps/search.tpl.php');
+						break;
+						
 					default:
 					case 'overview':
 						$workers = DAO_Worker::getAll();
@@ -1239,80 +1258,7 @@ class DAO_CrmCampaign extends DevblocksORMHelper {
 		
 		return true;
 	}
-	
-    /**
-     * Enter description here...
-     *
-     * @param DevblocksSearchCriteria[] $params
-     * @param integer $limit
-     * @param integer $page
-     * @param string $sortBy
-     * @param boolean $sortAsc
-     * @param boolean $withCounts
-     * @return array
-     */
-//    static function search($params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
-//		$db = DevblocksPlatform::getDatabaseService();
-//
-//        list($tables,$wheres) = parent::_parseSearchParams($params, array(), SearchFields_WgmcrmLead::getFields());
-//		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
-//		
-//		$sql = sprintf("SELECT ".
-//			"l.id as %s, ".
-//			"l.email as %s ".
-//			"FROM wgmcrm_lead l ",
-////			"INNER JOIN team tm ON (tm.id = t.team_id) ".
-//			    SearchFields_WgmcrmLead::ID,
-//			    SearchFields_WgmcrmLead::EMAIL
-//			).
-//			
-//			// [JAS]: Dynamic table joins
-////			(isset($tables['m']) ? "INNER JOIN requester r ON (r.ticket_id=t.id)" : " ").
-//			
-//			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "").
-//			(!empty($sortBy) ? sprintf("ORDER BY %s %s",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : "")
-//		;
-//		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-//		
-//		$results = array();
-//		while(!$rs->EOF) {
-//			$result = array();
-//			foreach($rs->fields as $f => $v) {
-//				$result[$f] = $v;
-//			}
-//			$id = intval($rs->fields[SearchFields_WgmcrmLead::ID]);
-//			$results[$id] = $result;
-//			$rs->MoveNext();
-//		}
-//
-//		// [JAS]: Count all
-//		$total = -1;
-//		if($withCounts) {
-//		    $rs = $db->Execute($sql);
-//		    $total = $rs->RecordCount();
-//		}
-//		
-//		return array($results,$total);
-//    }
 };
-
-//class SearchFields_WgmcrmLead implements IDevblocksSearchFields {
-//	// Table
-//	const ID = 'l_id';
-//	const EMAIL = 'l_email';
-//	
-//	/**
-//	 * @return DevblocksSearchField[]
-//	 */
-//	static function getFields() {
-//		$translate = DevblocksPlatform::getTranslationService();
-//		
-//		return array(
-//			self::ID => new DevblocksSearchField(self::ID, 'l', 'id', null, $translate->_('wgmcrm.lead.id')),
-//			self::EMAIL => new DevblocksSearchField(self::EMAIL, 'l', 'email', null, $translate->_('wgmcrm.lead.email')),
-//		);
-//	}
-//};	
 
 class Model_CrmCampaign {
 	public $id;
@@ -1370,12 +1316,43 @@ class C4_CrmOpportunityView extends C4_AbstractView {
 
 	function renderCriteria($field) {
 		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl_path = realpath(dirname(__FILE__).'/../templates') . DIRECTORY_SEPARATOR;
 		$tpl->assign('id', $this->id);
 
 		switch($field) {
+			case SearchFields_CrmOpportunity::CAMPAIGN_ID:
+				$campaigns = DAO_CrmCampaign::getWhere();
+				$tpl->assign('campaigns', $campaigns);
+				$tpl->display('file:' . $tpl_path . 'crm/opps/criteria/campaign.tpl.php');
+				break;
+				
+			case SearchFields_CrmOpportunity::SOURCE:
+			case SearchFields_CrmOpportunity::NAME:
+			case SearchFields_CrmOpportunity::ORG_NAME:
+			case SearchFields_CrmOpportunity::ORG_WEBSITE:
 			case SearchFields_CrmOpportunity::EMAIL_ADDRESS:
+			case SearchFields_CrmOpportunity::CONTACT_PHONE:
 				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__string.tpl.php');
 				break;
+				
+			case SearchFields_CrmOpportunity::IS_CLOSED:
+			case SearchFields_CrmOpportunity::IS_WON:
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__bool.tpl.php');
+				break;
+				
+			case SearchFields_CrmOpportunity::CREATED_DATE:
+			case SearchFields_CrmOpportunity::UPDATED_DATE:
+			case SearchFields_CrmOpportunity::CLOSED_DATE:
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__date.tpl.php');
+				break;
+				
+			case SearchFields_CrmOpportunity::WORKER_ID:
+				$workers = DAO_Worker::getAll();
+				$tpl->assign('workers', $workers);
+				
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__worker.tpl.php');
+				break;
+				
 			default:
 				echo '';
 				break;
@@ -1387,6 +1364,35 @@ class C4_CrmOpportunityView extends C4_AbstractView {
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
+			case SearchFields_CrmOpportunity::CAMPAIGN_ID:
+				$campaigns = DAO_CrmCampaign::getWhere();
+				$strings = array();
+				
+				foreach($values as $val) {
+					if(!isset($campaigns[$val]))
+						continue;
+					else
+						$strings[] = $campaigns[$val]->name;
+				}
+				echo implode(", ", $strings);
+				
+				break;
+				
+			case SearchFields_CrmOpportunity::WORKER_ID:
+				$workers = DAO_Worker::getAll();
+				$strings = array();
+
+				foreach($values as $val) {
+					if(empty($val))
+						$strings[] = "Nobody";
+					elseif(!isset($workers[$val]))
+						continue;
+					else
+						$strings[] = $workers[$val]->getName();
+				}
+				echo implode(", ", $strings);
+				break;
+			
 			default:
 				parent::renderCriteriaParam($param);
 				break;
@@ -1427,7 +1433,18 @@ class C4_CrmOpportunityView extends C4_AbstractView {
 		$criteria = null;
 
 		switch($field) {
+			default:
+			case SearchFields_CrmOpportunity::CAMPAIGN_ID:
+				@$campaign_ids = DevblocksPlatform::importGPC($_REQUEST['campaign_id'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,$oper,$campaign_ids);
+				break;
+				
+			case SearchFields_CrmOpportunity::SOURCE:
+			case SearchFields_CrmOpportunity::NAME:
+			case SearchFields_CrmOpportunity::ORG_NAME:
+			case SearchFields_CrmOpportunity::ORG_WEBSITE:
 			case SearchFields_CrmOpportunity::EMAIL_ADDRESS:
+			case SearchFields_CrmOpportunity::CONTACT_PHONE:
 				// force wildcards if none used on a LIKE
 				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
 				&& false === (strpos($value,'*'))) {
@@ -1435,6 +1452,30 @@ class C4_CrmOpportunityView extends C4_AbstractView {
 				}
 				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
 				break;
+				
+			case SearchFields_CrmOpportunity::IS_CLOSED:
+			case SearchFields_CrmOpportunity::IS_WON:
+				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
+				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
+				break;
+				
+			case SearchFields_CrmOpportunity::CREATED_DATE:
+			case SearchFields_CrmOpportunity::UPDATED_DATE:
+			case SearchFields_CrmOpportunity::CLOSED_DATE:
+				@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','');
+				@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
+
+				if(empty($from)) $from = 0;
+				if(empty($to)) $to = 'today';
+
+				$criteria = new DevblocksSearchCriteria($field,$oper,array($from,$to));
+				break;
+				
+			case SearchFields_CrmOpportunity::WORKER_ID:
+				@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_id);
+				break;
+				
 		}
 
 		if(!empty($criteria)) {
@@ -1513,5 +1554,35 @@ class CrmTaskSource_Opp extends Extension_TaskSource {
 	}
 };
 
+class CrmOrgOppTab extends Extension_OrgTab {
+	function showTab() {
+		@$org_id = DevblocksPlatform::importGPC($_REQUEST['org_id'],'integer',0);
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl_path = realpath(dirname(__FILE__).'/../templates') . DIRECTORY_SEPARATOR;
+		$tpl->assign('path', $tpl_path);
+		$tpl->cache_lifetime = "0";
 
+		$org = DAO_ContactOrg::get($org_id);
+		$tpl->assign('org_id', $org_id);
+		
+		if(null == ($view = C4_AbstractViewLoader::getView('', 'org_opps'))) {
+			$view = new C4_CrmOpportunityView();
+			$view->id = 'org_opps';
+			C4_AbstractViewLoader::setView($view->id, $view);
+		}
+		
+		$view->name = "Org: " . $org->name;
+		$view->params = array(
+			SearchFields_CrmOpportunity::ORG_ID => new DevblocksSearchCriteria(SearchFields_CrmOpportunity::ORG_ID,'=',$org_id) 
+		);
+		
+		$tpl->assign('view', $view);
+		
+		$tpl->display('file:' . $tpl_path . 'crm/opps/org/tab.tpl.php');
+	}
+	
+	function saveTab() {
+	}
+};
 ?>

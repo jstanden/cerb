@@ -1,3 +1,5 @@
+{include file="file:$path/groups/submenu.tpl.php"}
+
 <h1>Configure '{$team->name}'</h1>
 [ <a href="{devblocks_url}c=groups{/devblocks_url}">&lt;&lt; groups</a> ]
 [ <a href="{devblocks_url}c=groups&cf=config&id={$team->id}&a=general{/devblocks_url}">mail settings</a> ]

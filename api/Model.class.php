@@ -684,9 +684,9 @@ class C4_TicketView extends C4_AbstractView {
 				echo implode(", ", $strings);
 				break;
 
-						default:
-							parent::renderCriteriaParam($param);
-							break;
+			default:
+				parent::renderCriteriaParam($param);
+				break;
 		}
 	}
 
@@ -1445,24 +1445,41 @@ class C4_TaskView extends C4_AbstractView {
 
 	function renderCriteria($field) {
 		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl_path = realpath(DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/') . DIRECTORY_SEPARATOR;
 		$tpl->assign('id', $this->id);
-
+		
 		switch($field) {
 			case SearchFields_Task::TITLE:
 			case SearchFields_Task::CONTENT:
-			case SearchFields_Task::SOURCE_EXTENSION:
 				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__string.tpl.php');
 				break;
+				
 			case SearchFields_Task::PRIORITY:
-			case SearchFields_Task::SOURCE_ID:
-				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__number.tpl.php');
+				$tpl->display('file:' . $tpl_path . 'tasks/criteria/priority.tpl.php');
 				break;
+				
+			case SearchFields_Task::SOURCE_EXTENSION:
+				$source_renderers = DevblocksPlatform::getExtensions('cerberusweb.task.source', true);
+				$tpl->assign('sources', $source_renderers);
+				$tpl->display('file:' . $tpl_path . 'tasks/criteria/source.tpl.php');
+				break;
+				
 			case SearchFields_Task::IS_COMPLETED:
 				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__bool.tpl.php');
 				break;
+				
+			case SearchFields_Task::DUE_DATE:
 			case SearchFields_Task::COMPLETED_DATE:
 				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__date.tpl.php');
 				break;
+				
+			case SearchFields_Task::WORKER_ID:
+				$workers = DAO_Worker::getAll();
+				$tpl->assign('workers', $workers);
+				
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__worker.tpl.php');
+				break;
+				
 			default:
 				echo '';
 				break;
@@ -1471,25 +1488,58 @@ class C4_TaskView extends C4_AbstractView {
 
 	function renderCriteriaParam($param) {
 		$field = $param->field;
+		$translate = DevblocksPlatform::getTranslationService();
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
-//			case SearchFields_Task::SLA_ID:
-//				$slas = DAO_Sla::getAll();
-//				$strings = array();
-//
-//				foreach($values as $val) {
-//					if(0==$val) {
-//						$strings[] = "None";
-//					} else {
-//						if(!isset($slas[$val]))
-//						continue;
-//						$strings[] = $slas[$val]->name;
-//					}
-//				}
-//				echo implode(", ", $strings);
-//				break;
+			case SearchFields_Task::PRIORITY:
+				foreach($values as $val) {
+					switch($val) {
+						case 1:
+							$strings[] = $translate->_('priority.high');
+							break;
+						case 2:
+							$strings[] = $translate->_('priority.normal');
+							break;
+						case 3:
+							$strings[] = $translate->_('priority.low');
+							break;
+						case 4:
+							$strings[] = $translate->_('priority.none');
+							break;
+					}
+				}
+				echo implode(", ", $strings);
+				break;
+				
+			case SearchFields_Task::WORKER_ID:
+				$workers = DAO_Worker::getAll();
+				$strings = array();
 
+				foreach($values as $val) {
+					if(empty($val))
+						$strings[] = "Nobody";
+					elseif(!isset($workers[$val]))
+						continue;
+					else
+						$strings[] = $workers[$val]->getName();
+				}
+				echo implode(", ", $strings);
+				break;
+				
+			case SearchFields_Task::SOURCE_EXTENSION:
+				$sources = $ext = DevblocksPlatform::getExtensions('cerberusweb.task.source', true);			
+				$strings = array();
+				
+				foreach($values as $val) {
+					if(!isset($sources[$val]))
+						continue;
+					else
+						$strings[] = $sources[$val]->getSourceName();
+				}
+				echo implode(", ", $strings);
+				break;
+			
 			default:
 				parent::renderCriteriaParam($param);
 				break;
@@ -1503,6 +1553,7 @@ class C4_TaskView extends C4_AbstractView {
 	static function getSearchFields() {
 		$fields = self::getFields();
 		unset($fields[SearchFields_Task::ID]);
+		unset($fields[SearchFields_Task::SOURCE_ID]);
 		return $fields;
 	}
 
@@ -1528,7 +1579,6 @@ class C4_TaskView extends C4_AbstractView {
 		switch($field) {
 			case SearchFields_Task::TITLE:
 			case SearchFields_Task::CONTENT:
-			case SearchFields_Task::SOURCE_EXTENSION:
 				// force wildcards if none used on a LIKE
 				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
 				&& false === (strpos($value,'*'))) {
@@ -1536,20 +1586,36 @@ class C4_TaskView extends C4_AbstractView {
 				}
 				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
 				break;
+				
 			case SearchFields_Task::PRIORITY:
-			case SearchFields_Task::SOURCE_ID:
-				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
+				@$priority = DevblocksPlatform::importGPC($_REQUEST['priority'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,$oper,$priority);
+				break;
+				
+			case SearchFields_Task::SOURCE_EXTENSION:
+				@$sources = DevblocksPlatform::importGPC($_REQUEST['sources'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,$oper,$sources);
 				break;
 				
 			case SearchFields_Task::COMPLETED_DATE:
-//				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
-//				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
+			case SearchFields_Task::DUE_DATE:
+				@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','');
+				@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
+
+				if(empty($from)) $from = 0;
+				if(empty($to)) $to = 'today';
+
+				$criteria = new DevblocksSearchCriteria($field,$oper,array($from,$to));
 				break;
 
-			// Bool
 			case SearchFields_Task::IS_COMPLETED:
 				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
+				break;
+				
+			case SearchFields_Task::WORKER_ID:
+				@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_id);
 				break;
 		}
 

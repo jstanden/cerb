@@ -14,7 +14,7 @@
 			<tuv xml:lang="en"><seg>campaign</seg></tuv>
 		</tu>
 		<tu tuid='crm.opportunity.closed_date'>
-			<tuv xml:lang="en"><seg>closed</seg></tuv>
+			<tuv xml:lang="en"><seg>closed date</seg></tuv>
 		</tu>
 		<tu tuid='crm.opportunity.contact_phone'>
 			<tuv xml:lang="en"><seg>phone</seg></tuv>

@@ -84,7 +84,22 @@
 			</class>
 			<params>
 			</params>
-		</extension>		
+		</extension>
+		
+		<!-- Tabs -->
+		
+		<extension point="cerberusweb.org.tab">
+			<id>crm.opp.tab.org</id>
+			<name>Opportunity Tab</name>
+			<class>
+				<file>api/App.php</file>
+				<name>CrmOrgOppTab</name>
+			</class>
+			<params>
+				<param key="uri" value="opps" />
+				<param key="title" value="Opportunities" />
+			</params>
+		</extension>
 		
 	</extensions>
 </plugin>

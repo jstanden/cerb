@@ -1,13 +1,13 @@
+{include file="$path/forums/submenu.tpl.php"}
+
 <h1>Forums</h1>
 
-<form action="{devblocks_url}{/devblocks_url}" method="post">
+<form action="{devblocks_url}{/devblocks_url}" method="post" style="padding-bottom:5px;">
 	<input type="hidden" name="c" value="forums"> 
 	<input type="hidden" name="a" value="import">
 	
 	<button id="btnSynchronize" type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.forums&f=images/replace2.gif{/devblocks_url}" align="top"> Synchronize</button><br>
 </form>
-
-<br>
 
 <table cellpadding="0" cellspacing="0" border="0" width="100%">
 	<tr>

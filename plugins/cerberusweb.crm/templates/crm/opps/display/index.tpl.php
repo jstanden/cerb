@@ -1,7 +1,4 @@
-<div style="padding-bottom:5px;">
-<a href="{devblocks_url}c=crm{/devblocks_url}">crm</a>
-&raquo; <a href="{devblocks_url}c=crm&a=opps{/devblocks_url}">opportunities</a>
-</div>
+{include file="$path/crm/submenu.tpl.php"}
 
 <table cellspacing="0" cellpadding="0" border="0" width="100%" style="padding-bottom:5px;">
 <tr>

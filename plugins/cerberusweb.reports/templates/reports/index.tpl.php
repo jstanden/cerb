@@ -1,3 +1,8 @@
+<div id="headerSubMenu">
+	<div style="padding-bottom:5px;">
+	</div>
+</div>
+
 <h1>Reports</h1>
 
 <table cellpadding="5" cellspacing="0" border="0" width="100%">

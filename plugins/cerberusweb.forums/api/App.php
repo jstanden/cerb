@@ -286,9 +286,25 @@ class ChForumsPage extends CerberusPageExtension {
 		$response = DevblocksPlatform::getHttpResponse();
 		$stack = $response->path;
 
-		array_shift($stack); // reports
+		array_shift($stack); // forums
 		
 		switch(array_shift($stack)) {
+			case 'search':
+				if(null == ($view = C4_AbstractViewLoader::getView('', 'forums_search'))) {
+					$view = new C4_ForumsThreadView();
+					$view->id = 'forums_search';
+					C4_AbstractViewLoader::setView($view->id, $view);
+				}
+
+				$view->name = "Search Results";
+				$tpl->assign('view', $view);
+
+				$tpl->assign('view_fields', C4_ForumsThreadView::getFields());
+				$tpl->assign('view_searchable_fields', C4_ForumsThreadView::getSearchFields());
+				
+				$tpl->display($this->tpl_path . '/forums/search.tpl.php');
+				break;
+			
 			case 'overview':
 		    default:
 		    	$sources = DAO_ForumsSource::getWhere();
@@ -901,18 +917,38 @@ class C4_ForumsThreadView extends C4_AbstractView {
 
 	function renderCriteria($field) {
 		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl_path = realpath(dirname(__FILE__) . '/../templates') . DIRECTORY_SEPARATOR;
 		$tpl->assign('id', $this->id);
 
 		switch($field) {
+			case SearchFields_ForumsThread::FORUM_ID:
+				$forums = DAO_ForumsSource::getWhere();
+				$tpl->assign('forums', $forums);
+				
+				$tpl->display('file:' . $tpl_path . 'forums/criteria/forum.tpl.php');
+				break;
+				
 			case SearchFields_ForumsThread::TITLE:
+			case SearchFields_ForumsThread::LINK:
+			case SearchFields_ForumsThread::LAST_POSTER:
 				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__string.tpl.php');
 				break;
+				
+			case SearchFields_ForumsThread::LAST_UPDATED:
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__date.tpl.php');
+				break;
+				
 			case SearchFields_ForumsThread::IS_CLOSED:
 				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__bool.tpl.php');
 				break;
+				
 			case SearchFields_ForumsThread::WORKER_ID:
+				$workers = DAO_Worker::getAll();
+				$tpl->assign('workers', $workers);
+				
 				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__worker.tpl.php');
 				break;
+				
 			default:
 				echo '';
 				break;
@@ -924,22 +960,34 @@ class C4_ForumsThreadView extends C4_AbstractView {
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
-//			case SearchFields_Address::SLA_ID:
-//				$slas = DAO_Sla::getAll();
-//				$strings = array();
-//
-//				foreach($values as $val) {
-//					if(0==$val) {
-//						$strings[] = "None";
-//					} else {
-//						if(!isset($slas[$val]))
-//						continue;
-//						$strings[] = $slas[$val]->name;
-//					}
-//				}
-//				echo implode(", ", $strings);
-//				break;
+			case SearchFields_ForumsThread::FORUM_ID:
+				$forums = DAO_ForumsSource::getWhere();
+				$strings = array();
 
+				foreach($values as $val) {
+					if(!isset($forums[$val]))
+						continue;
+					else
+						$strings[] = $forums[$val]->name;
+				}
+				echo implode(", ", $strings);
+				break;
+			
+			case SearchFields_ForumsThread::WORKER_ID:
+				$workers = DAO_Worker::getAll();
+				$strings = array();
+
+				foreach($values as $val) {
+					if(empty($val))
+						$strings[] = "Nobody";
+					elseif(!isset($workers[$val]))
+						continue;
+					else
+						$strings[] = $workers[$val]->getName();
+				}
+				echo implode(", ", $strings);
+				break;
+			
 			default:
 				parent::renderCriteriaParam($param);
 				break;
@@ -976,7 +1024,14 @@ class C4_ForumsThreadView extends C4_AbstractView {
 		$criteria = null;
 
 		switch($field) {
+			case SearchFields_ForumsThread::FORUM_ID:
+				@$forum_ids = DevblocksPlatform::importGPC($_REQUEST['forum_id'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,$oper,$forum_ids);
+				break;
+				
 			case SearchFields_ForumsThread::TITLE:
+			case SearchFields_ForumsThread::LINK:
+			case SearchFields_ForumsThread::LAST_POSTER:
 				// force wildcards if none used on a LIKE
 				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
 				&& false === (strpos($value,'*'))) {
@@ -984,12 +1039,25 @@ class C4_ForumsThreadView extends C4_AbstractView {
 				}
 				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
 				break;
+				
+			case SearchFields_ForumsThread::LAST_UPDATED:
+				@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','');
+				@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
+
+				if(empty($from)) $from = 0;
+				if(empty($to)) $to = 'today';
+
+				$criteria = new DevblocksSearchCriteria($field,$oper,array($from,$to));
+				break;
+				
 			case SearchFields_ForumsThread::IS_CLOSED:
 				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
+				
 			case SearchFields_ForumsThread::WORKER_ID:
-				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
+				@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_id);
 				break;
 		}
 

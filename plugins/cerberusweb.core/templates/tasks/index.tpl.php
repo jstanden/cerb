@@ -1,3 +1,5 @@
+{include file="file:$path/tasks/submenu.tpl.php"}
+
 <h1>Tasks</h1>
 {*
 <form action="{devblocks_url}{/devblocks_url}" method="post" style="margin-bottom:5px;">

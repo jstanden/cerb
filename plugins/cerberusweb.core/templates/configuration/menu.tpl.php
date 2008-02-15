@@ -1,3 +1,12 @@
+<div id="headerSubMenu">
+	<div style="padding-bottom:5px;">
+	{*
+	<div style="padding:5px;">
+	<a href="{devblocks_url}c=tickets&a=overview{/devblocks_url}">overview</a>
+	*} 
+	</div>
+</div> 
+
 <h1>Configuration</h1>
 {if $smarty.const.DEMO_MODE}
 <div style="color:red;padding:2px;font-weight:bold;">NOTE: This helpdesk is in Demo Mode and changes will not be saved.</div>

@@ -1,10 +1,12 @@
+{include file="$path/crm/submenu.tpl.php"}
+
 <table cellspacing="0" cellpadding="0" border="0" width="100%" style="padding-bottom:5px;">
 <tr>
 	<td width="1%" nowrap="nowrap" valign="top" style="padding-right:5px;">
 		<h1>Campaigns</h1>
 	</td>
 	<td width="99%" valign="middle">
-		{include file="$path/crm/menu.tpl.php"}
+		
 	</td>
 </tr>
 </table>

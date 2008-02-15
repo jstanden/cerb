@@ -1,10 +1,11 @@
-<div style="padding-bottom:5px;">
-<a href="{devblocks_url}c=contacts{/devblocks_url}">address book</a>
-&raquo; <a href="{devblocks_url}c=contacts&a=orgs{/devblocks_url}">organizations</a>
-</div>
+{include file="file:$path/contacts/submenu.tpl.php"}
 
-<h1>{$contact->name}</h1>
-<br>
+<table cellpadding="2" cellspacing="0" border="0">
+<tr>
+	<td><h1>{$contact->name}</h1></td>
+	<td>(<a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showOrgPeek&id={$contact->id}=&view_id=',null,false,'500px',ajax.cbOrgCountryPeek);">edit</a>)</td>
+</tr>
+</table>
 
 <div id="contactOptions"></div> 
 <br>
@@ -32,15 +33,7 @@ tabView.addTab( new YAHOO.widget.Tab({
     cacheData: true
 }));
 
-tabView.addTab( new YAHOO.widget.Tab({
-    label: 'Update Details',
-    dataSrc: '{/literal}{devblocks_url}ajax.php?c=contacts&a=showTabDetails&org={$contact->id}{/devblocks_url}{literal}',
-    cacheData: true
-}));
-
 var tabDetails = tabView.getTab(0);
-
-tabDetails.addListener('contentChange', ajax.cbOrgCountryPeek);
 
 {/literal}
 
@@ -48,7 +41,7 @@ tabDetails.addListener('contentChange', ajax.cbOrgCountryPeek);
 {foreach from=$tab_manifests item=tab_manifest}
 {literal}tabView.addTab( new YAHOO.widget.Tab({{/literal}
     label: '{$tab_manifest->params.title}',
-    dataSrc: '{devblocks_url}ajax.php?c=contacts&a=showTab&ext_id={$tab_manifest->id}&org={$contact->id}{/devblocks_url}',
+    dataSrc: '{devblocks_url}ajax.php?c=contacts&a=showTab&ext_id={$tab_manifest->id}&org_id={$contact->id}{/devblocks_url}',
     {if $tab==$tab_manifest->params.uri}active: true,{/if}
     cacheData: false
 {literal}}));{/literal}

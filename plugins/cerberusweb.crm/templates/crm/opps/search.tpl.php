@@ -6,9 +6,9 @@
 		<h1>Opportunities</h1>
 	</td>
 	<td width="99%" valign="middle">
-		overview
+		<a href="{devblocks_url}c=crm&a=opps{/devblocks_url}">overview</a>
 		 | 	
-		<a href="{devblocks_url}c=crm&a=opps&s=search{/devblocks_url}">search</a>
+		search
 	</td>
 </tr>
 </table>
@@ -26,36 +26,10 @@
 
 <tr>
 	<td width="0%" nowrap="nowrap" valign="top">
-	
-		{if !empty($unassigned_totals)}
 		<div style="width:220px;">
-			<div class="block">
-				<h2>Available</h2>
-				<a href="{devblocks_url}c=crm&a=opps&o=overview&m=all{/devblocks_url}">-All-</a><br>
-				{if 0&&$unassigned_totals.0}
-					<a href="{devblocks_url}c=crm&a=opps&o=overview&m=campaign&id=0{/devblocks_url}">Inbox</a> ({$unassigned_totals.0})<br>
-				{/if}
-				{foreach from=$campaigns item=campaign key=campaign_id}
-					{if $unassigned_totals.$campaign_id}
-						<a href="{devblocks_url}c=crm&a=opps&o=overview&m=campaign&id={$campaign_id}{/devblocks_url}" style="font-weight:bold;">{$campaign->name}</a> ({$unassigned_totals.$campaign_id})<br>
-					{/if}
-				{/foreach}
-			</div>
-			<br>
-			{/if}
-		
-			{if !empty($assigned_totals)}
-			<div class="block">
-				<h2>Assigned</h2>
-				{foreach from=$workers item=worker key=worker_id}
-					{if $assigned_totals.$worker_id}
-						<a href="{devblocks_url}c=crm&a=opps&o=overview&m=worker&id={$worker_id}{/devblocks_url}">{$worker->getName()}</a> ({$assigned_totals.$worker_id})<br>
-					{/if}
-				{/foreach}
-			</div>
-			{/if}
+			{include file="file:$tpl_path/internal/views/criteria_list.tpl.php" divName="searchCriteriaDialog"}
+			<div id="searchCriteriaDialog" style="visibility:visible;"></div>
 		</div>
-		
 	</td>
 	
 	<td nowrap="nowrap" width="0%"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/spacer.gif{/devblocks_url}" width="5" height="1"></td>

@@ -27,12 +27,6 @@
 	</tr>
 	{/if}
 	<tr>
-		<td width="0%" nowrap="nowrap" align="right">Completed: </td>
-		<td width="100%">
-			<input type="checkbox" name="completed" value="1" {if $task->is_completed}checked{/if}>
-		</td>
-	</tr>
-	<tr>
 		<td width="0%" nowrap="nowrap" align="right">Due: </td>
 		<td width="100%">
 			<input type="text" name="due_date" style="width:98%;" value="{if !empty($task->due_date)}{$task->due_date|date_format:'%b %e, %Y  %I:%M%p'}{/if}">
@@ -59,6 +53,12 @@
 				<option value="{$worker_id}" {if $worker_id==$task->worker_id}selected{/if}>{$worker->getName()}</option>
 				{/foreach}
 			</select>{if !empty($active_worker_sel_id)}<button type="button" onclick="this.form.worker_id.selectedIndex = {$active_worker_sel_id};">me</button>{/if}
+		</td>
+	</tr>
+	<tr>
+		<td width="0%" nowrap="nowrap" align="right">Completed: </td>
+		<td width="100%">
+			<input type="checkbox" name="completed" value="1" {if $task->is_completed}checked{/if}>
 		</td>
 	</tr>
 	<tr>

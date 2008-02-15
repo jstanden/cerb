@@ -1,3 +1,8 @@
+<div id="headerSubMenu">
+	<div style="padding-bottom:5px;">
+	</div>
+</div>
+
 <H1>Simulator</H1>
 
 {if !empty($error)}
