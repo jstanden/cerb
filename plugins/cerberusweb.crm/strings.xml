@@ -40,6 +40,9 @@
 		<tu tuid='crm.opportunity.name'>
 			<tuv xml:lang="en"><seg>name</seg></tuv>
 		</tu>
+		<tu tuid='crm.opportunity.next_action'>
+			<tuv xml:lang="en"><seg>next action</seg></tuv>
+		</tu>
 		<tu tuid='crm.opportunity.org_id'>
 			<tuv xml:lang="en"><seg>org id</seg></tuv>
 		</tu>

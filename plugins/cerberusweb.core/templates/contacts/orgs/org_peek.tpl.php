@@ -14,7 +14,7 @@
 <input type="hidden" name="id" value="{$contact->id}">
 <input type="hidden" name="do_delete" value="0">
 
-<div style="height:320px;overflow:auto;border:1px solid rgb(180,180,180);margin:2px;padding:3px;background-color:rgb(255,255,255);">
+<div style="height:320px;overflow:auto;margin:2px;padding:3px;">
 
 <table cellpadding="0" cellspacing="2" border="0" width="98%">
 	<tr>

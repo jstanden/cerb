@@ -251,7 +251,7 @@ class ChReportsPage extends CerberusPageExtension {
 		
 		$sql = sprintf("SELECT count(*) as hits, floor(created_date/%d) AS day ".
 			"FROM ticket ".
-			"WHERE created_date > %d AND created_date <= %d ".
+			"WHERE created_date > %d AND created_date <= %d AND is_deleted = 0 ".
 			"GROUP BY day",
 			$block,
 			strtotime("-".$age_dur." ".($age_term=='d'?'days':'months')),
@@ -327,10 +327,11 @@ class ChReportsPage extends CerberusPageExtension {
 		$block = $age_term=='mo'?2629800:86400;
 		$now_day = floor(time()/$block);
 		
-		$sql = sprintf("SELECT count(*) as hits, floor(created_date/%d) AS day ".
-			"FROM message ".
-			"WHERE created_date > %d AND created_date <= %d ".
-			"AND is_outgoing = 1 ".
+		$sql = sprintf("SELECT count(*) as hits, floor(m.created_date/%d) AS day ".
+			"FROM message m ".
+			"INNER JOIN ticket t ON (m.ticket_id=t.id) ".
+			"WHERE m.created_date > %d AND m.created_date <= %d AND t.is_deleted = 0 ".
+			"AND m.is_outgoing = 1 ".
 			"GROUP BY day",
 			$block,
 			strtotime("-".$age_dur." ".($age_term=='d'?'days':'months')),

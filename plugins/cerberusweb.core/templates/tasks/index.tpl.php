@@ -21,7 +21,6 @@
 			{if !empty($unassigned_totals)}
 			<div class="block" style="width:200px;">
 				<h2>Sources</h2>
-				<a href="{devblocks_url}c=tasks&a=overview&m=source&id={$source_ext_id}{/devblocks_url}">- None -</a> ({$unassigned_totals.none})<br>	
 				{foreach from=$source_renderers item=source key=source_ext_id}
 					{assign var=source_total value=$unassigned_totals.$source_ext_id}
 					{if !empty($source_total)}

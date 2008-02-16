@@ -73,6 +73,14 @@ if(!isset($tables['crm_opportunity'])) {
 	$datadict->ExecuteSQLArray($sql);
 }
 
+$columns = $datadict->MetaColumns('crm_opportunity');
+$indexes = $datadict->MetaIndexes('crm_opportunity',false);
+
+if(!isset($columns['NEXT_ACTION'])) {
+    $sql = $datadict->AddColumnSQL('crm_opportunity', "next_action C(255) DEFAULT '' NOTNULL");
+    $datadict->ExecuteSQLArray($sql);
+}
+
 if(!isset($tables['crm_opp_comment'])) {
 	$flds ="
 		id I4 DEFAULT 0 NOTNULL PRIMARY,

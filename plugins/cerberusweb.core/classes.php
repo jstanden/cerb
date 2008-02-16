@@ -4364,7 +4364,8 @@ class ChContactsPage extends CerberusPageExtension {
 		// [TODO] Change over from org_id to contacts<->requesters so we can also see 'sent'?
 		@$tickets_view->name = "From: " . htmlentities($contact->name);
 		$tickets_view->params = array(
-			SearchFields_Ticket::TICKET_FIRST_CONTACT_ORG_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_FIRST_CONTACT_ORG_ID,DevblocksSearchCriteria::OPER_EQ,$contact->id)
+			SearchFields_Ticket::TICKET_FIRST_CONTACT_ORG_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_FIRST_CONTACT_ORG_ID,DevblocksSearchCriteria::OPER_EQ,$contact->id),
+			SearchFields_Ticket::TICKET_DELETED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,DevblocksSearchCriteria::OPER_EQ,0)
 		);
 		$tpl->assign('contact_history', $tickets_view);
 		
@@ -6565,9 +6566,10 @@ class ChDisplayPage extends CerberusPageExtension {
 			$view->renderSortAsc = false;
 		}
 
-		$view->name = "Most recent tickets from " . htmlentities($contact->email);
+		$view->name = "Requester: " . htmlentities($contact->email);
 		$view->params = array(
-			SearchFields_Ticket::TICKET_FIRST_WROTE => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_FIRST_WROTE,DevblocksSearchCriteria::OPER_EQ,$contact->email)
+			SearchFields_Ticket::REQUESTER_ID => new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ID,DevblocksSearchCriteria::OPER_EQ,$contact->id),
+			SearchFields_Ticket::TICKET_DELETED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,DevblocksSearchCriteria::OPER_EQ,0)
 		);
 		$tpl->assign('view', $view);
 		

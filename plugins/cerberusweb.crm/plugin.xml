@@ -86,7 +86,7 @@
 			</params>
 		</extension>
 		
-		<!-- Tabs -->
+		<!-- Org Tabs -->
 		
 		<extension point="cerberusweb.org.tab">
 			<id>crm.opp.tab.org</id>
@@ -94,6 +94,21 @@
 			<class>
 				<file>api/App.php</file>
 				<name>CrmOrgOppTab</name>
+			</class>
+			<params>
+				<param key="uri" value="opps" />
+				<param key="title" value="Opportunities" />
+			</params>
+		</extension>
+		
+		<!-- Ticket Tabs -->
+		
+		<extension point="cerberusweb.ticket.tab">
+			<id>crm.opp.tab.ticket</id>
+			<name>Opportunity Tab</name>
+			<class>
+				<file>api/App.php</file>
+				<name>CrmTicketOppTab</name>
 			</class>
 			<params>
 				<param key="uri" value="opps" />

@@ -11,7 +11,7 @@ Hide these buckets from my overview:<br>
 	<span style="font-weight:bold;">{$groups.$group_id->name}</span> 
 	<div id="" style="display:block;padding-left:10px;padding-bottom:0px;">
 	{foreach from=$group_buckets.$group_id key=bucket_id item=b}
-		<label><input type="checkbox" name="hide_bucket_ids[]" value="{$bucket_id}" {if isset($hide_bucket_ids.$bucket_id)}checked{/if}> {$b->name} ({$counts.$bucket_id|string_format:"%d"})</label><br>
+		<label><input type="checkbox" name="hide_bucket_ids[]" value="{$bucket_id}" {if isset($hide_bucket_ids.$bucket_id)}checked{/if}> {if isset($hide_bucket_ids.$bucket_id)}<i>{$b->name}</i>{else}{$b->name} ({$counts.$bucket_id|string_format:"%d"}){/if}</label><br>
 	{/foreach}
 	</div>
 	{/if}

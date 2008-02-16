@@ -23,7 +23,7 @@
 		<td width="100%">
 			{if empty($opp->id)}
 				<div id="emailautocomplete" style="width:98%;" class="yui-ac">
-					<input type="text" name="emails" id="emailinput" value="" style="border:1px solid rgb(180,180,180);padding:2px;" class="yui-ac-input">
+					<input type="text" name="emails" id="emailinput" value="{$email}" style="border:1px solid rgb(180,180,180);padding:2px;" class="yui-ac-input">
 					<div id="emailcontainer" class="yui-ac-container"></div>
 					<br>
 					<br>
@@ -68,6 +68,12 @@
 		</td>
 	</tr>
 	{/if}
+	<tr>
+		<td width="0%" nowrap="nowrap" align="right" valign="top">Next Action: </td>
+		<td width="100%">
+			<input type="text" name="next_action" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;" value="{$opp->next_action|escape}" autocomplete="off">
+		</td>
+	</tr>
 </table>
 
 <button type="button" onclick="genericPanel.hide();genericAjaxPost('formOppPeek', 'view{$view_id}')"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')}</button>

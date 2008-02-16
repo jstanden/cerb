@@ -262,12 +262,14 @@ class CrmPage extends CerberusPageExtension {
 	function showOppPanelAction() {
 		@$opp_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
+		@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string','');
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl_path = realpath(dirname(__FILE__) . '/../templates/') . DIRECTORY_SEPARATOR;
 		$tpl->assign('path', $tpl_path);
 		
 		$tpl->assign('view_id', $view_id);
+		$tpl->assign('email', $email);
 		
 		if(!empty($opp_id) && null != ($opp = DAO_CrmOpportunity::get($opp_id))) {
 			$tpl->assign('opp', $opp);
@@ -293,6 +295,7 @@ class CrmPage extends CerberusPageExtension {
 		@$name = DevblocksPlatform::importGPC($_REQUEST['name'],'string','');
 		@$email_str = DevblocksPlatform::importGPC($_REQUEST['emails'],'string','');
 		@$source = DevblocksPlatform::importGPC($_REQUEST['source'],'string','');
+		@$next_action = DevblocksPlatform::importGPC($_REQUEST['next_action'],'string','');
 		@$campaign_id = DevblocksPlatform::importGPC($_REQUEST['campaign_id'],'integer',0);
 		@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'integer',0);
 		@$comment = DevblocksPlatform::importGPC($_REQUEST['comment'],'string','');
@@ -315,6 +318,7 @@ class CrmPage extends CerberusPageExtension {
 					DAO_CrmOpportunity::CREATED_DATE => time(),
 					DAO_CrmOpportunity::UPDATED_DATE => time(),
 					DAO_CrmOpportunity::SOURCE => $source,
+					DAO_CrmOpportunity::NEXT_ACTION => $next_action,
 					DAO_CrmOpportunity::WORKER_ID => $worker_id,
 				);
 				$opp_id = DAO_CrmOpportunity::create($fields);
@@ -342,6 +346,7 @@ class CrmPage extends CerberusPageExtension {
 //				DAO_CrmOpportunity::CREATED_DATE => time(),
 //				DAO_CrmOpportunity::UPDATED_DATE => time(),
 				DAO_CrmOpportunity::SOURCE => $source,
+				DAO_CrmOpportunity::NEXT_ACTION => $next_action,
 				DAO_CrmOpportunity::WORKER_ID => $worker_id,
 			);
 			DAO_CrmOpportunity::update($opp_id, $fields);
@@ -755,6 +760,7 @@ class DAO_CrmOpportunity extends DevblocksORMHelper {
 	const NAME = 'name';
 	const PRIMARY_EMAIL_ID = 'primary_email_id';
 	const SOURCE = 'source';
+	const NEXT_ACTION = 'next_action';
 	const CREATED_DATE = 'created_date';
 	const UPDATED_DATE = 'updated_date';
 	const CLOSED_DATE = 'closed_date';
@@ -793,7 +799,7 @@ class DAO_CrmOpportunity extends DevblocksORMHelper {
 	static function getWhere($where=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = "SELECT id, campaign_id, name, primary_email_id, source, created_date, updated_date, closed_date, is_won, is_closed, worker_id ".
+		$sql = "SELECT id, campaign_id, name, primary_email_id, source, next_action, created_date, updated_date, closed_date, is_won, is_closed, worker_id ".
 			"FROM crm_opportunity ".
 			(!empty($where) ? sprintf("WHERE %s ",$where) : "").
 			"ORDER BY id asc";
@@ -831,6 +837,7 @@ class DAO_CrmOpportunity extends DevblocksORMHelper {
 			$object->name = $rs->fields['name'];
 			$object->primary_email_id = intval($rs->fields['primary_email_id']);
 			$object->source = $rs->fields['source'];
+			$object->next_action = $rs->fields['next_action'];
 			$object->created_date = $rs->fields['created_date'];
 			$object->updated_date = $rs->fields['updated_date'];
 			$object->closed_date = $rs->fields['closed_date'];
@@ -927,6 +934,7 @@ class DAO_CrmOpportunity extends DevblocksORMHelper {
 			"o.campaign_id as %s, ".
 			"o.name as %s, ".
 			"o.source as %s, ".
+			"o.next_action as %s, ".
 			"org.id as %s, ".
 			"org.name as %s, ".
 			"org.website as %s, ".
@@ -946,6 +954,7 @@ class DAO_CrmOpportunity extends DevblocksORMHelper {
 			    SearchFields_CrmOpportunity::CAMPAIGN_ID,
 			    SearchFields_CrmOpportunity::NAME,
 			    SearchFields_CrmOpportunity::SOURCE,
+			    SearchFields_CrmOpportunity::NEXT_ACTION,
 			    SearchFields_CrmOpportunity::ORG_ID,
 			    SearchFields_CrmOpportunity::ORG_NAME,
 			    SearchFields_CrmOpportunity::ORG_WEBSITE,
@@ -997,6 +1006,7 @@ class SearchFields_CrmOpportunity implements IDevblocksSearchFields {
 	const CAMPAIGN_ID = 'o_campaign_id';
 	const PRIMARY_EMAIL_ID = 'o_primary_email_id';
 	const SOURCE = 'o_source';
+	const NEXT_ACTION = 'o_next_action';
 	const NAME = 'o_name';
 	const CREATED_DATE = 'o_created_date';
 	const UPDATED_DATE = 'o_updated_date';
@@ -1023,6 +1033,7 @@ class SearchFields_CrmOpportunity implements IDevblocksSearchFields {
 			self::CAMPAIGN_ID => new DevblocksSearchField(self::CAMPAIGN_ID, 'o', 'campaign_id', null, $translate->_('crm.opportunity.campaign_id')),
 			self::PRIMARY_EMAIL_ID => new DevblocksSearchField(self::PRIMARY_EMAIL_ID, 'o', 'primary_email_id', null, $translate->_('crm.opportunity.primary_email_id')),
 			self::SOURCE => new DevblocksSearchField(self::SOURCE, 'o', 'source', null, $translate->_('crm.opportunity.source')),
+			self::NEXT_ACTION => new DevblocksSearchField(self::NEXT_ACTION, 'o', 'next_action', null, $translate->_('crm.opportunity.next_action')),
 			self::NAME => new DevblocksSearchField(self::NAME, 'o', 'name', null, $translate->_('crm.opportunity.name')),
 			self::CREATED_DATE => new DevblocksSearchField(self::CREATED_DATE, 'o', 'created_date', null, $translate->_('crm.opportunity.created_date')),
 			self::UPDATED_DATE => new DevblocksSearchField(self::UPDATED_DATE, 'o', 'updated_date', null, $translate->_('crm.opportunity.updated_date')),
@@ -1046,6 +1057,7 @@ class Model_CrmOpportunity {
 	public $campaign_id;
 	public $name;
 	public $source;
+	public $next_action;
 	public $primary_email_id;
 	public $created_date;
 	public $updated_date;
@@ -1280,6 +1292,7 @@ class C4_CrmOpportunityView extends C4_AbstractView {
 			SearchFields_CrmOpportunity::ORG_NAME,
 			SearchFields_CrmOpportunity::UPDATED_DATE,
 			SearchFields_CrmOpportunity::CAMPAIGN_ID,
+			SearchFields_CrmOpportunity::NEXT_ACTION,
 		);
 		
 		$this->params = array(
@@ -1327,6 +1340,7 @@ class C4_CrmOpportunityView extends C4_AbstractView {
 				break;
 				
 			case SearchFields_CrmOpportunity::SOURCE:
+			case SearchFields_CrmOpportunity::NEXT_ACTION:
 			case SearchFields_CrmOpportunity::NAME:
 			case SearchFields_CrmOpportunity::ORG_NAME:
 			case SearchFields_CrmOpportunity::ORG_WEBSITE:
@@ -1440,6 +1454,7 @@ class C4_CrmOpportunityView extends C4_AbstractView {
 				break;
 				
 			case SearchFields_CrmOpportunity::SOURCE:
+			case SearchFields_CrmOpportunity::NEXT_ACTION:
 			case SearchFields_CrmOpportunity::NAME:
 			case SearchFields_CrmOpportunity::ORG_NAME:
 			case SearchFields_CrmOpportunity::ORG_WEBSITE:
@@ -1580,6 +1595,51 @@ class CrmOrgOppTab extends Extension_OrgTab {
 		$tpl->assign('view', $view);
 		
 		$tpl->display('file:' . $tpl_path . 'crm/opps/org/tab.tpl.php');
+	}
+	
+	function saveTab() {
+	}
+};
+
+class CrmTicketOppTab extends Extension_TicketTab {
+	function showTab() {
+		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer',0);
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl_path = realpath(dirname(__FILE__).'/../templates') . DIRECTORY_SEPARATOR;
+		$tpl->assign('path', $tpl_path);
+		$tpl->cache_lifetime = "0";
+
+		$ticket = DAO_Ticket::getTicket($ticket_id);
+		$tpl->assign('ticket_id', $ticket_id);
+		
+		$address = DAO_Address::get($ticket->first_wrote_address_id);
+		$tpl->assign('address', $address);
+		
+		if(null == ($view = C4_AbstractViewLoader::getView('', 'ticket_opps'))) {
+			$view = new C4_CrmOpportunityView();
+			$view->id = 'ticket_opps';
+			C4_AbstractViewLoader::setView($view->id, $view);
+		}
+
+		if(!empty($address->contact_org_id)) { // org
+			@$org = DAO_ContactOrg::get($address->contact_org_id);
+			
+			$view->name = "Org: " . $org->name;
+			$view->params = array(
+				SearchFields_CrmOpportunity::ORG_ID => new DevblocksSearchCriteria(SearchFields_CrmOpportunity::ORG_ID,'=',$org->id) 
+			);
+			
+		} else { // address
+			$view->name = "Requester: " . $address->email;
+			$view->params = array(
+				SearchFields_CrmOpportunity::PRIMARY_EMAIL_ID => new DevblocksSearchCriteria(SearchFields_CrmOpportunity::PRIMARY_EMAIL_ID,'=',$ticket->first_wrote_address_id) 
+			);
+		}
+			
+		$tpl->assign('view', $view);
+		
+		$tpl->display('file:' . $tpl_path . 'crm/opps/ticket/tab.tpl.php');
 	}
 	
 	function saveTab() {

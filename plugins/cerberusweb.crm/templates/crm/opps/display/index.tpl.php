@@ -3,7 +3,8 @@
 <table cellspacing="0" cellpadding="0" border="0" width="100%" style="padding-bottom:5px;">
 <tr>
 	<td valign="top" style="padding-right:5px;">
-		<h1>{$opp->name}</h1>
+		<h1 style="display:inline;">{$opp->name}</h1> (<a href="javascript:;" onclick="genericAjaxPanel('c=crm&a=showOppPanel&view_id=&id={$opp->id}', this, false, '500px');">edit</a>)<br> 
+	
 		{assign var=campaign_id value=$opp->campaign_id}
 		{assign var=opp_worker_id value=$opp->worker_id}
 		
@@ -16,6 +17,9 @@
 		<b>Status:</b> {if $opp->is_closed}{if $opp->is_won}Closed/Won{else}Closed/Lost{/if}{else}Open{/if} &nbsp;
 		{if !empty($opp_worker_id) && isset($workers.$opp_worker_id)}
 			<b>Worker:</b> {$workers.$opp_worker_id->getName()} &nbsp;
+		{/if}
+		{if !empty($opp->next_action)}
+			<b>Next Action:</b> {$opp->next_action} &nbsp;
 		{/if}
 		<br>
 		
