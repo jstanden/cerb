@@ -195,9 +195,16 @@ class CerberusBayes {
 		$headers = DAO_MessageHeader::getAll($first_message->id);
 		    
 		// Pass text to analyze() to get back interesting words
-		$content = (!empty($ticket->subject) ? $ticket->subject.' ' : '').
-		    $first_message->getContent();
-		    
+		$content = '';
+		if(!empty($ticket->subject)) {
+			// SplitCamelCapsSubjects
+			$hits = preg_split("{(?<=[a-z])(?=[A-Z])}x", $ticket->subject);
+			if(is_array($hits) && !empty($hits)) {
+				$content .= implode(' ',$hits);
+			}
+		}
+		$content .= $first_message->getContent();
+		
 	    $content = substr($content, 0, strrpos(substr($content, 0, self::MAX_BODY_LENGTH), ' '));
 		
 		$words = self::processText($content);
@@ -393,7 +400,15 @@ class CerberusBayes {
 		    return FALSE;
 		
 		// Pass text to analyze() to get back interesting words
-		$content = $ticket->subject . ' ' . $first_message->getContent();
+		$content = '';
+		if(!empty($ticket->subject)) {
+			// SplitCamelCapsSubjects
+			$hits = preg_split("{(?<=[a-z])(?=[A-Z])}x", $ticket->subject);
+			if(is_array($hits) && !empty($hits)) {
+				$content .= implode(' ',$hits);
+			}
+		}
+		$content .= $first_message->getContent();
 		
 		// Only check the first 15000 characters for spam, rounded to a sentence
 	    $content = substr($content, 0, strrpos(substr($content, 0, self::MAX_BODY_LENGTH), ' '));
