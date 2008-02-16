@@ -1807,6 +1807,13 @@ class C4_Overview {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$memberships = $active_worker->getMemberships();
 
+		// Does the active worker want to filter anything out?
+		// [TODO] DAO_WorkerPref should really auto serialize/deserialize
+		$hide_bucket_ids = array();
+		if(null != ($hide_bucket_str = DAO_WorkerPref::get($active_worker->id, DAO_WorkerPref::SETTING_OVERVIEW_FILTER, ''))) {
+			@$hide_bucket_ids = unserialize($hide_bucket_str);
+		}
+		
 		if(empty($memberships))
 			return array();
 		
@@ -1826,11 +1833,16 @@ class C4_Overview {
 			$hits = intval($rs_buckets->fields['hits']);
 				
 			if(isset($memberships[$team_id])) {
-				if(!isset($group_counts[$team_id]))
-				$group_counts[$team_id] = array();
-
-				$group_counts[$team_id][$category_id] = $hits;
-				@$group_counts[$team_id]['total'] = intval($group_counts[$team_id]['total']) + $hits;
+				// If the active worker is filtering out these buckets, don't total.
+				if(!empty($category_id) && isset($hide_bucket_ids[$category_id])) {
+					// do nothing
+				} else {
+					if(!isset($group_counts[$team_id]))
+						$group_counts[$team_id] = array();
+	
+					$group_counts[$team_id][$category_id] = $hits;
+					@$group_counts[$team_id]['total'] = intval($group_counts[$team_id]['total']) + $hits;
+				}
 			}
 				
 			$rs_buckets->MoveNext();

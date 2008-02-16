@@ -739,8 +739,45 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/overview/sidebar.tpl.php');
 	}
 	
+	function showOverviewFilterAction() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		
+		$groups = DAO_Group::getAll();
+		$tpl->assign('groups', $groups);
+		
+		$group_buckets = DAO_Bucket::getTeams();
+		$tpl->assign('group_buckets', $group_buckets);
+
+		$group_counts = C4_Overview::getGroupTotals();
+		$tpl->assign('group_counts', $group_counts);
+		
+		// Load the pref
+		$hide_bucket_ids = array();
+		if(null != ($hide_bucket_str = DAO_WorkerPref::get($active_worker->id, DAO_WorkerPref::SETTING_OVERVIEW_FILTER, ''))) {
+			@$hide_bucket_ids = unserialize($hide_bucket_str);
+			$tpl->assign('hide_bucket_ids', $hide_bucket_ids);
+		}
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/overview/filter.tpl.php');
+	}
+	
+	function saveOverviewFilterAction() {
+		@$hide_bucket_ids = DevblocksPlatform::importGPC($_REQUEST['hide_bucket_ids'],'array',array());
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		// Make assoc IDs
+		@$hide_str = serialize(array_flip($hide_bucket_ids));
+		DAO_WorkerPref::set($active_worker->id, DAO_WorkerPref::SETTING_OVERVIEW_FILTER, $hide_str);
+		
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets')));
+	}
+	
 	// Ajax
-	// [TODO] Move to another page
+	// [TODO] Move to 'c=internal'
 	function showCalloutAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'string');
 

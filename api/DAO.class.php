@@ -4252,6 +4252,7 @@ class DAO_WorkerWorkspaceList extends DevblocksORMHelper {
 class DAO_WorkerPref extends DevblocksORMHelper {
     const SETTING_MOVE_COUNTS = 'move_counts';
     const SETTING_OVERVIEW = 'worker_overview';
+    const SETTING_OVERVIEW_FILTER = 'worker_overview_filter';
     
 	static function set($worker_id, $key, $value) {
 		$db = DevblocksPlatform::getDatabaseService();

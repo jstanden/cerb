@@ -33,8 +33,11 @@
     
 {if !empty($group_counts)}
 <div class="block">
-<h2>Available</h2>
 <table cellspacing="0" cellpadding="2" border="0" width="220">
+<tr>
+	<td><h2>Available</h2></td>
+	<td align="right"><a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showOverviewFilter',null,true,'500px');">filter</a></td>
+</tr>
 <tr>
 	<td><a href="{devblocks_url}c=tickets&a=overview&all=all{/devblocks_url}">All</a></td>
 	<td></td>
