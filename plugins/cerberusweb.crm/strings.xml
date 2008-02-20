@@ -13,6 +13,9 @@
 		<tu tuid='crm.opportunity.campaign_id'>
 			<tuv xml:lang="en"><seg>campaign</seg></tuv>
 		</tu>
+		<tu tuid='crm.opportunity.campaign_bucket_id'>
+			<tuv xml:lang="en"><seg>bucket</seg></tuv>
+		</tu>
 		<tu tuid='crm.opportunity.closed_date'>
 			<tuv xml:lang="en"><seg>closed date</seg></tuv>
 		</tu>

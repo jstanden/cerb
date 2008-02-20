@@ -6,9 +6,11 @@
 		<h1 style="display:inline;">{$opp->name}</h1> (<a href="javascript:;" onclick="genericAjaxPanel('c=crm&a=showOppPanel&view_id=&id={$opp->id}', this, false, '500px');">edit</a>)<br> 
 	
 		{assign var=campaign_id value=$opp->campaign_id}
+		{assign var=campaign_bucket_id value=$opp->campaign_bucket_id}
 		{assign var=opp_worker_id value=$opp->worker_id}
 		
 		<b>Campaign:</b> {$campaigns.$campaign_id->name} &nbsp;
+		<b>Bucket:</b> {if empty($campaign_bucket_id)}Inbox{else}{$buckets.$campaign_bucket_id->name}{/if} &nbsp;
 		<b>E-mail:</b> {$address->first_name} {$address->last_name} &lt;<a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$address->email}&view_id=',null,false,'500px',ajax.cbAddressPeek);">{$address->email}</a>&gt; &nbsp;
 		{*<b>Amount:</b> {$opp->amount|string_format:'%0.2f'} ({$opp->probability}%) &nbsp;*}
 		<b>Created:</b> {$opp->created_date|date_format} &nbsp;

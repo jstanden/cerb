@@ -37,11 +37,13 @@ class CrmPage extends CerberusPageExtension {
 		$tpl->cache_lifetime = "0";
 		$tpl_path = $this->plugin_path . '/templates/';
 		$tpl->assign('path', $tpl_path);
-		
+
 		$response = DevblocksPlatform::getHttpResponse();
 		$stack = $response->path;
 		
 		array_shift($stack); // crm
+		
+		$visit = CerberusApplication::getVisit();
 		
 		$module = array_shift($stack); // opps
 		
@@ -66,6 +68,9 @@ class CrmPage extends CerberusPageExtension {
 						$campaigns = DAO_CrmCampaign::getWhere();
 						$tpl->assign('campaigns', $campaigns);
 
+						$buckets = DAO_CrmCampaignBucket::getWhere();
+						$tpl->assign('buckets', $buckets);
+						
 						$address = DAO_Address::get($opp->primary_email_id);
 						$tpl->assign('address', $address);
 						
@@ -146,11 +151,22 @@ class CrmPage extends CerberusPageExtension {
 						$campaigns = DAO_CrmCampaign::getWhere();
 						$tpl->assign('campaigns', $campaigns);
 						
+						$campaign_buckets = DAO_CrmCampaignBucket::getByCampaigns();
+						$tpl->assign('campaign_buckets', $campaign_buckets);
+						
 						if(null == ($view = C4_AbstractViewLoader::getView('', C4_CrmOpportunityView::DEFAULT_ID))) {
 							$view = new C4_CrmOpportunityView();
 							C4_AbstractViewLoader::setView($view->id, $view);
 						}
 						
+						// Filter persistence
+						if(empty($stack)) {
+							@$stack = explode('/',$visit->get('crm.overview.filter', 'all'));
+						} else {
+							// View Filter
+							$visit->set('crm.overview.filter', implode('/',$stack));
+						}
+							
 						// Are we changing the view?
 						switch(array_shift($stack)) {
 							case 'all':
@@ -165,13 +181,29 @@ class CrmPage extends CerberusPageExtension {
 								
 							case 'campaign':
 								@$module_id = array_shift($stack);
+								@$bucket_id = array_shift($stack);
+								
 								if(!empty($module_id) && isset($campaigns[$module_id])) {
 									$view->params = array(
 										SearchFields_CrmOpportunity::IS_CLOSED => new DevblocksSearchCriteria(SearchFields_CrmOpportunity::IS_CLOSED,'=',0),
 										SearchFields_CrmOpportunity::CAMPAIGN_ID => new DevblocksSearchCriteria(SearchFields_CrmOpportunity::CAMPAIGN_ID,'=',$module_id),
 										SearchFields_CrmOpportunity::WORKER_ID => new DevblocksSearchCriteria(SearchFields_CrmOpportunity::WORKER_ID,'=',0),
 									);
-									$view->name = $campaigns[$module_id]->name;
+
+									$tpl->assign('filter_campaign_id', $module_id);
+									
+									if(!empty($bucket_id)) {
+										$view->params[SearchFields_CrmOpportunity::CAMPAIGN_BUCKET_ID] = new DevblocksSearchCriteria(SearchFields_CrmOpportunity::CAMPAIGN_BUCKET_ID,'=',$bucket_id);
+										$view->name = sprintf("%s: %s",
+											@$campaigns[$module_id]->name,
+											@$campaign_buckets[$module_id][$bucket_id]->name
+										);
+										$tpl->assign('filter_bucket_id', $bucket_id);
+										
+									} else {
+										$view->name = $campaigns[$module_id]->name;
+									}
+									
 									$view->renderPage = 0;									
 									C4_AbstractViewLoader::setView($view->id, $view);									
 								}
@@ -282,6 +314,9 @@ class CrmPage extends CerberusPageExtension {
 		$campaigns = DAO_CrmCampaign::getWhere();
 		$tpl->assign('campaigns', $campaigns);
 		
+		$buckets = DAO_CrmCampaignBucket::getByCampaigns();
+		$tpl->assign('campaign_buckets', $buckets);
+		
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 		
@@ -296,11 +331,22 @@ class CrmPage extends CerberusPageExtension {
 		@$email_str = DevblocksPlatform::importGPC($_REQUEST['emails'],'string','');
 		@$source = DevblocksPlatform::importGPC($_REQUEST['source'],'string','');
 		@$next_action = DevblocksPlatform::importGPC($_REQUEST['next_action'],'string','');
-		@$campaign_id = DevblocksPlatform::importGPC($_REQUEST['campaign_id'],'integer',0);
+//		@$campaign_id = DevblocksPlatform::importGPC($_REQUEST['campaign_id'],'integer',0);
+		@$bucket_str = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'string','');
 		@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'integer',0);
 		@$comment = DevblocksPlatform::importGPC($_REQUEST['comment'],'string','');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
+
+		$campaign_id = 0;
+		$bucket_id = 0;
+		
+		if(!empty($bucket_str)) {
+			if($hits = preg_match("/^c(.*?)\_b(.*?)$/", $bucket_str, $matches)) {
+				$campaign_id = $matches[1];
+				$bucket_id = $matches[2];
+			}
+		}
 		
 		if(empty($opp_id)) {
 			$emails = DevblocksPlatform::parseCsvString($email_str);
@@ -315,6 +361,7 @@ class CrmPage extends CerberusPageExtension {
 					DAO_CrmOpportunity::NAME => $name,
 					DAO_CrmOpportunity::PRIMARY_EMAIL_ID => $address->id,
 					DAO_CrmOpportunity::CAMPAIGN_ID => $campaign_id,
+					DAO_CrmOpportunity::CAMPAIGN_BUCKET_ID => $bucket_id,
 					DAO_CrmOpportunity::CREATED_DATE => time(),
 					DAO_CrmOpportunity::UPDATED_DATE => time(),
 					DAO_CrmOpportunity::SOURCE => $source,
@@ -343,6 +390,7 @@ class CrmPage extends CerberusPageExtension {
 				DAO_CrmOpportunity::NAME => $name,
 //				DAO_CrmOpportunity::PRIMARY_EMAIL_ID => $address->id,
 				DAO_CrmOpportunity::CAMPAIGN_ID => $campaign_id,
+				DAO_CrmOpportunity::CAMPAIGN_BUCKET_ID => $bucket_id,
 //				DAO_CrmOpportunity::CREATED_DATE => time(),
 //				DAO_CrmOpportunity::UPDATED_DATE => time(),
 				DAO_CrmOpportunity::SOURCE => $source,
@@ -357,6 +405,85 @@ class CrmPage extends CerberusPageExtension {
 			$view->render();
 		}
 		
+		exit;
+	}
+	
+	function showCampaignPanelAction() {
+		@$campaign_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl_path = realpath(dirname(__FILE__) . '/../templates/') . DIRECTORY_SEPARATOR;
+		$tpl->assign('path', $tpl_path);
+		
+		$tpl->assign('view_id', $view_id);
+		
+		if(!empty($campaign_id) && null != ($campaign = DAO_CrmCampaign::get($campaign_id))) {
+			$tpl->assign('campaign', $campaign);
+			
+			$buckets = DAO_CrmCampaignBucket::getByCampaignId($campaign_id);
+			$tpl->assign('buckets', $buckets);
+		}
+		
+		$tpl->display('file:' . $tpl_path . 'crm/campaigns/rpc/peek.tpl.php');
+	}
+	
+	function saveCampaignPanelAction() {
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
+		
+		@$campaign_id = DevblocksPlatform::importGPC($_REQUEST['campaign_id'],'integer',0);
+		@$name = DevblocksPlatform::importGPC($_REQUEST['name'],'string','');
+		@$add_buckets_csv = DevblocksPlatform::importGPC($_REQUEST['add_buckets_csv'],'string','');
+		@$bucket_ids = DevblocksPlatform::importGPC($_REQUEST['bucket_ids'],'array',array());
+		@$bucket_names = DevblocksPlatform::importGPC($_REQUEST['bucket_names'],'array',array());
+		@$bucket_dels = DevblocksPlatform::importGPC($_REQUEST['bucket_dels'],'array',array());
+
+		$fields = array(
+			DAO_CrmCampaign::NAME => $name			
+		);
+		
+		// [TODO] Delete campaign
+		
+		if(empty($campaign_id)) { // new
+			$campaign_id = DAO_CrmCampaign::create($fields);
+			
+		} else { // update
+			DAO_CrmCampaign::update($campaign_id, $fields);
+			
+		}
+		
+		// Add buckets
+		if(!empty($campaign_id) && !empty($add_buckets_csv)) {
+			$bucket_labels = DevblocksPlatform::parseCsvString($add_buckets_csv);
+			foreach($bucket_labels as $bucket_label) {
+				if(!empty($bucket_label))
+					DAO_CrmCampaignBucket::create(array(
+						DAO_CrmCampaignBucket::NAME => $bucket_label,
+						DAO_CrmCampaignBucket::CAMPAIGN_ID => $campaign_id,
+					));
+			}
+		}
+		
+		// Edit buckets // [TODO] if changed
+		if(!empty($bucket_ids) && !empty($bucket_names)) {
+			foreach($bucket_ids as $idx => $bucket_id) {
+				DAO_CrmCampaignBucket::update($bucket_id,array(
+					DAO_CrmCampaignBucket::NAME => $bucket_names[$idx]
+				));
+			}
+		}
+		
+		// Del buckets
+		if(!empty($campaign_id) && !empty($bucket_dels)) {
+			foreach($bucket_dels as $bucket_id) {
+				DAO_CrmCampaignBucket::delete($bucket_id);
+			}
+		}
+		
+		// Reload view (if linked)
+		if(!empty($view_id) && null != ($view = C4_AbstractViewLoader::getView('', $view_id))) {
+			$view->render();
+		}
 		exit;
 	}
 	
@@ -721,16 +848,29 @@ class CrmPage extends CerberusPageExtension {
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('crm','campaigns')));
 	}
 	
-//	function viewOppSetCampaignAction() {
-//		@$in_campaign_id = DevblocksPlatform::importGPC($_REQUEST['campaign_id'],'integer',0);
-//		@$row_ids = DevblocksPlatform::importGPC($_REQUEST['row_id'],'array',array());
-//		
-//		DAO_CrmOpportunity::update($row_ids,array(
-//			DAO_CrmOpportunity::CAMPAIGN_ID => $in_campaign_id
-//		));
-//		
-//		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('crm','opps')));
-//	}
+	function viewOppSetCampaignAction() {
+		@$in_bucket_str = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'string','');
+		@$row_ids = DevblocksPlatform::importGPC($_REQUEST['row_id'],'array',array());
+		
+		$campaign_id = 0;
+		$bucket_id = 0;
+		
+		if(!empty($in_bucket_str)) {
+			if($hits = preg_match("/^c(.*?)\_b(.*?)$/", $in_bucket_str, $matches)) {
+				$campaign_id = $matches[1];
+				$bucket_id = $matches[2];
+			}
+		}
+
+		if(!empty($campaign_id)) {
+			DAO_CrmOpportunity::update($row_ids,array(
+				DAO_CrmOpportunity::CAMPAIGN_ID => $campaign_id,
+				DAO_CrmOpportunity::CAMPAIGN_BUCKET_ID => $bucket_id,
+			));
+		}
+		
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('crm','opps')));
+	}
 	
 	// [TODO] Move to a view bulk update
 	function viewOppDeleteAction() {
@@ -757,6 +897,7 @@ class CrmPage extends CerberusPageExtension {
 class DAO_CrmOpportunity extends DevblocksORMHelper {
 	const ID = 'id';
 	const CAMPAIGN_ID = 'campaign_id';
+	const CAMPAIGN_BUCKET_ID = 'campaign_bucket_id';
 	const NAME = 'name';
 	const PRIMARY_EMAIL_ID = 'primary_email_id';
 	const SOURCE = 'source';
@@ -799,7 +940,7 @@ class DAO_CrmOpportunity extends DevblocksORMHelper {
 	static function getWhere($where=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = "SELECT id, campaign_id, name, primary_email_id, source, next_action, created_date, updated_date, closed_date, is_won, is_closed, worker_id ".
+		$sql = "SELECT id, campaign_id, campaign_bucket_id, name, primary_email_id, source, next_action, created_date, updated_date, closed_date, is_won, is_closed, worker_id ".
 			"FROM crm_opportunity ".
 			(!empty($where) ? sprintf("WHERE %s ",$where) : "").
 			"ORDER BY id asc";
@@ -832,8 +973,9 @@ class DAO_CrmOpportunity extends DevblocksORMHelper {
 		
 		while(!$rs->EOF) {
 			$object = new Model_CrmOpportunity();
-			$object->id = $rs->fields['id'];
-			$object->campaign_id = $rs->fields['campaign_id'];
+			$object->id = intval($rs->fields['id']);
+			$object->campaign_id = intval($rs->fields['campaign_id']);
+			$object->campaign_bucket_id = intval($rs->fields['campaign_bucket_id']);
 			$object->name = $rs->fields['name'];
 			$object->primary_email_id = intval($rs->fields['primary_email_id']);
 			$object->source = $rs->fields['source'];
@@ -870,18 +1012,25 @@ class DAO_CrmOpportunity extends DevblocksORMHelper {
 	static function getUnassignedOppTotals() {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = "SELECT count(id) AS hits, campaign_id ".
+		$sql = "SELECT count(id) AS hits, campaign_id, campaign_bucket_id ".
 			"FROM crm_opportunity ".
 			"WHERE is_closed = 0 ".
 			"AND worker_id = 0 ".
-			"GROUP BY campaign_id"
+			"GROUP BY campaign_id, campaign_bucket_id"
 		;
 		$rs = $db->Execute($sql);
 		
 		$totals = array();
 		
 		while(!$rs->EOF) {
-			$totals[$rs->fields['campaign_id']] = intval($rs->fields['hits']);
+			$campaign_id = $rs->fields['campaign_id'];
+			$bucket_id = $rs->fields['campaign_bucket_id'];
+			
+			if(!isset($totals[$campaign_id]))
+				$totals[$campaign_id] = array('total'=>0);
+				
+			$totals[$campaign_id][$bucket_id] = intval($rs->fields['hits']);
+			$totals[$campaign_id]['total'] += intval($rs->fields['hits']);
 			$rs->MoveNext();
 		}
 		
@@ -932,6 +1081,7 @@ class DAO_CrmOpportunity extends DevblocksORMHelper {
 		$sql = sprintf("SELECT ".
 			"o.id as %s, ".
 			"o.campaign_id as %s, ".
+			"o.campaign_bucket_id as %s, ".
 			"o.name as %s, ".
 			"o.source as %s, ".
 			"o.next_action as %s, ".
@@ -952,6 +1102,7 @@ class DAO_CrmOpportunity extends DevblocksORMHelper {
 			"LEFT JOIN contact_org org ON (org.id = a.contact_org_id) ",
 			    SearchFields_CrmOpportunity::ID,
 			    SearchFields_CrmOpportunity::CAMPAIGN_ID,
+			    SearchFields_CrmOpportunity::CAMPAIGN_BUCKET_ID,
 			    SearchFields_CrmOpportunity::NAME,
 			    SearchFields_CrmOpportunity::SOURCE,
 			    SearchFields_CrmOpportunity::NEXT_ACTION,
@@ -1004,6 +1155,7 @@ class SearchFields_CrmOpportunity implements IDevblocksSearchFields {
 	// Table
 	const ID = 'o_id';
 	const CAMPAIGN_ID = 'o_campaign_id';
+	const CAMPAIGN_BUCKET_ID = 'o_campaign_bucket_id';
 	const PRIMARY_EMAIL_ID = 'o_primary_email_id';
 	const SOURCE = 'o_source';
 	const NEXT_ACTION = 'o_next_action';
@@ -1031,6 +1183,7 @@ class SearchFields_CrmOpportunity implements IDevblocksSearchFields {
 		return array(
 			self::ID => new DevblocksSearchField(self::ID, 'o', 'id', null, $translate->_('crm.opportunity.id')),
 			self::CAMPAIGN_ID => new DevblocksSearchField(self::CAMPAIGN_ID, 'o', 'campaign_id', null, $translate->_('crm.opportunity.campaign_id')),
+			self::CAMPAIGN_BUCKET_ID => new DevblocksSearchField(self::CAMPAIGN_BUCKET_ID, 'o', 'campaign_bucket_id', null, $translate->_('crm.opportunity.campaign_bucket_id')),
 			self::PRIMARY_EMAIL_ID => new DevblocksSearchField(self::PRIMARY_EMAIL_ID, 'o', 'primary_email_id', null, $translate->_('crm.opportunity.primary_email_id')),
 			self::SOURCE => new DevblocksSearchField(self::SOURCE, 'o', 'source', null, $translate->_('crm.opportunity.source')),
 			self::NEXT_ACTION => new DevblocksSearchField(self::NEXT_ACTION, 'o', 'next_action', null, $translate->_('crm.opportunity.next_action')),
@@ -1055,6 +1208,7 @@ class SearchFields_CrmOpportunity implements IDevblocksSearchFields {
 class Model_CrmOpportunity {
 	public $id;
 	public $campaign_id;
+	public $campaign_bucket_id;
 	public $name;
 	public $source;
 	public $next_action;
@@ -1194,7 +1348,7 @@ class DAO_CrmCampaign extends DevblocksORMHelper {
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$id = $db->GenID('crm_campaign_seq');
+		$id = $db->GenID('generic_seq');
 		
 		$sql = sprintf("INSERT INTO crm_campaign (id) ".
 			"VALUES (%d)",
@@ -1268,12 +1422,150 @@ class DAO_CrmCampaign extends DevblocksORMHelper {
 		
 		$db->Execute(sprintf("DELETE FROM crm_campaign WHERE id IN (%s)", $ids_list));
 		
+		// Cascade: Buckets
+		DAO_CrmCampaignBucket::deleteByCampaignIds($ids);
+		
+		// [TODO] Delete opps from campaign
+		
 		return true;
 	}
 };
 
 class Model_CrmCampaign {
 	public $id;
+	public $name;
+};
+
+class DAO_CrmCampaignBucket extends DevblocksORMHelper {
+	const ID = 'id';
+	const CAMPAIGN_ID = 'campaign_id';
+	const NAME = 'name';
+
+	static function create($fields) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$id = $db->GenID('generic_seq');
+		
+		$sql = sprintf("INSERT INTO crm_campaign_bucket (id) ".
+			"VALUES (%d)",
+			$id
+		);
+		$db->Execute($sql);
+		
+		self::update($id, $fields);
+		
+		return $id;
+	}
+	
+	static function update($ids, $fields) {
+		parent::_update($ids, 'crm_campaign_bucket', $fields);
+	}
+	
+	/**
+	 * @param string $where
+	 * @return Model_CrmCampaignBucket[]
+	 */
+	static function getWhere($where=null) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = "SELECT id, campaign_id, name ".
+			"FROM crm_campaign_bucket ".
+			(!empty($where) ? sprintf("WHERE %s ",$where) : "").
+			"ORDER BY id asc";
+		$rs = $db->Execute($sql);
+		
+		return self::_getObjectsFromResult($rs);
+	}
+
+	/**
+	 * Enter description here...
+	 *
+	 * @return array
+	 */
+	static function getByCampaigns() {
+		$campaigns = array();
+		$buckets = self::getWhere();
+		
+		foreach($buckets as $bucket_id => $bucket) {
+			if(!isset($campaigns[$bucket->campaign_id]))
+				$campaigns[$bucket->campaign_id] = array();
+				
+			$campaigns[$bucket->campaign_id][$bucket_id] = $bucket;
+		}
+		
+		return $campaigns;
+	}
+	
+	/**
+	 * @param integer $id
+	 * @return Model_CrmCampaignBucket	 */
+	static function get($id) {
+		$objects = self::getWhere(sprintf("%s = %d",
+			self::ID,
+			$id
+		));
+		
+		if(isset($objects[$id]))
+			return $objects[$id];
+		
+		return null;
+	}
+	
+	static function getByCampaignId($campaign_id) {
+		return self::getWhere(sprintf("%s = %d",
+			self::CAMPAIGN_ID,
+			$campaign_id
+		));
+	}
+	
+	/**
+	 * @param ADORecordSet $rs
+	 * @return Model_CrmCampaignBucket[]
+	 */
+	static private function _getObjectsFromResult($rs) {
+		$objects = array();
+		
+		while(!$rs->EOF) {
+			$object = new Model_CrmCampaignBucket();
+			$object->id = $rs->fields['id'];
+			$object->campaign_id = $rs->fields['campaign_id'];
+			$object->name = $rs->fields['name'];
+			$objects[$object->id] = $object;
+			$rs->MoveNext();
+		}
+		
+		return $objects;
+	}
+	
+	static function deleteByCampaignIds($ids) {
+		if(!is_array($ids)) $ids = array($ids);
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$ids_list = implode(',', $ids);
+		
+		$db->Execute(sprintf("DELETE FROM crm_campaign_bucket WHERE campaign_id IN (%s)", $ids_list));
+		$db->Execute(sprintf("UPDATE crm_opportunity SET campaign_bucket_id = 0 WHERE campaign_id IN (%s)", $ids_list));
+		
+		return true;
+	}
+
+	static function delete($ids) {
+		if(!is_array($ids)) $ids = array($ids);
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$ids_list = implode(',', $ids);
+		
+		$db->Execute(sprintf("DELETE FROM crm_campaign_bucket WHERE id IN (%s)", $ids_list));
+		$db->Execute(sprintf("UPDATE crm_opportunity SET campaign_bucket_id = 0 WHERE campaign_bucket_id IN (%s)", $ids_list));
+		
+		return true;
+	}
+
+};
+
+class Model_CrmCampaignBucket {
+	public $id;
+	public $campaign_id;
 	public $name;
 };
 
@@ -1292,6 +1584,7 @@ class C4_CrmOpportunityView extends C4_AbstractView {
 			SearchFields_CrmOpportunity::ORG_NAME,
 			SearchFields_CrmOpportunity::UPDATED_DATE,
 			SearchFields_CrmOpportunity::CAMPAIGN_ID,
+			SearchFields_CrmOpportunity::CAMPAIGN_BUCKET_ID,
 			SearchFields_CrmOpportunity::NEXT_ACTION,
 		);
 		
@@ -1318,6 +1611,9 @@ class C4_CrmOpportunityView extends C4_AbstractView {
 
 		$campaigns = DAO_CrmCampaign::getWhere();
 		$tpl->assign('campaigns', $campaigns);
+		
+		$buckets = DAO_CrmCampaignBucket::getByCampaigns();
+		$tpl->assign('campaign_buckets', $buckets);
 		
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);

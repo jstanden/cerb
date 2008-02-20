@@ -81,6 +81,41 @@ if(!isset($columns['NEXT_ACTION'])) {
     $datadict->ExecuteSQLArray($sql);
 }
 
+if(!isset($columns['CAMPAIGN_BUCKET_ID'])) {
+    $sql = $datadict->AddColumnSQL('crm_opportunity', "campaign_bucket_id I4 DEFAULT 0 NOTNULL");
+    $datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($indexes['campaign_id'])) {
+    $sql = $datadict->CreateIndexSQL('campaign_id','crm_opportunity','campaign_id');
+    $datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($indexes['campaign_bucket_id'])) {
+    $sql = $datadict->CreateIndexSQL('campaign_bucket_id','crm_opportunity','campaign_bucket_id');
+    $datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($indexes['primary_email_id'])) {
+    $sql = $datadict->CreateIndexSQL('primary_email_id','crm_opportunity','primary_email_id');
+    $datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($indexes['updated_date'])) {
+    $sql = $datadict->CreateIndexSQL('updated_date','crm_opportunity','updated_date');
+    $datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($indexes['worker_id'])) {
+    $sql = $datadict->CreateIndexSQL('worker_id','crm_opportunity','worker_id');
+    $datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($indexes['is_closed'])) {
+    $sql = $datadict->CreateIndexSQL('is_closed','crm_opportunity','is_closed');
+    $datadict->ExecuteSQLArray($sql);
+}
+
 if(!isset($tables['crm_opp_comment'])) {
 	$flds ="
 		id I4 DEFAULT 0 NOTNULL PRIMARY,
@@ -93,7 +128,10 @@ if(!isset($tables['crm_opp_comment'])) {
 	$datadict->ExecuteSQLArray($sql);
 }
 
-// [TODO] Indexes (primary_email_id, is_closed, is_won, worker_id, product_id, updated_date)
+if(!isset($indexes['opportunity_id'])) {
+    $sql = $datadict->CreateIndexSQL('opportunity_id','crm_opp_comment','opportunity_id');
+    $datadict->ExecuteSQLArray($sql);
+}
 
 if(!isset($tables['crm_campaign'])) {
 	$flds ="
@@ -102,6 +140,24 @@ if(!isset($tables['crm_campaign'])) {
 	";
 	$sql = $datadict->CreateTableSQL('crm_campaign', $flds);
 	$datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($tables['crm_campaign_bucket'])) {
+	$flds ="
+		id I4 DEFAULT 0 NOTNULL PRIMARY,
+		campaign_id I4 DEFAULT 0 NOTNULL,
+		name C(64) DEFAULT '' NOTNULL
+	";
+	$sql = $datadict->CreateTableSQL('crm_campaign_bucket', $flds);
+	$datadict->ExecuteSQLArray($sql);
+}
+
+$columns = $datadict->MetaColumns('crm_campaign_bucket');
+$indexes = $datadict->MetaIndexes('crm_campaign_bucket',false);
+
+if(!isset($indexes['campaign_id'])) {
+    $sql = $datadict->CreateIndexSQL('campaign_id','crm_campaign_bucket','campaign_id');
+    $datadict->ExecuteSQLArray($sql);
 }
 
 ?>

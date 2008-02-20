@@ -89,8 +89,20 @@
 			{elseif $column=="o_campaign_id"}
 				{assign var=o_campaign_id value=$result.o_campaign_id}
 				<td>
+					{* [TODO] Only hyperlink if permitted to edit campaign *}
 					{if isset($campaigns.$o_campaign_id)}
-						{$campaigns.$o_campaign_id->name}&nbsp;
+						<a href="javascript:;" onclick="genericAjaxPanel('c=crm&a=showCampaignPanel&id={$o_campaign_id}&view_id={$view->id}',this,false,'500px');">{$campaigns.$o_campaign_id->name}</a>&nbsp;
+					{/if}
+				</td>
+			{elseif $column=="o_campaign_bucket_id"}
+				{assign var=o_campaign_id value=$result.o_campaign_id}
+				{assign var=o_bucket_id value=$result.o_campaign_bucket_id}
+				{assign var=buckets value=$campaign_buckets.$o_campaign_id}
+				<td>
+					{if empty($o_bucket_id)}
+						Inbox
+					{elseif isset($buckets.$o_bucket_id)}
+						{$buckets.$o_bucket_id->name}
 					{/if}
 				</td>
 			{elseif $column=="o_amount"}
@@ -107,7 +119,27 @@
 	{if $total}
 	<tr>
 		<td colspan="2">
-			<button type="button" onclick="this.form.a.value='viewOppDelete';this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete2.gif{/devblocks_url}" align="top"> Delete</button>
+			{if !empty($campaign_buckets)}
+			<select name="bucket_id" onchange="this.form.a.value='viewOppSetCampaign';this.form.submit();">
+				<option value="">-- set bucket --</option>
+				<optgroup label="Campaigns">
+				{foreach from=$campaigns item=campaign key=campaign_id}
+					<option value="c{$campaign_id}_b0">{$campaign->name}</option>
+				{/foreach}
+				</optgroup>
+				
+				{foreach from=$campaigns item=campaign key=campaign_id}
+				{if isset($campaign_buckets.$campaign_id)}
+					<optgroup label="-- {$campaign->name|escape} --">
+						{foreach from=$campaign_buckets.$campaign_id item=bucket key=bucket_id}
+							<option value="c{$campaign_id}_b{$bucket_id}">{$bucket->name}</option>
+						{/foreach}
+					</optgroup>
+				{/if}
+				{/foreach}
+			</select>
+			{/if}
+			
 			{if !empty($workers)}
 			<select name="worker_id" onchange="this.form.a.value='viewOppSetWorker';this.form.submit();">
 				<option value="">-- set worker --</option>
@@ -117,6 +149,8 @@
 				<option value="0">- unassign -</option>
 			</select>
 			{/if}
+			
+			<button type="button" onclick="this.form.a.value='viewOppDelete';this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete2.gif{/devblocks_url}" align="top"> Delete</button>
 		</td>
 	</tr>
 	{/if}

@@ -32,12 +32,25 @@
 			<div class="block">
 				<h2>Available</h2>
 				<a href="{devblocks_url}c=crm&a=opps&o=overview&m=all{/devblocks_url}">-All-</a><br>
-				{if 0&&$unassigned_totals.0}
-					<a href="{devblocks_url}c=crm&a=opps&o=overview&m=campaign&id=0{/devblocks_url}">Inbox</a> ({$unassigned_totals.0})<br>
-				{/if}
 				{foreach from=$campaigns item=campaign key=campaign_id}
+					{assign var=campaign_totals value=$unassigned_totals.$campaign_id}
 					{if $unassigned_totals.$campaign_id}
-						<a href="{devblocks_url}c=crm&a=opps&o=overview&m=campaign&id={$campaign_id}{/devblocks_url}" style="font-weight:bold;">{$campaign->name}</a> ({$unassigned_totals.$campaign_id})<br>
+						<a href="javascript:;" onclick="toggleDiv('campaignBuckets{$campaign_id}');" style="font-weight:bold;">{$campaign->name}</a> ({$campaign_totals.total})<br>
+
+						<div id="campaignBuckets{$campaign_id}" style="display:{if $filter_campaign_id==$campaign_id}block{else}none{/if};padding-left:10px;padding-bottom:2px;">
+							<a href="{devblocks_url}c=crm&a=opps&o=overview&m=campaign&id={$campaign_id}{/devblocks_url}">-All-</a><br>
+							
+							{if !empty($campaign_totals.0)}
+								<a href="{devblocks_url}c=crm&a=opps&o=overview&m=campaign&id={$campaign_id}&bid=0{/devblocks_url}">Inbox</a> ({$campaign_totals.0})<br>
+							{/if}
+							
+							{foreach from=$campaign_buckets.$campaign_id item=bucket key=bucket_id}
+								{assign var=campaign_bucket value=$campaign_buckets.$campaign_id.$bucket_id}
+								{if !empty($campaign_totals.$bucket_id)}
+									<a href="{devblocks_url}c=crm&a=opps&o=overview&m=campaign&id={$campaign_id}&bid={$bucket_id}{/devblocks_url}">{$campaign_bucket->name}</a> ({$campaign_totals.$bucket_id})<br>
+								{/if}
+							{/foreach}
+						</div>
 					{/if}
 				{/foreach}
 			</div>
