@@ -1762,7 +1762,10 @@ class DAO_MessageHeader {
             false
         );
         
-        $db->UpdateBlob('message_header', self::HEADER_VALUE, $value, 'message_id='.$message_id.' AND header_name='.$db->qstr($header));
+        if(!empty($value) && !empty($message_id) && !empty($header)) {
+        	// [TODO] $value might be an array
+        	$db->UpdateBlob('message_header', self::HEADER_VALUE, $value, 'message_id='.$message_id.' AND header_name='.$db->qstr($header));
+        }
     }
     
     static function getAll($message_id) {

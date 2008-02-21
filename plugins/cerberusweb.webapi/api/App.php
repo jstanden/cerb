@@ -1083,7 +1083,9 @@ class Rest_ParserController extends Ch_RestController {
 			$this->_error("No message source was provided.");
 		
 		$file = CerberusParser::saveMimeToFile($source);
-		$message = CerberusParser::parseMimeFile($file);
+		$mime = mailparse_msg_parse_file($file);
+		$message = CerberusParser::parseMime($mime);
+		mailparse_msg_free($mime);
 		@unlink($file);
 		
 		$ticket_id = CerberusParser::parseMessage($message);

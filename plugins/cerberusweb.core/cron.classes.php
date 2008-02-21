@@ -106,7 +106,9 @@ class ParseCron extends CerberusCronPageExtension {
         echo "Decoding... "; //flush();
         $time = microtime(true);
         
-		$message = CerberusParser::parseMimeFile($full_filename);
+        $mime = mailparse_msg_parse_file($file);
+		$message = CerberusParser::parseMime($mime);
+		mailparse_msg_free($mime);
 				
         $time = microtime(true) - $time;
         echo "decoded! (",sprintf("%d",($time*1000))," ms)<br>\r\n"; //flush();

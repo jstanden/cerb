@@ -119,7 +119,7 @@
 	{if $total}
 	<tr>
 		<td colspan="2">
-			{if !empty($campaign_buckets)}
+			{if !empty($campaigns)}
 			<select name="bucket_id" onchange="this.form.a.value='viewOppSetCampaign';this.form.submit();">
 				<option value="">-- set bucket --</option>
 				<optgroup label="Campaigns">

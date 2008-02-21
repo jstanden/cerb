@@ -62,52 +62,10 @@ class CerberusParser {
     /**
      * Enter description here...
      *
-     * @param string $file
+     * @param object $mime
      * @return CerberusParserMessage
      */
-    static public function parseMimeFile($file) {
-		$mime = mailparse_msg_parse_file($file);
-		$message = self::_parseMimeFile($mime, $file);
-		return $message;
-    }
-    
-    /**
-     * Enter description here...
-     *
-     * @param string $source
-     * @return $filename
-     */
-    static public function saveMimeToFile($source, $path=null) {
-    	if(empty($path))
-    		$path = DEVBLOCKS_PATH . 'tmp' . DIRECTORY_SEPARATOR;
-    	else
-    		$path = realpath($path) . DIRECTORY_SEPARATOR;
-    	
-		do {
-			$unique = sprintf("%s.%04d.msg",
-				time(),
-				rand(0,9999)
-			);
-			$filename = $path . $unique;
-        } while(file_exists($filename));
-
-          $fp = fopen($filename,'w');
-          
-          if($fp) {
-              fwrite($fp,$source,strlen($source));
-              @fclose($fp);
-          }
-          
-		return $filename;
-    }
-    
-    /**
-     * Enter description here...
-     *
-     * @param resource $mime
-     * @return CerberusParserMessage
-     */
-    static private function _parseMimeFile($mime, $full_filename) {
+    static public function parseMime($mime) {
 		$struct = mailparse_msg_get_structure($mime);
 		$msginfo = mailparse_msg_get_part_data($mime);
 		
@@ -198,9 +156,37 @@ class CerberusParser {
 		    }
 		}
 		
-		mailparse_msg_free($mime);
-		
 		return $message;
+    }
+    
+    /**
+     * Enter description here...
+     *
+     * @param string $source
+     * @return $filename
+     */
+    static public function saveMimeToFile($source, $path=null) {
+    	if(empty($path))
+    		$path = DEVBLOCKS_PATH . 'tmp' . DIRECTORY_SEPARATOR;
+    	else
+    		$path = realpath($path) . DIRECTORY_SEPARATOR;
+    	
+		do {
+			$unique = sprintf("%s.%04d.msg",
+				time(),
+				rand(0,9999)
+			);
+			$filename = $path . $unique;
+        } while(file_exists($filename));
+
+          $fp = fopen($filename,'w');
+          
+          if($fp) {
+              fwrite($fp,$source,strlen($source));
+              @fclose($fp);
+          }
+          
+		return $filename;
     }
     
 	/**
