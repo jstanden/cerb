@@ -458,13 +458,6 @@ class CerberusParser {
 			);
 			$id = DAO_Ticket::createTicket($fields);
 
-			// Don't replace this with the master event listener
-			if(false !== ($rule = CerberusApplication::parseTeamRules($team_id, $id, $fromAddress, $sSubject))) { /* @var $rule Model_TeamRoutingRule */
-                //Assume our rule match is not spam
-                if(empty($rule->do_spam)) { // if we didn't already train
-                    $enumSpamTraining = CerberusTicketSpamTraining::NOT_SPAM;
-                }
-			}
 		}
 
 		// [JAS]: Add requesters to the ticket
@@ -602,8 +595,25 @@ class CerberusParser {
 			if(null == $group_settings)
 				$group_settings = DAO_GroupSettings::getSettings();
 			
+			// Don't replace this with the master event listener
+			// [mdf] moved the group rule evaluation here because where it used to be, it was doing rule spam scoring when we didn't yet have the ticket messages created
+			if(!empty($team_id)) {
+				if(false !== ($rule = CerberusApplication::parseTeamRules($team_id, $id, $fromAddress, $sSubject))) { /* @var $rule Model_TeamRoutingRule */
+					//Assume our rule match is not spam
+					if(empty($rule->do_spam)) { // if we didn't already train
+						$enumSpamTraining = CerberusTicketSpamTraining::NOT_SPAM;
+					}
+					else {
+						$ruleTrainedSpam = true;
+					}
+				}
+			}
+				
+			if($ruleTrainedSpam) {
+				//[mdf]skip spam training/scoring if a rule already did it
+			}
     		// Allow spam training overloading
-		    if(!empty($enumSpamTraining)) {
+		    elseif(!empty($enumSpamTraining)) {
 			    if($enumSpamTraining == CerberusTicketSpamTraining::SPAM) {
 	                CerberusBayes::markTicketAsSpam($id);		        
 			    } elseif($enumSpamTraining == CerberusTicketSpamTraining::NOT_SPAM) {

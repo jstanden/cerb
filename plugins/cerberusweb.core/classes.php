@@ -5174,7 +5174,7 @@ class ChGroupsPage extends CerberusPageExtension  {
 			$fields[DAO_TeamRoutingRule::DO_STATUS] = intval($status);   			
    		}
    		if(0 != strlen($spam)) {
-			$fields[DAO_TeamRoutingRule::DO_SPAM] = intval($spam);   			
+			$fields[DAO_TeamRoutingRule::DO_SPAM] = $spam;   			
    		}
    		if(0 != strlen($assign)) {
 			$fields[DAO_TeamRoutingRule::DO_ASSIGN] = intval($assign);

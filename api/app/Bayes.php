@@ -167,16 +167,16 @@ class CerberusBayes {
 		return $words; 
 	}
 	
-	static function markTicketAsSpam($ticket_id) {
-		self::_markTicketAs($ticket_id, true);
+	static function markTicketAsSpam($ticket_id, $auto_close_delete=true) {
+		self::_markTicketAs($ticket_id, true, $auto_close_delete);
 	}
 	
-	static function markTicketAsNotSpam($ticket_id) {
-		self::_markTicketAs($ticket_id, false);
+	static function markTicketAsNotSpam($ticket_id, $auto_open_undelete=true) {
+		self::_markTicketAs($ticket_id, false, $auto_open_undelete);
 	}
 	
 	// [TODO] Accept batch tickets for training for efficiencies sake
-	static private function _markTicketAs($ticket_id,$spam=true) {
+	static private function _markTicketAs($ticket_id,$spam,$auto_set_status) {
 		// [TODO] Make sure we can't retrain tickets which are already spam trained
 		// [TODO] This is a performance killer
 		$ticket = DAO_Ticket::getTicket($ticket_id);
@@ -227,10 +227,14 @@ class CerberusBayes {
 		// Forced training should leave a cache of 0.0001 or 0.9999 on the ticket table
 		$fields = array(
 			'spam_score' => ($spam) ? 0.9999 : 0.0001,
-			'spam_training' => ($spam) ? CerberusTicketSpamTraining::SPAM : CerberusTicketSpamTraining::NOT_SPAM,
-			'is_deleted' => ($spam) ? '1' : '0',
-			'is_closed' => ($spam) ? '1' : '0',
+			'spam_training' => ($spam) ? CerberusTicketSpamTraining::SPAM : CerberusTicketSpamTraining::NOT_SPAM
 		);
+		
+		if($auto_set_status) {
+			$fields['is_deleted'] = ($spam) ? '1' : '0';
+			$fields['is_closed'] = ($spam) ? '1' : '0';
+		}
+
 		DAO_Ticket::updateTicket($ticket_id,$fields);
 
 		return TRUE;

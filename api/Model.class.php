@@ -1692,7 +1692,6 @@ class Model_DashboardViewAction {
 		// actions
 		if(is_array($this->params))
 		foreach($this->params as $k => $v) {
-			if(empty($v) && !is_numeric($v)) continue;
 				
 			switch($k) {
 				case 'closed':
@@ -1712,21 +1711,23 @@ class Model_DashboardViewAction {
 					break;
 
 						case 'spam':
+							//[mdf] we only send an array as the spam value if we want to skip auto status changes
+							// ( e.g. We want to allow the auto status change on normal ticket view actions, but disallow them when evaluating parser group rules )
+							if(is_array($v)) {
+								$allowAutoStatus = false;
+								$v = $v[0];
+							}
+							
 							if($v == CerberusTicketSpamTraining::NOT_SPAM) {
 								foreach($ticket_ids as $ticket_id) {
-									CerberusBayes::markTicketAsNotSpam($ticket_id);
+									CerberusBayes::markTicketAsNotSpam($ticket_id, $allowAutoStatus);
 								}
-								$fields[DAO_Ticket::SPAM_TRAINING] = $v;
 
 							} elseif($v == CerberusTicketSpamTraining::SPAM) {
 								foreach($ticket_ids as $ticket_id) {
-									CerberusBayes::markTicketAsSpam($ticket_id);
+									CerberusBayes::markTicketAsSpam($ticket_id, $allowAutoStatus);
 								}
-								$fields[DAO_Ticket::SPAM_TRAINING] = $v;
-								$fields[DAO_Ticket::IS_CLOSED] = 1;
-								$fields[DAO_Ticket::IS_DELETED] = 1;
 							}
-								
 							break;
 
 						case 'team':
