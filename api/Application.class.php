@@ -418,13 +418,12 @@ class CerberusApplication extends DevblocksApplication {
 		                
 		                // =============== Run action =============
    	                    $action = new Model_DashboardViewAction();
-
-   	                    //[mdf] only send params that we actually want to change, so we don't set settings to bad values (like setting 0 for the ticket team id)
-   	                    if(strlen($rule->do_spam) > 0) $action->params['spam'] = array($rule->do_spam, "no_auto_status_change");
-   	                    if(strlen($rule->do_status) > 0) $action->params['closed'] = $rule->do_status;
-   	                    if(strlen($rule->do_move) > 0) $action->params['team'] = $rule->do_move;
-   	                    if($rule->do_assign != 0) $action->params['assign'] = $rule->do_assign;
-   	                    
+   	                    $action->params = array(
+   	                        'spam' => $rule->do_spam,
+   	                        'closed' => $rule->do_status,
+   	                        'team' => $rule->do_move,
+   	                        'assign' => $rule->do_assign,
+   	                    );
    	                    $action->run(array($ticket_id));
 
    	                    DAO_TeamRoutingRule::update($rule->id, array(

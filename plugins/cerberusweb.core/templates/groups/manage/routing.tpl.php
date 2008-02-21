@@ -42,7 +42,7 @@
 				<option value="">&nbsp;</option>
 	      		<optgroup label="Move to Group">
 	      		{foreach from=$teams item=tm}
-	      			<option value="t{$tm->id}">{$tm->name}</option>
+	      			<option value="t{$team->id}">{$tm->name}</option>
 	      		{/foreach}
 	      		</optgroup>
 	      		{foreach from=$team_categories item=categories key=teamId}
