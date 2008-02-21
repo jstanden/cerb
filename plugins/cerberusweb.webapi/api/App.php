@@ -1084,7 +1084,7 @@ class Rest_ParserController extends Ch_RestController {
 		
 		$file = CerberusParser::saveMimeToFile($source);
 		$mime = mailparse_msg_parse_file($file);
-		$message = CerberusParser::parseMime($mime);
+		$message = CerberusParser::parseMime($mime, $file);
 		mailparse_msg_free($mime);
 		@unlink($file);
 		

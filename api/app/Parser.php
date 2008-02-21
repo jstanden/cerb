@@ -65,7 +65,7 @@ class CerberusParser {
      * @param object $mime
      * @return CerberusParserMessage
      */
-    static public function parseMime($mime) {
+    static public function parseMime($mime, $full_filename) {
 		$struct = mailparse_msg_get_structure($mime);
 		$msginfo = mailparse_msg_get_part_data($mime);
 		
