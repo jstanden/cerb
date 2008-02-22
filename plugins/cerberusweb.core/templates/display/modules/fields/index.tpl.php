@@ -21,8 +21,8 @@
 			<input type="hidden" name="field_ids[]" value="{$f_id}">
 			
 			<tr>
-				<td valign="top"><b>{$f->name}:</b></td>
-				<td valign="top" width="100%">
+				<td valign="top" width="1%" nowrap="nowrap"><b>{$f->name}:</b></td>
+				<td valign="top" width="99%">
 					{* [TODO]: Filter by groups+global *}
 					{if $f->type=='S'}
 						<input type="text" name="field_{$f_id}" size="45" maxlength="255" value="{$ticket_field_values.$f_id|escape:"htmlall"}"><br>
@@ -38,7 +38,8 @@
 							{/foreach}
 						</select><br>
 					{elseif $f->type=='E'}
-						<input type="text" name="field_{$f_id}" size="45" maxlength="255" value="{$ticket_field_values.$f_id|escape:"htmlall"}"> [[calendar]]<br>
+						<input type="text" name="field_{$f_id}" size="45" maxlength="255" value="{$ticket_field_values.$f_id|escape:"htmlall"}"><button type="button" onclick="ajax.getDateChooser('dateCustom{$f_id}',this.form.field_{$f_id});">&nbsp;<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/calendar.gif{/devblocks_url}" align="top">&nbsp;</button>
+						<div id="dateCustom{$f_id}" style="display:none;position:absolute;z-index:1;"></div>
 					{/if}	
 				</td>
 			</tr>

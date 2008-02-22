@@ -467,6 +467,19 @@ var cAjaxCalls = function() {
 		myAutoComp.allowBrowserAutocomplete = false;
 	}
 
+	this.getDateChooser = function(div,field) {
+		var cal = new YAHOO.widget.Calendar("calChooser", div);
+		cal.cfg.setProperty("close",true); 
+		cal.selectEvent.subscribe(function(type,args,obj) {
+			var dates = args[0];
+			var date = dates[0];
+			var calDate = date[1] + '/' + date[2] + '/' + date[0];
+			field.value = calDate;
+			cal.hide();
+		}, cal, true);
+		cal.render();
+		cal.show();
+	}
 }
 
 var ajax = new cAjaxCalls();
