@@ -457,14 +457,6 @@ class CerberusParser {
 				DAO_Ticket::SLA_PRIORITY => $sla_priority,
 			);
 			$id = DAO_Ticket::createTicket($fields);
-
-			// Don't replace this with the master event listener
-			if(false !== ($rule = CerberusApplication::parseTeamRules($team_id, $id, $fromAddress, $sSubject))) { /* @var $rule Model_TeamRoutingRule */
-                //Assume our rule match is not spam
-                if(empty($rule->do_spam)) { // if we didn't already train
-                    $enumSpamTraining = CerberusTicketSpamTraining::NOT_SPAM;
-                }
-			}
 		}
 
 		// [JAS]: Add requesters to the ticket
@@ -602,6 +594,14 @@ class CerberusParser {
 			if(null == $group_settings)
 				$group_settings = DAO_GroupSettings::getSettings();
 			
+			// Don't replace this with the master event listener
+			if(false !== ($rule = CerberusApplication::parseTeamRules($team_id, $id, $fromAddress, $sSubject))) { /* @var $rule Model_TeamRoutingRule */
+                //Assume our rule match is not spam
+                if(empty($rule->do_spam)) { // if we didn't already train
+                    $enumSpamTraining = CerberusTicketSpamTraining::NOT_SPAM;
+                }
+			}
+				
     		// Allow spam training overloading
 		    if(!empty($enumSpamTraining)) {
 			    if($enumSpamTraining == CerberusTicketSpamTraining::SPAM) {
@@ -612,6 +612,7 @@ class CerberusParser {
 			} else { // No overload
 			    $out = CerberusBayes::calculateTicketSpamProbability($id);
 
+			    // [TODO] Move this group logic to a post-parse event listener
 			    if(!empty($team_id)) {
 			    	@$spam_threshold = $group_settings[$team_id][DAO_GroupSettings::SETTING_SPAM_THRESHOLD];
 			        @$spam_action = $group_settings[$team_id][DAO_GroupSettings::SETTING_SPAM_ACTION];

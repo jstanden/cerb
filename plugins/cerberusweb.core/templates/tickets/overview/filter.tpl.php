@@ -7,7 +7,7 @@ Hide these buckets from my overview:<br>
 <div id="" style="height:300px;overflow:auto;background-color:rgb(255,255,255);padding:5px;border:1px solid rgb(180,180,180);">
 {foreach from=$groups key=group_id item=group}
 	{assign var=counts value=$group_counts.$group_id}
-	{if isset($active_worker_memberships.$group_id)}
+	{if isset($active_worker_memberships.$group_id) && !empty($group_buckets.$group_id)}
 	<span style="font-weight:bold;">{$groups.$group_id->name}</span> 
 	<div id="" style="display:block;padding-left:10px;padding-bottom:0px;">
 	{foreach from=$group_buckets.$group_id key=bucket_id item=b}

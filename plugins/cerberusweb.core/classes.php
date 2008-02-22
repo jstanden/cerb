@@ -1171,7 +1171,7 @@ class ChTicketsPage extends CerberusPageExtension {
 			$do['closed'] = $status;   			
    		}
    		if(0 != strlen($spam)) {
-			$fields[DAO_TeamRoutingRule::DO_SPAM] = intval($spam);
+			$fields[DAO_TeamRoutingRule::DO_SPAM] = $spam;
 			$do['spam'] = $spam;   			
    		}
    		if(0 != strlen($assign)) {
@@ -5017,6 +5017,50 @@ class ChGroupsPage extends CerberusPageExtension  {
 			    
 		} // end switch
 		
+	}
+	
+	function showGroupPanelAction() {
+		@$group_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl_path = realpath(dirname(__FILE__) . '/templates/') . DIRECTORY_SEPARATOR;
+		$tpl->assign('path', $tpl_path);
+		
+		$tpl->assign('view_id', $view_id);
+		
+		if(!empty($group_id) && null != ($group = DAO_Group::getTeam($group_id))) {
+			$tpl->assign('group', $group);
+		}
+		
+		$tpl->display('file:' . $tpl_path . 'groups/rpc/peek.tpl.php');
+	}
+	
+	function saveGroupPanelAction() {
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
+		
+		@$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'integer',0);
+		@$name = DevblocksPlatform::importGPC($_REQUEST['name'],'string','');
+
+		$fields = array(
+			DAO_Group::TEAM_NAME => $name			
+		);
+		
+		// [TODO] Delete
+		
+		if(empty($group_id)) { // new
+			$group_id = DAO_Group::create($fields);
+			
+		} else { // update
+			DAO_Group::update($group_id, $fields);
+			
+		}
+		
+		// Reload view (if linked)
+		if(!empty($view_id) && null != ($view = C4_AbstractViewLoader::getView('', $view_id))) {
+			$view->render();
+		}
+		exit;
 	}
 	
 	// Post
