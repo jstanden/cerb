@@ -810,11 +810,8 @@ class C4_TicketView extends C4_AbstractView {
 							}
 							break;
 						case Model_TicketField::TYPE_CHECKBOX:
-							if(!empty($options)) {
-								$criteria = new DevblocksSearchCriteria($field,$oper,$value);
-							} else {
-								$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IS_NULL);
-							}
+							$check = !empty($value) ? 1 : 0;
+							$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 							break;
 						default:
 							if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
