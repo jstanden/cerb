@@ -65,7 +65,11 @@
 			{if $active_worker && ($active_worker->is_superuser || $active_worker->can_delete)}
 			<option value="2">Deleted</option>
 			{/if}
-		</select></td>
+		</select>
+		<button type="button" onclick="this.form.closed.selectedIndex = 1;">open</button>
+		<button type="button" onclick="this.form.closed.selectedIndex = 2;">closed</button>
+		<button type="button" onclick="this.form.closed.selectedIndex = 3;">deleted</button>
+		</td>
 	</tr>
 	<tr>
 		<td width="0%" nowrap="nowrap">Spam:</td>
@@ -74,7 +78,10 @@
 			{foreach from=$training item=k key=v}
 			<option value="{$v}">{$k}</option>
 			{/foreach}
-		</select></td>
+		</select>
+		<button type="button" onclick="this.form.spam.selectedIndex = 2;">spam</button>
+		<button type="button" onclick="this.form.spam.selectedIndex = 1;">not spam</button>
+		</td>
 	</tr>
 	<tr>
 		<td width="0%" nowrap="nowrap">Next Worker:</td>

@@ -1701,9 +1701,11 @@ class Model_DashboardViewAction {
 							$fields[DAO_Ticket::IS_CLOSED] = 0;
 							$fields[DAO_Ticket::IS_DELETED] = 0;
 							break;
+							
 						case CerberusTicketStatus::CLOSED:
 							$fields[DAO_Ticket::IS_CLOSED] = 1;
 							break;
+							
 						case 2:
 							$fields[DAO_Ticket::IS_CLOSED] = 1;
 							$fields[DAO_Ticket::IS_DELETED] = 1;
@@ -1711,44 +1713,42 @@ class Model_DashboardViewAction {
 					}
 					break;
 
-						case 'spam':
-							if($v == CerberusTicketSpamTraining::NOT_SPAM) {
-								foreach($ticket_ids as $ticket_id) {
-									CerberusBayes::markTicketAsNotSpam($ticket_id);
-								}
-								$fields[DAO_Ticket::SPAM_TRAINING] = $v;
-
-							} elseif($v == CerberusTicketSpamTraining::SPAM) {
-								foreach($ticket_ids as $ticket_id) {
-									CerberusBayes::markTicketAsSpam($ticket_id);
-								}
-								$fields[DAO_Ticket::SPAM_TRAINING] = $v;
-								$fields[DAO_Ticket::IS_CLOSED] = 1;
-								$fields[DAO_Ticket::IS_DELETED] = 1;
+					case 'spam':
+						if($v == CerberusTicketSpamTraining::NOT_SPAM) {
+							foreach($ticket_ids as $ticket_id) {
+								CerberusBayes::markTicketAsNotSpam($ticket_id);
 							}
-								
-							break;
 
-						case 'team':
-							// [TODO] Make sure the team/bucket still exists
-							list($team_id,$category_id) = CerberusApplication::translateTeamCategoryCode($v);
-							$fields[DAO_Ticket::TEAM_ID] = $team_id;
-							$fields[DAO_Ticket::CATEGORY_ID] = $category_id;
-							break;
+						} elseif($v == CerberusTicketSpamTraining::SPAM) {
+							foreach($ticket_ids as $ticket_id) {
+								CerberusBayes::markTicketAsSpam($ticket_id);
+							}
+						}
+							
+						break;
 
-						case 'next_worker':
-						case 'assign':
-							$fields[DAO_Ticket::NEXT_WORKER_ID] = intval($v);
-							break;
+					case 'team':
+						// [TODO] Make sure the team/bucket still exists
+						list($team_id,$category_id) = CerberusApplication::translateTeamCategoryCode($v);
+						$fields[DAO_Ticket::TEAM_ID] = $team_id;
+						$fields[DAO_Ticket::CATEGORY_ID] = $category_id;
+						break;
 
-						default:
-							// [TODO] Log?
-							break;
+					case 'next_worker':
+					case 'assign':
+						$fields[DAO_Ticket::NEXT_WORKER_ID] = intval($v);
+						break;
+
+					default:
+						// [TODO] Log?
+						break;
 			}
 		}
 		//		}
 
-		DAO_Ticket::updateTicket($ticket_ids, $fields);
+		if(!empty($fields) && !empty($ticket_ids)) {
+			DAO_Ticket::updateTicket($ticket_ids, $fields);
+		}
 	}
 };
 

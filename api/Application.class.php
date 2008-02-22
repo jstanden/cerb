@@ -48,7 +48,7 @@
  * 		and Joe Geck.
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-define("APP_BUILD", 551);
+define("APP_BUILD", 552);
 define("APP_MAIL_PATH", realpath(APP_PATH . '/storage/mail') . DIRECTORY_SEPARATOR);
 
 include_once(APP_PATH . "/api/DAO.class.php");
@@ -418,12 +418,18 @@ class CerberusApplication extends DevblocksApplication {
 		                
 		                // =============== Run action =============
    	                    $action = new Model_DashboardViewAction();
-   	                    $action->params = array(
-   	                        'spam' => $rule->do_spam,
-   	                        'closed' => $rule->do_status,
-   	                        'team' => $rule->do_move,
-   	                        'assign' => $rule->do_assign,
-   	                    );
+   	                    $action->params = array();
+   	                    
+						//[mdf] only send params that we actually want to change, so we don't set settings to bad values (like setting 0 for the ticket team id)
+						if(strlen($rule->do_spam) > 0)
+							$action->params['spam'] = $rule->do_spam;
+						if(strlen($rule->do_status) > 0)
+							$action->params['closed'] = $rule->do_status;
+						if(strlen($rule->do_move) > 0)
+							$action->params['team'] = $rule->do_move;
+						if($rule->do_assign != 0)
+							$action->params['assign'] = $rule->do_assign;
+							
    	                    $action->run(array($ticket_id));
 
    	                    DAO_TeamRoutingRule::update($rule->id, array(

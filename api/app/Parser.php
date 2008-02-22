@@ -605,7 +605,13 @@ class CerberusParser {
     		// Allow spam training overloading
 		    if(!empty($enumSpamTraining)) {
 			    if($enumSpamTraining == CerberusTicketSpamTraining::SPAM) {
-	                CerberusBayes::markTicketAsSpam($id);		        
+	                CerberusBayes::markTicketAsSpam($id);
+	                
+                	DAO_Ticket::updateTicket($id,array(
+						DAO_Ticket::IS_CLOSED => 1,
+						DAO_Ticket::IS_DELETED => 1
+					));
+	                
 			    } elseif($enumSpamTraining == CerberusTicketSpamTraining::NOT_SPAM) {
 		            CerberusBayes::markTicketAsNotSpam($id);
 		        }

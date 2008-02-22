@@ -228,8 +228,6 @@ class CerberusBayes {
 		$fields = array(
 			'spam_score' => ($spam) ? 0.9999 : 0.0001,
 			'spam_training' => ($spam) ? CerberusTicketSpamTraining::SPAM : CerberusTicketSpamTraining::NOT_SPAM,
-			'is_deleted' => ($spam) ? '1' : '0',
-			'is_closed' => ($spam) ? '1' : '0',
 		);
 		DAO_Ticket::updateTicket($ticket_id,$fields);
 
