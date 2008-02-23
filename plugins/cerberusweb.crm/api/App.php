@@ -1880,13 +1880,14 @@ class CrmOrgOppTab extends Extension_OrgTab {
 		if(null == ($view = C4_AbstractViewLoader::getView('', 'org_opps'))) {
 			$view = new C4_CrmOpportunityView();
 			$view->id = 'org_opps';
-			C4_AbstractViewLoader::setView($view->id, $view);
 		}
 		
 		$view->name = "Org: " . $org->name;
 		$view->params = array(
 			SearchFields_CrmOpportunity::ORG_ID => new DevblocksSearchCriteria(SearchFields_CrmOpportunity::ORG_ID,'=',$org_id) 
 		);
+
+		C4_AbstractViewLoader::setView($view->id, $view);
 		
 		$tpl->assign('view', $view);
 		
@@ -1915,7 +1916,6 @@ class CrmTicketOppTab extends Extension_TicketTab {
 		if(null == ($view = C4_AbstractViewLoader::getView('', 'ticket_opps'))) {
 			$view = new C4_CrmOpportunityView();
 			$view->id = 'ticket_opps';
-			C4_AbstractViewLoader::setView($view->id, $view);
 		}
 
 		if(!empty($address->contact_org_id)) { // org
@@ -1932,7 +1932,9 @@ class CrmTicketOppTab extends Extension_TicketTab {
 				SearchFields_CrmOpportunity::PRIMARY_EMAIL_ID => new DevblocksSearchCriteria(SearchFields_CrmOpportunity::PRIMARY_EMAIL_ID,'=',$ticket->first_wrote_address_id) 
 			);
 		}
-			
+		
+		C4_AbstractViewLoader::setView($view->id, $view);
+		
 		$tpl->assign('view', $view);
 		
 		$tpl->display('file:' . $tpl_path . 'crm/opps/ticket/tab.tpl.php');
