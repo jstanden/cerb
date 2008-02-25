@@ -111,8 +111,8 @@ class ChReportsPage extends CerberusPageExtension {
 
 		// import dates from form
 		@$age = DevblocksPlatform::importGPC($_REQUEST['age'],'string','30d');
-		@$start = DevblocksPlatform::importGPC($_REQUEST['start'],'string','');
-		@$end = DevblocksPlatform::importGPC($_REQUEST['end'],'string','');
+		@$start = DevblocksPlatform::importGPC($_REQUEST['startART'],'string','');
+		@$end = DevblocksPlatform::importGPC($_REQUEST['endART'],'string','');
 		
 		// use date range if specified, else use duration prior to now
 		$start_time = 0;
@@ -132,8 +132,8 @@ class ChReportsPage extends CerberusPageExtension {
 		$tpl->assign('age', $age);
 		$tpl->assign('age_dur', $age_dur);
 		$tpl->assign('age_term', $age_term);
-		$tpl->assign('start', $start);
-		$tpl->assign('end', $end);
+		$tpl->assign('startART', $start);
+		$tpl->assign('endART', $end);
 		
 		// set up necessary reference arrays
 	   	$groups = DAO_Group::getAll();

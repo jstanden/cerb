@@ -2,25 +2,25 @@
 
 <h2>Average Response Time</h2>
 <b>Range (days):</b> 
-<a href="javascript:;" onclick="genericAjaxGet('reportNewTickets','c=reports&a=getNewTicketsReport&age=365d');">365 days</a>
-| <a href="javascript:;" onclick="genericAjaxGet('reportNewTickets','c=reports&a=getNewTicketsReport&age=180d');">180 days</a>
-| <a href="javascript:;" onclick="genericAjaxGet('reportNewTickets','c=reports&a=getNewTicketsReport&age=90d');">90 days</a>
-| <a href="javascript:;" onclick="genericAjaxGet('reportNewTickets','c=reports&a=getNewTicketsReport&age=30d');">30 days</a>
-| <a href="javascript:;" onclick="genericAjaxGet('reportNewTickets','c=reports&a=getNewTicketsReport&age=7d');">7 days</a>
-| <a href="javascript:;" onclick="genericAjaxGet('reportNewTickets','c=reports&a=getNewTicketsReport&age=1d');">past 24 hours</a>
+<a href="javascript:;" onclick="genericAjaxGet('reportAverageResponseTime','c=reports&a=getAverageResponseTimeReport&age=365d');">365 days</a>
+| <a href="javascript:;" onclick="genericAjaxGet('reportAverageResponseTime','c=reports&a=getAverageResponseTimeReport&age=180d');">180 days</a>
+| <a href="javascript:;" onclick="genericAjaxGet('reportAverageResponseTime','c=reports&a=getAverageResponseTimeReport&age=90d');">90 days</a>
+| <a href="javascript:;" onclick="genericAjaxGet('reportAverageResponseTime','c=reports&a=getAverageResponseTimeReport&age=30d');">30 days</a>
+| <a href="javascript:;" onclick="genericAjaxGet('reportAverageResponseTime','c=reports&a=getAverageResponseTimeReport&age=7d');">7 days</a>
+| <a href="javascript:;" onclick="genericAjaxGet('reportAverageResponseTime','c=reports&a=getAverageResponseTimeReport&age=1d');">past 24 hours</a>
 <br>
 <b>Range (months):</b> 
-<a href="javascript:;" onclick="genericAjaxGet('reportNewTickets','c=reports&a=getNewTicketsReport&age=12mo');">12 months</a>
-| <a href="javascript:;" onclick="genericAjaxGet('reportNewTickets','c=reports&a=getNewTicketsReport&age=6mo');">6 months</a>
-| <a href="javascript:;" onclick="genericAjaxGet('reportNewTickets','c=reports&a=getNewTicketsReport&age=3mo');">3 months</a>
-| <a href="javascript:;" onclick="genericAjaxGet('reportNewTickets','c=reports&a=getNewTicketsReport&age=1mo');">1 month</a>
+<a href="javascript:;" onclick="genericAjaxGet('reportAverageResponseTime','c=reports&a=getAverageResponseTimeReport&age=12mo');">12 months</a>
+| <a href="javascript:;" onclick="genericAjaxGet('reportAverageResponseTime','c=reports&a=getAverageResponseTimeReport&age=6mo');">6 months</a>
+| <a href="javascript:;" onclick="genericAjaxGet('reportAverageResponseTime','c=reports&a=getAverageResponseTimeReport&age=3mo');">3 months</a>
+| <a href="javascript:;" onclick="genericAjaxGet('reportAverageResponseTime','c=reports&a=getAverageResponseTimeReport&age=1mo');">1 month</a>
 <br>
 <b>Range (custom):</b> 
 <form action="{devblocks_url}{/devblocks_url}" method="POST" id="formAverageResponseTime" name="formAverageResponseTime" onsubmit="return false;">
 <input type="hidden" name="c" value="reports">
 <input type="hidden" name="a" value="getAverageResponseTimeReport">
-<input type="text" name="startAverageResponseTime" id="startAverageResponseTime" size="10" value="{$start}"><button type="button" onclick="ajax.getDateChooser('dateART',this.form.startAverageResponseTime);">&nbsp;<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/calendar.gif{/devblocks_url}" align="top">&nbsp;</button>
-<input type="text" name="endAverageResponseTime" id="endAverageResponseTime" size="10" value="{$end}"><button type="button" onclick="ajax.getDateChooser('dateART',this.form.endAverageResponseTime);">&nbsp;<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/calendar.gif{/devblocks_url}" align="top">&nbsp;</button>
+<input type="text" name="startART" id="startART" size="10" value="{$startART}"><button type="button" onclick="ajax.getDateChooser('dateART',this.form.startART);">&nbsp;<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/calendar.gif{/devblocks_url}" align="top">&nbsp;</button>
+<input type="text" name="endART" id="endART" size="10" value="{$endART}"><button type="button" onclick="ajax.getDateChooser('dateART',this.form.endART);">&nbsp;<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/calendar.gif{/devblocks_url}" align="top">&nbsp;</button>
 <button type="button" onclick="genericAjaxPost('formAverageResponseTime', 'reportAverageResponseTime')">Refresh</button>
 <div id="dateART" style="display:none;position:absolute;z-index:1;"></div>
 </form>
