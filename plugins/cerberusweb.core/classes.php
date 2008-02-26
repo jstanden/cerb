@@ -1605,7 +1605,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	
 	function showViewAutoAssistAction() {
         @$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
-        @$mode = DevblocksPlatform::importGPC($_REQUEST['mode'],'string','subjects');
+        @$mode = DevblocksPlatform::importGPC($_REQUEST['mode'],'string','senders');
         @$mode_param = DevblocksPlatform::importGPC($_REQUEST['mode_param'],'string','');
 
 		$tpl = DevblocksPlatform::getTemplateService();

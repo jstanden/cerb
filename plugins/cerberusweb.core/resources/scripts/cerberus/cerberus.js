@@ -26,9 +26,12 @@ function getKeyboardKey(evt,as_code) {
 	  }
 	  else if(event) {
 	  	evt = event;
-	  	if((evt.modifiers & event.ALT_MASK) || (evt.modifiers & evt.CTRL_MASK)) {
+	  	if((evt.modifiers & event.ALT_MASK) || (evt.modifiers & event.CTRL_MASK)) {
 			return;
 		}
+	  	if(evt.altKey || evt.metaKey || evt.ctrlKey) { // new style
+	  		return;
+	  	}
    		mykey = evt.keyCode
 	  }
 	  

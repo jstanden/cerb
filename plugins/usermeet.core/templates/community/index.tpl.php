@@ -41,7 +41,9 @@ to community <select name="community_id">
 		<ul style="margin-top:0px;">
 			{foreach from=$tools item=tool_extid key=tool_code}
 				{assign var=tool value=$tool_manifests.$tool_extid}
+				{if !empty($tool)}
 				<li><a href="{devblocks_url}c=community&a=tool&id={$tool_code}{/devblocks_url}">{$tool->name}</a></li>
+				{/if}
 			{/foreach}
 		</ul>
 		{/if}
