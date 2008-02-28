@@ -489,20 +489,6 @@ class DAO_KbArticle extends DevblocksORMHelper {
 
 	static function update($ids, $fields) {
 		if(!is_array($ids)) $ids = array($ids);
-		
-		$db = DevblocksPlatform::getDatabaseService();
-		
-		// Blob special handling
-		if(isset($fields[self::CONTENT])) {
-			$db->UpdateBlob(
-				'kb_article',
-				self::CONTENT,
-				$fields[self::CONTENT],
-				sprintf("id IN (%s)",implode(',',$ids))
-			);
-			unset($fields[self::CONTENT]);
-		}
-		
 		parent::_update($ids, 'kb_article', $fields);
 	}
 	

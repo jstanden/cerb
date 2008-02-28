@@ -8,7 +8,7 @@
 		<td nowrap="nowrap" class="tableThBlue">{$view->name} {if $view->id == 'search'}<a href="#{$view->id}_actions" style="color:rgb(255,255,255);font-size:11px;">jump to actions</a>{/if}</td>
 		<td nowrap="nowrap" class="tableThBlue" align="right">
 			<a href="javascript:;" onclick="genericAjaxGet('{$view->id}_tips','c=tickets&a=showViewAutoAssign&view_id={$view->id}');toggleDiv('{$view->id}_tips','block');" class="tableThLink">{"assign"|lower}</a>
-			{if $view->id != 'contact_history'}<span style="font-size:12px"> | </span><a href="javascript:;" onclick="genericAjaxGet('{$view->id}_tips','c=tickets&a=showViewAutoAssist&view_id={$view->id}');toggleDiv('{$view->id}_tips','block');" class="tableThLink">{"sort"|lower}</a>{/if}
+			{if $view->id != 'contact_history'}<span style="font-size:12px"> | </span><a href="javascript:;" onclick="genericAjaxGet('{$view->id}_tips','c=tickets&a=showViewAutoAssist&view_id={$view->id}');toggleDiv('{$view->id}_tips','block');" class="tableThLink">{"piles"|lower}</a>{/if}
 			{if $view->id != 'search'}<span style="font-size:12px"> | </span><a href="{devblocks_url}c=tickets&a=searchview&id={$view->id}{/devblocks_url}" class="tableThLink">{$translate->_('common.search')|lower}</a>{/if}
 			<span style="font-size:12px"> | </span><a href="javascript:;" onclick="genericAjaxGet('{$view->id}_tips','c=tickets&a=showViewCopy&view_id={$view->id}');toggleDiv('{$view->id}_tips','block');" class="tableThLink">{"copy"|lower}</a>
 			<span style="font-size:12px"> | </span><a href="javascript:;" onclick="genericAjaxGet('customize{$view->id}','c=internal&a=viewCustomize&id={$view->id}');toggleDiv('customize{$view->id}','block');" class="tableThLink">{$translate->_('common.customize')|lower}</a>
@@ -124,7 +124,14 @@
 		{*{elseif $column=="t_tasks"}
 		<td align='center'>{if !empty($result.t_tasks)}{$result.t_tasks}{/if}</td>*}
 		{elseif $column=="tm_name"}
-		<td>{$result.tm_name}</td>
+		<td>
+			{assign var=ticket_team_id value=$result.tm_id}
+			{if (isset($active_worker_memberships.$ticket_team_id)) && $active_worker_memberships.$ticket_team_id->is_manager || $active_worker->is_superuser}
+				<a href="javascript:;" onclick="genericAjaxPanel('c=groups&a=showGroupPanel&id={$ticket_team_id}&view_id=',this,false,'500px');">{$result.tm_name}</a>
+			{else}
+				{$result.tm_name}
+			{/if}
+		</td>
 		{elseif $column=="t_interesting_words"}
 		<td>{$result.t_interesting_words|replace:',':', '}</td>
 		{elseif $column=="t_category_id"}
@@ -193,7 +200,7 @@
 		<td>{$result.t_first_wrote_spam}</td>
 		{elseif $column=="t_first_wrote_nonspam"}
 		<td>{$result.t_first_wrote_nonspam}</td>
-		{elseif $column=="t_spam_score"}
+		{elseif $column=="t_spam_score" || $column=="t_spam_training"}
 		<td>
 			{math assign=score equation="x*100" format="%0.2f%%" x=$result.t_spam_score}
 			{if empty($result.t_spam_training)}
@@ -204,7 +211,7 @@
 			{/if}
 		</td>
 		{else}
-		<td></td>
+		<td>{if $result.$column}{$result.$column}{/if}</td>
 		{/if}
 	{/foreach}
 	</tr>

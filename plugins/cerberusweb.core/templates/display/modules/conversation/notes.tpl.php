@@ -7,7 +7,11 @@
 				<h2 style="display:inline;color:rgb(255,50,50);">Error:</h2>&nbsp;
 			{else}
 				{assign var=note_worker_id value=$note->worker_id}
-				<h2 style="display:inline;">{$workers.$note_worker_id->getName()} notes:</h2>&nbsp;
+				{if $workers.$note_worker_id}
+					<h2 style="display:inline;">{$workers.$note_worker_id->getName()} notes:</h2>&nbsp;
+				{else}
+					<h2 style="display:inline;">[Deleted Worker] notes:</h2>&nbsp;
+				{/if}
 			{/if}
 			<i>{$note->created|date_format}</i>
 			&nbsp;

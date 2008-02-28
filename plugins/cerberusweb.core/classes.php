@@ -1069,6 +1069,12 @@ class ChTicketsPage extends CerberusPageExtension {
                 $params[SearchFields_Ticket::TICKET_FIRST_WROTE] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_FIRST_WROTE,DevblocksSearchCriteria::OPER_LIKE,strtolower($query));               
                 break;
                 
+            case "requester":
+		        if($query && false===strpos($query,'*'))
+		            $query = '*' . $query . '*';
+                $params[SearchFields_Ticket::REQUESTER_ADDRESS] = new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ADDRESS,DevblocksSearchCriteria::OPER_LIKE,strtolower($query));               
+                break;
+                
             case "subject":
 		        if($query && false===strpos($query,'*'))
 		            $query = '*' . $query . '*';
@@ -1080,6 +1086,13 @@ class ChTicketsPage extends CerberusPageExtension {
 		            $query = '*' . $query . '*';
             	$params[SearchFields_Ticket::TICKET_MESSAGE_CONTENT] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_MESSAGE_CONTENT,DevblocksSearchCriteria::OPER_LIKE,$query);               
                 break;
+                
+            case "org":
+		        if($query && false===strpos($query,'*'))
+		            $query = '*' . $query . '*';
+            	$params[SearchFields_Ticket::ORG_NAME] = new DevblocksSearchCriteria(SearchFields_Ticket::ORG_NAME,DevblocksSearchCriteria::OPER_LIKE,$query);               
+                break;
+                
         }
         
         $searchView->params = $params;
@@ -4088,6 +4101,11 @@ class ChContactsPage extends CerberusPageExtension {
 		@$type = DevblocksPlatform::importGPC($_REQUEST['type'],'string','');
 		$csv_file = $_FILES['csv_file'];
 
+		if(empty($type) || !is_array($csv_file) || !isset($csv_file['tmp_name']) || empty($csv_file['tmp_name'])) {
+			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('contacts','import')));
+			return;
+		}
+		
 		$visit = CerberusApplication::getVisit();
 		$tpl = DevblocksPlatform::getTemplateService();
 		
@@ -5749,28 +5767,6 @@ class ChInternalController extends DevblocksControllerExtension {
 	}
 	
 	// Ajax
-	function viewCustomizeAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
-		
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', dirname(__FILE__) . '/templates/');
-		$tpl->assign('id', $id);
-
-		$view = C4_AbstractViewLoader::getView('', $id);
-		$tpl->assign('view', $view);
-
-		$tpl->assign('optColumns', $view->getColumns());
-
-		// [TODO] This should be specific to the current view
-		$tpl->assign('view_fields', C4_TicketView::getFields());
-		
-		// [TODO] This should be specific to the current view
-		$tpl->assign('view_searchable_fields', C4_TicketView::getSearchFields());
-		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/internal/views/customize_view.tpl.php');
-	}
-	
-	// Ajax
 	function viewAddFilterAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
 		
@@ -5803,6 +5799,29 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/internal/views/customize_view_criteria.tpl.php');
 	}
+	
+	// Ajax
+	function viewCustomizeAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		$tpl->assign('id', $id);
+
+		$view = C4_AbstractViewLoader::getView('', $id);
+		$tpl->assign('view', $view);
+
+		$tpl->assign('optColumns', $view->getColumns());
+
+		// [TODO] This should be specific to the current view
+		$tpl->assign('view_fields', C4_TicketView::getFields());
+		
+		// [TODO] This should be specific to the current view
+		$tpl->assign('view_searchable_fields', C4_TicketView::getSearchFields());
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/internal/views/customize_view.tpl.php');
+	}
+	
 	
 	// Post?
 	function viewSaveCustomizeAction() {
@@ -6131,6 +6150,8 @@ class ChDisplayPage extends CerberusPageExtension {
 		@$deleted = DevblocksPlatform::importGPC($_REQUEST['deleted'],'integer',0);
 		@$bucket = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'string');
 		
+		@$ticket = DAO_Ticket::getTicket($id);
+		
 		// Anti-Spam
 		if(!empty($spam)) {
 		    CerberusBayes::markTicketAsSpam($id);
@@ -6147,7 +6168,15 @@ class ChDisplayPage extends CerberusPageExtension {
 			DAO_Ticket::IS_DELETED => intval($deleted),
 			DAO_Ticket::UPDATED_DATE => time(),
 		);
-				
+
+		// Undeleting?
+		if(empty($spam) && empty($closed) && empty($deleted) 
+			&& $ticket->spam_training == CerberusTicketSpamTraining::SPAM && $ticket->is_closed) {
+				$score = CerberusBayes::calculateTicketSpamProbability($id);
+				$properties[DAO_Ticket::SPAM_SCORE] = $score['probability']; 
+				$properties[DAO_Ticket::SPAM_TRAINING] = CerberusTicketSpamTraining::BLANK;
+		}
+		
 		// Team/Category
 		if(!empty($bucket)) {
 			list($team_id,$bucket_id) = CerberusApplication::translateTeamCategoryCode($bucket);

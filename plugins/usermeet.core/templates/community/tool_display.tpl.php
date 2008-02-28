@@ -1,3 +1,5 @@
+{include file="file:$path/community/submenu.tpl.php"}
+
 <h1>Communities</h1>
 <br>
 

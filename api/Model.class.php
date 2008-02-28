@@ -156,6 +156,8 @@ abstract class C4_AbstractView {
 		}
 
 		$this->view_columns = $viewColumns;
+		$this->renderSortBy = null;
+		$this->renderSortAsc = true;
 	}
 
 	function doSortBy($sortBy) {
@@ -516,9 +518,11 @@ class C4_TicketView extends C4_AbstractView {
 			case SearchFields_Ticket::TICKET_SUBJECT:
 			case SearchFields_Ticket::TICKET_FIRST_WROTE:
 			case SearchFields_Ticket::TICKET_LAST_WROTE:
+			case SearchFields_Ticket::REQUESTER_ADDRESS:
 			case SearchFields_Ticket::TICKET_NEXT_ACTION:
 			case SearchFields_Ticket::TICKET_MESSAGE_CONTENT:
 			case SearchFields_Ticket::TICKET_INTERESTING_WORDS:
+			case SearchFields_Ticket::ORG_NAME:
 				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__string.tpl.php');
 				break;
 
@@ -539,6 +543,10 @@ class C4_TicketView extends C4_AbstractView {
 				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__date.tpl.php');
 				break;
 					
+			case SearchFields_Ticket::TICKET_SPAM_TRAINING:
+				$tpl->display('file:' . $tpl_path . 'tickets/search/criteria/ticket_spam_training.tpl.php');
+				break;
+				
 			case SearchFields_Ticket::TICKET_SPAM_SCORE:
 				$tpl->display('file:' . $tpl_path . 'tickets/search/criteria/ticket_spam_score.tpl.php');
 				break;
@@ -684,6 +692,25 @@ class C4_TicketView extends C4_AbstractView {
 				echo implode(", ", $strings);
 				break;
 
+			case SearchFields_Ticket::TICKET_SPAM_TRAINING:
+				$strings = array();
+
+				foreach($values as $val) {
+					switch($val) {
+						case 'S':
+							$strings[] = "Spam";
+							break;
+						case 'N':
+							$strings[] = "Not Spam";
+							break;
+						default:
+							$strings[] = "Not Trained";
+							break;
+					}
+				}
+				echo implode(", ", $strings);
+				break;
+
 			default:
 				parent::renderCriteriaParam($param);
 				break;
@@ -717,9 +744,11 @@ class C4_TicketView extends C4_AbstractView {
 			case SearchFields_Ticket::TICKET_SUBJECT:
 			case SearchFields_Ticket::TICKET_FIRST_WROTE:
 			case SearchFields_Ticket::TICKET_LAST_WROTE:
+			case SearchFields_Ticket::REQUESTER_ADDRESS:
 			case SearchFields_Ticket::TICKET_NEXT_ACTION:
 			case SearchFields_Ticket::TICKET_MESSAGE_CONTENT:
 			case SearchFields_Ticket::TICKET_INTERESTING_WORDS:
+			case SearchFields_Ticket::ORG_NAME:
 				// force wildcards if none used on a LIKE
 				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
 				&& false === (strpos($value,'*'))) {
@@ -757,6 +786,10 @@ class C4_TicketView extends C4_AbstractView {
 				if(!is_null($score) && is_numeric($score)) {
 					$criteria = new DevblocksSearchCriteria($field,$oper,intval($score)/100);
 				}
+				break;
+
+			case SearchFields_Ticket::TICKET_SPAM_TRAINING:
+				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 
 			case SearchFields_Ticket::TICKET_SLA_ID:
@@ -1939,7 +1972,8 @@ class C4_Overview {
 			"WHERE t.is_waiting = 0 AND t.is_closed = 0 AND t.is_deleted = 0 ".
 			"AND t.next_worker_id = 0 ".
 			"AND t.team_id IN (%s) ".
-			"GROUP BY t.sla_id",
+			"GROUP BY t.sla_id, t.sla_priority ".
+			"ORDER BY t.sla_priority DESC ",
 			implode(',', array_keys($memberships))
 		);
 		$rs_sla = $db->Execute($sql);

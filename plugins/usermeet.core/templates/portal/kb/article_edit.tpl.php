@@ -47,33 +47,33 @@ YAHOO.util.Event.addListener(window,"load",function() {
 	myEditor.render();
 	});
 
-var myDataSource = new YAHOO.widget.DS_XHR({/literal}"{devblocks_url}ajax.php{/devblocks_url}"{literal}, ["\n", "\t"] );
-myDataSource.scriptQueryAppend = "c=contacts&a=getTagAutoCompletions"; 
-myDataSource.responseType = YAHOO.widget.DS_XHR.TYPE_FLAT;
-myDataSource.maxCacheEntries = 60;
-myDataSource.queryMatchSubset = true;
-myDataSource.connTimeout = 3000;
-
-var myInput = document.getElementById('tags'); 
-var myContainer = document.getElementById('tagscontainer'); 
-	
-var myAutoComp = new YAHOO.widget.AutoComplete(myInput,myContainer, myDataSource);
-myAutoComp.delimChar = ",";
-myAutoComp.queryDelay = 1;
-//myAutoComp.useIFrame = true; 
-myAutoComp.typeAhead = false;
-myAutoComp.useShadow = true;
-myAutoComp.prehighlightClassName = "yui-ac-prehighlight"; 
-myAutoComp.allowBrowserAutocomplete = false;
-
-var contactOrgAutoCompSelected = function contactOrgAutoCompSelected(sType, args, me) {
-			org_str = new String(args[2]);
-			org_arr = org_str.split(',');
-			document.articleForm.contact_orgid.value=org_arr[1];
-		};
-
-obj=new Object();
-myAutoComp.itemSelectEvent.subscribe(contactOrgAutoCompSelected, obj);	
+//var myDataSource = new YAHOO.widget.DS_XHR({/literal}"{devblocks_url}c=getTagAutoCompletions{/devblocks_url}"{literal}, ["\n", "\t"] );
+////myDataSource.scriptQueryAppend = "c=kb&a=getTagAutoCompletions"; 
+//myDataSource.responseType = YAHOO.widget.DS_XHR.TYPE_FLAT;
+//myDataSource.maxCacheEntries = 60;
+//myDataSource.queryMatchSubset = true;
+//myDataSource.connTimeout = 3000;
+//
+//var myInput = document.getElementById('tags'); 
+//var myContainer = document.getElementById('tagscontainer'); 
+//	
+//var myAutoComp = new YAHOO.widget.AutoComplete(myInput,myContainer, myDataSource);
+//myAutoComp.delimChar = ",";
+//myAutoComp.queryDelay = 1;
+////myAutoComp.useIFrame = true; 
+//myAutoComp.typeAhead = false;
+//myAutoComp.useShadow = true;
+//myAutoComp.prehighlightClassName = "yui-ac-prehighlight"; 
+//myAutoComp.allowBrowserAutocomplete = false;
+//
+//var contactOrgAutoCompSelected = function contactOrgAutoCompSelected(sType, args, me) {
+//			org_str = new String(args[2]);
+//			org_arr = org_str.split(',');
+//			document.articleForm.contact_orgid.value=org_arr[1];
+//		};
+//
+//obj=new Object();
+//myAutoComp.itemSelectEvent.subscribe(contactOrgAutoCompSelected, obj);	
 	
 {/literal}
 </script>

@@ -1415,7 +1415,8 @@ class UmKbApp extends Extension_UsermeetTool {
     	
     	// Tagging
     	$tags = DevblocksPlatform::parseCsvString($tags_csv);
-		DAO_CloudGlue::applyTags($tags, $id, $this->_getTagIndex(), true);
+    	if(!empty($tags))
+			DAO_CloudGlue::applyTags($tags, $id, $this->_getTagIndex(), true);
     	
 		// Search Indexing
 		$doc = new Zend_Search_Lucene_Document();
@@ -1470,13 +1471,16 @@ class UmKbApp extends Extension_UsermeetTool {
     }
     
     public function getTagAutoCompletionsAction() {
-    	@$starts_with = DevblocksPlatform::importGPC($_REQUEST['query'],'string','');
-    	$tags = DAO_CloudGlue::getTagsWhere(sprintf("name LIKE '%s%%'", $starts_with));
-		
-		foreach($tags AS $val){
-			echo $val->name . "\t";
-			echo $val->id . "\n";
-		}
+    	$starts_with = DevblocksPlatform::importGPC($_REQUEST['query'],'string','');
+
+    	if(!empty($starts_with)) {
+	    	$tags = DAO_CloudGlue::getTagsWhere(sprintf("name LIKE '%s%%'", $starts_with));
+			
+			foreach($tags AS $val){
+				echo $val->name . "\t";
+				echo $val->id . "\n";
+			}
+    	}
 		exit();
     }
     

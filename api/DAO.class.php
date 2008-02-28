@@ -359,31 +359,24 @@ class DAO_Worker extends DevblocksORMHelper {
 		
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = sprintf("DELETE FROM worker WHERE id = %d",
-			$id
-		);
+		$sql = sprintf("DELETE FROM worker WHERE id = %d", $id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
-		$sql = sprintf("DELETE FROM worker_to_team WHERE agent_id = %d",
-			$id
-		);
+		$sql = sprintf("DELETE FROM address_to_worker WHERE worker_id = %d", $id);
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		$sql = sprintf("DELETE FROM worker_to_team WHERE agent_id = %d", $id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 
-		$sql = sprintf("DELETE FROM ticket_rss WHERE worker_id = %d",
-			$id
-		);
+		$sql = sprintf("DELETE FROM ticket_rss WHERE worker_id = %d", $id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 
 		// [TODO] Cascade using DAO_WorkerWorkspaceList::delete
-		$sql = sprintf("DELETE FROM worker_workspace_list WHERE worker_id = %d",
-			$id
-		);
+		$sql = sprintf("DELETE FROM worker_workspace_list WHERE worker_id = %d", $id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 
 		// Clear assigned workers
-		$sql = sprintf("UPDATE ticket SET next_worker_id = 0 WHERE next_worker_id = %d",
-			$id
-		);
+		$sql = sprintf("UPDATE ticket SET next_worker_id = 0 WHERE next_worker_id = %d", $id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 
 		$cache = DevblocksPlatform::getCacheService();
@@ -2943,6 +2936,12 @@ class DAO_Ticket extends DevblocksORMHelper {
 			(isset($tables['mc']) ? "INNER JOIN message_content mc ON (mc.message_id=msg.id) " : " ")
 			;
 			
+		// Org joins
+		if(isset($tables['o'])) {
+			$select_sql .= ", o.name as o_name ";
+			$join_sql .= "LEFT JOIN contact_org o ON (a1.contact_org_id=o.id) ";
+		}
+			
 		// Custom field joins
 		foreach($tables as $tbl_name => $null) {
 			if(substr($tbl_name,0,3)!="cf_")
@@ -3052,6 +3051,9 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 	const TEAM_ID = 'tm_id';
 	const TEAM_NAME = 'tm_name';
 	
+	// Sender Org
+	const ORG_NAME = 'o_name';
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
@@ -3071,6 +3073,8 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 			self::TICKET_DELETED => new DevblocksSearchField(self::TICKET_DELETED, 't', 'is_deleted',null,$translate->_('status.deleted')),
 			self::TICKET_FIRST_WROTE_ID => new DevblocksSearchField(self::TICKET_FIRST_WROTE_ID, 't', 'first_wrote_address_id'),
 			self::TICKET_FIRST_WROTE => new DevblocksSearchField(self::TICKET_FIRST_WROTE, 'a1', 'email',null,$translate->_('ticket.first_wrote')),
+			self::ORG_NAME => new DevblocksSearchField(self::ORG_NAME, 'o', 'name', null, $translate->_('contact_org.name')),
+			self::REQUESTER_ADDRESS => new DevblocksSearchField(self::REQUESTER_ADDRESS, 'ra', 'email',null,'Requester'),
 			self::TICKET_LAST_WROTE_ID => new DevblocksSearchField(self::TICKET_LAST_WROTE_ID, 't', 'last_wrote_address_id'),
 			self::TICKET_LAST_WROTE => new DevblocksSearchField(self::TICKET_LAST_WROTE, 'a2', 'email',null,$translate->_('ticket.last_wrote')),
 			self::TICKET_LAST_ACTION_CODE => new DevblocksSearchField(self::TICKET_LAST_ACTION_CODE, 't', 'last_action_code',null,$translate->_('ticket.last_action')),
@@ -3088,7 +3092,6 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 			self::TICKET_FIRST_CONTACT_ORG_ID => new DevblocksSearchField(self::TICKET_FIRST_CONTACT_ORG_ID, 'a1', 'contact_org_id'),
 			
 			self::REQUESTER_ID => new DevblocksSearchField(self::REQUESTER_ID, 'ra', 'id'),
-			self::REQUESTER_ADDRESS => new DevblocksSearchField(self::REQUESTER_ADDRESS, 'ra', 'email'),
 			
 			self::SENDER_ADDRESS => new DevblocksSearchField(self::SENDER_ADDRESS, 'a1', 'email'),
 			
@@ -3098,6 +3101,7 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 			self::TICKET_MESSAGE_HEADER_VALUE => new DevblocksSearchField(self::TICKET_MESSAGE_HEADER_VALUE, 'mh', 'header_value', 'B'),
 			
 			self::TICKET_MESSAGE_CONTENT => new DevblocksSearchField(self::TICKET_MESSAGE_CONTENT, 'mc', 'content', 'B', $translate->_('message.content')),
+			
 		);
 		
 		// Custom Fields
@@ -3447,30 +3451,27 @@ class DAO_Group {
 		if(empty($id)) return;
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = sprintf("DELETE FROM team WHERE id = %d",
-			$id
-		);
+		$sql = sprintf("DELETE FROM team WHERE id = %d", $id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
-		$sql = sprintf("DELETE FROM worker_to_team WHERE team_id = %d",
-			$id
-		);
+		// [TODO] DAO_GroupSettings::deleteById();
+		$sql = sprintf("DELETE FROM group_setting WHERE group_id = %d", $id);
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		$sql = sprintf("DELETE FROM worker_to_team WHERE team_id = %d",	$id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 
-		$sql = sprintf("DELETE FROM mail_routing WHERE team_id = %d",
-			$id
-		);
+		$sql = sprintf("DELETE FROM mail_routing WHERE team_id = %d", $id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
-		$sql = sprintf("DELETE FROM team_routing_rule WHERE team_id = %d",
-			$id
-		);
+		$sql = sprintf("DELETE FROM team_routing_rule WHERE team_id = %d", $id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 
         DAO_TeamRoutingRule::deleteByMoveCodes(array('t'.$id));
 
 		$cache = DevblocksPlatform::getCacheService();
 		$cache->remove(self::CACHE_ALL);
+		$cache->remove(CerberusApplication::CACHE_HELPDESK_FROMS);
 	}
 	
 	static function setTeamMember($team_id, $worker_id, $is_manager=false) {

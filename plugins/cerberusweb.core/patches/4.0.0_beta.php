@@ -941,6 +941,36 @@ if(!isset($tables['tag'])) {
     $datadict->ExecuteSQLArray($sql);
 }
 
+// Remove any worker addresses from deleted workers
+$sql = "SELECT DISTINCT atw.worker_id ".
+	"FROM address_to_worker atw ".
+	"LEFT JOIN worker w ON (w.id=atw.worker_id) ".
+	"WHERE w.id IS NULL";
+$rs = $db->Execute($sql);
+
+while(!$rs->EOF) {
+	$sql = sprintf("DELETE FROM address_to_worker WHERE worker_id = %d",
+		$rs->fields['worker_id']
+	);
+	$db->Execute($sql);
+	$rs->MoveNext();
+}
+
+// Remove any group settings from deleted groups
+$sql = "SELECT DISTINCT gs.group_id ".
+	"FROM group_setting gs ".
+	"LEFT JOIN team t ON (t.id=gs.group_id) ".
+	"WHERE t.id IS NULL";
+$rs = $db->Execute($sql);
+
+while(!$rs->EOF) {
+	$sql = sprintf("DELETE FROM group_setting WHERE group_id = %d",
+		$rs->fields['group_id']
+	);
+	$db->Execute($sql);
+	$rs->MoveNext();
+}
+
 // Recover any tickets assigned to a NULL bucket
 $sql = "SELECT DISTINCT t.category_id as id ".
 	"FROM ticket t ".
