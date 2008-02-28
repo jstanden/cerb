@@ -1021,6 +1021,15 @@ class DAO_Address extends DevblocksORMHelper {
 		return NULL;
 	}
 	
+	static function getCountByOrgId($org_id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = sprintf("SELECT count(id) FROM address WHERE contact_org_id = %d",
+			$org_id
+		);
+		return intval($db->GetOne($sql));
+	}
+	
 	/**
 	 * Enter description here...
 	 *
@@ -2287,6 +2296,19 @@ class DAO_Ticket extends DevblocksORMHelper {
         $db = DevblocksPlatform::getDatabaseService();
 	    $ticket_ids = implode(',', $ids);
 
+		/* This event fires before the delete takes place in the db,
+		 * so we can denote what is actually changing against the db state
+		 */
+	    $eventMgr = DevblocksPlatform::getEventService();
+	    $eventMgr->trigger(
+	        new Model_DevblocksEvent(
+	            'ticket.delete',
+                array(
+                    'ticket_ids' => $ids,
+                )
+            )
+	    );
+	    
 	    // Tickets
 	    
         $sql = sprintf("DELETE FROM ticket WHERE id IN (%s)", $ticket_ids);
@@ -2462,14 +2484,13 @@ class DAO_Ticket extends DevblocksORMHelper {
 	static function updateTicket($ids,$fields) {
 		if(!is_array($ids)) $ids = array($ids);
 		
-        // [TODO] Consider the impact of events in DAO
 		/* This event fires before the change takes place in the db,
 		 * so we can denote what is actually changing against the db state
 		 */
 	    $eventMgr = DevblocksPlatform::getEventService();
 	    $eventMgr->trigger(
 	        new Model_DevblocksEvent(
-	            'ticket.property.changed',
+	            'ticket.property.pre_change',
                 array(
                     'ticket_ids' => $ids,
                     'changed_fields' => $fields,
@@ -2478,6 +2499,20 @@ class DAO_Ticket extends DevblocksORMHelper {
 	    );
 		
         parent::_update($ids,'ticket',$fields);
+        
+		/* This event fires after the change takes place in the db,
+		 * which is important if the listener needs to stack changes
+		 */
+	    $eventMgr = DevblocksPlatform::getEventService();
+	    $eventMgr->trigger(
+	        new Model_DevblocksEvent(
+	            'ticket.property.post_change',
+                array(
+                    'ticket_ids' => $ids,
+                    'changed_fields' => $fields,
+                )
+            )
+	    );
 	}
 	
 	/**
@@ -4257,6 +4292,8 @@ class DAO_WorkerPref extends DevblocksORMHelper {
     const SETTING_MOVE_COUNTS = 'move_counts';
     const SETTING_OVERVIEW = 'worker_overview';
     const SETTING_OVERVIEW_FILTER = 'worker_overview_filter';
+    const SETTING_OVERVIEW_ASSIGN_TYPE = 'overview_assign_type';
+    const SETTING_OVERVIEW_ASSIGN_HOWMANY = 'overview_assign_howmany';
     
 	static function set($worker_id, $key, $value) {
 		$db = DevblocksPlatform::getDatabaseService();

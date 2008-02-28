@@ -26,10 +26,19 @@
 	<!-- Event Points -->
 
 	<event_points>
-		<event id="ticket.property.changed">
-			<name>Ticket Property Change</name>
+		<event id="ticket.property.pre_change">
+			<name>Ticket Property Pre-Change</name>
 			<param key="ticket_ids" />
 			<param key="changed_fields" />
+		</event>
+		<event id="ticket.property.post_change">
+			<name>Ticket Property Post-Change</name>
+			<param key="ticket_ids" />
+			<param key="changed_fields" />
+		</event>
+		<event id="ticket.delete">
+			<name>Ticket Deletion</name>
+			<param key="ticket_ids" />
 		</event>
 		<event id="ticket.reply.inbound">
 			<name>Ticket Inbound Reply</name>

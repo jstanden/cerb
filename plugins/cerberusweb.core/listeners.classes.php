@@ -86,38 +86,38 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension implements IDevb
 		switch(array_shift($path)) {
 			case 'welcome':
 				$tour = array(
-                'title' => 'Welcome!',
-                'body' => "This assistant will help you become familiar with the helpdesk by following along and providing information about the current page.  You may follow the 'Points of Interest' links highlighted below to read tips about nearby functionality.",
-                'callouts' => array(
-				$callouts['tourHeaderMenu'],
-				)
+	                'title' => 'Welcome!',
+	                'body' => "This assistant will help you become familiar with the helpdesk by following along and providing information about the current page.  You may follow the 'Points of Interest' links highlighted below to read tips about nearby functionality.",
+	                'callouts' => array(
+					$callouts['tourHeaderMenu'],
+					)
 				);
 				break;
 
 			case "display":
 				$tour = array(
-                'title' => 'Display Ticket',
-                'body' => "This screen displays the currently selected ticket.  Here you can modify the ticket or send a new reply to all requesters.",
-                'callouts' => array(
-				$callouts['tourDisplayProperties'],
-				$callouts['tourDisplayManageRecipients'],
-				$callouts['tourDisplayContactHistory'],
-				$callouts['tourDisplayConversation'],
-				)
+	                'title' => 'Display Ticket',
+	                'body' => "This screen displays the currently selected ticket.  Here you can modify the ticket or send a new reply to all requesters.",
+	                'callouts' => array(
+						$callouts['tourDisplayProperties'],
+						$callouts['tourDisplayManageRecipients'],
+						$callouts['tourDisplayContactHistory'],
+						$callouts['tourDisplayConversation'],
+					)
 				);
 				break;
 
 			case "preferences":
 				$tour = array(
-                'title' => 'Preferences',
-                'body' => 'This screen allows you to change the personal preferences on your helpdesk account.',
+             	   'title' => 'Preferences',
+            	    'body' => 'This screen allows you to change the personal preferences on your helpdesk account.',
 				);
 				break;
 
 			case "groups":
 				$tour = array(
-                'title' => 'My Groups',
-                'body' => 'This screen allows you to administer and configure groups for which you are a manager.  This includes members, buckets, mail routing rules, and other group-specific preferences.',
+             	   'title' => 'My Groups',
+              	  'body' => 'This screen allows you to administer and configure groups for which you are a manager.  This includes members, buckets, mail routing rules, and other group-specific preferences.',
 				);
 				break;
 
@@ -127,59 +127,59 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension implements IDevb
 					case NULL:
 					case "general":
 						$tour = array(
-                        'title' => 'General Settings',
-                        'body' => 'These settings control the overall behavior of the helpdesk.',
+	                        'title' => 'General Settings',
+    	                    'body' => 'These settings control the overall behavior of the helpdesk.',
 						);
 						break;
 
 					case "workflow":
 						$tour = array(
-                        'title' => 'Team Configuration',
-                        'body' => "Here you may create new helpdesk workers and organize them into teams.  Common teams often include departments (such as: Support, Sales, Development, Marketing, Billing, etc.) or various projects that warrant their own workloads.",
+	                        'title' => 'Team Configuration',
+    	                    'body' => "Here you may create new helpdesk workers and organize them into teams.  Common teams often include departments (such as: Support, Sales, Development, Marketing, Billing, etc.) or various projects that warrant their own workloads.",
 						);
 						break;
 
 					case "fnr":
 						$tour = array(
-                        'title' => 'Fetch & Retrieve',
-                        'body' => "The Fetch & Retrieve config allows you to define a wide variety of sources for pulling support data from (wikis, blogs, kbs, faqs, etc).  Any source that returns RSS-style XML results to a search can be used.",
+	                        'title' => 'Fetch & Retrieve',
+	                        'body' => "The Fetch & Retrieve config allows you to define a wide variety of sources for pulling support data from (wikis, blogs, kbs, faqs, etc).  Any source that returns RSS-style XML results to a search can be used.",
 						);
 						break;
 
 					case "mail":
 						$tour = array(
-                        'title' => 'Mail Configuration',
-                        'body' => "This section controls the heart of your helpdesk: e-mail.  Here you may define the routing rules that determine what to do with new messages.  This is also where you set your preferences for sending mail out of the helpdesk.  To configure the POP3 downloader, click 'helpdesk config'->'scheduler'->'POP3 Mail Checker'",
-                        'callouts' => array(
-						$callouts['tourConfigMailRouting']
+	                        'title' => 'Mail Configuration',
+	                        'body' => "This section controls the heart of your helpdesk: e-mail.  Here you may define the routing rules that determine what to do with new messages.  This is also where you set your preferences for sending mail out of the helpdesk.  To configure the POP3 downloader, click 'helpdesk config'->'scheduler'->'POP3 Mail Checker'",
+	                        'callouts' => array(
+							$callouts['tourConfigMailRouting']
 						)
 						);
 						break;
 
 					case "maintenance":
 						$tour = array(
-                        'title' => 'Maintenance',
-                        'body' => 'This section is dedicated to ensuring your helpdesk continues to operate lightly and quickly.',
-                        'callouts' => array(
-						$callouts['tourConfigMaintPurge'],
+	                        'title' => 'Maintenance',
+	                        'body' => 'This section is dedicated to ensuring your helpdesk continues to operate lightly and quickly.',
+	                        'callouts' => array(
+							$callouts['tourConfigMaintPurge'],
 						)
 						);
 						break;
 
 					case "extensions":
 						$tour = array(
-                        'title' => 'Extensions',
-                        'body' => "This is where you may extend Cerberus Helpdesk by installing new functionality through plug-ins.",
-                        'callouts' => array(
-						)
+	                        'title' => 'Extensions',
+	                        'body' => "This is where you may extend Cerberus Helpdesk by installing new functionality through plug-ins.",
+	                        'callouts' => array(
+							)
 						);
 						break;
 					case "jobs":
 						$tour = array(
-                        'title' => 'Scheduler',
-                        'body' => "The scheduler is where you can set up tasks that will periodically run behind-the-scenes.",
-                        'callouts' => array(
-						)
+	                        'title' => 'Scheduler',
+	                        'body' => "The scheduler is where you can set up tasks that will periodically run behind-the-scenes.",
+	                        'callouts' => array(
+							)
 						);
 						break;
 				}
@@ -192,39 +192,39 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension implements IDevb
 					case NULL:
 					case 'overview':
 						$tour = array(
-                        'title' => 'Mail Overview',
-                        'body' => "The Mail tab provides the ability to compose outgoing email as well as view lists of tickets, either here in the general overview, in specific search result lists, or in your personalized ticket lists in 'my workspaces'.",
-                        'callouts' => array(
-						$callouts['tourOverviewSummaries'],
-						)
+	                        'title' => 'Mail Overview',
+	                        'body' => "The Mail tab provides the ability to compose outgoing email as well as view lists of tickets, either here in the general overview, in specific search result lists, or in your personalized ticket lists in 'my workspaces'.",
+	                        'callouts' => array(
+							$callouts['tourOverviewSummaries'],
+							)
 						);
 						break;
 						
 					case 'lists':
 						$tour = array(
-                        'title' => 'My Workspaces',
-                        'body' => 'Here is where you set up personalized lists of tickets.  Any Overview or Search results list can be copied here by clicking the "copy" link in the list title bar.',
-                        'callouts' => array(
-						$callouts['tourDashboardViews'],
-						$callouts['tourDashboardBatch'],
-						)
+	                        'title' => 'My Workspaces',
+	                        'body' => 'Here is where you set up personalized lists of tickets.  Any Overview or Search results list can be copied here by clicking the "copy" link in the list title bar.',
+	                        'callouts' => array(
+							$callouts['tourDashboardViews'],
+							$callouts['tourDashboardBatch'],
+							)
 						);
 						break;
 						
 					case 'search':
 						$tour = array(
-                        'title' => 'Searching Tickets',
-                        'body' => '',
-                        'callouts' => array(
-						$callouts['tourDashboardSearchCriteria']
-						)
+	                        'title' => 'Searching Tickets',
+	                        'body' => '',
+	                        'callouts' => array(
+							$callouts['tourDashboardSearchCriteria']
+							)
 						);
 						break;
 
 					case 'compose':
 						$tour = array(
-                        'title' => 'Compose Mail',
-                        'body' => '',
+	                        'title' => 'Compose Mail',
+    	                    'body' => '',
 						);
 						break;
 				}
@@ -236,28 +236,28 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension implements IDevb
 					case NULL:
 					case 'orgs':
 						$tour = array(
-                        'title' => 'Organizations',
-                        'body' => '',
-                        'callouts' => array(
-						)
+	                        'title' => 'Organizations',
+	                        'body' => '',
+	                        'callouts' => array(
+							)
 						);
 						break;
 						
 					case 'addresses':
 						$tour = array(
-                        'title' => 'Addresses',
-                        'body' => '',
-                        'callouts' => array(
-						)
+	                        'title' => 'Addresses',
+	                        'body' => '',
+	                        'callouts' => array(
+							)
 						);
 						break;
 						
 					case 'import':
 						$tour = array(
-                        'title' => 'Importing Orgs and Addresses',
-                        'body' => 'Use this screen to import Organizational and Address info.  The import allows comparison checking to do incremental imports and not duplicate data.',
-                        'callouts' => array(
-						)
+	                        'title' => 'Importing Orgs and Addresses',
+	                        'body' => 'Use this screen to import Organizational and Address info.  The import allows comparison checking to do incremental imports and not duplicate data.',
+	                        'callouts' => array(
+							)
 						);
 						break;
 				}
@@ -265,10 +265,10 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension implements IDevb
 				
 			case 'community':
 				$tour = array(
-                'title' => 'Communities',
-                'body' => 'Here you can create Public Community interfaces to Cerberus, including Knowledgebases, Contact Forms, and Support Centers.',
-                'callouts' => array(
-				)
+	                'title' => 'Communities',
+	                'body' => 'Here you can create Public Community interfaces to Cerberus, including Knowledgebases, Contact Forms, and Support Centers.',
+	                'callouts' => array(
+					)
 				);
 				break;
 				
@@ -290,7 +290,7 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 	function handleEvent(Model_DevblocksEvent $event) {
 		// Cerberus Helpdesk Workflow
 		switch($event->id) {
-			case 'ticket.property.changed':
+			case 'ticket.property.post_change':
 				$this->_handleTicketMoved($event);
 				break;
 
@@ -303,15 +303,15 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 	private function _handleCronHeartbeat($event) {
 		// Re-open any conversations past their 'reopen at' due time
 		$fields = array(
-		DAO_Ticket::IS_CLOSED => 0,
-		DAO_Ticket::DUE_DATE => 0
+			DAO_Ticket::IS_CLOSED => 0,
+			DAO_Ticket::DUE_DATE => 0
 		);
 		$where = sprintf("%s = %d AND %s > 0 AND %s < %d",
-		DAO_Ticket::IS_CLOSED,
-		CerberusTicketStatus::CLOSED,
-		DAO_Ticket::DUE_DATE,
-		DAO_Ticket::DUE_DATE,
-		time()
+			DAO_Ticket::IS_CLOSED,
+			CerberusTicketStatus::CLOSED,
+			DAO_Ticket::DUE_DATE,
+			DAO_Ticket::DUE_DATE,
+			time()
 		);
 		DAO_Ticket::updateWhere($fields, $where);
 	}
@@ -321,8 +321,8 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		@$changed_fields = $event->params['changed_fields'];
 
 		if(!isset($changed_fields[DAO_Ticket::TEAM_ID])
-		|| !isset($changed_fields[DAO_Ticket::CATEGORY_ID]))
-		return;
+			|| !isset($changed_fields[DAO_Ticket::CATEGORY_ID]))
+				return;
 
 		@$team_id = $changed_fields[DAO_Ticket::TEAM_ID];
 		@$bucket_id = $changed_fields[DAO_Ticket::CATEGORY_ID];
@@ -338,9 +338,9 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 			}
 
 			$from_addresses = DAO_Address::getWhere(
-			sprintf("%s IN (%s)",
-			DAO_Address::ID,
-			implode(',', $from_ids)
+				sprintf("%s IN (%s)",
+				DAO_Address::ID,
+				implode(',', $from_ids)
 			));
 			unset($from_ids);
 

@@ -48,7 +48,7 @@
  * 		and Joe Geck.
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-define("APP_BUILD", 557);
+define("APP_BUILD", 558);
 define("APP_MAIL_PATH", realpath(APP_PATH . '/storage/mail') . DIRECTORY_SEPARATOR);
 
 include_once(APP_PATH . "/api/DAO.class.php");
@@ -431,6 +431,7 @@ class CerberusApplication extends DevblocksApplication {
 							$action->params['assign'] = $rule->do_assign;
 							
    	                    $action->run(array($ticket_id));
+   	                    // ================= End run action =======
 
    	                    DAO_TeamRoutingRule::update($rule->id, array(
    	                        DAO_TeamRoutingRule::POS => ++$rule->pos

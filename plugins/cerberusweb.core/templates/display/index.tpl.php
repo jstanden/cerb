@@ -170,7 +170,7 @@ tabView.addTab( new YAHOO.widget.Tab({
 }));
 
 tabView.addTab( new YAHOO.widget.Tab({
-    label: 'Sender History',
+    label: 'Requester History',
     dataSrc: '{/literal}{devblocks_url}ajax.php?c=display&a=showContactHistory&ticket_id={$ticket->id}{/devblocks_url}{literal}',
     cacheData: true,
     {/literal}active: {if 'history'==$tab_selected}true{else}false{/if}{literal}

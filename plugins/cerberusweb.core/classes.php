@@ -1549,14 +1549,30 @@ class ChTicketsPage extends CerberusPageExtension {
         $results = $view->getData();
         $tpl->assign('num_assignable', $results[1]);
         
+        $assign_type = DAO_WorkerPref::get($active_worker->id, DAO_WorkerPref::SETTING_OVERVIEW_ASSIGN_TYPE, 'age');
+        $tpl->assign('assign_type', $assign_type);
+        
+        $assign_howmany = DAO_WorkerPref::get($active_worker->id, DAO_WorkerPref::SETTING_OVERVIEW_ASSIGN_HOWMANY, 5);
+        $tpl->assign('assign_howmany', $assign_howmany);
+        
         $tpl->display($tpl_path.'tickets/rpc/ticket_view_assign.tpl.php');
 	}
 	
 	function doViewAutoAssignAction() {
 	    @$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+	    @$type = DevblocksPlatform::importGPC($_POST['type'],'string','sla');
 	    @$how_many = DevblocksPlatform::importGPC($_POST['how_many'],'integer',5);
 	    
 	    $active_worker = CerberusApplication::getActiveWorker();
+	    
+		if(!empty($type) && !empty($active_worker->id))
+			DAO_WorkerPref::set($active_worker->id, DAO_WorkerPref::SETTING_OVERVIEW_ASSIGN_TYPE,$type);
+		
+	    if(!empty($how_many) && !empty($active_worker->id)) {
+	    	DAO_WorkerPref::set($active_worker->id, DAO_WorkerPref::SETTING_OVERVIEW_ASSIGN_HOWMANY,$how_many);
+	    } else {
+	    	return;
+	    }
 	    
 	    $search_view = C4_AbstractViewLoader::getView('', CerberusApplication::VIEW_SEARCH);
 	    $view = C4_AbstractViewLoader::getView('',$view_id);
@@ -1585,9 +1601,16 @@ class ChTicketsPage extends CerberusPageExtension {
         	
        	// Sort by Service Level priority
 		$view->renderLimit = $how_many;
-		$view->renderSortBy = SearchFields_Ticket::TICKET_SLA_PRIORITY;	
-		$view->renderSortAsc = 0;
         
+		// Oldest age
+		if($type=='age') {
+			$view->renderSortBy = SearchFields_Ticket::TICKET_UPDATED_DATE;
+			$view->renderSortAsc = 1;
+		} else { // Top SLA priority
+			$view->renderSortBy = SearchFields_Ticket::TICKET_SLA_PRIORITY;
+			$view->renderSortAsc = 0;
+		}
+		
 		// Grab $how_many rows from the top
 		list($assign_tickets, $null) = $view->getData();
 		
@@ -4082,6 +4105,9 @@ class ChContactsPage extends CerberusPageExtension {
 					$task_count = DAO_Task::getCountBySourceObjectId('cerberusweb.tasks.org', $contact->id);
 					$tpl->assign('tasks_total', $task_count);
 					
+					$people_count = DAO_Address::getCountByOrgId($contact->id);
+					$tpl->assign('people_total', $people_count);
+					
 					$tpl->display('file:' . dirname(__FILE__) . '/templates/contacts/orgs/display.tpl.php');
 					
 				} else { // list
@@ -4360,6 +4386,12 @@ class ChContactsPage extends CerberusPageExtension {
 
 		$tickets_view = C4_AbstractViewLoader::getView('','contact_history');
 		
+		// All org contacts
+		$people = DAO_Address::getWhere(sprintf("%s = %d",
+			DAO_Address::CONTACT_ORG_ID,
+			$contact->id
+		));
+		
 		if(null == $tickets_view) {
 			$tickets_view = new C4_TicketView();
 			$tickets_view->id = 'contact_history';
@@ -4379,10 +4411,9 @@ class ChContactsPage extends CerberusPageExtension {
 			$tickets_view->renderSortAsc = false;
 		}
 
-		// [TODO] Change over from org_id to contacts<->requesters so we can also see 'sent'?
-		@$tickets_view->name = "From: " . htmlentities($contact->name);
+		@$tickets_view->name = "Requesters: " . htmlentities($contact->name) . ' - ' . intval(count($people)) . ' contact(s)';
 		$tickets_view->params = array(
-			SearchFields_Ticket::TICKET_FIRST_CONTACT_ORG_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_FIRST_CONTACT_ORG_ID,DevblocksSearchCriteria::OPER_EQ,$contact->id),
+			SearchFields_Ticket::REQUESTER_ID => new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ID,'in',array_keys($people)),
 			SearchFields_Ticket::TICKET_DELETED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,DevblocksSearchCriteria::OPER_EQ,0)
 		);
 		$tpl->assign('contact_history', $tickets_view);
@@ -4447,7 +4478,7 @@ class ChContactsPage extends CerberusPageExtension {
 				array(),
 				array(
 					new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',0),
-					new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_FIRST_WROTE_ID,'=',$address[SearchFields_Address::ID]),
+					new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ID,'=',$address[SearchFields_Address::ID]),
 				),
 				1
 			);
@@ -4457,7 +4488,7 @@ class ChContactsPage extends CerberusPageExtension {
 				array(),
 				array(
 					new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',1),
-					new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_FIRST_WROTE_ID,'=',$address[SearchFields_Address::ID]),
+					new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ID,'=',$address[SearchFields_Address::ID]),
 				),
 				1
 			);
@@ -4488,7 +4519,7 @@ class ChContactsPage extends CerberusPageExtension {
 		
 		$search_view->params = array(
 			SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',$closed),
-			SearchFields_Ticket::TICKET_FIRST_WROTE => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_FIRST_WROTE,'=',$address->email),
+			SearchFields_Ticket::REQUESTER_ADDRESS => new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ADDRESS,'=',$address->email),
 		);
 		$search_view->renderPage = 0;
 		
@@ -5461,12 +5492,15 @@ class ChRssController extends DevblocksControllerExtension {
 	function handleRequest(DevblocksHttpRequest $request) {
 		// [TODO] Do we want any concept of authentication here?
 
+
         $stack = $request->path;
         
-        array_shift($stack); // rss
+		$url = DevblocksPlatform::getUrlService();
+
+		array_shift($stack); // rss
         $hash = array_shift($stack);
 
-        $feed = DAO_TicketRss::getByHash($hash);
+		$feed = DAO_TicketRss::getByHash($hash);
         
         if(empty($feed)) {
             die("Bad feed data.");
@@ -5475,8 +5509,10 @@ class ChRssController extends DevblocksControllerExtension {
         // [TODO] Implement logins for the wiretap app
         header("Content-Type: text/xml");
 
+//        $self_feed_url = $url->write('c=rss&a='.$hash,true);
+        
         $xmlstr = <<<XML
-		<rss version='2.0'>
+		<rss version='2.0' xmlns:atom='http://www.w3.org/2005/Atom'>
 		</rss>
 XML;
 
@@ -5484,12 +5520,8 @@ XML;
 
         // Channel
         $channel = $xml->addChild('channel');
-        
         $channel->addChild('title', $feed->title);
-
-        $url = DevblocksPlatform::getUrlService();
         $channel->addChild('link', $url->write('',true));
-
         $channel->addChild('description', '');
 
 		list($tickets, $null) = DAO_Ticket::search(
@@ -5504,6 +5536,8 @@ XML;
 
         $translate = DevblocksPlatform::getTranslationService();
 
+        // [TODO] We should probably be building this feed with Zend Framework for compliance
+        
         foreach($tickets as $ticket) {
         	$created = intval($ticket[SearchFields_Ticket::TICKET_UPDATED_DATE]);
             if(empty($created)) $created = time();
@@ -5513,7 +5547,7 @@ XML;
             $escapedSubject = htmlentities($ticket[SearchFields_Ticket::TICKET_SUBJECT]);
             //filter out a couple non-UTF-8 characters (0xC and ESC)
             $escapedSubject = preg_replace("/[]/", '', $escapedSubject);
-            $eTitle = $eItem->addChild('title',$escapedSubject );
+            $eTitle = $eItem->addChild('title', $escapedSubject);
 
             $eDesc = $eItem->addChild('description', $this->_getTicketLastAction($ticket));
             
@@ -5521,9 +5555,10 @@ XML;
             $link = $url->write('c=display&id='.$ticket[SearchFields_Ticket::TICKET_MASK], true);
             $eLink = $eItem->addChild('link', $link);
             	
-            $eDate = $eItem->addChild('pubDate', gmdate('D, d M Y H:i:s T',$created));
+            $eDate = $eItem->addChild('pubDate', gmdate('D, d M Y H:i:s T', $created));
             
-            $eGuid = $eItem->addChild('guid', md5($escapedSubject .$created));
+            $eGuid = $eItem->addChild('guid', md5($escapedSubject . $link . $created));
+            $eGuid->addAttribute('isPermaLink', "false");
         }
 
         echo $xml->asXML();
@@ -5828,6 +5863,8 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
 		@$columns = DevblocksPlatform::importGPC($_REQUEST['columns'],'array', array());
 		@$num_rows = DevblocksPlatform::importGPC($_REQUEST['num_rows'],'integer',10);
+		
+		$num_rows = max($num_rows, 1); // make 1 the minimum
 		
 		$view = C4_AbstractViewLoader::getView('', $id);
 		$view->doCustomize($columns, $num_rows);
@@ -6613,6 +6650,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		
 		$ticket = DAO_Ticket::getTicket($ticket_id);
+		$requesters = $ticket->getRequesters();
 		
 		$contact = DAO_Address::get($ticket->first_wrote_address_id);
 		$tpl->assign('contact', $contact);
@@ -6639,9 +6677,9 @@ class ChDisplayPage extends CerberusPageExtension {
 			$view->renderSortAsc = false;
 		}
 
-		$view->name = "Requester: " . htmlentities($contact->email);
+		$view->name = 'Requester History: ' . intval(count($requesters)) . ' contact(s)';
 		$view->params = array(
-			SearchFields_Ticket::REQUESTER_ID => new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ID,DevblocksSearchCriteria::OPER_EQ,$contact->id),
+			SearchFields_Ticket::REQUESTER_ID => new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ID,'in',array_keys($requesters)),
 			SearchFields_Ticket::TICKET_DELETED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,DevblocksSearchCriteria::OPER_EQ,0)
 		);
 		$tpl->assign('view', $view);

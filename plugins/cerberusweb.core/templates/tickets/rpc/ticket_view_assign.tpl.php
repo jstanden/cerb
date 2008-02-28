@@ -7,11 +7,17 @@
 
 <H2>Quick Assign</H2>
 
-There are <b>{$num_assignable}</b> assignable tickets in this list.  They will be assigned by their service level priority.<br>
+There are <b>{$num_assignable}</b> assignable tickets in this list.<br>
 <br>
 
-<b>Take how many?</b><br>
-<input type="text" name="how_many" size="3" value="5" maxlength="3"><br>
+<b>Take how many:</b><br>
+<input type="text" name="how_many" size="3" value="{$assign_howmany}" maxlength="3"><br>
+<br>
+
+<b>Assignment priority:</b><br>
+<label><input type="radio" name="type" value="sla" {if $assign_type=="sla"}checked{/if}> Service Level Priority</label>
+<label><input type="radio" name="type" value="age" {if $assign_type!="sla"}checked{/if}> Oldest Tickets</label>
+<br>
 <br>
 
 <button type="submit" style="">Assign to Me</button>

@@ -20,7 +20,12 @@ class ChAuditLogEventListener extends DevblocksEventListenerExtension {
      */
     function handleEvent(Model_DevblocksEvent $event) {
         switch($event->id) {
-            case 'ticket.property.changed':
+            case 'ticket.delete':
+            	@$ticket_ids = $event->params['ticket_ids'];
+            	DAO_TicketAuditLog::deleteByTicketIds($ticket_ids);
+            	break;
+            	
+            case 'ticket.property.pre_change':
             	@$ticket_ids = $event->params['ticket_ids'];
             	@$changed_fields = $event->params['changed_fields'];
 
@@ -187,6 +192,15 @@ class DAO_TicketAuditLog extends DevblocksORMHelper {
 		$ids_list = implode(',', $ids);
 		
 		$db->Execute(sprintf("DELETE FROM ticket_audit_log WHERE id IN (%s)", $ids_list));
+	}
+	
+	public static function deleteByTicketIds($ids) {
+		if(!is_array($ids)) $ids = array($ids);
+		
+		$db = DevblocksPlatform::getDatabaseService();
+		$ids_list = implode(',', $ids);
+		
+		$db->Execute(sprintf("DELETE FROM ticket_audit_log WHERE ticket_id IN (%s)", $ids_list));
 	}
 	
     /**
