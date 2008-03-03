@@ -52,6 +52,7 @@ class ParseCron extends CerberusCronPageExtension {
     function scanDirMessages($dir) {
         if(substr($dir,-1,1) != DIRECTORY_SEPARATOR) $dir .= DIRECTORY_SEPARATOR;
         $files = glob($dir . '*.msg');
+        if ($files === false) return array();
         return $files;
     }
     
@@ -72,6 +73,7 @@ class ParseCron extends CerberusCronPageExtension {
         
         $mailDir = APP_MAIL_PATH . 'new' . DIRECTORY_SEPARATOR;
 	    $subdirs = glob($mailDir . '*', GLOB_ONLYDIR);
+	    if ($subdirs === false) $subdirs = array();
 	    $subdirs[] = $mailDir; // Add our root directory last
 
 	    foreach($subdirs as $subdir) {
@@ -196,11 +198,13 @@ class MaintCron extends CerberusCronPageExtension {
 	    // [mdf] Remove any empty directories inside storage/mail/new
         $mailDir = APP_MAIL_PATH . 'new' . DIRECTORY_SEPARATOR;
 	    $subdirs = glob($mailDir . '*', GLOB_ONLYDIR);
-    	foreach($subdirs as $subdir) {
-    		$directory_empty = count(glob($subdir. DIRECTORY_SEPARATOR . '*')) === 0;
-    		if($directory_empty && is_writeable($subdir)) {
-    			rmdir($subdir);
-    		}
+	    if ($subdirs !== false) {
+	    	foreach($subdirs as $subdir) {
+	    		$directory_empty = count(glob($subdir. DIRECTORY_SEPARATOR . '*')) === 0; // this glob() doesn't need protected, because count(false) returns 1, and so it won't try to remove the directory it errored out on reading.
+	    		if($directory_empty && is_writeable($subdir)) {
+	    			rmdir($subdir);
+	    		}
+		    }
 	    }
 	    
 		// Recover any tickets assigned to a NULL bucket
