@@ -36,11 +36,7 @@
 		</td>
 		<td>
 			<b>How Many?</b><br>
-			<select name="how_many">
-				{foreach from=$how_many_opts item=num}
-					<option value="{$num}">{$num}
-				{/foreach}
-			</select>
+			<input type="text" name="how_many" size="4" maxlength="3" value="25">
 		</td>
 	</tr>
 </table>

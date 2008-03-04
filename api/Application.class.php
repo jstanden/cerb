@@ -48,7 +48,7 @@
  * 		and Joe Geck.
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-define("APP_BUILD", 558);
+define("APP_BUILD", 560);
 define("APP_MAIL_PATH", realpath(APP_PATH . '/storage/mail') . DIRECTORY_SEPARATOR);
 
 include_once(APP_PATH . "/api/DAO.class.php");
@@ -120,6 +120,150 @@ class CerberusApplication extends DevblocksApplication {
 			? $visit->getWorker()
 			: null
 			;
+	}
+	
+	static function checkRequirements() {
+//		@chmod(DEVBLOCKS_PATH . 'tmp/', 0774);
+//		@chmod(DEVBLOCKS_PATH . 'tmp/templates_c/', 0774);
+//		@chmod(DEVBLOCKS_PATH . 'tmp/cache/', 0774);
+		
+		$errors = array();
+		
+		// Privileges
+		
+		// Make sure the temporary directories of Devblocks are writeable.
+		if(!is_writeable(DEVBLOCKS_PATH . "tmp/")) {
+			$errors[] = realpath(DEVBLOCKS_PATH . "tmp/") ." is not writeable by the webserver.  Please adjust permissions and reload this page.";
+		}
+		
+		if(!is_writeable(DEVBLOCKS_PATH . "tmp/templates_c/")) {
+			$errors[] = realpath(DEVBLOCKS_PATH . "tmp/templates_c/") . " is not writeable by the webserver.  Please adjust permissions and reload this page.";
+		}
+		
+		if(!is_writeable(DEVBLOCKS_PATH . "tmp/cache/")) {
+			$errors[] = realpath(DEVBLOCKS_PATH . "tmp/cache/") . " is not writeable by the webserver.  Please adjust permissions and reload this page.";
+		}
+		
+//		@chmod(APP_PATH . '/storage/', 0774);
+//		@chmod(APP_PATH . '/storage/attachments/', 0774);
+//		@chmod(APP_PATH . '/storage/mail/new/', 0774);
+//		@chmod(APP_PATH . '/storage/mail/fail/', 0774);
+//		@chmod(APP_PATH . '/storage/indexes/', 0774);
+		
+		if(!is_writeable(APP_PATH . "/storage/")) {
+			$errors[] = realpath(APP_PATH . "/storage/") ." is not writeable by the webserver.  Please adjust permissions and reload this page.";
+		}
+		
+		if(!is_writeable(APP_PATH . "/storage/attachments/")) {
+			$errors[] = realpath(APP_PATH . "/storage/attachments/") ." is not writeable by the webserver.  Please adjust permissions and reload this page.";
+		}
+		
+		if(!is_writeable(APP_PATH . "/storage/mail/new/")) {
+			$errors[] = realpath(APP_PATH . "/storage/mail/new/") ." is not writeable by the webserver.  Please adjust permissions and reload this page.";
+		}
+		
+		if(!is_writeable(APP_PATH . "/storage/mail/fail/")) {
+			$errors[] = realpath(APP_PATH . "/storage/mail/fail/") ." is not writeable by the webserver.  Please adjust permissions and reload this page.";
+		}
+		
+		if(!is_writeable(APP_PATH . "/storage/indexes/")) {
+			$errors[] = realpath(APP_PATH . "/storage/indexes/") ." is not writeable by the webserver.  Please adjust permissions and reload this page.";
+		}
+		
+		// Requirements
+		
+		// PHP Version
+		if(version_compare(PHP_VERSION,"5.1.4") >=0) {
+		} else {
+			$errors[] = 'Cerberus Helpdesk 4.0 requires PHP 5.1.4 or later. Your server PHP version is '.PHP_VERSION;
+		}
+		
+		// File Uploads
+		$ini_file_uploads = ini_get("file_uploads");
+		if($ini_file_uploads == 1 || strcasecmp($ini_file_uploads,"on")==0) {
+		} else {
+			$errors[] = 'file_uploads is disabled in your php.ini file. Please enable it.';
+		}
+		
+		// File Upload Temporary Directory
+		$ini_upload_tmp_dir = ini_get("upload_tmp_dir");
+		if(!empty($ini_upload_tmp_dir)) {
+		} else {
+			$errors[] = 'upload_tmp_dir is empty in your php.ini file.	Please set it.';
+		}
+		
+		// Memory Limit
+		$memory_limit = ini_get("memory_limit");
+		if ($memory_limit == '') { // empty string means failure or not defined, assume no compiled memory limits
+		} else {
+			$ini_memory_limit = intval($memory_limit);
+			if($ini_memory_limit >= 16) {
+			} else {
+				$errors[] = 'memory_limit must be 16M or larger in your php.ini file.  Please increase it.';
+			}
+		}
+		
+		// Extension: Sessions
+		if(extension_loaded("session")) {
+		} else {
+			$errors[] = "The 'Session' PHP extension is required.  Please enable it.";
+		}
+		
+		// Extension: PCRE
+		if(extension_loaded("pcre")) {
+		} else {
+			$errors[] = "The 'PCRE' PHP extension is required.  Please enable it.";
+		}
+		
+		// Extension: GD
+		if(extension_loaded("gd") && function_exists('imagettfbbox')) {
+		} else {
+			$errors[] = "The 'GD' PHP extension (with FreeType library support) is required.  Please enable them.";
+		}
+		
+		// Extension: IMAP
+		if(extension_loaded("imap")) {
+		} else {
+			$errors[] = "The 'IMAP' PHP extension is required.  Please enable it.";
+		}
+		
+		// Extension: MailParse
+		if(extension_loaded("mailparse")) {
+		} else {
+			$errors[] = "The 'MailParse' PHP extension is required.  Please enable it.";
+		}
+		
+		// Extension: mbstring
+		if(extension_loaded("mbstring")) {
+		} else {
+			$errors[] = "The 'MbString' PHP extension is required.  Please	enable it.";
+		}
+		
+		// Extension: XML
+		if(extension_loaded("xml")) {
+		} else {
+			$errors[] = "The 'XML' PHP extension is required.  Please enable it.";
+		}
+		
+		// Extension: SimpleXML
+		if(extension_loaded("simplexml")) {
+		} else {
+			$errors[] = "The 'SimpleXML' PHP extension is required.  Please enable it.";
+		}
+		
+		// Extension: DOM
+		if(extension_loaded("dom")) {
+		} else {
+			$errors[] = "The 'DOM' PHP extension is required.  Please enable it.";
+		}
+		
+		// Extension: SPL
+		if(extension_loaded("spl")) {
+		} else {
+			$errors[] = "The 'SPL' PHP extension is required.  Please enable it.";
+		}
+		
+		return $errors;
 	}
 	
 	static function generatePassword($length=8) {

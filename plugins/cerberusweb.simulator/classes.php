@@ -91,14 +91,6 @@ class ChSimulatorPage extends CerberusPageExtension {
 		);
 		$tpl->assign('flavors', $flavors);
 		
-		$how_many_opts = array(
-			5,
-			25,
-			50,
-			100
-		);
-		$tpl->assign('how_many_opts', $how_many_opts);
-		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/index.tpl.php');
 	}
 	
@@ -108,7 +100,7 @@ class ChSimulatorPage extends CerberusPageExtension {
 		
 		@$address = DevblocksPlatform::importGPC($_POST['address'],'string'); 
 		@$dataset = DevblocksPlatform::importGPC($_POST['dataset'],'string');
-		@$how_many = DevblocksPlatform::importGPC($_POST['how_many'],'integer');
+		@$how_many = DevblocksPlatform::importGPC($_POST['how_many'],'integer',0);
 
 		if(empty($address)) {
 			$tpl->assign('error', sprintf("Oops! '%s' is not a valid e-mail address.", htmlentities($address)));

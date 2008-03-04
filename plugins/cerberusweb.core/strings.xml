@@ -354,7 +354,7 @@
 
 		<tu tuid='header.config'>
 			<tuv xml:lang="en">
-				<seg>helpdesk config</seg>
+				<seg>helpdesk setup</seg>
 			</tuv>
 		</tu>
 		<tu tuid='header.history'>

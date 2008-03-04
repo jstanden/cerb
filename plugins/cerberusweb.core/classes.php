@@ -317,6 +317,8 @@ class ChTicketsPage extends CerberusPageExtension {
 			case 'overview':
 			case 'lists':
 			case 'search':
+			case 'create':
+			case 'compose':
 				$visit->set(CerberusVisit::KEY_MAIL_MODE, $section);
 				break;
 			case NULL:
@@ -359,20 +361,9 @@ class ChTicketsPage extends CerberusPageExtension {
 				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/search/index.tpl.php');
 				break;
 				
-//			case 'create':
-//				$teams = DAO_Group::getAll();
-//				
-//				$team_id = $visit->get(CerberusVisit::KEY_WORKSPACE_GROUP_ID, 0);
-//				if($team_id) {
-//					$tpl->assign('team', $teams[$team_id]);
-//				}
-//				
-//				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/create/index.tpl.php');
-//				break;
-			
-			case 'compose':
-				$settings = CerberusSettings::getInstance();
+			case 'create':
 				$teams = DAO_Group::getAll();
+				$tpl->assign('teams', $teams);
 				
 				if($visit->exists('compose.last_ticket')) {
 					$ticket_mask = $visit->get('compose.last_ticket');
@@ -380,23 +371,19 @@ class ChTicketsPage extends CerberusPageExtension {
 					$visit->set('compose.last_ticket',null); // clear
 				}
 				
-				$worker = CerberusApplication::getActiveWorker();
-				foreach($teams as $team){
-					$team->signature = rawurlencode(str_replace(
-			        	array('#first_name#','#last_name#','#title#'),
-			        	array($worker->first_name,$worker->last_name,$worker->title),
-			        	$team->signature
-			        ));
-				}
-				
+				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/create/index.tpl.php');
+				break;
+			
+			case 'compose':
+				$settings = CerberusSettings::getInstance();
+				$teams = DAO_Group::getAll();
 				$tpl->assign_by_ref('teams', $teams);
 				
-				$default_sig = $settings->get(CerberusSettings::DEFAULT_SIGNATURE,'');
-				$tpl->assign('default_sig',rawurlencode(str_replace(
-		        	array('#first_name#','#last_name#','#title#'),
-		        	array($worker->first_name,$worker->last_name,$worker->title),
-		        	$default_sig
-		        )));
+				if($visit->exists('compose.last_ticket')) {
+					$ticket_mask = $visit->get('compose.last_ticket');
+					$tpl->assign('last_ticket_mask', $ticket_mask);
+					$visit->set('compose.last_ticket',null); // clear
+				}
 				
 				$team_categories = DAO_Bucket::getTeams();
 				$tpl->assign('team_categories', $team_categories);
@@ -1409,55 +1396,56 @@ class ChTicketsPage extends CerberusPageExtension {
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets','compose')));
 	}
 	
-	// [TODO] Nuke the message_id redundancy here, and such
-	function createTicketAction() {
-		//require_once(DEVBLOCKS_PATH . 'libs/pear/mimeDecode.php');
-
-		$settings = CerberusSettings::getInstance();
-		$to = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM);
-		
+	function logTicketAction() {
 		@$team_id = DevblocksPlatform::importGPC($_POST['team_id'],'integer'); 
-		@$from = DevblocksPlatform::importGPC($_POST['from'],'string');
+		@$to = DevblocksPlatform::importGPC($_POST['to'],'string');
 		@$subject = DevblocksPlatform::importGPC($_POST['subject'],'string');
 		@$content = DevblocksPlatform::importGPC($_POST['content'],'string');
 		@$files = $_FILES['attachment'];
 		
-		$team = DAO_Group::getTeam($team_id);
-
-		$message = new CerberusParserMessage();
-		$message->headers['from'] = $from;
-		$message->headers['to'] = $to;
-		$message->headers['subject'] = $subject;
-		$message->headers['date'] = date('r');
+		@$closed = DevblocksPlatform::importGPC($_POST['closed'],'integer',0);
+		@$move_bucket = DevblocksPlatform::importGPC($_POST['bucket_id'],'string','');
+		@$next_worker_id = DevblocksPlatform::importGPC($_POST['next_worker_id'],'integer',0);
+		@$next_action = DevblocksPlatform::importGPC($_POST['next_action'],'string','');
+		@$ticket_reopen = DevblocksPlatform::importGPC($_POST['ticket_reopen'],'string','');
 		
-		$message->body = $content;
-	    
-		$ticket_id = CerberusParser::parseMessage($message);
-
-//		list($messages,$null) = DAO_Ticket::getMessagesByTicket($ticket_id);
-//		$message = array_shift($messages); /* @var $message CerberusMessage */
-//		$message_id = $message->id;
-//		
-//		// if this message was submitted with attachments, store them in the filestore and link them to the message_id in the db.
-//		if (is_array($files) && !empty($files)) {
-//		
-//			/*
-//			// [TODO] This needs cleaned up
-//			if(is_array($files['tmp_name']))
-//			foreach ($files['tmp_name'] as $idx => $file) {
-//				copy($files['tmp_name'][$idx],$attachmentlocation.$message_id.$idx);
-//				DAO_Ticket::createAttachment($message_id, $files['name'][$idx], $message_id.$idx);
-//			}
-//			*/
-//		}
+		if(DEMO_MODE) {
+			DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets','create')));
+			return;
+		}
 		
-		// Routing override
-		DAO_Ticket::updateTicket($ticket_id,array(
-			DAO_Ticket::TEAM_ID => $team_id
-		));
+		if(empty($to) || empty($team_id)) {
+			DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets','create')));
+			return;
+		}
+		
+		// [TODO] "Opened/sent on behalf of..."
+		
+		$properties = array(
+			'team_id' => $team_id,
+			'to' => $to,
+//			'cc' => $cc,
+//			'bcc' => $bcc,
+			'subject' => $subject,
+			'content' => $content,
+			'files' => $files,
+			'closed' => $closed,
+			'move_bucket' => $move_bucket,
+			'next_worker_id' => $next_worker_id,
+			'next_action' => $next_action,
+			'ticket_reopen' => $ticket_reopen,
+			'no_mail' => true,
+		);
+		
+		$ticket_id = CerberusMail::compose($properties);
+		
+		$ticket = DAO_Ticket::getTicket($ticket_id);
 
+		$visit = CerberusApplication::getVisit(); /* @var CerberusVisit $visit */
+		$visit->set('compose.last_ticket', $ticket->mask);
+		
 		//DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('display',$ticket_id)));
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('display',$ticket_id)));
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets','create')));
 	}
 	
 	function showViewCopyAction() {
@@ -5686,6 +5674,268 @@ class ChUpdateController extends DevblocksControllerExtension {
 		exit;
 	}
 }
+
+class ChDebugController extends DevblocksControllerExtension  {
+	function __construct($manifest) {
+		parent::__construct($manifest);
+		$router = DevblocksPlatform::getRoutingService();
+		$router->addRoute('debug','core.controller.debug');
+	}
+		
+	/*
+	 * Request Overload
+	 */
+	function handleRequest(DevblocksHttpRequest $request) {
+	    @set_time_limit(0); // no timelimit (when possible)
+
+	    $stack = $request->path;
+	    array_shift($stack); // update
+
+//	    $cache = DevblocksPlatform::getCacheService(); /* @var $cache Zend_Cache_Core */
+		$settings = CerberusSettings::getInstance();
+
+		$authorized_ips_str = $settings->get(CerberusSettings::AUTHORIZED_IPS);
+		$authorized_ips = DevblocksPlatform::parseCrlfString($authorized_ips_str);
+	    
+		$authorized_ip_defaults = DevblocksPlatform::parseCsvString(AUTHORIZED_IPS_DEFAULTS);
+		$authorized_ips = array_merge($authorized_ips, $authorized_ip_defaults);
+	    
+	    // Is this IP authorized?
+	    $pass = false;
+		foreach ($authorized_ips as $ip) {
+			if(substr($ip,0,strlen($ip)) == substr($_SERVER['REMOTE_ADDR'],0,strlen($ip))) { 
+				$pass = true; 
+				break;
+			}
+		}
+		
+	    if(!$pass) {
+		    echo 'Your IP address ('.$_SERVER['REMOTE_ADDR'].') is not authorized to debug this helpdesk.';
+		    return;
+	    }
+		
+	    switch(array_shift($stack)) {
+	    	case 'phpinfo':
+	    		phpinfo();
+	    		break;
+	    		
+	    	case 'check':
+				echo sprintf(
+					"<html>
+					<head>
+						<title></title>
+						<style>
+							BODY {font-family: Arial, Helvetica, sans-serif; font-size: 12px;}
+							FORM {margin:0px; } 
+							H1 { margin:0px; }
+							.fail {color:red;font-weight:bold;}
+							.pass {color:green;font-weight:bold;}
+						</style>
+					</head>
+					<body>
+						<h1>Cerberus Helpdesk - Requirements Checker:</h1>
+					"
+				);
+
+				$errors = CerberusApplication::checkRequirements();
+
+				if(!empty($errors)) {
+					echo "<ul class='fail'>";
+					foreach($errors as $error) {
+						echo sprintf("<li>%s</li>",$error);
+					}
+					echo "</ul>";
+					
+				} else {
+					echo '<span class="pass">Your server is compatible with Cerberus Helpdesk 4.0!</span>';
+				}
+				
+				echo sprintf("
+					</body>
+					</html>
+				");
+	    		
+	    		break;
+	    		
+	    	case 'report':
+	    		@$db = DevblocksPlatform::getDatabaseService();
+	    		@$settings = CerberusSettings::getInstance();
+	    		
+	    		@$tables = $db->MetaTables('TABLE',false);
+	    		
+				$report_output = sprintf(
+					"[Cerberus Helpdesk] App Build: %s\n".
+					"[Cerberus Helpdesk] Devblocks Build: %s\n".
+					"[Cerberus Helpdesk] URL-Rewrite: %s\n".
+					"\n".
+					"[Privs] libs/devblocks/tmp: %s\n".
+					"[Privs] libs/devblocks/tmp/templates_c: %s\n".
+					"[Privs] libs/devblocks/tmp/cache: %s\n".
+					"[Privs] storage/attachments: %s\n".
+					"[Privs] storage/mail/new: %s\n".
+					"[Privs] storage/mail/fail: %s\n".
+					"[Privs] storage/indexes: %s\n".
+					"\n".
+					"[PHP] Version: %s\n".
+					"[PHP] OS: %s\n".
+					"[PHP] SAPI: %s\n".
+					"\n".
+					"[php.ini] safe_mode: %s\n".
+					"[php.ini] max_execution_time: %s\n".
+					"[php.ini] memory_limit: %s\n".
+					"[php.ini] file_uploads: %s\n".
+					"[php.ini] upload_max_filesize: %s\n".
+					"[php.ini] post_max_size: %s\n".
+					"\n".
+					"[PHP:Extension] MySQL: %s\n".
+					"[PHP:Extension] PostgreSQL: %s\n".
+					"[PHP:Extension] MailParse: %s\n".
+					"[PHP:Extension] IMAP: %s\n".
+					"[PHP:Extension] Session: %s\n".
+					"[PHP:Extension] PCRE: %s\n".
+					"[PHP:Extension] GD: %s\n".
+					"[PHP:Extension] mbstring: %s\n".
+					"[PHP:Extension] XML: %s\n".
+					"[PHP:Extension] SimpleXML: %s\n".
+					"[PHP:Extension] DOM: %s\n".
+					"[PHP:Extension] SPL: %s\n".
+					"\n".
+					'%s',
+					APP_BUILD,
+					PLATFORM_BUILD,
+					(file_exists(APP_PATH . '/.htaccess') ? 'YES' : 'NO'),
+					substr(sprintf('%o', fileperms(DEVBLOCKS_PATH.'tmp')), -4),
+					substr(sprintf('%o', fileperms(DEVBLOCKS_PATH.'tmp/templates_c')), -4),
+					substr(sprintf('%o', fileperms(DEVBLOCKS_PATH.'tmp/cache')), -4),
+					substr(sprintf('%o', fileperms(APP_PATH.'/storage/attachments')), -4),
+					substr(sprintf('%o', fileperms(APP_PATH.'/storage/mail/new')), -4),
+					substr(sprintf('%o', fileperms(APP_PATH.'/storage/mail/fail')), -4),
+					substr(sprintf('%o', fileperms(APP_PATH.'/storage/indexes')), -4),
+					PHP_VERSION,
+					PHP_OS . ' (' . php_uname() . ')',
+					php_sapi_name(),
+					ini_get('safe_mode'),
+					ini_get('max_execution_time'),
+					ini_get('memory_limit'),
+					ini_get('file_uploads'),
+					ini_get('upload_max_filesize'),
+					ini_get('post_max_size'),
+					(extension_loaded("mysql") ? 'YES' : 'NO'),
+					(extension_loaded("postgresql") ? 'YES' : 'NO'),
+					(extension_loaded("mailparse") ? 'YES' : 'NO'),
+					(extension_loaded("imap") ? 'YES' : 'NO'),
+					(extension_loaded("session") ? 'YES' : 'NO'),
+					(extension_loaded("pcre") ? 'YES' : 'NO'),
+					(extension_loaded("gd") ? 'YES' : 'NO'),
+					(extension_loaded("mbstring") ? 'YES' : 'NO'),
+					(extension_loaded("xml") ? 'YES' : 'NO'),
+					(extension_loaded("simplexml") ? 'YES' : 'NO'),
+					(extension_loaded("dom") ? 'YES' : 'NO'),
+					(extension_loaded("spl") ? 'YES' : 'NO'),
+					''
+				);
+				
+				if(!empty($settings)) {
+					$report_output .= sprintf(
+						"[Setting] HELPDESK_TITLE: %s\n".
+						"[Setting] DEFAULT_REPLY_FROM: %s\n".
+						"[Setting] DEFAULT_REPLY_PERSONAL: %s\n".
+						"[Setting] SMTP_HOST: %s\n".
+						"[Setting] SMTP_PORT: %s\n".
+						"[Setting] SMTP_ENCRYPTION_TYPE: %s\n".
+						"\n".
+						'%s',
+						$settings->get(CerberusSettings::HELPDESK_TITLE,''),
+						str_replace(array('@','.'),array(' at ',' dot '),$settings->get(CerberusSettings::DEFAULT_REPLY_FROM,'')),
+						$settings->get(CerberusSettings::DEFAULT_REPLY_PERSONAL,''),
+						$settings->get(CerberusSettings::SMTP_HOST,''),
+						$settings->get(CerberusSettings::SMTP_PORT,''),
+						$settings->get(CerberusSettings::SMTP_ENCRYPTION_TYPE,''),
+						''
+					);
+				}
+				
+				if(is_array($tables) && !empty($tables)) {
+					$report_output .= sprintf(
+						"[Stats] # Workers: %s\n".
+						"[Stats] # Groups: %s\n".
+						"[Stats] # Tickets: %s\n".
+						"[Stats] # Messages: %s\n".
+						"\n".
+						"[Database] Tables:\n * %s\n".
+						"\n".
+						'%s',
+						intval($db->getOne('SELECT count(id) FROM worker')),
+						intval($db->getOne('SELECT count(id) FROM team')),
+						intval($db->getOne('SELECT count(id) FROM ticket')),
+						intval($db->getOne('SELECT count(id) FROM message')),
+						implode("\n * ",array_values($tables)),
+						''
+					);
+				}
+				
+				echo sprintf(
+					"<html>
+					<head>
+						<title></title>
+						<style>
+							BODY {font-family: Arial, Helvetica, sans-serif; font-size: 12px;}
+							FORM {margin:0px; } 
+							H1 { margin:0px; }
+							.fail {color:red;font-weight:bold;}
+							.pass {color:green;font-weight:bold;}
+						</style>
+					</head>
+					<body>
+						<form>
+							<h1>Cerberus Helpdesk - Debug Report:</h1>
+							<textarea rows='25' cols='100'>%s</textarea>
+						</form>	
+					</body>
+					</html>
+					",
+				$report_output
+				);
+	    		
+				break;
+				
+	    	default:
+	    		$url_service = DevblocksPlatform::getUrlService();
+	    		
+				echo sprintf(
+					"<html>
+					<head>
+						<title></title>
+						<style>
+							BODY {font-family: Arial, Helvetica, sans-serif; font-size: 12px;}
+							FORM {margin:0px; } 
+							H1 { margin:0px; }
+						</style>
+					</head>
+					<body>
+						<form>
+							<h1>Cerberus Helpdesk - Debug Menu:</h1>
+							<ul>
+								<li><a href='%s'>Requirements Checker</a></li>
+								<li><a href='%s'>Debug Report (for technical support)</a></li>
+								<li><a href='%s'>phpinfo()</a></li>
+							</ul>
+						</form>	
+					</body>
+					</html>
+					"
+					,
+					$url_service->write('c=debug&a=check'),
+					$url_service->write('c=debug&a=report'),
+					$url_service->write('c=debug&a=phpinfo')
+				);
+	    		break;
+	    }
+	    
+		exit;
+	}
+	
+};
 
 class ChInternalController extends DevblocksControllerExtension {
 	const ID = 'core.controller.internal';

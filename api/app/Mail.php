@@ -89,6 +89,8 @@ class CerberusMail {
 		@$content = $properties['content'];
 		@$files = $properties['files'];
 
+		@$no_mail = $properties['no_mail'];
+		
 		@$closed = $properties['closed'];
 		@$bucket_id = $properties['bucket_id'];
 		@$next_worker_id = $properties['next_worker_id'];
@@ -106,71 +108,93 @@ class CerberusMail {
 		$personal = !empty($team_personal) ? $team_personal : $default_personal;
 
 		if(empty($subject)) $subject = '(no subject)';
+
+		$toList = DevblocksPlatform::parseCsvString($toStr);
+		
+		$mail_headers = array();
+		$mail_headers['X-CerberusCompose'] = '1';
 		
 		$mail_succeeded = true;
-		try {
-			$toList = DevblocksPlatform::parseCsvString($toStr);
+		if(!empty($no_mail)) { // allow compose without sending mail
+			// Headers needed for the ticket message
+			$mail_headers['To'] = $toStr; 
+			$mail_headers['From'] = !empty($personal) ? (sprintf("%s <%s>",$personal,$from)) : (sprintf('%s',$from)); 
+			$mail_headers['Subject'] = $subject; 
+			$mail_headers['Date'] = gmdate('r'); 
 			
-			$sendTo = new Swift_RecipientList();
-			foreach($toList as $to)
-				$sendTo->addTo($to);
-			
-			$sendFrom = new Swift_Address($from, $personal);
-			
-			$mail_service = DevblocksPlatform::getMailService();
-			$mailer = $mail_service->getMailer();
-			$email = $mail_service->createMessage();
-	
-			$email->setTo($toList);
-			
-			// cc
-			$ccs = array();
-			if(!empty($cc) && null != ($ccList = DevblocksPlatform::parseCsvString($cc))) {
-				foreach($ccList as $ccAddy) {
-					$sendTo->addCc($ccAddy);
-					$ccs[] = new Swift_Address($ccAddy);
+		} else { // regular mail sending
+			try {
+				$sendTo = new Swift_RecipientList();
+				foreach($toList as $to)
+					$sendTo->addTo($to);
+				
+				$sendFrom = new Swift_Address($from, $personal);
+				
+				$mail_service = DevblocksPlatform::getMailService();
+				$mailer = $mail_service->getMailer();
+				$email = $mail_service->createMessage();
+		
+				$email->setTo($toList);
+				
+				// cc
+				$ccs = array();
+				if(!empty($cc) && null != ($ccList = DevblocksPlatform::parseCsvString($cc))) {
+					foreach($ccList as $ccAddy) {
+						$sendTo->addCc($ccAddy);
+						$ccs[] = new Swift_Address($ccAddy);
+					}
+					if(!empty($ccs))
+						$email->setCc($ccs);
 				}
-				if(!empty($ccs))
-					$email->setCc($ccs);
-			}
-			
-			// bcc
-			if(!empty($bcc) && null != ($bccList = DevblocksPlatform::parseCsvString($bcc))) {
-				foreach($bccList as $bccAddy) {
-					$sendTo->addBcc($bccAddy);
+				
+				// bcc
+				if(!empty($bcc) && null != ($bccList = DevblocksPlatform::parseCsvString($bcc))) {
+					foreach($bccList as $bccAddy) {
+						$sendTo->addBcc($bccAddy);
+					}
 				}
-			}
-			
-			$email->setFrom($sendFrom);
-			$email->setSubject($subject);
-			$email->generateId();
-			$email->headers->set('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
-			
-			$email->attach(new Swift_Message_Part($content));
-			
-			// [TODO] These attachments should probably save to the DB
-			
-			// Mime Attachments
-			if (is_array($files) && !empty($files)) {
-				foreach ($files['tmp_name'] as $idx => $file) {
-					if(empty($file) || empty($files['name'][$idx]))
-						continue;
-	
-					$email->attach(new Swift_Message_Attachment(
-						new Swift_File($file), $files['name'][$idx], $files['type'][$idx]));
+				
+				$email->setFrom($sendFrom);
+				$email->setSubject($subject);
+				$email->generateId();
+				$email->headers->set('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
+				
+				$email->attach(new Swift_Message_Part($content));
+				
+				// [TODO] These attachments should probably save to the DB
+				
+				// Mime Attachments
+				if (is_array($files) && !empty($files)) {
+					foreach ($files['tmp_name'] as $idx => $file) {
+						if(empty($file) || empty($files['name'][$idx]))
+							continue;
+		
+						$email->attach(new Swift_Message_Attachment(
+							new Swift_File($file), $files['name'][$idx], $files['type'][$idx]));
+					}
 				}
-			}
-			
-			// [TODO] Allow separated addresses (parseRfcAddress)
-	//		$mailer->log->enable();
-			if(!$mailer->send($email, $sendTo, $sendFrom)) {
+				
+				// [TODO] Allow separated addresses (parseRfcAddress)
+		//		$mailer->log->enable();
+				if(!$mailer->send($email, $sendTo, $sendFrom)) {
+					$mail_succeeded = false;
+					throw new Exception('Mail failed to send: unknown reason');
+				}
+		//		$mailer->log->dump();
+			} catch (Exception $e) {
+				// tag mail as failed, add note to message after message gets created			
 				$mail_succeeded = false;
-				throw new Exception('Mail failed to send: unknown reason');
 			}
-	//		$mailer->log->dump();
-		} catch (Exception $e) {
-			// tag mail as failed, add note to message after message gets created			
-			$mail_succeeded = false;
+
+		    // Headers
+		    if (!empty($email) && !empty($email->headers)) {
+				foreach($email->headers->getList() as $hdr => $v) {
+					if(null != ($hdr_val = $email->headers->getEncoded($hdr))) {
+						if(!empty($hdr_val))
+							$mail_headers[$hdr] = $hdr_val;
+					}
+				}
+		    }
 		}
 		
 		$worker = CerberusApplication::getActiveWorker();
@@ -178,6 +202,7 @@ class CerberusMail {
 		$fromAddressId = $fromAddressInst->id;
 		
 		// [TODO] this is redundant with the Parser code.  Should be refactored later
+		
 		// Is this address covered by an SLA?
 		$sla_id = 0;
 		$sla_priority = 0;
@@ -237,26 +262,25 @@ class CerberusMail {
 	    );
 		$message_id = DAO_Message::create($fields);
 	    
+		// Link Message to Ticket
+		DAO_Ticket::updateTicket($ticket_id, array(
+			DAO_Ticket::FIRST_MESSAGE_ID => $message_id,
+		));
+		
 		// Content
 	    DAO_MessageContent::update($message_id, $content);
 
-	    // Headers
-	    if (!empty($email) && !empty($email->headers)) {
-			foreach($email->headers->getList() as $hdr => $v) {
-				if(null != ($hdr_val = $email->headers->getEncoded($hdr))) {
-					if(!empty($hdr_val))
-		    			DAO_MessageHeader::update($message_id, $ticket_id, $hdr, $hdr_val);
-				}
-			}
-	    }
-		
 		// Set recipients to requesters
-		// [TODO] Allow seperated addresses (parseRfcAddress)
 		foreach($toList as $to) {
 			if(null != ($reqAddressInst = CerberusApplication::hashLookupAddress($to, true))) {
 				$reqAddressId = $reqAddressInst->id;
 				DAO_Ticket::createRequester($reqAddressId, $ticket_id);
 			}
+		}
+		
+		// Headers
+		foreach($mail_headers as $hdr => $hdr_val) {
+			DAO_MessageHeader::update($message_id, $ticket_id, $hdr, $hdr_val);			
 		}
 		
 		// add files to ticket

@@ -110,6 +110,8 @@ define('TOTAL_STEPS', 13);
  */
 if(empty($step)) $step = STEP_ENVIRONMENT;
 
+// [TODO] Could convert to CerberusApplication::checkRequirements()
+
 @chmod(DEVBLOCKS_PATH . 'tmp/', 0774);
 @chmod(DEVBLOCKS_PATH . 'tmp/templates_c/', 0774);
 @chmod(DEVBLOCKS_PATH . 'tmp/cache/', 0774);

@@ -165,27 +165,28 @@ class MaintCron extends CerberusCronPageExtension {
         $purge_waitdays = intval($this->getParam('purge_waitdays', 7));
         $purge_waitsecs = $purge_waitdays*24*60*60;
         
-        do {	    
-		    list($tickets, $null) = DAO_Ticket::search(
-		    	array(),
-		    	array(
-		            new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,'=',1),
-		            new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_UPDATED_DATE,DevblocksSearchCriteria::OPER_LT,time()-$purge_waitsecs)
-		        ),
-		        250,
-		        0,
-		        SearchFields_Ticket::TICKET_LAST_WROTE,
-		        0,
-		        false
-		    );
-	
-		    if(!empty($tickets)) {
-			    $purged += count($tickets);
-			    DAO_Ticket::delete(array_keys($tickets));
-		    }
-		    
-        } while(!empty($tickets) && ($purged < $max_purges));
-	    
+        $sql = sprintf("SELECT id FROM ticket WHERE is_deleted = 1 AND updated_date < %d ORDER BY updated_date",
+        	time()-$purge_waitsecs
+        );
+        $rs = $db->SelectLimit($sql,$max_purges);
+        
+        $purged = 0;
+        $buffer = array();
+        
+        while(!$rs->EOF) {
+        	$buffer[] = intval($rs->fields['id']);
+        	if(++$purged % 100) {
+        		DAO_Ticket::delete($buffer);
+        		$buffer = array();
+        	}
+        	$rs->MoveNext();
+        }
+        
+        if(!empty($buffer)) {
+	        DAO_Ticket::delete($buffer);
+	        $buffer = array();
+        }
+        
         echo "Deleted ", $purged, " tickets!<br>\r\n";
         
         // Nuke orphaned words from the Bayes index

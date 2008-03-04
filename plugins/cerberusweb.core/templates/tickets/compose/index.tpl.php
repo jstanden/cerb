@@ -1,36 +1,11 @@
 {include file="file:$path/tickets/submenu.tpl.php"}
 
-<table cellpadding="0" cellspacing="0" style="padding-bottom:5px;">
-<tr>
-	<td style="padding-right:5px;"><h1>Compose Mail</h1></td>
-	<td>
-	</td>
-</tr>
-</table>
 {if $smarty.const.DEMO_MODE}
 <div style="color:red;padding:2px;font-weight:bold;">NOTE: This helpdesk is in Demo Mode and mail will not be sent.</div>
 {/if}
 {if !empty($last_ticket_mask)}
-<div class="success">Your message has been sent! &nbsp; &nbsp; <a href="{devblocks_url}c=display&mask={$last_ticket_mask}{/devblocks_url}" style="font-weight:normal;color:rgb(80,80,80);">view</a></div>
+<div class="success">Message sent! &nbsp; &nbsp; <a href="{devblocks_url}c=display&mask={$last_ticket_mask}{/devblocks_url}" style="font-weight:normal;color:rgb(80,80,80);">View the message</a></div>
 {/if}
-
-{literal}
-<script language="javascript" type="text/javascript">
-	function getSig() {
-		var sigArray = new Array();
-		sigArray[0] = "{/literal}{$default_sig}{literal}";
-			{/literal}{foreach from=$teams item=team}{literal}
-		sigArray[{/literal}{$team->id}{literal}] = "{/literal}{$team->signature}{literal}";
-			{/literal}{/foreach}{literal}
-		
-		var group_id = document.getElementById('team_id').value;
-		var sigValue = sigArray[group_id];
-		if (sigValue == '') { sigValue = sigArray[0]; }
-		
-		return unescape(sigValue);
-	}
-</script>
-{/literal}
 
 <div class="block">
 <h2>Outgoing Message</h2>
@@ -44,7 +19,7 @@
 		<td>
 			<table cellpadding="1" cellspacing="0" border="0" width="100%">
 				<tr>
-					<td width="0%" nowrap="nowrap" valign="top"><b>From:</b></td>
+					<td width="0%" nowrap="nowrap" valign="middle" align="right"><b>From:</b>&nbsp;</td>
 					<td width="100%">
 						<select name="team_id" id="team_id" style="border:1px solid rgb(180,180,180);padding:2px;">
 							{foreach from=$active_worker_memberships item=membership key=group_id}
@@ -54,41 +29,41 @@
 					</td>
 				</tr>
 				<tr>
-					<td width="0%" nowrap="nowrap" valign="top"><b>To:</b>&nbsp; </td>
+					<td width="0%" nowrap="nowrap" valign="middle" align="right"><b>To:</b>&nbsp;</td>
 					<td width="100%">
-						<div id="emailautocomplete" style="width:50%;" class="yui-ac">
-							<input type="text" name="to" id="emailinput" value="{$to}" style="border:1px solid rgb(180,180,180);padding:2px;" class="yui-ac-input" autocomplete="off">
-							<div id="emailcontainer" class="yui-ac-container"></div>
-							<br>
-							<br>
+						<div id="emailautocomplete" style="width:98%;padding-bottom:2em;z-index:1;">
+							<input type="text" name="to" id="emailinput" value="{$to}" style="border:1px solid rgb(180,180,180);padding:2px;" autocomplete="off">
+							<div id="emailcontainer"></div>
 						</div>			
 					</td>
 				</tr>
 				<tr>
-					<td width="0%" nowrap="nowrap" valign="top">Cc:&nbsp; </td>
+					<td width="0%" nowrap="nowrap" valign="middle" align="right">Cc:&nbsp;</td>
 					<td width="100%">
-						<input type="text" size="100" name="cc" style="width:50%;border:1px solid rgb(180,180,180);padding:2px;">
+						<input type="text" size="100" name="cc" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;">
 					</td>
 				</tr>
 				<tr>
-					<td width="0%" nowrap="nowrap" valign="top">Bcc:&nbsp; </td>
+					<td width="0%" nowrap="nowrap" valign="middle" align="right">Bcc:&nbsp;</td>
 					<td width="100%">
-						<input type="text" size="100" name="bcc" style="width:50%;border:1px solid rgb(180,180,180);padding:2px;">
+						<input type="text" size="100" name="bcc" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;">
 					</td>
 				</tr>
 				<tr>
-					<td width="0%" nowrap="nowrap" valign="top"><b>Subject:</b></td>
+					<td width="0%" nowrap="nowrap" valign="middle" align="right"><b>Subject:</b>&nbsp;</td>
 					<td width="100%"><input type="text" size="100" name="subject" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;"></td>
 				</tr>
 				<tr>
-					<td width="0%" nowrap="nowrap" valign="top"><b>Message:</b></td>
+					<td width="0%" nowrap="nowrap" valign="top" align="right"><b>Message:</b>&nbsp;</td>
 					<td width="100%">
 						<textarea name="content" id="content" rows="15" cols="80" class="reply" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;"></textarea>
 					</td>
 				</tr>
 				<tr>
 					<td></td>
-					<td><button type="button" onclick="insertAtCursor(this.form.content,'\r\n'+getSig());"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_edit.gif{/devblocks_url}" align="top"> Insert Signature</button></td>
+					<td>
+						<button type="button" onclick="genericAjaxGet('','c=tickets&a=getComposeSignature&group_id='+selectValue(this.form.team_id),{literal}function(o){insertAtCursor(document.getElementById('content'),o.responseText);}{/literal});"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_edit.gif{/devblocks_url}" align="top"> Insert Signature</button>
+					</td>
 				</tr>
 				
 				<tr>

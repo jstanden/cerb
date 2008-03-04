@@ -139,6 +139,17 @@
 		</extension>
 
 		<extension point="devblocks.controller">
+			<id>core.controller.debug</id>
+			<name>Debug Controller</name>
+			<class>
+				<file>classes.php</file>
+				<name>ChDebugController</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
+		<extension point="devblocks.controller">
 			<id>core.controller.files</id>
 			<name>Files Controller</name>
 			<class>

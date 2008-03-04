@@ -1080,6 +1080,16 @@ if(!$rs->EOF) {
 	}
 }
 
+// Fix blank ticket.first_message_id links (compose)
+$rs = $db->Execute('select t.id,max(m.id) as max_id,min(m.id) as min_id from ticket t inner join message m on (m.ticket_id=t.id) where t.first_message_id = 0 group by t.id;');
+while(!$rs->EOF) {
+	$db->Execute(sprintf("UPDATE ticket SET first_message_id = %d WHERE id = %d",
+		$rs->fields['max_id'],
+		$rs->fields['id']
+	));
+	$rs->MoveNext();
+}
+
 // [TODO] This should probably be checked (though MySQL needs special BINARY syntax)
 $db->Execute("UPDATE address SET email = LOWER(email)");
 

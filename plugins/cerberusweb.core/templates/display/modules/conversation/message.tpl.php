@@ -20,9 +20,9 @@
       		</td>
       		<td align="right">
 		      {if !$expanded}
-				<a href="javascript:;" onclick="genericAjaxGet('{$message->id}t','c=display&a=getMessage&id={$message->id}',function(o){literal}{{/literal}document.getElementById('{$message->id}t').innerHTML = o.responseText;window.document.location='#{$message->id}t';{literal}}{/literal});">retrieve full message</a>
+				<a href="javascript:;" onclick="genericAjaxGet('{$message->id}t','c=display&a=getMessage&id={$message->id}',function(o){literal}{{/literal}document.getElementById('{$message->id}t').innerHTML = o.responseText;window.document.location='#{$message->id}t';{literal}}{/literal});">maximize</a>
 			  {else}
-			  	<a href="javascript:;" onclick="genericAjaxGet('{$message->id}t','c=display&a=getMessage&id={$message->id}&hide=1',function(o){literal}{{/literal}document.getElementById('{$message->id}t').innerHTML = o.responseText;window.document.location='#{$message->id}t';{literal}}{/literal});">hide message</a>
+			  	<a href="javascript:;" onclick="genericAjaxGet('{$message->id}t','c=display&a=getMessage&id={$message->id}&hide=1',function(o){literal}{{/literal}document.getElementById('{$message->id}t').innerHTML = o.responseText;window.document.location='#{$message->id}t';{literal}}{/literal});">minimize</a>
       		  {/if}
       		</td>
       	</tr>
@@ -72,7 +72,7 @@
 				      	&nbsp;
 				      	
 				      	{if $ticket->first_message_id != $message->id}
-				      	<a href="javascript:;" onclick="toggleDiv('{$message->id}options');">more &raquo;</a>
+				      		<a href="javascript:;" onclick="toggleDiv('{$message->id}options');">more &raquo;</a>
 				      	{/if}
 	      			</td>
 	      		</tr>

@@ -40,7 +40,7 @@
 					<form action="{devblocks_url}{/devblocks_url}" method="post">
 					<input type="hidden" name="c" value="tickets">
 					<input type="hidden" name="a" value="doQuickSearch">
-					<span id="tourHeaderQuickLookup"><b>Quick Search:</b></span> <select name="type">
+					<span id="tourHeaderQuickLookup"><b>Search Mail:</b></span> <select name="type">
 						<option value="sender"{if $quick_search_type eq 'sender'}selected{/if}>Sender</option>
 						<option value="requester"{if $quick_search_type eq 'requester'}selected{/if}>Requester</option>
 						<option value="mask"{if $quick_search_type eq 'mask'}selected{/if}>Ticket ID</option>
