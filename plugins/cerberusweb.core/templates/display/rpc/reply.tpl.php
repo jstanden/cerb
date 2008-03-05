@@ -70,13 +70,13 @@
 		<td>
 		{assign var=ticket_team_id value=$ticket->team_id}
 		{assign var=headers value=$message->getHeaders()}
-<button type="button" onclick="toggleDiv('replyAttachments{$message->id}','block');document.location='#replyAttachments{$message->id}';"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_attachment.gif{/devblocks_url}" align="top"> Add Files</button>
+{*<button type="button" onclick="toggleDiv('replyAttachments{$message->id}','block');document.location='#replyAttachments{$message->id}';"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_attachment.gif{/devblocks_url}" align="top"> Add Files</button>*}
 <button type="button" onclick="genericAjaxPanel('c=display&a=showFnrPanel',this,false,'550px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/book_blue_view.gif{/devblocks_url}" align="top"> Fetch & Retrieve</button>
-<button type="button" onclick="displayAjax.showTemplatesPanel(this,'{$message->id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/text_rich.gif{/devblocks_url}" align="top"> E-mail Templates</button>
-<button type="button" onclick="txtReply=document.getElementById('reply_content');sigDiv=document.getElementById('team_signature');txtReply.value += '\n'+sigDiv.value+'\n';scrollElementToBottom(txtReply);txtReply.focus();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_edit.gif{/devblocks_url}" align="top"> Insert Signature</button>
+<button type="button" onclick="genericAjaxPanel('c=display&a=showTemplatesPanel&type=2&reply_id={$message->id}&txt_name=reply_{$message->id}',this,false,'550px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/text_rich.gif{/devblocks_url}" align="top"> E-mail Templates</button>
+<button type="button" onclick="txtReply=document.getElementById('reply_{$message->id}');sigDiv=document.getElementById('team_signature');txtReply.value += '\n'+sigDiv.value+'\n';scrollElementToBottom(txtReply);txtReply.focus();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_edit.gif{/devblocks_url}" align="top"> Insert Signature</button>
 <br>
 {if $is_forward}
-<textarea name="content" rows="20" cols="80" id="reply_content" class="reply" style="width:98%;border:1px solid rgb(180,180,180);padding:5px;">
+<textarea name="content" rows="20" cols="80" id="reply_{$message->id}" class="reply" style="width:98%;border:1px solid rgb(180,180,180);padding:5px;">
 {if !empty($signature)}{$signature}{/if}
 
 
@@ -89,7 +89,7 @@
 {$message->getContent()|trim|escape}
 </textarea>
 {else}
-<textarea name="content" rows="20" cols="80" id="reply_content" class="reply" style="width:98%;border:1px solid rgb(180,180,180);padding:5px;">
+<textarea name="content" rows="20" cols="80" id="reply_{$message->id}" class="reply" style="width:98%;border:1px solid rgb(180,180,180);padding:5px;">
 {if !empty($signature) && $signature_pos}
 
 {$signature}{*Sig above, 2 lines necessary whitespace*}
@@ -101,22 +101,12 @@
 {if !empty($signature) && !$signature_pos}{$signature}{/if}{*Sig below*}
 </textarea>
 {/if}
-		</td>
-	</tr>
-	<tr>
-		<td nowrap="nowrap" valign="top">
 			<div style="display:none"><textarea name="team_signature" id="team_signature">{$signature}</textarea></div>
-			{if $is_forward}
-				<button type="button" onclick="if(this.form.to.value.length > 0) this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> Forward Message</button>
-			{else}
-				<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> Send Message</button>
-			{/if}
-			<button type="button" onclick="clearDiv('reply{$message->id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> Discard</button>
 		</td>
 	</tr>
 	<tr>
 		<td>
-			<div id="replyAttachments{$message->id}" style="display:none;margin:5px;padding:5px;background-color:rgb(235,255,211);">
+			<div id="replyAttachments{$message->id}" style="display:block;margin:5px;padding:5px;background-color:rgb(235,255,211);">
 			<H2>Attachments:</H2>
 			(The maximum attachment size is {$upload_max_filesize})<br>
 			<table cellpadding="2" cellspacing="0" border="0" width="100%">
@@ -197,6 +187,16 @@
 				</tr>
 			</table>
 			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			{if $is_forward}
+				<button type="button" onclick="if(this.form.to.value.length > 0) this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> Forward Message</button>
+			{else}
+				<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> Send Message</button>
+			{/if}
+			<button type="button" onclick="clearDiv('reply{$message->id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> Discard</button>
 		</td>
 	</tr>
 </table>

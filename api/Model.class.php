@@ -2322,55 +2322,58 @@ class Model_FnrExternalResource {
 	}
 };
 
-class Model_MailTemplateReply {
+class Model_MailTemplate {
+	const TYPE_COMPOSE = 1;
+	const TYPE_REPLY = 2;
+	const TYPE_CREATE = 3;
+//	const TYPE_CLOSE = 4;
+	
 	public $id = 0;
 	public $title = '';
 	public $description = '';
 	public $folder = '';
 	public $owner_id = 0;
+	public $template_type = 0;
 	public $content = '';
 
 	public function getRenderedContent($message_id) {
 		$raw = $this->content;
 
-		if(empty($message_id))
-		return $raw;
+		$replace = array();
+		$with = array();
 
-		$message = DAO_Ticket::getMessage($message_id);
-		$ticket = DAO_Ticket::getTicket($message->ticket_id);
-		$sender = DAO_Address::get($message->address_id);
-		$sender_org = DAO_ContactOrg::get($sender->contact_org_id);
-		$worker = CerberusApplication::getActiveWorker();
+		if(!empty($message_id)) {
+			$message = DAO_Ticket::getMessage($message_id);
+			$ticket = DAO_Ticket::getTicket($message->ticket_id);
+			$sender = DAO_Address::get($message->address_id);
+			$sender_org = DAO_ContactOrg::get($sender->contact_org_id);
 
-		$out = str_replace(
-			array(
-				'#sender_first_name#',
-				'#sender_last_name#',
-				'#sender_org#',
-		
-				'#ticket_mask#',
-				'#ticket_subject#',
-		
-				'#worker_first_name#',
-				'#worker_last_name#',
-				'#worker_title#',
-			),
-			array(
-				$sender->first_name,
-				$sender->last_name,
-				(!empty($sender_org)?$sender_org->name:""),
-		
-				$ticket->mask,
-				$ticket->subject,
-		
-				$worker->first_name,
-				$worker->last_name,
-				$worker->title,
-			),
-			$raw
-		);
+			$replace[] = '#sender_first_name#';
+			$replace[] = '#sender_last_name#';
+			$replace[] = '#sender_org#';
+	
+			$with[] = $sender->first_name;
+			$with[] = $sender->last_name;
+			$with[] = (!empty($sender_org)?$sender_org->name:"");
+			
+			$replace[] = '#ticket_mask#';
+			$replace[] = '#ticket_subject#';
 
-		return $out;
+			$with[] = $ticket->mask;
+			$with[] = $ticket->subject;
+		}
+			
+		if(null != ($worker = CerberusApplication::getActiveWorker())) {
+			$replace[] = '#worker_first_name#';
+			$replace[] = '#worker_last_name#';
+			$replace[] = '#worker_title#';
+	
+			$with[] = $worker->first_name;
+			$with[] = $worker->last_name;
+			$with[] = $worker->title;
+		}
+
+		return str_replace($replace, $with, $raw);
 	}
 };
 

@@ -326,17 +326,40 @@ if(!isset($tables['group_setting'])) {
     $datadict->ExecuteSQLArray($sql);
 }
 
-// `mail_template_reply` =======================
-if(!isset($tables['mail_template_reply'])) {
+// `mail_template` =======================
+if(!isset($tables['mail_template'])) {
     $flds = "
 		id I4 DEFAULT 0 NOTNULL PRIMARY,
 		title C(64) DEFAULT '' NOTNULL,
 		description C(255) DEFAULT '' NOTNULL,
 		folder C(64) DEFAULT '' NOTNULL,
-		content B,
-		owner_id I4 DEFAULT 0 NOTNULL
+		template_type I1 DEFAULT 0 NOTNULL,
+		owner_id I4 DEFAULT 0 NOTNULL,
+		content XL
 	";
-    $sql = $datadict->CreateTableSQL('mail_template_reply',$flds);
+    $sql = $datadict->CreateTableSQL('mail_template',$flds);
+    $datadict->ExecuteSQLArray($sql);
+}
+
+// `mail_template_reply` =======================
+if(isset($tables['mail_template_reply'])) {
+	$rs = $db->Execute("SELECT id,title,description,folder,owner_id,content FROM mail_template_reply");
+	
+	while(!$rs->EOF) {
+		$db->Execute(sprintf("INSERT INTO mail_template (id,title,description,folder,template_type,owner_id,content) ".
+			"VALUES (%d,%s,%s,%s,%d,%d,%s)",
+			$rs->fields['id'],
+			$db->qstr($rs->fields['title']),
+			$db->qstr($rs->fields['description']),
+			$db->qstr($rs->fields['folder']),
+			2, // reply
+			$rs->fields['owner_id'],
+			$db->qstr($rs->fields['content'])
+		));
+		$rs->MoveNext();
+	}
+	
+    $sql = $datadict->DropTableSQL('mail_template_reply');
     $datadict->ExecuteSQLArray($sql);
 }
 

@@ -4876,13 +4876,14 @@ class DAO_FnrExternalResource extends DevblocksORMHelper {
 	
 };
 
-class DAO_MailTemplateReply extends DevblocksORMHelper {
-	const _TABLE = 'mail_template_reply';
+class DAO_MailTemplate extends DevblocksORMHelper {
+	const _TABLE = 'mail_template';
 	
 	const ID = 'id';
 	const TITLE = 'title';
 	const DESCRIPTION = 'description';
 	const FOLDER = 'folder';
+	const TEMPLATE_TYPE = 'template_type';
 	const OWNER_ID = 'owner_id';
 	const CONTENT = 'content';
 	
@@ -4890,8 +4891,8 @@ class DAO_MailTemplateReply extends DevblocksORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$id = $db->GenID('generic_seq');
 		
-		$sql = sprintf("INSERT INTO %s (id,title,description,folder,owner_id,content) ".
-			"VALUES (%d,'','','',0,'')",
+		$sql = sprintf("INSERT INTO %s (id,title,description,folder,template_type,owner_id,content) ".
+			"VALUES (%d,'','','',0,0,'')",
 			self::_TABLE,
 			$id
 		);
@@ -4907,13 +4908,14 @@ class DAO_MailTemplateReply extends DevblocksORMHelper {
 	 *
 	 * @return array
 	 */
-	public static function getFolders() {
+	public static function getFolders($type=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		$folders = array();
 		
-		$sql = sprintf("SELECT DISTINCT folder FROM %s ORDER BY folder",
-			self::_TABLE
+		$sql = sprintf("SELECT DISTINCT folder FROM %s %s ORDER BY folder",
+			self::_TABLE,
+			(!empty($type) ? sprintf("WHERE %s = %d ",self::TEMPLATE_TYPE,$type) : " ")
 		);
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 
@@ -4941,16 +4943,23 @@ class DAO_MailTemplateReply extends DevblocksORMHelper {
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 	}
 	
+	public function getByType($type) {
+		return self::getWhere(sprintf("%s = %d",
+			self::TEMPLATE_TYPE,
+			$type
+		));
+	}
+	
 	/**
 	 * Enter description here...
 	 *
 	 * @param string $where
-	 * @return Model_MailTemplateReply[]
+	 * @return Model_MailTemplate[]
 	 */
 	public function getWhere($where=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = sprintf("SELECT id,title,description,folder,owner_id,content ".
+		$sql = sprintf("SELECT id,title,description,folder,template_type,owner_id,content ".
 			"FROM %s ".
 			(!empty($where) ? ("WHERE $where ") : " ").
 			" ORDER BY folder, title ",
@@ -4965,7 +4974,7 @@ class DAO_MailTemplateReply extends DevblocksORMHelper {
 	 * Enter description here...
 	 *
 	 * @param integer $id
-	 * @return Model_MailTemplateReply
+	 * @return Model_MailTemplate
 	 */
 	public static function get($id) {
 		$objects = self::getWhere(sprintf("id = %d", $id));
@@ -4979,11 +4988,12 @@ class DAO_MailTemplateReply extends DevblocksORMHelper {
 	public static function _createObjectsFromResultSet(ADORecordSet $rs) {
 		$objects = array();
 		while(!$rs->EOF) {
-			$object = new Model_MailTemplateReply();
+			$object = new Model_MailTemplate();
 			$object->id = intval($rs->fields['id']);
 			$object->title = $rs->fields['title'];
 			$object->description = $rs->fields['description'];
 			$object->folder = $rs->fields['folder'];
+			$object->template_type = intval($rs->fields['template_type']);
 			$object->owner_id = intval($rs->fields['owner_id']);
 			$object->content = $rs->fields['content'];
 			$objects[$object->id] = $object;

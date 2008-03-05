@@ -54,15 +54,11 @@
 					<td width="100%"><input type="text" size="100" name="subject" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;"></td>
 				</tr>
 				<tr>
-					<td width="0%" nowrap="nowrap" valign="top" align="right"><b>Message:</b>&nbsp;</td>
-					<td width="100%">
-						<textarea name="content" id="content" rows="15" cols="80" class="reply" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;"></textarea>
-					</td>
-				</tr>
-				<tr>
-					<td></td>
-					<td>
+					<td colspan="2">
 						<button type="button" onclick="genericAjaxGet('','c=tickets&a=getComposeSignature&group_id='+selectValue(this.form.team_id),{literal}function(o){insertAtCursor(document.getElementById('content'),o.responseText);}{/literal});"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_edit.gif{/devblocks_url}" align="top"> Insert Signature</button>
+						<button type="button" onclick="genericAjaxPanel('c=display&a=showTemplatesPanel&type=1&reply_id=0&txt_name=content',this,false,'550px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/text_rich.gif{/devblocks_url}" align="top"> E-mail Templates</button>
+						<br>
+						<textarea name="content" id="content" rows="15" cols="80" class="reply" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;"></textarea>
 					</td>
 				</tr>
 				
@@ -156,7 +152,6 @@
 	</tr>
 	<tr>
 		<td>
-			<br>
 			<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> Send Message</button>
 			<button type="button" onclick="document.location='{devblocks_url}c=tickets{/devblocks_url}';"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> Discard</button>
 		</td>

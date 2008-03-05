@@ -210,7 +210,6 @@ var cAjaxCalls = function() {
 		} else {
 			for(var x=len-1;x>=0;x--) {
 				if(elements[x].checked) {
-					//frm.appendChild(elements[x]);
 					ids[ids.length] = elements[x].value;
 				}
 			}
@@ -227,6 +226,51 @@ var cAjaxCalls = function() {
 			
 			document.location = '#top';
 			//genericAjaxGet('overviewTotals','c=tickets&a=refreshOverviewTotals');
+		});
+	}
+
+	/*
+	this.showTemplatesPanel = function(txt_name,msgid) {
+		var div = document.getElementById(txt_name);
+		if(null == div) return;
+
+		genericAjaxPanel('c=display&a=showTemplatesPanel&reply_id='+msgid+'&txt_name='+txt_name,null,false,'550px',function(o) {
+			var tabView = new YAHOO.widget.TabView();
+			
+			tabView.addTab( new YAHOO.widget.Tab({
+			    label: 'List',
+			    dataSrc: DevblocksAppPath+'ajax.php?c=display&a=showTemplateList&reply_id='+msgid+'&txt_name='+txt_name,
+			    cacheData: true,
+			    active: true
+			}));
+			
+			tabView.appendTo('templatePanelOptions');
+			
+			div.content.focus();
+		});
+	}
+	*/
+
+	this.insertReplyTemplate = function(template_id,txt_name,msgid) {
+		var cObj = YAHOO.util.Connect.asyncRequest('GET', DevblocksAppPath+'ajax.php?c=display&a=getTemplate&id=' + template_id + '&reply_id='+msgid, {
+				success: function(o) {
+					var caller = o.argument.caller;
+					var id = o.argument.msgid;
+					var txt_name = o.argument.txt_name;
+					var template_id = o.argument.template_id;
+					
+					var div = document.getElementById(txt_name);
+					if(null == div) return;
+					
+					insertAtCursor(div, o.responseText);
+					div.focus();
+					
+					try {
+						genericPanel.hide();
+					} catch(e) {}
+				},
+				failure: function(o) {},
+				argument:{caller:this,msgid:msgid,txt_name:txt_name,template_id:template_id}
 		});
 	}
 

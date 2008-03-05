@@ -1,7 +1,7 @@
 <table cellpadding="0" cellspacing="0" border="0" width="98%">
 	<tr>
 		<td align="left" width="0%" nowrap="nowrap" style="padding-right:5px;"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/text_rich.gif{/devblocks_url}" align="absmiddle"></td>
-		<td align="left" width="100%" nowrap="nowrap"><h1>E-mail Reply Templates</h1></td>
+		<td align="left" width="100%" nowrap="nowrap"><h1>E-mail Templates</h1></td>
 	</tr>
 </table>
 
@@ -9,6 +9,7 @@
 <input type="hidden" name="c" value="display">
 <input type="hidden" name="a" value="saveReplyTemplate">
 <input type="hidden" name="id" value="{$template->id}">
+<input type="hidden" name="type" value="{$type}">
 <input type="hidden" name="do_delete" value="0">
 
 <b>Title:</b><br>
@@ -35,15 +36,17 @@
 
 <b>Insert Placeholder:</b> <select name="token" onchange="insertAtCursor(this.form.template,selectValue(this.form.token));this.form.token.selectedIndex=0;this.form.template.focus();">
 	<option value="">-- choose --</option>
-	<optgroup label="Sender">
-		<option value="#sender_first_name#">First Name</option>
-		<option value="#sender_last_name#">Last Name</option>
-		<option value="#sender_org#">Organization</option>
-	</optgroup>
-	<optgroup label="Ticket">
-		<option value="#ticket_mask#">Mask</option>
-		<option value="#ticket_subject#">Subject</option>
-	</optgroup>
+	{if 1==$type}
+		<optgroup label="Sender">
+			<option value="#sender_first_name#">First Name</option>
+			<option value="#sender_last_name#">Last Name</option>
+			<option value="#sender_org#">Organization</option>
+		</optgroup>
+		<optgroup label="Ticket">
+			<option value="#ticket_mask#">Mask</option>
+			<option value="#ticket_subject#">Subject</option>
+		</optgroup>
+	{/if}
 	<optgroup label="Worker">
 		<option value="#worker_first_name#">First Name</option>
 		<option value="#worker_last_name#">Last Name</option>
@@ -53,9 +56,9 @@
 <br>
 <br>
 
-<button type="button" onclick="saveGenericAjaxPanel('replyTemplateEditForm',true,displayAjax.onSaveReplyTemplate);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_ok.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
+<button type="button" onclick="saveGenericAjaxPanel('replyTemplateEditForm',true,ajax.onSaveReplyTemplate);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_ok.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
 {if $template->id}
-<button type="button" onclick="if(confirm('Are you sure you want to permanently delete this template?')){literal}{{/literal}this.form.do_delete.value='1';saveGenericAjaxPanel('replyTemplateEditForm',true,displayAjax.onSaveReplyTemplate);{literal}}{/literal}"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_delete.gif{/devblocks_url}" align="top"> {$translate->_('common.delete')|capitalize}</button>
+<button type="button" onclick="if(confirm('Are you sure you want to permanently delete this template?')){literal}{{/literal}this.form.do_delete.value='1';saveGenericAjaxPanel('replyTemplateEditForm',true,ajax.onSaveReplyTemplate);{literal}}{/literal}"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_delete.gif{/devblocks_url}" align="top"> {$translate->_('common.delete')|capitalize}</button>
 {/if}
 
 </form>
