@@ -26,16 +26,18 @@
 			</params>
 		</extension>
 	
-		<extension point="cerberusweb.page">
-			<id>core.page.simulator</id>
-			<name>Simulator Page</name>
+		<!-- Config Tabs -->
+		
+		<extension point="cerberusweb.config.tab">
+			<id>simulator.config.tab</id>
+			<name>Simulator Tab</name>
 			<class>
 				<file>classes.php</file>
-				<name>ChSimulatorPage</name>
+				<name>ChSimulatorConfigTab</name>
 			</class>
 			<params>
 				<param key="uri" value="simulator" />
-				<param key="menutitle" value="Simulator" />
+				<param key="title" value="Simulator" />
 			</params>
 		</extension>
 		

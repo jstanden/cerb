@@ -65,6 +65,15 @@ abstract class CerberusPageExtension extends DevblocksExtension {
 	}
 };
 
+abstract class Extension_ConfigTab extends DevblocksExtension {
+	function __construct($manifest) {
+		$this->DevblocksExtension($manifest,1);
+	}
+	
+	function showTab() {}
+	function saveTab() {}
+};
+
 abstract class Extension_PreferenceTab extends DevblocksExtension {
 	function __construct($manifest) {
 		$this->DevblocksExtension($manifest,1);

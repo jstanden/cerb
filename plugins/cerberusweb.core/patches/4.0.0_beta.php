@@ -535,6 +535,20 @@ if(!isset($indexes['worker_id'])) {
     $datadict->ExecuteSQLArray($sql);
 }
 
+// `requester` ========================
+$columns = $datadict->MetaColumns('requester');
+$indexes = $datadict->MetaIndexes('requester',false);
+
+if(!isset($indexes['address_id'])) {
+    $sql = $datadict->CreateIndexSQL('address_id','requester','address_id');
+    $datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($indexes['ticket_id'])) {
+    $sql = $datadict->CreateIndexSQL('ticket_id','requester','ticket_id');
+    $datadict->ExecuteSQLArray($sql);
+}
+
 // `setting` ==================================
 $columns = $datadict->MetaColumns('setting');
 //$indexes = $datadict->MetaIndexes('setting',false);

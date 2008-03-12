@@ -15,7 +15,7 @@
 {foreach from=$dispatch item=params key=reason}
 <div class="subtle" style="margin-bottom:10px;">
 	<h2 style="display:inline;">{$reason}</h2>&nbsp;
-	<a href="#add_situation" onclick="genericAjaxGet('add_situation','c=community&a=action&code={$instance->code}&action=getSituation&reason={$reason|md5}');">edit</a>
+	<a href="#add_situation" onclick="genericAjaxGet('add_situation','c=config&a=handleTabAction&tab=usermeet.config.tab.communities&action=getContactSituation&reason={$reason|md5}&portal={$instance->code}');">edit </a>
 	<br>
 	<b>Send to:</b> {$params.to}<br>
 	{if is_array($params.followups)}

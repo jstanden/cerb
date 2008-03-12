@@ -2456,177 +2456,251 @@ class ChConfigurationPage extends CerberusPageExtension  {
 			$tpl->assign('install_dir_warning', true);
 		}
 		
+		$tab_manifests = DevblocksPlatform::getExtensions('cerberusweb.config.tab', false);
+		$tpl->assign('tab_manifests', $tab_manifests);
+		
+		// Selected tab
 		$response = DevblocksPlatform::getHttpResponse();
 		$stack = $response->path;
-		$command = array_shift($stack);
+		array_shift($stack); // config
+		$tab_selected = array_shift($stack);
+		$tpl->assign('tab_selected', $tab_selected);
 		
-		switch(array_shift($stack)) {
-		    default:
-			case 'general':
-				$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/general/index.tpl.php');
-				break;
-				
-			case 'sla':
-				$slas = DAO_Sla::getAll();
-				$tpl->assign('slas', $slas);
-				
-				$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/sla/index.tpl.php');
-				break;
-				
-			case 'fnr':
-				$topics = DAO_FnrTopic::getWhere();
-				$tpl->assign('topics', $topics);
-				
-				$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/fnr/index.tpl.php');
-				break;
-				
-			case 'mail':
-				@$test_connection = array_shift($stack);
-				
-				$settings = CerberusSettings::getInstance();
-				$mail_service = DevblocksPlatform::getMailService();
-				
-				$routing = DAO_Mail::getMailboxRouting();
-				$tpl->assign('routing', $routing);
-
-				$teams = DAO_Group::getAll();
-				$tpl->assign('teams', $teams);
-
-				$pop3_accounts = DAO_Mail::getPop3Accounts();
-				$tpl->assign('pop3_accounts', $pop3_accounts);
-				
-				$smtp_host = $settings->get(CerberusSettings::SMTP_HOST,'');
-				$smtp_port = $settings->get(CerberusSettings::SMTP_PORT,25);
-				$smtp_auth_enabled = $settings->get(CerberusSettings::SMTP_AUTH_ENABLED,false);
-				if ($smtp_auth_enabled) {
-					$smtp_auth_user = $settings->get(CerberusSettings::SMTP_AUTH_USER,'');
-					$smtp_auth_pass = $settings->get(CerberusSettings::SMTP_AUTH_PASS,''); 
-				} else {
-					$smtp_auth_user = '';
-					$smtp_auth_pass = ''; 
-				}
-				$smtp_enc = $settings->get(CerberusSettings::SMTP_ENCRYPTION_TYPE,'None');
-				
-				// [JAS]: Test the provided SMTP settings and give form feedback
-				if(!empty($test_connection) && !empty($smtp_host)) {
-					$mailer = null;
-					try {
-						$mailer = $mail_service->getMailer($smtp_host, $smtp_auth_user, $smtp_auth_pass, $smtp_port, $smtp_enc); // [TODO] port
-						$mailer->connect();
-						$mailer->disconnect();
-						
-						if(!empty($smtp_host))
-							$settings->set(CerberusSettings::SMTP_HOST, $smtp_host);
-						if(!empty($smtp_auth_user) || $smtp_auth_user == '')
-							$settings->set(CerberusSettings::SMTP_AUTH_USER, $smtp_auth_user);
-						if(!empty($smtp_auth_pass) || $smtp_auth_user == '')
-							$settings->set(CerberusSettings::SMTP_AUTH_PASS, $smtp_auth_pass);
-						if(!empty($smtp_enc))
-							$settings->set(CerberusSettings::SMTP_ENCRYPTION_TYPE, $smtp_enc);
-						
-						$tpl->assign('smtp_test', true);
-						
-					} catch(Exception $e) {
-						$tpl->assign('smtp_test', false);
-						$tpl->assign('smtp_test_output', 'SMTP Connection Failed: '.$e->getMessage());
-					}
-				}
-				
-				$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/mail/index.tpl.php');				
-				break;
-				
-			case 'workflow':
-				/*
-				 * [IMPORTANT -- Yes, this is simply a line in the sand.]
-				 * You're welcome to modify the code to meet your needs, but please respect 
-				 * our licensing.  Buy a legitimate copy to help support the project!
-				 * http://www.cerberusweb.com/
-				 */
-				$workers = DAO_Worker::getAll();
-				$tpl->assign('workers', $workers);
-
-				$teams = DAO_Group::getAll();
-				$tpl->assign('teams', $teams);
-				
-				$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/workflow/index.tpl.php');				
-				break;
-				
-			case 'extensions':
-				@$plugin_id = array_shift($stack);
-				
-				if(!empty($plugin_id) && null != ($plugin = DevblocksPlatform::getPlugin($plugin_id))) {
-					$inst = $plugin->createInstance();
-					$tpl->assign('plugin', $plugin);
-					$tpl->assign('inst', $inst);
-					$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/extensions/configure_plugin.tpl.php');
-					
-				} else {
-					// Auto synchronize when viewing Config->Extensions
-			        DevblocksPlatform::readPlugins();
-					
-					$plugins = DevblocksPlatform::getPluginRegistry();
-					unset($plugins['cerberusweb.core']);
-					$tpl->assign('plugins', $plugins);
-					
-					$points = DevblocksPlatform::getExtensionPoints();
-					$tpl->assign('points', $points);
-					
-					$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/extensions/index.tpl.php');
-				}				
-				break;
-
-			case 'fields':
-				$types = Model_TicketField::getTypes();
-				$tpl->assign('types', $types);
-				
-				$fields = DAO_TicketField::getWhere(sprintf("%s = %d",
-					DAO_TicketField::GROUP_ID,
-					0
-				));
-				$tpl->assign('ticket_fields', $fields);
-				
-				$groups = DAO_Group::getAll();
-				$tpl->assign('groups', $groups);
-				
-				$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/fields/index.tpl.php');				
-				break;
-				
-			case 'licenses':
-				$license = CerberusLicense::getInstance();
-				$tpl->assign('license', $license);
-
-				$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/licenses/index.tpl.php');				
-				break;
-				
-			case 'jobs':
-				
-			    switch(array_shift($stack)) {
-			        case 'manage':
-					    $id = array_shift($stack);
-
-					    $manifest = DevblocksPlatform::getExtension($id);
-					    $job = $manifest->createInstance();
-					    
-					    if(!$job instanceof CerberusCronPageExtension)
-					        die("Bad!");
-			            
-					    $tpl->assign('job', $job);
-					        
-			            $tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/jobs/job.tpl.php');
-			            break;
-			            
-			        default:
-					    $jobs = DevblocksPlatform::getExtensions('cerberusweb.cron', true);
-						$tpl->assign('jobs', $jobs);
-						
-					    $tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/jobs/index.tpl.php');
-			            break;
-			    }
-			    
-			    break;
-			    
-		} // end switch
+		// [TODO] check showTab* hooks for active_worker->is_superuser (no ajax bypass)
 		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/index.tpl.php');
+	}
+	
+	// Ajax
+	function showTabAction() {
+		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
+		
+		if(null != ($tab_mft = DevblocksPlatform::getExtension($ext_id)) 
+			&& null != ($inst = $tab_mft->createInstance()) 
+			&& $inst instanceof Extension_ConfigTab) {
+			$inst->showTab();
+		}
+	}
+	
+	// Post
+	function saveTabAction() {
+		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
+		
+		if(null != ($tab_mft = DevblocksPlatform::getExtension($ext_id)) 
+			&& null != ($inst = $tab_mft->createInstance()) 
+			&& $inst instanceof Extension_ConfigTab) {
+			$inst->saveTab();
+		}
+	}
+	
+	/*
+	 * [TODO] Proxy any func requests to be handled by the tab directly, 
+	 * instead of forcing tabs to implement controllers.  This should check 
+	 * for the *Action() functions just as a handleRequest would
+	 */
+	function handleTabActionAction() {
+		@$tab = DevblocksPlatform::importGPC($_REQUEST['tab'],'string','');
+		@$action = DevblocksPlatform::importGPC($_REQUEST['action'],'string','');
+
+		if(null != ($tab_mft = DevblocksPlatform::getExtension($tab)) 
+			&& null != ($inst = $tab_mft->createInstance()) 
+			&& $inst instanceof Extension_ConfigTab) {
+				if(method_exists($inst,$action.'Action')) {
+					call_user_method($action.'Action',$inst);
+				}
+		}
+	}
+	
+	// Ajax
+	function showTabSettingsAction() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		
+		$license = CerberusLicense::getInstance();
+		$tpl->assign('license', $license);
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/settings/index.tpl.php');
+	}
+	
+	// Ajax
+	function showTabWorkersAction() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		
+		$workers = DAO_Worker::getAll();
+		$tpl->assign('workers', $workers);
+
+		$teams = DAO_Group::getAll();
+		$tpl->assign('teams', $teams);
+		
+		$tpl->assign('license',CerberusLicense::getInstance());
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/workers/index.tpl.php');
+	}
+	
+	// Ajax
+	function showTabGroupsAction() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		
+		$workers = DAO_Worker::getAll();
+		$tpl->assign('workers', $workers);
+
+		$teams = DAO_Group::getAll();
+		$tpl->assign('teams', $teams);
+		
+		$tpl->assign('license',CerberusLicense::getInstance());
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/groups/index.tpl.php');
+	}
+	
+	// Ajax
+	function showTabMailAction() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		
+		$settings = CerberusSettings::getInstance();
+		$mail_service = DevblocksPlatform::getMailService();
+		
+		@$test_connection = array_shift($stack);
+		
+		$smtp_host = $settings->get(CerberusSettings::SMTP_HOST,'');
+		$smtp_port = $settings->get(CerberusSettings::SMTP_PORT,25);
+		$smtp_auth_enabled = $settings->get(CerberusSettings::SMTP_AUTH_ENABLED,false);
+		if ($smtp_auth_enabled) {
+			$smtp_auth_user = $settings->get(CerberusSettings::SMTP_AUTH_USER,'');
+			$smtp_auth_pass = $settings->get(CerberusSettings::SMTP_AUTH_PASS,''); 
+		} else {
+			$smtp_auth_user = '';
+			$smtp_auth_pass = ''; 
+		}
+		$smtp_enc = $settings->get(CerberusSettings::SMTP_ENCRYPTION_TYPE,'None');
+		
+		// [JAS]: Test the provided SMTP settings and give form feedback
+		if(!empty($test_connection) && !empty($smtp_host)) {
+			$mailer = null;
+			try {
+				$mailer = $mail_service->getMailer($smtp_host, $smtp_auth_user, $smtp_auth_pass, $smtp_port, $smtp_enc); // [TODO] port
+				$mailer->connect();
+				$mailer->disconnect();
+				
+				if(!empty($smtp_host))
+					$settings->set(CerberusSettings::SMTP_HOST, $smtp_host);
+				if(!empty($smtp_auth_user) || $smtp_auth_user == '')
+					$settings->set(CerberusSettings::SMTP_AUTH_USER, $smtp_auth_user);
+				if(!empty($smtp_auth_pass) || $smtp_auth_user == '')
+					$settings->set(CerberusSettings::SMTP_AUTH_PASS, $smtp_auth_pass);
+				if(!empty($smtp_enc))
+					$settings->set(CerberusSettings::SMTP_ENCRYPTION_TYPE, $smtp_enc);
+				
+				$tpl->assign('smtp_test', true);
+				
+			} catch(Exception $e) {
+				$tpl->assign('smtp_test', false);
+				$tpl->assign('smtp_test_output', 'SMTP Connection Failed: '.$e->getMessage());
+			}
+		}
+		
+		$routing = DAO_Mail::getMailboxRouting();
+		$tpl->assign('routing', $routing);
+
+		$teams = DAO_Group::getAll();
+		$tpl->assign('teams', $teams);
+
+		$pop3_accounts = DAO_Mail::getPop3Accounts();
+		$tpl->assign('pop3_accounts', $pop3_accounts);
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/mail/index.tpl.php');
+	}
+	
+	// Ajax
+	function showTabFieldsAction() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		
+		$types = Model_TicketField::getTypes();
+		$tpl->assign('types', $types);
+		
+		$fields = DAO_TicketField::getWhere(sprintf("%s = %d",
+			DAO_TicketField::GROUP_ID,
+			0
+		));
+		$tpl->assign('ticket_fields', $fields);
+		
+		$groups = DAO_Group::getAll();
+		$tpl->assign('groups', $groups);
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/fields/index.tpl.php');
+	}
+	
+	// Ajax
+	function showTabSlaAction() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		
+		$slas = DAO_Sla::getAll();
+		$tpl->assign('slas', $slas);
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/sla/index.tpl.php');
+	}
+	
+	// Ajax
+	function showTabFnrAction() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		
+		$topics = DAO_FnrTopic::getWhere();
+		$tpl->assign('topics', $topics);
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/fnr/index.tpl.php');
+	}
+	
+	// Ajax
+	function showTabPluginsAction() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		
+		@$plugin_id = array_shift($stack);
+		
+		if(!empty($plugin_id) && null != ($plugin = DevblocksPlatform::getPlugin($plugin_id))) {
+			$inst = $plugin->createInstance();
+			$tpl->assign('plugin', $plugin);
+			$tpl->assign('inst', $inst);
+			$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/plugins/configure_plugin.tpl.php');
+			
+		} else {
+			// Auto synchronize when viewing Config->Extensions
+	        DevblocksPlatform::readPlugins();
+			
+			$plugins = DevblocksPlatform::getPluginRegistry();
+			unset($plugins['cerberusweb.core']);
+			$tpl->assign('plugins', $plugins);
+			
+			$points = DevblocksPlatform::getExtensionPoints();
+			$tpl->assign('points', $points);
+			
+			$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/plugins/index.tpl.php');
+		}				
+	}
+	
+	// Ajax
+	function showTabSchedulerAction() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		
+	    $jobs = DevblocksPlatform::getExtensions('cerberusweb.cron', true);
+		$tpl->assign('jobs', $jobs);
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/scheduler/index.tpl.php');
 	}
 	
 	// Ajax
@@ -2642,7 +2716,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 			$tpl->assign('topic', $topic);
 		}
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/fnr/topic_panel.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/fnr/topic_panel.tpl.php');
 	}
 	
 	// Ajax
@@ -2661,7 +2735,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 			$tpl->assign('resource', $resource);
 		}
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/fnr/external_resource_panel.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/fnr/external_resource_panel.tpl.php');
 	}
 	
 	// Post
@@ -2825,7 +2899,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		}
 		
 		if(DEMO_MODE) {
-			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','jobs')));
+			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','scheduler')));
 			return;
 		}
 		
@@ -2858,7 +2932,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	    
 	    $job->saveConfigurationAction();
 	    	    
-	    DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','jobs')));
+	    DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','scheduler')));
 	}
 	
 	// Post
@@ -2866,12 +2940,12 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		@$key = DevblocksPlatform::importGPC($_POST['key'],'string','');
 
 		if(DEMO_MODE) {
-			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','licenses')));
+			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','settings')));
 			return;
 		}
 		
 		if(empty($key)) {
-			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','licenses','empty')));
+			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','settings','empty')));
 			return;
 		}
 		
@@ -2900,7 +2974,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		}
 		
 		if(2!=$valid || 0!=$key%4) {
-			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','licenses','invalid')));
+			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','settings','invalid')));
 			return;
 		}
 		
@@ -2926,7 +3000,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		
 		$settings->set(CerberusSettings::LICENSE, serialize($license));
 		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','licenses')));
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','settings')));
 	}
 	
 	// Ajax
@@ -2949,7 +3023,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$teams = DAO_Group::getAll();
 		$tpl->assign('teams', $teams);
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/workflow/edit_worker.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/workers/edit_worker.tpl.php');
 	}
 	
 	// Post
@@ -2961,7 +3035,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		}
 		
 		if(DEMO_MODE) {
-			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','workflow')));
+			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','workers')));
 			return;
 		}
 		
@@ -3045,7 +3119,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 				}
 				else {
 					//not licensed and worker limit reached
-					DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','workflow')));
+					DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','workers')));
 					return;
 				}
 			}
@@ -3075,7 +3149,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 			}
 		}
 		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','workflow')));
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','workers')));
 	}
 	
 	// Ajax
@@ -3106,7 +3180,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/workflow/edit_team.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/groups/edit_group.tpl.php');
 	}
 	
 	// Post
@@ -3173,7 +3247,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	    	}
 	    }
 		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','workflow')));
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','groups')));
 	}
 	
 	// Post
@@ -3185,7 +3259,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		}
 		
 		if(DEMO_MODE) {
-			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','general')));
+			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','settings')));
 			return;
 		}
 		
@@ -3198,7 +3272,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	    $settings->set(CerberusSettings::HELPDESK_LOGO_URL, $logo); // [TODO] Enforce some kind of max resolution?
 	    $settings->set(CerberusSettings::AUTHORIZED_IPS, $authorized_ips_str);
 	    
-	    DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','general')));
+	    DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','settings')));
 	}
 	
 	function saveIncomingMailSettingsAction() {
@@ -3302,7 +3376,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 			}
 		}
 		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','mail')));
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','mail','incoming')));
 	}
 	
 	// Form Submit
@@ -3341,7 +3415,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	    $settings->set(CerberusSettings::SMTP_AUTH_PASS, $smtp_auth_pass);
 	    $settings->set(CerberusSettings::SMTP_ENCRYPTION_TYPE, $smtp_enc);
 	    
-	    DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','mail','test')));
+	    DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','mail','outgoing','test')));
 	}
 	
 	// Ajax
@@ -3362,7 +3436,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$teams = DAO_Group::getAll();
 		$tpl->assign('teams', $teams);
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/mail/mail_routing.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/mail/mail_routing.tpl.php');
 	}
 	
 	// Form Submit
@@ -3374,7 +3448,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		}
 		
 		if(DEMO_MODE) {
-			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','mail')));
+			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','mail','incoming')));
 			return;
 		}
 		
@@ -3432,7 +3506,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$settings = CerberusSettings::getInstance();
 		$settings->set(CerberusSettings::DEFAULT_TEAM_ID, $default_team_id);
 		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','mail')));
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','mail','incoming')));
 	}
 	
 	// Ajax
@@ -3466,7 +3540,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$teams = DAO_Group::getTeams();
 		$tpl->assign('teams', $teams);
 
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/mail/mail_routing_add.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/mail/mail_routing_add.tpl.php');
 	}
 	
 	function savePluginsAction() {
@@ -3477,7 +3551,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		}
 		
 		if(DEMO_MODE) {
-			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','extensions')));
+			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','plugins')));
 			return;
 		}
 		
@@ -3517,7 +3591,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 			die("Failed updating plugins."); // [TODO] Make this more graceful
 		}
 		
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('config','extensions')));
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('config','plugins')));
 	}
 	
 	// POST
@@ -6333,7 +6407,7 @@ class ChDisplayPage extends CerberusPageExtension {
 	 * for the *Action() functions just as a handleRequest would
 	 */
 	/*
-	function handleTabRequestAction() {
+	function handleTabActionAction() {
 	}
 	*/
 	
@@ -7640,7 +7714,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 	 * for the *Action() functions just as a handleRequest would
 	 */
 	/*
-	function handleTabRequestAction() {
+	function handleTabActionAction() {
 	}
 	*/
 	

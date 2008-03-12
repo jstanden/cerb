@@ -173,133 +173,123 @@ class UmPortalController extends DevblocksControllerExtension {
 	
 };
 
-class UmCommunityPage extends CerberusPageExtension {
-	function __construct($manifest) {
-		parent::__construct($manifest);
+class UmConfigCommunitiesTab extends Extension_ConfigTab {
+	const ID = 'usermeet.config.tab.communities';
+	
+	function showTab() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl_path = realpath(dirname(__FILE__) . '/templates') . DIRECTORY_SEPARATOR;
+		$tpl->assign('path', $tpl_path);
+		$tpl->cache_lifetime = "0";
 
-		$path = realpath(dirname(__FILE__)) . DIRECTORY_SEPARATOR;
-	}
+		// Community sites
+	    $communities = DAO_Community::getList();
+	    $tpl->assign('communities', $communities);
+	    
+	    // Community Tools + Widgets (Indexed)
+	    $community_addons = array();
+        foreach(array_keys($communities) as $idx) {
+            $community_addons[$idx] = array('tools'=>array(),'widgets'=>array());
+        }
+	    
+	    $community_tools = DAO_CommunityTool::getList();
+	    foreach($community_tools as $tool) {
+	        if(!isset($community_addons[$tool->community_id])) continue;
+	        $community_addons[$tool->community_id]['tools'][$tool->code] = $tool->extension_id;
+	    }
+	    
+	    // Tool Manifests
+	    $tools = DevblocksPlatform::getExtensions('usermeet.tool', false);
+	    $tpl->assign('tool_manifests', $tools);
+	    
+	    $tpl->assign('community_addons', $community_addons);
 		
-	function isVisible() {
-		// check login
-		$session = DevblocksPlatform::getSessionService();
-		$visit = $session->getVisit();
-		
-		if(empty($visit)) {
-			return false;
-		} else {
-			return true;
-		}
+		$tpl->display('file:' . $tpl_path . 'community/config/tab/index.tpl.php');
 	}
 	
-	// Ajax
-	function actionAction() {
-    	if(null == ($worker = CerberusApplication::getActiveWorker()))
-    		die();
-		
-    	@$sCode = DevblocksPlatform::importGPC($_REQUEST['code'],'string','');
-    	@$sAction = DevblocksPlatform::importGPC($_REQUEST['action'],'string','');
+	function getCommunityAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 
-		if(null != ($instance = DAO_CommunityTool::getByCode($sCode))) {
-			$manifest = DevblocksPlatform::getExtension($instance->extension_id);
-            $tool = $manifest->createInstance(); /* @var $app Extension_UsermeetTool */
-			$tool->setPortal($sCode); // [TODO] Kinda hacky
-			
-			// Passthrough [TODO] need to secure to agent logins
-			if(method_exists($tool, $sAction)) {
-				call_user_func(array($tool,$sAction));
-			}
-		}
-	}
-	
-	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
-		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		$tpl_path = realpath(dirname(__FILE__) . '/templates') . DIRECTORY_SEPARATOR;
+		$tpl->assign('path', $tpl_path);
 		
-		$response = DevblocksPlatform::getHttpResponse();
-		$stack = $response->path;
-
-		$host = $_SERVER['HTTP_HOST'];
-		$tpl->assign('host', $host);
-		
-		array_shift($stack); // community
-		
-		switch(array_shift($stack)) {
-		        
-		    case 'add_widget':
-		        $communities = DAO_Community::getList();
-			    $tpl->assign('communities', $communities);
-			    
-			    // Widget Manifests
-			    $widgets = DevblocksPlatform::getExtensions('usermeet.widget', false);
-			    $tpl->assign('widget_manifests', $widgets);
-			    
-		        $tpl->display('file:' . dirname(__FILE__) . '/templates/community/add_widget.tpl.php');
-		        break;
-		    
-		    case 'tool':
-		        $code = array_shift($stack);
-		        $action = array_shift($stack);
-		        
-		        $tpl->assign('portal', $code);
-				
-		        $tpl->display('file:' . dirname(__FILE__) . '/templates/community/tool_display.tpl.php');						
-		        
-//		        switch($action) {
-//		        	case 'configure': // configure
-//		        		break;
-//		        		
-//		        	default:
-//	        			break;
-//		        }
-		        
-		        break;
-		    
-		    case 'widget':
-		        echo "CONFIGURE";
-		        break;
-		    
-		    default:
-				// Community sites
-			    $communities = DAO_Community::getList();
-			    $tpl->assign('communities', $communities);
-			    
-			    // Community Tools + Widgets (Indexed)
-			    $community_addons = array();
-		        foreach(array_keys($communities) as $idx) {
-		            $community_addons[$idx] = array('tools'=>array(),'widgets'=>array());
-		        }
-			    
-			    $community_tools = DAO_CommunityTool::getList();
-			    foreach($community_tools as $tool) {
-			        if(!isset($community_addons[$tool->community_id])) continue;
-			        $community_addons[$tool->community_id]['tools'][$tool->code] = $tool->extension_id;
-			    }
-			    
-			    // Tool Manifests
-			    $tools = DevblocksPlatform::getExtensions('usermeet.tool', false);
-			    $tpl->assign('tool_manifests', $tools);
-			    
-			    // [TODO] Widget Manifests
-			    $widgets = DevblocksPlatform::getExtensions('usermeet.widget', false);
-			    $tpl->assign('widget_manifests', $widgets);
-			    			    
-			    $tpl->assign('community_addons', $community_addons);
-				
-				$tpl->display('file:' . dirname(__FILE__) . '/templates/community/index.tpl.php');
-		        break;
+		if(!empty($id)) {
+			$community = DAO_Community::get($id);
+			$tpl->assign('community', $community);
 		}
 		
+	    // Tool Manifests
+	    $tools = DevblocksPlatform::getExtensions('usermeet.tool', false);
+	    $tpl->assign('tool_manifests', $tools);
+		
+		$tpl->display('file:' . $tpl_path . 'community/config/tab/community_config.tpl.php');
 	}
 	
-	function showToolConfigAction() {
+	function saveCommunityAction() {
+		// [TODO] Privs
+		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
+		@$name = DevblocksPlatform::importGPC($_POST['name'],'string','New Community');	
+		@$delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer',0);	
+
+	    @$add_tool_id = DevblocksPlatform::importGPC($_POST['add_tool_id'],'string');
+
+		if(!empty($delete)) {
+			DAO_Community::delete($id);
+			
+		} else {
+		    $fields = array(
+		        DAO_Community::NAME => (!empty($name) ? $name : "New Community"),
+		    );
+			
+			if(empty($id)) { // Create
+			    $id = DAO_Community::create($fields);
+				
+			} else { // Edit || Delete
+			    DAO_Community::update($id,$fields);
+			}
+			
+			if(!empty($add_tool_id) && !empty($id)) {
+			    $fields = array(
+			        DAO_CommunityTool::COMMUNITY_ID => $id,
+			        DAO_CommunityTool::EXTENSION_ID => $add_tool_id
+			    );
+			    $tool_id = DAO_CommunityTool::create($fields);
+			}
+			
+		}
+		
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('config','communities')));
+	}
+	
+	function getContactSituationAction() {
 		@$portal = DevblocksPlatform::importGPC($_REQUEST['portal'],'string','');
 		
+		if(null != ($instance = DAO_CommunityTool::getByCode($portal))) {
+			$manifest = DevblocksPlatform::getExtension($instance->extension_id);
+            if(null != ($tool = $manifest->createInstance())) { /* @var $app Extension_UsermeetTool */
+				$tool->setPortal($portal); // [TODO] Kinda hacky
+				if(method_exists($tool,'getSituation'))
+					$tool->getSituation();
+            }
+		}
+	}
+	
+	function getCommunityToolAction() {
+		$worker = CerberusApplication::getActiveWorker();
+		if(!$worker || !$worker->is_superuser) {
+			echo "Access denied.";
+			return;
+		}
+		
+		@$portal = DevblocksPlatform::importGPC($_REQUEST['portal'],'string','');
+
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
-		$tpl->assign('path', dirname(__FILE__) . '/templates/');
-		
+		$tpl_path = realpath(dirname(__FILE__) . '/templates') . DIRECTORY_SEPARATOR;
+		$tpl->assign('path', $tpl_path);
+	
 		$tpl->assign('portal', $portal);
 		
 		if(null != ($instance = DAO_CommunityTool::getByCode($portal))) {
@@ -316,18 +306,7 @@ class UmCommunityPage extends CerberusPageExtension {
         $community = DAO_Community::get($community_id);
         $tpl->assign('community', $community);
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/community/tool_config.tpl.php');
-	}
-	
-	function showToolInstallAction() {
-		@$portal = DevblocksPlatform::importGPC($_REQUEST['portal'],'string','');
-		
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
-		$tpl->assign('path', dirname(__FILE__) . '/templates/');
-		
-		$tpl->assign('portal', $portal);
-		
+        // Install
         $url_writer = DevblocksPlatform::getUrlService();
         $url = $url_writer->write('c=portal&a='.$portal,true);
         $url_parts = parse_url($url);
@@ -346,18 +325,16 @@ class UmCommunityPage extends CerberusPageExtension {
 		$tpl->assign('port', $port);
 		$tpl->assign('base', $base);
 		$tpl->assign('path', $path);
-		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/community/tool_install.tpl.php');
+        
+		$tpl->display('file:' . $tpl_path . 'community/config/tab/tool_config.tpl.php');
 	}
 	
-	// Facade
-	function saveConfigurationAction() {
-		@$code = DevblocksPlatform::importGPC($_POST['code'],'string');
-        @$iFinished = DevblocksPlatform::importGPC($_POST['finished'],'integer',0);
+	function saveCommunityToolAction() {
+		@$code = DevblocksPlatform::importGPC($_POST['portal'],'string');
         @$iDelete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer',0);
 		
 		if(DEMO_MODE) {
-			DevblocksPlatform::redirect(new DevblocksHttpResponse(array('community')));
+			DevblocksPlatform::redirect(new DevblocksHttpResponse(array('config','communities')));
 			return;
 		}
 
@@ -366,7 +343,7 @@ class UmCommunityPage extends CerberusPageExtension {
 			if(!empty($iDelete)) {
 				$tool = DAO_CommunityTool::getByCode($code); /* @var $tool Model_CommunityTool */
 				DAO_CommunityTool::delete($tool->id);
-				DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('community')));
+				DevblocksPlatform::redirect(new DevblocksHttpResponse(array('config','communities')));
 				return;
 				
 			} else {
@@ -377,75 +354,8 @@ class UmCommunityPage extends CerberusPageExtension {
 			}
 		}
 		
-		if($iFinished) {
-			DevblocksPlatform::redirect(new DevblocksHttpResponse(array('community')));
-		} else {
-			DevblocksPlatform::redirect(new DevblocksHttpResponse(array('community','tool',$code,'configure')));
-		}
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('config','communities')));
 	}
-	
-	function showCommunityPanelAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
-		
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
-		$tpl->assign('path', dirname(__FILE__) . '/templates/');
-		
-		if(!empty($id)) {
-			$community = DAO_Community::get($id);
-			$tpl->assign('community', $community);
-		}
-		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/community/community_panel.tpl.php');
-	}
-	
-	function editCommunityAction() {
-		// [TODO] Privs
-		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
-		@$name = DevblocksPlatform::importGPC($_POST['name'],'string','New Community');	
-		@$delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer',0);	
-
-		if(DEMO_MODE) {
-			DevblocksPlatform::redirect(new DevblocksHttpResponse(array('community')));
-			return;
-		}
-
-		if(!empty($delete)) {
-			DAO_Community::delete($id);
-			
-		} else {
-		    $fields = array(
-		        DAO_Community::NAME => $name,
-		    );
-			
-			if(empty($id)) { // Create
-			    $id = DAO_Community::create($fields);
-				
-			} else { // Edit || Delete
-			    $id = DAO_Community::update($id,$fields);
-			}
-		}
-		
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('community')));
-	}
-	
-	function addCommunityToolAction() {
-	    @$community_id = DevblocksPlatform::importGPC($_POST['community_id'],'integer');	    
-	    @$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'],'string');
-
-	    if(empty($community_id) || empty($extension_id)) return;
-	    
-	    $fields = array(
-	        DAO_CommunityTool::COMMUNITY_ID => $community_id,
-	        DAO_CommunityTool::EXTENSION_ID => $extension_id
-	    );
-	    $id = DAO_CommunityTool::create($fields);
-	    
-	    $tool = DAO_CommunityTool::get($id);
-	    
-	    DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('community','tool',$tool->code,'configure')));
-	}
-	
 };
 
 class UmContactApp extends Extension_UsermeetTool {

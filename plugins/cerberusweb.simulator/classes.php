@@ -52,34 +52,14 @@ class ChSimulatorPlugin extends DevblocksPlugin {
 	
 };
 
-class ChSimulatorPage extends CerberusPageExtension {
-	function __construct($manifest) {
-		parent::__construct($manifest);
-	}
-		
-	function isVisible() {
-		// check login
-		$session = DevblocksPlatform::getSessionService();
-		$visit = $session->getVisit();
-		
-		if(empty($visit)) {
-			return false;
-		} else {
-			return true;
-		}
-	}
+class ChSimulatorConfigTab extends Extension_ConfigTab {
+	const ID = 'simulator.config.tab';
 	
-	function getActivity() {
-	    return new Model_Activity('activity.simulator');
-	}
-	
-	function render() {
+	function showTab() {
 		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl_path = realpath(dirname(__FILE__) . '/templates') . DIRECTORY_SEPARATOR;
+		$tpl->assign('path', $tpl_path);
 		$tpl->cache_lifetime = "0";
-		$tpl->assign('path', dirname(__FILE__) . '/templates/');
-		
-		$response = DevblocksPlatform::getHttpResponse();
-		$stack = $response->path;
 		
 		$flavors = array(
 			'hosting' => 'Web Hosting',
@@ -91,12 +71,16 @@ class ChSimulatorPage extends CerberusPageExtension {
 		);
 		$tpl->assign('flavors', $flavors);
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/index.tpl.php');
+		$tpl->display('file:' . $tpl_path . 'config_tab/index.tpl.php');
 	}
 	
 	function generateTicketsAction() {
 		require_once(dirname(__FILE__) . '/api/API.class.php');
+		
 		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl_path = realpath(dirname(__FILE__) . '/templates') . DIRECTORY_SEPARATOR;
+		$tpl->assign('path', $tpl_path);
+		$tpl->cache_lifetime = "0";
 		
 		@$address = DevblocksPlatform::importGPC($_POST['address'],'string'); 
 		@$dataset = DevblocksPlatform::importGPC($_POST['dataset'],'string');
@@ -104,7 +88,8 @@ class ChSimulatorPage extends CerberusPageExtension {
 
 		if(empty($address)) {
 			$tpl->assign('error', sprintf("Oops! '%s' is not a valid e-mail address.", htmlentities($address)));
-			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('simulator')));
+			$tpl->display('file:' . $tpl_path . 'config_tab/output.tpl.php');
+			return;
 		}
 		
 		// [JAS]: [TODO] This should probably move to an extension point later
@@ -157,7 +142,8 @@ class ChSimulatorPage extends CerberusPageExtension {
 		}
 		
 		$tpl->assign('output', sprintf("Success!  %d simulated tickets were generated for %s", $how_many, htmlentities($address)));
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('simulator')));
+		
+		$tpl->display('file:' . $tpl_path . 'config_tab/output.tpl.php');
 	}
 	
 };

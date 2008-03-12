@@ -39,21 +39,6 @@
 			</params>
 		</extension>
 		
-		<!-- Pages -->
-		
-		<extension point="cerberusweb.page">
-			<id>usermeet.page.community</id>
-			<name>Community Page</name>
-			<class>
-				<file>classes.php</file>
-				<name>UmCommunityPage</name>
-			</class>
-			<params>
-				<param key="uri" value="community" />
-				<param key="menutitle" value="Communities" />
-			</params>
-		</extension>
-		
 		<!-- Usermeet Tools -->
 		
 		<extension point="usermeet.tool">
@@ -75,6 +60,21 @@
 				<name>UmContactApp</name>
 			</class>
 			<params>
+			</params>
+		</extension>
+		
+		<!-- Config Tabs -->
+		
+		<extension point="cerberusweb.config.tab">
+			<id>usermeet.config.tab.communities</id>
+			<name>Communities Tab</name>
+			<class>
+				<file>classes.php</file>
+				<name>UmConfigCommunitiesTab</name>
+			</class>
+			<params>
+				<param key="uri" value="communities" />
+				<param key="title" value="Community Tools" />
 			</params>
 		</extension>
 		
