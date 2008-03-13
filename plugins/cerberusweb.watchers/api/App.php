@@ -126,7 +126,7 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 				}
 				
 				$mail->headers->set('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
-				$mail->attach(new Swift_Message_Part($message->getContent()));
+				$mail->attach(new Swift_Message_Part($message->getContent(), 'text/plain', 'ISO-8859-1'));
 				
 				// [TODO] Send attachments with watcher
 			

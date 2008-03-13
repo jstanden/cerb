@@ -3104,7 +3104,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 							        $password
 						    );
 					        
-						    $mail->attach(new Swift_Message_Part($body));
+						    $mail->attach(new Swift_Message_Part($body, 'text/plain', 'ISO-8859-1'));
 	
 							if(!$mailer->send($mail, $sendTo, $sendFrom)) {
 								throw new Exception('Password notification email failed to send.');
@@ -7549,7 +7549,7 @@ class ChSignInPage extends CerberusPageExtension {
 			$mail->attach(new Swift_Message_Part(
 				sprintf("This confirmation code will allow you to reset your helpdesk login:\n\n%s",
 		        	$code
-		    )));
+		    ),'text/plain','ISO-8859-1'));
 			
 			if(!$mailer->send($mail, $sendTo, $sendFrom)) {
 				throw new Exception('Password Forgot confirmation email failed to send.');
