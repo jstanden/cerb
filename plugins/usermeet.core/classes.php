@@ -101,7 +101,7 @@ class UmPortalController extends DevblocksControllerExtension {
         if(null != (@$tool = $this->hash[$code])) {
 	        // [TODO] Don't double instance any apps (add instance registry to ::getExtension?)
 	        $manifest = DevblocksPlatform::getExtension($tool->extension_id);
-            if(null != ($tool = $manifest->createInstance())) { /* @var $app Extension_UsermeetTool */
+            if(null != (@$tool = $manifest->createInstance())) { /* @var $app Extension_UsermeetTool */
 				$tool->setPortal($code); // [TODO] Kinda hacky
 	        	return $tool->handleRequest(new DevblocksHttpRequest($stack));
             }

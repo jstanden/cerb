@@ -48,7 +48,7 @@ define('REMOTE_URI', '{$path}'); // NO trailing slash!
 define('URL_REWRITE', file_exists('.htaccess'));
 define('LOCAL_HOST', $_SERVER['HTTP_HOST']);
 define('LOCAL_BASE', DevblocksRouter::getLocalBase()); // NO trailing slash!
-define('SCRIPT_LAST_MODIFY', 2007110501); // last change
+define('SCRIPT_LAST_MODIFY', 2008031301); // last change
 
 @session_start();
 
@@ -206,7 +206,7 @@ class DevblocksProxy_Socket extends DevblocksProxy {
     function _get($remote_host, $remote_uri, $local_path) {
         $fp = fsockopen($remote_host, 80, $errno, $errstr, 10);
         if ($fp) {
-            $out = "GET " . $remote_uri . $local_path . " HTTP/1.1\r\n";
+            $out = "GET " . $remote_uri . $local_path . " HTTP/1.0\r\n";
             $out .= "Host: $remote_host\r\n";
             $out .= 'Via: 1.1 ' . LOCAL_HOST . "\r\n";
             if($this->_isSSL()) $out .= 'DevblocksProxySSL: ' . '1' . "\r\n";
@@ -225,7 +225,7 @@ class DevblocksProxy_Socket extends DevblocksProxy {
         	$boundary = $this->_generateMimeBoundary();
             $content = $this->_buildPost($boundary);
             
-            $out = "POST " . $remote_uri . $local_path . " HTTP/1.1\r\n";
+            $out = "POST " . $remote_uri . $local_path . " HTTP/1.0\r\n";
             $out .= "Host: $remote_host\r\n";
             $out .= 'Via: 1.1 ' . LOCAL_HOST . "\r\n";
             if($this->_isSSL()) $out .= 'DevblocksProxySSL: ' . '1' . "\r\n";
