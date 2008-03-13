@@ -52,6 +52,8 @@ require(dirname(__FILE__) . '/framework.config.php');
 require(DEVBLOCKS_PATH . 'Devblocks.class.php');
 require(APP_PATH . '/api/Application.class.php');
 
+header("Content-type: text/html; charset=ISO-8859-1");
+
 //@$uri = DevblocksPlatform::importGPC($_REQUEST['c']); // extension
 //@$listener = DevblocksPlatform::importGPC($_REQUEST['a']); // listener
 $request = DevblocksPlatform::readRequest();
