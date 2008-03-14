@@ -12,19 +12,6 @@
 			<h3>Server Settings (SMTP)</h3>
 
 			<blockquote style="margin-left:20px;">
-				{if !$smtp_test && !empty($smtp_test_output)}
-					<div class="error">
-						{$smtp_test_output}
-					</div>
-					<br>
-				{elseif $smtp_test===true}
-					<div class="success">
-						Outgoing mail settings were tested successfully.
-					</div>
-					<br>
-				{/if}
-	
-	
 				<b>SMTP Server:</b><br>
 				<input type="text" name="smtp_host" value="{$settings->get('smtp_host','localhost')}" size="45"><br>
 				<br>
@@ -44,14 +31,17 @@
 				<br>
 				
 				<div id="configGeneralSmtpAuth" style="margin-left:15px;display:{if $settings->get('smtp_auth_enabled')}block{else}none{/if};">
-				<b>SMTP Auth Username:</b><br>
-				<input type="text" name="smtp_auth_user" value="{$settings->get('smtp_auth_user')}" size="45"><br>
-				<br>
-				
-				<b>SMTP Auth Password:</b><br>
-				<input type="text" name="smtp_auth_pass" value="{$settings->get('smtp_auth_pass')}" size="45"><br>
-				<br>
+					<b>SMTP Auth Username:</b><br>
+					<input type="text" name="smtp_auth_user" value="{$settings->get('smtp_auth_user')}" size="45"><br>
+					<br>
+					
+					<b>SMTP Auth Password:</b><br>
+					<input type="text" name="smtp_auth_pass" value="{$settings->get('smtp_auth_pass')}" size="45"><br>
+					<br>
 				</div>
+				
+				<div id="configSmtpTest"></div>	
+				<button type="button" onclick="genericAjaxGet('configSmtpTest','c=config&a=getSmtpTest&host='+this.form.smtp_host.value+'&port='+this.form.smtp_port.value+'&enc='+radioValue(this.form.smtp_enc)+'&smtp_user='+this.form.smtp_auth_user.value+'&smtp_pass='+this.form.smtp_auth_pass.value);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/gear.gif{/devblocks_url}" align="top"> Test SMTP</button>				
 			</blockquote>
 			
 			<h3>Preferences</h3>

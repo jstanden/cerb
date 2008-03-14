@@ -263,6 +263,7 @@ class UmConfigCommunitiesTab extends Extension_ConfigTab {
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('config','communities')));
 	}
 	
+	// [TODO] This really doesn't belong on the tab here
 	function getContactSituationAction() {
 		@$portal = DevblocksPlatform::importGPC($_REQUEST['portal'],'string','');
 		
@@ -284,6 +285,10 @@ class UmConfigCommunitiesTab extends Extension_ConfigTab {
 		}
 		
 		@$portal = DevblocksPlatform::importGPC($_REQUEST['portal'],'string','');
+		@$is_submitted = DevblocksPlatform::importGPC($_POST['is_submitted'],'integer',0);
+		
+		if(!empty($is_submitted))
+			$is_submitted = time();
 
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
@@ -291,6 +296,7 @@ class UmConfigCommunitiesTab extends Extension_ConfigTab {
 		$tpl->assign('path', $tpl_path);
 	
 		$tpl->assign('portal', $portal);
+		$tpl->assign('is_submitted', $is_submitted);
 		
 		if(null != ($instance = DAO_CommunityTool::getByCode($portal))) {
 			$tpl->assign('instance', $instance);
@@ -334,7 +340,7 @@ class UmConfigCommunitiesTab extends Extension_ConfigTab {
         @$iDelete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer',0);
 		
 		if(DEMO_MODE) {
-			DevblocksPlatform::redirect(new DevblocksHttpResponse(array('config','communities')));
+			self::getCommunityToolAction();
 			return;
 		}
 
@@ -354,7 +360,7 @@ class UmConfigCommunitiesTab extends Extension_ConfigTab {
 			}
 		}
 		
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('config','communities')));
+		self::getCommunityToolAction();
 	}
 };
 
@@ -691,6 +697,8 @@ class UmContactApp extends Extension_UsermeetTool {
         $settings = CerberusSettings::getInstance();
         $default_from = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM);
         
+    	@$arDeleteSituations = DevblocksPlatform::importGPC($_POST['delete_situations'],'array',array());
+    	
     	@$sEditReason = DevblocksPlatform::importGPC($_POST['edit_reason'],'string','');
     	@$sReason = DevblocksPlatform::importGPC($_POST['reason'],'string','');
         @$sTo = DevblocksPlatform::importGPC($_POST['to'],'string','');
@@ -714,19 +722,17 @@ class UmContactApp extends Extension_UsermeetTool {
         	}
         }
 
-        // Nuke a record we're replacing
-       	if(!empty($sEditReason)) {
-			// will be MD5
-	        if(is_array($dispatch))
-	        foreach($dispatch as $d_reason => $d_params) {
-	        	if(md5($d_reason)==$sEditReason) {
-	        		unset($dispatch[$d_reason]);
-	        	}
-	        }
-       	}
-        
+        // Nuke a record we're replacing or any checked boxes
+        foreach($dispatch as $d_reason => $d_params) {
+        	if(!empty($sEditReason) && md5($d_reason)==$sEditReason) {
+        		unset($dispatch[$d_reason]);
+        	} elseif(!empty($arDeleteSituations) && false !== array_search(md5($d_reason),$arDeleteSituations)) {
+        		unset($dispatch[$d_reason]);
+        	}
+        }
+                
        	// If we have new data, add it
-        if(!empty($sReason) && !empty($sTo)) {
+        if(!empty($sReason) && !empty($sTo) && false === array_search(md5($sReason),$arDeleteSituations)) {
 			$dispatch[$sReason] = array(
 				'to' => $sTo,
 				'followups' => array()

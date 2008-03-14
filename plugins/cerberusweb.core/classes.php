@@ -2566,8 +2566,6 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$settings = CerberusSettings::getInstance();
 		$mail_service = DevblocksPlatform::getMailService();
 		
-		@$test_connection = array_shift($stack);
-		
 		$smtp_host = $settings->get(CerberusSettings::SMTP_HOST,'');
 		$smtp_port = $settings->get(CerberusSettings::SMTP_PORT,25);
 		$smtp_auth_enabled = $settings->get(CerberusSettings::SMTP_AUTH_ENABLED,false);
@@ -2580,31 +2578,6 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		}
 		$smtp_enc = $settings->get(CerberusSettings::SMTP_ENCRYPTION_TYPE,'None');
 		
-		// [JAS]: Test the provided SMTP settings and give form feedback
-		if(!empty($test_connection) && !empty($smtp_host)) {
-			$mailer = null;
-			try {
-				$mailer = $mail_service->getMailer($smtp_host, $smtp_auth_user, $smtp_auth_pass, $smtp_port, $smtp_enc); // [TODO] port
-				$mailer->connect();
-				$mailer->disconnect();
-				
-				if(!empty($smtp_host))
-					$settings->set(CerberusSettings::SMTP_HOST, $smtp_host);
-				if(!empty($smtp_auth_user) || $smtp_auth_user == '')
-					$settings->set(CerberusSettings::SMTP_AUTH_USER, $smtp_auth_user);
-				if(!empty($smtp_auth_pass) || $smtp_auth_user == '')
-					$settings->set(CerberusSettings::SMTP_AUTH_PASS, $smtp_auth_pass);
-				if(!empty($smtp_enc))
-					$settings->set(CerberusSettings::SMTP_ENCRYPTION_TYPE, $smtp_enc);
-				
-				$tpl->assign('smtp_test', true);
-				
-			} catch(Exception $e) {
-				$tpl->assign('smtp_test', false);
-				$tpl->assign('smtp_test_output', 'SMTP Connection Failed: '.$e->getMessage());
-			}
-		}
-		
 		$routing = DAO_Mail::getMailboxRouting();
 		$tpl->assign('routing', $routing);
 
@@ -2615,6 +2588,163 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$tpl->assign('pop3_accounts', $pop3_accounts);
 		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/mail/index.tpl.php');
+	}
+	
+	function getMailboxAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		
+		if(!empty($id)) {
+			@$pop3 = DAO_Mail::getPop3Account($id);
+			$tpl->assign('pop3_account', $pop3);
+		}
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/mail/edit_pop3_account.tpl.php');
+		
+		return;
+	}
+	
+	function saveMailboxAction() {
+		$worker = CerberusApplication::getActiveWorker();
+		if(!$worker || !$worker->is_superuser) {
+			echo "Access denied.";
+			return;
+		}
+		
+		@$id = DevblocksPlatform::importGPC($_POST['account_id'],'integer');
+		@$enabled = DevblocksPlatform::importGPC($_POST['pop3_enabled'],'integer',0);
+		@$nickname = DevblocksPlatform::importGPC($_POST['nickname'],'string');
+		@$protocol = DevblocksPlatform::importGPC($_POST['protocol'],'string');
+		@$host = DevblocksPlatform::importGPC($_POST['host'],'string');
+		@$username = DevblocksPlatform::importGPC($_POST['username'],'string');
+		@$password = DevblocksPlatform::importGPC($_POST['password'],'string');
+		@$port = DevblocksPlatform::importGPC($_POST['port'],'integer');
+		@$delete = DevblocksPlatform::importGPC($_POST['delete'],'integer');
+
+		if(empty($nickname))
+			$nickname = "No Nickname";
+		
+		// Defaults
+		if(empty($port)) {
+		    switch($protocol) {
+		        case 'pop3':
+		            $port = 110; 
+		            break;
+		        case 'pop3-ssl':
+		            $port = 995;
+		            break;
+		        case 'imap':
+		            $port = 143;
+		            break;
+		        case 'imap-ssl':
+		            $port = 993;
+		            break;
+		    }
+		}
+		
+		if(!empty($id) && !empty($delete)) {
+			DAO_Mail::deletePop3Account($id);
+			
+		} elseif(!empty($id)) {
+		    // [JAS]: [TODO] convert to field constants
+			$fields = array(
+			    'enabled' => $enabled,
+				'nickname' => $nickname,
+				'protocol' => $protocol,
+				'host' => $host,
+				'username' => $username,
+				'password' => $password,
+				'port' => $port
+			);
+			DAO_Mail::updatePop3Account($id, $fields);
+			
+		} else {
+            if(!empty($host) && !empty($username)) {
+			    // [JAS]: [TODO] convert to field constants
+                $fields = array(
+				    'enabled' => 1,
+					'nickname' => $nickname,
+					'protocol' => $protocol,
+					'host' => $host,
+					'username' => $username,
+					'password' => $password,
+					'port' => $port
+				);
+			    $id = DAO_Mail::createPop3Account($fields);
+            }
+		}
+		
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','mail')));
+		
+		return;
+	}
+	
+	function getSmtpTestAction() {
+		@$host = DevblocksPlatform::importGPC($_REQUEST['host'],'string','');
+		@$port = DevblocksPlatform::importGPC($_REQUEST['port'],'integer',25);
+		@$enc = DevblocksPlatform::importGPC($_REQUEST['enc'],'string','');
+		@$smtp_auth = DevblocksPlatform::importGPC($_REQUEST['smtp_auth'],'integer',0);
+		@$smtp_user = DevblocksPlatform::importGPC($_REQUEST['smtp_user'],'string','');
+		@$smtp_pass = DevblocksPlatform::importGPC($_REQUEST['smtp_pass'],'string','');
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		
+		// [JAS]: Test the provided SMTP settings and give form feedback
+		if(!empty($host)) {
+			try {
+				$mail_service = DevblocksPlatform::getMailService();
+				$mailer = $mail_service->getMailer($host, $smtp_user, $smtp_pass, $port, $enc); // [TODO] port
+				$mailer->connect();
+				$mailer->disconnect();
+				$tpl->assign('smtp_test', true);
+				
+			} catch(Exception $e) {
+				$tpl->assign('smtp_test', false);
+				$tpl->assign('smtp_test_output', 'SMTP Connection Failed: '.$e->getMessage());
+			}
+			
+			$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/mail/test_smtp.tpl.php');			
+		}
+		
+		return;
+	}
+	
+	function getMailboxTestAction() {
+		@$protocol = DevblocksPlatform::importGPC($_REQUEST['protocol'],'string','');
+		@$host = DevblocksPlatform::importGPC($_REQUEST['host'],'string','');
+		@$port = DevblocksPlatform::importGPC($_REQUEST['port'],'integer',110);
+		@$user = DevblocksPlatform::importGPC($_REQUEST['user'],'string','');
+		@$pass = DevblocksPlatform::importGPC($_REQUEST['pass'],'string','');
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		
+		// [JAS]: Test the provided POP settings and give form feedback
+		if(!empty($host)) {
+			$mail_service = DevblocksPlatform::getMailService();
+			
+			if(false !== $mail_service->testImap($host, $port, $protocol, $user, $pass)) {
+				$tpl->assign('pop_test', true);
+				
+			} else {
+				$tpl->assign('pop_test', false);
+				$tpl->assign('pop_test_output', 'Mailbox Connection Failed.');
+			}
+			
+		} else {
+			$tpl->assign('pop_test, false');
+			$tpl->assign('pop_test_output', 'Error: No hostname provided.');
+		}
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/mail/test_pop.tpl.php');
+		
+		return;
 	}
 	
 	// Ajax
@@ -2668,27 +2798,17 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		
-		@$plugin_id = array_shift($stack);
+		// Auto synchronize when viewing Config->Extensions
+        DevblocksPlatform::readPlugins();
 		
-		if(!empty($plugin_id) && null != ($plugin = DevblocksPlatform::getPlugin($plugin_id))) {
-			$inst = $plugin->createInstance();
-			$tpl->assign('plugin', $plugin);
-			$tpl->assign('inst', $inst);
-			$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/plugins/configure_plugin.tpl.php');
-			
-		} else {
-			// Auto synchronize when viewing Config->Extensions
-	        DevblocksPlatform::readPlugins();
-			
-			$plugins = DevblocksPlatform::getPluginRegistry();
-			unset($plugins['cerberusweb.core']);
-			$tpl->assign('plugins', $plugins);
-			
-			$points = DevblocksPlatform::getExtensionPoints();
-			$tpl->assign('points', $points);
-			
-			$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/plugins/index.tpl.php');
-		}				
+		$plugins = DevblocksPlatform::getPluginRegistry();
+		unset($plugins['cerberusweb.core']);
+		$tpl->assign('plugins', $plugins);
+		
+		$points = DevblocksPlatform::getExtensionPoints();
+		$tpl->assign('points', $points);
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/plugins/index.tpl.php');
 	}
 	
 	// Ajax
@@ -2937,6 +3057,12 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	
 	// Post
 	function saveLicensesAction() {
+		$worker = CerberusApplication::getActiveWorker();
+		if(!$worker || !$worker->is_superuser) {
+			echo "Access denied.";
+			return;
+		}
+		
 		@$key = DevblocksPlatform::importGPC($_POST['key'],'string','');
 
 		if(DEMO_MODE) {
@@ -3298,85 +3424,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	    $settings->set(CerberusSettings::PARSER_AUTO_REQ, $parser_autoreq);
 	    $settings->set(CerberusSettings::PARSER_AUTO_REQ_EXCLUDE, $parser_autoreq_exclude);
 		
-	    // Pop3 Accounts
-
-		@$ar_ids = DevblocksPlatform::importGPC($_POST['account_id'],'array');
-		@$ar_enabled = DevblocksPlatform::importGPC($_POST['pop3_enabled'],'array');
-		@$ar_nickname = DevblocksPlatform::importGPC($_POST['nickname'],'array');
-		@$ar_protocol = DevblocksPlatform::importGPC($_POST['protocol'],'array');
-		@$ar_host = DevblocksPlatform::importGPC($_POST['host'],'array');
-		@$ar_username = DevblocksPlatform::importGPC($_POST['username'],'array');
-		@$ar_password = DevblocksPlatform::importGPC($_POST['password'],'array');
-		@$ar_port = DevblocksPlatform::importGPC($_POST['port'],'array');
-		@$ar_delete = DevblocksPlatform::importGPC($_POST['delete'],'array');
-
-		if(!is_array($ar_ids))
-		    return;
-		    
-		foreach($ar_ids as $idx => $id) {
-		    $nickname = $ar_nickname[$idx];
-		    $protocol = $ar_protocol[$idx];
-		    $host = $ar_host[$idx];
-		    $username = $ar_username[$idx];
-		    $password = $ar_password[$idx];
-		    $port = $ar_port[$idx];
-		    
-			if(empty($nickname)) $nickname = "No Nickname";
-			
-			// Defaults
-			if(empty($port)) {
-			    switch($protocol) {
-			        case 'pop3':
-			            $port = 110; 
-			            break;
-			        case 'pop3-ssl':
-			            $port = 995;
-			            break;
-			        case 'imap':
-			            $port = 143;
-			            break;
-			        case 'imap-ssl':
-			            $port = 993;
-			            break;
-			    }
-			}
-			
-			if(!empty($id) && is_numeric(array_search($id, $ar_delete))) {
-				DAO_Mail::deletePop3Account($id);
-				
-			} elseif(!empty($id)) {
-			    $enabled = (is_array($ar_enabled) && is_numeric(array_search($id, $ar_enabled))) ? 1 : 0;
-			    
-			    // [JAS]: [TODO] convert to field constants
-				$fields = array(
-				    'enabled' => $enabled,
-					'nickname' => $nickname,
-					'protocol' => $protocol,
-					'host' => $host,
-					'username' => $username,
-					'password' => $password,
-					'port' => $port
-				);
-				DAO_Mail::updatePop3Account($id, $fields);
-				
-			} else {
-	            if(!empty($host) && !empty($username)) {
-				    // [JAS]: [TODO] convert to field constants
-	                $fields = array(
-					    'enabled' => 1,
-						'nickname' => $nickname,
-						'protocol' => $protocol,
-						'host' => $host,
-						'username' => $username,
-						'password' => $password,
-						'port' => $port
-					);
-				    $id = DAO_Mail::createPop3Account($fields);
-	            }
-			}
-		}
-		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','mail','incoming')));
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','mail')));
 	}
 	
 	// Form Submit
@@ -3448,7 +3496,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		}
 		
 		if(DEMO_MODE) {
-			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','mail','incoming')));
+			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','mail')));
 			return;
 		}
 		
@@ -3506,7 +3554,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$settings = CerberusSettings::getInstance();
 		$settings->set(CerberusSettings::DEFAULT_TEAM_ID, $default_team_id);
 		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','mail','incoming')));
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','mail')));
 	}
 	
 	// Ajax
@@ -3592,18 +3640,6 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		}
 		
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('config','plugins')));
-	}
-	
-	// POST
-	function saveConfigurePluginAction() {
-		@$plugin_id = DevblocksPlatform::importGPC($_REQUEST['plugin_id'],'string');
-
-		if(!empty($plugin_id) && null != ($plugin = DevblocksPlatform::getPlugin($plugin_id))) {
-			$inst = $plugin->createInstance();
-			$inst->saveConfiguration($plugin);
-		}
-		
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('config','extensions')));
 	}
 	
 	function saveSlaAction() {

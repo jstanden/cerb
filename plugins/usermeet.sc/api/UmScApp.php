@@ -283,12 +283,13 @@ class UmScApp extends Extension_UsermeetTool {
         $settings = CerberusSettings::getInstance();
         $default_from = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM);
         
+    	@$arDeleteSituations = DevblocksPlatform::importGPC($_POST['delete_situations'],'array',array());
+        
     	@$sEditReason = DevblocksPlatform::importGPC($_POST['edit_reason'],'string','');
     	@$sReason = DevblocksPlatform::importGPC($_POST['reason'],'string','');
         @$sTo = DevblocksPlatform::importGPC($_POST['to'],'string','');
         @$aFollowup = DevblocksPlatform::importGPC($_POST['followup'],'array',array());
         @$aFollowupField = DevblocksPlatform::importGPC($_POST['followup_fields'],'array',array());
-//        @$aFollowupLong = DevblocksPlatform::importGPC($_POST['followup_long'],'array',array());
         
         if(empty($sTo))
         	$sTo = $default_from;
@@ -307,19 +308,18 @@ class UmScApp extends Extension_UsermeetTool {
         	}
         }
 
-        // Nuke a record we're replacing
-       	if(!empty($sEditReason)) {
-			// will be MD5
-	        if(is_array($dispatch))
-	        foreach($dispatch as $d_reason => $d_params) {
-	        	if(md5($d_reason)==$sEditReason) {
-	        		unset($dispatch[$d_reason]);
-	        	}
-	        }
-       	}
+        // Nuke a record we're replacing or any checked boxes
+		// will be MD5
+        foreach($dispatch as $d_reason => $d_params) {
+        	if(!empty($sEditReason) && md5($d_reason)==$sEditReason) {
+        		unset($dispatch[$d_reason]);
+        	} elseif(!empty($arDeleteSituations) && false !== array_search(md5($d_reason),$arDeleteSituations)) {
+        		unset($dispatch[$d_reason]);
+        	}
+        }
         
        	// If we have new data, add it
-        if(!empty($sReason) && !empty($sTo)) {
+        if(!empty($sReason) && !empty($sTo) && false === array_search(md5($sReason),$arDeleteSituations)) {
 			$dispatch[$sReason] = array(
 				'to' => $sTo,
 				'followups' => array()
@@ -342,7 +342,7 @@ class UmScApp extends Extension_UsermeetTool {
     
     // Ajax
     public function getSituation() {
-		@$sCode = DevblocksPlatform::importGPC($_REQUEST['code'],'string','');
+		@$sCode = DevblocksPlatform::importGPC($_REQUEST['portal'],'string','');
 		@$sReason = DevblocksPlatform::importGPC($_REQUEST['reason'],'string','');
     	 
     	$tool = DAO_CommunityTool::getByCode($sCode);

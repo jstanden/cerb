@@ -12,27 +12,30 @@ class ChForumsPlugin extends DevblocksPlugin {
 	
 	function load(DevblocksPluginManifest $manifest) {
 	}
+};
+
+class ChForumsConfigTab extends Extension_ConfigTab {
+	const ID = 'forums.config.tab';
 	
-	function configure(DevblocksPluginManifest $manifest) {
+	function showTab() {
 		$settings = CerberusSettings::getInstance();
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
-		$tpl_path = realpath(dirname(__FILE__) . '/../templates/');
+		$tpl_path = realpath(dirname(__FILE__) . '/../templates') . DIRECTORY_SEPARATOR;
 		$tpl->assign('path', $tpl_path);
-		$tpl->assign('manifest', $manifest);
-		
+		$tpl->cache_lifetime = "0";
+
 		@$sources = DAO_ForumsSource::getWhere();
 		$tpl->assign('sources', $sources);
 
-		if(null != ($poster_workers_str = $settings->get(self::SETTING_POSTER_WORKERS, null))) {
+		if(null != ($poster_workers_str = $settings->get(ChForumsPlugin::SETTING_POSTER_WORKERS, null))) {
 			$tpl->assign('poster_workers_str', $poster_workers_str);
 		}
 		
-		$tpl->display($tpl_path.'/config/index.tpl.php');
+		$tpl->display('file:' . $tpl_path . 'config/index.tpl.php');
 	}
 	
-	function saveConfiguration(DevblocksPluginManifest $manifest) {
+	function saveTab() {
 		$settings = CerberusSettings::getInstance();
 		@$plugin_id = DevblocksPlatform::importGPC($_REQUEST['plugin_id'],'string');
 
@@ -85,7 +88,7 @@ class ChForumsPlugin extends DevblocksPlugin {
 			$source_id = DAO_ForumsSource::create($fields);
 		}
 		
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('config','extensions',$plugin_id)));
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('config','forums')));
 		exit;
 	}
 };

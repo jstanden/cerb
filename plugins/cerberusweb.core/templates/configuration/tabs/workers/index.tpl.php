@@ -22,7 +22,7 @@
 				</tr>
 				<tr>
 					<td>
-						<div style="margin:0px;padding:3px;height:150px;width:200px;overflow:auto;">
+						<div style="margin:0px;padding:3px;width:200px;overflow:auto;">
 						{if !empty($workers)}
 							{foreach from=$workers item=agent}
 							&#187; <a href="javascript:;" onclick="configAjax.getWorker('{$agent->id}')" title="{if !empty($agent->title)}{$agent->title}{/if}">{if !empty($agent->last_name)}{$agent->last_name}{/if}{if !empty($agent->first_name) && !empty($agent->last_name)}, {/if}{if !empty($agent->first_name)}{$agent->first_name}{/if}</a><br>

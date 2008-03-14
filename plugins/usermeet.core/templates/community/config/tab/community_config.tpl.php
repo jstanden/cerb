@@ -1,5 +1,5 @@
 <div class="block">
-<form action="{devblocks_url}{/devblocks_url}" method="post">
+<form action="{devblocks_url}{/devblocks_url}" method="post" id="formConfigCommunity">
 <input type="hidden" name="c" value="config">
 <input type="hidden" name="a" value="handleTabAction">
 <input type="hidden" name="tab" value="usermeet.config.tab.communities">
@@ -14,7 +14,7 @@
 {/if}
 
 <b>Community Name:</b><br>
-<input type="text" name="name" size="" value="{$community->name}" style="width:98%;"><br>
+<input type="text" name="name" size="45" value="{$community->name}"><br>
 <br>
 
 <b>Add Community Tool:</b><br>

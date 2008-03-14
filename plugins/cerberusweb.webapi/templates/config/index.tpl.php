@@ -8,7 +8,8 @@ remote control of your helpdesk.<br>
 
 <form action="{devblocks_url}{/devblocks_url}" method="POST">
 <input type="hidden" name="c" value="config">
-<input type="hidden" name="a" value="saveConfigurePlugin">
+<input type="hidden" name="a" value="saveTab">
+<input type="hidden" name="ext_id" value="webapi.config.tab">
 <input type="hidden" name="plugin_id" value="{$plugin->id}">
 
 {foreach from=$access_keys item=access_key key=access_key_id}

@@ -23,8 +23,13 @@
 	<b>Ask:</b> {$question} {if $long}(Long Answer){/if}<br>
 	{/foreach}
 	{/if}
+	<label><input type="checkbox" name="delete_situations[]" value="{$reason|md5}"> Delete this situation</label>
 </div>
 {/foreach}
+
+<div style="margin-left:10px;margin-bottom:10px;">
+	<a href="#add_situation" onclick="genericAjaxGet('add_situation','c=config&a=handleTabAction&tab=usermeet.config.tab.communities&action=getContactSituation&reason=&portal={$instance->code}');">add new situation </a>
+</div>
 
 <div class="subtle2" id="add_situation">
 {include file="$config_path/portal/contact/config/add_situation.tpl.php"}

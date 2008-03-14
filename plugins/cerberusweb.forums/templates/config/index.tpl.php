@@ -2,7 +2,8 @@
 
 <form action="{devblocks_url}{/devblocks_url}" method="POST">
 <input type="hidden" name="c" value="config">
-<input type="hidden" name="a" value="saveConfigurePlugin">
+<input type="hidden" name="a" value="saveTab">
+<input type="hidden" name="ext_id" value="forums.config.tab">
 <input type="hidden" name="plugin_id" value="{$plugin->id}">
 
 <h2>Forums</h2>
@@ -23,7 +24,7 @@
 {/if}
 	<br>
 	<b>Treat these forum posters as helpdesk workers:</b><br>
-	<textarea style="height:80px;width:98%;" name="poster_workers">{$poster_workers_str}</textarea><br>
+	<textarea style="height:80px;width:400px;" name="poster_workers">{$poster_workers_str}</textarea><br>
 </blockquote>
 
 <h2>Add Forum</h2>

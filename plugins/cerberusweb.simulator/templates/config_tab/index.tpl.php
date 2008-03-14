@@ -1,15 +1,3 @@
-<div id="divSimulatorOutput"></div>
-
-{*
-{if !empty($error)}
-<div class="error">{$error}</div>
-{elseif !empty($output)}
-<div class="success">{$output}</div>
-{else}
-<br>
-{/if}
-*}
-
 <div class="block">
 <form method="post" action="{devblocks_url}{/devblocks_url}" id="simulatorForm">
 <input type="hidden" name="c" value="config">
@@ -39,9 +27,11 @@
 		</td>
 	</tr>
 </table>
+
+<div id="divSimulatorOutput"></div>
 <br>
 
-<button type="button" onclick="genericAjaxPost('simulatorForm','divSimulatorOutput');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/gear.gif{/devblocks_url}" align="top"> Generate</button>
+<button type="button" onclick="document.getElementById('divSimulatorOutput').innerHTML='Please wait. Generating tickets...';genericAjaxPost('simulatorForm','divSimulatorOutput');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/gear.gif{/devblocks_url}" align="top"> Generate</button>
 	
 </form>
 </div>

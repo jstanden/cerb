@@ -1,5 +1,5 @@
 {if !empty($situation_reason)}
-	<h2>Modify Contact Situation</h2>
+	<h2>{$situation_reason}</h2>
 {else}
 	<h2>Add a Contact Situation</h2>
 {/if}

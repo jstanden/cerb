@@ -32,14 +32,6 @@
 						<br>
 						{/foreach}
 						{/if}
-						
-						{*
-						{if !empty($workers)}
-							{foreach from=$workers item=agent}
-							&#187; <a href="javascript:;" onclick="configAjax.getWorker('{$agent->id}')" title="{if !empty($agent->title)}{$agent->title}{/if}">{if !empty($agent->last_name)}{$agent->last_name}{/if}{if !empty($agent->first_name) && !empty($agent->last_name)}, {/if}{if !empty($agent->first_name)}{$agent->first_name}{/if}</a><br>
-							{/foreach}
-						{/if}
-						*}
 						</div>
 					</td>
 				</tr>
@@ -49,9 +41,9 @@
 		</td>
 		
 		<td width="100%" valign="top">
-			<form action="{devblocks_url}{/devblocks_url}" method="post" id="configCommunity">
+			<div id="configCommunity">
 				{include file="$path/community/config/tab/community_config.tpl.php" community=null}
-			</form>
+			</div>
 		</td>
 		
 	</tr>

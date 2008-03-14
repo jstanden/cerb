@@ -22,7 +22,7 @@
 				</tr>
 				<tr>
 					<td>
-						<div style="margin:0px;padding:3px;height:150px;width:200px;overflow:auto;">
+						<div style="margin:0px;padding:3px;width:200px;overflow:auto;">
 						{if !empty($teams)}
 							{foreach from=$teams item=team}
 							&#187; <a href="javascript:;" onclick="configAjax.getTeam('{$team->id}')">{$team->name}</a><br>

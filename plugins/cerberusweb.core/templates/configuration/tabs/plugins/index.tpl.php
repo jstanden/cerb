@@ -17,7 +17,6 @@
 						&nbsp;
 						 -->
 						<span style="{if $plugin->enabled}font-size:120%;font-weight:bold;{else}font-weight:bold;color:rgb(120,120,120);{/if}">{$plugin->name}</span> &nbsp; 
-						{if $plugin->enabled && $plugin->is_configurable}<a href="{devblocks_url}c=config&a=extensions&p={$plugin->id}{/devblocks_url}">configure</a> &nbsp;{/if}
 						<!-- (Revision: {$plugin->revision}) -->
 						{if !empty($plugin->link)}<a href="{$plugin->link}" target="_blank">website</a> &nbsp;{/if}
 						<br> 

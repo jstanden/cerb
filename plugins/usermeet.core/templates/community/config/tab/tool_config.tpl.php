@@ -1,10 +1,11 @@
 <div class="block">
-<form action="{devblocks_url}{/devblocks_url}" method="post">
+<form action="{devblocks_url}{/devblocks_url}" method="post" id="formConfigCommunityTool">
 <input type="hidden" name="c" value="config">
 <input type="hidden" name="a" value="handleTabAction">
 <input type="hidden" name="tab" value="usermeet.config.tab.communities">
 <input type="hidden" name="action" value="saveCommunityTool">
 <input type="hidden" name="portal" value="{$instance->code}">
+<input type="hidden" name="is_submitted" value="1">
 <input type="hidden" name="do_delete" value="0">
 
 <H2>{$tool->manifest->name}</H2>
@@ -17,7 +18,12 @@ Profile ID: <b>{$instance->code}</b><br>
 {/if}
 
 <br>
-<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
+
+{if !empty($is_submitted)}
+	<div class="success">Changes saved at {$is_submitted|date_format:'%H:%M:%S%p'}</div>
+{/if}
+
+<button type="button" onclick="genericAjaxPost('formConfigCommunityTool','configCommunity',null);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
 {if !empty($instance)}<button type="button" onclick="{literal}if(confirm('Are you sure you want to permanently delete this community tool?')){this.form.do_delete.value='1';this.form.submit();}{/literal}"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete2.gif{/devblocks_url}" align="top"> {$translate->_('common.delete')|capitalize}</button>{/if}
 
 </form>
@@ -26,7 +32,7 @@ Profile ID: <b>{$instance->code}</b><br>
 
 <div class="block">
 <H2>Installation</H2>
-Place the following two files in a new directory on the appropriate public website.  This directory 
+Place the index.php file in a new directory on the appropriate public website.  This directory 
 can be named anything but will usually describe the tool.<br>
 For example: <i>http://www.cerberusweb.com/support/</i><br>
 <br>

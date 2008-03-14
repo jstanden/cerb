@@ -6,7 +6,6 @@
 	<author>WebGroup Media, LLC.</author>
 	<revision>0</revision>
 	<link>http://wiki.cerberusdemo.com/index.php/Forum_Explorer_(Plugin)</link>
-	<is_configurable>1</is_configurable>
 	<class>
 		<file>api/App.php</file>
 		<name>ChForumsPlugin</name>
@@ -52,6 +51,21 @@
 			<params>
 				<param key="uri" value="forums" />
 				<param key="menutitle" value="forums" />
+			</params>
+		</extension>
+		
+		<!-- Config Tabs -->
+		
+		<extension point="cerberusweb.config.tab">
+			<id>forums.config.tab</id>
+			<name>Forums Tab</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChForumsConfigTab</name>
+			</class>
+			<params>
+				<param key="uri" value="forums" />
+				<param key="title" value="Forum Explorer" />
 			</params>
 		</extension>
 		

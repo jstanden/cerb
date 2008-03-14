@@ -61,21 +61,24 @@ class ChRestPlugin extends DevblocksPlugin {
 	
 	function load(DevblocksPluginManifest $manifest) {
 	}
+};
+
+class ChWebApiConfigTab extends Extension_ConfigTab {
+	const ID = 'webapi.config.tab';
 	
-	function configure(DevblocksPluginManifest $manifest) {
+	function showTab() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
-		$tpl_path = realpath(dirname(__FILE__) . '/../templates/');
+		$tpl_path = realpath(dirname(__FILE__) . '/../templates') . DIRECTORY_SEPARATOR;
 		$tpl->assign('path', $tpl_path);
-		$tpl->assign('manifest', $manifest);
+		$tpl->cache_lifetime = "0";
 		
 		$access_keys = DAO_WebapiKey::getWhere();
 		$tpl->assign('access_keys', $access_keys);
 		
-		$tpl->display($tpl_path.'/config/index.tpl.php');
+		$tpl->display('file:' . $tpl_path . 'config/index.tpl.php');
 	}
 	
-	function saveConfiguration(DevblocksPluginManifest $manifest) {
+	function saveTab() {
 		@$plugin_id = DevblocksPlatform::importGPC($_REQUEST['plugin_id'],'string');
 		@$access_ids = DevblocksPlatform::importGPC($_REQUEST['access_ids'],'array',array());
 		@$add_nickname = DevblocksPlatform::importGPC($_REQUEST['add_nickname'],'string');
@@ -130,7 +133,7 @@ class ChRestPlugin extends DevblocksPlugin {
 			$key_id = DAO_WebapiKey::create($fields);
 		}
 		
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('config','extensions',$plugin_id)));
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('config','webapi')));
 		exit;
 	}
 };
