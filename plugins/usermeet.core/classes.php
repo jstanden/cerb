@@ -340,7 +340,11 @@ class UmConfigCommunitiesTab extends Extension_ConfigTab {
         @$iDelete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer',0);
 		
 		if(DEMO_MODE) {
-			self::getCommunityToolAction();
+			if($iDelete) {
+				DevblocksPlatform::redirect(new DevblocksHttpResponse(array('config','communities')));
+			} else {
+				self::getCommunityToolAction();
+			}
 			return;
 		}
 
