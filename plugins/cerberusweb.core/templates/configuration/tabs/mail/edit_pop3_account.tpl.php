@@ -1,5 +1,4 @@
 <div class="block">
-<form action="{devblocks_url}{/devblocks_url}#incoming" method="post">
 <input type="hidden" name="c" value="config">
 <input type="hidden" name="a" value="saveMailbox">
 
@@ -68,5 +67,4 @@
 	</tr>
 	 
 </table>
-</form>
 </div>
