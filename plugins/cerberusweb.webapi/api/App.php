@@ -422,8 +422,8 @@ abstract class Ch_RestController implements DevblocksHttpRequestHandler {
 		foreach($results as $result) {
 			$e =& $xml->addChild($element);
 			foreach($fields as $idx => $fld) {
-				if(isset($result[$idx]))
-					$e->addChild($idx, htmlspecialchars($result[$idx]));
+				if((isset($result[$idx])) && ($idx_name = $this->translate($idx, true)) != null)
+					$e->addChild($idx_name, htmlspecialchars($result[$idx]));
 			}
 		}
 
@@ -435,8 +435,8 @@ abstract class Ch_RestController implements DevblocksHttpRequestHandler {
 		$result = array_shift($results);
 
 		foreach($fields as $idx => $fld) {
-			if(isset($result[$idx]))
-				$xml->addChild($idx, htmlspecialchars($result[$idx]));
+			if((isset($result[$idx])) && ($idx_name = $this->translate($idx, true)) != null)
+				$xml->addChild($idx_name, htmlspecialchars($result[$idx]));
 		}
 
 		$this->_render($xml->asXML());
@@ -444,6 +444,27 @@ abstract class Ch_RestController implements DevblocksHttpRequestHandler {
 };
 
 class Rest_AddressesController extends Ch_RestController {
+	protected function translate($idx, $dir) {
+		$translations = array(
+			'a_id' => 'id',
+			'a_email' => 'email',
+			'a_first_name' => 'first_name',
+			'a_last_name' => 'last_name',
+			'a_contact_org_id' => 'contact_org_id',
+			'a_phone' => 'phone',
+			'a_num_spam' => null,
+			'a_num_nonspam' => null,
+			'a_is_banned' => 'is_banned',
+			'a_sla_id' => null,
+		);
+		
+		if ($dir === true)
+			return $translations[$idx];
+		if ($dir === false)
+			return ($key = array_search($idx, $translations)) === false ? null : $key;
+		return $idx;
+	}
+	
 	protected function getAction($path,$keychain) {
 		if(Model_WebapiKey::ACL_NONE == intval(@$keychain->rights['acl_addresses']))
 			$this->_error("Action not permitted.");
@@ -502,7 +523,9 @@ class Rest_AddressesController extends Ch_RestController {
 		unset($flds[DAO_Address::ID]);
 		
 		foreach($flds as $idx => $f) {
-			@$value = (string) $xml_in->$idx;
+			$idx_name = $this->translate($idx, true);
+			if ($idx_name == null) continue;
+			@$value = (string) $xml_in->$idx_name;
 			if(!empty($value)) {
 				$fields[$idx] = $value;
 			}
@@ -538,7 +561,9 @@ class Rest_AddressesController extends Ch_RestController {
 		
 		// Check for params in request
 		foreach($search_params as $sp_element => $fld) {
-			@$field_ptr =& $xml_in->params->$sp_element;
+			$sp_element_name = $this->translate($sp_element, true);
+			if ($sp_element_name == null) continue;
+			@$field_ptr =& $xml_in->params->$sp_element_name;
 			if(!empty($field_ptr)) {
 				@$value = (string) $field_ptr['value'];
 				@$oper = (string) $field_ptr['oper'];
@@ -616,7 +641,9 @@ class Rest_AddressesController extends Ch_RestController {
 		unset($flds[DAO_Address::ID]);
 		
 		foreach($flds as $idx => $f) {
-			@$value = (string) $xml_in->$idx;
+			$idx_name = $this->translate($idx, true);
+			if ($idx_name == null) continue;
+			@$value = (string) $xml_in->$idx_name;
 			if(!empty($value))
 				$fields[$idx] = $value;
 		}
@@ -637,7 +664,31 @@ class Rest_AddressesController extends Ch_RestController {
 };
 
 class Rest_OrgsController extends Ch_RestController {
-
+	protected function translate($idx, $dir) {
+		$translations = array(
+			'c_id' => 'id',
+			'c_account_number' => 'account_number',
+			'c_name' => 'name',
+			'c_street' => 'street',
+			'c_city' => 'city',
+			'c_province' => 'province',
+			'c_postal' => 'postal',
+			'c_country' => 'country',
+			'c_phone' => 'phone',
+			'c_fax' => 'fax',
+			'c_website' => 'website',
+			'c_created' => null,
+			'c_sla_id' => null,
+		);
+		
+		if ($dir === true)
+			return $translations[$idx];
+		if ($dir === false)
+			return ($key = array_search($idx, $translations)) === false ? null : $key;
+		return $idx;
+	}
+		
+	
 	//****
 
 	protected function getAction($path,$keychain) {
@@ -702,7 +753,9 @@ class Rest_OrgsController extends Ch_RestController {
 		unset($flds[DAO_ContactOrg::ID]);
 		
 		foreach($flds as $idx => $f) {
-			@$value = (string) $xml_in->$idx;
+			$idx_name = $this->translate($idx, true);
+			if ($idx_name == null) continue;
+			@$value = (string) $xml_in->$idx_name;
 			if(!empty($value)) {
 				$fields[$idx] = $value;
 			}
@@ -726,7 +779,9 @@ class Rest_OrgsController extends Ch_RestController {
 		
 		// Check for params in request
 		foreach($search_params as $sp_element => $fld) {
-			@$field_ptr =& $xml_in->params->$sp_element;
+			$sp_element_name = $this->translate($sp_element, true);
+			if ($sp_element_name == null) continue;
+			@$field_ptr =& $xml_in->params->$sp_element_name;
 			if(!empty($field_ptr)) {
 				@$value = (string) $field_ptr['value'];
 				@$oper = (string) $field_ptr['oper'];
@@ -803,7 +858,9 @@ class Rest_OrgsController extends Ch_RestController {
 		unset($flds[DAO_ContactOrg::ID]);
 		
 		foreach($flds as $idx => $f) {
-			@$value = (string) $xml_in->$idx;
+			$idx_name = $this->translate($idx, true);
+			if ($idx_name == null) continue;
+			@$value = (string) $xml_in->$idx_name;
 			if(!empty($value))
 				$fields[$idx] = $value;
 		}
@@ -831,7 +888,46 @@ class Rest_OrgsController extends Ch_RestController {
 };
 
 class Rest_TicketsController extends Ch_RestController {
-
+	protected function translate($idx, $dir) {
+		$translations = array(
+			't_id' => 'id',
+			't_mask' => 'mask',
+			't_subject' => 'subject',
+			'tm_name' => 'team_name',
+			't_category_id' => null,
+			't_created_date' => 'created_date',
+			't_updated_date' => 'updated_date',
+			't_is_waiting' => 'is_waiting',
+			't_is_closed' => 'is_closed',
+			't_is_deleted' => 'is_deleted',
+			't_first_wrote_address_id' => null,
+			't_first_wrote' => 'first_wrote',
+			't_last_wrote_address_id' => null,
+			't_last_wrote' => 'last_wrote',
+			't_last_action_code' => null,
+			't_last_worker_id' => 'last_worker_id',
+			't_next_action' => 'next_action',
+			't_next_worker_id' => 'next_worker_id',
+			't_spam_training' => 'spam_training',
+			't_spam_score' => 'spam_score',
+			't_first_wrote_spam' => null,
+			't_first_wrote_nonspam' => null,
+			't_interesting_words' => null,
+			't_due_date' => 'due_date',
+			't_sla_id' => null,
+			't_sla_priority' => null,
+			't_first_contact_org_id' => null,
+			'tm_id' => 'team_id',
+		);
+		
+		if ($dir === true)
+			return $translations[$idx];
+		if ($dir === false)
+			return ($key = array_search($idx, $translations)) === false ? null : $key;
+		return $idx;
+	}
+		
+	
 	//****
 
 	protected function getAction($path,$keychain) {
@@ -893,7 +989,9 @@ class Rest_TicketsController extends Ch_RestController {
 		
 		// Check for params in request
 		foreach($search_params as $sp_element => $fld) {
-			@$field_ptr =& $xml_in->params->$sp_element;
+			$sp_element_name = $this->translate($sp_element, true);
+			if ($sp_element_name == null) continue;
+			@$field_ptr =& $xml_in->params->$sp_element_name;
 			if(!empty($field_ptr)) {
 				@$value = (string) $field_ptr['value'];
 				@$oper = (string) $field_ptr['oper'];
@@ -992,7 +1090,9 @@ class Rest_TicketsController extends Ch_RestController {
 		unset($flds[DAO_Ticket::ID]);
 		
 		foreach($flds as $idx => $f) {
-			@$value = (string) $xml_in->$idx;
+			$idx_name = $this->translate($idx, true);
+			if ($idx_name == null) continue;
+			@$value = (string) $xml_in->$idx_name;
 			if(!empty($value))
 				$fields[$idx] = $value;
 		}
@@ -1023,7 +1123,7 @@ class Rest_TicketsController extends Ch_RestController {
 };
 
 class Rest_ParserController extends Ch_RestController {
-
+	
 	//****
 
 	protected function getAction($path,$keychain) {
@@ -1126,7 +1226,7 @@ class Rest_ParserController extends Ch_RestController {
 };
 
 class Rest_FnrController extends Ch_RestController {
-
+	
 	//****
 
 	protected function getAction($path,$keychain) {
