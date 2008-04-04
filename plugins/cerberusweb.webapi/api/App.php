@@ -100,12 +100,14 @@ class ChWebApiConfigTab extends Extension_ConfigTab {
 			@$aclOrgs = DevblocksPlatform::importGPC($_REQUEST['aclOrgs'.$access_id],'integer',0);
 			@$aclParser = DevblocksPlatform::importGPC($_REQUEST['aclParser'.$access_id],'integer',0);
 			@$aclTickets = DevblocksPlatform::importGPC($_REQUEST['aclTickets'.$access_id],'integer',0);
+			@$aclMessages = DevblocksPlatform::importGPC($_REQUEST['aclMessages'.$access_id],'integer',0);
 			
 			$rights['acl_addresses'] = $aclAddresses;
 			$rights['acl_fnr'] = $aclFnr;
 			$rights['acl_orgs'] = $aclOrgs;
 			$rights['acl_parser'] = $aclParser;
 			$rights['acl_tickets'] = $aclTickets;
+			$rights['acl_messages'] = $aclMessages;
 			
 			// IPs
 			@$ipList = DevblocksPlatform::importGPC($_REQUEST['ips'.$access_id],'string','');
@@ -271,6 +273,7 @@ class ChRestFrontController extends DevblocksControllerExtension {
 			'orgs' => 'Rest_OrgsController',
 			'parser' => 'Rest_ParserController',
 			'tickets' => 'Rest_TicketsController',
+			'messages' => 'Rest_MessagesController',
 		);
 
 		$stack = $request->path;
@@ -458,13 +461,31 @@ class Rest_AddressesController extends Ch_RestController {
 			'a_sla_id' => null,
 		);
 		
-		if ($dir === true)
+		if ($dir === true && array_key_exists($idx, $translations))
 			return $translations[$idx];
 		if ($dir === false)
 			return ($key = array_search($idx, $translations)) === false ? null : $key;
 		return $idx;
 	}
 	
+	protected function isValid($idx_name, $value) {
+		switch($idx_name) {
+			case 'contact_org_id':
+				return is_numeric($value) ? true : false;
+			case 'is_banned':
+				return ('1' == $value || '0' == $value) ? true : false;
+			case 'email':
+				$addr_array = imap_rfc822_parse_adrlist($value);
+				return (is_array($addr_array) && count($addr_array) > 0) ? true : false;
+			case 'first_name':
+			case 'last_name':
+			case 'phone':
+				return !empty($value) ? true : false;
+			default:
+				return false;
+		}
+	}
+		
 	protected function getAction($path,$keychain) {
 		if(Model_WebapiKey::ACL_NONE == intval(@$keychain->rights['acl_addresses']))
 			$this->_error("Action not permitted.");
@@ -525,10 +546,9 @@ class Rest_AddressesController extends Ch_RestController {
 		foreach($flds as $idx => $f) {
 			$idx_name = $this->translate($idx, true);
 			if ($idx_name == null) continue;
-			@$value = (string) $xml_in->$idx_name;
-			if(!empty($value)) {
+			@$value = DevblocksPlatform::importGPC($xml_in->$idx_name,'string');
+			if($this->isValid($idx_name,$value))
 				$fields[$idx] = $value;
-			}
 		}
 		
 		if(empty($fields[DAO_Address::EMAIL]))
@@ -643,11 +663,11 @@ class Rest_AddressesController extends Ch_RestController {
 		foreach($flds as $idx => $f) {
 			$idx_name = $this->translate($idx, true);
 			if ($idx_name == null) continue;
-			@$value = (string) $xml_in->$idx_name;
-			if(!empty($value))
+			@$value = DevblocksPlatform::importGPC($xml_in->$idx_name,'string');
+			if($this->isValid($idx_name,$value))
 				$fields[$idx] = $value;
 		}
-
+		
 		// [TODO] This referential integrity should really be up to DAO
 		if(!empty($fields[DAO_Address::CONTACT_ORG_ID])) {
 			$in_contact_org_id = intval($fields[DAO_Address::CONTACT_ORG_ID]);
@@ -681,16 +701,32 @@ class Rest_OrgsController extends Ch_RestController {
 			'c_sla_id' => null,
 		);
 		
-		if ($dir === true)
+		if ($dir === true && array_key_exists($idx, $translations))
 			return $translations[$idx];
 		if ($dir === false)
 			return ($key = array_search($idx, $translations)) === false ? null : $key;
 		return $idx;
 	}
 		
-	
-	//****
-
+	protected function isValid($idx_name, $value) {
+		switch($idx_name) {
+			case 'account_number':
+				return is_numeric($value) ? true : false;
+			case 'name':
+			case 'street':
+			case 'city':
+			case 'province':
+			case 'postal':
+			case 'country':
+			case 'phone':
+			case 'fax':
+			case 'website':
+				return !empty($value) ? true : false;
+			default:
+				return false;
+		}
+	}
+		
 	protected function getAction($path,$keychain) {
 		if(Model_WebapiKey::ACL_NONE==intval(@$keychain->rights['acl_orgs']))
 			$this->_error("Action not permitted.");
@@ -755,12 +791,11 @@ class Rest_OrgsController extends Ch_RestController {
 		foreach($flds as $idx => $f) {
 			$idx_name = $this->translate($idx, true);
 			if ($idx_name == null) continue;
-			@$value = (string) $xml_in->$idx_name;
-			if(!empty($value)) {
+			@$value = DevblocksPlatform::importGPC($xml_in->$idx_name,'string');
+			if($this->isValid($idx_name,$value))
 				$fields[$idx] = $value;
-			}
 		}
-		
+				
 		if(empty($fields[DAO_ContactOrg::NAME]))
 			$this->_error("All required fields were not provided.");
 		
@@ -860,11 +895,11 @@ class Rest_OrgsController extends Ch_RestController {
 		foreach($flds as $idx => $f) {
 			$idx_name = $this->translate($idx, true);
 			if ($idx_name == null) continue;
-			@$value = (string) $xml_in->$idx_name;
-			if(!empty($value))
+			@$value = DevblocksPlatform::importGPC($xml_in->$idx_name,'string');
+			if($this->isValid($idx_name,$value))
 				$fields[$idx] = $value;
 		}
-
+		
 		if(!empty($fields))
 			DAO_ContactOrg::update($contact_org->id,$fields);
 
@@ -900,9 +935,9 @@ class Rest_TicketsController extends Ch_RestController {
 			't_is_waiting' => 'is_waiting',
 			't_is_closed' => 'is_closed',
 			't_is_deleted' => 'is_deleted',
-			't_first_wrote_address_id' => null,
+			't_first_wrote_address_id' => 'first_wrote_address_id',
 			't_first_wrote' => 'first_wrote',
-			't_last_wrote_address_id' => null,
+			't_last_wrote_address_id' => 'last_wrote_address_id',
 			't_last_wrote' => 'last_wrote',
 			't_last_action_code' => null,
 			't_last_worker_id' => 'last_worker_id',
@@ -920,14 +955,44 @@ class Rest_TicketsController extends Ch_RestController {
 			'tm_id' => 'team_id',
 		);
 		
-		if ($dir === true)
+		if ($dir === true && array_key_exists($idx, $translations))
 			return $translations[$idx];
 		if ($dir === false)
 			return ($key = array_search($idx, $translations)) === false ? null : $key;
 		return $idx;
 	}
-		
 	
+	protected function isValid($idx_name, $value) {
+		switch($idx_name) {
+			case 'created_date':
+			case 'updated_date':
+			case 'due_date':
+			case 'last_worker_id':
+			case 'next_worker_id':
+			case 'first_wrote_address_id':
+			case 'last_wrote_address_id':
+			case 'team_id':
+				return is_numeric($value) ? true : false;
+			case 'is_waiting':
+			case 'is_closed':
+			case 'is_deleted':
+				return ('1' == $value || '0' == $value) ? true : false;
+			case 'spam_training':
+				return ('N' == $value || 'S' == $value) ? true : false;
+			case 'spam_score':
+				return (is_numeric($value) && 1 > $value && 0 < $value) ? true : false;
+			case 'mask':
+			case 'subject':
+			case 'team_name':
+			case 'first_wrote':
+			case 'last_wrote':
+			case 'next_action':
+				return !empty($value) ? true : false;
+			default:
+				return false;
+		}
+	}
+		
 	//****
 
 	protected function getAction($path,$keychain) {
@@ -1088,15 +1153,13 @@ class Rest_TicketsController extends Ch_RestController {
 			
 		$flds = DAO_Ticket::getFields();
 		unset($flds[DAO_Ticket::ID]);
-		
 		foreach($flds as $idx => $f) {
 			$idx_name = $this->translate($idx, true);
 			if ($idx_name == null) continue;
-			@$value = (string) $xml_in->$idx_name;
-			if(!empty($value))
+			@$value = DevblocksPlatform::importGPC($xml_in->$idx_name,'string');
+			if($this->isValid($idx_name,$value))
 				$fields[$idx] = $value;
 		}
-
 		if(!empty($fields))
 			DAO_Ticket::updateTicket($ticket->id,$fields);
 
@@ -1116,6 +1179,284 @@ class Rest_TicketsController extends Ch_RestController {
 			DAO_Ticket::IS_CLOSED => 1,
 			DAO_Ticket::IS_DELETED => 1,
 		));
+		
+		$out_xml = new SimpleXMLElement('<success></success>');
+		$this->_render($out_xml->asXML());
+	}
+};
+
+class Rest_MessagesController extends Ch_RestController {
+	protected function translate($idx, $dir) {
+		return $idx;
+		$translations = array(
+			't_id' => 'id',
+			't_mask' => 'mask',
+			't_subject' => 'subject',
+			'tm_name' => 'team_name',
+			't_category_id' => null,
+			't_created_date' => 'created_date',
+			't_updated_date' => 'updated_date',
+			't_is_waiting' => 'is_waiting',
+			't_is_closed' => 'is_closed',
+			't_is_deleted' => 'is_deleted',
+			't_first_wrote_address_id' => null,
+			't_first_wrote' => 'first_wrote',
+			't_last_wrote_address_id' => null,
+			't_last_wrote' => 'last_wrote',
+			't_last_action_code' => null,
+			't_last_worker_id' => 'last_worker_id',
+			't_next_action' => 'next_action',
+			't_next_worker_id' => 'next_worker_id',
+			't_spam_training' => 'spam_training',
+			't_spam_score' => 'spam_score',
+			't_first_wrote_spam' => null,
+			't_first_wrote_nonspam' => null,
+			't_interesting_words' => null,
+			't_due_date' => 'due_date',
+			't_sla_id' => null,
+			't_sla_priority' => null,
+			't_first_contact_org_id' => null,
+			'tm_id' => 'team_id',
+		);
+		
+		if ($dir === true && array_key_exists($idx, $translations))
+			return $translations[$idx];
+		if ($dir === false)
+			return ($key = array_search($idx, $translations)) === false ? null : $key;
+		return $idx;
+	}
+		
+	protected function isValid($idx_name, $value) {
+		switch($idx_name) {
+			case 'created_date':
+			case 'updated_date':
+			case 'due_date':
+			case 'last_worker_id':
+			case 'next_worker_id':
+			case 'first_wrote_address_id':
+			case 'last_wrote_address_id':
+			case 'team_id':
+				return is_numeric($value) ? true : false;
+			case 'is_waiting':
+			case 'is_closed':
+			case 'is_deleted':
+				return ('1' == $value || '0' == $value) ? true : false;
+			case 'spam_training':
+				return ('N' == $value || 'S' == $value) ? true : false;
+			case 'spam_score':
+				return (is_numeric($value) && 1 > $value && 0 < $value) ? true : false;
+			case 'mask':
+			case 'subject':
+			case 'team_name':
+			case 'first_wrote':
+			case 'last_wrote':
+			case 'next_action':
+				return !empty($value) ? true : false;
+			default:
+				return false;
+		}
+	}
+		
+	protected function getAction($path,$keychain) {
+		if(Model_WebapiKey::ACL_NONE==intval(@$keychain->rights['acl_messages']))
+			$this->_error("Action not permitted.");
+		
+		// Single GET
+		if(1==count($path) && is_numeric($path[0]))
+			$this->_getIdAction($path);
+		
+		// Actions
+		switch(array_shift($path)) {
+			case 'list':
+				$this->_getListAction($path);
+				break;
+		}
+	}
+
+	protected function putAction($path,$keychain) {
+		if(Model_WebapiKey::ACL_FULL!=intval(@$keychain->rights['acl_messages']))
+			$this->_error("Action not permitted.");
+		
+		// Single PUT
+		if(1==count($path) && is_numeric($path[0]))
+			$this->_putIdAction($path);
+	}
+	
+	protected function postAction($path,$keychain) {
+		// Actions
+		switch(array_shift($path)) {
+			case 'create':
+				if(Model_WebapiKey::ACL_FULL!=intval(@$keychain->rights['acl_messages']))
+					$this->_error("Action not permitted.");
+				$this->_postCreateAction($path);
+				break;
+			case 'search':
+				if(Model_WebapiKey::ACL_NONE==intval(@$keychain->rights['acl_messages']))
+					$this->_error("Action not permitted.");
+				$this->_postSearchAction($path);
+				break;
+		}
+	}
+	
+	protected function deleteAction($path,$keychain) {
+		if(Model_WebapiKey::ACL_FULL!=intval(@$keychain->rights['acl_messages']))
+			$this->_error("Action not permitted.");
+		
+		// Single DELETE
+		if(1==count($path) && is_numeric($path[0]))
+			$this->_deleteIdAction($path);
+	}
+	
+	//****
+	
+	private function _postCreateAction($path) {
+		$xmlstr = $this->getPayload();
+		$xml_in = simplexml_load_string($xmlstr);
+		
+		$fields = array();
+		
+		$flds = DAO_Message::getFields();
+		unset($flds[DAO_Message::ID]);
+		
+		foreach($flds as $idx => $f) {
+			$idx_name = $this->translate($idx, true);
+			if ($idx_name == null) continue;
+			@$value = DevblocksPlatform::importGPC($xml_in->$idx_name,'string');
+			if($this->isValid($idx_name,$value))
+				$fields[$idx] = $value;
+		}
+				
+		if(empty($fields[DAO_Message::ADDRESS_ID])
+		|| empty($fields[DAO_Message::TICKET_ID]))
+			$this->_error("All required fields were not provided.");
+		
+		if(null != ($address = DAO_Address::get(intval($fields[DAO_Message::ADDRESS_ID]))))
+			$this->_error("Address id specified does not exist.");
+
+		if(null != ($ticket = DAO_Ticket::getTicket(intval($fields[DAO_Message::TICKET_ID]))))
+			$this->_error("Ticket id specified does not exist.");
+
+		// Supply creation date if not specified
+		if(empty($fields[DAO_Message::CREATED_DATE]))
+			$fields[DAO_Message::CREATED_DATE] = time();
+		
+		$id = DAO_Message::create($fields);
+		
+		// Render
+		$this->_getIdAction(array($id));
+	}
+	
+	private function _postSearchAction($path) {
+		@$p_page = DevblocksPlatform::importGPC($_REQUEST['p'],'integer',0);		
+		
+		$xml_in = simplexml_load_string($this->getPayload());
+		$search_params = SearchFields_Message::getFields();
+		$params = array();
+		
+		// Check for params in request
+		foreach($search_params as $sp_element => $fld) {
+			$sp_element_name = $this->translate($sp_element, true);
+			if ($sp_element_name == null) continue;
+			@$field_ptr =& $xml_in->params->$sp_element_name;
+			if(!empty($field_ptr)) {
+				@$value = (string) $field_ptr['value'];
+				@$oper = (string) $field_ptr['oper'];
+				if(empty($oper)) $oper = 'eq';
+				$params[$sp_element] =	new DevblocksSearchCriteria($sp_element,$oper,$value);
+			}
+		}
+
+		list($results, $null) = DAO_Message::search(
+			$params,
+			50,
+			$p_page,
+			SearchFields_Message::ID,
+			false,
+			false
+		);
+		
+		$this->_renderResults($results, $search_params, 'message', 'messages');
+	}
+	
+	private function _getIdAction($path) {
+		$in_id = array_shift($path);
+
+		if(empty($in_id))
+			$this->_error("ID was not provided.");
+
+		list($results, $null) = DAO_Message::search(
+			array(
+				SearchFields_Message::ID => new DevblocksSearchCriteria(SearchFields_Message::ID,'=',$in_id)
+			),
+			1,
+			0,
+			null,
+			null,
+			false
+		);
+			
+		if(empty($results))
+			$this->_error("ID not valid.");
+
+		$this->_renderOneResult($results, SearchFields_Message::getFields(), 'message');
+	}
+	
+	private function _getListAction($path) {
+		@$p_page = DevblocksPlatform::importGPC($_REQUEST['p'],'integer',0);		
+		
+		list($results,$null) = DAO_Message::search(
+			array(),
+			50,
+			$p_page,
+			SearchFields_Message::ID,
+			true,
+			false
+		);
+
+		$this->_renderResults($results, SearchFields_Message::getFields(), 'message', 'messages');
+	}
+	
+	private function _putIdAction($path) {
+		$xmlstr = $this->getPayload();
+		$xml_in = new SimpleXMLElement($xmlstr);
+		
+		$in_id = array_shift($path);
+		
+		if(empty($in_id))
+			$this->_error("ID was not provided.");
+			
+		if(null == ($message = DAO_Ticket::getMessage($in_id)))
+			$this->_error("ID not valid.");
+
+		$fields = array();
+			
+		$flds = DAO_Message::getFields();
+		unset($flds[DAO_Message::ID]);
+		
+		foreach($flds as $idx => $f) {
+			$idx_name = $this->translate($idx, true);
+			if ($idx_name == null) continue;
+			@$value = DevblocksPlatform::importGPC($xml_in->$idx_name,'string');
+			if($this->isValid($idx_name,$value))
+				$fields[$idx] = $value;
+		}
+		
+		if(!empty($fields))
+			DAO_Message::update($in_id,$fields);
+
+		$this->_getIdAction(array($in_id));
+	}
+	
+	private function _deleteIdAction($path) {
+		$in_id = array_shift($path);
+
+		if(empty($in_id))
+			$this->_error("ID was not provided.");
+			
+		if(null == ($message = DAO_Ticket::getMessage($in_id)))
+			$this->_error("ID is not valid.");
+		
+		DAO_Message::delete(array($in_id));
 		
 		$out_xml = new SimpleXMLElement('<success></success>');
 		$this->_render($out_xml->asXML());
