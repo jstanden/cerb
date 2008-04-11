@@ -811,7 +811,7 @@ switch($step) {
 							        $sPassword
 						    );
 					        
-						    $mail->attach(new Swift_Message_Part($body, 'text/plain', 'ISO-8859-1'));
+						    $mail->attach(new Swift_Message_Part($body, 'text/plain', 'base64', 'ISO-8859-1'));
 	
 							if(!$mailer->send($mail, $sendTo, $sendFrom)) {
 								throw new Exception('Failed to send email with worker password.');
