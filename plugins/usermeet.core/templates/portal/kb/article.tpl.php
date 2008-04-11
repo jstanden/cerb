@@ -6,16 +6,28 @@
 			<td style="padding: 5px; vertical-align: top;">
 				<div id="kbArticle">
 				<h2 style="margin:0px;">{$article->title}</h2>
-				{if !empty($tags)}
-					<a href="{devblocks_url}c=browse&path={$location}{/devblocks_url}"><b>Location</b></a>: 
-					{foreach from=$tags item=tag name=tags}
-						<a href="{devblocks_url}c=browse&path={$tag->name|escape:"url"}{/devblocks_url}">{$tag->name}</a>{if !$smarty.foreach.tags.last} + {/if}
-					{/foreach}
-					<br>
+				
+				<div style="padding-bottom:5px;font-size:90%;">
+				{if !empty($breadcrumbs)}
+					{foreach from=$breadcrumbs item=bread_stack}
+						<a href="{devblocks_url}c=browse{/devblocks_url}">Top</a> ::
+						{foreach from=$bread_stack item=bread_id}
+							<a href="{devblocks_url}c=browse&id={$bread_id|string_format:"%06d"}{/devblocks_url}">{$categories.$bread_id->name}</a> :
+						{/foreach}
+						<br> 
+					{/foreach} 
+				{/if}
+				</div>
+				
+				<br>
+				
+				{if !empty($article->content)}
+					{$article->content}<br>
+				{else}
+					<i>[[ this article has no content ]]</i><br>
 				{/if}
 				<br>
-				{$article->content}<br>
-				<br>
+				
 				<!-- 
 				<div style="margin: 10px; padding: 10px; background-color: rgb(230, 230, 230);">
 					<h3 style="margin-top: 2px;">Provide Feedback</h3>
@@ -39,15 +51,10 @@
 					<input name="query" value="" size="16" style="width: 150px;" type="text"><button type="submit">&raquo;</button>
 					</form>
 					<br>
-					<!-- 
-					<b>Other Resources</b><br>
-					<a href="#">Contact Us</a><br>
-					<br>
-					 -->
 					<b>Article Tools</b><br>
 					{if !empty($editor) && !empty($article)}<img src="{devblocks_url}c=resource&p=usermeet.core&f=images/document_edit.gif{/devblocks_url}" alt="Edit" align="top"> <a href="{devblocks_url}c=edit&id={$article->id}{/devblocks_url}">Edit</a><br>{/if}
 					<img src="{devblocks_url}c=resource&p=usermeet.core&f=images/printer.gif{/devblocks_url}" alt="Printer" align="top"> <a href="javascript:;" onclick="window.print();">Print</a><br>
-					<img src="{devblocks_url}c=resource&p=usermeet.core&f=images/feed-icon-16x16.gif{/devblocks_url}" alt="RSS Feed" align="top" border="0"> <a href="{devblocks_url}c=rss&a=article&id={$article->id|string_format:"%06d"}{/devblocks_url}">View as RSS</a><br>
+					{*<img src="{devblocks_url}c=resource&p=usermeet.core&f=images/feed-icon-16x16.gif{/devblocks_url}" alt="RSS Feed" align="top" border="0"> <a href="{devblocks_url}c=rss&a=article&id={$article->id|string_format:"%06d"}{/devblocks_url}">View as RSS</a><br>*}
 				</div>
 			</td>
 		</tr>

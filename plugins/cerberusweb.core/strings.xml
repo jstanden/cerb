@@ -42,20 +42,17 @@
 				<seg>delete</seg>
 			</tuv>
 		</tu>
+		<tu tuid='common.edit'>
+			<tuv xml:lang="en"><seg>edit</seg></tuv>
+		</tu>
 		<tu tuid='common.filter'>
-			<tuv xml:lang="en">
-				<seg>filter</seg>
-			</tuv>
+			<tuv xml:lang="en"><seg>filter</seg></tuv>
 		</tu>
 		<tu tuid='common.group'>
-			<tuv xml:lang="en">
-				<seg>Group</seg>
-			</tuv>
+			<tuv xml:lang="en"><seg>Group</seg></tuv>
 		</tu>
 		<tu tuid='common.name'>
-			<tuv xml:lang="en">
-				<seg>Name</seg>
-			</tuv>
+			<tuv xml:lang="en"><seg>Name</seg></tuv>
 		</tu>
 		<tu tuid='common.load'>
 			<tuv xml:lang="en">
@@ -499,6 +496,30 @@
 			<tuv xml:lang="en">
 				<seg>Teamwork</seg>
 			</tuv>
+		</tu>
+
+		<!-- KB Article -->
+
+		<tu tuid='kb_article.content'>
+			<tuv xml:lang="en"><seg>Content</seg></tuv>
+		</tu>
+		<tu tuid='kb_article.format'>
+			<tuv xml:lang="en"><seg>Format</seg></tuv>
+		</tu>
+		<tu tuid='kb_article.id'>
+			<tuv xml:lang="en"><seg>ID</seg></tuv>
+		</tu>
+		<tu tuid='kb_article.title'>
+			<tuv xml:lang="en"><seg>Title</seg></tuv>
+		</tu>
+		<tu tuid='kb_article.topic'>
+			<tuv xml:lang="en"><seg>Topic</seg></tuv>
+		</tu>
+		<tu tuid='kb_article.updated'>
+			<tuv xml:lang="en"><seg>Updated</seg></tuv>
+		</tu>
+		<tu tuid='kb_article.views'>
+			<tuv xml:lang="en"><seg>Views</seg></tuv>
 		</tu>
 
 		<!-- Message -->

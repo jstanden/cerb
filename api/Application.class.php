@@ -48,7 +48,7 @@
  * 		and Joe Geck.
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-define("APP_BUILD", 566);
+define("APP_BUILD", 573);
 define("APP_MAIL_PATH", realpath(APP_PATH . '/storage/mail') . DIRECTORY_SEPARATOR);
 
 include_once(APP_PATH . "/api/DAO.class.php");
@@ -129,6 +129,8 @@ class CerberusApplication extends DevblocksApplication {
 		
 		$errors = array();
 		
+		// [TODO] Add MySQL as a requirement
+		
 		// Privileges
 		
 		// Make sure the temporary directories of Devblocks are writeable.
@@ -148,7 +150,6 @@ class CerberusApplication extends DevblocksApplication {
 //		@chmod(APP_PATH . '/storage/attachments/', 0774);
 //		@chmod(APP_PATH . '/storage/mail/new/', 0774);
 //		@chmod(APP_PATH . '/storage/mail/fail/', 0774);
-//		@chmod(APP_PATH . '/storage/indexes/', 0774);
 		
 		if(!is_writeable(APP_PATH . "/storage/")) {
 			$errors[] = realpath(APP_PATH . "/storage/") ." is not writeable by the webserver.  Please adjust permissions and reload this page.";
@@ -164,10 +165,6 @@ class CerberusApplication extends DevblocksApplication {
 		
 		if(!is_writeable(APP_PATH . "/storage/mail/fail/")) {
 			$errors[] = realpath(APP_PATH . "/storage/mail/fail/") ." is not writeable by the webserver.  Please adjust permissions and reload this page.";
-		}
-		
-		if(!is_writeable(APP_PATH . "/storage/indexes/")) {
-			$errors[] = realpath(APP_PATH . "/storage/indexes/") ." is not writeable by the webserver.  Please adjust permissions and reload this page.";
 		}
 		
 		// Requirements
@@ -201,6 +198,12 @@ class CerberusApplication extends DevblocksApplication {
 			} else {
 				$errors[] = 'memory_limit must be 16M or larger in your php.ini file.  Please increase it.';
 			}
+		}
+		
+		// Extension: Sessions
+		if(extension_loaded("mysql") || extension_loaded("mysqli")) {
+		} else {
+			$errors[] = "The 'MySQL' PHP extension is required.  Please enable it.";
 		}
 		
 		// Extension: Sessions

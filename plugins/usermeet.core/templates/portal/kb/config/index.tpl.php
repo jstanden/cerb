@@ -1,3 +1,7 @@
+<b>URL:</b> (where you plan to install this tool, e.g. http://website/tool/)<br>
+<input type="text" name="base_url" size="65" value="{$base_url}"><br>
+<br>
+
 <b>URL to Logo:</b> (link to image, default if blank)<br>
 <input type="text" size="65" name="logo_url" value="{$logo_url}"><br>
 <br>
@@ -14,40 +18,24 @@
 <br>
  -->
 
-<div class="subtle2">
+{*
+<h3>Public Categories</h3>
+(all subcategories will automatically display for a selected category)<br>
 
-<h2>Editors</h2>
-These are users who can log in and modify articles through the public interface.<br>
-<br>
-
-{if !empty($editors)}
-	<table cellpadding="2" cellspacing="1" border="0">
-	<tr>
-		<td align="left"><b>Email</b></td>
-		<td align="center"><b>Change Password</b></td>
-		<td align="center"><b>Delete</b></td>
-	</tr>
-	{foreach from=$editors item=editor name=editors}
-		<tr>
-			<td><input type="hidden" name="editors_email[]" value="{$editor.email}">{$editor.email}</td>
-			<td><input type="password" name="editors_pass[]" size="16" value=""></td>
-			<td align="center"><input type="checkbox" name="editors_delete[]" value="{$editor.email}"></td>
-		</tr>
+<div style="overflow:auto;height:150px;border:solid 1px rgb(180,180,180);background-color:rgb(255,255,255);">
+	{foreach from=$levels item=depth key=node_id}
+		<label>
+			<input type="checkbox" name="category_ids[]" value="{$node_id}" onchange="div=document.getElementById('kbTreeCat{$node_id}');div.style.color=(this.checked)?'green':'';div.style.background=(this.checked)?'rgb(230,230,230)':'';" {if isset($kb_roots.$node_id)}checked{/if}>
+			<span style="padding-left:{math equation="(x-1)*10" x=$depth}px;{if !$depth}font-weight:bold;{/if}">{if $depth}<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/tree_cap.gif{/devblocks_url}" align="absmiddle">{else}<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder.gif{/devblocks_url}" align="absmiddle">{/if} <span id="kbTreeCat{$node_id}" {if isset($kb_roots.$node_id)}style="color:green;background-color:rgb(230,230,230);"{/if}>{$categories.$node_id->name}</span></span>
+		</label>
+		<br>
 	{/foreach}
-	</table>
-{else}
-	<i>No editors have been created.</i><br>
-	<br>
-{/if}
-
-<h2>Add Editor Account</h2>
-
-<b>E-mail Address:</b><br>
-<input type="text" size="65" name="editor_email" value=""><br>
-<br>
-
-<b>Password:</b><br>
-<input type="password" size="16" name="editor_pass" value=""><br>
-<br>
-
 </div>
+*}
+
+<h3>Public Topics</h3>
+{assign var=root_id value="0"}
+{foreach from=$tree_map.$root_id item=category key=category_id}
+	<label><input type="checkbox" name="category_ids[]" value="{$category_id}" {if isset($kb_roots.$category_id)}checked{/if}> <img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder.gif{/devblocks_url}" align="top"> {$categories.$category_id->name}</label><br>
+{/foreach}
+

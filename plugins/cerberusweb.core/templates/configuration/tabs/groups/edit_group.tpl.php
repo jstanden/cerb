@@ -14,7 +14,7 @@
 	</tr>
 	<tr>
 		<td width="0%" nowrap="nowrap" valign="top"><b>Name:</b></td>
-		<td width="100%"><input type="text" name="name" value="{$team->name|escape:"html"}" size="45"></td>
+		<td width="100%"><input type="text" name="name" value="{$team->name|escape:"html"}" size="45" {if (empty($license) || empty($license.key)) && count($teams) >= 3 && empty($team->id)}disabled="disabled"{/if}></td>
 	</tr>
 	
 	<tr>
@@ -27,7 +27,7 @@
 					<tr>
 						<td>
 							<input type="hidden" name="worker_ids[]" value="{$worker_id}">
-							<select name="worker_levels[]">
+							<select name="worker_levels[]" {if (empty($license) || empty($license.key)) && count($teams) >= 3 && empty($team->id)}disabled="disabled"{/if}>
 								<option value="">&nbsp;</option>
 								<option value="1" {if $member && !$member->is_manager}selected{/if}>Member</option>
 								<option value="2" {if $member && $member->is_manager}selected{/if}>Manager</option>
@@ -77,11 +77,11 @@
 						{/foreach}
 					</select>
 					<button type="button" onclick="this.form.delete_box.value='1';this.form.submit();">Delete</button>
-					<button type="button" onclick="toggleDiv('deleteGroup','none');">Cancel</button>
+					<button type="button" onclick="this.form.delete_box.value='0';toggleDiv('deleteGroup','none');">Cancel</button>
 				</div>
 				<br>
 			</div>
-			<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
+			{if (empty($license) || empty($license.key)) && count($teams) >= 3 && empty($team->id)}{else}<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>{/if}
 			{if !empty($team->id)}<button type="button" onclick="toggleDiv('deleteGroup','block');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> {$translate->_('common.remove')|capitalize}</button>{/if}
 		</td>
 	</tr>

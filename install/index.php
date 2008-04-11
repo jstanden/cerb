@@ -133,7 +133,6 @@ if(!is_writeable(DEVBLOCKS_PATH . "tmp/cache/")) {
 @chmod(APP_PATH . '/storage/attachments/', 0774);
 @chmod(APP_PATH . '/storage/mail/new/', 0774);
 @chmod(APP_PATH . '/storage/mail/fail/', 0774);
-@chmod(APP_PATH . '/storage/indexes/', 0774);
 
 if(!is_writeable(APP_PATH . "/storage/")) {
 	die(realpath(APP_PATH . "/storage/") ." is not writeable by the webserver.  Please adjust permissions and reload this page.");
@@ -149,10 +148,6 @@ if(!is_writeable(APP_PATH . "/storage/mail/new/")) {
 
 if(!is_writeable(APP_PATH . "/storage/mail/fail/")) {
 	die(realpath(APP_PATH . "/storage/mail/fail/") ." is not writeable by the webserver.  Please adjust permissions and reload this page.");
-}
-
-if(!is_writeable(APP_PATH . "/storage/indexes/")) {
-	die(realpath(APP_PATH . "/storage/indexes/") ." is not writeable by the webserver.  Please adjust permissions and reload this page.");
 }
 
 //require_once(DEVBLOCKS_PATH . 'libs/Zend.php');
@@ -359,19 +354,19 @@ switch($step) {
 			$drivers['mysqli'] = 'MySQLi 4.x/5.x';
 		}
 		
-		if(extension_loaded('pgsql')) {
-			$drivers['postgres8'] = 'PostgreSQL 8.x';
-			$drivers['postgres7'] = 'PostgreSQL 7.x';
-			$drivers['postgres64'] = 'PostgreSQL 6.4';
-		}
-
-		if(extension_loaded('mssql')) {
-			$drivers['mssql'] = 'Microsoft SQL Server 7.x/2000/2005';
-		}
-		
-		if(extension_loaded('oci8')) {
-			$drivers['oci8'] = 'Oracle 8/9';
-		}
+//		if(extension_loaded('pgsql')) {
+//			$drivers['postgres8'] = 'PostgreSQL 8.x';
+//			$drivers['postgres7'] = 'PostgreSQL 7.x';
+//			$drivers['postgres64'] = 'PostgreSQL 6.4';
+//		}
+//
+//		if(extension_loaded('mssql')) {
+//			$drivers['mssql'] = 'Microsoft SQL Server 7.x/2000/2005';
+//		}
+//		
+//		if(extension_loaded('oci8')) {
+//			$drivers['oci8'] = 'Oracle 8/9';
+//		}
 		
 		$tpl->assign('drivers', $drivers);
 		
@@ -485,7 +480,6 @@ switch($step) {
 						case "cerberusweb.core":
 						case "cerberusweb.simulator":
 						case "usermeet.core":
-						case "usermeet.sc":
 							$plugin_manifest->setEnabled(true);
 							break;
 						

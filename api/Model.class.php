@@ -1407,6 +1407,169 @@ class C4_ContactOrgView extends C4_AbstractView {
 	}
 };
 
+class C4_KbArticleView extends C4_AbstractView {
+	const DEFAULT_ID = 'kb_overview';
+
+	function __construct() {
+		$this->id = self::DEFAULT_ID;
+		$this->name = 'Articles';
+		$this->renderSortBy = 'kb_updated';
+		$this->renderSortAsc = false;
+
+		$this->view_columns = array(
+			SearchFields_KbArticle::TITLE,
+			SearchFields_KbArticle::UPDATED,
+			SearchFields_KbArticle::VIEWS,
+		);
+	}
+
+	function getData() {
+		$objects = DAO_KbArticle::search(
+			$this->params,
+			$this->renderLimit,
+			$this->renderPage,
+			$this->renderSortBy,
+			$this->renderSortAsc
+		);
+		return $objects;
+	}
+
+	function render() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		//		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		$tpl->assign('id', $this->id);
+		$tpl->assign('view', $this);
+
+//		$slas = DAO_Sla::getAll();
+//		$tpl->assign('slas', $slas);
+
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('view_fields', $this->getColumns());
+		$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/kb/view.tpl.php');
+	}
+
+	function renderCriteria($field) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl_path = DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/';
+		$tpl->assign('id', $this->id);
+
+		switch($field) {
+			case SearchFields_KbArticle::TITLE:
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__string.tpl.php');
+				break;
+			case SearchFields_KbArticle::UPDATED:
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__date.tpl.php');
+				break;
+			case SearchFields_KbArticle::VIEWS:
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__number.tpl.php');
+				break;
+			case SearchFields_KbArticle::CONTENT:
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__fulltext.tpl.php');
+				break;
+			case SearchFields_KbArticle::TOP_CATEGORY_ID:
+				$topics = DAO_KbCategory::getWhere(sprintf("%s = %d",
+					DAO_KbCategory::PARENT_ID,
+					0
+				));
+				$tpl->assign('topics', $topics);
+
+				$tpl->display('file:' . $tpl_path . 'kb/search/criteria/kb_topic.tpl.php');
+				break;
+			default:
+				echo '';
+				break;
+		}
+	}
+
+	function renderCriteriaParam($param) {
+		$field = $param->field;
+		$values = !is_array($param->value) ? array($param->value) : $param->value;
+
+		switch($field) {
+			case SearchFields_KbArticle::TOP_CATEGORY_ID:
+				$topics = DAO_KbCategory::getWhere(sprintf("%s = %d",
+					DAO_KbCategory::PARENT_ID,
+					0
+				));
+				$strings = array();
+
+				foreach($values as $val) {
+					if(0==$val) {
+						$strings[] = "None";
+					} else {
+						if(!isset($topics[$val]))
+						continue;
+						$strings[] = $topics[$val]->name;
+					}
+				}
+				echo implode(", ", $strings);
+				break;
+
+			default:
+				parent::renderCriteriaParam($param);
+				break;
+		}
+	}
+
+	static function getFields() {
+		return SearchFields_KbArticle::getFields();
+	}
+
+	static function getSearchFields() {
+		$fields = self::getFields();
+		unset($fields[SearchFields_KbArticle::ID]);
+		unset($fields[SearchFields_KbArticle::FORMAT]);
+		return $fields;
+	}
+
+	static function getColumns() {
+		return self::getFields();
+	}
+
+	function doSetCriteria($field, $oper, $value) {
+		$criteria = null;
+
+		switch($field) {
+			case SearchFields_KbArticle::TITLE:
+				// force wildcards if none used on a LIKE
+				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
+				&& false === (strpos($value,'*'))) {
+					$value = '*'.$value.'*';
+				}
+				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
+				break;
+				
+			case SearchFields_KbArticle::UPDATED:
+				@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','');
+				@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
+
+				if(empty($from)) $from = 0;
+				if(empty($to)) $to = 'today';
+
+				$criteria = new DevblocksSearchCriteria($field,$oper,array($from,$to));
+				break;
+				
+			case SearchFields_KbArticle::VIEWS:
+				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
+				break;
+				
+			case SearchFields_KbArticle::CONTENT:
+				$criteria = new DevblocksSearchCriteria($field, DevblocksSearchCriteria::OPER_FULLTEXT, $value);
+				break;
+				
+			case SearchFields_KbArticle::TOP_CATEGORY_ID:
+				@$topic_ids = DevblocksPlatform::importGPC($_REQUEST['topic_id'], 'array', array());
+				$criteria = new DevblocksSearchCriteria($field, $oper, $topic_ids);
+				break;
+		}
+
+		if(!empty($criteria)) {
+			$this->params[$field] = $criteria;
+			$this->renderPage = 0;
+		}
+	}
+};
+
 class C4_TaskView extends C4_AbstractView {
 	const DEFAULT_ID = 'tasks';
 	const DEFAULT_TITLE = 'All Open Tasks';
@@ -2320,6 +2483,22 @@ class Model_FnrExternalResource {
 		
 		return $feeds;
 	}
+};
+
+class Model_KbArticle {
+	public $id = 0;
+	public $title = '';
+	public $views = 0;
+	public $updated = 0;
+	public $format = 0;
+	public $content = '';
+	public $content_raw = '';
+};
+
+class Model_KbCategory {
+	public $id;
+	public $parent_id;
+	public $name;
 };
 
 class Model_MailTemplate {

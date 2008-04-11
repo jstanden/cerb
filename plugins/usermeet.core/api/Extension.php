@@ -146,4 +146,94 @@ abstract class Extension_UsermeetWidget extends DevblocksExtension {
      */
 };
 
+abstract class Extension_UmScController extends DevblocksExtension implements DevblocksHttpRequestHandler {
+	private $portal = '';
+	
+    function __construct($manifest) {
+        // [TODO] Refactor to __construct
+        parent::DevblocksExtension($manifest);
+    }
+    
+    /*
+     * Site Key
+     * Site Name
+     * Site URL
+     */
+    
+	/**
+	 * @param DevblocksHttpRequest
+	 * @return DevblocksHttpResponse
+	 */
+	public function handleRequest(DevblocksHttpRequest $request) {
+	    $path = $request->path;
+
+		@$a = DevblocksPlatform::importGPC($_REQUEST['a'],'string');
+	    
+		if(empty($a)) {
+    	    @$action = array_shift($path) . 'Action';
+		} else {
+	    	@$action = $a . 'Action';
+		}
+
+	    switch($action) {
+	        case NULL:
+	            // [TODO] Index/page render
+	            break;
+//	            
+	        default:
+			    // Default action, call arg as a method suffixed with Action
+				if(method_exists($this,$action)) {
+					call_user_func(array(&$this, $action)); // [TODO] Pass HttpRequest as arg?
+				}
+	            break;
+	    }
+	}
+	
+	/**
+	 * @return Model_CommunitySession
+	 * // [TODO] This should inherit from usermeet.core (if they lose sync we lose sessions)
+	 */
+	protected function getSession() {
+		$fingerprint = $this->getFingerprint();
+		
+		$session_id = md5($fingerprint['ip'] . $this->getPortal() . $fingerprint['local_sessid']);
+		$session = DAO_CommunitySession::get($session_id);
+		
+		return $session;
+	}
+	
+	protected function getFingerprint() {
+		$sFingerPrint = DevblocksPlatform::importGPC($_COOKIE['GroupLoginPassport'],'string','');
+		$fingerprint = null;
+		if(!empty($sFingerPrint)) {
+			$fingerprint = unserialize($sFingerPrint);
+		}
+		return $fingerprint;
+	}
+	
+	// [TODO] Experimental ==========================================
+	public function setPortal($code) {
+		$this->portal = $code;
+	}
+	
+	public function getPortal() {
+		return $this->portal;
+	}
+	//===============================================================
+	
+	public function writeResponse(DevblocksHttpResponse $response) {
+		/* Expect Overload */
+	}
+	
+	/**
+	 * @param Model_CommunityTool $instance
+	 */
+//	public function configure($instance) {
+//	}
+//	
+//	public function saveConfiguration() {
+//	}
+    
+};
+
 ?>

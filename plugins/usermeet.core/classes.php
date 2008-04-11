@@ -759,25 +759,19 @@ class UmContactApp extends Extension_UsermeetTool {
 };
 
 class UmKbApp extends Extension_UsermeetTool {
+	const PARAM_BASE_URL = 'base_url';
 	const PARAM_LOGO_URL = 'logo_url';
 	const PARAM_THEME_URL = 'theme_url';
 	const PARAM_PAGE_TITLE = 'page_title';
 	const PARAM_CAPTCHA_ENABLED = 'captcha_enabled';
-	const PARAM_EDITORS = 'editors';
+	const PARAM_KB_ROOTS = 'kb_roots';
 	
 	const SESSION_CAPTCHA = 'write_captcha';
-	const SESSION_EDITOR = 'kb_editor';
 	const SESSION_ARTICLE_LIST = 'kb_article_list';
-	
-	const TAG_INDEX_PREFIX = 'ch_kb';
 	
     function __construct($manifest) {
         parent::__construct($manifest);
         $filepath = realpath(dirname(__FILE__)) . DIRECTORY_SEPARATOR;
-    }
-    
-    private function _getTagIndex() {
-    	return self::TAG_INDEX_PREFIX . $this->getPortal();
     }
     
     private function _writeArticlesAsRss($articles, $title) {
@@ -827,10 +821,15 @@ class UmKbApp extends Extension_UsermeetTool {
         
         $captcha_enabled = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_CAPTCHA_ENABLED, 1);
 		$tpl->assign('captcha_enabled', $captcha_enabled);
+
+		// KB Roots
+		$sKbRoots = DAO_CommunityToolProperty::get($this->getPortal(),self::PARAM_KB_ROOTS, '');
+        $kb_roots = !empty($sKbRoots) ? unserialize($sKbRoots) : array();
 		
-        $editor = $umsession->getProperty(self::SESSION_EDITOR, null);
-		$tpl->assign('editor', $editor);
-		
+		$kb_roots_str = '0';
+		if(!empty($kb_roots))
+			$kb_roots_str = implode(',', array_keys($kb_roots)); 
+        
 		// Usermeet Session
 		if(null == ($fingerprint = parent::getFingerprint())) {
 			die("A problem occurred.");
@@ -843,7 +842,7 @@ class UmKbApp extends Extension_UsermeetTool {
 					case 'recent_changes':
 						list($results, $null) = DAO_KbArticle::search(
 							array(
-								new DevblocksSearchCriteria(SearchFields_KbArticle::CODE,'=',$this->getPortal())
+								new DevblocksSearchCriteria(SearchFields_KbArticle::TOP_CATEGORY_ID,'in',array_keys($kb_roots)),
 							),
 							25,
 							0,
@@ -871,7 +870,7 @@ class UmKbApp extends Extension_UsermeetTool {
 					case 'most_popular':
 						list($results, $null) = DAO_KbArticle::search(
 							array(
-								new DevblocksSearchCriteria(SearchFields_KbArticle::CODE,'=',$this->getPortal())
+								new DevblocksSearchCriteria(SearchFields_KbArticle::TOP_CATEGORY_ID,'in',array_keys($kb_roots)),
 							),
 							25,
 							0,
@@ -899,63 +898,47 @@ class UmKbApp extends Extension_UsermeetTool {
 					case 'search':
 						$query = rawurldecode(array_shift($stack));
 						
-						$articles = $this->_searchIndex($query);
-
+						list($articles, $count) = DAO_KbArticle::search(
+						 	array(
+						 		array(
+						 			DevblocksSearchCriteria::GROUP_OR,
+						 			new DevblocksSearchCriteria(SearchFields_KbArticle::TITLE,'fulltext',$query),
+						 			new DevblocksSearchCriteria(SearchFields_KbArticle::CONTENT,'fulltext',$query),
+						 		),
+						 		new DevblocksSearchCriteria(SearchFields_KbArticle::TOP_CATEGORY_ID,'in',array_keys($kb_roots)),
+						 	),
+						 	50,
+						 	0,
+						 	null,
+						 	null,
+						 	true
+						);
+						
+						if(!empty($articles)) {
+							$articles = DAO_KbArticle::getWhere(sprintf("%s IN (%s)",
+								DAO_KbArticle::ID,
+								implode(',', array_keys($articles))
+							));
+						}
+						
 						$this->_writeArticlesAsRss($articles, $page_title);
 						
 						break;
 					
-					case 'article':
-						$id = intval(array_shift($stack));
-		
-						$articles = DAO_KbArticle::getWhere(sprintf("%s = %d AND %s = '%s'",
-							DAO_KbArticle::ID,
-							$id,
-							DAO_KbArticle::CODE,
-							$this->getPortal()
-						));
-
-						$this->_writeArticlesAsRss($articles, $page_title);
-						
-						break;
-						
-					// [TODO] [JAS]: This is pretty redundant with the browse code below
-					case 'tags':
-			    		// ----
-			    		$cg = DevblocksPlatform::getCloudGlueService();
-			    		$cfg = new CloudGlueConfiguration();
-			    		$cfg->indexName = $this->_getTagIndex();
-			    		$cfg->divName = 'kbTagCloud'; // [TODO] Make optional (move to render)
-			    		$cfg->extension = 'kb'; // [TODO] Make optional (move to render)
-			    		$cfg->php_click = '_'; // [TODO] Make optional (move to render)
-						$cfg->maxWeight = 36;
-						$cfg->minWeight = 12;
-			    		$cloud = $cg->getCloud($cfg);
-			    		// ----
-		
-			    		if(!empty($stack)) {
-			    			$articles = array();
-			    			$tag_str = rawurldecode(array_shift($stack));
-			    			$tags = explode('+', $tag_str);
-			    			
-			    			foreach($tags as $tag_name) {
-				    			if(null != ($tag = DAO_CloudGlue::lookupTag($tag_name,false)))
-					    			$cloud->addToPath($tag);
-			    			}
-			    			
-							if(null != ($ids = DAO_CloudGlue::getTagContentIds($this->_getTagIndex(), $cloud->getPath()))) {
-								$articles = DAO_KbArticle::getWhere(sprintf("%s IN (%s) AND %s = '%s'",
-									DAO_KbArticle::ID,
-									implode(',', $ids),
-									DAO_KbArticle::CODE,
-									$this->getPortal()
-								));
-							}
-							
-							$this->_writeArticlesAsRss($articles, $page_title);
-			    		}	    		
-			    		
-						break;
+//					case 'article':
+//						$id = intval(array_shift($stack));
+//		
+//						// [TODO] Convert to KB categories
+//						$articles = DAO_KbArticle::getWhere(sprintf("%s = %d AND %s = '%s'",
+//							DAO_KbArticle::ID,
+//							$id,
+//							DAO_KbArticle::TITLE,
+//							$this->getPortal()
+//						));
+//
+//						$this->_writeArticlesAsRss($articles, $page_title);
+//						
+//						break;
 				}
 				
 				break;
@@ -971,65 +954,47 @@ class UmKbApp extends Extension_UsermeetTool {
 					$query = $session->getProperty('last_query', '');
 				}
 
-				$articles = $this->_searchIndex($query);
+				list($articles, $count) = DAO_KbArticle::search(
+				 	array(
+				 		array(
+				 			DevblocksSearchCriteria::GROUP_OR,
+				 			new DevblocksSearchCriteria(SearchFields_KbArticle::TITLE,'fulltext',$query),
+				 			new DevblocksSearchCriteria(SearchFields_KbArticle::CONTENT,'fulltext',$query),
+				 		),
+				 		new DevblocksSearchCriteria(SearchFields_KbArticle::TOP_CATEGORY_ID,'in',array_keys($kb_roots)),
+				 	),
+				 	100,
+				 	0,
+				 	null,
+				 	null,
+				 	true
+				);
 				
 				$tpl->assign('query', $query);
 				$tpl->assign('articles', $articles);
+				$tpl->assign('count', $count);
 
 				$tpl->display('file:' . dirname(__FILE__) . '/templates/portal/kb/search.tpl.php');
 				break;
 			
-			case 'edit':
-				if(empty($editor)) break;
+//			case 'import':
+//				if(empty($editor))
+//					break;
+//				
+//				$tpl->display('file:' . dirname(__FILE__) . '/templates/portal/kb/public_config/import.tpl.php');
+//				break;
+				
+			case 'article':
+				// If no roots are enabled, no articles are visible
+				if(empty($kb_roots))
+					return;
+				
 				$id = intval(array_shift($stack));
 
-				$articles = DAO_KbArticle::getWhere(sprintf("%s = %d AND %s = '%s'",
-					DAO_KbArticle::ID,
-					$id,
-					DAO_KbArticle::CODE,
-					$this->getPortal()
-				));
-				@$article = $articles[$id];
-				$tpl->assign('article', $article);
-				
-				$tags = DAO_CloudGlue::getTagsOnContents($id, $this->_getTagIndex());
-				$tpl->assign('tags', @$tags[$id]);
-				
-				$tpl->display('file:' . dirname(__FILE__) . '/templates/portal/kb/article_edit.tpl.php');
-				break;
-			
-			case 'config':
-				if(empty($editor))
-					break;
-				
-				$tpl->display('file:' . dirname(__FILE__) . '/templates/portal/kb/public_config/index.tpl.php');
-				break;
-				
-			case 'import':
-				if(empty($editor))
-					break;
-				
-				$tpl->display('file:' . dirname(__FILE__) . '/templates/portal/kb/public_config/import.tpl.php');
-				break;
-				
-			case 'reindex':
-				if(empty($editor)) break;
-
-				$index = $this->_getSearchIndex();
-				
-				// Nuke all the existing documents
-				if(0 != ($len = $index->count())) {
-					for($x=0;$x<$len;$x++) {
-						if(!$index->isDeleted($x))
-							$index->delete($x);
-					}
-				}
-				
-				// Purge
-				$index->optimize();
-				
-				list($articles,$null) = DAO_KbArticle::search(
+				list($articles, $count) = DAO_KbArticle::search(
 					array(
+						new DevblocksSearchCriteria(SearchFields_KbArticle::ID,'=',$id),
+						new DevblocksSearchCriteria(SearchFields_KbArticle::TOP_CATEGORY_ID,'in',array_keys($kb_roots))
 					),
 					-1,
 					0,
@@ -1038,28 +1003,10 @@ class UmKbApp extends Extension_UsermeetTool {
 					false
 				);
 				
-				// Add back fresh content
-				foreach($articles as $article_id => $article) {
-					$doc = new Zend_Search_Lucene_Document();
-					$doc->addField(Zend_Search_Lucene_Field::Text('article_id', $article_id));
-					$doc->addField(Zend_Search_Lucene_Field::Text('title', $article[SearchFields_KbArticle::TITLE]));
-					$doc->addField(Zend_Search_Lucene_Field::UnStored('contents', $article[SearchFields_KbArticle::CONTENT]));		
-					$index->addDocument($doc);
-				}
+				if(!isset($articles[$id]))
+					break;
 				
-				$tpl->display('file:' . dirname(__FILE__) . '/templates/portal/kb/public_config/reindex.tpl.php');
-				break;
-				
-			case 'article':
-				$id = intval(array_shift($stack));
-
-				$articles = DAO_KbArticle::getWhere(sprintf("%s = %d AND %s = '%s'",
-					DAO_KbArticle::ID,
-					$id,
-					DAO_KbArticle::CODE,
-					$this->getPortal()
-				));
-				@$article = $articles[$id];
+				$article = DAO_KbArticle::get($id);
 				$tpl->assign('article', $article);
 
 				@$article_list = $umsession->getProperty(self::SESSION_ARTICLE_LIST, array());
@@ -1070,59 +1017,93 @@ class UmKbApp extends Extension_UsermeetTool {
 					$article_list[$id] = $id;
 					$umsession->setProperty(self::SESSION_ARTICLE_LIST, $article_list);
 				}
+
+				$categories = DAO_KbCategory::getWhere();
+				$tpl->assign('categories', $categories);
 				
-				@$tags = array_shift(DAO_CloudGlue::getTagsOnContents($id, $this->_getTagIndex()));
-				if(!empty($tags)) {
-					$parts = array();
-					foreach($tags as $tag) {
-						$parts[] = $tag->name;
+				$cats = DAO_KbArticle::getCategoriesByArticleId($id);
+
+				$breadcrumbs = array();
+				foreach($cats as $cat_id) {
+					if(!isset($breadcrumbs[$cat_id]))
+						$breadcrumbs[$cat_id] = array();
+					$pid = $cat_id;
+					while($pid) {
+						$breadcrumbs[$cat_id][] = $pid;
+						$pid = $categories[$pid]->parent_id;
 					}
-					$tpl->assign('location', rawurlencode(implode('+', $parts)));
-					$tpl->assign('tags', $tags);
+					$breadcrumbs[$cat_id] = array_reverse($breadcrumbs[$cat_id]);
+					
+					// Remove any breadcrumbs not in this SC profile
+					$pid = reset($breadcrumbs[$cat_id]);
+					if(!isset($kb_roots[$pid]))
+						unset($breadcrumbs[$cat_id]);
+					
 				}
+				
+				$tpl->assign('breadcrumbs',$breadcrumbs);
 				
 		    	$tpl->display('file:' . dirname(__FILE__) . '/templates/portal/kb/article.tpl.php');
 				break;
 			
-			case 'login':
-		    	$tpl->display('file:' . dirname(__FILE__) . '/templates/portal/kb/login.tpl.php');
-				break;
-
 			case 'browse':
 	    	default:
-	    		// ----
-	    		$cg = DevblocksPlatform::getCloudGlueService();
-	    		$cfg = new CloudGlueConfiguration();
-	    		$cfg->indexName = $this->_getTagIndex();
-	    		$cfg->divName = 'kbTagCloud'; // [TODO] Make optional (move to render)
-	    		$cfg->extension = 'kb'; // [TODO] Make optional (move to render)
-	    		$cfg->php_click = '_'; // [TODO] Make optional (move to render)
-				$cfg->maxWeight = 36;
-				$cfg->minWeight = 12;
-	    		$cloud = $cg->getCloud($cfg);
-	    		// ----
-
-	    		if(!empty($stack)) {
-	    			$tag_str = rawurldecode(array_shift($stack));
-	    			$tags = explode('+', $tag_str);
-	    			foreach($tags as $tag_name) {
-		    			if(null != ($tag = DAO_CloudGlue::lookupTag($tag_name,false)))
-			    			$cloud->addToPath($tag);
-	    			}
-	    			$tpl->assign('tags_prefix', $tag_str);
-	    			
-					if(null != ($ids = DAO_CloudGlue::getTagContentIds($this->_getTagIndex(), $cloud->getPath()))) {
-						$articles = DAO_KbArticle::getWhere(sprintf("%s IN (%s) AND %s = '%s'",
-							DAO_KbArticle::ID,
-							implode(',', $ids),
-							DAO_KbArticle::CODE,
-							$this->getPortal()
-						));
-						$tpl->assign('articles', $articles);
+				// [TODO] Root
+				@$root = intval(array_shift($stack));
+				$tpl->assign('root_id', $root);
+					
+				$categories = DAO_KbCategory::getWhere();
+				$tpl->assign('categories', $categories);
+				
+				$tree_map = DAO_KbCategory::getTreeMap(0);
+				
+				// Remove other top-level categories
+				if(is_array($tree_map[0]))
+				foreach($tree_map[0] as $child_id => $count) {
+					if(!isset($kb_roots[$child_id]))
+						unset($tree_map[0][$child_id]);
+				}
+				
+				// Remove empty categories
+				if(is_array($tree_map[0]))
+				foreach($tree_map as $node_id => $children) {
+					foreach($children as $child_id => $count) {
+						if(empty($count)) {
+							@$pid = $categories[$child_id]->parent_id;
+							unset($tree_map[$pid][$child_id]);
+							unset($tree_map[$child_id]);
+						}
 					}
-	    		}	    		
-	    		
-	    		$tpl->assign('cloud', $cloud);
+				}
+				
+				$tpl->assign('tree', $tree_map);
+				
+				// Breadcrumb // [TODO] API-ize inside Model_KbTree ?
+				$breadcrumb = array();
+				$pid = $root;
+				while(0 != $pid) {
+					$breadcrumb[] = $pid;
+					$pid = $categories[$pid]->parent_id;
+				}
+				$tpl->assign('breadcrumb',array_reverse($breadcrumb));
+				
+				$tpl->assign('mid', @intval(ceil(count($tree_map[$root])/2)));
+				
+				// Articles
+				
+				if(!empty($root))
+				list($articles, $count) = DAO_KbArticle::search(
+					array(
+						new DevblocksSearchCriteria(SearchFields_KbArticle::CATEGORY_ID,'=',$root),
+						new DevblocksSearchCriteria(SearchFields_KbArticle::TOP_CATEGORY_ID,'in',array_keys($kb_roots))
+					),
+					-1,
+					0,
+					null,
+					null,
+					false
+				);
+	    		$tpl->assign('articles', $articles);
 	    		
    				$tpl->display('file:' . dirname(__FILE__) . '/templates/portal/kb/index.tpl.php');
 		    	break;
@@ -1137,6 +1118,9 @@ class UmKbApp extends Extension_UsermeetTool {
         $tpl_path = realpath(dirname(__FILE__)) . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR;
         $tpl->assign('config_path', $tpl_path);
         
+        $base_url = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_BASE_URL, '');
+		$tpl->assign('base_url', $base_url);
+        
         $logo_url = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_LOGO_URL, '');
 		$tpl->assign('logo_url', $logo_url);
         
@@ -1146,59 +1130,43 @@ class UmKbApp extends Extension_UsermeetTool {
         $captcha_enabled = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_CAPTCHA_ENABLED, 1);
 		$tpl->assign('captcha_enabled', $captcha_enabled);
         
-		$sEditors = DAO_CommunityToolProperty::get($this->getPortal(),self::PARAM_EDITORS, '');
-        $editors = !empty($sEditors) ? unserialize($sEditors) : array();
+		// Roots
+		$tree_map = DAO_KbCategory::getTreeMap();
+		$tpl->assign('tree_map', $tree_map);
 		
-        $tpl->assign('editors', $editors);
+		$levels = DAO_KbCategory::getTree(0);
+		$tpl->assign('levels', $levels);
+		
+		$categories = DAO_KbCategory::getWhere();
+		$tpl->assign('categories', $categories);
+		
+		$sKbRoots = DAO_CommunityToolProperty::get($this->getPortal(),self::PARAM_KB_ROOTS, '');
+        $kb_roots = !empty($sKbRoots) ? unserialize($sKbRoots) : array();
+        $tpl->assign('kb_roots', $kb_roots);
 		
         $tpl->display("file:${tpl_path}portal/kb/config/index.tpl.php");
     }
     
     public function saveConfiguration() {
+        @$sBaseUrl = DevblocksPlatform::importGPC($_POST['base_url'],'string','');
         @$sLogoUrl = DevblocksPlatform::importGPC($_POST['logo_url'],'string','');
         @$sPageTitle = DevblocksPlatform::importGPC($_POST['page_title'],'string','Contact Us');
         @$iCaptcha = DevblocksPlatform::importGPC($_POST['captcha_enabled'],'integer',1);
 //        @$sThemeUrl = DevblocksPlatform::importGPC($_POST['theme_url'],'string','');
 
+        // Sanitize (add trailing slash)
+        $sBaseUrl = rtrim($sBaseUrl,'/ ') . '/';
+        
+        DAO_CommunityToolProperty::set($this->getPortal(), self::PARAM_BASE_URL, $sBaseUrl);
         DAO_CommunityToolProperty::set($this->getPortal(), self::PARAM_LOGO_URL, $sLogoUrl);
         DAO_CommunityToolProperty::set($this->getPortal(), self::PARAM_PAGE_TITLE, $sPageTitle);
         DAO_CommunityToolProperty::set($this->getPortal(), self::PARAM_CAPTCHA_ENABLED, $iCaptcha);
 //        DAO_CommunityToolProperty::set($this->getPortal(), self::PARAM_THEME_URL, $sThemeUrl);
-        
-        @$sEditorEmail = DevblocksPlatform::importGPC($_POST['editor_email'],'string','');
-        @$sEditorPass = DevblocksPlatform::importGPC($_POST['editor_pass'],'string','');
-        @$aEditorsEmail = DevblocksPlatform::importGPC($_POST['editors_email'],'array',array());
-        @$aEditorsPass = DevblocksPlatform::importGPC($_POST['editors_pass'],'array',array());
-        @$aEditorsDelete = DevblocksPlatform::importGPC($_POST['editors_delete'],'array',array());
 
-        @$aEditorsDelete = array_flip($aEditorsDelete); // values to keys
-        
-        $sEditors = DAO_CommunityToolProperty::get($this->getPortal(),self::PARAM_EDITORS, '');
-        $editors = !empty($sEditors) ? unserialize($sEditors) : array();
-        
-        // Adding
-        if(!empty($sEditorEmail) && !empty($sEditorPass)) {
-        	$editors[$sEditorEmail] = array(
-        		'email' => $sEditorEmail,
-        		'password' => md5($sEditorPass)
-        	);
-        }
-        
-        // Modifying/Deleting
-		foreach($aEditorsEmail as $idx => $email) {
-			if(isset($aEditorsDelete[$email])) { // Deleting
-				unset($editors[$email]);
-				
-			} elseif (!empty($aEditorsPass[$idx])) { // Modifying
-				$editors[$email] = array(
-					'email' => $email,
-					'password' => md5($aEditorsPass[$idx])
-				);
-				
-			}
-		}
-
-        DAO_CommunityToolProperty::set($this->getPortal(), self::PARAM_EDITORS, serialize($editors));
+        // KB
+        @$aKbRoots = DevblocksPlatform::importGPC($_POST['category_ids'],'array',array());
+        $aKbRoots = array_flip($aKbRoots);
+		DAO_CommunityToolProperty::set($this->getPortal(), self::PARAM_KB_ROOTS, serialize($aKbRoots));
     }
     
     public function doSearchAction() {
@@ -1212,197 +1180,25 @@ class UmKbApp extends Extension_UsermeetTool {
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',$this->getPortal(),'search')));
     }
     
-    public function doLoginAction() {
-		@$editor_email = DevblocksPlatform::importGPC($_REQUEST['editor_email'],'string','');
-		@$editor_pass = DevblocksPlatform::importGPC($_REQUEST['editor_pass'],'string','');
-    	
-        $sEditors = DAO_CommunityToolProperty::get($this->getPortal(),self::PARAM_EDITORS, '');
-        $editors = !empty($sEditors) ? unserialize($sEditors) : array();
-		
-        @$editor =& $editors[$editor_email]; 
-		if(!empty($editor) && $editor['password']==md5($editor_pass)) {
-			$session = $this->getSession(); /* @var $session Model_CommunitySession */
-			$session->setProperty(self::SESSION_EDITOR, $editor_email);
-			
-			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',$this->getPortal())));
-		} else {
-			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',$this->getPortal(),'login')));
-		}		
-    }
-    
-    public function doLogoutAction() {
-    	$umsession = $this->getSession();
-    	$umsession->setProperty(self::SESSION_EDITOR, null);
-    	
-    	DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',$this->getPortal())));
-    }
-    
-    public function doImportAction() {
-    	@$import_file = $_FILES['import_file'];
-    	
-    	if(!empty($import_file)) {
-    		$xmlstr = file_get_contents($import_file['tmp_name']);
-    		
-    		// [TODO] Parse XML
-			$xml = new SimpleXMLElement($xmlstr);
-			
-			foreach($xml->articles->article AS $article) {
-				$title = (string) $article->title;
-				$content = (string) $article->content;
-
-				$fields = array(
-						DAO_KbArticle::CODE => $this->getPortal(),
-						DAO_KbArticle::TITLE => $title,
-						DAO_KbArticle::CONTENT => $content,
-				);
-				$id = DAO_KbArticle::create($fields);
-				
-				$tags = array();
-				if(!empty($article->categories->category))
-				foreach($article->categories->category AS $category) {
-					$tags[] = (string) $category;
-				}
-
-				if(!empty($tags)) {
-					DAO_CloudGlue::applyTags($tags, $id, $this->_getTagIndex(), false); // 4th argument = replace
-				}
-			}
-    	}
-    }
-    
-    public function doArticleEditAction() {
-    	// Permissions
-		$session = $this->getSession(); /* @var $session Model_CommunitySession */
-		$editor = $session->getProperty(self::SESSION_EDITOR, null);
-		if(empty($editor)) {
-			die("Access denied.");
-		}
-		
-		$index = $this->_getSearchIndex();
-    	
-    	@$id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
-    	@$title = DevblocksPlatform::importGPC($_POST['title'],'string','No article title');
-    	@$content = DevblocksPlatform::importGPC($_POST['content'],'string','');
-    	@$delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer',0);
-    	@$tags_csv = DevblocksPlatform::importGPC($_POST['tags'],'string','');
-    	
-		$fields = array(
-			DAO_KbArticle::TITLE => $title,
-			DAO_KbArticle::CODE => $this->getPortal(),
-			DAO_KbArticle::UPDATED => time(),
-			DAO_KbArticle::CONTENT => $content,
-		);
-    	
-    	if(empty($id)) { // insert
-			$id = DAO_KbArticle::create($fields);
-    		
-    	} else { // edit
-			// Clear any copies of this document out before editing
-			if(0 != ($len = $index->count())) {
-				for($x=0;$x<$len;$x++) {
-					$hit = $index->getDocument($x);
-					if(!$index->isDeleted($x) && $hit->article_id==$id)
-						$index->delete($x);
-				}
-			}
-			 		
-			 if(!empty($delete)) {
-			 	$tags = array();
-			 	
-			 	@$set_tags = array_shift(DAO_CloudGlue::getTagsOnContents(array($id),$this->_getTagIndex()));
-			 	if(is_array($set_tags) && !empty($set_tags)) {
-				 	foreach($set_tags as $tag) {
-				 		$tags[] = $tag->name;
-				 	}
-				 	$tag_list = rawurlencode(implode('+', $tags));
-			 	}
-			 	
-			 	DAO_KbArticle::delete($id);
-			 	
-			 	// [JAS]: Send the user back somewhere useful if we can
-			 	if(!empty($tag_list)) {
-			 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',$this->getPortal(),'browse',$tag_list)));
-			 	} else {
-			 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',$this->getPortal())));
-			 	}
-			 	return;
-			 	
-			 } else {
-			 	DAO_KbArticle::update($id, $fields);
-			 }
-			
-    	}
-    	
-    	// Tagging
-    	$tags = DevblocksPlatform::parseCsvString($tags_csv);
-    	if(!empty($tags))
-			DAO_CloudGlue::applyTags($tags, $id, $this->_getTagIndex(), true);
-    	
-		// Search Indexing
-		$doc = new Zend_Search_Lucene_Document();
-		$doc->addField(Zend_Search_Lucene_Field::Text('article_id', $id));
-		$doc->addField(Zend_Search_Lucene_Field::Text('title', $title));
-		$doc->addField(Zend_Search_Lucene_Field::UnStored('contents', $content));		
-		
-		$index->addDocument($doc);
-		
-    	DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',$this->getPortal(),'article',$id)));
-    }
-
-    /**
-     * @return Zend_Search_Lucene_Interface
-     */
-    private function _getSearchIndex() {
-    	$path = APP_PATH . '/storage/indexes/kb-'.$this->getPortal();
-    	
-    	// Allow Numeric Text
-    	Zend_Search_Lucene_Analysis_Analyzer::setDefault(
-    		new Zend_Search_Lucene_Analysis_Analyzer_Common_TextNum_CaseInsensitive()
-    	);
-    	
-    	if(!is_dir($path)) {
-    		$index = Zend_Search_Lucene::create($path);
-    	} else {
-    		$index = Zend_Search_Lucene::open($path);
-    	}
-    	
-    	return $index;
-    }
-    
-    private function _searchIndex($query) {
-    	try {
-			$index = $this->_getSearchIndex();
-			$hits = $index->find($query);
-    	} catch(Exception $e) {
-    		return array();
-    	}
-		
-		$articles = array();
-		
-		foreach($hits as $hit) { /* @var $hit Zend_Search_Lucene_Search_QueryHit */
-			@$article = DAO_KbArticle::get($hit->article_id);
-			if(!empty($article) && 0 == strcasecmp($article->code,$this->getPortal())) {
-				$article->score = $hit->score;
-				$articles[$hit->article_id] = $article;
-			}
-		}
-		
-		return $articles;
-    }
-    
-    public function getTagAutoCompletionsAction() {
-    	$starts_with = DevblocksPlatform::importGPC($_REQUEST['query'],'string','');
-
-    	if(!empty($starts_with)) {
-	    	$tags = DAO_CloudGlue::getTagsWhere(sprintf("name LIKE '%s%%'", $starts_with));
-			
-			foreach($tags AS $val){
-				echo $val->name . "\t";
-				echo $val->id . "\n";
-			}
-    	}
-		exit();
-    }
+//    public function doImportAction() {
+//    	@$import_file = $_FILES['import_file'];
+//    	
+//    	if(!empty($import_file)) {
+//    		$xmlstr = file_get_contents($import_file['tmp_name']);
+//    		
+//    		// [TODO] Parse XML
+//			$xml = new SimpleXMLElement($xmlstr);
+//			
+//			foreach($xml->articles->article AS $article) {
+//				$title = (string) $article->title;
+//				$content = (string) $article->content;
+//
+//				$fields = array(
+//						DAO_KbArticle::CODE => $this->getPortal(),
+//						DAO_KbArticle::TITLE => $title,
+//						DAO_KbArticle::CONTENT => $content,
+//				);
+//				$id = DAO_KbArticle::create($fields);
     
 };
 

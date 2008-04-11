@@ -68,6 +68,13 @@ tabView.addTab( new YAHOO.widget.Tab({
 }));
 
 tabView.addTab( new YAHOO.widget.Tab({
+    label: 'Knowledgebase',
+    dataSrc: '{/literal}{devblocks_url}ajax.php?c=config&a=showTabKb{/devblocks_url}{literal}',
+    cacheData: false,
+    {/literal}active: {if $tab_selected=="kb"}true{else}false{/if}{literal}
+}));
+
+tabView.addTab( new YAHOO.widget.Tab({
     label: 'Service Levels',
     dataSrc: '{/literal}{devblocks_url}ajax.php?c=config&a=showTabSla{/devblocks_url}{literal}',
     cacheData: false,

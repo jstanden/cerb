@@ -261,6 +261,19 @@
 		</extension>
 
 		<extension point="cerberusweb.page">
+			<id>core.page.kb</id>
+			<name>Knowledgebase Page</name>
+			<class>
+				<file>classes.php</file>
+				<name>ChKbPage</name>
+			</class>
+			<params>
+				<param key="uri" value="kb" />
+				<param key="menutitle" value="knowledgebase" />
+			</params>
+		</extension>
+
+		<extension point="cerberusweb.page">
 			<id>core.page.groups</id>
 			<name>Groups Page</name>
 			<class>
