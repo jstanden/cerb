@@ -13,7 +13,7 @@
 					<h2 style="display:inline;">[Deleted Worker] notes:</h2>&nbsp;
 				{/if}
 			{/if}
-			<i>{$note->created|date_format}</i>
+			<i>{$note->created|date_format:"%b %e, %Y %I:%M %p"}</i>
 			&nbsp;
 			<a href="javascript:;" onclick="genericAjaxGet('{$message_id}notes','c=display&a=deleteNote&id={$note_id}');">delete note</a>
 			<br>
