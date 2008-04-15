@@ -77,7 +77,8 @@
 	{if $total}
 	<tr>
 		<td colspan="2">
-			{if isset($root_id) && empty($root_id)}
+			{* [TODO] Comparing the view name is a hack. Eventually we need to be storing small runtime variables in views (like $root_id here) *}
+			{if $view->name=="Uncategorized Articles" || isset($root_id) && empty($root_id)}
 			<button type="button" id="btn{$view->id}Delete" onclick="{literal}if(confirm('Are you sure you want to permanently delete these articles?')){this.form.a.value='doViewDelete';this.form.submit();}{/literal}"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete2.gif{/devblocks_url}" align="top"> delete</button>
 			{/if}
 		</td>

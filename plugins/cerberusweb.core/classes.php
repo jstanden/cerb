@@ -5777,6 +5777,9 @@ class ChKbPage extends CerberusPageExtension {
 			// Sanitize
 			if($format > 2 || $format < 0)
 				$format = 0;
+				
+			if(empty($title))
+				$title = "(No Title)";
 			
 			switch($format) {
 				default:
