@@ -54,7 +54,7 @@ define('REMOTE_URI', '{$path}'); // NO trailing slash!
 define('URL_REWRITE', file_exists('.htaccess'));
 define('LOCAL_HOST', $_SERVER['HTTP_HOST']);
 define('LOCAL_BASE', DevblocksRouter::getLocalBase()); // NO trailing slash!
-define('SCRIPT_LAST_MODIFY', 2008031301); // last change
+define('SCRIPT_LAST_MODIFY', 2008041501); // last change
 
 @session_start();
 
@@ -257,7 +257,12 @@ class DevblocksProxy_Socket extends DevblocksProxy {
 	        if(0 == strcmp($line,"\r\n")) $in_headers = false;
 	        
 	        if($in_headers) {
-	            //...
+	            // Split the header/value
+	            @list($header,$value) = explode(":", $line, 2);
+	            
+	            // Recycle the content type through the proxy
+	            if(!empty($header) && !empty($value) && 0==strcasecmp($header, "content-type"))
+	            	header($line);
 	        } else {
 	            fpassthru($fp);
 	        }
@@ -280,7 +285,10 @@ class DevblocksProxy_Curl extends DevblocksProxy {
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
         curl_setopt($ch, CURLOPT_HEADER, 0);
-        curl_exec($ch);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        
+        $this->_returnTransfer($ch, $out);
+        
         curl_close($ch);
     }
 
@@ -303,8 +311,22 @@ class DevblocksProxy_Curl extends DevblocksProxy {
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $content);
         curl_setopt($ch, CURLOPT_HEADER, 0);
-        curl_exec($ch);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
+        $this->_printTransfer($ch, $out);
+        
         curl_close($ch);
+    }
+    
+    function _returnTransfer($ch) {
+    	$out = curl_exec($ch);
+    	
+        $content_type = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
+
+        if(!empty($content_type))
+        	header("Content-type: " . $content_type);
+        
+        echo $out;
     }
 };
 

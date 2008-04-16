@@ -86,5 +86,23 @@ if(!isset($indexes['bucket_id'])) {
 	$datadict->ExecuteSQLArray($sql);
 }
 
+/*
+ * [JAS]: We need to clean up any orphaned data in our notifications from 
+ * workers that were already deleted.
+ */
+$sql = "SELECT DISTINCT wmf.worker_id 
+	FROM worker_mail_forward wmf 
+	LEFT JOIN worker w ON (w.id=wmf.worker_id) 
+	WHERE w.id IS NULL";
+$rs = $db->Execute($sql);
+
+while(!$rs->EOF) {
+	$sql = sprintf("DELETE FROM worker_mail_forward WHERE worker_id = %d",
+		$rs->fields['worker_id']
+	);
+	$db->Execute($sql);
+	$rs->MoveNext();
+}
+
 return TRUE;
 ?>

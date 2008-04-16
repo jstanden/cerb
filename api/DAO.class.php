@@ -357,6 +357,19 @@ class DAO_Worker extends DevblocksORMHelper {
 	static function deleteAgent($id) {
 		if(empty($id)) return;
 		
+		/* This event fires before the delete takes place in the db,
+		 * so we can denote what is actually changing against the db state
+		 */
+	    $eventMgr = DevblocksPlatform::getEventService();
+	    $eventMgr->trigger(
+	        new Model_DevblocksEvent(
+	            'worker.delete',
+                array(
+                    'worker_id' => $id,
+                )
+            )
+	    );
+		
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		$sql = sprintf("DELETE FROM worker WHERE id = %d", $id);

@@ -41,6 +41,7 @@
 					<value>
 						<data key="ticket.reply.inbound" />
 						<data key="ticket.reply.outbound" />						
+						<data key="worker.delete" />						
 					</value>
 				</param>
 			</params>

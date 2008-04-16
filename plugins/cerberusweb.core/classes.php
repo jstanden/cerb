@@ -7137,12 +7137,18 @@ class ChDisplayPage extends CerberusPageExtension {
 		$this->_renderNotes($message_id);
 	}
 	
+	function discardAndSurrenderAction() {
+		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer',0);
+		
+		DAO_Ticket::updateTicket($ticket_id,array(
+			DAO_Ticket::NEXT_WORKER_ID => 0 // anybody
+		));
+	}
+	
 	function replyAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		@$is_forward = DevblocksPlatform::importGPC($_REQUEST['forward'],'integer',0);
 
-		$settings = CerberusSettings::getInstance();
-		
 		$settings = CerberusSettings::getInstance();
 		
 		$tpl = DevblocksPlatform::getTemplateService();

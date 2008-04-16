@@ -838,6 +838,8 @@ class UmKbApp extends Extension_UsermeetTool {
 
 		switch(array_shift($stack)) {
 			case 'rss':
+				header("Content-type: application/rss+xml");
+				
 				switch(array_shift($stack)) {
 					case 'recent_changes':
 						list($results, $null) = DAO_KbArticle::search(

@@ -16,6 +16,10 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
      */
     function handleEvent(Model_DevblocksEvent $event) {
         switch($event->id) {
+            case 'worker.delete':
+				$this->_workerDeleted($event);
+            	break;
+            	
             case 'ticket.reply.inbound':
 				$this->_sendForwards($event, true);
             	break;
@@ -26,6 +30,12 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
         }
     }
 
+    private function _workerDeleted($event) {
+    	@$worker_id = $event->params['worker_id'];
+    	
+    	DAO_WorkerMailForward::deleteByWorkerIds($worker_id);
+    }
+    
     private function _sendForwards($event, $is_inbound) {
         @$ticket_id = $event->params['ticket_id'];
         @$message_id = $event->params['message_id'];
@@ -286,6 +296,15 @@ class DAO_WorkerMailForward extends DevblocksORMHelper {
 		$ids_list = implode(',', $ids);
 		
 		$db->Execute(sprintf("DELETE FROM worker_mail_forward WHERE id IN (%s)", $ids_list));
+	}
+	
+	public static function deleteByWorkerIds($ids) {
+		if(!is_array($ids)) $ids = array($ids);
+		
+		$db = DevblocksPlatform::getDatabaseService();
+		$ids_list = implode(',', $ids);
+		
+		$db->Execute(sprintf("DELETE FROM worker_mail_forward WHERE worker_id IN (%s)", $ids_list));
 	}
 };
 
