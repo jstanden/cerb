@@ -274,6 +274,7 @@ class ChRestFrontController extends DevblocksControllerExtension {
 			'parser' => 'Rest_ParserController',
 			'tickets' => 'Rest_TicketsController',
 			'messages' => 'Rest_MessagesController',
+			'articles' => 'Rest_KbArticlesController',
 		);
 
 		$stack = $request->path;
@@ -1461,6 +1462,185 @@ class Rest_MessagesController extends Ch_RestController {
 		$out_xml = new SimpleXMLElement('<success></success>');
 		$this->_render($out_xml->asXML());
 	}
+};
+
+class Rest_KBArticlesController extends Ch_RestController {
+	protected function translate($idx, $dir) {
+		$translations = array(
+			'kb_id' => 'id',
+			'kb_title' => 'title',
+			'kb_updated' => 'updated',
+			'kb_views' => 'views',
+			'kb_format' => 'format',
+			'kb_content' => 'content',
+		);
+		
+		if ($dir === true && array_key_exists($idx, $translations))
+			return $translations[$idx];
+		if ($dir === false)
+			return ($key = array_search($idx, $translations)) === false ? null : $key;
+		return $idx;
+	}
+		
+	protected function getAction($path,$keychain) {
+		//TODO: need to actually build an acl for the tree (or at least a top node) to determine visibility
+//		if(Model_WebapiKey::ACL_NONE==intval(@$keychain->rights['acl_kb']))
+//			$this->_error("Action not permitted.");
+		
+		// Single GET
+		if(1==count($path) && is_numeric($path[0]))
+			$this->_getIdAction($path);
+		
+		// Actions
+		switch(array_shift($path)) {
+			case 'list':
+				$this->_getListAction($path);
+				break;
+			case 'tree':
+				$this->_getTreeAction($path);
+				break;
+		}
+	}
+
+	protected function postAction($path,$keychain) {
+		// Actions
+		switch(array_shift($path)) {
+			case 'search':
+//				if(Model_WebapiKey::ACL_NONE==intval(@$keychain->rights['acl_kb']))
+//					$this->_error("Action not permitted.");
+				$this->_postSearchAction($path);
+				break;
+		}
+	}
+	
+	//****
+	
+	private function _postSearchAction($path) {
+		@$p_page = DevblocksPlatform::importGPC($_REQUEST['p'],'integer',0);		
+		
+		$xml_in = simplexml_load_string($this->getPayload());
+		$search_params = SearchFields_KbArticle::getFields();
+		$params = array();
+		
+		// Check for params in request
+		foreach($search_params as $sp_element => $fld) {
+			$sp_element_name = $this->translate($sp_element, true);
+			if ($sp_element_name == null) continue;
+			@$field_ptr =& $xml_in->params->$sp_element_name;
+			if(!empty($field_ptr)) {
+				@$value = (string) $field_ptr['value'];
+				@$oper = (string) $field_ptr['oper'];
+				if(empty($oper)) $oper = 'eq';
+				$params[$sp_element] =	new DevblocksSearchCriteria($sp_element,$oper,$value);
+			}
+		}
+
+		list($results, $null) = DAO_KbArticle::search(
+			$params,
+			50,
+			$p_page,
+			SearchFields_KbArticle::ID,
+			false,
+			false
+		);
+		
+		$this->_renderResults($results, $search_params, 'article', 'articles');
+	}
+	
+	private function _getIdAction($path) {
+		$in_id = array_shift($path);
+
+		if(empty($in_id))
+			$this->_error("ID was not provided.");
+
+		list($results, $null) = DAO_KbArticle::search(
+			array(
+				SearchFields_KbArticle::ID => new DevblocksSearchCriteria(SearchFields_KbArticle::ID,'=',$in_id)
+			),
+			1,
+			0,
+			null,
+			null,
+			false
+		);
+			
+		if(empty($results))
+			$this->_error("ID not valid.");
+
+		$this->_renderOneResult($results, SearchFields_KbArticle::getFields(), 'article');
+	}
+	
+	private function _getListAction($path) {
+		//TODO: verify access node, add ::TOP_CATEGORY_ID search criteria
+		@$root = DevblocksPlatform::importGPC($_REQUEST['root'],'integer',0);
+		
+		// how many, and what page?
+		@$p_page = DevblocksPlatform::importGPC($_REQUEST['p'],'integer',0);
+		@$limit = DevblocksPlatform::importGPC($_REQUEST['limit'],'integer',10);
+		
+		// sort field and order
+		@$sort = DevblocksPlatform::importGPC($_REQUEST['sort'],'string','');
+		$sort_field = SearchFields_KbArticle::ID;
+		$sort_asc = true;
+		switch($sort) {
+			case 'views':
+				$sort_field = SearchFields_KbArticle::VIEWS;
+				$sort_asc = false;
+				break;
+			case 'updated':
+				$sort_field = SearchFields_KbArticle::UPDATED;
+				$sort_asc = false;
+				break;
+			default:
+				$sort_field = SearchFields_KbArticle::ID;
+				$sort_asc = true;
+		}
+		
+		$params = array();
+		if(0 != $root) $params[] = new DevblocksSearchCriteria(SearchFields_KbArticle::CATEGORY_ID,'=',$root);
+		
+		list($results,$null) = DAO_KbArticle::search(
+			$params,
+			$limit,
+			$p_page,
+			$sort_field,
+			$sort_asc,
+			false
+		);
+
+		$this->_renderResults($results, SearchFields_KbArticle::getFields(), 'article', 'articles');
+	}
+	
+	private function _getTreeAction($path) {
+		@$root = DevblocksPlatform::importGPC($_REQUEST['root'],'integer',0);
+		//TODO: verify access permissions to that root node
+		
+		$cats = DAO_KbCategory::getWhere();
+		$tree = DAO_KbCategory::getTreeMap();
+		
+		$xml_out = new SimpleXMLElement("<categories></categories>");
+		if(0 == $root)
+			$xml_out->addChild('name',"Top");
+		else
+			$xml_out->addChild('name',$cats[$root]->name);
+		
+		foreach($tree[$root] as $tree_idx => $cat)
+			$this->_addSubCategory($tree_idx, $tree, $cats, $xml_out);
+
+		$this->_render($xml_out->asXML());
+	}
+	
+	private function _addSubCategory($tree_idx, $tree, $cats, $xml_out) {
+		$category = $xml_out->addChild('category');
+		$category->addChild('id', $cats[$tree_idx]->id);
+		$category->addChild('parent_id', $cats[$tree_idx]->parent_id);
+		$category->addChild('name', $cats[$tree_idx]->name);
+		$category->addChild('article_count', $tree[$cats[$tree_idx]->parent_id][$tree_idx]);
+		if (is_array($tree[$tree_idx]))
+			foreach($tree[$tree_idx] as $subtree_idx => $count)
+				$this->_addSubCategory($subtree_idx, $tree, $cats, $category);
+	}
+	
 };
 
 class Rest_ParserController extends Ch_RestController {
