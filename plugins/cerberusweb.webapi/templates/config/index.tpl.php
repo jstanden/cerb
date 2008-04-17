@@ -73,6 +73,8 @@ remote control of your helpdesk.<br>
 						<label><input type="radio" name="aclTickets{$access_key_id}" value="2" {if 2==$access_key->rights.acl_tickets}checked{/if}> Change</label> 
 					</td>
 				</tr>
+<!--
+It makes more logical sense for Messages to simply inherit the Ticket permissions than to have their own.
 				<tr>
 					<td>Messages:</td>
 					<td>
@@ -81,6 +83,7 @@ remote control of your helpdesk.<br>
 						<label><input type="radio" name="aclMessages{$access_key_id}" value="2" {if 2==$access_key->rights.acl_messages}checked{/if}> Change</label> 
 					</td>
 				</tr>
+-->
 			</table>
 		</div>
 		

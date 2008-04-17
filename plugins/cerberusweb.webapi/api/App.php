@@ -100,14 +100,14 @@ class ChWebApiConfigTab extends Extension_ConfigTab {
 			@$aclOrgs = DevblocksPlatform::importGPC($_REQUEST['aclOrgs'.$access_id],'integer',0);
 			@$aclParser = DevblocksPlatform::importGPC($_REQUEST['aclParser'.$access_id],'integer',0);
 			@$aclTickets = DevblocksPlatform::importGPC($_REQUEST['aclTickets'.$access_id],'integer',0);
-			@$aclMessages = DevblocksPlatform::importGPC($_REQUEST['aclMessages'.$access_id],'integer',0);
+			//@$aclMessages = DevblocksPlatform::importGPC($_REQUEST['aclMessages'.$access_id],'integer',0);
 			
 			$rights['acl_addresses'] = $aclAddresses;
 			$rights['acl_fnr'] = $aclFnr;
 			$rights['acl_orgs'] = $aclOrgs;
 			$rights['acl_parser'] = $aclParser;
 			$rights['acl_tickets'] = $aclTickets;
-			$rights['acl_messages'] = $aclMessages;
+			//$rights['acl_messages'] = $aclMessages;
 			
 			// IPs
 			@$ipList = DevblocksPlatform::importGPC($_REQUEST['ips'.$access_id],'string','');
@@ -275,6 +275,8 @@ class ChRestFrontController extends DevblocksControllerExtension {
 			'tickets' => 'Rest_TicketsController',
 			'messages' => 'Rest_MessagesController',
 			'articles' => 'Rest_KbArticlesController',
+			'notes' => 'Rest_NotesController',
+			'comments' => 'Rest_CommentsController',
 		);
 
 		$stack = $request->path;
@@ -1005,9 +1007,14 @@ class Rest_TicketsController extends Ch_RestController {
 			$this->_getIdAction($path);
 		
 		// Actions
-		switch(array_shift($path)) {
+		$value = array_shift($path);
+		switch($value) {
 			case 'list':
 				$this->_getListAction($path);
+				break;
+			default:
+				if(($id = DAO_Ticket::getTicketIdByMask($value)) != null)
+					$this->_getIdAction(array($id));
 				break;
 		}
 	}
@@ -1188,36 +1195,9 @@ class Rest_TicketsController extends Ch_RestController {
 
 class Rest_MessagesController extends Ch_RestController {
 	protected function translate($idx, $dir) {
-		return $idx;
+		return $idx; //message data is being built by hand, not from DAO_Message::search() (since search is incomplete)
 		$translations = array(
-			't_id' => 'id',
-			't_mask' => 'mask',
-			't_subject' => 'subject',
-			'tm_name' => 'team_name',
-			't_category_id' => null,
-			't_created_date' => 'created_date',
-			't_updated_date' => 'updated_date',
-			't_is_waiting' => 'is_waiting',
-			't_is_closed' => 'is_closed',
-			't_is_deleted' => 'is_deleted',
-			't_first_wrote_address_id' => null,
-			't_first_wrote' => 'first_wrote',
-			't_last_wrote_address_id' => null,
-			't_last_wrote' => 'last_wrote',
-			't_last_action_code' => null,
-			't_last_worker_id' => 'last_worker_id',
-			't_next_action' => 'next_action',
-			't_next_worker_id' => 'next_worker_id',
-			't_spam_training' => 'spam_training',
-			't_spam_score' => 'spam_score',
-			't_first_wrote_spam' => null,
-			't_first_wrote_nonspam' => null,
-			't_interesting_words' => null,
-			't_due_date' => 'due_date',
-			't_sla_id' => null,
-			't_sla_priority' => null,
-			't_first_contact_org_id' => null,
-			'tm_id' => 'team_id',
+			'm_id' => 'id',
 		);
 		
 		if ($dir === true && array_key_exists($idx, $translations))
@@ -1227,39 +1207,8 @@ class Rest_MessagesController extends Ch_RestController {
 		return $idx;
 	}
 		
-	protected function isValid($idx_name, $value) {
-		switch($idx_name) {
-			case 'created_date':
-			case 'updated_date':
-			case 'due_date':
-			case 'last_worker_id':
-			case 'next_worker_id':
-			case 'first_wrote_address_id':
-			case 'last_wrote_address_id':
-			case 'team_id':
-				return is_numeric($value) ? true : false;
-			case 'is_waiting':
-			case 'is_closed':
-			case 'is_deleted':
-				return ('1' == $value || '0' == $value) ? true : false;
-			case 'spam_training':
-				return ('N' == $value || 'S' == $value) ? true : false;
-			case 'spam_score':
-				return (is_numeric($value) && 1 > $value && 0 < $value) ? true : false;
-			case 'mask':
-			case 'subject':
-			case 'team_name':
-			case 'first_wrote':
-			case 'last_wrote':
-			case 'next_action':
-				return !empty($value) ? true : false;
-			default:
-				return false;
-		}
-	}
-		
 	protected function getAction($path,$keychain) {
-		if(Model_WebapiKey::ACL_NONE==intval(@$keychain->rights['acl_messages']))
+		if(Model_WebapiKey::ACL_NONE==intval(@$keychain->rights['acl_tickets']))
 			$this->_error("Action not permitted.");
 		
 		// Single GET
@@ -1275,7 +1224,252 @@ class Rest_MessagesController extends Ch_RestController {
 	}
 
 	protected function putAction($path,$keychain) {
-		if(Model_WebapiKey::ACL_FULL!=intval(@$keychain->rights['acl_messages']))
+		$this->_error("Action not permitted.");
+//		if(Model_WebapiKey::ACL_FULL!=intval(@$keychain->rights['acl_tickets']))
+//			$this->_error("Action not permitted.");
+//		
+//		// Single PUT
+//		if(1==count($path) && is_numeric($path[0]))
+//			$this->_putIdAction($path);
+	}
+	
+	protected function postAction($path,$keychain) {
+		$this->_error("Action not permitted.");
+		// Actions
+//		switch(array_shift($path)) {
+//			case 'create':
+//				if(Model_WebapiKey::ACL_FULL!=intval(@$keychain->rights['acl_tickets']))
+//					$this->_error("Action not permitted.");
+//				$this->_postCreateAction($path);
+//				break;
+//			case 'search':
+//				if(Model_WebapiKey::ACL_NONE==intval(@$keychain->rights['acl_tickets']))
+//					$this->_error("Action not permitted.");
+//				$this->_postSearchAction($path);
+//				break;
+//		}
+	}
+	
+	//****
+	
+	private function _postCreateAction($path) {
+//		$xmlstr = $this->getPayload();
+//		$xml_in = simplexml_load_string($xmlstr);
+//		
+//		$fields = array();
+//		
+//		$flds = DAO_Message::getFields();
+//		unset($flds[DAO_Message::ID]);
+//		
+//		foreach($flds as $idx => $f) {
+//			$idx_name = $this->translate($idx, true);
+//			if ($idx_name == null) continue;
+//			@$value = DevblocksPlatform::importGPC($xml_in->$idx_name,'string');
+//			if($this->isValid($idx_name,$value))
+//				$fields[$idx] = $value;
+//		}
+//				
+//		if(empty($fields[DAO_Message::ADDRESS_ID])
+//		|| empty($fields[DAO_Message::TICKET_ID]))
+//			$this->_error("All required fields were not provided.");
+//		
+//		if(null != ($address = DAO_Address::get(intval($fields[DAO_Message::ADDRESS_ID]))))
+//			$this->_error("Address id specified does not exist.");
+//
+//		if(null != ($ticket = DAO_Ticket::getTicket(intval($fields[DAO_Message::TICKET_ID]))))
+//			$this->_error("Ticket id specified does not exist.");
+//
+//		// Supply creation date if not specified
+//		if(empty($fields[DAO_Message::CREATED_DATE]))
+//			$fields[DAO_Message::CREATED_DATE] = time();
+//		
+//		$id = DAO_Message::create($fields);
+//		
+//		// Render
+//		$this->_getIdAction(array($id));
+	}
+	
+	private function _postSearchAction($path) {
+//		@$p_page = DevblocksPlatform::importGPC($_REQUEST['p'],'integer',0);		
+//		
+//		$xml_in = simplexml_load_string($this->getPayload());
+//		$search_params = SearchFields_Message::getFields();
+//		$params = array();
+//		
+//		// Check for params in request
+//		foreach($search_params as $sp_element => $fld) {
+//			$sp_element_name = $this->translate($sp_element, true);
+//			if ($sp_element_name == null) continue;
+//			@$field_ptr =& $xml_in->params->$sp_element_name;
+//			if(!empty($field_ptr)) {
+//				@$value = (string) $field_ptr['value'];
+//				@$oper = (string) $field_ptr['oper'];
+//				if(empty($oper)) $oper = 'eq';
+//				$params[$sp_element] =	new DevblocksSearchCriteria($sp_element,$oper,$value);
+//			}
+//		}
+//
+//		list($results, $null) = DAO_Message::search(
+//			$params,
+//			50,
+//			$p_page,
+//			SearchFields_Message::ID,
+//			false,
+//			false
+//		);
+//		
+//		$this->_renderResults($results, $search_params, 'message', 'messages');
+	}
+	
+	private function _getMessageXML($id) {
+		$message = DAO_Ticket::getMessage($id); /* @var $message CerberusMessage */
+		if(is_null($message))
+			$this->_error("ID $id not valid.");
+		$message_content = DAO_MessageContent::get($id);
+		$message_headers = DAO_MessageHeader::getAll($id);
+		$message_notes = DAO_MessageNote::getByMessageId($id);
+		
+		$xml_out = new SimpleXMLElement("<message></message>");
+		$xml_out->addChild('id', $message->id);
+		$xml_out->addChild('ticket_id', $message->ticket_id);
+		$xml_out->addChild('created_date', $message->created_date);
+		$xml_out->addChild('address_id', $message->address_id);
+		$xml_out->addChild('is_outgoing', $message->is_outgoing);
+		$xml_out->addChild('worker_id', $message->worker_id);
+		$xml_out->addChild('content', $message_content);
+		
+		$headers = $xml_out->addChild('headers');
+		foreach($message_headers as $header_name => $header_value)
+			$headers->addChild($header_name, $header_value);
+
+		$xml_notes = $xml_out->addChild('notes');
+    	foreach($message_notes as $note) {
+    		$xml_note = $xml_notes->addChild('note');
+    		$xml_note->addChild('id', $note->id);
+    		$xml_note->addChild('type', $note->type);
+    		$xml_note->addChild('message_id', $note->message_id);
+    		$xml_note->addChild('created', $note->created);
+    		$xml_note->addChild('worker_id', $note->worker_id);
+    		$xml_note->addChild('content', $note->content);
+    	}
+			
+    	return $xml_out;
+	}
+	
+	private function _getIdAction($path) {
+		$in_id = array_shift($path);
+		if(empty($in_id))
+			$this->_error("ID was not provided.");
+
+		$xml_out = $this->_getMessageXML($in_id);
+
+		$this->_render($xml_out->asXML());
+	}
+	
+	private function _getListAction($path) {
+		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer',0);
+		if(0 == $ticket_id)
+			$this->_error("Ticket ID was not provided.");
+			
+		$messages = DAO_Ticket::getMessagesByTicket($ticket_id);
+		
+		$xml_out = new SimpleXMLElement("<messages></messages>");
+		foreach($messages as $message) {
+			$message_xml = $xml_out->addChild('message');
+			$message_xml->addChild('id', $message->id);
+			$message_xml->addChild('ticket_id', $message->ticket_id);
+			$message_xml->addChild('created_date', $message->created_date);
+			$message_xml->addChild('address_id', $message->address_id);
+			$message_xml->addChild('is_outgoing', $message->is_outgoing);
+			$message_xml->addChild('worker_id', $message->worker_id);
+		}
+		
+		$this->_render($xml_out->asXML());
+	}
+	
+	private function _putIdAction($path) {
+//		$xmlstr = $this->getPayload();
+//		$xml_in = new SimpleXMLElement($xmlstr);
+//		
+//		$in_id = array_shift($path);
+//		
+//		if(empty($in_id))
+//			$this->_error("ID was not provided.");
+//			
+//		if(null == ($message = DAO_Ticket::getMessage($in_id)))
+//			$this->_error("ID not valid.");
+//
+//		$fields = array();
+//			
+//		$flds = DAO_Message::getFields();
+//		unset($flds[DAO_Message::ID]);
+//		
+//		foreach($flds as $idx => $f) {
+//			$idx_name = $this->translate($idx, true);
+//			if ($idx_name == null) continue;
+//			@$value = DevblocksPlatform::importGPC($xml_in->$idx_name,'string');
+//			if($this->isValid($idx_name,$value))
+//				$fields[$idx] = $value;
+//		}
+//		
+//		if(!empty($fields))
+//			DAO_Message::update($in_id,$fields);
+//
+//		$this->_getIdAction(array($in_id));
+	}
+};
+
+class Rest_NotesController extends Ch_RestController {
+	protected function translate($idx, $dir) {
+		return $idx;
+		$translations = array(
+			'c_id' => 'id',
+			'c_account_number' => 'account_number',
+			'c_name' => 'name',
+			'c_street' => 'street',
+			'c_city' => 'city',
+			'c_province' => 'province',
+			'c_postal' => 'postal',
+			'c_country' => 'country',
+			'c_phone' => 'phone',
+			'c_fax' => 'fax',
+			'c_website' => 'website',
+			'c_created' => null,
+			'c_sla_id' => null,
+		);
+		
+		if ($dir === true && array_key_exists($idx, $translations))
+			return $translations[$idx];
+		if ($dir === false)
+			return ($key = array_search($idx, $translations)) === false ? null : $key;
+		return $idx;
+	}
+		
+	protected function isValid($idx_name, $value) {
+		switch($idx_name) {
+			case 'worker_id':
+			case 'message_id':
+				return is_numeric($value) ? true : false;
+			case 'content':
+				return !empty($value) ? true : false;
+			default:
+				return false;
+		}
+	}
+		
+	protected function getAction($path,$keychain) {
+		if(Model_WebapiKey::ACL_NONE==intval(@$keychain->rights['acl_tickets']))
+			$this->_error("Action not permitted.");
+		
+		// Single GET (no list on Notes... use the Message object)
+		if(1==count($path) && is_numeric($path[0]))
+			$this->_getIdAction($path);
+		else
+			$this->_error("Invalid request.");
+	}
+
+	protected function putAction($path,$keychain) {
+		if(Model_WebapiKey::ACL_FULL!=intval(@$keychain->rights['acl_tickets']))
 			$this->_error("Action not permitted.");
 		
 		// Single PUT
@@ -1287,12 +1481,12 @@ class Rest_MessagesController extends Ch_RestController {
 		// Actions
 		switch(array_shift($path)) {
 			case 'create':
-				if(Model_WebapiKey::ACL_FULL!=intval(@$keychain->rights['acl_messages']))
+				if(Model_WebapiKey::ACL_FULL!=intval(@$keychain->rights['acl_tickets']))
 					$this->_error("Action not permitted.");
 				$this->_postCreateAction($path);
 				break;
 			case 'search':
-				if(Model_WebapiKey::ACL_NONE==intval(@$keychain->rights['acl_messages']))
+				if(Model_WebapiKey::ACL_NONE==intval(@$keychain->rights['acl_tickets']))
 					$this->_error("Action not permitted.");
 				$this->_postSearchAction($path);
 				break;
@@ -1300,7 +1494,7 @@ class Rest_MessagesController extends Ch_RestController {
 	}
 	
 	protected function deleteAction($path,$keychain) {
-		if(Model_WebapiKey::ACL_FULL!=intval(@$keychain->rights['acl_messages']))
+		if(Model_WebapiKey::ACL_FULL!=intval(@$keychain->rights['acl_tickets']))
 			$this->_error("Action not permitted.");
 		
 		// Single DELETE
@@ -1313,11 +1507,20 @@ class Rest_MessagesController extends Ch_RestController {
 	private function _postCreateAction($path) {
 		$xmlstr = $this->getPayload();
 		$xml_in = simplexml_load_string($xmlstr);
-		
+
 		$fields = array();
 		
-		$flds = DAO_Message::getFields();
-		unset($flds[DAO_Message::ID]);
+		$flds = array(
+			DAO_MessageNote::ID => DAO_MessageNote::ID,
+			DAO_MessageNote::TYPE => DAO_MessageNote::TYPE,
+			DAO_MessageNote::MESSAGE_ID => DAO_MessageNote::MESSAGE_ID,
+			DAO_MessageNote::WORKER_ID => DAO_MessageNote::WORKER_ID,
+			DAO_MessageNote::CREATED => DAO_MessageNote::CREATED,
+			DAO_MessageNote::CONTENT => DAO_MessageNote::CONTENT,
+		);
+		unset($flds[DAO_MessageNote::ID]);
+		unset($flds[DAO_MessageNote::CREATED]);
+		unset($flds[DAO_MessageNote::TYPE]);
 		
 		foreach($flds as $idx => $f) {
 			$idx_name = $this->translate($idx, true);
@@ -1326,138 +1529,79 @@ class Rest_MessagesController extends Ch_RestController {
 			if($this->isValid($idx_name,$value))
 				$fields[$idx] = $value;
 		}
-				
-		if(empty($fields[DAO_Message::ADDRESS_ID])
-		|| empty($fields[DAO_Message::TICKET_ID]))
+
+		if(empty($fields[DAO_MessageNote::CONTENT])
+		|| empty($fields[DAO_MessageNote::MESSAGE_ID]))
 			$this->_error("All required fields were not provided.");
 		
-		if(null != ($address = DAO_Address::get(intval($fields[DAO_Message::ADDRESS_ID]))))
-			$this->_error("Address id specified does not exist.");
+		DAO_MessageNote::create($fields);
 
-		if(null != ($ticket = DAO_Ticket::getTicket(intval($fields[DAO_Message::TICKET_ID]))))
-			$this->_error("Ticket id specified does not exist.");
-
-		// Supply creation date if not specified
-		if(empty($fields[DAO_Message::CREATED_DATE]))
-			$fields[DAO_Message::CREATED_DATE] = time();
-		
-		$id = DAO_Message::create($fields);
-		
-		// Render
-		$this->_getIdAction(array($id));
+		// not necessarily accurate, but create() doesn't return an id.  TODO: fix DAO_MessageNote::create
+		$out_xml = new SimpleXMLElement('<success></success>');
+		$this->_render($out_xml->asXML());
 	}
 	
 	private function _postSearchAction($path) {
-		@$p_page = DevblocksPlatform::importGPC($_REQUEST['p'],'integer',0);		
-		
-		$xml_in = simplexml_load_string($this->getPayload());
-		$search_params = SearchFields_Message::getFields();
-		$params = array();
-		
-		// Check for params in request
-		foreach($search_params as $sp_element => $fld) {
-			$sp_element_name = $this->translate($sp_element, true);
-			if ($sp_element_name == null) continue;
-			@$field_ptr =& $xml_in->params->$sp_element_name;
-			if(!empty($field_ptr)) {
-				@$value = (string) $field_ptr['value'];
-				@$oper = (string) $field_ptr['oper'];
-				if(empty($oper)) $oper = 'eq';
-				$params[$sp_element] =	new DevblocksSearchCriteria($sp_element,$oper,$value);
-			}
-		}
-
-		list($results, $null) = DAO_Message::search(
-			$params,
-			50,
-			$p_page,
-			SearchFields_Message::ID,
-			false,
-			false
-		);
-		
-		$this->_renderResults($results, $search_params, 'message', 'messages');
+		$this->_error("Search not yet implemented");
+//		@$p_page = DevblocksPlatform::importGPC($_REQUEST['p'],'integer',0);		
+//		
+//		$xml_in = simplexml_load_string($this->getPayload());
+//		$search_params = SearchFields_ContactOrg::getFields();
+//		$params = array();
+//		
+//		// Check for params in request
+//		foreach($search_params as $sp_element => $fld) {
+//			$sp_element_name = $this->translate($sp_element, true);
+//			if ($sp_element_name == null) continue;
+//			@$field_ptr =& $xml_in->params->$sp_element_name;
+//			if(!empty($field_ptr)) {
+//				@$value = (string) $field_ptr['value'];
+//				@$oper = (string) $field_ptr['oper'];
+//				if(empty($oper)) $oper = 'eq';
+//				$params[$sp_element] =	new DevblocksSearchCriteria($sp_element,$oper,$value);
+//			}
+//		}
+//
+//		list($orgs, $null) = DAO_ContactOrg::search(
+//			$params,
+//			50,
+//			$p_page,
+//			DAO_ContactOrg::NAME,
+//			true,
+//			false
+//		);
+//		
+//		$this->_renderResults($orgs, $search_params, 'org', 'orgs');
 	}
 	
 	private function _getIdAction($path) {
 		$in_id = array_shift($path);
-
 		if(empty($in_id))
 			$this->_error("ID was not provided.");
 
-		list($results, $null) = DAO_Message::search(
-			array(
-				SearchFields_Message::ID => new DevblocksSearchCriteria(SearchFields_Message::ID,'=',$in_id)
-			),
-			1,
-			0,
-			null,
-			null,
-			false
-		);
-			
-		if(empty($results))
-			$this->_error("ID not valid.");
-
-		$this->_renderOneResult($results, SearchFields_Message::getFields(), 'message');
-	}
-	
-	private function _getListAction($path) {
-		@$p_page = DevblocksPlatform::importGPC($_REQUEST['p'],'integer',0);		
+		if(null == ($message = DAO_MessageNote::get($in_id)))
+			$this->_error("ID is not valid");
+    	
+    	$xml_out = new SimpleXMLElement("<note></note>");
+    	$xml_out->addChild('id', $message->id);
+    	$xml_out->addChild('type', $message->type);
+    	$xml_out->addChild('message_id', $message->message_id);
+    	$xml_out->addChild('created', $message->created);
+    	$xml_out->addChild('worker_id', $message->worker_id);
+    	$xml_out->addChild('content', $message->content);
 		
-		list($results,$null) = DAO_Message::search(
-			array(),
-			50,
-			$p_page,
-			SearchFields_Message::ID,
-			true,
-			false
-		);
-
-		$this->_renderResults($results, SearchFields_Message::getFields(), 'message', 'messages');
-	}
-	
-	private function _putIdAction($path) {
-		$xmlstr = $this->getPayload();
-		$xml_in = new SimpleXMLElement($xmlstr);
-		
-		$in_id = array_shift($path);
-		
-		if(empty($in_id))
-			$this->_error("ID was not provided.");
-			
-		if(null == ($message = DAO_Ticket::getMessage($in_id)))
-			$this->_error("ID not valid.");
-
-		$fields = array();
-			
-		$flds = DAO_Message::getFields();
-		unset($flds[DAO_Message::ID]);
-		
-		foreach($flds as $idx => $f) {
-			$idx_name = $this->translate($idx, true);
-			if ($idx_name == null) continue;
-			@$value = DevblocksPlatform::importGPC($xml_in->$idx_name,'string');
-			if($this->isValid($idx_name,$value))
-				$fields[$idx] = $value;
-		}
-		
-		if(!empty($fields))
-			DAO_Message::update($in_id,$fields);
-
-		$this->_getIdAction(array($in_id));
+		$this->_render($xml_out->asXML());
 	}
 	
 	private function _deleteIdAction($path) {
 		$in_id = array_shift($path);
-
 		if(empty($in_id))
 			$this->_error("ID was not provided.");
 			
-		if(null == ($message = DAO_Ticket::getMessage($in_id)))
+		if(null == ($note = DAO_MessageNote::get($in_id)))
 			$this->_error("ID is not valid.");
 		
-		DAO_Message::delete(array($in_id));
+		DAO_MessageNote::delete($note->id);
 		
 		$out_xml = new SimpleXMLElement('<success></success>');
 		$this->_render($out_xml->asXML());
