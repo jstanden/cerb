@@ -2402,12 +2402,21 @@ class DAO_Ticket extends DevblocksORMHelper {
 			);
 			$db->Execute($sql);
 			
-			// [TODO] This will probably complain about some dupe constraints
+			// Requesters [TODO] This will probably complain about some dupe constraints
 			$sql = sprintf("UPDATE requester SET ticket_id = %d WHERE ticket_id IN (%s)",
 				$oldest_id,
 				implode(',', $merge_ticket_ids)
 			);
 			$db->Execute($sql);
+			
+			// Tasks [TODO] This could use a ticket.merge event point later
+			$sql = sprintf("UPDATE task SET source_id = %d WHERE source_extension = %s AND source_id IN (%s)",
+				$oldest_id,
+				$db->qstr('cerberusweb.tasks.ticket'),
+				implode(',', $merge_ticket_ids)
+			);
+			$db->Execute($sql);
+			
 			
 			// [TODO] Audit log entries?
 			/*

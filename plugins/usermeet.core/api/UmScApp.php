@@ -1284,6 +1284,7 @@ class UmScCoreController extends Extension_UmScController {
 		    		default:
 		    		case 'step1':
 		    			$umsession->setProperty('support.write.last_error', null);
+		    			
 		    		case 'step2':
 		    			$sFrom = $umsession->getProperty('support.write.last_from','');
 		    			$sSubject = $umsession->getProperty('support.write.last_subject','');
@@ -1307,8 +1308,14 @@ class UmScCoreController extends Extension_UmScController {
 				        
 				        switch($response) {
 				        	default:
-				        		$tpl->display("file:${tpl_path}portal/sc/internal/contact/step1.tpl.php");
-				        		break;
+				        		// If there's only one situation, skip to step2
+						        if(1==count($dispatch)) {
+						        	@$sNature = md5(key($dispatch));
+						        	reset($dispatch);
+						        } else {
+				        			$tpl->display("file:${tpl_path}portal/sc/internal/contact/step1.tpl.php");
+						        	break;
+						        }
 				        		
 				        	case 'step2':
 				        		// Cache along with answers?
