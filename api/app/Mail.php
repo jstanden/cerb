@@ -374,6 +374,7 @@ class CerberusMail {
 		    @$reply_message_id = $properties['message_id'];
 		    @$content =& $properties['content'];
 		    @$files = $properties['files'];
+		    @$forward_files = $properties['forward_files'];
 		    @$worker_id = $properties['agent_id'];
 		    @$subject = $properties['subject'];
 		    
@@ -548,6 +549,19 @@ class CerberusMail {
 				}
 			}
 	
+			// Forward Attachments
+			if(!empty($forward_files) && is_array($forward_files)) {
+				$attachments_path = APP_PATH . '/storage/attachments/';
+				
+				foreach($forward_files as $file_id) {
+					$attachment = DAO_Attachment::get($file_id);
+					$attachment_path = $attachments_path . $attachment->filepath;
+					
+					$mail->attach(new Swift_Message_Attachment(
+						new Swift_File($attachment_path), $attachment->display_name, $attachment->mime_type));
+				}
+			}
+			
 			if(!DEMO_MODE) {
 				if(!$mailer->send($mail, $sendTo, $sendFrom)) {
 					$mail_succeeded = false;

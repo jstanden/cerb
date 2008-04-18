@@ -138,6 +138,17 @@
 				<td style="padding-left:5px;">
 					<H2>Attachments:</H2>
 					(The maximum attachment size is {$upload_max_filesize})<br>
+					
+					{if $is_forward && !empty($forward_attachments)}
+						<br>
+						<b>Forward attachments:</b><br>
+						{foreach from=$forward_attachments item=attach key=attach_id}
+							<label><input type="checkbox" name="forward_files[]" value="{$attach->id}" checked> {$attach->display_name|escape}</label><br>
+						{/foreach}
+						<br>
+					{/if}
+					
+					<b>Add Attachments:</b><br>
 					<table cellpadding="2" cellspacing="0" border="0" width="100%">
 						<tr>
 							<td width="100%" valign="top">

@@ -6001,38 +6001,6 @@ class ChCronController extends DevblocksControllerExtension {
 	}
 }
 
-class ChTestsController extends DevblocksControllerExtension {
-	function __construct($manifest) {
-		parent::__construct($manifest);
-		$router = DevblocksPlatform::getRoutingService();
-		$router->addRoute('tests','core.controller.tests');
-	}
-	
-	/*
-	 * Request Overload
-	 */
-	function handleRequest(DevblocksHttpRequest $request) {
-		// [TODO] Add testing extension point to Cerb/Devblocks
-
-		require_once 'PHPUnit/Framework.php';
-		require_once 'api/CerberusTestListener.class.php';
-		
-		$suite = new PHPUnit_Framework_TestSuite('Cerberus Helpdesk');
-		
-		require_once 'api/Application.tests.php';
-		$suite->addTestSuite('ApplicationTest');
-		$suite->addTestSuite('CerberusBayesTest');
-		$suite->addTestSuite('CerberusParserTest');
-		
-		$result = new PHPUnit_Framework_TestResult;
-		$result->addListener(new CerberusTestListener);
-		 
-		$suite->run($result);
-		
-		exit;
-	}
-}
-
 class ChRssController extends DevblocksControllerExtension {
 	function __construct($manifest) {
 		parent::__construct($manifest);
@@ -7161,6 +7129,12 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		$ticket = DAO_Ticket::getTicket($message->ticket_id);
 		$tpl->assign('ticket',$ticket);
+
+		// Show attachments for forwarded messages
+		if($is_forward) {
+			$forward_attachments = $message->getAttachments();
+			$tpl->assign('forward_attachments', $forward_attachments);
+		}
 		
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
@@ -7237,6 +7211,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		    'bucket_id' => DevblocksPlatform::importGPC(@$_REQUEST['bucket_id'],'string',''),
 		    'ticket_reopen' => DevblocksPlatform::importGPC(@$_REQUEST['ticket_reopen'],'string',''),
 		    'agent_id' => @$worker->id,
+		    'forward_files' => DevblocksPlatform::importGPC(@$_REQUEST['forward_files'],'array',array()),
 		);
 		
 		CerberusMail::sendTicketMessage($properties);
