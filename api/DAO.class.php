@@ -4721,6 +4721,27 @@ class DAO_WorkerPref extends DevblocksORMHelper {
 		);
 	}
 	
+	static function getByKey($key) {
+		$db = DevblocksPlatform::getDatabaseService();
+		$sql = sprintf("SELECT worker_id, value 
+			FROM worker_pref 
+			WHERE setting = %s", 
+				$db->qstr($key)
+		);
+		$rs = $db->Execute($sql);
+		
+		$workers = array();
+		
+		while(!$rs->EOF) {
+			$worker_id = intval($rs->fields['worker_id']);
+			$value = $rs->fields['value'];
+			
+			$workers[$worker_id][$key] = $value;
+		}
+		
+		return $workers;
+	}
+	
 	static function get($worker_id, $key, $default=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 		$sql = sprintf("SELECT value FROM worker_pref WHERE setting = %s AND worker_id = %d",

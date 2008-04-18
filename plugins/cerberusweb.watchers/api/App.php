@@ -2,6 +2,8 @@
 $path = realpath(dirname(__FILE__).'/../') . DIRECTORY_SEPARATOR;
 
 class ChWatchersPlugin extends DevblocksPlugin {
+	const WORKER_PREF_ASSIGN_EMAIL = 'watchers_assign_email';
+	
 	function load(DevblocksPluginManifest $manifest) {
 	}
 };
@@ -20,6 +22,10 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 				$this->_workerDeleted($event);
             	break;
             	
+            case 'ticket.property.post_change':
+				$this->_workerAssigned($event);
+            	break;
+            	
             case 'ticket.reply.inbound':
 				$this->_sendForwards($event, true);
             	break;
@@ -30,6 +36,82 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
         }
     }
 
+    private function _workerAssigned($event) {
+    	@$ticket_ids = $event->params['ticket_ids'];
+    	@$changed_fields = $event->params['changed_fields'];
+    	
+    	/*
+    	 * [TODO] Refuse to send notifications to the helpdesk
+    	 */
+    	
+    	if(empty($ticket_ids) || empty($changed_fields))
+    		return;
+    		
+    	@$next_worker_id = $changed_fields[DAO_Ticket::NEXT_WORKER_ID];
+
+    	// Make sure a next worker was assigned
+    	if(empty($next_worker_id))
+    		return;
+
+		$mail_service = DevblocksPlatform::getMailService();
+		$mailer = $mail_service->getMailer();
+    		
+    	$settings = CerberusSettings::getInstance();
+		$default_from = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM, '');
+		$default_personal = $settings->get(CerberusSettings::DEFAULT_REPLY_PERSONAL, '');
+
+		@$worker_prefs = DAO_WorkerPref::getSettings($next_worker_id);
+		@$worker_notify_email = $worker_prefs[$next_worker_id][ChWatchersPlugin::WORKER_PREF_ASSIGN_EMAIL];
+
+		// If our next worker doesn't have an assignment pref
+		if(empty($worker_notify_email))
+			return;
+
+		// Send notifications to this worker for each ticket
+		$tickets = DAO_Ticket::getTickets($ticket_ids);
+
+		foreach($tickets as $ticket) { /* @var $ticket CerberusTicket */
+			if(null == (@$last_message = end($ticket->getMessages()))) /* @var $last_message CerberusMessage */
+				continue;
+			
+			if(null == (@$last_headers = $last_message->getHeaders()))
+				continue;
+				
+	    	try {
+		 		// Create the message
+				$rcpt_to = new Swift_RecipientList();
+				$a_rcpt_to = array();
+				$mail_from = new Swift_Address($default_from, $default_personal);
+				$rcpt_to->addTo($worker_notify_email);
+				$a_rcpt_to = new Swift_Address($worker_notify_email);
+					
+				$mail = $mail_service->createMessage();
+				$mail->setTo($a_rcpt_to);
+				$mail->setFrom($mail_from);
+				$mail->setReplyTo($default_from);
+				$mail->setSubject(sprintf("[assignment #%s]: %s",
+					$ticket->mask,
+					$ticket->subject
+				));
+			
+				if(false !== (@$in_reply_to = $last_headers['in-reply-to'])) {
+				    $mail->headers->set('References', $in_reply_to);
+				    $mail->headers->set('In-Reply-To', $in_reply_to);
+				}
+				
+				$mail->headers->set('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
+				$mail->attach(new Swift_Message_Part($last_message->getContent(), 'text/plain', 'base64', 'ISO-8859-1'));
+			
+				$mailer->send($mail, $rcpt_to, $mail_from);
+				
+	    	} catch(Exception $e) {
+	    		//
+			}
+			
+		}
+			
+    }
+    
     private function _workerDeleted($event) {
     	@$worker_id = $event->params['worker_id'];
     	
@@ -191,6 +273,9 @@ class ChWatchersPreferences extends Extension_PreferenceTab {
 		));
 		$tpl->assign('notifications', $notifications);
 		
+		$assign_notify_email = DAO_WorkerPref::get($worker->id, ChWatchersPlugin::WORKER_PREF_ASSIGN_EMAIL, '');
+		$tpl->assign('assign_notify_email', $assign_notify_email);
+		
 		$tpl->display('file:' . $this->tpl_path . '/preferences/watchers.tpl.php');
 	}
     
@@ -199,7 +284,7 @@ class ChWatchersPreferences extends Extension_PreferenceTab {
 		@$forward_bucket = DevblocksPlatform::importGPC($_REQUEST['forward_bucket'],'string', '');
 		@$forward_address = DevblocksPlatform::importGPC($_REQUEST['forward_address'],'string', '');
 		@$forward_event = DevblocksPlatform::importGPC($_REQUEST['forward_event'],'string', '');
-		
+
 		$worker = CerberusApplication::getActiveWorker();
 		
 		// Delete forwards
@@ -222,6 +307,10 @@ class ChWatchersPreferences extends Extension_PreferenceTab {
 			);
 			DAO_WorkerMailForward::create($fields);
 		}
+		
+		// Assignment notifications
+		@$assign_notify_email = DevblocksPlatform::importGPC($_REQUEST['assign_notify_email'],'string', '');
+		DAO_WorkerPref::set($worker->id, ChWatchersPlugin::WORKER_PREF_ASSIGN_EMAIL, $assign_notify_email);
 		
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('preferences','notifications')));
 	}

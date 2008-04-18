@@ -87,6 +87,21 @@ will route it back to the appropriate people.<br>
 		</td>
 	</tr>
 </table>
+<br>
+
+{if !empty($addresses)}
+On new assignments, send a notification to:
+<select name="assign_notify_email">
+	<option value="">-- don't notify --</option>
+	{foreach from=$addresses item=address}
+		{if $address->is_confirmed}
+		<option value="{$address->address}" {if $address->address==$assign_notify_email}selected{/if}>{$address->address}</option>
+		{/if}
+	{/foreach}
+</select>
+<br>
+<br>
+{/if}
 
 {else}
 You are not a member of any groups.<br>
