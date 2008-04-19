@@ -54,7 +54,7 @@ define('REMOTE_URI', '{$path}'); // NO trailing slash!
 define('URL_REWRITE', file_exists('.htaccess'));
 define('LOCAL_HOST', $_SERVER['HTTP_HOST']);
 define('LOCAL_BASE', DevblocksRouter::getLocalBase()); // NO trailing slash!
-define('SCRIPT_LAST_MODIFY', 2008041501); // last change
+define('SCRIPT_LAST_MODIFY', 2008041901); // last change
 
 @session_start();
 
@@ -313,7 +313,7 @@ class DevblocksProxy_Curl extends DevblocksProxy {
         curl_setopt($ch, CURLOPT_HEADER, 0);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 
-        $this->_printTransfer($ch, $out);
+        $this->_returnTransfer($ch, $out);
         
         curl_close($ch);
     }
