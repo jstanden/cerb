@@ -128,6 +128,17 @@
 		</extension>
 
 		<extension point="devblocks.controller">
+			<id>core.controller.print</id>
+			<name>Print Controller</name>
+			<class>
+				<file>classes.php</file>
+				<name>ChPrintController</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
+		<extension point="devblocks.controller">
 			<id>core.controller.update</id>
 			<name>Update/Patch Controller</name>
 			<class>

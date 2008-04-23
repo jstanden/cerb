@@ -5999,7 +5999,86 @@ class ChCronController extends DevblocksControllerExtension {
 		
 		exit;
 	}
-}
+};
+
+class ChPrintController extends DevblocksControllerExtension {
+	const ID = 'core.controller.print';
+	
+	function __construct($manifest) {
+		parent::__construct($manifest);
+		$router = DevblocksPlatform::getRoutingService();
+		$router->addRoute('print',self::ID);
+	}
+	
+	/*
+	 * Request Overload
+	 */
+	function handleRequest(DevblocksHttpRequest $request) {
+		$worker = CerberusApplication::getActiveWorker();
+		if(empty($worker)) return;
+		
+		$stack = $request->path;
+		array_shift($stack); // print
+		@$object = strtolower(array_shift($stack)); // ticket|message|etc
+		
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		$tpl->assign('id', $id);
+		
+		$settings = CerberusSettings::getInstance();
+		$tpl->assign('settings', $settings);
+		
+		$translate = DevblocksPlatform::getTranslationService();
+		$tpl->assign('translate', $translate);
+		
+		$teams = DAO_Group::getAll();
+		$tpl->assign('teams', $teams);
+		
+		$workers = DAO_Worker::getAll();
+		$tpl->assign('workers', $workers);
+		
+		// Security
+		$active_worker = CerberusApplication::getActiveWorker();
+		$active_worker_memberships = $active_worker->getMemberships();
+		
+		// [TODO] Make this pluggable
+		// Subcontroller
+		switch($object) {
+			case 'ticket':
+				@$id = array_shift($stack);
+				@$ticket = is_numeric($id) ? DAO_Ticket::getTicket($id) : DAO_Ticket::getTicketByMask($id);
+				
+				// Make sure we're allowed to view this ticket or message
+				if(!isset($active_worker_memberships[$ticket->team_id])) {
+					echo "<H1>Access Denied</H1>";
+					return;
+				}
+
+				$tpl->assign('ticket', $ticket);
+				
+				$tpl->display('file:' . dirname(__FILE__) . '/templates/print/ticket.tpl.php');
+				break;
+				
+			case 'message':
+				@$id = array_shift($stack);
+				@$message = DAO_Ticket::getMessage($id);
+				@$ticket = DAO_Ticket::getTicket($message->ticket_id);
+				
+				// Make sure we're allowed to view this ticket or message
+				if(!isset($active_worker_memberships[$ticket->team_id])) {
+					echo "<H1>Access Denied</H1>";
+					return;
+				}
+				
+				$tpl->assign('message', $message);
+				$tpl->assign('ticket', $ticket);
+				
+				$tpl->display('file:' . dirname(__FILE__) . '/templates/print/message.tpl.php');
+				break;
+		}
+	}
+};
 
 class ChRssController extends DevblocksControllerExtension {
 	function __construct($manifest) {
@@ -6953,7 +7032,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 		
-		$ticket = DAO_Ticket::getTicket($message->id);
+		$ticket = DAO_Ticket::getTicket($message->ticket_id);
 		$tpl->assign('ticket', $ticket);
 		
 		if(empty($hide)) {
@@ -7427,8 +7506,11 @@ class ChDisplayPage extends CerberusPageExtension {
 
 		// [TODO] SLA?
 		
-		// Requester
-		DAO_Ticket::createRequester($orig_message->address_id,$new_ticket_id);
+		// Copy all the original tickets requesters
+		$orig_requesters = DAO_Ticket::getRequestersByTicket($orig_ticket->id);
+		foreach($orig_requesters as $orig_req_id => $orig_req_addy) {
+			DAO_Ticket::createRequester($orig_req_id, $new_ticket_id);
+		}
 		
 		// Pull the message off the ticket (reparent)
 		unset($messages[$orig_message->id]);

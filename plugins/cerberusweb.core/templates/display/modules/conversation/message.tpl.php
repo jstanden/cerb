@@ -71,9 +71,7 @@
 				      	<button type="button" onclick="displayAjax.addNote('{$message->id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/note_edit.gif{/devblocks_url}" align="top"> Add Note</button>
 				      	&nbsp;
 				      	
-				      	{if $ticket->first_message_id != $message->id}
-				      		<a href="javascript:;" onclick="toggleDiv('{$message->id}options');">more &raquo;</a>
-				      	{/if}
+			      		<a href="javascript:;" onclick="toggleDiv('{$message->id}options');">more &raquo;</a>
 	      			</td>
 	      		</tr>
 	      	</table>
@@ -83,8 +81,10 @@
 	      		<input type="hidden" name="a" value="">
 	      		<input type="hidden" name="id" value="{$message->id}">
 	      		
+	      		<button type="button" onclick="document.frmPrint.action='{devblocks_url}c=print&a=message&id={$message->id}{/devblocks_url}';;document.frmPrint.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/printer.gif{/devblocks_url}" align="top"> Print</button>
+	      		
 	      		{if $ticket->first_message_id != $message->id} {* Don't allow splitting of a single message *}
-	      		<button type="button" onclick="this.form.a.value='doSplitMessage';this.form.submit();" title="Split message into new ticket">Split Ticket</button>
+	      		<button type="button" onclick="this.form.a.value='doSplitMessage';this.form.submit();" title="Split message into new ticket"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/documents.gif{/devblocks_url}" align="top"> Split Ticket</button>
 	      		{/if}
 	      	</form>
 	      	

@@ -85,6 +85,8 @@
 				{/if}
 			{/if}
 			
+			<button type="button" onclick="document.frmPrint.action='{devblocks_url}c=print&a=ticket&id={$ticket->mask}{/devblocks_url}';;document.frmPrint.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/printer.gif{/devblocks_url}" align="top"> Print</button>
+			 
 			{if !$ticket->is_deleted}
 		   	<select name="bucket_id" onchange="this.form.submit();">
 		   		<option value="">-- move to --</option>
@@ -104,9 +106,9 @@
 		  		{/foreach}
 		   	</select>
 		   	{/if}
-			
-			<button type="button" onclick="document.location='{devblocks_url}c=display&id={$ticket->mask}{/devblocks_url}';"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/replace2.gif{/devblocks_url}" align="top"> Refresh</button>
+			<button type="button" onclick="document.location='{devblocks_url}c=display&id={$ticket->mask}{/devblocks_url}';"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/replace2.gif{/devblocks_url}" align="top"> Refresh</button> 
 		</form>
+		<form action="{devblocks_url}{/devblocks_url}" method="post" name="frmPrint" id="frmPrint" target="_blank" style="display:none;"></form>
 	</td>
 	<td valign="top" nowrap="nowrap" align="right">
 		{if !empty($series_stats.next) || !empty($series_stats.prev)}
