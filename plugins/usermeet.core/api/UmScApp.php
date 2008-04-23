@@ -23,7 +23,7 @@ class UmScApp extends Extension_UsermeetTool {
 	const PARAM_ALLOW_LOGINS = 'allow_logins';
 	const PARAM_ALLOW_SUBJECTS = 'allow_subjects';
 	
-	const DEFAULT_THEME = 'classic_green';
+	const DEFAULT_THEME = 'cerb4';
 	
 	const SESSION_CAPTCHA = 'write_captcha';
 	const SESSION_ARTICLE_LIST = 'kb_article_list';	

@@ -53,6 +53,13 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
     	if(empty($next_worker_id))
     		return;
 
+    	@$active_worker = CerberusApplication::getActiveWorker();
+    		
+    	// Make sure we're not assigning work to ourselves, if so then bail
+    	if(null != $active_worker && $active_worker->id == $next_worker_id) {
+    		return;
+    	}
+    		
 		$mail_service = DevblocksPlatform::getMailService();
 		$mailer = $mail_service->getMailer();
     		
