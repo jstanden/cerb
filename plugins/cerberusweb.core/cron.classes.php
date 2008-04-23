@@ -333,10 +333,12 @@ class Pop3Cron extends CerberusCronPageExtension {
 
             $runtime = microtime(true);
              
-            $mailbox = imap_open($connect,
-            !empty($account->username)?$account->username:"",
-            !empty($account->password)?$account->password:"")
-            or die("Failed with error: ".imap_last_error());
+            if(false === ($mailbox = @imap_open($connect,
+	            !empty($account->username)?$account->username:"",
+	            !empty($account->password)?$account->password:""))) {
+					echo "Failed with error: ",imap_last_error(),"<BR>";
+            		continue;
+	        }
             	
             $messages = array();
             $check = imap_check($mailbox);

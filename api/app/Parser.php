@@ -421,6 +421,15 @@ class CerberusParser {
         	}
         }
         
+        // [TODO] Pre-parse mail rules
+        if(empty($importNew) && empty($importAppend)) {
+//        	echo (empty($id) ? 'New' : 'Reply') . "<BR>";
+//        	print_r($headers);
+//        	print_r($fromAddressInst);
+//        	print_r(CerberusParser::findDestination($headers));
+//        	print_r($message->body);
+		}
+        
 		if(empty($id)) { // New Ticket
 			// Are we delivering or bouncing?
 			@list($team_id, $matchingToAddress) = CerberusParser::findDestination($headers);
@@ -599,6 +608,15 @@ class CerberusParser {
                 //Assume our rule match is not spam
                 if(empty($rule->do_spam)) { // if we didn't already train
                     $enumSpamTraining = CerberusTicketSpamTraining::NOT_SPAM;
+                }
+                
+                // If a rule changed our destination, replace the scope variable $team_id
+                if(!empty($rule->do_move)) {
+                	@list($rule_team_id, $rule_bucket_id) = 
+                		CerberusApplication::translateTeamCategoryCode($rule->do_move);
+                	if(!empty($rule_team_id)) {
+                		$team_id = $rule_team_id;
+                	}
                 }
 			}
 				
