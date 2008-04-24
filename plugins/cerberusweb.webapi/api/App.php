@@ -72,6 +72,9 @@ class ChWebApiConfigTab extends Extension_ConfigTab {
 		$tpl->assign('path', $tpl_path);
 		$tpl->cache_lifetime = "0";
 		
+		$kb_topics = DAO_KbCategory::getWhere('parent_id = 0');
+		$tpl->assign('kb_topics',$kb_topics);
+		
 		$access_keys = DAO_WebapiKey::getWhere();
 		$tpl->assign('access_keys', $access_keys);
 		
@@ -93,21 +96,25 @@ class ChWebApiConfigTab extends Extension_ConfigTab {
 		if(is_array($access_ids))
 		foreach($access_ids as $access_id) {
 			$rights = array();
-			
+
 			// ACL
 			@$aclAddresses = DevblocksPlatform::importGPC($_REQUEST['aclAddresses'.$access_id],'integer',0);
 			@$aclFnr = DevblocksPlatform::importGPC($_REQUEST['aclFnr'.$access_id],'integer',0);
 			@$aclOrgs = DevblocksPlatform::importGPC($_REQUEST['aclOrgs'.$access_id],'integer',0);
 			@$aclParser = DevblocksPlatform::importGPC($_REQUEST['aclParser'.$access_id],'integer',0);
 			@$aclTickets = DevblocksPlatform::importGPC($_REQUEST['aclTickets'.$access_id],'integer',0);
-			//@$aclMessages = DevblocksPlatform::importGPC($_REQUEST['aclMessages'.$access_id],'integer',0);
+			@$aclKB = DevblocksPlatform::importGPC($_REQUEST['aclKB'.$access_id],'array');
+
+			$aclKBTopics = array();
+			foreach($aclKB as $k => $v)
+				$aclKBTopics[$v] = 1;
 			
 			$rights['acl_addresses'] = $aclAddresses;
 			$rights['acl_fnr'] = $aclFnr;
 			$rights['acl_orgs'] = $aclOrgs;
 			$rights['acl_parser'] = $aclParser;
 			$rights['acl_tickets'] = $aclTickets;
-			//$rights['acl_messages'] = $aclMessages;
+			$rights['acl_kb_topics'] = $aclKBTopics;
 			
 			// IPs
 			@$ipList = DevblocksPlatform::importGPC($_REQUEST['ips'.$access_id],'string','');
@@ -1422,27 +1429,6 @@ class Rest_MessagesController extends Ch_RestController {
 class Rest_NotesController extends Ch_RestController {
 	protected function translate($idx, $dir) {
 		return $idx;
-		$translations = array(
-			'c_id' => 'id',
-			'c_account_number' => 'account_number',
-			'c_name' => 'name',
-			'c_street' => 'street',
-			'c_city' => 'city',
-			'c_province' => 'province',
-			'c_postal' => 'postal',
-			'c_country' => 'country',
-			'c_phone' => 'phone',
-			'c_fax' => 'fax',
-			'c_website' => 'website',
-			'c_created' => null,
-			'c_sla_id' => null,
-		);
-		
-		if ($dir === true && array_key_exists($idx, $translations))
-			return $translations[$idx];
-		if ($dir === false)
-			return ($key = array_search($idx, $translations)) === false ? null : $key;
-		return $idx;
 	}
 		
 	protected function isValid($idx_name, $value) {
@@ -1469,12 +1455,7 @@ class Rest_NotesController extends Ch_RestController {
 	}
 
 	protected function putAction($path,$keychain) {
-		if(Model_WebapiKey::ACL_FULL!=intval(@$keychain->rights['acl_tickets']))
-			$this->_error("Action not permitted.");
-		
-		// Single PUT
-		if(1==count($path) && is_numeric($path[0]))
-			$this->_putIdAction($path);
+		$this->_error("Action not permitted.");
 	}
 	
 	protected function postAction($path,$keychain) {
@@ -1608,6 +1589,193 @@ class Rest_NotesController extends Ch_RestController {
 	}
 };
 
+class Rest_CommentsController extends Ch_RestController {
+	protected function translate($idx, $dir) {
+		return $idx;
+	}
+		
+	protected function isValid($idx_name, $value) {
+		switch($idx_name) {
+			case 'worker_id':
+			case 'ticket_id':
+				return is_numeric($value) ? true : false;
+			case 'comment':
+				return !empty($value) ? true : false;
+			default:
+				return false;
+		}
+	}
+		
+	protected function getAction($path,$keychain) {
+		if(Model_WebapiKey::ACL_NONE==intval(@$keychain->rights['acl_tickets']))
+			$this->_error("Action not permitted.");
+		
+		// Single GET
+		if(1==count($path) && is_numeric($path[0]))
+			$this->_getIdAction($path);
+		
+		// Actions
+		switch(array_shift($path)) {
+			case 'list':
+				$this->_getListAction($path);
+				break;
+		}
+	}
+
+	protected function putAction($path,$keychain) {
+		$this->_error("Action not permitted.");
+	}
+	
+	protected function postAction($path,$keychain) {
+		// Actions
+		switch(array_shift($path)) {
+			case 'create':
+				if(Model_WebapiKey::ACL_FULL!=intval(@$keychain->rights['acl_tickets']))
+					$this->_error("Action not permitted.");
+				$this->_postCreateAction($path);
+				break;
+			case 'search':
+				if(Model_WebapiKey::ACL_NONE==intval(@$keychain->rights['acl_tickets']))
+					$this->_error("Action not permitted.");
+				$this->_postSearchAction($path);
+				break;
+		}
+	}
+	
+	protected function deleteAction($path,$keychain) {
+		if(Model_WebapiKey::ACL_FULL!=intval(@$keychain->rights['acl_tickets']))
+			$this->_error("Action not permitted.");
+		
+		// Single DELETE
+		if(1==count($path) && is_numeric($path[0]))
+			$this->_deleteIdAction($path);
+	}
+	
+	//****
+	
+	private function _postCreateAction($path) {
+		$xmlstr = $this->getPayload();
+		$xml_in = simplexml_load_string($xmlstr);
+
+		$fields = array();
+		
+		$flds = array(
+			DAO_TicketComment::ID => DAO_TicketComment::ID,
+			DAO_TicketComment::TICKET_ID => DAO_TicketComment::TICKET_ID,
+			DAO_TicketComment::WORKER_ID => DAO_TicketComment::WORKER_ID,
+			DAO_TicketComment::CREATED => DAO_TicketComment::CREATED,
+			DAO_TicketComment::COMMENT => DAO_TicketComment::COMMENT,
+		);
+		unset($flds[DAO_TicketComment::ID]);
+		unset($flds[DAO_TicketComment::CREATED]);
+		
+		foreach($flds as $idx => $f) {
+			$idx_name = $this->translate($idx, true);
+			if ($idx_name == null) continue;
+			@$value = DevblocksPlatform::importGPC($xml_in->$idx_name,'string');
+			if($this->isValid($idx_name,$value))
+				$fields[$idx] = $value;
+		}
+
+		if(empty($fields[DAO_TicketComment::COMMENT])
+		|| empty($fields[DAO_TicketComment::TICKET_ID]))
+			$this->_error("All required fields were not provided.");
+		
+		$id = DAO_TicketComment::create($fields);
+
+		// Render
+		$this->_getIdAction(array($id));		
+	}
+	
+	private function _postSearchAction($path) {
+		$this->_error("Search not yet implemented");
+//		@$p_page = DevblocksPlatform::importGPC($_REQUEST['p'],'integer',0);		
+//		
+//		$xml_in = simplexml_load_string($this->getPayload());
+//		$search_params = SearchFields_ContactOrg::getFields();
+//		$params = array();
+//		
+//		// Check for params in request
+//		foreach($search_params as $sp_element => $fld) {
+//			$sp_element_name = $this->translate($sp_element, true);
+//			if ($sp_element_name == null) continue;
+//			@$field_ptr =& $xml_in->params->$sp_element_name;
+//			if(!empty($field_ptr)) {
+//				@$value = (string) $field_ptr['value'];
+//				@$oper = (string) $field_ptr['oper'];
+//				if(empty($oper)) $oper = 'eq';
+//				$params[$sp_element] =	new DevblocksSearchCriteria($sp_element,$oper,$value);
+//			}
+//		}
+//
+//		list($orgs, $null) = DAO_ContactOrg::search(
+//			$params,
+//			50,
+//			$p_page,
+//			DAO_ContactOrg::NAME,
+//			true,
+//			false
+//		);
+//		
+//		$this->_renderResults($orgs, $search_params, 'org', 'orgs');
+	}
+	
+	private function _getIdAction($path) {
+		$in_id = array_shift($path);
+		if(empty($in_id))
+			$this->_error("ID was not provided.");
+
+		if(null == ($comment = DAO_TicketComment::get($in_id)))
+			$this->_error("ID is not valid");
+    	
+    	$xml_out = new SimpleXMLElement("<comment></comment>");
+    	$xml_out->addChild('id', $comment->id);
+    	$xml_out->addChild('ticket_id', $comment->ticket_id);
+    	$xml_out->addChild('created', $comment->created);
+    	$xml_out->addChild('worker_id', $comment->worker_id);
+    	$xml_out->addChild('comment', $comment->comment);
+		
+		$this->_render($xml_out->asXML());
+	}
+	
+	private function _getListAction($path) {
+		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer',0);
+		if(0 == $ticket_id)
+			$this->_error("Ticket ID was not provided.");
+
+		$ticket_comments = DAO_TicketComment::getWhere(sprintf("%s = %d",
+			DAO_TicketComment::TICKET_ID,
+			$ticket_id
+		));
+		
+		$xml_out = new SimpleXMLElement("<comments></comments>");
+    	foreach($ticket_comments as $comment) {
+    		$xml_comment = $xml_out->addChild('comment');
+    		$xml_comment->addChild('id', $comment->id);
+    		$xml_comment->addChild('ticket_id', $comment->ticket_id);
+    		$xml_comment->addChild('created', $comment->created);
+    		$xml_comment->addChild('worker_id', $comment->worker_id);
+    		$xml_comment->addChild('comment', $comment->comment);
+    	}
+
+		$this->_render($xml_out->asXML());
+	}
+	
+	private function _deleteIdAction($path) {
+		$in_id = array_shift($path);
+		if(empty($in_id))
+			$this->_error("ID was not provided.");
+			
+		if(null == ($note = DAO_TicketComment::get($in_id)))
+			$this->_error("ID is not valid.");
+		
+		DAO_TicketComment::delete($note->id);
+		
+		$out_xml = new SimpleXMLElement('<success></success>');
+		$this->_render($out_xml->asXML());
+	}
+};
+
 class Rest_KBArticlesController extends Ch_RestController {
 	protected function translate($idx, $dir) {
 		$translations = array(
@@ -1627,21 +1795,17 @@ class Rest_KBArticlesController extends Ch_RestController {
 	}
 		
 	protected function getAction($path,$keychain) {
-		//TODO: need to actually build an acl for the tree (or at least a top node) to determine visibility
-//		if(Model_WebapiKey::ACL_NONE==intval(@$keychain->rights['acl_kb']))
-//			$this->_error("Action not permitted.");
-		
 		// Single GET
 		if(1==count($path) && is_numeric($path[0]))
-			$this->_getIdAction($path);
+			$this->_getIdAction($path,$keychain);
 		
 		// Actions
 		switch(array_shift($path)) {
 			case 'list':
-				$this->_getListAction($path);
+				$this->_getListAction($path,$keychain);
 				break;
 			case 'tree':
-				$this->_getTreeAction($path);
+				$this->_getTreeAction($path,$keychain);
 				break;
 		}
 	}
@@ -1650,16 +1814,14 @@ class Rest_KBArticlesController extends Ch_RestController {
 		// Actions
 		switch(array_shift($path)) {
 			case 'search':
-//				if(Model_WebapiKey::ACL_NONE==intval(@$keychain->rights['acl_kb']))
-//					$this->_error("Action not permitted.");
-				$this->_postSearchAction($path);
+				$this->_postSearchAction($path,$keychain);
 				break;
 		}
 	}
 	
 	//****
 	
-	private function _postSearchAction($path) {
+	private function _postSearchAction($path,$keychain) {
 		@$p_page = DevblocksPlatform::importGPC($_REQUEST['p'],'integer',0);		
 		
 		$xml_in = simplexml_load_string($this->getPayload());
@@ -1678,7 +1840,8 @@ class Rest_KBArticlesController extends Ch_RestController {
 				$params[$sp_element] =	new DevblocksSearchCriteria($sp_element,$oper,$value);
 			}
 		}
-
+		$params[SearchFields_KbArticle::TOP_CATEGORY_ID] = new DevblocksSearchCriteria(SearchFields_KbArticle::TOP_CATEGORY_ID,'in',array_keys(@$keychain->rights['acl_kb_topics']));
+		
 		list($results, $null) = DAO_KbArticle::search(
 			$params,
 			50,
@@ -1691,7 +1854,7 @@ class Rest_KBArticlesController extends Ch_RestController {
 		$this->_renderResults($results, $search_params, 'article', 'articles');
 	}
 	
-	private function _getIdAction($path) {
+	private function _getIdAction($path,$keychain) {
 		$in_id = array_shift($path);
 
 		if(empty($in_id))
@@ -1699,7 +1862,8 @@ class Rest_KBArticlesController extends Ch_RestController {
 
 		list($results, $null) = DAO_KbArticle::search(
 			array(
-				SearchFields_KbArticle::ID => new DevblocksSearchCriteria(SearchFields_KbArticle::ID,'=',$in_id)
+				SearchFields_KbArticle::ID => new DevblocksSearchCriteria(SearchFields_KbArticle::ID,'=',$in_id),
+				SearchFields_KbArticle::TOP_CATEGORY_ID => new DevblocksSearchCriteria(SearchFields_KbArticle::TOP_CATEGORY_ID,'in',array_keys(@$keychain->rights['acl_kb_topics'])),
 			),
 			1,
 			0,
@@ -1714,8 +1878,7 @@ class Rest_KBArticlesController extends Ch_RestController {
 		$this->_renderOneResult($results, SearchFields_KbArticle::getFields(), 'article');
 	}
 	
-	private function _getListAction($path) {
-		//TODO: verify access node, add ::TOP_CATEGORY_ID search criteria
+	private function _getListAction($path,$keychain) {
 		@$root = DevblocksPlatform::importGPC($_REQUEST['root'],'integer',0);
 		
 		// how many, and what page?
@@ -1742,6 +1905,7 @@ class Rest_KBArticlesController extends Ch_RestController {
 		
 		$params = array();
 		if(0 != $root) $params[] = new DevblocksSearchCriteria(SearchFields_KbArticle::CATEGORY_ID,'=',$root);
+		$params[SearchFields_KbArticle::TOP_CATEGORY_ID] = new DevblocksSearchCriteria(SearchFields_KbArticle::TOP_CATEGORY_ID,'in',array_keys(@$keychain->rights['acl_kb_topics']));
 		
 		list($results,$null) = DAO_KbArticle::search(
 			$params,
@@ -1755,7 +1919,7 @@ class Rest_KBArticlesController extends Ch_RestController {
 		$this->_renderResults($results, SearchFields_KbArticle::getFields(), 'article', 'articles');
 	}
 	
-	private function _getTreeAction($path) {
+	private function _getTreeAction($path,$keychain) {
 		@$root = DevblocksPlatform::importGPC($_REQUEST['root'],'integer',0);
 		//TODO: verify access permissions to that root node
 		

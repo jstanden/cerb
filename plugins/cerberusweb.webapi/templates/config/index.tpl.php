@@ -73,17 +73,14 @@ remote control of your helpdesk.<br>
 						<label><input type="radio" name="aclTickets{$access_key_id}" value="2" {if 2==$access_key->rights.acl_tickets}checked{/if}> Change</label> 
 					</td>
 				</tr>
-<!--
-It makes more logical sense for Messages to simply inherit the Ticket permissions than to have their own.
 				<tr>
-					<td>Messages:</td>
+					<td valign="top">KnowledgeBase Topics Visible:</td>
 					<td>
-						<label><input type="radio" name="aclMessages{$access_key_id}" value="0" {if !$access_key->rights.acl_messages}checked{/if}> None</label> 
-						<label><input type="radio" name="aclMessages{$access_key_id}" value="1" {if 1==$access_key->rights.acl_messages}checked{/if}> Read Only</label> 
-						<label><input type="radio" name="aclMessages{$access_key_id}" value="2" {if 2==$access_key->rights.acl_messages}checked{/if}> Change</label> 
+						{foreach from=$kb_topics item=kb_topic key=kb_topic_id}
+							<label><input type="checkbox" name="aclKB{$access_key_id}[]" value="{$kb_topic_id}" {if 1==$access_key->rights.acl_kb_topics[$kb_topic_id]}checked{/if}> {$kb_topic->name}</label><br> 
+						{/foreach}
 					</td>
 				</tr>
--->
 			</table>
 		</div>
 		
