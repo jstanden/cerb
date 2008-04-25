@@ -3562,9 +3562,15 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	    @$smtp_host = DevblocksPlatform::importGPC($_REQUEST['smtp_host'],'string','localhost');
 	    @$smtp_port = DevblocksPlatform::importGPC($_REQUEST['smtp_port'],'integer',25);
 	    @$smtp_auth_enabled = DevblocksPlatform::importGPC($_REQUEST['smtp_auth_enabled'],'integer', 0);
-	    @$smtp_auth_user = DevblocksPlatform::importGPC($_REQUEST['smtp_auth_user'],'string');
-	    @$smtp_auth_pass = DevblocksPlatform::importGPC($_REQUEST['smtp_auth_pass'],'string');
-	    @$smtp_enc = DevblocksPlatform::importGPC($_REQUEST['smtp_enc'],'string','None');
+	    if($smtp_auth_enabled) {
+		    @$smtp_auth_user = DevblocksPlatform::importGPC($_REQUEST['smtp_auth_user'],'string');
+		    @$smtp_auth_pass = DevblocksPlatform::importGPC($_REQUEST['smtp_auth_pass'],'string');
+	    	@$smtp_enc = DevblocksPlatform::importGPC($_REQUEST['smtp_enc'],'string','None');
+	    } else { // need to clear auth info when smtp auth is disabled
+		    @$smtp_auth_user = '';
+		    @$smtp_auth_pass = '';
+	    	@$smtp_enc = 'None';
+	    }
 	    
 	    $settings = CerberusSettings::getInstance();
 	    $settings->set(CerberusSettings::DEFAULT_REPLY_FROM, $default_reply_address);
