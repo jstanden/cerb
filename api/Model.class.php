@@ -732,6 +732,8 @@ class C4_TicketView extends C4_AbstractView {
 		$fields = self::getFields();
 		unset($fields[SearchFields_Ticket::TEAM_ID]);
 		unset($fields[SearchFields_Ticket::TICKET_MESSAGE_CONTENT]);
+		unset($fields[SearchFields_Ticket::REQUESTER_ID]);
+		unset($fields[SearchFields_Ticket::REQUESTER_ADDRESS]);
 		return $fields;
 	}
 
