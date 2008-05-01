@@ -89,8 +89,13 @@ class CerberusParser {
 		        if($info['content-type'] == 'text/plain') {
 					$text = mailparse_msg_extract_part_file($section, $full_filename, NULL);
 					
-					if(isset($info['content-charset']) && !empty($info['content-charset']))
-						$text = mb_convert_encoding($text, "ISO-8859-1", $info['content-charset']);
+					if(isset($info['content-charset']) && !empty($info['content-charset'])) {
+						if(@mb_check_encoding($text, $info['content-charset'])) {
+							$text = mb_convert_encoding($text, "ISO-8859-1", $info['content-charset']);
+						} else {
+							$text = mb_convert_encoding($text, "ISO-8859-1");
+						}
+					}
 					
 	            	@$message->body .= $text;
 	            	
@@ -898,7 +903,7 @@ class CerberusParser {
 		foreach($parts as $part) {
 			try {
 				$charset = ($part->charset != 'default') ? $part->charset : 'auto';
-				$out .= mb_convert_encoding($part->text,"ISO-8859-1",$charset);
+				@$out .= mb_convert_encoding($part->text,"ISO-8859-1",$charset);
 			} catch(Exception $e) {}
 		}
 		

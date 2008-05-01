@@ -54,6 +54,15 @@ $datadict = NewDataDictionary($db); /* @var $datadict ADODB_DataDict */ // ,'mys
 $tables = $datadict->MetaTables();
 $tables = array_flip($tables);
 
+// `attachment` =============================
+$columns = $datadict->MetaColumns('attachment');
+$indexes = $datadict->MetaIndexes('attachment',false);
+
+if(!isset($indexes['message_id'])) {
+	$sql = $datadict->CreateIndexSQL('message_id','attachment','message_id');
+	$datadict->ExecuteSQLArray($sql);
+}
+
 // `kb_category` =============================
 if(!isset($tables['kb_category'])) {
     $flds = "
@@ -203,6 +212,66 @@ if(isset($columns['CODE'])) {
 	
     $sql = $datadict->DropColumnSQL('kb_article', 'code');
     $datadict->ExecuteSQLArray($sql);
+}
+
+// `message_note` ========================
+$columns = $datadict->MetaColumns('message_note');
+$indexes = $datadict->MetaIndexes('message_note',false);
+
+if(!isset($indexes['message_id'])) {
+	$sql = $datadict->CreateIndexSQL('message_id','message_note','message_id');
+	$datadict->ExecuteSQLArray($sql);
+}
+
+// `ticket` ========================
+$columns = $datadict->MetaColumns('ticket');
+$indexes = $datadict->MetaIndexes('ticket',false);
+
+if(!isset($indexes['due_date'])) {
+	$sql = $datadict->CreateIndexSQL('due_date','ticket','due_date');
+	$datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($indexes['is_deleted'])) {
+	$sql = $datadict->CreateIndexSQL('is_deleted','ticket','is_deleted');
+	$datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($indexes['last_action_code'])) {
+	$sql = $datadict->CreateIndexSQL('last_action_code','ticket','last_action_code');
+	$datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($indexes['spam_score'])) {
+	$sql = $datadict->CreateIndexSQL('spam_score','ticket','spam_score');
+	$datadict->ExecuteSQLArray($sql);
+}
+
+// `ticket_comment` ========================
+$columns = $datadict->MetaColumns('ticket_comment');
+$indexes = $datadict->MetaIndexes('ticket_comment',false);
+
+if(!isset($indexes['ticket_id'])) {
+	$sql = $datadict->CreateIndexSQL('ticket_id','ticket_comment','ticket_id');
+	$datadict->ExecuteSQLArray($sql);
+}
+
+// `ticket_field` ========================
+$columns = $datadict->MetaColumns('ticket_field');
+$indexes = $datadict->MetaIndexes('ticket_field',false);
+
+if(!isset($indexes['pos'])) {
+	$sql = $datadict->CreateIndexSQL('pos','ticket_field','pos');
+	$datadict->ExecuteSQLArray($sql);
+}
+
+// `worker` ========================
+$columns = $datadict->MetaColumns('worker');
+$indexes = $datadict->MetaIndexes('worker',false);
+
+if(!isset($indexes['pos'])) {
+	$sql = $datadict->CreateIndexSQL('last_activity_date','worker','last_activity_date');
+	$datadict->ExecuteSQLArray($sql);
 }
 
 return TRUE;

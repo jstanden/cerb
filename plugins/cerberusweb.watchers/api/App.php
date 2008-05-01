@@ -22,7 +22,7 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 				$this->_workerDeleted($event);
             	break;
             	
-            case 'ticket.property.post_change':
+            case 'ticket.property.pre_change':
 				$this->_workerAssigned($event);
             	break;
             	
@@ -78,6 +78,10 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 		$tickets = DAO_Ticket::getTickets($ticket_ids);
 
 		foreach($tickets as $ticket) { /* @var $ticket CerberusTicket */
+			// If the next worker value didn't change, skip
+			if($ticket->next_worker_id == $next_worker_id)
+				continue;
+			
 			if(null == (@$last_message = end($ticket->getMessages()))) /* @var $last_message CerberusMessage */
 				continue;
 			
