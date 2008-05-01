@@ -57,7 +57,7 @@ var cConfigAjax = function() {
 					if(null != document.getElementById('workerForm_email')) {
 						var f = new LiveValidation('workerForm_email');
 						f.add( Validate.Presence );
-						f.add( Validate.Email );
+						//f.add( Validate.Email );
 					}
 					
 					if(null != document.getElementById('workerForm_password2')) {

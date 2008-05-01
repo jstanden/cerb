@@ -27,7 +27,7 @@
 YAHOO.util.Event.addListener(window,'load',function(e) {
 	var f = new LiveValidation('loginForm_email');
 	f.add( Validate.Presence );
-	f.add( Validate.Email );
+	//f.add( Validate.Email );
 	
 	var f = new LiveValidation('loginForm_password');
 	f.add( Validate.Presence );

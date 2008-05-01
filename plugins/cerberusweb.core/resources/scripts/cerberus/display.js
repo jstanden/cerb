@@ -54,9 +54,10 @@ var cDisplayTicketAjax = function(ticket_id) {
 					if(null != document.getElementById('replyForm_to')) {
 						var f = new LiveValidation('replyForm_to');
 						f.add( Validate.Presence );
-						f.add( Validate.Email );
+						//f.add( Validate.Email );
 					}
 					
+					/*
 					if(null != document.getElementById('replyForm_cc')) {
 						var f = new LiveValidation('replyForm_cc');
 						f.add( Validate.Email );
@@ -66,6 +67,7 @@ var cDisplayTicketAjax = function(ticket_id) {
 						var f = new LiveValidation('replyForm_bcc');
 						f.add( Validate.Email );
 					}
+					*/
 					
 					if(null != document.getElementById('replyForm_subject')) {
 						var f = new LiveValidation('replyForm_subject');
