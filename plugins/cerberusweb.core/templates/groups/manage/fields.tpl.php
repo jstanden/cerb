@@ -1,9 +1,7 @@
-{include file="$path/groups/manage/menu.tpl.php"}
-
 <div class="block">
 <form action="{devblocks_url}{/devblocks_url}" method="post">
 <input type="hidden" name="c" value="groups">
-<input type="hidden" name="a" value="addCustomField">
+<input type="hidden" name="a" value="saveTabFieldsAdd">
 <input type="hidden" name="team_id" value="{$team->id}">
 
 <H2>Add Field</H2>
@@ -46,7 +44,7 @@
 <div class="block">
 <form action="{devblocks_url}{/devblocks_url}" method="post">
 <input type="hidden" name="c" value="groups">
-<input type="hidden" name="a" value="saveCustomFields">
+<input type="hidden" name="a" value="saveTabFields">
 <input type="hidden" name="team_id" value="{$team->id}">
 <input type="hidden" name="allow_delete" value="0">
 <h2>Ticket Fields ({$team->name})</h2>

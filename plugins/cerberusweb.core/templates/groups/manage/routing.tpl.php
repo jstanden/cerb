@@ -1,9 +1,7 @@
-{include file="$path/groups/manage/menu.tpl.php"}
-
 <div class="block">
 <form action="{devblocks_url}{/devblocks_url}" method="post">
 <input type="hidden" name="c" value="groups">
-<input type="hidden" name="a" value="addTeamRouting">
+<input type="hidden" name="a" value="saveTabInboxAdd">
 <input type="hidden" name="team_id" value="{$team->id}">
 <h2>Add Inbox Filter</h2>
 
@@ -110,7 +108,7 @@
 
 <form action="{devblocks_url}{/devblocks_url}" method="post">
 <input type="hidden" name="c" value="groups">
-<input type="hidden" name="a" value="saveTeamRouting">
+<input type="hidden" name="a" value="saveTabInbox">
 <input type="hidden" name="team_id" value="{$team->id}">
 
 {if !empty($team_rules)}

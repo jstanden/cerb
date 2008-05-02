@@ -214,6 +214,27 @@ if(isset($columns['CODE'])) {
     $datadict->ExecuteSQLArray($sql);
 }
 
+// `message_header` ========================
+$columns = $datadict->MetaColumns('message_header');
+$indexes = $datadict->MetaIndexes('message_header',false);
+
+  // Drop compound primary key
+if(isset($columns['MESSAGE_ID']) && isset($columns['HEADER_NAME'])
+	&& $columns['MESSAGE_ID']->primary_key && $columns['MESSAGE_ID']->primary_key) {
+		$sql = array("ALTER TABLE message_header DROP PRIMARY KEY");
+		$datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($indexes['message_id'])) {
+	$sql = $datadict->CreateIndexSQL('message_id','message_header','message_id');
+	$datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($indexes['header_value'])) {
+	$sql = $datadict->CreateIndexSQL('header_value','message_header','header_value(10)');
+	$datadict->ExecuteSQLArray($sql);
+}
+
 // `message_note` ========================
 $columns = $datadict->MetaColumns('message_note');
 $indexes = $datadict->MetaIndexes('message_note',false);

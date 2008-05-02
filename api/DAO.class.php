@@ -2465,6 +2465,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		$tickets = array();
+		if(empty($ids)) return array();
 		
 		$sql = "SELECT t.id , t.mask, t.subject, t.is_waiting, t.is_closed, t.is_deleted, t.team_id, t.category_id, t.first_message_id, ".
 			"t.first_wrote_address_id, t.last_wrote_address_id, t.created_date, t.updated_date, t.due_date, t.spam_training, ". 

@@ -1,11 +1,9 @@
-{include file="$path/groups/manage/menu.tpl.php"}
-
 <div class="block">
 
 <blockquote style="margin:5px;">
 	<form action="{devblocks_url}{/devblocks_url}" method="post">
 	<input type="hidden" name="c" value="groups">
-	<input type="hidden" name="a" value="changeTeamMembers">
+	<input type="hidden" name="a" value="saveTabMembers">
 	<input type="hidden" name="team_id" value="{$team->id}">
 
 	<table cellspacing="0" cellpadding="3" border="0">
