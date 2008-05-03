@@ -1490,6 +1490,7 @@ class DAO_Message extends DevblocksORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
         
         $message_ids = implode(',', $ids);
+        
         $sql = sprintf("DELETE FROM message WHERE id IN (%s)", $message_ids);
         $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 
@@ -1506,8 +1507,7 @@ class DAO_Message extends DevblocksORMHelper {
         $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
         
         // Attachments
-        $sql = sprintf("DELETE FROM attachment WHERE message_id IN (%s)", $message_ids);
-        $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+        DAO_Attachment::deleteByMessageIds($ids);
     }
     
     /**
@@ -1950,16 +1950,75 @@ class DAO_Attachment extends DevblocksORMHelper {
 		return $objects;
 	}
 	
+	/**
+	 * returns an array of Model_Attachment that
+	 * correspond to the supplied message id.
+	 *
+	 * @param integer $id
+	 * @return Model_Attachment[]
+	 */
+	static function getByMessageId($id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = sprintf("SELECT a.id, a.message_id, a.display_name, a.filepath, a.file_size, a.mime_type ".
+			"FROM attachment a ".
+			"WHERE a.message_id = %d",
+			$id
+		);
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		$attachments = array();
+		while(!$rs->EOF) {
+			$attachment = new Model_Attachment();
+			$attachment->id = intval($rs->fields['id']);
+			$attachment->message_id = intval($rs->fields['message_id']);
+			$attachment->display_name = $rs->fields['display_name'];
+			$attachment->filepath = $rs->fields['filepath'];
+			$attachment->file_size = intval($rs->fields['file_size']);
+			$attachment->mime_type = $rs->fields['mime_type'];
+			$attachments[$attachment->id] = $attachment;
+			$rs->MoveNext();
+		}
+
+		return $attachments;
+	}
+	
 	public static function delete($ids) {
 	    if(!is_array($ids)) $ids = array($ids);
 	    $db = DevblocksPlatform::getDatabaseService();
 	    
+	    $attachments = self::getList($ids);
+
+	    // Delete from storage
+        $attachment_path = APP_PATH . '/storage/attachments/';
+	    foreach($attachments as $attachment) { /* @var $attachment Model_Attachment */
+			$full_path = $attachment_path . $attachment->filepath;
+			if(file_exists($full_path)) {
+				@unlink($full_path);
+			}   	
+	    }
+	    
 	    $id_list = implode(',', $ids);
 	    
+	    // Delete from DB
 	    $sql = sprintf("DELETE FROM attachment WHERE id IN (%s)", $id_list);
 	    $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 
-	    // [TODO] cascade foreign key constraints	
+	}
+	
+	public static function deleteByMessageIds($ids) {
+	    if(!is_array($ids)) $ids = array($ids);
+	    $db = DevblocksPlatform::getDatabaseService();
+	    
+	    if(empty($ids))
+	    	return;
+	    
+	    foreach($ids as $msg_id) {
+	    	$files = self::getByMessageId($msg_id);
+	    	
+	    	if(!empty($files))
+	    		self::delete(array_keys($files));
+	    }
 	}
 };
 
@@ -2245,38 +2304,6 @@ class DAO_Ticket extends DevblocksORMHelper {
 	}
 	
 	/**
-	 * returns an array of Model_Attachment that
-	 * correspond to the supplied message id.
-	 *
-	 * @param integer $id
-	 * @return Model_Attachment[]
-	 */
-	static function getAttachmentsByMessage($id) {
-		$db = DevblocksPlatform::getDatabaseService();
-		
-		$sql = sprintf("SELECT a.id, a.message_id, a.display_name, a.filepath, a.file_size, a.mime_type ".
-			"FROM attachment a WHERE a.message_id = %d",
-			$id
-		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-		$attachments = array();
-		while(!$rs->EOF) {
-			$attachment = new Model_Attachment();
-			$attachment->id = intval($rs->fields['id']);
-			$attachment->message_id = intval($rs->fields['message_id']);
-			$attachment->display_name = $rs->fields['display_name'];
-			$attachment->filepath = $rs->fields['filepath'];
-			$attachment->file_size = intval($rs->fields['file_size']);
-			$attachment->mime_type = $rs->fields['mime_type'];
-			$attachments[] = $attachment;
-			$rs->MoveNext();
-		}
-
-		return $attachments;
-	}
-	
-	/**
 	 * creates a new ticket object in the database
 	 *
 	 * @param array $fields
@@ -2330,12 +2357,10 @@ class DAO_Ticket extends DevblocksORMHelper {
 	    );
 	    
 	    // Tickets
-	    
         $sql = sprintf("DELETE FROM ticket WHERE id IN (%s)", $ticket_ids);
         $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 
         // Requester
-        
         $sql = sprintf("DELETE FROM requester WHERE ticket_id IN (%s)", $ticket_ids); 
         $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
         
@@ -2345,7 +2370,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 	            array(
 	                new DevblocksSearchCriteria(SearchFields_Message::TICKET_ID,DevblocksSearchCriteria::OPER_IN,$ids),
 	            ),
-	            100,
+	            25,
 	            0,
 	            SearchFields_Message::ID,
 	            true,
@@ -2356,7 +2381,6 @@ class DAO_Ticket extends DevblocksORMHelper {
         } while($messages_count);
         
         // Custom Field Values
-
 		if(is_array($ids))
 		foreach($ids as $id) {
 			DAO_TicketFieldValue::clearTicketValues($id);

@@ -2367,7 +2367,7 @@ class CerberusMessage {
 	 * @return Model_Attachment[]
 	 */
 	function getAttachments() {
-		$attachments = DAO_Ticket::getAttachmentsByMessage($this->id);
+		$attachments = DAO_Attachment::getByMessageId($this->id);
 		return $attachments;
 	}
 

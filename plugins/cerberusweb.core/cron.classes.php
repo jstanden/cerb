@@ -175,7 +175,7 @@ class MaintCron extends CerberusCronPageExtension {
         
         while(!$rs->EOF) {
         	$buffer[] = intval($rs->fields['id']);
-        	if(++$purged % 100) {
+        	if(++$purged % 25 == 0) {
         		DAO_Ticket::delete($buffer);
         		$buffer = array();
         	}

@@ -120,7 +120,6 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 	    	} catch(Exception $e) {
 	    		//
 			}
-			
 		}
 			
     }
@@ -137,14 +136,24 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
         @$send_worker_id = $event->params['worker_id'];
     	
 		$ticket = DAO_Ticket::getTicket($ticket_id);
-		$message = DAO_Ticket::getMessage($message_id);
-		$headers = $message->getHeaders();
 		
 		// [JAS]: Don't send obvious spam to watchers.
 		if($ticket->spam_score > 0.9000) {
 			return true;
 		}
+
+		@$notifications = DAO_WorkerMailForward::getWhere(sprintf("%s = %d",
+			DAO_WorkerMailForward::GROUP_ID,
+			$ticket->team_id
+		));
 		
+		// Bail out early if we have no forwards for this group
+		if(empty($notifications))
+			return;
+
+		$message = DAO_Ticket::getMessage($message_id);
+		$headers = $message->getHeaders();
+			
 		// The whole flipping Swift section needs wrapped to catch exceptions
 		try {
 			$mail_service = DevblocksPlatform::getMailService();
@@ -181,11 +190,6 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 	
 			$send_to = array();
 			
-			@$notifications = DAO_WorkerMailForward::getWhere(sprintf("%s = %d",
-				DAO_WorkerMailForward::GROUP_ID,
-				$ticket->team_id
-			));
-					
 			// Build mailing list
 			foreach($notifications as $n) { /* @var $n Model_WorkerMailForward */
 				if(!isset($n->group_id) || !isset($n->bucket_id))
