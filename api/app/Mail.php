@@ -106,9 +106,22 @@ class CerberusMail {
 		
 		$from = !empty($team_from) ? $team_from : $default_from;
 		$personal = !empty($team_personal) ? $team_personal : $default_personal;
+		$mask = CerberusApplication::generateTicketMask();
 
 		if(empty($subject)) $subject = '(no subject)';
-
+		
+		// add mask to subject if group setting calls for it
+		@$group_has_subject = intval($group_settings[DAO_GroupSettings::SETTING_SUBJECT_HAS_MASK]);
+		@$group_subject_prefix = $group_settings[DAO_GroupSettings::SETTING_SUBJECT_PREFIX];
+		$prefix = sprintf("[%s#%s] ",
+			!empty($group_subject_prefix) ? ($group_subject_prefix.' ') : '',
+			$mask
+		);
+		$subject = (sprintf('%s%s',
+			$group_has_subject ? $prefix : '',
+			$subject
+		));
+		
 		$toList = DevblocksPlatform::parseCsvString($toStr);
 		
 		$mail_headers = array();
@@ -217,7 +230,7 @@ class CerberusMail {
 //		}
 		
 		$fields = array(
-			DAO_Ticket::MASK => CerberusApplication::generateTicketMask(),
+			DAO_Ticket::MASK => $mask,
 			DAO_Ticket::SUBJECT => $subject,
 			DAO_Ticket::CREATED_DATE => time(),
 			DAO_Ticket::FIRST_WROTE_ID => $fromAddressId,
