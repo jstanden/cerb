@@ -244,6 +244,22 @@ if(!isset($indexes['message_id'])) {
 	$datadict->ExecuteSQLArray($sql);
 }
 
+// `preparse_rule` =============================
+if(!isset($tables['preparse_rule'])) {
+    $flds = "
+		id I4 DEFAULT 0 NOTNULL PRIMARY,
+		name C(64) DEFAULT '' NOTNULL,
+		criteria_ser XL,
+		actions_ser XL,
+		pos I4 DEFAULT 0 NOTNULL
+	";
+    $sql = $datadict->CreateTableSQL('preparse_rule',$flds);
+    $datadict->ExecuteSQLArray($sql);
+    
+    $sql = $datadict->CreateIndexSQL('pos','preparse_rule','pos');
+    $datadict->ExecuteSQLArray($sql);
+}
+
 // `ticket` ========================
 $columns = $datadict->MetaColumns('ticket');
 $indexes = $datadict->MetaIndexes('ticket',false);

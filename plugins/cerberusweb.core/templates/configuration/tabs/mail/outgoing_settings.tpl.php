@@ -1,7 +1,7 @@
 <div class="block" id="configMailboxOutgoing">
 <table cellpadding="2" cellspacing="0" border="0">
 	<tr>
-		<td><h2>Outgoing Mail</h2></td>
+		<td><h2>Outgoing Mail Preferences</h2></td>
 	</tr>
 	<tr>
 		<td>
@@ -9,33 +9,37 @@
 			<input type="hidden" name="c" value="config">
 			<input type="hidden" name="a" value="saveOutgoingMailSettings">
 
-			<h3>Server Settings (SMTP)</h3>
+			<h3>Outgoing Server (SMTP)</h3>
 
 			<blockquote style="margin-left:20px;">
 				<b>SMTP Server:</b><br>
-				<input type="text" name="smtp_host" value="{$settings->get('smtp_host','localhost')}" size="45"><br>
+				<input type="text" name="smtp_host" value="{$settings->get('smtp_host','localhost')}" size="45">
+				<i>(e.g. localhost)</i>
+				<br>
 				<br>
 	
 				<b>SMTP Port:</b><br>
-				<input type="text" name="smtp_port" value="{$settings->get('smtp_port',25)}" size="45"><br>
+				<input type="text" name="smtp_port" value="{$settings->get('smtp_port',25)}" size="5">
+				<i>(usually '25')</i>
+				<br>
 				<br>
 				
-				<b>SMTP Encryption:</b><br>
+				<b>SMTP Encryption:</b> (optional)<br>
 				<input type="radio" name="smtp_enc" value="None" {if $settings->get('smtp_enc') == 'None'}checked{/if}>None&nbsp;&nbsp;&nbsp;
 				<input type="radio" name="smtp_enc" value="TLS" {if $settings->get('smtp_enc') == 'TLS'}checked{/if}>TLS&nbsp;&nbsp;&nbsp;
 				<input type="radio" name="smtp_enc" value="SSL" {if $settings->get('smtp_enc') == 'SSL'}checked{/if}>SSL<br>
 				<br>
 	
-				<b>SMTP Server Requires Login:</b> (optional)<br>
+				<b>SMTP Authentication:</b> (optional)<br>
 				<label><input type="checkbox" name="smtp_auth_enabled" value="1" onclick="toggleDiv('configGeneralSmtpAuth',(this.checked?'block':'none'));" {if $settings->get('smtp_auth_enabled')}checked{/if}> Enabled</label><br>
 				<br>
 				
 				<div id="configGeneralSmtpAuth" style="margin-left:15px;display:{if $settings->get('smtp_auth_enabled')}block{else}none{/if};">
-					<b>SMTP Auth Username:</b><br>
+					<b>Username:</b><br>
 					<input type="text" name="smtp_auth_user" value="{$settings->get('smtp_auth_user')}" size="45"><br>
 					<br>
 					
-					<b>SMTP Auth Password:</b><br>
+					<b>Password:</b><br>
 					<input type="text" name="smtp_auth_pass" value="{$settings->get('smtp_auth_pass')}" size="45"><br>
 					<br>
 				</div>
@@ -44,15 +48,15 @@
 				<button type="button" onclick="genericAjaxGet('configSmtpTest','c=config&a=getSmtpTest&host='+this.form.smtp_host.value+'&port='+this.form.smtp_port.value+'&enc='+radioValue(this.form.smtp_enc)+'&smtp_user='+this.form.smtp_auth_user.value+'&smtp_pass='+this.form.smtp_auth_pass.value);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/gear.gif{/devblocks_url}" align="top"> Test SMTP</button>				
 			</blockquote>
 			
-			<h3>Preferences</h3>
+			<h3>Default Preferences</h3>
 			
 			<blockquote style="margin-left:20px;">
 				<b>By default, reply to mail as:</b> (E-mail Address)<br>
-				<input type="text" name="sender_address" value="{$settings->get('default_reply_from')}" size="45"> (e.g., support@yourcompany.com)<br>
+				<input type="text" name="sender_address" value="{$settings->get('default_reply_from')}" size="45"> (e.g. support@yourcompany.com)<br>
 				<br>
 				
 				<b>By default, reply to mail as:</b> (Personal Name)<br>
-				<input type="text" name="sender_personal" value="{$settings->get('default_reply_personal')}" size="45"> (e.g., Acme Widgets)<br>
+				<input type="text" name="sender_personal" value="{$settings->get('default_reply_personal')}" size="45"> (e.g. Acme Widgets)<br>
 				<br>
 				
 				<b>Default E-mail Signature:</b><br>

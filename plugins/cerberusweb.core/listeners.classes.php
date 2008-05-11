@@ -344,8 +344,9 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 			));
 			unset($from_ids);
 
+			if(is_array($tickets))
 			foreach($tickets as $ticket_id => $ticket) {
-				$rule = CerberusApplication::parseTeamRules($team_id, $ticket_id, @$from_addresses[$ticket->first_wrote_address_id], $ticket->subject);
+				$rule = CerberusApplication::parseTeamRules($team_id, $ticket_id, @$from_addresses[$ticket->first_wrote_address_id]->email, $ticket->subject);
 			}
 			unset($from_addresses);
 		}

@@ -33,6 +33,13 @@ tabView.addTab( new YAHOO.widget.Tab({
 }));
 
 tabView.addTab( new YAHOO.widget.Tab({
+    label: 'Storage',
+    dataSrc: '{/literal}{devblocks_url}ajax.php?c=config&a=showTabStorage{/devblocks_url}{literal}',
+    cacheData: false,
+    {/literal}active: {if $tab_selected=="storage"}true{else}false{/if}{literal}
+}));
+
+tabView.addTab( new YAHOO.widget.Tab({
     label: 'Plugins',
     dataSrc: '{/literal}{devblocks_url}ajax.php?c=config&a=showTabPlugins{/devblocks_url}{literal}',
     cacheData: false,
@@ -40,10 +47,24 @@ tabView.addTab( new YAHOO.widget.Tab({
 }));
 
 tabView.addTab( new YAHOO.widget.Tab({
-    label: 'Mail',
+    label: 'Mail Servers',
     dataSrc: '{/literal}{devblocks_url}ajax.php?c=config&a=showTabMail{/devblocks_url}{literal}',
     cacheData: false,
     {/literal}active: {if $tab_selected=="mail"}true{else}false{/if}{literal}
+}));
+
+tabView.addTab( new YAHOO.widget.Tab({
+    label: 'Pre-Parser',
+    dataSrc: '{/literal}{devblocks_url}ajax.php?c=config&a=showTabPreParser{/devblocks_url}{literal}',
+    cacheData: false,
+    {/literal}active: {if $tab_selected=="preparser"}true{else}false{/if}{literal}
+}));
+
+tabView.addTab( new YAHOO.widget.Tab({
+    label: 'Mail Parser',
+    dataSrc: '{/literal}{devblocks_url}ajax.php?c=config&a=showTabParser{/devblocks_url}{literal}',
+    cacheData: false,
+    {/literal}active: {if $tab_selected=="parser"}true{else}false{/if}{literal}
 }));
 
 tabView.addTab( new YAHOO.widget.Tab({

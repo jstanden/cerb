@@ -6,10 +6,10 @@
 	<tr>
 		<td colspan="2">
 			{if empty($pop3_account->id)}
-			<h2>Add Mail Account</h2>
+			<h2>Add New Mail Server</h2>
 			<input type="hidden" name="account_id" value="0">
 			{else}
-			<h2>Mail Account '{$pop3_account->nickname}'</h2>
+			<h2>Mail Server '{$pop3_account->nickname}'</h2>
 			<input type="hidden" name="account_id" value="{$pop3_account->id}">
 			{/if}
 		</td>

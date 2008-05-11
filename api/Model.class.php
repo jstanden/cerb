@@ -48,6 +48,15 @@
  * 		and Joe Geck.
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
+
+class Model_PreParseRule {
+	public $id;
+	public $name;
+	public $criteria;
+	public $actions;
+	public $pos;
+};
+
 class Model_TeamRoutingRule {
 	public $id = 0;
 	public $team_id = 0;

@@ -4869,6 +4869,131 @@ class DAO_WorkerPref extends DevblocksORMHelper {
 	}
 };
 
+class DAO_PreParseRule extends DevblocksORMHelper {
+	const CACHE_ALL = 'cerberus_cache_preparse_rules_all';
+	
+	const ID = 'id';
+	const NAME = 'name';
+	const CRITERIA_SER = 'criteria_ser';
+	const ACTIONS_SER = 'actions_ser';
+	const POS = 'pos';
+
+	static function create($fields) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$id = $db->GenID('generic_seq');
+		
+		$sql = sprintf("INSERT INTO preparse_rule (id) ".
+			"VALUES (%d)",
+			$id
+		);
+		$db->Execute($sql);
+		
+		self::update($id, $fields);
+		
+		return $id;
+	}
+	
+	static function update($ids, $fields) {
+		parent::_update($ids, 'preparse_rule', $fields);
+
+		self::clearCache();
+	}
+	
+	static function getAll($nocache=false) {
+	    $cache = DevblocksPlatform::getCacheService();
+	    if($nocache || false == ($rules = $cache->load(self::CACHE_ALL))) {
+    	    $rules = self::getWhere();
+    	    $cache->save($rules, self::CACHE_ALL);
+	    }
+	    
+	    return $rules;
+	}
+	
+	/**
+	 * @param string $where
+	 * @return Model_PreParseRule[]
+	 */
+	static function getWhere($where=null) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = "SELECT id, name, criteria_ser, actions_ser, pos ".
+			"FROM preparse_rule ".
+			(!empty($where) ? sprintf("WHERE %s ",$where) : "").
+			"ORDER BY pos desc";
+		$rs = $db->Execute($sql);
+		
+		return self::_getObjectsFromResult($rs);
+	}
+
+	/**
+	 * @param integer $id
+	 * @return Model_PreParseRule	 */
+	static function get($id) {
+		$objects = self::getWhere(sprintf("%s = %d",
+			self::ID,
+			$id
+		));
+		
+		if(isset($objects[$id]))
+			return $objects[$id];
+		
+		return null;
+	}
+	
+	/**
+	 * Increment the number of times we've matched this filter
+	 *
+	 * @param integer $id
+	 */
+	static function increment($id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		$db->Execute(sprintf("UPDATE preparse_rule SET pos = pos + 1 WHERE id = %d",
+			$id
+		));
+	}
+	
+	/**
+	 * @param ADORecordSet $rs
+	 * @return Model_PreParseRule[]
+	 */
+	static private function _getObjectsFromResult($rs) {
+		$objects = array();
+		
+		while(!$rs->EOF) {
+			$object = new Model_PreParseRule();
+			$object->id = $rs->fields['id'];
+			$object->name = $rs->fields['name'];
+			$object->criteria = !empty($rs->fields['criteria_ser']) ? @unserialize($rs->fields['criteria_ser']) : array();
+			$object->actions = !empty($rs->fields['actions_ser']) ? @unserialize($rs->fields['actions_ser']) : array();
+			$object->pos = $rs->fields['pos'];
+			$objects[$object->id] = $object;
+			$rs->MoveNext();
+		}
+		
+		return $objects;
+	}
+	
+	static function delete($ids) {
+		if(!is_array($ids)) $ids = array($ids);
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$ids_list = implode(',', $ids);
+		
+		$db->Execute(sprintf("DELETE FROM preparse_rule WHERE id IN (%s)", $ids_list));
+
+		self::clearCache();
+		
+		return true;
+	}
+
+	static function clearCache() {
+		$cache = DevblocksPlatform::getCacheService();
+		$cache->remove(self::CACHE_ALL);
+	}
+	
+};
+
 class DAO_TeamRoutingRule extends DevblocksORMHelper {
     const ID = 'id';
     const TEAM_ID = 'team_id';

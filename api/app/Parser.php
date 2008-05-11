@@ -426,18 +426,42 @@ class CerberusParser {
         	}
         }
         
-        // [TODO] Pre-parse mail rules
+		@list($team_id, $matchingToAddress) = CerberusParser::findDestination($headers);
+		
+        // Pre-parse mail rules
         if(empty($importNew) && empty($importAppend)) {
-//        	echo (empty($id) ? 'New' : 'Reply') . "<BR>";
-//        	print_r($headers);
-//        	print_r($fromAddressInst);
-//        	print_r(CerberusParser::findDestination($headers));
-//        	print_r($message->body);
+        	if(null != ($pre_filter = self::_checkPreParseRules(
+        		(empty($id) ? 1 : 0), // is_new
+        		$fromAddress,
+        		$team_id,
+        		$message
+        	))) {
+        		// Do something with matching filter's actions
+        		foreach($pre_filter->actions as $action_key => $action) {
+        			switch($action_key) {
+        				case 'blackhole':
+        					return NULL;
+        					break;
+        					
+        				case 'redirect':
+        					@$to = $action['to'];
+        					CerberusMail::reflect($message, $to);
+        					return NULL;
+        					break;
+        					
+        				case 'bounce':
+        					@$msg = $action['message'];
+        					// [TODO] Follow the RFC spec on a true bounce
+        					CerberusMail::quickSend($fromAddress,"Delivery failed: ".$sSubject,$msg);
+        					return NULL;
+        					break;
+        			}
+        		}
+        	}
 		}
         
 		if(empty($id)) { // New Ticket
 			// Are we delivering or bouncing?
-			@list($team_id, $matchingToAddress) = CerberusParser::findDestination($headers);
 			
 			if(empty($team_id)) {
 				// Bounce
@@ -850,6 +874,98 @@ class CerberusParser {
 		@imap_errors(); // Prevent errors from spilling out into STDOUT
 		
 		return $addresses;
+	}
+	
+	/**
+	 * Returns a Model_PreParserRule on a match, or NULL
+	 *
+	 * @param boolean $is_new
+	 * @param string $from
+	 * @param string $to
+	 * @param CerberusParserMessage $message
+	 * @return Model_PreParserRule
+	 */
+	static private function _checkPreParseRules($is_new, $from, $group_id, CerberusParserMessage $message) {
+		$filters = DAO_PreParseRule::getAll();
+		$headers = $message->headers;
+		
+		// check filters
+		if(is_array($filters))
+		foreach($filters as $filter) {
+			$passed = 0;
+
+			// check criteria
+			foreach($filter->criteria as $rule_key => $rule) {
+				switch($rule_key) {
+					case 'type':
+						if(($is_new && 0 == strcasecmp($rule['value'],'new')) 
+							|| (!$is_new && 0 == strcasecmp($rule['value'],'reply')))
+								$passed++; 
+						break;
+						
+					case 'from':
+						$regexp_from = DevblocksPlatform::strToRegExp($rule['value']);
+						if(preg_match($regexp_from, $from)) {
+							$passed++;
+						}
+						break;
+						
+					case 'to':
+						if(intval($group_id)==intval($rule['value']))
+							$passed++;
+						break;
+						
+					case 'header1':
+					case 'header2':
+					case 'header3':
+					case 'header4':
+					case 'header5':
+						$header = strtolower($rule['header']);
+						$regexp_header = DevblocksPlatform::strToRegExp($rule['value']);
+
+						if(isset($headers[$header]) && !empty($headers[$header])) {
+							// Flatten CRLF
+							if(preg_match($regexp_header, str_replace(array("\r","\n"),' ',$headers[$header]))) {
+								$passed++;
+							}
+						}
+						
+						break;
+						
+					case 'body':
+						$regexp_body = DevblocksPlatform::strToRegExp($rule['value']);
+
+						// Flatten CRLF
+						if(preg_match($regexp_body, str_replace(array("\r","\n"),' ',$message->body)))
+							$passed++;
+						break;
+						
+					case 'attachment':
+						$regexp_file = DevblocksPlatform::strToRegExp($rule['value']);
+
+						// check the files in the raw message
+						foreach($message->files as $file_name => $file) { /* @var $file ParserFile */
+							if(preg_match($regexp_file, $file_name)) {
+								$passed++;
+								break;
+							}
+						}
+						break;
+						
+					default: // ignore invalids
+						continue;
+						break;
+				}
+			}
+			
+			// If our rule matched every criteria, stop and return the filter
+			if($passed == count($filter->criteria)) {
+				DAO_PreParseRule::increment($filter->id); // ++ the times we've matched
+				return $filter;
+			}
+		}
+		
+		return NULL;
 	}
 	
 	/**

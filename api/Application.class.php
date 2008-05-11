@@ -48,7 +48,7 @@
  * 		and Joe Geck.
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-define("APP_BUILD", 593);
+define("APP_BUILD", 595);
 define("APP_MAIL_PATH", realpath(APP_PATH . '/storage/mail') . DIRECTORY_SEPARATOR);
 
 include_once(APP_PATH . "/api/DAO.class.php");
@@ -537,14 +537,14 @@ class CerberusApplication extends DevblocksApplication {
             //if(!empty($rule_ids)) {
    	            @$team_rules = $array_team_routing_rules[$team_id];
    	            
-   	            //echo "Scanning (From: ",$fromAddress,"; Subject: ",$sSubject,")<BR>";
+//   	            echo "Scanning (From: ",$fromAddress,"; Subject: ",$sSubject,")<BR>";
    	            
    	            if(is_array($team_rules))
    	            foreach($team_rules as $rule) { /* @var $rule Model_TeamRoutingRule */
    	                $pattern = DevblocksPlatform::parseStringAsRegExp($rule->pattern);
    	                $haystack = ($rule->header=='from') ? $fromAddress : $sSubject ;
    	                if(is_string($haystack) && preg_match($pattern, $haystack)) {
-   	                    //echo "I matched ($pattern) for ($ticket_id)!<br>";
+//   	                    echo "I matched ($pattern) for ($ticket_id)!<br>";
    	                    
 	                    /* =============== Prevent recursive assignments =============
 	                     * If we ever get into a situation where many rules are sending a ticket

@@ -738,6 +738,46 @@ class CerberusMail {
 		}
 	}
 	
+	static function reflect(CerberusParserMessage $message, $to) {
+		try {
+			$mail_service = DevblocksPlatform::getMailService();
+			$mailer = $mail_service->getMailer();
+			$mail = $mail_service->createMessage();
+	
+		    $settings = CerberusSettings::getInstance();
+			@$from_addy = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM, $_SERVER['SERVER_ADMIN']);
+			@$from_personal = $settings->get(CerberusSettings::DEFAULT_REPLY_PERSONAL,'');
+			
+			$sendTo = new Swift_Address($to);
+			$sendFrom = new Swift_Address($from_addy, $from_personal);
+			
+			$mail->headers->set('X-CerberusRedirect','1');
+
+			if(is_array($message->headers))
+			foreach($message->headers as $header => $val) {
+				if(0==strcasecmp($header,'to'))
+					continue;
+					
+				$mail->headers->set($header, $val);
+			}
+			
+			$mail->attach(new Swift_Message_Part($message->body, 'text/plain', 'base64', $message->encoding));
+			
+			// Files
+			if(is_array($message->files))
+			foreach($message->files as $file_name => $file) { /* @var $file ParserFile */
+				$mail->attach(new Swift_Message_Attachment(
+					new Swift_File($file->tmpname), $file_name, $file->mime_type));
+			}
+		
+			if(!$mailer->send($mail, $sendTo, $sendFrom)) {
+				return false;
+			}
+		} catch (Exception $e) {
+			return false;
+		}
+	}
+	
 };
 
 ?>

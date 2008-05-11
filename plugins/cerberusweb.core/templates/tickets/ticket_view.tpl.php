@@ -127,7 +127,8 @@
 		<td>
 			{assign var=ticket_team_id value=$result.tm_id}
 			{if (isset($active_worker_memberships.$ticket_team_id)) && $active_worker_memberships.$ticket_team_id->is_manager || $active_worker->is_superuser}
-				<a href="javascript:;" onclick="genericAjaxPanel('c=groups&a=showGroupPanel&id={$ticket_team_id}&view_id=',this,false,'500px');">{$result.tm_name}</a>
+				{*<a href="javascript:;" onclick="genericAjaxPanel('c=groups&a=showGroupPanel&id={$ticket_team_id}&view_id=',this,false,'500px');">{$result.tm_name}</a>*}
+				{$result.tm_name}
 			{else}
 				{$result.tm_name}
 			{/if}

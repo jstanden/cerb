@@ -125,7 +125,9 @@ class ParseCron extends CerberusCronPageExtension {
         $time = microtime(true);
         $ticket_id = CerberusParser::parseMessage($message);
         $time = microtime(true) - $time;
-        echo "parsed! (",sprintf("%d",($time*1000))," ms) (Ticket ID: ",$ticket_id,")<br>\r\n";
+        echo "parsed! (",sprintf("%d",($time*1000))," ms) ";
+        echo !empty($ticket_id) ? ("(Ticket ID: ".$ticket_id.")") : ("(Local Delivery Rejected.)");
+        echo "<br>\r\n";
 
         @unlink($full_filename);
         mailparse_msg_free($mime);

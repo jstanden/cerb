@@ -13,11 +13,11 @@
 	<H2>Add Community</H2>
 {/if}
 
-<b>Community Name:</b><br>
+<b>Community Name:</b> (e.g. Public Website)<br>
 <input type="text" name="name" size="45" value="{$community->name}"><br>
 <br>
 
-<b>Add Community Tool:</b><br>
+<b>Add a New Community Tool:</b><br>
  <select name="add_tool_id">
  	<option value="">&nbsp;</option>
 	{foreach from=$tool_manifests item=tool}

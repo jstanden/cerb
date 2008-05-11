@@ -2524,6 +2524,52 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	}
 	
 	// Ajax
+	function showTabStorageAction() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		
+		$license = CerberusLicense::getInstance();
+		$tpl->assign('license', $license);
+		
+		$db = DevblocksPlatform::getDatabaseService();
+		$rs = $db->Execute("SHOW TABLE STATUS");
+
+		$total_db_size = 0;
+		$total_db_data = 0;
+		$total_db_indexes = 0;
+		$total_db_slack = 0;
+		$total_file_size = 0;
+		
+		// [TODO] This would likely be helpful to the /debug controller
+		
+		while(!$rs->EOF) {
+			$table_name = $rs->fields['Name'];
+			$table_size_data = intval($rs->fields['Data_length']);
+			$table_size_indexes = intval($rs->fields['Index_length']);
+			$table_size_slack = intval($rs->fields['Data_free']);
+			
+			$total_db_size += $table_size_data + $table_size_indexes;
+			$total_db_data += $table_size_data;
+			$total_db_indexes += $table_size_indexes;
+			$total_db_slack += $table_size_slack;
+			
+			$rs->MoveNext();
+		}
+		
+		$sql = "SELECT SUM(file_size) FROM attachment";
+		$total_file_size = intval($db->GetOne($sql));
+
+		$tpl->assign('total_db_size', number_format($total_db_size/1048576,2));
+		$tpl->assign('total_db_data', number_format($total_db_data/1048576,2));
+		$tpl->assign('total_db_indexes', number_format($total_db_indexes/1048576,2));
+		$tpl->assign('total_db_slack', number_format($total_db_slack/1048576,2));
+		$tpl->assign('total_file_size', number_format($total_file_size/1048576,2));
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/stats/index.tpl.php');
+	}
+	
+	// Ajax
 	function showTabWorkersAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
@@ -2693,12 +2739,6 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		}
 		$smtp_enc = $settings->get(CerberusSettings::SMTP_ENCRYPTION_TYPE,'None');
 		
-		$routing = DAO_Mail::getMailboxRouting();
-		$tpl->assign('routing', $routing);
-
-		$teams = DAO_Group::getAll();
-		$tpl->assign('teams', $teams);
-
 		$pop3_accounts = DAO_Mail::getPop3Accounts();
 		$tpl->assign('pop3_accounts', $pop3_accounts);
 		
@@ -2860,6 +2900,136 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/mail/test_pop.tpl.php');
 		
 		return;
+	}
+	
+	// Ajax
+	function showTabPreParserAction() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		
+		$filters = DAO_PreParseRule::getAll(true);
+		$tpl->assign('filters', $filters);
+		
+		$groups = DAO_Group::getAll();
+		$tpl->assign('groups', $groups);
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/mail/mail_preparse.tpl.php');
+	}
+
+	function saveTabPreParseFiltersAction() {
+		@$ids = DevblocksPlatform::importGPC($_POST['deletes'],'array',array());
+
+		DAO_PreParseRule::delete($ids);
+		
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','preparser')));
+	}
+	
+	// Post
+	function saveTabPreParserAction() {
+		@$name = DevblocksPlatform::importGPC($_POST['name'],'string','');
+		@$rules = DevblocksPlatform::importGPC($_POST['rules'],'array',array());
+		@$do = DevblocksPlatform::importGPC($_POST['do'],'array',array());
+		
+		$criterion = array();
+		$actions = array();
+		
+		// Criteria
+		if(is_array($rules))
+		foreach($rules as $rule) {
+			$rule = DevblocksPlatform::strAlphaNumDash($rule);
+			@$value = DevblocksPlatform::importGPC($_POST['value_'.$rule],'string','');
+			
+			if(empty($value))
+				continue;
+			
+			$criteria = array(
+				'value' => $value,
+			);
+			
+			// Any special rule handling
+			switch($rule) {
+				case 'type':
+					break;
+				case 'from':
+					break;
+				case 'to':
+					break;
+				case 'header1':
+				case 'header2':
+				case 'header3':
+				case 'header4':
+				case 'header5':
+					if(null != (@$header = DevblocksPlatform::importGPC($_POST[$rule],'string',null)))
+						$criteria['header'] = strtolower($header);
+					break;
+				case 'body':
+					break;
+				case 'attachment':
+					break;
+				default: // ignore invalids
+					continue;
+					break;
+			}
+			
+			$criterion[$rule] = $criteria;
+		}
+		
+		// Actions
+		if(is_array($do))
+		foreach($do as $act) {
+			$action = array();
+			
+			switch($act) {
+				case 'blackhole':
+					$action = array();
+					break;
+				case 'redirect':
+					if(null != (@$to = DevblocksPlatform::importGPC($_POST['do_redirect'],'string',null)))
+						$action = array(
+							'to' => $to
+						);
+					break;
+				case 'bounce':
+					if(null != (@$msg = DevblocksPlatform::importGPC($_POST['do_bounce'],'string',null)))
+						$action = array(
+							'message' => $msg
+						);
+					break;
+				default: // ignore invalids
+					continue;
+					break;
+			}
+			
+			$actions[$act] = $action;
+		}
+		
+		if(!empty($criterion) && !empty($actions)) {
+			$fields = array(
+				DAO_PreParseRule::NAME => $name,
+				DAO_PreParseRule::CRITERIA_SER => serialize($criterion),
+				DAO_PreParseRule::ACTIONS_SER => serialize($actions),
+				DAO_PreParseRule::POS => 0,
+			);
+			DAO_PreParseRule::create($fields);
+		}
+		
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','preparser')));
+	}	
+	
+	// Ajax
+	function showTabParserAction() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+
+		$routing = DAO_Mail::getMailboxRouting();
+		$tpl->assign('routing', $routing);
+
+		$teams = DAO_Group::getAll();
+		$tpl->assign('teams', $teams);
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/mail/mail_routing.tpl.php');
 	}
 	
 	// Ajax
@@ -3675,7 +3845,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$settings = CerberusSettings::getInstance();
 		$settings->set(CerberusSettings::DEFAULT_TEAM_ID, $default_team_id);
 		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','mail')));
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','parser')));
 	}
 	
 	// Ajax
