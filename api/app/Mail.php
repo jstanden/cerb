@@ -751,15 +751,29 @@ class CerberusMail {
 			$sendTo = new Swift_Address($to);
 			$sendFrom = new Swift_Address($from_addy, $from_personal);
 			
-			$mail->headers->set('X-CerberusRedirect','1');
+//			if(is_array($message->headers))
+//			foreach($message->headers as $header => $val) {
+//				if(0==strcasecmp($header,'to'))
+//					continue;
+//				$mail->headers->set($header, $val);
+//			}
 
-			if(is_array($message->headers))
-			foreach($message->headers as $header => $val) {
-				if(0==strcasecmp($header,'to'))
-					continue;
-					
-				$mail->headers->set($header, $val);
-			}
+			if(isset($message->headers['subject']))
+				$mail->headers->set('Subject', $message->headers['subject']);
+			if(isset($message->headers['message-id']))
+				$mail->headers->set('Message-Id', $message->headers['message-id']);
+			if(isset($message->headers['in-reply-to']))
+				$mail->headers->set('In-Reply-To', $message->headers['in-reply-to']);
+			if(isset($message->headers['references']))
+				$mail->headers->set('References', $message->headers['references']);
+			if(isset($message->headers['from']))
+				$mail->headers->set('From', $message->headers['from']);
+			if(isset($message->headers['return-path']))
+				$mail->headers->set('Return-Path', $message->headers['return-path']);
+			if(isset($message->headers['reply-to']))
+				$mail->headers->set('Reply-To', $message->headers['reply-to']);
+				
+			$mail->headers->set('X-CerberusRedirect','1');
 			
 			$mail->attach(new Swift_Message_Part($message->body, 'text/plain', 'base64', $message->encoding));
 			
