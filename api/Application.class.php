@@ -48,7 +48,7 @@
  * 		and Joe Geck.
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-define("APP_BUILD", 595);
+define("APP_BUILD", 598);
 define("APP_MAIL_PATH", realpath(APP_PATH . '/storage/mail') . DIRECTORY_SEPARATOR);
 
 include_once(APP_PATH . "/api/DAO.class.php");
@@ -183,11 +183,12 @@ class CerberusApplication extends DevblocksApplication {
 		}
 		
 		// File Upload Temporary Directory
-		$ini_upload_tmp_dir = ini_get("upload_tmp_dir");
-		if(!empty($ini_upload_tmp_dir)) {
-		} else {
-			$errors[] = 'upload_tmp_dir is empty in your php.ini file.	Please set it.';
-		}
+		// [TODO] This isn't fatal
+//		$ini_upload_tmp_dir = ini_get("upload_tmp_dir");
+//		if(!empty($ini_upload_tmp_dir)) {
+//		} else {
+//			$errors[] = 'upload_tmp_dir is empty in your php.ini file.	Please set it.';
+//		}
 		
 		// Memory Limit
 		$memory_limit = ini_get("memory_limit");

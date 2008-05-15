@@ -67,7 +67,7 @@ class ParseCron extends CerberusCronPageExtension {
         $runtime = microtime(true);
         	
         echo "<BR>\r\n";
-        flush();
+//        flush();
 
 		$total = $this->getParam('max_messages', 500);
         
@@ -89,7 +89,7 @@ class ParseCron extends CerberusCronPageExtension {
                 $parseFile = APP_MAIL_PATH . 'fail' . DIRECTORY_SEPARATOR . $filePart;
                 rename($file, $parseFile);
 		        $this->_parseFile($parseFile);
-				flush();
+//				flush();
 		        if(--$total <= 0) break;
 			}
 			if($total <= 0) break;
@@ -133,7 +133,7 @@ class ParseCron extends CerberusCronPageExtension {
         mailparse_msg_free($mime);
 
 		echo "<hr>";
-		flush();
+//		flush();
     }
     
     function configure($instance) {
@@ -351,7 +351,7 @@ class Pop3Cron extends CerberusCronPageExtension {
             echo 'Init time: ',((microtime(true)-$runtime)*1000)," ms<br>\r\n";
 
             echo "<BR>\r\n";
-            flush();
+//            flush();
 
             $runtime = microtime(true);
 
@@ -364,7 +364,7 @@ class Pop3Cron extends CerberusCronPageExtension {
                  
                 $msgno = $i;
                 echo "<b>Downloading message ",$msgno,"</b> ";
-                flush();
+//                flush();
                  
                 $time = microtime(true);
                  
@@ -400,7 +400,7 @@ class Pop3Cron extends CerberusCronPageExtension {
 
                 $time = microtime(true) - $time;
                 echo "(",sprintf("%d",($time*1000))," ms)<br>\r\n";
-                flush();
+//                flush();
                 imap_delete($mailbox, $msgno);
                 continue;
             }
