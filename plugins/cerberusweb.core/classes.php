@@ -5289,19 +5289,23 @@ class ChFilesController extends DevblocksControllerExtension {
 		array_shift($stack);					// files	
 		$file_id = array_shift($stack); 		// 10000
 		$file_name = array_shift($stack); 		// plaintext.txt
+
+		// Security
+		if(null == ($active_worker = CerberusApplication::getActiveWorker()))
+			die("Access Denied.");
 		
 		if(empty($file_id) || empty($file_name) || null == ($file = DAO_Attachment::get($file_id)))
 			die("File not found.");
 			
 		// Security
-		if(null == ($active_worker = CerberusApplication::getActiveWorker()))
-			die("Not logged in");
-		$message = DAO_Ticket::getMessage($file->message_id);
+			$message = DAO_Ticket::getMessage($file->message_id);
 		if(null == ($ticket = DAO_Ticket::getTicket($message->ticket_id)))
-			die("Ticket not found");
+			die("Ticket not found.");
+			
+		// Security
 		$active_worker_memberships = $active_worker->getMemberships();
 		if(null == ($active_worker_memberships[$ticket->team_id]))
-			die("Access Denied");
+			die("Access Denied.");
 			
 		// Set headers
 		header("Expires: Mon, 26 Nov 1962 00:00:00 GMT\n");
