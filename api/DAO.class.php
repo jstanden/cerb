@@ -1938,7 +1938,7 @@ class DAO_Attachment extends DevblocksORMHelper {
 		while(!$rs->EOF) {
 		    $object = new Model_Attachment();
 		    $object->id = intval($rs->fields['id']);
-		    $object->message_id = intval($rs->fields['id']);
+		    $object->message_id = intval($rs->fields['message_id']);
 		    $object->display_name = $rs->fields['display_name'];
 		    $object->filepath = $rs->fields['filepath'];
 		    $object->mime_type = $rs->fields['mime_type'];
