@@ -71,7 +71,7 @@ class DAO_Setting extends DevblocksORMHelper {
 	// [TODO] Cache as static/singleton or load up in a page scope object?
 	static function getSettings() {
 	    $cache = DevblocksPlatform::getCacheService();
-	    if(false === ($settings = $cache->load(CerberusApplication::CACHE_SETTINGS_DAO))) {
+	    if(null === ($settings = $cache->load(CerberusApplication::CACHE_SETTINGS_DAO))) {
 			$db = DevblocksPlatform::getDatabaseService();
 			$settings = array();
 			
@@ -252,7 +252,7 @@ class DAO_Worker extends DevblocksORMHelper {
 
 	static function getAll($nocache=false) {
 	    $cache = DevblocksPlatform::getCacheService();
-	    if($nocache || false == ($workers = $cache->load(self::CACHE_ALL))) {
+	    if($nocache || null === ($workers = $cache->load(self::CACHE_ALL))) {
     	    $workers = self::getList();
     	    $cache->save($workers, self::CACHE_ALL);
 	    }
@@ -2062,7 +2062,7 @@ class DAO_Sla extends DevblocksORMHelper {
 	
 	static function getAll($nocache=false) {
 	    $cache = DevblocksPlatform::getCacheService();
-	    if($nocache || false == ($slas = $cache->load(self::CACHE_ALL))) {
+	    if($nocache || null === ($slas = $cache->load(self::CACHE_ALL))) {
     	    $slas = self::getWhere();
     	    $cache->save($slas, self::CACHE_ALL);
 	    }
@@ -3429,7 +3429,7 @@ class DAO_Group {
 	
 	static function getAll($nocache=false) {
 	    $cache = DevblocksPlatform::getCacheService();
-	    if($nocache || false == ($teams = $cache->load(self::CACHE_ALL))) {
+	    if($nocache || null === ($teams = $cache->load(self::CACHE_ALL))) {
     	    $teams = self::getTeams();
     	    $cache->save($teams, self::CACHE_ALL);
 	    }
@@ -4131,7 +4131,7 @@ class DAO_Bucket extends DevblocksORMHelper {
 	
 	static function getAll($nocache=false) {
 	    $cache = DevblocksPlatform::getCacheService();
-	    if($nocache || false == ($buckets = $cache->load(self::CACHE_ALL))) {
+	    if($nocache || null === ($buckets = $cache->load(self::CACHE_ALL))) {
     	    $buckets = self::getList();
     	    $cache->save($buckets, self::CACHE_ALL);
 	    }
@@ -4902,7 +4902,7 @@ class DAO_PreParseRule extends DevblocksORMHelper {
 	
 	static function getAll($nocache=false) {
 	    $cache = DevblocksPlatform::getCacheService();
-	    if($nocache || false == ($rules = $cache->load(self::CACHE_ALL))) {
+	    if($nocache || null === ($rules = $cache->load(self::CACHE_ALL))) {
     	    $rules = self::getWhere();
     	    $cache->save($rules, self::CACHE_ALL);
 	    }

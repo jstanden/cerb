@@ -48,7 +48,7 @@
  * 		and Joe Geck.
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-define("APP_BUILD", 599);
+define("APP_BUILD", 601);
 define("APP_MAIL_PATH", realpath(APP_PATH . '/storage/mail') . DIRECTORY_SEPARATOR);
 
 include_once(APP_PATH . "/api/DAO.class.php");
@@ -600,7 +600,7 @@ class CerberusApplication extends DevblocksApplication {
 	public static function getHelpdeskSenders() {
 		$cache = DevblocksPlatform::getCacheService();
 
-		if(null == ($froms = $cache->load(self::CACHE_HELPDESK_FROMS))) {
+		if(null === ($froms = $cache->load(self::CACHE_HELPDESK_FROMS))) {
 			$froms = array();
 			$settings = CerberusSettings::getInstance();
 			$group_settings = DAO_GroupSettings::getSettings(); // [TODO] cache?

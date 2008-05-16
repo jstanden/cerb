@@ -222,6 +222,9 @@ class ChPageController extends DevblocksControllerExtension {
 		}
 		
 		$tpl->display($tpl_path.'border.php');
+		
+//		$cache = DevblocksPlatform::getCacheService();
+//		$cache->printStatistics();
 	}
 };
 
@@ -6453,7 +6456,7 @@ class ChUpdateController extends DevblocksControllerExtension {
 	    $stack = $request->path;
 	    array_shift($stack); // update
 
-	    $cache = DevblocksPlatform::getCacheService(); /* @var $cache Zend_Cache_Core */
+	    $cache = DevblocksPlatform::getCacheService(); /* @var $cache _DevblocksCacheManager */
 		$settings = CerberusSettings::getInstance();
 	    
 	    switch(array_shift($stack)) {
@@ -6552,7 +6555,7 @@ class ChDebugController extends DevblocksControllerExtension  {
 	    $stack = $request->path;
 	    array_shift($stack); // update
 
-//	    $cache = DevblocksPlatform::getCacheService(); /* @var $cache Zend_Cache_Core */
+//	    $cache = DevblocksPlatform::getCacheService(); /* @var $cache _DevblocksCacheManager */
 		$settings = CerberusSettings::getInstance();
 
 		$authorized_ips_str = $settings->get(CerberusSettings::AUTHORIZED_IPS);
