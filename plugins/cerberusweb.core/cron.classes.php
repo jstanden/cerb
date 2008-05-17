@@ -439,6 +439,12 @@ class ParserFile {
     public $mime_type = '';
     public $file_size = 0;
     
+    function __destruct() {
+    	if(file_exists($this->tmpname)) {
+    		@unlink($this->tmpname);
+    	}
+    }
+    
     public function setTempFile($tmpname,$mimetype='application/octet-stream') {
         $this->mime_type = $mimetype;
         
