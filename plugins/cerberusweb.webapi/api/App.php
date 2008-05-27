@@ -485,7 +485,7 @@ class Rest_AddressesController extends Ch_RestController {
 			case 'is_banned':
 				return ('1' == $value || '0' == $value) ? true : false;
 			case 'email':
-				$addr_array = imap_rfc822_parse_adrlist($value);
+				$addr_array = imap_rfc822_parse_adrlist($value, "webgroupmedia.com");
 				return (is_array($addr_array) && count($addr_array) > 0) ? true : false;
 			case 'first_name':
 			case 'last_name':
@@ -534,6 +534,11 @@ class Rest_AddressesController extends Ch_RestController {
 					$this->_error("Action not permitted.");
 				$this->_postSearchAction($path);
 				break;
+			case 'validate':
+				if(Model_WebapiKey::ACL_NONE==intval(@$keychain->rights['acl_addresses']))
+					$this->_error("Action not permitted.");
+				$this->_postValidateAction($path);
+				break;
 		}
 	}
 	
@@ -578,6 +583,12 @@ class Rest_AddressesController extends Ch_RestController {
 		
 		$id = DAO_Address::create($fields);
 		
+		// send confirmation if requested
+		@$confirmation_link = DevblocksPlatform::importGPC($xml_in->send_confirmation,'string','');
+		if (!empty($confirmation_link)) {
+			$this->_sendConfirmation($fields[DAO_Address::EMAIL],$confirmation_link);
+		}
+		
 		// Render
 		$this->_getIdAction(array($id));
 	}
@@ -612,6 +623,31 @@ class Rest_AddressesController extends Ch_RestController {
 		);
 		
 		$this->_renderResults($results, $search_params, 'address', 'addresses');
+	}
+	
+	private function _postValidateAction($path) {
+		$xml_in = simplexml_load_string($this->getPayload());
+		@$email = $xml_in->params->email;
+		@$pass_hash = $xml_in->params->pass_hash;
+		@$confirmation_code = $xml_in->params->confirmation_code;
+		
+		if(null != ($addy = DAO_Address::lookupAddress($email, false))) {
+			$auth = DAO_AddressAuth::get($addy->id);
+			
+			if(!empty($auth->pass) && $pass_hash==$auth->pass) {
+				$xml = new SimpleXMLElement("<success></success>");
+				$xml->addChild('address',$email);
+			}
+			if(!empty($auth->confirm) && $confirmation_code==$auth->confirm) {
+				$xml = new SimpleXMLElement("<success></success>");
+				$xml->addChild('address',$email);
+			}
+		} else {
+			$xml = new SimpleXMLElement("<failure></failure>");
+			$xml->addChild('validation_failed');
+		}
+		
+		$this->_render($xml->asXML());
 	}
 	
 	private function _getIdAction($path) {
@@ -689,7 +725,64 @@ class Rest_AddressesController extends Ch_RestController {
 		if(!empty($fields))
 			DAO_Address::update($address->id,$fields);
 
+		// update password if requested
+		@$password = DevblocksPlatform::importGPC($xml_in->password,'string','');
+		if (!empty($password)) {
+			DAO_AddressAuth::update($in_id, array(DAO_AddressAuth::PASS => md5($password)));
+		}
+		
+		// send confirmation if requested
+		@$confirmation_link = DevblocksPlatform::importGPC($xml_in->send_confirmation,'string','');
+		if (!empty($confirmation_link)) {
+			$this->_sendConfirmation($address->email,$confirmation_link);
+		}
+		
 		$this->_getIdAction(array($address->id));
+	}
+	
+	private function _sendConfirmation($email,$link) {
+		$settings = CerberusSettings::getInstance();
+		$from = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM);
+		$from_personal = $settings->get(CerberusSettings::DEFAULT_REPLY_PERSONAL);
+		
+		$url = DevblocksPlatform::getUrlService();
+		try {
+			$mail_service = DevblocksPlatform::getMailService();
+			$mailer = $mail_service->getMailer();
+			
+			$code = CerberusApplication::generatePassword(8);
+			
+			if(!empty($email) && null != ($addy = DAO_Address::lookupAddress($email, false))) {
+				$fields = array(
+					DAO_AddressAuth::CONFIRM => $code
+				);
+				DAO_AddressAuth::update($addy->id, $fields);
+				
+			} else {
+				return;
+			}
+			
+			$message = $mail_service->createMessage();
+			$message->setTo($email);
+			$send_from = new Swift_Address($from, $from_personal);
+			$message->setFrom($send_from);
+			$message->setSubject("Account Confirmation Code");
+			$message->setBody(sprintf("Below is your confirmation code.  Please copy and paste it into the confirmation form at:\r\n".
+				"%s\r\n".
+				"\r\n".
+				"Your confirmation code is: %s\r\n".
+				"\r\n".
+				"Thanks!\r\n",
+				$link,
+				$code
+			));
+			$message->headers->set('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
+			
+			$mailer->send($message,$email,$send_from);
+		}
+		catch (Exception $e) {
+			return;
+		}
 	}
 };
 
@@ -961,7 +1054,7 @@ class Rest_TicketsController extends Ch_RestController {
 			't_due_date' => 'due_date',
 			't_sla_id' => null,
 			't_sla_priority' => null,
-			't_first_contact_org_id' => null,
+			't_first_contact_org_id' => 'first_contact_org_id',
 			'tm_id' => 'team_id',
 		);
 		
@@ -981,6 +1074,7 @@ class Rest_TicketsController extends Ch_RestController {
 			case 'next_worker_id':
 			case 'first_wrote_address_id':
 			case 'last_wrote_address_id':
+			case 'first_contact_org_id':
 			case 'team_id':
 				return is_numeric($value) ? true : false;
 			case 'is_waiting':
@@ -1925,15 +2019,28 @@ class Rest_KBArticlesController extends Ch_RestController {
 		
 		$cats = DAO_KbCategory::getWhere();
 		$tree = DAO_KbCategory::getTreeMap();
+
+		// create breadcrumb trail
+		$breadcrumb = array();
+		$pid = $root;
+		while(0 != $pid) {
+			$breadcrumb[$pid] = $cats[$pid]->name;
+			$pid = $cats[$pid]->parent_id;
+		}
+		$breadcrumb[0] = 'Top';
+		$breadcrumb = array_reverse($breadcrumb, true);
 		
 		$xml_out = new SimpleXMLElement("<categories></categories>");
 		if(0 == $root)
 			$xml_out->addChild('name',"Top");
 		else
 			$xml_out->addChild('name',$cats[$root]->name);
+			
+		$xml_out->addChild('breadcrumb',serialize($breadcrumb));
 		
-		foreach($tree[$root] as $tree_idx => $cat)
-			$this->_addSubCategory($tree_idx, $tree, $cats, $xml_out);
+		if (is_array($tree[$root]))
+			foreach($tree[$root] as $tree_idx => $cat)
+				$this->_addSubCategory($tree_idx, $tree, $cats, $xml_out);
 
 		$this->_render($xml_out->asXML());
 	}
