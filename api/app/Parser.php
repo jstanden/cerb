@@ -151,6 +151,9 @@ class CerberusParser {
 				    	|| (isset($info['content-name']) && empty($info['content-name']))) { // or blank 
 				    	$info['content-name'] = 'unnamed_message_part';
 				    }
+				    
+				    // filenames can be quoted-printable strings, too...
+				    $info['content-name'] = self::fixQuotePrintableString($info['content-name']);
 
 				    // content-name is not necessarily unique...
 					if (isset($message->files[$info['content-name']])) {

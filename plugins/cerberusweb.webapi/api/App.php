@@ -101,6 +101,7 @@ class ChWebApiConfigTab extends Extension_ConfigTab {
 			@$aclAddresses = DevblocksPlatform::importGPC($_REQUEST['aclAddresses'.$access_id],'integer',0);
 			@$aclFnr = DevblocksPlatform::importGPC($_REQUEST['aclFnr'.$access_id],'integer',0);
 			@$aclOrgs = DevblocksPlatform::importGPC($_REQUEST['aclOrgs'.$access_id],'integer',0);
+			@$aclTasks = DevblocksPlatform::importGPC($_REQUEST['aclTasks'.$access_id],'integer',0);
 			@$aclParser = DevblocksPlatform::importGPC($_REQUEST['aclParser'.$access_id],'integer',0);
 			@$aclTickets = DevblocksPlatform::importGPC($_REQUEST['aclTickets'.$access_id],'integer',0);
 			@$aclKB = DevblocksPlatform::importGPC($_REQUEST['aclKB'.$access_id],'array');
@@ -112,6 +113,7 @@ class ChWebApiConfigTab extends Extension_ConfigTab {
 			$rights['acl_addresses'] = $aclAddresses;
 			$rights['acl_fnr'] = $aclFnr;
 			$rights['acl_orgs'] = $aclOrgs;
+			$rights['acl_tasks'] = $aclTasks;
 			$rights['acl_parser'] = $aclParser;
 			$rights['acl_tickets'] = $aclTickets;
 			$rights['acl_kb_topics'] = $aclKBTopics;
@@ -278,6 +280,7 @@ class ChRestFrontController extends DevblocksControllerExtension {
 			'addresses' => 'Rest_AddressesController',
 			'fnr' => 'Rest_FnrController',
 			'orgs' => 'Rest_OrgsController',
+			'tasks' => 'Rest_TasksController',
 			'parser' => 'Rest_ParserController',
 			'tickets' => 'Rest_TicketsController',
 			'messages' => 'Rest_MessagesController',
@@ -1864,6 +1867,242 @@ class Rest_CommentsController extends Ch_RestController {
 			$this->_error("ID is not valid.");
 		
 		DAO_TicketComment::delete($note->id);
+		
+		$out_xml = new SimpleXMLElement('<success></success>');
+		$this->_render($out_xml->asXML());
+	}
+};
+
+class Rest_TasksController extends Ch_RestController {
+	protected function translate($idx, $dir) {
+		$translations = array(
+			't_id' => 'id',
+			't_title' => 'title',
+			't_priority' => 'priority',
+			't_is_completed' => 'is_completed',
+			't_due_date' => 'due_date',
+			't_completed_date' => 'completed_date',
+			't_worker_id' => 'worker_id',
+			't_source_extension' => 'source_extension',
+			't_source_id' => 'source_id',
+			't_content' => 'content',
+		);
+		
+		if ($dir === true && array_key_exists($idx, $translations))
+			return $translations[$idx];
+		if ($dir === false)
+			return ($key = array_search($idx, $translations)) === false ? null : $key;
+		return $idx;
+			}
+		
+	protected function isValid($idx_name, $value) {
+		switch($idx_name) {
+			case 'due_date':
+			case 'worker_id':
+			case 'source_id':
+			case 'priority':
+			case 'is_completed':
+			case 'completed_date':
+				return is_numeric($value) ? true : false;
+			case 'title':
+			case 'content':
+			case 'source_extension':
+				return !empty($value) ? true : false;
+			default:
+				return false;
+		}
+	}
+		
+	protected function getAction($path,$keychain) {
+		if(Model_WebapiKey::ACL_NONE==intval(@$keychain->rights['acl_tasks']))
+			$this->_error("Action not permitted.");
+		
+		// Single GET
+		if(1==count($path) && is_numeric($path[0]))
+			$this->_getIdAction($path);
+		
+		// Actions
+		switch(array_shift($path)) {
+			case 'list':
+				$this->_getListAction($path);
+				break;
+		}
+	}
+
+	protected function putAction($path,$keychain) {
+		if(Model_WebapiKey::ACL_FULL!=intval(@$keychain->rights['acl_tasks']))
+			$this->_error("Action not permitted.");
+		
+		// Single PUT
+		if(1==count($path) && is_numeric($path[0]))
+			$this->_putIdAction($path);
+	}
+	
+	protected function postAction($path,$keychain) {
+		// Actions
+		switch(array_shift($path)) {
+			case 'create':
+				if(Model_WebapiKey::ACL_FULL!=intval(@$keychain->rights['acl_tasks']))
+					$this->_error("Action not permitted.");
+				$this->_postCreateAction($path);
+				break;
+			case 'search':
+				if(Model_WebapiKey::ACL_NONE==intval(@$keychain->rights['acl_tasks']))
+					$this->_error("Action not permitted.");
+				$this->_postSearchAction($path);
+				break;
+		}
+	}
+	
+	protected function deleteAction($path,$keychain) {
+		if(Model_WebapiKey::ACL_FULL!=intval(@$keychain->rights['acl_tasks']))
+			$this->_error("Action not permitted.");
+		
+		// Single DELETE
+		if(1==count($path) && is_numeric($path[0]))
+			$this->_deleteIdAction($path);
+	}
+	
+	//****
+	
+	private function _postCreateAction($path) {
+		$xmlstr = $this->getPayload();
+		$xml_in = simplexml_load_string($xmlstr);
+
+		$fields = array();
+		
+		$flds = SearchFields_Task::getFields();
+		unset($flds[DAO_Task::ID]);
+		
+		foreach($flds as $idx => $f) {
+			$idx_name = $this->translate($idx, true);
+			if ($idx_name == null) continue;
+			@$value = DevblocksPlatform::importGPC($xml_in->$idx_name,'string');
+			if($this->isValid($idx_name,$value))
+				$fields[$idx_name] = $value;
+		}
+
+		if(empty($fields[DAO_Task::SOURCE_EXTENSION])
+		|| empty($fields[DAO_Task::SOURCE_ID])
+		|| empty($fields[DAO_Task::TITLE])
+		|| empty($fields[DAO_Task::CONTENT]))
+			$this->_error("All required fields were not provided.");
+		
+		$id = DAO_Task::create($fields);
+
+		// Render
+		$this->_getIdAction(array($id));		
+	}
+	
+	private function _postSearchAction($path) {
+		@$p_page = DevblocksPlatform::importGPC($_REQUEST['p'],'integer',0);		
+		
+		$xml_in = simplexml_load_string($this->getPayload());
+		$search_params = SearchFields_Task::getFields();
+		$params = array();
+		
+		// Check for params in request
+		foreach($search_params as $sp_element => $fld) {
+			$sp_element_name = $this->translate($sp_element, true);
+			if ($sp_element_name == null) continue;
+			@$field_ptr =& $xml_in->params->$sp_element_name;
+			if(!empty($field_ptr)) {
+				@$value = (string) $field_ptr['value'];
+				@$oper = (string) $field_ptr['oper'];
+				if(empty($oper)) $oper = 'eq';
+				$params[$sp_element] =	new DevblocksSearchCriteria($sp_element,$oper,$value);
+			}
+		}
+
+		list($tasks, $null) = DAO_Task::search(
+			$params,
+			50,
+			$p_page,
+			DAO_Task::PRIORITY,
+			true,
+			false
+		);
+		
+		$this->_renderResults($tasks, $search_params, 'task', 'tasks');
+	}
+	
+	private function _getIdAction($path) {
+		$in_id = array_shift($path);
+		if(empty($in_id))
+			$this->_error("ID was not provided.");
+
+		list($results, $null) = DAO_Task::search(
+			array(
+				SearchFields_Task::ID => new DevblocksSearchCriteria(SearchFields_Task::ID,'=',$in_id)
+			),
+			1,
+			0,
+			null,
+			null,
+			false
+		);
+			
+		if(empty($results))
+			$this->_error("ID not valid.");
+
+		$this->_renderOneResult($results, SearchFields_Task::getFields(), 'org');
+	}
+	
+	private function _getListAction($path) {
+		@$p_page = DevblocksPlatform::importGPC($_REQUEST['p'],'integer',0);		
+		
+		list($tasks,$null) = DAO_Task::search(
+			array(),
+			50,
+			$p_page,
+			SearchFields_Task::PRIORITY,
+			true,
+			false
+		);
+
+		$this->_renderResults($tasks, SearchFields_Task::getFields(), 'task', 'tasks');
+	}
+		
+	private function _putIdAction($path) {
+		$xmlstr = $this->getPayload();
+		$xml_in = new SimpleXMLElement($xmlstr);
+		
+		$in_id = array_shift($path);
+		
+		if(empty($in_id))
+			$this->_error("ID was not provided.");
+			
+		if(null == ($task = DAO_Task::get($in_id)))
+			$this->_error("ID not valid.");
+
+		$fields = array();
+			
+		$flds = SearchFields_Task::getFields();
+		unset($flds[DAO_Task::ID]);
+		
+		foreach($flds as $idx => $f) {
+			$idx_name = $this->translate($idx, true);
+			if ($idx_name == null) continue;
+			@$value = DevblocksPlatform::importGPC($xml_in->$idx_name,'string');
+			if($this->isValid($idx_name,$value))
+				$fields[$idx_name] = $value;
+		}
+		
+		if(!empty($fields))
+			DAO_Task::update($task->id,$fields);
+
+		$this->_getIdAction(array($task->id));
+	}
+	
+	private function _deleteIdAction($path) {
+		$in_id = array_shift($path);
+		if(empty($in_id))
+			$this->_error("ID was not provided.");
+			
+		if(null == ($task = DAO_Task::get($in_id)))
+			$this->_error("ID is not valid.");
+		
+		DAO_Task::delete($task->id);
 		
 		$out_xml = new SimpleXMLElement('<success></success>');
 		$this->_render($out_xml->asXML());
