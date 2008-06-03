@@ -898,7 +898,7 @@ class C4_TicketView extends C4_AbstractView {
 		}
 
 		if(!empty($do['team']))
-		list($team_id, $bucket_id) = CerberusApplication::translateTeamCategoryCode($do['team']);
+			list($team_id, $bucket_id) = CerberusApplication::translateTeamCategoryCode($do['team']);
 
 		switch($filter) {
 			default:
@@ -969,13 +969,13 @@ class C4_TicketView extends C4_AbstractView {
 					if($always && !empty($do_header) && !empty($unique_groups)) {
 						foreach($unique_groups as $unique_group_id => $unique_group_hits) {
 							$fields = array(
-							DAO_TeamRoutingRule::HEADER => $do_header,
-							DAO_TeamRoutingRule::PATTERN => $v,
-							DAO_TeamRoutingRule::TEAM_ID => $unique_group_id,
-							DAO_TeamRoutingRule::POS => $unique_group_hits,
-							DAO_TeamRoutingRule::DO_MOVE => @$do['team'],
-							DAO_TeamRoutingRule::DO_SPAM => @$do['spam'],
-							DAO_TeamRoutingRule::DO_STATUS => @$do['closed'],
+								DAO_TeamRoutingRule::HEADER => $do_header,
+								DAO_TeamRoutingRule::PATTERN => $v,
+								DAO_TeamRoutingRule::TEAM_ID => $unique_group_id,
+								DAO_TeamRoutingRule::POS => $unique_group_hits,
+								DAO_TeamRoutingRule::DO_MOVE => @$do['team'],
+								DAO_TeamRoutingRule::DO_SPAM => @$do['spam'],
+								DAO_TeamRoutingRule::DO_STATUS => @$do['closed'],
 							);
 							DAO_TeamRoutingRule::create($fields);
 						}

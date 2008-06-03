@@ -451,7 +451,7 @@ switch($step) {
 	case STEP_INIT_DB:
 		// [TODO] Add current user to patcher/upgrade authorized IPs
 		
-		if(CerberusInstaller::isDatabaseEmpty()) { // install
+		if(DevblocksPlatform::isDatabaseEmpty()) { // install
 			$patchMgr = DevblocksPlatform::getPatchService();
 			
 			// [JAS]: Run our overloaded container for the platform

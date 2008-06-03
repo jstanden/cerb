@@ -105,7 +105,8 @@ class CerberusParser {
 		        } elseif($info['content-type'] == 'text/html') {
 	        		@$message->htmlbody .= mailparse_msg_extract_part_file($section, $full_filename, NULL);
 		            
-		            // [TODO] Add the html part as an attachment
+		            // Add the html part as an attachment
+		            // [TODO] Make attaching the HTML part an optional config option (off by default)
 	                $tmpname = ParserFile::makeTempFilename();
 	                $html_attach = new ParserFile();
 	                $html_attach->setTempFile($tmpname,'text/html');
@@ -146,7 +147,10 @@ class CerberusParser {
 				    }
 				    
 				    // if un-named, call it "unnamed message part"
-				    if (!$info['content-name']) { $info['content-name'] = 'unnamed message part'; }
+				    if (!isset($info['content-name']) // if not set 
+				    	|| (isset($info['content-name']) && empty($info['content-name']))) { // or blank 
+				    	$info['content-name'] = 'unnamed_message_part';
+				    }
 
 				    // content-name is not necessarily unique...
 					if (isset($message->files[$info['content-name']])) {
@@ -159,6 +163,11 @@ class CerberusParser {
 					$message->files[$info['content-name']] = $attach;
 		        }
 		    }
+		}
+		
+		// generate the plaintext part (if necessary)
+		if(empty($message->body) && !empty($message->htmlbody)) {
+			$message->body = CerberusApplication::stripHTML($message->htmlbody);
 		}
 		
 		return $message;
@@ -543,39 +552,19 @@ class CerberusParser {
 		
 		$attachment_path = APP_PATH . '/storage/attachments/'; // [TODO] This should allow external attachments (S3)
 		
-		if(empty($message->body) && !empty($message->htmlbody)) { // generate the plaintext part
-	        $fields = array(
-	            DAO_Message::TICKET_ID => $id,
-	            DAO_Message::CREATED_DATE => $iDate,
-	            DAO_Message::ADDRESS_ID => $fromAddressId
-	        );
-		    $email_id = DAO_Message::create($fields);
-		    
-		    // Content
-		    $message->body = CerberusApplication::stripHTML($message->htmlbody);
-
-		    DAO_MessageContent::update($email_id, $message->body);
-			
-		    // Headers
-			foreach($headers as $hk => $hv) {
-			    DAO_MessageHeader::update($email_id, $id, $hk, $hv);
-			}
-		    
-		} else { // Insert the plaintext body (even blank)
-	        $fields = array(
-	            DAO_Message::TICKET_ID => $id,
-	            DAO_Message::CREATED_DATE => $iDate,
-	            DAO_Message::ADDRESS_ID => $fromAddressId
-	        );
-			$email_id = DAO_Message::create($fields);
-			
-			// Content
-			DAO_MessageContent::update($email_id, $message->body);
-			
-			// Headers
-			foreach($headers as $hk => $hv) {
-			    DAO_MessageHeader::update($email_id, $id, $hk, $hv);
-			}
+        $fields = array(
+            DAO_Message::TICKET_ID => $id,
+            DAO_Message::CREATED_DATE => $iDate,
+            DAO_Message::ADDRESS_ID => $fromAddressId
+        );
+		$email_id = DAO_Message::create($fields);
+		
+		// Content
+		DAO_MessageContent::update($email_id, $message->body);
+		
+		// Headers
+		foreach($headers as $hk => $hv) {
+		    DAO_MessageHeader::update($email_id, $id, $hk, $hv);
 		}
 		
 		// [mdf] Loop through files to insert attachment records in the db, and move temporary files
@@ -776,6 +765,7 @@ class CerberusParser {
 		@$sMessageId = trim($headers['message-id']);
 		@$sInReplyTo = trim($headers['in-reply-to']);
 		@$sReferences = trim($headers['references']);
+		@$sThreadTopic = trim($headers['thread-topic']);
 
 		// [TODO] Could turn string comparisons into hashes here for simple equality checks
 		
@@ -828,6 +818,10 @@ class CerberusParser {
 					);
 				}
 			}
+		}
+		
+		// [TODO] As a last case, check Microsoft's Thread-Topic header
+		if(!empty($sThreadTopic)) {
 		}
 		
 		return NULL;
@@ -896,22 +890,24 @@ class CerberusParser {
 
 			// check criteria
 			foreach($filter->criteria as $rule_key => $rule) {
+				@$value = $rule['value'];
+							
 				switch($rule_key) {
 					case 'type':
-						if(($is_new && 0 == strcasecmp($rule['value'],'new')) 
-							|| (!$is_new && 0 == strcasecmp($rule['value'],'reply')))
+						if(($is_new && 0 == strcasecmp($value,'new')) 
+							|| (!$is_new && 0 == strcasecmp($value,'reply')))
 								$passed++; 
 						break;
 						
 					case 'from':
-						$regexp_from = DevblocksPlatform::strToRegExp($rule['value']);
+						$regexp_from = DevblocksPlatform::strToRegExp($value);
 						if(preg_match($regexp_from, $from)) {
 							$passed++;
 						}
 						break;
 						
 					case 'to':
-						if(intval($group_id)==intval($rule['value']))
+						if(intval($group_id)==intval($value))
 							$passed++;
 						break;
 						
@@ -921,9 +917,15 @@ class CerberusParser {
 					case 'header4':
 					case 'header5':
 						$header = strtolower($rule['header']);
-						$regexp_header = DevblocksPlatform::strToRegExp($rule['value']);
 
-						if(isset($headers[$header]) && !empty($headers[$header])) {
+						if(empty($value)) { // we're checking for null/blanks
+							if(!isset($headers[$header]) || empty($headers[$header])) {
+								$passed++;
+							}
+							
+						} elseif(isset($headers[$header]) && !empty($headers[$header])) {
+							$regexp_header = DevblocksPlatform::strToRegExp($value);
+							
 							// Flatten CRLF
 							if(preg_match($regexp_header, str_replace(array("\r","\n"),' ',$headers[$header]))) {
 								$passed++;
@@ -933,7 +935,7 @@ class CerberusParser {
 						break;
 						
 					case 'body':
-						$regexp_body = DevblocksPlatform::strToRegExp($rule['value']);
+						$regexp_body = DevblocksPlatform::strToRegExp($value);
 
 						// Flatten CRLF
 						if(preg_match($regexp_body, str_replace(array("\r","\n"),' ',$message->body)))
@@ -941,7 +943,7 @@ class CerberusParser {
 						break;
 						
 					case 'attachment':
-						$regexp_file = DevblocksPlatform::strToRegExp($rule['value']);
+						$regexp_file = DevblocksPlatform::strToRegExp($value);
 
 						// check the files in the raw message
 						foreach($message->files as $file_name => $file) { /* @var $file ParserFile */

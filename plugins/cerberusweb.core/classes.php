@@ -1726,7 +1726,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	                        $doActions = array('closed' => CerberusTicketStatus::CLOSED);
 	                        break;
 	                    case 's': // spam
-	                        $doActions = array('spam' => CerberusTicketSpamTraining::SPAM);
+	                        $doActions = array('spam' => CerberusTicketSpamTraining::SPAM, 'closed' => 2);
 	                        break;
 	                    case 'd': // delete
 	                        $doActions = array('closed' => 2);
@@ -2943,8 +2943,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 			$rule = DevblocksPlatform::strAlphaNumDash($rule);
 			@$value = DevblocksPlatform::importGPC($_POST['value_'.$rule],'string','');
 			
-			if(empty($value))
-				continue;
+			// [JAS]: Allow empty $value (null/blank checking)
 			
 			$criteria = array(
 				'value' => $value,
