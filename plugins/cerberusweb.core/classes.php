@@ -5514,6 +5514,8 @@ class ChGroupsPage extends CerberusPageExtension  {
 	    @$signature = DevblocksPlatform::importGPC($_REQUEST['signature'],'string','');
 	    @$auto_reply_enabled = DevblocksPlatform::importGPC($_REQUEST['auto_reply_enabled'],'integer',0);
 	    @$auto_reply = DevblocksPlatform::importGPC($_REQUEST['auto_reply'],'string','');
+	    @$close_reply_enabled = DevblocksPlatform::importGPC($_REQUEST['close_reply_enabled'],'integer',0);
+	    @$close_reply = DevblocksPlatform::importGPC($_REQUEST['close_reply'],'string','');
 	    @$sender_address = DevblocksPlatform::importGPC($_REQUEST['sender_address'],'string','');
 	    @$sender_personal = DevblocksPlatform::importGPC($_REQUEST['sender_personal'],'string','');
 	    @$subject_has_mask = DevblocksPlatform::importGPC($_REQUEST['subject_has_mask'],'integer',0);
@@ -5540,6 +5542,8 @@ class ChGroupsPage extends CerberusPageExtension  {
 	    DAO_GroupSettings::set($team_id, DAO_GroupSettings::SETTING_SPAM_ACTION_PARAM, $spam_moveto);
 	    DAO_GroupSettings::set($team_id, DAO_GroupSettings::SETTING_AUTO_REPLY_ENABLED, $auto_reply_enabled);
 	    DAO_GroupSettings::set($team_id, DAO_GroupSettings::SETTING_AUTO_REPLY, $auto_reply);
+	    DAO_GroupSettings::set($team_id, DAO_GroupSettings::SETTING_CLOSE_REPLY_ENABLED, $close_reply_enabled);
+	    DAO_GroupSettings::set($team_id, DAO_GroupSettings::SETTING_CLOSE_REPLY, $close_reply);
 	       
         DevblocksPlatform::redirect(new DevblocksHttpResponse(array('groups',$team_id)));
 	}

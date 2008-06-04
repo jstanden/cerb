@@ -99,6 +99,24 @@
 	</div> 
 	<br>
 	
+	<h3>Close Ticket Auto-Response</h3>
+	
+	<label><input type="checkbox" name="close_reply_enabled" value="1" onclick="toggleDiv('divGroupCfgCloseReply',(this.checked)?'block':'none');" {if $group_settings.close_reply_enabled}checked{/if}> <b>Send an auto-response when a ticket in this group is closed?</b></label><br>
+	<div style="margin-top:10px;margin-left:20px;display:{if $group_settings.close_reply_enabled}block{else}none{/if};" id="divGroupCfgCloseReply">
+		<b>Send the following message:</b><br>
+		<textarea name="close_reply" rows="6" cols="76">{$group_settings.close_reply}</textarea><br>
+			E-mail Tokens: 
+			<select name="closereply_token" onchange="this.form.close_reply.value += this.options[this.selectedIndex].value;scrollElementToBottom(this.form.close_reply);this.selectedIndex=0;this.form.close_reply.focus();">
+				<option value="">-- choose --</option>
+				<optgroup label="Ticket Tokens">
+					<option value="#mask#">Reference ID</option>
+					<option value="#subject#">Subject</option>
+				</optgroup>
+			</select>
+		<br>
+	</div> 
+	<br>
+	
 	<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
 	
 	</div>

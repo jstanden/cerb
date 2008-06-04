@@ -292,6 +292,7 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		switch($event->id) {
 			case 'ticket.property.post_change':
 				$this->_handleTicketMoved($event);
+				$this->_handleTicketClosed($event);
 				break;
 
 			case 'cron.heartbeat':
@@ -351,6 +352,40 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 			unset($from_addresses);
 		}
 
+	}
+	
+	private function _handleTicketClosed($event) {
+		@$ticket_ids = $event->params['ticket_ids'];
+		@$changed_fields = $event->params['changed_fields'];
+
+		// for anything other than setting is_closed = 1, we don't need to do anything
+		if(!isset($changed_fields[DAO_Ticket::IS_CLOSED])
+		|| 1 != $changed_fields[DAO_Ticket::IS_CLOSED])
+			return;
+			
+		$group_settings = DAO_GroupSettings::getSettings();
+			
+		if(!empty($ticket_ids)) {
+			$tickets = DAO_Ticket::getTickets($ticket_ids);
+			
+			foreach($tickets as $ticket) { /* @var $ticket CerberusTicket */
+				if($group_settings[$ticket->team_id][DAO_GroupSettings::SETTING_CLOSE_REPLY_ENABLED]
+				&& !empty($group_settings[$ticket->team_id][DAO_GroupSettings::SETTING_CLOSE_REPLY])) {
+					CerberusMail::sendTicketMessage(array(
+						'ticket_id' => $ticket->id,
+						'message_id' => $ticket->first_message_id,
+						'content' => str_replace(
+							array('#mask#','#subject#'),
+							array($ticket->mask, $ticket->subject),
+							$group_settings[$ticket->team_id][DAO_GroupSettings::SETTING_CLOSE_REPLY]
+						),
+						'is_autoreply' => true,
+						'dont_keep_copy' => true
+					));
+				}
+			}
+		}
+		
 	}
 };
 ?>
