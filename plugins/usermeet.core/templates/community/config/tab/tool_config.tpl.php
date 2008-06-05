@@ -54,7 +54,7 @@ define('REMOTE_URI', '{$path}'); // NO trailing slash!
 define('URL_REWRITE', file_exists('.htaccess'));
 define('LOCAL_HOST', $_SERVER['HTTP_HOST']);
 define('LOCAL_BASE', DevblocksRouter::getLocalBase()); // NO trailing slash!
-define('SCRIPT_LAST_MODIFY', 2008041901); // last change
+define('SCRIPT_LAST_MODIFY', 2008060301); // last change
 
 @session_start();
 
@@ -77,21 +77,21 @@ class DevblocksProxy {
             header('Cache-control: max-age=86400, must-revalidate'); // 1d
             header('Expires: ' . gmdate('D, d M Y H:i:s',time()+86400) . ' GMT'); // 1d
 
-            $pathinfo = pathinfo($local_path);
-            switch($pathinfo['extension']) {
-            	case 'css':
-            		header('Content-type: text/css;');
-            		break;
-            	case 'js':
-            		header('Content-type: text/javascript;');
-            		break;
-            	case 'xml':
-            		header('Content-type: text/xml;');
-            		break;
-            	default:
-            		header('Content-type: text/html;');
-            		break;
-            }
+//            $pathinfo = pathinfo($local_path);
+//            switch($pathinfo['extension']) {
+//            	case 'css':
+//            		header('Content-type: text/css;');
+//            		break;
+//            	case 'js':
+//            		header('Content-type: text/javascript;');
+//            		break;
+//            	case 'xml':
+//            		header('Content-type: text/xml;');
+//            		break;
+//            	default:
+//            		header('Content-type: text/html;');
+//            		break;
+//            }
             
             $remote_uri = REMOTE_BASE;
         }
@@ -282,6 +282,7 @@ class DevblocksProxy_Curl extends DevblocksProxy {
         $header[] = 'DevblocksProxyBase: ' . LOCAL_BASE;
         $header[] = 'Cookie: GroupLoginPassport=' . urlencode(serialize($this->_getFingerprint())) . ';';
         $ch = curl_init();
+        $out = "";
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
         curl_setopt($ch, CURLOPT_HEADER, 0);
@@ -306,6 +307,7 @@ class DevblocksProxy_Curl extends DevblocksProxy {
         $header[] = 'DevblocksProxyBase: ' . LOCAL_BASE;
         $header[] = 'Cookie: GroupLoginPassport=' . urlencode(serialize($this->_getFingerprint())) . ';';
         $ch = curl_init();
+        $out = "";
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
         curl_setopt($ch, CURLOPT_POST, 1);
