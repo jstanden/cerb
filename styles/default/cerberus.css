@@ -64,13 +64,18 @@
     color: rgb(0, 102, 255);
     }
 
-  .headerMenu, .headerMenu a { 
+  .headerMenu { 
     background-color: rgb(240,240,240);
     color: rgb(60,60,60);
     }
 
-  #headerMenuSelected, #headerMenuSelected a, .headerUnderline { 
+  #headerMenuSelected {
+    background-image: url(bg_grad_cobalt.jpg);
+    background-repeat: repeat-x;
   	background-color: rgb(100,135,213);
+  }
+
+  #headerMenuSelected, #headerMenuSelected a, .headerUnderline {
     color: rgb(255, 255, 255);
   }
 
