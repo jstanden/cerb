@@ -39,7 +39,7 @@
 	<td align="right"><a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showOverviewFilter',null,true,'500px');">filter</a></td>
 </tr>
 <tr>
-	<td><a href="{devblocks_url}c=tickets&a=overview&all=all{/devblocks_url}">All</a></td>
+	<td><a href="{devblocks_url}c=tickets&a=overview&all=all{/devblocks_url}">list all</a> | <a href="javascript:;" onclick="{foreach from=$groups item=group key=group_id}toggleDiv('expandGroup{$group_id}','block');{/foreach}">expand</a></td>
 	<td></td>
 </tr>
 {foreach from=$groups key=group_id item=group}
@@ -47,16 +47,16 @@
 	{if !empty($counts.total)}
 		<tr>
 			<td style="padding-right:20px;" nowrap="nowrap" valign="top">
-				<a href="javascript:;" onclick="toggleDiv('expandGroup{$group_id}');" style="font-weight:bold;">{$groups.$group_id->name}</a> <span style="color:rgb(150,150,150);">({$counts.total})</span>
-				<div id="expandGroup{$group_id}" style="display:{if $filter_group_id==$group_id}block{else}none{/if};padding-left:10px;padding-bottom:0px;">
-				<a href="{devblocks_url}c=tickets&a=overview&s=group&gid={$group_id}{/devblocks_url}">- All -</a><br>
+				<a href="javascript:;" onclick="toggleDiv('expandGroup{$group_id}');" style="font-weight:bold;">{$groups.$group_id->name}</a> <span style="color:rgb(150,150,150);">({$counts.total})</span> 
+				<div id="expandGroup{$group_id}" style="display:{if $filter_group_id==$group_id}block{else}none{/if};padding-left:10px;padding-bottom:2px;padding-top:2px;">
+				{*<a href="{devblocks_url}c=tickets&a=overview&s=group&gid={$group_id}{/devblocks_url}">-All-</a> <br>*}
 				{if !empty($counts.0)}<a href="{devblocks_url}c=tickets&a=overview&s=group&gid={$group_id}&bid=0{/devblocks_url}">Inbox</a> <span style="color:rgb(150,150,150);">({$counts.0})</span><br>{/if}
 				{foreach from=$group_buckets.$group_id key=bucket_id item=b}
 					{if !empty($counts.$bucket_id)}	<a href="{devblocks_url}c=tickets&a=overview&s=group&gid={$group_id}&bid={$bucket_id}{/devblocks_url}">{$b->name}</a> <span style="color:rgb(150,150,150);"> ({$counts.$bucket_id})</span><br>{/if}
 				{/foreach}
 				</div>
 			</td>
-			<td valign="top"> &nbsp; </td>
+			<td valign="top" align="right"> <a href="{devblocks_url}c=tickets&a=overview&s=group&gid={$group_id}{/devblocks_url}" style="color:rgb(180,180,180);font-size:90%;">-all-</a> </td>
 		</tr>
 	{/if}
 {/foreach}
