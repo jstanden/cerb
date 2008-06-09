@@ -6,12 +6,13 @@ define('APP_DB_USER','');
 define('APP_DB_PASS','');
 
 //define('DEVBLOCKS_LANGUAGE','en');
-//define('DEVBLOCKS_THEME','default');
 //define('DEVBLOCKS_DEBUG',true);
 
-// Persistent Memory Caching (Cross-Thread)
-//define('DEVBLOCKS_MEMCACHE_HOST','127.0.0.1');
-//define('DEVBLOCKS_MEMCACHE_PORT','11211');
+// Memcached (high-performance shared memory cache)
+// optional, memcached 1.2.x + extension must be enabled
+// list multiple servers comma-delimited: host1:port,host2:port
+define('DEVBLOCKS_CACHE_PREFIX',''); // ONLY A-Z, a-z, 0-9 and underscore
+define('DEVBLOCKS_MEMCACHED_SERVERS','127.0.0.1:11211');
 
 // [TODO] This needs to be coming out of GUI config (system default + worker default)
 @date_default_timezone_set(date_default_timezone_get());

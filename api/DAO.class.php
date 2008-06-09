@@ -330,7 +330,7 @@ class DAO_Worker extends DevblocksORMHelper {
 		return null;		
 	}
 	
-	static function updateAgent($id, $fields) {
+	static function updateAgent($id, $fields, $flush_cache=true) {
 		$db = DevblocksPlatform::getDatabaseService();
 		$sets = array();
 		
@@ -350,8 +350,10 @@ class DAO_Worker extends DevblocksORMHelper {
 		);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
-		$cache = DevblocksPlatform::getCacheService();
-		$cache->remove(self::CACHE_ALL);
+		if($flush_cache) {
+			$cache = DevblocksPlatform::getCacheService();
+			$cache->remove(self::CACHE_ALL);
+		}
 	}
 	
 	static function deleteAgent($id) {
@@ -489,7 +491,7 @@ class DAO_Worker extends DevblocksORMHelper {
 	    DAO_Worker::updateAgent($worker_id,array(
 	        DAO_Worker::LAST_ACTIVITY_DATE => time(),
 	        DAO_Worker::LAST_ACTIVITY => serialize($activity)
-	    ));
+	    ),false);
 	}
 
     /**
@@ -5608,7 +5610,7 @@ class DAO_MailTemplate extends DevblocksORMHelper {
 class DAO_TicketComment extends DevblocksORMHelper {
 	const ID = 'id';
 	const TICKET_ID = 'ticket_id';
-	const WORKER_ID = 'worker_id';
+	const ADDRESS_ID = 'address_id';
 	const CREATED = 'created';
 	const COMMENT = 'comment';
 
@@ -5639,7 +5641,7 @@ class DAO_TicketComment extends DevblocksORMHelper {
 	static function getWhere($where=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = "SELECT id, ticket_id, worker_id, created, comment ".
+		$sql = "SELECT id, ticket_id, address_id, created, comment ".
 			"FROM ticket_comment ".
 			(!empty($where) ? sprintf("WHERE %s ",$where) : "").
 			"ORDER BY created asc";
@@ -5690,7 +5692,7 @@ class DAO_TicketComment extends DevblocksORMHelper {
 			$object = new Model_TicketComment();
 			$object->id = $rs->fields['id'];
 			$object->ticket_id = $rs->fields['ticket_id'];
-			$object->worker_id = $rs->fields['worker_id'];
+			$object->address_id = $rs->fields['address_id'];
 			$object->created = $rs->fields['created'];
 			$object->comment = $rs->fields['comment'];
 			$objects[$object->id] = $object;

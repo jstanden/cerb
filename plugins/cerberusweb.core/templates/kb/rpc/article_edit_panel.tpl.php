@@ -39,7 +39,6 @@
 
 Format:
 <label><input type="radio" name="format" value="1" {if 1==$article->format}checked{/if}> HTML</label> 
-{*<label><input type="radio" name="format" value="2" {if 2==$article->format}checked{/if}> Markdown</label>*} 
 <label><input type="radio" name="format" value="0" {if 0==$article->format}checked{/if}> Plaintext</label> 
 <br>
 <br>

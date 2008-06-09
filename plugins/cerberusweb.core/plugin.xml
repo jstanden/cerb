@@ -444,6 +444,17 @@
 			</params>
 		</extension>
 		
+		<extension point="cerberusweb.cron">
+			<id>cron.import</id>
+			<name>Importer</name>
+			<class>
+				<file>cron.classes.php</file>
+				<name>ImportCron</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
 		<!-- Task Sources -->
 		
 		<extension point="cerberusweb.task.source">

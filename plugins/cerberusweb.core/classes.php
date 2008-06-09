@@ -6030,10 +6030,6 @@ class ChKbPage extends CerberusPageExtension {
 				case 1: // HTML
 					$content_html = $content_raw;
 					break;
-				case 2: // Markdown
-					// [TODO] Markdown API
-					$content_html = $content_raw;
-					break;
 			}
 				
 			if(empty($id)) { // create
@@ -7582,9 +7578,17 @@ class ChDisplayPage extends CerberusPageExtension {
 		$comments = DAO_TicketComment::getByTicketId($ticket_id);
 		arsort($comments);
 		$tpl->assign('comments', $comments);
-		
-		$workers = DAO_Worker::getAll();
-		$tpl->assign('workers', $workers);
+
+		// Comment parent addresses
+		$comment_addresses = array();
+		foreach($comments as $comment) { /* @var $comment Model_TicketComment */
+			$address_id = intval($comment->address_id);
+			if(!isset($comment_addresses[$address_id])) {
+				$address = DAO_Address::get($address_id);
+				$comment_addresses[$address_id] = $address;
+			}
+		}
+		$tpl->assign('comment_addresses', $comment_addresses);
 		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/comments/index.tpl.php');
 	}
@@ -7593,15 +7597,24 @@ class ChDisplayPage extends CerberusPageExtension {
 		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer');
 		@$comment = DevblocksPlatform::importGPC($_REQUEST['comment'],'string','');
 		
-		@$worker_id = CerberusApplication::getActiveWorker()->id;
+		// Worker is logged in
+		if(null === ($active_worker = CerberusApplication::getActiveWorker()))
+			DevblocksPlatform::redirect(new DevblocksHttpResponse(array('display',$ticket_id)));
 		
-		if(empty($worker_id) || empty($ticket_id) || empty($comment))
+		$worker_email = $active_worker->email;
+		
+		// Worker address exists
+		if(null === ($address = DAO_Address::getByEmail($active_worker->email)))
+			DevblocksPlatform::redirect(new DevblocksHttpResponse(array('display',$ticket_id)));
+		
+		// Form was filled in
+		if(empty($ticket_id) || empty($comment))
 			DevblocksPlatform::redirect(new DevblocksHttpResponse(array('display',$ticket_id)));
 			
 		$fields = array(
 			DAO_TicketComment::CREATED => time(),
 			DAO_TicketComment::TICKET_ID => $ticket_id,
-			DAO_TicketComment::WORKER_ID => $worker_id,
+			DAO_TicketComment::ADDRESS_ID => $address->id,
 			DAO_TicketComment::COMMENT => $comment,
 		);
 		$comment_id = DAO_TicketComment::create($fields);

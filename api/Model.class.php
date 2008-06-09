@@ -2570,7 +2570,7 @@ class Model_MailTemplate {
 class Model_TicketComment {
 	public $id;
 	public $ticket_id;
-	public $worker_id;
+	public $address_id;
 	public $created;
 	public $comment;
 };

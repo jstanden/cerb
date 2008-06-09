@@ -48,7 +48,7 @@
  * 		and Joe Geck.
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-define("APP_BUILD", 611);
+define("APP_BUILD", 612);
 define("APP_MAIL_PATH", realpath(APP_PATH . '/storage/mail') . DIRECTORY_SEPARATOR);
 
 include_once(APP_PATH . "/api/DAO.class.php");
@@ -84,11 +84,6 @@ $path = APP_PATH . '/api/model/';
 // Extensions
 $path = APP_PATH . '/api/ext/';
 
-// Libs
-DevblocksPlatform::registerClasses(DEVBLOCKS_PATH . 'libs/markdown/markdown.php',array(
-	'Markdown',
-));
-
 /**
  * Application-level Facade
  */
@@ -123,10 +118,6 @@ class CerberusApplication extends DevblocksApplication {
 	}
 	
 	static function checkRequirements() {
-//		@chmod(DEVBLOCKS_PATH . 'tmp/', 0774);
-//		@chmod(DEVBLOCKS_PATH . 'tmp/templates_c/', 0774);
-//		@chmod(DEVBLOCKS_PATH . 'tmp/cache/', 0774);
-		
 		$errors = array();
 		
 		// [TODO] Add MySQL as a requirement
@@ -146,13 +137,16 @@ class CerberusApplication extends DevblocksApplication {
 			$errors[] = realpath(DEVBLOCKS_PATH . "tmp/cache/") . " is not writeable by the webserver.  Please adjust permissions and reload this page.";
 		}
 		
-//		@chmod(APP_PATH . '/storage/', 0774);
-//		@chmod(APP_PATH . '/storage/attachments/', 0774);
-//		@chmod(APP_PATH . '/storage/mail/new/', 0774);
-//		@chmod(APP_PATH . '/storage/mail/fail/', 0774);
-		
 		if(!is_writeable(APP_PATH . "/storage/")) {
 			$errors[] = realpath(APP_PATH . "/storage/") ." is not writeable by the webserver.  Please adjust permissions and reload this page.";
+		}
+		
+		if(!is_writeable(APP_PATH . "/storage/import/fail")) {
+			$errors[] = realpath(APP_PATH . "/storage/import/fail/") ." is not writeable by the webserver.  Please adjust permissions and reload this page.";
+		}
+		
+		if(!is_writeable(APP_PATH . "/storage/import/new")) {
+			$errors[] = realpath(APP_PATH . "/storage/import/new/") ." is not writeable by the webserver.  Please adjust permissions and reload this page.";
 		}
 		
 		if(!is_writeable(APP_PATH . "/storage/attachments/")) {

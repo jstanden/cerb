@@ -138,6 +138,14 @@ if(!is_writeable(APP_PATH . "/storage/")) {
 	die(realpath(APP_PATH . "/storage/") ." is not writeable by the webserver.  Please adjust permissions and reload this page.");
 }
 
+if(!is_writeable(APP_PATH . "/storage/import/fail/")) {
+	die(realpath(APP_PATH . "/storage/import/fail/") ." is not writeable by the webserver.  Please adjust permissions and reload this page.");
+}
+
+if(!is_writeable(APP_PATH . "/storage/import/new/")) {
+	die(realpath(APP_PATH . "/storage/import/new/") ." is not writeable by the webserver.  Please adjust permissions and reload this page.");
+}
+
 if(!is_writeable(APP_PATH . "/storage/attachments/")) {
 	die(realpath(APP_PATH . "/storage/attachments/") ." is not writeable by the webserver.  Please adjust permissions and reload this page.");
 }

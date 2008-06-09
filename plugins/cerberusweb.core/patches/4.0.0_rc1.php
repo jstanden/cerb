@@ -293,6 +293,36 @@ if(!isset($indexes['ticket_id'])) {
 	$datadict->ExecuteSQLArray($sql);
 }
 
+if(!isset($columns['ADDRESS_ID'])) {
+    $sql = $datadict->AddColumnSQL('ticket_comment', "address_id I4 DEFAULT 0 NOTNULL");
+    $datadict->ExecuteSQLArray($sql);
+	
+	$sql = $datadict->CreateIndexSQL('address_id','ticket_comment','address_id');
+	$datadict->ExecuteSQLArray($sql);
+}
+
+if(isset($columns['WORKER_ID'])) {
+	// Convert worker_id to address_id
+	$sql = "SELECT w.id, a.id AS address_id FROM worker w INNER JOIN address a ON (w.email=a.email)";
+	$rs = $db->Execute($sql);
+	
+	while(!$rs->EOF) {
+		$worker_id = intval($rs->fields['id']);
+		$address_id = intval($rs->fields['address_id']);
+		
+		$db->Execute(sprintf("UPDATE ticket_comment SET address_id = %d WHERE worker_id = %d AND address_id = 0",
+			$address_id,
+			$worker_id
+		));
+		
+		$rs->MoveNext();
+	}
+	
+	$sql = $datadict->DropColumnSQL('ticket_comment','worker_id');
+	$datadict->ExecuteSQLArray($sql);
+}
+
+
 // `ticket_field` ========================
 $columns = $datadict->MetaColumns('ticket_field');
 $indexes = $datadict->MetaIndexes('ticket_field',false);
@@ -309,6 +339,16 @@ $indexes = $datadict->MetaIndexes('worker',false);
 if(!isset($indexes['pos'])) {
 	$sql = $datadict->CreateIndexSQL('last_activity_date','worker','last_activity_date');
 	$datadict->ExecuteSQLArray($sql);
+}
+
+// Configure import cron
+if(null != ($cron_mf = DevblocksPlatform::getExtension('cron.import'))) {
+	if(null != ($cron = $cron_mf->createInstance())) {
+		$cron->setParam(CerberusCronPageExtension::PARAM_ENABLED, false);
+		$cron->setParam(CerberusCronPageExtension::PARAM_DURATION, '0');
+		$cron->setParam(CerberusCronPageExtension::PARAM_TERM, 'm');
+		$cron->setParam(CerberusCronPageExtension::PARAM_LASTRUN, strtotime('Yesterday'));
+	}
 }
 
 return TRUE;
