@@ -1092,20 +1092,22 @@ class UmKbApp extends Extension_UsermeetTool {
 				$tpl->assign('mid', @intval(ceil(count($tree_map[$root])/2)));
 				
 				// Articles
+				$articles = array();
 				
-				if(!empty($root))
-				list($articles, $count) = DAO_KbArticle::search(
-					array(
-						new DevblocksSearchCriteria(SearchFields_KbArticle::CATEGORY_ID,'=',$root),
-						new DevblocksSearchCriteria(SearchFields_KbArticle::TOP_CATEGORY_ID,'in',array_keys($kb_roots))
-					),
-					-1,
-					0,
-					null,
-					null,
-					false
-				);
-	    		$tpl->assign('articles', $articles);
+				if(!empty($root)) {
+					list($articles, $count) = DAO_KbArticle::search(
+						array(
+							new DevblocksSearchCriteria(SearchFields_KbArticle::CATEGORY_ID,'=',$root),
+							new DevblocksSearchCriteria(SearchFields_KbArticle::TOP_CATEGORY_ID,'in',array_keys($kb_roots))
+						),
+						-1,
+						0,
+						null,
+						null,
+						false
+					);
+		    		$tpl->assign('articles', $articles);
+				}
 	    		
    				$tpl->display('file:' . dirname(__FILE__) . '/templates/portal/kb/index.tpl.php');
 		    	break;
