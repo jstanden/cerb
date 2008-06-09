@@ -38,19 +38,6 @@
 	<td><h2>Available</h2></td>
 	<td align="right"><a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showOverviewFilter',null,true,'500px');">filter</a></td>
 </tr>
-<tr>
-	<td>
-		<div style="display:none;visibility:hidden;">
-			<button id="btnOverviewListAll" onclick="document.location='{devblocks_url}c=tickets&a=overview&all=all{/devblocks_url}';"></button>
-			<button id="btnOverviewExpand" onclick="{foreach from=$groups item=group key=group_id}toggleDiv('expandGroup{$group_id}','block');{/foreach}"></button>
-		</div>
-		<div> 
-			(<b>a</b>) <a href="javascript:;" onclick="document.getElementById('btnOverviewListAll').click();">all groups</a>,
-			(<b>e</b>) <a href="javascript:;" onclick="document.getElementById('btnOverviewExpand').click();">expand list</a>
-		</div>
-	</td>
-	<td></td>
-</tr>
 {foreach from=$groups key=group_id item=group}
 	{assign var=counts value=$group_counts.$group_id}
 	{if !empty($counts.total)}
@@ -69,6 +56,19 @@
 		</tr>
 	{/if}
 {/foreach}
+<tr>
+	<td>
+		<div style="display:none;visibility:hidden;">
+			<button id="btnOverviewListAll" onclick="document.location='{devblocks_url}c=tickets&a=overview&all=all{/devblocks_url}';"></button>
+			<button id="btnOverviewExpand" onclick="{foreach from=$groups item=group key=group_id}toggleDiv('expandGroup{$group_id}','block');{/foreach}"></button>
+		</div>
+		<div> 
+			(<b>a</b>) <a href="javascript:;" onclick="document.getElementById('btnOverviewListAll').click();">all groups</a>,
+			(<b>e</b>) <a href="javascript:;" onclick="document.getElementById('btnOverviewExpand').click();">expand list</a>
+		</div>
+	</td>
+	<td></td>
+</tr>
 </table>
 </div>
 <br>
