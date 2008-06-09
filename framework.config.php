@@ -11,8 +11,8 @@ define('APP_DB_PASS','');
 // Memcached (high-performance shared memory cache)
 // optional, memcached 1.2.x + extension must be enabled
 // list multiple servers comma-delimited: host1:port,host2:port
-define('DEVBLOCKS_CACHE_PREFIX',''); // ONLY A-Z, a-z, 0-9 and underscore
-define('DEVBLOCKS_MEMCACHED_SERVERS','127.0.0.1:11211');
+//define('DEVBLOCKS_CACHE_PREFIX',''); // ONLY A-Z, a-z, 0-9 and underscore
+//define('DEVBLOCKS_MEMCACHED_SERVERS','127.0.0.1:11211');
 
 // [TODO] This needs to be coming out of GUI config (system default + worker default)
 @date_default_timezone_set(date_default_timezone_get());
