@@ -54,6 +54,12 @@ CreateKeyHandler(function doShortcuts(e) {
 	var mykey = getKeyboardKey(e);
 	
 	switch(mykey) {
+		case "a":  // list all
+		case "A":
+			try {
+				document.getElementById('btnOverviewListAll').click();
+			} catch(e){}
+			break;
 		case "b":  // bulk update
 		case "B":
 			try {
@@ -64,6 +70,12 @@ CreateKeyHandler(function doShortcuts(e) {
 		case "C":
 			try {
 				document.getElementById('btnoverview_allClose').click();
+			} catch(e){}
+			break;
+		case "e":  // expand all
+		case "E":
+			try {
+				document.getElementById('btnOverviewExpand').click();
 			} catch(e){}
 			break;
 		case "s":  // spam
