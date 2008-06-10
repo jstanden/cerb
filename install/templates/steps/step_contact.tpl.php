@@ -32,20 +32,20 @@ team may override their sender information (e.g., sales@yourcompany,
 support@yourcompany, marketing@yourcompany).<br>
 <br>
 The sender <b>absolutely must</b> be an e-mail address that routes back into 
-the helpdesk so replies are properly collected.<br>
+the helpdesk (by POP3, for example) so replies to your messages are properly 
+received.<br>
 <br>
 
-<b>What should the default "From:" address be?</b><br>
-<input type="text" name="default_reply_from" value="{$default_reply_from}" size="64"><br>
+<b>What e-mail address should be the default sender for outgoing e-mail?</b><br>
+<input type="text" name="default_reply_from" value="{$default_reply_from}" size="64">
+(e.g. support@yourcompany.com)
+<br>
 <br>
 
-The sender of an e-mail message may also contain a friendly name along with 
-the e-mail address, such as <i>"Acme Widgets Support Team"</i>.  This is 
-optional and you may leave it blank.<br>
+<b>Would you like to use a personalized sender name for outgoing e-mail?</b> (optional)<br>
+<input type="text" name="default_reply_personal" value="{$default_reply_personal}" size="64">
+(e.g. "Acme Widgets Helpdesk")
 <br>
-
-<b>How would you like to identify your helpdesk default sender?</b><br>
-<input type="text" name="default_reply_personal" value="{$default_reply_personal}" size="64"><br>
 <br>
 
 <input type="submit" value="Continue &gt;&gt;">

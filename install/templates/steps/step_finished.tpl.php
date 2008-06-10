@@ -10,7 +10,7 @@
 
 <H3>Welcome to the Cerberus Helpdesk community!</H3>
 
-Cerberus Helpdesk 4.0 is the culmination of over 5 years of R&D to 
+Cerberus Helpdesk 4.0 is the culmination of over 5 years of R&amp;D to
 improve team-based webmail.  As with any such innovation, there may be some 
 concepts introduced that are completely new to you and your team.  This is 
 especially likely if you are migrating away from desktop e-mail programs to the 
@@ -20,6 +20,10 @@ The best place to become familiar with the concepts used in Cerberus Helpdesk
 is the <a href="http://wiki.cerberusdemo.com/index.php/Main_Page" target="_blank">online documentation</a>. 
 This area is dedicated to creating and maintaining tutorials, feature guides and best practices.<br>
 <br>
+
+<div class="error">
+	You should delete the 'install' directory now.
+</div>
 
 <!-- 
 Here is a collection of useful links to help get you started:<br>

@@ -91,15 +91,16 @@ define('STEP_SAVE_CONFIG_FILE', 4);
 define('STEP_INIT_DB', 5);
 define('STEP_CONTACT', 6);
 define('STEP_OUTGOING_MAIL', 7);
-define('STEP_INCOMING_MAIL', 8);
-define('STEP_WORKFLOW', 9);
-define('STEP_CATCHALL', 10);
+define('STEP_DEFAULTS', 8);
+//define('STEP_INCOMING_MAIL', 7);
+//define('STEP_WORKFLOW', 8);
+//define('STEP_CATCHALL', 9);
 //define('STEP_ANTISPAM', x);
-define('STEP_REGISTER', 11);
-define('STEP_UPGRADE', 12);
-define('STEP_FINISHED', 13);
+define('STEP_REGISTER', 9);
+define('STEP_UPGRADE', 10);
+define('STEP_FINISHED', 11);
 
-define('TOTAL_STEPS', 13);
+define('TOTAL_STEPS', 11);
 
 // Import GPC variables to determine our scope/step.
 @$step = DevblocksPlatform::importGPC($_REQUEST['step'],'integer');
@@ -487,6 +488,7 @@ switch($step) {
 					switch ($plugin_manifest->id) {
 						case "cerberusweb.core":
 						case "cerberusweb.simulator":
+						case "cerberusweb.watchers":
 						case "usermeet.core":
 							$plugin_manifest->setEnabled(true);
 							break;
@@ -613,7 +615,7 @@ switch($step) {
 				if(!empty($smtp_enc))
 					$settings->set(CerberusSettings::SMTP_ENCRYPTION_TYPE, $smtp_enc);
 				
-				$tpl->assign('step', STEP_INCOMING_MAIL);
+				$tpl->assign('step', STEP_DEFAULTS);
 				$tpl->display('steps/redirect.tpl.php');
 				exit;
 				
@@ -639,251 +641,204 @@ switch($step) {
 		
 		break;
 
-	// Set up a POP3/IMAP mailbox
-	case STEP_INCOMING_MAIL:
-		@$imap_service = DevblocksPlatform::importGPC($_POST['imap_service'],'string');
-		@$imap_host = DevblocksPlatform::importGPC($_POST['imap_host'],'string');
-		@$imap_user = DevblocksPlatform::importGPC($_POST['imap_user'],'string');
-		@$imap_pass = DevblocksPlatform::importGPC($_POST['imap_pass'],'string');
-		@$imap_port = DevblocksPlatform::importGPC($_POST['imap_port'],'integer');
+	// Set up the default objects
+	case STEP_DEFAULTS:
 		@$form_submit = DevblocksPlatform::importGPC($_POST['form_submit'],'integer');
+		@$worker_email = DevblocksPlatform::importGPC($_POST['worker_email'],'string');
+		@$worker_pass = DevblocksPlatform::importGPC($_POST['worker_pass'],'string');
+		@$worker_pass2 = DevblocksPlatform::importGPC($_POST['worker_pass2'],'string');
 
-		// Allow skip by submitting a blank form
-		// Skip if we already have a pop3 box defined.
-		$accounts = DAO_Mail::getPop3Accounts();
-		$skip = (!empty($form_submit) && empty($imap_host) && empty($imap_user)) ? true : false; 
-		if($skip OR !empty($accounts)) {
-			$tpl->assign('step', STEP_WORKFLOW);
-			$tpl->display('steps/redirect.tpl.php');
-			exit;
-		}
+		$settings = CerberusSettings::getInstance();
 		
 		if(!empty($form_submit)) {
-			$mail = DevblocksPlatform::getMailService();
-
-			// Test mailbox
-			if($mail->testImap($imap_host,$imap_port,$imap_service,$imap_user,$imap_pass)) { // Success!
-				// [TODO] Check to make sure the details aren't duplicate
-	            // [TODO] Set protocol
-
-                $fields = array(
-				    'enabled' => 1,
-					'nickname' => 'POP3',
-					'protocol' => $imap_service,
-					'host' => $imap_host,
-					'username' => $imap_user,
-					'password' => $imap_pass,
-					'port' => $imap_port
-				);
-			    $id = DAO_Mail::createPop3Account($fields);
-				
-				$tpl->assign('step', STEP_WORKFLOW);
-				$tpl->display('steps/redirect.tpl.php');
-				exit;
-				
-			} else { // Failed
-				$tpl->assign('imap_service', $imap_service);
-				$tpl->assign('imap_host', $imap_host);
-				$tpl->assign('imap_user', $imap_user);
-				$tpl->assign('imap_pass', $imap_pass);
-				$tpl->assign('imap_port', $imap_port);
-				
-				$tpl->assign('failed', true);
-				$tpl->assign('error_msgs', $mail->getErrors());
-				$tpl->assign('template', 'steps/step_incoming_mail.tpl.php');
-			}
+			// Persist form scope
+			$tpl->assign('worker_email', $worker_email);
+			$tpl->assign('worker_pass', $worker_pass);
+			$tpl->assign('worker_pass2', $worker_pass2);
 			
-		} else { // defaults
-			$tpl->assign('imap_port', 110);
-		}
-		
-		$tpl->assign('template', 'steps/step_incoming_mail.tpl.php');
-		
-		break;
-		
-	// Create initial workers, mailboxes, teams
-	case STEP_WORKFLOW:
-		@$form_submit = DevblocksPlatform::importGPC($_POST['form_submit'],'integer');
-		$settings = CerberusSettings::getInstance();
-
-		// Catch the submit
-		switch($form_submit) {
-			case 1: // names form submit
-				@$workers = DevblocksPlatform::importGPC($_POST['worker'],'array',array());
-				@$teams_str = DevblocksPlatform::importGPC($_POST['teams'],'string','');
-				
-				$worker_ids = array();
-				$team_ids = array();
-
-				// Clear any empties
-				foreach($workers as $idx => $w) {
-					if(empty($w))
-						unset($workers[$idx]);
-				}
-				
-				$teams = DevblocksPlatform::parseCrlfString($teams_str);
-				
-				if(empty($workers) || empty($teams)) {
-					$tpl->assign('failed', true);
-					$tpl->assign('workers', $workers);
-					$tpl->assign('teams_str', $teams_str);
-					$tpl->assign('template', 'steps/step_workflow.tpl.php');
-					break;
-				}
-				
-				// Create worker records
-				foreach($workers as $worker_email) {
-					if(empty($worker_email)) continue;
-					$id = DAO_Worker::create($worker_email,'new','First','Last','');
-					$worker_ids[$id] = $worker_email;
+			// Sanity/Error checking
+			if(!empty($worker_email) && !empty($worker_pass) && $worker_pass == $worker_pass2) {
+				// If we have no groups, make a Dispatch group
+				$groups = DAO_Group::getAll(true);
+				if(empty($groups)) {
+					// Dispatch Group
+					$dispatch_gid = DAO_Group::createTeam(array(
+						DAO_Group::TEAM_NAME => 'Dispatch',
+					));
 					
-					if(null == DAO_AddressToWorker::getByAddress($worker_email)) {
-						DAO_AddressToWorker::assign($worker_email, $id);
-						DAO_AddressToWorker::update($worker_email, array(
-							DAO_AddressToWorker::IS_CONFIRMED => 1
-						));
-					}
+					// Dispatch Spam Bucket
+					$dispatch_spam_bid = DAO_Bucket::create('Spam', $dispatch_gid);
+					DAO_GroupSettings::set($dispatch_gid,DAO_GroupSettings::SETTING_SPAM_ACTION,'2');
+					DAO_GroupSettings::set($dispatch_gid,DAO_GroupSettings::SETTING_SPAM_ACTION_PARAM,$dispatch_spam_bid);
+					DAO_GroupSettings::set($dispatch_gid,DAO_GroupSettings::SETTING_SPAM_THRESHOLD,'85');
+					
+					// Support Group
+					$support_gid = DAO_Group::createTeam(array(
+						DAO_Group::TEAM_NAME => 'Support',
+					));
+
+					// Support Spam Bucket
+					$support_spam_bid = DAO_Bucket::create('Spam', $support_gid);
+					DAO_GroupSettings::set($support_gid,DAO_GroupSettings::SETTING_SPAM_ACTION,'2');
+					DAO_GroupSettings::set($support_gid,DAO_GroupSettings::SETTING_SPAM_ACTION_PARAM,$support_spam_bid);
+					DAO_GroupSettings::set($support_gid,DAO_GroupSettings::SETTING_SPAM_THRESHOLD,'85');
+					
+					// Sales Group
+					$sales_gid = DAO_Group::createTeam(array(
+						DAO_Group::TEAM_NAME => 'Sales',
+					));
+					
+					// Sales Spam Bucket
+					$sales_spam_bid = DAO_Bucket::create('Spam', $sales_gid);
+					DAO_GroupSettings::set($sales_gid,DAO_GroupSettings::SETTING_SPAM_ACTION,'2');
+					DAO_GroupSettings::set($sales_gid,DAO_GroupSettings::SETTING_SPAM_ACTION_PARAM,$sales_spam_bid);
+					DAO_GroupSettings::set($sales_gid,DAO_GroupSettings::SETTING_SPAM_THRESHOLD,'85');
+					
+					// Default catchall
+					$settings->set(CerberusSettings::DEFAULT_TEAM_ID,$dispatch_gid);
 				}
 				
-				// Create team records
-				if(is_array($teams))
-				foreach($teams as $team_name) {
-					if(empty($team_name)) continue;
-					$fields = array(
-						DAO_Group::TEAM_NAME => $team_name
+				// If this worker doesn't exist, create them
+				if(null === ($lookup = DAO_Worker::lookupAgentEmail($worker_email))) {
+					$worker_id = DAO_Worker::create(
+						$worker_email, // email
+						$worker_pass, // pass
+						'Super', // first
+						'User', // last
+						'Administrator' // title
 					);
-					$id = DAO_Group::createTeam($fields);
-					$team_ids[$id] = $team_name;
-				}
-				
-				$tpl->assign('worker_ids', $worker_ids);
-				$tpl->assign('team_ids', $team_ids);
-				$tpl->assign('default_reply_from', $settings->get(CerberusSettings::DEFAULT_REPLY_FROM));
-				$tpl->assign('template', 'steps/step_workflow2.tpl.php');
-				break;
-				
-			case 2: // detailed form submit
-				@$worker_ids = DevblocksPlatform::importGPC($_POST['worker_ids'],'array');
-				@$worker_first = DevblocksPlatform::importGPC($_POST['worker_first'],'array');
-				@$worker_last = DevblocksPlatform::importGPC($_POST['worker_last'],'array');
-				@$worker_title = DevblocksPlatform::importGPC($_POST['worker_title'],'array');
-				@$worker_superuser = DevblocksPlatform::importGPC($_POST['worker_superuser'],'array');
-				@$worker_pw = DevblocksPlatform::importGPC($_POST['worker_pw'],'array');
-				@$team_ids = DevblocksPlatform::importGPC($_POST['team_ids'],'array');
-
-				$replyFrom = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM);
-				$replyPersonal = $settings->get(CerberusSettings::DEFAULT_REPLY_PERSONAL, '');
-				$url = DevblocksPlatform::getUrlService();
-				
-				// Worker Details
-				if(is_array($worker_ids))
-				foreach($worker_ids as $idx => $worker_id) {
-				    $worker = DAO_Worker::getAgent($worker_id);
-					$worker_email_parts = explode('@', $worker->email);
-					
-					@$sFirst = !empty($worker_first[$idx]) ? $worker_first[$idx] : ucwords($worker_email_parts[0]);
-					@$sLast = !empty($worker_last[$idx]) ? $worker_last[$idx] : '';
-					@$sPassword = !empty($worker_pw[$idx]) ? $worker_pw[$idx] : '';
-					
-				    if(empty($sPassword)) {
-				    	$sPassword = CerberusApplication::generatePassword(8);
-				    	
-				    	try {
-					        $mail_service = DevblocksPlatform::getMailService();
-					        $mailer = $mail_service->getMailer();
-					        $mail = $mail_service->createMessage();
-					        
-					        $sendTo = new Swift_Address($worker->email, $sFirst . ' ' . $sLast);
-					        $sendFrom = new Swift_Address($replyFrom, $replyPersonal);
-					        
-					        $mail->setSubject('Your new helpdesk login information!');
-					        $mail->generateId();
-					        $mail->headers->set('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
-					        
-						    $body = sprintf("Your new helpdesk login information is below:\r\n".
-								"\r\n".
-						        "URL: %s\r\n".
-						        "Login: %s\r\n".
-						        "Password: %s\r\n".
-						        "\r\n".
-						        "You should change your password from Preferences after logging in for the first time.\r\n".
-						        "\r\n",
-							        $url->write('',true),
-							        $worker->email,
-							        $sPassword
-						    );
-					        
-						    $mail->attach(new Swift_Message_Part($body, 'text/plain', 'base64', 'ISO-8859-1'));
 	
-							if(!$mailer->send($mail, $sendTo, $sendFrom)) {
-								throw new Exception('Failed to send email with worker password.');
-							}
-				    	} catch (Exception $e) {
-				    		// [TODO] need to do something productive with this error condition.
-				    	}
-				    }
-				    
+					// Superuser bit
 					$fields = array(
-						DAO_Worker::FIRST_NAME => $sFirst,
-						DAO_Worker::LAST_NAME => $sLast,
-						DAO_Worker::TITLE => $worker_title[$idx],
-						DAO_Worker::PASSWORD => md5($sPassword),
-						DAO_Worker::IS_SUPERUSER => (in_array($worker_id,$worker_superuser) ? 1 : 0)
+						DAO_Worker::IS_SUPERUSER => 1, 
 					);
 					DAO_Worker::updateAgent($worker_id, $fields);
-				}
-				
-				// Team Details
-				if(is_array($team_ids))
-				foreach($team_ids as $idx => $team_id) {
-					@$team_members = DevblocksPlatform::importGPC($_POST['team_members_'.$team_id],'array');
 					
-					// Team Members
-					if(is_array($team_members))
-					foreach($team_members as $team_member_id) {
-						DAO_Group::setTeamMember($team_id, $team_member_id, false);
-					}
+					// Authorize this e-mail address (watchers, etc.)
+					DAO_AddressToWorker::assign($worker_email, $worker_id);
+					DAO_AddressToWorker::update($worker_email, array(
+						DAO_AddressToWorker::IS_CONFIRMED => 1
+					));					
+					
+					// Default group memberships
+					if(!empty($dispatch_gid))
+						DAO_Group::setTeamMember($dispatch_gid,$worker_id,true);			
+					if(!empty($support_gid))
+						DAO_Group::setTeamMember($support_gid,$worker_id,true);			
+					if(!empty($sales_gid))
+						DAO_Group::setTeamMember($sales_gid,$worker_id,true);			
 				}
 				
-				$tpl->assign('step', STEP_CATCHALL);
+				// Send a first ticket which allows people to reply for support
+				if(null !== ($default_from = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM,''))) {
+					$message = new CerberusParserMessage();
+						$message->headers['from'] = '"WebGroup Media, LLC." <support@webgroupmedia.com>';
+						$message->headers['to'] = $default_from;
+						$message->headers['subject'] = "Welcome to Cerberus Helpdesk 4.0!";
+						$message->headers['date'] = date('r');
+						$message->headers['message-id'] = CerberusApplication::generateMessageId();
+						$message->body = <<< EOF
+Welcome to Cerberus Helpdesk 4.0!
+
+We automatically set up a few things for you during the installation process.
+
+You'll notice you have three groups:
+* Dispatch: All your mail will be delivered to this group by default.
+* Support: This is a group for holding tickets related to customer service.
+* Sales: This is a group for holding tickets relates to sales.
+
+If these default groups don't meet your needs, feel free to change them by clicking 'Helpdesk Setup' in the top-right and selecting the 'Groups' tab.
+
+We also set up a 'Spam' bucket inside each group to start quarantining junk mail.  Your helpdesk's spam training functionality is adaptive and will become increasingly accurate as you use your helpdesk.
+
+If you have any questions about your new helpdesk, simply reply to this message.  Our response will show up on this page as a new message.
+
+---
+The Cerb4 Team
+WebGroup Media, LLC.
+http://www.cerberusweb.com/
+EOF;
+					CerberusParser::parseMessage($message);
+				}
+				
+				$tpl->assign('step', STEP_REGISTER);
 				$tpl->display('steps/redirect.tpl.php');
 				exit;
 				
-				break;
+			} else {
+				$tpl->assign('failed', true);
 				
-			default: // first time
-				$tpl->assign('teams_str', "Dispatch\n");
-				$tpl->assign('template', 'steps/step_workflow.tpl.php');
-				break;
+			}
+			
+		} else {
+			// Defaults
+			
 		}
 		
-		break;
-
-	case STEP_CATCHALL:
-		@$form_submit = DevblocksPlatform::importGPC($_POST['form_submit'],'integer');
-		
-		if(!empty($form_submit)) {
-			@$default_team_id = DevblocksPlatform::importGPC($_POST['default_team_id'],'integer');
-			
-			$settings = CerberusSettings::getInstance();
-			$settings->set(CerberusSettings::DEFAULT_TEAM_ID,$default_team_id);
-			
-			$tpl->assign('step', STEP_REGISTER);
-			$tpl->display('steps/redirect.tpl.php');
-			exit;
-		}
-		
-		$teams = DAO_Group::getAll();
-		$tpl->assign('teams', $teams);
-		
-		$tpl->assign('template', 'steps/step_catchall.tpl.php');
+		$tpl->assign('template', 'steps/step_defaults.tpl.php');
 		
 		break;
 		
 	case STEP_REGISTER:
 		@$form_submit = DevblocksPlatform::importGPC($_POST['form_submit'],'integer');
+		@$skip = DevblocksPlatform::importGPC($_POST['skip'],'integer',0);
 		
 		if(!empty($form_submit)) {
+			if(empty($skip)) {
+				$settings = CerberusSettings::getInstance();
+				@$default_from = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM,'');
+				
+				@$contact_name = str_replace(array("\r","\n"),'',stripslashes($_REQUEST['contact_name']));
+				@$contact_company = stripslashes($_REQUEST['contact_company']);
+				@$contact_phone = stripslashes($_REQUEST['contact_phone']);
+				@$q1 = stripslashes($_REQUEST['q1']);
+				@$q2 = stripslashes($_REQUEST['q2']);
+				@$q3 = stripslashes($_REQUEST['q3']);
+				@$q4 = stripslashes($_REQUEST['q4']);
+				@$q5_support = stripslashes($_REQUEST['q5_support']);
+				@$q5_opensource = stripslashes($_REQUEST['q5_opensource']);
+				@$q5_price = stripslashes($_REQUEST['q5_price']);
+				@$q5_updates = stripslashes($_REQUEST['q5_updates']);
+				@$q5_developers = stripslashes($_REQUEST['q5_developers']);
+				@$q5_community = stripslashes($_REQUEST['q5_community']);
+				@$comments = stripslashes($_REQUEST['comments']);
+				
+				if(isset($_REQUEST['form_submit'])) {
+				  $msg = sprintf(
+				    "Contact Name: %s\r\n".
+				    "Organization: %s\r\n".
+				    "Phone: %s\r\n".
+				    "\r\n".
+				    "#1: Briefly, what does your organization do?\r\n%s\r\n\r\n".
+				    "#2: How is your team currently handling e-mail management?\r\n%s\r\n\r\n".
+				    "#3: Are you considering both free and commercial solutions?\r\n%s\r\n\r\n".
+				    "#4: What will be your first important milestone?\r\n%s\r\n\r\n".
+				    "#5: How important are the following benefits in making your decision?\r\n".
+				    "Near-Instant Support: %d\r\nAvailable Source Code: %d\r\nCompetitive Purchase Price: %d\r\n".
+				    "Frequent Product Updates: %d\r\nAccess to Developers: %d\r\nLarge User Community: %d\r\n".
+				    "\r\n".
+				    "Additional Comments: \r\n%s\r\n\r\n"
+				    ,
+				    $contact_name,
+				    $contact_company,
+				    $contact_phone,
+				    $q1,
+				    $q2,
+				    $q3,
+				    $q4,
+				    $q5_support,
+				    $q5_opensource,
+				    $q5_price,
+				    $q5_updates,
+				    $q5_developers,
+				    $q5_community,
+				    $comments
+				  );
+
+				  CerberusMail::quickSend('aboutme@cerberusweb.com',"About: $contact_name of $contact_company",$msg);
+				}
+			}
+			
 			$tpl->assign('step', STEP_FINISHED);
 			$tpl->display('steps/redirect.tpl.php');
 			exit;
