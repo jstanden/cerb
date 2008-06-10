@@ -7635,7 +7635,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		$worker_email = $active_worker->email;
 		
 		// Worker address exists
-		if(null === ($address = DAO_Address::getByEmail($active_worker->email)))
+		if(null === ($address = CerberusApplication::hashLookupAddress($active_worker->email,true)))
 			DevblocksPlatform::redirect(new DevblocksHttpResponse(array('display',$ticket_id)));
 		
 		// Form was filled in
