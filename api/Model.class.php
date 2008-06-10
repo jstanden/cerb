@@ -2573,6 +2573,10 @@ class Model_TicketComment {
 	public $address_id;
 	public $created;
 	public $comment;
+	
+	public function getAddress() {
+		return DAO_Address::get($this->address_id);
+	}
 };
 
 class Model_TicketField {

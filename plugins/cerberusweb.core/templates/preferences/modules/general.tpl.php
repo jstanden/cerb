@@ -19,10 +19,6 @@
 </table>
 <br>
 
-<b>Assist Mode:</b><br>
-<label><input type="checkbox" name="assist_mode" value="1" {if $assist_mode eq 1}checked{/if}> Enable Helpdesk Assistant</label><br>
-<br>
-
 <h2>E-mail Addresses</h2>
 These addresses will be associated with your helpdesk account.<br>
 <br>
@@ -55,6 +51,18 @@ These addresses will be associated with your helpdesk account.<br>
 <br>
 <b>Add e-mail address:</b> <input type="text" name="new_email" size="45" value=""><br>
 <br>
+
+<h2>Preferences</h2>
+<br>
+
+<b>Assist Mode:</b><br>
+<label><input type="checkbox" name="assist_mode" value="1" {if $assist_mode eq 1}checked{/if}> Enabled</label><br>
+<br>
+
+<b>Mail:</b><br>
+<label><input type="checkbox" name="mail_inline_comments" value="1" {if $mail_inline_comments}checked{/if}> Show comments in the conversation history</label><br>
+<br>
+
 
 <!-- 
 <b>Timezone:</b><br>

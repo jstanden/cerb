@@ -5,7 +5,7 @@
 <div class="block" style="width:98%;margin:10px;">
 <table cellpadding="2" cellspacing="0" border="0" width="100%">
 	<tr>
-		<td><h2>Add Note</h2></td>
+		<td><h2>Add Sticky Note</h2></td>
 	</tr>
 	<tr>
 		<td><b>Author:</b> {$worker->getName()}</td>

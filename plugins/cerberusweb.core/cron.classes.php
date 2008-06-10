@@ -376,7 +376,7 @@ class ImportCron extends CerberusCronPageExtension {
 	private function _handleImportComment($xml) {
 		$mask = (string) $xml->mask;
 		$author_email = (string) $xml->author_email;
-		$note = (string) $xml->note;
+		$note = trim((string) $xml->note);
 		$created = intval((string) $xml->created_date);
 
 		$author_address = CerberusApplication::hashLookupAddress($author_email,true);

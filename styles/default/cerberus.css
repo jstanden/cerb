@@ -189,22 +189,19 @@
     font-size: 11px;
     }
 
-DIV.note { 
-	border: 1px solid rgb(255, 153, 0);
+DIV.message_note { 
+	padding: 5px;
 	background-image: url(bg_yellow.jpg);
 	background-position: left top;
 	background-repeat: repeat-x;
 	background-color: rgb(252, 242, 191);
-	margin: 10px;
-	padding: 5px;
+	border: 1px solid rgb(255, 153, 0);
 }
 
-DIV.note H2 {
-  	font-weight: bold;
-    font-family: Arial,Helvetica,sans-serif;
-    font-size: 18px;
-	margin:0px;
-	color: rgb(0,150,0);
+DIV.ticket_comment {
+	padding:5px;
+	background-color: rgb(255,255,255);
+	border:1px solid rgb(70,150,241);
 }
 
 DIV.block {

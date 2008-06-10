@@ -8,10 +8,12 @@
       	<tr>
       		<td>
       			{if isset($headers.from)}
+      				{assign var=is_outgoing value=$message->worker_id}
+      				<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/{if $is_outgoing}export2.png{else}import1.png{/if}{/devblocks_url}" align="top">
       				{if $expanded}
-      					<h3 style="display:inline;color:rgb(50,120,50);">From: {$headers.from|escape:"htmlall"|nl2br}</h3>
+      					<h3 style="display:inline;color:rgb(50,120,50);">{if $is_outgoing}[outbound]{else}[inbound]{/if} From: {$headers.from|escape:"htmlall"|nl2br}</h3>
       				{else}
-      					<b style="color:rgb(50,120,50);">From: {$headers.from|escape:"htmlall"|nl2br}</b>
+      					<b style="color:rgb(50,120,50);">{if $is_outgoing}[outbound]{else}[inbound]{/if} From: {$headers.from|escape:"htmlall"|nl2br}</b>
       				{/if}
       				<a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&address_id={$message->address_id}', this, false, '500px',ajax.cbAddressPeek);">address book</a>
       				
@@ -66,9 +68,10 @@
 	      	<table width="100%" cellpadding="0" cellspacing="0" border="0">
 	      		<tr>
 	      			<td align="left" id="{$message->id}act">
-				      	<button {if $smarty.foreach.messages.first}id="btnReplyFirst"{/if} type="button" onclick="displayAjax.reply('{$message->id}',0);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/message_edit.gif{/devblocks_url}" align="top"> Reply</button>
-				      	<button type="button" onclick="displayAjax.reply('{$message->id}',1);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/mail_forward.gif{/devblocks_url}" align="top"> Forward</button>
-				      	<button type="button" onclick="displayAjax.addNote('{$message->id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/note_edit.gif{/devblocks_url}" align="top"> Add Note</button>
+				      	<button {if $latest_message_id==$message->id}id="btnReplyFirst"{/if} type="button" onclick="displayAjax.reply('{$message->id}',0);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/export2.png{/devblocks_url}" align="top"> Reply</button>
+				      	<button type="button" onclick="displayAjax.reply('{$message->id}',1);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_out.png{/devblocks_url}" align="top"> Forward</button>
+				      	{*<button type="button" onclick="displayAjax.addComment('{$message->id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_plain.png{/devblocks_url}" align="top"> Comment</button>*}
+				      	<button type="button" onclick="displayAjax.addNote('{$message->id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_plain_yellow.png{/devblocks_url}" align="top"> Sticky Note</button>
 				      	&nbsp;
 				      	
 			      		<a href="javascript:;" onclick="toggleDiv('{$message->id}options');">more &raquo;</a>

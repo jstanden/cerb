@@ -4795,7 +4795,7 @@ class DAO_WorkerPref extends DevblocksORMHelper {
 		);
 		$value = $db->GetOne($sql);
 		
-		if(false == $value && !is_null($default)) {
+		if(null === $value && !is_null($default)) {
 		    return $default;
 		}
 		

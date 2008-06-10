@@ -6258,10 +6258,8 @@ class ChPrintController extends DevblocksControllerExtension {
 		array_shift($stack); // print
 		@$object = strtolower(array_shift($stack)); // ticket|message|etc
 		
-		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
-		$tpl->assign('id', $id);
 		
 		$settings = CerberusSettings::getInstance();
 		$tpl->assign('settings', $settings);
@@ -7413,10 +7411,10 @@ class ChDisplayPage extends CerberusPageExtension {
 	
 	function deleteNoteAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+		
 		$note = DAO_MessageNote::get($id);
 		$message_id = $note->message_id;
 		DAO_MessageNote::delete($id);
-		unset($note);
 		
 		$this->_renderNotes($message_id);
 	}
@@ -7538,6 +7536,8 @@ class ChDisplayPage extends CerberusPageExtension {
 	function showConversationAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer');
 
+		@$active_worker = CerberusApplication::getActiveWorker();
+		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		
@@ -7546,8 +7546,37 @@ class ChDisplayPage extends CerberusPageExtension {
 
 		$messages = $ticket->getMessages();
 		arsort($messages);
+		$tpl->assign('latest_message_id',key($messages));
 		$tpl->assign('messages', $messages);
+
+		// Thread comments and messages on the same level
+		$convo_timeline = array();
+
+		// build a chrono index of messages
+		foreach($messages as $message_id => $message) { /* @var $message CerberusMessage */
+			$key = $message->created_date . '_m' . $message_id;
+			$convo_timeline[$key] = array('m',$message_id);
+		}
 		
+		@$mail_inline_comments = DAO_WorkerPref::get($active_worker->id,'mail_inline_comments',1);
+		
+		if($mail_inline_comments) { // if inline comments are enabled
+			$comments = DAO_TicketComment::getByTicketId($id);
+			arsort($comments);
+			$tpl->assign('comments', $comments);
+			
+			// build a chrono index of comments
+			foreach($comments as $comment_id => $comment) { /* @var $comment Model_TicketComment */
+				$key = $comment->created . '_c' . $comment_id;
+				$convo_timeline[$key] = array('c',$comment_id);
+			}
+		}
+		
+		// sort the timeline
+		krsort($convo_timeline);
+		$tpl->assign('convo_timeline', $convo_timeline);
+		
+		// Message Notes
 		$notes = DAO_MessageNote::getByTicketId($id);
 		$message_notes = array();
 		// Index notes by message id
@@ -7590,6 +7619,8 @@ class ChDisplayPage extends CerberusPageExtension {
 		}
 		$tpl->assign('comment_addresses', $comment_addresses);
 		
+		$tpl->register_modifier('makehrefs', array('CerberusUtils', 'smarty_modifier_makehrefs'));		
+		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/comments/index.tpl.php');
 	}
 	
@@ -7628,16 +7659,16 @@ class ChDisplayPage extends CerberusPageExtension {
 		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer',0);
 		@$comment_id = DevblocksPlatform::importGPC($_REQUEST['comment_id'],'integer',0);
 		
-		@$worker_id = CerberusApplication::getActiveWorker()->id;
+//		@$worker_id = CerberusApplication::getActiveWorker()->id;
 		
-		if(empty($worker_id) || empty($ticket_id) || empty($comment_id))
+		if(empty($ticket_id) || empty($comment_id)) // empty($worker_id) || 
 			DevblocksPlatform::redirect(new DevblocksHttpResponse(array('display',$ticket_id)));
 		
 		@$active_worker = CerberusApplication::getActiveWorker();
 
 		$comment = DAO_TicketComment::get($comment_id);
 		
-		if(!empty($active_worker) && ($active_worker->is_superuser || $active_worker->id==$comment->worker_id))
+		if(!empty($active_worker) && ($active_worker->is_superuser || $comment->getAddress()->email==$active_worker->email))
 			DAO_TicketComment::delete($comment_id);
 		
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('display',$ticket_id,'comments')));
@@ -8596,6 +8627,9 @@ class ChPreferencesPage extends CerberusPageExtension {
 		$tour_enabled = DAO_WorkerPref::get($worker->id, 'assist_mode');
 		$tour_enabled = ($tour_enabled===false) ? 1 : $tour_enabled;
 		$tpl->assign('assist_mode', $tour_enabled);
+
+		$mail_inline_comments = DAO_WorkerPref::get($worker->id,'mail_inline_comments',1);
+		$tpl->assign('mail_inline_comments', $mail_inline_comments);
 		
 		$addresses = DAO_AddressToWorker::getByWorker($worker->id);
 		$tpl->assign('addresses', $addresses);
@@ -8644,6 +8678,9 @@ class ChPreferencesPage extends CerberusPageExtension {
 
 		@$assist_mode = DevblocksPlatform::importGPC($_REQUEST['assist_mode'],'integer',0);
 		DAO_WorkerPref::set($worker->id, 'assist_mode', $assist_mode);
+
+		@$mail_inline_comments = DevblocksPlatform::importGPC($_REQUEST['mail_inline_comments'],'integer',0);
+		DAO_WorkerPref::set($worker->id, 'mail_inline_comments', $mail_inline_comments);
 		
 		// Alternate Email Addresses
 		@$new_email = DevblocksPlatform::importGPC($_REQUEST['new_email'],'string','');
