@@ -110,7 +110,7 @@
 		</form>
 		<form action="{devblocks_url}{/devblocks_url}" method="post" name="frmPrint" id="frmPrint" target="_blank" style="display:none;"></form>
 	</td>
-	<td valign="top" nowrap="nowrap" align="right">
+	<td valign="top" nowrap="nowrap" align="right" id="tourDisplayPaging">
 		{if !empty($series_stats.next) || !empty($series_stats.prev)}
 		<table cellpadding="0" cellspacing="0" border="0" style="margin:0px;">
 			<tr>

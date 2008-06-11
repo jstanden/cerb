@@ -74,6 +74,7 @@
 <br>
 {/if}
 
+<div id="tourOverviewWaiting"></div>
 {if !empty($waiting_counts)}
 <div class="block">
 <h2>Waiting</h2>

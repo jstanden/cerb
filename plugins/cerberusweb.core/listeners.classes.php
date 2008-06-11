@@ -63,13 +63,15 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension implements IDevb
         'tourHeaderTeamLoads' => new DevblocksTourCallout('tourHeaderTeamLoads','My Team Loads','Here you can quickly display the workload of any of your teams.  You can display a team\'s dashboard by clicking them.'),
         'tourHeaderGetTickets' => new DevblocksTourCallout('tourHeaderGetTickets','Get Tickets',"The 'Get Tickets' link will assign you available tickets from your desired teams."),
         'tourHeaderQuickLookup' => new DevblocksTourCallout('tourHeaderQuickLookup','Quick Lookup','Here you can quickly search for tickets from anywhere in the helpdesk.  This is generally most useful when someone calls up and you need to promptly locate their ticket.'),
-        'tourOverviewSummaries' => new DevblocksTourCallout('tourOverviewSummaries','Overview Summaries','Here you see open tickets by SLA, Group and Bucket (click on a Group name), and Assigned Worker.'),
+        'tourOverviewSummaries' => new DevblocksTourCallout('tourOverviewSummaries','Groups &amp; Buckets','Tickets that need worker replies are organized into buckets and shared by groups.'),
+        'tourOverviewWaiting' => new DevblocksTourCallout('tourOverviewWaiting','Waiting For Reply','Tickets that are waiting for requester replies are kept out of the way. After a requester replies, the appropriate ticket is moved back to the list of available work.'),
+        'overview_all_actions' => new DevblocksTourCallout('overview_all_actions','List Actions','Each list of tickets provides a toolbar of possible actions. Actions may be applied to specific tickets or to the entire list. The "Move to:" shortcuts adapt to your most-used buckets and groups.  Bulk Update allows you to apply several actions at once to any tickets in a list that match your criteria.'),
+        'viewoverview_all' => new DevblocksTourCallout('viewoverview_all','Peek',"You can preview the content of any ticket in a list by clicking the \"(peek)\" link next to its subject. Peek is especially helpful when confirming tickets are spam if they have an ambiguous subject. This saves you a lot of time that would otherwise be wasted clicking into each ticket and losing your place in the list."),
         'tourDashboardViews' => new DevblocksTourCallout('tourDashboardViews','Ticket Lists','This is where your customized lists of tickets are displayed.'),
-        'tourDashboardBatch' => new DevblocksTourCallout('tourDashboardBatch','Bulk Updates','Here you may perform multiple actions to any list of tickets.  Use a bulk update for actions you use infrequently.'),
-        'tourDisplayProperties' => new DevblocksTourCallout('tourDisplayProperties','Properties','This is where you can change the properties of the current ticket.'),
-        'tourDisplayManageRecipients' => new DevblocksTourCallout('tourDisplayManageRecipients','Recipients','Situations often arise where your points-of-contact change.  These are the people who will currently receive updates about this ticket.'),
-        'tourDisplayContactHistory' => new DevblocksTourCallout('tourDisplayContactHistory','Contact History','All of your previous conversations with this customer are a click away.'),
         'tourDisplayConversation' => new DevblocksTourCallout('tourDisplayConversation','Conversation','This is where all e-mail replies will be displayed for this ticket.  Your responses will be sent to all requesters.'),
+        'btnReplyFirst' => new DevblocksTourCallout('btnReplyFirst','Replying',"Clicking the Reply button while displaying a ticket will allow you to write a response, as you would in any e-mail client, without leaving the ticket's page. This allows you to reference the ticket's information and history as you write."),
+        'tourDisplayPaging' => new DevblocksTourCallout('tourDisplayPaging','Paging',"If you clicked on a ticket from a list, the detailed ticket page will show your progress from that list in the top right. You can also use the keyboard shortcuts to advance through the list with the bracket keys: ' [ ' and ' ] '."),
+        'displayOptions' => new DevblocksTourCallout('displayOptions','Pluggable Tabs',"With Cerberus Helpdesk's pluggable architecture, new capabilities can be added to your ticket management. For example, you could display all the CRM opportunities or billing invoices associated with the ticket's requesters."),
         'tourConfigMaintPurge' => new DevblocksTourCallout('tourConfigMaintPurge','Purge Deleted','Here you may purge any deleted tickets from the database.'),
         'tourDashboardSearchCriteria' => new DevblocksTourCallout('tourDashboardSearchCriteria','Search Criteria','Here you can change the criteria of the current search.'),
         'tourConfigMenu' => new DevblocksTourCallout('tourConfigMenu','Menu','This is where you may choose to configure various components of the helpdesk.'),
@@ -97,12 +99,12 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension implements IDevb
 			case "display":
 				$tour = array(
 	                'title' => 'Display Ticket',
-	                'body' => "This screen displays the currently selected ticket.  Here you can modify the ticket or send a new reply to all requesters.",
+	                'body' => "This screen displays the currently selected ticket.  Here you can modify the ticket or send a new reply to all requesters.<br><br>Clicking the Requester History tab will show all the past and present tickets from the ticket's requesters. This is an easy way to find and merge duplicate tickets from the same requester, or from several requesters from the same organization.<br><br>Often, a ticket may require action from several workers before it's complete. You can create tasks for each worker to track the progress of these actions. In Cerberus Helpdesk, workers don't \"own\" tickets. Each ticket has a \"next worker\" who is responsible for moving the ticket forward.<br><br>A detailed walkthrough of the display ticket page is available here: <a href=\"http://www.cerberusweb.com/tour/display\" target=\"_blank\">http://www.cerberusweb.com/tour/display</a>",
 	                'callouts' => array(
-						$callouts['tourDisplayProperties'],
-						$callouts['tourDisplayManageRecipients'],
-						$callouts['tourDisplayContactHistory'],
 						$callouts['tourDisplayConversation'],
+						$callouts['btnReplyFirst'],
+						$callouts['tourDisplayPaging'],
+						$callouts['displayOptions'],
 					)
 				);
 				break;
@@ -193,9 +195,12 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension implements IDevb
 					case 'overview':
 						$tour = array(
 	                        'title' => 'Mail Overview',
-	                        'body' => "The Mail tab provides the ability to compose outgoing email as well as view lists of tickets, either here in the general overview, in specific search result lists, or in your personalized ticket lists in 'my workspaces'.",
+	                        'body' => "The Mail tab provides the ability to compose outgoing email as well as view lists of tickets, either here in the general overview, in specific search result lists, or in your personalized ticket lists in 'my workspaces'.  A detailed walkthrough of the mail page is available here: <a href=\"http://www.cerberusweb.com/tour/overview\" target=\"_blank\">http://www.cerberusweb.com/tour/overview</a>",
 	                        'callouts' => array(
 							$callouts['tourOverviewSummaries'],
+							$callouts['tourOverviewWaiting'],
+							$callouts['overview_all_actions'],
+							$callouts['viewoverview_all'],
 							)
 						);
 						break;
@@ -206,7 +211,6 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension implements IDevb
 	                        'body' => 'Here is where you set up personalized lists of tickets.  Any Overview or Search results list can be copied here by clicking the "copy" link in the list title bar.',
 	                        'callouts' => array(
 							$callouts['tourDashboardViews'],
-							$callouts['tourDashboardBatch'],
 							)
 						);
 						break;
@@ -224,6 +228,13 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension implements IDevb
 					case 'compose':
 						$tour = array(
 	                        'title' => 'Compose Mail',
+    	                    'body' => '',
+						);
+						break;
+						
+					case 'create':
+						$tour = array(
+	                        'title' => 'Log Ticket',
     	                    'body' => '',
 						);
 						break;
@@ -261,6 +272,24 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension implements IDevb
 						);
 						break;
 				}
+				break;
+				
+			case 'kb':
+				$tour = array(
+	                'title' => 'Knowledgebase',
+	                'body' => "",
+	                'callouts' => array(
+					)
+				);
+				break;
+				
+			case 'tasks':
+				$tour = array(
+	                'title' => 'Tasks',
+	                'body' => "Often, a ticket may require action from several workers before it's complete. You can create tasks for each worker to track the progress of these actions. In Cerberus Helpdesk, workers don't \"own\" tickets. Each ticket has a \"next worker\" who is responsible for moving the ticket forward.",
+	                'callouts' => array(
+					)
+				);
 				break;
 				
 			case 'community':
