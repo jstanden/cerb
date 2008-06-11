@@ -5995,7 +5995,7 @@ class ChKbPage extends CerberusPageExtension {
 		$categories = DAO_KbCategory::getWhere();
 		$tpl->assign('categories', $categories);
 		
-		$levels = DAO_KbCategory::getTree(0,$map); //$root_id
+		$levels = DAO_KbCategory::getTree(0); //$root_id
 		$tpl->assign('levels',$levels);
 		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/kb/rpc/article_edit_panel.tpl.php');

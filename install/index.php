@@ -738,7 +738,7 @@ switch($step) {
 						$message->headers['date'] = date('r');
 						$message->headers['message-id'] = CerberusApplication::generateMessageId();
 						$message->body = <<< EOF
-Welcome to Cerberus Helpdesk 4.0!
+Welcome to Cerberus Helpdesk 4.0 (Cerb4)!
 
 We automatically set up a few things for you during the installation process.
 
@@ -753,6 +753,7 @@ We also set up a 'Spam' bucket inside each group to start quarantining junk mail
 
 If you have any questions about your new helpdesk, simply reply to this message.  Our response will show up on this page as a new message.
 
+Thanks for your interest in Cerb4!
 ---
 The Cerb4 Team
 WebGroup Media, LLC.
@@ -784,12 +785,13 @@ EOF;
 		@$skip = DevblocksPlatform::importGPC($_POST['skip'],'integer',0);
 		
 		if(!empty($form_submit)) {
-			if(empty($skip)) {
+			@$contact_name = str_replace(array("\r","\n"),'',stripslashes($_REQUEST['contact_name']));
+			@$contact_company = stripslashes($_REQUEST['contact_company']);
+			
+			if(empty($skip) && !empty($contact_name)) {
 				$settings = CerberusSettings::getInstance();
 				@$default_from = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM,'');
 				
-				@$contact_name = str_replace(array("\r","\n"),'',stripslashes($_REQUEST['contact_name']));
-				@$contact_company = stripslashes($_REQUEST['contact_company']);
 				@$contact_phone = stripslashes($_REQUEST['contact_phone']);
 				@$q1 = stripslashes($_REQUEST['q1']);
 				@$q2 = stripslashes($_REQUEST['q2']);
