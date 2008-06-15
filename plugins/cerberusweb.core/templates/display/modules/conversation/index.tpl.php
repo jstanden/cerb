@@ -1,4 +1,9 @@
 <div id="tourDisplayConversation"></div>
+{if $expand_all}
+	<b>Starting with the oldest message:</b>
+{else}
+	<b>Starting with the newest message:</b>
+{/if}
 <!-- <h2>Ticket Conversation</h2> -->
 
 {if !empty($ticket)}
@@ -9,7 +14,7 @@
 				{assign var=message value=$messages.$message_id}
 				<div id="{$message->id}t" style="background-color:rgb(255,255,255);">
 					{assign var=expanded value=false}
-					{if $latest_message_id==$message_id || isset($message_notes.$message_id)}{assign var=expanded value=true}{/if}
+					{if $expand_all || $latest_message_id==$message_id || isset($message_notes.$message_id)}{assign var=expanded value=true}{/if}
 					{include file="$path/display/modules/conversation/message.tpl.php" expanded=$expanded}
 				</div>
 				

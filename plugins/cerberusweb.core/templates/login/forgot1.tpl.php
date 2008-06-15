@@ -11,6 +11,6 @@
 <b>Enter your e-mail address:</b><br>
 <input type="text" name="email" size="45" value=""><br>
 <br>
-<input type="submit" value="Send Confirmation">
+<button type="submit">Send Confirmation</button>
 </form>
 </div>

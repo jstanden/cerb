@@ -34,7 +34,7 @@
 						<td width="100%" align="left">
 							<span id="displayRequesters{$message->id}">
 							{foreach from=$ticket->getRequesters() item=requester name=requesters}
-							{$requester->email}{if !$smarty.foreach.requesters.last}, {/if}
+							<b>{$requester->email}</b>{if !$smarty.foreach.requesters.last}, {/if}
 							{/foreach}
 							</span>
 							(<a href="javascript:;" onclick="genericAjaxPanel('c=display&a=showRequestersPanel&msg_id={$message->id}&ticket_id={$ticket->id}',this,false);" style="color:rgb(00,120,0);">change</a>)
@@ -181,8 +181,8 @@
 								<br>
 								<br>
 		
-								<b>Who should handle the follow-up?</b><br>
-						      	<select name="next_worker_id">
+								<b>Who should handle the next reply?</b><br>
+						      	<select name="next_worker_id" onchange="toggleDiv('replySurrender{$message->id}',this.selectedIndex?'block':'none');">
 						      		<option value="0" {if 0==$ticket->next_worker_id}selected{/if}>Anybody
 						      		{foreach from=$workers item=worker key=worker_id name=workers}
 						      			{if $worker_id==$active_worker->id}{assign var=next_worker_id_sel value=$smarty.foreach.workers.iteration}{/if}
@@ -190,17 +190,24 @@
 						      		{/foreach}
 						      	</select>&nbsp;
 						      	{if !empty($next_worker_id_sel)}
-						      		<button type="button" onclick="this.form.next_worker_id.selectedIndex = {$next_worker_id_sel};">me</button>
-						      		<button type="button" onclick="this.form.next_worker_id.selectedIndex = 0;">anybody</button>
+						      		<button type="button" onclick="this.form.next_worker_id.selectedIndex = {$next_worker_id_sel};toggleDiv('replySurrender{$message->id}','block');">me</button>
+						      		<button type="button" onclick="this.form.next_worker_id.selectedIndex = 0;toggleDiv('replySurrender{$message->id}','none');">anybody</button>
 						      	{/if}
 						      	<br>
 						      	<br>
+						      	
+						      	<div id="replySurrender{$message->id}" style="display:{if $ticket->next_worker_id}block{else}none{/if};margin-left:10px;">
+									<b>Allow anybody to handle the next reply after:</b> (e.g. "2 hours", "5pm", {*"Tuesday", "June 30", *}or leave blank to keep assigned)<br>  
+							      	<input type="text" name="unlock_date" size="32" maxlength="255" value="">
+							      	<button type="button" onclick="this.form.unlock_date.value='+2 hours';">+2 hours</button>
+							      	<br>
+							      	<br>
+							    </div>
 		
 								<b>What is the next action that needs to happen?</b> (optional, max 255 chars)<br>  
 						      	<input type="text" name="next_action" size="80" maxlength="255" value="{$ticket->next_action|escape:"htmlall"}"><br>
 						      	<br>
 		
-								<div id="replyOpen{$message->id}" style="display:{if $ticket->is_closed}none{else}block{/if};">
 								<b>Would you like to move this conversation?</b><br>  
 						      	<select name="bucket_id">
 						      		<option value="">-- no thanks! --</option>
@@ -220,12 +227,13 @@
 						     		{/foreach}
 						      	</select><br>
 						      	<br>
+						      	
+								<div id="replyOpen{$message->id}" style="display:{if $ticket->is_closed}none{else}block{/if};">
 						      	</div>
 						      	
 						      	<div id="replyClosed{$message->id}" style="display:{if $ticket->is_closed}block{else}none{/if};">
-						      	<b>When would you like to resume this conversation?</b><br> 
+						      	<b>When would you like to resume this conversation?</b> (e.g. "Friday", "7 days", "Tomorrow 11:15AM", "Dec 31")<br> 
 						      	<input type="text" name="ticket_reopen" size="55" value="{if !empty($ticket->due_date)}{$ticket->due_date|date_format:"%a, %b %d %Y %I:%M %p"}{/if}"><br>
-						      	examples: "Friday", "+7 days", "Tomorrow 11:15AM", "Dec 31 2010"<br>
 						      	(leave blank to wait for a reply before resuming)<br>
 						      	<br>
 						      	</div>

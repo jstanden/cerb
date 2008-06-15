@@ -369,6 +369,7 @@ class CerberusMail {
 	    'files'
 	    'closed'
 	    'ticket_reopen'
+	    'unlock_date'
 	    'next_action'
 	    'bucket_id'
 	    'agent_id',
@@ -693,6 +694,7 @@ class CerberusMail {
 					    if(intval($due) > 0)
 				            $change_fields[DAO_Ticket::DUE_DATE] = $due;
 					}
+					
 				}
 	        } else { // Open or Waiting
 				$change_fields[DAO_Ticket::IS_CLOSED] = 0;
@@ -705,14 +707,6 @@ class CerberusMail {
 
 				if(isset($properties['next_action']))
 	    	    	$change_fields[DAO_Ticket::NEXT_ACTION] = $properties['next_action'];
-	    	    
-				if(!empty($properties['bucket_id'])) {
-				    // [TODO] Use API to move, or fire event
-			        // [TODO] Ensure team/bucket exist
-			        list($team_id, $bucket_id) = CerberusApplication::translateTeamCategoryCode($properties['bucket_id']);
-				    $change_fields[DAO_Ticket::TEAM_ID] = $team_id;
-				    $change_fields[DAO_Ticket::CATEGORY_ID] = $bucket_id;
-				}
 	        }
 		}
         
@@ -720,6 +714,24 @@ class CerberusMail {
 		if(isset($properties['next_worker_id']))
         	$change_fields[DAO_Ticket::NEXT_WORKER_ID] = $properties['next_worker_id'];
 
+        // Allow anybody to reply after 
+		if(isset($properties['unlock_date'])) {
+			if(!empty($properties['unlock_date'])) {
+			    $unlock = strtotime($properties['unlock_date']);
+			    if(intval($unlock) > 0)
+		            $change_fields[DAO_Ticket::UNLOCK_DATE] = $unlock;
+			}
+		}
+
+		// Move
+		if(!empty($properties['bucket_id'])) {
+		    // [TODO] Use API to move, or fire event
+	        // [TODO] Ensure team/bucket exist
+	        list($team_id, $bucket_id) = CerberusApplication::translateTeamCategoryCode($properties['bucket_id']);
+		    $change_fields[DAO_Ticket::TEAM_ID] = $team_id;
+		    $change_fields[DAO_Ticket::CATEGORY_ID] = $bucket_id;
+		}
+			
 		if(!empty($ticket_id) && !empty($change_fields)) {
 		    DAO_Ticket::updateTicket($ticket_id, $change_fields);
 		}

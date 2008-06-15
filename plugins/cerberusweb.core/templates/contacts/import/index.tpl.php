@@ -8,16 +8,6 @@
 	<td width="98%" valign="middle">
 	</td>
 	<td width="1%" nowrap="nowrap" valign="middle" align="right">
-		<!-- 
-		<form action="{devblocks_url}{/devblocks_url}" method="post">
-		<input type="hidden" name="c" value="contacts">
-		<input type="hidden" name="a" value="doAddressQuickSearch">
-		<span><b>Quick Search:</b></span> <select name="type">
-			<option value="email">E-mail</option>
-			<option value="org">Organization</option>
-		</select><input type="text" name="query" size="24"><input type="submit" value="go!">
-		</form>
-		 -->
 	</td>
 </tr>
 </table>

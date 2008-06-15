@@ -4,5 +4,5 @@
 <input type="hidden" name="a" value="signin">
 Login: <input type="text" name="email"><br>
 Password: <input type="password" name="password"><br>
-<input type="submit" value="{$translate->_('login.signon')|capitalize}">
+<button type="submit">{$translate->_('login.signon')|capitalize}</button>
 </form>

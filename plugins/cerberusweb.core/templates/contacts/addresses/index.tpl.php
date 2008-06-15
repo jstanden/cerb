@@ -14,7 +14,7 @@
 		<span><b>Quick Search:</b></span> <select name="type">
 			<option value="email">E-mail</option>
 			<option value="org">Organization</option>
-		</select><input type="text" name="query" size="24"><input type="submit" value="go!">
+		</select><input type="text" name="query" size="24"><button type="submit">go!</button>
 		</form>
 	</td>
 </tr>

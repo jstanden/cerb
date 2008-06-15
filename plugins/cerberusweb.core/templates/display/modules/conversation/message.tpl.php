@@ -9,11 +9,11 @@
       		<td>
       			{if isset($headers.from)}
       				{assign var=is_outgoing value=$message->worker_id}
-      				<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/{if $is_outgoing}export2.png{else}import1.png{/if}{/devblocks_url}" align="top">
+      				{*<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/{if $is_outgoing}bullet_ball_green.png{else}bullet_ball_red.png{/if}{/devblocks_url}" align="top">*}
       				{if $expanded}
-      					<h3 style="display:inline;color:rgb(50,120,50);">{if $is_outgoing}[outbound]{else}[inbound]{/if} From: {$headers.from|escape:"htmlall"|nl2br}</h3>
+      					<h3 style="display:inline;"><span style="{if !$is_outgoing}color:rgb(255,50,50);background-color:rgb(255,213,213);{else}color:rgb(50,120,50);background-color:rgb(219,255,190);{/if}">{if $is_outgoing}[outbound]{else}[inbound]{/if}</span> {$headers.from|escape:"htmlall"|nl2br}</h3>
       				{else}
-      					<b style="color:rgb(50,120,50);">{if $is_outgoing}[outbound]{else}[inbound]{/if} From: {$headers.from|escape:"htmlall"|nl2br}</b>
+      					<b><span style="{if !$is_outgoing}color:rgb(255,50,50);background-color:rgb(255,213,213);{else}color:rgb(50,120,50);background-color:rgb(219,255,190);{/if}">{if $is_outgoing}[outbound]{else}[inbound]{/if}</span> {$headers.from|escape:"htmlall"|nl2br}</b>
       				{/if}
       				<a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&address_id={$message->address_id}', this, false, '500px',ajax.cbAddressPeek);">address book</a>
       				

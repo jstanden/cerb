@@ -9,9 +9,9 @@
 			{else}
 				{assign var=note_worker_id value=$note->worker_id}
 				{if $workers.$note_worker_id}
-					<b style="color:rgb(222,73,0);">[sticky note] From: {$workers.$note_worker_id->getName()}</b>&nbsp;
+					<b style="color:rgb(222,73,0);">[sticky note] {$workers.$note_worker_id->getName()}</b>&nbsp;
 				{else}
-					<b style="color:rgb(222,73,0);">[sticky note] From: (Deleted Worker)</b>&nbsp;
+					<b style="color:rgb(222,73,0);">[sticky note] (Deleted Worker)</b>&nbsp;
 				{/if}
 			{/if}
 			<a href="javascript:;" onclick="genericAjaxGet('{$message_id}notes','c=display&a=deleteNote&id={$note_id}');">delete note</a><br>

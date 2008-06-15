@@ -60,7 +60,8 @@ These addresses will be associated with your helpdesk account.<br>
 <br>
 
 <b>Mail:</b><br>
-<label><input type="checkbox" name="mail_inline_comments" value="1" {if $mail_inline_comments}checked{/if}> Show comments in the conversation history</label><br>
+<label><input type="checkbox" name="mail_inline_comments" value="1" {if $mail_inline_comments}checked{/if}> Show comments in the conversation</label><br>
+<label><input type="checkbox" name="mail_always_show_all" value="1" {if $mail_always_show_all}checked{/if}> Always use 'read all' mode (expand messages and sort chronologically)</label><br>
 <br>
 
 

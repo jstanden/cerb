@@ -31,7 +31,9 @@
 					{/if}
 					{if !empty($ticket->next_worker_id)}
 						{assign var=next_worker_id value=$ticket->next_worker_id}
-						<b>Next Worker:</b> {$workers.$next_worker_id->getName()}<br>
+						<b>Next Worker:</b> {$workers.$next_worker_id->getName()} 
+						{if $ticket->unlock_date}(until {$ticket->unlock_date|date_format:"%a, %b %d %Y %I:%M %p"}){/if}
+						<br>
 					{/if}
 					<!-- {if !empty($ticket->interesting_words)}<b>Interesting Words:</b> {$ticket->interesting_words}<br>{/if} -->
 					<!-- <b>Next Action:</b> <input type="text" name="next_step" size="80" value="{$ticket->next_action}" maxlength="255"><br>  -->
@@ -47,7 +49,7 @@
 						<option value="org"{if $quick_search_type eq 'org'}selected{/if}>Organization</option>
 						<option value="subject"{if $quick_search_type eq 'subject'}selected{/if}>Subject</option>
 						<option value="content"{if $quick_search_type eq 'content'}selected{/if}>Content</option>
-					</select><input type="text" name="query" size="16"><input type="submit" value="go!">
+					</select><input type="text" name="query" size="16"><button type="submit">go!</button>
 					</form>
 				</td>
 			</tr>
@@ -69,11 +71,11 @@
 				{if $ticket->is_closed}
 					<button type="button" onclick="this.form.closed.value=0;this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_out.gif{/devblocks_url}" align="top"> Re-open</button>
 				{else}
-					<button id="btnClose" type="button" onclick="this.form.closed.value=1;this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_ok.gif{/devblocks_url}" align="top"> Close</button>
+					<button title="Close this ticket (C)" id="btnClose" type="button" onclick="this.form.closed.value=1;this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_ok.gif{/devblocks_url}" align="top"> Close</button>
 				{/if}
 				
 				{if empty($ticket->spam_training)}
-					<button id="btnSpam" type="button" onclick="this.form.spam.value=1;this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/spam.gif{/devblocks_url}" align="top"> Report Spam</button>
+					<button title="Report this ticket as spam (S)" id="btnSpam" type="button" onclick="this.form.spam.value=1;this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/spam.gif{/devblocks_url}" align="top"> Report Spam</button>
 				{/if}
 			{/if}
 			
@@ -81,11 +83,12 @@
 				<button type="button" onclick="this.form.deleted.value=0;this.form.closed.value=0;this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete_gray.gif{/devblocks_url}" align="top"> Undelete</button>
 			{else}
 				{if $active_worker && ($active_worker->is_superuser || $active_worker->can_delete)}
-				<button id="btnDelete" type="button" onclick="this.form.deleted.value=1;this.form.closed.value=1;this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> Delete</button>
+				<button title="Delete this ticket (X)" id="btnDelete" type="button" onclick="this.form.deleted.value=1;this.form.closed.value=1;this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> Delete</button>
 				{/if}
 			{/if}
 			
-			<button type="button" onclick="document.frmPrint.action='{devblocks_url}c=print&a=ticket&id={$ticket->mask}{/devblocks_url}';;document.frmPrint.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/printer.gif{/devblocks_url}" align="top"> Print</button>
+			{if !$expand_all}<button id="btnReadAll" title="Read all messages in chronological order (A)" type="button" onclick="document.location='{devblocks_url}c=display&id={$ticket->mask}&tab=conversation&opt=read_all{/devblocks_url}';"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document.gif{/devblocks_url}" align="top"> Read All</button>{/if} 
+			<button id="btnPrint" type="button" onclick="document.frmPrint.action='{devblocks_url}c=print&a=ticket&id={$ticket->mask}{/devblocks_url}';document.frmPrint.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/printer.gif{/devblocks_url}" align="top"> Print</button>
 			 
 			{if !$ticket->is_deleted}
 		   	<select name="bucket_id" onchange="this.form.submit();">
@@ -106,7 +109,18 @@
 		  		{/foreach}
 		   	</select>
 		   	{/if}
-			<button type="button" onclick="document.location='{devblocks_url}c=display&id={$ticket->mask}{/devblocks_url}';"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/replace2.gif{/devblocks_url}" align="top"> Refresh</button> 
+			<button type="button" onclick="document.location='{devblocks_url}c=display&id={$ticket->mask}{/devblocks_url}';"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/replace2.gif{/devblocks_url}" align="top"> Refresh</button><br>
+			keyboard: 
+			{if !$ticket->is_closed}(<b>c</b>) close, {/if}
+			{if !$ticket->spam_trained}(<b>s</b>) report spam, {/if}
+			{if !$ticket->is_deleted && $active_worker && ($active_worker->is_superuser || $active_worker->can_delete)}(<b>x</b>) delete, {/if}
+			{if !$expand_all}(<b>a</b>) read all, {/if} 
+			{if !empty($series_stats.prev)}( <b>[</b> ) previous, {/if} 
+			{if !empty($series_stats.next)}( <b>]</b> ) next, {/if} 
+			(<b>r</b>) reply,  
+			(<b>p</b>) print 
+			<br>
+			 
 		</form>
 		<form action="{devblocks_url}{/devblocks_url}" method="post" name="frmPrint" id="frmPrint" target="_blank" style="display:none;"></form>
 	</td>
@@ -138,9 +152,9 @@ var tabView = new YAHOO.widget.TabView();
 
 tabView.addTab( new YAHOO.widget.Tab({
     label: 'Conversation',
-    dataSrc: '{/literal}{devblocks_url}ajax.php?c=display&a=showConversation&ticket_id={$ticket->id}{/devblocks_url}{literal}',
+    dataSrc: '{/literal}{devblocks_url}ajax.php?c=display&a=showConversation&ticket_id={$ticket->id}{if $expand_all}&expand_all=1{/if}{/devblocks_url}{literal}',
     cacheData: true,
-    {/literal}active: {if empty($tab_selected)}true{else}false{/if}{literal}
+    {/literal}active: {if empty($tab_selected) || 'conversation'==$tab_selected}true{else}false{/if}{literal}
 }));
 
 tabView.addTab( new YAHOO.widget.Tab({
@@ -199,10 +213,22 @@ CreateKeyHandler(function doShortcuts(e) {
 	var mykey = getKeyboardKey(e);
 	
 	switch(mykey) {
+		case "a":  // read all
+		case "A":
+			try {
+				document.getElementById('btnReadAll').click();
+			} catch(e){}
+			break;
 		case "c":  // close
 		case "C":
 			try {
 				document.getElementById('btnClose').click();
+			} catch(e){}
+			break;
+		case "p":  // print
+		case "P":
+			try {
+				document.getElementById('btnPrint').click();
 			} catch(e){}
 			break;
 		case "r":  // reply to first message

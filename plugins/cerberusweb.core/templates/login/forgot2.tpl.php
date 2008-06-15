@@ -9,6 +9,6 @@ If you entered a legitimate e-mail address you will receive a confirmation code 
 <b>Confirmation code:</b><br>
 <input type="text" name="code" size="25" value=""><br>
 <br>
-<input type="submit" value="Reset Password">
+<button type="submit">Reset Password</button>
 </form>
 </div>

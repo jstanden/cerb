@@ -264,6 +264,16 @@ if(!isset($tables['preparse_rule'])) {
 $columns = $datadict->MetaColumns('ticket');
 $indexes = $datadict->MetaIndexes('ticket',false);
 
+if(!isset($columns['UNLOCK_DATE'])) {
+	$sql = $datadict->AddColumnSQL('ticket','unlock_date I4 DEFAULT 0 NOTNULL');
+	$datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($indexes['unlock_date'])) {
+	$sql = $datadict->CreateIndexSQL('unlock_date','ticket','unlock_date');
+	$datadict->ExecuteSQLArray($sql);
+}
+
 if(!isset($indexes['due_date'])) {
 	$sql = $datadict->CreateIndexSQL('due_date','ticket','due_date');
 	$datadict->ExecuteSQLArray($sql);

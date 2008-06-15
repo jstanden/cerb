@@ -9,8 +9,8 @@
 	<input type="text" name="next_action" size="45" maxlength="255" value="{$ticket->next_action|escape:"htmlall"}" style="width:90%;"><br>
 	<br>
 	
-	<b>Next Worker:</b><br> 
-	<select name="next_worker_id">
+	<b>Who should handle the next reply?</b><br> 
+	<select name="next_worker_id" onchange="toggleDiv('ticketPropsUnlockDate',this.selectedIndex?'block':'none');">
 		<option value="0" {if 0==$ticket->next_worker_id}selected{/if}>Anybody
 		{foreach from=$workers item=worker key=worker_id name=workers}
 			{if $worker_id==$active_worker->id}{assign var=next_worker_id_sel value=$smarty.foreach.workers.iteration}{/if}
@@ -18,12 +18,20 @@
 		{/foreach}
 	</select>&nbsp;
    	{if !empty($next_worker_id_sel)}
-   		<button type="button" onclick="this.form.next_worker_id.selectedIndex = {$next_worker_id_sel};">me</button>
-   		<button type="button" onclick="this.form.next_worker_id.selectedIndex = 0;">anybody</button>
+   		<button type="button" onclick="this.form.next_worker_id.selectedIndex = {$next_worker_id_sel};toggleDiv('ticketPropsUnlockDate','block');">me</button>
+   		<button type="button" onclick="this.form.next_worker_id.selectedIndex = 0;toggleDiv('ticketPropsUnlockDate','none');">anybody</button>
    	{/if}
 	<br>
 	<br>
 	
+	<div id="ticketPropsUnlockDate" style="display:{if $ticket->next_worker_id}block{else}none{/if};margin-left:10px;">	
+		<b>Allow anybody to handle the next reply after:</b> (e.g. "2 hours", "5pm", {*"Tuesday", "June 30", *}or leave blank to keep assigned)<br>  
+		<input type="text" name="unlock_date" size="32" maxlength="255" value="{if $ticket->unlock_date}{$ticket->unlock_date|date_format:"%a, %b %d %Y %I:%M %p"}{/if}">
+		<button type="button" onclick="this.form.unlock_date.value='+2 hours';">+2 hours</button>
+		<br>
+		<br>
+	</div>
+		
 	<b>Subject:</b><br>
 	<input type="text" name="subject" size="45" maxlength="255" value="{$ticket->subject|escape:"htmlall"}" style="width:90%;"><br>
 	<br>

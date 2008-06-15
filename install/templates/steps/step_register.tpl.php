@@ -165,7 +165,7 @@ contact you about Cerberus Helpdesk. We will not share or sell your
 personal information, or otherwise abuse your trust.</i> <br>
 <br>
 
-<input type="button" onclick="this.form.skip.value='1';this.form.submit();" value="Skip Registration">
+<button type="button" onclick="this.form.skip.value='1';this.form.submit();">Skip Registration</button>
 <input type="submit" value="Register &gt;&gt;">
 <br>
 </form>

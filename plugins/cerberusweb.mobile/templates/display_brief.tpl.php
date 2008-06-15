@@ -30,9 +30,9 @@ We did not find a ticket to match the supplied ID / mask.
 
 <textarea name="content" rows="5" cols="32"></textarea><br>
 
-{if $page_type=="forward"}<input type="submit" value="Forward">
-{elseif $page_type=="comment"}<input type="submit" value="Comment">
-{else}<input type="submit" value="Reply">{/if}
+{if $page_type=="forward"}<button type="submit">Forward</button>
+{elseif $page_type=="comment"}<button type="submit">Comment</button>
+{else}<button type="submit">Reply</button>{/if}
 
 </form>
 {/if}{*end of if empty($ticket)*}

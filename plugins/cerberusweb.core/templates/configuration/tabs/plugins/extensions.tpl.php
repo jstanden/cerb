@@ -1,1 +1,1 @@
-<input type="submit" value="{$translate->_('common.save_changes')}">
+<button type="submit">{$translate->_('common.save_changes')}</button>

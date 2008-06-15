@@ -12,6 +12,6 @@
 		<option value="subject">Subject</option>
 		<option value="content">Content</option>
 	</select><br />
-	<input type="text" name="query"><input type="submit" value="go!">
+	<input type="text" name="query"><button type="submit">go!</button>
 	</form>
 </span>

@@ -529,23 +529,23 @@ class ChTicketsPage extends CerberusPageExtension {
 						break;
 						
 					case 'waiting':
-						@$filter_waiting_id = array_shift($response_path);
+						@$filter_group_id = array_shift($response_path);
 						
 						$overView->params = array(
 							SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN),
 							SearchFields_Ticket::TICKET_WAITING => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_WAITING,'=',1),
 						);
 						
-						if(!is_null($filter_waiting_id) && isset($groups[$filter_waiting_id])) {
-							$tpl->assign('filter_waiting_id', $filter_waiting_id);
-							$title = '[Waiting] ' . $groups[$filter_waiting_id]->name;
-							$overView->params[SearchFields_Ticket::TEAM_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'=',$filter_waiting_id);
+						if(!is_null($filter_group_id) && isset($groups[$filter_group_id])) {
+							$tpl->assign('filter_group_id', $filter_group_id);
+							$title = '[Waiting] ' . $groups[$filter_group_id]->name;
+							$overView->params[SearchFields_Ticket::TEAM_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'=',$filter_group_id);
 							
 							@$filter_bucket_id = array_shift($response_path);
 							if(!is_null($filter_bucket_id)) {
 								$tpl->assign('filter_bucket_id', $filter_bucket_id);
 								@$title .= ': '.
-									(($filter_bucket_id == 0) ? 'Inbox' : $group_buckets[$filter_waiting_id][$filter_bucket_id]->name);
+									(($filter_bucket_id == 0) ? 'Inbox' : $group_buckets[$filter_group_id][$filter_bucket_id]->name);
 								$overView->params[SearchFields_Ticket::TICKET_CATEGORY_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CATEGORY_ID,'=',$filter_bucket_id);
 							}
 						}
@@ -696,9 +696,9 @@ class ChTicketsPage extends CerberusPageExtension {
 					$tpl->assign('filter_group_id', $filter_group_id);
 				break;
 			case 'waiting':
-				@$filter_waiting_id = array_shift($response_path);
-				if(!empty($filter_waiting_id))
-					$tpl->assign('filter_waiting_id', $filter_waiting_id);
+				@$filter_group_id = array_shift($response_path);
+				if(!empty($filter_group_id))
+					$tpl->assign('filter_group_id', $filter_group_id);
 				break;
 		}
 		
@@ -1886,6 +1886,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	    
         $fields = array(
             DAO_Ticket::NEXT_WORKER_ID => 0,
+            DAO_Ticket::UNLOCK_DATE => 0,
         );
 	    
         //====================================
@@ -7070,6 +7071,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		$visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
 		$response = DevblocksPlatform::getHttpResponse();
 		$stack = $response->path;
+		$active_worker = CerberusApplication::getActiveWorker();
 
 		@array_shift($stack); // display
 		
@@ -7079,7 +7081,19 @@ class ChDisplayPage extends CerberusPageExtension {
 		$tpl->assign('tab_manifests', $tab_manifests);
 
 		@$tab_selected = array_shift($stack);
+		if(empty($tab_selected)) $tab_selected = 'conversation';
 		$tpl->assign('tab_selected', $tab_selected);
+		
+		switch($tab_selected) {
+			case 'conversation':
+				@$mail_always_show_all = DAO_WorkerPref::get($active_worker->id,'mail_always_show_all',0);
+				@$tab_option = array_shift($stack);
+				
+				if($mail_always_show_all || 0==strcasecmp("read_all",$tab_option)) {
+					$tpl->assign('expand_all', true);
+				}
+				break;
+		}
 		
 		// [JAS]: Mask
 		if(!is_numeric($id)) {
@@ -7092,7 +7106,6 @@ class ChDisplayPage extends CerberusPageExtension {
 			return;
 		}
 
-		$active_worker = CerberusApplication::getActiveWorker();
 		$active_worker_memberships = $active_worker->getMemberships();
 		
 		// Check group membership ACL
@@ -7423,7 +7436,8 @@ class ChDisplayPage extends CerberusPageExtension {
 		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer',0);
 		
 		DAO_Ticket::updateTicket($ticket_id,array(
-			DAO_Ticket::NEXT_WORKER_ID => 0 // anybody
+			DAO_Ticket::NEXT_WORKER_ID => 0, // anybody
+			DAO_Ticket::UNLOCK_DATE => 0,
 		));
 	}
 	
@@ -7524,6 +7538,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		    'closed' => DevblocksPlatform::importGPC(@$_REQUEST['closed'],'integer',0),
 		    'bucket_id' => DevblocksPlatform::importGPC(@$_REQUEST['bucket_id'],'string',''),
 		    'ticket_reopen' => DevblocksPlatform::importGPC(@$_REQUEST['ticket_reopen'],'string',''),
+		    'unlock_date' => DevblocksPlatform::importGPC(@$_REQUEST['unlock_date'],'string',''),
 		    'agent_id' => @$worker->id,
 		    'forward_files' => DevblocksPlatform::importGPC(@$_REQUEST['forward_files'],'array',array()),
 		);
@@ -7535,17 +7550,22 @@ class ChDisplayPage extends CerberusPageExtension {
 	
 	function showConversationAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer');
+		@$expand_all = DevblocksPlatform::importGPC($_REQUEST['expand_all'],'integer','0');
 
 		@$active_worker = CerberusApplication::getActiveWorker();
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		
+		$tpl->assign('expand_all', $expand_all);
+		
 		$ticket = DAO_Ticket::getTicket($id);
 		$tpl->assign('ticket', $ticket);
 
 		$messages = $ticket->getMessages();
+		
 		arsort($messages);
+				
 		$tpl->assign('latest_message_id',key($messages));
 		$tpl->assign('messages', $messages);
 
@@ -7573,7 +7593,11 @@ class ChDisplayPage extends CerberusPageExtension {
 		}
 		
 		// sort the timeline
-		krsort($convo_timeline);
+		if(!$expand_all) {
+			krsort($convo_timeline);
+		} else {
+			ksort($convo_timeline);
+		}
 		$tpl->assign('convo_timeline', $convo_timeline);
 		
 		// Message Notes
@@ -7701,6 +7725,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		@$remove = DevblocksPlatform::importGPC($_POST['remove'],'array',array());
 		@$next_worker_id = DevblocksPlatform::importGPC($_POST['next_worker_id'],'integer',0);
 		@$next_action = DevblocksPlatform::importGPC($_POST['next_action'],'string','');
+		@$unlock_date = DevblocksPlatform::importGPC($_POST['unlock_date'],'string','');
 		@$subject = DevblocksPlatform::importGPC($_POST['subject'],'string','');
 		@$waiting = DevblocksPlatform::importGPC($_POST['waiting'],'waiting',0);
 		
@@ -7713,6 +7738,9 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		// Properties
 
+		if(empty($next_worker_id))
+			$unlock_date = "";
+		
 		if(isset($waiting))
 			$fields[DAO_Ticket::IS_WAITING] = $waiting;
 			
@@ -7721,6 +7749,11 @@ class ChDisplayPage extends CerberusPageExtension {
 			
 		if(isset($next_action))
 			$fields[DAO_Ticket::NEXT_ACTION] = $next_action;
+
+		if(isset($unlock_date)) {
+			@$time = intval(strtotime($unlock_date));
+			$fields[DAO_Ticket::UNLOCK_DATE] = $time;
+		}
 
 		if(!empty($subject))
 			$fields[DAO_Ticket::SUBJECT] = $subject;
@@ -8631,12 +8664,14 @@ class ChPreferencesPage extends CerberusPageExtension {
 		$mail_inline_comments = DAO_WorkerPref::get($worker->id,'mail_inline_comments',1);
 		$tpl->assign('mail_inline_comments', $mail_inline_comments);
 		
+		$mail_always_show_all = DAO_WorkerPref::get($worker->id,'mail_always_show_all',0);
+		$tpl->assign('mail_always_show_all', $mail_always_show_all);
+		
 		$addresses = DAO_AddressToWorker::getByWorker($worker->id);
 		$tpl->assign('addresses', $addresses);
 		
 		$tpl->display('file:' . $tpl_path . '/preferences/modules/general.tpl.php');
 	}
-	
 	
 	// Ajax [TODO] This should probably turn into Extension_PreferenceTab
 	function showRssAction() {
@@ -8681,6 +8716,9 @@ class ChPreferencesPage extends CerberusPageExtension {
 
 		@$mail_inline_comments = DevblocksPlatform::importGPC($_REQUEST['mail_inline_comments'],'integer',0);
 		DAO_WorkerPref::set($worker->id, 'mail_inline_comments', $mail_inline_comments);
+		
+		@$mail_always_show_all = DevblocksPlatform::importGPC($_REQUEST['mail_always_show_all'],'integer',0);
+		DAO_WorkerPref::set($worker->id, 'mail_always_show_all', $mail_always_show_all);
 		
 		// Alternate Email Addresses
 		@$new_email = DevblocksPlatform::importGPC($_REQUEST['new_email'],'string','');

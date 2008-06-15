@@ -168,21 +168,21 @@
 			<span style="color:rgb(130,130,130);">
 			{if $result.t_last_action_code=='O'}
 				{assign var=action_worker_id value=$result.t_next_worker_id}
-				<span title="{$result.t_first_wrote}">New 
+				<span title="{$result.t_first_wrote}"><span style="">New</span> 
 				{if isset($workers.$action_worker_id)}for {$workers.$action_worker_id->getName()}{else}from <a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$result.t_first_wrote}&view_id={$view->id}',this,false,'500px',ajax.cbAddressPeek);">{$result.t_first_wrote|truncate:45:'...':true:true}</a>{/if}</span>
 			{elseif $result.t_last_action_code=='R'}
 				{assign var=action_worker_id value=$result.t_next_worker_id}
 				{if isset($workers.$action_worker_id)}
-					<span title="{$result.t_last_wrote}"><b>Incoming for {$workers.$action_worker_id->getName()}</b></span>
+					<span title="{$result.t_last_wrote}"><span style="color:rgb(255,50,50);background-color:rgb(255,213,213);font-weight:bold;">Inbound</span> for {$workers.$action_worker_id->getName()}</span>
 				{else}
-					<span title="{$result.t_last_wrote}"><b>Incoming for Helpdesk</b></span>
+					<span title="{$result.t_last_wrote}"><span style="color:rgb(255,50,50);background-color:rgb(255,213,213);font-weight:bold;">Inbound</span> for Helpdesk</span>
 				{/if}
 			{elseif $result.t_last_action_code=='W'}
 				{assign var=action_worker_id value=$result.t_last_worker_id}
 				{if isset($workers.$action_worker_id)}
-					<span title="{$result.t_last_wrote}">Outgoing from {$workers.$action_worker_id->getName()}</span>
+					<span title="{$result.t_last_wrote}"><span style="color:rgb(50,120,50);background-color:rgb(219,255,190);font-weight:bold;">Outbound</span> from {$workers.$action_worker_id->getName()}</span>
 				{else}
-					<span title="{$result.t_last_wrote}">Outgoing from Helpdesk</span>
+					<span title="{$result.t_last_wrote}"><span style="color:rgb(50,120,50);background-color:rgb(219,255,190);font-weight:bold;">Outbound</span> from Helpdesk</span>
 				{/if}
 			{/if}
 			</span>

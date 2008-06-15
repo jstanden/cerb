@@ -56,7 +56,3 @@ No topics or resources have been configured.<br>
 
 {/if}
 
-<!-- 
-<input type="button" value="{$translate->_('common.save_changes')}" onclick="ajax.s('{$view_id}');">
-<br>
- -->

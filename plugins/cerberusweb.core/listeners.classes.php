@@ -331,7 +331,7 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 	}
 
 	private function _handleCronHeartbeat($event) {
-		// Re-open any conversations past their 'reopen at' due time
+		// Re-open any conversations past their reopen date
 		$fields = array(
 			DAO_Ticket::IS_CLOSED => 0,
 			DAO_Ticket::DUE_DATE => 0
@@ -341,6 +341,22 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 			CerberusTicketStatus::CLOSED,
 			DAO_Ticket::DUE_DATE,
 			DAO_Ticket::DUE_DATE,
+			time()
+		);
+		DAO_Ticket::updateWhere($fields, $where);
+
+		// Close any 'waiting' tickets past their group max wait time 
+		// [TODO]
+		
+		// Surrender any tickets past their unlock date
+		$fields = array(
+			DAO_Ticket::NEXT_WORKER_ID => 0,
+			DAO_Ticket::UNLOCK_DATE => 0
+		);
+		$where = sprintf("%s > 0 AND %s > 0 AND %s < %d",
+			DAO_Ticket::NEXT_WORKER_ID,
+			DAO_Ticket::UNLOCK_DATE,
+			DAO_Ticket::UNLOCK_DATE,
 			time()
 		);
 		DAO_Ticket::updateWhere($fields, $where);
@@ -398,6 +414,9 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 			$tickets = DAO_Ticket::getTickets($ticket_ids);
 			
 			foreach($tickets as $ticket) { /* @var $ticket CerberusTicket */
+				if(!isset($group_settings[$ticket->team_id][DAO_GroupSettings::SETTING_CLOSE_REPLY_ENABLED]))
+					continue;
+				
 				if($group_settings[$ticket->team_id][DAO_GroupSettings::SETTING_CLOSE_REPLY_ENABLED]
 				&& !empty($group_settings[$ticket->team_id][DAO_GroupSettings::SETTING_CLOSE_REPLY])) {
 					CerberusMail::sendTicketMessage(array(

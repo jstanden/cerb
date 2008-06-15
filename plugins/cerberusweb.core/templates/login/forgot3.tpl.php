@@ -13,6 +13,6 @@ You may now choose a new password.<br>
 <b>New password (confirm):</b><br>
 <input type="password" name="confirm" size="25" value=""><br>
 <br>
-<input type="submit" value="Set Password">
+<button type="submit">Set Password</button>
 </form>
 </div>

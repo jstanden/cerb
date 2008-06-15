@@ -18,7 +18,7 @@
 			<option value="org"{if $quick_search_type eq 'org'}selected{/if}>Organization</option>
 			<option value="subject"{if $quick_search_type eq 'subject'}selected{/if}>Subject</option>
 			<option value="content"{if $quick_search_type eq 'content'}selected{/if}>Content</option>
-		</select><input type="text" name="query" size="24"><input type="submit" value="go!">
+		</select><input type="text" name="query" size="24"><button type="submit">go!</button>
 		</form>
 	</td>
 </tr>
@@ -76,6 +76,12 @@ CreateKeyHandler(function doShortcuts(e) {
 		case "E":
 			try {
 				document.getElementById('btnOverviewExpand').click();
+			} catch(e){}
+			break;
+		case "m":  // my tickets
+		case "M":
+			try {
+				document.getElementById('btnMyTickets').click();
 			} catch(e){}
 			break;
 		case "s":  // spam

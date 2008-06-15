@@ -2215,6 +2215,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 	const CREATED_DATE = 'created_date';
 	const UPDATED_DATE = 'updated_date';
 	const DUE_DATE = 'due_date';
+	const UNLOCK_DATE = 'unlock_date';
 	const SPAM_TRAINING = 'spam_training';
 	const SPAM_SCORE = 'spam_score';
 	const INTERESTING_WORDS = 'interesting_words';
@@ -2317,8 +2318,8 @@ class DAO_Ticket extends DevblocksORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$newId = $db->GenID('ticket_seq');
 		
-		$sql = sprintf("INSERT INTO ticket (id, mask, subject, first_message_id, last_wrote_address_id, first_wrote_address_id, created_date, updated_date, due_date, team_id, category_id) ".
-			"VALUES (%d,'','',0,0,0,%d,%d,0,0,0)",
+		$sql = sprintf("INSERT INTO ticket (id, mask, subject, first_message_id, last_wrote_address_id, first_wrote_address_id, created_date, updated_date, due_date, unlock_date, team_id, category_id) ".
+			"VALUES (%d,'','',0,0,0,%d,%d,0,0,0,0)",
 			$newId,
 			time(),
 			time()
@@ -2494,7 +2495,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 		if(empty($ids)) return array();
 		
 		$sql = "SELECT t.id , t.mask, t.subject, t.is_waiting, t.is_closed, t.is_deleted, t.team_id, t.category_id, t.first_message_id, ".
-			"t.first_wrote_address_id, t.last_wrote_address_id, t.created_date, t.updated_date, t.due_date, t.spam_training, ". 
+			"t.first_wrote_address_id, t.last_wrote_address_id, t.created_date, t.updated_date, t.due_date, t.unlock_date, t.spam_training, ". 
 			"t.spam_score, t.interesting_words, t.next_action, t.last_worker_id, t.next_worker_id, t.sla_id, t.sla_priority ".
 			"FROM ticket t ".
 			(!empty($ids) ? sprintf("WHERE t.id IN (%s) ",implode(',',$ids)) : " ").
@@ -2518,6 +2519,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 			$ticket->created_date = intval($rs->fields['created_date']);
 			$ticket->updated_date = intval($rs->fields['updated_date']);
 			$ticket->due_date = intval($rs->fields['due_date']);
+			$ticket->unlock_date = intval($rs->fields['unlock_date']);
 			$ticket->spam_score = floatval($rs->fields['spam_score']);
 			$ticket->spam_training = $rs->fields['spam_training'];
 			$ticket->interesting_words = $rs->fields['interesting_words'];
@@ -3112,6 +3114,7 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 	const TICKET_CREATED_DATE = 't_created_date';
 	const TICKET_UPDATED_DATE = 't_updated_date';
 	const TICKET_DUE_DATE = 't_due_date';
+	const TICKET_UNLOCK_DATE = 't_unlock_date';
 	const TICKET_SPAM_SCORE = 't_spam_score';
 	const TICKET_SPAM_TRAINING = 't_spam_training';
 	const TICKET_INTERESTING_WORDS = 't_interesting_words';
@@ -3178,6 +3181,7 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 			self::TICKET_FIRST_WROTE_NONSPAM => new DevblocksSearchField(self::TICKET_FIRST_WROTE_NONSPAM, 'a1', 'num_nonspam',null,$translate->_('address.num_nonspam')),
 			self::TICKET_INTERESTING_WORDS => new DevblocksSearchField(self::TICKET_INTERESTING_WORDS, 't', 'interesting_words',null,$translate->_('ticket.interesting_words')),
 			self::TICKET_DUE_DATE => new DevblocksSearchField(self::TICKET_DUE_DATE, 't', 'due_date',null,$translate->_('ticket.due')),
+			self::TICKET_UNLOCK_DATE => new DevblocksSearchField(self::TICKET_UNLOCK_DATE, 't', 'unlock_date',null),
 			self::TICKET_SLA_ID => new DevblocksSearchField(self::TICKET_SLA_ID, 't', 'sla_id',null,$translate->_('sla.name')),
 			self::TICKET_SLA_PRIORITY => new DevblocksSearchField(self::TICKET_SLA_PRIORITY, 't', 'sla_priority',null,$translate->_('sla.priority')),
 			self::TICKET_FIRST_CONTACT_ORG_ID => new DevblocksSearchField(self::TICKET_FIRST_CONTACT_ORG_ID, 'a1', 'contact_org_id'),

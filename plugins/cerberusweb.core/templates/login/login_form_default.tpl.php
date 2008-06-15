@@ -18,7 +18,7 @@
 	</td>
 </tr>
 </table>
-<input type="submit" value="{$translate->_('header.signon')|capitalize}">
+<button type="submit">{$translate->_('header.signon')|capitalize}</button>
 </form>
 </div>
 

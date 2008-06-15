@@ -2313,6 +2313,7 @@ class CerberusTicket {
 	public $created_date;
 	public $updated_date;
 	public $due_date;
+	public $unlock_date;
 	public $spam_score;
 	public $spam_training;
 	public $interesting_words;
