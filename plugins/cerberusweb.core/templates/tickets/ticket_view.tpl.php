@@ -175,7 +175,7 @@
 				{if isset($workers.$action_worker_id)}
 					<span title="{$result.t_last_wrote}"><span style="color:rgb(255,50,50);background-color:rgb(255,213,213);font-weight:bold;">Inbound</span> for {$workers.$action_worker_id->getName()}</span>
 				{else}
-					<span title="{$result.t_last_wrote}"><span style="color:rgb(255,50,50);background-color:rgb(255,213,213);font-weight:bold;">Inbound</span> for Helpdesk</span>
+					<span title="{$result.t_last_wrote}"><span style="color:rgb(255,50,50);background-color:rgb(255,213,213);font-weight:bold;">Inbound</span> from <a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$result.t_last_wrote}&view_id={$view->id}',this,false,'500px',ajax.cbAddressPeek);">{$result.t_last_wrote|truncate:45:'...':true:true}</a></span>
 				{/if}
 			{elseif $result.t_last_action_code=='W'}
 				{assign var=action_worker_id value=$result.t_last_worker_id}
