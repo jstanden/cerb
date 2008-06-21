@@ -193,9 +193,10 @@ abstract class CerberusCronPageExtension extends DevblocksExtension {
 	}
 	
 	/**
+	 * @param boolean $is_ignoring_wait Ignore the wait time when deciding to run
 	 * @return boolean
 	 */
-	public function isReadyToRun() {
+	public function isReadyToRun($is_ignoring_wait=false) {
 		$locked = $this->getParam(self::PARAM_LOCKED, 0);
 		$enabled = $this->getParam(self::PARAM_ENABLED, false);
 		$duration = $this->getParam(self::PARAM_DURATION, 5);
@@ -208,7 +209,10 @@ abstract class CerberusCronPageExtension extends DevblocksExtension {
 	    }
 
 	    // Make sure enough time has elapsed.
-	    $checkpoint = $lastrun + self::getIntervalAsSeconds($duration, $term);
+	    $checkpoint = ($is_ignoring_wait)
+	    	? (0) // if we're ignoring wait times, be ready now
+	    	: ($lastrun + self::getIntervalAsSeconds($duration, $term)) // otherwise test
+	    	;
 
 	    // Ready?
 	    return (!$locked && $enabled && time() >= $checkpoint) ? true : false;

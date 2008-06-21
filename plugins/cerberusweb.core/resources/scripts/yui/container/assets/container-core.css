@@ -1,8 +1,8 @@
 /*
-Copyright (c) 2007, Yahoo! Inc. All rights reserved.
+Copyright (c) 2008, Yahoo! Inc. All rights reserved.
 Code licensed under the BSD License:
 http://developer.yahoo.net/yui/license.txt
-version: 2.4.0
+version: 2.5.2
 */
 .yui-overlay,
 .yui-panel-container {
@@ -23,9 +23,13 @@ version: 2.4.0
     left: 0;
     right: 0;
     bottom: 0;
+}
+
+.mask.block-scrollbars {
     /*
         Application of "overflow:auto" prevents Mac scrollbars from bleeding
-        through the modality mask in Gecko.
+        through the modality mask in Gecko. The block-scollbars class is only 
+        added for Gecko on MacOS
     */
     overflow: auto;
 }
@@ -107,22 +111,16 @@ PLEASE NOTE:
 }
 
 .hide-scrollbars select {
-
     display: none;
-
 }
 
 .show-scrollbars {
-
     overflow: auto;
-
 }
 
 .yui-panel-container.show-scrollbars,
 .yui-tt.show-scrollbars {
-
     overflow: visible;
-
 }
 
 .yui-panel-container.show-scrollbars .underlay,

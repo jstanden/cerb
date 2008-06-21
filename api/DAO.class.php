@@ -2373,7 +2373,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 	            array(
 	                new DevblocksSearchCriteria(SearchFields_Message::TICKET_ID,DevblocksSearchCriteria::OPER_IN,$ids),
 	            ),
-	            25,
+	            10,
 	            0,
 	            SearchFields_Message::ID,
 	            true,

@@ -44,6 +44,12 @@
 					<br>
 				</div>
 				
+				<b>Maximum Deliveries Per SMTP Connection:</b><br>
+				<input type="text" name="smtp_max_sends" value="{$settings->get('smtp_max_sends',20)}" size="5">
+				<i>(tuning this depends on your mail server; default is 20)</i>
+				<br>
+				<br>
+				
 				<div id="configSmtpTest"></div>	
 				<button type="button" onclick="genericAjaxGet('configSmtpTest','c=config&a=getSmtpTest&host='+this.form.smtp_host.value+'&port='+this.form.smtp_port.value+'&enc='+radioValue(this.form.smtp_enc)+'&smtp_user='+this.form.smtp_auth_user.value+'&smtp_pass='+this.form.smtp_auth_pass.value);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/gear.gif{/devblocks_url}" align="top"> Test SMTP</button>				
 			</blockquote>

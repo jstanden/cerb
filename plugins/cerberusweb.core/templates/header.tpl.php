@@ -2,9 +2,9 @@
 <html>
 <head>
 	<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=ISO-8859-1">
+	<META HTTP-EQUIV="Cache-Control" CONTENT="no-cache">
 	<!--
 	<META HTTP-EQUIV="Pragma" CONTENT="no-cache">
-	<META HTTP-EQUIV="Cache-Control" CONTENT="no-cache">
 	<META HTTP-EQUIV="Pragma-directive" CONTENT="no-cache">
 	<META HTTP-EQUIV="Cache-Directive" CONTENT="no-cache">
 	<META HTTP-EQUIV="Expires" CONTENT="0">
@@ -12,28 +12,17 @@
 
   <title>{$settings->get('helpdesk_title')}</title>
   <link type="image/x-icon" rel="shortcut icon" href="{devblocks_url}favicon.ico{/devblocks_url}">
-  {*
-  <link type="text/css" rel="stylesheet" href="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yui/button/assets/skins/sam/button.css{/devblocks_url}?v={$smarty.const.APP_BUILD}">
-  <link type="text/css" rel="stylesheet" href="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yui/menu/assets/skins/sam/menu.css{/devblocks_url}?v={$smarty.const.APP_BUILD}">
-  *}
   <link type="text/css" rel="stylesheet" href="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yui/container/assets/skins/sam/container.css{/devblocks_url}?v={$smarty.const.APP_BUILD}">
   <link type="text/css" rel="stylesheet" href="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yui/calendar/assets/skins/sam/calendar.css{/devblocks_url}?v={$smarty.const.APP_BUILD}">
   <link type="text/css" rel="stylesheet" href="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yui/autocomplete/assets/skins/sam/autocomplete.css{/devblocks_url}?v={$smarty.const.APP_BUILD}">
   <link type="text/css" rel="stylesheet" href="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yui/tabview/assets/skins/sam/tabview.css{/devblocks_url}?v={$smarty.const.APP_BUILD}" />  
-  {*<link type="text/css" rel="stylesheet" href="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yui/editor/assets/skins/sam/editor.css{/devblocks_url}?v={$smarty.const.APP_BUILD}" />*}  
   <link type="text/css" rel="stylesheet" href="{devblocks_url}styles/default/cerberus.css?v={$smarty.const.APP_BUILD}{/devblocks_url}">
   
   <script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yui/utilities/utilities.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script> 
-  {*<script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yui/element/element-min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>*} 
   <script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yui/calendar/calendar-min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script> 
   <script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yui/container/container-min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script> 
   <script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yui/tabview/tabview-min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script> 
   <script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yui/autocomplete/autocomplete-min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
-  {*
-  <script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yui/menu/menu-min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script> 
-  <script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yui/button/button-min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
-  <script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yui/editor/editor-beta-min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
-  *}
 
   <script language="javascript" type="text/javascript">{php}DevblocksPlatform::printJavascriptLibrary();{/php}</script>
   
@@ -42,7 +31,6 @@
   <script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/cerberus/config.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
   
   <script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/livevalidation/livevalidation.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
-  
 </head>
 
 <body class="yui-skin-sam">

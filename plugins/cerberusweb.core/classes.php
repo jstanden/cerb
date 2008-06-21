@@ -2742,6 +2742,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 			$smtp_auth_pass = ''; 
 		}
 		$smtp_enc = $settings->get(CerberusSettings::SMTP_ENCRYPTION_TYPE,'None');
+		$smtp_max_sends = $settings->get(CerberusSettings::SMTP_MAX_SENDS,'20');
 		
 		$pop3_accounts = DAO_Mail::getPop3Accounts();
 		$tpl->assign('pop3_accounts', $pop3_accounts);
@@ -3734,6 +3735,8 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	    @$default_signature_pos = DevblocksPlatform::importGPC($_POST['default_signature_pos'],'integer',0);
 	    @$smtp_host = DevblocksPlatform::importGPC($_REQUEST['smtp_host'],'string','localhost');
 	    @$smtp_port = DevblocksPlatform::importGPC($_REQUEST['smtp_port'],'integer',25);
+	    @$smtp_max_sends = DevblocksPlatform::importGPC($_REQUEST['smtp_max_sends'],'integer',20);
+
 	    @$smtp_auth_enabled = DevblocksPlatform::importGPC($_REQUEST['smtp_auth_enabled'],'integer', 0);
 	    if($smtp_auth_enabled) {
 		    @$smtp_auth_user = DevblocksPlatform::importGPC($_REQUEST['smtp_auth_user'],'string');
@@ -3756,6 +3759,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	    $settings->set(CerberusSettings::SMTP_AUTH_USER, $smtp_auth_user);
 	    $settings->set(CerberusSettings::SMTP_AUTH_PASS, $smtp_auth_pass);
 	    $settings->set(CerberusSettings::SMTP_ENCRYPTION_TYPE, $smtp_enc);
+	    $settings->set(CerberusSettings::SMTP_MAX_SENDS, !empty($smtp_max_sends) ? $smtp_max_sends : 20);
 	    
 	    DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','mail','outgoing','test')));
 	}
@@ -6156,6 +6160,8 @@ class ChCronController extends DevblocksControllerExtension {
 	    $authorized_ip_defaults = DevblocksPlatform::parseCsvString(AUTHORIZED_IPS_DEFAULTS);
 	    $authorized_ips = array_merge($authorized_ips, $authorized_ip_defaults);
 	    
+	    @$is_ignoring_wait = DevblocksPlatform::importGPC($_REQUEST['ignore_wait'],'integer',0);
+	    
 	    $pass = false;
 		foreach ($authorized_ips as $ip)
 		{
@@ -6198,7 +6204,7 @@ class ChCronController extends DevblocksControllerExtension {
 			foreach($cron_manifests as $idx => $instance) { /* @var $instance CerberusCronPageExtension */
 			    $lastrun = $instance->getParam(CerberusCronPageExtension::PARAM_LASTRUN, 0);
 			    
-			    if($instance->isReadyToRun()) {
+			    if($instance->isReadyToRun($is_ignoring_wait)) {
 			        if($timelimit) {
 			            if($lastrun < $nexttime) {
 			                $jobs[0] = $cron_manifests[$idx];
@@ -6217,7 +6223,7 @@ class ChCronController extends DevblocksControllerExtension {
 	        $instance = $manifest->createInstance();
 	        
 			if($instance) {
-			    if($instance->isReadyToRun()) {
+			    if($instance->isReadyToRun($is_ignoring_wait)) {
 			        $jobs[0] =& $instance;
 			    }
 			}

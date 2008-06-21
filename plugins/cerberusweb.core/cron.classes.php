@@ -48,6 +48,11 @@
  * 		and Joe Geck.
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
+/*
+ * PARAMS (overloads):
+ * parse_max=n (max tickets to parse)
+ *
+ */
 class ParseCron extends CerberusCronPageExtension {
 	function scanDirMessages($dir) {
 		if(substr($dir,-1,1) != DIRECTORY_SEPARATOR) $dir .= DIRECTORY_SEPARATOR;
@@ -69,7 +74,10 @@ class ParseCron extends CerberusCronPageExtension {
 		echo "<BR>\r\n";
 		//        flush();
 
-		$total = $this->getParam('max_messages', 500);
+		// Allow runtime overloads (by host, etc.)
+		@$gpc_parse_max = DevblocksPlatform::importGPC($_REQUEST['parse_max'],'integer');
+		
+		$total = !empty($gpc_parse_max) ? $gpc_parse_max : $this->getParam('max_messages', 500);
 
 		$mailDir = APP_MAIL_PATH . 'new' . DIRECTORY_SEPARATOR;
 		$subdirs = glob($mailDir . '*', GLOB_ONLYDIR);
@@ -153,6 +161,11 @@ class ParseCron extends CerberusCronPageExtension {
 	}
 };
 
+/*
+ * PARAMS (overloads):
+ * maint_max_deletes=n (max tickets to purge)
+ *
+ */
 // [TODO] Clear idle temp files (fileatime())
 class MaintCron extends CerberusCronPageExtension {
 	function run() {
@@ -162,22 +175,23 @@ class MaintCron extends CerberusCronPageExtension {
 
 		// Purge Deleted Content
 		$purged = 0;
-		$max_purges = 2500; // max per maint run // [TODO] Make this configurable from job
+		// [TODO] Make this configurable from job for the 'else'
+		@$max_purges = DevblocksPlatform::importGPC($_REQUEST['maint_max_deletes'],'integer',1000);
 
 		$purge_waitdays = intval($this->getParam('purge_waitdays', 7));
 		$purge_waitsecs = $purge_waitdays*24*60*60;
 
 		$sql = sprintf("SELECT id FROM ticket WHERE is_deleted = 1 AND updated_date < %d ORDER BY updated_date",
-		time()-$purge_waitsecs
+			time()-$purge_waitsecs
 		);
-		$rs = $db->SelectLimit($sql,$max_purges);
+		$rs = $db->SelectLimit($sql, $max_purges);
 
 		$purged = 0;
 		$buffer = array();
 
 		while(!$rs->EOF) {
 			$buffer[] = intval($rs->fields['id']);
-			if(++$purged % 25 == 0) {
+			if(++$purged % 10 == 0) {
 				DAO_Ticket::delete($buffer);
 				$buffer = array();
 			}
@@ -422,6 +436,11 @@ class ImportCron extends CerberusCronPageExtension {
 	}
 };
 
+/*
+ * PARAMS (overloads):
+ * pop3_max=n (max messages to download at once)
+ *
+ */
 class Pop3Cron extends CerberusCronPageExtension {
 	function run() {
 		if (!extension_loaded("imap")) die("IMAP Extension not loaded!");
@@ -431,8 +450,12 @@ class Pop3Cron extends CerberusCronPageExtension {
 		$accounts = DAO_Mail::getPop3Accounts(); /* @var $accounts CerberusPop3Account[] */
 
 		$timeout = ini_get('max_execution_time');
-		$max_downloads = $this->getParam('max_messages', (($timeout) ? 20 : 50));
-
+		
+		// Allow runtime overloads (by host, etc.)
+		@$gpc_pop3_max = DevblocksPlatform::importGPC($_REQUEST['pop3_max'],'integer');
+		
+		$max_downloads = !empty($gpc_pop3_max) ? $gpc_pop3_max : $this->getParam('max_messages', (($timeout) ? 20 : 50));
+		
 		// [JAS]: Make sure our output directory is writeable
 		if(!is_writable(APP_MAIL_PATH . 'new' . DIRECTORY_SEPARATOR)) {
 			echo "The mail storage directory is not writeable.  Skipping POP3 download.<br>\r\n";

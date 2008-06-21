@@ -48,7 +48,7 @@
  * 		and Joe Geck.
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-define("APP_BUILD", 627);
+define("APP_BUILD", 629);
 define("APP_MAIL_PATH", realpath(APP_PATH . '/storage/mail') . DIRECTORY_SEPARATOR);
 
 include_once(APP_PATH . "/api/DAO.class.php");
@@ -668,6 +668,7 @@ class CerberusSettings {
 	const SMTP_AUTH_PASS = 'smtp_auth_pass'; 
 	const SMTP_PORT = 'smtp_port'; 
 	const SMTP_ENCRYPTION_TYPE = 'smtp_enc';
+	const SMTP_MAX_SENDS = 'smtp_max_sends';
 	const ATTACHMENTS_ENABLED = 'attachments_enabled'; 
 	const ATTACHMENTS_MAX_SIZE = 'attachments_max_size'; 
 	const PARSER_AUTO_REQ = 'parser_autoreq'; 
@@ -691,6 +692,7 @@ class CerberusSettings {
 		self::SMTP_AUTH_PASS => '',
 		self::SMTP_PORT => 25,
 		self::SMTP_ENCRYPTION_TYPE => 'None',
+		self::SMTP_MAX_SENDS => 20,
 		self::ATTACHMENTS_ENABLED => 1,
 		self::ATTACHMENTS_MAX_SIZE => 10, // MB
 		self::AUTHORIZED_IPS => '127.0.0.1', 

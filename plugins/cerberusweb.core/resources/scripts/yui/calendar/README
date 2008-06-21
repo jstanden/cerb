@@ -1,4 +1,65 @@
-Calendar Release Notes 
+Calendar Release Notes
+
+*** version 2.5.2 ***
+
++ CalendarGroup toDate method no longer throws javascript exception
+
+*** version 2.5.1 *** 
+
++ Fixed bug with mindate, maxdate being applied incorrectly if 
+  set to a day on which time change took place (DST, E.U Summertime) 
+  and the day is not the first day of the week.
+
++ Fixed DateMath.getWeekNumber implementation to return correct 
+  week numbers. The older implementation would return Week 0 for 
+  certain weeks (e.g. the week starting Sun Dec 28th 2008)
+
+  To suppor the fix, DateMath.getWeekNumber has a signature 
+  change in 2.5.1 and can now support U.S Week calculations based 
+  on Jan 1st identifying the first week of the year, as well as 
+  ISO8601 week calculations based on Jan 4th identifying the first 
+  week of the year
+
+  The arguments which the method expected prior to 2.5.1 were not 
+  being used in calculating the week number. The new signature is:
+
+  DateMath.getWeekNumber(Date dt, Number firstDayOfWeek, Number janDate)
+
+  Where:
+
+    dt is the date for which week number is required
+
+    firstDayOfWeek is the day index identifying the first 
+    day of the week. Default is 0 (Sunday).
+
+    janDate is the date in the first week of January, which
+    identifies the first week of the year. 
+    Default is YAHOO.widget.DateMath.WEEK_ONE_JAN_DATE (1)
+
+  NOTE: Calendar instances themselves do not currently expose a 
+  configuration property to change the week numbering system 
+  used. A "janDate" value is not passed to the getWeekNumber 
+  method, when used by Calendar, resulting in it using the default value.
+
+  Therefore, ISO8601 week numbering can be generated for Calendars 
+  by setting the value of YAHOO.widget.DateMath.WEEK_ONE_JAN_DATE
+  to 4.
+
+*** version 2.5.0 *** 
+
++ Prevent default event handling in CalendarNavigator enter key 
+  listener, to prevent automatic form submission when using Calendar
+  inside a form.
+
++ Added workaround to DateMath.add and subtract for Safari 2 (webkit) 
+  bug in Date.setDate(n) which doesn't handle value of n less than -128 
+  or greater than 127 correctly.
+
+  See: http://brianary.blogspot.com/2006/03/safari-date-bug.html
+
++ Added border, padding and margin rules to Calendar Sam Skin to 
+  protect Sam Skin's look and feel when Calendar is used with 
+  YUI base.css
 
 *** version 2.4.0 *** 
 
@@ -84,7 +145,7 @@ Calendar Release Notes
 
 *** version 2.3.1 *** 
 
-- Changed Calendar/CalendarGroup to render an empty title bar element 
++ Changed Calendar/CalendarGroup to render an empty title bar element 
   when "close" is set to true, but "title" has not been set, to allow Sam 
   Skin to render a title bar correctly. 
 
