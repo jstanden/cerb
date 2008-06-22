@@ -17,7 +17,7 @@ especially likely if you are migrating away from desktop e-mail programs to the
 web for the first time.<br>
 <br>
 The best place to become familiar with the concepts used in Cerberus Helpdesk 
-is the <a href="http://wiki.cerberusdemo.com/index.php/Main_Page" target="_blank">online documentation</a>. 
+is the <a href="http://wiki.cerb4.com/wiki/Main_Page" target="_blank">online documentation</a>. 
 This area is dedicated to creating and maintaining tutorials, feature guides and best practices.<br>
 <br>
 
@@ -25,16 +25,6 @@ This area is dedicated to creating and maintaining tutorials, feature guides and
 	You should delete the 'install' directory now.
 </div>
 
-<!-- 
-Here is a collection of useful links to help get you started:<br>
-<ul>
-	<li><a href="http://wiki.cerberusdemo.com/index.php/Main_Page" target="_blank">Online Documentation</a></li>
-	<li><a href="http://forum.cerberusweb.com/" target="_blank">Community Forums</a></li>
-	<li><a href="http://www.cerberusdemo.com/" target="_blank">Evaluation Center</a></li>
-	<li><a href="http://www.cerberusweb.com/" target="_blank">Project Website</a></li>
-</ul>
- -->
 <br>
 
-<!-- <input type="submit" value="Continue &gt;&gt;"> -->
 </form>

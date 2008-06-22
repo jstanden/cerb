@@ -793,6 +793,7 @@ EOF;
 				@$default_from = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM,'');
 				
 				@$contact_phone = stripslashes($_REQUEST['contact_phone']);
+				@$contact_refer = stripslashes($_REQUEST['contact_refer']);
 				@$q1 = stripslashes($_REQUEST['q1']);
 				@$q2 = stripslashes($_REQUEST['q2']);
 				@$q3 = stripslashes($_REQUEST['q3']);
@@ -809,6 +810,7 @@ EOF;
 				  $msg = sprintf(
 				    "Contact Name: %s\r\n".
 				    "Organization: %s\r\n".
+				    "Referred by: %s\r\n".
 				    "Phone: %s\r\n".
 				    "\r\n".
 				    "#1: Briefly, what does your organization do?\r\n%s\r\n\r\n".
@@ -823,6 +825,7 @@ EOF;
 				    ,
 				    $contact_name,
 				    $contact_company,
+				    $contact_refer,
 				    $contact_phone,
 				    $q1,
 				    $q2,

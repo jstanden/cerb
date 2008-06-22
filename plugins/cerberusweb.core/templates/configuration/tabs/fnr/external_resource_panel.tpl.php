@@ -25,7 +25,7 @@
 <input type="text" name="name" size="24" value="{$resource->name}" style="width:98%;"><br>
 <br>
 
-<b>Search Adapter URL:</b> <a href="http://wiki.cerberusdemo.com/index.php/Fetch_%26_Retrieve_Cookbook" target="_blank" title="what's this?"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/help.gif{/devblocks_url}" border="0" align="top"></a><br>
+<b>Search Adapter URL:</b> <a href="http://wiki.cerb4.com/wiki/Fetch_%26_Retrieve_Cookbook" target="_blank" title="what's this?"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/help.gif{/devblocks_url}" border="0" align="top"></a><br>
 <input type="text" name="url" size="24" value="{$resource->url}" style="width:98%;"><br>
 (use <b>#find#</b> in the URL to represent search terms)<br>
 <br>

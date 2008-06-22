@@ -1072,9 +1072,7 @@ class ChTicketsPage extends CerberusPageExtension {
                 break;
                 
             case "content":
-		        if($query && false===strpos($query,'*'))
-		            $query = '*' . $query . '*';
-            	$params[SearchFields_Ticket::TICKET_MESSAGE_CONTENT] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_MESSAGE_CONTENT,DevblocksSearchCriteria::OPER_LIKE,$query);               
+            	$params[SearchFields_Ticket::TICKET_MESSAGE_CONTENT] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_MESSAGE_CONTENT,DevblocksSearchCriteria::OPER_FULLTEXT,$query);               
                 break;
                 
             case "org":

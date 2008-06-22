@@ -529,12 +529,15 @@ class C4_TicketView extends C4_AbstractView {
 			case SearchFields_Ticket::TICKET_LAST_WROTE:
 			case SearchFields_Ticket::REQUESTER_ADDRESS:
 			case SearchFields_Ticket::TICKET_NEXT_ACTION:
-			case SearchFields_Ticket::TICKET_MESSAGE_CONTENT:
 			case SearchFields_Ticket::TICKET_INTERESTING_WORDS:
 			case SearchFields_Ticket::ORG_NAME:
 				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__string.tpl.php');
 				break;
 
+			case SearchFields_Ticket::TICKET_MESSAGE_CONTENT:
+				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__fulltext.tpl.php');
+				break;
+				
 			case SearchFields_Ticket::TICKET_FIRST_WROTE_SPAM:
 			case SearchFields_Ticket::TICKET_FIRST_WROTE_NONSPAM:
 				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__number.tpl.php');
@@ -757,7 +760,6 @@ class C4_TicketView extends C4_AbstractView {
 			case SearchFields_Ticket::TICKET_LAST_WROTE:
 			case SearchFields_Ticket::REQUESTER_ADDRESS:
 			case SearchFields_Ticket::TICKET_NEXT_ACTION:
-			case SearchFields_Ticket::TICKET_MESSAGE_CONTENT:
 			case SearchFields_Ticket::TICKET_INTERESTING_WORDS:
 			case SearchFields_Ticket::ORG_NAME:
 				// force wildcards if none used on a LIKE
@@ -768,6 +770,10 @@ class C4_TicketView extends C4_AbstractView {
 				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
 				break;
 
+			case SearchFields_Ticket::TICKET_MESSAGE_CONTENT:
+				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
+				break;
+				
 			case SearchFields_Ticket::TICKET_WAITING:
 			case SearchFields_Ticket::TICKET_DELETED:
 			case SearchFields_Ticket::TICKET_CLOSED:

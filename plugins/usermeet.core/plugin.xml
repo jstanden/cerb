@@ -5,7 +5,7 @@
 	<description>Support for customer-focused public tools for your websites</description>
 	<author>WebGroup Media, LLC.</author>
 	<revision>0</revision>
-	<link>http://wiki.cerberusdemo.com/index.php/New_Changes#Community_Tools</link>
+	<link>http://wiki.cerb4.com/wiki/New_Changes#Community_Tools</link>
 	<class>
 		<file>classes.php</file>
 		<name>UmCorePlugin</name>

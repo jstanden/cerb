@@ -5,7 +5,7 @@
 	<description>The Forum Explorer synchronizes with your various support forums (e.g. vBulletin, phpBB2) to allow you to efficiently handle forum threads like tickets.</description>
 	<author>WebGroup Media, LLC.</author>
 	<revision>0</revision>
-	<link>http://wiki.cerberusdemo.com/index.php/Forum_Explorer_(Plugin)</link>
+	<link>http://wiki.cerb4.com/wiki/Forum_Explorer_(Plugin)</link>
 	<class>
 		<file>api/App.php</file>
 		<name>ChForumsPlugin</name>

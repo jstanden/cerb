@@ -39,25 +39,22 @@ options</a>.<br>
 	<br>
 </p>
 
-<table border="0" cellpadding="2" cellspacing="2" width="100">
-	<tbody>
-		<tr>
-			<td><b>Your name:</b></td>
-			<td><input size="55" name="contact_name"></td>
-		</tr>
-		<tr>
-			<td nowrap="nowrap"><b>Your organization:</b></td>
-			<td><input size="55" name="contact_company"></td>
-		</tr>
-		<tr>
-			<td nowrap="nowrap"><b>Your phone number (optional):</b></td>
-			<td><input size="55" name="contact_phone"></td>
-		</tr>
-		<tr>
-			<td colspan="2" rowspan="1" nowrap="nowrap"></td>
-		</tr>
-	</tbody>
-</table>
+<b>Your name:</b><br>
+<input size="64" name="contact_name"><br>
+<br>
+
+<b>Your organization:</b><br>
+<input size="64" name="contact_company"><br>
+<br>
+
+<b>How did you hear about Cerberus Helpdesk?</b><br>
+<input size="64" name="contact_refer"><br>
+<br>
+
+<b>Your phone number:</b><br>
+<input size="24" name="contact_phone">(optional)<br>
+<br>
+
 
 <h3>#1: Briefly, what does your organization do?</h3>
 <textarea cols="65" rows="3" name="q1"></textarea><br>

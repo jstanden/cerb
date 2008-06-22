@@ -49,7 +49,7 @@
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
 $db = DevblocksPlatform::getDatabaseService();
-$datadict = NewDataDictionary($db); /* @var $datadict ADODB_DataDict */ // ,'mysql' 
+$datadict = NewDataDictionary($db,'mysql'); /* @var $datadict ADODB2_mysql */ // ,'mysql' 
 
 $tables = $datadict->MetaTables();
 $tables = array_flip($tables);
@@ -214,11 +214,27 @@ if(isset($columns['CODE'])) {
     $datadict->ExecuteSQLArray($sql);
 }
 
+// `message_content` ========================
+$columns = $datadict->MetaColumns('message_content');
+$indexes = $datadict->MetaIndexes('message_content',false);
+
+if(isset($columns['CONTENT'])) {
+	if(0==strcasecmp('longblob',$columns['CONTENT']->type)) {
+		$sql = sprintf("ALTER TABLE message_content CHANGE COLUMN content content TEXT");
+		$db->Execute($sql);
+	}
+	
+	if(!isset($indexes['content'])) {
+		$sql = $datadict->CreateIndexSQL('content','message_content','content',array('FULLTEXT'));
+		$datadict->ExecuteSQLArray($sql);
+	}
+}
+
 // `message_header` ========================
 $columns = $datadict->MetaColumns('message_header');
 $indexes = $datadict->MetaIndexes('message_header',false);
 
-  // Drop compound primary key
+// Drop compound primary key
 if(isset($columns['MESSAGE_ID']) && isset($columns['HEADER_NAME'])
 	&& $columns['MESSAGE_ID']->primary_key && $columns['MESSAGE_ID']->primary_key) {
 		$sql = array("ALTER TABLE message_header DROP PRIMARY KEY");

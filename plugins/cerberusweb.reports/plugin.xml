@@ -5,7 +5,7 @@
 	<description>Reporting area with helpdesk metrics.</description>
 	<author>WebGroup Media, LLC.</author>
 	<revision>0</revision>
-	<link>http://wiki.cerberusdemo.com/index.php/New_Changes#Interactive_Reports</link>
+	<link>http://wiki.cerb4.com/wiki/New_Changes#Interactive_Reports</link>
 	<class>
 		<file>api/App.php</file>
 		<name>ChReportsPlugin</name>
