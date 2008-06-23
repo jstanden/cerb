@@ -61,7 +61,7 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
     	}
     		
 		$mail_service = DevblocksPlatform::getMailService();
-		$mailer = $mail_service->getMailer();
+		$mailer = $mail_service->getMailer(CerberusMail::getMailerDefaults());
     		
     	$settings = CerberusSettings::getInstance();
 		$default_from = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM, '');
@@ -156,7 +156,7 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 		// The whole flipping Swift section needs wrapped to catch exceptions
 		try {
 			$mail_service = DevblocksPlatform::getMailService();
-			$mailer = $mail_service->getMailer();
+			$mailer = $mail_service->getMailer(CerberusMail::getMailerDefaults());
 	
 			$settings = CerberusSettings::getInstance();
 			$default_from = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM, '');

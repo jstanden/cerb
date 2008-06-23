@@ -597,7 +597,14 @@ switch($step) {
 			
 			$mailer = null;
 			try {
-				$mailer = $mail_service->getMailer($smtp_host, $smtp_auth_user, $smtp_auth_pass, $smtp_port, $smtp_enc); // [TODO] port
+				$mailer = $mail_service->getMailer(array(
+					'host' => $smtp_host,
+					'port' => $smtp_port,
+					'auth_user' => $smtp_auth_user,
+					'auth_pass' => $smtp_auth_pass,
+					'enc' => $smtp_enc,
+				));
+				
 				$mailer->connect();
 				$mailer->disconnect();
 				

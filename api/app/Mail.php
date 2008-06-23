@@ -51,10 +51,23 @@
 class CerberusMail {
 	private function __construct() {}
 	
+	static function getMailerDefaults() {
+		$settings = CerberusSettings::getInstance();
+
+		return array(
+			'host' => $settings->get(CerberusSettings::SMTP_HOST,'localhost'),
+			'port' => $settings->get(CerberusSettings::SMTP_PORT,'25'),
+			'auth_user' => $settings->get(CerberusSettings::SMTP_AUTH_USER,null),
+			'auth_pass' => $settings->get(CerberusSettings::SMTP_AUTH_PASS,null),
+			'enc' => $settings->get(CerberusSettings::SMTP_ENCRYPTION_TYPE,'None'),
+			'max_sends' => $settings->get(CerberusSettings::SMTP_MAX_SENDS,20),
+		);
+	}
+	
 	static function quickSend($to, $subject, $body) {
 		try {
 			$mail_service = DevblocksPlatform::getMailService();
-			$mailer = $mail_service->getMailer();
+			$mailer = $mail_service->getMailer(CerberusMail::getMailerDefaults());
 			$mail = $mail_service->createMessage();
 	
 		    $settings = CerberusSettings::getInstance();
@@ -144,7 +157,7 @@ class CerberusMail {
 				$sendFrom = new Swift_Address($from, $personal);
 				
 				$mail_service = DevblocksPlatform::getMailService();
-				$mailer = $mail_service->getMailer();
+				$mailer = $mail_service->getMailer(CerberusMail::getMailerDefaults());
 				$email = $mail_service->createMessage();
 		
 				$email->setTo($toList);
@@ -381,7 +394,7 @@ class CerberusMail {
 		try {
 			// objects
 		    $mail_service = DevblocksPlatform::getMailService();
-		    $mailer = $mail_service->getMailer();
+		    $mailer = $mail_service->getMailer(CerberusMail::getMailerDefaults());
 			$mail = $mail_service->createMessage();
 	        
 		    // properties
@@ -755,7 +768,7 @@ class CerberusMail {
 	static function reflect(CerberusParserMessage $message, $to) {
 		try {
 			$mail_service = DevblocksPlatform::getMailService();
-			$mailer = $mail_service->getMailer();
+			$mailer = $mail_service->getMailer(CerberusMail::getMailerDefaults());
 			$mail = $mail_service->createMessage();
 	
 		    $settings = CerberusSettings::getInstance();

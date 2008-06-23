@@ -751,7 +751,7 @@ class Rest_AddressesController extends Ch_RestController {
 		$url = DevblocksPlatform::getUrlService();
 		try {
 			$mail_service = DevblocksPlatform::getMailService();
-			$mailer = $mail_service->getMailer();
+			$mailer = $mail_service->getMailer(CerberusMail::getMailerDefaults());
 			
 			$code = CerberusApplication::generatePassword(8);
 			

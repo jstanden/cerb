@@ -525,7 +525,7 @@ class UmScCoreController extends Extension_UmScController {
 		$url = DevblocksPlatform::getUrlService();
 		try {
 			$mail_service = DevblocksPlatform::getMailService();
-			$mailer = $mail_service->getMailer();
+			$mailer = $mail_service->getMailer(CerberusMail::getMailerDefaults());
 			
 			$code = CerberusApplication::generatePassword(8);
 			
@@ -624,7 +624,7 @@ class UmScCoreController extends Extension_UmScController {
 		
 		$url = DevblocksPlatform::getUrlService();
 		$mail_service = DevblocksPlatform::getMailService();
-		$mailer = $mail_service->getMailer();
+		$mailer = $mail_service->getMailer(CerberusMail::getMailerDefaults());
 		
 		$code = CerberusApplication::generatePassword(8);
 		

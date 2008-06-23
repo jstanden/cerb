@@ -2855,7 +2855,14 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		if(!empty($host)) {
 			try {
 				$mail_service = DevblocksPlatform::getMailService();
-				$mailer = $mail_service->getMailer($host, $smtp_user, $smtp_pass, $port, $enc); // [TODO] port
+				$mailer = $mail_service->getMailer(array(
+					'host' => $host,
+					'port' => $port,
+					'auth_user' => $smtp_user,
+					'auth_pass' => $smtp_pass,
+					'enc' => $enc,
+				));
+				
 				$mailer->connect();
 				$mailer->disconnect();
 				$tpl->assign('smtp_test', true);
@@ -3490,7 +3497,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 				    	
 						try {
 					        $mail_service = DevblocksPlatform::getMailService();
-					        $mailer = $mail_service->getMailer();
+					        $mailer = $mail_service->getMailer(CerberusMail::getMailerDefaults());
 					        $mail = $mail_service->createMessage();
 					        
 					        $sendTo = new Swift_Address($email, $first_name . $last_name);
@@ -8457,7 +8464,7 @@ class ChSignInPage extends CerberusPageExtension {
 	    
 	    try {
 		    $mail_service = DevblocksPlatform::getMailService();
-		    $mailer = $mail_service->getMailer();
+		    $mailer = $mail_service->getMailer(CerberusMail::getMailerDefaults());
 			$mail = $mail_service->createMessage();
 		    
 		    $code = CerberusApplication::generatePassword(10);

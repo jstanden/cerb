@@ -25,9 +25,9 @@
 				<br>
 				
 				<b>SMTP Encryption:</b> (optional)<br>
-				<input type="radio" name="smtp_enc" value="None" {if $settings->get('smtp_enc') == 'None'}checked{/if}>None&nbsp;&nbsp;&nbsp;
-				<input type="radio" name="smtp_enc" value="TLS" {if $settings->get('smtp_enc') == 'TLS'}checked{/if}>TLS&nbsp;&nbsp;&nbsp;
-				<input type="radio" name="smtp_enc" value="SSL" {if $settings->get('smtp_enc') == 'SSL'}checked{/if}>SSL<br>
+				<label><input type="radio" name="smtp_enc" value="None" {if $settings->get('smtp_enc') == 'None'}checked{/if}>None</label>&nbsp;&nbsp;&nbsp;
+				<label><input type="radio" name="smtp_enc" value="TLS" {if $settings->get('smtp_enc') == 'TLS'}checked{/if}>TLS</label>&nbsp;&nbsp;&nbsp;
+				<label><input type="radio" name="smtp_enc" value="SSL" {if $settings->get('smtp_enc') == 'SSL'}checked{/if}>SSL</label><br>
 				<br>
 	
 				<b>SMTP Authentication:</b> (optional)<br>

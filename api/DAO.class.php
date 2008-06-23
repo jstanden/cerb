@@ -1706,14 +1706,11 @@ class DAO_MessageContent {
             'message_content',
             array(
                 self::MESSAGE_ID => $message_id,
-                self::CONTENT => $db->qstr(''),
+                self::CONTENT => $db->qstr($content),
             ),
             array('message_id'),
             false
         );
-        
-        if(!empty($content))
-            $db->UpdateBlob('message_content', self::CONTENT, $content, 'message_id='.$message_id);
     }
     
 	static function get($message_id) {
