@@ -29,30 +29,37 @@ class UmScApp extends Extension_UsermeetTool {
 	const SESSION_ARTICLE_LIST = 'kb_article_list';	
 	
 	private $default_controller = 'sc.controller.core';
-	private $modules = array();
+	private $_modules = array();
 
     function __construct($manifest) {
         parent::__construct($manifest);
-//        $filepath = realpath(dirname(__FILE__)) . DIRECTORY_SEPARATOR;
-		
-		// [TODO] Load sub-controller plugins
-		$module_manifests = DevblocksPlatform::getExtensions('usermeet.sc.controller', false);
-		foreach($module_manifests as $module_manifest) { /* @var $module_manifest DevblocksExtensionManifest */
-			if(null != ($mods = $module_manifest->params['modules'])) {
-				foreach($mods as $mod) {
-					$mod['extension_id'] = $module_manifest->id;
-					$this->modules[$mod['uri']] = $mod;
+    }
+    
+    private function _getModules() {
+    	if(empty($this->_modules)) {
+			// [TODO] Load sub-controller plugins
+			$module_manifests = DevblocksPlatform::getExtensions('usermeet.sc.controller', false);
+			foreach($module_manifests as $module_manifest) { /* @var $module_manifest DevblocksExtensionManifest */
+				if(null != ($mods = $module_manifest->params['modules'])) {
+					foreach($mods as $mod) {
+						$mod['extension_id'] = $module_manifest->id;
+						$this->_modules[$mod['uri']] = $mod;
+					}
 				}
 			}
-		}
+    	}
+    	
+    	return $this->_modules;
     }
     
     public function handleRequest(DevblocksHttpRequest $request) {
     	$stack = $request->path;
         $module_uri = array_shift($stack);
         
-        if(isset($this->modules[$module_uri])) {
-        	$mf = DevblocksPlatform::getExtension($this->modules[$module_uri]['extension_id']);
+        $modules = $this->_getModules();
+        
+        if(isset($modules[$module_uri])) {
+        	$mf = DevblocksPlatform::getExtension($modules[$module_uri]['extension_id']);
         } else {
         	$mf = DevblocksPlatform::getExtension($this->default_controller);
         }
@@ -66,6 +73,8 @@ class UmScApp extends Extension_UsermeetTool {
 	public function writeResponse(DevblocksHttpResponse $response) {
         $umsession = $this->getSession();
 		$stack = $response->path;
+		
+		$modules = $this->_getModules();
 
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
@@ -113,16 +122,16 @@ class UmScApp extends Extension_UsermeetTool {
 
         $module_uri = array_shift($stack);
         
-        if(isset($this->modules[$module_uri])) {
-        	$mf = DevblocksPlatform::getExtension($this->modules[$module_uri]['extension_id']);
+        if(isset($modules[$module_uri])) {
+        	$mf = DevblocksPlatform::getExtension($modules[$module_uri]['extension_id']);
         } else {
         	$mf = DevblocksPlatform::getExtension($this->default_controller);
         }
 
         $menu_modules = array();
         
-		if(is_array($this->modules))
-		foreach($this->modules as $idx => $item) {
+		if(is_array($modules))
+		foreach($modules as $idx => $item) {
 			// Must be menu renderable
 			if(!empty($item['menu_title']) && !empty($item['uri'])) {
 				// Must not require login, or we must be logged in
