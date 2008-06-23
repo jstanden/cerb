@@ -26,7 +26,7 @@
 	
 	<div id="ticketPropsUnlockDate" style="display:{if $ticket->next_worker_id}block{else}none{/if};margin-left:10px;">	
 		<b>Allow anybody to handle the next reply after:</b> (e.g. "2 hours", "5pm", {*"Tuesday", "June 30", *}or leave blank to keep assigned)<br>  
-		<input type="text" name="unlock_date" size="32" maxlength="255" value="{if $ticket->unlock_date}{$ticket->unlock_date|date_format:"%a, %b %d %Y %I:%M %p"}{/if}">
+		<input type="text" name="unlock_date" size="32" maxlength="255" value="{if $ticket->unlock_date}{$ticket->unlock_date|devblocks_date}{/if}">
 		<button type="button" onclick="this.form.unlock_date.value='+2 hours';">+2 hours</button>
 		<br>
 		<br>

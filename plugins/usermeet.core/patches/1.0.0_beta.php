@@ -77,6 +77,15 @@ if(!isset($tables['community_session'])) {
 	$datadict->ExecuteSQLArray($sql);
 }
 
+// `community_tool` =============================
+$columns = $datadict->MetaColumns('community_tool');
+$indexes = $datadict->MetaIndexes('community_tool',false);
+
+if(!isset($indexes['community_id'])) {
+	$sql = $datadict->CreateIndexSQL('community_id','community_tool','community_id');
+	$datadict->ExecuteSQLArray($sql);
+}
+
 // `community_tool_property` ========================
 if(!isset($tables['community_tool_property'])) {
 	$flds ="

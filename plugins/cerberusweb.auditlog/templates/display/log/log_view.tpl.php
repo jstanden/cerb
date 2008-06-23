@@ -65,7 +65,7 @@
 				{if isset($workers.$log_worker_id)}{$workers.$log_worker_id->getName()}{else}(auto){/if}&nbsp;
 			</td>
 			{elseif $column=="l_change_date"}
-			<td>{$result.l_change_date|date_format:"%a, %x %X"}&nbsp;</td>
+			<td>{$result.l_change_date|devblocks_date}&nbsp;</td>
 			{elseif $column=="l_change_field"}
 				<td>
 					{assign var=change_field value='t_'|cat:$result.l_change_field}
@@ -81,7 +81,7 @@
 				<td>
 					{assign var=change_field value=$result.l_change_field}
 					{if $change_field=="updated_date"}
-						{$result.l_change_value|date_format}
+						{$result.l_change_value|devblocks_date}
 					{elseif $change_field=="next_worker_id" || $change_field=="last_worker_id"}
 						{assign var=change_worker_id value=$result.l_change_value}
 						{if isset($workers.$change_worker_id)}{$workers.$change_worker_id->getName()}{else}Anybody{/if}&nbsp;

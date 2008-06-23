@@ -9,7 +9,7 @@
 		{/if}	
 		
 		<br>
-		{if isset($comment->created)}<b>Date:</b> {$comment->created|date_format:'%a, %d %b %Y %H:%M:%S'} -0000<br>{/if}
+		{if isset($comment->created)}<b>Date:</b> {$comment->created|devblocks_date}<br>{/if}
 		<br>
 		{$comment->comment|trim|escape:"htmlall"|makehrefs|nl2br} <br>
 	</div>

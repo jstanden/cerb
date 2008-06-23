@@ -67,8 +67,7 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 		$default_from = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM, '');
 		$default_personal = $settings->get(CerberusSettings::DEFAULT_REPLY_PERSONAL, '');
 
-		@$worker_prefs = DAO_WorkerPref::getSettings($next_worker_id);
-		@$worker_notify_email = $worker_prefs[$next_worker_id][ChWatchersPlugin::WORKER_PREF_ASSIGN_EMAIL];
+		@$worker_notify_email = DAO_WorkerPref::get($next_worker_id,ChWatchersPlugin::WORKER_PREF_ASSIGN_EMAIL,'');
 
 		// If our next worker doesn't have an assignment pref
 		if(empty($worker_notify_email))

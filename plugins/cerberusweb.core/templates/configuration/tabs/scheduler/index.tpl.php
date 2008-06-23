@@ -38,13 +38,13 @@
 			hours
 		{/if}<br>
 		
-		Last run: {if $lastrun}{$lastrun|date_format:"%a, %b %d %Y %I:%M %p"}{else}Never{/if}
+		Last run: {if $lastrun}{$lastrun|devblocks_date}{else}Never{/if}
 		{if $enabled && !$locked}
-		 - <a href="{devblocks_url}c=cron&id={$job_id}{/devblocks_url}" target="_blank">run now</a>
+		 - <a href="{devblocks_url}c=cron&id={$job_id}{/devblocks_url}?ignore_wait=1" target="_blank">run now</a>
 		{/if}
 		<br>
 		
-		{if $locked}Locked: {$locked|date_format:"%a, %b %d %Y %I:%M %p"}<br>{/if}
+		{if $locked}Locked: {$locked|devblocks_date}<br>{/if}
 	</div>
 	
 	<div id="job_{$job_id}" style="display:none;margin-left:20px;margin-right:20px;">

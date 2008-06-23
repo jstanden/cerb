@@ -33,7 +33,7 @@
 
 <b>Starting at date:</b> (leave blank for unchanged)<br>
 <input type="text" name="starting" size="45" value=""><br>
-{if !empty($lastrun)}<i>({$lastrun|date_format:"%a, %b %d %Y %I:%M %p"})</i><br>{/if}
+{if !empty($lastrun)}<i>({$lastrun|devblocks_date})</i><br>{/if}
 <br>
 
 {if $job}

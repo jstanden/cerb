@@ -255,7 +255,7 @@ class C4_MobileTicketView extends C4_TicketView {
 		$slas = DAO_Sla::getAll();
 		$tpl->assign('slas', $slas);
 
-		$ticket_fields = DAO_TicketField::getWhere(); // [TODO] Cache ::getAll()
+		$ticket_fields = DAO_TicketField::getAll();
 		$tpl->assign('ticket_fields', $ticket_fields);
 		
 		// Undo?
@@ -442,12 +442,8 @@ class ChMobileLoginPage  extends CerberusMobilePageExtension  {
 			$visit = new CerberusVisit();
 			$visit->setWorker($worker);
 				
-//			$memberships = DAO_Worker::getGroupMemberships($worker->id);
-//			$team_id = key($memberships);
-//			if(null != ($team_id = key($memberships))) {
 			$visit->set(CerberusVisit::KEY_DASHBOARD_ID, ''); // 't'.$team_id
 			$visit->set(CerberusVisit::KEY_WORKSPACE_GROUP_ID, 0); // $team_id
-//			}
 
 			$session->setVisit($visit);
 			

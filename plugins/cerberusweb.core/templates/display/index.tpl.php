@@ -32,7 +32,7 @@
 					{if !empty($ticket->next_worker_id)}
 						{assign var=next_worker_id value=$ticket->next_worker_id}
 						<b>Next Worker:</b> {$workers.$next_worker_id->getName()} 
-						{if $ticket->unlock_date}(until {$ticket->unlock_date|date_format:"%a, %b %d %Y %I:%M %p"}){/if}
+						{if $ticket->unlock_date}(until {$ticket->unlock_date|devblocks_date}){/if}
 						<br>
 					{/if}
 					<!-- {if !empty($ticket->interesting_words)}<b>Interesting Words:</b> {$ticket->interesting_words}<br>{/if} -->

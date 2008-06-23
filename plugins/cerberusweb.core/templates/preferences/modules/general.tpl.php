@@ -8,15 +8,23 @@
 <b>Change Password:</b><br>
 <div id="preferences_error" style="color: red; font-weight: bold;"></div>
 <table cellspacing="1" cellpadding="0" border="0">
-<tr>
-	<td>Change Password: </td>
-	<td><input type="password" name="change_pass" value=""></td>
-</tr>
-<tr>
-	<td>Verify Password: </td>
-	<td><input type="password" name="change_pass_verify"=""></td>
-</tr>
+	<tr>
+		<td>Change Password: </td>
+		<td><input type="password" name="change_pass" value=""></td>
+	</tr>
+	<tr>
+		<td>Verify Password: </td>
+		<td><input type="password" name="change_pass_verify"=""></td>
+	</tr>
 </table>
+<br>
+
+<b>Timezone:</b> {if !empty($server_timezone)}(current: {$server_timezone}){/if}<br>
+<select name="timezone">
+	{foreach from=$timezones key=city item=tz}
+		<option value="{$city}" {if $city==$server_timezone}selected{/if}>{$city}</option>
+	{/foreach}
+</select><br>
 <br>
 
 <h2>E-mail Addresses</h2>

@@ -1822,10 +1822,9 @@ class ChTicketsPage extends CerberusPageExtension {
 	    }
 	    
 	    // Increment the counter of uses for this move (by # of tickets affected)
-	    // [TODO] Move this into a WorkerPrefs API class
 	    $active_worker = CerberusApplication::getActiveWorker(); /* @var $$active_worker CerberusWorker */
 	    if($active_worker->id) {
-	        $move_counts_str = DAO_WorkerPref::get($active_worker->id,''.DAO_WorkerPref::SETTING_MOVE_COUNTS,serialize(array()));
+	        $move_counts_str = DAO_WorkerPref::get($active_worker->id,DAO_WorkerPref::SETTING_MOVE_COUNTS,serialize(array()));
 	        if(is_string($move_counts_str)) {
 	            $move_counts = unserialize($move_counts_str);
 	            @$move_counts[$move_to] = intval($move_counts[$move_to]) + count($ticket_ids);
@@ -3043,10 +3042,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$types = Model_TicketField::getTypes();
 		$tpl->assign('types', $types);
 		
-		$fields = DAO_TicketField::getWhere(sprintf("%s = %d",
-			DAO_TicketField::GROUP_ID,
-			0
-		));
+		$fields = DAO_TicketField::getByGroupId(0);
 		$tpl->assign('ticket_fields', $fields);
 		
 		$groups = DAO_Group::getAll();
@@ -3460,7 +3456,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		@$email = DevblocksPlatform::importGPC($_POST['email'],'string');
 		@$password = DevblocksPlatform::importGPC($_POST['password'],'string');
 		@$is_superuser = DevblocksPlatform::importGPC($_POST['is_superuser'],'integer');
-		@$team_id = DevblocksPlatform::importGPC($_POST['team_id'],'array');
+		@$team_ids = DevblocksPlatform::importGPC($_POST['team_id'],'array');
 		@$delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer');
 
 		// Global privs
@@ -3552,8 +3548,9 @@ class ChConfigurationPage extends CerberusPageExtension  {
 			}
 			
 			DAO_Worker::updateAgent($id, $fields);
-			DAO_Worker::setAgentTeams($id, $team_id);
+			DAO_Worker::setAgentTeams($id, $team_ids);
 			
+			// Addresses
 			if(null == DAO_AddressToWorker::getByAddress($email)) {
 				DAO_AddressToWorker::assign($email, $id);
 				DAO_AddressToWorker::update($email, array(
@@ -3611,7 +3608,6 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		
 		@$id = DevblocksPlatform::importGPC($_POST['id']);
 		@$name = DevblocksPlatform::importGPC($_POST['name']);
-//		@$leader_id = DevblocksPlatform::importGPC($_POST['leader_id'],'integer',0);
 		@$delete = DevblocksPlatform::importGPC($_POST['delete_box']);
 		@$delete_move_id = DevblocksPlatform::importGPC($_POST['delete_move_id'],'integer',0);
 		
@@ -3642,7 +3638,6 @@ class ChConfigurationPage extends CerberusPageExtension  {
 				DAO_Group::TEAM_NAME => $name,
 			);
 			$id = DAO_Group::createTeam($fields);
-//			DAO_Group::setTeamMember($id, $leader_id, true);
 		}
 		
 		@$worker_ids = DevblocksPlatform::importGPC($_POST['worker_ids'],'array',array());
@@ -5678,10 +5673,7 @@ class ChGroupsPage extends CerberusPageExtension  {
 			$tpl->assign('team', $group);
 		}
 		
-		$group_fields = DAO_TicketField::getWhere(sprintf("%s = %d",
-			DAO_TicketField::GROUP_ID,
-			$group_id
-		));
+		$group_fields = DAO_TicketField::getByGroupId($group_id);
 		$tpl->assign('group_fields', $group_fields);
                     
 		$types = Model_TicketField::getTypes();
@@ -7971,7 +7963,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		$tpl->assign('ticket', $ticket);
 		$tpl->assign('ticket_id', $ticket_id);
 		
-		$fields = DAO_TicketField::getWhere();
+		$fields = DAO_TicketField::getAll();
 		$tpl->assign('ticket_fields', $fields);
 		
 		$groups = DAO_Group::getAll();
@@ -7990,7 +7982,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer');
 		
 		@$ticket = DAO_Ticket::getTicket($ticket_id);
-		$fields = DAO_TicketField::getWhere();
+		$fields = DAO_TicketField::getAll();
 		
 		@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'],'array',array());
 
@@ -8379,8 +8371,14 @@ class ChSignInPage extends CerberusPageExtension {
 		        $tour_enabled = false;
 				if(!empty($visit) && !is_null($visit->getWorker())) {
 		        	$worker = $visit->getWorker();
+		        	
 					$tour_enabled = DAO_WorkerPref::get($worker->id, 'assist_mode');
 					$tour_enabled = ($tour_enabled===false) ? 1 : $tour_enabled;
+					
+					if(null != ($timezone = DAO_WorkerPref::get($worker->id,'timezone'))) {
+						$_SESSION['timezone'] = $timezone;
+						@date_default_timezone_set($timezone);
+					}
 				}
 				$next_page = ($tour_enabled) ?  'welcome' : 'tickets';				
 				$devblocks_response = new DevblocksHttpResponse(array($next_page));
@@ -8653,6 +8651,8 @@ class ChPreferencesPage extends CerberusPageExtension {
 	
 	// Ajax [TODO] This should probably turn into Extension_PreferenceTab
 	function showGeneralAction() {
+		$locale = DevblocksPlatform::getLocaleService();
+		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl_path = dirname(__FILE__) . '/templates';
 		$tpl->assign('path', $tpl_path);
@@ -8673,6 +8673,19 @@ class ChPreferencesPage extends CerberusPageExtension {
 		
 		$addresses = DAO_AddressToWorker::getByWorker($worker->id);
 		$tpl->assign('addresses', $addresses);
+				
+		// Timezones
+		$timezones = $locale->getTranslationList('TerritoryToTimezone');
+		$tpl->assign('timezones', $timezones);
+		
+		@$server_timezone = date_default_timezone_get();
+		$tpl->assign('server_timezone', $server_timezone);
+		
+		// Date formats
+		$date_formats = $locale->getTranslationList('DateTime');
+		$tpl->assign('date_formats', $date_formats);
+		$tpl->assign('zend_date', new Zend_Date());
+		$tpl->assign('current_time', time());
 		
 		$tpl->display('file:' . $tpl_path . '/preferences/modules/general.tpl.php');
 	}
@@ -8702,6 +8715,10 @@ class ChPreferencesPage extends CerberusPageExtension {
 		$worker = CerberusApplication::getActiveWorker();
    		$tpl = DevblocksPlatform::getTemplateService();
    		$pref_errors = array();
+   		
+   		$_SESSION['timezone'] = $timezone;
+   		@date_default_timezone_set($timezone);
+   		DAO_WorkerPref::set($worker->id,'timezone',$timezone);
    		
 		@$new_password = DevblocksPlatform::importGPC($_REQUEST['change_pass'],'string');
 		@$verify_password = DevblocksPlatform::importGPC($_REQUEST['change_pass_verify'],'string');

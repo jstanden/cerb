@@ -74,11 +74,11 @@
 					{/if}
 				</td>
 			{elseif $column=="o_created_date"}
-				<td>{$result.o_created_date|date_format}&nbsp;</td>
+				<td>{$result.o_created_date|devblocks_date}&nbsp;</td>
 			{elseif $column=="o_updated_date"}
-				<td>{$result.o_updated_date|date_format}&nbsp;</td>
+				<td>{$result.o_updated_date|devblocks_date}&nbsp;</td>
 			{elseif $column=="o_closed_date"}
-				<td>{$result.o_closed_date|date_format}&nbsp;</td>
+				<td>{$result.o_closed_date|devblocks_date}&nbsp;</td>
 			{elseif $column=="o_worker_id"}
 				<td>
 					{assign var=o_worker_id value=$result.o_worker_id}

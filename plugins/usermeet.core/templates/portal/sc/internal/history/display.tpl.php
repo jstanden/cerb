@@ -11,7 +11,7 @@
 <span style="font-size:90%;">
 <b>Reference:</b> {$ticket.t_mask}
  &nbsp; 
-<b>Updated:</b> {$ticket.t_updated_date|date_format}
+<b>Updated:</b> {$ticket.t_updated_date|devblocks_date}
  &nbsp; 
 <b>Action:</b> 
 </span>

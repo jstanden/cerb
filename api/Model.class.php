@@ -416,7 +416,7 @@ class C4_TicketView extends C4_AbstractView {
 		$slas = DAO_Sla::getAll();
 		$tpl->assign('slas', $slas);
 
-		$ticket_fields = DAO_TicketField::getWhere(); // [TODO] Cache ::getAll()
+		$ticket_fields = DAO_TicketField::getAll();
 		$tpl->assign('ticket_fields', $ticket_fields);
 		
 		// Undo?
@@ -458,7 +458,7 @@ class C4_TicketView extends C4_AbstractView {
 	 *
 	 */
 	private function _sanitize() {
-		$custom_fields = DAO_TicketField::getWhere(); // [TODO] Cache ::getAll()
+		$custom_fields = DAO_TicketField::getAll();
 		$needs_save = false;
 		
 		// Parameter sanity check
@@ -1873,12 +1873,6 @@ class Model_WorkerWorkspaceListView {
 	public $params = array();
 };
 
-class Model_WorkerPreference {
-	public $setting = '';
-	public $value = '';
-	public $worker_id = '';
-};
-
 class Model_DashboardViewAction {
 	public $id = 0;
 	public $dashboard_view_id = 0;
@@ -2199,7 +2193,7 @@ class CerberusWorker {
 	 * @return Model_TeamMember[]
 	 */
 	function getMemberships() {
-		return DAO_Worker::getGroupMemberships($this->id); 
+		return DAO_Worker::getWorkerGroups($this->id); 
 	}
 
 	function isTeamManager($team_id) {

@@ -212,7 +212,7 @@ class DAO_Bayes {
 class DAO_Worker extends DevblocksORMHelper {
 	private function DAO_Worker() {}
 	
-	const CACHE_ALL = 'cerberus_cache_workers_all';
+	const CACHE_ALL = 'ch_workers';
 	
 	const ID = 'id';
 	const FIRST_NAME = 'first_name';
@@ -268,7 +268,7 @@ class DAO_Worker extends DevblocksORMHelper {
 		
 		$sql = "SELECT a.id, a.first_name, a.last_name, a.email, a.title, a.is_superuser, a.can_delete, a.last_activity_date, a.last_activity ".
 			"FROM worker a ".
-			((!empty($ids) ? sprintf("WHERE a.id IN (%s)",implode(',',$ids)) : " ").
+			((!empty($ids) ? sprintf("WHERE a.id IN (%s) ",implode(',',$ids)) : " ").
 			"ORDER BY a.last_name, a.first_name "
 		);
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
@@ -300,10 +300,10 @@ class DAO_Worker extends DevblocksORMHelper {
 	static function getAgent($id) {
 		if(empty($id)) return null;
 		
-		$agents = DAO_Worker::getList(array($id));
+		$workers = self::getAll();
 		
-		if(isset($agents[$id]))
-			return $agents[$id];
+		if(isset($workers[$id]))
+			return $workers[$id];
 			
 		return null;
 	}
@@ -394,8 +394,10 @@ class DAO_Worker extends DevblocksORMHelper {
 		$sql = sprintf("UPDATE ticket SET next_worker_id = 0 WHERE next_worker_id = %d", $id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 
+		// Invalidate caches
 		$cache = DevblocksPlatform::getCacheService();
 		$cache->remove(self::CACHE_ALL);
+		$cache->remove(DAO_Group::CACHE_ROSTERS);
 	}
 	
 	static function login($email, $password) {
@@ -436,49 +438,30 @@ class DAO_Worker extends DevblocksORMHelper {
 			);
 			$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		}
+		
+		// Invalidate caches
+		$cache = DevblocksPlatform::getCacheService();
+		$cache->remove(DAO_Group::CACHE_ROSTERS);
 	}
 	
 	/**
 	 * @return Model_TeamMember[]
 	 */
-	static function getGroupMemberships($agent_id) {
-		static $cache = array(); // cache calls for one page cycle
+	static function getWorkerGroups($worker_id) {
+		// Get the cache
+		$rosters = DAO_Group::getRosters();
+
+		$memberships = array();
 		
-		if(isset($cache[$agent_id])) {
-			return $cache[$agent_id];
+		// Remove any groups our desired worker isn't in
+		if(is_array($rosters))
+		foreach($rosters as $group_id => $members) {
+			if(isset($members[$worker_id])) {
+				$memberships[$group_id] = $members[$worker_id]; 
+			}
 		}
 		
-		if(empty($agent_id)) return;
-		$db = DevblocksPlatform::getDatabaseService();
-		$ids = array();
-		
-		$sql = sprintf("SELECT wt.team_id, wt.is_manager ".
-			"FROM worker_to_team wt ".
-			"INNER JOIN team t ON (wt.team_id=t.id) ".
-			"WHERE wt.agent_id = %d ".
-			"ORDER BY t.name ASC ",
-			$agent_id
-		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-		$groups = array();
-		
-		while(!$rs->EOF) {
-			$team_id = intval($rs->fields['team_id']); 
-			$is_manager = intval($rs->fields['is_manager']);
-			
-			$member = new Model_TeamMember();
-			$member->id = $agent_id;
-			$member->team_id = $team_id;
-			$member->is_manager = $is_manager;
-			$groups[$team_id] = $member;
-			
-			$rs->MoveNext();
-		}
-		
-		$cache[$agent_id] = $groups;
-		
-		return $groups;
+		return $memberships;
 	}
 	
 	/**
@@ -2947,10 +2930,10 @@ class DAO_Ticket extends DevblocksORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$total = -1;
 
-		$custom_fields = DAO_TicketField::getWhere();
+		$custom_fields = DAO_TicketField::getAll();
     	
         list($tables,$wheres) = parent::_parseSearchParams($params, $columns, SearchFields_Ticket::getFields());
-		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
+		$start = ($page * $limit); // [JAS]: 1-based
 		
 		$select_sql = sprintf("SELECT ".
 			"t.id as %s, ".
@@ -3204,7 +3187,7 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 		);
 		
 		// Custom Fields
-		$fields = DAO_TicketField::getWhere();
+		$fields = DAO_TicketField::getAll();
 
 		if(is_array($fields))
 		foreach($fields as $field_id => $field) {
@@ -3385,6 +3368,7 @@ class DAO_TicketRss extends DevblocksORMHelper {
  */
 class DAO_Group {
     const CACHE_ALL = 'cerberus_cache_teams_all';
+	const CACHE_ROSTERS = 'ch_group_rosters';
     
     const TEAM_ID = 'id';
     const TEAM_NAME = 'name';
@@ -3584,6 +3568,10 @@ class DAO_Group {
             array('agent_id' => $worker_id, 'team_id' => $team_id, 'is_manager' => ($is_manager?1:0)),
             array('agent_id','team_id')
         );
+        
+		// Invalidate caches
+		$cache = DevblocksPlatform::getCacheService();
+		$cache->remove(self::CACHE_ROSTERS);
 	}
 	
 	static function unsetTeamMember($team_id, $worker_id) {
@@ -3597,28 +3585,56 @@ class DAO_Group {
 		    $worker_id
 		);
 		$db->Execute($sql);
+		
+		// Invalidate caches
+		$cache = DevblocksPlatform::getCacheService();
+		$cache->remove(self::CACHE_ROSTERS);
+	}
+	
+	static function getRosters() {
+		$cache = DevblocksPlatform::getCacheService();
+		
+		if(null === ($objects = $cache->load(self::CACHE_ROSTERS))) {
+			$db = DevblocksPlatform::getDatabaseService();
+			$sql = sprintf("SELECT wt.agent_id, wt.team_id, wt.is_manager ".
+				"FROM worker_to_team wt ".
+				"INNER JOIN team t ON (wt.team_id=t.id) ".
+				"ORDER BY t.name ASC "
+			);
+			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+			
+			$objects = array();
+			
+			while(!$rs->EOF) {
+				$agent_id = intval($rs->fields['agent_id']); 
+				$team_id = intval($rs->fields['team_id']); 
+				$is_manager = intval($rs->fields['is_manager']);
+				
+				if(!isset($objects[$team_id]))
+					$objects[$team_id] = array();
+				
+				$member = new Model_TeamMember();
+				$member->id = $agent_id;
+				$member->team_id = $team_id;
+				$member->is_manager = $is_manager;
+				$objects[$team_id][$agent_id] = $member;
+				
+				$rs->MoveNext();
+			}
+			
+			$cache->save($objects, self::CACHE_ROSTERS);
+		}
+		
+		return $objects;
 	}
 	
 	static function getTeamMembers($team_id) {
-		$db = DevblocksPlatform::getDatabaseService();
-		$members = array();
+		$rosters = self::getRosters();
 		
-		$sql = "SELECT wt.agent_id, wt.team_id, wt.is_manager ".
-			"FROM worker_to_team wt ".
-			(!empty($team_id) ? sprintf("WHERE wt.team_id = %d ", $team_id) : " ")
-		;
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		if(isset($rosters[$team_id]))
+			return $rosters[$team_id];
 		
-		while(!$rs->EOF) {
-			$member = new Model_TeamMember();
-			$member->id = intval($rs->fields['agent_id']);
-			$member->is_manager = intval($rs->fields['is_manager']);
-			$member->team_id = intval($rs->fields['team_id']);
-			$members[$member->id] = $member;
-			$rs->MoveNext();
-		}
-		
-		return $members;
+		return null;
 	}
 	
 };
@@ -4245,6 +4261,7 @@ class DAO_Bucket extends DevblocksORMHelper {
 		}
 		
 		// Clear any view's move counts involving this bucket for all workers
+		// [TODO] This is pretty hacky.
 		DAO_WorkerPref::clearMoveCounts($ids);
 		
 		$cache = DevblocksPlatform::getCacheService();
@@ -4760,7 +4777,10 @@ class DAO_WorkerPref extends DevblocksORMHelper {
     const SETTING_OVERVIEW_ASSIGN_TYPE = 'overview_assign_type';
     const SETTING_OVERVIEW_ASSIGN_HOWMANY = 'overview_assign_howmany';
     
+    const CACHE_PREFIX = 'ch_workerpref_';
+    
 	static function set($worker_id, $key, $value) {
+		// Persist long-term
 		$db = DevblocksPlatform::getDatabaseService();
 		$result = $db->Replace(
 		    'worker_pref',
@@ -4772,112 +4792,71 @@ class DAO_WorkerPref extends DevblocksORMHelper {
 		    array('worker_id','setting'),
 		    false
 		);
-	}
-	
-	static function getByKey($key) {
-		$db = DevblocksPlatform::getDatabaseService();
-		$sql = sprintf("SELECT worker_id, value 
-			FROM worker_pref 
-			WHERE setting = %s", 
-				$db->qstr($key)
-		);
-		$rs = $db->Execute($sql);
 		
-		$workers = array();
-		
-		while(!$rs->EOF) {
-			$worker_id = intval($rs->fields['worker_id']);
-			$value = $rs->fields['value'];
-			
-			$workers[$worker_id][$key] = $value;
-		}
-		
-		return $workers;
+		// Invalidate cache
+		$cache = DevblocksPlatform::getCacheService();
+		$cache->remove(self::CACHE_PREFIX.$worker_id);
 	}
 	
 	static function get($worker_id, $key, $default=null) {
-		$db = DevblocksPlatform::getDatabaseService();
-		$sql = sprintf("SELECT value FROM worker_pref WHERE setting = %s AND worker_id = %d",
-			$db->qstr($key),
-			$worker_id
-		);
-		$value = $db->GetOne($sql);
+		$value = null;
 		
-		if(false === $value && !is_null($default)) {
+		if(null !== ($worker_prefs = self::getByWorker($worker_id))) {
+			if(isset($worker_prefs[$key])) {
+				$value = $worker_prefs[$key];
+			}
+		}
+		
+		if(null === $value && !is_null($default)) {
 		    return $default;
 		}
 		
 		return $value;
 	}
-	
-	// [JAS]: [TODO] Cache
-	static function getAll() {
-		$db = DevblocksPlatform::getDatabaseService();
-		$sql = sprintf("SELECT worker_id, setting, value FROM worker_pref ");
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 
-		$objects = array();
+	static function getByWorker($worker_id) {
+		$cache = DevblocksPlatform::getCacheService();
 		
-		while(!$rs->EOF) {
-		    $object = new Model_WorkerPreference();
-		    $object->setting = $rs->fields['setting'];
-		    $object->value = $rs->fields['value'];
-		    $object->worker_id = $rs->fields['worker_id'];
-		    
-		    if(!isset($objects[$object->worker_id]))
-		    	$objects[$object->worker_id] = array();
-		    
-		    $objects[$object->worker_id][$object->setting] = $object;
-		    $rs->MoveNext();
+		if(null === ($objects = $cache->load(self::CACHE_PREFIX.$worker_id))) {
+			$db = DevblocksPlatform::getDatabaseService();
+			$sql = sprintf("SELECT setting, value FROM worker_pref WHERE worker_id = %d", $worker_id);
+			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+			
+			$objects = array();
+			
+			while(!$rs->EOF) {
+			    $objects[$rs->fields['setting']] = $rs->fields['value'];
+			    $rs->MoveNext();
+			}
+			
+			$cache->save($objects, self::CACHE_PREFIX.$worker_id);
 		}
 		
 		return $objects;
 	}
 	
 	// Clear any view's move counts for all workers involving the buckets specified
-	// [TODO] Check use 
-	static function clearMoveCounts($category_ids) {
-		if(!is_array($category_ids)) $category_ids = array($category_ids);
+	// [TODO] This could probably be done much better
+	static function clearMoveCounts($bucket_ids) {
+		if(!is_array($bucket_ids)) $bucket_ids = array($bucket_ids);
 		
-		$prefs = self::getAll();
-		foreach($prefs as $worker_id => $worker_prefs) {
-			@$moveCountsSetting = $worker_prefs[DAO_WorkerPref::SETTING_MOVE_COUNTS];
-			if($moveCountsSetting instanceof Model_WorkerPreference && !empty($moveCountsSetting->value)) {
-				@$moveCounts = unserialize($moveCountsSetting->value);
-				foreach($category_ids as $id) {
-					if(isset($moveCounts['c'.$id]))
-						unset($moveCounts['c'.$id]);
+		$workers = DAO_Worker::getAll();
+		
+		// Loop through all workers
+		foreach($workers as $worker_id => $worker) {
+			// Load their prefs
+			if(null !== ($worker_prefs = DAO_WorkerPref::getByWorker($worker_id))) {
+				// See if they have a move counts pref
+				@$move_counts =& $worker_prefs[DAO_WorkerPref::SETTING_MOVE_COUNTS];
+				if(!empty($move_counts) && false !== ($move_counts = @unserialize($move_counts))) {
+					// Remove the deleted buckets
+					foreach($bucket_ids as $id) {
+						unset($move_counts['c'.$id]);
+					}
+					self::set($worker_id, DAO_WorkerPref::SETTING_MOVE_COUNTS, serialize($move_counts));
 				}
-				self::set($worker_id, DAO_WorkerPref::SETTING_MOVE_COUNTS, serialize($moveCounts));
 			}
 		}
-	}
-	
-	// [TODO] Cache as static/singleton or load up in a page scope object?
-	static function getSettings($worker_id=0) {
-		$db = DevblocksPlatform::getDatabaseService();
-
-		$workers = array();
-		
-		$sql = "SELECT worker_id, setting, value ".
-		    "FROM worker_pref ".
-		    (!empty($worker_id) ? sprintf("WHERE worker_id = %d",$worker_id) : "")
-		;
-		$rs = $db->Execute($sql) or die(__CLASS__ . ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-		while(!$rs->EOF) {
-		    $worker_id = intval($rs->fields['worker_id']);
-		    
-		    if(!isset($workers[$worker_id]))
-		        $workers[$worker_id] = array();
-		    
-		    $worker =& $workers[$worker_id];
-		        
-			$worker[$rs->Fields('setting')] = $rs->Fields('value');
-			$rs->MoveNext();
-		}
-		
-		return $workers;
 	}
 };
 
@@ -5731,6 +5710,8 @@ class DAO_TicketField extends DevblocksORMHelper {
 	const POS = 'pos';
 	const OPTIONS = 'options';
 	
+	const CACHE_ALL = 'ch_ticketfields'; 
+	
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
 		$id = $db->GenID('ticket_field_seq');
@@ -5748,6 +5729,10 @@ class DAO_TicketField extends DevblocksORMHelper {
 	
 	static function update($ids, $fields) {
 		parent::_update($ids, 'ticket_field', $fields);
+		
+		// Invalidate cache on changes
+		$cache = DevblocksPlatform::getCacheService();
+		$cache->remove(self::CACHE_ALL);
 	}
 	
 	/**
@@ -5757,34 +5742,44 @@ class DAO_TicketField extends DevblocksORMHelper {
 	 * @return Model_TicketField|null
 	 */
 	static function get($id) {
-		$objects = self::getWhere(sprintf("%s = %d",
-			self::ID,
-			$id
-		));
+		$fields = self::getAll();
 		
-		if(isset($objects[$id]))
-			return $objects[$id];
+		if(isset($fields[$id]))
+			return $fields[$id];
 			
 		return null;
 	}
 	
-	/**
-	 * Enter description here...
-	 *
-	 * @param string $where
-	 * @return Model_TicketField[]
-	 */
-	static function getWhere($where=null) {
-		$db = DevblocksPlatform::getDatabaseService();
-		
-		$sql = "SELECT id, name, type, group_id, pos, options ".
-			"FROM ticket_field ".
-			(!empty($where) ? ("WHERE ".$where." ") : " ").
-			"ORDER BY group_id ASC, pos ASC "
-		;
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+	static function getByGroupId($group_id) {
+		$fields = self::getAll();
 
-		return self::_createObjectsFromResultSet($rs);
+		// Filter out groups that don't match
+		foreach($fields as $field_id => $field) { /* @var $field Model_TicketField */
+			if($group_id != $field->group_id) {
+				unset($fields[$field_id]);
+			}
+		}
+		
+		return $fields;
+	}
+	
+	static function getAll($nocache=false) {
+		$cache = DevblocksPlatform::getCacheService();
+		
+		if(null === ($objects = $cache->load(self::CACHE_ALL))) {
+			$db = DevblocksPlatform::getDatabaseService();
+			$sql = "SELECT id, name, type, group_id, pos, options ".
+				"FROM ticket_field ".
+				"ORDER BY group_id ASC, pos ASC "
+			;
+			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+			
+			$objects = self::_createObjectsFromResultSet($rs);
+			
+			$cache->save($objects, self::CACHE_ALL);
+		}
+		
+		return $objects;
 	}
 	
 	private static function _createObjectsFromResultSet(ADORecordSet $rs) {
@@ -5823,6 +5818,10 @@ class DAO_TicketField extends DevblocksORMHelper {
 		foreach($ids as $id) {
 			DAO_TicketFieldValue::clearFieldValues($id);
 		}
+		
+		// Invalidate cache on changes
+		$cache = DevblocksPlatform::getCacheService();
+		$cache->remove(self::CACHE_ALL);
 	}
 };
 

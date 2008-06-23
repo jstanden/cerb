@@ -62,7 +62,7 @@
 			{elseif $column=="c_website"}
 			<td><a href="{$result.c_website}" target="_blank">{$result.c_website|truncate:45:'...':true}</a>&nbsp;</td>
 			{elseif $column=="c_created"}
-			<td>{$result.c_created|date_format}&nbsp;</td>
+			<td>{$result.c_created|devblocks_date}&nbsp;</td>
 			{elseif $column=="c_sla_id"}
 			<td>
 				{assign var=sla_id value=$result.c_sla_id}

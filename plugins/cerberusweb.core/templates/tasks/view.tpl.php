@@ -75,7 +75,7 @@
 			{elseif $column=="t_completed_date"}
 				<td>
 					{if !empty($result.t_completed_date)}
-						{$result.t_completed_date|date_format}&nbsp;
+						{$result.t_completed_date|devblocks_date}&nbsp;
 					{/if}
 				</td>
 			{elseif $column=="t_due_date"}
@@ -83,7 +83,7 @@
 				{if $result.t_due_date}
 					{math assign=overdue equation="(t-x)" t=$timestamp_now x=$result.t_due_date format="%d"}
 				{/if}
-				<td title="{$result.t_due_date|date_format:'%A %b %e, %Y  %I:%M%p GMT'}" style="{if $overdue > 0}color:rgb(220,0,0);font-weight:bold;{/if}">{$result.t_due_date|prettytime}</td>
+				<td title="{$result.t_due_date|devblocks_date}" style="{if $overdue > 0}color:rgb(220,0,0);font-weight:bold;{/if}">{$result.t_due_date|prettytime}</td>
 			{elseif $column=="t_url"}
 				<td>
 					{if empty($result.t_url)}

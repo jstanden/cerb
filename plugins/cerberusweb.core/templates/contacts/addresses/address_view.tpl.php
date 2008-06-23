@@ -66,7 +66,7 @@
 				{/if}
 			</td>
 			{elseif $column=="a_created"}
-			<td>{$result.a_created|date_format}&nbsp;</td>
+			<td>{$result.a_created|devblocks_date}&nbsp;</td>
 			{elseif $column=="a_is_banned"}
 			<td>
 				{if $result.a_is_banned}Yes{/if}&nbsp;

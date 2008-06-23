@@ -54,12 +54,8 @@ require(APP_PATH . '/api/Application.class.php');
 
 header("Content-type: text/html; charset=ISO-8859-1");
 
-//@$uri = DevblocksPlatform::importGPC($_REQUEST['c']); // extension
-//@$listener = DevblocksPlatform::importGPC($_REQUEST['a']); // listener
 $request = DevblocksPlatform::readRequest();
-//$request = new DevblocksHttpRequest(array($uri,$listener));
 
-// [JAS]: [TODO] Is an explicit init() really required?
 DevblocksPlatform::init();
 
 $session = DevblocksPlatform::getSessionService();
@@ -76,6 +72,11 @@ $tpl->assign('settings', $settings);
 if(!empty($worker)) {
 	$active_worker_memberships = $worker->getMemberships();
 	$tpl->assign('active_worker_memberships', $active_worker_memberships);
+}
+
+// Localization
+if(isset($_SESSION['timezone'])) {
+	@date_default_timezone_set($_SESSION['timezone']);
 }
 
 DevblocksPlatform::processRequest($request,true);

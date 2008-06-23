@@ -120,7 +120,7 @@
 {$signature}{*Sig above, 2 lines necessary whitespace*}
 
 
-{/if}On {$message->created_date|date_format}, {$headers.from} wrote:
+{/if}On {$message->created_date|devblocks_date}, {$headers.from} wrote:
 {$message->getContent()|trim|escape|indent:1:'> '}
 
 {if !empty($signature) && !$signature_pos}{$signature}{/if}{*Sig below*}
@@ -233,7 +233,7 @@
 						      	
 						      	<div id="replyClosed{$message->id}" style="display:{if $ticket->is_closed}block{else}none{/if};">
 						      	<b>When would you like to resume this conversation?</b> (e.g. "Friday", "7 days", "Tomorrow 11:15AM", "Dec 31")<br> 
-						      	<input type="text" name="ticket_reopen" size="55" value="{if !empty($ticket->due_date)}{$ticket->due_date|date_format:"%a, %b %d %Y %I:%M %p"}{/if}"><br>
+						      	<input type="text" name="ticket_reopen" size="55" value="{if !empty($ticket->due_date)}{$ticket->due_date|devblocks_date}{/if}"><br>
 						      	(leave blank to wait for a reply before resuming)<br>
 						      	<br>
 						      	</div>

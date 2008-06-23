@@ -20,7 +20,7 @@ Profile ID: <b>{$instance->code}</b><br>
 <br>
 
 {if !empty($is_submitted)}
-	<div class="success">Changes saved at {$is_submitted|date_format:'%I:%M:%S%p'}</div>
+	<div class="success">Changes saved at {$is_submitted|devblocks_date}</div>
 {/if}
 
 <button type="button" onclick="genericAjaxPost('formConfigCommunityTool','configCommunity',null);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>

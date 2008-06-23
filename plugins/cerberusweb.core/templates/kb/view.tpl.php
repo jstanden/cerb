@@ -64,7 +64,7 @@
 				{/if}
 			</td>
 			{elseif $column=="kb_updated"}
-			<td>{$result.kb_updated|date_format}&nbsp;</td>
+			<td>{$result.kb_updated|devblocks_date}&nbsp;</td>
 			{else}
 			<td>{$result.$column}&nbsp;</td>
 			{/if}

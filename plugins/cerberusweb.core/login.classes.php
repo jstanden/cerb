@@ -89,12 +89,8 @@ class DefaultLoginModule extends CerberusLoginPageExtension {
 			$visit = new CerberusVisit();
 			$visit->setWorker($worker);
 				
-//			$memberships = DAO_Worker::getGroupMemberships($worker->id);
-//			$team_id = key($memberships);
-//			if(null != ($team_id = key($memberships))) {
 			$visit->set(CerberusVisit::KEY_DASHBOARD_ID, ''); // 't'.$team_id
 			$visit->set(CerberusVisit::KEY_WORKSPACE_GROUP_ID, 0); // $team_id
-//			}
 
 			$session->setVisit($visit);
 			

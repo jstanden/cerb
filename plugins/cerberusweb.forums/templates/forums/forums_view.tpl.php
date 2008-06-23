@@ -74,7 +74,7 @@
 					{/if}
 				</td>
 			{elseif $column=="t_last_updated"}
-				<td>{$result.t_last_updated|date_format}&nbsp;</td>
+				<td>{$result.t_last_updated|devblocks_date}&nbsp;</td>
 			{elseif $column=="t_link"}
 				<td><a href="{$result.t_link}" target="_blank" title="{$result.t_link}">{$result.t_link|truncate:64:'...':true:true}</a>&nbsp;</td>
 			{else}

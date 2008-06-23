@@ -268,7 +268,7 @@ class UmScApp extends Extension_UsermeetTool {
 		$tpl->assign('groups', $groups);
 		
 		// Contact: Fields
-		$ticket_fields = DAO_TicketField::getWhere();
+		$ticket_fields = DAO_TicketField::getAll();
 		$tpl->assign('ticket_fields', $ticket_fields);
 		
         $tpl->display("file:${tpl_path}portal/sc/config/index.tpl.php");
@@ -417,7 +417,7 @@ class UmScApp extends Extension_UsermeetTool {
 		$tpl->assign('groups', $groups);
         
 		// Contact: Fields
-		$ticket_fields = DAO_TicketField::getWhere();
+		$ticket_fields = DAO_TicketField::getAll();
 		$tpl->assign('ticket_fields', $ticket_fields);
         
         $tpl->display("file:${tpl_path}portal/sc/config/add_situation.tpl.php");
@@ -1329,7 +1329,7 @@ class UmScCoreController extends Extension_UmScController {
 						        	}
 						        }
 						        
-						        $ticket_fields = DAO_TicketField::getWhere();
+						        $ticket_fields = DAO_TicketField::getAll();
         						$tpl->assign('ticket_fields', $ticket_fields);
 						        
 				        		$tpl->display("file:${tpl_path}portal/sc/internal/contact/step2.tpl.php");

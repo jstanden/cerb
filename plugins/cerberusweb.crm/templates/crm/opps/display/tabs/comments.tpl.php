@@ -20,7 +20,7 @@
 		<div id="displayComment{$comment_id}">
 		<div class="note">
 		<h2 style="display:inline;">{$comment_worker->getName()} wrote:</h2>
-		&nbsp; <i>{$comment->created_date|date_format:'%b %e, %Y'} GMT</i>
+		&nbsp; <i>{$comment->created_date|devblocks_date}</i>
 		
 		{if $active_worker->is_superuser || $active_worker->id==$comment_worker_id}
 			&nbsp; <a href="javascript:;" onclick="if(confirm('Are you sure you want to delete this comment?')){literal}{{/literal}clearDiv('displayComment{$comment_id}');genericAjaxGet('','c=crm&a=deleteOppComment&comment_id={$comment->id}&opp_id={$comment->opportunity_id}');{literal}}{/literal}">delete comment</a>

@@ -15,7 +15,7 @@
 				{/if}
 			{/if}
 			<a href="javascript:;" onclick="genericAjaxGet('{$message_id}notes','c=display&a=deleteNote&id={$note_id}');">delete note</a><br>
-			<b>Date:</b> {$note->created|date_format:'%a, %d %b %Y %H:%M:%S'} -0000<br>
+			<b>Date:</b> {$note->created|devblocks_date}<br>
 			<br>
 			{if !empty($note->content)}{$note->content|escape:"htmlall"|makehrefs|nl2br}{/if}
 		</div>

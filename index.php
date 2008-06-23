@@ -80,6 +80,11 @@ if(@0 != strcasecmp(@$request->path[0],"update")
 //DevblocksPlatform::readPlugins();
 $session = DevblocksPlatform::getSessionService();
 
+// Localization
+if(isset($_SESSION['timezone'])) {
+	@date_default_timezone_set($_SESSION['timezone']);
+}
+
 // [JAS]: HTTP Request
 DevblocksPlatform::processRequest($request);
 

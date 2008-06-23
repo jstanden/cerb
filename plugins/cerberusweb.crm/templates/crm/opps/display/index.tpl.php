@@ -13,7 +13,7 @@
 		<b>Bucket:</b> {if empty($campaign_bucket_id)}Inbox{else}{$buckets.$campaign_bucket_id->name}{/if} &nbsp;
 		<b>E-mail:</b> {$address->first_name} {$address->last_name} &lt;<a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$address->email}&view_id=',null,false,'500px',ajax.cbAddressPeek);">{$address->email}</a>&gt; &nbsp;
 		{*<b>Amount:</b> {$opp->amount|string_format:'%0.2f'} ({$opp->probability}%) &nbsp;*}
-		<b>Created:</b> {$opp->created_date|date_format} &nbsp;
+		<b>Created:</b> {$opp->created_date|devblocks_date} &nbsp;
 		<br>
 		
 		<b>Status:</b> {if $opp->is_closed}{if $opp->is_won}Closed/Won{else}Closed/Lost{/if}{else}Open{/if} &nbsp;
