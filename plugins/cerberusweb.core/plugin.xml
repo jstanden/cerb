@@ -36,10 +36,6 @@
 			<param key="ticket_ids" />
 			<param key="changed_fields" />
 		</event>
-		<event id="ticket.delete">
-			<name>Ticket Deletion</name>
-			<param key="ticket_ids" />
-		</event>
 		<event id="ticket.reply.inbound">
 			<name>Ticket Inbound Reply</name>
 			<param key="ticket_id" />
@@ -58,6 +54,9 @@
 		</event>
 		<event id="cron.heartbeat">
 			<name>Heartbeat</name>
+		</event>
+		<event id="cron.maint">
+			<name>Maintenance</name>
 		</event>
 	</event_points>
 

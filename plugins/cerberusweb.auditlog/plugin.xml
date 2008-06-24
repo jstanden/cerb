@@ -40,7 +40,7 @@
 				<param key="events">
 					<value>
 						<data key="ticket.property.pre_change" />
-						<data key="ticket.delete" />
+						<data key="cron.maint" />
 					</value>
 				</param>
 			</params>

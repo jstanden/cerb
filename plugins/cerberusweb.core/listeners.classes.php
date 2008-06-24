@@ -327,9 +327,21 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 			case 'cron.heartbeat':
 				$this->_handleCronHeartbeat($event);
 				break;
+				
+			case 'cron.maint':
+				$this->_handleCronMaint($event);
+				break;
 		}
 	}
 
+	private function _handleCronMaint($event) {
+		DAO_Address::maint();
+		DAO_Group::maint();
+		DAO_Ticket::maint();
+		DAO_Message::maint();
+		DAO_Worker::maint();
+	}
+	
 	private function _handleCronHeartbeat($event) {
 		// Re-open any conversations past their reopen date
 		$fields = array(

@@ -20,9 +20,8 @@ class ChAuditLogEventListener extends DevblocksEventListenerExtension {
      */
     function handleEvent(Model_DevblocksEvent $event) {
         switch($event->id) {
-            case 'ticket.delete':
-            	@$ticket_ids = $event->params['ticket_ids'];
-            	DAO_TicketAuditLog::deleteByTicketIds($ticket_ids);
+            case 'cron.maint':
+            	DAO_TicketAuditLog::maint();
             	break;
             	
             case 'ticket.property.pre_change':
@@ -183,6 +182,13 @@ class DAO_TicketAuditLog extends DevblocksORMHelper {
 			
 	public static function update($ids, $fields) {
 		parent::_update($ids, 'ticket_audit_log', $fields);
+	}
+	
+	public static function maint() {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = "DELETE QUICK ticket_audit_log FROM ticket_audit_log LEFT JOIN ticket ON ticket_audit_log.ticket_id=ticket.id WHERE ticket.id IS NULL";
+		$db->Execute($sql);
 	}
 	
 	public static function delete($ids) {

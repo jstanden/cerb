@@ -174,43 +174,30 @@ class MaintCron extends CerberusCronPageExtension {
 		$db = DevblocksPlatform::getDatabaseService();
 
 		// Purge Deleted Content
-		$purged = 0;
-		// [TODO] Make this configurable from job for the 'else'
-		@$max_purges = DevblocksPlatform::importGPC($_REQUEST['maint_max_deletes'],'integer',1000);
-
 		$purge_waitdays = intval($this->getParam('purge_waitdays', 7));
-		$purge_waitsecs = $purge_waitdays*24*60*60;
 
-		$sql = sprintf("SELECT id FROM ticket WHERE is_deleted = 1 AND updated_date < %d ORDER BY updated_date",
-			time()-$purge_waitsecs
+		$sql = sprintf("DELETE QUICK FROM ticket ".
+			"WHERE is_deleted = 1 ".
+			"AND updated_date < unix_timestamp(date_sub(NOW(),INTERVAL \"%d\" DAY))",
+			$purge_waitdays
 		);
-		$rs = $db->SelectLimit($sql, $max_purges);
+		$db->Execute($sql);
+		
+		echo "Purged deleted tickets!<br>\r\n";
 
-		$purged = 0;
-		$buffer = array();
-
-		while(!$rs->EOF) {
-			$buffer[] = intval($rs->fields['id']);
-			if(++$purged % 10 == 0) {
-				DAO_Ticket::delete($buffer);
-				$buffer = array();
-			}
-			$rs->MoveNext();
-		}
-
-		if(!empty($buffer)) {
-			DAO_Ticket::delete($buffer);
-			$buffer = array();
-		}
-
-		echo "Deleted ", $purged, " tickets!<br>\r\n";
-
+		// Give plugins a chance to run maintenance (nuke NULL rows, etc.)
+	    $eventMgr = DevblocksPlatform::getEventService();
+	    $eventMgr->trigger(
+	        new Model_DevblocksEvent(
+	            'cron.maint',
+                array()
+            )
+	    );
+		
 		// Nuke orphaned words from the Bayes index
 		// [TODO] Make this configurable from job
 		$sql = "DELETE FROM bayes_words WHERE nonspam + spam < 2"; // only 1 occurrence
 		$db->Execute($sql);
-
-		// [TODO] After deletion, check for any leftover NULL rows and delete them
 
 		// [mdf] Remove any empty directories inside storage/mail/new
 		$mailDir = APP_MAIL_PATH . 'new' . DIRECTORY_SEPARATOR;
@@ -235,27 +222,7 @@ class MaintCron extends CerberusCronPageExtension {
 				}
 			}
 		}
-	  
-		// Recover any tickets assigned to a NULL bucket
-		$sql = "SELECT DISTINCT t.category_id as id ".
-			"FROM ticket t ".
-			"LEFT JOIN category c ON (t.category_id=c.id) ".
-			"WHERE c.id IS NULL AND t.category_id > 0";
-		$rs = $db->Execute($sql);
-
-		while(!$rs->EOF) {
-			$sql = sprintf("UPDATE ticket SET category_id = 0 WHERE category_id = %d",
-			$rs->fields['id']
-			);
-			$db->Execute($sql);
-			$rs->MoveNext();
-		}
-
-	  
-		// Optimize/Vaccuum
-		// [TODO] Make this configurable from job
-		$perf = NewPerfMonitor($db);
-		//	    $perf->optimizeDatabase();
+		
 	}
 
 	function configure($instance) {
