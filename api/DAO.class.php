@@ -2412,7 +2412,10 @@ class DAO_Ticket extends DevblocksORMHelper {
 			 * audit log can watch and trigger on.
 			 */
 			
-			self::delete($merge_ticket_ids);
+			DAO_Ticket::updateTicket($merge_ticket_ids, array(
+				DAO_Ticket::IS_CLOSED => 1,
+				DAO_Ticket::IS_DELETED => 1,
+			));
 			
 			return $oldest_id;
 		}
