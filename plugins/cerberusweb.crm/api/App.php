@@ -999,7 +999,7 @@ class DAO_CrmOpportunity extends DevblocksORMHelper {
 		
 		$ids_list = implode(',', $ids);
 		
-		$db->Execute(sprintf("DELETE FROM crm_opportunity WHERE id IN (%s)", $ids_list));
+		$db->Execute(sprintf("DELETE QUICK FROM crm_opportunity WHERE id IN (%s)", $ids_list));
 		
 		DAO_CrmOppComment::delete($ids);
 		
@@ -1315,7 +1315,7 @@ class DAO_CrmOppComment extends DevblocksORMHelper {
 		
 		$ids_list = implode(',', $ids);
 		
-		$db->Execute(sprintf("DELETE FROM crm_opp_comment WHERE opportunity_id IN (%s)", $ids_list));
+		$db->Execute(sprintf("DELETE QUICK FROM crm_opp_comment WHERE opportunity_id IN (%s)", $ids_list));
 		
 		return true;
 	}
@@ -1326,7 +1326,7 @@ class DAO_CrmOppComment extends DevblocksORMHelper {
 		
 		$ids_list = implode(',', $ids);
 		
-		$db->Execute(sprintf("DELETE FROM crm_opp_comment WHERE id IN (%s)", $ids_list));
+		$db->Execute(sprintf("DELETE QUICK FROM crm_opp_comment WHERE id IN (%s)", $ids_list));
 		
 		return true;
 	}
@@ -1420,7 +1420,7 @@ class DAO_CrmCampaign extends DevblocksORMHelper {
 		
 		$ids_list = implode(',', $ids);
 		
-		$db->Execute(sprintf("DELETE FROM crm_campaign WHERE id IN (%s)", $ids_list));
+		$db->Execute(sprintf("DELETE QUICK FROM crm_campaign WHERE id IN (%s)", $ids_list));
 		
 		// Cascade: Buckets
 		DAO_CrmCampaignBucket::deleteByCampaignIds($ids);
@@ -1543,7 +1543,7 @@ class DAO_CrmCampaignBucket extends DevblocksORMHelper {
 		
 		$ids_list = implode(',', $ids);
 		
-		$db->Execute(sprintf("DELETE FROM crm_campaign_bucket WHERE campaign_id IN (%s)", $ids_list));
+		$db->Execute(sprintf("DELETE QUICK FROM crm_campaign_bucket WHERE campaign_id IN (%s)", $ids_list));
 		$db->Execute(sprintf("UPDATE crm_opportunity SET campaign_bucket_id = 0 WHERE campaign_id IN (%s)", $ids_list));
 		
 		return true;
@@ -1555,7 +1555,7 @@ class DAO_CrmCampaignBucket extends DevblocksORMHelper {
 		
 		$ids_list = implode(',', $ids);
 		
-		$db->Execute(sprintf("DELETE FROM crm_campaign_bucket WHERE id IN (%s)", $ids_list));
+		$db->Execute(sprintf("DELETE QUICK FROM crm_campaign_bucket WHERE id IN (%s)", $ids_list));
 		$db->Execute(sprintf("UPDATE crm_opportunity SET campaign_bucket_id = 0 WHERE campaign_bucket_id IN (%s)", $ids_list));
 		
 		return true;

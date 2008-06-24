@@ -631,7 +631,7 @@ class DAO_ForumsThread extends DevblocksORMHelper {
 		
 		$ids_list = implode(',', $ids);
 		
-		$db->Execute(sprintf("DELETE FROM forums_thread WHERE id IN (%s)", $ids_list));
+		$db->Execute(sprintf("DELETE QUICK FROM forums_thread WHERE id IN (%s)", $ids_list));
 		
 		return true;
 	}
@@ -837,7 +837,7 @@ class DAO_ForumsSource extends DevblocksORMHelper {
 		
 		$ids_list = implode(',', $ids);
 		
-		$db->Execute(sprintf("DELETE FROM forums_source WHERE id IN (%s)", $ids_list));
+		$db->Execute(sprintf("DELETE QUICK FROM forums_source WHERE id IN (%s)", $ids_list));
 		
 		return true;
 	}

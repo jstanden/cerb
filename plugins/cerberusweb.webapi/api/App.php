@@ -239,7 +239,7 @@ class DAO_WebapiKey extends DevblocksORMHelper {
 		
 		$ids_list = implode(',', $ids);
 		
-		$db->Execute(sprintf("DELETE FROM webapi_key WHERE id IN (%s)",$ids_list));
+		$db->Execute(sprintf("DELETE QUICK FROM webapi_key WHERE id IN (%s)",$ids_list));
 	}
 };
 

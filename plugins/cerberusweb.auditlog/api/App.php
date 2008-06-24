@@ -191,7 +191,7 @@ class DAO_TicketAuditLog extends DevblocksORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$ids_list = implode(',', $ids);
 		
-		$db->Execute(sprintf("DELETE FROM ticket_audit_log WHERE id IN (%s)", $ids_list));
+		$db->Execute(sprintf("DELETE QUICK FROM ticket_audit_log WHERE id IN (%s)", $ids_list));
 	}
 	
 	public static function deleteByTicketIds($ids) {
@@ -200,7 +200,7 @@ class DAO_TicketAuditLog extends DevblocksORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$ids_list = implode(',', $ids);
 		
-		$db->Execute(sprintf("DELETE FROM ticket_audit_log WHERE ticket_id IN (%s)", $ids_list));
+		$db->Execute(sprintf("DELETE QUICK FROM ticket_audit_log WHERE ticket_id IN (%s)", $ids_list));
 	}
 	
     /**

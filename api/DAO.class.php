@@ -374,20 +374,20 @@ class DAO_Worker extends DevblocksORMHelper {
 		
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = sprintf("DELETE FROM worker WHERE id = %d", $id);
+		$sql = sprintf("DELETE QUICK FROM worker WHERE id = %d", $id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
-		$sql = sprintf("DELETE FROM address_to_worker WHERE worker_id = %d", $id);
+		$sql = sprintf("DELETE QUICK FROM address_to_worker WHERE worker_id = %d", $id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
-		$sql = sprintf("DELETE FROM worker_to_team WHERE agent_id = %d", $id);
+		$sql = sprintf("DELETE QUICK FROM worker_to_team WHERE agent_id = %d", $id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 
-		$sql = sprintf("DELETE FROM ticket_rss WHERE worker_id = %d", $id);
+		$sql = sprintf("DELETE QUICK FROM ticket_rss WHERE worker_id = %d", $id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 
 		// [TODO] Cascade using DAO_WorkerWorkspaceList::delete
-		$sql = sprintf("DELETE FROM worker_workspace_list WHERE worker_id = %d", $id);
+		$sql = sprintf("DELETE QUICK FROM worker_workspace_list WHERE worker_id = %d", $id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 
 		// Clear assigned workers
@@ -425,7 +425,7 @@ class DAO_Worker extends DevblocksORMHelper {
 		if(empty($agent_id)) return;
 		$db = DevblocksPlatform::getDatabaseService();
 
-		$sql = sprintf("DELETE FROM worker_to_team WHERE agent_id = %d",
+		$sql = sprintf("DELETE QUICK FROM worker_to_team WHERE agent_id = %d",
 			$agent_id
 		);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
@@ -640,7 +640,7 @@ class DAO_ContactOrg extends DevblocksORMHelper {
 		
 		$id_list = implode(',', $ids);
 		
-		$sql = sprintf("DELETE FROM contact_org WHERE id IN (%s)",
+		$sql = sprintf("DELETE QUICK FROM contact_org WHERE id IN (%s)",
 			$id_list
 		);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
@@ -962,7 +962,7 @@ class DAO_Address extends DevblocksORMHelper {
         
         $address_ids = implode(',', $ids);
         
-        $sql = sprintf("DELETE FROM address WHERE id IN (%s)", $address_ids);
+        $sql = sprintf("DELETE QUICK FROM address WHERE id IN (%s)", $address_ids);
         $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 
         DAO_AddressAuth::delete($ids);
@@ -1282,7 +1282,7 @@ class DAO_AddressAuth extends DevblocksORMHelper  {
 		$db = DevblocksPlatform::getDatabaseService();
         
         $address_ids = implode(',', $ids);
-        $sql = sprintf("DELETE FROM address_auth WHERE address_id IN (%s)", $address_ids);
+        $sql = sprintf("DELETE QUICK FROM address_auth WHERE address_id IN (%s)", $address_ids);
         $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 	}
 };
@@ -1316,7 +1316,7 @@ class DAO_AddressToWorker { // extends DevblocksORMHelper
 		if(empty($address))
 			return NULL;
 			
-		$sql = sprintf("DELETE FROM address_to_worker WHERE address = %s",
+		$sql = sprintf("DELETE QUICK FROM address_to_worker WHERE address = %s",
 			$db->qstr($address)
 		);
 		$db->Execute($sql);
@@ -1328,7 +1328,7 @@ class DAO_AddressToWorker { // extends DevblocksORMHelper
 		if(empty($worker_id))
 			return NULL;
 			
-		$sql = sprintf("DELETE FROM address_to_worker WHERE worker_id = %d",
+		$sql = sprintf("DELETE QUICK FROM address_to_worker WHERE worker_id = %d",
 			$worker_id
 		);
 		$db->Execute($sql);
@@ -1476,19 +1476,19 @@ class DAO_Message extends DevblocksORMHelper {
         
         $message_ids = implode(',', $ids);
         
-        $sql = sprintf("DELETE FROM message WHERE id IN (%s)", $message_ids);
+        $sql = sprintf("DELETE QUICK FROM message WHERE id IN (%s)", $message_ids);
         $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 
         // Content
-        $sql = sprintf("DELETE FROM message_content WHERE message_id IN (%s)", $message_ids);
+        $sql = sprintf("DELETE QUICK FROM message_content WHERE message_id IN (%s)", $message_ids);
         $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 
         // Headers
-        $sql = sprintf("DELETE FROM message_header WHERE message_id IN (%s)", $message_ids);
+        $sql = sprintf("DELETE QUICK FROM message_header WHERE message_id IN (%s)", $message_ids);
         $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 
         // Notes
-        $sql = sprintf("DELETE FROM message_note WHERE message_id IN (%s)", $message_ids);
+        $sql = sprintf("DELETE QUICK FROM message_note WHERE message_id IN (%s)", $message_ids);
         $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
         
         // Attachments
@@ -1690,7 +1690,7 @@ class DAO_MessageNote extends DevblocksORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
         
         $message_ids = implode(',', $ids);
-        $sql = sprintf("DELETE FROM message_note WHERE id IN (%s)", $message_ids);
+        $sql = sprintf("DELETE QUICK FROM message_note WHERE id IN (%s)", $message_ids);
         $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
     }
 };
@@ -1983,7 +1983,7 @@ class DAO_Attachment extends DevblocksORMHelper {
 	    $id_list = implode(',', $ids);
 	    
 	    // Delete from DB
-	    $sql = sprintf("DELETE FROM attachment WHERE id IN (%s)", $id_list);
+	    $sql = sprintf("DELETE QUICK FROM attachment WHERE id IN (%s)", $id_list);
 	    $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 
 	}
@@ -2100,7 +2100,7 @@ class DAO_Sla extends DevblocksORMHelper {
 		
 		$id_list = implode(',', $ids);
 		
-		$sql = sprintf("DELETE FROM sla WHERE id IN (%s)", $id_list);
+		$sql = sprintf("DELETE QUICK FROM sla WHERE id IN (%s)", $id_list);
 		$db->Execute($sql);
 		
 		// Ticket
@@ -2340,11 +2340,11 @@ class DAO_Ticket extends DevblocksORMHelper {
 	    );
 	    
 	    // Tickets
-        $sql = sprintf("DELETE FROM ticket WHERE id IN (%s)", $ticket_ids);
+        $sql = sprintf("DELETE QUICK FROM ticket WHERE id IN (%s)", $ticket_ids);
         $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 
         // Requester
-        $sql = sprintf("DELETE FROM requester WHERE ticket_id IN (%s)", $ticket_ids); 
+        $sql = sprintf("DELETE QUICK FROM requester WHERE ticket_id IN (%s)", $ticket_ids); 
         $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
         
         // Messages
@@ -2651,7 +2651,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 	        
         $db = DevblocksPlatform::getDatabaseService();
 
-        $sql = sprintf("DELETE FROM requester WHERE ticket_id = %d AND address_id = %d",
+        $sql = sprintf("DELETE QUICK FROM requester WHERE ticket_id = %d AND address_id = %d",
             $id,
             $address_id
         );
@@ -3351,7 +3351,7 @@ class DAO_TicketRss extends DevblocksORMHelper {
 		if(empty($id)) return;
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = sprintf("DELETE FROM ticket_rss WHERE id = %d",
+		$sql = sprintf("DELETE QUICK FROM ticket_rss WHERE id = %d",
 			$id
 		);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
@@ -3531,20 +3531,20 @@ class DAO_Group {
 		if(empty($id)) return;
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = sprintf("DELETE FROM team WHERE id = %d", $id);
+		$sql = sprintf("DELETE QUICK FROM team WHERE id = %d", $id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		// [TODO] DAO_GroupSettings::deleteById();
-		$sql = sprintf("DELETE FROM group_setting WHERE group_id = %d", $id);
+		$sql = sprintf("DELETE QUICK FROM group_setting WHERE group_id = %d", $id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
-		$sql = sprintf("DELETE FROM worker_to_team WHERE team_id = %d",	$id);
+		$sql = sprintf("DELETE QUICK FROM worker_to_team WHERE team_id = %d",	$id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 
-		$sql = sprintf("DELETE FROM mail_routing WHERE team_id = %d", $id);
+		$sql = sprintf("DELETE QUICK FROM mail_routing WHERE team_id = %d", $id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
-		$sql = sprintf("DELETE FROM team_routing_rule WHERE team_id = %d", $id);
+		$sql = sprintf("DELETE QUICK FROM team_routing_rule WHERE team_id = %d", $id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 
         DAO_TeamRoutingRule::deleteByMoveCodes(array('t'.$id));
@@ -3577,7 +3577,7 @@ class DAO_Group {
             
         $db = DevblocksPlatform::getDatabaseService();
         
-		$sql = sprintf("DELETE FROM worker_to_team WHERE team_id = %d AND agent_id IN (%d)",
+		$sql = sprintf("DELETE QUICK FROM worker_to_team WHERE team_id = %d AND agent_id IN (%d)",
 		    $team_id,
 		    $worker_id
 		);
@@ -3814,10 +3814,10 @@ class DAO_KbArticle extends DevblocksORMHelper {
 //		}
 
 		// Articles
-		$db->Execute(sprintf("DELETE FROM kb_article WHERE id IN (%s)", $id_string));
+		$db->Execute(sprintf("DELETE QUICK FROM kb_article WHERE id IN (%s)", $id_string));
 		
 		// Categories
-		$db->Execute(sprintf("DELETE FROM kb_article_to_category WHERE kb_article_id IN (%s)", $id_string));
+		$db->Execute(sprintf("DELETE QUICK FROM kb_article_to_category WHERE kb_article_id IN (%s)", $id_string));
 	}
 
 	static function getCategoriesByArticleId($article_id) {
@@ -3847,7 +3847,7 @@ class DAO_KbArticle extends DevblocksORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		if($replace) {
-			$db->Execute(sprintf("DELETE FROM kb_article_to_category WHERE kb_article_id = %d",
+			$db->Execute(sprintf("DELETE QUICK FROM kb_article_to_category WHERE kb_article_id = %d",
 				$article_id
 			));
 		}
@@ -4108,9 +4108,9 @@ class DAO_KbCategory extends DevblocksORMHelper {
 		
 		$ids_list = implode(',', $ids);
 		
-		$db->Execute(sprintf("DELETE FROM kb_category WHERE id IN (%s)", $ids_list));
+		$db->Execute(sprintf("DELETE QUICK FROM kb_category WHERE id IN (%s)", $ids_list));
 
-		$db->Execute(sprintf("DELETE FROM kb_article_to_category WHERE kb_category_id IN (%s)", $ids_list));
+		$db->Execute(sprintf("DELETE QUICK FROM kb_article_to_category WHERE kb_category_id IN (%s)", $ids_list));
 		
 		return true;
 	}
@@ -4245,7 +4245,7 @@ class DAO_Bucket extends DevblocksORMHelper {
 	    if(!is_array($ids)) $ids = array($ids);
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = sprintf("DELETE FROM category WHERE id IN (%s)", implode(',',$ids));
+		$sql = sprintf("DELETE QUICK FROM category WHERE id IN (%s)", implode(',',$ids));
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		// Reset any tickets using this category
@@ -4384,7 +4384,7 @@ class DAO_Mail {
 		$db = DevblocksPlatform::getDatabaseService();
 		if(empty($id)) return;
 		
-		$sql = sprintf("DELETE FROM mail_routing WHERE id = %d",
+		$sql = sprintf("DELETE QUICK FROM mail_routing WHERE id = %d",
 			$id
 		);
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
@@ -4483,7 +4483,7 @@ class DAO_Mail {
 			
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = sprintf("DELETE FROM pop3_account WHERE id = %d",
+		$sql = sprintf("DELETE QUICK FROM pop3_account WHERE id = %d",
 			$id			
 		);
 		
@@ -4570,7 +4570,7 @@ class DAO_Community extends DevblocksORMHelper {
 	    
 	    $id_list = implode(',', $ids);
 	    
-	    $sql = sprintf("DELETE FROM community WHERE id IN (%s)", $id_list);
+	    $sql = sprintf("DELETE QUICK FROM community WHERE id IN (%s)", $id_list);
 	    $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 
 	    // Community Tools
@@ -4763,7 +4763,7 @@ class DAO_WorkerWorkspaceList extends DevblocksORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$ids_list = implode(',', $ids);
 		
-		$db->Execute(sprintf("DELETE FROM worker_workspace_list WHERE id IN (%s)", $ids_list)) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$db->Execute(sprintf("DELETE QUICK FROM worker_workspace_list WHERE id IN (%s)", $ids_list)) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 	}
 };
 
@@ -4968,7 +4968,7 @@ class DAO_PreParseRule extends DevblocksORMHelper {
 		
 		$ids_list = implode(',', $ids);
 		
-		$db->Execute(sprintf("DELETE FROM preparse_rule WHERE id IN (%s)", $ids_list));
+		$db->Execute(sprintf("DELETE QUICK FROM preparse_rule WHERE id IN (%s)", $ids_list));
 
 		self::clearCache();
 		
@@ -5030,7 +5030,7 @@ class DAO_TeamRoutingRule extends DevblocksORMHelper {
 	    // Check for dupes
 	    // [TODO] This is stupid
 		if(isset($fields[self::TEAM_ID]) && isset($fields[self::PATTERN]) && isset($fields[self::HEADER])) {
-		    $sql = sprintf("DELETE FROM team_routing_rule ".
+		    $sql = sprintf("DELETE QUICK FROM team_routing_rule ".
 		        "WHERE team_id = %d ".
 		        "AND pattern = %s ".
 		        "AND header = %s ",
@@ -5136,7 +5136,7 @@ class DAO_TeamRoutingRule extends DevblocksORMHelper {
 	    
 	    $id_list = implode(',', $ids);
 	    
-	    $sql = sprintf("DELETE FROM team_routing_rule WHERE id IN (%s)", $id_list);
+	    $sql = sprintf("DELETE QUICK FROM team_routing_rule WHERE id IN (%s)", $id_list);
 	    $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 
 	    // [TODO] cascade foreign key constraints	
@@ -5301,7 +5301,7 @@ class DAO_FnrQuery extends DevblocksORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		$id_list = implode(',', $ids);
-		$db->Execute(sprintf("DELETE FROM fnr_query WHERE id IN (%s)",$id_list));
+		$db->Execute(sprintf("DELETE QUICK FROM fnr_query WHERE id IN (%s)",$id_list));
 	}
 
 };
@@ -5338,10 +5338,10 @@ class DAO_FnrTopic extends DevblocksORMHelper {
 
 		$ids_string = implode(',', $ids);
 		
-		$sql = sprintf("DELETE FROM fnr_topic WHERE id IN (%s)", $ids_string);
+		$sql = sprintf("DELETE QUICK FROM fnr_topic WHERE id IN (%s)", $ids_string);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
-		$sql = sprintf("DELETE FROM fnr_external_resource WHERE topic_id IN (%s)", $ids_string);
+		$sql = sprintf("DELETE QUICK FROM fnr_external_resource WHERE topic_id IN (%s)", $ids_string);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 	}
 	
@@ -5415,7 +5415,7 @@ class DAO_FnrExternalResource extends DevblocksORMHelper {
 		if(!is_array($ids)) $ids = array($ids);
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = sprintf("DELETE FROM %s WHERE id IN (%s)",
+		$sql = sprintf("DELETE QUICK FROM %s WHERE id IN (%s)",
 			self::_TABLE,
 			implode(',', $ids)
 		);
@@ -5523,7 +5523,7 @@ class DAO_MailTemplate extends DevblocksORMHelper {
 		if(!is_array($ids)) $ids = array($ids);
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = sprintf("DELETE FROM %s WHERE id IN (%s)",
+		$sql = sprintf("DELETE QUICK FROM %s WHERE id IN (%s)",
 			self::_TABLE,
 			implode(',', $ids)
 		);
@@ -5692,7 +5692,7 @@ class DAO_TicketComment extends DevblocksORMHelper {
 		
 		$ids_list = implode(',', $ids);
 		
-		$db->Execute(sprintf("DELETE FROM ticket_comment WHERE id IN (%s)", $ids_list));
+		$db->Execute(sprintf("DELETE QUICK FROM ticket_comment WHERE id IN (%s)", $ids_list));
 		
 		return true;
 	}
@@ -5807,7 +5807,7 @@ class DAO_TicketField extends DevblocksORMHelper {
 		
 		$id_string = implode(',', $ids);
 		
-		$sql = sprintf("DELETE FROM ticket_field WHERE id IN (%s)",$id_string);
+		$sql = sprintf("DELETE QUICK FROM ticket_field WHERE id IN (%s)",$id_string);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 
 		// [TODO] Nuke options
@@ -5848,7 +5848,7 @@ class DAO_TicketFieldValue extends DevblocksORMHelper {
 	public static function unsetFieldValue($ticket_id, $field_id) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = sprintf("DELETE FROM ticket_field_value WHERE ticket_id = %d AND field_id = %d",
+		$sql = sprintf("DELETE QUICK FROM ticket_field_value WHERE ticket_id = %d AND field_id = %d",
 			$ticket_id,
 			$field_id
 		);
@@ -5907,14 +5907,14 @@ class DAO_TicketFieldValue extends DevblocksORMHelper {
 	public static function clearFieldValues($field_id) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = sprintf("DELETE FROM ticket_field_value WHERE field_id = %d",$field_id);
+		$sql = sprintf("DELETE QUICK FROM ticket_field_value WHERE field_id = %d",$field_id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 	}
 	
 	public static function clearTicketValues($ticket_id) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = sprintf("DELETE FROM ticket_field_value WHERE ticket_id = %d",$ticket_id);
+		$sql = sprintf("DELETE QUICK FROM ticket_field_value WHERE ticket_id = %d",$ticket_id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 	}
 };
@@ -6064,7 +6064,7 @@ class DAO_Task extends DevblocksORMHelper {
 		$ids_list = implode(',', $ids);
 		
 		// Tasks
-		$db->Execute(sprintf("DELETE FROM task WHERE id IN (%s)", $ids_list));
+		$db->Execute(sprintf("DELETE QUICK FROM task WHERE id IN (%s)", $ids_list));
 		
 		return true;
 	}
@@ -6082,7 +6082,7 @@ class DAO_Task extends DevblocksORMHelper {
 		$ids_list = implode(',', $ids);
 		
 		// Tasks
-		$db->Execute(sprintf("DELETE FROM task WHERE source_extension = %s AND source_id IN (%s)",
+		$db->Execute(sprintf("DELETE QUICK FROM task WHERE source_extension = %s AND source_id IN (%s)",
 			$db->qstr($source_extension), 
 			$ids_list
 		));

@@ -402,7 +402,7 @@ class DAO_WorkerMailForward extends DevblocksORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$ids_list = implode(',', $ids);
 		
-		$db->Execute(sprintf("DELETE FROM worker_mail_forward WHERE id IN (%s)", $ids_list));
+		$db->Execute(sprintf("DELETE QUICK FROM worker_mail_forward WHERE id IN (%s)", $ids_list));
 	}
 	
 	public static function deleteByWorkerIds($ids) {
@@ -411,7 +411,7 @@ class DAO_WorkerMailForward extends DevblocksORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$ids_list = implode(',', $ids);
 		
-		$db->Execute(sprintf("DELETE FROM worker_mail_forward WHERE worker_id IN (%s)", $ids_list));
+		$db->Execute(sprintf("DELETE QUICK FROM worker_mail_forward WHERE worker_id IN (%s)", $ids_list));
 	}
 };
 

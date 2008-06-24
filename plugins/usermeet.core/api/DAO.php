@@ -193,10 +193,10 @@ class DAO_CommunityTool extends DevblocksORMHelper {
 		     * orphaned data.
 		     */
 			
-		    $sql = sprintf("DELETE FROM community_tool WHERE id = %d", $id);
+		    $sql = sprintf("DELETE QUICK FROM community_tool WHERE id = %d", $id);
 		    $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 			
-		    $sql = sprintf("DELETE FROM community_tool_property WHERE tool_code = '%s'", $tool->code);
+		    $sql = sprintf("DELETE QUICK FROM community_tool_property WHERE tool_code = '%s'", $tool->code);
 		    $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		}
 	}
@@ -408,7 +408,7 @@ class DAO_CommunitySession {
 	
 	static private function gc() {
 		$db = DevblocksPlatform::getDatabaseService();
-		$sql = sprintf("DELETE FROM community_session WHERE updated < %d",
+		$sql = sprintf("DELETE QUICK FROM community_session WHERE updated < %d",
 			(time()-(60*60)) // 1 hr
 		);
 		$db->Execute($sql);
