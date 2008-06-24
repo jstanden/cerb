@@ -7977,6 +7977,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		$tpl->assign('groups', $groups);
 		
 		$field_values = DAO_TicketFieldValue::getValuesByTickets($ticket_id);
+		
 		if(isset($field_values[$ticket_id]))
 			$tpl->assign('ticket_field_values', $field_values[$ticket_id]);
 		
@@ -8025,7 +8026,11 @@ class ChDisplayPage extends CerberusPageExtension {
 					
 				case Model_TicketField::TYPE_DATE:
 					@$date = strtotime($field_value);
-					DAO_TicketFieldValue::setFieldValue($ticket_id, $field_id, $date);
+					if(!empty($date)) {
+						DAO_TicketFieldValue::setFieldValue($ticket_id, $field_id, $date);
+					} else {
+						DAO_TicketFieldValue::unsetFieldValue($ticket_id, $field_id);
+					}
 					break;
 			}
 		}

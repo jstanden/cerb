@@ -376,6 +376,10 @@ class DAO_Worker extends DevblocksORMHelper {
 		
 		$sql = "DELETE QUICK worker_workspace_list FROM worker_workspace_list LEFT JOIN worker ON worker_workspace_list.worker_id = worker.id WHERE worker.id IS NULL";
 		$db->Execute($sql);
+		
+		// Routing rules assigned to missing workers
+		$sql = "DELETE QUICK team_routing_rule FROM team_routing_rule LEFT JOIN worker ON team_routing_rule.do_assign = worker.id WHERE (team_routing_rule.do_assign IS NOT NULL AND team_routing_rule.do_assign > 0) AND worker.id IS NULL";
+		$db->Execute($sql);
 	}
 	
 	static function deleteAgent($id) {
@@ -408,10 +412,12 @@ class DAO_Worker extends DevblocksORMHelper {
 		$sql = sprintf("DELETE QUICK FROM ticket_rss WHERE worker_id = %d", $id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 
-		// [TODO] Cascade using DAO_WorkerWorkspaceList::delete
 		$sql = sprintf("DELETE QUICK FROM worker_workspace_list WHERE worker_id = %d", $id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 
+		$sql = sprintf("DELETE QUICK FROM team_routing_rule WHERE do_assign = %d", $id);
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
 		// Clear assigned workers
 		$sql = sprintf("UPDATE ticket SET next_worker_id = 0 WHERE next_worker_id = %d", $id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
@@ -2327,24 +2333,18 @@ class DAO_Ticket extends DevblocksORMHelper {
 		
 		$sql = "DELETE QUICK requester FROM requester LEFT JOIN ticket ON requester.ticket_id = ticket.id WHERE ticket.id IS NULL";
 		$db->Execute($sql);
-		
-		$sql = "DELETE QUICK task FROM task LEFT JOIN ticket ON task.source_extension = 'cerberusweb.tasks.ticket' AND task.source_id = ticket.id WHERE ticket.id IS NULL";
+
+		// Ticket tasks
+		$sql = "DELETE QUICK task FROM task LEFT JOIN ticket ON task.source_id = ticket.id WHERE task.source_extension = 'cerberusweb.tasks.ticket' AND ticket.id IS NULL";
 		$db->Execute($sql);
 		
-		// Recover any tickets assigned to a NULL bucket
-		$sql = "SELECT DISTINCT t.category_id as id ".
-			"FROM ticket t ".
-			"LEFT JOIN category c ON (t.category_id=c.id) ".
-			"WHERE c.id IS NULL AND t.category_id > 0";
-		$rs = $db->Execute($sql);
+		// Recover any tickets assigned to next_worker_id = NULL
+		$sql = "UPDATE ticket LEFT JOIN worker ON ticket.next_worker_id = worker.id SET ticket.next_worker_id = 0 WHERE ticket.next_worker_id > 0 AND worker.id IS NULL";
+		$db->Execute($sql);
 
-		while(!$rs->EOF) {
-			$sql = sprintf("UPDATE ticket SET category_id = 0 WHERE category_id = %d",
-				$rs->fields['id']
-			);
-			$db->Execute($sql);
-			$rs->MoveNext();
-		}
+		// Recover any tickets assigned to a NULL bucket
+		$sql = "UPDATE ticket LEFT JOIN category ON ticket.category_id = category.id SET ticket.category_id = 0 WHERE ticket.category_id > 0 AND category.id IS NULL";
+		$db->Execute($sql);
 	}
 	
 	static function merge($ids=array()) {

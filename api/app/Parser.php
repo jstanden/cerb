@@ -831,37 +831,22 @@ class CerberusParser {
 	}
 	
 	static public function getDestinations($headers) {
-		$aTo = array();
-		$aCc = array();
-		$aEnvelopeTo = array();
-		$aXEnvelopeTo = array();
-		$aDeliveredTo = array();
+		$sources = array_merge(
+			is_array($headers['to']) ? $headers['to'] : array($headers['to']),
+			is_array($headers['cc']) ? $headers['cc'] : array($headers['cc']),
+			is_array($headers['envelope-to']) ? $headers['envelope-to'] : array($headers['envelope-to']),
+			is_array($headers['x-envelope-to']) ? $headers['x-envelope-to'] : array($headers['x-envelope-to']),
+			is_array($headers['delivered-to']) ? $headers['delivered-to'] : array($headers['delivered-to'])
+		);
 		
-		@$aTo = imap_rfc822_parse_adrlist(@$headers['to'],'localhost');
-		
-		if(isset($headers['cc'])) {
-			@$aCc = imap_rfc822_parse_adrlist($headers['cc'],'localhost');
-			if(!is_array($aCc)) $aCc = array($aCc);
+		$destinations = array();
+		foreach($sources as $source) {
+			@$parsed = imap_rfc822_parse_adrlist($source,'localhost');
+			$destinations = array_merge($destinations, is_array($parsed) ? $parsed : array($parsed));
 		}
-		if(isset($headers['envelope-to'])) {
-			@$aEnvelopeTo = imap_rfc822_parse_adrlist(@$headers['envelope-to'],'localhost');
-			if(!is_array($aEnvelopeTo)) $aEnvelopeTo = array($aEnvelopeTo);
-		}
-		if(isset($headers['x-envelope-to'])) {
-			@$aXEnvelopeTo = imap_rfc822_parse_adrlist($headers['x-envelope-to'],'localhost');
-			if(!is_array($aXEnvelopeTo)) $aXEnvelopeTo = array($aXEnvelopeTo);
-		}
-		if(isset($headers['delivered-to'])) {
-			@$aDeliveredTo = imap_rfc822_parse_adrlist($headers['delivered-to'],'localhost');
-			if(!is_array($aDeliveredTo)) $aDeliveredTo = array($aDeliveredTo);
-		}
-		
-		$d = array_merge($aTo, $aCc, $aEnvelopeTo, $aXEnvelopeTo, $aDeliveredTo);
 		
 		$addresses = array();
-		
-		if(is_array($d))
-		foreach($d as $destination) {
+		foreach($destinations as $destination) {
 			if(empty($destination->mailbox) || empty($destination->host))
 				continue;
 			
@@ -869,9 +854,9 @@ class CerberusParser {
 		}
 		
 		@imap_errors(); // Prevent errors from spilling out into STDOUT
-		
+
 		return $addresses;
-	}
+	} 		
 	
 	/**
 	 * Returns a Model_PreParserRule on a match, or NULL
