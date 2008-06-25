@@ -157,7 +157,7 @@ articles, wiki articles, forum posts, documentation pages, blog entries, wishlis
 	{if $field_id}
 		{assign var=field value=$ticket_fields.$field_id}
 		{assign var=field_group_id value=$field->group_id}
-		{if isset($groups.$field_group_id)}({$groups.$field_group_id->name}: {/if}{$field->name|escape})
+		({if isset($groups.$field_group_id)}{$groups.$field_group_id->name}: {/if}{$field->name|escape})
 	{/if}
 	<br>
 	{/foreach}

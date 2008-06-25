@@ -997,7 +997,7 @@ class UmScCoreController extends Extension_UmScController {
 						break;
 						
 					case Model_TicketField::TYPE_DROPDOWN:
-						@$value = intval($aFollowUpA[$iIdx]);
+						@$value = $aFollowUpA[$iIdx];
 						break;
 						
 					case Model_TicketField::TYPE_CHECKBOX:
@@ -1005,7 +1005,8 @@ class UmScCoreController extends Extension_UmScController {
 						break;
 				}
 				
-				DAO_TicketFieldValue::setFieldValue($ticket_id,$iFieldId,$value);
+				if(!empty($value))
+					DAO_TicketFieldValue::setFieldValue($ticket_id,$iFieldId,$value);
 			}
 		}
 		
