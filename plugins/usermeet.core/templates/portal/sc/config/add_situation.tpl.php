@@ -13,7 +13,7 @@
 <input type="text" name="to" size="65" value="{$situation_params.to|escape}"><br>
 <br>
 
-<b>Follow-up Questions:</b> (e.g. "Which product are you considering?") -- optionally save to ticket field<br>
+<b>Follow-up Questions:</b> (e.g. "Which product are you considering?") -- optionally save to custom field<br>
 {foreach from=$situation_params.followups key=q item=field_id name=followups}
 	<input type="text" name="followup[]" size="65" value="{$q|escape}"> 
 	<!-- <label><input type="checkbox" name="followup_long[]" value="{$smarty.foreach.followups.index}" {if $long}checked{/if}> Long Answer</label><br>-->

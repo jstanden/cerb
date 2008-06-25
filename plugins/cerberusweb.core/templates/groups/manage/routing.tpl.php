@@ -159,7 +159,7 @@
 	<div class="block">
 	<h2>No training data available</h2>
 	<br>
-	Use 'Super Sort' or 'Bulk Update' in ticket worklists to teach the system how to sort your group's incoming mail.<br>
+	Use the Pile Sorter or Bulk Update in ticket worklists to teach the system how to sort your group's incoming mail.<br>
 	</div>
 {/if}
 	

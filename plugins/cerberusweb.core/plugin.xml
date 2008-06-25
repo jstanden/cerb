@@ -401,7 +401,7 @@
 		
 		<extension point="cerberusweb.cron">
 			<id>cron.pop3</id>
-			<name>POP3 Mail Checker</name>
+			<name>POP3 / IMAP E-Mail Importing</name>
 			<class>
 				<file>cron.classes.php</file>
 				<name>Pop3Cron</name>
@@ -412,7 +412,7 @@
 		
 		<extension point="cerberusweb.cron">
 			<id>cron.parser</id>
-			<name>Inbound E-Mail Parser</name>
+			<name>Inbound E-Mail Processing</name>
 			<class>
 				<file>cron.classes.php</file>
 				<name>ParseCron</name>
@@ -445,7 +445,7 @@
 		
 		<extension point="cerberusweb.cron">
 			<id>cron.import</id>
-			<name>Importer</name>
+			<name>Background Importing and Synchronization</name>
 			<class>
 				<file>cron.classes.php</file>
 				<name>ImportCron</name>
