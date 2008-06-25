@@ -14,8 +14,8 @@ remote control of your helpdesk.<br>
 
 {foreach from=$access_keys item=access_key key=access_key_id}
 	<label>
-		<input type="checkbox" name="deletes[]" value="{$access_key_id}">
-		<b style="color:rgb(0,120,0);">{$access_key->nickname}</b>
+		<b style="color:rgb(0,120,0);">{$access_key->nickname}</b><br>
+		<input type="checkbox" name="deletes[]" value="{$access_key_id}">Delete this key
 	</label><br> 
 	
 	<div style="margin-left:20px;margin-bottom:10px;">

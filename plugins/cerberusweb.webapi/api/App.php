@@ -1693,7 +1693,7 @@ class Rest_CommentsController extends Ch_RestController {
 		
 	protected function isValid($idx_name, $value) {
 		switch($idx_name) {
-			case 'worker_id':
+			case 'address_id':
 			case 'ticket_id':
 				return is_numeric($value) ? true : false;
 			case 'comment':
@@ -1759,7 +1759,7 @@ class Rest_CommentsController extends Ch_RestController {
 		$flds = array(
 			DAO_TicketComment::ID => DAO_TicketComment::ID,
 			DAO_TicketComment::TICKET_ID => DAO_TicketComment::TICKET_ID,
-			DAO_TicketComment::WORKER_ID => DAO_TicketComment::WORKER_ID,
+			DAO_TicketComment::ADDRESS_ID => DAO_TicketComment::ADDRESS_ID,
 			DAO_TicketComment::CREATED => DAO_TicketComment::CREATED,
 			DAO_TicketComment::COMMENT => DAO_TicketComment::COMMENT,
 		);
@@ -1829,7 +1829,7 @@ class Rest_CommentsController extends Ch_RestController {
     	$xml_out->addChild('id', $comment->id);
     	$xml_out->addChild('ticket_id', $comment->ticket_id);
     	$xml_out->addChild('created', $comment->created);
-    	$xml_out->addChild('worker_id', $comment->worker_id);
+    	$xml_out->addChild('address_id', $comment->address_id);
     	$xml_out->addChild('comment', $comment->comment);
 		
 		$this->_render($xml_out->asXML());
@@ -1851,7 +1851,7 @@ class Rest_CommentsController extends Ch_RestController {
     		$xml_comment->addChild('id', $comment->id);
     		$xml_comment->addChild('ticket_id', $comment->ticket_id);
     		$xml_comment->addChild('created', $comment->created);
-    		$xml_comment->addChild('worker_id', $comment->worker_id);
+    		$xml_comment->addChild('address_id', $comment->address_id);
     		$xml_comment->addChild('comment', $comment->comment);
     	}
 
@@ -2360,6 +2360,7 @@ class Rest_ParserController extends Ch_RestController {
 		if(empty($source))
 			$this->_error("No message source was provided.");
 		
+//echo("<pre>");print_r($source);echo("</pre>");exit();
 		$file = CerberusParser::saveMimeToFile($source);
 		$mime = mailparse_msg_parse_file($file);
 		$message = CerberusParser::parseMime($mime, $file);
