@@ -42,25 +42,25 @@
 				<input type="hidden" name="field_ids[]" value="{$field_id|escape}">
 	      		
 	      		{if $field->type=='S'}
-	      			<input name="followup_a[]" value="{$last_followup_a.$idx|escape}" autocomplete="off" style="width:98%;">
+	      			<input name="followup_a_{$idx}" value="{$last_followup_a.$idx|escape}" autocomplete="off" style="width:98%;">
 	      		{elseif $field->type=='T'}
-	      			<textarea name="followup_a[]" rows="5" cols="60" style="width:98%;">{$last_followup_a.$idx|escape}</textarea>
+	      			<textarea name="followup_a_{$idx}" rows="5" cols="60" style="width:98%;">{$last_followup_a.$idx|escape}</textarea>
 	      		{elseif $field->type=='D'}
-	      			<select name="followup_a[]">
+	      			<select name="followup_a_{$idx}">
 	      				<option value=""></option>
 	      				{foreach from=$field->options item=opt}
 	      				<option value="{$opt}" {if $last_followup_a.$idx==$opt}selected{/if}>{$opt}
 	      				{/foreach}
 	      			</select>
 	      		{elseif $field->type=='E'}
-	      			<input name="followup_a[]" value="{$last_followup_a.$idx|escape}" autocomplete="off"><br>
+	      			<input name="followup_a_{$idx}" value="{$last_followup_a.$idx|escape}" autocomplete="off"><br>
 	      		{elseif $field->type=='C'}
-	      			<label><input name="followup_a[]" type="checkbox" value="1" {if $last_followup_a.$idx}checked{/if}> Yes</label>
+	      			<label><input name="followup_a_{$idx}" type="checkbox" value="Yes" {if $last_followup_a.$idx}checked{/if}> Yes</label>
 	      		{/if}
 	      		
 	      	{else}
 	      		<input type="hidden" name="field_ids[]" value="0">
-				<input name="followup_a[]" value="{$last_followup_a.$idx|escape}" autocomplete="off" style="width:98%;">
+				<input name="followup_a_{$idx}" value="{$last_followup_a.$idx|escape}" autocomplete="off" style="width:98%;">
 			{/if}
 			<br>
 			<br>

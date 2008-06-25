@@ -36,7 +36,7 @@
 
 <b>Insert Placeholder:</b> <select name="token" onchange="insertAtCursor(this.form.template,selectValue(this.form.token));this.form.token.selectedIndex=0;this.form.template.focus();">
 	<option value="">-- choose --</option>
-	{if 1==$type}
+	{if 2==$type}
 		<optgroup label="Sender">
 			<option value="#sender_first_name#">First Name</option>
 			<option value="#sender_last_name#">Last Name</option>

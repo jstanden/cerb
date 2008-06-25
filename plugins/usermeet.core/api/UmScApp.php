@@ -883,7 +883,14 @@ class UmScCoreController extends Extension_UmScController {
 		
 		@$aFieldIds = DevblocksPlatform::importGPC($_POST['field_ids'],'array',array());
 		@$aFollowUpQ = DevblocksPlatform::importGPC($_POST['followup_q'],'array',array());
-		@$aFollowUpA = DevblocksPlatform::importGPC($_POST['followup_a'],'array',array());
+		
+		// Load the answers to any situational questions
+		$aFollowUpA = array();
+		if(is_array($aFollowUpQ))
+		foreach($aFollowUpQ as $idx => $q) {
+			@$answer = DevblocksPlatform::importGPC($_POST['followup_a_'.$idx],'string','');
+			$aFollowUpA[$idx] = $answer;
+		}
 		
 		$umsession = $this->getSession();
 		$fingerprint = parent::getFingerprint();
@@ -942,7 +949,8 @@ class UmScCoreController extends Extension_UmScController {
 				$fieldContent .= "--------------------------------------------\r\n";
 			}
 			foreach($aFollowUpQ as $idx => $q) {
-				$fieldContent .= "Q) " . $q . "\r\n" . "A) " . $aFollowUpA[$idx] . "\r\n";
+				$answer = isset($aFollowUpA[$idx]) ? $aFollowUpA[$idx] : '';
+				$fieldContent .= "Q) " . $q . "\r\n" . "A) " . $answer . "\r\n";
 				if($idx+1 < count($aFollowUpQ)) $fieldContent .= "\r\n";
 			}
 			$fieldContent .= "--------------------------------------------\r\n";
@@ -970,10 +978,34 @@ class UmScCoreController extends Extension_UmScController {
 		$ticket = DAO_Ticket::getTicket($ticket_id);
 		
 		// Auto-save any custom fields
+		$fields = DAO_TicketField::getAll();
 		if(!empty($aFieldIds))
 		foreach($aFieldIds as $iIdx => $iFieldId) {
 			if(!empty($iFieldId)) {
-				DAO_TicketFieldValue::setFieldValue($ticket_id,$iFieldId,$aFollowUpA[$iIdx]);
+				$field =& $fields[$iFieldId]; /* @var $field Model_TicketField */
+				$value = "";
+				
+				switch($field->type) {
+					case Model_TicketField::TYPE_SINGLE_LINE:
+					case Model_TicketField::TYPE_MULTI_LINE:
+						@$value = trim($aFollowUpA[$iIdx]);
+						break;
+						
+					case Model_TicketField::TYPE_DATE:
+						if(false !== ($time = strtotime($aFollowUpA[$iIdx])))
+							@$value = intval($time);
+						break;
+						
+					case Model_TicketField::TYPE_DROPDOWN:
+						@$value = intval($aFollowUpA[$iIdx]);
+						break;
+						
+					case Model_TicketField::TYPE_CHECKBOX:
+						@$value = (isset($aFollowUpA[$iIdx]) && !empty($aFollowUpA[$iIdx])) ? 1 : 0;
+						break;
+				}
+				
+				DAO_TicketFieldValue::setFieldValue($ticket_id,$iFieldId,$value);
 			}
 		}
 		
