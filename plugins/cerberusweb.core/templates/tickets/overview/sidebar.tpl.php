@@ -118,7 +118,7 @@
 		<tr>
 			<td style="padding-right:20px;" nowrap="nowrap" valign="top">
 				<!-- [<a href="javascript:;" onclick="toggleDiv('expandWorker{$worker_id}');">+</a>] --> 
-				<a href="{devblocks_url}c=tickets&a=overview&s=worker&wid={$worker_id}{/devblocks_url}" style="font-weight:bold;">{$workers.$worker_id->getName()}</a> <span style="color:rgb(150,150,150);">({$counts.total})</span>
+				<a href="{devblocks_url}c=tickets&a=overview&s=worker&wid={$worker_id}{/devblocks_url}" style="font-weight:bold;{if $worker_id==$active_worker->id}color:rgb(255,50,50);background-color:rgb(255,213,213);{/if}">{$workers.$worker_id->getName()}</a> <span style="color:rgb(150,150,150);">({$counts.total})</span>
 				<div id="expandWorker{$worker_id}" style="display:none;padding-left:10px;padding-bottom:0px;">
 					{foreach from=$counts item=team_hits key=team_id}
 						{if is_numeric($team_id)}
