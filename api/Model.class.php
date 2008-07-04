@@ -2183,6 +2183,7 @@ class CerberusWorker {
 	public $first_name;
 	public $last_name;
 	public $email;
+	public $pass;
 	public $title;
 	public $is_superuser=0;
 	public $can_delete=0;

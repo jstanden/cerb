@@ -266,7 +266,7 @@ class DAO_Worker extends DevblocksORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$workers = array();
 		
-		$sql = "SELECT a.id, a.first_name, a.last_name, a.email, a.title, a.is_superuser, a.can_delete, a.last_activity_date, a.last_activity ".
+		$sql = "SELECT a.id, a.first_name, a.last_name, a.email, a.pass, a.title, a.is_superuser, a.can_delete, a.last_activity_date, a.last_activity ".
 			"FROM worker a ".
 			((!empty($ids) ? sprintf("WHERE a.id IN (%s) ",implode(',',$ids)) : " ").
 			"ORDER BY a.last_name, a.first_name "
@@ -279,6 +279,7 @@ class DAO_Worker extends DevblocksORMHelper {
 			$worker->first_name = $rs->fields['first_name'];
 			$worker->last_name = $rs->fields['last_name'];
 			$worker->email = $rs->fields['email'];
+			$worker->pass = $rs->fields['pass'];
 			$worker->title = $rs->fields['title'];
 			$worker->is_superuser = intval($rs->fields['is_superuser']);
 			$worker->can_delete = intval($rs->fields['can_delete']);

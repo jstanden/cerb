@@ -309,7 +309,16 @@ class ChRestFrontController extends DevblocksControllerExtension {
 // [TODO] This should be an extension so people can add new functionality to REST w/ plugins
 abstract class Ch_RestController implements DevblocksHttpRequestHandler {
 	protected $_format = 'xml';
-	protected $_payload = ''; 
+	protected $_payload = '';
+	protected $_activeWorker = null; /* @var $_activeWorker CerberusWorker */ 
+	
+	protected function getActiveWorker() {
+		return($this->_activeWorker);
+	}
+	
+	protected function setActiveWorker($worker) {
+		$this->_activeWorker = $worker;
+	}
 		
 	function handleRequest(DevblocksHttpRequest $request) {
 		$stack = $request->path;
@@ -321,52 +330,84 @@ abstract class Ch_RestController implements DevblocksHttpRequestHandler {
 		@$header_signature = $_SERVER['HTTP_CERB4_AUTH'];
 		@$this->_payload = $this->_getRawPost();
 		@list($auth_access_key,$auth_signature) = explode(":", $header_signature, 2);
+		$url_parts = parse_url(DevblocksPlatform::getWebPath());
+		$url_path = $url_parts['path'];
+		$url_query = $this->_sortQueryString($_SERVER['QUERY_STRING']);
+		$string_to_sign_prefix = "$verb\n$header_date\n$url_path\n$url_query\n$this->_payload";
 		
 		if(!$this->_validateRfcDate($header_date)) {
 			$this->_error("Access denied! (Invalid timestamp)");
 		}
 		
-		$stored_keychains = DAO_WebapiKey::getWhere(sprintf("%s = %s",
-			DAO_WebapiKey::ACCESS_KEY,
-			$db->qstr(str_replace(' ','',$auth_access_key))
-		)); /* @var $stored_keychain Model_WebApiKey */
-
-		if(!empty($stored_keychains)) {
-			@$stored_keychain = array_shift($stored_keychains);
-			@$auth_secret_key = $stored_keychain->secret_key;
-			@$auth_rights = $stored_keychain->rights;
+		
+		if(strpos($auth_access_key,'@')) { // WORKER-LEVEL AUTH
+			$workers = DAO_Worker::getAll();
+			foreach($workers as $worker) { /* @var $worker CerberusWorker */
+				if($worker->email == $auth_access_key) {
+					$this->setActiveWorker($worker);
+					break;
+				}
+			}
 			
-			$url_parts = parse_url(DevblocksPlatform::getWebPath());
-			$url_path = $url_parts['path'];
-			$url_query = $this->_sortQueryString($_SERVER['QUERY_STRING']);
-			
-			$string_to_sign = "$verb\n$header_date\n$url_path\n$url_query\n$this->_payload\n$auth_secret_key\n";
+			if(null == $this->getActiveWorker()) {
+				$this->_error("Access denied! (Invalid worker)");
+			}
+				
+			$pass = $this->getActiveWorker()->pass;
+			$string_to_sign = "$string_to_sign_prefix\n$pass\n";
 			$compare_hash = base64_encode(sha1($string_to_sign,true));
 
 			if(0 != strcmp($auth_signature,$compare_hash)) {
-				$this->_error("Access denied! (Invalid signature)");
+				$this->_error("Access denied! (Invalid password)");
 			}
 			
-			// Check that this IP is allowed to perform the VERB
-			if(!$stored_keychain->isValidIp($_SERVER['REMOTE_ADDR'])) {
-				$this->_error(sprintf("Access denied! (IP %s not authorized)",$_SERVER['REMOTE_ADDR']));				
+		} // END WORKER AUTH
+		else { // APP-LEVEL AUTH
+			$stored_keychains = DAO_WebapiKey::getWhere(sprintf("%s = %s",
+				DAO_WebapiKey::ACCESS_KEY,
+				$db->qstr(str_replace(' ','',$auth_access_key))
+			)); /* @var $stored_keychain Model_WebApiKey */
+	
+			if(!empty($stored_keychains)) {
+				@$stored_keychain = array_shift($stored_keychains);
+				@$auth_secret_key = $stored_keychain->secret_key;
+				@$auth_rights = $stored_keychain->rights;
+				
+				$string_to_sign = "$string_to_sign_prefix\n$auth_secret_key\n";
+				$compare_hash = base64_encode(sha1($string_to_sign,true));
+	
+				if(0 != strcmp($auth_signature,$compare_hash)) {
+					$this->_error("Access denied! (Invalid signature)");
+				}
+				
+				// Check that this IP is allowed to perform the VERB
+				if(!$stored_keychain->isValidIp($_SERVER['REMOTE_ADDR'])) {
+					$this->_error(sprintf("Access denied! (IP %s not authorized)",$_SERVER['REMOTE_ADDR']));				
+				}
+	
+			} else {
+				$this->_error("Access denied! (Unknown access key)");
 			}
-
-		} else {
-			$this->_error("Access denied! (Unknown access key)");
 		}
-		// **** END AUTH
+		// **** END APP AUTH
 		
 		// Figure out our format by looking at the last path argument
 		@list($command,$format) = explode('.', array_pop($stack));
 		array_push($stack, $command);
 		$this->_format = $format;
 		
-		$method = strtolower($verb) .'Action';
-		
-		if(method_exists($this,$method)) {
-			call_user_func(array(&$this,$method),$stack,$stored_keychain);
+		if(null != $this->getActiveWorker()) {
+			$method = strtolower($verb) .'WorkerAction';
+			if(method_exists($this,$method)) {
+				call_user_func(array(&$this,$method),$stack);
+			}
+		} else {
+			$method = strtolower($verb) .'Action';
+			if(method_exists($this,$method)) {
+				call_user_func(array(&$this,$method),$stack,$stored_keychain);
+			}
 		}
+		
 	}
 	
 	private function _sortQueryString($query) {
@@ -1919,12 +1960,40 @@ class Rest_TasksController extends Ch_RestController {
 		
 		// Single GET
 		if(1==count($path) && is_numeric($path[0]))
-			$this->_getIdAction($path);
+			$this->_getIdAction($path,
+				array(
+					SearchFields_Task::ID => new DevblocksSearchCriteria(SearchFields_Task::ID,'=',$in_id)
+				)
+			);
 		
 		// Actions
 		switch(array_shift($path)) {
 			case 'list':
-				$this->_getListAction($path);
+				$this->_getListAction($path, $params=array());
+				break;
+		}
+	}
+
+	protected function getWorkerAction($path) {
+		$worker = parent::getActiveWorker();
+		
+		// Single GET
+		if(1==count($path) && is_numeric($path[0]))
+			$this->_getIdAction($path,
+				array(
+					SearchFields_Task::ID => new DevblocksSearchCriteria(SearchFields_Task::ID,'=',$in_id),
+					SearchFields_Task::WORKER_ID => new DevblocksSearchCriteria(SearchFields_Task::WORKER_ID,'=',$worker->id)
+				)
+			);
+		
+		// Actions
+		switch(array_shift($path)) {
+			case 'list':
+				$this->_getListAction($path,
+					array(
+						SearchFields_Task::WORKER_ID => new DevblocksSearchCriteria(SearchFields_Task::WORKER_ID,'=',$worker->id)
+					)
+				);
 				break;
 		}
 	}
@@ -2026,15 +2095,13 @@ class Rest_TasksController extends Ch_RestController {
 		$this->_renderResults($tasks, $search_params, 'task', 'tasks');
 	}
 	
-	private function _getIdAction($path) {
+	private function _getIdAction($path, $params) {
 		$in_id = array_shift($path);
 		if(empty($in_id))
 			$this->_error("ID was not provided.");
 
 		list($results, $null) = DAO_Task::search(
-			array(
-				SearchFields_Task::ID => new DevblocksSearchCriteria(SearchFields_Task::ID,'=',$in_id)
-			),
+			$params,
 			1,
 			0,
 			null,
@@ -2045,14 +2112,14 @@ class Rest_TasksController extends Ch_RestController {
 		if(empty($results))
 			$this->_error("ID not valid.");
 
-		$this->_renderOneResult($results, SearchFields_Task::getFields(), 'org');
+		$this->_renderOneResult($results, SearchFields_Task::getFields(), 'task');
 	}
 	
-	private function _getListAction($path) {
+	private function _getListAction($path, $params) {
 		@$p_page = DevblocksPlatform::importGPC($_REQUEST['p'],'integer',0);		
 		
 		list($tasks,$null) = DAO_Task::search(
-			array(),
+			$params,
 			50,
 			$p_page,
 			SearchFields_Task::PRIORITY,
@@ -2544,5 +2611,10 @@ class Rest_FnrController extends Ch_RestController {
 	}
 	
 };
+
+class Rest_WorkerController extends Ch_RestController {
+	// don't return password hashes if we implement worker object access!!!
+};
+}
 
 ?>
