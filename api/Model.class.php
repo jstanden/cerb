@@ -2215,7 +2215,7 @@ class CerberusWorker {
 		@$memberships = $this->getMemberships();
 		$teams = DAO_Group::getAll();
 		if(
-			empty($team) // null
+			empty($team_id) // null
 			|| !isset($teams[$team_id]) // not a team
 			|| !isset($memberships[$team_id]) // not a member
 		) {

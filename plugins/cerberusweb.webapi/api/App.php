@@ -1141,8 +1141,6 @@ class Rest_TicketsController extends Ch_RestController {
 		}
 	}
 		
-	//****
-
 	protected function getAction($path,$keychain) {
 		if(Model_WebapiKey::ACL_NONE==intval(@$keychain->rights['acl_tickets']))
 			$this->_error("Action not permitted.");
@@ -1164,6 +1162,32 @@ class Rest_TicketsController extends Ch_RestController {
 		}
 	}
 
+	protected function getWorkerAction($path) {
+		$worker = parent::getActiveWorker(); /* @var $worker CerberusWorker */
+		$memberships = $worker->getMemberships();
+		
+		// Single GET
+		if(1==count($path) && is_numeric($path[0]))
+			if(($ticket = DAO_Ticket::getTicket($path[0])) != null && isset($memberships[$ticket->team_id]))
+				$this->_getIdAction($path);
+		
+		// Actions
+		$value = array_shift($path);
+		switch($value) {
+			case 'list':
+				$this->_getListAction($path,
+					array(
+						SearchFields_Ticket::TEAM_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'in',array_keys($memberships))
+					)
+				);
+				break;
+			default:
+				if(($ticket = DAO_Ticket::getTicketByMask($value)) != null && isset($memberships[$ticket->team_id]))
+					$this->_getIdAction(array($ticket->id));
+				break;
+		}
+	}
+
 	protected function putAction($path,$keychain) {
 		if(Model_WebapiKey::ACL_FULL!=intval(@$keychain->rights['acl_tickets']))
 			$this->_error("Action not permitted.");
@@ -1173,16 +1197,39 @@ class Rest_TicketsController extends Ch_RestController {
 			$this->_putIdAction($path);
 	}
 	
+	protected function putWorkerAction($path) {
+		$worker = parent::getActiveWorker(); /* @var $worker CerberusWorker */
+		$memberships = $worker->getMemberships();
+		
+		// Single PUT
+		if(1==count($path) && is_numeric($path[0]))
+			if(($ticket = DAO_Ticket::getTicket($path[0])) != null && isset($memberships[$ticket->team_id]))
+				$this->_putIdAction($path);
+	}
+	
 	protected function postAction($path,$keychain) {
 		// Actions
 		switch(array_shift($path)) {
-//			case 'create':
-//				$this->_postCreateAction($path);
-//				break;
 			case 'search':
 				if(Model_WebapiKey::ACL_NONE==intval(@$keychain->rights['acl_tickets']))
 					$this->_error("Action not permitted.");
 				$this->_postSearchAction($path);
+				break;
+		}
+	}
+	
+	protected function postWorkerAction($path) {
+		$worker = parent::getActiveWorker(); /* @var $worker CerberusWorker */
+		$memberships = $worker->getMemberships();
+		
+		// Actions
+		switch(array_shift($path)) {
+			case 'search':
+				$this->_postSearchAction($path,
+					array(
+						SearchFields_Ticket::TEAM_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'in',array_keys($memberships))
+					)
+				);
 				break;
 		}
 	}
@@ -1196,14 +1243,21 @@ class Rest_TicketsController extends Ch_RestController {
 			$this->_deleteIdAction($path);
 	}
 	
-	//****
+	protected function deleteWorkerAction($path) {
+		$worker = parent::getActiveWorker(); /* @var $worker CerberusWorker */
+		$memberships = $worker->getMemberships();
+				
+		// Single DELETE
+		if(1==count($path) && is_numeric($path[0]))
+			if(($ticket = DAO_Ticket::getTicket($path[0])) != null && isset($memberships[$ticket->team_id]) && $worker->can_delete)
+				$this->_deleteIdAction($path);
+	}
 	
-	private function _postSearchAction($path) {
+	private function _postSearchAction($path, $params=array()) {
 		@$p_page = DevblocksPlatform::importGPC($_REQUEST['p'],'integer',0);		
 		
 		$xml_in = simplexml_load_string($this->getPayload());
 		$search_params = SearchFields_Ticket::getFields();
-		$params = array();
 		
 		// Check for params in request
 		foreach($search_params as $sp_element => $fld) {
@@ -1214,7 +1268,12 @@ class Rest_TicketsController extends Ch_RestController {
 				@$value = (string) $field_ptr['value'];
 				@$oper = (string) $field_ptr['oper'];
 				if(empty($oper)) $oper = 'eq';
-				$params[$sp_element] =	new DevblocksSearchCriteria($sp_element,$oper,$value);
+				if(SearchFields_Ticket::TEAM_ID == $sp_element && isset($params[SearchFields_Ticket::TEAM_ID])) { // Worker level search
+					// TODO: Allow overrides of Worker teams (if they want to search for just a single team)
+					// for now, all Worker-level team searches will use all their teams as the search param 
+				} else { // app-level search
+					$params[$sp_element] =	new DevblocksSearchCriteria($sp_element,$oper,$value);
+				}
 			}
 		}
 
@@ -1255,18 +1314,24 @@ class Rest_TicketsController extends Ch_RestController {
 		$this->_renderOneResult($results, SearchFields_Ticket::getFields(), 'ticket');
 	}
 	
-	private function _getListAction($path) {
+	private function _getListAction($path, $params=array()) {
 		@$p_page = DevblocksPlatform::importGPC($_REQUEST['p'],'integer',0);		
 		@$p_group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'string','');		
 		@$p_bucket_id = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'string','');
 		@$p_is_closed = DevblocksPlatform::importGPC($_REQUEST['is_closed'],'string','');
 		@$p_is_deleted = DevblocksPlatform::importGPC($_REQUEST['is_deleted'],'string','');
 		
-		$params = array();
-
 		// Group
-		if(0 != strlen($p_group_id))
-			$params[SearchFields_Ticket::TEAM_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'eq',intval($p_group_id));
+		if(0 != strlen($p_group_id)) {
+			// cannot allow override by Worker search to invalid team
+			if(isset($params[SearchFields_Ticket::TEAM_ID])) { // this is a Worker search
+				if(false !== array_search($p_group_id,$params[SearchFields_Ticket::TEAM_ID]->value)); { // worker is member of group_id
+					$params[SearchFields_Ticket::TEAM_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'eq',intval($p_group_id));
+				}
+			} else { // app-level key search
+				$params[SearchFields_Ticket::TEAM_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'eq',intval($p_group_id));
+			}
+		}
 		// Bucket
 		if(0 != strlen($p_bucket_id))
 			$params[SearchFields_Ticket::TICKET_CATEGORY_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CATEGORY_ID,'eq',intval($p_bucket_id));
@@ -1969,7 +2034,7 @@ class Rest_TasksController extends Ch_RestController {
 		// Actions
 		switch(array_shift($path)) {
 			case 'list':
-				$this->_getListAction($path, $params=array());
+				$this->_getListAction($path);
 				break;
 		}
 	}
@@ -2007,6 +2072,17 @@ class Rest_TasksController extends Ch_RestController {
 			$this->_putIdAction($path);
 	}
 	
+	protected function putWorkerAction($path) {
+		$worker = parent::getActiveWorker();
+		$task = DAO_Task::get($path[0]);
+		if(null == $task || $task->worker_id != $worker->id)
+			$this->_error("Action not permitted.");
+		
+		// Single PUT
+		if(1==count($path) && is_numeric($path[0]))
+			$this->_putIdAction($path);
+	}
+	
 	protected function postAction($path,$keychain) {
 		// Actions
 		switch(array_shift($path)) {
@@ -2023,10 +2099,39 @@ class Rest_TasksController extends Ch_RestController {
 		}
 	}
 	
+	protected function postWorkerAction($path) {
+		$worker = parent::getActiveWorker();
+		
+		// Actions
+		switch(array_shift($path)) {
+			case 'create':
+				$this->_postCreateAction($path);
+				break;
+			case 'search':
+				$this->_postSearchAction($path,
+					array(
+						SearchFields_Task::WORKER_ID => new DevblocksSearchCriteria(SearchFields_Task::WORKER_ID,'=',$worker->id)
+					)
+				);
+				break;
+		}
+	}
+	
 	protected function deleteAction($path,$keychain) {
 		if(Model_WebapiKey::ACL_FULL!=intval(@$keychain->rights['acl_tasks']))
 			$this->_error("Action not permitted.");
 		
+		// Single DELETE
+		if(1==count($path) && is_numeric($path[0]))
+			$this->_deleteIdAction($path);
+	}
+	
+	protected function deleteWorkerAction($path) {
+		$worker = parent::getActiveWorker();
+		$task = DAO_Task::get($path[0]);
+		if(null == $task || $task->worker_id != $worker->id)
+			$this->_error("Action not permitted.");
+				
 		// Single DELETE
 		if(1==count($path) && is_numeric($path[0]))
 			$this->_deleteIdAction($path);
@@ -2063,12 +2168,11 @@ class Rest_TasksController extends Ch_RestController {
 		$this->_getIdAction(array($id));		
 	}
 	
-	private function _postSearchAction($path) {
+	private function _postSearchAction($path, $params=array()) {
 		@$p_page = DevblocksPlatform::importGPC($_REQUEST['p'],'integer',0);		
 		
 		$xml_in = simplexml_load_string($this->getPayload());
 		$search_params = SearchFields_Task::getFields();
-		$params = array();
 		
 		// Check for params in request
 		foreach($search_params as $sp_element => $fld) {
@@ -2095,7 +2199,7 @@ class Rest_TasksController extends Ch_RestController {
 		$this->_renderResults($tasks, $search_params, 'task', 'tasks');
 	}
 	
-	private function _getIdAction($path, $params) {
+	private function _getIdAction($path, $params=array()) {
 		$in_id = array_shift($path);
 		if(empty($in_id))
 			$this->_error("ID was not provided.");
@@ -2115,7 +2219,7 @@ class Rest_TasksController extends Ch_RestController {
 		$this->_renderOneResult($results, SearchFields_Task::getFields(), 'task');
 	}
 	
-	private function _getListAction($path, $params) {
+	private function _getListAction($path, $params=array()) {
 		@$p_page = DevblocksPlatform::importGPC($_REQUEST['p'],'integer',0);		
 		
 		list($tasks,$null) = DAO_Task::search(
@@ -2615,6 +2719,5 @@ class Rest_FnrController extends Ch_RestController {
 class Rest_WorkerController extends Ch_RestController {
 	// don't return password hashes if we implement worker object access!!!
 };
-}
 
 ?>
