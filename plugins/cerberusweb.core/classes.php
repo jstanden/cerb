@@ -214,6 +214,11 @@ class ChPageController extends DevblocksControllerExtension {
 		$tpl_path = dirname(__FILE__) . '/templates/';
 		$tpl->assign('tpl_path', $tpl_path);
 
+		// Prebody Renderers
+		$preBodyRenderers = DevblocksPlatform::getExtensions('cerberusweb.renderer.prebody', true);
+		if(!empty($preBodyRenderers))
+			$tpl->assign('prebody_renderers', $preBodyRenderers);
+		
 		// Timings
 		$tpl->assign('render_time', (microtime(true) - DevblocksPlatform::getStartTime()));
 		if(function_exists('memory_get_usage') && function_exists('memory_get_peak_usage')) {
@@ -1105,9 +1110,32 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl->assign('ticket_id', $ticket_id);
 		$tpl->assign('view_id', $view_id);
 		
-		@$ticket = DAO_Ticket::getTicket($ticket_id);
+		$ticket = DAO_Ticket::getTicket($ticket_id);
 		$tpl->assign('ticket', $ticket);
 
+		$messages = $ticket->getMessages();
+		$message = array_shift($messages); /* @var $message CerberusMessage */
+		$message_headers = $message->getHeaders();
+		$tpl->assign('message', $message);
+		$tpl->assign('message_headers', $message_headers);
+
+		// To/Cc
+		$tocc = array();
+		@$to_list = imap_rfc822_parse_adrlist($message_headers['to'],'localhost');
+		@$cc_list = imap_rfc822_parse_adrlist($message_headers['cc'],'localhost');
+		
+		if(is_array($to_list))
+		foreach($to_list as $addy) {
+			$tocc[] = $addy->mailbox . '@' . $addy->host;
+		}
+		if(is_array($cc_list))
+		foreach($cc_list as $addy) {
+			$tocc[] = $addy->mailbox . '@' . $addy->host;
+		}
+		
+		if(!empty($tocc))
+			$tpl->assign('tocc_list', implode(', ', $tocc));
+		
 		@$first_address = DAO_Address::get($ticket->first_wrote_address_id);
 		$tpl->assign('first_address', $first_address);
 		
@@ -1120,8 +1148,8 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl->assign('training', $training);
 
 		// Grops
-		$teams = DAO_Group::getAll();
-		$tpl->assign('teams', $teams);
+		$groups = DAO_Group::getAll();
+		$tpl->assign('groups', $groups);
 		
 		// Buckets
 		$team_categories = DAO_Bucket::getTeams();
@@ -1139,52 +1167,109 @@ class ChTicketsPage extends CerberusPageExtension {
 	function saveAddInboxRulePanelAction() {
    		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
    		@$team_id = DevblocksPlatform::importGPC($_REQUEST['team_id'],'integer');
-   		@$field = DevblocksPlatform::importGPC($_REQUEST['field'],'string');
-   		@$value = DevblocksPlatform::importGPC($_REQUEST['val'],'string');
 
    		$view = C4_AbstractViewLoader::getView('C4_TicketView', $view_id); /* @var $view C4_TicketView */
    		
-   		if(empty($team_id) || empty($field) || empty($value)) {
+   		if(empty($team_id)) {
    			$view->render();
    			exit;
    		}
+   		
+		@$name = DevblocksPlatform::importGPC($_POST['name'],'string','');
+		@$rules = DevblocksPlatform::importGPC($_POST['rules'],'array',array());
+   		
+		if(empty($name))
+			$name = "Inbox Rule";
+		
+		$criterion = array();
+		
+		// Criteria
+		if(is_array($rules))
+		foreach($rules as $rule) {
+			$rule = DevblocksPlatform::strAlphaNumDash($rule);
+			@$value = DevblocksPlatform::importGPC($_POST['value_'.$rule],'string','');
+			
+			// [JAS]: Allow empty $value (null/blank checking)
+			
+			$criteria = array(
+				'value' => $value,
+			);
+			
+			// Any special rule handling
+			switch($rule) {
+				case 'type':
+					break;
+				case 'from':
+					break;
+				case 'tocc':
+					break;
+				case 'header1':
+				case 'header2':
+				case 'header3':
+				case 'header4':
+				case 'header5':
+					if(null != (@$header = DevblocksPlatform::importGPC($_POST[$rule],'string',null)))
+						$criteria['header'] = strtolower($header);
+					break;
+				case 'body':
+					break;
+				case 'attachment':
+					break;
+				default: // ignore invalids
+					continue;
+					break;
+			}
+			
+			$criterion[$rule] = $criteria;
+		}
    		
    		@$move = DevblocksPlatform::importGPC($_REQUEST['move'],'string');
    		@$status = DevblocksPlatform::importGPC($_REQUEST['status'],'string');
    		@$spam = DevblocksPlatform::importGPC($_REQUEST['spam'],'string');
    		@$assign = DevblocksPlatform::importGPC($_REQUEST['assign'],'string');
-   		@$whole_list = DevblocksPlatform::importGPC($_REQUEST['whole_list'],'integer',0);
    		
-		$do = array();
-	    $fields = array(
+   		$fields = array(
+   			DAO_TeamRoutingRule::NAME => $name,
    			DAO_TeamRoutingRule::TEAM_ID => $team_id,
-   			DAO_TeamRoutingRule::HEADER => (($field=='sender')?'from':'subject'),
-   			DAO_TeamRoutingRule::PATTERN => $value,
+   			DAO_TeamRoutingRule::CRITERIA_SER => serialize($criterion),
    			DAO_TeamRoutingRule::POS => 0
    		);
 
    		if(!empty($move)) {
-			$fields[DAO_TeamRoutingRule::DO_MOVE] = $move;
-			$do['team'] = $move;   			
+			$fields[DAO_TeamRoutingRule::DO_MOVE] = $move;   			
    		}
    		if(0 != strlen($status)) {
-			$fields[DAO_TeamRoutingRule::DO_STATUS] = intval($status);
-			$do['closed'] = $status;   			
+			$fields[DAO_TeamRoutingRule::DO_STATUS] = intval($status);   			
    		}
    		if(0 != strlen($spam)) {
-			$fields[DAO_TeamRoutingRule::DO_SPAM] = $spam;
-			$do['spam'] = $spam;   			
+			$fields[DAO_TeamRoutingRule::DO_SPAM] = $spam;   			
    		}
    		if(0 != strlen($assign)) {
 			$fields[DAO_TeamRoutingRule::DO_ASSIGN] = intval($assign);
-			$do['next_worker'] = $assign;
    		}
    		
    		$routing_id = DAO_TeamRoutingRule::create($fields);
    		
-   		// Apply rule to current view
-		$view->doBulkUpdate($field, '', array($value), $do, array(), 0);
-
+   		// Loop through all the tickets in this inbox
+   		list($inbox_tickets, $null) = DAO_Ticket::search(
+   			null,
+   			array(
+   				new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'=',$team_id),
+   				new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CATEGORY_ID,'=','0'),
+   			),
+   			-1,
+   			0,
+   			null,
+   			null,
+   			false
+   		);
+   		
+   		if(is_array($inbox_tickets))
+   		foreach($inbox_tickets as $inbox_ticket) { /* @var $inbox_ticket CerberusTicket */
+   			// Run only this new rule against all tickets in the group inbox
+   			CerberusApplication::runGroupRouting($team_id, intval($inbox_ticket[SearchFields_Ticket::TICKET_ID]), $routing_id);
+   		}
+   		
    		$view->render();
    		exit;
 	}
@@ -5432,8 +5517,8 @@ class ChGroupsPage extends CerberusPageExtension  {
 		$category_name_hash = DAO_Bucket::getCategoryNameHash();
 		$tpl->assign('category_name_hash', $category_name_hash);
 
-		$teams = DAO_Group::getAll();
-		$tpl->assign('teams', $teams);
+		$groups = DAO_Group::getAll();
+		$tpl->assign('groups', $groups);
 		
 		$team_categories = DAO_Bucket::getTeams();
 		$tpl->assign('team_categories', $team_categories);
@@ -5474,18 +5559,97 @@ class ChGroupsPage extends CerberusPageExtension  {
 	    if(!$active_worker->isTeamManager($team_id) && !$active_worker->is_superuser)
 	    	return;
    		
-   		@$field = DevblocksPlatform::importGPC($_REQUEST['field'],'string');
-   		@$value = DevblocksPlatform::importGPC($_REQUEST['value'],'string');
 
+	    /*****************************/
+		@$name = DevblocksPlatform::importGPC($_POST['name'],'string','');
+		@$rules = DevblocksPlatform::importGPC($_POST['rules'],'array',array());
+//		@$do = DevblocksPlatform::importGPC($_POST['do'],'array',array());
+		
+		if(empty($name))
+			$name = "Inbox Rule";
+		
+		$criterion = array();
+//		$actions = array();
+		
+		// Criteria
+		if(is_array($rules))
+		foreach($rules as $rule) {
+			$rule = DevblocksPlatform::strAlphaNumDash($rule);
+			@$value = DevblocksPlatform::importGPC($_POST['value_'.$rule],'string','');
+			
+			// [JAS]: Allow empty $value (null/blank checking)
+			
+			$criteria = array(
+				'value' => $value,
+			);
+			
+			// Any special rule handling
+			switch($rule) {
+				case 'type':
+					break;
+				case 'from':
+					break;
+				case 'tocc':
+					break;
+				case 'header1':
+				case 'header2':
+				case 'header3':
+				case 'header4':
+				case 'header5':
+					if(null != (@$header = DevblocksPlatform::importGPC($_POST[$rule],'string',null)))
+						$criteria['header'] = strtolower($header);
+					break;
+				case 'body':
+					break;
+				case 'attachment':
+					break;
+				default: // ignore invalids
+					continue;
+					break;
+			}
+			
+			$criterion[$rule] = $criteria;
+		}
+		
+		// Actions
+//		if(is_array($do))
+//		foreach($do as $act) {
+//			$action = array();
+//			
+//			switch($act) {
+//				case 'blackhole':
+//					$action = array();
+//					break;
+//				case 'redirect':
+//					if(null != (@$to = DevblocksPlatform::importGPC($_POST['do_redirect'],'string',null)))
+//						$action = array(
+//							'to' => $to
+//						);
+//					break;
+//				case 'bounce':
+//					if(null != (@$msg = DevblocksPlatform::importGPC($_POST['do_bounce'],'string',null)))
+//						$action = array(
+//							'message' => $msg
+//						);
+//					break;
+//				default: // ignore invalids
+//					continue;
+//					break;
+//			}
+//			
+//			$actions[$act] = $action;
+//		}
+		/*****************************/
+	    
    		@$move = DevblocksPlatform::importGPC($_REQUEST['move'],'string');
    		@$status = DevblocksPlatform::importGPC($_REQUEST['status'],'string');
    		@$spam = DevblocksPlatform::importGPC($_REQUEST['spam'],'string');
    		@$assign = DevblocksPlatform::importGPC($_REQUEST['assign'],'string');
 
    		$fields = array(
+   			DAO_TeamRoutingRule::NAME => $name,
    			DAO_TeamRoutingRule::TEAM_ID => $team_id,
-   			DAO_TeamRoutingRule::HEADER => $field,
-   			DAO_TeamRoutingRule::PATTERN => $value,
+   			DAO_TeamRoutingRule::CRITERIA_SER => serialize($criterion),
    			DAO_TeamRoutingRule::POS => 0
    		);
 
@@ -7080,6 +7244,8 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		@$id = array_shift($stack);
 		
+		// Tabs
+		
 		$tab_manifests = DevblocksPlatform::getExtensions('cerberusweb.ticket.tab', false);
 		$tpl->assign('tab_manifests', $tab_manifests);
 
@@ -7098,7 +7264,7 @@ class ChDisplayPage extends CerberusPageExtension {
 				break;
 		}
 		
-		// [JAS]: Mask
+		// [JAS]: Translate Masks
 		if(!is_numeric($id)) {
 			$id = DAO_Ticket::getTicketIdByMask($id);
 		}
@@ -7109,6 +7275,8 @@ class ChDisplayPage extends CerberusPageExtension {
 			return;
 		}
 
+		// Permissions 
+		
 		$active_worker_memberships = $active_worker->getMemberships();
 		
 		// Check group membership ACL
@@ -7119,7 +7287,12 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		$tpl->assign('ticket', $ticket);
 
-		// Does a series exist?
+		// TicketToolbarItem Extensions
+		$ticketToolbarItems = DevblocksPlatform::getExtensions('cerberusweb.ticket.toolbaritem', true);
+		if(!empty($ticketToolbarItems))
+			$tpl->assign('ticket_toolbaritems', $ticketToolbarItems);
+		
+		// Next+Prev: Does a series exist?
 		if(null != ($series_info = $visit->get('ch_display_series', null))) {
 			@$series = $series_info['series'];
 			// Is this ID part of the series?  If not, invalidate

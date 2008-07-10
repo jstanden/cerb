@@ -68,7 +68,6 @@ class DAO_Setting extends DevblocksORMHelper {
 		return $value;
 	}
 	
-	// [TODO] Cache as static/singleton or load up in a page scope object?
 	static function getSettings() {
 	    $cache = DevblocksPlatform::getCacheService();
 	    if(null === ($settings = $cache->load(CerberusApplication::CACHE_SETTINGS_DAO))) {
@@ -2919,6 +2918,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 			"t.is_deleted as %s, ".
 			"t.first_wrote_address_id as %s, ".
 			"t.last_wrote_address_id as %s, ".
+			"t.first_message_id as %s, ".
 			"a1.email as %s, ".
 			"a1.num_spam as %s, ".
 			"a1.num_nonspam as %s, ".
@@ -2949,6 +2949,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 			    SearchFields_Ticket::TICKET_DELETED,
 			    SearchFields_Ticket::TICKET_FIRST_WROTE_ID,
 			    SearchFields_Ticket::TICKET_LAST_WROTE_ID,
+			    SearchFields_Ticket::TICKET_FIRST_MESSAGE_ID,
 			    SearchFields_Ticket::TICKET_FIRST_WROTE,
 			    SearchFields_Ticket::TICKET_FIRST_WROTE_SPAM,
 			    SearchFields_Ticket::TICKET_FIRST_WROTE_NONSPAM,
@@ -3062,6 +3063,7 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 	const TICKET_CLOSED = 't_is_closed';
 	const TICKET_DELETED = 't_is_deleted';
 	const TICKET_SUBJECT = 't_subject';
+	const TICKET_FIRST_MESSAGE_ID = 't_first_message_id';
 	const TICKET_FIRST_WROTE_ID = 't_first_wrote_address_id';
 	const TICKET_FIRST_WROTE = 't_first_wrote';
 	const TICKET_FIRST_WROTE_SPAM = 't_first_wrote_spam';
@@ -3116,6 +3118,8 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 			self::TICKET_ID => new DevblocksSearchField(self::TICKET_ID, 't', 'id', null, $translate->_('ticket.id')),
 			self::TICKET_MASK => new DevblocksSearchField(self::TICKET_MASK, 't', 'mask', null, $translate->_('ticket.mask')),
 			self::TICKET_SUBJECT => new DevblocksSearchField(self::TICKET_SUBJECT, 't', 'subject',null,$translate->_('ticket.subject')),
+			
+			self::TICKET_FIRST_MESSAGE_ID => new DevblocksSearchField(self::TICKET_FIRST_MESSAGE_ID, 't', 'first_message_id'),
 			
 			self::TICKET_FIRST_WROTE_ID => new DevblocksSearchField(self::TICKET_FIRST_WROTE_ID, 't', 'first_wrote_address_id'),
 			self::TICKET_FIRST_WROTE => new DevblocksSearchField(self::TICKET_FIRST_WROTE, 'a1', 'email',null,$translate->_('ticket.first_wrote')),
@@ -3628,6 +3632,8 @@ class DAO_Group {
 };
 
 class DAO_GroupSettings {
+	const CACHE_ALL = 'ch_group_settings';
+	
     const SETTING_REPLY_FROM = 'reply_from';
     const SETTING_REPLY_PERSONAL = 'reply_personal';
     const SETTING_SUBJECT_HAS_MASK = 'subject_has_mask';
@@ -3653,20 +3659,21 @@ class DAO_GroupSettings {
 		    false
 		);
 
+		$cache = DevblocksPlatform::getCacheService();
+		$cache->remove(self::CACHE_ALL);
+		
 		// Nuke our sender cache
 		if($key==self::SETTING_REPLY_FROM) {
-			$cache = DevblocksPlatform::getCacheService();
 			$cache->remove(CerberusApplication::CACHE_HELPDESK_FROMS);
 		}
 	}
 	
 	static function get($group_id, $key, $default=null) {
-		$db = DevblocksPlatform::getDatabaseService();
-		$sql = sprintf("SELECT value FROM group_setting WHERE setting = %s AND group_id = %d",
-			$db->qstr($key),
-			$group_id
-		);
-		$value = $db->GetOne($sql);
+		$value = false;
+		
+		if(null !== ($group = self::getSettings($group_id)) && isset($group[$key])) {
+			$value = $group[$key];
+		}
 		
 		if(false == $value && !is_null($default)) {
 		    return $default;
@@ -3675,36 +3682,43 @@ class DAO_GroupSettings {
 		return $value;
 	}
 	
-	// [TODO] Cache as static/singleton or load up in a page scope object?
 	static function getSettings($group_id=0) {
-		$db = DevblocksPlatform::getDatabaseService();
+	    $cache = DevblocksPlatform::getCacheService();
+	    if(null === ($groups = $cache->load(self::CACHE_ALL))) {
+			$db = DevblocksPlatform::getDatabaseService();
+	
+			$groups = array();
+			
+			$sql = "SELECT group_id, setting, value FROM group_setting";
+			$rs = $db->Execute($sql) or die(__CLASS__ . ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+			
+			while(!$rs->EOF) {
+			    $gid = intval($rs->fields['group_id']);
+			    
+			    if(!isset($groups[$gid]))
+			        $groups[$gid] = array();
+			    
+			    $groups[$gid][$rs->Fields('setting')] = $rs->Fields('value');
+				$rs->MoveNext();
+			}
+			
+			$cache->save($groups, self::CACHE_ALL);
+	    }
 
-		// [TODO] Make this more efficient (cache until a setter comes around)
-		
-		$groups = array();
-		
-		$sql = "SELECT group_id, setting, value ".
-		    "FROM group_setting ".
-		    (!empty($group_id) ? sprintf("WHERE group_id = %d",$group_id) : "")
-		;
-		$rs = $db->Execute($sql) or die(__CLASS__ . ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-		while(!$rs->EOF) {
-		    $gid = intval($rs->fields['group_id']);
-		    
-		    if(!isset($groups[$gid]))
-		        $groups[$gid] = array();
-		    
-		    $groups[$gid][$rs->Fields('setting')] = $rs->Fields('value');
-			$rs->MoveNext();
-		}
-		
-		if(!empty($group_id)) {
-		    if(!empty($groups))
-		        return $groups[$group_id];
-		    return array();
-		}
-
+	    // Empty
+	    if(empty($groups))
+	    	return null;
+	    
+	    // Specific group
+	    if(!empty($group_id)) {
+		    // Requested group id exists
+	    	if(isset($groups[$group_id]))
+	    		return $groups[$group_id];
+	    	else // doesn't
+	    		return null;
+	    }
+	    
+	    // All groups
 		return $groups;
 	}
 };
@@ -4975,24 +4989,21 @@ class DAO_PreParseRule extends DevblocksORMHelper {
 
 class DAO_TeamRoutingRule extends DevblocksORMHelper {
     const ID = 'id';
+    const NAME = 'name';
     const TEAM_ID = 'team_id';
-    const HEADER = 'header';
-    const PATTERN = 'pattern';
+	const CRITERIA_SER = 'criteria_ser';
     const POS = 'pos';
     const DO_STATUS = 'do_status';
     const DO_SPAM = 'do_spam';
     const DO_MOVE = 'do_move';
     const DO_ASSIGN = 'do_assign';
-//    const PARAMS = 'params'; // blob
     
 	public static function create($fields) {
 	    $db = DevblocksPlatform::getDatabaseService();
 		$id = $db->GenID('generic_seq');
 		
-		self::findDupes($fields);
-		
-		$sql = sprintf("INSERT INTO team_routing_rule (id,created,team_id,header,pattern,pos,do_spam,do_status,do_move,do_assign) ".
-		    "VALUES (%d,%d,0,'','',0,'','','',0)",
+		$sql = sprintf("INSERT INTO team_routing_rule (id,name,created,team_id,criteria_ser,pos,do_spam,do_status,do_move,do_assign) ".
+		    "VALUES (%d,'',%d,0,'',0,'','','',0)",
 		    $id,
 		    time()
 		);
@@ -5003,38 +5014,15 @@ class DAO_TeamRoutingRule extends DevblocksORMHelper {
 		return $id;
 	}
 	
-	public static function update($id, $fields) {
-	    self::findDupes($fields);
-	    
-//	    if($fields[self::PARAMS]) {
-//	        $params = $fields[self::PARAMS];
-//	        unset($fields[self::PARAMS]);
-	        // [TODO] DO our own DB call here for updateBlob (HACK until new patch system)
-//	    }
-	    
-        self::_update($id, 'team_routing_rule', $fields);
+	public static function increment($id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		$db->Execute(sprintf("UPDATE team_routing_rule SET pos = pos + 1 WHERE id = %d",
+			$id
+		));
 	}
 	
-	private static function findDupes($fields) {
-	    $db = DevblocksPlatform::getDatabaseService();
-	    
-	    // Check for dupes
-	    // [TODO] This is stupid
-		if(isset($fields[self::TEAM_ID]) && isset($fields[self::PATTERN]) && isset($fields[self::HEADER])) {
-		    $sql = sprintf("DELETE QUICK FROM team_routing_rule ".
-		        "WHERE team_id = %d ".
-		        "AND pattern = %s ".
-		        "AND header = %s ",
-		        intval($fields[self::TEAM_ID]),
-		        $db->qstr($fields[self::PATTERN]),
-		        $db->qstr($fields[self::HEADER])
-		    );
-		    $db->Execute($sql);
-		    
-		    return true;
-		}
-		
-		return false;
+	public static function update($id, $fields) {
+        self::_update($id, 'team_routing_rule', $fields);
 	}
 	
 	public static function get($id) {
@@ -5051,10 +5039,10 @@ class DAO_TeamRoutingRule extends DevblocksORMHelper {
 	    
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = sprintf("SELECT id, team_id, header, pattern, pos, do_spam, do_status, do_move, do_assign ".
+		$sql = sprintf("SELECT id, name, team_id, criteria_ser, pos, do_spam, do_status, do_move, do_assign ".
 		    "FROM team_routing_rule ".
 		    "WHERE team_id = %d ".
-		    "ORDER BY header DESC, pos DESC", // subject first + from last, by popularity
+		    "ORDER BY pos DESC", // subject first + from last, by popularity
 		    $team_id
 		);
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
@@ -5069,10 +5057,10 @@ class DAO_TeamRoutingRule extends DevblocksORMHelper {
 	    if(!is_array($ids)) $ids = array($ids);
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = "SELECT id, team_id, header, pattern, pos, do_spam, do_status, do_move, do_assign ".
+		$sql = "SELECT id, name, team_id, criteria_ser, pos, do_spam, do_status, do_move, do_assign ".
 		    "FROM team_routing_rule ".
 		    (!empty($ids) ? sprintf("WHERE id IN (%s) ", implode(',', $ids)) : " ").
-		    "ORDER BY header DESC, pos DESC" // subject first + from last, by popularity
+		    "ORDER BY pos DESC" // subject first + from last, by popularity
 		;
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
@@ -5089,21 +5077,21 @@ class DAO_TeamRoutingRule extends DevblocksORMHelper {
 		while(!$rs->EOF) {
 		    $object = new Model_TeamRoutingRule();
 		    $object->id = intval($rs->fields['id']);
+		    $object->name = $rs->fields['name'];
 		    $object->team_id = intval($rs->fields['team_id']);
-		    $object->header = $rs->fields['header'];
-		    $object->pattern = $rs->fields['pattern'];
 		    $object->pos = intval($rs->fields['pos']);
 		    $object->do_spam = $rs->fields['do_spam'];
             $object->do_status = $rs->fields['do_status'];
             $object->do_move = $rs->fields['do_move'];
             $object->do_assign = $rs->fields['do_assign'];
-		    		    
-//		    $params = $rs->fields['params'];
-//		    
-//		    if(!empty($params)) {
-//		        @$object->params = unserialize($params);
-//		    }
-		    
+
+            // Criteria
+		    $criteria_ser = $rs->fields['criteria_ser'];
+		    if(!empty($criteria_ser))
+		    	@$criteria = unserialize($criteria_ser);
+		    if(is_array($criteria))
+		    	$object->criteria = $criteria;
+            
 		    $objects[$object->id] = $object;
 		    $rs->MoveNext();
 		}

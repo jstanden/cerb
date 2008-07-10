@@ -276,6 +276,72 @@ if(!isset($tables['preparse_rule'])) {
     $datadict->ExecuteSQLArray($sql);
 }
 
+// `team_routing_rule` ========================
+$columns = $datadict->MetaColumns('team_routing_rule');
+$indexes = $datadict->MetaIndexes('team_routing_rule',false);
+
+if(!isset($columns['NAME'])) {
+    $sql = $datadict->AddColumnSQL('team_routing_rule', "name C(64) DEFAULT '' NOTNULL");
+    $datadict->ExecuteSQLArray($sql);
+    
+    $sql = "UPDATE team_routing_rule SET name='Rule' WHERE name=''";
+    $db->Execute($sql);
+}
+
+if(!isset($columns['CRITERIA_SER'])) {
+    $sql = $datadict->AddColumnSQL('team_routing_rule', "criteria_ser XL");
+    $datadict->ExecuteSQLArray($sql);
+}
+
+//if(!isset($columns['ACTIONS_SER'])) {
+//    $sql = $datadict->AddColumnSQL('team_routing_rule', "actions_ser XL");
+//    $datadict->ExecuteSQLArray($sql);
+//}
+
+// Convert old header+patterns to criteria
+if(isset($columns['HEADER']) && isset($columns['PATTERN'])) {
+	$sql = "SELECT id,header,pattern FROM team_routing_rule";
+	$rs = $db->Execute($sql);
+	
+	
+	while(!$rs->EOF) {
+		@$id = intval($rs->fields['id']);
+		@$header = strtolower($rs->fields['header']);
+		@$pattern = $rs->fields['pattern'];
+		$criterion = array();
+		
+		if(empty($header) || empty($pattern)) {
+			$rs->MoveNext();
+			continue;
+		}
+		
+		if($header != 'from' && $header != 'subject') {
+			$rs->MoveNext();
+			continue;
+		}
+			
+		$criterion[$header] = array(
+			'value' => $pattern
+		);
+
+		// Fill criteria_ser
+		$sql = sprintf("UPDATE team_routing_rule SET criteria_ser = %s WHERE id = %d",
+			$db->qstr(serialize($criterion)),
+			$id
+		);
+		$db->Execute($sql);
+		
+		$rs->MoveNext();
+	}
+
+	// Drop columns
+	$sql = $datadict->DropColumnSQL('team_routing_rule','header');
+	$datadict->ExecuteSQLArray($sql);
+	
+	$sql = $datadict->DropColumnSQL('team_routing_rule','pattern');
+	$datadict->ExecuteSQLArray($sql);
+}
+
 // `ticket` ========================
 $columns = $datadict->MetaColumns('ticket');
 $indexes = $datadict->MetaIndexes('ticket',false);
@@ -309,6 +375,7 @@ if(!isset($indexes['spam_score'])) {
 	$sql = $datadict->CreateIndexSQL('spam_score','ticket','spam_score');
 	$datadict->ExecuteSQLArray($sql);
 }
+
 
 // `ticket_comment` ========================
 $columns = $datadict->MetaColumns('ticket_comment');
@@ -347,7 +414,6 @@ if(isset($columns['WORKER_ID'])) {
 	$sql = $datadict->DropColumnSQL('ticket_comment','worker_id');
 	$datadict->ExecuteSQLArray($sql);
 }
-
 
 // `ticket_field` ========================
 $columns = $datadict->MetaColumns('ticket_field');

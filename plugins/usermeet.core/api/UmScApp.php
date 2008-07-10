@@ -820,8 +820,7 @@ class UmScCoreController extends Extension_UmScController {
 		
 		// Ticket group settings
 		$group_id = $ticket[SearchFields_Ticket::TEAM_ID];
-		$group_settings = DAO_GroupSettings::getSettings($group_id);
-		@$group_from = $group_settings[DAO_GroupSettings::SETTING_REPLY_FROM];
+		@$group_from = DAO_GroupSettings::get($group_id, DAO_GroupSettings::SETTING_REPLY_FROM, '');
 		
 		// Headers
 		$to = !empty($group_from) ? $group_from : $global_from;

@@ -49,6 +49,14 @@
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
 
+abstract class Extension_AppPreBodyRenderer extends DevblocksExtension {
+	function __construct($manifest) {
+		$this->DevblocksExtension($manifest,1);
+	}
+	
+	function render() { }
+};
+
 abstract class CerberusPageExtension extends DevblocksExtension {
 	function __construct($manifest) {
 		$this->DevblocksExtension($manifest,1);
@@ -90,6 +98,14 @@ abstract class Extension_TicketTab extends DevblocksExtension {
 	
 	function showTab() {}
 	function saveTab() {}
+};
+
+abstract class Extension_TicketToolbarItem extends DevblocksExtension {
+	function __construct($manifest) {
+		$this->DevblocksExtension($manifest,1);
+	}
+	
+	function render(CerberusTicket $ticket) { }
 };
 
 abstract class Extension_OrgTab extends DevblocksExtension {

@@ -75,7 +75,7 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 
 		// Send notifications to this worker for each ticket
 		$tickets = DAO_Ticket::getTickets($ticket_ids);
-
+		
 		foreach($tickets as $ticket) { /* @var $ticket CerberusTicket */
 			// If the next worker value didn't change, skip
 			if($ticket->next_worker_id == $next_worker_id)
@@ -87,18 +87,32 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 			if(null == (@$last_headers = $last_message->getHeaders()))
 				continue;
 				
+			$reply_to = $default_from;
+			$reply_personal = $default_personal;
+				
+			// See if we need a group-specific reply-to
+			if(!empty($ticket->team_id)) {
+				@$group_from = DAO_GroupSettings::get($ticket->team_id, DAO_GroupSettings::SETTING_REPLY_FROM);
+				if(!empty($group_from))
+					$reply_to = $group_from;
+					
+				@$group_personal = DAO_GroupSettings::get($ticket->team_id, DAO_GroupSettings::SETTING_REPLY_PERSONAL);
+				if(!empty($group_personal))
+					$reply_personal = $group_personal;
+			}
+				
 	    	try {
 		 		// Create the message
 				$rcpt_to = new Swift_RecipientList();
 				$a_rcpt_to = array();
-				$mail_from = new Swift_Address($default_from, $default_personal);
+				$mail_from = new Swift_Address($reply_to, $reply_personal);
 				$rcpt_to->addTo($worker_notify_email);
 				$a_rcpt_to = new Swift_Address($worker_notify_email);
 					
 				$mail = $mail_service->createMessage();
 				$mail->setTo($a_rcpt_to);
 				$mail->setFrom($mail_from);
-				$mail->setReplyTo($default_from);
+				$mail->setReplyTo($reply_to);
 				$mail->setSubject(sprintf("[assignment #%s]: %s",
 					$ticket->mask,
 					$ticket->subject
@@ -159,10 +173,14 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 			$mailer = $mail_service->getMailer(CerberusMail::getMailerDefaults());
 	
 			$settings = CerberusSettings::getInstance();
-			$default_from = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM, '');
-			$default_personal = $settings->get(CerberusSettings::DEFAULT_REPLY_PERSONAL, '');
+			$reply_to = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM, '');
 			
-	//		$group_settings = DAO_GroupSettings::getSettings(); // Cache
+			// See if we need a group-specific reply-to
+			if(!empty($ticket->team_id)) {
+				@$group_from = DAO_GroupSettings::get($ticket->team_id, DAO_GroupSettings::SETTING_REPLY_FROM, '');
+				if(!empty($group_from))
+					$reply_to = $group_from;
+			}
 			
 			$sender = DAO_Address::get($message->address_id);
 	
@@ -217,7 +235,7 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 				$mail = $mail_service->createMessage();
 				$mail->setTo($a_rcpt_to);
 				$mail->setFrom($mail_from);
-				$mail->setReplyTo($default_from);
+				$mail->setReplyTo($reply_to);
 				$mail->setSubject(sprintf("[%s #%s]: %s",
 					($is_inbound ? 'inbound' : 'outbound'),
 					$ticket->mask,

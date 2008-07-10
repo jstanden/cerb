@@ -105,17 +105,6 @@
 		</extension>
 
 		<extension point="devblocks.controller">
-			<id>core.controller.tests</id>
-			<name>Unit Testing Controller</name>
-			<class>
-				<file>classes.php</file>
-				<name>ChTestsController</name>
-			</class>
-			<params>
-			</params>
-		</extension>
-
-		<extension point="devblocks.controller">
 			<id>core.controller.internal</id>
 			<name>Internal Controller</name>
 			<class>

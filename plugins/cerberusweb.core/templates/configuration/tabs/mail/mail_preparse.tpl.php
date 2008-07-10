@@ -8,7 +8,7 @@
 <input type="text" name="name" size="45"> (e.g. Spam Bounces)<br>
 <br>
 
-<b>If incoming message:</b> (Use * for wildcards)
+<b>If incoming message:</b> (use * for wildcards)
 <br>
 
 <table>
@@ -36,7 +36,6 @@
 			<label><input type="checkbox" name="rules[]" value="to"> To:</label>
 		</td>
 		<td>
-			{*<input type="text" name="value_to" size="45">*}
 			<select name="value_to">
 				{foreach from=$groups item=group key=group_id}
 					<option value="{$group_id}">{$group->name|escape}</option>
@@ -124,9 +123,7 @@
 				<label><input type="checkbox" name="deletes[]" value="{$filter_id}"> 
 				<input type="hidden" name="ids[]" value="{$filter_id}">
 				<b style='color:rgb(0,120,0);'>{$filter->name}</b></label><br>
-				<blockquote style="margin:2px;margin-left:30px;font-size:90%;color:rgb(130,130,130);">
-					<span>(Matched {$filter->pos} incoming messages)</span><br>
-				
+				<blockquote style="margin:2px;margin-left:20px;">
 					{foreach from=$filter->criteria item=crit key=crit_key}
 						{if $crit_key=='type'}
 							Is a <b>{$crit.value}</b> message<br>
@@ -152,8 +149,7 @@
 						{/if}
 					{/foreach}
 					
-					<blockquote style="margin:2px;margin-left:10px;">
-					<b>Action:</b> 
+					<blockquote style="margin:2px;margin-left:30px;font-size:90%;color:rgb(130,130,130);">
 					{foreach from=$filter->actions item=action key=action_key}
 						{if $action_key=="blackhole"}
 							Blackhole<br>
@@ -163,6 +159,8 @@
 							Bounce<br>
 						{/if}
 					{/foreach}
+					<span>(Matched {$filter->pos} incoming messages)</span><br>
+					
 					</blockquote>
 				</blockquote>
 			</td>

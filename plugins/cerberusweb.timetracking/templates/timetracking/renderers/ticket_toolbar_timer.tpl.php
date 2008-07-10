@@ -1,0 +1,1 @@
+<button type="button" onclick="timeTrackingTimer.play('Ticket: #{$ticket->mask|escape}');"><img src="{devblocks_url}c=resource&p=cerberusweb.timetracking&f=images/16x16/stopwatch.png{/devblocks_url}" align="top"> Start Timer</button>

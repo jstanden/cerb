@@ -620,12 +620,8 @@ class CerberusParser {
 
 		// New ticket processing
 		if($bIsNew) {
-			static $group_settings = null;
-			if(null == $group_settings)
-				$group_settings = DAO_GroupSettings::getSettings();
-			
 			// Don't replace this with the master event listener
-			if(false !== ($rule = CerberusApplication::parseTeamRules($team_id, $id, $fromAddress, $sSubject))) { /* @var $rule Model_TeamRoutingRule */
+			if(false !== ($rule = CerberusApplication::runGroupRouting($team_id, $id))) { /* @var $rule Model_TeamRoutingRule */
                 //Assume our rule match is not spam
                 if(empty($rule->do_spam)) { // if we didn't already train
                     $enumSpamTraining = CerberusTicketSpamTraining::NOT_SPAM;
@@ -659,9 +655,9 @@ class CerberusParser {
 
 			    // [TODO] Move this group logic to a post-parse event listener
 			    if(!empty($team_id)) {
-			    	@$spam_threshold = $group_settings[$team_id][DAO_GroupSettings::SETTING_SPAM_THRESHOLD];
-			        @$spam_action = $group_settings[$team_id][DAO_GroupSettings::SETTING_SPAM_ACTION];
-			        @$spam_action_param = $group_settings[$team_id][DAO_GroupSettings::SETTING_SPAM_ACTION_PARAM];
+			    	@$spam_threshold = DAO_GroupSettings::get($team_id, DAO_GroupSettings::SETTING_SPAM_THRESHOLD, 80);
+			        @$spam_action = DAO_GroupSettings::get($team_id, DAO_GroupSettings::SETTING_SPAM_ACTION, '');
+			        @$spam_action_param = DAO_GroupSettings::get($team_id, DAO_GroupSettings::SETTING_SPAM_ACTION_PARAM,'');
 			        
 				    if($out['probability']*100 >= $spam_threshold) {
 				    	$enumSpamTraining = CerberusTicketSpamTraining::SPAM;
@@ -694,8 +690,8 @@ class CerberusParser {
 			} // end spam training
 
 			// Auto reply
-			@$autoreply_enabled = $group_settings[$team_id][DAO_GroupSettings::SETTING_AUTO_REPLY_ENABLED];
-			@$autoreply = $group_settings[$team_id][DAO_GroupSettings::SETTING_AUTO_REPLY];
+			@$autoreply_enabled = DAO_GroupSettings::get($team_id, DAO_GroupSettings::SETTING_AUTO_REPLY_ENABLED, 0);
+			@$autoreply = DAO_GroupSettings::get($team_id, DAO_GroupSettings::SETTING_AUTO_REPLY, '');
 			
 			/*
 			 * Send the group's autoreply if one exists, as long as this ticket isn't spam and

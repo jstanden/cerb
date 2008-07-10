@@ -113,9 +113,8 @@ class CerberusMail {
 		$settings = CerberusSettings::getInstance();
 		$default_from = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM);
 		$default_personal = $settings->get(CerberusSettings::DEFAULT_REPLY_PERSONAL);
-		$group_settings = DAO_GroupSettings::getSettings($team_id);
-		@$team_from = $group_settings[DAO_GroupSettings::SETTING_REPLY_FROM];
-		@$team_personal = $group_settings[DAO_GroupSettings::SETTING_REPLY_PERSONAL];
+		$team_from = DAO_GroupSettings::get($team_id,DAO_GroupSettings::SETTING_REPLY_FROM,'');
+		$team_personal = DAO_GroupSettings::get($team_id,DAO_GroupSettings::SETTING_REPLY_PERSONAL,'');
 		
 		$from = !empty($team_from) ? $team_from : $default_from;
 		$personal = !empty($team_personal) ? $team_personal : $default_personal;
@@ -124,8 +123,8 @@ class CerberusMail {
 		if(empty($subject)) $subject = '(no subject)';
 		
 		// add mask to subject if group setting calls for it
-		@$group_has_subject = intval($group_settings[DAO_GroupSettings::SETTING_SUBJECT_HAS_MASK]);
-		@$group_subject_prefix = $group_settings[DAO_GroupSettings::SETTING_SUBJECT_PREFIX];
+		@$group_has_subject = intval(DAO_GroupSettings::get($team_id,DAO_GroupSettings::SETTING_SUBJECT_HAS_MASK,0));
+		@$group_subject_prefix = DAO_GroupSettings::get($team_id,DAO_GroupSettings::SETTING_SUBJECT_PREFIX,'');
 		$prefix = sprintf("[%s#%s] ",
 			!empty($group_subject_prefix) ? ($group_subject_prefix.' ') : '',
 			$mask
@@ -417,11 +416,14 @@ class CerberusMail {
 			} 
 			
 			// Allow teams to override the default from/personal
-			$group_settings = DAO_GroupSettings::getSettings($ticket->team_id);
-			if(!empty($group_settings[DAO_GroupSettings::SETTING_REPLY_FROM])) 
-				$from_addy = $group_settings[DAO_GroupSettings::SETTING_REPLY_FROM];
-			if(!empty($group_settings[DAO_GroupSettings::SETTING_REPLY_PERSONAL])) 
-				$from_personal = $group_settings[DAO_GroupSettings::SETTING_REPLY_PERSONAL];
+			@$group_reply = DAO_GroupSettings::get($ticket->team_id, DAO_GroupSettings::SETTING_REPLY_FROM, '');
+			@$group_personal = DAO_GroupSettings::get($ticket->team_id, DAO_GroupSettings::SETTING_REPLY_PERSONAL, '');
+
+			if(!empty($group_reply))
+				$from_addy = $group_reply;
+				
+			if(!empty($group_personal)) 
+				$from_personal = $group_personal;
 			
 			$sendFrom = new Swift_Address($from_addy, $from_personal);
 				
@@ -437,8 +439,8 @@ class CerberusMail {
 				$mail->setSubject($subject);
 				
 			} else { // reply
-				@$group_has_subject = intval($group_settings[DAO_GroupSettings::SETTING_SUBJECT_HAS_MASK]);
-				@$group_subject_prefix = $group_settings[DAO_GroupSettings::SETTING_SUBJECT_PREFIX];
+				@$group_has_subject = intval(DAO_GroupSettings::get($ticket->team_id, DAO_GroupSettings::SETTING_SUBJECT_HAS_MASK,0));
+				@$group_subject_prefix = DAO_GroupSettings::get($ticket->team_id, DAO_GroupSettings::SETTING_SUBJECT_PREFIX,'');
 				
 				$prefix = sprintf("[%s#%s] ",
 					!empty($group_subject_prefix) ? ($group_subject_prefix.' ') : '',
@@ -636,6 +638,7 @@ class CerberusMail {
 		    DAO_MessageContent::update($message_id, $content);
 		    
 		    // Headers
+		    if(!empty($mail->headers) && method_exists($mail->headers,'getList'))
 			foreach($mail->headers->getList() as $hdr => $v) {
 				if(null != ($hdr_val = $mail->headers->getEncoded($hdr))) {
 					if(!empty($hdr_val))

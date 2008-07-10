@@ -1,0 +1,119 @@
+<!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
+<plugin>
+	<id>cerberusweb.timetracking</id>
+	<name>Cerberus Helpdesk: Time Tracking (Experimental)</name>
+	<description>Adds a time tracking stopwatch for tasks.</description>
+	<author>WebGroup Media, LLC.</author>
+	<revision>0</revision>
+	<link>http://wiki.cerb4.com/wiki/</link>
+	<class>
+		<file>api/App.php</file>
+		<name>ChTimeTrackingPlugin</name>
+	</class>
+	
+	<extensions>
+	
+		<!-- Http Listeners -->
+		
+		<!-- 
+		<extension point="devblocks.listener.http">
+			<id>simulator.listeners.tour</id>
+			<name>Simulator Tour</name>
+			<class>
+				<file>listeners.classes.php</file>
+				<name>ChSimulatorTour</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		 -->
+	
+		<!-- Event Listeners -->
+		
+		<extension point="devblocks.listener.event">
+			<id>timetracking.listener.core</id>
+			<name>Time Tracking Listener</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChTimeTrackingEventListener</name>
+			</class>
+			<params>
+				<!-- Event Listener -->
+				<param key="events">
+					<value>
+						<data key="ticket.reply.outbound" />
+						<!-- <data key="cron.maint" /> -->
+					</value>
+				</param>
+			</params>
+		</extension>
+
+		<!-- Renderers Render -->	
+		<extension point="cerberusweb.renderer.prebody">
+			<id>timetracking.renderer.prebody</id>
+			<name>Time Tracking Pre-body Renderer</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChTimeTrackingPreBodyRenderer</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+	
+		<!-- Renderers Render -->	
+		<extension point="cerberusweb.ticket.toolbaritem">
+			<id>timetracking.ticket.toolbaritem.timer</id>
+			<name>Time Tracking Ticket Toolbar Timer</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChTimeTrackingTicketToolbarTimer</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+	
+		<!-- Config Tabs -->
+		
+		<!-- 
+		<extension point="cerberusweb.config.tab">
+			<id>simulator.config.tab</id>
+			<name>Simulator Tab</name>
+			<class>
+				<file>classes.php</file>
+				<name>ChSimulatorConfigTab</name>
+			</class>
+			<params>
+				<param key="uri" value="simulator" />
+				<param key="title" value="Simulator" />
+			</params>
+		</extension>
+		 -->
+		 
+ 		<extension point="devblocks.controller">
+			<id>timetracking.controller.ajax</id>
+			<name>Time Tracking Ajax Controller</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChTimeTrackingAjaxController</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		 
+		<!-- Tabs -->
+		 
+		<extension point="cerberusweb.ticket.tab">
+			<id>timetracking.tab.ticket</id>
+			<name>Time Tracking Tab</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChTimeTrackingTab</name>
+			</class>
+			<params>
+				<param key="uri" value="timetracking" />
+				<param key="title" value="Time Tracking" />
+			</params>
+		</extension>
+		
+	</extensions>
+</plugin>

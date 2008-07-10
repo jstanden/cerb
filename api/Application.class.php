@@ -48,7 +48,7 @@
  * 		and Joe Geck.
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-define("APP_BUILD", 642);
+define("APP_BUILD", 643);
 define("APP_MAIL_PATH", realpath(APP_PATH . '/storage/mail') . DIRECTORY_SEPARATOR);
 
 include_once(APP_PATH . "/api/DAO.class.php");
@@ -507,85 +507,49 @@ class CerberusApplication extends DevblocksApplication {
 	 *
 	 * @param integer $team_id
 	 * @param Model_TeamRoutingRule $ticket
+	 * @return Model_TeamRoutingRule|false
 	 */
-	static public function parseTeamRules($team_id, $ticket_id, $fromAddress, $sSubject) {
-	    static $array_team_routing_rules = null;
-	    static $moveMap = array();
-	    
-	    // Routing rules (index by team id)
-	    if(is_null($array_team_routing_rules)) {
-		    $array_team_routing_rules = array();
-	        $objects = DAO_TeamRoutingRule::getList();
-	        if(is_array($objects))
-			foreach($objects as $idx => $rule) { /* @var $rule Model_TeamRoutingRule */
-	            if(!isset($array_team_routing_rules[$rule->team_id])) {
-	                $array_team_routing_rules[$rule->team_id] = array();
-	            }
-	            $array_team_routing_rules[$rule->team_id][$idx] = $rule;
+	static public function runGroupRouting($group_id, $ticket_id, $only_rule_id=0) {
+		static $moveMap = array();
+		$dont_move = false;
+		
+		if(false != ($match = Model_TeamRoutingRule::getMatch($group_id, $ticket_id, $only_rule_id))) { /* @var $match Model_TeamRoutingRule */
+			/* =============== Prevent recursive assignments =============
+			* If we ever get into a situation where many rules are sending a ticket
+			* back and forth between them, ignore the last move action in the chain  
+			* which is trying to start over.
+			*/
+			if(!isset($moveMap[$ticket_id])) {
+				$moveMap[$ticket_id] = array();
+			} else {
+				if(isset($moveMap[$ticket_id][$group_id])) {
+//					$nuke_rule_id = array_pop($moveMap[$ticket_id]);
+//					echo "I need to delete a redundant rule!",$nuke_rule_id,"<BR>";
+//					DAO_TeamRoutingRule::delete($nuke_rule_id);
+					$dont_move = true;
+				}
 			}
-			unset($objects);
-	    }
-	    
-	    // Check the team's inbox rules and see if we have a new destination
-        if(!empty($team_id)) {
-            
-            //if(!empty($rule_ids)) {
-   	            @$team_rules = $array_team_routing_rules[$team_id];
-   	            
-//   	            echo "Scanning (From: ",$fromAddress,"; Subject: ",$sSubject,")<BR>";
-   	            
-   	            if(is_array($team_rules))
-   	            foreach($team_rules as $rule) { /* @var $rule Model_TeamRoutingRule */
-   	                $pattern = DevblocksPlatform::parseStringAsRegExp($rule->pattern);
-   	                $haystack = ($rule->header=='from') ? $fromAddress : $sSubject ;
-   	                if(is_string($haystack) && preg_match($pattern, $haystack)) {
-//   	                    echo "I matched ($pattern) for ($ticket_id)!<br>";
-   	                    
-	                    /* =============== Prevent recursive assignments =============
-	                     * If we ever get into a situation where many rules are sending a ticket
-	                     * back and forth between them, delete the last rule in the chain which 
-	                     * is trying to start over.
-	                     */
-		                if(!isset($moveMap[$ticket_id])) {
-		                    $moveMap[$ticket_id] = array();
-		                } else {
-		                    if(isset($moveMap[$ticket_id][$team_id])) {
-			                    $nuke_rule_id = array_pop($moveMap[$ticket_id]);
-//		                        echo "I need to delete a redundant rule!",$nuke_rule_id,"<BR>";
-			                    DAO_TeamRoutingRule::delete($nuke_rule_id);
-		                        continue;
-		                    }
-		                }
-		                $moveMap[$ticket_id][$team_id] = $rule->id;
-		                
-		                // =============== Run action =============
-   	                    $action = new Model_DashboardViewAction();
-   	                    $action->params = array();
-   	                    
-						//[mdf] only send params that we actually want to change, so we don't set settings to bad values (like setting 0 for the ticket team id)
-						if(strlen($rule->do_spam) > 0)
-							$action->params['spam'] = $rule->do_spam;
-						if(strlen($rule->do_status) > 0)
-							$action->params['closed'] = $rule->do_status;
-						if(strlen($rule->do_move) > 0)
-							$action->params['team'] = $rule->do_move;
-						if($rule->do_assign != 0)
-							$action->params['assign'] = $rule->do_assign;
-							
-   	                    $action->run(array($ticket_id));
-   	                    // ================= End run action =======
-
-   	                    DAO_TeamRoutingRule::update($rule->id, array(
-   	                        DAO_TeamRoutingRule::POS => ++$rule->pos
-   	                    ));
-   	                    
-   	                    return $rule;
-   	                }
-   	            }
-//            }
-        }
-        
-        return false;
+			$moveMap[$ticket_id][$group_id] = $match->id;
+			
+			// =============== Run action =============
+			$action = new Model_DashboardViewAction();
+			$action->params = array();
+			                       
+			//[mdf] only send params that we actually want to change, so we don't set settings to bad values (like setting 0 for the ticket team id)
+			if(strlen($match->do_spam) > 0)
+				$action->params['spam'] = $match->do_spam;
+			if(strlen($match->do_status) > 0)
+				$action->params['closed'] = $match->do_status;
+			if(!$dont_move && strlen($match->do_move) > 0)
+				$action->params['team'] = $match->do_move;
+			if($match->do_assign != 0)
+				$action->params['assign'] = $match->do_assign;
+			
+			$action->run(array($ticket_id));
+			// ================= End run action =======
+		}
+		
+	    return $match;
 	}
 	
 	// ***************** DUMMY
@@ -597,7 +561,7 @@ class CerberusApplication extends DevblocksApplication {
 		if(null === ($froms = $cache->load(self::CACHE_HELPDESK_FROMS))) {
 			$froms = array();
 			$settings = CerberusSettings::getInstance();
-			$group_settings = DAO_GroupSettings::getSettings(); // [TODO] cache?
+			$group_settings = DAO_GroupSettings::getSettings();
 			
 			// Global sender
 			$from = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM);

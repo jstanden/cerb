@@ -1,5 +1,11 @@
 {include file="$tpl_path/header.tpl.php"}
 
+{if !empty($prebody_renderers)}
+	{foreach from=$prebody_renderers item=renderer}
+		{if !empty($renderer)}{$renderer->render()}{/if}
+	{/foreach}
+{/if}
+
 {if !empty($tour_enabled)}{include file="tour.tpl.php"}{/if}
 <table cellspacing="0" cellpadding="2" border="0" width="100%">
 	<tr>

@@ -59,14 +59,167 @@ class Model_PreParseRule {
 
 class Model_TeamRoutingRule {
 	public $id = 0;
+	public $name = '';
 	public $team_id = 0;
-	public $header = '';
-	public $pattern = '';
+	public $criteria = array();
 	public $pos = 0;
 	public $do_move = '';
 	public $do_status = '';
 	public $do_spam = '';
 	public $do_assign = '';
+	
+	// [TODO] Make this support getMatches() -- every matching rule?
+	static function getMatch($group_id, $ticket_id, $only_rule_id=0) {
+		if(empty($group_id))
+			return false;
+
+		if(!empty($only_rule_id)) {
+			$filters = array(
+				DAO_TeamRoutingRule::get($only_rule_id)
+			);
+		} else {
+			$filters = DAO_TeamRoutingRule::getByTeamId($group_id);
+		}
+
+		// Check the ticket
+		if(null === ($ticket = DAO_Ticket::getTicket($ticket_id)))
+			return false;
+			
+		// Build our objects
+		$ticket_from = DAO_Address::get($ticket->last_wrote_address_id);
+		$ticket_group_id = $ticket->team_id;
+		// [TODO] These expensive checks should only populate when needed
+		$messages = DAO_Ticket::getMessagesByTicket($ticket_id);
+		$message = array_pop($messages); /* @var $message CerberusMessage */
+		$ticket_is_new = ($ticket->first_message_id==$message->id) ? 1 : 0;
+		$message_headers = $message->getHeaders();
+//		$message_body = $message->getContent();
+		
+		// Check filters
+		if(is_array($filters))
+		foreach($filters as $filter) { /* @var $filter Model_TeamRoutingRule */
+			$passed = 0;
+
+			// check criteria
+			foreach($filter->criteria as $rule_key => $rule) {
+				@$value = $rule['value'];
+							
+				switch($rule_key) {
+					case 'type':
+						if(($ticket_is_new && 0 == strcasecmp($value,'new')) 
+							|| (!$ticket_is_new && 0 == strcasecmp($value,'reply')))
+								$passed++; 
+						break;
+						
+					case 'tocc':
+						$destinations = DevblocksPlatform::parseCsvString($value);
+
+						// Build a list of To/Cc addresses on this message
+						@$to_list = imap_rfc822_parse_adrlist($message_headers['to'],'localhost');
+						@$cc_list = imap_rfc822_parse_adrlist($message_headers['cc'],'localhost');
+						
+						if(is_array($to_list))
+						foreach($to_list as $addy) {
+							$tocc[] = $addy->mailbox . '@' . $addy->host;
+						}
+						if(is_array($cc_list))
+						foreach($cc_list as $addy) {
+							$tocc[] = $addy->mailbox . '@' . $addy->host;
+						}
+						
+						$dest_flag = false; // bail out when true
+						if(is_array($destinations) && is_array($tocc))
+						foreach($destinations as $dest) {
+							if($dest_flag) break;
+							$regexp_dest = DevblocksPlatform::strToRegExp($dest);
+							
+							foreach($tocc as $addy) {
+								if(preg_match($regexp_dest, $addy)) {
+									$passed++;
+									$dest_flag = false;
+									break;
+								}
+							}
+						}
+						break;
+						
+					case 'from':
+						$regexp_from = DevblocksPlatform::strToRegExp($value);
+						if(preg_match($regexp_from, $ticket_from->email)) {
+							$passed++;
+						}
+						break;
+						
+					case 'subject':
+						$regexp_subject = DevblocksPlatform::strToRegExp($value);
+						if(preg_match($regexp_subject, $ticket->subject)) {
+							$passed++;
+						}
+						break;
+						
+//					case 'to':
+//						if(intval($ticket_group_id)==intval($value))
+//							$passed++;
+//						break;
+						
+					case 'header1':
+					case 'header2':
+					case 'header3':
+					case 'header4':
+					case 'header5':
+						$header = strtolower($rule['header']);
+
+						if(empty($value)) { // we're checking for null/blanks
+							if(!isset($message_headers[$header]) || empty($message_headers[$header])) {
+								$passed++;
+							}
+							
+						} elseif(isset($message_headers[$header]) && !empty($message_headers[$header])) {
+							$regexp_header = DevblocksPlatform::strToRegExp($value);
+							
+							// Flatten CRLF
+							if(preg_match($regexp_header, str_replace(array("\r","\n"),' ',$message_headers[$header]))) {
+								$passed++;
+							}
+						}
+						
+						break;
+						
+//					case 'body':
+//						$regexp_body = DevblocksPlatform::strToRegExp($value);
+//
+//						// Flatten CRLF
+//						if(preg_match($regexp_body, str_replace(array("\r","\n"),' ',$message_body)))
+//							$passed++;
+//						break;
+						
+//					case 'attachment':
+//						$regexp_file = DevblocksPlatform::strToRegExp($value);
+//
+//						// check the files in the raw message
+//						foreach($message->files as $file_name => $file) { /* @var $file ParserFile */
+//							if(preg_match($regexp_file, $file_name)) {
+//								$passed++;
+//								break;
+//							}
+//						}
+//						break;
+						
+					default: // ignore invalids
+						continue;
+						break;
+				}
+			}
+			
+			// If our rule matched every criteria, stop and return the filter
+			if($passed == count($filter->criteria)) {
+				DAO_TeamRoutingRule::increment($filter->id); // ++ the times we've matched
+				return $filter;
+			}
+		}
+		
+		return false;
+	}
 };
 
 /**

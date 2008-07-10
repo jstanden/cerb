@@ -75,7 +75,7 @@
 				{/if}
 				
 				{if empty($ticket->spam_training)}
-					<button title="Report this ticket as spam (S)" id="btnSpam" type="button" onclick="this.form.spam.value=1;this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/spam.gif{/devblocks_url}" align="top"> Report Spam</button>
+					<button title="Report this ticket as spam (S)" id="btnSpam" type="button" onclick="this.form.spam.value=1;this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/spam.gif{/devblocks_url}" align="top"> Spam</button>
 				{/if}
 			{/if}
 			
@@ -109,7 +109,17 @@
 		  		{/foreach}
 		   	</select>
 		   	{/if}
-			<button type="button" onclick="document.location='{devblocks_url}c=display&id={$ticket->mask}{/devblocks_url}';"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/replace2.gif{/devblocks_url}" align="top"> Refresh</button><br>
+			<button type="button" onclick="document.location='{devblocks_url}c=display&id={$ticket->mask}{/devblocks_url}';"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/replace2.gif{/devblocks_url}" align="top"> Refresh</button>
+			<br>
+			
+			{* Plugin Toolbar *}
+			{if !empty($ticket_toolbaritems)}
+				{foreach from=$ticket_toolbaritems item=renderer}
+					{if !empty($renderer)}{$renderer->render($ticket)}{/if}
+				{/foreach}
+				<br>
+			{/if}
+			
 			keyboard: 
 			{if !$ticket->is_closed}(<b>c</b>) close, {/if}
 			{if !$ticket->spam_trained}(<b>s</b>) report spam, {/if}
@@ -198,7 +208,7 @@ tabView.addTab( new YAHOO.widget.Tab({
 {literal}tabView.addTab( new YAHOO.widget.Tab({{/literal}
     label: '{$tab_manifest->params.title}',
     dataSrc: '{devblocks_url}ajax.php?c=display&a=showTab&ext_id={$tab_manifest->id}&ticket_id={$ticket->id}{/devblocks_url}',
-    {if $tab==$tab_manifest->params.uri}active: true,{/if}
+    {if $tab_selected==$tab_manifest->params.uri}active: true,{/if}
     cacheData: false
 {literal}}));{/literal}
 {/foreach}
