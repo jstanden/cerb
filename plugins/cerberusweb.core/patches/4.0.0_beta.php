@@ -1023,24 +1023,6 @@ while(!$rs->EOF) {
 	$rs->MoveNext();
 }
 
-// Remove any bad routing rules (null bucket)
-$buckets = DAO_Bucket::getAll();
-$rules = DAO_TeamRoutingRule::getList();
-
-if(is_array($rules) && !empty($rules))
-foreach($rules as $rule_id => $rule) {
-	if(empty($rule->do_move))
-		continue;
-	
-	// If bucket move
-	if(substr($rule->do_move,0,1)=='c') {
-		$id = intval(substr($rule->do_move,1));
-		// If invalid bucket
-		if(!isset($buckets[$id]))
-			DAO_TeamRoutingRule::delete($rule_id);
-	}
-}
-
 // Merge any addresses that managed to get into the DB mixed case
 $rs = $db->Execute("SELECT count(id) AS hits, lower(email) AS email FROM address GROUP BY lower(email) HAVING count(id) > 1"); /* @var $rs ADORecordSet */
 

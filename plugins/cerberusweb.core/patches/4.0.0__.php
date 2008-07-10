@@ -161,7 +161,6 @@ $tables['worker_to_team'] = "
 	is_manager I1 DEFAULT 0 NOTNULL
 ";
 
-// [TODO] Move to POP3 plugin
 $tables['pop3_account'] = "
 	id I4 DEFAULT 0 NOTNULL PRIMARY,
 	enabled I1 DEFAULT 1 NOTNULL,
@@ -229,7 +228,6 @@ $tables['team_routing_rule'] = "
 	do_move C(16) DEFAULT ''
 ";
 
-// [JAS]: [TODO] Platform table?
 $tables['setting'] = "
 	setting C(32) DEFAULT '' NOTNULL PRIMARY,
 	value C(255) DEFAULT '' NOTNULL
