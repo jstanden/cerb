@@ -25,6 +25,7 @@
 <br>
 
 <table>
+	{*
 	<tr>
 		<td>
 			<label><input type="checkbox" name="rules[]" value="type"> Is a:</label>
@@ -36,6 +37,7 @@
 			</select>
 		</td>
 	</tr>
+	*}
 	<tr>
 		<td>
 			<label><input type="checkbox" name="rules[]" value="subject"> Subject:</label>
@@ -49,7 +51,7 @@
 			<label><input type="checkbox" name="rules[]" value="tocc"> To/Cc:</label>
 		</td>
 		<td>
-			<input type="text" name="value_tocc" size="45" value="{$tocc_list}" style="width:98%;"><br>
+			<input type="text" name="value_tocc" size="45" value="{$tocc_list|escape}" style="width:98%;"><br>
 			(comma-delimited addresses, only one e-mail must match)<br>
 		</td>
 	</tr>

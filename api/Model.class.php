@@ -91,7 +91,7 @@ class Model_TeamRoutingRule {
 		// [TODO] These expensive checks should only populate when needed
 		$messages = DAO_Ticket::getMessagesByTicket($ticket_id);
 		$message = array_pop($messages); /* @var $message CerberusMessage */
-		$ticket_is_new = ($ticket->first_message_id==$message->id) ? 1 : 0;
+//		$ticket_is_new = ($ticket->first_message_id==$message->id) ? 1 : 0;
 		$message_headers = $message->getHeaders();
 //		$message_body = $message->getContent();
 		
@@ -105,11 +105,11 @@ class Model_TeamRoutingRule {
 				@$value = $rule['value'];
 							
 				switch($rule_key) {
-					case 'type':
-						if(($ticket_is_new && 0 == strcasecmp($value,'new')) 
-							|| (!$ticket_is_new && 0 == strcasecmp($value,'reply')))
-								$passed++; 
-						break;
+//					case 'type':
+//						if(($ticket_is_new && 0 == strcasecmp($value,'new')) 
+//							|| (!$ticket_is_new && 0 == strcasecmp($value,'reply')))
+//								$passed++; 
+//						break;
 						
 					case 'tocc':
 						$destinations = DevblocksPlatform::parseCsvString($value);
