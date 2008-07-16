@@ -61,6 +61,7 @@ class CerberusMail {
 			'auth_pass' => $settings->get(CerberusSettings::SMTP_AUTH_PASS,null),
 			'enc' => $settings->get(CerberusSettings::SMTP_ENCRYPTION_TYPE,'None'),
 			'max_sends' => $settings->get(CerberusSettings::SMTP_MAX_SENDS,20),
+			'timeout' => $settings->get(CerberusSettings::SMTP_TIMEOUT,30),
 		);
 	}
 	

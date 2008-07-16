@@ -44,6 +44,12 @@
 					<br>
 				</div>
 				
+				<b>SMTP Timeout:</b><br>
+				<input type="text" name="smtp_timeout" value="{$settings->get('smtp_timeout',30)}" size="4">
+				seconds
+				<br>
+				<br>
+				
 				<b>Maximum Deliveries Per SMTP Connection:</b><br>
 				<input type="text" name="smtp_max_sends" value="{$settings->get('smtp_max_sends',20)}" size="5">
 				<i>(tuning this depends on your mail server; default is 20)</i>
