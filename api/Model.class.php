@@ -761,6 +761,10 @@ class C4_TicketView extends C4_AbstractView {
 							$tpl->assign('cfield', $cfield);
 							$tpl->display('file:' . $tpl_path . 'tickets/search/criteria/cfield_checkbox.tpl.php');
 							break;
+						case Model_TicketField::TYPE_DATE:
+							$tpl->assign('cfield', $cfield);
+							$tpl->display('file:' . $tpl_path . 'tickets/search/criteria/cfield_date.tpl.php');
+							break;
 						default:
 							$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__string.tpl.php');
 							break;
@@ -1014,7 +1018,16 @@ class C4_TicketView extends C4_AbstractView {
 							break;
 						case Model_TicketField::TYPE_CHECKBOX:
 							$check = !empty($value) ? 1 : 0;
-							$criteria = new DevblocksSearchCriteria($field,$oper,$value);
+							$criteria = new DevblocksSearchCriteria($field,$oper,$check);
+							break;
+						case Model_TicketField::TYPE_DATE:
+							@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','');
+							@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
+			
+							if(empty($from)) $from = 0;
+							if(empty($to)) $to = 'today';
+			
+							$criteria = new DevblocksSearchCriteria($field,$oper,array($from,$to));
 							break;
 						default:
 							if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)

@@ -2,6 +2,7 @@
 <blockquote style="margin:5px;">
 	<select name="oper">
 		<option value="=">=</option>
+		<option value="equals or null">equals or not set</option>
 	</select>
 </blockquote>
 

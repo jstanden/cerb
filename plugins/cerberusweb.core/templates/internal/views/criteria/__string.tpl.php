@@ -5,6 +5,7 @@
 		<option value="not like">doesn't match</option>
 		<option value="=">equals</option>
 		<option value="!=">doesn't equal</option>
+		<option value="is null">is null (not set)</option>
 	</select>
 </blockquote>
 
