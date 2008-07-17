@@ -90,7 +90,14 @@ class Model_TeamRoutingRule {
 		$ticket_group_id = $ticket->team_id;
 		// [TODO] These expensive checks should only populate when needed
 		$messages = DAO_Ticket::getMessagesByTicket($ticket_id);
+		
+		if(empty($messages))
+			return false;
+		
 		$message = array_pop($messages); /* @var $message CerberusMessage */
+		if(empty($message))
+			return false;
+		
 //		$ticket_is_new = ($ticket->first_message_id==$message->id) ? 1 : 0;
 		$message_headers = $message->getHeaders();
 //		$message_body = $message->getContent();
