@@ -47,6 +47,10 @@ options</a>.<br>
 <input size="64" name="contact_company"><br>
 <br>
 
+<b>Your e-mail address:</b> (this is where we'll send your free license)<br>
+<input size="64" name="contact_email"><br>
+<br>
+
 <b>How did you hear about Cerberus Helpdesk?</b><br>
 <input size="64" name="contact_refer"><br>
 <br>

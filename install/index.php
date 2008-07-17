@@ -793,6 +793,7 @@ EOF;
 		
 		if(!empty($form_submit)) {
 			@$contact_name = str_replace(array("\r","\n"),'',stripslashes($_REQUEST['contact_name']));
+			@$contact_email = str_replace(array("\r","\n"),'',stripslashes($_REQUEST['contact_email']));
 			@$contact_company = stripslashes($_REQUEST['contact_company']);
 			
 			if(empty($skip) && !empty($contact_name)) {
@@ -847,7 +848,7 @@ EOF;
 				    $comments
 				  );
 
-				  CerberusMail::quickSend('aboutme@cerberusweb.com',"About: $contact_name of $contact_company",$msg);
+				  CerberusMail::quickSend('aboutme@cerberusweb.com',"About: $contact_name of $contact_company",$msg, $contact_email, $contact_name);
 				}
 			}
 			

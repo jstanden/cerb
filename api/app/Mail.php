@@ -65,15 +65,19 @@ class CerberusMail {
 		);
 	}
 	
-	static function quickSend($to, $subject, $body) {
+	static function quickSend($to, $subject, $body, $from_addy=null, $from_personal=null) {
 		try {
 			$mail_service = DevblocksPlatform::getMailService();
 			$mailer = $mail_service->getMailer(CerberusMail::getMailerDefaults());
 			$mail = $mail_service->createMessage();
 	
 		    $settings = CerberusSettings::getInstance();
-			@$from_addy = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM, $_SERVER['SERVER_ADMIN']);
-			@$from_personal = $settings->get(CerberusSettings::DEFAULT_REPLY_PERSONAL,'');
+		    
+		    if(empty($from_addy))
+				@$from_addy = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM, $_SERVER['SERVER_ADMIN']);
+		    
+		    if(empty($from_personal))
+				@$from_personal = $settings->get(CerberusSettings::DEFAULT_REPLY_PERSONAL,'');
 			
 			$sendTo = new Swift_Address($to);
 			$sendFrom = new Swift_Address($from_addy, $from_personal);
