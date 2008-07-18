@@ -25,19 +25,6 @@
 <br>
 
 <table>
-	{*
-	<tr>
-		<td>
-			<label><input type="checkbox" name="rules[]" value="type"> Is a:</label>
-		</td>
-		<td>
-			<select name="value_type">
-				<option value="new">new message</option>
-				<option value="reply">reply</option>
-			</select>
-		</td>
-	</tr>
-	*}
 	<tr>
 		<td>
 			<label><input type="checkbox" name="rules[]" value="subject"> Subject:</label>

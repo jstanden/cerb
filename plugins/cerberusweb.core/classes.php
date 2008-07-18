@@ -1197,7 +1197,7 @@ class ChTicketsPage extends CerberusPageExtension {
 			
 			// Any special rule handling
 			switch($rule) {
-				case 'type':
+				case 'subject':
 					break;
 				case 'from':
 					break;
@@ -5587,7 +5587,7 @@ class ChGroupsPage extends CerberusPageExtension  {
 			
 			// Any special rule handling
 			switch($rule) {
-				case 'type':
+				case 'subject':
 					break;
 				case 'from':
 					break;
