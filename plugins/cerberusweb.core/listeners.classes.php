@@ -416,8 +416,9 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		@$changed_fields = $event->params['changed_fields'];
 
 		// for anything other than setting is_closed = 1, we don't need to do anything
-		if(!isset($changed_fields[DAO_Ticket::IS_CLOSED])
-		|| 1 != $changed_fields[DAO_Ticket::IS_CLOSED])
+		// also don't send if the ticket is being deleted
+		if((!isset($changed_fields[DAO_Ticket::IS_CLOSED]) || 1 != $changed_fields[DAO_Ticket::IS_CLOSED])
+		|| (isset($changed_fields[DAO_Ticket::IS_DELETED]) && 1 == $changed_fields[DAO_Ticket::IS_DELETED]))
 			return;
 			
 		$group_settings = DAO_GroupSettings::getSettings();
@@ -427,6 +428,8 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 			
 			foreach($tickets as $ticket) { /* @var $ticket CerberusTicket */
 				if(!isset($group_settings[$ticket->team_id][DAO_GroupSettings::SETTING_CLOSE_REPLY_ENABLED]))
+					continue;
+				if(1 == $ticket->is_deleted)
 					continue;
 				
 				if($group_settings[$ticket->team_id][DAO_GroupSettings::SETTING_CLOSE_REPLY_ENABLED]
@@ -439,7 +442,7 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 							array($ticket->mask, $ticket->subject),
 							$group_settings[$ticket->team_id][DAO_GroupSettings::SETTING_CLOSE_REPLY]
 						),
-						'is_autoreply' => true,
+						'is_autoreply' => false,
 						'dont_keep_copy' => true
 					));
 				}
