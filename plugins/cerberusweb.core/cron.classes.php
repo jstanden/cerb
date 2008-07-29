@@ -313,7 +313,7 @@ class ImportCron extends CerberusCronPageExtension {
 				$object_type = $xml_root->getName();
 
 				echo "Reading ",$file_part," ... ($object_type)<BR>";
-				
+
 				if($this->_handleImport($object_type, $xml_root)) { // Success
 					@unlink($file);
 
@@ -345,12 +345,122 @@ class ImportCron extends CerberusCronPageExtension {
 	private function _handleImport($object_type, $xml) {
 		// [TODO] Import extensions (delegate to plugins)
 		switch($object_type) {
+		 	case 'ticket':
+		 		return $this->_handleImportTicket($xml);
+		 		break;
 		 	case 'comment':
 		 		return $this->_handleImportComment($xml);
 		 		break;
 		 	default:
 		 		break;
 		 }
+	}
+	
+	// [TODO] Move to an extension
+	private function _handleImportTicket($xml) {
+		$settings = CerberusSettings::getInstance();
+
+		$sMask = (string) $xml->mask;
+		$sSubject = (string) $xml->subject;
+		$sGroup = (string) $xml->group;
+		$sBucket = (string) $xml->bucket;
+		$iCreatedDate = (integer) $xml->created_date;
+		$iUpdatedDate = (integer) $xml->updated_date;
+		$isWaiting = (integer) $xml->is_waiting;
+		$isClosed = (integer) $xml->is_closed;
+		
+		// [TODO] Find the destination Group + Bucket (or create them)
+		// [TODO] Hash these so we know which group+bucket combos exist already
+		$groups = DAO_Group::getAll();
+		$buckets = DAO_Bucket::getAll();
+		$iGroupId = 1;
+		$iBucketId = 0;
+		
+		// Xpath the first and last "from" out of "/ticket/messages/message/headers/from"
+		$aMessageNodes = $xml->xpath("/ticket/messages/message");
+		$iNumMessages = count($aMessageNodes);
+		
+		$eFirstMessage = reset($aMessageNodes);
+		$sFirstWrote = (string) $eFirstMessage->headers->from; // [TODO] RFC822 validate
+		$firstWroteInst = CerberusApplication::hashLookupAddress($sFirstWrote, true);
+		
+		$eLastMessage = end($aMessageNodes);
+		$sLastWrote = (string) $eLastMessage->headers->from; // [TODO] RFC822 validate
+		$lastWroteInst = CerberusApplication::hashLookupAddress($sLastWrote, true);
+
+		// Create ticket
+		$fields = array(
+			DAO_Ticket::MASK => $sMask,
+			DAO_Ticket::SUBJECT => $sSubject,
+			DAO_Ticket::IS_WAITING => $isWaiting,
+			DAO_Ticket::IS_CLOSED => $isClosed,
+			DAO_Ticket::FIRST_WROTE_ID => intval($firstWroteInst->id),
+			DAO_Ticket::LAST_WROTE_ID => intval($lastWroteInst->id),
+			DAO_Ticket::CREATED_DATE => $iCreatedDate,
+			DAO_Ticket::UPDATED_DATE => $iUpdatedDate,
+			DAO_Ticket::TEAM_ID => intval($iGroupId),
+			DAO_Ticket::CATEGORY_ID => intval($iBucketId),
+			DAO_Ticket::LAST_ACTION_CODE => CerberusTicketActionCode::TICKET_OPENED, // [TODO] Make live
+		);
+//		$ticket_id = DAO_Ticket::createTicket($fields);
+		
+		print_r($fields);
+		
+		// Create requesters
+		if(!is_null($xml->requesters))
+		foreach($xml->requesters->address as $eAddress) { /* @var $eAddress SimpleXMLElement */
+			$sRequesterAddy = (string) $eAddress; // [TODO] RFC822
+			// [TODO] Insert requesters
+		}
+		
+		// Create messages
+		if(!is_null($xml->messages))
+		foreach($xml->messages->message as $eMessage) { /* @var $eMessage SimpleXMLElement */
+			$eHeaders =& $eMessage->headers;
+//			echo "From: ",(string) $eHeaders->from,"<BR>";
+//			echo "To: ",(string) $eHeaders->to,"<BR>";
+//			echo "Date: ",(string) $eHeaders->date,"<BR>";
+			
+			// [TODO] RFC822 address parse 'From'.  Hash lookup.
+
+	        $fields = array(
+	            DAO_Message::TICKET_ID => $ticket_id,
+//	            DAO_Message::CREATED_DATE => $iDate, // [TODO] RFC822->epochal
+	            DAO_Message::ADDRESS_ID => $fromAddressId
+	        );
+//			$email_id = DAO_Message::create($fields);
+			
+			// Create message content
+			$sMessageContent = (string) $eMessage->content;
+			echo "CONTENT: ",$sMessageContent,"<BR>";
+			//DAO_MessageContent::update($email_id, $message->body);
+			
+			// Headers
+//			foreach($headers as $hk => $hv) {
+//			    DAO_MessageHeader::update($email_id, $id, $hk, $hv);
+//			}
+		}
+		
+		// Create attachments
+		
+		// Create comments
+		if(!is_null($xml->comments))
+		foreach($xml->comments->comment as $eComment) { /* @var $eMessage SimpleXMLElement */
+			$iCommentDate = (integer) $eComment->created_date;
+			$sCommentAuthor = (string) $eComment->author; // [TODO] Address Hash Lookup
+			$sCommentText = (string) $eComment->text;
+			
+			$fields = array(
+				DAO_TicketComment::TICKET_ID => intval($ticket_id),
+				DAO_TicketComment::CREATED => intval($iCommentDate),
+				DAO_TicketComment::ADDRESS_ID => intval(0), // [TODO] Make live
+				DAO_TicketComment::COMMENT => $sCommentText,
+			);
+//			$comment_id = DAO_TicketComment::create($fields);
+			print_r($fields);
+		}
+		
+		return true;
 	}
 
 	// [TODO] Move to an extension
