@@ -28,5 +28,45 @@
 		</params>
 	</extension>
 	
+	<!-- Report Groups -->
+	
+	<extension point="cerberusweb.report.group">
+		<id>report.group.tickets</id>
+		<name>Ticket Reports</name>
+		<class>
+			<file>api/App.php</file>
+			<name>ChReportGroupTickets</name>
+		</class>
+		<params />
+	</extension>
+
+	<!-- Reports -->
+
+	<extension point="cerberusweb.report">
+		<id>report.tickets.new_tickets</id>
+		<name>New Tickets Report</name>
+		<class>
+			<file>api/App.php</file>
+			<name>ChReportNewTickets</name>
+		</class>
+		<params>
+			<param key="report_name" value="New Tickets" />
+			<param key="report_group" value="report.group.tickets" />
+		</params>
+	</extension>
+	
+	<extension point="cerberusweb.report">
+		<id>report.tickets.worker_replies</id>
+		<name>Worker Replies Report</name>
+		<class>
+			<file>api/App.php</file>
+			<name>ChReportWorkerReplies</name>
+		</class>
+		<params>
+			<param key="report_name" value="Worker Replies" />
+			<param key="report_group" value="report.group.tickets" />
+		</params>
+	</extension>
+	
 	</extensions>
 </plugin>

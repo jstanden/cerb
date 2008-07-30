@@ -4,34 +4,21 @@
 </div>
 
 <h1>Reports</h1>
+<br>
 
-<table cellpadding="5" cellspacing="0" border="0" width="100%">
-	<tr>
-		<td valign="top">
-			<div id="reportNewTickets"></div>
-		</td>
-		<td valign="top">
-			<div id="reportWorkerReplies"></div>
-		</td>
-	</tr>
-	<tr>
-		<td valign="top">
-			<div id="reportNewEmails"></div>
-		</td>
-		<td valign="top">
-			<div id="reportAverageResponseTime"></div>
-		</td>
-	</tr>
-</table>
-
-<script language="javascript" type="text/javascript">
-{literal}
-YAHOO.util.Event.addListener(window,'load',function(e) {
-	genericAjaxGet('reportNewTickets','c=reports&a=getNewTicketsReport&age=30');
-	genericAjaxGet('reportWorkerReplies','c=reports&a=getWorkerRepliesReport&age=30');
-//	genericAjaxGet('reportNewEmails','c=reports&a=getNewEmailsReport&age=30');
-//	genericAjaxGet('reportAverageResponseTime','c=reports&a=getAverageResponseTimeReport&age=30');
-});
-{/literal}
-</script>
+{if !empty($report_groups)}
+	{foreach from=$report_groups item=report_group key=group_extid}
+	<div class="block">
+		<h2>{$report_group.name}</h2>
+		{if !empty($report_group.reports)}
+			<ul style="margin-top:0px;">
+			{foreach from=$report_group.reports item=reportMft}
+				<li><a href="{devblocks_url}c=reports&report={$reportMft->id}{/devblocks_url}">{$reportMft->params.report_name}</a></li>
+			{/foreach}
+			</ul>
+		{/if}
+	</div>
+	<br>
+	{/foreach}
+{/if}
 

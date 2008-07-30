@@ -12,25 +12,34 @@ class ChReportsPlugin extends DevblocksPlugin {
 	}
 };
 
-class ChReportsPage extends CerberusPageExtension {
+abstract class Extension_Report extends DevblocksExtension {
+	function __construct($manifest) {
+		parent::DevblocksExtension($manifest);
+	}
+	
+	function render() {
+		// Overload 
+	}
+};
+
+abstract class Extension_ReportGroup extends DevblocksExtension {
+	function __construct($manifest) {
+		parent::DevblocksExtension($manifest);
+	}
+};
+
+class ChReportGroupTickets extends Extension_ReportGroup {
+	function __construct($manifest) {
+		parent::__construct($manifest);
+	}
+};
+
+class ChReportNewTickets extends Extension_Report {
 	private $tpl_path = null;
 	
 	function __construct($manifest) {
 		parent::__construct($manifest);
-
 		$this->tpl_path = realpath(dirname(__FILE__).'/../templates');
-	}
-		
-	function isVisible() {
-		// check login
-		$session = DevblocksPlatform::getSessionService();
-		$visit = $session->getVisit();
-		
-		if(empty($visit)) {
-			return false;
-		} else {
-			return true;
-		}
 	}
 	
 	function render() {
@@ -38,16 +47,7 @@ class ChReportsPage extends CerberusPageExtension {
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->tpl_path);
 		
-		$response = DevblocksPlatform::getHttpResponse();
-		$stack = $response->path;
-
-		array_shift($stack); // reports
-		
-		switch(array_shift($stack)) {
-		    default:
-				$tpl->display('file:' . $this->tpl_path . '/reports/index.tpl.php');
-		        break;
-		}
+		$tpl->display('file:' . $this->tpl_path . '/reports/report/new_tickets/index.tpl.php');
 	}
 	
 	function getNewTicketsReportAction() {
@@ -99,9 +99,350 @@ class ChReportsPage extends CerberusPageExtension {
 		}
 		$tpl->assign('group_counts', $group_counts);
 		
-		$tpl->display('file:' . $this->tpl_path . '/reports/new_tickets.tpl.php');
+		$tpl->display('file:' . $this->tpl_path . '/reports/report/new_tickets/html.tpl.php');
 	}
 	
+	function drawTicketGraphAction() {
+		$path = realpath(dirname(__FILE__).'/../resources/font');
+		
+		@$age = DevblocksPlatform::importGPC($_REQUEST['age'],'string','30d');
+		
+//		$uri = DevblocksPlatform::getHttpRequest();
+//		$stack = $uri->path;
+//		@array_shift($stack); // reports
+//		@array_shift($stack); // action
+//		@array_shift($stack); // extid
+//		@array_shift($stack); // graph
+//		@$age = array_shift($stack); // age
+		
+		@list($age_dur, $age_term) = sscanf($age,"%d%s");
+		if(empty($age_dur)) $age_dur = 30;
+		if(empty($age_term)) $age_term = 'd';
+		
+		$db = DevblocksPlatform::getDatabaseService();
+		$block = $age_term=='mo'?2629800:86400;
+		$now_day = floor(time()/$block);
+		
+		$sql = sprintf("SELECT count(*) as hits, floor(created_date/%d) AS day ".
+			"FROM ticket ".
+			"WHERE created_date > %d AND created_date <= %d AND is_deleted = 0 ".
+			"GROUP BY day",
+			$block,
+			strtotime("-".$age_dur." ".($age_term=='d'?'days':'months')),
+			time()
+		);
+		$rs = $db->Execute($sql);
+
+	    $graph = new graph();
+	    $graph->setProp('font', $path.'/ryanlerch_-_Tuffy.ttf');
+	    $graph->setProp('title', 'Past '.$age_dur." ".($age_term=='d'?'Days':'Months'));
+	    $graph->setProp('titlesize', 14);
+//	    $graph->setProp('actwidth', 400);
+	    $graph->setProp('actheight', 225);
+	    $graph->setProp('xsclpts', 5);
+		$graph->setProp('xincpts', 5);
+	    $graph->setProp('ysclpts', 5);
+	    $graph->setProp('yincpts', 5);
+	    $graph->setProp('scale', 'date');
+//	    $graph->setProp('sort', false);
+	    $graph->setProp('startdate', "-".$age_dur." ".($age_term=='d'?'days':'months'));
+//	    $graph->setProp('enddate', '10/31/2007');
+	    $graph->setProp('dateformat', 5);
+//	    $graph->setProp('xlabel', 'Day');
+//	    $graph->setProp('ylabel', 'Worker');
+	    $graph->setProp('labelsize', 10);
+//	    $graph->setProp('type', 'bar');
+//	    $graph->setProp("colorlist",array(array(100,100,255),array(150,255,255),array(160,255,160),array(255,255,150),array(255,110,110)));
+	    $graph->setProp('showgrid', true);
+//	    $graph->setProp('showkey',true);
+	    $graph->setProp('keywidspc',20);
+	    $graph->setProp('keyinfo',3);
+//	    $graph->setProp('key',array('Jeff Standen','Brenan Cavish','Mike Fogg','Dan Hildebrandt','Darren Sugita'));
+	    $graph->setProp('keyfont', $path.'/ryanlerch_-_Tuffy.ttf');
+	    $graph->setProp('keysize', 10);
+
+	    $days = array();
+	    for($x=-1*$age_dur;$x<=0;$x++) {
+	    	$days[$x] = 0;
+	    }
+	    
+	    while(!$rs->EOF) {
+	    	$hits = intval($rs->fields['hits']);
+	    	$d = -1*($now_day - intval($rs->fields['day']));
+	    	$days[$d] = $hits;
+		    $rs->MoveNext();
+	    }
+	    
+	    foreach($days as $d => $hits) {
+	    	$graph->addPoint($hits,'d:'.$d.' '.($age_term=='d'?'days':'months'),0);
+	    }
+	    
+//		$graph->setProp("key","Jeff Standen",0);
+		$graph->setColor('color',0,'red');
+		
+		$graph->graph();
+		$graph->showGraph(true); 		    	
+	}
+}
+
+class ChReportWorkerReplies extends Extension_Report {
+	private $tpl_path = null;
+	
+	function __construct($manifest) {
+		parent::__construct($manifest);
+		$this->tpl_path = realpath(dirname(__FILE__).'/../templates');
+	}
+	
+	function render() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', $this->tpl_path);
+		
+		$tpl->display('file:' . $this->tpl_path . '/reports/report/worker_replies/index.tpl.php');
+	}
+	
+	function getWorkerRepliesReportAction() {
+		@$age = DevblocksPlatform::importGPC($_REQUEST['age'],'string', '30d');
+		
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', $this->tpl_path);
+		
+		@list($age_dur, $age_term) = sscanf($age,"%d%s");
+		if(empty($age_dur)) $age_dur = 30;
+		if(empty($age_term)) $age_term = 'd';
+		
+		$tpl->assign('age', $age);
+		$tpl->assign('age_dur', $age_dur);
+		$tpl->assign('age_term', $age_term);
+		
+		// Top Workers
+		$workers = DAO_Worker::getAll();
+		$tpl->assign('workers', $workers);
+		
+		$groups = DAO_Group::getAll();
+		$tpl->assign('groups', $groups);
+		
+		$sql = sprintf("SELECT count(*) AS hits, t.team_id, m.worker_id ".
+			"FROM message m ".
+			"INNER JOIN ticket t ON (t.id=m.ticket_id) ".
+			"WHERE m.created_date > %d AND m.created_date <= %d ".
+			"AND m.is_outgoing = 1 ".
+			"AND t.is_deleted = 0 ".
+			"GROUP BY t.team_id, m.worker_id ",
+			strtotime("-".$age_dur." ".($age_term=='d'?'days':'months')),
+			time()
+		);
+		$rs_workers = $db->Execute($sql);
+		
+		$worker_counts = array();
+		while(!$rs_workers->EOF) {
+			$hits = intval($rs_workers->fields['hits']);
+			$team_id = intval($rs_workers->fields['team_id']);
+			$worker_id = intval($rs_workers->fields['worker_id']);
+			
+			if(!isset($worker_counts[$worker_id]))
+				$worker_counts[$worker_id] = array();
+			
+			$worker_counts[$worker_id][$team_id] = $hits;
+			@$worker_counts[$worker_id]['total'] = intval($worker_counts[$worker_id]['total']) + $hits;
+			$rs_workers->MoveNext();
+		}
+		$tpl->assign('worker_counts', $worker_counts);
+		
+		$tpl->display('file:' . $this->tpl_path . '/reports/report/worker_replies/html.tpl.php');
+	}
+	
+	function drawRepliesGraphAction() {
+		$path = realpath(dirname(__FILE__).'/../resources/font');
+
+		@$age = DevblocksPlatform::importGPC($_REQUEST['age'],'string','30d');		
+		
+//		$uri = DevblocksPlatform::getHttpRequest();
+//		$stack = $uri->path;
+//		@array_shift($stack); // reports
+//		@array_shift($stack); // action
+//		@array_shift($stack); // extid
+//		@array_shift($stack); // graph
+//		@$age = array_shift($stack); // age
+		
+		@list($age_dur, $age_term) = sscanf($age,"%d%s");
+		if(empty($age_dur)) $age_dur = 30;
+		if(empty($age_term)) $age_term = 'd';
+		
+		$db = DevblocksPlatform::getDatabaseService();
+		$block = $age_term=='mo'?2629800:86400;
+		$now_day = floor(time()/$block);
+		
+		$sql = sprintf("SELECT count(*) as hits, floor(m.created_date/%d) AS day ".
+			"FROM message m ".
+			"INNER JOIN ticket t ON (m.ticket_id=t.id) ".
+			"WHERE m.created_date > %d AND m.created_date <= %d AND t.is_deleted = 0 ".
+			"AND m.is_outgoing = 1 ".
+			"GROUP BY day",
+			$block,
+			strtotime("-".$age_dur." ".($age_term=='d'?'days':'months')),
+			time()
+		);
+		$rs = $db->Execute($sql);
+		
+	    $graph = new graph();
+	    $graph->setProp('font', $path.'/ryanlerch_-_Tuffy.ttf');
+	    $graph->setProp('title', 'Past '.$age_dur." ".($age_term=='d'?'Days':'Months'));
+	    $graph->setProp('titlesize', 14);
+//	    $graph->setProp('actwidth', 400);
+	    $graph->setProp('actheight', 225);
+	    $graph->setProp('xsclpts', 5);
+		$graph->setProp('xincpts', 5);
+	    $graph->setProp('ysclpts', 5);
+	    $graph->setProp('yincpts', 5);
+	    $graph->setProp('scale', 'date');
+//	    $graph->setProp('sort', false);
+	    $graph->setProp('startdate', "-".$age_dur." ".($age_term=='d'?'days':'months'));
+//	    $graph->setProp('enddate', '10/31/2007');
+	    $graph->setProp('dateformat', 5);
+//	    $graph->setProp('xlabel', 'Day');
+//	    $graph->setProp('ylabel', 'Worker');
+//	    $graph->setProp('labelsize', 20);
+//	    $graph->setProp('type', 'bar');
+//	    $graph->setProp("colorlist",array(array(100,100,255),array(150,255,255),array(160,255,160),array(255,255,150),array(255,110,110)));
+	    $graph->setProp('showgrid', true);
+//	    $graph->setProp('showkey',true);
+	    $graph->setProp('keywidspc',20);
+	    $graph->setProp('keyinfo',3);
+//	    $graph->setProp('key',array('Jeff Standen','Brenan Cavish','Mike Fogg','Dan Hildebrandt','Darren Sugita'));
+	    $graph->setProp('keyfont', $path.'/ryanlerch_-_Tuffy.ttf');
+	    $graph->setProp('keysize', 10);
+	    
+	    $days = array();
+	    for($x=-1*$age_dur;$x<=0;$x++) {
+	    	$days[$x] = 0;
+	    }
+	    
+	    while(!$rs->EOF) {
+	    	$hits = intval($rs->fields['hits']);
+	    	$d = -1*($now_day - intval($rs->fields['day']));
+	    	$days[$d] = $hits;
+		    $rs->MoveNext();
+	    }
+	    
+	    foreach($days as $d => $hits) {
+	    	$graph->addPoint($hits,'d:'.$d.' '.($age_term=='d'?'days':'months'),0);
+	    }
+	    
+//		$graph->setProp("key","Jeff Standen",0);
+		$graph->setColor('color',0,'red');
+		
+		$graph->graph();
+		$graph->showGraph(true); 		    	
+	}
+}
+
+class ChReportsPage extends CerberusPageExtension {
+	private $tpl_path = null;
+	
+	function __construct($manifest) {
+		parent::__construct($manifest);
+
+		$this->tpl_path = realpath(dirname(__FILE__).'/../templates');
+	}
+		
+	function isVisible() {
+		// check login
+		$session = DevblocksPlatform::getSessionService();
+		$visit = $session->getVisit();
+		
+		if(empty($visit)) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+	
+	/**
+	 * Proxy page actions from an extension's render() to the extension's scope.
+	 *
+	 */
+	function actionAction() {
+		@$extid = $_REQUEST['extid'];
+		@$extid_a = DevblocksPlatform::strAlphaNumDash($_REQUEST['extid_a']);
+		
+		$action = $extid_a.'Action';
+		
+		$reportMft = DevblocksPlatform::getExtension($extid);
+		
+		// If it's a value report extension, proxy the action
+		if(null != ($reportInst = DevblocksPlatform::getExtension($extid, true)) 
+			&& $reportInst instanceof Extension_Report) {
+				
+			// If we asked for a value method on the extension, call it
+			if(method_exists($reportInst, $action)) {
+				call_user_method($action, $reportInst);
+			}
+		}
+		
+		return;
+	}
+	
+	function render() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', $this->tpl_path);
+		
+		$response = DevblocksPlatform::getHttpResponse();
+		$stack = $response->path;
+
+		array_shift($stack); // reports
+		@$reportId = array_shift($stack);
+		$report = null;
+
+		// We're given a specific report to display
+		if(!empty($reportId)) {
+			if(null != ($reportMft = DevblocksPlatform::getExtension($reportId))) {
+				if(null != ($report = $reportMft->createInstance()) && $report instanceof Extension_Report) { /* @var $report Extension_Report */
+					$report->render();
+					return;
+				}
+			}
+		}
+		
+		// If we don't have a selected report yet
+		if(empty($report)) {
+			// Organize into report groups
+			$report_groups = array();
+			$reportGroupMfts = DevblocksPlatform::getExtensions('cerberusweb.report.group', false);
+			
+			// [TODO] Alphabetize groups and nested reports
+			
+			// Load report groups
+			if(!empty($reportGroupMfts))
+			foreach($reportGroupMfts as $reportGroupMft) {
+				$report_groups[$reportGroupMft->id] = array(
+					'name' => $reportGroupMft->name,
+					'reports' => array()
+				);
+			}
+			
+			$reportMfts = DevblocksPlatform::getExtensions('cerberusweb.report', false);
+			
+			// Load reports and file them under groups according to manifest
+			if(!empty($reportMfts))
+			foreach($reportMfts as $reportMft) {
+				$report_group = $reportMft->params['report_group'];
+				if(isset($report_group)) {
+					$report_groups[$report_group]['reports'][] = $reportMft;
+				}
+			}
+			
+			$tpl->assign('report_groups', $report_groups);
+		}
+
+		$tpl->display('file:' . $this->tpl_path . '/reports/index.tpl.php');
+	}
+	
+	/*
 	function getAverageResponseTimeReportAction() {
 		// init
 		$db = DevblocksPlatform::getDatabaseService();
@@ -208,60 +549,6 @@ class ChReportsPage extends CerberusPageExtension {
 		$tpl->display('file:' . $this->tpl_path . '/reports/response_time.tpl.php');
 	}
 	
-	function getWorkerRepliesReportAction() {
-		@$age = DevblocksPlatform::importGPC($_REQUEST['age'],'string', '30d');
-		
-		$db = DevblocksPlatform::getDatabaseService();
-		
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
-		$tpl->assign('path', $this->tpl_path);
-		
-		@list($age_dur, $age_term) = sscanf($age,"%d%s");
-		if(empty($age_dur)) $age_dur = 30;
-		if(empty($age_term)) $age_term = 'd';
-		
-		$tpl->assign('age', $age);
-		$tpl->assign('age_dur', $age_dur);
-		$tpl->assign('age_term', $age_term);
-		
-		// Top Workers
-		$workers = DAO_Worker::getAll();
-		$tpl->assign('workers', $workers);
-		
-		$groups = DAO_Group::getAll();
-		$tpl->assign('groups', $groups);
-		
-		$sql = sprintf("SELECT count(*) AS hits, t.team_id, m.worker_id ".
-			"FROM message m ".
-			"INNER JOIN ticket t ON (t.id=m.ticket_id) ".
-			"WHERE m.created_date > %d AND m.created_date <= %d ".
-			"AND m.is_outgoing = 1 ".
-			"AND t.is_deleted = 0 ".
-			"GROUP BY t.team_id, m.worker_id ",
-			strtotime("-".$age_dur." ".($age_term=='d'?'days':'months')),
-			time()
-		);
-		$rs_workers = $db->Execute($sql);
-		
-		$worker_counts = array();
-		while(!$rs_workers->EOF) {
-			$hits = intval($rs_workers->fields['hits']);
-			$team_id = intval($rs_workers->fields['team_id']);
-			$worker_id = intval($rs_workers->fields['worker_id']);
-			
-			if(!isset($worker_counts[$worker_id]))
-				$worker_counts[$worker_id] = array();
-			
-			$worker_counts[$worker_id][$team_id] = $hits;
-			@$worker_counts[$worker_id]['total'] = intval($worker_counts[$worker_id]['total']) + $hits;
-			$rs_workers->MoveNext();
-		}
-		$tpl->assign('worker_counts', $worker_counts);
-		
-		$tpl->display('file:' . $this->tpl_path . '/reports/worker_replies.tpl.php');
-	}
-
 	function getNewEmailsReportAction() {
 		@$age = DevblocksPlatform::importGPC($_REQUEST['age'],'string','30d');
 		
@@ -314,169 +601,13 @@ class ChReportsPage extends CerberusPageExtension {
 		
 		$tpl->display('file:' . $this->tpl_path . '/reports/new_emails.tpl.php');
 	}
+	*/
+	
 //	
 //	function getGroupSummaryReportAction() {
 //		
 //	}
 	
-	function drawTicketGraphAction() {
-		$path = realpath(dirname(__FILE__).'/../resources/font');
-		
-		$uri = DevblocksPlatform::getHttpRequest();
-		$stack = $uri->path;
-		@array_shift($stack); // report
-		@array_shift($stack); // graph
-		@$age = array_shift($stack); // age
-		
-		@list($age_dur, $age_term) = sscanf($age,"%d%s");
-		if(empty($age_dur)) $age_dur = 30;
-		if(empty($age_term)) $age_term = 'd';
-		
-		$db = DevblocksPlatform::getDatabaseService();
-		$block = $age_term=='mo'?2629800:86400;
-		$now_day = floor(time()/$block);
-		
-		$sql = sprintf("SELECT count(*) as hits, floor(created_date/%d) AS day ".
-			"FROM ticket ".
-			"WHERE created_date > %d AND created_date <= %d AND is_deleted = 0 ".
-			"GROUP BY day",
-			$block,
-			strtotime("-".$age_dur." ".($age_term=='d'?'days':'months')),
-			time()
-		);
-		$rs = $db->Execute($sql);
-
-	    $graph = new graph();
-	    $graph->setProp('font', $path.'/ryanlerch_-_Tuffy.ttf');
-	    $graph->setProp('title', 'Created Tickets (Past '.$age_dur." ".($age_term=='d'?'Days':'Months').')');
-	    $graph->setProp('titlesize', 14);
-//	    $graph->setProp('actwidth', 400);
-	    $graph->setProp('actheight', 225);
-	    $graph->setProp('xsclpts', 5);
-		$graph->setProp('xincpts', 5);
-	    $graph->setProp('ysclpts', 5);
-	    $graph->setProp('yincpts', 5);
-	    $graph->setProp('scale', 'date');
-//	    $graph->setProp('sort', false);
-	    $graph->setProp('startdate', "-".$age_dur." ".($age_term=='d'?'days':'months'));
-//	    $graph->setProp('enddate', '10/31/2007');
-	    $graph->setProp('dateformat', 5);
-//	    $graph->setProp('xlabel', 'Day');
-//	    $graph->setProp('ylabel', 'Worker');
-	    $graph->setProp('labelsize', 10);
-//	    $graph->setProp('type', 'bar');
-//	    $graph->setProp("colorlist",array(array(100,100,255),array(150,255,255),array(160,255,160),array(255,255,150),array(255,110,110)));
-	    $graph->setProp('showgrid', true);
-//	    $graph->setProp('showkey',true);
-	    $graph->setProp('keywidspc',20);
-	    $graph->setProp('keyinfo',3);
-//	    $graph->setProp('key',array('Jeff Standen','Brenan Cavish','Mike Fogg','Dan Hildebrandt','Darren Sugita'));
-	    $graph->setProp('keyfont', $path.'/ryanlerch_-_Tuffy.ttf');
-	    $graph->setProp('keysize', 10);
-
-	    $days = array();
-	    for($x=-1*$age_dur;$x<=0;$x++) {
-	    	$days[$x] = 0;
-	    }
-	    
-	    while(!$rs->EOF) {
-	    	$hits = intval($rs->fields['hits']);
-	    	$d = -1*($now_day - intval($rs->fields['day']));
-	    	$days[$d] = $hits;
-		    $rs->MoveNext();
-	    }
-	    
-	    foreach($days as $d => $hits) {
-	    	$graph->addPoint($hits,'d:'.$d.' '.($age_term=='d'?'days':'months'),0);
-	    }
-	    
-//		$graph->setProp("key","Jeff Standen",0);
-		$graph->setColor('color',0,'red');
-		
-		$graph->graph();
-		$graph->showGraph(true); 		    	
-	}
-	
-	function drawRepliesGraphAction() {
-		$path = realpath(dirname(__FILE__).'/../resources/font');
-		
-		$uri = DevblocksPlatform::getHttpRequest();
-		$stack = $uri->path;
-		@array_shift($stack); // report
-		@array_shift($stack); // graph
-		@$age = array_shift($stack); // age
-		
-		@list($age_dur, $age_term) = sscanf($age,"%d%s");
-		if(empty($age_dur)) $age_dur = 30;
-		if(empty($age_term)) $age_term = 'd';
-		
-		$db = DevblocksPlatform::getDatabaseService();
-		$block = $age_term=='mo'?2629800:86400;
-		$now_day = floor(time()/$block);
-		
-		$sql = sprintf("SELECT count(*) as hits, floor(m.created_date/%d) AS day ".
-			"FROM message m ".
-			"INNER JOIN ticket t ON (m.ticket_id=t.id) ".
-			"WHERE m.created_date > %d AND m.created_date <= %d AND t.is_deleted = 0 ".
-			"AND m.is_outgoing = 1 ".
-			"GROUP BY day",
-			$block,
-			strtotime("-".$age_dur." ".($age_term=='d'?'days':'months')),
-			time()
-		);
-		$rs = $db->Execute($sql);
-		
-	    $graph = new graph();
-	    $graph->setProp('font', $path.'/ryanlerch_-_Tuffy.ttf');
-	    $graph->setProp('title', 'Outgoing Replies (Past '.$age_dur." ".($age_term=='d'?'Days':'Months').')');
-	    $graph->setProp('titlesize', 14);
-//	    $graph->setProp('actwidth', 400);
-	    $graph->setProp('actheight', 225);
-	    $graph->setProp('xsclpts', 5);
-		$graph->setProp('xincpts', 5);
-	    $graph->setProp('ysclpts', 5);
-	    $graph->setProp('yincpts', 5);
-	    $graph->setProp('scale', 'date');
-//	    $graph->setProp('sort', false);
-	    $graph->setProp('startdate', "-".$age_dur." ".($age_term=='d'?'days':'months'));
-//	    $graph->setProp('enddate', '10/31/2007');
-	    $graph->setProp('dateformat', 5);
-//	    $graph->setProp('xlabel', 'Day');
-//	    $graph->setProp('ylabel', 'Worker');
-//	    $graph->setProp('labelsize', 20);
-//	    $graph->setProp('type', 'bar');
-//	    $graph->setProp("colorlist",array(array(100,100,255),array(150,255,255),array(160,255,160),array(255,255,150),array(255,110,110)));
-	    $graph->setProp('showgrid', true);
-//	    $graph->setProp('showkey',true);
-	    $graph->setProp('keywidspc',20);
-	    $graph->setProp('keyinfo',3);
-//	    $graph->setProp('key',array('Jeff Standen','Brenan Cavish','Mike Fogg','Dan Hildebrandt','Darren Sugita'));
-	    $graph->setProp('keyfont', $path.'/ryanlerch_-_Tuffy.ttf');
-	    $graph->setProp('keysize', 10);
-	    
-	    $days = array();
-	    for($x=-1*$age_dur;$x<=0;$x++) {
-	    	$days[$x] = 0;
-	    }
-	    
-	    while(!$rs->EOF) {
-	    	$hits = intval($rs->fields['hits']);
-	    	$d = -1*($now_day - intval($rs->fields['day']));
-	    	$days[$d] = $hits;
-		    $rs->MoveNext();
-	    }
-	    
-	    foreach($days as $d => $hits) {
-	    	$graph->addPoint($hits,'d:'.$d.' '.($age_term=='d'?'days':'months'),0);
-	    }
-	    
-//		$graph->setProp("key","Jeff Standen",0);
-		$graph->setColor('color',0,'red');
-		
-		$graph->graph();
-		$graph->showGraph(true); 		    	
-	}
-
 //	function drawAverageResponseTimeGraphAction() {
 //		$path = realpath(dirname(__FILE__).'/../resources/font');
 //		
@@ -618,6 +749,7 @@ class ChReportsPage extends CerberusPageExtension {
 //		$graph->showGraph(true); 		    	
 //	}
 
+	/*
 	function drawEmailGraphAction() {
 		$path = realpath(dirname(__FILE__).'/../resources/font');
 		
@@ -685,6 +817,7 @@ class ChReportsPage extends CerberusPageExtension {
 		$graph->graph();
 		$graph->showGraph(true); 		    	
 	}
+	*/
 	
 };
 ?>
