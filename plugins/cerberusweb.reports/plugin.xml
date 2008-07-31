@@ -40,6 +40,16 @@
 		<params />
 	</extension>
 
+	<extension point="cerberusweb.report.group">
+		<id>report.group.workers</id>
+		<name>Worker Reports</name>
+		<class>
+			<file>api/App.php</file>
+			<name>ChReportGroupWorkers</name>
+		</class>
+		<params />
+	</extension>
+
 	<!-- Reports -->
 
 	<extension point="cerberusweb.report">
@@ -65,6 +75,19 @@
 		<params>
 			<param key="report_name" value="Worker Replies" />
 			<param key="report_group" value="report.group.tickets" />
+		</params>
+	</extension>
+	
+	<extension point="cerberusweb.report">
+		<id>report.workers.roster</id>
+		<name>Group Roster Report</name>
+		<class>
+			<file>api/App.php</file>
+			<name>ChReportGroupRoster</name>
+		</class>
+		<params>
+			<param key="report_name" value="Group Rosters" />
+			<param key="report_group" value="report.group.workers" />
 		</params>
 	</extension>
 	

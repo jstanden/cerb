@@ -3591,7 +3591,8 @@ class DAO_Group {
 			$sql = sprintf("SELECT wt.agent_id, wt.team_id, wt.is_manager ".
 				"FROM worker_to_team wt ".
 				"INNER JOIN team t ON (wt.team_id=t.id) ".
-				"ORDER BY t.name ASC "
+				"INNER JOIN worker w ON (w.id=wt.agent_id) ".
+				"ORDER BY t.name ASC, w.first_name ASC "
 			);
 			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 			

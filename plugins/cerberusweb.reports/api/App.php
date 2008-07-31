@@ -34,6 +34,38 @@ class ChReportGroupTickets extends Extension_ReportGroup {
 	}
 };
 
+class ChReportGroupWorkers extends Extension_ReportGroup {
+	function __construct($manifest) {
+		parent::__construct($manifest);
+	}
+};
+
+class ChReportGroupRoster extends Extension_Report {
+	private $tpl_path = null;
+	
+	function __construct($manifest) {
+		parent::__construct($manifest);
+		$this->tpl_path = realpath(dirname(__FILE__).'/../templates');
+	}
+	
+	function render() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', $this->tpl_path);
+		
+		$rosters = DAO_Group::getRosters();
+		$tpl->assign('rosters', $rosters);
+
+		$groups = DAO_Group::getAll();
+		$tpl->assign('groups', $groups);
+
+		$workers = DAO_Worker::getAll();
+		$tpl->assign('workers', $workers);
+		
+		$tpl->display('file:' . $this->tpl_path . '/reports/report/group_roster/index.tpl.php');
+	}
+};
+
 class ChReportNewTickets extends Extension_Report {
 	private $tpl_path = null;
 	
