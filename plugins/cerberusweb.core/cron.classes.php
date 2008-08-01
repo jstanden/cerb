@@ -62,18 +62,16 @@ class ParseCron extends CerberusCronPageExtension {
 	}
 
 	function run() {
+		$logger = DevblocksPlatform::getConsoleLog();
+		
+		$logger->info("[Parser] Starting Parser Task");
+		
 		if (!extension_loaded("imap")) die("IMAP Extension not loaded!");
 		@ini_set('memory_limit','64M');
 
 		$timeout = ini_get('max_execution_time');
-		echo 'Time Limit: ', (($timeout) ? $timeout : 'unlimited') ," secs<br>\r\n";
-		echo 'Memory Limit: ', ini_get('memory_limit') ,"<br>\r\n";
-
 		$runtime = microtime(true);
 		 
-		echo "<BR>\r\n";
-		//        flush();
-
 		// Allow runtime overloads (by host, etc.)
 		@$gpc_parse_max = DevblocksPlatform::importGPC($_REQUEST['parse_max'],'integer');
 		
@@ -86,7 +84,7 @@ class ParseCron extends CerberusCronPageExtension {
 
 		foreach($subdirs as $subdir) {
 			if(!is_writable($subdir)) {
-				echo 'Write permission error, unable parse messages inside: '. $subdir. "...skipping<br>\r\n";
+				$logger->err('[Parser] Write permission error, unable parse messages inside: '. $subdir. "...skipping");
 				continue;
 			}
 
@@ -106,21 +104,22 @@ class ParseCron extends CerberusCronPageExtension {
 		unset($files);
 		unset($subdirs);
 	  
-		echo "<b>Total Runtime:</b> ",((microtime(true)-$runtime)*1000)," ms<br>\r\n";
+		$logger->info("[Parser] Total Runtime: ".((microtime(true)-$runtime)*1000)." ms");
 	}
 
 	function _parseFile($full_filename) {
+		$logger = DevblocksPlatform::getConsoleLog();
+		
 		$fileparts = pathinfo($full_filename);
-		echo "Reading ",$fileparts['basename'],"...<br>\r\n";
+		$logger->info("[Parser] Reading ".$fileparts['basename']."...");
 
-		echo "Decoding... "; //flush();
 		$time = microtime(true);
 
 		$mime = mailparse_msg_parse_file($full_filename);
 		$message = CerberusParser::parseMime($mime, $full_filename);
 
 		$time = microtime(true) - $time;
-		echo "decoded! (",sprintf("%d",($time*1000))," ms)<br>\r\n"; //flush();
+		$logger-info("Decoded! (".sprintf("%d",($time*1000))." ms)"); //flush();
 
 		//	    echo "<b>Plaintext:</b> ", $message->body,"<BR>";
 		//	    echo "<BR>";
@@ -129,18 +128,16 @@ class ParseCron extends CerberusCronPageExtension {
 		//	    echo "<b>Files:</b> "; print_r($message->files); echo "<BR>";
 		//	    echo "<HR>";
 
-		echo "Parsing... ";//flush();
 		$time = microtime(true);
 		$ticket_id = CerberusParser::parseMessage($message);
 		$time = microtime(true) - $time;
-		echo "parsed! (",sprintf("%d",($time*1000))," ms) ";
-		echo !empty($ticket_id) ? ("(Ticket ID: ".$ticket_id.")") : ("(Local Delivery Rejected.)");
-		echo "<br>\r\n";
+		
+		$logger->info("[Parser] Parsed! (".sprintf("%d",($time*1000))." ms) " .
+			!empty($ticket_id) ? ("(Ticket ID: ".$ticket_id.")") : ("(Local Delivery Rejected.)"));
 
 		@unlink($full_filename);
 		mailparse_msg_free($mime);
 
-		echo "<hr>";
 		//		flush();
 	}
 
@@ -169,6 +166,10 @@ class ParseCron extends CerberusCronPageExtension {
 // [TODO] Clear idle temp files (fileatime())
 class MaintCron extends CerberusCronPageExtension {
 	function run() {
+		$logger = DevblocksPlatform::getConsoleLog();
+		
+		$logger->info("[Maint] Starting Maintenance Task");
+		
 		@ini_set('memory_limit','64M');
 
 		$db = DevblocksPlatform::getDatabaseService();
@@ -183,7 +184,7 @@ class MaintCron extends CerberusCronPageExtension {
 		);
 		$db->Execute($sql);
 		
-		echo "Purged deleted tickets!<br>\r\n";
+		$logger->info("[Maint] Purged deleted tickets!");
 
 		// Give plugins a chance to run maintenance (nuke NULL rows, etc.)
 	    $eventMgr = DevblocksPlatform::getEventService();
@@ -252,11 +253,11 @@ class HeartbeatCron extends CerberusCronPageExtension {
 		// Heartbeat Event
 		$eventMgr = DevblocksPlatform::getEventService();
 		$eventMgr->trigger(
-		new Model_DevblocksEvent(
+			new Model_DevblocksEvent(
 	            'cron.heartbeat',
-		array(
-		)
-		)
+				array(
+				)
+			)
 		);
 	}
 
@@ -272,6 +273,10 @@ class HeartbeatCron extends CerberusCronPageExtension {
 
 class ImportCron extends CerberusCronPageExtension {
 	function run() {
+		$logger = DevblocksPlatform::getConsoleLog();
+		
+		$logger->info("[Importer] Starting Import Task");
+		
 		@set_time_limit(0); // Unlimited (if possible)
 		@ini_set('memory_limit','64M');
 		 
@@ -279,11 +284,13 @@ class ImportCron extends CerberusCronPageExtension {
 		$importFailDir = APP_PATH . '/storage/import/fail/';
 
 		if(!is_writable($importNewDir)) {
-			die("Unable to write in '$importNewDir'.  Please check permissions.<br>");
+			$logger->err("[Importer] Unable to write in '$importNewDir'.  Please check permissions.");
+			return;
 		}
 
 		if(!is_writable($importFailDir)) {
-			die("Unable to write in '$importFailDir'.  Please check permissions.<br>");
+			$logger->err("[Importer] Unable to write in '$importFailDir'.  Please check permissions.");
+			return;
 		}
 
 		$limit = 500; // [TODO] Set from config
@@ -296,7 +303,7 @@ class ImportCron extends CerberusCronPageExtension {
 
 		foreach($subdirs as $subdir) {
 			if(!is_writable($subdir)) {
-				echo 'Write permission error, unable parse imports inside: '. $subdir. "...skipping<br>\r\n";
+				$logger->err('[Importer] Write permission error, unable parse imports inside: '. $subdir. "...skipping");
 				continue;
 			}
 
@@ -312,7 +319,7 @@ class ImportCron extends CerberusCronPageExtension {
 				$xml_root = simplexml_load_file($file); /* @var $xml_root SimpleXMLElement */
 				$object_type = $xml_root->getName();
 
-				echo "Reading ",$file_part," ... ($object_type)<BR>";
+				$logger->info("[Importer] Reading ".$file_part." ... ($object_type)");
 
 				if($this->_handleImport($object_type, $xml_root)) { // Success
 					@unlink($file);
@@ -326,8 +333,6 @@ class ImportCron extends CerberusCronPageExtension {
 					@rename($file, $move_to_dir . basename($file));
 				}
 				 
-				echo "<HR>";
-				 
 				if(--$limit <= 0)
 				break;
 			}
@@ -339,7 +344,7 @@ class ImportCron extends CerberusCronPageExtension {
 		unset($files);
 		unset($subdirs);
 
-		echo "<b>Total Runtime:</b> ",((microtime(true)-$runtime)*1000)," ms<br>\r\n";
+		$logger->info("[Importer] Total Runtime: ".((microtime(true)-$runtime)*1000)." ms");
 	}
 
 	private function _handleImport($object_type, $xml) {
@@ -477,9 +482,9 @@ class ImportCron extends CerberusCronPageExtension {
 			return false;
 		}
 
-		echo "MASK: ",$mask,"<BR>";
-		echo " -- Author: ",$author_address->email,"<BR>";
-		echo " -- Note: ",$note,"<BR>";
+//		echo "MASK: ",$mask,"<BR>";
+//		echo " -- Author: ",$author_address->email,"<BR>";
+//		echo " -- Note: ",$note,"<BR>";
 
 		if(null !== ($ticket = DAO_Ticket::getTicketByMask($mask))) {
 			$fields = array(
@@ -520,6 +525,10 @@ class ImportCron extends CerberusCronPageExtension {
  */
 class Pop3Cron extends CerberusCronPageExtension {
 	function run() {
+		$logger = DevblocksPlatform::getConsoleLog();
+		
+		$logger->info("[POP3] Starting POP3 Task");
+		
 		if (!extension_loaded("imap")) die("IMAP Extension not loaded!");
 		@set_time_limit(0); // Unlimited (if possible)
 		@ini_set('memory_limit','64M');
@@ -535,7 +544,7 @@ class Pop3Cron extends CerberusCronPageExtension {
 		
 		// [JAS]: Make sure our output directory is writeable
 		if(!is_writable(APP_MAIL_PATH . 'new' . DIRECTORY_SEPARATOR)) {
-			echo "The mail storage directory is not writeable.  Skipping POP3 download.<br>\r\n";
+			$logger->err("[POP3] The mail storage directory is not writeable.  Skipping POP3 download.");
 			return;
 		}
 
@@ -543,9 +552,7 @@ class Pop3Cron extends CerberusCronPageExtension {
 			if(!$account->enabled)
 			continue;
 
-			echo 'Account being parsed is ', $account->nickname, "<br>\r\n";
-			echo 'Time Limit: ', (($timeout) ? $timeout : 'unlimited') ," secs<br>\r\n";
-			echo 'Memory Limit: ', ini_get('memory_limit') ,"<br>\r\n";
+			$logger->info('[POP3] Account being parsed is '. $account->nickname);
 			 
 			switch($account->protocol) {
 				default:
@@ -583,7 +590,7 @@ class Pop3Cron extends CerberusCronPageExtension {
 			if(false === ($mailbox = @imap_open($connect,
 			!empty($account->username)?$account->username:"",
 			!empty($account->password)?$account->password:""))) {
-				echo "Failed with error: ",imap_last_error(),"<BR>";
+				$logger->err("[POP3] Failed with error: ".imap_last_error());
 				continue;
 			}
 			 
@@ -593,10 +600,7 @@ class Pop3Cron extends CerberusCronPageExtension {
 			// [TODO] Make this an account setting?
 			$total = min($max_downloads,$check->Nmsgs);
 			 
-			echo 'Init time: ',((microtime(true)-$runtime)*1000)," ms<br>\r\n";
-
-			echo "<BR>\r\n";
-			//            flush();
+			$logger->info('[POP3] Init time: '.((microtime(true)-$runtime)*1000)," ms");
 
 			$runtime = microtime(true);
 
@@ -608,8 +612,6 @@ class Pop3Cron extends CerberusCronPageExtension {
 				 */
 				 
 				$msgno = $i;
-				echo "<b>Downloading message ",$msgno,"</b> ";
-				//                flush();
 				 
 				$time = microtime(true);
 				 
@@ -644,8 +646,8 @@ class Pop3Cron extends CerberusCronPageExtension {
 				unset($body);
 
 				$time = microtime(true) - $time;
-				echo "(",sprintf("%d",($time*1000))," ms)<br>\r\n";
-				//                flush();
+				$logger->info("[POP3] Downloaded message ".$msgno." ".sprintf("%d",($time*1000))." ms)");
+				
 				imap_delete($mailbox, $msgno);
 				continue;
 			}
@@ -654,7 +656,7 @@ class Pop3Cron extends CerberusCronPageExtension {
 			imap_close($mailbox);
 			imap_errors();
 			 
-			echo "<b>Total Runtime:</b> ",((microtime(true)-$runtime)*1000)," ms<br>\r\n";
+			$logger->info("[POP3] Total Runtime: ".((microtime(true)-$runtime)*1000)." ms");
 		}
 	}
 

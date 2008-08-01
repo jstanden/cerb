@@ -1,7 +1,7 @@
 <H2>Scheduler</H2>
 <ul style="margin-top:5px;">
-<li>Simple: <a href="{devblocks_url}c=cron{/devblocks_url}" target="_blank">automatically run jobs in a browser window</a></li>
-<li>Advanced: ping <a href="{devblocks_url full=true}c=cron{/devblocks_url}" target="_blank"><b>{devblocks_url full=true}c=cron{/devblocks_url}</b></a> with wget/lynx in an external cron/scheduled task</li>
+<li>Simple: <a href="{devblocks_url}c=cron{/devblocks_url}?reload=30&loglevel=6" target="_blank">automatically run jobs in a browser window</a></li>
+<li>Advanced: ping <a href="{devblocks_url full=true}c=cron{/devblocks_url}?loglevel=3" target="_blank"><b>{devblocks_url full=true}c=cron{/devblocks_url}</b></a> with wget/lynx in an external cron/scheduled task</li>
 </ul>
 
 <div id="tourConfigTasks"></div>
@@ -40,7 +40,7 @@
 		
 		Last run: {if $lastrun}{$lastrun|devblocks_date}{else}Never{/if}
 		{if $enabled && !$locked}
-		 - <a href="{devblocks_url}c=cron&id={$job_id}{/devblocks_url}?ignore_wait=1" target="_blank">run now</a>
+		 - <a href="{devblocks_url}c=cron&id={$job_id}{/devblocks_url}?ignore_wait=1&loglevel=6" target="_blank">run now</a>
 		{/if}
 		<br>
 		

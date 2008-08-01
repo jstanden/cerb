@@ -6316,6 +6316,11 @@ class ChCronController extends DevblocksControllerExtension {
 	 * Request Overload
 	 */
 	function handleRequest(DevblocksHttpRequest $request) {
+		@$reload = DevblocksPlatform::importGPC($_REQUEST['reload'],'integer',0);
+		@$loglevel = DevblocksPlatform::importGPC($_REQUEST['loglevel'],'integer',0);
+		
+		$logger = DevblocksPlatform::getConsoleLog();
+		
 	    $settings = CerberusSettings::getInstance();
 	    $authorized_ips_str = $settings->get(CerberusSettings::AUTHORIZED_IPS);
 	    $authorized_ips = DevblocksPlatform::parseCrlfString($authorized_ips_str);
@@ -6346,12 +6351,14 @@ class ChCronController extends DevblocksControllerExtension {
 		$url = DevblocksPlatform::getUrlService();
         $timelimit = intval(ini_get('max_execution_time'));
 		
-		echo "<HTML>".
-		"<HEAD>".
-		"<TITLE></TITLE>".
-		(empty($job_id) ?  "<meta http-equiv='Refresh' content='30;" . $url->write('c=cron') . "'>" : ""). // only auto refresh on all jobs
-	    "</HEAD>".
-		"<BODY>"; // onload=\"setTimeout(\\\"window.location.replace('".$url->write('c=cron')."')\\\",30);\"
+        if($reload) {
+			echo "<HTML>".
+			"<HEAD>".
+			"<TITLE></TITLE>".
+			(empty($job_id) ?  "<meta http-equiv='Refresh' content='".intval($reload).";" . $url->write('c=cron') . "?reload=".intval($reload)."&loglevel=".intval($loglevel)."'>" : ""). // only auto refresh on all jobs
+		    "</HEAD>".
+			"<BODY>"; // onload=\"setTimeout(\\\"window.location.replace('".$url->write('c=cron')."')\\\",30);\"
+        }
 
 	    // [TODO] Determine if we're on a time limit under 60 seconds
 		
@@ -6397,12 +6404,14 @@ class ChCronController extends DevblocksControllerExtension {
 		        $nextjob->setParam(CerberusCronPageExtension::PARAM_LOCKED, time());
 	    	    $nextjob->_run();
 	        }
-		} else {
-		    echo "Nothing to do yet!  (Waiting 30 seconds)";
+		} elseif($reload) {
+		    $logger->info("Nothing to do yet!  (Waiting ".intval($reload)." seconds)");
 		}
-			
-	    echo "</BODY>".
-	    "</HTML>";
+		
+		if($reload) {
+	    	echo "</BODY>".
+	    	"</HTML>";
+		}
 		
 		exit;
 	}
