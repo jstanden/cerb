@@ -10,6 +10,7 @@
 <input type="hidden" name="a" value="saveTaskPeek">
 <input type="hidden" name="id" value="{$task->id}">
 <input type="hidden" name="view_id" value="{$view_id}">
+<input type="hidden" name="do_delete" value="0">
 
 <table cellpadding="0" cellspacing="2" border="0" width="98%">
 	{if !empty($link_namespace) && !empty($link_object_id)}
@@ -81,6 +82,9 @@
 </table>
 
 <button type="button" onclick="genericPanel.hide();genericAjaxPost('formTaskPeek', 'view{$view_id}')"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')}</button>
+{if !empty($task) && ($active_worker->is_superuser || $active_worker->id == $task->worker_id)}
+	<button type="button" onclick="if(confirm('Are you sure you want to permanently delete this task?')){literal}{{/literal}this.form.do_delete.value='1';genericPanel.hide();genericAjaxPost('formTaskPeek', 'view{$view_id}');{literal}}{/literal}"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete2.gif{/devblocks_url}" align="top"> {$translate->_('common.delete')|capitalize}</button>
+{/if}
 <button type="button" onclick="genericPanel.hide();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> {$translate->_('common.cancel')|capitalize}</button>
 <br>
 </form>

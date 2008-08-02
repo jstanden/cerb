@@ -4268,49 +4268,60 @@ class ChTasksPage extends CerberusPageExtension {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
 		@$link_namespace = DevblocksPlatform::importGPC($_REQUEST['link_namespace'],'string','');
 		@$link_object_id = DevblocksPlatform::importGPC($_REQUEST['link_object_id'],'integer',0);
+		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
 
-		$fields = array();
-
-		// Title
-		@$title = DevblocksPlatform::importGPC($_REQUEST['title'],'string','');
-		if(!empty($title))
-			$fields[DAO_Task::TITLE] = $title;
-
-		// Completed
-		@$completed = DevblocksPlatform::importGPC($_REQUEST['completed'],'integer',0);
+		$active_worker = CerberusApplication::getActiveWorker();
 		
-		$fields[DAO_Task::IS_COMPLETED] = intval($completed);
-		
-		if($completed)
-			$fields[DAO_Task::COMPLETED_DATE] = time();
+		if(!empty($id) && !empty($do_delete)) { // delete
+			$task = DAO_Task::get($id);
+			if($active_worker->is_superuser || $active_worker->id == $task->worker_id) {
+				DAO_Task::delete($id);
+			}
 			
-		// Due Date
-		@$due_date = DevblocksPlatform::importGPC($_REQUEST['due_date'],'string','');
-		@$fields[DAO_Task::DUE_DATE] = empty($due_date) ? 0 : intval(strtotime($due_date));		
-
-		// Priority
-		@$priority = DevblocksPlatform::importGPC($_REQUEST['priority'],'integer',4);
-		@$fields[DAO_Task::PRIORITY] = intval($priority);
-		
-		// Worker
-		@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'integer',0);
-		@$fields[DAO_Task::WORKER_ID] = intval($worker_id);
-		
-		// Content
-		@$content = DevblocksPlatform::importGPC($_REQUEST['content'],'string','');
-		@$fields[DAO_Task::CONTENT] = $content;
-
-		// Link to object (optional)
-		if(!empty($link_namespace) && !empty($link_object_id)) {
-			@$fields[DAO_Task::SOURCE_EXTENSION] = $link_namespace;
-			@$fields[DAO_Task::SOURCE_ID] = $link_object_id;
-		}
-		
-		// Save
-		if(!empty($id)) {
-			DAO_Task::update($id, $fields);
-		} else {
-			$id = DAO_Task::create($fields);
+		} else { // create|update
+			$fields = array();
+	
+			// Title
+			@$title = DevblocksPlatform::importGPC($_REQUEST['title'],'string','');
+			if(!empty($title))
+				$fields[DAO_Task::TITLE] = $title;
+	
+			// Completed
+			@$completed = DevblocksPlatform::importGPC($_REQUEST['completed'],'integer',0);
+			
+			$fields[DAO_Task::IS_COMPLETED] = intval($completed);
+			
+			if($completed)
+				$fields[DAO_Task::COMPLETED_DATE] = time();
+				
+			// Due Date
+			@$due_date = DevblocksPlatform::importGPC($_REQUEST['due_date'],'string','');
+			@$fields[DAO_Task::DUE_DATE] = empty($due_date) ? 0 : intval(strtotime($due_date));		
+	
+			// Priority
+			@$priority = DevblocksPlatform::importGPC($_REQUEST['priority'],'integer',4);
+			@$fields[DAO_Task::PRIORITY] = intval($priority);
+			
+			// Worker
+			@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'integer',0);
+			@$fields[DAO_Task::WORKER_ID] = intval($worker_id);
+			
+			// Content
+			@$content = DevblocksPlatform::importGPC($_REQUEST['content'],'string','');
+			@$fields[DAO_Task::CONTENT] = $content;
+	
+			// Link to object (optional)
+			if(!empty($link_namespace) && !empty($link_object_id)) {
+				@$fields[DAO_Task::SOURCE_EXTENSION] = $link_namespace;
+				@$fields[DAO_Task::SOURCE_ID] = $link_object_id;
+			}
+			
+			// Save
+			if(!empty($id)) {
+				DAO_Task::update($id, $fields);
+			} else {
+				$id = DAO_Task::create($fields);
+			}
 		}
 		
 		if(!empty($view_id) && null != ($view = C4_AbstractViewLoader::getView('', $view_id))) {
