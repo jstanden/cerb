@@ -10,8 +10,7 @@
 		
 		<br>
 		{if isset($comment->created)}<b>Date:</b> {$comment->created|devblocks_date}<br>{/if}
-		<br>
-		{$comment->comment|trim|escape:"htmlall"|makehrefs|nl2br} <br>
+		<pre>{$comment->comment|trim|escape:"htmlall"|makehrefs}</pre>
 	</div>
 	<br>
 </div>

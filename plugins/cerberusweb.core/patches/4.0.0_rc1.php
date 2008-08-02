@@ -424,6 +424,11 @@ if(!isset($indexes['pos'])) {
 	$datadict->ExecuteSQLArray($sql);
 }
 
+if(32 == $columns['NAME']->max_length) {
+	$sql = "ALTER TABLE ticket_field CHANGE COLUMN name name varchar(128) DEFAULT '' NOT NULL";
+	$db->Execute($sql);
+}
+
 // `worker` ========================
 $columns = $datadict->MetaColumns('worker');
 $indexes = $datadict->MetaIndexes('worker',false);

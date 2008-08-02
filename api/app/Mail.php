@@ -416,7 +416,9 @@ class CerberusMail {
 	
 			// [TODO] Check that message|ticket isn't NULL
 			
-			if($ticket->spam_training == CerberusTicketSpamTraining::BLANK) {
+			// If this ticket isn't spam trained and our outgoing message isn't an autoreply
+			if($ticket->spam_training == CerberusTicketSpamTraining::BLANK
+				&& (!isset($properties['is_autoreply']) || !$properties['is_autoreply'])) {
 				CerberusBayes::markTicketAsNotSpam($ticket_id);
 			} 
 			

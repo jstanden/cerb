@@ -238,10 +238,18 @@ DIV.message_note {
 	border: 2px dotted rgb(255, 193, 0);
 }
 
+DIV.message_note A {
+	font-family: inherit;
+}
+
 DIV.ticket_comment {
 	padding: 5px;
 	background-color: rgb(233, 241, 255);
 	border: 2px dotted rgb(70, 150, 241);
+}
+
+DIV.ticket_comment A {
+	font-family:inherit;
 }
 
 DIV.block {
@@ -250,6 +258,10 @@ DIV.block {
 	background-repeat: repeat-x;
 	background-color: rgb(255, 255, 255);
 	border: 1px solid rgb(180,180,180);
+}
+
+DIV.block A {
+	font-family:inherit;
 }
 
 DIV.block H2 {

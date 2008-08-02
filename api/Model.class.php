@@ -956,8 +956,11 @@ class C4_TicketView extends C4_AbstractView {
 				@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','');
 				@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
 
-				if(empty($from)) $from = 0;
-				if(empty($to)) $to = 'today';
+				if(empty($from) || (!is_numeric($from) && @false === strtotime(str_replace('.','-',$from))))
+					$from = 0;
+					
+				if(empty($to) || (!is_numeric($to) && @false === strtotime(str_replace('.','-',$to))))
+					$to = 'now';
 
 				$criteria = new DevblocksSearchCriteria($field,$oper,array($from,$to));
 				break;

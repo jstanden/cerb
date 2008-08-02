@@ -7,7 +7,7 @@
 <H2>Add Field</H2>
 
 <b>Field Name:</b><br>
-<input type="text" name="name" value="" size="45"><br>
+<input type="text" name="name" value="" size="45" maxlength="128"><br>
 <br>
 
 <b>Field Type:</b><br>

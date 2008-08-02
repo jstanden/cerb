@@ -3,7 +3,7 @@
 	</div>
 </div>
 
-<h2>New Tickets</h2>
+<h2>Created Tickets</h2>
 
 <div id="reportNewTickets"></div>
 

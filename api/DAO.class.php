@@ -2416,6 +2416,15 @@ class DAO_Ticket extends DevblocksORMHelper {
 				DAO_Ticket::IS_CLOSED => 1,
 				DAO_Ticket::IS_DELETED => 1,
 			));
+
+			// Use some values from the most recent merged ticket as the new master values
+			$newest_ticket = end($tickets);
+			reset($tickets);
+			DAO_Ticket::updateTicket($oldest_id,array(
+				DAO_Ticket::LAST_ACTION_CODE => $newest_ticket[SearchFields_Ticket::TICKET_LAST_ACTION_CODE], 
+				DAO_Ticket::LAST_WROTE_ID => $newest_ticket[SearchFields_Ticket::TICKET_LAST_WROTE_ID], 
+				DAO_Ticket::LAST_WORKER_ID => $newest_ticket[SearchFields_Ticket::TICKET_LAST_WORKER_ID], 
+			));
 			
 			return $oldest_id;
 		}

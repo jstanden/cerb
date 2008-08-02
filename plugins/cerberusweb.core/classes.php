@@ -5680,6 +5680,10 @@ class ChGroupsPage extends CerberusPageExtension  {
 	    @$active_worker = CerberusApplication::getActiveWorker();
 	    if(!$active_worker->isTeamManager($team_id) && !$active_worker->is_superuser)
 	    	return;
+	    	
+		// Validators
+		// [TODO] This could move into a Devblocks validation class later.
+		$validator_email = new Zend_Validate_EmailAddress(Zend_Validate_Hostname::ALLOW_DNS | Zend_Validate_Hostname::ALLOW_LOCAL);
 	    
 	    //========== GENERAL
 	    @$signature = DevblocksPlatform::importGPC($_REQUEST['signature'],'string','');
@@ -5694,6 +5698,11 @@ class ChGroupsPage extends CerberusPageExtension  {
 	    @$spam_threshold = DevblocksPlatform::importGPC($_REQUEST['spam_threshold'],'integer',80);
 	    @$spam_action = DevblocksPlatform::importGPC($_REQUEST['spam_action'],'integer',0);
 	    @$spam_moveto = DevblocksPlatform::importGPC($_REQUEST['spam_action_moveto'],'integer',0);
+
+	    // Validate sender address
+	    if(!$validator_email->isValid($sender_address)) {
+	    	$sender_address = '';
+	    }
 	    
 	    // [TODO] Move this into DAO_GroupSettings
 	    DAO_Group::updateTeam($team_id, array(

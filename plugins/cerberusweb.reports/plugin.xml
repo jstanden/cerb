@@ -60,7 +60,7 @@
 			<name>ChReportNewTickets</name>
 		</class>
 		<params>
-			<param key="report_name" value="New Tickets" />
+			<param key="report_name" value="Created Tickets" />
 			<param key="report_group" value="report.group.tickets" />
 		</params>
 	</extension>
@@ -74,7 +74,7 @@
 		</class>
 		<params>
 			<param key="report_name" value="Worker Replies" />
-			<param key="report_group" value="report.group.tickets" />
+			<param key="report_group" value="report.group.workers" />
 		</params>
 	</extension>
 	
