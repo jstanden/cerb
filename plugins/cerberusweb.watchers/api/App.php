@@ -205,9 +205,24 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 			// Headers
 			//==========
 	
-			$send_to = array();
-			
+			// Attachments
+			$attachments = $message->getAttachments();
+			$mime_attachments = array();
+			if(is_array($attachments))
+			foreach($attachments as $attachment) {
+				if(0 == strcasecmp($attachment->display_name,'original_message.html'))
+					continue;
+					
+				$attachment_path = APP_PATH . '/storage/attachments/'; // [TODO] This is highly redundant in the codebase
+				if(!file_exists($attachment_path . $attachment->filepath))
+					continue;
+				
+				$file =& new Swift_File($attachment_path . $attachment->filepath);
+				$mime_attachments[] =& new Swift_Message_Attachment($file, $attachment->display_name, $attachment->mime_type);
+			}
+
 			// Build mailing list
+			$send_to = array();
 			foreach($notifications as $n) { /* @var $n Model_WorkerMailForward */
 				if(!isset($n->group_id) || !isset($n->bucket_id))
 					continue;
@@ -232,10 +247,11 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 				$rcpt_to->addTo($to);
 				$a_rcpt_to = new Swift_Address($to);
 				
-				$mail = $mail_service->createMessage();
+				$mail = $mail_service->createMessage(); /* @var $mail Swift_Message */
 				$mail->setTo($a_rcpt_to);
 				$mail->setFrom($mail_from);
 				$mail->setReplyTo($reply_to);
+				$mail->setReturnPath($reply_to);
 				$mail->setSubject(sprintf("[%s #%s]: %s",
 					($is_inbound ? 'inbound' : 'outbound'),
 					$ticket->mask,
@@ -255,8 +271,12 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 				$mail->headers->set('Precedence','List');
 				$mail->headers->set('Auto-Submitted','auto-generated');
 				$mail->attach(new Swift_Message_Part($message->getContent(), 'text/plain', 'base64', 'ISO-8859-1'));
-				
-				// [TODO] Send attachments with watcher
+
+				// Send message attachments with watcher
+				if(is_array($mime_attachments))
+				foreach($mime_attachments as $mime_attachment) {
+					$mail->attach($mime_attachment);
+				}
 			
 				$mailer->send($mail,$rcpt_to,$mail_from);
 			}

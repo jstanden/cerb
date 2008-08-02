@@ -119,7 +119,7 @@ class ParseCron extends CerberusCronPageExtension {
 		$message = CerberusParser::parseMime($mime, $full_filename);
 
 		$time = microtime(true) - $time;
-		$logger-info("Decoded! (".sprintf("%d",($time*1000))." ms)"); //flush();
+		$logger->info("[Parser] Decoded! (".sprintf("%d",($time*1000))." ms)");
 
 		//	    echo "<b>Plaintext:</b> ", $message->body,"<BR>";
 		//	    echo "<BR>";
@@ -133,7 +133,7 @@ class ParseCron extends CerberusCronPageExtension {
 		$time = microtime(true) - $time;
 		
 		$logger->info("[Parser] Parsed! (".sprintf("%d",($time*1000))." ms) " .
-			!empty($ticket_id) ? ("(Ticket ID: ".$ticket_id.")") : ("(Local Delivery Rejected.)"));
+			(!empty($ticket_id) ? ("(Ticket ID: ".$ticket_id.")") : ("(Local Delivery Rejected.)")));
 
 		@unlink($full_filename);
 		mailparse_msg_free($mime);
@@ -646,7 +646,7 @@ class Pop3Cron extends CerberusCronPageExtension {
 				unset($body);
 
 				$time = microtime(true) - $time;
-				$logger->info("[POP3] Downloaded message ".$msgno." ".sprintf("%d",($time*1000))." ms)");
+				$logger->info("[POP3] Downloaded message ".$msgno." (".sprintf("%d",($time*1000))." ms)");
 				
 				imap_delete($mailbox, $msgno);
 				continue;
