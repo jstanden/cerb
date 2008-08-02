@@ -141,7 +141,7 @@ class Model_TeamRoutingRule {
 							$regexp_dest = DevblocksPlatform::strToRegExp($dest);
 							
 							foreach($tocc as $addy) {
-								if(preg_match($regexp_dest, $addy)) {
+								if(@preg_match($regexp_dest, $addy)) {
 									$passed++;
 									$dest_flag = false;
 									break;
@@ -152,14 +152,14 @@ class Model_TeamRoutingRule {
 						
 					case 'from':
 						$regexp_from = DevblocksPlatform::strToRegExp($value);
-						if(preg_match($regexp_from, $ticket_from->email)) {
+						if(@preg_match($regexp_from, $ticket_from->email)) {
 							$passed++;
 						}
 						break;
 						
 					case 'subject':
 						$regexp_subject = DevblocksPlatform::strToRegExp($value);
-						if(preg_match($regexp_subject, $ticket->subject)) {
+						if(@preg_match($regexp_subject, $ticket->subject)) {
 							$passed++;
 						}
 						break;
@@ -174,8 +174,13 @@ class Model_TeamRoutingRule {
 					case 'header3':
 					case 'header4':
 					case 'header5':
-						$header = strtolower($rule['header']);
+						@$header = strtolower($rule['header']);
 
+						if(empty($header)) {
+							$passed++;
+							break;
+						}
+						
 						if(empty($value)) { // we're checking for null/blanks
 							if(!isset($message_headers[$header]) || empty($message_headers[$header])) {
 								$passed++;
@@ -185,7 +190,7 @@ class Model_TeamRoutingRule {
 							$regexp_header = DevblocksPlatform::strToRegExp($value);
 							
 							// Flatten CRLF
-							if(preg_match($regexp_header, str_replace(array("\r","\n"),' ',$message_headers[$header]))) {
+							if(@preg_match($regexp_header, str_replace(array("\r","\n"),' ',$message_headers[$header]))) {
 								$passed++;
 							}
 						}
@@ -196,7 +201,7 @@ class Model_TeamRoutingRule {
 //						$regexp_body = DevblocksPlatform::strToRegExp($value);
 //
 //						// Flatten CRLF
-//						if(preg_match($regexp_body, str_replace(array("\r","\n"),' ',$message_body)))
+//						if(@preg_match($regexp_body, str_replace(array("\r","\n"),' ',$message_body)))
 //							$passed++;
 //						break;
 						
@@ -205,7 +210,7 @@ class Model_TeamRoutingRule {
 //
 //						// check the files in the raw message
 //						foreach($message->files as $file_name => $file) { /* @var $file ParserFile */
-//							if(preg_match($regexp_file, $file_name)) {
+//							if(@preg_match($regexp_file, $file_name)) {
 //								$passed++;
 //								break;
 //							}

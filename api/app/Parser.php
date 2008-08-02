@@ -219,6 +219,7 @@ class CerberusParser {
 		 * options:
 		 * 'no_autoreply'
 		 */
+		$logger = DevblocksPlatform::getConsoleLog();
 
 		$settings = CerberusSettings::getInstance();
 		
@@ -263,20 +264,24 @@ class CerberusParser {
 		$iDate = @strtotime($headers['date']);
 		if(empty($iDate)) $iDate = time();
 		
-		if(empty($from) || !is_array($from))
-			return NULL; // [TODO] Log
+		if(empty($from) || !is_array($from)) {
+			$logger->warn("[Parser] Invalid 'From' address: " . $from);
+			return NULL;
+		}
 		
 		@$fromAddress = $from[0]->mailbox.'@'.$from[0]->host;
 		@$fromPersonal = $from[0]->personal;
 		if(null == ($fromAddressInst = CerberusApplication::hashLookupAddress($fromAddress, true))) {
-			return NULL; // [TODO] Log
+			$logger->err("[Parser] 'From' address could not be created: " . $fromAddress);
+			return NULL;
 		} else {
 			$fromAddressId = $fromAddressInst->id;
 		}
 
 		// Is banned?
 		if(1==$fromAddressInst->is_banned) {
-			return NULL; // [TODO] Log
+			$logger->info("[Parser] Ignoring ticket from banned address: " . $fromAddressInst->email);
+			return NULL;
 		}
 		
 		// Imports
@@ -330,7 +335,8 @@ class CerberusParser {
         } else {
 			// Is this from the helpdesk to itself?  If so, bail out
 			if(isset($helpdesk_senders[$fromAddressInst->email])) {
-				return NULL; // [TODO] Log
+				$logger->warn("[Parser] Ignoring incoming ticket sent by ourselves: " . $fromAddressInst->email);
+				return NULL;
 			}
         }
         
@@ -397,24 +403,37 @@ class CerberusParser {
         	$msgid = $ids['message_id'];
 
         	// Is it a worker reply from an external client?  If so, proxy
-        	if(null != ($worker_address = DAO_AddressToWorker::getByAddress($fromAddress))) {
-//        		echo "Proxying reply to ticket $id for $fromAddress<br>";
+        	if(null != ($worker_address = DAO_AddressToWorker::getByAddress($fromAddressInst->email))) {
+        		$logger->info("[Parser] Handling an external worker response from " . $fromAddressInst->email);
 
 				// Watcher Commands [TODO] Document on wiki/etc
-				if(0 != ($matches = @preg_match("/^\[(.*?)\]$/i",$message->headers['subject'],$commands))) {
-					@$command = strtolower($commands[1]);
+				if(0 != ($matches = preg_match_all("/\[(.*?)\]/i", $message->headers['subject'], $commands))) {
+					@$command = strtolower(array_pop($commands[1]));
+					$logger->info("[Parser] Worker command: " . $command);
+					
 					switch($command) {
 						case 'close':
 							DAO_Ticket::updateTicket($id,array(
 								DAO_Ticket::IS_CLOSED => CerberusTicketStatus::CLOSED
 							));
 							break;
+							
 						case 'take':
 							DAO_Ticket::updateTicket($id,array(
 								DAO_Ticket::NEXT_WORKER_ID => $worker_address->worker_id
 							));
+							break;
+							
+						case 'comment':
+							$comment_id = DAO_TicketComment::create(array(
+								DAO_TicketComment::ADDRESS_ID => $fromAddressId,
+								DAO_TicketComment::CREATED => time(),
+								DAO_TicketComment::TICKET_ID => $id,
+								DAO_TicketComment::COMMENT => $message->body,
+							));
 							return $id;
 							break;
+							
 						default:
 							// Typo?
 							break;
