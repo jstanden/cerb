@@ -14,10 +14,10 @@
 <table>
 	<tr>
 		<td>
-			<label><input type="checkbox" name="rules[]" value="type"> Is a:</label>
+			<label><input type="checkbox" name="rules[]" value="type" id="chkRuleType"> Is a:</label>
 		</td>
 		<td>
-			<select name="value_type">
+			<select name="value_type" onclick="document.getElementById('chkRuleType').checked=true;">
 				<option value="new">new message</option>
 				<option value="reply">reply</option>
 			</select>
@@ -25,18 +25,18 @@
 	</tr>
 	<tr>
 		<td>
-			<label><input type="checkbox" name="rules[]" value="from"> From:</label>
+			<label><input type="checkbox" name="rules[]" value="from" id="chkRuleFrom"> From:</label>
 		</td>
 		<td>
-			<input type="text" name="value_from" size="45">
+			<input type="text" name="value_from" size="45" onchange="document.getElementById('chkRuleFrom').checked=((0==this.value.length)?false:true);">
 		</td>
 	</tr>
 	<tr>
 		<td>
-			<label><input type="checkbox" name="rules[]" value="to"> To:</label>
+			<label><input type="checkbox" name="rules[]" value="to" id="chkRuleTo"> To:</label>
 		</td>
 		<td>
-			<select name="value_to">
+			<select name="value_to" onclick="document.getElementById('chkRuleTo').checked=((0==this.value.length)?false:true);">
 				{foreach from=$groups item=group key=group_id}
 					<option value="{$group_id}">{$group->name|escape}</option>
 				{/foreach}
@@ -46,10 +46,10 @@
 	{section name=headers start=0 loop=5}
 	<tr>
 		<td>
-			<label><input type="checkbox" name="rules[]" value="header{$smarty.section.headers.iteration}"> Header:</label>
+			<label><input type="checkbox" name="rules[]" value="header{$smarty.section.headers.iteration}" id="chkRuleHeader{$smarty.section.headers.iteration}"> Header:</label>
 		</td>
 		<td>
-			<input type="text" name="header{$smarty.section.headers.iteration}" value="" size="16">
+			<input type="text" name="header{$smarty.section.headers.iteration}" value="" size="16" onchange="document.getElementById('chkRuleHeader{$smarty.section.headers.iteration}').checked=((0==this.value.length)?false:true);">
 			 =  
 			<input type="text" name="value_header{$smarty.section.headers.iteration}" size="45">
 		</td>
@@ -58,7 +58,7 @@
 	{*
 	<tr>
 		<td>
-			<label><input type="checkbox" name="rules[]" value="body"> Content:</label>
+			<label><input type="checkbox" name="rules[]" value="body" id="chkRuleContent"> Content:</label>
 		</td>
 		<td>
 			<input type="text" name="value_body" size="45">
@@ -67,10 +67,10 @@
 	*}
 	<tr>
 		<td>
-			<label><input type="checkbox" name="rules[]" value="attachment"> Attachment Name:</label>
+			<label><input type="checkbox" name="rules[]" value="attachment" id="chkRuleAttachment"> Attachment Name:</label>
 		</td>
 		<td>
-			<input type="text" name="value_attachment" size="45">
+			<input type="text" name="value_attachment" size="45" onchange="document.getElementById('chkRuleAttachment').checked=((0==this.value.length)?false:true);">
 		</td>
 	</tr>
 </table>

@@ -7517,7 +7517,6 @@ class ChDisplayPage extends CerberusPageExtension {
 		$properties = array(
 			DAO_Ticket::IS_CLOSED => intval($closed),
 			DAO_Ticket::IS_DELETED => intval($deleted),
-			DAO_Ticket::UPDATED_DATE => time(),
 		);
 
 		// Undeleting?
