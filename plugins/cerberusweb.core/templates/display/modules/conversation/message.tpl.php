@@ -1,6 +1,6 @@
 {assign var=headers value=$message->getHeaders()}
 <div class="block">
-<table style="text-align: left; width: 98%;" border="0" cellpadding="2" cellspacing="0">
+<table style="text-align: left; width: 98%;table-layout: fixed;" border="0" cellpadding="2" cellspacing="0">
   <tbody>
     <tr>
       <td>
