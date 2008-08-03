@@ -2856,6 +2856,11 @@ class ChConfigurationPage extends CerberusPageExtension  {
 			return;
 		}
 		
+		if(DEMO_MODE) {
+			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','mail')));
+			return;
+		}
+		
 		@$id = DevblocksPlatform::importGPC($_POST['account_id'],'integer');
 		@$enabled = DevblocksPlatform::importGPC($_POST['pop3_enabled'],'integer',0);
 		@$nickname = DevblocksPlatform::importGPC($_POST['nickname'],'string');
@@ -3014,6 +3019,11 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	function saveTabPreParseFiltersAction() {
 		@$ids = DevblocksPlatform::importGPC($_POST['deletes'],'array',array());
 
+		if(DEMO_MODE) {
+			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','preparser')));
+			return;
+		}
+		
 		DAO_PreParseRule::delete($ids);
 		
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','preparser')));
@@ -3024,6 +3034,11 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		@$name = DevblocksPlatform::importGPC($_POST['name'],'string','');
 		@$rules = DevblocksPlatform::importGPC($_POST['rules'],'array',array());
 		@$do = DevblocksPlatform::importGPC($_POST['do'],'array',array());
+		
+		if(DEMO_MODE) {
+			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','preparser')));
+			return;
+		}
 		
 		$criterion = array();
 		$actions = array();
