@@ -858,7 +858,7 @@ class UmScCoreController extends Extension_UmScController {
 		$umsession->setProperty('support.write.last_followup_a', null);
 		
 		$sDispatch = DAO_CommunityToolProperty::get($this->getPortal(),UmScApp::PARAM_DISPATCH, '');
-		$dispatch = !empty($sDispatch) ? unserialize($sDispatch) : array();
+		$dispatch = !empty($sDispatch) ? (is_array($sDispatch) ? unserialize($sDispatch): array($sDispatch)) : array();
 		
 		// Check if this nature has followups, if not skip to send
 		$followups = array();
@@ -925,7 +925,7 @@ class UmScCoreController extends Extension_UmScController {
 		$subject = 'Contact me: Other';
 		
         $sDispatch = DAO_CommunityToolProperty::get($this->getPortal(),UmScApp::PARAM_DISPATCH, '');
-        $dispatch = !empty($sDispatch) ? unserialize($sDispatch) : array();
+        $dispatch = !empty($sDispatch) ? (is_array($sDispatch) ? unserialize($sDispatch): array($sDispatch)) : array();
 
         foreach($dispatch as $k => $v) {
         	if(md5($k)==$sNature) {
@@ -1344,7 +1344,7 @@ class UmScCoreController extends Extension_UmScController {
 						$tpl->assign('last_error', $sError);
 						
 	       				$sDispatch = DAO_CommunityToolProperty::get($this->getPortal(),UmScApp::PARAM_DISPATCH, '');
-		    			$dispatch = !empty($sDispatch) ? unserialize($sDispatch) : array();
+		    			$dispatch = !empty($sDispatch) ? (is_array($sDispatch) ? unserialize($sDispatch): array($sDispatch)) : array();
 				        $tpl->assign('dispatch', $dispatch);
 				        
 				        switch($response) {

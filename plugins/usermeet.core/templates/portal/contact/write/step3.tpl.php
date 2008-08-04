@@ -17,7 +17,7 @@
 		<input name="from" value="{$last_from}" autocomplete="off" style="width:98%;"><br>
 		
       	<h4>Message:</h4>	
-		<textarea name="content" rows="10" cols="60" style="width:98%;">{$last_content}</textarea><br>
+		<textarea name="content" rows="10" cols="60" style="width:98%;">{$last_content|escape}</textarea><br>
 		
 		{if $captcha_enabled}
 	      	<h4>Please type the characters from the image below:</h4>	
