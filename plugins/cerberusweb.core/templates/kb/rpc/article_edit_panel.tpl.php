@@ -34,7 +34,7 @@
 <br>
 
 <b>Insert/Paste Content:</b> (from your external editor, if applicable)<br>
-<textarea name="content_raw" style="width:99%;height:150px;border:solid 1px rgb(180,180,180);">{$article->content_raw}</textarea>
+<textarea name="content_raw" style="width:99%;height:150px;border:solid 1px rgb(180,180,180);">{$article->content_raw|escape}</textarea>
 <br>
 
 Format:

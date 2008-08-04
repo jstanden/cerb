@@ -21,7 +21,7 @@
 
       	<h2>Subject:</h2>
       	{if $allow_subjects}
-		<input type="text" name="subject"value="{if !empty($last_subject)}{$last_subject|escape}{else}{$situation|escape}{/if}" autocomplete="off" style="width:98%;"><br>
+		<input type="text" name="subject" value="{if !empty($last_subject)}{$last_subject|escape}{else}{$situation|escape}{/if}" autocomplete="off" style="width:98%;"><br>
 		{else}
 		{$situation}<br>
 		{/if}

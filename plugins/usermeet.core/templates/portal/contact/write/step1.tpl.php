@@ -16,7 +16,7 @@
       	
 		{foreach from=$dispatch item=to key=reason}
 		{assign var=dispatchKey value=$reason|md5}
-			<label><input type="radio" name="nature" value="{$dispatchKey}" {if $displayKey==$last_nature}checked{/if} onclick="this.form.submit();"> {$reason}</label><br>
+			<label><input type="radio" name="nature" value="{$dispatchKey}" {if $displayKey==$last_nature}checked{/if} onclick="this.form.submit();"> {$reason|escape}</label><br>
 		{/foreach}
 		<!-- <label><input type="radio" name="nature" value="" {if $displayKey==$last_nature}checked{/if}> None of the above</label><br> -->
 		

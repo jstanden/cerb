@@ -12,11 +12,11 @@
   <tbody>
     <tr>
       <td colspan="2">
-      	<h3>{$situation}</h3>
+      	<h3>{$situation|escape}</h3>
       
       	{if !empty($situation_params.followups)}
 		{foreach from=$situation_params.followups key=question item=long name=situations}
-	      	<h4>{$question}</h4>
+	      	<h4>{$question|escape}</h4>
 	      	<input type="hidden" name="followup_q[]" value="{$question}">
 	      	{if $long}
 	      		<textarea name="followup_a[]" rows="5" cols="60" style="width:98%;"></textarea>

@@ -14,13 +14,13 @@
 
 {foreach from=$dispatch item=params key=reason}
 <div class="subtle" style="margin-bottom:10px;">
-	<h2 style="display:inline;">{$reason}</h2>&nbsp;
+	<h2 style="display:inline;">{$reason|escape}</h2>&nbsp;
 	<a href="#add_situation" onclick="genericAjaxGet('add_situation','c=config&a=handleTabAction&tab=usermeet.config.tab.communities&action=getContactSituation&reason={$reason|md5}&portal={$instance->code}');">edit </a>
 	<br>
 	<b>Send to:</b> {$params.to}<br>
 	{if is_array($params.followups)}
 	{foreach from=$params.followups key=question item=long}
-	<b>Ask:</b> {$question} {if $long}(Long Answer){/if}<br>
+	<b>Ask:</b> {$question|escape} {if $long}(Long Answer){/if}<br>
 	{/foreach}
 	{/if}
 	<label><input type="checkbox" name="delete_situations[]" value="{$reason|md5}"> Delete this situation</label>
