@@ -1,30 +1,25 @@
 <div class="block">
 
-<b>Range (days):</b> 
-<a href="javascript:;" onclick="genericAjaxGet('reportAverageResponseTime','c=reports&a=action&extid=report.workers.averageresponsetime&extid_a=getAverageResponseTimeReport&age=365d');">365 days</a>
-| <a href="javascript:;" onclick="genericAjaxGet('reportAverageResponseTime','c=reports&a=action&extid=report.workers.averageresponsetime&extid_a=getAverageResponseTimeReport&age=180d');">180 days</a>
-| <a href="javascript:;" onclick="genericAjaxGet('reportAverageResponseTime','c=reports&a=action&extid=report.workers.averageresponsetime&extid_a=getAverageResponseTimeReport&age=90d');">90 days</a>
-| <a href="javascript:;" onclick="genericAjaxGet('reportAverageResponseTime','c=reports&a=action&extid=report.workers.averageresponsetime&extid_a=getAverageResponseTimeReport&age=30d');">30 days</a>
-| <a href="javascript:;" onclick="genericAjaxGet('reportAverageResponseTime','c=reports&a=action&extid=report.workers.averageresponsetime&extid_a=getAverageResponseTimeReport&age=7d');">7 days</a>
-| <a href="javascript:;" onclick="genericAjaxGet('reportAverageResponseTime','c=reports&a=action&extid=report.workers.averageresponsetime&extid_a=getAverageResponseTimeReport&age=1d');">past 24 hours</a>
-<br>
-<b>Range (months):</b> 
-<a href="javascript:;" onclick="genericAjaxGet('reportAverageResponseTime','c=reports&a=action&extid=report.workers.averageresponsetime&extid_a=getAverageResponseTimeReport&age=12mo');">12 months</a>
-| <a href="javascript:;" onclick="genericAjaxGet('reportAverageResponseTime','c=reports&a=action&extid=report.workers.averageresponsetime&extid_a=getAverageResponseTimeReport&age=6mo');">6 months</a>
-| <a href="javascript:;" onclick="genericAjaxGet('reportAverageResponseTime','c=reports&a=action&extid=report.workers.averageresponsetime&extid_a=getAverageResponseTimeReport&age=3mo');">3 months</a>
-| <a href="javascript:;" onclick="genericAjaxGet('reportAverageResponseTime','c=reports&a=action&extid=report.workers.averageresponsetime&extid_a=getAverageResponseTimeReport&age=1mo');">1 month</a>
-<br>
-<b>Range (custom):</b> 
-<form action="{devblocks_url}{/devblocks_url}" method="POST" id="formAverageResponseTime" name="formAverageResponseTime" onsubmit="return false;">
+<b>Date Range:</b>
+
+<form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmRange" name="frmRange" onsubmit="return false;">
 <input type="hidden" name="c" value="reports">
 <input type="hidden" name="a" value="action">
 <input type="hidden" name="extid" value="report.workers.averageresponsetime">
 <input type="hidden" name="extid_a" value="getAverageResponseTimeReport">
-<input type="text" name="startART" id="startART" size="10" value="{$startART}"><button type="button" onclick="ajax.getDateChooser('dateART',this.form.startART);">&nbsp;<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/calendar.gif{/devblocks_url}" align="top">&nbsp;</button>
-<input type="text" name="endART" id="endART" size="10" value="{$endART}"><button type="button" onclick="ajax.getDateChooser('dateART',this.form.endART);">&nbsp;<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/calendar.gif{/devblocks_url}" align="top">&nbsp;</button>
-<button type="button" onclick="genericAjaxPost('formAverageResponseTime', 'reportAverageResponseTime')">Refresh</button>
-<div id="dateART" style="display:none;position:absolute;z-index:1;"></div>
+<input type="text" name="start" id="start" size="10" value="{$start}"><button type="button" onclick="ajax.getDateChooser('divCal',this.form.start);">&nbsp;<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/calendar.gif{/devblocks_url}" align="top">&nbsp;</button>
+<input type="text" name="end" id="end" size="10" value="{$end}"><button type="button" onclick="ajax.getDateChooser('divCal',this.form.end);">&nbsp;<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/calendar.gif{/devblocks_url}" align="top">&nbsp;</button>
+<button type="button" id="btnSubmit" onclick="genericAjaxPost('frmRange', 'reportAverageResponseTime')">Refresh</button>
+<div id="divCal" style="display:none;position:absolute;z-index:1;"></div>
 </form>
+
+<a href="javascript:;" onclick="document.getElementById('start').value='-1 year';document.getElementById('end').value='now';document.getElementById('btnSubmit').click();">1 year</a>
+| <a href="javascript:;" onclick="document.getElementById('start').value='-6 months';document.getElementById('end').value='now';document.getElementById('btnSubmit').click();">6 months</a>
+| <a href="javascript:;" onclick="document.getElementById('start').value='-3 months';document.getElementById('end').value='now';document.getElementById('btnSubmit').click();">3 months</a>
+| <a href="javascript:;" onclick="document.getElementById('start').value='-1 month';document.getElementById('end').value='now';document.getElementById('btnSubmit').click();">1 month</a>
+| <a href="javascript:;" onclick="document.getElementById('start').value='-1 week';document.getElementById('end').value='now';document.getElementById('btnSubmit').click();">1 week</a>
+| <a href="javascript:;" onclick="document.getElementById('start').value='-1 day';document.getElementById('end').value='now';document.getElementById('btnSubmit').click();">1 day</a>
+<br>
 
 <br>
 <h3>Worker Responses</h3>

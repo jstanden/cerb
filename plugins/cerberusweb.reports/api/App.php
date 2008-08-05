@@ -91,13 +91,27 @@ class ChReportNewTickets extends Extension_Report {
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->tpl_path);
 
-		@list($age_dur, $age_term) = sscanf($age,"%d%s");
-		if(empty($age_dur)) $age_dur = 30;
-		if(empty($age_term)) $age_term = 'd';
+		// import dates from form
+		@$start = DevblocksPlatform::importGPC($_REQUEST['start'],'string','');
+		@$end = DevblocksPlatform::importGPC($_REQUEST['end'],'string','');
 		
-		$tpl->assign('age', $age);
-		$tpl->assign('age_dur', $age_dur);
-		$tpl->assign('age_term', $age_term);
+		// use date range if specified, else use duration prior to now
+		$start_time = 0;
+		$end_time = 0;
+		
+		if (empty($start) && empty($end)) {
+			$start = "-30 days";
+			$end = "now";
+			$start_time = strtotime($start);
+			$end_time = strtotime($end);
+		} else {
+			$start_time = strtotime($start);
+			$end_time = strtotime($end);
+		}
+		
+		// reload variables in template
+		$tpl->assign('start', $start);
+		$tpl->assign('end', $end);
 		
 	   	// Top Buckets
 		$groups = DAO_Group::getAll();
@@ -110,8 +124,8 @@ class ChReportNewTickets extends Extension_Report {
 			"FROM ticket ".
 			"WHERE created_date > %d AND created_date <= %d AND is_deleted = 0 ".
 			"GROUP BY team_id, category_id ",
-			strtotime("-".$age_dur." ".($age_term=='d'?'days':'months')),
-			time()
+			$start_time,
+			$end_time
 		);
 		$rs_buckets = $db->Execute($sql);
 	
@@ -139,17 +153,23 @@ class ChReportNewTickets extends Extension_Report {
 		
 		@$age = DevblocksPlatform::importGPC($_REQUEST['age'],'string','30d');
 		
-//		$uri = DevblocksPlatform::getHttpRequest();
-//		$stack = $uri->path;
-//		@array_shift($stack); // reports
-//		@array_shift($stack); // action
-//		@array_shift($stack); // extid
-//		@array_shift($stack); // graph
-//		@$age = array_shift($stack); // age
+		// import dates from form
+		@$start = DevblocksPlatform::importGPC($_REQUEST['start'],'string','');
+		@$end = DevblocksPlatform::importGPC($_REQUEST['end'],'string','');
 		
-		@list($age_dur, $age_term) = sscanf($age,"%d%s");
-		if(empty($age_dur)) $age_dur = 30;
-		if(empty($age_term)) $age_term = 'd';
+		// use date range if specified, else use duration prior to now
+		$start_time = 0;
+		$end_time = 0;
+		
+		if (empty($start) && empty($end)) {
+			$start = "-30 days";
+			$end = "now";
+			$start_time = strtotime($start);
+			$end_time = strtotime($end);
+		} else {
+			$start_time = strtotime($start);
+			$end_time = strtotime($end);
+		}
 		
 		$db = DevblocksPlatform::getDatabaseService();
 		$block = $age_term=='mo'?2629800:86400;
@@ -160,14 +180,14 @@ class ChReportNewTickets extends Extension_Report {
 			"WHERE created_date > %d AND created_date <= %d AND is_deleted = 0 ".
 			"GROUP BY day",
 			$block,
-			strtotime("-".$age_dur." ".($age_term=='d'?'days':'months')),
-			time()
+			$start_time,
+			$end_time
 		);
 		$rs = $db->Execute($sql);
 
 	    $graph = new graph();
 	    $graph->setProp('font', $path.'/ryanlerch_-_Tuffy.ttf');
-	    $graph->setProp('title', 'Past '.$age_dur." ".($age_term=='d'?'Days':'Months'));
+	    $graph->setProp('title', $start . ' to ' . $end);
 	    $graph->setProp('titlesize', 14);
 //	    $graph->setProp('actwidth', 400);
 	    $graph->setProp('actheight', 225);
@@ -177,7 +197,7 @@ class ChReportNewTickets extends Extension_Report {
 	    $graph->setProp('yincpts', 5);
 	    $graph->setProp('scale', 'date');
 //	    $graph->setProp('sort', false);
-	    $graph->setProp('startdate', "-".$age_dur." ".($age_term=='d'?'days':'months'));
+	    $graph->setProp('startdate', $start);
 //	    $graph->setProp('enddate', '10/31/2007');
 	    $graph->setProp('dateformat', 5);
 //	    $graph->setProp('xlabel', 'Day');
@@ -242,13 +262,27 @@ class ChReportWorkerReplies extends Extension_Report {
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->tpl_path);
 		
-		@list($age_dur, $age_term) = sscanf($age,"%d%s");
-		if(empty($age_dur)) $age_dur = 30;
-		if(empty($age_term)) $age_term = 'd';
+		// import dates from form
+		@$start = DevblocksPlatform::importGPC($_REQUEST['start'],'string','');
+		@$end = DevblocksPlatform::importGPC($_REQUEST['end'],'string','');
 		
-		$tpl->assign('age', $age);
-		$tpl->assign('age_dur', $age_dur);
-		$tpl->assign('age_term', $age_term);
+		// use date range if specified, else use duration prior to now
+		$start_time = 0;
+		$end_time = 0;
+		
+		if (empty($start) && empty($end)) {
+			$start = "-30 days";
+			$end = "now";
+			$start_time = strtotime($start);
+			$end_time = strtotime($end);
+		} else {
+			$start_time = strtotime($start);
+			$end_time = strtotime($end);
+		}
+		
+		// reload variables in template
+		$tpl->assign('start', $start);
+		$tpl->assign('end', $end);
 		
 		// Top Workers
 		$workers = DAO_Worker::getAll();
@@ -264,8 +298,8 @@ class ChReportWorkerReplies extends Extension_Report {
 			"AND m.is_outgoing = 1 ".
 			"AND t.is_deleted = 0 ".
 			"GROUP BY t.team_id, m.worker_id ",
-			strtotime("-".$age_dur." ".($age_term=='d'?'days':'months')),
-			time()
+			$start_time,
+			$end_time
 		);
 		$rs_workers = $db->Execute($sql);
 		
@@ -299,10 +333,24 @@ class ChReportWorkerReplies extends Extension_Report {
 //		@array_shift($stack); // extid
 //		@array_shift($stack); // graph
 //		@$age = array_shift($stack); // age
+
+		// import dates from form
+		@$start = DevblocksPlatform::importGPC($_REQUEST['start'],'string','');
+		@$end = DevblocksPlatform::importGPC($_REQUEST['end'],'string','');
 		
-		@list($age_dur, $age_term) = sscanf($age,"%d%s");
-		if(empty($age_dur)) $age_dur = 30;
-		if(empty($age_term)) $age_term = 'd';
+		// use date range if specified, else use duration prior to now
+		$start_time = 0;
+		$end_time = 0;
+		
+		if (empty($start) && empty($end)) {
+			$start = "-30 days";
+			$end = "now";
+			$start_time = strtotime($start);
+			$end_time = strtotime($end);
+		} else {
+			$start_time = strtotime($start);
+			$end_time = strtotime($end);
+		}
 		
 		$db = DevblocksPlatform::getDatabaseService();
 		$block = $age_term=='mo'?2629800:86400;
@@ -315,14 +363,14 @@ class ChReportWorkerReplies extends Extension_Report {
 			"AND m.is_outgoing = 1 ".
 			"GROUP BY day",
 			$block,
-			strtotime("-".$age_dur." ".($age_term=='d'?'days':'months')),
-			time()
+			$start_time,
+			$end_time
 		);
 		$rs = $db->Execute($sql);
 		
 	    $graph = new graph();
 	    $graph->setProp('font', $path.'/ryanlerch_-_Tuffy.ttf');
-	    $graph->setProp('title', 'Past '.$age_dur." ".($age_term=='d'?'Days':'Months'));
+	    $graph->setProp('title', $start . ' to ' . $end);
 	    $graph->setProp('titlesize', 14);
 //	    $graph->setProp('actwidth', 400);
 	    $graph->setProp('actheight', 225);
@@ -332,7 +380,7 @@ class ChReportWorkerReplies extends Extension_Report {
 	    $graph->setProp('yincpts', 5);
 	    $graph->setProp('scale', 'date');
 //	    $graph->setProp('sort', false);
-	    $graph->setProp('startdate', "-".$age_dur." ".($age_term=='d'?'days':'months'));
+	    $graph->setProp('startdate', $start);
 //	    $graph->setProp('enddate', '10/31/2007');
 	    $graph->setProp('dateformat', 5);
 //	    $graph->setProp('xlabel', 'Day');
@@ -396,30 +444,23 @@ class ChReportAverageResponseTime extends Extension_Report {
 		$tpl->assign('path', $this->tpl_path);
 
 		// import dates from form
-		@$age = DevblocksPlatform::importGPC($_REQUEST['age'],'string','30d');
-		@$start = DevblocksPlatform::importGPC($_REQUEST['startART'],'string','');
-		@$end = DevblocksPlatform::importGPC($_REQUEST['endART'],'string','');
+		@$start = DevblocksPlatform::importGPC($_REQUEST['start'],'string','');
+		@$end = DevblocksPlatform::importGPC($_REQUEST['end'],'string','');
 		
 		// use date range if specified, else use duration prior to now
 		$start_time = 0;
 		$end_time = 0;
-		@list($age_dur, $age_term) = sscanf($age,"%d%s");
-		if(empty($age_dur)) $age_dur = 30;
-		if(empty($age_term)) $age_term = 'd';
 		if (empty($start) && empty($end)) {
-			$start_time = strtotime("-".$age_dur." ".($age_term=='d'?'days':'months'));
-			$end_time = time();
+			$start_time = strtotime("-30 days");
+			$end_time = strtotime("now");
 		} else {
 			$start_time = strtotime($start);
 			$end_time = strtotime($end);
 		}
 		
 		// reload variables in template
-		$tpl->assign('age', $age);
-		$tpl->assign('age_dur', $age_dur);
-		$tpl->assign('age_term', $age_term);
-		$tpl->assign('startART', $start);
-		$tpl->assign('endART', $end);
+		$tpl->assign('start', $start);
+		$tpl->assign('end', $end);
 		
 		// set up necessary reference arrays
 	   	$groups = DAO_Group::getAll();
