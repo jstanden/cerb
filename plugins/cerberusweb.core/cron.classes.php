@@ -350,11 +350,14 @@ class ImportCron extends CerberusCronPageExtension {
 	private function _handleImport($object_type, $xml) {
 		// [TODO] Import extensions (delegate to plugins)
 		switch($object_type) {
+		 	case 'comment':
+		 		return $this->_handleImportComment($xml);
+		 		break;
 		 	case 'ticket':
 		 		return $this->_handleImportTicket($xml);
 		 		break;
-		 	case 'comment':
-		 		return $this->_handleImportComment($xml);
+		 	case 'worker':
+		 		return $this->_handleImportWorker($xml);
 		 		break;
 		 	default:
 		 		break;
@@ -364,6 +367,7 @@ class ImportCron extends CerberusCronPageExtension {
 	// [TODO] Move to an extension
 	private function _handleImportTicket($xml) {
 		$settings = CerberusSettings::getInstance();
+		$logger = DevblocksPlatform::getConsoleLog();
 
 		$sMask = (string) $xml->mask;
 		$sSubject = (string) $xml->subject;
@@ -378,8 +382,17 @@ class ImportCron extends CerberusCronPageExtension {
 		// [TODO] Hash these so we know which group+bucket combos exist already
 		$groups = DAO_Group::getAll();
 		$buckets = DAO_Bucket::getAll();
-		$iGroupId = 1;
+		$iGroupId = intval($settings->get(CerberusSettings::DEFAULT_TEAM_ID, '0'));
 		$iBucketId = 0;
+		
+		// Hash Workers so we can ID their incoming tickets
+		$workers = DAO_Worker::getAll();
+		$email_to_worker_id = array();
+		
+		if(is_array($workers))
+		foreach($workers as $worker) { /* @var $worker CerberusWorker */
+			$email_to_worker_id[strtolower($worker->email)] = intval($worker->id);
+		}
 		
 		// Xpath the first and last "from" out of "/ticket/messages/message/headers/from"
 		$aMessageNodes = $xml->xpath("/ticket/messages/message");
@@ -393,9 +406,23 @@ class ImportCron extends CerberusCronPageExtension {
 		$sLastWrote = (string) $eLastMessage->headers->from; // [TODO] RFC822 validate
 		$lastWroteInst = CerberusApplication::hashLookupAddress($sLastWrote, true);
 
+		// Last action code + last worker
+		$sLastActionCode = CerberusTicketActionCode::TICKET_OPENED;
+		$iLastWorkerId = 0;
+		if($iNumMessages > 1) {
+			if(null != (@$iLastWorkerId = $email_to_worker_id[strtolower($lastWroteInst->email)])) {
+				$sLastActionCode = CerberusTicketActionCode::TICKET_WORKER_REPLY;
+			} else {
+				$sLastActionCode = CerberusTicketActionCode::TICKET_CUSTOMER_REPLY;
+				$iLastWorkerId = 0;
+			}
+		}
+		
+		// [TODO] Dupe check by ticket mask
+		
 		// Create ticket
 		$fields = array(
-			DAO_Ticket::MASK => $sMask, // [TODO] Dupe check
+			DAO_Ticket::MASK => $sMask,
 			DAO_Ticket::SUBJECT => $sSubject,
 			DAO_Ticket::IS_WAITING => $isWaiting,
 			DAO_Ticket::IS_CLOSED => $isClosed,
@@ -405,12 +432,13 @@ class ImportCron extends CerberusCronPageExtension {
 			DAO_Ticket::UPDATED_DATE => $iUpdatedDate,
 			DAO_Ticket::TEAM_ID => intval($iGroupId),
 			DAO_Ticket::CATEGORY_ID => intval($iBucketId),
-			DAO_Ticket::LAST_ACTION_CODE => CerberusTicketActionCode::TICKET_OPENED,
+			DAO_Ticket::LAST_ACTION_CODE => $sLastActionCode,
+			DAO_Ticket::LAST_WORKER_ID => intval($iLastWorkerId),
 		);
 		$ticket_id = DAO_Ticket::createTicket($fields);
-		echo $ticket_id;
+//		echo "Ticket: ",$ticket_id,"<BR>";
 		
-		print_r($fields);
+//		print_r($fields);
 		
 		// Create requesters
 		if(!is_null($xml->requesters))
@@ -422,39 +450,81 @@ class ImportCron extends CerberusCronPageExtension {
 		}
 		
 		// Create messages
+		$is_first = true;
 		if(!is_null($xml->messages))
 		foreach($xml->messages->message as $eMessage) { /* @var $eMessage SimpleXMLElement */
 			$eHeaders =& $eMessage->headers; /* @var $eHeaders SimpleXMLElement */
-//			echo "From: ",(string) $eHeaders->from,"<BR>";
-//			echo "To: ",(string) $eHeaders->to,"<BR>";
-//			echo "Date: ",(string) $eHeaders->date,"<BR>";
+
 			$sMsgFrom = (string) $eHeaders->from;
 			$sMsgDate = (string) $eHeaders->date;
 			
 			// [TODO] RFC822 address parse 'From'.  Hash lookup.
 			$msgFromInst = CerberusApplication::hashLookupAddress($sMsgFrom, true);
 
+			@$msgWorkerId = intval($email_to_worker_id[strtolower($msgFromInst->email)]);
+//			$logger->info('Checking if '.$msgFromInst->email.' is a worker');
+			
 	        $fields = array(
 	            DAO_Message::TICKET_ID => $ticket_id,
-//	            DAO_Message::CREATED_DATE => $iDate, // [TODO] RFC822->epochal
-	            DAO_Message::ADDRESS_ID => $msgFromInst->id
+	            DAO_Message::CREATED_DATE => strtotime($sMsgDate),
+	            DAO_Message::ADDRESS_ID => $msgFromInst->id,
+	            DAO_Message::IS_OUTGOING => !empty($msgWorkerId) ? 1 : 0,
+	            DAO_Message::WORKER_ID => !empty($msgWorkerId) ? $msgWorkerId : 0,
 	        );
 			$email_id = DAO_Message::create($fields);
 			
+			// First thread
+			if($is_first) {
+				DAO_Ticket::updateTicket($ticket_id,array(
+					DAO_Ticket::FIRST_MESSAGE_ID => $email_id
+				));
+				
+				$is_first = false;
+			}
+
+			// Create attachments
+			if(!is_null($eMessage->attachments))
+			foreach($eMessage->attachments->attachment as $eAttachment) { /* @var $eAttachment SimpleXMLElement */
+				$sFileName = (string) $eAttachment->name;
+				$sMimeType = (string) $eAttachment->mimetype;
+				$sFileSize = (integer) $eAttachment->size;
+				$sFileContentB64 = (string) $eAttachment->content;
+				
+				// [TODO] This could be a little smarter about detecting extensions
+				if(empty($sMimeType))
+					$sMimeType = "application/octet-stream";
+				
+				$sFileContent = base64_decode($sFileContentB64);
+				unset($sFileContentB64);
+				
+				$fields = array(
+					DAO_Attachment::MESSAGE_ID => $email_id,
+					DAO_Attachment::DISPLAY_NAME => $sFileName,
+					DAO_Attachment::FILE_SIZE => intval($sFileSize),
+					DAO_Attachment::FILEPATH => '',
+					DAO_Attachment::MIME_TYPE => $sMimeType,
+				);
+				$file_id = DAO_Attachment::create($fields);
+				
+				// Write file to disk using ID (Model)
+				$file_path = Model_Attachment::saveToFile($file_id, $sFileContent);
+				unset($sFileContent);
+				
+				// Update attachment table
+				DAO_Attachment::update($file_id, array(
+					DAO_Attachment::FILEPATH => $file_path
+				));
+			}
+			
 			// Create message content
 			$sMessageContent = (string) $eMessage->content;
-//			echo "CONTENT: ",nl2br($sMessageContent),"<BR>";
 			DAO_MessageContent::update($email_id, $sMessageContent);
 
 			// Headers
 			foreach($eHeaders->children() as $eHeader) { /* @var $eHeader SimpleXMLElement */
-//				echo "Header Name: " . $eHeader->getName() . "Value: " . (string) $eHeader . "<BR>";
 			    DAO_MessageHeader::update($email_id, $ticket_id, $eHeader->getName(), (string) $eHeader);
 			}
 		}
-		
-		// Create attachments
-		// [TODO]
 		
 		// Create comments
 		if(!is_null($xml->comments))
@@ -476,9 +546,48 @@ class ImportCron extends CerberusCronPageExtension {
 			$comment_id = DAO_TicketComment::create($fields);
 		}
 		
+		$logger->info('Imported ticket #'.$ticket_id);
+		
 		return true;
 	}
 
+	private function _handleImportWorker($xml) {
+		$settings = CerberusSettings::getInstance();
+		$logger = DevblocksPlatform::getConsoleLog();
+
+		$sFirstName = (string) $xml->first_name;
+		$sLastName = (string) $xml->last_name;
+		$sEmail = (string) $xml->email;
+		$sPassword = (string) $xml->password;
+		$isSuperuser = (integer) $xml->is_superuser;
+		
+		// Dupe check worker email
+		if(null != ($worker_id = DAO_Worker::lookupAgentEmail($sEmail))) {
+			$logger->info('Avoiding creating duplicate worker #'.$worker_id.' ('.$sEmail.')');
+			return true;
+		}
+		
+		$worker_id = DAO_Worker::create($sEmail, CerberusApplication::generatePassword(8), $sFirstName, $sLastName, '');
+		
+		DAO_Worker::updateAgent($worker_id,array(
+			DAO_Worker::PASSWORD => $sPassword, // pre-MD5'd
+			DAO_Worker::IS_SUPERUSER => intval($isSuperuser),
+			DAO_Worker::CAN_DELETE => intval($isSuperuser),
+		));
+		
+		// Address to Worker
+		DAO_AddressToWorker::assign($sEmail, $worker_id);
+		DAO_AddressToWorker::update($sEmail,array(
+			DAO_AddressToWorker::IS_CONFIRMED => 1
+		));
+		
+		$logger->info('Imported worker #'.$worker_id.' ('.$sEmail.')');
+		
+		DAO_Worker::clearCache();
+		
+		return true;
+	}
+	
 	// [TODO] Move to an extension
 	private function _handleImportComment($xml) {
 		$mask = (string) $xml->mask;

@@ -2591,6 +2591,25 @@ class Model_Attachment {
 		if (!empty($this->filepath))
 		return file_get_contents($file_path.$this->filepath,false);
 	}
+	
+	public static function saveToFile($file_id, $contents) {
+		$attachment_path = APP_PATH . '/storage/attachments/';
+		
+	    // Make file attachments use buckets so we have a max per directory
+		$attachment_bucket = sprintf("%03d/",
+			rand(1,100)
+		);
+		$attachment_file = $file_id;
+		
+		if(!file_exists($attachment_path.$attachment_bucket)) {
+			@mkdir($attachment_path.$attachment_bucket, 0770, true);
+			// [TODO] Needs error checking
+		}
+		
+		file_put_contents($attachment_path.$attachment_bucket.$attachment_file, $contents);
+		
+		return $attachment_bucket.$attachment_file;
+	}
 };
 
 class CerberusTeam {

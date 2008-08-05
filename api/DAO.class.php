@@ -242,13 +242,17 @@ class DAO_Worker extends DevblocksORMHelper {
 			$db->qstr($title)
 		);
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-		$cache = DevblocksPlatform::getCacheService();
-		$cache->remove(self::CACHE_ALL);
+
+		self::clearCache();
 		
 		return $id;
 	}
 
+	static function clearCache() {
+		$cache = DevblocksPlatform::getCacheService();
+		$cache->remove(self::CACHE_ALL);
+	}
+	
 	static function getAll($nocache=false) {
 	    $cache = DevblocksPlatform::getCacheService();
 	    if($nocache || null === ($workers = $cache->load(self::CACHE_ALL))) {
@@ -351,8 +355,7 @@ class DAO_Worker extends DevblocksORMHelper {
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		if($flush_cache) {
-			$cache = DevblocksPlatform::getCacheService();
-			$cache->remove(self::CACHE_ALL);
+			self::clearCache();
 		}
 	}
 	
@@ -423,8 +426,8 @@ class DAO_Worker extends DevblocksORMHelper {
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 
 		// Invalidate caches
+		self::clearCache();
 		$cache = DevblocksPlatform::getCacheService();
-		$cache->remove(self::CACHE_ALL);
 		$cache->remove(DAO_Group::CACHE_ROSTERS);
 	}
 	
