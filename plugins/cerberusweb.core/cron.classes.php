@@ -395,7 +395,7 @@ class ImportCron extends CerberusCronPageExtension {
 
 		// Create ticket
 		$fields = array(
-			DAO_Ticket::MASK => $sMask,
+			DAO_Ticket::MASK => $sMask, // [TODO] Dupe check
 			DAO_Ticket::SUBJECT => $sSubject,
 			DAO_Ticket::IS_WAITING => $isWaiting,
 			DAO_Ticket::IS_CLOSED => $isClosed,
@@ -405,9 +405,10 @@ class ImportCron extends CerberusCronPageExtension {
 			DAO_Ticket::UPDATED_DATE => $iUpdatedDate,
 			DAO_Ticket::TEAM_ID => intval($iGroupId),
 			DAO_Ticket::CATEGORY_ID => intval($iBucketId),
-			DAO_Ticket::LAST_ACTION_CODE => CerberusTicketActionCode::TICKET_OPENED, // [TODO] Make live
+			DAO_Ticket::LAST_ACTION_CODE => CerberusTicketActionCode::TICKET_OPENED,
 		);
-//		$ticket_id = DAO_Ticket::createTicket($fields);
+		$ticket_id = DAO_Ticket::createTicket($fields);
+		echo $ticket_id;
 		
 		print_r($fields);
 		
@@ -415,38 +416,45 @@ class ImportCron extends CerberusCronPageExtension {
 		if(!is_null($xml->requesters))
 		foreach($xml->requesters->address as $eAddress) { /* @var $eAddress SimpleXMLElement */
 			$sRequesterAddy = (string) $eAddress; // [TODO] RFC822
-			// [TODO] Insert requesters
+			// Insert requesters
+			$requesterAddyInst = CerberusApplication::hashLookupAddress($sRequesterAddy, true);
+			DAO_Ticket::createRequester($requesterAddyInst->id, $ticket_id);
 		}
 		
 		// Create messages
 		if(!is_null($xml->messages))
 		foreach($xml->messages->message as $eMessage) { /* @var $eMessage SimpleXMLElement */
-			$eHeaders =& $eMessage->headers;
+			$eHeaders =& $eMessage->headers; /* @var $eHeaders SimpleXMLElement */
 //			echo "From: ",(string) $eHeaders->from,"<BR>";
 //			echo "To: ",(string) $eHeaders->to,"<BR>";
 //			echo "Date: ",(string) $eHeaders->date,"<BR>";
+			$sMsgFrom = (string) $eHeaders->from;
+			$sMsgDate = (string) $eHeaders->date;
 			
 			// [TODO] RFC822 address parse 'From'.  Hash lookup.
+			$msgFromInst = CerberusApplication::hashLookupAddress($sMsgFrom, true);
 
 	        $fields = array(
 	            DAO_Message::TICKET_ID => $ticket_id,
 //	            DAO_Message::CREATED_DATE => $iDate, // [TODO] RFC822->epochal
-	            DAO_Message::ADDRESS_ID => $fromAddressId
+	            DAO_Message::ADDRESS_ID => $msgFromInst->id
 	        );
-//			$email_id = DAO_Message::create($fields);
+			$email_id = DAO_Message::create($fields);
 			
 			// Create message content
 			$sMessageContent = (string) $eMessage->content;
-			echo "CONTENT: ",$sMessageContent,"<BR>";
-			//DAO_MessageContent::update($email_id, $message->body);
-			
+//			echo "CONTENT: ",nl2br($sMessageContent),"<BR>";
+			DAO_MessageContent::update($email_id, $sMessageContent);
+
 			// Headers
-//			foreach($headers as $hk => $hv) {
-//			    DAO_MessageHeader::update($email_id, $id, $hk, $hv);
-//			}
+			foreach($eHeaders->children() as $eHeader) { /* @var $eHeader SimpleXMLElement */
+//				echo "Header Name: " . $eHeader->getName() . "Value: " . (string) $eHeader . "<BR>";
+			    DAO_MessageHeader::update($email_id, $ticket_id, $eHeader->getName(), (string) $eHeader);
+			}
 		}
 		
 		// Create attachments
+		// [TODO]
 		
 		// Create comments
 		if(!is_null($xml->comments))
@@ -455,14 +463,17 @@ class ImportCron extends CerberusCronPageExtension {
 			$sCommentAuthor = (string) $eComment->author; // [TODO] Address Hash Lookup
 			$sCommentText = (string) $eComment->text;
 			
+			$commentAuthorInst = CerberusApplication::hashLookupAddress($sCommentAuthor, true);
+			
+			// [TODO] Sanity checking
+			
 			$fields = array(
 				DAO_TicketComment::TICKET_ID => intval($ticket_id),
 				DAO_TicketComment::CREATED => intval($iCommentDate),
-				DAO_TicketComment::ADDRESS_ID => intval(0), // [TODO] Make live
+				DAO_TicketComment::ADDRESS_ID => intval($commentAuthorInst->id),
 				DAO_TicketComment::COMMENT => $sCommentText,
 			);
-//			$comment_id = DAO_TicketComment::create($fields);
-			print_r($fields);
+			$comment_id = DAO_TicketComment::create($fields);
 		}
 		
 		return true;
