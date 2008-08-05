@@ -1,4 +1,5 @@
 <b>Date Range:</b>
+{if $invalidDate}<font color="red"><b>Invalid Date specified.  Please try again.</b></font>{/if}
 
 <form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmRange" name="frmRange" onsubmit="return false;">
 <input type="hidden" name="c" value="reports">
@@ -46,7 +47,7 @@
 		<tr>
 			<td></td>
 			<td style="border-top:1px solid rgb(200,200,200);" align="right"><b>{$counts.total}</b></td>
-			<td style="padding-left:10px;">{*<b>(avg: {math equation="x/y" x=$counts.total y=$age_dur format="%0.2f"}/{if $age_term=='d'}day{else}mo{/if})</b>*}</td>
+			<td style="padding-left:10px;"><b>(avg: {math equation="x/y" x=$counts.total y=$age_dur format="%0.2f"}/day)</b></td>
 		</tr>
 		
 		{/if}

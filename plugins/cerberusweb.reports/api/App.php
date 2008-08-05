@@ -108,10 +108,20 @@ class ChReportNewTickets extends Extension_Report {
 			$start_time = strtotime($start);
 			$end_time = strtotime($end);
 		}
+				
+		if($start_time === false || $end_time === false) {
+			$start = "-30 days";
+			$end = "now";
+			$start_time = strtotime($start);
+			$end_time = strtotime($end);
+			
+			$tpl->assign('invalidDate', true);
+		}
 		
 		// reload variables in template
 		$tpl->assign('start', $start);
 		$tpl->assign('end', $end);
+		$tpl->assign('age_dur', abs(floor(($start_time - $end_time)/86400)));
 		
 	   	// Top Buckets
 		$groups = DAO_Group::getAll();
@@ -170,10 +180,12 @@ class ChReportNewTickets extends Extension_Report {
 			$start_time = strtotime($start);
 			$end_time = strtotime($end);
 		}
+
+		$block = 86400;
+		$now_day = floor(time()/$block);
+		$age_dur = abs(floor(($start_time - $end_time) / $block));
 		
 		$db = DevblocksPlatform::getDatabaseService();
-		$block = $age_term=='mo'?2629800:86400;
-		$now_day = floor(time()/$block);
 		
 		$sql = sprintf("SELECT count(*) as hits, floor(created_date/%d) AS day ".
 			"FROM ticket ".
@@ -198,7 +210,7 @@ class ChReportNewTickets extends Extension_Report {
 	    $graph->setProp('scale', 'date');
 //	    $graph->setProp('sort', false);
 	    $graph->setProp('startdate', $start);
-//	    $graph->setProp('enddate', '10/31/2007');
+	    $graph->setProp('enddate', $end);
 	    $graph->setProp('dateformat', 5);
 //	    $graph->setProp('xlabel', 'Day');
 //	    $graph->setProp('ylabel', 'Worker');
@@ -226,7 +238,7 @@ class ChReportNewTickets extends Extension_Report {
 	    }
 	    
 	    foreach($days as $d => $hits) {
-	    	$graph->addPoint($hits,'d:'.$d.' '.($age_term=='d'?'days':'months'),0);
+	    	$graph->addPoint($hits,'d:'.$d.' days',0);
 	    }
 	    
 //		$graph->setProp("key","Jeff Standen",0);
@@ -280,9 +292,19 @@ class ChReportWorkerReplies extends Extension_Report {
 			$end_time = strtotime($end);
 		}
 		
+		if($start_time === false || $end_time === false) {
+			$start = "-30 days";
+			$end = "now";
+			$start_time = strtotime($start);
+			$end_time = strtotime($end);
+			
+			$tpl->assign('invalidDate', true);
+		}
+		
 		// reload variables in template
 		$tpl->assign('start', $start);
 		$tpl->assign('end', $end);
+		$tpl->assign('age_dur', abs(floor(($start_time - $end_time)/86400)));
 		
 		// Top Workers
 		$workers = DAO_Worker::getAll();
@@ -351,10 +373,12 @@ class ChReportWorkerReplies extends Extension_Report {
 			$start_time = strtotime($start);
 			$end_time = strtotime($end);
 		}
+
+		$block = 86400;
+		$now_day = floor(time()/$block);
+		$age_dur = abs(floor(($start_time - $end_time) / $block));
 		
 		$db = DevblocksPlatform::getDatabaseService();
-		$block = $age_term=='mo'?2629800:86400;
-		$now_day = floor(time()/$block);
 		
 		$sql = sprintf("SELECT count(*) as hits, floor(m.created_date/%d) AS day ".
 			"FROM message m ".
@@ -381,7 +405,7 @@ class ChReportWorkerReplies extends Extension_Report {
 	    $graph->setProp('scale', 'date');
 //	    $graph->setProp('sort', false);
 	    $graph->setProp('startdate', $start);
-//	    $graph->setProp('enddate', '10/31/2007');
+	    $graph->setProp('enddate', $end);
 	    $graph->setProp('dateformat', 5);
 //	    $graph->setProp('xlabel', 'Day');
 //	    $graph->setProp('ylabel', 'Worker');
@@ -409,7 +433,7 @@ class ChReportWorkerReplies extends Extension_Report {
 	    }
 	    
 	    foreach($days as $d => $hits) {
-	    	$graph->addPoint($hits,'d:'.$d.' '.($age_term=='d'?'days':'months'),0);
+	    	$graph->addPoint($hits,'d:'.$d.' days',0);
 	    }
 	    
 //		$graph->setProp("key","Jeff Standen",0);
@@ -458,6 +482,15 @@ class ChReportAverageResponseTime extends Extension_Report {
 			$end_time = strtotime($end);
 		}
 		
+		if($start_time === false || $end_time === false) {
+			$start = "-30 days";
+			$end = "now";
+			$start_time = strtotime($start);
+			$end_time = strtotime($end);
+			
+			$tpl->assign('invalidDate', true);
+		}
+		
 		// reload variables in template
 		$tpl->assign('start', $start);
 		$tpl->assign('end', $end);
@@ -497,7 +530,7 @@ class ChReportAverageResponseTime extends Extension_Report {
 			$category_id = intval($rs_responses->fields['category_id']);
 			
 			// we only add data if it's a worker reply to the same ticket as $prev
-			if ($is_outgoing==1 && $ticket_id==$prev['ticket_id']) {
+			if ($is_outgoing==1 && !empty($prev) && $ticket_id==$prev['ticket_id']) {
 				// Initialize, if necessary
 				if (!isset($group_responses[$team_id])) $group_responses[$team_id] = array();
 				if (!isset($worker_responses[$worker_id])) $worker_responses[$worker_id] = array();

@@ -1,6 +1,7 @@
 <div class="block">
 
 <b>Date Range:</b>
+{if $invalidDate}<font color="red"><b>Invalid Date specified.  Please try again.</b></font>{/if}
 
 <form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmRange" name="frmRange" onsubmit="return false;">
 <input type="hidden" name="c" value="reports">
