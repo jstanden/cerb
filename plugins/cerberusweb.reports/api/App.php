@@ -372,6 +372,122 @@ class ChReportWorkerReplies extends Extension_Report {
 	}
 }
 
+class ChReportAverageResponseTime extends Extension_Report {
+	private $tpl_path = null;
+	
+	function __construct($manifest) {
+		parent::__construct($manifest);
+		$this->tpl_path = realpath(dirname(__FILE__).'/../templates');
+	}
+	
+	function render() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', $this->tpl_path);
+		
+		$tpl->display('file:' . $this->tpl_path . '/reports/report/average_response_time/index.tpl.php');
+	}
+	
+	function getAverageResponseTimeReportAction() {
+		// init
+		$db = DevblocksPlatform::getDatabaseService();
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', $this->tpl_path);
+
+		// import dates from form
+		@$age = DevblocksPlatform::importGPC($_REQUEST['age'],'string','30d');
+		@$start = DevblocksPlatform::importGPC($_REQUEST['startART'],'string','');
+		@$end = DevblocksPlatform::importGPC($_REQUEST['endART'],'string','');
+		
+		// use date range if specified, else use duration prior to now
+		$start_time = 0;
+		$end_time = 0;
+		@list($age_dur, $age_term) = sscanf($age,"%d%s");
+		if(empty($age_dur)) $age_dur = 30;
+		if(empty($age_term)) $age_term = 'd';
+		if (empty($start) && empty($end)) {
+			$start_time = strtotime("-".$age_dur." ".($age_term=='d'?'days':'months'));
+			$end_time = time();
+		} else {
+			$start_time = strtotime($start);
+			$end_time = strtotime($end);
+		}
+		
+		// reload variables in template
+		$tpl->assign('age', $age);
+		$tpl->assign('age_dur', $age_dur);
+		$tpl->assign('age_term', $age_term);
+		$tpl->assign('startART', $start);
+		$tpl->assign('endART', $end);
+		
+		// set up necessary reference arrays
+	   	$groups = DAO_Group::getAll();
+		$tpl->assign('groups', $groups);
+		$group_buckets = DAO_Bucket::getTeams();
+		$tpl->assign('group_buckets', $group_buckets);
+	   	$workers = DAO_Worker::getAll();
+	   	$tpl->assign('workers',$workers);
+		
+	   	// pull data from db
+	   	$sql = sprintf("SELECT mm.id, mm.ticket_id, mm.created_date, mm.worker_id, mm.is_outgoing, t.team_id, t.category_id ".
+			"FROM message m ".
+	   		"INNER JOIN ticket t ON (t.id=m.ticket_id) ".
+	   		"INNER JOIN message mm ON (mm.ticket_id=t.id) ".
+			"WHERE m.created_date > %d AND m.created_date <= %d AND m.is_outgoing = 1 ".
+	   		"ORDER BY ticket_id,id ",
+			$start_time,
+			$end_time
+		);
+		$rs_responses = $db->Execute($sql);
+		
+		// process and count results
+	   	$group_responses = array();
+	   	$worker_responses = array();
+	   	$prev = array();
+		while(!$rs_responses->EOF) {
+			// load current data
+			$id = intval($rs_responses->fields['id']);
+			$ticket_id = intval($rs_responses->fields['ticket_id']);
+			$created_date = intval($rs_responses->fields['created_date']);
+			$worker_id = intval($rs_responses->fields['worker_id']);
+			$is_outgoing = intval($rs_responses->fields['is_outgoing']);
+			$team_id = intval($rs_responses->fields['team_id']);
+			$category_id = intval($rs_responses->fields['category_id']);
+			
+			// we only add data if it's a worker reply to the same ticket as $prev
+			if ($is_outgoing==1 && $ticket_id==$prev['ticket_id']) {
+				// Initialize, if necessary
+				if (!isset($group_responses[$team_id])) $group_responses[$team_id] = array();
+				if (!isset($worker_responses[$worker_id])) $worker_responses[$worker_id] = array();
+				
+				// log reply and time
+				@$group_responses[$team_id]['replies'] += 1;
+				@$group_responses[$team_id]['time'] += $created_date - $prev['created_date'];
+				@$worker_responses[$worker_id]['replies'] += 1;
+				@$worker_responses[$worker_id]['time'] += $created_date - $prev['created_date'];
+			}
+			
+			// Save this one as "previous" and move on
+			$prev = array(
+				'id'=>$id,
+				'ticket_id'=>$ticket_id,
+				'created_date'=>$created_date,
+				'worker_id'=>$worker_id,
+				'is_outgoing'=>$is_outgoing,
+				'team_id'=>$team_id,
+				'category_id'=>$category_id,
+				);
+			$rs_responses->MoveNext();
+		}
+		$tpl->assign('group_responses', $group_responses);
+		$tpl->assign('worker_responses', $worker_responses);
+		
+		$tpl->display('file:' . $this->tpl_path . '/reports/report/average_response_time/html.tpl.php');
+	}
+	
+}
+
 class ChReportsPage extends CerberusPageExtension {
 	private $tpl_path = null;
 	
