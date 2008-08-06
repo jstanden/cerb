@@ -858,7 +858,7 @@ class UmScCoreController extends Extension_UmScController {
 		$umsession->setProperty('support.write.last_followup_a', null);
 		
 		$sDispatch = DAO_CommunityToolProperty::get($this->getPortal(),UmScApp::PARAM_DISPATCH, '');
-		$dispatch = !empty($sDispatch) ? (is_array($sDispatch) ? unserialize($sDispatch): array($sDispatch)) : array();
+		$dispatch = !empty($sDispatch) ? unserialize($sDispatch) : array();
 		
 		// Check if this nature has followups, if not skip to send
 		$followups = array();
@@ -925,8 +925,8 @@ class UmScCoreController extends Extension_UmScController {
 		$subject = 'Contact me: Other';
 		
         $sDispatch = DAO_CommunityToolProperty::get($this->getPortal(),UmScApp::PARAM_DISPATCH, '');
-        $dispatch = !empty($sDispatch) ? (is_array($sDispatch) ? unserialize($sDispatch): array($sDispatch)) : array();
-
+        $dispatch = !empty($sDispatch) ? unserialize($sDispatch) : array();
+        
         foreach($dispatch as $k => $v) {
         	if(md5($k)==$sNature) {
         		$to = $v['to'];
@@ -1344,7 +1344,8 @@ class UmScCoreController extends Extension_UmScController {
 						$tpl->assign('last_error', $sError);
 						
 	       				$sDispatch = DAO_CommunityToolProperty::get($this->getPortal(),UmScApp::PARAM_DISPATCH, '');
-		    			$dispatch = !empty($sDispatch) ? (is_array($sDispatch) ? unserialize($sDispatch): array($sDispatch)) : array();
+//		    			$dispatch = !empty($sDispatch) ? (is_array($sDispatch) ? unserialize($sDispatch): array($sDispatch)) : array();
+		    			$dispatch = !empty($sDispatch) ? unserialize($sDispatch) : array();
 				        $tpl->assign('dispatch', $dispatch);
 				        
 				        switch($response) {
@@ -1352,6 +1353,7 @@ class UmScCoreController extends Extension_UmScController {
 				        		// If there's only one situation, skip to step2
 						        if(1==count($dispatch)) {
 						        	@$sNature = md5(key($dispatch));
+						        	$umsession->setProperty('support.write.last_nature', $sNature);
 						        	reset($dispatch);
 						        } else {
 				        			$tpl->display("file:${tpl_path}portal/sc/internal/contact/step1.tpl.php");
