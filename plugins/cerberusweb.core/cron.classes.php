@@ -314,23 +314,35 @@ class ImportCron extends CerberusCronPageExtension {
 				if(!is_writeable($file))
 					continue;
 
-				$file_part = basename($file);
-				 
-				$xml_root = simplexml_load_file($file); /* @var $xml_root SimpleXMLElement */
+				// Preventatively move into the fail dir while we parse
+				$move_to_dir = $importFailDir . basename($subdir) . '/';
+
+				if(!file_exists($move_to_dir))
+					mkdir($move_to_dir,0744,true);
+
+				$dest_file = $move_to_dir . basename($file);
+				@rename($file, $dest_file);
+				$file = $dest_file;				
+				
+				// Parse the XML
+				if(!@$xml_root = simplexml_load_file($file)) { /* @var $xml_root SimpleXMLElement */
+					$logger->err("[Importer] Error parsing XML file: " . $file);
+					continue;
+				}
+				
+				if(empty($xml_root)) {
+					$logger->err("[Importer] XML root element doesn't exist in: " . $file);
+					continue;
+				}
+				
 				$object_type = $xml_root->getName();
 
+				$file_part = basename($file);
+				
 				$logger->info("[Importer] Reading ".$file_part." ... ($object_type)");
 
 				if($this->_handleImport($object_type, $xml_root)) { // Success
 					@unlink($file);
-
-				} else { // Missed (move to fail) 
-					$move_to_dir = $importFailDir . basename($subdir) . '/';
-
-					if(!file_exists($move_to_dir))
-					mkdir($move_to_dir,0744,true);
-
-					@rename($file, $move_to_dir . basename($file));
 				}
 				 
 				if(--$limit <= 0)
@@ -369,6 +381,43 @@ class ImportCron extends CerberusCronPageExtension {
 		$settings = CerberusSettings::getInstance();
 		$logger = DevblocksPlatform::getConsoleLog();
 
+		static $email_to_worker_id = null;
+		static $group_name_to_id = null;
+		static $bucket_name_to_id = null;
+		
+		// Hash Workers so we can ID their incoming tickets
+		if(null == $email_to_worker_id) {
+			$workers = DAO_Worker::getAll();
+			$email_to_worker_id = array();
+			
+			if(is_array($workers))
+			foreach($workers as $worker) { /* @var $worker CerberusWorker */
+				$email_to_worker_id[strtolower($worker->email)] = intval($worker->id);
+			}
+		}
+		
+		// Hash Group names
+		if(null == $group_name_to_id) {
+			$groups = DAO_Group::getAll();
+			$group_name_to_id = array();
+
+			if(is_array($groups))
+			foreach($groups as $group) {
+				$group_name_to_id[strtolower($group->name)] = intval($group->id);
+			}
+		}
+		
+		// Hash Bucket names
+		if(null == $bucket_name_to_id) {
+			$buckets = DAO_Bucket::getAll();
+			$bucket_name_to_id = array();
+
+			if(is_array($buckets))
+			foreach($buckets as $bucket) {
+				$bucket_name_to_id[strtolower($bucket->name)] = intval($bucket->id);
+			}
+		}
+		
 		$sMask = (string) $xml->mask;
 		$sSubject = (string) $xml->subject;
 		$sGroup = (string) $xml->group;
@@ -378,22 +427,29 @@ class ImportCron extends CerberusCronPageExtension {
 		$isWaiting = (integer) $xml->is_waiting;
 		$isClosed = (integer) $xml->is_closed;
 		
-		// [TODO] Find the destination Group + Bucket (or create them)
-		// [TODO] Hash these so we know which group+bucket combos exist already
-		$groups = DAO_Group::getAll();
-		$buckets = DAO_Bucket::getAll();
-		$iGroupId = intval($settings->get(CerberusSettings::DEFAULT_TEAM_ID, '0'));
-		$iBucketId = 0;
-		
-		// Hash Workers so we can ID their incoming tickets
-		$workers = DAO_Worker::getAll();
-		$email_to_worker_id = array();
-		
-		if(is_array($workers))
-		foreach($workers as $worker) { /* @var $worker CerberusWorker */
-			$email_to_worker_id[strtolower($worker->email)] = intval($worker->id);
+		// Find the destination Group + Bucket (or create them)
+		if(empty($sGroup)) {
+			$iDestGroupId = intval($settings->get(CerberusSettings::DEFAULT_TEAM_ID, '0'));
+		} elseif(null == ($iDestGroupId = @$group_name_to_id[strtolower($sGroup)])) {
+			$iDestGroupId = DAO_Group::createTeam(array(
+				DAO_Group::TEAM_NAME => $sGroup,				
+			));
+			
+			// Rehash
+			DAO_Group::getAll(true);
+			$group_name_to_id[strtolower($sGroup)] = $iDestGroupId;
 		}
 		
+		if(empty($sBucket)) {
+			$iDestBucketId = 0; // Inbox
+		} elseif(null == ($iDestBucketId = @$bucket_name_to_id[strtolower($sBucket)])) {
+			$iDestBucketId = DAO_Bucket::create($sBucket, $iDestGroupId);
+			
+			// Rehash
+			DAO_Bucket::getAll(true);
+			$bucket_name_to_id[strtolower($sBucket)] = $iDestBucketId;
+		}
+			
 		// Xpath the first and last "from" out of "/ticket/messages/message/headers/from"
 		$aMessageNodes = $xml->xpath("/ticket/messages/message");
 		$iNumMessages = count($aMessageNodes);
@@ -430,8 +486,8 @@ class ImportCron extends CerberusCronPageExtension {
 			DAO_Ticket::LAST_WROTE_ID => intval($lastWroteInst->id),
 			DAO_Ticket::CREATED_DATE => $iCreatedDate,
 			DAO_Ticket::UPDATED_DATE => $iUpdatedDate,
-			DAO_Ticket::TEAM_ID => intval($iGroupId),
-			DAO_Ticket::CATEGORY_ID => intval($iBucketId),
+			DAO_Ticket::TEAM_ID => intval($iDestGroupId),
+			DAO_Ticket::CATEGORY_ID => intval($iDestBucketId),
 			DAO_Ticket::LAST_ACTION_CODE => $sLastActionCode,
 			DAO_Ticket::LAST_WORKER_ID => intval($iLastWorkerId),
 		);
@@ -517,8 +573,12 @@ class ImportCron extends CerberusCronPageExtension {
 			}
 			
 			// Create message content
-			$sMessageContent = (string) $eMessage->content;
+			$sMessageContentB64 = (string) $eMessage->content;
+			$sMessageContent = base64_decode($sMessageContentB64);
+			unset($sMessageContentB64);
+			
 			DAO_MessageContent::update($email_id, $sMessageContent);
+			unset($sMessageContent);
 
 			// Headers
 			foreach($eHeaders->children() as $eHeader) { /* @var $eHeader SimpleXMLElement */
@@ -531,7 +591,10 @@ class ImportCron extends CerberusCronPageExtension {
 		foreach($xml->comments->comment as $eComment) { /* @var $eMessage SimpleXMLElement */
 			$iCommentDate = (integer) $eComment->created_date;
 			$sCommentAuthor = (string) $eComment->author; // [TODO] Address Hash Lookup
-			$sCommentText = (string) $eComment->text;
+			
+			$sCommentTextB64 = (string) $eComment->text;
+			$sCommentText = base64_decode($sCommentTextB64);
+			unset($sCommentTextB64);
 			
 			$commentAuthorInst = CerberusApplication::hashLookupAddress($sCommentAuthor, true);
 			
@@ -544,9 +607,11 @@ class ImportCron extends CerberusCronPageExtension {
 				DAO_TicketComment::COMMENT => $sCommentText,
 			);
 			$comment_id = DAO_TicketComment::create($fields);
+			
+			unset($sCommentText);
 		}
 		
-		$logger->info('Imported ticket #'.$ticket_id);
+		$logger->info('[Importer] Imported ticket #'.$ticket_id);
 		
 		return true;
 	}
@@ -563,7 +628,7 @@ class ImportCron extends CerberusCronPageExtension {
 		
 		// Dupe check worker email
 		if(null != ($worker_id = DAO_Worker::lookupAgentEmail($sEmail))) {
-			$logger->info('Avoiding creating duplicate worker #'.$worker_id.' ('.$sEmail.')');
+			$logger->info('[Importer] Avoiding creating duplicate worker #'.$worker_id.' ('.$sEmail.')');
 			return true;
 		}
 		
@@ -581,7 +646,7 @@ class ImportCron extends CerberusCronPageExtension {
 			DAO_AddressToWorker::IS_CONFIRMED => 1
 		));
 		
-		$logger->info('Imported worker #'.$worker_id.' ('.$sEmail.')');
+		$logger->info('[Importer] Imported worker #'.$worker_id.' ('.$sEmail.')');
 		
 		DAO_Worker::clearCache();
 		
