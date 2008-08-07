@@ -18,14 +18,14 @@
   <link type="text/css" rel="stylesheet" href="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yui/tabview/assets/skins/sam/tabview.css{/devblocks_url}?v={$smarty.const.APP_BUILD}">  
   <link type="text/css" rel="stylesheet" href="{devblocks_url}styles/default/cerberus.css?v={$smarty.const.APP_BUILD}{/devblocks_url}">
   
-  <script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yui/utilities/utilities.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script> 
+  <script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yui/utilities/utilities.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
+  <script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yui/element/element-beta-min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script> 
   <script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yui/calendar/calendar-min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script> 
   <script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yui/container/container-min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script> 
   <script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yui/tabview/tabview-min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script> 
+  <script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yui/datasource/datasource-beta-min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>  
   <script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yui/autocomplete/autocomplete-min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
-  <!-- <script type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yui/charts/charts-experimental-min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>   -->
-  <script type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yui/yahoo-dom-event/yahoo-dom-event.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>  
-  <script type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yui/charts/charts-experimental-debug.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>  
+  <script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yui/charts/charts-experimental-min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>  
 
   <script language="javascript" type="text/javascript">{php}DevblocksPlatform::printJavascriptLibrary();{/php}</script>
   
