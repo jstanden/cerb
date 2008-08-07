@@ -269,6 +269,84 @@ class ChReportWorkerReplies extends Extension_Report {
 	}
 	
 	function getWorkerRepliesReportAction() {
+		@$age = DevblocksPlatform::importGPC($_REQUEST['age'],'string', '30d');
+		
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', $this->tpl_path);
+		
+		// import dates from form
+		@$start = DevblocksPlatform::importGPC($_REQUEST['start'],'string','');
+		@$end = DevblocksPlatform::importGPC($_REQUEST['end'],'string','');
+		
+		// use date range if specified, else use duration prior to now
+		$start_time = 0;
+		$end_time = 0;
+		
+		if (empty($start) && empty($end)) {
+			$start = "-30 days";
+			$end = "now";
+			$start_time = strtotime($start);
+			$end_time = strtotime($end);
+		} else {
+			$start_time = strtotime($start);
+			$end_time = strtotime($end);
+		}
+		
+		if($start_time === false || $end_time === false) {
+			$start = "-30 days";
+			$end = "now";
+			$start_time = strtotime($start);
+			$end_time = strtotime($end);
+			
+			$tpl->assign('invalidDate', true);
+		}
+		
+		// reload variables in template
+		$tpl->assign('start', $start);
+		$tpl->assign('end', $end);
+		$tpl->assign('age_dur', abs(floor(($start_time - $end_time)/86400)));
+		
+		// Top Workers
+		$workers = DAO_Worker::getAll();
+		$tpl->assign('workers', $workers);
+		
+		$groups = DAO_Group::getAll();
+		$tpl->assign('groups', $groups);
+		
+		$sql = sprintf("SELECT count(*) AS hits, t.team_id, m.worker_id ".
+			"FROM message m ".
+			"INNER JOIN ticket t ON (t.id=m.ticket_id) ".
+			"WHERE m.created_date > %d AND m.created_date <= %d ".
+			"AND m.is_outgoing = 1 ".
+			"AND t.is_deleted = 0 ".
+			"GROUP BY t.team_id, m.worker_id ",
+			$start_time,
+			$end_time
+		);
+		$rs_workers = $db->Execute($sql);
+		
+		$worker_counts = array();
+		while(!$rs_workers->EOF) {
+			$hits = intval($rs_workers->fields['hits']);
+			$team_id = intval($rs_workers->fields['team_id']);
+			$worker_id = intval($rs_workers->fields['worker_id']);
+			
+			if(!isset($worker_counts[$worker_id]))
+				$worker_counts[$worker_id] = array();
+			
+			$worker_counts[$worker_id][$team_id] = $hits;
+			@$worker_counts[$worker_id]['total'] = intval($worker_counts[$worker_id]['total']) + $hits;
+			$rs_workers->MoveNext();
+		}
+		$tpl->assign('worker_counts', $worker_counts);
+		
+		$tpl->display('file:' . $this->tpl_path . '/reports/report/worker_replies/html.tpl.php');
+	}
+	
+	function getWorkerRepliesChartAction() {
 		header("content-type: text/plain");
 	
 		$db = DevblocksPlatform::getDatabaseService();

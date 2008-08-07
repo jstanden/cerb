@@ -3,7 +3,7 @@
 </div>
 <script language="javascript" type="text/javascript">
 {literal}
-function drawReport(start, end) {{/literal}
+function drawChart(start, end) {{/literal}
 	YAHOO.widget.Chart.SWFURL = "{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yui/charts/assets/charts.swf{/devblocks_url}?v={$smarty.const.APP_BUILD}";
 	{literal}
 	if(start==null || start=="") {
@@ -14,7 +14,7 @@ function drawReport(start, end) {{/literal}
 	}
 	start=escape(start);
 	end=escape(end);
-	var myXHRDataSource = new YAHOO.util.DataSource("{/literal}{devblocks_url}ajax.php?c=reports&a=action&extid=report.tickets.worker_replies&extid_a=getWorkerRepliesReport{/devblocks_url}{literal}&start="+start+"&end="+end);
+	var myXHRDataSource = new YAHOO.util.DataSource("{/literal}{devblocks_url}ajax.php?c=reports&a=action&extid=report.tickets.worker_replies&extid_a=getWorkerRepliesChart{/devblocks_url}{literal}&start="+start+"&end="+end);
 	myXHRDataSource.responseType = YAHOO.util.DataSource.TYPE_TEXT; 
 	myXHRDataSource.responseSchema = {
 		recordDelim: "\n",
@@ -43,7 +43,7 @@ function drawReport(start, end) {{/literal}
 <input type="hidden" name="extid_a" value="getWorkerRepliesReport">
 <input type="text" name="start" id="start" size="10" value="{$start}"><button type="button" onclick="ajax.getDateChooser('divCal',this.form.start);">&nbsp;<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/calendar.gif{/devblocks_url}" align="top">&nbsp;</button>
 <input type="text" name="end" id="end" size="10" value="{$end}"><button type="button" onclick="ajax.getDateChooser('divCal',this.form.end);">&nbsp;<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/calendar.gif{/devblocks_url}" align="top">&nbsp;</button>
-<button type="button" id="btnSubmit" onclick="drawReport(document.getElementById('start').value, document.getElementById('end').value);">Refresh</button>
+<button type="button" id="btnSubmit" onclick="genericAjaxPost('frmRange', 'reportWorkerReplies');drawChart(document.getElementById('start').value, document.getElementById('end').value);">Refresh</button>
 <div id="divCal" style="display:none;position:absolute;z-index:1;"></div>
 </form>
 
@@ -58,6 +58,8 @@ function drawReport(start, end) {{/literal}
 
 <div id="myContainer" style="width:800;height:600;"></div>
 
+<div id="reportWorkerReplies"></div>
 <script language="javascript" type="text/javascript">
-	drawReport('-30 days', 'now');
+	drawChart('-30 days', 'now');
+	genericAjaxPost('frmRange', 'reportWorkerReplies');
 </script>
