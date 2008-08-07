@@ -104,18 +104,5 @@
 		</params>
 	</extension>
 	
-	<extension point="cerberusweb.report">
-		<id>report.tickets.worker_replies2</id>
-		<name>Worker Replies Report 2</name>
-		<class>
-			<file>api/App.php</file>
-			<name>ChReportWorkerReplies2</name>
-		</class>
-		<params>
-			<param key="report_name" value="Worker Replies 2" />
-			<param key="report_group" value="report.group.workers" />
-		</params>
-	</extension>
-	
 	</extensions>
 </plugin>
