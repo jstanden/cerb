@@ -159,10 +159,8 @@ class ChReportNewTickets extends Extension_Report {
 		$tpl->display('file:' . $this->tpl_path . '/reports/report/new_tickets/html.tpl.php');
 	}
 	
-	function drawTicketGraphAction() {
+	function getTicketChartDataAction() {
 		$path = realpath(dirname(__FILE__).'/../resources/font');
-		
-		@$age = DevblocksPlatform::importGPC($_REQUEST['age'],'string','30d');
 		
 		// import dates from form
 		@$start = DevblocksPlatform::importGPC($_REQUEST['start'],'string','');
@@ -181,72 +179,29 @@ class ChReportNewTickets extends Extension_Report {
 			$start_time = strtotime($start);
 			$end_time = strtotime($end);
 		}
-
-		$block = 86400;
-		$now_day = floor(time()/$block);
-		$age_dur = abs(floor(($start_time - $end_time) / $block));
 		
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = sprintf("SELECT count(*) as hits, floor(created_date/%d) AS day ".
+		$sql = sprintf("SELECT count(*) as hits, ".
+			"DATE_FORMAT(FROM_UNIXTIME(created_date), '%%Y%%m%%d') as create_day, ".
+			"DATE_FORMAT(FROM_UNIXTIME(created_date), '%%m/%%d/%%y') as create_day_display ".
 			"FROM ticket ".
 			"WHERE created_date > %d AND created_date <= %d AND is_deleted = 0 ".
-			"GROUP BY day",
-			$block,
+			"GROUP BY create_day ORDER BY create_day",
 			$start_time,
 			$end_time
 		);
 		$rs = $db->Execute($sql);
-
-	    $graph = new graph();
-	    $graph->setProp('font', $path.'/ryanlerch_-_Tuffy.ttf');
-	    $graph->setProp('title', $start . ' to ' . $end);
-	    $graph->setProp('titlesize', 14);
-//	    $graph->setProp('actwidth', 400);
-	    $graph->setProp('actheight', 225);
-	    $graph->setProp('xsclpts', 5);
-		$graph->setProp('xincpts', 5);
-	    $graph->setProp('ysclpts', 5);
-	    $graph->setProp('yincpts', 5);
-	    $graph->setProp('scale', 'date');
-//	    $graph->setProp('sort', false);
-	    $graph->setProp('startdate', $start);
-	    $graph->setProp('enddate', $end);
-	    $graph->setProp('dateformat', 5);
-//	    $graph->setProp('xlabel', 'Day');
-//	    $graph->setProp('ylabel', 'Worker');
-	    $graph->setProp('labelsize', 10);
-//	    $graph->setProp('type', 'bar');
-//	    $graph->setProp("colorlist",array(array(100,100,255),array(150,255,255),array(160,255,160),array(255,255,150),array(255,110,110)));
-	    $graph->setProp('showgrid', true);
-//	    $graph->setProp('showkey',true);
-	    $graph->setProp('keywidspc',20);
-	    $graph->setProp('keyinfo',3);
-//	    $graph->setProp('key',array('Jeff Standen','Brenan Cavish','Mike Fogg','Dan Hildebrandt','Darren Sugita'));
-	    $graph->setProp('keyfont', $path.'/ryanlerch_-_Tuffy.ttf');
-	    $graph->setProp('keysize', 10);
-
-	    $days = array();
-	    for($x=-1*$age_dur;$x<=0;$x++) {
-	    	$days[$x] = 0;
-	    }
 	    
+		
 	    while(!$rs->EOF) {
 	    	$hits = intval($rs->fields['hits']);
-	    	$d = -1*($now_day - intval($rs->fields['day']));
-	    	$days[$d] = $hits;
+			$create_day = $rs->fields['create_day_display'];
+			
+			echo $create_day, "\t", $hits . "\n";
+			
 		    $rs->MoveNext();
 	    }
-	    
-	    foreach($days as $d => $hits) {
-	    	$graph->addPoint($hits,'d:'.$d.' days',0);
-	    }
-	    
-//		$graph->setProp("key","Jeff Standen",0);
-		$graph->setColor('color',0,'red');
-		
-		$graph->graph();
-		$graph->showGraph(true); 		    	
 	}
 }
 
