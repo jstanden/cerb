@@ -1786,7 +1786,6 @@ class ChTicketsPage extends CerberusPageExtension {
 	        @$type = $piles_type[$idx];
 	        @$type_param = $piles_type_param[$idx];
 	        @$val = $piles_value[$idx];
-	        @$always = (isset($piles_always[$hash])) ? 1 : 0;
 	        
 	        /*
 	         * [TODO] [JAS]: Somewhere here we should be ignoring these values for a bit
@@ -1848,7 +1847,7 @@ class ChTicketsPage extends CerberusPageExtension {
                 $doData = array($val);
             }
             
-            $view->doBulkUpdate($doType, $doTypeParam, $doData, $doActions, array(), $always);
+            $view->doBulkUpdate($doType, $doTypeParam, $doData, $doActions, array());
 	    }
 
 	    // Reset the paging since we may have reduced our list size
@@ -2373,7 +2372,6 @@ class ChTicketsPage extends CerberusPageExtension {
 	    @$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
 	    @$senders = DevblocksPlatform::importGPC($_REQUEST['senders'],'string','');
 	    @$subjects = DevblocksPlatform::importGPC($_REQUEST['subjects'],'string','');
-	    @$always = DevblocksPlatform::importGPC($_REQUEST['always'],'integer',0);
 	    
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		$view = C4_AbstractViewLoader::getView('',$view_id);
@@ -2414,8 +2412,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		$memberships = $active_worker->getMemberships();
 		$view->params['tmp'] = new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID, 'in', array_keys($memberships)); 
 	    
-	    // [TODO] Reimplement 'always'
-		$view->doBulkUpdate($filter, '', $data, $do, $ticket_ids, $always);
+		$view->doBulkUpdate($filter, '', $data, $do, $ticket_ids);
 		
 		// Clear our temporary group restriction before re-rendering
 		unset($view->params['tmp']);
@@ -6366,8 +6363,7 @@ class ChCronController extends DevblocksControllerExtension {
 	    @$is_ignoring_wait = DevblocksPlatform::importGPC($_REQUEST['ignore_wait'],'integer',0);
 	    
 	    $pass = false;
-		foreach ($authorized_ips as $ip)
-		{
+		foreach ($authorized_ips as $ip) {
 			if(substr($ip,0,strlen($ip)) == substr($_SERVER['REMOTE_ADDR'],0,strlen($ip)))
 		 	{ $pass=true; break; }
 		}
@@ -6390,7 +6386,7 @@ class ChCronController extends DevblocksControllerExtension {
 			echo "<HTML>".
 			"<HEAD>".
 			"<TITLE></TITLE>".
-			(empty($job_id) ?  "<meta http-equiv='Refresh' content='".intval($reload).";" . $url->write('c=cron') . "?reload=".intval($reload)."&loglevel=".intval($loglevel)."'>" : ""). // only auto refresh on all jobs
+			"<meta http-equiv='Refresh' content='".intval($reload).";" . $url->write('c=cron' . ($job_id ? ("&a=".$job_id) : "")) . "?reload=".intval($reload)."&loglevel=".intval($loglevel)."'>". 
 		    "</HEAD>".
 			"<BODY>"; // onload=\"setTimeout(\\\"window.location.replace('".$url->write('c=cron')."')\\\",30);\"
         }

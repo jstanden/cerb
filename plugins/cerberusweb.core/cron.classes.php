@@ -278,8 +278,11 @@ class ImportCron extends CerberusCronPageExtension {
 		$logger->info("[Importer] Starting Import Task");
 		
 		@set_time_limit(0); // Unlimited (if possible)
-		@ini_set('memory_limit','64M');
+		@ini_set('memory_limit','128M');
 		 
+		$logger->info("[Importer] Overloaded memory_limit to: " . ini_get('memory_limit'));
+		$logger->info("[Importer] Overloaded max_execution_time to: " . ini_get('max_execution_time'));
+		
 		$importNewDir = APP_PATH . '/storage/import/new/';
 		$importFailDir = APP_PATH . '/storage/import/fail/';
 

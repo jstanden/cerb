@@ -14,22 +14,16 @@ Sort biggest piles by:
 <div id="{$view_id}_piles" style="display:{if empty($tips)}block{else}none{/if};">
 <table cellspacing="0" cellpadding="2" border="0" width="100%">
 <tr>
-	<td align="top" colspan="3">
+	<td align="top" colspan="2">
 		<H3 style="font-size:18px;margin:0px;">The biggest piles of common {if $mode=="senders"}senders{elseif $mode=="subjects"}subjects{elseif $mode=="import"}import sources{elseif $mode=="headers"}message headers{/if} in this list are:</H3>
 	</td>
 </tr>
 <tr>
-	<td width="0%" nowrap align="center">{if $mode=="senders"}Always{/if}</td>
 	<td width="0%" nowrap>Move to:</td>
 	<td width="100%">From biggest piles:</td>
 </tr>
 {foreach from=$biggest item=stats key=hash}
 <tr>
-	<td width="1%" nowrap="nowrap" align="center">
-		{if $mode=="senders"}
-		<input type="checkbox" name="piles_always[]" value="{$hash}">
-		{/if}
-	</td>
 	<td width="1%" nowrap="nowrap">
 		<select name="piles_moveto[]" id="select{$hash}">
 			<option value=""></option>
@@ -69,11 +63,6 @@ Sort biggest piles by:
 {if !empty($stats[3]) && is_array($stats[3])} {*$stats[0] == 'domain' && *}
 	{foreach from=$stats[3] item=sender key=sender_hash}
 	<tr>
-		<td width="1%" nowrap="nowrap" align="center">
-			{if $mode=="senders"}
-			<input type="checkbox" name="piles_always[]" value="{$sender_hash}">
-			{/if}
-		</td>
 		<td width="1%" nowrap="nowrap">
 			<select name="piles_moveto[]" id="select{$sender_hash}">
 				<option value=""></option>

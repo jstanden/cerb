@@ -48,7 +48,7 @@
  * 		and Joe Geck.
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-define("APP_BUILD", 693);
+define("APP_BUILD", 698);
 define("APP_MAIL_PATH", realpath(APP_PATH . '/storage/mail') . DIRECTORY_SEPARATOR);
 
 include_once(APP_PATH . "/api/DAO.class.php");
@@ -455,7 +455,8 @@ class CerberusApplication extends DevblocksApplication {
 	    static $hash_size = 0;
 	    
 	    if(isset($hash_address_to_id[$email])) {
-	        
+	    	$return = $hash_address_to_id[$email];
+	    	
 	        @$hash_hits[$email] = intval($hash_hits[$email]) + 1;
 	        $hash_size++;
 	        
@@ -467,7 +468,7 @@ class CerberusApplication extends DevblocksApplication {
 	            $hash_size = count($hash_address_to_id);
 	        }
 	        
-	        return $hash_address_to_id[$email];
+	        return $return;
 	    }
 	    
 	    $address = DAO_Address::lookupAddress($email, $create);
@@ -494,6 +495,8 @@ class CerberusApplication extends DevblocksApplication {
 	    static $hash_size = 0;
 	    
 	    if(isset($hash_mask_to_id[$mask])) {
+	    	$return = $hash_mask_to_id[$mask];
+	    	
 	        @$hash_hits[$mask] = intval($hash_hits[$mask]) + 1;
 	        $hash_size++;
 
@@ -505,7 +508,7 @@ class CerberusApplication extends DevblocksApplication {
 	            $hash_size = count($hash_mask_to_id);
 	        }
 	        
-	        return $hash_mask_to_id[$mask];
+	        return $return;
 	    }
 	    
 	    $ticket_id = DAO_Ticket::getTicketIdByMask($mask);

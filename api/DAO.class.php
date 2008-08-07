@@ -2901,14 +2901,14 @@ class DAO_Ticket extends DevblocksORMHelper {
 	
 	private function str_similar_prefix($str1,$str2) {
 		$pos = 0;
-		while(isset($str1[$pos]) && $str1[$pos]==$str2[$pos]) {
+		
+		$str1 = trim($str1);
+		$str2 = trim($str2);
+		
+		while((isset($str1[$pos]) && isset($str2[$pos])) && $str1[$pos]==$str2[$pos]) {
 			$pos++;
 		}
 		
-		// Trailing whitespace doesn't count
-		if($pos && $str1[$pos-1]==' ')
-			$pos--;
-			
 		return $pos;
 	}
     
