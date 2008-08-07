@@ -1088,7 +1088,6 @@ class ChReportWorkerReplies2 extends Extension_Report {
 			$end_time = strtotime($end);
 		}
 		
-		
 		// reload variables in template
 		$tpl->assign('start', $start);
 		$tpl->assign('end', $end);
@@ -1118,27 +1117,24 @@ class ChReportWorkerReplies2 extends Extension_Report {
 		
 		$worker_counts = array();
 		
-		$str = "";
-		
 		while(!$rs_workers->EOF) {
 			$hits = intval($rs_workers->fields['hits']);
 			//$team_id = intval($rs_workers->fields['team_id']);
 			$worker_id = intval($rs_workers->fields['worker_id']);
 			
+			if(!isset($workers[$worker_id]))
+				continue;
+			
 			//if(!isset($worker_counts[$worker_id]))
 			//	$worker_counts[$worker_id] = array();
 			
-			$str .= $worker_id . "\t" .  $hits . "\n";
-				
+			echo $workers[$worker_id]->getName() , "\t" , $hits , "\n";
 				
 			//$worker_counts[$worker_id][$team_id] = $hits;
 			//@$worker_counts[$worker_id]['total'] = intval($worker_counts[$worker_id]['total']) + $hits;
 			$rs_workers->MoveNext();
 		}
 		//$tpl->assign('worker_counts', $worker_counts);
-		
-		echo $str;
-		
 		//$tpl->display('file:' . $this->tpl_path . '/reports/report/worker_replies2/html.tpl.php');
 	}
 	

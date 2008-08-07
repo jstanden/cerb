@@ -5,7 +5,7 @@
 <h2>Worker Replies 2</h2>
 
 <div id="reportWorkerReplies2"></div>
-<div id="myContainer"></div>
+<div id="myContainer" style="width:800;height:600;"></div>
 
 <script language="javascript" type="text/javascript">
 	YAHOO.widget.Chart.SWFURL = "{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yui/charts/assets/charts.swf{/devblocks_url}?v={$smarty.const.APP_BUILD}";
