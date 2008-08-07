@@ -3,6 +3,7 @@ $path = realpath(dirname(__FILE__).'/../') . DIRECTORY_SEPARATOR;
 
 require_once($path . 'libs/advgraph/advgraph5.class.php');
 
+
 //DevblocksPlatform::registerClasses($path. 'api/App.php', array(
 //    'C4_TicketAuditLogView'
 //));
@@ -1042,4 +1043,201 @@ class ChReportsPage extends CerberusPageExtension {
 	*/
 	
 };
+
+
+class ChReportWorkerReplies2 extends Extension_Report {
+	private $tpl_path = null;
+	
+	function __construct($manifest) {
+		parent::__construct($manifest);
+		$this->tpl_path = realpath(dirname(__FILE__).'/../templates');
+	}
+	
+	function render() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', $this->tpl_path);
+		
+		$tpl->display('file:' . $this->tpl_path . '/reports/report/worker_replies2/index.tpl.php');
+	}
+	
+	function getWorkerReplies2ReportAction() {
+		@$age = DevblocksPlatform::importGPC($_REQUEST['age'],'string', '30d');
+		
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', $this->tpl_path);
+		
+		// import dates from form
+		@$start = DevblocksPlatform::importGPC($_REQUEST['start'],'string','');
+		@$end = DevblocksPlatform::importGPC($_REQUEST['end'],'string','');
+		
+		// use date range if specified, else use duration prior to now
+		$start_time = 0;
+		$end_time = 0;
+		
+		if (empty($start) && empty($end)) {
+			$start = "-30 days";
+			$end = "now";
+			$start_time = strtotime($start);
+			$end_time = strtotime($end);
+		} else {
+			$start_time = strtotime($start);
+			$end_time = strtotime($end);
+		}
+		
+		
+		// reload variables in template
+		$tpl->assign('start', $start);
+		$tpl->assign('end', $end);
+		
+		// Top Workers
+		$workers = DAO_Worker::getAll();
+		$tpl->assign('workers', $workers);
+		
+		$groups = DAO_Group::getAll();
+		$tpl->assign('groups', $groups);
+		
+		$sql = sprintf("SELECT count(*) AS hits, m.worker_id ".
+			"FROM message m ".
+			"INNER JOIN ticket t ON (t.id=m.ticket_id) ".
+			"WHERE m.created_date > %d AND m.created_date <= %d ".
+			"AND m.is_outgoing = 1 ".
+			"AND t.is_deleted = 0 ".
+			"GROUP BY m.worker_id ",
+			$start_time,
+			$end_time
+		);
+		$rs_workers = $db->Execute($sql);
+		
+		/*
+		 * <workers></workers>
+		 */
+		
+		$worker_counts = array();
+		
+		$str = "";
+		
+		while(!$rs_workers->EOF) {
+			$hits = intval($rs_workers->fields['hits']);
+			//$team_id = intval($rs_workers->fields['team_id']);
+			$worker_id = intval($rs_workers->fields['worker_id']);
+			
+			//if(!isset($worker_counts[$worker_id]))
+			//	$worker_counts[$worker_id] = array();
+			
+			$str .= $worker_id . "\t" .  $hits . "\n";
+				
+				
+			//$worker_counts[$worker_id][$team_id] = $hits;
+			//@$worker_counts[$worker_id]['total'] = intval($worker_counts[$worker_id]['total']) + $hits;
+			$rs_workers->MoveNext();
+		}
+		//$tpl->assign('worker_counts', $worker_counts);
+		
+		echo $str;
+		
+		//$tpl->display('file:' . $this->tpl_path . '/reports/report/worker_replies2/html.tpl.php');
+	}
+	
+	function drawRepliesGraphAction() {
+		$path = realpath(dirname(__FILE__).'/../resources/font');
+
+		@$age = DevblocksPlatform::importGPC($_REQUEST['age'],'string','30d');		
+		
+//		$uri = DevblocksPlatform::getHttpRequest();
+//		$stack = $uri->path;
+//		@array_shift($stack); // reports
+//		@array_shift($stack); // action
+//		@array_shift($stack); // extid
+//		@array_shift($stack); // graph
+//		@$age = array_shift($stack); // age
+
+		// import dates from form
+		@$start = DevblocksPlatform::importGPC($_REQUEST['start'],'string','');
+		@$end = DevblocksPlatform::importGPC($_REQUEST['end'],'string','');
+		
+		// use date range if specified, else use duration prior to now
+		$start_time = 0;
+		$end_time = 0;
+		
+		if (empty($start) && empty($end)) {
+			$start = "-30 days";
+			$end = "now";
+			$start_time = strtotime($start);
+			$end_time = strtotime($end);
+		} else {
+			$start_time = strtotime($start);
+			$end_time = strtotime($end);
+		}
+		
+		$db = DevblocksPlatform::getDatabaseService();
+		$block = $age_term=='mo'?2629800:86400;
+		$now_day = floor(time()/$block);
+		
+		$sql = sprintf("SELECT count(*) as hits, floor(m.created_date/%d) AS day ".
+			"FROM message m ".
+			"INNER JOIN ticket t ON (m.ticket_id=t.id) ".
+			"WHERE m.created_date > %d AND m.created_date <= %d AND t.is_deleted = 0 ".
+			"AND m.is_outgoing = 1 ".
+			"GROUP BY day",
+			$block,
+			$start_time,
+			$end_time
+		);
+		$rs = $db->Execute($sql);
+		
+	    $graph = new graph();
+	    $graph->setProp('font', $path.'/ryanlerch_-_Tuffy.ttf');
+	    $graph->setProp('title', $start . ' to ' . $end);
+	    $graph->setProp('titlesize', 14);
+//	    $graph->setProp('actwidth', 400);
+	    $graph->setProp('actheight', 225);
+	    $graph->setProp('xsclpts', 5);
+		$graph->setProp('xincpts', 5);
+	    $graph->setProp('ysclpts', 5);
+	    $graph->setProp('yincpts', 5);
+	    $graph->setProp('scale', 'date');
+//	    $graph->setProp('sort', false);
+	    $graph->setProp('startdate', $start);
+//	    $graph->setProp('enddate', '10/31/2007');
+	    $graph->setProp('dateformat', 5);
+//	    $graph->setProp('xlabel', 'Day');
+//	    $graph->setProp('ylabel', 'Worker');
+//	    $graph->setProp('labelsize', 20);
+//	    $graph->setProp('type', 'bar');
+//	    $graph->setProp("colorlist",array(array(100,100,255),array(150,255,255),array(160,255,160),array(255,255,150),array(255,110,110)));
+	    $graph->setProp('showgrid', true);
+//	    $graph->setProp('showkey',true);
+	    $graph->setProp('keywidspc',20);
+	    $graph->setProp('keyinfo',3);
+//	    $graph->setProp('key',array('Jeff Standen','Brenan Cavish','Mike Fogg','Dan Hildebrandt','Darren Sugita'));
+	    $graph->setProp('keyfont', $path.'/ryanlerch_-_Tuffy.ttf');
+	    $graph->setProp('keysize', 10);
+	    
+	    $days = array();
+	    for($x=-1*$age_dur;$x<=0;$x++) {
+	    	$days[$x] = 0;
+	    }
+	    
+	    while(!$rs->EOF) {
+	    	$hits = intval($rs->fields['hits']);
+	    	$d = -1*($now_day - intval($rs->fields['day']));
+	    	$days[$d] = $hits;
+		    $rs->MoveNext();
+	    }
+	    
+	    foreach($days as $d => $hits) {
+	    	$graph->addPoint($hits,'d:'.$d.' '.($age_term=='d'?'days':'months'),0);
+	    }
+	    
+//		$graph->setProp("key","Jeff Standen",0);
+		$graph->setColor('color',0,'red');
+		
+		$graph->graph();
+		$graph->showGraph(true); 		    	
+	}
+}
 ?>
