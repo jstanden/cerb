@@ -534,7 +534,7 @@ class ChReportSpamAddys extends Extension_Report {
 		$top_spam_addys = array();
 		$top_nonspam_addys = array();
 		
-		$sql = "SELECT email,num_spam,num_nonspam,is_banned FROM address WHERE num_spam > 0 ORDER BY num_spam desc LIMIT 0,100";
+		$sql = "SELECT email,num_spam,num_nonspam,is_banned FROM address WHERE num_spam+num_nonspam > 0 ORDER BY num_spam desc LIMIT 0,100";
 		$rs_spam = $db->Execute($sql);
 		
 		while(!$rs_spam->EOF) {
@@ -543,7 +543,7 @@ class ChReportSpamAddys extends Extension_Report {
 		}
 		$tpl->assign('top_spam_addys', $top_spam_addys);
 		
-		$sql = "SELECT email,num_spam,num_nonspam,is_banned FROM address WHERE num_nonspam > 0 ORDER BY num_nonspam desc LIMIT 0,100";
+		$sql = "SELECT email,num_spam,num_nonspam,is_banned FROM address WHERE num_spam+num_nonspam > 0 ORDER BY num_nonspam desc LIMIT 0,100";
 		$rs_nonspam = $db->Execute($sql);
 		
 		while(!$rs_nonspam->EOF) {
