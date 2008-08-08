@@ -461,6 +461,55 @@ class ChReportWorkerReplies extends Extension_Report {
 	
 }
 
+class ChReportSpamWords extends Extension_Report {
+	private $tpl_path = null;
+	
+	function __construct($manifest) {
+		parent::__construct($manifest);
+		$this->tpl_path = realpath(dirname(__FILE__).'/../templates');
+	}
+	
+	function render() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', $this->tpl_path);
+		
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = "SELECT spam, nonspam FROM bayes_stats";
+		if(null != ($row = $db->GetRow($sql))) {
+			$num_spam = $row['spam'];
+			$num_nonspam = $row['nonspam'];
+		}
+		
+		$tpl->assign('num_spam', intval($num_spam));
+		$tpl->assign('num_nonspam', intval($num_nonspam));
+		
+		$top_spam_words = array();
+		$top_nonspam_words = array();
+		
+		$sql = "SELECT word,spam,nonspam FROM bayes_words ORDER BY spam desc LIMIT 0,100";
+		$rs_spam = $db->Execute($sql);
+		
+		while(!$rs_spam->EOF) {
+			$top_spam_words[$rs_spam->fields['word']] = array($rs_spam->fields['spam'], $rs_spam->fields['nonspam']);
+			$rs_spam->MoveNext();
+		}
+		$tpl->assign('top_spam_words', $top_spam_words);
+		
+		$sql = "SELECT word,spam,nonspam FROM bayes_words ORDER BY nonspam desc LIMIT 0,100";
+		$rs_nonspam = $db->Execute($sql);
+		
+		while(!$rs_nonspam->EOF) {
+			$top_nonspam_words[$rs_nonspam->fields['word']] = array($rs_nonspam->fields['spam'], $rs_nonspam->fields['nonspam']);
+			$rs_nonspam->MoveNext();
+		}
+		$tpl->assign('top_nonspam_words', $top_nonspam_words);
+		
+		$tpl->display('file:' . $this->tpl_path . '/reports/report/spam_words/index.tpl.php');
+	}
+}
+
 class ChReportAverageResponseTime extends Extension_Report {
 	private $tpl_path = null;
 	

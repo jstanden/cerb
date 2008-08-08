@@ -47,7 +47,7 @@ function drawChart(start, end) {{/literal}
 
 </script>
 
-<h2>Created Tickets By Group By Date</h2>
+<h2>Created Tickets By Group</h2>
 
 
 <form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmRange" name="frmRange" onsubmit="return false;">

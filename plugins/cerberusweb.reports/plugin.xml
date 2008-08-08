@@ -60,7 +60,20 @@
 			<name>ChReportNewTickets</name>
 		</class>
 		<params>
-			<param key="report_name" value="Created Tickets By Group By Date" />
+			<param key="report_name" value="Created Tickets By Group" />
+			<param key="report_group" value="report.group.tickets" />
+		</params>
+	</extension>
+	
+	<extension point="cerberusweb.report">
+		<id>report.tickets.spam_words</id>
+		<name>Spam Word Report</name>
+		<class>
+			<file>api/App.php</file>
+			<name>ChReportSpamWords</name>
+		</class>
+		<params>
+			<param key="report_name" value="Top 100 Spam/Nonspam Words (Explicit Content)" />
 			<param key="report_group" value="report.group.tickets" />
 		</params>
 	</extension>

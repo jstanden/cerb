@@ -86,11 +86,13 @@ if(isset($_SESSION['timezone'])) {
 }
 
 // Initialize Logging
-$timeout = ini_get('max_execution_time');
-$logger = DevblocksPlatform::getConsoleLog();
-$logger->info("[Devblocks] ** Platform starting (".date("r").") **");
-$logger->info('[Devblocks] Time Limit: '. (($timeout) ? $timeout : 'unlimited') ." secs");
-$logger->info('[Devblocks] Memory Limit: '. ini_get('memory_limit'));
+if(method_exists('DevblocksPlatform','getConsoleLog')) {
+	$timeout = ini_get('max_execution_time');
+	$logger = DevblocksPlatform::getConsoleLog();
+	$logger->info("[Devblocks] ** Platform starting (".date("r").") **");
+	$logger->info('[Devblocks] Time Limit: '. (($timeout) ? $timeout : 'unlimited') ." secs");
+	$logger->info('[Devblocks] Memory Limit: '. ini_get('memory_limit'));
+}
 
 // [JAS]: HTTP Request
 DevblocksPlatform::processRequest($request);
