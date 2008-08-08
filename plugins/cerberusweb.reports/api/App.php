@@ -83,6 +83,18 @@ class ChReportNewTickets extends Extension_Report {
 		$tpl->assign('start', '-30 days');
 		$tpl->assign('end', 'now');
 		
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		// Year shortcuts
+		$years = array();
+		$sql = "SELECT date_format(from_unixtime(created_date),'%Y') as year FROM ticket WHERE created_date > 0 GROUP BY year having year <= date_format(now(),'%Y') ORDER BY year desc limit 0,10";
+		$rs = $db->query($sql);
+		while(!$rs->EOF) {
+			$years[] = intval($rs->fields['year']);
+			$rs->MoveNext();
+		}
+		$tpl->assign('years', $years);
+		
 		$tpl->display('file:' . $this->tpl_path . '/reports/report/new_tickets/index.tpl.php');
 	}
 	
@@ -263,6 +275,18 @@ class ChReportWorkerReplies extends Extension_Report {
 		
 		$tpl->assign('start', '-30 days');
 		$tpl->assign('end', 'now');
+		
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		// Years
+		$years = array();
+		$sql = "SELECT date_format(from_unixtime(created_date),'%Y') as year FROM message WHERE created_date > 0 AND is_outgoing = 1 GROUP BY year having year <= date_format(now(),'%Y') ORDER BY year desc limit 0,10";
+		$rs = $db->query($sql);
+		while(!$rs->EOF) {
+			$years[] = intval($rs->fields['year']);
+			$rs->MoveNext();
+		}
+		$tpl->assign('years', $years);
 		
 		$tpl->display('file:' . $this->tpl_path . '/reports/report/worker_replies/index.tpl.php');
 	}
