@@ -15,7 +15,7 @@ function drawChart(start, end) {{/literal}
 	start=escape(start);
 	end=escape(end);
 	//[mdf] first let the server tell us how many records to expect so we can make sure the chart height is high enough
-	var cObj = YAHOO.util.Connect.asyncRequest('GET', "{/literal}{devblocks_url}ajax.php?c=reports&a=action&extid=report.tickets.worker_replies&extid_a=getTotalWorkersForChart{/devblocks_url}{literal}&start="+start+"&end="+end, {
+	var cObj = YAHOO.util.Connect.asyncRequest('GET', "{/literal}{devblocks_url}ajax.php?c=reports&a=action&extid=report.tickets.worker_replies&extid_a=getWorkerRepliesChart{/devblocks_url}{literal}&countonly=1&start="+start+"&end="+end, {
 		success: function(o) {
 			var workerCount = o.responseText;
 			

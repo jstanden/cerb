@@ -17,7 +17,7 @@ function drawChart(start, end) {{/literal}
 	start=escape(start);
 	end=escape(end);
 	//[mdf] first let the server tell us how many records to expect so we can make sure the chart height is high enough
-	var cObj = YAHOO.util.Connect.asyncRequest('GET', "{/literal}{devblocks_url}ajax.php?c=reports&a=action&extid=report.tickets.new_tickets&extid_a=getTicketChartDataCount{/devblocks_url}{literal}&start="+start+"&end="+end, {
+	var cObj = YAHOO.util.Connect.asyncRequest('GET', "{/literal}{devblocks_url}ajax.php?c=reports&a=action&extid=report.tickets.new_tickets&extid_a=getTicketChartData{/devblocks_url}{literal}&countonly=1&start="+start+"&end="+end, {
 		success: function(o) {
 			var groupCount = o.responseText;
 			//[mdf] set the chart size based on the number of records we will get from the datasource
