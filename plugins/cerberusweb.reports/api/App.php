@@ -192,7 +192,7 @@ class ChReportNewTickets extends Extension_Report {
 				"WHERE t.created_date > %d ".
 				"AND t.created_date <= %d ".
 				"AND t.is_deleted = 0 ".
-				"GROUP BY group_id",
+				"GROUP BY group_id ORDER by team.name desc ",
 				$start_time,
 				$end_time
 				);
@@ -237,7 +237,7 @@ class ChReportNewTickets extends Extension_Report {
 				"WHERE t.created_date > %d ".
 				"AND t.created_date <= %d ".
 				"AND t.is_deleted = 0 ".
-				"GROUP BY group_id",
+				"GROUP BY group_id ORDER BY team.name",
 				$start_time,
 				$end_time
 				);
@@ -373,13 +373,15 @@ class ChReportWorkerReplies extends Extension_Report {
 		$sql = sprintf("SELECT count(*) AS hits, m.worker_id ".
 			"FROM message m ".
 			"INNER JOIN ticket t ON (t.id=m.ticket_id) ".
+			"INNER JOIN worker w ON w.id=m.worker_id ".
 			"WHERE m.created_date > %d AND m.created_date <= %d ".
 			"AND m.is_outgoing = 1 ".
 			"AND t.is_deleted = 0 ".
-			"GROUP BY m.worker_id ",
+			"GROUP BY m.worker_id ORDER BY w.last_name DESC ",
 			$start_time,
 			$end_time
 		);
+
 		$rs_workers = $db->Execute($sql);
 		
 		$worker_counts = array();
