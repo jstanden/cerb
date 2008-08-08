@@ -75,8 +75,7 @@ function drawChart(start, end) {{/literal}
 <script language="javascript" type="text/javascript">
 {literal}	
 YAHOO.util.Event.addListener(window,'load',function(e) {
-	drawChart('-30 days', 'now');
-	genericAjaxPost('frmRange','reportWorkerReplies');
+	document.getElementById('btnSubmit').click();
 });
 {/literal}
 </script>

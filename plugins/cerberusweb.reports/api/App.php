@@ -80,6 +80,9 @@ class ChReportNewTickets extends Extension_Report {
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->tpl_path);
 		
+		$tpl->assign('start', '-30 days');
+		$tpl->assign('end', 'now');
+		
 		$tpl->display('file:' . $this->tpl_path . '/reports/report/new_tickets/index.tpl.php');
 	}
 	
@@ -169,7 +172,6 @@ class ChReportNewTickets extends Extension_Report {
 		// use date range if specified, else use duration prior to now
 		$start_time = 0;
 		$end_time = 0;
-		
 		if (empty($start) && empty($end)) {
 			$start = "-30 days";
 			$end = "now";
@@ -182,27 +184,66 @@ class ChReportNewTickets extends Extension_Report {
 		
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = sprintf("SELECT count(*) as hits, ".
-			"DATE_FORMAT(FROM_UNIXTIME(created_date), '%%Y%%m%%d') as create_day, ".
-			"DATE_FORMAT(FROM_UNIXTIME(created_date), '%%m/%%d/%%y') as create_day_display ".
-			"FROM ticket ".
-			"WHERE created_date > %d AND created_date <= %d AND is_deleted = 0 ".
-			"GROUP BY create_day ORDER BY create_day",
-			$start_time,
-			$end_time
-		);
+		$groups = DAO_Group::getAll();
+		
+		$sql = sprintf("SELECT team.id as group_id, ".
+				"count(*) as hits ".
+				"FROM ticket t inner join team on t.team_id = team.id ".
+				"WHERE t.created_date > %d ".
+				"AND t.created_date <= %d ".
+				"AND t.is_deleted = 0 ".
+				"GROUP BY group_id",
+				$start_time,
+				$end_time
+				);
 		$rs = $db->Execute($sql);
 	    
 		
 	    while(!$rs->EOF) {
 	    	$hits = intval($rs->fields['hits']);
-			$create_day = $rs->fields['create_day_display'];
+			$group_id = $rs->fields['group_id'];
 			
-			echo $create_day, "\t", $hits . "\n";
+			echo $groups[$group_id]->name, "\t", $hits . "\n";
 			
 		    $rs->MoveNext();
 	    }
 	}
+	
+	function getTicketChartDataCountAction() {
+		$path = realpath(dirname(__FILE__).'/../resources/font');
+		
+		// import dates from form
+		@$start = DevblocksPlatform::importGPC($_REQUEST['start'],'string','');
+		@$end = DevblocksPlatform::importGPC($_REQUEST['end'],'string','');
+		
+		// use date range if specified, else use duration prior to now
+		$start_time = 0;
+		$end_time = 0;
+		if (empty($start) && empty($end)) {
+			$start = "-30 days";
+			$end = "now";
+			$start_time = strtotime($start);
+			$end_time = strtotime($end);
+		} else {
+			$start_time = strtotime($start);
+			$end_time = strtotime($end);
+		}
+		
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = sprintf("SELECT team.id as group_id, ".
+				"count(*) as hits ".
+				"FROM ticket t inner join team on t.team_id = team.id ".
+				"WHERE t.created_date > %d ".
+				"AND t.created_date <= %d ".
+				"AND t.is_deleted = 0 ".
+				"GROUP BY group_id",
+				$start_time,
+				$end_time
+				);
+		$rs = $db->Execute($sql);
+	    echo $rs->RecordCount();
+	}	
 }
 
 
@@ -219,6 +260,9 @@ class ChReportWorkerReplies extends Extension_Report {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->tpl_path);
+		
+		$tpl->assign('start', '-30 days');
+		$tpl->assign('end', 'now');
 		
 		$tpl->display('file:' . $this->tpl_path . '/reports/report/worker_replies/index.tpl.php');
 	}
