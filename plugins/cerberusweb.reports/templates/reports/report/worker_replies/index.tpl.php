@@ -14,21 +14,35 @@ function drawChart(start, end) {{/literal}
 	}
 	start=escape(start);
 	end=escape(end);
-	var myXHRDataSource = new YAHOO.util.DataSource("{/literal}{devblocks_url}ajax.php?c=reports&a=action&extid=report.tickets.worker_replies&extid_a=getWorkerRepliesChart{/devblocks_url}{literal}&start="+start+"&end="+end);
-	myXHRDataSource.responseType = YAHOO.util.DataSource.TYPE_TEXT; 
-	myXHRDataSource.responseSchema = {
-		recordDelim: "\n",
-		fieldDelim: "\t",
-		fields: [ "worker", "replies" ]
-	};
+	//[mdf] first let the server tell us how many records to expect so we can make sure the chart height is high enough
+	var cObj = YAHOO.util.Connect.asyncRequest('GET', "{/literal}{devblocks_url}ajax.php?c=reports&a=action&extid=report.tickets.worker_replies&extid_a=getTotalWorkersForChart{/devblocks_url}{literal}&start="+start+"&end="+end, {
+		success: function(o) {
+			var workerCount = o.responseText;
+			
+			//[mdf] set the chart size based on the number of records we will get from the datasource
+			myContainer.style.cssText = 'width:100%;height:'+(30+30*workerCount);;
+			
+			var myXHRDataSource = new YAHOO.util.DataSource("{/literal}{devblocks_url}ajax.php?c=reports&a=action&extid=report.tickets.worker_replies&extid_a=getWorkerRepliesChart{/devblocks_url}{literal}&start="+start+"&end="+end);
+			myXHRDataSource.responseType = YAHOO.util.DataSource.TYPE_TEXT; 
+			myXHRDataSource.responseSchema = {
+				recordDelim: "\n",
+				fieldDelim: "\t",
+				fields: [ "worker", "replies" ]
+			};
 	
-	var myChart = new YAHOO.widget.ColumnChart( "myContainer", myXHRDataSource,
-	{
-	    xField: "worker",
-	    yField: "replies",
-		wmode: "opaque"
-	    //polling: 1000
-	});
+			var myChart = new YAHOO.widget.BarChart( "myContainer", myXHRDataSource,
+			{
+				xField: "replies",
+				yField: "worker",
+				wmode: "opaque"
+				//polling: 1000
+			});
+			
+		},
+		failure: function(o) {},
+		argument:{caller:this}
+		}
+	);
 }{/literal}
 
 </script>
@@ -59,6 +73,10 @@ function drawChart(start, end) {{/literal}
 
 <div id="reportWorkerReplies"></div>
 <script language="javascript" type="text/javascript">
+{literal}	
+YAHOO.util.Event.addListener(window,'load',function(e) {
 	drawChart('-30 days', 'now');
-	genericAjaxPost('frmRange', 'reportWorkerReplies');
+	genericAjaxPost('frmRange','reportWorkerReplies');
+});
+{/literal}
 </script>

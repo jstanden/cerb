@@ -338,10 +338,6 @@ class ChReportWorkerReplies extends Extension_Report {
 		);
 		$rs_workers = $db->Execute($sql);
 		
-		/*
-		 * <workers></workers>
-		 */
-		
 		$worker_counts = array();
 		
 		while(!$rs_workers->EOF) {
@@ -354,6 +350,43 @@ class ChReportWorkerReplies extends Extension_Report {
 			echo $workers[$worker_id]->getName() , "\t" , $hits , "\n";
 			$rs_workers->MoveNext();
 		}
+	}
+	
+	function getTotalWorkersForChartAction() {
+		header("content-type: text/plain");
+	
+		$db = DevblocksPlatform::getDatabaseService();
+		// import dates from form
+		@$start = DevblocksPlatform::importGPC($_REQUEST['start'],'string','');
+		@$end = DevblocksPlatform::importGPC($_REQUEST['end'],'string','');
+		
+		// use date range if specified, else use duration prior to now
+		$start_time = 0;
+		$end_time = 0;
+		
+		if (empty($start) && empty($end)) {
+			$start = "-30 days";
+			$end = "now";
+			$start_time = strtotime($start);
+			$end_time = strtotime($end);
+		} else {
+			$start_time = strtotime($start);
+			$end_time = strtotime($end);
+		}
+		
+		$sql = sprintf("SELECT count(*) AS hits, m.worker_id ".
+			"FROM message m ".
+			"INNER JOIN ticket t ON (t.id=m.ticket_id) ".
+			"WHERE m.created_date > %d AND m.created_date <= %d ".
+			"AND m.is_outgoing = 1 ".
+			"AND t.is_deleted = 0 ".
+			"GROUP BY m.worker_id ",
+			$start_time,
+			$end_time
+		);
+		$rs_workers = $db->Execute($sql);	
+		echo $rs_workers->RecordCount();
+	
 	}
 	
 }

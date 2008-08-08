@@ -31,7 +31,6 @@ function drawChart(start, end) {{/literal}
 		wmode: "opaque"
 	    //polling: 1000
 	});
-	
 }{/literal}
 
 </script>
@@ -59,7 +58,7 @@ function drawChart(start, end) {{/literal}
 <br>
 <br>
 
-<div id="myContainer" style="width:800;height:600;"></div>
+<div id="myContainer" style="width:100%;height:400;"></div>
 
 <div id="reportNewTickets"></div>
 
