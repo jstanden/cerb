@@ -41,6 +41,16 @@
 	</extension>
 
 	<extension point="cerberusweb.report.group">
+		<id>report.group.spam</id>
+		<name>Spam Reports</name>
+		<class>
+			<file>api/App.php</file>
+			<name>ChReportGroupSpam</name>
+		</class>
+		<params />
+	</extension>
+	
+	<extension point="cerberusweb.report.group">
 		<id>report.group.workers</id>
 		<name>Worker Reports</name>
 		<class>
@@ -74,7 +84,33 @@
 		</class>
 		<params>
 			<param key="report_name" value="Top 100 Spam/Nonspam Words (Explicit Content)" />
-			<param key="report_group" value="report.group.tickets" />
+			<param key="report_group" value="report.group.spam" />
+		</params>
+	</extension>
+	
+	<extension point="cerberusweb.report">
+		<id>report.tickets.spam_addys</id>
+		<name>Spam Addy Report</name>
+		<class>
+			<file>api/App.php</file>
+			<name>ChReportSpamAddys</name>
+		</class>
+		<params>
+			<param key="report_name" value="Top 100 Spam/Nonspam Senders" />
+			<param key="report_group" value="report.group.spam" />
+		</params>
+	</extension>
+	
+	<extension point="cerberusweb.report">
+		<id>report.tickets.spam_domains</id>
+		<name>Spam Domains Report</name>
+		<class>
+			<file>api/App.php</file>
+			<name>ChReportSpamDomains</name>
+		</class>
+		<params>
+			<param key="report_name" value="Top 100 Spam/Nonspam Domains" />
+			<param key="report_group" value="report.group.spam" />
 		</params>
 	</extension>
 	

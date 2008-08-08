@@ -41,6 +41,12 @@ class ChReportGroupWorkers extends Extension_ReportGroup {
 	}
 };
 
+class ChReportGroupSpam extends Extension_ReportGroup {
+	function __construct($manifest) {
+		parent::__construct($manifest);
+	}
+};
+
 class ChReportGroupRoster extends Extension_Report {
 	private $tpl_path = null;
 	
@@ -508,7 +514,87 @@ class ChReportSpamWords extends Extension_Report {
 		
 		$tpl->display('file:' . $this->tpl_path . '/reports/report/spam_words/index.tpl.php');
 	}
-}
+};
+
+class ChReportSpamAddys extends Extension_Report {
+	private $tpl_path = null;
+	
+	function __construct($manifest) {
+		parent::__construct($manifest);
+		$this->tpl_path = realpath(dirname(__FILE__).'/../templates');
+	}
+	
+	function render() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', $this->tpl_path);
+		
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$top_spam_addys = array();
+		$top_nonspam_addys = array();
+		
+		$sql = "SELECT email,num_spam,num_nonspam,is_banned FROM address ORDER BY num_spam desc LIMIT 0,100";
+		$rs_spam = $db->Execute($sql);
+		
+		while(!$rs_spam->EOF) {
+			$top_spam_addys[$rs_spam->fields['email']] = array($rs_spam->fields['num_spam'], $rs_spam->fields['num_nonspam'], $rs_spam->fields['is_banned']);
+			$rs_spam->MoveNext();
+		}
+		$tpl->assign('top_spam_addys', $top_spam_addys);
+		
+		$sql = "SELECT email,num_spam,num_nonspam,is_banned FROM address ORDER BY num_nonspam desc LIMIT 0,100";
+		$rs_nonspam = $db->Execute($sql);
+		
+		while(!$rs_nonspam->EOF) {
+			$top_nonspam_addys[$rs_nonspam->fields['email']] = array($rs_nonspam->fields['num_spam'], $rs_nonspam->fields['num_nonspam'], $rs_spam->fields['is_banned']);
+			$rs_nonspam->MoveNext();
+		}
+		$tpl->assign('top_nonspam_addys', $top_nonspam_addys);
+		
+		$tpl->display('file:' . $this->tpl_path . '/reports/report/spam_addys/index.tpl.php');
+	}
+};
+
+class ChReportSpamDomains extends Extension_Report {
+	private $tpl_path = null;
+	
+	function __construct($manifest) {
+		parent::__construct($manifest);
+		$this->tpl_path = realpath(dirname(__FILE__).'/../templates');
+	}
+	
+	function render() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', $this->tpl_path);
+		
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$top_spam_domains = array();
+		$top_nonspam_domains = array();
+		
+		$sql = "select count(*) as hits, substring(email,locate('@',email)+1) as domain, sum(num_spam) as num_spam, sum(num_nonspam) as num_nonspam from address group by domain having num_spam > 0 order by num_spam desc limit 0,100";
+		$rs_spam = $db->Execute($sql);
+		
+		while(!$rs_spam->EOF) {
+			$top_spam_domains[$rs_spam->fields['domain']] = array($rs_spam->fields['num_spam'], $rs_spam->fields['num_nonspam'], $rs_spam->fields['is_banned']);
+			$rs_spam->MoveNext();
+		}
+		$tpl->assign('top_spam_domains', $top_spam_domains);
+		
+		$sql = "select count(*) as hits, substring(email,locate('@',email)+1) as domain, sum(num_spam) as num_spam, sum(num_nonspam) as num_nonspam from address group by domain having num_nonspam > 0 order by num_nonspam desc limit 0,100";
+		$rs_nonspam = $db->Execute($sql);
+		
+		while(!$rs_nonspam->EOF) {
+			$top_nonspam_domains[$rs_nonspam->fields['domain']] = array($rs_nonspam->fields['num_spam'], $rs_nonspam->fields['num_nonspam'], $rs_spam->fields['is_banned']);
+			$rs_nonspam->MoveNext();
+		}
+		$tpl->assign('top_nonspam_domains', $top_nonspam_domains);
+		
+		$tpl->display('file:' . $this->tpl_path . '/reports/report/spam_domains/index.tpl.php');
+	}
+};
 
 class ChReportAverageResponseTime extends Extension_Report {
 	private $tpl_path = null;
