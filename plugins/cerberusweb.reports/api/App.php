@@ -534,7 +534,7 @@ class ChReportSpamAddys extends Extension_Report {
 		$top_spam_addys = array();
 		$top_nonspam_addys = array();
 		
-		$sql = "SELECT email,num_spam,num_nonspam,is_banned FROM address ORDER BY num_spam desc LIMIT 0,100";
+		$sql = "SELECT email,num_spam,num_nonspam,is_banned FROM address WHERE num_spam > 0 ORDER BY num_spam desc LIMIT 0,100";
 		$rs_spam = $db->Execute($sql);
 		
 		while(!$rs_spam->EOF) {
@@ -543,7 +543,7 @@ class ChReportSpamAddys extends Extension_Report {
 		}
 		$tpl->assign('top_spam_addys', $top_spam_addys);
 		
-		$sql = "SELECT email,num_spam,num_nonspam,is_banned FROM address ORDER BY num_nonspam desc LIMIT 0,100";
+		$sql = "SELECT email,num_spam,num_nonspam,is_banned FROM address WHERE num_nonspam > 0 ORDER BY num_nonspam desc LIMIT 0,100";
 		$rs_nonspam = $db->Execute($sql);
 		
 		while(!$rs_nonspam->EOF) {
@@ -574,7 +574,7 @@ class ChReportSpamDomains extends Extension_Report {
 		$top_spam_domains = array();
 		$top_nonspam_domains = array();
 		
-		$sql = "select count(*) as hits, substring(email,locate('@',email)+1) as domain, sum(num_spam) as num_spam, sum(num_nonspam) as num_nonspam from address group by domain having num_spam > 0 order by num_spam desc limit 0,100";
+		$sql = "select count(*) as hits, substring(email,locate('@',email)+1) as domain, sum(num_spam) as num_spam, sum(num_nonspam) as num_nonspam from address where num_spam+num_nonspam > 0 group by domain order by num_spam desc limit 0,100";
 		$rs_spam = $db->Execute($sql);
 		
 		while(!$rs_spam->EOF) {
@@ -583,7 +583,7 @@ class ChReportSpamDomains extends Extension_Report {
 		}
 		$tpl->assign('top_spam_domains', $top_spam_domains);
 		
-		$sql = "select count(*) as hits, substring(email,locate('@',email)+1) as domain, sum(num_spam) as num_spam, sum(num_nonspam) as num_nonspam from address group by domain having num_nonspam > 0 order by num_nonspam desc limit 0,100";
+		$sql = "select count(*) as hits, substring(email,locate('@',email)+1) as domain, sum(num_spam) as num_spam, sum(num_nonspam) as num_nonspam from address where num_spam+num_nonspam > 0 group by domain order by num_nonspam desc limit 0,100";
 		$rs_nonspam = $db->Execute($sql);
 		
 		while(!$rs_nonspam->EOF) {
