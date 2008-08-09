@@ -74,7 +74,7 @@
 
 	<extension point="cerberusweb.report">
 		<id>report.tickets.new_tickets</id>
-		<name>New Tickets Report</name>
+		<name>Created Tickets By Group Report</name>
 		<class>
 			<file>api/App.php</file>
 			<name>ChReportNewTickets</name>
@@ -178,13 +178,13 @@
 
 	<extension point="cerberusweb.report">
 		<id>report.tickets.open_tickets</id>
-		<name>Open Tickets Report</name>
+		<name>Currently Open Tickets Report</name>
 		<class>
 			<file>api/App.php</file>
 			<name>ChReportOpenTickets</name>
 		</class>
 		<params>
-			<param key="report_name" value="Open Tickets By Group" />
+			<param key="report_name" value="Currently Open Tickets By Group" />
 			<param key="report_group" value="report.group.tickets" />
 		</params>
 	</extension>		
