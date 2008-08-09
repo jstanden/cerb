@@ -38,6 +38,12 @@ class ChReportGroupWorkers extends Extension_ReportGroup {
 	}
 };
 
+class ChReportGroupGroups extends Extension_ReportGroup {
+	function __construct($manifest) {
+		parent::__construct($manifest);
+	}
+};
+
 class ChReportGroupSpam extends Extension_ReportGroup {
 	function __construct($manifest) {
 		parent::__construct($manifest);
@@ -648,6 +654,438 @@ class ChReportAverageResponseTime extends Extension_Report {
 		$tpl->display('file:' . $this->tpl_path . '/reports/report/average_response_time/html.tpl.php');
 	}
 	
+}
+
+class ChReportGroupReplies extends Extension_Report {
+	private $tpl_path = null;
+	
+	function __construct($manifest) {
+		parent::__construct($manifest);
+		$this->tpl_path = realpath(dirname(__FILE__).'/../templates');
+	}
+	
+	function render() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', $this->tpl_path);
+		
+		$tpl->assign('start', '-30 days');
+		$tpl->assign('end', 'now');
+		
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		// Years
+		$years = array();
+		$sql = "SELECT date_format(from_unixtime(created_date),'%Y') as year FROM message WHERE created_date > 0 AND is_outgoing = 1 GROUP BY year having year <= date_format(now(),'%Y') ORDER BY year desc limit 0,10";
+		$rs = $db->query($sql);
+		while(!$rs->EOF) {
+			$years[] = intval($rs->fields['year']);
+			$rs->MoveNext();
+		}
+		$tpl->assign('years', $years);
+		
+		$tpl->display('file:' . $this->tpl_path . '/reports/report/group_replies/index.tpl.php');
+	}
+	
+	function getGroupRepliesReportAction() {
+		@$countonly = DevblocksPlatform::importGPC($_REQUEST['countonly'],'integer',0);
+		
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', $this->tpl_path);
+		
+		// import dates from form
+		@$start = DevblocksPlatform::importGPC($_REQUEST['start'],'string','');
+		@$end = DevblocksPlatform::importGPC($_REQUEST['end'],'string','');
+		
+		// use date range if specified, else use duration prior to now
+		$start_time = 0;
+		$end_time = 0;
+		
+		if (empty($start) && empty($end)) {
+			$start = "-30 days";
+			$end = "now";
+			$start_time = strtotime($start);
+			$end_time = strtotime($end);
+		} else {
+			$start_time = strtotime($start);
+			$end_time = strtotime($end);
+		}
+		
+		if($start_time === false || $end_time === false) {
+			$start = "-30 days";
+			$end = "now";
+			$start_time = strtotime($start);
+			$end_time = strtotime($end);
+			
+			$tpl->assign('invalidDate', true);
+		}
+		
+		// reload variables in template
+		$tpl->assign('start', $start);
+		$tpl->assign('end', $end);
+		$tpl->assign('age_dur', abs(floor(($start_time - $end_time)/86400)));
+		
+		$groups = DAO_Group::getAll();
+		$tpl->assign('groups', $groups);
+		
+		$sql = sprintf("SELECT count(*) AS hits, t.team_id ".
+			"FROM message m ".
+			"INNER JOIN ticket t ON (t.id=m.ticket_id) ".
+			"INNER JOIN team ON t.team_id = team.id ".
+			"WHERE m.created_date > %d AND m.created_date <= %d ".
+			"AND m.is_outgoing = 1 ".
+			"AND t.is_deleted = 0 ".
+			"GROUP BY t.team_id ORDER BY team.name ",
+			$start_time,
+			$end_time
+		);
+		$rs = $db->Execute($sql);
+		
+		$group_counts = array();
+		while(!$rs->EOF) {
+			$hits = intval($rs->fields['hits']);
+			$team_id = intval($rs->fields['team_id']);
+			
+			if(!isset($group_counts[$team_id]))
+				$group_counts[$team_id] = array();
+			
+			$group_counts[$team_id]['name'] = $groups[$team_id]->name;;
+			$group_counts[$team_id]['hits'] = $hits;
+			$rs->MoveNext();
+		}
+		$tpl->assign('group_counts', $group_counts);
+		
+		$tpl->display('file:' . $this->tpl_path . '/reports/report/group_replies/html.tpl.php');
+	}
+	
+	function getGroupRepliesChartAction() {
+		header("content-type: text/plain");
+	
+		$db = DevblocksPlatform::getDatabaseService();
+		// import dates from form
+		@$start = DevblocksPlatform::importGPC($_REQUEST['start'],'string','');
+		@$end = DevblocksPlatform::importGPC($_REQUEST['end'],'string','');
+		@$countonly = DevblocksPlatform::importGPC($_REQUEST['countonly'],'integer',0);
+		
+		// use date range if specified, else use duration prior to now
+		$start_time = 0;
+		$end_time = 0;
+		
+		if (empty($start) && empty($end)) {
+			$start = "-30 days";
+			$end = "now";
+			$start_time = strtotime($start);
+			$end_time = strtotime($end);
+		} else {
+			$start_time = strtotime($start);
+			$end_time = strtotime($end);
+		}
+		
+		// Top Workers
+		$groups = DAO_Group::getAll();
+		
+		$sql = sprintf("SELECT count(*) AS hits, t.team_id as group_id ".
+			"FROM message m ".
+			"INNER JOIN ticket t ON (t.id=m.ticket_id) ".
+			"INNER JOIN team on t.team_id = team.id ".
+			"WHERE m.created_date > %d AND m.created_date <= %d ".
+			"AND m.is_outgoing = 1 ".
+			"AND t.is_deleted = 0 ".
+			"GROUP BY group_id ORDER BY team.name DESC ",
+			$start_time,
+			$end_time
+		);
+
+		$rs_groups = $db->Execute($sql); /* @var $rs_groups ADORecordSet */
+		
+		if($countonly) {
+			echo intval($rs_groups ->RecordCount());
+			return;
+		}
+		
+		$worker_counts = array();
+		
+		while(!$rs_groups ->EOF) {
+			$hits = intval($rs_groups ->fields['hits']);
+			$group_id = intval($rs_groups ->fields['group_id']);
+			
+			if(!isset($groups[$group_id]))
+				continue;
+
+			echo $groups[$group_id]->name , "\t" , $hits , "\n";
+			$rs_groups ->MoveNext();
+		}
+	}
+	
+}
+
+class ChReportOpenTickets extends Extension_Report {
+	private $tpl_path = null;
+	
+	function __construct($manifest) {
+		parent::__construct($manifest);
+		$this->tpl_path = realpath(dirname(__FILE__).'/../templates');
+	}
+	
+	function render() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', $this->tpl_path);
+		
+		$tpl->assign('start', '-30 days');
+		$tpl->assign('end', 'now');
+		
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		// Year shortcuts
+		$years = array();
+		$sql = "SELECT date_format(from_unixtime(created_date),'%Y') as year FROM ticket WHERE created_date > 0 GROUP BY year having year <= date_format(now(),'%Y') ORDER BY year desc limit 0,10";
+		$rs = $db->query($sql);
+		while(!$rs->EOF) {
+			$years[] = intval($rs->fields['year']);
+			$rs->MoveNext();
+		}
+		$tpl->assign('years', $years);
+		
+		$tpl->display('file:' . $this->tpl_path . '/reports/report/open_tickets/index.tpl.php');
+	}
+	
+	function getOpenTicketsReportAction() {
+	
+		@$age = DevblocksPlatform::importGPC($_REQUEST['age'],'string','30d');
+		
+		$db = DevblocksPlatform::getDatabaseService();
+
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', $this->tpl_path);
+
+	   	// Top Buckets
+		$groups = DAO_Group::getAll();
+		$tpl->assign('groups', $groups);
+		
+		$group_buckets = DAO_Bucket::getTeams();
+		$tpl->assign('group_buckets', $group_buckets);
+		
+		$sql = "SELECT count(*) AS hits, team_id, category_id ".
+			"FROM ticket ".
+			"WHERE is_deleted = 0 ".
+			"AND is_closed = 0 ".
+			"AND spam_score < 0.9000 ".
+			"AND spam_training != 'S' ".
+			"GROUP BY team_id, category_id ";
+		$rs_buckets = $db->Execute($sql);
+	
+		$group_counts = array();
+		while(!$rs_buckets->EOF) {
+			$team_id = intval($rs_buckets->fields['team_id']);
+			$category_id = intval($rs_buckets->fields['category_id']);
+			$hits = intval($rs_buckets->fields['hits']);
+			
+			if(!isset($group_counts[$team_id]))
+				$group_counts[$team_id] = array();
+				
+			$group_counts[$team_id][$category_id] = $hits;
+			@$group_counts[$team_id]['total'] = intval($group_counts[$team_id]['total']) + $hits;
+			
+			$rs_buckets->MoveNext();
+		}
+		$tpl->assign('group_counts', $group_counts);
+		
+		$tpl->display('file:' . $this->tpl_path . '/reports/report/open_tickets/html.tpl.php');
+	}
+	
+	function getOpenTicketsChartAction() {
+		@$countonly = DevblocksPlatform::importGPC($_REQUEST['countonly'],'integer',0);
+
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$groups = DAO_Group::getAll();
+		
+		$sql = "SELECT team.id as group_id, ".
+				"count(*) as hits ".
+				"FROM ticket t inner join team on t.team_id = team.id ".
+				"WHERE t.is_deleted = 0 ".
+				"AND t.is_closed = 0 ".
+				"AND t.spam_score < 0.9000 ".
+				"AND t.spam_training != 'S' ".
+				"GROUP BY group_id ORDER by team.name desc ";
+
+		$rs = $db->Execute($sql);
+
+		if($countonly) {
+			echo intval($rs->RecordCount());
+			return;
+		}
+		
+	    while(!$rs->EOF) {
+	    	$hits = intval($rs->fields['hits']);
+			$group_id = $rs->fields['group_id'];
+			
+			echo $groups[$group_id]->name, "\t", $hits . "\n";
+			
+		    $rs->MoveNext();
+	    }
+	}
+}
+
+class ChReportClosedTickets extends Extension_Report {
+	private $tpl_path = null;
+	
+	function __construct($manifest) {
+		parent::__construct($manifest);
+		$this->tpl_path = realpath(dirname(__FILE__).'/../templates');
+	}
+	
+	function render() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', $this->tpl_path);
+		
+		$tpl->assign('start', '-30 days');
+		$tpl->assign('end', 'now');
+		
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		// Year shortcuts
+		$years = array();
+		$sql = "SELECT date_format(from_unixtime(created_date),'%Y') as year FROM ticket WHERE created_date > 0 GROUP BY year having year <= date_format(now(),'%Y') ORDER BY year desc limit 0,10";
+		$rs = $db->query($sql);
+		while(!$rs->EOF) {
+			$years[] = intval($rs->fields['year']);
+			$rs->MoveNext();
+		}
+		$tpl->assign('years', $years);
+		
+		$tpl->display('file:' . $this->tpl_path . '/reports/report/closed_tickets/index.tpl.php');
+	}
+	
+	function getClosedTicketsReportAction() {
+	
+		@$age = DevblocksPlatform::importGPC($_REQUEST['age'],'string','30d');
+		
+		$db = DevblocksPlatform::getDatabaseService();
+
+				
+		@$start = DevblocksPlatform::importGPC($_REQUEST['start'],'string','');
+		@$end = DevblocksPlatform::importGPC($_REQUEST['end'],'string','');
+		@$countonly = DevblocksPlatform::importGPC($_REQUEST['countonly'],'integer',0);
+		
+		// use date range if specified, else use duration prior to now
+		$start_time = 0;
+		$end_time = 0;
+		
+		if (empty($start) && empty($end)) {
+			$start = "-30 days";
+			$end = "now";
+			$start_time = strtotime($start);
+			$end_time = strtotime($end);
+		} else {
+			$start_time = strtotime($start);
+			$end_time = strtotime($end);
+		}
+				
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', $this->tpl_path);
+
+	   	// Top Buckets
+		$groups = DAO_Group::getAll();
+		$tpl->assign('groups', $groups);
+		
+		$group_buckets = DAO_Bucket::getTeams();
+		$tpl->assign('group_buckets', $group_buckets);
+		
+		$sql = sprintf("SELECT count(*) AS hits, team_id, category_id ".
+			"FROM ticket ".
+			"WHERE updated_date > %d AND updated_date <= %d ".
+			"AND is_deleted = 0 ".
+			"AND is_closed = 1 ".
+			"AND spam_score < 0.9000 ".
+			"AND spam_training != 'S' ".
+			"GROUP BY team_id, category_id" ,
+			$start_time,
+			$end_time);
+			
+		$rs_buckets = $db->Execute($sql);
+	
+		$group_counts = array();
+		while(!$rs_buckets->EOF) {
+			$team_id = intval($rs_buckets->fields['team_id']);
+			$category_id = intval($rs_buckets->fields['category_id']);
+			$hits = intval($rs_buckets->fields['hits']);
+			
+			if(!isset($group_counts[$team_id]))
+				$group_counts[$team_id] = array();
+				
+			$group_counts[$team_id][$category_id] = $hits;
+			@$group_counts[$team_id]['total'] = intval($group_counts[$team_id]['total']) + $hits;
+			
+			$rs_buckets->MoveNext();
+		}
+		$tpl->assign('group_counts', $group_counts);
+		
+		$tpl->display('file:' . $this->tpl_path . '/reports/report/closed_tickets/html.tpl.php');
+	}
+	
+	function getClosedTicketsChartAction() {
+		@$countonly = DevblocksPlatform::importGPC($_REQUEST['countonly'],'integer',0);
+
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		@$start = DevblocksPlatform::importGPC($_REQUEST['start'],'string','');
+		@$end = DevblocksPlatform::importGPC($_REQUEST['end'],'string','');
+		@$countonly = DevblocksPlatform::importGPC($_REQUEST['countonly'],'integer',0);
+		
+		// use date range if specified, else use duration prior to now
+		$start_time = 0;
+		$end_time = 0;
+		
+		if (empty($start) && empty($end)) {
+			$start = "-30 days";
+			$end = "now";
+			$start_time = strtotime($start);
+			$end_time = strtotime($end);
+		} else {
+			$start_time = strtotime($start);
+			$end_time = strtotime($end);
+		}
+				
+		
+		$groups = DAO_Group::getAll();
+		
+		$sql = sprintf("SELECT team.id as group_id, ".
+				"count(*) as hits ".
+				"FROM ticket t inner join team on t.team_id = team.id ".
+				"WHERE updated_date > %d AND updated_date <= %d ".
+				"AND t.is_deleted = 0 ".
+				"AND t.is_closed = 1 ".
+				"AND t.spam_score < 0.9000 ".
+				"AND t.spam_training != 'S' ".
+				"GROUP BY group_id ORDER by team.name desc ",
+				$start_time,
+				$end_time);
+
+		$rs = $db->Execute($sql);
+
+		if($countonly) {
+			echo intval($rs->RecordCount());
+			return;
+		}
+		
+	    while(!$rs->EOF) {
+	    	$hits = intval($rs->fields['hits']);
+			$group_id = $rs->fields['group_id'];
+			
+			echo $groups[$group_id]->name, "\t", $hits . "\n";
+			
+		    $rs->MoveNext();
+	    }
+	}
 }
 
 class ChReportsPage extends CerberusPageExtension {

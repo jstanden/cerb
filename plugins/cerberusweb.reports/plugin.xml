@@ -31,21 +31,31 @@
 	<!-- Report Groups -->
 	
 	<extension point="cerberusweb.report.group">
-		<id>report.group.tickets</id>
-		<name>Ticket Reports</name>
+		<id>report.group.groups</id>
+		<name>Group Reports</name>
 		<class>
 			<file>api/App.php</file>
-			<name>ChReportGroupTickets</name>
+			<name>ChReportGroupGroups</name>
 		</class>
 		<params />
 	</extension>
-
+	
 	<extension point="cerberusweb.report.group">
 		<id>report.group.spam</id>
 		<name>Spam Reports</name>
 		<class>
 			<file>api/App.php</file>
 			<name>ChReportGroupSpam</name>
+		</class>
+		<params />
+	</extension>
+	
+	<extension point="cerberusweb.report.group">
+		<id>report.group.tickets</id>
+		<name>Ticket Reports</name>
+		<class>
+			<file>api/App.php</file>
+			<name>ChReportGroupTickets</name>
 		</class>
 		<params />
 	</extension>
@@ -136,7 +146,7 @@
 		</class>
 		<params>
 			<param key="report_name" value="Group Rosters" />
-			<param key="report_group" value="report.group.workers" />
+			<param key="report_group" value="report.group.groups" />
 		</params>
 	</extension>
 	
@@ -153,5 +163,43 @@
 		</params>
 	</extension>
 	
+	<extension point="cerberusweb.report">
+		<id>report.groups.group_replies</id>
+		<name>Group Replies Report</name>
+		<class>
+			<file>api/App.php</file>
+			<name>ChReportGroupReplies</name>
+		</class>
+		<params>
+			<param key="report_name" value="Group Replies By Date" />
+			<param key="report_group" value="report.group.groups" />
+		</params>
+	</extension>
+
+	<extension point="cerberusweb.report">
+		<id>report.tickets.open_tickets</id>
+		<name>Open Tickets Report</name>
+		<class>
+			<file>api/App.php</file>
+			<name>ChReportOpenTickets</name>
+		</class>
+		<params>
+			<param key="report_name" value="Open Tickets By Group" />
+			<param key="report_group" value="report.group.tickets" />
+		</params>
+	</extension>		
+	
+	<extension point="cerberusweb.report">
+		<id>report.tickets.closed_tickets</id>
+		<name>Closed Tickets Report</name>
+		<class>
+			<file>api/App.php</file>
+			<name>ChReportClosedTickets</name>
+		</class>
+		<params>
+			<param key="report_name" value="Closed Tickets By Group" />
+			<param key="report_group" value="report.group.tickets" />
+		</params>
+	</extension>		
 	</extensions>
 </plugin>
