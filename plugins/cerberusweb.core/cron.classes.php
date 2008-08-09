@@ -176,15 +176,16 @@ class MaintCron extends CerberusCronPageExtension {
 
 		// Purge Deleted Content
 		$purge_waitdays = intval($this->getParam('purge_waitdays', 7));
+		$purge_waitsecs = time() - (intval($purge_waitdays) * 86400);
 
 		$sql = sprintf("DELETE QUICK FROM ticket ".
 			"WHERE is_deleted = 1 ".
-			"AND updated_date < unix_timestamp(date_sub(NOW(),INTERVAL \"%d\" DAY))",
-			$purge_waitdays
+			"AND updated_date < %d ",
+			$purge_waitsecs
 		);
 		$db->Execute($sql);
 		
-		$logger->info("[Maint] Purged deleted tickets!");
+		$logger->info("[Maint] Purged " . $db->Affected_Rows() . " ticket records.");
 
 		// Give plugins a chance to run maintenance (nuke NULL rows, etc.)
 	    $eventMgr = DevblocksPlatform::getEventService();
@@ -200,6 +201,8 @@ class MaintCron extends CerberusCronPageExtension {
 		$sql = "DELETE FROM bayes_words WHERE nonspam + spam < 2"; // only 1 occurrence
 		$db->Execute($sql);
 
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' obscure spam words.');
+		
 		// [mdf] Remove any empty directories inside storage/mail/new
 		$mailDir = APP_MAIL_PATH . 'new' . DIRECTORY_SEPARATOR;
 		$subdirs = glob($mailDir . '*', GLOB_ONLYDIR);
@@ -211,6 +214,8 @@ class MaintCron extends CerberusCronPageExtension {
 				}
 			}
 		}
+		
+		$logger->info('[Maint] Cleaned up mail directories.');
 	  
 		// [JAS] Remove any empty directories inside storage/import/new
 		$importNewDir = APP_PATH . '/storage/import/new' . DIRECTORY_SEPARATOR;
@@ -224,6 +229,7 @@ class MaintCron extends CerberusCronPageExtension {
 			}
 		}
 		
+		$logger->info('[Maint] Cleaned up import directories.');
 	}
 
 	function configure($instance) {
@@ -360,6 +366,8 @@ class ImportCron extends CerberusCronPageExtension {
 		unset($subdirs);
 
 		$logger->info("[Importer] Total Runtime: ".((microtime(true)-$runtime)*1000)." ms");
+		
+		@imap_errors();
 	}
 
 	private function _handleImport($object_type, $xml) {
@@ -422,13 +430,17 @@ class ImportCron extends CerberusCronPageExtension {
 		}
 		
 		$sMask = (string) $xml->mask;
-		$sSubject = (string) $xml->subject;
+		$sSubject = substr((string) $xml->subject,0,255);
 		$sGroup = (string) $xml->group;
 		$sBucket = (string) $xml->bucket;
 		$iCreatedDate = (integer) $xml->created_date;
 		$iUpdatedDate = (integer) $xml->updated_date;
 		$isWaiting = (integer) $xml->is_waiting;
 		$isClosed = (integer) $xml->is_closed;
+		
+		if(empty($sMask)) {
+			$sMask = CerberusApplication::generateTicketMask();
+		}
 		
 		// Find the destination Group + Bucket (or create them)
 		if(empty($sGroup)) {
@@ -457,13 +469,43 @@ class ImportCron extends CerberusCronPageExtension {
 		$aMessageNodes = $xml->xpath("/ticket/messages/message");
 		$iNumMessages = count($aMessageNodes);
 		
-		$eFirstMessage = reset($aMessageNodes);
-		$sFirstWrote = (string) $eFirstMessage->headers->from; // [TODO] RFC822 validate
-		$firstWroteInst = CerberusApplication::hashLookupAddress($sFirstWrote, true);
+		@$eFirstMessage = reset($aMessageNodes);
+		
+		if(is_null($eFirstMessage)) {
+			$logger->warn('[Importer] Ticket ' . $sMask . " doesn't have any messages.  Skipping.");
+			return false;
+		}
+		
+		if(is_null($eFirstMessage->headers) || is_null($eFirstMessage->headers->from)) {
+			$logger->warn('[Importer] Ticket ' . $sMask . " first message doesn't provide a sender address.");
+			return false;
+		}
+		
+		$sFirstWrote = (string) $eFirstMessage->headers->from;
+		
+		if(null == ($firstWroteInst = CerberusApplication::hashLookupAddress($sFirstWrote, true))) {
+			$logger->warn('[Importer] Ticket ' . $sMask . " - Invalid sender adddress: " . $sFirstWrote);
+			return false;
+		}
 		
 		$eLastMessage = end($aMessageNodes);
-		$sLastWrote = (string) $eLastMessage->headers->from; // [TODO] RFC822 validate
-		$lastWroteInst = CerberusApplication::hashLookupAddress($sLastWrote, true);
+		
+		if(is_null($eLastMessage)) {
+			$logger->warn('[Importer] Ticket ' . $sMask . " doesn't have any messages.  Skipping.");
+			return false;
+		}
+		
+		if(is_null($eLastMessage->headers) || is_null($eLastMessage->headers->from)) {
+			$logger->warn('[Importer] Ticket ' . $sMask . " last message doesn't provide a sender address.");
+			return false;
+		}
+		
+		$sLastWrote = (string) $eLastMessage->headers->from;
+		
+		if(null == ($lastWroteInst = CerberusApplication::hashLookupAddress($sLastWrote, true))) {
+			$logger->warn('[Importer] Ticket ' . $sMask . ' last message has an invalid sender address: ' . $sLastWrote);
+			return false;
+		}
 
 		// Last action code + last worker
 		$sLastActionCode = CerberusTicketActionCode::TICKET_OPENED;
@@ -477,7 +519,12 @@ class ImportCron extends CerberusCronPageExtension {
 			}
 		}
 		
-		// [TODO] Dupe check by ticket mask
+		// Dupe check by ticket mask
+		if(null != DAO_Ticket::getTicketByMask($sMask)) {
+			// [TODO] Append new uniqueness to the ticket mask?  LLL-NNNNN-NNN-1, LLL-NNNNN-NNN-2, ... 
+			$logger->warn("[Importer] Ticket mask '" . $sMask . "' already exists.  Skipping.");
+			return false;
+		}
 		
 		// Create ticket
 		$fields = array(
@@ -495,16 +542,21 @@ class ImportCron extends CerberusCronPageExtension {
 			DAO_Ticket::LAST_WORKER_ID => intval($iLastWorkerId),
 		);
 		$ticket_id = DAO_Ticket::createTicket($fields);
+
 //		echo "Ticket: ",$ticket_id,"<BR>";
-		
 //		print_r($fields);
 		
 		// Create requesters
 		if(!is_null($xml->requesters))
 		foreach($xml->requesters->address as $eAddress) { /* @var $eAddress SimpleXMLElement */
 			$sRequesterAddy = (string) $eAddress; // [TODO] RFC822
+			
 			// Insert requesters
-			$requesterAddyInst = CerberusApplication::hashLookupAddress($sRequesterAddy, true);
+			if(null == ($requesterAddyInst = CerberusApplication::hashLookupAddress($sRequesterAddy, true))) {
+				$logger->warn('[Importer] Ticket ' . $sMask . ' - Ignoring malformed requester: ' . $sRequesterAddy);
+				continue;				
+			}
+			
 			DAO_Ticket::createRequester($requesterAddyInst->id, $ticket_id);
 		}
 		
@@ -517,8 +569,10 @@ class ImportCron extends CerberusCronPageExtension {
 			$sMsgFrom = (string) $eHeaders->from;
 			$sMsgDate = (string) $eHeaders->date;
 			
-			// [TODO] RFC822 address parse 'From'.  Hash lookup.
-			$msgFromInst = CerberusApplication::hashLookupAddress($sMsgFrom, true);
+			if(null == ($msgFromInst = CerberusApplication::hashLookupAddress($sMsgFrom, true))) {
+				$logger->warn('[Importer] Ticket ' . $sMask . ' - Invalid message sender: ' . $sMsgFrom . ' (skipping)');
+				continue;
+			}
 
 			@$msgWorkerId = intval($email_to_worker_id[strtolower($msgFromInst->email)]);
 //			$logger->info('Checking if '.$msgFromInst->email.' is a worker');

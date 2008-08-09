@@ -787,7 +787,7 @@
 
 		<tu tuid='whos_online.heading'>
 			<tuv xml:lang="en">
-				<seg>Who's Online: (%d agents)</seg>
+				<seg>%d Worker(s) Signed In:</seg>
 			</tuv>
 		</tu>
 

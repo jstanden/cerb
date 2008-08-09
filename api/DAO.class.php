@@ -361,28 +361,43 @@ class DAO_Worker extends DevblocksORMHelper {
 	
 	static function maint() {
 		$db = DevblocksPlatform::getDatabaseService();
+		$logger = DevblocksPlatform::getConsoleLog();
 		
 		$sql = "DELETE QUICK dashboard FROM dashboard LEFT JOIN worker ON dashboard.agent_id = worker.id WHERE worker.id IS NULL";
 		$db->Execute($sql);
 		
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' dashboard records.');
+		
 		$sql = "DELETE QUICK ticket_rss FROM ticket_rss LEFT JOIN worker ON ticket_rss.worker_id = worker.id WHERE worker.id IS NULL";
 		$db->Execute($sql);
+
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' ticket_rss records.');
 		
 		$sql = "DELETE QUICK worker_mail_forward FROM worker_mail_forward LEFT JOIN worker ON worker_mail_forward.worker_id = worker.id WHERE worker.id IS NULL";
 		$db->Execute($sql);
 		
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' worker_mail_forward records.');
+		
 		$sql = "DELETE QUICK worker_pref FROM worker_pref LEFT JOIN worker ON worker_pref.worker_id = worker.id WHERE worker.id IS NULL";
 		$db->Execute($sql);
+		
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' worker_pref records.');
 		
 		$sql = "DELETE QUICK worker_to_team FROM worker_to_team LEFT JOIN worker ON worker_to_team.agent_id = worker.id WHERE worker.id IS NULL";
 		$db->Execute($sql);
 		
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' worker_to_team records.');
+		
 		$sql = "DELETE QUICK worker_workspace_list FROM worker_workspace_list LEFT JOIN worker ON worker_workspace_list.worker_id = worker.id WHERE worker.id IS NULL";
 		$db->Execute($sql);
+		
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' worker_workspace_list records.');
 		
 		// Routing rules assigned to missing workers
 		$sql = "DELETE QUICK team_routing_rule FROM team_routing_rule LEFT JOIN worker ON team_routing_rule.do_assign = worker.id WHERE (team_routing_rule.do_assign IS NOT NULL AND team_routing_rule.do_assign > 0) AND worker.id IS NULL";
 		$db->Execute($sql);
+		
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' team_routing_rule records assigned to missing workers.');
 	}
 	
 	static function deleteAgent($id) {
@@ -987,12 +1002,17 @@ class DAO_Address extends DevblocksORMHelper {
 	
 	static function maint() {
 		$db = DevblocksPlatform::getDatabaseService();
+		$logger = DevblocksPlatform::getConsoleLog();
 		
 		$sql = "DELETE QUICK address_auth FROM address_auth LEFT JOIN address ON address_auth.address_id=address.id WHERE address.id IS NULL";
 		$db->Execute($sql);
 		
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' address_auth records.');
+		
 		$sql = "DELETE QUICK address_to_worker FROM address_to_worker LEFT JOIN worker ON address_to_worker.worker_id=worker.id WHERE worker.id IS NULL";
 		$db->Execute($sql);
+		
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' address_to_worker records.');
 	}
 	
     static function delete($ids) {
@@ -1511,18 +1531,27 @@ class DAO_Message extends DevblocksORMHelper {
 
     static function maint() {
     	$db = DevblocksPlatform::getDatabaseService();
+    	$logger = DevblocksPlatform::getConsoleLog();
     	
 		$sql = "DELETE QUICK message FROM message LEFT JOIN ticket ON message.ticket_id = ticket.id WHERE ticket.id IS NULL";
 		$db->Execute($sql);
 		
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' message records.');
+		
 		$sql = "DELETE QUICK message_header FROM message_header LEFT JOIN message ON message_header.message_id = message.id WHERE message.id IS NULL";
 		$db->Execute($sql);
+
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' message_header records.');
 		
 		$sql = "DELETE QUICK message_content FROM message_content LEFT JOIN message ON message_content.message_id = message.id WHERE message.id IS NULL";
 		$db->Execute($sql);
+
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' message_content records.');
 		
 		$sql = "DELETE QUICK message_note FROM message_note LEFT JOIN message ON message_note.message_id = message.id WHERE message.id IS NULL";
 		$db->Execute($sql);
+		
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' message_note records.');
 		
 		DAO_Attachment::maint();
     }
@@ -1999,6 +2028,7 @@ class DAO_Attachment extends DevblocksORMHelper {
 	
 	static function maint() {
 		$db = DevblocksPlatform::getDatabaseService();
+		$logger = DevblocksPlatform::getConsoleLog();
 		
 		$sql = "SELECT filepath FROM attachment LEFT JOIN message ON attachment.message_id = message.id WHERE message.id IS NULL";
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
@@ -2012,6 +2042,8 @@ class DAO_Attachment extends DevblocksORMHelper {
 		
 		$sql = "DELETE attachment FROM attachment LEFT JOIN message ON attachment.message_id = message.id WHERE message.id IS NULL";
 		$db->Execute($sql);
+		
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' attachment records.');
 	}
 };
 
@@ -2327,27 +2359,40 @@ class DAO_Ticket extends DevblocksORMHelper {
 
 	static function maint() {
 		$db = DevblocksPlatform::getDatabaseService();
+		$logger = DevblocksPlatform::getConsoleLog();
 		
 		$sql = "DELETE QUICK ticket_comment FROM ticket_comment LEFT JOIN ticket ON ticket_comment.ticket_id=ticket.id WHERE ticket.id IS NULL";
 		$db->Execute($sql);
 		
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' ticket_comment records.');
+		
 		$sql = "DELETE QUICK ticket_field_value FROM ticket_field_value LEFT JOIN ticket ON ticket_field_value.ticket_id=ticket.id WHERE ticket.id IS NULL";
 		$db->Execute($sql);
+
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' ticket_field_value records.');
 		
 		$sql = "DELETE QUICK requester FROM requester LEFT JOIN ticket ON requester.ticket_id = ticket.id WHERE ticket.id IS NULL";
 		$db->Execute($sql);
 
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' requester records.');
+		
 		// Ticket tasks
 		$sql = "DELETE QUICK task FROM task LEFT JOIN ticket ON task.source_id = ticket.id WHERE task.source_extension = 'cerberusweb.tasks.ticket' AND ticket.id IS NULL";
 		$db->Execute($sql);
+		
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' task records.');
 		
 		// Recover any tickets assigned to next_worker_id = NULL
 		$sql = "UPDATE ticket LEFT JOIN worker ON ticket.next_worker_id = worker.id SET ticket.next_worker_id = 0 WHERE ticket.next_worker_id > 0 AND worker.id IS NULL";
 		$db->Execute($sql);
 
+		$logger->info('[Maint] Fixed ' . $db->Affected_Rows() . ' tickets assigned to missing workers.');
+		
 		// Recover any tickets assigned to a NULL bucket
 		$sql = "UPDATE ticket LEFT JOIN category ON ticket.category_id = category.id SET ticket.category_id = 0 WHERE ticket.category_id > 0 AND category.id IS NULL";
 		$db->Execute($sql);
+		
+		$logger->info('[Maint] Fixed ' . $db->Affected_Rows() . ' tickets in missing buckets.');
 	}
 	
 	static function merge($ids=array()) {
@@ -3550,15 +3595,22 @@ class DAO_Group {
 	
 	static function maint() {
 		$db = DevblocksPlatform::getDatabaseService();
+		$logger = DevblocksPlatform::getConsoleLog();
 		
 		$sql = "DELETE QUICK category FROM category LEFT JOIN team ON category.team_id=team.id WHERE team.id IS NULL";
 		$db->Execute($sql);
 		
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' category records.');
+		
 		$sql = "DELETE QUICK group_setting FROM group_setting LEFT JOIN team ON group_setting.group_id=team.id WHERE team.id IS NULL";
 		$db->Execute($sql);
 		
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' group_setting records.');
+		
 		$sql = "DELETE QUICK ticket_field FROM ticket_field LEFT JOIN team ON ticket_field.group_id=team.id WHERE ticket_field.group_id > 0 AND team.id IS NULL";
 		$db->Execute($sql);
+		
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' ticket_field records.');
 	}
 	
 	static function setTeamMember($team_id, $worker_id, $is_manager=false) {
