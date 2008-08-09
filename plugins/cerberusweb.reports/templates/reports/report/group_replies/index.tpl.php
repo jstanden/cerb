@@ -15,13 +15,13 @@ function drawChart(start, end) {{/literal}
 	start=escape(start);
 	end=escape(end);
 	//[mdf] first let the server tell us how many records to expect so we can make sure the chart height is high enough
-	var cObj = YAHOO.util.Connect.asyncRequest('GET', "{/literal}{devblocks_url}ajax.php?c=reports&a=action&extid=report.tickets.group_replies&extid_a=getGroupRepliesChart{/devblocks_url}{literal}&start="+start+"&end="+end+"&countonly=1", {
+	var cObj = YAHOO.util.Connect.asyncRequest('GET', "{/literal}{devblocks_url}ajax.php?c=reports&a=action&extid=report.groups.group_replies&extid_a=getGroupRepliesChart{/devblocks_url}{literal}&start="+start+"&end="+end+"&countonly=1", {
 		success: function(o) {
 			var groupCount = o.responseText;
 			//[mdf] set the chart size based on the number of records we will get from the datasource
 			myContainer.style.cssText = 'width:100%;height:'+(30+30*groupCount);;
 			
-			var myXHRDataSource = new YAHOO.util.DataSource("{/literal}{devblocks_url}ajax.php?c=reports&a=action&extid=report.tickets.group_replies&extid_a=getGroupRepliesChart{/devblocks_url}{literal}&start="+start+"&end="+end);
+			var myXHRDataSource = new YAHOO.util.DataSource("{/literal}{devblocks_url}ajax.php?c=reports&a=action&extid=report.groups.group_replies&extid_a=getGroupRepliesChart{/devblocks_url}{literal}&start="+start+"&end="+end);
 			myXHRDataSource.responseType = YAHOO.util.DataSource.TYPE_TEXT; 
 			myXHRDataSource.responseSchema = {
 				recordDelim: "\n",
@@ -51,7 +51,7 @@ function drawChart(start, end) {{/literal}
 <form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmRange" name="frmRange" onsubmit="return false;">
 <input type="hidden" name="c" value="reports">
 <input type="hidden" name="a" value="action">
-<input type="hidden" name="extid" value="report.tickets.group_replies">
+<input type="hidden" name="extid" value="report.groups.group_replies">
 <input type="hidden" name="extid_a" value="getGroupRepliesReport">
 From: <input type="text" name="start" id="start" size="10" value="{$start}"><button type="button" onclick="ajax.getDateChooser('divCal',this.form.start);">&nbsp;<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/calendar.gif{/devblocks_url}" align="top">&nbsp;</button>
 To: <input type="text" name="end" id="end" size="10" value="{$end}"><button type="button" onclick="ajax.getDateChooser('divCal',this.form.end);">&nbsp;<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/calendar.gif{/devblocks_url}" align="top">&nbsp;</button>
