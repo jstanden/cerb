@@ -609,7 +609,8 @@ class UmContactApp extends Extension_UsermeetTool {
 		$from = array_shift($fromList);
 		$message->headers['from'] = $from->mailbox . '@' . $from->host; 
 
-		$message->body = 'IP: ' . $fingerprint['ip'] . "\r\n\r\n" . $sContent;
+		//$message->body = 'IP: ' . $fingerprint['ip'] . "\r\n\r\n" . $sContent;
+		$message->body = $sContent;
 
 		$ticket_id = CerberusParser::parseMessage($message);
 		$ticket = DAO_Ticket::getTicket($ticket_id);

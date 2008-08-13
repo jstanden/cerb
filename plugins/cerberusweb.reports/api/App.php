@@ -1163,9 +1163,9 @@ class ChReportTopTicketsByContact extends Extension_Report {
 					"FROM ticket t  ".
 					"INNER JOIN address a ON t.first_wrote_address_id = a.id  ".
 					"WHERE created_date > %d AND created_date <= %d  ".
-					"AND is_deleted = 0 AND is_closed = 1  ".
-					"AND spam_score < 0.9000 AND spam_training != 'S'  ".
-					"AND a.contact_org_id != 0  ".
+					"AND is_deleted = 0 ".
+					"AND spam_score < 0.9000 ".
+					"AND spam_training != 'S'  ".
 					"GROUP BY a.email, t.team_id, t.category_id ORDER BY hits DESC ",
 					$start_time,
 					$end_time);
@@ -1177,7 +1177,6 @@ class ChReportTopTicketsByContact extends Extension_Report {
 					"INNER JOIN contact_org o ON a.contact_org_id = o.id ".
 					"WHERE created_date > %d AND created_date <= %d ".
 					"AND is_deleted = 0 ".
-					"AND is_closed = 1  ".
 					"AND spam_score < 0.9000 ".
 					"AND spam_training != 'S' ".
 					"AND a.contact_org_id != 0 ".
@@ -1260,10 +1259,8 @@ class ChReportTopTicketsByContact extends Extension_Report {
 					"INNER JOIN address a ON t.first_wrote_address_id = a.id ".
 					"WHERE created_date > %d AND created_date <= %d ".
 					"AND is_deleted = 0 ".
-					"AND is_closed = 1  ".
 					"AND spam_score < 0.9000 ".
 					"AND spam_training != 'S' ".
-					"AND a.contact_org_id != 0 ".
 					"GROUP BY a.id, a.email ".
 					"ORDER BY hits LIMIT 25 ",
 					$start_time,
@@ -1276,7 +1273,6 @@ class ChReportTopTicketsByContact extends Extension_Report {
 					"INNER JOIN contact_org o ON a.contact_org_id = o.id ".
 					"WHERE created_date > %d AND created_date <= %d ".
 					"AND is_deleted = 0 ".
-					"AND is_closed = 1  ".
 					"AND spam_score < 0.9000 ".
 					"AND spam_training != 'S' ".
 					"AND a.contact_org_id != 0 ".
@@ -1284,7 +1280,7 @@ class ChReportTopTicketsByContact extends Extension_Report {
 					"ORDER BY hits LIMIT 25 ",
 					$start_time,
 					$end_time);
-		}
+		};
 		$rs = $db->Execute($sql);
 
 		if($countonly) {
