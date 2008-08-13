@@ -1088,6 +1088,221 @@ class ChReportClosedTickets extends Extension_Report {
 	}
 }
 
+class ChReportTopTicketsByContact extends Extension_Report {
+	private $tpl_path = null;
+	
+	function __construct($manifest) {
+		parent::__construct($manifest);
+		$this->tpl_path = realpath(dirname(__FILE__).'/../templates');
+	}
+	
+	function render() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', $this->tpl_path);
+		
+		$tpl->assign('start', '-30 days');
+		$tpl->assign('end', 'now');
+		
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		// Year shortcuts
+		$years = array();
+		$sql = "SELECT date_format(from_unixtime(created_date),'%Y') as year FROM ticket WHERE created_date > 0 GROUP BY year having year <= date_format(now(),'%Y') ORDER BY year desc limit 0,10";
+		$rs = $db->query($sql);
+		while(!$rs->EOF) {
+			$years[] = intval($rs->fields['year']);
+			$rs->MoveNext();
+		}
+		$tpl->assign('years', $years);
+		
+		$tpl->display('file:' . $this->tpl_path . '/reports/ticket/top_contacts_tickets/index.tpl.php');
+	}
+	
+	function getTopTicketsReportAction() {
+	
+		@$age = DevblocksPlatform::importGPC($_REQUEST['age'],'string','30d');
+		
+		$db = DevblocksPlatform::getDatabaseService();
+
+				
+		@$start = DevblocksPlatform::importGPC($_REQUEST['start'],'string','');
+		@$end = DevblocksPlatform::importGPC($_REQUEST['end'],'string','');
+		@$countonly = DevblocksPlatform::importGPC($_REQUEST['countonly'],'integer',0);
+		@$by_address = DevblocksPlatform::importGPC($_REQUEST['by_address'],'integer',0);
+		
+		// use date range if specified, else use duration prior to now
+		$start_time = 0;
+		$end_time = 0;
+
+		if (empty($start) && empty($end)) {
+			$start = "-30 days";
+			$end = "now";
+			
+			$start_time = strtotime($start);
+			$end_time = strtotime($end);
+		} else {
+			$start_time = strtotime($start);
+			$end_time = strtotime($end);
+		}
+				
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', $this->tpl_path);
+
+	   	// Top Buckets
+		$groups = DAO_Group::getAll();
+		$tpl->assign('groups', $groups);
+		
+		$group_buckets = DAO_Bucket::getTeams();
+		$tpl->assign('group_buckets', $group_buckets);
+
+		if($by_address) {
+			$sql = sprintf("SELECT count(*) AS hits, a.id as contact_id, a.email as contact_name, t.team_id, t.category_id  ".
+					"FROM ticket t  ".
+					"INNER JOIN address a ON t.first_wrote_address_id = a.id  ".
+					"WHERE created_date > %d AND created_date <= %d  ".
+					"AND is_deleted = 0 AND is_closed = 1  ".
+					"AND spam_score < 0.9000 AND spam_training != 'S'  ".
+					"AND a.contact_org_id != 0  ".
+					"GROUP BY a.email, t.team_id, t.category_id ORDER BY hits DESC ",
+					$start_time,
+					$end_time);
+		}
+		else { //default is by org 
+			$sql = sprintf("SELECT count(*) AS hits, a.contact_org_id as contact_id, o.name as contact_name, t.team_id, t.category_id ".
+					"FROM ticket t ".
+					"INNER JOIN address a ON t.first_wrote_address_id = a.id ".
+					"INNER JOIN contact_org o ON a.contact_org_id = o.id ".
+					"WHERE created_date > %d AND created_date <= %d ".
+					"AND is_deleted = 0 ".
+					"AND is_closed = 1  ".
+					"AND spam_score < 0.9000 ".
+					"AND spam_training != 'S' ".
+					"AND a.contact_org_id != 0 ".
+					"GROUP BY a.contact_org_id, o.name, t.team_id, t.category_id ".
+					"ORDER BY hits DESC  ",
+					$start_time,
+					$end_time);
+		}
+				
+		$rs_buckets = $db->Execute($sql);
+	
+		$group_counts = array();
+		$max_orgs = 100;
+		$current_orgs = 0;
+		while(!$rs_buckets->EOF && $current_orgs <= $max_orgs) {
+			$org_id = intval($rs_buckets->fields['contact_id']);
+			$org_name = $rs_buckets->fields['contact_name'];
+			$team_id = intval($rs_buckets->fields['team_id']);
+			$category_id = intval($rs_buckets->fields['category_id']);
+			$hits = intval($rs_buckets->fields['hits']);
+			
+			if(!isset($group_counts[$org_id])) {
+				$group_counts[$org_id] = array();
+				$current_orgs++;
+			}
+
+			if(!isset($group_counts[$org_id]['teams']))
+				$group_counts[$org_id]['teams'] = array();
+				
+			if(!isset($group_counts[$org_id]['teams'][$team_id]))
+				$group_counts[$org_id]['teams'][$team_id] = array();
+				
+			if(!isset($group_counts[$org_id]['teams'][$team_id]['buckets']))
+				$group_counts[$org_id]['teams'][$team_id]['buckets'] = array();
+			
+			$group_counts[$org_id]['name'] = $org_name;
+			
+			$group_counts[$org_id]['teams'][$team_id]['buckets'][$category_id] = $hits;
+			@$group_counts[$org_id]['teams'][$team_id]['total'] = intval($group_counts[$org_id]['teams'][$team_id]['total']) + $hits;
+			
+			$rs_buckets->MoveNext();
+		}
+		
+		//echo "<pre>";print_r($group_counts);echo "</pre>";
+		$tpl->assign('group_counts', $group_counts);
+		
+		$tpl->display('file:' . $this->tpl_path . '/reports/ticket/top_contacts_tickets/html.tpl.php');
+	}
+	
+	function getTopTicketsChartAction() {
+		@$countonly = DevblocksPlatform::importGPC($_REQUEST['countonly'],'integer',0);
+
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		@$start = DevblocksPlatform::importGPC($_REQUEST['start'],'string','');
+		@$end = DevblocksPlatform::importGPC($_REQUEST['end'],'string','');
+		@$countonly = DevblocksPlatform::importGPC($_REQUEST['countonly'],'integer',0);
+		@$by_address = DevblocksPlatform::importGPC($_REQUEST['by_address'],'integer',0);
+		
+		// use date range if specified, else use duration prior to now
+		$start_time = 0;
+		$end_time = 0;
+		
+		if (empty($start) && empty($end)) {
+			$start = "-30 days";
+			$end = "now";
+			$start_time = strtotime($start);
+			$end_time = strtotime($end);
+		} else {
+			$start_time = strtotime($start);
+			$end_time = strtotime($end);
+		}
+				
+		
+		$groups = DAO_Group::getAll();
+
+		if($by_address) {
+			$sql = sprintf("SELECT count(*) AS hits, a.id, a.email as name ".
+					"FROM ticket t ".
+					"INNER JOIN address a ON t.first_wrote_address_id = a.id ".
+					"WHERE created_date > %d AND created_date <= %d ".
+					"AND is_deleted = 0 ".
+					"AND is_closed = 1  ".
+					"AND spam_score < 0.9000 ".
+					"AND spam_training != 'S' ".
+					"AND a.contact_org_id != 0 ".
+					"GROUP BY a.id, a.email ".
+					"ORDER BY hits LIMIT 25 ",
+					$start_time,
+					$end_time);
+		}
+		else {//default is by org
+			$sql = sprintf("SELECT count(*) AS hits, a.contact_org_id, o.name ".
+					"FROM ticket t ".
+					"INNER JOIN address a ON t.first_wrote_address_id = a.id ".
+					"INNER JOIN contact_org o ON a.contact_org_id = o.id ".
+					"WHERE created_date > %d AND created_date <= %d ".
+					"AND is_deleted = 0 ".
+					"AND is_closed = 1  ".
+					"AND spam_score < 0.9000 ".
+					"AND spam_training != 'S' ".
+					"AND a.contact_org_id != 0 ".
+					"GROUP BY a.contact_org_id, o.name ".
+					"ORDER BY hits LIMIT 25 ",
+					$start_time,
+					$end_time);
+		}
+		$rs = $db->Execute($sql);
+
+		if($countonly) {
+			echo intval($rs->RecordCount());
+			return;
+		}
+		
+	    while(!$rs->EOF) {
+	    	$hits = intval($rs->fields['hits']);
+			$name = $rs->fields['name'];
+			
+			echo $name, "\t", $hits . "\n";
+			
+		    $rs->MoveNext();
+	    }
+	}
+}
+
 class ChReportsPage extends CerberusPageExtension {
 	private $tpl_path = null;
 	
