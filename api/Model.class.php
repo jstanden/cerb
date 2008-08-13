@@ -2567,6 +2567,12 @@ class Model_Attachment {
 		return file_get_contents($file_path.$this->filepath,false);
 	}
 	
+	public function getFileSize() {
+		$file_path = APP_PATH . '/storage/attachments/';
+		if (!empty($this->filepath))
+		return filesize($file_path.$this->filepath);
+	}
+	
 	public static function saveToFile($file_id, $contents) {
 		$attachment_path = APP_PATH . '/storage/attachments/';
 		

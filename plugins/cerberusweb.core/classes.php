@@ -5431,7 +5431,7 @@ class ChFilesController extends DevblocksControllerExtension {
 		header("Pragma: no-cache\n");
 		header("Content-Type: " . $file->mime_type . "\n");
 		header("Content-transfer-encoding: binary\n"); 
-		header("Content-Length: " . $file->file_size . "\n");
+		header("Content-Length: " . $file->getFileSize() . "\n");
 		
 		echo($file->getFileContents());
 		
