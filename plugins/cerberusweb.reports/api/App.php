@@ -876,6 +876,7 @@ class ChReportOpenTickets extends Extension_Report {
 			"AND is_closed = 0 ".
 			"AND spam_score < 0.9000 ".
 			"AND spam_training != 'S' ".
+			"AND is_waiting != 1" .
 			"GROUP BY team_id, category_id ";
 		$rs_buckets = $db->Execute($sql);
 	
@@ -912,6 +913,7 @@ class ChReportOpenTickets extends Extension_Report {
 				"AND t.is_closed = 0 ".
 				"AND t.spam_score < 0.9000 ".
 				"AND t.spam_training != 'S' ".
+				"AND is_waiting != 1" .				
 				"GROUP BY group_id ORDER by team.name desc ";
 
 		$rs = $db->Execute($sql);
@@ -1297,6 +1299,172 @@ class ChReportTopTicketsByContact extends Extension_Report {
 		    $rs->MoveNext();
 	    }
 	}
+}
+
+class ChReportWorkerHistory extends Extension_Report {
+	private $tpl_path = null;
+	
+	function __construct($manifest) {
+		parent::__construct($manifest);
+		$this->tpl_path = realpath(dirname(__FILE__).'/../templates');
+	}
+	
+	function render() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', $this->tpl_path);
+		
+		$tpl->assign('start', '-30 days');
+		$tpl->assign('end', 'now');
+		
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		// Year shortcuts
+		$years = array();
+		$sql = "SELECT date_format(from_unixtime(created_date),'%Y') as year FROM ticket WHERE created_date > 0 GROUP BY year having year <= date_format(now(),'%Y') ORDER BY year desc limit 0,10";
+		$rs = $db->query($sql);
+		while(!$rs->EOF) {
+			$years[] = intval($rs->fields['year']);
+			$rs->MoveNext();
+		}
+		$tpl->assign('years', $years);
+		
+		$workers = DAO_Worker::getAll();
+		$tpl->assign('workers', $workers);
+		
+		$tpl->display('file:' . $this->tpl_path . '/reports/worker/worker_history/index.tpl.php');
+	}
+	
+	function getWorkerHistoryReportAction() {
+		@$age = DevblocksPlatform::importGPC($_REQUEST['age'],'string','30d');
+		
+		$db = DevblocksPlatform::getDatabaseService();
+
+				
+		@$start = DevblocksPlatform::importGPC($_REQUEST['start'],'string','');
+		@$end = DevblocksPlatform::importGPC($_REQUEST['end'],'string','');
+		@$countonly = DevblocksPlatform::importGPC($_REQUEST['countonly'],'integer',0);
+		@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'integer',0);
+		
+		// use date range if specified, else use duration prior to now
+		$start_time = 0;
+		$end_time = 0;
+
+		if(!$worker_id) {
+			$worker = CerberusApplication::getActiveWorker();
+			$worker_id = $worker->id;
+		}
+		
+		if (empty($start) && empty($end)) {
+			$start = "-30 days";
+			$end = "now";
+			$start_time = strtotime($start);
+			$end_time = strtotime($end);
+		} else {
+			$start_time = strtotime($start);
+			$end_time = strtotime($end);
+		}
+				
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', $this->tpl_path);
+
+		$sql = sprintf("SELECT t.id, t.mask, t.subject, " . 
+				"date_format(from_unixtime(m.created_date),'%%Y-%%m-%%d') as day ".
+				"FROM ticket t ".
+				"INNER JOIN message m ON t.id = m.ticket_id ".
+				"INNER JOIN worker w ON m.worker_id = w.id ".
+				"WHERE m.created_date > %d AND m.created_date <= %d ".
+				"AND m.is_outgoing = 1 ".
+				"AND t.is_deleted = 0 ".
+				"AND w.id = %d ".
+				"GROUP BY day, t.id ".
+				"order by m.created_date",
+				$start_time,
+				$end_time,
+				$worker_id);
+				
+		$rs = $db->Execute($sql);
+
+		$tickets_replied = array();
+		while(!$rs->EOF) {
+			$created_day = $rs->fields['day'];
+			
+			unset($reply_date_ticket);
+			$reply_date_ticket->mask = $rs->fields['mask'];
+			$reply_date_ticket->subject = $rs->fields['subject'];
+			$reply_date_ticket->id = intval($rs->fields['id']);
+
+			$tickets_replied[$created_day][] = $reply_date_ticket;
+			
+			$rs->MoveNext();
+		}
+
+		//echo "<pre>";print_r($tickets_replied);echo "</pre>";exit;
+		$tpl->assign('tickets_replied', $tickets_replied);
+		
+		$tpl->display('file:' . $this->tpl_path . '/reports/worker/worker_history/html.tpl.php');
+	}
+	
+	function getWorkerHistoryChartAction() {
+		header("content-type: text/plain");
+	
+		$db = DevblocksPlatform::getDatabaseService();
+		// import dates from form
+		@$start = DevblocksPlatform::importGPC($_REQUEST['start'],'string','');
+		@$end = DevblocksPlatform::importGPC($_REQUEST['end'],'string','');
+		@$countonly = DevblocksPlatform::importGPC($_REQUEST['countonly'],'integer',0);
+		
+		// use date range if specified, else use duration prior to now
+		$start_time = 0;
+		$end_time = 0;
+		
+		if (empty($start) && empty($end)) {
+			$start = "-30 days";
+			$end = "now";
+			$start_time = strtotime($start);
+			$end_time = strtotime($end);
+		} else {
+			$start_time = strtotime($start);
+			$end_time = strtotime($end);
+		}
+		
+		// Top Workers
+		$workers = DAO_Worker::getAll();
+		
+		$sql = sprintf("SELECT count(*) AS hits, m.worker_id ".
+			"FROM message m ".
+			"INNER JOIN ticket t ON (t.id=m.ticket_id) ".
+			"INNER JOIN worker w ON w.id=m.worker_id ".
+			"WHERE m.created_date > %d AND m.created_date <= %d ".
+			"AND m.is_outgoing = 1 ".
+			"AND t.is_deleted = 0 ".
+			"GROUP BY m.worker_id ORDER BY w.last_name DESC ",
+			$start_time,
+			$end_time
+		);
+
+		$rs_workers = $db->Execute($sql); /* @var $rs_workers ADORecordSet */
+		
+		if($countonly) {
+			echo intval($rs_workers->RecordCount());
+			return;
+		}
+		
+		$worker_counts = array();
+		
+		while(!$rs_workers->EOF) {
+			$hits = intval($rs_workers->fields['hits']);
+			$worker_id = intval($rs_workers->fields['worker_id']);
+			
+			if(!isset($workers[$worker_id]))
+				continue;
+
+			echo $workers[$worker_id]->getName() , "\t" , $hits , "\n";
+			$rs_workers->MoveNext();
+		}
+	}	
+	
 }
 
 class ChReportsPage extends CerberusPageExtension {

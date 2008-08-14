@@ -214,5 +214,18 @@
 			<param key="report_group" value="report.group.tickets" />
 		</params>
 	</extension>	
+
+	<extension point="cerberusweb.report">
+		<id>report.workers.worker_history</id>
+		<name>Worker History Report</name>
+		<class>
+			<file>api/App.php</file>
+			<name>ChReportWorkerHistory</name>
+		</class>
+		<params>
+			<param key="report_name" value="Worker History Report" />
+			<param key="report_group" value="report.group.workers" />
+		</params>
+	</extension>		
 	</extensions>
 </plugin>
