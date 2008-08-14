@@ -178,13 +178,13 @@
 
 	<extension point="cerberusweb.report">
 		<id>report.tickets.open_tickets</id>
-		<name>Currently Open Tickets Report</name>
+		<name>Open Tickets Report</name>
 		<class>
 			<file>api/App.php</file>
 			<name>ChReportOpenTickets</name>
 		</class>
 		<params>
-			<param key="report_name" value="Currently Open Tickets By Group" />
+			<param key="report_name" value="Open Tickets By Group" />
 			<param key="report_group" value="report.group.tickets" />
 		</params>
 	</extension>		
@@ -210,7 +210,7 @@
 			<name>ChReportTopTicketsByContact</name>
 		</class>
 		<params>
-			<param key="report_name" value="Top Tickets By Contact Report" />
+			<param key="report_name" value="Top Tickets By Contact" />
 			<param key="report_group" value="report.group.tickets" />
 		</params>
 	</extension>	
@@ -223,9 +223,36 @@
 			<name>ChReportWorkerHistory</name>
 		</class>
 		<params>
-			<param key="report_name" value="Worker History Report" />
+			<param key="report_name" value="Worker History" />
 			<param key="report_group" value="report.group.workers" />
 		</params>
 	</extension>		
+	
+	<extension point="cerberusweb.report">
+		<id>report.tickets.waiting_tickets</id>
+		<name>Waiting Tickets By Group Report</name>
+		<class>
+			<file>api/App.php</file>
+			<name>ChReportWaitingTickets</name>
+		</class>
+		<params>
+			<param key="report_name" value="Waiting Tickets By Group" />
+			<param key="report_group" value="report.group.tickets" />
+		</params>
+	</extension>
+	
+	<extension point="cerberusweb.report">
+		<id>report.tickets.oldest_open_tickets</id>
+		<name>Oldest Open Tickets By Group Report</name>
+		<class>
+			<file>api/App.php</file>
+			<name>ChReportOldestOpenTickets</name>
+		</class>
+		<params>
+			<param key="report_name" value="Oldest Open Tickets By Group" />
+			<param key="report_group" value="report.group.tickets" />
+		</params>
+	</extension>			
 	</extensions>
+	
 </plugin>

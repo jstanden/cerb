@@ -835,7 +835,7 @@ class ChReportOpenTickets extends Extension_Report {
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->tpl_path);
 		
-		$tpl->assign('start', '-30 days');
+		$tpl->assign('start', '-5 years');
 		$tpl->assign('end', 'now');
 		
 		$db = DevblocksPlatform::getDatabaseService();
@@ -856,6 +856,24 @@ class ChReportOpenTickets extends Extension_Report {
 	function getOpenTicketsReportAction() {
 	
 		@$age = DevblocksPlatform::importGPC($_REQUEST['age'],'string','30d');
+		@$start = DevblocksPlatform::importGPC($_REQUEST['start'],'string','');
+		@$end = DevblocksPlatform::importGPC($_REQUEST['end'],'string','');
+		@$countonly = DevblocksPlatform::importGPC($_REQUEST['countonly'],'integer',0);
+		
+		// use date range if specified, else use duration prior to now
+		$start_time = 0;
+		$end_time = 0;
+		
+		if (empty($start) && empty($end)) {
+			$start = "-5 years";
+			$end = "now";
+			$start_time = strtotime($start);
+			$end_time = strtotime($end);
+		} else {
+			$start_time = strtotime($start);
+			$end_time = strtotime($end);
+		}		
+		
 		
 		$db = DevblocksPlatform::getDatabaseService();
 
@@ -870,14 +888,17 @@ class ChReportOpenTickets extends Extension_Report {
 		$group_buckets = DAO_Bucket::getTeams();
 		$tpl->assign('group_buckets', $group_buckets);
 		
-		$sql = "SELECT count(*) AS hits, team_id, category_id ".
+		$sql = sprintf("SELECT count(*) AS hits, team_id, category_id ".
 			"FROM ticket ".
-			"WHERE is_deleted = 0 ".
+			"WHERE created_date > %d AND created_date <= %d ".			
+			"AND is_deleted = 0 ".
 			"AND is_closed = 0 ".
 			"AND spam_score < 0.9000 ".
 			"AND spam_training != 'S' ".
-			"AND is_waiting != 1" .
-			"GROUP BY team_id, category_id ";
+			"AND is_waiting != 1 " .
+			"GROUP BY team_id, category_id ",
+			$start_time,
+			$end_time);
 		$rs_buckets = $db->Execute($sql);
 	
 		$group_counts = array();
@@ -900,6 +921,249 @@ class ChReportOpenTickets extends Extension_Report {
 	}
 	
 	function getOpenTicketsChartAction() {
+		@$start = DevblocksPlatform::importGPC($_REQUEST['start'],'string','');
+		@$end = DevblocksPlatform::importGPC($_REQUEST['end'],'string','');
+		@$countonly = DevblocksPlatform::importGPC($_REQUEST['countonly'],'integer',0);
+		
+		// use date range if specified, else use duration prior to now
+		$start_time = 0;
+		$end_time = 0;
+		
+		if (empty($start) && empty($end)) {
+			$start = "-30 days";
+			$end = "now";
+			$start_time = strtotime($start);
+			$end_time = strtotime($end);
+		} else {
+			$start_time = strtotime($start);
+			$end_time = strtotime($end);
+		}
+		
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$groups = DAO_Group::getAll();
+		
+		$sql = sprintf("SELECT team.id as group_id, ".
+				"count(*) as hits ".
+				"FROM ticket t inner join team on t.team_id = team.id ".
+				"WHERE t.created_date > %d AND t.created_date <= %d ".
+				"AND t.is_deleted = 0 ".
+				"AND t.is_closed = 0 ".
+				"AND t.spam_score < 0.9000 ".
+				"AND t.spam_training != 'S' ".
+				"AND is_waiting != 1 " .				
+				"GROUP BY group_id ORDER by team.name desc ",
+				$start_time,
+				$end_time);
+
+		$rs = $db->Execute($sql);
+
+		if($countonly) {
+			echo intval($rs->RecordCount());
+			return;
+		}
+		
+	    while(!$rs->EOF) {
+	    	$hits = intval($rs->fields['hits']);
+			$group_id = $rs->fields['group_id'];
+			
+			echo $groups[$group_id]->name, "\t", $hits . "\n";
+			
+		    $rs->MoveNext();
+	    }
+	}
+}
+
+class ChReportOldestOpenTickets extends Extension_Report {
+	private $tpl_path = null;
+	
+	function __construct($manifest) {
+		parent::__construct($manifest);
+		$this->tpl_path = realpath(dirname(__FILE__).'/../templates');
+	}
+	
+	function render() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', $this->tpl_path);
+		
+		$tpl->assign('start', '-5 years');
+		$tpl->assign('end', 'now');
+		
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		// Year shortcuts
+		$years = array();
+		$sql = "SELECT date_format(from_unixtime(created_date),'%Y') as year FROM ticket WHERE created_date > 0 GROUP BY year having year <= date_format(now(),'%Y') ORDER BY year desc limit 0,10";
+		$rs = $db->query($sql);
+		while(!$rs->EOF) {
+			$years[] = intval($rs->fields['year']);
+			$rs->MoveNext();
+		}
+		$tpl->assign('years', $years);
+		
+		$tpl->display('file:' . $this->tpl_path . '/reports/ticket/oldest_open_tickets/index.tpl.php');
+	}
+	
+	function getOldestOpenTicketsReportAction() {
+	
+		@$age = DevblocksPlatform::importGPC($_REQUEST['age'],'string','30d');
+		@$start = DevblocksPlatform::importGPC($_REQUEST['start'],'string','');
+		@$end = DevblocksPlatform::importGPC($_REQUEST['end'],'string','');
+		@$countonly = DevblocksPlatform::importGPC($_REQUEST['countonly'],'integer',0);
+		
+		// use date range if specified, else use duration prior to now
+		$start_time = 0;
+		$end_time = 0;
+		
+		if (empty($start) && empty($end)) {
+			$start = "-5 years";
+			$end = "now";
+			$start_time = strtotime($start);
+			$end_time = strtotime($end);
+		} else {
+			$start_time = strtotime($start);
+			$end_time = strtotime($end);
+		}		
+		
+		
+		$db = DevblocksPlatform::getDatabaseService();
+
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', $this->tpl_path);
+
+	   	// Top Buckets
+		$groups = DAO_Group::getAll();
+		$tpl->assign('groups', $groups);
+		
+		$group_buckets = DAO_Bucket::getTeams();
+		$tpl->assign('group_buckets', $group_buckets);
+
+		$oldest_tickets = array();
+		foreach($groups as $group_id=>$group) {
+			$sql = sprintf("SELECT mask, subject, created_date ".
+				"FROM ticket ".
+				"WHERE created_date > %d AND created_date <= %d ".			
+				"AND is_deleted = 0 ".
+				"AND is_closed = 0 ".
+				"AND spam_score < 0.9000 ".
+				"AND spam_training != 'S' ".
+				"AND is_waiting != 1 " .
+				"AND team_id = %d " .
+				"ORDER BY created_date LIMIT 10",
+				$start_time,
+				$end_time,
+				$group_id);
+			$rs = $db->Execute($sql);
+		
+			while(!$rs->EOF) {
+				$mask = $rs->fields['mask'];
+				$subject = $rs->fields['subject'];
+				$created_date = intval($rs->fields['created_date']);
+				
+				if(!isset($oldest_tickets[$group_id]))
+					$oldest_tickets[$group_id] = array();
+				
+				unset($ticket_entry);
+				$ticket_entry->mask = $mask;
+				$ticket_entry->subject = $subject;
+				$ticket_entry->created_date = $created_date;
+				
+				$oldest_tickets[$group_id][]=$ticket_entry;
+				
+				$rs->MoveNext();
+			}
+			unset($rs);
+			
+		}
+		//echo "<pre>";print_r($oldest_tickets);echo "</pre>";exit;
+
+		$tpl->assign('oldest_tickets', $oldest_tickets);
+		
+		$tpl->display('file:' . $this->tpl_path . '/reports/ticket/oldest_open_tickets/html.tpl.php');
+	}
+
+}
+
+class ChReportWaitingTickets extends Extension_Report {
+	private $tpl_path = null;
+	
+	function __construct($manifest) {
+		parent::__construct($manifest);
+		$this->tpl_path = realpath(dirname(__FILE__).'/../templates');
+	}
+	
+	function render() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', $this->tpl_path);
+		
+		$tpl->assign('start', '-30 days');
+		$tpl->assign('end', 'now');
+		
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		// Year shortcuts
+		$years = array();
+		$sql = "SELECT date_format(from_unixtime(created_date),'%Y') as year FROM ticket WHERE created_date > 0 GROUP BY year having year <= date_format(now(),'%Y') ORDER BY year desc limit 0,10";
+		$rs = $db->query($sql);
+		while(!$rs->EOF) {
+			$years[] = intval($rs->fields['year']);
+			$rs->MoveNext();
+		}
+		$tpl->assign('years', $years);
+		
+		$tpl->display('file:' . $this->tpl_path . '/reports/ticket/waiting_tickets/index.tpl.php');
+	}
+	
+	function getWaitingTicketsReportAction() {
+	
+		@$age = DevblocksPlatform::importGPC($_REQUEST['age'],'string','30d');
+		
+		$db = DevblocksPlatform::getDatabaseService();
+
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', $this->tpl_path);
+
+	   	// Top Buckets
+		$groups = DAO_Group::getAll();
+		$tpl->assign('groups', $groups);
+		
+		$group_buckets = DAO_Bucket::getTeams();
+		$tpl->assign('group_buckets', $group_buckets);
+		
+		$sql = "SELECT count(*) AS hits, team_id, category_id ".
+			"FROM ticket ".
+			"WHERE is_deleted = 0 ".
+			"AND is_closed = 0 ".
+			"AND spam_score < 0.9000 ".
+			"AND spam_training != 'S' ".
+			"AND is_waiting = 1 " .
+			"GROUP BY team_id, category_id ";
+		$rs_buckets = $db->Execute($sql);
+	
+		$group_counts = array();
+		while(!$rs_buckets->EOF) {
+			$team_id = intval($rs_buckets->fields['team_id']);
+			$category_id = intval($rs_buckets->fields['category_id']);
+			$hits = intval($rs_buckets->fields['hits']);
+			
+			if(!isset($group_counts[$team_id]))
+				$group_counts[$team_id] = array();
+				
+			$group_counts[$team_id][$category_id] = $hits;
+			@$group_counts[$team_id]['total'] = intval($group_counts[$team_id]['total']) + $hits;
+			
+			$rs_buckets->MoveNext();
+		}
+		$tpl->assign('group_counts', $group_counts);
+		
+		$tpl->display('file:' . $this->tpl_path . '/reports/ticket/waiting_tickets/html.tpl.php');
+	}
+	
+	function getWaitingTicketsChartAction() {
 		@$countonly = DevblocksPlatform::importGPC($_REQUEST['countonly'],'integer',0);
 
 		$db = DevblocksPlatform::getDatabaseService();
@@ -913,7 +1177,7 @@ class ChReportOpenTickets extends Extension_Report {
 				"AND t.is_closed = 0 ".
 				"AND t.spam_score < 0.9000 ".
 				"AND t.spam_training != 'S' ".
-				"AND is_waiting != 1" .				
+				"AND is_waiting = 1 " .				
 				"GROUP BY group_id ORDER by team.name desc ";
 
 		$rs = $db->Execute($sql);
