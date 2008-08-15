@@ -61,7 +61,7 @@ function drawChart(start, end, byAddress) {{/literal}
 From: <input type="text" name="start" id="start" size="10" value="{$start}"><button type="button" onclick="ajax.getDateChooser('divCal',this.form.start);">&nbsp;<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/calendar.gif{/devblocks_url}" align="top">&nbsp;</button>
 To: <input type="text" name="end" id="end" size="10" value="{$end}"><button type="button" onclick="ajax.getDateChooser('divCal',this.form.end);">&nbsp;<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/calendar.gif{/devblocks_url}" align="top">&nbsp;</button>
 <button type="button" id="btnSubmit" onclick="genericAjaxPost('frmRange', 'report');drawChart(document.getElementById('start').value, document.getElementById('end').value, document.frmRange.by_address[1].checked);">Refresh</button>
-
+<div id="divCal" style="display:none;position:absolute;z-index:1;"></div>
 <br>
 <label><input type="radio" name="by_address" value="0" checked onclick="document.getElementById('btnSubmit').click();"></input>By Organization</label>
 <label><input type="radio" name="by_address" value="1" onclick="document.getElementById('btnSubmit').click();"></input>By Address</label>

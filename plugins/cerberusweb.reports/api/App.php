@@ -731,14 +731,14 @@ class ChReportGroupReplies extends Extension_Report {
 		$groups = DAO_Group::getAll();
 		$tpl->assign('groups', $groups);
 		
-		$sql = sprintf("SELECT count(*) AS hits, t.team_id ".
+		$sql = sprintf("SELECT count(*) AS hits, t.team_id, category_id ".
 			"FROM message m ".
 			"INNER JOIN ticket t ON (t.id=m.ticket_id) ".
 			"INNER JOIN team ON t.team_id = team.id ".
 			"WHERE m.created_date > %d AND m.created_date <= %d ".
 			"AND m.is_outgoing = 1 ".
 			"AND t.is_deleted = 0 ".
-			"GROUP BY t.team_id ORDER BY team.name ",
+			"GROUP BY t.team_id, category_id ORDER BY team.name ",
 			$start_time,
 			$end_time
 		);
@@ -746,14 +746,15 @@ class ChReportGroupReplies extends Extension_Report {
 		
 		$group_counts = array();
 		while(!$rs->EOF) {
-			$hits = intval($rs->fields['hits']);
 			$team_id = intval($rs->fields['team_id']);
+			$category_id = intval($rs_buckets->fields['category_id']);
+			$hits = intval($rs->fields['hits']);
 			
 			if(!isset($group_counts[$team_id]))
 				$group_counts[$team_id] = array();
 			
-			$group_counts[$team_id]['name'] = $groups[$team_id]->name;;
-			$group_counts[$team_id]['hits'] = $hits;
+			$group_counts[$team_id][$category_id] = $hits;
+			@$group_counts[$team_id]['total'] = intval($group_counts[$team_id]['total']) + $hits;
 			$rs->MoveNext();
 		}
 		$tpl->assign('group_counts', $group_counts);
@@ -1348,6 +1349,112 @@ class ChReportClosedTickets extends Extension_Report {
 			$group_id = $rs->fields['group_id'];
 			
 			echo $groups[$group_id]->name, "\t", $hits . "\n";
+			
+		    $rs->MoveNext();
+	    }
+	}
+}
+
+class ChReportTicketAssignment extends Extension_Report {
+	private $tpl_path = null;
+	
+	function __construct($manifest) {
+		parent::__construct($manifest);
+		$this->tpl_path = realpath(dirname(__FILE__).'/../templates');
+	}
+	
+	function render() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', $this->tpl_path);
+		
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$tpl->display('file:' . $this->tpl_path . '/reports/worker/ticket_assignment/index.tpl.php');
+	}
+	
+	function getTicketAssignmentReportAction() {
+	
+		@$countonly = DevblocksPlatform::importGPC($_REQUEST['countonly'],'integer',0);
+		
+		$db = DevblocksPlatform::getDatabaseService();
+
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', $this->tpl_path);
+
+		$workers = DAO_Worker::getAll();
+		$tpl->assign('workers', $workers);
+		
+		$sql = sprintf("SELECT w.id worker_id, t.id ticket_id, t.mask, t.subject, t.created_date ".
+				"FROM ticket t inner join worker w on t.next_worker_id = w.id ".
+				"WHERE t.is_deleted = 0 ". 
+				"AND t.is_closed = 0 ".
+				"AND t.spam_score < 0.9000 ".
+				"AND t.spam_training != 'S' ". 
+				"AND is_waiting != 1 ".		
+				"ORDER by w.last_name",
+			$start_time,
+			$end_time);
+		$rs_buckets = $db->Execute($sql);
+	
+		$ticket_assignments = array();
+		while(!$rs_buckets->EOF) {
+			$worker_id = intval($rs_buckets->fields['worker_id']);
+			$mask = $rs_buckets->fields['mask'];
+			$subject = $rs_buckets->fields['subject'];
+			$created_date = intval($rs_buckets->fields['created_date']);
+			
+			if(!isset($ticket_assignments[$worker_id]))
+				$ticket_assignments[$worker_id] = array();
+				
+			unset($assignment);
+			$assignment->mask = $mask;
+			$assignment->subject = $subject;
+			$assignment->created_date = $created_date; 
+				
+			$ticket_assignments[$worker_id][] = $assignment;
+			
+			$rs_buckets->MoveNext();
+		}
+		
+		$tpl->assign('ticket_assignments', $ticket_assignments);
+		//print_r($ticket_assignments);exit;
+		$tpl->display('file:' . $this->tpl_path . '/reports/worker/ticket_assignment/html.tpl.php');
+	}
+	
+	function getTicketAssignmentChartAction() {
+		@$countonly = DevblocksPlatform::importGPC($_REQUEST['countonly'],'integer',0);
+		
+		
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$workers = DAO_Worker::getAll();
+
+		$sql = sprintf("SELECT w.id worker_id ,count(*) as hits ".
+				"FROM ticket t inner join worker w on t.next_worker_id = w.id ".
+				"WHERE t.is_deleted = 0 ". 
+				"AND t.is_closed = 0 ".
+				"AND t.spam_score < 0.9000 ".
+				"AND t.spam_training != 'S' ". 
+				"AND is_waiting != 1 ".	
+				"GROUP by w.id ".
+				"ORDER by w.last_name",
+				$start_time,
+				$end_time);
+
+		$rs = $db->Execute($sql);
+
+		if($countonly) {
+			echo intval($rs->RecordCount());
+			return;
+		}
+
+		while(!$rs->EOF) {
+	    	$hits = intval($rs->fields['hits']);
+			$worker_id = $rs->fields['worker_id'];
+			
+			echo $workers[$worker_id]->getName(), "\t", $hits . "\n";
 			
 		    $rs->MoveNext();
 	    }
