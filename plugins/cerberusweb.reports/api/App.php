@@ -1639,7 +1639,7 @@ class ChReportTopTicketsByContact extends Extension_Report {
 					"AND spam_training != 'S' ".
 					"AND t.team_id != 0 " .
 					"GROUP BY a.id, a.email ".
-					"ORDER BY hits LIMIT 25 ",
+					"ORDER BY hits DESC LIMIT 25 ",
 					$start_time,
 					$end_time);
 		}
@@ -1655,7 +1655,7 @@ class ChReportTopTicketsByContact extends Extension_Report {
 					"AND t.team_id != 0 " .
 					"AND a.contact_org_id != 0 ".
 					"GROUP BY a.contact_org_id, o.name ".
-					"ORDER BY hits LIMIT 25 ",
+					"ORDER BY hits DESC LIMIT 25 ",
 					$start_time,
 					$end_time);
 		};
@@ -1666,14 +1666,24 @@ class ChReportTopTicketsByContact extends Extension_Report {
 			return;
 		}
 		
+		$sorted_result = array();
+		$i=0;
 	    while(!$rs->EOF) {
-	    	$hits = intval($rs->fields['hits']);
+			$hits = intval($rs->fields['hits']);
 			$name = $rs->fields['name'];
 			
-			echo $name, "\t", $hits . "\n";
+			$sorted_result[$i]['name'] = $name;
+			$sorted_result[$i]['hits'] = $hits;
 			
-		    $rs->MoveNext();
-	    }
+			$i++;
+			$rs->MoveNext();
+		}
+
+		//reverse the descending result because yui charts draws from the bottom up on the y-axis
+		$reversed = array_reverse($sorted_result);
+		foreach($reversed AS $result) {
+			echo $result['name'], "\t", $result['hits'] . "\n";
+		}
 	}
 }
 
@@ -1745,11 +1755,12 @@ class ChReportWorkerHistory extends Extension_Report {
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->tpl_path);
 
-		$sql = sprintf("SELECT t.id, t.mask, t.subject, " . 
+		$sql = sprintf("SELECT t.id, t.mask, t.subject, a.email as email, " . 
 				"date_format(from_unixtime(m.created_date),'%%Y-%%m-%%d') as day ".
 				"FROM ticket t ".
 				"INNER JOIN message m ON t.id = m.ticket_id ".
 				"INNER JOIN worker w ON m.worker_id = w.id ".
+				"INNER JOIN address a on t.first_wrote_address_id = a.id ".
 				"WHERE m.created_date > %d AND m.created_date <= %d ".
 				"AND m.is_outgoing = 1 ".
 				"AND t.is_deleted = 0 ".
@@ -1768,6 +1779,7 @@ class ChReportWorkerHistory extends Extension_Report {
 			
 			unset($reply_date_ticket);
 			$reply_date_ticket->mask = $rs->fields['mask'];
+			$reply_date_ticket->email = $rs->fields['email'];
 			$reply_date_ticket->subject = $rs->fields['subject'];
 			$reply_date_ticket->id = intval($rs->fields['id']);
 

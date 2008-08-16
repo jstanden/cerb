@@ -210,7 +210,7 @@
 			<name>ChReportTopTicketsByContact</name>
 		</class>
 		<params>
-			<param key="report_name" value="Top Tickets By Contact" />
+			<param key="report_name" value="Top Created Tickets By Contact" />
 			<param key="report_group" value="report.group.tickets" />
 		</params>
 	</extension>	
