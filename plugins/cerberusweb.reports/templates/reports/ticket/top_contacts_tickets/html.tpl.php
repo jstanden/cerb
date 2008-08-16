@@ -1,9 +1,9 @@
 {if !empty($group_counts)}
 	<table cellspacing="0" cellpadding="2" border="0">
 	{foreach from=$group_counts key=org_id item=org}
-			<tr>
-				<td colspan="3" style="border-bottom:1px solid rgb(200,200,200);padding-right:20px;"><h2>{$group_counts.$org_id.name}</h2></td>
-			</tr>
+		<tr>
+			<td colspan="3" style="border-bottom:1px solid rgb(200,200,200);padding-right:20px;"><h2>{$group_counts.$org_id.name}</h2></td>
+		</tr>
 		{foreach from=$groups key=group_id item=group}
 			{assign var=count_group_total value=$group_counts.$org_id.teams.$group_id.total}
 			{assign var=count_group_buckets value=$group_counts.$org_id.teams.$group_id.buckets}
@@ -38,6 +38,10 @@
 				</tr>
 			{/if}
 		{/foreach}
+		<tr>
+			<td colspan="2" align="right" style="border-top:1px solid rgb(200,200,200);"><b>{$org.total}</b></td>
+			<td style="padding-left:10px;"></td>
+		</tr>		
 	{/foreach}
 	</table>
 {/if}

@@ -1539,6 +1539,7 @@ class ChReportTopTicketsByContact extends Extension_Report {
 					"AND is_deleted = 0 ".
 					"AND spam_score < 0.9000 ".
 					"AND spam_training != 'S'  ".
+					"AND t.team_id != 0 ".
 					"GROUP BY a.email, t.team_id, t.category_id ORDER BY hits DESC ",
 					$start_time,
 					$end_time);
@@ -1553,6 +1554,7 @@ class ChReportTopTicketsByContact extends Extension_Report {
 					"AND spam_score < 0.9000 ".
 					"AND spam_training != 'S' ".
 					"AND a.contact_org_id != 0 ".
+					"AND t.team_id != 0 ".
 					"GROUP BY a.contact_org_id, o.name, t.team_id, t.category_id ".
 					"ORDER BY hits DESC  ",
 					$start_time,
@@ -1589,6 +1591,7 @@ class ChReportTopTicketsByContact extends Extension_Report {
 			
 			$group_counts[$org_id]['teams'][$team_id]['buckets'][$category_id] = $hits;
 			@$group_counts[$org_id]['teams'][$team_id]['total'] = intval($group_counts[$org_id]['teams'][$team_id]['total']) + $hits;
+			@$group_counts[$org_id]['total'] = intval($group_counts[$org_id]['total']) + $hits;
 			
 			$rs_buckets->MoveNext();
 		}
@@ -1634,6 +1637,7 @@ class ChReportTopTicketsByContact extends Extension_Report {
 					"AND is_deleted = 0 ".
 					"AND spam_score < 0.9000 ".
 					"AND spam_training != 'S' ".
+					"AND t.team_id != 0 " .
 					"GROUP BY a.id, a.email ".
 					"ORDER BY hits LIMIT 25 ",
 					$start_time,
@@ -1648,6 +1652,7 @@ class ChReportTopTicketsByContact extends Extension_Report {
 					"AND is_deleted = 0 ".
 					"AND spam_score < 0.9000 ".
 					"AND spam_training != 'S' ".
+					"AND t.team_id != 0 " .
 					"AND a.contact_org_id != 0 ".
 					"GROUP BY a.contact_org_id, o.name ".
 					"ORDER BY hits LIMIT 25 ",
