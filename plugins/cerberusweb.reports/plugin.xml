@@ -41,6 +41,16 @@
 	</extension>
 	
 	<extension point="cerberusweb.report.group">
+		<id>report.group.orgs</id>
+		<name>Org Reports</name>
+		<class>
+			<file>api/App.php</file>
+			<name>ChReportGroupOrgs</name>
+		</class>
+		<params />
+	</extension>
+	
+	<extension point="cerberusweb.report.group">
 		<id>report.group.spam</id>
 		<name>Spam Reports</name>
 		<class>
@@ -201,6 +211,19 @@
 			<param key="report_group" value="report.group.tickets" />
 		</params>
 	</extension>
+			
+	<extension point="cerberusweb.report">
+		<id>report.orgs.shared_sender_domains</id>
+		<name>Top 100 Shared Sender Domains Report</name>
+		<class>
+			<file>api/App.php</file>
+			<name>ChReportOrgSharedEmailDomains</name>
+		</class>
+		<params>
+			<param key="report_name" value="Top 100 Shared Sender Domains" />
+			<param key="report_group" value="report.group.orgs" />
+		</params>
+	</extension>
 	
 	<extension point="cerberusweb.report">
 		<id>report.tickets.top_contacts</id>
@@ -213,7 +236,8 @@
 			<param key="report_name" value="Top Created Tickets By Contact" />
 			<param key="report_group" value="report.group.tickets" />
 		</params>
-	</extension>	
+	</extension>
+	
 
 	<extension point="cerberusweb.report">
 		<id>report.workers.worker_history</id>

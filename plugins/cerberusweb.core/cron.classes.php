@@ -391,6 +391,7 @@ class ImportCron extends CerberusCronPageExtension {
 	private function _handleImportTicket($xml) {
 		$settings = CerberusSettings::getInstance();
 		$logger = DevblocksPlatform::getConsoleLog();
+		$workers = DAO_Worker::getAll();
 
 		static $email_to_worker_id = null;
 		static $group_name_to_id = null;
@@ -398,7 +399,6 @@ class ImportCron extends CerberusCronPageExtension {
 		
 		// Hash Workers so we can ID their incoming tickets
 		if(null == $email_to_worker_id) {
-			$workers = DAO_Worker::getAll();
 			$email_to_worker_id = array();
 			
 			if(is_array($workers))
@@ -424,8 +424,10 @@ class ImportCron extends CerberusCronPageExtension {
 			$bucket_name_to_id = array();
 
 			if(is_array($buckets))
-			foreach($buckets as $bucket) {
-				$bucket_name_to_id[strtolower($bucket->name)] = intval($bucket->id);
+			foreach($buckets as $bucket) { /* @var $bucket CerberusCategory */
+				// Hash by team ID and bucket name
+				$hash = md5($bucket->team_id . strtolower($bucket->name));
+				$bucket_to_id[$hash] = intval($bucket->id);
 			}
 		}
 		
@@ -450,6 +452,13 @@ class ImportCron extends CerberusCronPageExtension {
 				DAO_Group::TEAM_NAME => $sGroup,				
 			));
 			
+			// Give all superusers manager access to this new group
+			if(is_array($workers))
+			foreach($workers as $worker) {
+				if($worker->is_superuser)
+					DAO_Group::setTeamMember($iDestGroupId,$worker->id,true);
+			}
+			
 			// Rehash
 			DAO_Group::getAll(true);
 			$group_name_to_id[strtolower($sGroup)] = $iDestGroupId;
@@ -457,7 +466,7 @@ class ImportCron extends CerberusCronPageExtension {
 		
 		if(empty($sBucket)) {
 			$iDestBucketId = 0; // Inbox
-		} elseif(null == ($iDestBucketId = @$bucket_name_to_id[strtolower($sBucket)])) {
+		} elseif(null == ($iDestBucketId = @$bucket_name_to_id[md5($iDestGroupId.strtolower($sBucket))])) {
 			$iDestBucketId = DAO_Bucket::create($sBucket, $iDestGroupId);
 			
 			// Rehash

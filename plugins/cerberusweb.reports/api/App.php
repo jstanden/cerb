@@ -44,6 +44,12 @@ class ChReportGroupGroups extends Extension_ReportGroup {
 	}
 };
 
+class ChReportGroupOrgs extends Extension_ReportGroup {
+	function __construct($manifest) {
+		parent::__construct($manifest);
+	}
+};
+
 class ChReportGroupSpam extends Extension_ReportGroup {
 	function __construct($manifest) {
 		parent::__construct($manifest);
@@ -408,6 +414,44 @@ class ChReportWorkerReplies extends Extension_Report {
 	}
 	
 }
+
+class ChReportOrgSharedEmailDomains extends Extension_Report {
+	private $tpl_path = null;
+	
+	function __construct($manifest) {
+		parent::__construct($manifest);
+		$this->tpl_path = realpath(dirname(__FILE__).'/../templates');
+	}
+	
+	function render() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', $this->tpl_path);
+		
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = sprintf("SELECT count(DISTINCT a.contact_org_id) AS num_orgs, substring(a.email,locate('@',a.email)+1) AS domain ".
+			"FROM address a ".
+			"INNER JOIN contact_org o ON (a.contact_org_id=o.id) ".
+			"WHERE a.contact_org_id != 0 ".
+			"GROUP BY domain ".
+			"HAVING num_orgs > 1 ".
+			"ORDER BY num_orgs desc ".
+			"LIMIT 0,100"
+		);
+		$rs = $db->Execute($sql);
+		
+		$top_domains = array();
+		
+		while(!$rs->EOF) {
+			$top_domains[$rs->fields['domain']] = intval($rs->fields['num_orgs']);
+			$rs->MoveNext();
+		}
+		$tpl->assign('top_domains', $top_domains);
+		
+		$tpl->display('file:' . $this->tpl_path . '/reports/org/shared_email_domains/index.tpl.php');
+	}
+};
 
 class ChReportSpamWords extends Extension_Report {
 	private $tpl_path = null;

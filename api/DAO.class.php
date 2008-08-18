@@ -3572,6 +3572,9 @@ class DAO_Group {
 		
 		$sql = sprintf("DELETE QUICK FROM team WHERE id = %d", $id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+
+		$sql = sprintf("DELETE QUICK FROM category WHERE team_id = %d", $id);
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		// [TODO] DAO_GroupSettings::deleteById();
 		$sql = sprintf("DELETE QUICK FROM group_setting WHERE group_id = %d", $id);
