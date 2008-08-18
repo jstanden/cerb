@@ -1640,10 +1640,19 @@ class ChReportTopTicketsByContact extends Extension_Report {
 			$rs_buckets->MoveNext();
 		}
 		
+		uasort($group_counts, array("ChReportTopTicketsByContact", "sortCountsArrayByHits"));
+		
 		//echo "<pre>";print_r($group_counts);echo "</pre>";
 		$tpl->assign('group_counts', $group_counts);
 		
 		$tpl->display('file:' . $this->tpl_path . '/reports/ticket/top_contacts_tickets/html.tpl.php');
+	}
+	
+	function sortCountsArrayByHits($a, $b) {
+		if ($a['total'] == $b['total']) {
+			return 0;
+		}
+		return ($a['total'] < $b['total']) ? 1 : -1;
 	}
 	
 	function getTopTicketsChartAction() {
