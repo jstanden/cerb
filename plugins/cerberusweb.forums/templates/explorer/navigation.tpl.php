@@ -58,7 +58,7 @@
 					{/foreach}
 					<option value="0">- unassign -</option>
 				</select>{if !empty($active_worker_pos)}<button type="button" onclick="this.form.worker_id.selectedIndex={$active_worker_pos};genericAjaxGet('','c=forums&a=ajaxAssign&id={$current_post->id}&worker_id={$active_worker->id}');">me</button>{/if}
-				<button type="button" onclick="copyToClipboard('{$current_post->link}');" title="Copy the original URL for this post to the clipboard">Clip URL</button>
+				<button type="button" onclick="copyToClipboard('{$current_post->link}');" title="Copy the original URL for this post to the clipboard">Copy URL</button>
 			</form>
 		</td>
 		
