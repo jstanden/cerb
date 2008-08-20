@@ -775,6 +775,10 @@ class ChReportGroupReplies extends Extension_Report {
 		$groups = DAO_Group::getAll();
 		$tpl->assign('groups', $groups);
 		
+		$group_buckets = DAO_Bucket::getTeams();
+		$tpl->assign('group_buckets', $group_buckets);
+
+		
 		$sql = sprintf("SELECT count(*) AS hits, t.team_id, category_id ".
 			"FROM message m ".
 			"INNER JOIN ticket t ON (t.id=m.ticket_id) ".
@@ -782,16 +786,16 @@ class ChReportGroupReplies extends Extension_Report {
 			"WHERE m.created_date > %d AND m.created_date <= %d ".
 			"AND m.is_outgoing = 1 ".
 			"AND t.is_deleted = 0 ".
+			"AND t.team_id != 0 " .
 			"GROUP BY t.team_id, category_id ORDER BY team.name ",
 			$start_time,
 			$end_time
 		);
 		$rs = $db->Execute($sql);
-		
 		$group_counts = array();
 		while(!$rs->EOF) {
 			$team_id = intval($rs->fields['team_id']);
-			$category_id = intval($rs_buckets->fields['category_id']);
+			$category_id = intval($rs ->fields['category_id']);
 			$hits = intval($rs->fields['hits']);
 			
 			if(!isset($group_counts[$team_id]))
@@ -839,6 +843,7 @@ class ChReportGroupReplies extends Extension_Report {
 			"WHERE m.created_date > %d AND m.created_date <= %d ".
 			"AND m.is_outgoing = 1 ".
 			"AND t.is_deleted = 0 ".
+			"AND t.team_id != 0 " .			
 			"GROUP BY group_id ORDER BY team.name DESC ",
 			$start_time,
 			$end_time
