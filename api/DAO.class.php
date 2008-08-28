@@ -3919,6 +3919,9 @@ class DAO_KbArticle extends DevblocksORMHelper {
 	static function setCategories($article_id,$category_ids,$replace=true) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
+		if(!is_array($category_ids))
+			$category_ids = array($category_ids);
+		
 		if($replace) {
 			$db->Execute(sprintf("DELETE QUICK FROM kb_article_to_category WHERE kb_article_id = %d",
 				$article_id

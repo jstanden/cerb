@@ -84,55 +84,55 @@ class ChTimeTrackingTab extends Extension_TicketTab {
 	}
 };
 
-class ChTimeTrackingEventListener extends DevblocksEventListenerExtension {
-    function __construct($manifest) {
-        parent::__construct($manifest);
-    }
-
-    /**
-     * @param Model_DevblocksEvent $event
-     */
-    function handleEvent(Model_DevblocksEvent $event) {
-        switch($event->id) {
-//            case 'cron.maint':
-//            	DAO_TicketAuditLog::maint();
+//class ChTimeTrackingEventListener extends DevblocksEventListenerExtension {
+//    function __construct($manifest) {
+//        parent::__construct($manifest);
+//    }
+//
+//    /**
+//     * @param Model_DevblocksEvent $event
+//     */
+//    function handleEvent(Model_DevblocksEvent $event) {
+//        switch($event->id) {
+////            case 'cron.maint':
+////            	DAO_TicketAuditLog::maint();
+////            	break;
+//            	
+//            case 'ticket.reply.outbound':
+//            	@$ticket_id = $event->params['ticket_id'];
+//            	@$message_id = $event->params['message_id'];
+//            	@$worker_id = $event->params['worker_id'];
+//            	
+//            	if(null == ($ticket = DAO_Ticket::getTicket($ticket_id)))
+//            		return;
+//
+//            	$requester_list = array();
+//            	$ticket_requesters = $ticket->getRequesters();
+//            	
+//            	if(is_array($ticket_requesters))
+//            	foreach($ticket_requesters as $addy) { /* @var $addy Model_Address */
+//            		$requester_list[] = $addy->email;
+//            	}
+//            	
+//            	self::logToTimeTracking(sprintf("-- %s --\r\nReplied to %s on ticket: [#%s] %s",
+//            		date('r', time()),
+//            		implode(', ', $requester_list),
+//            		$ticket->mask,
+//            		$ticket->subject
+//            	));
+//            		
 //            	break;
-            	
-            case 'ticket.reply.outbound':
-            	@$ticket_id = $event->params['ticket_id'];
-            	@$message_id = $event->params['message_id'];
-            	@$worker_id = $event->params['worker_id'];
-            	
-            	if(null == ($ticket = DAO_Ticket::getTicket($ticket_id)))
-            		return;
-
-            	$requester_list = array();
-            	$ticket_requesters = $ticket->getRequesters();
-            	
-            	if(is_array($ticket_requesters))
-            	foreach($ticket_requesters as $addy) { /* @var $addy Model_Address */
-            		$requester_list[] = $addy->email;
-            	}
-            	
-            	self::logToTimeTracking(sprintf("-- %s --\r\nReplied to %s on ticket: [#%s] %s",
-            		date('r', time()),
-            		implode(', ', $requester_list),
-            		$ticket->mask,
-            		$ticket->subject
-            	));
-            		
-            	break;
-        }
-    }
-    
-    // [TODO] Where does this static best belong?
-    static function logToTimeTracking($log) {
-    	if(!isset($_SESSION['timetracking_worklog']))
-        	$_SESSION['timetracking_worklog'] = array();
-        	
-        $_SESSION['timetracking_worklog'][] = $log;
-    }
-};
+//        }
+//    }
+//    
+//    // [TODO] Where does this static best belong?
+//    static function logToTimeTracking($log) {
+//    	if(!isset($_SESSION['timetracking_worklog']))
+//        	$_SESSION['timetracking_worklog'] = array();
+//        	
+//        $_SESSION['timetracking_worklog'][] = $log;
+//    }
+//};
 
 class ChTimeTrackingAjaxController extends DevblocksControllerExtension {
 	function __construct($manifest) {
@@ -180,14 +180,14 @@ class ChTimeTrackingAjaxController extends DevblocksControllerExtension {
 	    }
 	}
 	
-	function _startTimer() {
+	private function _startTimer() {
 		@$time = intval($_SESSION['timetracking_started']);
 		
 		if(empty($time))
 			$_SESSION['timetracking_started'] = time();
 	}
 	
-	function _stopTimer() {
+	private function _stopTimer() {
 		@$time = intval($_SESSION['timetracking_started']);
 		
 		// If a timer was running
@@ -204,7 +204,7 @@ class ChTimeTrackingAjaxController extends DevblocksControllerExtension {
 		return $total;
 	}
 	
-	function _destroyTimer() {
+	private function _destroyTimer() {
 		unset($_SESSION['timetracking_started']);
 		unset($_SESSION['timetracking_total']);
 	}
@@ -212,10 +212,12 @@ class ChTimeTrackingAjaxController extends DevblocksControllerExtension {
 	function startTimerAction() {
 		@$origin = DevblocksPlatform::importGPC($_REQUEST['origin'],'string',''); // urldecode?
 		
-		$this->_startTimer();
+		// [TODO] Pass this and link it to the entry in the session for pulling org + DB, etc.
+//		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer',0);
 		
-		if(!empty($origin))
-			ChTimeTrackingEventListener::logToTimeTracking($origin);
+		$_SESSION['timetracking_origin'] = $origin;
+		
+		$this->_startTimer();
 	}
 	
 	function pauseTimerAction() {
@@ -236,14 +238,17 @@ class ChTimeTrackingAjaxController extends DevblocksControllerExtension {
 		$tpl->assign('total_mins', ceil($total_secs/60));
 		
 		// Work log automation
-		@$worklog = $_SESSION['timetracking_worklog'];
+//		@$worklog = $_SESSION['timetracking_worklog'];
 		
-		$str_worklog = '';
-		if(!empty($worklog))
-			$str_worklog  = implode("\r\n\r\n", $worklog) . "\r\n\r\n";
-			
-		unset($_SESSION['timetracking_worklog']);
-		$tpl->assign('worklog', $str_worklog);
+//		$str_worklog = '';
+//		if(!empty($worklog))
+//			$str_worklog  = implode("\r\n\r\n", $worklog) . "\r\n\r\n";
+//			
+//		unset($_SESSION['timetracking_worklog']);
+//		$tpl->assign('worklog', $str_worklog);
+		
+		@$origin = $_SESSION['timetracking_origin'];
+		$tpl->assign('origin', $origin."\r\n");
 		
 		$tpl->display('file:' . $tpl_path . 'timetracking/rpc/time_entry_panel.tpl.php');
 	}

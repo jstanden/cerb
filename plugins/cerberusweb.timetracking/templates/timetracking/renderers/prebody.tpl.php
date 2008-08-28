@@ -101,7 +101,7 @@
 			if(null != btn) btn.style.display = 'none';
 			
 			this.counter = 0;
-			genericAjaxPanel('c=timetracking&a=getStopTimerPanel',null,true,'500px');
+			genericAjaxPanel('c=timetracking&a=getStopTimerPanel',null,true,'500px',ajax.cbAddressPeek);
 		}
 	};
 	

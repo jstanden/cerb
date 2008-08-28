@@ -29,7 +29,8 @@
 		 -->
 	
 		<!-- Event Listeners -->
-		
+
+		<!-- 		
 		<extension point="devblocks.listener.event">
 			<id>timetracking.listener.core</id>
 			<name>Time Tracking Listener</name>
@@ -38,15 +39,14 @@
 				<name>ChTimeTrackingEventListener</name>
 			</class>
 			<params>
-				<!-- Event Listener -->
 				<param key="events">
 					<value>
 						<data key="ticket.reply.outbound" />
-						<!-- <data key="cron.maint" /> -->
 					</value>
 				</param>
 			</params>
 		</extension>
+		 -->
 
 		<!-- Renderers Render -->	
 		<extension point="cerberusweb.renderer.prebody">

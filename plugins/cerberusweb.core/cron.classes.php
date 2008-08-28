@@ -376,15 +376,114 @@ class ImportCron extends CerberusCronPageExtension {
 		 	case 'comment':
 		 		return $this->_handleImportComment($xml);
 		 		break;
+		 	case 'kbarticle':
+		 		return $this->_handleImportKbArticle($xml);
+		 		break;
 		 	case 'ticket':
 		 		return $this->_handleImportTicket($xml);
 		 		break;
 		 	case 'worker':
 		 		return $this->_handleImportWorker($xml);
 		 		break;
+		 	case 'organization':
+		 		return $this->_handleImportOrg($xml);
+		 		break;
+		 	case 'contact':
+		 		return $this->_handleImportContact($xml);
+		 		break;
 		 	default:
 		 		break;
 		 }
+	}
+	
+	/* _handleImportKbArticle */
+	private function _getCategoryChildByName($list, $node, $name) {
+		if(is_array($node))
+		foreach($node as $child_id => $null) {
+			if(isset($list[$child_id]) && 0 == strcasecmp($list[$child_id]->name,$name))
+				return $child_id;
+		}
+		
+		return NULL;
+	}
+	
+	private function _handleImportKbArticle($xml) {
+		static $categoryList = NULL;
+		static $categoryMap = NULL;
+		
+		$title = (string) $xml->title;
+		$created = intval((string) $xml->created_date);
+		$content_b64 = (string) $xml->content;
+
+		// Bad file
+		if(empty($content_b64) || empty($title)) {
+			return false;
+		}
+
+		if(NULL == $categoryMap || NULL == $categoryList) {
+			$categoryList = DAO_KbCategory::getWhere();
+			$categoryMap = DAO_KbCategory::getTreeMap();
+		}
+		
+		// Handle multiple <categories> elements
+		$categoryIds = array();
+		foreach($xml->categories as $eCategories) {
+			$ptr =& $categoryMap;
+			$pid = 0;
+			$categoryId = 0;
+			
+			foreach($eCategories->category as $eCategory) {
+				$catName = (string) $eCategory;
+				
+	//			echo "Looking for '", $catName, "' under $pid ...<br>";
+				
+				if(NULL == ($categoryId = $this->_getCategoryChildByName($categoryList, $ptr, $catName))) {
+					$fields = array(
+						DAO_KbCategory::NAME => $catName,
+						DAO_KbCategory::PARENT_ID => $pid,
+					);
+					$categoryId = DAO_KbCategory::create($fields);
+	//				echo " - Not found, inserted as $categoryId<br>";
+					
+					$categoryList[$categoryId] = DAO_KbCategory::get($categoryId);
+					
+					if(!isset($categoryMap[$pid]))
+						$categoryMap[$pid] = array();
+						
+					$categoryMap[$pid][$categoryId] = 0; 
+					$categoryMap[$categoryId] = array();
+					$categoryIds[] = $categoryId;
+					
+				} else {
+	//				echo " - Found at $categoryId !<br>";
+					
+				}
+				
+				$pid = $categoryId;
+				$ptr =& $categoryMap[$categoryId];
+			}
+		}
+		
+		// Decode content
+		$content = base64_decode($content_b64);
+
+		// [TODO] Dupe check?  (title in category)
+		
+		$fields = array(
+			DAO_KbArticle::TITLE => $title,
+			DAO_KbArticle::UPDATED => $created,
+			DAO_KbArticle::FORMAT => 1, // HTML
+			DAO_KbArticle::CONTENT_RAW => $content,
+			DAO_KbArticle::CONTENT => $content,
+			DAO_KbArticle::VIEWS => 0, // [TODO]
+		);
+
+		if(null !== ($articleId = DAO_KbArticle::create($fields))) {
+			DAO_KbArticle::setCategories($articleId, $categoryIds, false);
+			return true;
+		}
+		
+		return false;
 	}
 	
 	// [TODO] Move to an extension
@@ -715,6 +814,94 @@ class ImportCron extends CerberusCronPageExtension {
 		$logger->info('[Importer] Imported worker #'.$worker_id.' ('.$sEmail.')');
 		
 		DAO_Worker::clearCache();
+		
+		return true;
+	}
+
+	private function _handleImportOrg($xml) {
+		$settings = CerberusSettings::getInstance();
+		$logger = DevblocksPlatform::getConsoleLog();
+
+		$sName = (string) $xml->name;
+		$sStreet = (string) $xml->street;
+		$sCity = (string) $xml->city;
+		$sProvince = (string) $xml->province;
+		$sPostal = (string) $xml->postal;
+		$sCountry = (string) $xml->country;
+		$sPhone = (string) $xml->phone;
+		$sFax = (string) $xml->fax;
+		$sWebsite = (string) $xml->website;
+		
+		// Dupe check org
+		if(null != ($org_id = DAO_ContactOrg::lookup($sName))) {
+			$logger->info('[Importer] Avoiding creating duplicate org #'.$org_id.' ('.$sName.')');
+			return true;
+		}
+		
+		$fields = array(
+			DAO_ContactOrg::NAME => $sName,
+			DAO_ContactOrg::STREET => $sStreet,
+			DAO_ContactOrg::CITY => $sCity,
+			DAO_ContactOrg::PROVINCE => $sProvince,
+			DAO_ContactOrg::POSTAL => $sPostal,
+			DAO_ContactOrg::COUNTRY => $sCountry,
+			DAO_ContactOrg::PHONE => $sPhone,
+			DAO_ContactOrg::FAX => $sFax,
+			DAO_ContactOrg::WEBSITE => $sWebsite,
+		);
+		$org_id = DAO_ContactOrg::create($fields);
+		
+		$logger->info('[Importer] Imported org #'.$org_id.' ('.$sName.')');
+		
+		return true;
+	}
+
+	private function _handleImportContact($xml) {
+		$settings = CerberusSettings::getInstance();
+		$logger = DevblocksPlatform::getConsoleLog();
+
+		$sFirstName = (string) $xml->first_name;
+		$sLastName = (string) $xml->last_name;
+		$sEmail = (string) $xml->email;
+		$sPassword = (string) $xml->password;
+		$sPhone = (string) $xml->phone;
+		$sOrganization = (string) $xml->organization;
+		
+		// Dupe check org
+		if(null != ($address = DAO_Address::lookupAddress($sEmail))) {
+			$logger->info('[Importer] Avoiding creating duplicate contact #'.$address->id.' ('.$sEmail.')');
+			// [TODO] Still associate with org if local blank?
+			// [TODO] Still associate password if local blank?
+			return true;
+		}
+		
+		$fields = array(
+			DAO_Address::FIRST_NAME => $sFirstName,
+			DAO_Address::LAST_NAME => $sLastName,
+			DAO_Address::EMAIL => $sEmail,
+			DAO_Address::PHONE => $sPhone,
+		);
+		$address_id = DAO_Address::create($fields);
+
+		// Associate SC password
+		if(!empty($sPassword) && $sPassword != md5('')) {
+			DAO_AddressAuth::update($address_id, array(
+				DAO_AddressAuth::ADDRESS_ID => $address_id,
+				DAO_AddressAuth::CONFIRM => 1,
+				DAO_AddressAuth::PASS => $sPassword,
+			));
+		}
+		
+		// Associate with organization
+		if(!empty($sOrganization)) {
+			if(null != ($org_id = DAO_ContactOrg::lookup($sOrganization, true))) {
+				DAO_Address::update($address_id, array(
+					DAO_Address::CONTACT_ORG_ID => $org_id
+				));
+			}
+		}
+		
+		$logger->info('[Importer] Imported contact #'.$address_id.' ('.$sEmail.')');
 		
 		return true;
 	}
