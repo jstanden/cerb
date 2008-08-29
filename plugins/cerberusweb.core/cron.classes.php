@@ -546,6 +546,7 @@ class ImportCron extends CerberusCronPageExtension {
 		// Find the destination Group + Bucket (or create them)
 		if(empty($sGroup)) {
 			$iDestGroupId = intval($settings->get(CerberusSettings::DEFAULT_TEAM_ID, '0'));
+			
 		} elseif(null == ($iDestGroupId = @$group_name_to_id[strtolower($sGroup)])) {
 			$iDestGroupId = DAO_Group::createTeam(array(
 				DAO_Group::TEAM_NAME => $sGroup,				
@@ -565,6 +566,7 @@ class ImportCron extends CerberusCronPageExtension {
 		
 		if(empty($sBucket)) {
 			$iDestBucketId = 0; // Inbox
+			
 		} elseif(null == ($iDestBucketId = @$bucket_name_to_id[md5($iDestGroupId.strtolower($sBucket))])) {
 			$iDestBucketId = DAO_Bucket::create($sBucket, $iDestGroupId);
 			
@@ -629,9 +631,17 @@ class ImportCron extends CerberusCronPageExtension {
 		
 		// Dupe check by ticket mask
 		if(null != DAO_Ticket::getTicketByMask($sMask)) {
-			// [TODO] Append new uniqueness to the ticket mask?  LLL-NNNNN-NNN-1, LLL-NNNNN-NNN-2, ... 
-			$logger->warn("[Importer] Ticket mask '" . $sMask . "' already exists.  Skipping.");
-			return false;
+			$logger->warn("[Importer] Ticket mask '" . $sMask . "' already exists.  Making it unique.");
+			
+			$uniqueness = 1;
+			$origMask = $sMask;
+			
+			// Append new uniqueness to the ticket mask:  LLL-NNNNN-NNN-1, LLL-NNNNN-NNN-2, ... 
+			do {
+				$sMask = $origMask . '-' . ++$uniqueness;				
+			} while(null != DAO_Ticket::getTicketIdByMask($sMask));
+			
+			$logger->info("[Importer] The unique mask for '".$origMask."' is now '" . $sMask . "'");
 		}
 		
 		// Create ticket

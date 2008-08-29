@@ -930,6 +930,7 @@ class CerberusParser {
 							$regexp_header = DevblocksPlatform::strToRegExp($value);
 							
 							// Flatten CRLF
+							// [TODO] [BUG] 2nd argument array bug ------vvvvv
 							if(preg_match($regexp_header, str_replace(array("\r","\n"),' ',$headers[$header]))) {
 								$passed++;
 							}
