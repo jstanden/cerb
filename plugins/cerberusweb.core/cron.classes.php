@@ -782,7 +782,7 @@ class ImportCron extends CerberusCronPageExtension {
 			$iCommentDate = (integer) $eComment->created_date;
 			$sCommentAuthor = (string) $eComment->author; // [TODO] Address Hash Lookup
 			
-			$sCommentTextB64 = (string) $eComment->text;
+			$sCommentTextB64 = (string) $eComment->content;
 			$sCommentText = base64_decode($sCommentTextB64);
 			unset($sCommentTextB64);
 			
