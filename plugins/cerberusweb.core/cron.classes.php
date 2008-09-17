@@ -590,8 +590,8 @@ class ImportCron extends CerberusCronPageExtension {
 			$logger->warn('[Importer] Ticket ' . $sMask . " first message doesn't provide a sender address.");
 			return false;
 		}
-		
-		$sFirstWrote = (string) $eFirstMessage->headers->from;
+
+		$sFirstWrote = self::_parseRfcAddressList($eFirstMessage->headers->from, true);
 		
 		if(null == ($firstWroteInst = CerberusApplication::hashLookupAddress($sFirstWrote, true))) {
 			$logger->warn('[Importer] Ticket ' . $sMask . " - Invalid sender adddress: " . $sFirstWrote);
@@ -610,7 +610,7 @@ class ImportCron extends CerberusCronPageExtension {
 			return false;
 		}
 		
-		$sLastWrote = (string) $eLastMessage->headers->from;
+		$sLastWrote = self::_parseRfcAddressList($eLastMessage->headers->from, true);
 		
 		if(null == ($lastWroteInst = CerberusApplication::hashLookupAddress($sLastWrote, true))) {
 			$logger->warn('[Importer] Ticket ' . $sMask . ' last message has an invalid sender address: ' . $sLastWrote);
@@ -687,20 +687,12 @@ class ImportCron extends CerberusCronPageExtension {
 			$sMsgFrom = (string) $eHeaders->from;
 			$sMsgDate = (string) $eHeaders->date;
 			
-			// Need to parse the 'From' header as RFC-2822: "name" <user@domain.com>
-			@$msgFromAddresses = imap_rfc822_parse_adrlist($sMsgFrom, 'host');
+			$sMsgFrom = self::_parseRfcAddressList($sMsgFrom, true);
 			
-			if(!is_array($msgFromAddresses) || empty($msgFromAddresses))
-				return NULL;
-			
-			$msgFromAddress = array_shift($msgFromAddresses);
-			
-			if(empty($msgFromAddress->host) || $msgFromAddress->host == 'host') {
+			if(NULL == $sMsgFrom) {
 				$logger->warn('[Importer] Ticket ' . $sMask . ' - Invalid message sender: ' . $sMsgFrom . ' (skipping)');
 				continue;
 			}
-			
-			$sMsgFrom = trim(strtolower($msgFromAddress->mailbox.'@'.$msgFromAddress->host));
 			
 			if(null == ($msgFromInst = CerberusApplication::hashLookupAddress($sMsgFrom, true))) {
 				$logger->warn('[Importer] Ticket ' . $sMask . ' - Invalid message sender: ' . $sMsgFrom . ' (skipping)');
@@ -804,6 +796,30 @@ class ImportCron extends CerberusCronPageExtension {
 		$logger->info('[Importer] Imported ticket #'.$ticket_id);
 		
 		return true;
+	}
+	
+	private function _parseRfcAddressList($addressStr, $only_one) {
+			// Need to parse the 'From' header as RFC-2822: "name" <user@domain.com>
+			@$rfcAddressList = imap_rfc822_parse_adrlist($addressStr, 'host');
+			
+			if(!is_array($rfcAddressList) || empty($rfcAddressList))
+				return NULL;
+			
+
+			$addresses = array();
+			foreach($rfcAddressList as $rfcAddress) {
+				if(empty($rfcAddress->host) || $rfcAddress->host == 'host') {
+					continue;
+				}
+				$addresses[] =  trim(strtolower($rfcAddress->mailbox.'@'.$rfcAddress->host));
+			}
+			
+			if(empty($addresses)) {
+				return NULL;
+			}
+			
+			$result = ($only_one) ? $addresses[0] : $addresses;
+			return $result;
 	}
 
 	private function _handleImportWorker($xml) {
