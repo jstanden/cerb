@@ -428,8 +428,8 @@ class ImportCron extends CerberusCronPageExtension {
 		// Handle multiple <categories> elements
 		$categoryIds = array();
 		foreach($xml->categories as $eCategories) {
-			$ptr =& $categoryMap;
 			$pid = 0;
+			$ptr =& $categoryMap[$pid];
 			$categoryId = 0;
 			
 			foreach($eCategories->category as $eCategory) {
@@ -455,6 +455,7 @@ class ImportCron extends CerberusCronPageExtension {
 					$categoryIds[] = $categoryId;
 					
 				} else {
+					$categoryIds[] = $categoryId;
 	//				echo " - Found at $categoryId !<br>";
 					
 				}
