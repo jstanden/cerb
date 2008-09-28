@@ -13,6 +13,19 @@
 	
 	<extensions>
 	
+		<!-- Patch Containers -->
+		
+		<extension point="devblocks.patch.container">
+			<id>timetracking.patches</id>
+			<name>Time Tracking Patches</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChTimeTrackingPatchContainer</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+	
 		<!-- Http Listeners -->
 		
 		<!-- 
@@ -60,7 +73,7 @@
 			</params>
 		</extension>
 	
-		<!-- Renderers Render -->	
+		<!-- Ticket Display Tabs -->	
 		<extension point="cerberusweb.ticket.toolbaritem">
 			<id>timetracking.ticket.toolbaritem.timer</id>
 			<name>Time Tracking Ticket Toolbar Timer</name>
@@ -72,23 +85,33 @@
 			</params>
 		</extension>
 	
-		<!-- Config Tabs -->
-		
-		<!-- 
-		<extension point="cerberusweb.config.tab">
-			<id>simulator.config.tab</id>
-			<name>Simulator Tab</name>
+		<!-- Ticket Reply Tabs -->	
+		<extension point="cerberusweb.reply.toolbaritem">
+			<id>timetracking.reply.toolbaritem.timer</id>
+			<name>Time Tracking Reply Toolbar Timer</name>
 			<class>
-				<file>classes.php</file>
-				<name>ChSimulatorConfigTab</name>
+				<file>api/App.php</file>
+				<name>ChTimeTrackingReplyToolbarTimer</name>
 			</class>
 			<params>
-				<param key="uri" value="simulator" />
-				<param key="title" value="Simulator" />
 			</params>
 		</extension>
-		 -->
-		 
+	
+		<!-- Config Tabs -->
+		
+		<extension point="cerberusweb.config.tab">
+			<id>timetracking.config.tab.activities</id>
+			<name>Categories Tab</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChTimeTrackingConfigActivityTab</name>
+			</class>
+			<params>
+				<param key="uri" value="timetracking.activities" />
+				<param key="title" value="Time Tracking" />
+			</params>
+		</extension>
+		
  		<extension point="devblocks.controller">
 			<id>timetracking.controller.ajax</id>
 			<name>Time Tracking Ajax Controller</name>
@@ -100,8 +123,24 @@
 			</params>
 		</extension>
 		 
+		<!-- Pages -->
+		
+		<extension point="cerberusweb.page">
+			<id>timetracking.page.time</id>
+			<name>Time Tracking Page</name>
+			<class>
+				<file>api/App.php</file>
+				<name>TimeTrackingPage</name>
+			</class>
+			<params>
+				<param key="uri" value="time" />
+				<param key="menutitle" value="time" />
+			</params>
+		</extension>
+		 
 		<!-- Tabs -->
 		 
+		<!--
 		<extension point="cerberusweb.ticket.tab">
 			<id>timetracking.tab.ticket</id>
 			<name>Time Tracking Tab</name>
@@ -114,6 +153,7 @@
 				<param key="title" value="Time Tracking" />
 			</params>
 		</extension>
+		 -->
 		
 	</extensions>
 </plugin>

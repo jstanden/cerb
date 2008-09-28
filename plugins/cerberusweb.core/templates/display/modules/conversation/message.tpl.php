@@ -7,30 +7,43 @@
       <table cellspacing="0" cellpadding="0" width="100%" border="0">
       	<tr>
       		<td>
-      			{if isset($headers.from)}
+      			{assign var=sender_id value=$message->address_id}
+      			{if isset($message_senders.$sender_id)}
+      				{assign var=sender value=$message_senders.$sender_id}
+      				{assign var=sender_org_id value=$sender->contact_org_id}
+      				{assign var=sender_org value=$message_sender_orgs.$sender_org_id}
       				{assign var=is_outgoing value=$message->worker_id}
-      				{*<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/{if $is_outgoing}bullet_ball_green.png{else}bullet_ball_red.png{/if}{/devblocks_url}" align="top">*}
       				{if $expanded}
-      					<h3 style="display:inline;"><span style="{if !$is_outgoing}color:rgb(255,50,50);background-color:rgb(255,213,213);{else}color:rgb(50,120,50);background-color:rgb(219,255,190);{/if}">{if $is_outgoing}[outbound]{else}[inbound]{/if}</span> {$headers.from|escape:"htmlall"|nl2br}</h3>
+      					<h3 style="display:inline;"><span style="{if !$is_outgoing}color:rgb(255,50,50);background-color:rgb(255,213,213);{else}color:rgb(50,120,50);background-color:rgb(219,255,190);{/if}">{if $is_outgoing}[outbound]{else}[inbound]{/if}</span> <a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&address_id={$sender_id}', this, false, '500px', function(o){literal}{{/literal} ajax.cbAddressPeek(); genericAjaxPostAfterSubmitEvent.subscribe(function(type,args){literal}{{/literal}document.getElementById('btnMsgMax{$message->id}').click();{literal}}{/literal}); {literal}}{/literal} );">{if 0 != strlen($sender->getName())}{$sender->getName()}{else}&lt;{$sender->email}&gt;{/if}</a></h3>
       				{else}
-      					<b><span style="{if !$is_outgoing}color:rgb(255,50,50);background-color:rgb(255,213,213);{else}color:rgb(50,120,50);background-color:rgb(219,255,190);{/if}">{if $is_outgoing}[outbound]{else}[inbound]{/if}</span> {$headers.from|escape:"htmlall"|nl2br}</b>
+      					<b><span style="{if !$is_outgoing}color:rgb(255,50,50);background-color:rgb(255,213,213);{else}color:rgb(50,120,50);background-color:rgb(219,255,190);{/if}">{if $is_outgoing}[outbound]{else}[inbound]{/if}</span> <a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&address_id={$sender_id}', this, false, '500px',function(o){literal}{{/literal} ajax.cbAddressPeek(); genericAjaxPostAfterSubmitEvent.subscribe(function(type,args){literal}{{/literal}document.getElementById('btnMsgMax{$message->id}').click();{literal}}{/literal}); {literal}}{/literal} );">{if 0 != strlen($sender->getName())}{$sender->getName()}{else}&lt;{$sender->email}&gt;{/if}</a></b>
       				{/if}
-      				<a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&address_id={$message->address_id}', this, false, '500px',ajax.cbAddressPeek);">address book</a>
+      				
+      				&nbsp;
+      				
+      				{if $sender_org_id}
+      					<a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showOrgPeek&id={$sender_org_id}', this, false, '500px', function(o){literal}{{/literal} genericAjaxPostAfterSubmitEvent.subscribe(function(type,args){literal}{{/literal}document.getElementById('btnMsgMax{$message->id}').click();{literal}}{/literal}); {literal}}{/literal});"><small style="">{$sender_org->name}</small></a>
+      				{else}{* No org *}
+      					<a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&address_id={$sender_id}', this, false, '500px', function(o){literal}{{/literal} ajax.cbAddressPeek(); genericAjaxPostAfterSubmitEvent.subscribe(function(type,args){literal}{{/literal}document.getElementById('btnMsgMax{$message->id}').click();{literal}}{/literal}); {literal}}{/literal} );"><small style="background-color:rgb(255,255,194);">set organization</small></a>
+      				{/if}
       				
       				<br>
       			{/if}
       		</td>
       		<td align="right">
+      			<button id="btnMsgMax{$message->id}" style="display:none;visibility:hidden;" onclick="genericAjaxGet('{$message->id}t','c=display&a=getMessage&id={$message->id}',function(o){literal}{{/literal}document.getElementById('{$message->id}t').innerHTML = o.responseText;window.document.location='#{$message->id}t';{literal}}{/literal});"></button>
+      			<button id="btnMsgMin{$message->id}" style="display:none;visibility:hidden;" onclick="genericAjaxGet('{$message->id}t','c=display&a=getMessage&id={$message->id}&hide=1',function(o){literal}{{/literal}document.getElementById('{$message->id}t').innerHTML = o.responseText;window.document.location='#{$message->id}t';{literal}}{/literal});"></button>
 		      {if !$expanded}
-				<a href="javascript:;" onclick="genericAjaxGet('{$message->id}t','c=display&a=getMessage&id={$message->id}',function(o){literal}{{/literal}document.getElementById('{$message->id}t').innerHTML = o.responseText;window.document.location='#{$message->id}t';{literal}}{/literal});">maximize</a>
+				<a href="javascript:;" onclick="document.getElementById('btnMsgMax{$message->id}').click();">maximize</a>
 			  {else}
-			  	<a href="javascript:;" onclick="genericAjaxGet('{$message->id}t','c=display&a=getMessage&id={$message->id}&hide=1',function(o){literal}{{/literal}document.getElementById('{$message->id}t').innerHTML = o.responseText;window.document.location='#{$message->id}t';{literal}}{/literal});">minimize</a>
+			  	<a href="javascript:;" onclick="document.getElementById('btnMsgMin{$message->id}').click();">minimize</a>
       		  {/if}
       		</td>
       	</tr>
       </table>
       
 	  <div id="{$message->id}sh" style="display:block;">      
+      {if isset($headers.from)}<b>From:</b> {$headers.from|escape:"htmlall"|nl2br}<br>{/if}
       {if isset($headers.to)}<b>To:</b> {$headers.to|escape:"htmlall"|nl2br}<br>{/if}
       {if isset($headers.date)}<b>Date:</b> {$headers.date|escape:"htmlall"|nl2br}<br>{/if}
       </div>

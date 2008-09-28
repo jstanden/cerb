@@ -76,6 +76,14 @@
 <button type="button" onclick="genericAjaxPanel('c=display&a=showFnrPanel',this,false,'550px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/book_blue_view.gif{/devblocks_url}" align="top"> Fetch & Retrieve</button>
 <button type="button" onclick="txtReply=document.getElementById('reply_{$message->id}');sigDiv=document.getElementById('team_signature');txtReply.value += '\n'+sigDiv.value+'\n';scrollElementToBottom(txtReply);txtReply.focus();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_edit.gif{/devblocks_url}" align="top"> Insert Signature</button>
 <br>
+{* Plugin Toolbar *}
+{if !empty($reply_toolbaritems)}
+	<div style="margin-top:2px;">
+	{foreach from=$reply_toolbaritems item=renderer}
+		{if !empty($renderer)}{$renderer->render($message)}{/if}
+	{/foreach}
+	</div>
+{/if}
 
 {* BEGIN KB *}
 <div id="kbSearch{$message->id}" style="display:none;background-color:rgb(240,240,240);margin:5px;padding:5px;">

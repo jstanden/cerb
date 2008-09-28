@@ -61,10 +61,11 @@
 			},10);
 		}
 		
-		this.play = function(origin) {
+		this.play = function(source_ext_id, source_id) {
 			if(this.enabled) return; // don't start twice
-			if(null == origin) origin = '';
-			genericAjaxGet('','c=timetracking&a=startTimer&origin=' + escape(origin));
+			if(null == source_ext_id) source_ext_id = '';
+			if(null == source_id) source_id = '';
+			genericAjaxGet('','c=timetracking&a=startTimer&source_ext_id=' + source_ext_id + '&source_id=' + source_id);
 			this.enabled = true;
 	
 			this.show();
@@ -88,20 +89,31 @@
 		
 		this.stop = function() {
 			this.enabled = false;
-	
+
 			var timerDiv = document.getElementById('divTimeTrackingBox');
 			if(null == timerDiv) return;
-			timerDiv.style.display = 'none';
-			
+			timerDiv.style.display = 'block';
+
 			btn = document.getElementById('btnTimeTrackingPlay');
-			if(null != btn) btn.style.display = 'inline';
+			if(null != btn) btn.style.display = 'none';
 			btn = document.getElementById('btnTimeTrackingPause');
 			if(null != btn) btn.style.display = 'none';
 			btn = document.getElementById('btnTimeTrackingStop');
 			if(null != btn) btn.style.display = 'none';
-			
+
+			genericAjaxGet('','c=timetracking&a=pauseTimer', function(o) {
+				genericAjaxPanel('c=timetracking&a=getStopTimerPanel',null,true,'500px',ajax.cbAddressPeek);
+			});
+		}
+		
+		this.finish = function() {
+			var timerDiv = document.getElementById('divTimeTrackingBox');
+			if(null == timerDiv) return;
+			timerDiv.style.display = 'none';
+		
 			this.counter = 0;
-			genericAjaxPanel('c=timetracking&a=getStopTimerPanel',null,true,'500px',ajax.cbAddressPeek);
+			genericAjaxGet('','c=timetracking&a=clearEntry');
+			genericPanel.hide();
 		}
 	};
 	
@@ -109,7 +121,10 @@
 	{/literal}
 	
 	{if isset($session.timetracking_started) && $current_timestamp} {* timer is running *}
-		timeTrackingTimer.counter = {math equation="x-y" x=$current_timestamp y=$session.timetracking_started};
+		{* Recover the total from any pause/unpause segments *}
+		timeTrackingTimer.counter = {if isset($session.timetracking_total)}{$session.timetracking_total}{else}0{/if};
+		{* Append the current runtime *}
+		timeTrackingTimer.counter += {math equation="(x-y)" x=$current_timestamp y=$session.timetracking_started};
 		timeTrackingTimer.enabled = true;
 	{elseif isset($session.timetracking_total)} {* timer is paused *}
 		timeTrackingTimer.counter = {$session.timetracking_total};

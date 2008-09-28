@@ -58,15 +58,17 @@ $tables = $datadict->MetaTables();
 if(!isset($tables['timetracking_entry'])) {
 	$flds ="
 		id I4 DEFAULT 0 NOTNULL PRIMARY,
-		worker_id I4 DEFAULT 0 NOTNULL,
+		time_actual_mins I2 DEFAULT 0 NOTNULL,
 		log_date I4 DEFAULT 0 NOTNULL,
-		time_spent_mins I2 DEFAULT 0 NOTNULL,
+		worker_id I4 DEFAULT 0 NOTNULL,
+		activity_id I4 DEFAULT 0 NOTNULL, 
+		debit_org_id I4 DEFAULT 0 NOTNULL,
 		is_closed I1 DEFAULT 0 NOTNULL,
-		is_billable I1 DEFAULT 0 NOTNULL,
-		source_extension C(255) DEFAULT '' NOTNULL,
-		source_id I4 DEFAULT 0 NOTNULL,
-		notes XL 
+		notes C(255) DEFAULT '' NOTNULL,
+		source_extension_id C(255) DEFAULT '' NOTNULL,
+		source_id I4 DEFAULT 0 NOTNULL
 	";
+	
 	$sql = $datadict->CreateTableSQL('timetracking_entry', $flds);
 	$datadict->ExecuteSQLArray($sql);
 }
@@ -74,13 +76,54 @@ if(!isset($tables['timetracking_entry'])) {
 $columns = $datadict->MetaColumns('timetracking_entry');
 $indexes = $datadict->MetaIndexes('timetracking_entry',false);
 
-//if(!isset($indexes['ticket_id'])) {
-//	$sql = $datadict->CreateIndexSQL('ticket_id','timetracking_entry','ticket_id');
-//	$datadict->ExecuteSQLArray($sql);
-//}
-//
+if(!isset($indexes['activity_id'])) {
+	$sql = $datadict->CreateIndexSQL('activity_id','timetracking_entry','activity_id');
+	$datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($indexes['source_extension_id'])) {
+	$sql = $datadict->CreateIndexSQL('source_extension_id','timetracking_entry','source_extension_id');
+	$datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($indexes['source_id'])) {
+	$sql = $datadict->CreateIndexSQL('source_id','timetracking_entry','source_id');
+	$datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($indexes['worker_id'])) {
+	$sql = $datadict->CreateIndexSQL('worker_id','timetracking_entry','worker_id');
+	$datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($indexes['log_date'])) {
+	$sql = $datadict->CreateIndexSQL('log_date','timetracking_entry','log_date');
+	$datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($indexes['is_closed'])) {
+	$sql = $datadict->CreateIndexSQL('is_closed','timetracking_entry','is_closed');
+	$datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($indexes['contact_org_id'])) {
+	$sql = $datadict->CreateIndexSQL('contact_org_id','timetracking_entry','contact_org_id');
+	$datadict->ExecuteSQLArray($sql);
+}
+
+// `timetracking_activity` ========================
+if(!isset($tables['timetracking_activity'])) {
+	$flds ="
+		id I4 DEFAULT 0 NOTNULL PRIMARY,
+		name C(255) DEFAULT '' NOTNULL,
+		rate F DEFAULT 0 NOTNULL
+	";
+	$sql = $datadict->CreateTableSQL('timetracking_activity', $flds);
+	$datadict->ExecuteSQLArray($sql);
+}
+
 //if(!isset($indexes['worker_id'])) {
-//	$sql = $datadict->CreateIndexSQL('worker_id','timetracking_entry','worker_id');
+//	$sql = $datadict->CreateIndexSQL('worker_id','timetracking_activity','worker_id');
 //	$datadict->ExecuteSQLArray($sql);
 //}
 

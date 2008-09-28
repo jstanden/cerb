@@ -90,6 +90,7 @@ function appendFileInput(divName,fieldName) {
 }
 
 var cAjaxCalls = function() {
+
 	this.showBatchPanel = function(view_id,team_id,target) {
 		var viewForm = document.getElementById('viewForm'+view_id);
 		if(null == viewForm) return;

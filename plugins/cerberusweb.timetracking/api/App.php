@@ -4,6 +4,22 @@ class ChTimeTrackingPlugin extends DevblocksPlugin {
 	}
 };
 
+class ChTimeTrackingPatchContainer extends DevblocksPatchContainerExtension {
+	function __construct($manifest) {
+		parent::__construct($manifest);
+		
+		/*
+		 * [JAS]: Just add a sequential build number here (and update plugin.xml) and
+		 * write a case in runVersion().  You should comment the milestone next to your build 
+		 * number.
+		 */
+
+		$file_prefix = realpath(dirname(__FILE__) . '/../patches');
+		
+		$this->registerPatch(new DevblocksPatch('cerberusweb.timetracking',1,$file_prefix.'/1.0.0.php',''));
+	}
+};
+
 if (class_exists('Extension_AppPreBodyRenderer',true)):
 	class ChTimeTrackingPreBodyRenderer extends Extension_AppPreBodyRenderer {
 		function render() {
@@ -21,68 +37,302 @@ endif;
 
 if (class_exists('Extension_TicketToolbarItem',true)):
 	class ChTimeTrackingTicketToolbarTimer extends Extension_TicketToolbarItem {
-		function render($ticket) {
+		function render(CerberusTicket $ticket) {
 			$tpl = DevblocksPlatform::getTemplateService();
 			$tpl_path = realpath(dirname(__FILE__).'/../templates') . DIRECTORY_SEPARATOR;
 			$tpl->assign('path', $tpl_path);
 			$tpl->cache_lifetime = "0";
 			
-			$tpl->assign('ticket', $ticket);
+			$tpl->assign('ticket', $ticket); /* @var $ticket CerberusTicket */
+			
+//			if(null != ($first_wrote_address_id = $ticket->first_wrote_address_id)
+//				&& null != ($first_wrote_address = DAO_Address::get($first_wrote_address_id))) {
+//				$tpl->assign('tt_first_wrote', $first_wrote_address);
+//			}
 			
 			$tpl->display('file:' . $tpl_path . 'timetracking/renderers/ticket_toolbar_timer.tpl.php');
 		}
 	};
 endif;
 
-class ChTimeTrackingTab extends Extension_TicketTab {
-	function showTab() {
-		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer',0);
-		
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = realpath(dirname(__FILE__).'/../templates') . DIRECTORY_SEPARATOR;
-		$tpl->assign('path', $tpl_path);
-		$tpl->cache_lifetime = "0";
+if (class_exists('Extension_ReplyToolbarItem',true)):
+	class ChTimeTrackingReplyToolbarTimer extends Extension_ReplyToolbarItem {
+		function render(CerberusMessage $message) { 
+			$tpl = DevblocksPlatform::getTemplateService();
+			$tpl_path = realpath(dirname(__FILE__).'/../templates') . DIRECTORY_SEPARATOR;
+			$tpl->assign('path', $tpl_path);
+			$tpl->cache_lifetime = "0";
+			
+			$tpl->assign('message', $message); /* @var $message CerberusMessage */
+			
+//			if(null != ($first_wrote_address_id = $ticket->first_wrote_address_id)
+//				&& null != ($first_wrote_address = DAO_Address::get($first_wrote_address_id))) {
+//				$tpl->assign('tt_first_wrote', $first_wrote_address);
+//			}
+			
+			$tpl->display('file:' . $tpl_path . 'timetracking/renderers/reply_toolbar_timer.tpl.php');
+		}
+	};
+endif;
 
-//		$ticket = DAO_Ticket::getTicket($ticket_id);
-		$tpl->assign('ticket_id', $ticket_id);
+class DAO_TimeTrackingEntry extends DevblocksORMHelper {
+	const ID = 'id';
+	const TIME_ACTUAL_MINS = 'time_actual_mins';
+	const LOG_DATE = 'log_date';
+	const WORKER_ID = 'worker_id';
+	const ACTIVITY_ID = 'activity_id';
+	const DEBIT_ORG_ID = 'debit_org_id';
+	const IS_CLOSED = 'is_closed';
+	const NOTES = 'notes';
+	const SOURCE_EXTENSION_ID = 'source_extension_id';
+	const SOURCE_ID = 'source_id';
+
+	static function create($fields) {
+		$db = DevblocksPlatform::getDatabaseService();
 		
-//		if(null == ($view = C4_AbstractViewLoader::getView('', 'ticket_opps'))) {
-//			$view = new C4_CrmOpportunityView();
-//			$view->id = 'ticket_opps';
-//		}
-//
-//		if(!empty($address->contact_org_id)) { // org
-//			@$org = DAO_ContactOrg::get($address->contact_org_id);
-//			
-//			$view->name = "Org: " . $org->name;
-//			$view->params = array(
-//				SearchFields_CrmOpportunity::ORG_ID => new DevblocksSearchCriteria(SearchFields_CrmOpportunity::ORG_ID,'=',$org->id) 
-//			);
-//		}
-//		
-//		C4_AbstractViewLoader::setView($view->id, $view);
-//		
-//		$tpl->assign('view', $view);
+		$id = $db->GenID('generic_seq');
 		
-		$tpl->display('file:' . $tpl_path . 'timetracking/ticket_tab/index.tpl.php');
+		$sql = sprintf("INSERT INTO timetracking_entry (id) ".
+			"VALUES (%d)",
+			$id
+		);
+		$db->Execute($sql);
+		
+		self::update($id, $fields);
+		
+		return $id;
 	}
 	
-	function saveTab() {
-		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer',0);
+	static function update($ids, $fields) {
+		parent::_update($ids, 'timetracking_entry', $fields);
+	}
+	
+	/**
+	 * @param string $where
+	 * @return Model_TimeTrackingEntry[]
+	 */
+	static function getWhere($where=null) {
+		$db = DevblocksPlatform::getDatabaseService();
 		
-		$ticket = DAO_Ticket::getTicket($ticket_id);
+		$sql = "SELECT id, time_actual_mins, log_date, worker_id, activity_id, debit_org_id, is_closed, notes, source_extension_id, source_id ".
+			"FROM timetracking_entry ".
+			(!empty($where) ? sprintf("WHERE %s ",$where) : "").
+			"ORDER BY id asc";
+		$rs = $db->Execute($sql);
 		
-		if(isset($_SESSION['timetracking'])) {
-			@$time = intval($_SESSION['timetracking']);
-//			echo "Ran for ", (time()-$time) , "secs <BR>";
-			unset($_SESSION['timetracking']);
-		} else {
-			$_SESSION['timetracking'] = time();
+		return self::_getObjectsFromResult($rs);
+	}
+
+	/**
+	 * @param integer $id
+	 * @return Model_TimeTrackingEntry	 */
+	static function get($id) {
+		$objects = self::getWhere(sprintf("%s = %d",
+			self::ID,
+			$id
+		));
+		
+		if(isset($objects[$id]))
+			return $objects[$id];
+		
+		return null;
+	}
+	
+	/**
+	 * @param ADORecordSet $rs
+	 * @return Model_TimeTrackingEntry[]
+	 */
+	static private function _getObjectsFromResult($rs) {
+		$objects = array();
+		
+		while(!$rs->EOF) {
+			$object = new Model_TimeTrackingEntry();
+			$object->id = $rs->fields['id'];
+			$object->time_actual_mins = $rs->fields['time_actual_mins'];
+			$object->log_date = $rs->fields['log_date'];
+			$object->worker_id = $rs->fields['worker_id'];
+			$object->activity_id = $rs->fields['activity_id'];
+			$object->debit_org_id = $rs->fields['debit_org_id'];
+			$object->is_closed = $rs->fields['is_closed'];
+			$object->notes = $rs->fields['notes'];
+			$object->source_extension_id = $rs->fields['source_extension_id'];
+			$object->source_id = $rs->fields['source_id'];
+			$objects[$object->id] = $object;
+			$rs->MoveNext();
 		}
 		
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('display',$ticket->mask,'timetracking')));
+		return $objects;
 	}
+	
+	static function delete($ids) {
+		if(!is_array($ids)) $ids = array($ids);
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$ids_list = implode(',', $ids);
+		
+		$db->Execute(sprintf("DELETE FROM timetracking_entry WHERE id IN (%s)", $ids_list));
+		
+		return true;
+	}
+
 };
+
+class Model_TimeTrackingEntry {
+	public $id;
+	public $time_actual_mins;
+	public $log_date;
+	public $worker_id;
+	public $activity_id;
+	public $debit_org_id;
+	public $is_closed;
+	public $notes;
+	public $source_extension_id;
+	public $source_id;
+};
+
+class DAO_TimeTrackingActivity extends DevblocksORMHelper {
+	const ID = 'id';
+	const NAME = 'name';
+	const RATE = 'rate';
+
+	static function create($fields) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$id = $db->GenID('generic_seq');
+		
+		$sql = sprintf("INSERT INTO timetracking_activity (id) ".
+			"VALUES (%d)",
+			$id
+		);
+		$db->Execute($sql);
+		
+		self::update($id, $fields);
+		
+		return $id;
+	}
+	
+	static function update($ids, $fields) {
+		parent::_update($ids, 'timetracking_activity', $fields);
+	}
+	
+	/**
+	 * @param string $where
+	 * @return Model_TimeTrackingActivity[]
+	 */
+	static function getWhere($where=null) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = "SELECT id, name, rate ".
+			"FROM timetracking_activity ".
+			(!empty($where) ? sprintf("WHERE %s ",$where) : "").
+			"ORDER BY name ASC";
+		$rs = $db->Execute($sql);
+		
+		return self::_getObjectsFromResult($rs);
+	}
+
+	/**
+	 * @param integer $id
+	 * @return Model_TimeTrackingActivity	 */
+	static function get($id) {
+		$objects = self::getWhere(sprintf("%s = %d",
+			self::ID,
+			$id
+		));
+		
+		if(isset($objects[$id]))
+			return $objects[$id];
+		
+		return null;
+	}
+	
+	/**
+	 * @param ADORecordSet $rs
+	 * @return Model_TimeTrackingActivity[]
+	 */
+	static private function _getObjectsFromResult($rs) {
+		$objects = array();
+		
+		while(!$rs->EOF) {
+			$object = new Model_TimeTrackingActivity();
+			$object->id = $rs->fields['id'];
+			$object->name = $rs->fields['name'];
+			$object->rate = $rs->fields['rate'];
+			$objects[$object->id] = $object;
+			$rs->MoveNext();
+		}
+		
+		return $objects;
+	}
+	
+	static function delete($ids) {
+		if(!is_array($ids)) $ids = array($ids);
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$ids_list = implode(',', $ids);
+		
+		$db->Execute(sprintf("DELETE FROM timetracking_activity WHERE id IN (%s)", $ids_list));
+		
+		return true;
+	}
+
+};
+
+class Model_TimeTrackingActivity {
+	public $id;
+	public $name;
+	public $rate;
+};
+
+//class ChTimeTrackingTab extends Extension_TicketTab {
+//	function showTab() {
+//		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer',0);
+//		
+//		$tpl = DevblocksPlatform::getTemplateService();
+//		$tpl_path = realpath(dirname(__FILE__).'/../templates') . DIRECTORY_SEPARATOR;
+//		$tpl->assign('path', $tpl_path);
+//		$tpl->cache_lifetime = "0";
+//
+////		$ticket = DAO_Ticket::getTicket($ticket_id);
+//		$tpl->assign('ticket_id', $ticket_id);
+//		
+////		if(null == ($view = C4_AbstractViewLoader::getView('', 'ticket_opps'))) {
+////			$view = new C4_CrmOpportunityView();
+////			$view->id = 'ticket_opps';
+////		}
+////
+////		if(!empty($address->contact_org_id)) { // org
+////			@$org = DAO_ContactOrg::get($address->contact_org_id);
+////			
+////			$view->name = "Org: " . $org->name;
+////			$view->params = array(
+////				SearchFields_CrmOpportunity::ORG_ID => new DevblocksSearchCriteria(SearchFields_CrmOpportunity::ORG_ID,'=',$org->id) 
+////			);
+////		}
+////		
+////		C4_AbstractViewLoader::setView($view->id, $view);
+////		
+////		$tpl->assign('view', $view);
+//		
+//		$tpl->display('file:' . $tpl_path . 'timetracking/ticket_tab/index.tpl.php');
+//	}
+//	
+//	function saveTab() {
+//		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer',0);
+//		
+//		$ticket = DAO_Ticket::getTicket($ticket_id);
+//		
+//		if(isset($_SESSION['timetracking'])) {
+//			@$time = intval($_SESSION['timetracking']);
+////			echo "Ran for ", (time()-$time) , "secs <BR>";
+//			unset($_SESSION['timetracking']);
+//		} else {
+//			$_SESSION['timetracking'] = time();
+//		}
+//		
+//		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('display',$ticket->mask,'timetracking')));
+//	}
+//};
 
 //class ChTimeTrackingEventListener extends DevblocksEventListenerExtension {
 //    function __construct($manifest) {
@@ -134,6 +384,44 @@ class ChTimeTrackingTab extends Extension_TicketTab {
 //    }
 //};
 
+class TimeTrackingPage extends CerberusPageExtension {
+	private $plugin_path = '';
+	
+	function __construct($manifest) {
+		parent::__construct($manifest);
+
+		$this->plugin_path = realpath(dirname(__FILE__).'/../') . DIRECTORY_SEPARATOR;
+	}
+		
+	function isVisible() {
+		// check login
+		$session = DevblocksPlatform::getSessionService();
+		$visit = $session->getVisit();
+		
+		if(empty($visit)) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+	
+	function render() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl_path = $this->plugin_path . '/templates/';
+		$tpl->assign('path', $tpl_path);
+
+		$response = DevblocksPlatform::getHttpResponse();
+		$stack = $response->path;
+		
+		// [TODO] Temporary
+		$entries = DAO_TimeTrackingEntry::getWhere();
+		$tpl->assign('entries', $entries);
+		
+		$tpl->display($tpl_path . 'timetracking/time/index.tpl.php');
+	}
+};
+
 class ChTimeTrackingAjaxController extends DevblocksControllerExtension {
 	function __construct($manifest) {
 		parent::__construct($manifest);
@@ -181,10 +469,9 @@ class ChTimeTrackingAjaxController extends DevblocksControllerExtension {
 	}
 	
 	private function _startTimer() {
-		@$time = intval($_SESSION['timetracking_started']);
-		
-		if(empty($time))
-			$_SESSION['timetracking_started'] = time();
+		if(!isset($_SESSION['timetracking_started'])) {
+			$_SESSION['timetracking_started'] = time();	
+		}
 	}
 	
 	private function _stopTimer() {
@@ -205,17 +492,21 @@ class ChTimeTrackingAjaxController extends DevblocksControllerExtension {
 	}
 	
 	private function _destroyTimer() {
+		unset($_SESSION['timetracking_source_ext_id']);
+		unset($_SESSION['timetracking_source_id']);
 		unset($_SESSION['timetracking_started']);
 		unset($_SESSION['timetracking_total']);
+		unset($_SESSION['timetracking_link']);
 	}
 	
 	function startTimerAction() {
-		@$origin = DevblocksPlatform::importGPC($_REQUEST['origin'],'string',''); // urldecode?
+		@$source_ext_id = urldecode(DevblocksPlatform::importGPC($_REQUEST['source_ext_id'],'string',''));
+		@$source_id = intval(DevblocksPlatform::importGPC($_REQUEST['source_id'],'integer',0));
 		
-		// [TODO] Pass this and link it to the entry in the session for pulling org + DB, etc.
-//		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer',0);
-		
-		$_SESSION['timetracking_origin'] = $origin;
+		if(!empty($source_ext_id) && !isset($_SESSION['timetracking_source_ext_id'])) {
+			$_SESSION['timetracking_source_ext_id'] = $source_ext_id;
+			$_SESSION['timetracking_source_id'] = $source_id;
+		}
 		
 		$this->_startTimer();
 	}
@@ -226,29 +517,92 @@ class ChTimeTrackingAjaxController extends DevblocksControllerExtension {
 	
 	function getStopTimerPanelAction() {
 		$total_secs = $this->_stopTimer();
-		$this->_destroyTimer();
+//		$this->_destroyTimer();
+		$this->_stopTimer();
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl_path = realpath(dirname(__FILE__).'/../templates') . DIRECTORY_SEPARATOR;
 		$tpl->assign('path', $tpl_path);
 		$tpl->cache_lifetime = "0";
+
+		// Activities
+		// [TODO] Cache
+		$billable_activities = DAO_TimeTrackingActivity::getWhere(sprintf("%s!=0",DAO_TimeTrackingActivity::RATE));
+		$tpl->assign('billable_activities', $billable_activities);
+		$nonbillable_activities = DAO_TimeTrackingActivity::getWhere(sprintf("%s=0",DAO_TimeTrackingActivity::RATE));
+		$tpl->assign('nonbillable_activities', $nonbillable_activities);
 		
 		// Time
 		$tpl->assign('total_secs', $total_secs);
 		$tpl->assign('total_mins', ceil($total_secs/60));
 		
-		// Work log automation
-//		@$worklog = $_SESSION['timetracking_worklog'];
+		@$source_ext_id = strtolower($_SESSION['timetracking_source_ext_id']);
+		@$source_id = intval($_SESSION['timetracking_source_id']);
 		
-//		$str_worklog = '';
-//		if(!empty($worklog))
-//			$str_worklog  = implode("\r\n\r\n", $worklog) . "\r\n\r\n";
-//			
-//		unset($_SESSION['timetracking_worklog']);
-//		$tpl->assign('worklog', $str_worklog);
+		$tpl->assign('source_ext_id', $source_ext_id);
+		$tpl->assign('source_id', $source_id);
 		
-		@$origin = $_SESSION['timetracking_origin'];
-		$tpl->assign('origin', $origin."\r\n");
+		switch($source_ext_id) {
+			// Message
+			case 'timetracking.source.message':
+				if(null == ($message = DAO_Ticket::getMessage($source_id)))
+					break;
+					
+				if(null == ($ticket = DAO_Ticket::getTicket($message->ticket_id)))
+					break;
+					
+				if(null == ($address = DAO_Address::get($message->address_id)))
+					break;
+				
+				//$requesters = $ticket->getRequesters();
+					
+				// Timeslip Org
+				if(!empty($address->contact_org_id) 
+					&& null != ($org = DAO_ContactOrg::get($address->contact_org_id))) {
+						$tpl->assign('org', $org->name);
+				}
+
+				// Timeslip reference
+				$tpl->assign('reference', sprintf("Ticket #%s", 
+					$ticket->mask
+				));
+				
+				// Timeslip note
+				$tpl->assign('note', sprintf("Replied to %s", 
+					(!empty($address->email) ? $address->email : '') 
+				));
+					
+				break;
+			
+			// Ticket
+			case 'timetracking.source.ticket':
+				if(null != ($ticket = DAO_Ticket::getTicket($source_id))) {
+					
+					// Timeslip Responsible Party
+					if(null != ($address = DAO_Address::get($ticket->first_wrote_address_id))) {
+//						$tpl->assign('performed_for', $address->email);
+
+						// Timeslip Org
+						if(!empty($address->contact_org_id) 
+							&& null != ($org = DAO_ContactOrg::get($address->contact_org_id))) {
+								$tpl->assign('org', $org->name);
+						}
+					}
+					
+					// Timeslip reference
+					$tpl->assign('reference', sprintf("Ticket #%s", 
+						$ticket->mask 
+						//((strlen($ticket->subject)>45) ? (substr($ticket->subject,0,45).'...') : $ticket->subject)
+					));
+					
+					// Timeslip note
+//					$tpl->assign('note', sprintf("Replied to %s", 
+//						$ticket->mask, 
+//						(!empty($address->email) ? $address->email : '') 
+//					));
+				} 
+				break;
+		}
 		
 		$tpl->display('file:' . $tpl_path . 'timetracking/rpc/time_entry_panel.tpl.php');
 	}
@@ -257,6 +611,163 @@ class ChTimeTrackingAjaxController extends DevblocksControllerExtension {
 //		if(!$this->isVisible())
 //			return;
 //	}
+
+	function saveEntryAction() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		// Make sure we're an active worker
+		if(empty($active_worker) || empty($active_worker->id))
+			return;
+		
+		// timeslip source_extension_id and source_id
+		@$source_ext_id = strtolower($_SESSION['timetracking_source_ext_id']);
+		@$source_id = intval($_SESSION['timetracking_source_id']);
+		
+		@$activity_id = DevblocksPlatform::importGPC($_POST['activity_id'],'integer',0);
+		@$time_actual_mins = DevblocksPlatform::importGPC($_POST['time_actual_mins'],'integer',0);
+		@$notes = DevblocksPlatform::importGPC($_POST['notes'],'string','');
+		@$org_str = DevblocksPlatform::importGPC($_POST['org'],'string','');
+
+		
+		// Translate org string into org id, if exists
+		$org_id = 0;
+		if(!empty($org_str)) {
+			if(null != ($org = DAO_ContactOrg::lookup($org_str, true)) && $org->id)
+				$org_id = $org->id;
+		}
+		
+		$fields = array(
+			DAO_TimeTrackingEntry::ACTIVITY_ID => intval($activity_id),
+			DAO_TimeTrackingEntry::LOG_DATE => time(),
+			DAO_TimeTrackingEntry::TIME_ACTUAL_MINS => intval($time_actual_mins),
+			DAO_TimeTrackingEntry::WORKER_ID => intval($active_worker->id),
+			DAO_TimeTrackingEntry::NOTES => $notes,
+			DAO_TimeTrackingEntry::DEBIT_ORG_ID => intval($org_id),
+			DAO_TimeTrackingEntry::SOURCE_EXTENSION_ID => $source_ext_id,
+			DAO_TimeTrackingEntry::SOURCE_ID => intval($source_id),
+			DAO_TimeTrackingEntry::IS_CLOSED => 0,
+		);
+		DAO_TimeTrackingEntry::create($fields);
+		
+		switch($source_ext_id) {
+			// If ticket, add a comment about the timeslip to the ticket
+			case 'timetracking.source.message':
+			case 'timetracking.source.ticket':
+				$ticket_id = intval($source_id);
+				
+				// If message, translate source_id to ticket ID
+				if('timetracking.source.message' == $source_ext_id) {
+					if(null == ($message = DAO_Ticket::getMessage($source_id)))
+						return;
+					$ticket_id = $message->ticket_id; 
+				}
+				
+				if(null != ($worker_address = DAO_Address::lookupAddress($active_worker->email, false))) {
+					if(!empty($activity_id)) {
+						$activity = DAO_TimeTrackingActivity::get($activity_id);
+					}
+					
+					$comment = sprintf(
+						"== Time Tracking ==\n".
+						"Worker: %s\n".
+						"Time spent: %d min%s\n".
+						"Activity: %s (%s)\n".
+						"Organization: %s\n".
+						"Notes: %s\n",
+						$active_worker->getName(),
+						$time_actual_mins,
+						($time_actual_mins != 1 ? 's' : ''), // pluralize ([TODO] not I18N friendly)
+						(!empty($activity) ? $activity->name : ''),
+						((!empty($activity) && $activity->rate > 0.00) ? 'Billable' : 'Non-Billable'),
+						(!empty($org) ? $org->name : '(not set)'),
+						$notes
+					);
+					
+					$fields = array(
+						DAO_TicketComment::ADDRESS_ID => intval($worker_address->id),
+						DAO_TicketComment::COMMENT => $comment,
+						DAO_TicketComment::CREATED => time(),
+						DAO_TicketComment::TICKET_ID => intval($ticket_id),
+					);
+					DAO_TicketComment::create($fields);
+				}
+				break;
+		}
+	}
+	
+	function clearEntryAction() {
+		$this->_destroyTimer();
+	}
+};
+
+class ChTimeTrackingConfigActivityTab extends Extension_ConfigTab {
+	const ID = 'timetracking.config.tab.activities';
+	
+	function showTab() {
+		$settings = CerberusSettings::getInstance();
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl_path = realpath(dirname(__FILE__) . '/../templates') . DIRECTORY_SEPARATOR;
+		$tpl->assign('path', $tpl_path);
+		$tpl->cache_lifetime = "0";
+
+		$billable_activities = DAO_TimeTrackingActivity::getWhere(sprintf("%s!=0",DAO_TimeTrackingActivity::RATE));
+		$tpl->assign('billable_activities', $billable_activities);
+		
+		$nonbillable_activities = DAO_TimeTrackingActivity::getWhere(sprintf("%s=0",DAO_TimeTrackingActivity::RATE));
+		$tpl->assign('nonbillable_activities', $nonbillable_activities);
+		
+		$tpl->display('file:' . $tpl_path . 'config/activities/index.tpl.php');
+	}
+	
+	function saveTab() {
+		$settings = CerberusSettings::getInstance();
+		@$plugin_id = DevblocksPlatform::importGPC($_REQUEST['plugin_id'],'string');
+
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+		@$name = DevblocksPlatform::importGPC($_REQUEST['name'],'string','');
+		@$rate = floatval(DevblocksPlatform::importGPC($_REQUEST['rate'],'string',''));
+		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
+
+		if(empty($id)) { // Add
+			$fields = array(
+				DAO_TimeTrackingActivity::NAME => $name,
+				DAO_TimeTrackingActivity::RATE => $rate,
+			);
+			$activity_id = DAO_TimeTrackingActivity::create($fields);
+			
+		} else { // Edit
+			if($do_delete) { // Delete
+				DAO_TimeTrackingActivity::delete($id);
+				
+			} else { // Modify
+				$fields = array(
+					DAO_TimeTrackingActivity::NAME => $name,
+					DAO_TimeTrackingActivity::RATE => $rate,
+				);
+				DAO_TimeTrackingActivity::update($id, $fields);
+			}
+			
+		}
+		
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('config','timetracking.activities')));
+		exit;
+	}
+	
+	function getActivityAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl_path = realpath(dirname(__FILE__) . '/../templates') . DIRECTORY_SEPARATOR;
+		$tpl->assign('path', $tpl_path);
+		$tpl->cache_lifetime = "0";
+		
+		if(!empty($id) && null != ($activity = DAO_TimeTrackingActivity::get($id)))
+			$tpl->assign('activity', $activity);
+		
+		$tpl->display('file:' . $tpl_path . 'config/activities/edit_activity.tpl.php');
+	}
+	
 };
 
 ?>

@@ -168,6 +168,22 @@ tabView.addTab( new YAHOO.widget.Tab({
 }));
 
 tabView.addTab( new YAHOO.widget.Tab({
+    label: 'Properties',
+    dataSrc: '{/literal}{devblocks_url}ajax.php?c=display&a=showProperties&ticket_id={$ticket->id}{/devblocks_url}{literal}',
+    cacheData: true,
+    {/literal}active: {if 'properties'==$tab_selected}true{else}false{/if}{literal}
+}));
+
+/*{/literal}{*
+tabView.addTab( new YAHOO.widget.Tab({
+    label: 'Organization',
+    dataSrc: '{/literal}{devblocks_url}ajax.php?c=display&a=showOrganization&ticket_id={$ticket->id}{/devblocks_url}{literal}',
+    cacheData: true,
+    {/literal}active: {if 'org'==$tab_selected}true{else}false{/if}{literal}
+}));
+*}{literal}*/
+
+tabView.addTab( new YAHOO.widget.Tab({
     label: 'Comments ({/literal}{$comments_total}{literal})',
     dataSrc: '{/literal}{devblocks_url}ajax.php?c=display&a=showComments&ticket_id={$ticket->id}{/devblocks_url}{literal}',
     cacheData: true,
@@ -179,13 +195,6 @@ tabView.addTab( new YAHOO.widget.Tab({
     dataSrc: '{/literal}{devblocks_url}ajax.php?c=display&a=showTasks&ticket_id={$ticket->id}{/devblocks_url}{literal}',
     cacheData: true,
     {/literal}active: {if 'tasks'==$tab_selected}true{else}false{/if}{literal}
-}));
-
-tabView.addTab( new YAHOO.widget.Tab({
-    label: 'Properties',
-    dataSrc: '{/literal}{devblocks_url}ajax.php?c=display&a=showProperties&ticket_id={$ticket->id}{/devblocks_url}{literal}',
-    cacheData: true,
-    {/literal}active: {if 'properties'==$tab_selected}true{else}false{/if}{literal}
 }));
 
 tabView.addTab( new YAHOO.widget.Tab({

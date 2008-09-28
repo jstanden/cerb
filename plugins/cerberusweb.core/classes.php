@@ -3775,9 +3775,12 @@ class ChConfigurationPage extends CerberusPageExtension  {
 			return;
 		}
 		
-	    @$title = DevblocksPlatform::importGPC($_POST['title'],'string');
+	    @$title = DevblocksPlatform::importGPC($_POST['title'],'string','');
 	    @$logo = DevblocksPlatform::importGPC($_POST['logo'],'string');
 	    @$authorized_ips_str = DevblocksPlatform::importGPC($_POST['authorized_ips'],'string','');
+
+	    if(empty($title))
+	    	$title = 'Cerberus Helpdesk :: Team-based E-mail Management';
 	    
 	    $settings = CerberusSettings::getInstance();
 	    $settings->set(CerberusSettings::HELPDESK_TITLE, $title);
@@ -7495,9 +7498,26 @@ class ChDisplayPage extends CerberusPageExtension {
 		$tpl->assign('message', $message);
 		$tpl->assign('message_id', $message->id);
 		
+		// Sender info
+		$message_senders = array();
+		$message_sender_orgs = array();
+		
+		if(null != ($sender_addy = DAO_Address::get($message->address_id))) {
+			$message_senders[$sender_addy->id] = $sender_addy;
+			
+			if(null != $sender_org = DAO_ContactOrg::get($sender_addy->contact_org_id)) {
+				$message_sender_orgs[$sender_org->id] = $sender_org;
+			}
+		}
+
+		$tpl->assign('message_senders', $message_senders);
+		$tpl->assign('message_sender_orgs', $message_sender_orgs);
+		
+		// Workers
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 		
+		// Ticket
 		$ticket = DAO_Ticket::getTicket($message->ticket_id);
 		$tpl->assign('ticket', $ticket);
 		
@@ -7675,6 +7695,11 @@ class ChDisplayPage extends CerberusPageExtension {
 		$ticket = DAO_Ticket::getTicket($message->ticket_id);
 		$tpl->assign('ticket',$ticket);
 
+		// ReplyToolbarItem Extensions
+		$replyToolbarItems = DevblocksPlatform::getExtensions('cerberusweb.reply.toolbaritem', true);
+		if(!empty($replyToolbarItems))
+			$tpl->assign('reply_toolbaritems', $replyToolbarItems);
+		
 		// Show attachments for forwarded messages
 		if($is_forward) {
 			$forward_attachments = $message->getAttachments();
@@ -7789,11 +7814,33 @@ class ChDisplayPage extends CerberusPageExtension {
 		// Thread comments and messages on the same level
 		$convo_timeline = array();
 
-		// build a chrono index of messages
+		// Track senders and their orgs
+		$message_senders = array();
+		$message_sender_orgs = array();
+
+		// Loop messages
 		foreach($messages as $message_id => $message) { /* @var $message CerberusMessage */
 			$key = $message->created_date . '_m' . $message_id;
+			// build a chrono index of messages
 			$convo_timeline[$key] = array('m',$message_id);
+			
+			// If we haven't cached this sender address yet
+			if(!isset($message_senders[$message->address_id])) {
+				if(null != ($sender_addy = DAO_Address::get($message->address_id))) {
+					$message_senders[$sender_addy->id] = $sender_addy;	
+
+					// If we haven't cached this sender org yet
+					if(!isset($message_sender_orgs[$sender_addy->contact_org_id])) {
+						if(null != ($sender_org = DAO_ContactOrg::get($sender_addy->contact_org_id))) {
+							$message_sender_orgs[$sender_org->id] = $sender_org;
+						}
+					}
+				}
+			}
 		}
+		
+		$tpl->assign('message_senders', $message_senders);
+		$tpl->assign('message_sender_orgs', $message_sender_orgs);
 		
 		@$mail_inline_comments = DAO_WorkerPref::get($active_worker->id,'mail_inline_comments',1);
 		
