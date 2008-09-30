@@ -627,13 +627,11 @@ class ChTimeTrackingAjaxController extends DevblocksControllerExtension {
 		@$time_actual_mins = DevblocksPlatform::importGPC($_POST['time_actual_mins'],'integer',0);
 		@$notes = DevblocksPlatform::importGPC($_POST['notes'],'string','');
 		@$org_str = DevblocksPlatform::importGPC($_POST['org'],'string','');
-
 		
 		// Translate org string into org id, if exists
 		$org_id = 0;
 		if(!empty($org_str)) {
-			if(null != ($org = DAO_ContactOrg::lookup($org_str, true)) && $org->id)
-				$org_id = $org->id;
+			$org_id = DAO_ContactOrg::lookup($org_str, true);
 		}
 		
 		$fields = array(
@@ -666,6 +664,9 @@ class ChTimeTrackingAjaxController extends DevblocksControllerExtension {
 					if(!empty($activity_id)) {
 						$activity = DAO_TimeTrackingActivity::get($activity_id);
 					}
+					
+					if(!empty($org_id))
+						$org = DAO_ContactOrg::get($org_id);
 					
 					$comment = sprintf(
 						"== Time Tracking ==\n".
@@ -780,7 +781,6 @@ endif;
 
 if (class_exists('Extension_Report',true)):
 class ChReportTimeSpentWorker extends Extension_Report {
-	
 	private $tpl_path = null;
 	
 	function __construct($manifest) {
@@ -941,7 +941,6 @@ class ChReportTimeSpentWorker extends Extension_Report {
 		    $rs->MoveNext();
 	    }
 	}
-	
 };
 endif;
 ?>
