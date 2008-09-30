@@ -154,6 +154,33 @@
 			</params>
 		</extension>
 		 -->
+		 
+	<!-- Report Groups -->
+	
+	<extension point="cerberusweb.report.group">
+		<id>report.group.timetracking</id>
+		<name>Time Tracking Reports</name>
+		<class>
+			<file>api/App.php</file>
+			<name>ChReportGroupTimeTracking</name>
+		</class>
+		<params />
+	</extension>		 
+
+	<!-- Reports -->
+
+	<extension point="cerberusweb.report">
+		<id>report.timetracking.timespentworker</id>
+		<name>Time Spent Per Worker</name>
+		<class>
+			<file>api/App.php</file>
+			<name>ChReportTimeSpentWorker</name>
+		</class>
+		<params>
+			<param key="report_name" value="Time Spent Per Worker" />
+			<param key="report_group" value="report.group.timetracking" />
+		</params>
+	</extension>
 		
 	</extensions>
 </plugin>
