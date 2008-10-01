@@ -802,7 +802,6 @@ class ChReportTimeSpentWorker extends Extension_Report {
 	}
 	
 	function getTimeSpentWorkerReportAction() {
-		//echo "hihihihi";exit;
 		$db = DevblocksPlatform::getDatabaseService();
 
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -839,14 +838,6 @@ class ChReportTimeSpentWorker extends Extension_Report {
 		// reload variables in template
 		$tpl->assign('start', $start);
 		$tpl->assign('end', $end);
-		//$tpl->assign('age_dur', abs(floor(($start_time - $end_time)/86400)));
-		
-	   	// Top Buckets
-		//$groups = DAO_Group::getAll();
-		//$tpl->assign('groups', $groups);
-		
-		//$group_buckets = DAO_Bucket::getTeams();
-		//$tpl->assign('group_buckets', $group_buckets);
 		
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
@@ -954,6 +945,164 @@ class ChReportTimeSpentWorker extends Extension_Report {
 			$worker_name = $rs->fields['first_name'] . ' ' . $rs->fields['last_name'];
 			
 			echo $worker_name, "\t", $mins . "\n";
+			
+		    $rs->MoveNext();
+	    }
+	}
+};
+endif;
+
+if (class_exists('Extension_Report',true)):
+class ChReportTimeSpentOrg extends Extension_Report {
+	private $tpl_path = null;
+	
+	function __construct($manifest) {
+		parent::__construct($manifest);
+		$this->tpl_path = realpath(dirname(__FILE__).'/../templates');
+	}
+	
+	function render() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', $this->tpl_path);
+		
+		$tpl->assign('start', '-30 days');
+		$tpl->assign('end', 'now');
+		
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$tpl->display('file:' . $this->tpl_path . '/reports/time_spent_org/index.tpl.php');
+	}
+	
+	function getTimeSpentOrgReportAction() {
+		$db = DevblocksPlatform::getDatabaseService();
+
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', $this->tpl_path);
+
+		// import dates from form
+		@$start = DevblocksPlatform::importGPC($_REQUEST['start'],'string','');
+		@$end = DevblocksPlatform::importGPC($_REQUEST['end'],'string','');
+		
+		// use date range if specified, else use duration prior to now
+		$start_time = 0;
+		$end_time = 0;
+		
+		if (empty($start) && empty($end)) {
+			$start = "-30 days";
+			$end = "now";
+			$start_time = strtotime($start);
+			$end_time = strtotime($end);
+		} else {
+			$start_time = strtotime($start);
+			$end_time = strtotime($end);
+		}
+				
+		if($start_time === false || $end_time === false) {
+			$start = "-30 days";
+			$end = "now";
+			$start_time = strtotime($start);
+			$end_time = strtotime($end);
+			
+			$tpl->assign('invalidDate', true);
+		}
+		
+		// reload variables in template
+		$tpl->assign('start', $start);
+		$tpl->assign('end', $end);
+
+		$sql = sprintf("SELECT tte.log_date, tte.time_actual_mins, tte.notes, ".
+				"tta.name activity_name, o.name org_name, o.id org_id ".
+				"FROM timetracking_entry tte ".
+				"INNER JOIN timetracking_activity tta ON tte.activity_id = tta.id ".
+				"LEFT JOIN contact_org o ON o.id = tte.debit_org_id ".
+				"WHERE log_date > %d AND log_date <= %d ".
+				"ORDER BY worker_id, org_name ",
+			$start_time,
+			$end_time
+		);
+		//echo $sql;
+		$rs = $db->Execute($sql);
+	
+		$time_entries = array();
+		while(!$rs->EOF) {
+			$mins = intval($rs->fields['time_actual_mins']);
+			$org_id = intval($rs->fields['org_id']);
+			$activity = $rs->fields['activity_name'];
+			$org_name = $rs->fields['org_name'];
+			$log_date = intval($rs->fields['log_date']);
+			$notes = $rs->fields['notes'];
+			
+			if(!isset($time_entries[$org_id]))
+				$time_entries[$org_id] = array();
+			if(!isset($time_entries[$org_id]['entries']))
+				$time_entries[$org_id]['entries'] = array();
+				
+				
+			unset($time_entry);
+			$time_entry['activity_name'] = $activity;
+			$time_entry['mins'] = $mins;
+			$time_entry['log_date'] = $log_date;
+			$time_entry['notes'] = $notes;
+
+			$time_entries[$org_id]['entries'][] = $time_entry;
+			@$time_entries[$org_id]['total_mins'] = intval($time_entries[$org_id]['total_mins']) + $mins;
+			@$time_entries[$org_id]['org_name'] = $org_name;
+			
+			$rs->MoveNext();
+		}
+		//print_r($time_entries);
+		$tpl->assign('time_entries', $time_entries);
+		
+		$tpl->display('file:' . $this->tpl_path . '/reports/time_spent_org/html.tpl.php');
+	}
+	
+	function getTimeSpentOrgChartAction() {
+		// import dates from form
+		@$start = DevblocksPlatform::importGPC($_REQUEST['start'],'string','');
+		@$end = DevblocksPlatform::importGPC($_REQUEST['end'],'string','');
+		@$countonly = DevblocksPlatform::importGPC($_REQUEST['countonly'],'integer',0);
+		
+		// use date range if specified, else use duration prior to now
+		$start_time = 0;
+		$end_time = 0;
+		if (empty($start) && empty($end)) {
+			$start = "-30 days";
+			$end = "now";
+			$start_time = strtotime($start);
+			$end_time = strtotime($end);
+		} else {
+			$start_time = strtotime($start);
+			$end_time = strtotime($end);
+		}
+		
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$groups = DAO_Group::getAll();
+		
+		$sql = sprintf("SELECT sum(tte.time_actual_mins) mins, o.id org_id, o.name org_name ".
+				"FROM timetracking_entry tte ".
+				"LEFT JOIN contact_org o ON tte.debit_org_id = o.id ".
+				"WHERE log_date > %d AND log_date <= %d ".
+				"GROUP BY org_id, org_name ".
+				"ORDER BY org_name ",
+				$start_time,
+				$end_time
+				);
+		$rs = $db->Execute($sql);
+
+		if($countonly) {
+			echo intval($rs->RecordCount());
+			return;
+		}
+		
+	    while(!$rs->EOF) {
+	    	$mins = intval($rs->fields['mins']);
+			$org_name = $rs->fields['org_name'];
+			if(empty($org_name)) $org_name = '(no org)';
+			
+			echo $org_name, "\t", $mins . "\n";
 			
 		    $rs->MoveNext();
 	    }

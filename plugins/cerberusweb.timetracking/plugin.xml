@@ -181,6 +181,18 @@
 			<param key="report_group" value="report.group.timetracking" />
 		</params>
 	</extension>
-		
+
+	<extension point="cerberusweb.report">
+		<id>report.timetracking.timespentorg</id>
+		<name>Time Spent Per Organization</name>
+		<class>
+			<file>api/App.php</file>
+			<name>ChReportTimeSpentOrg</name>
+		</class>
+		<params>
+			<param key="report_name" value="Time Spent Per Organization" />
+			<param key="report_group" value="report.group.timetracking" />
+		</params>
+	</extension>
 	</extensions>
 </plugin>
