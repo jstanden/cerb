@@ -798,22 +798,11 @@ class ChReportTimeSpentWorker extends Extension_Report {
 		
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		// Year shortcuts
-		$years = array();
-		$sql = "SELECT date_format(from_unixtime(created_date),'%Y') as year FROM ticket WHERE created_date > 0 GROUP BY year having year <= date_format(now(),'%Y') ORDER BY year desc limit 0,10";
-		$rs = $db->query($sql);
-		while(!$rs->EOF) {
-			$years[] = intval($rs->fields['year']);
-			$rs->MoveNext();
-		}
-		$tpl->assign('years', $years);
-		
-		$tpl->display('file:' . $this->tpl_path . '/reports/ticket/new_tickets/index.tpl.php');
+		$tpl->display('file:' . $this->tpl_path . '/reports/time_spent_worker/index.tpl.php');
 	}
 	
-	function getTimeSpentWorkerAction() {
-		@$age = DevblocksPlatform::importGPC($_REQUEST['age'],'string','30d');
-		
+	function getTimeSpentWorkerReportAction() {
+		//echo "hihihihi";exit;
 		$db = DevblocksPlatform::getDatabaseService();
 
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -850,44 +839,75 @@ class ChReportTimeSpentWorker extends Extension_Report {
 		// reload variables in template
 		$tpl->assign('start', $start);
 		$tpl->assign('end', $end);
-		$tpl->assign('age_dur', abs(floor(($start_time - $end_time)/86400)));
+		//$tpl->assign('age_dur', abs(floor(($start_time - $end_time)/86400)));
 		
 	   	// Top Buckets
-		$groups = DAO_Group::getAll();
-		$tpl->assign('groups', $groups);
+		//$groups = DAO_Group::getAll();
+		//$tpl->assign('groups', $groups);
 		
-		$group_buckets = DAO_Bucket::getTeams();
-		$tpl->assign('group_buckets', $group_buckets);
+		//$group_buckets = DAO_Bucket::getTeams();
+		//$tpl->assign('group_buckets', $group_buckets);
 		
-		$sql = sprintf("SELECT count(*) AS hits, team_id, category_id ".
-			"FROM ticket ".
-			"WHERE created_date > %d AND created_date <= %d ".
-			"AND is_deleted = 0 ".
-			"AND spam_score < 0.9000 ".
-			"AND spam_training != 'S' ".
-			"GROUP BY team_id, category_id ",
+		$workers = DAO_Worker::getAll();
+		$tpl->assign('workers', $workers);
+		
+		$sql = sprintf("SELECT tte.log_date, tte.time_actual_mins, tte.worker_id, tte.notes, ".
+				"tta.name activity_name, o.name org_name, o.id org_id ".
+				"FROM timetracking_entry tte ".
+				"INNER JOIN timetracking_activity tta ON tte.activity_id = tta.id ".
+				"LEFT JOIN contact_org o ON o.id = tte.debit_org_id ".
+				"WHERE log_date > %d AND log_date <= %d ".
+				"ORDER BY worker_id, org_name ",
 			$start_time,
 			$end_time
 		);
-		$rs_buckets = $db->Execute($sql);
+		//echo $sql;
+		$rs = $db->Execute($sql);
 	
-		$group_counts = array();
-		while(!$rs_buckets->EOF) {
-			$team_id = intval($rs_buckets->fields['team_id']);
-			$category_id = intval($rs_buckets->fields['category_id']);
-			$hits = intval($rs_buckets->fields['hits']);
+		$time_entries = array();
+		while(!$rs->EOF) {
+			$mins = intval($rs->fields['time_actual_mins']);
+			$worker_id = intval($rs->fields['worker_id']);
+			$org_id = intval($rs->fields['org_id']);
+			$activity = $rs->fields['activity_name'];
+			$org_name = $rs->fields['org_name'];
+			$log_date = intval($rs->fields['log_date']);
+			$notes = $rs->fields['notes'];
 			
-			if(!isset($group_counts[$team_id]))
-				$group_counts[$team_id] = array();
+			
+			if(!isset($time_entries[$worker_id]))
+				$time_entries[$worker_id] = array();
+			if(!isset($time_entries[$worker_id]['orgs']))
+				$time_entries[$worker_id]['orgs'] = array();
+			
+			if(!isset($time_entries[$worker_id]['orgs'][$org_id]))
+				$time_entries[$worker_id]['orgs'][$org_id] = array();
+			if(!isset($time_entries[$worker_id]['orgs'][$org_id]['entries']))
+				$time_entries[$worker_id]['orgs'][$org_id]['entries'] = array();
 				
-			$group_counts[$team_id][$category_id] = $hits;
-			@$group_counts[$team_id]['total'] = intval($group_counts[$team_id]['total']) + $hits;
+				
+			unset($time_entry);
+			$time_entry['activity_name'] = $activity;
+			//$time_entry['org_name'] = $org_name;
+			$time_entry['mins'] = $mins;
+			$time_entry['log_date'] = $log_date;
+			$time_entry['notes'] = $notes;
+			//$time_entry['name'] = $workers[$worker_id]->getName();
 			
-			$rs_buckets->MoveNext();
+			//$time_entries[$worker_id]['entries'][] = $time_entry;
+			//@$time_entries[$worker_id]['total_mins'] = intval($time_entries[$worker_id]['total_mins']) + $mins;
+			
+			$time_entries[$worker_id]['orgs'][$org_id]['entries'][] = $time_entry;
+			@$time_entries[$worker_id]['total_mins'] = intval($time_entries[$worker_id]['total_mins']) + $mins;
+			@$time_entries[$worker_id]['orgs'][$org_id]['total_mins'] = intval($time_entries[$worker_id]['orgs'][$org_id]['total_mins']) + $mins;
+			@$time_entries[$worker_id]['orgs'][$org_id]['org_name'] = $org_name;
+			
+			$rs->MoveNext();
 		}
-		$tpl->assign('group_counts', $group_counts);
+		//print_r($time_entries);
+		$tpl->assign('time_entries', $time_entries);
 		
-		$tpl->display('file:' . $this->tpl_path . '/reports/ticket/new_tickets/html.tpl.php');
+		$tpl->display('file:' . $this->tpl_path . '/reports/time_spent_worker/html.tpl.php');
 	}
 	
 	function getTimeSpentWorkerChartAction() {
@@ -913,15 +933,12 @@ class ChReportTimeSpentWorker extends Extension_Report {
 		
 		$groups = DAO_Group::getAll();
 		
-		$sql = sprintf("SELECT team.id as group_id, ".
-				"count(*) as hits ".
-				"FROM ticket t inner join team on t.team_id = team.id ".
-				"WHERE t.created_date > %d ".
-				"AND t.created_date <= %d ".
-				"AND t.is_deleted = 0 ".
-				"AND t.spam_score < 0.9000 ".
-				"AND t.spam_training != 'S' ".
-				"GROUP BY group_id ORDER by team.name desc ",
+		$sql = sprintf("SELECT sum(tte.time_actual_mins) mins, tte.worker_id, w.first_name, w.last_name ".
+				"FROM timetracking_entry tte ".
+				"INNER JOIN worker w ON tte.worker_id = w.id ".
+				"WHERE log_date > %d AND log_date <= %d ".
+				"GROUP BY tte.worker_id, w.first_name, w.last_name ".
+				"ORDER BY w.first_name, w.last_name ",
 				$start_time,
 				$end_time
 				);
@@ -933,10 +950,10 @@ class ChReportTimeSpentWorker extends Extension_Report {
 		}
 		
 	    while(!$rs->EOF) {
-	    	$hits = intval($rs->fields['hits']);
-			$group_id = $rs->fields['group_id'];
+	    	$mins = intval($rs->fields['mins']);
+			$worker_name = $rs->fields['first_name'] . ' ' . $rs->fields['last_name'];
 			
-			echo $groups[$group_id]->name, "\t", $hits . "\n";
+			echo $worker_name, "\t", $mins . "\n";
 			
 		    $rs->MoveNext();
 	    }

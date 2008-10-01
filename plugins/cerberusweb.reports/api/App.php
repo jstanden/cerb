@@ -1,9 +1,10 @@
 <?php
 $path = realpath(dirname(__FILE__).'/../') . DIRECTORY_SEPARATOR;
 
-//DevblocksPlatform::registerClasses($path. 'api/App.php', array(
-//    'C4_TicketAuditLogView'
-//));
+DevblocksPlatform::registerClasses($path. 'api/App.php', array(
+    'Extension_Report',
+    'Extension_ReportGroup',
+));
 
 class ChReportsPlugin extends DevblocksPlugin {
 	function load(DevblocksPluginManifest $manifest) {
