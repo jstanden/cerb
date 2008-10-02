@@ -194,5 +194,18 @@
 			<param key="report_group" value="report.group.timetracking" />
 		</params>
 	</extension>
+	
+	<extension point="cerberusweb.report">
+		<id>report.timetracking.timespentactivity</id>
+		<name>Time Spent Per Activity</name>
+		<class>
+			<file>api/App.php</file>
+			<name>ChReportTimeSpentActivity</name>
+		</class>
+		<params>
+			<param key="report_name" value="Time Spent Per Activity" />
+			<param key="report_group" value="report.group.timetracking" />
+		</params>
+	</extension>	
 	</extensions>
 </plugin>
