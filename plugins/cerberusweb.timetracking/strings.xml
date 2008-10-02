@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tmx SYSTEM "tmx14.dtd">
+<tmx version="1.4">
+	<header datatype="winres" segtype="sentence" adminlang="en-us"
+		srclang="en-us" o-tmf="abc" />
+	<body>
+
+		<!-- Time Tracking Strings -->
+
+		<tu tuid='timetracking_entry.id'>
+			<tuv xml:lang="en"><seg>ID</seg></tuv>
+		</tu>
+		<tu tuid='timetracking_entry.time_actual_mins'>
+			<tuv xml:lang="en"><seg>Mins</seg></tuv>
+		</tu>
+		<tu tuid='timetracking_entry.log_date'>
+			<tuv xml:lang="en"><seg>Log Date</seg></tuv>
+		</tu>
+		<tu tuid='timetracking_entry.worker_id'>
+			<tuv xml:lang="en"><seg>Worker</seg></tuv>
+		</tu>
+		<tu tuid='timetracking_entry.activity_id'>
+			<tuv xml:lang="en"><seg>Activity</seg></tuv>
+		</tu>
+		<tu tuid='timetracking_entry.debit_org_id'>
+			<tuv xml:lang="en"><seg>Org</seg></tuv>
+		</tu>
+		<tu tuid='timetracking_entry.notes'>
+			<tuv xml:lang="en"><seg>Notes</seg></tuv>
+		</tu>
+		<tu tuid='timetracking_entry.source_extension_id'>
+			<tuv xml:lang="en"><seg>Source</seg></tuv>
+		</tu>
+		<tu tuid='timetracking_entry.source_id'>
+			<tuv xml:lang="en"><seg>Source ID</seg></tuv>
+		</tu>
+
+	</body>
+</tmx>
+<!-- 
+	
+-->

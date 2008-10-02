@@ -63,7 +63,6 @@ if(!isset($tables['timetracking_entry'])) {
 		worker_id I4 DEFAULT 0 NOTNULL,
 		activity_id I4 DEFAULT 0 NOTNULL, 
 		debit_org_id I4 DEFAULT 0 NOTNULL,
-		is_closed I1 DEFAULT 0 NOTNULL,
 		notes C(255) DEFAULT '' NOTNULL,
 		source_extension_id C(255) DEFAULT '' NOTNULL,
 		source_id I4 DEFAULT 0 NOTNULL
@@ -75,6 +74,11 @@ if(!isset($tables['timetracking_entry'])) {
 
 $columns = $datadict->MetaColumns('timetracking_entry');
 $indexes = $datadict->MetaIndexes('timetracking_entry',false);
+
+if(isset($columns['IS_CLOSED'])) {
+    $sql = $datadict->DropColumnSQL('timetracking_entry', 'is_closed');
+    $datadict->ExecuteSQLArray($sql);
+}
 
 if(!isset($indexes['activity_id'])) {
 	$sql = $datadict->CreateIndexSQL('activity_id','timetracking_entry','activity_id');
@@ -98,11 +102,6 @@ if(!isset($indexes['worker_id'])) {
 
 if(!isset($indexes['log_date'])) {
 	$sql = $datadict->CreateIndexSQL('log_date','timetracking_entry','log_date');
-	$datadict->ExecuteSQLArray($sql);
-}
-
-if(!isset($indexes['is_closed'])) {
-	$sql = $datadict->CreateIndexSQL('is_closed','timetracking_entry','is_closed');
 	$datadict->ExecuteSQLArray($sql);
 }
 

@@ -10,20 +10,17 @@
 </tr>
 </table>
 
-{foreach from=$entries item=entry}
-	<b>{$entry->time_actual_mins} mins</b> - <i>{$entry->source_extension_id}={$entry->source_id}</i> :: {$entry->notes}<br>
-{/foreach}
-
-{*
-<form action="{devblocks_url}{/devblocks_url}" method="post" style="padding-bottom:5px;">
-	<input type="hidden" name="c" value="crm">
-	<input type="hidden" name="a" value="">
-	<button type="button" onclick="genericAjaxPanel('c=crm&a=showCampaignPanel&id=0&view_id=',this,false,'500px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_add.gif{/devblocks_url}" align="top"> Add Campaign</button>
-</form>
-
-{foreach from=$campaigns item=campaign key=campaign_id}
-	<a href="javascript:;" onclick="genericAjaxPanel('c=crm&a=showCampaignPanel&id={$campaign_id}&view_id=',this,false,'500px');">{$campaign->name}</a><br>
-{/foreach}
-*}
+<table cellpadding="0" cellspacing="0" border="0">
+	<tr>
+		<td valign="top" width="0%" nowrap="nowrap">
+			{include file="file:$tpl_path/internal/views/criteria_list.tpl.php" divName="searchCriteriaDialog"}
+			<div id="searchCriteriaDialog" style="visibility:visible;"></div>
+		</td>
+		<td valign="top" width="0%" nowrap="nowrap"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/spacer.gif{/devblocks_url}" width="5" height="1"></td>
+		<td valign="top" width="100%">
+			<div id="view{$view->id}">{$view->render()}</div>
+		</td>
+	</tr>
+</table>
 
 <br>
