@@ -58,6 +58,13 @@ From: <input type="text" name="start" id="start" size="10" value="{$start}"><but
 To: <input type="text" name="end" id="end" size="10" value="{$end}"><button type="button" onclick="ajax.getDateChooser('divCal',this.form.end);">&nbsp;<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/calendar.gif{/devblocks_url}" align="top">&nbsp;</button>
 <button type="button" id="btnSubmit" onclick="genericAjaxPost('frmRange', 'reportdata');drawChart(document.getElementById('start').value, document.getElementById('end').value);">Refresh</button>
 <div id="divCal" style="display:none;position:absolute;z-index:1;"></div>
+<br>
+Worker: <select name="worker_id">
+	<option value="0">All Workers</option>
+{foreach from=$workers item=worker key=worker_id name=workers}
+	<option value="{$worker_id}">{$worker->getName()}</option>
+{/foreach}
+</select>
 </form>
 
 Past: <a href="javascript:;" onclick="document.getElementById('start').value='-1 year';document.getElementById('end').value='now';document.getElementById('btnSubmit').click();">1 year</a>

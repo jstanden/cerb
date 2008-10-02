@@ -1269,12 +1269,17 @@ class ChReportTimeSpentWorker extends Extension_Report {
 		
 		$db = DevblocksPlatform::getDatabaseService();
 		
+		$workers = DAO_Worker::getAll();
+		$tpl->assign('workers', $workers);
+		
 		$tpl->display('file:' . $this->tpl_path . '/reports/time_spent_worker/index.tpl.php');
 	}
 	
 	function getTimeSpentWorkerReportAction() {
 		$db = DevblocksPlatform::getDatabaseService();
 
+		@$sel_worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'integer',0);
+		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->tpl_path);
@@ -1318,8 +1323,10 @@ class ChReportTimeSpentWorker extends Extension_Report {
 				"FROM timetracking_entry tte ".
 				"INNER JOIN timetracking_activity tta ON tte.activity_id = tta.id ".
 				"LEFT JOIN contact_org o ON o.id = tte.debit_org_id ".
+				"INNER JOIN worker w ON tte.worker_id = w.id ".
 				"WHERE log_date > %d AND log_date <= %d ".
-				"ORDER BY worker_id, org_name ",
+				(($sel_worker_id!=0) ? "AND tte.worker_id = ". $sel_worker_id. ' ' : '') .
+				"ORDER BY w.first_name, w.last_name, w.id, tte.log_date ",
 			$start_time,
 			$end_time
 		);
@@ -1350,19 +1357,13 @@ class ChReportTimeSpentWorker extends Extension_Report {
 				
 			unset($time_entry);
 			$time_entry['activity_name'] = $activity;
-			//$time_entry['org_name'] = $org_name;
+			$time_entry['org_name'] = $org_name;
 			$time_entry['mins'] = $mins;
 			$time_entry['log_date'] = $log_date;
 			$time_entry['notes'] = $notes;
-			//$time_entry['name'] = $workers[$worker_id]->getName();
 			
-			//$time_entries[$worker_id]['entries'][] = $time_entry;
-			//@$time_entries[$worker_id]['total_mins'] = intval($time_entries[$worker_id]['total_mins']) + $mins;
-			
-			$time_entries[$worker_id]['orgs'][$org_id]['entries'][] = $time_entry;
+			$time_entries[$worker_id]['entries'][] = $time_entry;
 			@$time_entries[$worker_id]['total_mins'] = intval($time_entries[$worker_id]['total_mins']) + $mins;
-			@$time_entries[$worker_id]['orgs'][$org_id]['total_mins'] = intval($time_entries[$worker_id]['orgs'][$org_id]['total_mins']) + $mins;
-			@$time_entries[$worker_id]['orgs'][$org_id]['org_name'] = $org_name;
 			
 			$rs->MoveNext();
 		}
@@ -1483,13 +1484,16 @@ class ChReportTimeSpentOrg extends Extension_Report {
 		$tpl->assign('start', $start);
 		$tpl->assign('end', $end);
 
-		$sql = sprintf("SELECT tte.log_date, tte.time_actual_mins, tte.notes, ".
+		$workers = DAO_Worker::getAll();
+		$tpl->assign('workers', $workers);
+		
+		$sql = sprintf("SELECT tte.log_date, tte.time_actual_mins, tte.notes, tte.worker_id, ".
 				"tta.name activity_name, o.name org_name, o.id org_id ".
 				"FROM timetracking_entry tte ".
 				"INNER JOIN timetracking_activity tta ON tte.activity_id = tta.id ".
 				"LEFT JOIN contact_org o ON o.id = tte.debit_org_id ".
 				"WHERE log_date > %d AND log_date <= %d ".
-				"ORDER BY worker_id, org_name ",
+				"ORDER BY org_name, log_date ",
 			$start_time,
 			$end_time
 		);
@@ -1504,6 +1508,7 @@ class ChReportTimeSpentOrg extends Extension_Report {
 			$org_name = $rs->fields['org_name'];
 			$log_date = intval($rs->fields['log_date']);
 			$notes = $rs->fields['notes'];
+			$worker_id = intval($rs->fields['worker_id']);
 			
 			if(!isset($time_entries[$org_id]))
 				$time_entries[$org_id] = array();
@@ -1516,6 +1521,7 @@ class ChReportTimeSpentOrg extends Extension_Report {
 			$time_entry['mins'] = $mins;
 			$time_entry['log_date'] = $log_date;
 			$time_entry['notes'] = $notes;
+			$time_entry['worker_id'] = $worker_id;
 
 			$time_entries[$org_id]['entries'][] = $time_entry;
 			@$time_entries[$org_id]['total_mins'] = intval($time_entries[$org_id]['total_mins']) + $mins;
@@ -1637,16 +1643,21 @@ class ChReportTimeSpentActivity extends Extension_Report {
 			$tpl->assign('invalidDate', true);
 		}
 		
+		$workers = DAO_Worker::getAll();
+		$tpl->assign('workers', $workers);
+		
 		// reload variables in template
 		$tpl->assign('start', $start);
 		$tpl->assign('end', $end);
 
 		$sql = sprintf("SELECT tte.log_date, tte.time_actual_mins, tte.notes, ".
-				"tta.id activity_id, tta.name activity_name ".
+				"tta.id activity_id, tta.name activity_name, ".
+				"o.name org_name, tte.worker_id ".
 				"FROM timetracking_entry tte ".
-				"INNER JOIN timetracking_activity tta ON tte.activity_id = tta.id ".
+				"LEFT JOIN timetracking_activity tta ON tte.activity_id = tta.id ".
+				"LEFT JOIN contact_org o ON tte.debit_org_id = o.id " .
 				"WHERE log_date > %d AND log_date <= %d ".
-				"ORDER BY activity_name ",
+				"ORDER BY activity_name, log_date ",
 			$start_time,
 			$end_time
 		);
@@ -1660,6 +1671,8 @@ class ChReportTimeSpentActivity extends Extension_Report {
 			$log_date = intval($rs->fields['log_date']);
 			$activity_id = intval($rs->fields['activity_id']);
 			$notes = $rs->fields['notes'];
+			$worker_id = intval($rs->fields['worker_id']);
+			$org_name = $rs->fields['org_name'];
 			
 			if(!isset($time_entries[$activity_id]))
 				$time_entries[$activity_id] = array();
@@ -1671,7 +1684,9 @@ class ChReportTimeSpentActivity extends Extension_Report {
 			$time_entry['mins'] = $mins;
 			$time_entry['log_date'] = $log_date;
 			$time_entry['notes'] = $notes;
-
+			$time_entry['worker_name'] = $workers[$worker_id]->getName();
+			$time_entry['org_name'] = $org_name;
+			
 			$time_entries[$activity_id]['entries'][] = $time_entry;
 			@$time_entries[$activity_id]['total_mins'] = intval($time_entries[$activity_id]['total_mins']) + $mins;
 			@$time_entries[$activity_id]['activity_name'] = $activity;

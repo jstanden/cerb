@@ -7,6 +7,7 @@
 		<tr>
 			<td><b>Entry Date</b></td>
 			<td><b>Minutes</b></td>
+			<td><b>Worker</b></td>
 			<td><b>Activity</b></td>
 			<td><b>Notes</b></td>
 			<td></td>
@@ -14,23 +15,25 @@
 		{foreach from=$time_entries item=org_entry key=org_id}
 		
 			<tr>
-				<td colspan="3" style="border-bottom:1px solid rgb(200,200,200);">
-				<h3>
+				<td colspan="6" style="border-bottom:1px solid rgb(200,200,200); background-color: #CCCCCC;">
+				<span style="font: Bold 13pt Arial;">
 				  {if empty($org_entry.org_name)}
-				  (no company)
+				  (no organization)
 				  {else}
 				  {$org_entry.org_name}
 				  {/if}
-				</h3>
+				</span>
 				</td>
 			</tr>
 			
 		
 			{foreach from=$org_entry.entries item=time_entry key=time_entry_id}
 			{if is_numeric($time_entry_id)}
+			{assign var=entry_worker_id value=$time_entry.worker_id}
 			<tr>
 				<td style="padding-right:20px;">{$time_entry.log_date|date_format:"%Y-%m-%d"}</td>
 				<td align="right">{$time_entry.mins}</td>
+				<td align="left">{$workers.$entry_worker_id->getName()}</td>
 				<td align="left">{$time_entry.activity_name}</td>
 				<td align="left">{$time_entry.notes}</td>
 				<td></td>
@@ -42,6 +45,7 @@
 			<tr>
 				<td></td>
 				<td style="border-top:1px solid rgb(200,200,200);" align="right"><b>{$org_entry.total_mins}</b></td>
+				<td></td>
 				<td></td>
 				<td></td>
 				<td style="padding-left:10px;"><b></b></td>
