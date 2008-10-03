@@ -1914,6 +1914,109 @@ class ChReportWorkerHistory extends Extension_Report {
 	
 }
 
+class ChReportExportSenders extends Extension_Report {
+	private $tpl_path = null;
+	
+	function __construct($manifest) {
+		parent::__construct($manifest);
+		$this->tpl_path = realpath(dirname(__FILE__).'/../templates');
+	}
+	
+	function render() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', $this->tpl_path);
+		
+		$tpl->assign('start', '-30 days');
+		$tpl->assign('end', 'now');
+		
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$teams = DAO_Group::getAll();
+		$tpl->assign('teams', $teams);
+
+		$team_categories = DAO_Bucket::getTeams();
+		$tpl->assign('team_categories', $team_categories);
+		
+		
+		// Year shortcuts
+		$years = array();
+		$sql = "SELECT date_format(from_unixtime(created_date),'%Y') as year FROM ticket WHERE created_date > 0 GROUP BY year having year <= date_format(now(),'%Y') ORDER BY year desc limit 0,10";
+		$rs = $db->query($sql);
+		while(!$rs->EOF) {
+			$years[] = intval($rs->fields['year']);
+			$rs->MoveNext();
+		}
+		$tpl->assign('years', $years);
+		
+		$tpl->display('file:' . $this->tpl_path . '/reports/ticket/export_senders/index.tpl.php');
+	}
+	
+	function getExportSendersReportAction() {
+		$db = DevblocksPlatform::getDatabaseService();
+				
+		@$start = DevblocksPlatform::importGPC($_REQUEST['start'],'string','');
+		@$end = DevblocksPlatform::importGPC($_REQUEST['end'],'string','');
+		@$countonly = DevblocksPlatform::importGPC($_REQUEST['countonly'],'integer',0);
+		@$inbox_data = DevblocksPlatform::importGPC($_REQUEST['inbox_id'],'string',0);
+		
+		$inbox_code = substr($inbox_data, 0,1);
+		$inbox_id = intval(substr($inbox_data, 1));
+		
+		$category_id = '';
+		$team_id = '';
+		
+		if($inbox_code == 'c') {
+			$category_id = $inbox_id;
+		}
+		elseif($inbox_code == 't') {
+			$team_id = $inbox_id;
+		}
+		
+		$start_time = 0;
+		$end_time = 0;
+
+		if (empty($start) && empty($end)) {
+			$start = "-30 days";
+			$end = "now";
+			$start_time = strtotime($start);
+			$end_time = strtotime($end);
+		} else {
+			$start_time = strtotime($start);
+			$end_time = strtotime($end);
+		}
+				
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', $this->tpl_path);
+
+		$sql = sprintf("SELECT DISTINCT a.email ". 
+				"FROM ticket t INNER JOIN address a ON (t.first_wrote_address_id=a.id) ". 
+				"WHERE t.created_date > %d AND t.created_date <= %d " .  
+				(($category_id == '') ? '' : "AND t.category_id = %d ").
+				(($team_id=='') ? '' : "AND t.team_id = %d ").
+				"ORDER BY a.email",
+				$start_time,
+				$end_time,
+				$inbox_id);
+				//echo $sql;
+		//echo $sql . '<br>';
+		$rs = $db->Execute($sql);
+
+		if($rs->RecordCount()==0) {
+			echo "(0 results found)";
+		}
+		else {
+			while(!$rs->EOF) {
+				$email = $rs->fields['email'];
+	
+				echo $email. '<br/>';			
+				$rs->MoveNext();
+			}
+		}
+	}
+}
+
 class ChReportsPage extends CerberusPageExtension {
 	private $tpl_path = null;
 	

@@ -289,7 +289,20 @@
 			<param key="report_name" value="Ticket Assignment" />
 			<param key="report_group" value="report.group.workers" />
 		</params>
-	</extension>						
+	</extension>
+	
+	<extension point="cerberusweb.report">
+		<id>report.tickets.export_senders</id>
+		<name>Export Senders Report</name>
+		<class>
+			<file>api/App.php</file>
+			<name>ChReportExportSenders</name>
+		</class>
+		<params>
+			<param key="report_name" value="Export Senders" />
+			<param key="report_group" value="report.group.tickets" />
+		</params>
+	</extension>
 	</extensions>
 	
 </plugin>
