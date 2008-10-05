@@ -9,7 +9,7 @@
 			<td><b>Minutes</b></td>
 			<td><b>Worker</b></td>
 			<td><b>Activity</b></td>
-			<td><b>Notes</b></td>
+			<td></td>
 			<td></td>
 		</tr>
 		{foreach from=$time_entries item=org_entry key=org_id}
@@ -35,9 +35,15 @@
 				<td align="right">{$time_entry.mins}</td>
 				<td align="left">{$workers.$entry_worker_id->getName()}</td>
 				<td align="left">{$time_entry.activity_name}</td>
-				<td align="left">{$time_entry.notes}</td>
+				<td align="left"></td>
 				<td></td>
 			</tr>
+			<tr>
+				<td colspan="2"></td>
+				<td colspan="4">{$time_entry.notes}</td>
+			</tr>
+			
+			
 			{/if}
 			{/foreach}
 			
