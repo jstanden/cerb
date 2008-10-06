@@ -4,6 +4,45 @@ class ChTimeTrackingPlugin extends DevblocksPlugin {
 	}
 };
 
+abstract class Extension_TimeTrackingSource extends DevblocksExtension {
+	function __construct($manifest) {
+		parent::DevblocksExtension($manifest);
+	}
+
+	function getSourceName() {
+		return NULL;
+	}
+	
+	function getLinkText($source_id) {
+		return NULL;
+	}
+	
+	function getLink($source_id) {
+		return NULL;
+	}
+};
+
+if (class_exists('Extension_TimeTrackingSource',true)):
+class ChTimeTrackingTicketSource extends Extension_TimeTrackingSource {
+	function __construct($manifest) {
+		parent::__construct($manifest);
+	}
+	
+	function getSourceName() {
+		return "Ticket";
+	}
+	
+	function getLinkText($source_id) {
+		return "Ticket #" . $source_id;
+	}
+	
+	function getLink($source_id) {
+		$url = DevblocksPlatform::getUrlService();
+		return $url->write('c=display&id=' . $source_id);
+	}
+};
+endif;
+
 class ChTimeTrackingPatchContainer extends DevblocksPatchContainerExtension {
 	function __construct($manifest) {
 		parent::__construct($manifest);
@@ -263,11 +302,8 @@ class DAO_TimeTrackingEntry extends DevblocksORMHelper {
     }
     
     static function getSources() {
-    	// [TODO] Pull this off an extension point
-     	return array(
-			'timetracking.source.ticket' => 'Ticket',
-			'timetracking.source.message' => 'Message',
-		);
+    	// Pull this off an extension point
+    	return DevblocksPlatform::getExtensions('timetracking.source', true);
     }
 };
 
@@ -457,7 +493,7 @@ class C4_TimeTrackingEntryView extends C4_AbstractView {
 					} else {
 						if(!isset($sources[$val]))
 							continue;
-						$strings[] = $sources[$val];
+						$strings[] = $sources[$val]->getSourceName();
 					}
 				}
 				echo implode(", ", $strings);
@@ -1036,8 +1072,14 @@ class ChTimeTrackingAjaxController extends DevblocksControllerExtension {
 		} elseif (!empty($model)) { // Were we passed a model object without an ID?
 			$tpl->assign('model', $model);
 		}
-		
+
 		/* @var $model Model_TimeTrackingEntry */
+		
+		// Source extension
+		if(!empty($model->source_extension_id)) {
+			if(null != ($source = DevblocksPlatform::getExtension($model->source_extension_id,true))) 
+				$tpl->assign('source', $source);		
+		}
 		
 		// Org Name
 		if(!empty($model->debit_org_id)) {
@@ -1646,11 +1688,14 @@ class ChReportTimeSpentActivity extends Extension_Report {
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 		
+		$sources = DAO_TimeTrackingEntry::getSources();
+		$tpl->assign('sources', $sources);
+		
 		// reload variables in template
 		$tpl->assign('start', $start);
 		$tpl->assign('end', $end);
 
-		$sql = sprintf("SELECT tte.log_date, tte.time_actual_mins, tte.notes, ".
+		$sql = sprintf("SELECT tte.log_date, tte.time_actual_mins, tte.notes, tte.source_extension_id, tte.source_id,".
 				"tta.id activity_id, tta.name activity_name, ".
 				"o.name org_name, tte.worker_id ".
 				"FROM timetracking_entry tte ".
@@ -1679,13 +1724,14 @@ class ChReportTimeSpentActivity extends Extension_Report {
 			if(!isset($time_entries[$activity_id]['entries']))
 				$time_entries[$activity_id]['entries'] = array();
 				
-				
 			unset($time_entry);
 			$time_entry['mins'] = $mins;
 			$time_entry['log_date'] = $log_date;
 			$time_entry['notes'] = $notes;
 			$time_entry['worker_name'] = $workers[$worker_id]->getName();
 			$time_entry['org_name'] = $org_name;
+			$time_entry['source_extension_id'] = $rs->fields['source_extension_id'];
+			$time_entry['source_id'] = intval($rs->fields['source_id']);
 			
 			$time_entries[$activity_id]['entries'][] = $time_entry;
 			@$time_entries[$activity_id]['total_mins'] = intval($time_entries[$activity_id]['total_mins']) + $mins;

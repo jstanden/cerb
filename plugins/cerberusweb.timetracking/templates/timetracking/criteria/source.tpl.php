@@ -8,5 +8,5 @@
 
 <b>Source:</b><br>
 {foreach from=$sources item=source key=source_id}
-<label><input name="source_ids[]" type="checkbox" value="{$source_id}"><span style="font-weight:normal;color:rgb(0,120,0);">{$source}</span></label><br>
+<label><input name="source_ids[]" type="checkbox" value="{$source_id}"><span style="font-weight:normal;color:rgb(0,120,0);">{$source->getSourceName()}</span></label><br>
 {/foreach}

@@ -47,11 +47,13 @@
 </div>
 <br>
 
+{if !empty($source)}
 <b>Reference:</b><br>
 <input type="hidden" name="source_extension_id" value="{$model->source_extension_id}">
 <input type="hidden" name="source_id" value="{$model->source_id}">
-{$model->source_extension_id} = {$model->source_id}<br>
+<a href="{$source->getLink($model->source_id)}" target="_blank">{$source->getLinkText($model->source_id)}</a><br>
 <br>
+{/if}
 
 {if empty($model->id)}
 <button type="button" onclick="genericAjaxPost('frmTimeEntry','','c=timetracking&a=saveEntry',{literal}function(o){timeTrackingTimer.finish();}{/literal});"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> Save &amp; Finish</button>

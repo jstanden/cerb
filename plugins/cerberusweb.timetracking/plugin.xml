@@ -74,6 +74,18 @@
 		</extension>
 		 -->
 
+		<!-- Time Tracking Sources -->
+		<extension point="timetracking.source">
+			<id>timetracking.source.ticket</id>
+			<name>Ticket</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChTimeTrackingTicketSource</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
 		<!-- Renderers Render -->	
 		<extension point="cerberusweb.renderer.prebody">
 			<id>timetracking.renderer.prebody</id>

@@ -84,8 +84,12 @@
 			{elseif $column=="tt_activity_id"}
 				<td>{if isset($activities.$activity_id)}{$activities.$activity_id->name}{if $activities.$activity_id->rate > 0} ($){/if}{/if}&nbsp;</td>
 			{elseif $column=="tt_source_extension_id"}
-				{assign var=source_id value=$result.tt_source_extension_id}
-				<td>{if isset($sources.$source_id)}{$sources.$source_id} #{$result.tt_source_id}{/if}&nbsp;</td>
+				{assign var=source_ext_id value=$result.tt_source_extension_id}
+				{assign var=source_id value=$result.tt_source_id}
+				<td>{if isset($sources.$source_ext_id)}
+					{assign var=source value=$sources.$source_ext_id}
+					<a href="{$source->getLink($source_id)}">{$source->getLinkText($source_id)}</a>{/if}&nbsp;
+				</td>
 			{else}
 			<td>{$result.$column}&nbsp;</td>
 			{/if}
