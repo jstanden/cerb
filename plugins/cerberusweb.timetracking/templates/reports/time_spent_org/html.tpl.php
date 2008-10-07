@@ -3,62 +3,51 @@
 
 
 {if !empty($time_entries)}
-	<table cellspacing="0" cellpadding="3" border="0">
-		<tr>
-			<td><b>Entry Date</b></td>
-			<td><b>Minutes</b></td>
-			<td><b>Worker</b></td>
-			<td><b>Activity</b></td>
-			<td></td>
-			<td></td>
-		</tr>
 		{foreach from=$time_entries item=org_entry key=org_id}
-		
+		<div class="block">
+		<table cellspacing="0" cellpadding="3" border="0">
 			<tr>
-				<td colspan="6" style="border-bottom:1px solid rgb(200,200,200); background-color: #CCCCCC;">
-				<span style="font: Bold 13pt Arial;">
+				<td colspan="2">
+				<h2>
 				  {if empty($org_entry.org_name)}
 				  (no organization)
 				  {else}
 				  {$org_entry.org_name}
 				  {/if}
-				</span>
+				</h2>
+				<span style="margin-bottom:10px;"><b>{$org_entry.total_mins} minutes</b></span>
 				</td>
 			</tr>
-			
-		
 			{foreach from=$org_entry.entries item=time_entry key=time_entry_id}
-			{if is_numeric($time_entry_id)}
-			{assign var=entry_worker_id value=$time_entry.worker_id}
-			<tr>
-				<td style="padding-right:20px;">{$time_entry.log_date|date_format:"%Y-%m-%d"}</td>
-				<td align="right">{$time_entry.mins}</td>
-				<td align="left">{$workers.$entry_worker_id->getName()}</td>
-				<td align="left">{$time_entry.activity_name}</td>
-				<td align="left"></td>
-				<td></td>
-			</tr>
-			<tr>
-				<td colspan="2"></td>
-				<td colspan="4">{$time_entry.notes}</td>
-			</tr>
-			
-			
-			{/if}
+				{if is_numeric($time_entry_id)}
+					{assign var=entry_worker_id value=$time_entry.worker_id}
+					{assign var=source_ext_id value=$time_entry.source_extension_id}
+					{assign var=source_id value=$time_entry.source_id}
+					{assign var=worker_name value=$workers.$entry_worker_id->getName()}
+					<tr>
+						<td>{$time_entry.log_date|date_format:"%Y-%m-%d"}</td>
+						<td>
+							<b>{if isset($worker_name)}{$worker_name}{else}A worker{/if}</b> 
+							tracked <b>{$time_entry.mins} min</b>  
+							{if isset($time_entry.activity_name)}on {$time_entry.activity_name}{else}{/if} 
+							{if !empty($time_entry.org_name)}for <b>{$time_entry.org_name}</b>{/if}
+							{if !empty($source_ext_id)}
+								{assign var=source value=$sources.$source_ext_id}
+								{if !empty($source)}<small>(<a href="{$source->getLink($source_id)}">{$source->getLinkText($source_id)}</a>)</small>{/if}
+							{/if}
+						</td>
+					</tr>
+					{if !empty($time_entry.notes)}
+					<tr>
+						<td></td>
+						<td><i>{$time_entry.notes}</i></td>
+					</tr>
+					{/if}
+				{/if}
 			{/foreach}
-			
-
-			<tr>
-				<td></td>
-				<td style="border-top:1px solid rgb(200,200,200);" align="right"><b>{$org_entry.total_mins}</b></td>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td style="padding-left:10px;"><b></b></td>
-			</tr>
-
-
+			</table>
+			</div>
+			<br>
 	{/foreach}
-	</table>
 {/if}
 

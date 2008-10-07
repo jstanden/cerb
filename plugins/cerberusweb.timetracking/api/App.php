@@ -1361,6 +1361,7 @@ class ChReportTimeSpentWorker extends Extension_Report {
 		$tpl->assign('workers', $workers);
 		
 		$sql = sprintf("SELECT tte.log_date, tte.time_actual_mins, tte.worker_id, tte.notes, ".
+				"tte.source_extension_id, tte.source_id, ".
 				"tta.name activity_name, o.name org_name, o.id org_id ".
 				"FROM timetracking_entry tte ".
 				"INNER JOIN timetracking_activity tta ON tte.activity_id = tta.id ".
@@ -1388,14 +1389,6 @@ class ChReportTimeSpentWorker extends Extension_Report {
 			
 			if(!isset($time_entries[$worker_id]))
 				$time_entries[$worker_id] = array();
-			if(!isset($time_entries[$worker_id]['orgs']))
-				$time_entries[$worker_id]['orgs'] = array();
-			
-			if(!isset($time_entries[$worker_id]['orgs'][$org_id]))
-				$time_entries[$worker_id]['orgs'][$org_id] = array();
-			if(!isset($time_entries[$worker_id]['orgs'][$org_id]['entries']))
-				$time_entries[$worker_id]['orgs'][$org_id]['entries'] = array();
-				
 				
 			unset($time_entry);
 			$time_entry['activity_name'] = $activity;
@@ -1403,6 +1396,8 @@ class ChReportTimeSpentWorker extends Extension_Report {
 			$time_entry['mins'] = $mins;
 			$time_entry['log_date'] = $log_date;
 			$time_entry['notes'] = $notes;
+			$time_entry['source_extension_id'] = $rs->fields['source_extension_id'];
+			$time_entry['source_id'] = intval($rs->fields['source_id']);			
 			
 			$time_entries[$worker_id]['entries'][] = $time_entry;
 			@$time_entries[$worker_id]['total_mins'] = intval($time_entries[$worker_id]['total_mins']) + $mins;
@@ -1529,7 +1524,11 @@ class ChReportTimeSpentOrg extends Extension_Report {
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 		
+		$sources = DAO_TimeTrackingEntry::getSources();
+		$tpl->assign('sources', $sources);
+		
 		$sql = sprintf("SELECT tte.log_date, tte.time_actual_mins, tte.notes, tte.worker_id, ".
+				"tte.source_extension_id, tte.source_id, ".
 				"tta.name activity_name, o.name org_name, o.id org_id ".
 				"FROM timetracking_entry tte ".
 				"INNER JOIN timetracking_activity tta ON tte.activity_id = tta.id ".
@@ -1564,6 +1563,8 @@ class ChReportTimeSpentOrg extends Extension_Report {
 			$time_entry['log_date'] = $log_date;
 			$time_entry['notes'] = $notes;
 			$time_entry['worker_id'] = $worker_id;
+			$time_entry['source_extension_id'] = $rs->fields['source_extension_id'];
+			$time_entry['source_id'] = intval($rs->fields['source_id']);
 
 			$time_entries[$org_id]['entries'][] = $time_entry;
 			@$time_entries[$org_id]['total_mins'] = intval($time_entries[$org_id]['total_mins']) + $mins;
