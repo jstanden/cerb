@@ -31,8 +31,8 @@
 					{/if}
 					{if !empty($ticket->next_worker_id)}
 						{assign var=next_worker_id value=$ticket->next_worker_id}
-						<b>Next Worker:</b> {$workers.$next_worker_id->getName()} 
-						{if $ticket->unlock_date}(until {$ticket->unlock_date|devblocks_date}){/if}
+						<b>Next Worker:</b> <span {if $next_worker_id==$active_worker->id}style="font-weight:bold;color:rgb(255,50,50);background-color:rgb(255,213,213);"{/if}>{$workers.$next_worker_id->getName()}</span> 
+						{if $ticket->unlock_date}(until {$ticket->unlock_date|devblocks_date}){/if} 
 						<br>
 					{/if}
 					<!-- {if !empty($ticket->interesting_words)}<b>Interesting Words:</b> {$ticket->interesting_words}<br>{/if} -->
@@ -66,26 +66,31 @@
 			<input type="hidden" name="closed" value="{if $ticket->is_closed}1{else}0{/if}">
 			<input type="hidden" name="deleted" value="{if $ticket->is_deleted}1{else}0{/if}">
 			<input type="hidden" name="spam" value="0">
+			<input type="hidden" name="next_worker_id" value="{$ticket->next_worker_id}">
+			
 			
 			{if !$ticket->is_deleted}
 				{if $ticket->is_closed}
-					<button type="button" onclick="this.form.closed.value=0;this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_out.gif{/devblocks_url}" align="top"> Re-open</button>
+					<button type="button" onclick="this.form.closed.value='0';this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_out.gif{/devblocks_url}" align="top"> Re-open</button>
 				{else}
 					<button title="Close this ticket (C)" id="btnClose" type="button" onclick="this.form.closed.value=1;this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_ok.gif{/devblocks_url}" align="top"> Close</button>
 				{/if}
 				
 				{if empty($ticket->spam_training)}
-					<button title="Report this ticket as spam (S)" id="btnSpam" type="button" onclick="this.form.spam.value=1;this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/spam.gif{/devblocks_url}" align="top"> Spam</button>
+					<button title="Report this ticket as spam (S)" id="btnSpam" type="button" onclick="this.form.spam.value='1';this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/spam.gif{/devblocks_url}" align="top"> Spam</button>
 				{/if}
 			{/if}
 			
 			{if $ticket->is_deleted}
-				<button type="button" onclick="this.form.deleted.value=0;this.form.closed.value=0;this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete_gray.gif{/devblocks_url}" align="top"> Undelete</button>
+				<button type="button" onclick="this.form.deleted.value='0';this.form.closed.value=0;this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete_gray.gif{/devblocks_url}" align="top"> Undelete</button>
 			{else}
 				{if $active_worker && ($active_worker->is_superuser || $active_worker->can_delete)}
 				<button title="Delete this ticket (X)" id="btnDelete" type="button" onclick="this.form.deleted.value=1;this.form.closed.value=1;this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> Delete</button>
 				{/if}
 			{/if}
+			
+			{if empty($ticket->next_worker_id)}<button id="btnTake" title="Assign this ticket to yourself (T)" type="button" onclick="this.form.next_worker_id.value='{$active_worker->id}';this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/hand_paper.gif{/devblocks_url}" align="top"> Take</button>{/if}
+			{if $ticket->next_worker_id == $active_worker->id}<button id="btnSurrender" title="Unassign this ticket from yourself (U)" type="button" onclick="this.form.next_worker_id.value='0';this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/flag_white.gif{/devblocks_url}" align="top"> Surrender</button>{/if}
 			
 			{if !$expand_all}<button id="btnReadAll" title="Read all messages in chronological order (A)" type="button" onclick="document.location='{devblocks_url}c=display&id={$ticket->mask}&tab=conversation&opt=read_all{/devblocks_url}';"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document.gif{/devblocks_url}" align="top"> Read All</button>{/if} 
 			<button id="btnPrint" type="button" onclick="document.frmPrint.action='{devblocks_url}c=print&a=ticket&id={$ticket->mask}{/devblocks_url}';document.frmPrint.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/printer.gif{/devblocks_url}" align="top"> Print</button>
@@ -124,6 +129,8 @@
 			{if !$ticket->is_closed}(<b>c</b>) close, {/if}
 			{if !$ticket->spam_trained}(<b>s</b>) report spam, {/if}
 			{if !$ticket->is_deleted && $active_worker && ($active_worker->is_superuser || $active_worker->can_delete)}(<b>x</b>) delete, {/if}
+			{if empty($ticket->next_worker_id)}(<b>t</b>) take, {/if}
+			{if $ticket->next_worker_id == $active_worker->id}(<b>u</b>) surrender, {/if}
 			{if !$expand_all}(<b>a</b>) read all, {/if} 
 			{if !empty($series_stats.prev)}( <b>[</b> ) previous, {/if} 
 			{if !empty($series_stats.next)}( <b>]</b> ) next, {/if} 
@@ -260,6 +267,18 @@ CreateKeyHandler(function doShortcuts(e) {
 		case "S":
 			try {
 				document.getElementById('btnSpam').click();
+			} catch(e){}
+			break;
+		case "t":  // take/assign
+		case "T":
+			try {
+				document.getElementById('btnTake').click();
+			} catch(e){}
+			break;
+		case "u":  // surrender/unassign
+		case "U":
+			try {
+				document.getElementById('btnSurrender').click();
 			} catch(e){}
 			break;
 		case "x":  // delete
