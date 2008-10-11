@@ -31,9 +31,9 @@
 			{* add arrow if sorting by this column, finish table header tag *}
 			{if $header==$view->renderSortBy}
 				{if $view->renderSortAsc}
-					<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/arrow_up.gif{/devblocks_url}" align="top">
+					<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/sort_ascending.png{/devblocks_url}" align="absmiddle">
 				{else}
-					<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/arrow_down.gif{/devblocks_url}" align="top">
+					<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/sort_descending.png{/devblocks_url}" align="absmiddle">
 				{/if}
 			{/if}
 			</th>

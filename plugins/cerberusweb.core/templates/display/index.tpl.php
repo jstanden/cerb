@@ -93,7 +93,6 @@
 			{if $ticket->next_worker_id == $active_worker->id}<button id="btnSurrender" title="Unassign this ticket from yourself (U)" type="button" onclick="this.form.next_worker_id.value='0';this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/flag_white.gif{/devblocks_url}" align="top"> Surrender</button>{/if}
 			
 			{if !$expand_all}<button id="btnReadAll" title="Read all messages in chronological order (A)" type="button" onclick="document.location='{devblocks_url}c=display&id={$ticket->mask}&tab=conversation&opt=read_all{/devblocks_url}';"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document.gif{/devblocks_url}" align="top"> Read All</button>{/if} 
-			<button id="btnPrint" type="button" onclick="document.frmPrint.action='{devblocks_url}c=print&a=ticket&id={$ticket->mask}{/devblocks_url}';document.frmPrint.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/printer.gif{/devblocks_url}" align="top"> Print</button>
 			 
 			{if !$ticket->is_deleted}
 		   	<select name="bucket_id" onchange="this.form.submit();">
@@ -114,7 +113,8 @@
 		  		{/foreach}
 		   	</select>
 		   	{/if}
-			<button type="button" onclick="document.location='{devblocks_url}c=display&id={$ticket->mask}{/devblocks_url}';"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/replace2.gif{/devblocks_url}" align="top"> Refresh</button>
+		   	<button id="btnPrint" title="Print this ticket (P)" type="button" onclick="document.frmPrint.action='{devblocks_url}c=print&a=ticket&id={$ticket->mask}{/devblocks_url}';document.frmPrint.submit();">&nbsp;<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/printer.gif{/devblocks_url}" align="top">&nbsp;</button>
+		   	<button type="button" title="Reload this ticket" onclick="document.location='{devblocks_url}c=display&id={$ticket->mask}{/devblocks_url}';">&nbsp;<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/replace2.gif{/devblocks_url}" align="top">&nbsp;</button>
 			<br>
 			
 			{* Plugin Toolbar *}

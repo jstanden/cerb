@@ -108,6 +108,14 @@ abstract class Extension_TicketToolbarItem extends DevblocksExtension {
 	function render(CerberusTicket $ticket) { }
 };
 
+abstract class Extension_MessageToolbarItem extends DevblocksExtension {
+	function __construct($manifest) {
+		$this->DevblocksExtension($manifest,1);
+	}
+	
+	function render(CerberusMessage $message) { }
+};
+
 abstract class Extension_ReplyToolbarItem extends DevblocksExtension {
 	function __construct($manifest) {
 		$this->DevblocksExtension($manifest,1);

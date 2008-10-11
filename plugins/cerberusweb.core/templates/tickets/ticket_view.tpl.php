@@ -39,9 +39,9 @@
 			{* add arrow if sorting by this column, finish table header tag *}
 			{if $header==$view->renderSortBy}
 				{if $view->renderSortAsc}
-					<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/arrow_up.gif{/devblocks_url}" align="absmiddle">
+					<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/sort_ascending.png{/devblocks_url}" align="absmiddle">
 				{else}
-					<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/arrow_down.gif{/devblocks_url}" align="absmiddle">
+					<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/sort_descending.png{/devblocks_url}" align="absmiddle">
 				{/if}
 			{/if}
 			</th>
@@ -251,7 +251,7 @@
 				{/foreach}
 			</select>
 			
-			<a href="javascript:;" onclick="toggleDiv('view{$view->id}_more');">more options &raquo;</a><br>
+			<button type="button" onclick="toggleDiv('view{$view->id}_more');">more &raquo;</button><br>
 
 			<div id="view{$view->id}_more" style="display:none;padding-top:5px;padding-bottom:5px;">
 				<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','not_spam');">not spam</button>

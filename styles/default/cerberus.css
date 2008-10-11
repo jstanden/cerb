@@ -252,6 +252,14 @@ DIV.message_note A {
 	font-family: inherit;
 }
 
+DIV.message_note H3 {
+	font-weight: bold;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 18px;
+	margin: 0px;
+	color: rgb(102, 102, 102);
+}
+
 DIV.ticket_comment {
 	padding: 5px;
 	background-color: rgb(233, 241, 255);

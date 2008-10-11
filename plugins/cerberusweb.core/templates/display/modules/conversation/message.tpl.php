@@ -14,7 +14,7 @@
       				{assign var=sender_org value=$message_sender_orgs.$sender_org_id}
       				{assign var=is_outgoing value=$message->worker_id}
       				{if $expanded}
-      					<h3 style="display:inline;"><span style="{if !$is_outgoing}color:rgb(255,50,50);background-color:rgb(255,213,213);{else}color:rgb(50,120,50);background-color:rgb(219,255,190);{/if}">{if $is_outgoing}[outbound]{else}[inbound]{/if}</span> <a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&address_id={$sender_id}', this, false, '500px', function(o){literal}{{/literal} ajax.cbAddressPeek(); genericAjaxPostAfterSubmitEvent.subscribe(function(type,args){literal}{{/literal}document.getElementById('btnMsgMax{$message->id}').click();{literal}}{/literal}); {literal}}{/literal} );">{if 0 != strlen($sender->getName())}{$sender->getName()}{else}&lt;{$sender->email}&gt;{/if}</a></h3>
+      					<h3 style="display:inline;"><span style="{if !$is_outgoing}color:rgb(255,50,50);background-color:rgb(255,213,213);{else}color:rgb(50,120,50);background-color:rgb(219,255,190);{/if}">{if $is_outgoing}[outbound]{else}[inbound]{/if}</span> <a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&address_id={$sender_id}', this, false, '500px', function(o){literal}{{/literal} ajax.cbAddressPeek(); genericAjaxPostAfterSubmitEvent.subscribe(function(type,args){literal}{{/literal}document.getElementById('btnMsgMax{$message->id}').click();{literal}}{/literal}); {literal}}{/literal} );" title="{$sender->email}">{if 0 != strlen($sender->getName())}{$sender->getName()}{else}&lt;{$sender->email}&gt;{/if}</a></h3>
       				{else}
       					<b><span style="{if !$is_outgoing}color:rgb(255,50,50);background-color:rgb(255,213,213);{else}color:rgb(50,120,50);background-color:rgb(219,255,190);{/if}">{if $is_outgoing}[outbound]{else}[inbound]{/if}</span> <a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&address_id={$sender_id}', this, false, '500px',function(o){literal}{{/literal} ajax.cbAddressPeek(); genericAjaxPostAfterSubmitEvent.subscribe(function(type,args){literal}{{/literal}document.getElementById('btnMsgMax{$message->id}').click();{literal}}{/literal}); {literal}}{/literal} );">{if 0 != strlen($sender->getName())}{$sender->getName()}{else}&lt;{$sender->email}&gt;{/if}</a></b>
       				{/if}
@@ -85,7 +85,7 @@
 				      	<button type="button" onclick="displayAjax.addNote('{$message->id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_plain_yellow.png{/devblocks_url}" align="top"> Sticky Note</button>
 				      	&nbsp;
 				      	
-			      		<a href="javascript:;" onclick="toggleDiv('{$message->id}options');">more &raquo;</a>
+			      		<button type="button" onclick="toggleDiv('{$message->id}options');">more &raquo;</button>
 	      			</td>
 	      		</tr>
 	      	</table>
@@ -95,11 +95,18 @@
 	      		<input type="hidden" name="a" value="">
 	      		<input type="hidden" name="id" value="{$message->id}">
 	      		
-	      		<button type="button" onclick="document.frmPrint.action='{devblocks_url}c=print&a=message&id={$message->id}{/devblocks_url}';;document.frmPrint.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/printer.gif{/devblocks_url}" align="top"> Print</button>
+	      		<button type="button" onclick="document.frmPrint.action='{devblocks_url}c=print&a=message&id={$message->id}{/devblocks_url}';document.frmPrint.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/printer.gif{/devblocks_url}" align="top"> Print</button>
 	      		
 	      		{if $ticket->first_message_id != $message->id} {* Don't allow splitting of a single message *}
 	      		<button type="button" onclick="this.form.a.value='doSplitMessage';this.form.submit();" title="Split message into new ticket"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/documents.gif{/devblocks_url}" align="top"> Split Ticket</button>
 	      		{/if}
+	      		
+				{* Plugin Toolbar *}
+				{if !empty($message_toolbaritems)}
+					{foreach from=$message_toolbaritems item=renderer}
+						{if !empty($renderer)}{$renderer->render($message)}{/if}
+					{/foreach}
+				{/if}
 	      	</form>
 	      	
 	      	{assign var=attachments value=$message->getAttachments()}

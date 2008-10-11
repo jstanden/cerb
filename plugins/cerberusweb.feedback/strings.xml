@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tmx SYSTEM "tmx14.dtd">
+<tmx version="1.4">
+	<header datatype="winres" segtype="sentence" adminlang="en-us"
+		srclang="en-us" o-tmf="abc" />
+	<body>
+
+		<!-- Feedback Strings -->
+
+		<tu tuid='feedback_entry.id'>
+			<tuv xml:lang="en"><seg>ID</seg></tuv>
+		</tu>
+		<tu tuid='feedback_entry.list_id'>
+			<tuv xml:lang="en"><seg>List</seg></tuv>
+		</tu>
+		<tu tuid='feedback_entry.log_date'>
+			<tuv xml:lang="en"><seg>Log Date</seg></tuv>
+		</tu>
+		<tu tuid='feedback_entry.quote_address'>
+			<tuv xml:lang="en"><seg>Author</seg></tuv>
+		</tu>
+		<tu tuid='feedback_entry.quote_mood'>
+			<tuv xml:lang="en"><seg>Mood</seg></tuv>
+		</tu>
+		<tu tuid='feedback_entry.quote_text'>
+			<tuv xml:lang="en"><seg>Quote</seg></tuv>
+		</tu>
+		<tu tuid='feedback_entry.worker_id'>
+			<tuv xml:lang="en"><seg>Worker</seg></tuv>
+		</tu>
+
+	</body>
+</tmx>
+<!-- 
+	
+-->

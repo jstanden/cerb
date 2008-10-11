@@ -1,4 +1,11 @@
 <?php
+// Classes
+$path = realpath(dirname(__FILE__) . '/../') . DIRECTORY_SEPARATOR;
+
+DevblocksPlatform::registerClasses($path. 'api/App.php', array(
+    'C4_TimeTrackingEntryView'
+));
+
 class ChTimeTrackingPlugin extends DevblocksPlugin {
 	function load(DevblocksPluginManifest $manifest) {
 	}

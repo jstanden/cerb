@@ -15,8 +15,9 @@
 <form id="customize{$view->id}" name="customize{$view->id}" action="#" onsubmit="return false;" style="display:none;"></form>
 <form id="viewForm{$view->id}" name="viewForm{$view->id}" action="#">
 <input type="hidden" name="id" value="{$view->id}">
-<input type="hidden" name="c" value="time">
+<input type="hidden" name="c" value="feedback">
 <input type="hidden" name="a" value="">
+
 <table cellpadding="1" cellspacing="0" border="0" width="100%" class="tableRowBg">
 
 	{* Column Headers *}
@@ -25,7 +26,7 @@
 		{foreach from=$view->view_columns item=header name=headers}
 			{* start table header, insert column title and link *}
 			<th nowrap="nowrap">
-			{if $header=="x"}<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewSortBy&id={$view->id}&sortBy=a_id');">{$translate->_('timetracking_entry.id')|capitalize}</a>
+			{if $header=="x"}<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewSortBy&id={$view->id}&sortBy=f_id');">{$translate->_('feedback_entry.id')|capitalize}</a>
 			{else}<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewSortBy&id={$view->id}&sortBy={$header}');">{$view_fields.$header->db_label|capitalize}</a>
 			{/if}
 			
@@ -44,57 +45,61 @@
 	{* Column Data *}
 	{foreach from=$data item=result key=idx name=results}
 
-	{assign var=rowIdPrefix value="row_"|cat:$view->id|cat:"_"|cat:$result.tt_id}
+	{assign var=rowIdPrefix value="row_"|cat:$view->id|cat:"_"|cat:$result.f_id}
 	{if $smarty.foreach.results.iteration % 2}
 		{assign var=tableRowBg value="tableRowBg"}
 	{else}
 		{assign var=tableRowBg value="tableRowAltBg"}
 	{/if}
 	
-	{assign var=worker_id value=$result.tt_worker_id}
-	{assign var=activity_id value=$result.tt_activity_id}
+	{assign var=list_id value=$result.f_list_id}
+	{assign var=worker_id value=$result.f_worker_id}
+	{assign var=mood value=$result.f_quote_mood}
 	
-		<tr class="{$tableRowBg}" id="{$rowIdPrefix}_s" onmouseover="toggleClass(this.id,'tableRowHover');toggleClass('{$rowIdPrefix}','tableRowHover');" onmouseout="toggleClass(this.id,'{$tableRowBg}');toggleClass('{$rowIdPrefix}','{$tableRowBg}');" onclick="if(getEventTarget(event)=='TD') checkAll('{$rowIdPrefix}_s');">
-			<td align="center" rowspan="2">{*<input type="checkbox" name="row_id[]" value="{$result.a_id}">*}</td>
-			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">
-				<a href="javascript:;" class="ticketLink" style="font-size:12px;" onclick="genericAjaxPanel('c=timetracking&a=showEntry&id={$result.tt_id}&view_id={$view->id}',this,false,'500px',function(o){literal}{{/literal} ajax.cbAddressPeek(); genericAjaxPostAfterSubmitEvent.subscribe(function(type,args){literal}{{/literal} genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');{literal}}{/literal}); {literal}}{/literal} );">
-				<b id="subject_{$result.tt_id}_{$view->id}">
-					{if isset($workers.$worker_id)}{$workers.$worker_id->getName()}{else}A worker{/if} 
-					tracked {$result.tt_time_actual_mins} min  
-					{if isset($activities.$activity_id)}on {$activities.$activity_id->name}{else}{/if} 
-					{if !empty($result.o_name)}for {$result.o_name}{/if}
-				</b>
-				</a>
-			</td>
-		</tr>
 		<tr class="{$tableRowBg}" id="{$rowIdPrefix}" onmouseover="toggleClass(this.id,'tableRowHover');toggleClass('{$rowIdPrefix}_s','tableRowHover');" onmouseout="toggleClass(this.id,'{$tableRowBg}');toggleClass('{$rowIdPrefix}_s','{$tableRowBg}');" onclick="if(getEventTarget(event)=='TD') checkAll('{$rowIdPrefix}_s');">
+			<td align="center" rowspan="2">{*<input type="checkbox" name="row_id[]" value="{$result.f_id}">*}</td>
 		{foreach from=$view->view_columns item=column name=columns}
-			{if $column=="tt_id"}
-			<td>{$result.tt_id}&nbsp;</td>
-			{elseif $column=="o_name"}
-			<td>
-				{if !empty($result.o_name)}
-				<a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showOrgPeek&id={$result.tt_debit_org_id}&view_id={$view->id}',this,false,'500px',ajax.cbOrgCountryPeek);">{$result.o_name}</a>
-				{/if}
-			</td>
-			{elseif $column=="tt_log_date"}
-			<td title="{$result.tt_log_date|devblocks_date}">{$result.tt_log_date|devblocks_date:'EEE, MMM d Y'}&nbsp;</td>
-			{elseif $column=="tt_worker_id"}
+			{if $column=="f_id"}
+				<td>{$result.f_id}&nbsp;</td>
+			{elseif $column=="a_email"}
+				<td>
+					{if !empty($result.a_email)}
+						<a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&address_id={$result.f_quote_address_id}&view_id={$view->id}',this,false,'500px',ajax.cbAddressPeek);">{$result.a_email}</a>
+					{else}
+						<i>anonymous</i>
+					{/if}
+				</td>
+			{elseif $column=="f_log_date"}
+				<td title="{$result.f_log_date|devblocks_date}">{$result.f_log_date|devblocks_date:'EEE, MMM d Y'}&nbsp;</td>
+			{elseif $column=="f_worker_id"}
 				<td>{if isset($workers.$worker_id)}{$workers.$worker_id->getName()}{/if}&nbsp;</td>
-			{elseif $column=="tt_activity_id"}
-				<td>{if isset($activities.$activity_id)}{$activities.$activity_id->name}{if $activities.$activity_id->rate > 0} ($){/if}{/if}&nbsp;</td>
-			{elseif $column=="tt_source_extension_id"}
-				{assign var=source_ext_id value=$result.tt_source_extension_id}
-				{assign var=source_id value=$result.tt_source_id}
-				<td>{if isset($sources.$source_ext_id)}
-					{assign var=source value=$sources.$source_ext_id}
-					<a href="{$source->getLink($source_id)}">{$source->getLinkText($source_id)}</a>{/if}&nbsp;
+			{elseif $column=="f_list_id"}
+				<td>{if isset($lists.$list_id)}{$lists.$list_id->name}{/if}&nbsp;</td>
+			{elseif $column=="f_quote_mood"}
+				<td>
+					{if 1==$result.$column}
+						<span style="background-color:rgb(235, 255, 235);color:rgb(0, 180, 0);font-weight:bold;">Praise</span>
+					{elseif 2==$result.$column}
+						<span style="background-color: rgb(255, 235, 235);color: rgb(180, 0, 0);font-weight:bold;">Criticism</span>
+					{else}
+						Neutral
+					{/if}
 				</td>
 			{else}
-			<td>{$result.$column}&nbsp;</td>
+				<td>{$result.$column}&nbsp;</td>
 			{/if}
 		{/foreach}
 		</tr>
+		<tr class="{$tableRowBg}" id="{$rowIdPrefix}_s" onmouseover="toggleClass(this.id,'tableRowHover');toggleClass('{$rowIdPrefix}','tableRowHover');" onmouseout="toggleClass(this.id,'{$tableRowBg}');toggleClass('{$rowIdPrefix}','{$tableRowBg}');" onclick="if(getEventTarget(event)=='TD') checkAll('{$rowIdPrefix}_s');">
+			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">
+				<div id="subject_{$result.f_id}_{$view->id}" style="margin:5px;margin-left:10px;font-size:12px;">
+					<img src="{devblocks_url}c=resource&p=cerberusweb.feedback&f=images/{if 1==$mood}bullet_ball_glass_green.png{elseif 2==$mood}bullet_ball_glass_red.png{else}bullet_ball_glass_grey.png{/if}{/devblocks_url}" align="top" title="{if 1==$mood}Praise{elseif 2==$mood}Criticism{else}Neutral{/if}"> 
+					{$result.f_quote_text} 
+					<a href="javascript:;" style="color:rgb(180,180,180);font-size:90%;" onclick="genericAjaxPanel('c=feedback&a=showEntry&id={$result.f_id}&view_id={$view->id}',this,false,'500px',function(o){literal}{{/literal} genericAjaxPostAfterSubmitEvent.subscribe(function(type,args){literal}{{/literal}genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');{literal}}{/literal}); {literal}}{/literal} );">(edit)</a>
+				</div>
+			</td>
+		</tr>
+		
 	{/foreach}
 	
 </table>

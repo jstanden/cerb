@@ -7536,6 +7536,11 @@ class ChDisplayPage extends CerberusPageExtension {
 			}
 			$tpl->assign('message_notes', $message_notes);
 		}
+
+		// Message toolbar items
+		$messageToolbarItems = DevblocksPlatform::getExtensions('cerberusweb.message.toolbaritem', true);
+		if(!empty($messageToolbarItems))
+			$tpl->assign('message_toolbaritems', $messageToolbarItems);
 		
 		// [TODO] Workers?
 		
@@ -7881,6 +7886,12 @@ class ChDisplayPage extends CerberusPageExtension {
 		}
 		$tpl->assign('message_notes', $message_notes);
 		
+		// Message toolbar items
+		$messageToolbarItems = DevblocksPlatform::getExtensions('cerberusweb.message.toolbaritem', true);
+		if(!empty($messageToolbarItems))
+			$tpl->assign('message_toolbaritems', $messageToolbarItems);
+
+		// Workers
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 		

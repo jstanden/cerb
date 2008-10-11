@@ -9,7 +9,7 @@
 					<td><h2>Activities</h2></td>
 				</tr>
 				<tr>
-					<td>
+					<td nowrap="nowrap">
 						[ <a href="javascript:;" onclick="genericAjaxGet('configActivity','c=config&a=handleTabAction&tab=timetracking.config.tab.activities&action=getActivity&id=0');">add new activity</a> ]
 					</td>
 				</tr>

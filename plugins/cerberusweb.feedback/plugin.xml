@@ -1,14 +1,14 @@
 <!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
 <plugin>
-	<id>cerberusweb.timetracking</id>
-	<name>Cerberus Helpdesk: Time Tracking (Experimental)</name>
-	<description>Adds a time tracking stopwatch for tasks.</description>
+	<id>cerberusweb.feedback</id>
+	<name>Cerberus Helpdesk: Feedback Manager (Experimental)</name>
+	<description>Track praise/criticism from all channels and get it in front of the right decision makers.</description>
 	<author>WebGroup Media, LLC.</author>
 	<revision>0</revision>
 	<link>http://wiki.cerb4.com/wiki/</link>
 	<class>
 		<file>api/App.php</file>
-		<name>ChTimeTrackingPlugin</name>
+		<name>ChFeedbackPlugin</name>
 	</class>
 	
 	<extensions>
@@ -16,11 +16,11 @@
 		<!-- Patch Containers -->
 		
 		<extension point="devblocks.patch.container">
-			<id>timetracking.patches</id>
-			<name>Time Tracking Patches</name>
+			<id>feedback.patches</id>
+			<name>Feedback Patches</name>
 			<class>
 				<file>api/App.php</file>
-				<name>ChTimeTrackingPatchContainer</name>
+				<name>ChFeedbackPatchContainer</name>
 			</class>
 			<params>
 			</params>
@@ -29,11 +29,11 @@
 		<!-- Translations -->
 		
 		<extension point="devblocks.i18n.strings">
-			<id>timetracking.translations</id>
-			<name>Time Tracking Strings</name>
+			<id>feedback.translations</id>
+			<name>Feedback Strings</name>
 			<class>
 				<file>api/App.php</file>
-				<name>ChTimeTrackingTranslations</name>
+				<name>ChFeedbackTranslations</name>
 			</class>
 			<params>
 			</params>
@@ -75,20 +75,21 @@
 		 -->
 
 		<!-- Time Tracking Sources -->
-		
-		<extension point="timetracking.source">
-			<id>timetracking.source.ticket</id>
+		<!-- 
+		<extension point="feedback.source">
+			<id>feedback.source.ticket</id>
 			<name>Ticket</name>
 			<class>
 				<file>api/App.php</file>
-				<name>ChTimeTrackingTicketSource</name>
+				<name>ChFeedbackTicketSource</name>
 			</class>
 			<params>
 			</params>
 		</extension>
+		 -->
 
-		<!-- Renderers Render -->	
-		
+		<!-- Renderers Render -->
+		<!-- 	
 		<extension point="cerberusweb.renderer.prebody">
 			<id>timetracking.renderer.prebody</id>
 			<name>Time Tracking Pre-body Renderer</name>
@@ -99,9 +100,10 @@
 			<params>
 			</params>
 		</extension>
+		 -->
 	
-		<!-- Ticket Display Tabs -->	
-		
+		<!-- Ticket Display Tabs -->
+		<!-- 	
 		<extension point="cerberusweb.ticket.toolbaritem">
 			<id>timetracking.ticket.toolbaritem.timer</id>
 			<name>Time Tracking Ticket Toolbar Timer</name>
@@ -112,15 +114,16 @@
 			<params>
 			</params>
 		</extension>
-	
-		<!-- Ticket Reply Tabs -->
+		 -->
+
+		<!-- Ticket Message Tabs -->
 			
-		<extension point="cerberusweb.reply.toolbaritem">
-			<id>timetracking.reply.toolbaritem.timer</id>
-			<name>Time Tracking Reply Toolbar Timer</name>
+		<extension point="cerberusweb.message.toolbaritem">
+			<id>feedback.message.toolbaritem.feedback</id>
+			<name>Ticket Message Toolbar Feedback Item</name>
 			<class>
 				<file>api/App.php</file>
-				<name>ChTimeTrackingReplyToolbarTimer</name>
+				<name>ChFeedbackMessageToolbarFeedback</name>
 			</class>
 			<params>
 			</params>
@@ -129,18 +132,19 @@
 		<!-- Config Tabs -->
 		
 		<extension point="cerberusweb.config.tab">
-			<id>timetracking.config.tab.activities</id>
-			<name>Categories Tab</name>
+			<id>feedback.config.tab</id>
+			<name>Feedback Tab</name>
 			<class>
 				<file>api/App.php</file>
-				<name>ChTimeTrackingConfigActivityTab</name>
+				<name>ChFeedbackConfigTab</name>
 			</class>
 			<params>
-				<param key="uri" value="timetracking.activities" />
-				<param key="title" value="Time Tracking" />
+				<param key="uri" value="feedback" />
+				<param key="title" value="Feedback" />
 			</params>
 		</extension>
-		
+		 
+		<!-- 
  		<extension point="devblocks.controller">
 			<id>timetracking.controller.ajax</id>
 			<name>Time Tracking Ajax Controller</name>
@@ -151,19 +155,20 @@
 			<params>
 			</params>
 		</extension>
+		 -->
 		 
 		<!-- Pages -->
-		
+
 		<extension point="cerberusweb.page">
-			<id>timetracking.page.time</id>
-			<name>Time Tracking Page</name>
+			<id>feedback.page</id>
+			<name>Feedback Page</name>
 			<class>
 				<file>api/App.php</file>
-				<name>TimeTrackingPage</name>
+				<name>FeedbackPage</name>
 			</class>
 			<params>
-				<param key="uri" value="time" />
-				<param key="menutitle" value="time" />
+				<param key="uri" value="feedback" />
+				<param key="menutitle" value="feedback" />
 			</params>
 		</extension>
 		 
@@ -185,19 +190,20 @@
 		 -->
 		 
 	<!-- Report Groups -->
-	
+	<!-- 
 	<extension point="cerberusweb.report.group">
-		<id>report.group.timetracking</id>
-		<name>Time Tracking Reports</name>
+		<id>feedback.report.group</id>
+		<name>Feedback Reports</name>
 		<class>
 			<file>api/App.php</file>
-			<name>ChReportGroupTimeTracking</name>
+			<name>ChFeedbackReportGroup</name>
 		</class>
 		<params />
 	</extension>		 
-
+	-->
+	
 	<!-- Reports -->
-
+	<!-- 
 	<extension point="cerberusweb.report">
 		<id>report.timetracking.timespentworker</id>
 		<name>Time Spent Per Worker</name>
@@ -210,31 +216,6 @@
 			<param key="report_group" value="report.group.timetracking" />
 		</params>
 	</extension>
-
-	<extension point="cerberusweb.report">
-		<id>report.timetracking.timespentorg</id>
-		<name>Time Spent Per Organization</name>
-		<class>
-			<file>api/App.php</file>
-			<name>ChReportTimeSpentOrg</name>
-		</class>
-		<params>
-			<param key="report_name" value="Time Spent Per Organization" />
-			<param key="report_group" value="report.group.timetracking" />
-		</params>
-	</extension>
-	
-	<extension point="cerberusweb.report">
-		<id>report.timetracking.timespentactivity</id>
-		<name>Time Spent Per Activity</name>
-		<class>
-			<file>api/App.php</file>
-			<name>ChReportTimeSpentActivity</name>
-		</class>
-		<params>
-			<param key="report_name" value="Time Spent Per Activity" />
-			<param key="report_group" value="report.group.timetracking" />
-		</params>
-	</extension>	
+	 -->
 	</extensions>
 </plugin>

@@ -1,0 +1,1 @@
+<button type="button" onclick="genericAjaxPanel('c=feedback&a=showEntry&source_ext_id=feedback.source.ticket&source_id={$message->ticket_id}&msg_id={$message->id}&quote='+escape(Devblocks.getSelectedText()),null,false,'500px');"><img src="{devblocks_url}c=resource&p=cerberusweb.feedback&f=images/question_and_answer.png{/devblocks_url}" align="top"> Capture Feedback</button>
