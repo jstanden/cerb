@@ -561,7 +561,7 @@ class DAO_FeedbackList extends DevblocksORMHelper {
 		$sql = "SELECT id, name ".
 			"FROM feedback_list ".
 			(!empty($where) ? sprintf("WHERE %s ",$where) : "").
-			"ORDER BY id asc";
+			"ORDER BY name asc";
 		$rs = $db->Execute($sql);
 		
 		return self::_getObjectsFromResult($rs);
@@ -710,18 +710,6 @@ class FeedbackPage extends CerberusPageExtension {
 
 		$response = DevblocksPlatform::getHttpResponse();
 		$stack = $response->path;
-		
-		list($results,$count) = DAO_FeedbackEntry::search(
-			array(
-				new DevblocksSearchCriteria(SearchFields_FeedbackEntry::ID,DevblocksSearchCriteria::OPER_GTE,0),
-			),
-			-1,
-			0,
-			null,
-			null,
-			true
-		);
-		$tpl->assign('results', $results);
 		
 		$view = C4_AbstractViewLoader::getView('C4_FeedbackEntryView', C4_FeedbackEntryView::DEFAULT_ID);
 		$tpl->assign('view', $view);
