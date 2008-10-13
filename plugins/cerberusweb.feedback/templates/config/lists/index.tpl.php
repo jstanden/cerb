@@ -6,7 +6,7 @@
 			<div class="block">
 			<table cellpadding="2" cellspacing="0" border="0">
 				<tr>
-					<td><h2>Lists</h2></td>
+					<td nowrap="nowrap"><h2>Feedback Lists</h2></td>
 				</tr>
 				<tr>
 					<td nowrap="nowrap">

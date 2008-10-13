@@ -85,6 +85,8 @@
 						Neutral
 					{/if}
 				</td>
+			{elseif $column=="f_source_url"}
+				<td><a href="{$result.f_source_url|escape}" target="_blank" title="{$result.f_source_url|escape}">{$result.f_source_url|truncate:35:'...':true:false}</a>&nbsp;</td>
 			{else}
 				<td>{$result.$column}&nbsp;</td>
 			{/if}

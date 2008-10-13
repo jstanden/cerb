@@ -147,7 +147,7 @@ class DAO_TimeTrackingEntry extends DevblocksORMHelper {
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$id = $db->GenID('generic_seq');
+		$id = $db->GenID('timetracking_entry_seq');
 		
 		$sql = sprintf("INSERT INTO timetracking_entry (id) ".
 			"VALUES (%d)",
@@ -218,6 +218,11 @@ class DAO_TimeTrackingEntry extends DevblocksORMHelper {
 		}
 		
 		return $objects;
+	}
+	
+	static function getItemCount() {
+		$db = DevblocksPlatform::getDatabaseService();
+		return $db->GetOne("SELECT count(id) FROM timetracking_entry");
 	}
 	
 	static function delete($ids) {
@@ -992,41 +997,6 @@ class ChTimeTrackingAjaxController extends DevblocksControllerExtension {
 //		$tpl->assign('source_id', $source_id);
 		
 		switch($source_ext_id) {
-			// Message
-			case 'timetracking.source.message':
-				if(null == ($message = DAO_Ticket::getMessage($source_id)))
-					break;
-					
-				if(null == ($ticket = DAO_Ticket::getTicket($message->ticket_id)))
-					break;
-					
-				if(null == ($address = DAO_Address::get($message->address_id)))
-					break;
-				
-				//$requesters = $ticket->getRequesters();
-					
-				// Timeslip Org
-				if(!empty($address->contact_org_id)) {
-//					&& null != ($org = DAO_ContactOrg::get($address->contact_org_id))) {
-					$object->debit_org_id = $address->contact_org_id;
-//					$tpl->assign('org', $org->name);
-				}
-
-				// Timeslip reference
-//				$tpl->assign('reference', sprintf("Ticket #%s", 
-//					$ticket->mask
-//				));
-				
-				// Timeslip note
-//				$tpl->assign('note', sprintf("Replied to %s", 
-//					(!empty($address->email) ? $address->email : '') 
-//				));
-				$object->notes = sprintf("Replied to %s", 
-					(!empty($address->email) ? $address->email : '') 
-				);
-					
-				break;
-			
 			// Ticket
 			case 'timetracking.source.ticket':
 				if(null != ($ticket = DAO_Ticket::getTicket($source_id))) {
@@ -1050,6 +1020,9 @@ class ChTimeTrackingAjaxController extends DevblocksControllerExtension {
 //					));
 					
 					// Timeslip note
+					$object->notes = sprintf("Ticket #%s ",
+						$ticket->mask
+					);
 //					$tpl->assign('note', sprintf("Replied to %s", 
 //						$ticket->mask, 
 //						(!empty($address->email) ? $address->email : '') 
@@ -1068,6 +1041,19 @@ class ChTimeTrackingAjaxController extends DevblocksControllerExtension {
 		$tpl->cache_lifetime = "0";
 
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+		
+		/*
+		 * [IMPORTANT -- Yes, this is simply a line in the sand.]
+		 * You're welcome to modify the code to meet your needs, but please respect 
+		 * our licensing.  Buy a legitimate copy to help support the project!
+		 * http://www.cerberusweb.com/
+		 */
+		$license = CerberusLicense::getInstance();
+		if(empty($id) && (empty($license['key']) || (!empty($license['key']) && !empty($license['users'])))
+			&& 10 <= DAO_TimeTrackingEntry::getItemCount()) {
+			$tpl->display('file:' . $tpl_path . 'timetracking/rpc/trial.tpl.php');
+			return;
+		}
 		
 		/*
 		 * This treats procedurally created model objects
@@ -1169,16 +1155,8 @@ class ChTimeTrackingAjaxController extends DevblocksControllerExtension {
 		if(empty($id)) // only on new // [TODO] Cleanup
 		switch($source_extension_id) {
 			// If ticket, add a comment about the timeslip to the ticket
-			case 'timetracking.source.message':
 			case 'timetracking.source.ticket':
 				$ticket_id = intval($source_id);
-				
-				// If message, translate source_id to ticket ID
-				if('timetracking.source.message' == $source_ext_id) {
-					if(null == ($message = DAO_Ticket::getMessage($source_id)))
-						return;
-					$ticket_id = $message->ticket_id; 
-				}
 				
 				if(null != ($worker_address = DAO_Address::lookupAddress($active_worker->email, false))) {
 					if(!empty($activity_id)) {

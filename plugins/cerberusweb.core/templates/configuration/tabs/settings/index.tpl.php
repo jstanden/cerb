@@ -72,16 +72,18 @@
 {/if}
 *}
 
-<h2>Add License</h2>
+<h2>Enter License</h2>
 
 <form action="{devblocks_url}{/devblocks_url}" method="post">
 <input type="hidden" name="c" value="config">
 <input type="hidden" name="a" value="saveLicenses">
+<input type="hidden" name="do_delete" value="0">
 
 <b>Paste the product key you received with your order:</b><br>
 <textarea rows="5" cols="80" name="key"></textarea><br>
 <br>
 <button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
+<button type="button" onclick="if(confirm('Are you sure you want to remove your license?')){literal}{{/literal}this.form.do_delete.value='1';this.form.submit();{literal}}{/literal}"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_delete.gif{/devblocks_url}" align="top"> Clear License</button>
 
 </form>
 

@@ -3195,6 +3195,9 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$points = DevblocksPlatform::getExtensionPoints();
 		$tpl->assign('points', $points);
 		
+		$license = CerberusLicense::getInstance();
+		$tpl->assign('license', $license);
+		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/plugins/index.tpl.php');
 	}
 	
@@ -3444,15 +3447,25 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	
 	// Post
 	function saveLicensesAction() {
+		$settings = CerberusSettings::getInstance();
 		$worker = CerberusApplication::getActiveWorker();
+		
 		if(!$worker || !$worker->is_superuser) {
 			echo "Access denied.";
 			return;
 		}
 		
 		@$key = DevblocksPlatform::importGPC($_POST['key'],'string','');
+		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer',0);
 
 		if(DEMO_MODE) {
+			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','settings')));
+			return;
+		}
+
+		if(!empty($do_delete)) {
+			$settings->set('company', '');
+			$settings->set(CerberusSettings::LICENSE, '');
 			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','settings')));
 			return;
 		}
@@ -3492,7 +3505,6 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		}
 		
 		// Save for reuse in form in case we need to redraw on error
-		$settings = CerberusSettings::getInstance();
 		$settings->set('company', trim($company));
 		$_SESSION['lk_users'] = intval($users);
 		
@@ -4003,11 +4015,9 @@ class ChConfigurationPage extends CerberusPageExtension  {
 			return;
 		}
 		
-//		if(!ACL_TypeMonkey::hasPriv(ACL_TypeMonkey::SETUP)) return;
-		
 		@$plugins_enabled = DevblocksPlatform::importGPC($_REQUEST['plugins_enabled'],'array');
 		$pluginStack = DevblocksPlatform::getPluginRegistry();
-		
+
 		if(is_array($plugins_enabled))
 		foreach($plugins_enabled as $plugin_id) {
 			$plugin = $pluginStack[$plugin_id];

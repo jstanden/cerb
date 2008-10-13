@@ -23,6 +23,11 @@ if(!isset($tables['feedback_entry'])) {
 $columns = $datadict->MetaColumns('feedback_entry');
 $indexes = $datadict->MetaIndexes('feedback_entry',false);
 
+if(!isset($columns['SOURCE_URL'])) {
+	$sql = $datadict->AddColumnSQL('feedback_entry', "source_url C(255) DEFAULT '' NOTNULL");
+	$datadict->ExecuteSQLArray($sql);
+}
+
 if(!isset($indexes['log_date'])) {
 	$sql = $datadict->CreateIndexSQL('log_date','feedback_entry','log_date');
 	$datadict->ExecuteSQLArray($sql);

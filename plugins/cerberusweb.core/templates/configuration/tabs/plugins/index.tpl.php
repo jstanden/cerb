@@ -18,14 +18,20 @@
 						 -->
 						<span style="{if $plugin->enabled}font-size:120%;font-weight:bold;{else}font-weight:bold;color:rgb(120,120,120);{/if}">{$plugin->name}</span> &nbsp; 
 						<!-- (Revision: {$plugin->revision}) -->
-						{if !empty($plugin->link)}<a href="{$plugin->link}" target="_blank">website</a> &nbsp;{/if}
+						{if !empty($plugin->link)}<a href="{$plugin->link}" target="_blank">more info</a> &nbsp;{/if}
 						<br> 
 						by <span style="font-weight:normal;color:rgb(120,120,120);">{$plugin->author}</span>
 					</td>
 				</tr>
 				<tr>
 					<td style="padding-left:5px;">
-						{$plugin->description}						
+						{if empty($license.key) || (!empty($license.key) && $license.users)}{assign var=free_mode value=1}{/if}
+						{if $plugin->id=="cerberusweb.timetracking" && $free_mode}
+							(<a href="http://www.cerberusweb.com/buy" target="_blank" style="font-weight:bold;">Limited to 10 entry evaluation on Cerb4 Free Version</a>)<br>
+						{elseif $plugin->id=="cerberusweb.feedback" && $free_mode}
+							(<a href="http://www.cerberusweb.com/buy" target="_blank" style="font-weight:bold;">Limited to 10 entry evaluation on Cerb4 Free Version</a>)<br>
+						{/if}					
+						{$plugin->description}	
 					</td>
 				</tr>
 			</table>

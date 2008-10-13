@@ -1,1 +1,1 @@
-<button type="button" onclick="timeTrackingTimer.play('timetracking.source.message','{$message->id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.timetracking&f=images/16x16/stopwatch.png{/devblocks_url}" align="top"> Track Time</button>
+<button type="button" onclick="timeTrackingTimer.play('timetracking.source.ticket','{$message->ticket_id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.timetracking&f=images/16x16/stopwatch.png{/devblocks_url}" align="top"> Track Time</button>

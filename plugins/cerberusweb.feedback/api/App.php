@@ -23,7 +23,7 @@ class ChFeedbackPatchContainer extends DevblocksPatchContainerExtension {
 
 		$file_prefix = realpath(dirname(__FILE__) . '/../patches');
 		
-		$this->registerPatch(new DevblocksPatch('cerberusweb.feedback',0,$file_prefix.'/1.0.0.php',''));
+		$this->registerPatch(new DevblocksPatch('cerberusweb.feedback',1,$file_prefix.'/1.0.0.php',''));
 	}
 };
 
@@ -47,6 +47,7 @@ class DAO_FeedbackEntry extends DevblocksORMHelper {
 	const QUOTE_TEXT = 'quote_text';
 	const QUOTE_MOOD = 'quote_mood';
 	const QUOTE_ADDRESS_ID = 'quote_address_id';
+	const SOURCE_URL = 'source_url';
 
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
@@ -75,7 +76,7 @@ class DAO_FeedbackEntry extends DevblocksORMHelper {
 	static function getWhere($where=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = "SELECT id, log_date, list_id, worker_id, quote_text, quote_mood, quote_address_id ".
+		$sql = "SELECT id, log_date, list_id, worker_id, quote_text, quote_mood, quote_address_id, source_url ".
 			"FROM feedback_entry ".
 			(!empty($where) ? sprintf("WHERE %s ",$where) : "").
 			"ORDER BY id asc";
@@ -115,11 +116,17 @@ class DAO_FeedbackEntry extends DevblocksORMHelper {
 			$object->quote_text = $rs->fields['quote_text'];
 			$object->quote_mood = $rs->fields['quote_mood'];
 			$object->quote_address_id = $rs->fields['quote_address_id'];
+			$object->source_url = $rs->fields['source_url'];
 			$objects[$object->id] = $object;
 			$rs->MoveNext();
 		}
 		
 		return $objects;
+	}
+	
+	static function getItemCount() {
+		$db = DevblocksPlatform::getDatabaseService();
+		return $db->GetOne("SELECT count(id) FROM feedback_entry");
 	}
 	
 	static function delete($ids) {
@@ -158,6 +165,7 @@ class DAO_FeedbackEntry extends DevblocksORMHelper {
 			"f.quote_text as %s, ".
 			"f.quote_mood as %s, ".
 			"f.quote_address_id as %s, ".
+			"f.source_url as %s, ".
 			"a.email as %s ",
 			    SearchFields_FeedbackEntry::ID,
 			    SearchFields_FeedbackEntry::LOG_DATE,
@@ -166,6 +174,7 @@ class DAO_FeedbackEntry extends DevblocksORMHelper {
 			    SearchFields_FeedbackEntry::QUOTE_TEXT,
 			    SearchFields_FeedbackEntry::QUOTE_MOOD,
 			    SearchFields_FeedbackEntry::QUOTE_ADDRESS_ID,
+			    SearchFields_FeedbackEntry::SOURCE_URL,
 			    SearchFields_FeedbackEntry::ADDRESS_EMAIL
 			 );
 		
@@ -220,6 +229,7 @@ class Model_FeedbackEntry {
 	public $quote_text;
 	public $quote_mood;
 	public $quote_address_id;
+	public $source_url;
 };
 
 class SearchFields_FeedbackEntry {
@@ -231,6 +241,7 @@ class SearchFields_FeedbackEntry {
 	const QUOTE_TEXT = 'f_quote_text';
 	const QUOTE_MOOD = 'f_quote_mood';
 	const QUOTE_ADDRESS_ID = 'f_quote_address_id';
+	const SOURCE_URL = 'f_source_url';
 	
 	const ADDRESS_EMAIL = 'a_email';
 	
@@ -247,6 +258,7 @@ class SearchFields_FeedbackEntry {
 			self::QUOTE_TEXT => new DevblocksSearchField(self::QUOTE_TEXT, 'f', 'quote_text', null, $translate->_('feedback_entry.quote_text')),
 			self::QUOTE_MOOD => new DevblocksSearchField(self::QUOTE_MOOD, 'f', 'quote_mood', null, $translate->_('feedback_entry.quote_mood')),
 			self::QUOTE_ADDRESS_ID => new DevblocksSearchField(self::QUOTE_ADDRESS_ID, 'f', 'quote_address_id', null, null),
+			self::SOURCE_URL => new DevblocksSearchField(self::SOURCE_URL, 'f', 'source_url', null, $translate->_('feedback_entry.source_url')),
 			
 			self::ADDRESS_EMAIL => new DevblocksSearchField(self::ADDRESS_EMAIL, 'a', 'email', null, $translate->_('feedback_entry.quote_address')),
 		);
@@ -266,9 +278,8 @@ class C4_FeedbackEntryView extends C4_AbstractView {
 		$this->view_columns = array(
 			SearchFields_FeedbackEntry::LOG_DATE,
 			SearchFields_FeedbackEntry::ADDRESS_EMAIL,
-			SearchFields_FeedbackEntry::QUOTE_MOOD,
 			SearchFields_FeedbackEntry::LIST_ID,
-			SearchFields_FeedbackEntry::WORKER_ID,
+			SearchFields_FeedbackEntry::SOURCE_URL,
 		);
 
 		$this->doResetCriteria();
@@ -307,6 +318,7 @@ class C4_FeedbackEntryView extends C4_AbstractView {
 
 		switch($field) {
 			case SearchFields_FeedbackEntry::QUOTE_TEXT:
+			case SearchFields_FeedbackEntry::SOURCE_URL:
 			case SearchFields_FeedbackEntry::ADDRESS_EMAIL:
 				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__string.tpl.php');
 				break;
@@ -430,6 +442,7 @@ class C4_FeedbackEntryView extends C4_AbstractView {
 
 		switch($field) {
 			case SearchFields_FeedbackEntry::QUOTE_TEXT:
+			case SearchFields_FeedbackEntry::SOURCE_URL:
 			case SearchFields_FeedbackEntry::ADDRESS_EMAIL:
 				// force wildcards if none used on a LIKE
 				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
@@ -729,9 +742,23 @@ class FeedbackPage extends CerberusPageExtension {
 		// Editing
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		
+		/*
+		 * [IMPORTANT -- Yes, this is simply a line in the sand.]
+		 * You're welcome to modify the code to meet your needs, but please respect 
+		 * our licensing.  Buy a legitimate copy to help support the project!
+		 * http://www.cerberusweb.com/
+		 */
+		$license = CerberusLicense::getInstance();
+		if(empty($id) && (empty($license['key']) || (!empty($license['key']) && !empty($license['users'])))
+			&& 10 <= DAO_FeedbackEntry::getItemCount()) {
+			$tpl->display('file:' . $tpl_path . 'feedback/ajax/trial.tpl.php');
+			return;
+		}
+		
 		// Creating
 		@$msg_id = DevblocksPlatform::importGPC($_REQUEST['msg_id'],'integer',0);
 		@$quote = DevblocksPlatform::importGPC($_REQUEST['quote'],'string','');
+		@$url = DevblocksPlatform::importGPC($_REQUEST['url'],'string','');
 		@$source_ext_id = DevblocksPlatform::importGPC($_REQUEST['source_ext_id'],'string','');
 		@$source_id = DevblocksPlatform::importGPC($_REQUEST['source_id'],'integer',0);
 		
@@ -751,6 +778,7 @@ class FeedbackPage extends CerberusPageExtension {
 					$model->quote_mood = 0;
 					$model->quote_text = $quote;
 					$model->worker_id = $active_worker->id;
+					$model->source_url = $url;
 					
 					$tpl->assign('model', $model);
 				}
@@ -793,6 +821,7 @@ class FeedbackPage extends CerberusPageExtension {
 		@$email = DevblocksPlatform::importGPC($_POST['email'],'string','');
 		@$mood = DevblocksPlatform::importGPC($_POST['mood'],'integer',0);
 		@$quote = DevblocksPlatform::importGPC($_POST['quote'],'string','');
+		@$url = DevblocksPlatform::importGPC($_POST['url'],'string','');
 		@$source_extension_id = DevblocksPlatform::importGPC($_POST['source_extension_id'],'string','');
 		@$source_id = DevblocksPlatform::importGPC($_POST['source_id'],'integer',0);
 		
@@ -806,10 +835,10 @@ class FeedbackPage extends CerberusPageExtension {
 		// Delete entries
 		if(!empty($id) && !empty($do_delete)) {
 			if(null != ($entry = DAO_FeedbackEntry::get($id))) {
-				// [TODO] Only superusers and owners can delete entries
-//				if($active_worker->is_superuser || $active_worker->id == $entry->worker_id) {
+				// Only superusers and owners can delete entries
+				if($active_worker->is_superuser || $active_worker->id == $entry->worker_id) {
 					DAO_FeedbackEntry::delete($id);
-//				}
+				}
 			}
 			
 			return;
@@ -821,6 +850,7 @@ class FeedbackPage extends CerberusPageExtension {
 			DAO_FeedbackEntry::QUOTE_MOOD => intval($mood),
 			DAO_FeedbackEntry::QUOTE_TEXT => $quote,
 			DAO_FeedbackEntry::QUOTE_ADDRESS_ID => intval($address_id),
+			DAO_FeedbackEntry::SOURCE_URL => $url,
 		);
 
 		// Only on new

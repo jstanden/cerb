@@ -1,7 +1,7 @@
 <!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
 <plugin>
 	<id>cerberusweb.feedback</id>
-	<name>Cerberus Helpdesk: Feedback Manager (Experimental)</name>
+	<name>Cerberus Helpdesk: Feedback Tracking (Experimental)</name>
 	<description>Track praise/criticism from all channels and get it in front of the right decision makers.</description>
 	<author>WebGroup Media, LLC.</author>
 	<revision>0</revision>

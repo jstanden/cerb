@@ -25,6 +25,9 @@
 		<tu tuid='feedback_entry.quote_text'>
 			<tuv xml:lang="en"><seg>Quote</seg></tuv>
 		</tu>
+		<tu tuid='feedback_entry.source_url'>
+			<tuv xml:lang="en"><seg>Source URL</seg></tuv>
+		</tu>
 		<tu tuid='feedback_entry.worker_id'>
 			<tuv xml:lang="en"><seg>Worker</seg></tuv>
 		</tu>
