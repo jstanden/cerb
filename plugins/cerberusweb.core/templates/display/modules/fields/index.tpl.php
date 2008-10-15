@@ -25,7 +25,7 @@
 				<td valign="top" width="99%">
 					{* [TODO]: Filter by groups+global *}
 					{if $f->type=='S'}
-						<input type="text" name="field_{$f_id}" size="45" maxlength="255" value="{$ticket_field_values.$f_id|escape:"htmlall"}"><br>
+						<input type="text" name="field_{$f_id}" size="45" maxlength="255" value="{$ticket_field_values.$f_id|escape}"><br>
 					{elseif $f->type=='T'}
 						<textarea name="field_{$f_id}" rows="4" cols="50" style="width:98%;">{$ticket_field_values.$f_id}</textarea><br>
 					{elseif $f->type=='C'}

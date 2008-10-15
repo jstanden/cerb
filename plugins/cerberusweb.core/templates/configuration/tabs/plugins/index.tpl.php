@@ -2,7 +2,7 @@
 <input type="hidden" name="c" value="config">
 <input type="hidden" name="a" value="savePlugins">
 
-<ul style="list-style:none;margin-left:0;padding-left:1em;text-indent:1em;">
+<ul style="list-style:none;margin-left:0;padding-left:0;text-indent:0;">
 {foreach from=$plugins item=plugin}
 		<li style='padding-bottom:5px;'>
 			<div style="{if $plugin->enabled}border:1px solid rgb(0,120,0);background-color:rgb(255,255,255);{else}margin-left:10px;border:1px solid rgb(180,180,180);background-color:rgb(240,240,240);{/if}" id="config_plugin_{$plugin->id}">
@@ -12,14 +12,10 @@
 						<input type="checkbox" name="plugins_enabled[]" value="{$plugin->id}" {if $plugin->enabled}checked{/if}>
 					</td>
 					<td width="100%" style="padding-left:5px;" onclick="if(getEventTarget(event)=='TD') checkAll('config_plugin_{$plugin->id}');">
-						<!-- 
-						<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/wgm/icon_plus.gif{/devblocks_url}" align="absmiddle" border="0"> 
-						&nbsp;
-						 -->
 						<span style="{if $plugin->enabled}font-size:120%;font-weight:bold;{else}font-weight:bold;color:rgb(120,120,120);{/if}">{$plugin->name}</span> &nbsp; 
 						<!-- (Revision: {$plugin->revision}) -->
-						{if !empty($plugin->link)}<a href="{$plugin->link}" target="_blank">more info</a> &nbsp;{/if}
-						<br> 
+						{if !empty($plugin->link)}<a href="{$plugin->link}" target="_blank">more info</a>{/if}
+						<br>
 						by <span style="font-weight:normal;color:rgb(120,120,120);">{$plugin->author}</span>
 					</td>
 				</tr>

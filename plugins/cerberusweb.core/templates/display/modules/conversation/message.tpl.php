@@ -43,9 +43,9 @@
       </table>
       
 	  <div id="{$message->id}sh" style="display:block;">      
-      {if isset($headers.from)}<b>From:</b> {$headers.from|escape:"htmlall"|nl2br}<br>{/if}
-      {if isset($headers.to)}<b>To:</b> {$headers.to|escape:"htmlall"|nl2br}<br>{/if}
-      {if isset($headers.date)}<b>Date:</b> {$headers.date|escape:"htmlall"|nl2br}<br>{/if}
+      {if isset($headers.from)}<b>From:</b> {$headers.from|escape|nl2br}<br>{/if}
+      {if isset($headers.to)}<b>To:</b> {$headers.to|escape|nl2br}<br>{/if}
+      {if isset($headers.date)}<b>Date:</b> {$headers.date|escape|nl2br}<br>{/if}
       </div>
 
 	  <div id="{$message->id}h" style="display:none;">      
@@ -55,12 +55,12 @@
       		{* 
       		{if is_array($headerValue)}
       			{foreach from=$headerValue item=subHeader}
-      				&nbsp;&nbsp;&nbsp;{$subHeader|escape:"htmlall"|nl2br}<br>
+      				&nbsp;&nbsp;&nbsp;{$subHeader|escape|nl2br}<br>
       			{/foreach}
       		{else}
       		{/if}
       		*}
-   			{$headerValue|escape:"htmlall"|nl2br}<br>
+   			{$headerValue|escape|nl2br}<br>
       	{/foreach}
       	{/if}
       </div>
@@ -74,7 +74,7 @@
       
       <div style="display:block;">
       	{if $expanded}
-    	  	<pre>{$message->getContent()|trim|escape:"htmlall"|makehrefs}</pre>
+    	  	<pre>{$message->getContent()|trim|escape|makehrefs}</pre>
     	  	<br>
 	      	<table width="100%" cellpadding="0" cellspacing="0" border="0">
 	      		<tr>

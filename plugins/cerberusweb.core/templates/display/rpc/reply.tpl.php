@@ -60,7 +60,7 @@
 				<tr>
 					<td width="0%" nowrap="nowrap">Subject: </td>
 					<td width="100%" align="left">
-						<input type="text" size="45" id="replyForm_subject" name="subject" value="{if $is_forward}Fwd: {/if}{$ticket->subject|escape:"htmlall"}" style="width:50%;border:1px solid rgb(180,180,180);padding:2px;">					
+						<input type="text" size="45" id="replyForm_subject" name="subject" value="{if $is_forward}Fwd: {/if}{$ticket->subject|escape}" style="width:50%;border:1px solid rgb(180,180,180);padding:2px;">					
 					</td>
 				</tr>
 			</table>
@@ -114,10 +114,10 @@
 
 
 ---- Forwarded message ----
-{if isset($headers.subject)}Subject: {$headers.subject|escape:"htmlall"|cat:"\n"}{/if}
-{if isset($headers.from)}From: {$headers.from|escape:"htmlall"|cat:"\n"}{/if}
-{if isset($headers.date)}Date: {$headers.date|escape:"htmlall"|cat:"\n"}{/if}
-{if isset($headers.to)}To: {$headers.to|escape:"htmlall"|cat:"\n"}{/if}
+{if isset($headers.subject)}Subject: {$headers.subject|escape|cat:"\n"}{/if}
+{if isset($headers.from)}From: {$headers.from|escape|cat:"\n"}{/if}
+{if isset($headers.date)}Date: {$headers.date|escape|cat:"\n"}{/if}
+{if isset($headers.to)}To: {$headers.to|escape|cat:"\n"}{/if}
 
 {$message->getContent()|trim|escape}
 </textarea>
@@ -213,7 +213,7 @@
 							    </div>
 		
 								<b>What is the next action that needs to happen?</b> (optional, max 255 chars)<br>  
-						      	<input type="text" name="next_action" size="80" maxlength="255" value="{$ticket->next_action|escape:"htmlall"}"><br>
+						      	<input type="text" name="next_action" size="80" maxlength="255" value="{$ticket->next_action|escape}"><br>
 						      	<br>
 		
 								<b>Would you like to move this conversation?</b><br>  

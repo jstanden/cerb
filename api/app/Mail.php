@@ -85,7 +85,7 @@ class CerberusMail {
 			$mail->setSubject($subject);
 			$mail->generateId();
 			$mail->headers->set('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
-			$mail->attach(new Swift_Message_Part($body, 'text/plain', 'base64', 'ISO-8859-1'));
+			$mail->attach(new Swift_Message_Part($body, 'text/plain', 'base64', LANG_CHARSET_CODE));
 		
 			if(!$mailer->send($mail, $sendTo, $sendFrom)) {
 				// [TODO] Report when the message wasn't sent.
@@ -189,7 +189,7 @@ class CerberusMail {
 				$email->generateId();
 				$email->headers->set('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
 				
-				$email->attach(new Swift_Message_Part($content, 'text/plain', 'base64', 'ISO-8859-1'));
+				$email->attach(new Swift_Message_Part($content, 'text/plain', 'base64', LANG_CHARSET_CODE));
 				
 				// [TODO] These attachments should probably save to the DB
 				
@@ -574,7 +574,7 @@ class CerberusMail {
 			}
 			
 			// Body
-			$mail->attach(new Swift_Message_Part($content, 'text/plain', 'base64', 'ISO-8859-1'));
+			$mail->attach(new Swift_Message_Part($content, 'text/plain', 'base64', LANG_CHARSET_CODE));
 	
 			// Mime Attachments
 			if (is_array($files) && !empty($files)) {

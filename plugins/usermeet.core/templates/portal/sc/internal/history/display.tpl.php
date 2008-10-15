@@ -32,7 +32,7 @@
 	{if !empty($headers.cc)}<b>Cc:</b> {$headers.cc|escape}<br>{/if}
 	{if !empty($headers.date)}<b>Date:</b> {$headers.date|escape}<br>{/if}
 	<br>
-	{$message->getContent()|trim|escape:"htmlall"|nl2br}
+	{$message->getContent()|trim|escape|nl2br}
 	<div style="padding-left:20px;padding-top:5px;">&raquo; <a href="#reply" style="font-size:85%;">Reply</a></div>
 	</div>
 {/foreach}

@@ -13,15 +13,15 @@
 <input type="hidden" name="do_delete" value="0">
 
 <b>Title:</b><br>
-<input type="text" name="title" size="35" value="{$template->title|escape:"htmlall"}" style="width:100%;"><br>
+<input type="text" name="title" size="35" value="{$template->title|escape}" style="width:100%;"><br>
 
 <b>Description:</b><br>
-<input type="text" name="description" size="35" value="{$template->description|escape:"htmlall"}" style="width:100%;"><br>
+<input type="text" name="description" size="35" value="{$template->description|escape}" style="width:100%;"><br>
 
 <b>Folder:</b><br>
 <select name="folder" onchange="toggleDiv('replyTemplateFolderNew',(selectValue(this)==''?'inline':'none'));">
 	{foreach from=$folders item=folder}
-	<option value="{$folder|escape:"htmlall"}" {if $template->folder==$folder}selected{/if}>{$folder}</option>
+	<option value="{$folder|escape}" {if $template->folder==$folder}selected{/if}>{$folder}</option>
 	{/foreach}
 	<option value="">-- new folder: --</option>
 </select>

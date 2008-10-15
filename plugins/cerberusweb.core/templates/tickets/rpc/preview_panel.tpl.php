@@ -1,9 +1,9 @@
 {assign var=headers value=$message->getHeaders()}
-<h2>{$headers.subject|escape:"htmlall"}</h2>
-<b>To:</b> {$headers.to|escape:"htmlall"}<br>
-<b>From:</b> {$headers.from|escape:"htmlall"}<br>
+<h2>{$headers.subject|escape}</h2>
+<b>To:</b> {$headers.to|escape}<br>
+<b>From:</b> {$headers.from|escape}<br>
 <div style="width:98%;height:250px;overflow:auto;border:1px solid rgb(180,180,180);margin:2px;padding:3px;background-color:rgb(255,255,255);" ondblclick="if(null != genericPanel) genericPanel.hide();">
-{$content|escape:"htmlall"|nl2br}
+{$content|escape|nl2br}
 </div>
 
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="frmTicketPeek" onsubmit="ajax.postAndReloadView('frmTicketPeek','view{$view_id}');return false;">
@@ -11,7 +11,7 @@
 <input type="hidden" name="a" value="savePreview">
 <input type="hidden" name="id" value="{$ticket->id}">
 <input type="hidden" name="view_id" value="{$view_id}">
-<b>Next Action:</b> <input type="text" name="next_action" size="45" maxlength="255" value="{$ticket->next_action|escape:"htmlall"}"><br>
+<b>Next Action:</b> <input type="text" name="next_action" size="45" maxlength="255" value="{$ticket->next_action|escape}"><br>
 <b>Next Worker:</b> 
 <select name="next_worker_id">
 	<option value="0" {if 0==$ticket->next_worker_id}selected{/if}>Anybody

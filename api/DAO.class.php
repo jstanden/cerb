@@ -1886,33 +1886,8 @@ class DAO_MessageHeader {
      */
     static function _decodeHeader($input)
     {
-        // Remove white space between encoded-words
-        $input = preg_replace('/(=\?[^?]+\?(q|b)\?[^?]*\?=)(\s)+=\?/i', '\1=?', $input);
-
-        // For each encoded-word...
-        while (preg_match('/(=\?([^?]+)\?(q|b)\?([^?]*)\?=)/i', $input, $matches)) {
-
-            $encoded  = $matches[1];
-            $charset  = $matches[2];
-            $encoding = $matches[3];
-            $text     = $matches[4];
-
-            switch (strtolower($encoding)) {
-                case 'b':
-                    $text = base64_decode($text);
-                    break;
-
-                case 'q':
-                    $text = str_replace('_', ' ', $text);
-                    preg_match_all('/=([a-f0-9]{2})/i', $text, $matches);
-                    foreach($matches[1] as $value)
-                        $text = str_replace('='.$value, chr(hexdec($value)), $text);
-                    break;
-            }
-
-            $input = str_replace($encoded, $text, $input);
-        }
-
+	   	$input = mb_decode_mimeheader($input);
+    	$input = mb_convert_encoding($input, LANG_CHARSET_CODE);
         return $input;
     }
 };
@@ -2521,7 +2496,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 			$ticket = new CerberusTicket();
 			$ticket->id = intval($rs->fields['id']);
 			$ticket->mask = $rs->fields['mask'];
-			$ticket->subject = DAO_MessageHeader::_decodeHeader($rs->fields['subject']);
+			$ticket->subject = $rs->fields['subject'];
 			$ticket->first_message_id = intval($rs->fields['first_message_id']);
 			$ticket->team_id = intval($rs->fields['team_id']);
 			$ticket->category_id = intval($rs->fields['category_id']);
@@ -3089,12 +3064,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 		while(!$rs->EOF) {
 			$result = array();
 			foreach($rs->fields as $f => $v) {
-				// properly display quoted-printable ticket subjects
-				if ($f == SearchFields_Ticket::TICKET_SUBJECT) {
-					$result[$f] = DAO_MessageHeader::_decodeHeader($v);
-				} else {
-					$result[$f] = $v;
-				}
+				$result[$f] = $v;
 			}
 			$ticket_id = intval($rs->fields[SearchFields_Ticket::TICKET_ID]);
 			$results[$ticket_id] = $result;

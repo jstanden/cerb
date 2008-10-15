@@ -3629,7 +3629,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 							        $password
 						    );
 					        
-						    $mail->attach(new Swift_Message_Part($body, 'text/plain', 'base64', 'ISO-8859-1'));
+						    $mail->attach(new Swift_Message_Part($body, 'text/plain', 'base64', LANG_CHARSET_CODE));
 	
 							if(!$mailer->send($mail, $sendTo, $sendFrom)) {
 								throw new Exception('Password notification email failed to send.');
@@ -3705,6 +3705,8 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
+		
+		$tpl->assign('license',CerberusLicense::getInstance());
 		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/groups/edit_group.tpl.php');
 	}
@@ -8779,7 +8781,7 @@ class ChSignInPage extends CerberusPageExtension {
 			$mail->attach(new Swift_Message_Part(
 				sprintf("This confirmation code will allow you to reset your helpdesk login:\n\n%s",
 		        	$code
-		    ),'text/plain','base64','ISO-8859-1'));
+		    ),'text/plain','base64',LANG_CHARSET_CODE));
 			
 			if(!$mailer->send($mail, $sendTo, $sendFrom)) {
 				throw new Exception('Password Forgot confirmation email failed to send.');

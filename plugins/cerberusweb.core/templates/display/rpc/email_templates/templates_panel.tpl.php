@@ -29,7 +29,7 @@
 	<select name="folder" onchange="genericAjaxGet('templates','c=display&a=getTemplates&type={$type}&reply_id={$reply_id}&folder='+escape(selectValue(this)));">
 		<option value="">-- any --</option>
 		{foreach from=$folders item=folder}
-		<option value="{$folder|escape:"htmlall"}">{$folder}</option>
+		<option value="{$folder|escape}">{$folder}</option>
 		{/foreach}
 	</select><br>
 {/if}

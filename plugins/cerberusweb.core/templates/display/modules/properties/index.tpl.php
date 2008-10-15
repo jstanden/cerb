@@ -6,7 +6,7 @@
 <h2>Properties</h2>
 <blockquote style="margin:10px;">
 	<b>Next Action:</b><br>
-	<input type="text" name="next_action" size="45" maxlength="255" value="{$ticket->next_action|escape:"htmlall"}" style="width:90%;"><br>
+	<input type="text" name="next_action" size="45" maxlength="255" value="{$ticket->next_action|escape}" style="width:90%;"><br>
 	<br>
 	
 	<b>Who should handle the next reply?</b><br> 
@@ -33,7 +33,7 @@
 	</div>
 		
 	<b>Subject:</b><br>
-	<input type="text" name="subject" size="45" maxlength="255" value="{$ticket->subject|escape:"htmlall"}" style="width:90%;"><br>
+	<input type="text" name="subject" size="45" maxlength="255" value="{$ticket->subject|escape}" style="width:90%;"><br>
 	<br>
 	
 	<b>Waiting For Reply:</b><br>

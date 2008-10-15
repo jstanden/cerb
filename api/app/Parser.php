@@ -91,9 +91,9 @@ class CerberusParser {
 					
 					if(isset($info['content-charset']) && !empty($info['content-charset'])) {
 						if(@mb_check_encoding($text, $info['content-charset'])) {
-							$text = mb_convert_encoding($text, "ISO-8859-1", $info['content-charset']);
+							$text = mb_convert_encoding($text, LANG_CHARSET_CODE, $info['content-charset']);
 						} else {
-							$text = mb_convert_encoding($text, "ISO-8859-1");
+							$text = mb_convert_encoding($text, LANG_CHARSET_CODE);
 						}
 					}
 					
@@ -284,61 +284,16 @@ class CerberusParser {
 			return NULL;
 		}
 		
-		// Imports
-        @$importNew = $headers['x-cerberusnew'];
-        @$importAppend = $headers['x-cerberusappendto'];
-		
 		// Message Id / References / In-Reply-To
 		@$sMessageId = $headers['message-id'];
 		
 		$helpdesk_senders = CerberusApplication::getHelpdeskSenders();
 		
-		// Are we importing a ticket?
-        if(APP_PARSER_ALLOW_IMPORTS && (!empty($importNew) || !empty($importAppend))) {
-            
-            if(!empty($importNew)) {
-                $importMask = @$headers['x-cerberusmask'];
-                $importStatus = @$headers['x-cerberusstatus'];
-                $importCreatedDate = @$headers['x-cerberuscreateddate'];
-                $importSpamTraining = @$headers['x-cerberusspamtraining'];
-                
-                switch($importStatus) {
-                    case 'C':
-                        $iClosed = CerberusTicketStatus::CLOSED;
-                        break;
-                    default:
-                        $iClosed = CerberusTicketStatus::OPEN;
-                        break;
-                }
-                
-                // [TODO] Need to check that this is unique in the local desk
-                if(!empty($importMask))
-                    $sMask = $importMask;
-                
-                if(!empty($importCreatedDate))
-                    $iDate = $importCreatedDate;
-                    
-                if(!empty($importSpamTraining))
-                    $enumSpamTraining = $importSpamTraining;
-            }
-            
-            if(!empty($importAppend)) {
-                $appendTo = CerberusApplication::hashLookupTicketIdByMask($importAppend);
-                if(!empty($appendTo)) {
-                    $id = $appendTo;
-                    $bIsNew = false;
-                }
-//                echo "IMPORT DETECTED: Appending to existing ",$importAppend," (",$id,")<br>";
-            }
-            
-        // Not importing
-        } else {
-			// Is this from the helpdesk to itself?  If so, bail out
-			if(isset($helpdesk_senders[$fromAddressInst->email])) {
-				$logger->warn("[Parser] Ignoring incoming ticket sent by ourselves: " . $fromAddressInst->email);
-				return NULL;
-			}
-        }
+		// Is this from the helpdesk to itself?  If so, bail out
+		if(isset($helpdesk_senders[$fromAddressInst->email])) {
+			$logger->warn("[Parser] Ignoring incoming ticket sent by ourselves: " . $fromAddressInst->email);
+			return NULL;
+		}
         
         $body_append_text = array();
         $body_append_html = array();
@@ -397,7 +352,7 @@ class CerberusParser {
 		}
         
 		// [JAS] [TODO] References header may contain multiple message-ids to find
-		if(empty($importNew) && empty($importAppend) && null != ($ids = self::findParentMessage($headers))) {
+		if(null != ($ids = self::findParentMessage($headers))) {
         	$bIsNew = false;
         	$id = $ids['ticket_id'];
         	$msgid = $ids['message_id'];
@@ -460,36 +415,34 @@ class CerberusParser {
 		@list($team_id, $matchingToAddress) = CerberusParser::findDestination($headers);
 		
         // Pre-parse mail rules
-        if(empty($importNew) && empty($importAppend)) {
-        	if(null != ($pre_filter = self::_checkPreParseRules(
-        		(empty($id) ? 1 : 0), // is_new
-        		$fromAddress,
-        		$team_id,
-        		$message
-        	))) {
-        		// Do something with matching filter's actions
-        		foreach($pre_filter->actions as $action_key => $action) {
-        			switch($action_key) {
-        				case 'blackhole':
-        					return NULL;
-        					break;
-        					
-        				case 'redirect':
-        					@$to = $action['to'];
-        					CerberusMail::reflect($message, $to);
-        					return NULL;
-        					break;
-        					
-        				case 'bounce':
-        					@$msg = $action['message'];
-        					// [TODO] Follow the RFC spec on a true bounce
-        					CerberusMail::quickSend($fromAddress,"Delivery failed: ".$sSubject,$msg);
-        					return NULL;
-        					break;
-        			}
+        if(null != ($pre_filter = self::_checkPreParseRules(
+        	(empty($id) ? 1 : 0), // is_new
+        	$fromAddress,
+        	$team_id,
+        	$message
+        ))) {
+        	// Do something with matching filter's actions
+        	foreach($pre_filter->actions as $action_key => $action) {
+        		switch($action_key) {
+        			case 'blackhole':
+        				return NULL;
+        				break;
+        				
+        			case 'redirect':
+        				@$to = $action['to'];
+        				CerberusMail::reflect($message, $to);
+        				return NULL;
+        				break;
+        				
+        			case 'bounce':
+        				@$msg = $action['message'];
+        				// [TODO] Follow the RFC spec on a true bounce
+        				CerberusMail::quickSend($fromAddress,"Delivery failed: ".$sSubject,$msg);
+        				return NULL;
+        				break;
         		}
         	}
-		}
+        }
         
 		if(empty($id)) { // New Ticket
 			// Are we delivering or bouncing?
@@ -713,14 +666,13 @@ class CerberusParser {
 			@$autoreply = DAO_GroupSettings::get($team_id, DAO_GroupSettings::SETTING_AUTO_REPLY, '');
 			
 			/*
-			 * Send the group's autoreply if one exists, as long as this ticket isn't spam and
-			 * we aren't importing this message.
+			 * Send the group's autoreply if one exists, as long as this ticket isn't spam
 			 */
 			if(!isset($options['no_autoreply'])
 				&& $autoreply_enabled 
 				&& !empty($autoreply) 
 				&& $enumSpamTraining != CerberusTicketSpamTraining::SPAM
-				&& (empty($importNew) && empty($importAppend))) {
+				) {
 					CerberusMail::sendTicketMessage(array(
 						'ticket_id' => $id,
 						'message_id' => $email_id,
@@ -739,7 +691,7 @@ class CerberusParser {
 		unset($message);
 		
 		// Re-open and update our date on new replies
-		if(!$bIsNew && empty($importAppend)) {
+		if(!$bIsNew) {
 			DAO_Ticket::updateTicket($id,array(
 			    DAO_Ticket::UPDATED_DATE => time(),
 			    DAO_Ticket::IS_WAITING => 0,
@@ -1025,7 +977,7 @@ class CerberusParser {
 		foreach($parts as $part) {
 			try {
 				$charset = ($part->charset != 'default') ? $part->charset : 'auto';
-				@$out .= mb_convert_encoding($part->text,"ISO-8859-1",$charset);
+				@$out .= mb_convert_encoding($part->text,LANG_CHARSET_CODE,$charset);
 			} catch(Exception $e) {}
 		}
 		

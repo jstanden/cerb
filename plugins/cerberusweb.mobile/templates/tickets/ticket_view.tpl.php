@@ -20,7 +20,7 @@
 			<a href="{devblocks_url}c=mobile&a=display&t={$result.t_mask}{/devblocks_url}" class="ticketLink" style="font-size:12px;">
 				<b id="subject_{$result.t_id}_{$view->id}">
 				{if $result.t_is_closed}<strike>{/if}
-				{$result.t_subject|escape:"htmlall"|truncate:37:"..."}
+				{$result.t_subject|escape|truncate:37:"..."}
 				{if $result.t_is_closed}</strike>{/if}
 				</b>
 			</a>  <br />

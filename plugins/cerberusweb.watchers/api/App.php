@@ -126,7 +126,7 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 				$mail->headers->set('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
 				$mail->headers->set('Precedence','List');
 				$mail->headers->set('Auto-Submitted','auto-generated');
-				$mail->attach(new Swift_Message_Part($last_message->getContent(), 'text/plain', 'base64', 'ISO-8859-1'));
+				$mail->attach(new Swift_Message_Part($last_message->getContent(), 'text/plain', 'base64', LANG_CHARSET_CODE));
 			
 				$mailer->send($mail, $rcpt_to, $mail_from);
 				
@@ -270,7 +270,7 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 				$mail->headers->set('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
 				$mail->headers->set('Precedence','List');
 				$mail->headers->set('Auto-Submitted','auto-generated');
-				$mail->attach(new Swift_Message_Part($message->getContent(), 'text/plain', 'base64', 'ISO-8859-1'));
+				$mail->attach(new Swift_Message_Part($message->getContent(), 'text/plain', 'base64', LANG_CHARSET_CODE));
 
 				// Send message attachments with watcher
 				if(is_array($mime_attachments))

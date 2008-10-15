@@ -1,8 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
 <head>
-  <meta content="text/html; charset=ISO-8859-1"
- http-equiv="content-type">
+  <meta content="text/html; charset={$smarty.const.LANG_CHARSET_CODE}" http-equiv="content-type">
   <title>{$page_title}</title>
   <style type="text/css">
   {literal}

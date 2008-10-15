@@ -8,10 +8,10 @@ We did not find a ticket to match the supplied ID / mask.
   </tr>
 </table>
   {assign var=headers value=$message->getHeaders()}
-  {if isset($headers.from)}<b>From:</b> {$headers.from|escape:"htmlall"|nl2br}<br>{/if}
-  {if isset($headers.to)}<b>To:</b> {$headers.to|escape:"htmlall"|nl2br}<br>{/if}
-  {if isset($headers.subject)}<b>Subject:</b> {$headers.subject|escape:"htmlall"|nl2br}<br>{/if}
-  {if isset($headers.date)}<b>Date:</b> {$headers.date|escape:"htmlall"|nl2br}<br>{/if}
+  {if isset($headers.from)}<b>From:</b> {$headers.from|escape|nl2br}<br>{/if}
+  {if isset($headers.to)}<b>To:</b> {$headers.to|escape|nl2br}<br>{/if}
+  {if isset($headers.subject)}<b>Subject:</b> {$headers.subject|escape|nl2br}<br>{/if}
+  {if isset($headers.date)}<b>Date:</b> {$headers.date|escape|nl2br}<br>{/if}
 <br>
   {$message->getContent()|trim|nl2br}
 <br><br>

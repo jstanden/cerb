@@ -1,5 +1,6 @@
 <html>
 <head>
+	<meta content="text/html; charset={$smarty.const.LANG_CHARSET_CODE}" http-equiv="content-type">
 	<title>{$page_title}</title>
 	
 	<style>
