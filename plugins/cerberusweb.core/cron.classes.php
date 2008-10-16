@@ -123,7 +123,7 @@ class ParseCron extends CerberusCronPageExtension {
 
 		//	    echo "<b>Plaintext:</b> ", $message->body,"<BR>";
 		//	    echo "<BR>";
-		//	    echo "<b>HTML:</b> ", htmlentities($message->htmlbody), "<BR>";
+		//	    echo "<b>HTML:</b> ", htmlspecialchars($message->htmlbody), "<BR>";
 		//	    echo "<BR>";
 		//	    echo "<b>Files:</b> "; print_r($message->files); echo "<BR>";
 		//	    echo "<HR>";

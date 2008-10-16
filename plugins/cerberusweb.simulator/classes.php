@@ -87,7 +87,7 @@ class ChSimulatorConfigTab extends Extension_ConfigTab {
 		@$how_many = DevblocksPlatform::importGPC($_POST['how_many'],'integer',0);
 
 		if(empty($address)) {
-			$tpl->assign('error', sprintf("Oops! '%s' is not a valid e-mail address.", htmlentities($address)));
+			$tpl->assign('error', sprintf("Oops! '%s' is not a valid e-mail address.", htmlspecialchars($address)));
 			$tpl->display('file:' . $tpl_path . 'config_tab/output.tpl.php');
 			return;
 		}
@@ -141,7 +141,7 @@ class ChSimulatorConfigTab extends Extension_ConfigTab {
 			CerberusParser::parseMessage($message,array('no_autoreply'=>true));
 		}
 		
-		$tpl->assign('output', sprintf("Success!  %d simulated tickets were generated for %s", $how_many, htmlentities($address)));
+		$tpl->assign('output', sprintf("Success!  %d simulated tickets were generated for %s", $how_many, htmlspecialchars($address)));
 		
 		$tpl->display('file:' . $tpl_path . 'config_tab/output.tpl.php');
 	}

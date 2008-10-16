@@ -4932,7 +4932,7 @@ class ChContactsPage extends CerberusPageExtension {
 			$tickets_view->renderSortAsc = false;
 		}
 
-		@$tickets_view->name = "Requesters: " . htmlentities($contact->name) . ' - ' . intval(count($people)) . ' contact(s)';
+		@$tickets_view->name = "Requesters: " . htmlspecialchars($contact->name) . ' - ' . intval(count($people)) . ' contact(s)';
 		$tickets_view->params = array(
 			SearchFields_Ticket::REQUESTER_ID => new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ID,'in',array_keys($people)),
 			SearchFields_Ticket::TICKET_DELETED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,DevblocksSearchCriteria::OPER_EQ,0)
@@ -6605,7 +6605,7 @@ XML;
 
             $eItem = $channel->addChild('item');
             
-            $escapedSubject = htmlentities($ticket[SearchFields_Ticket::TICKET_SUBJECT]);
+            $escapedSubject = htmlspecialchars($ticket[SearchFields_Ticket::TICKET_SUBJECT]);
             //filter out a couple non-UTF-8 characters (0xC and ESC)
             $escapedSubject = preg_replace("/[]/", '', $escapedSubject);
             $eTitle = $eItem->addChild('title', $escapedSubject);
@@ -8239,7 +8239,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		C4_AbstractViewLoader::setView($view->id, $view);
 		
-//		$view->name = "Most recent tickets from " . htmlentities($contact->email);
+//		$view->name = "Most recent tickets from " . htmlspecialchars($contact->email);
 //		$view->params = array(
 //			SearchFields_Ticket::TICKET_FIRST_WROTE => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_FIRST_WROTE,DevblocksSearchCriteria::OPER_EQ,$contact->email)
 //		);
