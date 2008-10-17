@@ -881,10 +881,19 @@ class CerberusParser {
 						} elseif(isset($headers[$header]) && !empty($headers[$header])) {
 							$regexp_header = DevblocksPlatform::strToRegExp($value);
 							
-							// Flatten CRLF
-							// [TODO] [BUG] 2nd argument array bug ------vvvvv
-							if(preg_match($regexp_header, str_replace(array("\r","\n"),' ',$headers[$header]))) {
-								$passed++;
+							// handle arrays like Received: and (broken)Content-Type headers  (farking spammers)
+							if(is_array($headers[$header])) {
+								foreach($headers[$header] as $array_header) {
+									if(preg_match($regexp_header, str_replace(array("\r","\n"),' ',$array_header))) {
+										$passed++;
+										break;
+									}
+								}
+							} else {
+								// Flatten CRLF
+								if(preg_match($regexp_header, str_replace(array("\r","\n"),' ',$headers[$header]))) {
+									$passed++;
+								}								
 							}
 						}
 						

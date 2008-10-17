@@ -1,5 +1,5 @@
 {assign var=headers value=$message->getHeaders()}
-<h2>{$headers.subject|escape}</h2>
+<h2>{$ticket->subject|escape}</h2>
 <b>To:</b> {$headers.to|escape}<br>
 <b>From:</b> {$headers.from|escape}<br>
 <div style="width:98%;height:250px;overflow:auto;border:1px solid rgb(180,180,180);margin:2px;padding:3px;background-color:rgb(255,255,255);" ondblclick="if(null != genericPanel) genericPanel.hide();">

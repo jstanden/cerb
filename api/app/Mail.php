@@ -147,11 +147,19 @@ class CerberusMail {
 		$mail_succeeded = true;
 		if(!empty($no_mail)) { // allow compose without sending mail
 			// Headers needed for the ticket message
-			$mail_headers['To'] = $toStr; 
-			$mail_headers['From'] = !empty($personal) ? (sprintf("%s <%s>",$personal,$from)) : (sprintf('%s',$from)); 
-			$mail_headers['Subject'] = $subject; 
-			$mail_headers['Date'] = gmdate('r'); 
+			$log_headers = new Swift_Message_Headers();
+			$log_headers->setCharset(LANG_CHARSET_CODE);
+			$log_headers->set('To', $toStr);
+			$log_headers->set('From', !empty($personal) ? (sprintf("%s <%s>",$personal,$from)) : (sprintf('%s',$from)));
+			$log_headers->set('Subject', $subject);
+			$log_headers->set('Date', gmdate('r'));
 			
+			foreach($log_headers->getList() as $hdr => $v) {
+				if(null != ($hdr_val = $log_headers->getEncoded($hdr))) {
+					if(!empty($hdr_val))
+						$mail_headers[$hdr] = $hdr_val;
+				}
+			}
 		} else { // regular mail sending
 			try {
 				$sendTo = new Swift_RecipientList();
