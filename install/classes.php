@@ -59,7 +59,7 @@ class CerberusInstaller {
 	 * @param ... [TODO]
 	 * @return string 'config', 'tmp' or FALSE
 	 */
-	public static function saveFrameworkConfig($db_driver, $db_server, $db_name, $db_user, $db_pass) {
+	public static function saveFrameworkConfig($db_driver, $encoding, $db_server, $db_name, $db_user, $db_pass) {
 		$buffer = array();
 		@$fp_in = fopen(APP_PATH . "/framework.config.php","r");
 		
@@ -89,6 +89,12 @@ class CerberusInstaller {
 						break;
 					case "APP_DB_PASS":
 						$value = $db_pass;
+						break;
+					case "LANG_CHARSET_CODE":
+						$value = (0==strcasecmp($encoding,'latin1')) ? 'iso-8859-1' : 'utf-8'; 
+						break;
+					case "DB_CHARSET_CODE":
+						$value = (0==strcasecmp($encoding,'latin1')) ? 'latin1' : 'utf8';
 						break;
 				}
 				

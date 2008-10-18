@@ -134,7 +134,7 @@ class CerberusMail {
 			!empty($group_subject_prefix) ? ($group_subject_prefix.' ') : '',
 			$mask
 		);
-		$subject = (sprintf('%s%s',
+		$subject_mailed = (sprintf('%s%s',
 			$group_has_subject ? $prefix : '',
 			$subject
 		));
@@ -151,7 +151,7 @@ class CerberusMail {
 			$log_headers->setCharset(LANG_CHARSET_CODE);
 			$log_headers->set('To', $toStr);
 			$log_headers->set('From', !empty($personal) ? (sprintf("%s <%s>",$personal,$from)) : (sprintf('%s',$from)));
-			$log_headers->set('Subject', $subject);
+			$log_headers->set('Subject', $subject_mailed);
 			$log_headers->set('Date', gmdate('r'));
 			
 			foreach($log_headers->getList() as $hdr => $v) {
@@ -193,7 +193,7 @@ class CerberusMail {
 				}
 				
 				$email->setFrom($sendFrom);
-				$email->setSubject($subject);
+				$email->setSubject($subject_mailed);
 				$email->generateId();
 				$email->headers->set('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
 				

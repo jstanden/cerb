@@ -16,7 +16,7 @@
 </select><br>
 <br>
 
-<b>Database Server:</b><br>
+<b>Host:</b><br>
 <input type="text" name="db_server" value="{$db_server}"><br>
 <br>
 
@@ -24,11 +24,11 @@
 <input type="text" name="db_name" value="{$db_name}"><br>
 <br>
 
-<b>Database User:</b><br>
+<b>Username:</b><br>
 <input type="text" name="db_user" value="{$db_user}"><br>
 <br>
 
-<b>Database Password:</b><br>
+<b>Password:</b><br>
 <input type="text" name="db_pass" value="{$db_pass}"><br>
 <br>
 

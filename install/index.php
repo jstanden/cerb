@@ -337,6 +337,7 @@ switch($step) {
 	case STEP_DATABASE:
 		// Import scope (if post)
 		@$db_driver = DevblocksPlatform::importGPC($_POST['db_driver'],'string');
+		@$db_encoding = DevblocksPlatform::importGPC($_POST['db_encoding'],'string');
 		@$db_server = DevblocksPlatform::importGPC($_POST['db_server'],'string');
 		@$db_name = DevblocksPlatform::importGPC($_POST['db_name'],'string');
 		@$db_user = DevblocksPlatform::importGPC($_POST['db_user'],'string');
@@ -359,9 +360,9 @@ switch($step) {
 			$drivers['mysql'] = 'MySQL 3.23/4.x/5.x';
 		}
 		
-		if(extension_loaded('mysqli')) {
-			$drivers['mysqli'] = 'MySQLi 4.x/5.x';
-		}
+//		if(extension_loaded('mysqli')) {
+//			$drivers['mysqli'] = 'MySQLi 4.x/5.x';
+//		}
 		
 //		if(extension_loaded('pgsql')) {
 //			$drivers['postgres8'] = 'PostgreSQL 8.x';
@@ -394,8 +395,12 @@ switch($step) {
 			
 			// If passed, write config file and continue
 			if(!is_null($db) && $db->IsConnected()) {
-				// [TODO] Write database settings to framework.config.php
-				$result = CerberusInstaller::saveFrameworkConfig($db_driver, $db_server, $db_name, $db_user, $db_pass);
+				$info = $db->GetRow("SHOW VARIABLES LIKE 'character_set_database'");
+				
+				$encoding = (0==strcasecmp($info[1],'utf8')) ? 'utf8' : 'latin1';
+				
+				// Write database settings to framework.config.php
+				$result = CerberusInstaller::saveFrameworkConfig($db_driver, $encoding, $db_server, $db_name, $db_user, $db_pass);
 				
 				// [JAS]: If we didn't save directly to the config file, user action required
 				if(0 != strcasecmp($result,'config')) {

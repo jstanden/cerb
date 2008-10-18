@@ -1344,6 +1344,9 @@ class ChReportTimeSpentWorker extends Extension_Report {
 		
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
+
+		$sources = DAO_TimeTrackingEntry::getSources();
+		$tpl->assign('sources', $sources);		
 		
 		$sql = sprintf("SELECT tte.log_date, tte.time_actual_mins, tte.worker_id, tte.notes, ".
 				"tte.source_extension_id, tte.source_id, ".
