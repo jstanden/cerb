@@ -169,20 +169,10 @@ if(!is_writeable(APP_PATH . "/storage/mail/fail/")) {
 $locale = DevblocksPlatform::getLocaleService();
 $locale->setLocale('en_US');
 
-// [JAS]: Translations
-// [TODO] Should probably cache this
-// [TODO] This breaks if you change the platform tables (it needs to look up plugins)
-$translate = DevblocksPlatform::getTranslationService();
-$translate->addTranslation(APP_PATH . '/install/strings.xml',$locale);
-//$date = DevblocksPlatform::getDateService();
-//echo sprintf($translate->_('installer.today'),$date->get(Zend_Date::WEEKDAY));
-
 // Get a reference to the template system and configure it
 $tpl = DevblocksPlatform::getTemplateService();
 $tpl->template_dir = APP_PATH . '/install/templates';
 $tpl->caching = 0;
-
-$tpl->assign('translate', $translate);
 
 $tpl->assign('step', $step);
 
@@ -519,6 +509,9 @@ switch($step) {
 					$tpl->assign('template', 'steps/step_init_db.tpl.php');
 					
 				} else {
+					// Reload plugin translations
+					DAO_Translation::reloadPluginStrings();
+					
 					// success
 					$tpl->assign('step', STEP_CONTACT);
 					$tpl->display('steps/redirect.tpl.php');
@@ -765,7 +758,10 @@ We also set up a 'Spam' bucket inside each group to start quarantining junk mail
 
 If you have any questions about your new helpdesk, simply reply to this message.  Our response will show up on this page as a new message.
 
-Thanks for your interest in Cerb4!
+Subscribe to the Cerb4 blog for project news, sneak peeks of development progress, tips & tricks, and more:
+http://www.cerb4.com/blog/
+
+Thanks for your interest!
 ---
 The Cerb4 Team
 WebGroup Media, LLC.
@@ -912,14 +908,5 @@ EOF;
 // [TODO] Check apache rewrite (somehow)
 
 // [TODO] Check if safe_mode is disabled, and if so set our php.ini overrides in the framework.config.php rewrite
-
-/*
-Jeremy: yup... that's it... :)
-stupid adodb hiding that error
-I switched framework.config.php to have mysqli as the db driver (the extension which I have loaded) and it works
-
-Jeff: k, sweet. I just need to add that to the dropdown, and then have the platform or installer check for any of the possible ones being there and complain if none
-I'll add to install/index.php [TODO]
- */
 
 $tpl->display('base.tpl.php');

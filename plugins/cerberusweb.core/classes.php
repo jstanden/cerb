@@ -179,8 +179,7 @@ class ChPageController extends DevblocksControllerExtension {
         $tour_enabled = false;
 		if(!empty($visit) && !is_null($visit->getWorker())) {
         	$worker = $visit->getWorker();
-			$tour_enabled = DAO_WorkerPref::get($worker->id, 'assist_mode');
-			$tour_enabled = ($tour_enabled===false) ? 1 : $tour_enabled;
+			$tour_enabled = intval(DAO_WorkerPref::get($worker->id, 'assist_mode', 1));
 			if(DEMO_MODE) $tour_enabled = 1; // override for DEMO
 		}
 		$tpl->assign('tour_enabled', $tour_enabled);
@@ -8673,8 +8672,7 @@ class ChSignInPage extends CerberusPageExtension {
 				if(!empty($visit) && !is_null($visit->getWorker())) {
 		        	$worker = $visit->getWorker();
 		        	
-					$tour_enabled = DAO_WorkerPref::get($worker->id, 'assist_mode');
-					$tour_enabled = ($tour_enabled===false) ? 1 : $tour_enabled;
+					$tour_enabled = intval(DAO_WorkerPref::get($worker->id, 'assist_mode', 1));
 					
 					// Timezone
 					if(null != ($timezone = DAO_WorkerPref::get($worker->id,'timezone'))) {
@@ -8724,8 +8722,7 @@ class ChSignInPage extends CerberusPageExtension {
 		        $tour_enabled = false;
 				if(!empty($visit) && !is_null($visit->getWorker())) {
 		        	$worker = $visit->getWorker();
-					$tour_enabled = DAO_WorkerPref::get($worker->id, 'assist_mode');
-					$tour_enabled = ($tour_enabled===false) ? 1 : $tour_enabled;
+					$tour_enabled = intval(DAO_WorkerPref::get($worker->id, 'assist_mode', 1));
 				}
 				$next_page = ($tour_enabled) ?  'welcome' : 'tickets';				
 				$devblocks_response = new DevblocksHttpResponse(array($next_page));
@@ -8968,8 +8965,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 		$worker = CerberusApplication::getActiveWorker();
 		$tpl->assign('worker', $worker);
 		
-		$tour_enabled = DAO_WorkerPref::get($worker->id, 'assist_mode');
-		$tour_enabled = ($tour_enabled===false) ? 1 : $tour_enabled;
+		$tour_enabled = intval(DAO_WorkerPref::get($worker->id, 'assist_mode', 1));
 		$tpl->assign('assist_mode', $tour_enabled);
 
 		$mail_inline_comments = DAO_WorkerPref::get($worker->id,'mail_inline_comments',1);

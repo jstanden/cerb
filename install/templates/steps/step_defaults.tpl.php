@@ -12,7 +12,7 @@
 
 <H3>Your Account</H3>
 
-Next we need to create you an account on your new helpdesk.<br>
+Next we need to create an account for you on your new helpdesk.<br>
 <br>
 
 <b>What is your personal e-mail address?</b> (this will be your login)<br>
