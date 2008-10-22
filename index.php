@@ -84,6 +84,9 @@ $session = DevblocksPlatform::getSessionService();
 if(isset($_SESSION['timezone'])) {
 	@date_default_timezone_set($_SESSION['timezone']);
 }
+if(isset($_SESSION['locale'])) {
+	DevblocksPlatform::setLocale($_SESSION['locale']);
+}
 
 // Initialize Logging
 if(method_exists('DevblocksPlatform','getConsoleLog')) {

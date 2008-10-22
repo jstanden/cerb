@@ -9,7 +9,7 @@
 <table cellpadding="2" cellspacing="0" width="200" border="0">
 	<tr>
 		<td nowrap="nowrap">
-			<h2 style="display:inline;">Current Filters</h2>
+			<h2 style="display:inline;">{$translate->_('common.filters')|capitalize}</h2>
 			[ <a href="javascript:;" onclick="document.{$view->id}_criteriaForm.a.value='viewResetCriteria';document.{$view->id}_criteriaForm.submit();toggleDiv('criteriaDiv');">reset</a> ]
 		</td>
 	</tr>
@@ -55,13 +55,17 @@
 			<option value="">-- choose --</option>
 			
 			{foreach from=$view_searchable_fields item=column key=token}
+				{assign var=has_custom value=0}
 				{if substr($token,0,3) != "cf_"}
 					{if !empty($column->db_label) && !empty($token)}
 					<option value="{$token}">{$translate->_($column->db_label)|capitalize}</option>
 					{/if}
+				{else}
+					{assign var=has_custom value=1}
 				{/if}
 			{/foreach}
 			
+			{if $has_custom}
 			<optgroup label="Custom Fields">
 			{foreach from=$view_searchable_fields item=column key=token}
 				{if substr($token,0,3) == "cf_"}
@@ -71,6 +75,7 @@
 				{/if}
 			{/foreach}
 			</optgroup>
+			{/if}
 		</select>
 	</blockquote>
 

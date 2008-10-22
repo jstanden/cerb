@@ -176,12 +176,6 @@ class ChPageController extends DevblocksControllerExtension {
 	         $inst->run($response, $tpl);
 	    }
 		
-		// [JAS]: Pre-translate any dynamic strings
-        $common_translated = array();
-        if(!empty($visit) && !is_null($visit->getWorker()))
-            $common_translated['header_signed_in'] = vsprintf($translate->_('header.signed_in'), array('<b>'.$visit->getWorker()->getName().'</b>'));
-        $tpl->assign('common_translated', $common_translated);
-		
         $tour_enabled = false;
 		if(!empty($visit) && !is_null($visit->getWorker())) {
         	$worker = $visit->getWorker();
@@ -4051,6 +4045,9 @@ class ChConfigurationPage extends CerberusPageExtension  {
 			die("Failed updating plugins."); // [TODO] Make this more graceful
 		}
 		
+        // Reload plugin translations
+		DAO_Translation::reloadPluginStrings();
+		
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('config','plugins')));
 	}
 	
@@ -6744,6 +6741,9 @@ class ChUpdateController extends DevblocksControllerExtension {
 
 						// [JAS]: Clear all caches
 						$cache->clean();
+
+						// Reload plugin translations
+						DAO_Translation::reloadPluginStrings();
 						
 				    	DevblocksPlatform::redirect(new DevblocksHttpResponse(array('login')));
 				    } else {
@@ -8676,9 +8676,15 @@ class ChSignInPage extends CerberusPageExtension {
 					$tour_enabled = DAO_WorkerPref::get($worker->id, 'assist_mode');
 					$tour_enabled = ($tour_enabled===false) ? 1 : $tour_enabled;
 					
+					// Timezone
 					if(null != ($timezone = DAO_WorkerPref::get($worker->id,'timezone'))) {
 						$_SESSION['timezone'] = $timezone;
 						@date_default_timezone_set($timezone);
+					}
+					// Language
+					if(null != ($lang_code = DAO_WorkerPref::get($worker->id,'locale'))) {
+						$_SESSION['locale'] = $lang_code;
+						DevblocksPlatform::setLocale($lang_code);
 					}
 				}
 				$next_page = ($tour_enabled) ?  'welcome' : 'tickets';				
@@ -8982,6 +8988,11 @@ class ChPreferencesPage extends CerberusPageExtension {
 		@$server_timezone = date_default_timezone_get();
 		$tpl->assign('server_timezone', $server_timezone);
 		
+		// Languages
+		$langs = DAO_Translation::getDefinedLangCodes();
+		$tpl->assign('langs', $langs);
+		$tpl->assign('selected_language', DAO_WorkerPref::get($worker->id,'locale','en_US')); 
+		
 		// Date formats
 		$date_formats = $locale->getTranslationList('DateTime');
 		$tpl->assign('date_formats', $date_formats);
@@ -9009,6 +9020,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 	// Post [TODO] This should probably turn into Extension_PreferenceTab
 	function saveDefaultsAction() {
 		@$timezone = DevblocksPlatform::importGPC($_REQUEST['timezone'],'string');
+		@$lang_code = DevblocksPlatform::importGPC($_REQUEST['lang_code'],'string','en_US');
 		@$default_signature = DevblocksPlatform::importGPC($_REQUEST['default_signature'],'string');
 		@$default_signature_pos = DevblocksPlatform::importGPC($_REQUEST['default_signature_pos'],'integer',0);
 		@$reply_box_height = DevblocksPlatform::importGPC($_REQUEST['reply_box_height'],'integer');
@@ -9017,9 +9029,15 @@ class ChPreferencesPage extends CerberusPageExtension {
    		$tpl = DevblocksPlatform::getTemplateService();
    		$pref_errors = array();
    		
+   		// Time
    		$_SESSION['timezone'] = $timezone;
    		@date_default_timezone_set($timezone);
    		DAO_WorkerPref::set($worker->id,'timezone',$timezone);
+   		
+   		// Language
+   		$_SESSION['locale'] = $lang_code;
+   		DevblocksPlatform::setLocale($lang_code);
+   		DAO_WorkerPref::set($worker->id,'locale',$lang_code);
    		
 		@$new_password = DevblocksPlatform::importGPC($_REQUEST['change_pass'],'string');
 		@$verify_password = DevblocksPlatform::importGPC($_REQUEST['change_pass_verify'],'string');

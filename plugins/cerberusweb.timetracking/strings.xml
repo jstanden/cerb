@@ -8,31 +8,31 @@
 		<!-- Time Tracking Strings -->
 
 		<tu tuid='timetracking_entry.id'>
-			<tuv xml:lang="en"><seg>ID</seg></tuv>
+			<tuv xml:lang="en_US"><seg>ID</seg></tuv>
 		</tu>
 		<tu tuid='timetracking_entry.time_actual_mins'>
-			<tuv xml:lang="en"><seg>Mins</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Mins</seg></tuv>
 		</tu>
 		<tu tuid='timetracking_entry.log_date'>
-			<tuv xml:lang="en"><seg>Log Date</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Log Date</seg></tuv>
 		</tu>
 		<tu tuid='timetracking_entry.worker_id'>
-			<tuv xml:lang="en"><seg>Worker</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Worker</seg></tuv>
 		</tu>
 		<tu tuid='timetracking_entry.activity_id'>
-			<tuv xml:lang="en"><seg>Activity</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Activity</seg></tuv>
 		</tu>
 		<tu tuid='timetracking_entry.debit_org_id'>
-			<tuv xml:lang="en"><seg>Org</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Org</seg></tuv>
 		</tu>
 		<tu tuid='timetracking_entry.notes'>
-			<tuv xml:lang="en"><seg>Notes</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Notes</seg></tuv>
 		</tu>
 		<tu tuid='timetracking_entry.source_extension_id'>
-			<tuv xml:lang="en"><seg>Source</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Source</seg></tuv>
 		</tu>
 		<tu tuid='timetracking_entry.source_id'>
-			<tuv xml:lang="en"><seg>Source ID</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Source ID</seg></tuv>
 		</tu>
 
 	</body>

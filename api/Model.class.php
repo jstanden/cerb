@@ -2131,7 +2131,22 @@ class Model_Activity {
 
 	public function toString() {
 		$translate = DevblocksPlatform::getTranslationService();
-		return vsprintf($translate->_($this->translation_code), $this->params);
+		$params = $this->params;
+
+		// Prepend the worker name to the activity's param list
+		$active_worker = CerberusApplication::getActiveWorker();
+		array_unshift($params, sprintf("<b>%s</b>%s",
+			$active_worker->getName(),
+			(!empty($active_worker->title) 
+				? (' (' . $active_worker->title . ')') 
+				: ''
+			)
+		));
+		
+		return vsprintf(
+			$translate->_($this->translation_code), 
+			$params
+		);
 	}
 }
 

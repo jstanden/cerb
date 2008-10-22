@@ -8,28 +8,28 @@
 		<!-- Feedback Strings -->
 
 		<tu tuid='feedback_entry.id'>
-			<tuv xml:lang="en"><seg>ID</seg></tuv>
+			<tuv xml:lang="en_US"><seg>ID</seg></tuv>
 		</tu>
 		<tu tuid='feedback_entry.list_id'>
-			<tuv xml:lang="en"><seg>List</seg></tuv>
+			<tuv xml:lang="en_US"><seg>List</seg></tuv>
 		</tu>
 		<tu tuid='feedback_entry.log_date'>
-			<tuv xml:lang="en"><seg>Log Date</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Log Date</seg></tuv>
 		</tu>
 		<tu tuid='feedback_entry.quote_address'>
-			<tuv xml:lang="en"><seg>Author</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Author</seg></tuv>
 		</tu>
 		<tu tuid='feedback_entry.quote_mood'>
-			<tuv xml:lang="en"><seg>Mood</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Mood</seg></tuv>
 		</tu>
 		<tu tuid='feedback_entry.quote_text'>
-			<tuv xml:lang="en"><seg>Quote</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Quote</seg></tuv>
 		</tu>
 		<tu tuid='feedback_entry.source_url'>
-			<tuv xml:lang="en"><seg>Source URL</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Source URL</seg></tuv>
 		</tu>
 		<tu tuid='feedback_entry.worker_id'>
-			<tuv xml:lang="en"><seg>Worker</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Worker</seg></tuv>
 		</tu>
 
 	</body>

@@ -27,6 +27,14 @@
 </select><br>
 <br>
 
+<b>Language:</b> {if !empty($selected_language) && isset($langs.$selected_language)}(current: {$langs.$selected_language}){/if}<br>
+<select name="lang_code">
+	{foreach from=$langs key=lang_code item=lang_name}
+		<option value="{$lang_code}" {if $lang_code==$selected_language}selected{/if}>{$lang_name}</option>
+	{/foreach}
+</select><br>
+<br>
+
 <h2>E-mail Addresses</h2>
 These addresses will be associated with your helpdesk account.<br>
 <br>

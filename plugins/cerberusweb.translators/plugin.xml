@@ -1,0 +1,227 @@
+<!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
+<plugin>
+	<id>cerberusweb.translators</id>
+	<name>Cerberus Helpdesk: Translation Editor (Experimental)</name>
+	<description>A GUI for translating the Cerberus Helpdesk interface into other languages.</description>
+	<author>WebGroup Media, LLC.</author>
+	<revision>0</revision>
+	<link>http://wiki.cerb4.com/wiki/</link>
+	<class>
+		<file>api/App.php</file>
+		<name>ChTranslatorsPlugin</name>
+	</class>
+	
+	<extensions>
+	
+		<!-- Patch Containers -->
+		
+		<!-- 
+		<extension point="devblocks.patch.container">
+			<id>feedback.patches</id>
+			<name>Feedback Patches</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChFeedbackPatchContainer</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		 -->
+	
+		<!-- Translations -->
+		
+		<extension point="devblocks.i18n.strings">
+			<id>translate.translations</id>
+			<name>Translate Strings</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChTranslateTranslations</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+			
+		<!-- Http Listeners -->
+		
+		<!-- 
+		<extension point="devblocks.listener.http">
+			<id>simulator.listeners.tour</id>
+			<name>Simulator Tour</name>
+			<class>
+				<file>listeners.classes.php</file>
+				<name>ChSimulatorTour</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		 -->
+	
+		<!-- Event Listeners -->
+
+		<!-- 		
+		<extension point="devblocks.listener.event">
+			<id>timetracking.listener.core</id>
+			<name>Time Tracking Listener</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChTimeTrackingEventListener</name>
+			</class>
+			<params>
+				<param key="events">
+					<value>
+						<data key="ticket.reply.outbound" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		 -->
+
+		<!-- Time Tracking Sources -->
+		<!-- 
+		<extension point="feedback.source">
+			<id>feedback.source.ticket</id>
+			<name>Ticket</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChFeedbackTicketSource</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		 -->
+
+		<!-- Renderers Render -->
+		<!-- 	
+		<extension point="cerberusweb.renderer.prebody">
+			<id>timetracking.renderer.prebody</id>
+			<name>Time Tracking Pre-body Renderer</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChTimeTrackingPreBodyRenderer</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		 -->
+	
+		<!-- Ticket Display Tabs -->
+		<!-- 	
+		<extension point="cerberusweb.ticket.toolbaritem">
+			<id>timetracking.ticket.toolbaritem.timer</id>
+			<name>Time Tracking Ticket Toolbar Timer</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChTimeTrackingTicketToolbarTimer</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		 -->
+
+		<!-- Ticket Message Tabs -->
+			
+		<!-- 
+		<extension point="cerberusweb.message.toolbaritem">
+			<id>feedback.message.toolbaritem.feedback</id>
+			<name>Ticket Message Toolbar Feedback Item</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChFeedbackMessageToolbarFeedback</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		 -->
+	
+		<!-- Config Tabs -->
+		
+		<extension point="cerberusweb.config.tab">
+			<id>translators.config.tab</id>
+			<name>Translators Tab</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChTranslatorsConfigTab</name>
+			</class>
+			<params>
+				<param key="uri" value="translations" />
+				<param key="title" value="Translations" />
+			</params>
+		</extension>
+		
+		<!-- Ajax Controllers -->
+		
+ 		<extension point="devblocks.controller">
+			<id>translators.controller.ajax</id>
+			<name>Translators Ajax Controller</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChTranslatorsAjaxController</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		 
+		<!-- Pages -->
+
+		<!-- 
+		<extension point="cerberusweb.page">
+			<id>feedback.page</id>
+			<name>Feedback Page</name>
+			<class>
+				<file>api/App.php</file>
+				<name>FeedbackPage</name>
+			</class>
+			<params>
+				<param key="uri" value="feedback" />
+				<param key="menutitle" value="feedback" />
+			</params>
+		</extension>
+		 -->
+		 
+		<!-- Tabs -->
+		 
+		<!--
+		<extension point="cerberusweb.ticket.tab">
+			<id>timetracking.tab.ticket</id>
+			<name>Time Tracking Tab</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChTimeTrackingTab</name>
+			</class>
+			<params>
+				<param key="uri" value="timetracking" />
+				<param key="title" value="Time Tracking" />
+			</params>
+		</extension>
+		 -->
+		 
+	<!-- Report Groups -->
+	<!-- 
+	<extension point="cerberusweb.report.group">
+		<id>feedback.report.group</id>
+		<name>Feedback Reports</name>
+		<class>
+			<file>api/App.php</file>
+			<name>ChFeedbackReportGroup</name>
+		</class>
+		<params />
+	</extension>		 
+	-->
+	
+	<!-- Reports -->
+	<!-- 
+	<extension point="cerberusweb.report">
+		<id>report.timetracking.timespentworker</id>
+		<name>Time Spent Per Worker</name>
+		<class>
+			<file>api/App.php</file>
+			<name>ChReportTimeSpentWorker</name>
+		</class>
+		<params>
+			<param key="report_name" value="Time Spent Per Worker" />
+			<param key="report_group" value="report.group.timetracking" />
+		</params>
+	</extension>
+	 -->
+	</extensions>
+</plugin>

@@ -1,817 +1,554 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE tmx SYSTEM "tmx14.dtd">
 <tmx version="1.4">
-	<header datatype="winres" segtype="sentence" adminlang="en-us"
-		srclang="en-us" o-tmf="abc" />
+	<header datatype="winres" segtype="sentence" adminlang="en-us" srclang="en-us" o-tmf="abc" />
 	<body>
-
-		<!-- Temporary Events -->
-		<!-- 
-			<tu tuid='event.faq.question_asked'>
-			<tuv xml:lang="en"><seg>Someone just asked, '%2$s' (question %1$s)</seg></tuv>
-			</tu>
-		-->
 
 		<!-- Common Strings -->
 
 		<tu tuid='common.bucket'>
-			<tuv xml:lang="en">
-				<seg>bucket</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>bucket</seg></tuv>
 		</tu>
 		<tu tuid='common.cancel'>
-			<tuv xml:lang="en">
-				<seg>cancel</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>cancel</seg></tuv>
 		</tu>
 		<tu tuid='common.category'>
-			<tuv xml:lang="en">
-				<seg>category</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>category</seg></tuv>
 		</tu>
 		<tu tuid='common.close'>
-			<tuv xml:lang="en">
-				<seg>close</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>close</seg></tuv>
 		</tu>
 		<tu tuid='common.customize'>
-			<tuv xml:lang="en"><seg>customize</seg></tuv>
+			<tuv xml:lang="en_US"><seg>customize</seg></tuv>
 		</tu>
 		<tu tuid='common.delete'>
-			<tuv xml:lang="en">
-				<seg>delete</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>delete</seg></tuv>
 		</tu>
 		<tu tuid='common.edit'>
-			<tuv xml:lang="en"><seg>edit</seg></tuv>
+			<tuv xml:lang="en_US"><seg>edit</seg></tuv>
+		</tu>
+		<tu tuid='common.export'>
+			<tuv xml:lang="en_US"><seg>export</seg></tuv>
 		</tu>
 		<tu tuid='common.filter'>
-			<tuv xml:lang="en"><seg>filter</seg></tuv>
+			<tuv xml:lang="en_US"><seg>filter</seg></tuv>
+		</tu>
+		<tu tuid='common.filters'>
+			<tuv xml:lang="en_US"><seg>filters</seg></tuv>
+		</tu>
+		<tu tuid='common.import'>
+			<tuv xml:lang="en_US"><seg>import</seg></tuv>
 		</tu>
 		<tu tuid='common.group'>
-			<tuv xml:lang="en"><seg>Group</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Group</seg></tuv>
 		</tu>
 		<tu tuid='common.name'>
-			<tuv xml:lang="en"><seg>Name</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Name</seg></tuv>
 		</tu>
 		<tu tuid='common.load'>
-			<tuv xml:lang="en">
-				<seg>Load</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>Load</seg></tuv>
 		</tu>
 		<tu tuid='common.next'>
-			<tuv xml:lang="en">
-				<seg>next</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>next</seg></tuv>
 		</tu>
 		<tu tuid='common.password'>
-			<tuv xml:lang="en">
-				<seg>password</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>password</seg></tuv>
 		</tu>
 		<tu tuid='common.prev'>
-			<tuv xml:lang="en">
-				<seg>prev</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>prev</seg></tuv>
 		</tu>
 		<tu tuid='common.refresh'>
-			<tuv xml:lang="en">
-				<seg>refresh</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>refresh</seg></tuv>
 		</tu>
 		<tu tuid='common.remove'>
-			<tuv xml:lang="en">
-				<seg>remove</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>remove</seg></tuv>
 		</tu>
 		<tu tuid='common.save'>
-			<tuv xml:lang="en">
-				<seg>Save</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>Save</seg></tuv>
 		</tu>
 		<tu tuid='common.save_changes'>
-			<tuv xml:lang="en">
-				<seg>Save Changes</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>Save Changes</seg></tuv>
 		</tu>
 		<tu tuid='common.search'>
-			<tuv xml:lang="en">
-				<seg>search</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>search</seg></tuv>
+		</tu>
+		<tu tuid='common.settings'>
+			<tuv xml:lang="en_US"><seg>settings</seg></tuv>
 		</tu>
 		<tu tuid='common.spam'>
-			<tuv xml:lang="en">
-				<seg>Spam</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>Spam</seg></tuv>
+		</tu>
+		<tu tuid='common.synchronize'>
+			<tuv xml:lang="en_US"><seg>Synchronize</seg></tuv>
 		</tu>
 		<tu tuid='common.task'>
-			<tuv xml:lang="en">
-				<seg>Task</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>Task</seg></tuv>
 		</tu>
 		<tu tuid='common.tasks'>
-			<tuv xml:lang="en">
-				<seg>Tasks</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>Tasks</seg></tuv>
 		</tu>
 		<tu tuid='common.ticket'>
-			<tuv xml:lang="en">
-				<seg>ticket</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>ticket</seg></tuv>
 		</tu>
 		<tu tuid='common.update'>
-			<tuv xml:lang="en">
-				<seg>update</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>update</seg></tuv>
 		</tu>
 		<tu tuid='common.upload'>
-			<tuv xml:lang="en">
-				<seg>upload</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>upload</seg></tuv>
 		</tu>
 
 		<!-- Addresses -->
 		<tu tuid='address.id'>
-			<tuv xml:lang="en">
-				<seg>id</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>id</seg></tuv>
 		</tu>
 		<tu tuid='address.email'>
-			<tuv xml:lang="en">
-				<seg>email</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>email</seg></tuv>
 		</tu>
 		<tu tuid='address.first_name'>
-			<tuv xml:lang="en">
-				<seg>first name</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>first name</seg></tuv>
 		</tu>
 		<tu tuid='address.num_spam'>
-			<tuv xml:lang="en">
-				<seg># Spam</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg># Spam</seg></tuv>
 		</tu>
 		<tu tuid='address.num_nonspam'>
-			<tuv xml:lang="en">
-				<seg># Nonspam</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg># Nonspam</seg></tuv>
 		</tu>
 		<tu tuid='address.is_banned'>
-			<tuv xml:lang="en">
-				<seg>Banned</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>Banned</seg></tuv>
 		</tu>
 		<tu tuid='address.last_name'>
-			<tuv xml:lang="en">
-				<seg>last name</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>last name</seg></tuv>
 		</tu>
 		<tu tuid='address.phone'>
-			<tuv xml:lang="en">
-				<seg>phone</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>phone</seg></tuv>
 		</tu>
 		<tu tuid='address.contact_org_id'>
-			<tuv xml:lang="en">
-				<seg>organization</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>organization</seg></tuv>
 		</tu>
 
 		<!-- Contact orgs -->
 		<tu tuid='contact_org.account_number'>
-			<tuv xml:lang="en">
-				<seg>acct #</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>acct #</seg></tuv>
 		</tu>
 		<tu tuid='contact_org.city'>
-			<tuv xml:lang="en">
-				<seg>city</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>city</seg></tuv>
 		</tu>
 		<tu tuid='contact_org.country'>
-			<tuv xml:lang="en">
-				<seg>country</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>country</seg></tuv>
 		</tu>
 		<tu tuid='contact_org.created'>
-			<tuv xml:lang="en">
-				<seg>created</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>created</seg></tuv>
 		</tu>
 		<tu tuid='contact_org.fax'>
-			<tuv xml:lang="en">
-				<seg>fax</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>fax</seg></tuv>
 		</tu>
 		<tu tuid='contact_org.id'>
-			<tuv xml:lang="en">
-				<seg>id</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>id</seg></tuv>
 		</tu>
 		<tu tuid='contact_org.name'>
-			<tuv xml:lang="en">
-				<seg>organization</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>organization</seg></tuv>
 		</tu>
 		<tu tuid='contact_org.phone'>
-			<tuv xml:lang="en">
-				<seg>phone</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>phone</seg></tuv>
 		</tu>
 		<tu tuid='contact_org.postal'>
-			<tuv xml:lang="en">
-				<seg>postal</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>postal</seg></tuv>
 		</tu>
 		<tu tuid='contact_org.province'>
-			<tuv xml:lang="en">
-				<seg>state/prov</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>state/prov</seg></tuv>
 		</tu>
 		<tu tuid='contact_org.street'>
-			<tuv xml:lang="en">
-				<seg>street</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>street</seg></tuv>
 		</tu>
 		<tu tuid='contact_org.website'>
-			<tuv xml:lang="en">
-				<seg>website</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>website</seg></tuv>
 		</tu>
 
 		<!-- Contact People -->
 		<tu tuid='contact_person.city'>
-			<tuv xml:lang="en">
-				<seg>city</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>city</seg></tuv>
 		</tu>
 		<tu tuid='contact_person.contact_org_id'>
-			<tuv xml:lang="en">
-				<seg>organization</seg>
-			</tuv>
-		</tu>
-		<tu tuid='contact_person.city'>
-			<tuv xml:lang="en">
-				<seg>city</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>organization</seg></tuv>
 		</tu>
 		<tu tuid='contact_person.country'>
-			<tuv xml:lang="en">
-				<seg>country</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>country</seg></tuv>
 		</tu>
 		<tu tuid='contact_person.created'>
-			<tuv xml:lang="en">
-				<seg>created</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>created</seg></tuv>
 		</tu>
 		<tu tuid='contact_person.email'>
-			<tuv xml:lang="en">
-				<seg>primary email</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>primary email</seg></tuv>
 		</tu>
 		<tu tuid='contact_person.fax'>
-			<tuv xml:lang="en">
-				<seg>fax</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>fax</seg></tuv>
 		</tu>
 		<tu tuid='contact_person.first_name'>
-			<tuv xml:lang="en">
-				<seg>first name</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>first name</seg></tuv>
 		</tu>
 		<tu tuid='contact_person.id'>
-			<tuv xml:lang="en">
-				<seg>id</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>id</seg></tuv>
 		</tu>
 		<tu tuid='contact_person.last_name'>
-			<tuv xml:lang="en">
-				<seg>last name</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>last name</seg></tuv>
 		</tu>
 		<tu tuid='contact_person.phone'>
-			<tuv xml:lang="en">
-				<seg>phone</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>phone</seg></tuv>
 		</tu>
 		<tu tuid='contact_person.postal'>
-			<tuv xml:lang="en">
-				<seg>postal</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>postal</seg></tuv>
 		</tu>
 		<tu tuid='contact_person.province'>
-			<tuv xml:lang="en">
-				<seg>province</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>province</seg></tuv>
 		</tu>
 		<tu tuid='contact_person.title'>
-			<tuv xml:lang="en">
-				<seg>title</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>title</seg></tuv>
 		</tu>
 		<tu tuid='contact_person.street'>
-			<tuv xml:lang="en">
-				<seg>street</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>street</seg></tuv>
 		</tu>
 
 		<!-- Activities -->
 		<tu tuid='activity.default'>
-			<tuv xml:lang="en">
-				<seg>is browsing the helpdesk</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>%s is browsing the helpdesk</seg></tuv>
 		</tu>
-
 		<tu tuid='activity.config'>
-			<tuv xml:lang="en">
-				<seg>is configuring the helpdesk</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>%s is configuring the helpdesk</seg></tuv>
 		</tu>
-
 		<tu tuid='activity.display_ticket'>
-			<tuv xml:lang="en">
-				<seg>is displaying %s</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>%s is displaying %s</seg></tuv>
 		</tu>
-
 		<tu tuid='activity.simulator'>
-			<tuv xml:lang="en">
-				<seg>is generating simulated tickets</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>%s is generating simulated tickets</seg></tuv>
 		</tu>
-
 		<tu tuid='activity.tickets'>
-			<tuv xml:lang="en">
-				<seg>is browsing %s tickets</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>%s is browsing %s tickets</seg></tuv>
 		</tu>
 
 		<!-- Header -->
 
 		<tu tuid='header.config'>
-			<tuv xml:lang="en">
-				<seg>helpdesk setup</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>helpdesk setup</seg></tuv>
 		</tu>
 		<tu tuid='header.history'>
-			<tuv xml:lang="en">
-				<seg>history</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>history</seg></tuv>
 		</tu>
 		<tu tuid='header.fnr'>
-			<tuv xml:lang="en">
-				<seg>fetch &amp; retrieve</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>fetch &amp; retrieve</seg></tuv>
+		</tu>
+		<tu tuid='header.group_setup'>
+			<tuv xml:lang="en_US"><seg>group setup</seg></tuv>
 		</tu>
 		<tu tuid='header.last_viewed'>
-			<tuv xml:lang="en">
-				<seg>last viewed</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>last viewed</seg></tuv>
 		</tu>
 		<tu tuid='header.no_page'>
-			<tuv xml:lang="en">
-				<seg>No page selected.</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>No page selected.</seg></tuv>
 		</tu>
 		<tu tuid='header.not_signed_in'>
-			<tuv xml:lang="en">
-				<seg>Not signed in</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>Not signed in</seg></tuv>
 		</tu>
 		<tu tuid='header.preferences'>
-			<tuv xml:lang="en">
-				<seg>my account</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>my account</seg></tuv>
 		</tu>
 		<tu tuid='header.signed_in'>
-			<tuv xml:lang="en">
-				<seg>Signed in as %s</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>Signed in as %s</seg></tuv>
 		</tu>
 		<tu tuid='header.signoff'>
-			<tuv xml:lang="en">
-				<seg>Sign off</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>Sign off</seg></tuv>
 		</tu>
 		<tu tuid='header.signon'>
-			<tuv xml:lang="en">
-				<seg>Sign on</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>Sign on</seg></tuv>
 		</tu>
 
 		<!-- Dashboard -->
 
 		<tu tuid='dashboard'>
-			<tuv xml:lang="en">
-				<seg>Dashboard</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>Dashboard</seg></tuv>
 		</tu>
 		<tu tuid='dashboard.actions'>
-			<tuv xml:lang="en">
-				<seg>Actions</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>Actions</seg></tuv>
 		</tu>
 		<tu tuid='dashboard.active_dashboard'>
-			<tuv xml:lang="en">
-				<seg>Active Dashboard:</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>Active Dashboard:</seg></tuv>
 		</tu>
 		<tu tuid='dashboard.add_dashboard'>
-			<tuv xml:lang="en">
-				<seg>add dashboard</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>add dashboard</seg></tuv>
 		</tu>
 		<tu tuid='dashboard.add_view'>
-			<tuv xml:lang="en">
-				<seg>add worklist</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>add worklist</seg></tuv>
 		</tu>
 		<tu tuid='dashboard.choose_column'>
-			<tuv xml:lang="en">
-				<seg>Choose Column</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>Choose Column</seg></tuv>
 		</tu>
 		<tu tuid='dashboard.choose_dashboard'>
-			<tuv xml:lang="en">
-				<seg>Choose Dashboard</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>Choose Dashboard</seg></tuv>
 		</tu>
 		<tu tuid='dashboard.columns'>
-			<tuv xml:lang="en">
-				<seg>Columns</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>Columns</seg></tuv>
 		</tu>
 		<tu tuid='dashboard.create_ticket'>
-			<tuv xml:lang="en">
-				<seg>Create Ticket</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>Create Ticket</seg></tuv>
 		</tu>
 		<tu tuid='dashboard.group_filters'>
-			<tuv xml:lang="en">
-				<seg>Group Filters</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>Group Filters</seg></tuv>
 		</tu>
 		<tu tuid='dashboard.dashboards'>
-			<tuv xml:lang="en">
-				<seg>Dashboards</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>Dashboards</seg></tuv>
 		</tu>
 		<tu tuid='dashboard.modify'>
-			<tuv xml:lang="en">
-				<seg>Modify Dashboard</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>Modify Dashboard</seg></tuv>
 		</tu>
 		<tu tuid='dashboard.no_teams'>
-			<tuv xml:lang="en">
-				<seg>No visible teams.</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>No visible teams.</seg></tuv>
 		</tu>
 		<tu tuid='dashboard.options'>
-			<tuv xml:lang="en">
-				<seg>Options</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>Options</seg></tuv>
 		</tu>
 		<tu tuid='dashboard.num_rows'>
-			<tuv xml:lang="en">
-				<seg>Rows per page</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>Rows per page</seg></tuv>
 		</tu>
 		<tu tuid='dashboard.remove_view'>
-			<tuv xml:lang="en">
-				<seg>Remove ticket list from dashboard</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>Remove ticket list from dashboard</seg></tuv>
 		</tu>
 		<tu tuid='dashboard.reorder'>
-			<tuv xml:lang="en">
-				<seg>arrange workspace</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>arrange workspace</seg></tuv>
 		</tu>
 		<tu tuid='dashboard.switch'>
-			<tuv xml:lang="en">
-				<seg>Switch</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>Switch</seg></tuv>
 		</tu>
 		<tu tuid='dashboard.teamwork'>
-			<tuv xml:lang="en">
-				<seg>Teamwork</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>Teamwork</seg></tuv>
 		</tu>
 
 		<!-- KB Article -->
 
 		<tu tuid='kb_article.content'>
-			<tuv xml:lang="en"><seg>Content</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Content</seg></tuv>
 		</tu>
 		<tu tuid='kb_article.format'>
-			<tuv xml:lang="en"><seg>Format</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Format</seg></tuv>
 		</tu>
 		<tu tuid='kb_article.id'>
-			<tuv xml:lang="en"><seg>ID</seg></tuv>
+			<tuv xml:lang="en_US"><seg>ID</seg></tuv>
 		</tu>
 		<tu tuid='kb_article.title'>
-			<tuv xml:lang="en"><seg>Title</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Title</seg></tuv>
 		</tu>
 		<tu tuid='kb_article.topic'>
-			<tuv xml:lang="en"><seg>Topic</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Topic</seg></tuv>
 		</tu>
 		<tu tuid='kb_article.updated'>
-			<tuv xml:lang="en"><seg>Updated</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Updated</seg></tuv>
 		</tu>
 		<tu tuid='kb_article.views'>
-			<tuv xml:lang="en"><seg>Views</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Views</seg></tuv>
 		</tu>
 
 		<!-- Message -->
 
 		<tu tuid='message.content'>
-			<tuv xml:lang="en">
-				<seg>Message Content</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>Message Content</seg></tuv>
 		</tu>
 
 		<!-- Priorities -->
 
 		<tu tuid='priority.none'>
-			<tuv xml:lang="en">
-				<seg>None</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>None</seg></tuv>
 		</tu>
 		<tu tuid='priority.low'>
-			<tuv xml:lang="en">
-				<seg>Low</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>Low</seg></tuv>
 		</tu>
 		<tu tuid='priority.normal'>
-			<tuv xml:lang="en">
-				<seg>Normal</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>Normal</seg></tuv>
 		</tu>
 		<tu tuid='priority.high'>
-			<tuv xml:lang="en">
-				<seg>High</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>High</seg></tuv>
 		</tu>
 
 		<!--  -->
 
 		<tu tuid='requester'>
-			<tuv xml:lang="en">
-				<seg>Requester</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>Requester</seg></tuv>
 		</tu>
 
 		<!-- Search -->
 
 		<tu tuid='search.no_saved'>
-			<tuv xml:lang="en">
-				<seg>No saved searches.</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>No saved searches.</seg></tuv>
 		</tu>
 
 		<!-- SLA -->
 		<tu tuid='sla.name'>
-			<tuv xml:lang="en">
-				<seg>Service Level</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>Service Level</seg></tuv>
 		</tu>
 		<tu tuid='sla.priority'>
-			<tuv xml:lang="en">
-				<seg>Service Priority</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>Service Priority</seg></tuv>
 		</tu>
 		<tu tuid='sla.expires'>
-			<tuv xml:lang="en">
-				<seg>Expires</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>Expires</seg></tuv>
 		</tu>
 
 		<!-- Statuses -->
 
 		<tu tuid='status.open'>
-			<tuv xml:lang="en">
-				<seg>Open</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>Open</seg></tuv>
 		</tu>
 		<tu tuid='status.closed'>
-			<tuv xml:lang="en">
-				<seg>Closed</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>Closed</seg></tuv>
 		</tu>
 		<tu tuid='status.deleted'>
-			<tuv xml:lang="en">
-				<seg>Deleted</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>Deleted</seg></tuv>
 		</tu>
 		<tu tuid='status.waiting'>
-			<tuv xml:lang="en">
-				<seg>Waiting</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>Waiting</seg></tuv>
 		</tu>
 
 		<!-- Tasks -->
 
 		<tu tuid='tasks.complete'>
-			<tuv xml:lang="en"><seg>Complete</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Complete</seg></tuv>
 		</tu>
 		<tu tuid='tasks.postpone'>
-			<tuv xml:lang="en"><seg>Postpone</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Postpone</seg></tuv>
 		</tu>
 		
 		<!-- Task -->
 
 		<tu tuid='task.completed_date'>
-			<tuv xml:lang="en"><seg>Completed Date</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Completed Date</seg></tuv>
 		</tu>
 		<tu tuid='task.content'>
-			<tuv xml:lang="en"><seg>Content</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Content</seg></tuv>
 		</tu>
 		<tu tuid='task.due_date'>
-			<tuv xml:lang="en"><seg>Due Date</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Due Date</seg></tuv>
 		</tu>
 		<tu tuid='task.id'>
-			<tuv xml:lang="en"><seg>Id</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Id</seg></tuv>
 		</tu>
 		<tu tuid='task.is_completed'>
-			<tuv xml:lang="en"><seg>Completed</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Completed</seg></tuv>
 		</tu>
 		<tu tuid='task.priority'>
-			<tuv xml:lang="en"><seg>Priority</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Priority</seg></tuv>
 		</tu>
 		<tu tuid='task.source_extension'>
-			<tuv xml:lang="en"><seg>Source</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Source</seg></tuv>
 		</tu>
 		<tu tuid='task.source_id'>
-			<tuv xml:lang="en"><seg>Source ID</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Source ID</seg></tuv>
 		</tu>
 		<tu tuid='task.title'>
-			<tuv xml:lang="en"><seg>Title</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Title</seg></tuv>
 		</tu>
 		<tu tuid='task.worker_id'>
-			<tuv xml:lang="en"><seg>Worker</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Worker</seg></tuv>
 		</tu>
 
 		<!-- Teamwork -->
 
 		<tu tuid='teamwork.assign_work'>
-			<tuv xml:lang="en">
-				<seg>Get Tickets</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>Get Tickets</seg></tuv>
 		</tu>
 
 		<tu tuid='teamwork.my_team_loads'>
-			<tuv xml:lang="en">
-				<seg>My Team Loads</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>My Team Loads</seg></tuv>
 		</tu>
 
 		<tu tuid='teamwork.categories'>
-			<tuv xml:lang="en">
-				<seg>Team Categories</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>Team Categories</seg></tuv>
 		</tu>
 
 		<tu tuid='teamwork.group_management'>
-			<tuv xml:lang="en">
-				<seg>Control Panel</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>Control Panel</seg></tuv>
 		</tu>
 
 		<!-- Tickets -->
 
 		<tu tuid='ticket.created'>
-			<tuv xml:lang="en">
-				<seg>Created</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>Created</seg></tuv>
 		</tu>
 		<tu tuid='ticket.due'>
-			<tuv xml:lang="en">
-				<seg>Due</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>Due</seg></tuv>
 		</tu>
 		<tu tuid='ticket.id'>
-			<tuv xml:lang="en">
-				<seg>ID</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>ID</seg></tuv>
 		</tu>
 		<tu tuid='ticket.first_wrote'>
-			<tuv xml:lang="en">
-				<seg>First Wrote</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>First Wrote</seg></tuv>
 		</tu>
 		<tu tuid='ticket.interesting_words'>
-			<tuv xml:lang="en">
-				<seg>Interesting Words</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>Interesting Words</seg></tuv>
 		</tu>
 		<tu tuid='ticket.last_action'>
-			<tuv xml:lang="en">
-				<seg>Last Action</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>Last Action</seg></tuv>
 		</tu>
 		<tu tuid='ticket.last_worker'>
-			<tuv xml:lang="en">
-				<seg>Last Worker</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>Last Worker</seg></tuv>
 		</tu>
 		<tu tuid='ticket.last_wrote'>
-			<tuv xml:lang="en">
-				<seg>Last Wrote</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>Last Wrote</seg></tuv>
 		</tu>
 		<tu tuid='ticket.mask'>
-			<tuv xml:lang="en">
-				<seg>Mask</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>Mask</seg></tuv>
 		</tu>
 		<tu tuid='ticket.next_action'>
-			<tuv xml:lang="en">
-				<seg>Next Action</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>Next Action</seg></tuv>
 		</tu>
 		<tu tuid='ticket.next_worker'>
-			<tuv xml:lang="en">
-				<seg>Next Worker</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>Next Worker</seg></tuv>
 		</tu>
 		<tu tuid='ticket.owner'>
-			<tuv xml:lang="en">
-				<seg>Owner</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>Owner</seg></tuv>
 		</tu>
 		<tu tuid='ticket.priority'>
-			<tuv xml:lang="en">
-				<seg>Priority</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>Priority</seg></tuv>
 		</tu>
 		<tu tuid='ticket.spam_score'>
-			<tuv xml:lang="en">
-				<seg>Spam Score</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>Spam Score</seg></tuv>
 		</tu>
 		<tu tuid='ticket.spam_training'>
-			<tuv xml:lang="en">
-				<seg>Spam Training</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>Spam Training</seg></tuv>
 		</tu>
 		<tu tuid='ticket.status'>
-			<tuv xml:lang="en">
-				<seg>Status</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>Status</seg></tuv>
 		</tu>
 		<tu tuid='ticket.subject'>
-			<tuv xml:lang="en">
-				<seg>Subject</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>Subject</seg></tuv>
 		</tu>
 		<tu tuid='ticket.updated'>
-			<tuv xml:lang="en">
-				<seg>Updated</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>Updated</seg></tuv>
 		</tu>
 
 		<!-- Spam Training -->
 
 		<tu tuid='training.report_spam'>
-			<tuv xml:lang="en">
-				<seg>Report Spam</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>Report Spam</seg></tuv>
 		</tu>
 		<tu tuid='training.not_spam'>
-			<tuv xml:lang="en">
-				<seg>Not Spam</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>Not Spam</seg></tuv>
 		</tu>
 
 		<!-- Whos Online -->
 
 		<tu tuid='whos_online.heading'>
-			<tuv xml:lang="en">
-				<seg>%d Worker(s) Signed In:</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>%d Worker(s) Signed In:</seg></tuv>
 		</tu>
 
 		<!-- Workflow -->
 
 		<tu tuid='workflow.assigned'>
-			<tuv xml:lang="en">
-				<seg>Assigned</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>Assigned</seg></tuv>
 		</tu>
 		<tu tuid='workflow.release'>
-			<tuv xml:lang="en">
-				<seg>Release</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>Release</seg></tuv>
 		</tu>
 		<tu tuid='workflow.suggested'>
-			<tuv xml:lang="en">
-				<seg>Suggested</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>Suggested</seg></tuv>
 		</tu>
 		<tu tuid='workflow.take'>
-			<tuv xml:lang="en">
-				<seg>Take</seg>
-			</tuv>
+			<tuv xml:lang="en_US"><seg>Take</seg></tuv>
 		</tu>
 
 	</body>

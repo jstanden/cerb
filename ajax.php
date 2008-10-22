@@ -78,6 +78,9 @@ if(!empty($worker)) {
 if(isset($_SESSION['timezone'])) {
 	@date_default_timezone_set($_SESSION['timezone']);
 }
+if(isset($_SESSION['locale'])) {
+	DevblocksPlatform::setLocale($_SESSION['locale']);
+}
 
 DevblocksPlatform::processRequest($request,true);
 
