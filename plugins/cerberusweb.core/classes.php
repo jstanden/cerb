@@ -306,12 +306,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		
 		$whos_online = DAO_Worker::getList(array_keys($whos_online_workers));
 		$tpl->assign('whos_online', $whos_online);
-		
-		$translate = DevblocksPlatform::getTranslationService();
-		$translated = array(
-			'whos_heading' => vsprintf($translate->_('whos_online.heading'),array($whos_online_count))
-		);
-		$tpl->assign('translated', $translated);
+		$tpl->assign('whos_online_count', count($whos_online));
 		
 		// Remember the last subsection
 		switch($section) {

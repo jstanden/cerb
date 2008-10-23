@@ -39,18 +39,7 @@
 					<!-- <b>Next Action:</b> <input type="text" name="next_step" size="80" value="{$ticket->next_action}" maxlength="255"><br>  -->
 				</td>
 				<td align="right">
-					<form action="{devblocks_url}{/devblocks_url}" method="post">
-					<input type="hidden" name="c" value="tickets">
-					<input type="hidden" name="a" value="doQuickSearch">
-					<span id="tourHeaderQuickLookup"><b>{$translate->_('display.header.search_mail')|capitalize}</b></span> <select name="type">
-						<option value="sender"{if $quick_search_type eq 'sender'}selected{/if}>{$translate->_('ticket.first_wrote')|capitalize}</option>
-						<option value="requester"{if $quick_search_type eq 'requester'}selected{/if}>{$translate->_('ticket.requester')|capitalize}</option>
-						<option value="mask"{if $quick_search_type eq 'mask'}selected{/if}>{$translate->_('ticket.id')}</option>
-						<option value="org"{if $quick_search_type eq 'org'}selected{/if}>{$translate->_('contact_org.name')|capitalize}</option>
-						<option value="subject"{if $quick_search_type eq 'subject'}selected{/if}>{$translate->_('ticket.subject')|capitalize}</option>
-						<option value="content"{if $quick_search_type eq 'content'}selected{/if}>{$translate->_('message.content')|capitalize}</option>
-					</select><input type="text" name="query" size="16"><button type="submit">{$translate->_('common.search_go')|lower}</button>
-					</form>
+					{include file="file:$path/tickets/quick_search_box.tpl.php"}				
 				</td>
 			</tr>
 		</table>
@@ -134,7 +123,7 @@
 			{if !$expand_all}(<b>a</b>) {$translate->_('display.button.read_all')|lower}, {/if} 
 			{if !empty($series_stats.prev)}( <b>[</b> ) {$translate->_('common.previous')|lower}, {/if} 
 			{if !empty($series_stats.next)}( <b>]</b> ) {$translate->_('common.next')|lower}, {/if} 
-			(<b>r</b>) {$translate->_('display.button.reply')|lower},  
+			(<b>r</b>) {$translate->_('display.ui.reply')|lower},  
 			(<b>p</b>) {$translate->_('common.print')|lower} 
 			<br>
 			 
@@ -168,14 +157,14 @@
 var tabView = new YAHOO.widget.TabView();
 
 tabView.addTab( new YAHOO.widget.Tab({
-    label: 'Conversation',
+    label: '{/literal}{$translate->_('display.tab.conversation')}{literal}',
     dataSrc: '{/literal}{devblocks_url}ajax.php?c=display&a=showConversation&ticket_id={$ticket->id}{if $expand_all}&expand_all=1{/if}{/devblocks_url}{literal}',
     cacheData: true,
     {/literal}active: {if empty($tab_selected) || 'conversation'==$tab_selected}true{else}false{/if}{literal}
 }));
 
 tabView.addTab( new YAHOO.widget.Tab({
-    label: 'Properties',
+    label: '{/literal}{$translate->_('display.tab.properties')}{literal}',
     dataSrc: '{/literal}{devblocks_url}ajax.php?c=display&a=showProperties&ticket_id={$ticket->id}{/devblocks_url}{literal}',
     cacheData: true,
     {/literal}active: {if 'properties'==$tab_selected}true{else}false{/if}{literal}
@@ -191,28 +180,28 @@ tabView.addTab( new YAHOO.widget.Tab({
 *}{literal}*/
 
 tabView.addTab( new YAHOO.widget.Tab({
-    label: 'Comments ({/literal}{$comments_total}{literal})',
+    label: '{/literal}{'display.tab.comments'|devblocks_translate:$comments_total}{literal}',
     dataSrc: '{/literal}{devblocks_url}ajax.php?c=display&a=showComments&ticket_id={$ticket->id}{/devblocks_url}{literal}',
     cacheData: true,
     {/literal}active: {if 'comments'==$tab_selected}true{else}false{/if}{literal}
 }));
 
 tabView.addTab( new YAHOO.widget.Tab({
-    label: 'Tasks ({/literal}{$tasks_total}{literal})',
+    label: '{/literal}{'display.tab.tasks'|devblocks_translate:$tasks_total}{literal}',
     dataSrc: '{/literal}{devblocks_url}ajax.php?c=display&a=showTasks&ticket_id={$ticket->id}{/devblocks_url}{literal}',
     cacheData: true,
     {/literal}active: {if 'tasks'==$tab_selected}true{else}false{/if}{literal}
 }));
 
 tabView.addTab( new YAHOO.widget.Tab({
-    label: 'Custom Fields ({/literal}{$field_values_total}{literal})',
+    label: '{/literal}{'display.tab.custom_fields'|devblocks_translate:$field_values_total}{literal}',
     dataSrc: '{/literal}{devblocks_url}ajax.php?c=display&a=showCustomFields&ticket_id={$ticket->id}{/devblocks_url}{literal}',
     cacheData: true,
     {/literal}active: {if 'fields'==$tab_selected}true{else}false{/if}{literal}
 }));
 
 tabView.addTab( new YAHOO.widget.Tab({
-    label: 'Requester History',
+    label: '{/literal}{'display.tab.history'|devblocks_translate}{literal}',
     dataSrc: '{/literal}{devblocks_url}ajax.php?c=display&a=showContactHistory&ticket_id={$ticket->id}{/devblocks_url}{literal}',
     cacheData: true,
     {/literal}active: {if 'history'==$tab_selected}true{else}false{/if}{literal}
@@ -222,7 +211,7 @@ tabView.addTab( new YAHOO.widget.Tab({
 
 {foreach from=$tab_manifests item=tab_manifest}
 {literal}tabView.addTab( new YAHOO.widget.Tab({{/literal}
-    label: '{$tab_manifest->params.title}',
+    label: '{$tab_manifest->params.title|devblocks_translate}',
     dataSrc: '{devblocks_url}ajax.php?c=display&a=showTab&ext_id={$tab_manifest->id}&ticket_id={$ticket->id}{/devblocks_url}',
     {if $tab_selected==$tab_manifest->params.uri}active: true,{/if}
     cacheData: false

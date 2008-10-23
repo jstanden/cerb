@@ -9,18 +9,7 @@
 		
 	</td>
 	<td width="1%" valign="middle" nowrap="nowrap">
-		<form action="{devblocks_url}{/devblocks_url}" method="post">
-		<input type="hidden" name="c" value="tickets">
-		<input type="hidden" name="a" value="doQuickSearch">
-		<span id="tourHeaderQuickLookup"><b>Search Mail:</b></span> <select name="type">
-			<option value="sender"{if $quick_search_type eq 'sender'}selected{/if}>Sender</option>
-			<option value="requester"{if $quick_search_type eq 'requester'}selected{/if}>Requester</option>
-			<option value="mask"{if $quick_search_type eq 'mask'}selected{/if}>Ticket ID</option>
-			<option value="org"{if $quick_search_type eq 'org'}selected{/if}>Organization</option>
-			<option value="subject"{if $quick_search_type eq 'subject'}selected{/if}>Subject</option>
-			<option value="content"{if $quick_search_type eq 'content'}selected{/if}>Content</option>
-		</select><input type="text" name="query" size="24"><button type="submit">go!</button>
-		</form>
+		{include file="file:$path/tickets/quick_search_box.tpl.php"}
 	</td>
 </tr>
 </table>

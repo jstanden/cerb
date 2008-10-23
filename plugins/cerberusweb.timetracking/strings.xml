@@ -5,6 +5,15 @@
 		srclang="en-us" o-tmf="abc" />
 	<body>
 
+		<!-- Manifest -->
+
+		<tu tuid='time.menu.time'>
+			<tuv xml:lang="en_US"><seg>time</seg></tuv>
+		</tu>
+		<tu tuid='time.ui.button.track'>
+			<tuv xml:lang="en_US"><seg>Track Time</seg></tuv>
+		</tu>
+		
 		<!-- Time Tracking Strings -->
 
 		<tu tuid='timetracking_entry.id'>

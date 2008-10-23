@@ -50,7 +50,7 @@
 			</class>
 			<params>
 				<param key="uri" value="forums" />
-				<param key="menutitle" value="forums" />
+				<param key="menutitle" value="forums.menu.forums" />
 			</params>
 		</extension>
 		

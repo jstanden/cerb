@@ -6,10 +6,6 @@
 
 <img alt="powered by cerberus helpdesk" src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/cerberus_logo_small.gif{/devblocks_url}" border="0">
 
-{*
-{include file="$tpl_path/menu.tpl.php"}
-*}
-
 {if !empty($page) && $page->isVisible()}
 	{$page->render()}
 {else}

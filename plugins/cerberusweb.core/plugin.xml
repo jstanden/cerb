@@ -255,7 +255,7 @@
 			</class>
 			<params>
 				<param key="uri" value="tickets" />
-				<param key="menutitle" value="mail" />
+				<param key="menutitle" value="core.menu.mail" />
 			</params>
 		</extension>
 
@@ -268,7 +268,7 @@
 			</class>
 			<params>
 				<param key="uri" value="kb" />
-				<param key="menutitle" value="knowledgebase" />
+				<param key="menutitle" value="core.menu.knowledgebase" />
 			</params>
 		</extension>
 
@@ -294,7 +294,7 @@
 			</class>
 			<params>
 				<param key="uri" value="contacts" />
-				<param key="menutitle" value="address book" />
+				<param key="menutitle" value="core.menu.address_book" />
 			</params>
 		</extension>
 
@@ -307,7 +307,7 @@
 			</class>
 			<params>
 				<param key="uri" value="tasks" />
-				<param key="menutitle" value="tasks" />
+				<param key="menutitle" value="core.menu.tasks" />
 			</params>
 		</extension>
 

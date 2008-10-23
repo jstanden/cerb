@@ -4,8 +4,48 @@
 	<header datatype="winres" segtype="sentence" adminlang="en-us" srclang="en-us" o-tmf="abc" />
 	<body>
 
+		<!-- Manifest -->
+
+		<tu tuid='core.menu.address_book'>
+			<tuv xml:lang="en_US"><seg>address book</seg></tuv>
+		</tu>
+		<tu tuid='core.menu.knowledgebase'>
+			<tuv xml:lang="en_US"><seg>knowledgebase</seg></tuv>
+		</tu>
+		<tu tuid='core.menu.mail'>
+			<tuv xml:lang="en_US"><seg>mail</seg></tuv>
+		</tu>
+		<tu tuid='core.menu.tasks'>
+			<tuv xml:lang="en_US"><seg>tasks</seg></tuv>
+		</tu>
+		
+		<tu tuid='display.tab.comments'>
+			<tuv xml:lang="en_US"><seg>Comments (%s)</seg></tuv>
+		</tu>
+		<tu tuid='display.tab.conversation'>
+			<tuv xml:lang="en_US"><seg>Conversation</seg></tuv>
+		</tu>
+		<tu tuid='display.tab.custom_fields'>
+			<tuv xml:lang="en_US"><seg>Custom Fields (%s)</seg></tuv>
+		</tu>
+		<tu tuid='display.tab.history'>
+			<tuv xml:lang="en_US"><seg>Requester History</seg></tuv>
+		</tu>
+		<tu tuid='display.tab.properties'>
+			<tuv xml:lang="en_US"><seg>Properties</seg></tuv>
+		</tu>
+		<tu tuid='display.tab.tasks'>
+			<tuv xml:lang="en_US"><seg>Tasks (%s)</seg></tuv>
+		</tu>
+
 		<!-- Common Strings -->
 
+		<tu tuid='common.all'>
+			<tuv xml:lang="en_US"><seg>all</seg></tuv>
+		</tu>
+		<tu tuid='common.anybody'>
+			<tuv xml:lang="en_US"><seg>anybody</seg></tuv>
+		</tu>
 		<tu tuid='common.assign'>
 			<tuv xml:lang="en_US"><seg>assign</seg></tuv>
 		</tu>
@@ -20,6 +60,9 @@
 		</tu>
 		<tu tuid='common.close'>
 			<tuv xml:lang="en_US"><seg>close</seg></tuv>
+		</tu>
+		<tu tuid='common.comment'>
+			<tuv xml:lang="en_US"><seg>comment</seg></tuv>
 		</tu>
 		<tu tuid='common.copy'>
 			<tuv xml:lang="en_US"><seg>copy</seg></tuv>
@@ -45,6 +88,9 @@
 		<tu tuid='common.filters'>
 			<tuv xml:lang="en_US"><seg>filters</seg></tuv>
 		</tu>
+		<tu tuid='common.fnr'>
+			<tuv xml:lang="en_US"><seg>fetch &amp; retrieve</seg></tuv>
+		</tu>
 		<tu tuid='common.group'>
 			<tuv xml:lang="en_US"><seg>Group</seg></tuv>
 		</tu>
@@ -62,6 +108,18 @@
 		</tu>
 		<tu tuid='common.keyboard'>
 			<tuv xml:lang="en_US"><seg>Keyboard</seg></tuv>
+		</tu>
+		<tu tuid='common.knowledgebase'>
+			<tuv xml:lang="en_US"><seg>Knowledgebase</seg></tuv>
+		</tu>
+		<tu tuid='common.maximize'>
+			<tuv xml:lang="en_US"><seg>maximize</seg></tuv>
+		</tu>
+		<tu tuid='common.me'>
+			<tuv xml:lang="en_US"><seg>me</seg></tuv>
+		</tu>
+		<tu tuid='common.minimize'>
+			<tuv xml:lang="en_US"><seg>minimize</seg></tuv>
 		</tu>
 		<tu tuid='common.more'>
 			<tuv xml:lang="en_US"><seg>More</seg></tuv>
@@ -281,9 +339,6 @@
 		<tu tuid='header.history'>
 			<tuv xml:lang="en_US"><seg>history</seg></tuv>
 		</tu>
-		<tu tuid='header.fnr'>
-			<tuv xml:lang="en_US"><seg>fetch &amp; retrieve</seg></tuv>
-		</tu>
 		<tu tuid='header.group_setup'>
 			<tuv xml:lang="en_US"><seg>group setup</seg></tuv>
 		</tu>
@@ -371,22 +426,116 @@
 
 		<!-- Display Ticket -->
 		
+		<!-- Display: Conversation -->
+		<tu tuid='display.convo.attachments_label'>
+			<tuv xml:lang="en_US"><seg>Attachments:</seg></tuv>
+		</tu>
+		<tu tuid='display.convo.full_headers'>
+			<tuv xml:lang="en_US"><seg>full headers</seg></tuv>
+		</tu>
+		<tu tuid='display.convo.no_messages'>
+			<tuv xml:lang="en_US"><seg>No messages on ticket.</seg></tuv>
+		</tu>
+		<tu tuid='display.convo.order_oldest'>
+			<tuv xml:lang="en_US"><seg>Starting with the oldest message:</seg></tuv>
+		</tu>
+		<tu tuid='display.convo.order_newest'>
+			<tuv xml:lang="en_US"><seg>Starting with the newest message:</seg></tuv>
+		</tu>
+		<tu tuid='display.convo.set_org'>
+			<tuv xml:lang="en_US"><seg>set organization</seg></tuv>
+		</tu>
+		<tu tuid='display.convo.skip_to_bottom'>
+			<tuv xml:lang="en_US"><seg>skip to bottom</seg></tuv>
+		</tu>
+		<tu tuid='display.convo.unknown_format'>
+			<tuv xml:lang="en_US"><seg>Unknown Format</seg></tuv>
+		</tu>
+		
 		<tu tuid='display.button.read_all'>
 			<tuv xml:lang="en_US"><seg>Read All</seg></tuv>
 		</tu>
-		<tu tuid='display.button.reply'>
-			<tuv xml:lang="en_US"><seg>Reply</seg></tuv>
+		<tu tuid='display.button.split_ticket'>
+			<tuv xml:lang="en_US"><seg>Split Ticket</seg></tuv>
 		</tu>
 		
-		<tu tuid='display.header.search_mail'>
-			<tuv xml:lang="en_US"><seg>Search Mail:</seg></tuv>
-		</tu>
 		
 		<tu tuid='display.listnav.active_list'>
 			<tuv xml:lang="en_US"><seg>Active list:</seg></tuv>
 		</tu>
 		<tu tuid='display.listnav.showing_of_total'>
 			<tuv xml:lang="en_US"><seg>(%s-%s of %s)</seg></tuv>
+		</tu>
+		
+		<tu tuid='display.reply.attachments_add'>
+			<tuv xml:lang="en_US"><seg>Add attachments:</seg></tuv>
+		</tu>
+		<tu tuid='display.reply.attachments_forward'>
+			<tuv xml:lang="en_US"><seg>Forward attachments:</seg></tuv>
+		</tu>
+		<tu tuid='display.reply.attachments_more'>
+			<tuv xml:lang="en_US"><seg>attach more</seg></tuv>
+		</tu>
+		<tu tuid='display.reply.attachments_limit'>
+			<tuv xml:lang="en_US"><seg>(The maximum attachment size is %s)</seg></tuv>
+		</tu>
+		<tu tuid='display.reply.email_templates'>
+			<tuv xml:lang="en_US"><seg>E-mail Templates</seg></tuv>
+		</tu>
+		<tu tuid='display.reply.insert_sig'>
+			<tuv xml:lang="en_US"><seg>Insert Signature</seg></tuv>
+		</tu>
+		<tu tuid='display.reply.kb.all_topics'>
+			<tuv xml:lang="en_US"><seg>all topics</seg></tuv>
+		</tu>
+		<tu tuid='display.reply.kb.search'>
+			<tuv xml:lang="en_US"><seg>Search Knowledgebase:</seg></tuv>
+		</tu>
+		<tu tuid='display.reply.next_label'>
+			<tuv xml:lang="en_US"><seg>Next:</seg></tuv>
+		</tu>
+		<tu tuid='display.reply.next.handle_reply'>
+			<tuv xml:lang="en_US"><seg>Who should handle the next reply?</seg></tuv>
+		</tu>
+		<tu tuid='display.reply.next.handle_reply_after'>
+			<tuv xml:lang="en_US"><seg>Allow anybody to handle the next reply after:</seg></tuv>
+		</tu>
+		<tu tuid='display.reply.next.handle_reply_after_2hrs'>
+			<tuv xml:lang="en_US"><seg>+2 hours</seg></tuv>
+		</tu>
+		<tu tuid='display.reply.next.handle_reply_after_eg'>
+			<tuv xml:lang="en_US"><seg>(e.g. "2 hours", "5pm", or leave blank to keep assigned)</seg></tuv>
+		</tu>
+		<tu tuid='display.reply.next.move'>
+			<tuv xml:lang="en_US"><seg>Would you like to move this conversation?</seg></tuv>
+		</tu>
+		<tu tuid='display.reply.next.move.current'>
+			<tuv xml:lang="en_US"><seg>(current bucket)</seg></tuv>
+		</tu>
+		<tu tuid='display.reply.next.move.no_thanks'>
+			<tuv xml:lang="en_US"><seg>no thanks!</seg></tuv>
+		</tu>
+		<tu tuid='display.reply.next.next_action'>
+			<tuv xml:lang="en_US"><seg>What is the next action that needs to happen?</seg></tuv>
+		</tu>
+		<tu tuid='display.reply.next.next_action_eg'>
+			<tuv xml:lang="en_US"><seg>(optional, max 255 characters)</seg></tuv>
+		</tu>
+		<tu tuid='display.reply.next.resume'>
+			<tuv xml:lang="en_US"><seg>When would you like to resume this conversation?</seg></tuv>
+		</tu>
+		<tu tuid='display.reply.next.resume_blank'>
+			<tuv xml:lang="en_US"><seg>(leave blank to wait for a reply before resuming)</seg></tuv>
+		</tu>
+		<tu tuid='display.reply.next.resume_eg'>
+			<tuv xml:lang="en_US"><seg>(e.g. "Friday", "7 days", "Tomorrow 11:15AM", "Dec 31")</seg></tuv>
+		</tu>
+		
+		<tu tuid='display.reply.reply_banner'>
+			<tuv xml:lang="en_US"><seg>On %s, %s wrote:</seg></tuv>
+		</tu>
+		<tu tuid='display.reply.warn_assigned'>
+			<tuv xml:lang="en_US"><seg>Warning: You are replying to a ticket assigned to %s</seg></tuv>
 		</tu>
 		
 		<tu tuid='display.shortcut.close'>
@@ -414,6 +563,25 @@
 			<tuv xml:lang="en_US"><seg>Assign this ticket to yourself (T)</seg></tuv>
 		</tu>
 
+		<tu tuid='display.ui.discard'>
+			<tuv xml:lang="en_US"><seg>Discard</seg></tuv>
+		</tu>
+		<tu tuid='display.ui.discard_surrender'>
+			<tuv xml:lang="en_US"><seg>Discard &amp; Surrender</seg></tuv>
+		</tu>
+		<tu tuid='display.ui.forward'>
+			<tuv xml:lang="en_US"><seg>Forward</seg></tuv>
+		</tu>
+		<tu tuid='display.ui.reply'>
+			<tuv xml:lang="en_US"><seg>Reply</seg></tuv>
+		</tu>
+		<tu tuid='display.ui.send_message'>
+			<tuv xml:lang="en_US"><seg>Send Message</seg></tuv>
+		</tu>
+		<tu tuid='display.ui.sticky_note'>
+			<tuv xml:lang="en_US"><seg>Sticky Note</seg></tuv>
+		</tu>
+		
 		<!-- KB Article -->
 		
 		<tu tuid='kb_article.content'>
@@ -439,15 +607,25 @@
 		</tu>
 
 		<!-- Mail -->
+		
+		<tu tuid='mail.nav.search_mail'>
+			<tuv xml:lang="en_US"><seg>Search Mail:</seg></tuv>
+		</tu>
 
 		<tu tuid='mail.bulk_update'>
 			<tuv xml:lang="en_US"><seg>Bulk Update</seg></tuv>
+		</tu>
+		<tu tuid='mail.inbound'>
+			<tuv xml:lang="en_US"><seg>Inbound</seg></tuv>
 		</tu>
 		<tu tuid='mail.merge'>
 			<tuv xml:lang="en_US"><seg>Merge</seg></tuv>
 		</tu>
 		<tu tuid='mail.not_waiting'>
 			<tuv xml:lang="en_US"><seg>Not Waiting</seg></tuv>
+		</tu>
+		<tu tuid='mail.outbound'>
+			<tuv xml:lang="en_US"><seg>Outbound</seg></tuv>
 		</tu>
 		<tu tuid='mail.piles'>
 			<tuv xml:lang="en_US"><seg>Piles</seg></tuv>
@@ -464,6 +642,25 @@
 		
 		<!-- Message -->
 
+		<tu tuid='message.header.bcc'>
+			<tuv xml:lang="en_US"><seg>Bcc</seg></tuv>
+		</tu>
+		<tu tuid='message.header.cc'>
+			<tuv xml:lang="en_US"><seg>Cc</seg></tuv>
+		</tu>
+		<tu tuid='message.header.date'>
+			<tuv xml:lang="en_US"><seg>Date</seg></tuv>
+		</tu>
+		<tu tuid='message.header.from'>
+			<tuv xml:lang="en_US"><seg>From</seg></tuv>
+		</tu>
+		<tu tuid='message.header.subject'>
+			<tuv xml:lang="en_US"><seg>Subject</seg></tuv>
+		</tu>
+		<tu tuid='message.header.to'>
+			<tuv xml:lang="en_US"><seg>To</seg></tuv>
+		</tu>
+		
 		<tu tuid='message.content'>
 			<tuv xml:lang="en_US"><seg>Message Content</seg></tuv>
 		</tu>
@@ -513,7 +710,7 @@
 			<tuv xml:lang="en_US"><seg>Deleted</seg></tuv>
 		</tu>
 		<tu tuid='status.waiting'>
-			<tuv xml:lang="en_US"><seg>Waiting</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Waiting for Reply</seg></tuv>
 		</tu>
 
 		<!-- Tasks -->
@@ -620,6 +817,9 @@
 		<tu tuid='ticket.requester'>
 			<tuv xml:lang="en_US"><seg>Requester</seg></tuv>
 		</tu>
+		<tu tuid='ticket.requesters'>
+			<tuv xml:lang="en_US"><seg>Requesters</seg></tuv>
+		</tu>
 		<tu tuid='ticket.spam_score'>
 			<tuv xml:lang="en_US"><seg>Spam Score</seg></tuv>
 		</tu>
@@ -652,7 +852,7 @@
 		<!-- Whos Online -->
 
 		<tu tuid='whos_online.heading'>
-			<tuv xml:lang="en_US"><seg>%d Worker(s) Signed In:</seg></tuv>
+			<tuv xml:lang="en_US"><seg>%s Worker(s) Signed In:</seg></tuv>
 		</tu>
 
 		<!-- Workflow -->

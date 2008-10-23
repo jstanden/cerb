@@ -11,6 +11,18 @@ class ChReportsPlugin extends DevblocksPlugin {
 	}
 };
 
+if (class_exists('DevblocksTranslationsExtension',true)):
+	class ChReportsTranslations extends DevblocksTranslationsExtension {
+		function __construct($manifest) {
+			parent::__construct($manifest);	
+		}
+		
+		function getTmxFile() {
+			return realpath(dirname(__FILE__) . '/../strings.xml');
+		}
+	};
+endif;
+
 abstract class Extension_Report extends DevblocksExtension {
 	function __construct($manifest) {
 		parent::DevblocksExtension($manifest);

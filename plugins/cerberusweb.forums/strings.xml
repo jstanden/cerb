@@ -7,6 +7,11 @@
 
 		<!-- Common Strings -->
 		
+		<!-- Manifest -->
+		
+		<tu tuid='forums.menu.forums'>
+			<tuv xml:lang="en_US"><seg>forums</seg></tuv>
+		</tu>
 		
 		<!-- Forums -->
 

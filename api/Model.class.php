@@ -2129,16 +2129,18 @@ class Model_Activity {
 		$this->params = $params;
 	}
 
-	public function toString() {
+	public function toString(CerberusWorker $worker=null) {
+		if(null == $worker)
+			return;
+			
 		$translate = DevblocksPlatform::getTranslationService();
 		$params = $this->params;
 
 		// Prepend the worker name to the activity's param list
-		$active_worker = CerberusApplication::getActiveWorker();
 		array_unshift($params, sprintf("<b>%s</b>%s",
-			$active_worker->getName(),
-			(!empty($active_worker->title) 
-				? (' (' . $active_worker->title . ')') 
+			$worker->getName(),
+			(!empty($worker->title) 
+				? (' (' . $worker->title . ')') 
 				: ''
 			)
 		));

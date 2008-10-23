@@ -13,6 +13,19 @@
 	
 	<extensions>
 
+		<!-- Translations -->
+		
+		<extension point="devblocks.i18n.strings">
+			<id>reports.translations</id>
+			<name>Reports Strings</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChReportsTranslations</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
 	<!-- Page Extensions -->
 	
 	<extension point="cerberusweb.page">

@@ -70,7 +70,7 @@
 			</class>
 			<params>
 				<param key="uri" value="log" />
-				<param key="title" value="Audit Log" />
+				<param key="title" value="auditlog.display.tab.log" />
 			</params>
 		</extension>
 	

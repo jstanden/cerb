@@ -1,8 +1,8 @@
 <div id="tourDisplayConversation"></div>
 {if $expand_all}
-	<b>Starting with the oldest message:</b>
+	<b>{$translate->_('display.convo.order_oldest')}</b>
 {else}
-	<b>Starting with the newest message:</b>
+	<b>{$translate->_('display.convo.order_newest')}</b>
 {/if}
 <!-- <h2>Ticket Conversation</h2> -->
 
@@ -30,6 +30,6 @@
 	{/if}
 	
 {else}
-  No messages on ticket.
+  {$translate->_('display.convo.no_messages')}
   <br>
 {/if}

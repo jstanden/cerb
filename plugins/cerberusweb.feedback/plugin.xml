@@ -168,7 +168,7 @@
 			</class>
 			<params>
 				<param key="uri" value="feedback" />
-				<param key="menutitle" value="feedback" />
+				<param key="menutitle" value="feedback.menu.feedback" />
 			</params>
 		</extension>
 		 
