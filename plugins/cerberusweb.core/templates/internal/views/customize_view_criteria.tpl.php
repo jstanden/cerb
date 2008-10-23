@@ -4,15 +4,15 @@
 		<div class="block" style="width:300px;">
 		<table cellpadding="2" cellspacing="0" border="0">
 		<tr>
-			<td><h2>Filters</h2></td>
-			<td>Clear</td>
+			<td><h2>{$translate->_('common.filters')|capitalize}</h2></td>
+			<td>{$translate->_('common.clear')|capitalize}</td>
 		</tr>
 		{foreach from=$view->params item=param}
 			<tr>
 			<td width="100%">
 				{assign var=field value=$param->field}
 				<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/data_find.gif{/devblocks_url}" align="absmiddle"> 
-				{$translate->_($view_fields.$field->db_label)|capitalize} 
+				{$view_fields.$field->db_label|capitalize} 
 				{$param->operator}
 				<b>{$view->renderCriteriaParam($param)}</b>
 			</td>
@@ -26,7 +26,7 @@
 	<td valign="top" width="100%">
 		<div class="block" style="width:98%;">
 			<h2>Add Filter</h2>
-			<b>Field:</b><br>
+			<b>{$translate->_('common.field')|capitalize}:</b><br>
 			<blockquote style="margin:5px;">
 				<select name="field" onchange="genericAjaxGet('addCriteria{$view->id}','c=internal&a=viewGetCriteria&id={$view->id}&field='+selectValue(this));">
 					<option value="">-- choose --</option>
@@ -34,7 +34,7 @@
 					{foreach from=$view_searchable_fields item=column key=token}
 						{if substr($token,0,3) != "cf_"}
 							{if !empty($column->db_label) && !empty($token)}
-							<option value="{$token}">{$translate->_($column->db_label)|capitalize}</option>
+							<option value="{$token}">{$column->db_label|capitalize}</option>
 							{/if}
 						{/if}
 					{/foreach}
@@ -43,7 +43,7 @@
 					{foreach from=$view_searchable_fields item=column key=token}
 						{if substr($token,0,3) == "cf_"}
 							{if !empty($column->db_label) && !empty($token)}
-							<option value="{$token}">{$translate->_($column->db_label)|capitalize}</option>
+							<option value="{$token}">{$column->db_label|capitalize}</option>
 							{/if}
 						{/if}
 					{/foreach}

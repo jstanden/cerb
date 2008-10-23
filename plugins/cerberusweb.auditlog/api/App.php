@@ -10,6 +10,18 @@ class ChAuditLogPlugin extends DevblocksPlugin {
 	}
 };
 
+if (class_exists('DevblocksTranslationsExtension',true)):
+	class ChAuditLogTranslations extends DevblocksTranslationsExtension {
+		function __construct($manifest) {
+			parent::__construct($manifest);	
+		}
+		
+		function getTmxFile() {
+			return realpath(dirname(__FILE__) . '/../strings.xml');
+		}
+	};
+endif;
+
 class ChAuditLogEventListener extends DevblocksEventListenerExtension {
     function __construct($manifest) {
         parent::__construct($manifest);
@@ -79,6 +91,7 @@ class ChAuditLogTicketTab extends Extension_TicketTab {
 		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer', 0);
 
 		$visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
+		$translate = DevblocksPlatform::getTranslationService();
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', $this->tpl_path);
@@ -89,7 +102,7 @@ class ChAuditLogTicketTab extends Extension_TicketTab {
 		if(null == $view) {
 			$view = new C4_TicketAuditLogView();
 			$view->id = 'audit_log';
-			$view->name = 'Ticket Audit Log';
+			$view->name = $translate->_('auditlog.audit_log');
 			$view->view_columns = array(
 				SearchFields_TicketAuditLog::CHANGE_DATE,
 				SearchFields_TicketAuditLog::WORKER_ID,
@@ -293,13 +306,15 @@ class SearchFields_TicketAuditLog implements IDevblocksSearchFields {
 	 * @return DevblocksSearchField[]
 	 */
 	static function getFields() {
+		$translate = DevblocksPlatform::getTranslationService();
+		
 		return array(
 			self::ID => new DevblocksSearchField(self::ID, 'l', 'id'),
-			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 'l', 'worker_id',null,'Worker'), // [TODO] Translate
-			self::TICKET_ID => new DevblocksSearchField(self::TICKET_ID, 'l', 'ticket_id',null,'Ticket ID'),
-			self::CHANGE_DATE => new DevblocksSearchField(self::CHANGE_DATE, 'l', 'change_date',null,'Change Date'),
-			self::CHANGE_FIELD => new DevblocksSearchField(self::CHANGE_FIELD, 'l', 'change_field',null,'Property'),
-			self::CHANGE_VALUE => new DevblocksSearchField(self::CHANGE_VALUE, 'l', 'change_value',null,'Value'),
+			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 'l', 'worker_id',null,$translate->_('auditlog_entry.worker_id')),
+			self::TICKET_ID => new DevblocksSearchField(self::TICKET_ID, 'l', 'ticket_id',null,$translate->_('auditlog_entry.ticket_id')),
+			self::CHANGE_DATE => new DevblocksSearchField(self::CHANGE_DATE, 'l', 'change_date',null,$translate->_('auditlog_entry.change_date')),
+			self::CHANGE_FIELD => new DevblocksSearchField(self::CHANGE_FIELD, 'l', 'change_field',null,$translate->_('auditlog_entry.change_field')),
+			self::CHANGE_VALUE => new DevblocksSearchField(self::CHANGE_VALUE, 'l', 'change_value',null,$translate->_('auditlog_entry.change_value')),
 		);
 	}
 };
@@ -317,8 +332,10 @@ class C4_TicketAuditLogView extends C4_AbstractView {
 	const DEFAULT_ID = 'audit_log';
 	
 	function __construct() {
+		$translate = DevblocksPlatform::getTranslationService();
+		
 		$this->id = self::DEFAULT_ID;
-		$this->name = 'Ticket Audit Log';
+		$this->name = $translate->_('auditlog.audit_log');
 		$this->renderLimit = 15;
 		$this->renderSortBy = 'l_change_date';
 		$this->renderSortAsc = false;

@@ -10,7 +10,7 @@
 	<tr>
 		<td nowrap="nowrap">
 			<h2 style="display:inline;">{$translate->_('common.filters')|capitalize}</h2>
-			[ <a href="javascript:;" onclick="document.{$view->id}_criteriaForm.a.value='viewResetCriteria';document.{$view->id}_criteriaForm.submit();toggleDiv('criteriaDiv');">reset</a> ]
+			[ <a href="javascript:;" onclick="document.{$view->id}_criteriaForm.a.value='viewResetCriteria';document.{$view->id}_criteriaForm.submit();toggleDiv('criteriaDiv');">{$translate->_('common.reset')|lower}</a> ]
 		</td>
 	</tr>
 	<tr>
@@ -23,7 +23,7 @@
 					<tr>
 						<td width="100%">
 						<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/data_find.gif{/devblocks_url}" align="top"> 
-						{$translate->_($view_fields.$field->db_label)|capitalize} 
+						{$view_fields.$field->db_label|capitalize} 
 						{$param->operator}
 						<b>{$view->renderCriteriaParam($param)}</b>
 						</td>
@@ -58,7 +58,7 @@
 				{assign var=has_custom value=0}
 				{if substr($token,0,3) != "cf_"}
 					{if !empty($column->db_label) && !empty($token)}
-					<option value="{$token}">{$translate->_($column->db_label)|capitalize}</option>
+					<option value="{$token}">{$column->db_label|capitalize}</option>
 					{/if}
 				{else}
 					{assign var=has_custom value=1}
@@ -70,7 +70,7 @@
 			{foreach from=$view_searchable_fields item=column key=token}
 				{if substr($token,0,3) == "cf_"}
 					{if !empty($column->db_label) && !empty($token)}
-					<option value="{$token}">{$translate->_($column->db_label)|capitalize}</option>
+					<option value="{$token}">{$column->db_label|capitalize}</option>
 					{/if}
 				{/if}
 			{/foreach}

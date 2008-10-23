@@ -1,7 +1,7 @@
 <form action="{devblocks_url}{/devblocks_url}" method="post">
 <input type="hidden" name="c" value="tickets">
 <input type="hidden" name="a" value="saveOverviewFilter">
-<h1>Filter</h1>
+<h1>{$translate->_('common.filter')|capitalize}</h1>
 
 Hide these buckets from my overview:<br>
 <div id="" style="height:300px;overflow:auto;background-color:rgb(255,255,255);padding:5px;border:1px solid rgb(180,180,180);">

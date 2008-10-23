@@ -62,6 +62,14 @@ $session = DevblocksPlatform::getSessionService();
 $settings = CerberusSettings::getInstance();
 $worker = CerberusApplication::getActiveWorker();
 
+// Localization
+if(isset($_SESSION['timezone'])) {
+	@date_default_timezone_set($_SESSION['timezone']);
+}
+if(isset($_SESSION['locale'])) {
+	DevblocksPlatform::setLocale($_SESSION['locale']);
+}
+
 $tpl = DevblocksPlatform::getTemplateService();
 $tpl->assign('translate', DevblocksPlatform::getTranslationService());
 $tpl->assign('session', $_SESSION);
@@ -72,14 +80,6 @@ $tpl->assign('settings', $settings);
 if(!empty($worker)) {
 	$active_worker_memberships = $worker->getMemberships();
 	$tpl->assign('active_worker_memberships', $active_worker_memberships);
-}
-
-// Localization
-if(isset($_SESSION['timezone'])) {
-	@date_default_timezone_set($_SESSION['timezone']);
-}
-if(isset($_SESSION['locale'])) {
-	DevblocksPlatform::setLocale($_SESSION['locale']);
 }
 
 DevblocksPlatform::processRequest($request,true);

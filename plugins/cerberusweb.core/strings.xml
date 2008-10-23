@@ -6,6 +6,9 @@
 
 		<!-- Common Strings -->
 
+		<tu tuid='common.assign'>
+			<tuv xml:lang="en_US"><seg>assign</seg></tuv>
+		</tu>
 		<tu tuid='common.bucket'>
 			<tuv xml:lang="en_US"><seg>bucket</seg></tuv>
 		</tu>
@@ -17,6 +20,9 @@
 		</tu>
 		<tu tuid='common.close'>
 			<tuv xml:lang="en_US"><seg>close</seg></tuv>
+		</tu>
+		<tu tuid='common.copy'>
+			<tuv xml:lang="en_US"><seg>copy</seg></tuv>
 		</tu>
 		<tu tuid='common.customize'>
 			<tuv xml:lang="en_US"><seg>customize</seg></tuv>
@@ -30,20 +36,44 @@
 		<tu tuid='common.export'>
 			<tuv xml:lang="en_US"><seg>export</seg></tuv>
 		</tu>
+		<tu tuid='common.field'>
+			<tuv xml:lang="en_US"><seg>field</seg></tuv>
+		</tu>
 		<tu tuid='common.filter'>
 			<tuv xml:lang="en_US"><seg>filter</seg></tuv>
 		</tu>
 		<tu tuid='common.filters'>
 			<tuv xml:lang="en_US"><seg>filters</seg></tuv>
 		</tu>
-		<tu tuid='common.import'>
-			<tuv xml:lang="en_US"><seg>import</seg></tuv>
-		</tu>
 		<tu tuid='common.group'>
 			<tuv xml:lang="en_US"><seg>Group</seg></tuv>
 		</tu>
+		<tu tuid='common.id'>
+			<tuv xml:lang="en_US"><seg>ID</seg></tuv>
+		</tu>
+		<tu tuid='common.import'>
+			<tuv xml:lang="en_US"><seg>import</seg></tuv>
+		</tu>
+		<tu tuid='common.inbox'>
+			<tuv xml:lang="en_US"><seg>inbox</seg></tuv>
+		</tu>
+		<tu tuid='common.inboxes'>
+			<tuv xml:lang="en_US"><seg>inboxes</seg></tuv>
+		</tu>
+		<tu tuid='common.keyboard'>
+			<tuv xml:lang="en_US"><seg>Keyboard</seg></tuv>
+		</tu>
+		<tu tuid='common.more'>
+			<tuv xml:lang="en_US"><seg>More</seg></tuv>
+		</tu>
+		<tu tuid='common.move_to'>
+			<tuv xml:lang="en_US"><seg>move to</seg></tuv>
+		</tu>
 		<tu tuid='common.name'>
 			<tuv xml:lang="en_US"><seg>Name</seg></tuv>
+		</tu>
+		<tu tuid='common.notspam'>
+			<tuv xml:lang="en_US"><seg>Not Spam</seg></tuv>
 		</tu>
 		<tu tuid='common.load'>
 			<tuv xml:lang="en_US"><seg>Load</seg></tuv>
@@ -54,14 +84,26 @@
 		<tu tuid='common.password'>
 			<tuv xml:lang="en_US"><seg>password</seg></tuv>
 		</tu>
-		<tu tuid='common.prev'>
+		<tu tuid='common.previous_short'>
 			<tuv xml:lang="en_US"><seg>prev</seg></tuv>
+		</tu>
+		<tu tuid='common.previous'>
+			<tuv xml:lang="en_US"><seg>previous</seg></tuv>
+		</tu>
+		<tu tuid='common.print'>
+			<tuv xml:lang="en_US"><seg>Print</seg></tuv>
 		</tu>
 		<tu tuid='common.refresh'>
 			<tuv xml:lang="en_US"><seg>refresh</seg></tuv>
 		</tu>
 		<tu tuid='common.remove'>
 			<tuv xml:lang="en_US"><seg>remove</seg></tuv>
+		</tu>
+		<tu tuid='common.reopen'>
+			<tuv xml:lang="en_US"><seg>Re-open</seg></tuv>
+		</tu>
+		<tu tuid='common.reset'>
+			<tuv xml:lang="en_US"><seg>reset</seg></tuv>
 		</tu>
 		<tu tuid='common.save'>
 			<tuv xml:lang="en_US"><seg>Save</seg></tuv>
@@ -71,6 +113,9 @@
 		</tu>
 		<tu tuid='common.search'>
 			<tuv xml:lang="en_US"><seg>search</seg></tuv>
+		</tu>
+		<tu tuid='common.search_go'>
+			<tuv xml:lang="en_US"><seg>go!</seg></tuv>
 		</tu>
 		<tu tuid='common.settings'>
 			<tuv xml:lang="en_US"><seg>settings</seg></tuv>
@@ -89,6 +134,9 @@
 		</tu>
 		<tu tuid='common.ticket'>
 			<tuv xml:lang="en_US"><seg>ticket</seg></tuv>
+		</tu>
+		<tu tuid='common.undelete'>
+			<tuv xml:lang="en_US"><seg>Undelete</seg></tuv>
 		</tu>
 		<tu tuid='common.update'>
 			<tuv xml:lang="en_US"><seg>update</seg></tuv>
@@ -321,8 +369,53 @@
 			<tuv xml:lang="en_US"><seg>Teamwork</seg></tuv>
 		</tu>
 
-		<!-- KB Article -->
+		<!-- Display Ticket -->
+		
+		<tu tuid='display.button.read_all'>
+			<tuv xml:lang="en_US"><seg>Read All</seg></tuv>
+		</tu>
+		<tu tuid='display.button.reply'>
+			<tuv xml:lang="en_US"><seg>Reply</seg></tuv>
+		</tu>
+		
+		<tu tuid='display.header.search_mail'>
+			<tuv xml:lang="en_US"><seg>Search Mail:</seg></tuv>
+		</tu>
+		
+		<tu tuid='display.listnav.active_list'>
+			<tuv xml:lang="en_US"><seg>Active list:</seg></tuv>
+		</tu>
+		<tu tuid='display.listnav.showing_of_total'>
+			<tuv xml:lang="en_US"><seg>(%s-%s of %s)</seg></tuv>
+		</tu>
+		
+		<tu tuid='display.shortcut.close'>
+			<tuv xml:lang="en_US"><seg>Close this ticket (C)</seg></tuv>
+		</tu>
+		<tu tuid='display.shortcut.delete'>
+			<tuv xml:lang="en_US"><seg>Delete this ticket (X)</seg></tuv>
+		</tu>
+		<tu tuid='display.shortcut.print'>
+			<tuv xml:lang="en_US"><seg>Print this ticket (P)</seg></tuv>
+		</tu>
+		<tu tuid='display.shortcut.read_all'>
+			<tuv xml:lang="en_US"><seg>Read all messages in chronological order (A)</seg></tuv>
+		</tu>
+		<tu tuid='display.shortcut.refresh'>
+			<tuv xml:lang="en_US"><seg>Reload this ticket</seg></tuv>
+		</tu>
+		<tu tuid='display.shortcut.spam'>
+			<tuv xml:lang="en_US"><seg>Report this ticket as spam (S)</seg></tuv>
+		</tu>
+		<tu tuid='display.shortcut.surrender'>
+			<tuv xml:lang="en_US"><seg>Unassign this ticket from yourself (U)</seg></tuv>
+		</tu>
+		<tu tuid='display.shortcut.take'>
+			<tuv xml:lang="en_US"><seg>Assign this ticket to yourself (T)</seg></tuv>
+		</tu>
 
+		<!-- KB Article -->
+		
 		<tu tuid='kb_article.content'>
 			<tuv xml:lang="en_US"><seg>Content</seg></tuv>
 		</tu>
@@ -345,6 +438,30 @@
 			<tuv xml:lang="en_US"><seg>Views</seg></tuv>
 		</tu>
 
+		<!-- Mail -->
+
+		<tu tuid='mail.bulk_update'>
+			<tuv xml:lang="en_US"><seg>Bulk Update</seg></tuv>
+		</tu>
+		<tu tuid='mail.merge'>
+			<tuv xml:lang="en_US"><seg>Merge</seg></tuv>
+		</tu>
+		<tu tuid='mail.not_waiting'>
+			<tuv xml:lang="en_US"><seg>Not Waiting</seg></tuv>
+		</tu>
+		<tu tuid='mail.piles'>
+			<tuv xml:lang="en_US"><seg>Piles</seg></tuv>
+		</tu>
+		<tu tuid='mail.surrender'>
+			<tuv xml:lang="en_US"><seg>Surrender</seg></tuv>
+		</tu>
+		<tu tuid='mail.take'>
+			<tuv xml:lang="en_US"><seg>Take</seg></tuv>
+		</tu>
+		<tu tuid='mail.waiting'>
+			<tuv xml:lang="en_US"><seg>Waiting</seg></tuv>
+		</tu>
+		
 		<!-- Message -->
 
 		<tu tuid='message.content'>
@@ -366,11 +483,6 @@
 			<tuv xml:lang="en_US"><seg>High</seg></tuv>
 		</tu>
 
-		<!--  -->
-
-		<tu tuid='requester'>
-			<tuv xml:lang="en_US"><seg>Requester</seg></tuv>
-		</tu>
 
 		<!-- Search -->
 
@@ -473,7 +585,7 @@
 			<tuv xml:lang="en_US"><seg>Due</seg></tuv>
 		</tu>
 		<tu tuid='ticket.id'>
-			<tuv xml:lang="en_US"><seg>ID</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Ticket ID</seg></tuv>
 		</tu>
 		<tu tuid='ticket.first_wrote'>
 			<tuv xml:lang="en_US"><seg>First Wrote</seg></tuv>
@@ -505,6 +617,9 @@
 		<tu tuid='ticket.priority'>
 			<tuv xml:lang="en_US"><seg>Priority</seg></tuv>
 		</tu>
+		<tu tuid='ticket.requester'>
+			<tuv xml:lang="en_US"><seg>Requester</seg></tuv>
+		</tu>
 		<tu tuid='ticket.spam_score'>
 			<tuv xml:lang="en_US"><seg>Spam Score</seg></tuv>
 		</tu>
@@ -530,6 +645,10 @@
 			<tuv xml:lang="en_US"><seg>Not Spam</seg></tuv>
 		</tu>
 
+		<!-- Views -->
+
+
+		
 		<!-- Whos Online -->
 
 		<tu tuid='whos_online.heading'>

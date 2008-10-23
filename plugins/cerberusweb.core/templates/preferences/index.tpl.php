@@ -7,7 +7,7 @@
 	</div>
 </div> 
 
-<h1>My Account</h1>
+<h1>{$translate->_('header.preferences')|capitalize}</h1>
 
 {if is_array($pref_errors) && !empty($pref_errors)}
 	<div class="error">

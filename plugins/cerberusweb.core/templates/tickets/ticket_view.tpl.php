@@ -7,10 +7,10 @@
 	<tr>
 		<td nowrap="nowrap" class="tableThBlue">{$view->name} {if $view->id == 'search'}<a href="#{$view->id}_actions" style="color:rgb(255,255,255);font-size:11px;">jump to actions</a>{/if}</td>
 		<td nowrap="nowrap" class="tableThBlue" align="right">
-			<a href="javascript:;" onclick="genericAjaxGet('{$view->id}_tips','c=tickets&a=showViewAutoAssign&view_id={$view->id}');toggleDiv('{$view->id}_tips','block');" class="tableThLink">{"assign"|lower}</a>
-			{if $view->id != 'contact_history'}<span style="font-size:12px"> | </span><a href="javascript:;" onclick="genericAjaxGet('{$view->id}_tips','c=tickets&a=showViewAutoAssist&view_id={$view->id}');toggleDiv('{$view->id}_tips','block');" class="tableThLink">{"piles"|lower}</a>{/if}
+			<a href="javascript:;" onclick="genericAjaxGet('{$view->id}_tips','c=tickets&a=showViewAutoAssign&view_id={$view->id}');toggleDiv('{$view->id}_tips','block');" class="tableThLink">{$translate->_('common.assign')|lower}</a>
+			{if $view->id != 'contact_history'}<span style="font-size:12px"> | </span><a href="javascript:;" onclick="genericAjaxGet('{$view->id}_tips','c=tickets&a=showViewAutoAssist&view_id={$view->id}');toggleDiv('{$view->id}_tips','block');" class="tableThLink">{$translate->_('mail.piles')|lower}</a>{/if}
 			{if $view->id != 'search'}<span style="font-size:12px"> | </span><a href="{devblocks_url}c=tickets&a=searchview&id={$view->id}{/devblocks_url}" class="tableThLink">{$translate->_('common.search')|lower}</a>{/if}
-			<span style="font-size:12px"> | </span><a href="javascript:;" onclick="genericAjaxGet('{$view->id}_tips','c=tickets&a=showViewCopy&view_id={$view->id}');toggleDiv('{$view->id}_tips','block');" class="tableThLink">{"copy"|lower}</a>
+			<span style="font-size:12px"> | </span><a href="javascript:;" onclick="genericAjaxGet('{$view->id}_tips','c=tickets&a=showViewCopy&view_id={$view->id}');toggleDiv('{$view->id}_tips','block');" class="tableThLink">{$translate->_('common.copy')|lower}</a>
 			<span style="font-size:12px"> | </span><a href="javascript:;" onclick="genericAjaxGet('customize{$view->id}','c=internal&a=viewCustomize&id={$view->id}');toggleDiv('customize{$view->id}','block');" class="tableThLink">{$translate->_('common.customize')|lower}</a>
 			<span style="font-size:12px"> | </span><a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');" class="tableThLink"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/refresh.gif{/devblocks_url}" border="0" align="absmiddle" title="{$translate->_('common.refresh')|lower}" alt="{$translate->_('common.refresh')|lower}"></a>
 			<span style="font-size:12px"> | </span><a href="javascript:;" onclick="genericAjaxGet('{$view->id}_tips','c=tickets&a=showViewRss&view_id={$view->id}');toggleDiv('{$view->id}_tips','block');" class="tableThLink"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/feed-icon-16x16.gif{/devblocks_url}" border="0" align="absmiddle"></a>
@@ -225,10 +225,10 @@
 	{if $total}
 	<tr>
 		<td colspan="2">
-			{if $view->id != 'contact_history'}<button type="button"  id="btn{$view->id}BulkUpdate" onclick="ajax.showBatchPanel('{$view->id}','{$dashboard_team_id}',this);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> bulk update</button>{/if}
-			<button type="button" id="btn{$view->id}Close" onclick="ajax.viewCloseTickets('{$view->id}',0);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_ok.gif{/devblocks_url}" align="top"> close</button>
-			<button type="button"  id="btn{$view->id}Spam" onclick="ajax.viewCloseTickets('{$view->id}',1);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/spam.gif{/devblocks_url}" align="top"> spam</button>
-			{if $active_worker && ($active_worker->is_superuser || $active_worker->can_delete)}<button type="button"  id="btn{$view->id}Delete" onclick="ajax.viewCloseTickets('{$view->id}',2);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> delete</button>{/if}
+			{if $view->id != 'contact_history'}<button type="button"  id="btn{$view->id}BulkUpdate" onclick="ajax.showBatchPanel('{$view->id}','{$dashboard_team_id}',this);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> {$translate->_('mail.bulk_update')|lower}</button>{/if}
+			<button type="button" id="btn{$view->id}Close" onclick="ajax.viewCloseTickets('{$view->id}',0);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_ok.gif{/devblocks_url}" align="top"> {$translate->_('common.close')|lower}</button>
+			<button type="button"  id="btn{$view->id}Spam" onclick="ajax.viewCloseTickets('{$view->id}',1);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/spam.gif{/devblocks_url}" align="top"> {$translate->_('common.spam')|lower}</button>
+			{if $active_worker && ($active_worker->is_superuser || $active_worker->can_delete)}<button type="button"  id="btn{$view->id}Delete" onclick="ajax.viewCloseTickets('{$view->id}',2);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> {$translate->_('common.delete')|lower}</button>{/if}
 			
 			<input type="hidden" name="move_to" value="">
 
@@ -251,19 +251,19 @@
 				{/foreach}
 			</select>
 			
-			<button type="button" onclick="toggleDiv('view{$view->id}_more');">more &raquo;</button><br>
+			<button type="button" onclick="toggleDiv('view{$view->id}_more');">{$translate->_('common.more')|lower} &raquo;</button><br>
 
 			<div id="view{$view->id}_more" style="display:none;padding-top:5px;padding-bottom:5px;">
-				<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','not_spam');">not spam</button>
-				<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','merge');">merge</button>
-				<button type="button" id="btn{$view->id}Take" onclick="ajax.viewTicketsAction('{$view->id}','take');">take</button>
-				<button type="button" id="btn{$view->id}Surrender" onclick="ajax.viewTicketsAction('{$view->id}','surrender');">surrender</button>
-				<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','waiting');">waiting</button>
-				<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','not_waiting');">not waiting</button>
+				<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','not_spam');">{$translate->_('common.notspam')|lower}</button>
+				<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','merge');">{$translate->_('mail.merge')|lower}</button>
+				<button type="button" id="btn{$view->id}Take" onclick="ajax.viewTicketsAction('{$view->id}','take');">{$translate->_('common.take')|lower}</button>
+				<button type="button" id="btn{$view->id}Surrender" onclick="ajax.viewTicketsAction('{$view->id}','surrender');">{$translate->_('common.surrender')|lower}</button>
+				<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','waiting');">{$translate->_('mail.waiting')|lower}</button>
+				<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','not_waiting');">{$translate->_('mail.not_waiting')|lower}</button>
 			</div>
 
 			{if $view->id=='overview_all'}{*Only on Overview*}
-				keyboard: (<b>b</b>) bulk update, (<b>c</b>) close, (<b>s</b>) spam, (<b>t</b>) take, (<b>u</b>) surrender, {if $active_worker && ($active_worker->is_superuser || $active_worker->can_delete)}(<b>x</b>) delete{/if}<br>
+				{$translate->_('common.keyboard')|lower}: (<b>b</b>) {$translate->_('mail.bulk_update')|lower}, (<b>c</b>) {$translate->_('common.close')|lower}, (<b>s</b>) {$translate->_('common.spam')|lower}, (<b>t</b>) {$translate->_('mail.take')|lower}, (<b>u</b>) {$translate->_('mail.surrender')|lower}, {if $active_worker && ($active_worker->is_superuser || $active_worker->can_delete)}(<b>x</b>) {$translate->_('common.delete')|lower}{/if}<br>
 			{/if}
 
 		</td>
@@ -302,7 +302,7 @@
 			
 			{if $view->renderPage > 0}
 				<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewPage&id={$view->id}&page=0');">&lt;&lt;</a>
-				<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewPage&id={$view->id}&page={$prevPage}');">&lt;{$translate->_('common.prev')|capitalize}</a>
+				<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewPage&id={$view->id}&page={$prevPage}');">&lt;{$translate->_('common.previous_short')|capitalize}</a>
 			{/if}
 			(Showing {$fromRow}-{$toRow} of {$total})
 			{if $toRow < $total}

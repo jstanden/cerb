@@ -20,18 +20,18 @@
 					{assign var=ticket_team_category_set value=$team_categories.$ticket_team_id}
 					{assign var=ticket_category value=$ticket_team_category_set.$ticket_category_id}
 					
-					<b>Status:</b> {if $ticket->is_deleted}{$translate->_('status.deleted')}{elseif $ticket->is_closed}{$translate->_('status.closed')}{elseif $ticket->is_waiting}{$translate->_('status.waiting')}{else}{$translate->_('status.open')}{/if} &nbsp; 
-					<b>Team:</b> {$teams.$ticket_team_id->name} &nbsp; 
-					<b>Bucket:</b> {if !empty($ticket_category_id)}{$ticket_category->name}{else}Inbox{/if} &nbsp; 
-					<b>Mask:</b> {$ticket->mask} &nbsp; 
-					<b>Internal ID:</b> {$ticket->id} &nbsp; 
+					<b>{$translate->_('ticket.status')|capitalize}:</b> {if $ticket->is_deleted}{$translate->_('status.deleted')}{elseif $ticket->is_closed}{$translate->_('status.closed')}{elseif $ticket->is_waiting}{$translate->_('status.waiting')}{else}{$translate->_('status.open')}{/if} &nbsp; 
+					<b>{$translate->_('common.group')|capitalize}:</b> {$teams.$ticket_team_id->name} &nbsp; 
+					<b>{$translate->_('common.bucket')|capitalize}:</b> {if !empty($ticket_category_id)}{$ticket_category->name}{else}{$translate->_('common.inbox')|capitalize}{/if} &nbsp; 
+					<b>{$translate->_('ticket.mask')|capitalize}:</b> {$ticket->mask} &nbsp; 
+					<b>{$translate->_('ticket.id')}:</b> {$ticket->id} &nbsp; 
 					<br>
 					{if !empty($ticket->next_action) && !$ticket->is_closed}
-						<b>Next Action:</b> {$ticket->next_action}<br>
+						<b>{$translate->_('ticket.next_action')|capitalize}:</b> {$ticket->next_action}<br>
 					{/if}
 					{if !empty($ticket->next_worker_id)}
 						{assign var=next_worker_id value=$ticket->next_worker_id}
-						<b>Next Worker:</b> <span {if $next_worker_id==$active_worker->id}style="font-weight:bold;color:rgb(255,50,50);background-color:rgb(255,213,213);"{/if}>{$workers.$next_worker_id->getName()}</span> 
+						<b>{$translate->_('ticket.next_worker')|capitalize}:</b> <span {if $next_worker_id==$active_worker->id}style="font-weight:bold;color:rgb(255,50,50);background-color:rgb(255,213,213);"{/if}>{$workers.$next_worker_id->getName()}</span> 
 						{if $ticket->unlock_date}(until {$ticket->unlock_date|devblocks_date}){/if} 
 						<br>
 					{/if}
@@ -42,14 +42,14 @@
 					<form action="{devblocks_url}{/devblocks_url}" method="post">
 					<input type="hidden" name="c" value="tickets">
 					<input type="hidden" name="a" value="doQuickSearch">
-					<span id="tourHeaderQuickLookup"><b>Search Mail:</b></span> <select name="type">
-						<option value="sender"{if $quick_search_type eq 'sender'}selected{/if}>Sender</option>
-						<option value="requester"{if $quick_search_type eq 'requester'}selected{/if}>Requester</option>
-						<option value="mask"{if $quick_search_type eq 'mask'}selected{/if}>Ticket ID</option>
-						<option value="org"{if $quick_search_type eq 'org'}selected{/if}>Organization</option>
-						<option value="subject"{if $quick_search_type eq 'subject'}selected{/if}>Subject</option>
-						<option value="content"{if $quick_search_type eq 'content'}selected{/if}>Content</option>
-					</select><input type="text" name="query" size="16"><button type="submit">go!</button>
+					<span id="tourHeaderQuickLookup"><b>{$translate->_('display.header.search_mail')|capitalize}</b></span> <select name="type">
+						<option value="sender"{if $quick_search_type eq 'sender'}selected{/if}>{$translate->_('ticket.first_wrote')|capitalize}</option>
+						<option value="requester"{if $quick_search_type eq 'requester'}selected{/if}>{$translate->_('ticket.requester')|capitalize}</option>
+						<option value="mask"{if $quick_search_type eq 'mask'}selected{/if}>{$translate->_('ticket.id')}</option>
+						<option value="org"{if $quick_search_type eq 'org'}selected{/if}>{$translate->_('contact_org.name')|capitalize}</option>
+						<option value="subject"{if $quick_search_type eq 'subject'}selected{/if}>{$translate->_('ticket.subject')|capitalize}</option>
+						<option value="content"{if $quick_search_type eq 'content'}selected{/if}>{$translate->_('message.content')|capitalize}</option>
+					</select><input type="text" name="query" size="16"><button type="submit">{$translate->_('common.search_go')|lower}</button>
 					</form>
 				</td>
 			</tr>
@@ -71,34 +71,34 @@
 			
 			{if !$ticket->is_deleted}
 				{if $ticket->is_closed}
-					<button type="button" onclick="this.form.closed.value='0';this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_out.gif{/devblocks_url}" align="top"> Re-open</button>
+					<button type="button" onclick="this.form.closed.value='0';this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_out.gif{/devblocks_url}" align="top"> {$translate->_('common.reopen')|capitalize}</button>
 				{else}
-					<button title="Close this ticket (C)" id="btnClose" type="button" onclick="this.form.closed.value=1;this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_ok.gif{/devblocks_url}" align="top"> Close</button>
+					<button title="{$translate->_('display.shortcut.close')}" id="btnClose" type="button" onclick="this.form.closed.value=1;this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_ok.gif{/devblocks_url}" align="top"> {$translate->_('common.close')|capitalize}</button>
 				{/if}
 				
 				{if empty($ticket->spam_training)}
-					<button title="Report this ticket as spam (S)" id="btnSpam" type="button" onclick="this.form.spam.value='1';this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/spam.gif{/devblocks_url}" align="top"> Spam</button>
+					<button title="{$translate->_('display.shortcut.spam')}" id="btnSpam" type="button" onclick="this.form.spam.value='1';this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/spam.gif{/devblocks_url}" align="top"> {$translate->_('common.spam')|capitalize}</button>
 				{/if}
 			{/if}
 			
 			{if $ticket->is_deleted}
-				<button type="button" onclick="this.form.deleted.value='0';this.form.closed.value=0;this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete_gray.gif{/devblocks_url}" align="top"> Undelete</button>
+				<button type="button" onclick="this.form.deleted.value='0';this.form.closed.value=0;this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete_gray.gif{/devblocks_url}" align="top"> {$translate->_('common.undelete')|capitalize}</button>
 			{else}
 				{if $active_worker && ($active_worker->is_superuser || $active_worker->can_delete)}
-				<button title="Delete this ticket (X)" id="btnDelete" type="button" onclick="this.form.deleted.value=1;this.form.closed.value=1;this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> Delete</button>
+				<button title="{$translate->_('display.shortcut.delete')}" id="btnDelete" type="button" onclick="this.form.deleted.value=1;this.form.closed.value=1;this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> {$translate->_('common.delete')|capitalize}</button>
 				{/if}
 			{/if}
 			
-			{if empty($ticket->next_worker_id)}<button id="btnTake" title="Assign this ticket to yourself (T)" type="button" onclick="this.form.next_worker_id.value='{$active_worker->id}';this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/hand_paper.gif{/devblocks_url}" align="top"> Take</button>{/if}
-			{if $ticket->next_worker_id == $active_worker->id}<button id="btnSurrender" title="Unassign this ticket from yourself (U)" type="button" onclick="this.form.next_worker_id.value='0';this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/flag_white.gif{/devblocks_url}" align="top"> Surrender</button>{/if}
+			{if empty($ticket->next_worker_id)}<button id="btnTake" title="{$translate->_('display.shortcut.take')}" type="button" onclick="this.form.next_worker_id.value='{$active_worker->id}';this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/hand_paper.gif{/devblocks_url}" align="top"> {$translate->_('mail.take')|capitalize}</button>{/if}
+			{if $ticket->next_worker_id == $active_worker->id}<button id="btnSurrender" title="{$translate->_('display.shortcut.surrender')}" type="button" onclick="this.form.next_worker_id.value='0';this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/flag_white.gif{/devblocks_url}" align="top"> {$translate->_('mail.surrender')|capitalize}</button>{/if}
 			
-			{if !$expand_all}<button id="btnReadAll" title="Read all messages in chronological order (A)" type="button" onclick="document.location='{devblocks_url}c=display&id={$ticket->mask}&tab=conversation&opt=read_all{/devblocks_url}';"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document.gif{/devblocks_url}" align="top"> Read All</button>{/if} 
+			{if !$expand_all}<button id="btnReadAll" title="{$translate->_('display.shortcut.read_all')}" type="button" onclick="document.location='{devblocks_url}c=display&id={$ticket->mask}&tab=conversation&opt=read_all{/devblocks_url}';"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document.gif{/devblocks_url}" align="top"> {$translate->_('display.button.read_all')|capitalize}</button>{/if} 
 			 
 			{if !$ticket->is_deleted}
 		   	<select name="bucket_id" onchange="this.form.submit();">
-		   		<option value="">-- move to --</option>
+		   		<option value="">-- {$translate->_('common.move_to')|lower} --</option>
 		   		{if empty($ticket->category_id)}{assign var=t_or_c value="t"}{else}{assign var=t_or_c value="c"}{/if}
-		   		<optgroup label="Inboxes">
+		   		<optgroup label="{$translate->_('common.inboxes')|capitalize}">
 		   		{foreach from=$teams item=team}
 		   			<option value="t{$team->id}">{$team->name}{if $t_or_c=='t' && $ticket->team_id==$team->id} (*){/if}</option>
 		   		{/foreach}
@@ -113,8 +113,8 @@
 		  		{/foreach}
 		   	</select>
 		   	{/if}
-		   	<button id="btnPrint" title="Print this ticket (P)" type="button" onclick="document.frmPrint.action='{devblocks_url}c=print&a=ticket&id={$ticket->mask}{/devblocks_url}';document.frmPrint.submit();">&nbsp;<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/printer.gif{/devblocks_url}" align="top">&nbsp;</button>
-		   	<button type="button" title="Reload this ticket" onclick="document.location='{devblocks_url}c=display&id={$ticket->mask}{/devblocks_url}';">&nbsp;<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/replace2.gif{/devblocks_url}" align="top">&nbsp;</button>
+		   	<button id="btnPrint" title="{$translate->_('display.shortcut.print')}" type="button" onclick="document.frmPrint.action='{devblocks_url}c=print&a=ticket&id={$ticket->mask}{/devblocks_url}';document.frmPrint.submit();">&nbsp;<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/printer.gif{/devblocks_url}" align="top">&nbsp;</button>
+		   	<button type="button" title="{$translate->_('display.shortcut.refresh')}" onclick="document.location='{devblocks_url}c=display&id={$ticket->mask}{/devblocks_url}';">&nbsp;<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/replace2.gif{/devblocks_url}" align="top">&nbsp;</button>
 			<br>
 			
 			{* Plugin Toolbar *}
@@ -125,17 +125,17 @@
 				<br>
 			{/if}
 			
-			keyboard: 
-			{if !$ticket->is_closed}(<b>c</b>) close, {/if}
-			{if !$ticket->spam_trained}(<b>s</b>) report spam, {/if}
-			{if !$ticket->is_deleted && $active_worker && ($active_worker->is_superuser || $active_worker->can_delete)}(<b>x</b>) delete, {/if}
-			{if empty($ticket->next_worker_id)}(<b>t</b>) take, {/if}
-			{if $ticket->next_worker_id == $active_worker->id}(<b>u</b>) surrender, {/if}
-			{if !$expand_all}(<b>a</b>) read all, {/if} 
-			{if !empty($series_stats.prev)}( <b>[</b> ) previous, {/if} 
-			{if !empty($series_stats.next)}( <b>]</b> ) next, {/if} 
-			(<b>r</b>) reply,  
-			(<b>p</b>) print 
+			{$translate->_('common.keyboard')|lower}: 
+			{if !$ticket->is_closed}(<b>c</b>) {$translate->_('common.close')|lower}, {/if}
+			{if !$ticket->spam_trained}(<b>s</b>) {$translate->_('common.spam')|lower}, {/if}
+			{if !$ticket->is_deleted && $active_worker && ($active_worker->is_superuser || $active_worker->can_delete)}(<b>x</b>) {$translate->_('common.delete')|lower}, {/if}
+			{if empty($ticket->next_worker_id)}(<b>t</b>) {$translate->_('mail.take')|lower}, {/if}
+			{if $ticket->next_worker_id == $active_worker->id}(<b>u</b>) {$translate->_('mail.surrender')|lower}, {/if}
+			{if !$expand_all}(<b>a</b>) {$translate->_('display.button.read_all')|lower}, {/if} 
+			{if !empty($series_stats.prev)}( <b>[</b> ) {$translate->_('common.previous')|lower}, {/if} 
+			{if !empty($series_stats.next)}( <b>]</b> ) {$translate->_('common.next')|lower}, {/if} 
+			(<b>r</b>) {$translate->_('display.button.reply')|lower},  
+			(<b>p</b>) {$translate->_('common.print')|lower} 
 			<br>
 			 
 		</form>
@@ -147,10 +147,10 @@
 			<tr>
 				<td>	
 				<div style="padding:10px;margin-top:0px;border:1px solid rgb(180,180,255);background-color:rgb(245,245,255);text-align:center;">
-					Active list: <b>{$series_stats.title}</b><br>
-					{if !empty($series_stats.prev)}<button style="display:none;visibility:hidden;" id="btnPagePrev" onclick="document.location='{devblocks_url}c=display&id={$series_stats.prev}{/devblocks_url}';">&laquo;Prev</button><a href="{devblocks_url}c=display&id={$series_stats.prev}{/devblocks_url}">&laquo;Prev</a>{/if} 
-					 ({$series_stats.cur}-{$series_stats.count} of {$series_stats.total}) 
-					{if !empty($series_stats.next)}<button style="display:none;visibility:hidden;" id="btnPageNext" onclick="document.location='{devblocks_url}c=display&id={$series_stats.next}{/devblocks_url}';">Next&raquo;</button><a href="{devblocks_url}c=display&id={$series_stats.next}{/devblocks_url}">Next&raquo;</a>{/if}
+					{$translate->_('display.listnav.active_list')} <b>{$series_stats.title}</b><br>
+					{if !empty($series_stats.prev)}<button style="display:none;visibility:hidden;" id="btnPagePrev" onclick="document.location='{devblocks_url}c=display&id={$series_stats.prev}{/devblocks_url}';">&laquo;{$translate->_('common.previous_short')|capitalize}</button><a href="{devblocks_url}c=display&id={$series_stats.prev}{/devblocks_url}">&laquo;{$translate->_('common.previous_short')|capitalize}</a>{/if}
+					{'display.listnav.showing_of_total'|devblocks_translate:$series_stats.cur:$series_stats.count:$series_stats.total} 
+					{if !empty($series_stats.next)}<button style="display:none;visibility:hidden;" id="btnPageNext" onclick="document.location='{devblocks_url}c=display&id={$series_stats.next}{/devblocks_url}';">{$translate->_('common.next')|capitalize}&raquo;</button><a href="{devblocks_url}c=display&id={$series_stats.next}{/devblocks_url}">{$translate->_('common.next')|capitalize}&raquo;</a>{/if}
 				</div>
 				</td>
 			</tr>
