@@ -6,7 +6,7 @@
 <input type="hidden" name="ext_id" value="forums.config.tab">
 <input type="hidden" name="plugin_id" value="{$plugin->id}">
 
-<h2>{$translate->_('forums.ui.cfg.forums')}</h2>
+<h2>Forums</h2>
 
 <blockquote>
 {if !empty($sources)}
@@ -20,25 +20,25 @@
 		<br>
 	{/foreach}
 {else}
-	{$translate->_('forums.ui.cfg.no_forums')}|lower}<br>
+	No forums defined.<br>
 {/if}
 	<br>
-	<b>{$translate->_('forums.ui.cfg.workers')}:</b><br>
+	<b>Treat these forum posters as helpdesk workers:</b><br>
 	<textarea style="height:80px;width:400px;" name="poster_workers">{$poster_workers_str}</textarea><br>
 </blockquote>
 
-<h2>{$translate->_('forums.ui.cfg.add_forum')}</h2>
+<h2>Add Forum</h2>
 
 <blockquote>
-	<b>{$translate->_('forums.ui.cfg.name')}:</b><br>
+	<b>Name:</b><br>
 	<input type="text" name="name" size="64"><br>
 	<br>
 	
-	<b>URL{$translate->_('common.url')}:</b><br>
+	<b>URL:</b><br>
 	<input type="text" name="url" size="64"><br>
 	<br>
 	
-	<b>{$translate->_('forums.ui.cfg.secret_key')}:</b><br>
+	<b>Secret Key:</b><br>
 	<input type="text" name="secret_key" size="64"><br>
 	<br>
 </blockquote>

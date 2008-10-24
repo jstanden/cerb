@@ -92,16 +92,16 @@
 			<button type="button" id="btnForumThreadClose" onclick="this.form.a.value='viewCloseThreads';this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_ok.gif{/devblocks_url}" align="top"> close</button>
 		
 			{literal}<select name="assign_worker_id" onchange="if(''!=selectValue(this)){this.form.a.value='viewAssignThreads';this.form.submit();}">{/literal}
-				<option value="">-- {$translate->_('common.assign')} --</option>
+				<option value="">-- assign worker --</option>
 				{foreach from=$workers item=worker key=worker_id}
 					<option value="{$worker_id}">{$worker->getName()}</option>
 				{/foreach}
-				<option value="0">- {$translate->_('common.unassign')} -</option>
+				<option value="0">- unassign -</option>
 			</select>
 		
 			<br>
 			
-			{$translate->_('common.keyboard')}: (<b>c</b>) {$translate->_('common.close')}, (<b>s</b>) {$translate->_('common.synchronize')} <br>
+			keyboard: (<b>c</b>) close, (<b>s</b>) synchronize <br>
 		
 			<!-- <span id="tourDashboardBatch"><button type="button" onclick="ajax.showBatchPanel('{$view->id}','{$dashboard_team_id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> bulk update</button></span>  -->
 			

@@ -207,10 +207,6 @@ class ChForumsPage extends CerberusPageExtension {
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->tpl_path);
 
-		$translate = DevblocksPlatform::getTranslationService();
-		$tpl->assign('translate', $translate);
-		
-		
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 		

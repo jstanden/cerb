@@ -1,6 +1,6 @@
 {include file="$path/forums/submenu.tpl.php"}
 
-<h1>{$translate->_('forumexplorer.ui.search.forums')}</h1>
+<h1>Forums</h1>
 
 <table cellpadding="0" cellspacing="0" border="0" width="100%">
 	<tr>
