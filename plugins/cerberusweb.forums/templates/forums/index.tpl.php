@@ -1,12 +1,12 @@
 {include file="$path/forums/submenu.tpl.php"}
 
-<h1>Forums</h1>
+<h1>{$translate->_('forums.ui.overview.forums')}:</h1>
 
 <form action="{devblocks_url}{/devblocks_url}" method="post" style="padding-bottom:5px;">
 	<input type="hidden" name="c" value="forums"> 
 	<input type="hidden" name="a" value="import">
 	
-	<button id="btnSynchronize" type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.forums&f=images/replace2.gif{/devblocks_url}" align="top"> Synchronize</button><br>
+	<button id="btnSynchronize" type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.forums&f=images/replace2.gif{/devblocks_url}" align="top"> {$translate->_('common.synchronize')}</button><br>
 </form>
 
 <table cellpadding="0" cellspacing="0" border="0" width="100%">
@@ -14,8 +14,8 @@
 		<td style="padding-right:10px;" valign="top" width="1%" nowrap="nowrap">
 			{if !empty($source_unassigned_totals)}
 			<div class="block" style="width:200px;">
-				<h2>Available</h2>
-				<a href="{devblocks_url}c=forums&a=overview&m=all{/devblocks_url}">-All-</a><br>
+				<h2>{$translate->_('forums.ui.overview.available')}</h2>
+				<a href="{devblocks_url}c=forums&a=overview&m=all{/devblocks_url}">-{$translate->_('common.all')}-</a><br>
 				
 				{foreach from=$sources item=source key=source_id}
 					{assign var=source_total value=$source_unassigned_totals.$source_id}
@@ -29,7 +29,7 @@
 			
 			{if !empty($source_assigned_totals)}
 			<div class="block" style="width:200px;">
-				<h2>Assigned</h2>
+				<h2>{$translate->_('forums.ui.overview.assigned')}</h2>
 				{foreach from=$workers item=worker key=worker_id}
 					{assign var=worker_total value=$source_assigned_totals.$worker_id}
 					{if !empty($worker_total)}
