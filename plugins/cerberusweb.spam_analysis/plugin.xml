@@ -1,0 +1,47 @@
+<!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
+<plugin>
+	<id>cerberusweb.spam_analysis</id>
+	<name>Cerberus Helpdesk: Spam Analysis</name>
+	<description>This plugin provides extra insight about how Cerb4's anti-spam system is making filtering decisions.  
+		It adds a new 'Spam Analysis' tab when displaying tickets.
+	</description>
+	<author>WebGroup Media, LLC.</author>
+	<revision>0</revision>
+	<link>http://wiki.cerb4.com/wiki/</link>
+	<class>
+		<file>api/App.php</file>
+		<name>ChSpamAnalysisPlugin</name>
+	</class>
+	
+	<extensions>
+
+		<!-- Translations -->
+		
+		<extension point="devblocks.i18n.strings">
+			<id>spamanalysis.translations</id>
+			<name>Spam Strings</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChSpamAnalysisTranslations</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
+		<!-- Ticket Tabs -->
+		
+		<extension point="cerberusweb.ticket.tab">
+			<id>spamanalysis.tab.ticket</id>
+			<name>Spam Analysis Tab</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChSpamAnalysisTicketTab</name>
+			</class>
+			<params>
+				<param key="uri" value="spam_analysis" />
+				<param key="title" value="spamanalysis.ui" />
+			</params>
+		</extension>
+		
+	</extensions>
+</plugin>

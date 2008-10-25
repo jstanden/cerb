@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tmx SYSTEM "tmx14.dtd">
+<tmx version="1.4">
+	<header datatype="winres" segtype="sentence" adminlang="en-us"
+		srclang="en-us" o-tmf="abc" />
+	<body>
+
+		<!-- Common Strings -->
+		
+		<tu tuid='spamanalysis.ui'>
+			<tuv xml:lang="en_US"><seg>Spam Analysis</seg></tuv>
+		</tu>
+		
+		<!-- Spam Analysis -->
+
+		<tu tuid='spamanalysis.ui.analysis.live'>
+			<tuv xml:lang="en_US"><seg>Live Analysis</seg></tuv>
+		</tu>
+		<tu tuid='spamanalysis.ui.analysis.original'>
+			<tuv xml:lang="en_US"><seg>Original Analysis</seg></tuv>
+		</tu>
+		<tu tuid='spamanalysis.ui.interesting_words'>
+			<tuv xml:lang="en_US"><seg>Interesting Words</seg></tuv>
+		</tu>
+		<tu tuid='spamanalysis.ui.num_nonspam'>
+			<tuv xml:lang="en_US"><seg># Nonspam</seg></tuv>
+		</tu>
+		<tu tuid='spamanalysis.ui.num_spam'>
+			<tuv xml:lang="en_US"><seg># Spam</seg></tuv>
+		</tu>
+		<tu tuid='spamanalysis.ui.probability'>
+			<tuv xml:lang="en_US"><seg>Probability</seg></tuv>
+		</tu>
+		<tu tuid='spamanalysis.ui.word'>
+			<tuv xml:lang="en_US"><seg>Word</seg></tuv>
+		</tu>
+
+	</body>
+</tmx>

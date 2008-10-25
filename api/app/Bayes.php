@@ -275,7 +275,7 @@ class CerberusBayes {
 	
 	static private function _analyze($words) {
 		foreach($words as $k => $w) {
-			$words[$k]->probability = self::_calculateWordProbability($w);
+			$words[$k]->probability = self::calculateWordProbability($w);
 			
 			// [JAS]: If a word appears more than 5 times (counting weight) in the corpus, use it.  Otherwise de-emphasize.
 			if(($w->nonspam * 2) + $w->spam >= 5)
@@ -327,7 +327,7 @@ class CerberusBayes {
 	 * @param CerberusBayesWord $word
 	 * @return float The probability of the word being spammy.
 	 */
-	static private function _calculateWordProbability(CerberusBayesWord $word) {
+	static public function calculateWordProbability(CerberusBayesWord $word) {
 		static $stats = null; // [JAS]: [TODO] Keep an eye on this.
 		if(is_null($stats)) $stats = DAO_Bayes::getStatistics();
 		
