@@ -1,7 +1,8 @@
 <table cellpadding="5" cellspacing="0" border="0">
 <tr>
-<td style="padding-right:20px;">
+<td style="padding-right:20px;" valign="top">
 	<h2>{$translate->_('spamanalysis.ui.analysis.original')|capitalize}</h2>
+	{if !empty($words)}
 	<table cellspacing="0" cellpadding="3" border="0">
 		<tr>
 			<td><b>{$translate->_('spamanalysis.ui.word')|capitalize}</b></td>
@@ -15,7 +16,7 @@
 			<span style="{if $word->probability >= 0.80}background-color: rgb(255, 235, 235);color:rgb(175,0,0);font-weight:bold;{elseif $word->probability <= 0.20}background-color:rgb(235, 255, 235);color:rgb(0,175,0);font-weight:bold;{else}{/if}">{$word->word}</span>
 		</td>
 		<td>
-			{math equation="(x*100)" x=$word->probability format="%d"}%
+			{math equation="(x*100)" x=$word->probability format="%0.2f"}%
 		</td>
 		<td>
 			{$word->spam}
@@ -26,10 +27,13 @@
 		</tr>
 	{/foreach}
 	</table>
+	{else}
+		{$translate->_('spamanalysis.ui.no_data')}
+	{/if}
 </td>
 
-<td style="padding-left:20px;border-left:1px solid rgb(230,230,230);">
-	<h2>{$translate->_('spamanalysis.ui.analysis.live')|capitalize} ({math equation="x*100" x=$analysis.probability format="%d"}%)</h2>
+<td style="padding-left:20px;border-left:1px solid rgb(230,230,230);" valign="top">
+	<h2>{$translate->_('spamanalysis.ui.analysis.live')|capitalize} ({math equation="x*100" x=$analysis.probability format="%0.2f"}%)</h2>
 	<table cellspacing="0" cellpadding="3" border="0">
 		<tr>
 			<td><b>{$translate->_('spamanalysis.ui.word')|capitalize}</b></td>
@@ -43,7 +47,7 @@
 			<span style="{if $word->probability >= 0.80}background-color: rgb(255, 235, 235);color:rgb(175,0,0);font-weight:bold;{elseif $word->probability <= 0.20}background-color:rgb(235, 255, 235);color:rgb(0,175,0);font-weight:bold;{else}{/if}">{$word->word}</span>
 		</td>
 		<td>
-			{math equation="(x*100)" x=$word->probability format="%d"}%
+			{math equation="(x*100)" x=$word->probability format="%0.2f"}%
 		</td>
 		<td>
 			{$word->spam}

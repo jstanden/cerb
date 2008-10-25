@@ -100,10 +100,12 @@ class CerberusBayes {
 	    unset($words['am']);
 	    unset($words['an']);
 	    unset($words['and']);
+	    unset($words['any']);
 	    unset($words['as']);
 	    unset($words['at']);
 	    unset($words['are']);
 	    unset($words['be']);
+	    unset($words['been']);
 	    unset($words['but']);
 	    unset($words['can']);
 	    unset($words['could']);
@@ -113,7 +115,9 @@ class CerberusBayes {
 	    unset($words['doesn\'t']);
 	    unset($words['don\'t']);
 	    unset($words['for']);
+	    unset($words['from']);
 	    unset($words['get']);
+	    unset($words['had']);
 	    unset($words['has']);
 	    unset($words['have']);
 	    unset($words['how']);
@@ -131,8 +135,11 @@ class CerberusBayes {
 	    unset($words['not']);
 	    unset($words['of']);
 	    unset($words['on']);
+	    unset($words['than']);
 	    unset($words['that']);
 	    unset($words['the']);
+	    unset($words['their']);
+	    unset($words['them']);
 	    unset($words['then']);
 	    unset($words['there']);
 	    unset($words['these']);
@@ -143,6 +150,7 @@ class CerberusBayes {
 	    unset($words['we']);
 	    unset($words['were']);
 	    unset($words['what']);
+	    unset($words['when']);
 	    unset($words['which']);
 	    unset($words['while']);
 	    unset($words['why']);

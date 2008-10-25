@@ -22,6 +22,9 @@
 		<tu tuid='spamanalysis.ui.interesting_words'>
 			<tuv xml:lang="en_US"><seg>Interesting Words</seg></tuv>
 		</tu>
+		<tu tuid='spamanalysis.ui.no_data'>
+			<tuv xml:lang="en_US"><seg>This sender is probably whitelisted.</seg></tuv>
+		</tu>
 		<tu tuid='spamanalysis.ui.num_nonspam'>
 			<tuv xml:lang="en_US"><seg># Nonspam</seg></tuv>
 		</tu>
