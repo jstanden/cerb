@@ -34,6 +34,7 @@
 
 <td style="padding-left:20px;border-left:1px solid rgb(230,230,230);" valign="top">
 	<h2>{$translate->_('spamanalysis.ui.analysis.live')|capitalize} ({math equation="x*100" x=$analysis.probability format="%0.2f"}%)</h2>
+	{if !empty($analysis.words)}
 	<table cellspacing="0" cellpadding="3" border="0">
 		<tr>
 			<td><b>{$translate->_('spamanalysis.ui.word')|capitalize}</b></td>
@@ -57,7 +58,10 @@
 		</td>
 		</tr>
 	{/foreach}
-	</table>	
+	</table>
+	{else}
+		{$translate->_('spamanalysis.ui.not_enough_data')}
+	{/if}
 </td>
 </tr>
 </table>

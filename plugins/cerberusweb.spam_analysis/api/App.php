@@ -45,7 +45,7 @@ class ChSpamAnalysisTicketTab extends Extension_TicketTab {
 		$tpl->assign('words', $words);
 		
 		// Determine what the spam probability would be if the decision was made right now
-		$analysis = CerberusBayes::calculateTicketSpamProbability($ticket_id);
+		$analysis = CerberusBayes::calculateTicketSpamProbability($ticket_id, true);
 		$tpl->assign('analysis', $analysis);
 		
 		$tpl->display('file:' . $tpl_path . 'ticket_tab/index.tpl.php');

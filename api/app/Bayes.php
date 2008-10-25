@@ -396,7 +396,7 @@ class CerberusBayes {
 		return array('probability' => $combined, 'words' => $interesting_words);
 	}
 	
-	static function calculateTicketSpamProbability($ticket_id) {
+	static function calculateTicketSpamProbability($ticket_id, $readonly=false) {
 		// pull up text of first ticket message
 	    $messages = DAO_Ticket::getMessagesByTicket($ticket_id);
 	    $first_message = array_shift($messages);
@@ -429,11 +429,13 @@ class CerberusBayes {
 	    }
 		
 		// Cache probability
-		$fields = array(
-		    DAO_Ticket::SPAM_SCORE => $out['probability'],
-		    DAO_Ticket::INTERESTING_WORDS => substr(implode(',',array_reverse($rawwords)),0,255),
-		);
-		DAO_Ticket::updateTicket($ticket_id, $fields);
+		if(!$readonly) {
+			$fields = array(
+			    DAO_Ticket::SPAM_SCORE => $out['probability'],
+			    DAO_Ticket::INTERESTING_WORDS => substr(implode(',',array_reverse($rawwords)),0,255),
+			);
+			DAO_Ticket::updateTicket($ticket_id, $fields);
+		}
 		
 		return $out;
 	}
