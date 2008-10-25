@@ -49,6 +49,12 @@
 		<tu tuid='common.assign'>
 			<tuv xml:lang="en_US"><seg>assign</seg></tuv>
 		</tu>
+		<tu tuid='common.assigned'>
+			<tuv xml:lang="en_US"><seg>Assigned</seg></tuv>
+		</tu>
+		<tu tuid='common.available'>
+			<tuv xml:lang="en_US"><seg>Available</seg></tuv>
+		</tu>
 		<tu tuid='common.bucket'>
 			<tuv xml:lang="en_US"><seg>bucket</seg></tuv>
 		</tu>
@@ -193,6 +199,9 @@
 		<tu tuid='common.ticket'>
 			<tuv xml:lang="en_US"><seg>ticket</seg></tuv>
 		</tu>
+		<tu tuid='common.unassign'>
+			<tuv xml:lang="en_US"><seg>Unassign</seg></tuv>
+		</tu>
 		<tu tuid='common.undelete'>
 			<tuv xml:lang="en_US"><seg>Undelete</seg></tuv>
 		</tu>
@@ -201,6 +210,9 @@
 		</tu>
 		<tu tuid='common.upload'>
 			<tuv xml:lang="en_US"><seg>upload</seg></tuv>
+		</tu>
+		<tu tuid='common.url'>
+			<tuv xml:lang="en_US"><seg>URL</seg></tuv>
 		</tu>
 
 		<!-- Addresses -->

@@ -6,7 +6,7 @@
 	</select>
 </blockquote>
 
-<b>Forums:</b><br>
+<b>{$translate->_('forums.ui.forums')}:</b><br>
 {foreach from=$forums item=forum key=forum_id}
 <label><input name="forum_id[]" type="checkbox" value="{$forum_id}"><span style="color:rgb(0,120,0);">{$forum->name}</span></label><br>
 {/foreach}

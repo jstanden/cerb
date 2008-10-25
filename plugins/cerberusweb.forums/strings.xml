@@ -7,13 +7,53 @@
 
 		<!-- Common Strings -->
 		
+
+		
 		<!-- Manifest -->
 		
 		<tu tuid='forums.menu.forums'>
 			<tuv xml:lang="en_US"><seg>forums</seg></tuv>
 		</tu>
+
 		
 		<!-- Forums -->
+
+		<tu tuid='forums.ui.forums'>
+			<tuv xml:lang="en_US"><seg>Forums</seg></tuv>
+		</tu>
+		
+		<tu tuid='forums.ui.cfg.no_forums'>
+			<tuv xml:lang="en_US"><seg>No forums defined.</seg></tuv>
+		</tu>
+		<tu tuid='forums.ui.cfg.workers'>
+			<tuv xml:lang="en_US"><seg>Treat these forum posters as helpdesk workers</seg></tuv>
+		</tu>
+		<tu tuid='forums.ui.cfg.add_forum'>
+			<tuv xml:lang="en_US"><seg>Add Forum</seg></tuv>
+		</tu>
+		<tu tuid='forums.ui.cfg.name'>
+			<tuv xml:lang="en_US"><seg>Name</seg></tuv>
+		</tu>
+		<tu tuid='forums.ui.cfg.secret_key'>
+			<tuv xml:lang="en_US"><seg>Secret Key</seg></tuv>
+		</tu>
+		
+		<tu tuid='forums.ui.nav.copyurl'>
+			<tuv xml:lang="en_US"><seg>Copy URL</seg></tuv>
+		</tu>
+		<tu tuid='forums.ui.nav.copy_tooltip'>
+			<tuv xml:lang="en_US"><seg>Copy the original URL for this post to the clipboard</seg></tuv>
+		</tu>
+		<tu tuid='forums.ui.nav.opened'>
+			<tuv xml:lang="en_US"><seg>Opened!</seg></tuv>
+		</tu>
+		<tu tuid='forums.ui.nav.closed'>
+			<tuv xml:lang="en_US"><seg>Closed!</seg></tuv>
+		</tu>
+		
+		<tu tuid='forums.ui.overview'>
+			<tuv xml:lang="en_US"><seg>overview</seg></tuv>
+		</tu>
 
 		<tu tuid='forumsthread.forum_id'>
 			<tuv xml:lang="en_US"><seg>forum</seg></tuv>
