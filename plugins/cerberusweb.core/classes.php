@@ -236,6 +236,204 @@ class ChTranslations extends DevblocksTranslationsExtension {
 	}
 };
 
+class ChHomePage extends CerberusPageExtension {
+	const VIEW_MY_TICKETS = 'home_mytickets';
+	const VIEW_MY_TASKS = 'home_mytasks';
+	
+	function __construct($manifest) {
+		parent::__construct($manifest);
+
+//		$path = realpath(dirname(__FILE__)) . DIRECTORY_SEPARATOR;
+//		
+//		DevblocksPlatform::registerClasses($path. 'api/DAO.php', array(
+//		    'DAO_Faq'
+//		));
+	}
+		
+	function isVisible() {
+		// check login
+		$visit = CerberusApplication::getVisit();
+		
+		if(empty($visit)) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+	
+	function render() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		$response = DevblocksPlatform::getHttpResponse();
+		$stack = $response->path;
+		array_shift($stack); // home
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		
+		$tab_manifests = DevblocksPlatform::getExtensions('cerberusweb.home.tab', false);
+		$tpl->assign('tab_manifests', $tab_manifests);
+		
+		@$tab_selected = array_shift($stack);
+		if(empty($tab_selected)) $tab_selected = 'tickets';
+		$tpl->assign('tab_selected', $tab_selected);
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/home/index.tpl.php');
+	}
+	
+	// Ajax
+	function showTabAction() {
+		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
+		
+		if(null != ($tab_mft = DevblocksPlatform::getExtension($ext_id)) 
+			&& null != ($inst = $tab_mft->createInstance()) 
+			&& $inst instanceof Extension_HomeTab) {
+			$inst->showTab();
+		}
+	}
+	
+	function showMyTicketsAction() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		// My Tickets
+		$myTicketsView = C4_AbstractViewLoader::getView('', self::VIEW_MY_TICKETS);
+		
+		$title = "Mail for  " . $active_worker->getName();
+		
+		if(null == $myTicketsView) {
+			$myTicketsView = new C4_TicketView();
+			$myTicketsView->id = self::VIEW_MY_TICKETS;
+			$myTicketsView->name = $title;
+			$myTicketsView->dashboard_id = 0;
+			$myTicketsView->view_columns = array(
+				SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
+				SearchFields_Ticket::TICKET_UPDATED_DATE,
+				SearchFields_Ticket::TEAM_NAME,
+				SearchFields_Ticket::TICKET_CATEGORY_ID,
+				SearchFields_Ticket::TICKET_NEXT_ACTION,
+			);
+			$myTicketsView->params = array();
+			$myTicketsView->renderLimit = 10;
+			$myTicketsView->renderPage = 0;
+			$myTicketsView->renderSortBy = SearchFields_Ticket::TICKET_UPDATED_DATE;
+			$myTicketsView->renderSortAsc = 0;
+			
+			// Overload criteria
+			$myTicketsView->params = array(
+				SearchFields_Ticket::TICKET_NEXT_WORKER_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_NEXT_WORKER_ID,'=',$active_worker->id),
+				SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN),
+				SearchFields_Ticket::TICKET_WAITING => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_WAITING,'=',0),
+			);
+			
+			C4_AbstractViewLoader::setView($myTicketsView->id,$myTicketsView);
+		}
+		
+		$tpl->assign('view', $myTicketsView);
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/home/tabs/my_tickets/index.tpl.php');
+	}
+	
+	function showMyTasksAction() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		// My Tickets
+		$myTasksView = C4_AbstractViewLoader::getView('', self::VIEW_MY_TASKS);
+		
+		$title = "Tasks for " . $active_worker->getName();
+		
+		if(null == $myTasksView) {
+			$myTasksView = new C4_TaskView();
+			$myTasksView->id = self::VIEW_MY_TASKS;
+			$myTasksView->name = $title;
+			//$myTasksView->dashboard_id = 0;
+//			$myTasksView->view_columns = array(
+//				SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
+//				SearchFields_Ticket::TICKET_UPDATED_DATE,
+//				SearchFields_Ticket::TEAM_NAME,
+//				SearchFields_Ticket::TICKET_CATEGORY_ID,
+//				SearchFields_Ticket::TICKET_NEXT_ACTION,
+//			);
+			$myTasksView->params = array();
+//			$myTasksView->renderLimit = 10;
+			$myTasksView->renderPage = 0;
+			$myTasksView->renderSortBy = SearchFields_Task::DUE_DATE;
+			$myTasksView->renderSortAsc = 1;
+			
+			// Overload criteria
+			$myTasksView->params = array(
+				SearchFields_Task::WORKER_ID => new DevblocksSearchCriteria(SearchFields_Task::WORKER_ID,'=',$active_worker->id),
+				SearchFields_Task::IS_COMPLETED => new DevblocksSearchCriteria(SearchFields_Task::IS_COMPLETED,'=',0),
+			);
+			
+			C4_AbstractViewLoader::setView($myTasksView->id,$myTasksView);
+		}
+		
+		$tpl->assign('view', $myTasksView);
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/home/tabs/my_tasks/index.tpl.php');
+	}
+};
+
+class ChActivityPage extends CerberusPageExtension {
+	
+	function __construct($manifest) {
+		parent::__construct($manifest);
+
+//		$path = realpath(dirname(__FILE__)) . DIRECTORY_SEPARATOR;
+//		
+//		DevblocksPlatform::registerClasses($path. 'api/DAO.php', array(
+//		    'DAO_Faq'
+//		));
+	}
+		
+	function isVisible() {
+		// check login
+		$visit = CerberusApplication::getVisit();
+		
+		if(empty($visit)) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+	
+	function render() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		
+		$response = DevblocksPlatform::getHttpResponse();
+		$stack = $response->path;
+		array_shift($stack); // activity
+
+		$tab_manifests = DevblocksPlatform::getExtensions('cerberusweb.activity.tab', false);
+		$tpl->assign('tab_manifests', $tab_manifests);
+		
+		@$tab_selected = array_shift($stack);
+		if(empty($tab_selected)) $tab_selected = 'tasks';
+		$tpl->assign('tab_selected', $tab_selected);
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/activity/index.tpl.php');
+	}
+	
+	// Ajax
+	function showTabAction() {
+		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
+		
+		if(null != ($tab_mft = DevblocksPlatform::getExtension($ext_id)) 
+			&& null != ($inst = $tab_mft->createInstance()) 
+			&& $inst instanceof Extension_ActivityTab) {
+			$inst->showTab();
+		}
+	}
+	
+};
+
 class ChTicketsPage extends CerberusPageExtension {
 	function __construct($manifest) {
 		parent::__construct($manifest);
@@ -4115,391 +4313,6 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	}
 	
 }
-
-class ChTasksPage extends CerberusPageExtension {
-	function __construct($manifest) {
-		parent::__construct($manifest);
-	}
-		
-	function isVisible() {
-		// check login
-		$visit = CerberusApplication::getVisit();
-		
-		if(empty($visit)) {
-			return false;
-		} else {
-			return true;
-		}
-	}
-	
-	function render() {
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
-		$tpl_path = realpath(dirname(__FILE__) . '/templates') . DIRECTORY_SEPARATOR;
-		$tpl->assign('path', $tpl_path);
-		
-		$response = DevblocksPlatform::getHttpResponse();
-		$stack = $response->path;
-
-		@array_shift($stack); // tasks
-		
-		switch(array_shift($stack)) {
-			case 'search':
-				if(null == ($view = C4_AbstractViewLoader::getView('', 'tasks_search'))) {
-					$view = new C4_TaskView();
-					$view->id = 'tasks_search';
-					C4_AbstractViewLoader::setView($view->id, $view);
-				}
-
-				$view->name = "Search Results";
-				$tpl->assign('view', $view);
-
-//				$campaigns = DAO_CrmCampaign::getWhere();
-//				$tpl->assign('campaigns', $campaigns);
-				
-				$tpl->assign('view_fields', C4_TaskView::getFields());
-				$tpl->assign('view_searchable_fields', C4_TaskView::getSearchFields());
-				
-				$tpl->display($tpl_path . 'tasks/search.tpl.php');
-				break;
-			
-			default:
-			case 'overview':
-				$source_renderers = DevblocksPlatform::getExtensions('cerberusweb.task.source', true);
-				$tpl->assign('source_renderers', $source_renderers);
-				
-				$workers = DAO_Worker::getAll();
-				$tpl->assign('workers', $workers);
-				
-				$unassigned_totals = DAO_Task::getUnassignedSourceTotals();
-				$tpl->assign('unassigned_totals', $unassigned_totals);
-				
-				$assigned_totals = DAO_Task::getAssignedSourceTotals();
-				$tpl->assign('assigned_totals', $assigned_totals);
-				
-				if(null == ($tasks_view = C4_AbstractViewLoader::getView('', C4_TaskView::DEFAULT_ID))) {
-					$tasks_view = new C4_TaskView();
-					C4_AbstractViewLoader::setView(C4_TaskView::DEFAULT_ID, $tasks_view);
-				} 
-
-				if(!empty($stack)) {
-					switch(array_shift($stack)) {
-						case 'all':
-							$tasks_view->doResetCriteria();							
-							$tasks_view->name = C4_TaskView::DEFAULT_TITLE;
-							break;
-							
-						case 'available':
-							$params = array();
-							$params[SearchFields_Task::IS_COMPLETED] = new DevblocksSearchCriteria(SearchFields_Task::IS_COMPLETED,'=',0);
-							$params[SearchFields_Task::WORKER_ID] = new DevblocksSearchCriteria(SearchFields_Task::WORKER_ID,'=',0);
-							$tasks_view->params = $params;
-							$tasks_view->name = 'Available Tasks';
-							break;
-							
-						case 'source':
-							@$source_id = array_shift($stack);
-							if(!empty($source_id)) {
-								@$inst = DevblocksPlatform::getExtension($source_id)->createInstance();
-								$title = 'Tasks: ' . (!empty($inst) ? $inst->getSourceName() : $source_id);
-							} else {
-								$source_id = '';
-								$title= 'Tasks: Generic';
-							}
-							
-							$params = array();
-							$params[SearchFields_Task::IS_COMPLETED] = new DevblocksSearchCriteria(SearchFields_Task::IS_COMPLETED,'=',0);
-							$params[SearchFields_Task::SOURCE_EXTENSION] = new DevblocksSearchCriteria(SearchFields_Task::SOURCE_EXTENSION,'=',$source_id);
-							$tasks_view->params = $params;
-							$tasks_view->name = $title;
-							break;
-							
-						case 'today':
-							$params = array();
-							$params[SearchFields_Task::IS_COMPLETED] = new DevblocksSearchCriteria(SearchFields_Task::IS_COMPLETED,'=',0);
-							$params[SearchFields_Task::DUE_DATE] = new DevblocksSearchCriteria(SearchFields_Task::DUE_DATE,DevblocksSearchCriteria::OPER_BETWEEN,array(1,strtotime('tomorrow')));
-							$tasks_view->params = $params;
-							$tasks_view->name = 'All Open Tasks Due Today';
-							break;
-							
-						case 'worker':
-							@$worker_id = array_shift($stack);
-							if(!isset($workers[$worker_id]))
-								break;
-							
-							$params = array();
-							$params[SearchFields_Task::IS_COMPLETED] = new DevblocksSearchCriteria(SearchFields_Task::IS_COMPLETED,'=',0);
-							$params[SearchFields_Task::WORKER_ID] = new DevblocksSearchCriteria(SearchFields_Task::WORKER_ID,'=',$worker_id);
-							$tasks_view->params = $params;
-							$tasks_view->name = 'For ' . $workers[$worker_id]->getName();
-							break;
-					}
-					
-					C4_AbstractViewLoader::setView($tasks_view->id, $tasks_view);
-				}
-				
-				$tpl->assign('tasks_view', $tasks_view);
-				$tpl->display('file:' . dirname(__FILE__) . '/templates/tasks/index.tpl.php');
-				break;
-		}
-		
-	}
-	
-	function showTaskPeekAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer','');
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
-		@$link_namespace = DevblocksPlatform::importGPC($_REQUEST['link_namespace'],'string',''); // opt
-		@$link_object_id = DevblocksPlatform::importGPC($_REQUEST['link_object_id'],'integer',0); // opt
-		
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
-		$tpl->assign('path', dirname(__FILE__) . '/templates/');
-		
-		if(!empty($id)) {
-			$task = DAO_Task::get($id);
-			$tpl->assign('task', $task);
-			
-			if(!empty($task->source_extension) && !empty($task->source_id)) {
-				if(null != ($mft = DevblocksPlatform::getExtension($task->source_extension))) {
-					$source_info = $mft->createInstance();
-					@$tpl->assign('source_info', $source_info->getSourceInfo($task->source_id));
-				}
-			}
-		}
-
-		// Only used on create
-		if(!empty($link_namespace) && !empty($link_object_id)) {
-			$tpl->assign('link_namespace', $link_namespace);
-			$tpl->assign('link_object_id', $link_object_id);
-		}
-		
-		$workers = DAO_Worker::getAll();
-		$tpl->assign('workers', $workers);
-		
-		$tpl->assign('id', $id);
-		$tpl->assign('view_id', $view_id);
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/tasks/rpc/peek.tpl.php');
-	}
-	
-	function saveTaskPeekAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer','');
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
-		@$link_namespace = DevblocksPlatform::importGPC($_REQUEST['link_namespace'],'string','');
-		@$link_object_id = DevblocksPlatform::importGPC($_REQUEST['link_object_id'],'integer',0);
-		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
-
-		$active_worker = CerberusApplication::getActiveWorker();
-		
-		if(!empty($id) && !empty($do_delete)) { // delete
-			$task = DAO_Task::get($id);
-			if($active_worker->is_superuser || $active_worker->id == $task->worker_id) {
-				DAO_Task::delete($id);
-			}
-			
-		} else { // create|update
-			$fields = array();
-	
-			// Title
-			@$title = DevblocksPlatform::importGPC($_REQUEST['title'],'string','');
-			if(!empty($title))
-				$fields[DAO_Task::TITLE] = $title;
-	
-			// Completed
-			@$completed = DevblocksPlatform::importGPC($_REQUEST['completed'],'integer',0);
-			
-			$fields[DAO_Task::IS_COMPLETED] = intval($completed);
-			
-			if($completed)
-				$fields[DAO_Task::COMPLETED_DATE] = time();
-				
-			// Due Date
-			@$due_date = DevblocksPlatform::importGPC($_REQUEST['due_date'],'string','');
-			@$fields[DAO_Task::DUE_DATE] = empty($due_date) ? 0 : intval(strtotime($due_date));		
-	
-			// Priority
-			@$priority = DevblocksPlatform::importGPC($_REQUEST['priority'],'integer',4);
-			@$fields[DAO_Task::PRIORITY] = intval($priority);
-			
-			// Worker
-			@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'integer',0);
-			@$fields[DAO_Task::WORKER_ID] = intval($worker_id);
-			
-			// Content
-			@$content = DevblocksPlatform::importGPC($_REQUEST['content'],'string','');
-			@$fields[DAO_Task::CONTENT] = $content;
-	
-			// Link to object (optional)
-			if(!empty($link_namespace) && !empty($link_object_id)) {
-				@$fields[DAO_Task::SOURCE_EXTENSION] = $link_namespace;
-				@$fields[DAO_Task::SOURCE_ID] = $link_object_id;
-			}
-			
-			// Save
-			if(!empty($id)) {
-				DAO_Task::update($id, $fields);
-			} else {
-				$id = DAO_Task::create($fields);
-			}
-		}
-		
-		if(!empty($view_id) && null != ($view = C4_AbstractViewLoader::getView('', $view_id))) {
-			$view->render();
-		}
-		
-		exit;
-	}
-	
-	function viewCompleteAction() {
-		@$ids = DevblocksPlatform::importGPC($_POST['row_id'],'array',array());
-		
-		if(empty($ids))
-			return;
-		
-		$fields = array(
-			DAO_Task::IS_COMPLETED => 1,
-			DAO_Task::COMPLETED_DATE => time()
-		);
-		DAO_Task::update($ids, $fields);
-	}
-	
-	function viewDeleteAction() {
-		@$ids = DevblocksPlatform::importGPC($_POST['row_id'],'array',array());
-		
-		if(empty($ids))
-			return;
-		
-		DAO_Task::delete($ids);
-	}
-	
-	function viewPostponeAction() {
-		@$ids = DevblocksPlatform::importGPC($_POST['row_id'],'array',array());
-		
-		if(empty($ids))
-			return;
-		
-		$tasks = DAO_Task::getWhere(sprintf("%s IN (%s)",
-			DAO_Task::ID,
-			implode(',', $ids)
-		));
-		
-		foreach($tasks as $task) {
-			/*
-			 * [JAS]: If an existing due date exists and isn't expired, do a  
-			 * relative postpone. Otherwise use today as the starting point.
-			 */
-			$time = ($task->due_date && $task->due_date > time()) ? $task->due_date : time();
-			
-			$fields = array(
-				DAO_Task::DUE_DATE => strtotime('+24 hours',$time)
-			);
-			DAO_Task::update($task->id, $fields);
-		}
-	}
-	
-	function viewDueTodayAction() {
-		@$ids = DevblocksPlatform::importGPC($_POST['row_id'],'array',array());
-
-		if(empty($ids))
-			return;
-		
-		$fields = array(
-			DAO_Task::DUE_DATE => intval(strtotime("tomorrow"))
-		);
-		DAO_Task::update($ids, $fields);
-	}
-	
-	function viewTakeAction() {
-		@$ids = DevblocksPlatform::importGPC($_POST['row_id'],'array',array());
-
-		if(empty($ids))
-			return;
-		
-		$active_worker = CerberusApplication::getActiveWorker();
-		
-		// Only unassigned
-		$where = sprintf("%s IN (%s) AND %s = %d",
-			DAO_Task::ID,
-			implode(',', $ids),
-			DAO_Task::WORKER_ID,
-			0
-		);
-		
-		$fields = array(
-			DAO_Task::WORKER_ID => intval($active_worker->id)
-		);
-		DAO_Task::updateWhere($fields, $where);
-	}
-	
-	function viewSurrenderAction() {
-		@$ids = DevblocksPlatform::importGPC($_POST['row_id'],'array',array());
-
-		if(empty($ids))
-			return;
-		
-		$active_worker = CerberusApplication::getActiveWorker();
-		
-		// Only unassigned
-		$where = sprintf("%s IN (%s) AND %s = %d",
-			DAO_Task::ID,
-			implode(',', $ids),
-			DAO_Task::WORKER_ID,
-			$active_worker->id
-		);
-		
-		$fields = array(
-			DAO_Task::WORKER_ID => 0
-		);
-		DAO_Task::updateWhere($fields, $where);
-	}
-	
-	function viewPriorityHighAction() {
-		@$ids = DevblocksPlatform::importGPC($_POST['row_id'],'array',array());
-
-		if(empty($ids))
-			return;
-		
-		$fields = array(
-			DAO_Task::PRIORITY => 1 // [TODO] These should be Model_Task constants
-		);
-		DAO_Task::update($ids, $fields);
-	}
-	
-	function viewPriorityNormalAction() {
-		@$ids = DevblocksPlatform::importGPC($_POST['row_id'],'array',array());
-
-		if(empty($ids))
-			return;
-		
-		$fields = array(
-			DAO_Task::PRIORITY => 2
-		);
-		DAO_Task::update($ids, $fields);
-	}
-	
-	function viewPriorityLowAction() {
-		@$ids = DevblocksPlatform::importGPC($_POST['row_id'],'array',array());
-
-		if(empty($ids))
-			return;
-		
-		$fields = array(
-			DAO_Task::PRIORITY => 3
-		);
-		DAO_Task::update($ids, $fields);
-	}
-	
-	function viewPriorityNoneAction() {
-		@$ids = DevblocksPlatform::importGPC($_POST['row_id'],'array',array());
-		
-		if(empty($ids))
-			return;
-		
-		$fields = array(
-			DAO_Task::PRIORITY => 4
-		);
-		DAO_Task::update($ids, $fields);
-	}
-};
 
 class ChWelcomePage extends CerberusPageExtension {
 	function __construct($manifest) {
@@ -8680,7 +8493,7 @@ class ChSignInPage extends CerberusPageExtension {
 						DevblocksPlatform::setLocale($lang_code);
 					}
 				}
-				$next_page = ($tour_enabled) ?  'welcome' : 'tickets';				
+				$next_page = ($tour_enabled) ?  'welcome' : 'home';				
 				$devblocks_response = new DevblocksHttpResponse(array($next_page));
 			}
 		}
@@ -8719,7 +8532,7 @@ class ChSignInPage extends CerberusPageExtension {
 		        	$worker = $visit->getWorker();
 					$tour_enabled = intval(DAO_WorkerPref::get($worker->id, 'assist_mode', 1));
 				}
-				$next_page = ($tour_enabled) ?  'welcome' : 'tickets';				
+				$next_page = ($tour_enabled) ?  'welcome' : 'home';				
 				$devblocks_response = new DevblocksHttpResponse(array($next_page));
 			}
 		}

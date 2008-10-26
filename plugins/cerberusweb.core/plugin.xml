@@ -192,6 +192,17 @@
 			</params>
 		</extension>
 
+		<extension point="devblocks.controller">
+			<id>core.controller.tasks</id>
+			<name>Tasks Controller</name>
+			<class>
+				<file>api/controllers/tasks.php</file>
+				<name>ChTasksController</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
 		<!-- Translations -->
 		
 		<extension point="devblocks.i18n.strings">
@@ -247,8 +258,21 @@
 		</extension>
 
 		<extension point="cerberusweb.page">
+			<id>core.page.home</id>
+			<name>Home Page</name>
+			<class>
+				<file>classes.php</file>
+				<name>ChHomePage</name>
+			</class>
+			<params>
+				<param key="uri" value="home" />
+				<param key="menutitle" value="core.menu.home" />
+			</params>
+		</extension>
+
+		<extension point="cerberusweb.page">
 			<id>core.page.tickets</id>
-			<name>Tickets Page</name>
+			<name>Mail Page</name>
 			<class>
 				<file>classes.php</file>
 				<name>ChTicketsPage</name>
@@ -256,6 +280,19 @@
 			<params>
 				<param key="uri" value="tickets" />
 				<param key="menutitle" value="core.menu.mail" />
+			</params>
+		</extension>
+
+		<extension point="cerberusweb.page">
+			<id>core.page.activity</id>
+			<name>Activity Page</name>
+			<class>
+				<file>classes.php</file>
+				<name>ChActivityPage</name>
+			</class>
+			<params>
+				<param key="uri" value="activity" />
+				<param key="menutitle" value="core.menu.activity" />
 			</params>
 		</extension>
 
@@ -295,19 +332,6 @@
 			<params>
 				<param key="uri" value="contacts" />
 				<param key="menutitle" value="core.menu.address_book" />
-			</params>
-		</extension>
-
-		<extension point="cerberusweb.page">
-			<id>core.page.tasks</id>
-			<name>Tasks Page</name>
-			<class>
-				<file>classes.php</file>
-				<name>ChTasksPage</name>
-			</class>
-			<params>
-				<param key="uri" value="tasks" />
-				<param key="menutitle" value="core.menu.tasks" />
 			</params>
 		</extension>
 
@@ -359,6 +383,21 @@
 			</class>
 			<params>
 				<param key="uri" value="preferences" />
+			</params>
+		</extension>
+		
+		<!-- Activity Tabs -->
+		
+		<extension point="cerberusweb.activity.tab">
+			<id>core.activity.tab.tasks</id>
+			<name>Tasks Tab</name>
+			<class>
+				<file>api/controllers/tasks.php</file>
+				<name>ChTasksActivityTab</name>
+			</class>
+			<params>
+				<param key="uri" value="tasks" />
+				<param key="title" value="activity.tab.tasks" />
 			</params>
 		</extension>
 		

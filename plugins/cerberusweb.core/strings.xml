@@ -6,17 +6,20 @@
 
 		<!-- Manifest -->
 
+		<tu tuid='core.menu.activity'>
+			<tuv xml:lang="en_US"><seg>activity</seg></tuv>
+		</tu>
 		<tu tuid='core.menu.address_book'>
 			<tuv xml:lang="en_US"><seg>address book</seg></tuv>
 		</tu>
+		<tu tuid='core.menu.home'>
+			<tuv xml:lang="en_US"><seg>home</seg></tuv>
+		</tu>
 		<tu tuid='core.menu.knowledgebase'>
-			<tuv xml:lang="en_US"><seg>knowledgebase</seg></tuv>
+			<tuv xml:lang="en_US"><seg>kb</seg></tuv>
 		</tu>
 		<tu tuid='core.menu.mail'>
 			<tuv xml:lang="en_US"><seg>mail</seg></tuv>
-		</tu>
-		<tu tuid='core.menu.tasks'>
-			<tuv xml:lang="en_US"><seg>tasks</seg></tuv>
 		</tu>
 		
 		<tu tuid='display.tab.comments'>
@@ -36,6 +39,10 @@
 		</tu>
 		<tu tuid='display.tab.tasks'>
 			<tuv xml:lang="en_US"><seg>Tasks (%s)</seg></tuv>
+		</tu>
+
+		<tu tuid='activity.tab.tasks'>
+			<tuv xml:lang="en_US"><seg>Tasks</seg></tuv>
 		</tu>
 
 		<!-- Common Strings -->
@@ -436,6 +443,15 @@
 			<tuv xml:lang="en_US"><seg>Teamwork</seg></tuv>
 		</tu>
 
+		<!-- Home -->
+		
+		<tu tuid='home.tab.my_tasks'>
+			<tuv xml:lang="en_US"><seg>My Tasks</seg></tuv>
+		</tu>
+		<tu tuid='home.tab.my_mail'>
+			<tuv xml:lang="en_US"><seg>My Mail</seg></tuv>
+		</tu>
+
 		<!-- Display Ticket -->
 		
 		<!-- Display: Conversation -->
@@ -731,7 +747,7 @@
 			<tuv xml:lang="en_US"><seg>Complete</seg></tuv>
 		</tu>
 		<tu tuid='tasks.postpone'>
-			<tuv xml:lang="en_US"><seg>Postpone</seg></tuv>
+			<tuv xml:lang="en_US"><seg>+24hrs</seg></tuv>
 		</tu>
 		
 		<!-- Task -->

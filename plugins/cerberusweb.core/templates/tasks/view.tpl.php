@@ -12,8 +12,8 @@
 </table>
 
 <form id="customize{$view->id}" name="customize{$view->id}" action="#" onsubmit="return false;" style="display:none;"></form>
-<form id="viewForm{$view->id}" name="viewForm{$view->id}" action="{devblocks_url}{/devblocks_url}" method="post">
-<input type="hidden" name="id" value="{$view->id}">
+<form id="viewForm{$view->id}" name="viewForm{$view->id}" action="#" method="post">
+<input type="hidden" name="view_id" value="{$view->id}">
 <input type="hidden" name="c" value="tasks">
 <input type="hidden" name="a" value="">
 <table cellpadding="1" cellspacing="0" border="0" width="100%" class="tableRowBg">
@@ -136,19 +136,26 @@
 	{if $total}
 	<tr>
 		<td colspan="2" valign="top">
-			<button type="button" id="btnComplete" onclick="this.form.a.value='viewComplete';this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top" title="{$translate->_('tasks.complete')|capitalize}"> {$translate->_('tasks.complete')|capitalize}</button> 
-			<button type="button" id="btnPostpone" onclick="this.form.a.value='viewPostpone';this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/clock.gif{/devblocks_url}" align="top" title="{$translate->_('tasks.postpone')|capitalize}"> {$translate->_('tasks.postpone')|capitalize}</button>
-
-			<button style="display:none;" type="button" id="btnPriorityHigh" onclick="this.form.a.value='viewPriorityHigh';this.form.submit();">&nbsp;<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/nav_up_red.gif{/devblocks_url}" align="top" title="{$translate->_('priority.high')|capitalize}">&nbsp;</button><!--  
-			--><button style="display:none;" type="button" id="btnPriorityNormal" onclick="this.form.a.value='viewPriorityNormal';this.form.submit();">&nbsp;<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/nav_right_green.gif{/devblocks_url}" align="top" title="{$translate->_('priority.normal')|capitalize}">&nbsp;</button><!--
-			--><button style="display:none;" type="button" id="btnPriorityLow" onclick="this.form.a.value='viewPriorityLow';this.form.submit();">&nbsp;<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/nav_down_blue.gif{/devblocks_url}" align="top" title="{$translate->_('priority.low')|capitalize}">&nbsp;</button><!--
-			--><button style="display:none;" type="button" id="btnPriorityNone" onclick="this.form.a.value='viewPriorityNone';this.form.submit();">&nbsp;<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/star_alpha.gif{/devblocks_url}" align="top" title="{$translate->_('priority.none')|capitalize}">&nbsp;</button><!-- 
-			
-			--><button style="display:none;" type="button" id="btnDueToday" onclick="this.form.a.value='viewDueToday';this.form.submit();">&nbsp;&nbsp;</button><!-- 
-			--><button style="display:none;" type="button" id="btnTake" onclick="this.form.a.value='viewTake';this.form.submit();">&nbsp;&nbsp;</button><!-- 
-			--><button style="display:none;" type="button" id="btnSurrender" onclick="this.form.a.value='viewSurrender';this.form.submit();">&nbsp;&nbsp;</button><!-- 
-			--><button style="display:none;" type="button" id="btnDelete" onclick="this.form.a.value='viewDelete';this.form.submit();">&nbsp;&nbsp;</button><!--
-			-->
+			<button type="button" id="btnComplete" onclick="this.form.a.value='viewComplete';genericAjaxPost('viewForm{$view->id}','view{$view->id}','c=tasks');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('tasks.complete')|capitalize}</button> 
+			<button type="button" id="btnPostpone" onclick="this.form.a.value='viewPostpone';genericAjaxPost('viewForm{$view->id}','view{$view->id}','c=tasks');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/clock.gif{/devblocks_url}" align="top"> {$translate->_('tasks.postpone')|capitalize}</button>
+			<select name="" onchange="if(!this.selectedIndex)return false;this.form.a.value=selectValue(this);genericAjaxPost('viewForm{$view->id}','view{$view->id}','c=tasks');">
+				<option value="">-- {$translate->_('common.more')|lower} --</option>
+				<optgroup label="{$translate->_('task.priority')|capitalize}">
+					<option value="viewPriorityHigh">{$translate->_('priority.high')|capitalize}</option>
+					<option value="viewPriorityNormal">{$translate->_('priority.normal')|capitalize}</option>
+					<option value="viewPriorityLow">{$translate->_('priority.low')|capitalize}</option>
+					<option value="viewPriorityNone">{$translate->_('priority.none')|capitalize}</option>
+				</optgroup>
+				<optgroup label="{$translate->_('common.assign')|capitalize}">
+					<option value="viewTake">{$translate->_('mail.take')|capitalize}</option>
+					<option value="viewSurrender">{$translate->_('mail.surrender')|capitalize}</option>
+				</optgroup>	
+				{if $active_worker->is_superuser}		
+				<optgroup label="{$translate->_('common.edit')|capitalize}">
+					<option value="viewDelete">{$translate->_('common.delete')|capitalize}</option>
+				</optgroup>
+				{/if}
+			</select>
 
 			{if $view->id=='tasks'}		
 			<br>

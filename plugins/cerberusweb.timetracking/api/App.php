@@ -843,44 +843,6 @@ class Model_TimeTrackingActivity {
 //    }
 //};
 
-class TimeTrackingPage extends CerberusPageExtension {
-	private $plugin_path = '';
-	
-	function __construct($manifest) {
-		parent::__construct($manifest);
-
-		$this->plugin_path = realpath(dirname(__FILE__).'/../') . DIRECTORY_SEPARATOR;
-	}
-		
-	function isVisible() {
-		// check login
-		$session = DevblocksPlatform::getSessionService();
-		$visit = $session->getVisit();
-		
-		if(empty($visit)) {
-			return false;
-		} else {
-			return true;
-		}
-	}
-	
-	function render() {
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
-		$tpl_path = $this->plugin_path . '/templates/';
-		$tpl->assign('path', $tpl_path);
-
-		$response = DevblocksPlatform::getHttpResponse();
-		$stack = $response->path;
-		
-		$view = C4_AbstractViewLoader::getView('C4_TimeTrackingEntryView', C4_TimeTrackingEntryView::DEFAULT_ID);
-		$tpl->assign('view', $view);
-		$tpl->assign('view_fields', C4_TimeTrackingEntryView::getFields());
-		$tpl->assign('view_searchable_fields', C4_TimeTrackingEntryView::getSearchFields());
-		$tpl->display($tpl_path . 'timetracking/time/index.tpl.php');
-	}
-};
-
 class ChTimeTrackingAjaxController extends DevblocksControllerExtension {
 	function __construct($manifest) {
 		parent::__construct($manifest);
@@ -1198,6 +1160,42 @@ class ChTimeTrackingAjaxController extends DevblocksControllerExtension {
 		$this->_destroyTimer();
 	}
 };
+
+if (class_exists('Extension_ActivityTab')):
+class TimeTrackingActivityTab extends Extension_ActivityTab {
+	const VIEW_ACTIVITY_TIMETRACKING = 'activity_timetracking';
+	
+	function __construct($manifest) {
+		parent::__construct($manifest);
+	}
+	
+	function showTab() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl_path = realpath(dirname(__FILE__) . '/../templates') . DIRECTORY_SEPARATOR;
+		$tpl->assign('path', $tpl_path);
+		$core_path = realpath(APP_PATH . '/plugins/cerberusweb.core/templates') . DIRECTORY_SEPARATOR;
+		$tpl->assign('core_path', $core_path);
+		
+		if(null == ($view = C4_AbstractViewLoader::getView('', self::VIEW_ACTIVITY_TIMETRACKING))) {
+			$view = new C4_TimeTrackingEntryView();
+			$view->id = self::VIEW_ACTIVITY_TIMETRACKING;
+			$view->renderSortBy = SearchFields_TimeTrackingEntry::LOG_DATE;
+			$view->renderSortAsc = 0;
+			
+			C4_AbstractViewLoader::setView($view->id, $view);
+		}
+
+		$tpl->assign('response_uri', 'activity/timetracking');
+		
+		$tpl->assign('view', $view);
+		$tpl->assign('view_fields', C4_TimeTrackingEntryView::getFields());
+		$tpl->assign('view_searchable_fields', C4_TimeTrackingEntryView::getSearchFields());
+		
+		$tpl->display($tpl_path . 'activity_tab/index.tpl.php');		
+	}
+}
+endif;
 
 class ChTimeTrackingConfigActivityTab extends Extension_ConfigTab {
 	const ID = 'timetracking.config.tab.activities';

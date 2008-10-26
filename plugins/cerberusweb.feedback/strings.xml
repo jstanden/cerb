@@ -7,8 +7,8 @@
 
 		<!-- Manifest -->
 		
-		<tu tuid='feedback.menu.feedback'>
-			<tuv xml:lang="en_US"><seg>feedback</seg></tuv>
+		<tu tuid='feedback.activity.tab'>
+			<tuv xml:lang="en_US"><seg>Feedback</seg></tuv>
 		</tu>
 		
 		<!-- Feedback Strings -->

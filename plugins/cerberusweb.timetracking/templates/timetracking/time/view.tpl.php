@@ -21,7 +21,7 @@
 
 	{* Column Headers *}
 	<tr class="tableTh">
-		<th style="text-align:center">{*<input type="checkbox" onclick="checkAll('view{$view->id}',this.checked);">*}</th>
+		<th style="text-align:center">&nbsp;{*<input type="checkbox" onclick="checkAll('view{$view->id}',this.checked);">*}</th>
 		{foreach from=$view->view_columns item=header name=headers}
 			{* start table header, insert column title and link *}
 			<th nowrap="nowrap">

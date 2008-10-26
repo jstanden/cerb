@@ -93,6 +93,87 @@ class ChForumsConfigTab extends Extension_ConfigTab {
 	}
 };
 
+if (class_exists('Extension_ActivityTab')):
+class ChForumsActivityTab extends Extension_ActivityTab {
+	const VIEW_ACTIVITY_FORUMS = 'activity_forums';
+	
+	function __construct($manifest) {
+		parent::__construct($manifest);
+	}
+	
+	function showTab() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl_path = realpath(dirname(__FILE__) . '/../templates') . DIRECTORY_SEPARATOR;
+		$tpl->assign('path', $tpl_path);
+		$core_path = realpath(APP_PATH . '/plugins/cerberusweb.core/templates') . DIRECTORY_SEPARATOR;
+		$tpl->assign('core_path', $core_path);
+		
+		if(null == ($view = C4_AbstractViewLoader::getView('', self::VIEW_ACTIVITY_FORUMS))) {
+			$view = new C4_ForumsThreadView();
+			$view->id = self::VIEW_ACTIVITY_FORUMS;
+			$view->renderSortBy = SearchFields_ForumsThread::LAST_UPDATED;
+			$view->renderSortAsc = 0;
+			
+			C4_AbstractViewLoader::setView($view->id, $view);
+		}
+
+		$tpl->assign('response_uri', 'activity/forums');
+		
+		$tpl->assign('view', $view);
+		$tpl->assign('view_fields', C4_ForumsThreadView::getFields());
+		$tpl->assign('view_searchable_fields', C4_ForumsThreadView::getSearchFields());
+		
+		$tpl->display($tpl_path . 'activity_tab/index.tpl.php');		
+	}
+}
+endif;
+
+if (class_exists('Extension_HomeTab')):
+class ChForumsHomeTab extends Extension_HomeTab {
+	const VIEW_HOME_FORUMS = 'home_forums';
+	
+	function __construct($manifest) {
+		parent::__construct($manifest);
+	}
+	
+	function showTab() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl_path = realpath(dirname(__FILE__) . '/../templates') . DIRECTORY_SEPARATOR;
+		$tpl->assign('path', $tpl_path);
+		$core_path = realpath(APP_PATH . '/plugins/cerberusweb.core/templates') . DIRECTORY_SEPARATOR;
+		$tpl->assign('core_path', $core_path);
+		
+		if(null == ($view = C4_AbstractViewLoader::getView('', self::VIEW_HOME_FORUMS))) {
+			$view = new C4_ForumsThreadView();
+			$view->id = self::VIEW_HOME_FORUMS;
+			$view->renderSortBy = SearchFields_ForumsThread::LAST_UPDATED;
+			$view->renderSortAsc = 0;
+
+			$view->name = "Forums for  " . $active_worker->getName();			
+			
+			$view->params = array(
+				SearchFields_ForumsThread::WORKER_ID => new DevblocksSearchCriteria(SearchFields_ForumsThread::WORKER_ID,DevblocksSearchCriteria::OPER_EQ,$active_worker->id),
+				SearchFields_ForumsThread::IS_CLOSED => new DevblocksSearchCriteria(SearchFields_ForumsThread::IS_CLOSED,DevblocksSearchCriteria::OPER_EQ,0),
+			);
+			
+			C4_AbstractViewLoader::setView($view->id, $view);
+		}
+
+		$tpl->assign('response_uri', 'home/forums');
+		
+		$tpl->assign('view', $view);
+		$tpl->assign('view_fields', C4_ForumsThreadView::getFields());
+		$tpl->assign('view_searchable_fields', C4_ForumsThreadView::getSearchFields());
+		
+		$tpl->display($tpl_path . 'home_tab/index.tpl.php');		
+	}
+}
+endif;
+
 class ChForumsTranslations extends DevblocksTranslationsExtension {
 	function __construct($manifest) {
 		parent::__construct($manifest);	
@@ -103,13 +184,16 @@ class ChForumsTranslations extends DevblocksTranslationsExtension {
 	}
 };
 
-class ChForumsPage extends CerberusPageExtension {
+class ChForumsController extends DevblocksControllerExtension {
 	private $tpl_path = null;
 	
 	function __construct($manifest) {
 		parent::__construct($manifest);
 
 		$this->tpl_path = realpath(dirname(__FILE__).'/../templates');
+		
+		$router = DevblocksPlatform::getRoutingService();
+		$router->addRoute('forums','forums.controller');
 	}
 		
 	function isVisible() {
@@ -122,6 +206,29 @@ class ChForumsPage extends CerberusPageExtension {
 		} else {
 			return true;
 		}
+	}
+	
+	function handleRequest(DevblocksHttpRequest $request) {
+		$worker = CerberusApplication::getActiveWorker();
+		if(empty($worker)) return;
+		
+		$stack = $request->path;
+		array_shift($stack); // internal
+		
+	    @$action = array_shift($stack) . 'Action';
+
+	    switch($action) {
+	        case NULL:
+	            // [TODO] Index/page render
+	            break;
+	            
+	        default:
+			    // Default action, call arg as a method suffixed with Action
+				if(method_exists($this,$action)) {
+					call_user_func(array(&$this, $action));
+				}
+	            break;
+	    }
 	}
 	
 	function explorerAction() {
@@ -285,97 +392,6 @@ class ChForumsPage extends CerberusPageExtension {
 		exit;
 	}
 	
-	function render() {
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
-		$tpl->assign('path', $this->tpl_path);
-		
-		$response = DevblocksPlatform::getHttpResponse();
-		$stack = $response->path;
-
-		array_shift($stack); // forums
-		
-		switch(array_shift($stack)) {
-			case 'search':
-				if(null == ($view = C4_AbstractViewLoader::getView('', 'forums_search'))) {
-					$view = new C4_ForumsThreadView();
-					$view->id = 'forums_search';
-					C4_AbstractViewLoader::setView($view->id, $view);
-				}
-
-				$view->name = "Search Results";
-				$tpl->assign('view', $view);
-
-				$tpl->assign('view_fields', C4_ForumsThreadView::getFields());
-				$tpl->assign('view_searchable_fields', C4_ForumsThreadView::getSearchFields());
-				
-				$tpl->display($this->tpl_path . '/forums/search.tpl.php');
-				break;
-			
-			case 'overview':
-		    default:
-		    	$sources = DAO_ForumsSource::getWhere();
-		    	$tpl->assign('sources', $sources);
-		    	
-		    	$workers = DAO_Worker::getAll();
-		    	$tpl->assign('workers', $workers);
-		    	
-				$source_unassigned_totals = DAO_ForumsThread::getUnassignedTotals();
-				$tpl->assign('source_unassigned_totals', $source_unassigned_totals);
-		    	
-				$source_assigned_totals = DAO_ForumsThread::getAssignedWorkerTotals();
-				$tpl->assign('source_assigned_totals', $source_assigned_totals);
-		    	
-		    	// View
-				if(null == ($forums_overview = C4_AbstractViewLoader::getView('', C4_ForumsThreadView::DEFAULT_ID))) {
-					$forums_overview = new C4_ForumsThreadView();
-					C4_AbstractViewLoader::setView(C4_ForumsThreadView::DEFAULT_ID, $forums_overview);
-				}
-				
-				// Overview control
-		    	if(null != (@$module = array_shift($stack))) {
-					$params = array(
-						SearchFields_ForumsThread::IS_CLOSED => new DevblocksSearchCriteria(SearchFields_ForumsThread::IS_CLOSED,'=',0),
-					);
-					$forums_overview->renderPage = 0;
-			    	
-					switch($module) {
-						case 'all':
-							$forums_overview->name = "All Forum Threads";
-							$params[SearchFields_ForumsThread::WORKER_ID] = new DevblocksSearchCriteria(SearchFields_ForumsThread::WORKER_ID,'=',0);
-							$forums_overview->params = $params;
-							break;
-							
-						case 'forum':
-							@$forum_id = array_shift($stack);
-							if(!empty($forum_id) && isset($sources[$forum_id])) {
-								$params[SearchFields_ForumsThread::FORUM_ID] = new DevblocksSearchCriteria(SearchFields_ForumsThread::FORUM_ID,'=',$forum_id);
-								$params[SearchFields_ForumsThread::WORKER_ID] = new DevblocksSearchCriteria(SearchFields_ForumsThread::WORKER_ID,'=',0);
-								$forums_overview->name = $sources[$forum_id]->name;
-								$forums_overview->params = $params;
-							}
-							break;
-							
-						case 'worker':
-							@$worker_id = array_shift($stack);
-							if(!empty($worker_id) && isset($workers[$worker_id])) {
-								$params[SearchFields_ForumsThread::WORKER_ID] = new DevblocksSearchCriteria(SearchFields_ForumsThread::WORKER_ID,'=',$worker_id);
-								$forums_overview->name = "For " . $workers[$worker_id]->getName();
-								$forums_overview->params = $params;
-							}
-							break;
-					}
-					
-					C4_AbstractViewLoader::setView(C4_ForumsThreadView::DEFAULT_ID, $forums_overview);
-		    	}
-				
-				$tpl->assign('forums_overview', $forums_overview);
-				
-				$tpl->display('file:' . $this->tpl_path . '/forums/index.tpl.php');
-		        break;
-		}
-	}
-	
 	function viewCloseThreadsAction() {
 		@$row_ids = DevblocksPlatform::importGPC($_POST['row_id'],'array',array());
 		
@@ -398,7 +414,6 @@ class ChForumsPage extends CerberusPageExtension {
 	
 	function importAction() {
 		$sources = DAO_ForumsSource::getWhere();
-
 		$settings = CerberusSettings::getInstance();
 		
 		// Track posters that are also workers
@@ -463,7 +478,10 @@ class ChForumsPage extends CerberusPageExtension {
 			}
 		
 		} // foreach($sources)
+		
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('activity','forums')));
 	}
+	
 };
 
 class DAO_ForumsThread extends DevblocksORMHelper {
@@ -877,7 +895,7 @@ class C4_ForumsThreadView extends C4_AbstractView {
 
 	function __construct() {
 		$this->id = self::DEFAULT_ID;
-		$this->name = 'All Forum Threads';
+		$this->name = 'Search Results';
 		$this->renderLimit = 10;
 		$this->renderSortBy = 't_last_updated';
 		$this->renderSortAsc = false;

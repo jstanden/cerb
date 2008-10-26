@@ -7,10 +7,10 @@
 
 		<!-- Manifest -->
 
-		<tu tuid='time.menu.time'>
-			<tuv xml:lang="en_US"><seg>time</seg></tuv>
+		<tu tuid='timetracking.activity.tab'>
+			<tuv xml:lang="en_US"><seg>Time Tracking</seg></tuv>
 		</tu>
-		<tu tuid='time.ui.button.track'>
+		<tu tuid='timetracking.ui.button.track'>
 			<tuv xml:lang="en_US"><seg>Track Time</seg></tuv>
 		</tu>
 		

@@ -126,6 +126,21 @@
 			</params>
 		</extension>
 	
+		<!-- Activity Tabs -->
+		
+		<extension point="cerberusweb.activity.tab">
+			<id>timetracking.activity.tab</id>
+			<name>TimeTracking Tab</name>
+			<class>
+				<file>api/App.php</file>
+				<name>TimeTrackingActivityTab</name>
+			</class>
+			<params>
+				<param key="uri" value="timetracking" />
+				<param key="title" value="timetracking.activity.tab" />
+			</params>
+		</extension>
+	
 		<!-- Config Tabs -->
 		
 		<extension point="cerberusweb.config.tab">
@@ -149,21 +164,6 @@
 				<name>ChTimeTrackingAjaxController</name>
 			</class>
 			<params>
-			</params>
-		</extension>
-		 
-		<!-- Pages -->
-		
-		<extension point="cerberusweb.page">
-			<id>timetracking.page.time</id>
-			<name>Time Tracking Page</name>
-			<class>
-				<file>api/App.php</file>
-				<name>TimeTrackingPage</name>
-			</class>
-			<params>
-				<param key="uri" value="time" />
-				<param key="menutitle" value="time.menu.time" />
 			</params>
 		</extension>
 		 
@@ -235,6 +235,7 @@
 			<param key="report_name" value="Time Spent Per Activity" />
 			<param key="report_group" value="report.group.timetracking" />
 		</params>
-	</extension>	
+	</extension>
+	
 	</extensions>
 </plugin>

@@ -39,18 +39,33 @@
 			</params>
 		</extension>
 
-		<!-- Page Extensions -->
+		<!-- Home Tabs -->
 		
-		<extension point="cerberusweb.page">
-			<id>forums.page</id>
-			<name>Forums Page</name>
+		<extension point="cerberusweb.home.tab">
+			<id>forums.home.tab</id>
+			<name>Forums Tab</name>
 			<class>
 				<file>api/App.php</file>
-				<name>ChForumsPage</name>
+				<name>ChForumsHomeTab</name>
 			</class>
 			<params>
 				<param key="uri" value="forums" />
-				<param key="menutitle" value="forums.menu.forums" />
+				<param key="title" value="forums.home.tab" />
+			</params>
+		</extension>
+
+		<!-- Activity Tabs -->
+		
+		<extension point="cerberusweb.activity.tab">
+			<id>forums.activity.tab</id>
+			<name>Forums Tab</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChForumsActivityTab</name>
+			</class>
+			<params>
+				<param key="uri" value="forums" />
+				<param key="title" value="forums.activity.tab" />
 			</params>
 		</extension>
 		
@@ -66,6 +81,19 @@
 			<params>
 				<param key="uri" value="forums" />
 				<param key="title" value="Forum Explorer" />
+			</params>
+		</extension>
+
+		<!-- Controllers -->
+		
+		<extension point="devblocks.controller">
+			<id>forums.controller</id>
+			<name>Forums Controller</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChForumsController</name>
+			</class>
+			<params>
 			</params>
 		</extension>
 		

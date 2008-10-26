@@ -116,6 +116,21 @@
 		</extension>
 		 -->
 
+		<!-- Activity Tabs -->
+		
+		<extension point="cerberusweb.activity.tab">
+			<id>feedback.activity.tab</id>
+			<name>Feedback Tab</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChFeedbackActivityTab</name>
+			</class>
+			<params>
+				<param key="uri" value="feedback" />
+				<param key="title" value="feedback.activity.tab" />
+			</params>
+		</extension>
+
 		<!-- Ticket Message Tabs -->
 			
 		<extension point="cerberusweb.message.toolbaritem">
@@ -157,18 +172,16 @@
 		</extension>
 		 -->
 		 
-		<!-- Pages -->
+		<!-- Controllers -->
 
-		<extension point="cerberusweb.page">
-			<id>feedback.page</id>
-			<name>Feedback Page</name>
+		<extension point="devblocks.controller">
+			<id>feedback.controller</id>
+			<name>Feedback Controller</name>
 			<class>
 				<file>api/App.php</file>
-				<name>FeedbackPage</name>
+				<name>ChFeedbackController</name>
 			</class>
 			<params>
-				<param key="uri" value="feedback" />
-				<param key="menutitle" value="feedback.menu.feedback" />
 			</params>
 		</extension>
 		 

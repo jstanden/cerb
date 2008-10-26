@@ -39,6 +39,44 @@ if (class_exists('DevblocksTranslationsExtension',true)):
 	};
 endif;
 
+if (class_exists('Extension_ActivityTab')):
+class ChFeedbackActivityTab extends Extension_ActivityTab {
+	const VIEW_ACTIVITY_FEEDBACK = 'activity_feedback';
+	
+	function __construct($manifest) {
+		parent::__construct($manifest);
+	}
+	
+	function showTab() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl_path = realpath(dirname(__FILE__) . '/../templates') . DIRECTORY_SEPARATOR;
+		$tpl->assign('path', $tpl_path);
+		$core_path = realpath(APP_PATH . '/plugins/cerberusweb.core/templates') . DIRECTORY_SEPARATOR;
+		$tpl->assign('core_path', $core_path);
+		
+		if(null == ($view = C4_AbstractViewLoader::getView('', self::VIEW_ACTIVITY_FEEDBACK))) {
+			$view = new C4_FeedbackEntryView();
+			$view->id = self::VIEW_ACTIVITY_FEEDBACK;
+			$view->renderSortBy = SearchFields_FeedbackEntry::LOG_DATE;
+			$view->renderSortAsc = 0;
+			
+			$view->name = "Feedback";
+			
+			C4_AbstractViewLoader::setView($view->id, $view);
+		}
+
+		$tpl->assign('response_uri', 'activity/feedback');
+		
+		$tpl->assign('view', $view);
+		$tpl->assign('view_fields', C4_FeedbackEntryView::getFields());
+		$tpl->assign('view_searchable_fields', C4_FeedbackEntryView::getSearchFields());
+		
+		$tpl->display($tpl_path . 'activity_tab/index.tpl.php');		
+	}
+}
+endif;
+
 class DAO_FeedbackEntry extends DevblocksORMHelper {
 	const ID = 'id';
 	const LOG_DATE = 'log_date';
@@ -270,7 +308,7 @@ class C4_FeedbackEntryView extends C4_AbstractView {
 
 	function __construct() {
 		$this->id = self::DEFAULT_ID;
-		$this->name = 'Feedback Entries';
+		$this->name = 'Search Results';
 		$this->renderLimit = 10;
 		$this->renderSortBy = SearchFields_FeedbackEntry::LOG_DATE;
 		$this->renderSortAsc = false;
@@ -309,7 +347,7 @@ class C4_FeedbackEntryView extends C4_AbstractView {
 		
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('view_fields', $this->getColumns());
-		$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.feedback/templates/feedback/page/view.tpl.php');
+		$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.feedback/templates/feedback/view.tpl.php');
 	}
 
 	function renderCriteria($field) {
@@ -694,13 +732,16 @@ class ChFeedbackConfigTab extends Extension_ConfigTab {
 	
 };
 
-class FeedbackPage extends CerberusPageExtension {
+class ChFeedbackController extends DevblocksControllerExtension {
 	private $plugin_path = '';
 	
 	function __construct($manifest) {
 		parent::__construct($manifest);
 
 		$this->plugin_path = realpath(dirname(__FILE__).'/../') . DIRECTORY_SEPARATOR;
+		
+		$router = DevblocksPlatform::getRoutingService();
+		$router->addRoute('feedback','feedback.controller');
 	}
 		
 	function isVisible() {
@@ -714,29 +755,35 @@ class FeedbackPage extends CerberusPageExtension {
 			return true;
 		}
 	}
-	
-	function render() {
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
-		$tpl_path = $this->plugin_path . '/templates/';
-		$tpl->assign('path', $tpl_path);
 
-		$response = DevblocksPlatform::getHttpResponse();
-		$stack = $response->path;
+	function handleRequest(DevblocksHttpRequest $request) {
+		$worker = CerberusApplication::getActiveWorker();
+		if(empty($worker)) return;
 		
-		$view = C4_AbstractViewLoader::getView('C4_FeedbackEntryView', C4_FeedbackEntryView::DEFAULT_ID);
-		$tpl->assign('view', $view);
-		$tpl->assign('view_fields', C4_FeedbackEntryView::getFields());
-		$tpl->assign('view_searchable_fields', C4_FeedbackEntryView::getSearchFields());
-		$tpl->display($tpl_path . 'feedback/page/index.tpl.php');
+		$stack = $request->path;
+		array_shift($stack); // internal
+		
+	    @$action = array_shift($stack) . 'Action';
+
+	    switch($action) {
+	        case NULL:
+	            // [TODO] Index/page render
+	            break;
+	            
+	        default:
+			    // Default action, call arg as a method suffixed with Action
+				if(method_exists($this,$action)) {
+					call_user_func(array(&$this, $action));
+				}
+	            break;
+	    }
 	}
 	
 	function showEntryAction() {
 		@$active_worker = CerberusApplication::getActiveWorker(); 
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = realpath(dirname(__FILE__).'/../templates') . DIRECTORY_SEPARATOR;
-		$tpl->assign('path', $tpl_path);
+		$tpl->assign('path', $this->plugin_path . '/templates/');
 		$tpl->cache_lifetime = "0";
 
 		// Editing
@@ -804,7 +851,7 @@ class FeedbackPage extends CerberusPageExtension {
 		$lists = DAO_FeedbackList::getWhere();
 		$tpl->assign('lists', $lists);
 		
-		$tpl->display('file:' . $tpl_path . 'feedback/ajax/feedback_entry_panel.tpl.php');
+		$tpl->display('file:' . $this->plugin_path . '/templates/feedback/ajax/feedback_entry_panel.tpl.php');
 	}
 	
 	function saveEntryAction() {
@@ -905,8 +952,6 @@ if (class_exists('Extension_MessageToolbarItem',true)):
 		function render(CerberusMessage $message) { 
 			$tpl = DevblocksPlatform::getTemplateService();
 			$tpl_path = realpath(dirname(__FILE__).'/../templates') . DIRECTORY_SEPARATOR;
-//			$tpl->assign('toolbar_path', $tpl_path);
-//			$tpl->cache_lifetime = "0";
 			
 			$tpl->assign('message', $message); /* @var $message CerberusMessage */
 			

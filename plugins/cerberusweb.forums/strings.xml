@@ -7,12 +7,14 @@
 
 		<!-- Common Strings -->
 		
-
 		
 		<!-- Manifest -->
 		
-		<tu tuid='forums.menu.forums'>
-			<tuv xml:lang="en_US"><seg>forums</seg></tuv>
+		<tu tuid='forums.activity.tab'>
+			<tuv xml:lang="en_US"><seg>Forums</seg></tuv>
+		</tu>
+		<tu tuid='forums.home.tab'>
+			<tuv xml:lang="en_US"><seg>My Forums</seg></tuv>
 		</tu>
 
 		
