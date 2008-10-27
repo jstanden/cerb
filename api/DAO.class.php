@@ -6150,6 +6150,7 @@ class DAO_Task extends DevblocksORMHelper {
 			"t.completed_date as %s, ".
 			"t.priority as %s, ".
 			"t.title as %s, ".
+			"t.content as %s, ".
 			"t.worker_id as %s, ".
 			"t.source_extension as %s, ".
 			"t.source_id as %s ",
@@ -6160,6 +6161,7 @@ class DAO_Task extends DevblocksORMHelper {
 			    SearchFields_Task::COMPLETED_DATE,
 			    SearchFields_Task::PRIORITY,
 			    SearchFields_Task::TITLE,
+			    SearchFields_Task::CONTENT,
 			    SearchFields_Task::WORKER_ID,
 			    SearchFields_Task::SOURCE_EXTENSION,
 			    SearchFields_Task::SOURCE_ID
