@@ -63,6 +63,18 @@ class ChRestPlugin extends DevblocksPlugin {
 	}
 };
 
+if (class_exists('DevblocksTranslationsExtension',true)):
+	class ChWebApiTranslations extends DevblocksTranslationsExtension {
+		function __construct($manifest) {
+			parent::__construct($manifest);	
+		}
+		
+		function getTmxFile() {
+			return dirname(__FILE__) . '/../strings.xml';
+		}
+	};
+endif;
+
 class ChWebApiConfigTab extends Extension_ConfigTab {
 	const ID = 'webapi.config.tab';
 	

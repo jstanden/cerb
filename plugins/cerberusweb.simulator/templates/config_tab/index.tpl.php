@@ -5,16 +5,16 @@
 <input type="hidden" name="tab" value="simulator.config.tab">
 <input type="hidden" name="action" value="generateTickets">
 
-<H2>Sample Tickets</H2>
+<H2>{$translate->_('simulator.ui.cfg.sample_tickets')}</H2>
 
 <table cellpadding="5" cellspacing="0" border="0">
 	<tr>
 		<td>
-			<b>To Address:</b><br>
+			<b>{$translate->_('simulator.ui.cfg.to_address')}</b><br>
 			<input type="text" name="address" value="{$address}" size="45">
 		</td>
 		<td>
-			<b>Sample Data Flavor:</b><br>
+			<b>{$translate->_('simulator.ui.cfg.flavor')}</b><br>
 			<select name="dataset">
 				{foreach from=$flavors item=flavor key=flavor_id}
 					<option value="{$flavor_id}">{$flavor}
@@ -22,7 +22,7 @@
 			</select>
 		</td>
 		<td>
-			<b>How Many?</b><br>
+			<b>{$translate->_('simulator.ui.cfg.how_many')}</b><br>
 			<input type="text" name="how_many" size="4" maxlength="3" value="25">
 		</td>
 	</tr>
@@ -31,7 +31,7 @@
 <div id="divSimulatorOutput"></div>
 <br>
 
-<button type="button" onclick="document.getElementById('divSimulatorOutput').innerHTML='Please wait. Generating tickets...';genericAjaxPost('simulatorForm','divSimulatorOutput');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/gear.gif{/devblocks_url}" align="top"> Generate</button>
+<button type="button" onclick="document.getElementById('divSimulatorOutput').innerHTML='{$translate->_('simulator.ui.cfg.generate_wait')}';genericAjaxPost('simulatorForm','divSimulatorOutput');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/gear.gif{/devblocks_url}" align="top"> {$translate->_('simulator.ui.cfg.generate')}</button>
 	
 </form>
 </div>

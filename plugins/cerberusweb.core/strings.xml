@@ -83,8 +83,14 @@
 		<tu tuid='common.customize'>
 			<tuv xml:lang="en_US"><seg>customize</seg></tuv>
 		</tu>
+		<tu tuid='common.day'>
+			<tuv xml:lang="en_US"><seg>day</seg></tuv>
+		</tu>
 		<tu tuid='common.delete'>
 			<tuv xml:lang="en_US"><seg>delete</seg></tuv>
+		</tu>
+		<tu tuid='common.email'>
+			<tuv xml:lang="en_US"><seg>E-mail</seg></tuv>
 		</tu>
 		<tu tuid='common.edit'>
 			<tuv xml:lang="en_US"><seg>edit</seg></tuv>
@@ -134,6 +140,12 @@
 		<tu tuid='common.minimize'>
 			<tuv xml:lang="en_US"><seg>minimize</seg></tuv>
 		</tu>
+		<tu tuid='common.month'>
+			<tuv xml:lang="en_US"><seg>month</seg></tuv>
+		</tu>
+		<tu tuid='common.months'>
+			<tuv xml:lang="en_US"><seg>months</seg></tuv>
+		</tu>		
 		<tu tuid='common.more'>
 			<tuv xml:lang="en_US"><seg>More</seg></tuv>
 		</tu>
@@ -146,6 +158,9 @@
 		<tu tuid='common.notspam'>
 			<tuv xml:lang="en_US"><seg>Not Spam</seg></tuv>
 		</tu>
+		<tu tuid='common.optional'>
+			<tuv xml:lang="en_US"><seg>optional</seg></tuv>
+		</tu>		
 		<tu tuid='common.load'>
 			<tuv xml:lang="en_US"><seg>Load</seg></tuv>
 		</tu>
@@ -206,6 +221,9 @@
 		<tu tuid='common.ticket'>
 			<tuv xml:lang="en_US"><seg>ticket</seg></tuv>
 		</tu>
+		<tu tuid='common.today'>
+			<tuv xml:lang="en_US"><seg>today</seg></tuv>
+		</tu>
 		<tu tuid='common.unassign'>
 			<tuv xml:lang="en_US"><seg>Unassign</seg></tuv>
 		</tu>
@@ -220,6 +238,12 @@
 		</tu>
 		<tu tuid='common.url'>
 			<tuv xml:lang="en_US"><seg>URL</seg></tuv>
+		</tu>
+		<tu tuid='common.week'>
+			<tuv xml:lang="en_US"><seg>week</seg></tuv>
+		</tu>
+		<tu tuid='common.year'>
+			<tuv xml:lang="en_US"><seg>year</seg></tuv>
 		</tu>
 
 		<!-- Addresses -->
@@ -748,6 +772,14 @@
 		</tu>
 		<tu tuid='tasks.postpone'>
 			<tuv xml:lang="en_US"><seg>+24hrs</seg></tuv>
+		</tu>
+		
+		<!-- Groups -->
+		<tu tuid='group.manager'>
+			<tuv xml:lang="en_US"><seg>manager</seg></tuv>
+		</tu>
+		<tu tuid='group.member'>
+			<tuv xml:lang="en_US"><seg>member</seg></tuv>
 		</tu>
 		
 		<!-- Task -->

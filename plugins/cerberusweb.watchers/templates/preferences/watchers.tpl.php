@@ -1,8 +1,6 @@
-<h2>Mail Forwarding</h2>
-You can create a mail forward to have copies of group mail sent to any e-mail address, such as 
-your desktop e-mail client or handheld device.<br>
-You can reply normally to this forwarded mail as if it was sent directly to you -- the helpdesk 
-will route it back to the appropriate people.<br>
+<h2>{$translate->_('watchers.ui.pref.mail_forwarding')}</h2>
+{$translate->_('watchers.ui.pref.any_email')}<br>
+{$translate->_('watchers.ui.pref.reply_normally')}<br>
 <br>
 
 <form action="{devblocks_url}{/devblocks_url}" method="post">
@@ -13,10 +11,10 @@ will route it back to the appropriate people.<br>
 {if !empty($memberships)}
 <table cellspacing="0" cellpadding="2" border="0">
 <tr>
-	<td style="padding-right:10px;"><b>For mail in group/bucket:</b></td>
-	<td style="padding-right:10px;"><b>Forward a copy to:</b></td>
-	<td style="padding-right:10px;"><b>For which mail events?</b></td>
-	<td><b>Delete</b></td>
+	<td style="padding-right:10px;"><b>{$translate->_('watchers.ui.pref.group_bucket')}</b></td>
+	<td style="padding-right:10px;"><b>{$translate->_('watchers.ui.pref.forward_copy')}</b></td>
+	<td style="padding-right:10px;"><b>{$translate->_('watchers.ui.pref.which_events')}</b></td>
+	<td><b>{$translate->_('common.delete')|capitalize}</b></td>
 </tr>
 {foreach from=$notifications item=forward name=forwards key=forward_id}
 	<tr>
@@ -26,9 +24,9 @@ will route it back to the appropriate people.<br>
 			
 			{$groups.$forward_bucket_gid->name}: 
 			{if $forward_bucket_id==-1}
-				All
+				{$translate->_('common.all')|capitalize}
 			{elseif $forward_bucket_id==0}
-				Inbox
+				{$translate->_('common.inbox')|capitalize}
 			{else}
 				{assign var=group_bkts value=$group_buckets.$forward_bucket_gid}
 				{$group_bkts.$forward_bucket_id->name}
@@ -39,13 +37,13 @@ will route it back to the appropriate people.<br>
 		</td>
 		<td>
 			{if $forward->event=='i'}
-				Incoming mail
+				{$translate->_('watchers.ui.pref.incoming')}
 			{elseif $forward->event=='o'}
-				Outgoing mail
+				{$translate->_('watchers.ui.pref.outgoing')}
 			{elseif $forward->event=='io'}
-				Incoming+Outgoing
+				{$translate->_('watchers.ui.pref.incoming_outgoing')}
 			{elseif $forward->event=='r'}
-				Replies to me
+				{$translate->_('watchers.ui.pref.replies_to_me')}
 			{/if}
 		</td>
 		<td align="center">
@@ -55,12 +53,12 @@ will route it back to the appropriate people.<br>
 {/foreach}
 	<tr>
 		<td style="padding-right:10px;">
-			<b>Add:</b> <select name="forward_bucket">
-				<option value="">-- choose a bucket --</option>
+			<b>{$translate->_('watchers.ui.pref.add')}</b> <select name="forward_bucket">
+				<option value="">-- {$translate->_('watchers.ui.pref.choose_bucket')} --</option>
 				{foreach from=$memberships item=group key=group_id}
 					<optgroup label="{$groups.$group_id->name}">
-					<option value="{$group_id}_-1">{$groups.$group_id->name}: -- All --</option>
-					<option value="{$group_id}_0">{$groups.$group_id->name}: Inbox</option>
+					<option value="{$group_id}_-1">{$groups.$group_id->name}: -- {$translate->_('common.all')|capitalize} --</option>
+					<option value="{$group_id}_0">{$groups.$group_id->name}: {$translate->_('common.inbox')|capitalize}</option>
 					{foreach from=$group_buckets.$group_id item=bucket key=bucket_id}
 					<option value="{$group_id}_{$bucket_id}">{$groups.$group_id->name}: {$bucket->name}</option>
 					{/foreach}
@@ -79,10 +77,10 @@ will route it back to the appropriate people.<br>
 		</td>
 		<td>
 			<select name="forward_event">
-				<option value="i">Incoming mail
-				<option value="o">Outgoing mail
-				<option value="io" selected>Incoming+Outgoing
-				<option value="r">Replies to me
+				<option value="i">{$translate->_('watchers.ui.pref.incoming')}
+				<option value="o">{$translate->_('watchers.ui.pref.outgoing')}
+				<option value="io" selected>{$translate->_('watchers.ui.pref.incoming_outgoing')}
+				<option value="r">{$translate->_('watchers.ui.pref.replies_to_me')}
 			</select>
 		</td>
 	</tr>
@@ -90,9 +88,9 @@ will route it back to the appropriate people.<br>
 <br>
 
 {if !empty($addresses)}
-On new assignments, send a notification to:
+{$translate->_('watchers.ui.pref.assignment_notify')}
 <select name="assign_notify_email">
-	<option value="">-- don't notify --</option>
+	<option value="">-- {$translate->_('watchers.ui.pref.dont_notify')} --</option>
 	{foreach from=$addresses item=address}
 		{if $address->is_confirmed}
 		<option value="{$address->address}" {if $address->address==$assign_notify_email}selected{/if}>{$address->address}</option>
@@ -104,7 +102,7 @@ On new assignments, send a notification to:
 {/if}
 
 {else}
-You are not a member of any groups.<br>
+{$translate->_('watchers.ui.pref.not_group_member')}<br>
 {/if}
 
 <br>

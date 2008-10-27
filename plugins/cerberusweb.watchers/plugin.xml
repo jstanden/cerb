@@ -13,6 +13,19 @@
 	
 	<extensions>
 
+		<!-- Translations -->
+		
+		<extension point="devblocks.i18n.strings">
+			<id>watchers.translations</id>
+			<name>Watchers Strings</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChWatchersTranslations</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
 		<!-- Patch Containers -->
 		
 		<extension point="devblocks.patch.container">

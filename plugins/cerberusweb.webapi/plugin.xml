@@ -12,7 +12,19 @@
 	</class>
 	
 	<extensions>
-	
+		<!-- Translations -->
+		
+		<extension point="devblocks.i18n.strings">
+			<id>webapi.translations</id>
+			<name>Web API Strings</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChWebApiTranslations</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
 		<!-- Patch Containers -->
 		
 		<extension point="devblocks.patch.container">

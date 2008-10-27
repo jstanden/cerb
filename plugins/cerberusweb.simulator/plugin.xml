@@ -12,6 +12,20 @@
 	</class>
 	
 	<extensions>
+
+		<!-- Translations -->
+		
+		<extension point="devblocks.i18n.strings">
+			<id>simulator.translations</id>
+			<name>Simulator Strings</name>
+			<class>
+				<file>classes.php</file>
+				<name>ChSimulatorTranslations</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
 	
 		<!-- Http Listeners -->
 		

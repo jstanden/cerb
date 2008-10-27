@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tmx SYSTEM "tmx14.dtd">
+<tmx version="1.4">
+	<header datatype="winres" segtype="sentence" adminlang="en-us"
+		srclang="en-us" o-tmf="abc" />
+	<body>
+
+		<tu tuid='simulator.ui.cfg.sample_tickets'>
+			<tuv xml:lang="en_US"><seg>Sample Tickets</seg></tuv>
+		</tu>
+		<tu tuid='simulator.ui.cfg.to_address'>
+			<tuv xml:lang="en_US"><seg>To Address:</seg></tuv>
+		</tu>
+		<tu tuid='simulator.ui.cfg.flavor'>
+			<tuv xml:lang="en_US"><seg>Sample Data Flavor:</seg></tuv>
+		</tu>
+		<tu tuid='simulator.ui.cfg.how_many'>
+			<tuv xml:lang="en_US"><seg>How Many?</seg></tuv>
+		</tu>
+		<tu tuid='simulator.ui.cfg.generate'>
+			<tuv xml:lang="en_US"><seg>Generate</seg></tuv>
+		</tu>
+		<tu tuid='simulator.ui.cfg.generate_wait'>
+			<tuv xml:lang="en_US"><seg>Please wait. Generating tickets...</seg></tuv>
+		</tu>
+		
+		
+		
+	</body>
+</tmx>
+<!-- 
+	
+-->
