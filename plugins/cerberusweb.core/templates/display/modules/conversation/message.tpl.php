@@ -104,7 +104,7 @@
 	      	{assign var=attachments value=$message->getAttachments()}
 	      	{if !empty($attachments)}
 	      	<br>
-	      	<b>{$translate->_('display.convo.ui.attachments_label')|capitalize}</b><br>
+	      	<b>{$translate->_('display.convo.attachments_label')|capitalize}</b><br>
 	      	<ul style="margin-top:0px;margin-bottom:5px;">
 	      		{foreach from=$attachments item=attachment name=attachments}
 					<li>

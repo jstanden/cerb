@@ -255,14 +255,19 @@ class CerberusParser {
 		}
 		
 		// Subject
-		$sSubject = (isset($headers['subject']) && !empty($headers['subject'])) ? $headers['subject'] : '(no subject)';
-		
-		// If quote printable subject (quoted blocks can appear anywhere in subject)
-	    $sSubject = self::fixQuotePrintableString($sSubject);
-		
+		// Fix quote printable subject (quoted blocks can appear anywhere in subject)
+		$sSubject = "";
+		if(isset($headers['subject']) && !empty($headers['subject']))
+			$sSubject = self::fixQuotePrintableString($headers['subject']);
+		// The subject can still end up empty after QP decode
+		if(empty($sSubject))
+			$sSubject = "(no subject)";
+			
 		// Date
 		$iDate = @strtotime($headers['date']);
-		if(empty($iDate)) $iDate = time();
+		// If blank, or in the future, set to the current date
+		if(empty($iDate) || $iDate > time())
+			$iDate = time();
 		
 		if(empty($from) || !is_array($from)) {
 			$logger->warn("[Parser] Invalid 'From' address: " . $from);
