@@ -51,7 +51,7 @@
 	<h2>Add Filter</h2>
 	<b>Field:</b><br>
 	<blockquote style="margin:5px;">
-		<select name="field" onchange="genericAjaxGet('addCriteriaOptions','c=internal&a=viewGetCriteria&id={$view->id}&field='+selectValue(this));toggleDiv('addCriteriaSave',(selectValue(this)!='')?'block':'none');">
+		<select name="field" onchange="genericAjaxGet('addCriteria_{$view->id}','c=internal&a=viewGetCriteria&id={$view->id}&field='+selectValue(this));toggleDiv('saveCriteria_{$view->id}',(selectValue(this)!='')?'block':'none');">
 			<option value="">-- choose --</option>
 			
 			{foreach from=$view_searchable_fields item=column key=token}
@@ -79,8 +79,8 @@
 		</select>
 	</blockquote>
 
-	<div id="addCriteriaOptions" style="background-color:rgb(255,255,255);"></div>
-	<div id="addCriteriaSave" style="display:none;"><br><button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button></div>
+	<div id="addCriteria_{$view->id}" style="background-color:rgb(255,255,255);"></div>
+	<div id="saveCriteria_{$view->id}" style="display:none;"><br><button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button></div>
 	
 	</form>
 </div>
