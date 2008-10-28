@@ -394,22 +394,32 @@ class ChForumsController extends DevblocksControllerExtension {
 	
 	function viewCloseThreadsAction() {
 		@$row_ids = DevblocksPlatform::importGPC($_POST['row_id'],'array',array());
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
 		
 		$fields = array(
 			DAO_ForumsThread::IS_CLOSED => 1
 		);
 		
 		DAO_ForumsThread::update($row_ids, $fields);
+		
+		if(!empty($view_id) && null != ($view = C4_AbstractViewLoader::getView('', $view_id))) {
+			$view->render();
+		}
 	}
 	
 	function viewAssignThreadsAction() {
 		@$row_ids = DevblocksPlatform::importGPC($_POST['row_id'],'array',array());
 		@$worker_id = DevblocksPlatform::importGPC($_REQUEST['assign_worker_id'],'integer',0);
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
 		
 		$fields = array(
 			DAO_ForumsThread::WORKER_ID => $worker_id
 		);
 		DAO_ForumsThread::update($row_ids, $fields);
+
+		if(!empty($view_id) && null != ($view = C4_AbstractViewLoader::getView('', $view_id))) {
+			$view->render();
+		}
 	}
 	
 	function importAction() {
@@ -904,8 +914,8 @@ class C4_ForumsThreadView extends C4_AbstractView {
 			SearchFields_ForumsThread::FORUM_ID,
 			SearchFields_ForumsThread::LAST_UPDATED,
 			SearchFields_ForumsThread::LAST_POSTER,
+			SearchFields_ForumsThread::WORKER_ID,
 //			SearchFields_ForumsThread::LINK,
-//			SearchFields_ForumsThread::WORKER_ID,
 		);
 		
 		$this->params = array(

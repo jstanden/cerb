@@ -14,7 +14,7 @@
 
 <form id="customize{$view->id}" name="customize{$view->id}" action="#" onsubmit="return false;" style="display:none;"></form>
 <form id="viewForm{$view->id}" name="viewForm{$view->id}" action="{devblocks_url}{/devblocks_url}" method="POST">
-<input type="hidden" name="id" value="{$view->id}">
+<input type="hidden" name="view_id" value="{$view->id}">
 <input type="hidden" name="c" value="forums">
 <input type="hidden" name="a" value="">
 <table cellpadding="0" cellspacing="0" border="0" width="100%" class="tableRowBg">
@@ -89,9 +89,9 @@
 	{if $total}
 	<tr>
 		<td colspan="2">
-			<button type="button" id="btnForumThreadClose" onclick="this.form.a.value='viewCloseThreads';this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_ok.gif{/devblocks_url}" align="top"> close</button>
+			<button type="button" id="btnForumThreadClose" onclick="this.form.a.value='viewCloseThreads';genericAjaxPost('viewForm{$view->id}','view{$view->id}','c=forums');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_ok.gif{/devblocks_url}" align="top"> close</button>
 		
-			{literal}<select name="assign_worker_id" onchange="if(''!=selectValue(this)){this.form.a.value='viewAssignThreads';this.form.submit();}">{/literal}
+			{literal}<select name="assign_worker_id" onchange="if(''!=selectValue(this)){this.form.a.value='viewAssignThreads';{/literal}genericAjaxPost('viewForm{$view->id}','view{$view->id}','c=forums');{literal}}">{/literal}
 				<option value="">-- {$translate->_('common.assign')|lower} --</option>
 				{foreach from=$workers item=worker key=worker_id}
 					<option value="{$worker_id}">{$worker->getName()}</option>
@@ -101,8 +101,10 @@
 		
 			<br>
 			
+			{*
 			{$translate->_('common.keyboard')|capitalize}: (<b>c</b>) {$translate->_('common.close')|lower}, (<b>s</b>) {$translate->_('common.synchronize')|lower} <br>
-		
+			*}
+			
 			<!-- <span id="tourDashboardBatch"><button type="button" onclick="ajax.showBatchPanel('{$view->id}','{$dashboard_team_id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> bulk update</button></span>  -->
 			
 			<!-- <a href="javascript:;" onclick="toggleDiv('view{$view->id}_more');">More &raquo;</a>-->

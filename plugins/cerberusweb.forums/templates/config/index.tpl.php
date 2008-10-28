@@ -20,7 +20,7 @@
 		<br>
 	{/foreach}
 {else}
-	{$translate->_('forums.ui.cfg.no_forums')}|lower}<br>
+	{$translate->_('forums.ui.cfg.no_forums')|lower}<br>
 {/if}
 	<br>
 	<b>{$translate->_('forums.ui.cfg.workers')}:</b><br>
@@ -34,7 +34,7 @@
 	<input type="text" name="name" size="64"><br>
 	<br>
 	
-	<b>URL{$translate->_('common.url')|upper}:</b><br>
+	<b>{$translate->_('common.url')|upper}:</b><br>
 	<input type="text" name="url" size="64"><br>
 	<br>
 	

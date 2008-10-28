@@ -528,7 +528,7 @@ class ChTranslatorsAjaxController extends DevblocksControllerExtension {
 		
 		// Build TMX outline
 		$xml = simplexml_load_string(
-			'<?xml version="1.0" encoding="UTF-8"?>'.
+			'<?xml version="1.0" encoding="' . LANG_CHARSET_CODE . '"?>'.
 			'<!DOCTYPE tmx SYSTEM "tmx14.dtd">'.
 			'<tmx version="1.4">'.
 			'<body></body>'.
@@ -566,7 +566,7 @@ class ChTranslatorsAjaxController extends DevblocksControllerExtension {
 //		$dtd = $imp->createDocumentType('tmx', '', 'tmx14.dtd');
 //		$doc = $imp->createDocument("", "", $dtd);
 		$doc = $imp->createDocument("", "");
-		$doc->encoding = 'UTF-8';
+		$doc->encoding = LANG_CHARSET_CODE;
 		$doc->formatOutput = true;
 		
 		$simplexml = dom_import_simplexml($xml); /* @var $dom DOMElement */
