@@ -164,11 +164,22 @@ class CerberusBayes {
 	    return $words;
 	}
 	
+	static function unaccentUtf8Text($text) {
+		if(0 == strcasecmp(LANG_CHARSET_CODE,'utf-8')) {
+			$from = array('À','Á','Â','Ã','Ä','Å','Æ','à','á','â','ã','ä','å','æ','Ò','Ó','Ô','Õ','Õ','Ö','Ø','ò','ó','ô','õ','ö','ø','È','É','Ê','Ë','è','é','ê','ë','ð','Ç','ç','Ð','Ì','Í','Î','Ï','ì','í','î','ï','Ù','Ú','Û','Ü','ù','ú','û','ü','Ñ','ñ','Þ','ß','ÿ','ý');
+			$to = array('A','A','A','A','A','A','a','a','a','a','a','a','a','a','O','O','O','O','O','O','O','o','o','o','o','o','o','E','E','E','E','e','e','e','e','e','C','c','e','I','I','I','I','i','i','i','i','U','U','U','U','u','u','u','u','N','n','t','ss','y','y');
+			$text = str_replace($from, $to, $text);
+		}
+		
+		return $text;
+	}
+	
 	/**
 	 * @param string $text A string of text to run through spam scoring
 	 * @return array Analyzed statistics
 	 */
 	static function processText($text) {
+		$text = self::unaccentUtf8Text($text);
 		$words = self::parseUniqueWords($text);
 		$words = self::_lookupWordIds($words);
 		$words = self::_analyze($words);
@@ -211,7 +222,7 @@ class CerberusBayes {
 				$content .= implode(' ',$hits);
 			}
 		}
-		$content .= $first_message->getContent();
+		$content .= ' ' . $first_message->getContent();
 		
 	    $content = substr($content, 0, strrpos(substr($content, 0, self::MAX_BODY_LENGTH), ' '));
 		
@@ -414,7 +425,7 @@ class CerberusBayes {
 				$content .= implode(' ',$hits);
 			}
 		}
-		$content .= $first_message->getContent();
+		$content .= ' ' . $first_message->getContent();
 		
 		// Only check the first 15000 characters for spam, rounded to a sentence
 	    $content = substr($content, 0, strrpos(substr($content, 0, self::MAX_BODY_LENGTH), ' '));

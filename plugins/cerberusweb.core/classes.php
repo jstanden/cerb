@@ -1527,7 +1527,8 @@ class ChTicketsPage extends CerberusPageExtension {
 		$settings = CerberusSettings::getInstance();
 		$group = DAO_Group::getTeam($group_id);
 
-		$worker = CerberusApplication::getActiveWorker();
+		$active_worker = CerberusApplication::getActiveWorker();
+		$worker = DAO_Worker::getAgent($active_worker->id); // Use the most recent info (not session)
 		$sig = $settings->get(CerberusSettings::DEFAULT_SIGNATURE,'');
 
 		if(!empty($group->signature)) {
@@ -3739,8 +3740,8 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	
 	// Post
 	function saveWorkerAction() {
-		$worker = CerberusApplication::getActiveWorker();
-		if(!$worker || !$worker->is_superuser) {
+		$active_worker = CerberusApplication::getActiveWorker();
+		if(!$active_worker || !$active_worker->is_superuser) {
 			echo "Access denied.";
 			return;
 		}
@@ -3770,7 +3771,6 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		
 		if(!empty($id) && !empty($delete)) {
 			DAO_Worker::deleteAgent($id);
-			$active_worker = CerberusApplication::getActiveWorker();
 			//[mdf] if deleting one's self, logout
 			if($active_worker->id == $id) {
 				DevblocksPlatform::redirect(new DevblocksHttpResponse(array('login','signout')));
@@ -3851,7 +3851,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 			
 			DAO_Worker::updateAgent($id, $fields);
 			DAO_Worker::setAgentTeams($id, $team_ids);
-			
+
 			// Addresses
 			if(null == DAO_AddressToWorker::getByAddress($email)) {
 				DAO_AddressToWorker::assign($email, $id);

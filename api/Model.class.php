@@ -2761,7 +2761,9 @@ class Model_MailTemplate {
 			$with[] = $ticket->subject;
 		}
 			
-		if(null != ($worker = CerberusApplication::getActiveWorker())) {
+		if(null != ($active_worker = CerberusApplication::getActiveWorker())) {
+			$worker = DAO_Worker::getAgent($active_worker->id); // most recent info (not session)
+			
 			$replace[] = '#worker_first_name#';
 			$replace[] = '#worker_last_name#';
 			$replace[] = '#worker_title#';
