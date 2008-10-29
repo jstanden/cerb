@@ -51,7 +51,7 @@
 <table style="border-top: 1px solid rgb(0, 128, 255); border-left: 1px solid rgb(0, 128, 255); text-align: left; width: 100%;" border="0" cellpadding="3" cellspacing="0">
   <tbody>
     <tr>
-      <td style="background-color: rgb(237, 241, 255);"><span style="font-weight: bold;">Search Results</span></td>
+      <td style="background-color: rgb(237, 241, 255);"><span style="font-weight: bold;">{$translate->_('common.search_results')}</span></td>
       <td style="background-color: rgb(237, 241, 255); text-align: right;"><a href="{devblocks_url}c=rss&a=search&q={$query|escape:"url"}{/devblocks_url}"><img src="{devblocks_url}c=resource&p=usermeet.core&f=images/feed-icon-16x16.gif{/devblocks_url}" alt="Search" align="top" border="0"></a></td>
     </tr>
     <tr>

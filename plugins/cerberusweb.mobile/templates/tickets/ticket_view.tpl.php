@@ -74,7 +74,7 @@
 				<a href="{devblocks_url}c=mobile&a=tickets&a2=overview&filter={$filter}&fid={$fid}&b={$bid}{/devblocks_url}?page=0">&lt;&lt;</a>
 				<a href="{devblocks_url}c=mobile&a=tickets&a2=overview&filter={$filter}&fid={$fid}&b={$bid}{/devblocks_url}?page={$prevPage}" >&lt;{$translate->_('common.previous_short')|capitalize}</a>
 			{/if}
-			(Showing {$fromRow}-{$toRow} of {$total})
+			({'views.showing_from_to'|devblocks_translate:$fromRow:$toRow:$total})
 			{if $toRow < $total}
 				<a href="{devblocks_url}c=mobile&a=tickets&a2=overview&filter={$filter}&fid={$fid}&b={$bid}{/devblocks_url}?page={$nextPage}">{$translate->_('common.next')|capitalize}&gt;</a>
 				<a href="{devblocks_url}c=mobile&a=tickets&a2=overview&filter={$filter}&fid={$fid}&b={$bid}{/devblocks_url}?page={$lastPage}">&gt;&gt;</a>

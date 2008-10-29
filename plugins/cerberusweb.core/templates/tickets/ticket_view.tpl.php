@@ -71,7 +71,7 @@
 	{else}
 	<tr class="{$tableRowBg}" id="{$rowIdPrefix}_s" onmouseover="toggleClass(this.id,'tableRowHover');toggleClass('{$rowIdPrefix}','tableRowHover');" onmouseout="toggleClass(this.id,'{$tableRowBg}');toggleClass('{$rowIdPrefix}','{$tableRowBg}');" onclick="if(getEventTarget(event)=='TD') checkAll('{$rowIdPrefix}_s');">
 		<td align="center" rowspan="2"><input type="checkbox" name="ticket_id[]" value="{$result.t_id}"></td>
-		<td colspan="{math equation="x" x=$smarty.foreach.headers.total}"><a href="{devblocks_url}c=display&a=browse&id={$result.t_mask}&view={$view->id}{/devblocks_url}" class="ticketLink" style="font-size:12px;"><b id="subject_{$result.t_id}_{$view->id}">{if $result.t_is_deleted}<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete2_gray.gif{/devblocks_url}" width="16" height="16" align="top" border="0" title="{$translate->_('status.deleted')}"> {elseif $result.t_is_closed}<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check_gray.gif{/devblocks_url}" width="16" height="16" align="top" border="0" title="{$translate->_('status.closed')}"> {elseif $result.t_is_waiting}<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/clock.gif{/devblocks_url}" width="16" height="16" align="top" border="0" title="{$translate->_('status.waiting')}"> {/if}{$result.t_subject|escape}</b></a> <a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showPreview&view_id={$view->id}&tid={$result.t_id}', this, false, '500px');" style="color:rgb(180,180,180);font-size:90%;">(peek)</a></td>
+		<td colspan="{math equation="x" x=$smarty.foreach.headers.total}"><a href="{devblocks_url}c=display&a=browse&id={$result.t_mask}&view={$view->id}{/devblocks_url}" class="ticketLink" style="font-size:12px;"><b id="subject_{$result.t_id}_{$view->id}">{if $result.t_is_deleted}<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete2_gray.gif{/devblocks_url}" width="16" height="16" align="top" border="0" title="{$translate->_('status.deleted')}"> {elseif $result.t_is_closed}<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check_gray.gif{/devblocks_url}" width="16" height="16" align="top" border="0" title="{$translate->_('status.closed')}"> {elseif $result.t_is_waiting}<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/clock.gif{/devblocks_url}" width="16" height="16" align="top" border="0" title="{$translate->_('status.waiting')}"> {/if}{$result.t_subject|escape}</b></a> <a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showPreview&view_id={$view->id}&tid={$result.t_id}', this, false, '500px');" style="color:rgb(180,180,180);font-size:90%;">{$translate->_('views.peek')}</a></td>
 	</tr>
 	<tr class="{$tableRowBg}" id="{$rowIdPrefix}" onmouseover="toggleClass(this.id,'tableRowHover');toggleClass('{$rowIdPrefix}_s','tableRowHover');" onmouseout="toggleClass(this.id,'{$tableRowBg}');toggleClass('{$rowIdPrefix}_s','{$tableRowBg}');" onclick="if(getEventTarget(event)=='TD') checkAll('{$rowIdPrefix}_s');">
 	{foreach from=$view->view_columns item=column name=columns}
@@ -141,7 +141,7 @@
 			<td>
 				{if 0 == $ticket_category_id}
 					{if (isset($active_worker_memberships.$ticket_team_id)) && $active_worker_memberships.$ticket_team_id->is_manager || $active_worker->is_superuser}
-						<a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showAddInboxRulePanel&view_id={$view->id}&id={$result.t_id}',this,false,'600px');">-add filter-</a>
+						<a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showAddInboxRulePanel&view_id={$view->id}&id={$result.t_id}',this,false,'600px');">{$translate->_('mail.view.add_filter')}</a>
 					{/if}
 				{else}
 					{$buckets.$ticket_category_id->name}
@@ -233,8 +233,8 @@
 			<input type="hidden" name="move_to" value="">
 
 			<select name="move_to_select" onchange="this.form.move_to.value=this.form.move_to_select[this.selectedIndex].value;ajax.viewMoveTickets('{$view->id}');">
-				<option value="">-- move to --</option>
-				<optgroup label="Inboxes" style="">
+				<option value="">-- {$translate->_('common.move_to')} --</option>
+				<optgroup label="{$translate->_('common.inboxes')|capitalize}" style="">
 					{foreach from=$teams item=team}
 						<option value="t{$team->id}">{$team->name}</option>
 					{/foreach}
@@ -304,7 +304,7 @@
 				<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewPage&id={$view->id}&page=0');">&lt;&lt;</a>
 				<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewPage&id={$view->id}&page={$prevPage}');">&lt;{$translate->_('common.previous_short')|capitalize}</a>
 			{/if}
-			(Showing {$fromRow}-{$toRow} of {$total})
+			({'views.showing_from_to'|devblocks_translate:$fromRow:$toRow:$total})
 			{if $toRow < $total}
 				<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewPage&id={$view->id}&page={$nextPage}');">{$translate->_('common.next')|capitalize}&gt;</a>
 				<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewPage&id={$view->id}&page={$lastPage}');">&gt;&gt;</a>

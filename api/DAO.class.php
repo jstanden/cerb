@@ -3154,7 +3154,7 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 			self::TICKET_LAST_WROTE => new DevblocksSearchField(self::TICKET_LAST_WROTE, 'a2', 'email',null,$translate->_('ticket.last_wrote')),
 
 			self::ORG_NAME => new DevblocksSearchField(self::ORG_NAME, 'o', 'name', null, $translate->_('contact_org.name')),
-			self::REQUESTER_ADDRESS => new DevblocksSearchField(self::REQUESTER_ADDRESS, 'ra', 'email',null,'Requester'),
+			self::REQUESTER_ADDRESS => new DevblocksSearchField(self::REQUESTER_ADDRESS, 'ra', 'email',null,$translate->_('ticket.requester')),
 			
 			self::TICKET_MESSAGE_CONTENT => new DevblocksSearchField(self::TICKET_MESSAGE_CONTENT, 'mc', 'content', 'B', $translate->_('message.content')),
 			

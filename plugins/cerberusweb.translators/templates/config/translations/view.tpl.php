@@ -68,19 +68,25 @@
 						<b style="color:rgb(50,50,50);">{$langs.$lang_code}:</b><br>
 						{if !empty($result.tl_string_default)}{* if official translation *}
 						<div style="margin-top:5px;">
-						<span style="margin-top:15px;padding:3px;border:1px dotted rgb(0,102,255);color:rgb(0, 102, 255);">
-							{$result.tl_string_default}
-						</span>
+						<table cellpadding="0" cellspacing="0" style="border:1px dotted rgb(0,102,255);">
+							<tr>
+							<td style="padding:3px;color:rgb(0, 102, 255);font-size:10pt;">
+								{$result.tl_string_default|nl2br}
+							</td>
+							</tr>
+						</table>
 						</div>
 						{else}{* If unofficial translation *}
 							{if 'en_US' != $result.tl_lang_code}
 							{if !empty($english_string)}
 							<span style="color:rgb(50,50,50);">{'translators.config.translate_from'|devblocks_translate:$langs.en_US}</span><br>
-							<div style="margin-top:5px;margin-bottom:5px;">
-							<span style="padding:3px;border:1px dotted rgb(0, 102, 255);color:rgb(0, 102, 255);">
-								{$english_string->string_default}
-							</span>
-							</div>
+							<table cellpadding="0" cellspacing="0" style="margin-top:5px;margin-bottom:5px;border:1px dotted rgb(0, 102, 255);">
+							<tr>
+							<td style="padding:3px;color:rgb(0, 102, 255);font-size:10pt;">
+								{$english_string->string_default|nl2br}
+							</td>
+							</tr>
+							</table>
 							{/if}
 							{/if}
 						{/if}
@@ -90,11 +96,13 @@
 						<img src="{devblocks_url}c=resource&p=cerberusweb.translators&f=images/16x16/warning.png{/devblocks_url}" align="top"> 
 						<b style="color:rgb(175,0,0);">{$langs.$lang_code}</b><br>
 						<span style="color:rgb(50,50,50);">{'translators.config.translate_from'|devblocks_translate:$langs.en_US}</span><br>
-						<div style="margin-top:5px;margin-bottom:5px;">
-						<span style="padding:3px;border:1px dotted rgb(200,0,0);color:rgb(50,50,50);">
-							{$english_string->string_default}
-						</span>
-						</div>
+						<table cellpadding="0" cellspacing="0" style="margin-top:5px;margin-bottom:5px;border:1px dotted rgb(200,0,0);">
+						<tr>
+						<td style="padding:3px;color:rgb(50,50,50);font-size:10pt;">
+							{$english_string->string_default|nl2br}
+						</td>
+						</tr>
+						</table>
 						{/if}
 						{/if}
 					{/if}
@@ -162,7 +170,7 @@
 				<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewPage&id={$view->id}&page=0');">&lt;&lt;</a>
 				<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewPage&id={$view->id}&page={$prevPage}');">&lt;{$translate->_('common.previous_short')|capitalize}</a>
 			{/if}
-			(Showing {$fromRow}-{$toRow} of {$total})
+			({'views.showing_from_to'|devblocks_translate:$fromRow:$toRow:$total})
 			{if $toRow < $total}
 				<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewPage&id={$view->id}&page={$nextPage}');">{$translate->_('common.next')|capitalize}&gt;</a>
 				<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewPage&id={$view->id}&page={$lastPage}');">&gt;&gt;</a>

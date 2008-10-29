@@ -1,9 +1,9 @@
 {if empty($sla_counts) && empty($group_counts) && empty($waiting_counts) && empty($worker_groups)}
 <div class="block">
-<h2>All Done!</h2>
+<h2>{$translate->_('mail.overview.all_done')}</h2>
 <table cellspacing="0" cellpadding="2" border="0" width="220">
 	<tr>
-		<td>There are currently no open tickets.</td>
+		<td>{$translate->_('mail.overview.all_done_text')}</td>
 	</tr>
 </table>
 </div>
@@ -13,7 +13,7 @@
 <div id="tourOverviewSummaries"></div>
 {if !empty($sla_counts) && count($sla_counts) > 1}
 <div class="block">
-<h2>Service Levels</h2>
+<h2>{$translate->_('mail.overview.service_levels')}</h2>
 <table cellspacing="0" cellpadding="2" border="0" width="220">
 	{foreach from=$sla_counts item=counts key=sla_id}
 		{if is_numeric($sla_id)}
@@ -35,7 +35,7 @@
 <div class="block">
 <table cellspacing="0" cellpadding="2" border="0" width="220">
 <tr>
-	<td><h2>Available</h2></td>
+	<td><h2>{$translate->_('common.available')|capitalize}</h2></td>
 	<td align="right"><a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showOverviewFilter',null,true,'500px');">{$translate->_('common.filter')|lower}</a></td>
 </tr>
 {foreach from=$groups key=group_id item=group}
@@ -63,8 +63,8 @@
 			<button id="btnOverviewExpand" onclick="{foreach from=$groups item=group key=group_id}toggleDiv('expandGroup{$group_id}','block');{/foreach}"></button>
 		</div>
 		<div style="margin-top:2px;color:rgb(150,150,150);">
-			(<b>a</b>) <a href="javascript:;" onclick="document.getElementById('btnOverviewListAll').click();" style="color:rgb(150,150,150);">all groups</a>,
-			(<b>e</b>) <a href="javascript:;" onclick="document.getElementById('btnOverviewExpand').click();" style="color:rgb(150,150,150);">expand list</a>
+			(<b>a</b>) <a href="javascript:;" onclick="document.getElementById('btnOverviewListAll').click();" style="color:rgb(150,150,150);">{$translate->_('mail.overview.all_groups')|lower}</a>,
+			(<b>e</b>) <a href="javascript:;" onclick="document.getElementById('btnOverviewExpand').click();" style="color:rgb(150,150,150);">{$translate->_('mail.overview.expand_list')|lower}</a>
 		</div>
 	</td>
 </tr>
@@ -76,7 +76,7 @@
 <div id="tourOverviewWaiting"></div>
 {if !empty($waiting_counts)}
 <div class="block">
-<h2>Waiting</h2>
+<h2>{$translate->_('mail.waiting')|capitalize}</h2>
 <table cellspacing="0" cellpadding="2" border="0" width="220">
 <!-- 
 <tr>
@@ -109,7 +109,7 @@
 
 {if !empty($worker_counts)}
 <div class="block">
-<h2>Assigned</h2>
+<h2>{$translate->_('common.assigned')|capitalize}</h2>
 <table cellspacing="0" cellpadding="2" border="0" width="220">
 	{foreach from=$workers item=worker key=worker_id}
 		{if !empty($worker_counts.$worker_id)}
@@ -136,7 +136,7 @@
 			<button id="btnMyTickets" onclick="document.location='{devblocks_url}c=tickets&a=overview&worker=worker&id={$active_worker->id}{/devblocks_url}';"></button>
 		</div>
 		<div style="margin-top:2px;color:rgb(150,150,150);"> 
-			(<b>m</b>) <a href="javascript:;" onclick="document.getElementById('btnMyTickets').click();" style="color:rgb(150,150,150);">my mail</a>
+			(<b>m</b>) <a href="javascript:;" onclick="document.getElementById('btnMyTickets').click();" style="color:rgb(150,150,150);">{$translate->_('mail.overview.my_mail')|lower}</a>
 		</div>
 	</td>
 	<td></td>

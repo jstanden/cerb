@@ -3,7 +3,7 @@
 <table cellspacing="0" cellpadding="0" border="0" width="100%" style="padding-bottom:5px;">
 <tr>
 	<td width="1%" nowrap="nowrap" valign="top" style="padding-right:5px;">
-		<h1>Overview</h1>
+		<h1>{$translate->_('mail.overview')}</h1>
 	</td>
 	<td width="98%" valign="middle">
 	</td>

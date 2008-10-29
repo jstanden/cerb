@@ -294,6 +294,8 @@ class ChHomePage extends CerberusPageExtension {
 	}
 	
 	function showMyTicketsAction() {
+		$translate = DevblocksPlatform::getTranslationService();
+		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		
@@ -302,7 +304,7 @@ class ChHomePage extends CerberusPageExtension {
 		// My Tickets
 		$myTicketsView = C4_AbstractViewLoader::getView('', self::VIEW_MY_TICKETS);
 		
-		$title = "Mail for  " . $active_worker->getName();
+		$title = vsprintf($translate->_('home.my_tickets.view.title'), $active_worker->getName());
 		
 		if(null == $myTicketsView) {
 			$myTicketsView = new C4_TicketView();
@@ -337,6 +339,8 @@ class ChHomePage extends CerberusPageExtension {
 	}
 	
 	function showMyTasksAction() {
+		$translate = DevblocksPlatform::getTranslationService();
+		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		
@@ -345,7 +349,7 @@ class ChHomePage extends CerberusPageExtension {
 		// My Tickets
 		$myTasksView = C4_AbstractViewLoader::getView('', self::VIEW_MY_TASKS);
 		
-		$title = "Tasks for " . $active_worker->getName();
+		$title = vsprintf($translate->_('home.my_tasks.view.title'), $active_worker->getName());
 		
 		if(null == $myTasksView) {
 			$myTasksView = new C4_TaskView();
@@ -474,6 +478,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 
 		$visit = CerberusApplication::getVisit();
+		$translate = DevblocksPlatform::getTranslationService();
 		
 		$response = DevblocksPlatform::getHttpResponse();
 		@$section = $response->path[1];
@@ -625,7 +630,7 @@ class ChTicketsPage extends CerberusPageExtension {
 				// All Open
 				$overView = C4_AbstractViewLoader::getView('', CerberusApplication::VIEW_OVERVIEW_ALL);
 				
-				$title = "All Groups (Spam Filtered)";
+				$title = $translate->_('mail.overview.all_groups') . ' ' . $translate->_('mail.overview.spam_filtered');
 				
 				// [JAS]: Recover from a bad cached ID.
 				if(null == $overView) {
@@ -709,10 +714,10 @@ class ChTicketsPage extends CerberusPageExtension {
 							if(!is_null($filter_bucket_id)) {
 								$tpl->assign('filter_bucket_id', $filter_bucket_id);
 								@$title .= ': '.
-									(($filter_bucket_id == 0) ? 'Inbox' : $group_buckets[$filter_group_id][$filter_bucket_id]->name);
+									(($filter_bucket_id == 0) ? $translate->_('common.inbox') : $group_buckets[$filter_group_id][$filter_bucket_id]->name);
 								$overView->params[SearchFields_Ticket::TICKET_CATEGORY_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CATEGORY_ID,'=',$filter_bucket_id);
 							} else {
-								@$title .= ' (Spam Filtered)';
+								@$title .= $translate->_('mail.overview.spam_filtered');
 								$overView->params[SearchFields_Ticket::TICKET_SPAM_SCORE] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_SPAM_SCORE,'<=','0.9000');								
 							}
 						}
@@ -729,14 +734,14 @@ class ChTicketsPage extends CerberusPageExtension {
 						
 						if(!is_null($filter_group_id) && isset($groups[$filter_group_id])) {
 							$tpl->assign('filter_group_id', $filter_group_id);
-							$title = '[Waiting] ' . $groups[$filter_group_id]->name;
+							$title = vsprintf($translate->_('mail.overview.waiting.title'), $groups[$filter_group_id]->name);
 							$overView->params[SearchFields_Ticket::TEAM_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'=',$filter_group_id);
 							
 							@$filter_bucket_id = array_shift($response_path);
 							if(!is_null($filter_bucket_id)) {
 								$tpl->assign('filter_bucket_id', $filter_bucket_id);
 								@$title .= ': '.
-									(($filter_bucket_id == 0) ? 'Inbox' : $group_buckets[$filter_group_id][$filter_bucket_id]->name);
+									(($filter_bucket_id == 0) ? $translate->_('common.inbox') : $group_buckets[$filter_group_id][$filter_bucket_id]->name);
 								$overView->params[SearchFields_Ticket::TICKET_CATEGORY_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CATEGORY_ID,'=',$filter_bucket_id);
 							}
 						}
@@ -754,12 +759,12 @@ class ChTicketsPage extends CerberusPageExtension {
 
 						if(!is_null($filter_worker_id)) {
 							$tpl->assign('filter_bucket_id', $filter_bucket_id);
-							$title = "For ".$workers[$filter_worker_id]->getName();
+							$title = vsprintf($translate->_('mail.overview.assigned.title'), $workers[$filter_worker_id]->getName());
 							$overView->params[SearchFields_Ticket::TICKET_NEXT_WORKER_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_NEXT_WORKER_ID,'=',$filter_worker_id);
 							
 							@$filter_group_id = array_shift($response_path);
 							if(!is_null($filter_group_id) && isset($groups[$filter_group_id])) {
-								$title .= ' in '.$groups[$filter_group_id]->name;
+//								$title .= ' in '.$groups[$filter_group_id]->name;
 								$overView->params[SearchFields_Ticket::TEAM_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'=',$filter_group_id);
 							}
 						}
@@ -1096,15 +1101,17 @@ class ChTicketsPage extends CerberusPageExtension {
 	}
 	
 	function saveAddListPanelAction() {
+		$translate = DevblocksPlatform::getTranslationService();
+		
 		@$list_title = DevblocksPlatform::importGPC($_POST['list_title'],'string', '');
 		@$workspace = DevblocksPlatform::importGPC($_POST['workspace'],'string', '');
 		@$new_workspace = DevblocksPlatform::importGPC($_POST['new_workspace'],'string', '');
 		
 		if(empty($workspace) && empty($new_workspace))
-			$new_workspace = "New Workspace";
+			$new_workspace = $translate->_('mail.workspaces.new');
 			
 		if(empty($list_title))
-			$list_title = "New List";
+			$list_title = $translate->_('mail.workspaces.new_list');
 		
 		$workspace_name = (!empty($new_workspace) ? $new_workspace : $workspace);
 			
@@ -1137,86 +1144,6 @@ class ChTicketsPage extends CerberusPageExtension {
 		// [TODO] Switch response to proper workspace
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets','lists')));
 	}
-	
-	// Post
-//	function saveTeamFiltersAction() {
-//	    @$team_id = DevblocksPlatform::importGPC($_POST['team_id'],'integer');
-//	    @$categories = DevblocksPlatform::importGPC($_POST['categories'],'array');
-//	    @$categorized = DevblocksPlatform::importGPC($_POST['categorized'],'integer');
-////	    @$show_waiting = DevblocksPlatform::importGPC($_POST['show_waiting'],'integer');
-////	    @$hide_assigned = DevblocksPlatform::importGPC($_POST['hide_assigned'],'integer');
-//	    @$add_buckets = DevblocksPlatform::importGPC($_POST['add_buckets'],'string');
-//
-//	    // Adds: Sort and insert team categories
-//	    if(!empty($add_buckets)) {
-//		    $buckets = DevblocksPlatform::parseCrlfString($add_buckets);
-//	
-//		    if(is_array($buckets))
-//		    foreach($buckets as $bucket) {
-//	            if(empty($bucket))
-//	                continue;
-//	                
-//		        $bucket_id = DAO_Bucket::create($bucket, $team_id);
-//		    }
-//	    }
-//	    
-//	    if(!isset($_SESSION['team_filters']))
-//	        $_SESSION['team_filters'] = array();
-//	    
-//	    $filters = array(
-//	        'categories' => array_flip($categories),
-//	        'categorized' => $categorized,
-////	        'hide_assigned' => $hide_assigned,
-////	        'show_waiting' => $show_waiting
-//	    );
-//	    $_SESSION['team_filters'][$team_id] = $filters;
-//	    
-//	    //DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','workspaces','team',$team_id)));
-//	    DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets','workspaces','team',$team_id)));
-//	}
-	
-	// Ajax
-//	function refreshTeamFiltersAction() {
-////	    @$team_id = DevblocksPlatform::importGPC($_POST['team_id'],'integer');
-//
-//        $visit = CerberusApplication::getVisit();
-//        $active_dashboard_id = $visit->get(CerberusVisit::KEY_DASHBOARD_ID, 0);
-//        
-//        $team_id = $visit->get(CerberusVisit::KEY_WORKSPACE_GROUP_ID, 0);
-//        
-//		$tpl = DevblocksPlatform::getTemplateService();
-//		$path = dirname(__FILE__) . '/templates/';
-//		$tpl->assign('path', $path);
-//		
-//		$tpl->assign('active_dashboard_id', $active_dashboard_id);
-//		$tpl->assign('dashboard_team_id', $team_id);
-//
-//	    $active_worker = CerberusApplication::getActiveWorker();
-//	    if(!empty($active_worker)) {
-//	    	$active_worker_memberships = $active_worker->getMemberships();
-//	    	$tpl->assign('active_worker_memberships', $active_worker_memberships);
-//	    }
-//		
-//		$teams = DAO_Group::getAll();
-//		$tpl->assign('teams', $teams);
-//		
-//		$buckets = DAO_Bucket::getByTeam($team_id);
-//		$tpl->assign('buckets', $buckets);
-//				
-//		@$team_filters = $_SESSION['team_filters'][$team_id];
-//		if(empty($team_filters)) $team_filters = array();
-//		$tpl->assign('team_filters', $team_filters);
-//		
-//		$team_counts = DAO_Group::getTeamCounts(array_keys($teams));
-//		$tpl->assign('team_counts', $team_counts);
-//		
-//		$category_counts = DAO_Bucket::getCategoryCountsByTeam($team_id);
-//        $tpl->assign('category_counts', $category_counts);
-//		
-//		$tpl->display($path.'tickets/dashboard_menu.tpl.php');
-//	    
-////	    DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','dashboards','team',$team_id)));
-//	}
 	
 	// Post	
 	function doQuickSearchAction() {
@@ -1351,6 +1278,8 @@ class ChTicketsPage extends CerberusPageExtension {
 	
 	// Ajax
 	function saveAddInboxRulePanelAction() {
+		$translate = DevblocksPlatform::getTranslationService();
+		
    		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
    		@$team_id = DevblocksPlatform::importGPC($_REQUEST['team_id'],'integer');
 
@@ -1365,7 +1294,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$rules = DevblocksPlatform::importGPC($_POST['rules'],'array',array());
    		
 		if(empty($name))
-			$name = "Inbox Rule";
+			$name = $translate->_('mail.inbox_filter');
 		
 		$criterion = array();
 		
@@ -1742,6 +1671,8 @@ class ChTicketsPage extends CerberusPageExtension {
 	}
 	
 	function doViewCopyAction() {
+		$translate = DevblocksPlatform::getTranslationService();
+		
 	    @$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
 		$view = C4_AbstractViewLoader::getView('', $view_id);
 	    
@@ -1750,10 +1681,10 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$new_workspace = DevblocksPlatform::importGPC($_POST['new_workspace'],'string', '');
 		
 		if(empty($workspace) && empty($new_workspace))
-			$new_workspace = "New Workspace";
+			$new_workspace = $translate->_('mail.workspaces.new');
 			
 		if(empty($list_title))
-			$list_title = "New List";
+			$list_title = $translate->_('mail.workspaces.new_list');
 		
 		$workspace_name = (!empty($new_workspace) ? $new_workspace : $workspace);
 			
@@ -2453,23 +2384,6 @@ class ChTicketsPage extends CerberusPageExtension {
 	    return;
 	}
 
-//	function changeDashboardAction() {
-//		@$dashboard_id = DevblocksPlatform::importGPC($_POST['dashboard_id'], 'string', '');
-//		$team_id = 0;
-//
-//		// Cache the current team id
-//		if(0 == strcmp('t',substr($dashboard_id,0,1))) {
-//		    $team_id = intval(substr($dashboard_id,1));
-//        }
-//		
-//		$visit = DevblocksPlatform::getSessionService()->getVisit();
-//		$visit->set(CerberusVisit::KEY_DASHBOARD_ID, $dashboard_id);
-//		$visit->set(CerberusVisit::KEY_WORKSPACE_GROUP_ID, $team_id);
-//        
-////		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','workspaces')));
-//		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets','workspaces')));
-//	}
-	
 	function changeMyWorkspaceAction() {
 		$workspace = DevblocksPlatform::importGPC($_POST['workspace'], 'string', '');
 		
@@ -2486,7 +2400,6 @@ class ChTicketsPage extends CerberusPageExtension {
 
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
-//		$tpl->assign('id', $id);
 		$tpl->assign('view_id', $view_id);
 		$tpl->assign('team_id', $team_id);
 
@@ -2712,13 +2625,15 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	}
 	
 	function render() {
+		$translate = DevblocksPlatform::getTranslationService();
+		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 
 		$worker = CerberusApplication::getActiveWorker();
 		if(!$worker || !$worker->is_superuser) {
-			echo "Access denied.";
+			echo $translate->_('common.access_denied');
 			return;
 		}
 
@@ -2881,42 +2796,42 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/kb/import.tpl.php');
 	}
 	
-	function doKbImportXmlAction() {
-    	@$import_file = $_FILES['xml_file'];
-		$file = $import_file['tmp_name'];
-    	
-		if(empty($file))
-			return;
-		
-		$count = 0;
-			
-    	if(!empty($import_file)) {
-			$xml = simplexml_load_file($file); /* @var $xml_in SimpleXMLElement */
-			
-			foreach($xml->articles->article AS $article) {
-				$title = (string) $article->title;
-				$content = (string) $article->content;
-				$views = (integer) $article->views;
-
-				// [TODO] Import votes, etc.
-				$fields = array(
-						DAO_KbArticle::TITLE => $title,
-						DAO_KbArticle::CONTENT_RAW => $content,
-						DAO_KbArticle::CONTENT => $content,
-						DAO_KbArticle::FORMAT => 1,
-						DAO_KbArticle::VIEWS => $views,
-				);
-				$id = DAO_KbArticle::create($fields);
-				
-				$count++;
-			}
-    	}
-    	
-    	echo "Imported $count articles.<br>";
-    	
-    	DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','kb')));
-    	return;
-	}
+//	function doKbImportXmlAction() {
+//    	@$import_file = $_FILES['xml_file'];
+//		$file = $import_file['tmp_name'];
+//    	
+//		if(empty($file))
+//			return;
+//		
+//		$count = 0;
+//			
+//    	if(!empty($import_file)) {
+//			$xml = simplexml_load_file($file); /* @var $xml_in SimpleXMLElement */
+//			
+//			foreach($xml->articles->article AS $article) {
+//				$title = (string) $article->title;
+//				$content = (string) $article->content;
+//				$views = (integer) $article->views;
+//
+//				// [TODO] Import votes, etc.
+//				$fields = array(
+//						DAO_KbArticle::TITLE => $title,
+//						DAO_KbArticle::CONTENT_RAW => $content,
+//						DAO_KbArticle::CONTENT => $content,
+//						DAO_KbArticle::FORMAT => 1,
+//						DAO_KbArticle::VIEWS => $views,
+//				);
+//				$id = DAO_KbArticle::create($fields);
+//				
+//				$count++;
+//			}
+//    	}
+//    	
+//    	echo "Imported $count articles.<br>";
+//    	
+//    	DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','kb')));
+//    	return;
+//	}
 	
 	// Ajax
 	function showTabKbAction() {
@@ -2953,9 +2868,11 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	}
 	
 	function saveKbCategoryAction() {
+		$translate = DevblocksPlatform::getTranslationService();
+		
 		$worker = CerberusApplication::getActiveWorker();
 		if(!$worker || !$worker->is_superuser) {
-			echo "Access denied.";
+			echo $translate->_('common.access_denied');
 			return;
 		}
 		
@@ -2964,7 +2881,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		@$delete = DevblocksPlatform::importGPC($_POST['delete_box'],'integer');
 
 		if(empty($category_name))
-			$category_name = "(Category)";
+			$category_name = "(".$translate->_('common.category').")";
 		
 		if(!empty($id) && !empty($delete)) {
 			$ids = DAO_KbCategory::getDescendents($id);
@@ -3034,9 +2951,11 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	}
 	
 	function saveMailboxAction() {
+		$translate = DevblocksPlatform::getTranslationService();
+		
 		$worker = CerberusApplication::getActiveWorker();
 		if(!$worker || !$worker->is_superuser) {
-			echo "Access denied.";
+			echo $translate->_('common.access_denied');
 			return;
 		}
 		
@@ -3056,7 +2975,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		@$delete = DevblocksPlatform::importGPC($_POST['delete'],'integer');
 
 		if(empty($nickname))
-			$nickname = "No Nickname";
+			$nickname = "POP3";
 		
 		// Defaults
 		if(empty($port)) {
@@ -3114,6 +3033,8 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	}
 	
 	function getSmtpTestAction() {
+		$translate = DevblocksPlatform::getTranslationService();
+		
 		@$host = DevblocksPlatform::importGPC($_REQUEST['host'],'string','');
 		@$port = DevblocksPlatform::importGPC($_REQUEST['port'],'integer',25);
 		@$enc = DevblocksPlatform::importGPC($_REQUEST['enc'],'string','');
@@ -3143,7 +3064,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 				
 			} catch(Exception $e) {
 				$tpl->assign('smtp_test', false);
-				$tpl->assign('smtp_test_output', 'SMTP Connection Failed: '.$e->getMessage());
+				$tpl->assign('smtp_test_output', $translate->_('config.mail.smtp.failed') . ' ' . $e->getMessage());
 			}
 			
 			$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/mail/test_smtp.tpl.php');			
@@ -3153,6 +3074,8 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	}
 	
 	function getMailboxTestAction() {
+		$translate = DevblocksPlatform::getTranslationService();
+		
 		@$protocol = DevblocksPlatform::importGPC($_REQUEST['protocol'],'string','');
 		@$host = DevblocksPlatform::importGPC($_REQUEST['host'],'string','');
 		@$port = DevblocksPlatform::importGPC($_REQUEST['port'],'integer',110);
@@ -3172,12 +3095,12 @@ class ChConfigurationPage extends CerberusPageExtension  {
 				
 			} else {
 				$tpl->assign('pop_test', false);
-				$tpl->assign('pop_test_output', 'Mailbox Connection Failed.');
+				$tpl->assign('pop_test_output', $translate->_('config.mail.pop3.failed'));
 			}
 			
 		} else {
 			$tpl->assign('pop_test, false');
-			$tpl->assign('pop_test_output', 'Error: No hostname provided.');
+			$tpl->assign('pop_test_output', $translate->_('config.mail.pop.error_hostname'));
 		}
 		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/mail/test_pop.tpl.php');
@@ -3516,9 +3439,11 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	
 	// Post
 	function addCustomFieldAction() {
+		$translate = DevblocksPlatform::getTranslationService();
+		
 		$worker = CerberusApplication::getActiveWorker();
 		if(!$worker || !$worker->is_superuser) {
-			echo "Access denied.";
+			echo $translate->_('common.access_denied');
 			return;
 		}
 		
@@ -3546,9 +3471,11 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	
 	// Post
 	function saveCustomFieldsAction() {
+		$translate = DevblocksPlatform::getTranslationService();
+		
 		$worker = CerberusApplication::getActiveWorker();
 		if(!$worker || !$worker->is_superuser) {
-			echo "Access denied.";
+			echo $translate->_('common.access_denied');
 			return;
 		}
 		
@@ -3589,9 +3516,11 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	
 	// Post
 	function saveJobAction() {
+		$translate = DevblocksPlatform::getTranslationService();
+		
 		$worker = CerberusApplication::getActiveWorker();
 		if(!$worker || !$worker->is_superuser) {
-			echo "Access denied.";
+			echo $translate->_('common.access_denied');
 			return;
 		}
 		
@@ -3619,7 +3548,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	    }
 	    
 	    if(!$job instanceof CerberusCronPageExtension)
-	        die("Bad!");
+	        die($translate->_('common.access_denied'));
 	    
 	    // [TODO] This is really kludgey
 	    $job->setParam(CerberusCronPageExtension::PARAM_ENABLED, $enabled);
@@ -3634,11 +3563,12 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	
 	// Post
 	function saveLicensesAction() {
+		$translate = DevblocksPlatform::getTranslationService();
 		$settings = CerberusSettings::getInstance();
 		$worker = CerberusApplication::getActiveWorker();
 		
 		if(!$worker || !$worker->is_superuser) {
-			echo "Access denied.";
+			echo $translate->_('common.access_denied');
 			return;
 		}
 		
@@ -3717,9 +3647,11 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	
 	// Ajax
 	function getWorkerAction() {
+		$translate = DevblocksPlatform::getTranslationService();
 		$worker = CerberusApplication::getActiveWorker();
+		
 		if(!$worker || !$worker->is_superuser) {
-			echo "Access denied.";
+			echo $translate->_('common.access_denied');
 			return;
 		}
 		
@@ -3740,9 +3672,11 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	
 	// Post
 	function saveWorkerAction() {
+		$translate = DevblocksPlatform::getTranslationService();
 		$active_worker = CerberusApplication::getActiveWorker();
+		
 		if(!$active_worker || !$active_worker->is_superuser) {
-			echo "Access denied.";
+			echo $translate->_('common.access_denied');
 			return;
 		}
 		
@@ -3866,9 +3800,11 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	
 	// Ajax
 	function getTeamAction() {
+		$translate = DevblocksPlatform::getTranslationService();
 		$worker = CerberusApplication::getActiveWorker();
+		
 		if(!$worker || !$worker->is_superuser) {
-			echo "Access denied.";
+			echo $translate->_('common.access_denied');
 			return;
 		}
 		
@@ -3899,9 +3835,11 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	
 	// Post
 	function saveTeamAction() {
+		$translate = DevblocksPlatform::getTranslationService();
 		$worker = CerberusApplication::getActiveWorker();
+		
 		if(!$worker || !$worker->is_superuser) {
-			echo "Access denied.";
+			echo $translate->_('common.access_denied');
 			return;
 		}
 		
@@ -3964,9 +3902,11 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	
 	// Post
 	function saveSettingsAction() {
+		$translate = DevblocksPlatform::getTranslationService();
 		$worker = CerberusApplication::getActiveWorker();
+		
 		if(!$worker || !$worker->is_superuser) {
-			echo "Access denied.";
+			echo $translate->_('common.access_denied');
 			return;
 		}
 		
@@ -3991,9 +3931,11 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	}
 	
 	function saveIncomingMailSettingsAction() {
+		$translate = DevblocksPlatform::getTranslationService();
 		$worker = CerberusApplication::getActiveWorker();
+		
 		if(!$worker || !$worker->is_superuser) {
-			echo "Access denied.";
+			echo $translate->_('common.access_denied');
 			return;
 		}
 		
@@ -4018,9 +3960,11 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	
 	// Form Submit
 	function saveOutgoingMailSettingsAction() {
+		$translate = DevblocksPlatform::getTranslationService();
 		$worker = CerberusApplication::getActiveWorker();
+		
 		if(!$worker || !$worker->is_superuser) {
-			echo "Access denied.";
+			echo $translate->_('common.access_denied');
 			return;
 		}
 		
@@ -4068,9 +4012,11 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	
 	// Ajax
 	function ajaxGetRoutingAction() {
+		$translate = DevblocksPlatform::getTranslationService();
 		$worker = CerberusApplication::getActiveWorker();
+		
 		if(!$worker || !$worker->is_superuser) {
-			echo "Access denied.";
+			echo $translate->_('common.access_denied');
 			return;
 		}
 		
@@ -4089,9 +4035,11 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	
 	// Form Submit
 	function saveRoutingAction() {
+		$translate = DevblocksPlatform::getTranslationService();
 		$worker = CerberusApplication::getActiveWorker();
+		
 		if(!$worker || !$worker->is_superuser) {
-			echo "Access denied.";
+			echo $translate->_('common.access_denied');
 			return;
 		}
 		
@@ -4159,13 +4107,15 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	
 	// Ajax
 	function ajaxDeleteRoutingAction() {
+		$translate = DevblocksPlatform::getTranslationService();
+		
 		if(DEMO_MODE) {
 			return;
 		}
 		
 		$worker = CerberusApplication::getActiveWorker();
 		if(!$worker || !$worker->is_superuser) {
-			echo "Access denied.";
+			echo $translate->_('common.access_denied');
 			return;
 		}
 		
@@ -4175,9 +4125,11 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	
 	// Ajax
 	function getMailRoutingAddAction() {
+		$translate = DevblocksPlatform::getTranslationService();
 		$worker = CerberusApplication::getActiveWorker();
+		
 		if(!$worker || !$worker->is_superuser) {
-			echo "Access denied.";
+			echo $translate->_('common.access_denied');
 			return;
 		}
 		
@@ -4192,9 +4144,11 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	}
 	
 	function savePluginsAction() {
+		$translate = DevblocksPlatform::getTranslationService();
 		$worker = CerberusApplication::getActiveWorker();
+		
 		if(!$worker || !$worker->is_superuser) {
-			echo "Access denied.";
+			echo $translate->_('common.access_denied');
 			return;
 		}
 		
@@ -4244,9 +4198,11 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	}
 	
 	function saveSlaAction() {
+		$translate = DevblocksPlatform::getTranslationService();
 		$worker = CerberusApplication::getActiveWorker();
+		
 		if(!$worker || !$worker->is_superuser) {
-			echo "Access denied.";
+			echo $translate->_('common.access_denied');
 			return;
 		}
 		
@@ -4663,6 +4619,7 @@ class ChContactsPage extends CerberusPageExtension {
 	}
 	
 	function showTabTasksAction() {
+		$translate = DevblocksPlatform::getTranslationService();
 		@$org = DevblocksPlatform::importGPC($_REQUEST['org']);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -4674,7 +4631,7 @@ class ChContactsPage extends CerberusPageExtension {
 		
 		$view = C4_AbstractViewLoader::getView('C4_TaskView', 'org_tasks');
 		$view->id = 'org_tasks';
-		$view->name = 'Tasks: ' . $contact->name;
+		$view->name = $translate->_('common.tasks') . ' ' . $contact->name;
 		$view->view_columns = array(
 			SearchFields_Task::SOURCE_EXTENSION,
 			SearchFields_Task::PRIORITY,
@@ -4698,6 +4655,8 @@ class ChContactsPage extends CerberusPageExtension {
 	}
 	
 	function showTabHistoryAction() {
+		$translate = DevblocksPlatform::getTranslationService();
+		
 		@$org = DevblocksPlatform::importGPC($_REQUEST['org']);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -4720,7 +4679,7 @@ class ChContactsPage extends CerberusPageExtension {
 		if(null == $tickets_view) {
 			$tickets_view = new C4_TicketView();
 			$tickets_view->id = 'contact_history';
-			$tickets_view->name = 'Contact History';
+			$tickets_view->name = $translate->_('addy_book.history.view_title');
 			$tickets_view->view_columns = array(
 				SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
 				SearchFields_Ticket::TICKET_CREATED_DATE,
@@ -4736,7 +4695,7 @@ class ChContactsPage extends CerberusPageExtension {
 			$tickets_view->renderSortAsc = false;
 		}
 
-		@$tickets_view->name = "Requesters: " . htmlspecialchars($contact->name) . ' - ' . intval(count($people)) . ' contact(s)';
+		@$tickets_view->name = $translate->_('ticket.requesters') . ": " . htmlspecialchars($contact->name) . ' - ' . intval(count($people)) . ' contact(s)';
 		$tickets_view->params = array(
 			SearchFields_Ticket::REQUESTER_ID => new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ID,'in',array_keys($people)),
 			SearchFields_Ticket::TICKET_DELETED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,DevblocksSearchCriteria::OPER_EQ,0)
@@ -5221,6 +5180,8 @@ class ChFilesController extends DevblocksControllerExtension {
 	 * Request Overload
 	 */
 	function handleRequest(DevblocksHttpRequest $request) {
+		$translate = DevblocksPlatform::getTranslationService();
+		
 		$stack = $request->path;				// URLS like: /files/10000/plaintext.txt
 		array_shift($stack);					// files	
 		$file_id = array_shift($stack); 		// 10000
@@ -5228,20 +5189,20 @@ class ChFilesController extends DevblocksControllerExtension {
 
 		// Security
 		if(null == ($active_worker = CerberusApplication::getActiveWorker()))
-			die("Access Denied.");
+			die($translate->_('common.access_denied'));
 		
 		if(empty($file_id) || empty($file_name) || null == ($file = DAO_Attachment::get($file_id)))
-			die("File not found.");
+			die($translate->_('files.not_found'));
 			
 		// Security
 			$message = DAO_Ticket::getMessage($file->message_id);
 		if(null == ($ticket = DAO_Ticket::getTicket($message->ticket_id)))
-			die("Ticket not found.");
+			die($translate->_('common.access_denied'));
 			
 		// Security
 		$active_worker_memberships = $active_worker->getMemberships();
 		if(null == ($active_worker_memberships[$ticket->team_id]))
-			die("Access Denied.");
+			die($translate->_('common.access_denied'));
 			
 		// Set headers
 		header("Expires: Mon, 26 Nov 1962 00:00:00 GMT\n");
@@ -5397,6 +5358,8 @@ class ChGroupsPage extends CerberusPageExtension  {
    	}
    	
    	function saveTabInboxAddAction() {
+   		$translate = DevblocksPlatform::getTranslationService();
+   		
    		@$team_id = DevblocksPlatform::importGPC($_REQUEST['team_id'],'integer');
    		
 	    @$active_worker = CerberusApplication::getActiveWorker();
@@ -5410,7 +5373,7 @@ class ChGroupsPage extends CerberusPageExtension  {
 //		@$do = DevblocksPlatform::importGPC($_POST['do'],'array',array());
 		
 		if(empty($name))
-			$name = "Inbox Rule";
+			$name = $translate->_('mail.inbox_filter');
 		
 		$criterion = array();
 //		$actions = array();
@@ -5842,6 +5805,7 @@ class ChKbPage extends CerberusPageExtension {
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		
 		$visit = CerberusApplication::getVisit();
+		$translate = DevblocksPlatform::getTranslationService();
 		
 		$response = DevblocksPlatform::getHttpResponse();
 		$stack = $response->path;
@@ -5853,7 +5817,7 @@ class ChKbPage extends CerberusPageExtension {
 				if(null == ($view = C4_AbstractViewLoader::getView(null, 'kb_search'))) {
 					$view = new C4_KbArticleView();
 					$view->id = 'kb_search';
-					$view->name = "Search Results";
+					$view->name = $translate->_('common.search_results');
 					C4_AbstractViewLoader::setView($view->id, $view);
 				}
 				$tpl->assign('view', $view);
@@ -5895,13 +5859,13 @@ class ChKbPage extends CerberusPageExtension {
 					$view->params = array(
 						new DevblocksSearchCriteria(SearchFields_KbArticle::CATEGORY_ID,DevblocksSearchCriteria::OPER_IS_NULL,true),
 					);
-					$view->name = "Uncategorized Articles";
+					$view->name = $translate->_('kb.view.uncategorized');
 					
 				} else {
 					$view->params = array(
 						new DevblocksSearchCriteria(SearchFields_KbArticle::CATEGORY_ID,'=',$root_id),
 					);
-					$view->name = "Articles: " . $categories[$root_id]->name;
+					$view->name = vsprintf($translate->_('kb.view.articles'), $categories[$root_id]->name);
 				}
 
 				C4_AbstractViewLoader::setView($view->id, $view);
@@ -6039,7 +6003,7 @@ class ChKbPage extends CerberusPageExtension {
 				$format = 0;
 				
 			if(empty($title))
-				$title = "(No Title)";
+				$title = '(' . $translate->_('kb_article.title') . ')';
 			
 			switch($format) {
 				default:
@@ -6171,6 +6135,7 @@ class ChCronController extends DevblocksControllerExtension {
 		@$loglevel = DevblocksPlatform::importGPC($_REQUEST['loglevel'],'integer',0);
 		
 		$logger = DevblocksPlatform::getConsoleLog();
+		$translate = DevblocksPlatform::getTranslationService();
 		
 	    $settings = CerberusSettings::getInstance();
 	    $authorized_ips_str = $settings->get(CerberusSettings::AUTHORIZED_IPS);
@@ -6187,7 +6152,7 @@ class ChCronController extends DevblocksControllerExtension {
 		 	{ $pass=true; break; }
 		}
 	    if(!$pass) {
-		    echo 'Your IP address ('.$_SERVER['REMOTE_ADDR'].') is not authorized to run scheduler jobs.';
+		    echo vsprintf($translate->_('cron.ip_unauthorized'), $_SERVER['REMOTE_ADDR']);
 		    return;
 	    }
 		
@@ -6255,7 +6220,7 @@ class ChCronController extends DevblocksControllerExtension {
 	    	    $nextjob->_run();
 	        }
 		} elseif($reload) {
-		    $logger->info("Nothing to do yet!  (Waiting ".intval($reload)." seconds)");
+		    $logger->info(vsprintf($translate->_('cron.nothing_to_do'), intval($reload)));
 		}
 		
 		if($reload) {
@@ -6315,7 +6280,7 @@ class ChPrintController extends DevblocksControllerExtension {
 				
 				// Make sure we're allowed to view this ticket or message
 				if(!isset($active_worker_memberships[$ticket->team_id])) {
-					echo "<H1>Access Denied</H1>";
+					echo "<H1>" . $translate->_('common.access_denied') . "</H1>";
 					return;
 				}
 
@@ -6331,7 +6296,7 @@ class ChPrintController extends DevblocksControllerExtension {
 				
 				// Make sure we're allowed to view this ticket or message
 				if(!isset($active_worker_memberships[$ticket->team_id])) {
-					echo "<H1>Access Denied</H1>";
+					echo "<H1>" . $translate->_('common.access_denied') . "</H1>";
 					return;
 				}
 				
@@ -6355,8 +6320,9 @@ class ChRssController extends DevblocksControllerExtension {
 	 * Request Overload
 	 */
 	function handleRequest(DevblocksHttpRequest $request) {
+		$translate = DevblocksPlatform::getTranslationService();
+		
 		// [TODO] Do we want any concept of authentication here?
-
 
         $stack = $request->path;
         
@@ -6368,7 +6334,7 @@ class ChRssController extends DevblocksControllerExtension {
 		$feed = DAO_TicketRss::getByHash($hash);
         
         if(empty($feed)) {
-            die("Bad feed data.");
+            die($translate->_('rss.bad_feed'));
         }
         
         // [TODO] Implement logins for the wiretap app
@@ -6479,6 +6445,8 @@ class ChUpdateController extends DevblocksControllerExtension {
 	function handleRequest(DevblocksHttpRequest $request) {
 	    @set_time_limit(0); // no timelimit (when possible)
 
+	    $translate = DevblocksPlatform::getTranslationService();
+	    
 	    $stack = $request->path;
 	    array_shift($stack); // update
 
@@ -6521,7 +6489,7 @@ class ChUpdateController extends DevblocksControllerExtension {
 				 	{ $pass=true; break; }
 				}
 			    if(!$pass) {
-				    echo 'Your IP address ('.$_SERVER['REMOTE_ADDR'].') is not authorized to update this helpdesk.';
+				    echo vsprintf($translate->_('update.ip_unauthorized'), $_SERVER['REMOTE_ADDR']);
 				    return;
 			    }
 				
@@ -6529,7 +6497,7 @@ class ChUpdateController extends DevblocksControllerExtension {
 			    $errors = CerberusApplication::checkRequirements();
 			    
 			    if(!empty($errors)) {
-			    	echo "Please correct the following errors before upgrading:";
+			    	echo $translate->_('update.correct_errors');
 			    	echo "<ul style='color:red;'>";
 			    	foreach($errors as $error) {
 			    		echo "<li>".$error."</li>";
@@ -6560,7 +6528,7 @@ class ChUpdateController extends DevblocksControllerExtension {
 				    break;
 				}
 				else {
-					echo "Another administrator is currently running update.  Please wait...";
+					echo $translate->_('update.locked_another');
 				}
 	    }
 	    
@@ -7003,6 +6971,8 @@ class ChInternalController extends DevblocksControllerExtension {
 	
 	// Post?
 	function viewSaveCustomizeAction() {
+		$translate = DevblocksPlatform::getTranslationService();
+		
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
 		@$columns = DevblocksPlatform::importGPC($_REQUEST['columns'],'array', array());
 		@$num_rows = DevblocksPlatform::importGPC($_REQUEST['num_rows'],'integer',10);
@@ -7019,7 +6989,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			$list_view_id = intval(substr($id,5));
 			
 			// Special custom view fields
-			@$title = DevblocksPlatform::importGPC($_REQUEST['title'],'string', 'New List');
+			@$title = DevblocksPlatform::importGPC($_REQUEST['title'],'string', $translate->_('views.new_list'));
 			
 			$view->name = $title;
 
@@ -7101,9 +7071,10 @@ class ChDisplayPage extends CerberusPageExtension {
 
 		$visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
 		$response = DevblocksPlatform::getHttpResponse();
-		$stack = $response->path;
 		$active_worker = CerberusApplication::getActiveWorker();
+		$translate = DevblocksPlatform::getTranslationService();
 
+		$stack = $response->path;
 		@array_shift($stack); // display
 		
 		@$id = array_shift($stack);
@@ -7135,7 +7106,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		$ticket = DAO_Ticket::getTicket($id);
 	
 		if(empty($ticket)) {
-			echo "<H1>Invalid Ticket ID.</H1>";
+			echo "<H1>".$translate->_('display.invalid_ticket')."</H1>";
 			return;
 		}
 
@@ -7145,7 +7116,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		// Check group membership ACL
 		if(!isset($active_worker_memberships[$ticket->team_id])) {
-			echo "<H1>Access Denied</H1>";
+			echo "<H1>".$translate->_('common.access_denied')."</H1>";
 			return;
 		}
 		
@@ -7252,6 +7223,7 @@ class ChDisplayPage extends CerberusPageExtension {
 	*/
 	
 	function browseAction() {
+		$translate = DevblocksPlatform::getTranslationService();
 		$visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
 		$request = DevblocksPlatform::getHttpRequest();
 		$stack = $request->path;
@@ -7268,7 +7240,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		$ticket = DAO_Ticket::getTicket($id);
 	
 		if(empty($ticket)) {
-			echo "<H1>Invalid Ticket ID.</H1>";
+			echo "<H1>".$translate->_('display.invalid_ticket')."</H1>";
 			return;
 		}
 		
@@ -7962,6 +7934,8 @@ class ChDisplayPage extends CerberusPageExtension {
 	}
 	
 	function showContactHistoryAction() {
+		$translate = DevblocksPlatform::getTranslationService();
+		
 		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer');
 
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -7979,7 +7953,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		if(null == $view) {
 			$view = new C4_TicketView();
 			$view->id = 'contact_history';
-			$view->name = 'Contact History';
+			$view->name = $translate->_('addy_book.history.view.title');
 			$view->view_columns = array(
 				SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
 				SearchFields_Ticket::TICKET_CREATED_DATE,
@@ -7995,7 +7969,7 @@ class ChDisplayPage extends CerberusPageExtension {
 			$view->renderSortAsc = false;
 		}
 
-		$view->name = 'Requester History: ' . intval(count($requesters)) . ' contact(s)';
+		$view->name = vsprintf($translate->_('addy_book.history.view.requester'), intval(count($requesters)));
 		$view->params = array(
 			SearchFields_Ticket::REQUESTER_ID => new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ID,'in',array_keys($requesters)),
 			SearchFields_Ticket::TICKET_DELETED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,DevblocksSearchCriteria::OPER_EQ,0)
@@ -8020,6 +7994,8 @@ class ChDisplayPage extends CerberusPageExtension {
 	}
 
 	function showTasksAction() {
+		$translate = DevblocksPlatform::getTranslationService();
+		
 		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer');
 
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -8030,7 +8006,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		$view = C4_AbstractViewLoader::getView('C4_TaskView', 'ticket_tasks');
 		$view->id = 'ticket_tasks';
-		$view->name = 'Ticket Tasks';
+		$view->name = $translate->_('tasks.ticket.tab.view');
 		$view->view_columns = array(
 			SearchFields_Task::SOURCE_EXTENSION,
 			SearchFields_Task::PRIORITY,
@@ -8045,12 +8021,6 @@ class ChDisplayPage extends CerberusPageExtension {
 		$tpl->assign('view', $view);
 		
 		C4_AbstractViewLoader::setView($view->id, $view);
-		
-//		$view->name = "Most recent tickets from " . htmlspecialchars($contact->email);
-//		$view->params = array(
-//			SearchFields_Ticket::TICKET_FIRST_WROTE => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_FIRST_WROTE,DevblocksSearchCriteria::OPER_EQ,$contact->email)
-//		);
-//		$tpl->assign('view', $view);
 		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/tasks/index.tpl.php');
 	}
@@ -8558,6 +8528,8 @@ class ChSignInPage extends CerberusPageExtension {
 	
 	// Post
 	function doRecoverStep1Action() {
+		$translate = DevblocksPlatform::getTranslationService();
+		
 	    @$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string');
 	    
 	    $worker = DAO_Worker::lookupAgentEmail($email);
@@ -8585,14 +8557,16 @@ class ChSignInPage extends CerberusPageExtension {
 			// Headers
 			$mail->setTo($sendTo);
 			$mail->setFrom($sendFrom);
-			$mail->setSubject("Confirm helpdesk password recovery.");
+			$mail->setSubject($translate->_('signin.forgot.mail.subject'));
 			$mail->generateId();
 			$mail->headers->set('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
 	
 			$mail->attach(new Swift_Message_Part(
-				sprintf("This confirmation code will allow you to reset your helpdesk login:\n\n%s",
-		        	$code
-		    ),'text/plain','base64',LANG_CHARSET_CODE));
+				vsprintf($translate->_('signin.forgot.mail.body'), $code),
+				'text/plain',
+				'base64',
+				LANG_CHARSET_CODE
+			));
 			
 			if(!$mailer->send($mail, $sendTo, $sendFrom)) {
 				throw new Exception('Password Forgot confirmation email failed to send.');
@@ -8672,6 +8646,8 @@ class ChPreferencesPage extends CerberusPageExtension {
 	}
 	
 	function render() {
+		$translate = DevblocksPlatform::getTranslationService();
+		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl_path = dirname(__FILE__) . '/templates';
 		$tpl->assign('path', $tpl_path);
@@ -8711,11 +8687,11 @@ class ChPreferencesPage extends CerberusPageExtension {
 							DAO_AddressToWorker::CODE_EXPIRE => 0
 						));
 						
-						$output = array(sprintf("%s has been confirmed!", $worker_address->address));
+						$output = array(vsprintf($translate->_('prefs.address.confirm.tip'), $worker_address->address));
 						$tpl->assign('pref_success', $output);
 					
 				} else {
-					$errors = array('The confirmation code you provided is not valid.');
+					$errors = array($translate->_('prefs.address.confirm.invalid_code'));
 					$tpl->assign('pref_errors', $errors);
 				}
 				
@@ -8882,10 +8858,10 @@ class ChPreferencesPage extends CerberusPageExtension {
 				if(null == ($assigned = DAO_AddressToWorker::getByAddress($new_email))) {
 					$this->_sendConfirmationEmail($new_email, $worker);
 				} else {
-					$pref_errors[] = sprintf("'%s' is already assigned to a worker.", $new_email);
+					$pref_errors[] = vsprintf($translate->_('prefs.address.exists'), $new_email);
 				}
 			} else {
-				$pref_errors[] = sprintf("'%s' is not a valid e-mail address.", $new_email);
+				$pref_errors[] = vsprintf($translate->_('prefs.address.invalid'), $new_email);
 			}
 		}
 		
@@ -8904,6 +8880,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 	}
 	
 	private function _sendConfirmationEmail($to, $worker) {
+		$translate = DevblocksPlatform::getTranslationService();
 		$settings = CerberusSettings::getInstance();
 		$url_writer = DevblocksPlatform::getUrlService();
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -8922,19 +8899,16 @@ class ChPreferencesPage extends CerberusPageExtension {
 		// [TODO] This function can return false, and we need to do something different if it does.
 		CerberusMail::quickSend(
 			$to, 
-			sprintf("New E-mail Address Confirmation (%s)", 
+			vsprintf($translate->_('prefs.address.confirm.mail.subject'), 
 				$settings->get(CerberusSettings::HELPDESK_TITLE)
 			),
-			sprintf("%s has just added this e-mail address to their helpdesk account.\r\n\r\n".
-				"To approve and continue, click the following link:\r\n".
-				"%s\r\n\r\n".
-				"If you did not request this, do not click the link above.  This request will expire in 24 hours.\r\n",
+			vsprintf($translate->_('prefs.address.confirm.mail.body'),
 				$worker->getName(),
 				$url_writer->write('c=preferences&a=confirm_email&code='.$code,true)
 			)
 		);
 		
-		$output = array(sprintf("A confirmation e-mail has been sent to %s", $to));
+		$output = array(vsprintf($translate->_('prefs.address.confirm.mail.subject'), $to));
 		$tpl->assign('pref_success', $output);
 	}
 	

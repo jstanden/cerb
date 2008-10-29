@@ -1168,10 +1168,11 @@ class C4_TicketView extends C4_AbstractView {
 	static function createSearchView() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$memberships = $active_worker->getMemberships();
+		$translate = DevblocksPlatform::getTranslationService();
 		
 		$view = new C4_TicketView();
 		$view->id = CerberusApplication::VIEW_SEARCH;
-		$view->name = "Search Results";
+		$view->name = $translate->_('common.search_results');
 		$view->dashboard_id = 0;
 		$view->view_columns = array(
 			SearchFields_Ticket::TICKET_LAST_ACTION_CODE,

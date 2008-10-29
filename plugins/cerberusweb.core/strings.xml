@@ -41,12 +41,22 @@
 			<tuv xml:lang="en_US"><seg>Tasks (%s)</seg></tuv>
 		</tu>
 
+		<tu tuid='home.tab.my_tasks'>
+			<tuv xml:lang="en_US"><seg>My Tasks</seg></tuv>
+		</tu>
+		<tu tuid='home.tab.my_mail'>
+			<tuv xml:lang="en_US"><seg>My Mail</seg></tuv>
+		</tu>
+
 		<tu tuid='activity.tab.tasks'>
 			<tuv xml:lang="en_US"><seg>Tasks</seg></tuv>
 		</tu>
 
 		<!-- Common Strings -->
 
+		<tu tuid='common.access_denied'>
+			<tuv xml:lang="en_US"><seg>Access denied.</seg></tuv>
+		</tu>
 		<tu tuid='common.all'>
 			<tuv xml:lang="en_US"><seg>all</seg></tuv>
 		</tu>
@@ -200,6 +210,9 @@
 		<tu tuid='common.search'>
 			<tuv xml:lang="en_US"><seg>search</seg></tuv>
 		</tu>
+		<tu tuid='common.search_results'>
+			<tuv xml:lang="en_US"><seg>Search Results</seg></tuv>
+		</tu>
 		<tu tuid='common.search_go'>
 			<tuv xml:lang="en_US"><seg>go!</seg></tuv>
 		</tu>
@@ -247,6 +260,7 @@
 		</tu>
 
 		<!-- Addresses -->
+		
 		<tu tuid='address.id'>
 			<tuv xml:lang="en_US"><seg>id</seg></tuv>
 		</tu>
@@ -274,6 +288,28 @@
 		<tu tuid='address.contact_org_id'>
 			<tuv xml:lang="en_US"><seg>organization</seg></tuv>
 		</tu>
+
+		<!-- Address Book -->
+		
+		<tu tuid='addy_book.history.view.title'>
+			<tuv xml:lang="en_US"><seg>Contact History</seg></tuv>
+		</tu>
+		<tu tuid='addy_book.history.view.requester'>
+			<tuv xml:lang="en_US"><seg>Requester History: %s contact(s)</seg></tuv>
+		</tu>
+
+		<!-- Configuration -->
+		
+		<tu tuid='config.mail.pop3.error_hostname'>
+			<tuv xml:lang="en_US"><seg>Error: No hostname provided.</seg></tuv>
+		</tu>
+		<tu tuid='config.mail.pop3.failed'>
+			<tuv xml:lang="en_US"><seg>Mailbox Connection Failed.</seg></tuv>
+		</tu>
+		<tu tuid='config.mail.smtp.failed'>
+			<tuv xml:lang="en_US"><seg>SMTP Connection Failed:</seg></tuv>
+		</tu>
+		
 
 		<!-- Contact orgs -->
 		<tu tuid='contact_org.account_number'>
@@ -357,6 +393,15 @@
 			<tuv xml:lang="en_US"><seg>street</seg></tuv>
 		</tu>
 
+		<!-- Cron -->
+
+		<tu tuid='cron.ip_unauthorized'>
+			<tuv xml:lang="en_US"><seg>Your IP address (%s) is not authorized to run scheduler jobs.</seg></tuv>
+		</tu>
+		<tu tuid='cron.nothing_to_do'>
+			<tuv xml:lang="en_US"><seg>Nothing to do yet!  (Waiting %s seconds)</seg></tuv>
+		</tu>
+
 		<!-- Activities -->
 		<tu tuid='activity.default'>
 			<tuv xml:lang="en_US"><seg>%s is browsing the helpdesk</seg></tuv>
@@ -374,6 +419,12 @@
 			<tuv xml:lang="en_US"><seg>%s is browsing %s tickets</seg></tuv>
 		</tu>
 
+		<!-- Files -->
+
+		<tu tuid='files.not_found'>
+			<tuv xml:lang="en_US"><seg>File not found.</seg></tuv>
+		</tu>
+		
 		<!-- Header -->
 
 		<tu tuid='header.config'>
@@ -469,16 +520,21 @@
 
 		<!-- Home -->
 		
-		<tu tuid='home.tab.my_tasks'>
-			<tuv xml:lang="en_US"><seg>My Tasks</seg></tuv>
+		<tu tuid='home.my_tasks.view.title'>
+			<tuv xml:lang="en_US"><seg>Tasks for %s</seg></tuv>
 		</tu>
-		<tu tuid='home.tab.my_mail'>
-			<tuv xml:lang="en_US"><seg>My Mail</seg></tuv>
+		<tu tuid='home.my_tickets.view.title'>
+			<tuv xml:lang="en_US"><seg>Mail for %s</seg></tuv>
 		</tu>
 
 		<!-- Display Ticket -->
 		
+		<tu tuid='display.invalid_ticket'>
+			<tuv xml:lang="en_US"><seg>Invalid Ticket!</seg></tuv>
+		</tu>
+		
 		<!-- Display: Conversation -->
+		
 		<tu tuid='display.convo.attachments_label'>
 			<tuv xml:lang="en_US"><seg>Attachments:</seg></tuv>
 		</tu>
@@ -634,6 +690,15 @@
 			<tuv xml:lang="en_US"><seg>Sticky Note</seg></tuv>
 		</tu>
 		
+		<!-- KB -->
+
+		<tu tuid='kb.view.articles'>
+			<tuv xml:lang="en_US"><seg>Articles: %s</seg></tuv>
+		</tu>
+		<tu tuid='kb.view.uncategorized'>
+			<tuv xml:lang="en_US"><seg>Uncategorized Articles</seg></tuv>
+		</tu>
+
 		<!-- KB Article -->
 		
 		<tu tuid='kb_article.content'>
@@ -660,9 +725,6 @@
 
 		<!-- Mail -->
 		
-		<tu tuid='mail.nav.search_mail'>
-			<tuv xml:lang="en_US"><seg>Search Mail:</seg></tuv>
-		</tu>
 
 		<tu tuid='mail.bulk_update'>
 			<tuv xml:lang="en_US"><seg>Bulk Update</seg></tuv>
@@ -670,17 +732,61 @@
 		<tu tuid='mail.inbound'>
 			<tuv xml:lang="en_US"><seg>Inbound</seg></tuv>
 		</tu>
+		<tu tuid='mail.inbox_filter'>
+			<tuv xml:lang="en_US"><seg>Inbox Filter</seg></tuv>
+		</tu>
+		<tu tuid='mail.log_message'>
+			<tuv xml:lang="en_US"><seg>Log Message</seg></tuv>
+		</tu>
 		<tu tuid='mail.merge'>
 			<tuv xml:lang="en_US"><seg>Merge</seg></tuv>
+		</tu>
+		<tu tuid='mail.nav.search_mail'>
+			<tuv xml:lang="en_US"><seg>Search Mail:</seg></tuv>
 		</tu>
 		<tu tuid='mail.not_waiting'>
 			<tuv xml:lang="en_US"><seg>Not Waiting</seg></tuv>
 		</tu>
+		
+		<tu tuid='mail.overview'>
+			<tuv xml:lang="en_US"><seg>Overview</seg></tuv>
+		</tu>
+		<tu tuid='mail.overview.all_done'>
+			<tuv xml:lang="en_US"><seg>All Done!</seg></tuv>
+		</tu>
+		<tu tuid='mail.overview.all_done_text'>
+			<tuv xml:lang="en_US"><seg>There are currently no open tickets.</seg></tuv>
+		</tu>
+		<tu tuid='mail.overview.all_groups'>
+			<tuv xml:lang="en_US"><seg>All Groups</seg></tuv>
+		</tu>
+		<tu tuid='mail.overview.assigned.title'>
+			<tuv xml:lang="en_US"><seg>For %s</seg></tuv>
+		</tu>
+		<tu tuid='mail.overview.expand_list'>
+			<tuv xml:lang="en_US"><seg>expand list</seg></tuv>
+		</tu>
+		<tu tuid='mail.overview.my_mail'>
+			<tuv xml:lang="en_US"><seg>my mail</seg></tuv>
+		</tu>
+		<tu tuid='mail.overview.service_levels'>
+			<tuv xml:lang="en_US"><seg>Service Levels</seg></tuv>
+		</tu>
+		<tu tuid='mail.overview.spam_filtered'>
+			<tuv xml:lang="en_US"><seg>(Spam Filtered)</seg></tuv>
+		</tu>
+		<tu tuid='mail.overview.waiting.title'>
+			<tuv xml:lang="en_US"><seg>[Waiting] %s</seg></tuv>
+		</tu>
+		
 		<tu tuid='mail.outbound'>
 			<tuv xml:lang="en_US"><seg>Outbound</seg></tuv>
 		</tu>
 		<tu tuid='mail.piles'>
 			<tuv xml:lang="en_US"><seg>Piles</seg></tuv>
+		</tu>
+		<tu tuid='mail.send_mail'>
+			<tuv xml:lang="en_US"><seg>Send Mail</seg></tuv>
 		</tu>
 		<tu tuid='mail.surrender'>
 			<tuv xml:lang="en_US"><seg>Surrender</seg></tuv>
@@ -688,8 +794,30 @@
 		<tu tuid='mail.take'>
 			<tuv xml:lang="en_US"><seg>Take</seg></tuv>
 		</tu>
+		<tu tuid='mail.view.add_filter'>
+			<tuv xml:lang="en_US"><seg>-add filter-</seg></tuv>
+		</tu>
 		<tu tuid='mail.waiting'>
 			<tuv xml:lang="en_US"><seg>Waiting</seg></tuv>
+		</tu>
+		
+		<tu tuid='mail.workspaces.create'>
+			<tuv xml:lang="en_US"><seg>Click here to create your first workspace.</seg></tuv>
+		</tu>
+		<tu tuid='mail.workspaces.my'>
+			<tuv xml:lang="en_US"><seg>My Workspaces</seg></tuv>
+		</tu>
+		<tu tuid='mail.workspaces.new'>
+			<tuv xml:lang="en_US"><seg>New Workspace</seg></tuv>
+		</tu>
+		<tu tuid='mail.workspaces.new_list'>
+			<tuv xml:lang="en_US"><seg>New List</seg></tuv>
+		</tu>
+		<tu tuid='mail.workspaces.none'>
+			<tuv xml:lang="en_US"><seg>You haven't created any custom worklists.</seg></tuv>
+		</tu>
+		<tu tuid='mail.workspaces.workspace'>
+			<tuv xml:lang="en_US"><seg>Workspace</seg></tuv>
 		</tu>
 		
 		<!-- Message -->
@@ -717,6 +845,36 @@
 			<tuv xml:lang="en_US"><seg>Message Content</seg></tuv>
 		</tu>
 
+		<!-- Preferences -->
+
+		<tu tuid='prefs.address.exists'>
+			<tuv xml:lang="en_US"><seg>%s is already assigned to a worker.</seg></tuv>
+		</tu>
+		<tu tuid='prefs.address.confirm.tip'>
+			<tuv xml:lang="en_US"><seg>%s has been confirmed!</seg></tuv>
+		</tu>
+		<tu tuid='prefs.address.confirm.invalid_code'>
+			<tuv xml:lang="en_US"><seg>The confirmation code you provided is not valid.</seg></tuv>
+		</tu>
+		<tu tuid='prefs.address.confirm.mail.body'>
+			<tuv xml:lang="en_US"><seg>%s has just added this e-mail address to their helpdesk account.
+
+To approve and continue, click the following link:
+%s
+
+If you did not request this, do not click the link above.  The request will expire in 24 hours.
+		</seg></tuv>
+		</tu>
+		<tu tuid='prefs.address.confirm.mail.subject'>
+			<tuv xml:lang="en_US"><seg>Confirm New Worker E-mail (%s)</seg></tuv>
+		</tu>
+		<tu tuid='prefs.address.confirm.mail.sent'>
+			<tuv xml:lang="en_US"><seg>A confirmation e-mail has been sent to %s</seg></tuv>
+		</tu>
+		<tu tuid='prefs.address.invalid'>
+			<tuv xml:lang="en_US"><seg>%s is not a valid e-mail address.</seg></tuv>
+		</tu>
+
 		<!-- Priorities -->
 
 		<tu tuid='priority.none'>
@@ -732,6 +890,20 @@
 			<tuv xml:lang="en_US"><seg>High</seg></tuv>
 		</tu>
 
+		<!-- RSS -->
+
+		<tu tuid='rss.bad_feed'>
+			<tuv xml:lang="en_US"><seg>Bad feed data.</seg></tuv>
+		</tu>
+
+		<!-- Signin -->
+		
+		<tu tuid='signin.forgot.mail.subject'>
+			<tuv xml:lang="en_US"><seg>Confirm helpdesk password recovery.</seg></tuv>
+		</tu>
+		<tu tuid='signin.forgot.mail.body'>
+			<tuv xml:lang="en_US"><seg>This confirmation code will allow you to reset your helpdesk login: %s</seg></tuv>
+		</tu>
 
 		<!-- Search -->
 
@@ -772,6 +944,9 @@
 		</tu>
 		<tu tuid='tasks.postpone'>
 			<tuv xml:lang="en_US"><seg>+24hrs</seg></tuv>
+		</tu>
+		<tu tuid='tasks.ticket.tab.view'>
+			<tuv xml:lang="en_US"><seg>Ticket Tasks</seg></tuv>
 		</tu>
 		
 		<!-- Groups -->
@@ -905,8 +1080,29 @@
 			<tuv xml:lang="en_US"><seg>Not Spam</seg></tuv>
 		</tu>
 
+		<!-- Update -->
+
+		<tu tuid='update.correct_errors'>
+			<tuv xml:lang="en_US"><seg>Please correct the following errors before upgrading:</seg></tuv>
+		</tu>
+		<tu tuid='update.ip_unauthorized'>
+			<tuv xml:lang="en_US"><seg>Your IP address (%s) is not authorized to update this helpdesk.</seg></tuv>
+		</tu>
+		<tu tuid='update.locked_another'>
+			<tuv xml:lang="en_US"><seg>Another administrator is currently running an update.  Please wait...</seg></tuv>
+		</tu>
+
 		<!-- Views -->
 
+		<tu tuid='views.new_list'>
+			<tuv xml:lang="en_US"><seg>New List</seg></tuv>
+		</tu>
+		<tu tuid='views.peek'>
+			<tuv xml:lang="en_US"><seg>(peek)</seg></tuv>
+		</tu>
+		<tu tuid='views.showing_from_to'>
+			<tuv xml:lang="en_US"><seg>Showing %s-%s of %s</seg></tuv>
+		</tu>
 
 		
 		<!-- Whos Online -->

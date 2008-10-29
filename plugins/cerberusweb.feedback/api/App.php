@@ -307,8 +307,10 @@ class C4_FeedbackEntryView extends C4_AbstractView {
 	const DEFAULT_ID = 'feedback_entries';
 
 	function __construct() {
+		$translate = DevblocksPlatform::getTranslationService();
+		
 		$this->id = self::DEFAULT_ID;
-		$this->name = 'Search Results';
+		$this->name = $translate->_('common.search_results');
 		$this->renderLimit = 10;
 		$this->renderSortBy = SearchFields_FeedbackEntry::LOG_DATE;
 		$this->renderSortAsc = false;

@@ -13,13 +13,15 @@ class ChTasksActivityTab extends Extension_ActivityTab {
 		$tpl_path = realpath(dirname(__FILE__) . '/../../templates') . DIRECTORY_SEPARATOR;
 		$tpl->assign('path', $tpl_path);
 		
+		$translate = DevblocksPlatform::getTranslationService();
+		
 		if(null == ($view = C4_AbstractViewLoader::getView('', self::VIEW_ACTIVITY_TASKS))) {
 			$view = new C4_TaskView();
 			$view->id = self::VIEW_ACTIVITY_TASKS;
 			$view->renderSortBy = SearchFields_Task::DUE_DATE;
 			$view->renderSortAsc = 1;
 			
-			$view->name = "Search Results";
+			$view->name = $translate->_('common.search_results');
 			
 			C4_AbstractViewLoader::setView($view->id, $view);
 		}

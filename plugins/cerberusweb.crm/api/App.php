@@ -38,6 +38,8 @@ class CrmPage extends CerberusPageExtension {
 		$tpl_path = $this->plugin_path . '/templates/';
 		$tpl->assign('path', $tpl_path);
 
+		$translate = DevblocksPlatform::getTranslationService();
+		
 		$response = DevblocksPlatform::getHttpResponse();
 		$stack = $response->path;
 		
@@ -131,7 +133,7 @@ class CrmPage extends CerberusPageExtension {
 							C4_AbstractViewLoader::setView($view->id, $view);
 						}
 
-						$view->name = "Search Results";
+						$view->name = $translate->_('common.search_results');
 						$tpl->assign('view', $view);
 
 						$campaigns = DAO_CrmCampaign::getWhere();
