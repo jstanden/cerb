@@ -9,12 +9,10 @@
 			<tuv xml:lang="en_US"><seg>Mail Forwarding</seg></tuv>
 		</tu>
 		<tu tuid='watchers.ui.pref.any_email'>
-			<tuv xml:lang="en_US"><seg>You can create a mail forward to have copies of group mail sent to any e-mail address, such as 
-your desktop e-mail client or handheld device.</seg></tuv>
+			<tuv xml:lang="en_US"><seg>You can create a mail forward to have copies of group mail sent to any e-mail address, such as your desktop e-mail client or handheld device.</seg></tuv>
 		</tu>
 		<tu tuid='watchers.ui.pref.reply_normally'>
-			<tuv xml:lang="en_US"><seg>You can reply normally to this forwarded mail as if it was sent directly to you -- the helpdesk 
-will route it back to the appropriate people.</seg></tuv>
+			<tuv xml:lang="en_US"><seg>You can reply normally to this forwarded mail as if it was sent directly to you -- the helpdesk will route it back to the appropriate people.</seg></tuv>
 		</tu>
 		<tu tuid='watchers.ui.pref.group_bucket'>
 			<tuv xml:lang="en_US"><seg>For mail in group/bucket:</seg></tuv>

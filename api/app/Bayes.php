@@ -297,7 +297,7 @@ class CerberusBayes {
 			$words[$k]->probability = self::calculateWordProbability($w);
 			
 			// [JAS]: If a word appears more than 5 times (counting weight) in the corpus, use it.  Otherwise de-emphasize.
-			if(($w->nonspam * 2) + $w->spam >= 5)
+			if(($w->nonspam * 1) + $w->spam >= 5)
 				$words[$k]->interest_rating = self::_getMedianDeviation($w->probability);
 			else
 				$words[$k]->interest_rating = 0.00;
@@ -353,11 +353,11 @@ class CerberusBayes {
 		$ngood = max($stats['nonspam'],1);
 		$nbad = max($stats['spam'],1);
 		
-		$g = intval($word->nonspam * 2);
+		$g = intval($word->nonspam * 1);
 		$b = intval($word->spam);
 
 		// [JAS]: If less than 5 occurrences total
-		if($g*2 + $b < 5) {
+		if(($g*1 + $b) < 5) {
 			$prob = self::PROBABILITY_UNKNOWN;
 			
 		} else {

@@ -986,19 +986,19 @@ class CerberusParser {
 	static private function fixQuotePrintableString($str) {
 		$out = '';
 		
-		if(function_exists('mb_decode_mimeheader')) {
-			$out = mb_decode_mimeheader($str);
-				
-		} else {
-			$parts = imap_mime_header_decode($str);		
-			if(is_array($parts))
-			foreach($parts as $part) {
-				try {
-					$charset = ($part->charset != 'default') ? $part->charset : 'auto';
-					@$out .= mb_convert_encoding($part->text,LANG_CHARSET_CODE,$charset);
-				} catch(Exception $e) {}
-			}
+//		if(function_exists('mb_decode_mimeheader')) {
+//			$out = mb_decode_mimeheader($str);
+//				
+//		} else {
+		$parts = imap_mime_header_decode($str);		
+		if(is_array($parts))
+		foreach($parts as $part) {
+			try {
+				$charset = ($part->charset != 'default') ? $part->charset : 'auto';
+				@$out .= mb_convert_encoding($part->text,LANG_CHARSET_CODE,$charset);
+			} catch(Exception $e) {}
 		}
+//		}
 		
 		// Strip invalid characters in our encoding
 		if(!mb_check_encoding($out, LANG_CHARSET_CODE))
