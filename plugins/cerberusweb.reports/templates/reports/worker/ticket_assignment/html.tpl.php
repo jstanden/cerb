@@ -1,4 +1,4 @@
-{if $invalidDate}<font color="red"><b>Invalid Date specified.  Please try again.</b></font>{/if}
+{if $invalidDate}<font color="red"><b>{$translate->_('reports.ui.invalid_date')}</b></font>{/if}
 <br>
 
 

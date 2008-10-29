@@ -50,7 +50,9 @@
 			<file>api/App.php</file>
 			<name>ChReportGroupGroups</name>
 		</class>
-		<params />
+		<params>
+			<param key="group_name" value="reports.ui.group.group" />
+		</params>
 	</extension>
 	
 	<extension point="cerberusweb.report.group">
@@ -60,7 +62,9 @@
 			<file>api/App.php</file>
 			<name>ChReportGroupOrgs</name>
 		</class>
-		<params />
+		<params>
+			<param key="group_name" value="reports.ui.group.org" />
+		</params>
 	</extension>
 	
 	<extension point="cerberusweb.report.group">
@@ -70,7 +74,9 @@
 			<file>api/App.php</file>
 			<name>ChReportGroupSpam</name>
 		</class>
-		<params />
+		<params>
+			<param key="group_name" value="reports.ui.group.spam" />
+		</params>
 	</extension>
 	
 	<extension point="cerberusweb.report.group">
@@ -80,7 +86,9 @@
 			<file>api/App.php</file>
 			<name>ChReportGroupTickets</name>
 		</class>
-		<params />
+		<params>
+			<param key="group_name" value="reports.ui.group.ticket" />
+		</params>
 	</extension>
 	
 	<extension point="cerberusweb.report.group">
@@ -90,7 +98,9 @@
 			<file>api/App.php</file>
 			<name>ChReportGroupWorkers</name>
 		</class>
-		<params />
+		<params>
+			<param key="group_name" value="reports.ui.group.worker" />
+		</params>
 	</extension>
 
 	<!-- Reports -->
@@ -103,7 +113,7 @@
 			<name>ChReportNewTickets</name>
 		</class>
 		<params>
-			<param key="report_name" value="Created Tickets By Group" />
+			<param key="report_name" value="reports.ui.ticket.new_tickets" />
 			<param key="report_group" value="report.group.tickets" />
 		</params>
 	</extension>
@@ -116,7 +126,7 @@
 			<name>ChReportSpamWords</name>
 		</class>
 		<params>
-			<param key="report_name" value="Top 100 Spam/Nonspam Words (Explicit Content)" />
+			<param key="report_name" value="reports.ui.spam.words" />
 			<param key="report_group" value="report.group.spam" />
 		</params>
 	</extension>
@@ -129,7 +139,7 @@
 			<name>ChReportSpamAddys</name>
 		</class>
 		<params>
-			<param key="report_name" value="Top 100 Spam/Nonspam Senders" />
+			<param key="report_name" value="reports.ui.spam.senders" />
 			<param key="report_group" value="report.group.spam" />
 		</params>
 	</extension>
@@ -142,7 +152,7 @@
 			<name>ChReportSpamDomains</name>
 		</class>
 		<params>
-			<param key="report_name" value="Top 100 Spam/Nonspam Domains" />
+			<param key="report_name" value="reports.ui.spam.domains" />
 			<param key="report_group" value="report.group.spam" />
 		</params>
 	</extension>
@@ -155,7 +165,7 @@
 			<name>ChReportWorkerReplies</name>
 		</class>
 		<params>
-			<param key="report_name" value="Worker Replies By Date" />
+			<param key="report_name" value="reports.ui.worker.worker_replies" />
 			<param key="report_group" value="report.group.workers" />
 		</params>
 	</extension>
@@ -168,7 +178,7 @@
 			<name>ChReportGroupRoster</name>
 		</class>
 		<params>
-			<param key="report_name" value="Group Rosters" />
+			<param key="report_name" value="reports.ui.group.roster" />
 			<param key="report_group" value="report.group.groups" />
 		</params>
 	</extension>
@@ -181,7 +191,7 @@
 			<name>ChReportAverageResponseTime</name>
 		</class>
 		<params>
-			<param key="report_name" value="Average Response Time" />
+			<param key="report_name" value="reports.ui.worker.response_time" />
 			<param key="report_group" value="report.group.workers" />
 		</params>
 	</extension>
@@ -194,7 +204,7 @@
 			<name>ChReportGroupReplies</name>
 		</class>
 		<params>
-			<param key="report_name" value="Group Replies By Date" />
+			<param key="report_name" value="reports.ui.group.replies" />
 			<param key="report_group" value="report.group.groups" />
 		</params>
 	</extension>
@@ -207,7 +217,7 @@
 			<name>ChReportOpenTickets</name>
 		</class>
 		<params>
-			<param key="report_name" value="Open Tickets By Group" />
+			<param key="report_name" value="reports.ui.ticket.open_tickets" />
 			<param key="report_group" value="report.group.tickets" />
 		</params>
 	</extension>		
@@ -220,7 +230,7 @@
 			<name>ChReportClosedTickets</name>
 		</class>
 		<params>
-			<param key="report_name" value="Closed Tickets By Group" />
+			<param key="report_name" value="reports.ui.ticket.closed" />
 			<param key="report_group" value="report.group.tickets" />
 		</params>
 	</extension>
@@ -233,7 +243,7 @@
 			<name>ChReportOrgSharedEmailDomains</name>
 		</class>
 		<params>
-			<param key="report_name" value="Top 100 Shared Sender Domains" />
+			<param key="report_name" value="reports.ui.org.shared_sender_domains" />
 			<param key="report_group" value="report.group.orgs" />
 		</params>
 	</extension>
@@ -246,7 +256,7 @@
 			<name>ChReportTopTicketsByContact</name>
 		</class>
 		<params>
-			<param key="report_name" value="Top Created Tickets By Contact" />
+			<param key="report_name" value="reports.ui.ticket.top_contacts" />
 			<param key="report_group" value="report.group.tickets" />
 		</params>
 	</extension>
@@ -260,7 +270,7 @@
 			<name>ChReportWorkerHistory</name>
 		</class>
 		<params>
-			<param key="report_name" value="Worker History" />
+			<param key="report_name" value="reports.ui.worker.worker_history" />
 			<param key="report_group" value="report.group.workers" />
 		</params>
 	</extension>		
@@ -273,7 +283,7 @@
 			<name>ChReportWaitingTickets</name>
 		</class>
 		<params>
-			<param key="report_name" value="Waiting Tickets By Group" />
+			<param key="report_name" value="reports.ui.ticket.waiting_tickets" />
 			<param key="report_group" value="report.group.tickets" />
 		</params>
 	</extension>
@@ -286,7 +296,7 @@
 			<name>ChReportOldestOpenTickets</name>
 		</class>
 		<params>
-			<param key="report_name" value="Oldest Open Tickets By Group" />
+			<param key="report_name" value="reports.ui.ticket.oldest_open" />
 			<param key="report_group" value="report.group.tickets" />
 		</params>
 	</extension>
@@ -299,7 +309,7 @@
 			<name>ChReportTicketAssignment</name>
 		</class>
 		<params>
-			<param key="report_name" value="Ticket Assignment" />
+			<param key="report_name" value="reports.ui.worker.ticket_assignment" />
 			<param key="report_group" value="report.group.workers" />
 		</params>
 	</extension>
@@ -312,7 +322,7 @@
 			<name>ChReportExportSenders</name>
 		</class>
 		<params>
-			<param key="report_name" value="Export Senders" />
+			<param key="report_name" value="reports.ui.ticket.export_senders" />
 			<param key="report_group" value="report.group.tickets" />
 		</params>
 	</extension>

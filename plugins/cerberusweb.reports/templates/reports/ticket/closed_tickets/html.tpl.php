@@ -1,4 +1,4 @@
-{if $invalidDate}<font color="red"><b>Invalid Date specified.  Please try again.</b></font>{/if}
+{if $invalidDate}<font color="red"><b>{$translate->_('reports.ui.invalid_date')}</b></font>{/if}
 
 <br>
 
@@ -13,7 +13,7 @@
 			
 			{if !empty($counts.0)}
 			<tr>
-				<td style="padding-left:10px;padding-right:20px;">Inbox</td>
+				<td style="padding-left:10px;padding-right:20px;">{$translate->_('common.inbox')|capitalize}</td>
 				<td align="right">{$counts.0}</td>
 				<td></td>
 			</tr>

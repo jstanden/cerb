@@ -3,18 +3,18 @@
 	</div>
 </div>
 
-<h2>Top 100 Spam/Nonspam Senders</h2>
+<h2>{$translate->_('reports.ui.spam.senders')}</h2>
 <br>
 
 <table cellpadding="2" cellspacing="0" border="0">
 	<tr>
 		<td width="50%" align="center" valign="top">
-			<h3>Top 100 Spam Senders</h3>
+			<h3>{$translate->_('reports.ui.spam.senders.top_spam')}</h3>
 			<table cellpadding="5" cellspacing="0">
 				<tr>
-					<td><b>E-mail</b></td>
-					<td align="center"><b>#spam</b></td>
-					<td align="center"><b>#nonspam</b></td>
+					<td><b>{$translate->_('common.email')|capitalize}</b></td>
+					<td align="center"><b>{$translate->_('reports.ui.spam.num_spam')}</b></td>
+					<td align="center"><b>{$translate->_('reports.ui.spam.num_nonspam')}</b></td>
 					<td align="center"><b>%</b></td>
 				</tr>
 				{foreach from=$top_spam_addys key=email item=counts}
@@ -28,12 +28,12 @@
 			</table>
 		</td>
 		<td width="50%" align="center" style="padding-left:30px;" valign="top">
-			<h3>Top 100 Nonspam Senders</h3>
+			<h3>{$translate->_('reports.ui.spam.senders.top_nonspam')}</h3>
 			<table cellpadding="5" cellspacing="0">
 				<tr>
-					<td><b>E-mail</b></td>
-					<td align="center"><b>#nonspam</b></td>
-					<td align="center"><b>#spam</b></td>
+					<td><b>{$translate->_('common.email')|capitalize}</b></td>
+					<td align="center"><b>{$translate->_('reports.ui.spam.num_nonspam')}</b></td>
+					<td align="center"><b>{$translate->_('reports.ui.spam.num_spam')}</b></td>
 					<td align="center"><b>%</b></td>
 				</tr>
 				{foreach from=$top_nonspam_addys key=email item=counts}

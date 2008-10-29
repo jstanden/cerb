@@ -44,6 +44,25 @@
 			<tuv xml:lang="en_US"><seg>Source ID</seg></tuv>
 		</tu>
 
+		<!--  Report Groups -->
+
+		<tu tuid='timetracking.reports'>
+			<tuv xml:lang="en_US"><seg>Time Tracking Reports</seg></tuv>
+		</tu>
+		
+		<!-- Reports -->
+
+		<tu tuid='timetracking.reports.time_spent_worker'>
+			<tuv xml:lang="en_US"><seg>Time Spent Per Worker</seg></tuv>
+		</tu>
+		<tu tuid='timetracking.reports.time_spent_org'>
+			<tuv xml:lang="en_US"><seg>Time Spent Per Organization</seg></tuv>
+		</tu>
+		<tu tuid='timetracking.reports.time_spent_activity'>
+			<tuv xml:lang="en_US"><seg>Time Spent Per Activity</seg></tuv>
+		</tu>
+
+
 	</body>
 </tmx>
 <!-- 

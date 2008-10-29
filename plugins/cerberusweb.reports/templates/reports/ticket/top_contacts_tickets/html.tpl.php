@@ -15,7 +15,7 @@
 				
 				{if !empty($count_group_buckets.0)}
 				<tr>
-					<td style="padding-left:20px;padding-right:20px;">Inbox</td>
+					<td style="padding-left:20px;padding-right:20px;">{$translate->_('common.inbox')|capitalize}</td>
 					<td align="right">{$count_group_buckets.0}</td>
 					<td></td>
 				</tr>

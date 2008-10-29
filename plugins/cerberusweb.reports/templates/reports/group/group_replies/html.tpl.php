@@ -1,4 +1,4 @@
-{if $invalidDate}<font color="red"><b>Invalid Date specified.  Please try again.</b></font>{/if}
+{if $invalidDate}<font color="red"><b>{$translate->_('reports.invalid_date')}</b></font>{/if}
 <br>
 
 
@@ -13,7 +13,7 @@
 			
 			{if !empty($counts.0)}
 			<tr>
-				<td style="padding-left:10px;padding-right:20px;">Inbox</td>
+				<td style="padding-left:10px;padding-right:20px;">{$translate->_('common.inbox')|capitalize}</td>
 				<td align="right">{$counts.0}</td>
 				<td></td>
 			</tr>
@@ -32,7 +32,8 @@
 			<tr>
 				<td></td>						
 				<td align="right" style="border-top:1px solid rgb(200,200,200);"><b>{$counts.total}</b></td>
-				<td style="padding-left:10px;"><b>(avg: {math equation="x/y" x=$counts.total y=$age_dur format="%0.2f"}/day)</b></td>
+				{math assign="avg_new" equation="x/y" x=$counts.total y=$age_dur format="%0.2f"}
+				<td style="padding-left:10px;"><b>{'reports.ui.average_per_day'|devblocks_translate:$avg_new}</b></td>
 			</tr>
 		{/if}
 	{/foreach}

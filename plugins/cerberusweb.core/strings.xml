@@ -96,6 +96,9 @@
 		<tu tuid='common.day'>
 			<tuv xml:lang="en_US"><seg>day</seg></tuv>
 		</tu>
+		<tu tuid='common.days'>
+			<tuv xml:lang="en_US"><seg>days</seg></tuv>
+		</tu>
 		<tu tuid='common.delete'>
 			<tuv xml:lang="en_US"><seg>delete</seg></tuv>
 		</tu>
@@ -123,6 +126,9 @@
 		<tu tuid='common.group'>
 			<tuv xml:lang="en_US"><seg>Group</seg></tuv>
 		</tu>
+		<tu tuid='common.hours'>
+			<tuv xml:lang="en_US"><seg>hours</seg></tuv>
+		</tu>
 		<tu tuid='common.id'>
 			<tuv xml:lang="en_US"><seg>ID</seg></tuv>
 		</tu>
@@ -149,6 +155,9 @@
 		</tu>
 		<tu tuid='common.minimize'>
 			<tuv xml:lang="en_US"><seg>minimize</seg></tuv>
+		</tu>
+		<tu tuid='common.minutes'>
+			<tuv xml:lang="en_US"><seg>minutes</seg></tuv>
 		</tu>
 		<tu tuid='common.month'>
 			<tuv xml:lang="en_US"><seg>month</seg></tuv>

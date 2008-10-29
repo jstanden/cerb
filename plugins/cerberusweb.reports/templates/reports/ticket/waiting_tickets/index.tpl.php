@@ -40,7 +40,7 @@ function drawChart() {{/literal}
 
 </script>
 
-<h2>Waiting Tickets By Group</h2>
+<h2>{$translate->_('reports.ui.ticket.top_contacts')}</h2>
 
 
 <form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmRange" name="frmRange" onsubmit="return false;">
@@ -48,7 +48,7 @@ function drawChart() {{/literal}
 <input type="hidden" name="a" value="action">
 <input type="hidden" name="extid" value="report.tickets.waiting_tickets">
 <input type="hidden" name="extid_a" value="getWaitingTicketsReport">
-<button type="button" id="btnSubmit" onclick="genericAjaxPost('frmRange', 'report');drawChart();">Refresh</button>
+<button type="button" id="btnSubmit" onclick="genericAjaxPost('frmRange', 'report');drawChart();">{$translate->_('common.refresh')|capitalize}</button>
 </form>
 
 <br>

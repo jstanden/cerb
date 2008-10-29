@@ -3,7 +3,7 @@
 	</div>
 </div>
 
-<h2>Average Response Time</h2>
+<h2>{$translate->_('reports.ui.worker.response_time')}</h2>
 
 <div id="reportAverageResponseTime"></div>
 

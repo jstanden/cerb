@@ -11,6 +11,198 @@
 			<tuv xml:lang="en_US"><seg>reports</seg></tuv>
 		</tu>
 		
+		<!-- Reports Common -->
+		
+		<tu tuid='reports.ui.invalid_date'>
+			<tuv xml:lang="en_US"><seg>Invalid Date specified.  Please try again.</seg></tuv>
+		</tu>		
+		<tu tuid='reports.ui.date_from'>
+			<tuv xml:lang="en_US"><seg>From:</seg></tuv>
+		</tu>
+		<tu tuid='reports.ui.created_from'>
+			<tuv xml:lang="en_US"><seg>Created From:</seg></tuv>
+		</tu>
+		<tu tuid='reports.ui.date_to'>
+			<tuv xml:lang="en_US"><seg>To:</seg></tuv>
+		</tu>
+		<tu tuid='reports.ui.date_past'>
+			<tuv xml:lang="en_US"><seg>Past:</seg></tuv>
+		</tu>
+		<tu tuid='reports.ui.worker'>
+			<tuv xml:lang="en_US"><seg>Worker:</seg></tuv>
+		</tu>
+		<tu tuid='reports.ui.average_per_day'>
+			<tuv xml:lang="en_US"><seg>(avg: %s/day)</seg></tuv>
+		</tu>
+
+		<!-- Group Reports -->
+
+		<tu tuid='reports.ui.group.group'>
+			<tuv xml:lang="en_US"><seg>Group Reports</seg></tuv>
+		</tu>
+
+		<tu tuid='reports.ui.group.replies'>
+			<tuv xml:lang="en_US"><seg>Group Replies by Date</seg></tuv>
+		</tu>
+		
+		<tu tuid='reports.ui.group.roster'>
+			<tuv xml:lang="en_US"><seg>Group Rosters</seg></tuv>
+		</tu>
+		
+		<tu tuid='reports.ui.group.roster'>
+			<tuv xml:lang="en_US"><seg>Group Rosters</seg></tuv>
+		</tu>
+		
+		<!-- Org Reports -->
+		
+		<tu tuid='reports.ui.group.org'>
+			<tuv xml:lang="en_US"><seg>Org Reports</seg></tuv>
+		</tu>
+		
+		<tu tuid='reports.ui.org.shared_sender_domains'>
+			<tuv xml:lang="en_US"><seg>Top 100 Shared Sender Domains</seg></tuv>
+		</tu>
+		<tu tuid='reports.ui.org.shared_sender_domains.num_orgs'>
+			<tuv xml:lang="en_US"><seg># Orgs</seg></tuv>
+		</tu>
+		<tu tuid='reports.ui.org.shared_sender_domains.domain'>
+			<tuv xml:lang="en_US"><seg>Domain</seg></tuv>
+		</tu>
+
+		<!-- Spam Reports -->
+
+		<tu tuid='reports.ui.group.spam'>
+			<tuv xml:lang="en_US"><seg>Spam Reports</seg></tuv>
+		</tu>
+
+		<tu tuid='reports.ui.spam.num_spam'>
+			<tuv xml:lang="en_US"><seg>#spam</seg></tuv>
+		</tu>
+		<tu tuid='reports.ui.spam.num_nonspam'>
+			<tuv xml:lang="en_US"><seg>#nonspam</seg></tuv>
+		</tu>
+		
+		<tu tuid='reports.ui.spam.senders'>
+			<tuv xml:lang="en_US"><seg>Top 100 Spam/Nonspam Senders</seg></tuv>
+		</tu>
+		<tu tuid='reports.ui.spam.senders.top_spam'>
+			<tuv xml:lang="en_US"><seg>Top 100 Spam Senders</seg></tuv>
+		</tu>
+		<tu tuid='reports.ui.spam.senders.top_nonspam'>
+			<tuv xml:lang="en_US"><seg>Top 100 Nonspam Senders</seg></tuv>
+		</tu>
+		
+		<tu tuid='reports.ui.spam.domains'>
+			<tuv xml:lang="en_US"><seg>Top 100 Spam/Nonspam Domains</seg></tuv>
+		</tu>
+		<tu tuid='reports.ui.spam.domains.domain'>
+			<tuv xml:lang="en_US"><seg>Domain</seg></tuv>
+		</tu>		
+		<tu tuid='reports.ui.spam.domains.top_spam'>
+			<tuv xml:lang="en_US"><seg>Top 100 Spam Domains</seg></tuv>
+		</tu>
+		<tu tuid='reports.ui.spam.domains.top_nonspam'>
+			<tuv xml:lang="en_US"><seg>Top 100 Nonspam Domains</seg></tuv>
+		</tu>
+		
+		<tu tuid='reports.ui.spam.words'>
+			<tuv xml:lang="en_US"><seg>Top 100 Spam/Nonspam Words (Explicit Content)</seg></tuv>
+		</tu>		
+		<tu tuid='reports.ui.spam.words.word'>
+			<tuv xml:lang="en_US"><seg>Word</seg></tuv>
+		</tu>		
+		<tu tuid='reports.ui.spam.words.top_spam'>
+			<tuv xml:lang="en_US"><seg>Top 100 Spam Words</seg></tuv>
+		</tu>
+		<tu tuid='reports.ui.spam.words.top_nonspam'>
+			<tuv xml:lang="en_US"><seg>Top 100 Nonspam Words</seg></tuv>
+		</tu>
+		<tu tuid='reports.ui.spam.words.spam_training'>
+			<tuv xml:lang="en_US"><seg>Spam Training</seg></tuv>
+		</tu>
+		<tu tuid='reports.ui.spam.words.top_nonspam'>
+			<tuv xml:lang="en_US"><seg>Top 100 Nonspam Words</seg></tuv>
+		</tu>
+		<tu tuid='reports.ui.spam.words.num_nonspam_trained'>
+			<tuv xml:lang="en_US"><seg># Nonspam Trained:</seg></tuv>
+		</tu>
+		<tu tuid='reports.ui.spam.words.num_spam_trained'>
+			<tuv xml:lang="en_US"><seg># Spam Trained:</seg></tuv>
+		</tu>
+
+		<!-- Ticket Reports -->
+
+		<tu tuid='reports.ui.group.ticket'>
+			<tuv xml:lang="en_US"><seg>Ticket Reports</seg></tuv>
+		</tu>
+
+		<tu tuid='reports.ui.ticket.closed'>
+			<tuv xml:lang="en_US"><seg>Closed Tickets By Group</seg></tuv>
+		</tu>
+		
+		<tu tuid='reports.ui.ticket.export_senders'>
+			<tuv xml:lang="en_US"><seg>Export Senders</seg></tuv>
+		</tu>
+		
+		<tu tuid='reports.ui.ticket.new_tickets'>
+			<tuv xml:lang="en_US"><seg>Created Tickets By Group</seg></tuv>
+		</tu>
+
+		<tu tuid='reports.ui.ticket.oldest_open'>
+			<tuv xml:lang="en_US"><seg>Oldest Open Tickets By Group</seg></tuv>
+		</tu>
+
+		<tu tuid='reports.ui.ticket.open_tickets'>
+			<tuv xml:lang="en_US"><seg>Open Tickets By Group</seg></tuv>
+		</tu>
+
+		<tu tuid='reports.ui.ticket.top_contacts'>
+			<tuv xml:lang="en_US"><seg>Top Created Tickets By Contact</seg></tuv>
+		</tu>
+		<tu tuid='reports.ui.ticket.top_contacts.by_org'>
+			<tuv xml:lang="en_US"><seg>By Organization</seg></tuv>
+		</tu>
+		<tu tuid='reports.ui.ticket.top_contacts.by_address'>
+			<tuv xml:lang="en_US"><seg>By Address</seg></tuv>
+		</tu>
+		
+		<tu tuid='reports.ui.ticket.waiting_tickets'>
+			<tuv xml:lang="en_US"><seg>Waiting Tickets By Group</seg></tuv>
+		</tu>
+		
+		<!-- Worker Reports -->
+	
+		<tu tuid='reports.ui.group.worker'>
+			<tuv xml:lang="en_US"><seg>Worker Reports</seg></tuv>
+		</tu>
+	
+		<tu tuid='reports.ui.worker.response_time'>
+			<tuv xml:lang="en_US"><seg>Average Response Time</seg></tuv>
+		</tu>
+		<tu tuid='reports.ui.worker.response_time.date_range'>
+			<tuv xml:lang="en_US"><seg>Date Range:</seg></tuv>
+		</tu>
+		<tu tuid='reports.ui.worker.response_time.worker_responses'>
+			<tuv xml:lang="en_US"><seg>Worker Responses</seg></tuv>
+		</tu>
+		<tu tuid='reports.ui.worker.response_time.group_responses'>
+			<tuv xml:lang="en_US"><seg>Group Responses</seg></tuv>
+		</tu>
+		
+		<tu tuid='reports.ui.worker.ticket_assignment'>
+			<tuv xml:lang="en_US"><seg>Ticket Assignments</seg></tuv>
+		</tu>
+
+		<tu tuid='reports.ui.worker.worker_history'>
+			<tuv xml:lang="en_US"><seg>Worker History</seg></tuv>
+		</tu>
+		
+		<tu tuid='reports.ui.worker.worker_replies'>
+			<tuv xml:lang="en_US"><seg>Worker Replies by Date</seg></tuv>
+		</tu>
+		<tu tuid='reports.ui.worker.worker_replies.average'>
+			<tuv xml:lang="en_US"><seg>(avg: %s/day)</seg></tuv>
+		</tu>
 	</body>
 </tmx>
 <!-- 

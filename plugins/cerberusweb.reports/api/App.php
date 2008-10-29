@@ -1455,9 +1455,7 @@ class ChReportTicketAssignment extends Extension_Report {
 				"AND t.spam_score < 0.9000 ".
 				"AND t.spam_training != 'S' ". 
 				"AND is_waiting != 1 ".		
-				"ORDER by w.last_name",
-			$start_time,
-			$end_time);
+				"ORDER by w.last_name");
 		$rs_buckets = $db->Execute($sql);
 	
 		$ticket_assignments = array();
@@ -1501,9 +1499,7 @@ class ChReportTicketAssignment extends Extension_Report {
 				"AND t.spam_training != 'S' ". 
 				"AND is_waiting != 1 ".	
 				"GROUP by w.id ".
-				"ORDER by w.last_name",
-				$start_time,
-				$end_time);
+				"ORDER by w.last_name");
 
 		$rs = $db->Execute($sql);
 
@@ -2109,7 +2105,7 @@ class ChReportsPage extends CerberusPageExtension {
 			if(!empty($reportGroupMfts))
 			foreach($reportGroupMfts as $reportGroupMft) {
 				$report_groups[$reportGroupMft->id] = array(
-					'name' => $reportGroupMft->name,
+					'name' => $reportGroupMft->params['group_name'],
 					'reports' => array()
 				);
 			}

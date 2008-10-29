@@ -3,22 +3,22 @@
 	</div>
 </div>
 
-<h2>Top 100 Spam/Nonspam Words (Explicit Content)</h2>
+<h2>{$translate->_('reports.ui.spam.words')}</h2>
 
-<h3>Spam Training</h3>
-# Nonspam Trained: <span style="color:rgb(0,200,0);font-weight:bold;">{$num_nonspam}</span><br> 
-# Spam Trained: <span style="color:rgb(200,0,0);font-weight:bold;">{$num_spam}</span><br>
+<h3>{$translate->_('reports.ui.spam.words.spam_training')}</h3>
+{$translate->_('reports.ui.spam.words.num_nonspam_trained')} <span style="color:rgb(0,200,0);font-weight:bold;">{$num_nonspam}</span><br> 
+{$translate->_('reports.ui.spam.words.num_spam_trained')} <span style="color:rgb(200,0,0);font-weight:bold;">{$num_spam}</span><br>
 <br>
 
 <table cellpadding="2" cellspacing="0" border="0">
 	<tr>
 		<td width="50%" align="center" valign="top">
-			<h3>Top 100 Spam Words</h3>
+			<h3>{$translate->_('reports.ui.spam.words.top_spam')}</h3>
 			<table cellpadding="5" cellspacing="0">
 				<tr>
-					<td><b>Word</b></td>
-					<td align="center"><b>#spam</b></td>
-					<td align="center"><b>#nonspam</b></td>
+					<td><b>{$translate->_('reports.ui.spam.words.word')}</b></td>
+					<td align="center"><b>{$translate->_('reports.ui.spam.num_spam')}</b></td>
+					<td align="center"><b>{$translate->_('reports.ui.spam.num_nonspam')}</b></td>
 					<td align="center"><b>%</b></td>
 				</tr>
 				{foreach from=$top_spam_words key=word item=counts}
@@ -32,12 +32,12 @@
 			</table>
 		</td>
 		<td width="50%" align="center" style="padding-left:30px;" valign="top">
-			<h3>Top 100 Nonspam Words</h3>
+			<h3>{$translate->_('reports.ui.spam.words.top_nonspam')}</h3>
 			<table cellpadding="5" cellspacing="0">
 				<tr>
-					<td><b>Word</b></td>
-					<td align="center"><b>#nonspam</b></td>
-					<td align="center"><b>#spam</b></td>
+					<td><b>{$translate->_('reports.ui.spam.words.word')}</b></td>
+					<td align="center"><b>{$translate->_('reports.ui.spam.num_nonspam')}</b></td>
+					<td align="center"><b>{$translate->_('reports.ui.spam.num_spam')}</b></td>
 					<td align="center"><b>%</b></td>
 				</tr>
 				{foreach from=$top_nonspam_words key=word item=counts}
