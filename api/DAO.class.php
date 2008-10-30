@@ -77,6 +77,7 @@ class DAO_Setting extends DevblocksORMHelper {
 			$sql = sprintf("SELECT setting,value FROM setting");
 			$rs = $db->Execute($sql) or die(__CLASS__ . ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 			
+			if(is_a($rs,'ADORecordSet'))
 			while(!$rs->EOF) {
 				$settings[$rs->Fields('setting')] = $rs->Fields('value');
 				$rs->MoveNext();
@@ -121,6 +122,7 @@ class DAO_Bayes {
 		$tmp = array_flip($words); // words are now keys
 		
 		// Existing Words
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$w = new CerberusBayesWord();
 			$w->id = intval($rs->fields['id']);
@@ -276,6 +278,7 @@ class DAO_Worker extends DevblocksORMHelper {
 		);
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$worker = new CerberusWorker();
 			$worker->id = intval($rs->fields['id']);
@@ -327,7 +330,7 @@ class DAO_Worker extends DevblocksORMHelper {
 		);
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
-		if(!$rs->EOF) {
+		if(is_a($rs,'ADORecordSet') && !$rs->EOF) {
 			return intval($rs->fields['id']);
 		}
 		
@@ -565,6 +568,8 @@ class DAO_Worker extends DevblocksORMHelper {
 		}
 		
 		$results = array();
+		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$result = array();
 			foreach($rs->fields as $f => $v) {
@@ -720,6 +725,7 @@ class DAO_ContactOrg extends DevblocksORMHelper {
 	static private function _getObjectsFromResultSet($rs) {
 		$objects = array();
 		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$object = new Model_ContactOrg();
 			$object->id = intval($rs->fields['id']);
@@ -845,6 +851,8 @@ class DAO_ContactOrg extends DevblocksORMHelper {
 		}
 		
 		$results = array();
+		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$result = array();
 			foreach($rs->fields as $f => $v) {
@@ -1042,6 +1050,7 @@ class DAO_Address extends DevblocksORMHelper {
 		);
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$address = new Model_Address();
 			$address->id = intval($rs->fields['id']);
@@ -1212,6 +1221,8 @@ class DAO_Address extends DevblocksORMHelper {
 		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		$results = array();
+		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$result = array();
 			foreach($rs->fields as $f => $v) {
@@ -1324,6 +1335,7 @@ class DAO_AddressAuth extends DevblocksORMHelper  {
 
 		$objects = array();
 		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$object = new Model_AddressAuth();
 			$object->address_id = intval($rs->fields['address_id']);
@@ -1487,6 +1499,7 @@ class DAO_AddressToWorker { // extends DevblocksORMHelper
 	private static function _getObjectsFromResult($rs) {
 		$objects = array();
 		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$object = new Model_AddressToWorker();
 			$object->worker_id = intval($rs->fields['worker_id']);
@@ -1592,6 +1605,8 @@ class DAO_Message extends DevblocksORMHelper {
 		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		$results = array();
+		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$result = array();
 			foreach($rs->fields as $f => $v) {
@@ -1716,6 +1731,7 @@ class DAO_MessageNote extends DevblocksORMHelper {
     static private function _getObjectsFromResultSet($rs) {
     	$objects = array();
     	
+    	if(is_a($rs,'ADORecordSet'))
     	while(!$rs->EOF) {
     		$object = new Model_MessageNote();
     		$object->id = intval($rs->fields['id']);
@@ -1785,7 +1801,7 @@ class DAO_MessageContent {
 		);
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
-		if(!$rs->EOF) {
+		if(is_a($rs,'ADORecordSet') && !$rs->EOF) {
 			return $rs->fields['content'];
 		}
 		
@@ -1860,6 +1876,7 @@ class DAO_MessageHeader {
         $sql = "SELECT header_name FROM message_header GROUP BY header_name";
         $rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 
+        if(is_a($rs,'ADORecordSet'))
         while(!$rs->EOF) {
             $headers[] = $rs->fields['header_name'];
             $rs->MoveNext();
@@ -1953,6 +1970,7 @@ class DAO_Attachment extends DevblocksORMHelper {
 		
 		$objects = array();
 		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 		    $object = new Model_Attachment();
 		    $object->id = intval($rs->fields['id']);
@@ -1986,6 +2004,8 @@ class DAO_Attachment extends DevblocksORMHelper {
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		$attachments = array();
+		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$attachment = new Model_Attachment();
 			$attachment->id = intval($rs->fields['id']);
@@ -2010,6 +2030,7 @@ class DAO_Attachment extends DevblocksORMHelper {
 		
 		$attachment_path = APP_PATH . '/storage/attachments/';
 		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			@unlink($attachment_path . $rs->fields['filepath']);
 			$rs->MoveNext();
@@ -2088,6 +2109,7 @@ class DAO_Sla extends DevblocksORMHelper {
 		if(is_null($rs))
 			return array();
 		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$object = new Model_Sla();
 			$object->id = intval($rs->fields['id']);
@@ -2263,7 +2285,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 		);
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
-		if(!$rs->EOF) {
+		if(is_a($rs,'ADORecordSet') && !$rs->EOF) {
 			return intval($rs->fields['id']);
 		}
 		
@@ -2492,6 +2514,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 		;
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$ticket = new CerberusTicket();
 			$ticket->id = intval($rs->fields['id']);
@@ -2576,6 +2599,8 @@ class DAO_Ticket extends DevblocksORMHelper {
 			$ticket_id
 		);
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$message = new CerberusMessage();
 			$message->id = intval($rs->fields['id']);
@@ -2609,7 +2634,8 @@ class DAO_Ticket extends DevblocksORMHelper {
 			$id
 		);
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-		if(!$rs->EOF) {
+		
+		if(is_a($rs,'ADORecordSet') && !$rs->EOF) {
 			$message = new CerberusMessage();
 			$message->id = intval($rs->fields['id']);
 			$message->ticket_id = intval($rs->fields['ticket_id']);
@@ -3061,6 +3087,8 @@ class DAO_Ticket extends DevblocksORMHelper {
 		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		$results = array();
+		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$result = array();
 			foreach($rs->fields as $f => $v) {
@@ -3302,6 +3330,7 @@ class DAO_TicketRss extends DevblocksORMHelper {
 	private static function _getObjectsFromResults($rs) { /* @var $rs ADORecordSet */
 		$objects = array();
 		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$object = new Model_TicketRss();
 			$object->id = intval($rs->fields['id']);
@@ -3415,6 +3444,8 @@ class DAO_Group {
 			"ORDER BY t.name ASC"
 		);
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$team = new CerberusTeam();
 			$team->id = intval($rs->fields['id']);
@@ -3459,6 +3490,7 @@ class DAO_Group {
 			;
 			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 			
+			if(is_a($rs,'ADORecordSet'))
 			while(!$rs->EOF) {
 			    $team_id = intval($rs->fields['team_id']);
 			    $hits = intval($rs->fields['hits']);
@@ -3635,6 +3667,7 @@ class DAO_Group {
 			
 			$objects = array();
 			
+			if(is_a($rs,'ADORecordSet'))
 			while(!$rs->EOF) {
 				$agent_id = intval($rs->fields['agent_id']); 
 				$team_id = intval($rs->fields['team_id']); 
@@ -3730,6 +3763,7 @@ class DAO_GroupSettings {
 			$sql = "SELECT group_id, setting, value FROM group_setting";
 			$rs = $db->Execute($sql) or die(__CLASS__ . ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 			
+			if(is_a($rs,'ADORecordSet'))
 			while(!$rs->EOF) {
 			    $gid = intval($rs->fields['group_id']);
 			    
@@ -3819,6 +3853,7 @@ class DAO_KbArticle extends DevblocksORMHelper {
 	static private function _createObjectsFromResultSet(ADORecordSet $rs=null) {
 		$objects = array();
 		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$object = new Model_KbArticle();
 			$object->id = intval($rs->fields['id']);
@@ -3877,6 +3912,7 @@ class DAO_KbArticle extends DevblocksORMHelper {
 			$article_id
 		));
 		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$cat_id = intval($rs->fields['kb_category_id']);
 			$categories[$cat_id] = $cat_id;
@@ -3952,6 +3988,8 @@ class DAO_KbArticle extends DevblocksORMHelper {
 		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		$results = array();
+		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$result = array();
 			foreach($rs->fields as $f => $v) {
@@ -4050,6 +4088,7 @@ class DAO_KbCategory extends DevblocksORMHelper {
 		$sql = "SELECT count(*) AS hits, kb_category_id FROM kb_article_to_category GROUP BY kb_category_id";
 		$rs = $db->Execute($sql);
 		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$count_cat = intval($rs->fields['kb_category_id']);
 			$count_hits = intval($rs->fields['hits']);
@@ -4136,6 +4175,7 @@ class DAO_KbCategory extends DevblocksORMHelper {
 	static private function _getObjectsFromResult($rs) {
 		$objects = array();
 		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$object = new Model_KbCategory();
 			$object->id = $rs->fields['id'];
@@ -4223,6 +4263,7 @@ class DAO_Bucket extends DevblocksORMHelper {
 		
 		$categories = array();
 		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$category = new CerberusCategory();
 			$category->id = intval($rs->Fields('id'));
@@ -4333,6 +4374,7 @@ class DAO_Bucket extends DevblocksORMHelper {
 		);
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 		    $cat_id = intval($rs->fields['category_id']);
 		    $team_id = intval($rs->fields['team_id']);
@@ -4368,6 +4410,7 @@ class DAO_Mail {
 			"ORDER BY mr.pos ";
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$route = new Model_MailRoute();
 			$route->id = intval($rs->fields['id']);
@@ -4470,6 +4513,7 @@ class DAO_Mail {
 		);
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$pop3 = new CerberusPop3Account();
 			$pop3->id = intval($rs->fields['id']);
@@ -4599,6 +4643,7 @@ class DAO_Community extends DevblocksORMHelper {
 	private static function _createObjectsFromResultSet($rs) {
 		$objects = array();
 		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 		    $object = new Model_Community();
 		    $object->id = intval($rs->fields['id']);
@@ -4664,6 +4709,8 @@ class DAO_Community extends DevblocksORMHelper {
 		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		$results = array();
+		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$result = array();
 			foreach($rs->fields as $f => $v) {
@@ -4762,6 +4809,7 @@ class DAO_WorkerWorkspaceList extends DevblocksORMHelper {
 
 		$objects = array();
 		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$object = new Model_WorkerWorkspaceList();
 			$object->id = intval($rs->fields['id']);
@@ -4791,6 +4839,7 @@ class DAO_WorkerWorkspaceList extends DevblocksORMHelper {
 			"ORDER BY workspace";
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$workspaces[] = $rs->fields['workspace'];
 			$rs->MoveNext();
@@ -4867,6 +4916,7 @@ class DAO_WorkerPref extends DevblocksORMHelper {
 			
 			$objects = array();
 			
+			if(is_a($rs,'ADORecordSet'))
 			while(!$rs->EOF) {
 			    $objects[$rs->fields['setting']] = $rs->fields['value'];
 			    $rs->MoveNext();
@@ -4994,6 +5044,7 @@ class DAO_PreParseRule extends DevblocksORMHelper {
 	static private function _getObjectsFromResult($rs) {
 		$objects = array();
 		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$object = new Model_PreParseRule();
 			$object->id = $rs->fields['id'];
@@ -5115,6 +5166,7 @@ class DAO_TeamRoutingRule extends DevblocksORMHelper {
 	private static function _getResultsAsModel($rs) {
 		$objects = array();
 		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 		    $object = new Model_TeamRoutingRule();
 		    $object->id = intval($rs->fields['id']);
@@ -5199,6 +5251,8 @@ class DAO_TeamRoutingRule extends DevblocksORMHelper {
 		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		$results = array();
+		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$result = array();
 			foreach($rs->fields as $f => $v) {
@@ -5303,6 +5357,7 @@ class DAO_FnrQuery extends DevblocksORMHelper {
 	static private function _getObjectsFromResult($rs) {
 		$objects = array();
 		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$object = new Model_FnrQuery();
 			$object->id = $rs->fields['id'];
@@ -5391,6 +5446,7 @@ class DAO_FnrTopic extends DevblocksORMHelper {
 	public static function _createObjectsFromResultSet(ADORecordSet $rs) {
 		$objects = array();
 		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$object = new Model_FnrTopic();
 			$object->id = intval($rs->fields['id']);
@@ -5468,6 +5524,7 @@ class DAO_FnrExternalResource extends DevblocksORMHelper {
 	public static function _createObjectsFromResultSet(ADORecordSet $rs) {
 		$objects = array();
 		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$object = new Model_FnrTopic();
 			$object->id = intval($rs->fields['id']);
@@ -5526,6 +5583,7 @@ class DAO_MailTemplate extends DevblocksORMHelper {
 		);
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$folders[] = $rs->fields['folder'];
 			$rs->MoveNext();
@@ -5594,6 +5652,8 @@ class DAO_MailTemplate extends DevblocksORMHelper {
 	
 	public static function _createObjectsFromResultSet(ADORecordSet $rs) {
 		$objects = array();
+		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$object = new Model_MailTemplate();
 			$object->id = intval($rs->fields['id']);
@@ -5692,6 +5752,7 @@ class DAO_TicketComment extends DevblocksORMHelper {
 	static private function _getObjectsFromResult($rs) {
 		$objects = array();
 		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$object = new Model_TicketComment();
 			$object->id = $rs->fields['id'];
@@ -5892,6 +5953,7 @@ class DAO_TicketFieldValue extends DevblocksORMHelper {
 		);
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$ticket_id = intval($rs->fields['ticket_id']);
 			$field_id = intval($rs->fields['field_id']);
@@ -6017,6 +6079,7 @@ class DAO_Task extends DevblocksORMHelper {
 			"GROUP BY source_extension ";
 		$rs = $db->Execute($sql);
 		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$key = !empty($rs->fields['source_extension']) ? $rs->fields['source_extension'] : 'none';
 			$totals[$key] = intval($rs->fields['hits']);
@@ -6038,6 +6101,7 @@ class DAO_Task extends DevblocksORMHelper {
 			"GROUP BY worker_id ";
 		$rs = $db->Execute($sql);
 		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$totals[$rs->fields['worker_id']] = intval($rs->fields['hits']);
 			$rs->MoveNext();
@@ -6053,6 +6117,7 @@ class DAO_Task extends DevblocksORMHelper {
 	static private function _getObjectsFromResult($rs) {
 		$objects = array();
 		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$object = new Model_Task();
 			$object->id = $rs->fields['id'];
@@ -6184,6 +6249,8 @@ class DAO_Task extends DevblocksORMHelper {
 		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		$results = array();
+		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$result = array();
 			foreach($rs->fields as $f => $v) {

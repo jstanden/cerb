@@ -2728,6 +2728,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		
 		// [TODO] This would likely be helpful to the /debug controller
 		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$table_name = $rs->fields['Name'];
 			$table_size_data = intval($rs->fields['Data_length']);
@@ -5113,6 +5114,7 @@ class ChContactsPage extends CerberusPageExtension {
 		);
 		$rs = $db->Execute($sql);
 		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$first = $rs->fields['first_name'];
 			$last = $rs->fields['last_name'];
@@ -5147,6 +5149,7 @@ class ChContactsPage extends CerberusPageExtension {
 		);
 		$rs = $db->Execute($sql);
 		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			echo $rs->fields['country'];
 			echo "\n";

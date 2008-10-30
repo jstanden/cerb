@@ -278,6 +278,17 @@ class ChTranslatorsAjaxController extends DevblocksControllerExtension {
 		}
 	}
 	
+	private function _clearCache() {
+		// Reload
+		$cache = DevblocksPlatform::getCacheService();
+		
+	    $langs = DAO_Translation::getDefinedLangCodes();
+	    if(is_array($langs) && !empty($langs))
+	    foreach($langs as $lang_code => $lang_name) {
+	    	$cache->remove(DevblocksPlatform::CACHE_TAG_TRANSLATIONS . '_' . $lang_code);
+	    }
+	}
+	
 	/*
 	 * Request Overload
 	 */
@@ -370,10 +381,8 @@ class ChTranslatorsAjaxController extends DevblocksControllerExtension {
 			SearchFields_Translation::LANG_CODE => new DevblocksSearchCriteria(SearchFields_Translation::LANG_CODE,DevblocksSearchCriteria::OPER_NEQ,'en_US'),
 		);
 		C4_AbstractViewLoader::setView($view->id, $view);
-		
-		// Reload
-		$cache = DevblocksPlatform::getCacheService();
-		$cache->clean('matchingTag', DevblocksPlatform::CACHE_TAG_TRANSLATIONS);
+
+		self::_clearCache();
 		
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('config','translations')));
 	}
@@ -479,9 +488,8 @@ class ChTranslatorsAjaxController extends DevblocksControllerExtension {
 			C4_AbstractViewLoader::setView($view->id, $view);
 			
 		}
-		
-		$cache = DevblocksPlatform::getCacheService();
-		$cache->clean('matchingTag', DevblocksPlatform::CACHE_TAG_TRANSLATIONS);
+
+		self::_clearCache();
 		
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('config','translations')));
 	}
@@ -594,8 +602,7 @@ class ChTranslatorsAjaxController extends DevblocksControllerExtension {
 			DAO_Translation::update($row_id, $fields);
 		}
 
-		$cache = DevblocksPlatform::getCacheService();
-		$cache->clean('matchingTag', DevblocksPlatform::CACHE_TAG_TRANSLATIONS);
+		self::_clearCache();
 		
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('config','translations')));
 	}

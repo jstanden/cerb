@@ -96,6 +96,7 @@ if(!isset($columns['NUM_SPAM'])) {
 	$sql = "SELECT count(id) as hits,first_wrote_address_id FROM ticket WHERE spam_training = 'S' GROUP BY first_wrote_address_id,spam_training";
 	$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 	
+	if(is_a($rs,'ADORecordSet'))
 	while(!$rs->EOF) {
 		$hits = intval($rs->fields['hits']);
 		$address_id = intval($rs->fields['first_wrote_address_id']);
@@ -113,6 +114,7 @@ if(!isset($columns['NUM_NONSPAM'])) {
 	$sql = "SELECT count(id) as hits,first_wrote_address_id FROM ticket WHERE spam_training = 'N' GROUP BY first_wrote_address_id,spam_training";
 	$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 	
+	if(is_a($rs,'ADORecordSet'))
 	while(!$rs->EOF) {
 		$hits = intval($rs->fields['hits']);
 		$address_id = intval($rs->fields['first_wrote_address_id']);
@@ -202,6 +204,8 @@ if(!isset($tables['address_to_worker'])) {
     
     // Migrate any existing workers
 	$rs = $db->Execute("SELECT id, email FROM worker");
+	
+	if(is_a($rs,'ADORecordSet'))
 	while(!$rs->EOF) {
 		$db->Execute(sprintf("INSERT INTO address_to_worker (address, worker_id, is_confirmed, code_expire) ".
 			"VALUES (%s,%d,1,0)",

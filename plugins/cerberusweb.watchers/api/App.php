@@ -427,6 +427,7 @@ class DAO_WorkerMailForward extends DevblocksORMHelper {
 	static private function _createObjectsFromResultSet($rs) {
 		$objects = array();
 		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 		    $object = new Model_WorkerMailForward();
 		    $object->id = intval($rs->fields['id']);

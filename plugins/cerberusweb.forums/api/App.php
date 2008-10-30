@@ -597,6 +597,7 @@ class DAO_ForumsThread extends DevblocksORMHelper {
 	static private function _getObjectsFromResult($rs) {
 		$objects = array();
 		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$object = new Model_ForumsThread();
 			$object->id = $rs->fields['id'];
@@ -628,6 +629,7 @@ class DAO_ForumsThread extends DevblocksORMHelper {
 		
 		$totals = array();
 		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$totals[$rs->fields['forum_id']] = intval($rs->fields['hits']);
 			$rs->MoveNext();
@@ -649,6 +651,7 @@ class DAO_ForumsThread extends DevblocksORMHelper {
 		
 		$totals = array();
 		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$totals[$rs->fields['worker_id']] = intval($rs->fields['hits']);
 			$rs->MoveNext();
@@ -722,6 +725,8 @@ class DAO_ForumsThread extends DevblocksORMHelper {
 		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		$results = array();
+		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$result = array();
 			foreach($rs->fields as $f => $v) {
@@ -849,6 +854,7 @@ class DAO_ForumsSource extends DevblocksORMHelper {
 	static private function _getObjectsFromResult($rs) {
 		$objects = array();
 		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$object = new Model_ForumsSource();
 			$object->id = $rs->fields['id'];

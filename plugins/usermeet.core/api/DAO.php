@@ -162,6 +162,7 @@ class DAO_CommunityTool extends DevblocksORMHelper {
 	static private function _createObjectsFromResultSet($rs) {
 		$objects = array();
 		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 		    $object = new Model_CommunityTool();
 		    $object->id = intval($rs->fields['id']);
@@ -240,6 +241,8 @@ class DAO_CommunityTool extends DevblocksORMHelper {
 		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		$results = array();
+		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$result = array();
 			foreach($rs->fields as $f => $v) {

@@ -202,6 +202,7 @@ class DAO_TimeTrackingEntry extends DevblocksORMHelper {
 	static private function _getObjectsFromResult($rs) {
 		$objects = array();
 		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$object = new Model_TimeTrackingEntry();
 			$object->id = $rs->fields['id'];
@@ -293,6 +294,8 @@ class DAO_TimeTrackingEntry extends DevblocksORMHelper {
 		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		$results = array();
+		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$result = array();
 			foreach($rs->fields as $f => $v) {
@@ -712,6 +715,7 @@ class DAO_TimeTrackingActivity extends DevblocksORMHelper {
 	static private function _getObjectsFromResult($rs) {
 		$objects = array();
 		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$object = new Model_TimeTrackingActivity();
 			$object->id = $rs->fields['id'];
@@ -1363,6 +1367,8 @@ class ChReportTimeSpentWorker extends Extension_Report {
 		$rs = $db->Execute($sql);
 	
 		$time_entries = array();
+		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$mins = intval($rs->fields['time_actual_mins']);
 			$worker_id = intval($rs->fields['worker_id']);
@@ -1435,6 +1441,7 @@ class ChReportTimeSpentWorker extends Extension_Report {
 			return;
 		}
 		
+	    if(is_a($rs,'ADORecordSet'))
 	    while(!$rs->EOF) {
 	    	$mins = intval($rs->fields['mins']);
 			$worker_name = $rs->fields['first_name'] . ' ' . $rs->fields['last_name'];
@@ -1528,6 +1535,8 @@ class ChReportTimeSpentOrg extends Extension_Report {
 		$rs = $db->Execute($sql);
 	
 		$time_entries = array();
+		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$mins = intval($rs->fields['time_actual_mins']);
 			$org_id = intval($rs->fields['org_id']);
@@ -1603,6 +1612,7 @@ class ChReportTimeSpentOrg extends Extension_Report {
 			return;
 		}
 		
+	    if(is_a($rs,'ADORecordSet'))
 	    while(!$rs->EOF) {
 	    	$mins = intval($rs->fields['mins']);
 			$org_name = $rs->fields['org_name'];
@@ -1697,6 +1707,8 @@ class ChReportTimeSpentActivity extends Extension_Report {
 		$rs = $db->Execute($sql);
 	
 		$time_entries = array();
+		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$mins = intval($rs->fields['time_actual_mins']);
 			$activity = $rs->fields['activity_name'];
@@ -1771,6 +1783,7 @@ class ChReportTimeSpentActivity extends Extension_Report {
 			return;
 		}
 		
+	    if(is_a($rs,'ADORecordSet'))
 	    while(!$rs->EOF) {
 	    	$mins = intval($rs->fields['mins']);
 			$activity = $rs->fields['activity_name'];

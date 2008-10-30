@@ -226,6 +226,7 @@ class DAO_WebapiKey extends DevblocksORMHelper {
 	static private function _getObjectsFromResult($rs) {
 		$objects = array();
 		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$object = new Model_WebapiKey();
 			$object->id = intval($rs->fields['id']);

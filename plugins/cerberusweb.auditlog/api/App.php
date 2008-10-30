@@ -178,6 +178,7 @@ class DAO_TicketAuditLog extends DevblocksORMHelper {
 	static private function _createObjectsFromResultSet($rs) {
 		$objects = array();
 		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 		    $object = new Model_TicketAuditLog();
 		    $object->id = intval($rs->fields['id']);
@@ -272,6 +273,8 @@ class DAO_TicketAuditLog extends DevblocksORMHelper {
 		}
 		
 		$results = array();
+		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$result = array();
 			foreach($rs->fields as $f => $v) {

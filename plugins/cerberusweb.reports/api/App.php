@@ -117,6 +117,8 @@ class ChReportNewTickets extends Extension_Report {
 		$years = array();
 		$sql = "SELECT date_format(from_unixtime(created_date),'%Y') as year FROM ticket WHERE created_date > 0 GROUP BY year having year <= date_format(now(),'%Y') ORDER BY year desc limit 0,10";
 		$rs = $db->query($sql);
+		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$years[] = intval($rs->fields['year']);
 			$rs->MoveNext();
@@ -247,7 +249,8 @@ class ChReportNewTickets extends Extension_Report {
 			return;
 		}
 		
-	    while(!$rs->EOF) {
+		if(is_a($rs,'ADORecordSet'))
+		while(!$rs->EOF) {
 	    	$hits = intval($rs->fields['hits']);
 			$group_id = $rs->fields['group_id'];
 			
@@ -280,6 +283,8 @@ class ChReportWorkerReplies extends Extension_Report {
 		$years = array();
 		$sql = "SELECT date_format(from_unixtime(created_date),'%Y') as year FROM message WHERE created_date > 0 AND is_outgoing = 1 GROUP BY year having year <= date_format(now(),'%Y') ORDER BY year desc limit 0,10";
 		$rs = $db->query($sql);
+		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$years[] = intval($rs->fields['year']);
 			$rs->MoveNext();
@@ -456,6 +461,7 @@ class ChReportOrgSharedEmailDomains extends Extension_Report {
 		
 		$top_domains = array();
 		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$top_domains[$rs->fields['domain']] = intval($rs->fields['num_orgs']);
 			$rs->MoveNext();
@@ -735,6 +741,8 @@ class ChReportGroupReplies extends Extension_Report {
 		$years = array();
 		$sql = "SELECT date_format(from_unixtime(created_date),'%Y') as year FROM message WHERE created_date > 0 AND is_outgoing = 1 GROUP BY year having year <= date_format(now(),'%Y') ORDER BY year desc limit 0,10";
 		$rs = $db->query($sql);
+		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$years[] = intval($rs->fields['year']);
 			$rs->MoveNext();
@@ -806,6 +814,8 @@ class ChReportGroupReplies extends Extension_Report {
 		);
 		$rs = $db->Execute($sql);
 		$group_counts = array();
+		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$team_id = intval($rs->fields['team_id']);
 			$category_id = intval($rs ->fields['category_id']);
@@ -907,6 +917,8 @@ class ChReportOpenTickets extends Extension_Report {
 		$years = array();
 		$sql = "SELECT date_format(from_unixtime(created_date),'%Y') as year FROM ticket WHERE created_date > 0 GROUP BY year having year <= date_format(now(),'%Y') ORDER BY year desc limit 0,10";
 		$rs = $db->query($sql);
+		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$years[] = intval($rs->fields['year']);
 			$rs->MoveNext();
@@ -1026,6 +1038,7 @@ class ChReportOpenTickets extends Extension_Report {
 			return;
 		}
 		
+	    if(is_a($rs,'ADORecordSet'))
 	    while(!$rs->EOF) {
 	    	$hits = intval($rs->fields['hits']);
 			$group_id = $rs->fields['group_id'];
@@ -1059,6 +1072,8 @@ class ChReportOldestOpenTickets extends Extension_Report {
 		$years = array();
 		$sql = "SELECT date_format(from_unixtime(created_date),'%Y') as year FROM ticket WHERE created_date > 0 GROUP BY year having year <= date_format(now(),'%Y') ORDER BY year desc limit 0,10";
 		$rs = $db->query($sql);
+		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$years[] = intval($rs->fields['year']);
 			$rs->MoveNext();
@@ -1120,6 +1135,7 @@ class ChReportOldestOpenTickets extends Extension_Report {
 				$group_id);
 			$rs = $db->Execute($sql);
 		
+			if(is_a($rs,'ADORecordSet'))
 			while(!$rs->EOF) {
 				$mask = $rs->fields['mask'];
 				$subject = $rs->fields['subject'];
@@ -1171,6 +1187,8 @@ class ChReportWaitingTickets extends Extension_Report {
 		$years = array();
 		$sql = "SELECT date_format(from_unixtime(created_date),'%Y') as year FROM ticket WHERE created_date > 0 GROUP BY year having year <= date_format(now(),'%Y') ORDER BY year desc limit 0,10";
 		$rs = $db->query($sql);
+		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$years[] = intval($rs->fields['year']);
 			$rs->MoveNext();
@@ -1250,6 +1268,7 @@ class ChReportWaitingTickets extends Extension_Report {
 			return;
 		}
 		
+	    if(is_a($rs,'ADORecordSet'))
 	    while(!$rs->EOF) {
 	    	$hits = intval($rs->fields['hits']);
 			$group_id = $rs->fields['group_id'];
@@ -1283,6 +1302,8 @@ class ChReportClosedTickets extends Extension_Report {
 		$years = array();
 		$sql = "SELECT date_format(from_unixtime(created_date),'%Y') as year FROM ticket WHERE created_date > 0 GROUP BY year having year <= date_format(now(),'%Y') ORDER BY year desc limit 0,10";
 		$rs = $db->query($sql);
+		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$years[] = intval($rs->fields['year']);
 			$rs->MoveNext();
@@ -1406,6 +1427,7 @@ class ChReportClosedTickets extends Extension_Report {
 			return;
 		}
 		
+		if(is_a($rs,'ADORecordSet'))
 	    while(!$rs->EOF) {
 	    	$hits = intval($rs->fields['hits']);
 			$group_id = $rs->fields['group_id'];
@@ -1508,6 +1530,7 @@ class ChReportTicketAssignment extends Extension_Report {
 			return;
 		}
 
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 	    	$hits = intval($rs->fields['hits']);
 			$worker_id = $rs->fields['worker_id'];
@@ -1541,6 +1564,8 @@ class ChReportTopTicketsByContact extends Extension_Report {
 		$years = array();
 		$sql = "SELECT date_format(from_unixtime(created_date),'%Y') as year FROM ticket WHERE created_date > 0 GROUP BY year having year <= date_format(now(),'%Y') ORDER BY year desc limit 0,10";
 		$rs = $db->query($sql);
+		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$years[] = intval($rs->fields['year']);
 			$rs->MoveNext();
@@ -1735,7 +1760,9 @@ class ChReportTopTicketsByContact extends Extension_Report {
 		
 		$sorted_result = array();
 		$i=0;
-	    while(!$rs->EOF) {
+	    
+		if(is_a($rs,'ADORecordSet'))
+		while(!$rs->EOF) {
 			$hits = intval($rs->fields['hits']);
 			$name = $rs->fields['name'];
 			
@@ -1776,6 +1803,8 @@ class ChReportWorkerHistory extends Extension_Report {
 		$years = array();
 		$sql = "SELECT date_format(from_unixtime(created_date),'%Y') as year FROM ticket WHERE created_date > 0 GROUP BY year having year <= date_format(now(),'%Y') ORDER BY year desc limit 0,10";
 		$rs = $db->query($sql);
+		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$years[] = intval($rs->fields['year']);
 			$rs->MoveNext();
@@ -1841,6 +1870,8 @@ class ChReportWorkerHistory extends Extension_Report {
 		$rs = $db->Execute($sql);
 
 		$tickets_replied = array();
+		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$created_day = $rs->fields['day'];
 			
@@ -1951,6 +1982,8 @@ class ChReportExportSenders extends Extension_Report {
 		$years = array();
 		$sql = "SELECT date_format(from_unixtime(created_date),'%Y') as year FROM ticket WHERE created_date > 0 GROUP BY year having year <= date_format(now(),'%Y') ORDER BY year desc limit 0,10";
 		$rs = $db->query($sql);
+		
+		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$years[] = intval($rs->fields['year']);
 			$rs->MoveNext();
@@ -2015,6 +2048,7 @@ class ChReportExportSenders extends Extension_Report {
 			echo "(0 results found)";
 		}
 		else {
+			if(is_a($rs,'ADORecordSet'))
 			while(!$rs->EOF) {
 				$email = $rs->fields['email'];
 	
