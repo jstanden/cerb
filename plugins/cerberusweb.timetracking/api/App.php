@@ -382,7 +382,7 @@ class C4_TimeTrackingEntryView extends C4_AbstractView {
 		$this->view_columns = array(
 			SearchFields_TimeTrackingEntry::LOG_DATE,
 			SearchFields_TimeTrackingEntry::SOURCE_EXTENSION_ID,
-			SearchFields_TimeTrackingEntry::NOTES,
+			SearchFields_TimeTrackingEntry::ORG_NAME,
 		);
 
 		$this->doResetCriteria();
