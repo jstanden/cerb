@@ -6,31 +6,31 @@
 			<div class="block">
 			<table cellpadding="2" cellspacing="0" border="0">
 				<tr>
-					<td><h2>Activities</h2></td>
+					<td><h2>{$translate->_('timetracking.ui.cfg.activities')}</h2></td>
 				</tr>
 				<tr>
 					<td nowrap="nowrap">
-						[ <a href="javascript:;" onclick="genericAjaxGet('configActivity','c=config&a=handleTabAction&tab=timetracking.config.tab.activities&action=getActivity&id=0');">add new activity</a> ]
+						[ <a href="javascript:;" onclick="genericAjaxGet('configActivity','c=config&a=handleTabAction&tab=timetracking.config.tab.activities&action=getActivity&id=0');">{$translate->_('timetracking.ui.cfg.add_new_activity')}</a> ]
 					</td>
 				</tr>
 				<tr>
 					<td>
 						{if !empty($billable_activities)}
-						<b>Billable:</b><br>
+						<b>{$translate->_('timetracking.ui.billable_label')}</b><br>
 						<div style="margin:0px;padding:3px;width:200px;overflow:auto;">
 							{foreach from=$billable_activities item=activity}
 							&#187; <a href="javascript:;" onclick="genericAjaxGet('configActivity','c=config&a=handleTabAction&tab=timetracking.config.tab.activities&action=getActivity&id={$activity->id}');">{$activity->name}</a><br>
-							<small>&nbsp; &nbsp; US$ {$activity->rate} /hour</small><br>
+							<small>&nbsp; &nbsp; {$translate->_('timetracking.ui.cfg.currency')} {'timetracking.ui.cfg.n_per_hour'|devblocks_translate:$activity->rate}</small><br>
 							{/foreach}
 						</div>
 						{/if}
 						
 						{if !empty($nonbillable_activities)}
-						<b>Non-Billable:</b><br>
+						<b>{$translate->_('timetracking.ui.non_billable_label')}</b><br>
 						<div style="margin:0px;padding:3px;width:200px;overflow:auto;">
 							{foreach from=$nonbillable_activities item=activity}
 							&#187; <a href="javascript:;" onclick="genericAjaxGet('configActivity','c=config&a=handleTabAction&tab=timetracking.config.tab.activities&action=getActivity&id={$activity->id}');">{$activity->name}</a><br>
-							{/foreach}
+							{/foreach}	
 						</div>
 						{/if}
 					</td>

@@ -1,4 +1,4 @@
-{if $invalidDate}<font color="red"><b>Invalid Date specified.  Please try again.</b></font>{/if}
+{if $invalidDate}<font color="red"><b>{$translate->_('timetracking.ui.reports.invalid_date')}</b></font>{/if}
 <br>
 
 
@@ -10,12 +10,12 @@
 				<td colspan="2">
 				<h2>
 				  {if empty($org_entry.org_name)}
-				  (no organization)
+				  {$translate->_('timetracking.ui.reports.time_spent_org.no_organization')}
 				  {else}
 				  {$org_entry.org_name}
 				  {/if}
 				</h2>
-				<span style="margin-bottom:10px;"><b>{$org_entry.total_mins} minutes</b></span>
+				<span style="margin-bottom:10px;"><b>{$org_entry.total_mins} {$translate->_('common.minutes')|lower}</b></span>
 				</td>
 			</tr>
 			{foreach from=$org_entry.entries item=time_entry key=time_entry_id}
@@ -24,13 +24,27 @@
 					{assign var=source_ext_id value=$time_entry.source_extension_id}
 					{assign var=source_id value=$time_entry.source_id}
 					{assign var=worker_name value=$workers.$entry_worker_id->getName()}
+					{assign var=generic_worker value='timetracking.ui.generic_worker'|devblocks_translate}
+					
+					{if isset($worker_name)}
+						{assign var=worker_name value=$worker_name}
+					{else}
+						{assign var=worker_name value=$generic_worker}
+					{/if}					
 					<tr>
 						<td>{$time_entry.log_date|date_format:"%Y-%m-%d"}</td>
 						<td>
-							<b>{if isset($worker_name)}{$worker_name}{else}A worker{/if}</b> 
-							tracked <b>{$time_entry.mins} min</b>  
-							{if isset($time_entry.activity_name)}on {$time_entry.activity_name}{else}{/if} 
-							{if !empty($time_entry.org_name)}for <b>{$time_entry.org_name}</b>{/if}
+							{assign var=tagged_worker_name value="<B>"|cat:$worker_name|cat:"</B>"}
+							{assign var=tagged_mins value="<B>"|cat:$time_entry.mins|cat:"</B>"}
+							{assign var=tagged_activity value="<B>"|cat:$time_entry.activity_name|cat:"</B>"}
+					
+							{if !empty($time_entry.org_name)}
+								{assign var=tagged_org_name value="<B>"|cat:$time_entry.org_name|cat:"</B>"}
+								{'timetracking.ui.reports.tracked_desc.with_org'|devblocks_translate:$tagged_worker_name:$tagged_mins:$tagged_activity:$tagged_org_name}
+							{else}
+								{'timetracking.ui.tracked_desc'|devblocks_translate:$tagged_worker_name:$tagged_mins:$tagged_activity}
+							{/if}
+
 							{if !empty($source_ext_id)}
 								{assign var=source value=$sources.$source_ext_id}
 								{if !empty($source)}<small>(<a href="{$source->getLink($source_id)}">{$source->getLinkText($source_id)}</a>)</small>{/if}

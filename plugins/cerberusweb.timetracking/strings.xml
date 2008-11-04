@@ -14,55 +14,214 @@
 			<tuv xml:lang="en_US"><seg>Track Time</seg></tuv>
 		</tu>
 		
-		<!-- Time Tracking Strings -->
+		<!-- Common  -->
 
-		<tu tuid='timetracking_entry.id'>
-			<tuv xml:lang="en_US"><seg>ID</seg></tuv>
+		<tu tuid='timetracking.ui.billable'>
+			<tuv xml:lang="en_US"><seg>Billable</seg></tuv>
 		</tu>
-		<tu tuid='timetracking_entry.time_actual_mins'>
-			<tuv xml:lang="en_US"><seg>Mins</seg></tuv>
+		<tu tuid='timetracking.ui.billable_label'>
+			<tuv xml:lang="en_US"><seg>Billable:</seg></tuv>
 		</tu>
-		<tu tuid='timetracking_entry.log_date'>
-			<tuv xml:lang="en_US"><seg>Log Date</seg></tuv>
+		<tu tuid='timetracking.ui.generic_worker'>
+			<tuv xml:lang="en_US"><seg>A worker</seg></tuv>
 		</tu>
-		<tu tuid='timetracking_entry.worker_id'>
-			<tuv xml:lang="en_US"><seg>Worker</seg></tuv>
+		<tu tuid='timetracking.ui.non_billable'>
+			<tuv xml:lang="en_US"><seg>Non-Billable</seg></tuv>
 		</tu>
+		<tu tuid='timetracking.ui.non_billable_label'>
+			<tuv xml:lang="en_US"><seg>Non-Billable:</seg></tuv>
+		</tu>
+		<tu tuid='timetracking.ui.timetracking'>
+			<tuv xml:lang="en_US"><seg>Time Tracking</seg></tuv>
+		</tu>
+		<tu tuid='timetracking.ui.tracked_desc'>
+			<tuv xml:lang="en_US"><seg>%s tracked %s mins on %s</seg></tuv>
+		</tu>
+
+		<!-- Criteria -->
+		
+		<tu tuid='timetracking.ui.criteria.billable'>
+			<tuv xml:lang="en_US"><seg>Billable Activities:</seg></tuv>
+		</tu>
+		<tu tuid='timetracking.ui.criteria.non_billable'>
+			<tuv xml:lang="en_US"><seg>Non-Billable Activities:</seg></tuv>
+		</tu>
+		<tu tuid='timetracking.ui.criteria.source'>
+			<tuv xml:lang="en_US"><seg>Source:</seg></tuv>
+		</tu>
+		
+		<!-- Time Entry Panel -->
+		
+		<tu tuid='timetracking.ui.entry_panel.activity'>
+			<tuv xml:lang="en_US"><seg>Activity</seg></tuv>
+		</tu>
+		<tu tuid='timetracking.ui.entry_panel.debit_time_client'>
+			<tuv xml:lang="en_US"><seg>Debit time from client:</seg></tuv>
+		</tu>
+		<tu tuid='timetracking.ui.entry_panel.debit_time_client_hint'>
+			<tuv xml:lang="en_US"><seg>(if org is known; autocompletes)</seg></tuv>
+		</tu>
+		<tu tuid='timetracking.ui.entry_panel.mins'>
+			<tuv xml:lang="en_US"><seg>min(s)</seg></tuv>
+		</tu>
+		<tu tuid='timetracking.ui.entry_panel.note'>
+			<tuv xml:lang="en_US"><seg>Note:</seg></tuv>
+		</tu>
+		<tu tuid='timetracking.ui.entry_panel.note_hint'>
+			<tuv xml:lang="en_US"><seg>(description of work performed)</seg></tuv>
+		</tu>
+		<tu tuid='timetracking.ui.entry_panel.reference'>
+			<tuv xml:lang="en_US"><seg>Reference:</seg></tuv>
+		</tu>
+		<tu tuid='timetracking.ui.entry_panel.resume'>
+			<tuv xml:lang="en_US"><seg>Resume</seg></tuv>
+		</tu>
+		<tu tuid='timetracking.ui.entry_panel.save_finish'>
+			<tuv xml:lang="en_US"><seg>Save &amp; Finish</seg></tuv>
+		</tu>
+		<tu tuid='timetracking.ui.entry_panel.time_spent'>
+			<tuv xml:lang="en_US"><seg>Time Spent</seg></tuv>
+		</tu>
+
+		<!-- Trial -->
+		
+		<tu tuid='timetracking.ui.trial.limit_exceeded'>
+			<tuv xml:lang="en_US"><seg>Trial Limit Exceeded</seg></tuv>
+		</tu>
+		<tu tuid='timetracking.ui.trial.limit_exceeded.desc'>
+			<tuv xml:lang="en_US"><seg>You're able to evaluate the Time Tracking plugin by creating up to 10 entries with the Free Version of Cerberus Helpdesk 4.0.</seg></tuv>
+		</tu>
+		<tu tuid='timetracking.ui.trial.purchase'>
+			<tuv xml:lang="en_US"><seg>To continue using this plugin please support the project and purchase a commercial-use license.</seg></tuv>
+		</tu>		
+		
+
+		
+		<!-- Entries -->
+
 		<tu tuid='timetracking_entry.activity_id'>
 			<tuv xml:lang="en_US"><seg>Activity</seg></tuv>
 		</tu>
 		<tu tuid='timetracking_entry.debit_org_id'>
 			<tuv xml:lang="en_US"><seg>Org</seg></tuv>
 		</tu>
+		<tu tuid='timetracking_entry.id'>
+			<tuv xml:lang="en_US"><seg>ID</seg></tuv>
+		</tu>
+		<tu tuid='timetracking_entry.log_date'>
+			<tuv xml:lang="en_US"><seg>Log Date</seg></tuv>
+		</tu>
 		<tu tuid='timetracking_entry.notes'>
 			<tuv xml:lang="en_US"><seg>Notes</seg></tuv>
-		</tu>
-		<tu tuid='timetracking_entry.source_extension_id'>
-			<tuv xml:lang="en_US"><seg>Source</seg></tuv>
 		</tu>
 		<tu tuid='timetracking_entry.source_id'>
 			<tuv xml:lang="en_US"><seg>Source ID</seg></tuv>
 		</tu>
-
+		<tu tuid='timetracking_entry.source_extension_id'>
+			<tuv xml:lang="en_US"><seg>Source</seg></tuv>
+		</tu>
+		<tu tuid='timetracking_entry.time_actual_mins'>
+			<tuv xml:lang="en_US"><seg>Mins</seg></tuv>
+		</tu>
+		<tu tuid='timetracking_entry.worker_id'>
+			<tuv xml:lang="en_US"><seg>Worker</seg></tuv>
+		</tu>
+		
+		<!-- Config -->
+		
+		<tu tuid='timetracking.ui.cfg.activities'>
+			<tuv xml:lang="en_US"><seg>Activities</seg></tuv>
+		</tu>
+		<tu tuid='timetracking.ui.cfg.add_activity'>
+			<tuv xml:lang="en_US"><seg>Add Activity</seg></tuv>
+		</tu>
+		<tu tuid='timetracking.ui.cfg.add_new_activity'>
+			<tuv xml:lang="en_US"><seg>add new activity</seg></tuv>
+		</tu>
+		<tu tuid='timetracking.ui.cfg.currency'>
+			<tuv xml:lang="en_US"><seg>US$</seg></tuv>
+		</tu>
+		<tu tuid='timetracking.ui.cfg.modify'>
+			<tuv xml:lang="en_US"><seg>Modify '%s'</seg></tuv>
+		</tu>
+		<tu tuid='timetracking.ui.cfg.n_per_hour'>
+			<tuv xml:lang="en_US"><seg>%s per hour</seg></tuv>
+		</tu>
+		<tu tuid='timetracking.ui.cfg.name'>
+			<tuv xml:lang="en_US"><seg>Name:</seg></tuv>
+		</tu>
+		<tu tuid='timetracking.ui.cfg.name.hint'>
+			<tuv xml:lang="en_US"><seg>(e.g. "Troubleshooting")</seg></tuv>
+		</tu>
+		<tu tuid='timetracking.ui.cfg.per_hour'>
+			<tuv xml:lang="en_US"><seg>per hour</seg></tuv>
+		</tu>
+		<tu tuid='timetracking.ui.cfg.rate'>
+			<tuv xml:lang="en_US"><seg>Rate:</seg></tuv>
+		</tu>
+		<tu tuid='timetracking.ui.cfg.rate.hint'>
+			<tuv xml:lang="en_US"><seg>(e.g. 65.00)</seg></tuv>
+		</tu>
+		
 		<!--  Report Groups -->
 
-		<tu tuid='timetracking.reports'>
+		<tu tuid='timetracking.ui.reports'>
 			<tuv xml:lang="en_US"><seg>Time Tracking Reports</seg></tuv>
 		</tu>
 		
 		<!-- Reports -->
 
-		<tu tuid='timetracking.reports.time_spent_worker'>
-			<tuv xml:lang="en_US"><seg>Time Spent Per Worker</seg></tuv>
+		<tu tuid='timetracking.ui.reports.filters.1_day'>
+			<tuv xml:lang="en_US"><seg>1 day</seg></tuv>
 		</tu>
-		<tu tuid='timetracking.reports.time_spent_org'>
-			<tuv xml:lang="en_US"><seg>Time Spent Per Organization</seg></tuv>
+		<tu tuid='timetracking.ui.reports.filters.1_month'>
+			<tuv xml:lang="en_US"><seg>1 month</seg></tuv>
 		</tu>
-		<tu tuid='timetracking.reports.time_spent_activity'>
+		<tu tuid='timetracking.ui.reports.filters.1_week'>
+			<tuv xml:lang="en_US"><seg>1 week</seg></tuv>
+		</tu>
+		<tu tuid='timetracking.ui.reports.filters.1_year'>
+			<tuv xml:lang="en_US"><seg>1 year</seg></tuv>
+		</tu>
+		<tu tuid='timetracking.ui.reports.filters.n_months'>
+			<tuv xml:lang="en_US"><seg>%s months</seg></tuv>
+		</tu>
+		<tu tuid='timetracking.ui.reports.from'>
+			<tuv xml:lang="en_US"><seg>From:</seg></tuv>
+		</tu>
+		<tu tuid='timetracking.ui.reports.invalid_date'>
+			<tuv xml:lang="en_US"><seg>Invalid date specified.  Please try again.</seg></tuv>
+		</tu>
+		<tu tuid='timetracking.ui.reports.past'>
+			<tuv xml:lang="en_US"><seg>Past:</seg></tuv>
+		</tu>
+		<tu tuid='timetracking.ui.reports.time_spent_activity'>
 			<tuv xml:lang="en_US"><seg>Time Spent Per Activity</seg></tuv>
 		</tu>
-
-
+		<tu tuid='timetracking.ui.reports.time_spent_activity.no_activity'>
+			<tuv xml:lang="en_US"><seg>(no activity)</seg></tuv>
+		</tu>
+		<tu tuid='timetracking.ui.reports.time_spent_org'>
+			<tuv xml:lang="en_US"><seg>Time Spent Per Organization</seg></tuv>
+		</tu>
+		<tu tuid='timetracking.ui.reports.time_spent_org.no_organization'>
+			<tuv xml:lang="en_US"><seg>(no organization)</seg></tuv>
+		</tu>
+		<tu tuid='timetracking.ui.reports.time_spent_org.all_workers'>
+			<tuv xml:lang="en_US"><seg>All Workers</seg></tuv>
+		</tu>
+		<tu tuid='timetracking.ui.reports.time_spent_worker'>
+			<tuv xml:lang="en_US"><seg>Time Spent Per Worker</seg></tuv>
+		</tu>
+		<tu tuid='timetracking.ui.reports.to'>
+			<tuv xml:lang="en_US"><seg>To:</seg></tuv>
+		</tu>
+		<tu tuid='timetracking.ui.reports.tracked_desc.with_org'>
+			<tuv xml:lang="en_US"><seg>%s tracked %s mins on %s for %s</seg></tuv>
+		</tu>
+		<tu tuid='timetracking.ui.reports.worker'>
+			<tuv xml:lang="en_US"><seg>Worker:</seg></tuv>
+		</tu>
 	</body>
 </tmx>
 <!-- 

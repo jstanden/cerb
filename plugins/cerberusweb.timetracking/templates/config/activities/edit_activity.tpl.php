@@ -10,20 +10,21 @@
 	<tr>
 		<td colspan="2">
 			{if empty($activity->id)}
-			<h2>Add Activity</h2>
+			<h2>{$translate->_('timetracking.ui.cfg.add_activity')}</h2>
 			{else}
-			<h2>Modify '{$activity->name}'</h2>
+			<h2>{'timetracking.ui.cfg.modify'|devblocks_translate:$activity->name}</h2>
+			
 			{/if}
 		</td>
 	</tr>
 	<tr>
-		<td width="0%" nowrap="nowrap"><b>Name:</b></td>
-		<td width="100%"><input type="text" id="activityForm_name" name="name" value="{$activity->name}" size="45"> (e.g. "Troubleshooting")</td>
+		<td width="0%" nowrap="nowrap"><b>{$translate->_('timetracking.ui.cfg.name')}</b></td>
+		<td width="100%"><input type="text" id="activityForm_name" name="name" value="{$activity->name}" size="45"> {$translate->_('timetracking.ui.cfg.name.hint')}</td>
 	</tr>
 	
 	<tr>
-		<td width="0%" nowrap="nowrap"><b>Rate:</b></td>
-		<td width="100%">US$ <input type="text" id="activityForm_rate" name="rate" value="{$activity->rate}" size="10"> per hour (e.g. 65.00)</td>
+		<td width="0%" nowrap="nowrap"><b>{$translate->_('timetracking.ui.cfg.rate')}</b></td>
+		<td width="100%">{$translate->_('timetracking.ui.cfg.currency')} <input type="text" id="activityForm_rate" name="rate" value="{$activity->rate}" size="10"> {$translate->_('timetracking.ui.cfg.per_hour')} {$translate->_('timetracking.ui.cfg.rate.hint')}</td>
 	</tr>
 	
 	<tr><td colspan="2">&nbsp;</td></tr>

@@ -3,7 +3,7 @@
 {assign var=data value=$results[0]}
 <table cellpadding="0" cellspacing="0" border="0" class="tableBlue" width="100%">
 	<tr>
-		<td nowrap="nowrap" class="tableThBlue">{$view->name} {if $view->id == 'search'}<a href="#{$view->id}_actions" style="color:rgb(255,255,255);font-size:11px;">jump to actions</a>{/if}</td>
+		<td nowrap="nowrap" class="tableThBlue">{$view->name} {if $view->id == 'search'}<a href="#{$view->id}_actions" style="color:rgb(255,255,255);font-size:11px;">{$translate->_('views.jump_to_actions')}</a>{/if}</td>
 		<td nowrap="nowrap" class="tableThBlue" align="right">
 			<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');" class="tableThLink">{$translate->_('common.refresh')|lower}</a>
 			{* {if $view->id != 'search'}<span style="font-size:12px"> | </span><a href="{devblocks_url}c=internal&a=searchview&id={$view->id}{/devblocks_url}" class="tableThLink">{$translate->_('common.search')|lower} list</a>{/if} *}
@@ -54,6 +54,14 @@
 	{assign var=worker_id value=$result.tt_worker_id}
 	{assign var=activity_id value=$result.tt_activity_id}
 	
+	{assign var=generic_worker value='timetracking.ui.generic_worker'|devblocks_translate}
+	{if isset($workers.$worker_id)}
+		{assign var=worker_name value=$workers.$worker_id->getName()}
+	{else}
+		{assign var=worker_name value=$generic_worker}
+	{/if}
+
+
 		<tr class="{$tableRowBg}" id="{$rowIdPrefix}" onmouseover="toggleClass(this.id,'tableRowHover');toggleClass('{$rowIdPrefix}_s','tableRowHover');" onmouseout="toggleClass(this.id,'{$tableRowBg}');toggleClass('{$rowIdPrefix}_s','{$tableRowBg}');" onclick="if(getEventTarget(event)=='TD') checkAll('{$rowIdPrefix}_s');">
 		<td align="center" rowspan="2">{*<input type="checkbox" name="row_id[]" value="{$result.a_id}">*}</td>
 		{foreach from=$view->view_columns item=column name=columns}
@@ -88,9 +96,7 @@
 			<div id="subject_{$result.f_id}_{$view->id}" style="margin:2px;margin-left:10px;font-size:12px;">
 				<a href="javascript:;" class="ticketLink" style="font-size:12px;" onclick="genericAjaxPanel('c=timetracking&a=showEntry&id={$result.tt_id}&view_id={$view->id}',this,false,'500px',function(o){literal}{{/literal} ajax.cbAddressPeek(); genericAjaxPostAfterSubmitEvent.subscribe(function(type,args){literal}{{/literal} genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');{literal}}{/literal}); {literal}}{/literal} );">
 				<b id="subject_{$result.tt_id}_{$view->id}">
-					{if isset($workers.$worker_id)}{$workers.$worker_id->getName()}{else}A worker{/if} 
-					tracked {$result.tt_time_actual_mins} min  
-					{if isset($activities.$activity_id)}on {$activities.$activity_id->name}{else}{/if}
+					{'timetracking.ui.tracked_desc'|devblocks_translate:$worker_name:$result.tt_time_actual_mins:$activities.$activity_id->name}
 				</b>
 				</a>
 				<br>

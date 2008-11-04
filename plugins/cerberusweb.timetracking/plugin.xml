@@ -194,7 +194,7 @@
 			<name>ChReportGroupTimeTracking</name>
 		</class>
 		<params>
-			<param key="group_name" value="timetracking.reports" />
+			<param key="group_name" value="timetracking.ui.reports" />
 		</params>
 	</extension>		 
 
@@ -208,7 +208,7 @@
 			<name>ChReportTimeSpentWorker</name>
 		</class>
 		<params>
-			<param key="report_name" value="timetracking.reports.time_spent_worker" />
+			<param key="report_name" value="timetracking.ui.reports.time_spent_worker" />
 			<param key="report_group" value="report.group.timetracking" />
 		</params>
 	</extension>
@@ -221,7 +221,7 @@
 			<name>ChReportTimeSpentOrg</name>
 		</class>
 		<params>
-			<param key="report_name" value="timetracking.reports.time_spent_org" />
+			<param key="report_name" value="timetracking.ui.reports.time_spent_org" />
 			<param key="report_group" value="report.group.timetracking" />
 		</params>
 	</extension>
@@ -234,7 +234,7 @@
 			<name>ChReportTimeSpentActivity</name>
 		</class>
 		<params>
-			<param key="report_name" value="timetracking.reports.time_spent_activity" />
+			<param key="report_name" value="timetracking.ui.reports.time_spent_activity" />
 			<param key="report_group" value="report.group.timetracking" />
 		</params>
 	</extension>
