@@ -45,6 +45,7 @@
 	  <div id="{$message->id}sh" style="display:block;">      
       {if isset($headers.from)}<b>{$translate->_('message.header.from')|capitalize}:</b> {$headers.from|escape|nl2br}<br>{/if}
       {if isset($headers.to)}<b>{$translate->_('message.header.to')|capitalize}:</b> {$headers.to|escape|nl2br}<br>{/if}
+      {if isset($headers.subject)}<b>{$translate->_('message.header.subject')|capitalize}:</b> {$headers.subject|escape|nl2br}<br>{/if}
       {if isset($headers.date)}<b>{$translate->_('message.header.date')|capitalize}:</b> {$headers.date|escape|nl2br}<br>{/if}
       </div>
 

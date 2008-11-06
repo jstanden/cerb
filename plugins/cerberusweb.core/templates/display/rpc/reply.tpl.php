@@ -112,7 +112,7 @@
 {if !empty($signature)}{$signature}{/if}
 
 
-{$translate->_('display.reply.forward_banner')}
+{$translate->_('display.reply.forward.banner')}
 {if isset($headers.subject)}{$translate->_('message.header.subject')|capitalize}: {$headers.subject|escape|cat:"\n"}{/if}
 {if isset($headers.from)}{$translate->_('message.header.from')|capitalize}: {$headers.from|escape|cat:"\n"}{/if}
 {if isset($headers.date)}{$translate->_('message.header.date')|capitalize}: {$headers.date|escape|cat:"\n"}{/if}

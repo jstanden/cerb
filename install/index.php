@@ -719,6 +719,10 @@ switch($step) {
 					);
 					DAO_Worker::updateAgent($worker_id, $fields);
 					
+					// Add the worker e-mail to the addresses table
+					if(!empty($worker_email))
+						DAO_Address::lookupAddress($worker_email, true);
+					
 					// Authorize this e-mail address (watchers, etc.)
 					DAO_AddressToWorker::assign($worker_email, $worker_id);
 					DAO_AddressToWorker::update($worker_email, array(

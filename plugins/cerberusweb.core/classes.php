@@ -3787,6 +3787,10 @@ class ChConfigurationPage extends CerberusPageExtension  {
 			DAO_Worker::updateAgent($id, $fields);
 			DAO_Worker::setAgentTeams($id, $team_ids);
 
+			// Add the worker e-mail to the addresses table
+			if(!empty($email))
+				DAO_Address::lookupAddress($email, true);
+			
 			// Addresses
 			if(null == DAO_AddressToWorker::getByAddress($email)) {
 				DAO_AddressToWorker::assign($email, $id);
