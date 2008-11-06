@@ -8910,8 +8910,10 @@ class ChPreferencesPage extends CerberusPageExtension {
 				$settings->get(CerberusSettings::HELPDESK_TITLE)
 			),
 			vsprintf($translate->_('prefs.address.confirm.mail.body'),
-				$worker->getName(),
-				$url_writer->write('c=preferences&a=confirm_email&code='.$code,true)
+				array(
+					$worker->getName(),
+					$url_writer->write('c=preferences&a=confirm_email&code='.$code,true)
+				)
 			)
 		);
 		
