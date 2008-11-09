@@ -224,7 +224,8 @@ class CerberusBayes {
 		}
 		$content .= ' ' . $first_message->getContent();
 		
-	    $content = substr($content, 0, strrpos(substr($content, 0, self::MAX_BODY_LENGTH), ' '));
+		if(strlen($content) > self::MAX_BODY_LENGTH)
+	    	$content = substr($content, 0, strrpos(substr($content, 0, self::MAX_BODY_LENGTH), ' '));
 		
 		$words = self::processText($content);
 		
