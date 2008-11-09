@@ -425,11 +425,12 @@ class CerberusBayes {
 				$content .= implode(' ',$hits);
 			}
 		}
-		$content .= ' ' . $first_message->getContent();
+		$content .= ' ' . $first_message->getContent();		
 		
 		// Only check the first 15000 characters for spam, rounded to a sentence
-	    $content = substr($content, 0, strrpos(substr($content, 0, self::MAX_BODY_LENGTH), ' '));
-
+		if(strlen($content) > self::MAX_BODY_LENGTH)
+			$content = substr($content, 0, strrpos(substr($content, 0, self::MAX_BODY_LENGTH), ' '));
+	    
 		$words = self::processText($content);
 		$out = self::_calculateSpamProbability($words);
 
