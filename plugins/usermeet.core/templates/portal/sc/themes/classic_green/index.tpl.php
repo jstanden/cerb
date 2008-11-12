@@ -136,7 +136,7 @@
 			<!-- Menu -->
 			<table cellpadding="0" cellspacing="0" border="0" class="box" id="menu">
 				<tr>
-					<th>Main Menu</th>
+					<th>{$translate->_('portal.sc.public.themes.main_menu')}</th>
 				</tr>
 				<tr>
 				<td>
@@ -154,14 +154,15 @@
 			<input type="hidden" name="a" value="doSearch">
 			<table cellpadding="0" cellspacing="0" border="0" class="box" id="searchBox">
 				<tr>
-					<th>Search Help</th>
+					<th>{$translate->_('portal.sc.public.themes.search_help')}</th>
 				</tr>
 				<tr>
 					<td>
-						Keywords:<br>
+						{$translate->_('portal.sc.public.themes.keywords')}<br>
 						<input type="text" name="query" style="width:98%;border:1px solid rgb(153,153,153);"><br>
-						<button type="submit" style="width:98%;text-align:center;background-color:rgb(255,255,255);">Find</button><br>
-						(Enter keywords separated by a space. For example: <i>product warranty</i>)<br>
+						<button type="submit" style="width:98%;text-align:center;background-color:rgb(255,255,255);">{$translate->_('portal.sc.public.themes.find')}</button><br>
+						{assign var=tagged_product_warranty value="<i>"|cat:"product warranty"|cat:"</i>"}
+						{'portal.sc.public.themes.find_hint'|devblocks_translate:$tagged_product_warranty}<br>
 					</td>
 				</tr>
 			</table>
@@ -175,10 +176,10 @@
 			<input type="hidden" name="a" value="doLogout">
 			<table cellpadding="0" cellspacing="0" border="0" class="box">
 				<tr>
-					<th>Logged in</th>
+					<th>{$translate->_('portal.sc.public.themes.logged_in')}</th>
 				</tr>
 				<tr>
-					<td><button type="submit">Click to log out</button></td>
+					<td><button type="submit">{$translate->_('portal.sc.public.themes.click_to_log_out')}</button></td>
 				</tr>
 			</table>
 			</form> 
@@ -187,22 +188,22 @@
 			<input type="hidden" name="a" value="doLogin">
 			<table cellpadding="0" cellspacing="0" border="0" class="box">
 				<tr>
-					<th width="100%" colspan="2">Log in</th>
+					<th width="100%" colspan="2">{$translate->_('portal.sc.public.themes.log_in')}</th>
 				</tr>
 				<tr>
-					<td width="0%">E-mail:</td>
+					<td width="0%">{$translate->_('common.email')|capitalize}:</td>
 					<td width="100%"><input type="text" name="email" style="width:98%;border:1px solid rgb(153,153,153);"></td>
 				</tr>
 				<tr>
-					<td width="0%">Password:</td>
+					<td width="0%">{$translate->_('common.password')}:</td>
 					<td width="100%"><input type="password" name="pass" style="width:98%;border:1px solid rgb(153,153,153);"></td>
 				</tr>
 				<tr>
-					<td width="100%" colspan="2"><button type="submit">Click to log in</button></td>
+					<td width="100%" colspan="2"><button type="submit">{$translate->_('portal.sc.public.themes.click_to_log_in')}</button></td>
 				</tr>
 				<tr>
 					<td width="100%" colspan="2" align="center">
-						<a href="{devblocks_url}c=register{/devblocks_url}">register</a> | <a href="{devblocks_url}c=register&a=forgot{/devblocks_url}">forgot?</a>
+						<a href="{devblocks_url}c=register{/devblocks_url}">{$translate->_('portal.sc.public.register')}</a> | <a href="{devblocks_url}c=register&a=forgot{/devblocks_url}">{$translate->_('portal.sc.public.themes.forgot')}</a>
 					</td>
 				</tr>
 			</table>
@@ -224,7 +225,10 @@
 	</tr>
 	
 	<tr>
-		<td colspan="2" id="tagline">powered by <a href="http://www.cerberusweb.com/" target="_blank">cerberus helpdesk 4.0</a></td>
+		<td colspan="2" id="tagline">
+			{assign var=linked_cerberus_helpdesk value="<a href=\"http://www.cerberusweb.com/\" target=\"_blank\">"|cat:"cerberus helpdesk 4.0"|cat:"</a>&trade;"}
+			{'portal.public.powered_by'|devblocks_translate:$linked_cerberus_helpdesk}
+		</td>
 	</tr>
 	
 </table>

@@ -9,8 +9,8 @@
 <input type="hidden" name="do_delete" value="0">
 
 <H2>{$tool->manifest->name}</H2>
-Community: <b>{$community->name}</b><br>
-Profile ID: <b>{$instance->code}</b><br>
+{$translate->_('usermeet.ui.community.cfg.community')} <b>{$community->name}</b><br>
+{$translate->_('usermeet.ui.community.cfg.profile_id')} <b>{$instance->code}</b><br>
 <br>
 
 {if !empty($instance) && !empty($tool)}
@@ -20,21 +20,20 @@ Profile ID: <b>{$instance->code}</b><br>
 <br>
 
 {if !empty($is_submitted)}
-	<div class="success">Changes saved at {$is_submitted|devblocks_date}</div>
+	{assign var="changes_date" value=$is_submitted|devblocks_date}
+	<div class="success">{'usermeet.ui.community.cfg.changes_saved_date'|devblocks_translate:$changes_date}</div>
 {/if}
 
 <button type="button" onclick="genericAjaxPost('formConfigCommunityTool','configCommunity',null);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
-{if !empty($instance)}<button type="button" onclick="{literal}if(confirm('Are you sure you want to permanently delete this community tool?')){this.form.do_delete.value='1';this.form.submit();}{/literal}"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete2.gif{/devblocks_url}" align="top"> {$translate->_('common.delete')|capitalize}</button>{/if}
+{if !empty($instance)}<button type="button" onclick="{literal}if(confirm('{$translate->_('usermeet.ui.community.cfg.confirm_delete')}')){this.form.do_delete.value='1';this.form.submit();}{/literal}"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete2.gif{/devblocks_url}" align="top"> {$translate->_('common.delete')|capitalize}</button>{/if}
 
 </form>
 </div>
 <br>
 
 <div class="block">
-<H2>Installation</H2>
-Place the index.php file in a new directory on the appropriate public website.  This directory 
-can be named anything but will usually describe the tool.<br>
-For example: <i>http://www.cerberusweb.com/support/</i><br>
+<H2>{$translate->_('usermeet.ui.community.cfg.installation')}</H2>
+{$translate->_('usermeet.ui.community.cfg.installation_instructions')|nl2br}<br>
 <br>
 
 <form action="{devblocks_url}{/devblocks_url}" method="post">
@@ -391,7 +390,7 @@ $router->connect();
 {/literal}?&gt;</textarea><br>
 <br>
 
-<b>.htaccess:</b> (optional, friendly URLs for Apache Web Server users)<br>
+<b>.htaccess:</b> {$translate->_('usermeet.ui.community.cfg.htaccess_hint')}<br>
 <textarea rows="10" cols="80" style="width:98%;margin:10px;">{literal}
 &lt;IfModule mod_rewrite.c&gt;
 RewriteEngine on

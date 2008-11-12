@@ -59,7 +59,7 @@ function drawChart(start, end) {{/literal}
 <button type="button" id="btnSubmit" onclick="genericAjaxPost('frmRange', 'reportdata');drawChart(document.getElementById('start').value, document.getElementById('end').value);">{$translate->_('common.refresh')|capitalize}</button>
 <div id="divCal" style="display:none;position:absolute;z-index:1;"></div>
 <br>
-{$translate->_('timetracking.ui.reports.worker')} <select name="worker_id">
+{$translate->_('timetracking.ui.worker')} <select name="worker_id">
 	<option value="0">{$translate->_('timetracking.ui.reports.time_spent_org.all_workers')}</option>
 {foreach from=$workers item=worker key=worker_id name=workers}
 	<option value="{$worker_id}">{$worker->getName()}</option>

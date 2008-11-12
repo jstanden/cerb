@@ -37,6 +37,15 @@
 		<tu tuid='timetracking.ui.tracked_desc'>
 			<tuv xml:lang="en_US"><seg>%s tracked %s mins on %s</seg></tuv>
 		</tu>
+		<tu tuid='timetracking.ui.worker'>
+			<tuv xml:lang="en_US"><seg>Worker:</seg></tuv>
+		</tu>
+
+		<!-- Time Tracking Sources -->
+		
+		<tu tuid='timetracking.ui.source.ticket.link_text'>
+			<tuv xml:lang="en_US"><seg>Ticket #%s</seg></tuv>
+		</tu>
 
 		<!-- Criteria -->
 		
@@ -219,9 +228,29 @@
 		<tu tuid='timetracking.ui.reports.tracked_desc.with_org'>
 			<tuv xml:lang="en_US"><seg>%s tracked %s mins on %s for %s</seg></tuv>
 		</tu>
-		<tu tuid='timetracking.ui.reports.worker'>
-			<tuv xml:lang="en_US"><seg>Worker:</seg></tuv>
+		
+		<!-- Time Tracking Comment Text -->
+		
+		<tu tuid='timetracking.ui.comment.time_spent'>
+			<tuv xml:lang="en_US"><seg>Time Spent (mins):</seg></tuv>
 		</tu>
+		<tu tuid='timetracking.ui.comment.activity'>
+			<tuv xml:lang="en_US"><seg>Activity:</seg></tuv>
+		</tu>
+		<tu tuid='timetracking.ui.comment.organization'>
+			<tuv xml:lang="en_US"><seg>Organization:</seg></tuv>
+		</tu>
+		<tu tuid='timetracking.ui.comment.not_set'>
+			<tuv xml:lang="en_US"><seg>(not set)</seg></tuv>
+		</tu>
+		<tu tuid='timetracking.ui.comment.notes'>
+			<tuv xml:lang="en_US"><seg>Notes:</seg></tuv>
+		</tu>
+		<tu tuid='timetracking.ui.comment.notes'>
+			<tuv xml:lang="en_US"><seg>Notes:</seg></tuv>
+		</tu>
+
+
 	</body>
 </tmx>
 <!-- 

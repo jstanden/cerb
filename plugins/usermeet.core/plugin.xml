@@ -26,6 +26,19 @@
 			</params>
 		</extension>
 
+		<!-- Translations -->
+		
+		<extension point="devblocks.i18n.strings">
+			<id>usermeet.translations</id>
+			<name>Community Tools Strings</name>
+			<class>
+				<file>classes.php</file>
+				<name>UmTranslations</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
 		<!-- Controllers -->
 	
 		<extension point="devblocks.controller">

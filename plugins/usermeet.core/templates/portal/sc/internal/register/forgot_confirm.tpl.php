@@ -9,22 +9,22 @@
 <form action="{devblocks_url}{/devblocks_url}" method="post">
 <input type="hidden" name="a" value="doForgotConfirm">
 
-<b>E-mail address:</b><br>
+<b>{$translate->_('portal.sc.public.register.email_address')}</b><br>
 <input type="text" name="email" size="64" value="{$register_email}"><br>
 <br>
 
-<b>Enter your confirmation code:</b> (this was sent to your e-mail address)<br>
+<b>{$translate->_('portal.sc.public.register.enter_confirmation')}</b> {$translate->_('portal.sc.public.register.enter_confirmation.hint')}<br>
 <input type="text" name="code" size="16" value="{$register_code}"><br>
 <br>
 
-<b>Choose a password:</b><br>
+<b>{$translate->_('portal.sc.public.register.password_choose')}</b><br>
 <input type="password" name="pass" size="16"><br>
 <br>
 
-<b>Verify your password:</b><br>
+<b>{$translate->_('portal.sc.public.register.password_verify')}</b><br>
 <input type="password" name="pass_confirm" size="16"><br>
 <br>
 
-<button type="submit"><img src="{devblocks_url}c=resource&p=usermeet.core&f=images/check.gif{/devblocks_url}" align="top"> Reset Password</button>
+<button type="submit"><img src="{devblocks_url}c=resource&p=usermeet.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('portal.sc.public.register.password_reset')}</button>
 
 </form> 

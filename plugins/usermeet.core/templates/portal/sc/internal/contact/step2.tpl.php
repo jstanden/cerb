@@ -11,15 +11,15 @@
     <tr>
       <td colspan="2">
 		<div style="border-bottom:1px solid rgb(180,180,180);margin-bottom:10px;">
-		<h1 style="margin-bottom:0px;">Open a Ticket</h1>
+		<h1 style="margin-bottom:0px;">{$translate->_('portal.common.open_ticket')}</h1>
 		</div>
       
-      	<h2>What e-mail address should we reply to?</h2>
+      	<h2>{$translate->_('portal.public.what_email_reply')}</h2>
       	<input type="hidden" name="nature" value="{$sNature}">	
 		<input name="from" value="{$last_from|escape}" autocomplete="off" style="width:98%;"><br>
 		<br>
 
-      	<h2>Subject:</h2>
+      	<h2>{$translate->_('ticket.subject')|capitalize}:</h2>
       	{if $allow_subjects}
 		<input type="text" name="subject" value="{if !empty($last_subject)}{$last_subject|escape}{else}{$situation|escape}{/if}" autocomplete="off" style="width:98%;"><br>
 		{else}
@@ -55,7 +55,7 @@
 	      		{elseif $field->type=='E'}
 	      			<input name="followup_a_{$idx}" value="{$last_followup_a.$idx|escape}" autocomplete="off"><br>
 	      		{elseif $field->type=='C'}
-	      			<label><input name="followup_a_{$idx}" type="checkbox" value="Yes" {if $last_followup_a.$idx}checked{/if}> Yes</label>
+	      			<label><input name="followup_a_{$idx}" type="checkbox" value="Yes" {if $last_followup_a.$idx}checked{/if}> {$translate->_('common.yes')|capitalize}</label>
 	      		{/if}
 	      		
 	      	{else}
@@ -73,17 +73,17 @@
 		<br>
 		
 		{if $captcha_enabled}
-	      	<h2>Please type the text from the image below:</h2>	
-			Text: <input name="captcha" class="question" value="" size="10" autocomplete="off"><br>
+	      	<h2>{$translate->_('portal.public.captcha_instructions')}</h2>	
+			{$translate->_('portal.sc.public.contact.text')} <input name="captcha" class="question" value="" size="10" autocomplete="off"><br>
 			<div style="padding-top:10px;padding-left:10px;"><img src="{devblocks_url}c=captcha{/devblocks_url}"></div>
 		{/if}
 		
 		<br>
-		<b>Logged IP:</b> {$fingerprint.ip}<br>
+		<b>{$translate->_('portal.public.logged_ip')}</b> {$fingerprint.ip}<br>
 		<br>
 		
-		<button type="submit"><img src="{devblocks_url}c=resource&p=usermeet.core&f=images/check.gif{/devblocks_url}" align="top" border="0"> Send Message</button>
-		<button type="button" onclick="document.location='{devblocks_url}{/devblocks_url}';"><img src="{devblocks_url}c=resource&p=usermeet.core&f=images/delete.gif{/devblocks_url}" align="top" border="0"> Discard</button>
+		<button type="submit"><img src="{devblocks_url}c=resource&p=usermeet.core&f=images/check.gif{/devblocks_url}" align="top" border="0"> {$translate->_('portal.public.send_message')}</button>
+		<button type="button" onclick="document.location='{devblocks_url}{/devblocks_url}';"><img src="{devblocks_url}c=resource&p=usermeet.core&f=images/delete.gif{/devblocks_url}" align="top" border="0"> {$translate->_('common.discard')|capitalize}</button>
 		
       </td>
     </tr>

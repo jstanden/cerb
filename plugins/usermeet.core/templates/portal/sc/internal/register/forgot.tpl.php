@@ -1,5 +1,5 @@
 <div style="border-bottom:1px solid rgb(180,180,180);margin-bottom:10px;">
-<h1 style="margin-bottom:0px;">Forgot Password</h1>
+<h1 style="margin-bottom:0px;">{$translate->_('portal.sc.public.register.password_forgot')}</h1>
 </div>
 
 {if !empty($register_error)}
@@ -9,13 +9,13 @@
 <form action="{devblocks_url}{/devblocks_url}" method="post">
 <input type="hidden" name="a" value="doForgot">
 
-<b>E-mail address:</b><br>
+<b>{$translate->_('portal.sc.public.register.email_address')}</b><br>
 <input type="text" name="email" size="64"><br>
 <br>
 
-<button type="submit"><img src="{devblocks_url}c=resource&p=usermeet.core&f=images/check.gif{/devblocks_url}" align="top"> Send Confirmation E-mail</button><br>
+<button type="submit"><img src="{devblocks_url}c=resource&p=usermeet.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('portal.sc.public.register.send_confirmation')}</button><br>
 <br>
 
-<a href="{devblocks_url}c=register&a=forgot2{/devblocks_url}">Already have a confirmation code?</a><br>
+<a href="{devblocks_url}c=register&a=forgot2{/devblocks_url}">{$translate->_('portal.sc.public.register.already_have_confirmation')}</a><br>
 
 </form> 

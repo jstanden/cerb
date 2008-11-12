@@ -789,6 +789,7 @@ class ChFeedbackController extends DevblocksControllerExtension {
 		@$active_worker = CerberusApplication::getActiveWorker(); 
 		
 		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl_path = realpath(dirname(__FILE__).'/../templates') . DIRECTORY_SEPARATOR;
 		$tpl->assign('path', $this->plugin_path . '/templates/');
 		$tpl->cache_lifetime = "0";
 

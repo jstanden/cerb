@@ -1,9 +1,10 @@
-Search results for '<b>{$query}</b>':<br>
+{assign var=bolded_query value="<b>"|cat:$query|cat:"</b>"}
+{'portal.sc.public.search.search_results'|devblocks_translate:$bolded_query}<br>
 <br> 
 
 {if !empty($articles)}
 	<div style="border-bottom:1px solid rgb(180,180,180);margin-bottom:10px;">
-	<h1 style="margin-bottom:0px;">Knowledgebase</h1>
+	<h1 style="margin-bottom:0px;">{$translate->_('common.knowledgebase')}</h1>
 	</div>
 	
 	<div style="margin:10px;">
@@ -16,13 +17,16 @@ Search results for '<b>{$query}</b>':<br>
 				{$description|strip_tags|truncate:500:'...'}
 				<br>
 			{/if}
-			<b>Source:</b> <a href="{devblocks_url full=true}c=kb&a=article&id={$article.kb_id|string_format:"%06d"}{/devblocks_url}" style="color:rgb(50,50,50);" target="_blank">{devblocks_url full=true}c=kb&a=article&id={$article.kb_id|string_format:"%06d"}{/devblocks_url}</a><br>
+			<b>{$translate->_('portal.sc.public.common.source')}</b> <a href="{devblocks_url full=true}c=kb&a=article&id={$article.kb_id|string_format:"%06d"}{/devblocks_url}" style="color:rgb(50,50,50);" target="_blank">{devblocks_url full=true}c=kb&a=article&id={$article.kb_id|string_format:"%06d"}{/devblocks_url}</a><br>
 			</div>
 			<br>
         {/foreach}
         
 		<div style="font-size:85%;margin-left:20px;">
-			&raquo; more from <a href="{devblocks_url}c=kb{/devblocks_url}">Knowledgebase</a><br>
+			{devblocks_url assign="kb_url"}c=kb{/devblocks_url}
+			
+			{assign var=linked_kb value="<a href=\""|cat:$kb_url|cat:"\">"|cat:$translate->_('common.knowledgebase')|cat:"</a>"}
+			&raquo; {'portal.sc.public.search.more_from_kb'|devblocks_translate:$linked_kb}<br>
 			<br>
 		</div>
 	</div>
@@ -64,7 +68,7 @@ Search results for '<b>{$query}</b>':<br>
 				{$description|strip_tags|truncate:500:'...'}
 				<br>
 			{/if}
-			<b>Source:</b> <a href="{$link}" style="color:rgb(50,50,50);" target="_blank">{$link|truncate:65:'...':true:true}</a><br>
+			<b>{$translate->_('portal.sc.public.common.source')}</b> <a href="{$link}" style="color:rgb(50,50,50);" target="_blank">{$link|truncate:65:'...':true:true}</a><br>
 			</div>
 			<br>
 		{/if}
@@ -82,7 +86,7 @@ Search results for '<b>{$query}</b>':<br>
 {/if} {*feeds*}
 
 {if empty($feeds) && empty($articles)}
-	No results found.
+	{$translate->_('portal.public.no_results')}
 {/if}
 
 <br>

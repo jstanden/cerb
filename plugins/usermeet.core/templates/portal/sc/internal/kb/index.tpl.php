@@ -1,9 +1,9 @@
 <div style="border-bottom:1px solid rgb(180,180,180);margin-bottom:10px;">
-<h1 style="margin-bottom:0px;">Knowledgebase</h1>
+<h1 style="margin-bottom:0px;">{$translate->_('common.knowledgebase')|capitalize}</h1>
 </div>
 
 <div style="padding-bottom:5px;">
-<a href="{devblocks_url}c=kb&a=browse{/devblocks_url}">Top</a> ::
+<a href="{devblocks_url}c=kb&a=browse{/devblocks_url}">{$translate->_('portal.kb.public.top')}</a> ::
 {if !empty($breadcrumb)}
 	{foreach from=$breadcrumb item=bread_id}
 		<a href="{devblocks_url}c=kb&a=browse&id={$bread_id|string_format:"%06d"}{/devblocks_url}">{$categories.$bread_id->name}</a> :

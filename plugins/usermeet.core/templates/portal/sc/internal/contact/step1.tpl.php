@@ -12,7 +12,7 @@
 	    <tr>
 	      <td colspan="2">
 			<div style="border-bottom:1px solid rgb(180,180,180);margin-bottom:10px;">
-			<h1 style="margin-bottom:0px;">How can we help?</h1>
+			<h1 style="margin-bottom:0px;">{$translate->_('portal.sc.public.contact.how_can_we_help')}</h1>
 			</div>
 	      	
 			{foreach from=$dispatch item=to key=reason}
@@ -21,7 +21,7 @@
 			{/foreach}
 			<!-- <label><input type="radio" name="nature" value="" {if $displayKey==$last_nature}checked{/if}> None of the above</label><br> -->
 			<br>
-			<button type="submit"><img src="{devblocks_url}c=resource&p=usermeet.core&f=images/check.gif{/devblocks_url}" align="top" border="0"> OK</button>
+			<button type="submit"><img src="{devblocks_url}c=resource&p=usermeet.core&f=images/check.gif{/devblocks_url}" align="top" border="0"> {$translate->_('common.ok')|upper}</button>
 	      </td>
 	    </tr>
 	  </tbody>
@@ -29,8 +29,10 @@
 	</form>
 {elseif !empty($default_from)}
 	<div style="border-bottom:1px solid rgb(180,180,180);margin-bottom:10px;">
-   	<h2 style="margin-bottom:0px;">Contact us</h2>
+   	<h2 style="margin-bottom:0px;">{$translate->_('portal.sc.public.contact.contact_us')}</h2>
    	</div>
-	You can write to us at: <a href="mailto:{$default_from}">{$default_from}</a><br>
+   	{assign var=linked_default_from value="<a href=\""|cat:$default_from|cat:"\">"|cat:$default_from|cat:"</a>"}
+   	{'portal.sc.public.contact.write_to_us'|devblocks_translate:$linked_default_from}<br>   	
 {/if}
+
 

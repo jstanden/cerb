@@ -10,14 +10,14 @@
 {if !empty($community->id)}
 	<H2>{$community->name}</H2>
 {else}
-	<H2>Add Community</H2>
+	<H2>{$translate->_('usermeet.ui.community.cfg.add_community')}</H2>
 {/if}
 
-<b>Community Name:</b> (e.g. Public Website)<br>
+<b>{$translate->_('usermeet.ui.community.cfg.community_name')}</b> {$translate->_('usermeet.ui.community.cfg.community_name_hint')}<br>
 <input type="text" name="name" size="45" value="{$community->name}"><br>
 <br>
 
-<b>Add a New Community Tool:</b><br>
+<b>{$translate->_('usermeet.ui.community.cfg.add_tool')}</b><br>
  <select name="add_tool_id">
  	<option value="">&nbsp;</option>
 	{foreach from=$tool_manifests item=tool}

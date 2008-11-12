@@ -10,7 +10,7 @@
 				<div style="padding-bottom:5px;font-size:90%;">
 				{if !empty($breadcrumbs)}
 					{foreach from=$breadcrumbs item=bread_stack}
-						<a href="{devblocks_url}c=browse{/devblocks_url}">Top</a> ::
+						<a href="{devblocks_url}c=browse{/devblocks_url}">{$translate->_('portal.kb.public.top')}</a> ::
 						{foreach from=$bread_stack item=bread_id}
 							<a href="{devblocks_url}c=browse&id={$bread_id|string_format:"%06d"}{/devblocks_url}">{$categories.$bread_id->name}</a> :
 						{/foreach}
@@ -24,7 +24,7 @@
 				{if !empty($article->content)}
 					{$article->content}<br>
 				{else}
-					<i>[[ this article has no content ]]</i><br>
+					<i>[[ {$translate->_('portal.kb.public.no_content')} ]]</i><br>
 				{/if}
 				<br>
 				
@@ -47,13 +47,13 @@
 				<div style="border-left: 1px solid rgb(200, 200, 200); border-right: 1px solid rgb(200, 200, 180); padding: 10px; margin-right: 5px; background-color: rgb(245, 245, 255);">
 					<form action="{devblocks_url}c=search{/devblocks_url}" method="post">
 					<input type="hidden" name="a" value="doSearch">
-					<b>Search</b><br>
+					<b>{$translate->_('common.search')|capitalize}</b><br>
 					<input name="query" value="" size="16" style="width: 150px;" type="text"><button type="submit">&raquo;</button>
 					</form>
 					<br>
-					<b>Article Tools</b><br>
-					{if !empty($editor) && !empty($article)}<img src="{devblocks_url}c=resource&p=usermeet.core&f=images/document_edit.gif{/devblocks_url}" alt="Edit" align="top"> <a href="{devblocks_url}c=edit&id={$article->id}{/devblocks_url}">Edit</a><br>{/if}
-					<img src="{devblocks_url}c=resource&p=usermeet.core&f=images/printer.gif{/devblocks_url}" alt="Printer" align="top"> <a href="javascript:;" onclick="window.print();">Print</a><br>
+					<b>{$translate->_('portal.kb.public.article_tools')}</b><br>
+					{if !empty($editor) && !empty($article)}<img src="{devblocks_url}c=resource&p=usermeet.core&f=images/document_edit.gif{/devblocks_url}" alt="Edit" align="top"> <a href="{devblocks_url}c=edit&id={$article->id}{/devblocks_url}">{$translate->_('common.edit')|capitalize}</a><br>{/if}
+					<img src="{devblocks_url}c=resource&p=usermeet.core&f=images/printer.gif{/devblocks_url}" alt="Printer" align="top"> <a href="javascript:;" onclick="window.print();">{$translate->_('common.print')|capitalize}</a><br>
 					{*<img src="{devblocks_url}c=resource&p=usermeet.core&f=images/feed-icon-16x16.gif{/devblocks_url}" alt="RSS Feed" align="top" border="0"> <a href="{devblocks_url}c=rss&a=article&id={$article->id|string_format:"%06d"}{/devblocks_url}">View as RSS</a><br>*}
 				</div>
 			</td>

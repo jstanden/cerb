@@ -1,0 +1,479 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tmx SYSTEM "tmx14.dtd">
+<tmx version="1.4">
+	<header datatype="winres" segtype="sentence" adminlang="en-us"
+		srclang="en-us" o-tmf="abc" />
+	<body>
+
+		<!-- Community -->
+		
+		<tu tuid='usermeet.ui.community.cfg.add_community'>
+			<tuv xml:lang="en_US"><seg>Add Community</seg></tuv>
+		</tu>
+		<tu tuid='usermeet.ui.community.cfg.add_tool'>
+			<tuv xml:lang="en_US"><seg>Add a New Community Tool:</seg></tuv>
+		</tu>
+		<tu tuid='usermeet.ui.community.cfg.changes_saved_date'>
+			<tuv xml:lang="en_US"><seg>Changes saved at %s</seg></tuv>
+		</tu>
+		<tu tuid='usermeet.ui.community.cfg.communities'>
+			<tuv xml:lang="en_US"><seg>Communities</seg></tuv>
+		</tu>
+		<tu tuid='usermeet.ui.community.cfg.community'>
+			<tuv xml:lang="en_US"><seg>Community:</seg></tuv>
+		</tu>
+		<tu tuid='usermeet.ui.community.cfg.community_name'>
+			<tuv xml:lang="en_US"><seg>Community Name:</seg></tuv>
+		</tu>
+		<tu tuid='usermeet.ui.community.cfg.community_name_hint'>
+			<tuv xml:lang="en_US"><seg>(e.g. Public Website)</seg></tuv>
+		</tu>
+		<tu tuid='usermeet.ui.community.cfg.confirm_delete'>
+			<tuv xml:lang="en_US"><seg>Are you sure you want to permanently delete this community tool?</seg></tuv>
+		</tu>
+		<tu tuid='usermeet.ui.community.cfg.htaccess_hint'>
+			<tuv xml:lang="en_US"><seg>(optional, friendly URLs for Apache Web Server users)</seg></tuv>
+		</tu>
+		<tu tuid='usermeet.ui.community.cfg.installation'>
+			<tuv xml:lang="en_US"><seg>Installation</seg></tuv>
+		</tu>
+		<tu tuid='usermeet.ui.community.cfg.installation_instructions'>
+			<tuv xml:lang="en_US"><seg>Place the index.php file in a new directory on the appropriate public website.  This directory can be named anything but will usually describe the tool.
+For example: http://www.cerberusweb.com/support/</seg></tuv>
+		</tu>
+		<tu tuid='usermeet.ui.community.cfg.profile_id'>
+			<tuv xml:lang="en_US"><seg>Profile ID:</seg></tuv>
+		</tu>
+		
+		<!-- Portal Common -->
+		
+		<tu tuid='portal.cfg.add_new_situation'>
+			<tuv xml:lang="en_US"><seg>add new situation</seg></tuv>
+		</tu>
+		<tu tuid='portal.cfg.ask'>
+			<tuv xml:lang="en_US"><seg>Ask:</seg></tuv>
+		</tu>
+		<tu tuid='portal.cfg.captcha'>
+			<tuv xml:lang="en_US"><seg>CAPTCHA:</seg></tuv>
+		</tu>
+		<tu tuid='portal.cfg.captcha_hint'>
+			<tuv xml:lang="en_US"><seg>(displays a CAPTCHA image in the form to help block automated spam)</seg></tuv>
+		</tu>
+		<tu tuid='portal.cfg.default_if_blank'>
+			<tuv xml:lang="en_US"><seg>(default if blank)</seg></tuv>
+		</tu>
+		<tu tuid='portal.cfg.delete_situation'>
+			<tuv xml:lang="en_US"><seg>Delete this situation</seg></tuv>
+		</tu>
+		<tu tuid='portal.cfg.deliver_to'>
+			<tuv xml:lang="en_US"><seg>Deliver to:</seg></tuv>
+		</tu>
+		<tu tuid='portal.cfg.deliver_to_hint'>
+			<tuv xml:lang="en_US"><seg>(helpdesk e-mail address, blank for %s)</seg></tuv>
+		</tu>
+		<tu tuid='portal.cfg.disabled'>
+			<tuv xml:lang="en_US"><seg>Disabled</seg></tuv>
+		</tu>
+		<tu tuid='portal.cfg.enabled'>
+			<tuv xml:lang="en_US"><seg>Enabled</seg></tuv>
+		</tu>
+		<tu tuid='portal.cfg.followup_questions'>
+			<tuv xml:lang="en_US"><seg>Follow-up Questions:</seg></tuv>
+		</tu>
+		<tu tuid='portal.cfg.logo_url'>
+			<tuv xml:lang="en_US"><seg>URL to Logo:</seg></tuv>
+		</tu>
+		<tu tuid='portal.cfg.logo_url_hint'>
+			<tuv xml:lang="en_US"><seg>(link to image, default if blank)</seg></tuv>
+		</tu>		
+		<tu tuid='portal.cfg.page_title'>
+			<tuv xml:lang="en_US"><seg>Page Title:</seg></tuv>
+		</tu>
+		<tu tuid='portal.cfg.send_to'>
+			<tuv xml:lang="en_US"><seg>Send to:</seg></tuv>
+		</tu>
+		<tu tuid='portal.cfg.url'>
+			<tuv xml:lang="en_US"><seg>URL:</seg></tuv>
+		</tu>
+		<tu tuid='portal.cfg.url_hint'>
+			<tuv xml:lang="en_US"><seg>(where you plan to install this tool, e.g. http://website/tool/)</seg></tuv>
+		</tu>
+		<tu tuid='portal.common.open_ticket'>
+			<tuv xml:lang="en_US"><seg>Open a Ticket</seg></tuv>
+		</tu>
+		<tu tuid='portal.public.captcha_instructions'>
+			<tuv xml:lang="en_US"><seg>Please type the characters from the image below:</seg></tuv>
+		</tu>
+		<tu tuid='portal.public.logged_ip'>
+			<tuv xml:lang="en_US"><seg>Logged IP:</seg></tuv>
+		</tu>
+		<tu tuid='portal.public.no_results'>
+			<tuv xml:lang="en_US"><seg>No results found.</seg></tuv>
+		</tu>
+		<tu tuid='portal.public.powered_by'>
+			<tuv xml:lang="en_US"><seg>Powered by %s</seg></tuv>
+		</tu>
+		<tu tuid='portal.public.send_message'>
+			<tuv xml:lang="en_US"><seg>Send Message</seg></tuv>
+		</tu>
+		<tu tuid='portal.public.what_email_reply'>
+			<tuv xml:lang="en_US"><seg>What e-mail address should we reply to?</seg></tuv>
+		</tu>
+		<tu tuid='portal.public.your_reference_number'>
+			<tuv xml:lang="en_US"><seg>Your reference number is: #%s</seg></tuv>
+		</tu>
+
+		<!-- Portal Contact -->
+		
+		<tu tuid='portal.contact.cfg.add_situation'>
+			<tuv xml:lang="en_US"><seg>Add a Contact Situation</seg></tuv>
+		</tu>
+		<tu tuid='portal.contact.cfg.followup_questions_hint'>
+			<tuv xml:lang="en_US"><seg>(e.g. "Is there a specific product you're considering?")</seg></tuv>
+		</tu>
+		<tu tuid='portal.contact.cfg.long_answer'>
+			<tuv xml:lang="en_US"><seg>Long Answer</seg></tuv>
+		</tu>
+		<tu tuid='portal.contact.cfg.modify_situation'>
+			<tuv xml:lang="en_US"><seg>Modify Contact Situation</seg></tuv>
+		</tu>
+		<tu tuid='portal.contact.cfg.reason_contacting'>
+			<tuv xml:lang="en_US"><seg>Reason for contacting:</seg></tuv>
+		</tu>
+		<tu tuid='portal.contact.cfg.reason_contacting_hint'>
+			<tuv xml:lang="en_US"><seg>(e.g. "I'd like more info on your products")</seg></tuv>
+		</tu>
+		<tu tuid='portal.contact.cfg.save_more_followups'>
+			<tuv xml:lang="en_US"><seg>(save to add more follow-ups)</seg></tuv>
+		</tu>
+		
+		<!-- Portal Contact -->
+		
+		<tu tuid='portal.contact.write.continue'>
+			<tuv xml:lang="en_US"><seg>Continue</seg></tuv>
+		</tu>
+		<tu tuid='portal.contact.write.describe_situation'>
+			<tuv xml:lang="en_US"><seg>Which best describes your situation?</seg></tuv>
+		</tu>
+		<tu tuid='portal.contact.write.message'>
+			<tuv xml:lang="en_US"><seg>Message:</seg></tuv>
+		</tu>
+		<tu tuid='portal.contact.write.message_received'>
+			<tuv xml:lang="en_US"><seg>Your message has been received! We will respond to you as soon as possible.</seg></tuv>
+		</tu>
+		<tu tuid='portal.contact.write.thanks'>
+			<tuv xml:lang="en_US"><seg>Thanks for contacting us</seg></tuv>
+		</tu>
+		
+		<!-- Portal KB -->
+		
+		<tu tuid='portal.kb.cfg.public_categories'>
+			<tuv xml:lang="en_US"><seg>Public Categories</seg></tuv>
+		</tu>
+		<tu tuid='portal.kb.cfg.public_categories_hint'>
+			<tuv xml:lang="en_US"><seg>(all subcategories will automatically display for a selected category)</seg></tuv>
+		</tu>
+		<tu tuid='portal.kb.cfg.public_topics'>
+			<tuv xml:lang="en_US"><seg>Public Topics</seg></tuv>
+		</tu>
+
+		<tu tuid='portal.kb.public.article_tools'>
+			<tuv xml:lang="en_US"><seg>Article Tools</seg></tuv>
+		</tu>
+		<tu tuid='portal.kb.public.home'>
+			<tuv xml:lang="en_US"><seg>home</seg></tuv>
+		</tu>		
+		<tu tuid='portal.kb.public.no_content'>
+			<tuv xml:lang="en_US"><seg>this article has no content</seg></tuv>
+		</tu>
+		<tu tuid='portal.kb.public.search_for'>
+			<tuv xml:lang="en_US"><seg>Search for:</seg></tuv>
+		</tu>
+		<tu tuid='portal.kb.public.search_tips.any_word'>
+			<tuv xml:lang="en_US"><seg>Any word (more matches is better):</seg></tuv>
+		</tu>
+		<tu tuid='portal.kb.public.search_tips.any_word.example1'>
+			<tuv xml:lang="en_US"><seg>payment receipt order sale</seg></tuv>
+		</tu>
+		<tu tuid='portal.kb.public.search_tips.booleans'>
+			<tuv xml:lang="en_US"><seg>Booleans:</seg></tuv>
+		</tu>
+		<tu tuid='portal.kb.public.search_tips.booleans.example1'>
+			<tuv xml:lang="en_US"><seg>+payment -receipt</seg></tuv>
+		</tu>
+		<tu tuid='portal.kb.public.search_tips.booleans.example2'>
+			<tuv xml:lang="en_US"><seg>+payment credit</seg></tuv>
+		</tu>
+		<tu tuid='portal.kb.public.search_tips.boosting'>
+			<tuv xml:lang="en_US"><seg>Boosting: (more/less emphasis on some words)</seg></tuv>
+		</tu>
+		<tu tuid='portal.kb.public.search_tips.boosting.example1'>
+			<tuv xml:lang="en_US"><seg>cerberus &gt;helpdesk</seg></tuv>
+		</tu>
+		<tu tuid='portal.kb.public.search_tips.boosting.example2'>
+			<tuv xml:lang="en_US"><seg>login &lt;ftp</seg></tuv>
+		</tu>
+		<tu tuid='portal.kb.public.search_tips.exact_phrases'>
+			<tuv xml:lang="en_US"><seg>Exact phrases:</seg></tuv>
+		</tu>
+		<tu tuid='portal.kb.public.search_tips.exact_phrases.example1'>
+			<tuv xml:lang="en_US"><seg>"credit card"</seg></tuv>
+		</tu>
+		<tu tuid='portal.kb.public.search_tips.wildcards'>
+			<tuv xml:lang="en_US"><seg>Wildcards:</seg></tuv>
+		</tu>
+		<tu tuid='portal.kb.public.search_tips.wildcards.example1'>
+			<tuv xml:lang="en_US"><seg>web*</seg></tuv>
+		</tu>
+		<tu tuid='portal.kb.public.show_search_tips'>
+			<tuv xml:lang="en_US"><seg>Show Search Tips</seg></tuv>
+		</tu>
+		<tu tuid='portal.kb.public.top'>
+			<tuv xml:lang="en_US"><seg>Top</seg></tuv>
+		</tu>
+		
+		<tu tuid='portal.sc.cfg.add_contact_situation'>
+			<tuv xml:lang="en_US"><seg>Add a Contact Situation</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.cfg.allow_customer_logins'>
+			<tuv xml:lang="en_US"><seg>Allow customer logins and registration (for viewing support history)</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.cfg.append_to_message'>
+			<tuv xml:lang="en_US"><seg>append to message</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.cfg.choose_kb_topics'>
+			<tuv xml:lang="en_US"><seg>Choose which knowledgebase topics to expose to this portal:</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.cfg.example'>
+			<tuv xml:lang="en_US"><seg>Example:</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.cfg.feed_display_title'>
+			<tuv xml:lang="en_US"><seg>Feed Display Title:</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.cfg.feed_url'>
+			<tuv xml:lang="en_US"><seg>Feed URL:</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.cfg.feeds_info'>
+			<tuv xml:lang="en_US"><seg>You can display content from RSS feeds on your Support Center home page, such as: the latest blog entries, popular knowledgebase articles, recent forum posts/announcements, etc.  This is the place to pull together all your interesting and helpful content, related to this portal, so the community can find it.</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.cfg.fnr.choose_resources'>
+			<tuv xml:lang="en_US"><seg>Choose which resources to expose to this portal:</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.cfg.fnr.info'>
+			<tuv xml:lang="en_US"><seg>This Support Center will allow your community to search your external knowledge resources through Cerberus Helpdesk's Fetch &amp; Retrieve system, returning direct links to content like knowledgebase articles, wiki articles, forum posts, documentation pages, blog entries, wishlist/bug reports, etc.</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.cfg.fnr.not_configured'>
+			<tuv xml:lang="en_US"><seg>Fetch &amp; Retrieve has not been configured.</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.cfg.followup_questions_hint'>
+			<tuv xml:lang="en_US"><seg>(e.g. "Which product are you considering?") -- optionally save to custom field</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.cfg.footer'>
+			<tuv xml:lang="en_US"><seg>Footer</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.cfg.footer_html_example'>
+			<tuv xml:lang="en_US"><seg>&lt;b&gt;Webgroup Media, LLC.&lt;/b&gt;&lt;br&gt;
+451 W. Lambert Rd., Suite #201&lt;br&gt;
+Brea, CA 92821 USA&lt;br&gt;
++1 714 681 9090&lt;br&gt;</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.cfg.footer_html_hint'>
+			<tuv xml:lang="en_US"><seg>(e.g., organization, address, phone, fax, analytics)</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.cfg.home_page'>
+			<tuv xml:lang="en_US"><seg>Home Page</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.cfg.html'>
+			<tuv xml:lang="en_US"><seg>HTML:</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.cfg.login_registration'>
+			<tuv xml:lang="en_US"><seg>Login/Registration</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.cfg.open_ticket.allow_custom_subjects'>
+			<tuv xml:lang="en_US"><seg>Allow visitors to enter custom ticket subjects.</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.cfg.reason_contacting'>
+			<tuv xml:lang="en_US"><seg>Reason for contacting:</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.cfg.reason_contacting_hint'>
+			<tuv xml:lang="en_US"><seg>(e.g. "I'd like more info on your products")</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.cfg.save_more_feeds'>
+			<tuv xml:lang="en_US"><seg>(save to add more feeds)</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.cfg.save_to_add_followups'>
+			<tuv xml:lang="en_US"><seg>(save to add more follow-ups)</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.cfg.theme'>
+			<tuv xml:lang="en_US"><seg>Theme:</seg></tuv>
+		</tu>
+
+		<tu tuid='portal.sc.public.common.source'>
+			<tuv xml:lang="en_US"><seg>Source:</seg></tuv>
+		</tu>
+
+		<tu tuid='portal.sc.public.contact.contact_us'>
+			<tuv xml:lang="en_US"><seg>Contact us</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.public.contact.how_can_we_help'>
+			<tuv xml:lang="en_US"><seg>How can we help?</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.public.contact.message_received'>
+			<tuv xml:lang="en_US"><seg>Your message has been received! We will respond to you as soon as possible.</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.public.contact.text'>
+			<tuv xml:lang="en_US"><seg>Text:</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.public.contact.thanks_for_contacting'>
+			<tuv xml:lang="en_US"><seg>Thanks for contacting us</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.public.contact.write_to_us'>
+			<tuv xml:lang="en_US"><seg>You can write to us at: %s</seg></tuv>
+		</tu>
+
+		<tu tuid='portal.sc.public.history.action'>
+			<tuv xml:lang="en_US"><seg>Action:</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.public.history.add_message'>
+			<tuv xml:lang="en_US"><seg>Add a Message</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.public.history.my_closed_conversations'>
+			<tuv xml:lang="en_US"><seg>My Closed Conversations</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.public.history.my_open_conversations'>
+			<tuv xml:lang="en_US"><seg>My Open Conversations</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.public.history.no_messages_from_email'>
+			<tuv xml:lang="en_US"><seg>We don't have a record of any messages sent from %s.</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.public.history.reference'>
+			<tuv xml:lang="en_US"><seg>Reference:</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.public.history.reply'>
+			<tuv xml:lang="en_US"><seg>Reply</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.public.history.ticket_history'>
+			<tuv xml:lang="en_US"><seg>Ticket History</seg></tuv>
+		</tu>
+
+		<tu tuid='portal.sc.public.home.no_announcements'>
+			<tuv xml:lang="en_US"><seg>There are currently no announcements.</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.public.home.welcome'>
+			<tuv xml:lang="en_US"><seg>Welcome!</seg></tuv>
+		</tu>
+
+		<tu tuid='portal.sc.public.my_account'>
+			<tuv xml:lang="en_US"><seg>My Account</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.public.my_account.change_password'>
+			<tuv xml:lang="en_US"><seg>Change Password:</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.public.my_account.change_password_verify'>
+			<tuv xml:lang="en_US"><seg>Change Password (verify):</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.public.my_account.settings_saved'>
+			<tuv xml:lang="en_US"><seg>Account settings saved!</seg></tuv>
+		</tu>
+
+		<tu tuid='portal.sc.public.register'>
+			<tuv xml:lang="en_US"><seg>Register</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.public.register.already_have_confirmation'>
+			<tuv xml:lang="en_US"><seg>Already have a confirmation code?</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.public.register.confirm_registration'>
+			<tuv xml:lang="en_US"><seg>Confirm Registration</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.public.register.contacted_before'>
+			<tuv xml:lang="en_US"><seg>(if you've contacted us in the past, please enter the same e-mail address)</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.public.register.create_account'>
+			<tuv xml:lang="en_US"><seg>Create Account</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.public.register.email_address'>
+			<tuv xml:lang="en_US"><seg>E-mail address:</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.public.register.enter_confirmation'>
+			<tuv xml:lang="en_US"><seg>Enter your confirmation code:</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.public.register.enter_confirmation.hint'>
+			<tuv xml:lang="en_US"><seg>(this was sent to your e-mail address)</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.public.register.password_choose'>
+			<tuv xml:lang="en_US"><seg>Choose a password:</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.public.register.password_forgot'>
+			<tuv xml:lang="en_US"><seg>Forgot Password</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.public.register.password_reset'>
+			<tuv xml:lang="en_US"><seg>Reset Password</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.public.register.password_verify'>
+			<tuv xml:lang="en_US"><seg>Verify your password:</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.public.register.send_confirmation'>
+			<tuv xml:lang="en_US"><seg>Send Confirmation E-mail</seg></tuv>
+		</tu>
+
+		<tu tuid='portal.sc.public.search.more_from_kb'>
+			<tuv xml:lang="en_US"><seg>more from %s</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.public.search.search_results'>
+			<tuv xml:lang="en_US"><seg>Search results for '%s'</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.public.search.source'>
+			<tuv xml:lang="en_US"><seg>Source:</seg></tuv>
+		</tu>
+
+		<tu tuid='portal.sc.public.themes.click_to_log_in'>
+			<tuv xml:lang="en_US"><seg>Click to log in</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.public.themes.click_to_log_out'>
+			<tuv xml:lang="en_US"><seg>Click to log out</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.public.themes.find'>
+			<tuv xml:lang="en_US"><seg>Find</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.public.themes.find_hint'>
+			<tuv xml:lang="en_US"><seg>(Enter keywords separated by a space. For example: %s</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.public.themes.forgot'>
+			<tuv xml:lang="en_US"><seg>forgot?</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.public.themes.keywords'>
+			<tuv xml:lang="en_US"><seg>Keywords:</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.public.themes.log_in'>
+			<tuv xml:lang="en_US"><seg>Log in</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.public.themes.logged_in'>
+			<tuv xml:lang="en_US"><seg>Logged in</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.public.themes.logged_in_as'>
+			<tuv xml:lang="en_US"><seg>Logged in as %s</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.public.themes.login'>
+			<tuv xml:lang="en_US"><seg>login</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.public.themes.login_label'>
+			<tuv xml:lang="en_US"><seg>login:</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.public.themes.logout'>
+			<tuv xml:lang="en_US"><seg>logout</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.public.themes.main_menu'>
+			<tuv xml:lang="en_US"><seg>Main Menu</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.public.themes.search_help'>
+			<tuv xml:lang="en_US"><seg>Search Help</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.public.themes.search_resources'>
+			<tuv xml:lang="en_US"><seg>search resources</seg></tuv>
+		</tu>
+
+	</body>
+</tmx>
+<!-- 
+	
+-->

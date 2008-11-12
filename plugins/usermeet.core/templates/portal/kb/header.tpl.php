@@ -69,8 +69,8 @@
 	<tbody>
 		<tr>
 			<td>
-				 &nbsp;<img src="{devblocks_url}c=resource&p=usermeet.core&f=images/book_open2.gif{/devblocks_url}" alt="Home" align="top"> <a href="{devblocks_url}{/devblocks_url}">home</a> 
-				 | <img src="{devblocks_url}c=resource&p=usermeet.core&f=images/book_blue_view.gif{/devblocks_url}" alt="Search" align="top"> <a href="{devblocks_url}c=search{/devblocks_url}">search</a> 
+				 &nbsp;<img src="{devblocks_url}c=resource&p=usermeet.core&f=images/book_open2.gif{/devblocks_url}" alt="Home" align="top"> <a href="{devblocks_url}{/devblocks_url}">{$translate->_('portal.kb.public.home')}</a> 
+				 | <img src="{devblocks_url}c=resource&p=usermeet.core&f=images/book_blue_view.gif{/devblocks_url}" alt="Search" align="top"> <a href="{devblocks_url}c=search{/devblocks_url}">{$translate->_('common.search')}</a> 
 			</td>
 		</tr>
 	</tbody>

@@ -1,24 +1,24 @@
 {if !empty($situation_reason)}
 	<h2>{$situation_reason}</h2>
 {else}
-	<h2>Add a Contact Situation</h2>
+	<h2>{$translate->_('portal.sc.cfg.add_contact_situation')}</h2>
 {/if}
 <input type="hidden" name="edit_reason" value="{$situation_reason|md5}">
 
-<b>Reason for contacting:</b> (e.g. "I'd like more info on your products")<br>
+<b>{$translate->_('portal.sc.cfg.reason_contacting')}</b> {$translate->_('portal.sc.cfg.reason_contacting_hint')}<br>
 <input type="text" name="reason" size="65" value="{$situation_reason|escape}"><br>
 <br>
 
-<b>Deliver to:</b> (helpdesk e-mail address, blank for {$default_from})<br>
+<b>{$translate->_('portal.cfg.deliver_to')}</b> {'portal.cfg.deliver_to_hint'|devblocks_translate:$default_from}<br>
 <input type="text" name="to" size="65" value="{$situation_params.to|escape}"><br>
 <br>
 
-<b>Follow-up Questions:</b> (e.g. "Which product are you considering?") -- optionally save to custom field<br>
+<b>{$translate->_('portal.cfg.followup_questions')}</b> {$translate->_('portal.sc.cfg.followup_questions_hint')}<br>
 {foreach from=$situation_params.followups key=q item=field_id name=followups}
 	<input type="text" name="followup[]" size="65" value="{$q|escape}"> 
 	<!-- <label><input type="checkbox" name="followup_long[]" value="{$smarty.foreach.followups.index}" {if $long}checked{/if}> Long Answer</label><br>-->
 	<select name="followup_fields[]">
-		<option value="">-- append to message --</option>
+		<option value="">-- {$translate->_('portal.sc.cfg.append_to_message')} --</option>
 		{foreach from=$ticket_fields item=f key=f_id}
 		{assign var=field_group_id value=$f->group_id}
 		<option value="{$f_id}" {if $f_id==$field_id}selected{/if}>{$groups.$field_group_id->name}: {$f->name|escape}</option>
@@ -32,7 +32,7 @@
 	<input type="text" name="followup[]" size="65" value=""> 
 	<!-- <label><input type="checkbox" name="followup_long[]" value="{$smarty.section.dispatch.index}"> Long Answer</label><br> -->
 	<select name="followup_fields[]">
-		<option value="">-- append to message --</option>
+		<option value="">-- {$translate->_('portal.sc.cfg.append_to_message')} --</option>
 		{foreach from=$ticket_fields item=f key=f_id}
 		{assign var=field_group_id value=$f->group_id}
 		<option value="{$f_id}">{if isset($groups.$field_group_id)}{$groups.$field_group_id->name}: {/if}{$f->name|escape}</option>
@@ -40,6 +40,7 @@
 	</select>
 	<br>
 {/section}
-(save to add more follow-ups)<br>
+{$translate->_('portal.sc.cfg.save_to_add_followups')}<br>
 <br>
+
 

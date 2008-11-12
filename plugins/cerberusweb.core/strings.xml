@@ -102,6 +102,9 @@
 		<tu tuid='common.delete'>
 			<tuv xml:lang="en_US"><seg>delete</seg></tuv>
 		</tu>
+		<tu tuid='common.discard'>
+			<tuv xml:lang="en_US"><seg>discard</seg></tuv>
+		</tu>
 		<tu tuid='common.email'>
 			<tuv xml:lang="en_US"><seg>E-mail</seg></tuv>
 		</tu>
@@ -186,6 +189,9 @@
 		<tu tuid='common.next'>
 			<tuv xml:lang="en_US"><seg>next</seg></tuv>
 		</tu>
+		<tu tuid='common.ok'>
+			<tuv xml:lang="en_US"><seg>OK</seg></tuv>
+		</tu>
 		<tu tuid='common.password'>
 			<tuv xml:lang="en_US"><seg>password</seg></tuv>
 		</tu>
@@ -266,6 +272,9 @@
 		</tu>
 		<tu tuid='common.year'>
 			<tuv xml:lang="en_US"><seg>year</seg></tuv>
+		</tu>
+		<tu tuid='common.yes'>
+			<tuv xml:lang="en_US"><seg>yes</seg></tuv>
 		</tu>
 
 		<!-- Addresses -->

@@ -34,7 +34,7 @@
 					{$description|strip_tags|truncate:255:'...':true}
 					<br>
 				{/if}
-				<b>Source:</b> <a href="{$link}" style="color:rgb(50,50,50);" target="_blank">{$link|truncate:65:'...':true:true}</a><br>
+				<b>{$translate->_('portal.sc.public.common.source')}</b> <a href="{$link}" style="color:rgb(50,50,50);" target="_blank">{$link|truncate:65:'...':true:true}</a><br>
 				</div>
 				<br>
 			{/if}
@@ -42,7 +42,8 @@
 		
 		{if !empty($matches.feed->link)}
 		<div style="font-size:85%;margin-left:20px;">
-			&raquo; more from <a href="{$matches.feed->link}">{$matches.name}</a><br>
+		   	{assign var=linked_match_name value="<a href=\""|cat:$matches.feed->link|cat:"\">"|cat:$matches.name|cat:"</a>"}
+   			&raquo; {'portal.sc.public.search.more_from_kb'|devblocks_translate:$linked_match_name}<br>   	
 			<br>
 		</div>
 		{/if}
@@ -51,10 +52,11 @@
 	{/foreach}
 {else}
 	<div style="border-bottom:1px solid rgb(180,180,180);margin-bottom:10px;">
-	<h1 style="margin-bottom:0px;">Welcome!</h1>
+	<h1 style="margin-bottom:0px;">{$translate->_('portal.sc.public.home.welcome')}</h1>
 	</div>
-	There are currently no announcements.
+	{$translate->_('portal.sc.public.home.no_announcements')}
 {/if} {*feeds*}
 <br>
+
 
 

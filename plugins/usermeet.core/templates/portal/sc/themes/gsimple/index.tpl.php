@@ -68,20 +68,22 @@
 		{if !empty($active_user)}
 			<form action="{devblocks_url}{/devblocks_url}" method="post" name="loginForm">
 			<input type="hidden" name="a" value="doLogout">
-			Logged in as <b>{$active_user->email}</b> [ <a href="javascript:;" onclick="document.loginForm.submit();" style="color:rgb(0,0,0);">logout</a> ]
+		   	{assign var=tagged_active_user_email value="<b>"|cat:$active_user->email|cat:"</b>"}
+			{'portal.sc.public.themes.logged_in_as'|devblocks_translate:$tagged_active_user_email}   							
+			[ <a href="javascript:;" onclick="document.loginForm.submit();" style="color:rgb(0,0,0);">{$translate->_('portal.sc.public.themes.logout')}</a> ]
 			</form> 
 		{else}
 			<form action="{devblocks_url}{/devblocks_url}" method="post" name="loginForm">
 			<input type="hidden" name="a" value="doLogin">
 			<table cellspacing="0" cellpadding="0" border="0" width="100%">
 			<tr>
-				<td align="left" valign="bottom" nowrap="nowrap"><i>e-mail address:</i></td>
-				<td align="left" valign="bottom" nowrap="nowrap"><i>password:</i></td>
+				<td align="left" valign="bottom" nowrap="nowrap"><i>{$translate->_('portal.sc.public.register.email_address')}</i></td>
+				<td align="left" valign="bottom" nowrap="nowrap"><i>{$translate->_('common.password')}</i></td>
 			</tr>
 			<tr>
 				<td valign="top" nowrap="nowrap"><input type="text" name="email" size="16"></td>
-				<td valign="top" nowrap="nowrap"><input type="password" name="pass" size="8"><button type="submit"><img src="{devblocks_url}c=resource&p=usermeet.core&f=images/lock.gif{/devblocks_url}" align="top"> Log in</button> 
-				<a href="{devblocks_url}c=register{/devblocks_url}" style="color:rgb(0,0,0);">register</a> | <a href="{devblocks_url}c=register&a=forgot{/devblocks_url}" style="color:rgb(0,0,0);">forgot?</a> 
+				<td valign="top" nowrap="nowrap"><input type="password" name="pass" size="8"><button type="submit"><img src="{devblocks_url}c=resource&p=usermeet.core&f=images/lock.gif{/devblocks_url}" align="top"> {$translate->_('portal.sc.public.themes.log_in')}</button> 
+				<a href="{devblocks_url}c=register{/devblocks_url}" style="color:rgb(0,0,0);">{$translate->_('portal.sc.public.register')|lower}</a> | <a href="{devblocks_url}c=register&a=forgot{/devblocks_url}" style="color:rgb(0,0,0);">{$translate->_('portal.sc.public.themes.forgot')}</a> 
 				</td>
 			</tr>
 			</table>
@@ -105,7 +107,7 @@
 				{if $show_search}
 				<form action="{devblocks_url}{/devblocks_url}" method="post">
 				<input type="hidden" name="a" value="doSearch">
-				<b style="color:rgb(20,120,20);">search help:</b> <input name="query" value="" size="16" type="text"><button type="submit"><img src="{devblocks_url}c=resource&p=usermeet.core&f=images/data_view.gif{/devblocks_url}" align="top"></button>
+				<b style="color:rgb(20,120,20);">{$translate->_('portal.sc.public.themes.search_help')|lower}:</b> <input name="query" value="" size="16" type="text"><button type="submit"><img src="{devblocks_url}c=resource&p=usermeet.core&f=images/data_view.gif{/devblocks_url}" align="top"></button>
 				</form>
 				{/if}
 			</td>
@@ -127,7 +129,10 @@
 	<tbody>
 		<tr>
 			<td>{$footer_html}</td>
-			<td style="text-align:right;vertical-align:top;color:rgb(150,150,150);font-size:11px;">powered by <a href="http://www.cerberusweb.com/" style="color:rgb(50,120,50);font-weight:bold;">Cerberus Helpdesk 4.0</a></td>
+			<td style="text-align:right;vertical-align:top;color:rgb(150,150,150);font-size:11px;">
+				{assign var=linked_cerberus_helpdesk value="<a href=\"http://www.cerberusweb.com/\" target=\"_blank\">"|cat:"cerberus helpdesk 4.0"|cat:"</a>&trade;"}
+				{'portal.public.powered_by'|devblocks_translate:$linked_cerberus_helpdesk}
+			</td>
 		</tr>
 	</tbody>
 </table>

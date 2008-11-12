@@ -36,11 +36,12 @@ class ChTimeTrackingTicketSource extends Extension_TimeTrackingSource {
 	}
 	
 	function getSourceName() {
-		return "Ticket";
+		return ucwords($translate->_('common.ticket'));
 	}
 	
 	function getLinkText($source_id) {
-		return "Ticket #" . $source_id;
+		$translate = DevblocksPlatform::getTranslationService();
+		return vsprintf($translate->_('timetracking.ui.source.ticket.link_text'), $source_id);
 	}
 	
 	function getLink($source_id) {
@@ -1118,45 +1119,52 @@ class ChTimeTrackingAjaxController extends DevblocksControllerExtension {
 			DAO_TimeTrackingEntry::update($id, $fields);
 		}
 		
-		if(empty($id)) // only on new // [TODO] Cleanup
-		switch($source_extension_id) {
-			// If ticket, add a comment about the timeslip to the ticket
-			case 'timetracking.source.ticket':
-				$ticket_id = intval($source_id);
-				
-				if(null != ($worker_address = DAO_Address::lookupAddress($active_worker->email, false))) {
-					if(!empty($activity_id)) {
-						$activity = DAO_TimeTrackingActivity::get($activity_id);
+		if(empty($id)) {// only on new // [TODO] Cleanup
+			$translate = DevblocksPlatform::getTranslationService();
+			switch($source_extension_id) {
+				// If ticket, add a comment about the timeslip to the ticket
+				case 'timetracking.source.ticket':
+					$ticket_id = intval($source_id);
+					
+					if(null != ($worker_address = DAO_Address::lookupAddress($active_worker->email, false))) {
+						if(!empty($activity_id)) {
+							$activity = DAO_TimeTrackingActivity::get($activity_id);
+						}
+						
+						if(!empty($org_id))
+							$org = DAO_ContactOrg::get($org_id);
+						
+						$comment = sprintf(
+							"== %s ==\n".
+							"%s %s\n".
+							"%s %d\n".
+							"%s %s (%s)\n".
+							"%s %s\n".
+							"%s %s\n",
+							$translate->_('timetracking.ui.timetracking'),
+							$translate->_('timetracking.ui.worker'),
+							$active_worker->getName(),
+							$translate->_('timetracking.ui.comment.time_spent'),
+							$time_actual_mins,
+							$translate->_('timetracking.ui.comment.activity'),
+							(!empty($activity) ? $activity->name : ''),
+							((!empty($activity) && $activity->rate > 0.00) ? $translate->_('timetracking.ui.billable') : $translate->_('timetracking.ui.non_billable')),
+							$translate->_('timetracking.ui.comment.organization'),
+							(!empty($org) ? $org->name : $translate->_('timetracking.ui.comment.not_set')),
+							$translate->_('timetracking.ui.comment.notes'),
+							$notes
+						);
+						//timetracking.ui.billable timetracking.ui.non_billable
+						$fields = array(
+							DAO_TicketComment::ADDRESS_ID => intval($worker_address->id),
+							DAO_TicketComment::COMMENT => $comment,
+							DAO_TicketComment::CREATED => time(),
+							DAO_TicketComment::TICKET_ID => intval($ticket_id),
+						);
+						DAO_TicketComment::create($fields);
 					}
-					
-					if(!empty($org_id))
-						$org = DAO_ContactOrg::get($org_id);
-					
-					$comment = sprintf(
-						"== Time Tracking ==\n".
-						"Worker: %s\n".
-						"Time spent: %d min%s\n".
-						"Activity: %s (%s)\n".
-						"Organization: %s\n".
-						"Notes: %s\n",
-						$active_worker->getName(),
-						$time_actual_mins,
-						($time_actual_mins != 1 ? 's' : ''), // pluralize ([TODO] not I18N friendly)
-						(!empty($activity) ? $activity->name : ''),
-						((!empty($activity) && $activity->rate > 0.00) ? 'Billable' : 'Non-Billable'),
-						(!empty($org) ? $org->name : '(not set)'),
-						$notes
-					);
-					
-					$fields = array(
-						DAO_TicketComment::ADDRESS_ID => intval($worker_address->id),
-						DAO_TicketComment::COMMENT => $comment,
-						DAO_TicketComment::CREATED => time(),
-						DAO_TicketComment::TICKET_ID => intval($ticket_id),
-					);
-					DAO_TicketComment::create($fields);
-				}
-				break;
+					break;
+			}
 		}
 	}
 	

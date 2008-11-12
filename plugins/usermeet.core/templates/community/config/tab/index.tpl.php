@@ -7,8 +7,8 @@
 			<table cellpadding="2" cellspacing="0" border="0">
 				<tr>
 					<td>
-						<h2>Communities</h2>
-						[ <a href="javascript:;" onclick="genericAjaxGet('configCommunity','c=config&a=handleTabAction&tab=usermeet.config.tab.communities&action=getCommunity&id=0');">add community</a> ]
+						<h2>{$translate->_('usermeet.ui.community.cfg.communities')}</h2>
+						[ <a href="javascript:;" onclick="genericAjaxGet('configCommunity','c=config&a=handleTabAction&tab=usermeet.config.tab.communities&action=getCommunity&id=0');">{$translate->_('usermeet.ui.community.cfg.add_community')|lower}</a> ]
 					</td>
 				</tr>
 				<tr>

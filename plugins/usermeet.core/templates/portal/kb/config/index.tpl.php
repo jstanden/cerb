@@ -1,12 +1,12 @@
-<b>URL:</b> (where you plan to install this tool, e.g. http://website/tool/)<br>
+<b>{$translate->_('portal.cfg.url')}</b> {$translate->_('portal.cfg.url_hint')}<br>
 <input type="text" name="base_url" size="65" value="{$base_url}"><br>
 <br>
 
-<b>URL to Logo:</b> (link to image, default if blank)<br>
+<b>{$translate->_('portal.cfg.logo_url')}</b> {$translate->_('portal.cfg.logo_url_hint')}<br>
 <input type="text" size="65" name="logo_url" value="{$logo_url}"><br>
 <br>
 
-<b>Page Title:</b> (default if blank)<br>
+<b>{$translate->_('portal.cfg.page_title')}</b> {$translate->_('portal.cfg.default_if_blank')}<br>
 <input type="text" size="65" name="page_title" value="{$page_title}"><br>
 <br>
 
@@ -19,8 +19,8 @@
  -->
 
 {*
-<h3>Public Categories</h3>
-(all subcategories will automatically display for a selected category)<br>
+<h3>{$translate->_('portal.cfg.public_categories')}</h3>
+{$translate->_('portal.cfg.public_categories_hint')}<br>
 
 <div style="overflow:auto;height:150px;border:solid 1px rgb(180,180,180);background-color:rgb(255,255,255);">
 	{foreach from=$levels item=depth key=node_id}
@@ -33,9 +33,10 @@
 </div>
 *}
 
-<h3>Public Topics</h3>
+<h3>{$translate->_('portal.kb.cfg.public_topics')}</h3>
 {assign var=root_id value="0"}
 {foreach from=$tree_map.$root_id item=category key=category_id}
 	<label><input type="checkbox" name="category_ids[]" value="{$category_id}" {if isset($kb_roots.$category_id)}checked{/if}> <img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder.gif{/devblocks_url}" align="top"> {$categories.$category_id->name}</label><br>
 {/foreach}
+
 

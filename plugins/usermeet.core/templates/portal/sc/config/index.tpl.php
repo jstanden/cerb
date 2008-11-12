@@ -1,16 +1,16 @@
-<b>URL:</b> (where you plan to install this tool, e.g. http://website/tool/)<br>
+<b>{$translate->_('portal.cfg.url')}</b> {$translate->_('portal.cfg.url_hint')}<br>
 <input type="text" name="base_url" size="65" value="{$base_url}"><br>
 <br>
 
-<b>URL to Logo:</b> (link to image, default if blank)<br>
+<b>{$translate->_('portal.cfg.logo_url')}</b> {$translate->_('portal.cfg.logo_)url_hint')}<br>
 <input type="text" size="65" name="logo_url" value="{$logo_url}"><br>
 <br>
 
-<b>Page Title:</b> (default if blank)<br>
+<b>{$translate->_('portal.cfg.page_title')}</b> {$translate->_('portal.cfg.default_if_blank')}<br>
 <input type="text" size="65" name="page_title" value="{$page_title}"><br>
 <br>
 
-<b>Theme:</b> (default if blank)<br>
+<b>{$translate->_('portal.sc.cfg.theme')}</b> {$translate->_('portal.cfg.default_if_blank')}<br>
 <select name="theme">
 	{foreach from=$themes item=th}
 	<option value="{$th}" {if $theme==$th}selected{/if}>{$th}</option>
@@ -18,28 +18,27 @@
 </select><br>
 <br>
 
-<b>CAPTCHA:</b> (displays a CAPTCHA image in the form to help block automated spam)<br>
-<label><input type="radio" name="captcha_enabled" value="1" {if $captcha_enabled}checked{/if}> Enabled</label>
-<label><input type="radio" name="captcha_enabled" value="0" {if !$captcha_enabled}checked{/if}> Disabled</label>
+<b>{$translate->_('portal.cfg.captcha')}</b> {$translate->_('portal.cfg.captcha_hint')}<br>
+<label><input type="radio" name="captcha_enabled" value="1" {if $captcha_enabled}checked{/if}> {$translate->_('portal.cfg.enabled')}</label>
+<label><input type="radio" name="captcha_enabled" value="0" {if !$captcha_enabled}checked{/if}> {$translate->_('portal.cfg.disabled')}</label>
 <br>
 <br>
 
 <div style="border-bottom:1px solid rgb(180,180,180);margin-bottom:10px;">
-<h2 style="margin-bottom:0px;color:rgb(0,128,255);">Home Page</h2>
+<h2 style="margin-bottom:0px;color:rgb(0,128,255);">{$translate->_('portal.sc.cfg.home_page')}</h2>
 </div>
 
 <div style="margin-left:10px;">
-You can display content from RSS feeds on your Support Center home page, such as: the latest blog entries, 
-popular knowledgebase articles, recent forum posts/announcements, etc.  This is the place to pull together 
-all your interesting and helpful content, related to this portal, so the community can find it.<br>
+
+{$translate->_('portal.sc.cfg.feeds_info')}<br>
 <br>
 <table cellpadding="0" cellspacing="0" border="0">
 <tr>
 	<td>
-		<b>Feed Display Title:</b>
+		<b>{$translate->_('portal.sc.cfg.feed_display_title')}</b>
 	</td>
 	<td>
-		<b>Feed URL:</b>
+		<b>{$translate->_('portal.sc.cfg.feed_url')}</b>
 	</td>
 </tr>
 {foreach from=$home_rss item=home_rss_url key=home_rss_title}
@@ -63,27 +62,24 @@ all your interesting and helpful content, related to this portal, so the communi
 </tr>
 {/section}
 </table>
-(save to add more feeds)<br>
+{$translate->_('portal.sc.cfg.save_more_feeds')}<br>
 </div>
 <br>
 
 <div style="border-bottom:1px solid rgb(180,180,180);margin-bottom:10px;">
-<h2 style="margin-bottom:0px;color:rgb(0,128,255);">Footer</h2>
+<h2 style="margin-bottom:0px;color:rgb(0,128,255);">{$translate->_('portal.sc.cfg.footer')}</h2>
 </div>
 
 <div style="margin-left:10px;">
 	<table cellpadding="0" cellspacing="0" border="0">
 	<tr>
 		<td valign="top" width="0%" nowrap="nowrap">
-			<b>HTML:</b> (e.g., organization, address, phone, fax, analytics)<br>
+			<b>{$translate->_('portal.sc.cfg.html')}</b> {$translate->_('portal.sc.cfg.footer_html_hint')}<br>
 			<textarea cols="65" rows="8" name="footer_html">{$footer_html|escape}</textarea><br>
 		</td>
 		<td valign="top" width="100%" style="padding:10px;">
-		<i>Example:</i><br>
-		&lt;b&gt;Webgroup Media, LLC.&lt;/b&gt;&lt;br&gt;<br>
-		451 W. Lambert Rd., Suite #201&lt;br&gt;<br>
-		Brea, CA 92821 USA&lt;br&gt;<br>
-		+1 714 681 9090&lt;br&gt;<br>
+			<i>{$translate->_('portal.sc.cfg.example')}</i><br>
+			{$translate->_('portal.sc.cfg.footer_html_example')|nl2br}<br>
 		</td>
 	</tr>
 	</table>
@@ -91,18 +87,18 @@ all your interesting and helpful content, related to this portal, so the communi
 <br>
 
 <div style="border-bottom:1px solid rgb(180,180,180);margin-bottom:10px;">
-<h2 style="margin-bottom:0px;color:rgb(0,128,255);">Login/Registration</h2>
+<h2 style="margin-bottom:0px;color:rgb(0,128,255);">{$translate->_('portal.sc.cfg.login_registration')}</h2>
 </div>
 
-<label><input type="checkbox" name="allow_logins" value="1" {if $allow_logins}checked{/if}> Allow customer logins and registration (for viewing support history)</label><br>
+<label><input type="checkbox" name="allow_logins" value="1" {if $allow_logins}checked{/if}> {$translate->_('portal.sc.cfg.allow_customer_logins')}</label><br>
 <br>
 
 <div style="border-bottom:1px solid rgb(180,180,180);margin-bottom:10px;">
-<h2 style="margin-bottom:0px;color:rgb(0,128,255);">Knowledgebase</h2>
+<h2 style="margin-bottom:0px;color:rgb(0,128,255);">{$translate->_('common.knowledgebase')|capitalize}</h2>
 </div>
 
 <div style="margin-left:10px;">
-Choose which knowledgebase topics to expose to this portal:<br>
+{$translate->_('portal.sc.cfg.choose_kb_topics')}<br>
 <br>
 
 {assign var=root_id value="0"}
@@ -113,17 +109,16 @@ Choose which knowledgebase topics to expose to this portal:<br>
 <br>
 
 <div style="border-bottom:1px solid rgb(180,180,180);margin-bottom:10px;">
-<h2 style="margin-bottom:0px;color:rgb(0,128,255);">Search (Fetch &amp; Retrieve)</h2>
+<h2 style="margin-bottom:0px;color:rgb(0,128,255);">{$translate->_('common.search')|capitalize} ({$translate->_('common.fnr')|capitalize})</h2>
 </div>
 
 <div style="margin-left:10px;">
-This Support Center will allow your community to search your external knowledge resources through 
-Cerberus Helpdesk's <b>Fetch & Retrieve</b> system, returning direct links to content like knowledgebase 
-articles, wiki articles, forum posts, documentation pages, blog entries, wishlist/bug reports, etc.<br>
+{$translate->_('portal.sc.cfg.fnr.info')}
+<br>
 <br>
 
 {if !empty($topics)}
-	Choose which resources to expose to this portal:<br>
+	{$translate->_('portal.sc.cfg.fnr.choose_resources')}<br>
 	<br>
 	{foreach from=$topics item=topic}
 	<b>{$topic->name}</b><br>
@@ -133,27 +128,27 @@ articles, wiki articles, forum posts, documentation pages, blog entries, wishlis
 	<br>
 	{/foreach}
 {else}
-	<div class="error">Fetch & Retrieve has not been configured.</div>
+	<div class="error">{$translate->_('portal.sc.cfg.fnr.not_configured')}</div>
 {/if}
 </div>
 <br>
 
 <div style="border-bottom:1px solid rgb(180,180,180);margin-bottom:10px;">
-<h2 style="margin-bottom:0px;color:rgb(0,128,255);">Open a Ticket</h2>
+<h2 style="margin-bottom:0px;color:rgb(0,128,255);">{$translate->_('portal.common.open_ticket')}</h2>
 </div>
 
-<label><input type="checkbox" name="allow_subjects" value="1" {if $allow_subjects}checked{/if}> Allow visitors to enter custom ticket subjects.</label><br>
+<label><input type="checkbox" name="allow_subjects" value="1" {if $allow_subjects}checked{/if}> {$translate->_('portal.sc.cfg.open_ticket.allow_custom_subjects')}</label><br>
 <br> 
 
 {foreach from=$dispatch item=params key=reason}
 <div class="subtle" style="margin-bottom:10px;">
 	<h2 style="display:inline;">{$reason}</h2>&nbsp;
-	<a href="#add_situation" onclick="genericAjaxGet('add_situation','c=config&a=handleTabAction&tab=usermeet.config.tab.communities&action=getContactSituation&reason={$reason|md5}&portal={$instance->code}');">edit </a>
+	<a href="#add_situation" onclick="genericAjaxGet('add_situation','c=config&a=handleTabAction&tab=usermeet.config.tab.communities&action=getContactSituation&reason={$reason|md5}&portal={$instance->code}');">{$translate->_('common.edit')|lower} </a>
 	<br>
-	<b>Send to:</b> {$params.to}<br>
+	<b>{$translate->_('portal.cfg.send_to')}</b> {$params.to}<br>
 	{if is_array($params.followups)}
 	{foreach from=$params.followups key=question item=field_id}
-	<b>Ask:</b> {$question|escape} 
+	<b>{$translate->_('portal.cfg.ask')}</b> {$question|escape} 
 	{if $field_id}
 		{assign var=field value=$ticket_fields.$field_id}
 		{assign var=field_group_id value=$field->group_id}
@@ -161,13 +156,13 @@ articles, wiki articles, forum posts, documentation pages, blog entries, wishlis
 	{/if}
 	<br>
 	{/foreach}
-	<label><input type="checkbox" name="delete_situations[]" value="{$reason|md5}"> Delete this situation</label>
+	<label><input type="checkbox" name="delete_situations[]" value="{$reason|md5}"> {$translate->_('portal.cfg.delete_situation')}</label>
 	{/if}
 </div>
 {/foreach}
 
 <div style="margin-left:10px;margin-bottom:10px;">
-	<a href="#add_situation" onclick="genericAjaxGet('add_situation','c=config&a=handleTabAction&tab=usermeet.config.tab.communities&action=getContactSituation&reason=&portal={$instance->code}');">add new situation </a>
+	<a href="#add_situation" onclick="genericAjaxGet('add_situation','c=config&a=handleTabAction&tab=usermeet.config.tab.communities&action=getContactSituation&reason=&portal={$instance->code}');">{$translate->_('portal.cfg.add_new_situation')} </a>
 </div>
 
 <div class="subtle2" id="add_situation">

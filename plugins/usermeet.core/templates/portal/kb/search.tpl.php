@@ -6,41 +6,41 @@
 <table style="border: 1px solid rgb(0, 128, 255); width: 100%; padding: 5px; background-color: rgb(237, 241, 255);" border="0" cellpadding="0" cellspacing="0">
   <tbody>
   <tr>
-  	<td colspan="2"><h2 style="margin:0px;">Search</h2></td>
+  	<td colspan="2"><h2 style="margin:0px;">{$translate->_('common.search')|capitalize}</h2></td>
   </tr>
   <tr>
-  	<td width="1%" nowrap="nowrap"><b>Search for:</b>&nbsp; </td>
+  	<td width="1%" nowrap="nowrap"><b>{$translate->_('portal.kb.public.search_for')}</b>&nbsp; </td>
   	<td width="99%">
   		<input type="text" name="query" value="{$query|escape}" size="35" style="width:98%;">
   	</td>
   </tr>
   <tr>
-  	<td width="1%" nowrap="nowrap" valign="top"><label><input type="checkbox" onclick="document.getElementById('kbSearchTips').style.display = (this.checked) ? 'block':'none';">Show Search Tips&nbsp;</label> </td>
+  	<td width="1%" nowrap="nowrap" valign="top"><label><input type="checkbox" onclick="document.getElementById('kbSearchTips').style.display = (this.checked) ? 'block':'none';">{$translate->_('portal.kb.public.show_search_tips')}&nbsp;</label> </td>
   	<td width="99%">
   		<div id="kbSearchTips" style="display:none;" valign="top">
   			<br>
-  			<b>Any word (more matches is better):</b><br>
-  			<i>payment receipt order sale</i><br>
+  			<b>{$translate->_('portal.kb.public.search_tips.any_word')}</b><br>
+  			<i>{$translate->_('portal.kb.public.search_tips.any_word.example1')}</i><br>
   			<br>
-  			<b>Booleans:</b><br>
-  			<i>+payment -receipt</i><br>
-  			<i>+payment credit</i><br>
+  			<b>{$translate->_('portal.kb.public.search_tips.booleans')}</b><br>
+  			<i>{$translate->_('portal.kb.public.search_tips.booleans.example1')}</i><br>
+  			<i>{$translate->_('portal.kb.public.search_tips.booleans.example2')}</i><br>
   			<br>
-  			<b>Wildcards:</b><br>
-  			<i>web*</i><br>
+  			<b>{$translate->_('portal.kb.public.search_tips.wildcards')}</b><br>
+  			<i>{$translate->_('portal.kb.public.search_tips.wildcards.example1')}</i><br>
   			<br>
-  			<b>Exact phrases:</b><br>
-  			<i>"credit card"</i><br>
+  			<b>{$translate->_('portal.kb.public.search_tips.exact_phrases')}</b><br>
+  			<i>{$translate->_('portal.kb.public.search_tips.exact_phrases.example1')}</i><br>
   			<br>
-  			<b>Boosting:</b> (more/less emphasis on some words)<br>
-  			<i>cerberus &gt;helpdesk</i><br>
-  			<i>login &lt;ftp</i><br>
+  			<b>{$translate->_('portal.kb.public.search_tips.boosting')}</b><br>
+  			<i>{$translate->_('portal.kb.public.search_tips.boosting.example1')}</i><br>
+  			<i>{$translate->_('portal.kb.public.search_tips.boosting.example2')}</i><br>
   			<br>
   		</div>
   	</td>
   </tr>
   <tr>
-  	<td colspan="2" align="right"><button type="submit"><img src="{devblocks_url}c=resource&p=usermeet.core&f=images/book_blue_view.gif{/devblocks_url}" alt="Search" align="top"> Search</button></td>
+  	<td colspan="2" align="right"><button type="submit"><img src="{devblocks_url}c=resource&p=usermeet.core&f=images/book_blue_view.gif{/devblocks_url}" alt="Search" align="top"> {$translate->_('common.search')|capitalize}</button></td>
   </tr>
   </tbody>
 </table>
@@ -69,7 +69,7 @@
         {/foreach}
       </ul>
       {else}
-      	No results found.<br>
+      	{$translate->_('portal.public.no_results')}<br>
       {/if}
       </td>
     </tr>

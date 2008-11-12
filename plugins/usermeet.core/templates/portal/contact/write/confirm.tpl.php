@@ -13,17 +13,18 @@
      -->
     <tr>
       <td colspan="2">
-      	<h4>Thanks for contacting us</h4>
+      	<h4>{$translate->_('portal.contact.write.thanks')}</h4>
       	
-      	Your message has been received! We will respond to you as soon as possible.<br>
+      	{$translate->_('portal.contact.write.message_received')}<br>
       	<br>
       	
       	{if !empty($last_opened)}
-      	Your reference number is: #<b>{$last_opened}</b><br>
+      	{assign var=tagged_last_opened value="<b>"|cat:$last_opened|cat:"</b>"}
+      	{'portal.public.your_reference_number'|devblocks_translate:$tagged_last_opened}<br>
       	<br>
       	{/if}
       	
-		<button type="button" onclick="document.location='{devblocks_url}{/devblocks_url}';"><img src="{devblocks_url}c=resource&p=usermeet.core&f=images/check.gif{/devblocks_url}" align="top" border="0"> OK</button>
+		<button type="button" onclick="document.location='{devblocks_url}{/devblocks_url}';"><img src="{devblocks_url}c=resource&p=usermeet.core&f=images/check.gif{/devblocks_url}" align="top" border="0"> {$translate->_('common.ok')|upper}</button>
 		
       </td>
     </tr>
@@ -31,7 +32,10 @@
     <tr>
     	<td colspan="2" align="right">
     	<span style="font-size:11px;">
-			Powered by <a href="http://www.cerberusweb.com/" target="_blank" style="color:rgb(80,150,0);font-weight:bold;">Cerberus Helpdesk</a>&trade;<br>
+    	
+    	{assign var=linked_cerberus_helpdesk value="<a href=\"http://www.cerberusweb.com/\" target=\"_blank\" style=\"color:rgb(80,150,0);font-weight:bold;\">"|cat:"Cerberus Helpdesk"|cat:"</a>&trade;"}
+    		{'portal.public.powered_by'|devblocks_translate:$linked_cerberus_helpdesk}
+			<br>
 		</span>
     	</td>
     </tr>

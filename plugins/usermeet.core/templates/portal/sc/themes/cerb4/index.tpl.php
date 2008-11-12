@@ -203,15 +203,17 @@
 						{if !empty($active_user)}
 						<form action="{devblocks_url}{/devblocks_url}" method="post" name="loginForm">
 						<input type="hidden" name="a" value="doLogout">
-						Logged in as <b>{$active_user->email}</b> [ <a href="javascript:;" onclick="document.loginForm.submit();">logout</a> ]
+					   	{assign var=tagged_active_user_email value="<b>"|cat:$active_user->email|cat:"</b>"}
+   						{'portal.sc.public.themes.logged_in_as'|devblocks_translate:$tagged_active_user_email}   							
+						[ <a href="javascript:;" onclick="document.loginForm.submit();">{$translate->_('portal.sc.public.themes.logout')}</a> ]
 						</form> 
 						{else}
 						<form action="{devblocks_url}{/devblocks_url}" method="post">
 						<input type="hidden" name="a" value="doLogin">
 						<table cellpadding="1" cellspacing="0" border="0" id="headerLoginTable">
 							<tr>
-								<td>login:</td>
-								<td>password:</td>
+								<td>{$translate->_('portal.sc.public.themes.login_label')}</td>
+								<td>{$translate->_('common.password')|lower}:</td>
 								<td></td>
 							</tr>
 							<tr>
@@ -222,7 +224,7 @@
 						</table>
 						</form>
 						
-						<a href="{devblocks_url}c=register{/devblocks_url}">register</a> | <a href="{devblocks_url}c=register&a=forgot{/devblocks_url}">forgot?</a>
+						<a href="{devblocks_url}c=register{/devblocks_url}">{$translate->_('portal.sc.public.register')|lower}</a> | <a href="{devblocks_url}c=register&a=forgot{/devblocks_url}">{$translate->_('portal.sc.public.themes.forgot')}</a>
 						{/if}
 						{/if}
 					</td>
@@ -257,7 +259,7 @@
 						<table cellpadding="0" cellspacing="0" border="0">
 							<tr>
 								<td class="header">
-									<h2>search resources</h2>
+									<h2>{$translate->_('portal.sc.public.themes.search_resources')}</h2>
 								</td>
 							</tr>
 							<tr>
@@ -294,7 +296,10 @@
 	</tr>
 	
 	<tr>
-		<td id="tagline">powered by <a href="http://www.cerberusweb.com/" target="_blank">cerberus helpdesk</a></td>
+		<td id="tagline">
+	    	{assign var=linked_cerberus_helpdesk value="<a href=\"http://www.cerberusweb.com/\" target=\"_blank\">"|cat:"cerberus helpdesk"|cat:"</a>&trade;"}
+    		{'portal.public.powered_by'|devblocks_translate:$linked_cerberus_helpdesk}
+		</td>
 	</tr>
 	
 </table>
