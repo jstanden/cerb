@@ -58,7 +58,6 @@ class CerberusSimulator {
 	private static $instance = null;
 	
 	private function __construct() {
-		srand( ((int)((double)microtime()*1000003)) );
 	}
 	
 	public static function getInstance() {
@@ -252,8 +251,8 @@ class CerberusSimulatorGenerator {
     }
     
 	private function generatePerson() {
-		$firstname = $this->names[rand(0,sizeof($this->names)-1)];
-		$lastname = $this->surnames[rand(0,sizeof($this->surnames)-1)];
+		$firstname = $this->names[mt_rand(0,sizeof($this->names)-1)];
+		$lastname = $this->surnames[mt_rand(0,sizeof($this->surnames)-1)];
 		$emailaddress = sprintf("\"%s %s\" <%s.%s@cerberusdemo.com>",
 			$firstname,
 			$lastname,

@@ -434,12 +434,25 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 				
 				if($group_settings[$ticket->team_id][DAO_GroupSettings::SETTING_CLOSE_REPLY_ENABLED]
 				&& !empty($group_settings[$ticket->team_id][DAO_GroupSettings::SETTING_CLOSE_REPLY])) {
+					if(null != ($msg_first = DAO_Ticket::getMessage($ticket->first_message_id))) {
+						// First sender
+						$ticket_sender = '';
+						$ticket_sender_first = '';
+						if(null != ($sender_first = DAO_Address::get($msg_first->address_id))) {
+							$ticket_sender = $sender_first->email;
+							$ticket_sender_first = $sender_first->first_name;
+						}
+						
+						// First body
+						$ticket_body = $msg_first->getContent();
+					}
+					
 					CerberusMail::sendTicketMessage(array(
 						'ticket_id' => $ticket->id,
 						'message_id' => $ticket->first_message_id,
 						'content' => str_replace(
-							array('#mask#','#subject#'),
-							array($ticket->mask, $ticket->subject),
+							array('#ticket_id#', '#mask#','#subject#','#timestamp#','#sender#','#sender_first#','#orig_body#'),
+							array($ticket->id, $ticket->mask, $ticket->subject, date('r'), $ticket_sender, $ticket_sender_first, ltrim($ticket_body)),
 							$group_settings[$ticket->team_id][DAO_GroupSettings::SETTING_CLOSE_REPLY]
 						),
 						'is_autoreply' => false,

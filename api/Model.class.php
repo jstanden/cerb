@@ -2406,12 +2406,23 @@ class CerberusWorker {
 		return true;
 	}
 	
-	function getName() {
-		return sprintf("%s%s%s",
-			$this->first_name,
-			(!empty($this->first_name) && !empty($this->last_name)) ? " " : "",
-			$this->last_name
-		);
+	function getName($reverse=false) {
+		
+		if(!$reverse) {
+			$name = sprintf("%s%s%s",
+				$this->first_name,
+				(!empty($this->first_name) && !empty($this->last_name)) ? " " : "",
+				$this->last_name
+			);
+		} else {
+			$name = sprintf("%s%s%s",
+				$this->last_name,
+				(!empty($this->first_name) && !empty($this->last_name)) ? ", " : "",
+				$this->first_name
+			);
+		}
+		
+		return $name;
 	}
 
 }
@@ -2604,7 +2615,7 @@ class Model_Attachment {
 		
 	    // Make file attachments use buckets so we have a max per directory
 		$attachment_bucket = sprintf("%03d/",
-			rand(1,100)
+			mt_rand(1,100)
 		);
 		$attachment_file = $file_id;
 		
@@ -2747,6 +2758,9 @@ class Model_MailTemplate {
 			$sender = DAO_Address::get($message->address_id);
 			$sender_org = DAO_ContactOrg::get($sender->contact_org_id);
 
+			$replace[] = '#timestamp#';
+			$with[] = date('r');
+			
 			$replace[] = '#sender_first_name#';
 			$replace[] = '#sender_last_name#';
 			$replace[] = '#sender_org#';
@@ -2755,9 +2769,11 @@ class Model_MailTemplate {
 			$with[] = $sender->last_name;
 			$with[] = (!empty($sender_org)?$sender_org->name:"");
 			
+			$replace[] = '#ticket_id#';
 			$replace[] = '#ticket_mask#';
 			$replace[] = '#ticket_subject#';
 
+			$with[] = $ticket->id;
 			$with[] = $ticket->mask;
 			$with[] = $ticket->subject;
 		}

@@ -18,7 +18,7 @@
 						{if !empty($lists)}
 						<div style="margin:0px;padding:3px;width:200px;overflow:auto;">
 							{foreach from=$lists item=list}
-							&#187; <a href="javascript:;" onclick="genericAjaxGet('configList','c=config&a=handleTabAction&tab=feedback.config.tab&action=getList&id={$list->id}');">{$list->name}</a><br>
+							&#187; <a href="javascript:;" onclick="genericAjaxGet('configList','c=config&a=handleTabAction&tab=feedback.config.tab&action=getList&id={$list->id}');">{if !empty($list->name)}{$list->name}{else}{$translate->_('feedback.cfg.blank')}{/if}</a><br>
 							{/foreach}
 						</div>
 						{/if}

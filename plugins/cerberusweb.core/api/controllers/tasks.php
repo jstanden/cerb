@@ -144,8 +144,11 @@ class ChTasksController extends DevblocksControllerExtension {
 			
 			$fields[DAO_Task::IS_COMPLETED] = intval($completed);
 			
+			// [TODO] This shouldn't constantly update the completed date (it should compare)
 			if($completed)
 				$fields[DAO_Task::COMPLETED_DATE] = time();
+			else
+				$fields[DAO_Task::COMPLETED_DATE] = 0;
 				
 			// Due Date
 			@$due_date = DevblocksPlatform::importGPC($_REQUEST['due_date'],'string','');

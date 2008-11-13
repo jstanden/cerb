@@ -1,4 +1,4 @@
-<form action="{devblocks_url}{/devblocks_url}" method="post">
+<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmGroupEdit">
 <input type="hidden" name="c" value="groups">
 <input type="hidden" name="a" value="saveTabMail">
 <input type="hidden" name="team_id" value="{$team->id}">
@@ -41,12 +41,13 @@
 	
 	<b>Send replies as name:</b> (optional, defaults to: {$settings->get('default_reply_personal','')})<br>
 	<input type="text" name="sender_personal" value="{$group_settings.reply_personal}" size="65"><br>
+	<label><input type="checkbox" name="sender_personal_with_worker" value="1" {if !empty($group_settings.reply_personal_with_worker)}checked{/if}> Also prefix the replying worker's name as the sender.</label><br>
 	<br>
 	
-	<label><input type="checkbox" name="subject_has_mask" value="1" onclick="toggleDiv('divGroupCfgSubject',(this.checked)?'block':'none');" {if $group_settings.subject_has_mask}checked{/if}> <b>Include reference ID in subject line:</b></label><br>
+	<label><input type="checkbox" name="subject_has_mask" value="1" onclick="toggleDiv('divGroupCfgSubject',(this.checked)?'block':'none');" {if $group_settings.subject_has_mask}checked{/if}> <b>Include the ticket's ID in subject line:</b></label><br>
 	<blockquote id="divGroupCfgSubject" style="margin-left:20px;margin-bottom:0px;display:{if $group_settings.subject_has_mask}block{else}none{/if}">
 		<b>Subject prefix:</b> (optional, e.g. "Billing", "Tech Support")<br>
-		Re: [ <input type="text" name="subject_prefix" value="{$group_settings.subject_prefix}" size="24"> #XXX-XXXXX-XXX]: Subject Line<br>
+		Re: [ <input type="text" name="subject_prefix" value="{$group_settings.subject_prefix}" size="24"> #MASK-12345-678]: This is the subject line<br>
 	</blockquote>
 	<br>
 	
@@ -78,16 +79,24 @@
 	<label><input type="checkbox" name="auto_reply_enabled" value="1" onclick="toggleDiv('divGroupCfgAutoReply',(this.checked)?'block':'none');" {if $group_settings.auto_reply_enabled}checked{/if}> <b>Send an auto-response when this group receives a new message?</b></label><br>
 	<div style="margin-top:10px;margin-left:20px;display:{if $group_settings.auto_reply_enabled}block{else}none{/if};" id="divGroupCfgAutoReply">
 		<b>Send the following message:</b><br>
-		<textarea name="auto_reply" rows="6" cols="76">{$group_settings.auto_reply}</textarea><br>
-			E-mail Tokens: 
-			<select name="autoreply_token" onchange="this.form.auto_reply.value += this.options[this.selectedIndex].value;scrollElementToBottom(this.form.auto_reply);this.selectedIndex=0;this.form.auto_reply.focus();">
+		<textarea name="auto_reply" rows="10" cols="76">{$group_settings.auto_reply}</textarea><br>
+			<b>E-mail Tokens:</b>
+			
+			<select name="autoreply_token" onchange="insertAtCursor(this.form.auto_reply,this.options[this.selectedIndex].value);this.selectedIndex=0;this.form.auto_reply.focus();">
 				<option value="">-- choose --</option>
-				<optgroup label="Received Message">
-					<option value="#sender#">Sender Address</option>
-					<option value="#orig_body#">Message Content</option>
+				<optgroup label="General">
+					<option value="#timestamp#">Current Time</option>
 				</optgroup>
-				<optgroup label="New Ticket">
+				<optgroup label="First Requester">
+					<option value="#sender#">E-mail</option>
+					<option value="#sender_first#">First Name</option>
+				</optgroup>
+				<optgroup label="First Message">
+					<option value="#orig_body#">Message Body</option>
+				</optgroup>
+				<optgroup label="Ticket">
 					<option value="#mask#">Reference ID</option>
+					<option value="#ticket_id#">Internal ID</option>
 					<option value="#subject#">Subject</option>
 					<!-- 
 					<option value="#group#">Group Name</option>
@@ -104,12 +113,23 @@
 	<label><input type="checkbox" name="close_reply_enabled" value="1" onclick="toggleDiv('divGroupCfgCloseReply',(this.checked)?'block':'none');" {if $group_settings.close_reply_enabled}checked{/if}> <b>Send an auto-response when a ticket in this group is closed?</b></label><br>
 	<div style="margin-top:10px;margin-left:20px;display:{if $group_settings.close_reply_enabled}block{else}none{/if};" id="divGroupCfgCloseReply">
 		<b>Send the following message:</b><br>
-		<textarea name="close_reply" rows="6" cols="76">{$group_settings.close_reply}</textarea><br>
+		<textarea name="close_reply" rows="10" cols="76">{$group_settings.close_reply}</textarea><br>
 			E-mail Tokens: 
-			<select name="closereply_token" onchange="this.form.close_reply.value += this.options[this.selectedIndex].value;scrollElementToBottom(this.form.close_reply);this.selectedIndex=0;this.form.close_reply.focus();">
+			<select name="closereply_token" onchange="insertAtCursor(this.form.close_reply,this.options[this.selectedIndex].value);this.selectedIndex=0;this.form.close_reply.focus();">
 				<option value="">-- choose --</option>
-				<optgroup label="Ticket Tokens">
+				<optgroup label="General">
+					<option value="#timestamp#">Current Time</option>
+				</optgroup>
+				<optgroup label="First Requester">
+					<option value="#sender#">E-mail</option>
+					<option value="#sender_first#">First Name</option>
+				</optgroup>
+				<optgroup label="First Message">
+					<option value="#orig_body#">Message Body</option>
+				</optgroup>
+				<optgroup label="Ticket">
 					<option value="#mask#">Reference ID</option>
+					<option value="#ticket_id#">Internal ID</option>
 					<option value="#subject#">Subject</option>
 				</optgroup>
 			</select>

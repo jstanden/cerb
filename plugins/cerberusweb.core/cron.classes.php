@@ -1101,7 +1101,7 @@ class Pop3Cron extends CerberusCronPageExtension {
 				do {
 					$unique = sprintf("%s.%04d",
 					time(),
-					rand(0,9999)
+					mt_rand(0,9999)
 					);
 					$filename = APP_MAIL_PATH . 'new' . DIRECTORY_SEPARATOR . $unique;
 				} while(file_exists($filename));

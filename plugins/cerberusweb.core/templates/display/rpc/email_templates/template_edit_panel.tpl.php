@@ -36,6 +36,9 @@
 
 <b>Insert Placeholder:</b> <select name="token" onchange="insertAtCursor(this.form.template,selectValue(this.form.token));this.form.token.selectedIndex=0;this.form.template.focus();">
 	<option value="">-- choose --</option>
+	<optgroup label="General">
+		<option value="#timestamp#">Current Time</option>
+	</optgroup>
 	{if 2==$type}
 		<optgroup label="Sender">
 			<option value="#sender_first_name#">First Name</option>
@@ -43,7 +46,8 @@
 			<option value="#sender_org#">Organization</option>
 		</optgroup>
 		<optgroup label="Ticket">
-			<option value="#ticket_mask#">Mask</option>
+			<option value="#ticket_id#">Internal ID</option>
+			<option value="#ticket_mask#">Reference ID (Mask)</option>
 			<option value="#ticket_subject#">Subject</option>
 		</optgroup>
 	{/if}

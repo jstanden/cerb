@@ -115,14 +115,24 @@ class CerberusMail {
 		@$next_action = $properties['next_action'];
 		@$ticket_reopen = $properties['ticket_reopen'];
 		
+		$worker = CerberusApplication::getActiveWorker();
+		
 		$settings = CerberusSettings::getInstance();
 		$default_from = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM);
 		$default_personal = $settings->get(CerberusSettings::DEFAULT_REPLY_PERSONAL);
+		
 		$team_from = DAO_GroupSettings::get($team_id,DAO_GroupSettings::SETTING_REPLY_FROM,'');
 		$team_personal = DAO_GroupSettings::get($team_id,DAO_GroupSettings::SETTING_REPLY_PERSONAL,'');
+		$team_personal_with_worker = DAO_GroupSettings::get($team_id,DAO_GroupSettings::SETTING_REPLY_PERSONAL_WITH_WORKER,0);
 		
 		$from = !empty($team_from) ? $team_from : $default_from;
 		$personal = !empty($team_personal) ? $team_personal : $default_personal;
+		
+		// Prefix the worker name on the personal line?
+		if(!empty($team_personal_with_worker) && !empty($worker)) {
+			$personal = $worker->getName() . ', ' . $personal;
+		}
+		
 		$mask = CerberusApplication::generateTicketMask();
 
 		if(empty($subject)) $subject = '(no subject)';
@@ -139,7 +149,8 @@ class CerberusMail {
 			$subject
 		));
 		
-		$toList = DevblocksPlatform::parseCsvString($toStr);
+		// [JAS]: Replace any semi-colons with commas (people like using either)
+		$toList = DevblocksPlatform::parseCsvString(str_replace(';', ',', $toStr));
 		
 		$mail_headers = array();
 		$mail_headers['X-CerberusCompose'] = '1';
@@ -176,7 +187,7 @@ class CerberusMail {
 				
 				// cc
 				$ccs = array();
-				if(!empty($cc) && null != ($ccList = DevblocksPlatform::parseCsvString($cc))) {
+				if(!empty($cc) && null != ($ccList = DevblocksPlatform::parseCsvString(str_replace(';',',',$cc)))) {
 					foreach($ccList as $ccAddy) {
 						$sendTo->addCc($ccAddy);
 						$ccs[] = new Swift_Address($ccAddy);
@@ -186,7 +197,7 @@ class CerberusMail {
 				}
 				
 				// bcc
-				if(!empty($bcc) && null != ($bccList = DevblocksPlatform::parseCsvString($bcc))) {
+				if(!empty($bcc) && null != ($bccList = DevblocksPlatform::parseCsvString(str_replace(';',',',$bcc)))) {
 					foreach($bccList as $bccAddy) {
 						$sendTo->addBcc($bccAddy);
 					}
@@ -235,7 +246,6 @@ class CerberusMail {
 		    }
 		}
 		
-		$worker = CerberusApplication::getActiveWorker();
 		$fromAddressInst = CerberusApplication::hashLookupAddress($from, true);
 		$fromAddressId = $fromAddressInst->id;
 		
@@ -340,7 +350,7 @@ class CerberusMail {
 				$file_id = DAO_Attachment::create($fields);
 				
 	            $attachment_bucket = sprintf("%03d/",
-	                rand(1,100)
+	                mt_rand(1,100)
 	            );
 	            $attachment_file = $file_id;
 	            
@@ -433,6 +443,7 @@ class CerberusMail {
 			// Allow teams to override the default from/personal
 			@$group_reply = DAO_GroupSettings::get($ticket->team_id, DAO_GroupSettings::SETTING_REPLY_FROM, '');
 			@$group_personal = DAO_GroupSettings::get($ticket->team_id, DAO_GroupSettings::SETTING_REPLY_PERSONAL, '');
+			@$group_personal_with_worker = DAO_GroupSettings::get($ticket->team_id, DAO_GroupSettings::SETTING_REPLY_PERSONAL_WITH_WORKER, 0);
 
 			if(!empty($group_reply))
 				$from_addy = $group_reply;
@@ -440,6 +451,12 @@ class CerberusMail {
 			if(!empty($group_personal)) 
 				$from_personal = $group_personal;
 			
+			// Prefix the worker name on the personal line?
+			if(!empty($group_personal_with_worker)
+				&& null != ($reply_worker = DAO_Worker::getAgent($worker_id))) {
+					$from_personal = $reply_worker->getName() . ', ' . $from_personal;
+			}
+				
 			$sendFrom = new Swift_Address($from_addy, $from_personal);
 				
 			// Headers
@@ -524,7 +541,7 @@ class CerberusMail {
 				// Forwards
 				if(!empty($properties['to'])) {
 				    $to = array();
-				    $aTo = DevblocksPlatform::parseCsvString($properties['to']);
+				    $aTo = DevblocksPlatform::parseCsvString(str_replace(';',',',$properties['to']));
 				    foreach($aTo as $addy) {
 				    	$to[] = new Swift_Address($addy);
 				    	$sendTo->addTo($addy);
@@ -549,7 +566,7 @@ class CerberusMail {
 			    // Ccs
 			    if(!empty($properties['cc'])) {
 				    $ccs = array();
-				    $aCc = DevblocksPlatform::parseCsvString($properties['cc']);
+				    $aCc = DevblocksPlatform::parseCsvString(str_replace(';',',',$properties['cc']));
 				    foreach($aCc as $addy) {
 				    	$sendTo->addCc($addy);
 				    	$ccs[] = new Swift_Address($addy);
@@ -560,7 +577,7 @@ class CerberusMail {
 			    
 			    // Bccs
 			    if(!empty($properties['bcc'])) {
-				    $aBcc = DevblocksPlatform::parseCsvString($properties['bcc']);
+				    $aBcc = DevblocksPlatform::parseCsvString(str_replace(';',',',$properties['bcc']));
 				    foreach($aBcc as $addy) {
 				    	$sendTo->addBcc($addy);
 				    }
@@ -678,7 +695,7 @@ class CerberusMail {
 					$file_id = DAO_Attachment::create($fields);
 					
 		            $attachment_bucket = sprintf("%03d/",
-		                rand(1,100)
+		                mt_rand(1,100)
 		            );
 		            $attachment_file = $file_id;
 		            

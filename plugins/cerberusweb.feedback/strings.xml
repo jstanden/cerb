@@ -12,6 +12,10 @@
 		</tu>
 		
 		<!-- Feedback Strings -->
+
+		<tu tuid='feedback.cfg.blank'>
+			<tuv xml:lang="en_US"><seg>(blank)</seg></tuv>
+		</tu>
 		
 		<tu tuid='feedback.button.capture'>
 			<tuv xml:lang="en_US"><seg>Capture Feedback</seg></tuv>

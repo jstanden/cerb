@@ -1,5 +1,3 @@
-<button type="button" onclick="genericAjaxPanel('c=config&a=showKbImportPanel',null,true,'500px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_into.gif{/devblocks_url}" align="top"> Import Articles</button>
-
 <table cellpadding="0" cellspacing="5" border="0" width="100%">
 	<tr>
 		

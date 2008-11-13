@@ -693,12 +693,17 @@ class ChFeedbackConfigTab extends Extension_ConfigTab {
 	}
 	
 	function saveTab() {
+		$translate = DevblocksPlatform::getTranslationService();
+		
 		@$plugin_id = DevblocksPlatform::importGPC($_REQUEST['plugin_id'],'string');
 
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		@$name = DevblocksPlatform::importGPC($_REQUEST['name'],'string','');
 		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
 
+		if(empty($name))
+			$name = $translate->_('feedback.cfg.blank');
+		
 		if(empty($id)) { // Add
 			$fields = array(
 				DAO_FeedbackList::NAME => $name,

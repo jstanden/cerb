@@ -26,7 +26,7 @@
 
 {if !empty($templates)}
 	<b>Folder:</b>
-	<select name="folder" onchange="genericAjaxGet('templates','c=display&a=getTemplates&type={$type}&reply_id={$reply_id}&folder='+escape(selectValue(this)));">
+	<select name="folder" onchange="genericAjaxGet('templates','c=display&a=getTemplates&type={$type}&reply_id={$reply_id}&txt_name={$txt_name}&folder='+escape(selectValue(this)));">
 		<option value="">-- any --</option>
 		{foreach from=$folders item=folder}
 		<option value="{$folder|escape}">{$folder}</option>

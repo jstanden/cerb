@@ -47,12 +47,10 @@
 	<tr>
 		<td width="0%" nowrap="nowrap" align="right">Priority: </td>
 		<td width="100%">
-			<select name="priority">
-				<option value="4" {if empty($task->priority) || 4==$task->priority}selected{/if}> &nbsp; </option>
-				<option value="1" {if 1==$task->priority}selected{/if}>{$translate->_('priority.high')|capitalize}</option>
-				<option value="2" {if 2==$task->priority}selected{/if}>{$translate->_('priority.normal')|capitalize}</option>
-				<option value="3" {if 3==$task->priority}selected{/if}>{$translate->_('priority.low')|capitalize}</option>
-			</select>
+			<label><input type="radio" name="priority" value="4" {if empty($task->priority) || 4==$task->priority}checked{/if}> {$translate->_('priority.none')|capitalize}</label>
+			<label><input type="radio" name="priority" value="3" {if 3==$task->priority}checked{/if}> {$translate->_('priority.low')|capitalize}</label>
+			<label><input type="radio" name="priority" value="2" {if 2==$task->priority}checked{/if}> {$translate->_('priority.normal')|capitalize}</label>
+			<label><input type="radio" name="priority" value="1" {if 1==$task->priority}checked{/if}> {$translate->_('priority.high')|capitalize}</label>
 		</td>
 	</tr>
 	<tr>

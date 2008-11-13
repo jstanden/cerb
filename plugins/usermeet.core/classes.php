@@ -436,8 +436,8 @@ class UmContactApp extends Extension_UsermeetTool {
 				$background_color = imagecolorallocate($im, 0, 0, 0);
 				$text_color = imagecolorallocate($im, 255, 255, 255); //233, 14, 91
 				$font = DEVBLOCKS_PATH . 'resources/font/ryanlerch_-_Tuffy_Bold(2).ttf';
-				imagettftext($im, 24, rand(0,20), 5, 60+6, $text_color, $font, $phrase);
-//				$im = imagerotate($im, rand(-20,20), $background_color);
+				imagettftext($im, 24, mt_rand(0,20), 5, 60+6, $text_color, $font, $phrase);
+//				$im = imagerotate($im, mt_rand(-20,20), $background_color);
 				imagejpeg($im,null,85);
 				imagedestroy($im);
 				exit;

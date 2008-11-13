@@ -1150,6 +1150,8 @@ class ChTicketsPage extends CerberusPageExtension {
         @$type = DevblocksPlatform::importGPC($_POST['type'],'string'); 
         @$query = DevblocksPlatform::importGPC($_POST['query'],'string');
 
+        $query = trim($query);
+        
         $visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
 		$searchView = C4_AbstractViewLoader::getView('',CerberusApplication::VIEW_SEARCH);
 		
@@ -2082,8 +2084,8 @@ class ChTicketsPage extends CerberusPageExtension {
 	    @$ticket_ids = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'array');
 	    
 	    $active_worker = CerberusApplication::getActiveWorker();
-	    
-        $fields = array(
+
+	    $fields = array(
             DAO_Ticket::NEXT_WORKER_ID => 0,
             DAO_Ticket::UNLOCK_DATE => 0,
         );
@@ -3083,6 +3085,24 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		@$user = DevblocksPlatform::importGPC($_REQUEST['user'],'string','');
 		@$pass = DevblocksPlatform::importGPC($_REQUEST['pass'],'string','');
 		
+		// Defaults
+		if(empty($port)) {
+		    switch($protocol) {
+		        case 'pop3':
+		            $port = 110; 
+		            break;
+		        case 'pop3-ssl':
+		            $port = 995;
+		            break;
+		        case 'imap':
+		            $port = 143;
+		            break;
+		        case 'imap-ssl':
+		            $port = 993;
+		            break;
+		    }
+		}
+		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
@@ -3702,7 +3722,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		
 		// [TODO] The superuser set bit here needs to be protected by ACL
 		
-		if(empty($name)) $name = "No Name";
+		if(empty($first_name)) $first_name = "Anonymous";
 		
 		if(!empty($id) && !empty($delete)) {
 			DAO_Worker::deleteAgent($id);
@@ -5020,6 +5040,8 @@ class ChContactsPage extends CerberusPageExtension {
         @$type = DevblocksPlatform::importGPC($_POST['type'],'string'); 
         @$query = DevblocksPlatform::importGPC($_POST['query'],'string');
 
+        $query = trim($query);
+        
 		$view = C4_AbstractViewLoader::getView('C4_AddressView', C4_AddressView::DEFAULT_ID);
 
         $params = array();
@@ -5049,6 +5071,8 @@ class ChContactsPage extends CerberusPageExtension {
         @$type = DevblocksPlatform::importGPC($_POST['type'],'string'); 
         @$query = DevblocksPlatform::importGPC($_POST['query'],'string');
 
+        $query = trim($query);
+        
 		$view = C4_AbstractViewLoader::getView('C4_ContactOrgView', C4_ContactOrgView::DEFAULT_ID);
 
         $params = array();
@@ -5299,8 +5323,8 @@ class ChGroupsPage extends CerberusPageExtension  {
 		$tpl->assign('categories', $team_categories);
 	    
 		$group_settings = DAO_GroupSettings::getSettings($group_id);
+		$tpl->assign('group_settings', $group_settings);
 		
-		@$tpl->assign('group_settings', $group_settings);
 		@$tpl->assign('group_spam_threshold', $group_settings[DAO_GroupSettings::SETTING_SPAM_THRESHOLD]);
 		@$tpl->assign('group_spam_action', $group_settings[DAO_GroupSettings::SETTING_SPAM_ACTION]);
 		@$tpl->assign('group_spam_action_param', $group_settings[DAO_GroupSettings::SETTING_SPAM_ACTION_PARAM]);
@@ -5505,6 +5529,7 @@ class ChGroupsPage extends CerberusPageExtension  {
 	    @$close_reply = DevblocksPlatform::importGPC($_REQUEST['close_reply'],'string','');
 	    @$sender_address = DevblocksPlatform::importGPC($_REQUEST['sender_address'],'string','');
 	    @$sender_personal = DevblocksPlatform::importGPC($_REQUEST['sender_personal'],'string','');
+	    @$sender_personal_with_worker = DevblocksPlatform::importGPC($_REQUEST['sender_personal_with_worker'],'integer',0);
 	    @$subject_has_mask = DevblocksPlatform::importGPC($_REQUEST['subject_has_mask'],'integer',0);
 	    @$subject_prefix = DevblocksPlatform::importGPC($_REQUEST['subject_prefix'],'string','');
 	    @$spam_threshold = DevblocksPlatform::importGPC($_REQUEST['spam_threshold'],'integer',80);
@@ -5527,6 +5552,7 @@ class ChGroupsPage extends CerberusPageExtension  {
 	    
 	    DAO_GroupSettings::set($team_id, DAO_GroupSettings::SETTING_REPLY_FROM, $sender_address);
 	    DAO_GroupSettings::set($team_id, DAO_GroupSettings::SETTING_REPLY_PERSONAL, $sender_personal);
+	    DAO_GroupSettings::set($team_id, DAO_GroupSettings::SETTING_REPLY_PERSONAL_WITH_WORKER, $sender_personal_with_worker);
 	    DAO_GroupSettings::set($team_id, DAO_GroupSettings::SETTING_SUBJECT_HAS_MASK, $subject_has_mask);
 	    DAO_GroupSettings::set($team_id, DAO_GroupSettings::SETTING_SUBJECT_PREFIX, $subject_prefix);
 	    DAO_GroupSettings::set($team_id, DAO_GroupSettings::SETTING_SPAM_THRESHOLD, $spam_threshold);
@@ -5905,6 +5931,8 @@ class ChKbPage extends CerberusPageExtension {
         @$type = DevblocksPlatform::importGPC($_POST['type'],'string'); 
         @$query = DevblocksPlatform::importGPC($_POST['query'],'string');
 
+        $query = trim($query);
+        
         $visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
 		$searchView = C4_AbstractViewLoader::getView('','kb_search');
 		
@@ -5992,6 +6020,8 @@ class ChKbPage extends CerberusPageExtension {
 	}
 
 	function saveArticleEditPanelAction() {
+		$translate = DevblocksPlatform::getTranslationService();
+		
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
 		@$title = DevblocksPlatform::importGPC($_REQUEST['title'],'string');
@@ -7355,6 +7385,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		@$deleted = DevblocksPlatform::importGPC($_REQUEST['deleted'],'integer',0);
 		@$bucket = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'string');
 		@$next_worker_id = DevblocksPlatform::importGPC($_REQUEST['next_worker_id'],'integer',0);
+		@$unlock_date = DevblocksPlatform::importGPC($_REQUEST['unlock_date'],'integer',0);
 		
 		@$ticket = DAO_Ticket::getTicket($id);
 		
@@ -7395,6 +7426,9 @@ class ChDisplayPage extends CerberusPageExtension {
 		if($next_worker_id != $ticket->next_worker_id) {
 			$properties[DAO_Ticket::NEXT_WORKER_ID] = $next_worker_id;
 		}
+		
+		// Reset the unlock date (next worker "until")
+		$properties[DAO_Ticket::UNLOCK_DATE] = $unlock_date;
 		
 		DAO_Ticket::updateTicket($id, $properties);
 

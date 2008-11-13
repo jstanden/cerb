@@ -191,7 +191,7 @@ class CerberusParser {
 		do {
 			$unique = sprintf("%s.%04d.msg",
 				time(),
-				rand(0,9999)
+				mt_rand(0,9999)
 			);
 			$filename = $path . $unique;
         } while(file_exists($filename));
@@ -570,7 +570,7 @@ class CerberusParser {
 				
 			    // Make file attachments use buckets so we have a max per directory
 	            $attachment_bucket = sprintf("%03d/",
-	                rand(1,100)
+	                mt_rand(1,100)
 	            );
 	            $attachment_file = $file_id;
 	            
@@ -682,8 +682,8 @@ class CerberusParser {
 						'ticket_id' => $id,
 						'message_id' => $email_id,
 						'content' => str_replace(
-				        	array('#mask#','#subject#','#sender#','#orig_body#'),
-				        	array($sMask, $sSubject, $fromAddress, ltrim($message->body)),
+				        	array('#ticket_id#','#mask#','#subject#','#timestamp#', '#sender#','#sender_first#','#orig_body#'),
+				        	array($id, $sMask, $sSubject, date('r'), $fromAddress, $fromAddressInst->first_name, ltrim($message->body)),
 				        	$autoreply
 						),
 						'is_autoreply' => true,

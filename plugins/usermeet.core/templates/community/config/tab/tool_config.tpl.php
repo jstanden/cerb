@@ -118,7 +118,7 @@ class DevblocksProxy {
     }
 
     function _generateMimeBoundary() {
-    	return md5(rand(0,10000).time().microtime());
+    	return md5(mt_rand(0,10000).time().microtime());
     }
 
 	function _isSSL() {
