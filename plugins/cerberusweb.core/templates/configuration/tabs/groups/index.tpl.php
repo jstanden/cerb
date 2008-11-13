@@ -14,7 +14,7 @@
 						{if (empty($license) || empty($license.key)) && count($teams) >= 3}
 						You have reached your Cerberus Helpdesk free version limit of 3 groups.<br>
 						[ <a href="{devblocks_url}c=config&a=settings{/devblocks_url}" style="color:rgb(0,160,0);">Enter License</a> ]
-						[ <a href="http://www.cerberusweb.com/purchase.php" target="_blank" style="color:rgb(0,160,0);">Buy License</a> ]
+						[ <a href="http://www.cerberusweb.com/buy" target="_blank" style="color:rgb(0,160,0);">Buy License</a> ]
 						{else}
 						[ <a href="javascript:;" onclick="configAjax.getTeam('0');">add new group</a> ]
 						{/if}
@@ -44,4 +44,5 @@
 		
 	</tr>
 </table>
+
 

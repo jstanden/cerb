@@ -99,6 +99,11 @@ class ChWebApiConfigTab extends Extension_ConfigTab {
 		@$add_nickname = DevblocksPlatform::importGPC($_REQUEST['add_nickname'],'string');
 		@$deletes = DevblocksPlatform::importGPC($_REQUEST['deletes'],'array',array());
 		
+		if(DEMO_MODE) {
+			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','webapi')));
+			return;
+		}		
+		
 		// Deletes
 		if(!empty($deletes)) {
 			DAO_WebapiKey::delete($deletes);

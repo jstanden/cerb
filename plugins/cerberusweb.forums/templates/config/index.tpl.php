@@ -9,16 +9,27 @@
 <h2>{$translate->_('forums.ui.forums')}</h2>
 
 <blockquote>
+
 {if !empty($sources)}
+<table>
+	<tr>
+		<td><b>{$translate->_('forums.ui.cfg.name')}</b></td>
+		<td><b>{$translate->_('common.url')|upper}</b></td>
+		<td><b>{$translate->_('forums.ui.cfg.secret_key')}</b></td>
+		<td><b>{$translate->_('common.delete')|capitalize}</b></td>
+	</tr>
 	{foreach from=$sources item=source key=source_id}
-		<h3>{$source->name}</h3>
-		<input type="hidden" name="ids[]" value="{$source->id|escape}">
-		<input type="text" name="names[]" size="32" value="{$source->name|escape}">
-		<input type="text" name="urls[]" size="64" value="{$source->url|escape}">
-		<input type="text" name="keys[]" size="16" value="{$source->secret_key|escape}">
-		<input type="checkbox" name="deletes[]" value="{$source_id}">
-		<br>
+			<tr>
+				<td>
+					<input type="hidden" name="ids[]" value="{$source->id|escape}">
+					<input type="text" name="names[]" size="32" value="{$source->name|escape}">
+				</td>
+				<td><input type="text" name="urls[]" size="64" value="{$source->url|escape}"></td>
+				<td><input type="text" name="keys[]" size="16" value="{$source->secret_key|escape}"></td>
+				<td><input type="checkbox" name="deletes[]" value="{$source_id}"></td>
+			</tr>
 	{/foreach}
+</table>
 {else}
 	{$translate->_('forums.ui.cfg.no_forums')|lower}<br>
 {/if}

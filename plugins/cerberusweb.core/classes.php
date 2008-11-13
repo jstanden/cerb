@@ -2878,6 +2878,11 @@ class ChConfigurationPage extends CerberusPageExtension  {
 			echo $translate->_('common.access_denied');
 			return;
 		}
+
+		if(DEMO_MODE) {
+			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','kb')));
+			return;
+		}		
 		
 		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer');
 		@$category_name = DevblocksPlatform::importGPC($_POST['category_name'],'string','');

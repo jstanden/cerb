@@ -247,6 +247,11 @@ class UmConfigCommunitiesTab extends Extension_ConfigTab {
 
 	    @$add_tool_id = DevblocksPlatform::importGPC($_POST['add_tool_id'],'string');
 
+		if(DEMO_MODE) {
+			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','communities')));
+			return;
+		}
+	    
 		if(!empty($delete)) {
 			DAO_Community::delete($id);
 			

@@ -14,7 +14,7 @@
 						{if ((empty($license) || empty($license.key)) && count($workers) >= 3) || (!empty($license.key)&&!empty($license.users)&&count($workers)>=$license.users)}
 						You have reached the number of workers permitted by your license.<br>
 						[ <a href="{devblocks_url}c=config&a=settings{/devblocks_url}" style="color:rgb(0,160,0);">Enter License</a> ]
-						[ <a href="http://www.cerberusweb.com/" target="_blank" style="color:rgb(0,160,0);">Buy License</a> ]
+						[ <a href="http://www.cerberusweb.com/buy" target="_blank" style="color:rgb(0,160,0);">Buy License</a> ]
 						{else}
 						[ <a href="javascript:;" onclick="configAjax.getWorker('0');">add new worker</a> ]
 						{/if}
@@ -45,4 +45,5 @@
 		
 	</tr>
 </table>
+
 
