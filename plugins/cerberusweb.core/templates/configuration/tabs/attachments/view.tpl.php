@@ -83,7 +83,7 @@
 			{elseif $column=="t_subject"}
 				<td><a href="{devblocks_url}c=display&id={$result.t_mask}{/devblocks_url}" title="{$result.t_subject|escape}">{$result.t_subject|truncate:45:'...'}</a></td>
 			{elseif $column=="ad_email"}
-				<td><a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$result.ad_email}&view_id={$view->id}',this,false,'500px',ajax.cbAddressPeek);">{$result.ad_email}</a></td>
+				<td><a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$result.ad_email}&view_id={$view->id}',this,false,'500px',ajax.cbAddressPeek);" title="{$result.ad_email|escape}">{$result.ad_email|truncate:64:'...':true:true}</a></td>
 			{else}
 			<td>{$result.$column}&nbsp;</td>
 			{/if}
@@ -96,7 +96,7 @@
 	{if $total}
 	<tr>
 		<td colspan="2">
-			{if $active_worker && $active_worker->is_superuser}<button type="button" id="btn{$view->id}Delete" onclick="this.form.a.value='doAttachmentsDelete';genericAjaxPost('viewForm{$view->id}','view{$view->id}','c=config');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> {$translate->_('common.delete')|lower}</button>{/if}
+			{if $active_worker && $active_worker->is_superuser}<button type="button" id="btn{$view->id}Delete" onclick="this.form.a.value='doAttachmentsDelete';genericAjaxPost('viewForm{$view->id}','view{$view->id}','c=config');document.location.href='#top';"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> {$translate->_('common.delete')|lower}</button>{/if}
 		</td>
 	</tr>
 	{/if}

@@ -1456,7 +1456,7 @@ class C4_AttachmentView extends C4_AbstractView {
 	function __construct() {
 		$this->id = self::DEFAULT_ID;
 		$this->name = 'Attachments';
-		$this->renderLimit = 10;
+		$this->renderLimit = 100;
 		$this->renderSortBy = SearchFields_Attachment::FILE_SIZE;
 		$this->renderSortAsc = false;
 
