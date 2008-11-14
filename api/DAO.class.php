@@ -2030,6 +2030,7 @@ class DAO_Attachment extends DevblocksORMHelper {
 		
 		$attachment_path = APP_PATH . '/storage/attachments/';
 		
+		// Delete the physical files
 		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			@unlink($attachment_path . $rs->fields['filepath']);
@@ -2040,6 +2041,171 @@ class DAO_Attachment extends DevblocksORMHelper {
 		$db->Execute($sql);
 		
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' attachment records.');
+	}
+	
+	static function delete($ids) {
+		if(!is_array($ids)) $ids = array($ids);
+		
+		if(empty($ids))
+			return;
+		
+		$db = DevblocksPlatform::getDatabaseService();
+
+		$sql = sprintf("SELECT filepath FROM attachment WHERE id IN (%s)", implode(',',$ids));
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		$attachment_path = APP_PATH . '/storage/attachments/';
+		
+		// Delete the physical files
+		if(is_a($rs,'ADORecordSet'))
+		while(!$rs->EOF) {
+			@unlink($attachment_path . $rs->fields['filepath']);
+			$rs->MoveNext();
+		}
+		
+		// Delete DB manifests
+		$sql = sprintf("DELETE attachment FROM attachment WHERE id IN (%s)", implode(',', $ids));
+		$db->Execute($sql);
+	}
+	
+    /**
+     * Enter description here...
+     *
+     * @param DevblocksSearchCriteria[] $params
+     * @param integer $limit
+     * @param integer $page
+     * @param string $sortBy
+     * @param boolean $sortAsc
+     * @param boolean $withCounts
+     * @return array
+     */
+    static function search($params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
+		$db = DevblocksPlatform::getDatabaseService();
+
+        list($tables,$wheres) = parent::_parseSearchParams($params, array(),SearchFields_Attachment::getFields());
+		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
+		$total = -1;
+		
+		$sql = sprintf("SELECT ".
+			"a.id as %s, ".
+			"a.message_id as %s, ".
+			"a.display_name as %s, ".
+			"a.mime_type as %s, ".
+			"a.file_size as %s, ".
+			"a.filepath as %s, ".
+		
+			"m.address_id as %s, ".
+			"m.created_date as %s, ".
+			"m.is_outgoing as %s, ".
+		
+			"t.id as %s, ".
+			"t.mask as %s, ".
+			"t.subject as %s, ".
+		
+			"ad.email as %s ".
+		
+			"FROM attachment a ".
+			"INNER JOIN message m ON (a.message_id = m.id) ".
+			"INNER JOIN ticket t ON (m.ticket_id = t.id) ".
+			"INNER JOIN address ad ON (m.address_id = ad.id) ".
+			"",
+			    SearchFields_Attachment::ID,
+			    SearchFields_Attachment::MESSAGE_ID,
+			    SearchFields_Attachment::DISPLAY_NAME,
+			    SearchFields_Attachment::MIME_TYPE,
+			    SearchFields_Attachment::FILE_SIZE,
+			    SearchFields_Attachment::FILEPATH,
+			    
+			    SearchFields_Attachment::MESSAGE_ADDRESS_ID,
+			    SearchFields_Attachment::MESSAGE_CREATED_DATE,
+			    SearchFields_Attachment::MESSAGE_IS_OUTGOING,
+			    
+			    SearchFields_Attachment::TICKET_ID,
+			    SearchFields_Attachment::TICKET_MASK,
+			    SearchFields_Attachment::TICKET_SUBJECT,
+			    
+			    SearchFields_Attachment::ADDRESS_EMAIL
+			).
+			
+			// [JAS]: Dynamic table joins
+//			(isset($tables['ra']) ? "INNER JOIN requester r ON (r.ticket_id=t.id)" : " ").
+			
+			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "").
+			(!empty($sortBy) ? sprintf("ORDER BY %s %s",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : "")
+		;
+		// [TODO] Could push the select logic down a level too
+		if($limit > 0) {
+    		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		} else {
+		    $rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+            $total = $rs->RecordCount();
+		}
+		
+		$results = array();
+		
+		if(is_a($rs,'ADORecordSet'))
+		while(!$rs->EOF) {
+			$result = array();
+			foreach($rs->fields as $f => $v) {
+				$result[$f] = $v;
+			}
+			$ticket_id = intval($rs->fields[SearchFields_Attachment::ID]);
+			$results[$ticket_id] = $result;
+			$rs->MoveNext();
+		}
+
+		// [JAS]: Count all
+		if($withCounts) {
+		    $rs = $db->Execute($sql);
+		    $total = $rs->RecordCount();
+		}
+		
+		return array($results,$total);
+    }
+	
+};
+
+class SearchFields_Attachment implements IDevblocksSearchFields {
+    const ID = 'a_id';
+    const MESSAGE_ID = 'a_message_id';
+    const DISPLAY_NAME = 'a_display_name';
+    const MIME_TYPE = 'a_mime_type';
+    const FILE_SIZE = 'a_file_size';
+    const FILEPATH = 'a_filepath';
+	
+    const MESSAGE_ADDRESS_ID = 'm_address_id';
+    const MESSAGE_CREATED_DATE = 'm_created_date';
+    const MESSAGE_IS_OUTGOING = 'm_is_outgoing';
+    
+    const TICKET_ID = 't_id';
+    const TICKET_MASK = 't_mask';
+    const TICKET_SUBJECT = 't_subject';
+    
+    const ADDRESS_EMAIL = 'ad_email';
+    
+	/**
+	 * @return DevblocksSearchField[]
+	 */
+	static function getFields() {
+		$translate = DevblocksPlatform::getTranslationService();
+		return array(
+			self::ID => new DevblocksSearchField(self::ID, 'a', 'id', null, $translate->_('attachment.id')),
+			self::MESSAGE_ID => new DevblocksSearchField(self::MESSAGE_ID, 'a', 'message_id', null, $translate->_('attachment.message_id')),
+			self::DISPLAY_NAME => new DevblocksSearchField(self::DISPLAY_NAME, 'a', 'display_name', null, $translate->_('attachment.display_name')),
+			self::MIME_TYPE => new DevblocksSearchField(self::MIME_TYPE, 'a', 'mime_type', null, $translate->_('attachment.mime_type')),
+			self::FILE_SIZE => new DevblocksSearchField(self::FILE_SIZE, 'a', 'file_size', null, $translate->_('attachment.file_size')),
+			self::FILEPATH => new DevblocksSearchField(self::FILEPATH, 'a', 'filepath', null, $translate->_('attachment.filepath')),
+			
+			self::MESSAGE_ADDRESS_ID => new DevblocksSearchField(self::MESSAGE_ADDRESS_ID, 'm', 'address_id', null),
+			self::MESSAGE_CREATED_DATE => new DevblocksSearchField(self::MESSAGE_CREATED_DATE, 'm', 'created_date', null, $translate->_('message.created_date')),
+			self::MESSAGE_IS_OUTGOING => new DevblocksSearchField(self::MESSAGE_IS_OUTGOING, 'm', 'is_outgoing', null, $translate->_('mail.outbound')),
+			
+			self::TICKET_ID => new DevblocksSearchField(self::TICKET_ID, 't', 'id', null, $translate->_('ticket.id')),
+			self::TICKET_MASK => new DevblocksSearchField(self::TICKET_MASK, 't', 'mask', null, $translate->_('ticket.mask')),
+			self::TICKET_SUBJECT => new DevblocksSearchField(self::TICKET_SUBJECT, 't', 'subject', null, $translate->_('ticket.subject')),
+			
+			self::ADDRESS_EMAIL => new DevblocksSearchField(self::ADDRESS_EMAIL, 'ad', 'email', null, $translate->_('message.header.from')),
+		);
 	}
 };
 

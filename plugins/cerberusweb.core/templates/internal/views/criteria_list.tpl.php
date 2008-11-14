@@ -23,7 +23,7 @@
 					<tr>
 						<td width="100%">
 						<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/data_find.gif{/devblocks_url}" align="top"> 
-						{$view_fields.$field->db_label|capitalize} 
+						{$view_fields.$field->db_label} 
 						{$param->operator}
 						<b>{$view->renderCriteriaParam($param)}</b>
 						</td>
@@ -58,7 +58,7 @@
 				{assign var=has_custom value=0}
 				{if substr($token,0,3) != "cf_"}
 					{if !empty($column->db_label) && !empty($token)}
-					<option value="{$token}">{$column->db_label|capitalize}</option>
+					<option value="{$token}">{$column->db_label}</option>
 					{/if}
 				{else}
 					{assign var=has_custom value=1}
@@ -70,7 +70,7 @@
 			{foreach from=$view_searchable_fields item=column key=token}
 				{if substr($token,0,3) == "cf_"}
 					{if !empty($column->db_label) && !empty($token)}
-					<option value="{$token}">{$column->db_label|capitalize}</option>
+					<option value="{$token}">{$column->db_label}</option>
 					{/if}
 				{/if}
 			{/foreach}

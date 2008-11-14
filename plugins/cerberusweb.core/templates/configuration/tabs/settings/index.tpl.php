@@ -39,6 +39,24 @@
 
 <br>
 
+<div class="block">
+<h2>Storage</h2>
+<br>
+
+<h3>Database size:</h3>
+Data: <b>{$total_db_data} MB</b><br>
+Indexes: <b>{$total_db_indexes} MB</b><br>
+Total Disk Space: <b>{$total_db_size} MB</b><br>
+<br>
+Running an OPTIMIZE on the database would free up about <b>{$total_db_slack} MB</b><br>
+<br>
+
+<h3>Attachments:</h3>
+Total Disk Space: <b>{$total_file_size} MB</b><br>
+<br>
+</div>
+<br>
+
 <div id="tourConfigLicenses"></div>
 
 <div class="block">

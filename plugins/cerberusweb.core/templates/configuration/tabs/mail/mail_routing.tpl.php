@@ -2,7 +2,7 @@
 <div class="block" id="configMailboxRouting">
 <table cellpadding="2" cellspacing="0" border="0">
 	<tr>
-		<td><h2>Parser Mail Routing</h2></td>
+		<td><h2>Mail Routing</h2></td>
 	</tr>
 	<tr>
 		<td>

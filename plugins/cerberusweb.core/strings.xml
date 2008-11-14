@@ -177,6 +177,9 @@
 		<tu tuid='common.name'>
 			<tuv xml:lang="en_US"><seg>Name</seg></tuv>
 		</tu>
+		<tu tuid='common.no'>
+			<tuv xml:lang="en_US"><seg>no</seg></tuv>
+		</tu>
 		<tu tuid='common.notspam'>
 			<tuv xml:lang="en_US"><seg>Not Spam</seg></tuv>
 		</tu>
@@ -314,6 +317,27 @@
 		</tu>
 		<tu tuid='addy_book.history.view.requester'>
 			<tuv xml:lang="en_US"><seg>Requester History: %s contact(s)</seg></tuv>
+		</tu>
+
+		<!-- Attachment -->
+		
+		<tu tuid='attachment.id'>
+			<tuv xml:lang="en_US"><seg>Attachment ID</seg></tuv>
+		</tu>
+		<tu tuid='attachment.display_name'>
+			<tuv xml:lang="en_US"><seg>File Name</seg></tuv>
+		</tu>
+		<tu tuid='attachment.filepath'>
+			<tuv xml:lang="en_US"><seg>File Path</seg></tuv>
+		</tu>
+		<tu tuid='attachment.file_size'>
+			<tuv xml:lang="en_US"><seg>Size (bytes)</seg></tuv>
+		</tu>
+		<tu tuid='attachment.message_id'>
+			<tuv xml:lang="en_US"><seg>Message ID</seg></tuv>
+		</tu>
+		<tu tuid='attachment.mime_type'>
+			<tuv xml:lang="en_US"><seg>MIME Type</seg></tuv>
 		</tu>
 
 		<!-- Configuration -->
@@ -864,6 +888,9 @@
 		
 		<tu tuid='message.content'>
 			<tuv xml:lang="en_US"><seg>Message Content</seg></tuv>
+		</tu>
+		<tu tuid='message.created_date'>
+			<tuv xml:lang="en_US"><seg>Created</seg></tuv>
 		</tu>
 
 		<!-- Preferences -->

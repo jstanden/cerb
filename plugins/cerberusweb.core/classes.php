@@ -2707,18 +2707,6 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$license = CerberusLicense::getInstance();
 		$tpl->assign('license', $license);
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/settings/index.tpl.php');
-	}
-	
-	// Ajax
-	function showTabStorageAction() {
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
-		$tpl->assign('path', dirname(__FILE__) . '/templates/');
-		
-		$license = CerberusLicense::getInstance();
-		$tpl->assign('license', $license);
-		
 		$db = DevblocksPlatform::getDatabaseService();
 		$rs = $db->Execute("SHOW TABLE STATUS");
 
@@ -2754,8 +2742,131 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$tpl->assign('total_db_slack', number_format($total_db_slack/1048576,2));
 		$tpl->assign('total_file_size', number_format($total_file_size/1048576,2));
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/stats/index.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/settings/index.tpl.php');
 	}
+	
+	// Ajax
+	function showTabAttachmentsAction() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		$core_tplpath = realpath(dirname(__FILE__) . '/../cerberusweb.core/templates') . DIRECTORY_SEPARATOR;
+		$tpl->assign('core_tplpath', $core_tplpath);
+		
+		$tpl->assign('response_uri', 'config/attachments');
+
+		$view = C4_AbstractViewLoader::getView('C4_AttachmentView', C4_AttachmentView::DEFAULT_ID);
+		$tpl->assign('view', $view);
+		$tpl->assign('view_fields', C4_AttachmentView::getFields());
+		$tpl->assign('view_searchable_fields', C4_AttachmentView::getSearchFields());
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/attachments/index.tpl.php');
+	}
+	
+	function doAttachmentsDeleteAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
+		@$row_ids = DevblocksPlatform::importGPC($_REQUEST['row_id'],'array',array());
+		
+		$view = C4_AbstractViewLoader::getView('C4_AttachmentView', $view_id);
+		
+		if(null != ($active_worker = CerberusApplication::getActiveWorker()) 
+			&& $active_worker->is_superuser) {
+				
+			DAO_Attachment::delete($row_ids);
+		}
+		
+		$view->render();
+	}
+	
+//	function doAttachmentsSyncAction() {
+//		if(null != ($active_worker = CerberusApplication::getActiveWorker()) 
+//			&& $active_worker->is_superuser) {
+//				
+//			// Try to grab as many resources as we can
+//			@ini_set('memory_limit','128M');
+//			@set_time_limit(0);
+//			
+//			$db = DevblocksPlatform::getDatabaseService();
+//			$attachment_path = APP_PATH . '/storage/attachments/';
+//			
+//			// Look up all our valid file ids
+//			$sql = sprintf("SELECT id,filepath FROM attachment");
+//			$rs = $db->Execute($sql);
+//			
+//			// Build a hash of valid ids
+//			$valid_ids_set = array();
+//			if(is_a($rs,'ADORecordSet'))
+//			while(!$rs->EOF) {
+//		        $valid_ids_set[intval($rs->fields['id'])] = $rs->fields['filepath'];
+//		        $rs->MoveNext();
+//			}
+//			
+//			$total_files_db = count($valid_ids_set);
+//			
+//			// Get all our attachment hash directories
+//			$dir_handles = glob($attachment_path.'*',GLOB_ONLYDIR|GLOB_NOSORT);
+//			
+//			$orphans = 0;
+//			$checked = 0;
+//			
+//			// Loop through all our hash directories and check that IDs are valid
+//			if(!empty($dir_handles))
+//			foreach($dir_handles as $dir) {
+//		        $dirinfo = pathinfo($dir);
+//		
+//		        if(!is_numeric($dirinfo['basename']))
+//		                continue;
+//		
+//		        if(false == ($dh = opendir($dir)))
+//	                die("Couldn't open " . $dir);
+//		
+//		        while($file = readdir($dh)) {
+//	                // Skip dirs and files we can't change
+//	                if(is_dir($file))
+//                        continue;
+//	
+//	                $info = pathinfo($file);
+//	                $disk_file_id = $info['filename'];
+//	
+//	                // Only numeric filenames are valid
+//	                if(!is_numeric($disk_file_id))
+//                        continue;
+//	
+//	                if(!isset($valid_ids_set[$disk_file_id])) {
+//                        $orphans++;
+//
+//                        //if(DO_DELETE_FILES)
+//						unlink($dir . DIRECTORY_SEPARATOR . $file);
+//	
+//	                } else {
+//                        unset($valid_ids_set[$disk_file_id]);
+//	                }
+//	                $checked++;
+//		        }
+//		        closedir($dh);
+//			}
+//			
+//			$db_orphans = count($valid_ids_set);
+//			
+//	        foreach($valid_ids_set as $db_id => $null) {
+//                $db->Execute(sprintf("DELETE FROM attachment WHERE id = %d", $db_id));
+//	        }
+//			
+//			$tpl = DevblocksPlatform::getTemplateService();
+//			$tpl->cache_lifetime = "0";
+//			$tpl->assign('path', dirname(__FILE__) . '/templates/');
+//	        
+//	        $tpl->assign('checked', $checked);
+//	        $tpl->assign('total_files_db', $total_files_db);
+//	        $tpl->assign('orphans', $orphans);
+//	        $tpl->assign('db_orphans', $db_orphans);
+//	        
+//	        $tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/attachments/cleanup_output.tpl.php');
+//		}
+//
+//		exit;
+//	}
 	
 	// Ajax
 	function showTabWorkersAction() {

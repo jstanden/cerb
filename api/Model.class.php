@@ -1450,6 +1450,246 @@ class C4_AddressView extends C4_AbstractView {
 
 };
 
+class C4_AttachmentView extends C4_AbstractView {
+	const DEFAULT_ID = 'attachments';
+
+	function __construct() {
+		$this->id = self::DEFAULT_ID;
+		$this->name = 'Attachments';
+		$this->renderLimit = 10;
+		$this->renderSortBy = SearchFields_Attachment::FILE_SIZE;
+		$this->renderSortAsc = false;
+
+		$this->view_columns = array(
+			SearchFields_Attachment::MIME_TYPE,
+			SearchFields_Attachment::FILE_SIZE,
+			SearchFields_Attachment::MESSAGE_CREATED_DATE,
+			SearchFields_Attachment::ADDRESS_EMAIL,
+			SearchFields_Attachment::TICKET_MASK,
+		);
+		
+//		$this->params = array(
+//			SearchFields_Address::NUM_NONSPAM => new DevblocksSearchCriteria(SearchFields_Address::NUM_NONSPAM,'>',0),
+//		);
+	}
+
+	function getData() {
+		$objects = DAO_Attachment::search(
+			$this->params,
+			$this->renderLimit,
+			$this->renderPage,
+			$this->renderSortBy,
+			$this->renderSortAsc
+		);
+		return $objects;
+	}
+
+	function render() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('id', $this->id);
+		$tpl->assign('view', $this);
+
+//		$slas = DAO_Sla::getAll();
+//		$tpl->assign('slas', $slas);
+
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('view_fields', $this->getColumns());
+		$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/configuration/tabs/attachments/view.tpl.php');
+	}
+
+	function renderCriteria($field) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('id', $this->id);
+
+		switch($field) {
+			case SearchFields_Attachment::DISPLAY_NAME:
+			case SearchFields_Attachment::FILEPATH:
+			case SearchFields_Attachment::MIME_TYPE:
+			case SearchFields_Attachment::TICKET_MASK:
+			case SearchFields_Attachment::TICKET_SUBJECT:
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__string.tpl.php');
+				break;
+//			case SearchFields_Attachment::ID:
+//			case SearchFields_Attachment::MESSAGE_ID:
+//			case SearchFields_Attachment::TICKET_ID:
+			case SearchFields_Attachment::FILE_SIZE:
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__number.tpl.php');
+				break;
+			case SearchFields_Attachment::MESSAGE_IS_OUTGOING:
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__bool.tpl.php');
+				break;
+			case SearchFields_Attachment::MESSAGE_CREATED_DATE:
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__date.tpl.php');
+				break;
+//			case SearchFields_Attachment::SLA_ID:
+//				$slas = DAO_Sla::getAll();
+//				$tpl->assign('slas', $slas);
+//				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/contacts/addresses/criteria/sla.tpl.php');
+//				break;
+			default:
+				echo '';
+				break;
+		}
+	}
+
+	function renderCriteriaParam($param) {
+		$field = $param->field;
+		$values = !is_array($param->value) ? array($param->value) : $param->value;
+
+		switch($field) {
+//			case SearchFields_Address::SLA_ID:
+//				$slas = DAO_Sla::getAll();
+//				$strings = array();
+//
+//				foreach($values as $val) {
+//					if(0==$val) {
+//						$strings[] = "None";
+//					} else {
+//						if(!isset($slas[$val]))
+//						continue;
+//						$strings[] = $slas[$val]->name;
+//					}
+//				}
+//				echo implode(", ", $strings);
+//				break;
+
+			default:
+				parent::renderCriteriaParam($param);
+				break;
+		}
+	}
+
+	static function getFields() {
+		return SearchFields_Attachment::getFields();
+	}
+
+	static function getSearchFields() {
+		$fields = self::getFields();
+		unset($fields[SearchFields_Attachment::ID]);
+		unset($fields[SearchFields_Attachment::MESSAGE_ID]);
+		return $fields;
+	}
+
+	static function getColumns() {
+		$fields = self::getFields();
+		return $fields;
+	}
+
+	function doResetCriteria() {
+		parent::doResetCriteria();
+		
+//		$this->params = array(
+//			SearchFields_Address::NUM_NONSPAM => new DevblocksSearchCriteria(SearchFields_Address::NUM_NONSPAM,'>',0),
+//		);
+	}
+	
+	function doSetCriteria($field, $oper, $value) {
+		$criteria = null;
+
+		switch($field) {
+			case SearchFields_Attachment::DISPLAY_NAME:
+			case SearchFields_Attachment::MIME_TYPE:
+			case SearchFields_Attachment::FILEPATH:
+			case SearchFields_Attachment::TICKET_MASK:
+			case SearchFields_Attachment::TICKET_SUBJECT:
+				// force wildcards if none used on a LIKE
+				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
+				&& false === (strpos($value,'*'))) {
+					$value = '*'.$value.'*';
+				}
+				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
+				break;
+			case SearchFields_Attachment::ID:
+			case SearchFields_Attachment::MESSAGE_ID:
+			case SearchFields_Attachment::TICKET_ID:
+			case SearchFields_Attachment::FILE_SIZE:
+				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
+				break;
+				
+			case SearchFields_Attachment::MESSAGE_CREATED_DATE:
+				@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','');
+				@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
+
+				if(empty($from)) $from = 0;
+				if(empty($to)) $to = 'today';
+
+				$criteria = new DevblocksSearchCriteria($field,$oper,array($from,$to));
+				break;
+				
+			case SearchFields_Attachment::MESSAGE_IS_OUTGOING:
+				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
+				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
+				break;
+				
+//			case SearchFields_Address::SLA_ID:
+//				@$sla_ids = DevblocksPlatform::importGPC($_REQUEST['sla_ids'], 'array', array());
+//				$criteria = new DevblocksSearchCriteria($field, $oper, $sla_ids);
+//				break;
+		}
+
+		if(!empty($criteria)) {
+			$this->params[$field] = $criteria;
+			$this->renderPage = 0;
+		}
+	}
+
+//	function doBulkUpdate($filter, $do, $ids=array()) {
+//		@set_time_limit(600); // [TODO] Temp!
+//	  
+//		$change_fields = array();
+//
+//		if(empty($do))
+//		return;
+//
+//		if(is_array($do))
+//		foreach($do as $k => $v) {
+//			switch($k) {
+//				case 'sla':
+//					$change_fields[DAO_Address::SLA_ID] = intval($v);
+//					break;
+//				case 'banned':
+//					$change_fields[DAO_Address::IS_BANNED] = intval($v);
+//					break;
+//			}
+//		}
+//
+//		$pg = 0;
+//
+//		if(empty($ids))
+//		do {
+//			list($objects,$null) = DAO_Address::search(
+//			$this->params,
+//			100,
+//			$pg++,
+//			SearchFields_Address::ID,
+//			true,
+//			false
+//			);
+//			 
+//			$ids = array_merge($ids, array_keys($objects));
+//			 
+//		} while(!empty($objects));
+//
+//		$batch_total = count($ids);
+//		for($x=0;$x<=$batch_total;$x+=100) {
+//			$batch_ids = array_slice($ids,$x,100);
+//			DAO_Address::update($batch_ids, $change_fields);
+//
+//			// Cascade SLA changes
+//			if(isset($do['sla'])) {
+//				foreach($batch_ids as $id) {
+//					DAO_Sla::cascadeAddressSla($id, $do['sla']);
+//				}
+//			}
+//
+//			unset($batch_ids);
+//		}
+//
+//		unset($ids);
+//	}
+
+};
+
 class C4_ContactOrgView extends C4_AbstractView {
 	const DEFAULT_ID = 'contact_orgs';
 
