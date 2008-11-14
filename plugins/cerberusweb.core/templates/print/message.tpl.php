@@ -45,6 +45,32 @@
 <br>
 {$message->getContent()|escape|trim|nl2br}<br>
 <br>
+{assign var=message_id value=$message->id}
+{if isset($message_notes.$message_id) && is_array($message_notes.$message_id)}
+	{foreach from=$message_notes.$message_id item=note name=notes key=note_id}
+			
+			<div style="margin:10px;margin-left:20px;">
+				<b>[{$translate->_('display.ui.sticky_note')|capitalize}] </b>
+				{if 1 == $note->type}
+					<b>[warning]:</b>&nbsp;
+				{elseif 2 == $note->type}
+					<b>[error]:</b>&nbsp;
+				{else}
+					<br><b>From: </b>
+					{assign var=note_worker_id value=$note->worker_id}
+					{if $workers.$note_worker_id}
+						{if empty($workers.$note_worker_id->first_name) && empty($workers.$note_worker_id->last_name)}&lt;{$workers.$note_worker_id->email}&gt;{else}{$workers.$note_worker_id->getName()}{/if}&nbsp;
+					{else}
+						(Deleted Worker)&nbsp;
+					{/if}
+				{/if}
+				<br>
+				<b>{$translate->_('message.header.date')|capitalize}:</b> {$note->created|devblocks_date}<br>
+				{if !empty($note->content)}{$note->content|escape}{/if}
+			</div>
+	{/foreach}
+{/if}
+
 
 </body>
 </html>

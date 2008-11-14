@@ -37,17 +37,58 @@
 
 {* Messages *}
 {assign var=messages value=$ticket->getMessages()}
-{foreach from=$messages item=message key=message_id}
-	{assign var=headers value=$message->getHeaders()}
+{foreach from=$convo_timeline item=convo_set name=items}
 	<hr>
-	{if isset($headers.subject)}<b>Subject:</b> {$headers.subject|escape}<br>{/if}
-	{if isset($headers.from)}<b>From:</b> {$headers.from|escape}<br>{/if}
-	{if isset($headers.date)}<b>Date:</b> {$headers.date|escape}<br>{/if}
-	{if isset($headers.to)}<b>To:</b> {$headers.to|escape}<br>{/if}
-	{if isset($headers.cc)}<b>Cc:</b> {$headers.cc|escape}<br>{/if}
-	<br>
-	{$message->getContent()|escape|trim|nl2br}<br>
-	<br>
+	{if $convo_set.0=='m'}
+		{assign var=message_id value=$convo_set.1}
+		{assign var=message value=$messages.$message_id}
+		{assign var=headers value=$message->getHeaders()}
+			{if isset($headers.subject)}<b>Subject:</b> {$headers.subject|escape}<br>{/if}
+			{if isset($headers.from)}<b>From:</b> {$headers.from|escape}<br>{/if}
+			{if isset($headers.date)}<b>Date:</b> {$headers.date|escape}<br>{/if}
+			{if isset($headers.to)}<b>To:</b> {$headers.to|escape}<br>{/if}
+			{if isset($headers.cc)}<b>Cc:</b> {$headers.cc|escape}<br>{/if}
+			<br>			
+			{$message->getContent()|escape|trim|nl2br}<br><br>
+			
+			{if isset($message_notes.$message_id) && is_array($message_notes.$message_id)}
+				{foreach from=$message_notes.$message_id item=note name=notes key=note_id}
+						
+						<div style="margin:10px;margin-left:20px;">
+							<b>[{$translate->_('display.ui.sticky_note')|capitalize}] </b>
+							{if 1 == $note->type}
+								<b>[warning]:</b>&nbsp;
+							{elseif 2 == $note->type}
+								<b>[error]:</b>&nbsp;
+							{else}
+								<br><b>From: </b>
+								{assign var=note_worker_id value=$note->worker_id}
+								{if $workers.$note_worker_id}
+									{if empty($workers.$note_worker_id->first_name) && empty($workers.$note_worker_id->last_name)}&lt;{$workers.$note_worker_id->email}&gt;{else}{$workers.$note_worker_id->getName()}{/if}&nbsp;
+								{else}
+									(Deleted Worker)&nbsp;
+								{/if}
+							{/if}
+							<br>
+							<b>{$translate->_('message.header.date')|capitalize}:</b> {$note->created|devblocks_date}<br>
+							{if !empty($note->content)}{$note->content|escape}{/if}
+						</div>
+				{/foreach}
+			{/if}
+			<br>		
+	{elseif $convo_set.0=='c'}
+		{assign var=comment_id value=$convo_set.1}
+		{assign var=comment value=$comments.$comment_id}
+		{assign var=comment_address value=$comment->getAddress()}
+		
+		<b>[{$translate->_('common.comment')|capitalize}]</b><br>
+		<b>From:</b>{if empty($comment_address->first_name) && empty($comment_address->last_name)}&lt;{$comment_address->email|escape}&gt;{else}{$comment_address->getName()}{/if}<br>
+		
+		{if isset($comment->created)}<b>{$translate->_('message.header.date')|capitalize}:</b> {$comment->created|devblocks_date}<br>{/if}
+		<br>
+		{$comment->comment|trim|escape}
+		<br>
+	{/if}
 {/foreach}
 
 </body>

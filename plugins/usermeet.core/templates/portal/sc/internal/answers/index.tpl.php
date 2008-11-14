@@ -13,8 +13,8 @@
 			<a href="{devblocks_url}c=kb&a=article&id={$article.kb_id|string_format:"%06d"}{/devblocks_url}" style="font-weight:normal;" target="_blank">{$article.kb_title}</a> 
 			<br>
 			<div style="margin-left:20px;">
-			{if !empty($description)}
-				{$description|strip_tags|truncate:500:'...'}
+			{if !empty($article.kb_content)}
+				{$article.kb_content|strip_tags|truncate:500:'...'}
 				<br>
 			{/if}
 			<b>{$translate->_('portal.sc.public.common.source')}</b> <a href="{devblocks_url full=true}c=kb&a=article&id={$article.kb_id|string_format:"%06d"}{/devblocks_url}" style="color:rgb(50,50,50);" target="_blank">{devblocks_url full=true}c=kb&a=article&id={$article.kb_id|string_format:"%06d"}{/devblocks_url}</a><br>
