@@ -237,6 +237,7 @@ class ChTranslations extends DevblocksTranslationsExtension {
 };
 
 class ChHomePage extends CerberusPageExtension {
+	const VIEW_MY_EVENTS = 'home_myevents';
 	const VIEW_MY_TICKETS = 'home_mytickets';
 	const VIEW_MY_TASKS = 'home_mytasks';
 	
@@ -260,13 +261,15 @@ class ChHomePage extends CerberusPageExtension {
 			return true;
 		}
 	}
-	
+
 	function render() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$response = DevblocksPlatform::getHttpResponse();
 		$stack = $response->path;
 		array_shift($stack); // home
+		
+		@$tab_selected = array_shift($stack);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
@@ -275,8 +278,7 @@ class ChHomePage extends CerberusPageExtension {
 		$tab_manifests = DevblocksPlatform::getExtensions('cerberusweb.home.tab', false);
 		$tpl->assign('tab_manifests', $tab_manifests);
 		
-		@$tab_selected = array_shift($stack);
-		if(empty($tab_selected)) $tab_selected = 'tickets';
+		if(empty($tab_selected)) $tab_selected = 'events';
 		$tpl->assign('tab_selected', $tab_selected);
 		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/home/index.tpl.php');
@@ -291,6 +293,96 @@ class ChHomePage extends CerberusPageExtension {
 			&& $inst instanceof Extension_HomeTab) {
 			$inst->showTab();
 		}
+	}
+	
+	function showMyEventsAction() {
+		$translate = DevblocksPlatform::getTranslationService();
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		// My Events
+		$myEventsView = C4_AbstractViewLoader::getView('', self::VIEW_MY_EVENTS);
+		
+		$title = vsprintf($translate->_('home.my_notifications.view.title'), $active_worker->getName());
+		
+		if(null == $myEventsView) {
+			$myEventsView = new C4_WorkerEventView();
+			$myEventsView->id = self::VIEW_MY_EVENTS;
+			$myEventsView->name = $title;
+			$myEventsView->dashboard_id = 0;
+//			$myEventsView->view_columns = array(
+//				SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
+//				SearchFields_Ticket::TICKET_UPDATED_DATE,
+//				SearchFields_Ticket::TEAM_NAME,
+//				SearchFields_Ticket::TICKET_CATEGORY_ID,
+//				SearchFields_Ticket::TICKET_NEXT_ACTION,
+//			);
+//			$myEventsView->params = array();
+			$myEventsView->renderLimit = 25;
+			$myEventsView->renderPage = 0;
+			$myEventsView->renderSortBy = SearchFields_WorkerEvent::CREATED_DATE;
+			$myEventsView->renderSortAsc = 0;
+			
+			// Overload criteria
+			$myEventsView->params = array(
+				SearchFields_WorkerEvent::WORKER_ID => new DevblocksSearchCriteria(SearchFields_WorkerEvent::WORKER_ID,'=',$active_worker->id),
+				SearchFields_WorkerEvent::IS_READ => new DevblocksSearchCriteria(SearchFields_WorkerEvent::IS_READ,'=',0),
+//				SearchFields_WorkerEvent::TICKET_WAITING => new DevblocksSearchCriteria(SearchFields_WorkerEvent::TICKET_WAITING,'=',0),
+			);
+			
+			C4_AbstractViewLoader::setView($myEventsView->id,$myEventsView);
+		}
+		
+		$tpl->assign('view', $myEventsView);
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/home/tabs/my_events/index.tpl.php');
+	}
+	
+	/**
+	 * Open an event, mark it read, and redirect to its URL.
+	 * Used by Home->Notifications view.
+	 *
+	 */
+	function redirectReadAction() {
+		$request = DevblocksPlatform::getHttpRequest();
+		$stack = $request->path;
+		
+		array_shift($stack); // home
+		array_shift($stack); // redirectReadAction
+		@$id = array_shift($stack); // id
+		
+		if(null != ($event = DAO_WorkerEvent::get($id))) {
+			// Mark as read before we redirect
+			DAO_WorkerEvent::update($id, array(
+				DAO_WorkerEvent::IS_READ => 1
+			));
+
+			session_write_close();
+			header("Location: " . $event->url);
+		}
+		exit;
+	} 
+	
+	function doNotificationsMarkReadAction() {
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
+		@$row_ids = DevblocksPlatform::importGPC($_REQUEST['row_id'],'array',array());
+
+		if(is_array($row_ids) && !empty($row_ids)) {
+			DAO_WorkerEvent::updateWhere(
+				array(
+					DAO_WorkerEvent::IS_READ => 1,
+				), 
+				sprintf("%s IN (%s)",
+					DAO_WorkerEvent::ID,
+					implode(',', $row_ids)
+				)
+			);
+		}
+		
+		$myEventsView = C4_AbstractViewLoader::getView('', $view_id);
+		$myEventsView->render();
 	}
 	
 	function showMyTicketsAction() {
@@ -316,7 +408,7 @@ class ChHomePage extends CerberusPageExtension {
 				SearchFields_Ticket::TICKET_UPDATED_DATE,
 				SearchFields_Ticket::TEAM_NAME,
 				SearchFields_Ticket::TICKET_CATEGORY_ID,
-				SearchFields_Ticket::TICKET_NEXT_ACTION,
+//				SearchFields_Ticket::TICKET_NEXT_ACTION,
 			);
 			$myTicketsView->params = array();
 			$myTicketsView->renderLimit = 10;
@@ -355,14 +447,12 @@ class ChHomePage extends CerberusPageExtension {
 			$myTasksView = new C4_TaskView();
 			$myTasksView->id = self::VIEW_MY_TASKS;
 			$myTasksView->name = $title;
-			//$myTasksView->dashboard_id = 0;
-//			$myTasksView->view_columns = array(
-//				SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
-//				SearchFields_Ticket::TICKET_UPDATED_DATE,
-//				SearchFields_Ticket::TEAM_NAME,
-//				SearchFields_Ticket::TICKET_CATEGORY_ID,
-//				SearchFields_Ticket::TICKET_NEXT_ACTION,
-//			);
+			$myTasksView->dashboard_id = 0;
+			$myTasksView->view_columns = array(
+				SearchFields_Task::SOURCE_EXTENSION,
+				SearchFields_Task::PRIORITY,
+				SearchFields_Task::DUE_DATE,
+			);
 			$myTasksView->params = array();
 //			$myTasksView->renderLimit = 10;
 			$myTasksView->renderPage = 0;
@@ -7649,10 +7739,15 @@ class ChDisplayPage extends CerberusPageExtension {
 		$tpl->assign('id',$id);
 		
 		$message = DAO_Ticket::getMessage($id);
+		$ticket = DAO_Ticket::getTicket($message->ticket_id);
 		$tpl->assign('message',$message);
+		$tpl->assign('ticket',$ticket);
 		
 		$worker = CerberusApplication::getActiveWorker();
 		$tpl->assign('worker', $worker);
+		
+		$workers = DAO_Worker::getAll();
+		$tpl->assign('workers', $workers);
 		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/rpc/add_note.tpl.php');
 	}
@@ -7675,6 +7770,25 @@ class ChDisplayPage extends CerberusPageExtension {
 		// [TODO] This really should use an anchor to go back to the message (#r100)
 //		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('display',$ticket_id)));
 
+		if(null != ($ticket = DAO_Ticket::getTicket($ticket_id))) {
+			
+			// Notifications
+			$url_writer = DevblocksPlatform::getUrlService();
+			@$notify_worker_ids = DevblocksPlatform::importGPC($_REQUEST['notify_worker_ids'],'array',array());
+			if(is_array($notify_worker_ids) && !empty($notify_worker_ids))
+			foreach($notify_worker_ids as $notify_worker_id) {
+				$fields = array(
+					DAO_WorkerEvent::CREATED_DATE => time(),
+					DAO_WorkerEvent::WORKER_ID => $notify_worker_id,
+					DAO_WorkerEvent::URL => $url_writer->write('c=display&id='.$ticket->mask,true),
+					DAO_WorkerEvent::TITLE => 'New Ticket Note', // [TODO] Translate
+					DAO_WorkerEvent::CONTENT => sprintf("#%s: %s\n%s notes: %s", $ticket->mask, $ticket->subject, $worker->getName(), $content), // [TODO] Translate
+					DAO_WorkerEvent::IS_READ => 0,
+				);
+				DAO_WorkerEvent::create($fields);
+			}
+		}
+		
 		$this->_renderNotes($id);
 	}
 	
@@ -7917,6 +8031,12 @@ class ChDisplayPage extends CerberusPageExtension {
 
 		$tpl->assign('ticket_id', $ticket_id);
 		
+		$ticket = DAO_Ticket::getTicket($ticket_id);
+		$tpl->assign('ticket', $ticket);
+
+		$workers = DAO_Worker::getAll();
+		$tpl->assign('workers', $workers);
+		
 		$comments = DAO_TicketComment::getByTicketId($ticket_id);
 		arsort($comments);
 		$tpl->assign('comments', $comments);
@@ -7964,6 +8084,22 @@ class ChDisplayPage extends CerberusPageExtension {
 		$comment_id = DAO_TicketComment::create($fields);
 		
 		@$ticket = DAO_Ticket::getTicket($ticket_id);
+		
+		// Notifications
+		$url_writer = DevblocksPlatform::getUrlService();
+		@$notify_worker_ids = DevblocksPlatform::importGPC($_REQUEST['notify_worker_ids'],'array',array());
+		if(is_array($notify_worker_ids) && !empty($notify_worker_ids))
+		foreach($notify_worker_ids as $notify_worker_id) {
+			$fields = array(
+				DAO_WorkerEvent::CREATED_DATE => time(),
+				DAO_WorkerEvent::WORKER_ID => $notify_worker_id,
+				DAO_WorkerEvent::URL => $url_writer->write('c=display&id='.$ticket->mask,true),
+				DAO_WorkerEvent::TITLE => 'New Ticket Comment', // [TODO] Translate
+				DAO_WorkerEvent::CONTENT => sprintf("#%s: %s\n%s comments: %s", $ticket->mask, $ticket->subject, $active_worker->getName(), $comment), // [TODO] Translate
+				DAO_WorkerEvent::IS_READ => 0,
+			);
+			DAO_WorkerEvent::create($fields);
+		}
 		
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('display',$ticket->mask,'comments')));
 	}
@@ -8233,8 +8369,9 @@ class ChDisplayPage extends CerberusPageExtension {
 			SearchFields_Task::COMPLETED_DATE,
 		);
 		$view->params = array(
-			new DevblocksSearchCriteria(SearchFields_Task::SOURCE_EXTENSION,'=','cerberusweb.tasks.ticket'),
-			new DevblocksSearchCriteria(SearchFields_Task::SOURCE_ID,'=',$ticket_id),
+			SearchFields_Task::SOURCE_EXTENSION => new DevblocksSearchCriteria(SearchFields_Task::SOURCE_EXTENSION,'=','cerberusweb.tasks.ticket'),
+			SearchFields_Task::SOURCE_ID => new DevblocksSearchCriteria(SearchFields_Task::SOURCE_ID,'=',$ticket_id),
+			SearchFields_Task::IS_COMPLETED => new DevblocksSearchCriteria(SearchFields_Task::IS_COMPLETED,'=',0),
 		);
 		$tpl->assign('view', $view);
 		
@@ -9175,7 +9312,7 @@ class ChTaskSource_Ticket extends Extension_TaskSource {
 		$url = DevblocksPlatform::getUrlService();
 		return array(
 			'name' => '[Ticket] '.$ticket->subject,
-			'url' => $url->write(sprintf('c=display&mask=%s',$ticket->mask)),
+			'url' => $url->write(sprintf('c=display&mask=%s&tab=tasks',$ticket->mask)),
 		);
 	}
 };

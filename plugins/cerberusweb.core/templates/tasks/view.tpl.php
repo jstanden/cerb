@@ -126,7 +126,7 @@
 					{else}
 					{/if}
 				{/if}
-				<a href="javascript:;" onclick="genericAjaxPanel('c=tasks&a=showTaskPeek&id={$result.t_id}&view_id={$view->id}',this,false,'550px');" class="ticketLink" style="font-size:12px;"><b id="subject_{$result.t_id}_{$view->id}">{$result.t_title|escape}</b></a><br>
+				<a href="javascript:;" onclick="genericAjaxPanel('c=tasks&a=showTaskPeek&id={$result.t_id}&view_id={$view->id}',this,false,'550px');" style="color:rgb(75,75,75);font-size:12px;"><b id="subject_{$result.t_id}_{$view->id}">{$result.t_title|escape}</b></a><br>
 				{$result.t_content|escape}
 			</td>
 		</tr>

@@ -448,5 +448,36 @@ if(null != ($cron_mf = DevblocksPlatform::getExtension('cron.import'))) {
 	}
 }
 
+// `worker_event` =============================
+if(!isset($tables['worker_event'])) {
+    $flds = "
+		id I4 DEFAULT 0 NOTNULL PRIMARY,
+		created_date I4 DEFAULT 0 NOTNULL,
+		worker_id I4 DEFAULT 0 NOTNULL,
+		title C(255) DEFAULT '' NOTNULL,
+		content XL,
+		is_read I1 DEFAULT 0 NOTNULL,
+		url C(255) DEFAULT '' NOTNULL
+	";
+    
+    $sql = $datadict->CreateTableSQL('worker_event',$flds);
+    $datadict->ExecuteSQLArray($sql);
+    
+	if(!isset($indexes['created_date'])) {
+	    $sql = $datadict->CreateIndexSQL('created_date','worker_event','created_date');
+	    $datadict->ExecuteSQLArray($sql);
+	}
+	
+	if(!isset($indexes['worker_id'])) {
+	    $sql = $datadict->CreateIndexSQL('worker_id','worker_event','worker_id');
+	    $datadict->ExecuteSQLArray($sql);
+	}
+	
+	if(!isset($indexes['is_read'])) {
+	    $sql = $datadict->CreateIndexSQL('is_read','worker_event','is_read');
+	    $datadict->ExecuteSQLArray($sql);
+	}
+}
+
 return TRUE;
 ?>

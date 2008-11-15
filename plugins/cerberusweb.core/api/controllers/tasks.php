@@ -175,8 +175,38 @@ class ChTasksController extends DevblocksControllerExtension {
 			// Save
 			if(!empty($id)) {
 				DAO_Task::update($id, $fields);
+				
 			} else {
 				$id = DAO_Task::create($fields);
+
+				// Write a notification (if not assigned to ourselves)
+//				$url_writer = DevblocksPlatform::getUrlService();
+				$source_extensions = DevblocksPlatform::getExtensions('cerberusweb.task.source', true);
+				if(!empty($worker_id)) { // && $active_worker->id != $worker_id (Temporarily allow self notifications)
+					if(null != (@$source_renderer = $source_extensions[$link_namespace])) { /* @var $source_renderer Extension_TaskSource */
+						$source_info = $source_renderer->getSourceInfo($link_object_id);
+						$source_name = $source_info['name'];
+						$source_url = $source_info['url'];
+						
+						if(empty($source_name) || empty($source_url))
+							break;
+						
+						$fields = array(
+							DAO_WorkerEvent::CREATED_DATE => time(),
+							DAO_WorkerEvent::WORKER_ID => $worker_id,
+	//						DAO_WorkerEvent::URL => $url_writer->write('c=home&a=tasks',true),
+							DAO_WorkerEvent::URL => $source_url,
+							DAO_WorkerEvent::TITLE => 'New Task Assignment', // [TODO] Translate
+							DAO_WorkerEvent::CONTENT => sprintf("%s\n%s says: %s",
+								$source_name, 
+								$active_worker->getName(),
+								$title
+							),
+							DAO_WorkerEvent::IS_READ => 0,
+						);
+						DAO_WorkerEvent::create($fields);
+					}
+				}
 			}
 		}
 		

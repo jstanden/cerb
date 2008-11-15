@@ -41,11 +41,14 @@
 			<tuv xml:lang="en_US"><seg>Tasks (%s)</seg></tuv>
 		</tu>
 
-		<tu tuid='home.tab.my_tasks'>
-			<tuv xml:lang="en_US"><seg>My Tasks</seg></tuv>
-		</tu>
 		<tu tuid='home.tab.my_mail'>
 			<tuv xml:lang="en_US"><seg>My Mail</seg></tuv>
+		</tu>
+		<tu tuid='home.tab.my_notifications'>
+			<tuv xml:lang="en_US"><seg>Notifications</seg></tuv>
+		</tu>
+		<tu tuid='home.tab.my_tasks'>
+			<tuv xml:lang="en_US"><seg>My Tasks</seg></tuv>
 		</tu>
 
 		<tu tuid='activity.tab.tasks'>
@@ -562,6 +565,12 @@
 
 		<!-- Home -->
 		
+		<tu tuid='home.my_notifications.view.title'>
+			<tuv xml:lang="en_US"><seg>Notifications for %s</seg></tuv>
+		</tu>
+		<tu tuid='home.my_notifications.button.mark_read'>
+			<tuv xml:lang="en_US"><seg>Mark Read</seg></tuv>
+		</tu>
 		<tu tuid='home.my_tasks.view.title'>
 			<tuv xml:lang="en_US"><seg>Tasks for %s</seg></tuv>
 		</tu>
@@ -1161,6 +1170,27 @@ If you did not request this, do not click the link above.  The request will expi
 			<tuv xml:lang="en_US"><seg>%s Worker(s) Signed In:</seg></tuv>
 		</tu>
 
+		<!-- Worker Event -->
+
+		<tu tuid='worker_event.id'>
+			<tuv xml:lang="en_US"><seg>ID</seg></tuv>
+		</tu>
+		<tu tuid='worker_event.content'>
+			<tuv xml:lang="en_US"><seg>Content</seg></tuv>
+		</tu>
+		<tu tuid='worker_event.created_date'>
+			<tuv xml:lang="en_US"><seg>Created</seg></tuv>
+		</tu>
+		<tu tuid='worker_event.is_read'>
+			<tuv xml:lang="en_US"><seg>Read</seg></tuv>
+		</tu>
+		<tu tuid='worker_event.title'>
+			<tuv xml:lang="en_US"><seg>Title</seg></tuv>
+		</tu>
+		<tu tuid='worker_event.worker_id'>
+			<tuv xml:lang="en_US"><seg>Worker</seg></tuv>
+		</tu>
+		
 		<!-- Workflow -->
 
 		<tu tuid='workflow.assigned'>

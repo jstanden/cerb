@@ -32,18 +32,20 @@
 			{elseif $optColumn->token=="c_id"}
 			{else}
 				{if !empty($optColumn->db_label) && !empty($optColumn->token)}
-					<option value="{$optColumn->token}" {if $view->view_columns.$index==$optColumn->token}selected{/if}>{$optColumn->db_label|capitalize}</option>
+					<option value="{$optColumn->token}" {if $view->view_columns.$index==$optColumn->token}selected{/if}>{$optColumn->db_label}</option>
 				{/if}
 			{/if}
+		{else}
+			{assign var=has_custom value=1}
 		{/if}
 	{/foreach}
 	
-	{if 1}
+	{if $has_custom}
 	<optgroup label="Custom Fields">
 	{foreach from=$optColumns item=optColumn}
 		{if substr($optColumn->token,0,3) == "cf_"}
 			{if !empty($optColumn->db_label) && !empty($optColumn->token)}
-			<option value="{$optColumn->token}" {if $view->view_columns.$index==$optColumn->token}selected{/if}>{$optColumn->db_label|capitalize}</option>
+			<option value="{$optColumn->token}" {if $view->view_columns.$index==$optColumn->token}selected{/if}>{$optColumn->db_label}</option>
 			{/if}
 		{/if}
 	{/foreach}

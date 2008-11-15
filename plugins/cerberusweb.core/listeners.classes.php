@@ -319,6 +319,10 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 	function handleEvent(Model_DevblocksEvent $event) {
 		// Cerberus Helpdesk Workflow
 		switch($event->id) {
+            case 'ticket.property.pre_change':
+				$this->_workerAssigned($event);
+            	break;
+			
 			case 'ticket.property.post_change':
 				$this->_handleTicketMoved($event);
 				$this->_handleTicketClosed($event);
@@ -334,6 +338,46 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		}
 	}
 
+    private function _workerAssigned($event) {
+    	@$ticket_ids = $event->params['ticket_ids'];
+    	@$changed_fields = $event->params['changed_fields'];
+    	
+    	if(empty($ticket_ids) || empty($changed_fields))
+    		return;
+    		
+    	@$next_worker_id = $changed_fields[DAO_Ticket::NEXT_WORKER_ID];
+
+    	// Make sure a next worker was assigned
+    	if(empty($next_worker_id))
+    		return;
+
+    	@$active_worker = CerberusApplication::getActiveWorker();
+    		
+    	// Make sure we're not assigning work to ourselves, if so then bail
+    	if(null != $active_worker && $active_worker->id == $next_worker_id) {
+    		return;
+    	}
+    	
+    	$tickets = DAO_Ticket::getTickets($ticket_ids);
+    	
+		// Write a notification (if not assigned to ourselves)
+		$url_writer = DevblocksPlatform::getUrlService();
+		foreach($ticket_ids as $ticket_id) {
+			if(null == ($ticket = $tickets[$ticket_id])) /* @var $ticket CerberusTicket */
+				continue;
+				
+			$fields = array(
+				DAO_WorkerEvent::CREATED_DATE => time(),
+				DAO_WorkerEvent::WORKER_ID => $next_worker_id,
+				DAO_WorkerEvent::URL => $url_writer->write('c=display&id='.$ticket->mask,true),
+				DAO_WorkerEvent::TITLE => 'New Ticket Assignment', // [TODO] Translate
+				DAO_WorkerEvent::CONTENT => sprintf("#%s: %s", $ticket->mask, $ticket->subject),
+				DAO_WorkerEvent::IS_READ => 0,
+			);
+			DAO_WorkerEvent::create($fields);
+		}
+    }
+	
 	private function _handleCronMaint($event) {
 		DAO_Address::maint();
 		DAO_Group::maint();

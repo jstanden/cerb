@@ -3,7 +3,7 @@
 {assign var=data value=$results[0]}
 <table cellpadding="0" cellspacing="0" border="0" class="tableBlue" width="100%">
 	<tr>
-		<td nowrap="nowrap" class="tableThBlue">{$view->name}</td>
+		<td nowrap="nowrap" class="tableThBlue">{$view->name} {if $view->id == 'search'}<a href="#{$view->id}_actions" style="color:rgb(255,255,255);font-size:11px;">{$translate->_('views.jump_to_actions')}</a>{/if}</td>
 		<td nowrap="nowrap" class="tableThBlue" align="right">
 			<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');" class="tableThLink">{$translate->_('common.refresh')|lower}</a>
 			<!-- {if $view->id != 'search'}<span style="font-size:12px"> | </span><a href="{devblocks_url}c=internal&a=searchview&id={$view->id}{/devblocks_url}" class="tableThLink">{$translate->_('common.search')|lower} list</a>{/if} -->
@@ -13,11 +13,11 @@
 </table>
 
 <form id="customize{$view->id}" name="customize{$view->id}" action="#" onsubmit="return false;" style="display:none;"></form>
-<form id="viewForm{$view->id}" name="viewForm{$view->id}" action="{devblocks_url}{/devblocks_url}" method="POST">
+<form id="viewForm{$view->id}" name="viewForm{$view->id}" action="#">
 <input type="hidden" name="view_id" value="{$view->id}">
-<input type="hidden" name="c" value="forums">
+<input type="hidden" name="c" value="home">
 <input type="hidden" name="a" value="">
-<table cellpadding="0" cellspacing="0" border="0" width="100%" class="tableRowBg">
+<table cellpadding="1" cellspacing="0" border="0" width="100%" class="tableRowBg">
 
 	{* Column Headers *}
 	<tr class="tableTh">
@@ -25,8 +25,8 @@
 		{foreach from=$view->view_columns item=header name=headers}
 			{* start table header, insert column title and link *}
 			<th nowrap="nowrap">
-			{if $header=="x"}<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewSortBy&id={$view->id}&sortBy=a_id');">{$translate->_('contact_org.id')|capitalize}</a>
-			{else}<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewSortBy&id={$view->id}&sortBy={$header}');">{$view_fields.$header->db_label|capitalize}</a>
+			{if $header=="x"}<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewSortBy&id={$view->id}&sortBy=we_id');">{$translate->_('contact_org.id')|capitalize}</a>
+			{else}<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewSortBy&id={$view->id}&sortBy={$header}');">{$view_fields.$header->db_label}</a>
 			{/if}
 			
 			{* add arrow if sorting by this column, finish table header tag *}
@@ -44,41 +44,44 @@
 	{* Column Data *}
 	{foreach from=$data item=result key=idx name=results}
 
-	{assign var=rowIdPrefix value="row_"|cat:$view->id|cat:"_"|cat:$result.t_id}
+	{assign var=rowIdPrefix value="row_"|cat:$view->id|cat:"_"|cat:$result.we_id}
 	{if $smarty.foreach.results.iteration % 2}
 		{assign var=tableRowBg value="tableRowBg"}
 	{else}
 		{assign var=tableRowBg value="tableRowAltBg"}
 	{/if}
 	
-		<tr class="{$tableRowBg}" id="{$rowIdPrefix}_s" onmouseover="toggleClass(this.id,'tableRowHover');toggleClass('{$rowIdPrefix}','tableRowHover');" onmouseout="toggleClass(this.id,'{$tableRowBg}');toggleClass('{$rowIdPrefix}','{$tableRowBg}');" onclick="if(getEventTarget(event)=='TD') checkAll('{$rowIdPrefix}_s');">
-			<td align="center" rowspan="2"><input type="checkbox" name="row_id[]" value="{$result.t_id}"></td>
-			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">{if $result.t_is_closed}<img src="{devblocks_url}c=resource&p=cerberusweb.forums&f=images/check_gray.gif{/devblocks_url}" align="top"> {/if}<a href="{devblocks_url}c=forums&a=explorer{/devblocks_url}?start={$result.t_id}" target="_blank" style="color:rgb(75,75,75);font-size:12px;"><b id="subject_{$result.t_id}_{$view->id}">{$result.t_title}</b></a></td>
+		<tr class="{$tableRowBg}" id="{$rowIdPrefix}_s" onmouseover="toggleClass(this.id,'tableRowHover');toggleClass('{$rowIdPrefix}','tableRowHover');" onmouseout="toggleClass(this.id,'{$tableRowBg}');toggleClass('{$rowIdPrefix}','{$tableRowBg}');" onclick="if(getEventTarget(event)=='TD' || getEventTarget(event)=='DIV') checkAll('{$rowIdPrefix}_s');">
+			<td align="center" rowspan="2"><input type="checkbox" name="row_id[]" value="{$result.we_id}"></td>
+			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">
+				{*<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_new.gif{/devblocks_url}" align="top">*}
+				<a href="{devblocks_url}c=home&a=redirectRead&id={$result.we_id}{/devblocks_url}" style="color:rgb(75,75,75);font-size:12px;font-weight:bold;">{$result.we_title}</a><br>
+			</td>
 		</tr>
 		<tr class="{$tableRowBg}" id="{$rowIdPrefix}" onmouseover="toggleClass(this.id,'tableRowHover');toggleClass('{$rowIdPrefix}_s','tableRowHover');" onmouseout="toggleClass(this.id,'{$tableRowBg}');toggleClass('{$rowIdPrefix}_s','{$tableRowBg}');" onclick="if(getEventTarget(event)=='TD') checkAll('{$rowIdPrefix}_s');">
 		{foreach from=$view->view_columns item=column name=columns}
-			{if $column=="t_id"}
-				<td>{$result.t_id}&nbsp;</td>
-			{elseif $column=="t_forum_id"}
-				{assign var=thread_source_id value=$result.t_forum_id}
+			{if $column=="we_id"}
+			<td valign="top">{$result.we_id}&nbsp;</td>
+			{elseif $column=="we_created_date"}
+			<td valign="top" title="{$result.we_created_date|devblocks_date}">{$result.we_created_date|devblocks_date:'EEE, MMM d Y'}&nbsp;</td>
+			{elseif $column=="we_from_worker_id" || $column=="we_to_worker_id"}
+				{assign var=worker_id value=$result.$column}
 				<td>
-					{if isset($sources.$thread_source_id)}
-						{$sources.$thread_source_id->name}&nbsp;
+					{if !empty($worker_id)}
+						{$workers.$worker_id->getName()}
+					{else}
+						(auto)
 					{/if}
+					&nbsp;
 				</td>
-			{elseif $column=="t_worker_id"}
-				{assign var=thread_worker_id value=$result.t_worker_id}
-				<td>
-					{if isset($workers.$thread_worker_id)}
-						{$workers.$thread_worker_id->getName()}&nbsp;
-					{/if}
-				</td>
-			{elseif $column=="t_last_updated"}
-				<td>{$result.t_last_updated|devblocks_date}&nbsp;</td>
-			{elseif $column=="t_link"}
-				<td><a href="{$result.t_link}" target="_blank" title="{$result.t_link}">{$result.t_link|truncate:64:'...':true:true}</a>&nbsp;</td>
+			{elseif $column=="we_url"}
+			<td valign="top"><a href="{devblocks_url}c=home&a=redirectRead&id={$result.we_id}{/devblocks_url}">{$result.$column}</a>&nbsp;</td>
+			{elseif $column=="we_is_read"}
+			<td valign="top">{if !$result.$column}<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check_gray.gif{/devblocks_url}" align="top">{/if}&nbsp;</td>
+			{elseif $column=="we_content"}
+			<td valign="top">{$result.$column|nl2br}&nbsp;</td>
 			{else}
-				<td>{$result.$column}&nbsp;</td>
+			<td valign="top">{$result.$column}&nbsp;</td>
 			{/if}
 		{/foreach}
 		</tr>
@@ -89,32 +92,7 @@
 	{if $total}
 	<tr>
 		<td colspan="2">
-			<button type="button" id="btnForumThreadClose" onclick="this.form.a.value='viewCloseThreads';genericAjaxPost('viewForm{$view->id}','view{$view->id}','c=forums');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_ok.gif{/devblocks_url}" align="top"> close</button>
-		
-			{literal}<select name="assign_worker_id" onchange="if(''!=selectValue(this)){this.form.a.value='viewAssignThreads';{/literal}genericAjaxPost('viewForm{$view->id}','view{$view->id}','c=forums');{literal}}">{/literal}
-				<option value="">-- {$translate->_('common.assign')|lower} --</option>
-				{foreach from=$workers item=worker key=worker_id}
-					<option value="{$worker_id}">{$worker->getName()}</option>
-				{/foreach}
-				<option value="0">- {$translate->_('common.unassign')|capitalize} -</option>
-			</select>
-		
-			<br>
-			
-			{*
-			{$translate->_('common.keyboard')|capitalize}: (<b>c</b>) {$translate->_('common.close')|lower}, (<b>s</b>) {$translate->_('common.synchronize')|lower} <br>
-			*}
-			
-			<!-- <span id="tourDashboardBatch"><button type="button" onclick="ajax.showBatchPanel('{$view->id}','{$dashboard_team_id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> bulk update</button></span>  -->
-			
-			<!-- <a href="javascript:;" onclick="toggleDiv('view{$view->id}_more');">More &raquo;</a>-->
-
-			<!-- 
-			<div id="view{$view_id}_more" style="display:none;padding-top:5px;padding-bottom:5px;">
-				<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','merge');">merge</button>
-			</div>
-			 -->
-
+			{if 1}<button type="button" id="btn{$view->id}MarkRead" onclick="this.form.a.value='doNotificationsMarkRead';genericAjaxPost('viewForm{$view->id}','view{$view->id}','c=config');document.location.href='#top';"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('home.my_notifications.button.mark_read')}</button>{/if}
 		</td>
 	</tr>
 	{/if}

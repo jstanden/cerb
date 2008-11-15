@@ -11,10 +11,17 @@
 var tabView = new YAHOO.widget.TabView();
 
 tabView.addTab( new YAHOO.widget.Tab({
+    label: '{/literal}{'home.tab.my_notifications'|devblocks_translate}{literal}',
+    dataSrc: '{/literal}{devblocks_url}ajax.php?c=home&a=showMyEvents{/devblocks_url}{literal}',
+    cacheData: false,
+    {/literal}active: {if empty($tab_selected) || 'events'==$tab_selected}true{else}false{/if}{literal}
+}));
+
+tabView.addTab( new YAHOO.widget.Tab({
     label: '{/literal}{'home.tab.my_mail'|devblocks_translate}{literal}',
     dataSrc: '{/literal}{devblocks_url}ajax.php?c=home&a=showMyTickets{/devblocks_url}{literal}',
     cacheData: false,
-    {/literal}active: {if empty($tab_selected) || 'tickets'==$tab_selected}true{else}false{/if}{literal}
+    {/literal}active: {if 'tickets'==$tab_selected}true{else}false{/if}{literal}
 }));
 
 tabView.addTab( new YAHOO.widget.Tab({
