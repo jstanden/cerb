@@ -71,7 +71,18 @@ class CerberusParser {
 		
 		$message = new CerberusParserMessage();
 		@$message->encoding = $msginfo['content-charset'];
+
+		// Decode headers
 		@$message->headers = $msginfo['headers'];
+		foreach($message->headers as $header_name => $header_val) {
+			if(is_array($header_val)) {
+				foreach($header_val as $idx => $val) {
+					$message->headers[$header_name][$idx] = self::fixQuotePrintableString($val);	
+				}
+			} else {
+				$message->headers[$header_name] = self::fixQuotePrintableString($header_val);
+			}
+		}
 		
 		$settings = CerberusSettings::getInstance();
 		$is_attachments_enabled = $settings->get(CerberusSettings::ATTACHMENTS_ENABLED,1);
@@ -83,7 +94,7 @@ class CerberusParser {
 		    $section = mailparse_msg_get_part($mime, $st);
 		    $info = mailparse_msg_get_part_data($section);
 		    
-		    // handle parts that shouldn't have a contact-name, don't handle twice
+		    // handle parts that shouldn't have a content-name, don't handle twice
 		    $handled = 0;
 		    if(empty($info['content-name'])) {
 		        if($info['content-type'] == 'text/plain') {
@@ -103,8 +114,19 @@ class CerberusParser {
 	            	$handled = 1;
 		            
 		        } elseif($info['content-type'] == 'text/html') {
-	        		@$message->htmlbody .= mailparse_msg_extract_part_file($section, $full_filename, NULL);
-		            
+	        		@$text = mailparse_msg_extract_part_file($section, $full_filename, NULL);
+
+					if(isset($info['content-charset']) && !empty($info['content-charset'])) {
+						if(@mb_check_encoding($text, $info['content-charset'])) {
+							$text = mb_convert_encoding($text, LANG_CHARSET_CODE, $info['content-charset']);
+						} else {
+							$text = mb_convert_encoding($text, LANG_CHARSET_CODE);
+						}
+					}
+	        		
+					$message->htmlbody .= $text;
+					unset($text);
+					
 		            // Add the html part as an attachment
 		            // [TODO] Make attaching the HTML part an optional config option (off by default)
 	                $tmpname = ParserFile::makeTempFilename();
@@ -1001,10 +1023,6 @@ class CerberusParser {
 	static private function fixQuotePrintableString($str) {
 		$out = '';
 		
-//		if(function_exists('mb_decode_mimeheader')) {
-//			$out = mb_decode_mimeheader($str);
-//				
-//		} else {
 		$parts = imap_mime_header_decode($str);		
 		if(is_array($parts))
 		foreach($parts as $part) {
@@ -1013,13 +1031,12 @@ class CerberusParser {
 				@$out .= mb_convert_encoding($part->text,LANG_CHARSET_CODE,$charset);
 			} catch(Exception $e) {}
 		}
-//		}
 		
 		// Strip invalid characters in our encoding
 		if(!mb_check_encoding($out, LANG_CHARSET_CODE))
 			$out = mb_convert_encoding($out, LANG_CHARSET_CODE, LANG_CHARSET_CODE);
 		
-		return $out;
+		return trim($out);
 	}
 	
 };

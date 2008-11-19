@@ -48,7 +48,7 @@
  * 		and Joe Geck.
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-define("APP_BUILD", 802);
+define("APP_BUILD", 803);
 define("APP_MAIL_PATH", realpath(APP_PATH . '/storage/mail') . DIRECTORY_SEPARATOR);
 
 include_once(APP_PATH . "/api/DAO.class.php");
@@ -328,7 +328,7 @@ class CerberusApplication extends DevblocksApplication {
 		$str = preg_replace('# +#', ' ', $str);
 
 		// Translate HTML entities into text
-		$str = html_entity_decode($str);
+		$str = html_entity_decode($str, ENT_COMPAT, LANG_CHARSET_CODE);
 
 		// Loop through each line, ltrim, and concat if not empty
 		$lines = split("\n", $str);
@@ -349,6 +349,9 @@ class CerberusApplication extends DevblocksApplication {
 			$str = implode("\n", $lines);
 		}
 		unset($lines);
+		
+		// Clean up bytes (needed after HTML entities)
+		$str = mb_convert_encoding($str, LANG_CHARSET_CODE, LANG_CHARSET_CODE);
 		
 		return $str;
 	}

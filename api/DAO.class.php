@@ -2063,7 +2063,7 @@ class DAO_MessageHeader {
         $headers = array();
             
         while(!$rs->EOF) {
-            $headers[$rs->fields['header_name']] = DAO_MessageHeader::_decodeHeader($rs->fields['header_value']);
+            $headers[$rs->fields['header_name']] = $rs->fields['header_value'];
             $rs->MoveNext();
         }
         
@@ -2086,27 +2086,6 @@ class DAO_MessageHeader {
         sort($headers);
         
         return $headers;
-    }
-    
-    /**
-     * DDH: stolen from PEAR (BSD license)  I found a bug in a different part of
-     * 		their header parsing while looking for this, but it appears to work
-     * 		cleanly.  Dunno how much of a time hit this might be.
-     * 
-     * Given a header, this function will decode it
-     * according to RFC2047. Probably not *exactly*
-     * conformant, but it does pass all the given
-     * examples (in RFC2047).
-     *
-     * @param string Input header value to decode
-     * @return string Decoded header value
-     * @access public
-     */
-    static function _decodeHeader($input)
-    {
-	   	$input = mb_decode_mimeheader($input);
-    	$input = mb_convert_encoding($input, LANG_CHARSET_CODE);
-        return $input;
     }
 };
 
