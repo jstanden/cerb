@@ -2,7 +2,7 @@
 <input type="text" name="base_url" size="65" value="{$base_url}"><br>
 <br>
 
-<b>{$translate->_('portal.cfg.logo_url')}</b> {$translate->_('portal.cfg.logo_)url_hint')}<br>
+<b>{$translate->_('portal.cfg.logo_url')}</b> {$translate->_('portal.cfg.logo_url_hint')}<br>
 <input type="text" size="65" name="logo_url" value="{$logo_url}"><br>
 <br>
 
@@ -79,7 +79,7 @@
 		</td>
 		<td valign="top" width="100%" style="padding:10px;">
 			<i>{$translate->_('portal.sc.cfg.example')}</i><br>
-			{$translate->_('portal.sc.cfg.footer_html_example')|nl2br}<br>
+			{$translate->_('portal.sc.cfg.footer_html_example')|escape|nl2br}<br>
 		</td>
 	</tr>
 	</table>
