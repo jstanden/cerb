@@ -2836,6 +2836,7 @@ class DAO_Ticket extends DevblocksORMHelper {
 				DAO_Ticket::LAST_ACTION_CODE => $newest_ticket[SearchFields_Ticket::TICKET_LAST_ACTION_CODE], 
 				DAO_Ticket::LAST_WROTE_ID => $newest_ticket[SearchFields_Ticket::TICKET_LAST_WROTE_ID], 
 				DAO_Ticket::LAST_WORKER_ID => $newest_ticket[SearchFields_Ticket::TICKET_LAST_WORKER_ID], 
+				DAO_Ticket::LAST_WORKER_ID => $newest_ticket[SearchFields_Ticket::TICKET_LAST_WORKER_ID], 
 			));
 			
 			return $oldest_id;

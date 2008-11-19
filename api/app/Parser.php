@@ -400,10 +400,25 @@ class CerberusParser {
 					}
 				}
 
+				$attachment_files = array();
+				$attachment_files['name'] = array();
+				$attachment_files['type'] = array();
+				$attachment_files['tmp_name'] = array();
+				$attachment_files['size'] = array();
+				
+				$i=0;
+				foreach($message->files as $filename => $file) {
+					$attachment_files['name'][$i] = $filename;
+					$attachment_files['type'][$i] = $file->mime_type;
+					$attachment_files['tmp_name'][$i] = $file->tmpname;
+					$attachment_files['size'][$i] = $file->file_size;
+					$i++;
+				} 				
+				
         		CerberusMail::sendTicketMessage(array(
 					'message_id' => $msgid,
 					'content' => $message->body,
-					//'files' => $message->files, // [TODO] Proxy attachments 	
+					'files' => $attachment_files,
 					'agent_id' => $worker_address->worker_id,
 				));
 				
@@ -961,7 +976,7 @@ class CerberusParser {
 			// Test each pattern successively
 			foreach($routing as $route) { /* @var $route Model_MailRoute */
 				$pattern = sprintf("/^%s$/i",
-					str_replace(array('*'),array('.*?'),$route->pattern)
+					str_replace(array('*', '+'), array('.*?', '\+'), $route->pattern)
 				);
 				if(preg_match($pattern,$address)) 
 					return array($route->team_id,$address);
