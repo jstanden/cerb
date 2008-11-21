@@ -26,7 +26,7 @@
 			{devblocks_url assign="kb_url"}c=kb{/devblocks_url}
 			
 			{assign var=linked_kb value="<a href=\""|cat:$kb_url|cat:"\">"|cat:$translate->_('common.knowledgebase')|cat:"</a>"}
-			&raquo; {'portal.sc.public.search.more_from_kb'|devblocks_translate:$linked_kb}<br>
+			&raquo; {'portal.sc.public.search.more_from'|devblocks_translate:$linked_kb}<br>
 			<br>
 		</div>
 	</div>
@@ -52,7 +52,7 @@
 				{assign var=description value=$item->description()}
 				{assign var=date value=$item->pubDate()}
 			{elseif $item instanceof Zend_Feed_Entry_Atom}
-				{assign var=link value=$item->link.href}
+				{assign var=link value=$item->link('alternate')}
 				{assign var=title value=$item->title()}
 				{assign var=description value=$item->summary()}
 				{assign var=date value=$item->published()}
@@ -76,7 +76,14 @@
 	
 	{if !empty($matches.feed->link)}
 	<div style="font-size:85%;margin-left:20px;">
-		&raquo; more from <a href="{$matches.feed->link}">{$matches.name}</a><br>
+		{if $matches.feed instanceof Zend_Feed_Rss}
+			{assign var=feed_link value=$matches.feed->link}
+		{elseif $matches.feed instanceof Zend_Feed_Atom}
+			{assign var=feed_link value=$matches.feed->link('alternate')}
+		{/if}
+		{assign var=linked_feed_name value="<a href=\""|cat:$feed_link|cat:"\">"|cat:$matches.name|cat:"</a>"}
+		&raquo; {'portal.sc.public.search.more_from'|devblocks_translate:$linked_feed_name}<br>
+		
 		<br>
 	</div>
 	{/if}

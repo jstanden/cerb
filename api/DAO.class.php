@@ -2808,15 +2808,37 @@ class DAO_Ticket extends DevblocksORMHelper {
 				DAO_Ticket::IS_DELETED => 1,
 			));
 
-			// Use some values from the most recent merged ticket as the new master values
-			$newest_ticket = end($tickets);
-			reset($tickets);
+			//[mdf] determine the most recently updated ticket so when merging we get the true last action code, last wrote id, and updated date
+			$most_recent_updated_ticket = $oldest_ticket;
+			if(is_array($tickets))
+			foreach($tickets as $ticket) {
+				$last_updated_date = intval($ticket[SearchFields_Ticket::TICKET_UPDATED_DATE]);
+				$most_recent_updated_date = intval($most_recent_updated_ticket[SearchFields_Ticket::TICKET_UPDATED_DATE]);
+				if($last_updated_date > $most_recent_updated_date) {
+					unset($most_recent_updated_ticket);
+					$most_recent_updated_ticket = $ticket;
+				}
+			}
+			
+			//[mdf] Determine the last worker message of the (already) merged messages so we can correctly update the last_worker_id later
+			$messages = DAO_Ticket::getMessagesByTicket($oldest_id);
+			
+			if(is_array($messages))
+			foreach($messages as $message) {
+				if(!isset($most_recent_worker_message) 
+						|| ($message->created_date > $most_recent_worker_message->created_date
+						&& $message->is_outgoing == 1)) {
+					unset($most_recent_worker_message);
+					$most_recent_worker_message = $message;
+				}
+			}
+			
 			DAO_Ticket::updateTicket($oldest_id,array(
-				DAO_Ticket::LAST_ACTION_CODE => $newest_ticket[SearchFields_Ticket::TICKET_LAST_ACTION_CODE], 
-				DAO_Ticket::LAST_WROTE_ID => $newest_ticket[SearchFields_Ticket::TICKET_LAST_WROTE_ID], 
-				DAO_Ticket::LAST_WORKER_ID => $newest_ticket[SearchFields_Ticket::TICKET_LAST_WORKER_ID], 
-				DAO_Ticket::LAST_WORKER_ID => $newest_ticket[SearchFields_Ticket::TICKET_LAST_WORKER_ID], 
-			));
+				DAO_Ticket::LAST_ACTION_CODE => $most_recent_updated_ticket[SearchFields_Ticket::TICKET_LAST_ACTION_CODE], 
+				DAO_Ticket::LAST_WROTE_ID => $most_recent_updated_ticket[SearchFields_Ticket::TICKET_LAST_WROTE_ID], 
+				DAO_Ticket::LAST_WORKER_ID => $most_recent_worker_message->worker_id, 
+				DAO_Ticket::UPDATED_DATE => $most_recent_updated_ticket[SearchFields_Ticket::TICKET_UPDATED_DATE]
+			));			
 			
 			return $oldest_id;
 		}

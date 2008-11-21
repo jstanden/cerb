@@ -62,7 +62,7 @@
 			<div id="configPopTest"></div>	
 		
 			<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
-			<button type="button" onclick="document.getElementById('configPopTest').innerHTML='Testing mailbox settings...<br>';genericAjaxGet('configPopTest','c=config&a=getMailboxTest&host='+this.form.host.value+'&protocol='+selectValue(this.form.protocol)+'&port='+this.form.port.value+'&user='+this.form.username.value+'&pass='+this.form.password.value);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/gear.gif{/devblocks_url}" align="top"> Test Mailbox</button>
+			<button type="button" onclick="document.getElementById('configPopTest').innerHTML='Testing mailbox settings...<br>';genericAjaxGet('configPopTest','c=config&a=getMailboxTest&host='+escape(this.form.host.value)+'&protocol='+selectValue(this.form.protocol)+'&port='+this.form.port.value+'&user='+escape(this.form.username.value)+'&pass='+escape(this.form.password.value));"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/gear.gif{/devblocks_url}" align="top"> Test Mailbox</button>
 		</td>
 	</tr>
 	 

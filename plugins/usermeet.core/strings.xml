@@ -416,7 +416,7 @@ Brea, CA 92821 USA&lt;br&gt;
 			<tuv xml:lang="en_US"><seg>Send Confirmation E-mail</seg></tuv>
 		</tu>
 
-		<tu tuid='portal.sc.public.search.more_from_kb'>
+		<tu tuid='portal.sc.public.search.more_from'>
 			<tuv xml:lang="en_US"><seg>more from %s</seg></tuv>
 		</tu>
 		<tu tuid='portal.sc.public.search.search_results'>

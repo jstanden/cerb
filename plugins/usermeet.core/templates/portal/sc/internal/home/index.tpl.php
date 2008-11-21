@@ -43,7 +43,7 @@
 		{if !empty($matches.feed->link)}
 		<div style="font-size:85%;margin-left:20px;">
 		   	{assign var=linked_match_name value="<a href=\""|cat:$matches.feed->link|cat:"\">"|cat:$matches.name|cat:"</a>"}
-   			&raquo; {'portal.sc.public.search.more_from_kb'|devblocks_translate:$linked_match_name}<br>   	
+   			&raquo; {'portal.sc.public.search.more_from'|devblocks_translate:$linked_match_name}<br>   	
 			<br>
 		</div>
 		{/if}

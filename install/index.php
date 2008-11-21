@@ -136,27 +136,27 @@ if(!is_writeable(DEVBLOCKS_PATH . "tmp/cache/")) {
 @chmod(APP_PATH . '/storage/mail/fail/', 0774);
 
 if(!is_writeable(APP_PATH . "/storage/")) {
-	die(realpath(APP_PATH . "/storage/") ." is not writeable by the webserver.  Please adjust permissions and reload this page.");
+	die("storage/ is not writeable by the webserver.  Please adjust permissions and reload this page.");
 }
 
 if(!is_writeable(APP_PATH . "/storage/import/fail/")) {
-	die(realpath(APP_PATH . "/storage/import/fail/") ." is not writeable by the webserver.  Please adjust permissions and reload this page.");
+	die("storage/import/fail/ is not writeable by the webserver.  Please adjust permissions and reload this page.");
 }
 
 if(!is_writeable(APP_PATH . "/storage/import/new/")) {
-	die(realpath(APP_PATH . "/storage/import/new/") ." is not writeable by the webserver.  Please adjust permissions and reload this page.");
+	die("storage/import/new/ is not writeable by the webserver.  Please adjust permissions and reload this page.");
 }
 
 if(!is_writeable(APP_PATH . "/storage/attachments/")) {
-	die(realpath(APP_PATH . "/storage/attachments/") ." is not writeable by the webserver.  Please adjust permissions and reload this page.");
+	die("storage/attachments/ is not writeable by the webserver.  Please adjust permissions and reload this page.");
 }
 
 if(!is_writeable(APP_PATH . "/storage/mail/new/")) {
-	die(realpath(APP_PATH . "/storage/mail/new/") ." is not writeable by the webserver.  Please adjust permissions and reload this page.");
+	die("storage/mail/new/ is not writeable by the webserver.  Please adjust permissions and reload this page.");
 }
 
 if(!is_writeable(APP_PATH . "/storage/mail/fail/")) {
-	die(realpath(APP_PATH . "/storage/mail/fail/") ." is not writeable by the webserver.  Please adjust permissions and reload this page.");
+	die("storage/mail/fail/ is not writeable by the webserver.  Please adjust permissions and reload this page.");
 }
 
 //require_once(DEVBLOCKS_PATH . 'libs/Zend.php');
