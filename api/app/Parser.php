@@ -180,7 +180,7 @@ class CerberusParser {
 				    // content-name is not necessarily unique...
 					if (isset($message->files[$info['content-name']])) {
 						$j=1;
-						while ($message->files[$info['content-name'] . '(' . $j . ')']) {
+						while (isset($message->files[$info['content-name'] . '(' . $j . ')'])) {
 							$j++;
 						}
 						$info['content-name'] = $info['content-name'] . '(' . $j . ')';

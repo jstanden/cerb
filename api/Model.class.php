@@ -1507,11 +1507,12 @@ class C4_AttachmentView extends C4_AbstractView {
 			case SearchFields_Attachment::MIME_TYPE:
 			case SearchFields_Attachment::TICKET_MASK:
 			case SearchFields_Attachment::TICKET_SUBJECT:
+			case SearchFields_Attachment::ADDRESS_EMAIL:
 				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__string.tpl.php');
 				break;
 //			case SearchFields_Attachment::ID:
 //			case SearchFields_Attachment::MESSAGE_ID:
-//			case SearchFields_Attachment::TICKET_ID:
+			case SearchFields_Attachment::TICKET_ID:
 			case SearchFields_Attachment::FILE_SIZE:
 				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__number.tpl.php');
 				break;
@@ -1592,6 +1593,7 @@ class C4_AttachmentView extends C4_AbstractView {
 			case SearchFields_Attachment::FILEPATH:
 			case SearchFields_Attachment::TICKET_MASK:
 			case SearchFields_Attachment::TICKET_SUBJECT:
+			case SearchFields_Attachment::ADDRESS_EMAIL:
 				// force wildcards if none used on a LIKE
 				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
 				&& false === (strpos($value,'*'))) {

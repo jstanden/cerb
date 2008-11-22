@@ -5,9 +5,24 @@
 
 <h2>Properties</h2>
 <blockquote style="margin:10px;">
-	<b>Next Action:</b><br>
-	<input type="text" name="next_action" size="45" maxlength="255" value="{$ticket->next_action|escape}" style="width:90%;"><br>
+	<b>Subject:</b><br>
+	<input type="text" name="subject" size="45" maxlength="255" value="{$ticket->subject|escape}" style="width:90%;"><br>
 	<br>
+	
+	<b>{$translate->_('ticket.status')|capitalize}:</b><br>
+	<label><input type="radio" name="closed" value="0" onclick="toggleDiv('ticketClosed','none');" {if !$ticket->is_closed && !$ticket->is_waiting}checked{/if}>{$translate->_('status.open')|capitalize}</label>
+	<label><input type="radio" name="closed" value="2" onclick="toggleDiv('ticketClosed','block');" {if !$ticket->is_closed && $ticket->is_waiting}checked{/if}>{$translate->_('status.waiting')|capitalize}</label>
+	<label><input type="radio" name="closed" value="1" onclick="toggleDiv('ticketClosed','block');" {if $ticket->is_closed && !$ticket->is_deleted}checked{/if}>{$translate->_('status.closed')|capitalize}</label>
+	<label><input type="radio" name="closed" value="3" onclick="toggleDiv('ticketClosed','none');" {if $ticket->is_deleted}checked{/if}>{$translate->_('status.deleted')|capitalize}</label>
+	<br>
+	<br>
+	
+	<div id="ticketClosed" style="display:{if $ticket->is_waiting || ($ticket->is_closed && !$ticket->is_deleted)}block{else}none{/if};margin-left:10px;">
+	<b>{$translate->_('display.reply.next.resume')}</b> {$translate->_('display.reply.next.resume_eg')}<br> 
+	<input type="text" name="ticket_reopen" size="55" value="{if !empty($ticket->due_date)}{$ticket->due_date|devblocks_date}{/if}"><br>
+	{$translate->_('display.reply.next.resume_blank')}<br>
+	<br>
+	</div>
 	
 	<b>Who should handle the next reply?</b><br> 
 	<select name="next_worker_id" onchange="toggleDiv('ticketPropsUnlockDate',this.selectedIndex?'block':'none');">
@@ -32,12 +47,8 @@
 		<br>
 	</div>
 		
-	<b>Subject:</b><br>
-	<input type="text" name="subject" size="45" maxlength="255" value="{$ticket->subject|escape}" style="width:90%;"><br>
-	<br>
-	
-	<b>Waiting For Reply:</b><br>
-	<label><input type="checkbox" name="waiting" value="1" {if $ticket->is_waiting}checked{/if}> Yes</label><br>
+	<b>Next Action:</b><br>
+	<input type="text" name="next_action" size="45" maxlength="255" value="{$ticket->next_action|escape}" style="width:90%;"><br>
 	<br>
 	
 </blockquote>

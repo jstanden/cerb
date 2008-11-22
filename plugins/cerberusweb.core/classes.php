@@ -8063,9 +8063,10 @@ class ChDisplayPage extends CerberusPageExtension {
 		@$remove = DevblocksPlatform::importGPC($_POST['remove'],'array',array());
 		@$next_worker_id = DevblocksPlatform::importGPC($_POST['next_worker_id'],'integer',0);
 		@$next_action = DevblocksPlatform::importGPC($_POST['next_action'],'string','');
+		@$ticket_reopen = DevblocksPlatform::importGPC($_POST['ticket_reopen'],'string','');
 		@$unlock_date = DevblocksPlatform::importGPC($_POST['unlock_date'],'string','');
 		@$subject = DevblocksPlatform::importGPC($_POST['subject'],'string','');
-		@$waiting = DevblocksPlatform::importGPC($_POST['waiting'],'waiting',0);
+		@$closed = DevblocksPlatform::importGPC($_POST['closed'],'closed',0);
 		
 		@$ticket = DAO_Ticket::getTicket($ticket_id);
 		
@@ -8079,8 +8080,42 @@ class ChDisplayPage extends CerberusPageExtension {
 		if(empty($next_worker_id))
 			$unlock_date = "";
 		
-		if(isset($waiting))
-			$fields[DAO_Ticket::IS_WAITING] = $waiting;
+		if(isset($closed)) {
+			switch($closed) {
+				case 0: // open
+					$fields[DAO_Ticket::IS_WAITING] = 0;
+					$fields[DAO_Ticket::IS_CLOSED] = 0;
+					$fields[DAO_Ticket::IS_DELETED] = 0;
+					$fields[DAO_Ticket::DUE_DATE] = 0;
+					break;
+				case 1: // closed
+					$fields[DAO_Ticket::IS_WAITING] = 0;
+					$fields[DAO_Ticket::IS_CLOSED] = 1;
+					$fields[DAO_Ticket::IS_DELETED] = 0;
+					
+					if(isset($ticket_reopen)) {
+						@$time = intval(strtotime($ticket_reopen));
+						$fields[DAO_Ticket::DUE_DATE] = $time;
+					}
+					break;
+				case 2: // waiting
+					$fields[DAO_Ticket::IS_WAITING] = 1;
+					$fields[DAO_Ticket::IS_CLOSED] = 0;
+					$fields[DAO_Ticket::IS_DELETED] = 0;
+					
+					if(isset($ticket_reopen)) {
+						@$time = intval(strtotime($ticket_reopen));
+						$fields[DAO_Ticket::DUE_DATE] = $time;
+					}
+					break;
+				case 3: // deleted
+					$fields[DAO_Ticket::IS_WAITING] = 0;
+					$fields[DAO_Ticket::IS_CLOSED] = 1;
+					$fields[DAO_Ticket::IS_DELETED] = 1;
+					$fields[DAO_Ticket::DUE_DATE] = 0;
+					break;
+			}
+		}
 			
 		if(isset($next_worker_id))
 			$fields[DAO_Ticket::NEXT_WORKER_ID] = $next_worker_id;

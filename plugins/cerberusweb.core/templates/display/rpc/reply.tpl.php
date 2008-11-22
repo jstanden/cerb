@@ -183,10 +183,17 @@
 						<tr>
 							<td nowrap="nowrap" valign="top" colspan="2">
 								<label><input type="radio" name="closed" value="0" onclick="toggleDiv('replyOpen{$message->id}','block');toggleDiv('replyClosed{$message->id}','none');">{$translate->_('status.open')|capitalize}</label>
-								<label><input type="radio" name="closed" value="2" onclick="toggleDiv('replyOpen{$message->id}','block');toggleDiv('replyClosed{$message->id}','none');" {if !$ticket->is_closed}checked{/if}>{$translate->_('status.waiting')|capitalize}</label>
+								<label><input type="radio" name="closed" value="2" onclick="toggleDiv('replyOpen{$message->id}','block');toggleDiv('replyClosed{$message->id}','block');" {if !$ticket->is_closed}checked{/if}>{$translate->_('status.waiting')|capitalize}</label>
 								<label><input type="radio" name="closed" value="1" onclick="toggleDiv('replyOpen{$message->id}','none');toggleDiv('replyClosed{$message->id}','block');" {if $ticket->is_closed}checked{/if}>{$translate->_('status.closed')|capitalize}</label>
 								<br>
 								<br>
+								
+						      	<div id="replyClosed{$message->id}" style="display:{if $ticket->is_waiting || ($ticket->is_closed && !$ticket->is_deleted)}block{else}none{/if};margin-left:10px;">
+						      	<b>{$translate->_('display.reply.next.resume')}</b> {$translate->_('display.reply.next.resume_eg')}<br> 
+						      	<input type="text" name="ticket_reopen" size="55" value="{if !empty($ticket->due_date)}{$ticket->due_date|devblocks_date}{/if}"><br>
+						      	{$translate->_('display.reply.next.resume_blank')}<br>
+						      	<br>
+						      	</div>
 		
 								<b>{$translate->_('display.reply.next.handle_reply')}</b><br>
 						      	<select name="next_worker_id" onchange="toggleDiv('replySurrender{$message->id}',this.selectedIndex?'block':'none');">
@@ -236,13 +243,6 @@
 						      	<br>
 						      	
 								<div id="replyOpen{$message->id}" style="display:{if $ticket->is_closed}none{else}block{/if};">
-						      	</div>
-						      	
-						      	<div id="replyClosed{$message->id}" style="display:{if $ticket->is_closed}block{else}none{/if};">
-						      	<b>{$translate->_('display.reply.next.resume')}</b> {$translate->_('display.reply.next.resume_eg')}<br> 
-						      	<input type="text" name="ticket_reopen" size="55" value="{if !empty($ticket->due_date)}{$ticket->due_date|devblocks_date}{/if}"><br>
-						      	{$translate->_('display.reply.next.resume_blank')}<br>
-						      	<br>
 						      	</div>
 		
 							</td>

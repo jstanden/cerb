@@ -293,7 +293,7 @@ class CerberusMail {
 			$fields[DAO_Ticket::NEXT_WORKER_ID] = intval($next_worker_id);
 		if(!empty($next_action))
 			$fields[DAO_Ticket::NEXT_ACTION] = $next_action;
-		if(!empty($ticket_reopen)) {
+		if(isset($ticket_reopen) && !empty($ticket_reopen)) {
 			$due = strtotime($ticket_reopen);
 			if($due) $fields[DAO_Ticket::DUE_DATE] = $due;
 		}
@@ -732,43 +732,48 @@ class CerberusMail {
 		// Post-Reply Change Properties
 
 		if(isset($properties['closed'])) {
-			if(1==intval($properties['closed'])) { // Closing
-				$change_fields[DAO_Ticket::IS_CLOSED] = 1;
-				$change_fields[DAO_Ticket::IS_WAITING] = 0;
-
-				if(isset($properties['ticket_reopen'])) {
-					if(!empty($properties['ticket_reopen'])) {
-					    $due = strtotime($properties['ticket_reopen']);
-					    if(intval($due) > 0)
-				            $change_fields[DAO_Ticket::DUE_DATE] = $due;
-					}
+			switch($properties['closed']) {
+				case 0: // open
+					$change_fields[DAO_Ticket::IS_WAITING] = 0;
+					$change_fields[DAO_Ticket::IS_CLOSED] = 0;
+					$change_fields[DAO_Ticket::IS_DELETED] = 0;
+					$change_fields[DAO_Ticket::DUE_DATE] = 0;
+					break;
+				case 1: // closed
+					$change_fields[DAO_Ticket::IS_WAITING] = 0;
+					$change_fields[DAO_Ticket::IS_CLOSED] = 1;
+					$change_fields[DAO_Ticket::IS_DELETED] = 0;
 					
-				}
-	        } else { // Open or Waiting
-				$change_fields[DAO_Ticket::IS_CLOSED] = 0;
-				$change_fields[DAO_Ticket::IS_WAITING] = 0;
-
-				// Waiting for Reply
-				if(2==intval($properties['closed'])) {
+					if(isset($properties['ticket_reopen'])) {
+						@$time = intval(strtotime($properties['ticket_reopen']));
+						$change_fields[DAO_Ticket::DUE_DATE] = $time;
+					}
+					break;
+				case 2: // waiting
 					$change_fields[DAO_Ticket::IS_WAITING] = 1;
-				}
-
-				if(isset($properties['next_action']))
-	    	    	$change_fields[DAO_Ticket::NEXT_ACTION] = $properties['next_action'];
-	        }
+					$change_fields[DAO_Ticket::IS_CLOSED] = 0;
+					$change_fields[DAO_Ticket::IS_DELETED] = 0;
+					
+					if(isset($properties['ticket_reopen'])) {
+						@$time = intval(strtotime($properties['ticket_reopen']));
+						$change_fields[DAO_Ticket::DUE_DATE] = $time;
+					}
+					break;
+			}
 		}
-        
+
+		if(isset($properties['next_action']))
+        	$change_fields[DAO_Ticket::NEXT_ACTION] = $properties['next_action'];
+		
         // Who should handle the followup?
 		if(isset($properties['next_worker_id']))
         	$change_fields[DAO_Ticket::NEXT_WORKER_ID] = $properties['next_worker_id'];
 
         // Allow anybody to reply after 
-		if(isset($properties['unlock_date'])) {
-			if(!empty($properties['unlock_date'])) {
-			    $unlock = strtotime($properties['unlock_date']);
-			    if(intval($unlock) > 0)
-		            $change_fields[DAO_Ticket::UNLOCK_DATE] = $unlock;
-			}
+		if(isset($properties['unlock_date']) && !empty($properties['unlock_date'])) {
+		    $unlock = strtotime($properties['unlock_date']);
+		    if(intval($unlock) > 0)
+	            $change_fields[DAO_Ticket::UNLOCK_DATE] = $unlock;
 		}
 
 		// Move
