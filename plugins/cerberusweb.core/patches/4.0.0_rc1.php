@@ -429,6 +429,23 @@ if(32 == $columns['NAME']->max_length) {
 	$db->Execute($sql);
 }
 
+// `view_rss` ======================
+if(!isset($tables['view_rss']) && isset($tables['ticket_rss'])) {
+	$sql = "RENAME TABLE ticket_rss TO view_rss";
+	$db->Execute($sql);
+}
+
+$columns = $datadict->MetaColumns('view_rss');
+$indexes = $datadict->MetaIndexes('view_rss',false);
+
+if(!isset($columns['SOURCE_EXTENSION'])) {
+    $sql = $datadict->AddColumnSQL('view_rss', "source_extension C(255) DEFAULT '' NOTNULL");
+    $datadict->ExecuteSQLArray($sql);
+    
+    $sql = "UPDATE view_rss SET source_extension = 'core.rss.source.ticket' WHERE source_extension = ''";
+    $db->Execute($sql);
+}
+
 // `worker` ========================
 $columns = $datadict->MetaColumns('worker');
 $indexes = $datadict->MetaIndexes('worker',false);

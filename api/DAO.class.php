@@ -371,10 +371,10 @@ class DAO_Worker extends DevblocksORMHelper {
 		
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' dashboard records.');
 		
-		$sql = "DELETE QUICK ticket_rss FROM ticket_rss LEFT JOIN worker ON ticket_rss.worker_id = worker.id WHERE worker.id IS NULL";
+		$sql = "DELETE QUICK view_rss FROM view_rss LEFT JOIN worker ON view_rss.worker_id = worker.id WHERE worker.id IS NULL";
 		$db->Execute($sql);
 
-		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' ticket_rss records.');
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' view_rss records.');
 		
 		$sql = "DELETE QUICK worker_mail_forward FROM worker_mail_forward LEFT JOIN worker ON worker_mail_forward.worker_id = worker.id WHERE worker.id IS NULL";
 		$db->Execute($sql);
@@ -430,7 +430,7 @@ class DAO_Worker extends DevblocksORMHelper {
 		$sql = sprintf("DELETE QUICK FROM worker_to_team WHERE agent_id = %d", $id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 
-		$sql = sprintf("DELETE QUICK FROM ticket_rss WHERE worker_id = %d", $id);
+		$sql = sprintf("DELETE QUICK FROM view_rss WHERE worker_id = %d", $id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 
 		$sql = sprintf("DELETE QUICK FROM worker_workspace_list WHERE worker_id = %d", $id);
@@ -3602,20 +3602,21 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 	}
 };
 
-class DAO_TicketRss extends DevblocksORMHelper {
+class DAO_ViewRss extends DevblocksORMHelper {
 	const ID = 'id';
 	const TITLE = 'title';
 	const HASH = 'hash';
 	const WORKER_ID = 'worker_id';
 	const CREATED = 'created';
+	const SOURCE_EXTENSION = 'source_extension';
 	const PARAMS = 'params';
 	
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
 		$newId = $db->GenID('generic_seq');
 		
-		$sql = sprintf("INSERT INTO ticket_rss (id,hash,title,worker_id,created,params) ".
-			"VALUES (%d,'','',0,0,'')",
+		$sql = sprintf("INSERT INTO view_rss (id,hash,title,worker_id,created,source_extension,params) ".
+			"VALUES (%d,'','',0,0,'','')",
 			$newId
 		);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
@@ -3627,15 +3628,15 @@ class DAO_TicketRss extends DevblocksORMHelper {
 	 * Enter description here...
 	 *
 	 * @param array $ids
-	 * @return Model_TicketRss[]
+	 * @return Model_ViewRss[]
 	 */
 	static function getList($ids) {
 		if(!is_array($ids)) $ids = array($ids);
 		
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = "SELECT id,hash,title,worker_id,created,params ".
-			"FROM ticket_rss ".
+		$sql = "SELECT id,hash,title,worker_id,created,source_extension,params ".
+			"FROM view_rss ".
 			(!empty($ids) ? sprintf("WHERE id IN (%s)",implode(',',$ids)) : " ").
 		"";
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
@@ -3647,14 +3648,14 @@ class DAO_TicketRss extends DevblocksORMHelper {
 	 * Enter description here...
 	 *
 	 * @param string $hash
-	 * @return Model_TicketRss
+	 * @return Model_ViewRss
 	 */
 	static function getByHash($hash) {
 		if(empty($hash)) return array();
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = sprintf("SELECT id,hash,title,worker_id,created,params ".
-			"FROM ticket_rss ".
+		$sql = sprintf("SELECT id,hash,title,worker_id,created,source_extension,params ".
+			"FROM view_rss ".
 			"WHERE hash = %s",
 				$db->qstr($hash)
 		);
@@ -3672,14 +3673,14 @@ class DAO_TicketRss extends DevblocksORMHelper {
 	 * Enter description here...
 	 *
 	 * @param integer $worker_id
-	 * @return Model_TicketRss[]
+	 * @return Model_ViewRss[]
 	 */
 	static function getByWorker($worker_id) {
 		if(empty($worker_id)) return array();
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = sprintf("SELECT id,hash,title,worker_id,created,params ".
-			"FROM ticket_rss ".
+		$sql = sprintf("SELECT id,hash,title,worker_id,created,source_extension,params ".
+			"FROM view_rss ".
 			"WHERE worker_id = %d",
 				$worker_id
 		);
@@ -3694,19 +3695,20 @@ class DAO_TicketRss extends DevblocksORMHelper {
 	 * Enter description here...
 	 *
 	 * @param ADORecordSet $rs
-	 * @return Model_TicketRss[]
+	 * @return Model_ViewRss[]
 	 */
 	private static function _getObjectsFromResults($rs) { /* @var $rs ADORecordSet */
 		$objects = array();
 		
 		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
-			$object = new Model_TicketRss();
+			$object = new Model_ViewRss();
 			$object->id = intval($rs->fields['id']);
 			$object->title = $rs->fields['title'];
 			$object->hash = $rs->fields['hash'];
 			$object->worker_id = intval($rs->fields['worker_id']);
 			$object->created = intval($rs->fields['created']);
+			$object->source_extension = $rs->fields['source_extension'];
 			
 			$params = $rs->fields['params'];
 			
@@ -3724,7 +3726,7 @@ class DAO_TicketRss extends DevblocksORMHelper {
 	 * Enter description here...
 	 *
 	 * @param integer $id
-	 * @return Model_TicketRss
+	 * @return Model_ViewRss
 	 */
 	static function getId($id) {
 		if(empty($id)) return null;
@@ -3743,7 +3745,7 @@ class DAO_TicketRss extends DevblocksORMHelper {
 		// [JAS]: Handle our blobs specially
 		if(isset($fields[self::PARAMS])) {
 			$db->UpdateBlob(
-				'ticket_rss',
+				'view_rss',
 				self::PARAMS,
 				$fields[self::PARAMS],
 				sprintf('id IN (%s)',implode(',',$ids))
@@ -3751,14 +3753,14 @@ class DAO_TicketRss extends DevblocksORMHelper {
 			unset($fields[self::PARAMS]);
 		}
 		
-		parent::_update($ids, 'ticket_rss', $fields);
+		parent::_update($ids, 'view_rss', $fields);
 	}
 	
 	static function delete($id) {
 		if(empty($id)) return;
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = sprintf("DELETE QUICK FROM ticket_rss WHERE id = %d",
+		$sql = sprintf("DELETE QUICK FROM view_rss WHERE id = %d",
 			$id
 		);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */

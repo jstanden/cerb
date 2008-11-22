@@ -2615,7 +2615,8 @@ class ChTicketsPage extends CerberusPageExtension {
 
 	// ajax
 	function showViewRssAction() {
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
+		@$source = DevblocksPlatform::importGPC($_REQUEST['source'],'string','');
 		
 		$view = C4_AbstractViewLoader::getView('',$view_id);
 		
@@ -2623,26 +2624,25 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		$tpl->assign('view_id', $view_id);
 		$tpl->assign('view', $view);
+		$tpl->assign('source', $source);
 		
 		$tpl->cache_lifetime = "0";
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/rpc/view_rss_builder.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/internal/views/view_rss_builder.tpl.php');
 	}
 	
 	// post
 	function viewBuildRssAction() {
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id']);
+		@$source = DevblocksPlatform::importGPC($_POST['source']);
 		@$title = DevblocksPlatform::importGPC($_POST['title']);
 		$active_worker = CerberusApplication::getActiveWorker();
 
 		$view = C4_AbstractViewLoader::getView('',$view_id);
 		
-		$now = time();
 		$hash = md5($title.$view_id.$active_worker->id.$now);
 		
 	    // Restrict to current worker groups
 		$active_worker = CerberusApplication::getActiveWorker();
-		$memberships = $active_worker->getMemberships();
-		$view->params[] = new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID, 'in', array_keys($memberships)); 
 		
 		$params = array(
 			'params' => $view->params,
@@ -2651,15 +2651,15 @@ class ChTicketsPage extends CerberusPageExtension {
 		);
 		
 		$fields = array(
-			DAO_TicketRss::TITLE => $title, 
-			DAO_TicketRss::HASH => $hash, 
-			DAO_TicketRss::CREATED => $now,
-			DAO_TicketRss::WORKER_ID => $active_worker->id,
-			DAO_TicketRss::PARAMS => serialize($params)
+			DAO_ViewRss::TITLE => $title, 
+			DAO_ViewRss::HASH => $hash, 
+			DAO_ViewRss::CREATED => time(),
+			DAO_ViewRss::WORKER_ID => $active_worker->id,
+			DAO_ViewRss::SOURCE_EXTENSION => $source, 
+			DAO_ViewRss::PARAMS => serialize($params),
 		);
-		$feed_id = DAO_TicketRss::create($fields);
+		$feed_id = DAO_ViewRss::create($fields);
 				
-		//DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','rss')));
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('preferences','rss')));
 	}
 	
@@ -6629,110 +6629,23 @@ class ChRssController extends DevblocksControllerExtension {
 		// [TODO] Do we want any concept of authentication here?
 
         $stack = $request->path;
-        
-		$url = DevblocksPlatform::getUrlService();
-
 		array_shift($stack); // rss
-        $hash = array_shift($stack);
+		$hash = array_shift($stack);
 
-		$feed = DAO_TicketRss::getByHash($hash);
-        
+		$feed = DAO_ViewRss::getByHash($hash);
         if(empty($feed)) {
             die($translate->_('rss.bad_feed'));
         }
-        
-        // [TODO] Implement logins for the wiretap app
-        header("Content-Type: text/xml");
 
-//        $self_feed_url = $url->write('c=rss&a='.$hash,true);
-        
-        $xmlstr = <<<XML
-		<rss version='2.0' xmlns:atom='http://www.w3.org/2005/Atom'>
-		</rss>
-XML;
-
-        $xml = new SimpleXMLElement($xmlstr);
-
-        // Channel
-        $channel = $xml->addChild('channel');
-        $channel->addChild('title', $feed->title);
-        $channel->addChild('link', $url->write('',true));
-        $channel->addChild('description', '');
-
-		list($tickets, $null) = DAO_Ticket::search(
-			array(),
-			$feed->params['params'],
-			100,
-			0,
-			SearchFields_Ticket::TICKET_UPDATED_DATE, // $feed->params['sort_by'],
-			false, // $feed->params['sort_asc'],
-			false
-		);
-
-        $translate = DevblocksPlatform::getTranslationService();
-
-        // [TODO] We should probably be building this feed with Zend Framework for compliance
-        
-        foreach($tickets as $ticket) {
-        	$created = intval($ticket[SearchFields_Ticket::TICKET_UPDATED_DATE]);
-            if(empty($created)) $created = time();
-
-            $eItem = $channel->addChild('item');
-            
-            $escapedSubject = htmlspecialchars($ticket[SearchFields_Ticket::TICKET_SUBJECT]);
-            //filter out a couple non-UTF-8 characters (0xC and ESC)
-            $escapedSubject = preg_replace("/[]/", '', $escapedSubject);
-            $eTitle = $eItem->addChild('title', $escapedSubject);
-
-            $eDesc = $eItem->addChild('description', $this->_getTicketLastAction($ticket));
-            
-            $url = DevblocksPlatform::getUrlService();
-            $link = $url->write('c=display&id='.$ticket[SearchFields_Ticket::TICKET_MASK], true);
-            $eLink = $eItem->addChild('link', $link);
-            	
-            $eDate = $eItem->addChild('pubDate', gmdate('D, d M Y H:i:s T', $created));
-            
-            $eGuid = $eItem->addChild('guid', md5($escapedSubject . $link . $created));
-            $eGuid->addAttribute('isPermaLink', "false");
+        // Sources
+        $rss_sources = DevblocksPlatform::getExtensions('cerberusweb.rss.source', true);
+        if(isset($rss_sources[$feed->source_extension])) {
+        	$rss_source =& $rss_sources[$feed->source_extension]; /* @var $rss_source Extension_RssSource */
+			header("Content-Type: text/xml");
+        	echo $rss_source->getFeedAsRss($feed);
         }
-
-        echo $xml->asXML();
-	    
+        
 		exit;
-	}
-	
-	private function _getTicketLastAction($ticket) {
-		static $workers = null;
-		$action_code = $ticket[SearchFields_Ticket::TICKET_LAST_ACTION_CODE];
-		$output = '';
-		
-		if(is_null($workers))
-			$workers = DAO_Worker::getAll();
-
-		// [TODO] Translate
-		switch($action_code) {
-			case CerberusTicketActionCode::TICKET_OPENED:
-				$output = sprintf("New from %s",
-					$ticket[SearchFields_Ticket::TICKET_LAST_WROTE]
-				);
-				break;
-			case CerberusTicketActionCode::TICKET_CUSTOMER_REPLY:
-				@$worker_id = $ticket[SearchFields_Ticket::TICKET_NEXT_WORKER_ID];
-				@$worker = $workers[$worker_id];
-				$output = sprintf("Incoming for %s",
-					(!empty($worker) ? $worker->getName() : "Helpdesk")
-				);
-				break;
-			case CerberusTicketActionCode::TICKET_WORKER_REPLY:
-				@$worker_id = $ticket[SearchFields_Ticket::TICKET_LAST_WORKER_ID];
-				@$worker = $workers[$worker_id];
-				$output = sprintf("Outgoing from %s",
-					(!empty($worker) ? $worker->getName() : "Helpdesk")
-				);
-				break;
-		}
-		
-		return $output;
 	}
 };
 
@@ -9146,7 +9059,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		$feeds = DAO_TicketRss::getByWorker($active_worker->id);
+		$feeds = DAO_ViewRss::getByWorker($active_worker->id);
 		$tpl->assign('feeds', $feeds);
 		
 		$tpl->display('file:' . $tpl_path . '/preferences/modules/rss.tpl.php');
@@ -9274,13 +9187,249 @@ class ChPreferencesPage extends CerberusPageExtension {
 		@$id = DevblocksPlatform::importGPC($_POST['id']);
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		if(null != ($feed = DAO_TicketRss::getId($id)) && $feed->worker_id == $active_worker->id) {
-			DAO_TicketRss::delete($id);
+		if(null != ($feed = DAO_ViewRss::getId($id)) && $feed->worker_id == $active_worker->id) {
+			DAO_ViewRss::delete($id);
 		}
 		
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('preferences','rss')));
 	}
 	
+};
+
+class ChRssSource_Ticket extends Extension_RssSource {
+	function getSourceName() {
+		return "Tickets";
+	}
+	
+	function getFeedAsRss($feed) {
+        $xmlstr = <<<XML
+		<rss version='2.0' xmlns:atom='http://www.w3.org/2005/Atom'>
+		</rss>
+XML;
+
+        $xml = new SimpleXMLElement($xmlstr);
+        $translate = DevblocksPlatform::getTranslationService();
+		$url = DevblocksPlatform::getUrlService();
+
+        // Channel
+        $channel = $xml->addChild('channel');
+        $channel->addChild('title', $feed->title);
+        $channel->addChild('link', $url->write('',true));
+        $channel->addChild('description', '');
+        
+        // View
+        $view = new C4_TicketView();
+        $view->name = $feed->title;
+        $view->params = $feed->params['params'];
+        $view->renderLimit = 100;
+        $view->renderSortBy = $feed->params['sort_by'];
+        $view->renderSortAsc = $feed->params['sort_asc'];
+
+        // Results
+        list($tickets, $count) = $view->getData();
+        
+        // [TODO] We should probably be building this feed with Zend Framework for compliance
+        
+        foreach($tickets as $ticket) {
+        	$created = intval($ticket[SearchFields_Ticket::TICKET_UPDATED_DATE]);
+            if(empty($created)) $created = time();
+
+            $eItem = $channel->addChild('item');
+            
+            $escapedSubject = htmlspecialchars($ticket[SearchFields_Ticket::TICKET_SUBJECT],null,LANG_CHARSET_CODE);
+            //filter out a couple non-UTF-8 characters (0xC and ESC)
+            $escapedSubject = preg_replace("/[]/", '', $escapedSubject);
+            $eTitle = $eItem->addChild('title', $escapedSubject);
+
+            $eDesc = $eItem->addChild('description', $this->_getTicketLastAction($ticket));
+            
+            $link = $url->write('c=display&id='.$ticket[SearchFields_Ticket::TICKET_MASK], true);
+            $eLink = $eItem->addChild('link', $link);
+            	
+            $eDate = $eItem->addChild('pubDate', gmdate('D, d M Y H:i:s T', $created));
+            
+            $eGuid = $eItem->addChild('guid', md5($escapedSubject . $link . $created));
+            $eGuid->addAttribute('isPermaLink', "false");
+        }
+
+        return $xml->asXML();
+	}
+	
+	private function _getTicketLastAction($ticket) {
+		static $workers = null;
+		$action_code = $ticket[SearchFields_Ticket::TICKET_LAST_ACTION_CODE];
+		$output = '';
+		
+		if(is_null($workers))
+			$workers = DAO_Worker::getAll();
+
+		// [TODO] Translate
+		switch($action_code) {
+			case CerberusTicketActionCode::TICKET_OPENED:
+				$output = sprintf("New from %s",
+					$ticket[SearchFields_Ticket::TICKET_LAST_WROTE]
+				);
+				break;
+			case CerberusTicketActionCode::TICKET_CUSTOMER_REPLY:
+				@$worker_id = $ticket[SearchFields_Ticket::TICKET_NEXT_WORKER_ID];
+				@$worker = $workers[$worker_id];
+				$output = sprintf("Incoming for %s",
+					(!empty($worker) ? $worker->getName() : "Helpdesk")
+				);
+				break;
+			case CerberusTicketActionCode::TICKET_WORKER_REPLY:
+				@$worker_id = $ticket[SearchFields_Ticket::TICKET_LAST_WORKER_ID];
+				@$worker = $workers[$worker_id];
+				$output = sprintf("Outgoing from %s",
+					(!empty($worker) ? $worker->getName() : "Helpdesk")
+				);
+				break;
+		}
+		
+		return $output;
+	}
+	
+};
+
+class ChRssSource_Task extends Extension_RssSource {
+	function getSourceName() {
+		return "Tasks";
+	}
+	
+	function getFeedAsRss($feed) {
+        $xmlstr = <<<XML
+		<rss version='2.0' xmlns:atom='http://www.w3.org/2005/Atom'>
+		</rss>
+XML;
+
+        $xml = new SimpleXMLElement($xmlstr);
+        $translate = DevblocksPlatform::getTranslationService();
+		$url = DevblocksPlatform::getUrlService();
+
+        // Channel
+        $channel = $xml->addChild('channel');
+        $channel->addChild('title', $feed->title);
+        $channel->addChild('link', $url->write('',true));
+        $channel->addChild('description', '');
+        
+        // View
+        $view = new C4_TaskView();
+        $view->name = $feed->title;
+        $view->params = $feed->params['params'];
+        $view->renderLimit = 100;
+        $view->renderSortBy = $feed->params['sort_by'];
+        $view->renderSortAsc = $feed->params['sort_asc'];
+
+        // Results
+        list($results, $count) = $view->getData();
+
+        $task_sources = DevblocksPlatform::getExtensions('cerberusweb.task.source',true);
+        
+        // [TODO] We should probably be building this feed with Zend Framework for compliance
+        
+        foreach($results as $task) {
+        	$created = intval($task[SearchFields_Task::DUE_DATE]);
+            if(empty($created)) $created = time();
+
+            $eItem = $channel->addChild('item');
+            
+            $escapedSubject = htmlspecialchars($task[SearchFields_Task::TITLE],null,LANG_CHARSET_CODE);
+            //filter out a couple non-UTF-8 characters (0xC and ESC)
+            $escapedSubject = preg_replace("/[]/", '', $escapedSubject);
+            $eTitle = $eItem->addChild('title', $escapedSubject);
+
+//            $eDesc = $eItem->addChild('description', $this->_getTicketLastAction($ticket));
+            $eDesc = $eItem->addChild('description', htmlspecialchars($task[SearchFields_Task::CONTENT],null,LANG_CHARSET_CODE));
+
+            if(isset($task_sources[$task[SearchFields_Task::SOURCE_EXTENSION]]) && isset($task[SearchFields_Task::SOURCE_ID])) {
+            	$source_ext =& $task_sources[$task[SearchFields_Task::SOURCE_EXTENSION]]; /* @var $source_ext Extension_TaskSource */
+            	$source_ext_info = $source_ext->getSourceInfo($task[SearchFields_Task::SOURCE_ID]);
+            	
+	            $link = $source_ext_info['url'];
+	            $eLink = $eItem->addChild('link', $link);
+	            
+            } else {
+	            $link = $url->write('c=activity&tab=tasks', true);
+	            $eLink = $eItem->addChild('link', $link);
+            	
+            }
+            	
+            $eDate = $eItem->addChild('pubDate', gmdate('D, d M Y H:i:s T', $created));
+            
+            $eGuid = $eItem->addChild('guid', md5($escapedSubject . $link . $created));
+            $eGuid->addAttribute('isPermaLink', "false");
+        }
+
+        return $xml->asXML();
+	}
+};
+
+class ChRssSource_Notification extends Extension_RssSource {
+	function getSourceName() {
+		return "Notifications";
+	}
+	
+	function getFeedAsRss($feed) {
+        $xmlstr = <<<XML
+		<rss version='2.0' xmlns:atom='http://www.w3.org/2005/Atom'>
+		</rss>
+XML;
+
+        $xml = new SimpleXMLElement($xmlstr);
+        $translate = DevblocksPlatform::getTranslationService();
+		$url = DevblocksPlatform::getUrlService();
+
+        // Channel
+        $channel = $xml->addChild('channel');
+        $channel->addChild('title', $feed->title);
+        $channel->addChild('link', $url->write('',true));
+        $channel->addChild('description', '');
+        
+        // View
+        $view = new C4_WorkerEventView();
+        $view->name = $feed->title;
+        $view->params = $feed->params['params'];
+        $view->renderLimit = 100;
+        $view->renderSortBy = $feed->params['sort_by'];
+        $view->renderSortAsc = $feed->params['sort_asc'];
+
+        // Results
+        list($results, $count) = $view->getData();
+
+        // [TODO] We should probably be building this feed with Zend Framework for compliance
+        
+        foreach($results as $event) {
+        	$created = intval($event[SearchFields_WorkerEvent::CREATED_DATE]);
+            if(empty($created)) $created = time();
+
+            $eItem = $channel->addChild('item');
+            
+            $escapedSubject = htmlspecialchars($event[SearchFields_WorkerEvent::TITLE],null,LANG_CHARSET_CODE);
+            //filter out a couple non-UTF-8 characters (0xC and ESC)
+            $escapedSubject = preg_replace("/[]/", '', $escapedSubject);
+            $eTitle = $eItem->addChild('title', $escapedSubject);
+
+            $eDesc = $eItem->addChild('description', htmlspecialchars($event[SearchFields_WorkerEvent::CONTENT],null,LANG_CHARSET_CODE));
+
+            if(isset($event[SearchFields_WorkerEvent::URL])) {
+//	            $link = $event[SearchFields_WorkerEvent::URL];
+	            $link = $url->write('c=home&a=redirectRead&id='.$event[SearchFields_WorkerEvent::ID], true);
+	            $eLink = $eItem->addChild('link', $link);
+	            
+            } else {
+	            $link = $url->write('c=activity&tab=events', true);
+	            $eLink = $eItem->addChild('link', $link);
+            	
+            }
+            	
+            $eDate = $eItem->addChild('pubDate', gmdate('D, d M Y H:i:s T', $created));
+            
+            $eGuid = $eItem->addChild('guid', md5($escapedSubject . $link . $created));
+            $eGuid->addAttribute('isPermaLink', "false");
+        }
+
+        return $xml->asXML();
+	}
 };
 
 class ChTaskSource_Org extends Extension_TaskSource {
@@ -9295,7 +9444,7 @@ class ChTaskSource_Org extends Extension_TaskSource {
 		$url = DevblocksPlatform::getUrlService();
 		return array(
 			'name' => '[Org] '.$contact_org->name,
-			'url' => $url->write(sprintf('c=contacts&a=orgs&id=%d',$object_id)),
+			'url' => $url->write(sprintf('c=contacts&a=orgs&id=%d',$object_id), true),
 		);
 	}
 };
@@ -9312,7 +9461,7 @@ class ChTaskSource_Ticket extends Extension_TaskSource {
 		$url = DevblocksPlatform::getUrlService();
 		return array(
 			'name' => '[Ticket] '.$ticket->subject,
-			'url' => $url->write(sprintf('c=display&mask=%s&tab=tasks',$ticket->mask)),
+			'url' => $url->write(sprintf('c=display&mask=%s&tab=tasks',$ticket->mask), true),
 		);
 	}
 };

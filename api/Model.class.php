@@ -2916,12 +2916,13 @@ class Model_Sla {
 	public $priority = 100;
 }
 
-class Model_TicketRss {
+class Model_ViewRss {
 	public $id = 0;
 	public $title = '';
 	public $hash = '';
 	public $worker_id = 0;
 	public $created = 0;
+	public $source_extension = '';
 	public $params = array();
 }
 

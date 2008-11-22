@@ -160,6 +160,15 @@ abstract class Extension_TaskSource extends DevblocksExtension {
 	function getSourceInfo($object_id) {}
 };
 
+abstract class Extension_RssSource extends DevblocksExtension {
+	function __construct($manifest) {
+		$this->DevblocksExtension($manifest,1);
+	}
+
+//	function getSourceName() {}
+	function getFeedAsRss($feed) {}
+};
+
 abstract class CerberusLoginPageExtension extends DevblocksExtension { //implements DevblocksHttpRequestHandler {
 	function __construct($manifest) {
 		$this->DevblocksExtension($manifest, 1);
