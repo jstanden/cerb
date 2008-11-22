@@ -3573,7 +3573,7 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 			self::TICKET_FIRST_WROTE_NONSPAM => new DevblocksSearchField(self::TICKET_FIRST_WROTE_NONSPAM, 'a1', 'num_nonspam',null,$translate->_('address.num_nonspam')),
 			self::TICKET_INTERESTING_WORDS => new DevblocksSearchField(self::TICKET_INTERESTING_WORDS, 't', 'interesting_words',null,$translate->_('ticket.interesting_words')),
 			self::TICKET_DUE_DATE => new DevblocksSearchField(self::TICKET_DUE_DATE, 't', 'due_date',null,$translate->_('ticket.due')),
-			self::TICKET_UNLOCK_DATE => new DevblocksSearchField(self::TICKET_UNLOCK_DATE, 't', 'unlock_date',null),
+			self::TICKET_UNLOCK_DATE => new DevblocksSearchField(self::TICKET_UNLOCK_DATE, 't', 'unlock_date', null, $translate->_('ticket.unlock_date')),
 			self::TICKET_SLA_ID => new DevblocksSearchField(self::TICKET_SLA_ID, 't', 'sla_id',null,$translate->_('sla.name')),
 			self::TICKET_SLA_PRIORITY => new DevblocksSearchField(self::TICKET_SLA_PRIORITY, 't', 'sla_priority',null,$translate->_('sla.priority')),
 			self::TICKET_FIRST_CONTACT_ORG_ID => new DevblocksSearchField(self::TICKET_FIRST_CONTACT_ORG_ID, 'a1', 'contact_org_id'),

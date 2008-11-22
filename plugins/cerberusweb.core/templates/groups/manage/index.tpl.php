@@ -58,7 +58,7 @@
 	</div>
 	<textarea name="signature" rows="4" cols="76">{$team->signature}</textarea><br>
 		E-mail Tokens: 
-		<select name="sig_token" onchange="this.form.signature.value += this.options[this.selectedIndex].value;scrollElementToBottom(this.form.signature);this.selectedIndex=0;this.form.signature.focus();">
+		<select name="sig_token" onchange="insertAtCursor(this.form.signature,this.options[this.selectedIndex].value);this.selectedIndex=0;this.form.signature.focus();">
 			<option value="">-- choose --</option>
 			<optgroup label="Worker">
 				<option value="#first_name#">First Name</option>

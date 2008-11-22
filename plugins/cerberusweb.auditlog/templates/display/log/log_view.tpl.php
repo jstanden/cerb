@@ -84,6 +84,8 @@
 						{$result.l_change_value|devblocks_date}
 					{elseif $change_field=="due_date"}
 						{$result.l_change_value|devblocks_date}
+					{elseif $change_field=="unlock_date"}
+						{$result.l_change_value|devblocks_date}
 					{elseif $change_field=="next_worker_id" || $change_field=="last_worker_id"}
 						{assign var=change_worker_id value=$result.l_change_value}
 						{if isset($workers.$change_worker_id)}{$workers.$change_worker_id->getName()}{else}Anybody{/if}&nbsp;
