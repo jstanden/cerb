@@ -110,10 +110,11 @@ class CerberusMail {
 		@$no_mail = $properties['no_mail'];
 		
 		@$closed = $properties['closed'];
-		@$bucket_id = $properties['bucket_id'];
+		@$move_bucket = $properties['move_bucket'];
 		@$next_worker_id = $properties['next_worker_id'];
 		@$next_action = $properties['next_action'];
 		@$ticket_reopen = $properties['ticket_reopen'];
+		@$unlock_date = $properties['unlock_date'];
 		
 		$worker = CerberusApplication::getActiveWorker();
 		
@@ -163,7 +164,7 @@ class CerberusMail {
 			$log_headers->set('To', $toStr);
 			$log_headers->set('From', !empty($personal) ? (sprintf("%s <%s>",$personal,$from)) : (sprintf('%s',$from)));
 			$log_headers->set('Subject', $subject_mailed);
-			$log_headers->set('Date', gmdate('r'));
+			$log_headers->set('Date', date('r'));
 			
 			foreach($log_headers->getList() as $hdr => $v) {
 				if(null != ($hdr_val = $log_headers->getEncoded($hdr))) {
@@ -296,6 +297,12 @@ class CerberusMail {
 		if(isset($ticket_reopen) && !empty($ticket_reopen)) {
 			$due = strtotime($ticket_reopen);
 			if($due) $fields[DAO_Ticket::DUE_DATE] = $due;
+		}
+        // Allow anybody to reply after 
+		if(!empty($unlock_date)) {
+		    $unlock = strtotime($unlock_date);
+		    if(intval($unlock) > 0)
+	            $fields[DAO_Ticket::UNLOCK_DATE] = $unlock;
 		}
 		// End "Next:"
 		

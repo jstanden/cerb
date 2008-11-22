@@ -100,7 +100,7 @@
 			</params>
 		</extension>
 	
-		<!-- Ticket Display Tabs -->	
+		<!-- Ticket Display Toolbar -->	
 		
 		<extension point="cerberusweb.ticket.toolbaritem">
 			<id>timetracking.ticket.toolbaritem.timer</id>
@@ -113,7 +113,7 @@
 			</params>
 		</extension>
 	
-		<!-- Ticket Reply Tabs -->
+		<!-- Ticket Reply Toolbar -->
 			
 		<extension point="cerberusweb.reply.toolbaritem">
 			<id>timetracking.reply.toolbaritem.timer</id>
@@ -126,6 +126,34 @@
 			</params>
 		</extension>
 	
+		<!-- Log Mail Toolbar -->
+		<!-- 
+		<extension point="cerberusweb.mail.log.toolbaritem">
+			<id>timetracking.logmail.toolbaritem.timer</id>
+			<name>Time Tracking Log Mail Toolbar Timer</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChTimeTrackingLogMailToolbarTimer</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		-->
+	
+		<!-- Send Mail Toolbar -->
+		<!-- 
+		<extension point="cerberusweb.mail.send.toolbaritem">
+			<id>timetracking.sendmail.toolbaritem.timer</id>
+			<name>Time Tracking Send Mail Toolbar Timer</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChTimeTrackingSendMailToolbarTimer</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+	 	-->
+	 
 		<!-- Activity Tabs -->
 		
 		<extension point="cerberusweb.activity.tab">

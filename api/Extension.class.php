@@ -118,6 +118,22 @@ abstract class Extension_TicketTab extends DevblocksExtension {
 	function saveTab() {}
 };
 
+abstract class Extension_LogMailToolbarItem extends DevblocksExtension {
+	function __construct($manifest) {
+		$this->DevblocksExtension($manifest,1);
+	}
+	
+	function render() { }
+};
+
+abstract class Extension_SendMailToolbarItem extends DevblocksExtension {
+	function __construct($manifest) {
+		$this->DevblocksExtension($manifest,1);
+	}
+	
+	function render() { }
+};
+
 abstract class Extension_TicketToolbarItem extends DevblocksExtension {
 	function __construct($manifest) {
 		$this->DevblocksExtension($manifest,1);

@@ -660,6 +660,13 @@ class ChTicketsPage extends CerberusPageExtension {
 					$visit->set('compose.last_ticket',null); // clear
 				}
 				
+				// LogMailToolbarItem Extensions
+				$logMailToolbarItems = DevblocksPlatform::getExtensions('cerberusweb.mail.log.toolbaritem', true);
+				if(!empty($logMailToolbarItems))
+					$tpl->assign('logmail_toolbaritems', $logMailToolbarItems);
+				
+				$tpl->assign('upload_max_filesize', ini_get('upload_max_filesize'));
+				
 				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/create/index.tpl.php');
 				break;
 			
@@ -676,6 +683,13 @@ class ChTicketsPage extends CerberusPageExtension {
 				
 				$team_categories = DAO_Bucket::getTeams();
 				$tpl->assign('team_categories', $team_categories);
+				
+				// SendMailToolbarItem Extensions
+				$sendMailToolbarItems = DevblocksPlatform::getExtensions('cerberusweb.mail.send.toolbaritem', true);
+				if(!empty($sendMailToolbarItems))
+					$tpl->assign('sendmail_toolbaritems', $sendMailToolbarItems);
+				
+				$tpl->assign('upload_max_filesize', ini_get('upload_max_filesize'));
 				
 				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/compose/index.tpl.php');
 				break;
@@ -1653,6 +1667,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$next_worker_id = DevblocksPlatform::importGPC($_POST['next_worker_id'],'integer',0);
 		@$next_action = DevblocksPlatform::importGPC($_POST['next_action'],'string','');
 		@$ticket_reopen = DevblocksPlatform::importGPC($_POST['ticket_reopen'],'string','');
+		@$unlock_date = DevblocksPlatform::importGPC($_POST['unlock_date'],'string','');
 		
 		if(DEMO_MODE) {
 			DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets','compose')));
@@ -1677,6 +1692,7 @@ class ChTicketsPage extends CerberusPageExtension {
 			'next_worker_id' => $next_worker_id,
 			'next_action' => $next_action,
 			'ticket_reopen' => $ticket_reopen,
+			'unlock_date' => $unlock_date,
 		);
 		
 		$ticket_id = CerberusMail::compose($properties);
@@ -1702,6 +1718,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$next_worker_id = DevblocksPlatform::importGPC($_POST['next_worker_id'],'integer',0);
 		@$next_action = DevblocksPlatform::importGPC($_POST['next_action'],'string','');
 		@$ticket_reopen = DevblocksPlatform::importGPC($_POST['ticket_reopen'],'string','');
+		@$unlock_date = DevblocksPlatform::importGPC($_POST['unlock_date'],'string','');
 		
 		if(DEMO_MODE) {
 			DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets','create')));
@@ -1728,6 +1745,7 @@ class ChTicketsPage extends CerberusPageExtension {
 			'next_worker_id' => $next_worker_id,
 			'next_action' => $next_action,
 			'ticket_reopen' => $ticket_reopen,
+			'unlock_date' => $unlock_date,
 			'no_mail' => true,
 		);
 		

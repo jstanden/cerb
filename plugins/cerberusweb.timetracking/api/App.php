@@ -134,6 +134,32 @@ if (class_exists('Extension_ReplyToolbarItem',true)):
 	};
 endif;
 
+if (class_exists('Extension_LogMailToolbarItem',true)):
+	class ChTimeTrackingLogMailToolbarTimer extends Extension_LogMailToolbarItem {
+		function render() { 
+			$tpl = DevblocksPlatform::getTemplateService();
+			$tpl_path = realpath(dirname(__FILE__).'/../templates') . DIRECTORY_SEPARATOR;
+			$tpl->assign('path', $tpl_path);
+			$tpl->cache_lifetime = "0";
+			
+			$tpl->display('file:' . $tpl_path . 'timetracking/renderers/logmail_toolbar_timer.tpl.php');
+		}
+	};
+endif;
+
+if (class_exists('Extension_SendMailToolbarItem',true)):
+	class ChTimeTrackingSendMailToolbarTimer extends Extension_SendMailToolbarItem {
+		function render() { 
+			$tpl = DevblocksPlatform::getTemplateService();
+			$tpl_path = realpath(dirname(__FILE__).'/../templates') . DIRECTORY_SEPARATOR;
+			$tpl->assign('path', $tpl_path);
+			$tpl->cache_lifetime = "0";
+			
+			$tpl->display('file:' . $tpl_path . 'timetracking/renderers/sendmail_toolbar_timer.tpl.php');
+		}
+	};
+endif;
+
 class DAO_TimeTrackingEntry extends DevblocksORMHelper {
 	const ID = 'id';
 	const TIME_ACTUAL_MINS = 'time_actual_mins';
