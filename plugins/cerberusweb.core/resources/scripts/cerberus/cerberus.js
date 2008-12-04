@@ -427,7 +427,15 @@ var cAjaxCalls = function() {
 		);		
 	}
 
-	this.cbEmailPeek = function(o) {
+	this.cbEmailSinglePeek = function(o) {
+		this._cbEmailPeek(1,o);
+	}
+	
+	this.cbEmailMultiplePeek = function(o) {
+		this._cbEmailPeek(null,o);
+	}
+
+	this._cbEmailPeek = function(mode,o) {
 		var myDataSource = new YAHOO.widget.DS_XHR(DevblocksAppPath+"ajax.php", ["\n", "\t"] );
 		myDataSource.scriptQueryAppend = "c=contacts&a=getEmailAutoCompletions"; 
 	
@@ -440,7 +448,10 @@ var cAjaxCalls = function() {
 	    var myContainer = document.getElementById('emailcontainer'); 
 	
 		var myAutoComp = new YAHOO.widget.AutoComplete(myInput,myContainer, myDataSource);
-		myAutoComp.delimChar = ",";
+		
+		if(null == mode || !mode)
+			myAutoComp.delimChar = ",";
+		
 		myAutoComp.queryDelay = 1;
 		//myAutoComp.useIFrame = true; 
 		myAutoComp.typeAhead = false;

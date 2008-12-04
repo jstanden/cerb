@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tmx SYSTEM "tmx14.dtd">
+<tmx version="1.4">
+	<header datatype="winres" segtype="sentence" adminlang="en-us"
+		srclang="en-us" o-tmf="abc" />
+	<body>
+
+		<!-- Common Strings -->
+		
+		
+		<!-- Call Logging -->
+
+		<tu tuid='calls.activity.tab'>
+			<tuv xml:lang="en_US"><seg>Calls</seg></tuv>
+		</tu>
+		
+		<tu tuid='calls.ui.log_call'>
+			<tuv xml:lang="en_US"><seg>Log Call</seg></tuv>
+		</tu>
+		
+		<!-- Call Logging Model -->
+
+		<tu tuid='call_entry.model.created_date'>
+			<tuv xml:lang="en_US"><seg>Created</seg></tuv>
+		</tu>
+		<tu tuid='call_entry.model.is_closed'>
+			<tuv xml:lang="en_US"><seg>Closed</seg></tuv>
+		</tu>
+		<tu tuid='call_entry.model.name'>
+			<tuv xml:lang="en_US"><seg>Contact Name</seg></tuv>
+		</tu>
+		<tu tuid='call_entry.model.phone'>
+			<tuv xml:lang="en_US"><seg>Contact Phone</seg></tuv>
+		</tu>
+		<tu tuid='call_entry.model.updated_date'>
+			<tuv xml:lang="en_US"><seg>Updated</seg></tuv>
+		</tu>
+		<tu tuid='call_entry.model.worker_id'>
+			<tuv xml:lang="en_US"><seg>Worker</seg></tuv>
+		</tu>
+		
+	</body>
+</tmx>

@@ -184,7 +184,7 @@
 <script type="text/javascript">
 {literal}
 YAHOO.util.Event.addListener(window,'load',function(e) {
-	ajax.cbEmailPeek(null);
+	ajax.cbEmailMultiplePeek(null);
 });
 {/literal}
 </script>

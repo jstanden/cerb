@@ -286,13 +286,13 @@
 		<!-- Addresses -->
 		
 		<tu tuid='address.id'>
-			<tuv xml:lang="en_US"><seg>id</seg></tuv>
+			<tuv xml:lang="en_US"><seg>ID</seg></tuv>
 		</tu>
 		<tu tuid='address.email'>
-			<tuv xml:lang="en_US"><seg>email</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Email</seg></tuv>
 		</tu>
 		<tu tuid='address.first_name'>
-			<tuv xml:lang="en_US"><seg>first name</seg></tuv>
+			<tuv xml:lang="en_US"><seg>First Name</seg></tuv>
 		</tu>
 		<tu tuid='address.num_spam'>
 			<tuv xml:lang="en_US"><seg># Spam</seg></tuv>
@@ -304,10 +304,10 @@
 			<tuv xml:lang="en_US"><seg>Banned</seg></tuv>
 		</tu>
 		<tu tuid='address.last_name'>
-			<tuv xml:lang="en_US"><seg>last name</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Last Name</seg></tuv>
 		</tu>
 		<tu tuid='address.phone'>
-			<tuv xml:lang="en_US"><seg>phone</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Phone</seg></tuv>
 		</tu>
 		<tu tuid='address.contact_org_id'>
 			<tuv xml:lang="en_US"><seg>Organization</seg></tuv>
@@ -358,84 +358,84 @@
 
 		<!-- Contact orgs -->
 		<tu tuid='contact_org.account_number'>
-			<tuv xml:lang="en_US"><seg>acct #</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Acct #</seg></tuv>
 		</tu>
 		<tu tuid='contact_org.city'>
-			<tuv xml:lang="en_US"><seg>city</seg></tuv>
+			<tuv xml:lang="en_US"><seg>City</seg></tuv>
 		</tu>
 		<tu tuid='contact_org.country'>
-			<tuv xml:lang="en_US"><seg>country</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Country</seg></tuv>
 		</tu>
 		<tu tuid='contact_org.created'>
-			<tuv xml:lang="en_US"><seg>created</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Created</seg></tuv>
 		</tu>
 		<tu tuid='contact_org.fax'>
-			<tuv xml:lang="en_US"><seg>fax</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Fax</seg></tuv>
 		</tu>
 		<tu tuid='contact_org.id'>
-			<tuv xml:lang="en_US"><seg>id</seg></tuv>
+			<tuv xml:lang="en_US"><seg>ID</seg></tuv>
 		</tu>
 		<tu tuid='contact_org.name'>
-			<tuv xml:lang="en_US"><seg>organization</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Organization</seg></tuv>
 		</tu>
 		<tu tuid='contact_org.phone'>
-			<tuv xml:lang="en_US"><seg>phone</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Phone</seg></tuv>
 		</tu>
 		<tu tuid='contact_org.postal'>
-			<tuv xml:lang="en_US"><seg>postal</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Postal</seg></tuv>
 		</tu>
 		<tu tuid='contact_org.province'>
-			<tuv xml:lang="en_US"><seg>state/prov</seg></tuv>
+			<tuv xml:lang="en_US"><seg>State/Prov</seg></tuv>
 		</tu>
 		<tu tuid='contact_org.street'>
-			<tuv xml:lang="en_US"><seg>street</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Street</seg></tuv>
 		</tu>
 		<tu tuid='contact_org.website'>
-			<tuv xml:lang="en_US"><seg>website</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Website</seg></tuv>
 		</tu>
 
 		<!-- Contact People -->
 		<tu tuid='contact_person.city'>
-			<tuv xml:lang="en_US"><seg>city</seg></tuv>
+			<tuv xml:lang="en_US"><seg>City</seg></tuv>
 		</tu>
 		<tu tuid='contact_person.contact_org_id'>
-			<tuv xml:lang="en_US"><seg>organization</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Organization</seg></tuv>
 		</tu>
 		<tu tuid='contact_person.country'>
-			<tuv xml:lang="en_US"><seg>country</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Country</seg></tuv>
 		</tu>
 		<tu tuid='contact_person.created'>
-			<tuv xml:lang="en_US"><seg>created</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Created</seg></tuv>
 		</tu>
 		<tu tuid='contact_person.email'>
-			<tuv xml:lang="en_US"><seg>primary email</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Primary Email</seg></tuv>
 		</tu>
 		<tu tuid='contact_person.fax'>
-			<tuv xml:lang="en_US"><seg>fax</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Fax</seg></tuv>
 		</tu>
 		<tu tuid='contact_person.first_name'>
-			<tuv xml:lang="en_US"><seg>first name</seg></tuv>
+			<tuv xml:lang="en_US"><seg>First Name</seg></tuv>
 		</tu>
 		<tu tuid='contact_person.id'>
-			<tuv xml:lang="en_US"><seg>id</seg></tuv>
+			<tuv xml:lang="en_US"><seg>ID</seg></tuv>
 		</tu>
 		<tu tuid='contact_person.last_name'>
-			<tuv xml:lang="en_US"><seg>last name</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Last Name</seg></tuv>
 		</tu>
 		<tu tuid='contact_person.phone'>
-			<tuv xml:lang="en_US"><seg>phone</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Phone</seg></tuv>
 		</tu>
 		<tu tuid='contact_person.postal'>
-			<tuv xml:lang="en_US"><seg>postal</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Postal</seg></tuv>
 		</tu>
 		<tu tuid='contact_person.province'>
-			<tuv xml:lang="en_US"><seg>province</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Province</seg></tuv>
 		</tu>
 		<tu tuid='contact_person.title'>
-			<tuv xml:lang="en_US"><seg>title</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Title</seg></tuv>
 		</tu>
 		<tu tuid='contact_person.street'>
-			<tuv xml:lang="en_US"><seg>street</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Street</seg></tuv>
 		</tu>
 
 		<!-- Cron -->

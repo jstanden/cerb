@@ -184,6 +184,8 @@
 			</params>
 		</extension>
 		
+		<!-- Controllers -->
+		
  		<extension point="devblocks.controller">
 			<id>timetracking.controller.ajax</id>
 			<name>Time Tracking Ajax Controller</name>

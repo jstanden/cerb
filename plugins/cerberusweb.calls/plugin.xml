@@ -1,0 +1,117 @@
+<!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
+<plugin>
+	<id>cerberusweb.calls</id>
+	<name>Cerberus Helpdesk: Call Logging (Experimental)</name>
+	<description>Track phone calls in the helpdesk</description>
+	<author>WebGroup Media, LLC.</author>
+	<revision>0</revision>
+	<link>http://www.cerberusweb.com/</link>
+	<class>
+		<file>api/App.php</file>
+		<name>CallsPlugin</name>
+	</class>
+	
+	<extensions>
+	
+		<!-- Patch Containers -->
+		
+		<extension point="devblocks.patch.container">
+			<id>calls.patches</id>
+			<name>Call Logging Patches</name>
+			<class>
+				<file>api/Patch.php</file>
+				<name>CallsPatchContainer</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
+		<!-- Translations -->
+		
+		<extension point="devblocks.i18n.strings">
+			<id>calls.translations</id>
+			<name>Call Logging Strings</name>
+			<class>
+				<file>api/App.php</file>
+				<name>CallsTranslations</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
+		<!-- Controllers -->
+		
+ 		<extension point="devblocks.controller">
+			<id>calls.controller.ajax</id>
+			<name>Call Logging Ajax Controller</name>
+			<class>
+				<file>api/App.php</file>
+				<name>CallsAjaxController</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
+		<!-- Activity Tab -->
+		
+		<extension point="cerberusweb.activity.tab">
+			<id>calls.activity.tab</id>
+			<name>Call Logging Tab</name>
+			<class>
+				<file>api/App.php</file>
+				<name>CallsActivityTab</name>
+			</class>
+			<params>
+				<param key="uri" value="calls" />
+				<param key="title" value="calls.activity.tab" />
+			</params>
+		</extension>
+		
+		<!-- Task Sources -->
+		<!-- 
+		<extension point="cerberusweb.task.source">
+			<id>cerberusweb.tasks.opp</id>
+			<name>Call Task</name>
+			<class>
+				<file>api/App.php</file>
+				<name>CallsTaskSource_Call</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		-->
+		 
+		<!-- Config Tabs -->
+		<!-- 
+		<extension point="cerberusweb.config.tab">
+			<id>crm.config.tab.campaigns</id>
+			<name>Campaigns Tab</name>
+			<class>
+				<file>api/App.php</file>
+				<name>CrmConfigCampaignsTab</name>
+			</class>
+			<params>
+				<param key="uri" value="crm.campaigns" />
+				<param key="title" value="Campaigns (CRM)" />
+			</params>
+		</extension>
+		-->
+		
+		<!-- Org Tabs -->
+		<!-- 
+		<extension point="cerberusweb.org.tab">
+			<id>calls.tab.org</id>
+			<name>Calls Org Tab</name>
+			<class>
+				<file>api/App.php</file>
+				<name>CallsOrgTab</name>
+			</class>
+			<params>
+				<param key="uri" value="calls" />
+				<param key="title" value="Calls" />
+			</params>
+		</extension>
+		-->
+		 
+	</extensions>
+</plugin>

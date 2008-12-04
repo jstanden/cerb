@@ -1,0 +1,88 @@
+<!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
+<plugin>
+	<id>cerberusweb.rss_explorer</id>
+	<name>Cerberus Helpdesk: RSS Explorer (Experimental)</name>
+	<description>Distribute RSS feeds between workers, assign items, link tasks</description>
+	<author>WebGroup Media, LLC.</author>
+	<revision>0</revision>
+	<link>http://www.cerberusweb.com/</link>
+	<class>
+		<file>api/App.php</file>
+		<name>RssExpPlugin</name>
+	</class>
+	
+	<extensions>
+	
+		<!-- Patch Containers -->
+		
+		<extension point="devblocks.patch.container">
+			<id>rssexp.patches</id>
+			<name>RSS Explorer Patches</name>
+			<class>
+				<file>api/Patch.php</file>
+				<name>RssExpPatchContainer</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
+		<!-- Translations -->
+		
+		<extension point="devblocks.i18n.strings">
+			<id>rssexp.translations</id>
+			<name>RSS Explorer Strings</name>
+			<class>
+				<file>api/App.php</file>
+				<name>RssExpTranslations</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
+		<!-- Activity Tab -->
+		
+		<extension point="cerberusweb.activity.tab">
+			<id>rssexp.activity.tab</id>
+			<name>RSS Explorer Tab</name>
+			<class>
+				<file>api/App.php</file>
+				<name>RssExpActivityTab</name>
+			</class>
+			<params>
+				<param key="uri" value="rss" />
+				<param key="title" value="rssexp.activity.tab" />
+			</params>
+		</extension>
+		
+		<!-- Task Sources -->
+		<!-- 
+		<extension point="cerberusweb.task.source">
+			<id>cerberusweb.tasks.opp</id>
+			<name>RSS Explorer Task</name>
+			<class>
+				<file>api/App.php</file>
+				<name>TaskSource_RssExp</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		-->
+		 
+		<!-- Config Tabs -->
+		<!-- 
+		<extension point="cerberusweb.config.tab">
+			<id>crm.config.tab.campaigns</id>
+			<name>Campaigns Tab</name>
+			<class>
+				<file>api/App.php</file>
+				<name>CrmConfigCampaignsTab</name>
+			</class>
+			<params>
+				<param key="uri" value="crm.campaigns" />
+				<param key="title" value="Campaigns (CRM)" />
+			</params>
+		</extension>
+		-->
+		
+	</extensions>
+</plugin>
