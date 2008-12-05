@@ -151,14 +151,14 @@
 var tabView = new YAHOO.widget.TabView();
 
 tabView.addTab( new YAHOO.widget.Tab({
-    label: '{/literal}{$translate->_('display.tab.conversation')}{literal}',
+    label: '{/literal}{$translate->_('display.tab.conversation')|escape:'quotes'}{literal}',
     dataSrc: '{/literal}{devblocks_url}ajax.php?c=display&a=showConversation&ticket_id={$ticket->id}{if $expand_all}&expand_all=1{/if}{/devblocks_url}{literal}',
     cacheData: true,
     {/literal}active: {if empty($tab_selected) || 'conversation'==$tab_selected}true{else}false{/if}{literal}
 }));
 
 tabView.addTab( new YAHOO.widget.Tab({
-    label: '{/literal}{$translate->_('display.tab.properties')}{literal}',
+    label: '{/literal}{$translate->_('display.tab.properties')|escape:'quotes'}{literal}',
     dataSrc: '{/literal}{devblocks_url}ajax.php?c=display&a=showProperties&ticket_id={$ticket->id}{/devblocks_url}{literal}',
     cacheData: true,
     {/literal}active: {if 'properties'==$tab_selected}true{else}false{/if}{literal}
@@ -174,28 +174,28 @@ tabView.addTab( new YAHOO.widget.Tab({
 *}{literal}*/
 
 tabView.addTab( new YAHOO.widget.Tab({
-    label: '{/literal}{'display.tab.comments'|devblocks_translate:$comments_total}{literal}',
+    label: '{/literal}{'display.tab.comments'|devblocks_translate:$comments_total|escape:'quotes'}{literal}',
     dataSrc: '{/literal}{devblocks_url}ajax.php?c=display&a=showComments&ticket_id={$ticket->id}{/devblocks_url}{literal}',
     cacheData: true,
     {/literal}active: {if 'comments'==$tab_selected}true{else}false{/if}{literal}
 }));
 
 tabView.addTab( new YAHOO.widget.Tab({
-    label: '{/literal}{'display.tab.tasks'|devblocks_translate:$tasks_total}{literal}',
+    label: '{/literal}{'display.tab.tasks'|devblocks_translate:$tasks_total|escape:'quotes'}{literal}',
     dataSrc: '{/literal}{devblocks_url}ajax.php?c=display&a=showTasks&ticket_id={$ticket->id}{/devblocks_url}{literal}',
     cacheData: true,
     {/literal}active: {if 'tasks'==$tab_selected}true{else}false{/if}{literal}
 }));
 
 tabView.addTab( new YAHOO.widget.Tab({
-    label: '{/literal}{'display.tab.custom_fields'|devblocks_translate:$field_values_total}{literal}',
+    label: '{/literal}{'display.tab.custom_fields'|devblocks_translate:$field_values_total|escape:'quotes'}{literal}',
     dataSrc: '{/literal}{devblocks_url}ajax.php?c=display&a=showCustomFields&ticket_id={$ticket->id}{/devblocks_url}{literal}',
     cacheData: true,
     {/literal}active: {if 'fields'==$tab_selected}true{else}false{/if}{literal}
 }));
 
 tabView.addTab( new YAHOO.widget.Tab({
-    label: '{/literal}{'display.tab.history'|devblocks_translate}{literal}',
+    label: '{/literal}{'display.tab.history'|devblocks_translate|escape:'quotes'}{literal}',
     dataSrc: '{/literal}{devblocks_url}ajax.php?c=display&a=showContactHistory&ticket_id={$ticket->id}{/devblocks_url}{literal}',
     cacheData: true,
     {/literal}active: {if 'history'==$tab_selected}true{else}false{/if}{literal}
@@ -205,7 +205,7 @@ tabView.addTab( new YAHOO.widget.Tab({
 
 {foreach from=$tab_manifests item=tab_manifest}
 {literal}tabView.addTab( new YAHOO.widget.Tab({{/literal}
-    label: '{$tab_manifest->params.title|devblocks_translate}',
+    label: '{$tab_manifest->params.title|devblocks_translate|escape:'quotes'}',
     dataSrc: '{devblocks_url}ajax.php?c=display&a=showTab&ext_id={$tab_manifest->id}&ticket_id={$ticket->id}{/devblocks_url}',
     {if $tab_selected==$tab_manifest->params.uri}active: true,{/if}
     cacheData: false

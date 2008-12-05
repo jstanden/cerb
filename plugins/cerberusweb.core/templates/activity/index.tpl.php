@@ -15,7 +15,7 @@ var tabView = new YAHOO.widget.TabView();
 
 {foreach from=$tab_manifests item=tab_manifest}
 {literal}tabView.addTab( new YAHOO.widget.Tab({{/literal}
-    label: '{$tab_manifest->params.title|devblocks_translate}',
+    label: '{$tab_manifest->params.title|devblocks_translate|escape:'quotes'}',
     dataSrc: '{devblocks_url}ajax.php?c=activity&a=showTab&ext_id={$tab_manifest->id}{/devblocks_url}',
     {if $tab_selected==$tab_manifest->params.uri}active: true,{/if}
     cacheData: false

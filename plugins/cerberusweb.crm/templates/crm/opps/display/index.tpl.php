@@ -89,7 +89,7 @@ tabView.addTab( new YAHOO.widget.Tab({
 {*
 {foreach from=$tab_manifests item=tab_manifest}
 {literal}tabView.addTab( new YAHOO.widget.Tab({{/literal}
-    label: '{$tab_manifest->params.title}',
+    label: '{$tab_manifest->params.title|escape:'quotes'}',
     dataSrc: '{devblocks_url}ajax.php?c=crm&a=showTab&ext_id={$tab_manifest->id}&id={$opp->id}{/devblocks_url}',
     {if $tab==$tab_manifest->params.uri}active: true,{/if}
     cacheData: false

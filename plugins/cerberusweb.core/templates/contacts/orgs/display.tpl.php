@@ -40,7 +40,7 @@ var tabDetails = tabView.getTab(0);
 {* Add any plugin-contributed tabs to the addresses view *}
 {foreach from=$tab_manifests item=tab_manifest}
 {literal}tabView.addTab( new YAHOO.widget.Tab({{/literal}
-    label: '{$tab_manifest->params.title}',
+    label: '{$tab_manifest->params.title|escape:'quotes'}',
     dataSrc: '{devblocks_url}ajax.php?c=contacts&a=showTab&ext_id={$tab_manifest->id}&org_id={$contact->id}{/devblocks_url}',
     {if $tab==$tab_manifest->params.uri}active: true,{/if}
     cacheData: false
