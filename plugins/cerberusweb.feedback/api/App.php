@@ -701,6 +701,11 @@ class ChFeedbackConfigTab extends Extension_ConfigTab {
 		@$name = DevblocksPlatform::importGPC($_REQUEST['name'],'string','');
 		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
 
+		if(DEMO_MODE) {
+			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','feedback')));
+			return;
+		}
+		
 		if(empty($name))
 			$name = $translate->_('feedback.cfg.blank');
 		
