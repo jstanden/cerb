@@ -19,7 +19,7 @@
 		</span>
       </td>
       <td align="right">
-      	<a href="http://www.cerberusweb.com/"><img alt="powered by cerberus helpdesk" src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/cerberus_logo_small.gif{/devblocks_url}" border="0"></a>
+      	<a href="http://www.cerberusweb.com/" target="_blank"><img alt="powered by cerberus helpdesk" src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/cerberus_logo_small.gif{/devblocks_url}" border="0"></a>
       </td>
     </tr>
 </table>

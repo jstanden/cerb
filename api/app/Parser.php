@@ -1020,10 +1020,10 @@ class CerberusParser {
 		return CerberusUtils::parseRfcAddressList($address_string);
 	}
 	
-	static private function fixQuotePrintableString($str) {
+	static function fixQuotePrintableString($str) {
 		$out = '';
 		
-		$parts = imap_mime_header_decode($str);		
+		$parts = imap_mime_header_decode($str);
 		if(is_array($parts))
 		foreach($parts as $part) {
 			try {

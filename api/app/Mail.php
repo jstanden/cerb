@@ -335,7 +335,7 @@ class CerberusMail {
 		
 		// Headers
 		foreach($mail_headers as $hdr => $hdr_val) {
-			DAO_MessageHeader::update($message_id, $ticket_id, $hdr, $hdr_val);			
+			DAO_MessageHeader::update($message_id, $ticket_id, $hdr, CerberusParser::fixQuotePrintableString($hdr_val));			
 		}
 		
 		// add files to ticket
@@ -681,7 +681,7 @@ class CerberusMail {
 			foreach($mail->headers->getList() as $hdr => $v) {
 				if(null != ($hdr_val = $mail->headers->getEncoded($hdr))) {
 					if(!empty($hdr_val))
-		    			DAO_MessageHeader::update($message_id, $ticket_id, $hdr, $hdr_val);
+		    			DAO_MessageHeader::update($message_id, $ticket_id, $hdr, CerberusParser::fixQuotePrintableString($hdr_val));
 				}
 			}
 		    
