@@ -651,6 +651,9 @@ class ChTicketsPage extends CerberusPageExtension {
 				break;
 				
 			case 'create':
+				$workers = DAO_Worker::getAllActive();
+				$tpl->assign('workers', $workers);
+				
 				$teams = DAO_Group::getAll();
 				$tpl->assign('teams', $teams);
 				
@@ -675,6 +678,10 @@ class ChTicketsPage extends CerberusPageExtension {
 			
 			case 'compose':
 				$settings = CerberusSettings::getInstance();
+				
+				$workers = DAO_Worker::getAllActive();
+				$tpl->assign('workers', $workers);
+				
 				$teams = DAO_Group::getAll();
 				$tpl->assign_by_ref('teams', $teams);
 				
@@ -1615,7 +1622,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		$team_categories = DAO_Bucket::getTeams();
 		$tpl->assign('team_categories', $team_categories);
 	    
-	    $workers = DAO_Worker::getAll();
+	    $workers = DAO_Worker::getAllActive();
 		$tpl->assign('workers', $workers);
 	    
 		$tpl->cache_lifetime = "0";
@@ -2570,7 +2577,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		$team_categories = DAO_Bucket::getTeams();
 		$tpl->assign('team_categories', $team_categories);
 		
-		$workers = DAO_Worker::getAll();
+		$workers = DAO_Worker::getAllActive();
 		$tpl->assign('workers', $workers);
 		
 		$tpl->cache_lifetime = "0";
@@ -2985,7 +2992,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		
-		$workers = DAO_Worker::getAll();
+		$workers = DAO_Worker::getAllWithDisabled();
 		$tpl->assign('workers', $workers);
 
 		$teams = DAO_Group::getAll();
@@ -3002,7 +3009,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		
-		$workers = DAO_Worker::getAll();
+		$workers = DAO_Worker::getAllActive();
 		$tpl->assign('workers', $workers);
 
 		$teams = DAO_Group::getAll();
@@ -3942,7 +3949,8 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		@$password = DevblocksPlatform::importGPC($_POST['password'],'string');
 		@$is_superuser = DevblocksPlatform::importGPC($_POST['is_superuser'],'integer');
 		@$team_ids = DevblocksPlatform::importGPC($_POST['team_id'],'array');
-		@$delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer');
+		@$disabled = DevblocksPlatform::importGPC($_POST['do_disable'],'integer',0);
+		@$delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer',0);
 
 		// Global privs
 		@$can_delete = DevblocksPlatform::importGPC($_POST['can_delete'],'integer');
@@ -3952,12 +3960,12 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		if(empty($first_name)) $first_name = "Anonymous";
 		
 		if(!empty($id) && !empty($delete)) {
+			// Can't delete or disable self
+			if($active_worker->id == $id)
+				return;
+			
 			DAO_Worker::deleteAgent($id);
-			//[mdf] if deleting one's self, logout
-			if($active_worker->id == $id) {
-				DevblocksPlatform::redirect(new DevblocksHttpResponse(array('login','signout')));
-				exit;
-			}
+			
 		} else {
 			if(empty($id) && null == DAO_Worker::lookupAgentEmail($email)) {
 				$workers = DAO_Worker::getAll();
@@ -4023,6 +4031,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 				DAO_Worker::TITLE => $title,
 				DAO_Worker::EMAIL => $email,
 				DAO_Worker::IS_SUPERUSER => $is_superuser,
+				DAO_Worker::IS_DISABLED => $disabled,
 				DAO_Worker::CAN_DELETE => $can_delete,
 			);
 			
@@ -4077,7 +4086,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 			$tpl->assign('members', $members);
 		}
 		
-		$workers = DAO_Worker::getAll();
+		$workers = DAO_Worker::getAllActive();
 		$tpl->assign('workers', $workers);
 		
 		$tpl->assign('license',CerberusLicense::getInstance());
@@ -5245,6 +5254,7 @@ class ChContactsPage extends CerberusPageExtension {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		$view = C4_AbstractViewLoader::getView('',$view_id);
 
+		@$org_name = trim(DevblocksPlatform::importGPC($_POST['contact_org'],'string',''));
 		@$sla = DevblocksPlatform::importGPC($_POST['sla'],'string','');
 		@$is_banned = DevblocksPlatform::importGPC($_POST['is_banned'],'integer',0);
 
@@ -5252,8 +5262,15 @@ class ChContactsPage extends CerberusPageExtension {
 		
 		$do = array();
 		
+		// Do: Organization
+		if(!empty($org_name)) {
+			if(null != ($org_id = DAO_ContactOrg::lookup($org_name, true)))
+				$do['org_id'] = $org_id;
+		}
+		// Do: SLA
 		if('' != $sla)
 			$do['sla'] = $sla;
+		// Do: Banned
 		if(0 != strlen($is_banned))
 			$do['banned'] = $is_banned;
 		
@@ -5811,7 +5828,7 @@ class ChGroupsPage extends CerberusPageExtension  {
 		$members = DAO_Group::getTeamMembers($group_id);
 	    $tpl->assign('members', $members);
 	    
-		$workers = DAO_Worker::getAll();
+		$workers = DAO_Worker::getAllActive();
 	    $tpl->assign('workers', $workers);
 		
 		$tpl->display('file:' . $tpl_path . 'groups/manage/members.tpl.php');
@@ -7680,6 +7697,9 @@ class ChDisplayPage extends CerberusPageExtension {
 		$worker = CerberusApplication::getActiveWorker();
 		$tpl->assign('worker', $worker);
 		
+		$active_workers = DAO_Worker::getAllActive();
+		$tpl->assign('active_workers', $active_workers);
+		
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 		
@@ -7773,7 +7793,7 @@ class ChDisplayPage extends CerberusPageExtension {
 			$tpl->assign('forward_attachments', $forward_attachments);
 		}
 		
-		$workers = DAO_Worker::getAll();
+		$workers = DAO_Worker::getAllActive();
 		$tpl->assign('workers', $workers);
 		
 		$teams = DAO_Group::getAll();
@@ -7970,6 +7990,9 @@ class ChDisplayPage extends CerberusPageExtension {
 
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
+
+		$active_workers = DAO_Worker::getAllActive();
+		$tpl->assign('active_workers', $active_workers);
 		
 		$comments = DAO_TicketComment::getByTicketId($ticket_id);
 		arsort($comments);
@@ -8071,7 +8094,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		$requesters = DAO_Ticket::getRequestersByTicket($ticket_id);
 		$tpl->assign('requesters', $requesters);
 		
-		$workers = DAO_Worker::getAll();
+		$workers = DAO_Worker::getAllActive();
 		$tpl->assign('workers', $workers);
 		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/properties/index.tpl.php');

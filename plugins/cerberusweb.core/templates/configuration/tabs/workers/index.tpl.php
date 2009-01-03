@@ -26,7 +26,7 @@
 						{if !empty($workers)}
 							{foreach from=$workers item=agent}
 							{assign var=worker_name value=$agent->getName(true)}
-							&#187; <a href="javascript:;" onclick="configAjax.getWorker('{$agent->id}')" title="{if !empty($agent->title)}{$agent->title}{/if}">{if !empty($worker_name)}{$worker_name}{else}{$agent->email}{/if}</a><br>
+							&#187; <a href="javascript:;" onclick="configAjax.getWorker('{$agent->id}')" title="{if !empty($agent->title)}{$agent->title}{/if}" style="{if $agent->is_disabled}color:rgb(120,0,0);font-style:italic;{elseif $agent->is_superuser}{/if}">{if !empty($worker_name)}{$worker_name}{else}{$agent->email}{/if}</a><br>
 							{/foreach}
 						{/if}
 						</div>

@@ -108,7 +108,7 @@ class ChTasksController extends DevblocksControllerExtension {
 			$tpl->assign('link_object_id', $link_object_id);
 		}
 		
-		$workers = DAO_Worker::getAll();
+		$workers = DAO_Worker::getAllActive();
 		$tpl->assign('workers', $workers);
 		
 		$tpl->assign('id', $id);

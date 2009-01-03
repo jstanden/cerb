@@ -450,6 +450,11 @@ if(!isset($columns['SOURCE_EXTENSION'])) {
 $columns = $datadict->MetaColumns('worker');
 $indexes = $datadict->MetaIndexes('worker',false);
 
+if(!isset($columns['IS_DISABLED'])) {
+    $sql = $datadict->AddColumnSQL('worker', "is_disabled I1 DEFAULT 0 NOTNULL");
+    $datadict->ExecuteSQLArray($sql);
+}
+
 if(!isset($indexes['pos'])) {
 	$sql = $datadict->CreateIndexSQL('last_activity_date','worker','last_activity_date');
 	$datadict->ExecuteSQLArray($sql);

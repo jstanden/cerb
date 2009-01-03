@@ -222,6 +222,7 @@ class DAO_Worker extends DevblocksORMHelper {
 	const EMAIL = 'email';
 	const PASSWORD = 'pass';
 	const IS_SUPERUSER = 'is_superuser';
+	const IS_DISABLED = 'is_disabled';
 	const CAN_DELETE = 'can_delete';
 	const LAST_ACTIVITY_DATE = 'last_activity_date';
 	const LAST_ACTIVITY = 'last_activity';
@@ -234,8 +235,8 @@ class DAO_Worker extends DevblocksORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$id = $db->GenID('generic_seq');
 		
-		$sql = sprintf("INSERT INTO worker (id, email, pass, first_name, last_name, title, is_superuser, can_delete) ".
-			"VALUES (%d, %s, %s, %s, %s, %s,0,0)",
+		$sql = sprintf("INSERT INTO worker (id, email, pass, first_name, last_name, title, is_superuser, is_disabled, can_delete) ".
+			"VALUES (%d, %s, %s, %s, %s, %s,0,0,0)",
 			$id,
 			$db->qstr($email),
 			$db->qstr(md5($password)),
@@ -255,11 +256,30 @@ class DAO_Worker extends DevblocksORMHelper {
 		$cache->remove(self::CACHE_ALL);
 	}
 	
-	static function getAll($nocache=false) {
+	static function getAllActive() {
+		return self::getAll(false, false);
+	}
+	
+	static function getAllWithDisabled() {
+		return self::getAll(false, true);
+	}
+	
+	static function getAll($nocache=false, $with_disabled=true) {
 	    $cache = DevblocksPlatform::getCacheService();
 	    if($nocache || null === ($workers = $cache->load(self::CACHE_ALL))) {
     	    $workers = self::getList();
     	    $cache->save($workers, self::CACHE_ALL);
+	    }
+	    
+	    /*
+	     * If the caller doesn't want disabled workers then remove them from the results,
+	     * but don't bother caching two different versions (always cache all)
+	     */
+	    if(!$with_disabled) {
+	    	foreach($workers as $worker_id => $worker) { /* @var $worker CerberusWorker */
+	    		if($worker->is_disabled)
+	    			unset($workers[$worker_id]);
+	    	}
 	    }
 	    
 	    return $workers;
@@ -271,7 +291,7 @@ class DAO_Worker extends DevblocksORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$workers = array();
 		
-		$sql = "SELECT a.id, a.first_name, a.last_name, a.email, a.pass, a.title, a.is_superuser, a.can_delete, a.last_activity_date, a.last_activity ".
+		$sql = "SELECT a.id, a.first_name, a.last_name, a.email, a.pass, a.title, a.is_superuser, a.is_disabled, a.can_delete, a.last_activity_date, a.last_activity ".
 			"FROM worker a ".
 			((!empty($ids) ? sprintf("WHERE a.id IN (%s) ",implode(',',$ids)) : " ").
 			"ORDER BY a.last_name, a.first_name "
@@ -288,6 +308,7 @@ class DAO_Worker extends DevblocksORMHelper {
 			$worker->pass = $rs->fields['pass'];
 			$worker->title = $rs->fields['title'];
 			$worker->is_superuser = intval($rs->fields['is_superuser']);
+			$worker->is_disabled = intval($rs->fields['is_disabled']);
 			$worker->can_delete = intval($rs->fields['can_delete']);
 			$worker->last_activity_date = intval($rs->fields['last_activity_date']);
 			
@@ -307,7 +328,7 @@ class DAO_Worker extends DevblocksORMHelper {
 	static function getAgent($id) {
 		if(empty($id)) return null;
 		
-		$workers = self::getAll();
+		$workers = self::getAllWithDisabled();
 		
 		if(isset($workers[$id]))
 			return $workers[$id];
@@ -406,6 +427,8 @@ class DAO_Worker extends DevblocksORMHelper {
 	static function deleteAgent($id) {
 		if(empty($id)) return;
 		
+		// [TODO] Delete worker notes, comments, etc.
+		
 		/* This event fires before the delete takes place in the db,
 		 * so we can denote what is actually changing against the db state
 		 */
@@ -455,7 +478,8 @@ class DAO_Worker extends DevblocksORMHelper {
 		// [TODO] Uniquely salt hashes
 		$sql = sprintf("SELECT id ".
 			"FROM worker ".
-			"WHERE email = %s ".
+			"WHERE is_disabled = 0 ".
+			"AND email = %s ".
 			"AND pass = MD5(%s)",
 				$db->qstr($email),
 				$db->qstr($password)
@@ -967,6 +991,13 @@ class DAO_ContactOrg extends DevblocksORMHelper {
 		return null;
 	}	
 
+	/**
+	 * Enter description here...
+	 *
+	 * @param string $name
+	 * @param boolean $create_if_null
+	 * @return Model_ContactOrg
+	 */
 	static function lookup($name, $create_if_null=false) {
 		$db = DevblocksPlatform::getDatabaseService();
 		

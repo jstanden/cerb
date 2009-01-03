@@ -188,7 +188,7 @@ var cAjaxCalls = function() {
 		
 		var row_ids = ids.join(','); // [TODO] Encode?
 	
-		genericAjaxPanel('c=contacts&a=showAddressBatchPanel&view_id=' + view_id + '&ids=' + row_ids,target,false,'500px');
+		genericAjaxPanel('c=contacts&a=showAddressBatchPanel&view_id=' + view_id + '&ids=' + row_ids,target,false,'500px',this.cbAddressPeek);
 	}
 	
 	this.saveAddressBatchPanel = function(view_id) {

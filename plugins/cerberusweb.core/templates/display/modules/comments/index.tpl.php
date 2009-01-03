@@ -13,7 +13,7 @@
 <label><input type="checkbox" onclick="toggleDiv('addCommentNotifyWorkers');"> <b>Notify workers</b></label>
 <div id="addCommentNotifyWorkers" style="display:none;">
 <select name="notify_worker_ids" multiple="multiple" size="8">
-	{foreach from=$workers item=worker name=notify_workers}
+	{foreach from=$active_workers item=worker name=notify_workers}
 	{if $owner_id && $worker->id == $owner_id}{math assign=notify_owner_id equation="x-1" x=$smarty.foreach.notify_workers.iteration}{/if}
 	{if $worker->id == $active_worker->id}{math assign=notify_me_id equation="x-1" x=$smarty.foreach.notify_workers.iteration}{/if}
 	<option value="{$worker->id}">{$worker->getName()}</option>

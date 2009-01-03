@@ -1,6 +1,7 @@
 <input type="hidden" name="c" value="config">
 <input type="hidden" name="a" value="saveWorker">
 <input type="hidden" name="id" value="{if !empty($worker->id)}{$worker->id}{else}0{/if}">
+<input type="hidden" name="do_delete" value="0">
 <div class="block">
 <table cellpadding="2" cellspacing="0" border="0">
 	<tr>
@@ -40,6 +41,21 @@
 	
 	<tr><td colspan="2">&nbsp;</td></tr>
 	
+	{if !empty($worker->id)}
+		{* Superuser -- Can't delete self *}
+		{if $active_worker->id != $worker->id}
+		<tr>
+			<td width="0%" nowrap="nowrap" valign="top"><b>Status:</b></td>
+			<td width="100%" valign="top">
+				<label><input type="radio" name="do_disable" value="0" {if !$worker->is_disabled}checked="checked"{/if}> Active</label><br>
+				<label><input type="radio" name="do_disable" value="1" {if $worker->is_disabled}checked="checked"{/if}> Disabled</label><br>
+			</td>
+		</tr>
+		
+		<tr><td colspan="2">&nbsp;</td></tr>
+		{/if}
+	{/if}
+	
 	<tr>
 		<td width="0%" nowrap="nowrap" valign="top">
 			<b>Groups:</b><br>
@@ -73,22 +89,10 @@
 		</td>
 	</tr>
 	
-	<tr><td colspan="2">&nbsp;</td></tr>
-	
-	{if !empty($worker->id)}
-	
-	{* Superuser -- Can't delete self *}
-	{if $active_worker->id != $worker->id}
-	<tr>
-		<td width="0%" nowrap="nowrap"><b>Delete:</b></td>
-		<td width="100%"><label style="background-color:rgb(255,220,220);"><input type="checkbox" name="do_delete" value="1"> Delete this worker</label></td>
-	</tr>
-	{/if}
-	
-	{/if}
 	<tr>
 		<td colspan="2">
 			{if (empty($license) || empty($license.key)) && count($workers) >= 3}{else}<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>{/if}
+			{if $active_worker->is_superuser && $active_worker->id != $worker->id}<button type="button" onclick="if(confirm('Are you sure you want to delete this worker and their history?')){literal}{{/literal}this.form.do_delete.value='1';this.form.submit();{literal}}{/literal}"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete2.gif{/devblocks_url}" align="top"> {$translate->_('common.delete')|capitalize}</button>{/if}
 		</td>
 	</tr>
 </table>

@@ -105,7 +105,7 @@ class CallsAjaxController extends DevblocksControllerExtension {
 //				$tpl->assign('org', $org);
 //		}
 
-		$workers = DAO_Worker::getAll();
+		$workers = DAO_Worker::getAllActive();
 		$tpl->assign('workers', $workers);
 		
 		$tpl->display('file:' . $tpl_path . 'calls/ajax/call_entry_panel.tpl.php');

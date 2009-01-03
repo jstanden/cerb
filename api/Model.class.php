@@ -1398,12 +1398,20 @@ class C4_AddressView extends C4_AbstractView {
 	  
 		$change_fields = array();
 
+		// Make sure we have actions
 		if(empty($do))
-		return;
+			return;
 
+		// Make sure we have checked items if we want a checked list
+		if(0 == strcasecmp($filter,"checks") && empty($ids))
+			return;
+			
 		if(is_array($do))
 		foreach($do as $k => $v) {
 			switch($k) {
+				case 'org_id':
+					$change_fields[DAO_Address::CONTACT_ORG_ID] = intval($v);
+					break;
 				case 'sla':
 					$change_fields[DAO_Address::SLA_ID] = intval($v);
 					break;
@@ -1418,12 +1426,12 @@ class C4_AddressView extends C4_AbstractView {
 		if(empty($ids))
 		do {
 			list($objects,$null) = DAO_Address::search(
-			$this->params,
-			100,
-			$pg++,
-			SearchFields_Address::ID,
-			true,
-			false
+				$this->params,
+				100,
+				$pg++,
+				SearchFields_Address::ID,
+				true,
+				false
 			);
 			 
 			$ids = array_merge($ids, array_keys($objects));
@@ -2843,6 +2851,7 @@ class CerberusWorker {
 	public $pass;
 	public $title;
 	public $is_superuser=0;
+	public $is_disabled=0;
 	public $can_delete=0;
 	public $last_activity;
 	public $last_activity_date;

@@ -15,13 +15,24 @@
 <h2>With:</h2>
 
 <label><input type="radio" name="filter" value="" {if empty($address_ids)}checked{/if}> Whole list</label> 
-<label><input type="radio" name="filter" value="" {if !empty($address_ids)}checked{/if}> Only checked</label> 
+<label><input type="radio" name="filter" value="checks" {if !empty($address_ids)}checked{/if}> Only checked</label> 
 <br>
 <br>
 
 <div id="bulkUpdateCustom" style="display:block;">
 <H2>Do:</H2>
 <table cellspacing="0" cellpadding="2" width="100%">
+	<tr>
+		<td width="0%" nowrap="nowrap">Organization:</td>
+		<td width="100%">
+			<div id="contactautocomplete" style="width:98%;" class="yui-ac">
+				<input type="text" name="contact_org" id="contactinput" value="" class="yui-ac-input">
+				<div id="contactcontainer" class="yui-ac-container"></div>
+				<br>
+				<br>
+			</div>
+		</td>
+	</tr>
 	<tr>
 		<td width="0%" nowrap="nowrap">Service Level:</td>
 		<td width="100%"><select name="sla">
@@ -41,12 +52,6 @@
       	</select></td>
 	</tr>
 	<!--
-	<tr>
-		<td width="0%" nowrap="nowrap">Organization:</td>
-		<td width="100%">
-			<input type="text" name="org" value="" size="35">
-		</td>
-	</tr>
 	<tr>
 		<td width="0%" nowrap="nowrap">Country:</td>
 		<td width="100%">
