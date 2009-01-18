@@ -12,7 +12,7 @@
 		<td align="left" valign="bottom">
 			{assign var=logo_url value=$settings->get('helpdesk_logo_url','')}
 			{if empty($logo_url)}
-			<img src="{devblocks_url}images/logo.jpg{/devblocks_url}?v={$smarty.const.APP_BUILD}">
+			<img src="{devblocks_url}images/logo.png{/devblocks_url}?v={$smarty.const.APP_BUILD}">
 			{else}
 			<img src="{$logo_url}">
 			{/if}
