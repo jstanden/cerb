@@ -15,16 +15,28 @@
 var tabView = new YAHOO.widget.TabView();
 
 tabView.addTab( new YAHOO.widget.Tab({
-    label: 'Mail History',
-    dataSrc: '{/literal}{devblocks_url}ajax.php?c=contacts&a=showTabHistory&org={$contact->id}{/devblocks_url}{literal}',
+    label: 'Notes',
+    dataSrc: '{/literal}{devblocks_url}ajax.php?c=contacts&a=showTabNotes&org={$contact->id}{/devblocks_url}{literal}',
     cacheData: true,
     active: true
+}));
+
+tabView.addTab( new YAHOO.widget.Tab({
+    label: 'Mail History',
+    dataSrc: '{/literal}{devblocks_url}ajax.php?c=contacts&a=showTabHistory&org={$contact->id}{/devblocks_url}{literal}',
+    cacheData: true
 }));
 
 tabView.addTab( new YAHOO.widget.Tab({
     label: 'People ({/literal}{$people_total}{literal})',
     dataSrc: '{/literal}{devblocks_url}ajax.php?c=contacts&a=showTabPeople&org={$contact->id}{/devblocks_url}{literal}',
     cacheData: true
+}));
+
+tabView.addTab( new YAHOO.widget.Tab({
+    label: 'Custom Fields ({/literal}{$fields_total}{literal})',
+    dataSrc: '{/literal}{devblocks_url}ajax.php?c=contacts&a=showTabFields&org={$contact->id}{/devblocks_url}{literal}',
+    cacheData: false
 }));
 
 tabView.addTab( new YAHOO.widget.Tab({

@@ -176,12 +176,23 @@ abstract class Extension_TaskSource extends DevblocksExtension {
 	function getSourceInfo($object_id) {}
 };
 
+abstract class Extension_NoteSource extends DevblocksExtension {
+	function __construct($manifest) {
+		$this->DevblocksExtension($manifest,1);
+	}
+};
+
+abstract class Extension_CustomFieldSource extends DevblocksExtension {
+	function __construct($manifest) {
+		$this->DevblocksExtension($manifest,1);
+	}
+};
+
 abstract class Extension_RssSource extends DevblocksExtension {
 	function __construct($manifest) {
 		$this->DevblocksExtension($manifest,1);
 	}
 
-//	function getSourceName() {}
 	function getFeedAsRss($feed) {}
 };
 

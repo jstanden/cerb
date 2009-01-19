@@ -1030,14 +1030,14 @@ class DAO_ContactOrg extends DevblocksORMHelper {
      * @param boolean $withCounts
      * @return array
      */
-    static function search($params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
+    static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
 
-        list($tables,$wheres) = parent::_parseSearchParams($params, array(),SearchFields_ContactOrg::getFields());
+        list($tables,$wheres) = parent::_parseSearchParams($params, $columns, SearchFields_ContactOrg::getFields());
 		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
 		$total = -1;
 		
-		$sql = sprintf("SELECT ".
+		$select_sql = sprintf("SELECT ".
 			"c.id as %s, ".
 			"c.account_number as %s, ".
 			"c.name as %s, ".
@@ -1050,8 +1050,7 @@ class DAO_ContactOrg extends DevblocksORMHelper {
 			"c.fax as %s, ".
 			"c.website as %s, ".
 			"c.created as %s, ".
-			"c.sla_id as %s ".
-			"FROM contact_org c ",
+			"c.sla_id as %s ",
 //			"INNER JOIN team tm ON (tm.id = t.team_id) ".
 			    SearchFields_ContactOrg::ID,
 			    SearchFields_ContactOrg::ACCOUNT_NUMBER,
@@ -1066,14 +1065,49 @@ class DAO_ContactOrg extends DevblocksORMHelper {
 			    SearchFields_ContactOrg::WEBSITE,
 			    SearchFields_ContactOrg::CREATED,
 			    SearchFields_ContactOrg::SLA_ID
-			).
+			);
 		
-			// [JAS]: Dynamic table joins
-//			(isset($tables['ra']) ? "INNER JOIN requester r ON (r.ticket_id=t.id)" : " ").
+		$join_sql = 'FROM contact_org c ';
+
+		// [JAS]: Dynamic table joins
+		//(isset($tables['ra']) ? "INNER JOIN requester r ON (r.ticket_id=t.id)" : " ").
+
+		// Custom field joins
+		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Org::ID);
+		
+		foreach($tables as $tbl_name => $null) {
+			if(substr($tbl_name,0,3)!="cf_")
+				continue;
+				
+			if(0 != ($cf_id = intval(substr($tbl_name,3)))) {
+				// Make sure our custom fields still exist
+				if(!isset($custom_fields[$cf_id])) {
+					unset($tables[$tbl_name]);
+					continue;
+				}
+				
+				$select_sql .= sprintf(", cf_%d.field_value as cf_%d ",
+					$cf_id,
+					$cf_id
+				);
+				
+				$join_sql .= sprintf("LEFT JOIN custom_field_value cf_%d ON ('%s' = cf_%d.source_extension AND c.id=cf_%d.source_id AND cf_%d.field_id=%d) ",
+					$cf_id,
+					ChCustomFieldSource_Org::ID,
+					$cf_id,
+					$cf_id,
+					$cf_id,
+					$cf_id
+				);
+			}
+		}
+		
+		$where_sql = "".
+			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "");
 			
-			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "").
-			(!empty($sortBy) ? sprintf("ORDER BY %s %s",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : "")
-		;
+		$sql = $select_sql . $join_sql . $where_sql .
+			(!empty($sortBy) ? sprintf("ORDER BY %s %s",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : "");
+			
 		// [TODO] Could push the select logic down a level too
 		if($limit > 0) {
     		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
@@ -1125,7 +1159,7 @@ class SearchFields_ContactOrg {
 	 */
 	static function getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
-		return array(
+		$columns = array(
 			self::ID => new DevblocksSearchField(self::ID, 'c', 'id', null, $translate->_('contact_org.id')),
 			self::ACCOUNT_NUMBER => new DevblocksSearchField(self::ACCOUNT_NUMBER, 'c', 'account_number', null, $translate->_('contact_org.account_number')),
 			self::NAME => new DevblocksSearchField(self::NAME, 'c', 'name', null, $translate->_('contact_org.name')),
@@ -1140,6 +1174,17 @@ class SearchFields_ContactOrg {
 			self::CREATED => new DevblocksSearchField(self::CREATED, 'c', 'created', null, $translate->_('contact_org.created')),
 			self::SLA_ID => new DevblocksSearchField(self::SLA_ID, 'c', 'sla_id', null, $translate->_('sla.name')),
 		);
+		
+		// Custom Fields
+		$fields = DAO_CustomField::getBySource(ChCustomFieldSource_Org::ID);
+
+		if(is_array($fields))
+		foreach($fields as $field_id => $field) {
+			$key = 'cf_'.$field_id;
+			$columns[$key] = new DevblocksSearchField($key,$key,'field_value',null,$field->name);
+		}
+		
+		return $columns;
 	}
 };
 
@@ -1405,10 +1450,10 @@ class DAO_Address extends DevblocksORMHelper {
      * @param boolean $withCounts
      * @return array
      */
-    static function search($params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
+    static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
 
-        list($tables,$wheres) = parent::_parseSearchParams($params, array(),SearchFields_Address::getFields());
+        list($tables,$wheres) = parent::_parseSearchParams($params, $columns, SearchFields_Address::getFields());
 		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
 		
 		$select_sql = sprintf("SELECT ".
@@ -1444,6 +1489,36 @@ class DAO_Address extends DevblocksORMHelper {
 //			(isset($tables['o']) ? "LEFT JOIN contact_org o ON (o.id=a.contact_org_id)" : " ").
 //			(isset($tables['mc']) ? "INNER JOIN message_content mc ON (mc.message_id=m.id)" : " ").
 
+		// Custom field joins
+		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Address::ID);
+		
+		foreach($tables as $tbl_name => $null) {
+			if(substr($tbl_name,0,3)!="cf_")
+				continue;
+				
+			if(0 != ($cf_id = intval(substr($tbl_name,3)))) {
+				// Make sure our custom fields still exist
+				if(!isset($custom_fields[$cf_id])) {
+					unset($tables[$tbl_name]);
+					continue;
+				}
+				
+				$select_sql .= sprintf(", cf_%d.field_value as cf_%d ",
+					$cf_id,
+					$cf_id
+				);
+				
+				$join_sql .= sprintf("LEFT JOIN custom_field_value cf_%d ON ('%s' = cf_%d.source_extension AND a.id=cf_%d.source_id AND cf_%d.field_id=%d) ",
+					$cf_id,
+					ChCustomFieldSource_Address::ID,
+					$cf_id,
+					$cf_id,
+					$cf_id,
+					$cf_id
+				);
+			}
+		}
+	
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "");
 			
@@ -1496,7 +1571,8 @@ class SearchFields_Address implements IDevblocksSearchFields {
 	 */
 	static function getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
-		return array(
+		
+		$columns = array(
 			self::ID => new DevblocksSearchField(self::ID, 'a', 'id', null, $translate->_('address.id')),
 			self::EMAIL => new DevblocksSearchField(self::EMAIL, 'a', 'email', null, $translate->_('address.email')),
 			self::FIRST_NAME => new DevblocksSearchField(self::FIRST_NAME, 'a', 'first_name', null, $translate->_('address.first_name')),
@@ -1510,6 +1586,17 @@ class SearchFields_Address implements IDevblocksSearchFields {
 			
 			self::ORG_NAME => new DevblocksSearchField(self::ORG_NAME, 'o', 'name', null, $translate->_('contact_org.name')),
 		);
+		
+		// Custom Fields
+		$fields = DAO_CustomField::getBySource(ChCustomFieldSource_Address::ID);
+
+		if(is_array($fields))
+		foreach($fields as $field_id => $field) {
+			$key = 'cf_'.$field_id;
+			$columns[$key] = new DevblocksSearchField($key,$key,'field_value',null,$field->name);
+		}
+		
+		return $columns;
 	}
 };
 
@@ -2740,10 +2827,12 @@ class DAO_Ticket extends DevblocksORMHelper {
 		
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' ticket_comment records.');
 		
-		$sql = "DELETE QUICK ticket_field_value FROM ticket_field_value LEFT JOIN ticket ON ticket_field_value.ticket_id=ticket.id WHERE ticket.id IS NULL";
+		$sql = sprintf("DELETE QUICK custom_field_value FROM custom_field_value LEFT JOIN ticket ON (custom_field_value.source_id=ticket.id AND custom_field_value.source_extension='%s') WHERE ticket.id IS NULL",
+			ChCustomFieldSource_Ticket::ID
+		);
 		$db->Execute($sql);
 
-		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' ticket_field_value records.');
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' custom_field_value records.');
 		
 		$sql = "DELETE QUICK requester FROM requester LEFT JOIN ticket ON requester.ticket_id = ticket.id WHERE ticket.id IS NULL";
 		$db->Execute($sql);
@@ -3362,8 +3451,6 @@ class DAO_Ticket extends DevblocksORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$total = -1;
 
-		$custom_fields = DAO_TicketField::getAll();
-    	
         list($tables,$wheres) = parent::_parseSearchParams($params, $columns, SearchFields_Ticket::getFields());
 		$start = ($page * $limit); // [JAS]: 1-based
 		
@@ -3453,6 +3540,8 @@ class DAO_Ticket extends DevblocksORMHelper {
 		}
 			
 		// Custom field joins
+		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Ticket::ID);
+		
 		foreach($tables as $tbl_name => $null) {
 			if(substr($tbl_name,0,3)!="cf_")
 				continue;
@@ -3469,7 +3558,9 @@ class DAO_Ticket extends DevblocksORMHelper {
 					$cf_id
 				);
 				
-				$join_sql .= sprintf("LEFT JOIN ticket_field_value cf_%d ON (t.id=cf_%d.ticket_id AND cf_%d.field_id=%d) ",
+				$join_sql .= sprintf("LEFT JOIN custom_field_value cf_%d ON ('%s' = cf_%d.source_extension AND t.id=cf_%d.source_id AND cf_%d.field_id=%d) ",
+					$cf_id,
+					ChCustomFieldSource_Ticket::ID,
 					$cf_id,
 					$cf_id,
 					$cf_id,
@@ -3621,7 +3712,7 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 		);
 		
 		// Custom Fields
-		$fields = DAO_TicketField::getAll();
+		$fields = DAO_CustomField::getBySource(ChCustomFieldSource_Ticket::ID);
 
 		if(is_array($fields))
 		foreach($fields as $field_id => $field) {
@@ -4014,10 +4105,10 @@ class DAO_Group {
 		
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' group_setting records.');
 		
-		$sql = "DELETE QUICK ticket_field FROM ticket_field LEFT JOIN team ON ticket_field.group_id=team.id WHERE ticket_field.group_id > 0 AND team.id IS NULL";
+		$sql = "DELETE QUICK custom_field FROM custom_field LEFT JOIN team ON custom_field.group_id=team.id WHERE custom_field.group_id > 0 AND team.id IS NULL";
 		$db->Execute($sql);
 		
-		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' ticket_field records.');
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' custom_field records.');
 	}
 	
 	static function setTeamMember($team_id, $worker_id, $is_manager=false) {
@@ -5356,6 +5447,195 @@ class DAO_WorkerPref extends DevblocksORMHelper {
 	}
 };
 
+class DAO_Note extends DevblocksORMHelper {
+	const ID = 'id';
+	const SOURCE_EXTENSION_ID = 'source_extension_id';
+	const SOURCE_ID = 'source_id';
+	const CREATED = 'created';
+	const WORKER_ID = 'worker_id';
+	const CONTENT = 'content';
+
+	static function create($fields) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$id = $db->GenID('note_seq');
+		
+		$sql = sprintf("INSERT INTO note (id) ".
+			"VALUES (%d)",
+			$id
+		);
+		$db->Execute($sql);
+		
+		self::update($id, $fields);
+		
+		return $id;
+	}
+	
+	static function update($ids, $fields) {
+		parent::_update($ids, 'note', $fields);
+	}
+	
+	/**
+	 * @param string $where
+	 * @return Model_Note[]
+	 */
+	static function getWhere($where=null) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = "SELECT id, source_extension_id, source_id, created, worker_id, content ".
+			"FROM note ".
+			(!empty($where) ? sprintf("WHERE %s ",$where) : "").
+			"ORDER BY id asc";
+		$rs = $db->Execute($sql);
+		
+		return self::_getObjectsFromResult($rs);
+	}
+
+	/**
+	 * @param integer $id
+	 * @return Model_Note	 */
+	static function get($id) {
+		$objects = self::getWhere(sprintf("%s = %d",
+			self::ID,
+			$id
+		));
+		
+		if(isset($objects[$id]))
+			return $objects[$id];
+		
+		return null;
+	}
+	
+	/**
+	 * @param ADORecordSet $rs
+	 * @return Model_Note[]
+	 */
+	static private function _getObjectsFromResult($rs) {
+		$objects = array();
+		
+		while(!$rs->EOF) {
+			$object = new Model_Note();
+			$object->id = $rs->fields['id'];
+			$object->source_extension_id = $rs->fields['source_extension_id'];
+			$object->source_id = $rs->fields['source_id'];
+			$object->created = $rs->fields['created'];
+			$object->worker_id = $rs->fields['worker_id'];
+			$object->content = $rs->fields['content'];
+			$objects[$object->id] = $object;
+			$rs->MoveNext();
+		}
+		
+		return $objects;
+	}
+	
+    /**
+     * Enter description here...
+     *
+     * @param DevblocksSearchCriteria[] $params
+     * @param integer $limit
+     * @param integer $page
+     * @param string $sortBy
+     * @param boolean $sortAsc
+     * @param boolean $withCounts
+     * @return array
+     */
+    static function search($params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
+		$db = DevblocksPlatform::getDatabaseService();
+
+        list($tables,$wheres) = parent::_parseSearchParams($params, array(),SearchFields_Note::getFields());
+		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
+		
+		$select_sql = sprintf("SELECT ".
+			"n.id as %s, ".
+			"n.source_extension_id as %s, ".
+			"n.source_id as %s, ".
+			"n.created as %s, ".
+			"n.worker_id as %s, ".
+			"n.content as %s ",
+			    SearchFields_Note::ID,
+			    SearchFields_Note::SOURCE_EXT_ID,
+			    SearchFields_Note::SOURCE_ID,
+			    SearchFields_Note::CREATED,
+			    SearchFields_Note::WORKER_ID,
+			    SearchFields_Note::CONTENT
+			 );
+		
+		$join_sql = 
+			"FROM note n ";
+//			"LEFT JOIN contact_org o ON (o.id=a.contact_org_id) "
+
+			// [JAS]: Dynamic table joins
+//			(isset($tables['o']) ? "LEFT JOIN contact_org o ON (o.id=a.contact_org_id)" : " ").
+//			(isset($tables['mc']) ? "INNER JOIN message_content mc ON (mc.message_id=m.id)" : " ").
+
+		$where_sql = "".
+			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "");
+			
+		$sql = $select_sql . $join_sql . $where_sql .  
+			(!empty($sortBy) ? sprintf("ORDER BY %s %s",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : "");
+		
+		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		$results = array();
+		
+		if(is_a($rs,'ADORecordSet'))
+		while(!$rs->EOF) {
+			$result = array();
+			foreach($rs->fields as $f => $v) {
+				$result[$f] = $v;
+			}
+			$id = intval($rs->fields[SearchFields_Note::ID]);
+			$results[$id] = $result;
+			$rs->MoveNext();
+		}
+
+		// [JAS]: Count all
+		$total = -1;
+		if($withCounts) {
+			$count_sql = "SELECT count(*) " . $join_sql . $where_sql;
+			$total = $db->GetOne($count_sql);
+		}
+		
+		return array($results,$total);
+    }	
+	
+	static function delete($ids) {
+		if(!is_array($ids)) $ids = array($ids);
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$ids_list = implode(',', $ids);
+		
+		$db->Execute(sprintf("DELETE FROM note WHERE id IN (%s)", $ids_list));
+		
+		return true;
+	}
+
+};
+
+class SearchFields_Note implements IDevblocksSearchFields {
+	// Note
+	const ID = 'n_id';
+	const SOURCE_EXT_ID = 'n_source_ext_id';
+	const SOURCE_ID = 'n_source_id';
+	const CREATED = 'n_created';
+	const WORKER_ID = 'n_worker_id';
+	const CONTENT = 'n_content';
+	
+	/**
+	 * @return DevblocksSearchField[]
+	 */
+	static function getFields() {
+		return array(
+			self::ID => new DevblocksSearchField(self::ID, 'n', 'id'),
+			self::SOURCE_EXT_ID => new DevblocksSearchField(self::SOURCE_EXT_ID, 'n', 'source_extension_id'),
+			self::SOURCE_ID => new DevblocksSearchField(self::SOURCE_ID, 'n', 'source_id'),
+			self::CREATED => new DevblocksSearchField(self::CREATED, 'n', 'created'),
+			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 'n', 'worker_id'),
+			self::CONTENT => new DevblocksSearchField(self::CONTENT, 'n', 'content'),
+		);
+	}
+};
+
 class DAO_PreParseRule extends DevblocksORMHelper {
 	const CACHE_ALL = 'cerberus_cache_preparse_rules_all';
 	
@@ -6183,22 +6463,23 @@ class DAO_TicketComment extends DevblocksORMHelper {
 
 };
 
-class DAO_TicketField extends DevblocksORMHelper {
+class DAO_CustomField extends DevblocksORMHelper {
 	const ID = 'id';
 	const NAME = 'name';
 	const TYPE = 'type';
 	const GROUP_ID = 'group_id';
+	const SOURCE_EXTENSION = 'source_extension';
 	const POS = 'pos';
 	const OPTIONS = 'options';
 	
-	const CACHE_ALL = 'ch_ticketfields'; 
+	const CACHE_ALL = 'ch_customfields'; 
 	
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
-		$id = $db->GenID('ticket_field_seq');
+		$id = $db->GenID('custom_field_seq');
 		
-		$sql = sprintf("INSERT INTO ticket_field (id,name,type,group_id,pos,options) ".
-			"VALUES (%d,'','',0,0,'')",
+		$sql = sprintf("INSERT INTO custom_field (id,name,type,source_extension,group_id,pos,options) ".
+			"VALUES (%d,'','','',0,0,'')",
 			$id
 		);
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
@@ -6209,7 +6490,7 @@ class DAO_TicketField extends DevblocksORMHelper {
 	}
 	
 	static function update($ids, $fields) {
-		parent::_update($ids, 'ticket_field', $fields);
+		parent::_update($ids, 'custom_field', $fields);
 		
 		// Invalidate cache on changes
 		$cache = DevblocksPlatform::getCacheService();
@@ -6220,7 +6501,7 @@ class DAO_TicketField extends DevblocksORMHelper {
 	 * Enter description here...
 	 *
 	 * @param integer $id
-	 * @return Model_TicketField|null
+	 * @return Model_CustomField|null
 	 */
 	static function get($id) {
 		$fields = self::getAll();
@@ -6231,14 +6512,26 @@ class DAO_TicketField extends DevblocksORMHelper {
 		return null;
 	}
 	
-	static function getByGroupId($group_id) {
+	static function getBySourceAndGroupId($source_ext_id, $group_id) {
 		$fields = self::getAll();
 
 		// Filter out groups that don't match
-		foreach($fields as $field_id => $field) { /* @var $field Model_TicketField */
-			if($group_id != $field->group_id) {
+		foreach($fields as $field_id => $field) { /* @var $field Model_CustomField */
+			if($group_id != $field->group_id || $source_ext_id != $field->source_extension) {
 				unset($fields[$field_id]);
 			}
+		}
+		
+		return $fields;
+	}
+	
+	static function getBySource($source_ext_id) {
+		$fields = self::getAll();
+		
+		// Filter fields to only the requested source
+		foreach($fields as $idx => $field) { /* @var $field Model_CustomField */
+			if(0 != strcasecmp($field->source_extension, $source_ext_id))
+				unset($fields[$idx]);
 		}
 		
 		return $fields;
@@ -6249,8 +6542,8 @@ class DAO_TicketField extends DevblocksORMHelper {
 		
 		if(null === ($objects = $cache->load(self::CACHE_ALL))) {
 			$db = DevblocksPlatform::getDatabaseService();
-			$sql = "SELECT id, name, type, group_id, pos, options ".
-				"FROM ticket_field ".
+			$sql = "SELECT id, name, type, source_extension, group_id, pos, options ".
+				"FROM custom_field ".
 				"ORDER BY group_id ASC, pos ASC "
 			;
 			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
@@ -6270,10 +6563,11 @@ class DAO_TicketField extends DevblocksORMHelper {
 		
 		if($rs instanceof ADORecordSet)
 		while(!$rs->EOF) {
-			$object = new Model_TicketField();
+			$object = new Model_CustomField();
 			$object->id = intval($rs->fields['id']);
 			$object->name = $rs->fields['name'];
 			$object->type = $rs->fields['type'];
+			$object->source_extension = $rs->fields['source_extension'];
 			$object->group_id = intval($rs->fields['group_id']);
 			$object->pos = intval($rs->fields['pos']);
 			$object->options = DevblocksPlatform::parseCrlfString($rs->fields['options']);
@@ -6291,13 +6585,13 @@ class DAO_TicketField extends DevblocksORMHelper {
 		
 		$id_string = implode(',', $ids);
 		
-		$sql = sprintf("DELETE QUICK FROM ticket_field WHERE id IN (%s)",$id_string);
+		$sql = sprintf("DELETE QUICK FROM custom_field WHERE id IN (%s)",$id_string);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 
 		// [TODO] Nuke options
 		if(is_array($ids))
 		foreach($ids as $id) {
-			DAO_TicketFieldValue::clearFieldValues($id);
+			DAO_CustomFieldValue::deleteByFieldId($id);
 		}
 		
 		// Invalidate cache on changes
@@ -6306,102 +6600,156 @@ class DAO_TicketField extends DevblocksORMHelper {
 	}
 };
 
-class DAO_TicketFieldValue extends DevblocksORMHelper {
+class DAO_CustomFieldValue extends DevblocksORMHelper {
 	const FIELD_ID = 'field_id';
-	const TICKET_ID = 'ticket_id';
+	const SOURCE_EXTENSION = 'source_extension';
+	const SOURCE_ID = 'source_id';
 	const FIELD_VALUE = 'field_value';
 	
-	public static function setFieldValue($ticket_id,$field_id,$value) {
+	public static function setFieldValue($source_ext_id, $source_id, $field_id, $value) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		$db->Replace(
-			'ticket_field_value',
+			'custom_field_value',
 			array(
 				self::FIELD_ID => $field_id,
-				self::TICKET_ID => $ticket_id,
+				self::SOURCE_EXTENSION => $db->qstr($source_ext_id),
+				self::SOURCE_ID => $source_id,
 				self::FIELD_VALUE => $db->qstr($value),
 			),
 			array(
-				self::TICKET_ID,
+				self::SOURCE_ID,
+				self::SOURCE_EXTENSION,
 				self::FIELD_ID
 			),
 			false
 		);
 	}
 	
-	public static function unsetFieldValue($ticket_id, $field_id) {
+	public static function unsetFieldValue($source_ext_id, $source_id, $field_id) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = sprintf("DELETE QUICK FROM ticket_field_value WHERE ticket_id = %d AND field_id = %d",
-			$ticket_id,
+		$sql = sprintf("DELETE QUICK FROM custom_field_value WHERE source_extension = '%s' AND source_id = %d AND field_id = %d",
+			$source_ext_id,
+			$source_id,
 			$field_id
 		);
 		
 		return $db->Execute($sql);
 	}
 	
-	public static function getValuesByTickets($ticket_ids) {
-		if(!is_array($ticket_ids)) $ticket_ids = array($ticket_ids);
+	public static function handleFormPost($source_ext_id, $source_id, $field_ids) {
+		$fields = DAO_CustomField::getBySource($source_ext_id);
+		
+		if(is_array($field_ids))
+		foreach($field_ids as $field_id) {
+			if(!isset($fields[$field_id]))
+				continue;
+			
+			@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'string','');
+
+			switch($fields[$field_id]->type) {
+				case Model_CustomField::TYPE_MULTI_LINE:
+				case Model_CustomField::TYPE_SINGLE_LINE:
+					if(!empty($field_value)) {
+						DAO_CustomFieldValue::setFieldValue($source_ext_id, $source_id, $field_id, $field_value);
+					} else {
+						DAO_CustomFieldValue::unsetFieldValue($source_ext_id, $source_id, $field_id);
+					}
+					break;
+					
+				case Model_CustomField::TYPE_DROPDOWN:
+					if(!empty($field_value)) {
+						DAO_CustomFieldValue::setFieldValue($source_ext_id, $source_id, $field_id, $field_value);
+					} else {
+						DAO_CustomFieldValue::unsetFieldValue($source_ext_id, $source_id, $field_id);
+					}
+					break;
+					
+				case Model_CustomField::TYPE_CHECKBOX:
+					$set = !empty($field_value) ? 1 : 0;
+					DAO_CustomFieldValue::setFieldValue($source_ext_id, $source_id, $field_id, $set);
+					break;
+					
+				case Model_CustomField::TYPE_DATE:
+					@$date = strtotime($field_value);
+					if(!empty($date)) {
+						DAO_CustomFieldValue::setFieldValue($source_ext_id, $source_id, $field_id, $date);
+					} else {
+						DAO_CustomFieldValue::unsetFieldValue($source_ext_id, $source_id, $field_id);
+					}
+					break;
+			}
+		}
+		
+		return true;
+	}
+	
+	public static function getValuesBySourceIds($source_ext_id, $source_ids) {
+		if(!is_array($source_ids)) $source_ids = array($source_ids);
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$tickets = array();
+		$results = array();
 		
-		if(empty($ticket_ids))
+		if(empty($source_ids))
 			return array();
 		
-		$sql = sprintf("SELECT ticket_id, field_id, field_value ".
-			"FROM ticket_field_value ".
-			"WHERE ticket_id IN (%s)",
-			implode(',', $ticket_ids)
+		$sql = sprintf("SELECT source_id, field_id, field_value ".
+			"FROM custom_field_value ".
+			"WHERE source_extension = '%s' AND source_id IN (%s)",
+			$source_ext_id,
+			implode(',', $source_ids)
 		);
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 
 		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
-			$ticket_id = intval($rs->fields['ticket_id']);
+			$source_id = intval($rs->fields['source_id']);
 			$field_id = intval($rs->fields['field_id']);
 			$field_value = $rs->fields['field_value'];
 			
-			if(!isset($tickets[$ticket_id]))
-				$tickets[$ticket_id] = array();
+			if(!isset($results[$source_id]))
+				$results[$source_id] = array();
 				
-			$ticket =& $tickets[$ticket_id];
-			$ticket[$field_id] = $field_value;
+			$source =& $results[$source_id];
+			$source[$field_id] = $field_value;
 						
 			$rs->MoveNext();
 		}
 		
-		return $tickets;
+		return $results;
 	}
 	
-	public static function getValueCountByTicketId($id, $group_id=null) {
+	public static function getValueCountBySourceId($source_ext_id, $source_id, $group_id=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		$sql = sprintf("SELECT count(v.field_value) ".
-			"FROM ticket_field_value v ".
-			"INNER JOIN ticket_field f ON (f.id=v.field_id) ".
-			"WHERE v.ticket_id = %d ".
+			"FROM custom_field_value v ".
+			"INNER JOIN custom_field f ON (f.id=v.field_id) ".
+			"WHERE v.source_extension = '%s' ". 
+			"AND v.source_id = %d ".
 			"%s",
-			$id,
+			$source_ext_id,
+			$source_id,
 			(!is_null($group_id) ? sprintf("AND (f.group_id=0 OR f.group_id=%d) ",$group_id) : " ")
 		);
 		
 		return $db->GetOne($sql);
 	}
 	
-	public static function clearFieldValues($field_id) {
+	public static function deleteByFieldId($field_id) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = sprintf("DELETE QUICK FROM ticket_field_value WHERE field_id = %d",$field_id);
+		$sql = sprintf("DELETE QUICK FROM custom_field_value WHERE field_id = %d",$field_id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 	}
 	
-	public static function clearTicketValues($ticket_id) {
-		$db = DevblocksPlatform::getDatabaseService();
-		
-		$sql = sprintf("DELETE QUICK FROM ticket_field_value WHERE ticket_id = %d",$ticket_id);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
-	}
+//	public static function deleteBySource($source_ext_id, $source_id) {
+//		$db = DevblocksPlatform::getDatabaseService();
+//		
+//		$sql = sprintf("DELETE QUICK FROM custom_field_value WHERE source_extension = '%s' AND source_id = %d",$source_ext_id, $source_id);
+//		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+//	}
 };
 
 class DAO_Task extends DevblocksORMHelper {

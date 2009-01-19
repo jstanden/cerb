@@ -589,7 +589,7 @@ class C4_TicketView extends C4_AbstractView {
 		$slas = DAO_Sla::getAll();
 		$tpl->assign('slas', $slas);
 
-		$ticket_fields = DAO_TicketField::getAll();
+		$ticket_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Ticket::ID);
 		$tpl->assign('ticket_fields', $ticket_fields);
 		
 		// Undo?
@@ -631,7 +631,7 @@ class C4_TicketView extends C4_AbstractView {
 	 *
 	 */
 	private function _sanitize() {
-		$custom_fields = DAO_TicketField::getAll();
+		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Ticket::ID);
 		$needs_save = false;
 		
 		// Parameter sanity check
@@ -771,19 +771,19 @@ class C4_TicketView extends C4_AbstractView {
 				// Custom Fields
 				if(substr($field,0,3)=='cf_') {
 					$cfield_id = substr($field,3);
-					$cfield = DAO_TicketField::get($cfield_id);
+					$cfield = DAO_CustomField::get($cfield_id);
 					switch($cfield->type) {
-						case Model_TicketField::TYPE_DROPDOWN:
+						case Model_CustomField::TYPE_DROPDOWN:
 							$tpl->assign('cfield', $cfield);
-							$tpl->display('file:' . $tpl_path . 'tickets/search/criteria/cfield_dropdown.tpl.php');
+							$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__cfield_dropdown.tpl.php');
 							break;
-						case Model_TicketField::TYPE_CHECKBOX:
+						case Model_CustomField::TYPE_CHECKBOX:
 							$tpl->assign('cfield', $cfield);
-							$tpl->display('file:' . $tpl_path . 'tickets/search/criteria/cfield_checkbox.tpl.php');
+							$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__cfield_checkbox.tpl.php');
 							break;
-						case Model_TicketField::TYPE_DATE:
+						case Model_CustomField::TYPE_DATE:
 							$tpl->assign('cfield', $cfield);
-							$tpl->display('file:' . $tpl_path . 'tickets/search/criteria/cfield_date.tpl.php');
+							$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__cfield_date.tpl.php');
 							break;
 						default:
 							$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__string.tpl.php');
@@ -1029,9 +1029,9 @@ class C4_TicketView extends C4_AbstractView {
 				// Custom Fields
 				if(substr($field,0,3)=='cf_') {
 					$cfield_id = substr($field,3);
-					$cfield = DAO_TicketField::get($cfield_id);
+					$cfield = DAO_CustomField::get($cfield_id);
 					switch($cfield->type) {
-						case Model_TicketField::TYPE_DROPDOWN:
+						case Model_CustomField::TYPE_DROPDOWN:
 							@$options = DevblocksPlatform::importGPC($_POST['options'],'array',array());
 							if(!empty($options)) {
 								$criteria = new DevblocksSearchCriteria($field,$oper,$options);
@@ -1039,11 +1039,11 @@ class C4_TicketView extends C4_AbstractView {
 								$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IS_NULL);
 							}
 							break;
-						case Model_TicketField::TYPE_CHECKBOX:
+						case Model_CustomField::TYPE_CHECKBOX:
 							$check = !empty($value) ? 1 : 0;
 							$criteria = new DevblocksSearchCriteria($field,$oper,$check);
 							break;
-						case Model_TicketField::TYPE_DATE:
+						case Model_CustomField::TYPE_DATE:
 							@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','');
 							@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
 			
@@ -1253,6 +1253,7 @@ class C4_AddressView extends C4_AbstractView {
 
 	function getData() {
 		$objects = DAO_Address::search(
+			$this->view_columns,
 			$this->params,
 			$this->renderLimit,
 			$this->renderPage,
@@ -1279,6 +1280,8 @@ class C4_AddressView extends C4_AbstractView {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('id', $this->id);
 
+		$tpl_path = DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/';
+		
 		switch($field) {
 			case SearchFields_Address::EMAIL:
 			case SearchFields_Address::FIRST_NAME:
@@ -1300,7 +1303,30 @@ class C4_AddressView extends C4_AbstractView {
 				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/contacts/addresses/criteria/sla.tpl.php');
 				break;
 			default:
-				echo '';
+				// Custom Fields
+				if(substr($field,0,3)=='cf_') {
+					$cfield_id = substr($field,3);
+					$cfield = DAO_CustomField::get($cfield_id);
+					switch($cfield->type) {
+						case Model_CustomField::TYPE_DROPDOWN:
+							$tpl->assign('cfield', $cfield);
+							$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__cfield_dropdown.tpl.php');
+							break;
+						case Model_CustomField::TYPE_CHECKBOX:
+							$tpl->assign('cfield', $cfield);
+							$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__cfield_checkbox.tpl.php');
+							break;
+						case Model_CustomField::TYPE_DATE:
+							$tpl->assign('cfield', $cfield);
+							$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__cfield_date.tpl.php');
+							break;
+						default:
+							$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__string.tpl.php');
+							break;
+					}
+				} else {
+					echo ' ';
+				}
 				break;
 		}
 	}
@@ -1385,6 +1411,43 @@ class C4_AddressView extends C4_AbstractView {
 				@$sla_ids = DevblocksPlatform::importGPC($_REQUEST['sla_ids'], 'array', array());
 				$criteria = new DevblocksSearchCriteria($field, $oper, $sla_ids);
 				break;
+			default:
+				// Custom Fields
+				if(substr($field,0,3)=='cf_') {
+					$cfield_id = substr($field,3);
+					$cfield = DAO_CustomField::get($cfield_id);
+					switch($cfield->type) {
+						case Model_CustomField::TYPE_DROPDOWN:
+							@$options = DevblocksPlatform::importGPC($_POST['options'],'array',array());
+							if(!empty($options)) {
+								$criteria = new DevblocksSearchCriteria($field,$oper,$options);
+							} else {
+								$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IS_NULL);
+							}
+							break;
+						case Model_CustomField::TYPE_CHECKBOX:
+							$check = !empty($value) ? 1 : 0;
+							$criteria = new DevblocksSearchCriteria($field,$oper,$check);
+							break;
+						case Model_CustomField::TYPE_DATE:
+							@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','');
+							@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
+			
+							if(empty($from)) $from = 0;
+							if(empty($to)) $to = 'today';
+			
+							$criteria = new DevblocksSearchCriteria($field,$oper,array($from,$to));
+							break;
+						default:
+							if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
+							&& false === (strpos($value,'*'))) {
+								$value = '*'.$value.'*';
+							}
+							$criteria = new DevblocksSearchCriteria($field,$oper,$value);
+							break;
+					}
+				}
+				break;				
 		}
 
 		if(!empty($criteria)) {
@@ -1426,6 +1489,7 @@ class C4_AddressView extends C4_AbstractView {
 		if(empty($ids))
 		do {
 			list($objects,$null) = DAO_Address::search(
+				array(),
 				$this->params,
 				100,
 				$pg++,
@@ -1720,6 +1784,7 @@ class C4_ContactOrgView extends C4_AbstractView {
 
 	function getData() {
 		$objects = DAO_ContactOrg::search(
+			$this->view_columns,
 			$this->params,
 			$this->renderLimit,
 			$this->renderPage,
@@ -1748,6 +1813,8 @@ class C4_ContactOrgView extends C4_AbstractView {
 		//		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		$tpl->assign('id', $this->id);
 
+		$tpl_path = DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/';
+		
 		switch($field) {
 			case SearchFields_ContactOrg::NAME:
 			case SearchFields_ContactOrg::ACCOUNT_NUMBER:
@@ -1763,7 +1830,30 @@ class C4_ContactOrgView extends C4_AbstractView {
 				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/contacts/orgs/criteria/sla.tpl.php');
 				break;
 			default:
-				echo '';
+				// Custom Fields
+				if(substr($field,0,3)=='cf_') {
+					$cfield_id = substr($field,3);
+					$cfield = DAO_CustomField::get($cfield_id);
+					switch($cfield->type) {
+						case Model_CustomField::TYPE_DROPDOWN:
+							$tpl->assign('cfield', $cfield);
+							$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__cfield_dropdown.tpl.php');
+							break;
+						case Model_CustomField::TYPE_CHECKBOX:
+							$tpl->assign('cfield', $cfield);
+							$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__cfield_checkbox.tpl.php');
+							break;
+						case Model_CustomField::TYPE_DATE:
+							$tpl->assign('cfield', $cfield);
+							$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__cfield_date.tpl.php');
+							break;
+						default:
+							$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__string.tpl.php');
+							break;
+					}
+				} else {
+					echo ' ';
+				}
 				break;
 		}
 	}
@@ -1830,6 +1920,43 @@ class C4_ContactOrgView extends C4_AbstractView {
 				@$sla_ids = DevblocksPlatform::importGPC($_REQUEST['sla_ids'], 'array', array());
 				$criteria = new DevblocksSearchCriteria($field, $oper, $sla_ids);
 				break;
+			default:
+				// Custom Fields
+				if(substr($field,0,3)=='cf_') {
+					$cfield_id = substr($field,3);
+					$cfield = DAO_CustomField::get($cfield_id);
+					switch($cfield->type) {
+						case Model_CustomField::TYPE_DROPDOWN:
+							@$options = DevblocksPlatform::importGPC($_POST['options'],'array',array());
+							if(!empty($options)) {
+								$criteria = new DevblocksSearchCriteria($field,$oper,$options);
+							} else {
+								$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IS_NULL);
+							}
+							break;
+						case Model_CustomField::TYPE_CHECKBOX:
+							$check = !empty($value) ? 1 : 0;
+							$criteria = new DevblocksSearchCriteria($field,$oper,$check);
+							break;
+						case Model_CustomField::TYPE_DATE:
+							@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','');
+							@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
+			
+							if(empty($from)) $from = 0;
+							if(empty($to)) $to = 'today';
+			
+							$criteria = new DevblocksSearchCriteria($field,$oper,array($from,$to));
+							break;
+						default:
+							if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
+							&& false === (strpos($value,'*'))) {
+								$value = '*'.$value.'*';
+							}
+							$criteria = new DevblocksSearchCriteria($field,$oper,$value);
+							break;
+					}
+				}
+				break;				
 		}
 
 		if(!empty($criteria)) {
@@ -3085,6 +3212,17 @@ class Model_MessageNote {
 	public $content;
 };
 
+class Model_Note {
+	const EXTENSION_ID = 'cerberusweb.note';
+	
+	public $id;
+	public $source_extension_id;
+	public $source_id;
+	public $created;
+	public $worker_id;
+	public $content;
+};
+
 class Model_Attachment {
 	public $id;
 	public $message_id;
@@ -3301,7 +3439,7 @@ class Model_TicketComment {
 	}
 };
 
-class Model_TicketField {
+class Model_CustomField {
 	const TYPE_SINGLE_LINE = 'S';
 	const TYPE_MULTI_LINE = 'T';
 	const TYPE_CHECKBOX = 'C';
@@ -3312,6 +3450,7 @@ class Model_TicketField {
 	public $name = '';
 	public $type = '';
 	public $group_id = 0;
+	public $source_extension = '';
 	public $pos = 0;
 	public $options = array();
 	

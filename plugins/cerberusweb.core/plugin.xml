@@ -482,6 +482,55 @@
 			</params>
 		</extension>
 		
+		<!-- Custom Field Sources -->
+		
+		<extension point="cerberusweb.fields.source">
+			<id>cerberusweb.fields.source.address</id>
+			<name>Address</name>
+			<class>
+				<file>classes.php</file>
+				<name>ChCustomFieldSource_Address</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+				
+		<extension point="cerberusweb.fields.source">
+			<id>cerberusweb.fields.source.org</id>
+			<name>Organization</name>
+			<class>
+				<file>classes.php</file>
+				<name>ChCustomFieldSource_Org</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+				
+		<extension point="cerberusweb.fields.source">
+			<id>cerberusweb.fields.source.ticket</id>
+			<name>Ticket</name>
+			<class>
+				<file>classes.php</file>
+				<name>ChCustomFieldSource_Ticket</name>
+			</class>
+			<params>
+			</params>
+		</extension>		
+		
+		<!-- Notes Sources -->
+		
+		<extension point="cerberusweb.notes.source">
+			<id>cerberusweb.notes.source.org</id>
+			<name>Organization</name>
+			<class>
+				<file>classes.php</file>
+				<name>ChNotesSource_Org</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
+		
 		<!-- RSS Sources -->
 		
 		<extension point="cerberusweb.rss.source">

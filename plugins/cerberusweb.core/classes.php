@@ -1625,6 +1625,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	    $workers = DAO_Worker::getAllActive();
 		$tpl->assign('workers', $workers);
 	    
+		// Display
 		$tpl->cache_lifetime = "0";
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/rpc/preview_panel.tpl.php');
 	}
@@ -3508,14 +3509,8 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		
-		$types = Model_TicketField::getTypes();
-		$tpl->assign('types', $types);
-		
-		$fields = DAO_TicketField::getByGroupId(0);
-		$tpl->assign('ticket_fields', $fields);
-		
-		$groups = DAO_Group::getAll();
-		$tpl->assign('groups', $groups);
+		$source_manifests = DevblocksPlatform::getExtensions('cerberusweb.fields.source', false);
+		$tpl->assign('source_manifests', $source_manifests);
 		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/fields/index.tpl.php');
 	}
@@ -3692,40 +3687,39 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','fnr')));
 	}
 	
-	// Post
-	function addCustomFieldAction() {
+	// Ajax
+	function getFieldSourceAction() {
 		$translate = DevblocksPlatform::getTranslationService();
-		
 		$worker = CerberusApplication::getActiveWorker();
+		
 		if(!$worker || !$worker->is_superuser) {
 			echo $translate->_('common.access_denied');
 			return;
 		}
 		
-		if(DEMO_MODE) {
-			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','fields')));
-			return;
-		}
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+
+		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id']);
+		$tpl->assign('ext_id', $ext_id);
+
+		// [TODO] Make sure the extension exists before continuing
+		$source_manifest = DevblocksPlatform::getExtension($ext_id, false);
+		$tpl->assign('source_manifest', $source_manifest);
 		
-		@$name = DevblocksPlatform::importGPC($_POST['name'],'string','');
-		@$type = DevblocksPlatform::importGPC($_POST['type'],'string','');
-		@$options = DevblocksPlatform::importGPC($_POST['options'],'string','');
-		@$group_id = DevblocksPlatform::importGPC($_POST['group_id'],'integer',0);
+		$types = Model_CustomField::getTypes();
+		$tpl->assign('types', $types);
+
+		// Look up the defined global fields by the given extension
+		$fields = DAO_CustomField::getBySourceAndGroupId($ext_id, 0);
+		$tpl->assign('fields', $fields);
 		
-		$fields = array(
-			DAO_TicketField::NAME => $name,
-			DAO_TicketField::TYPE => $type,
-			DAO_TicketField::GROUP_ID => $group_id,
-			DAO_TicketField::OPTIONS => $options,
-		);
-		
-		$id = DAO_TicketField::create($fields);
-		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','fields')));
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/fields/edit_source.tpl.php');
 	}
-	
+		
 	// Post
-	function saveCustomFieldsAction() {
+	function saveFieldsAction() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$worker = CerberusApplication::getActiveWorker();
@@ -3739,6 +3733,10 @@ class ChConfigurationPage extends CerberusPageExtension  {
 			return;
 		}
 		
+		// Type of custom fields
+		@$ext_id = DevblocksPlatform::importGPC($_POST['ext_id'],'string','');
+		
+		// Properties
 		@$ids = DevblocksPlatform::importGPC($_POST['ids'],'array',array());
 		@$names = DevblocksPlatform::importGPC($_POST['names'],'array',array());
 		@$orders = DevblocksPlatform::importGPC($_POST['orders'],'array',array());
@@ -3746,7 +3744,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		@$allow_delete = DevblocksPlatform::importGPC($_POST['allow_delete'],'integer',0);
 		@$deletes = DevblocksPlatform::importGPC($_POST['deletes'],'array',array());
 		
-		if(!empty($ids))
+		if(!empty($ids) && !empty($ext_id))
 		foreach($ids as $idx => $id) {
 			@$name = $names[$idx];
 			@$order = intval($orders[$idx]);
@@ -3754,17 +3752,33 @@ class ChConfigurationPage extends CerberusPageExtension  {
 			@$delete = (false !== array_search($id,$deletes) ? 1 : 0);
 			
 			if($allow_delete && $delete) {
-				DAO_TicketField::delete($id);
+				DAO_CustomField::delete($id);
 				
 			} else {
 				$fields = array(
-					DAO_TicketField::NAME => $name, 
-					DAO_TicketField::POS => $order, 
-					DAO_TicketField::OPTIONS => !is_null($option) ? $option : '', 
+					DAO_CustomField::NAME => $name, 
+					DAO_CustomField::POS => $order, 
+					DAO_CustomField::OPTIONS => !is_null($option) ? $option : '', 
 				);
-				DAO_TicketField::update($id, $fields);
+				DAO_CustomField::update($id, $fields);
 			}
-		}		
+		}
+		
+		// Adding
+		@$add_name = DevblocksPlatform::importGPC($_POST['add_name'],'string','');
+		@$add_type = DevblocksPlatform::importGPC($_POST['add_type'],'string','');
+		@$add_options = DevblocksPlatform::importGPC($_POST['add_options'],'string','');
+		
+		if(!empty($add_name) && !empty($add_type)) {
+			$fields = array(
+				DAO_CustomField::NAME => $add_name,
+				DAO_CustomField::TYPE => $add_type,
+				DAO_CustomField::GROUP_ID => 0,
+				DAO_CustomField::SOURCE_EXTENSION => $ext_id,
+				DAO_CustomField::OPTIONS => $add_options,
+			);
+			$id = DAO_CustomField::create($fields);
+		}
 		
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','fields')));
 	}
@@ -4633,6 +4647,27 @@ class ChContactsPage extends CerberusPageExtension {
 				$tpl->display('file:' . dirname(__FILE__) . '/templates/contacts/addresses/index.tpl.php');
 				break;
 				
+//			case 'people':
+//				$view = C4_AbstractViewLoader::getView('', 'addybook_people'); // C4_AddressView::DEFAULT_ID
+//				
+//				if(null == $view) {
+//					$view = new C4_AddressView();
+//					$view->id = 'addybook_people';
+//					$view->name = 'People';
+//					$view->params = array(
+//						new DevblocksSearchCriteria(SearchFields_Address::CONTACT_ORG_ID,'!=',0),
+//					);
+//					
+//					C4_AbstractViewLoader::setView('addybook_people', $view);
+//				}
+//				
+//				$tpl->assign('view', $view);
+//				$tpl->assign('contacts_page', 'people');
+//				$tpl->assign('view_fields', C4_AddressView::getFields());
+//				$tpl->assign('view_searchable_fields', C4_AddressView::getSearchFields());
+//				$tpl->display('file:' . dirname(__FILE__) . '/templates/contacts/people/index.tpl.php');
+//				break;
+				
 			default:
 			case 'orgs':
 				$param = array_shift($stack);
@@ -4649,6 +4684,9 @@ class ChContactsPage extends CerberusPageExtension {
 					
 					$people_count = DAO_Address::getCountByOrgId($contact->id);
 					$tpl->assign('people_total', $people_count);
+					
+					$fields_total = DAO_CustomFieldValue::getValueCountBySourceId(ChCustomFieldSource_Org::ID, $contact->id, 0);
+					$tpl->assign('fields_total', $fields_total);
 					
 					$tpl->display('file:' . dirname(__FILE__) . '/templates/contacts/orgs/display.tpl.php');
 					
@@ -4846,6 +4884,29 @@ class ChContactsPage extends CerberusPageExtension {
 		}
 	}
 	
+	function showTabFieldsAction() {
+		@$org = DevblocksPlatform::importGPC($_REQUEST['org']);
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		
+		$tpl->assign('org_id', $org);
+		
+		$contact = DAO_ContactOrg::get($org);
+		$tpl->assign('contact', $contact);
+
+		$org_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Org::ID);
+		$tpl->assign('org_fields', $org_fields);
+		
+		$org_field_values = DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Org::ID, $org);
+		if(isset($org_field_values[$org]))
+			$tpl->assign('org_field_values', $org_field_values[$org]);
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/contacts/orgs/tabs/fields.tpl.php');
+		exit;
+	}
+	
 	function showTabPeopleAction() {
 		@$org = DevblocksPlatform::importGPC($_REQUEST['org']);
 		
@@ -4913,6 +4974,36 @@ class ChContactsPage extends CerberusPageExtension {
 		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/contacts/orgs/tabs/tasks.tpl.php');
 		exit;
+	}
+	
+	function showTabNotesAction() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		
+		@$org_id = DevblocksPlatform::importGPC($_REQUEST['org']);
+		
+		$org = DAO_ContactOrg::get($org_id);
+		$tpl->assign('org', $org);
+		
+		list($notes, $null) = DAO_Note::search(
+			array(
+				new DevblocksSearchCriteria(SearchFields_Note::SOURCE_EXT_ID,'=',ChNotesSource_Org::ID),
+				new DevblocksSearchCriteria(SearchFields_Note::SOURCE_ID,'=',$org->id),
+			),
+			25,
+			0,
+			DAO_Note::CREATED,
+			false,
+			false
+		);
+
+		$tpl->assign('notes', $notes);
+		
+		$workers = DAO_Worker::getAllWithDisabled();
+		$tpl->assign('workers', $workers);
+
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/contacts/orgs/tabs/notes.tpl.php');
 	}
 	
 	function showTabHistoryAction() {
@@ -5005,6 +5096,7 @@ class ChContactsPage extends CerberusPageExtension {
 		
 		if(!empty($email)) {
 			list($addresses,$null) = DAO_Address::search(
+				array(),
 				array(
 					new DevblocksSearchCriteria(SearchFields_Address::EMAIL,DevblocksSearchCriteria::OPER_EQ,$email)
 				),
@@ -5046,6 +5138,18 @@ class ChContactsPage extends CerberusPageExtension {
 			$tpl->assign('org_id',$org->id);
 		}
 		
+		// Custom fields
+		$address_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Address::ID); 
+		$tpl->assign('address_fields', $address_fields);
+
+		$address_field_values = DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Address::ID, $id);
+		if(isset($address_field_values[$id]))
+			$tpl->assign('address_field_values', $address_field_values[$id]);
+		
+		$types = Model_CustomField::getTypes();
+		$tpl->assign('types', $types);
+		
+		// Display
 		$tpl->assign('id', $id);
 		$tpl->assign('view_id', $view_id);
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/contacts/addresses/address_peek.tpl.php');
@@ -5108,8 +5212,20 @@ class ChContactsPage extends CerberusPageExtension {
 		$tpl->assign('slas', $slas);
 		
 		$contact = DAO_ContactOrg::get($id);
-		
 		$tpl->assign('contact', $contact);
+
+		// Custom fields
+		$org_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Org::ID); 
+		$tpl->assign('org_fields', $org_fields);
+
+		$org_field_values = DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Org::ID, $id);
+		if(isset($org_field_values[$id]))
+			$tpl->assign('org_field_values', $org_field_values[$id]);
+		
+		$types = Model_CustomField::getTypes();
+		$tpl->assign('types', $types);
+				
+		// View
 		$tpl->assign('view_id', $view_id);
 		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/contacts/orgs/org_peek.tpl.php');
@@ -5153,9 +5269,13 @@ class ChContactsPage extends CerberusPageExtension {
 			$id = DAO_Address::create($fields);
 		}
 		else {
-			DAO_Address::update($id, $fields);	
+			DAO_Address::update($id, $fields);
 		}
 
+		// Custom field saves
+		@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
+		DAO_CustomFieldValue::handleFormPost(ChCustomFieldSource_Address::ID, $id, $field_ids);
+		
 		/*
 		 * Notify anything that wants to know when Address Peek saves.
 		 */
@@ -5177,6 +5297,50 @@ class ChContactsPage extends CerberusPageExtension {
 			$view = C4_AbstractViewLoader::getView('', $view_id);
 			$view->render();
 		}
+	}
+	
+	function saveOrgFieldsAction() {
+		@$source_id = DevblocksPlatform::importGPC($_REQUEST['org_id'],'integer');
+		@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'],'array',array());
+
+		DAO_CustomFieldValue::handleFormPost(ChCustomFieldSource_Org::ID, $source_id, $field_ids);
+		
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('contacts','orgs',$source_id))); //,'fields'
+	}	
+	
+	function saveOrgNoteAction() {
+		@$org_id = DevblocksPlatform::importGPC($_REQUEST['org_id'],'integer', 0);
+		@$content = DevblocksPlatform::importGPC($_REQUEST['content'],'string','');
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!empty($org_id) && 0 != strlen(trim($content))) {
+			$fields = array(
+				DAO_Note::SOURCE_EXTENSION_ID => ChNotesSource_Org::ID,
+				DAO_Note::SOURCE_ID => $org_id,
+				DAO_Note::WORKER_ID => $active_worker->id,
+				DAO_Note::CREATED => time(),
+				DAO_Note::CONTENT => $content,
+			);
+			$note_id = DAO_Note::create($fields);
+		}
+		
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('contacts','orgs',$org_id)));
+	}
+	
+	function deleteOrgNoteAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
+		@$org_id = DevblocksPlatform::importGPC($_REQUEST['org_id'],'integer', 0);
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(null != ($note = DAO_Note::get($id))) {
+			if($note->worker_id == $active_worker->id || $active_worker->is_superuser) {
+				DAO_Note::delete($id);
+			}
+		}
+		
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('contacts','orgs',$org_id)));
 	}
 	
 	function saveOrgPeekAction() {
@@ -5221,7 +5385,11 @@ class ChContactsPage extends CerberusPageExtension {
 			
 			// SLA Updates
 			DAO_Sla::cascadeOrgSla($id, $sla_id);
-		}		
+			
+			// Custom field saves
+			@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
+			DAO_CustomFieldValue::handleFormPost(ChCustomFieldSource_Org::ID, $id, $field_ids);
+		}
 		
 		$view = C4_AbstractViewLoader::getView('', $view_id);
 		$view->render();		
@@ -5350,6 +5518,7 @@ class ChContactsPage extends CerberusPageExtension {
 		);
 		
 		list($orgs,$null) = DAO_ContactOrg::search(
+			array(),
 			array(
 				new DevblocksSearchCriteria(SearchFields_ContactOrg::NAME,DevblocksSearchCriteria::OPER_LIKE, $starts_with. '*'), 
 			),
@@ -5937,37 +6106,13 @@ class ChGroupsPage extends CerberusPageExtension  {
 			$tpl->assign('team', $group);
 		}
 		
-		$group_fields = DAO_TicketField::getByGroupId($group_id);
+		$group_fields = DAO_CustomField::getBySourceAndGroupId(ChCustomFieldSource_Ticket::ID, $group_id); 
 		$tpl->assign('group_fields', $group_fields);
                     
-		$types = Model_TicketField::getTypes();
+		$types = Model_CustomField::getTypes();
 		$tpl->assign('types', $types);
 		
 		$tpl->display('file:' . $tpl_path . 'groups/manage/fields.tpl.php');
-	}
-	
-	// Post
-	function saveTabFieldsAddAction() {
-		@$group_id = DevblocksPlatform::importGPC($_POST['team_id'],'integer');
-		
-	    @$active_worker = CerberusApplication::getActiveWorker();
-	    if(!$active_worker->isTeamManager($group_id) && !$active_worker->is_superuser)
-	    	return;
-		
-		@$name = DevblocksPlatform::importGPC($_POST['name'],'string','');
-		@$type = DevblocksPlatform::importGPC($_POST['type'],'string','');
-		@$options = DevblocksPlatform::importGPC($_POST['options'],'string','');
-		
-		$fields = array(
-			DAO_TicketField::NAME => $name,
-			DAO_TicketField::TYPE => $type,
-			DAO_TicketField::GROUP_ID => $group_id,
-			DAO_TicketField::OPTIONS => $options,
-		);
-		
-		$id = DAO_TicketField::create($fields);
-		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('groups',$group_id,'fields')));
 	}
 	
 	// Post
@@ -5993,17 +6138,33 @@ class ChGroupsPage extends CerberusPageExtension  {
 			@$delete = (false !== array_search($id,$deletes) ? 1 : 0);
 			
 			if($allow_delete && $delete) {
-				DAO_TicketField::delete($id);
+				DAO_CustomField::delete($id);
 				
 			} else {
 				$fields = array(
-					DAO_TicketField::NAME => $name, 
-					DAO_TicketField::POS => $order, 
-					DAO_TicketField::OPTIONS => !is_null($option) ? $option : '',
+					DAO_CustomField::NAME => $name, 
+					DAO_CustomField::POS => $order,
+					DAO_CustomField::OPTIONS => !is_null($option) ? $option : '',
 				);
-				DAO_TicketField::update($id, $fields);
+				DAO_CustomField::update($id, $fields);
 			}
-		}		
+		}
+		
+		// Add custom field
+		@$add_name = DevblocksPlatform::importGPC($_POST['add_name'],'string','');
+		@$add_type = DevblocksPlatform::importGPC($_POST['add_type'],'string','');
+		@$add_options = DevblocksPlatform::importGPC($_POST['add_options'],'string','');
+		
+		if(!empty($add_name) && !empty($add_type)) {
+			$fields = array(
+				DAO_CustomField::NAME => $add_name,
+				DAO_CustomField::TYPE => $add_type,
+				DAO_CustomField::GROUP_ID => $group_id,
+				DAO_CustomField::SOURCE_EXTENSION => ChCustomFieldSource_Ticket::ID,
+				DAO_CustomField::OPTIONS => $add_options,
+			);
+			$id = DAO_CustomField::create($fields);
+		}
 		
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('groups',$group_id,'fields')));
 	}
@@ -6651,6 +6812,22 @@ class ChPrintController extends DevblocksControllerExtension {
 	}
 };
 
+class ChNotesSource_Org extends Extension_NoteSource {
+	const ID = 'cerberusweb.notes.source.org';
+};
+
+class ChCustomFieldSource_Address extends Extension_CustomFieldSource {
+	const ID = 'cerberusweb.fields.source.address';
+};
+
+class ChCustomFieldSource_Org extends Extension_CustomFieldSource {
+	const ID = 'cerberusweb.fields.source.org';
+};
+
+class ChCustomFieldSource_Ticket extends Extension_CustomFieldSource {
+	const ID = 'cerberusweb.fields.source.ticket';
+};
+
 class ChRssController extends DevblocksControllerExtension {
 	function __construct($manifest) {
 		parent::__construct($manifest);
@@ -7223,7 +7400,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/internal/views/customize_view.tpl.php');
 	}
 	
-	
 	// Post?
 	function viewSaveCustomizeAction() {
 		$translate = DevblocksPlatform::getTranslationService();
@@ -7430,7 +7606,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		$tpl->assign('tasks_total', $tasks_total);
 		
 		// Custom Field Values [TODO] Eventually this can be cached on ticket.num_custom_fields
-		$field_values_total = DAO_TicketFieldValue::getValueCountByTicketId($id, $ticket->team_id);
+		$field_values_total = DAO_CustomFieldValue::getValueCountBySourceId(ChCustomFieldSource_Ticket::ID, $id, $ticket->team_id);
 		$tpl->assign('field_values_total', $field_values_total);
 		
 		$workers = DAO_Worker::getAll();
@@ -8389,13 +8565,13 @@ class ChDisplayPage extends CerberusPageExtension {
 		$tpl->assign('ticket', $ticket);
 		$tpl->assign('ticket_id', $ticket_id);
 		
-		$fields = DAO_TicketField::getAll();
+		$fields = DAO_CustomField::getBySource(ChCustomFieldSource_Ticket::ID);
 		$tpl->assign('ticket_fields', $fields);
 		
 		$groups = DAO_Group::getAll();
 		$tpl->assign('groups', $groups);
 		
-		$field_values = DAO_TicketFieldValue::getValuesByTickets($ticket_id);
+		$field_values = DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Ticket::ID, $ticket_id);
 		
 		if(isset($field_values[$ticket_id]))
 			$tpl->assign('ticket_field_values', $field_values[$ticket_id]);
@@ -8407,52 +8583,11 @@ class ChDisplayPage extends CerberusPageExtension {
 	// Post
 	function setCustomFieldsAction() {
 		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer');
-		
 		@$ticket = DAO_Ticket::getTicket($ticket_id);
-		$fields = DAO_TicketField::getAll();
-		
-		@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'],'array',array());
 
-		if(is_array($field_ids))
-		foreach($field_ids as $field_id) {
-			if(!isset($fields[$field_id]))
-				continue;
-			
-			@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'string','');
-			
-			switch($fields[$field_id]->type) {
-				case Model_TicketField::TYPE_MULTI_LINE:
-				case Model_TicketField::TYPE_SINGLE_LINE:
-					if(!empty($field_value)) {
-						DAO_TicketFieldValue::setFieldValue($ticket_id, $field_id, $field_value);
-					} else {
-						DAO_TicketFieldValue::unsetFieldValue($ticket_id, $field_id);
-					}
-					break;
-					
-				case Model_TicketField::TYPE_DROPDOWN:
-					if(!empty($field_value)) {
-						DAO_TicketFieldValue::setFieldValue($ticket_id, $field_id, $field_value);
-					} else {
-						DAO_TicketFieldValue::unsetFieldValue($ticket_id, $field_id);
-					}
-					break;
-					
-				case Model_TicketField::TYPE_CHECKBOX:
-					$set = !empty($field_value) ? 1 : 0;
-					DAO_TicketFieldValue::setFieldValue($ticket_id, $field_id, $set);
-					break;
-					
-				case Model_TicketField::TYPE_DATE:
-					@$date = strtotime($field_value);
-					if(!empty($date)) {
-						DAO_TicketFieldValue::setFieldValue($ticket_id, $field_id, $date);
-					} else {
-						DAO_TicketFieldValue::unsetFieldValue($ticket_id, $field_id);
-					}
-					break;
-			}
-		}
+		// Custom field saves
+		@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
+		DAO_CustomFieldValue::handleFormPost(ChCustomFieldSource_Ticket::ID, $ticket_id, $field_ids);
 		
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('display',$ticket->mask))); //,'fields'
 	}

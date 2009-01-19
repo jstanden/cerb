@@ -676,6 +676,7 @@ class Rest_AddressesController extends Ch_RestController {
 		}
 
 		list($results, $null) = DAO_Address::search(
+			array(),
 			$params,
 			50,
 			$p_page,
@@ -719,6 +720,7 @@ class Rest_AddressesController extends Ch_RestController {
 			$this->_error("ID was not provided.");
 
 		list($results, $null) = DAO_Address::search(
+			array(),
 			array(
 				SearchFields_Address::ID => new DevblocksSearchCriteria(SearchFields_Address::ID,'=',$in_id)
 			),
@@ -740,6 +742,7 @@ class Rest_AddressesController extends Ch_RestController {
 		@$p_page = DevblocksPlatform::importGPC($_REQUEST['p'],'integer',0);		
 		
 		list($addresses,$null) = DAO_Address::search(
+			array(),
 			array(),
 			50,
 			$p_page,
@@ -991,6 +994,7 @@ class Rest_OrgsController extends Ch_RestController {
 		}
 
 		list($orgs, $null) = DAO_ContactOrg::search(
+			array(),
 			$params,
 			50,
 			$p_page,
@@ -1009,6 +1013,7 @@ class Rest_OrgsController extends Ch_RestController {
 			$this->_error("ID was not provided.");
 
 		list($results, $null) = DAO_ContactOrg::search(
+			array(),
 			array(
 				SearchFields_ContactOrg::ID => new DevblocksSearchCriteria(SearchFields_ContactOrg::ID,'=',$in_id)
 			),
@@ -1029,6 +1034,7 @@ class Rest_OrgsController extends Ch_RestController {
 		@$p_page = DevblocksPlatform::importGPC($_REQUEST['p'],'integer',0);		
 		
 		list($orgs,$null) = DAO_ContactOrg::search(
+			array(),
 			array(),
 			50,
 			$p_page,

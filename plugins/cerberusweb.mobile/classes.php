@@ -252,13 +252,16 @@ class C4_MobileTicketView extends C4_TicketView {
 		$team_categories = DAO_Bucket::getTeams();
 		$tpl->assign('team_categories', $team_categories);
 
+		// [TODO] Is this even used here or did mfogg copy it blindly?
 		$slas = DAO_Sla::getAll();
 		$tpl->assign('slas', $slas);
 
-		$ticket_fields = DAO_TicketField::getAll();
+		// [TODO] Is this even used here or did mfogg copy it blindly?
+		$ticket_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Ticket::ID);
 		$tpl->assign('ticket_fields', $ticket_fields);
 		
 		// Undo?
+		// [TODO] Is this even used here or did mfogg copy it blindly?
 		$last_action = C4_TicketView::getLastAction($this->id);
 		$tpl->assign('last_action', $last_action);
 		if(!empty($last_action) && !is_null($last_action->ticket_ids)) {
@@ -266,6 +269,7 @@ class C4_MobileTicketView extends C4_TicketView {
 		}
 
 		// View Quick Moves
+		// [TODO] Is this even used here or did mfogg copy it blindly?
 		// [TODO] Move this into an API
 		$active_worker = CerberusApplication::getActiveWorker();
 		$move_counts_str = DAO_WorkerPref::get($active_worker->id,''.DAO_WorkerPref::SETTING_MOVE_COUNTS,serialize(array()));

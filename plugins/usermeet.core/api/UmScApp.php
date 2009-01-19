@@ -277,7 +277,7 @@ class UmScApp extends Extension_UsermeetTool {
 		$tpl->assign('groups', $groups);
 		
 		// Contact: Fields
-		$ticket_fields = DAO_TicketField::getAll();
+		$ticket_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Ticket::ID);
 		$tpl->assign('ticket_fields', $ticket_fields);
 		
         $tpl->display("file:${tpl_path}portal/sc/config/index.tpl.php");
@@ -426,7 +426,7 @@ class UmScApp extends Extension_UsermeetTool {
 		$tpl->assign('groups', $groups);
         
 		// Contact: Fields
-		$ticket_fields = DAO_TicketField::getAll();
+		$ticket_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Ticket::ID);
 		$tpl->assign('ticket_fields', $ticket_fields);
         
         $tpl->display("file:${tpl_path}portal/sc/config/add_situation.tpl.php");
@@ -977,35 +977,35 @@ class UmScCoreController extends Extension_UmScController {
 		$ticket = DAO_Ticket::getTicket($ticket_id);
 		
 		// Auto-save any custom fields
-		$fields = DAO_TicketField::getAll();
+		$fields = DAO_CustomField::getBySource(ChCustomFieldSource_Ticket::ID);
 		if(!empty($aFieldIds))
 		foreach($aFieldIds as $iIdx => $iFieldId) {
 			if(!empty($iFieldId)) {
-				$field =& $fields[$iFieldId]; /* @var $field Model_TicketField */
+				$field =& $fields[$iFieldId]; /* @var $field Model_CustomField */
 				$value = "";
 				
 				switch($field->type) {
-					case Model_TicketField::TYPE_SINGLE_LINE:
-					case Model_TicketField::TYPE_MULTI_LINE:
+					case Model_CustomField::TYPE_SINGLE_LINE:
+					case Model_CustomField::TYPE_MULTI_LINE:
 						@$value = trim($aFollowUpA[$iIdx]);
 						break;
 						
-					case Model_TicketField::TYPE_DATE:
+					case Model_CustomField::TYPE_DATE:
 						if(false !== ($time = strtotime($aFollowUpA[$iIdx])))
 							@$value = intval($time);
 						break;
 						
-					case Model_TicketField::TYPE_DROPDOWN:
+					case Model_CustomField::TYPE_DROPDOWN:
 						@$value = $aFollowUpA[$iIdx];
 						break;
 						
-					case Model_TicketField::TYPE_CHECKBOX:
+					case Model_CustomField::TYPE_CHECKBOX:
 						@$value = (isset($aFollowUpA[$iIdx]) && !empty($aFollowUpA[$iIdx])) ? 1 : 0;
 						break;
 				}
 				
 				if(!empty($value))
-					DAO_TicketFieldValue::setFieldValue($ticket_id,$iFieldId,$value);
+					DAO_CustomFieldValue::setFieldValue(ChCustomFieldSource_Ticket::ID,$ticket_id,$iFieldId,$value);
 			}
 		}
 		
@@ -1372,7 +1372,7 @@ class UmScCoreController extends Extension_UmScController {
 						        	}
 						        }
 						        
-						        $ticket_fields = DAO_TicketField::getAll();
+						        $ticket_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Ticket::ID);
         						$tpl->assign('ticket_fields', $ticket_fields);
 						        
 				        		$tpl->display("file:${tpl_path}portal/sc/internal/contact/step2.tpl.php");

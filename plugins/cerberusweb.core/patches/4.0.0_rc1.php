@@ -260,6 +260,43 @@ if(!isset($indexes['message_id'])) {
 	$datadict->ExecuteSQLArray($sql);
 }
 
+// `note` =============================
+if(!isset($tables['note'])) {
+    $flds = "
+		id I4 DEFAULT 0 NOTNULL PRIMARY,
+		source_extension_id C(128) DEFAULT '' NOTNULL,
+		source_id I4 DEFAULT 0 NOTNULL,
+		created I4 DEFAULT 0 NOTNULL,
+		worker_id I4 DEFAULT 0 NOTNULL,
+		content XL
+	";
+    $sql = $datadict->CreateTableSQL('note',$flds);
+    $datadict->ExecuteSQLArray($sql);
+}
+
+$columns = $datadict->MetaColumns('note');
+$indexes = $datadict->MetaIndexes('note',false);
+
+if(!isset($indexes['source_extension_id'])) {
+	$sql = $datadict->CreateIndexSQL('source_extension_id','note','source_extension_id');
+	$datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($indexes['source_id'])) {
+	$sql = $datadict->CreateIndexSQL('source_id','note','source_id');
+	$datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($indexes['created'])) {
+	$sql = $datadict->CreateIndexSQL('created','note','created');
+	$datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($indexes['worker_id'])) {
+	$sql = $datadict->CreateIndexSQL('worker_id','note','worker_id');
+	$datadict->ExecuteSQLArray($sql);
+}
+
 // `preparse_rule` =============================
 if(!isset($tables['preparse_rule'])) {
     $flds = "
@@ -416,17 +453,93 @@ if(isset($columns['WORKER_ID'])) {
 }
 
 // `ticket_field` ========================
-$columns = $datadict->MetaColumns('ticket_field');
-$indexes = $datadict->MetaIndexes('ticket_field',false);
+if(isset($tables['ticket_field'])) {
+	$columns = $datadict->MetaColumns('ticket_field');
+	$indexes = $datadict->MetaIndexes('ticket_field',false);
+	
+	if(!isset($indexes['pos'])) {
+		$sql = $datadict->CreateIndexSQL('pos','ticket_field','pos');
+		$datadict->ExecuteSQLArray($sql);
+	}
+	
+	if(32 == $columns['NAME']->max_length) {
+		$sql = "ALTER TABLE ticket_field CHANGE COLUMN name name varchar(128) DEFAULT '' NOT NULL";
+		$db->Execute($sql);
+	}
+}
 
-if(!isset($indexes['pos'])) {
-	$sql = $datadict->CreateIndexSQL('pos','ticket_field','pos');
+// [NOTE] This table gets renamed below, so any other changes need to happen below that point
+
+// `ticket_field` ========================
+if(!isset($tables['custom_field']) && isset($tables['ticket_field'])) {
+	$sql = "RENAME TABLE ticket_field TO custom_field";
+	$db->Execute($sql);
+}
+
+// `ticket_field_seq` ========================
+if(!isset($tables['custom_field_seq']) && isset($tables['ticket_field_seq'])) {
+	$sql = "RENAME TABLE ticket_field_seq TO custom_field_seq";
+	$db->Execute($sql);
+}
+
+// `ticket_field_value` ========================
+if(!isset($tables['custom_field_value']) && isset($tables['ticket_field_value'])) {
+	$sql = "RENAME TABLE ticket_field_value TO custom_field_value";
+	$db->Execute($sql);
+}
+
+// `custom_field` ========================
+$columns = $datadict->MetaColumns('custom_field');
+$indexes = $datadict->MetaIndexes('custom_field',false);
+
+if(!isset($columns['SOURCE_EXTENSION'])) {
+    $sql = $datadict->AddColumnSQL('custom_field', "source_extension C(255) DEFAULT '' NOTNULL");
+    $datadict->ExecuteSQLArray($sql);
+    
+    $sql = "UPDATE custom_field SET source_extension = 'cerberusweb.fields.source.ticket' WHERE source_extension = ''";
+    $db->Execute($sql);
+}
+
+if(!isset($indexes['source_extension'])) {
+	$sql = $datadict->CreateIndexSQL('source_extension','custom_field','source_extension');
 	$datadict->ExecuteSQLArray($sql);
 }
 
-if(32 == $columns['NAME']->max_length) {
-	$sql = "ALTER TABLE ticket_field CHANGE COLUMN name name varchar(128) DEFAULT '' NOT NULL";
-	$db->Execute($sql);
+// `custom_field_value` ========================
+$columns = $datadict->MetaColumns('custom_field_value');
+$indexes = $datadict->MetaIndexes('custom_field_value',false);
+
+if(!isset($columns['SOURCE_EXTENSION'])) {
+    $sql = $datadict->AddColumnSQL('custom_field_value', "source_extension C(255) DEFAULT '' NOTNULL");
+    $datadict->ExecuteSQLArray($sql);
+    
+    $sql = "UPDATE custom_field_value SET source_extension = 'cerberusweb.fields.source.ticket' WHERE source_extension = ''";
+    $db->Execute($sql);
+}
+
+if(!isset($columns['SOURCE_ID']) && isset($columns['TICKET_ID'])) {
+	if(isset($indexes['ticket_id'])) {
+		$sql = $datadict->DropIndexSQL('ticket_id', 'custom_field_value');
+		$datadict->ExecuteSQLArray($sql);
+	}
+	
+	$sql = "ALTER TABLE custom_field_value CHANGE COLUMN ticket_id source_id int(11) DEFAULT '0' NOT NULL";
+    $db->Execute($sql);
+}
+
+if(!isset($indexes['field_id'])) {
+	$sql = $datadict->CreateIndexSQL('field_id','custom_field_value','field_id');
+	$datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($indexes['source_extension'])) {
+	$sql = $datadict->CreateIndexSQL('source_extension','custom_field_value','source_extension');
+	$datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($indexes['source_id'])) {
+	$sql = $datadict->CreateIndexSQL('source_id','custom_field_value','source_id');
+	$datadict->ExecuteSQLArray($sql);
 }
 
 // `view_rss` ======================
