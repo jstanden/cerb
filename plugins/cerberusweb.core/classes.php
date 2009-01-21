@@ -7644,6 +7644,109 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/internal/views/customize_view.tpl.php');
 	}
+
+	// Ajax
+	function viewShowExportAction() {
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['id']);
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		$tpl->assign('view_id', $view_id);
+
+		$view = C4_AbstractViewLoader::getView('', $view_id);
+		$tpl->assign('view', $view);
+		
+		$model_columns = $view->getColumns();
+		$tpl->assign('model_columns', $model_columns);
+		
+		$view_columns = $view->view_columns;
+		$tpl->assign('view_columns', $view_columns);
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/internal/views/view_export.tpl.php');
+	}
+	
+	function viewDoExportAction() {
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
+		@$columns = DevblocksPlatform::importGPC($_REQUEST['columns'],'array',array());
+		@$export_as = DevblocksPlatform::importGPC($_REQUEST['export_as'],'string','csv');
+
+		// Scan through the columns and remove any blanks
+		if(is_array($columns))
+		foreach($columns as $idx => $col) {
+			if(empty($col))
+				unset($columns[$idx]);
+		}
+		
+		$view = C4_AbstractViewLoader::getView('', $view_id);
+		$column_manifests = $view->getColumns();
+
+		// Override display
+		$view->view_columns = $columns;
+		$view->renderPage = 0;
+		$view->renderLimit = -1;
+
+		if('csv' == $export_as) {
+			header("Pragma: public");
+			header("Expires: 0");
+			header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+			header("Content-Type: text/plain; charset=utf-8");
+			
+			// Column headers
+			if(is_array($columns)) {
+				$cols = array();
+				foreach($columns as $col) {
+					$cols[] = sprintf("\"%s\"",
+						addslashes(mb_convert_case($column_manifests[$col]->db_label,MB_CASE_TITLE))
+					);
+				}
+				echo implode(',', $cols) . "\r\n";
+			}
+			
+			// Get data
+			list($results, $null) = $view->getData();
+			if(is_array($results))
+			foreach($results as $row) {
+				if(is_array($row)) {
+					$cols = array();
+					if(is_array($columns))
+					foreach($columns as $col) {
+						$cols[] = sprintf("\"%s\"",
+							addslashes($row[$col])
+						);
+					}
+					echo implode(',', $cols) . "\r\n";
+				}
+			}
+			
+		} elseif('xml' == $export_as) {
+			header("Pragma: public");
+			header("Expires: 0");
+			header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+			header("Content-Type: text/plain; charset=utf-8");
+			
+			$xml = simplexml_load_string("<results/>"); /* @var $xml SimpleXMLElement */
+			
+			// Get data
+			list($results, $null) = $view->getData();
+			if(is_array($results))
+			foreach($results as $row) {
+				$result =& $xml->addChild("result");
+				if(is_array($columns))
+				foreach($columns as $col) {
+					$field =& $result->addChild("field",$row[$col]);
+					$field->addAttribute("id", $col);
+				}
+			}
+		
+			$doc = new DOMDocument('1.0');
+			$doc->preserveWhiteSpace = false;
+			$doc->loadXML($xml->asXML());
+			$doc->formatOutput = true;
+			echo $doc->saveXML();			
+		}
+		
+		exit;
+	}
 	
 	// Post?
 	function viewSaveCustomizeAction() {
