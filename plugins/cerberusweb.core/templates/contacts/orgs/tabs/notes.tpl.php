@@ -6,11 +6,26 @@
 
 <b>Add a note about {$org->name}</b><br>
 <textarea name="content" rows="3" cols="65" style="width:500px;height:50px;"></textarea><br>
-
-<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
-
+{if !empty($workers)}
+	<label><input type="checkbox" onclick="toggleDiv('addOrgNoteNotifyWorkers');"> <b>Notify workers</b></label>
+	<div id="addOrgNoteNotifyWorkers" style="display:none;">
+		<select name="notify_worker_ids" multiple="multiple" size="8">
+			{foreach from=$active_workers item=worker name=notify_workers}
+			{if $worker->id == $active_worker->id}{math assign=notify_me_id equation="x-1" x=$smarty.foreach.notify_workers.iteration}{/if}
+			<option value="{$worker->id}">{$worker->getName()}</option>
+			{/foreach}
+		</select><br>
+		(hold CTRL or CMD to select multiple)<br>
+		{if !is_null($notify_me_id)}<button type="button" onclick="this.form.notify_worker_ids.options[{$notify_me_id}].selected=true;">{$translate->_('common.me')}</button>{/if} 
+	</div>
+{/if}
 <br>
 
+<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
+<br>
+<br>
+
+{* Display Notes *}
 {foreach from=$notes item=note}
 	{assign var=worker_id value=$note.n_worker_id}
 	<div style="border-top:1px dashed rgb(200,200,200);padding:5px;margin-top:5px;margin-bottom:5px;" onmouseover="toggleDiv('contactDelOrgNote{$note.n_id}','inline');" onmouseout="toggleDiv('contactDelOrgNote{$note.n_id}','none');">

@@ -1271,6 +1271,9 @@ class C4_AddressView extends C4_AbstractView {
 		$slas = DAO_Sla::getAll();
 		$tpl->assign('slas', $slas);
 
+		$address_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Address::ID);
+		$tpl->assign('custom_fields', $address_fields);
+		
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('view_fields', $this->getColumns());
 		$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/contacts/addresses/address_view.tpl.php');
@@ -1803,6 +1806,9 @@ class C4_ContactOrgView extends C4_AbstractView {
 		$slas = DAO_Sla::getAll();
 		$tpl->assign('slas', $slas);
 
+		$org_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Org::ID);
+		$tpl->assign('custom_fields', $org_fields);
+		
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('view_fields', $this->getColumns());
 		$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/contacts/orgs/contact_view.tpl.php');
@@ -1817,7 +1823,6 @@ class C4_ContactOrgView extends C4_AbstractView {
 		
 		switch($field) {
 			case SearchFields_ContactOrg::NAME:
-			case SearchFields_ContactOrg::ACCOUNT_NUMBER:
 			case SearchFields_ContactOrg::PHONE:
 			case SearchFields_ContactOrg::PROVINCE:
 			case SearchFields_ContactOrg::COUNTRY:
@@ -1904,7 +1909,6 @@ class C4_ContactOrgView extends C4_AbstractView {
 
 		switch($field) {
 			case SearchFields_ContactOrg::NAME:
-			case SearchFields_ContactOrg::ACCOUNT_NUMBER:
 			case SearchFields_ContactOrg::PHONE:
 			case SearchFields_ContactOrg::PROVINCE:
 			case SearchFields_ContactOrg::COUNTRY:
@@ -1942,10 +1946,20 @@ class C4_ContactOrgView extends C4_AbstractView {
 							@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','');
 							@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
 			
-							if(empty($from)) $from = 0;
-							if(empty($to)) $to = 'today';
+							if(empty($from)) {
+								if(empty($from)) $from = '0';
+								if(empty($to)) $to = 'now';
+								$criteria = array(
+									DevblocksSearchCriteria::GROUP_OR,
+									new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IS_NULL),
+									new DevblocksSearchCriteria($field,$oper,array($from,$to)),
+								);
+								
+							} else { // both empty
+								if(empty($to)) $to = 'now';
+								$criteria = new DevblocksSearchCriteria($field,$oper,array($from,$to));
+							}
 			
-							$criteria = new DevblocksSearchCriteria($field,$oper,array($from,$to));
 							break;
 						default:
 							if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
@@ -1964,6 +1978,85 @@ class C4_ContactOrgView extends C4_AbstractView {
 			$this->renderPage = 0;
 		}
 	}
+	
+	function doBulkUpdate($filter, $do, $ids=array()) {
+		@set_time_limit(0);
+	  
+		$change_fields = array();
+		$custom_fields = array();
+
+		// Make sure we have actions
+		if(empty($do))
+			return;
+
+		// Make sure we have checked items if we want a checked list
+		if(0 == strcasecmp($filter,"checks") && empty($ids))
+			return;
+			
+		if(is_array($do))
+		foreach($do as $k => $v) {
+			switch($k) {
+				case 'country':
+					$change_fields[DAO_ContactOrg::COUNTRY] = $v;
+					break;
+//				case 'sla':
+//					$change_fields[DAO_Address::SLA_ID] = intval($v);
+//					break;
+				default:
+					// Custom fields
+					if(substr($k,0,3)=="cf_") {
+						$custom_fields[substr($k,3)] = $v;
+					}
+					break;
+			}
+		}
+
+		$pg = 0;
+
+		if(empty($ids))
+		do {
+			list($objects,$null) = DAO_ContactOrg::search(
+				array(),
+				$this->params,
+				100,
+				$pg++,
+				SearchFields_ContactOrg::ID,
+				true,
+				false
+			);
+			 
+			$ids = array_merge($ids, array_keys($objects));
+			 
+		} while(!empty($objects));
+
+		$batch_total = count($ids);
+		for($x=0;$x<=$batch_total;$x+=100) {
+			$batch_ids = array_slice($ids,$x,100);
+			DAO_ContactOrg::update($batch_ids, $change_fields);
+
+//			// Cascade SLA changes
+//			if(isset($do['sla'])) {
+//				foreach($batch_ids as $id) {
+//					DAO_Sla::cascadeAddressSla($id, $do['sla']);
+//				}
+//			}
+
+			// Set custom fields // [TODO] Optimize
+			if(!empty($custom_fields))
+			foreach($batch_ids as $id)
+			foreach($custom_fields as $cf_id => $cf_val) {
+				if(!empty($cf_val))
+					DAO_CustomFieldValue::setFieldValue(ChCustomFieldSource_Org::ID,$id,$cf_id,$cf_val);
+				else
+					DAO_CustomFieldValue::unsetFieldValue(ChCustomFieldSource_Org::ID,$id,$cf_id);
+			}
+
+			unset($batch_ids);
+		}
+
+		unset($ids);
+	}
+		
 };
 
 class C4_KbArticleView extends C4_AbstractView {
@@ -2616,7 +2709,6 @@ class C4_WorkerEventView extends C4_AbstractView {
 
 class Model_ContactOrg {
 	public $id;
-	public $account_number;
 	public $name;
 	public $street;
 	public $city;

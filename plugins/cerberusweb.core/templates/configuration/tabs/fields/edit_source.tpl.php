@@ -38,7 +38,7 @@
 		<td valign="top">
 			<div class="subtle2">
 			<b>Dropdown options:</b> (one per line)<br>
-			<textarea cols="35" rows="3" name="options[]" style="width:300;">{foreach from=$f->options item=opt}{$opt|cat:"\r\n"}{/foreach}</textarea>
+			<textarea cols="35" rows="6" name="options[]" style="width:300;">{foreach from=$f->options item=opt}{$opt|cat:"\r\n"}{/foreach}</textarea>
 			</div>
 		</td>
 		<td></td>
@@ -62,7 +62,7 @@
 	
 	<div id="addCustomFieldDropdown" style="display:none;padding-top:5px;">
 	<b>Field Options:</b> (if dropdown, one per line)<br>
-	<textarea name="add_options" rows="5" cols="50"></textarea><br>
+	<textarea name="add_options" rows="6" cols="50"></textarea><br>
 	</div>
 </div>
 <br>

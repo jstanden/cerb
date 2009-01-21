@@ -60,7 +60,6 @@
 	{if $type=="orgs"}
 		<option value="name" selected>{$fields.name|capitalize}</option>
 		<!-- 
-		<option value="account_number">{$fields.account_number|capitalize}</option>
 		<option value="phone">{$fields.phone|capitalize}</option>
 		 -->
 	{elseif $type=="addys"}

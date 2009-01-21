@@ -840,7 +840,6 @@ class SearchFields_WorkerEvent implements IDevblocksSearchFields {
 
 class DAO_ContactOrg extends DevblocksORMHelper {
 	const ID = 'id';
-	const ACCOUNT_NUMBER = 'account_number';
 	const NAME = 'name';
 	const STREET = 'street';
 	const CITY = 'city';
@@ -859,7 +858,6 @@ class DAO_ContactOrg extends DevblocksORMHelper {
 		$translate = DevblocksPlatform::getTranslationService();
 		return array(
 			'id' => $translate->_('contact_org.id'),
-			'account_number' => $translate->_('contact_org.account_number'),
 			'name' => $translate->_('contact_org.name'),
 			'street' => $translate->_('contact_org.street'),
 			'city' => $translate->_('contact_org.city'),
@@ -884,8 +882,8 @@ class DAO_ContactOrg extends DevblocksORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$id = $db->GenID('contact_org_seq');
 		
-		$sql = sprintf("INSERT INTO contact_org (id,account_number,name,street,city,province,postal,country,phone,fax,website,created) ".
-  			"VALUES (%d,'','','','','','','','','','',%d)",
+		$sql = sprintf("INSERT INTO contact_org (id,name,street,city,province,postal,country,phone,fax,website,created) ".
+  			"VALUES (%d,'','','','','','','','','',%d)",
 			$id,
 			time()
 		);
@@ -938,7 +936,7 @@ class DAO_ContactOrg extends DevblocksORMHelper {
 	static function getWhere($where=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = "SELECT id,account_number,name,street,city,province,postal,country,phone,fax,website,created,sla_id,sla_expires ".
+		$sql = "SELECT id,name,street,city,province,postal,country,phone,fax,website,created,sla_id,sla_expires ".
 			"FROM contact_org ".
 			(!empty($where) ? sprintf("WHERE %s ", $where) : " ")
 		;
@@ -954,7 +952,6 @@ class DAO_ContactOrg extends DevblocksORMHelper {
 		while(!$rs->EOF) {
 			$object = new Model_ContactOrg();
 			$object->id = intval($rs->fields['id']);
-			$object->account_number = $rs->fields['account_number'];
 			$object->name = $rs->fields['name'];
 			$object->street = $rs->fields['street'];
 			$object->city = $rs->fields['city'];
@@ -1039,7 +1036,6 @@ class DAO_ContactOrg extends DevblocksORMHelper {
 		
 		$select_sql = sprintf("SELECT ".
 			"c.id as %s, ".
-			"c.account_number as %s, ".
 			"c.name as %s, ".
 			"c.street as %s, ".
 			"c.city as %s, ".
@@ -1053,7 +1049,6 @@ class DAO_ContactOrg extends DevblocksORMHelper {
 			"c.sla_id as %s ",
 //			"INNER JOIN team tm ON (tm.id = t.team_id) ".
 			    SearchFields_ContactOrg::ID,
-			    SearchFields_ContactOrg::ACCOUNT_NUMBER,
 			    SearchFields_ContactOrg::NAME,
 			    SearchFields_ContactOrg::STREET,
 			    SearchFields_ContactOrg::CITY,
@@ -1141,7 +1136,6 @@ class DAO_ContactOrg extends DevblocksORMHelper {
 
 class SearchFields_ContactOrg {
 	const ID = 'c_id';
-	const ACCOUNT_NUMBER = 'c_account_number';
 	const NAME = 'c_name';
 	const STREET = 'c_street';
 	const CITY = 'c_city';
@@ -1161,7 +1155,6 @@ class SearchFields_ContactOrg {
 		$translate = DevblocksPlatform::getTranslationService();
 		$columns = array(
 			self::ID => new DevblocksSearchField(self::ID, 'c', 'id', null, $translate->_('contact_org.id')),
-			self::ACCOUNT_NUMBER => new DevblocksSearchField(self::ACCOUNT_NUMBER, 'c', 'account_number', null, $translate->_('contact_org.account_number')),
 			self::NAME => new DevblocksSearchField(self::NAME, 'c', 'name', null, $translate->_('contact_org.name')),
 			self::STREET => new DevblocksSearchField(self::STREET, 'c', 'street', null, $translate->_('contact_org.street')),
 			self::CITY => new DevblocksSearchField(self::CITY, 'c', 'city', null, $translate->_('contact_org.city')),

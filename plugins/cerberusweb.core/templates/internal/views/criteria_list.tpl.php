@@ -19,13 +19,26 @@
 			<table cellpadding="2" cellspacing="0" border="0">
 				{if !empty($view->params)}
 				{foreach from=$view->params item=param}
-				{assign var=field value=$param->field}
 					<tr>
 						<td width="100%">
-						<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/data_find.gif{/devblocks_url}" align="top"> 
-						{$view_fields.$field->db_label} 
-						{$param->operator}
-						<b>{$view->renderCriteriaParam($param)}</b>
+						<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/data_find.gif{/devblocks_url}" align="top">
+						{if is_array($param)}
+							{foreach from=$param item=p name=p}
+								{if 0==$smarty.foreach.p.index}
+								{else}
+									{assign var=field value=$p->field} 
+									{$view_fields.$field->db_label} 
+									{$p->operator}
+									<b>{$view->renderCriteriaParam($p)}</b>
+									{if !$smarty.foreach.p.last} <i>{$param.0}</i> {/if}
+								{/if}
+							{/foreach}
+						{else}
+							{assign var=field value=$param->field} 
+							{$view_fields.$field->db_label} 
+							{$param->operator}
+							<b>{$view->renderCriteriaParam($param)}</b>
+						{/if}
 						</td>
 						<td width="0%" nowrap="nowrap" valign="top"><a href="javascript:;" onclick="document.{$view->id}_criteriaForm.field.value='{$param->field}';document.{$view->id}_criteriaForm.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/data_error.gif{/devblocks_url}" border="0" align="top"></a></td>
 					</tr>

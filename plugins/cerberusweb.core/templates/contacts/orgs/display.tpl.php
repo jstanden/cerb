@@ -1,9 +1,42 @@
 {include file="file:$path/contacts/submenu.tpl.php"}
 
-<table cellpadding="2" cellspacing="0" border="0">
+<table cellpadding="2" cellspacing="0" border="0" width="100%">
 <tr>
-	<td><h1>{$contact->name}</h1></td>
-	<td>(<a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showOrgPeek&id={$contact->id}=&view_id=',null,false,'500px',ajax.cbOrgCountryPeek);">edit</a>)</td>
+	<td valign="top">
+		<h1>{$contact->name}</h1>
+		{if !empty($contact->street) || !empty($contact->country)}
+			{if !empty($contact->street)}{$contact->street}, {/if}
+			{if !empty($contact->city)}{$contact->city}, {/if}
+			{if !empty($contact->province)}{$contact->province}, {/if}
+			{if !empty($contact->postal)}{$contact->postal} {/if}
+			{if !empty($contact->country)}{$contact->country}{/if}
+			<br>
+		{/if}
+		{if !empty($contact->phone) || !empty($contact->fax)}
+			{if !empty($contact->phone)}Phone: {$contact->phone} &nbsp; {/if}
+			{if !empty($contact->fax)}Fax: {$contact->fax}{/if}
+			<br>
+		{/if}
+		{if !empty($contact->website)}<a href="{$contact->website}" target="_blank">{$contact->website}</a>{/if}
+		<br>
+		<br>
+	</td>
+	<td align="right" valign="top">
+		{if !empty($series_stats.next) || !empty($series_stats.prev)}
+		<table cellpadding="0" cellspacing="0" border="0" style="margin:0px;">
+			<tr>
+				<td>	
+				<div style="padding:10px;margin-top:0px;border:1px solid rgb(180,180,255);background-color:rgb(245,245,255);text-align:center;">
+					Active list: <b>{$series_stats.title}</b><br>
+					{if !empty($series_stats.prev)}<button style="display:none;visibility:hidden;" id="btnPagePrev" onclick="document.location='{devblocks_url}c=contacts&a=orgs&d=display&id={$series_stats.prev}{/devblocks_url}';">&laquo;Prev</button><a href="{devblocks_url}c=contacts&a=orgs&d=display&id={$series_stats.prev}{/devblocks_url}">&laquo;Prev</a>{/if} 
+					 ({$series_stats.cur}-{$series_stats.count} of {$series_stats.total}) 
+					{if !empty($series_stats.next)}<button style="display:none;visibility:hidden;" id="btnPageNext" onclick="document.location='{devblocks_url}c=contacts&a=orgs&d=display&id={$series_stats.next}{/devblocks_url}';">Next&raquo;</button><a href="{devblocks_url}c=contacts&a=orgs&d=display&id={$series_stats.next}{/devblocks_url}">Next&raquo;</a>{/if}
+				</div>
+				</td>
+			</tr>
+		</table>
+		{/if}
+	</td>
 </tr>
 </table>
 
@@ -22,6 +55,12 @@ tabView.addTab( new YAHOO.widget.Tab({
 }));
 
 tabView.addTab( new YAHOO.widget.Tab({
+    label: 'Properties',
+    dataSrc: '{/literal}{devblocks_url}ajax.php?c=contacts&a=showTabProperties&org={$contact->id}{/devblocks_url}{literal}',
+    cacheData: false
+}));
+
+tabView.addTab( new YAHOO.widget.Tab({
     label: 'Mail History',
     dataSrc: '{/literal}{devblocks_url}ajax.php?c=contacts&a=showTabHistory&org={$contact->id}{/devblocks_url}{literal}',
     cacheData: true
@@ -31,12 +70,6 @@ tabView.addTab( new YAHOO.widget.Tab({
     label: 'People ({/literal}{$people_total}{literal})',
     dataSrc: '{/literal}{devblocks_url}ajax.php?c=contacts&a=showTabPeople&org={$contact->id}{/devblocks_url}{literal}',
     cacheData: true
-}));
-
-tabView.addTab( new YAHOO.widget.Tab({
-    label: 'Custom Fields ({/literal}{$fields_total}{literal})',
-    dataSrc: '{/literal}{devblocks_url}ajax.php?c=contacts&a=showTabFields&org={$contact->id}{/devblocks_url}{literal}',
-    cacheData: false
 }));
 
 tabView.addTab( new YAHOO.widget.Tab({
@@ -61,3 +94,39 @@ var tabDetails = tabView.getTab(0);
 
 tabView.appendTo('contactOptions');
 </script>
+
+<script type="text/javascript">
+{literal}
+CreateKeyHandler(function doShortcuts(e) {
+
+	var mykey = getKeyboardKey(e);
+	
+	switch(mykey) {
+//		case "q":  // quick compose
+//		case "Q":
+//			try {
+//				document.getElementById('btnQuickCompose').click();
+//			} catch(e){}
+//			break;
+		default:
+			// We didn't find any obvious keys, try other codes
+			var mycode = getKeyboardKey(e,true);
+
+			switch(mycode) {
+				case 219:  // [ - prev page
+					try {
+						document.getElementById('btnPagePrev').click();
+					} catch(e){}
+					break;
+				case 221:  // ] - next page
+					try {
+						document.getElementById('btnPageNext').click();
+					} catch(e){}
+					break;
+			}
+			break;
+	}
+});
+{/literal}
+</script>
+

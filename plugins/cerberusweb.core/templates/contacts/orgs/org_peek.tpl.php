@@ -22,10 +22,6 @@
 		<td width="100%"><input type="text" name="org_name" value="{$contact->name|escape}" style="width:98%;"></td>
 	</tr>
 	<tr>
-		<td width="0%" nowrap="nowrap" align="right">Account #: </td>
-		<td width="100%"><input type="text" name="account_num" value="{$contact->account_number|escape}" style="width:98%;"></td>
-	</tr>
-	<tr>
 		<td align="right" valign="top">Street: </td>
 		<td><textarea name="street" style="width:98%;height:50px;">{$contact->street}</textarea></td>
 	</tr>
@@ -62,7 +58,7 @@
 		<td><input type="text" name="fax" value="{$contact->fax|escape}" style="width:98%;"></td>
 	</tr>
 	<tr>
-		<td align="right">Website: </td>
+		<td align="right">{if !empty($contact->website)}<a href="{$contact->website|escape}" target="_blank">Website</a>{else}Website{/if}: </td>
 		<td><input type="text" name="website" value="{$contact->website|escape}" style="width:98%;"></td>
 	</tr>
 	{if !empty($slas)}
@@ -81,7 +77,7 @@
 	
 	<!-- Custom Fields -->
 	<tr>
-		<td colspan="2" align="center"><b>Custom Fields</b></td>
+		<td colspan="2" align="center">&nbsp;</td>
 	</tr>
 	{foreach from=$org_fields item=f key=f_id}
 		<tr>

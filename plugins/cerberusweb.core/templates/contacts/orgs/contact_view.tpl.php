@@ -53,11 +53,27 @@
 	
 		<tr class="{$tableRowBg}" id="{$rowIdPrefix}_s" onmouseover="toggleClass(this.id,'tableRowHover');toggleClass('{$rowIdPrefix}','tableRowHover');" onmouseout="toggleClass(this.id,'{$tableRowBg}');toggleClass('{$rowIdPrefix}','{$tableRowBg}');" onclick="if(getEventTarget(event)=='TD') checkAll('{$rowIdPrefix}_s');">
 			<td align="center" rowspan="2"><input type="checkbox" name="row_id[]" value="{$result.c_id}"></td>
-			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}"><a href="{devblocks_url}c=contacts&a=orgs&id={$result.c_id}{/devblocks_url}" style="font-size:12px;color:rgb(75,75,75);"><b id="subject_{$result.c_id}_{$view->id}">{$result.c_name}</b></a> <a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showOrgPeek&id={$result.c_id}&view_id={$view->id}',this,false,'600px',ajax.cbOrgCountryPeek);" style="color:rgb(180,180,180);font-size:90%;">(peek)</a></td>
+			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}"><a href="{devblocks_url}c=contacts&a=browseOrgs&id={$result.c_id}&view_id={$view->id}{/devblocks_url}" style="font-size:12px;color:rgb(75,75,75);"><b id="subject_{$result.c_id}_{$view->id}">{$result.c_name}</b></a> <a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showOrgPeek&id={$result.c_id}&view_id={$view->id}',this,false,'600px',ajax.cbOrgCountryPeek);" style="color:rgb(180,180,180);font-size:90%;">(peek)</a></td>
 		</tr>
 		<tr class="{$tableRowBg}" id="{$rowIdPrefix}" onmouseover="toggleClass(this.id,'tableRowHover');toggleClass('{$rowIdPrefix}_s','tableRowHover');" onmouseout="toggleClass(this.id,'{$tableRowBg}');toggleClass('{$rowIdPrefix}_s','{$tableRowBg}');" onclick="if(getEventTarget(event)=='TD') checkAll('{$rowIdPrefix}_s');">
 		{foreach from=$view->view_columns item=column name=columns}
-			{if $column=="c_id"}
+			{if substr($column,0,3)=="cf_"}
+				{assign var=col value=$column|explode:'_'}
+				{assign var=col_id value=$col.1}
+				{assign var=col value=$custom_fields.$col_id}
+				
+				{if $col->type=='S'}
+				<td>{$result.$column}</td>
+				{elseif $col->type=='T'}
+				<td title="{$result.$column|escape}">{$result.$column|truncate:32}</td>
+				{elseif $col->type=='D'}
+				<td>{$result.$column}</td>
+				{elseif $col->type=='E'}
+				<td>{$result.$column|devblocks_date}</td>
+				{elseif $col->type=='C'}
+				<td>{if '1'==$result.$column}Yes{elseif '0'==$result.$column}No{/if}</td>
+				{/if}
+			{elseif $column=="c_id"}
 			<td>{$result.c_id}&nbsp;</td>
 			{elseif $column=="c_website"}
 			<td><a href="{$result.c_website}" target="_blank">{$result.c_website|truncate:45:'...':true}</a>&nbsp;</td>
@@ -82,6 +98,9 @@
 	{if $total}
 	<tr>
 		<td colspan="2">
+			<button type="button" onclick="genericAjaxPanel('c=contacts&a=showOrgBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),this,false,'500px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> bulk update</button>
+
+			{* Phase out? *}
 			{if !empty($slas)}
 			<select name="sla_id" onchange="this.form.a.value='doSetOrgSla';genericAjaxPost('viewForm{$view->id}','view{$view->id}','c=contacts&a=doSetOrgSla');">
 				<option value="">-- set service level --</option>
@@ -91,6 +110,7 @@
 				{/foreach}
 			</select>
 			{/if}
+			
 		
 			<!-- 
 			<span id="tourDashboardBatch"><button type="button" onclick="ajax.showBatchPanel('{$view->id}','{$dashboard_team_id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> bulk update</button></span>

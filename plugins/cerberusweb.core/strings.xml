@@ -28,9 +28,6 @@
 		<tu tuid='display.tab.conversation'>
 			<tuv xml:lang="en_US"><seg>Conversation</seg></tuv>
 		</tu>
-		<tu tuid='display.tab.custom_fields'>
-			<tuv xml:lang="en_US"><seg>Custom Fields (%s)</seg></tuv>
-		</tu>
 		<tu tuid='display.tab.history'>
 			<tuv xml:lang="en_US"><seg>Requester History</seg></tuv>
 		</tu>
@@ -357,9 +354,6 @@
 		
 
 		<!-- Contact orgs -->
-		<tu tuid='contact_org.account_number'>
-			<tuv xml:lang="en_US"><seg>Acct #</seg></tuv>
-		</tu>
 		<tu tuid='contact_org.city'>
 			<tuv xml:lang="en_US"><seg>City</seg></tuv>
 		</tu>

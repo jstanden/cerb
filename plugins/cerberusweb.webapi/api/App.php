@@ -855,7 +855,6 @@ class Rest_OrgsController extends Ch_RestController {
 	protected function translate($idx, $dir) {
 		$translations = array(
 			'c_id' => 'id',
-			'c_account_number' => 'account_number',
 			'c_name' => 'name',
 			'c_street' => 'street',
 			'c_city' => 'city',
@@ -878,8 +877,6 @@ class Rest_OrgsController extends Ch_RestController {
 		
 	protected function isValid($idx_name, $value) {
 		switch($idx_name) {
-			case 'account_number':
-				return is_numeric($value) ? true : false;
 			case 'name':
 			case 'street':
 			case 'city':
