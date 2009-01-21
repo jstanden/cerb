@@ -3436,6 +3436,8 @@ class ChConfigurationPage extends CerberusPageExtension  {
 					break;
 				case 'body':
 					break;
+				case 'body_encoding':
+					break;
 				case 'attachment':
 					break;
 				default: // ignore invalids
@@ -7069,6 +7071,10 @@ class ChCustomFieldSource_Org extends Extension_CustomFieldSource {
 	const ID = 'cerberusweb.fields.source.org';
 };
 
+class ChCustomFieldSource_Task extends Extension_CustomFieldSource {
+	const ID = 'cerberusweb.fields.source.task';
+};
+
 class ChCustomFieldSource_Ticket extends Extension_CustomFieldSource {
 	const ID = 'cerberusweb.fields.source.ticket';
 };
@@ -7696,7 +7702,7 @@ class ChInternalController extends DevblocksControllerExtension {
 				$cols = array();
 				foreach($columns as $col) {
 					$cols[] = sprintf("\"%s\"",
-						addslashes(mb_convert_case($column_manifests[$col]->db_label,MB_CASE_TITLE))
+						str_replace('"','\"',mb_convert_case($column_manifests[$col]->db_label,MB_CASE_TITLE))
 					);
 				}
 				echo implode(',', $cols) . "\r\n";
@@ -7711,7 +7717,7 @@ class ChInternalController extends DevblocksControllerExtension {
 					if(is_array($columns))
 					foreach($columns as $col) {
 						$cols[] = sprintf("\"%s\"",
-							addslashes($row[$col])
+							str_replace('"','\"',$row[$col])
 						);
 					}
 					echo implode(',', $cols) . "\r\n";
@@ -7738,6 +7744,7 @@ class ChInternalController extends DevblocksControllerExtension {
 				}
 			}
 		
+			// Pretty format and output
 			$doc = new DOMDocument('1.0');
 			$doc->preserveWhiteSpace = false;
 			$doc->loadXML($xml->asXML());

@@ -1945,21 +1945,9 @@ class C4_ContactOrgView extends C4_AbstractView {
 						case Model_CustomField::TYPE_DATE:
 							@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','');
 							@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
-			
-							if(empty($from)) {
-								if(empty($from)) $from = '0';
-								if(empty($to)) $to = 'now';
-								$criteria = array(
-									DevblocksSearchCriteria::GROUP_OR,
-									new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IS_NULL),
-									new DevblocksSearchCriteria($field,$oper,array($from,$to)),
-								);
-								
-							} else { // both empty
-								if(empty($to)) $to = 'now';
-								$criteria = new DevblocksSearchCriteria($field,$oper,array($from,$to));
-							}
-			
+							if(empty($from)) $from = '0';
+							if(empty($to)) $to = 'now';
+							$criteria = new DevblocksSearchCriteria($field,$oper,array($from,$to));
 							break;
 						default:
 							if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
@@ -2247,6 +2235,7 @@ class C4_TaskView extends C4_AbstractView {
 
 	function getData() {
 		$objects = DAO_Task::search(
+			$this->view_columns,
 			$this->params,
 			$this->renderLimit,
 			$this->renderPage,
@@ -2329,7 +2318,32 @@ class C4_TaskView extends C4_AbstractView {
 				break;
 				
 			default:
-				echo '';
+				// Custom Fields
+				if(substr($field,0,3)=='cf_') {
+					$tpl_path = DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/';
+					
+					$cfield_id = substr($field,3);
+					$cfield = DAO_CustomField::get($cfield_id);
+					switch($cfield->type) {
+						case Model_CustomField::TYPE_DROPDOWN:
+							$tpl->assign('cfield', $cfield);
+							$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__cfield_dropdown.tpl.php');
+							break;
+						case Model_CustomField::TYPE_CHECKBOX:
+							$tpl->assign('cfield', $cfield);
+							$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__cfield_checkbox.tpl.php');
+							break;
+						case Model_CustomField::TYPE_DATE:
+							$tpl->assign('cfield', $cfield);
+							$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__cfield_date.tpl.php');
+							break;
+						default:
+							$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__string.tpl.php');
+							break;
+					}
+				} else {
+					echo ' ';
+				}
 				break;
 		}
 	}
@@ -2464,6 +2478,44 @@ class C4_TaskView extends C4_AbstractView {
 			case SearchFields_Task::WORKER_ID:
 				@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_id);
+				break;
+				
+			default:
+				// Custom Fields
+				if(substr($field,0,3)=='cf_') {
+					$cfield_id = substr($field,3);
+					$cfield = DAO_CustomField::get($cfield_id);
+					switch($cfield->type) {
+						case Model_CustomField::TYPE_DROPDOWN:
+							@$options = DevblocksPlatform::importGPC($_POST['options'],'array',array());
+							if(!empty($options)) {
+								$criteria = new DevblocksSearchCriteria($field,$oper,$options);
+							} else {
+								$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IS_NULL);
+							}
+							break;
+						case Model_CustomField::TYPE_CHECKBOX:
+							$check = !empty($value) ? 1 : 0;
+							$criteria = new DevblocksSearchCriteria($field,$oper,$check);
+							break;
+						case Model_CustomField::TYPE_DATE:
+							@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','');
+							@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
+			
+							if(empty($from)) $from = 0;
+							if(empty($to)) $to = 'today';
+			
+							$criteria = new DevblocksSearchCriteria($field,$oper,array($from,$to));
+							break;
+						default:
+							if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
+							&& false === (strpos($value,'*'))) {
+								$value = '*'.$value.'*';
+							}
+							$criteria = new DevblocksSearchCriteria($field,$oper,$value);
+							break;
+					}
+				}
 				break;
 		}
 

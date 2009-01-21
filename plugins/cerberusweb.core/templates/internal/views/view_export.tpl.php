@@ -1,4 +1,4 @@
-<form action="{devblocks_url}{/devblocks_url}" method="post" target="_blank">
+<form action="{devblocks_url}{/devblocks_url}" method="post" target="_blank" id="frm{$view_id}_export">
 <input type="hidden" name="c" value="internal">
 <input type="hidden" name="a" value="viewDoExport">
 <input type="hidden" name="view_id" value="{$view_id}">
@@ -6,7 +6,10 @@
 <H3>{$translate->_('common.export')|capitalize}</H3>
 <br>
 
-<b>Columns:</b><br>
+<b>Columns:</b>
+ &nbsp; 
+<a href="javascript:;" onclick="Devblocks.resetSelectElements('frm{$view_id}_export','columns[]');">clear</a>
+<br>
 {section start=0 step=1 loop=15 name=columns}
 {assign var=index value=$smarty.section.columns.index}
 {math equation="x+1" x=$index format="%02d"}: 

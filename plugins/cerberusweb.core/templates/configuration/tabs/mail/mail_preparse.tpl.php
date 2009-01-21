@@ -67,6 +67,14 @@
 	*}
 	<tr>
 		<td>
+			<label><input type="checkbox" name="rules[]" value="body_encoding" id="chkRuleBodyEncoding"> Body Charset:</label>
+		</td>
+		<td>
+			<input type="text" name="value_body_encoding" size="45">
+		</td>
+	</tr>
+	<tr>
+		<td>
 			<label><input type="checkbox" name="rules[]" value="attachment" id="chkRuleAttachment"> Attachment Name:</label>
 		</td>
 		<td>
@@ -144,6 +152,8 @@
 							Header <i>{$crit.header}</i> = <b>{$crit.value}</b><br>
 						{elseif $crit_key=='body'}
 							Body = <b>{$crit.value}</b><br>
+						{elseif $crit_key=='body_encoding'}
+							Body Charset = <b>{$crit.value}</b><br>
 						{elseif $crit_key=='attachment'}
 							Attachment = <b>{$crit.value}</b><br>
 						{/if}

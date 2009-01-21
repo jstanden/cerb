@@ -26,8 +26,9 @@
 		
 		<td width="100%" valign="top">
 			<form action="{devblocks_url}{/devblocks_url}" method="post" id="configFieldSource">
-				{if !empty($object_fields)}
-					{include file="$path/configuration/tabs/fields/edit_source.tpl.php" object=null}
+				{if !empty($ext_id)}
+					{assign var=source_manifest value=$source_manifests.$ext_id}
+					{include file="$path/configuration/tabs/fields/edit_source.tpl.php" object=$source_manifest}
 				{/if}
 			</form>
 		</td>

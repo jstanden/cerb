@@ -17,7 +17,10 @@
 <br>
 {/if}
 
-<b>{$translate->_('dashboard.columns')|capitalize}:</b><br>
+<b>{$translate->_('dashboard.columns')|capitalize}:</b> 
+ &nbsp; 
+<a href="javascript:;" onclick="Devblocks.resetSelectElements('customize{$view->id}','columns[]');">clear</a>
+<br>
 {section start=0 step=1 loop=15 name=columns}
 {assign var=index value=$smarty.section.columns.index}
 {math equation="x+1" x=$index format="%02d"}: 
@@ -51,7 +54,6 @@
 	{/foreach}
 	</optgroup>
 	{/if}
-	
 </select>
 <br>
 {/section}

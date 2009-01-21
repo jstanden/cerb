@@ -52,6 +52,7 @@ class CerberusParserMessage {
     public $encoding = '';
     public $headers = array();
     public $body = '';
+    public $body_encoding = '';
     public $htmlbody = '';
     public $files = array();
 };
@@ -71,6 +72,7 @@ class CerberusParser {
 		
 		$message = new CerberusParserMessage();
 		@$message->encoding = $msginfo['content-charset'];
+		@$message->body_encoding = $message->encoding; // default
 
 		// Decode headers
 		@$message->headers = $msginfo['headers'];
@@ -101,6 +103,8 @@ class CerberusParser {
 					$text = mailparse_msg_extract_part_file($section, $full_filename, NULL);
 					
 					if(isset($info['content-charset']) && !empty($info['content-charset'])) {
+						$message->body_encoding = $info['content-charset'];
+						
 						if(@mb_check_encoding($text, $info['content-charset'])) {
 							$text = mb_convert_encoding($text, LANG_CHARSET_CODE, $info['content-charset']);
 						} else {
@@ -946,6 +950,13 @@ class CerberusParser {
 
 						// Flatten CRLF
 						if(preg_match($regexp_body, str_replace(array("\r","\n"),' ',$message->body)))
+							$passed++;
+						break;
+						
+					case 'body_encoding':
+						$regexp_bodyenc = DevblocksPlatform::strToRegExp($value);
+
+						if(preg_match($regexp_bodyenc, $message->body_encoding))
 							$passed++;
 						break;
 						

@@ -507,6 +507,17 @@
 		</extension>
 				
 		<extension point="cerberusweb.fields.source">
+			<id>cerberusweb.fields.source.task</id>
+			<name>Task</name>
+			<class>
+				<file>classes.php</file>
+				<name>ChCustomFieldSource_Task</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+				
+		<extension point="cerberusweb.fields.source">
 			<id>cerberusweb.fields.source.ticket</id>
 			<name>Ticket</name>
 			<class>

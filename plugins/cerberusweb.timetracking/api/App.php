@@ -11,6 +11,10 @@ class ChTimeTrackingPlugin extends DevblocksPlugin {
 	}
 };
 
+class ChCustomFieldSource_TimeEntry extends Extension_CustomFieldSource {
+	const ID = 'timetracking.fields.source.time_entry';
+};
+
 abstract class Extension_TimeTrackingSource extends DevblocksExtension {
 	function __construct($manifest) {
 		parent::DevblocksExtension($manifest);
@@ -275,10 +279,10 @@ class DAO_TimeTrackingEntry extends DevblocksORMHelper {
      * @param boolean $withCounts
      * @return array
      */
-    static function search($params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
+    static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
 
-        list($tables,$wheres) = parent::_parseSearchParams($params, array(),SearchFields_TimeTrackingEntry::getFields());
+        list($tables,$wheres) = parent::_parseSearchParams($params, $columns, SearchFields_TimeTrackingEntry::getFields());
 		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
 		
 		$select_sql = sprintf("SELECT ".
@@ -312,6 +316,36 @@ class DAO_TimeTrackingEntry extends DevblocksORMHelper {
 //			(isset($tables['o']) ? "LEFT JOIN contact_org o ON (o.id=tt.debit_org_id)" : " ").
 //			(isset($tables['mc']) ? "INNER JOIN message_content mc ON (mc.message_id=m.id)" : " ").
 
+		// Custom field joins
+		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_TimeEntry::ID);
+		
+		foreach($tables as $tbl_name => $null) {
+			if(substr($tbl_name,0,3)!="cf_")
+				continue;
+				
+			if(0 != ($cf_id = intval(substr($tbl_name,3)))) {
+				// Make sure our custom fields still exist
+				if(!isset($custom_fields[$cf_id])) {
+					unset($tables[$tbl_name]);
+					continue;
+				}
+				
+				$select_sql .= sprintf(", cf_%d.field_value as cf_%d ",
+					$cf_id,
+					$cf_id
+				);
+				
+				$join_sql .= sprintf("LEFT JOIN custom_field_value cf_%d ON ('%s' = cf_%d.source_extension AND tt.id=cf_%d.source_id AND cf_%d.field_id=%d) ",
+					$cf_id,
+					ChCustomFieldSource_TimeEntry::ID,
+					$cf_id,
+					$cf_id,
+					$cf_id,
+					$cf_id
+				);
+			}
+		}
+		
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "");
 			
@@ -380,7 +414,7 @@ class SearchFields_TimeTrackingEntry {
 	 */
 	static function getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
-		return array(
+		$columns = array(
 			self::ID => new DevblocksSearchField(self::ID, 'tt', 'id', null, $translate->_('timetracking_entry.id')),
 			self::TIME_ACTUAL_MINS => new DevblocksSearchField(self::TIME_ACTUAL_MINS, 'tt', 'time_actual_mins', null, $translate->_('timetracking_entry.time_actual_mins')),
 			self::LOG_DATE => new DevblocksSearchField(self::LOG_DATE, 'tt', 'log_date', null, $translate->_('timetracking_entry.log_date')),
@@ -393,6 +427,16 @@ class SearchFields_TimeTrackingEntry {
 			
 			self::ORG_NAME => new DevblocksSearchField(self::ORG_NAME, 'o', 'name', null, $translate->_('contact_org.name')),
 		);
+		
+		// Custom Fields
+		$fields = DAO_CustomField::getBySource(ChCustomFieldSource_TimeEntry::ID);
+		if(is_array($fields))
+		foreach($fields as $field_id => $field) {
+			$key = 'cf_'.$field_id;
+			$columns[$key] = new DevblocksSearchField($key,$key,'field_value',null,$field->name);
+		}
+		
+		return $columns;
 	}
 };
 
@@ -417,6 +461,7 @@ class C4_TimeTrackingEntryView extends C4_AbstractView {
 
 	function getData() {
 		$objects = DAO_TimeTrackingEntry::search(
+			$this->view_columns,
 			$this->params,
 			$this->renderLimit,
 			$this->renderPage,
@@ -483,7 +528,32 @@ class C4_TimeTrackingEntryView extends C4_AbstractView {
 				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.timetracking/templates/timetracking/criteria/source.tpl.php');
 				break;
 			default:
-				echo '';
+				// Custom Fields
+				if(substr($field,0,3)=='cf_') {
+					$tpl_path = DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/';
+					
+					$cfield_id = substr($field,3);
+					$cfield = DAO_CustomField::get($cfield_id);
+					switch($cfield->type) {
+						case Model_CustomField::TYPE_DROPDOWN:
+							$tpl->assign('cfield', $cfield);
+							$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__cfield_dropdown.tpl.php');
+							break;
+						case Model_CustomField::TYPE_CHECKBOX:
+							$tpl->assign('cfield', $cfield);
+							$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__cfield_checkbox.tpl.php');
+							break;
+						case Model_CustomField::TYPE_DATE:
+							$tpl->assign('cfield', $cfield);
+							$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__cfield_date.tpl.php');
+							break;
+						default:
+							$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__string.tpl.php');
+							break;
+					}
+				} else {
+					echo ' ';
+				}
 				break;
 		}
 	}
@@ -614,6 +684,43 @@ class C4_TimeTrackingEntryView extends C4_AbstractView {
 			case SearchFields_TimeTrackingEntry::SOURCE_EXTENSION_ID:
 				@$source_ids = DevblocksPlatform::importGPC($_REQUEST['source_ids'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field,$oper,$source_ids);
+				break;
+			default:
+				// Custom Fields
+				if(substr($field,0,3)=='cf_') {
+					$cfield_id = substr($field,3);
+					$cfield = DAO_CustomField::get($cfield_id);
+					switch($cfield->type) {
+						case Model_CustomField::TYPE_DROPDOWN:
+							@$options = DevblocksPlatform::importGPC($_POST['options'],'array',array());
+							if(!empty($options)) {
+								$criteria = new DevblocksSearchCriteria($field,$oper,$options);
+							} else {
+								$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IS_NULL);
+							}
+							break;
+						case Model_CustomField::TYPE_CHECKBOX:
+							$check = !empty($value) ? 1 : 0;
+							$criteria = new DevblocksSearchCriteria($field,$oper,$check);
+							break;
+						case Model_CustomField::TYPE_DATE:
+							@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','');
+							@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
+			
+							if(empty($from)) $from = 0;
+							if(empty($to)) $to = 'today';
+			
+							$criteria = new DevblocksSearchCriteria($field,$oper,array($from,$to));
+							break;
+						default:
+							if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
+							&& false === (strpos($value,'*'))) {
+								$value = '*'.$value.'*';
+							}
+							$criteria = new DevblocksSearchCriteria($field,$oper,$value);
+							break;
+					}
+				}
 				break;
 		}
 
@@ -1080,6 +1187,17 @@ class ChTimeTrackingAjaxController extends DevblocksControllerExtension {
 		$nonbillable_activities = DAO_TimeTrackingActivity::getWhere(sprintf("%s=0",DAO_TimeTrackingActivity::RATE));
 		$tpl->assign('nonbillable_activities', $nonbillable_activities);
 		
+		// Custom fields
+		$time_fields = DAO_CustomField::getBySource(ChCustomFieldSource_TimeEntry::ID); 
+		$tpl->assign('time_fields', $time_fields);
+
+		$time_field_values = DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_TimeEntry::ID, $id);
+		if(isset($time_field_values[$id]))
+			$tpl->assign('time_field_values', $time_field_values[$id]);
+		
+		$types = Model_CustomField::getTypes();
+		$tpl->assign('types', $types);
+		
 		$tpl->display('file:' . $tpl_path . 'timetracking/rpc/time_entry_panel.tpl.php');
 	}
 	
@@ -1140,12 +1258,9 @@ class ChTimeTrackingAjaxController extends DevblocksControllerExtension {
 		}
 		
 		if(empty($id)) { // create
-			DAO_TimeTrackingEntry::create($fields);
-		} else { // modify
-			DAO_TimeTrackingEntry::update($id, $fields);
-		}
-		
-		if(empty($id)) {// only on new // [TODO] Cleanup
+			$id = DAO_TimeTrackingEntry::create($fields);
+			
+			// Procedurally create a comment
 			$translate = DevblocksPlatform::getTranslationService();
 			switch($source_extension_id) {
 				// If ticket, add a comment about the timeslip to the ticket
@@ -1191,7 +1306,14 @@ class ChTimeTrackingAjaxController extends DevblocksControllerExtension {
 					}
 					break;
 			}
+			
+		} else { // modify
+			DAO_TimeTrackingEntry::update($id, $fields);
 		}
+		
+		// Custom field saves
+		@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
+		DAO_CustomFieldValue::handleFormPost(ChCustomFieldSource_TimeEntry::ID, $id, $field_ids);
 	}
 	
 	function clearEntryAction() {

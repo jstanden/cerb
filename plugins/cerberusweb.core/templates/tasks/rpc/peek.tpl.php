@@ -12,6 +12,8 @@
 <input type="hidden" name="view_id" value="{$view_id}">
 <input type="hidden" name="do_delete" value="0">
 
+<div style="height:350px;overflow:auto;margin:2px;padding:3px;">
+
 <table cellpadding="0" cellspacing="2" border="0" width="98%">
 	{if !empty($link_namespace) && !empty($link_object_id)}
 	<tr>
@@ -78,6 +80,42 @@
 		</td>
 	</tr>
 </table>
+
+<table cellpadding="0" cellspacing="2" border="0" width="98%">
+	<!-- Custom Fields -->
+	<tr>
+		<td colspan="2" align="center">&nbsp;</td>
+	</tr>
+	{foreach from=$task_fields item=f key=f_id}
+		<tr>
+			<td valign="top" width="25%" align="right">
+				<input type="hidden" name="field_ids[]" value="{$f_id}">
+				<span style="font-size:90%;">{$f->name}:</span>
+			</td>
+			<td valign="top" width="75%">
+				{if $f->type=='S'}
+					<input type="text" name="field_{$f_id}" size="45" maxlength="255" value="{$task_field_values.$f_id}"><br>
+				{elseif $f->type=='T'}
+					<textarea name="field_{$f_id}" rows="4" cols="50" style="width:98%;">{$task_field_values.$f_id}</textarea><br>
+				{elseif $f->type=='C'}
+					<input type="checkbox" name="field_{$f_id}" value="1" {if $task_field_values.$f_id}checked{/if}><br>
+				{elseif $f->type=='D'}
+					<select name="field_{$f_id}">{* [TODO] Fix selected *}
+						<option value=""></option>
+						{foreach from=$f->options item=opt}
+						<option value="{$opt|escape}" {if $opt==$task_field_values.$f_id}selected{/if}>{$opt}</option>
+						{/foreach}
+					</select><br>
+				{elseif $f->type=='E'}
+					<input type="text" name="field_{$f_id}" size="30" maxlength="255" value="{if !empty($task_field_values.$f_id)}{$task_field_values.$f_id|devblocks_date}{/if}"><button type="button" onclick="ajax.getDateChooser('dateCustom{$f_id}',this.form.field_{$f_id});">&nbsp;<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/calendar.gif{/devblocks_url}" align="top">&nbsp;</button>
+					<div id="dateCustom{$f_id}" style="display:none;position:absolute;z-index:1;"></div>
+				{/if}	
+			</td>
+		</tr>
+	{/foreach}
+</table>
+
+</div>
 
 <button type="button" onclick="genericPanel.hide();genericAjaxPost('formTaskPeek', 'view{$view_id}')"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')}</button>
 {if !empty($task) && ($active_worker->is_superuser || $active_worker->id == $task->worker_id)}

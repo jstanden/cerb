@@ -184,6 +184,19 @@
 			<params>
 			</params>
 		</extension>
+		
+		<!-- Custom Field Source -->
+		 
+		<extension point="cerberusweb.fields.source">
+			<id>feedback.fields.source.feedback_entry</id>
+			<name>Feedback</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChCustomFieldSource_FeedbackEntry</name>
+			</class>
+			<params>
+			</params>
+		</extension>
 		 
 		<!-- Tabs -->
 		 

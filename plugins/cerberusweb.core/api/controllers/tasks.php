@@ -111,6 +111,18 @@ class ChTasksController extends DevblocksControllerExtension {
 		$workers = DAO_Worker::getAllActive();
 		$tpl->assign('workers', $workers);
 		
+		// Custom fields
+		$task_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Task::ID); 
+		$tpl->assign('task_fields', $task_fields);
+
+		$task_field_values = DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Task::ID, $id);
+		if(isset($task_field_values[$id]))
+			$tpl->assign('task_field_values', $task_field_values[$id]);
+		
+		$types = Model_CustomField::getTypes();
+		$tpl->assign('types', $types);
+
+		// View
 		$tpl->assign('id', $id);
 		$tpl->assign('view_id', $view_id);
 		$tpl->display('file:' . $path . 'tasks/rpc/peek.tpl.php');
@@ -179,6 +191,10 @@ class ChTasksController extends DevblocksControllerExtension {
 			} else {
 				$id = DAO_Task::create($fields);
 
+				// Custom field saves
+				@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
+				DAO_CustomFieldValue::handleFormPost(ChCustomFieldSource_Task::ID, $id, $field_ids);
+				
 				// Write a notification (if not assigned to ourselves)
 //				$url_writer = DevblocksPlatform::getUrlService();
 				$source_extensions = DevblocksPlatform::getExtensions('cerberusweb.task.source', true);

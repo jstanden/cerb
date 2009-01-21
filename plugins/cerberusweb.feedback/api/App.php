@@ -11,6 +11,10 @@ class ChFeedbackPlugin extends DevblocksPlugin {
 	}
 };
 
+class ChCustomFieldSource_FeedbackEntry extends Extension_CustomFieldSource {
+	const ID = 'feedback.fields.source.feedback_entry';
+};
+
 class ChFeedbackPatchContainer extends DevblocksPatchContainerExtension {
 	function __construct($manifest) {
 		parent::__construct($manifest);
@@ -190,10 +194,10 @@ class DAO_FeedbackEntry extends DevblocksORMHelper {
      * @param boolean $withCounts
      * @return array
      */
-    static function search($params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
+    static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
 
-        list($tables,$wheres) = parent::_parseSearchParams($params, array(),SearchFields_FeedbackEntry::getFields());
+        list($tables,$wheres) = parent::_parseSearchParams($params, $columns,SearchFields_FeedbackEntry::getFields());
 		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
 		
 		$select_sql = sprintf("SELECT ".
@@ -225,6 +229,36 @@ class DAO_FeedbackEntry extends DevblocksORMHelper {
 //			(isset($tables['o']) ? "LEFT JOIN contact_org o ON (o.id=tt.debit_org_id)" : " ").
 //			(isset($tables['mc']) ? "INNER JOIN message_content mc ON (mc.message_id=m.id)" : " ").
 
+		// Custom field joins
+		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_FeedbackEntry::ID);
+		
+		foreach($tables as $tbl_name => $null) {
+			if(substr($tbl_name,0,3)!="cf_")
+				continue;
+				
+			if(0 != ($cf_id = intval(substr($tbl_name,3)))) {
+				// Make sure our custom fields still exist
+				if(!isset($custom_fields[$cf_id])) {
+					unset($tables[$tbl_name]);
+					continue;
+				}
+				
+				$select_sql .= sprintf(", cf_%d.field_value as cf_%d ",
+					$cf_id,
+					$cf_id
+				);
+				
+				$join_sql .= sprintf("LEFT JOIN custom_field_value cf_%d ON ('%s' = cf_%d.source_extension AND f.id=cf_%d.source_id AND cf_%d.field_id=%d) ",
+					$cf_id,
+					ChCustomFieldSource_FeedbackEntry::ID,
+					$cf_id,
+					$cf_id,
+					$cf_id,
+					$cf_id
+				);
+			}
+		}
+		
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "");
 			
@@ -291,7 +325,7 @@ class SearchFields_FeedbackEntry {
 	 */
 	static function getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
-		return array(
+		$columns = array(
 			self::ID => new DevblocksSearchField(self::ID, 'f', 'id', null, $translate->_('feedback_entry.id')),
 			self::LOG_DATE => new DevblocksSearchField(self::LOG_DATE, 'f', 'log_date', null, $translate->_('feedback_entry.log_date')),
 			self::LIST_ID => new DevblocksSearchField(self::LIST_ID, 'f', 'list_id', null, $translate->_('feedback_entry.list_id')),
@@ -303,6 +337,16 @@ class SearchFields_FeedbackEntry {
 			
 			self::ADDRESS_EMAIL => new DevblocksSearchField(self::ADDRESS_EMAIL, 'a', 'email', null, $translate->_('feedback_entry.quote_address')),
 		);
+		
+		// Custom Fields
+		$fields = DAO_CustomField::getBySource(ChCustomFieldSource_FeedbackEntry::ID);
+		if(is_array($fields))
+		foreach($fields as $field_id => $field) {
+			$key = 'cf_'.$field_id;
+			$columns[$key] = new DevblocksSearchField($key,$key,'field_value',null,$field->name);
+		}
+		
+		return $columns;
 	}
 };
 
@@ -330,6 +374,7 @@ class C4_FeedbackEntryView extends C4_AbstractView {
 
 	function getData() {
 		$objects = DAO_FeedbackEntry::search(
+			$this->view_columns,
 			$this->params,
 			$this->renderLimit,
 			$this->renderPage,
@@ -386,7 +431,32 @@ class C4_FeedbackEntryView extends C4_AbstractView {
 				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.feedback/templates/feedback/criteria/list.tpl.php');
 				break;
 			default:
-				echo '';
+				// Custom Fields
+				if(substr($field,0,3)=='cf_') {
+					$tpl_path = DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/';
+					
+					$cfield_id = substr($field,3);
+					$cfield = DAO_CustomField::get($cfield_id);
+					switch($cfield->type) {
+						case Model_CustomField::TYPE_DROPDOWN:
+							$tpl->assign('cfield', $cfield);
+							$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__cfield_dropdown.tpl.php');
+							break;
+						case Model_CustomField::TYPE_CHECKBOX:
+							$tpl->assign('cfield', $cfield);
+							$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__cfield_checkbox.tpl.php');
+							break;
+						case Model_CustomField::TYPE_DATE:
+							$tpl->assign('cfield', $cfield);
+							$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__cfield_date.tpl.php');
+							break;
+						default:
+							$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__string.tpl.php');
+							break;
+					}
+				} else {
+					echo ' ';
+				}
 				break;
 		}
 	}
@@ -518,6 +588,43 @@ class C4_FeedbackEntryView extends C4_AbstractView {
 			case SearchFields_FeedbackEntry::LIST_ID:
 				@$list_ids = DevblocksPlatform::importGPC($_REQUEST['list_ids'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field,$oper,$list_ids);
+				break;
+			default:
+				// Custom Fields
+				if(substr($field,0,3)=='cf_') {
+					$cfield_id = substr($field,3);
+					$cfield = DAO_CustomField::get($cfield_id);
+					switch($cfield->type) {
+						case Model_CustomField::TYPE_DROPDOWN:
+							@$options = DevblocksPlatform::importGPC($_POST['options'],'array',array());
+							if(!empty($options)) {
+								$criteria = new DevblocksSearchCriteria($field,$oper,$options);
+							} else {
+								$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IS_NULL);
+							}
+							break;
+						case Model_CustomField::TYPE_CHECKBOX:
+							$check = !empty($value) ? 1 : 0;
+							$criteria = new DevblocksSearchCriteria($field,$oper,$check);
+							break;
+						case Model_CustomField::TYPE_DATE:
+							@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','');
+							@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
+			
+							if(empty($from)) $from = 0;
+							if(empty($to)) $to = 'today';
+			
+							$criteria = new DevblocksSearchCriteria($field,$oper,array($from,$to));
+							break;
+						default:
+							if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
+							&& false === (strpos($value,'*'))) {
+								$value = '*'.$value.'*';
+							}
+							$criteria = new DevblocksSearchCriteria($field,$oper,$value);
+							break;
+					}
+				}
 				break;
 		}
 
@@ -868,6 +975,17 @@ class ChFeedbackController extends DevblocksControllerExtension {
 		$lists = DAO_FeedbackList::getWhere();
 		$tpl->assign('lists', $lists);
 		
+		// Custom fields
+		$feedback_fields = DAO_CustomField::getBySource(ChCustomFieldSource_FeedbackEntry::ID); 
+		$tpl->assign('feedback_fields', $feedback_fields);
+
+		$feedback_field_values = DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_FeedbackEntry::ID, $id);
+		if(isset($feedback_field_values[$id]))
+			$tpl->assign('feedback_field_values', $feedback_field_values[$id]);
+		
+		$types = Model_CustomField::getTypes();
+		$tpl->assign('types', $types);
+		
 		$tpl->display('file:' . $this->plugin_path . '/templates/feedback/ajax/feedback_entry_panel.tpl.php');
 	}
 	
@@ -961,6 +1079,10 @@ class ChFeedbackController extends DevblocksControllerExtension {
 		} else { // modify
 			DAO_FeedbackEntry::update($id, $fields);
 		}
+		
+		// Custom field saves
+		@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
+		DAO_CustomFieldValue::handleFormPost(ChCustomFieldSource_FeedbackEntry::ID, $id, $field_ids);
 	}
 };
 

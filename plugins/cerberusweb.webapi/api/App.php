@@ -2209,6 +2209,7 @@ class Rest_TasksController extends Ch_RestController {
 		}
 
 		list($tasks, $null) = DAO_Task::search(
+			array(),
 			$params,
 			50,
 			$p_page,
@@ -2226,6 +2227,7 @@ class Rest_TasksController extends Ch_RestController {
 			$this->_error("ID was not provided.");
 
 		list($results, $null) = DAO_Task::search(
+			array(),
 			$params,
 			1,
 			0,
@@ -2244,6 +2246,7 @@ class Rest_TasksController extends Ch_RestController {
 		@$p_page = DevblocksPlatform::importGPC($_REQUEST['p'],'integer',0);		
 		
 		list($tasks,$null) = DAO_Task::search(
+			array(),
 			$params,
 			50,
 			$p_page,

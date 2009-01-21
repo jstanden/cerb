@@ -6,6 +6,8 @@
 
 <h1>{$translate->_('timetracking.ui.timetracking')}</h1>
 
+<div style="height:350px;overflow:auto;margin:2px;padding:3px;">
+
 <table cellpadding="2" cellspacing="0" width="100%">
 	<tr>
 		<td width="1%" nowrap="nowrap"><b>{$translate->_('timetracking.ui.entry_panel.activity')}</b></td>
@@ -47,6 +49,40 @@
 </div>
 <br>
 
+<table cellpadding="0" cellspacing="2" border="0" width="98%">
+	<!-- Custom Fields -->
+	<tr>
+		<td colspan="2" align="center">&nbsp;</td>
+	</tr>
+	{foreach from=$time_fields item=f key=f_id}
+		<tr>
+			<td valign="top" width="25%" align="right">
+				<input type="hidden" name="field_ids[]" value="{$f_id}">
+				<span style="font-size:90%;">{$f->name}:</span>
+			</td>
+			<td valign="top" width="75%">
+				{if $f->type=='S'}
+					<input type="text" name="field_{$f_id}" size="45" maxlength="255" value="{$time_field_values.$f_id}"><br>
+				{elseif $f->type=='T'}
+					<textarea name="field_{$f_id}" rows="4" cols="50" style="width:98%;">{$time_field_values.$f_id}</textarea><br>
+				{elseif $f->type=='C'}
+					<input type="checkbox" name="field_{$f_id}" value="1" {if $time_field_values.$f_id}checked{/if}><br>
+				{elseif $f->type=='D'}
+					<select name="field_{$f_id}">{* [TODO] Fix selected *}
+						<option value=""></option>
+						{foreach from=$f->options item=opt}
+						<option value="{$opt|escape}" {if $opt==$time_field_values.$f_id}selected{/if}>{$opt}</option>
+						{/foreach}
+					</select><br>
+				{elseif $f->type=='E'}
+					<input type="text" name="field_{$f_id}" size="30" maxlength="255" value="{if !empty($time_field_values.$f_id)}{$time_field_values.$f_id|devblocks_date}{/if}"><button type="button" onclick="ajax.getDateChooser('dateCustom{$f_id}',this.form.field_{$f_id});">&nbsp;<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/calendar.gif{/devblocks_url}" align="top">&nbsp;</button>
+					<div id="dateCustom{$f_id}" style="display:none;position:absolute;z-index:1;"></div>
+				{/if}	
+			</td>
+		</tr>
+	{/foreach}
+</table>
+
 {if !empty($source)}
 <b>{$translate->_('timetracking.ui.entry_panel.reference')}</b><br>
 <input type="hidden" name="source_extension_id" value="{$model->source_extension_id}">
@@ -54,6 +90,8 @@
 <a href="{$source->getLink($model->source_id)}" target="_blank">{$source->getLinkText($model->source_id)}</a><br>
 <br>
 {/if}
+
+</div>
 
 {if empty($model->id)}
 <button type="button" onclick="genericAjaxPost('frmTimeEntry','','c=timetracking&a=saveEntry',{literal}function(o){timeTrackingTimer.finish();}{/literal});"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('timetracking.ui.entry_panel.save_finish')}</button>

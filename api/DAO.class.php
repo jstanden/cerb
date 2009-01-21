@@ -1582,7 +1582,6 @@ class SearchFields_Address implements IDevblocksSearchFields {
 		
 		// Custom Fields
 		$fields = DAO_CustomField::getBySource(ChCustomFieldSource_Address::ID);
-
 		if(is_array($fields))
 		foreach($fields as $field_id => $field) {
 			$key = 'cf_'.$field_id;
@@ -6946,10 +6945,10 @@ class DAO_Task extends DevblocksORMHelper {
      * @param boolean $withCounts
      * @return array
      */
-    static function search($params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
+    static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
 
-        list($tables,$wheres) = parent::_parseSearchParams($params, array(),SearchFields_Task::getFields());
+        list($tables,$wheres) = parent::_parseSearchParams($params, $columns, SearchFields_Task::getFields());
 		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
 		
 		$select_sql = sprintf("SELECT ".
@@ -6984,6 +6983,36 @@ class DAO_Task extends DevblocksORMHelper {
 //			(isset($tables['o']) ? "LEFT JOIN contact_org o ON (o.id=a.contact_org_id)" : " ").
 //			(isset($tables['mc']) ? "INNER JOIN message_content mc ON (mc.message_id=m.id)" : " ").
 
+		// Custom field joins
+		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Task::ID);
+		
+		foreach($tables as $tbl_name => $null) {
+			if(substr($tbl_name,0,3)!="cf_")
+				continue;
+				
+			if(0 != ($cf_id = intval(substr($tbl_name,3)))) {
+				// Make sure our custom fields still exist
+				if(!isset($custom_fields[$cf_id])) {
+					unset($tables[$tbl_name]);
+					continue;
+				}
+				
+				$select_sql .= sprintf(", cf_%d.field_value as cf_%d ",
+					$cf_id,
+					$cf_id
+				);
+				
+				$join_sql .= sprintf("LEFT JOIN custom_field_value cf_%d ON ('%s' = cf_%d.source_extension AND t.id=cf_%d.source_id AND cf_%d.field_id=%d) ",
+					$cf_id,
+					ChCustomFieldSource_Task::ID,
+					$cf_id,
+					$cf_id,
+					$cf_id,
+					$cf_id
+				);
+			}
+		}
+		
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "");
 			
@@ -7035,7 +7064,7 @@ class SearchFields_Task implements IDevblocksSearchFields {
 	 */
 	static function getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
-		return array(
+		$columns = array(
 			self::ID => new DevblocksSearchField(self::ID, 't', 'id', null, $translate->_('task.id')),
 			self::TITLE => new DevblocksSearchField(self::TITLE, 't', 'title', null, $translate->_('task.title')),
 			self::PRIORITY => new DevblocksSearchField(self::PRIORITY, 't', 'priority', null, $translate->_('task.priority')),
@@ -7047,6 +7076,16 @@ class SearchFields_Task implements IDevblocksSearchFields {
 			self::SOURCE_EXTENSION => new DevblocksSearchField(self::SOURCE_EXTENSION, 't', 'source_extension', null, $translate->_('task.source_extension')),
 			self::SOURCE_ID => new DevblocksSearchField(self::SOURCE_ID, 't', 'source_id', null, $translate->_('task.source_id')),
 		);
+		
+		// Custom Fields
+		$fields = DAO_CustomField::getBySource(ChCustomFieldSource_Task::ID);
+		if(is_array($fields))
+		foreach($fields as $field_id => $field) {
+			$key = 'cf_'.$field_id;
+			$columns[$key] = new DevblocksSearchField($key,$key,'field_value',null,$field->name);
+		}
+		
+		return $columns;
 	}
 };
 
