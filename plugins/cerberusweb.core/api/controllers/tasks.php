@@ -190,10 +190,6 @@ class ChTasksController extends DevblocksControllerExtension {
 				
 			} else {
 				$id = DAO_Task::create($fields);
-
-				// Custom field saves
-				@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
-				DAO_CustomFieldValue::handleFormPost(ChCustomFieldSource_Task::ID, $id, $field_ids);
 				
 				// Write a notification (if not assigned to ourselves)
 //				$url_writer = DevblocksPlatform::getUrlService();
@@ -224,6 +220,10 @@ class ChTasksController extends DevblocksControllerExtension {
 					}
 				}
 			}
+			
+			// Custom field saves
+			@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
+			DAO_CustomFieldValue::handleFormPost(ChCustomFieldSource_Task::ID, $id, $field_ids);
 		}
 		
 		if(!empty($view_id) && null != ($view = C4_AbstractViewLoader::getView('', $view_id))) {
