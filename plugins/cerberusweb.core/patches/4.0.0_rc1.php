@@ -546,37 +546,69 @@ if(!isset($indexes['source_id'])) {
 // Migrate some fields out of core and into custom fields to clean concepts up
 // ===========================================================================
 
-// `contact_org` ======================
-$columns = $datadict->MetaColumns('contact_org');
-$indexes = $datadict->MetaIndexes('contact_org',false);
-
-if(isset($columns['ACCOUNT_NUMBER'])) {
-	$sql = "SELECT count(id) FROM contact_org WHERE account_number != ''";
-	$count = $db->GetOne($sql);
+	// `address` ======================
+	$columns = $datadict->MetaColumns('address');
+	$indexes = $datadict->MetaIndexes('address',false);
 	
-	if(!empty($count)) { // Move to a custom field before dropping
-		// Create the new custom field
-		$field_id = $db->GenID('custom_field_seq');
-		$sql = sprintf("INSERT INTO custom_field (id,name,type,group_id,pos,options,source_extension) ".
-			"VALUES (%d,'Account #','S',0,0,'',%s)",
-			$field_id,
-			$db->qstr('cerberusweb.fields.source.org')
-		);
-		$db->Execute($sql);
+	if(isset($columns['PHONE'])) {
+		$sql = "SELECT count(id) FROM address WHERE phone != ''";
+		$count = $db->GetOne($sql);
 		
-		// Populate the custom field from org records
-		$sql = sprintf("INSERT INTO custom_field_value (field_id, source_id, field_value, source_extension) ".
-			"SELECT %d, id, account_number, %s FROM contact_org",
-			$field_id,
-			$db->qstr('cerberusweb.fields.source.org')
-		);
-		$db->Execute($sql);
+		if(!empty($count)) { // Move to a custom field before dropping
+			// Create the new custom field
+			$field_id = $db->GenID('custom_field_seq');
+			$sql = sprintf("INSERT INTO custom_field (id,name,type,group_id,pos,options,source_extension) ".
+				"VALUES (%d,'Phone','S',0,0,'',%s)",
+				$field_id,
+				$db->qstr('cerberusweb.fields.source.address')
+			);
+			$db->Execute($sql);
+			
+			// Populate the custom field from org records
+			$sql = sprintf("INSERT INTO custom_field_value (field_id, source_id, field_value, source_extension) ".
+				"SELECT %d, id, phone, %s FROM address WHERE phone != ''",
+				$field_id,
+				$db->qstr('cerberusweb.fields.source.address')
+			);
+			$db->Execute($sql);
+		}
+		
+		// Drop the account number hardcoded column
+		$sql = $datadict->DropColumnSQL('address','phone');
+		$datadict->ExecuteSQLArray($sql);
 	}
 	
-	// Drop the account number hardcoded column
-	$sql = $datadict->DropColumnSQL('contact_org','account_number');
-	$datadict->ExecuteSQLArray($sql);
-}
+	// `contact_org` ======================
+	$columns = $datadict->MetaColumns('contact_org');
+	$indexes = $datadict->MetaIndexes('contact_org',false);
+	
+	if(isset($columns['ACCOUNT_NUMBER'])) {
+		$sql = "SELECT count(id) FROM contact_org WHERE account_number != ''";
+		$count = $db->GetOne($sql);
+		
+		if(!empty($count)) { // Move to a custom field before dropping
+			// Create the new custom field
+			$field_id = $db->GenID('custom_field_seq');
+			$sql = sprintf("INSERT INTO custom_field (id,name,type,group_id,pos,options,source_extension) ".
+				"VALUES (%d,'Account #','S',0,0,'',%s)",
+				$field_id,
+				$db->qstr('cerberusweb.fields.source.org')
+			);
+			$db->Execute($sql);
+			
+			// Populate the custom field from org records
+			$sql = sprintf("INSERT INTO custom_field_value (field_id, source_id, field_value, source_extension) ".
+				"SELECT %d, id, account_number, %s FROM contact_org WHERE account_number != ''",
+				$field_id,
+				$db->qstr('cerberusweb.fields.source.org')
+			);
+			$db->Execute($sql);
+		}
+		
+		// Drop the account number hardcoded column
+		$sql = $datadict->DropColumnSQL('contact_org','account_number');
+		$datadict->ExecuteSQLArray($sql);
+	}
 
 // `view_rss` ======================
 if(!isset($tables['view_rss']) && isset($tables['ticket_rss'])) {

@@ -740,7 +740,6 @@ class CrmPage extends CerberusPageExtension {
 			$in_org_name = trim((string) $opp->contact->org_name);
 			$in_first_name = trim((string) $opp->contact->first_name);
 			$in_last_name = trim((string) $opp->contact->last_name);
-			$in_phone = (string) $opp->contact->phone;
 			
 			// Set a default name if we only have email addresses
 			if(empty($in_name)) {
@@ -786,12 +785,6 @@ class CrmPage extends CerberusPageExtension {
 							$update_fields[DAO_Address::LAST_NAME] = $in_last_name;
 						}
 						
-						// Phone sync
-						$check_phone = $in_address->phone;
-						if(empty($check_phone) && !empty($in_phone)) {
-							$update_fields[DAO_Address::PHONE] = $in_phone;
-						}
-
 						if(!empty($update_fields))
 							DAO_Address::update($in_email_id, $update_fields);
 							
@@ -1116,7 +1109,6 @@ class DAO_CrmOpportunity extends DevblocksORMHelper {
 			    SearchFields_CrmOpportunity::ORG_WEBSITE,
 			    SearchFields_CrmOpportunity::PRIMARY_EMAIL_ID,
 			    SearchFields_CrmOpportunity::EMAIL_ADDRESS,
-			    SearchFields_CrmOpportunity::CONTACT_PHONE,
 			    SearchFields_CrmOpportunity::CREATED_DATE,
 			    SearchFields_CrmOpportunity::UPDATED_DATE,
 			    SearchFields_CrmOpportunity::CLOSED_DATE,
@@ -1179,7 +1171,6 @@ class SearchFields_CrmOpportunity implements IDevblocksSearchFields {
 	const ORG_WEBSITE = 'org_website';
 
 	const EMAIL_ADDRESS = 'a_email';
-	const CONTACT_PHONE = 'a_phone';
 	
 	/**
 	 * @return DevblocksSearchField[]
@@ -1207,7 +1198,6 @@ class SearchFields_CrmOpportunity implements IDevblocksSearchFields {
 			self::ORG_WEBSITE => new DevblocksSearchField(self::ORG_WEBSITE, 'org', 'website', null, $translate->_('crm.opportunity.org_website')),
 			
 			self::EMAIL_ADDRESS => new DevblocksSearchField(self::EMAIL_ADDRESS, 'a', 'email', null, $translate->_('crm.opportunity.email_address')),
-			self::CONTACT_PHONE => new DevblocksSearchField(self::CONTACT_PHONE, 'a', 'phone', null, $translate->_('crm.opportunity.contact_phone')),
 		);
 	}
 };	
@@ -1651,7 +1641,6 @@ class C4_CrmOpportunityView extends C4_AbstractView {
 			case SearchFields_CrmOpportunity::ORG_NAME:
 			case SearchFields_CrmOpportunity::ORG_WEBSITE:
 			case SearchFields_CrmOpportunity::EMAIL_ADDRESS:
-			case SearchFields_CrmOpportunity::CONTACT_PHONE:
 				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__string.tpl.php');
 				break;
 				
@@ -1765,7 +1754,6 @@ class C4_CrmOpportunityView extends C4_AbstractView {
 			case SearchFields_CrmOpportunity::ORG_NAME:
 			case SearchFields_CrmOpportunity::ORG_WEBSITE:
 			case SearchFields_CrmOpportunity::EMAIL_ADDRESS:
-			case SearchFields_CrmOpportunity::CONTACT_PHONE:
 				// force wildcards if none used on a LIKE
 				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
 				&& false === (strpos($value,'*'))) {

@@ -29,10 +29,6 @@
 					<td><input type="text" name="contact_lastname" size="45" maxlength="255" style="width:98%;" value="{$model->contact_lastname|escape}"></td>
 				</tr>
 				<tr>
-					<td>Phone:</td>
-					<td><input type="text" name="contact_phone" size="45" maxlength="255" style="width:98%;" value="{$model->contact_phone|escape}"></td>
-				</tr>
-				<tr>
 					<td>Organization:</td>
 					<td>
 						<div id="contactautocomplete" style="width:98%;margin-bottom:5px;" class="yui-ac">

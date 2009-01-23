@@ -906,7 +906,6 @@ class ImportCron extends CerberusCronPageExtension {
 		$sLastName = (string) $xml->last_name;
 		$sEmail = (string) $xml->email;
 		$sPassword = (string) $xml->password;
-		$sPhone = (string) $xml->phone;
 		$sOrganization = (string) $xml->organization;
 		
 		// Dupe check org
@@ -921,7 +920,6 @@ class ImportCron extends CerberusCronPageExtension {
 			DAO_Address::FIRST_NAME => $sFirstName,
 			DAO_Address::LAST_NAME => $sLastName,
 			DAO_Address::EMAIL => $sEmail,
-			DAO_Address::PHONE => $sPhone,
 		);
 		$address_id = DAO_Address::create($fields);
 

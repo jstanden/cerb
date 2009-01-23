@@ -526,7 +526,6 @@ class Rest_AddressesController extends Ch_RestController {
 			'a_first_name' => 'first_name',
 			'a_last_name' => 'last_name',
 			'a_contact_org_id' => 'contact_org_id',
-			'a_phone' => 'phone',
 			'a_num_spam' => null,
 			'a_num_nonspam' => null,
 			'a_is_banned' => 'is_banned',
@@ -551,7 +550,6 @@ class Rest_AddressesController extends Ch_RestController {
 				return (is_array($addr_array) && count($addr_array) > 0) ? true : false;
 			case 'first_name':
 			case 'last_name':
-			case 'phone':
 				return !empty($value) ? true : false;
 			default:
 				return false;

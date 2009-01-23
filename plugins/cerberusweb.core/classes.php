@@ -5363,7 +5363,6 @@ class ChContactsPage extends CerberusPageExtension {
 		@$email = trim(DevblocksPlatform::importGPC($_REQUEST['email'],'string',''));
 		@$first_name = trim(DevblocksPlatform::importGPC($_REQUEST['first_name'],'string',''));
 		@$last_name = trim(DevblocksPlatform::importGPC($_REQUEST['last_name'],'string',''));
-		@$phone = trim(DevblocksPlatform::importGPC($_REQUEST['phone'],'string',''));
 		@$contact_org = trim(DevblocksPlatform::importGPC($_REQUEST['contact_org'],'string',''));
 		@$sla_id = DevblocksPlatform::importGPC($_REQUEST['sla_id'],'integer',0);
 		@$is_banned = DevblocksPlatform::importGPC($_REQUEST['is_banned'],'integer',0);
@@ -5384,7 +5383,6 @@ class ChContactsPage extends CerberusPageExtension {
 			DAO_Address::FIRST_NAME => $first_name,
 			DAO_Address::LAST_NAME => $last_name,
 			DAO_Address::CONTACT_ORG_ID => $contact_org_id,
-			DAO_Address::PHONE => $phone,
 			DAO_Address::SLA_ID => $sla_id,
 			DAO_Address::IS_BANNED => $is_banned,
 		);

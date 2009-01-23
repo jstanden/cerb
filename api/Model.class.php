@@ -491,7 +491,6 @@ class Model_Address {
 	public $email = '';
 	public $first_name = '';
 	public $last_name = '';
-	public $phone = '';
 	public $contact_org_id = 0;
 	public $num_spam = 0;
 	public $num_nonspam = 0;
@@ -1240,7 +1239,6 @@ class C4_AddressView extends C4_AbstractView {
 			SearchFields_Address::FIRST_NAME,
 			SearchFields_Address::LAST_NAME,
 			SearchFields_Address::ORG_NAME,
-			SearchFields_Address::PHONE,
 			SearchFields_Address::SLA_ID,
 			SearchFields_Address::NUM_NONSPAM,
 			SearchFields_Address::NUM_SPAM,
@@ -1290,7 +1288,6 @@ class C4_AddressView extends C4_AbstractView {
 			case SearchFields_Address::FIRST_NAME:
 			case SearchFields_Address::LAST_NAME:
 			case SearchFields_Address::ORG_NAME:
-			case SearchFields_Address::PHONE:
 				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__string.tpl.php');
 				break;
 			case SearchFields_Address::NUM_SPAM:
@@ -1393,7 +1390,6 @@ class C4_AddressView extends C4_AbstractView {
 			case SearchFields_Address::FIRST_NAME:
 			case SearchFields_Address::LAST_NAME:
 			case SearchFields_Address::ORG_NAME:
-			case SearchFields_Address::PHONE:
 				// force wildcards if none used on a LIKE
 				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
 				&& false === (strpos($value,'*'))) {
