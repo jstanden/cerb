@@ -1,11 +1,8 @@
-<div id="tourConfigFields"></div>
-
-<div class="block">
-<form action="{devblocks_url}{/devblocks_url}" method="post">
 <input type="hidden" name="c" value="config">
 <input type="hidden" name="a" value="saveFields">
 <input type="hidden" name="ext_id" value="{$source_manifest->id}">
-<input type="hidden" name="allow_delete" value="0">
+
+<div class="block">
 <h2>{$source_manifest->name} Fields</h2>
 <br>
 
@@ -67,12 +64,6 @@
 </div>
 <br>
 
-<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
-<button type="button" onclick="this.form.allow_delete.value='1';this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete2.gif{/devblocks_url}" align="top"> {'delete checked'|capitalize}</button>
-</form>
+<button id="frmConfigFieldSourceSubmit" type="button" onclick="genericAjaxPost('frmConfigFieldSource','frmConfigFieldSource');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
 </div>
 <br>
-
-<script type="text/javascript">
-	var configAjax = new cConfigAjax();
-</script>

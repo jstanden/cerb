@@ -53,6 +53,7 @@ $db = DevblocksPlatform::getDatabaseService();
 $datadict = NewDataDictionary($db); /* @var $datadict ADODB_DataDict */ // ,'mysql' 
 
 $tables = $datadict->MetaTables();
+$tables = array_flip($tables);
 
 // `timetracking_entry` ========================
 if(!isset($tables['timetracking_entry'])) {

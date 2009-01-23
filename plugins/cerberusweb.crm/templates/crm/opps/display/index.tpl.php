@@ -5,23 +5,13 @@
 	<td valign="top" style="padding-right:5px;">
 		<h1 style="display:inline;">{$opp->name}</h1> (<a href="javascript:;" onclick="genericAjaxPanel('c=crm&a=showOppPanel&view_id=&id={$opp->id}', this, false, '500px');">edit</a>)<br> 
 	
-		{assign var=campaign_id value=$opp->campaign_id}
-		{assign var=campaign_bucket_id value=$opp->campaign_bucket_id}
 		{assign var=opp_worker_id value=$opp->worker_id}
 		
-		<b>Campaign:</b> {$campaigns.$campaign_id->name} &nbsp;
-		<b>Bucket:</b> {if empty($campaign_bucket_id)}Inbox{else}{$buckets.$campaign_bucket_id->name}{/if} &nbsp;
-		<b>E-mail:</b> {$address->first_name} {$address->last_name} &lt;<a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$address->email}&view_id=',null,false,'500px',ajax.cbAddressPeek);">{$address->email}</a>&gt; &nbsp;
-		{*<b>Amount:</b> {$opp->amount|string_format:'%0.2f'} ({$opp->probability}%) &nbsp;*}
-		<b>Created:</b> {$opp->created_date|devblocks_date} &nbsp;
-		<br>
-		
 		<b>Status:</b> {if $opp->is_closed}{if $opp->is_won}Closed/Won{else}Closed/Lost{/if}{else}Open{/if} &nbsp;
+		<b>E-mail:</b> {$address->first_name} {$address->last_name} &lt;<a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$address->email}&view_id=',null,false,'500px',ajax.cbAddressPeek);">{$address->email}</a>&gt; &nbsp;
+		<b>Created:</b> {$opp->created_date|devblocks_date} &nbsp;
 		{if !empty($opp_worker_id) && isset($workers.$opp_worker_id)}
 			<b>Worker:</b> {$workers.$opp_worker_id->getName()} &nbsp;
-		{/if}
-		{if !empty($opp->next_action)}
-			<b>Next Action:</b> {$opp->next_action} &nbsp;
 		{/if}
 		<br>
 		
@@ -44,9 +34,9 @@
 				<td>	
 				<div style="padding:10px;margin-top:0px;border:1px solid rgb(180,180,255);background-color:rgb(245,245,255);text-align:center;">
 					Active list: <b>{$series_stats.title}</b><br>
-					{if !empty($series_stats.prev)}<button style="display:none;visibility:hidden;" id="btnPagePrev" onclick="document.location='{devblocks_url}c=crm&a=opps&d=display&id={$series_stats.prev}{/devblocks_url}';">&laquo;Prev</button><a href="{devblocks_url}c=crm&a=opps&d=display&id={$series_stats.prev}{/devblocks_url}">&laquo;Prev</a>{/if} 
+					{if !empty($series_stats.prev)}<button style="display:none;visibility:hidden;" id="btnPagePrev" onclick="document.location='{devblocks_url}c=crm&a=opps&id={$series_stats.prev}{/devblocks_url}';">&laquo;Prev</button><a href="{devblocks_url}c=crm&a=opps&id={$series_stats.prev}{/devblocks_url}">&laquo;Prev</a>{/if} 
 					 ({$series_stats.cur}-{$series_stats.count} of {$series_stats.total}) 
-					{if !empty($series_stats.next)}<button style="display:none;visibility:hidden;" id="btnPageNext" onclick="document.location='{devblocks_url}c=crm&a=opps&d=display&id={$series_stats.next}{/devblocks_url}';">Next&raquo;</button><a href="{devblocks_url}c=crm&a=opps&d=display&id={$series_stats.next}{/devblocks_url}">Next&raquo;</a>{/if}
+					{if !empty($series_stats.next)}<button style="display:none;visibility:hidden;" id="btnPageNext" onclick="document.location='{devblocks_url}c=crm&a=opps&id={$series_stats.next}{/devblocks_url}';">Next&raquo;</button><a href="{devblocks_url}c=crm&a=opps&id={$series_stats.next}{/devblocks_url}">Next&raquo;</a>{/if}
 				</div>
 				</td>
 			</tr>
@@ -64,17 +54,24 @@
 var tabView = new YAHOO.widget.TabView();
 
 tabView.addTab( new YAHOO.widget.Tab({
-    label: 'Mail History',
-    dataSrc: '{/literal}{devblocks_url}ajax.php?c=crm&a=showOppMailTab&id={$opp->id}{/devblocks_url}{literal}',
+    label: 'Notes',
+    dataSrc: '{/literal}{devblocks_url}ajax.php?c=crm&a=showOppNotesTab&id={$opp->id}{/devblocks_url}{literal}',
     cacheData: true,
-    {/literal}active: {if empty($tab_selected)}true{else}false{/if}{literal}
+    {/literal}active: {if 'notes'==$tab_selected || empty($tab_selected)}true{else}false{/if}{literal}
 }));
 
 tabView.addTab( new YAHOO.widget.Tab({
-    label: 'Comments ({/literal}{$comments_total|string_format:'%d'}{literal})',
-    dataSrc: '{/literal}{devblocks_url}ajax.php?c=crm&a=showOppCommentsTab&id={$opp->id}{/devblocks_url}{literal}',
+    label: 'Properties',
+    dataSrc: '{/literal}{devblocks_url}ajax.php?c=crm&a=showOppPropertiesTab&id={$opp->id}{/devblocks_url}{literal}',
     cacheData: true,
-    {/literal}active: {if 'comments'==$tab_selected}true{else}false{/if}{literal}
+    {/literal}active: {if 'properties'==$tab_selected}true{else}false{/if}{literal}
+}));
+
+tabView.addTab( new YAHOO.widget.Tab({
+    label: 'Mail History',
+    dataSrc: '{/literal}{devblocks_url}ajax.php?c=crm&a=showOppMailTab&id={$opp->id}{/devblocks_url}{literal}',
+    cacheData: true,
+    {/literal}active: {if 'mail'==$tab_selected}true{else}false{/if}{literal}
 }));
 
 tabView.addTab( new YAHOO.widget.Tab({
@@ -110,7 +107,7 @@ CreateKeyHandler(function doShortcuts(e) {
 		case "q":  // quick compose
 		case "Q":
 			try {
-				document.getElementById('btnQuickCompose').click();
+				//document.getElementById('btnQuickCompose').click();
 			} catch(e){}
 			break;
 		default:

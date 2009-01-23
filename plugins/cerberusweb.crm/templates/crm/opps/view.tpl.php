@@ -53,7 +53,7 @@
 	
 		<tr class="{$tableRowBg}" id="{$rowIdPrefix}_s" onmouseover="toggleClass(this.id,'tableRowHover');toggleClass('{$rowIdPrefix}','tableRowHover');" onmouseout="toggleClass(this.id,'{$tableRowBg}');toggleClass('{$rowIdPrefix}','{$tableRowBg}');" onclick="if(getEventTarget(event)=='TD') checkAll('{$rowIdPrefix}_s');">
 			<td align="center" rowspan="2"><input type="checkbox" name="row_id[]" value="{$result.o_id}"></td>
-			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">{if $result.o_is_closed && $result.o_is_won}<img src="{devblocks_url}c=resource&p=cerberusweb.crm&f=images/up_plus_gray.gif{/devblocks_url}" align="top" title="Won"> {elseif $result.o_is_closed && !$result.o_is_won}<img src="{devblocks_url}c=resource&p=cerberusweb.crm&f=images/down_minus_gray.gif{/devblocks_url}" align="top" title="Lost"> {/if}<a href="{devblocks_url}c=crm&a=browseOpps&id={$result.o_id}&view_id={$view->id}{/devblocks_url}" class="ticketLink" style="font-size:12px;"><b id="subject_{$result.o_id}_{$view->id}">{$result.o_name|escape}</b></a> <a href="javascript:;" onclick="genericAjaxPanel('c=crm&a=showOppPanel&view_id={$view->id}&id={$result.o_id}', this, false, '500px');" style="color:rgb(180,180,180);font-size:90%;">(peek)</a></td>
+			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">{if $result.o_is_closed && $result.o_is_won}<img src="{devblocks_url}c=resource&p=cerberusweb.crm&f=images/up_plus_gray.gif{/devblocks_url}" align="top" title="Won"> {elseif $result.o_is_closed && !$result.o_is_won}<img src="{devblocks_url}c=resource&p=cerberusweb.crm&f=images/down_minus_gray.gif{/devblocks_url}" align="top" title="Lost"> {/if}<a href="{devblocks_url}c=crm&a=browseOpps&id={$result.o_id}&view_id={$view->id}{/devblocks_url}" style="color:rgb(75,75,75);font-size:12px;"><b id="subject_{$result.o_id}_{$view->id}">{$result.o_name|escape}</b></a> <a href="javascript:;" onclick="genericAjaxPanel('c=crm&a=showOppPanel&view_id={$view->id}&id={$result.o_id}', this, false, '500px');" style="color:rgb(180,180,180);font-size:90%;">(peek)</a></td>
 		</tr>
 		<tr class="{$tableRowBg}" id="{$rowIdPrefix}" onmouseover="toggleClass(this.id,'tableRowHover');toggleClass('{$rowIdPrefix}_s','tableRowHover');" onmouseout="toggleClass(this.id,'{$tableRowBg}');toggleClass('{$rowIdPrefix}_s','{$tableRowBg}');" onclick="if(getEventTarget(event)=='TD') checkAll('{$rowIdPrefix}_s');">
 		{foreach from=$view->view_columns item=column name=columns}
@@ -86,27 +86,6 @@
 						{$workers.$o_worker_id->getName()}&nbsp;
 					{/if}
 				</td>
-			{elseif $column=="o_campaign_id"}
-				{assign var=o_campaign_id value=$result.o_campaign_id}
-				<td>
-					{* [TODO] Only hyperlink if permitted to edit campaign *}
-					{if isset($campaigns.$o_campaign_id)}
-						<a href="javascript:;" onclick="genericAjaxPanel('c=crm&a=showCampaignPanel&id={$o_campaign_id}&view_id={$view->id}',this,false,'500px');">{$campaigns.$o_campaign_id->name}</a>&nbsp;
-					{/if}
-				</td>
-			{elseif $column=="o_campaign_bucket_id"}
-				{assign var=o_campaign_id value=$result.o_campaign_id}
-				{assign var=o_bucket_id value=$result.o_campaign_bucket_id}
-				{assign var=buckets value=$campaign_buckets.$o_campaign_id}
-				<td>
-					{if empty($o_bucket_id)}
-						Inbox
-					{elseif isset($buckets.$o_bucket_id)}
-						{$buckets.$o_bucket_id->name}
-					{/if}
-				</td>
-			{elseif $column=="o_amount"}
-				<td>{$result.o_amount} ({$result.o_probability}%)</td>
 			{else}
 				<td>{$result.$column}</td>
 			{/if}
@@ -119,38 +98,7 @@
 	{if $total}
 	<tr>
 		<td colspan="2">
-			{if !empty($campaigns)}
-			<select name="bucket_id" onchange="this.form.a.value='viewOppSetCampaign';this.form.submit();">
-				<option value="">-- set bucket --</option>
-				<optgroup label="Campaigns">
-				{foreach from=$campaigns item=campaign key=campaign_id}
-					<option value="c{$campaign_id}_b0">{$campaign->name}</option>
-				{/foreach}
-				</optgroup>
-				
-				{foreach from=$campaigns item=campaign key=campaign_id}
-				{if isset($campaign_buckets.$campaign_id)}
-					<optgroup label="-- {$campaign->name|escape} --">
-						{foreach from=$campaign_buckets.$campaign_id item=bucket key=bucket_id}
-							<option value="c{$campaign_id}_b{$bucket_id}">{$bucket->name}</option>
-						{/foreach}
-					</optgroup>
-				{/if}
-				{/foreach}
-			</select>
-			{/if}
-			
-			{if !empty($workers)}
-			<select name="worker_id" onchange="this.form.a.value='viewOppSetWorker';this.form.submit();">
-				<option value="">-- set worker --</option>
-				{foreach from=$workers item=worker key=worker_id}
-					<option value="{$worker_id}">{$worker->getName()}</option>
-				{/foreach}
-				<option value="0">- unassign -</option>
-			</select>
-			{/if}
-			
-			<button type="button" onclick="this.form.a.value='viewOppDelete';this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete2.gif{/devblocks_url}" align="top"> Delete</button>
+			{* [TODO] Bulk update opps *}
 		</td>
 	</tr>
 	{/if}

@@ -52,6 +52,7 @@ $db = DevblocksPlatform::getDatabaseService();
 $datadict = NewDataDictionary($db); /* @var $datadict ADODB_DataDict */ 
 
 $tables = $datadict->MetaTables();
+$tables = array_flip($tables);
 
 // ***** Application
 

@@ -541,7 +541,6 @@
 			</params>
 		</extension>
 		
-		
 		<!-- RSS Sources -->
 		
 		<extension point="cerberusweb.rss.source">

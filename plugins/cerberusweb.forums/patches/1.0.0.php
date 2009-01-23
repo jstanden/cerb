@@ -53,6 +53,7 @@ $db = DevblocksPlatform::getDatabaseService();
 $datadict = NewDataDictionary($db); /* @var $datadict ADODB_DataDict */ // ,'mysql' 
 
 $tables = $datadict->MetaTables();
+$tables = array_flip($tables);
 
 // `forums_source` ========================
 if(!isset($tables['forums_source'])) {

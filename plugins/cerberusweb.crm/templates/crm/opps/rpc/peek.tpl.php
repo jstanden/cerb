@@ -34,34 +34,6 @@
 		</td>
 	</tr>
 	<tr>
-		<td width="0%" nowrap="nowrap" align="right" valign="top">Bucket: </td>
-		<td width="100%">
-			<select name="bucket_id" style="border:1px solid rgb(180,180,180);padding:2px;">
-				<optgroup label="Campaigns">
-				{foreach from=$campaigns item=campaign key=campaign_id}
-					<option value="c{$campaign_id}_b0" {if $campaign_id==$opp->campaign_id && !$opp->campaign_bucket_id}selected{/if}>{$campaign->name}</option>
-				{/foreach}
-				</optgroup>
-				
-				{foreach from=$campaigns item=campaign key=campaign_id}
-				{if isset($campaign_buckets.$campaign_id)}
-					<optgroup label="-- {$campaign->name|escape} --">
-						{foreach from=$campaign_buckets.$campaign_id item=bucket key=bucket_id}
-							<option value="c{$campaign_id}_b{$bucket_id}" {if $bucket_id==$opp->campaign_bucket_id}selected{/if}>{$bucket->name}</option>
-						{/foreach}
-					</optgroup>
-				{/if}
-				{/foreach}
-			</select>
-		</td>
-	</tr>
-	<tr>
-		<td width="0%" nowrap="nowrap" align="right" valign="top">Lead Source: </td>
-		<td width="100%">
-			<input type="text" name="source" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;" value="{$opp->source|escape}" autocomplete="off">
-		</td>
-	</tr>
-	<tr>
 		<td width="0%" nowrap="nowrap" align="right" valign="top">Worker: </td>
 		<td width="100%">
 			<select name="worker_id" style="border:1px solid rgb(180,180,180);padding:2px;">
@@ -80,12 +52,6 @@
 		</td>
 	</tr>
 	{/if}
-	<tr>
-		<td width="0%" nowrap="nowrap" align="right" valign="top">Next Action: </td>
-		<td width="100%">
-			<input type="text" name="next_action" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;" value="{$opp->next_action|escape}" autocomplete="off">
-		</td>
-	</tr>
 </table>
 
 <button type="button" onclick="genericPanel.hide();genericAjaxPost('formOppPeek', 'view{$view_id}')"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')}</button>

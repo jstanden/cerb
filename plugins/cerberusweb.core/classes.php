@@ -506,6 +506,7 @@ class ChActivityPage extends CerberusPageExtension {
 		array_shift($stack); // activity
 
 		$tab_manifests = DevblocksPlatform::getExtensions('cerberusweb.activity.tab', false);
+		uasort($tab_manifests, create_function('$a, $b', "return strcasecmp(\$a->name,\$b->name);\n"));
 		$tpl->assign('tab_manifests', $tab_manifests);
 		
 		@$tab_selected = array_shift($stack);
@@ -3476,7 +3477,9 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		
+		// Alphabetize
 		$source_manifests = DevblocksPlatform::getExtensions('cerberusweb.fields.source', false);
+		uasort($source_manifests, create_function('$a, $b', "return strcasecmp(\$a->name,\$b->name);\n"));
 		$tpl->assign('source_manifests', $source_manifests);
 		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/fields/index.tpl.php');
@@ -3642,21 +3645,11 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','fnr')));
 	}
 	
-	// Ajax
-	function getFieldSourceAction() {
-		$translate = DevblocksPlatform::getTranslationService();
-		$worker = CerberusApplication::getActiveWorker();
-		
-		if(!$worker || !$worker->is_superuser) {
-			echo $translate->_('common.access_denied');
-			return;
-		}
-		
+	private function _getFieldSource($ext_id) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 
-		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id']);
 		$tpl->assign('ext_id', $ext_id);
 
 		// [TODO] Make sure the extension exists before continuing
@@ -3671,6 +3664,20 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$tpl->assign('fields', $fields);
 		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/fields/edit_source.tpl.php');
+	}
+	
+	// Ajax
+	function getFieldSourceAction() {
+		$translate = DevblocksPlatform::getTranslationService();
+		$worker = CerberusApplication::getActiveWorker();
+		
+		if(!$worker || !$worker->is_superuser) {
+			echo $translate->_('common.access_denied');
+			return;
+		}
+		
+		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id']);
+		$this->_getFieldSource($ext_id);
 	}
 		
 	// Post
@@ -3696,7 +3703,6 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		@$names = DevblocksPlatform::importGPC($_POST['names'],'array',array());
 		@$orders = DevblocksPlatform::importGPC($_POST['orders'],'array',array());
 		@$options = DevblocksPlatform::importGPC($_POST['options'],'array',array());
-		@$allow_delete = DevblocksPlatform::importGPC($_POST['allow_delete'],'integer',0);
 		@$deletes = DevblocksPlatform::importGPC($_POST['deletes'],'array',array());
 		
 		if(!empty($ids) && !empty($ext_id))
@@ -3706,7 +3712,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 			@$option = $options[$idx];
 			@$delete = (false !== array_search($id,$deletes) ? 1 : 0);
 			
-			if($allow_delete && $delete) {
+			if($delete) {
 				DAO_CustomField::delete($id);
 				
 			} else {
@@ -3734,8 +3740,9 @@ class ChConfigurationPage extends CerberusPageExtension  {
 			);
 			$id = DAO_CustomField::create($fields);
 		}
-		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','fields')));
+
+		// Redraw the form
+		$this->_getFieldSource($ext_id);
 	}
 	
 	// Post
@@ -5355,7 +5362,7 @@ class ChContactsPage extends CerberusPageExtension {
 				DAO_WorkerEvent::CREATED_DATE => time(),
 				DAO_WorkerEvent::WORKER_ID => $notify_worker_id,
 				DAO_WorkerEvent::URL => $url_writer->write('c=contacts&a=orgs&d=display&id='.$org_id,true),
-				DAO_WorkerEvent::TITLE => 'New Org Note', // [TODO] Translate
+				DAO_WorkerEvent::TITLE => 'New Organization Note', // [TODO] Translate
 				DAO_WorkerEvent::CONTENT => sprintf("%s\n%s notes: %s", $org->name, $active_worker->getName(), $content), // [TODO] Translate
 				DAO_WorkerEvent::IS_READ => 0,
 			);
@@ -5365,6 +5372,7 @@ class ChContactsPage extends CerberusPageExtension {
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('contacts','orgs','display',$org_id)));
 	}
 	
+	// [TODO] This is redundant and should be handled by ?c=internal by passing a $return_path
 	function deleteOrgNoteAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
 		@$org_id = DevblocksPlatform::importGPC($_REQUEST['org_id'],'integer', 0);
@@ -7022,7 +7030,7 @@ class ChUpdateController extends DevblocksControllerExtension {
 					touch($file);
 
 				    //echo "Running plugin patches...<br>";
-				    if(DevblocksPlatform::runPluginPatches()) {
+				    if(DevblocksPlatform::runPluginPatches('core.patches')) {
 						@unlink($file);
 
 						// [JAS]: Clear all caches

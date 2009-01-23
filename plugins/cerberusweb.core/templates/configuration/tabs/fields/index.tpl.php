@@ -13,7 +13,7 @@
 						<div style="margin:0px;padding:3px;width:200px;overflow:auto;">
 						{if !empty($source_manifests)}
 							{foreach from=$source_manifests item=manifest key=manifest_id}
-								&#187; <a href="javascript:;" onclick="genericAjaxGet('configFieldSource','c=config&a=getFieldSource&ext_id={$manifest_id}');">{$manifest->name}</a><br>
+								&#187; <a href="javascript:;" onclick="genericAjaxGet('frmConfigFieldSource','c=config&a=getFieldSource&ext_id={$manifest_id}');">{$manifest->name}</a><br>
 							{/foreach}
 						{/if}
 						</div>
@@ -25,7 +25,7 @@
 		</td>
 		
 		<td width="100%" valign="top">
-			<form action="{devblocks_url}{/devblocks_url}" method="post" id="configFieldSource">
+			<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmConfigFieldSource" onsubmit="return false;">
 				{if !empty($ext_id)}
 					{assign var=source_manifest value=$source_manifests.$ext_id}
 					{include file="$path/configuration/tabs/fields/edit_source.tpl.php" object=$source_manifest}

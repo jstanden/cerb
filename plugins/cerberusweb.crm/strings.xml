@@ -4,18 +4,14 @@
 	<header datatype="winres" segtype="sentence" adminlang="en-us"
 		srclang="en-us" o-tmf="abc" />
 	<body>
+		<tu tuid='crm.activity.tab.opps'>
+			<tuv xml:lang="en_US"><seg>Opportunities</seg></tuv>
+		</tu>
 
 		<!-- Common Strings -->
 		
 		
 		<!-- Opportunity -->
-
-		<tu tuid='crm.opportunity.campaign_id'>
-			<tuv xml:lang="en_US"><seg>campaign</seg></tuv>
-		</tu>
-		<tu tuid='crm.opportunity.campaign_bucket_id'>
-			<tuv xml:lang="en_US"><seg>bucket</seg></tuv>
-		</tu>
 		<tu tuid='crm.opportunity.closed_date'>
 			<tuv xml:lang="en_US"><seg>closed date</seg></tuv>
 		</tu>
@@ -23,7 +19,7 @@
 			<tuv xml:lang="en_US"><seg>phone</seg></tuv>
 		</tu>
 		<tu tuid='crm.opportunity.created_date'>
-			<tuv xml:lang="en_US"><seg>created</seg></tuv>
+			<tuv xml:lang="en_US"><seg>created date</seg></tuv>
 		</tu>
 		<tu tuid='crm.opportunity.email_address'>
 			<tuv xml:lang="en_US"><seg>primary email</seg></tuv>
@@ -43,14 +39,11 @@
 		<tu tuid='crm.opportunity.name'>
 			<tuv xml:lang="en_US"><seg>name</seg></tuv>
 		</tu>
-		<tu tuid='crm.opportunity.next_action'>
-			<tuv xml:lang="en_US"><seg>next action</seg></tuv>
-		</tu>
 		<tu tuid='crm.opportunity.org_id'>
 			<tuv xml:lang="en_US"><seg>org id</seg></tuv>
 		</tu>
 		<tu tuid='crm.opportunity.org_name'>
-			<tuv xml:lang="en_US"><seg>org name</seg></tuv>
+			<tuv xml:lang="en_US"><seg>organization</seg></tuv>
 		</tu>
 		<tu tuid='crm.opportunity.org_website'>
 			<tuv xml:lang="en_US"><seg>website</seg></tuv>
@@ -58,18 +51,12 @@
 		<tu tuid='crm.opportunity.primary_email_id'>
 			<tuv xml:lang="en_US"><seg>email id</seg></tuv>
 		</tu>
-		<tu tuid='crm.opportunity.source'>
-			<tuv xml:lang="en_US"><seg>lead source</seg></tuv>
-		</tu>
 		<tu tuid='crm.opportunity.updated_date'>
-			<tuv xml:lang="en_US"><seg>updated</seg></tuv>
+			<tuv xml:lang="en_US"><seg>updated date</seg></tuv>
 		</tu>
 		<tu tuid='crm.opportunity.worker_id'>
 			<tuv xml:lang="en_US"><seg>worker</seg></tuv>
 		</tu>
-		
-		<!-- Campaign -->
-		
 		
 	</body>
 </tmx>

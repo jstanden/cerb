@@ -58,6 +58,21 @@
 			</params>
 		</extension>
 		
+		<!-- Activity Tabs -->
+		
+		<extension point="cerberusweb.activity.tab">
+			<id>crm.activity.tab.opps</id>
+			<name>Opportunities Tab</name>
+			<class>
+				<file>api/App.php</file>
+				<name>CrmOppsActivityTab</name>
+			</class>
+			<params>
+				<param key="uri" value="opps" />
+				<param key="title" value="crm.activity.tab.opps" />
+			</params>
+		</extension>
+		
 		<!-- Pages -->
 		
 		<extension point="cerberusweb.page">
@@ -69,7 +84,33 @@
 			</class>
 			<params>
 				<param key="uri" value="crm" />
-				<param key="menutitle" value="crm" />
+				<param key="menutitle" value="" />
+			</params>
+		</extension>
+
+		<!-- Custom Field Sources -->
+		
+		<extension point="cerberusweb.fields.source">
+			<id>crm.fields.source.opportunity</id>
+			<name>Opportunity</name>
+			<class>
+				<file>api/App.php</file>
+				<name>CrmCustomFieldSource_Opportunity</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
+		<!-- Notes Sources -->
+		
+		<extension point="cerberusweb.notes.source">
+			<id>crm.notes.source.opportunity</id>
+			<name>Opportunity</name>
+			<class>
+				<file>api/App.php</file>
+				<name>CrmNotesSource_Opportunity</name>
+			</class>
+			<params>
 			</params>
 		</extension>
 

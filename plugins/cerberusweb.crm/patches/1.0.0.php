@@ -52,6 +52,7 @@ $db = DevblocksPlatform::getDatabaseService();
 $datadict = NewDataDictionary($db); /* @var $datadict ADODB_DataDict */ 
 
 $tables = $datadict->MetaTables();
+$tables = array_flip($tables);
 
 // ***** Application
 
@@ -159,5 +160,7 @@ if(!isset($indexes['campaign_id'])) {
     $sql = $datadict->CreateIndexSQL('campaign_id','crm_campaign_bucket','campaign_id');
     $datadict->ExecuteSQLArray($sql);
 }
+
+return TRUE;
 
 ?>
