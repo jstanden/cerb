@@ -61,19 +61,6 @@
 		<td align="right">{if !empty($contact->website)}<a href="{$contact->website|escape}" target="_blank">Website</a>{else}Website{/if}: </td>
 		<td><input type="text" name="website" value="{$contact->website|escape}" style="width:98%;"></td>
 	</tr>
-	{if !empty($slas)}
-	<tr>
-		<td width="0%" nowrap="nowrap" align="right">Service Level: </td>
-		<td width="100%">
-			<select name="sla_id">
-				<option value="0">-- none --</option>
-				{foreach from=$slas item=sla key=sla_id}
-					<option value="{$sla_id}" {if $sla_id==$contact->sla_id}selected{/if}>{$sla->name|escape}</option>
-				{/foreach}
-			</select>
-		</td>
-	</tr>
-	{/if}
 	
 	<!-- Custom Fields -->
 	<tr>

@@ -81,13 +81,6 @@
 			<td><a href="{$result.c_website}" target="_blank">{$result.c_website|truncate:45:'...':true}</a>&nbsp;</td>
 			{elseif $column=="c_created"}
 			<td>{$result.c_created|devblocks_date}&nbsp;</td>
-			{elseif $column=="c_sla_id"}
-			<td>
-				{assign var=sla_id value=$result.c_sla_id}
-				{if !empty($sla_id) && isset($slas.$sla_id)}
-					{$slas.$sla_id->name}
-				{/if}
-			</td>
 			{else}
 			<td>{$result.$column}</td>
 			{/if}
@@ -102,18 +95,6 @@
 		<td colspan="2">
 			<button type="button" onclick="genericAjaxPanel('c=contacts&a=showOrgBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),this,false,'500px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> bulk update</button>
 
-			{* Phase out? *}
-			{if !empty($slas)}
-			<select name="sla_id" onchange="this.form.a.value='doSetOrgSla';genericAjaxPost('viewForm{$view->id}','view{$view->id}','c=contacts&a=doSetOrgSla');">
-				<option value="">-- set service level --</option>
-				<option value="0">None</option>
-				{foreach from=$slas item=sla key=sla_id}
-					<option value="{$sla_id}">{$sla->name}</option>
-				{/foreach}
-			</select>
-			{/if}
-			
-		
 			<!-- 
 			<span id="tourDashboardBatch"><button type="button" onclick="ajax.showBatchPanel('{$view->id}','{$dashboard_team_id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> bulk update</button></span>
 

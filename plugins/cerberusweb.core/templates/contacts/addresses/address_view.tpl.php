@@ -89,13 +89,6 @@
 			<td>
 				{if $result.a_is_banned}Yes{/if}&nbsp;
 			</td>
-			{elseif $column=="a_sla_id"}
-			<td>
-				{assign var=sla_id value=$result.a_sla_id}
-				{if !empty($sla_id) && isset($slas.$sla_id)}
-					{$slas.$sla_id->name}
-				{/if}
-			</td>
 			{else}
 			<td>{$result.$column}&nbsp;</td>
 			{/if}

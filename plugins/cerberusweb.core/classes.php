@@ -722,9 +722,6 @@ class ChTicketsPage extends CerberusPageExtension {
 				$workers = DAO_Worker::getAll();
 				$tpl->assign('workers', $workers);
 				
-				$slas = DAO_Sla::getAll();
-				$tpl->assign('slas', $slas);
-				
 				$memberships = $active_worker->getMemberships();
 
 				// Totals
@@ -737,9 +734,6 @@ class ChTicketsPage extends CerberusPageExtension {
 				
 				$worker_counts = C4_Overview::getWorkerTotals();
 				$tpl->assign('worker_counts', $worker_counts);
-				
-				$sla_counts = C4_Overview::getSlaTotals();
-				$tpl->assign('sla_counts', $sla_counts);
 				
 				// All Open
 				$overView = C4_AbstractViewLoader::getView('', CerberusApplication::VIEW_OVERVIEW_ALL);
@@ -885,24 +879,6 @@ class ChTicketsPage extends CerberusPageExtension {
 						
 						break;
 						
-					case 'sla':
-						@$filter_sla_id = array_shift($response_path);
-						
-						$overView->params = array(
-							SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN),
-							SearchFields_Ticket::TICKET_WAITING => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_WAITING,'=',0),							
-							SearchFields_Ticket::TICKET_NEXT_WORKER_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_NEXT_WORKER_ID,'=',0),
-							$overView->params[SearchFields_Ticket::TEAM_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'in',array_keys($memberships)), // censor
-						);
-
-						if(!is_null($filter_sla_id)) {
-							$tpl->assign('filter_sla_id', $filter_sla_id);
-							$title = "".$slas[$filter_sla_id]->name;
-							$overView->params[SearchFields_Ticket::TICKET_SLA_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_SLA_ID,'=',$filter_sla_id);
-						}
-						
-						break;
-						
 					case 'all':
 					default:
 						$overView->params = array(
@@ -1021,9 +997,6 @@ class ChTicketsPage extends CerberusPageExtension {
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 		
-		$slas = DAO_Sla::getAll();
-		$tpl->assign('slas', $slas);
-		
 		$group_counts = C4_Overview::getGroupTotals();
 		$tpl->assign('group_counts', $group_counts);
 		
@@ -1032,9 +1005,6 @@ class ChTicketsPage extends CerberusPageExtension {
 		
 		$worker_counts = C4_Overview::getWorkerTotals();
 		$tpl->assign('worker_counts', $worker_counts);
-		
-		$sla_counts = C4_Overview::getSlaTotals();
-		$tpl->assign('sla_counts', $sla_counts);
 		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/overview/sidebar.tpl.php');
 	}
@@ -1916,13 +1886,8 @@ class ChTicketsPage extends CerberusPageExtension {
 		$view->renderLimit = $how_many;
         
 		// Oldest age
-		if($type=='age') {
-			$view->renderSortBy = SearchFields_Ticket::TICKET_UPDATED_DATE;
-			$view->renderSortAsc = 1;
-		} else { // Top SLA priority
-			$view->renderSortBy = SearchFields_Ticket::TICKET_SLA_PRIORITY;
-			$view->renderSortAsc = 0;
-		}
+		$view->renderSortBy = SearchFields_Ticket::TICKET_UPDATED_DATE;
+		$view->renderSortAsc = 1;
 		
 		// Grab $how_many rows from the top
 		list($assign_tickets, $null) = $view->getData();
@@ -1939,7 +1904,7 @@ class ChTicketsPage extends CerberusPageExtension {
 				SearchFields_Ticket::TICKET_NEXT_WORKER_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_NEXT_WORKER_ID,'=',$active_worker->id),
 				SearchFields_Ticket::TICKET_LAST_ACTION_CODE => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_LAST_ACTION_CODE,'in',array('O','R')),
 			);
-			$search_view->renderSortBy = SearchFields_Ticket::TICKET_SLA_PRIORITY;
+			$search_view->renderSortBy = SearchFields_Ticket::TICKET_UPDATED_DATE;
 			$search_view->renderSortAsc = 0;
 			
 			list($my_tickets,$null) = $search_view->getData();
@@ -3518,18 +3483,6 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	}
 	
 	// Ajax
-	function showTabSlaAction() {
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
-		$tpl->assign('path', dirname(__FILE__) . '/templates/');
-		
-		$slas = DAO_Sla::getAll();
-		$tpl->assign('slas', $slas);
-		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/sla/index.tpl.php');
-	}
-	
-	// Ajax
 	function showTabFnrAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
@@ -4474,77 +4427,6 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('config','plugins')));
 	}
 	
-	function saveSlaAction() {
-		$translate = DevblocksPlatform::getTranslationService();
-		$worker = CerberusApplication::getActiveWorker();
-		
-		if(!$worker || !$worker->is_superuser) {
-			echo $translate->_('common.access_denied');
-			return;
-		}
-		
-		if(DEMO_MODE) {
-			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','sla')));
-			return;
-		}
-		
-		// Edits
-		@$sla_ids = DevblocksPlatform::importGPC($_POST['sla_ids'],'array',array());
-		@$sla_names = DevblocksPlatform::importGPC($_POST['sla_names'],'array',array());
-		@$sla_priorities = DevblocksPlatform::importGPC($_POST['sla_priorities'],'array',array());
-		
-		$orig_slas = DAO_Sla::getAll();
-		
-		if(is_array($sla_ids) && !empty($sla_ids))
-		foreach($sla_ids as $idx => $sla_id) {
-			@$sla_name = $sla_names[$idx];
-			@$sla_order = intval($sla_priorities[$idx]);
-			
-			if(empty($sla_name))
-				continue;
-				
-			// Between 1-100
-			$sla_order = max(min($sla_order, 100),1);
-			
-			$fields = array(
-				DAO_Sla::NAME => $sla_name,
-				DAO_Sla::PRIORITY => $sla_order,
-			);
-			DAO_Sla::update($sla_id, $fields);
-			
-			// Update priority on any existing tickets with this SLA (if changed)
-			if($orig_slas[$sla_id]->priority != $sla_order) {
-				DAO_Ticket::updateWhere(
-					array(
-						DAO_Ticket::SLA_PRIORITY => $sla_order
-					),
-					sprintf("%s = %d",
-						DAO_Ticket::SLA_ID,
-						$sla_id
-					)
-				);
-			}
-		}
-		
-		// Deletes
-		@$sla_deletes = DevblocksPlatform::importGPC($_POST['sla_deletes'],'array',array());
-		
-		if(is_array($sla_deletes) && !empty($sla_deletes))
-			DAO_Sla::delete($sla_deletes);
-		
-		// Create
-		@$add_sla = DevblocksPlatform::importGPC($_POST['add_sla'],'string','');
-		
-		if(!empty($add_sla)) {
-			$sla_id = DAO_Sla::create(array(
-				DAO_Sla::NAME => $add_sla,
-				DAO_Sla::PRIORITY => 1
-			));
-		}
-		
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('config','sla')));
-	}
-	
 }
 
 class ChWelcomePage extends CerberusPageExtension {
@@ -5020,7 +4902,6 @@ class ChContactsPage extends CerberusPageExtension {
 		$view->view_columns = array(
 			SearchFields_Address::FIRST_NAME,
 			SearchFields_Address::LAST_NAME,
-			SearchFields_Address::SLA_ID,
 			SearchFields_Address::NUM_NONSPAM,
 		);
 		$view->params = array(
@@ -5183,9 +5064,6 @@ class ChContactsPage extends CerberusPageExtension {
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		
-		$slas = DAO_Sla::getAll();
-		$tpl->assign('slas', $slas);
-		
 		if(!empty($address_id)) {
 			$email = '';
 			if(null != ($addy = DAO_Address::get($address_id))) {
@@ -5292,10 +5170,6 @@ class ChContactsPage extends CerberusPageExtension {
 //	        $tickets = DAO_Ticket::getTickets($ticket_ids);
 	    }
 		
-	    // SLAs
-		$slas = DAO_Sla::getAll();
-		$tpl->assign('slas', $slas);
-	    
 		$tpl->cache_lifetime = "0";
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/contacts/addresses/address_bulk.tpl.php');
 	}
@@ -5313,10 +5187,6 @@ class ChContactsPage extends CerberusPageExtension {
 	        $tpl->assign('org_ids', implode(',', $org_ids));
 	    }
 		
-	    // SLAs
-		$slas = DAO_Sla::getAll();
-		$tpl->assign('slas', $slas);
-	    
 		// Custom Fields
 		$org_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Org::ID);
 		$tpl->assign('org_fields', $org_fields);
@@ -5332,9 +5202,6 @@ class ChContactsPage extends CerberusPageExtension {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
-		
-		$slas = DAO_Sla::getAll();
-		$tpl->assign('slas', $slas);
 		
 		$contact = DAO_ContactOrg::get($id);
 		$tpl->assign('contact', $contact);
@@ -5364,7 +5231,6 @@ class ChContactsPage extends CerberusPageExtension {
 		@$first_name = trim(DevblocksPlatform::importGPC($_REQUEST['first_name'],'string',''));
 		@$last_name = trim(DevblocksPlatform::importGPC($_REQUEST['last_name'],'string',''));
 		@$contact_org = trim(DevblocksPlatform::importGPC($_REQUEST['contact_org'],'string',''));
-		@$sla_id = DevblocksPlatform::importGPC($_REQUEST['sla_id'],'integer',0);
 		@$is_banned = DevblocksPlatform::importGPC($_REQUEST['is_banned'],'integer',0);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string', '');
 		
@@ -5373,17 +5239,12 @@ class ChContactsPage extends CerberusPageExtension {
 		if(!empty($contact_org)) {
 			$contact_org_id = DAO_ContactOrg::lookup($contact_org, true);
 			$contact_org = DAO_ContactOrg::get($contact_org_id);
-			
-			// Assign addy the same SLA as contact_org if not set
-			if(empty($sla_id) && !empty($contact_org->sla_id))
-				$sla_id = $contact_org->sla_id;
 		}
 		
 		$fields = array(
 			DAO_Address::FIRST_NAME => $first_name,
 			DAO_Address::LAST_NAME => $last_name,
 			DAO_Address::CONTACT_ORG_ID => $contact_org_id,
-			DAO_Address::SLA_ID => $sla_id,
 			DAO_Address::IS_BANNED => $is_banned,
 		);
 		
@@ -5413,9 +5274,6 @@ class ChContactsPage extends CerberusPageExtension {
             )
 	    );
 		
-		// Update SLA+Priority on any open tickets from this address
-		DAO_Sla::cascadeAddressSla($id, $sla_id);
-		
 		if(!empty($view_id)) {
 			$view = C4_AbstractViewLoader::getView('', $view_id);
 			$view->render();
@@ -5434,7 +5292,6 @@ class ChContactsPage extends CerberusPageExtension {
 		@$phone = DevblocksPlatform::importGPC($_REQUEST['phone'],'string','');
 		@$fax = DevblocksPlatform::importGPC($_REQUEST['fax'],'string','');
 		@$website = DevblocksPlatform::importGPC($_REQUEST['website'],'string','');
-		@$sla_id = DevblocksPlatform::importGPC($_REQUEST['sla_id'],'integer',0);
 		@$delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
 
 		if(!empty($id) && !empty($delete)) { // delete
@@ -5452,8 +5309,7 @@ class ChContactsPage extends CerberusPageExtension {
 				DAO_ContactOrg::COUNTRY => $country,
 				DAO_ContactOrg::PHONE => $phone,
 				DAO_ContactOrg::FAX => $fax,
-				DAO_ContactOrg::WEBSITE => $website,
-				DAO_ContactOrg::SLA_ID => $sla_id
+				DAO_ContactOrg::WEBSITE => $website
 			);
 	
 			if($id==0) {
@@ -5462,9 +5318,6 @@ class ChContactsPage extends CerberusPageExtension {
 			else {
 				DAO_ContactOrg::update($id, $fields);	
 			}
-			
-			// SLA Updates
-			DAO_Sla::cascadeOrgSla($id, $sla_id);
 			
 			// Custom field saves
 			@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
@@ -5539,24 +5392,23 @@ class ChContactsPage extends CerberusPageExtension {
 		@$phone = DevblocksPlatform::importGPC($_REQUEST['phone'],'string','');
 		@$fax = DevblocksPlatform::importGPC($_REQUEST['fax'],'string','');
 		@$website = DevblocksPlatform::importGPC($_REQUEST['website'],'string','');
-		@$sla_id = DevblocksPlatform::importGPC($_REQUEST['sla_id'],'integer',0);
 		@$delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
 
 		if(!empty($id) && !empty($delete)) { // delete
 			DAO_ContactOrg::delete($id);
 			
 		} else { // create/edit
-			$fields = array(DAO_ContactOrg::NAME => $org_name,
-					DAO_ContactOrg::STREET => $street,
-					DAO_ContactOrg::CITY => $city,
-					DAO_ContactOrg::PROVINCE => $province,
-					DAO_ContactOrg::POSTAL => $postal,
-					DAO_ContactOrg::COUNTRY => $country,
-					DAO_ContactOrg::PHONE => $phone,
-					DAO_ContactOrg::FAX => $fax,
-					DAO_ContactOrg::WEBSITE => $website,
-					DAO_ContactOrg::SLA_ID => $sla_id
-					);
+			$fields = array(
+				DAO_ContactOrg::NAME => $org_name,
+				DAO_ContactOrg::STREET => $street,
+				DAO_ContactOrg::CITY => $city,
+				DAO_ContactOrg::PROVINCE => $province,
+				DAO_ContactOrg::POSTAL => $postal,
+				DAO_ContactOrg::COUNTRY => $country,
+				DAO_ContactOrg::PHONE => $phone,
+				DAO_ContactOrg::FAX => $fax,
+				DAO_ContactOrg::WEBSITE => $website,
+			);
 	
 			if($id==0) {
 				$id = DAO_ContactOrg::create($fields);
@@ -5565,31 +5417,9 @@ class ChContactsPage extends CerberusPageExtension {
 				DAO_ContactOrg::update($id, $fields);	
 			}
 			
-			// SLA Updates
-			DAO_Sla::cascadeOrgSla($id, $sla_id);
-			
 			// Custom field saves
 			@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
 			DAO_CustomFieldValue::handleFormPost(ChCustomFieldSource_Org::ID, $id, $field_ids);
-		}
-		
-		$view = C4_AbstractViewLoader::getView('', $view_id);
-		$view->render();		
-	}
-	
-	function doSetOrgSlaAction() {
-		@$row_ids = DevblocksPlatform::importGPC($_REQUEST['row_id'],'array',array());
-		@$sla_id = DevblocksPlatform::importGPC($_REQUEST['sla_id'],'integer',null);
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['id'],'string','');
-		
-		if(!is_null($sla_id) && !empty($row_ids)) {
-			DAO_ContactOrg::update($row_ids,array(
-				DAO_ContactOrg::SLA_ID => $sla_id
-			));
-			
-			foreach($row_ids as $id) {
-				DAO_Sla::cascadeOrgSla($id, $sla_id);
-			}
 		}
 		
 		$view = C4_AbstractViewLoader::getView('', $view_id);

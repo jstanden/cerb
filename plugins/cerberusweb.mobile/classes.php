@@ -253,10 +253,6 @@ class C4_MobileTicketView extends C4_TicketView {
 		$tpl->assign('team_categories', $team_categories);
 
 		// [TODO] Is this even used here or did mfogg copy it blindly?
-		$slas = DAO_Sla::getAll();
-		$tpl->assign('slas', $slas);
-
-		// [TODO] Is this even used here or did mfogg copy it blindly?
 		$ticket_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Ticket::ID);
 		$tpl->assign('ticket_fields', $ticket_fields);
 		
@@ -539,9 +535,6 @@ class ChMobileTicketsPage extends CerberusMobilePageExtension  {
 				$workers = DAO_Worker::getAll();
 				$tpl->assign('workers', $workers);
 				
-				$slas = DAO_Sla::getAll();
-				$tpl->assign('slas', $slas);
-				
 				$group_counts = C4_Overview::getGroupTotals();
 				$tpl->assign('group_counts', $group_counts);
 				
@@ -551,10 +544,6 @@ class ChMobileTicketsPage extends CerberusMobilePageExtension  {
 				$worker_counts = C4_Overview::getWorkerTotals();
 				$tpl->assign('worker_counts', $worker_counts);
 				
-				$sla_counts = C4_Overview::getSlaTotals();
-				$tpl->assign('sla_counts', $sla_counts);
-            	
-            	
             	$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/sidebar.tpl.php');
             	return;
            	break;
@@ -563,7 +552,6 @@ class ChMobileTicketsPage extends CerberusMobilePageExtension  {
 				
 				$workers = DAO_Worker::getAll();						
 				$group_buckets = DAO_Bucket::getTeams();
-				$slas = DAO_Sla::getAll();
 				$groups = DAO_Group::getAll();
 				@$filter = $response->path[3];	
 				switch($filter) {
@@ -642,24 +630,6 @@ class ChMobileTicketsPage extends CerberusMobilePageExtension  {
 						
 						break;
 						
-					case 'sla':
-						@$filter_sla_id = $response->path[4];
-						
-						$params = array(
-							SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN),
-							SearchFields_Ticket::TICKET_WAITING => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_WAITING,'=',0),							
-							SearchFields_Ticket::TICKET_NEXT_WORKER_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_NEXT_WORKER_ID,'=',0),
-							$params[SearchFields_Ticket::TEAM_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'in',array_keys($memberships)), // censor
-						);
-
-						if(!is_null($filter_sla_id)) {
-							$tpl->assign('filter_sla_id', $filter_sla_id);
-							$title = "".$slas[$filter_sla_id]->name;
-							$params[SearchFields_Ticket::TICKET_SLA_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_SLA_ID,'=',$filter_sla_id);
-						}
-						
-						break;
-						
 					case 'all':
 					default:
 						$title='All (Spam Filtered)';
@@ -699,7 +669,7 @@ class ChMobileTicketsPage extends CerberusMobilePageExtension  {
 		$mobileView->params = $params;
 		$mobileView->renderLimit = 10;//$overViewDefaults->renderLimit;
 		$mobileView->renderPage = $page;
-		$mobileView->renderSortBy = SearchFields_Ticket::TICKET_SLA_PRIORITY;
+		$mobileView->renderSortBy = SearchFields_Ticket::TICKET_UPDATED_DATE;
 		$mobileView->renderSortAsc = 0;
 		
 		C4_AbstractViewLoader::setView($mobileView->id,$mobileView);		

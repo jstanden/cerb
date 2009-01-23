@@ -11,25 +11,6 @@
 {/if}
 
 <div id="tourOverviewSummaries"></div>
-{if !empty($sla_counts) && count($sla_counts) > 1}
-<div class="block">
-<h2>{$translate->_('mail.overview.service_levels')}</h2>
-<table cellspacing="0" cellpadding="2" border="0" width="220">
-	{foreach from=$sla_counts item=counts key=sla_id}
-		{if is_numeric($sla_id)}
-		<tr>
-			<td style="padding-right:20px;" nowrap="nowrap" valign="top">
-				<!-- [<a href="javascript:;" onclick="toggleDiv('expandWorker{$worker_id}');">+</a>] --> 
-				<a href="{devblocks_url}c=tickets&a=overview&s=sla&sid={$sla_id}{/devblocks_url}" style="font-weight:bold;">{$slas.$sla_id->name}</a> <span style="color:rgb(150,150,150);">({$counts})</span>
-			</td>
-			<td valign="top"></td>
-		</tr>
-		{/if}
-	{/foreach}
-</table>
-</div>
-<br>
-{/if}
     
 {if !empty($group_counts)}
 <div class="block">

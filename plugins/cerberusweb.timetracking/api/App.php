@@ -730,60 +730,6 @@ class C4_TimeTrackingEntryView extends C4_AbstractView {
 		}
 	}
 
-//	function doBulkUpdate($filter, $do, $ids=array()) {
-//		@set_time_limit(600); // [TODO] Temp!
-//	  
-//		$change_fields = array();
-//
-//		if(empty($do))
-//		return;
-//
-//		if(is_array($do))
-//		foreach($do as $k => $v) {
-//			switch($k) {
-//				case 'sla':
-//					$change_fields[DAO_Address::SLA_ID] = intval($v);
-//					break;
-//				case 'banned':
-//					$change_fields[DAO_Address::IS_BANNED] = intval($v);
-//					break;
-//			}
-//		}
-//
-//		$pg = 0;
-//
-//		if(empty($ids))
-//		do {
-//			list($objects,$null) = DAO_Address::search(
-//			$this->params,
-//			100,
-//			$pg++,
-//			SearchFields_Address::ID,
-//			true,
-//			false
-//			);
-//			 
-//			$ids = array_merge($ids, array_keys($objects));
-//			 
-//		} while(!empty($objects));
-//
-//		$batch_total = count($ids);
-//		for($x=0;$x<=$batch_total;$x+=100) {
-//			$batch_ids = array_slice($ids,$x,100);
-//			DAO_Address::update($batch_ids, $change_fields);
-//
-//			// Cascade SLA changes
-//			if(isset($do['sla'])) {
-//				foreach($batch_ids as $id) {
-//					DAO_Sla::cascadeAddressSla($id, $do['sla']);
-//				}
-//			}
-//
-//			unset($batch_ids);
-//		}
-//
-//		unset($ids);
-//	}
 };
 
 class DAO_TimeTrackingActivity extends DevblocksORMHelper {

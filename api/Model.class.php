@@ -495,8 +495,6 @@ class Model_Address {
 	public $num_spam = 0;
 	public $num_nonspam = 0;
 	public $is_banned = 0;
-	public $sla_id = 0;
-	public $sla_expires = 0;
 	public $last_autoreply;
 
 	function Model_Address() {}
@@ -584,9 +582,6 @@ class C4_TicketView extends C4_AbstractView {
 
 		$team_categories = DAO_Bucket::getTeams();
 		$tpl->assign('team_categories', $team_categories);
-
-		$slas = DAO_Sla::getAll();
-		$tpl->assign('slas', $slas);
 
 		$ticket_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Ticket::ID);
 		$tpl->assign('ticket_fields', $ticket_fields);
@@ -735,16 +730,6 @@ class C4_TicketView extends C4_AbstractView {
 				$tpl->display('file:' . $tpl_path . 'tickets/search/criteria/ticket_spam_score.tpl.php');
 				break;
 
-			case SearchFields_Ticket::TICKET_SLA_ID:
-				$slas = DAO_Sla::getAll();
-				$tpl->assign('slas', $slas);
-				$tpl->display('file:' . $tpl_path . 'tickets/search/criteria/ticket_sla.tpl.php');
-				break;
-
-			case SearchFields_Ticket::TICKET_SLA_PRIORITY:
-				$tpl->display('file:' . $tpl_path . 'tickets/search/criteria/ticket_sla_priority.tpl.php');
-				break;
-
 			case SearchFields_Ticket::TICKET_LAST_ACTION_CODE:
 				$tpl->display('file:' . $tpl_path . 'tickets/search/criteria/ticket_last_action.tpl.php');
 				break;
@@ -840,22 +825,6 @@ class C4_TicketView extends C4_AbstractView {
 						continue;
 					} else {
 						$strings[] = $buckets[$val]->name;
-					}
-				}
-				echo implode(", ", $strings);
-				break;
-
-			case SearchFields_Ticket::TICKET_SLA_ID:
-				$slas = DAO_Sla::getAll();
-				$strings = array();
-
-				foreach($values as $val) {
-					if(0==$val) {
-						$strings[] = "None";
-					} else {
-						if(!isset($slas[$val]))
-						continue;
-						$strings[] = $slas[$val]->name;
 					}
 				}
 				echo implode(", ", $strings);
@@ -986,20 +955,6 @@ class C4_TicketView extends C4_AbstractView {
 
 			case SearchFields_Ticket::TICKET_SPAM_TRAINING:
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
-				break;
-
-			case SearchFields_Ticket::TICKET_SLA_ID:
-				@$sla_ids = DevblocksPlatform::importGPC($_REQUEST['sla_ids'],'array',array());
-				if(is_array($sla_ids) && !empty($sla_ids)) {
-					$criteria = new DevblocksSearchCriteria($field,$oper,$sla_ids);
-				}
-				break;
-
-			case SearchFields_Ticket::TICKET_SLA_PRIORITY:
-				@$priority = DevblocksPlatform::importGPC($_REQUEST['priority'],'integer',null);
-				if(!is_null($priority) && is_numeric($priority)) {
-					$criteria = new DevblocksSearchCriteria($field,$oper,$priority);
-				}
 				break;
 
 			case SearchFields_Ticket::TICKET_LAST_ACTION_CODE:
@@ -1239,7 +1194,6 @@ class C4_AddressView extends C4_AbstractView {
 			SearchFields_Address::FIRST_NAME,
 			SearchFields_Address::LAST_NAME,
 			SearchFields_Address::ORG_NAME,
-			SearchFields_Address::SLA_ID,
 			SearchFields_Address::NUM_NONSPAM,
 			SearchFields_Address::NUM_SPAM,
 		);
@@ -1265,9 +1219,6 @@ class C4_AddressView extends C4_AbstractView {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
-
-		$slas = DAO_Sla::getAll();
-		$tpl->assign('slas', $slas);
 
 		$address_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Address::ID);
 		$tpl->assign('custom_fields', $address_fields);
@@ -1296,11 +1247,6 @@ class C4_AddressView extends C4_AbstractView {
 				break;
 			case SearchFields_Address::IS_BANNED:
 				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__bool.tpl.php');
-				break;
-			case SearchFields_Address::SLA_ID:
-				$slas = DAO_Sla::getAll();
-				$tpl->assign('slas', $slas);
-				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/contacts/addresses/criteria/sla.tpl.php');
 				break;
 			default:
 				// Custom Fields
@@ -1336,22 +1282,6 @@ class C4_AddressView extends C4_AbstractView {
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
-			case SearchFields_Address::SLA_ID:
-				$slas = DAO_Sla::getAll();
-				$strings = array();
-
-				foreach($values as $val) {
-					if(0==$val) {
-						$strings[] = "None";
-					} else {
-						if(!isset($slas[$val]))
-						continue;
-						$strings[] = $slas[$val]->name;
-					}
-				}
-				echo implode(", ", $strings);
-				break;
-
 			default:
 				parent::renderCriteriaParam($param);
 				break;
@@ -1405,10 +1335,6 @@ class C4_AddressView extends C4_AbstractView {
 			case SearchFields_Address::IS_BANNED:
 				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
-				break;
-			case SearchFields_Address::SLA_ID:
-				@$sla_ids = DevblocksPlatform::importGPC($_REQUEST['sla_ids'], 'array', array());
-				$criteria = new DevblocksSearchCriteria($field, $oper, $sla_ids);
 				break;
 			default:
 				// Custom Fields
@@ -1474,9 +1400,6 @@ class C4_AddressView extends C4_AbstractView {
 				case 'org_id':
 					$change_fields[DAO_Address::CONTACT_ORG_ID] = intval($v);
 					break;
-				case 'sla':
-					$change_fields[DAO_Address::SLA_ID] = intval($v);
-					break;
 				case 'banned':
 					$change_fields[DAO_Address::IS_BANNED] = intval($v);
 					break;
@@ -1505,14 +1428,6 @@ class C4_AddressView extends C4_AbstractView {
 		for($x=0;$x<=$batch_total;$x+=100) {
 			$batch_ids = array_slice($ids,$x,100);
 			DAO_Address::update($batch_ids, $change_fields);
-
-			// Cascade SLA changes
-			if(isset($do['sla'])) {
-				foreach($batch_ids as $id) {
-					DAO_Sla::cascadeAddressSla($id, $do['sla']);
-				}
-			}
-
 			unset($batch_ids);
 		}
 
@@ -1560,9 +1475,6 @@ class C4_AttachmentView extends C4_AbstractView {
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
-//		$slas = DAO_Sla::getAll();
-//		$tpl->assign('slas', $slas);
-
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('view_fields', $this->getColumns());
 		$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/configuration/tabs/attachments/view.tpl.php');
@@ -1593,11 +1505,6 @@ class C4_AttachmentView extends C4_AbstractView {
 			case SearchFields_Attachment::MESSAGE_CREATED_DATE:
 				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__date.tpl.php');
 				break;
-//			case SearchFields_Attachment::SLA_ID:
-//				$slas = DAO_Sla::getAll();
-//				$tpl->assign('slas', $slas);
-//				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/contacts/addresses/criteria/sla.tpl.php');
-//				break;
 			default:
 				echo '';
 				break;
@@ -1609,22 +1516,6 @@ class C4_AttachmentView extends C4_AbstractView {
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
-//			case SearchFields_Address::SLA_ID:
-//				$slas = DAO_Sla::getAll();
-//				$strings = array();
-//
-//				foreach($values as $val) {
-//					if(0==$val) {
-//						$strings[] = "None";
-//					} else {
-//						if(!isset($slas[$val]))
-//						continue;
-//						$strings[] = $slas[$val]->name;
-//					}
-//				}
-//				echo implode(", ", $strings);
-//				break;
-
 			default:
 				parent::renderCriteriaParam($param);
 				break;
@@ -1693,11 +1584,6 @@ class C4_AttachmentView extends C4_AbstractView {
 				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
-				
-//			case SearchFields_Address::SLA_ID:
-//				@$sla_ids = DevblocksPlatform::importGPC($_REQUEST['sla_ids'], 'array', array());
-//				$criteria = new DevblocksSearchCriteria($field, $oper, $sla_ids);
-//				break;
 		}
 
 		if(!empty($criteria)) {
@@ -1717,9 +1603,6 @@ class C4_AttachmentView extends C4_AbstractView {
 //		if(is_array($do))
 //		foreach($do as $k => $v) {
 //			switch($k) {
-//				case 'sla':
-//					$change_fields[DAO_Address::SLA_ID] = intval($v);
-//					break;
 //				case 'banned':
 //					$change_fields[DAO_Address::IS_BANNED] = intval($v);
 //					break;
@@ -1747,14 +1630,6 @@ class C4_AttachmentView extends C4_AbstractView {
 //		for($x=0;$x<=$batch_total;$x+=100) {
 //			$batch_ids = array_slice($ids,$x,100);
 //			DAO_Address::update($batch_ids, $change_fields);
-//
-//			// Cascade SLA changes
-//			if(isset($do['sla'])) {
-//				foreach($batch_ids as $id) {
-//					DAO_Sla::cascadeAddressSla($id, $do['sla']);
-//				}
-//			}
-//
 //			unset($batch_ids);
 //		}
 //
@@ -1773,7 +1648,6 @@ class C4_ContactOrgView extends C4_AbstractView {
 		$this->renderSortAsc = true;
 
 		$this->view_columns = array(
-			SearchFields_ContactOrg::SLA_ID,
 			SearchFields_ContactOrg::COUNTRY,
 			SearchFields_ContactOrg::CREATED,
 			SearchFields_ContactOrg::PHONE,
@@ -1799,9 +1673,6 @@ class C4_ContactOrgView extends C4_AbstractView {
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
-		$slas = DAO_Sla::getAll();
-		$tpl->assign('slas', $slas);
-
 		$org_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Org::ID);
 		$tpl->assign('custom_fields', $org_fields);
 		
@@ -1824,11 +1695,6 @@ class C4_ContactOrgView extends C4_AbstractView {
 			case SearchFields_ContactOrg::COUNTRY:
 			case SearchFields_ContactOrg::WEBSITE:
 				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__string.tpl.php');
-				break;
-			case SearchFields_ContactOrg::SLA_ID:
-				$slas = DAO_Sla::getAll();
-				$tpl->assign('slas', $slas);
-				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/contacts/orgs/criteria/sla.tpl.php');
 				break;
 			default:
 				// Custom Fields
@@ -1864,22 +1730,6 @@ class C4_ContactOrgView extends C4_AbstractView {
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
-			case SearchFields_ContactOrg::SLA_ID:
-				$slas = DAO_Sla::getAll();
-				$strings = array();
-
-				foreach($values as $val) {
-					if(0==$val) {
-						$strings[] = "None";
-					} else {
-						if(!isset($slas[$val]))
-						continue;
-						$strings[] = $slas[$val]->name;
-					}
-				}
-				echo implode(", ", $strings);
-				break;
-
 			default:
 				parent::renderCriteriaParam($param);
 				break;
@@ -1915,10 +1765,6 @@ class C4_ContactOrgView extends C4_AbstractView {
 					$value = '*'.$value.'*';
 				}
 				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
-				break;
-			case SearchFields_ContactOrg::SLA_ID:
-				@$sla_ids = DevblocksPlatform::importGPC($_REQUEST['sla_ids'], 'array', array());
-				$criteria = new DevblocksSearchCriteria($field, $oper, $sla_ids);
 				break;
 			default:
 				// Custom Fields
@@ -1983,9 +1829,6 @@ class C4_ContactOrgView extends C4_AbstractView {
 				case 'country':
 					$change_fields[DAO_ContactOrg::COUNTRY] = $v;
 					break;
-//				case 'sla':
-//					$change_fields[DAO_Address::SLA_ID] = intval($v);
-//					break;
 				default:
 					// Custom fields
 					if(substr($k,0,3)=="cf_") {
@@ -2017,13 +1860,6 @@ class C4_ContactOrgView extends C4_AbstractView {
 		for($x=0;$x<=$batch_total;$x+=100) {
 			$batch_ids = array_slice($ids,$x,100);
 			DAO_ContactOrg::update($batch_ids, $change_fields);
-
-//			// Cascade SLA changes
-//			if(isset($do['sla'])) {
-//				foreach($batch_ids as $id) {
-//					DAO_Sla::cascadeAddressSla($id, $do['sla']);
-//				}
-//			}
 
 			// Set custom fields // [TODO] Optimize
 			if(!empty($custom_fields))
@@ -2075,9 +1911,6 @@ class C4_KbArticleView extends C4_AbstractView {
 		//		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
-
-//		$slas = DAO_Sla::getAll();
-//		$tpl->assign('slas', $slas);
 
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('view_fields', $this->getColumns());
@@ -2556,9 +2389,6 @@ class C4_WorkerEventView extends C4_AbstractView {
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
-//		$slas = DAO_Sla::getAll();
-//		$tpl->assign('slas', $slas);
-
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 		
@@ -2592,11 +2422,6 @@ class C4_WorkerEventView extends C4_AbstractView {
 			case SearchFields_WorkerEvent::WORKER_ID:
 				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__worker.tpl.php');
 				break;
-//			case SearchFields_WorkerEvent::SLA_ID:
-//				$slas = DAO_Sla::getAll();
-//				$tpl->assign('slas', $slas);
-//				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/contacts/addresses/criteria/sla.tpl.php');
-//				break;
 			default:
 				echo '';
 				break;
@@ -2608,22 +2433,6 @@ class C4_WorkerEventView extends C4_AbstractView {
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
-//			case SearchFields_Address::SLA_ID:
-//				$slas = DAO_Sla::getAll();
-//				$strings = array();
-//
-//				foreach($values as $val) {
-//					if(0==$val) {
-//						$strings[] = "None";
-//					} else {
-//						if(!isset($slas[$val]))
-//						continue;
-//						$strings[] = $slas[$val]->name;
-//					}
-//				}
-//				echo implode(", ", $strings);
-//				break;
-
 			default:
 				parent::renderCriteriaParam($param);
 				break;
@@ -2685,11 +2494,6 @@ class C4_WorkerEventView extends C4_AbstractView {
 				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
-				
-//			case SearchFields_Address::SLA_ID:
-//				@$sla_ids = DevblocksPlatform::importGPC($_REQUEST['sla_ids'], 'array', array());
-//				$criteria = new DevblocksSearchCriteria($field, $oper, $sla_ids);
-//				break;
 		}
 
 		if(!empty($criteria)) {
@@ -2709,9 +2513,6 @@ class C4_WorkerEventView extends C4_AbstractView {
 //		if(is_array($do))
 //		foreach($do as $k => $v) {
 //			switch($k) {
-//				case 'sla':
-//					$change_fields[DAO_Address::SLA_ID] = intval($v);
-//					break;
 //				case 'banned':
 //					$change_fields[DAO_Address::IS_BANNED] = intval($v);
 //					break;
@@ -2739,14 +2540,6 @@ class C4_WorkerEventView extends C4_AbstractView {
 //		for($x=0;$x<=$batch_total;$x+=100) {
 //			$batch_ids = array_slice($ids,$x,100);
 //			DAO_Address::update($batch_ids, $change_fields);
-//
-//			// Cascade SLA changes
-//			if(isset($do['sla'])) {
-//				foreach($batch_ids as $id) {
-//					DAO_Sla::cascadeAddressSla($id, $do['sla']);
-//				}
-//			}
-//
 //			unset($batch_ids);
 //		}
 //
@@ -2768,8 +2561,6 @@ class Model_ContactOrg {
 	public $website;
 	public $created;
 	public $sync_id = '';
-	public $sla_id;
-	public $sla_expires;
 };
 
 class Model_WorkerWorkspaceList {
@@ -3061,44 +2852,6 @@ class C4_Overview {
 
 		return $worker_counts;
 	}
-
-	static function getSlaTotals() {
-		$db = DevblocksPlatform::getDatabaseService();
-
-		$active_worker = CerberusApplication::getActiveWorker();
-		$memberships = $active_worker->getMemberships();
-		
-		if(empty($memberships))
-			return array();
-		
-		// SLA Loads
-		$sql = sprintf("SELECT count(*) AS hits, t.sla_id ".
-			"FROM ticket t ".
-			"INNER JOIN sla s ON (s.id=t.sla_id) ".
-			"WHERE t.is_waiting = 0 AND t.is_closed = 0 AND t.is_deleted = 0 ".
-			"AND t.next_worker_id = 0 ".
-			"AND t.team_id IN (%s) ".
-			"GROUP BY t.sla_id, t.sla_priority ".
-			"ORDER BY t.sla_priority DESC ",
-			implode(',', array_keys($memberships))
-		);
-		$rs_sla = $db->Execute($sql);
-
-		$sla_counts = array();
-		while(!$rs_sla->EOF) {
-			$sla_id = intval($rs_sla->fields['sla_id']);
-			$hits = intval($rs_sla->fields['hits']);
-				
-			$sla_counts[$sla_id] = $hits;
-				
-			@$sla_counts['total'] = intval($sla_counts['total']) + $hits;
-				
-			$rs_sla->MoveNext();
-		}
-
-		return $sla_counts;
-	}
-
 }
 
 class CerberusBayesWord {
@@ -3188,12 +2941,6 @@ class Model_WorkerEvent {
 	public $url;
 };
 
-class Model_Sla {
-	public $id = 0;
-	public $name = '';
-	public $priority = 100;
-}
-
 class Model_ViewRss {
 	public $id = 0;
 	public $title = '';
@@ -3277,8 +3024,6 @@ class CerberusTicket {
 	public $last_action_code;
 	public $last_worker_id;
 	public $next_worker_id;
-	public $sla_id;
-	public $sla_priority;
 
 	function CerberusTicket() {}
 

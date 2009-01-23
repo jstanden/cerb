@@ -529,7 +529,6 @@ class Rest_AddressesController extends Ch_RestController {
 			'a_num_spam' => null,
 			'a_num_nonspam' => null,
 			'a_is_banned' => 'is_banned',
-			'a_sla_id' => null,
 		);
 		
 		if ($dir === true && array_key_exists($idx, $translations))
@@ -863,7 +862,6 @@ class Rest_OrgsController extends Ch_RestController {
 			'c_fax' => 'fax',
 			'c_website' => 'website',
 			'c_created' => null,
-			'c_sla_id' => null,
 		);
 		
 		if ($dir === true && array_key_exists($idx, $translations))
@@ -1115,8 +1113,6 @@ class Rest_TicketsController extends Ch_RestController {
 			't_first_wrote_nonspam' => null,
 			't_interesting_words' => null,
 			't_due_date' => 'due_date',
-			't_sla_id' => null,
-			't_sla_priority' => null,
 			't_first_contact_org_id' => 'first_contact_org_id',
 			'tm_id' => 'team_id',
 		);

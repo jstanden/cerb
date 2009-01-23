@@ -34,16 +34,6 @@
 		</td>
 	</tr>
 	<tr>
-		<td width="0%" nowrap="nowrap">Service Level:</td>
-		<td width="100%"><select name="sla">
-			<option value=""></option>
-			<option value="0">- None -</option>
-      		{foreach from=$slas item=sla key=sla_id}
-      			<option value="{$sla_id}">{$sla->name}</option>
-      		{/foreach}
-      	</select></td>
-	</tr>
-	<tr>
 		<td width="0%" nowrap="nowrap">Banned:</td>
 		<td width="100%"><select name="is_banned">
 			<option value=""></option>

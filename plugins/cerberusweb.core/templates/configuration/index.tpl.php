@@ -96,13 +96,6 @@ tabView.addTab( new YAHOO.widget.Tab({
 }));
 
 tabView.addTab( new YAHOO.widget.Tab({
-    label: 'Service Levels',
-    dataSrc: '{/literal}{devblocks_url}ajax.php?c=config&a=showTabSla{/devblocks_url}{literal}',
-    cacheData: false,
-    {/literal}active: {if $tab_selected=="sla"}true{else}false{/if}{literal}
-}));
-
-tabView.addTab( new YAHOO.widget.Tab({
     label: 'Custom Fields',
     dataSrc: '{/literal}{devblocks_url}ajax.php?c=config&a=showTabFields{/devblocks_url}{literal}',
     cacheData: false,

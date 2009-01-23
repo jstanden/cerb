@@ -252,19 +252,6 @@ class CerberusMail {
 		
 		// [TODO] this is redundant with the Parser code.  Should be refactored later
 		
-		// Is this address covered by an SLA?
-		$sla_id = 0;
-		$sla_priority = 0;
-		
-		// [TODO] This has to handle multiple TO
-//		$toAddressInst = CerberusApplication::hashLookupAddress($to, true);
-//		if(!empty($toAddressInst->sla_id)) {
-//			if(null != ($toAddressSla = DAO_Sla::get($toAddressInst->sla_id))) {
-//				@$sla_id = $toAddressSla->id;
-//				@$sla_priority = $toAddressSla->priority;
-//			}
-//		}
-		
 		$fields = array(
 			DAO_Ticket::MASK => $mask,
 			DAO_Ticket::SUBJECT => $subject,
@@ -275,8 +262,6 @@ class CerberusMail {
 			DAO_Ticket::LAST_WORKER_ID => $worker->id,
 			DAO_Ticket::NEXT_WORKER_ID => 0,
 			DAO_Ticket::TEAM_ID => $team_id,
-			DAO_Ticket::SLA_ID => $sla_id,
-			DAO_Ticket::SLA_PRIORITY => $sla_priority,
 		);
 		
 		// "Next:" [TODO] This is highly redundant with CerberusMail::reply

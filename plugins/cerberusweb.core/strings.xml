@@ -814,9 +814,6 @@
 		<tu tuid='mail.overview.my_mail'>
 			<tuv xml:lang="en_US"><seg>my mail</seg></tuv>
 		</tu>
-		<tu tuid='mail.overview.service_levels'>
-			<tuv xml:lang="en_US"><seg>Service Levels</seg></tuv>
-		</tu>
 		<tu tuid='mail.overview.spam_filtered'>
 			<tuv xml:lang="en_US"><seg>(Spam Filtered)</seg></tuv>
 		</tu>
@@ -957,17 +954,6 @@ If you did not request this, do not click the link above.  The request will expi
 
 		<tu tuid='search.no_saved'>
 			<tuv xml:lang="en_US"><seg>No saved searches.</seg></tuv>
-		</tu>
-
-		<!-- SLA -->
-		<tu tuid='sla.name'>
-			<tuv xml:lang="en_US"><seg>Service Level</seg></tuv>
-		</tu>
-		<tu tuid='sla.priority'>
-			<tuv xml:lang="en_US"><seg>Service Priority</seg></tuv>
-		</tu>
-		<tu tuid='sla.expires'>
-			<tuv xml:lang="en_US"><seg>Expires</seg></tuv>
 		</tu>
 
 		<!-- Statuses -->

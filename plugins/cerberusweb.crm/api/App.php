@@ -699,7 +699,6 @@ class CrmPage extends CerberusPageExtension {
 				<org_name><![CDATA[: Cogenix Search Consultants]]></org_name>
 				<first_name><![CDATA[Austin]]></first_name>
 				<last_name><![CDATA[Barrington]]></last_name>
-				<phone>(830) 237-5867</phone>
 			</contact>
 			<created_date>1102492800</created_date>
 			<updated_date>1105257600</updated_date>
@@ -1088,7 +1087,6 @@ class DAO_CrmOpportunity extends DevblocksORMHelper {
 			"org.website as %s, ".
 			"o.primary_email_id as %s, ".
 			"a.email as %s, ".
-			"a.phone as %s, ".
 			"o.created_date as %s, ".
 			"o.updated_date as %s, ".
 			"o.closed_date as %s, ".
