@@ -485,6 +485,10 @@ class C4_TimeTrackingEntryView extends C4_AbstractView {
 		$sources = DAO_TimeTrackingEntry::getSources();
 		$tpl->assign('sources', $sources);		
 		
+		// Custom fields
+		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_TimeEntry::ID);
+		$tpl->assign('custom_fields', $custom_fields);
+		
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('view_fields', $this->getColumns());
 		$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.timetracking/templates/timetracking/time/view.tpl.php');

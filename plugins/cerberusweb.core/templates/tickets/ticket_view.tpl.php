@@ -88,7 +88,7 @@
 			{elseif $col->type=='D'}
 			<td>{$result.$column}</td>
 			{elseif $col->type=='E'}
-			<td>{$result.$column|devblocks_date}</td>
+			<td><abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr></td>
 			{elseif $col->type=='C'}
 			<td>{if '1'==$result.$column}Yes{elseif '0'==$result.$column}No{/if}</td>
 			{/if}
@@ -109,7 +109,7 @@
 		{elseif $column=="t_first_wrote"}
 		<td><a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$result.t_first_wrote}&view_id={$view->id}',this,false,'500px',ajax.cbAddressPeek);" title="{$result.t_first_wrote}">{$result.t_first_wrote|truncate:45:'...':true:true}</a></td>
 		{elseif $column=="t_created_date"}
-		<td title="{$result.t_created_date|devblocks_date}">{$result.t_created_date|prettytime}</td>
+		<td title="{$result.t_created_date|devblocks_date}">{$result.t_created_date|devblocks_prettytime}</td>
 		{elseif $column=="t_updated_date"}
 			{assign var=overdue value=0}
 			{if $result.t_category_id}
@@ -119,9 +119,9 @@
 					{math assign=overdue equation="(t-x)/3600" t=$timestamp_now x=$result.t_updated_date h=$bucket->response_hrs format="%d"}
 				{/if}
 			{/if}
-			<td title="{$result.t_updated_date|devblocks_date}" style="{if $overdue && $overdue>=$bucket->response_hrs}color:rgb(220,0,0);font-weight:bold;{/if}">{$result.t_updated_date|prettytime}</td>
+			<td title="{$result.t_updated_date|devblocks_date}" style="{if $overdue && $overdue>=$bucket->response_hrs}color:rgb(220,0,0);font-weight:bold;{/if}">{$result.t_updated_date|devblocks_prettytime}</td>
 		{elseif $column=="t_due_date"}
-		<td title="{if $result.t_due_date}{$result.t_due_date|devblocks_date}{/if}">{if $result.t_due_date}{$result.t_due_date|prettytime}{/if}</td>
+		<td title="{if $result.t_due_date}{$result.t_due_date|devblocks_date}{/if}">{if $result.t_due_date}{$result.t_due_date|devblocks_prettytime}{/if}</td>
 		{*{elseif $column=="t_tasks"}
 		<td align='center'>{if !empty($result.t_tasks)}{$result.t_tasks}{/if}</td>*}
 		{elseif $column=="tm_name"}

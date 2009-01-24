@@ -71,7 +71,7 @@
 				{elseif $col->type=='D'}
 				<td>{$result.$column}</td>
 				{elseif $col->type=='E'}
-				<td>{$result.$column|devblocks_date}</td>
+				<td><abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr></td>
 				{elseif $col->type=='C'}
 				<td>{if '1'==$result.$column}Yes{elseif '0'==$result.$column}No{/if}</td>
 				{/if}
@@ -94,17 +94,6 @@
 	<tr>
 		<td colspan="2">
 			<button type="button" onclick="genericAjaxPanel('c=contacts&a=showOrgBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),this,false,'500px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> bulk update</button>
-
-			<!-- 
-			<span id="tourDashboardBatch"><button type="button" onclick="ajax.showBatchPanel('{$view->id}','{$dashboard_team_id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> bulk update</button></span>
-
-			<a href="javascript:;" onclick="toggleDiv('view{$view->id}_more');">More &raquo;</a>
-
-			<div id="view{$view_id}_more" style="display:none;padding-top:5px;padding-bottom:5px;">
-				<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','merge');">merge</button>
-			</div>
-			 -->
-
 		</td>
 	</tr>
 	{/if}

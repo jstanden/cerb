@@ -71,7 +71,7 @@
 				{elseif $col->type=='D'}
 				<td>{$result.$column}</td>
 				{elseif $col->type=='E'}
-				<td>{$result.$column|devblocks_date}</td>
+				<td><abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr></td>
 				{elseif $col->type=='C'}
 				<td>{if '1'==$result.$column}Yes{elseif '0'==$result.$column}No{/if}</td>
 				{/if}

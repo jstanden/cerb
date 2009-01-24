@@ -60,7 +60,7 @@
 			{elseif $column=="c_created_date" || $column == "c_updated_date"}
 				<td title="{$result.$column|devblocks_date}">
 					{if !empty($result.$column)}
-						{$result.$column|prettytime}&nbsp;
+						{$result.$column|devblocks_prettytime}&nbsp;
 					{/if}
 				</td>
 			{elseif $column=="c_worker_id"}

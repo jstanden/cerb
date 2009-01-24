@@ -3,7 +3,7 @@
 <table cellspacing="0" cellpadding="0" border="0" width="100%" style="padding-bottom:5px;">
 <tr>
 	<td valign="top" style="padding-right:5px;">
-		<h1 style="display:inline;">{$opp->name}</h1> (<a href="javascript:;" onclick="genericAjaxPanel('c=crm&a=showOppPanel&view_id=&id={$opp->id}', this, false, '500px');">edit</a>)<br> 
+		<h1>{$opp->name}</h1> 
 	
 		{assign var=opp_worker_id value=$opp->worker_id}
 		

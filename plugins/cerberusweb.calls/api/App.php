@@ -409,8 +409,6 @@ class C4_CallEntryView extends C4_AbstractView {
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 		
-		$tpl->register_modifier('prettytime', array('CerberusUtils', 'smarty_modifier_prettytime'));
-		
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('view_fields', $this->getColumns());
 		$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.calls/templates/calls/view.tpl.php');

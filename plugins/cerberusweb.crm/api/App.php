@@ -176,6 +176,7 @@ class CrmPage extends CerberusPageExtension {
 			$page = floor($pos / $range);
 			
 			list($series, $series_count) = DAO_CrmOpportunity::search(
+				array(),
 				$view->params,
 				$range,
 				$page,
@@ -216,7 +217,16 @@ class CrmPage extends CerberusPageExtension {
 			}
 		}
 		
-		$workers = DAO_Worker::getAll();
+		$opp_fields = DAO_CustomField::getBySource(CrmCustomFieldSource_Opportunity::ID);
+		$tpl->assign('opp_fields', $opp_fields);
+		
+		if(!empty($opp_id)) {
+			$opp_field_values = DAO_CustomFieldValue::getValuesBySourceIds(CrmCustomFieldSource_Opportunity::ID, $opp_id);
+			if(isset($opp_field_values[$opp->id]))
+				$tpl->assign('opp_field_values', $opp_field_values[$opp->id]);
+		}
+		
+		$workers = DAO_Worker::getAllActive();
 		$tpl->assign('workers', $workers);
 		
 		$tpl->display('file:' . $tpl_path . 'crm/opps/rpc/peek.tpl.php');
@@ -275,6 +285,10 @@ class CrmPage extends CerberusPageExtension {
 			);
 			DAO_CrmOpportunity::update($opp_id, $fields);
 		}
+		
+		// Custom fields
+		@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
+		DAO_CustomFieldValue::handleFormPost(CrmCustomFieldSource_Opportunity::ID, $opp_id, $field_ids);
 		
 		// Reload view (if linked)
 		if(!empty($view_id) && null != ($view = C4_AbstractViewLoader::getView('', $view_id))) {
@@ -355,6 +369,48 @@ class CrmPage extends CerberusPageExtension {
 		C4_AbstractViewLoader::setView($view->id, $view);
 		
 		$tpl->display('file:' . $tpl_path . 'crm/opps/display/tabs/mail.tpl.php');
+	}
+	
+	function showOppPropertiesTabAction() {
+		@$opp_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer');
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl_path = realpath(dirname(__FILE__) . '/../templates/') . DIRECTORY_SEPARATOR;
+		$tpl->assign('path', $tpl_path);
+		
+		$opp = DAO_CrmOpportunity::get($opp_id);
+		$tpl->assign('opp', $opp);
+
+		$workers = DAO_Worker::getAllActive();
+		$tpl->assign('workers', $workers);
+		
+		$opp_fields = DAO_CustomField::getBySource(CrmCustomFieldSource_Opportunity::ID);
+		$tpl->assign('opp_fields', $opp_fields);
+		
+		$opp_field_values = DAO_CustomFieldValue::getValuesBySourceIds(CrmCustomFieldSource_Opportunity::ID, $opp->id);
+		if(isset($opp_field_values[$opp->id]))
+			$tpl->assign('opp_field_values', $opp_field_values[$opp->id]);
+		
+		$tpl->display('file:' . $tpl_path . 'crm/opps/display/tabs/properties.tpl.php');
+	}
+	
+	function saveOppPropertiesAction() {
+		@$opp_id = DevblocksPlatform::importGPC($_REQUEST['opp_id'],'integer', 0);
+		@$name = DevblocksPlatform::importGPC($_REQUEST['name'],'string','');
+		@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'integer',0);
+		
+		if(!empty($opp_id)) {
+			$fields = array(
+				DAO_CrmOpportunity::NAME => $name,
+				DAO_CrmOpportunity::WORKER_ID => $worker_id,
+			);
+			DAO_CrmOpportunity::update($opp_id, $fields);
+			
+			@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
+			DAO_CustomFieldValue::handleFormPost(CrmCustomFieldSource_Opportunity::ID, $opp_id, $field_ids);
+		}
+		
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('crm','opp',$opp_id)));
 	}
 	
 	function showOppNotesTabAction() {
@@ -507,6 +563,93 @@ class CrmPage extends CerberusPageExtension {
 		
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('crm','opps',$opp_id)));
 	}
+	
+	function showOppBulkPanelAction() {
+		@$ids = DevblocksPlatform::importGPC($_REQUEST['ids']);
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
+
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		$tpl->assign('view_id', $view_id);
+
+	    if(!empty($ids)) {
+	        $id_list = DevblocksPlatform::parseCsvString($ids);
+	        $tpl->assign('opp_ids', implode(',', $id_list));
+	    }
+		
+	    // Workers
+	    $workers = DAO_Worker::getAllActive();
+	    $tpl->assign('workers', $workers);
+	    
+		// Custom Fields
+		$custom_fields = DAO_CustomField::getBySource(CrmCustomFieldSource_Opportunity::ID);
+		$tpl->assign('custom_fields', $custom_fields);
+		
+		$tpl->cache_lifetime = "0";
+		$tpl->display('file:' . dirname(__FILE__) . '/../templates/crm/opps/bulk.tpl.php');
+	}
+	
+	function doOppBulkUpdateAction() {
+		// Checked rows
+	    @$opp_ids_str = DevblocksPlatform::importGPC($_REQUEST['opp_ids'],'string');
+		$opp_ids = DevblocksPlatform::parseCsvString($opp_ids_str);
+
+		// Filter: whole list or check
+	    @$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
+	    
+	    // View
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
+		$view = C4_AbstractViewLoader::getView('',$view_id);
+		
+		// Opp fields
+		@$status = trim(DevblocksPlatform::importGPC($_POST['status'],'string',''));
+		@$worker_id = trim(DevblocksPlatform::importGPC($_POST['worker_id'],'string',''));
+
+		$do = array();
+		
+		// Do: Status
+		if(0 != strlen($status))
+			$do['status'] = $status;
+		// Do: Worker
+		if(0 != strlen($worker_id))
+			$do['worker_id'] = $worker_id;
+			
+		// Do: Custom fields // [TODO] Highly redundant
+		@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'],'array',array());
+		$fields = DAO_CustomField::getBySource(CrmCustomFieldSource_Opportunity::ID);
+		
+		if(is_array($field_ids))
+		foreach($field_ids as $field_id) {
+			if(!isset($fields[$field_id]))
+				continue;
+			
+			@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'string','');
+
+			switch($fields[$field_id]->type) {
+				case Model_CustomField::TYPE_MULTI_LINE:
+				case Model_CustomField::TYPE_SINGLE_LINE:
+					$do['cf_'.$field_id] = $field_value;
+					break;
+					
+				case Model_CustomField::TYPE_DROPDOWN:
+					$do['cf_'.$field_id] = $field_value;
+					break;
+					
+				case Model_CustomField::TYPE_CHECKBOX:
+					$do['cf_'.$field_id] = !empty($field_value) ? 1 : 0;
+					break;
+					
+				case Model_CustomField::TYPE_DATE:
+					$do['cf_'.$field_id] = !empty($field_value) ? @strtotime($field_value) : '';
+					break;
+			}
+		}
+			
+		$view->doBulkUpdate($filter, $do, $opp_ids);
+		
+		$view->render();
+		return;
+	}
 };
 
 class DAO_CrmOpportunity extends DevblocksORMHelper {
@@ -623,18 +766,18 @@ class DAO_CrmOpportunity extends DevblocksORMHelper {
      * @param boolean $withCounts
      * @return array
      */
-    static function search($params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
+    static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
 
-        list($tables,$wheres) = parent::_parseSearchParams($params, array(), SearchFields_CrmOpportunity::getFields());
+        list($tables,$wheres) = parent::_parseSearchParams($params, $columns, SearchFields_CrmOpportunity::getFields());
 		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
 		
-		$sql = sprintf("SELECT ".
+		$select_sql = sprintf("SELECT ".
 			"o.id as %s, ".
 			"o.name as %s, ".
 			"org.id as %s, ".
 			"org.name as %s, ".
-			"org.website as %s, ".
+//			"org.website as %s, ".
 			"o.primary_email_id as %s, ".
 			"a.email as %s, ".
 			"o.created_date as %s, ".
@@ -642,15 +785,12 @@ class DAO_CrmOpportunity extends DevblocksORMHelper {
 			"o.closed_date as %s, ".
 			"o.is_closed as %s, ".
 			"o.is_won as %s, ".
-			"o.worker_id as %s ".
-			"FROM crm_opportunity o ".
-			"LEFT JOIN address a ON (a.id = o.primary_email_id) ".
-			"LEFT JOIN contact_org org ON (org.id = a.contact_org_id) ",
+			"o.worker_id as %s ",
 			    SearchFields_CrmOpportunity::ID,
 			    SearchFields_CrmOpportunity::NAME,
 			    SearchFields_CrmOpportunity::ORG_ID,
 			    SearchFields_CrmOpportunity::ORG_NAME,
-			    SearchFields_CrmOpportunity::ORG_WEBSITE,
+//			    SearchFields_CrmOpportunity::ORG_WEBSITE,
 			    SearchFields_CrmOpportunity::PRIMARY_EMAIL_ID,
 			    SearchFields_CrmOpportunity::EMAIL_ADDRESS,
 			    SearchFields_CrmOpportunity::CREATED_DATE,
@@ -659,14 +799,53 @@ class DAO_CrmOpportunity extends DevblocksORMHelper {
 			    SearchFields_CrmOpportunity::IS_CLOSED,
 			    SearchFields_CrmOpportunity::IS_WON,
 			    SearchFields_CrmOpportunity::WORKER_ID
-			).
+			);
+			
+		$join_sql = 
+			"FROM crm_opportunity o ".
+			"LEFT JOIN address a ON (a.id = o.primary_email_id) ".
+			"LEFT JOIN contact_org org ON (org.id = a.contact_org_id) "
+		;
 			
 			// [JAS]: Dynamic table joins
 //			(isset($tables['m']) ? "INNER JOIN requester r ON (r.ticket_id=t.id)" : " ").
 			
-			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "").
-			(!empty($sortBy) ? sprintf("ORDER BY %s %s",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : "")
-		;
+    		// Custom field joins
+		$custom_fields = DAO_CustomField::getBySource(CrmCustomFieldSource_Opportunity::ID);
+		
+		foreach($tables as $tbl_name => $null) {
+			if(substr($tbl_name,0,3)!="cf_")
+				continue;
+				
+			if(0 != ($cf_id = intval(substr($tbl_name,3)))) {
+				// Make sure our custom fields still exist
+				if(!isset($custom_fields[$cf_id])) {
+					unset($tables[$tbl_name]);
+					continue;
+				}
+				
+				$select_sql .= sprintf(", cf_%d.field_value as cf_%d ",
+					$cf_id,
+					$cf_id
+				);
+				
+				$join_sql .= sprintf("LEFT JOIN custom_field_value cf_%d ON ('%s' = cf_%d.source_extension AND o.id=cf_%d.source_id AND cf_%d.field_id=%d) ",
+					$cf_id,
+					CrmCustomFieldSource_Opportunity::ID,
+					$cf_id,
+					$cf_id,
+					$cf_id,
+					$cf_id
+				);
+			}
+		}		
+		
+		$where_sql = "".
+			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "");
+			
+		$sql = $select_sql . $join_sql . $where_sql .  
+			(!empty($sortBy) ? sprintf("ORDER BY %s %s",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : "");
+		
 		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		$results = array();
@@ -708,7 +887,7 @@ class SearchFields_CrmOpportunity implements IDevblocksSearchFields {
 	
 	const ORG_ID = 'org_id';
 	const ORG_NAME = 'org_name';
-	const ORG_WEBSITE = 'org_website';
+//	const ORG_WEBSITE = 'org_website';
 
 	const EMAIL_ADDRESS = 'a_email';
 	
@@ -718,9 +897,16 @@ class SearchFields_CrmOpportunity implements IDevblocksSearchFields {
 	static function getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
-		return array(
+		$columns = array(
 			self::ID => new DevblocksSearchField(self::ID, 'o', 'id', null, $translate->_('crm.opportunity.id')),
+			
 			self::PRIMARY_EMAIL_ID => new DevblocksSearchField(self::PRIMARY_EMAIL_ID, 'o', 'primary_email_id', null, $translate->_('crm.opportunity.primary_email_id')),
+			self::EMAIL_ADDRESS => new DevblocksSearchField(self::EMAIL_ADDRESS, 'a', 'email', null, $translate->_('crm.opportunity.email_address')),
+			
+			self::ORG_ID => new DevblocksSearchField(self::ORG_ID, 'org', 'id', null),
+			self::ORG_NAME => new DevblocksSearchField(self::ORG_NAME, 'org', 'name', null, $translate->_('crm.opportunity.org_name')),
+			//self::ORG_WEBSITE => new DevblocksSearchField(self::ORG_WEBSITE, 'org', 'website', null, $translate->_('crm.opportunity.org_website')),
+			
 			self::NAME => new DevblocksSearchField(self::NAME, 'o', 'name', null, $translate->_('crm.opportunity.name')),
 			self::CREATED_DATE => new DevblocksSearchField(self::CREATED_DATE, 'o', 'created_date', null, $translate->_('crm.opportunity.created_date')),
 			self::UPDATED_DATE => new DevblocksSearchField(self::UPDATED_DATE, 'o', 'updated_date', null, $translate->_('crm.opportunity.updated_date')),
@@ -728,13 +914,17 @@ class SearchFields_CrmOpportunity implements IDevblocksSearchFields {
 			self::IS_WON => new DevblocksSearchField(self::IS_WON, 'o', 'is_won', null, $translate->_('crm.opportunity.is_won')),
 			self::IS_CLOSED => new DevblocksSearchField(self::IS_CLOSED, 'o', 'is_closed', null, $translate->_('crm.opportunity.is_closed')),
 			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 'o', 'worker_id', null, $translate->_('crm.opportunity.worker_id')),
-			
-			self::ORG_ID => new DevblocksSearchField(self::ORG_ID, 'org', 'id', null),
-			self::ORG_NAME => new DevblocksSearchField(self::ORG_NAME, 'org', 'name', null, $translate->_('crm.opportunity.org_name')),
-			self::ORG_WEBSITE => new DevblocksSearchField(self::ORG_WEBSITE, 'org', 'website', null, $translate->_('crm.opportunity.org_website')),
-			
-			self::EMAIL_ADDRESS => new DevblocksSearchField(self::EMAIL_ADDRESS, 'a', 'email', null, $translate->_('crm.opportunity.email_address')),
 		);
+		
+		// Custom Fields
+		$fields = DAO_CustomField::getBySource(CrmCustomFieldSource_Opportunity::ID);
+		if(is_array($fields))
+		foreach($fields as $field_id => $field) {
+			$key = 'cf_'.$field_id;
+			$columns[$key] = new DevblocksSearchField($key,$key,'field_value',null,$field->name);
+		}
+		
+		return $columns;
 	}
 };	
 
@@ -773,6 +963,7 @@ class C4_CrmOpportunityView extends C4_AbstractView {
 
 	function getData() {
 		$objects = DAO_CrmOpportunity::search(
+			$this->view_columns,
 			$this->params,
 			$this->renderLimit,
 			$this->renderPage,
@@ -790,6 +981,10 @@ class C4_CrmOpportunityView extends C4_AbstractView {
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 		
+		// Custom fields
+		$custom_fields = DAO_CustomField::getBySource(CrmCustomFieldSource_Opportunity::ID);
+		$tpl->assign('custom_fields', $custom_fields);
+		
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('view_fields', $this->getColumns());
 		$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.crm/templates/crm/opps/view.tpl.php');
@@ -803,7 +998,7 @@ class C4_CrmOpportunityView extends C4_AbstractView {
 		switch($field) {
 			case SearchFields_CrmOpportunity::NAME:
 			case SearchFields_CrmOpportunity::ORG_NAME:
-			case SearchFields_CrmOpportunity::ORG_WEBSITE:
+//			case SearchFields_CrmOpportunity::ORG_WEBSITE:
 			case SearchFields_CrmOpportunity::EMAIL_ADDRESS:
 				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__string.tpl.php');
 				break;
@@ -827,7 +1022,32 @@ class C4_CrmOpportunityView extends C4_AbstractView {
 				break;
 				
 			default:
-				echo '';
+				// Custom Fields
+				if(substr($field,0,3)=='cf_') {
+					$tpl_path = DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/';
+					
+					$cfield_id = substr($field,3);
+					$cfield = DAO_CustomField::get($cfield_id);
+					switch($cfield->type) {
+						case Model_CustomField::TYPE_DROPDOWN:
+							$tpl->assign('cfield', $cfield);
+							$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__cfield_dropdown.tpl.php');
+							break;
+						case Model_CustomField::TYPE_CHECKBOX:
+							$tpl->assign('cfield', $cfield);
+							$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__cfield_checkbox.tpl.php');
+							break;
+						case Model_CustomField::TYPE_DATE:
+							$tpl->assign('cfield', $cfield);
+							$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__cfield_date.tpl.php');
+							break;
+						default:
+							$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__string.tpl.php');
+							break;
+					}
+				} else {
+					echo ' ';
+				}
 				break;
 		}
 	}
@@ -893,7 +1113,7 @@ class C4_CrmOpportunityView extends C4_AbstractView {
 		switch($field) {
 			case SearchFields_CrmOpportunity::NAME:
 			case SearchFields_CrmOpportunity::ORG_NAME:
-			case SearchFields_CrmOpportunity::ORG_WEBSITE:
+//			case SearchFields_CrmOpportunity::ORG_WEBSITE:
 			case SearchFields_CrmOpportunity::EMAIL_ADDRESS:
 				// force wildcards if none used on a LIKE
 				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
@@ -926,6 +1146,43 @@ class C4_CrmOpportunityView extends C4_AbstractView {
 				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_id);
 				break;
 				
+			default:
+				// Custom Fields
+				if(substr($field,0,3)=='cf_') {
+					$cfield_id = substr($field,3);
+					$cfield = DAO_CustomField::get($cfield_id);
+					switch($cfield->type) {
+						case Model_CustomField::TYPE_DROPDOWN:
+							@$options = DevblocksPlatform::importGPC($_POST['options'],'array',array());
+							if(!empty($options)) {
+								$criteria = new DevblocksSearchCriteria($field,$oper,$options);
+							} else {
+								$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IS_NULL);
+							}
+							break;
+						case Model_CustomField::TYPE_CHECKBOX:
+							$check = !empty($value) ? 1 : 0;
+							$criteria = new DevblocksSearchCriteria($field,$oper,$check);
+							break;
+						case Model_CustomField::TYPE_DATE:
+							@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','');
+							@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
+			
+							if(empty($from)) $from = 0;
+							if(empty($to)) $to = 'today';
+			
+							$criteria = new DevblocksSearchCriteria($field,$oper,array($from,$to));
+							break;
+						default:
+							if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
+							&& false === (strpos($value,'*'))) {
+								$value = '*'.$value.'*';
+							}
+							$criteria = new DevblocksSearchCriteria($field,$oper,$value);
+							break;
+					}
+				}
+				break;
 		}
 
 		if(!empty($criteria)) {
@@ -933,6 +1190,92 @@ class C4_CrmOpportunityView extends C4_AbstractView {
 			$this->renderPage = 0;
 		}
 	}
+	
+	function doBulkUpdate($filter, $do, $ids=array()) {
+		@set_time_limit(600); // [TODO] Temp!
+	  
+		$change_fields = array();
+		$custom_fields = array();
+
+		// Make sure we have actions
+		if(empty($do))
+			return;
+
+		// Make sure we have checked items if we want a checked list
+		if(0 == strcasecmp($filter,"checks") && empty($ids))
+			return;
+			
+		if(is_array($do))
+		foreach($do as $k => $v) {
+			switch($k) {
+				case 'status':
+					switch(strtolower($v)) {
+						case 'open':
+							$change_fields[DAO_CrmOpportunity::IS_CLOSED] = 0;
+							$change_fields[DAO_CrmOpportunity::IS_WON] = 0;
+							$change_fields[DAO_CrmOpportunity::CLOSED_DATE] = 0;
+							break;
+						case 'won':
+							$change_fields[DAO_CrmOpportunity::IS_CLOSED] = 1;
+							$change_fields[DAO_CrmOpportunity::IS_WON] = 1;
+							$change_fields[DAO_CrmOpportunity::CLOSED_DATE] = time();
+							break;
+						case 'lost':
+							$change_fields[DAO_CrmOpportunity::IS_CLOSED] = 1;
+							$change_fields[DAO_CrmOpportunity::IS_WON] = 0;
+							$change_fields[DAO_CrmOpportunity::CLOSED_DATE] = time();
+							break;
+					}
+					break;
+				case 'worker_id':
+					$change_fields[DAO_CrmOpportunity::WORKER_ID] = intval($v);
+					break;
+				default:
+					// Custom fields
+					if(substr($k,0,3)=="cf_") {
+						$custom_fields[substr($k,3)] = $v;
+					}
+			}
+		}
+
+		$pg = 0;
+
+		if(empty($ids))
+		do {
+			list($objects,$null) = DAO_CrmOpportunity::search(
+				array(),
+				$this->params,
+				100,
+				$pg++,
+				SearchFields_CrmOpportunity::ID,
+				true,
+				false
+			);
+			 
+			$ids = array_merge($ids, array_keys($objects));
+			 
+		} while(!empty($objects));
+
+		$batch_total = count($ids);
+		for($x=0;$x<=$batch_total;$x+=100) {
+			$batch_ids = array_slice($ids,$x,100);
+			DAO_CrmOpportunity::update($batch_ids, $change_fields);
+			
+			// Set custom fields // [TODO] Optimize
+			if(!empty($custom_fields))
+			foreach($batch_ids as $id)
+			foreach($custom_fields as $cf_id => $cf_val) {
+				if(!empty($cf_val))
+					DAO_CustomFieldValue::setFieldValue(CrmCustomFieldSource_Opportunity::ID,$id,$cf_id,$cf_val);
+				else
+					DAO_CustomFieldValue::unsetFieldValue(CrmCustomFieldSource_Opportunity::ID,$id,$cf_id);
+			}
+			
+			unset($batch_ids);
+		}
+
+		unset($ids);
+	}	
 };	
 
 class CrmTranslations extends DevblocksTranslationsExtension {

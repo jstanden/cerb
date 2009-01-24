@@ -22,10 +22,7 @@
 			<tuv xml:lang="en_US"><seg>created date</seg></tuv>
 		</tu>
 		<tu tuid='crm.opportunity.email_address'>
-			<tuv xml:lang="en_US"><seg>primary email</seg></tuv>
-		</tu>
-		<tu tuid='crm.opportunity.expire_date'>
-			<tuv xml:lang="en_US"><seg>expire_date</seg></tuv>
+			<tuv xml:lang="en_US"><seg>email</seg></tuv>
 		</tu>
 		<tu tuid='crm.opportunity.is_closed'>
 			<tuv xml:lang="en_US"><seg>closed</seg></tuv>
@@ -37,7 +34,7 @@
 			<tuv xml:lang="en_US"><seg>id</seg></tuv>
 		</tu>
 		<tu tuid='crm.opportunity.name'>
-			<tuv xml:lang="en_US"><seg>name</seg></tuv>
+			<tuv xml:lang="en_US"><seg>title</seg></tuv>
 		</tu>
 		<tu tuid='crm.opportunity.org_id'>
 			<tuv xml:lang="en_US"><seg>org id</seg></tuv>

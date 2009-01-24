@@ -55,7 +55,23 @@
 		<tr class="{$tableRowBg}" id="{$rowIdPrefix}" onmouseover="toggleClass(this.id,'tableRowHover');toggleClass('{$rowIdPrefix}_s','tableRowHover');" onmouseout="toggleClass(this.id,'{$tableRowBg}');toggleClass('{$rowIdPrefix}_s','{$tableRowBg}');" onclick="if(getEventTarget(event)=='TD') checkAll('{$rowIdPrefix}');">
 			<td align="center" rowspan="2"><input type="checkbox" name="row_id[]" value="{$result.t_id}"></td>
 		{foreach from=$view->view_columns item=column name=columns}
-			{if $column=="t_id"}
+			{if substr($column,0,3)=="cf_"}
+				{assign var=col value=$column|explode:'_'}
+				{assign var=col_id value=$col.1}
+				{assign var=col value=$custom_fields.$col_id}
+				
+				{if $col->type=='S'}
+				<td>{$result.$column}</td>
+				{elseif $col->type=='T'}
+				<td title="{$result.$column|escape}">{$result.$column|truncate:32}</td>
+				{elseif $col->type=='D'}
+				<td>{$result.$column}</td>
+				{elseif $col->type=='E'}
+				<td><abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr></td>
+				{elseif $col->type=='C'}
+				<td>{if '1'==$result.$column}Yes{elseif '0'==$result.$column}No{/if}</td>
+				{/if}
+			{elseif $column=="t_id"}
 				<td>{$result.t_id}&nbsp;</td>
 			{elseif $column=="t_completed_date"}
 				<td>
@@ -68,7 +84,7 @@
 				{if $result.t_due_date}
 					{math assign=overdue equation="(t-x)" t=$timestamp_now x=$result.t_due_date format="%d"}
 				{/if}
-				<td title="{$result.t_due_date|devblocks_date}" style="{if $overdue > 0}color:rgb(220,0,0);font-weight:bold;{/if}">{$result.t_due_date|prettytime}</td>
+				<td title="{$result.t_due_date|devblocks_date}" style="{if $overdue > 0}color:rgb(220,0,0);font-weight:bold;{/if}">{$result.t_due_date|devblocks_prettytime}</td>
 			{elseif $column=="t_url"}
 				<td>
 					{if empty($result.t_url)}

@@ -57,7 +57,23 @@
 		</tr>
 		<tr class="{$tableRowBg}" id="{$rowIdPrefix}" onmouseover="toggleClass(this.id,'tableRowHover');toggleClass('{$rowIdPrefix}_s','tableRowHover');" onmouseout="toggleClass(this.id,'{$tableRowBg}');toggleClass('{$rowIdPrefix}_s','{$tableRowBg}');" onclick="if(getEventTarget(event)=='TD') checkAll('{$rowIdPrefix}_s');">
 		{foreach from=$view->view_columns item=column name=columns}
-			{if $column=="o_id"}
+			{if substr($column,0,3)=="cf_"}
+				{assign var=col value=$column|explode:'_'}
+				{assign var=col_id value=$col.1}
+				{assign var=col value=$custom_fields.$col_id}
+				
+				{if $col->type=='S'}
+				<td>{$result.$column}</td>
+				{elseif $col->type=='T'}
+				<td title="{$result.$column|escape}">{$result.$column|truncate:32}</td>
+				{elseif $col->type=='D'}
+				<td>{$result.$column}</td>
+				{elseif $col->type=='E'}
+				<td><abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr></td>
+				{elseif $col->type=='C'}
+				<td>{if '1'==$result.$column}Yes{elseif '0'==$result.$column}No{/if}</td>
+				{/if}
+			{elseif $column=="o_id"}
 				<td>{$result.o_id}&nbsp;</td>
 			{elseif $column=="org_name"}
 				<td>
@@ -74,11 +90,11 @@
 					{/if}
 				</td>
 			{elseif $column=="o_created_date"}
-				<td>{$result.o_created_date|devblocks_date}&nbsp;</td>
+				<td><abbr title="{$result.$column|devblocks_date}">{$result.o_created_date|devblocks_prettytime}</abbr>&nbsp;</td>
 			{elseif $column=="o_updated_date"}
-				<td>{$result.o_updated_date|devblocks_date}&nbsp;</td>
+				<td><abbr title="{$result.$column|devblocks_date}">{$result.o_updated_date|devblocks_prettytime}</abbr>&nbsp;</td>
 			{elseif $column=="o_closed_date"}
-				<td>{$result.o_closed_date|devblocks_date}&nbsp;</td>
+				<td><abbr title="{$result.$column|devblocks_date}">{$result.o_closed_date|devblocks_prettytime}</abbr>&nbsp;</td>
 			{elseif $column=="o_worker_id"}
 				<td>
 					{assign var=o_worker_id value=$result.o_worker_id}
@@ -98,7 +114,7 @@
 	{if $total}
 	<tr>
 		<td colspan="2">
-			{* [TODO] Bulk update opps *}
+			<button type="button" onclick="genericAjaxPanel('c=crm&a=showOppBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),this,false,'500px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> bulk update</button>
 		</td>
 	</tr>
 	{/if}

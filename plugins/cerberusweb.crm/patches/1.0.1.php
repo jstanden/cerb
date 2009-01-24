@@ -177,22 +177,22 @@ if(isset($tables['crm_opportunity'])) {
 	
 	if(isset($columns['CAMPAIGN_ID'])) {
 		$sql = $datadict->DropColumnSQL('crm_opportunity','campaign_id');
-//		$datadict->ExecuteSQLArray($sql);
+		$datadict->ExecuteSQLArray($sql);
 	}
 
 	if(isset($columns['CAMPAIGN_BUCKET_ID'])) {
 		$sql = $datadict->DropColumnSQL('crm_opportunity','campaign_bucket_id');
-//		$datadict->ExecuteSQLArray($sql);
+		$datadict->ExecuteSQLArray($sql);
 	}
 
 	if(isset($columns['SOURCE'])) {
 		$sql = $datadict->DropColumnSQL('crm_opportunity','source');
-//		$datadict->ExecuteSQLArray($sql);
+		$datadict->ExecuteSQLArray($sql);
 	}
 	
 	if(isset($columns['NEXT_ACTION'])) {
 		$sql = $datadict->DropColumnSQL('crm_opportunity','next_action');
-//		$datadict->ExecuteSQLArray($sql);
+		$datadict->ExecuteSQLArray($sql);
 	}
 	
 }
@@ -201,21 +201,21 @@ if(isset($tables['crm_opportunity'])) {
 // Drop the campaign table (optimized out by custom fields)
 if(isset($tables['crm_campaign'])) {
 	$sql = $datadict->DropTableSQL('crm_campaign');
-//	$datadict->ExecuteSQLArray($sql);
+	$datadict->ExecuteSQLArray($sql);
 }
 
 // ===========================================================================
 // Drop the campaign buckets (optimized out by custom fields)
 if(isset($tables['crm_campaign_bucket'])) {
 	$sql = $datadict->DropTableSQL('crm_campaign_bucket');
-//	$datadict->ExecuteSQLArray($sql);
+	$datadict->ExecuteSQLArray($sql);
 }
 
 // ===========================================================================
 // Drop the old CRM comments table in favor of the new notes functionality
 if(isset($tables['crm_opp_comment'])) {
 	$sql = $datadict->DropTableSQL('crm_opp_comment');
-//	$datadict->ExecuteSQLArray($sql);
+	$datadict->ExecuteSQLArray($sql);
 }
 
 return TRUE;

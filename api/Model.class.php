@@ -612,7 +612,6 @@ class C4_TicketView extends C4_AbstractView {
 		}
 
 		$tpl->assign('timestamp_now', time());
-		$tpl->register_modifier('prettytime', array('CerberusUtils', 'smarty_modifier_prettytime'));
 		
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('view_fields', $this->getColumns());
@@ -1385,6 +1384,7 @@ class C4_AddressView extends C4_AbstractView {
 		@set_time_limit(600); // [TODO] Temp!
 	  
 		$change_fields = array();
+		$custom_fields = array();
 
 		// Make sure we have actions
 		if(empty($do))
@@ -1403,6 +1403,11 @@ class C4_AddressView extends C4_AbstractView {
 				case 'banned':
 					$change_fields[DAO_Address::IS_BANNED] = intval($v);
 					break;
+				default:
+					// Custom fields
+					if(substr($k,0,3)=="cf_") {
+						$custom_fields[substr($k,3)] = $v;
+					}
 			}
 		}
 
@@ -1428,6 +1433,17 @@ class C4_AddressView extends C4_AbstractView {
 		for($x=0;$x<=$batch_total;$x+=100) {
 			$batch_ids = array_slice($ids,$x,100);
 			DAO_Address::update($batch_ids, $change_fields);
+			
+			// Set custom fields // [TODO] Optimize
+			if(!empty($custom_fields))
+			foreach($batch_ids as $id)
+			foreach($custom_fields as $cf_id => $cf_val) {
+				if(!empty($cf_val))
+					DAO_CustomFieldValue::setFieldValue(ChCustomFieldSource_Address::ID,$id,$cf_id,$cf_val);
+				else
+					DAO_CustomFieldValue::unsetFieldValue(ChCustomFieldSource_Address::ID,$id,$cf_id);
+			}
+			
 			unset($batch_ids);
 		}
 
@@ -2083,7 +2099,6 @@ class C4_TaskView extends C4_AbstractView {
 		$tpl->assign('workers', $workers);
 
 		$tpl->assign('timestamp_now', time());
-		$tpl->register_modifier('prettytime', array('CerberusUtils', 'smarty_modifier_prettytime'));
 
 		// Pull the results so we can do some row introspection
 		$results = $this->getData();
@@ -2103,6 +2118,10 @@ class C4_TaskView extends C4_AbstractView {
 			} 
 		}
 		$tpl->assign('source_renderers', $source_extensions);
+		
+		// Custom fields
+		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Task::ID);
+		$tpl->assign('custom_fields', $custom_fields);
 		
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('view_fields', $this->getColumns());
