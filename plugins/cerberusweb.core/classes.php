@@ -2729,6 +2729,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		}
 		
 		$tab_manifests = DevblocksPlatform::getExtensions('cerberusweb.config.tab', false);
+		uasort($tab_manifests, create_function('$a, $b', "return strcasecmp(\$a->name,\$b->name);\n"));
 		$tpl->assign('tab_manifests', $tab_manifests);
 		
 		// Selected tab
@@ -4525,7 +4526,7 @@ class ChContactsPage extends CerberusPageExtension {
 			$page = floor($pos / $range);
 			
 			list($series, $series_count) = DAO_ContactOrg::search(
-				array(),
+				$view->view_columns,
 				$view->params,
 				$range,
 				$page,
@@ -5177,6 +5178,9 @@ class ChContactsPage extends CerberusPageExtension {
 //	        $tickets = DAO_Ticket::getTickets($ticket_ids);
 	    }
 		
+	    $custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Address::ID);
+	    $tpl->assign('custom_fields', $custom_fields);
+	    
 		$tpl->cache_lifetime = "0";
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/contacts/addresses/address_bulk.tpl.php');
 	}
@@ -5462,6 +5466,37 @@ class ChContactsPage extends CerberusPageExtension {
 		if(0 != strlen($is_banned))
 			$do['banned'] = $is_banned;
 		
+		// Do: Custom fields // [TODO] Highly redundant
+		@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'],'array',array());
+		$fields = DAO_CustomField::getBySource(ChCustomFieldSource_Address::ID);
+		
+		if(is_array($field_ids))
+		foreach($field_ids as $field_id) {
+			if(!isset($fields[$field_id]))
+				continue;
+			
+			@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'string','');
+
+			switch($fields[$field_id]->type) {
+				case Model_CustomField::TYPE_MULTI_LINE:
+				case Model_CustomField::TYPE_SINGLE_LINE:
+					$do['cf_'.$field_id] = $field_value;
+					break;
+					
+				case Model_CustomField::TYPE_DROPDOWN:
+					$do['cf_'.$field_id] = $field_value;
+					break;
+					
+				case Model_CustomField::TYPE_CHECKBOX:
+					$do['cf_'.$field_id] = !empty($field_value) ? 1 : 0;
+					break;
+					
+				case Model_CustomField::TYPE_DATE:
+					$do['cf_'.$field_id] = !empty($field_value) ? @strtotime($field_value) : '';
+					break;
+			}
+		}
+			
 		$view->doBulkUpdate($filter, $do, $address_ids);
 		
 		$view->render();

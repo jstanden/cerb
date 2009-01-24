@@ -6273,9 +6273,7 @@ class DAO_CustomField extends DevblocksORMHelper {
 	static function update($ids, $fields) {
 		parent::_update($ids, 'custom_field', $fields);
 		
-		// Invalidate cache on changes
-		$cache = DevblocksPlatform::getCacheService();
-		$cache->remove(self::CACHE_ALL);
+		self::clearCache();
 	}
 	
 	/**
@@ -6369,12 +6367,15 @@ class DAO_CustomField extends DevblocksORMHelper {
 		$sql = sprintf("DELETE QUICK FROM custom_field WHERE id IN (%s)",$id_string);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 
-		// [TODO] Nuke options
 		if(is_array($ids))
 		foreach($ids as $id) {
 			DAO_CustomFieldValue::deleteByFieldId($id);
 		}
 		
+		self::clearCache();
+	}
+	
+	public static function clearCache() {
 		// Invalidate cache on changes
 		$cache = DevblocksPlatform::getCacheService();
 		$cache->remove(self::CACHE_ALL);

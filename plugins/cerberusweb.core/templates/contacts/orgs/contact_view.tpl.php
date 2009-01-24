@@ -80,7 +80,7 @@
 			{elseif $column=="c_website"}
 			<td><a href="{$result.c_website}" target="_blank">{$result.c_website|truncate:45:'...':true}</a>&nbsp;</td>
 			{elseif $column=="c_created"}
-			<td>{$result.c_created|devblocks_date}&nbsp;</td>
+			<td title="{$result.c_created|devblocks_date}">{$result.c_created|devblocks_prettytime}&nbsp;</td>
 			{else}
 			<td>{$result.$column}</td>
 			{/if}

@@ -176,7 +176,7 @@ class CrmPage extends CerberusPageExtension {
 			$page = floor($pos / $range);
 			
 			list($series, $series_count) = DAO_CrmOpportunity::search(
-				array(),
+				$view->view_columns,
 				$view->params,
 				$range,
 				$page,
@@ -769,7 +769,13 @@ class DAO_CrmOpportunity extends DevblocksORMHelper {
     static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
 
-        list($tables,$wheres) = parent::_parseSearchParams($params, $columns, SearchFields_CrmOpportunity::getFields());
+		$fields = SearchFields_CrmOpportunity::getFields();
+		
+		// Sanitize
+		if(!isset($fields[$sortBy]))
+			unset($sortBy);
+		
+        list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields);
 		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
 		
 		$select_sql = sprintf("SELECT ".
@@ -810,7 +816,7 @@ class DAO_CrmOpportunity extends DevblocksORMHelper {
 			// [JAS]: Dynamic table joins
 //			(isset($tables['m']) ? "INNER JOIN requester r ON (r.ticket_id=t.id)" : " ").
 			
-    		// Custom field joins
+    	// Custom field joins
 		$custom_fields = DAO_CustomField::getBySource(CrmCustomFieldSource_Opportunity::ID);
 		
 		foreach($tables as $tbl_name => $null) {
@@ -842,7 +848,7 @@ class DAO_CrmOpportunity extends DevblocksORMHelper {
 		
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "");
-			
+		
 		$sql = $select_sql . $join_sql . $where_sql .  
 			(!empty($sortBy) ? sprintf("ORDER BY %s %s",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : "");
 		

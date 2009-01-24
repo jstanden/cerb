@@ -13,7 +13,7 @@ class CrmPatchContainer extends DevblocksPatchContainerExtension {
 		$file_prefix = realpath(dirname(__FILE__).'/../') . '/patches/';
 		
 		$this->registerPatch(new DevblocksPatch('cerberusweb.crm',6,$file_prefix.'1.0.0.php',''));
-		$this->registerPatch(new DevblocksPatch('cerberusweb.crm',9,$file_prefix.'1.0.1.php',''));
+		$this->registerPatch(new DevblocksPatch('cerberusweb.crm',10,$file_prefix.'1.0.1.php',''));
 	}
 };
 

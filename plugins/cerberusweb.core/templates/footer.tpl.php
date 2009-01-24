@@ -2,7 +2,7 @@
 
 <table align="center" border="0" cellpadding="2" cellspacing="0" width="100%">
     <tr>
-      <td nowrap="nowrap">
+      <td nowrap="nowrap" valign="top">
       	<b>Cerberus Helpdesk</b>&trade; &copy; 2002-2009, WebGroup Media&trade; LLC - Version 4.1 Dev (Build {$smarty.const.APP_BUILD}) 
       	<br>
       	{if (1 || $debug) && !empty($render_time)}
@@ -18,7 +18,7 @@
       	{/if}
 		</span>
       </td>
-      <td align="right">
+      <td  valign="top" align="right">
       	<a href="http://www.cerberusweb.com/" target="_blank"><img alt="powered by cerberus helpdesk" src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/logo_small.png{/devblocks_url}" border="0"></a>
       </td>
     </tr>

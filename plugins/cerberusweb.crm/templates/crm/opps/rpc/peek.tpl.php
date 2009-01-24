@@ -40,10 +40,14 @@
 		<td width="100%">
 			<select name="worker_id" style="border:1px solid rgb(180,180,180);padding:2px;">
 				<option value="0">&nbsp;</option>
-				{foreach from=$workers item=worker key=worker_id}
+				{foreach from=$workers item=worker key=worker_id name=workers}
+					{if $worker_id==$active_worker->id}{math assign=me_worker_id equation="x" x=$smarty.foreach.workers.iteration}{/if}
 					<option value="{$worker_id}" {if $opp->worker_id==$worker_id}selected{/if}>{$worker->getName()}</option>
 				{/foreach}
 			</select>
+			{if !empty($me_worker_id)}
+				<button type="button" onclick="this.form.worker_id.selectedIndex = {$me_worker_id};">me</button>
+			{/if}
 		</td>
 	</tr>
 	{if empty($opp->id)}
