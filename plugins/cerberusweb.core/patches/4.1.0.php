@@ -142,5 +142,94 @@ if(isset($tables['sla'])) {
 	$datadict->ExecuteSQLArray($sql);
 }
 
+// Migrate custom field values to data-type dependent tables
+if(isset($tables['custom_field_value'])) {
+	
+	// Custom field number values: (C) Checkbox, (E) Date
+	if(!isset($tables['custom_field_numbervalue'])) {
+	    $flds = "
+			field_id I4 DEFAULT 0 NOTNULL PRIMARY,
+			source_id I4 DEFAULT 0 NOTNULL PRIMARY,
+			field_value I4 DEFAULT 0 NOTNULL,
+			source_extension C(255) DEFAULT '' NOTNULL
+		";
+	    $sql = $datadict->CreateTableSQL('custom_field_numbervalue',$flds);
+	    $res = $datadict->ExecuteSQLArray($sql);
+		
+	    if($res) {
+	    	$tables['custom_field_numbervalue'] = true;
+	    	
+	    	$sql = "INSERT IGNORE INTO custom_field_numbervalue (field_id, source_id, field_value, source_extension) ".
+	    		"SELECT v.field_id, v.source_id, CAST(v.field_value AS SIGNED), v.source_extension ".
+	    		"FROM custom_field_value v ".
+	    		"INNER JOIN custom_field cf ON (cf.id=v.field_id) ".
+	    		"WHERE cf.type IN ('C','E')";
+	    	$db->Execute($sql);
+	    	
+	    } else {
+	    	die($db->ErrorMsg());
+	    }
+	}
+
+	// Custom field string values: (S) Single, (D) Dropdown
+	if(!isset($tables['custom_field_stringvalue'])) {
+	    $flds = "
+			field_id I4 DEFAULT 0 NOTNULL PRIMARY,
+			source_id I4 DEFAULT 0 NOTNULL PRIMARY,
+			field_value C(255) DEFAULT '' NOTNULL,
+			source_extension C(255) DEFAULT '' NOTNULL
+		";
+	    $sql = $datadict->CreateTableSQL('custom_field_stringvalue',$flds);
+	    $res = $datadict->ExecuteSQLArray($sql);
+		
+	    if($res) {
+	    	$tables['custom_field_stringvalue'] = true;
+	    	
+	    	$sql = "INSERT IGNORE INTO custom_field_stringvalue (field_id, source_id, field_value, source_extension) ".
+	    		"SELECT v.field_id, v.source_id, LEFT(v.field_value,255), v.source_extension ".
+	    		"FROM custom_field_value v ".
+	    		"INNER JOIN custom_field cf ON (cf.id=v.field_id) ".
+	    		"WHERE cf.type IN ('S','D')";
+	    	$db->Execute($sql);
+	    	
+	    } else {
+	    	die($db->ErrorMsg());
+	    }
+	}
+
+	// Custom field text/clob values: (T) Multi-line
+	if(!isset($tables['custom_field_clobvalue'])) {
+	    $flds = "
+			field_id I4 DEFAULT 0 NOTNULL PRIMARY,
+			source_id I4 DEFAULT 0 NOTNULL PRIMARY,
+			field_value XL DEFAULT '' NOTNULL,
+			source_extension C(255) DEFAULT '' NOTNULL
+		";
+	    $sql = $datadict->CreateTableSQL('custom_field_clobvalue',$flds);
+	    $res = $datadict->ExecuteSQLArray($sql);
+		
+	    if($res) {
+	    	$tables['custom_field_clobvalue'] = true;
+	    	
+	    	$sql = "INSERT IGNORE INTO custom_field_clobvalue (field_id, source_id, field_value, source_extension) ".
+	    		"SELECT v.field_id, v.source_id, v.field_value, v.source_extension ".
+	    		"FROM custom_field_value v ".
+	    		"INNER JOIN custom_field cf ON (cf.id=v.field_id) ".
+	    		"WHERE cf.type IN ('T')";
+	    	$db->Execute($sql);
+	    	
+	    } else {
+	    	die($db->ErrorMsg());
+	    }
+	}
+	
+	// If we passed all that, delete the original custom_field_value table
+	if(isset($tables['custom_field_value'])) {
+		$sql = $datadict->DropTableSQL('custom_field_value');
+		$datadict->ExecuteSQLArray($sql);
+	}
+}
+
+
 return TRUE;
 ?>

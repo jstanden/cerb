@@ -81,7 +81,7 @@ class ChFeedbackActivityTab extends Extension_ActivityTab {
 }
 endif;
 
-class DAO_FeedbackEntry extends DevblocksORMHelper {
+class DAO_FeedbackEntry extends C4_ORMHelper {
 	const ID = 'id';
 	const LOG_DATE = 'log_date';
 	const LIST_ID = 'list_id';
@@ -230,34 +230,12 @@ class DAO_FeedbackEntry extends DevblocksORMHelper {
 //			(isset($tables['mc']) ? "INNER JOIN message_content mc ON (mc.message_id=m.id)" : " ").
 
 		// Custom field joins
-		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_FeedbackEntry::ID);
-		
-		foreach($tables as $tbl_name => $null) {
-			if(substr($tbl_name,0,3)!="cf_")
-				continue;
-				
-			if(0 != ($cf_id = intval(substr($tbl_name,3)))) {
-				// Make sure our custom fields still exist
-				if(!isset($custom_fields[$cf_id])) {
-					unset($tables[$tbl_name]);
-					continue;
-				}
-				
-				$select_sql .= sprintf(", cf_%d.field_value as cf_%d ",
-					$cf_id,
-					$cf_id
-				);
-				
-				$join_sql .= sprintf("LEFT JOIN custom_field_value cf_%d ON ('%s' = cf_%d.source_extension AND f.id=cf_%d.source_id AND cf_%d.field_id=%d) ",
-					$cf_id,
-					ChCustomFieldSource_FeedbackEntry::ID,
-					$cf_id,
-					$cf_id,
-					$cf_id,
-					$cf_id
-				);
-			}
-		}
+		list($select_sql, $join_sql) = self::_appendSelectJoinSqlForCustomFieldTables(
+			$tables,
+			'f.id',
+			$select_sql,
+			$join_sql
+		);
 		
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "");
@@ -436,28 +414,8 @@ class C4_FeedbackEntryView extends C4_AbstractView {
 				break;
 			default:
 				// Custom Fields
-				if(substr($field,0,3)=='cf_') {
-					$tpl_path = DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/';
-					
-					$cfield_id = substr($field,3);
-					$cfield = DAO_CustomField::get($cfield_id);
-					switch($cfield->type) {
-						case Model_CustomField::TYPE_DROPDOWN:
-							$tpl->assign('cfield', $cfield);
-							$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__cfield_dropdown.tpl.php');
-							break;
-						case Model_CustomField::TYPE_CHECKBOX:
-							$tpl->assign('cfield', $cfield);
-							$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__cfield_checkbox.tpl.php');
-							break;
-						case Model_CustomField::TYPE_DATE:
-							$tpl->assign('cfield', $cfield);
-							$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__cfield_date.tpl.php');
-							break;
-						default:
-							$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__string.tpl.php');
-							break;
-					}
+				if('cf_' == substr($field,0,3)) {
+					$this->_renderCriteriaCustomField($tpl, substr($field,3));
 				} else {
 					echo ' ';
 				}
@@ -596,38 +554,7 @@ class C4_FeedbackEntryView extends C4_AbstractView {
 			default:
 				// Custom Fields
 				if(substr($field,0,3)=='cf_') {
-					$cfield_id = substr($field,3);
-					$cfield = DAO_CustomField::get($cfield_id);
-					switch($cfield->type) {
-						case Model_CustomField::TYPE_DROPDOWN:
-							@$options = DevblocksPlatform::importGPC($_POST['options'],'array',array());
-							if(!empty($options)) {
-								$criteria = new DevblocksSearchCriteria($field,$oper,$options);
-							} else {
-								$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IS_NULL);
-							}
-							break;
-						case Model_CustomField::TYPE_CHECKBOX:
-							$check = !empty($value) ? 1 : 0;
-							$criteria = new DevblocksSearchCriteria($field,$oper,$check);
-							break;
-						case Model_CustomField::TYPE_DATE:
-							@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','');
-							@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
-			
-							if(empty($from)) $from = 0;
-							if(empty($to)) $to = 'today';
-			
-							$criteria = new DevblocksSearchCriteria($field,$oper,array($from,$to));
-							break;
-						default:
-							if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
-							&& false === (strpos($value,'*'))) {
-								$value = '*'.$value.'*';
-							}
-							$criteria = new DevblocksSearchCriteria($field,$oper,$value);
-							break;
-					}
+					$criteria = $this->_doSetCriteriaCustomField($field, substr($field,3));
 				}
 				break;
 		}

@@ -82,7 +82,7 @@ if(isset($tables['crm_opportunity'])) {
 			$db->Execute($sql);
 			
 			// Populate the custom field from opp records
-			$sql = sprintf("INSERT INTO custom_field_value (field_id, source_id, field_value, source_extension) ".
+			$sql = sprintf("INSERT INTO custom_field_stringvalue (field_id, source_id, field_value, source_extension) ".
 				"SELECT %d, o.id, c.name, %s FROM crm_opportunity o INNER JOIN crm_campaign c ON (o.campaign_id=c.id)",
 				$field_id,
 				$db->qstr('crm.fields.source.opportunity')
@@ -111,7 +111,7 @@ if(isset($tables['crm_opportunity'])) {
 		$db->Execute($sql);
 		
 		// Populate the custom field from opp records
-		$sql = sprintf("INSERT INTO custom_field_value (field_id, source_id, field_value, source_extension) ".
+		$sql = sprintf("INSERT INTO custom_field_stringvalue (field_id, source_id, field_value, source_extension) ".
 			"SELECT %d, o.id, o.source, %s FROM crm_opportunity o WHERE o.source != ''",
 			$field_id,
 			$db->qstr('crm.fields.source.opportunity')
@@ -139,7 +139,7 @@ if(isset($tables['crm_opportunity'])) {
 		$db->Execute($sql);
 		
 		// Populate the custom field from opp records
-		$sql = sprintf("INSERT INTO custom_field_value (field_id, source_id, field_value, source_extension) ".
+		$sql = sprintf("INSERT INTO custom_field_stringvalue (field_id, source_id, field_value, source_extension) ".
 			"SELECT %d, o.id, o.next_action, %s FROM crm_opportunity o WHERE o.next_action != ''",
 			$field_id,
 			$db->qstr('crm.fields.source.opportunity')

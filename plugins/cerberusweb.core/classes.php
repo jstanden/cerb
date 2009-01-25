@@ -4634,9 +4634,6 @@ class ChContactsPage extends CerberusPageExtension {
 						$people_count = DAO_Address::getCountByOrgId($contact->id);
 						$tpl->assign('people_total', $people_count);
 						
-						$fields_total = DAO_CustomFieldValue::getValueCountBySourceId(ChCustomFieldSource_Org::ID, $contact->id, 0);
-						$tpl->assign('fields_total', $fields_total);
-						
 						// Does a series exist?
 						// [TODO] This is highly redundant
 						if(null != ($series_info = $visit->get('ch_org_series', null))) {
@@ -5483,6 +5480,10 @@ class ChContactsPage extends CerberusPageExtension {
 					$do['cf_'.$field_id] = $field_value;
 					break;
 					
+				case Model_CustomField::TYPE_NUMBER:
+					$do['cf_'.$field_id] = intval($field_value);
+					break;
+					
 				case Model_CustomField::TYPE_DROPDOWN:
 					$do['cf_'.$field_id] = $field_value;
 					break;
@@ -5544,6 +5545,10 @@ class ChContactsPage extends CerberusPageExtension {
 				case Model_CustomField::TYPE_MULTI_LINE:
 				case Model_CustomField::TYPE_SINGLE_LINE:
 					$do['cf_'.$field_id] = $field_value;
+					break;
+					
+				case Model_CustomField::TYPE_NUMBER:
+					$do['cf_'.$field_id] = intval($field_value);
 					break;
 					
 				case Model_CustomField::TYPE_DROPDOWN:

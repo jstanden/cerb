@@ -43,6 +43,8 @@
 	      		
 	      		{if $field->type=='S'}
 	      			<input name="followup_a_{$idx}" value="{$last_followup_a.$idx|escape}" autocomplete="off" style="width:98%;">
+	      		{elseif $field->type=='N'}
+	      			<input name="followup_a_{$idx}" value="{$last_followup_a.$idx|escape}" autocomplete="off" style="width:98%;">
 	      		{elseif $field->type=='T'}
 	      			<textarea name="followup_a_{$idx}" rows="5" cols="60" style="width:98%;">{$last_followup_a.$idx|escape}</textarea>
 	      		{elseif $field->type=='D'}

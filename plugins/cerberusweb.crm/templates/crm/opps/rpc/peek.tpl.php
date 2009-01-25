@@ -73,6 +73,8 @@
 		<td valign="top" width="99%">
 			{if $f->type=='S'}
 				<input type="text" name="field_{$f_id}" size="45" maxlength="255" value="{$opp_field_values.$f_id|escape}"><br>
+			{elseif $f->type=='N'}
+				<input type="text" name="field_{$f_id}" size="45" maxlength="255" value="{$opp_field_values.$f_id|escape}"><br>
 			{elseif $f->type=='T'}
 				<textarea name="field_{$f_id}" rows="4" cols="50" style="width:98%;">{$opp_field_values.$f_id}</textarea><br>
 			{elseif $f->type=='C'}

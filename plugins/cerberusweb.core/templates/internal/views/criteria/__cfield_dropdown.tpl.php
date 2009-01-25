@@ -8,7 +8,7 @@
 
 <b>Options:</b><br>
 <blockquote style="margin:5px;">
-	{foreach from=$cfield->options item=opt}
+	{foreach from=$field->options item=opt}
 		<label><input type="checkbox" name="options[]" value="{$opt}">{$opt}</label><br>
 	{/foreach}
 </blockquote>

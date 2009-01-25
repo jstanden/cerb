@@ -989,6 +989,10 @@ class UmScCoreController extends Extension_UmScController {
 					case Model_CustomField::TYPE_MULTI_LINE:
 						@$value = trim($aFollowUpA[$iIdx]);
 						break;
+					
+					case Model_CustomField::TYPE_NUMBER:
+						@$value = intval($aFollowUpA[$iIdx]);
+						break;
 						
 					case Model_CustomField::TYPE_DATE:
 						if(false !== ($time = strtotime($aFollowUpA[$iIdx])))

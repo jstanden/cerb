@@ -49,6 +49,61 @@
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
 
+class C4_ORMHelper extends DevblocksORMHelper {
+	static protected function _appendSelectJoinSqlForCustomFieldTables($tables, $key, $select_sql, $join_sql) {
+		$custom_fields = DAO_CustomField::getAll();
+		$field_ids = array();
+		
+		if(is_array($tables))
+		foreach($tables as $tbl_name => $null) {
+			// Filter and sanitize
+			if(substr($tbl_name,0,3) != "cf_" // not a custom field 
+				|| 0 == ($field_id = intval(substr($tbl_name,3)))) // not a field_id
+				continue;
+
+			// Make sure the field exists for this source
+			if(!isset($custom_fields[$field_id]))
+				continue; 
+			
+			$field_table = sprintf("cf_%d", $field_id);
+			$value_table = '';
+			
+			// Select
+			$select_sql .= sprintf(", %s.field_value as %s ",
+				$field_table,
+				$field_table
+			);
+	
+			// Join value by field data type
+			switch($custom_fields[$field_id]->type) {
+				case 'T': // multi-line CLOB
+					$value_table = 'custom_field_clobvalue';
+				case 'C': // checkbox
+				case 'E': // date
+				case 'N': // number
+					$value_table = 'custom_field_numbervalue';
+					break;
+				default:
+				case 'S': // single-line
+				case 'D': // dropdown
+					$value_table = 'custom_field_stringvalue';
+					break;
+			}
+
+			$join_sql .= sprintf("LEFT JOIN %s %s ON (%s=%s.source_id AND %s.field_id=%d) ",
+				$value_table,
+				$field_table,
+				$key,
+				$field_table,
+				$field_table,
+				$field_id
+			);
+		}
+		
+		return array($select_sql, $join_sql);
+	}
+}
+
 /**
  * Global Settings DAO
  */
@@ -838,7 +893,7 @@ class SearchFields_WorkerEvent implements IDevblocksSearchFields {
 	}
 };
 
-class DAO_ContactOrg extends DevblocksORMHelper {
+class DAO_ContactOrg extends C4_ORMHelper {
 	const ID = 'id';
 	const NAME = 'name';
 	const STREET = 'street';
@@ -1058,38 +1113,13 @@ class DAO_ContactOrg extends DevblocksORMHelper {
 		
 		$join_sql = 'FROM contact_org c ';
 
-		// [JAS]: Dynamic table joins
-		//(isset($tables['ra']) ? "INNER JOIN requester r ON (r.ticket_id=t.id)" : " ").
-
 		// Custom field joins
-		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Org::ID);
-		
-		foreach($tables as $tbl_name => $null) {
-			if(substr($tbl_name,0,3)!="cf_")
-				continue;
-				
-			if(0 != ($cf_id = intval(substr($tbl_name,3)))) {
-				// Make sure our custom fields still exist
-				if(!isset($custom_fields[$cf_id])) {
-					unset($tables[$tbl_name]);
-					continue;
-				}
-				
-				$select_sql .= sprintf(", cf_%d.field_value as cf_%d ",
-					$cf_id,
-					$cf_id
-				);
-				
-				$join_sql .= sprintf("LEFT JOIN custom_field_value cf_%d ON ('%s' = cf_%d.source_extension AND c.id=cf_%d.source_id AND cf_%d.field_id=%d) ",
-					$cf_id,
-					ChCustomFieldSource_Org::ID,
-					$cf_id,
-					$cf_id,
-					$cf_id,
-					$cf_id
-				);
-			}
-		}
+		list($select_sql, $join_sql) = self::_appendSelectJoinSqlForCustomFieldTables(
+			$tables,
+			'c.id',
+			$select_sql,
+			$join_sql
+		);
 		
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "");
@@ -1177,7 +1207,7 @@ class SearchFields_ContactOrg {
  * Address DAO
  * 
  */
-class DAO_Address extends DevblocksORMHelper {
+class DAO_Address extends C4_ORMHelper {
 	const ID = 'id';
 	const EMAIL = 'email';
 	const FIRST_NAME = 'first_name';
@@ -1462,35 +1492,13 @@ class DAO_Address extends DevblocksORMHelper {
 //			(isset($tables['mc']) ? "INNER JOIN message_content mc ON (mc.message_id=m.id)" : " ").
 
 		// Custom field joins
-		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Address::ID);
+		list($select_sql, $join_sql) = self::_appendSelectJoinSqlForCustomFieldTables(
+			$tables,
+			'a.id',
+			$select_sql,
+			$join_sql
+		);
 		
-		foreach($tables as $tbl_name => $null) {
-			if(substr($tbl_name,0,3)!="cf_")
-				continue;
-				
-			if(0 != ($cf_id = intval(substr($tbl_name,3)))) {
-				// Make sure our custom fields still exist
-				if(!isset($custom_fields[$cf_id])) {
-					unset($tables[$tbl_name]);
-					continue;
-				}
-				
-				$select_sql .= sprintf(", cf_%d.field_value as cf_%d ",
-					$cf_id,
-					$cf_id
-				);
-				
-				$join_sql .= sprintf("LEFT JOIN custom_field_value cf_%d ON ('%s' = cf_%d.source_extension AND a.id=cf_%d.source_id AND cf_%d.field_id=%d) ",
-					$cf_id,
-					ChCustomFieldSource_Address::ID,
-					$cf_id,
-					$cf_id,
-					$cf_id,
-					$cf_id
-				);
-			}
-		}
-	
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "");
 			
@@ -2479,7 +2487,7 @@ class SearchFields_Attachment implements IDevblocksSearchFields {
  *
  * @addtogroup dao
  */
-class DAO_Ticket extends DevblocksORMHelper {
+class DAO_Ticket extends C4_ORMHelper {
 	const ID = 'id';
 	const MASK = 'mask';
 	const SUBJECT = 'subject';
@@ -2618,12 +2626,25 @@ class DAO_Ticket extends DevblocksORMHelper {
 		
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' ticket_comment records.');
 		
-		$sql = sprintf("DELETE QUICK custom_field_value FROM custom_field_value LEFT JOIN ticket ON (custom_field_value.source_id=ticket.id AND custom_field_value.source_extension='%s') WHERE ticket.id IS NULL",
+		$sql = sprintf("DELETE QUICK custom_field_stringvalue FROM custom_field_stringvalue LEFT JOIN ticket ON (custom_field_stringvalue.source_id=ticket.id AND custom_field_stringvalue.source_extension='%s') WHERE ticket.id IS NULL",
 			ChCustomFieldSource_Ticket::ID
 		);
 		$db->Execute($sql);
-
-		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' custom_field_value records.');
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' custom_field_stringvalue records.');
+		
+		// [TODO] This custom field stuff is a bit messy.  The DAO_CustomFieldValue could 
+		// probably have a maint() which checks using source extension introspection (ticket/opp/etc)
+		$sql = sprintf("DELETE QUICK custom_field_numbervalue FROM custom_field_numbervalue LEFT JOIN ticket ON (custom_field_numbervalue.source_id=ticket.id AND custom_field_numbervalue.source_extension='%s') WHERE ticket.id IS NULL",
+			ChCustomFieldSource_Ticket::ID
+		);
+		$db->Execute($sql);
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' custom_field_numbervalue records.');
+		
+		$sql = sprintf("DELETE QUICK custom_field_clobvalue FROM custom_field_clobvalue LEFT JOIN ticket ON (custom_field_clobvalue.source_id=ticket.id AND custom_field_clobvalue.source_extension='%s') WHERE ticket.id IS NULL",
+			ChCustomFieldSource_Ticket::ID
+		);
+		$db->Execute($sql);
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' custom_field_clobvalue records.');
 		
 		$sql = "DELETE QUICK requester FROM requester LEFT JOIN ticket ON requester.ticket_id = ticket.id WHERE ticket.id IS NULL";
 		$db->Execute($sql);
@@ -3325,35 +3346,13 @@ class DAO_Ticket extends DevblocksORMHelper {
 		}
 			
 		// Custom field joins
-		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Ticket::ID);
+		list($select_sql, $join_sql) = self::_appendSelectJoinSqlForCustomFieldTables(
+			$tables,
+			't.id',
+			$select_sql,
+			$join_sql
+		);
 		
-		foreach($tables as $tbl_name => $null) {
-			if(substr($tbl_name,0,3)!="cf_")
-				continue;
-				
-			if(0 != ($cf_id = intval(substr($tbl_name,3)))) {
-				// Make sure our custom fields still exist
-				if(!isset($custom_fields[$cf_id])) {
-					unset($tables[$tbl_name]);
-					continue;
-				}
-				
-				$select_sql .= sprintf(", cf_%d.field_value as cf_%d ",
-					$cf_id,
-					$cf_id
-				);
-				
-				$join_sql .= sprintf("LEFT JOIN custom_field_value cf_%d ON ('%s' = cf_%d.source_extension AND t.id=cf_%d.source_id AND cf_%d.field_id=%d) ",
-					$cf_id,
-					ChCustomFieldSource_Ticket::ID,
-					$cf_id,
-					$cf_id,
-					$cf_id,
-					$cf_id
-				);
-			}
-		}
-			
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "");
 			
@@ -6391,8 +6390,34 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 	public static function setFieldValue($source_ext_id, $source_id, $field_id, $value) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
+		if(null == ($field = DAO_CustomField::get($field_id)))
+			return FALSE;
+		
+		$table_name = '';
+			
+		switch($field->type) {
+			case 'D': // dropdown
+			case 'S': // string
+				$table_name = 'custom_field_stringvalue';
+				if(255 < strlen($value))
+					$value = substr($value,0,255);
+				break;
+			case 'C': // checkbox
+			case 'E': // date
+			case 'N': // number
+				$table_name = 'custom_field_numbervalue';
+				$value = intval($value);
+				break;
+			case 'T': // clob
+				$table_name = 'custom_field_clobvalue';
+				break;
+		}
+		
+		if(empty($table_name))
+			return FALSE;
+		
 		$db->Replace(
-			'custom_field_value',
+			$table_name,
 			array(
 				self::FIELD_ID => $field_id,
 				self::SOURCE_EXTENSION => $db->qstr($source_ext_id),
@@ -6406,12 +6431,38 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 			),
 			false
 		);
+		
+		return TRUE;
 	}
 	
 	public static function unsetFieldValue($source_ext_id, $source_id, $field_id) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = sprintf("DELETE QUICK FROM custom_field_value WHERE source_extension = '%s' AND source_id = %d AND field_id = %d",
+		if(null == ($field = DAO_CustomField::get($field_id)))
+			return FALSE;
+		
+		$table_name = '';
+			
+		switch($field->type) {
+			case 'D': // dropdown
+			case 'S': // string
+				$table_name = 'custom_field_stringvalue';
+				break;
+			case 'C': // checkbox
+			case 'E': // date
+			case 'N': // number
+				$table_name = 'custom_field_numbervalue';
+				break;
+			case 'T': // clob
+				$table_name = 'custom_field_clobvalue';
+				break;
+		}
+		
+		if(empty($table_name))
+			return FALSE;
+		
+		$sql = sprintf("DELETE QUICK FROM %s WHERE source_extension = '%s' AND source_id = %d AND field_id = %d",
+			$table_name,
 			$source_ext_id,
 			$source_id,
 			$field_id
@@ -6433,7 +6484,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 			switch($fields[$field_id]->type) {
 				case Model_CustomField::TYPE_MULTI_LINE:
 				case Model_CustomField::TYPE_SINGLE_LINE:
-					if(!empty($field_value)) {
+					if(0 != strlen($field_value)) {
 						DAO_CustomFieldValue::setFieldValue($source_ext_id, $source_id, $field_id, $field_value);
 					} else {
 						DAO_CustomFieldValue::unsetFieldValue($source_ext_id, $source_id, $field_id);
@@ -6441,7 +6492,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 					break;
 					
 				case Model_CustomField::TYPE_DROPDOWN:
-					if(!empty($field_value)) {
+					if(0 != strlen($field_value)) {
 						DAO_CustomFieldValue::setFieldValue($source_ext_id, $source_id, $field_id, $field_value);
 					} else {
 						DAO_CustomFieldValue::unsetFieldValue($source_ext_id, $source_id, $field_id);
@@ -6461,6 +6512,14 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 						DAO_CustomFieldValue::unsetFieldValue($source_ext_id, $source_id, $field_id);
 					}
 					break;
+
+				case Model_CustomField::TYPE_NUMBER:
+					if(0 != strlen($field_value)) {
+						DAO_CustomFieldValue::setFieldValue($source_ext_id, $source_id, $field_id, intval($field_value));
+					} else {
+						DAO_CustomFieldValue::unsetFieldValue($source_ext_id, $source_id, $field_id);
+					}
+					break;
 			}
 		}
 		
@@ -6476,8 +6535,11 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 		if(empty($source_ids))
 			return array();
 		
+		// [TODO] This is inefficient (and redundant)
+			
+		// STRINGS
 		$sql = sprintf("SELECT source_id, field_id, field_value ".
-			"FROM custom_field_value ".
+			"FROM custom_field_stringvalue ".
 			"WHERE source_extension = '%s' AND source_id IN (%s)",
 			$source_ext_id,
 			implode(',', $source_ids)
@@ -6499,42 +6561,72 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 			$rs->MoveNext();
 		}
 		
-		return $results;
-	}
-	
-	public static function getValueCountBySourceId($source_ext_id, $source_id, $group_id=null) {
-		$db = DevblocksPlatform::getDatabaseService();
-		
-		$sql = sprintf("SELECT count(v.field_value) ".
-			"FROM custom_field_value v ".
-			"INNER JOIN custom_field f ON (f.id=v.field_id) ".
-			"WHERE v.source_extension = '%s' ". 
-			"AND v.source_id = %d ".
-			"%s",
+		// CLOBS
+		$sql = sprintf("SELECT source_id, field_id, field_value ".
+			"FROM custom_field_clobvalue ".
+			"WHERE source_extension = '%s' AND source_id IN (%s)",
 			$source_ext_id,
-			$source_id,
-			(!is_null($group_id) ? sprintf("AND (f.group_id=0 OR f.group_id=%d) ",$group_id) : " ")
+			implode(',', $source_ids)
 		);
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+
+		if(is_a($rs,'ADORecordSet'))
+		while(!$rs->EOF) {
+			$source_id = intval($rs->fields['source_id']);
+			$field_id = intval($rs->fields['field_id']);
+			$field_value = $rs->fields['field_value'];
+			
+			if(!isset($results[$source_id]))
+				$results[$source_id] = array();
+				
+			$source =& $results[$source_id];
+			$source[$field_id] = $field_value;
+						
+			$rs->MoveNext();
+		}
+
+		// NUMBERS
+		$sql = sprintf("SELECT source_id, field_id, field_value ".
+			"FROM custom_field_numbervalue ".
+			"WHERE source_extension = '%s' AND source_id IN (%s)",
+			$source_ext_id,
+			implode(',', $source_ids)
+		);
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+
+		if(is_a($rs,'ADORecordSet'))
+		while(!$rs->EOF) {
+			$source_id = intval($rs->fields['source_id']);
+			$field_id = intval($rs->fields['field_id']);
+			$field_value = $rs->fields['field_value'];
+			
+			if(!isset($results[$source_id]))
+				$results[$source_id] = array();
+				
+			$source =& $results[$source_id];
+			$source[$field_id] = intval($field_value);
+						
+			$rs->MoveNext();
+		}
 		
-		return $db->GetOne($sql);
+		return $results;
 	}
 	
 	public static function deleteByFieldId($field_id) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = sprintf("DELETE QUICK FROM custom_field_value WHERE field_id = %d",$field_id);
+		$sql = sprintf("DELETE QUICK FROM custom_field_stringvalue WHERE field_id = %d",$field_id);
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+
+		$sql = sprintf("DELETE QUICK FROM custom_field_clobvalue WHERE field_id = %d",$field_id);
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		
+		$sql = sprintf("DELETE QUICK FROM custom_field_numbervalue WHERE field_id = %d",$field_id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 	}
-	
-//	public static function deleteBySource($source_ext_id, $source_id) {
-//		$db = DevblocksPlatform::getDatabaseService();
-//		
-//		$sql = sprintf("DELETE QUICK FROM custom_field_value WHERE source_extension = '%s' AND source_id = %d",$source_ext_id, $source_id);
-//		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
-//	}
 };
 
-class DAO_Task extends DevblocksORMHelper {
+class DAO_Task extends C4_ORMHelper {
 	const ID = 'id';
 	const TITLE = 'title';
 	const WORKER_ID = 'worker_id';
@@ -6774,34 +6866,12 @@ class DAO_Task extends DevblocksORMHelper {
 //			(isset($tables['mc']) ? "INNER JOIN message_content mc ON (mc.message_id=m.id)" : " ").
 
 		// Custom field joins
-		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Task::ID);
-		
-		foreach($tables as $tbl_name => $null) {
-			if(substr($tbl_name,0,3)!="cf_")
-				continue;
-				
-			if(0 != ($cf_id = intval(substr($tbl_name,3)))) {
-				// Make sure our custom fields still exist
-				if(!isset($custom_fields[$cf_id])) {
-					unset($tables[$tbl_name]);
-					continue;
-				}
-				
-				$select_sql .= sprintf(", cf_%d.field_value as cf_%d ",
-					$cf_id,
-					$cf_id
-				);
-				
-				$join_sql .= sprintf("LEFT JOIN custom_field_value cf_%d ON ('%s' = cf_%d.source_extension AND t.id=cf_%d.source_id AND cf_%d.field_id=%d) ",
-					$cf_id,
-					ChCustomFieldSource_Task::ID,
-					$cf_id,
-					$cf_id,
-					$cf_id,
-					$cf_id
-				);
-			}
-		}
+		list($select_sql, $join_sql) = self::_appendSelectJoinSqlForCustomFieldTables(
+			$tables,
+			't.id',
+			$select_sql,
+			$join_sql
+		);
 		
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "");

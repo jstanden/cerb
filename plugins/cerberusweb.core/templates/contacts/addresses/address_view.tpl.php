@@ -66,6 +66,8 @@
 				
 				{if $col->type=='S'}
 				<td>{$result.$column}</td>
+				{elseif $col->type=='N'}
+				<td>{$result.$column}</td>
 				{elseif $col->type=='T'}
 				<td title="{$result.$column|escape}">{$result.$column|truncate:32}</td>
 				{elseif $col->type=='D'}

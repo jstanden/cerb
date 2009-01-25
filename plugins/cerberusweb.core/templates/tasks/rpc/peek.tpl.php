@@ -95,6 +95,8 @@
 			<td valign="top" width="100%">
 				{if $f->type=='S'}
 					<input type="text" name="field_{$f_id}" size="45" maxlength="255" value="{$task_field_values.$f_id}"><br>
+				{elseif $f->type=='N'}
+					<input type="text" name="field_{$f_id}" size="45" maxlength="255" value="{$task_field_values.$f_id}"><br>
 				{elseif $f->type=='T'}
 					<textarea name="field_{$f_id}" rows="4" cols="50" style="width:98%;">{$task_field_values.$f_id}</textarea><br>
 				{elseif $f->type=='C'}
