@@ -76,6 +76,7 @@ $tpl->assign('session', $_SESSION);
 $tpl->assign('visit', $session->getVisit());
 $tpl->assign('active_worker', $worker);
 $tpl->assign('settings', $settings);
+$tpl->assign('core_tpl', realpath(DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/')) . DIRECTORY_SEPARATOR;
 
 if(!empty($worker)) {
 	$active_worker_memberships = $worker->getMemberships();

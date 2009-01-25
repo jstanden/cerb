@@ -68,23 +68,7 @@
 		<td align="center" rowspan="2">{*<input type="checkbox" name="row_id[]" value="{$result.a_id}">*}</td>
 		{foreach from=$view->view_columns item=column name=columns}
 			{if substr($column,0,3)=="cf_"}
-				{assign var=col value=$column|explode:'_'}
-				{assign var=col_id value=$col.1}
-				{assign var=col value=$custom_fields.$col_id}
-				
-				{if $col->type=='S'}
-				<td>{$result.$column}</td>
-				{elseif $col->type=='N'}
-				<td>{$result.$column}</td>
-				{elseif $col->type=='T'}
-				<td title="{$result.$column|escape}">{$result.$column|truncate:32}</td>
-				{elseif $col->type=='D'}
-				<td>{$result.$column}</td>
-				{elseif $col->type=='E'}
-				<td><abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr></td>
-				{elseif $col->type=='C'}
-				<td>{if '1'==$result.$column}Yes{elseif '0'==$result.$column}No{/if}</td>
-				{/if}
+				{include file="file:$core_tpl/internal/custom_fields/view/cell_renderer.tpl.php"}
 			{elseif $column=="tt_id"}
 			<td>{$result.tt_id}&nbsp;</td>
 			{elseif $column=="o_name"}

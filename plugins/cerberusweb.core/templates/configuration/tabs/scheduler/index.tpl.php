@@ -48,7 +48,7 @@
 	</div>
 	
 	<div id="job_{$job_id}" style="display:none;margin-left:20px;margin-right:20px;">
-		{include file="file:$path/configuration/tabs/scheduler/job.tpl.php"}
+		{include file="file:$core_tpl/configuration/tabs/scheduler/job.tpl.php"}
 	</div>
 	
 	{if !$smarty.foreach.jobs.last}

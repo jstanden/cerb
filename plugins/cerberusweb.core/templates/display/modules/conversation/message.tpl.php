@@ -140,7 +140,7 @@
 </div>
 <div id="{$message->id}b"></div>
 <div id="{$message->id}notes" style="background-color:rgb(255,255,255);">
-	{include file="$path/display/modules/conversation/notes.tpl.php"}
+	{include file="$core_tpl/display/modules/conversation/notes.tpl.php"}
 </div>
 <form id="reply{$message->id}" action="{devblocks_url}{/devblocks_url}" method="POST" enctype="multipart/form-data"></form>
 <br>

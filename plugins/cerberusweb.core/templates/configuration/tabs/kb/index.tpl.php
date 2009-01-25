@@ -31,7 +31,7 @@
 		
 		<td width="100%" valign="top">
 			<form action="{devblocks_url}{/devblocks_url}" method="post" id="configKb">
-				{include file="$path/configuration/tabs/kb/edit_category.tpl.php" category=null}
+				{include file="$core_tpl/configuration/tabs/kb/edit_category.tpl.php" category=null}
 			</form>
 		</td>
 		

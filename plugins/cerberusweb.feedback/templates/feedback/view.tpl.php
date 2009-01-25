@@ -61,7 +61,9 @@
 		<tr class="{$tableRowBg}" id="{$rowIdPrefix}" onmouseover="toggleClass(this.id,'tableRowHover');toggleClass('{$rowIdPrefix}_s','tableRowHover');" onmouseout="toggleClass(this.id,'{$tableRowBg}');toggleClass('{$rowIdPrefix}_s','{$tableRowBg}');" onclick="if(getEventTarget(event)=='TD') checkAll('{$rowIdPrefix}_s');">
 			<td align="center" rowspan="2">{*<input type="checkbox" name="row_id[]" value="{$result.f_id}">*}</td>
 		{foreach from=$view->view_columns item=column name=columns}
-			{if $column=="f_id"}
+			{if substr($column,0,3)=="cf_"}
+				{include file="file:$core_tpl/internal/custom_fields/view/cell_renderer.tpl.php"}
+			{elseif $column=="f_id"}
 				<td>{$result.f_id}&nbsp;</td>
 			{elseif $column=="a_email"}
 				<td>

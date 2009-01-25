@@ -1,4 +1,4 @@
-{include file="file:$path/contacts/submenu.tpl.php"}
+{include file="file:$core_tpl/contacts/submenu.tpl.php"}
 
 <h1>Import</h1>
 

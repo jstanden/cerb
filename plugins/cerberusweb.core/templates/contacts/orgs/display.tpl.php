@@ -1,4 +1,4 @@
-{include file="file:$path/contacts/submenu.tpl.php"}
+{include file="file:$core_tpl/contacts/submenu.tpl.php"}
 
 <table cellpadding="2" cellspacing="0" border="0" width="100%">
 <tr>

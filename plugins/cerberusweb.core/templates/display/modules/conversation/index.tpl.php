@@ -15,14 +15,14 @@
 				<div id="{$message->id}t" style="background-color:rgb(255,255,255);">
 					{assign var=expanded value=false}
 					{if $expand_all || $latest_message_id==$message_id || isset($message_notes.$message_id)}{assign var=expanded value=true}{/if}
-					{include file="$path/display/modules/conversation/message.tpl.php" expanded=$expanded}
+					{include file="$core_tpl/display/modules/conversation/message.tpl.php" expanded=$expanded}
 				</div>
 				
 			{elseif $convo_set.0=='c'}
 				{assign var=comment_id value=$convo_set.1}
 				{assign var=comment value=$comments.$comment_id}
 				<div id="comment{$comment->id}" style="background-color:rgb(255,255,255);">
-					{include file="$path/display/modules/conversation/comment.tpl.php"}
+					{include file="$core_tpl/display/modules/conversation/comment.tpl.php"}
 				</div>
 			{/if}
 			

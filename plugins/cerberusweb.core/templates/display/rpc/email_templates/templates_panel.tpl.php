@@ -35,7 +35,7 @@
 {/if}
 
 <div id="templates" style="display:block;height:300px;margin:5px;overflow:auto;">
-{include file="$path/display/rpc/email_templates/template_results.tpl.php"}
+{include file="$core_tpl/display/rpc/email_templates/template_results.tpl.php"}
 </div>
 
 <button type="button" onclick="genericAjaxPanel('c=display&a=showTemplateEditPanel&type={$type}',null,false,'550px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_new.gif{/devblocks_url}" align="top"> Create Template</button>

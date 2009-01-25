@@ -38,7 +38,7 @@
 		
 		<td width="100%" valign="top">
 			<form action="{devblocks_url}{/devblocks_url}" method="post" id="configTeam">
-				{include file="$path/configuration/tabs/groups/edit_group.tpl.php" team=null}
+				{include file="$core_tpl/configuration/tabs/groups/edit_group.tpl.php" team=null}
 			</form>
 		</td>
 		

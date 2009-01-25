@@ -127,10 +127,6 @@ var cAjaxCalls = function() {
 		if(null == viewForm || null == viewDiv) return;
 
 		var frm = document.getElementById('formBatchUpdate');
-		// [JAS]: Compile a list of checked ticket IDs
-	//	var viewForm = document.getElementById('viewForm'+view_id);
-	//	if(null == viewForm) return;
-
 		var elements = viewForm.elements['ticket_id[]'];
 		if(null == elements) return;
 		
@@ -142,7 +138,6 @@ var cAjaxCalls = function() {
 		} else {
 			for(var x=len-1;x>=0;x--) {
 				if(elements[x].checked) {
-					//frm.appendChild(elements[x]);
 					ids[ids.length] = elements[x].value;
 				}
 			}

@@ -33,7 +33,7 @@
 
 {if !empty($comments)}
 	{foreach from=$comments item=comment key=comment_id}
-		{include file="$path/display/modules/conversation/comment.tpl.php"}
+		{include file="$core_tpl/display/modules/conversation/comment.tpl.php"}
 	{/foreach}
 {/if}
 

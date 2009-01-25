@@ -650,8 +650,8 @@ class C4_TicketView extends C4_AbstractView {
 		$team_categories = DAO_Bucket::getTeams();
 		$tpl->assign('team_categories', $team_categories);
 
-		$ticket_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Ticket::ID);
-		$tpl->assign('ticket_fields', $ticket_fields);
+		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Ticket::ID);
+		$tpl->assign('custom_fields', $custom_fields);
 		
 		// Undo?
 		$last_action = C4_TicketView::getLastAction($this->id);
@@ -1048,8 +1048,12 @@ class C4_TicketView extends C4_AbstractView {
 	 * [TODO] Find a better home for this?
 	 */
 	function doBulkUpdate($filter, $filter_param, $data, $do, $ticket_ids=array()) {
-		@set_time_limit(0); // [TODO] Temp!
+		@set_time_limit(600);
 	  
+		// Make sure we have checked items if we want a checked list
+		if(0 == strcasecmp($filter,"checks") && empty($ticket_ids))
+			return;
+		
 		$action = new Model_DashboardViewAction();
 		$action->params = $do;
 		$action->dashboard_view_id = $this->id;
@@ -1071,7 +1075,6 @@ class C4_TicketView extends C4_AbstractView {
 			case 'subject':
 			case 'sender':
 			case 'header':
-
 				if(is_array($data))
 				foreach($data as $v) {
 					$new_params = array();
@@ -1235,6 +1238,7 @@ class C4_AddressView extends C4_AbstractView {
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('id', $this->id);
+		
 		$tpl->assign('view', $this);
 
 		$address_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Address::ID);
@@ -1379,7 +1383,7 @@ class C4_AddressView extends C4_AbstractView {
 					}
 			}
 		}
-
+		
 		$pg = 0;
 
 		if(empty($ids))
@@ -1654,7 +1658,7 @@ class C4_ContactOrgView extends C4_AbstractView {
 
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		//		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		$tpl->assign('core_tpl', realpath(DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/')) . DIRECTORY_SEPARATOR;
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
@@ -1668,11 +1672,8 @@ class C4_ContactOrgView extends C4_AbstractView {
 
 	function renderCriteria($field) {
 		$tpl = DevblocksPlatform::getTemplateService();
-		//		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		$tpl->assign('id', $this->id);
 
-		$tpl_path = DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/';
-		
 		switch($field) {
 			case SearchFields_ContactOrg::NAME:
 			case SearchFields_ContactOrg::PHONE:
@@ -2243,6 +2244,86 @@ class C4_TaskView extends C4_AbstractView {
 			$this->renderPage = 0;
 		}
 	}
+	
+	function doBulkUpdate($filter, $do, $ids=array()) {
+		@set_time_limit(600); // [TODO] Temp!
+	  
+		$change_fields = array();
+		$custom_fields = array();
+
+		// Make sure we have actions
+		if(empty($do))
+			return;
+
+		// Make sure we have checked items if we want a checked list
+		if(0 == strcasecmp($filter,"checks") && empty($ids))
+			return;
+			
+		if(is_array($do))
+		foreach($do as $k => $v) {
+			switch($k) {
+				case 'due':
+					@$date = strtotime($v);
+					$change_fields[DAO_Task::DUE_DATE] = intval($date);
+					break;
+				case 'status':
+					if(1==intval($v)) { // completed
+						$change_fields[DAO_Task::IS_COMPLETED] = 1;
+						$change_fields[DAO_Task::COMPLETED_DATE] = time();
+					} else { // active
+						$change_fields[DAO_Task::IS_COMPLETED] = 0;
+						$change_fields[DAO_Task::COMPLETED_DATE] = 0;
+					}
+					break;
+				case 'worker_id':
+					$change_fields[DAO_Task::WORKER_ID] = intval($v);
+					break;
+				default:
+					// Custom fields
+					if(substr($k,0,3)=="cf_") {
+						$custom_fields[substr($k,3)] = $v;
+					}
+			}
+		}
+		
+		$pg = 0;
+
+		if(empty($ids))
+		do {
+			list($objects,$null) = DAO_Task::search(
+				array(),
+				$this->params,
+				100,
+				$pg++,
+				SearchFields_Task::ID,
+				true,
+				false
+			);
+			 
+			$ids = array_merge($ids, array_keys($objects));
+			 
+		} while(!empty($objects));
+
+		$batch_total = count($ids);
+		for($x=0;$x<=$batch_total;$x+=100) {
+			$batch_ids = array_slice($ids,$x,100);
+			DAO_Task::update($batch_ids, $change_fields);
+			
+			// Set custom fields // [TODO] Optimize
+			if(!empty($custom_fields))
+			foreach($batch_ids as $id)
+			foreach($custom_fields as $cf_id => $cf_val) {
+				if(!empty($cf_val))
+					DAO_CustomFieldValue::setFieldValue(ChCustomFieldSource_Task::ID,$id,$cf_id,$cf_val);
+				else
+					DAO_CustomFieldValue::unsetFieldValue(ChCustomFieldSource_Task::ID,$id,$cf_id);
+			}
+			
+			unset($batch_ids);
+		}
+
+		unset($ids);
+	}	
 };
 
 class C4_WorkerEventView extends C4_AbstractView {
@@ -2488,14 +2569,16 @@ class Model_DashboardViewAction {
 		//		if(is_array($ticket_ids))
 		//		foreach($ticket_ids as $ticket_id) {
 		$fields = array();
+		$custom_fields = array();
 
 		// actions
 		if(is_array($this->params))
 		foreach($this->params as $k => $v) {
-			if(empty($v) && !is_numeric($v)) continue;
-				
 			switch($k) {
 				case 'closed':
+					if(empty($v) && !is_numeric($v))
+						continue;
+					
 					switch(intval($v)) {
 						case CerberusTicketStatus::OPEN:
 							$fields[DAO_Ticket::IS_CLOSED] = 0;
@@ -2514,6 +2597,9 @@ class Model_DashboardViewAction {
 					break;
 
 					case 'spam':
+						if(empty($v) && !is_numeric($v))
+							continue;
+						
 						if($v == CerberusTicketSpamTraining::NOT_SPAM) {
 							foreach($ticket_ids as $ticket_id) {
 								CerberusBayes::markTicketAsNotSpam($ticket_id);
@@ -2528,6 +2614,9 @@ class Model_DashboardViewAction {
 						break;
 
 					case 'team':
+						if(empty($v) && !is_numeric($v))
+							continue;
+						
 						// [TODO] Make sure the team/bucket still exists
 						list($team_id,$category_id) = CerberusApplication::translateTeamCategoryCode($v);
 						$fields[DAO_Ticket::TEAM_ID] = $team_id;
@@ -2536,18 +2625,36 @@ class Model_DashboardViewAction {
 
 					case 'next_worker':
 					case 'assign':
+						if(empty($v) && !is_numeric($v))
+							continue;
+						
 						$fields[DAO_Ticket::NEXT_WORKER_ID] = intval($v);
 						break;
 
 					default:
+						// Custom fields
+						if(substr($k,0,3)=="cf_") {
+							$custom_fields[substr($k,3)] = $v;
+						}
 						// [TODO] Log?
 						break;
 			}
 		}
 		//		}
 
-		if(!empty($fields) && !empty($ticket_ids)) {
-			DAO_Ticket::updateTicket($ticket_ids, $fields);
+		if(!empty($ticket_ids)) {
+			if(!empty($fields))
+				DAO_Ticket::updateTicket($ticket_ids, $fields);
+			
+			// Set custom fields // [TODO] Optimize
+			if(!empty($custom_fields))
+			foreach($ticket_ids as $id)
+			foreach($custom_fields as $cf_id => $cf_val) {
+				if(!empty($cf_val))
+					DAO_CustomFieldValue::setFieldValue(ChCustomFieldSource_Ticket::ID,$id,$cf_id,$cf_val);
+				else
+					DAO_CustomFieldValue::unsetFieldValue(ChCustomFieldSource_Ticket::ID,$id,$cf_id);
+			}
 		}
 	}
 };

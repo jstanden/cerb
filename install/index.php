@@ -350,24 +350,6 @@ switch($step) {
 			$drivers['mysql'] = 'MySQL 3.23/4.x/5.x';
 		}
 		
-//		if(extension_loaded('mysqli')) {
-//			$drivers['mysqli'] = 'MySQLi 4.x/5.x';
-//		}
-		
-//		if(extension_loaded('pgsql')) {
-//			$drivers['postgres8'] = 'PostgreSQL 8.x';
-//			$drivers['postgres7'] = 'PostgreSQL 7.x';
-//			$drivers['postgres64'] = 'PostgreSQL 6.4';
-//		}
-//
-//		if(extension_loaded('mssql')) {
-//			$drivers['mssql'] = 'Microsoft SQL Server 7.x/2000/2005';
-//		}
-//		
-//		if(extension_loaded('oci8')) {
-//			$drivers['oci8'] = 'Oracle 8/9';
-//		}
-		
 		$tpl->assign('drivers', $drivers);
 		
 		if(!empty($db_driver) && !empty($db_server) && !empty($db_name) && !empty($db_user)) {

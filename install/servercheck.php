@@ -56,6 +56,14 @@ if ($memory_limit == '') { // empty string means failure or not defined, assume 
 	}
 }
 
+// Extension: MySQL
+if(extension_loaded("mysql")) {
+	$results['ext_mysql'] = true;
+} else {
+	$results['ext_mysql'] = false;
+	$fails++;
+}
+
 // Extension: Sessions
 if(extension_loaded("session")) {
 	$results['ext_session'] = true;
@@ -137,70 +145,57 @@ if(extension_loaded("spl")) {
 }
 
 if($fails) {
-	echo "The following problems prevent you from running Cerberus
-Helpdesk 4.0:<span class='fail'><ul>";
+	echo "The following problems prevent you from running Cerberus Helpdesk 4.0:<span class='fail'><ul>";
 	
 	if(!$results['php_version'])
-		echo '<li>Cerberus Helpdesk 4.0 requires PHP 5.1.4 or later.
-Your server PHP version is '.PHP_VERSION.'.</li>';
+		echo '<li>Cerberus Helpdesk 4.0 requires PHP 5.1.4 or later. Your server PHP version is '.PHP_VERSION.'.</li>';
 
 	if(!$results['file_uploads'])
-		echo '<li>file_uploads is disabled in your php.ini file.
-Please enable it.</li>';
+		echo '<li>file_uploads is disabled in your php.ini file. Please enable it.</li>';
 		
 	if(!$results['upload_tmp_dir'])
-		echo '<li>upload_tmp_dir is empty in your php.ini file.
-Please set it.</li>';
+		echo '<li>upload_tmp_dir is empty in your php.ini file. Please set it.</li>';
 		
 	if(!$results['memory_limit'])
-		echo '<li>memory_limit must be 16M or larger in your php.ini
-file.  Please increase it.</li>';
+		echo '<li>memory_limit must be 16M or larger in your php.ini file.  Please increase it.</li>';
+		
+	if(!$results['ext_mysql'])
+		echo "<li>The 'MySQL' PHP extension is required.  Please enable it.</li>";
 		
 	if(!$results['ext_session'])
-		echo "<li>The 'Session' PHP extension is required.  Please
-enable it.</li>";
+		echo "<li>The 'Session' PHP extension is required.  Please enable it.</li>";
 		
 	if(!$results['ext_pcre'])
-		echo "<li>The 'PCRE' PHP extension is required.  Please enable
-it.</li>";
+		echo "<li>The 'PCRE' PHP extension is required.  Please enable it.</li>";
 		
 	if(!$results['ext_spl'])
-		echo "<li>The 'SPL' PHP extension is required.  Please enable
-it.</li>";
+		echo "<li>The 'SPL' PHP extension is required.  Please enable it.</li>";
 		
 	if(!$results['ext_gd'])
-		echo "<li>The 'GD' PHP extension (with FreeType library support) is required.  Please enable
-them.</li>";
+		echo "<li>The 'GD' PHP extension (with FreeType library support) is required.  Please enable them.</li>";
 		
 	if(!$results['ext_imap'])
-		echo "<li>The 'IMAP' PHP extension is required.  Please enable
-it.</li>";
+		echo "<li>The 'IMAP' PHP extension is required.  Please enable it.</li>";
 		
 	if(!$results['ext_mailparse'])
-		echo "<li>The 'MailParse' PHP extension is required.  Please
-enable it.</li>";
+		echo "<li>The 'MailParse' PHP extension is required.  Please enable it.</li>";
 		
 	if(!$results['ext_mbstring'])
-		echo "<li>The 'MbString' PHP extension is required.  Please
-enable it.</li>";
+		echo "<li>The 'MbString' PHP extension is required.  Please enable it.</li>";
 		
 	if(!$results['ext_xml'])
-		echo "<li>The 'XML' PHP extension is required.  Please
-enable it.</li>";
+		echo "<li>The 'XML' PHP extension is required.  Please enable it.</li>";
 		
 	if(!$results['ext_dom'])
-		echo "<li>The 'DOM' PHP extension is required.  Please
-enable it.</li>";
+		echo "<li>The 'DOM' PHP extension is required.  Please enable it.</li>";
 		
 		if(!$results['ext_simplexml'])
-		echo "<li>The 'SimpleXML' PHP extension is required.  Please
-enable it.</li>";
+		echo "<li>The 'SimpleXML' PHP extension is required.  Please enable it.</li>";
 		
 	echo "</ul></span><br>Please correct these issues and try again.<br>";
 	
 } else {
-	echo "<span class='pass'>Your server is Cerberus Helpdesk 4.0
-compatible!</span><br>";
+	echo "<span class='pass'>Your server is Cerberus Helpdesk 4.0 compatible!</span><br>";
 	
 }
 

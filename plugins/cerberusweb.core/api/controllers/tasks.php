@@ -233,193 +233,66 @@ class ChTasksController extends DevblocksControllerExtension {
 		exit;
 	}
 	
-	function viewCompleteAction() {
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string','');
-		@$ids = DevblocksPlatform::importGPC($_POST['row_id'],'array',array());
-		
-		if(!empty($ids)) {
-			$fields = array(
-				DAO_Task::IS_COMPLETED => 1,
-				DAO_Task::COMPLETED_DATE => time()
-			);
-			DAO_Task::update($ids, $fields);
-		}
+	function showTaskBulkPanelAction() {
+		@$ids = DevblocksPlatform::importGPC($_REQUEST['ids']);
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
 
-		$view = C4_AbstractViewLoader::getView('',$view_id);
-	    $view->render();
-	    return;
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('view_id', $view_id);
+
+	    if(!empty($ids)) {
+	        $id_list = DevblocksPlatform::parseCsvString($ids);
+	        $tpl->assign('ids', implode(',', $id_list));
+	    }
+		
+	    $workers = DAO_Worker::getAllActive();
+	    $tpl->assign('workers', $workers);
+	    
+		// Custom Fields
+		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Task::ID);
+		$tpl->assign('custom_fields', $custom_fields);
+		
+		$tpl->cache_lifetime = "0";
+		$tpl->display('file:' . dirname(__FILE__) . '/../../templates/tasks/rpc/bulk.tpl.php');
 	}
 	
-	function viewDeleteAction() {
-		@$ids = DevblocksPlatform::importGPC($_POST['row_id'],'array',array());
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string','');
-		
-		if(!empty($ids))
-			DAO_Task::delete($ids);
-		
+	function doTaskBulkUpdateAction() {
+		// Checked rows
+	    @$ids_str = DevblocksPlatform::importGPC($_REQUEST['ids'],'string');
+		$ids = DevblocksPlatform::parseCsvString($ids_str);
+
+		// Filter: whole list or check
+	    @$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
+	    
+	    // View
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		$view = C4_AbstractViewLoader::getView('',$view_id);
-	    $view->render();
-	    return;
-	}
-	
-	function viewPostponeAction() {
-		@$ids = DevblocksPlatform::importGPC($_POST['row_id'],'array',array());
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string','');
 		
-		if(!empty($ids)) {
-			$tasks = DAO_Task::getWhere(sprintf("%s IN (%s)",
-				DAO_Task::ID,
-				implode(',', $ids)
-			));
+		// Task fields
+		$due = trim(DevblocksPlatform::importGPC($_POST['due'],'string',''));
+		$status = trim(DevblocksPlatform::importGPC($_POST['status'],'string',''));
+		$worker_id = trim(DevblocksPlatform::importGPC($_POST['worker_id'],'string',''));
+
+		$do = array();
+		
+		// Do: Due
+		if(0 != strlen($due))
+			$do['due'] = $due;
 			
-			foreach($tasks as $task) {
-				/*
-				 * [JAS]: If an existing due date exists and isn't expired, do a  
-				 * relative postpone. Otherwise use today as the starting point.
-				 */
-				$time = ($task->due_date && $task->due_date > time()) ? $task->due_date : time();
-				
-				$fields = array(
-					DAO_Task::DUE_DATE => strtotime('+24 hours',$time)
-				);
-				DAO_Task::update($task->id, $fields);
-			}
-		}
-		
-		$view = C4_AbstractViewLoader::getView('',$view_id);
-	    $view->render();
-	    return;
-	}
-	
-	function viewDueTodayAction() {
-		@$ids = DevblocksPlatform::importGPC($_POST['row_id'],'array',array());
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string','');
-
-		if(!empty($ids)) {
-			$fields = array(
-				DAO_Task::DUE_DATE => intval(strtotime("tomorrow"))
-			);
-			DAO_Task::update($ids, $fields);
-		}
-		
-		$view = C4_AbstractViewLoader::getView('',$view_id);
-	    $view->render();
-	    return;
-	}
-	
-	function viewTakeAction() {
-		@$ids = DevblocksPlatform::importGPC($_POST['row_id'],'array',array());
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string','');
-
-		$active_worker = CerberusApplication::getActiveWorker();
-
-		if(!empty($ids)) {
-			// Only unassigned
-			$where = sprintf("%s IN (%s) AND %s = %d",
-				DAO_Task::ID,
-				implode(',', $ids),
-				DAO_Task::WORKER_ID,
-				0
-			);
+		// Do: Status
+		if(0 != strlen($status))
+			$do['status'] = $status;
 			
-			$fields = array(
-				DAO_Task::WORKER_ID => intval($active_worker->id)
-			);
-			DAO_Task::updateWhere($fields, $where);
-		}
-		
-		$view = C4_AbstractViewLoader::getView('',$view_id);
-	    $view->render();
-	    return;
-	}
-	
-	function viewSurrenderAction() {
-		@$ids = DevblocksPlatform::importGPC($_POST['row_id'],'array',array());
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string','');
-
-		$active_worker = CerberusApplication::getActiveWorker();
-
-		if(!empty($ids)) {
-			// Only unassigned
-			$where = sprintf("%s IN (%s) AND %s = %d",
-				DAO_Task::ID,
-				implode(',', $ids),
-				DAO_Task::WORKER_ID,
-				$active_worker->id
-			);
+		// Do: Worker
+		if(0 != strlen($worker_id))
+			$do['worker_id'] = $worker_id;
 			
-			$fields = array(
-				DAO_Task::WORKER_ID => 0
-			);
-			DAO_Task::updateWhere($fields, $where);
-		}
+		// Do: Custom fields
+		$do = DAO_CustomFieldValue::handleBulkPost($do);
+			
+		$view->doBulkUpdate($filter, $do, $ids);
 		
-		$view = C4_AbstractViewLoader::getView('',$view_id);
-	    $view->render();
-	    return;
-	}
-	
-	function viewPriorityHighAction() {
-		@$ids = DevblocksPlatform::importGPC($_POST['row_id'],'array',array());
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string','');
-
-		if(!empty($ids)) {
-			$fields = array(
-				DAO_Task::PRIORITY => 1 // [TODO] These should be Model_Task constants
-			);
-			DAO_Task::update($ids, $fields);
-		}
-		
-		$view = C4_AbstractViewLoader::getView('',$view_id);
-	    $view->render();
-	    return;
-	}
-	
-	function viewPriorityNormalAction() {
-		@$ids = DevblocksPlatform::importGPC($_POST['row_id'],'array',array());
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string','');
-
-		if(!empty($ids)) {
-			$fields = array(
-				DAO_Task::PRIORITY => 2
-			);
-			DAO_Task::update($ids, $fields);
-		}
-		
-		$view = C4_AbstractViewLoader::getView('',$view_id);
-	    $view->render();
-	    return;
-	}
-	
-	function viewPriorityLowAction() {
-		@$ids = DevblocksPlatform::importGPC($_POST['row_id'],'array',array());
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string','');
-
-		if(!empty($ids)) {
-			$fields = array(
-				DAO_Task::PRIORITY => 3
-			);
-			DAO_Task::update($ids, $fields);
-		}
-		
-		$view = C4_AbstractViewLoader::getView('',$view_id);
-	    $view->render();
-	    return;
-	}
-	
-	function viewPriorityNoneAction() {
-		@$ids = DevblocksPlatform::importGPC($_POST['row_id'],'array',array());
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string','');
-		
-		if(!empty($ids)) {
-			$fields = array(
-				DAO_Task::PRIORITY => 4
-			);
-			DAO_Task::update($ids, $fields);
-		}
-
-		$view = C4_AbstractViewLoader::getView('',$view_id);
-	    $view->render();
-	    return;
+		$view->render();
+		return;
 	}
 };

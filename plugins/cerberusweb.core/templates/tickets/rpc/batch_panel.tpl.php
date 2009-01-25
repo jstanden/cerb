@@ -13,15 +13,14 @@
 <div style="height:400px;overflow:auto;">
 
 <h2>With:</h2>
-
-<label><input type="radio" name="filter" value="" onclick="toggleDiv('bulkUpdateLearn','none');toggleDiv('categoryFilterPanelSender','none');toggleDiv('categoryFilterPanelSubject','none');" {if empty($ticket_ids)}checked{/if}> Whole list</label> 
-<label><input type="radio" name="filter" value="checks" onclick="toggleDiv('bulkUpdateLearn','none');toggleDiv('categoryFilterPanelSender','none');toggleDiv('categoryFilterPanelSubject','none');"> Only checked</label> 
-<label><input type="radio" name="filter" value="sender" onclick="toggleDiv('bulkUpdateLearn','block');toggleDiv('categoryFilterPanelSender','block');toggleDiv('categoryFilterPanelSubject','none');" {if !empty($ticket_ids)}checked{/if}> Similar senders</label>
-<label><input type="radio" name="filter" value="subject" onclick="toggleDiv('bulkUpdateLearn','block');toggleDiv('categoryFilterPanelSender','none');toggleDiv('categoryFilterPanelSubject','block');"> Similar subjects</label>
+<label><input type="radio" name="filter" value="" onclick="toggleDiv('categoryFilterPanelSender','none');toggleDiv('categoryFilterPanelSubject','none');" {if empty($ticket_ids)}checked{/if}> Whole list</label> 
+<label><input type="radio" name="filter" value="checks" onclick="toggleDiv('categoryFilterPanelSender','none');toggleDiv('categoryFilterPanelSubject','none');" {if !empty($ticket_ids)}checked{/if}> Only checked</label> 
+<label><input type="radio" name="filter" value="sender" onclick="toggleDiv('categoryFilterPanelSender','block');toggleDiv('categoryFilterPanelSubject','none');"> Similar senders</label>
+<label><input type="radio" name="filter" value="subject" onclick="toggleDiv('categoryFilterPanelSender','none');toggleDiv('categoryFilterPanelSubject','block');"> Similar subjects</label>
 <br>
 <br>
 
-<div style='display:{if empty($ticket_ids)}none{else}block{/if};' id='categoryFilterPanelSender'>
+<div style='display:none;' id='categoryFilterPanelSender'>
 <label><b>When sender matches:</b> (one per line, use * for wildcards)</label><br>
 <textarea rows='3' cols='45' style='width:95%' name='senders' wrap="off">{foreach from=$unique_senders key=sender item=total name=senders}{$sender}{if !$smarty.foreach.senders.last}{"\n"}{/if}{/foreach}</textarea><br>
 <br>
@@ -33,7 +32,6 @@
 <br>
 </div>
 
-<div id="bulkUpdateCustom" style="display:block;">
 <H2>Do:</H2>
 <table cellspacing="0" cellpadding="2" width="100%">
 	<tr>
@@ -57,18 +55,19 @@
 	</tr>
 	<tr>
 		<td width="0%" nowrap="nowrap">Status:</td>
-		<td width="100%"><select name="closed">
-			<option value=""></option>
-			{foreach from=$statuses item=k key=v}
-			<option value="{$v}">{$k}</option>
-			{/foreach}
-			{if $active_worker && ($active_worker->is_superuser || $active_worker->can_delete)}
-			<option value="2">Deleted</option>
-			{/if}
-		</select>
-		<button type="button" onclick="this.form.closed.selectedIndex = 1;">open</button>
-		<button type="button" onclick="this.form.closed.selectedIndex = 2;">closed</button>
-		<button type="button" onclick="this.form.closed.selectedIndex = 3;">deleted</button>
+		<td width="100%">
+			<select name="closed">
+				<option value=""></option>
+				{foreach from=$statuses item=k key=v}
+				<option value="{$v}">{$k}</option>
+				{/foreach}
+				{if $active_worker && ($active_worker->is_superuser || $active_worker->can_delete)}
+				<option value="2">Deleted</option>
+				{/if}
+			</select>
+			<button type="button" onclick="this.form.closed.selectedIndex = 1;">open</button>
+			<button type="button" onclick="this.form.closed.selectedIndex = 2;">closed</button>
+			<button type="button" onclick="this.form.closed.selectedIndex = 3;">deleted</button>
 		</td>
 	</tr>
 	<tr>
@@ -85,31 +84,26 @@
 	</tr>
 	<tr>
 		<td width="0%" nowrap="nowrap">Next Worker:</td>
-		<td width="100%"><select name="next_worker">
-			<option value=""></option>
-			<option value="0">Anybody</option>
-			{foreach from=$workers item=worker key=worker_id name=workers}
-				{if $worker_id==$active_worker->id}{math assign=next_worker_id_sel equation="x+1" x=$smarty.foreach.workers.iteration}{/if}
-				<option value="{$worker_id}">{$worker->getName()}</option>
-			{/foreach}
-		</select>
-      	{if !empty($next_worker_id_sel)}
-      		<button type="button" onclick="this.form.next_worker.selectedIndex = {$next_worker_id_sel};">me</button>
-      		<button type="button" onclick="this.form.next_worker.selectedIndex = 1;">anybody</button>
-      	{/if}
+		<td width="100%">
+			<select name="next_worker">
+				<option value=""></option>
+				<option value="0">Anybody</option>
+				{foreach from=$workers item=worker key=worker_id name=workers}
+					{if $worker_id==$active_worker->id}{math assign=next_worker_id_sel equation="x+1" x=$smarty.foreach.workers.iteration}{/if}
+					<option value="{$worker_id}">{$worker->getName()}</option>
+				{/foreach}
+			</select>
+	      	{if !empty($next_worker_id_sel)}
+	      		<button type="button" onclick="this.form.next_worker.selectedIndex = {$next_worker_id_sel};">me</button>
+	      		<button type="button" onclick="this.form.next_worker.selectedIndex = 1;">anybody</button>
+	      	{/if}
 		</td>
 	</tr>
 </table>
 
-<br>
-</div>
+{include file="file:$core_tpl/internal/custom_fields/bulk/form.tpl.php"}
 
-<div id="bulkUpdateLearn" style="display:{if empty($ticket_ids)}none{else}block{/if};">
-{*
-<H2>And in the future:</H2>
-<label><input type="checkbox" name="always" value="1"> Do this with mail in selected groups</label><br>
 <br>
-*}
 </div>
 
 <button type="button" onclick="ajax.saveBatchPanel('{$view_id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>

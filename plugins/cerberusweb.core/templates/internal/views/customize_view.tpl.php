@@ -64,7 +64,7 @@
 {if $is_custom}
 <b>Criteria:</b><br>
 <div id="viewCustomFilters{$view->id}" style="margin:10px;">
-{include file="$path/internal/views/customize_view_criteria.tpl.php"}
+{include file="$core_tpl/internal/views/customize_view_criteria.tpl.php"}
 </div>
 <br>
 {/if}

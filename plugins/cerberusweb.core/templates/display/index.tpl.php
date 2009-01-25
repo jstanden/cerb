@@ -1,4 +1,4 @@
-{include file="file:$path/tickets/submenu.tpl.php"}
+{include file="file:$core_tpl/tickets/submenu.tpl.php"}
 
 <table cellpadding="0" cellspacing="0" width="100%" border="0">
 <tr>
@@ -32,7 +32,7 @@
 					<!-- <b>Next Action:</b> <input type="text" name="next_step" size="80" value="{$ticket->next_action}" maxlength="255"><br>  -->
 				</td>
 				<td align="right">
-					{include file="file:$path/tickets/quick_search_box.tpl.php"}				
+					{include file="file:$core_tpl/tickets/quick_search_box.tpl.php"}				
 				</td>
 			</tr>
 		</table>

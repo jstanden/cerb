@@ -48,7 +48,7 @@
  * 		and Joe Geck.
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-define("APP_BUILD", 832);
+define("APP_BUILD", 833);
 define("APP_MAIL_PATH", realpath(APP_PATH . '/storage/mail') . DIRECTORY_SEPARATOR);
 
 include_once(APP_PATH . "/api/DAO.class.php");
@@ -195,8 +195,8 @@ class CerberusApplication extends DevblocksApplication {
 			}
 		}
 		
-		// Extension: Sessions
-		if(extension_loaded("mysql") || extension_loaded("mysqli")) {
+		// Extension: MySQL
+		if(extension_loaded("mysql")) {
 		} else {
 			$errors[] = "The 'MySQL' PHP extension is required.  Please enable it.";
 		}

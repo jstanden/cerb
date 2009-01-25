@@ -39,7 +39,7 @@
 		
 		<td width="100%" valign="top">
 			<form action="{devblocks_url}{/devblocks_url}" method="post" id="configWorker">
-				{include file="$path/configuration/tabs/workers/edit_worker.tpl.php" worker=null}
+				{include file="$core_tpl/configuration/tabs/workers/edit_worker.tpl.php" worker=null}
 			</form>
 		</td>
 		

@@ -1,4 +1,4 @@
-{include file="$tpl_path/header.tpl.php"}
+{include file="$core_tpl/header.tpl.php"}
 
 {if !empty($prebody_renderers)}
 	{foreach from=$prebody_renderers item=renderer}
@@ -35,7 +35,7 @@
 	</tr>
 </table>
 
-{include file="$tpl_path/menu.tpl.php"}
+{include file="$core_tpl/menu.tpl.php"}
 
 {if !empty($page) && $page->isVisible()}
 	{$page->render()}
@@ -43,4 +43,4 @@
 	{$translate->_('header.no_page')}
 {/if}
 
-{include file="$tpl_path/footer.tpl.php"}
+{include file="$core_tpl/footer.tpl.php"}

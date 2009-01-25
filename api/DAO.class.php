@@ -6471,6 +6471,45 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 		return $db->Execute($sql);
 	}
 	
+	public static function handleBulkPost($do) {
+		@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'],'array',array());
+
+		$fields = DAO_CustomField::getAll();
+		
+		if(is_array($field_ids))
+		foreach($field_ids as $field_id) {
+			if(!isset($fields[$field_id]))
+				continue;
+			
+			@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'string','');
+
+			switch($fields[$field_id]->type) {
+				case Model_CustomField::TYPE_MULTI_LINE:
+				case Model_CustomField::TYPE_SINGLE_LINE:
+					$do['cf_'.$field_id] = $field_value;
+					break;
+					
+				case Model_CustomField::TYPE_NUMBER:
+					$do['cf_'.$field_id] = intval($field_value);
+					break;
+					
+				case Model_CustomField::TYPE_DROPDOWN:
+					$do['cf_'.$field_id] = $field_value;
+					break;
+					
+				case Model_CustomField::TYPE_CHECKBOX:
+					$do['cf_'.$field_id] = !empty($field_value) ? 1 : 0;
+					break;
+					
+				case Model_CustomField::TYPE_DATE:
+					$do['cf_'.$field_id] = !empty($field_value) ? @strtotime($field_value) : '';
+					break;
+			}
+		}
+		
+		return $do;
+	}
+	
 	public static function handleFormPost($source_ext_id, $source_id, $field_ids) {
 		$fields = DAO_CustomField::getBySource($source_ext_id);
 		

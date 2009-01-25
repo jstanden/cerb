@@ -3,7 +3,7 @@
 <tr>
 	<td width="0%" nowrap="nowrap" valign="top">
 		<div style="width:220px;">
-			{include file="file:$path/internal/views/criteria_list.tpl.php" divName="taskSearchFilters"}
+			{include file="file:$core_tpl/internal/views/criteria_list.tpl.php" divName="taskSearchFilters"}
 			<div id="taskSearchFilters" style="visibility:visible;"></div>
 		</div>
 	</td>

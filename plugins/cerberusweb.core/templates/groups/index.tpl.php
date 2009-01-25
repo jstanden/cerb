@@ -1,4 +1,4 @@
-{include file="file:$path/groups/submenu.tpl.php"}
+{include file="file:$core_tpl/groups/submenu.tpl.php"}
 
 <h1>Group Setup</h1>
 
@@ -37,7 +37,7 @@
 		
 		<td width="100%" valign="top">
 			{if !empty($team)}
-				{include file="$path/groups/edit_group.tpl.php" group=$team}
+				{include file="$core_tpl/groups/edit_group.tpl.php" group=$team}
 			{/if}
 		</td>
 		

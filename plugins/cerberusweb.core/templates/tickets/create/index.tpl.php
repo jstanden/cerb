@@ -1,4 +1,4 @@
-{include file="file:$path/tickets/submenu.tpl.php"}
+{include file="file:$core_tpl/tickets/submenu.tpl.php"}
 
 {if $smarty.const.DEMO_MODE}
 <div style="color:red;padding:2px;font-weight:bold;">NOTE: This helpdesk is in Demo Mode and mail will not be sent.</div>

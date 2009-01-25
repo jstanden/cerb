@@ -1,4 +1,4 @@
-{include file="file:$path/tickets/submenu.tpl.php"}
+{include file="file:$core_tpl/tickets/submenu.tpl.php"}
 
 <table cellspacing="0" cellpadding="0" border="0" width="100%" style="padding-bottom:5px;">
 <tr>
@@ -9,7 +9,7 @@
 		
 	</td>
 	<td width="1%" valign="middle" nowrap="nowrap">
-		{include file="file:$path/tickets/quick_search_box.tpl.php"}
+		{include file="file:$core_tpl/tickets/quick_search_box.tpl.php"}
 	</td>
 </tr>
 </table>
@@ -18,7 +18,7 @@
 	<tr>
 		<td valign="top" width="0%" nowrap="nowrap">
 			<div id="tourDashboardSearchCriteria"></div>
-			{include file="file:$path/internal/views/criteria_list.tpl.php" divName="searchCriteriaDialog"}
+			{include file="file:$core_tpl/internal/views/criteria_list.tpl.php" divName="searchCriteriaDialog"}
 			<div id="searchCriteriaDialog" style="visibility:visible;"></div>
 		</td>
 		<td valign="top" width="0%" nowrap="nowrap"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/spacer.gif{/devblocks_url}" width="5" height="1"></td>

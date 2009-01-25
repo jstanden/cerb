@@ -204,9 +204,9 @@ class ChPageController extends DevblocksControllerExtension {
 
 		$tpl->assign('response_uri', implode('/', $response->path));
 		
-		$tpl_path = dirname(__FILE__) . '/templates/';
-		$tpl->assign('tpl_path', $tpl_path);
-
+		$core_tpl = realpath(DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/') . DIRECTORY_SEPARATOR;
+		$tpl->assign('core_tpl', $core_tpl);
+		
 		// Prebody Renderers
 		$preBodyRenderers = DevblocksPlatform::getExtensions('cerberusweb.renderer.prebody', true);
 		if(!empty($preBodyRenderers))
@@ -219,7 +219,7 @@ class ChPageController extends DevblocksControllerExtension {
 			$tpl->assign('render_peak_memory', memory_get_peak_usage() - DevblocksPlatform::getStartPeakMemory());
 		}
 		
-		$tpl->display($tpl_path.'border.php');
+		$tpl->display($core_tpl.'border.php');
 		
 //		$cache = DevblocksPlatform::getCacheService();
 //		$cache->printStatistics();
@@ -2495,9 +2495,12 @@ class ChTicketsPage extends CerberusPageExtension {
 	    
 	    if(!empty($ids)) {
 	        $ticket_ids = DevblocksPlatform::parseCsvString($ids);
-	        if(empty($ticket_ids)) break;
+	        
+	        if(empty($ticket_ids))
+	        	break;
+	        
 	        $tickets = DAO_Ticket::getTickets($ticket_ids);
-		    
+	        if(is_array($tickets))
 		    foreach($tickets as $ticket) { /* @var $ticket CerberusTicket */
 	            $ptr =& $unique_sender_ids[$ticket->first_wrote_address_id]; 
 		        $ptr = intval($ptr) + 1;
@@ -2539,13 +2542,17 @@ class ChTicketsPage extends CerberusPageExtension {
 		// Teams
 		$teams = DAO_Group::getAll();
 		$tpl->assign('teams', $teams);
-		// [TODO] Cache these
+		
 		// Categories
-		$team_categories = DAO_Bucket::getTeams();
+		$team_categories = DAO_Bucket::getTeams(); // [TODO] Cache these
 		$tpl->assign('team_categories', $team_categories);
 		
 		$workers = DAO_Worker::getAllActive();
 		$tpl->assign('workers', $workers);
+		
+		// Custom Fields
+		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Ticket::ID);
+		$tpl->assign('custom_fields', $custom_fields);
 		
 		$tpl->cache_lifetime = "0";
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/rpc/batch_panel.tpl.php');
@@ -2599,6 +2606,9 @@ class ChTicketsPage extends CerberusPageExtension {
 		$memberships = $active_worker->getMemberships();
 		$view->params['tmp'] = new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID, 'in', array_keys($memberships)); 
 	    
+		// Do: Custom fields
+		$do = DAO_CustomFieldValue::handleBulkPost($do);
+		
 		$view->doBulkUpdate($filter, '', $data, $do, $ticket_ids);
 		
 		// Clear our temporary group restriction before re-rendering
@@ -5171,8 +5181,6 @@ class ChContactsPage extends CerberusPageExtension {
 	    if(!empty($ids)) {
 	        $address_ids = DevblocksPlatform::parseCsvString($ids);
 	        $tpl->assign('address_ids', $address_ids);
-//	        if(empty($ticket_ids)) break;
-//	        $tickets = DAO_Ticket::getTickets($ticket_ids);
 	    }
 		
 	    $custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Address::ID);
@@ -5196,8 +5204,8 @@ class ChContactsPage extends CerberusPageExtension {
 	    }
 		
 		// Custom Fields
-		$org_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Org::ID);
-		$tpl->assign('org_fields', $org_fields);
+		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Org::ID);
+		$tpl->assign('custom_fields', $custom_fields);
 		
 		$tpl->cache_lifetime = "0";
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/contacts/orgs/org_bulk.tpl.php');
@@ -5463,40 +5471,8 @@ class ChContactsPage extends CerberusPageExtension {
 		if(0 != strlen($is_banned))
 			$do['banned'] = $is_banned;
 		
-		// Do: Custom fields // [TODO] Highly redundant
-		@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'],'array',array());
-		$fields = DAO_CustomField::getBySource(ChCustomFieldSource_Address::ID);
-		
-		if(is_array($field_ids))
-		foreach($field_ids as $field_id) {
-			if(!isset($fields[$field_id]))
-				continue;
-			
-			@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'string','');
-
-			switch($fields[$field_id]->type) {
-				case Model_CustomField::TYPE_MULTI_LINE:
-				case Model_CustomField::TYPE_SINGLE_LINE:
-					$do['cf_'.$field_id] = $field_value;
-					break;
-					
-				case Model_CustomField::TYPE_NUMBER:
-					$do['cf_'.$field_id] = intval($field_value);
-					break;
-					
-				case Model_CustomField::TYPE_DROPDOWN:
-					$do['cf_'.$field_id] = $field_value;
-					break;
-					
-				case Model_CustomField::TYPE_CHECKBOX:
-					$do['cf_'.$field_id] = !empty($field_value) ? 1 : 0;
-					break;
-					
-				case Model_CustomField::TYPE_DATE:
-					$do['cf_'.$field_id] = !empty($field_value) ? @strtotime($field_value) : '';
-					break;
-			}
-		}
+		// Do: Custom fields
+		$do = DAO_CustomFieldValue::handleBulkPost($do);
 			
 		$view->doBulkUpdate($filter, $do, $address_ids);
 		
@@ -5518,52 +5494,15 @@ class ChContactsPage extends CerberusPageExtension {
 		
 		// Org fields
 		@$country = trim(DevblocksPlatform::importGPC($_POST['country'],'string',''));
-//		@$sla = DevblocksPlatform::importGPC($_POST['sla'],'string','');
 
 		$do = array();
 		
-//		// Do: SLA
-//		if('' != $sla)
-//			$do['sla'] = $sla;
-
 		// Do: Country
 		if(0 != strlen($country))
 			$do['country'] = $country;
 			
-		// Do: Custom fields // [TODO] Highly redundant
-		@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'],'array',array());
-		$fields = DAO_CustomField::getBySource(ChCustomFieldSource_Org::ID);
-		
-		if(is_array($field_ids))
-		foreach($field_ids as $field_id) {
-			if(!isset($fields[$field_id]))
-				continue;
-			
-			@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'string','');
-
-			switch($fields[$field_id]->type) {
-				case Model_CustomField::TYPE_MULTI_LINE:
-				case Model_CustomField::TYPE_SINGLE_LINE:
-					$do['cf_'.$field_id] = $field_value;
-					break;
-					
-				case Model_CustomField::TYPE_NUMBER:
-					$do['cf_'.$field_id] = intval($field_value);
-					break;
-					
-				case Model_CustomField::TYPE_DROPDOWN:
-					$do['cf_'.$field_id] = $field_value;
-					break;
-					
-				case Model_CustomField::TYPE_CHECKBOX:
-					$do['cf_'.$field_id] = !empty($field_value) ? 1 : 0;
-					break;
-					
-				case Model_CustomField::TYPE_DATE:
-					$do['cf_'.$field_id] = !empty($field_value) ? @strtotime($field_value) : '';
-					break;
-			}
-		}
+		// Do: Custom fields
+		$do = DAO_CustomFieldValue::handleBulkPost($do);
 			
 		$view->doBulkUpdate($filter, $do, $org_ids);
 		

@@ -56,23 +56,7 @@
 			<td align="center" rowspan="2"><input type="checkbox" name="row_id[]" value="{$result.t_id}"></td>
 		{foreach from=$view->view_columns item=column name=columns}
 			{if substr($column,0,3)=="cf_"}
-				{assign var=col value=$column|explode:'_'}
-				{assign var=col_id value=$col.1}
-				{assign var=col value=$custom_fields.$col_id}
-				
-				{if $col->type=='S'}
-				<td>{$result.$column}</td>
-				{elseif $col->type=='N'}
-				<td>{$result.$column}</td>
-				{elseif $col->type=='T'}
-				<td title="{$result.$column|escape}">{$result.$column|truncate:32}</td>
-				{elseif $col->type=='D'}
-				<td>{$result.$column}</td>
-				{elseif $col->type=='E'}
-				<td><abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr></td>
-				{elseif $col->type=='C'}
-				<td>{if '1'==$result.$column}Yes{elseif '0'==$result.$column}No{/if}</td>
-				{/if}
+				{include file="file:$core_tpl/internal/custom_fields/view/cell_renderer.tpl.php"}
 			{elseif $column=="t_id"}
 				<td>{$result.t_id}&nbsp;</td>
 			{elseif $column=="t_completed_date"}
@@ -157,43 +141,7 @@
 	{if $total}
 	<tr>
 		<td colspan="2" valign="top">
-			<button type="button" id="btnComplete" onclick="this.form.a.value='viewComplete';genericAjaxPost('viewForm{$view->id}','view{$view->id}','c=tasks');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('tasks.complete')|capitalize}</button> 
-			<button type="button" id="btnPostpone" onclick="this.form.a.value='viewPostpone';genericAjaxPost('viewForm{$view->id}','view{$view->id}','c=tasks');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/clock.gif{/devblocks_url}" align="top"> {$translate->_('tasks.postpone')|capitalize}</button>
-			<select name="" onchange="if(!this.selectedIndex)return false;this.form.a.value=selectValue(this);genericAjaxPost('viewForm{$view->id}','view{$view->id}','c=tasks');">
-				<option value="">-- {$translate->_('common.more')|lower} --</option>
-				<optgroup label="{$translate->_('task.priority')|capitalize}">
-					<option value="viewPriorityHigh">{$translate->_('priority.high')|capitalize}</option>
-					<option value="viewPriorityNormal">{$translate->_('priority.normal')|capitalize}</option>
-					<option value="viewPriorityLow">{$translate->_('priority.low')|capitalize}</option>
-					<option value="viewPriorityNone">{$translate->_('priority.none')|capitalize}</option>
-				</optgroup>
-				<optgroup label="{$translate->_('common.assign')|capitalize}">
-					<option value="viewTake">{$translate->_('mail.take')|capitalize}</option>
-					<option value="viewSurrender">{$translate->_('mail.surrender')|capitalize}</option>
-				</optgroup>	
-				{if $active_worker->is_superuser}		
-				<optgroup label="{$translate->_('common.edit')|capitalize}">
-					<option value="viewDelete">{$translate->_('common.delete')|capitalize}</option>
-				</optgroup>
-				{/if}
-			</select>
-
-			{if $view->id=='tasks'}		
-			<br>
-			keyboard: (<b>1</b>) high priority, (<b>2</b>) normal, (<b>3</b>) low, (<b>4</b>) no priority, (<b>c</b>) completed, (<b>d</b>) due today, (<b>p</b>) postpone +24h, (<b>a</b>) assign to me, (<b>s</b>) surrender, (<b>x</b>) delete<br>
-			{/if}
-		
-			{*
-			{if !empty($workers)}
-			<select name="worker_id" onchange="this.form.a.value='viewOppSetWorker';this.form.submit();">
-				<option value="">-- set worker --</option>
-				{foreach from=$workers item=worker key=worker_id}
-					<option value="{$worker_id}">{$worker->getName()}</option>
-				{/foreach}
-				<option value="0">- unassign -</option>
-			</select>
-			{/if}
-			*}
+			<button type="button" onclick="genericAjaxPanel('c=tasks&a=showTaskBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),this,false,'500px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> bulk update</button>
 		</td>
 	</tr>
 	{/if}

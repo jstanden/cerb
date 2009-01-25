@@ -1,4 +1,4 @@
-{include file="file:$path/tickets/submenu.tpl.php"}
+{include file="file:$core_tpl/tickets/submenu.tpl.php"}
 
 <table cellspacing="0" cellpadding="0" border="0" width="100%">
 <tr>
@@ -8,7 +8,7 @@
 	<td width="98%" valign="middle">
 	</td>
 	<td width="1%" valign="middle" nowrap="nowrap">
-		{include file="file:$path/tickets/quick_search_box.tpl.php"}
+		{include file="file:$core_tpl/tickets/quick_search_box.tpl.php"}
 	</td>
 </tr>
 </table>
@@ -60,7 +60,7 @@
 		{/if}
       {/if}
       
-      {include file="file:$path/tickets/whos_online.tpl.php"}
+      {include file="file:$core_tpl/tickets/whos_online.tpl.php"}
       	
       </td>
     </tr>
