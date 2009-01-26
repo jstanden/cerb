@@ -2546,12 +2546,24 @@ class DAO_Ticket extends C4_ORMHelper {
 		$sql = sprintf("SELECT t.id FROM ticket t WHERE t.mask = %s",
 			$db->qstr($mask)
 		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-		if(is_a($rs,'ADORecordSet') && !$rs->EOF) {
-			return intval($rs->fields['id']);
+		$ticket_id = $db->GetOne($sql); /* @var $rs ADORecordSet */
+
+		// If we found a hit on a ticket record, return the ID
+		if(!empty($ticket_id)) {
+			return $ticket_id;
+			
+		// Check if this mask was previously forwarded elsewhere
+		} else {
+			$sql = sprintf("SELECT new_ticket_id FROM ticket_mask_forward WHERE old_mask = %s",
+				$db->qstr($mask)
+			);
+			$ticket_id = $db->GetOne($sql);
+			
+			if(!empty($ticket_id))
+				return $ticket_id;
 		}
-		
+
+		// No match
 		return null;
 	}
 	
@@ -2621,9 +2633,12 @@ class DAO_Ticket extends C4_ORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$logger = DevblocksPlatform::getConsoleLog();
 		
+		$sql = "DELETE QUICK ticket_mask_forward FROM ticket_mask_forward LEFT JOIN ticket ON ticket_mask_forward.new_ticket_id=ticket.id WHERE ticket.id IS NULL";
+		$db->Execute($sql);
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' ticket_mask_forward records.');
+
 		$sql = "DELETE QUICK ticket_comment FROM ticket_comment LEFT JOIN ticket ON ticket_comment.ticket_id=ticket.id WHERE ticket.id IS NULL";
 		$db->Execute($sql);
-		
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' ticket_comment records.');
 		
 		$sql = sprintf("DELETE QUICK custom_field_stringvalue FROM custom_field_stringvalue LEFT JOIN ticket ON (custom_field_stringvalue.source_id=ticket.id AND custom_field_stringvalue.source_extension='%s') WHERE ticket.id IS NULL",
@@ -2677,7 +2692,7 @@ class DAO_Ticket extends C4_ORMHelper {
 		
 		$db = DevblocksPlatform::getDatabaseService();
 			
-		list($tickets, $null) = self::search(
+		list($merged_tickets, $null) = self::search(
 			array(),
 			array(
 				new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_ID,DevblocksSearchCriteria::OPER_IN,$ids),
@@ -2690,11 +2705,11 @@ class DAO_Ticket extends C4_ORMHelper {
 		);
 		
 		// Merge the rest of the tickets into the oldest
-		if(is_array($tickets)) {
-			list($oldest_id, $oldest_ticket) = each($tickets);
-			unset($tickets[$oldest_id]);
+		if(is_array($merged_tickets)) {
+			list($oldest_id, $oldest_ticket) = each($merged_tickets);
+			unset($merged_tickets[$oldest_id]);
 			
-			$merge_ticket_ids = array_keys($tickets);
+			$merge_ticket_ids = array_keys($merged_tickets);
 			
 			if(empty($oldest_id) || empty($merge_ticket_ids))
 				return null;
@@ -2719,58 +2734,75 @@ class DAO_Ticket extends C4_ORMHelper {
 				implode(',', $merge_ticket_ids)
 			);
 			$db->Execute($sql);
-			
-			// Tasks [TODO] This could use a ticket.merge event point later
+
+			// Tasks
 			$sql = sprintf("UPDATE task SET source_id = %d WHERE source_extension = %s AND source_id IN (%s)",
 				$oldest_id,
 				$db->qstr('cerberusweb.tasks.ticket'),
 				implode(',', $merge_ticket_ids)
 			);
 			$db->Execute($sql);
-			
-			
-			// [TODO] Audit log entries?
-			/*
-			 * [TODO] Since the audit log is a plugin, this should be an event point the 
-			 * audit log can watch and trigger on.
-			 */
+
+			// Comments
+			$sql = sprintf("UPDATE ticket_comment SET ticket_id = %d WHERE ticket_id IN (%s)",
+				$oldest_id,
+				implode(',', $merge_ticket_ids)
+			);
+			$db->Execute($sql);
 			
 			DAO_Ticket::updateTicket($merge_ticket_ids, array(
 				DAO_Ticket::IS_CLOSED => 1,
 				DAO_Ticket::IS_DELETED => 1,
 			));
 
-			//[mdf] determine the most recently updated ticket so when merging we get the true last action code, last wrote id, and updated date
-			$most_recent_updated_ticket = $oldest_ticket;
-			if(is_array($tickets))
-			foreach($tickets as $ticket) {
-				$last_updated_date = intval($ticket[SearchFields_Ticket::TICKET_UPDATED_DATE]);
-				$most_recent_updated_date = intval($most_recent_updated_ticket[SearchFields_Ticket::TICKET_UPDATED_DATE]);
-				if($last_updated_date > $most_recent_updated_date) {
-					unset($most_recent_updated_ticket);
-					$most_recent_updated_ticket = $ticket;
-				}
-			}
-			
-			//[mdf] Determine the last worker message of the (already) merged messages so we can correctly update the last_worker_id later
-			$messages = DAO_Ticket::getMessagesByTicket($oldest_id);
-			
-			if(is_array($messages))
-			foreach($messages as $message) {
-				if(!isset($most_recent_worker_message) 
-						|| ($message->created_date > $most_recent_worker_message->created_date
-						&& $message->is_outgoing == 1)) {
-					unset($most_recent_worker_message);
-					$most_recent_worker_message = $message;
-				}
-			}
-			
+			// Sort merge tickets by updated date ascending to find the latest touched
+			$tickets = $merged_tickets;
+			array_unshift($tickets, $oldest_ticket);
+			uasort($tickets, create_function('$a, $b', "return strcmp(\$a[SearchFields_Ticket::TICKET_UPDATED_DATE],\$b[SearchFields_Ticket::TICKET_UPDATED_DATE]);\n"));
+			$most_recent_updated_ticket = end($tickets);
+
+			// Set our destination ticket to the latest touched details
 			DAO_Ticket::updateTicket($oldest_id,array(
 				DAO_Ticket::LAST_ACTION_CODE => $most_recent_updated_ticket[SearchFields_Ticket::TICKET_LAST_ACTION_CODE], 
 				DAO_Ticket::LAST_WROTE_ID => $most_recent_updated_ticket[SearchFields_Ticket::TICKET_LAST_WROTE_ID], 
-				DAO_Ticket::LAST_WORKER_ID => $most_recent_worker_message->worker_id, 
+				DAO_Ticket::LAST_WORKER_ID => $most_recent_updated_ticket[SearchFields_Ticket::TICKET_LAST_WORKER_ID], 
 				DAO_Ticket::UPDATED_DATE => $most_recent_updated_ticket[SearchFields_Ticket::TICKET_UPDATED_DATE]
 			));			
+
+			// Set up forwarders for the old masks to their new mask
+			$new_mask = $oldest_ticket[SearchFields_Ticket::TICKET_MASK];
+			if(is_array($merged_tickets))
+			foreach($merged_tickets as $ticket) {
+				// Forward the old mask to the new mask
+				$sql = sprintf("INSERT IGNORE INTO ticket_mask_forward (old_mask, new_mask, new_ticket_id) VALUES (%s, %s, %d)",
+					$db->qstr($ticket[SearchFields_Ticket::TICKET_MASK]),
+					$db->qstr($new_mask),
+					$oldest_id
+				);
+				$db->Execute($sql);
+				
+				// If the old mask was a new_mask in a past life, change to its new destination
+				$sql = sprintf("UPDATE ticket_mask_forward SET new_mask = %s, new_ticket_id = %d WHERE new_mask = %s",
+					$db->qstr($new_mask),
+					$oldest_id,
+					$db->qstr($ticket[SearchFields_Ticket::TICKET_MASK])
+				);
+				$db->Execute($sql);
+			}
+			
+			/*
+			 * Notify anything that wants to know when tickets merge.
+			 */
+		    $eventMgr = DevblocksPlatform::getEventService();
+		    $eventMgr->trigger(
+		        new Model_DevblocksEvent(
+		            'ticket.merge',
+	                array(
+	                    'new_ticket_id' => $oldest_id,
+	                    'old_ticket_ids' => $merge_ticket_ids,
+	                )
+	            )
+		    );
 			
 			return $oldest_id;
 		}

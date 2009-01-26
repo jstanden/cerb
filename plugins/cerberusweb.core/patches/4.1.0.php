@@ -230,6 +230,26 @@ if(isset($tables['custom_field_value'])) {
 	}
 }
 
+// Add a merge table to track when older ticket masks should point to a new ticket
+if(!isset($tables['ticket_mask_forward'])) {
+	$flds ="
+		old_mask C(32) DEFAULT '' NOTNULL PRIMARY,
+		new_mask C(32) DEFAULT '' NOTNULL,
+		new_ticket_id I4 DEFAULT 0 NOTNULL
+	";
+	$sql = $datadict->CreateTableSQL('ticket_mask_forward', $flds);
+	$datadict->ExecuteSQLArray($sql);
+}
+
+$columns = $datadict->MetaColumns('ticket_mask_forward');
+$indexes = $datadict->MetaIndexes('ticket_mask_forward',false);
+
+if(!isset($indexes['new_ticket_id'])) {
+	$sql = $datadict->CreateIndexSQL('new_ticket_id','ticket_mask_forward','new_ticket_id');
+	$datadict->ExecuteSQLArray($sql);
+}
+
+// ... next
 
 return TRUE;
 ?>

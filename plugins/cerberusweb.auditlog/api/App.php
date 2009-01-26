@@ -35,6 +35,26 @@ class ChAuditLogEventListener extends DevblocksEventListenerExtension {
             case 'cron.maint':
             	DAO_TicketAuditLog::maint();
             	break;
+            
+            case 'ticket.merge':
+            	// Listen for ticket merges and update our internal ticket_id records
+            	
+            	@$new_ticket_id = $event->params['new_ticket_id'];
+            	@$old_ticket_ids = $event->params['old_ticket_ids'];
+            	
+            	if(empty($new_ticket_id) || empty($old_ticket_ids))
+            		return;
+            	
+            	$fields = array(
+            		DAO_TicketAuditLog::TICKET_ID => $new_ticket_id,
+            	);
+            	DAO_TicketAuditLog::updateWhere($fields, sprintf(
+            		"%s IN (%s)",
+            		DAO_TicketAuditLog::TICKET_ID,
+            		implode(',', $old_ticket_ids)
+            	));
+            	
+            	break;
             	
             case 'ticket.property.pre_change':
             	@$ticket_ids = $event->params['ticket_ids'];
@@ -196,6 +216,10 @@ class DAO_TicketAuditLog extends DevblocksORMHelper {
 			
 	public static function update($ids, $fields) {
 		parent::_update($ids, 'ticket_audit_log', $fields);
+	}
+	
+	public static function updateWhere($fields, $where) {
+		parent::_updateWhere('ticket_audit_log', $fields, $where);
 	}
 	
 	public static function maint() {
