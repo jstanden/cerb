@@ -661,6 +661,74 @@ class C4_TimeTrackingEntryView extends C4_AbstractView {
 		}
 	}
 
+	function doBulkUpdate($filter, $do, $ids=array()) {
+		@set_time_limit(0);
+	  
+		$change_fields = array();
+		$custom_fields = array();
+
+		// Make sure we have actions
+		if(empty($do))
+			return;
+
+		// Make sure we have checked items if we want a checked list
+		if(0 == strcasecmp($filter,"checks") && empty($ids))
+			return;
+			
+		if(is_array($do))
+		foreach($do as $k => $v) {
+			switch($k) {
+//				case 'xxxx':
+//					$change_fields[DAO_TimeTrackingEntry::XXX] = $v;
+//					break;
+				default:
+					// Custom fields
+					if(substr($k,0,3)=="cf_") {
+						$custom_fields[substr($k,3)] = $v;
+					}
+					break;
+			}
+		}
+
+		$pg = 0;
+
+		if(empty($ids))
+		do {
+			list($objects,$null) = DAO_TimeTrackingEntry::search(
+				array(),
+				$this->params,
+				100,
+				$pg++,
+				SearchFields_TimeTrackingEntry::ID,
+				true,
+				false
+			);
+			 
+			$ids = array_merge($ids, array_keys($objects));
+			 
+		} while(!empty($objects));
+
+		$batch_total = count($ids);
+		for($x=0;$x<=$batch_total;$x+=100) {
+			$batch_ids = array_slice($ids,$x,100);
+			DAO_TimeTrackingEntry::update($batch_ids, $change_fields);
+
+			// Set custom fields // [TODO] Optimize
+			if(!empty($custom_fields))
+			foreach($batch_ids as $id)
+			foreach($custom_fields as $cf_id => $cf_val) {
+				if(!empty($cf_val))
+					DAO_CustomFieldValue::setFieldValue(ChCustomFieldSource_TimeEntry::ID,$id,$cf_id,$cf_val);
+				else
+					DAO_CustomFieldValue::unsetFieldValue(ChCustomFieldSource_TimeEntry::ID,$id,$cf_id);
+			}
+
+			unset($batch_ids);
+		}
+
+		unset($ids);
+	}	
+	
 };
 
 class DAO_TimeTrackingActivity extends DevblocksORMHelper {
@@ -1196,6 +1264,59 @@ class ChTimeTrackingAjaxController extends DevblocksControllerExtension {
 	function clearEntryAction() {
 		$this->_destroyTimer();
 	}
+	
+	function showBulkPanelAction() {
+		@$id_csv = DevblocksPlatform::importGPC($_REQUEST['ids']);
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
+
+		$tpl = DevblocksPlatform::getTemplateService();
+		$path = realpath(dirname(__FILE__) . '/../templates/') . DIRECTORY_SEPARATOR;
+		$tpl->assign('path', $path);
+		$tpl->assign('view_id', $view_id);
+
+	    if(!empty($ids)) {
+	        $ids = DevblocksPlatform::parseCsvString($id_csv);
+	        $tpl->assign('ids', implode(',', $ids));
+	    }
+		
+		// Custom Fields
+		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_TimeEntry::ID);
+		$tpl->assign('custom_fields', $custom_fields);
+		
+		$tpl->cache_lifetime = "0";
+		$tpl->display('file:' . $path . 'timetracking/time/bulk.tpl.php');
+	}
+	
+	function doBulkUpdateAction() {
+		// Checked rows
+	    @$ids_str = DevblocksPlatform::importGPC($_REQUEST['ids'],'string');
+		$ids = DevblocksPlatform::parseCsvString($ids_str);
+
+		// Filter: whole list or check
+	    @$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
+	    
+	    // View
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
+		$view = C4_AbstractViewLoader::getView('',$view_id);
+		
+		// Time Tracking fields
+//		@$list_id = trim(DevblocksPlatform::importGPC($_POST['list_id'],'integer',0));
+
+		$do = array();
+		
+		// Do: ...
+//		if(0 != strlen($list_id))
+//			$do['list_id'] = $list_id;
+			
+		// Do: Custom fields
+		$do = DAO_CustomFieldValue::handleBulkPost($do);
+			
+		$view->doBulkUpdate($filter, $do, $ids);
+		
+		$view->render();
+		return;
+	}
+	
 };
 
 if (class_exists('Extension_ActivityTab')):

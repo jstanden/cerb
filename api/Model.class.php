@@ -1580,50 +1580,63 @@ class C4_AttachmentView extends C4_AbstractView {
 			$this->renderPage = 0;
 		}
 	}
+		
+	function doBulkUpdate($filter, $do, $ids=array()) {
+		@set_time_limit(0);
+	  
+		$change_fields = array();
+		$deleted = false;
 
-//	function doBulkUpdate($filter, $do, $ids=array()) {
-//		@set_time_limit(600); // [TODO] Temp!
-//	  
-//		$change_fields = array();
-//
-//		if(empty($do))
-//		return;
-//
-//		if(is_array($do))
-//		foreach($do as $k => $v) {
-//			switch($k) {
-//				case 'banned':
-//					$change_fields[DAO_Address::IS_BANNED] = intval($v);
-//					break;
-//			}
-//		}
-//
-//		$pg = 0;
-//
-//		if(empty($ids))
-//		do {
-//			list($objects,$null) = DAO_Address::search(
-//			$this->params,
-//			100,
-//			$pg++,
-//			SearchFields_Address::ID,
-//			true,
-//			false
-//			);
-//			 
-//			$ids = array_merge($ids, array_keys($objects));
-//			 
-//		} while(!empty($objects));
-//
-//		$batch_total = count($ids);
-//		for($x=0;$x<=$batch_total;$x+=100) {
-//			$batch_ids = array_slice($ids,$x,100);
-//			DAO_Address::update($batch_ids, $change_fields);
-//			unset($batch_ids);
-//		}
-//
-//		unset($ids);
-//	}
+		// Make sure we have actions
+		if(empty($do))
+			return;
+
+		// Make sure we have checked items if we want a checked list
+		if(0 == strcasecmp($filter,"checks") && empty($ids))
+			return;
+			
+		if(is_array($do))
+		foreach($do as $k => $v) {
+			switch($k) {
+				case 'deleted':
+					$deleted = true;
+					break;
+				default:
+					break;
+			}
+		}
+
+		$pg = 0;
+
+		if(empty($ids))
+		do {
+			list($objects,$null) = DAO_Attachment::search(
+				$this->params,
+				100,
+				$pg++,
+				SearchFields_Attachment::ID,
+				true,
+				false
+			);
+			$ids = array_merge($ids, array_keys($objects));
+			 
+		} while(!empty($objects));
+
+		$batch_total = count($ids);
+		for($x=0;$x<=$batch_total;$x+=100) {
+			$batch_ids = array_slice($ids,$x,100);
+			
+			if(!$deleted) { 
+				DAO_Attachment::update($batch_ids, $change_fields);
+			} else {
+				DAO_Attachment::delete($batch_ids);
+			}
+			
+			unset($batch_ids);
+		}
+
+		unset($ids);
+	}			
 
 };
 

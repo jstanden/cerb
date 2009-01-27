@@ -46,11 +46,11 @@
 	</tr>
 	{foreach from=$feedback_fields item=f key=f_id}
 		<tr>
-			<td valign="top" width="25%" align="right">
+			<td valign="top" width="0%" nowrap="nowrap" align="right">
 				<input type="hidden" name="field_ids[]" value="{$f_id}">
 				<span style="font-size:90%;">{$f->name}:</span>
 			</td>
-			<td valign="top" width="75%">
+			<td valign="top" width="100%">
 				{if $f->type=='S'}
 					<input type="text" name="field_{$f_id}" size="45" maxlength="255" value="{$feedback_field_values.$f_id}"><br>
 				{elseif $f->type=='N'}

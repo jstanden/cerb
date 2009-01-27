@@ -96,7 +96,9 @@
 	{if $total}
 	<tr>
 		<td colspan="2">
-			{if $active_worker && $active_worker->is_superuser}<button type="button" id="btn{$view->id}Delete" onclick="this.form.a.value='doAttachmentsDelete';genericAjaxPost('viewForm{$view->id}','view{$view->id}','c=config');document.location.href='#top';"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> {$translate->_('common.delete')|lower}</button>{/if}
+			{if $active_worker && $active_worker->is_superuser}
+				<button type="button" onclick="genericAjaxPanel('c=config&a=showAttachmentsBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),this,false,'500px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> bulk update</button>
+			{/if}
 		</td>
 	</tr>
 	{/if}

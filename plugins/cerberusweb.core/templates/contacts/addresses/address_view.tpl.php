@@ -66,7 +66,7 @@
 			{elseif $column=="o_name"}
 			<td>
 				{if !empty($result.o_name)}
-				<a href="{devblocks_url}c=contacts&a=orgs&id={$result.a_contact_org_id}{/devblocks_url}">{$result.o_name}</a>&nbsp;
+				<a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showOrgPeek&id={$result.a_contact_org_id}&view_id={$view->id}',this,false,'600px',ajax.cbOrgCountryPeek);">{$result.o_name}</a>
 				{/if}
 			</td>
 			{elseif $column=="a_is_banned"}
@@ -86,17 +86,6 @@
 	<tr>
 		<td colspan="2">
 			<button type="button" onclick="ajax.showAddressBatchPanel('{$view->id}',this);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> bulk update</button>
-		
-			<!-- <span id="tourDashboardBatch"><button type="button" onclick="ajax.showBatchPanel('{$view->id}','{$dashboard_team_id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> bulk update</button></span>  -->
-			
-			<!-- <a href="javascript:;" onclick="toggleDiv('view{$view->id}_more');">More &raquo;</a>-->
-
-			<!-- 
-			<div id="view{$view_id}_more" style="display:none;padding-top:5px;padding-bottom:5px;">
-				<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','merge');">merge</button>
-			</div>
-			 -->
-
 		</td>
 	</tr>
 	{/if}

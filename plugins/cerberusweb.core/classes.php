@@ -1596,6 +1596,14 @@ class ChTicketsPage extends CerberusPageExtension {
 	    $workers = DAO_Worker::getAllActive();
 		$tpl->assign('workers', $workers);
 	    
+		// Custom fields
+		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Ticket::ID);
+		$tpl->assign('custom_fields', $custom_fields);
+		
+		$custom_field_values = DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Ticket::ID, $ticket->id);
+		if(isset($custom_field_values[$ticket->id]))
+			$tpl->assign('custom_field_values', $custom_field_values[$ticket->id]);
+		
 		// Display
 		$tpl->cache_lifetime = "0";
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/rpc/preview_panel.tpl.php');
@@ -1605,14 +1613,45 @@ class ChTicketsPage extends CerberusPageExtension {
 	function savePreviewAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
+		@$subject = DevblocksPlatform::importGPC($_REQUEST['subject'],'string','');
+		@$closed = DevblocksPlatform::importGPC($_REQUEST['closed'],'integer',0);
 		@$next_action = DevblocksPlatform::importGPC($_REQUEST['next_action'],'string','');
 		@$next_worker_id = DevblocksPlatform::importGPC($_REQUEST['next_worker_id'],'integer',0);
 		@$bucket = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'string','');
 		
 		$fields = array(
+			DAO_Ticket::SUBJECT => $subject,
 			DAO_Ticket::NEXT_ACTION => $next_action,
 			DAO_Ticket::NEXT_WORKER_ID => $next_worker_id,
 		);
+		
+		// Status
+		if(isset($closed)) {
+			switch($closed) {
+				case 0: // open
+					$fields[DAO_Ticket::IS_WAITING] = 0;
+					$fields[DAO_Ticket::IS_CLOSED] = 0;
+					$fields[DAO_Ticket::IS_DELETED] = 0;
+					$fields[DAO_Ticket::DUE_DATE] = 0;
+					break;
+				case 1: // closed
+					$fields[DAO_Ticket::IS_WAITING] = 0;
+					$fields[DAO_Ticket::IS_CLOSED] = 1;
+					$fields[DAO_Ticket::IS_DELETED] = 0;
+					break;
+				case 2: // waiting
+					$fields[DAO_Ticket::IS_WAITING] = 1;
+					$fields[DAO_Ticket::IS_CLOSED] = 0;
+					$fields[DAO_Ticket::IS_DELETED] = 0;
+					break;
+				case 3: // deleted
+					$fields[DAO_Ticket::IS_WAITING] = 0;
+					$fields[DAO_Ticket::IS_CLOSED] = 1;
+					$fields[DAO_Ticket::IS_DELETED] = 1;
+					$fields[DAO_Ticket::DUE_DATE] = 0;
+					break;
+			}
+		}
 		
 		// Team/Category
 		if(!empty($bucket)) {
@@ -1625,6 +1664,10 @@ class ChTicketsPage extends CerberusPageExtension {
 		}
 		
 		DAO_Ticket::updateTicket($id, $fields);
+		
+		// Custom field saves
+		@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
+		DAO_CustomFieldValue::handleFormPost(ChCustomFieldSource_Ticket::ID, $id, $field_ids);
 		
 		$view = C4_AbstractViewLoader::getView('C4_TicketView', $view_id);
 		$view->render();
@@ -2859,22 +2902,62 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/attachments/index.tpl.php');
 	}
 	
-	function doAttachmentsDeleteAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
-		@$row_ids = DevblocksPlatform::importGPC($_REQUEST['row_id'],'array',array());
+	function showAttachmentsBulkPanelAction() {
+		@$id_csv = DevblocksPlatform::importGPC($_REQUEST['ids']);
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
+
+		$tpl = DevblocksPlatform::getTemplateService();
+		$path = realpath(dirname(__FILE__) . '/templates/') . DIRECTORY_SEPARATOR;
+		$tpl->assign('path', $path);
+		$tpl->assign('view_id', $view_id);
+
+	    if(!empty($id_csv)) {
+	        $ids = DevblocksPlatform::parseCsvString($id_csv);
+	        $tpl->assign('ids', implode(',', $ids));
+	    }
 		
-		$view = C4_AbstractViewLoader::getView('C4_AttachmentView', $view_id);
+	    // Lists
+//	    $lists = DAO_FeedbackList::getWhere();
+//	    $tpl->assign('lists', $lists);
+	    
+		// Custom Fields
+//		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_FeedbackEntry::ID);
+//		$tpl->assign('custom_fields', $custom_fields);
 		
-		if(null != ($active_worker = CerberusApplication::getActiveWorker()) 
-			&& $active_worker->is_superuser) {
-				
-			DAO_Attachment::delete($row_ids);
-		}
-		
-		$view->render();
+		$tpl->cache_lifetime = "0";
+		$tpl->display('file:' . $path . 'configuration/tabs/attachments/bulk.tpl.php');
 	}
 	
+	function doAttachmentsBulkUpdateAction() {
+		// Checked rows
+	    @$ids_str = DevblocksPlatform::importGPC($_REQUEST['ids'],'string');
+		$ids = DevblocksPlatform::parseCsvString($ids_str);
+
+		// Filter: whole list or check
+	    @$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
+	    
+	    // View
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
+		$view = C4_AbstractViewLoader::getView('',$view_id);
+		
+		// Attachment fields
+		@$deleted = trim(DevblocksPlatform::importGPC($_POST['deleted'],'integer',0));
+
+		$do = array();
+		
+		// Do: Deleted
+		if(0 != strlen($deleted))
+			$do['deleted'] = $deleted;
+			
+		// Do: Custom fields
+//		$do = DAO_CustomFieldValue::handleBulkPost($do);
+			
+		$view->doBulkUpdate($filter, $do, $ids);
+		
+		$view->render();
+		return;
+	}
+		
 //	function doAttachmentsSyncAction() {
 //		if(null != ($active_worker = CerberusApplication::getActiveWorker()) 
 //			&& $active_worker->is_superuser) {
@@ -8479,6 +8562,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		if(empty($next_worker_id))
 			$unlock_date = "";
 		
+		// Status
 		if(isset($closed)) {
 			switch($closed) {
 				case 0: // open
