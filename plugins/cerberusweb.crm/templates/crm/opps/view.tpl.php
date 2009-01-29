@@ -69,6 +69,8 @@
 						<a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showOrgPeek&id={$result.org_id}&view_id={$view->id}',this,false,'500px',ajax.cbOrgCountryPeek);">{$result.org_name}</a>&nbsp;
 					{/if}
 				</td>
+			{elseif $column=="o_amount"}
+				<td>{$result.o_amount|number_format:2}&nbsp;</td>
 			{elseif $column=="a_email"}
 				<td>
 					{if !empty($result.a_email)}

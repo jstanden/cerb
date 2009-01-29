@@ -537,7 +537,7 @@ class C4_AbstractViewLoader {
 
 	static function unserializeAbstractView(C4_AbstractViewModel $model) {
 		if(null == ($inst = new $model->class_name)) /* @var $inst C4_AbstractView */
-		return null;
+			return null;
 
 		$inst->id = $model->id;
 		$inst->name = $model->name;

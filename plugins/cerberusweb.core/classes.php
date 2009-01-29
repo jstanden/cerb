@@ -7637,7 +7637,7 @@ class ChInternalController extends DevblocksControllerExtension {
 				$result =& $xml->addChild("result");
 				if(is_array($columns))
 				foreach($columns as $col) {
-					$field =& $result->addChild("field",$row[$col]);
+					$field =& $result->addChild("field",htmlentities($row[$col]));
 					$field->addAttribute("id", $col);
 				}
 			}

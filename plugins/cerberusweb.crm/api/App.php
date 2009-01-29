@@ -19,6 +19,49 @@ class CrmNotesSource_Opportunity extends Extension_NoteSource {
 	const ID = 'crm.notes.source.opportunity';
 };
 
+if (class_exists('Extension_HomeTab')):
+class CrmOppsHomeTab extends Extension_HomeTab {
+	const VIEW_HOME_OPPS = 'home_opps';
+	
+	function __construct($manifest) {
+		parent::__construct($manifest);
+	}
+	
+	function showTab() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl_path = realpath(dirname(__FILE__) . '/../templates') . DIRECTORY_SEPARATOR;
+		$tpl->assign('path', $tpl_path);
+		
+		if(null == ($view = C4_AbstractViewLoader::getView('', self::VIEW_HOME_OPPS))) {
+			$view = new C4_CrmOpportunityView();
+			$view->id = self::VIEW_HOME_OPPS;
+			$view->renderSortBy = SearchFields_CrmOpportunity::UPDATED_DATE;
+			$view->renderSortAsc = 0;
+
+			$view->name = "Opportunities for  " . $active_worker->getName();			
+			
+			$view->params = array(
+				SearchFields_CrmOpportunity::WORKER_ID => new DevblocksSearchCriteria(SearchFields_CrmOpportunity::WORKER_ID,DevblocksSearchCriteria::OPER_EQ,$active_worker->id),
+				SearchFields_CrmOpportunity::IS_CLOSED => new DevblocksSearchCriteria(SearchFields_CrmOpportunity::IS_CLOSED,DevblocksSearchCriteria::OPER_EQ,0),
+			);
+			
+			C4_AbstractViewLoader::setView($view->id, $view);
+		}
+
+		$tpl->assign('response_uri', 'home/opps');
+		
+		$tpl->assign('view', $view);
+		$tpl->assign('view_fields', C4_CrmOpportunityView::getFields());
+		$tpl->assign('view_searchable_fields', C4_CrmOpportunityView::getSearchFields());
+		
+		$tpl->display($tpl_path . 'crm/opps/home_tab/index.tpl.php');		
+	}
+}
+endif;
+
 if (class_exists('Extension_ActivityTab')):
 class CrmOppsActivityTab extends Extension_ActivityTab {
 	const EXTENSION_ID = 'crm.activity.tab.opps';
@@ -237,9 +280,14 @@ class CrmPage extends CerberusPageExtension {
 		
 		@$opp_id = DevblocksPlatform::importGPC($_REQUEST['opp_id'],'integer',0);
 		@$name = DevblocksPlatform::importGPC($_REQUEST['name'],'string','');
+		@$amount_dollars = DevblocksPlatform::importGPC($_REQUEST['amount'],'string','0');
+		@$amount_cents = DevblocksPlatform::importGPC($_REQUEST['amount_cents'],'integer',0);
 		@$email_str = DevblocksPlatform::importGPC($_REQUEST['emails'],'string','');
 		@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'integer',0);
 		@$comment = DevblocksPlatform::importGPC($_REQUEST['comment'],'string','');
+		
+		// Strip commas and decimals and put together the "dollars+cents"
+		$amount = intval(str_replace(array(',','.'),'',$amount_dollars)).'.'.number_format($amount_cents,0,'','');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 
@@ -254,6 +302,7 @@ class CrmPage extends CerberusPageExtension {
 				
 				$fields = array(
 					DAO_CrmOpportunity::NAME => $name,
+					DAO_CrmOpportunity::AMOUNT => $amount,
 					DAO_CrmOpportunity::PRIMARY_EMAIL_ID => $address->id,
 					DAO_CrmOpportunity::CREATED_DATE => time(),
 					DAO_CrmOpportunity::UPDATED_DATE => time(),
@@ -280,6 +329,7 @@ class CrmPage extends CerberusPageExtension {
 			
 			$fields = array(
 				DAO_CrmOpportunity::NAME => $name,
+				DAO_CrmOpportunity::AMOUNT => $amount,
 //				DAO_CrmOpportunity::UPDATED_DATE => time(),
 				DAO_CrmOpportunity::WORKER_ID => $worker_id,
 			);
@@ -397,11 +447,17 @@ class CrmPage extends CerberusPageExtension {
 	function saveOppPropertiesAction() {
 		@$opp_id = DevblocksPlatform::importGPC($_REQUEST['opp_id'],'integer', 0);
 		@$name = DevblocksPlatform::importGPC($_REQUEST['name'],'string','');
+		@$amount_dollars = DevblocksPlatform::importGPC($_REQUEST['amount'],'string','0');
+		@$amount_cents = DevblocksPlatform::importGPC($_REQUEST['amount_cents'],'integer',0);
 		@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'integer',0);
+		
+		// Strip commas and decimals and put together the "dollars+cents"
+		$amount = intval(str_replace(array(',','.'),'',$amount_dollars)).'.'.number_format($amount_cents,0,'','');
 		
 		if(!empty($opp_id)) {
 			$fields = array(
 				DAO_CrmOpportunity::NAME => $name,
+				DAO_CrmOpportunity::AMOUNT => $amount,
 				DAO_CrmOpportunity::WORKER_ID => $worker_id,
 			);
 			DAO_CrmOpportunity::update($opp_id, $fields);
@@ -659,6 +715,7 @@ class CrmPage extends CerberusPageExtension {
 class DAO_CrmOpportunity extends C4_ORMHelper {
 	const ID = 'id';
 	const NAME = 'name';
+	const AMOUNT = 'amount';
 	const PRIMARY_EMAIL_ID = 'primary_email_id';
 	const CREATED_DATE = 'created_date';
 	const UPDATED_DATE = 'updated_date';
@@ -698,7 +755,7 @@ class DAO_CrmOpportunity extends C4_ORMHelper {
 	static function getWhere($where=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = "SELECT id, name, primary_email_id, created_date, updated_date, closed_date, is_won, is_closed, worker_id ".
+		$sql = "SELECT id, name, amount, primary_email_id, created_date, updated_date, closed_date, is_won, is_closed, worker_id ".
 			"FROM crm_opportunity ".
 			(!empty($where) ? sprintf("WHERE %s ",$where) : "").
 			"ORDER BY id asc";
@@ -734,6 +791,7 @@ class DAO_CrmOpportunity extends C4_ORMHelper {
 			$object = new Model_CrmOpportunity();
 			$object->id = intval($rs->fields['id']);
 			$object->name = $rs->fields['name'];
+			$object->amount = doubleval($rs->fields['amount']);
 			$object->primary_email_id = intval($rs->fields['primary_email_id']);
 			$object->created_date = $rs->fields['created_date'];
 			$object->updated_date = $rs->fields['updated_date'];
@@ -785,6 +843,7 @@ class DAO_CrmOpportunity extends C4_ORMHelper {
 		$select_sql = sprintf("SELECT ".
 			"o.id as %s, ".
 			"o.name as %s, ".
+			"o.amount as %s, ".
 			"org.id as %s, ".
 			"org.name as %s, ".
 //			"org.website as %s, ".
@@ -798,6 +857,7 @@ class DAO_CrmOpportunity extends C4_ORMHelper {
 			"o.worker_id as %s ",
 			    SearchFields_CrmOpportunity::ID,
 			    SearchFields_CrmOpportunity::NAME,
+			    SearchFields_CrmOpportunity::AMOUNT,
 			    SearchFields_CrmOpportunity::ORG_ID,
 			    SearchFields_CrmOpportunity::ORG_NAME,
 //			    SearchFields_CrmOpportunity::ORG_WEBSITE,
@@ -866,6 +926,7 @@ class SearchFields_CrmOpportunity implements IDevblocksSearchFields {
 	const ID = 'o_id';
 	const PRIMARY_EMAIL_ID = 'o_primary_email_id';
 	const NAME = 'o_name';
+	const AMOUNT = 'o_amount';
 	const CREATED_DATE = 'o_created_date';
 	const UPDATED_DATE = 'o_updated_date';
 	const CLOSED_DATE = 'o_closed_date';
@@ -896,6 +957,7 @@ class SearchFields_CrmOpportunity implements IDevblocksSearchFields {
 			//self::ORG_WEBSITE => new DevblocksSearchField(self::ORG_WEBSITE, 'org', 'website', null, $translate->_('crm.opportunity.org_website')),
 			
 			self::NAME => new DevblocksSearchField(self::NAME, 'o', 'name', null, $translate->_('crm.opportunity.name')),
+			self::AMOUNT => new DevblocksSearchField(self::AMOUNT, 'o', 'amount', null, $translate->_('crm.opportunity.amount')),
 			self::CREATED_DATE => new DevblocksSearchField(self::CREATED_DATE, 'o', 'created_date', null, $translate->_('crm.opportunity.created_date')),
 			self::UPDATED_DATE => new DevblocksSearchField(self::UPDATED_DATE, 'o', 'updated_date', null, $translate->_('crm.opportunity.updated_date')),
 			self::CLOSED_DATE => new DevblocksSearchField(self::CLOSED_DATE, 'o', 'closed_date', null, $translate->_('crm.opportunity.closed_date')),
@@ -919,6 +981,7 @@ class SearchFields_CrmOpportunity implements IDevblocksSearchFields {
 class Model_CrmOpportunity {
 	public $id;
 	public $name;
+	public $amount;
 	public $primary_email_id;
 	public $created_date;
 	public $updated_date;
@@ -941,7 +1004,9 @@ class C4_CrmOpportunityView extends C4_AbstractView {
 		$this->view_columns = array(
 			SearchFields_CrmOpportunity::EMAIL_ADDRESS,
 			SearchFields_CrmOpportunity::ORG_NAME,
+			SearchFields_CrmOpportunity::AMOUNT,
 			SearchFields_CrmOpportunity::UPDATED_DATE,
+			SearchFields_CrmOpportunity::WORKER_ID,
 		);
 		
 		$this->params = array(
@@ -989,6 +1054,10 @@ class C4_CrmOpportunityView extends C4_AbstractView {
 //			case SearchFields_CrmOpportunity::ORG_WEBSITE:
 			case SearchFields_CrmOpportunity::EMAIL_ADDRESS:
 				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__string.tpl.php');
+				break;
+				
+			case SearchFields_CrmOpportunity::AMOUNT:
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__number.tpl.php');
 				break;
 				
 			case SearchFields_CrmOpportunity::IS_CLOSED:
@@ -1089,6 +1158,10 @@ class C4_CrmOpportunityView extends C4_AbstractView {
 					$value = '*'.$value.'*';
 				}
 				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
+				break;
+				
+			case SearchFields_CrmOpportunity::AMOUNT:
+				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 				
 			case SearchFields_CrmOpportunity::IS_CLOSED:

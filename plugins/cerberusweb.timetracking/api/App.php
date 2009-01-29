@@ -1332,8 +1332,6 @@ class TimeTrackingActivityTab extends Extension_ActivityTab {
 		$tpl->cache_lifetime = "0";
 		$tpl_path = realpath(dirname(__FILE__) . '/../templates') . DIRECTORY_SEPARATOR;
 		$tpl->assign('path', $tpl_path);
-		$core_path = realpath(APP_PATH . '/plugins/cerberusweb.core/templates') . DIRECTORY_SEPARATOR;
-		$tpl->assign('core_path', $core_path);
 		
 		if(null == ($view = C4_AbstractViewLoader::getView('', self::VIEW_ACTIVITY_TIMETRACKING))) {
 			$view = new C4_TimeTrackingEntryView();

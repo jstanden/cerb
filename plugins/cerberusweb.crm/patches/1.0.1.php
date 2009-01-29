@@ -218,4 +218,19 @@ if(isset($tables['crm_opp_comment'])) {
 	$datadict->ExecuteSQLArray($sql);
 }
 
+// ===========================================================================
+// Add 'amount' column to opportunities (makes reports easier if it's not cfield)
+$columns = $datadict->MetaColumns('crm_opportunity');
+$indexes = $datadict->MetaIndexes('crm_opportunity',false);
+
+if(!isset($columns['AMOUNT'])) {
+	$sql = $datadict->AddColumnSQL('crm_opportunity', "amount F DEFAULT 0 NOTNULL");
+	$datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($indexes['AMOUNT'])) {
+	$sql = $datadict->CreateIndexSQL('amount','crm_opportunity','amount');
+	$datadict->ExecuteSQLArray($sql);
+}
+
 return TRUE;
