@@ -7593,7 +7593,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			header("Pragma: public");
 			header("Expires: 0");
 			header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-			header("Content-Type: text/plain; charset=utf-8");
+			header("Content-Type: text/plain; charset=".LANG_CHARSET_CODE);
 			
 			// Column headers
 			if(is_array($columns)) {
@@ -7626,7 +7626,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			header("Pragma: public");
 			header("Expires: 0");
 			header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-			header("Content-Type: text/plain; charset=utf-8");
+			header("Content-Type: text/plain; charset=".LANG_CHARSET_CODE);
 			
 			$xml = simplexml_load_string("<results/>"); /* @var $xml SimpleXMLElement */
 			
@@ -7637,7 +7637,7 @@ class ChInternalController extends DevblocksControllerExtension {
 				$result =& $xml->addChild("result");
 				if(is_array($columns))
 				foreach($columns as $col) {
-					$field =& $result->addChild("field",htmlentities($row[$col]));
+					$field =& $result->addChild("field",htmlspecialchars($row[$col],null,LANG_CHARSET_CODE));
 					$field->addAttribute("id", $col);
 				}
 			}
