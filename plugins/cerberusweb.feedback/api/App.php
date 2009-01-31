@@ -618,15 +618,8 @@ class C4_FeedbackEntryView extends C4_AbstractView {
 			$batch_ids = array_slice($ids,$x,100);
 			DAO_FeedbackEntry::update($batch_ids, $change_fields);
 
-			// Set custom fields // [TODO] Optimize
-			if(!empty($custom_fields))
-			foreach($batch_ids as $id)
-			foreach($custom_fields as $cf_id => $cf_val) {
-				if(!empty($cf_val))
-					DAO_CustomFieldValue::setFieldValue(ChCustomFieldSource_FeedbackEntry::ID,$id,$cf_id,$cf_val);
-				else
-					DAO_CustomFieldValue::unsetFieldValue(ChCustomFieldSource_FeedbackEntry::ID,$id,$cf_id);
-			}
+			// Custom Fields
+			self::_doBulkSetCustomFields(ChCustomFieldSource_FeedbackEntry::ID, $custom_fields, $batch_ids);
 
 			unset($batch_ids);
 		}

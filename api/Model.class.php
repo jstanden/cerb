@@ -432,6 +432,39 @@ abstract class C4_AbstractView {
 		$this->params = array();
 		$this->renderPage = 0;
 	}
+	
+	public static function _doBulkSetCustomFields($source_extension,$custom_fields, $ids) {
+		$fields = DAO_CustomField::getAll();
+		
+		if(!empty($custom_fields))
+		foreach($custom_fields as $cf_id => $cf_val) {
+			// If multi-selection types, handle delta changes
+			if($fields[$cf_id]->type=='M' || $fields[$cf_id]->type=='X') {
+				if(is_array($cf_val))
+				foreach($cf_val as $val) {
+					$op = substr($val,0,1);
+					$val = substr($val,1);
+				
+					if(is_array($ids))
+					foreach($ids as $id) {
+						if($op=='+')
+							DAO_CustomFieldValue::setFieldValue($source_extension,$id,$cf_id,$val,true);
+						elseif($op=='-')
+							DAO_CustomFieldValue::unsetFieldValue($source_extension,$id,$cf_id,$val);
+					}
+				}
+					
+			} else {
+				if(is_array($ids))
+				foreach($ids as $id) {
+					if(!empty($cf_val))
+						DAO_CustomFieldValue::setFieldValue($source_extension,$id,$cf_id,$cf_val);
+					else
+						DAO_CustomFieldValue::unsetFieldValue($source_extension,$id,$cf_id);
+				}
+			}
+		}
+	}
 };
 
 /**
@@ -1411,15 +1444,8 @@ class C4_AddressView extends C4_AbstractView {
 			$batch_ids = array_slice($ids,$x,100);
 			DAO_Address::update($batch_ids, $change_fields);
 			
-			// Set custom fields // [TODO] Optimize
-			if(!empty($custom_fields))
-			foreach($batch_ids as $id)
-			foreach($custom_fields as $cf_id => $cf_val) {
-				if(!empty($cf_val))
-					DAO_CustomFieldValue::setFieldValue(ChCustomFieldSource_Address::ID,$id,$cf_id,$cf_val);
-				else
-					DAO_CustomFieldValue::unsetFieldValue(ChCustomFieldSource_Address::ID,$id,$cf_id);
-			}
+			// Custom Fields
+			self::_doBulkSetCustomFields(ChCustomFieldSource_Address::ID, $custom_fields, $batch_ids);
 			
 			unset($batch_ids);
 		}
@@ -1817,15 +1843,8 @@ class C4_ContactOrgView extends C4_AbstractView {
 			$batch_ids = array_slice($ids,$x,100);
 			DAO_ContactOrg::update($batch_ids, $change_fields);
 
-			// Set custom fields // [TODO] Optimize
-			if(!empty($custom_fields))
-			foreach($batch_ids as $id)
-			foreach($custom_fields as $cf_id => $cf_val) {
-				if(!empty($cf_val))
-					DAO_CustomFieldValue::setFieldValue(ChCustomFieldSource_Org::ID,$id,$cf_id,$cf_val);
-				else
-					DAO_CustomFieldValue::unsetFieldValue(ChCustomFieldSource_Org::ID,$id,$cf_id);
-			}
+			// Custom Fields
+			self::_doBulkSetCustomFields(ChCustomFieldSource_Org::ID, $custom_fields, $batch_ids);
 
 			unset($batch_ids);
 		}
@@ -2326,15 +2345,8 @@ class C4_TaskView extends C4_AbstractView {
 			$batch_ids = array_slice($ids,$x,100);
 			DAO_Task::update($batch_ids, $change_fields);
 			
-			// Set custom fields // [TODO] Optimize
-			if(!empty($custom_fields))
-			foreach($batch_ids as $id)
-			foreach($custom_fields as $cf_id => $cf_val) {
-				if(!empty($cf_val))
-					DAO_CustomFieldValue::setFieldValue(ChCustomFieldSource_Task::ID,$id,$cf_id,$cf_val);
-				else
-					DAO_CustomFieldValue::unsetFieldValue(ChCustomFieldSource_Task::ID,$id,$cf_id);
-			}
+			// Custom Fields
+			self::_doBulkSetCustomFields(ChCustomFieldSource_Task::ID, $custom_fields, $batch_ids);
 			
 			unset($batch_ids);
 		}
@@ -2663,15 +2675,8 @@ class Model_DashboardViewAction {
 			if(!empty($fields))
 				DAO_Ticket::updateTicket($ticket_ids, $fields);
 			
-			// Set custom fields // [TODO] Optimize
-			if(!empty($custom_fields))
-			foreach($ticket_ids as $id)
-			foreach($custom_fields as $cf_id => $cf_val) {
-				if(!empty($cf_val))
-					DAO_CustomFieldValue::setFieldValue(ChCustomFieldSource_Ticket::ID,$id,$cf_id,$cf_val);
-				else
-					DAO_CustomFieldValue::unsetFieldValue(ChCustomFieldSource_Ticket::ID,$id,$cf_id);
-			}
+			// Custom Fields
+			C4_AbstractView::_doBulkSetCustomFields(ChCustomFieldSource_Ticket::ID, $custom_fields, $ticket_ids);
 		}
 	}
 };

@@ -35,7 +35,7 @@
 		</tr>
 	</table>
 
-	{include file="file:$core_tpl/internal/custom_fields/bulk/form.tpl.php" checkboxes=false}
+	{include file="file:$core_tpl/internal/custom_fields/bulk/form.tpl.php" bulk=false}
 	<br>
 	
 	<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>

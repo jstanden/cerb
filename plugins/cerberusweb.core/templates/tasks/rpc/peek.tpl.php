@@ -81,7 +81,7 @@
 	</tr>
 </table>
 
-{include file="file:$core_tpl/internal/custom_fields/bulk/form.tpl.php" checkboxes=false}
+{include file="file:$core_tpl/internal/custom_fields/bulk/form.tpl.php" bulk=false}
 
 </div>
 

@@ -38,7 +38,7 @@
 <b>Source URL:</b> (optional)<br>
 <input type="text" name="url" size="45" maxlength="255" style="width:98%;" value="{$model->source_url|escape}"><br>
 
-{include file="file:$core_tpl/internal/custom_fields/bulk/form.tpl.php" checkboxes=false}
+{include file="file:$core_tpl/internal/custom_fields/bulk/form.tpl.php" bulk=false}
 
 <input type="hidden" name="source_extension_id" value="{$source_extension_id}">
 <input type="hidden" name="source_id" value="{$source_id}">

@@ -6427,7 +6427,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 	const SOURCE_ID = 'source_id';
 	const FIELD_VALUE = 'field_value';
 	
-	public static function setFieldValue($source_ext_id, $source_id, $field_id, $value) {
+	public static function setFieldValue($source_ext_id, $source_id, $field_id, $value, $delta=false) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		if(null == ($field = DAO_CustomField::get($field_id)))
@@ -6460,7 +6460,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 		}
 		
 		// Clear existing values (beats replace logic)
-		self::unsetFieldValue($source_ext_id, $source_id, $field_id);
+		self::unsetFieldValue($source_ext_id, $source_id, $field_id, ($delta?$value:null));
 
 		// Set values consistently
 		if(!is_array($value))
@@ -6481,7 +6481,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 		return TRUE;
 	}
 	
-	public static function unsetFieldValue($source_ext_id, $source_id, $field_id) {
+	public static function unsetFieldValue($source_ext_id, $source_id, $field_id, $value=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		if(null == ($field = DAO_CustomField::get($field_id)))
@@ -6509,11 +6509,13 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 		if(empty($table_name))
 			return FALSE;
 		
-		$sql = sprintf("DELETE QUICK FROM %s WHERE source_extension = '%s' AND source_id = %d AND field_id = %d",
+		// Delete all values or optionally a specific given value
+		$sql = sprintf("DELETE QUICK FROM %s WHERE source_extension = '%s' AND source_id = %d AND field_id = %d %s",
 			$table_name,
 			$source_ext_id,
 			$source_id,
-			$field_id
+			$field_id,
+			(!is_null($value) ? sprintf("AND field_value = %s ",$db->qstr($value)) : "")
 		);
 		
 		return $db->Execute($sql);
