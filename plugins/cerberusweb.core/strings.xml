@@ -81,6 +81,9 @@
 		<tu tuid='common.category'>
 			<tuv xml:lang="en_US"><seg>category</seg></tuv>
 		</tu>
+		<tu tuid='common.clear'>
+			<tuv xml:lang="en_US"><seg>clear</seg></tuv>
+		</tu>
 		<tu tuid='common.close'>
 			<tuv xml:lang="en_US"><seg>close</seg></tuv>
 		</tu>

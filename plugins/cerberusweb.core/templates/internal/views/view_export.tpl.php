@@ -8,7 +8,7 @@
 
 <b>Columns:</b>
  &nbsp; 
-<a href="javascript:;" onclick="Devblocks.resetSelectElements('frm{$view_id}_export','columns[]');">clear</a>
+<a href="javascript:;" onclick="Devblocks.resetSelectElements('frm{$view_id}_export','columns[]');">{$translate->_('common.clear')|capitalize}</a>
 <br>
 {section start=0 step=1 loop=15 name=columns}
 {assign var=index value=$smarty.section.columns.index}

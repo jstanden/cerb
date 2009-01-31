@@ -434,12 +434,12 @@ class CrmPage extends CerberusPageExtension {
 		$workers = DAO_Worker::getAllActive();
 		$tpl->assign('workers', $workers);
 		
-		$opp_fields = DAO_CustomField::getBySource(CrmCustomFieldSource_Opportunity::ID);
-		$tpl->assign('opp_fields', $opp_fields);
+		$custom_fields = DAO_CustomField::getBySource(CrmCustomFieldSource_Opportunity::ID);
+		$tpl->assign('custom_fields', $custom_fields);
 		
-		$opp_field_values = DAO_CustomFieldValue::getValuesBySourceIds(CrmCustomFieldSource_Opportunity::ID, $opp->id);
-		if(isset($opp_field_values[$opp->id]))
-			$tpl->assign('opp_field_values', $opp_field_values[$opp->id]);
+		$custom_field_values = DAO_CustomFieldValue::getValuesBySourceIds(CrmCustomFieldSource_Opportunity::ID, $opp->id);
+		if(isset($custom_field_values[$opp->id]))
+			$tpl->assign('custom_field_values', $custom_field_values[$opp->id]);
 		
 		$tpl->display('file:' . $tpl_path . 'crm/opps/display/tabs/properties.tpl.php');
 	}
