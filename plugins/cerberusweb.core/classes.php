@@ -1876,9 +1876,6 @@ class ChTicketsPage extends CerberusPageExtension {
         $results = $view->getData();
         $tpl->assign('num_assignable', $results[1]);
         
-        $assign_type = DAO_WorkerPref::get($active_worker->id, DAO_WorkerPref::SETTING_OVERVIEW_ASSIGN_TYPE, 'age');
-        $tpl->assign('assign_type', $assign_type);
-        
         $assign_howmany = DAO_WorkerPref::get($active_worker->id, DAO_WorkerPref::SETTING_OVERVIEW_ASSIGN_HOWMANY, 5);
         $tpl->assign('assign_howmany', $assign_howmany);
         
@@ -1887,14 +1884,10 @@ class ChTicketsPage extends CerberusPageExtension {
 	
 	function doViewAutoAssignAction() {
 	    @$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
-	    @$type = DevblocksPlatform::importGPC($_POST['type'],'string','sla');
 	    @$how_many = DevblocksPlatform::importGPC($_POST['how_many'],'integer',5);
 	    
 	    $active_worker = CerberusApplication::getActiveWorker();
 	    
-		if(!empty($type) && !empty($active_worker->id))
-			DAO_WorkerPref::set($active_worker->id, DAO_WorkerPref::SETTING_OVERVIEW_ASSIGN_TYPE,$type);
-		
 	    if(!empty($how_many) && !empty($active_worker->id)) {
 	    	DAO_WorkerPref::set($active_worker->id, DAO_WorkerPref::SETTING_OVERVIEW_ASSIGN_HOWMANY,$how_many);
 	    } else {

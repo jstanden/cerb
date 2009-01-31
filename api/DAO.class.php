@@ -1126,7 +1126,7 @@ class DAO_ContactOrg extends C4_ORMHelper {
 			
 		$sort_sql = (!empty($sortBy) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ");
 			
-		$group_sql = "GROUP BY c.id";
+		$group_sql = "GROUP BY c.id ";
 			
 		$sql = $select_sql . $join_sql . $where_sql . $group_sql . $sort_sql;
 			
@@ -1507,7 +1507,7 @@ class DAO_Address extends C4_ORMHelper {
 		
 		$sort_sql =	(!empty($sortBy) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ");
 		
-		$group_sql = "GROUP BY a.id";
+		$group_sql = "GROUP BY a.id ";
 		
 		$sql = $select_sql . $join_sql . $where_sql . $group_sql . $sort_sql;
 			
@@ -5181,7 +5181,6 @@ class DAO_WorkerPref extends DevblocksORMHelper {
     const SETTING_MOVE_COUNTS = 'move_counts';
     const SETTING_OVERVIEW = 'worker_overview';
     const SETTING_OVERVIEW_FILTER = 'worker_overview_filter';
-    const SETTING_OVERVIEW_ASSIGN_TYPE = 'overview_assign_type';
     const SETTING_OVERVIEW_ASSIGN_HOWMANY = 'overview_assign_howmany';
     
     const CACHE_PREFIX = 'ch_workerpref_';

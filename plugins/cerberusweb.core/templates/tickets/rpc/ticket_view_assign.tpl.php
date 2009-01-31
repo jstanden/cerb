@@ -14,12 +14,6 @@ There are <b>{$num_assignable}</b> assignable tickets in this list.<br>
 <input type="text" name="how_many" size="3" value="{$assign_howmany}" maxlength="3"><br>
 <br>
 
-<b>Assignment priority:</b><br>
-<label><input type="radio" name="type" value="sla" {if $assign_type=="sla"}checked{/if}> Service Level Priority</label>
-<label><input type="radio" name="type" value="age" {if $assign_type!="sla"}checked{/if}> Oldest Tickets</label>
-<br>
-<br>
-
 <button type="submit" style="">Assign to Me</button>
 <button type="button" onclick="toggleDiv('{$view_id}_tips','none');clearDiv('{$view_id}_tips');" style="">Do nothing</button>
 
