@@ -4973,12 +4973,12 @@ class ChContactsPage extends CerberusPageExtension {
 		$contact = DAO_ContactOrg::get($org);
 		$tpl->assign('contact', $contact);
 
-		$org_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Org::ID);
-		$tpl->assign('org_fields', $org_fields);
+		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Org::ID);
+		$tpl->assign('custom_fields', $custom_fields);
 		
-		$org_field_values = DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Org::ID, $org);
-		if(isset($org_field_values[$org]))
-			$tpl->assign('org_field_values', $org_field_values[$org]);
+		$custom_field_values = DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Org::ID, $org);
+		if(isset($custom_field_values[$org]))
+			$tpl->assign('custom_field_values', $custom_field_values[$org]);
 		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/contacts/orgs/tabs/properties.tpl.php');
 		exit;
@@ -5215,12 +5215,12 @@ class ChContactsPage extends CerberusPageExtension {
 		}
 		
 		// Custom fields
-		$address_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Address::ID); 
-		$tpl->assign('address_fields', $address_fields);
+		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Address::ID); 
+		$tpl->assign('custom_fields', $custom_fields);
 
-		$address_field_values = DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Address::ID, $id);
-		if(isset($address_field_values[$id]))
-			$tpl->assign('address_field_values', $address_field_values[$id]);
+		$custom_field_values = DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Address::ID, $id);
+		if(isset($custom_field_values[$id]))
+			$tpl->assign('custom_field_values', $custom_field_values[$id]);
 		
 		$types = Model_CustomField::getTypes();
 		$tpl->assign('types', $types);
@@ -5306,12 +5306,12 @@ class ChContactsPage extends CerberusPageExtension {
 		$tpl->assign('contact', $contact);
 
 		// Custom fields
-		$org_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Org::ID); 
-		$tpl->assign('org_fields', $org_fields);
+		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Org::ID); 
+		$tpl->assign('custom_fields', $custom_fields);
 
-		$org_field_values = DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Org::ID, $id);
-		if(isset($org_field_values[$id]))
-			$tpl->assign('org_field_values', $org_field_values[$id]);
+		$custom_field_values = DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Org::ID, $id);
+		if(isset($custom_field_values[$id]))
+			$tpl->assign('custom_field_values', $custom_field_values[$id]);
 		
 		$types = Model_CustomField::getTypes();
 		$tpl->assign('types', $types);

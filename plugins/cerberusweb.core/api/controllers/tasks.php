@@ -112,12 +112,12 @@ class ChTasksController extends DevblocksControllerExtension {
 		$tpl->assign('workers', $workers);
 		
 		// Custom fields
-		$task_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Task::ID); 
-		$tpl->assign('task_fields', $task_fields);
+		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Task::ID); 
+		$tpl->assign('custom_fields', $custom_fields);
 
-		$task_field_values = DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Task::ID, $id);
-		if(isset($task_field_values[$id]))
-			$tpl->assign('task_field_values', $task_field_values[$id]);
+		$custom_field_values = DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Task::ID, $id);
+		if(isset($custom_field_values[$id]))
+			$tpl->assign('custom_field_values', $custom_field_values[$id]);
 		
 		$types = Model_CustomField::getTypes();
 		$tpl->assign('types', $types);

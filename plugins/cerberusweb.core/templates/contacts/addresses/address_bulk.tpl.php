@@ -42,7 +42,7 @@
 	</tr>
 </table>
 
-{include file="file:$core_tpl/internal/custom_fields/bulk/form.tpl.php"}	
+{include file="file:$core_tpl/internal/custom_fields/bulk/form.tpl.php" checkboxes=true}	
 
 <br>
 </div>

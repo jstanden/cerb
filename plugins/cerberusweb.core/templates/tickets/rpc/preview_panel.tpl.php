@@ -94,7 +94,7 @@
 					</tr>
 				{/if}
 					<tr>
-						<td valign="top" width="1%" nowrap="nowrap">
+						<td valign="top" width="1%" align="right" nowrap="nowrap">
 							<input type="hidden" name="field_ids[]" value="{$f_id}">
 							{$f->name}:
 						</td>
@@ -107,6 +107,10 @@
 								<textarea name="field_{$f_id}" rows="4" cols="50" style="width:98%;">{$custom_field_values.$f_id}</textarea><br>
 							{elseif $f->type=='C'}
 								<input type="checkbox" name="field_{$f_id}" value="1" {if $custom_field_values.$f_id}checked{/if}><br>
+							{elseif $f->type=='X'}
+								{foreach from=$f->options item=opt}
+								<label><input type="checkbox" name="field_{$f_id}[]" value="{$opt|escape}" {if $custom_field_values.$f_id.$opt}checked="checked"{/if}> {$opt}</label><br>
+								{/foreach}
 							{elseif $f->type=='D'}
 								<select name="field_{$f_id}">{* [TODO] Fix selected *}
 									<option value=""></option>
@@ -114,6 +118,13 @@
 									<option value="{$opt|escape}" {if $opt==$custom_field_values.$f_id}selected{/if}>{$opt}</option>
 									{/foreach}
 								</select><br>
+							{elseif $f->type=='M'}
+								<select name="field_{$f_id}[]" size="5" multiple="multiple">
+									{foreach from=$f->options item=opt}
+									<option value="{$opt|escape}" {if $custom_field_values.$f_id.$opt}selected="selected"{/if}>{$opt}</option>
+									{/foreach}
+								</select><br>
+								<i><small>(hold CTRL or COMMAND to select multiple options)</small></i>
 							{elseif $f->type=='E'}
 								<input type="text" name="field_{$f_id}" size="45" maxlength="255" value="{if !empty($custom_field_values.$f_id)}{$custom_field_values.$f_id|devblocks_date}{/if}"><button type="button" onclick="ajax.getDateChooser('dateCustom{$f_id}',this.form.field_{$f_id});">&nbsp;<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/calendar.gif{/devblocks_url}" align="top">&nbsp;</button>
 								<div id="dateCustom{$f_id}" style="display:none;position:absolute;z-index:1;"></div>

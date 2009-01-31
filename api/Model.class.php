@@ -266,8 +266,10 @@ abstract class C4_AbstractView {
 		
 		switch($field->type) {
 			case Model_CustomField::TYPE_DROPDOWN:
+			case Model_CustomField::TYPE_MULTI_PICKLIST:
+			case Model_CustomField::TYPE_MULTI_CHECKBOX:
 				$tpl->assign('field', $field);
-				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__cfield_dropdown.tpl.php');
+				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__cfield_picklist.tpl.php');
 				break;
 			case Model_CustomField::TYPE_CHECKBOX:
 				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__cfield_checkbox.tpl.php');
@@ -305,6 +307,8 @@ abstract class C4_AbstractView {
 		
 		switch($field->type) {
 			case Model_CustomField::TYPE_DROPDOWN:
+			case Model_CustomField::TYPE_MULTI_PICKLIST:
+			case Model_CustomField::TYPE_MULTI_CHECKBOX:
 				@$options = DevblocksPlatform::importGPC($_POST['options'],'array',array());
 				if(!empty($options)) {
 					$criteria = new DevblocksSearchCriteria($token,$oper,$options);
@@ -3338,9 +3342,11 @@ class Model_CustomField {
 	const TYPE_SINGLE_LINE = 'S';
 	const TYPE_MULTI_LINE = 'T';
 	const TYPE_NUMBER = 'N';
-	const TYPE_CHECKBOX = 'C';
-	const TYPE_DROPDOWN = 'D';
 	const TYPE_DATE = 'E';
+	const TYPE_DROPDOWN = 'D';
+	const TYPE_MULTI_PICKLIST = 'M';
+	const TYPE_CHECKBOX = 'C';
+	const TYPE_MULTI_CHECKBOX = 'X';
 	
 	public $id = 0;
 	public $name = '';
@@ -3355,9 +3361,11 @@ class Model_CustomField {
 			self::TYPE_SINGLE_LINE => 'Text: Single Line',
 			self::TYPE_MULTI_LINE => 'Text: Multi-Line',
 			self::TYPE_NUMBER => 'Number',
-			self::TYPE_CHECKBOX => 'Checkbox',
-			self::TYPE_DROPDOWN => 'Dropdown',
 			self::TYPE_DATE => 'Date',
+			self::TYPE_DROPDOWN => 'Picklist',
+			self::TYPE_MULTI_PICKLIST => 'Multi-Picklist',
+			self::TYPE_CHECKBOX => 'Checkbox',
+			self::TYPE_MULTI_CHECKBOX => 'Multi-Checkbox',
 		);
 	}
 };

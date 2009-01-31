@@ -260,13 +260,13 @@ class CrmPage extends CerberusPageExtension {
 			}
 		}
 		
-		$opp_fields = DAO_CustomField::getBySource(CrmCustomFieldSource_Opportunity::ID);
-		$tpl->assign('opp_fields', $opp_fields);
+		$custom_fields = DAO_CustomField::getBySource(CrmCustomFieldSource_Opportunity::ID);
+		$tpl->assign('custom_fields', $custom_fields);
 		
 		if(!empty($opp_id)) {
-			$opp_field_values = DAO_CustomFieldValue::getValuesBySourceIds(CrmCustomFieldSource_Opportunity::ID, $opp_id);
-			if(isset($opp_field_values[$opp->id]))
-				$tpl->assign('opp_field_values', $opp_field_values[$opp->id]);
+			$custom_field_values = DAO_CustomFieldValue::getValuesBySourceIds(CrmCustomFieldSource_Opportunity::ID, $opp_id);
+			if(isset($custom_field_values[$opp->id]))
+				$tpl->assign('custom_field_values', $custom_field_values[$opp->id]);
 		}
 		
 		$workers = DAO_Worker::getAllActive();
@@ -670,41 +670,9 @@ class CrmPage extends CerberusPageExtension {
 		if(0 != strlen($worker_id))
 			$do['worker_id'] = $worker_id;
 			
-		// Do: Custom fields // [TODO] Highly redundant
-		@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'],'array',array());
-		$fields = DAO_CustomField::getBySource(CrmCustomFieldSource_Opportunity::ID);
+		// Do: Custom fields
+		$do = DAO_CustomFieldValue::handleBulkPost($do);
 		
-		if(is_array($field_ids))
-		foreach($field_ids as $field_id) {
-			if(!isset($fields[$field_id]))
-				continue;
-			
-			@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'string','');
-
-			switch($fields[$field_id]->type) {
-				case Model_CustomField::TYPE_MULTI_LINE:
-				case Model_CustomField::TYPE_SINGLE_LINE:
-					$do['cf_'.$field_id] = $field_value;
-					break;
-					
-				case Model_CustomField::TYPE_NUMBER:
-					$do['cf_'.$field_id] = intval($field_value);
-					break;
-					
-				case Model_CustomField::TYPE_DROPDOWN:
-					$do['cf_'.$field_id] = $field_value;
-					break;
-					
-				case Model_CustomField::TYPE_CHECKBOX:
-					$do['cf_'.$field_id] = !empty($field_value) ? 1 : 0;
-					break;
-					
-				case Model_CustomField::TYPE_DATE:
-					$do['cf_'.$field_id] = !empty($field_value) ? @strtotime($field_value) : '';
-					break;
-			}
-		}
-			
 		$view->doBulkUpdate($filter, $do, $opp_ids);
 		
 		$view->render();
@@ -891,8 +859,11 @@ class DAO_CrmOpportunity extends C4_ORMHelper {
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "");
 		
-		$sql = $select_sql . $join_sql . $where_sql .  
-			(!empty($sortBy) ? sprintf("ORDER BY %s %s",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : "");
+		$sort_sql = (!empty($sortBy) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ");
+		
+		$group_sql = "GROUP BY o.id ";
+		
+		$sql = $select_sql . $join_sql . $where_sql . $group_sql . $sort_sql;
 		
 		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
@@ -912,8 +883,8 @@ class DAO_CrmOpportunity extends C4_ORMHelper {
 		// [JAS]: Count all
 		$total = -1;
 		if($withCounts) {
-		    $rs = $db->Execute($sql);
-		    $total = $rs->RecordCount();
+			$count_sql = "SELECT COUNT(DISTINCT o.id) " . $join_sql . $where_sql;
+			$total = $db->GetOne($count_sql);
 		}
 		
 		return array($results,$total);

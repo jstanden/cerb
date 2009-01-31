@@ -10,6 +10,10 @@
 	<td title="{$result.$column|escape}">{$result.$column|truncate:32}</td>
 {elseif $col->type=='D'}
 	<td>{$result.$column}</td>
+{elseif $col->type=='M'}
+	<td>{$result.$column}</td>
+{elseif $col->type=='X'}
+	<td>{$result.$column}</td>
 {elseif $col->type=='E'}
 	<td><abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr></td>
 {elseif $col->type=='C'}

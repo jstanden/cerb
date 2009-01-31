@@ -37,43 +37,8 @@
 
 <b>Source URL:</b> (optional)<br>
 <input type="text" name="url" size="45" maxlength="255" style="width:98%;" value="{$model->source_url|escape}"><br>
-<br>
 
-<table cellpadding="0" cellspacing="2" border="0" width="98%">
-	<!-- Custom Fields -->
-	<tr>
-		<td colspan="2" align="center">&nbsp;</td>
-	</tr>
-	{foreach from=$feedback_fields item=f key=f_id}
-		<tr>
-			<td valign="top" width="0%" nowrap="nowrap" align="right">
-				<input type="hidden" name="field_ids[]" value="{$f_id}">
-				<span style="font-size:90%;">{$f->name}:</span>
-			</td>
-			<td valign="top" width="100%">
-				{if $f->type=='S'}
-					<input type="text" name="field_{$f_id}" size="45" maxlength="255" value="{$feedback_field_values.$f_id}"><br>
-				{elseif $f->type=='N'}
-					<input type="text" name="field_{$f_id}" size="45" maxlength="255" value="{$feedback_field_values.$f_id}"><br>
-				{elseif $f->type=='T'}
-					<textarea name="field_{$f_id}" rows="4" cols="50" style="width:98%;">{$feedback_field_values.$f_id}</textarea><br>
-				{elseif $f->type=='C'}
-					<input type="checkbox" name="field_{$f_id}" value="1" {if $feedback_field_values.$f_id}checked{/if}><br>
-				{elseif $f->type=='D'}
-					<select name="field_{$f_id}">{* [TODO] Fix selected *}
-						<option value=""></option>
-						{foreach from=$f->options item=opt}
-						<option value="{$opt|escape}" {if $opt==$feedback_field_values.$f_id}selected{/if}>{$opt}</option>
-						{/foreach}
-					</select><br>
-				{elseif $f->type=='E'}
-					<input type="text" name="field_{$f_id}" size="30" maxlength="255" value="{if !empty($feedback_field_values.$f_id)}{$feedback_field_values.$f_id|devblocks_date}{/if}"><button type="button" onclick="ajax.getDateChooser('dateCustom{$f_id}',this.form.field_{$f_id});">&nbsp;<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/calendar.gif{/devblocks_url}" align="top">&nbsp;</button>
-					<div id="dateCustom{$f_id}" style="display:none;position:absolute;z-index:1;"></div>
-				{/if}	
-			</td>
-		</tr>
-	{/foreach}
-</table>
+{include file="file:$core_tpl/internal/custom_fields/bulk/form.tpl.php" checkboxes=false}
 
 <input type="hidden" name="source_extension_id" value="{$source_extension_id}">
 <input type="hidden" name="source_id" value="{$source_id}">

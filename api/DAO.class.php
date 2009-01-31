@@ -1124,8 +1124,11 @@ class DAO_ContactOrg extends C4_ORMHelper {
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "");
 			
-		$sql = $select_sql . $join_sql . $where_sql .
-			(!empty($sortBy) ? sprintf("ORDER BY %s %s",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : "");
+		$sort_sql = (!empty($sortBy) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ");
+			
+		$group_sql = "GROUP BY c.id";
+			
+		$sql = $select_sql . $join_sql . $where_sql . $group_sql . $sort_sql;
 			
 		// [TODO] Could push the select logic down a level too
 		if($limit > 0) {
@@ -1150,8 +1153,8 @@ class DAO_ContactOrg extends C4_ORMHelper {
 
 		// [JAS]: Count all
 		if($withCounts) {
-		    $rs = $db->Execute($sql);
-		    $total = $rs->RecordCount();
+			$count_sql = "SELECT COUNT(DISTINCT c.id) " . $join_sql . $where_sql;
+			$total = $db->GetOne($count_sql);
 		}
 		
 		return array($results,$total);
@@ -1501,10 +1504,13 @@ class DAO_Address extends C4_ORMHelper {
 		
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "");
-			
-		$sql = $select_sql . $join_sql . $where_sql .  
-			(!empty($sortBy) ? sprintf("ORDER BY %s %s",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : "");
 		
+		$sort_sql =	(!empty($sortBy) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ");
+		
+		$group_sql = "GROUP BY a.id";
+		
+		$sql = $select_sql . $join_sql . $where_sql . $group_sql . $sort_sql;
+			
 		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		$results = array();
@@ -1523,7 +1529,7 @@ class DAO_Address extends C4_ORMHelper {
 		// [JAS]: Count all
 		$total = -1;
 		if($withCounts) {
-			$count_sql = "SELECT count(*) " . $join_sql . $where_sql;
+			$count_sql = "SELECT COUNT(DISTINCT a.id) " . $join_sql . $where_sql;
 			$total = $db->GetOne($count_sql);
 		}
 		
@@ -3388,9 +3394,12 @@ class DAO_Ticket extends C4_ORMHelper {
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "");
 			
-		$sql = $select_sql . $join_sql . $where_sql .
-			(!empty($sortBy) ? sprintf("ORDER BY %s %s",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : "");
+		$sort_sql = (!empty($sortBy) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ");
 
+		$group_sql = "GROUP BY t.id ";
+		
+		$sql = $select_sql . $join_sql . $where_sql . $group_sql . $sort_sql;
+		
 		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		$results = array();
@@ -3408,8 +3417,8 @@ class DAO_Ticket extends C4_ORMHelper {
 
 		// [JAS]: Count all
 		if($withCounts) {
-			$sort_sql = "SELECT count(*) " . $join_sql . $where_sql;
-		    $total = $db->GetOne($sort_sql);
+			$count_sql = "SELECT COUNT(DISTINCT t.id) " . $join_sql . $where_sql;
+			$total = $db->GetOne($count_sql);
 		}
 		
 		return array($results,$total);
@@ -6434,35 +6443,41 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 				if(255 < strlen($value))
 					$value = substr($value,0,255);
 				break;
+			case 'M': // multi-picklist
+			case 'X': // multi-checkbox
+				$table_name = 'custom_field_stringvalue';
+				break;
 			case 'C': // checkbox
 			case 'E': // date
 			case 'N': // number
 				$table_name = 'custom_field_numbervalue';
-				$value = intval($value);
 				break;
 			case 'T': // clob
 				$table_name = 'custom_field_clobvalue';
 				break;
+			default:
+				return FALSE;
+				break;
 		}
 		
-		if(empty($table_name))
-			return FALSE;
-		
-		$db->Replace(
-			$table_name,
-			array(
-				self::FIELD_ID => $field_id,
-				self::SOURCE_EXTENSION => $db->qstr($source_ext_id),
-				self::SOURCE_ID => $source_id,
-				self::FIELD_VALUE => $db->qstr($value),
-			),
-			array(
-				self::SOURCE_ID,
-				self::SOURCE_EXTENSION,
-				self::FIELD_ID
-			),
-			false
-		);
+		// Clear existing values (beats replace logic)
+		self::unsetFieldValue($source_ext_id, $source_id, $field_id);
+
+		// Set values consistently
+		if(!is_array($value))
+			$value = array($value);
+			
+		foreach($value as $v) {
+			$sql = sprintf("INSERT INTO %s (field_id, source_extension, source_id, field_value) ".
+				"VALUES (%d, %s, %d, %s)",
+				$table_name,
+				$field_id,
+				$db->qstr($source_ext_id),
+				$source_id,
+				$db->qstr($v)
+			);
+			$db->Execute($sql);
+		}
 		
 		return TRUE;
 	}
@@ -6478,6 +6493,8 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 		switch($field->type) {
 			case 'D': // dropdown
 			case 'S': // string
+			case 'M': // multi-picklist
+			case 'X': // multi-checklist
 				$table_name = 'custom_field_stringvalue';
 				break;
 			case 'C': // checkbox
@@ -6513,27 +6530,40 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 			if(!isset($fields[$field_id]))
 				continue;
 			
-			@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'string','');
-
 			switch($fields[$field_id]->type) {
 				case Model_CustomField::TYPE_MULTI_LINE:
 				case Model_CustomField::TYPE_SINGLE_LINE:
+					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'string','');
 					$do['cf_'.$field_id] = $field_value;
 					break;
 					
 				case Model_CustomField::TYPE_NUMBER:
+					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'integer',0);
 					$do['cf_'.$field_id] = intval($field_value);
 					break;
 					
 				case Model_CustomField::TYPE_DROPDOWN:
+					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'string','');
+					$do['cf_'.$field_id] = $field_value;
+					break;
+					
+				case Model_CustomField::TYPE_MULTI_PICKLIST:
+					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'array',array());
 					$do['cf_'.$field_id] = $field_value;
 					break;
 					
 				case Model_CustomField::TYPE_CHECKBOX:
+					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'integer',0);
 					$do['cf_'.$field_id] = !empty($field_value) ? 1 : 0;
+					break;
+
+				case Model_CustomField::TYPE_MULTI_CHECKBOX:
+					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'array',array());
+					$do['cf_'.$field_id] = $field_value;
 					break;
 					
 				case Model_CustomField::TYPE_DATE:
+					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'string','');
 					$do['cf_'.$field_id] = !empty($field_value) ? @strtotime($field_value) : '';
 					break;
 			}
@@ -6550,11 +6580,10 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 			if(!isset($fields[$field_id]))
 				continue;
 			
-			@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'string','');
-
 			switch($fields[$field_id]->type) {
 				case Model_CustomField::TYPE_MULTI_LINE:
 				case Model_CustomField::TYPE_SINGLE_LINE:
+					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'string','');
 					if(0 != strlen($field_value)) {
 						DAO_CustomFieldValue::setFieldValue($source_ext_id, $source_id, $field_id, $field_value);
 					} else {
@@ -6563,6 +6592,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 					break;
 					
 				case Model_CustomField::TYPE_DROPDOWN:
+					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'string','');
 					if(0 != strlen($field_value)) {
 						DAO_CustomFieldValue::setFieldValue($source_ext_id, $source_id, $field_id, $field_value);
 					} else {
@@ -6570,12 +6600,32 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 					}
 					break;
 					
+				case Model_CustomField::TYPE_MULTI_PICKLIST:
+					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'array',array());
+					if(!empty($field_value)) {
+						DAO_CustomFieldValue::setFieldValue($source_ext_id, $source_id, $field_id, $field_value);
+					} else {
+						DAO_CustomFieldValue::unsetFieldValue($source_ext_id, $source_id, $field_id);
+					}
+					break;
+					
 				case Model_CustomField::TYPE_CHECKBOX:
+					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'integer',0);
 					$set = !empty($field_value) ? 1 : 0;
 					DAO_CustomFieldValue::setFieldValue($source_ext_id, $source_id, $field_id, $set);
 					break;
-					
+
+				case Model_CustomField::TYPE_MULTI_CHECKBOX:
+					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'array',array());
+					if(!empty($field_value)) {
+						DAO_CustomFieldValue::setFieldValue($source_ext_id, $source_id, $field_id, $field_value);
+					} else {
+						DAO_CustomFieldValue::unsetFieldValue($source_ext_id, $source_id, $field_id);
+					}
+					break;
+				
 				case Model_CustomField::TYPE_DATE:
+					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'string','');
 					@$date = strtotime($field_value);
 					if(!empty($date)) {
 						DAO_CustomFieldValue::setFieldValue($source_ext_id, $source_id, $field_id, $date);
@@ -6585,6 +6635,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 					break;
 
 				case Model_CustomField::TYPE_NUMBER:
+					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'integer',0);
 					if(0 != strlen($field_value)) {
 						DAO_CustomFieldValue::setFieldValue($source_ext_id, $source_id, $field_id, intval($field_value));
 					} else {
@@ -6606,6 +6657,8 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 		if(empty($source_ids))
 			return array();
 		
+		$fields = DAO_CustomField::getAll();
+			
 		// [TODO] This is inefficient (and redundant)
 			
 		// STRINGS
@@ -6627,8 +6680,19 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 				$results[$source_id] = array();
 				
 			$source =& $results[$source_id];
-			$source[$field_id] = $field_value;
-						
+			
+			// If multiple value type (multi-picklist, multi-checkbox)
+			if($fields[$field_id]->type=='M' || $fields[$field_id]->type=='X') {
+				if(!isset($source[$field_id]))
+					$source[$field_id] = array();
+					
+				$source[$field_id][$field_value] = $field_value;
+				
+			} else { // single value
+				$source[$field_id] = $field_value;
+				
+			}
+			
 			$rs->MoveNext();
 		}
 		
@@ -6652,7 +6716,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 				
 			$source =& $results[$source_id];
 			$source[$field_id] = $field_value;
-						
+			
 			$rs->MoveNext();
 		}
 
@@ -6675,8 +6739,8 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 				$results[$source_id] = array();
 				
 			$source =& $results[$source_id];
-			$source[$field_id] = intval($field_value);
-						
+			$source[$field_id] = $field_value;
+			
 			$rs->MoveNext();
 		}
 		
@@ -6947,8 +7011,11 @@ class DAO_Task extends C4_ORMHelper {
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "");
 			
-		$sql = $select_sql . $join_sql . $where_sql .  
-			(!empty($sortBy) ? sprintf("ORDER BY %s %s",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : "");
+		$group_sql = "GROUP BY t.id ";
+
+		$sort_sql =	(!empty($sortBy) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ");
+		
+		$sql =  $select_sql . $join_sql . $where_sql . $group_sql . $sort_sql;
 		
 		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
@@ -6968,7 +7035,7 @@ class DAO_Task extends C4_ORMHelper {
 		// [JAS]: Count all
 		$total = -1;
 		if($withCounts) {
-			$count_sql = "SELECT count(*) " . $join_sql . $where_sql;
+			$count_sql = "SELECT COUNT(DISTINCT t.id) " . $join_sql . $where_sql;
 			$total = $db->GetOne($count_sql);
 		}
 		

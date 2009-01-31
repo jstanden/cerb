@@ -238,8 +238,11 @@ class DAO_FeedbackEntry extends C4_ORMHelper {
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "");
 			
-		$sql = $select_sql . $join_sql . $where_sql .  
-			(!empty($sortBy) ? sprintf("ORDER BY %s %s",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : "");
+		$sort_sql = (!empty($sortBy) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ");
+		
+		$group_sql = "GROUP BY f.id ";
+		
+		$sql = $select_sql . $join_sql . $where_sql . $group_sql . $sort_sql;
 		
 		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
@@ -259,7 +262,7 @@ class DAO_FeedbackEntry extends C4_ORMHelper {
 		// [JAS]: Count all
 		$total = -1;
 		if($withCounts) {
-			$count_sql = "SELECT count(*) " . $join_sql . $where_sql;
+			$count_sql = "SELECT COUNT(DISTINCT f.id) " . $join_sql . $where_sql;
 			$total = $db->GetOne($count_sql);
 		}
 		
@@ -918,12 +921,12 @@ class ChFeedbackController extends DevblocksControllerExtension {
 		$tpl->assign('lists', $lists);
 		
 		// Custom fields
-		$feedback_fields = DAO_CustomField::getBySource(ChCustomFieldSource_FeedbackEntry::ID); 
-		$tpl->assign('feedback_fields', $feedback_fields);
+		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_FeedbackEntry::ID); 
+		$tpl->assign('custom_fields', $custom_fields);
 
-		$feedback_field_values = DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_FeedbackEntry::ID, $id);
-		if(isset($feedback_field_values[$id]))
-			$tpl->assign('feedback_field_values', $feedback_field_values[$id]);
+		$custom_field_values = DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_FeedbackEntry::ID, $id);
+		if(isset($custom_field_values[$id]))
+			$tpl->assign('custom_field_values', $custom_field_values[$id]);
 		
 		$types = Model_CustomField::getTypes();
 		$tpl->assign('types', $types);

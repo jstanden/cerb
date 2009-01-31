@@ -249,6 +249,72 @@ if(!isset($indexes['new_ticket_id'])) {
 	$datadict->ExecuteSQLArray($sql);
 }
 
+// Drop primary compound key on custom_field_stringvalue so we can have multi-select dropdowns
+
+$columns = $datadict->MetaColumns('custom_field_stringvalue');
+$indexes = $datadict->MetaIndexes('custom_field_stringvalue',false);
+
+// Drop compound primary key
+if(isset($columns['FIELD_ID']) && isset($columns['SOURCE_ID'])
+	&& $columns['FIELD_ID']->primary_key && $columns['SOURCE_ID']->primary_key) {
+		$sql = array("ALTER TABLE custom_field_stringvalue DROP PRIMARY KEY");
+		$datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($indexes['field_id'])) {
+	$sql = $datadict->CreateIndexSQL('field_id','custom_field_stringvalue','field_id');
+	$datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($indexes['source_id'])) {
+	$sql = $datadict->CreateIndexSQL('source_id','custom_field_stringvalue','source_id');
+	$datadict->ExecuteSQLArray($sql);
+}
+
+// Drop primary compound key on custom_field_numbervalue so we can have multi-select checkboxes
+
+$columns = $datadict->MetaColumns('custom_field_numbervalue');
+$indexes = $datadict->MetaIndexes('custom_field_numbervalue',false);
+
+// Drop compound primary key
+if(isset($columns['FIELD_ID']) && isset($columns['SOURCE_ID'])
+	&& $columns['FIELD_ID']->primary_key && $columns['SOURCE_ID']->primary_key) {
+		$sql = array("ALTER TABLE custom_field_numbervalue DROP PRIMARY KEY");
+		$datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($indexes['field_id'])) {
+	$sql = $datadict->CreateIndexSQL('field_id','custom_field_numbervalue','field_id');
+	$datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($indexes['source_id'])) {
+	$sql = $datadict->CreateIndexSQL('source_id','custom_field_numbervalue','source_id');
+	$datadict->ExecuteSQLArray($sql);
+}
+
+// Drop primary compound key on custom_field_clobvalue
+
+$columns = $datadict->MetaColumns('custom_field_clobvalue');
+$indexes = $datadict->MetaIndexes('custom_field_clobvalue',false);
+
+// Drop compound primary key
+if(isset($columns['FIELD_ID']) && isset($columns['SOURCE_ID'])
+	&& $columns['FIELD_ID']->primary_key && $columns['SOURCE_ID']->primary_key) {
+		$sql = array("ALTER TABLE custom_field_clobvalue DROP PRIMARY KEY");
+		$datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($indexes['field_id'])) {
+	$sql = $datadict->CreateIndexSQL('field_id','custom_field_clobvalue','field_id');
+	$datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($indexes['source_id'])) {
+	$sql = $datadict->CreateIndexSQL('source_id','custom_field_clobvalue','source_id');
+	$datadict->ExecuteSQLArray($sql);
+}
+
 // ... next
 
 return TRUE;
