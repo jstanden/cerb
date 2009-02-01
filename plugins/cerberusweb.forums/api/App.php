@@ -914,7 +914,7 @@ class C4_ForumsThreadView extends C4_AbstractView {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$this->id = self::DEFAULT_ID;
-		$this->name = $translate->_('common.search_results');
+		$this->name = $translate->_('forums.ui.forums');
 		$this->renderLimit = 10;
 		$this->renderSortBy = 't_last_updated';
 		$this->renderSortAsc = false;

@@ -52,8 +52,18 @@
 		{assign var=tableRowBg value="tableRowAltBg"}
 	{/if}
 	
-		<tr class="{$tableRowBg}" id="{$rowIdPrefix}" onmouseover="toggleClass(this.id,'tableRowHover');toggleClass('{$rowIdPrefix}_s','tableRowHover');" onmouseout="toggleClass(this.id,'{$tableRowBg}');toggleClass('{$rowIdPrefix}_s','{$tableRowBg}');" onclick="if(getEventTarget(event)=='TD') checkAll('{$rowIdPrefix}');">
+		<tr class="{$tableRowBg}" id="{$rowIdPrefix}_s" onmouseover="toggleClass(this.id,'tableRowHover');toggleClass('{$rowIdPrefix}','tableRowHover');" onmouseout="toggleClass(this.id,'{$tableRowBg}');toggleClass('{$rowIdPrefix}','{$tableRowBg}');" onclick="if(getEventTarget(event)=='TD') checkAll('{$rowIdPrefix}_s');">
 			<td align="center" rowspan="2"><input type="checkbox" name="row_id[]" value="{$result.t_id}"></td>
+			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">
+				{if $result.t_is_completed}
+					<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check_gray.gif{/devblocks_url}" align="top">
+				{/if}
+				<a href="javascript:;" onclick="genericAjaxPanel('c=tasks&a=showTaskPeek&id={$result.t_id}&view_id={$view->id}',this,false,'550px');" style="color:rgb(75,75,75);font-size:12px;"><b id="subject_{$result.t_id}_{$view->id}">{$result.t_title|escape}</b></a>
+				<br>
+				{$result.t_content|escape}
+			</td>
+		</tr>
+		<tr class="{$tableRowBg}" id="{$rowIdPrefix}" onmouseover="toggleClass(this.id,'tableRowHover');toggleClass('{$rowIdPrefix}_s','tableRowHover');" onmouseout="toggleClass(this.id,'{$tableRowBg}');toggleClass('{$rowIdPrefix}_s','{$tableRowBg}');" onclick="if(getEventTarget(event)=='TD') checkAll('{$rowIdPrefix}_s');">
 		{foreach from=$view->view_columns item=column name=columns}
 			{if substr($column,0,3)=="cf_"}
 				{include file="file:$core_tpl/internal/custom_fields/view/cell_renderer.tpl.php"}
@@ -115,24 +125,6 @@
 				<td>{$result.$column}</td>
 			{/if}
 		{/foreach}
-		</tr>
-		<tr class="{$tableRowBg}" id="{$rowIdPrefix}_s" onmouseover="toggleClass(this.id,'tableRowHover');toggleClass('{$rowIdPrefix}','tableRowHover');" onmouseout="toggleClass(this.id,'{$tableRowBg}');toggleClass('{$rowIdPrefix}','{$tableRowBg}');" onclick="if(getEventTarget(event)=='TD') checkAll('{$rowIdPrefix}');">
-			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}" style="padding:5px;margin-left:5px;">
-				{if $result.t_is_completed}
-					<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check_gray.gif{/devblocks_url}" align="top">
-				{else}
-					{if 1==$result.t_priority}
-						<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/nav_up_red.gif{/devblocks_url}" align="top" title="{$translate->_('priority.high')|capitalize}">
-					{elseif 2==$result.t_priority}
-						<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/nav_right_green.gif{/devblocks_url}" align="top" title="{$translate->_('priority.normal')|capitalize}">
-					{elseif 3==$result.t_priority}
-						<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/nav_down_blue.gif{/devblocks_url}" align="top" title="{$translate->_('priority.low')|capitalize}">
-					{else}
-					{/if}
-				{/if}
-				<a href="javascript:;" onclick="genericAjaxPanel('c=tasks&a=showTaskPeek&id={$result.t_id}&view_id={$view->id}',this,false,'550px');" style="color:rgb(75,75,75);font-size:12px;"><b id="subject_{$result.t_id}_{$view->id}">{$result.t_title|escape}</b></a><br>
-				{$result.t_content|escape}
-			</td>
 		</tr>
 	{/foreach}
 	

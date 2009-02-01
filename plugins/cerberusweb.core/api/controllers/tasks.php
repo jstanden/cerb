@@ -21,7 +21,7 @@ class ChTasksActivityTab extends Extension_ActivityTab {
 			$view->renderSortBy = SearchFields_Task::DUE_DATE;
 			$view->renderSortAsc = 1;
 			
-			$view->name = $translate->_('common.search_results');
+			$view->name = $translate->_('activity.tab.tasks');
 			
 			C4_AbstractViewLoader::setView($view->id, $view);
 		}

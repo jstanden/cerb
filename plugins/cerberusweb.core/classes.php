@@ -6747,10 +6747,16 @@ class ChCronController extends DevblocksControllerExtension {
         $timelimit = intval(ini_get('max_execution_time'));
 		
         if($reload) {
+        	$reload_url = sprintf("%s?reload=%d&loglevel=%d&ignore_wait=%d",
+        		$url->write('c=cron' . ($job_id ? ("&a=".$job_id) : "")),
+        		intval($reload),
+        		intval($loglevel),
+        		intval($is_ignoring_wait)
+        	);
 			echo "<HTML>".
 			"<HEAD>".
 			"<TITLE></TITLE>".
-			"<meta http-equiv='Refresh' content='".intval($reload).";" . $url->write('c=cron' . ($job_id ? ("&a=".$job_id) : "")) . "?reload=".intval($reload)."&loglevel=".intval($loglevel)."'>". 
+			"<meta http-equiv='Refresh' content='".intval($reload).";".$reload_url."'>". 
 		    "</HEAD>".
 			"<BODY>"; // onload=\"setTimeout(\\\"window.location.replace('".$url->write('c=cron')."')\\\",30);\"
         }

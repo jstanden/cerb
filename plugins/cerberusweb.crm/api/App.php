@@ -86,7 +86,7 @@ class CrmOppsActivityTab extends Extension_ActivityTab {
 			$view->renderSortBy = SearchFields_CrmOpportunity::UPDATED_DATE;
 			$view->renderSortAsc = 0;
 			
-			$view->name = $translate->_('common.search_results');
+			$view->name = $translate->_('crm.activity.tab.opps');
 			
 			C4_AbstractViewLoader::setView($view->id, $view);
 		}

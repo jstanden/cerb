@@ -13,7 +13,7 @@
 				{/if}
 			</td>
 			<td width="99%">
-				<div id="bulkOpts{$f_id}" style="display:none;">
+				<div id="bulkOpts{$f_id}" style="display:{if $bulk}none{else}block{/if};">
 				{if $f->type=='S'}
 					<input type="text" name="field_{$f_id}" size="45" maxlength="255" value="{$custom_field_values.$f_id|escape}">
 				{elseif $f->type=='N'}

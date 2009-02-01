@@ -1032,7 +1032,7 @@ class ChFeedbackController extends DevblocksControllerExtension {
 		$tpl->assign('path', $path);
 		$tpl->assign('view_id', $view_id);
 
-	    if(!empty($ids)) {
+	    if(!empty($id_csv)) {
 	        $ids = DevblocksPlatform::parseCsvString($id_csv);
 	        $tpl->assign('ids', implode(',', $ids));
 	    }
