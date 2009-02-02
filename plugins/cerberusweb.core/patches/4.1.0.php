@@ -202,7 +202,7 @@ if(isset($tables['custom_field_value'])) {
 	    $flds = "
 			field_id I4 DEFAULT 0 NOTNULL PRIMARY,
 			source_id I4 DEFAULT 0 NOTNULL PRIMARY,
-			field_value XL DEFAULT '' NOTNULL,
+			field_value XL,
 			source_extension C(255) DEFAULT '' NOTNULL
 		";
 	    $sql = $datadict->CreateTableSQL('custom_field_clobvalue',$flds);
