@@ -189,6 +189,9 @@
 		<tu tuid='common.optional'>
 			<tuv xml:lang="en_US"><seg>optional</seg></tuv>
 		</tu>		
+		<tu tuid='common.order'>
+			<tuv xml:lang="en_US"><seg>order</seg></tuv>
+		</tu>		
 		<tu tuid='common.load'>
 			<tuv xml:lang="en_US"><seg>Load</seg></tuv>
 		</tu>
@@ -817,9 +820,6 @@
 		<tu tuid='mail.overview.my_mail'>
 			<tuv xml:lang="en_US"><seg>my mail</seg></tuv>
 		</tu>
-		<tu tuid='mail.overview.spam_filtered'>
-			<tuv xml:lang="en_US"><seg>(Spam Filtered)</seg></tuv>
-		</tu>
 		<tu tuid='mail.overview.waiting.title'>
 			<tuv xml:lang="en_US"><seg>[Waiting] %s</seg></tuv>
 		</tu>
@@ -839,11 +839,16 @@
 		<tu tuid='mail.take'>
 			<tuv xml:lang="en_US"><seg>Take</seg></tuv>
 		</tu>
+		
 		<tu tuid='mail.view.add_filter'>
 			<tuv xml:lang="en_US"><seg>-add filter-</seg></tuv>
 		</tu>
 		<tu tuid='mail.waiting'>
 			<tuv xml:lang="en_US"><seg>Waiting</seg></tuv>
+		</tu>
+
+		<tu tuid='mail.workflow'>
+			<tuv xml:lang="en_US"><seg>Workflow</seg></tuv>
 		</tu>
 		
 		<tu tuid='mail.workspaces.create'>

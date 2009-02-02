@@ -533,13 +533,13 @@ class ChMobileTicketsPage extends CerberusMobilePageExtension  {
 				$workers = DAO_Worker::getAll();
 				$tpl->assign('workers', $workers);
 				
-				$group_counts = C4_Overview::getGroupTotals();
+				$group_counts = DAO_Overview::getGroupTotals();
 				$tpl->assign('group_counts', $group_counts);
 				
-				$waiting_counts = C4_Overview::getWaitingTotals();
+				$waiting_counts = DAO_Overview::getWaitingTotals();
 				$tpl->assign('waiting_counts', $waiting_counts);
 				
-				$worker_counts = C4_Overview::getWorkerTotals();
+				$worker_counts = DAO_Overview::getWorkerTotals();
 				$tpl->assign('worker_counts', $worker_counts);
 				
             	$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/sidebar.tpl.php');

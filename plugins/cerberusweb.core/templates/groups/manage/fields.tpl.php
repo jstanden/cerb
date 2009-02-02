@@ -10,7 +10,7 @@
 <table cellspacing="2" cellpadding="1" border="0">
 	<tr style="background-color:rgb(230,230,230);">
 		<td align="center"></td>
-		<td><b>Order</b></td>
+		<td><b>{$translate->_('common.order')|capitalize}</b></td>
 		<td><b>Type</b></td>
 		<td><b>Field</b></td>
 	</tr>

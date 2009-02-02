@@ -315,6 +315,44 @@ if(!isset($indexes['source_id'])) {
 	$datadict->ExecuteSQLArray($sql);
 }
 
+// Phase out bucket 'response_hrs'
+$columns = $datadict->MetaColumns('category');
+$indexes = $datadict->MetaIndexes('category',false);
+
+if(isset($columns['RESPONSE_HRS'])) {
+	$sql = $datadict->DropColumnSQL('category','response_hrs');
+    $datadict->ExecuteSQLArray($sql);
+}
+
+// Add bucket 'is_assignable' for new group workflow
+$columns = $datadict->MetaColumns('category');
+$indexes = $datadict->MetaIndexes('category',false);
+
+if(!isset($columns['IS_ASSIGNABLE'])) {
+	$sql = $datadict->AddColumnSQL('category','is_assignable I1 DEFAULT 0 NOTNULL');
+    $datadict->ExecuteSQLArray($sql);
+    
+    // Set default to make everything assignable (like pre 4.1).  Managers can tweak.
+    $sql = "UPDATE category SET is_assignable=1";
+    $db->Execute($sql);
+}
+
+// Add bucket 'pos' for ordering buckets by importance
+$columns = $datadict->MetaColumns('category');
+$indexes = $datadict->MetaIndexes('category',false);
+
+if(!isset($columns['POS'])) {
+	$sql = $datadict->AddColumnSQL('category','pos I1 DEFAULT 0 NOTNULL');
+    $datadict->ExecuteSQLArray($sql);
+}
+
+// Drop some deprecated worker_pref keys
+if(isset($tables['worker_pref'])) {
+	$db->Execute("DELETE FROM worker_pref WHERE setting = 'overview_assign_type' ");
+	$db->Execute("DELETE FROM worker_pref WHERE setting = 'overview_assign_howmany' ");
+	$db->Execute("DELETE FROM worker_pref WHERE setting = 'worker_overview_filter' ");
+}
+
 // ... next
 
 return TRUE;

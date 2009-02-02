@@ -553,7 +553,7 @@ class C4_AbstractViewLoader {
 
 	static function serializeAbstractView($view) {
 		if(!$view instanceof C4_AbstractView)
-		return null;
+			return null;
 
 		$model = new C4_AbstractViewModel();
 			
@@ -573,6 +573,9 @@ class C4_AbstractViewLoader {
 	}
 
 	static function unserializeAbstractView(C4_AbstractViewModel $model) {
+		if(!class_exists($model->class_name, true))
+			return null;
+		
 		if(null == ($inst = new $model->class_name)) /* @var $inst C4_AbstractView */
 			return null;
 
@@ -2729,6 +2732,7 @@ class CerberusVisit extends DevblocksVisit {
 	const KEY_MY_WORKSPACE = 'view_my_workspace';
 	const KEY_MAIL_MODE = 'mail_mode';
 	const KEY_OVERVIEW_FILTER = 'overview_filter';
+	const KEY_WORKFLOW_FILTER = 'workflow_filter';
 
 	public function __construct() {
 		$this->worker = null;
@@ -2745,133 +2749,6 @@ class CerberusVisit extends DevblocksVisit {
 		$this->worker = $worker;
 	}
 };
-
-class C4_Overview {
-	static function getGroupTotals() {
-		$db = DevblocksPlatform::getDatabaseService();
-
-		$active_worker = CerberusApplication::getActiveWorker();
-		$memberships = $active_worker->getMemberships();
-
-		// Does the active worker want to filter anything out?
-		// [TODO] DAO_WorkerPref should really auto serialize/deserialize
-		$hide_bucket_ids = array();
-		if(null != ($hide_bucket_str = DAO_WorkerPref::get($active_worker->id, DAO_WorkerPref::SETTING_OVERVIEW_FILTER, ''))) {
-			@$hide_bucket_ids = unserialize($hide_bucket_str);
-		}
-		
-		if(empty($memberships))
-			return array();
-		
-		// Group Loads
-		$sql = sprintf("SELECT count(*) AS hits, team_id, category_id ".
-		"FROM ticket ".
-		"WHERE is_waiting = 0 AND is_closed = 0 AND is_deleted = 0 ".
-		"AND next_worker_id = 0 ".
-		"GROUP BY team_id, category_id "
-		);
-		$rs_buckets = $db->Execute($sql);
-
-		$group_counts = array();
-		while(!$rs_buckets->EOF) {
-			$team_id = intval($rs_buckets->fields['team_id']);
-			$category_id = intval($rs_buckets->fields['category_id']);
-			$hits = intval($rs_buckets->fields['hits']);
-				
-			if(isset($memberships[$team_id])) {
-				// If the active worker is filtering out these buckets, don't total.
-				if(!empty($category_id) && isset($hide_bucket_ids[$category_id])) {
-					// do nothing
-				} else {
-					if(!isset($group_counts[$team_id]))
-						$group_counts[$team_id] = array();
-	
-					$group_counts[$team_id][$category_id] = $hits;
-					@$group_counts[$team_id]['total'] = intval($group_counts[$team_id]['total']) + $hits;
-				}
-			}
-				
-			$rs_buckets->MoveNext();
-		}
-
-		return $group_counts;
-	}
-
-	static function getWaitingTotals() {
-		$db = DevblocksPlatform::getDatabaseService();
-
-		$active_worker = CerberusApplication::getActiveWorker();
-		$memberships = $active_worker->getMemberships();
-
-		if(empty($memberships))
-			return array();
-		
-		// Waiting For Reply Loads
-		$sql = sprintf("SELECT count(*) AS hits, team_id, category_id ".
-		"FROM ticket ".
-		"WHERE is_waiting = 1 AND is_closed = 0 AND is_deleted = 0 ".
-//		"AND next_worker_id = 0 ".
-		"GROUP BY team_id, category_id "
-		);
-		$rs_buckets = $db->Execute($sql);
-
-		$waiting_counts = array();
-		while(!$rs_buckets->EOF) {
-			$team_id = intval($rs_buckets->fields['team_id']);
-			$category_id = intval($rs_buckets->fields['category_id']);
-			$hits = intval($rs_buckets->fields['hits']);
-				
-			if(isset($memberships[$team_id])) {
-				if(!isset($waiting_counts[$team_id]))
-				$waiting_counts[$team_id] = array();
-
-				$waiting_counts[$team_id][$category_id] = $hits;
-				@$waiting_counts[$team_id]['total'] = intval($waiting_counts[$team_id]['total']) + $hits;
-			}
-				
-			$rs_buckets->MoveNext();
-		}
-
-		return $waiting_counts;
-	}
-
-	static function getWorkerTotals() {
-		$db = DevblocksPlatform::getDatabaseService();
-
-		$active_worker = CerberusApplication::getActiveWorker();
-		$memberships = $active_worker->getMemberships();
-		
-		if(empty($memberships))
-			return array();
-		
-		// Worker Loads
-		$sql = sprintf("SELECT count(*) AS hits, t.team_id, t.next_worker_id ".
-			"FROM ticket t ".
-			"WHERE t.is_waiting = 0 AND t.is_closed = 0 AND t.is_deleted = 0 ".
-			"AND t.next_worker_id > 0 ".
-			"AND t.team_id IN (%s) ".
-			"GROUP BY t.team_id, t.next_worker_id ",
-			implode(',', array_keys($memberships))
-		);
-		$rs_workers = $db->Execute($sql);
-
-		$worker_counts = array();
-		while(!$rs_workers->EOF) {
-			$hits = intval($rs_workers->fields['hits']);
-			$team_id = intval($rs_workers->fields['team_id']);
-			$worker_id = intval($rs_workers->fields['next_worker_id']);
-				
-			if(!isset($worker_counts[$worker_id]))
-			$worker_counts[$worker_id] = array();
-				
-			$worker_counts[$worker_id][$team_id] = $hits;
-			@$worker_counts[$worker_id]['total'] = intval($worker_counts[$worker_id]['total']) + $hits;
-			$rs_workers->MoveNext();
-		}
-
-		return $worker_counts;
-	}
-}
 
 class CerberusBayesWord {
 	public $id = -1;
@@ -3181,10 +3058,10 @@ class Model_TeamMember {
 
 class CerberusCategory {
 	public $id;
+	public $pos=0;
 	public $name = '';
 	public $team_id = 0;
-	public $response_hrs = 0;
-	public $tags = array();
+	public $is_assignable = 1;
 }
 
 class CerberusPop3Account {

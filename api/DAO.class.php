@@ -3399,7 +3399,7 @@ class DAO_Ticket extends C4_ORMHelper {
 		$group_sql = "GROUP BY t.id ";
 		
 		$sql = $select_sql . $join_sql . $where_sql . $group_sql . $sort_sql;
-		
+
 		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		$results = array();
@@ -4031,6 +4031,7 @@ class DAO_GroupSettings {
     const SETTING_AUTO_REPLY_ENABLED = 'auto_reply_enabled';
     const SETTING_CLOSE_REPLY = 'close_reply';
     const SETTING_CLOSE_REPLY_ENABLED = 'close_reply_enabled';
+    const SETTING_INBOX_IS_ASSIGNABLE = 'inbox_is_assignable';
     
 	static function set($group_id, $key, $value) {
 		$db = DevblocksPlatform::getDatabaseService();
@@ -4055,13 +4056,13 @@ class DAO_GroupSettings {
 	}
 	
 	static function get($group_id, $key, $default=null) {
-		$value = false;
+		$value = null;
 		
 		if(null !== ($group = self::getSettings($group_id)) && isset($group[$key])) {
 			$value = $group[$key];
 		}
 		
-		if(false == $value && !is_null($default)) {
+		if(null == $value && !is_null($default)) {
 		    return $default;
 		}
 		
@@ -4522,9 +4523,10 @@ class DAO_Bucket extends DevblocksORMHelper {
 	const CACHE_ALL = 'cerberus_cache_buckets_all';
 	
     const ID = 'id';
+    const POS = 'pos';
     const NAME = 'name';
     const TEAM_ID = 'team_id';
-    const RESPONSE_HRS = 'response_hrs';
+    const IS_ASSIGNABLE = 'is_assignable';
     
 	static function getTeams() {
 		$categories = self::getAll();
@@ -4565,14 +4567,25 @@ class DAO_Bucket extends DevblocksORMHelper {
 	    return $buckets;
 	}
 	
+	static function getNextPos($group_id) {
+		if(empty($group_id))
+			return 0;
+		
+		$db = DevblocksPlatform::getDatabaseService();
+		if(null != ($next_pos = $db->GetOne(sprintf("SELECT MAX(pos) FROM category WHERE team_id = %d", $group_id))))
+			return $next_pos;
+			
+		return 0;
+	}
+	
 	static function getList($ids=array()) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = "SELECT tc.id, tc.name, tc.team_id, tc.response_hrs ".
+		$sql = "SELECT tc.id, tc.pos, tc.name, tc.team_id, tc.is_assignable ".
 			"FROM category tc ".
 			"INNER JOIN team t ON (tc.team_id=t.id) ".
 			(!empty($ids) ? sprintf("WHERE tc.id IN (%s) ", implode(',', $ids)) : "").
-			"ORDER BY t.name ASC, tc.name ASC "
+			"ORDER BY t.name ASC, tc.pos ASC "
 		;
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
@@ -4582,9 +4595,10 @@ class DAO_Bucket extends DevblocksORMHelper {
 		while(!$rs->EOF) {
 			$category = new CerberusCategory();
 			$category->id = intval($rs->Fields('id'));
+			$category->pos = intval($rs->Fields('pos'));
 			$category->name = $rs->Fields('name');
 			$category->team_id = intval($rs->Fields('team_id'));
-			$category->response_hrs = intval($rs->Fields('response_hrs'));
+			$category->is_assignable = intval($rs->Fields('is_assignable'));
 			$categories[$category->id] = $category;
 			$rs->MoveNext();
 		}
@@ -4592,19 +4606,39 @@ class DAO_Bucket extends DevblocksORMHelper {
 		return $categories;
 	}
 	
-	static function getByTeam($team_id) {
+	static function getByTeam($team_ids) {
+		if(!is_array($team_ids)) $team_ids = array($team_ids);
 		$team_buckets = array();
 		
 		$buckets = self::getAll();
 		foreach($buckets as $bucket) {
-			if($team_id==$bucket->team_id) {
+			if(false !== array_search($bucket->team_id, $team_ids)) {
 				$team_buckets[$bucket->id] = $bucket;
 			}
 		}
 		return $team_buckets;
 	}
 	
-	static function create($name,$team_id) {
+	static function getAssignableBuckets($group_ids=null) {
+		if(!is_array($group_ids)) $group_ids = array($group_ids);
+		
+		if(empty($group_ids)) {
+			$buckets = self::getAll();
+		} else {
+			$buckets = self::getByTeam($group_ids);
+		}
+		
+		// Remove buckets that aren't assignable
+		if(is_array($buckets))
+		foreach($buckets as $id => $bucket) {
+			if(!$bucket->is_assignable)
+				unset($buckets[$id]);
+		}
+		
+		return $buckets;
+	}
+	
+	static function create($name, $team_id) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		$buckets = self::getAll();
@@ -4619,10 +4653,12 @@ class DAO_Bucket extends DevblocksORMHelper {
 
 		if(!$duplicate) {
 			$id = $db->GenID('generic_seq');
+			$next_pos = self::getNextPos($team_id);
 			
-			$sql = sprintf("INSERT INTO category (id,name,team_id,response_hrs) ".
-				"VALUES (%d,%s,%d,0)",
+			$sql = sprintf("INSERT INTO category (id,pos,name,team_id,is_assignable) ".
+				"VALUES (%d,%d,%s,%d,1)",
 				$id,
+				$next_pos,
 				$db->qstr($name),
 				$team_id
 			);
@@ -4666,47 +4702,6 @@ class DAO_Bucket extends DevblocksORMHelper {
 		$cache = DevblocksPlatform::getCacheService();
 		$cache->remove(self::CACHE_ALL);
 	}
-	
-	/**
-	 * Returns an array of category ticket counts, indexed by category id.
-	 *
-	 * @param array $ids Team IDs to summarize
-	 * @return array
-	 */
-	static function getCategoryCountsByTeam($team_id) {
-		$db = DevblocksPlatform::getDatabaseService();
-
-		$cat_totals = array('total' => 0);
-
-		if(empty($team_id)) return $cat_totals;
-		
-		$sql = sprintf("SELECT count(*) as hits, t.category_id, t.team_id ".
-		    "FROM ticket t ".
-		    "WHERE t.team_id = %d ".
-		    "AND t.is_closed = 0 ".
-		    "GROUP BY t.category_id, t.team_id ",
-		    $team_id
-		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
-		    $cat_id = intval($rs->fields['category_id']);
-		    $team_id = intval($rs->fields['team_id']);
-		    $hits = intval($rs->fields['hits']);
-		    
-		    $cat_totals[$cat_id] = intval($hits);
-		    
-		    // Non-inbox
-		    if($cat_id) {
-		        $cat_totals['total'] += $hits;
-		    }
-		        
-		    $rs->MoveNext();
-		}
-		
-		return $cat_totals;
-	}	
 	
 };
 
@@ -5180,8 +5175,6 @@ class DAO_WorkerWorkspaceList extends DevblocksORMHelper {
 class DAO_WorkerPref extends DevblocksORMHelper {
     const SETTING_MOVE_COUNTS = 'move_counts';
     const SETTING_OVERVIEW = 'worker_overview';
-    const SETTING_OVERVIEW_FILTER = 'worker_overview_filter';
-    const SETTING_OVERVIEW_ASSIGN_HOWMANY = 'overview_assign_howmany';
     
     const CACHE_PREFIX = 'ch_workerpref_';
     
@@ -7088,4 +7081,166 @@ class SearchFields_Task implements IDevblocksSearchFields {
 	}
 };
 
-?>
+class DAO_Overview {
+	static function getGroupTotals() {
+		$db = DevblocksPlatform::getDatabaseService();
+
+		$active_worker = CerberusApplication::getActiveWorker();
+		$memberships = $active_worker->getMemberships();
+
+		// Does the active worker want to filter anything out?
+		// [TODO] DAO_WorkerPref should really auto serialize/deserialize
+		
+		if(empty($memberships))
+			return array();
+		
+		// Group Loads
+		$sql = sprintf("SELECT count(*) AS hits, team_id, category_id ".
+		"FROM ticket ".
+		"WHERE is_waiting = 0 AND is_closed = 0 AND is_deleted = 0 ".
+		"GROUP BY team_id, category_id "
+		);
+		$rs_buckets = $db->Execute($sql);
+
+		$group_counts = array();
+		while(!$rs_buckets->EOF) {
+			$team_id = intval($rs_buckets->fields['team_id']);
+			$category_id = intval($rs_buckets->fields['category_id']);
+			$hits = intval($rs_buckets->fields['hits']);
+				
+			if(isset($memberships[$team_id])) {
+				// If the active worker is filtering out these buckets, don't total.
+				if(!isset($group_counts[$team_id]))
+					$group_counts[$team_id] = array();
+
+				$group_counts[$team_id][$category_id] = $hits;
+				@$group_counts[$team_id]['total'] = intval($group_counts[$team_id]['total']) + $hits;
+			}
+				
+			$rs_buckets->MoveNext();
+		}
+
+		return $group_counts;
+	}
+
+	static function getWaitingTotals() {
+		$db = DevblocksPlatform::getDatabaseService();
+
+		$active_worker = CerberusApplication::getActiveWorker();
+		$memberships = $active_worker->getMemberships();
+
+		if(empty($memberships))
+			return array();
+		
+		// Waiting For Reply Loads
+		$sql = sprintf("SELECT count(*) AS hits, team_id, category_id ".
+		"FROM ticket ".
+		"WHERE is_waiting = 1 AND is_closed = 0 AND is_deleted = 0 ".
+		"GROUP BY team_id, category_id "
+		);
+		$rs_buckets = $db->Execute($sql);
+
+		$waiting_counts = array();
+		while(!$rs_buckets->EOF) {
+			$team_id = intval($rs_buckets->fields['team_id']);
+			$category_id = intval($rs_buckets->fields['category_id']);
+			$hits = intval($rs_buckets->fields['hits']);
+				
+			if(isset($memberships[$team_id])) {
+				if(!isset($waiting_counts[$team_id]))
+				$waiting_counts[$team_id] = array();
+
+				$waiting_counts[$team_id][$category_id] = $hits;
+				@$waiting_counts[$team_id]['total'] = intval($waiting_counts[$team_id]['total']) + $hits;
+			}
+				
+			$rs_buckets->MoveNext();
+		}
+
+		return $waiting_counts;
+	}
+
+	static function getWorkerTotals() {
+		$db = DevblocksPlatform::getDatabaseService();
+
+		$active_worker = CerberusApplication::getActiveWorker();
+		$memberships = $active_worker->getMemberships();
+		
+		if(empty($memberships))
+			return array();
+		
+		// Worker Loads
+		$sql = sprintf("SELECT count(*) AS hits, t.team_id, t.next_worker_id ".
+			"FROM ticket t ".
+			"WHERE t.is_waiting = 0 AND t.is_closed = 0 AND t.is_deleted = 0 ".
+			"AND t.next_worker_id > 0 ".
+			"AND t.team_id IN (%s) ".
+			"GROUP BY t.team_id, t.next_worker_id ",
+			implode(',', array_keys($memberships))
+		);
+		$rs_workers = $db->Execute($sql);
+
+		$worker_counts = array();
+		while(!$rs_workers->EOF) {
+			$hits = intval($rs_workers->fields['hits']);
+			$team_id = intval($rs_workers->fields['team_id']);
+			$worker_id = intval($rs_workers->fields['next_worker_id']);
+				
+			if(!isset($worker_counts[$worker_id]))
+			$worker_counts[$worker_id] = array();
+				
+			$worker_counts[$worker_id][$team_id] = $hits;
+			@$worker_counts[$worker_id]['total'] = intval($worker_counts[$worker_id]['total']) + $hits;
+			$rs_workers->MoveNext();
+		}
+
+		return $worker_counts;
+	}
+}
+
+class DAO_WorkflowView {
+	static function getGroupTotals() {
+		$db = DevblocksPlatform::getDatabaseService();
+
+		$active_worker = CerberusApplication::getActiveWorker();
+		$memberships = $active_worker->getMemberships();
+
+		if(empty($memberships))
+			return array();
+		
+		// Group Loads
+		$sql = sprintf("SELECT count(t.id) AS hits, t.team_id, t.category_id ".
+			"FROM ticket t ".
+			"LEFT JOIN category c ON (t.category_id=c.id) ".
+			"WHERE t.is_waiting = 0 AND t.is_closed = 0 AND t.is_deleted = 0 ".
+			"AND t.next_worker_id = 0 ".
+			"AND (c.id IS NULL OR c.is_assignable = 1) ".
+			"GROUP BY t.team_id, c.pos "
+		);
+		$rs_buckets = $db->Execute($sql);
+
+		$group_counts = array();
+		while(!$rs_buckets->EOF) {
+			$team_id = intval($rs_buckets->fields['team_id']);
+			$category_id = intval($rs_buckets->fields['category_id']);
+			$hits = intval($rs_buckets->fields['hits']);
+				
+			if(isset($memberships[$team_id])) {
+				// If the group manager doesn't want this group inbox assignable (default to YES)
+				if(empty($category_id) && !DAO_GroupSettings::get($team_id, DAO_GroupSettings::SETTING_INBOX_IS_ASSIGNABLE, 1)) {
+					// ...skip the unassignable inbox	
+				} else {
+					if(!isset($group_counts[$team_id]))
+						$group_counts[$team_id] = array();
+						
+					$group_counts[$team_id][$category_id] = $hits;
+					@$group_counts[$team_id]['total'] = intval($group_counts[$team_id]['total']) + $hits;
+				}
+			}
+				
+			$rs_buckets->MoveNext();
+		}
+
+		return $group_counts;
+	}
+};

@@ -3,7 +3,7 @@
 <table cellspacing="0" cellpadding="0" border="0" width="100%" style="padding-bottom:5px;">
 <tr>
 	<td width="1%" nowrap="nowrap" valign="top" style="padding-right:5px;">
-		<h1>{$translate->_('mail.overview')}</h1>
+		<h1>{$translate->_('mail.workflow')}</h1>
 	</td>
 	<td width="98%" valign="middle">
 	</td>
@@ -18,7 +18,7 @@
     <tr>
       <td width="0%" nowrap="nowrap" valign="top">
       	<div id="sidebarTotals">
-      		{include file="file:$core_tpl/tickets/overview/sidebar.tpl.php"}
+      		{include file="file:$core_tpl/tickets/workflow/sidebar.tpl.php"}
 		</div>			
       </td>
       <td nowrap="nowrap" width="0%"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/spacer.gif{/devblocks_url}" width="5" height="1"></td>
@@ -46,19 +46,19 @@ CreateKeyHandler(function doShortcuts(e) {
 		case "a":  // list all
 		case "A":
 			try {
-				document.getElementById('btnOverviewListAll').click();
+				document.getElementById('btnWorkflowListAll').click();
 			} catch(e){}
 			break;
 		case "b":  // bulk update
 		case "B":
 			try {
-				document.getElementById('btnoverview_allBulkUpdate').click();
+				document.getElementById('btnmail_workflowBulkUpdate').click();
 			} catch(e){}
 			break;
 		case "c":  // close
 		case "C":
 			try {
-				document.getElementById('btnoverview_allClose').click();
+				document.getElementById('btnmail_workflowClose').click();
 			} catch(e){}
 			break;
 		case "m":  // my tickets
@@ -70,25 +70,25 @@ CreateKeyHandler(function doShortcuts(e) {
 		case "s":  // spam
 		case "S":
 			try {
-				document.getElementById('btnoverview_allSpam').click();
+				document.getElementById('btnmail_workflowSpam').click();
 			} catch(e){}
 			break;
 		case "t":  // take
 		case "T":
 			try {
-				document.getElementById('btnoverview_allTake').click();
+				document.getElementById('btnmail_workflowTake').click();
 			} catch(e){}
 			break;
 		case "u":  // surrender
 		case "U":
 			try {
-				document.getElementById('btnoverview_allSurrender').click();
+				document.getElementById('btnmail_workflowSurrender').click();
 			} catch(e){}
 			break;
 		case "x":  // delete
 		case "X":
 			try {
-				document.getElementById('btnoverview_allDelete').click();
+				document.getElementById('btnmail_workflowDelete').click();
 			} catch(e){}
 			break;
 	}
