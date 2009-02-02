@@ -2647,26 +2647,6 @@ class DAO_Ticket extends C4_ORMHelper {
 		$db->Execute($sql);
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' ticket_comment records.');
 		
-		$sql = sprintf("DELETE QUICK custom_field_stringvalue FROM custom_field_stringvalue LEFT JOIN ticket ON (custom_field_stringvalue.source_id=ticket.id AND custom_field_stringvalue.source_extension='%s') WHERE ticket.id IS NULL",
-			ChCustomFieldSource_Ticket::ID
-		);
-		$db->Execute($sql);
-		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' custom_field_stringvalue records.');
-		
-		// [TODO] This custom field stuff is a bit messy.  The DAO_CustomFieldValue could 
-		// probably have a maint() which checks using source extension introspection (ticket/opp/etc)
-		$sql = sprintf("DELETE QUICK custom_field_numbervalue FROM custom_field_numbervalue LEFT JOIN ticket ON (custom_field_numbervalue.source_id=ticket.id AND custom_field_numbervalue.source_extension='%s') WHERE ticket.id IS NULL",
-			ChCustomFieldSource_Ticket::ID
-		);
-		$db->Execute($sql);
-		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' custom_field_numbervalue records.');
-		
-		$sql = sprintf("DELETE QUICK custom_field_clobvalue FROM custom_field_clobvalue LEFT JOIN ticket ON (custom_field_clobvalue.source_id=ticket.id AND custom_field_clobvalue.source_extension='%s') WHERE ticket.id IS NULL",
-			ChCustomFieldSource_Ticket::ID
-		);
-		$db->Execute($sql);
-		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' custom_field_clobvalue records.');
-		
 		$sql = "DELETE QUICK requester FROM requester LEFT JOIN ticket ON requester.ticket_id = ticket.id WHERE ticket.id IS NULL";
 		$db->Execute($sql);
 
