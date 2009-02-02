@@ -17,7 +17,7 @@
 		<td>
 		<div id="criteriaDiv" style="display:block;">
 			<table cellpadding="2" cellspacing="0" border="0">
-				{include file="file:$core_tpl/internal/views/criteria_list_params.tpl.php"}
+				{include file="file:$core_tpl/internal/views/criteria_list_params.tpl.php" params=$view->params}
 			</table>
 		</div>
 		</td>
