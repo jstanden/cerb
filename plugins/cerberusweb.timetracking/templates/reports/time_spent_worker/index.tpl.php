@@ -27,7 +27,10 @@ function drawChart(start, end) {{/literal}
 			myXHRDataSource.responseSchema = {
 				recordDelim: "\n",
 				fieldDelim: "\t",
-				fields: [ "worker", "minutes" ]
+				fields: [
+					"worker",
+					{key:"minutes", parser:"number"}
+				]
 			};
 	
 			var myChart = new YAHOO.widget.BarChart( "myContainer", myXHRDataSource,

@@ -996,14 +996,6 @@ class ChTicketsPage extends CerberusPageExtension {
 					$tpl->assign('filter_group_id', $filter_group_id);
 					$title = vsprintf($translate->_('mail.overview.waiting.title'), $groups[$filter_group_id]->name);
 					$overView->params[SearchFields_Ticket::TEAM_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'=',$filter_group_id);
-					
-					@$filter_bucket_id = array_shift($response_path);
-					if(!is_null($filter_bucket_id)) {
-						$tpl->assign('filter_bucket_id', $filter_bucket_id);
-						@$title .= ': '.
-							(($filter_bucket_id == 0) ? $translate->_('common.inbox') : $group_buckets[$filter_group_id][$filter_bucket_id]->name);
-						$overView->params[SearchFields_Ticket::TICKET_CATEGORY_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CATEGORY_ID,'=',$filter_bucket_id);
-					}
 				}
 
 				break;
@@ -1018,7 +1010,6 @@ class ChTicketsPage extends CerberusPageExtension {
 				);
 
 				if(!is_null($filter_worker_id)) {
-					$tpl->assign('filter_bucket_id', $filter_bucket_id);
 					$title = vsprintf($translate->_('mail.overview.assigned.title'), $workers[$filter_worker_id]->getName());
 					$overView->params[SearchFields_Ticket::TICKET_NEXT_WORKER_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_NEXT_WORKER_ID,'=',$filter_worker_id);
 					

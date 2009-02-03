@@ -64,7 +64,7 @@
 			{if $column=="we_id"}
 			<td valign="top">{$result.we_id}&nbsp;</td>
 			{elseif $column=="we_created_date"}
-			<td valign="top" title="{$result.we_created_date|devblocks_date}">{$result.we_created_date|devblocks_date:'EEE, MMM d Y'}&nbsp;</td>
+			<td valign="top"><abbr title="{$result.we_created_date|devblocks_date}">{$result.we_created_date|devblocks_prettytime}</abbr>&nbsp;</td>
 			{elseif $column=="we_from_worker_id" || $column=="we_to_worker_id"}
 				{assign var=worker_id value=$result.$column}
 				<td>
