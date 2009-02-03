@@ -155,7 +155,7 @@ var cAjaxCalls = function() {
 			}
 			
 			document.location = '#top';
-			genericAjaxGet('sidebarTotals','c=tickets&a=refreshSidebar');
+			genericAjaxGet('viewSidebar'+view_id,'c=tickets&a=refreshSidebar');
 			
 			hideLoadingPanel();
 		});
@@ -221,7 +221,7 @@ var cAjaxCalls = function() {
 			}
 			
 			document.location = '#top';
-			//genericAjaxGet('sidebarTotals','c=tickets&a=refreshSidebar');
+			//genericAjaxGet('viewSidebar'+view_id,'c=tickets&a=refreshSidebar');
 		});
 	}
 
@@ -279,7 +279,7 @@ var cAjaxCalls = function() {
 
 		genericAjaxPost(formName, '', 'c=tickets&a=viewMoveTickets&view_id='+view_id, function(o) {
 			viewDiv.innerHTML = o.responseText;
-			genericAjaxGet('sidebarTotals','c=tickets&a=refreshSidebar');
+			genericAjaxGet('viewSidebar'+view_id,'c=tickets&a=refreshSidebar');
 		});
 	}
 
@@ -296,42 +296,42 @@ var cAjaxCalls = function() {
 			case 'merge':
 				genericAjaxPost(formName, '', 'c=tickets&a=viewMergeTickets&view_id='+view_id, function(o) {
 					viewDiv.innerHTML = o.responseText;
-					genericAjaxGet('sidebarTotals','c=tickets&a=refreshSidebar');
+					genericAjaxGet('viewSidebar'+view_id,'c=tickets&a=refreshSidebar');
 					hideLoadingPanel();
 				});
 				break;
 			case 'not_spam':
 				genericAjaxPost(formName, '', 'c=tickets&a=viewNotSpamTickets&view_id='+view_id, function(o) {
 					viewDiv.innerHTML = o.responseText;
-					genericAjaxGet('sidebarTotals','c=tickets&a=refreshSidebar');
+					genericAjaxGet('viewSidebar'+view_id,'c=tickets&a=refreshSidebar');
 					hideLoadingPanel();
 				});
 				break;
 			case 'take':
 				genericAjaxPost(formName, '', 'c=tickets&a=viewTakeTickets&view_id='+view_id, function(o) {
 					viewDiv.innerHTML = o.responseText;
-					genericAjaxGet('sidebarTotals','c=tickets&a=refreshSidebar');
+					genericAjaxGet('viewSidebar'+view_id,'c=tickets&a=refreshSidebar');
 					hideLoadingPanel();
 				});
 				break;
 			case 'surrender':
 				genericAjaxPost(formName, '', 'c=tickets&a=viewSurrenderTickets&view_id='+view_id, function(o) {
 					viewDiv.innerHTML = o.responseText;
-					genericAjaxGet('sidebarTotals','c=tickets&a=refreshSidebar');
+					genericAjaxGet('viewSidebar'+view_id,'c=tickets&a=refreshSidebar');
 					hideLoadingPanel();
 				});
 				break;
 			case 'waiting':
 				genericAjaxPost(formName, '', 'c=tickets&a=viewWaitingTickets&view_id='+view_id, function(o) {
 					viewDiv.innerHTML = o.responseText;
-					genericAjaxGet('sidebarTotals','c=tickets&a=refreshSidebar');
+					genericAjaxGet('viewSidebar'+view_id,'c=tickets&a=refreshSidebar');
 					hideLoadingPanel();
 				});
 				break;
 			case 'not_waiting':
 				genericAjaxPost(formName, '', 'c=tickets&a=viewNotWaitingTickets&view_id='+view_id, function(o) {
 					viewDiv.innerHTML = o.responseText;
-					genericAjaxGet('sidebarTotals','c=tickets&a=refreshSidebar');
+					genericAjaxGet('viewSidebar'+view_id,'c=tickets&a=refreshSidebar');
 					hideLoadingPanel();
 				});
 				break;
@@ -354,21 +354,21 @@ var cAjaxCalls = function() {
 			case 1: // spam
 				genericAjaxPost(formName, '', 'c=tickets&a=viewSpamTickets&view_id=' + view_id, function(o) {
 					viewDiv.innerHTML = o.responseText;
-					genericAjaxGet('sidebarTotals','c=tickets&a=refreshSidebar');
+					genericAjaxGet('viewSidebar'+view_id,'c=tickets&a=refreshSidebar');
 					hideLoadingPanel();
 				});
 				break;
 			case 2: // delete
 				genericAjaxPost(formName, '', 'c=tickets&a=viewDeleteTickets&view_id=' + view_id, function(o) {
 					viewDiv.innerHTML = o.responseText;
-					genericAjaxGet('sidebarTotals','c=tickets&a=refreshSidebar');
+					genericAjaxGet('viewSidebar'+view_id,'c=tickets&a=refreshSidebar');
 					hideLoadingPanel();
 				});
 				break;
 			default: // close
 				genericAjaxPost(formName, '', 'c=tickets&a=viewCloseTickets&view_id=' + view_id, function(o) {
 					viewDiv.innerHTML = o.responseText;
-					genericAjaxGet('sidebarTotals','c=tickets&a=refreshSidebar');
+					genericAjaxGet('viewSidebar'+view_id,'c=tickets&a=refreshSidebar');
 					hideLoadingPanel();
 				});
 				break;
@@ -390,7 +390,7 @@ var cAjaxCalls = function() {
 					if(null == div) return;
 
 					div.innerHTML = o.responseText;
-					genericAjaxGet('sidebarTotals','c=tickets&a=refreshSidebar');					
+					genericAjaxGet('viewSidebar'+view_id,'c=tickets&a=refreshSidebar');					
 
 					var anim = new YAHOO.util.Anim(div, { opacity: { to: 1.0 } }, 1, YAHOO.util.Easing.easeOut);
 					anim.animate();
@@ -417,7 +417,7 @@ var cAjaxCalls = function() {
 		genericAjaxGet('','c=tickets&a=viewUndo&view_id=' + view_id,
 			function(o) {
 				viewDiv.innerHTML = o.responseText;
-				genericAjaxGet('sidebarTotals','c=tickets&a=refreshSidebar');
+				genericAjaxGet('viewSidebar'+view_id,'c=tickets&a=refreshSidebar');
 			}
 		);		
 	}

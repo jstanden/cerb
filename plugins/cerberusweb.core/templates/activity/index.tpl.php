@@ -3,8 +3,6 @@
 	</div>
 </div>
 
-<h1>{$translate->_('core.menu.activity')|capitalize}</h1>
-
 <div id="activityOptions"></div> 
 <br>
 

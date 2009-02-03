@@ -8,7 +8,7 @@
 {/if}
 
 <div class="block">
-<h2>Incoming Message</h2>
+<h2>{$translate->_('mail.log_message')|capitalize}</h2>
 <form name="compose" enctype="multipart/form-data" method="post" action="{devblocks_url}{/devblocks_url}">
 <input type="hidden" name="c" value="tickets">
 <input type="hidden" name="a" value="logTicket">

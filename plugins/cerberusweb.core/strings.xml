@@ -551,7 +551,7 @@
 			<tuv xml:lang="en_US"><seg>Remove ticket list from dashboard</seg></tuv>
 		</tu>
 		<tu tuid='dashboard.reorder'>
-			<tuv xml:lang="en_US"><seg>arrange workspace</seg></tuv>
+			<tuv xml:lang="en_US"><seg>rearrange lists</seg></tuv>
 		</tu>
 		<tu tuid='dashboard.switch'>
 			<tuv xml:lang="en_US"><seg>Switch</seg></tuv>
@@ -776,7 +776,6 @@
 
 		<!-- Mail -->
 		
-
 		<tu tuid='mail.bulk_update'>
 			<tuv xml:lang="en_US"><seg>Bulk Update</seg></tuv>
 		</tu>
@@ -787,13 +786,13 @@
 			<tuv xml:lang="en_US"><seg>Inbox Filter</seg></tuv>
 		</tu>
 		<tu tuid='mail.log_message'>
-			<tuv xml:lang="en_US"><seg>Log Message</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Open Ticket</seg></tuv>
 		</tu>
 		<tu tuid='mail.merge'>
 			<tuv xml:lang="en_US"><seg>Merge</seg></tuv>
 		</tu>
 		<tu tuid='mail.nav.search_mail'>
-			<tuv xml:lang="en_US"><seg>Search Mail:</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Search:</seg></tuv>
 		</tu>
 		<tu tuid='mail.not_waiting'>
 			<tuv xml:lang="en_US"><seg>Not Waiting</seg></tuv>
