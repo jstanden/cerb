@@ -636,6 +636,8 @@ class ChTicketsPage extends CerberusPageExtension {
 				break;
 				
 			default:
+				$active_worker = CerberusApplication::getActiveWorker();
+				
 				// Clear all undo actions on reload
 			    C4_TicketView::clearLastActions();
 			    				
@@ -1108,9 +1110,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$current_workspace = DevblocksPlatform::importGPC($_REQUEST['workspace'],'string','');
-//		$current_workspace = $visit->get(CerberusVisit::KEY_MY_WORKSPACE,'');
 		$workspaces = DAO_WorkerWorkspaceList::getWorkspaces($active_worker->id);
-//		$tpl->assign('workspaces', $workspaces);
 
 		// Fix a bad/old cache
 		if(!empty($current_workspace) && false === array_search($current_workspace,$workspaces))
