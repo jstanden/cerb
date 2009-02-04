@@ -807,7 +807,6 @@ class DAO_CrmOpportunity extends C4_ORMHelper {
      */
     static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
-
 		$fields = SearchFields_CrmOpportunity::getFields();
 		
 		// Sanitize
@@ -1007,6 +1006,8 @@ class C4_CrmOpportunityView extends C4_AbstractView {
 	}
 
 	function render() {
+		$this->_sanitize();
+		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);

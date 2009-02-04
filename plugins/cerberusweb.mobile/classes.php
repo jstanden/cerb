@@ -221,8 +221,6 @@ class MobileController extends DevblocksControllerExtension {
 class C4_MobileTicketView extends C4_TicketView {
 	
 	function render() {
-		//$this->_sanitize();
-		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('id', $this->id);
 		$view_path = DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.mobile/templates/tickets/';

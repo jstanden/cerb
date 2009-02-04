@@ -74,7 +74,7 @@
 	      	<table width="100%" cellpadding="0" cellspacing="0" border="0">
 	      		<tr>
 	      			<td align="left" id="{$message->id}act">
-				      	<button {if $latest_message_id==$message->id}id="btnReplyFirst"{/if} type="button" onclick="displayAjax.reply('{$message->id}',0);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/export2.png{/devblocks_url}" align="top"> {$translate->_('display.ui.reply')|capitalize}</button>
+				      	{if !empty($requesters)}<button {if $latest_message_id==$message->id}id="btnReplyFirst"{/if} type="button" onclick="displayAjax.reply('{$message->id}',0);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/export2.png{/devblocks_url}" align="top"> {$translate->_('display.ui.reply')|capitalize}</button>{/if}
 				      	<button type="button" onclick="displayAjax.reply('{$message->id}',1);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_out.png{/devblocks_url}" align="top"> {$translate->_('display.ui.forward')|capitalize}</button>
 				      	{*<button type="button" onclick="displayAjax.addComment('{$message->id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_plain.png{/devblocks_url}" align="top"> {$translate->_('common.comment')|capitalize}</button>*}
 				      	<button type="button" onclick="displayAjax.addNote('{$message->id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_plain_yellow.png{/devblocks_url}" align="top"> {$translate->_('display.ui.sticky_note')|capitalize}</button>

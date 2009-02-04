@@ -278,6 +278,7 @@ class DAO_Worker extends DevblocksORMHelper {
 	const PASSWORD = 'pass';
 	const IS_SUPERUSER = 'is_superuser';
 	const IS_DISABLED = 'is_disabled';
+	const CAN_EXPORT = 'can_export';
 	const CAN_DELETE = 'can_delete';
 	const LAST_ACTIVITY_DATE = 'last_activity_date';
 	const LAST_ACTIVITY = 'last_activity';
@@ -290,8 +291,8 @@ class DAO_Worker extends DevblocksORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$id = $db->GenID('generic_seq');
 		
-		$sql = sprintf("INSERT INTO worker (id, email, pass, first_name, last_name, title, is_superuser, is_disabled, can_delete) ".
-			"VALUES (%d, %s, %s, %s, %s, %s,0,0,0)",
+		$sql = sprintf("INSERT INTO worker (id, email, pass, first_name, last_name, title, is_superuser, is_disabled, can_export, can_delete) ".
+			"VALUES (%d, %s, %s, %s, %s, %s,0,0,0,0)",
 			$id,
 			$db->qstr($email),
 			$db->qstr(md5($password)),
@@ -346,7 +347,7 @@ class DAO_Worker extends DevblocksORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$workers = array();
 		
-		$sql = "SELECT a.id, a.first_name, a.last_name, a.email, a.pass, a.title, a.is_superuser, a.is_disabled, a.can_delete, a.last_activity_date, a.last_activity ".
+		$sql = "SELECT a.id, a.first_name, a.last_name, a.email, a.pass, a.title, a.is_superuser, a.is_disabled, a.can_export, a.can_delete, a.last_activity_date, a.last_activity ".
 			"FROM worker a ".
 			((!empty($ids) ? sprintf("WHERE a.id IN (%s) ",implode(',',$ids)) : " ").
 			"ORDER BY a.last_name, a.first_name "
@@ -364,6 +365,7 @@ class DAO_Worker extends DevblocksORMHelper {
 			$worker->title = $rs->fields['title'];
 			$worker->is_superuser = intval($rs->fields['is_superuser']);
 			$worker->is_disabled = intval($rs->fields['is_disabled']);
+			$worker->can_export = intval($rs->fields['can_export']);
 			$worker->can_delete = intval($rs->fields['can_delete']);
 			$worker->last_activity_date = intval($rs->fields['last_activity_date']);
 			
@@ -618,8 +620,13 @@ class DAO_Worker extends DevblocksORMHelper {
      */
     static function search($params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
+		$fields = SearchFields_Worker::getFields();
+		
+		// Sanitize
+		if(!isset($fields[$sortBy]))
+			unset($sortBy);
 
-        list($tables,$wheres) = parent::_parseSearchParams($params, array(),SearchFields_Worker::getFields());
+        list($tables,$wheres) = parent::_parseSearchParams($params, array(),$fields);
 		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
 		$total = -1;
 		
@@ -803,8 +810,13 @@ class DAO_WorkerEvent extends DevblocksORMHelper {
      */
     static function search($params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
+		$fields = SearchFields_WorkerEvent::getFields();
+		
+		// Sanitize
+		if(!isset($fields[$sortBy]))
+			unset($sortBy);
 
-        list($tables,$wheres) = parent::_parseSearchParams($params, array(),SearchFields_WorkerEvent::getFields());
+        list($tables,$wheres) = parent::_parseSearchParams($params, array(),$fields);
 		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
 		$total = -1;
 		
@@ -1087,8 +1099,13 @@ class DAO_ContactOrg extends C4_ORMHelper {
      */
     static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
-
-        list($tables,$wheres) = parent::_parseSearchParams($params, $columns, SearchFields_ContactOrg::getFields());
+		$fields = SearchFields_ContactOrg::getFields();
+		
+		// Sanitize
+		if(!isset($fields[$sortBy]))
+			unset($sortBy);
+		
+        list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields);
 		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
 		$total = -1;
 		
@@ -1131,12 +1148,12 @@ class DAO_ContactOrg extends C4_ORMHelper {
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "");
 			
-		$sort_sql = (!empty($sortBy) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ");
+		$sort_sql = (!empty($sortBy)) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ";
 			
 		$group_sql = "GROUP BY c.id ";
-			
+		
 		$sql = $select_sql . $join_sql . $where_sql . $group_sql . $sort_sql;
-			
+
 		// [TODO] Could push the select logic down a level too
 		if($limit > 0) {
     		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
@@ -1473,8 +1490,13 @@ class DAO_Address extends C4_ORMHelper {
      */
     static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
-
-        list($tables,$wheres) = parent::_parseSearchParams($params, $columns, SearchFields_Address::getFields());
+		$fields = SearchFields_Address::getFields();
+		
+		// Sanitize
+		if(!isset($fields[$sortBy]))
+			unset($sortBy);
+		
+        list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields);
 		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
 		
 		$select_sql = sprintf("SELECT ".
@@ -1894,8 +1916,13 @@ class DAO_Message extends DevblocksORMHelper {
      */
     static function search($params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
+		$fields = SearchFields_Message::getFields();
+		
+		// Sanitize
+		if(!isset($fields[$sortBy]))
+			unset($sortBy);
 
-        list($tables,$wheres,$selects) = parent::_parseSearchParams($params, array(),SearchFields_Message::getFields());
+        list($tables,$wheres,$selects) = parent::_parseSearchParams($params, array(),$fields);
 		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
 		
 		$sql = sprintf("SELECT ".
@@ -2372,8 +2399,13 @@ class DAO_Attachment extends DevblocksORMHelper {
      */
     static function search($params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
+		$fields = SearchFields_Attachment::getFields();
+		
+		// Sanitize
+		if(!isset($fields[$sortBy]))
+			unset($sortBy);
 
-        list($tables,$wheres) = parent::_parseSearchParams($params, array(),SearchFields_Attachment::getFields());
+        list($tables,$wheres) = parent::_parseSearchParams($params, array(),$fields);
 		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
 		$total = -1;
 		
@@ -3291,9 +3323,15 @@ class DAO_Ticket extends C4_ORMHelper {
     
     static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
+		$fields = SearchFields_Ticket::getFields();
+		
 		$total = -1;
 
-        list($tables,$wheres) = parent::_parseSearchParams($params, $columns, SearchFields_Ticket::getFields());
+		// Sanitize
+		if(!isset($fields[$sortBy]))
+			unset($sortBy);
+		
+        list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields);
 		$start = ($page * $limit); // [JAS]: 1-based
 		
 		$select_sql = sprintf("SELECT ".
@@ -4268,8 +4306,13 @@ class DAO_KbArticle extends DevblocksORMHelper {
 	
     static function search($params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
+		$fields = SearchFields_KbArticle::getFields();
+		
+		// Sanitize
+		if(!isset($fields[$sortBy]))
+			unset($sortBy);
 
-        list($tables,$wheres) = parent::_parseSearchParams($params, array(), SearchFields_KbArticle::getFields());
+        list($tables,$wheres) = parent::_parseSearchParams($params, array(), $fields);
 		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
 		
 		$sql = sprintf("SELECT ".
@@ -4991,8 +5034,13 @@ class DAO_Community extends DevblocksORMHelper {
      */
     static function search($params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
+		$fields = SearchFields_Community::getFields();
 
-        list($tables,$wheres) = parent::_parseSearchParams($params, array(), SearchFields_Community::getFields());
+		// Sanitize
+		if(!isset($fields[$sortBy]))
+			unset($sortBy);
+		
+        list($tables,$wheres) = parent::_parseSearchParams($params, array(), $fields);
 		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
 		
 		$sql = sprintf("SELECT ".
@@ -5348,8 +5396,13 @@ class DAO_Note extends DevblocksORMHelper {
      */
     static function search($params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
+		$fields = SearchFields_Note::getFields();
+		
+		// Sanitize
+		if(!isset($fields[$sortBy]))
+			unset($sortBy);
 
-        list($tables,$wheres) = parent::_parseSearchParams($params, array(),SearchFields_Note::getFields());
+        list($tables,$wheres) = parent::_parseSearchParams($params, array(),$fields);
 		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
 		
 		$select_sql = sprintf("SELECT ".
@@ -5726,8 +5779,13 @@ class DAO_TeamRoutingRule extends DevblocksORMHelper {
      */
     static function search($params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
-
-        list($tables,$wheres) = parent::_parseSearchParams($params, array(), SearchFields_TeamRoutingRule::getFields());
+		$fields = SearchFields_TeamRoutingRule::getFields();
+		
+		// Sanitize
+		if(!isset($fields[$sortBy]))
+			unset($sortBy);
+		
+        list($tables,$wheres) = parent::_parseSearchParams($params, array(), $fields);
 		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
 		
 		$sql = sprintf("SELECT ".
@@ -6980,8 +7038,13 @@ class DAO_Task extends C4_ORMHelper {
      */
     static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
-
-        list($tables,$wheres) = parent::_parseSearchParams($params, $columns, SearchFields_Task::getFields());
+		$fields = SearchFields_Task::getFields();
+		
+		// Sanitize
+		if(!isset($fields[$sortBy]))
+			unset($sortBy);
+		
+        list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields);
 		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
 		
 		$select_sql = sprintf("SELECT ".

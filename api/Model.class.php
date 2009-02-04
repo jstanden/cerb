@@ -343,6 +343,58 @@ abstract class C4_AbstractView {
 		return $criteria;
 	}
 	
+	/**
+	 * This method automatically fixes any cached strange options, like 
+	 * deleted custom fields.
+	 *
+	 */
+	protected function _sanitize() {
+		$custom_fields = DAO_CustomField::getAll();
+		$needs_save = false;
+		
+		// Parameter sanity check
+		foreach($this->params as $pidx => $null) {
+			if(substr($pidx,0,3)!="cf_")
+				continue;
+				
+			if(0 != ($cf_id = intval(substr($pidx,3)))) {
+				// Make sure our custom fields still exist
+				if(!isset($custom_fields[$cf_id])) {
+					unset($this->params[$pidx]);
+					$needs_save = true;
+				}
+			}
+		}
+		
+		// View column sanity check
+		foreach($this->view_columns as $cidx => $c) {
+			if(substr($c,0,3)!="cf_")
+				continue;
+			
+			if(0 != ($cf_id = intval(substr($c,3)))) {
+				// Make sure our custom fields still exist
+				if(!isset($custom_fields[$cf_id])) {
+					unset($this->view_columns[$cidx]);
+					$needs_save = true;
+				}
+			}
+		}
+		
+		// Sort by sanity check
+		if(substr($this->renderSortBy,0,3)=="cf_") {
+			if(0 != ($cf_id = intval(substr($this->renderSortBy,3)))) {
+				if(!isset($custom_fields[$cf_id])) {
+					$this->renderSortBy = null;
+					$needs_save = true;
+				}
+			}
+    	}
+    	
+    	if($needs_save) {
+    		C4_AbstractViewLoader::setView($this->id, $this);
+    	}
+	}
+	
 	function renderCriteriaParam($param) {
 		$field = $param->field;
 		$vals = $param->value;
@@ -725,58 +777,6 @@ class C4_TicketView extends C4_AbstractView {
 		$tpl->display('file:' . $view_path . 'ticket_view.tpl.php');
 	}
 
-	/**
-	 * This method automatically fixes any cached strange options, like 
-	 * deleted custom fields.
-	 *
-	 */
-	private function _sanitize() {
-		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Ticket::ID);
-		$needs_save = false;
-		
-		// Parameter sanity check
-		foreach($this->params as $pidx => $null) {
-			if(substr($pidx,0,3)!="cf_")
-				continue;
-				
-			if(0 != ($cf_id = intval(substr($pidx,3)))) {
-				// Make sure our custom fields still exist
-				if(!isset($custom_fields[$cf_id])) {
-					unset($this->params[$pidx]);
-					$needs_save = true;
-				}
-			}
-		}
-		
-		// View column sanity check
-		foreach($this->view_columns as $cidx => $c) {
-			if(substr($c,0,3)!="cf_")
-				continue;
-			
-			if(0 != ($cf_id = intval(substr($c,3)))) {
-				// Make sure our custom fields still exist
-				if(!isset($custom_fields[$cf_id])) {
-					unset($this->view_columns[$cidx]);
-					$needs_save = true;
-				}
-			}
-		}
-		
-		// Sort by sanity check
-		if(substr($this->renderSortBy,0,3)=="cf_") {
-			if(0 != ($cf_id = intval(substr($this->renderSortBy,3)))) {
-				if(!isset($custom_fields[$cf_id])) {
-					$this->renderSortBy = null;
-					$needs_save = true;
-				}
-			}
-    	}
-    	
-    	if($needs_save) {
-    		C4_AbstractViewLoader::setView($this->id, $this);
-    	}
-	}
-	
 	function doResetCriteria() {
 		$active_worker = CerberusApplication::getActiveWorker(); /* @var $active_worker CerberusWorker */
 		$active_worker_memberships = $active_worker->getMemberships();
@@ -980,6 +980,7 @@ class C4_TicketView extends C4_AbstractView {
 		unset($fields[SearchFields_Ticket::TICKET_MESSAGE_CONTENT]);
 		unset($fields[SearchFields_Ticket::REQUESTER_ID]);
 		unset($fields[SearchFields_Ticket::REQUESTER_ADDRESS]);
+		unset($fields[SearchFields_Ticket::TICKET_UNLOCK_DATE]);
 		return $fields;
 	}
 
@@ -1277,6 +1278,8 @@ class C4_AddressView extends C4_AbstractView {
 	}
 
 	function render() {
+		$this->_sanitize();
+		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('id', $this->id);
 		
@@ -1494,6 +1497,8 @@ class C4_AttachmentView extends C4_AbstractView {
 	}
 
 	function render() {
+		$this->_sanitize();
+		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
@@ -1704,6 +1709,8 @@ class C4_ContactOrgView extends C4_AbstractView {
 	}
 
 	function render() {
+		$this->_sanitize();
+		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('core_tpl', realpath(DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/')) . DIRECTORY_SEPARATOR;
 		$tpl->assign('id', $this->id);
@@ -1886,6 +1893,8 @@ class C4_KbArticleView extends C4_AbstractView {
 	}
 
 	function render() {
+		$this->_sanitize();
+		
 		$tpl = DevblocksPlatform::getTemplateService();
 		//		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		$tpl->assign('id', $this->id);
@@ -2054,6 +2063,8 @@ class C4_TaskView extends C4_AbstractView {
 	}
 
 	function render() {
+		$this->_sanitize();
+		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
@@ -2389,6 +2400,8 @@ class C4_WorkerEventView extends C4_AbstractView {
 	}
 
 	function render() {
+		$this->_sanitize();
+		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
@@ -2769,6 +2782,7 @@ class CerberusWorker {
 	public $title;
 	public $is_superuser=0;
 	public $is_disabled=0;
+	public $can_export=0;
 	public $can_delete=0;
 	public $last_activity;
 	public $last_activity_date;

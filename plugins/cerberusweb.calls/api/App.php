@@ -262,8 +262,13 @@ class DAO_CallEntry extends DevblocksORMHelper {
      */
     static function search($params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
+		$fields = SearchFields_CallEntry::getFields();
+		
+		// Sanitize
+		if(!isset($fields[$sortBy]))
+			unset($sortBy);
 
-        list($tables,$wheres) = parent::_parseSearchParams($params, array(),SearchFields_CallEntry::getFields());
+        list($tables,$wheres) = parent::_parseSearchParams($params, array(),$fields);
 		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
 		
 		$select_sql = sprintf("SELECT ".
@@ -400,6 +405,8 @@ class C4_CallEntryView extends C4_AbstractView {
 	}
 
 	function render() {
+		$this->_sanitize();
+		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);

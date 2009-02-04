@@ -84,6 +84,8 @@ class C4_TranslationView extends C4_AbstractView {
 	}
 
 	function render() {
+		$this->_sanitize();
+		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);

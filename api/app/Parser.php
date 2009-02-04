@@ -246,8 +246,8 @@ class CerberusParser {
 		 * 'no_autoreply'
 		 */
 		$logger = DevblocksPlatform::getConsoleLog();
-
 		$settings = CerberusSettings::getInstance();
+		$helpdesk_senders = CerberusApplication::getHelpdeskSenders();
 		
 		$headers =& $message->headers;
 
@@ -317,14 +317,6 @@ class CerberusParser {
 		
 		// Message Id / References / In-Reply-To
 		@$sMessageId = $headers['message-id'];
-		
-		$helpdesk_senders = CerberusApplication::getHelpdeskSenders();
-		
-		// Is this from the helpdesk to itself?  If so, bail out
-		if(isset($helpdesk_senders[$fromAddressInst->email])) {
-			$logger->warn("[Parser] Ignoring incoming ticket sent by ourselves: " . $fromAddressInst->email);
-			return NULL;
-		}
         
         $body_append_text = array();
         $body_append_html = array();
@@ -343,41 +335,6 @@ class CerberusParser {
 					if(strtolower(substr($headers['from'], 0, 11))=='postmaster@' || strtolower(substr($headers['from'], 0, 14))=='mailer-daemon@') {
 						$headers['in-reply-to'] = $inline_headers['message-id'];
 					}
-					
-					//[mdf] commented out this block because the text of such messages seems to already
-					//be included in the message because of code in cron.classes.php
-					//this probably does it better, but for now isn't needed because
-					//it results in redundant inclusion of the attached text from forwards and bounces
-					// [TODO] Make sure the body of forwards/bounces are formatted clearly properly
-//					foreach($struct as $st) {
-//						$section = mailparse_msg_get_part($mail, $st);
-//						$info = mailparse_msg_get_part_data($section);
-//						if(empty($info['content-name'])) {
-//							if($info['content-type'] == 'text/plain') {
-//								$str = '';								
-//								if(sizeof($body_append_text) == 0 ) {
-//									foreach($inline_headers as $in_header_key=>$in_header_val) {
-//										$str.=$in_header_key.': '. $in_header_val . "\r\n";
-//									}
-//								}
-//								$str .= @mailparse_msg_extract_part_file($section, $full_filename, NULL);
-//								$body_append_text[] = $str;
-//							}
-//							elseif($info['content-type'] == 'text/html') {
-//								$str = '';								
-//								if(sizeof($body_append_html) == 0 ) {
-//									foreach($inline_headers as $in_header_key=>$in_header_val) {
-//										$str.=$in_header_key.': '. $in_header_val . "\r\n";
-//									}
-//								}
-//								$str .= "\r\n";
-//								$str .= @mailparse_msg_extract_part_file($section, $full_filename, NULL);
-//								$body_append_html[] = @mailparse_msg_extract_part_file($section, $full_filename, NULL);
-//							}
-//						}						
-//					}
-
-
 				break;
 			}
 		}
@@ -516,9 +473,13 @@ class CerberusParser {
 		}
 
 		// [JAS]: Add requesters to the ticket
-	    // [TODO] Make sure they aren't a worker
 		if(!empty($fromAddressId) && !empty($id)) {
-			DAO_Ticket::createRequester($fromAddressId,$id);
+			// Don't add a requester if the sender is a helpdesk address
+			if(isset($helpdesk_senders[$fromAddressInst->email])) {
+				$logger->info("[Parser] Not adding ourselves as a requester: " . $fromAddressInst->email);
+			} else {
+				DAO_Ticket::createRequester($fromAddressId,$id);
+			}
 		}
 	    
 		// Add the other TO/CC addresses to the ticket
@@ -535,7 +496,6 @@ class CerberusParser {
 					
 					if(is_array($autoreq_exclude) && !empty($autoreq_exclude))
 					foreach($autoreq_exclude as $excl_pattern) {
-						// [TODO] DevblocksPlatform::parseStringAsRegexp();
 						$excl_regexp = DevblocksPlatform::parseStringAsRegExp($excl_pattern);
 						
 						// Check all destinations for this pattern

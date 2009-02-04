@@ -285,8 +285,13 @@ class DAO_TimeTrackingEntry extends C4_ORMHelper {
      */
     static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
+		$fields = SearchFields_TimeTrackingEntry::getFields();
+		
+		// Sanitize
+		if(!isset($fields[$sortBy]))
+			unset($sortBy);
 
-        list($tables,$wheres) = parent::_parseSearchParams($params, $columns, SearchFields_TimeTrackingEntry::getFields());
+        list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields);
 		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
 		
 		$select_sql = sprintf("SELECT ".
@@ -457,6 +462,8 @@ class C4_TimeTrackingEntryView extends C4_AbstractView {
 	}
 
 	function render() {
+		$this->_sanitize();
+		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);

@@ -48,7 +48,7 @@
  * 		and Joe Geck.
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-define("APP_BUILD", 850);
+define("APP_BUILD", 851);
 define("APP_MAIL_PATH", realpath(APP_PATH . '/storage/mail') . DIRECTORY_SEPARATOR);
 
 include_once(APP_PATH . "/api/DAO.class.php");
@@ -579,13 +579,13 @@ class CerberusApplication extends DevblocksApplication {
 			$group_settings = DAO_GroupSettings::getSettings();
 			
 			// Global sender
-			$from = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM);
+			$from = strtolower($settings->get(CerberusSettings::DEFAULT_REPLY_FROM));
 			@$froms[$from] = $from;
 			
 			// Group senders
 			if(is_array($group_settings))
 			foreach($group_settings as $group_id => $gs) {
-				@$from = $gs[DAO_GroupSettings::SETTING_REPLY_FROM];
+				@$from = strtolower($gs[DAO_GroupSettings::SETTING_REPLY_FROM]);
 				if(!empty($from))
 					@$froms[$from] = $from;
 			}

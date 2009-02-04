@@ -81,11 +81,15 @@
 			{* Superuser -- Can't remove self *}
 			{if $active_worker->id == $worker->id}
 				<input type="hidden" name="is_superuser" value="{$worker->is_superuser}">
+				Administrator
 			{else}
-				<label><input type="checkbox" name="is_superuser" value="1" {if $worker->is_superuser}checked{/if}{if (empty($license) || empty($license.key)) && count($workers) >= 3} disabled{/if}> Administrator</label><br>
+				<label><input type="checkbox" name="is_superuser" onclick="toggleDiv('workerPrivCheckboxes',((this.checked)?'none':'block'));" value="1" {if $worker->is_superuser}checked{/if}{if (empty($license) || empty($license.key)) && count($workers) >= 3} disabled{/if}> Administrator</label><br>
 			{/if}
 			
-			<label style="padding-left:10px;"><input type="checkbox" name="can_delete" value="1" {if $worker->can_delete}checked{/if}{if (empty($license) || empty($license.key)) && count($workers) >= 3} disabled{/if}> Can Permanently Delete Tickets</label><br>
+			<div id="workerPrivCheckboxes" style="display:{if $worker->is_superuser}none{else}block{/if};">
+				<label style="padding-left:10px;"><input type="checkbox" name="can_export" value="1" {if $worker->can_export}checked{/if}{if (empty($license) || empty($license.key)) && count($workers) >= 3} disabled{/if}> Can export helpdesk data from lists</label><br>
+				<label style="padding-left:10px;"><input type="checkbox" name="can_delete" value="1" {if $worker->can_delete}checked{/if}{if (empty($license) || empty($license.key)) && count($workers) >= 3} disabled{/if}> Can permanently delete tickets</label><br>
+			</div>
 		</td>
 	</tr>
 	

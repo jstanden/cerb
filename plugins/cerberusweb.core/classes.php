@@ -4051,6 +4051,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		@$delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer',0);
 
 		// Global privs
+		@$can_export = DevblocksPlatform::importGPC($_POST['can_export'],'integer',0);
 		@$can_delete = DevblocksPlatform::importGPC($_POST['can_delete'],'integer');
 		
 		// [TODO] The superuser set bit here needs to be protected by ACL
@@ -4130,6 +4131,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 				DAO_Worker::EMAIL => $email,
 				DAO_Worker::IS_SUPERUSER => $is_superuser,
 				DAO_Worker::IS_DISABLED => $disabled,
+				DAO_Worker::CAN_EXPORT => $can_export,
 				DAO_Worker::CAN_DELETE => $can_delete,
 			);
 			
@@ -7599,7 +7601,11 @@ class ChInternalController extends DevblocksControllerExtension {
 	// Ajax
 	function viewShowExportAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['id']);
-		
+
+		$active_worker = CerberusApplication::getActiveWorker();
+		if(!$active_worker->is_superuser && !$active_worker->can_export)
+			return;
+				
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		$tpl->assign('view_id', $view_id);
@@ -7621,6 +7627,10 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$columns = DevblocksPlatform::importGPC($_REQUEST['columns'],'array',array());
 		@$export_as = DevblocksPlatform::importGPC($_REQUEST['export_as'],'string','csv');
 
+		$active_worker = CerberusApplication::getActiveWorker();
+		if(!$active_worker->is_superuser && !$active_worker->can_export)
+			return;
+		
 		// Scan through the columns and remove any blanks
 		if(is_array($columns))
 		foreach($columns as $idx => $col) {
@@ -8362,6 +8372,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		$ticket = DAO_Ticket::getTicket($id);
 		$tpl->assign('ticket', $ticket);
+		$tpl->assign('requesters', $ticket->getRequesters());
 
 		$messages = $ticket->getMessages();
 		

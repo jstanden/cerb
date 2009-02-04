@@ -381,6 +381,16 @@ $db->Execute("DELETE QUICK custom_field_stringvalue FROM custom_field_stringvalu
 $db->Execute("DELETE QUICK custom_field_numbervalue FROM custom_field_numbervalue LEFT JOIN ticket ON (ticket.id=custom_field_numbervalue.source_id) WHERE custom_field_numbervalue.source_extension = 'cerberusweb.fields.source.ticket' AND ticket.id IS NULL");
 $db->Execute("DELETE QUICK custom_field_clobvalue FROM custom_field_clobvalue LEFT JOIN ticket ON (ticket.id=custom_field_clobvalue.source_id) WHERE custom_field_clobvalue.source_extension = 'cerberusweb.fields.source.ticket' AND ticket.id IS NULL");
 
+// ===========================================================================
+// Add worker.can_export privilege (temporary, before true ACL)
+$columns = $datadict->MetaColumns('worker');
+$indexes = $datadict->MetaIndexes('worker',false);
+
+if(!isset($columns['CAN_EXPORT'])) {
+    $sql = $datadict->AddColumnSQL('worker', 'can_export I1 DEFAULT 0 NOTNULL');
+    $datadict->ExecuteSQLArray($sql);
+}
+
 // ... next
 
 return TRUE;

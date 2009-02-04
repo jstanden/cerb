@@ -52,10 +52,6 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
     	@$ticket_ids = $event->params['ticket_ids'];
     	@$changed_fields = $event->params['changed_fields'];
     	
-    	/*
-    	 * [TODO] Refuse to send notifications to the helpdesk
-    	 */
-    	
     	if(empty($ticket_ids) || empty($changed_fields))
     		return;
     		
@@ -71,7 +67,9 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
     	if(null != $active_worker && $active_worker->id == $next_worker_id) {
     		return;
     	}
-    		
+
+		$helpdesk_senders = CerberusApplication::getHelpdeskSenders();    	
+    	
 		$mail_service = DevblocksPlatform::getMailService();
 		$mailer = $mail_service->getMailer(CerberusMail::getMailerDefaults());
     		
@@ -85,6 +83,10 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 		if(empty($worker_notify_email))
 			return;
 
+		// Don't allow silly workers to use the inbound addresses as their watchers
+		if(isset($helpdesk_senders[$worker_notify_email]))
+			return;
+			
 		// Send notifications to this worker for each ticket
 		$tickets = DAO_Ticket::getTickets($ticket_ids);
 		
@@ -162,8 +164,10 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
     	
 		$ticket = DAO_Ticket::getTicket($ticket_id);
 		
+		$helpdesk_senders = CerberusApplication::getHelpdeskSenders();
+		
 		// [JAS]: Don't send obvious spam to watchers.
-		if($ticket->spam_score > 0.9000) {
+		if($ticket->spam_score >= 0.9000) {
 			return true;
 		}
 
@@ -181,9 +185,6 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 			
 		// The whole flipping Swift section needs wrapped to catch exceptions
 		try {
-			$mail_service = DevblocksPlatform::getMailService();
-			$mailer = $mail_service->getMailer(CerberusMail::getMailerDefaults());
-	
 			$settings = CerberusSettings::getInstance();
 			$reply_to = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM, '');
 			
@@ -217,6 +218,27 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 			// Headers
 			//==========
 	
+			// Build mailing list
+			$send_to = array();
+			foreach($notifications as $n) { /* @var $n Model_WorkerMailForward */
+				if(!isset($n->group_id) || !isset($n->bucket_id))
+					continue;
+				
+				// Don't allow a worker to usurp a helpdesk address
+				if(isset($helpdesk_senders[$n->email])) {
+					continue;
+				}
+					
+				if($n->group_id == $ticket->team_id && ($n->bucket_id==-1 || $n->bucket_id==$ticket->category_id)) {
+					// Event checking
+					if(($is_inbound && ($n->event=='i' || $n->event=='io'))
+						|| (!$is_inbound && ($n->event=='o' || $n->event=='io'))
+						|| ($is_inbound && $n->event=='r' && $ticket->next_worker_id==$n->worker_id)) {
+						$send_to[$n->email] = true;
+					}
+				}
+	    	}
+	    	
 			// Attachments
 			$attachments = $message->getAttachments();
 			$mime_attachments = array();
@@ -232,65 +254,53 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 				$file =& new Swift_File($attachment_path . $attachment->filepath);
 				$mime_attachments[] =& new Swift_Message_Attachment($file, $attachment->display_name, $attachment->mime_type);
 			}
-
-			// Build mailing list
-			$send_to = array();
-			foreach($notifications as $n) { /* @var $n Model_WorkerMailForward */
-				if(!isset($n->group_id) || !isset($n->bucket_id))
-					continue;
-				
-				if($n->group_id == $ticket->team_id && ($n->bucket_id==-1 || $n->bucket_id==$ticket->category_id)) {
-					// Event checking
-					if(($is_inbound && ($n->event=='i' || $n->event=='io'))
-						|| (!$is_inbound && ($n->event=='o' || $n->event=='io'))
-						|| ($is_inbound && $n->event=='r' && $ticket->next_worker_id==$n->worker_id)) {
-						$send_to[$n->email] = true;
-					}
-				}
-	    	}
 	    	
 	    	// Send copies
-			if(is_array($send_to) && !empty($send_to))
-			foreach($send_to as $to => $bool) {
-				// Proxy the message
-				$rcpt_to = new Swift_RecipientList();
-				$a_rcpt_to = array();
-				$mail_from = new Swift_Address($sender->email);
-				$rcpt_to->addTo($to);
-				$a_rcpt_to = new Swift_Address($to);
+			if(is_array($send_to) && !empty($send_to)) {
+				$mail_service = DevblocksPlatform::getMailService();
+				$mailer = $mail_service->getMailer(CerberusMail::getMailerDefaults());
 				
-				$mail = $mail_service->createMessage(); /* @var $mail Swift_Message */
-				$mail->setTo($a_rcpt_to);
-				$mail->setFrom($mail_from);
-				$mail->setReplyTo($reply_to);
-				$mail->setReturnPath($reply_to);
-				$mail->setSubject(sprintf("[%s #%s]: %s",
-					($is_inbound ? 'inbound' : 'outbound'),
-					$ticket->mask,
-					$ticket->subject
-				));
+				foreach($send_to as $to => $bool) {
+					// Proxy the message
+					$rcpt_to = new Swift_RecipientList();
+					$a_rcpt_to = array();
+					$mail_from = new Swift_Address($sender->email);
+					$rcpt_to->addTo($to);
+					$a_rcpt_to = new Swift_Address($to);
+					
+					$mail = $mail_service->createMessage(); /* @var $mail Swift_Message */
+					$mail->setTo($a_rcpt_to);
+					$mail->setFrom($mail_from);
+					$mail->setReplyTo($reply_to);
+					$mail->setReturnPath($reply_to);
+					$mail->setSubject(sprintf("[%s #%s]: %s",
+						($is_inbound ? 'inbound' : 'outbound'),
+						$ticket->mask,
+						$ticket->subject
+					));
+					
+					if(false !== (@$msgid = $headers['message-id'])) {
+						$mail->headers->set('Message-Id',$msgid);
+					}
+					
+					if(false !== (@$in_reply_to = $headers['in-reply-to'])) {
+					    $mail->headers->set('References', $in_reply_to);
+					    $mail->headers->set('In-Reply-To', $in_reply_to);
+					}
+					
+					$mail->headers->set('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
+					$mail->headers->set('Precedence','List');
+					$mail->headers->set('Auto-Submitted','auto-generated');
+					$mail->attach(new Swift_Message_Part($message->getContent(), 'text/plain', 'base64', LANG_CHARSET_CODE));
+	
+					// Send message attachments with watcher
+					if(is_array($mime_attachments))
+					foreach($mime_attachments as $mime_attachment) {
+						$mail->attach($mime_attachment);
+					}
 				
-				if(false !== (@$msgid = $headers['message-id'])) {
-					$mail->headers->set('Message-Id',$msgid);
+					$mailer->send($mail,$rcpt_to,$mail_from);
 				}
-				
-				if(false !== (@$in_reply_to = $headers['in-reply-to'])) {
-				    $mail->headers->set('References', $in_reply_to);
-				    $mail->headers->set('In-Reply-To', $in_reply_to);
-				}
-				
-				$mail->headers->set('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
-				$mail->headers->set('Precedence','List');
-				$mail->headers->set('Auto-Submitted','auto-generated');
-				$mail->attach(new Swift_Message_Part($message->getContent(), 'text/plain', 'base64', LANG_CHARSET_CODE));
-
-				// Send message attachments with watcher
-				if(is_array($mime_attachments))
-				foreach($mime_attachments as $mime_attachment) {
-					$mail->attach($mime_attachment);
-				}
-			
-				$mailer->send($mail,$rcpt_to,$mail_from);
 			}
 		}
 		catch(Exception $e) {

@@ -380,6 +380,8 @@ class CerberusMail {
 	
 	static function sendTicketMessage($properties=array()) {
 	    $settings = CerberusSettings::getInstance();
+	    $helpdesk_senders = CerberusApplication::getHelpdeskSenders();
+	    
 		@$from_addy = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM, $_SERVER['SERVER_ADMIN']);
 		@$from_personal = $settings->get(CerberusSettings::DEFAULT_REPLY_PERSONAL,'');
 	    // [TODO] If we still don't have a $from_addy we need a graceful failure. 
@@ -492,8 +494,12 @@ class CerberusMail {
 				if(null == ($first_address = DAO_Address::get($ticket->first_wrote_address_id)))
 					return;
 	
-				// Make sure we haven't mailed this address an autoreply within 10 minutes
-				if($first_address->last_autoreply > 0 && $first_address->last_autoreply > time()-600) {
+				// Don't send e-mail to ourselves
+				if(isset($helpdesk_senders[$first_address->email]))
+					return;
+					
+				// Make sure we haven't mailed this address an autoreply within 5 minutes
+				if($first_address->last_autoreply > 0 && $first_address->last_autoreply > time()-300) {
 					return;
 				}
 					
