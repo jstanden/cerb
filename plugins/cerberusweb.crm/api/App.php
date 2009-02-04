@@ -280,18 +280,44 @@ class CrmPage extends CerberusPageExtension {
 		
 		@$opp_id = DevblocksPlatform::importGPC($_REQUEST['opp_id'],'integer',0);
 		@$name = DevblocksPlatform::importGPC($_REQUEST['name'],'string','');
+		@$status = DevblocksPlatform::importGPC($_REQUEST['status'],'integer',0);
 		@$amount_dollars = DevblocksPlatform::importGPC($_REQUEST['amount'],'string','0');
 		@$amount_cents = DevblocksPlatform::importGPC($_REQUEST['amount_cents'],'integer',0);
 		@$email_str = DevblocksPlatform::importGPC($_REQUEST['emails'],'string','');
 		@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'integer',0);
 		@$comment = DevblocksPlatform::importGPC($_REQUEST['comment'],'string','');
+		@$created_date_str = DevblocksPlatform::importGPC($_REQUEST['created_date'],'string','');
+		@$closed_date_str = DevblocksPlatform::importGPC($_REQUEST['closed_date'],'string','');
+		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
+		
+		// State
+		$is_closed = (0==$status) ? 0 : 1;
+		$is_won = (1==$status) ? 1 : 0;
 		
 		// Strip commas and decimals and put together the "dollars+cents"
 		$amount = intval(str_replace(array(',','.'),'',$amount_dollars)).'.'.number_format($amount_cents,0,'','');
 		
+		// Dates
+		if(false === ($created_date = strtotime($created_date_str)))
+			$created_date = time();
+			
+		if(false === ($closed_date = strtotime($closed_date_str)))
+			$closed_date = ($is_closed) ? time() : 0;
+
+		if(!$is_closed)
+			$closed_date = 0;
+			
+		// Worker
 		$active_worker = CerberusApplication::getActiveWorker();
 
-		if(empty($opp_id)) {
+		// Save
+		if($do_delete) {
+			if(null != ($opp = DAO_CrmOpportunity::get($opp_id))) {
+				if($active_worker->is_superuser || $active_worker->id==$opp->worker_id)
+					DAO_CrmOpportunity::delete($opp_id);
+			}
+			
+		} elseif(empty($opp_id)) {
 			$emails = DevblocksPlatform::parseCsvString($email_str);
 			
 			// One opportunity per provided e-mail address
@@ -304,8 +330,11 @@ class CrmPage extends CerberusPageExtension {
 					DAO_CrmOpportunity::NAME => $name,
 					DAO_CrmOpportunity::AMOUNT => $amount,
 					DAO_CrmOpportunity::PRIMARY_EMAIL_ID => $address->id,
-					DAO_CrmOpportunity::CREATED_DATE => time(),
+					DAO_CrmOpportunity::CREATED_DATE => intval($created_date),
 					DAO_CrmOpportunity::UPDATED_DATE => time(),
+					DAO_CrmOpportunity::CLOSED_DATE => intval($closed_date),
+					DAO_CrmOpportunity::IS_CLOSED => $is_closed,
+					DAO_CrmOpportunity::IS_WON => $is_won,
 					DAO_CrmOpportunity::WORKER_ID => $worker_id,
 				);
 				$opp_id = DAO_CrmOpportunity::create($fields);
@@ -330,15 +359,21 @@ class CrmPage extends CerberusPageExtension {
 			$fields = array(
 				DAO_CrmOpportunity::NAME => $name,
 				DAO_CrmOpportunity::AMOUNT => $amount,
-//				DAO_CrmOpportunity::UPDATED_DATE => time(),
+				DAO_CrmOpportunity::CREATED_DATE => intval($created_date),
+				DAO_CrmOpportunity::UPDATED_DATE => time(),
+				DAO_CrmOpportunity::CLOSED_DATE => intval($closed_date),
+				DAO_CrmOpportunity::IS_CLOSED => $is_closed,
+				DAO_CrmOpportunity::IS_WON => $is_won,
 				DAO_CrmOpportunity::WORKER_ID => $worker_id,
 			);
 			DAO_CrmOpportunity::update($opp_id, $fields);
 		}
 		
-		// Custom fields
-		@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
-		DAO_CustomFieldValue::handleFormPost(CrmCustomFieldSource_Opportunity::ID, $opp_id, $field_ids);
+		if(!$do_delete) {
+			// Custom fields
+			@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
+			DAO_CustomFieldValue::handleFormPost(CrmCustomFieldSource_Opportunity::ID, $opp_id, $field_ids);
+		}
 		
 		// Reload view (if linked)
 		if(!empty($view_id) && null != ($view = C4_AbstractViewLoader::getView('', $view_id))) {
@@ -447,17 +482,39 @@ class CrmPage extends CerberusPageExtension {
 	function saveOppPropertiesAction() {
 		@$opp_id = DevblocksPlatform::importGPC($_REQUEST['opp_id'],'integer', 0);
 		@$name = DevblocksPlatform::importGPC($_REQUEST['name'],'string','');
+		@$status = DevblocksPlatform::importGPC($_REQUEST['status'],'integer',0);
 		@$amount_dollars = DevblocksPlatform::importGPC($_REQUEST['amount'],'string','0');
 		@$amount_cents = DevblocksPlatform::importGPC($_REQUEST['amount_cents'],'integer',0);
 		@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'integer',0);
+		@$created_date_str = DevblocksPlatform::importGPC($_REQUEST['created_date'],'string','');
+		@$closed_date_str = DevblocksPlatform::importGPC($_REQUEST['closed_date'],'string','');
+		
+		// State
+		$is_closed = (0==$status) ? 0 : 1;
+		$is_won = (1==$status) ? 1 : 0;
 		
 		// Strip commas and decimals and put together the "dollars+cents"
 		$amount = intval(str_replace(array(',','.'),'',$amount_dollars)).'.'.number_format($amount_cents,0,'','');
+
+		// Dates
+		if(false === ($created_date = strtotime($created_date_str)))
+			$created_date = time();
+			
+		if(false === ($closed_date = strtotime($closed_date_str)))
+			$closed_date = ($is_closed) ? time() : 0;
+
+		if(!$is_closed)
+			$closed_date = 0;
 		
 		if(!empty($opp_id)) {
 			$fields = array(
 				DAO_CrmOpportunity::NAME => $name,
 				DAO_CrmOpportunity::AMOUNT => $amount,
+				DAO_CrmOpportunity::CREATED_DATE => $created_date,
+				DAO_CrmOpportunity::UPDATED_DATE => time(),
+				DAO_CrmOpportunity::CLOSED_DATE => $closed_date,
+				DAO_CrmOpportunity::IS_CLOSED => $is_closed,
+				DAO_CrmOpportunity::IS_WON => $is_won,
 				DAO_CrmOpportunity::WORKER_ID => $worker_id,
 			);
 			DAO_CrmOpportunity::update($opp_id, $fields);
@@ -555,71 +612,6 @@ class CrmPage extends CerberusPageExtension {
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('crm','opp',$opp_id)));
 	}
 	
-//	function showOppWonPanelAction() {
-//		@$opp_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer');
-//		
-//		$tpl = DevblocksPlatform::getTemplateService();
-//		$tpl_path = realpath(dirname(__FILE__) . '/../templates/') . DIRECTORY_SEPARATOR;
-//		$tpl->assign('path', $tpl_path);
-//
-//		$opp = DAO_CrmOpportunity::get($opp_id);
-//		$tpl->assign('opp', $opp);
-//		
-//		$tpl->display('file:' . $tpl_path . 'crm/opps/rpc/won.tpl.php');
-//	}
-	
-	function saveOppWonPanelAction() {
-		@$opp_id = DevblocksPlatform::importGPC($_REQUEST['opp_id'],'integer');
-		
-		$fields = array(
-			DAO_CrmOpportunity::CLOSED_DATE => time(),
-			DAO_CrmOpportunity::IS_CLOSED => 1,
-			DAO_CrmOpportunity::IS_WON => 1,
-		);
-		DAO_CrmOpportunity::update($opp_id, $fields);
-		
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('crm','opps',$opp_id)));
-	}
-	
-//	function showOppLostPanelAction() {
-//		@$opp_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer');
-//		
-//		$tpl = DevblocksPlatform::getTemplateService();
-//		$tpl_path = realpath(dirname(__FILE__) . '/../templates/') . DIRECTORY_SEPARATOR;
-//		$tpl->assign('path', $tpl_path);
-//
-//		$opp = DAO_CrmOpportunity::get($opp_id);
-//		$tpl->assign('opp', $opp);
-//		
-//		$tpl->display('file:' . $tpl_path . 'crm/opps/rpc/lost.tpl.php');
-//	}
-	
-	function saveOppLostPanelAction() {
-		@$opp_id = DevblocksPlatform::importGPC($_REQUEST['opp_id'],'integer');
-		
-		$fields = array(
-			DAO_CrmOpportunity::CLOSED_DATE => time(),
-			DAO_CrmOpportunity::IS_CLOSED => 1,
-			DAO_CrmOpportunity::IS_WON => 0,
-		);
-		DAO_CrmOpportunity::update($opp_id, $fields);
-		
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('crm','opps',$opp_id)));
-	}
-	
-	function reopenOppAction() {
-		@$opp_id = DevblocksPlatform::importGPC($_REQUEST['opp_id'],'integer');
-		
-		$fields = array(
-			DAO_CrmOpportunity::CLOSED_DATE => 0,
-			DAO_CrmOpportunity::IS_CLOSED => 0,
-			DAO_CrmOpportunity::IS_WON => 0,
-		);
-		DAO_CrmOpportunity::update($opp_id, $fields);
-		
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('crm','opps',$opp_id)));
-	}
-	
 	function showOppBulkPanelAction() {
 		@$ids = DevblocksPlatform::importGPC($_REQUEST['ids']);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
@@ -659,6 +651,7 @@ class CrmPage extends CerberusPageExtension {
 		
 		// Opp fields
 		@$status = trim(DevblocksPlatform::importGPC($_POST['status'],'string',''));
+		@$closed_date = trim(DevblocksPlatform::importGPC($_POST['closed_date'],'string',''));
 		@$worker_id = trim(DevblocksPlatform::importGPC($_POST['worker_id'],'string',''));
 
 		$do = array();
@@ -666,6 +659,9 @@ class CrmPage extends CerberusPageExtension {
 		// Do: Status
 		if(0 != strlen($status))
 			$do['status'] = $status;
+		// Do: Closed Date
+		if(0 != strlen($closed_date))
+			@$do['closed_date'] = intval(strtotime($closed_date));
 		// Do: Worker
 		if(0 != strlen($worker_id))
 			$do['worker_id'] = $worker_id;
@@ -774,13 +770,26 @@ class DAO_CrmOpportunity extends C4_ORMHelper {
 		return $objects;
 	}
 	
+	static function maint() {
+		$db = DevblocksPlatform::getDatabaseService();
+		$logger = DevblocksPlatform::getConsoleLog();
+
+	}
+	
 	static function delete($ids) {
 		if(!is_array($ids)) $ids = array($ids);
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		$ids_list = implode(',', $ids);
 		
+		// Opps
 		$db->Execute(sprintf("DELETE QUICK FROM crm_opportunity WHERE id IN (%s)", $ids_list));
+
+		// Custom fields
+		DAO_CustomFieldValue::deleteBySourceIds(CrmCustomFieldSource_Opportunity::ID, $ids);
+		
+		// Notes
+		DAO_Note::deleteBySourceIds(CrmNotesSource_Opportunity::ID, $ids);
 		
 		return true;
 	}
@@ -1208,6 +1217,9 @@ class C4_CrmOpportunityView extends C4_AbstractView {
 							break;
 					}
 					break;
+				case 'closed_date':
+					$change_fields[DAO_CrmOpportunity::CLOSED_DATE] = intval($v);
+					break;
 				case 'worker_id':
 					$change_fields[DAO_CrmOpportunity::WORKER_ID] = intval($v);
 					break;
@@ -1262,7 +1274,6 @@ class CrmTranslations extends DevblocksTranslationsExtension {
 	}
 };
 
-// [TODO] Can possibly remove this listener
 class CrmEventListener extends DevblocksEventListenerExtension {
     function __construct($manifest) {
         parent::__construct($manifest);
@@ -1272,10 +1283,11 @@ class CrmEventListener extends DevblocksEventListenerExtension {
      * @param Model_DevblocksEvent $event
      */
     function handleEvent(Model_DevblocksEvent $event) {
-//        switch($event->id) {
-//            case 'address.peek.saved':
-//            	break;
-//        }
+        switch($event->id) {
+            case 'cron.maint':
+            	DAO_CrmOpportunity::maint();
+            	break;
+        }
     }
 };
 

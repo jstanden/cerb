@@ -10,6 +10,7 @@
 <input type="hidden" name="a" value="saveOppPanel">
 <input type="hidden" name="opp_id" value="{$opp->id}">
 <input type="hidden" name="view_id" value="{$view_id}">
+<input type="hidden" name="do_delete" value="0">
 
 <div style="height:250px;overflow:auto;margin:2px;padding:3px;">
 
@@ -36,6 +37,14 @@
 		</td>
 	</tr>
 	<tr>
+		<td width="0%" nowrap="nowrap" align="right" valign="top">{$translate->_('common.status')|capitalize}: </td>
+		<td width="100%">
+			<label><input type="radio" name="status" value="0" onclick="toggleDiv('oppPeekClosedDate','none');" {if empty($opp->id) || 0==$opp->is_closed}checked="checked"{/if}> Open</label>
+			<label><input type="radio" name="status" value="1" onclick="toggleDiv('oppPeekClosedDate','');" {if $opp->is_closed && $opp->is_won}checked="checked"{/if}> Closed/Won</label>
+			<label><input type="radio" name="status" value="2" onclick="toggleDiv('oppPeekClosedDate','');" {if $opp->is_closed && !$opp->is_won}checked="checked"{/if}> Closed/Lost</label>
+		</td>
+	</tr>
+	<tr>
 		<td width="0%" nowrap="nowrap" align="right" valign="top">{$translate->_('crm.opportunity.amount')|capitalize}: </td>
 		<td width="100%">
 			<input type="text" name="amount" size="10" maxlength="12" style="border:1px solid rgb(180,180,180);padding:2px;" value="{if empty($opp->amount)}0{else}{math equation="floor(x)" x=$opp->amount}{/if}" autocomplete="off">
@@ -54,8 +63,23 @@
 				{/foreach}
 			</select>
 			{if !empty($me_worker_id)}
-				<button type="button" onclick="this.form.worker_id.selectedIndex = {$me_worker_id};">me</button>
+				<button type="button" onclick="this.form.worker_id.selectedIndex = {$me_worker_id};">{$translate->_('common.me')|lower}</button>
 			{/if}
+			<button type="button" onclick="this.form.worker_id.selectedIndex = 0;">{$translate->_('common.anybody')|lower}</button>
+		</td>
+	</tr>
+	<tr>
+		<td width="0%" nowrap="nowrap" align="right" valign="top">{$translate->_('crm.opportunity.created_date')|capitalize}: </td>
+		<td width="100%">
+			<input type="text" name="created_date" size=35 value="{if !empty($opp->created_date)}{$opp->created_date|devblocks_date}{else}now{/if}"><button type="button" onclick="ajax.getDateChooser('dateOppCreated',this.form.created_date);">&nbsp;<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/calendar.gif{/devblocks_url}" align="top">&nbsp;</button>
+			<div id="dateOppCreated" style="display:none;position:absolute;z-index:1;"></div>
+		</td>
+	</tr>
+	<tr id="oppPeekClosedDate" {if !$opp->is_closed}style="display:none;"{/if}>
+		<td width="0%" nowrap="nowrap" align="right" valign="top">{$translate->_('crm.opportunity.closed_date')|capitalize}: </td>
+		<td width="100%">
+			<input type="text" name="closed_date" size="35" value="{if !empty($opp->closed_date)}{$opp->closed_date|devblocks_date}{/if}"><button type="button" onclick="ajax.getDateChooser('dateOppClosed',this.form.closed_date);">&nbsp;<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/calendar.gif{/devblocks_url}" align="top">&nbsp;</button>
+			<div id="dateOppClosed" style="display:none;position:absolute;z-index:1;"></div>
 		</td>
 	</tr>
 	{if empty($opp->id)}
@@ -74,6 +98,9 @@
 </div>
 
 <button type="button" onclick="genericPanel.hide();genericAjaxPost('formOppPeek', 'view{$view_id}')"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')}</button>
+{if !empty($opp) && ($active_worker->is_superuser || $active_worker->id == $opp->worker_id)}
+	<button type="button" onclick="if(confirm('Are you sure you want to permanently delete this opportunity?')){literal}{{/literal}this.form.do_delete.value='1';genericPanel.hide();genericAjaxPost('formOppPeek', 'view{$view_id}');{literal}}{/literal}"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete2.gif{/devblocks_url}" align="top"> {$translate->_('common.delete')|capitalize}</button>
+{/if}
 <button type="button" onclick="genericPanel.hide();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> {$translate->_('common.cancel')|capitalize}</button>
 <br>
 </form>

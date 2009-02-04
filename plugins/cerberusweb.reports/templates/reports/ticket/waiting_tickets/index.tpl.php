@@ -43,7 +43,7 @@ function drawChart() {{/literal}
 
 </script>
 
-<h2>{$translate->_('reports.ui.ticket.top_contacts')}</h2>
+<h2>{$translate->_('reports.ui.ticket.waiting_tickets')}</h2>
 
 
 <form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmRange" name="frmRange" onsubmit="return false;">

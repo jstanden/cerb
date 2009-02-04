@@ -27,7 +27,7 @@ class ChFeedbackPatchContainer extends DevblocksPatchContainerExtension {
 
 		$file_prefix = realpath(dirname(__FILE__) . '/../patches');
 		
-		$this->registerPatch(new DevblocksPatch('cerberusweb.feedback',1,$file_prefix.'/1.0.0.php',''));
+		$this->registerPatch(new DevblocksPatch('cerberusweb.feedback',2,$file_prefix.'/1.0.0.php',''));
 	}
 };
 
@@ -176,7 +176,11 @@ class DAO_FeedbackEntry extends C4_ORMHelper {
 		
 		$ids_list = implode(',', $ids);
 		
+		// Entries
 		$db->Execute(sprintf("DELETE FROM feedback_entry WHERE id IN (%s)", $ids_list));
+		
+		// Custom fields
+		DAO_CustomFieldValue::deleteBySourceIds(ChCustomFieldSource_FeedbackEntry::ID, $ids);
 		
 		return true;
 	}

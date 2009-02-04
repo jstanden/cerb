@@ -127,5 +127,11 @@ if(!isset($tables['timetracking_activity'])) {
 //	$datadict->ExecuteSQLArray($sql);
 //}
 
+// ===========================================================================
+// Ophaned timetracking_entry custom fields
+$db->Execute("DELETE QUICK custom_field_stringvalue FROM custom_field_stringvalue LEFT JOIN timetracking_entry ON (timetracking_entry.id=custom_field_stringvalue.source_id) WHERE custom_field_stringvalue.source_extension = 'timetracking.fields.source.time_entry' AND timetracking_entry.id IS NULL");
+$db->Execute("DELETE QUICK custom_field_numbervalue FROM custom_field_numbervalue LEFT JOIN timetracking_entry ON (timetracking_entry.id=custom_field_numbervalue.source_id) WHERE custom_field_numbervalue.source_extension = 'timetracking.fields.source.time_entry' AND timetracking_entry.id IS NULL");
+$db->Execute("DELETE QUICK custom_field_clobvalue FROM custom_field_clobvalue LEFT JOIN timetracking_entry ON (timetracking_entry.id=custom_field_clobvalue.source_id) WHERE custom_field_clobvalue.source_extension = 'timetracking.fields.source.time_entry' AND timetracking_entry.id IS NULL");
+
 return TRUE;
 ?>

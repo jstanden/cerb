@@ -25,7 +25,8 @@
 	<tr>
 		<td width="0%" nowrap="nowrap" align="right">Due:</td>
 		<td width="100%">
-			<input type="text" name="due" value="" size="35">
+			<input type="text" name="due" size=35 value=""><button type="button" onclick="ajax.getDateChooser('dateBulkTaskDue',this.form.due);">&nbsp;<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/calendar.gif{/devblocks_url}" align="top">&nbsp;</button>
+			<div id="dateBulkTaskDue" style="display:none;position:absolute;z-index:1;"></div>
 		</td>
 	</tr>
 	<tr>

@@ -967,6 +967,7 @@ class DAO_ContactOrg extends C4_ORMHelper {
 		
 		$id_list = implode(',', $ids);
 		
+		// Orgs
 		$sql = sprintf("DELETE QUICK FROM contact_org WHERE id IN (%s)",
 			$id_list
 		);
@@ -980,6 +981,12 @@ class DAO_ContactOrg extends C4_ORMHelper {
 		
 		// Tasks
         DAO_Task::deleteBySourceIds('cerberusweb.tasks.org', $ids);
+        
+        // Custom fields
+        DAO_CustomFieldValue::deleteBySourceIds(ChCustomFieldSource_Org::ID, $ids);
+
+        // Notes
+        DAO_Note::deleteBySourceIds(ChNotesSource_Org::ID, $ids);
 	}
 	
 	/**
@@ -1320,10 +1327,15 @@ class DAO_Address extends C4_ORMHelper {
         
         $address_ids = implode(',', $ids);
         
+        // Addresses
         $sql = sprintf("DELETE QUICK FROM address WHERE id IN (%s)", $address_ids);
         $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-
+       
+        // Auth logins
         DAO_AddressAuth::delete($ids);
+        
+        // Custom fields
+        DAO_CustomFieldValue::deleteBySourceIds(ChCustomFieldSource_Address::ID, $ids);
     }
 		
 	static function getWhere($where=null) {
@@ -2649,26 +2661,28 @@ class DAO_Ticket extends C4_ORMHelper {
 		
 		$sql = "DELETE QUICK requester FROM requester LEFT JOIN ticket ON requester.ticket_id = ticket.id WHERE ticket.id IS NULL";
 		$db->Execute($sql);
-
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' requester records.');
 		
 		// Ticket tasks
 		$sql = "DELETE QUICK task FROM task LEFT JOIN ticket ON task.source_id = ticket.id WHERE task.source_extension = 'cerberusweb.tasks.ticket' AND ticket.id IS NULL";
 		$db->Execute($sql);
-		
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' task records.');
 		
 		// Recover any tickets assigned to next_worker_id = NULL
 		$sql = "UPDATE ticket LEFT JOIN worker ON ticket.next_worker_id = worker.id SET ticket.next_worker_id = 0 WHERE ticket.next_worker_id > 0 AND worker.id IS NULL";
 		$db->Execute($sql);
-
 		$logger->info('[Maint] Fixed ' . $db->Affected_Rows() . ' tickets assigned to missing workers.');
 		
 		// Recover any tickets assigned to a NULL bucket
 		$sql = "UPDATE ticket LEFT JOIN category ON ticket.category_id = category.id SET ticket.category_id = 0 WHERE ticket.category_id > 0 AND category.id IS NULL";
 		$db->Execute($sql);
-		
 		$logger->info('[Maint] Fixed ' . $db->Affected_Rows() . ' tickets in missing buckets.');
+		
+		// ===========================================================================
+		// Ophaned ticket custom fields
+		$db->Execute("DELETE QUICK custom_field_stringvalue FROM custom_field_stringvalue LEFT JOIN ticket ON (ticket.id=custom_field_stringvalue.source_id) WHERE custom_field_stringvalue.source_extension = 'cerberusweb.fields.source.ticket' AND ticket.id IS NULL");
+		$db->Execute("DELETE QUICK custom_field_numbervalue FROM custom_field_numbervalue LEFT JOIN ticket ON (ticket.id=custom_field_numbervalue.source_id) WHERE custom_field_numbervalue.source_extension = 'cerberusweb.fields.source.ticket' AND ticket.id IS NULL");
+		$db->Execute("DELETE QUICK custom_field_clobvalue FROM custom_field_clobvalue LEFT JOIN ticket ON (ticket.id=custom_field_clobvalue.source_id) WHERE custom_field_clobvalue.source_extension = 'cerberusweb.fields.source.ticket' AND ticket.id IS NULL");
 	}
 	
 	static function merge($ids=array()) {
@@ -5392,6 +5406,15 @@ class DAO_Note extends DevblocksORMHelper {
 		return array($results,$total);
     }	
 	
+    static function deleteBySourceIds($source_extension, $source_ids) {
+		if(!is_array($source_ids)) $source_ids = array($source_ids);
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$ids_list = implode(',', $source_ids);
+		
+		$db->Execute(sprintf("DELETE FROM note WHERE source_extension_id = %s AND source_id IN (%s)", $db->qstr($source_extension), $ids_list));
+    }
+    
 	static function delete($ids) {
 		if(!is_array($ids)) $ids = array($ids);
 		$db = DevblocksPlatform::getDatabaseService();
@@ -6400,35 +6423,49 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 	const SOURCE_ID = 'source_id';
 	const FIELD_VALUE = 'field_value';
 	
+	public static function getValueTableName($field_id) {
+		$field = DAO_CustomField::get($field_id);
+		
+		// Determine value table by type
+		$table = null;
+		switch($field->type) {
+			// stringvalue
+			case Model_CustomField::TYPE_SINGLE_LINE:
+			case Model_CustomField::TYPE_DROPDOWN:	
+			case Model_CustomField::TYPE_MULTI_CHECKBOX:	
+			case Model_CustomField::TYPE_MULTI_PICKLIST:
+				$table = 'custom_field_stringvalue';	
+				break;
+			// clobvalue
+			case Model_CustomField::TYPE_MULTI_LINE:
+				$table = 'custom_field_clobvalue';
+				break;
+			// number
+			case Model_CustomField::TYPE_CHECKBOX:
+			case Model_CustomField::TYPE_DATE:
+			case Model_CustomField::TYPE_NUMBER:
+				$table = 'custom_field_numbervalue';
+				break;	
+		}
+		
+		return $table;
+	}
+	
 	public static function setFieldValue($source_ext_id, $source_id, $field_id, $value, $delta=false) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		if(null == ($field = DAO_CustomField::get($field_id)))
 			return FALSE;
 		
-		$table_name = '';
-			
+		if(null == ($table_name = self::getValueTableName($field_id)))
+			return FALSE;
+
+		// Data formating
 		switch($field->type) {
 			case 'D': // dropdown
 			case 'S': // string
-				$table_name = 'custom_field_stringvalue';
 				if(255 < strlen($value))
 					$value = substr($value,0,255);
-				break;
-			case 'M': // multi-picklist
-			case 'X': // multi-checkbox
-				$table_name = 'custom_field_stringvalue';
-				break;
-			case 'C': // checkbox
-			case 'E': // date
-			case 'N': // number
-				$table_name = 'custom_field_numbervalue';
-				break;
-			case 'T': // clob
-				$table_name = 'custom_field_clobvalue';
-				break;
-			default:
-				return FALSE;
 				break;
 		}
 		
@@ -6460,26 +6497,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 		if(null == ($field = DAO_CustomField::get($field_id)))
 			return FALSE;
 		
-		$table_name = '';
-			
-		switch($field->type) {
-			case 'D': // dropdown
-			case 'S': // string
-			case 'M': // multi-picklist
-			case 'X': // multi-checklist
-				$table_name = 'custom_field_stringvalue';
-				break;
-			case 'C': // checkbox
-			case 'E': // date
-			case 'N': // number
-				$table_name = 'custom_field_numbervalue';
-				break;
-			case 'T': // clob
-				$table_name = 'custom_field_clobvalue';
-				break;
-		}
-		
-		if(empty($table_name))
+		if(null == ($table_name = self::getValueTableName($field_id)))
 			return FALSE;
 		
 		// Delete all values or optionally a specific given value
@@ -6721,17 +6739,38 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 		return $results;
 	}
 	
-	public static function deleteByFieldId($field_id) {
+	public static function deleteBySourceIds($source_extension, $source_ids) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = sprintf("DELETE QUICK FROM custom_field_stringvalue WHERE field_id = %d",$field_id);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		if(!is_array($source_ids)) $source_ids = array($source_ids);
+		$ids_list = implode(',', $source_ids);
 
-		$sql = sprintf("DELETE QUICK FROM custom_field_clobvalue WHERE field_id = %d",$field_id);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$tables = array('custom_field_stringvalue','custom_field_clobvalue','custom_field_numbervalue');
 		
-		$sql = sprintf("DELETE QUICK FROM custom_field_numbervalue WHERE field_id = %d",$field_id);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		if(!empty($source_ids))
+		foreach($tables as $table) {
+			$sql = sprintf("DELETE QUICK FROM %s WHERE source_extension = %s AND source_id IN (%s)",
+				$table,
+				$db->qstr($source_extension),
+				implode(',', $source_ids)
+			);
+			$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		}
+	}
+	
+	public static function deleteByFieldId($field_id) {
+		$db = DevblocksPlatform::getDatabaseService();
+
+		$tables = array('custom_field_stringvalue','custom_field_clobvalue','custom_field_numbervalue');
+
+		foreach($tables as $table) {
+			$sql = sprintf("DELETE QUICK FROM %s WHERE field_id = %d",
+				$table,
+				$field_id
+			);
+			$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		}
+
 	}
 };
 
@@ -6884,6 +6923,9 @@ class DAO_Task extends C4_ORMHelper {
 		
 		// Tasks
 		$db->Execute(sprintf("DELETE QUICK FROM task WHERE id IN (%s)", $ids_list));
+		
+		// Custom fields
+		DAO_CustomFieldValue::deleteBySourceIds(ChCustomFieldSource_Task::ID, $ids);
 		
 		return true;
 	}

@@ -36,10 +36,9 @@
 				<name>CrmEventListener</name>
 			</class>
 			<params>
-				<!-- Address Changed Event Listener -->
 				<param key="events">
 					<value>
-						<data key="address.peek.saved" />						
+						<data key="cron.maint" />						
 					</value>
 				</param>
 			</params>

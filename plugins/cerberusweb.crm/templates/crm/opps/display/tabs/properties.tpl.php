@@ -11,6 +11,14 @@
 			<td width="100%"><input type="text" name="name" value="{$opp->name|escape}" style="width:98%;"></td>
 		</tr>
 		<tr>
+			<td width="0%" nowrap="nowrap" align="right" valign="top">{$translate->_('common.status')|capitalize}: </td>
+			<td width="100%">
+				<label><input type="radio" name="status" value="0" onclick="toggleDiv('oppPeekClosedDate','none');" {if empty($opp->id) || 0==$opp->is_closed}checked="checked"{/if}> Open</label>
+				<label><input type="radio" name="status" value="1" onclick="toggleDiv('oppPeekClosedDate','');" {if $opp->is_closed && $opp->is_won}checked="checked"{/if}> Closed/Won</label>
+				<label><input type="radio" name="status" value="2" onclick="toggleDiv('oppPeekClosedDate','');" {if $opp->is_closed && !$opp->is_won}checked="checked"{/if}> Closed/Lost</label>
+			</td>
+		</tr>
+		<tr>
 			<td width="0%" nowrap="nowrap" align="right" valign="top">{$translate->_('crm.opportunity.amount')|capitalize}: </td>
 			<td width="100%">
 				<input type="text" name="amount" size="10" maxlength="12" style="border:1px solid rgb(180,180,180);padding:2px;" value="{if empty($opp->amount)}0{else}{math equation="floor(x)" x=$opp->amount}{/if}" autocomplete="off">
@@ -19,7 +27,7 @@
 			</td>
 		</tr>
 		<tr>
-			<td width="0%" nowrap="nowrap">{$translate->_('crm.opportunity.worker_id')|capitalize}:</td>
+			<td width="0%" nowrap="nowrap" align="right" valign="top">{$translate->_('crm.opportunity.worker_id')|capitalize}:</td>
 			<td width="100%"><select name="worker_id">
 				<option value="0"></option>
 				{foreach from=$workers item=worker key=worker_id name=workers}
@@ -28,9 +36,23 @@
 				{/foreach}
 			</select>
 	      	{if !empty($me_worker_id)}
-	      		<button type="button" onclick="this.form.worker_id.selectedIndex = {$me_worker_id};">me</button>
+	      		<button type="button" onclick="this.form.worker_id.selectedIndex = {$me_worker_id};">{$translate->_('common.me')}</button>
 	      	{/if}
-      		<button type="button" onclick="this.form.worker_id.selectedIndex = 0;">nobody</button>
+      		<button type="button" onclick="this.form.worker_id.selectedIndex = 0;">{$translate->_('common.anybody')}</button>
+			</td>
+		</tr>
+		<tr>
+			<td width="0%" nowrap="nowrap" align="right" valign="top">{$translate->_('crm.opportunity.created_date')|capitalize}: </td>
+			<td width="100%">
+				<input type="text" name="created_date" size=35 value="{if !empty($opp->created_date)}{$opp->created_date|devblocks_date}{else}now{/if}"><button type="button" onclick="ajax.getDateChooser('dateOppCreated',this.form.created_date);">&nbsp;<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/calendar.gif{/devblocks_url}" align="top">&nbsp;</button>
+				<div id="dateOppCreated" style="display:none;position:absolute;z-index:1;"></div>
+			</td>
+		</tr>
+		<tr id="oppPeekClosedDate" {if !$opp->is_closed}style="display:none;"{/if}>
+			<td width="0%" nowrap="nowrap" align="right" valign="top">{$translate->_('crm.opportunity.closed_date')|capitalize}: </td>
+			<td width="100%">
+				<input type="text" name="closed_date" size="35" value="{if !empty($opp->closed_date)}{$opp->closed_date|devblocks_date}{/if}"><button type="button" onclick="ajax.getDateChooser('dateOppClosed',this.form.closed_date);">&nbsp;<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/calendar.gif{/devblocks_url}" align="top">&nbsp;</button>
+				<div id="dateOppClosed" style="display:none;position:absolute;z-index:1;"></div>
 			</td>
 		</tr>
 	</table>

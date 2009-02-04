@@ -57,6 +57,14 @@ class ChReportGroupGroups extends Extension_ReportGroup {
 	}
 };
 
+class ChReportGroupCustomFields extends Extension_ReportGroup {
+	const ID = 'report.group.custom_fields';
+	
+	function __construct($manifest) {
+		parent::__construct($manifest);
+	}
+};
+
 class ChReportGroupOrgs extends Extension_ReportGroup {
 	function __construct($manifest) {
 		parent::__construct($manifest);
@@ -66,6 +74,105 @@ class ChReportGroupOrgs extends Extension_ReportGroup {
 class ChReportGroupSpam extends Extension_ReportGroup {
 	function __construct($manifest) {
 		parent::__construct($manifest);
+	}
+};
+
+class ChReportCustomFieldUsage extends Extension_Report {
+	private $tpl_path = null;
+	
+	function __construct($manifest) {
+		parent::__construct($manifest);
+		$this->tpl_path = realpath(dirname(__FILE__).'/../templates');
+	}
+	
+	function render() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', $this->tpl_path);
+		
+		// Custom Field sources (tickets, orgs, etc.)
+		$source_manifests = DevblocksPlatform::getExtensions('cerberusweb.fields.source', false);
+		uasort($source_manifests, create_function('$a, $b', "return strcasecmp(\$a->name,\$b->name);\n"));
+		$tpl->assign('source_manifests', $source_manifests);
+
+		// Custom Fields
+		$custom_fields = DAO_CustomField::getAll();
+		$tpl->assign('custom_fields', $custom_fields);
+		
+		$tpl->display('file:' . $this->tpl_path . '/reports/custom_fields/usage/index.tpl.php');
+	}
+	
+	private function _getValueCounts($field_id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		// Selected custom field
+		if(null == ($field = DAO_CustomField::get($field_id)))
+			return;
+
+		if(null == ($table = DAO_CustomFieldValue::getValueTableName($field_id)))
+			return;
+			
+		$sql = sprintf("SELECT field_value, count(field_value) AS hits ".
+			"FROM %s ".
+			"WHERE source_extension = %s ".
+			"AND field_id = %d ".
+			"GROUP BY field_value",
+			$table,
+			$db->qstr($field->source_extension),
+			$field->id
+		);
+		$rs_values = $db->Execute($sql);
+	
+		$value_counts = array();
+		
+		while(!$rs_values->EOF) {
+			$value = $rs_values->fields['field_value'];
+			$hits = intval($rs_values->fields['hits']);
+
+			$value_counts[$value] = intval($hits);
+			$rs_values->MoveNext();
+		}
+		
+		arsort($value_counts);
+		return $value_counts;
+	}
+	
+	function getReportAction() {
+		@$field_id = DevblocksPlatform::importGPC($_REQUEST['field_id'],'integer',0);
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', $this->tpl_path);
+
+		// Custom Field sources (tickets, orgs, etc.)
+		$source_manifests = DevblocksPlatform::getExtensions('cerberusweb.fields.source', false);
+		uasort($source_manifests, create_function('$a, $b', "return strcasecmp(\$a->name,\$b->name);\n"));
+		$tpl->assign('source_manifests', $source_manifests);
+		
+		$field = DAO_CustomField::get($field_id);
+		$tpl->assign('field', $field);
+		
+		$value_counts = self::_getValueCounts($field_id);
+		$tpl->assign('value_counts', $value_counts);
+		
+		$tpl->display('file:' . $this->tpl_path . '/reports/custom_fields/usage/html.tpl.php');
+	}
+	
+	function getChartAction() {
+		@$field_id = DevblocksPlatform::importGPC($_REQUEST['field_id'],'integer',0);
+		@$countonly = DevblocksPlatform::importGPC($_REQUEST['countonly'],'integer',0);
+		
+		$value_counts = self::_getValueCounts($field_id); 
+
+		if($countonly) {
+			echo count($value_counts);
+			return;
+		}
+		
+		if(is_array($value_counts))
+		foreach($value_counts as $value => $count) {
+			echo $value, "\t", $count . "\n";
+		}
 	}
 };
 
@@ -2163,4 +2270,3 @@ class ChReportsPage extends CerberusPageExtension {
 		
 };
 
-?>

@@ -67,7 +67,7 @@ class ChTimeTrackingPatchContainer extends DevblocksPatchContainerExtension {
 
 		$file_prefix = realpath(dirname(__FILE__) . '/../patches');
 		
-		$this->registerPatch(new DevblocksPatch('cerberusweb.timetracking',2,$file_prefix.'/1.0.0.php',''));
+		$this->registerPatch(new DevblocksPatch('cerberusweb.timetracking',3,$file_prefix.'/1.0.0.php',''));
 	}
 };
 
@@ -263,7 +263,11 @@ class DAO_TimeTrackingEntry extends C4_ORMHelper {
 		
 		$ids_list = implode(',', $ids);
 		
+		// Entries
 		$db->Execute(sprintf("DELETE FROM timetracking_entry WHERE id IN (%s)", $ids_list));
+		
+		// Custom fields
+		DAO_CustomFieldValue::deleteBySourceIds(ChCustomFieldSource_TimeEntry::ID, $ids);
 		
 		return true;
 	}

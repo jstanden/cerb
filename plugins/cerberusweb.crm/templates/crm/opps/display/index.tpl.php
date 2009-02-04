@@ -9,23 +9,11 @@
 		
 		<b>Status:</b> {if $opp->is_closed}{if $opp->is_won}Closed/Won{else}Closed/Lost{/if}{else}Open{/if} &nbsp;
 		<b>E-mail:</b> {$address->first_name} {$address->last_name} &lt;<a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$address->email}&view_id=',null,false,'500px',ajax.cbAddressPeek);">{$address->email}</a>&gt; &nbsp;
-		<b>Created:</b> {$opp->created_date|devblocks_date} &nbsp;
+		<b>Created:</b> <abbr title="{$opp->created_date|devblocks_date}">{$opp->created_date|devblocks_prettytime}</abbr> &nbsp;
 		{if !empty($opp_worker_id) && isset($workers.$opp_worker_id)}
 			<b>Worker:</b> {$workers.$opp_worker_id->getName()} &nbsp;
 		{/if}
 		<br>
-		
-		<form action="{devblocks_url}{/devblocks_url}" method="post" style="margin-top:5px;margin-bottom:5px;">
-		<input type="hidden" name="c" value="crm">
-		<input type="hidden" name="a" value="">
-		<input type="hidden" name="opp_id" value="{$opp->id}">
-		{if !$opp->is_closed}
-			<button type="button" onclick="this.form.a.value='saveOppWonPanel';this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.crm&f=images/up_plus.gif{/devblocks_url}" align="top"> Won</button>
-			<button type="button" onclick="this.form.a.value='saveOppLostPanel';this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.crm&f=images/down_minus.gif{/devblocks_url}" align="top"> Lost</button>
-		{else}
-			<button type="button" onclick="this.form.a.value='reopenOpp';this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.crm&f=images/folder_out.gif{/devblocks_url}" align="top"> Re-open</button>
-		{/if}
-		</form>
 	</td>
 	<td align="right" valign="top">
 		{if !empty($series_stats.next) || !empty($series_stats.prev)}

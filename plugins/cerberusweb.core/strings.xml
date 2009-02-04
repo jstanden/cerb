@@ -246,6 +246,9 @@
 		<tu tuid='common.spam'>
 			<tuv xml:lang="en_US"><seg>Spam</seg></tuv>
 		</tu>
+		<tu tuid='common.status'>
+			<tuv xml:lang="en_US"><seg>Status</seg></tuv>
+		</tu>
 		<tu tuid='common.synchronize'>
 			<tuv xml:lang="en_US"><seg>Synchronize</seg></tuv>
 		</tu>

@@ -36,7 +36,7 @@
 	</tr>
 	
 	<tr>
-		<td width="0%" nowrap="nowrap">Worker:</td>
+		<td width="0%" align="right" nowrap="nowrap">Worker:</td>
 		<td width="100%"><select name="worker_id">
 			<option value=""></option>
 			<option value="0">Anybody</option>
@@ -50,6 +50,14 @@
       		<button type="button" onclick="this.form.worker_id.selectedIndex = 1;">anybody</button>
       	{/if}
 		</td>
+	</tr>
+	
+	<tr>
+		<td width="0%" nowrap="nowrap" align="right">Closed Date:</td>
+		<td width="100%">
+			<input type="text" name="closed_date" size=35 value=""><button type="button" onclick="ajax.getDateChooser('dateOppBulkClosed',this.form.closed_date);">&nbsp;<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/calendar.gif{/devblocks_url}" align="top">&nbsp;</button>
+			<div id="dateOppBulkClosed" style="display:none;position:absolute;z-index:1;"></div>
+      	</td>
 	</tr>
 </table>
 	

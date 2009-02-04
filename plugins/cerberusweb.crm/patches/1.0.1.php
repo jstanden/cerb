@@ -233,4 +233,14 @@ if(!isset($indexes['AMOUNT'])) {
 	$datadict->ExecuteSQLArray($sql);
 }
 
+// ===========================================================================
+// Ophaned opportunity notes
+$db->Execute("DELETE QUICK note FROM note LEFT JOIN crm_opportunity ON (crm_opportunity.id=note.source_id) WHERE note.source_extension_id = 'crm.notes.source.opportunity' AND crm_opportunity.id IS NULL");
+
+// ===========================================================================
+// Ophaned opportunity custom fields
+$db->Execute("DELETE QUICK custom_field_stringvalue FROM custom_field_stringvalue LEFT JOIN crm_opportunity ON (crm_opportunity.id=custom_field_stringvalue.source_id) WHERE custom_field_stringvalue.source_extension = 'crm.fields.source.opportunity' AND crm_opportunity.id IS NULL");
+$db->Execute("DELETE QUICK custom_field_numbervalue FROM custom_field_numbervalue LEFT JOIN crm_opportunity ON (crm_opportunity.id=custom_field_numbervalue.source_id) WHERE custom_field_numbervalue.source_extension = 'crm.fields.source.opportunity' AND crm_opportunity.id IS NULL");
+$db->Execute("DELETE QUICK custom_field_clobvalue FROM custom_field_clobvalue LEFT JOIN crm_opportunity ON (crm_opportunity.id=custom_field_clobvalue.source_id) WHERE custom_field_clobvalue.source_extension = 'crm.fields.source.opportunity' AND crm_opportunity.id IS NULL");
+
 return TRUE;
