@@ -58,17 +58,19 @@
 	
 	<tr>
 		<td width="0%" nowrap="nowrap" valign="top">
-			<b>Groups:</b><br>
-			{if (empty($license) || empty($license.key)) && count($workers) >= 3}
-			{else}
-			<a href="javascript:;" onclick="checkAll('configWorkerTeams',true);">check all</a><br>
-			<a href="javascript:;" onclick="checkAll('configWorkerTeams',false);">check none</a>
-			{/if}
+			<b>Groups:</b>
 		</td>
 		<td width="100%" id="configWorkerTeams" valign="top">
 			{if $worker->id}{assign var=workerTeams value=$worker->getMemberships()}{/if}
 			{foreach from=$teams item=team key=team_id}
-			<label><input type="checkbox" name="team_id[]" value="{$team->id}" {if $workerTeams.$team_id}checked{/if}{if (empty($license) || empty($license.key)) && count($workers) >= 3} disabled{/if}>{$team->name}</label><br>
+			{assign var=member value=$workerTeams.$team_id}
+			<input type="hidden" name="group_ids[]" value="{$team->id}">
+			<select name="group_roles[]" {if (empty($license) || empty($license.key)) && count($workers) >= 3} disabled="disabled"{/if}>
+				<option value="">&nbsp;</option>
+				<option value="1" {if $member && !$member->is_manager}selected{/if}>Member</option>
+				<option value="2" {if $member && $member->is_manager}selected{/if}>Manager</option>
+			</select>
+			{$team->name}<br>
 			{/foreach}
 		</td>
 	</tr>
@@ -95,8 +97,11 @@
 	
 	<tr>
 		<td colspan="2">
-			{if (empty($license) || empty($license.key)) && count($workers) >= 3}{else}<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>{/if}
-			{if $active_worker->is_superuser && $active_worker->id != $worker->id}<button type="button" onclick="if(confirm('Are you sure you want to delete this worker and their history?')){literal}{{/literal}this.form.do_delete.value='1';this.form.submit();{literal}}{/literal}"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete2.gif{/devblocks_url}" align="top"> {$translate->_('common.delete')|capitalize}</button>{/if}
+			{if (empty($license) || empty($license.key)) && count($workers) >= 3}
+			{else}
+				<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
+				{if $active_worker->is_superuser && $active_worker->id != $worker->id}<button type="button" onclick="if(confirm('Are you sure you want to delete this worker and their history?')){literal}{{/literal}this.form.do_delete.value='1';this.form.submit();{literal}}{/literal}"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete2.gif{/devblocks_url}" align="top"> {$translate->_('common.delete')|capitalize}</button>{/if}
+			{/if}
 		</td>
 	</tr>
 </table>

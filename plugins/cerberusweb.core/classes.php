@@ -826,7 +826,7 @@ class ChTicketsPage extends CerberusPageExtension {
 			new Model_Activity(
 				'activity.mail.workflow',
 				array(
-					$workflowView->name
+					'<i>'.$workflowView->name.'</i>'
 				)
 			)
 		);
@@ -1034,7 +1034,7 @@ class ChTicketsPage extends CerberusPageExtension {
 			new Model_Activity(
 				'activity.mail.overview',
 				array(
-					$overView->name
+					'<i>'.$overView->name.'</i>'
 				)
 			)
 		);
@@ -1169,7 +1169,7 @@ class ChTicketsPage extends CerberusPageExtension {
 			new Model_Activity(
 				'activity.mail.workspaces',
 				array(
-					$current_workspace
+					'<i>'.$current_workspace.'</i>'
 				)
 			)
 		);
@@ -4074,7 +4074,8 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		@$email = DevblocksPlatform::importGPC($_POST['email'],'string');
 		@$password = DevblocksPlatform::importGPC($_POST['password'],'string');
 		@$is_superuser = DevblocksPlatform::importGPC($_POST['is_superuser'],'integer');
-		@$team_ids = DevblocksPlatform::importGPC($_POST['team_id'],'array');
+		@$group_ids = DevblocksPlatform::importGPC($_POST['group_ids'],'array');
+		@$group_roles = DevblocksPlatform::importGPC($_POST['group_roles'],'array');
 		@$disabled = DevblocksPlatform::importGPC($_POST['do_disable'],'integer',0);
 		@$delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer',0);
 
@@ -4168,8 +4169,18 @@ class ChConfigurationPage extends CerberusPageExtension  {
 				$fields[DAO_Worker::PASSWORD] = md5($password);
 			}
 			
+			// Update worker
 			DAO_Worker::updateAgent($id, $fields);
-			DAO_Worker::setAgentTeams($id, $team_ids);
+			
+			// Update group memberships
+			if(is_array($group_ids) && is_array($group_roles))
+			foreach($group_ids as $idx => $group_id) {
+				if(empty($group_roles[$idx])) {
+					DAO_Group::unsetTeamMember($group_id, $id);
+				} else {
+					DAO_Group::setTeamMember($group_id, $id, (2==$group_roles[$idx]));
+				}
+			}
 
 			// Add the worker e-mail to the addresses table
 			if(!empty($email))

@@ -70,7 +70,7 @@
 			<label><input type="checkbox" name="rules[]" value="body_encoding" id="chkRuleBodyEncoding"> Body Charset:</label>
 		</td>
 		<td>
-			<input type="text" name="value_body_encoding" size="45">
+			<input type="text" name="value_body_encoding" size="45" onchange="document.getElementById('chkRuleBodyEncoding').checked=((0==this.value.length)?false:true);">
 		</td>
 	</tr>
 	<tr>
