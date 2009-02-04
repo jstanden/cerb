@@ -320,6 +320,25 @@ class DAO_Worker extends DevblocksORMHelper {
 		return self::getAll(false, true);
 	}
 	
+	static function getAllOnline() {
+		list($whos_online_workers, $null) = self::search(
+		    array(
+		        new DevblocksSearchCriteria(SearchFields_Worker::LAST_ACTIVITY_DATE,DevblocksSearchCriteria::OPER_GT,(time()-60*15)), // idle < 15 mins
+		        new DevblocksSearchCriteria(SearchFields_Worker::LAST_ACTIVITY,DevblocksSearchCriteria::OPER_NOT_LIKE,'%translation_code";N;%'), // translation code not null (not just logged out)
+		    ),
+		    -1,
+		    0,
+		    SearchFields_Worker::LAST_ACTIVITY_DATE,
+		    false,
+		    false
+		);
+		
+		if(!empty($whos_online_workers))
+			return self::getList(array_keys($whos_online_workers));
+			
+		return array();
+	}
+	
 	static function getAll($nocache=false, $with_disabled=true) {
 	    $cache = DevblocksPlatform::getCacheService();
 	    if($nocache || null === ($workers = $cache->load(self::CACHE_ALL))) {

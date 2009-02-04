@@ -451,11 +451,35 @@
 		<tu tuid='activity.default'>
 			<tuv xml:lang="en_US"><seg>%s is browsing the helpdesk</seg></tuv>
 		</tu>
+		<tu tuid='activity.activity'>
+			<tuv xml:lang="en_US"><seg>%s is browsing the activity logs</seg></tuv>
+		</tu>
+		<tu tuid='activity.address_book'>
+			<tuv xml:lang="en_US"><seg>%s is browsing the address book</seg></tuv>
+		</tu>
 		<tu tuid='activity.config'>
 			<tuv xml:lang="en_US"><seg>%s is configuring the helpdesk</seg></tuv>
 		</tu>
 		<tu tuid='activity.display_ticket'>
-			<tuv xml:lang="en_US"><seg>%s is displaying %s</seg></tuv>
+			<tuv xml:lang="en_US"><seg>%s is displaying ticket %s</seg></tuv>
+		</tu>
+		<tu tuid='activity.home'>
+			<tuv xml:lang="en_US"><seg>%s is browsing their assigned work</seg></tuv>
+		</tu>
+		<tu tuid='activity.kb'>
+			<tuv xml:lang="en_US"><seg>%s is browsing the knowledgebase</seg></tuv>
+		</tu>
+		<tu tuid='activity.mail.overview'>
+			<tuv xml:lang="en_US"><seg>%s is browsing %s in Overview</seg></tuv>
+		</tu>
+		<tu tuid='activity.mail.search'>
+			<tuv xml:lang="en_US"><seg>%s is searching tickets</seg></tuv>
+		</tu>
+		<tu tuid='activity.mail.workflow'>
+			<tuv xml:lang="en_US"><seg>%s is browsing %s in Workflow</seg></tuv>
+		</tu>
+		<tu tuid='activity.mail.workspaces'>
+			<tuv xml:lang="en_US"><seg>%s is browsing %s in Workspaces</seg></tuv>
 		</tu>
 		<tu tuid='activity.simulator'>
 			<tuv xml:lang="en_US"><seg>%s is generating simulated tickets</seg></tuv>

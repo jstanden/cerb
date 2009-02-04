@@ -262,6 +262,10 @@ class ChHomePage extends CerberusPageExtension {
 		}
 	}
 
+	function getActivity() {
+		return new Model_Activity('activity.home');
+	}
+	
 	function render() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -496,6 +500,10 @@ class ChActivityPage extends CerberusPageExtension {
 		}
 	}
 	
+	function getActivity() {
+		return new Model_Activity('activity.activity');
+	}
+	
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
@@ -678,24 +686,6 @@ class ChTicketsPage extends CerberusPageExtension {
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		// [TODO] Move this into DAO_Worker
-		// ====== Who's Online
-		list($whos_online_workers, $whos_online_count) = DAO_Worker::search(
-		    array(
-		        new DevblocksSearchCriteria(SearchFields_Worker::LAST_ACTIVITY_DATE,DevblocksSearchCriteria::OPER_GT,(time()-60*15)), // idle < 15 mins
-		        new DevblocksSearchCriteria(SearchFields_Worker::LAST_ACTIVITY,DevblocksSearchCriteria::OPER_NOT_LIKE,'%translation_code";N;%'), // translation code not null (not just logged out)
-		    ),
-		    -1,
-		    0,
-		    SearchFields_Worker::LAST_ACTIVITY_DATE,
-		    false,
-		    false
-		);
-		
-		$whos_online = DAO_Worker::getList(array_keys($whos_online_workers));
-		$tpl->assign('whos_online', $whos_online);
-		$tpl->assign('whos_online_count', count($whos_online));
-		
 		$groups = DAO_Group::getAll();
 		$tpl->assign('groups', $groups);
 		
@@ -830,6 +820,24 @@ class ChTicketsPage extends CerberusPageExtension {
 		
 		$tpl->assign('views', $views);
 		
+		// Log activity
+		DAO_Worker::logActivity(
+			$active_worker->id,
+			new Model_Activity(
+				'activity.mail.workflow',
+				array(
+					$workflowView->name
+				)
+			)
+		);
+		
+		// ====== Who's Online
+		$whos_online = DAO_Worker::getAllOnline();
+		if(!empty($whos_online)) {
+			$tpl->assign('whos_online', $whos_online);
+			$tpl->assign('whos_online_count', count($whos_online));
+		}
+		
         $tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/workflow/index.tpl.php');
 	}
 	
@@ -856,24 +864,6 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl->assign('workers', $workers);
 		
 		$active_worker = CerberusApplication::getActiveWorker();
-		
-		// [TODO] Move this into DAO_Worker
-		// ====== Who's Online
-		list($whos_online_workers, $whos_online_count) = DAO_Worker::search(
-		    array(
-		        new DevblocksSearchCriteria(SearchFields_Worker::LAST_ACTIVITY_DATE,DevblocksSearchCriteria::OPER_GT,(time()-60*15)), // idle < 15 mins
-		        new DevblocksSearchCriteria(SearchFields_Worker::LAST_ACTIVITY,DevblocksSearchCriteria::OPER_NOT_LIKE,'%translation_code";N;%'), // translation code not null (not just logged out)
-		    ),
-		    -1,
-		    0,
-		    SearchFields_Worker::LAST_ACTIVITY_DATE,
-		    false,
-		    false
-		);
-		
-		$whos_online = DAO_Worker::getList(array_keys($whos_online_workers));
-		$tpl->assign('whos_online', $whos_online);
-		$tpl->assign('whos_online_count', count($whos_online));		
 		
 		$groups = DAO_Group::getAll();
 		$tpl->assign('groups', $groups);
@@ -1038,6 +1028,24 @@ class ChTicketsPage extends CerberusPageExtension {
 		
 		$tpl->assign('views', $views);
 		
+		// Log activity
+		DAO_Worker::logActivity(
+			$active_worker->id,
+			new Model_Activity(
+				'activity.mail.overview',
+				array(
+					$overView->name
+				)
+			)
+		);
+		
+		// ====== Who's Online
+		$whos_online = DAO_Worker::getAllOnline();
+		if(!empty($whos_online)) {
+			$tpl->assign('whos_online', $whos_online);
+			$tpl->assign('whos_online_count', count($whos_online));
+		}
+		
         $tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/overview/index.tpl.php');		
 	}
 	
@@ -1047,7 +1055,16 @@ class ChTicketsPage extends CerberusPageExtension {
 		
 //		$db = DevblocksPlatform::getDatabaseService();
 		$visit = CerberusApplication::getVisit();
-
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		// Log activity
+		DAO_Worker::logActivity(
+			$active_worker->id,
+			new Model_Activity(
+				'activity.mail.search'
+			)
+		);
+		
 		// Remember the tab
 		$visit->set(CerberusVisit::KEY_MAIL_MODE, 'search');		
 		
@@ -1145,6 +1162,17 @@ class ChTicketsPage extends CerberusPageExtension {
 			$tpl->assign('current_workspace', $current_workspace);
 			$tpl->assign('views', $views);
 		}
+		
+		// Log activity
+		DAO_Worker::logActivity(
+			$active_worker->id,
+			new Model_Activity(
+				'activity.mail.workspaces',
+				array(
+					$current_workspace
+				)
+			)
+		);
 		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/lists/index.tpl.php');
 	}
@@ -4605,6 +4633,10 @@ class ChContactsPage extends CerberusPageExtension {
 //		));
 	}
 		
+	function getActivity() {
+		return new Model_Activity('activity.address_book');
+	}
+	
 	function isVisible() {
 		// check login
 		$visit = CerberusApplication::getVisit();
@@ -6423,6 +6455,10 @@ class ChKbPage extends CerberusPageExtension {
 		} else {
 			return true;
 		}
+	}
+	
+	function getActivity() {
+		return new Model_Activity('activity.kb');
 	}
 	
 	function render() {

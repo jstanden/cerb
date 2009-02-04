@@ -2186,6 +2186,10 @@ class ChReportsPage extends CerberusPageExtension {
 			return true;
 		}
 	}
+
+	function getActivity() {
+		return new Model_Activity('reports.activity');
+	}
 	
 	/**
 	 * Proxy page actions from an extension's render() to the extension's scope.

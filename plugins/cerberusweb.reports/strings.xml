@@ -50,6 +50,10 @@
 			<tuv xml:lang="en_US"><seg>Worker:</seg></tuv>
 		</tu>
 
+		<tu tuid='reports.activity'>
+			<tuv xml:lang="en_US"><seg>%s is running reports</seg></tuv>
+		</tu>
+
 		<!-- Custom Field Reports -->
 
 		<tu tuid='reports.ui.group.custom_fields'>
