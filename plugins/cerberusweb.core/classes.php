@@ -6231,7 +6231,8 @@ class ChGroupsPage extends CerberusPageExtension  {
 						switch($custom_fields[$field_id]->type) {
 							case 'S': // string
 							case 'T': // clob
-								// ... value inherits fine
+								$oper = DevblocksPlatform::importGPC($_REQUEST['value_cf_'.$field_id.'_oper'],'string','regexp');
+								$criteria['oper'] = $oper;
 								break;
 							case 'D': // dropdown
 							case 'M': // multi-dropdown
@@ -6248,9 +6249,17 @@ class ChGroupsPage extends CerberusPageExtension  {
 								$criteria['value'] = $out_array;
 								break;
 							case 'E': // date
-								// ... value inherits fine (for now)
+								$from = DevblocksPlatform::importGPC($_REQUEST['value_cf_'.$field_id.'_from'],'string','0');
+								$to = DevblocksPlatform::importGPC($_REQUEST['value_cf_'.$field_id.'_to'],'string','now');
+								$criteria['from'] = $from;
+								$criteria['to'] = $to;
+								unset($criteria['value']);
 								break;
 							case 'N': // number
+								$oper = DevblocksPlatform::importGPC($_REQUEST['value_cf_'.$field_id.'_oper'],'string','=');
+								$criteria['oper'] = $oper;
+								$criteria['value'] = intval($value);
+								break;
 							case 'C': // checkbox
 								$criteria['value'] = intval($value);
 								break;

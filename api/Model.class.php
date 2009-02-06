@@ -222,36 +222,58 @@ class Model_GroupInboxFilter {
 									break;
 							}
 							
-							// No values, skip.
-							if(!isset($field_values[$field_id]))
-								continue;
+							// No values, default.
+//							if(!isset($field_values[$field_id]))
+//								continue;
 							
 							// Type sensitive value comparisons
 							// [TODO] Operators
 							switch($field->type) {
 								case 'S': // string
 								case 'T': // clob
-									$regexp_val = DevblocksPlatform::strToRegExp($value);
-									if(@preg_match($regexp_val, $field_values[$field_id]))
+									$field_val = isset($field_values[$field_id]) ? $field_values[$field_id] : '';
+									$oper = isset($rule['oper']) ? $rule['oper'] : "=";
+									
+									if($oper == "=" && @preg_match(DevblocksPlatform::strToRegExp($value), $field_val))
+										$passed++;
+									elseif($oper == "!=" && @!preg_match(DevblocksPlatform::strToRegExp($value), $field_val))
 										$passed++;
 									break;
 								case 'N': // number
-									if(intval($value)==intval($field_values))
+									$field_val = isset($field_values[$field_id]) ? $field_values[$field_id] : 0;
+									$oper = isset($rule['oper']) ? $rule['oper'] : "=";
+									
+									if($oper=="=" && intval($field_val)==intval($value))
+										$passed++;
+									elseif($oper=="!=" && intval($field_val)!=intval($value))
+										$passed++;
+									elseif($oper==">" && $intval($field_val) > intval($value))
+										$passed++;
+									elseif($oper=="<" && $intval($field_val) < intval($value))
 										$passed++;
 									break;
 								case 'E': // date
-									// [TODO] This needs operators
+									$field_val = isset($field_values[$field_id]) ? intval($field_values[$field_id]) : 0;
+									$from = isset($rule['from']) ? $rule['from'] : "0";
+									$to = isset($rule['to']) ? $rule['to'] : "now";
+									
+									if(intval(@strtotime($from)) <= $field_val && intval(@strtotime($to)) >= $field_val) {
+										$passed++;
+									}
 									break;
 								case 'C': // checkbox
-									if(intval($value)==intval($field_values))
+									$field_val = isset($field_values[$field_id]) ? $field_values[$field_id] : 0;
+									if(intval($value)==intval($field_val))
 										$passed++;
 									break;
 								case 'D': // dropdown
 								case 'X': // multi-checkbox
 								case 'M': // multi-picklist
+									$field_val = isset($field_values[$field_id]) ? $field_values[$field_id] : array();
 									if(!is_array($value)) $value = array($value);
+									
 									foreach($value as $v) {
-										if(isset($field_values[$field_id][$v])) {
+										if(isset($field_val[$v])) {
 											$passed++;
 										}
 									}
