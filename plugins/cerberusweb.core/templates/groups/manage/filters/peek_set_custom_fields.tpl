@@ -35,7 +35,7 @@
 				</select>
 			{elseif 'M'==$field->type || 'X'==$field->type}
 				{foreach from=$field->options item=option}
-					<label><input type="checkbox" name="do_cf_{$field_id}[]" value="{$option|escape}" {if isset($action_field.value.$option)}checked="checked"{/if}> {$option}</label><br>
+					<label><input type="checkbox" name="do_cf_{$field_id}[]" value="+{$option|escape}" {if isset($action_field.value.$option)}checked="checked"{/if}> {$option}</label><br>
 				{/foreach}
 			{/if}
 			</div>

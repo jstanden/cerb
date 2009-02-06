@@ -6591,37 +6591,37 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 				case Model_CustomField::TYPE_MULTI_LINE:
 				case Model_CustomField::TYPE_SINGLE_LINE:
 					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'string','');
-					$do['cf_'.$field_id] = $field_value;
+					$do['cf_'.$field_id] = array('value' => $field_value);
 					break;
 					
 				case Model_CustomField::TYPE_NUMBER:
 					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'integer',0);
-					$do['cf_'.$field_id] = intval($field_value);
+					$do['cf_'.$field_id] = array('value' => intval($field_value));
 					break;
 					
 				case Model_CustomField::TYPE_DROPDOWN:
 					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'string','');
-					$do['cf_'.$field_id] = $field_value;
+					$do['cf_'.$field_id] = array('value' => $field_value);
 					break;
 					
 				case Model_CustomField::TYPE_MULTI_PICKLIST:
 					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'array',array());
-					$do['cf_'.$field_id] = $field_value;
+					$do['cf_'.$field_id] = array('value' => $field_value);
 					break;
 					
 				case Model_CustomField::TYPE_CHECKBOX:
 					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'integer',0);
-					$do['cf_'.$field_id] = !empty($field_value) ? 1 : 0;
+					$do['cf_'.$field_id] = array('value' => !empty($field_value) ? 1 : 0);
 					break;
 
 				case Model_CustomField::TYPE_MULTI_CHECKBOX:
 					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'array',array());
-					$do['cf_'.$field_id] = $field_value;
+					$do['cf_'.$field_id] = array('value' => $field_value);
 					break;
 					
 				case Model_CustomField::TYPE_DATE:
 					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'string','');
-					$do['cf_'.$field_id] = !empty($field_value) ? @strtotime($field_value) : '';
+					$do['cf_'.$field_id] = array('value' => $field_value);
 					break;
 			}
 		}

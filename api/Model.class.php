@@ -331,30 +331,10 @@ class Model_GroupInboxFilter {
 					if(substr($action,0,3)=="cf_") {
 						$field_id = intval(substr($action,3));
 						
-						if(!isset($custom_fields[$field_id]) || !isset($params['value'])) {
+						if(!isset($custom_fields[$field_id]) || !isset($params['value']))
 							break;
-						}
 
-						$value = $params['value'];
-						
-						switch($custom_fields[$field_id]->type) {
-							case Model_CustomField::TYPE_DATE:
-								$value = intval(@strtotime($value));
-								break;
-							case Model_CustomField::TYPE_NUMBER:
-							case Model_CustomField::TYPE_CHECKBOX:
-								$value = intval($value);
-								break;
-							case Model_CustomField::TYPE_MULTI_CHECKBOX:
-							case Model_CustomField::TYPE_MULTI_PICKLIST:
-								if(is_array($value))
-								foreach($value as $k => $v) {
-									$value[$k] = '+'.$v; // delta set
-								}
-								break;
-						}
-							
-						$field_values[$field_id] = $value;
+						$field_values[$field_id] = $params;
 					}
 					break;
 			}
@@ -625,9 +605,26 @@ abstract class C4_AbstractView {
 		$fields = DAO_CustomField::getAll();
 		
 		if(!empty($custom_fields))
-		foreach($custom_fields as $cf_id => $cf_val) {
+		foreach($custom_fields as $cf_id => $params) {
+			if(!is_array($params) || !isset($params['value']))
+				continue;
+				
+			$cf_val = $params['value'];
+			
+			// Data massaging
+			switch($fields[$cf_id]->type) {
+				case Model_CustomField::TYPE_DATE:
+					$cf_val = intval(@strtotime($cf_val));
+					break;
+				case Model_CustomField::TYPE_CHECKBOX:
+				case Model_CustomField::TYPE_NUMBER:
+					$cf_val = intval($cf_val);
+					break;
+			}
+			
 			// If multi-selection types, handle delta changes
-			if($fields[$cf_id]->type=='M' || $fields[$cf_id]->type=='X') {
+			if(Model_CustomField::TYPE_MULTI_PICKLIST==$fields[$cf_id]->type 
+				|| Model_CustomField::TYPE_MULTI_CHECKBOX==$fields[$cf_id]->type) {
 				if(is_array($cf_val))
 				foreach($cf_val as $val) {
 					$op = substr($val,0,1);
@@ -642,6 +639,7 @@ abstract class C4_AbstractView {
 					}
 				}
 					
+			// Otherwise, set/unset as a single field
 			} else {
 				if(is_array($ids))
 				foreach($ids as $id) {
