@@ -180,7 +180,7 @@ class UmScApp extends Extension_UsermeetTool {
 			
 	    	default:
 	    		// Look up the current module
-   				$tpl->display('file:' . $tpl_path . 'portal/sc/themes/'.$theme.'/index.tpl.php');
+   				$tpl->display('file:' . $tpl_path . 'portal/sc/themes/'.$theme.'/index.tpl');
 		    	break;
 		}
 	}
@@ -280,7 +280,7 @@ class UmScApp extends Extension_UsermeetTool {
 		$ticket_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Ticket::ID);
 		$tpl->assign('ticket_fields', $ticket_fields);
 		
-        $tpl->display("file:${tpl_path}portal/sc/config/index.tpl.php");
+        $tpl->display("file:${tpl_path}portal/sc/config/index.tpl");
     }
     
     public function saveConfiguration() {
@@ -429,7 +429,7 @@ class UmScApp extends Extension_UsermeetTool {
 		$ticket_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Ticket::ID);
 		$tpl->assign('ticket_fields', $ticket_fields);
         
-        $tpl->display("file:${tpl_path}portal/sc/config/add_situation.tpl.php");
+        $tpl->display("file:${tpl_path}portal/sc/config/add_situation.tpl");
 		exit;
     }
     
@@ -1113,7 +1113,7 @@ class UmScCoreController extends Extension_UmScController {
 	    		
 	    		$tpl->assign('feeds', $feeds);
 				
-				$tpl->display("file:${tpl_path}portal/sc/internal/home/index.tpl.php");
+				$tpl->display("file:${tpl_path}portal/sc/internal/home/index.tpl");
 				break;
 				
 			case 'account':
@@ -1123,7 +1123,7 @@ class UmScCoreController extends Extension_UmScController {
 				$address = DAO_Address::get($active_user->id);
 				$tpl->assign('address',$address);
 				
-				$tpl->display("file:${tpl_path}portal/sc/internal/account/index.tpl.php");
+				$tpl->display("file:${tpl_path}portal/sc/internal/account/index.tpl");
 				break;
 
 			case 'kb':
@@ -1193,7 +1193,7 @@ class UmScCoreController extends Extension_UmScController {
 						}
 						
 						$tpl->assign('breadcrumbs',$breadcrumbs);
-						$tpl->display("file:${tpl_path}portal/sc/internal/kb/article.tpl.php");
+						$tpl->display("file:${tpl_path}portal/sc/internal/kb/article.tpl");
 						break;
 					
 					default:
@@ -1253,7 +1253,7 @@ class UmScCoreController extends Extension_UmScController {
 							false
 						);
 			    		$tpl->assign('articles', $articles);
-			    		$tpl->display("file:${tpl_path}portal/sc/internal/kb/index.tpl.php");
+			    		$tpl->display("file:${tpl_path}portal/sc/internal/kb/index.tpl");
 			    	break;
 				}
 				
@@ -1310,7 +1310,7 @@ class UmScCoreController extends Extension_UmScController {
 				);
 				$tpl->assign('articles', $articles);
 				
-				$tpl->display("file:${tpl_path}portal/sc/internal/answers/index.tpl.php");
+				$tpl->display("file:${tpl_path}portal/sc/internal/answers/index.tpl");
 				break;
 				
 			case 'contact':
@@ -1323,7 +1323,7 @@ class UmScCoreController extends Extension_UmScController {
 		    	switch($response) {
 		    		case 'confirm':
 		    			$tpl->assign('last_opened',$umsession->getProperty('support.write.last_opened',''));
-		    			$tpl->display("file:${tpl_path}portal/sc/internal/contact/confirm.tpl.php");
+		    			$tpl->display("file:${tpl_path}portal/sc/internal/contact/confirm.tpl");
 		    			break;
 		    		
 		    		default:
@@ -1360,7 +1360,7 @@ class UmScCoreController extends Extension_UmScController {
 						        	$umsession->setProperty('support.write.last_nature', $sNature);
 						        	reset($dispatch);
 						        } else {
-				        			$tpl->display("file:${tpl_path}portal/sc/internal/contact/step1.tpl.php");
+				        			$tpl->display("file:${tpl_path}portal/sc/internal/contact/step1.tpl");
 						        	break;
 						        }
 				        		
@@ -1379,14 +1379,14 @@ class UmScCoreController extends Extension_UmScController {
 						        $ticket_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Ticket::ID);
         						$tpl->assign('ticket_fields', $ticket_fields);
 						        
-				        		$tpl->display("file:${tpl_path}portal/sc/internal/contact/step2.tpl.php");
+				        		$tpl->display("file:${tpl_path}portal/sc/internal/contact/step2.tpl");
 				        		break;
 				        }
 				        break;
 		    		}
 		    		
 		    	break;
-//				$tpl->display("file:${tpl_path}portal/sc/internal/contact/index.tpl.php");
+//				$tpl->display("file:${tpl_path}portal/sc/internal/contact/index.tpl");
 //				break;
 				
 			case 'history':
@@ -1423,7 +1423,7 @@ class UmScCoreController extends Extension_UmScController {
 						false
 					);
 					$tpl->assign('closed_tickets', $closed_tickets);
-					$tpl->display("file:${tpl_path}portal/sc/internal/history/index.tpl.php");
+					$tpl->display("file:${tpl_path}portal/sc/internal/history/index.tpl");
 					
 				} else {
 					// Secure retrieval (address + mask)
@@ -1448,7 +1448,7 @@ class UmScCoreController extends Extension_UmScController {
 						
 						$tpl->assign('ticket', $ticket);
 						$tpl->assign('messages', $messages);
-						$tpl->display("file:${tpl_path}portal/sc/internal/history/display.tpl.php");						
+						$tpl->display("file:${tpl_path}portal/sc/internal/history/display.tpl");						
 					}
 				}
 				
@@ -1462,16 +1462,16 @@ class UmScCoreController extends Extension_UmScController {
 				
 				switch($step) {
 					case 'forgot':
-						$tpl->display("file:${tpl_path}portal/sc/internal/register/forgot.tpl.php");
+						$tpl->display("file:${tpl_path}portal/sc/internal/register/forgot.tpl");
 						break;
 					case 'forgot2':
-						$tpl->display("file:${tpl_path}portal/sc/internal/register/forgot_confirm.tpl.php");
+						$tpl->display("file:${tpl_path}portal/sc/internal/register/forgot_confirm.tpl");
 						break;
 					case 'confirm':
-						$tpl->display("file:${tpl_path}portal/sc/internal/register/confirm.tpl.php");
+						$tpl->display("file:${tpl_path}portal/sc/internal/register/confirm.tpl");
 						break;
 					default:
-						$tpl->display("file:${tpl_path}portal/sc/internal/register/index.tpl.php");
+						$tpl->display("file:${tpl_path}portal/sc/internal/register/index.tpl");
 						break;
 				}
 				

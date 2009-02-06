@@ -146,7 +146,7 @@ class ChAuditLogTicketTab extends Extension_TicketTab {
 		
 		$tpl->assign('view', $view);
 		
-		$tpl->display('file:' . $this->tpl_path . '/display/log/index.tpl.php');
+		$tpl->display('file:' . $this->tpl_path . '/display/log/index.tpl');
 	}
 	
 	function saveTab() {
@@ -412,7 +412,7 @@ class C4_TicketAuditLogView extends C4_AbstractView {
 		$ticket_fields = SearchFields_Ticket::getFields();
 		$tpl->assign('ticket_fields', $ticket_fields);
 		
-		$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.auditlog/templates/display/log/log_view.tpl.php');
+		$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.auditlog/templates/display/log/log_view.tpl');
 	}
 	
 	function renderCriteria($field) {
@@ -422,7 +422,7 @@ class C4_TicketAuditLogView extends C4_AbstractView {
 		switch($field) {
 			case SearchFields_TicketAuditLog::CHANGE_FIELD:
 			case SearchFields_TicketAuditLog::CHANGE_VALUE:
-				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__string.tpl.php');
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__string.tpl');
 				break;
 			default:
 				echo '';

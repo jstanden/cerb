@@ -74,7 +74,7 @@ class ChFeedbackActivityTab extends Extension_ActivityTab {
 		$tpl->assign('view_fields', C4_FeedbackEntryView::getFields());
 		$tpl->assign('view_searchable_fields', C4_FeedbackEntryView::getSearchFields());
 		
-		$tpl->display($tpl_path . 'activity_tab/index.tpl.php');		
+		$tpl->display($tpl_path . 'activity_tab/index.tpl');		
 	}
 }
 endif;
@@ -391,7 +391,7 @@ class C4_FeedbackEntryView extends C4_AbstractView {
 		
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('view_fields', $this->getColumns());
-		$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.feedback/templates/feedback/view.tpl.php');
+		$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.feedback/templates/feedback/view.tpl');
 	}
 
 	function renderCriteria($field) {
@@ -402,27 +402,27 @@ class C4_FeedbackEntryView extends C4_AbstractView {
 			case SearchFields_FeedbackEntry::QUOTE_TEXT:
 			case SearchFields_FeedbackEntry::SOURCE_URL:
 			case SearchFields_FeedbackEntry::ADDRESS_EMAIL:
-				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__string.tpl.php');
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__string.tpl');
 				break;
 			case SearchFields_FeedbackEntry::ID:
-				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__number.tpl.php');
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__number.tpl');
 				break;
 			case SearchFields_FeedbackEntry::LOG_DATE:
-				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__date.tpl.php');
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__date.tpl');
 				break;
 			case SearchFields_FeedbackEntry::WORKER_ID:
 				$workers = DAO_Worker::getAll();
 				$tpl->assign('workers', $workers);
-				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__worker.tpl.php');
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__worker.tpl');
 				break;
 			case SearchFields_FeedbackEntry::QUOTE_MOOD:
 				// [TODO] Translations
-				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.feedback/templates/feedback/criteria/quote_mood.tpl.php');
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.feedback/templates/feedback/criteria/quote_mood.tpl');
 				break;
 			case SearchFields_FeedbackEntry::LIST_ID:
 				$lists = DAO_FeedbackList::getWhere(); // [TODO] getAll cache
 				$tpl->assign('lists', $lists);
-				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.feedback/templates/feedback/criteria/list.tpl.php');
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.feedback/templates/feedback/criteria/list.tpl');
 				break;
 			default:
 				// Custom Fields
@@ -745,7 +745,7 @@ class ChFeedbackConfigTab extends Extension_ConfigTab {
 		$lists = DAO_FeedbackList::getWhere();
 		$tpl->assign('lists', $lists);
 		
-		$tpl->display('file:' . $tpl_path . 'config/lists/index.tpl.php');
+		$tpl->display('file:' . $tpl_path . 'config/lists/index.tpl');
 	}
 	
 	function saveTab() {
@@ -799,7 +799,7 @@ class ChFeedbackConfigTab extends Extension_ConfigTab {
 		if(!empty($id) && null != ($list = DAO_FeedbackList::get($id)))
 			$tpl->assign('list', $list);
 		
-		$tpl->display('file:' . $tpl_path . 'config/lists/edit_list.tpl.php');
+		$tpl->display('file:' . $tpl_path . 'config/lists/edit_list.tpl');
 	}
 	
 };
@@ -871,7 +871,7 @@ class ChFeedbackController extends DevblocksControllerExtension {
 		$license = CerberusLicense::getInstance();
 		if(empty($id) && (empty($license['key']) || (!empty($license['key']) && !empty($license['users'])))
 			&& 10 <= DAO_FeedbackEntry::getItemCount()) {
-			$tpl->display('file:' . $tpl_path . 'feedback/ajax/trial.tpl.php');
+			$tpl->display('file:' . $tpl_path . 'feedback/ajax/trial.tpl');
 			return;
 		}
 		
@@ -935,7 +935,7 @@ class ChFeedbackController extends DevblocksControllerExtension {
 		$types = Model_CustomField::getTypes();
 		$tpl->assign('types', $types);
 		
-		$tpl->display('file:' . $this->plugin_path . '/templates/feedback/ajax/feedback_entry_panel.tpl.php');
+		$tpl->display('file:' . $this->plugin_path . '/templates/feedback/ajax/feedback_entry_panel.tpl');
 	}
 	
 	function saveEntryAction() {
@@ -1057,7 +1057,7 @@ class ChFeedbackController extends DevblocksControllerExtension {
 		$tpl->assign('custom_fields', $custom_fields);
 		
 		$tpl->cache_lifetime = "0";
-		$tpl->display('file:' . $path . 'feedback/bulk.tpl.php');
+		$tpl->display('file:' . $path . 'feedback/bulk.tpl');
 	}
 	
 	function doBulkUpdateAction() {
@@ -1100,7 +1100,7 @@ if (class_exists('Extension_MessageToolbarItem',true)):
 			
 			$tpl->assign('message', $message); /* @var $message CerberusMessage */
 			
-			$tpl->display('file:' . $tpl_path . 'feedback/renderers/message_toolbar_feedback.tpl.php');
+			$tpl->display('file:' . $tpl_path . 'feedback/renderers/message_toolbar_feedback.tpl');
 		}
 	};
 endif;

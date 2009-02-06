@@ -149,7 +149,7 @@ class ParseCron extends CerberusCronPageExtension {
 
 		$tpl->assign('max_messages', $this->getParam('max_messages', 500));
 
-		$tpl->display($tpl_path . 'cron/parser/config.tpl.php');
+		$tpl->display($tpl_path . 'cron/parser/config.tpl');
 	}
 
 	function saveConfigurationAction() {
@@ -240,7 +240,7 @@ class MaintCron extends CerberusCronPageExtension {
 
 		$tpl->assign('purge_waitdays', $this->getParam('purge_waitdays', 7));
 
-		$tpl->display($tpl_path . 'cron/maint/config.tpl.php');
+		$tpl->display($tpl_path . 'cron/maint/config.tpl');
 	}
 
 	function saveConfigurationAction() {
@@ -273,7 +273,7 @@ class HeartbeatCron extends CerberusCronPageExtension {
 		$tpl_path = dirname(__FILE__) . '/templates/';
 		$tpl->assign('path', $tpl_path);
 
-		$tpl->display($tpl_path . 'cron/heartbeat/config.tpl.php');
+		$tpl->display($tpl_path . 'cron/heartbeat/config.tpl');
 	}
 };
 
@@ -992,7 +992,7 @@ class ImportCron extends CerberusCronPageExtension {
 		$tpl_path = dirname(__FILE__) . '/templates/';
 		$tpl->assign('path', $tpl_path);
 
-		$tpl->display($tpl_path . 'cron/import/config.tpl.php');
+		$tpl->display($tpl_path . 'cron/import/config.tpl');
 	}
 };
 
@@ -1147,7 +1147,7 @@ class Pop3Cron extends CerberusCronPageExtension {
 		$timeout = ini_get('max_execution_time');
 		$tpl->assign('max_messages', $this->getParam('max_messages', (($timeout) ? 20 : 50)));
 
-		$tpl->display($tpl_path . 'cron/pop3/config.tpl.php');
+		$tpl->display($tpl_path . 'cron/pop3/config.tpl');
 	}
 
 	function saveConfigurationAction() {

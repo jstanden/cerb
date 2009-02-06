@@ -48,7 +48,7 @@ class ChSpamAnalysisTicketTab extends Extension_TicketTab {
 		$analysis = CerberusBayes::calculateTicketSpamProbability($ticket_id, true);
 		$tpl->assign('analysis', $analysis);
 		
-		$tpl->display('file:' . $tpl_path . 'ticket_tab/index.tpl.php');
+		$tpl->display('file:' . $tpl_path . 'ticket_tab/index.tpl');
 	}
 	
 	function saveTab() {

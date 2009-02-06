@@ -304,7 +304,7 @@ switch($step) {
 		
 		$tpl->assign('fails', $fails);
 		$tpl->assign('results', $results);
-		$tpl->assign('template', 'steps/step_environment.tpl.php');
+		$tpl->assign('template', 'steps/step_environment.tpl');
 		
 		break;
 	
@@ -313,11 +313,11 @@ switch($step) {
 	    
 	    if(1 == $accept) {
 			$tpl->assign('step', STEP_DATABASE);
-			$tpl->display('steps/redirect.tpl.php');
+			$tpl->display('steps/redirect.tpl');
 			exit;
 	    }
 		
-		$tpl->assign('template', 'steps/step_license.tpl.php');
+		$tpl->assign('template', 'steps/step_license.tpl');
 		
 	    break;	
 	
@@ -337,7 +337,7 @@ switch($step) {
 		if(!is_null($db) && @$db->IsConnected()) {
 			// If we've been to this step, skip past framework.config.php
 			$tpl->assign('step', STEP_INIT_DB);
-			$tpl->display('steps/redirect.tpl.php');
+			$tpl->display('steps/redirect.tpl');
 			exit;
 		}
 		unset($db);
@@ -378,22 +378,22 @@ switch($step) {
 				if(0 != strcasecmp($result,'config')) {
 					$tpl->assign('result', $result);
 					$tpl->assign('config_path', realpath(APP_PATH . "/framework.config.php"));
-					$tpl->assign('template', 'steps/step_config_file.tpl.php');
+					$tpl->assign('template', 'steps/step_config_file.tpl');
 					
 				} else { // skip the config writing step
 					$tpl->assign('step', STEP_INIT_DB);
-					$tpl->display('steps/redirect.tpl.php');
+					$tpl->display('steps/redirect.tpl');
 					exit;
 				}
 				
 			} else { // If failed, re-enter
 				$tpl->assign('failed', true);
-				$tpl->assign('template', 'steps/step_database.tpl.php');
+				$tpl->assign('template', 'steps/step_database.tpl');
 			}
 			
 		} else {
 			$tpl->assign('db_server', 'localhost');
-			$tpl->assign('template', 'steps/step_database.tpl.php');
+			$tpl->assign('template', 'steps/step_database.tpl');
 		}
 		break;
 		
@@ -415,7 +415,7 @@ switch($step) {
 			0 == strcasecmp($db_pass,APP_DB_PASS)
 		) { // we did it!
 			$tpl->assign('step', STEP_INIT_DB);
-			$tpl->display('steps/redirect.tpl.php');
+			$tpl->display('steps/redirect.tpl');
 			exit;
 			
 		} else { // oops!
@@ -428,7 +428,7 @@ switch($step) {
 			$tpl->assign('result', $result);
 			$tpl->assign('config_path', realpath(APP_PATH . "/framework.config.php"));
 			
-			$tpl->assign('template', 'steps/step_config_file.tpl.php');
+			$tpl->assign('template', 'steps/step_config_file.tpl');
 		}
 		
 		break;
@@ -446,7 +446,7 @@ switch($step) {
 			// Clean script
 			if(!$patchMgr->run()) {
 				// [TODO] Show more info on the error
-				$tpl->assign('template', 'steps/step_init_db.tpl.php');
+				$tpl->assign('template', 'steps/step_init_db.tpl');
 				
 			} else { // success
 				// Read in plugin information from the filesystem to the database
@@ -488,7 +488,7 @@ switch($step) {
 				}
 				
 				if(!$patchMgr->run()) { // fail
-					$tpl->assign('template', 'steps/step_init_db.tpl.php');
+					$tpl->assign('template', 'steps/step_init_db.tpl');
 					
 				} else {
 					// Reload plugin translations
@@ -496,7 +496,7 @@ switch($step) {
 					
 					// success
 					$tpl->assign('step', STEP_CONTACT);
-					$tpl->display('steps/redirect.tpl.php');
+					$tpl->display('steps/redirect.tpl');
 					exit;
 				}
 			
@@ -511,7 +511,7 @@ switch($step) {
 			 * request where the clean DB failed.
 			 */
 			$tpl->assign('step', STEP_UPGRADE);
-			$tpl->display('steps/redirect.tpl.php');
+			$tpl->display('steps/redirect.tpl');
 			exit;
 		}
 			
@@ -544,7 +544,7 @@ switch($step) {
 			}
 			
 			$tpl->assign('step', STEP_OUTGOING_MAIL);
-			$tpl->display('steps/redirect.tpl.php');
+			$tpl->display('steps/redirect.tpl');
 			exit;
 		}
 		
@@ -556,7 +556,7 @@ switch($step) {
 		$tpl->assign('default_reply_personal', $default_reply_personal);
 		$tpl->assign('helpdesk_title', $helpdesk_title);
 		
-		$tpl->assign('template', 'steps/step_contact.tpl.php');
+		$tpl->assign('template', 'steps/step_contact.tpl');
 		
 		break;
 	
@@ -603,7 +603,7 @@ switch($step) {
 					$settings->set(CerberusSettings::SMTP_ENCRYPTION_TYPE, $smtp_enc);
 				
 				$tpl->assign('step', STEP_DEFAULTS);
-				$tpl->display('steps/redirect.tpl.php');
+				$tpl->display('steps/redirect.tpl');
 				exit;
 				
 			}
@@ -624,7 +624,7 @@ switch($step) {
 		}
 		
 		// First time, or retry
-		$tpl->assign('template', 'steps/step_outgoing_mail.tpl.php');
+		$tpl->assign('template', 'steps/step_outgoing_mail.tpl');
 		
 		break;
 
@@ -757,7 +757,7 @@ EOF;
 				}
 				
 				$tpl->assign('step', STEP_REGISTER);
-				$tpl->display('steps/redirect.tpl.php');
+				$tpl->display('steps/redirect.tpl');
 				exit;
 				
 			} else {
@@ -770,7 +770,7 @@ EOF;
 			
 		}
 		
-		$tpl->assign('template', 'steps/step_defaults.tpl.php');
+		$tpl->assign('template', 'steps/step_defaults.tpl');
 		
 		break;
 		
@@ -840,15 +840,15 @@ EOF;
 			}
 			
 			$tpl->assign('step', STEP_FINISHED);
-			$tpl->display('steps/redirect.tpl.php');
+			$tpl->display('steps/redirect.tpl');
 			exit;
 		}
 		
-		$tpl->assign('template', 'steps/step_register.tpl.php');
+		$tpl->assign('template', 'steps/step_register.tpl');
 		break;
 		
 	case STEP_UPGRADE:
-		$tpl->assign('template', 'steps/step_upgrade.tpl.php');
+		$tpl->assign('template', 'steps/step_upgrade.tpl');
 		break;
 		
 	// [TODO] Delete the /install/ directory (security)
@@ -887,7 +887,7 @@ EOF;
 			
 		}
 		
-		$tpl->assign('template', 'steps/step_finished.tpl.php');
+		$tpl->assign('template', 'steps/step_finished.tpl');
 		break;
 }
 
@@ -895,4 +895,4 @@ EOF;
 
 // [TODO] Check if safe_mode is disabled, and if so set our php.ini overrides in the framework.config.php rewrite
 
-$tpl->display('base.tpl.php');
+$tpl->display('base.tpl');

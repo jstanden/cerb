@@ -42,7 +42,7 @@ class ChTranslatorsConfigTab extends Extension_ConfigTab {
 		$tpl->assign('view_fields', C4_TranslationView::getFields());
 		$tpl->assign('view_searchable_fields', C4_TranslationView::getSearchFields());
 		
-		$tpl->display('file:' . $tpl_path . 'config/translations/index.tpl.php');
+		$tpl->display('file:' . $tpl_path . 'config/translations/index.tpl');
 	}
 	
 	function saveTab() {
@@ -100,7 +100,7 @@ class C4_TranslationView extends C4_AbstractView {
 		
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('view_fields', $this->getColumns());
-		$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.translators/templates/config/translations/view.tpl.php');
+		$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.translators/templates/config/translations/view.tpl');
 	}
 
 	function renderCriteria($field) {
@@ -111,15 +111,15 @@ class C4_TranslationView extends C4_AbstractView {
 			case SearchFields_Translation::STRING_ID:
 			case SearchFields_Translation::STRING_DEFAULT:
 			case SearchFields_Translation::STRING_OVERRIDE:
-				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__string.tpl.php');
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__string.tpl');
 				break;
 			case SearchFields_Translation::ID:
-				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__number.tpl.php');
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__number.tpl');
 				break;
 			case SearchFields_Translation::LANG_CODE:
 				$langs = DAO_Translation::getDefinedLangCodes(); // [TODO] Cache!
 				$tpl->assign('langs', $langs);
-				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__language.tpl.php');
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__language.tpl');
 				break;
 			default:
 				echo '';
@@ -276,7 +276,7 @@ class ChTranslatorsAjaxController extends DevblocksControllerExtension {
 		$codes = DAO_Translation::getDefinedLangCodes();
 		$tpl->assign('codes', $codes);
 		
-		$tpl->display('file:' . $tpl_path . 'translators/ajax/find_strings_panel.tpl.php');
+		$tpl->display('file:' . $tpl_path . 'translators/ajax/find_strings_panel.tpl');
 	}
 
 	function saveFindStringsPanelAction() {
@@ -348,7 +348,7 @@ class ChTranslatorsAjaxController extends DevblocksControllerExtension {
 		$codes = DAO_Translation::getDefinedLangCodes();
 		$tpl->assign('codes', $codes);
 		
-		$tpl->display('file:' . $tpl_path . 'translators/ajax/add_language_panel.tpl.php');
+		$tpl->display('file:' . $tpl_path . 'translators/ajax/add_language_panel.tpl');
 	}
 
 	function saveAddLanguagePanelAction() {
@@ -457,7 +457,7 @@ class ChTranslatorsAjaxController extends DevblocksControllerExtension {
 //		$codes = DAO_Translation::getDefinedLangCodes();
 //		$tpl->assign('codes', $codes);
 		
-		$tpl->display('file:' . $tpl_path . 'translators/ajax/import_strings_panel.tpl.php');
+		$tpl->display('file:' . $tpl_path . 'translators/ajax/import_strings_panel.tpl');
 	}
 
 	function saveImportStringsPanelAction() {

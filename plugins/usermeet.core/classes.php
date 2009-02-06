@@ -216,7 +216,7 @@ class UmConfigCommunitiesTab extends Extension_ConfigTab {
 	    
 	    $tpl->assign('community_addons', $community_addons);
 		
-		$tpl->display('file:' . $tpl_path . 'community/config/tab/index.tpl.php');
+		$tpl->display('file:' . $tpl_path . 'community/config/tab/index.tpl');
 	}
 	
 	function getCommunityAction() {
@@ -236,7 +236,7 @@ class UmConfigCommunitiesTab extends Extension_ConfigTab {
 	    $tools = DevblocksPlatform::getExtensions('usermeet.tool', false);
 	    $tpl->assign('tool_manifests', $tools);
 		
-		$tpl->display('file:' . $tpl_path . 'community/config/tab/community_config.tpl.php');
+		$tpl->display('file:' . $tpl_path . 'community/config/tab/community_config.tpl');
 	}
 	
 	function saveCommunityAction() {
@@ -349,7 +349,7 @@ class UmConfigCommunitiesTab extends Extension_ConfigTab {
 		$tpl->assign('base', $base);
 		$tpl->assign('path', $path);
         
-		$tpl->display('file:' . $tpl_path . 'community/config/tab/tool_config.tpl.php');
+		$tpl->display('file:' . $tpl_path . 'community/config/tab/tool_config.tpl');
 	}
 	
 	function saveCommunityToolAction() {
@@ -454,7 +454,7 @@ class UmContactApp extends Extension_UsermeetTool {
 		    	switch($response) {
 		    		case 'confirm':
 		    			$tpl->assign('last_opened',$umsession->getProperty('support.write.last_opened',''));
-		    			$tpl->display('file:' . dirname(__FILE__) . '/templates/portal/contact/write/confirm.tpl.php');
+		    			$tpl->display('file:' . dirname(__FILE__) . '/templates/portal/contact/write/confirm.tpl');
 		    			break;
 		    		
 		    		default:
@@ -477,7 +477,7 @@ class UmContactApp extends Extension_UsermeetTool {
 				        
 				        switch($response) {
 				        	default:
-				        		$tpl->display('file:' . dirname(__FILE__) . '/templates/portal/contact/write/step1.tpl.php');
+				        		$tpl->display('file:' . dirname(__FILE__) . '/templates/portal/contact/write/step1.tpl');
 				        		break;
 				        		
 				        	case 'step2':
@@ -491,11 +491,11 @@ class UmContactApp extends Extension_UsermeetTool {
 						        		break;
 						        	}
 						        }
-				        		$tpl->display('file:' . dirname(__FILE__) . '/templates/portal/contact/write/step2.tpl.php');
+				        		$tpl->display('file:' . dirname(__FILE__) . '/templates/portal/contact/write/step2.tpl');
 				        		break;
 				        		
 				        	case 'step3':
-				        		$tpl->display('file:' . dirname(__FILE__) . '/templates/portal/contact/write/step3.tpl.php');
+				        		$tpl->display('file:' . dirname(__FILE__) . '/templates/portal/contact/write/step3.tpl');
 				        		break;
 				        }
 				        break;
@@ -671,7 +671,7 @@ class UmContactApp extends Extension_UsermeetTool {
         $captcha_enabled = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_CAPTCHA_ENABLED, 1);
 		$tpl->assign('captcha_enabled', $captcha_enabled);
         
-        $tpl->display("file:${tpl_path}portal/contact/config/index.tpl.php");
+        $tpl->display("file:${tpl_path}portal/contact/config/index.tpl");
     }
     
     // Ajax
@@ -701,7 +701,7 @@ class UmContactApp extends Extension_UsermeetTool {
         	}
         }
         
-        $tpl->display("file:${tpl_path}portal/contact/config/add_situation.tpl.php");
+        $tpl->display("file:${tpl_path}portal/contact/config/add_situation.tpl");
 		exit;
     }
     
@@ -994,14 +994,14 @@ class UmKbApp extends Extension_UsermeetTool {
 				$tpl->assign('articles', $articles);
 				$tpl->assign('count', $count);
 
-				$tpl->display('file:' . dirname(__FILE__) . '/templates/portal/kb/search.tpl.php');
+				$tpl->display('file:' . dirname(__FILE__) . '/templates/portal/kb/search.tpl');
 				break;
 			
 //			case 'import':
 //				if(empty($editor))
 //					break;
 //				
-//				$tpl->display('file:' . dirname(__FILE__) . '/templates/portal/kb/public_config/import.tpl.php');
+//				$tpl->display('file:' . dirname(__FILE__) . '/templates/portal/kb/public_config/import.tpl');
 //				break;
 				
 			case 'article':
@@ -1063,7 +1063,7 @@ class UmKbApp extends Extension_UsermeetTool {
 				
 				$tpl->assign('breadcrumbs',$breadcrumbs);
 				
-		    	$tpl->display('file:' . dirname(__FILE__) . '/templates/portal/kb/article.tpl.php');
+		    	$tpl->display('file:' . dirname(__FILE__) . '/templates/portal/kb/article.tpl');
 				break;
 			
 			case 'browse':
@@ -1127,7 +1127,7 @@ class UmKbApp extends Extension_UsermeetTool {
 		    		$tpl->assign('articles', $articles);
 				}
 	    		
-   				$tpl->display('file:' . dirname(__FILE__) . '/templates/portal/kb/index.tpl.php');
+   				$tpl->display('file:' . dirname(__FILE__) . '/templates/portal/kb/index.tpl');
 		    	break;
 		}
 	}
@@ -1166,7 +1166,7 @@ class UmKbApp extends Extension_UsermeetTool {
         $kb_roots = !empty($sKbRoots) ? unserialize($sKbRoots) : array();
         $tpl->assign('kb_roots', $kb_roots);
 		
-        $tpl->display("file:${tpl_path}portal/kb/config/index.tpl.php");
+        $tpl->display("file:${tpl_path}portal/kb/config/index.tpl");
     }
     
     public function saveConfiguration() {

@@ -48,7 +48,7 @@
  * 		and Joe Geck.
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-define("APP_BUILD", 853);
+define("APP_BUILD", 854);
 define("APP_MAIL_PATH", realpath(APP_PATH . '/storage/mail') . DIRECTORY_SEPARATOR);
 
 include_once(APP_PATH . "/api/DAO.class.php");
@@ -118,8 +118,6 @@ class CerberusApplication extends DevblocksApplication {
 	
 	static function checkRequirements() {
 		$errors = array();
-		
-		// [TODO] Add MySQL as a requirement
 		
 		// Privileges
 		
@@ -521,14 +519,14 @@ class CerberusApplication extends DevblocksApplication {
 	 * [TODO] Move this into a better API holding place
 	 *
 	 * @param integer $team_id
-	 * @param Model_TeamRoutingRule $ticket
-	 * @return Model_TeamRoutingRule|false
+	 * @param Model_GroupInboxFilter $ticket
+	 * @return Model_GroupInboxFilter|false
 	 */
 	static public function runGroupRouting($group_id, $ticket_id, $only_rule_id=0) {
 		static $moveMap = array();
 		$dont_move = false;
 		
-		if(false != ($match = Model_TeamRoutingRule::getMatch($group_id, $ticket_id, $only_rule_id))) { /* @var $match Model_TeamRoutingRule */
+		if(false != ($match = Model_GroupInboxFilter::getMatch($group_id, $ticket_id, $only_rule_id))) { /* @var $match Model_GroupInboxFilter */
 			/* =============== Prevent recursive assignments =============
 			* If we ever get into a situation where many rules are sending a ticket
 			* back and forth between them, ignore the last move action in the chain  
@@ -538,36 +536,17 @@ class CerberusApplication extends DevblocksApplication {
 				$moveMap[$ticket_id] = array();
 			} else {
 				if(isset($moveMap[$ticket_id][$group_id])) {
-//					$nuke_rule_id = array_pop($moveMap[$ticket_id]);
-//					echo "I need to delete a redundant rule!",$nuke_rule_id,"<BR>";
-//					DAO_TeamRoutingRule::delete($nuke_rule_id);
 					$dont_move = true;
 				}
 			}
 			$moveMap[$ticket_id][$group_id] = $match->id;
-			
-			// =============== Run action =============
-			$action = new Model_DashboardViewAction();
-			$action->params = array();
-			                       
-			//[mdf] only send params that we actually want to change, so we don't set settings to bad values (like setting 0 for the ticket team id)
-			if(strlen($match->do_spam) > 0)
-				$action->params['spam'] = $match->do_spam;
-			if(strlen($match->do_status) > 0)
-				$action->params['closed'] = $match->do_status;
-			if(!$dont_move && strlen($match->do_move) > 0)
-				$action->params['team'] = $match->do_move;
-			if($match->do_assign != 0)
-				$action->params['assign'] = $match->do_assign;
-			
-			$action->run(array($ticket_id));
-			// ================= End run action =======
+
+			// Run filter actions
+			$match->run(array($ticket_id));
 		}
 		
 	    return $match;
 	}
-	
-	// ***************** DUMMY
 	
 	// [TODO] This probably has a better home
 	public static function getHelpdeskSenders() {

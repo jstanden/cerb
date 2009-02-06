@@ -90,7 +90,7 @@ class ChWebApiConfigTab extends Extension_ConfigTab {
 		$access_keys = DAO_WebapiKey::getWhere();
 		$tpl->assign('access_keys', $access_keys);
 		
-		$tpl->display('file:' . $tpl_path . 'config/index.tpl.php');
+		$tpl->display('file:' . $tpl_path . 'config/index.tpl');
 	}
 	
 	function saveTab() {

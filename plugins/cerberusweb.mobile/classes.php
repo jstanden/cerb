@@ -214,7 +214,7 @@ class MobileController extends DevblocksControllerExtension {
 			$tpl->assign('render_memory', memory_get_usage() - DevblocksPlatform::getStartMemory());
 			$tpl->assign('render_peak_memory', memory_get_peak_usage() - DevblocksPlatform::getStartPeakMemory());
 		}
-		$tpl->display($tpl_path.'border.php');
+		$tpl->display($tpl_path.'border.tpl');
 	}
 };
 
@@ -228,8 +228,6 @@ class C4_MobileTicketView extends C4_TicketView {
 		$tpl->assign('view', $this);
 
 		$visit = CerberusApplication::getVisit();
-
-		$active_dashboard_id = $visit->get(CerberusVisit::KEY_DASHBOARD_ID, 0);
 
 		$results = self::getData();
 		$tpl->assign('results', $results);
@@ -282,7 +280,7 @@ class C4_MobileTicketView extends C4_TicketView {
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('view_fields', $this->getColumns());
 		
-		$tpl->display('file:' . $view_path . 'ticket_view.tpl.php');
+		$tpl->display('file:' . $view_path . 'ticket_view.tpl');
 	}
 	
 };
@@ -338,13 +336,13 @@ class ChMobileDisplayPage  extends CerberusMobilePageExtension  {
 		$tpl->assign('page_type', $page_type);
 
 		if (0 == strcasecmp($message_id, 'full')) {
-			$tpl->display('file:' . dirname(__FILE__) . '/templates/display.tpl.php');
+			$tpl->display('file:' . dirname(__FILE__) . '/templates/display.tpl');
 		} else {
 			$message = DAO_Ticket::getMessage($message_id);
 			if (empty($message))
 				$message = array_pop($ticket->getMessages());
 			$tpl->assign('message', $message);
-			$tpl->display('file:' . dirname(__FILE__) . '/templates/display_brief.tpl.php');
+			$tpl->display('file:' . dirname(__FILE__) . '/templates/display_brief.tpl');
 		}
 		
 	}
@@ -422,7 +420,7 @@ class ChMobileLoginPage  extends CerberusMobilePageExtension  {
 		$tpl->assign('original_path', $original_path);
 		$tpl->assign('original_query', $query_str);
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/login/login_form_default.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/login/login_form_default.tpl');
 	}
 	
 	function authenticateAction() {
@@ -437,9 +435,6 @@ class ChMobileLoginPage  extends CerberusMobilePageExtension  {
 			$session = DevblocksPlatform::getSessionService();
 			$visit = new CerberusVisit();
 			$visit->setWorker($worker);
-				
-			$visit->set(CerberusVisit::KEY_DASHBOARD_ID, ''); // 't'.$team_id
-			$visit->set(CerberusVisit::KEY_WORKSPACE_GROUP_ID, 0); // $team_id
 
 			$session->setVisit($visit);
 			
@@ -516,7 +511,7 @@ class ChMobileTicketsPage extends CerberusMobilePageExtension  {
 				}
 				else {
 					//show the search form because no search has been submitted
-					$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/search.tpl.php');
+					$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/search.tpl');
 					return;
 				}
 			break;
@@ -540,7 +535,7 @@ class ChMobileTicketsPage extends CerberusMobilePageExtension  {
 				$worker_counts = DAO_Overview::getWorkerTotals();
 				$tpl->assign('worker_counts', $worker_counts);
 				
-            	$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/sidebar.tpl.php');
+            	$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/sidebar.tpl');
             	return;
            	break;
 			case 'overview':
@@ -660,7 +655,6 @@ class ChMobileTicketsPage extends CerberusMobilePageExtension  {
 		}
 		$mobileView->id = "VIEW_MOBILE";
 		$mobileView->name = $title;
-		$mobileView->dashboard_id = 0;
 		$mobileView->view_columns = array(SearchFields_Ticket::TICKET_LAST_ACTION_CODE);
 		$mobileView->params = $params;
 		$mobileView->renderLimit = 10;//$overViewDefaults->renderLimit;
@@ -697,7 +691,7 @@ class ChMobileTicketsPage extends CerberusMobilePageExtension  {
 		$tpl->assign('prev_page', $page-1);
 		
 		//print_r($tickets);exit();
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets.tpl');
 	}
 	
 };

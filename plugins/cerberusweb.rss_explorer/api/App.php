@@ -52,7 +52,7 @@ class RssExpActivityTab extends Extension_ActivityTab {
 		$tpl->assign('view_fields', C4_RssExpItemView::getFields());
 		$tpl->assign('view_searchable_fields', C4_RssExpItemView::getSearchFields());
 		
-		$tpl->display($tpl_path . 'activity_tab/index.tpl.php');		
+		$tpl->display($tpl_path . 'activity_tab/index.tpl');		
 	}
 }
 endif;
@@ -409,7 +409,7 @@ class C4_RssExpItemView extends C4_AbstractView {
 		
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('view_fields', $this->getColumns());
-		$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.rss_explorer/templates/rss/view.tpl.php');
+		$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.rss_explorer/templates/rss/view.tpl');
 	}
 
 	function renderCriteria($field) {
@@ -420,13 +420,13 @@ class C4_RssExpItemView extends C4_AbstractView {
 			case SearchFields_RssExpItem::TITLE:
 			case SearchFields_RssExpItem::URL:
 			case SearchFields_RssExpItem::FEED_NAME:
-				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__string.tpl.php');
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__string.tpl');
 				break;
 			case SearchFields_RssExpItem::CREATED_DATE:
-				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__date.tpl.php');
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__date.tpl');
 				break;
 			case SearchFields_RssExpItem::IS_READ:
-				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__bool.tpl.php');
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__bool.tpl');
 				break;
 			default:
 				echo '';

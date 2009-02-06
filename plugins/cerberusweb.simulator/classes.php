@@ -83,7 +83,7 @@ class ChSimulatorConfigTab extends Extension_ConfigTab {
 		);
 		$tpl->assign('flavors', $flavors);
 		
-		$tpl->display('file:' . $tpl_path . 'config_tab/index.tpl.php');
+		$tpl->display('file:' . $tpl_path . 'config_tab/index.tpl');
 	}
 	
 	function generateTicketsAction() {
@@ -100,7 +100,7 @@ class ChSimulatorConfigTab extends Extension_ConfigTab {
 
 		if(empty($address)) {
 			$tpl->assign('error', sprintf("Oops! '%s' is not a valid e-mail address.", htmlspecialchars($address)));
-			$tpl->display('file:' . $tpl_path . 'config_tab/output.tpl.php');
+			$tpl->display('file:' . $tpl_path . 'config_tab/output.tpl');
 			return;
 		}
 		
@@ -155,7 +155,7 @@ class ChSimulatorConfigTab extends Extension_ConfigTab {
 		
 		$tpl->assign('output', sprintf("Success!  %d simulated tickets were generated for %s", $how_many, htmlspecialchars($address)));
 		
-		$tpl->display('file:' . $tpl_path . 'config_tab/output.tpl.php');
+		$tpl->display('file:' . $tpl_path . 'config_tab/output.tpl');
 	}
 	
 };

@@ -99,7 +99,7 @@ class ChReportCustomFieldUsage extends Extension_Report {
 		$custom_fields = DAO_CustomField::getAll();
 		$tpl->assign('custom_fields', $custom_fields);
 		
-		$tpl->display('file:' . $this->tpl_path . '/reports/custom_fields/usage/index.tpl.php');
+		$tpl->display('file:' . $this->tpl_path . '/reports/custom_fields/usage/index.tpl');
 	}
 	
 	private function _getValueCounts($field_id) {
@@ -155,7 +155,7 @@ class ChReportCustomFieldUsage extends Extension_Report {
 		$value_counts = self::_getValueCounts($field_id);
 		$tpl->assign('value_counts', $value_counts);
 		
-		$tpl->display('file:' . $this->tpl_path . '/reports/custom_fields/usage/html.tpl.php');
+		$tpl->display('file:' . $this->tpl_path . '/reports/custom_fields/usage/html.tpl');
 	}
 	
 	function getChartAction() {
@@ -198,7 +198,7 @@ class ChReportGroupRoster extends Extension_Report {
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 		
-		$tpl->display('file:' . $this->tpl_path . '/reports/group/group_roster/index.tpl.php');
+		$tpl->display('file:' . $this->tpl_path . '/reports/group/group_roster/index.tpl');
 	}
 };
 
@@ -232,7 +232,7 @@ class ChReportNewTickets extends Extension_Report {
 		}
 		$tpl->assign('years', $years);
 		
-		$tpl->display('file:' . $this->tpl_path . '/reports/ticket/new_tickets/index.tpl.php');
+		$tpl->display('file:' . $this->tpl_path . '/reports/ticket/new_tickets/index.tpl');
 	}
 	
 	function getNewTicketsReportAction() {
@@ -311,7 +311,7 @@ class ChReportNewTickets extends Extension_Report {
 		}
 		$tpl->assign('group_counts', $group_counts);
 		
-		$tpl->display('file:' . $this->tpl_path . '/reports/ticket/new_tickets/html.tpl.php');
+		$tpl->display('file:' . $this->tpl_path . '/reports/ticket/new_tickets/html.tpl');
 	}
 	
 	function getTicketChartDataAction() {
@@ -398,7 +398,7 @@ class ChReportWorkerReplies extends Extension_Report {
 		}
 		$tpl->assign('years', $years);
 		
-		$tpl->display('file:' . $this->tpl_path . '/reports/worker/worker_replies/index.tpl.php');
+		$tpl->display('file:' . $this->tpl_path . '/reports/worker/worker_replies/index.tpl');
 	}
 	
 	function getWorkerRepliesReportAction() {
@@ -476,7 +476,7 @@ class ChReportWorkerReplies extends Extension_Report {
 		}
 		$tpl->assign('worker_counts', $worker_counts);
 		
-		$tpl->display('file:' . $this->tpl_path . '/reports/worker/worker_replies/html.tpl.php');
+		$tpl->display('file:' . $this->tpl_path . '/reports/worker/worker_replies/html.tpl');
 	}
 	
 	function getWorkerRepliesChartAction() {
@@ -575,7 +575,7 @@ class ChReportOrgSharedEmailDomains extends Extension_Report {
 		}
 		$tpl->assign('top_domains', $top_domains);
 		
-		$tpl->display('file:' . $this->tpl_path . '/reports/org/shared_email_domains/index.tpl.php');
+		$tpl->display('file:' . $this->tpl_path . '/reports/org/shared_email_domains/index.tpl');
 	}
 };
 
@@ -624,7 +624,7 @@ class ChReportSpamWords extends Extension_Report {
 		}
 		$tpl->assign('top_nonspam_words', $top_nonspam_words);
 		
-		$tpl->display('file:' . $this->tpl_path . '/reports/spam/spam_words/index.tpl.php');
+		$tpl->display('file:' . $this->tpl_path . '/reports/spam/spam_words/index.tpl');
 	}
 };
 
@@ -664,7 +664,7 @@ class ChReportSpamAddys extends Extension_Report {
 		}
 		$tpl->assign('top_nonspam_addys', $top_nonspam_addys);
 		
-		$tpl->display('file:' . $this->tpl_path . '/reports/spam/spam_addys/index.tpl.php');
+		$tpl->display('file:' . $this->tpl_path . '/reports/spam/spam_addys/index.tpl');
 	}
 };
 
@@ -704,7 +704,7 @@ class ChReportSpamDomains extends Extension_Report {
 		}
 		$tpl->assign('top_nonspam_domains', $top_nonspam_domains);
 		
-		$tpl->display('file:' . $this->tpl_path . '/reports/spam/spam_domains/index.tpl.php');
+		$tpl->display('file:' . $this->tpl_path . '/reports/spam/spam_domains/index.tpl');
 	}
 };
 
@@ -721,7 +721,7 @@ class ChReportAverageResponseTime extends Extension_Report {
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->tpl_path);
 		
-		$tpl->display('file:' . $this->tpl_path . '/reports/worker/average_response_time/index.tpl.php');
+		$tpl->display('file:' . $this->tpl_path . '/reports/worker/average_response_time/index.tpl');
 	}
 	
 	function getAverageResponseTimeReportAction() {
@@ -821,7 +821,7 @@ class ChReportAverageResponseTime extends Extension_Report {
 		$tpl->assign('group_responses', $group_responses);
 		$tpl->assign('worker_responses', $worker_responses);
 		
-		$tpl->display('file:' . $this->tpl_path . '/reports/worker/average_response_time/html.tpl.php');
+		$tpl->display('file:' . $this->tpl_path . '/reports/worker/average_response_time/html.tpl');
 	}
 	
 }
@@ -856,7 +856,7 @@ class ChReportGroupReplies extends Extension_Report {
 		}
 		$tpl->assign('years', $years);
 		
-		$tpl->display('file:' . $this->tpl_path . '/reports/group/group_replies/index.tpl.php');
+		$tpl->display('file:' . $this->tpl_path . '/reports/group/group_replies/index.tpl');
 	}
 	
 	function getGroupRepliesReportAction() {
@@ -937,7 +937,7 @@ class ChReportGroupReplies extends Extension_Report {
 		}
 		$tpl->assign('group_counts', $group_counts);
 		
-		$tpl->display('file:' . $this->tpl_path . '/reports/group/group_replies/html.tpl.php');
+		$tpl->display('file:' . $this->tpl_path . '/reports/group/group_replies/html.tpl');
 	}
 	
 	function getGroupRepliesChartAction() {
@@ -1032,7 +1032,7 @@ class ChReportOpenTickets extends Extension_Report {
 		}
 		$tpl->assign('years', $years);
 		
-		$tpl->display('file:' . $this->tpl_path . '/reports/ticket/open_tickets/index.tpl.php');
+		$tpl->display('file:' . $this->tpl_path . '/reports/ticket/open_tickets/index.tpl');
 	}
 	
 	function getOpenTicketsReportAction() {
@@ -1099,7 +1099,7 @@ class ChReportOpenTickets extends Extension_Report {
 		}
 		$tpl->assign('group_counts', $group_counts);
 		
-		$tpl->display('file:' . $this->tpl_path . '/reports/ticket/open_tickets/html.tpl.php');
+		$tpl->display('file:' . $this->tpl_path . '/reports/ticket/open_tickets/html.tpl');
 	}
 	
 	function getOpenTicketsChartAction() {
@@ -1187,7 +1187,7 @@ class ChReportOldestOpenTickets extends Extension_Report {
 		}
 		$tpl->assign('years', $years);
 		
-		$tpl->display('file:' . $this->tpl_path . '/reports/ticket/oldest_open_tickets/index.tpl.php');
+		$tpl->display('file:' . $this->tpl_path . '/reports/ticket/oldest_open_tickets/index.tpl');
 	}
 	
 	function getOldestOpenTicketsReportAction() {
@@ -1267,7 +1267,7 @@ class ChReportOldestOpenTickets extends Extension_Report {
 
 		$tpl->assign('oldest_tickets', $oldest_tickets);
 		
-		$tpl->display('file:' . $this->tpl_path . '/reports/ticket/oldest_open_tickets/html.tpl.php');
+		$tpl->display('file:' . $this->tpl_path . '/reports/ticket/oldest_open_tickets/html.tpl');
 	}
 
 }
@@ -1302,7 +1302,7 @@ class ChReportWaitingTickets extends Extension_Report {
 		}
 		$tpl->assign('years', $years);
 		
-		$tpl->display('file:' . $this->tpl_path . '/reports/ticket/waiting_tickets/index.tpl.php');
+		$tpl->display('file:' . $this->tpl_path . '/reports/ticket/waiting_tickets/index.tpl');
 	}
 	
 	function getWaitingTicketsReportAction() {
@@ -1348,7 +1348,7 @@ class ChReportWaitingTickets extends Extension_Report {
 		}
 		$tpl->assign('group_counts', $group_counts);
 		
-		$tpl->display('file:' . $this->tpl_path . '/reports/ticket/waiting_tickets/html.tpl.php');
+		$tpl->display('file:' . $this->tpl_path . '/reports/ticket/waiting_tickets/html.tpl');
 	}
 	
 	function getWaitingTicketsChartAction() {
@@ -1417,7 +1417,7 @@ class ChReportClosedTickets extends Extension_Report {
 		}
 		$tpl->assign('years', $years);
 		
-		$tpl->display('file:' . $this->tpl_path . '/reports/ticket/closed_tickets/index.tpl.php');
+		$tpl->display('file:' . $this->tpl_path . '/reports/ticket/closed_tickets/index.tpl');
 	}
 	
 	function getClosedTicketsReportAction() {
@@ -1486,7 +1486,7 @@ class ChReportClosedTickets extends Extension_Report {
 		}
 		$tpl->assign('group_counts', $group_counts);
 		
-		$tpl->display('file:' . $this->tpl_path . '/reports/ticket/closed_tickets/html.tpl.php');
+		$tpl->display('file:' . $this->tpl_path . '/reports/ticket/closed_tickets/html.tpl');
 	}
 	
 	function getClosedTicketsChartAction() {
@@ -1561,7 +1561,7 @@ class ChReportTicketAssignment extends Extension_Report {
 		
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$tpl->display('file:' . $this->tpl_path . '/reports/worker/ticket_assignment/index.tpl.php');
+		$tpl->display('file:' . $this->tpl_path . '/reports/worker/ticket_assignment/index.tpl');
 	}
 	
 	function getTicketAssignmentReportAction() {
@@ -1609,7 +1609,7 @@ class ChReportTicketAssignment extends Extension_Report {
 		
 		$tpl->assign('ticket_assignments', $ticket_assignments);
 		//print_r($ticket_assignments);exit;
-		$tpl->display('file:' . $this->tpl_path . '/reports/worker/ticket_assignment/html.tpl.php');
+		$tpl->display('file:' . $this->tpl_path . '/reports/worker/ticket_assignment/html.tpl');
 	}
 	
 	function getTicketAssignmentChartAction() {
@@ -1679,7 +1679,7 @@ class ChReportTopTicketsByContact extends Extension_Report {
 		}
 		$tpl->assign('years', $years);
 		
-		$tpl->display('file:' . $this->tpl_path . '/reports/ticket/top_contacts_tickets/index.tpl.php');
+		$tpl->display('file:' . $this->tpl_path . '/reports/ticket/top_contacts_tickets/index.tpl');
 	}
 	
 	function getTopTicketsReportAction() {
@@ -1791,7 +1791,7 @@ class ChReportTopTicketsByContact extends Extension_Report {
 		//echo "<pre>";print_r($group_counts);echo "</pre>";
 		$tpl->assign('group_counts', $group_counts);
 		
-		$tpl->display('file:' . $this->tpl_path . '/reports/ticket/top_contacts_tickets/html.tpl.php');
+		$tpl->display('file:' . $this->tpl_path . '/reports/ticket/top_contacts_tickets/html.tpl');
 	}
 	
 	function sortCountsArrayByHits($a, $b) {
@@ -1921,7 +1921,7 @@ class ChReportWorkerHistory extends Extension_Report {
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 		
-		$tpl->display('file:' . $this->tpl_path . '/reports/worker/worker_history/index.tpl.php');
+		$tpl->display('file:' . $this->tpl_path . '/reports/worker/worker_history/index.tpl');
 	}
 	
 	function getWorkerHistoryReportAction() {
@@ -1996,7 +1996,7 @@ class ChReportWorkerHistory extends Extension_Report {
 		//echo "<pre>";print_r($tickets_replied);echo "</pre>";exit;
 		$tpl->assign('tickets_replied', $tickets_replied);
 		
-		$tpl->display('file:' . $this->tpl_path . '/reports/worker/worker_history/html.tpl.php');
+		$tpl->display('file:' . $this->tpl_path . '/reports/worker/worker_history/html.tpl');
 	}
 	
 	function getWorkerHistoryChartAction() {
@@ -2097,7 +2097,7 @@ class ChReportExportSenders extends Extension_Report {
 		}
 		$tpl->assign('years', $years);
 		
-		$tpl->display('file:' . $this->tpl_path . '/reports/ticket/export_senders/index.tpl.php');
+		$tpl->display('file:' . $this->tpl_path . '/reports/ticket/export_senders/index.tpl');
 	}
 	
 	function getExportSendersReportAction() {
@@ -2269,7 +2269,7 @@ class ChReportsPage extends CerberusPageExtension {
 			$tpl->assign('report_groups', $report_groups);
 		}
 
-		$tpl->display('file:' . $this->tpl_path . '/reports/index.tpl.php');
+		$tpl->display('file:' . $this->tpl_path . '/reports/index.tpl');
 	}
 		
 };

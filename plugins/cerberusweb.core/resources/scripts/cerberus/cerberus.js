@@ -91,7 +91,7 @@ function appendFileInput(divName,fieldName) {
 
 var cAjaxCalls = function() {
 
-	this.showBatchPanel = function(view_id,team_id,target) {
+	this.showBatchPanel = function(view_id,target) {
 		var viewForm = document.getElementById('viewForm'+view_id);
 		if(null == viewForm) return;
 		var elements = viewForm.elements['ticket_id[]'];
@@ -111,12 +111,9 @@ var cAjaxCalls = function() {
 			}
 		}
 		
-		if(null == team_id)
-			team_id = 0;
-	
 		var ticket_ids = ids.join(','); // [TODO] Encode?
 	
-		genericAjaxPanel('c=tickets&a=showBatchPanel&view_id=' + view_id + '&ids=' + ticket_ids + '&team_id=' + team_id,target,false,'500px');
+		genericAjaxPanel('c=tickets&a=showBatchPanel&view_id=' + view_id + '&ids=' + ticket_ids,target,false,'500px');
 	}
 
 	this.saveBatchPanel = function(view_id) {

@@ -75,7 +75,7 @@ class DefaultLoginModule extends CerberusLoginPageExtension {
 		$tpl->assign('original_path', $original_path);
 		$tpl->assign('original_query', $query_str);
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/login/login_form_default.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/login/login_form_default.tpl');
 	}
 	
 	function authenticate($params=array()) {
@@ -89,9 +89,6 @@ class DefaultLoginModule extends CerberusLoginPageExtension {
 			$visit = new CerberusVisit();
 			$visit->setWorker($worker);
 				
-			$visit->set(CerberusVisit::KEY_DASHBOARD_ID, ''); // 't'.$team_id
-			$visit->set(CerberusVisit::KEY_WORKSPACE_GROUP_ID, 0); // $team_id
-
 			$session->setVisit($visit);
 			
 			// [TODO] Only direct to /welcome when tour is enabled
@@ -148,7 +145,7 @@ class LDAPLoginModule extends CerberusLoginPageExtension {
 		$tpl->assign('default_dn', $default_dn);
 		
 		// display login form
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/login/login_form_ldap.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/login/login_form_ldap.tpl');
 	}
 	
 	function authenticate($params=array()) {
@@ -192,9 +189,6 @@ class LDAPLoginModule extends CerberusLoginPageExtension {
 			$visit = new CerberusVisit();
 			$visit->setWorker($worker);
 				
-			$visit->set(CerberusVisit::KEY_DASHBOARD_ID, ''); // 't'.$team_id
-			$visit->set(CerberusVisit::KEY_WORKSPACE_GROUP_ID, 0); // $team_id
-
 			$session->setVisit($visit);
 			
 			return true;

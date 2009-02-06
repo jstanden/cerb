@@ -354,7 +354,7 @@ class ChWatchersPreferences extends Extension_PreferenceTab {
 		$assign_notify_email = DAO_WorkerPref::get($worker->id, ChWatchersPlugin::WORKER_PREF_ASSIGN_EMAIL, '');
 		$tpl->assign('assign_notify_email', $assign_notify_email);
 		
-		$tpl->display('file:' . $this->tpl_path . '/preferences/watchers.tpl.php');
+		$tpl->display('file:' . $this->tpl_path . '/preferences/watchers.tpl');
 	}
     
 	// Post

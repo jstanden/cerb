@@ -55,30 +55,30 @@ class Model_PreParseRule {
 	public $criteria;
 	public $actions;
 	public $pos;
-};
+}
 
-class Model_TeamRoutingRule {
+class Model_GroupInboxFilter {
 	public $id = 0;
 	public $name = '';
-	public $team_id = 0;
+	public $group_id = 0;
 	public $criteria = array();
+	public $actions = array();
 	public $pos = 0;
-	public $do_move = '';
-	public $do_status = '';
-	public $do_spam = '';
-	public $do_assign = '';
 	
 	// [TODO] Make this support getMatches() -- every matching rule?
+	/**
+	 * @return Model_GroupInboxFilter|false
+	 */
 	static function getMatch($group_id, $ticket_id, $only_rule_id=0) {
 		if(empty($group_id))
 			return false;
 
 		if(!empty($only_rule_id)) {
 			$filters = array(
-				DAO_TeamRoutingRule::get($only_rule_id)
+				DAO_GroupInboxFilter::get($only_rule_id)
 			);
 		} else {
-			$filters = DAO_TeamRoutingRule::getByTeamId($group_id);
+			$filters = DAO_GroupInboxFilter::getByGroupId($group_id);
 		}
 
 		// Check the ticket
@@ -88,23 +88,29 @@ class Model_TeamRoutingRule {
 		// Build our objects
 		$ticket_from = DAO_Address::get($ticket->last_wrote_address_id);
 		$ticket_group_id = $ticket->team_id;
+		
 		// [TODO] These expensive checks should only populate when needed
 		$messages = DAO_Ticket::getMessagesByTicket($ticket_id);
 		
 		if(empty($messages))
 			return false;
 		
-		$message = array_pop($messages); /* @var $message CerberusMessage */
-		if(empty($message))
+		if(null == (@$message = array_pop($messages))) { /* @var $message CerberusMessage */
 			return false;
+		}
 		
-//		$ticket_is_new = ($ticket->first_message_id==$message->id) ? 1 : 0;
 		$message_headers = $message->getHeaders();
-//		$message_body = $message->getContent();
+		
+		$custom_fields = DAO_CustomField::getAll();
+		
+		// Lazy load when needed on criteria basis
+		$ticket_field_values = null;
+		$address_field_values = null;
+		$org_field_values = null;
 		
 		// Check filters
 		if(is_array($filters))
-		foreach($filters as $filter) { /* @var $filter Model_TeamRoutingRule */
+		foreach($filters as $filter) { /* @var $filter Model_GroupInboxFilter */
 			$passed = 0;
 
 			// check criteria
@@ -112,12 +118,7 @@ class Model_TeamRoutingRule {
 				@$value = $rule['value'];
 							
 				switch($rule_key) {
-//					case 'type':
-//						if(($ticket_is_new && 0 == strcasecmp($value,'new')) 
-//							|| (!$ticket_is_new && 0 == strcasecmp($value,'reply')))
-//								$passed++; 
-//						break;
-						
+					
 					case 'tocc':
 						$destinations = DevblocksPlatform::parseCsvString($value);
 
@@ -164,11 +165,6 @@ class Model_TeamRoutingRule {
 						}
 						break;
 						
-//					case 'to':
-//						if(intval($ticket_group_id)==intval($value))
-//							$passed++;
-//						break;
-						
 					case 'header1':
 					case 'header2':
 					case 'header3':
@@ -197,40 +193,180 @@ class Model_TeamRoutingRule {
 						
 						break;
 						
-//					case 'body':
-//						$regexp_body = DevblocksPlatform::strToRegExp($value);
-//
-//						// Flatten CRLF
-//						if(@preg_match($regexp_body, str_replace(array("\r","\n"),' ',$message_body)))
-//							$passed++;
-//						break;
-						
-//					case 'attachment':
-//						$regexp_file = DevblocksPlatform::strToRegExp($value);
-//
-//						// check the files in the raw message
-//						foreach($message->files as $file_name => $file) { /* @var $file ParserFile */
-//							if(@preg_match($regexp_file, $file_name)) {
-//								$passed++;
-//								break;
-//							}
-//						}
-//						break;
-						
 					default: // ignore invalids
-						continue;
+						// Custom Fields
+						if(0==strcasecmp('cf_',substr($rule_key,0,3))) {
+							$field_id = substr($rule_key,3);
+
+							// Make sure it exists
+							if(null == (@$field = $custom_fields[$field_id]))
+								continue;
+
+							// Lazy values loader
+							$field_values = array();
+							switch($field->source_extension) {
+								case ChCustomFieldSource_Address::ID:
+									if(null == $address_field_values)
+										$address_field_values = array_shift(DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Address::ID, $ticket_from->id));
+									$field_values =& $address_field_values;
+									break;
+								case ChCustomFieldSource_Org::ID:
+									if(null == $org_field_values)
+										$org_field_values = array_shift(DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Org::ID, $ticket_from->contact_org_id));
+									$field_values =& $org_field_values;
+									break;
+								case ChCustomFieldSource_Ticket::ID:
+									if(null == $ticket_field_values)
+										$ticket_field_values = array_shift(DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Ticket::ID, $ticket->id));
+									$field_values =& $ticket_field_values;
+									break;
+							}
+							
+							// No values, skip.
+							if(!isset($field_values[$field_id]))
+								continue;
+							
+							// Type sensitive value comparisons
+							// [TODO] Operators
+							switch($field->type) {
+								case 'S': // string
+								case 'T': // clob
+									$regexp_val = DevblocksPlatform::strToRegExp($value);
+									if(@preg_match($regexp_val, $field_values[$field_id]))
+										$passed++;
+									break;
+								case 'N': // number
+									if(intval($value)==intval($field_values))
+										$passed++;
+									break;
+								case 'E': // date
+									// [TODO] This needs operators
+									break;
+								case 'C': // checkbox
+									if(intval($value)==intval($field_values))
+										$passed++;
+									break;
+								case 'D': // dropdown
+								case 'X': // multi-checkbox
+								case 'M': // multi-picklist
+									if(!is_array($value)) $value = array($value);
+									foreach($value as $v) {
+										if(isset($field_values[$field_id][$v])) {
+											$passed++;
+										}
+									}
+									break;
+							}
+						}
 						break;
 				}
 			}
 			
 			// If our rule matched every criteria, stop and return the filter
 			if($passed == count($filter->criteria)) {
-				DAO_TeamRoutingRule::increment($filter->id); // ++ the times we've matched
+				DAO_GroupInboxFilter::increment($filter->id); // ++ the times we've matched
 				return $filter;
 			}
 		}
 		
 		return false;
+	}
+	
+	/**
+	 * @param integer[] $ticket_ids
+	 */
+	function run($ticket_ids) {
+		$fields = array();
+		$field_values = array();
+
+		$groups = DAO_Group::getAll();
+		$buckets = DAO_Bucket::getAll();
+		$workers = DAO_Worker::getAll();
+		$custom_fields = DAO_CustomField::getAll();
+		
+		// actions
+		if(is_array($this->actions))
+		foreach($this->actions as $action => $params) {
+			switch($action) {
+				case 'status':
+					if(isset($params['is_closed']) && isset($params['is_deleted'])) {
+						$fields[DAO_Ticket::IS_CLOSED] = intval($params['is_closed']);
+						$fields[DAO_Ticket::IS_DELETED] = intval($params['is_deleted']);
+					}
+					break;
+
+				case 'assign':
+					if(isset($params['worker_id'])) {
+						$w_id = intval($params['worker_id']);
+						if(0 == $w_id || isset($workers[$w_id]))
+							$fields[DAO_Ticket::NEXT_WORKER_ID] = $w_id;
+					}
+					break;
+
+				case 'move':
+					if(isset($params['group_id']) && isset($params['bucket_id'])) {
+						$g_id = intval($params['group_id']);
+						$b_id = intval($params['bucket_id']);
+						if(isset($groups[$g_id]) && (0==$b_id || isset($buckets[$b_id]))) {
+							$fields[DAO_Ticket::TEAM_ID] = $g_id;
+							$fields[DAO_Ticket::CATEGORY_ID] = $b_id;
+						}
+					}
+					break;
+					
+				case 'spam':
+					if(isset($params['is_spam'])) {
+						if(intval($params['is_spam'])) {
+							foreach($ticket_ids as $ticket_id)
+								CerberusBayes::markTicketAsSpam($ticket_id);
+						} else {
+							foreach($ticket_ids as $ticket_id)
+								CerberusBayes::markTicketAsNotSpam($ticket_id);
+						}
+					}
+					break;
+
+				default:
+					// Custom fields
+					if(substr($action,0,3)=="cf_") {
+						$field_id = intval(substr($action,3));
+						
+						if(!isset($custom_fields[$field_id]) || !isset($params['value'])) {
+							break;
+						}
+
+						$value = $params['value'];
+						
+						switch($custom_fields[$field_id]->type) {
+							case Model_CustomField::TYPE_DATE:
+								$value = intval(@strtotime($value));
+								break;
+							case Model_CustomField::TYPE_NUMBER:
+							case Model_CustomField::TYPE_CHECKBOX:
+								$value = intval($value);
+								break;
+							case Model_CustomField::TYPE_MULTI_CHECKBOX:
+							case Model_CustomField::TYPE_MULTI_PICKLIST:
+								if(is_array($value))
+								foreach($value as $k => $v) {
+									$value[$k] = '+'.$v; // delta set
+								}
+								break;
+						}
+							
+						$field_values[$field_id] = $value;
+					}
+					break;
+			}
+		}
+
+		if(!empty($ticket_ids)) {
+			if(!empty($fields))
+				DAO_Ticket::updateTicket($ticket_ids, $fields);
+			
+			// Custom Fields
+			C4_AbstractView::_doBulkSetCustomFields(ChCustomFieldSource_Ticket::ID, $field_values, $ticket_ids);
+		}
 	}
 };
 
@@ -269,19 +405,19 @@ abstract class C4_AbstractView {
 			case Model_CustomField::TYPE_MULTI_PICKLIST:
 			case Model_CustomField::TYPE_MULTI_CHECKBOX:
 				$tpl->assign('field', $field);
-				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__cfield_picklist.tpl.php');
+				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__cfield_picklist.tpl');
 				break;
 			case Model_CustomField::TYPE_CHECKBOX:
-				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__cfield_checkbox.tpl.php');
+				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__cfield_checkbox.tpl');
 				break;
 			case Model_CustomField::TYPE_DATE:
-				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__date.tpl.php');
+				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__date.tpl');
 				break;
 			case Model_CustomField::TYPE_NUMBER:
-				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__number.tpl.php');
+				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__number.tpl');
 				break;
 			default:
-				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__string.tpl.php');
+				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__string.tpl');
 				break;
 		}
 	}
@@ -604,8 +740,9 @@ class C4_AbstractViewLoader {
 	}
 
 	static function serializeAbstractView($view) {
-		if(!$view instanceof C4_AbstractView)
+		if(!$view instanceof C4_AbstractView) {
 			return null;
+		}
 
 		$model = new C4_AbstractViewModel();
 			
@@ -628,9 +765,11 @@ class C4_AbstractViewLoader {
 		if(!class_exists($model->class_name, true))
 			return null;
 		
-		if(null == ($inst = new $model->class_name)) /* @var $inst C4_AbstractView */
+		if(null == ($inst = new $model->class_name))
 			return null;
 
+		/* @var $inst C4_AbstractView */
+			
 		$inst->id = $model->id;
 		$inst->name = $model->name;
 		$inst->view_columns = $model->view_columns;
@@ -723,8 +862,6 @@ class C4_TicketView extends C4_AbstractView {
 
 		$visit = CerberusApplication::getVisit();
 
-		$active_dashboard_id = $visit->get(CerberusVisit::KEY_DASHBOARD_ID, 0);
-
 		$results = self::getData();
 		$tpl->assign('results', $results);
 		
@@ -774,7 +911,7 @@ class C4_TicketView extends C4_AbstractView {
 		
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('view_fields', $this->getColumns());
-		$tpl->display('file:' . $view_path . 'ticket_view.tpl.php');
+		$tpl->display('file:' . $view_path . 'ticket_view.tpl');
 	}
 
 	function doResetCriteria() {
@@ -804,47 +941,47 @@ class C4_TicketView extends C4_AbstractView {
 			case SearchFields_Ticket::TICKET_NEXT_ACTION:
 			case SearchFields_Ticket::TICKET_INTERESTING_WORDS:
 			case SearchFields_Ticket::ORG_NAME:
-				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__string.tpl.php');
+				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__string.tpl');
 				break;
 
 			case SearchFields_Ticket::TICKET_MESSAGE_CONTENT:
-				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__fulltext.tpl.php');
+				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__fulltext.tpl');
 				break;
 				
 			case SearchFields_Ticket::TICKET_FIRST_WROTE_SPAM:
 			case SearchFields_Ticket::TICKET_FIRST_WROTE_NONSPAM:
-				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__number.tpl.php');
+				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__number.tpl');
 				break;
 					
 			case SearchFields_Ticket::TICKET_WAITING:
 			case SearchFields_Ticket::TICKET_DELETED:
 			case SearchFields_Ticket::TICKET_CLOSED:
-				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__bool.tpl.php');
+				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__bool.tpl');
 				break;
 					
 			case SearchFields_Ticket::TICKET_CREATED_DATE:
 			case SearchFields_Ticket::TICKET_UPDATED_DATE:
 			case SearchFields_Ticket::TICKET_DUE_DATE:
-				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__date.tpl.php');
+				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__date.tpl');
 				break;
 					
 			case SearchFields_Ticket::TICKET_SPAM_TRAINING:
-				$tpl->display('file:' . $tpl_path . 'tickets/search/criteria/ticket_spam_training.tpl.php');
+				$tpl->display('file:' . $tpl_path . 'tickets/search/criteria/ticket_spam_training.tpl');
 				break;
 				
 			case SearchFields_Ticket::TICKET_SPAM_SCORE:
-				$tpl->display('file:' . $tpl_path . 'tickets/search/criteria/ticket_spam_score.tpl.php');
+				$tpl->display('file:' . $tpl_path . 'tickets/search/criteria/ticket_spam_score.tpl');
 				break;
 
 			case SearchFields_Ticket::TICKET_LAST_ACTION_CODE:
-				$tpl->display('file:' . $tpl_path . 'tickets/search/criteria/ticket_last_action.tpl.php');
+				$tpl->display('file:' . $tpl_path . 'tickets/search/criteria/ticket_last_action.tpl');
 				break;
 
 			case SearchFields_Ticket::TICKET_NEXT_WORKER_ID:
 			case SearchFields_Ticket::TICKET_LAST_WORKER_ID:
 				$workers = DAO_Worker::getAll();
 				$tpl->assign('workers', $workers);
-				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__worker.tpl.php');
+				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__worker.tpl');
 				break;
 					
 			case SearchFields_Ticket::TEAM_NAME:
@@ -854,7 +991,7 @@ class C4_TicketView extends C4_AbstractView {
 				$team_categories = DAO_Bucket::getTeams();
 				$tpl->assign('team_categories', $team_categories);
 
-				$tpl->display('file:' . $tpl_path . 'tickets/search/criteria/ticket_team.tpl.php');
+				$tpl->display('file:' . $tpl_path . 'tickets/search/criteria/ticket_team.tpl');
 				break;
 
 			default:
@@ -1096,21 +1233,14 @@ class C4_TicketView extends C4_AbstractView {
 		if(0 == strcasecmp($filter,"checks") && empty($ticket_ids))
 			return;
 		
-		$action = new Model_DashboardViewAction();
-		$action->params = $do;
-		$action->dashboard_view_id = $this->id;
+		$rule = new Model_GroupInboxFilter();
+		$rule->actions = $do;
 	  
 		$params = $this->params;
-
-		$team_id = 0;
-		$bucket_id = 0;
 
 		if(empty($filter)) {
 			$data[] = '*'; // All, just to permit a loop in foreach($data ...)
 		}
-
-		if(!empty($do['team']))
-			list($team_id, $bucket_id) = CerberusApplication::translateTeamCategoryCode($do['team']);
 
 		switch($filter) {
 			default:
@@ -1170,7 +1300,7 @@ class C4_TicketView extends C4_AbstractView {
 					$batch_total = count($ticket_ids);
 					for($x=0;$x<=$batch_total;$x+=200) {
 						$batch_ids = array_slice($ticket_ids,$x,200);
-						$action->run($batch_ids);
+						$rule->run($batch_ids);
 						unset($batch_ids);
 					}
 				}
@@ -1189,7 +1319,6 @@ class C4_TicketView extends C4_AbstractView {
 		$view = new C4_TicketView();
 		$view->id = CerberusApplication::VIEW_SEARCH;
 		$view->name = $translate->_('common.search_results');
-		$view->dashboard_id = 0;
 		$view->view_columns = array(
 			SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
 			SearchFields_Ticket::TICKET_UPDATED_DATE,
@@ -1290,7 +1419,7 @@ class C4_AddressView extends C4_AbstractView {
 		
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('view_fields', $this->getColumns());
-		$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/contacts/addresses/address_view.tpl.php');
+		$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/contacts/addresses/address_view.tpl');
 	}
 
 	function renderCriteria($field) {
@@ -1304,14 +1433,14 @@ class C4_AddressView extends C4_AbstractView {
 			case SearchFields_Address::FIRST_NAME:
 			case SearchFields_Address::LAST_NAME:
 			case SearchFields_Address::ORG_NAME:
-				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__string.tpl.php');
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__string.tpl');
 				break;
 			case SearchFields_Address::NUM_SPAM:
 			case SearchFields_Address::NUM_NONSPAM:
-				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__number.tpl.php');
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__number.tpl');
 				break;
 			case SearchFields_Address::IS_BANNED:
-				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__bool.tpl.php');
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__bool.tpl');
 				break;
 			default:
 				// Custom Fields
@@ -1505,7 +1634,7 @@ class C4_AttachmentView extends C4_AbstractView {
 
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('view_fields', $this->getColumns());
-		$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/configuration/tabs/attachments/view.tpl.php');
+		$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/configuration/tabs/attachments/view.tpl');
 	}
 
 	function renderCriteria($field) {
@@ -1519,19 +1648,19 @@ class C4_AttachmentView extends C4_AbstractView {
 			case SearchFields_Attachment::TICKET_MASK:
 			case SearchFields_Attachment::TICKET_SUBJECT:
 			case SearchFields_Attachment::ADDRESS_EMAIL:
-				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__string.tpl.php');
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__string.tpl');
 				break;
 //			case SearchFields_Attachment::ID:
 //			case SearchFields_Attachment::MESSAGE_ID:
 			case SearchFields_Attachment::TICKET_ID:
 			case SearchFields_Attachment::FILE_SIZE:
-				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__number.tpl.php');
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__number.tpl');
 				break;
 			case SearchFields_Attachment::MESSAGE_IS_OUTGOING:
-				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__bool.tpl.php');
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__bool.tpl');
 				break;
 			case SearchFields_Attachment::MESSAGE_CREATED_DATE:
-				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__date.tpl.php');
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__date.tpl');
 				break;
 			default:
 				echo '';
@@ -1721,7 +1850,7 @@ class C4_ContactOrgView extends C4_AbstractView {
 		
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('view_fields', $this->getColumns());
-		$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/contacts/orgs/contact_view.tpl.php');
+		$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/contacts/orgs/contact_view.tpl');
 	}
 
 	function renderCriteria($field) {
@@ -1734,7 +1863,7 @@ class C4_ContactOrgView extends C4_AbstractView {
 			case SearchFields_ContactOrg::PROVINCE:
 			case SearchFields_ContactOrg::COUNTRY:
 			case SearchFields_ContactOrg::WEBSITE:
-				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__string.tpl.php');
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__string.tpl');
 				break;
 			default:
 				// Custom Fields
@@ -1902,7 +2031,7 @@ class C4_KbArticleView extends C4_AbstractView {
 
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('view_fields', $this->getColumns());
-		$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/kb/view.tpl.php');
+		$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/kb/view.tpl');
 	}
 
 	function renderCriteria($field) {
@@ -1912,16 +2041,16 @@ class C4_KbArticleView extends C4_AbstractView {
 
 		switch($field) {
 			case SearchFields_KbArticle::TITLE:
-				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__string.tpl.php');
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__string.tpl');
 				break;
 			case SearchFields_KbArticle::UPDATED:
-				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__date.tpl.php');
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__date.tpl');
 				break;
 			case SearchFields_KbArticle::VIEWS:
-				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__number.tpl.php');
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__number.tpl');
 				break;
 			case SearchFields_KbArticle::CONTENT:
-				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__fulltext.tpl.php');
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__fulltext.tpl');
 				break;
 			case SearchFields_KbArticle::TOP_CATEGORY_ID:
 				$topics = DAO_KbCategory::getWhere(sprintf("%s = %d",
@@ -1930,7 +2059,7 @@ class C4_KbArticleView extends C4_AbstractView {
 				));
 				$tpl->assign('topics', $topics);
 
-				$tpl->display('file:' . $tpl_path . 'kb/search/criteria/kb_topic.tpl.php');
+				$tpl->display('file:' . $tpl_path . 'kb/search/criteria/kb_topic.tpl');
 				break;
 			default:
 				echo '';
@@ -2099,7 +2228,7 @@ class C4_TaskView extends C4_AbstractView {
 		
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('view_fields', $this->getColumns());
-		$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/tasks/view.tpl.php');
+		$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/tasks/view.tpl');
 	}
 
 	function renderCriteria($field) {
@@ -2110,33 +2239,33 @@ class C4_TaskView extends C4_AbstractView {
 		switch($field) {
 			case SearchFields_Task::TITLE:
 			case SearchFields_Task::CONTENT:
-				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__string.tpl.php');
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__string.tpl');
 				break;
 				
 			case SearchFields_Task::PRIORITY:
-				$tpl->display('file:' . $tpl_path . 'tasks/criteria/priority.tpl.php');
+				$tpl->display('file:' . $tpl_path . 'tasks/criteria/priority.tpl');
 				break;
 				
 			case SearchFields_Task::SOURCE_EXTENSION:
 				$source_renderers = DevblocksPlatform::getExtensions('cerberusweb.task.source', true);
 				$tpl->assign('sources', $source_renderers);
-				$tpl->display('file:' . $tpl_path . 'tasks/criteria/source.tpl.php');
+				$tpl->display('file:' . $tpl_path . 'tasks/criteria/source.tpl');
 				break;
 				
 			case SearchFields_Task::IS_COMPLETED:
-				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__bool.tpl.php');
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__bool.tpl');
 				break;
 				
 			case SearchFields_Task::DUE_DATE:
 			case SearchFields_Task::COMPLETED_DATE:
-				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__date.tpl.php');
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__date.tpl');
 				break;
 				
 			case SearchFields_Task::WORKER_ID:
 				$workers = DAO_Worker::getAll();
 				$tpl->assign('workers', $workers);
 				
-				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__worker.tpl.php');
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__worker.tpl');
 				break;
 
 			default:
@@ -2411,7 +2540,7 @@ class C4_WorkerEventView extends C4_AbstractView {
 		
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('view_fields', $this->getColumns());
-		$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/home/tabs/my_events/view.tpl.php');
+		$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/home/tabs/my_events/view.tpl');
 	}
 
 	function renderCriteria($field) {
@@ -2422,22 +2551,22 @@ class C4_WorkerEventView extends C4_AbstractView {
 			case SearchFields_WorkerEvent::TITLE:
 			case SearchFields_WorkerEvent::CONTENT:
 			case SearchFields_WorkerEvent::URL:
-				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__string.tpl.php');
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__string.tpl');
 				break;
 //			case SearchFields_WorkerEvent::ID:
 //			case SearchFields_WorkerEvent::MESSAGE_ID:
 //			case SearchFields_WorkerEvent::TICKET_ID:
 //			case SearchFields_WorkerEvent::FILE_SIZE:
-//				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__number.tpl.php');
+//				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__number.tpl');
 //				break;
 			case SearchFields_WorkerEvent::IS_READ:
-				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__bool.tpl.php');
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__bool.tpl');
 				break;
 			case SearchFields_WorkerEvent::CREATED_DATE:
-				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__date.tpl.php');
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__date.tpl');
 				break;
 			case SearchFields_WorkerEvent::WORKER_ID:
-				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__worker.tpl.php');
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__worker.tpl');
 				break;
 			default:
 				echo '';
@@ -2596,108 +2725,6 @@ class Model_WorkerWorkspaceListView {
 	public $params = array();
 };
 
-class Model_DashboardViewAction {
-	public $id = 0;
-	public $dashboard_view_id = 0;
-	public $name = '';
-	public $worker_id = 0;
-	public $params = array();
-
-	/*
-	 * [TODO] [JAS] This could be way more efficient by doing a single DAO_Ticket::update()
-	 * call where the DAO accepts multiple IDs for a single update, vs. a loop with 'n'.
-	 */
-
-	/**
-	 * @param integer[] $ticket_ids
-	 */
-	function run($ticket_ids) {
-		//		if(is_array($ticket_ids))
-		//		foreach($ticket_ids as $ticket_id) {
-		$fields = array();
-		$custom_fields = array();
-
-		// actions
-		if(is_array($this->params))
-		foreach($this->params as $k => $v) {
-			switch($k) {
-				case 'closed':
-					if(empty($v) && !is_numeric($v))
-						continue;
-					
-					switch(intval($v)) {
-						case CerberusTicketStatus::OPEN:
-							$fields[DAO_Ticket::IS_CLOSED] = 0;
-							$fields[DAO_Ticket::IS_DELETED] = 0;
-							break;
-							
-						case CerberusTicketStatus::CLOSED:
-							$fields[DAO_Ticket::IS_CLOSED] = 1;
-							break;
-							
-						case 2:
-							$fields[DAO_Ticket::IS_CLOSED] = 1;
-							$fields[DAO_Ticket::IS_DELETED] = 1;
-							break;
-					}
-					break;
-
-					case 'spam':
-						if(empty($v) && !is_numeric($v))
-							continue;
-						
-						if($v == CerberusTicketSpamTraining::NOT_SPAM) {
-							foreach($ticket_ids as $ticket_id) {
-								CerberusBayes::markTicketAsNotSpam($ticket_id);
-							}
-
-						} elseif($v == CerberusTicketSpamTraining::SPAM) {
-							foreach($ticket_ids as $ticket_id) {
-								CerberusBayes::markTicketAsSpam($ticket_id);
-							}
-						}
-							
-						break;
-
-					case 'team':
-						if(empty($v) && !is_numeric($v))
-							continue;
-						
-						// [TODO] Make sure the team/bucket still exists
-						list($team_id,$category_id) = CerberusApplication::translateTeamCategoryCode($v);
-						$fields[DAO_Ticket::TEAM_ID] = $team_id;
-						$fields[DAO_Ticket::CATEGORY_ID] = $category_id;
-						break;
-
-					case 'next_worker':
-					case 'assign':
-						if(empty($v) && !is_numeric($v))
-							continue;
-						
-						$fields[DAO_Ticket::NEXT_WORKER_ID] = intval($v);
-						break;
-
-					default:
-						// Custom fields
-						if(substr($k,0,3)=="cf_") {
-							$custom_fields[substr($k,3)] = $v;
-						}
-						// [TODO] Log?
-						break;
-			}
-		}
-		//		}
-
-		if(!empty($ticket_ids)) {
-			if(!empty($fields))
-				DAO_Ticket::updateTicket($ticket_ids, $fields);
-			
-			// Custom Fields
-			C4_AbstractView::_doBulkSetCustomFields(ChCustomFieldSource_Ticket::ID, $custom_fields, $ticket_ids);
-		}
-	}
-};
-
 class Model_Activity {
 	public $translation_code;
 	public $params;
@@ -2740,8 +2767,6 @@ class Model_MailRoute {
 class CerberusVisit extends DevblocksVisit {
 	private $worker;
 
-	const KEY_DASHBOARD_ID = 'cur_dashboard_id';
-	const KEY_WORKSPACE_GROUP_ID = 'cur_group_id';
 	const KEY_VIEW_LAST_ACTION = 'view_last_action';
 	const KEY_MY_WORKSPACE = 'view_my_workspace';
 	const KEY_MAIL_MODE = 'mail_mode';
@@ -2882,33 +2907,12 @@ class Model_TicketViewLastAction {
 class CerberusTicketStatus {
 	const OPEN = 0;
 	const CLOSED = 1;
-
-	/**
-	 * @return array
-	 */
-	public static function getOptions() {
-		$translate = DevblocksPlatform::getTranslationService();
-
-		return array(
-		self::OPEN => $translate->_('status.open'),
-		self::CLOSED => $translate->_('status.closed'),
-		);
-	}
 };
 
 class CerberusTicketSpamTraining { // [TODO] Append 'Enum' to class name?
-const BLANK = '';
-const NOT_SPAM = 'N';
-const SPAM = 'S';
-
-public static function getOptions() {
-	$translate = DevblocksPlatform::getTranslationService();
-
-	return array(
-	self::NOT_SPAM => $translate->_('training.not_spam'),
-	self::SPAM => $translate->_('training.report_spam'),
-	);
-}
+	const BLANK = '';
+	const NOT_SPAM = 'N';
+	const SPAM = 'S';
 };
 
 class CerberusTicket {
@@ -3280,4 +3284,3 @@ class Model_Task {
 	public $source_id;
 };
 
-?>

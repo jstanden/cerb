@@ -32,7 +32,7 @@ class ChForumsConfigTab extends Extension_ConfigTab {
 			$tpl->assign('poster_workers_str', $poster_workers_str);
 		}
 		
-		$tpl->display('file:' . $tpl_path . 'config/index.tpl.php');
+		$tpl->display('file:' . $tpl_path . 'config/index.tpl');
 	}
 	
 	function saveTab() {
@@ -127,7 +127,7 @@ class ChForumsActivityTab extends Extension_ActivityTab {
 		$tpl->assign('view_fields', C4_ForumsThreadView::getFields());
 		$tpl->assign('view_searchable_fields', C4_ForumsThreadView::getSearchFields());
 		
-		$tpl->display($tpl_path . 'activity_tab/index.tpl.php');		
+		$tpl->display($tpl_path . 'activity_tab/index.tpl');		
 	}
 }
 endif;
@@ -170,7 +170,7 @@ class ChForumsHomeTab extends Extension_HomeTab {
 		$tpl->assign('view_fields', C4_ForumsThreadView::getFields());
 		$tpl->assign('view_searchable_fields', C4_ForumsThreadView::getSearchFields());
 		
-		$tpl->display($tpl_path . 'home_tab/index.tpl.php');		
+		$tpl->display($tpl_path . 'home_tab/index.tpl');		
 	}
 }
 endif;
@@ -288,7 +288,7 @@ class ChForumsController extends DevblocksControllerExtension {
 //				$visit->set('forums_explorer_results_total', $count);
 				
 				$tpl->assign('current_post', $current);
-				$tpl->display('file:' . $this->tpl_path . '/explorer/index.tpl.php');
+				$tpl->display('file:' . $this->tpl_path . '/explorer/index.tpl');
 				break;
 		}
 		
@@ -359,7 +359,7 @@ class ChForumsController extends DevblocksControllerExtension {
 
 		$tpl->assign('active_worker', $visit->getWorker());
 		
-		$tpl->display('file:' . $this->tpl_path . '/explorer/navigation.tpl.php');
+		$tpl->display('file:' . $this->tpl_path . '/explorer/navigation.tpl');
 	}
 	
 	function ajaxCloseAction() {
@@ -963,7 +963,7 @@ class C4_ForumsThreadView extends C4_AbstractView {
 
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('view_fields', $this->getColumns());
-		$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.forums/templates/forums/forums_view.tpl.php');
+		$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.forums/templates/forums/forums_view.tpl');
 	}
 
 	function renderCriteria($field) {
@@ -976,28 +976,28 @@ class C4_ForumsThreadView extends C4_AbstractView {
 				$forums = DAO_ForumsSource::getWhere();
 				$tpl->assign('forums', $forums);
 				
-				$tpl->display('file:' . $tpl_path . 'forums/criteria/forum.tpl.php');
+				$tpl->display('file:' . $tpl_path . 'forums/criteria/forum.tpl');
 				break;
 				
 			case SearchFields_ForumsThread::TITLE:
 			case SearchFields_ForumsThread::LINK:
 			case SearchFields_ForumsThread::LAST_POSTER:
-				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__string.tpl.php');
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__string.tpl');
 				break;
 				
 			case SearchFields_ForumsThread::LAST_UPDATED:
-				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__date.tpl.php');
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__date.tpl');
 				break;
 				
 			case SearchFields_ForumsThread::IS_CLOSED:
-				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__bool.tpl.php');
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__bool.tpl');
 				break;
 				
 			case SearchFields_ForumsThread::WORKER_ID:
 				$workers = DAO_Worker::getAll();
 				$tpl->assign('workers', $workers);
 				
-				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__worker.tpl.php');
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__worker.tpl');
 				break;
 				
 			default:

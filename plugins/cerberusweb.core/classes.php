@@ -219,7 +219,7 @@ class ChPageController extends DevblocksControllerExtension {
 			$tpl->assign('render_peak_memory', memory_get_peak_usage() - DevblocksPlatform::getStartPeakMemory());
 		}
 		
-		$tpl->display($core_tpl.'border.php');
+		$tpl->display($core_tpl.'border.tpl');
 		
 //		$cache = DevblocksPlatform::getCacheService();
 //		$cache->printStatistics();
@@ -285,7 +285,7 @@ class ChHomePage extends CerberusPageExtension {
 		if(empty($tab_selected)) $tab_selected = 'events';
 		$tpl->assign('tab_selected', $tab_selected);
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/home/index.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/home/index.tpl');
 	}
 	
 	// Ajax
@@ -316,7 +316,6 @@ class ChHomePage extends CerberusPageExtension {
 			$myEventsView = new C4_WorkerEventView();
 			$myEventsView->id = self::VIEW_MY_EVENTS;
 			$myEventsView->name = $title;
-			$myEventsView->dashboard_id = 0;
 //			$myEventsView->view_columns = array(
 //				SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
 //				SearchFields_Ticket::TICKET_UPDATED_DATE,
@@ -341,7 +340,7 @@ class ChHomePage extends CerberusPageExtension {
 		}
 		
 		$tpl->assign('view', $myEventsView);
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/home/tabs/my_events/index.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/home/tabs/my_events/index.tpl');
 	}
 	
 	/**
@@ -406,7 +405,6 @@ class ChHomePage extends CerberusPageExtension {
 			$myTicketsView = new C4_TicketView();
 			$myTicketsView->id = self::VIEW_MY_TICKETS;
 			$myTicketsView->name = $title;
-			$myTicketsView->dashboard_id = 0;
 			$myTicketsView->view_columns = array(
 				SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
 				SearchFields_Ticket::TICKET_UPDATED_DATE,
@@ -431,7 +429,7 @@ class ChHomePage extends CerberusPageExtension {
 		}
 		
 		$tpl->assign('view', $myTicketsView);
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/home/tabs/my_tickets/index.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/home/tabs/my_tickets/index.tpl');
 	}
 	
 	function showMyTasksAction() {
@@ -451,7 +449,6 @@ class ChHomePage extends CerberusPageExtension {
 			$myTasksView = new C4_TaskView();
 			$myTasksView->id = self::VIEW_MY_TASKS;
 			$myTasksView->name = $title;
-			$myTasksView->dashboard_id = 0;
 			$myTasksView->view_columns = array(
 				SearchFields_Task::SOURCE_EXTENSION,
 				SearchFields_Task::PRIORITY,
@@ -473,7 +470,7 @@ class ChHomePage extends CerberusPageExtension {
 		}
 		
 		$tpl->assign('view', $myTasksView);
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/home/tabs/my_tasks/index.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/home/tabs/my_tasks/index.tpl');
 	}
 };
 
@@ -521,7 +518,7 @@ class ChActivityPage extends CerberusPageExtension {
 		if(empty($tab_selected)) $tab_selected = 'tasks';
 		$tpl->assign('tab_selected', $tab_selected);
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/activity/index.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/activity/index.tpl');
 	}
 	
 	// Ajax
@@ -557,18 +554,8 @@ class ChTicketsPage extends CerberusPageExtension {
 	}
 	
 	function getActivity() {
-		$visit = CerberusApplication::getVisit();
-		$team_name = "";
-		
-		$team_id = $visit->get(CerberusVisit::KEY_WORKSPACE_GROUP_ID, 0);
-		if($team_id) {
-			if(null !== ($team = DAO_Group::getTeam($team_id))) {
-				$team_name = $team->name;
-			}
-		}
-		
 		return new Model_Activity('activity.tickets',array(
-	    	$team_name
+	    	""
 	    ));
 	}
 	
@@ -614,7 +601,7 @@ class ChTicketsPage extends CerberusPageExtension {
 				
 				$tpl->assign('upload_max_filesize', ini_get('upload_max_filesize'));
 				
-				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/compose/index.tpl.php');
+				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/compose/index.tpl');
 				break;
 				
 			case 'create':
@@ -640,7 +627,7 @@ class ChTicketsPage extends CerberusPageExtension {
 				
 				$tpl->assign('upload_max_filesize', ini_get('upload_max_filesize'));
 				
-				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/create/index.tpl.php');
+				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/create/index.tpl');
 				break;
 				
 			default:
@@ -656,7 +643,7 @@ class ChTicketsPage extends CerberusPageExtension {
 				$workspaces = DAO_WorkerWorkspaceList::getWorkspaces($active_worker->id);
 				$tpl->assign('workspaces', $workspaces);
 				
-				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/index.tpl.php');
+				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/index.tpl');
 				break;
 		}
 		
@@ -838,7 +825,7 @@ class ChTicketsPage extends CerberusPageExtension {
 			$tpl->assign('whos_online_count', count($whos_online));
 		}
 		
-        $tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/workflow/index.tpl.php');
+        $tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/workflow/index.tpl');
 	}
 	
 	function showOverviewTabAction() {
@@ -926,7 +913,6 @@ class ChTicketsPage extends CerberusPageExtension {
 			$overView = new C4_TicketView();
 			$overView->id = CerberusApplication::VIEW_OVERVIEW_ALL;
 			$overView->name = $title;
-			$overView->dashboard_id = 0;
 			$overView->view_columns = $overViewDefaults->view_columns;
 			$overView->params = array();
 			$overView->renderLimit = $overViewDefaults->renderLimit;
@@ -1046,7 +1032,7 @@ class ChTicketsPage extends CerberusPageExtension {
 			$tpl->assign('whos_online_count', count($whos_online));
 		}
 		
-        $tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/overview/index.tpl.php');		
+        $tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/overview/index.tpl');		
 	}
 	
 	function showSearchTabAction() {
@@ -1098,7 +1084,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl->assign('view_fields', C4_TicketView::getFields());
 		$tpl->assign('view_searchable_fields', C4_TicketView::getSearchFields());
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/search/index.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/search/index.tpl');
 	}
 	
 	function showWorkspaceTabAction() {
@@ -1174,7 +1160,7 @@ class ChTicketsPage extends CerberusPageExtension {
 			)
 		);
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/lists/index.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/lists/index.tpl');
 	}
 	
 	//**** Local scope
@@ -1202,7 +1188,7 @@ class ChTicketsPage extends CerberusPageExtension {
 				$group_counts = DAO_WorkflowView::getGroupTotals();
 				$tpl->assign('group_counts', $group_counts);
 				
-				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/workflow/sidebar.tpl.php');
+				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/workflow/sidebar.tpl');
 				break;
 				
 			case 'overview':
@@ -1224,7 +1210,7 @@ class ChTicketsPage extends CerberusPageExtension {
 				$worker_counts = DAO_Overview::getWorkerTotals();
 				$tpl->assign('worker_counts', $worker_counts);
 				
-				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/overview/sidebar.tpl.php');
+				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/overview/sidebar.tpl');
 				break;
 		}
 	}
@@ -1246,7 +1232,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	    $tpl->assign('callout',$callout);
 		
 		$tpl->cache_lifetime = "0";
-		$tpl->display('tour/callout.tpl.php');
+		$tpl->display('tour/callout.tpl');
 	}
 	
 	// Ajax
@@ -1301,7 +1287,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		
 		$tpl->assign('last_action', $last_action);
 		$tpl->cache_lifetime = "0";
-		$tpl->display($path.'tickets/rpc/ticket_view_output.tpl.php');
+		$tpl->display($path.'tickets/rpc/ticket_view_output.tpl');
 	} 
 	
 	// Post
@@ -1336,7 +1322,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		));
 		$tpl->assign('worklists', $worklists);
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/lists/reorder_workspace_panel.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/lists/reorder_workspace_panel.tpl');
 	}
 	
 	function doReorderWorkspaceAction() {
@@ -1364,7 +1350,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		$workspaces = DAO_WorkerWorkspaceList::getWorkspaces($active_worker->id);
 		$tpl->assign('workspaces', $workspaces);
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/lists/add_view_panel.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/lists/add_view_panel.tpl');
 	}
 	
 	function saveAddListPanelAction() {
@@ -1521,14 +1507,6 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$first_address = DAO_Address::get($ticket->first_wrote_address_id);
 		$tpl->assign('first_address', $first_address);
 		
-		// Status
-		$statuses = CerberusTicketStatus::getOptions();
-		$tpl->assign('statuses', $statuses);
-
-		// Spam Training
-		$training = CerberusTicketSpamTraining::getOptions();
-		$tpl->assign('training', $training);
-
 		// Grops
 		$groups = DAO_Group::getAll();
 		$tpl->assign('groups', $groups);
@@ -1542,7 +1520,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl->assign('workers', $workers);
 		
 		$tpl->cache_lifetime = "0";
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/rpc/inbox_rule_panel.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/rpc/inbox_rule_panel.tpl');
 	}
 	
 	// Ajax
@@ -1550,22 +1528,24 @@ class ChTicketsPage extends CerberusPageExtension {
 		$translate = DevblocksPlatform::getTranslationService();
 		
    		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
-   		@$team_id = DevblocksPlatform::importGPC($_REQUEST['team_id'],'integer');
+   		@$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'integer');
 
    		$view = C4_AbstractViewLoader::getView('C4_TicketView', $view_id); /* @var $view C4_TicketView */
    		
-   		if(empty($team_id)) {
+   		if(empty($group_id)) {
    			$view->render();
    			exit;
    		}
    		
 		@$name = DevblocksPlatform::importGPC($_POST['name'],'string','');
 		@$rules = DevblocksPlatform::importGPC($_POST['rules'],'array',array());
+		@$do = DevblocksPlatform::importGPC($_POST['do'],'array',array());
    		
 		if(empty($name))
 			$name = $translate->_('mail.inbox_filter');
 		
 		$criterion = array();
+		$actions = array();
 		
 		// Criteria
 		if(is_array($rules))
@@ -1607,38 +1587,71 @@ class ChTicketsPage extends CerberusPageExtension {
 			$criterion[$rule] = $criteria;
 		}
    		
-   		@$move = DevblocksPlatform::importGPC($_REQUEST['move'],'string');
-   		@$status = DevblocksPlatform::importGPC($_REQUEST['status'],'string');
-   		@$spam = DevblocksPlatform::importGPC($_REQUEST['spam'],'string');
-   		@$assign = DevblocksPlatform::importGPC($_REQUEST['assign'],'string');
-   		
+			// Actions
+		if(is_array($do))
+		foreach($do as $act) {
+			$action = array();
+			
+			switch($act) {
+				// Move group/bucket
+				case 'move':
+					@$move_code = DevblocksPlatform::importGPC($_REQUEST['do_move'],'string',null);
+					if(0 != strlen($move_code)) {
+						list($g_id, $b_id) = CerberusApplication::translateTeamCategoryCode($move_code);
+						$action = array(
+							'group_id' => intval($g_id),
+							'bucket_id' => intval($b_id),
+						);
+					}
+					break;
+				// Assign to worker
+				case 'assign':
+					@$worker_id = DevblocksPlatform::importGPC($_REQUEST['do_assign'],'string',null);
+					if(0 != strlen($worker_id))
+						$action = array(
+							'worker_id' => intval($worker_id)
+						);
+					break;
+				// Spam training
+				case 'spam':
+					@$is_spam = DevblocksPlatform::importGPC($_REQUEST['do_spam'],'string',null);
+					if(0 != strlen($is_spam))
+						$action = array(
+							'is_spam' => (!$is_spam?0:1)
+						);
+					break;
+				// Set status
+				case 'status':
+					@$status = DevblocksPlatform::importGPC($_REQUEST['do_status'],'string',null);
+					if(0 != strlen($status))
+						$action = array(
+							'is_closed' => (0==$status?0:1),
+							'is_deleted' => (2==$status?1:0),
+						);
+					break;
+				default: // ignore invalids
+					continue;
+					break;
+			}
+			
+			$actions[$act] = $action;
+		}		
+		
    		$fields = array(
-   			DAO_TeamRoutingRule::NAME => $name,
-   			DAO_TeamRoutingRule::TEAM_ID => $team_id,
-   			DAO_TeamRoutingRule::CRITERIA_SER => serialize($criterion),
-   			DAO_TeamRoutingRule::POS => 0
+   			DAO_GroupInboxFilter::NAME => $name,
+   			DAO_GroupInboxFilter::GROUP_ID => $group_id,
+   			DAO_GroupInboxFilter::CRITERIA_SER => serialize($criterion),
+   			DAO_GroupInboxFilter::ACTIONS_SER => serialize($actions),
+   			DAO_GroupInboxFilter::POS => 0
    		);
-
-   		if(!empty($move)) {
-			$fields[DAO_TeamRoutingRule::DO_MOVE] = $move;   			
-   		}
-   		if(0 != strlen($status)) {
-			$fields[DAO_TeamRoutingRule::DO_STATUS] = intval($status);   			
-   		}
-   		if(0 != strlen($spam)) {
-			$fields[DAO_TeamRoutingRule::DO_SPAM] = $spam;   			
-   		}
-   		if(0 != strlen($assign)) {
-			$fields[DAO_TeamRoutingRule::DO_ASSIGN] = intval($assign);
-   		}
    		
-   		$routing_id = DAO_TeamRoutingRule::create($fields);
+   		$routing_id = DAO_GroupInboxFilter::create($fields);
    		
    		// Loop through all the tickets in this inbox
    		list($inbox_tickets, $null) = DAO_Ticket::search(
    			null,
    			array(
-   				new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'=',$team_id),
+   				new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'=',$group_id),
    				new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CATEGORY_ID,'=','0'),
    			),
    			-1,
@@ -1651,7 +1664,7 @@ class ChTicketsPage extends CerberusPageExtension {
    		if(is_array($inbox_tickets))
    		foreach($inbox_tickets as $inbox_ticket) { /* @var $inbox_ticket CerberusTicket */
    			// Run only this new rule against all tickets in the group inbox
-   			CerberusApplication::runGroupRouting($team_id, intval($inbox_ticket[SearchFields_Ticket::TICKET_ID]), $routing_id);
+   			CerberusApplication::runGroupRouting($group_id, intval($inbox_ticket[SearchFields_Ticket::TICKET_ID]), $routing_id);
    		}
    		
    		$view->render();
@@ -1675,7 +1688,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/compose/peek.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/compose/peek.tpl');
 	}
 	
 	function saveComposePeekAction() {
@@ -1788,7 +1801,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		
 		// Display
 		$tpl->cache_lifetime = "0";
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/rpc/preview_panel.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/rpc/preview_panel.tpl');
 	}
 	
 	// Ajax
@@ -1984,7 +1997,7 @@ class ChTicketsPage extends CerberusPageExtension {
         $tpl->assign('view_id', $view_id);
 		$tpl->assign('view', $view);
 
-        $tpl->display($tpl_path.'tickets/rpc/ticket_view_copy.tpl.php');
+        $tpl->display($tpl_path.'tickets/rpc/ticket_view_copy.tpl');
 	}
 	
 	function doViewCopyAction() {
@@ -2036,7 +2049,6 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl->assign('path', $tpl_path);
         
         $visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
-        $active_dashboard_id = $visit->get(CerberusVisit::KEY_DASHBOARD_ID, 0);
 
         $view = C4_AbstractViewLoader::getView('',$view_id);
         
@@ -2047,12 +2059,9 @@ class ChTicketsPage extends CerberusPageExtension {
             $headers = DAO_MessageHeader::getUnique();
             $tpl->assign('headers', $headers);
             
-	        $tpl->display($tpl_path.'tickets/rpc/ticket_view_assist_headers.tpl.php');
+	        $tpl->display($tpl_path.'tickets/rpc/ticket_view_assist_headers.tpl');
 	        
         } else {
-			$team_id = $visit->get(CerberusVisit::KEY_WORKSPACE_GROUP_ID, 0);;
-		    $tpl->assign('dashboard_team_id', $team_id);
-	        
 			$teams = DAO_Group::getAll();
 			$tpl->assign('teams', $teams);
 			
@@ -2062,6 +2071,9 @@ class ChTicketsPage extends CerberusPageExtension {
 			$category_name_hash = DAO_Bucket::getCategoryNameHash();
 			$tpl->assign('category_name_hash', $category_name_hash);
 	        
+			$workers = DAO_Worker::getAllActive();
+			$tpl->assign('workers', $workers);
+			
 			// Enforce group memberships
 	       	// [TODO] Test impact
 			$active_worker = CerberusApplication::getActiveWorker();
@@ -2072,7 +2084,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		    $biggest = DAO_Ticket::analyze($view->params, 15, $mode, $mode_param);
 		    $tpl->assign('biggest', $biggest);
 	        
-	        $tpl->display($tpl_path.'tickets/rpc/ticket_view_assist.tpl.php');
+	        $tpl->display($tpl_path.'tickets/rpc/ticket_view_assist.tpl');
         }
 	}
 	
@@ -2082,9 +2094,8 @@ class ChTicketsPage extends CerberusPageExtension {
         $visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
 		$view = C4_AbstractViewLoader::getView('',$view_id);
 
-        $active_dashboard_id = $visit->get(CerberusVisit::KEY_DASHBOARD_ID, 0);
-		$dashboard_team_id = $visit->get(CerberusVisit::KEY_WORKSPACE_GROUP_ID, 0);
-        
+		$buckets = DAO_Bucket::getAll();
+		
 	    @$piles_always = DevblocksPlatform::importGPC($_POST['piles_always'],'array', array());
 	    @$piles_hash = DevblocksPlatform::importGPC($_POST['piles_hash'],'array', array());
 	    @$piles_moveto = DevblocksPlatform::importGPC($_POST['piles_moveto'],'array', array());
@@ -2110,23 +2121,71 @@ class ChTicketsPage extends CerberusPageExtension {
 	        switch(strtolower(substr($moveto,0,1))) {
 	            // Team/Bucket Move
 	            case 't':
+	            	$g_id = intval(substr($moveto,1));
+	            	$doActions = array(
+	            		'move' => array(
+	            			'group_id' => $g_id,
+	            			'bucket_id' => 0,
+	            		)
+	            	);
+	            	break;
+	            	
 	            case 'c':
-	                $doActions = array('team' => $moveto);
+            		$b_id = intval(substr($moveto,1));
+            		@$g_id = intval($buckets[$b_id]->team_id);
+            		
+            		if(!empty($g_id))
+	            	$doActions = array(
+	            		'move' => array(
+	            			'group_id' => $g_id,
+	            			'bucket_id' => $b_id,
+	            		)
+	            	);
 	                break;
 	                
 	            // Action
 	            case 'a':
 	                switch(strtolower(substr($moveto,1))) {
 	                    case 'c': // close
-	                        $doActions = array('closed' => CerberusTicketStatus::CLOSED);
-	                        break;
+							$doActions = array(
+								'status' => array(
+									'is_closed' => 1,
+									'is_deleted' => 0,
+								)
+							);
+	                    	break;
 	                    case 's': // spam
-	                        $doActions = array('spam' => CerberusTicketSpamTraining::SPAM, 'closed' => 2);
-	                        break;
+							$doActions = array(
+								'status' => array(
+									'is_closed' => 1,
+									'is_deleted' => 1,
+								),
+								'spam' => array(
+									'is_spam' => 1,
+								)
+							);
+							break;
 	                    case 'd': // delete
-	                        $doActions = array('closed' => 2);
-	                        break;
+							$doActions = array(
+								'status' => array(
+									'is_closed' => 1,
+									'is_deleted' => 1,
+								)
+							);
+	                    	break;
 	                }
+	                break;
+	                
+				// Worker
+	            case 'w':
+            		$w_id = intval(substr($moveto,1));
+            		
+            		if(!empty($w_id))
+	            	$doActions = array(
+	            		'assign' => array(
+	            			'worker_id' => $w_id,
+	            		)
+	            	);
 	                break;
 	                
 	            default:
@@ -2183,7 +2242,6 @@ class ChTicketsPage extends CerberusPageExtension {
 	    }
 	    
         $visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
-	    $active_dashboard_id = $visit->get(CerberusVisit::KEY_DASHBOARD_ID, 0);	    
 	    
 	    list($team_id,$category_id) = CerberusApplication::translateTeamCategoryCode($move_to);
 
@@ -2582,12 +2640,10 @@ class ChTicketsPage extends CerberusPageExtension {
 	function showBatchPanelAction() {
 		@$ids = DevblocksPlatform::importGPC($_REQUEST['ids']);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
-		@$team_id = DevblocksPlatform::importGPC($_REQUEST['team_id'],'integer',0);
 
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		$tpl->assign('view_id', $view_id);
-		$tpl->assign('team_id', $team_id);
 
 	    $unique_sender_ids = array();
 	    $unique_subjects = array();
@@ -2630,14 +2686,6 @@ class ChTicketsPage extends CerberusPageExtension {
 	        @$tpl->assign('unique_subjects', $unique_subjects);
 	    }
 		
-		// Status
-		$statuses = CerberusTicketStatus::getOptions();
-		$tpl->assign('statuses', $statuses);
-
-		// Spam Training
-		$training = CerberusTicketSpamTraining::getOptions();
-		$tpl->assign('training', $training);
-		
 		// Teams
 		$teams = DAO_Group::getAll();
 		$tpl->assign('teams', $teams);
@@ -2654,7 +2702,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl->assign('custom_fields', $custom_fields);
 		
 		$tpl->cache_lifetime = "0";
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/rpc/batch_panel.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/rpc/batch_panel.tpl');
 	}
 	
 	// Ajax
@@ -2669,24 +2717,47 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		$view = C4_AbstractViewLoader::getView('',$view_id);
 
-		@$closed = DevblocksPlatform::importGPC($_POST['closed'],'string','');
-		@$spam = DevblocksPlatform::importGPC($_POST['spam'],'string','');
-		@$team = DevblocksPlatform::importGPC($_POST['team'],'string','');
-		@$next_worker = DevblocksPlatform::importGPC($_POST['next_worker'],'string','');
-
         $subjects = DevblocksPlatform::parseCrlfString($subjects);
         $senders = DevblocksPlatform::parseCrlfString($senders);
 		
 		$do = array();
 		
-		if(!is_null($closed))
-			$do['closed'] = $closed;
-		if(!is_null($spam))
-			$do['spam'] = $spam;
-		if(!is_null($team))
-			$do['team'] = $team;
-		if(!is_null($next_worker))
-			$do['next_worker'] = $next_worker;
+		// [TODO] This logic is repeated in several places -- try to condense (like custom field form handlers)
+		
+		// Move to Group/Bucket
+		@$move_code = DevblocksPlatform::importGPC($_REQUEST['do_move'],'string',null);
+		if(0 != strlen($move_code)) {
+			list($g_id, $b_id) = CerberusApplication::translateTeamCategoryCode($move_code);
+			$do['move'] = array(
+				'group_id' => intval($g_id),
+				'bucket_id' => intval($b_id),
+			);
+		}
+		
+		// Assign to worker
+		@$worker_id = DevblocksPlatform::importGPC($_REQUEST['do_assign'],'string',null);
+		if(0 != strlen($worker_id)) {
+			$do['assign'] = array(
+				'worker_id' => intval($worker_id)
+			);
+		}
+			
+		// Spam training
+		@$is_spam = DevblocksPlatform::importGPC($_REQUEST['do_spam'],'string',null);
+		if(0 != strlen($is_spam)) {
+			$do['spam'] = array(
+				'is_spam' => (!$is_spam?0:1)
+			);
+		}
+		
+		// Set status
+		@$status = DevblocksPlatform::importGPC($_REQUEST['do_status'],'string',null);
+		if(0 != strlen($status)) {
+			$do['status'] = array(
+				'is_closed' => (0==$status?0:1),
+				'is_deleted' => (2==$status?1:0),
+			);
+		}
 		
 	    $data = array();
 	    $ticket_ids = array();
@@ -2731,7 +2802,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl->assign('source', $source);
 		
 		$tpl->cache_lifetime = "0";
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/internal/views/view_rss_builder.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/internal/views/view_rss_builder.tpl');
 	}
 	
 	// post
@@ -2850,7 +2921,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		
 		// [TODO] check showTab* hooks for active_worker->is_superuser (no ajax bypass)
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/index.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/index.tpl');
 	}
 	
 	// Ajax
@@ -2937,7 +3008,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$tpl->assign('total_db_slack', number_format($total_db_slack/1048576,2));
 		$tpl->assign('total_file_size', number_format($total_file_size/1048576,2));
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/settings/index.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/settings/index.tpl');
 	}
 	
 	// Ajax
@@ -2955,7 +3026,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$tpl->assign('view_fields', C4_AttachmentView::getFields());
 		$tpl->assign('view_searchable_fields', C4_AttachmentView::getSearchFields());
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/attachments/index.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/attachments/index.tpl');
 	}
 	
 	function showAttachmentsBulkPanelAction() {
@@ -2981,7 +3052,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 //		$tpl->assign('custom_fields', $custom_fields);
 		
 		$tpl->cache_lifetime = "0";
-		$tpl->display('file:' . $path . 'configuration/tabs/attachments/bulk.tpl.php');
+		$tpl->display('file:' . $path . 'configuration/tabs/attachments/bulk.tpl');
 	}
 	
 	function doAttachmentsBulkUpdateAction() {
@@ -3097,7 +3168,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 //	        $tpl->assign('orphans', $orphans);
 //	        $tpl->assign('db_orphans', $db_orphans);
 //	        
-//	        $tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/attachments/cleanup_output.tpl.php');
+//	        $tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/attachments/cleanup_output.tpl');
 //		}
 //
 //		exit;
@@ -3117,7 +3188,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		
 		$tpl->assign('license',CerberusLicense::getInstance());
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/workers/index.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/workers/index.tpl');
 	}
 	
 	// Ajax
@@ -3134,7 +3205,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		
 		$tpl->assign('license',CerberusLicense::getInstance());
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/groups/index.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/groups/index.tpl');
 	}
 	
 	function showKbImportPanelAction() {
@@ -3142,7 +3213,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/kb/import.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/kb/import.tpl');
 	}
 	
 //	function doKbImportXmlAction() {
@@ -3193,7 +3264,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		));
 		$tpl->assign('categories', $categories);
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/kb/index.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/kb/index.tpl');
 	}
 	
 	function getKBCategoryAction() {
@@ -3211,7 +3282,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$groups = DAO_Group::getAll();
 		$tpl->assign('groups', $groups);
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/kb/edit_category.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/kb/edit_category.tpl');
 		
 		return;
 	}
@@ -3284,7 +3355,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$pop3_accounts = DAO_Mail::getPop3Accounts();
 		$tpl->assign('pop3_accounts', $pop3_accounts);
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/mail/index.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/mail/index.tpl');
 	}
 	
 	function getMailboxAction() {
@@ -3299,7 +3370,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 			$tpl->assign('pop3_account', $pop3);
 		}
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/mail/edit_pop3_account.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/mail/edit_pop3_account.tpl');
 		
 		return;
 	}
@@ -3421,7 +3492,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 				$tpl->assign('smtp_test_output', $translate->_('config.mail.smtp.failed') . ' ' . $e->getMessage());
 			}
 			
-			$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/mail/test_smtp.tpl.php');			
+			$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/mail/test_smtp.tpl');			
 		}
 		
 		return;
@@ -3475,7 +3546,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 			$tpl->assign('pop_test_output', $translate->_('config.mail.pop.error_hostname'));
 		}
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/mail/test_pop.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/mail/test_pop.tpl');
 		
 		return;
 	}
@@ -3492,7 +3563,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$groups = DAO_Group::getAll();
 		$tpl->assign('groups', $groups);
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/mail/mail_preparse.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/mail/mail_preparse.tpl');
 	}
 
 	function saveTabPreParseFiltersAction() {
@@ -3508,8 +3579,27 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','preparser')));
 	}
 	
+	// Ajax
+	function showPreParserPanelAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		
+		if(null != ($filter = DAO_PreParseRule::get($id))) {
+			$tpl->assign('filter', $filter);
+		}
+		
+		$groups = DAO_Group::getAll();
+		$tpl->assign('groups', $groups);
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/mail/preparser/peek.tpl');
+	}
+	
 	// Post
 	function saveTabPreParserAction() {
+		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
 		@$name = DevblocksPlatform::importGPC($_POST['name'],'string','');
 		@$rules = DevblocksPlatform::importGPC($_POST['rules'],'array',array());
 		@$do = DevblocksPlatform::importGPC($_POST['do'],'array',array());
@@ -3594,13 +3684,22 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		}
 		
 		if(!empty($criterion) && !empty($actions)) {
-			$fields = array(
-				DAO_PreParseRule::NAME => $name,
-				DAO_PreParseRule::CRITERIA_SER => serialize($criterion),
-				DAO_PreParseRule::ACTIONS_SER => serialize($actions),
-				DAO_PreParseRule::POS => 0,
-			);
-			DAO_PreParseRule::create($fields);
+			if(empty($id))  {
+				$fields = array(
+					DAO_PreParseRule::NAME => $name,
+					DAO_PreParseRule::CRITERIA_SER => serialize($criterion),
+					DAO_PreParseRule::ACTIONS_SER => serialize($actions),
+					DAO_PreParseRule::POS => 0,
+				);
+				$id = DAO_PreParseRule::create($fields);
+			} else {
+				$fields = array(
+					DAO_PreParseRule::NAME => $name,
+					DAO_PreParseRule::CRITERIA_SER => serialize($criterion),
+					DAO_PreParseRule::ACTIONS_SER => serialize($actions),
+				);
+				DAO_PreParseRule::update($id, $fields);
+			}
 		}
 		
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','preparser')));
@@ -3618,7 +3717,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$teams = DAO_Group::getAll();
 		$tpl->assign('teams', $teams);
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/mail/mail_routing.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/mail/mail_routing.tpl');
 	}
 	
 	// Ajax
@@ -3632,7 +3731,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		uasort($source_manifests, create_function('$a, $b', "return strcasecmp(\$a->name,\$b->name);\n"));
 		$tpl->assign('source_manifests', $source_manifests);
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/fields/index.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/fields/index.tpl');
 	}
 	
 	// Ajax
@@ -3644,7 +3743,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$topics = DAO_FnrTopic::getWhere();
 		$tpl->assign('topics', $topics);
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/fnr/index.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/fnr/index.tpl');
 	}
 	
 	// Ajax
@@ -3666,7 +3765,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$license = CerberusLicense::getInstance();
 		$tpl->assign('license', $license);
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/plugins/index.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/plugins/index.tpl');
 	}
 	
 	// Ajax
@@ -3678,7 +3777,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	    $jobs = DevblocksPlatform::getExtensions('cerberusweb.cron', true);
 		$tpl->assign('jobs', $jobs);
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/scheduler/index.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/scheduler/index.tpl');
 	}
 	
 	// Ajax
@@ -3694,7 +3793,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 			$tpl->assign('topic', $topic);
 		}
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/fnr/topic_panel.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/fnr/topic_panel.tpl');
 	}
 	
 	// Ajax
@@ -3713,7 +3812,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 			$tpl->assign('resource', $resource);
 		}
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/fnr/external_resource_panel.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/fnr/external_resource_panel.tpl');
 	}
 	
 	// Post
@@ -3813,7 +3912,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$fields = DAO_CustomField::getBySourceAndGroupId($ext_id, 0);
 		$tpl->assign('fields', $fields);
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/fields/edit_source.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/fields/edit_source.tpl');
 	}
 	
 	// Ajax
@@ -4048,7 +4147,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$teams = DAO_Group::getAll();
 		$tpl->assign('teams', $teams);
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/workers/edit_worker.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/workers/edit_worker.tpl');
 	}
 	
 	// Post
@@ -4230,7 +4329,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		
 		$tpl->assign('license',CerberusLicense::getInstance());
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/groups/edit_group.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/groups/edit_group.tpl');
 	}
 	
 	// Post
@@ -4430,7 +4529,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$teams = DAO_Group::getAll();
 		$tpl->assign('teams', $teams);
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/mail/mail_routing.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/mail/mail_routing.tpl');
 	}
 	
 	// Form Submit
@@ -4540,7 +4639,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$teams = DAO_Group::getTeams();
 		$tpl->assign('teams', $teams);
 
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/mail/mail_routing_add.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/mail/mail_routing_add.tpl');
 	}
 	
 	function savePluginsAction() {
@@ -4629,7 +4728,7 @@ class ChWelcomePage extends CerberusPageExtension {
 		$response = DevblocksPlatform::getHttpResponse();
 		$stack = $response->path;
 
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/welcome/index.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/welcome/index.tpl');
 	}
 };
 
@@ -4742,10 +4841,10 @@ class ChContactsPage extends CerberusPageExtension {
 								break;
 						}
 						
-						$tpl->display('file:' . dirname(__FILE__) . '/templates/contacts/import/mapping.tpl.php');
+						$tpl->display('file:' . dirname(__FILE__) . '/templates/contacts/import/mapping.tpl');
 						break;
 					default:
-						$tpl->display('file:' . dirname(__FILE__) . '/templates/contacts/import/index.tpl.php');
+						$tpl->display('file:' . dirname(__FILE__) . '/templates/contacts/import/index.tpl');
 						break;
 				}
 				break;
@@ -4756,7 +4855,7 @@ class ChContactsPage extends CerberusPageExtension {
 				$tpl->assign('contacts_page', 'addresses');
 				$tpl->assign('view_fields', C4_AddressView::getFields());
 				$tpl->assign('view_searchable_fields', C4_AddressView::getSearchFields());
-				$tpl->display('file:' . dirname(__FILE__) . '/templates/contacts/addresses/index.tpl.php');
+				$tpl->display('file:' . dirname(__FILE__) . '/templates/contacts/addresses/index.tpl');
 				break;
 				
 //			case 'people':
@@ -4777,7 +4876,7 @@ class ChContactsPage extends CerberusPageExtension {
 //				$tpl->assign('contacts_page', 'people');
 //				$tpl->assign('view_fields', C4_AddressView::getFields());
 //				$tpl->assign('view_searchable_fields', C4_AddressView::getSearchFields());
-//				$tpl->display('file:' . dirname(__FILE__) . '/templates/contacts/people/index.tpl.php');
+//				$tpl->display('file:' . dirname(__FILE__) . '/templates/contacts/people/index.tpl');
 //				break;
 				
 			default:
@@ -4837,7 +4936,7 @@ class ChContactsPage extends CerberusPageExtension {
 							}
 						}
 						
-						$tpl->display('file:' . dirname(__FILE__) . '/templates/contacts/orgs/display.tpl.php');
+						$tpl->display('file:' . dirname(__FILE__) . '/templates/contacts/orgs/display.tpl');
 						break;
 						
 					default: // index
@@ -4846,7 +4945,7 @@ class ChContactsPage extends CerberusPageExtension {
 						$tpl->assign('contacts_page', 'orgs');
 						$tpl->assign('view_fields', C4_ContactOrgView::getFields());
 						$tpl->assign('view_searchable_fields', C4_ContactOrgView::getSearchFields());
-						$tpl->display('file:' . dirname(__FILE__) . '/templates/contacts/orgs/index.tpl.php');
+						$tpl->display('file:' . dirname(__FILE__) . '/templates/contacts/orgs/index.tpl');
 						break;
 				}
 		}	
@@ -5053,7 +5152,7 @@ class ChContactsPage extends CerberusPageExtension {
 		if(isset($custom_field_values[$org]))
 			$tpl->assign('custom_field_values', $custom_field_values[$org]);
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/contacts/orgs/tabs/properties.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/contacts/orgs/tabs/properties.tpl');
 		exit;
 	}
 	
@@ -5085,7 +5184,7 @@ class ChContactsPage extends CerberusPageExtension {
 		$tpl->assign('contacts_page', 'orgs');
 		$tpl->assign('search_columns', SearchFields_Address::getFields());
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/contacts/orgs/tabs/people.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/contacts/orgs/tabs/people.tpl');
 		exit;
 	}
 	
@@ -5121,7 +5220,7 @@ class ChContactsPage extends CerberusPageExtension {
 		$tpl->assign('contacts_page', 'orgs');
 		$tpl->assign('search_columns', SearchFields_Address::getFields());
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/contacts/orgs/tabs/tasks.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/contacts/orgs/tabs/tasks.tpl');
 		exit;
 	}
 	
@@ -5155,7 +5254,7 @@ class ChContactsPage extends CerberusPageExtension {
 		$workers = DAO_Worker::getAllWithDisabled();
 		$tpl->assign('workers', $workers);
 
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/contacts/orgs/tabs/notes.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/contacts/orgs/tabs/notes.tpl');
 	}
 	
 	function showTabHistoryAction() {
@@ -5220,7 +5319,7 @@ class ChContactsPage extends CerberusPageExtension {
 		$team_categories = DAO_Bucket::getTeams();
 		$tpl->assign('team_categories', $team_categories);
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/contacts/orgs/tabs/history.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/contacts/orgs/tabs/history.tpl');
 		exit;
 	}
 	
@@ -5301,7 +5400,7 @@ class ChContactsPage extends CerberusPageExtension {
 		// Display
 		$tpl->assign('id', $id);
 		$tpl->assign('view_id', $view_id);
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/contacts/addresses/address_peek.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/contacts/addresses/address_peek.tpl');
 	}
 	
 	function showAddressTicketsAction() {
@@ -5343,7 +5442,7 @@ class ChContactsPage extends CerberusPageExtension {
 	    $tpl->assign('custom_fields', $custom_fields);
 	    
 		$tpl->cache_lifetime = "0";
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/contacts/addresses/address_bulk.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/contacts/addresses/address_bulk.tpl');
 	}
 	
 	function showOrgBulkPanelAction() {
@@ -5364,7 +5463,7 @@ class ChContactsPage extends CerberusPageExtension {
 		$tpl->assign('custom_fields', $custom_fields);
 		
 		$tpl->cache_lifetime = "0";
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/contacts/orgs/org_bulk.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/contacts/orgs/org_bulk.tpl');
 	}
 		
 	function showOrgPeekAction() {
@@ -5392,7 +5491,7 @@ class ChContactsPage extends CerberusPageExtension {
 		// View
 		$tpl->assign('view_id', $view_id);
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/contacts/orgs/org_peek.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/contacts/orgs/org_peek.tpl');
 	}
 	
 	function saveContactAction() {
@@ -5932,7 +6031,7 @@ class ChGroupsPage extends CerberusPageExtension  {
 	    		$tpl->assign('tab_selected', $tab_selected);
 		}
     	
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/groups/index.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/groups/index.tpl');
 	}
 	
 	function showTabMailAction() {
@@ -5960,7 +6059,7 @@ class ChGroupsPage extends CerberusPageExtension  {
 		@$tpl->assign('group_spam_action', $group_settings[DAO_GroupSettings::SETTING_SPAM_ACTION]);
 		@$tpl->assign('group_spam_action_param', $group_settings[DAO_GroupSettings::SETTING_SPAM_ACTION_PARAM]);
 		
-		$tpl->display('file:' . $tpl_path . 'groups/manage/index.tpl.php');
+		$tpl->display('file:' . $tpl_path . 'groups/manage/index.tpl');
 	}
 	
 	function showTabInboxAction() {
@@ -5970,16 +6069,71 @@ class ChGroupsPage extends CerberusPageExtension  {
 		$tpl_path = realpath(dirname(__FILE__) . '/templates/') . DIRECTORY_SEPARATOR;
 		$tpl->assign('path', $tpl_path);
 
+		$tpl->assign('group_id', $group_id);
+		
 		$active_worker = CerberusApplication::getActiveWorker();
 		if(!$active_worker->isTeamManager($group_id) && !$active_worker->is_superuser) {
 			return;
-		} else {
-			$group = DAO_Group::getTeam($group_id);
-			$tpl->assign('team', $group);
 		}
 		
-		$team_rules = DAO_TeamRoutingRule::getByTeamId($group_id);
+		$team_rules = DAO_GroupInboxFilter::getByGroupId($group_id);
 		$tpl->assign('team_rules', $team_rules);
+		
+		$groups = DAO_Group::getAll();
+		$tpl->assign('groups', $groups);
+
+		$buckets = DAO_Bucket::getAll();
+		$tpl->assign('buckets', $buckets);
+                    
+		$workers = DAO_Worker::getAll();
+		$tpl->assign('workers', $workers);
+
+		// Custom Field Sources
+		$source_manifests = DevblocksPlatform::getExtensions('cerberusweb.fields.source', false);
+		$tpl->assign('source_manifests', $source_manifests);
+		
+		// Custom Fields
+		$custom_fields =  DAO_CustomField::getAll();
+		$tpl->assign('custom_fields', $custom_fields);
+		
+		$tpl->display('file:' . $tpl_path . 'groups/manage/filters/index.tpl');
+	}
+	
+	function saveTabInboxAction() {
+	    @$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'integer');
+	    @$deletes = DevblocksPlatform::importGPC($_REQUEST['deletes'],'array');
+	    
+	    @$active_worker = CerberusApplication::getActiveWorker();
+	    if(!$active_worker->isTeamManager($group_id) && !$active_worker->is_superuser)
+	    	return;
+	    
+	    if(!empty($group_id) && !empty($deletes)) {
+	        DAO_GroupInboxFilter::delete($deletes);
+	    }
+	    
+        DevblocksPlatform::redirect(new DevblocksHttpResponse(array('groups',$group_id,'inbox')));
+   	}
+   	
+   	function showInboxFilterPanelAction() {
+   		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+   		@$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'integer',0);
+
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl_path = realpath(dirname(__FILE__) . '/templates/') . DIRECTORY_SEPARATOR;
+		$tpl->assign('path', $tpl_path);
+   		
+		$tpl->assign('group_id', $group_id);
+		
+		if(null != ($filter = DAO_GroupInboxFilter::get($id))) {
+			$tpl->assign('filter', $filter);
+		}
+
+		// Make sure we're allowed to change this group's setup
+		if(!$active_worker->isTeamManager($group_id) && !$active_worker->is_superuser) {
+			return;
+		}
 		
 		$category_name_hash = DAO_Bucket::getCategoryNameHash();
 		$tpl->assign('category_name_hash', $category_name_hash);
@@ -5992,53 +6146,45 @@ class ChGroupsPage extends CerberusPageExtension  {
                     
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
-                    
-		// Status
-		$statuses = CerberusTicketStatus::getOptions();
-		$tpl->assign('statuses', $statuses);
-
-		// Spam Training
-		$training = CerberusTicketSpamTraining::getOptions();
-		$tpl->assign('training', $training);
 		
-		$tpl->display('file:' . $tpl_path . 'groups/manage/routing.tpl.php');
-	}
-	
-	function saveTabInboxAction() {
-	    @$team_id = DevblocksPlatform::importGPC($_REQUEST['team_id'],'integer');
-	    @$deletes = DevblocksPlatform::importGPC($_REQUEST['deletes'],'array');
-	    
-	    @$active_worker = CerberusApplication::getActiveWorker();
-	    if(!$active_worker->isTeamManager($team_id) && !$active_worker->is_superuser)
-	    	return;
-	    
-	    if(!empty($team_id) && !empty($deletes)) {
-	        DAO_TeamRoutingRule::delete($deletes);
-	    }
-	    
-        DevblocksPlatform::redirect(new DevblocksHttpResponse(array('groups',$team_id,'inbox')));
+		// Custom Fields: Address
+		$address_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Address::ID);
+		$tpl->assign('address_fields', $address_fields);
+		
+		// Custom Fields: Orgs
+		$org_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Org::ID);
+		$tpl->assign('org_fields', $org_fields);
+		
+		// Custom Fields: Tickets
+		$ticket_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Ticket::ID);
+		$tpl->assign('ticket_fields', $ticket_fields);
+		
+		$tpl->display('file:' . $tpl_path . 'groups/manage/filters/peek.tpl');
    	}
    	
    	function saveTabInboxAddAction() {
    		$translate = DevblocksPlatform::getTranslationService();
    		
-   		@$team_id = DevblocksPlatform::importGPC($_REQUEST['team_id'],'integer');
+   		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+   		@$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'integer');
    		
 	    @$active_worker = CerberusApplication::getActiveWorker();
-	    if(!$active_worker->isTeamManager($team_id) && !$active_worker->is_superuser)
+	    if(!$active_worker->isTeamManager($group_id) && !$active_worker->is_superuser)
 	    	return;
-   		
 
 	    /*****************************/
 		@$name = DevblocksPlatform::importGPC($_POST['name'],'string','');
 		@$rules = DevblocksPlatform::importGPC($_POST['rules'],'array',array());
-//		@$do = DevblocksPlatform::importGPC($_POST['do'],'array',array());
+		@$do = DevblocksPlatform::importGPC($_POST['do'],'array',array());
 		
 		if(empty($name))
 			$name = $translate->_('mail.inbox_filter');
 		
 		$criterion = array();
-//		$actions = array();
+		$actions = array();
+		
+		// Custom fields
+		$custom_fields = DAO_CustomField::getAll();
 		
 		// Criteria
 		if(is_array($rules))
@@ -6073,7 +6219,47 @@ class ChGroupsPage extends CerberusPageExtension  {
 				case 'attachment':
 					break;
 				default: // ignore invalids
-					continue;
+					// Custom fields
+					if("cf_" == substr($rule,0,3)) {
+						$field_id = intval(substr($rule,3));
+						
+						if(!isset($custom_fields[$field_id]))
+							continue;
+
+						// [TODO] Operators
+							
+						switch($custom_fields[$field_id]->type) {
+							case 'S': // string
+							case 'T': // clob
+								// ... value inherits fine
+								break;
+							case 'D': // dropdown
+							case 'M': // multi-dropdown
+							case 'X': // multi-checkbox
+								$in_array = DevblocksPlatform::importGPC($_REQUEST['value_cf_'.$field_id],'array',array());
+								$out_array = array();
+								
+								// Hash key on the option for quick lookup later
+								if(is_array($in_array))
+								foreach($in_array as $k => $v) {
+									$out_array[$v] = $v;
+								}
+								
+								$criteria['value'] = $out_array;
+								break;
+							case 'E': // date
+								// ... value inherits fine (for now)
+								break;
+							case 'N': // number
+							case 'C': // checkbox
+								$criteria['value'] = intval($value);
+								break;
+						}
+						
+					} else {
+						continue;
+					}
+					
 					break;
 			}
 			
@@ -6081,63 +6267,117 @@ class ChGroupsPage extends CerberusPageExtension  {
 		}
 		
 		// Actions
-//		if(is_array($do))
-//		foreach($do as $act) {
-//			$action = array();
-//			
-//			switch($act) {
-//				case 'blackhole':
-//					$action = array();
-//					break;
-//				case 'redirect':
-//					if(null != (@$to = DevblocksPlatform::importGPC($_POST['do_redirect'],'string',null)))
-//						$action = array(
-//							'to' => $to
-//						);
-//					break;
-//				case 'bounce':
-//					if(null != (@$msg = DevblocksPlatform::importGPC($_POST['do_bounce'],'string',null)))
-//						$action = array(
-//							'message' => $msg
-//						);
-//					break;
-//				default: // ignore invalids
-//					continue;
-//					break;
-//			}
-//			
-//			$actions[$act] = $action;
-//		}
-		/*****************************/
-	    
-   		@$move = DevblocksPlatform::importGPC($_REQUEST['move'],'string');
-   		@$status = DevblocksPlatform::importGPC($_REQUEST['status'],'string');
-   		@$spam = DevblocksPlatform::importGPC($_REQUEST['spam'],'string');
-   		@$assign = DevblocksPlatform::importGPC($_REQUEST['assign'],'string');
+		if(is_array($do))
+		foreach($do as $act) {
+			$action = array();
+			
+			switch($act) {
+				// Move group/bucket
+				case 'move':
+					@$move_code = DevblocksPlatform::importGPC($_REQUEST['do_move'],'string',null);
+					if(0 != strlen($move_code)) {
+						list($g_id, $b_id) = CerberusApplication::translateTeamCategoryCode($move_code);
+						$action = array(
+							'group_id' => intval($g_id),
+							'bucket_id' => intval($b_id),
+						);
+					}
+					break;
+				// Assign to worker
+				case 'assign':
+					@$worker_id = DevblocksPlatform::importGPC($_REQUEST['do_assign'],'string',null);
+					if(0 != strlen($worker_id))
+						$action = array(
+							'worker_id' => intval($worker_id)
+						);
+					break;
+				// Spam training
+				case 'spam':
+					@$is_spam = DevblocksPlatform::importGPC($_REQUEST['do_spam'],'string',null);
+					if(0 != strlen($is_spam))
+						$action = array(
+							'is_spam' => (!$is_spam?0:1)
+						);
+					break;
+				// Set status
+				case 'status':
+					@$status = DevblocksPlatform::importGPC($_REQUEST['do_status'],'string',null);
+					if(0 != strlen($status))
+						$action = array(
+							'is_closed' => (0==$status?0:1),
+							'is_deleted' => (2==$status?1:0),
+						);
+					break;
+				default: // ignore invalids
+					// Custom fields
+					if("cf_" == substr($act,0,3)) {
+						$field_id = intval(substr($act,3));
+						
+						if(!isset($custom_fields[$field_id]))
+							continue;
+
+						$action = array();
+							
+						// [TODO] Operators
+							
+						switch($custom_fields[$field_id]->type) {
+							case 'S': // string
+							case 'T': // clob
+							case 'D': // dropdown
+								$value = DevblocksPlatform::importGPC($_REQUEST['do_cf_'.$field_id],'string','');
+								$action['value'] = $value;
+								break;
+							case 'M': // multi-dropdown
+							case 'X': // multi-checkbox
+								$in_array = DevblocksPlatform::importGPC($_REQUEST['do_cf_'.$field_id],'array',array());
+								$out_array = array();
+								
+								// Hash key on the option for quick lookup later
+								if(is_array($in_array))
+								foreach($in_array as $k => $v) {
+									$out_array[$v] = $v;
+								}
+								
+								$action['value'] = $out_array;
+								break;
+							case 'E': // date
+								$value = DevblocksPlatform::importGPC($_REQUEST['do_cf_'.$field_id],'string','');
+								$action['value'] = $value;
+								break;
+							case 'N': // number
+							case 'C': // checkbox
+								$value = DevblocksPlatform::importGPC($_REQUEST['do_cf_'.$field_id],'string','');
+								$action['value'] = intval($value);
+								break;
+						}
+						
+					} else {
+						continue;
+					}
+					break;
+			}
+			
+			$actions[$act] = $action;
+		}
 
    		$fields = array(
-   			DAO_TeamRoutingRule::NAME => $name,
-   			DAO_TeamRoutingRule::TEAM_ID => $team_id,
-   			DAO_TeamRoutingRule::CRITERIA_SER => serialize($criterion),
-   			DAO_TeamRoutingRule::POS => 0
+   			DAO_GroupInboxFilter::NAME => $name,
+   			DAO_GroupInboxFilter::CRITERIA_SER => serialize($criterion),
+   			DAO_GroupInboxFilter::ACTIONS_SER => serialize($actions),
    		);
 
-   		if(!empty($move)) {
-			$fields[DAO_TeamRoutingRule::DO_MOVE] = $move;   			
-   		}
-   		if(0 != strlen($status)) {
-			$fields[DAO_TeamRoutingRule::DO_STATUS] = intval($status);   			
-   		}
-   		if(0 != strlen($spam)) {
-			$fields[DAO_TeamRoutingRule::DO_SPAM] = $spam;   			
-   		}
-   		if(0 != strlen($assign)) {
-			$fields[DAO_TeamRoutingRule::DO_ASSIGN] = intval($assign);
+   		// Create
+   		if(empty($id)) {
+   			$fields[DAO_GroupInboxFilter::GROUP_ID] = $group_id;
+   			$fields[DAO_GroupInboxFilter::POS] = 0;
+	   		$id = DAO_GroupInboxFilter::create($fields);
+	   		
+	   	// Update
+   		} else {
+   			DAO_GroupInboxFilter::update($id, $fields);
    		}
    		
-   		$routing_id = DAO_TeamRoutingRule::create($fields);
-   		
-   		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('groups',$team_id,'inbox')));
+   		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('groups',$group_id,'inbox')));
    	}
 	
 	// Post
@@ -6218,7 +6458,7 @@ class ChGroupsPage extends CerberusPageExtension  {
 		$workers = DAO_Worker::getAllActive();
 	    $tpl->assign('workers', $workers);
 		
-		$tpl->display('file:' . $tpl_path . 'groups/manage/members.tpl.php');
+		$tpl->display('file:' . $tpl_path . 'groups/manage/members.tpl');
 	}
 	
 	function saveTabMembersAction() {
@@ -6266,7 +6506,7 @@ class ChGroupsPage extends CerberusPageExtension  {
 		$inbox_is_assignable = DAO_GroupSettings::get($group_id, DAO_GroupSettings::SETTING_INBOX_IS_ASSIGNABLE, 1);
 		$tpl->assign('inbox_is_assignable', $inbox_is_assignable);
 		
-		$tpl->display('file:' . $tpl_path . 'groups/manage/buckets.tpl.php');
+		$tpl->display('file:' . $tpl_path . 'groups/manage/buckets.tpl');
 	}
 	
 	function saveTabBucketsAction() {
@@ -6343,7 +6583,7 @@ class ChGroupsPage extends CerberusPageExtension  {
 		$types = Model_CustomField::getTypes();
 		$tpl->assign('types', $types);
 		
-		$tpl->display('file:' . $tpl_path . 'groups/manage/fields.tpl.php');
+		$tpl->display('file:' . $tpl_path . 'groups/manage/fields.tpl');
 	}
 	
 	// Post
@@ -6414,7 +6654,7 @@ class ChGroupsPage extends CerberusPageExtension  {
 			$tpl->assign('group', $group);
 		}
 		
-		$tpl->display('file:' . $tpl_path . 'groups/rpc/peek.tpl.php');
+		$tpl->display('file:' . $tpl_path . 'groups/rpc/peek.tpl');
 	}
 	
 	function saveGroupPanelAction() {
@@ -6498,7 +6738,7 @@ class ChKbPage extends CerberusPageExtension {
 				$tpl->assign('view_fields', C4_KbArticleView::getFields());
 				$tpl->assign('view_searchable_fields', C4_KbArticleView::getSearchFields());
 				
-				$tpl->display('file:' . dirname(__FILE__) . '/templates/kb/search.tpl.php');
+				$tpl->display('file:' . dirname(__FILE__) . '/templates/kb/search.tpl');
 				break;
 				
 			default:
@@ -6545,7 +6785,7 @@ class ChKbPage extends CerberusPageExtension {
 				
 				$tpl->assign('view', $view);
 				
-				$tpl->display('file:' . dirname(__FILE__) . '/templates/kb/index.tpl.php');
+				$tpl->display('file:' . dirname(__FILE__) . '/templates/kb/index.tpl');
 				break;
 		}
 	}
@@ -6627,7 +6867,7 @@ class ChKbPage extends CerberusPageExtension {
 //		$levels = DAO_KbCategory::getTree(0,$map); //$root_id
 //		$tpl->assign('levels',$levels);
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/kb/rpc/article_peek_panel.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/kb/rpc/article_peek_panel.tpl');
 	}
 	
 	function showArticleEditPanelAction() {
@@ -6656,7 +6896,7 @@ class ChKbPage extends CerberusPageExtension {
 		$levels = DAO_KbCategory::getTree(0); //$root_id
 		$tpl->assign('levels',$levels);
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/kb/rpc/article_edit_panel.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/kb/rpc/article_edit_panel.tpl');
 	}
 
 	function saveArticleEditPanelAction() {
@@ -6751,7 +6991,7 @@ class ChKbPage extends CerberusPageExtension {
 		$levels = DAO_KbCategory::getTree(0); //$root_id
 		$tpl->assign('levels',$levels);
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/kb/rpc/subcategory_edit_panel.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/kb/rpc/subcategory_edit_panel.tpl');
 	}
 	
 	function saveKbCategoryEditPanelAction() {
@@ -7018,7 +7258,7 @@ class ChPrintController extends DevblocksControllerExtension {
 
 				$tpl->assign('ticket', $ticket);
 				
-				$tpl->display('file:' . dirname(__FILE__) . '/templates/print/ticket.tpl.php');
+				$tpl->display('file:' . dirname(__FILE__) . '/templates/print/ticket.tpl');
 				break;
 				
 			case 'message':
@@ -7047,7 +7287,7 @@ class ChPrintController extends DevblocksControllerExtension {
 				$tpl->assign('message', $message);
 				$tpl->assign('ticket', $ticket);
 				
-				$tpl->display('file:' . dirname(__FILE__) . '/templates/print/message.tpl.php');
+				$tpl->display('file:' . dirname(__FILE__) . '/templates/print/message.tpl');
 				break;
 		}
 	}
@@ -7620,7 +7860,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		C4_AbstractViewLoader::setView($id, $view);
 		$tpl->assign('view', $view);
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/internal/views/customize_view_criteria.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/internal/views/customize_view_criteria.tpl');
 	}
 	
 	// Ajax
@@ -7642,7 +7882,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		// [TODO] This should be specific to the current view
 		$tpl->assign('view_searchable_fields', C4_TicketView::getSearchFields());
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/internal/views/customize_view.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/internal/views/customize_view.tpl');
 	}
 
 	// Ajax
@@ -7666,7 +7906,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		$view_columns = $view->view_columns;
 		$tpl->assign('view_columns', $view_columns);
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/internal/views/view_export.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/internal/views/view_export.tpl');
 	}
 	
 	function viewDoExportAction() {
@@ -7839,18 +8079,18 @@ class ChDisplayPage extends CerberusPageExtension {
 		}
 	}
 	
-	function getActivity() {
-		$response = DevblocksPlatform::getHttpResponse();
-		$stack = $response->path;
-		@$id = $stack[1];
-	       
-		$url = DevblocksPlatform::getUrlService();
-		$link = sprintf("<a href='%s'>#%s</a>",
-		    $url->write("c=display&id=".$id),
-		    $id
-		);
-	    return new Model_Activity('activity.display_ticket',array($link));
-	}
+//	function getActivity() {
+//		$response = DevblocksPlatform::getHttpResponse();
+//		$stack = $response->path;
+//		@$id = $stack[1];
+//	       
+//		$url = DevblocksPlatform::getUrlService();
+//		$link = sprintf("<a href='%s'>#%s</a>",
+//		    $url->write("c=display&id=".$id),
+//		    $id
+//		);
+//	    return new Model_Activity('activity.display_ticket',array($link));
+//	}
 	
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -7861,7 +8101,8 @@ class ChDisplayPage extends CerberusPageExtension {
 		$response = DevblocksPlatform::getHttpResponse();
 		$active_worker = CerberusApplication::getActiveWorker();
 		$translate = DevblocksPlatform::getTranslationService();
-
+		$url = DevblocksPlatform::getUrlService();
+		
 		$stack = $response->path;
 		@array_shift($stack); // display
 		
@@ -7971,7 +8212,20 @@ class ChDisplayPage extends CerberusPageExtension {
 		$team_categories = DAO_Bucket::getTeams();
 		$tpl->assign('team_categories', $team_categories);
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/index.tpl.php');
+		// Log Activity
+		DAO_Worker::logActivity(
+			$active_worker->id,
+			new Model_Activity('activity.display_ticket',array(
+				sprintf("<a href='%s' title='[%s] %s'>#%s</a>",
+		    		$url->write("c=display&id=".$ticket->mask),
+		    		htmlspecialchars(@$teams[$ticket->team_id]->name, ENT_QUOTES, LANG_CHARSET_CODE),
+		    		htmlspecialchars($ticket->subject, ENT_QUOTES, LANG_CHARSET_CODE),
+		    		$ticket->mask
+		    	)
+			))
+		);
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/index.tpl');
 	}
 	
 	// Ajax
@@ -8122,7 +8376,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		$tpl->assign('expanded', (empty($hide) ? true : false));
 		
 		$tpl->register_modifier('makehrefs', array('CerberusUtils', 'smarty_modifier_makehrefs')); 
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/conversation/message.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/conversation/message.tpl');
 	}
 
 	function updatePropertiesAction() {
@@ -8208,7 +8462,7 @@ class ChDisplayPage extends CerberusPageExtension {
 
 		$tpl->register_modifier('makehrefs', array('CerberusUtils', 'smarty_modifier_makehrefs')); 
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/conversation/notes.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/conversation/notes.tpl');
 	}
 	
 	function addNoteAction() {
@@ -8232,7 +8486,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/rpc/add_note.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/rpc/add_note.tpl');
 	}
 	
 	function doAddNoteAction() {
@@ -8374,7 +8628,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		$tpl->assign('kb_topics', $kb_topics);
 		
 		$tpl->cache_lifetime = "0";
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/rpc/reply.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/rpc/reply.tpl');
 	}
 	
 	function sendReplyAction() {
@@ -8504,7 +8758,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		$tpl->register_modifier('makehrefs', array('CerberusUtils', 'smarty_modifier_makehrefs')); 
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/conversation/index.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/conversation/index.tpl');
 	}
 	
 	function showCommentsAction() {
@@ -8541,7 +8795,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		$tpl->register_modifier('makehrefs', array('CerberusUtils', 'smarty_modifier_makehrefs'));		
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/comments/index.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/comments/index.tpl');
 	}
 	
 	function saveCommentAction() {
@@ -8640,7 +8894,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		if(isset($field_values[$ticket->id]))
 			$tpl->assign('ticket_field_values', $field_values[$ticket->id]);
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/properties/index.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/properties/index.tpl');
 	}
 	
 	// Post
@@ -8890,7 +9144,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		$team_categories = DAO_Bucket::getTeams();
 		$tpl->assign('team_categories', $team_categories);
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/history/index.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/history/index.tpl');
 	}
 
 	function showTasksAction() {
@@ -8923,7 +9177,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		C4_AbstractViewLoader::setView($view->id, $view);
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/tasks/index.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/tasks/index.tpl');
 	}
 
 	// Ajax
@@ -8953,7 +9207,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		$templates = DAO_MailTemplate::getWhere($where);
 		$tpl->assign('templates', $templates);
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/rpc/email_templates/templates_panel.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/rpc/email_templates/templates_panel.tpl');
 	}
 	
 	// Ajax
@@ -8976,7 +9230,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		$template = DAO_MailTemplate::get($id);
 		$tpl->assign('template', $template);
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/rpc/email_templates/template_edit_panel.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/rpc/email_templates/template_edit_panel.tpl');
 	}
 	
 	// Ajax
@@ -9057,7 +9311,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		$templates = DAO_MailTemplate::getWhere($where);
 		$tpl->assign('templates', $templates);
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/rpc/email_templates/template_results.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/rpc/email_templates/template_results.tpl');
 	} 
 	
 	function showRequestersPanelAction() {
@@ -9073,7 +9327,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		$requesters = DAO_Ticket::getRequestersByTicket($ticket_id);
 		$tpl->assign('requesters', $requesters);
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/rpc/requester_panel.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/rpc/requester_panel.tpl');
 	}
 	
 	function saveRequestersPanelAction() {
@@ -9144,7 +9398,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		$tpl->assign('results', $results);
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/rpc/reply_kb_results.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/rpc/reply_kb_results.tpl');
 	}
 	
 	// Ajax
@@ -9155,7 +9409,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		$topics = DAO_FnrTopic::getWhere();
 		$tpl->assign('topics', $topics);
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/rpc/reply_links_panel.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/rpc/reply_links_panel.tpl');
 	}
 	
 	function doFnrAction() {
@@ -9184,7 +9438,7 @@ class ChDisplayPage extends CerberusPageExtension {
     	$tpl->assign('feeds', $feeds);
     	$tpl->assign('sources', $sources);		
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/fnr/results.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/display/modules/fnr/results.tpl');
 	}
 	
 };
@@ -9220,15 +9474,15 @@ class ChSignInPage extends CerberusPageExtension {
                     	if ((@$failed = array_shift($stack)) == "failed") {
                     		$tpl->assign('failed',true);
                     	}
-                        $tpl->display("file:${path}/login/forgot1.tpl.php");
+                        $tpl->display("file:${path}/login/forgot1.tpl");
                         break;
                     
                     case "step2":
-                        $tpl->display("file:${path}/login/forgot2.tpl.php");
+                        $tpl->display("file:${path}/login/forgot2.tpl");
                         break;
                         
                     case "step3":
-                        $tpl->display("file:${path}/login/forgot3.tpl.php");
+                        $tpl->display("file:${path}/login/forgot3.tpl");
                         break;
                 }
                 
@@ -9517,12 +9771,12 @@ class ChPreferencesPage extends CerberusPageExtension {
 					$tpl->assign('pref_errors', $errors);
 				}
 				
-				$tpl->display('file:' . $tpl_path . '/preferences/index.tpl.php');
+				$tpl->display('file:' . $tpl_path . '/preferences/index.tpl');
 				break;
 			
 		    default:
 		    	$tpl->assign('tab', $section);
-				$tpl->display('file:' . $tpl_path . '/preferences/index.tpl.php');
+				$tpl->display('file:' . $tpl_path . '/preferences/index.tpl');
 				break;
 		}
 	}
@@ -9601,7 +9855,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 		$tpl->assign('zend_date', new Zend_Date());
 		$tpl->assign('current_time', time());
 		
-		$tpl->display('file:' . $tpl_path . '/preferences/modules/general.tpl.php');
+		$tpl->display('file:' . $tpl_path . '/preferences/modules/general.tpl');
 	}
 	
 	// Ajax [TODO] This should probably turn into Extension_PreferenceTab
@@ -9616,7 +9870,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 		$feeds = DAO_ViewRss::getByWorker($active_worker->id);
 		$tpl->assign('feeds', $feeds);
 		
-		$tpl->display('file:' . $tpl_path . '/preferences/modules/rss.tpl.php');
+		$tpl->display('file:' . $tpl_path . '/preferences/modules/rss.tpl');
 	}
 	
 	// Post [TODO] This should probably turn into Extension_PreferenceTab

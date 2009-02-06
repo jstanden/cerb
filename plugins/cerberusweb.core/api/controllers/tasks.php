@@ -32,7 +32,7 @@ class ChTasksActivityTab extends Extension_ActivityTab {
 		$tpl->assign('view_fields', C4_TaskView::getFields());
 		$tpl->assign('view_searchable_fields', C4_TaskView::getSearchFields());
 		
-		$tpl->display($tpl_path . 'tasks/activity_tab/index.tpl.php');		
+		$tpl->display($tpl_path . 'tasks/activity_tab/index.tpl');		
 	}
 }
 endif;
@@ -125,7 +125,7 @@ class ChTasksController extends DevblocksControllerExtension {
 		// View
 		$tpl->assign('id', $id);
 		$tpl->assign('view_id', $view_id);
-		$tpl->display('file:' . $path . 'tasks/rpc/peek.tpl.php');
+		$tpl->display('file:' . $path . 'tasks/rpc/peek.tpl');
 	}
 	
 	function saveTaskPeekAction() {
@@ -253,7 +253,7 @@ class ChTasksController extends DevblocksControllerExtension {
 		$tpl->assign('custom_fields', $custom_fields);
 		
 		$tpl->cache_lifetime = "0";
-		$tpl->display('file:' . dirname(__FILE__) . '/../../templates/tasks/rpc/bulk.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/../../templates/tasks/rpc/bulk.tpl');
 	}
 	
 	function doTaskBulkUpdateAction() {

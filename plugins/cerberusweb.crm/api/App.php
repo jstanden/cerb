@@ -57,7 +57,7 @@ class CrmOppsHomeTab extends Extension_HomeTab {
 		$tpl->assign('view_fields', C4_CrmOpportunityView::getFields());
 		$tpl->assign('view_searchable_fields', C4_CrmOpportunityView::getSearchFields());
 		
-		$tpl->display($tpl_path . 'crm/opps/home_tab/index.tpl.php');		
+		$tpl->display($tpl_path . 'crm/opps/home_tab/index.tpl');		
 	}
 }
 endif;
@@ -97,7 +97,7 @@ class CrmOppsActivityTab extends Extension_ActivityTab {
 		$tpl->assign('view_fields', C4_CrmOpportunityView::getFields());
 		$tpl->assign('view_searchable_fields', C4_CrmOpportunityView::getSearchFields());
 		
-		$tpl->display($tpl_path . 'crm/opps/activity_tab/index.tpl.php');		
+		$tpl->display($tpl_path . 'crm/opps/activity_tab/index.tpl');		
 	}
 }
 endif;
@@ -182,7 +182,7 @@ class CrmPage extends CerberusPageExtension {
 					}
 				}
 				
-				$tpl->display($tpl_path . 'crm/opps/display/index.tpl.php');
+				$tpl->display($tpl_path . 'crm/opps/display/index.tpl');
 				break;
 		}
 	}
@@ -272,7 +272,7 @@ class CrmPage extends CerberusPageExtension {
 		$workers = DAO_Worker::getAllActive();
 		$tpl->assign('workers', $workers);
 		
-		$tpl->display('file:' . $tpl_path . 'crm/opps/rpc/peek.tpl.php');
+		$tpl->display('file:' . $tpl_path . 'crm/opps/rpc/peek.tpl');
 	}
 	
 	function saveOppPanelAction() {
@@ -417,7 +417,7 @@ class CrmPage extends CerberusPageExtension {
 //		);
 //		$tpl->assign('view', $view);
 		
-		$tpl->display('file:' . $tpl_path . 'crm/opps/display/tabs/tasks.tpl.php');
+		$tpl->display('file:' . $tpl_path . 'crm/opps/display/tabs/tasks.tpl');
 	}
 	
 	function showOppMailTabAction() {
@@ -453,7 +453,7 @@ class CrmPage extends CerberusPageExtension {
 		
 		C4_AbstractViewLoader::setView($view->id, $view);
 		
-		$tpl->display('file:' . $tpl_path . 'crm/opps/display/tabs/mail.tpl.php');
+		$tpl->display('file:' . $tpl_path . 'crm/opps/display/tabs/mail.tpl');
 	}
 	
 	function showOppPropertiesTabAction() {
@@ -476,7 +476,7 @@ class CrmPage extends CerberusPageExtension {
 		if(isset($custom_field_values[$opp->id]))
 			$tpl->assign('custom_field_values', $custom_field_values[$opp->id]);
 		
-		$tpl->display('file:' . $tpl_path . 'crm/opps/display/tabs/properties.tpl.php');
+		$tpl->display('file:' . $tpl_path . 'crm/opps/display/tabs/properties.tpl');
 	}
 	
 	function saveOppPropertiesAction() {
@@ -555,7 +555,7 @@ class CrmPage extends CerberusPageExtension {
 		$workers = DAO_Worker::getAllWithDisabled();
 		$tpl->assign('workers', $workers);
 				
-		$tpl->display('file:' . $tpl_path . 'crm/opps/display/tabs/notes.tpl.php');
+		$tpl->display('file:' . $tpl_path . 'crm/opps/display/tabs/notes.tpl');
 	}
 	
 	function saveOppNoteAction() {
@@ -634,7 +634,7 @@ class CrmPage extends CerberusPageExtension {
 		$tpl->assign('custom_fields', $custom_fields);
 		
 		$tpl->cache_lifetime = "0";
-		$tpl->display('file:' . dirname(__FILE__) . '/../templates/crm/opps/bulk.tpl.php');
+		$tpl->display('file:' . dirname(__FILE__) . '/../templates/crm/opps/bulk.tpl');
 	}
 	
 	function doOppBulkUpdateAction() {
@@ -1021,7 +1021,7 @@ class C4_CrmOpportunityView extends C4_AbstractView {
 		
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('view_fields', $this->getColumns());
-		$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.crm/templates/crm/opps/view.tpl.php');
+		$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.crm/templates/crm/opps/view.tpl');
 	}
 
 	function renderCriteria($field) {
@@ -1034,29 +1034,29 @@ class C4_CrmOpportunityView extends C4_AbstractView {
 			case SearchFields_CrmOpportunity::ORG_NAME:
 //			case SearchFields_CrmOpportunity::ORG_WEBSITE:
 			case SearchFields_CrmOpportunity::EMAIL_ADDRESS:
-				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__string.tpl.php');
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__string.tpl');
 				break;
 				
 			case SearchFields_CrmOpportunity::AMOUNT:
-				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__number.tpl.php');
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__number.tpl');
 				break;
 				
 			case SearchFields_CrmOpportunity::IS_CLOSED:
 			case SearchFields_CrmOpportunity::IS_WON:
-				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__bool.tpl.php');
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__bool.tpl');
 				break;
 				
 			case SearchFields_CrmOpportunity::CREATED_DATE:
 			case SearchFields_CrmOpportunity::UPDATED_DATE:
 			case SearchFields_CrmOpportunity::CLOSED_DATE:
-				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__date.tpl.php');
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__date.tpl');
 				break;
 				
 			case SearchFields_CrmOpportunity::WORKER_ID:
 				$workers = DAO_Worker::getAll();
 				$tpl->assign('workers', $workers);
 				
-				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__worker.tpl.php');
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__worker.tpl');
 				break;
 
 			default:
@@ -1335,7 +1335,7 @@ class CrmOrgOppTab extends Extension_OrgTab {
 		
 		$tpl->assign('view', $view);
 		
-		$tpl->display('file:' . $tpl_path . 'crm/opps/org/tab.tpl.php');
+		$tpl->display('file:' . $tpl_path . 'crm/opps/org/tab.tpl');
 	}
 	
 	function saveTab() {
@@ -1381,7 +1381,7 @@ class CrmTicketOppTab extends Extension_TicketTab {
 		
 		$tpl->assign('view', $view);
 		
-		$tpl->display('file:' . $tpl_path . 'crm/opps/ticket/tab.tpl.php');
+		$tpl->display('file:' . $tpl_path . 'crm/opps/ticket/tab.tpl');
 	}
 	
 	function saveTab() {

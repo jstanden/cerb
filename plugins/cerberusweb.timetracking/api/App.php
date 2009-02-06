@@ -93,7 +93,7 @@ if (class_exists('Extension_AppPreBodyRenderer',true)):
 			
 			$tpl->assign('current_timestamp', time());
 			
-			$tpl->display('file:' . $tpl_path . 'timetracking/renderers/prebody.tpl.php');
+			$tpl->display('file:' . $tpl_path . 'timetracking/renderers/prebody.tpl');
 		}
 	};
 endif;
@@ -113,7 +113,7 @@ if (class_exists('Extension_TicketToolbarItem',true)):
 //				$tpl->assign('tt_first_wrote', $first_wrote_address);
 //			}
 			
-			$tpl->display('file:' . $tpl_path . 'timetracking/renderers/ticket_toolbar_timer.tpl.php');
+			$tpl->display('file:' . $tpl_path . 'timetracking/renderers/ticket_toolbar_timer.tpl');
 		}
 	};
 endif;
@@ -133,7 +133,7 @@ if (class_exists('Extension_ReplyToolbarItem',true)):
 //				$tpl->assign('tt_first_wrote', $first_wrote_address);
 //			}
 			
-			$tpl->display('file:' . $tpl_path . 'timetracking/renderers/reply_toolbar_timer.tpl.php');
+			$tpl->display('file:' . $tpl_path . 'timetracking/renderers/reply_toolbar_timer.tpl');
 		}
 	};
 endif;
@@ -146,7 +146,7 @@ if (class_exists('Extension_LogMailToolbarItem',true)):
 			$tpl->assign('path', $tpl_path);
 			$tpl->cache_lifetime = "0";
 			
-			$tpl->display('file:' . $tpl_path . 'timetracking/renderers/logmail_toolbar_timer.tpl.php');
+			$tpl->display('file:' . $tpl_path . 'timetracking/renderers/logmail_toolbar_timer.tpl');
 		}
 	};
 endif;
@@ -159,7 +159,7 @@ if (class_exists('Extension_SendMailToolbarItem',true)):
 			$tpl->assign('path', $tpl_path);
 			$tpl->cache_lifetime = "0";
 			
-			$tpl->display('file:' . $tpl_path . 'timetracking/renderers/sendmail_toolbar_timer.tpl.php');
+			$tpl->display('file:' . $tpl_path . 'timetracking/renderers/sendmail_toolbar_timer.tpl');
 		}
 	};
 endif;
@@ -483,7 +483,7 @@ class C4_TimeTrackingEntryView extends C4_AbstractView {
 		
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('view_fields', $this->getColumns());
-		$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.timetracking/templates/timetracking/time/view.tpl.php');
+		$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.timetracking/templates/timetracking/time/view.tpl');
 	}
 
 	function renderCriteria($field) {
@@ -493,20 +493,20 @@ class C4_TimeTrackingEntryView extends C4_AbstractView {
 		switch($field) {
 			case SearchFields_TimeTrackingEntry::NOTES:
 			case SearchFields_TimeTrackingEntry::ORG_NAME:
-				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__string.tpl.php');
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__string.tpl');
 				break;
 			case SearchFields_TimeTrackingEntry::ID:
 			case SearchFields_TimeTrackingEntry::TIME_ACTUAL_MINS:
 			case SearchFields_TimeTrackingEntry::SOURCE_ID:
-				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__number.tpl.php');
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__number.tpl');
 				break;
 			case SearchFields_TimeTrackingEntry::LOG_DATE:
-				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__date.tpl.php');
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__date.tpl');
 				break;
 			case SearchFields_TimeTrackingEntry::WORKER_ID:
 				$workers = DAO_Worker::getAll();
 				$tpl->assign('workers', $workers);
-				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__worker.tpl.php');
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__worker.tpl');
 				break;
 			case SearchFields_TimeTrackingEntry::ACTIVITY_ID:
 				$billable_activities = DAO_TimeTrackingActivity::getWhere(sprintf("%s!=0",DAO_TimeTrackingActivity::RATE));
@@ -515,13 +515,13 @@ class C4_TimeTrackingEntryView extends C4_AbstractView {
 				$nonbillable_activities = DAO_TimeTrackingActivity::getWhere(sprintf("%s=0",DAO_TimeTrackingActivity::RATE));
 				$tpl->assign('nonbillable_activities', $nonbillable_activities);
 
-				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.timetracking/templates/timetracking/criteria/activity.tpl.php');
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.timetracking/templates/timetracking/criteria/activity.tpl');
 				break;
 			case SearchFields_TimeTrackingEntry::SOURCE_EXTENSION_ID:
 				$sources = DAO_TimeTrackingEntry::getSources();
 				$tpl->assign('sources', $sources);
 				
-				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.timetracking/templates/timetracking/criteria/source.tpl.php');
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.timetracking/templates/timetracking/criteria/source.tpl');
 				break;
 			default:
 				// Custom Fields
@@ -863,7 +863,7 @@ class Model_TimeTrackingActivity {
 ////		
 ////		$tpl->assign('view', $view);
 //		
-//		$tpl->display('file:' . $tpl_path . 'timetracking/ticket_tab/index.tpl.php');
+//		$tpl->display('file:' . $tpl_path . 'timetracking/ticket_tab/index.tpl');
 //	}
 //	
 //	function saveTab() {
@@ -1103,7 +1103,7 @@ class ChTimeTrackingAjaxController extends DevblocksControllerExtension {
 		$license = CerberusLicense::getInstance();
 		if(empty($id) && (empty($license['key']) || (!empty($license['key']) && !empty($license['users'])))
 			&& 10 <= DAO_TimeTrackingEntry::getItemCount()) {
-			$tpl->display('file:' . $tpl_path . 'timetracking/rpc/trial.tpl.php');
+			$tpl->display('file:' . $tpl_path . 'timetracking/rpc/trial.tpl');
 			return;
 		}
 		
@@ -1150,7 +1150,7 @@ class ChTimeTrackingAjaxController extends DevblocksControllerExtension {
 		$types = Model_CustomField::getTypes();
 		$tpl->assign('types', $types);
 		
-		$tpl->display('file:' . $tpl_path . 'timetracking/rpc/time_entry_panel.tpl.php');
+		$tpl->display('file:' . $tpl_path . 'timetracking/rpc/time_entry_panel.tpl');
 	}
 	
 //	function writeResponse(DevblocksHttpResponse $response) {
@@ -1291,7 +1291,7 @@ class ChTimeTrackingAjaxController extends DevblocksControllerExtension {
 		$tpl->assign('custom_fields', $custom_fields);
 		
 		$tpl->cache_lifetime = "0";
-		$tpl->display('file:' . $path . 'timetracking/time/bulk.tpl.php');
+		$tpl->display('file:' . $path . 'timetracking/time/bulk.tpl');
 	}
 	
 	function doBulkUpdateAction() {
@@ -1355,7 +1355,7 @@ class TimeTrackingActivityTab extends Extension_ActivityTab {
 		$tpl->assign('view_fields', C4_TimeTrackingEntryView::getFields());
 		$tpl->assign('view_searchable_fields', C4_TimeTrackingEntryView::getSearchFields());
 		
-		$tpl->display($tpl_path . 'activity_tab/index.tpl.php');		
+		$tpl->display($tpl_path . 'activity_tab/index.tpl');		
 	}
 }
 endif;
@@ -1377,7 +1377,7 @@ class ChTimeTrackingConfigActivityTab extends Extension_ConfigTab {
 		$nonbillable_activities = DAO_TimeTrackingActivity::getWhere(sprintf("%s=0",DAO_TimeTrackingActivity::RATE));
 		$tpl->assign('nonbillable_activities', $nonbillable_activities);
 		
-		$tpl->display('file:' . $tpl_path . 'config/activities/index.tpl.php');
+		$tpl->display('file:' . $tpl_path . 'config/activities/index.tpl');
 	}
 	
 	function saveTab() {
@@ -1430,7 +1430,7 @@ class ChTimeTrackingConfigActivityTab extends Extension_ConfigTab {
 		if(!empty($id) && null != ($activity = DAO_TimeTrackingActivity::get($id)))
 			$tpl->assign('activity', $activity);
 		
-		$tpl->display('file:' . $tpl_path . 'config/activities/edit_activity.tpl.php');
+		$tpl->display('file:' . $tpl_path . 'config/activities/edit_activity.tpl');
 	}
 	
 };
@@ -1465,7 +1465,7 @@ class ChReportTimeSpentWorker extends Extension_Report {
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 		
-		$tpl->display('file:' . $this->tpl_path . '/reports/time_spent_worker/index.tpl.php');
+		$tpl->display('file:' . $this->tpl_path . '/reports/time_spent_worker/index.tpl');
 	}
 	
 	function getTimeSpentWorkerReportAction() {
@@ -1563,7 +1563,7 @@ class ChReportTimeSpentWorker extends Extension_Report {
 		//print_r($time_entries);
 		$tpl->assign('time_entries', $time_entries);
 		
-		$tpl->display('file:' . $this->tpl_path . '/reports/time_spent_worker/html.tpl.php');
+		$tpl->display('file:' . $this->tpl_path . '/reports/time_spent_worker/html.tpl');
 	}
 	
 	function getTimeSpentWorkerChartAction() {
@@ -1637,7 +1637,7 @@ class ChReportTimeSpentOrg extends Extension_Report {
 		
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$tpl->display('file:' . $this->tpl_path . '/reports/time_spent_org/index.tpl.php');
+		$tpl->display('file:' . $this->tpl_path . '/reports/time_spent_org/index.tpl');
 	}
 	
 	function getTimeSpentOrgReportAction() {
@@ -1734,7 +1734,7 @@ class ChReportTimeSpentOrg extends Extension_Report {
 		//print_r($time_entries);
 		$tpl->assign('time_entries', $time_entries);
 		
-		$tpl->display('file:' . $this->tpl_path . '/reports/time_spent_org/html.tpl.php');
+		$tpl->display('file:' . $this->tpl_path . '/reports/time_spent_org/html.tpl');
 	}
 	
 	function getTimeSpentOrgChartAction() {
@@ -1809,7 +1809,7 @@ class ChReportTimeSpentActivity extends Extension_Report {
 		
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$tpl->display('file:' . $this->tpl_path . '/reports/time_spent_activity/index.tpl.php');
+		$tpl->display('file:' . $this->tpl_path . '/reports/time_spent_activity/index.tpl');
 	}
 	
 	function getTimeSpentActivityReportAction() {
@@ -1905,7 +1905,7 @@ class ChReportTimeSpentActivity extends Extension_Report {
 		//print_r($time_entries);
 		$tpl->assign('time_entries', $time_entries);
 		
-		$tpl->display('file:' . $this->tpl_path . '/reports/time_spent_activity/html.tpl.php');
+		$tpl->display('file:' . $this->tpl_path . '/reports/time_spent_activity/html.tpl');
 	}
 	
 	function getTimeSpentActivityChartAction() {

@@ -391,7 +391,128 @@ if(!isset($columns['CAN_EXPORT'])) {
     $datadict->ExecuteSQLArray($sql);
 }
 
-// ... next
+// ===========================================================================
+// Migrate team_routing_rule to group_inbox_filter
+
+if(isset($tables['team_routing_rule']) && !isset($tables['group_inbox_filter'])) {
+	$sql = "RENAME TABLE team_routing_rule TO group_inbox_filter";
+	$db->Execute($sql) or die($db->ErrorMsg());
+	
+	unset($tables['team_routing_rule']);
+	$tables['group_inbox_filter'] = true;
+}
+
+$columns = $datadict->MetaColumns('group_inbox_filter');
+
+if(isset($columns['TEAM_ID']) && !isset($columns['GROUP_ID'])) {
+	$datadict->ExecuteSQLArray($datadict->RenameColumnSQL('group_inbox_filter', 'team_id', 'group_id',"group_id I4 DEFAULT 0 NOTNULL"));
+}
+
+$columns = $datadict->MetaColumns('group_inbox_filter');
+
+// Add a field for serializing action values, so we can include custom fields
+if(!isset($columns['ACTIONS_SER'])) {
+	$sql = $datadict->AddColumnSQL('group_inbox_filter','actions_ser XL');
+    $datadict->ExecuteSQLArray($sql);
+    
+    // Move the hardcoded fields into the new format
+    if(isset($columns['DO_ASSIGN'])) {
+    	// Hash buckets
+    	$buckets = array();
+    	$sql = sprintf("SELECT id,name,team_id FROM category");
+    	$rs = $db->Execute($sql);
+    	while(!$rs->EOF) {
+    		$buckets[intval($rs->fields['id'])] = array(
+    			'name' => $rs->fields['name'],
+    			'group_id' => intval($rs->fields['team_id'])
+    		);
+    		$rs->MoveNext();
+    	}
+    	
+    	// Loop through the old style values
+    	$sql = "SELECT id, do_assign, do_move, do_spam, do_status FROM group_inbox_filter";
+    	$rs = $db->Execute($sql);
+    	
+    	$actions = array();
+    	
+    	while(!$rs->EOF) {
+    		$rule_id = intval($rs->fields['id']);
+    		$do_assign = intval($rs->fields['do_assign']);
+    		$do_move = $rs->fields['do_move'];
+    		$do_spam = $rs->fields['do_spam'];
+    		$do_status = intval($rs->fields['do_status']);
+    		
+    		if(0 != strlen($do_assign))
+    			$actions['assign'] = array('worker_id' => $do_assign);
+    		if(0 != strlen($do_move)) {
+    			$group_id = 0;
+    			$bucket_id = 0;
+    			if('t'==substr($do_move,0,1))
+    				$group_id = intval(substr($do_move,1));
+    			if('c'==substr($do_move,0,1)) {
+    				$bucket_id = intval(substr($do_move,1));
+    				$group_id = intval($buckets[$bucket_id]['group_id']);
+    			}
+    			
+    			if(!empty($group_id))
+    				$actions['move'] = array('group_id' => $group_id, 'bucket_id' => $bucket_id);
+    		}
+    		if(0 != strlen($do_spam))
+    			$actions['spam'] = array('is_spam' => ('N'==$do_spam?0:1));
+    		if(0 != strlen($do_status))
+    			$actions['status'] = array('is_closed' => (0==$do_status?0:1), 'is_deleted' => (2==$do_status?1:0));
+    		
+    		$sql = sprintf("UPDATE group_inbox_filter SET actions_ser = %s WHERE id = %d",
+    			$db->qstr(serialize($actions)),
+    			$rule_id
+    		);
+    		$db->Execute($sql);
+    			
+    		$rs->MoveNext();
+    	}
+    	
+    	unset($buckets);
+    }
+}
+
+if(isset($columns['DO_ASSIGN'])) {
+	$sql = $datadict->DropColumnSQL('group_inbox_filter','do_assign');
+    $datadict->ExecuteSQLArray($sql);
+}
+
+if(isset($columns['DO_MOVE'])) {
+	$sql = $datadict->DropColumnSQL('group_inbox_filter','do_move');
+    $datadict->ExecuteSQLArray($sql);
+}
+
+if(isset($columns['DO_SPAM'])) {
+	$sql = $datadict->DropColumnSQL('group_inbox_filter','do_spam');
+    $datadict->ExecuteSQLArray($sql);
+}
+
+if(isset($columns['DO_STATUS'])) {
+	$sql = $datadict->DropColumnSQL('group_inbox_filter','do_status');
+    $datadict->ExecuteSQLArray($sql);
+}
+
+// ===========================================================================
+// Drop the unused dashboard, dashboard_view, and dashboard_view_action tables 
+
+if(isset($tables['dashboard'])) {
+	$sql = $datadict->DropTableSQL('dashboard');
+	$datadict->ExecuteSQLArray($sql);
+}
+
+if(isset($tables['dashboard_view'])) {
+	$sql = $datadict->DropTableSQL('dashboard_view');
+	$datadict->ExecuteSQLArray($sql);
+}
+
+if(isset($tables['dashboard_view_action'])) {
+	$sql = $datadict->DropTableSQL('dashboard_view_action');
+	$datadict->ExecuteSQLArray($sql);
+}
+
 
 return TRUE;
 ?>

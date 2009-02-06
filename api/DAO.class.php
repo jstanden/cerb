@@ -463,11 +463,6 @@ class DAO_Worker extends DevblocksORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$logger = DevblocksPlatform::getConsoleLog();
 		
-		$sql = "DELETE QUICK dashboard FROM dashboard LEFT JOIN worker ON dashboard.agent_id = worker.id WHERE worker.id IS NULL";
-		$db->Execute($sql);
-		
-		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' dashboard records.');
-		
 		$sql = "DELETE QUICK view_rss FROM view_rss LEFT JOIN worker ON view_rss.worker_id = worker.id WHERE worker.id IS NULL";
 		$db->Execute($sql);
 
@@ -491,13 +486,9 @@ class DAO_Worker extends DevblocksORMHelper {
 		$sql = "DELETE QUICK worker_workspace_list FROM worker_workspace_list LEFT JOIN worker ON worker_workspace_list.worker_id = worker.id WHERE worker.id IS NULL";
 		$db->Execute($sql);
 		
+		// [TODO] Clear out workers from any group_inbox_filter rows
+		
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' worker_workspace_list records.');
-		
-		// Routing rules assigned to missing workers
-		$sql = "DELETE QUICK team_routing_rule FROM team_routing_rule LEFT JOIN worker ON team_routing_rule.do_assign = worker.id WHERE (team_routing_rule.do_assign IS NOT NULL AND team_routing_rule.do_assign > 0) AND worker.id IS NULL";
-		$db->Execute($sql);
-		
-		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' team_routing_rule records assigned to missing workers.');
 	}
 	
 	static function deleteAgent($id) {
@@ -535,9 +526,6 @@ class DAO_Worker extends DevblocksORMHelper {
 		$sql = sprintf("DELETE QUICK FROM worker_workspace_list WHERE worker_id = %d", $id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 
-		$sql = sprintf("DELETE QUICK FROM team_routing_rule WHERE do_assign = %d", $id);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
 		// Clear assigned workers
 		$sql = sprintf("UPDATE ticket SET next_worker_id = 0 WHERE next_worker_id = %d", $id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
@@ -3953,10 +3941,10 @@ class DAO_Group {
 		$sql = sprintf("DELETE QUICK FROM mail_routing WHERE team_id = %d", $id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
-		$sql = sprintf("DELETE QUICK FROM team_routing_rule WHERE team_id = %d", $id);
+		$sql = sprintf("DELETE QUICK FROM group_inbox_filter WHERE group_id = %d", $id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 
-        DAO_TeamRoutingRule::deleteByMoveCodes(array('t'.$id));
+//        DAO_GroupInboxFilter::deleteByMoveCodes(array('t'.$id));
 
 		$cache = DevblocksPlatform::getCacheService();
 		$cache->remove(self::CACHE_ALL);
@@ -4747,9 +4735,9 @@ class DAO_Bucket extends DevblocksORMHelper {
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 
 		// Team Routing Rules
-		foreach($ids as $id) {
-			DAO_TeamRoutingRule::deleteByMoveCodes(array('c'.$id));
-		}
+//		foreach($ids as $id) {
+//			DAO_GroupInboxFilter::deleteByMoveCodes(array('c'.$id));
+//		}
 		
 		// Clear any view's move counts involving this bucket for all workers
 		// [TODO] This is pretty hacky.
@@ -5650,23 +5638,20 @@ class DAO_PreParseRule extends DevblocksORMHelper {
 	
 };
 
-class DAO_TeamRoutingRule extends DevblocksORMHelper {
+class DAO_GroupInboxFilter extends DevblocksORMHelper {
     const ID = 'id';
     const NAME = 'name';
-    const TEAM_ID = 'team_id';
+    const GROUP_ID = 'group_id';
 	const CRITERIA_SER = 'criteria_ser';
+	const ACTIONS_SER = 'actions_ser';
     const POS = 'pos';
-    const DO_STATUS = 'do_status';
-    const DO_SPAM = 'do_spam';
-    const DO_MOVE = 'do_move';
-    const DO_ASSIGN = 'do_assign';
     
 	public static function create($fields) {
 	    $db = DevblocksPlatform::getDatabaseService();
 		$id = $db->GenID('generic_seq');
 		
-		$sql = sprintf("INSERT INTO team_routing_rule (id,name,created,team_id,criteria_ser,pos,do_spam,do_status,do_move,do_assign) ".
-		    "VALUES (%d,'',%d,0,'',0,'','','',0)",
+		$sql = sprintf("INSERT INTO group_inbox_filter (id,name,created,group_id,criteria_ser,actions_ser,pos) ".
+		    "VALUES (%d,'',%d,0,'','',0)",
 		    $id,
 		    time()
 		);
@@ -5679,15 +5664,21 @@ class DAO_TeamRoutingRule extends DevblocksORMHelper {
 	
 	public static function increment($id) {
 		$db = DevblocksPlatform::getDatabaseService();
-		$db->Execute(sprintf("UPDATE team_routing_rule SET pos = pos + 1 WHERE id = %d",
+		$db->Execute(sprintf("UPDATE group_inbox_filter SET pos = pos + 1 WHERE id = %d",
 			$id
 		));
 	}
 	
 	public static function update($id, $fields) {
-        self::_update($id, 'team_routing_rule', $fields);
+        self::_update($id, 'group_inbox_filter', $fields);
 	}
 	
+	/**
+	 * Enter description here...
+	 *
+	 * @param integer $id
+	 * @return Model_GroupInboxFilter
+	 */
 	public static function get($id) {
 		$items = self::getList(array($id));
 		
@@ -5697,16 +5688,22 @@ class DAO_TeamRoutingRule extends DevblocksORMHelper {
 		return NULL;
 	}
 	
-	public static function getByTeamId($team_id) {
-	    if(empty($team_id)) return array();
+	/**
+	 * Enter description here...
+	 *
+	 * @param integer $group_id
+	 * @return Model_GroupInboxFilter
+	 */
+	public static function getByGroupId($group_id) {
+	    if(empty($group_id)) return array();
 	    
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = sprintf("SELECT id, name, team_id, criteria_ser, pos, do_spam, do_status, do_move, do_assign ".
-		    "FROM team_routing_rule ".
-		    "WHERE team_id = %d ".
+		$sql = sprintf("SELECT id, name, group_id, criteria_ser, actions_ser, pos ".
+		    "FROM group_inbox_filter ".
+		    "WHERE group_id = %d ".
 		    "ORDER BY pos DESC", // subject first + from last, by popularity
-		    $team_id
+		    $group_id
 		);
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
@@ -5714,14 +5711,14 @@ class DAO_TeamRoutingRule extends DevblocksORMHelper {
 	}
 	
     /**
-     * @return Model_TeamRoutingRule[]
+     * @return Model_GroupInboxFilter[]
      */
 	public static function getList($ids=array()) {
 	    if(!is_array($ids)) $ids = array($ids);
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = "SELECT id, name, team_id, criteria_ser, pos, do_spam, do_status, do_move, do_assign ".
-		    "FROM team_routing_rule ".
+		$sql = "SELECT id, name, group_id, criteria_ser, actions_ser, pos ".
+		    "FROM group_inbox_filter ".
 		    (!empty($ids) ? sprintf("WHERE id IN (%s) ", implode(',', $ids)) : " ").
 		    "ORDER BY pos DESC" // subject first + from last, by popularity
 		;
@@ -5732,22 +5729,18 @@ class DAO_TeamRoutingRule extends DevblocksORMHelper {
 	
 	/**
 	 * @param ADORecordSet $rs
-	 * @return Model_TeamRoutingRule[]
+	 * @return Model_GroupInboxFilter[]
 	 */
 	private static function _getResultsAsModel($rs) {
 		$objects = array();
 		
 		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
-		    $object = new Model_TeamRoutingRule();
+		    $object = new Model_GroupInboxFilter();
 		    $object->id = intval($rs->fields['id']);
 		    $object->name = $rs->fields['name'];
-		    $object->team_id = intval($rs->fields['team_id']);
+		    $object->group_id = intval($rs->fields['group_id']);
 		    $object->pos = intval($rs->fields['pos']);
-		    $object->do_spam = $rs->fields['do_spam'];
-            $object->do_status = $rs->fields['do_status'];
-            $object->do_move = $rs->fields['do_move'];
-            $object->do_assign = $rs->fields['do_assign'];
 
             // Criteria
 		    $criteria_ser = $rs->fields['criteria_ser'];
@@ -5756,21 +5749,18 @@ class DAO_TeamRoutingRule extends DevblocksORMHelper {
 		    if(is_array($criteria))
 		    	$object->criteria = $criteria;
             
+            // Actions
+		    $actions_ser = $rs->fields['actions_ser'];
+		    if(!empty($actions_ser))
+		    	@$actions = unserialize($actions_ser);
+		    if(is_array($actions))
+		    	$object->actions = $actions;
+            
 		    $objects[$object->id] = $object;
 		    $rs->MoveNext();
 		}
 		
 		return $objects;
-	}
-	
-	public static function deleteByMoveCodes($codes) {
-	    if(!is_array($codes)) $codes = array($codes);
-	    $db = DevblocksPlatform::getDatabaseService();
-	    
-	    $code_list = implode("','", $codes);
-	    
-	    $sql = sprintf("UPDATE team_routing_rule SET do_move = '' WHERE do_move IN ('%s')", $code_list);
-	    $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 	}
 	
 	public static function delete($ids) {
@@ -5779,10 +5769,8 @@ class DAO_TeamRoutingRule extends DevblocksORMHelper {
 	    
 	    $id_list = implode(',', $ids);
 	    
-	    $sql = sprintf("DELETE QUICK FROM team_routing_rule WHERE id IN (%s)", $id_list);
+	    $sql = sprintf("DELETE QUICK FROM group_inbox_filter WHERE id IN (%s)", $id_list);
 	    $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-
-	    // [TODO] cascade foreign key constraints	
 	}
 
     /**
@@ -5798,7 +5786,7 @@ class DAO_TeamRoutingRule extends DevblocksORMHelper {
      */
     static function search($params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
-		$fields = SearchFields_TeamRoutingRule::getFields();
+		$fields = SearchFields_GroupInboxFilter::getFields();
 		
 		// Sanitize
 		if(!isset($fields[$sortBy]))
@@ -5809,13 +5797,13 @@ class DAO_TeamRoutingRule extends DevblocksORMHelper {
 		
 		$sql = sprintf("SELECT ".
 			"trr.id as %s, ".
-			"trr.team_id as %s, ".
+			"trr.group_id as %s, ".
 			"trr.pos as %s ".
-			"FROM team_routing_rule trr ",
+			"FROM group_inbox_filter trr ",
 //			"INNER JOIN team tm ON (tm.id = t.team_id) ".
-			    SearchFields_TeamRoutingRule::ID,
-			    SearchFields_TeamRoutingRule::TEAM_ID,
-			    SearchFields_TeamRoutingRule::POS
+			    SearchFields_GroupInboxFilter::ID,
+			    SearchFields_GroupInboxFilter::GROUP_ID,
+			    SearchFields_GroupInboxFilter::POS
 			).
 			
 			// [JAS]: Dynamic table joins
@@ -5834,7 +5822,7 @@ class DAO_TeamRoutingRule extends DevblocksORMHelper {
 			foreach($rs->fields as $f => $v) {
 				$result[$f] = $v;
 			}
-			$row_id = intval($rs->fields[SearchFields_TeamRoutingRule::ID]);
+			$row_id = intval($rs->fields[SearchFields_GroupInboxFilter::ID]);
 			$results[$row_id] = $result;
 			$rs->MoveNext();
 		}
@@ -5850,10 +5838,10 @@ class DAO_TeamRoutingRule extends DevblocksORMHelper {
     }
 };
 
-class SearchFields_TeamRoutingRule implements IDevblocksSearchFields {
+class SearchFields_GroupInboxFilter implements IDevblocksSearchFields {
 	// Table
 	const ID = 'trr_id';
-	const TEAM_ID = 'trr_team_id';
+	const GROUP_ID = 'trr_group_id';
 	const POS = 'trr_pos';
 	
 	/**
@@ -5861,9 +5849,9 @@ class SearchFields_TeamRoutingRule implements IDevblocksSearchFields {
 	 */
 	static function getFields() {
 		return array(
-			SearchFields_TeamRoutingRule::ID => new DevblocksSearchField(SearchFields_TeamRoutingRule::ID, 'trr', 'id'),
-			SearchFields_TeamRoutingRule::TEAM_ID => new DevblocksSearchField(SearchFields_TeamRoutingRule::TEAM_ID, 'trr', 'team_id'),
-			SearchFields_TeamRoutingRule::POS => new DevblocksSearchField(SearchFields_TeamRoutingRule::POS, 'trr', 'pos'),
+			self::ID => new DevblocksSearchField(self::ID, 'trr', 'id'),
+			self::GROUP_ID => new DevblocksSearchField(self::GROUP_ID, 'trr', 'group_id'),
+			self::POS => new DevblocksSearchField(self::POS, 'trr', 'pos'),
 		);
 	}
 };	

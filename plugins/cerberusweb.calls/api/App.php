@@ -84,7 +84,7 @@ class CallsAjaxController extends DevblocksControllerExtension {
 		$license = CerberusLicense::getInstance();
 //		if(empty($id) && (empty($license['key']) || (!empty($license['key']) && !empty($license['users'])))
 //			&& 10 <= DAO_TimeTrackingEntry::getItemCount()) {
-//			$tpl->display('file:' . $tpl_path . 'calls/ajax/trial.tpl.php');
+//			$tpl->display('file:' . $tpl_path . 'calls/ajax/trial.tpl');
 //			return;
 //		}
 		
@@ -108,7 +108,7 @@ class CallsAjaxController extends DevblocksControllerExtension {
 		$workers = DAO_Worker::getAllActive();
 		$tpl->assign('workers', $workers);
 		
-		$tpl->display('file:' . $tpl_path . 'calls/ajax/call_entry_panel.tpl.php');
+		$tpl->display('file:' . $tpl_path . 'calls/ajax/call_entry_panel.tpl');
 	}
 	
 	function saveEntryAction() {
@@ -147,7 +147,7 @@ class CallsActivityTab extends Extension_ActivityTab {
 		$tpl->assign('view_fields', C4_CallEntryView::getFields());
 		$tpl->assign('view_searchable_fields', C4_CallEntryView::getSearchFields());
 		
-		$tpl->display($tpl_path . 'activity_tab/index.tpl.php');		
+		$tpl->display($tpl_path . 'activity_tab/index.tpl');		
 	}
 }
 endif;
@@ -416,7 +416,7 @@ class C4_CallEntryView extends C4_AbstractView {
 		
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('view_fields', $this->getColumns());
-		$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.calls/templates/calls/view.tpl.php');
+		$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.calls/templates/calls/view.tpl');
 	}
 
 	function renderCriteria($field) {
@@ -426,21 +426,21 @@ class C4_CallEntryView extends C4_AbstractView {
 		switch($field) {
 			case SearchFields_CallEntry::NAME:
 			case SearchFields_CallEntry::PHONE:
-				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__string.tpl.php');
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__string.tpl');
 				break;
 //			case SearchFields_CallEntry::ID:
-//				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__number.tpl.php');
+//				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__number.tpl');
 //				break;
 			case SearchFields_CallEntry::CREATED_DATE:
-				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__date.tpl.php');
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__date.tpl');
 				break;
 			case SearchFields_CallEntry::IS_CLOSED:
-				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__bool.tpl.php');
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__bool.tpl');
 				break;
 			case SearchFields_CallEntry::WORKER_ID:
 				$workers = DAO_Worker::getAll();
 				$tpl->assign('workers', $workers);
-				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__worker.tpl.php');
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__worker.tpl');
 				break;
 			default:
 				echo '';

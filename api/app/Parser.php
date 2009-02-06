@@ -587,19 +587,10 @@ class CerberusParser {
 		// New ticket processing
 		if($bIsNew) {
 			// Don't replace this with the master event listener
-			if(false !== ($rule = CerberusApplication::runGroupRouting($team_id, $id))) { /* @var $rule Model_TeamRoutingRule */
-                //Assume our rule match is not spam
-                if(empty($rule->do_spam)) { // if we didn't already train
-                    $enumSpamTraining = CerberusTicketSpamTraining::NOT_SPAM;
-                }
-                
+			if(false !== ($rule = CerberusApplication::runGroupRouting($team_id, $id))) { /* @var $rule Model_GroupInboxFilter */
                 // If a rule changed our destination, replace the scope variable $team_id
-                if(!empty($rule->do_move)) {
-                	@list($rule_team_id, $rule_bucket_id) = 
-                		CerberusApplication::translateTeamCategoryCode($rule->do_move);
-                	if(!empty($rule_team_id)) {
-                		$team_id = $rule_team_id;
-                	}
+                if(isset($rule->actions['move']) && isset($rule->actions['move']['group_id'])) {
+                	$team_id = intval($rule->actions['move']['group_id']);
                 }
 			}
 				
