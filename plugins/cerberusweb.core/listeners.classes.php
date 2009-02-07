@@ -448,7 +448,7 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 
 			if(is_array($tickets))
 			foreach($tickets as $ticket_id => $ticket) {
-				$rule = CerberusApplication::runGroupRouting($team_id, $ticket_id);
+				$matches = CerberusApplication::runGroupRouting($team_id, $ticket_id);
 			}
 			unset($from_addresses);
 		}

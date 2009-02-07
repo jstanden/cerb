@@ -6101,14 +6101,26 @@ class ChGroupsPage extends CerberusPageExtension  {
 	
 	function saveTabInboxAction() {
 	    @$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'integer');
-	    @$deletes = DevblocksPlatform::importGPC($_REQUEST['deletes'],'array');
+	    @$deletes = DevblocksPlatform::importGPC($_REQUEST['deletes'],'array',array());
+	    @$sticky_ids = DevblocksPlatform::importGPC($_REQUEST['sticky_ids'],'array',array());
+	    @$sticky_order = DevblocksPlatform::importGPC($_REQUEST['sticky_order'],'array',array());
 	    
 	    @$active_worker = CerberusApplication::getActiveWorker();
 	    if(!$active_worker->isTeamManager($group_id) && !$active_worker->is_superuser)
 	    	return;
 	    
+	    // Deletes
 	    if(!empty($group_id) && !empty($deletes)) {
 	        DAO_GroupInboxFilter::delete($deletes);
+	    }
+	    
+	    // Reordering
+	    if(is_array($sticky_ids) && is_array($sticky_order))
+	    foreach($sticky_ids as $idx => $id) {
+	    	@$order = intval($sticky_order[$idx]);
+	    	DAO_GroupInboxFilter::update($id, array(
+	    		DAO_GroupInboxFilter::STICKY_ORDER => $order
+	    	));
 	    }
 	    
         DevblocksPlatform::redirect(new DevblocksHttpResponse(array('groups',$group_id,'inbox')));
@@ -6174,6 +6186,8 @@ class ChGroupsPage extends CerberusPageExtension  {
 
 	    /*****************************/
 		@$name = DevblocksPlatform::importGPC($_POST['name'],'string','');
+		@$is_sticky = DevblocksPlatform::importGPC($_POST['is_sticky'],'integer',0);
+		@$is_stackable = DevblocksPlatform::importGPC($_POST['is_stackable'],'integer',0);
 		@$rules = DevblocksPlatform::importGPC($_POST['rules'],'array',array());
 		@$do = DevblocksPlatform::importGPC($_POST['do'],'array',array());
 		
@@ -6371,10 +6385,19 @@ class ChGroupsPage extends CerberusPageExtension  {
 
    		$fields = array(
    			DAO_GroupInboxFilter::NAME => $name,
+   			DAO_GroupInboxFilter::IS_STICKY => $is_sticky,
    			DAO_GroupInboxFilter::CRITERIA_SER => serialize($criterion),
    			DAO_GroupInboxFilter::ACTIONS_SER => serialize($actions),
    		);
 
+   		// Only sticky filters can manual order and be stackable
+   		if(!$is_sticky) {
+   			$fields[DAO_GroupInboxFilter::STICKY_ORDER] = 0;
+   			$fields[DAO_GroupInboxFilter::IS_STACKABLE] = 0;
+   		} else { // is sticky
+   			$fields[DAO_GroupInboxFilter::IS_STACKABLE] = $is_stackable;
+   		}
+   		
    		// Create
    		if(empty($id)) {
    			$fields[DAO_GroupInboxFilter::GROUP_ID] = $group_id;

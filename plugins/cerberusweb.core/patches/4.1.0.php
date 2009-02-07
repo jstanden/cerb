@@ -513,6 +513,26 @@ if(isset($tables['dashboard_view_action'])) {
 	$datadict->ExecuteSQLArray($sql);
 }
 
+// ===========================================================================
+// Add sticky bit to group inbox filters 
+
+$columns = $datadict->MetaColumns('group_inbox_filter');
+$indexes = $datadict->MetaIndexes('group_inbox_filter',false);
+
+if(!isset($columns['IS_STICKY'])) {
+    $sql = $datadict->AddColumnSQL('group_inbox_filter', 'is_sticky I1 DEFAULT 0 NOTNULL');
+    $datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($columns['STICKY_ORDER'])) {
+    $sql = $datadict->AddColumnSQL('group_inbox_filter', 'sticky_order I1 DEFAULT 0 NOTNULL');
+    $datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($columns['IS_STACKABLE'])) {
+    $sql = $datadict->AddColumnSQL('group_inbox_filter', 'is_stackable I1 DEFAULT 0 NOTNULL');
+    $datadict->ExecuteSQLArray($sql);
+}
 
 return TRUE;
 ?>

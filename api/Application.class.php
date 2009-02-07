@@ -48,7 +48,7 @@
  * 		and Joe Geck.
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-define("APP_BUILD", 858);
+define("APP_BUILD", 859);
 define("APP_MAIL_PATH", realpath(APP_PATH . '/storage/mail') . DIRECTORY_SEPARATOR);
 
 include_once(APP_PATH . "/api/DAO.class.php");
@@ -518,34 +518,43 @@ class CerberusApplication extends DevblocksApplication {
 	 * Enter description here...
 	 * [TODO] Move this into a better API holding place
 	 *
-	 * @param integer $team_id
-	 * @param Model_GroupInboxFilter $ticket
-	 * @return Model_GroupInboxFilter|false
+	 * @param integer $group_id
+	 * @param integer $ticket_id
+	 * @param integer $only_rule_id
+	 * @return Model_GroupInboxFilter[]|false
 	 */
 	static public function runGroupRouting($group_id, $ticket_id, $only_rule_id=0) {
 		static $moveMap = array();
 		$dont_move = false;
 		
-		if(false != ($match = Model_GroupInboxFilter::getMatch($group_id, $ticket_id, $only_rule_id))) { /* @var $match Model_GroupInboxFilter */
-			/* =============== Prevent recursive assignments =============
-			* If we ever get into a situation where many rules are sending a ticket
-			* back and forth between them, ignore the last move action in the chain  
-			* which is trying to start over.
-			*/
-			if(!isset($moveMap[$ticket_id])) {
-				$moveMap[$ticket_id] = array();
-			} else {
-				if(isset($moveMap[$ticket_id][$group_id])) {
-					$dont_move = true;
+		if(false != ($matches = Model_GroupInboxFilter::getMatches($group_id, $ticket_id, $only_rule_id))) { /* @var $match Model_GroupInboxFilter */
+			if(is_array($matches))
+			foreach($matches as $idx => $match) {
+				/* =============== Prevent recursive assignments =============
+				* If we ever get into a situation where many rules are sending a ticket
+				* back and forth between them, ignore the last move action in the chain  
+				* which is trying to start over.
+				*/
+				if(!isset($moveMap[$ticket_id])) {
+					$moveMap[$ticket_id] = array();
+				} else {
+					if(isset($moveMap[$ticket_id][$group_id])) {
+						$dont_move = true;
+					}
 				}
+				$moveMap[$ticket_id][$group_id] = $match->id;
+	
+				// Stop any move actions if we're going to loop again
+				if($dont_move) {
+					unset($matches[$idx]->actions['move']);
+				}
+				
+				// Run filter actions
+				$match->run(array($ticket_id));
 			}
-			$moveMap[$ticket_id][$group_id] = $match->id;
-
-			// Run filter actions
-			$match->run(array($ticket_id));
 		}
 		
-	    return $match;
+	    return $matches;
 	}
 	
 	// [TODO] This probably has a better home

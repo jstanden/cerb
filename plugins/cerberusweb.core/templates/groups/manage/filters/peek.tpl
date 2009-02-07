@@ -9,13 +9,20 @@
 <div style="height:400;overflow:auto;">
 <b>Filter Name:</b> (e.g. Spam Bounces)<br>
 <input type="text" name="name" value="{$filter->name|escape}" size="45" style="width:95%;"><br>
-
+<label><input type="checkbox" name="is_sticky" value="1" onclick="toggleDiv('divStackable',this.checked?'inline':'none');" {if $filter->is_sticky}checked="checked"{/if}> <span style="border-bottom:1px dotted;" title="Sticky filters are checked for matches first, are manually sortable, and can be stacked with subsequent filters.">Sticky</span></label>
+<span id="divStackable" style="display:{if $filter->is_sticky}inline{else}none{/if};"><label><input type="checkbox" name="is_stackable" value="1" {if $filter->is_stackable}checked="checked"{/if}> <span style="border-bottom:1px dotted;" title="Stackable filters combine their actions with those of subsequent matching filters.">Stackable</span></label></span>
 <br>
-<h2>If:</h2>
+<br>
+
+<h2>If these criteria match:</h2>
 
 {* Message *}
-<label><input type="checkbox" onclick="toggleDiv('divBlockMessage',(this.checked?'block':'none'));if(!this.checked)checkAll('divBlockMessage',false);"> <b>Message</b></label><br>
-<table width="500" style="margin-left:10px;display:none;" id="divBlockMessage">
+{assign var=expanded value=false}
+{if isset($filter->criteria.subject) || isset($filter->criteria.from) || isset($filter->criteria.tocc)}
+	{assign var=expanded value=true}
+{/if}
+<label><input type="checkbox" {if $expanded}checked="checked"{/if} onclick="toggleDiv('divBlockMessage',(this.checked?'block':'none'));if(!this.checked)checkAll('divBlockMessage',false);"> <b>Message</b></label><br>
+<table width="500" style="margin-left:10px;display:{if $expanded}block{else}none{/if};" id="divBlockMessage">
 	<tr>
 		<td>
 			{assign var=crit_subject value=$filter->criteria.subject}
@@ -47,8 +54,12 @@
 </table>
 
 {* Message Headers *}
-<label><input type="checkbox" onclick="toggleDiv('divBlockHeaders',(this.checked?'block':'none'));if(!this.checked)checkAll('divBlockHeaders',false);"> <b>Message headers</b></label><br>
-<table width="500" style="margin-left:10px;display:none;" id="divBlockHeaders">
+{assign var=expanded value=false}
+{if isset($filter->criteria.header)}
+	{assign var=expanded value=true}
+{/if}
+<label><input type="checkbox" {if $expanded}checked="checked"{/if} onclick="toggleDiv('divBlockHeaders',(this.checked?'block':'none'));if(!this.checked)checkAll('divBlockHeaders',false);"> <b>Message headers</b></label><br>
+<table width="500" style="margin-left:10px;display:{if $expanded}block{else}none{/if};" id="divBlockHeaders">
 	{section name=headers start=0 loop=5}
 	{assign var=headerx value='header'|cat:$smarty.section.headers.iteration}
 	{assign var=crit_headerx value=$filter->criteria.$headerx}
@@ -74,7 +85,7 @@
 {include file="file:$core_tpl/groups/manage/filters/peek_get_custom_fields.tpl" fields=$org_fields filter=$filter divName="divGetOrgFields" label="Sender organization"}
 
 <br>
-<h2>Then:</h2>
+<h2>Then perform these actions:</h2>
 <table width="500">
 	<tr>
 		{assign var=act_move value=$filter->actions.move}
@@ -151,9 +162,8 @@
 	</tr>
 </table>
 
-
 {* Set Ticket Fields *}
-{include file="file:$core_tpl/groups/manage/filters/peek_set_custom_fields.tpl" fields=$ticket_fields filter=$filter divName="divSetTicketFields" label="Ticket"}
+{include file="file:$core_tpl/groups/manage/filters/peek_set_custom_fields.tpl" fields=$ticket_fields filter=$filter divName="divSetTicketFields" label="Set ticket custom fields"}
 
 </div>
 <br>

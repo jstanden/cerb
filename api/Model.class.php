@@ -64,12 +64,16 @@ class Model_GroupInboxFilter {
 	public $criteria = array();
 	public $actions = array();
 	public $pos = 0;
+	public $is_sticky = 0;
+	public $sticky_order = 0;
+	public $is_stackable = 0;
 	
-	// [TODO] Make this support getMatches() -- every matching rule?
 	/**
 	 * @return Model_GroupInboxFilter|false
 	 */
-	static function getMatch($group_id, $ticket_id, $only_rule_id=0) {
+	static function getMatches($group_id, $ticket_id, $only_rule_id=0) {
+		$matches = array();
+		
 		if(empty($group_id))
 			return false;
 
@@ -287,10 +291,19 @@ class Model_GroupInboxFilter {
 			// If our rule matched every criteria, stop and return the filter
 			if($passed == count($filter->criteria)) {
 				DAO_GroupInboxFilter::increment($filter->id); // ++ the times we've matched
-				return $filter;
+				$matches[$filter->id] = $filter;
+				
+				// If we're not stackable anymore, bail out.
+				if(!$filter->is_stackable)
+					return $matches;
 			}
 		}
 		
+		// If last rule was still stackable...
+		if(!empty($matches))
+			return $matches;
+		
+		// No matches
 		return false;
 	}
 	

@@ -5681,13 +5681,16 @@ class DAO_GroupInboxFilter extends DevblocksORMHelper {
 	const CRITERIA_SER = 'criteria_ser';
 	const ACTIONS_SER = 'actions_ser';
     const POS = 'pos';
+    const IS_STICKY = 'is_sticky';
+    const STICKY_ORDER = 'sticky_order';
+    const IS_STACKABLE = 'is_stackable';
     
 	public static function create($fields) {
 	    $db = DevblocksPlatform::getDatabaseService();
 		$id = $db->GenID('generic_seq');
 		
-		$sql = sprintf("INSERT INTO group_inbox_filter (id,name,created,group_id,criteria_ser,actions_ser,pos) ".
-		    "VALUES (%d,'',%d,0,'','',0)",
+		$sql = sprintf("INSERT INTO group_inbox_filter (id,name,created,group_id,criteria_ser,actions_ser,pos,is_sticky,sticky_order,is_stackable) ".
+		    "VALUES (%d,'',%d,0,'','',0,0,0,0)",
 		    $id,
 		    time()
 		);
@@ -5735,10 +5738,10 @@ class DAO_GroupInboxFilter extends DevblocksORMHelper {
 	    
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = sprintf("SELECT id, name, group_id, criteria_ser, actions_ser, pos ".
+		$sql = sprintf("SELECT id, name, group_id, criteria_ser, actions_ser, pos, is_sticky, sticky_order, is_stackable ".
 		    "FROM group_inbox_filter ".
 		    "WHERE group_id = %d ".
-		    "ORDER BY pos DESC", // subject first + from last, by popularity
+		    "ORDER BY is_sticky DESC, sticky_order ASC, pos DESC",
 		    $group_id
 		);
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
@@ -5753,10 +5756,10 @@ class DAO_GroupInboxFilter extends DevblocksORMHelper {
 	    if(!is_array($ids)) $ids = array($ids);
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = "SELECT id, name, group_id, criteria_ser, actions_ser, pos ".
+		$sql = "SELECT id, name, group_id, criteria_ser, actions_ser, pos, is_sticky, sticky_order, is_stackable ".
 		    "FROM group_inbox_filter ".
 		    (!empty($ids) ? sprintf("WHERE id IN (%s) ", implode(',', $ids)) : " ").
-		    "ORDER BY pos DESC" // subject first + from last, by popularity
+		    "ORDER BY is_sticky DESC, sticky_order ASC, pos DESC"
 		;
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
@@ -5777,6 +5780,9 @@ class DAO_GroupInboxFilter extends DevblocksORMHelper {
 		    $object->name = $rs->fields['name'];
 		    $object->group_id = intval($rs->fields['group_id']);
 		    $object->pos = intval($rs->fields['pos']);
+		    $object->is_sticky = intval($rs->fields['is_sticky']);
+		    $object->sticky_order = intval($rs->fields['sticky_order']);
+		    $object->is_stackable = intval($rs->fields['is_stackable']);
 
             // Criteria
 		    $criteria_ser = $rs->fields['criteria_ser'];
@@ -5834,12 +5840,18 @@ class DAO_GroupInboxFilter extends DevblocksORMHelper {
 		$sql = sprintf("SELECT ".
 			"trr.id as %s, ".
 			"trr.group_id as %s, ".
-			"trr.pos as %s ".
+			"trr.pos as %s, ".
+			"trr.is_sticky as %s, ".
+			"trr.sticky_order as %s, ".
+			"trr.is_stackable as %s ".
 			"FROM group_inbox_filter trr ",
 //			"INNER JOIN team tm ON (tm.id = t.team_id) ".
 			    SearchFields_GroupInboxFilter::ID,
 			    SearchFields_GroupInboxFilter::GROUP_ID,
-			    SearchFields_GroupInboxFilter::POS
+			    SearchFields_GroupInboxFilter::POS,
+			    SearchFields_GroupInboxFilter::IS_STICKY,
+			    SearchFields_GroupInboxFilter::STICKY_ORDER,
+			    SearchFields_GroupInboxFilter::IS_STACKABLE
 			).
 			
 			// [JAS]: Dynamic table joins
@@ -5879,6 +5891,9 @@ class SearchFields_GroupInboxFilter implements IDevblocksSearchFields {
 	const ID = 'trr_id';
 	const GROUP_ID = 'trr_group_id';
 	const POS = 'trr_pos';
+	const IS_STICKY = 'trr_is_sticky';
+	const STICKY_ORDER = 'trr_sticky_order';
+	const IS_STACKABLE = 'trr_is_stackable';
 	
 	/**
 	 * @return DevblocksSearchField[]
@@ -5888,6 +5903,9 @@ class SearchFields_GroupInboxFilter implements IDevblocksSearchFields {
 			self::ID => new DevblocksSearchField(self::ID, 'trr', 'id'),
 			self::GROUP_ID => new DevblocksSearchField(self::GROUP_ID, 'trr', 'group_id'),
 			self::POS => new DevblocksSearchField(self::POS, 'trr', 'pos'),
+			self::IS_STICKY => new DevblocksSearchField(self::IS_STICKY, 'trr', 'is_sticky'),
+			self::STICKY_ORDER => new DevblocksSearchField(self::STICKY_ORDER, 'trr', 'sticky_order'),
+			self::IS_STACKABLE => new DevblocksSearchField(self::IS_STACKABLE, 'trr', 'is_stackable'),
 		);
 	}
 };	
