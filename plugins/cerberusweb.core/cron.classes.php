@@ -302,7 +302,7 @@ class ImportCron extends CerberusCronPageExtension {
 			return;
 		}
 
-		$limit = 500; // [TODO] Set from config
+		$limit = 100; // [TODO] Set from config
 
 		$runtime = microtime(true);
 
@@ -760,12 +760,12 @@ class ImportCron extends CerberusCronPageExtension {
 			$sMessageContent = base64_decode($sMessageContentB64);
 			unset($sMessageContentB64);
 			
-			DAO_MessageContent::update($email_id, $sMessageContent);
+			DAO_MessageContent::create($email_id, $sMessageContent);
 			unset($sMessageContent);
 
 			// Headers
 			foreach($eHeaders->children() as $eHeader) { /* @var $eHeader SimpleXMLElement */
-			    DAO_MessageHeader::update($email_id, $ticket_id, $eHeader->getName(), (string) $eHeader);
+			    DAO_MessageHeader::create($email_id, $ticket_id, $eHeader->getName(), (string) $eHeader);
 			}
 		}
 		

@@ -308,7 +308,7 @@ class CerberusMail {
 		));
 		
 		// Content
-	    DAO_MessageContent::update($message_id, $content);
+	    DAO_MessageContent::create($message_id, $content);
 
 		// Set recipients to requesters
 		foreach($toList as $to) {
@@ -320,7 +320,7 @@ class CerberusMail {
 		
 		// Headers
 		foreach($mail_headers as $hdr => $hdr_val) {
-			DAO_MessageHeader::update($message_id, $ticket_id, $hdr, CerberusParser::fixQuotePrintableString($hdr_val));			
+			DAO_MessageHeader::create($message_id, $ticket_id, $hdr, CerberusParser::fixQuotePrintableString($hdr_val));			
 		}
 		
 		// add files to ticket
@@ -665,14 +665,14 @@ class CerberusMail {
 			$message_id = DAO_Message::create($fields);
 		    
 			// Content
-		    DAO_MessageContent::update($message_id, $content);
+		    DAO_MessageContent::create($message_id, $content);
 		    
 		    // Headers
 		    if(!empty($mail->headers) && method_exists($mail->headers,'getList'))
 			foreach($mail->headers->getList() as $hdr => $v) {
 				if(null != ($hdr_val = $mail->headers->getEncoded($hdr))) {
 					if(!empty($hdr_val))
-		    			DAO_MessageHeader::update($message_id, $ticket_id, $hdr, CerberusParser::fixQuotePrintableString($hdr_val));
+		    			DAO_MessageHeader::create($message_id, $ticket_id, $hdr, CerberusParser::fixQuotePrintableString($hdr_val));
 				}
 			}
 		    

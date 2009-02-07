@@ -2122,6 +2122,15 @@ class DAO_MessageContent {
     const MESSAGE_ID = 'message_id';
     const CONTENT = 'content';
     
+    static function create($message_id, $content) {
+    	$db = DevblocksPlatform::getDatabaseService();
+    	
+    	$db->Execute(sprintf("INSERT INTO message_content (message_id, content) VALUES (%d, %s)",
+    		$message_id,
+    		$db->qstr($content)
+    	));
+    }
+    
     static function update($message_id, $content) {
         $db = DevblocksPlatform::getDatabaseService();
         
@@ -2161,39 +2170,66 @@ class DAO_MessageHeader {
     const HEADER_NAME = 'header_name';
     const HEADER_VALUE = 'header_value';
     
-    static function update($message_id, $ticket_id, $header, $value) {
-        $db = DevblocksPlatform::getDatabaseService();
-        
-        $header = strtolower($header);
-        
-        if(empty($header))
+    static function create($message_id, $ticket_id, $header, $value) {
+    	$db = DevblocksPlatform::getDatabaseService();
+    	
+        if(empty($header) || empty($value) || empty($message_id) || empty($ticket_id))
             return;
-        
-        // Insert not replace?  (Can be multiple stacked headers like received?)
-        $db->Replace(
-            'message_header',
-            array(
-                self::MESSAGE_ID => $message_id,
-                self::TICKET_ID => $ticket_id,
-                self::HEADER_NAME => $db->qstr($header),
-                self::HEADER_VALUE => $db->qstr('')
-            ),
-            array('message_id','header_name'),
-            false
-        );
-        
-        if(!empty($value) && !empty($message_id) && !empty($header)) {
-        	if(is_array($value)) {
-        		$value = implode("\r\n",$value);
-        	}
-        	$db->UpdateBlob(
-        		'message_header',
-        		self::HEADER_VALUE,
-        		$value,
-        		'message_id='.$message_id.' AND header_name='.$db->qstr($header)
-        	);
+    	
+        $header = strtolower($header);
+
+        // Handle stacked headers
+        if(is_array($value)) {
+        	$value = implode("\r\n",$value);
         }
+        
+		$db->Execute(sprintf("INSERT INTO message_header (message_id, ticket_id, header_name, header_value) ".
+			"VALUES (%d, %d, %s, %s)",
+			$message_id,
+			$ticket_id,
+			$db->qstr($header),
+			$db->qstr($value)
+		));
     }
+    
+//    static function update($message_id, $ticket_id, $header, $value) {
+//        $db = DevblocksPlatform::getDatabaseService();
+//        
+//        $header = strtolower($header);
+//        
+//        if(empty($header) || empty($value) || empty($message_id) || empty($ticket_id))
+//            return;
+//
+//        // Handle stacked headers
+//        if(is_array($value)) {
+//        	$value = implode("\r\n",$value);
+//        }
+//            
+//        // Insert not replace?  (Can be multiple stacked headers like received?)
+//        $db->Replace(
+//            'message_header',
+//            array(
+//                self::MESSAGE_ID => $message_id,
+//                self::TICKET_ID => $ticket_id,
+//                self::HEADER_NAME => $db->qstr($header),
+//                self::HEADER_VALUE => $db->qstr('')
+//            ),
+//            array('message_id','header_name'),
+//            false
+//        );
+//        
+//        if(!empty($value) && !empty($message_id) && !empty($header)) {
+//        	if(is_array($value)) {
+//        		$value = implode("\r\n",$value);
+//        	}
+//        	$db->UpdateBlob(
+//        		'message_header',
+//        		self::HEADER_VALUE,
+//        		$value,
+//        		'message_id='.$message_id.' AND header_name='.$db->qstr($header)
+//        	);
+//        }
+//    }
     
     static function getAll($message_id) {
         $db = DevblocksPlatform::getDatabaseService();
