@@ -39,18 +39,17 @@
 			</params>
 		</extension>
 
-		<!-- Home Tabs -->
+		<!-- Workspace Sources -->
 		
-		<extension point="cerberusweb.home.tab">
-			<id>forums.home.tab</id>
-			<name>Forums Tab</name>
+		<extension point="cerberusweb.workspace.source">
+			<id>forums.workspace.source.forum_thread</id>
+			<name>Forum Thread</name>
 			<class>
 				<file>api/App.php</file>
-				<name>ChForumsHomeTab</name>
+				<name>ChWorkspaceSource_ForumThread</name>
 			</class>
 			<params>
-				<param key="uri" value="forums" />
-				<param key="title" value="forums.home.tab" />
+				<param key="view_class" value="C4_ForumsThreadView" />
 			</params>
 		</extension>
 

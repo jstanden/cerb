@@ -7,38 +7,43 @@
 <br>
 
 <script type="text/javascript">
-{literal}
 var tabView = new YAHOO.widget.TabView();
 
+{literal}
 tabView.addTab( new YAHOO.widget.Tab({
     label: '{/literal}{'home.tab.my_notifications'|devblocks_translate|escape:'quotes'}{literal}',
     dataSrc: '{/literal}{devblocks_url}ajax.php?c=home&a=showMyEvents{/devblocks_url}{literal}',
     cacheData: false,
-    {/literal}active: {if empty($tab_selected) || 'events'==$tab_selected}true{else}false{/if}{literal}
+    {/literal}active: {if empty($selected_tab) || 'events'==$selected_tab}true{else}false{/if}{literal}
 }));
-
-tabView.addTab( new YAHOO.widget.Tab({
-    label: '{/literal}{'home.tab.my_mail'|devblocks_translate|escape:'quotes'}{literal}',
-    dataSrc: '{/literal}{devblocks_url}ajax.php?c=home&a=showMyTickets{/devblocks_url}{literal}',
-    cacheData: false,
-    {/literal}active: {if 'tickets'==$tab_selected}true{else}false{/if}{literal}
-}));
-
-tabView.addTab( new YAHOO.widget.Tab({
-    label: '{/literal}{'home.tab.my_tasks'|devblocks_translate|escape:'quotes'}{literal}',
-    dataSrc: '{/literal}{devblocks_url}ajax.php?c=home&a=showMyTasks{/devblocks_url}{literal}',
-    cacheData: false,
-    {/literal}active: {if 'tasks'==$tab_selected}true{else}false{/if}{literal}
-}));
-
 {/literal}
+
+{if empty($workspaces)}
+{literal}
+tabView.addTab( new YAHOO.widget.Tab({
+    label: '{/literal}{'home.tab.workspaces_intro'|devblocks_translate|escape:'quotes'}{literal}',
+    dataSrc: '{/literal}{devblocks_url}ajax.php?c=home&a=showWorkspacesIntroTab{/devblocks_url}{literal}',
+    cacheData: false,
+    active: false
+}));
+{/literal}
+{/if}
 
 {foreach from=$tab_manifests item=tab_manifest}
 {literal}tabView.addTab( new YAHOO.widget.Tab({{/literal}
     label: '{$tab_manifest->params.title|devblocks_translate|escape:'quotes'}',
     dataSrc: '{devblocks_url}ajax.php?c=home&a=showTab&ext_id={$tab_manifest->id}{/devblocks_url}',
-    {if $tab_selected==$tab_manifest->params.uri}active: true,{/if}
+    {if $selected_tab==$tab_manifest->params.uri}active: true,{/if}
     cacheData: false
+{literal}}));{/literal}
+{/foreach}
+
+{foreach from=$workspaces item=workspace}
+{literal}tabView.addTab( new YAHOO.widget.Tab({{/literal}
+    label: '<i>{$workspace|escape}</i>',
+    dataSrc: '{devblocks_url}ajax.php?c=home&a=showWorkspaceTab&workspace={$workspace|escape:'url'}{/devblocks_url}',
+    cacheData: false,
+    active:{if substr($selected_tab,2)==$workspace}true{else}false{/if}
 {literal}}));{/literal}
 {/foreach}
 

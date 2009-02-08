@@ -545,4 +545,10 @@ class C4_CallEntryView extends C4_AbstractView {
 	}
 };
 
+// Workspace Sources
+
+class ChWorkspaceSource_Call extends Extension_WorkspaceSource {
+	const ID = 'calls.workspace.source.call';
+};
+
 ?>

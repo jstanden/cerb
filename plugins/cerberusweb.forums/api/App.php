@@ -14,6 +14,12 @@ class ChForumsPlugin extends DevblocksPlugin {
 	}
 };
 
+// Workspace Sources
+
+class ChWorkspaceSource_ForumThread extends Extension_WorkspaceSource {
+	const ID = 'forums.workspace.source.forum_thread';
+};
+
 class ChForumsConfigTab extends Extension_ConfigTab {
 	const ID = 'forums.config.tab';
 	
@@ -128,49 +134,6 @@ class ChForumsActivityTab extends Extension_ActivityTab {
 		$tpl->assign('view_searchable_fields', C4_ForumsThreadView::getSearchFields());
 		
 		$tpl->display($tpl_path . 'activity_tab/index.tpl');		
-	}
-}
-endif;
-
-if (class_exists('Extension_HomeTab')):
-class ChForumsHomeTab extends Extension_HomeTab {
-	const VIEW_HOME_FORUMS = 'home_forums';
-	
-	function __construct($manifest) {
-		parent::__construct($manifest);
-	}
-	
-	function showTab() {
-		$active_worker = CerberusApplication::getActiveWorker();
-		
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
-		$tpl_path = realpath(dirname(__FILE__) . '/../templates') . DIRECTORY_SEPARATOR;
-		$tpl->assign('path', $tpl_path);
-		
-		if(null == ($view = C4_AbstractViewLoader::getView('', self::VIEW_HOME_FORUMS))) {
-			$view = new C4_ForumsThreadView();
-			$view->id = self::VIEW_HOME_FORUMS;
-			$view->renderSortBy = SearchFields_ForumsThread::LAST_UPDATED;
-			$view->renderSortAsc = 0;
-
-			$view->name = "Forums for  " . $active_worker->getName();			
-			
-			$view->params = array(
-				SearchFields_ForumsThread::WORKER_ID => new DevblocksSearchCriteria(SearchFields_ForumsThread::WORKER_ID,DevblocksSearchCriteria::OPER_EQ,$active_worker->id),
-				SearchFields_ForumsThread::IS_CLOSED => new DevblocksSearchCriteria(SearchFields_ForumsThread::IS_CLOSED,DevblocksSearchCriteria::OPER_EQ,0),
-			);
-			
-			C4_AbstractViewLoader::setView($view->id, $view);
-		}
-
-		$tpl->assign('response_uri', 'home/forums');
-		
-		$tpl->assign('view', $view);
-		$tpl->assign('view_fields', C4_ForumsThreadView::getFields());
-		$tpl->assign('view_searchable_fields', C4_ForumsThreadView::getSearchFields());
-		
-		$tpl->display($tpl_path . 'home_tab/index.tpl');		
 	}
 }
 endif;

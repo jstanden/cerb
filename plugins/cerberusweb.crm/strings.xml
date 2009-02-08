@@ -7,12 +7,8 @@
 		<tu tuid='crm.activity.tab.opps'>
 			<tuv xml:lang="en_US"><seg>Opportunities</seg></tuv>
 		</tu>
-		<tu tuid='crm.home.tab.opps'>
-			<tuv xml:lang="en_US"><seg>My Opportunities</seg></tuv>
-		</tu>
 
 		<!-- Common Strings -->
-		
 		
 		<!-- Opportunity -->
 		<tu tuid='crm.opportunity.amount'>

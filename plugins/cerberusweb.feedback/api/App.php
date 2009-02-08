@@ -15,6 +15,12 @@ class ChCustomFieldSource_FeedbackEntry extends Extension_CustomFieldSource {
 	const ID = 'feedback.fields.source.feedback_entry';
 };
 
+// Workspace Sources
+
+class ChWorkspaceSource_FeedbackEntry extends Extension_WorkspaceSource {
+	const ID = 'feedback.workspace.source.feedback_entry';
+};
+
 class ChFeedbackPatchContainer extends DevblocksPatchContainerExtension {
 	function __construct($manifest) {
 		parent::__construct($manifest);

@@ -38,14 +38,11 @@
 			<tuv xml:lang="en_US"><seg>Tasks (%s)</seg></tuv>
 		</tu>
 
-		<tu tuid='home.tab.my_mail'>
-			<tuv xml:lang="en_US"><seg>My Mail</seg></tuv>
-		</tu>
 		<tu tuid='home.tab.my_notifications'>
 			<tuv xml:lang="en_US"><seg>Notifications</seg></tuv>
 		</tu>
-		<tu tuid='home.tab.my_tasks'>
-			<tuv xml:lang="en_US"><seg>My Tasks</seg></tuv>
+		<tu tuid='home.tab.workspaces_intro'>
+			<tuv xml:lang="en_US"><seg>About Workspaces</seg></tuv>
 		</tu>
 
 		<tu tuid='activity.tab.tasks'>
@@ -561,6 +558,12 @@
 		</tu>
 		<tu tuid='dashboard.dashboards'>
 			<tuv xml:lang="en_US"><seg>Dashboards</seg></tuv>
+		</tu>
+		<tu tuid='dashboard.delete'>
+			<tuv xml:lang="en_US"><seg>delete workspace</seg></tuv>
+		</tu>
+		<tu tuid='dashboard.delete.confirm'>
+			<tuv xml:lang="en_US"><seg>Are you sure you want to delete this entire workspace?</seg></tuv>
 		</tu>
 		<tu tuid='dashboard.modify'>
 			<tuv xml:lang="en_US"><seg>Modify Dashboard</seg></tuv>

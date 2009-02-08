@@ -6,7 +6,6 @@
 		<form action="{devblocks_url}{/devblocks_url}" method="POST">
 			<button type="button" onclick="document.location.href='{devblocks_url}c=tickets&a=compose{/devblocks_url}';"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/export2.png{/devblocks_url}" align="top"> {$translate->_('mail.send_mail')|capitalize}</button><!--
 			--><button type="button" onclick="document.location.href='{devblocks_url}c=tickets&a=create{/devblocks_url}';"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/import1.png{/devblocks_url}" align="top"> {$translate->_('mail.log_message')|capitalize}</button><!-- 
-			--><button type="button" onclick="genericAjaxPanel('c=tickets&a=showAddListPanel',this,false,'450px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_plain_new.png{/devblocks_url}" align="top"> {$translate->_('dashboard.add_view')|capitalize}</button><!-- 
 			-->
 		</form>
 	</td>
@@ -43,14 +42,6 @@ tabView.addTab( new YAHOO.widget.Tab({
     cacheData: true
 }));
 {/literal}
-
-{foreach from=$workspaces item=workspace}
-{literal}tabView.addTab( new YAHOO.widget.Tab({{/literal}
-    label: '<i>{$workspace|escape}</i>',
-    dataSrc: '{devblocks_url}ajax.php?c=tickets&a=showWorkspaceTab&workspace={$workspace|escape:'url'}{/devblocks_url}',
-    cacheData: false
-{literal}}));{/literal}
-{/foreach}
 
 // Initialize the tabs
 tabView.appendTo('mailTabs');

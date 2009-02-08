@@ -57,21 +57,6 @@
 			</params>
 		</extension>
 		
-		<!-- Home Tabs -->
-		
-		<extension point="cerberusweb.home.tab">
-			<id>crm.home.tab.opps</id>
-			<name>My Opportunities</name>
-			<class>
-				<file>api/App.php</file>
-				<name>CrmOppsHomeTab</name>
-			</class>
-			<params>
-				<param key="uri" value="opps" />
-				<param key="title" value="crm.home.tab.opps" />
-			</params>
-		</extension>
-		
 		<!-- Activity Tabs -->
 		
 		<extension point="cerberusweb.activity.tab">
@@ -112,6 +97,20 @@
 				<name>CrmCustomFieldSource_Opportunity</name>
 			</class>
 			<params>
+			</params>
+		</extension>
+
+		<!-- Workspace Sources -->
+		
+		<extension point="cerberusweb.workspace.source">
+			<id>crm.workspace.source.opportunity</id>
+			<name>Opportunity</name>
+			<class>
+				<file>api/App.php</file>
+				<name>CrmWorkspaceSource_Opportunity</name>
+			</class>
+			<params>
+				<param key="view_class" value="C4_CrmOpportunityView" />
 			</params>
 		</extension>
 

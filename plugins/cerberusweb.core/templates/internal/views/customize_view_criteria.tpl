@@ -7,18 +7,7 @@
 			<td><h2>{$translate->_('common.filters')|capitalize}</h2></td>
 			<td>{$translate->_('common.clear')|capitalize}</td>
 		</tr>
-		{foreach from=$view->params item=param}
-			<tr>
-			<td width="100%">
-				{assign var=field value=$param->field}
-				<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/data_find.gif{/devblocks_url}" align="absmiddle"> 
-				{$view_fields.$field->db_label|capitalize} 
-				{$param->operator}
-				<b>{$view->renderCriteriaParam($param)}</b>
-			</td>
-			<td width="0%" nowrap="nowrap" valign="top" align="middle"><input type="checkbox" name="field_deletes[]" value="{$param->field}"></td>
-			</tr>
-		{/foreach}
+		{include file="file:$core_tpl/internal/views/criteria_list_params.tpl" params=$view->params batchDelete=true}		
 		</table>
 		<button type="button" onclick="this.form.a.value='viewAddFilter';genericAjaxPost('customize{$view->id}','viewCustomFilters{$view->id}','c=internal');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/data_error.gif{/devblocks_url}" align="top"> Delete</button>
 		</div>

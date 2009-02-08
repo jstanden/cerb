@@ -19,48 +19,11 @@ class CrmNotesSource_Opportunity extends Extension_NoteSource {
 	const ID = 'crm.notes.source.opportunity';
 };
 
-if (class_exists('Extension_HomeTab')):
-class CrmOppsHomeTab extends Extension_HomeTab {
-	const VIEW_HOME_OPPS = 'home_opps';
-	
-	function __construct($manifest) {
-		parent::__construct($manifest);
-	}
-	
-	function showTab() {
-		$active_worker = CerberusApplication::getActiveWorker();
-		
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
-		$tpl_path = realpath(dirname(__FILE__) . '/../templates') . DIRECTORY_SEPARATOR;
-		$tpl->assign('path', $tpl_path);
-		
-		if(null == ($view = C4_AbstractViewLoader::getView('', self::VIEW_HOME_OPPS))) {
-			$view = new C4_CrmOpportunityView();
-			$view->id = self::VIEW_HOME_OPPS;
-			$view->renderSortBy = SearchFields_CrmOpportunity::UPDATED_DATE;
-			$view->renderSortAsc = 0;
+// Workspace Sources
 
-			$view->name = "Opportunities for  " . $active_worker->getName();			
-			
-			$view->params = array(
-				SearchFields_CrmOpportunity::WORKER_ID => new DevblocksSearchCriteria(SearchFields_CrmOpportunity::WORKER_ID,DevblocksSearchCriteria::OPER_EQ,$active_worker->id),
-				SearchFields_CrmOpportunity::IS_CLOSED => new DevblocksSearchCriteria(SearchFields_CrmOpportunity::IS_CLOSED,DevblocksSearchCriteria::OPER_EQ,0),
-			);
-			
-			C4_AbstractViewLoader::setView($view->id, $view);
-		}
-
-		$tpl->assign('response_uri', 'home/opps');
-		
-		$tpl->assign('view', $view);
-		$tpl->assign('view_fields', C4_CrmOpportunityView::getFields());
-		$tpl->assign('view_searchable_fields', C4_CrmOpportunityView::getSearchFields());
-		
-		$tpl->display($tpl_path . 'crm/opps/home_tab/index.tpl');		
-	}
-}
-endif;
+class CrmWorkspaceSource_Opportunity extends Extension_WorkspaceSource {
+	const ID = 'crm.workspace.source.opportunity';
+};
 
 if (class_exists('Extension_ActivityTab')):
 class CrmOppsActivityTab extends Extension_ActivityTab {

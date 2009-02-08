@@ -87,6 +87,20 @@
 			</params>
 		</extension>
 
+		<!-- Workspace Sources -->
+		
+		<extension point="cerberusweb.workspace.source">
+			<id>timetracking.workspace.source.time_entry</id>
+			<name>Time Tracking Entry</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChWorkspaceSource_TimeEntry</name>
+			</class>
+			<params>
+				<param key="view_class" value="C4_TimeTrackingEntryView" />
+			</params>
+		</extension>
+
 		<!-- Renderers Render -->	
 		
 		<extension point="cerberusweb.renderer.prebody">

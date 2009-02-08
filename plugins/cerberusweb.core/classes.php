@@ -152,7 +152,7 @@ class ChPageController extends DevblocksControllerExtension {
 
 		// Default page [TODO] This is supposed to come from framework.config.php
 		if(empty($controller)) 
-			$controller = 'tickets';
+			$controller = 'home';
 
 	    // [JAS]: Require us to always be logged in for Cerberus pages
 	    // [TODO] This should probably consult with the page itself for ::authenticated()
@@ -238,17 +238,9 @@ class ChTranslations extends DevblocksTranslationsExtension {
 
 class ChHomePage extends CerberusPageExtension {
 	const VIEW_MY_EVENTS = 'home_myevents';
-	const VIEW_MY_TICKETS = 'home_mytickets';
-	const VIEW_MY_TASKS = 'home_mytasks';
 	
 	function __construct($manifest) {
 		parent::__construct($manifest);
-
-//		$path = realpath(dirname(__FILE__)) . DIRECTORY_SEPARATOR;
-//		
-//		DevblocksPlatform::registerClasses($path. 'api/DAO.php', array(
-//		    'DAO_Faq'
-//		));
 	}
 		
 	function isVisible() {
@@ -268,22 +260,27 @@ class ChHomePage extends CerberusPageExtension {
 	
 	function render() {
 		$active_worker = CerberusApplication::getActiveWorker();
-		
-		$response = DevblocksPlatform::getHttpResponse();
-		$stack = $response->path;
-		array_shift($stack); // home
-		
-		@$tab_selected = array_shift($stack);
+		$visit = CerberusApplication::getVisit();
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+
+		$response = DevblocksPlatform::getHttpResponse();
+		$tpl->assign('request_path', implode('/',$response->path));
+		
+		// Remember the last tab/URL
+		if(null == ($selected_tab = @$response->path[1])) {
+			$selected_tab = $visit->get(CerberusVisit::KEY_HOME_SELECTED_TAB, 'events');
+		}
+		$tpl->assign('selected_tab', $selected_tab);
 		
 		$tab_manifests = DevblocksPlatform::getExtensions('cerberusweb.home.tab', false);
 		$tpl->assign('tab_manifests', $tab_manifests);
 		
-		if(empty($tab_selected)) $tab_selected = 'events';
-		$tpl->assign('tab_selected', $tab_selected);
+		// Custom workspaces
+		$workspaces = DAO_WorkerWorkspaceList::getWorkspaces($active_worker->id);
+		$tpl->assign('workspaces', $workspaces);
 		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/home/index.tpl');
 	}
@@ -300,12 +297,15 @@ class ChHomePage extends CerberusPageExtension {
 	}
 	
 	function showMyEventsAction() {
+		$visit = CerberusApplication::getVisit();
 		$translate = DevblocksPlatform::getTranslationService();
+		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		
-		$active_worker = CerberusApplication::getActiveWorker();
+		// Select tab
+		$visit->set(CerberusVisit::KEY_HOME_SELECTED_TAB, 'events');
 		
 		// My Events
 		$myEventsView = C4_AbstractViewLoader::getView('', self::VIEW_MY_EVENTS);
@@ -316,14 +316,6 @@ class ChHomePage extends CerberusPageExtension {
 			$myEventsView = new C4_WorkerEventView();
 			$myEventsView->id = self::VIEW_MY_EVENTS;
 			$myEventsView->name = $title;
-//			$myEventsView->view_columns = array(
-//				SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
-//				SearchFields_Ticket::TICKET_UPDATED_DATE,
-//				SearchFields_Ticket::TEAM_NAME,
-//				SearchFields_Ticket::TICKET_CATEGORY_ID,
-//				SearchFields_Ticket::TICKET_NEXT_ACTION,
-//			);
-//			$myEventsView->params = array();
 			$myEventsView->renderLimit = 25;
 			$myEventsView->renderPage = 0;
 			$myEventsView->renderSortBy = SearchFields_WorkerEvent::CREATED_DATE;
@@ -333,7 +325,6 @@ class ChHomePage extends CerberusPageExtension {
 			$myEventsView->params = array(
 				SearchFields_WorkerEvent::WORKER_ID => new DevblocksSearchCriteria(SearchFields_WorkerEvent::WORKER_ID,'=',$active_worker->id),
 				SearchFields_WorkerEvent::IS_READ => new DevblocksSearchCriteria(SearchFields_WorkerEvent::IS_READ,'=',0),
-//				SearchFields_WorkerEvent::TICKET_WAITING => new DevblocksSearchCriteria(SearchFields_WorkerEvent::TICKET_WAITING,'=',0),
 			);
 			
 			C4_AbstractViewLoader::setView($myEventsView->id,$myEventsView);
@@ -341,6 +332,79 @@ class ChHomePage extends CerberusPageExtension {
 		
 		$tpl->assign('view', $myEventsView);
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/home/tabs/my_events/index.tpl');
+	}
+	
+	function showWorkspacesIntroTabAction() {
+		$translate = DevblocksPlatform::getTranslationService();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/home/tabs/workspaces_intro/index.tpl');
+	}
+	
+	function doWorkspaceInitAction() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		$visit = CerberusApplication::getVisit();
+		
+		$workspace = 'My Work';
+		
+		// My Tickets
+		
+		$list = new Model_WorkerWorkspaceListView();
+		$list->title = 'My Mail';
+		$list->columns = array(
+			SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
+			SearchFields_Ticket::TICKET_UPDATED_DATE,
+			SearchFields_Ticket::TEAM_NAME,
+			SearchFields_Ticket::TICKET_CATEGORY_ID,
+		);
+		$list->params = array(
+			SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',0), 
+			SearchFields_Ticket::TICKET_WAITING => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_WAITING,'=',0), 
+			SearchFields_Ticket::TICKET_NEXT_WORKER_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_NEXT_WORKER_ID,'=',$active_worker->id), 
+		);
+		$list->num_rows = 5;
+		
+		$fields = array(
+			DAO_WorkerWorkspaceList::WORKER_ID => $active_worker->id,
+			DAO_WorkerWorkspaceList::LIST_POS => 1,
+			DAO_WorkerWorkspaceList::LIST_VIEW => serialize($list),
+			DAO_WorkerWorkspaceList::WORKSPACE => $workspace,
+			DAO_WorkerWorkspaceList::SOURCE_EXTENSION => ChWorkspaceSource_Ticket::ID,
+		);
+		DAO_WorkerWorkspaceList::create($fields);
+		
+		// My Tasks
+		
+		$list = new Model_WorkerWorkspaceListView();
+		$list->title = 'My Tasks';
+		$list->columns = array(
+			SearchFields_Task::SOURCE_EXTENSION,
+			SearchFields_Task::PRIORITY,
+			SearchFields_Task::DUE_DATE,
+		);
+		$list->params = array(
+			SearchFields_Task::IS_COMPLETED => new DevblocksSearchCriteria(SearchFields_Task::IS_COMPLETED,'=',0), 
+			SearchFields_Task::WORKER_ID => new DevblocksSearchCriteria(SearchFields_Task::WORKER_ID,'=',$active_worker->id), 
+		);
+		$list->num_rows = 5;
+		
+		$fields = array(
+			DAO_WorkerWorkspaceList::WORKER_ID => $active_worker->id,
+			DAO_WorkerWorkspaceList::LIST_POS => 2,
+			DAO_WorkerWorkspaceList::LIST_VIEW => serialize($list),
+			DAO_WorkerWorkspaceList::WORKSPACE => $workspace,
+			DAO_WorkerWorkspaceList::SOURCE_EXTENSION => ChWorkspaceSource_Task::ID,
+		);
+		DAO_WorkerWorkspaceList::create($fields);
+		
+		// Select the new tab
+		$visit->set(CerberusVisit::KEY_HOME_SELECTED_TAB, 'w_'.$workspace);
+		
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('home')));
 	}
 	
 	/**
@@ -388,89 +452,146 @@ class ChHomePage extends CerberusPageExtension {
 		$myEventsView->render();
 	}
 	
-	function showMyTicketsAction() {
-		$translate = DevblocksPlatform::getTranslationService();
-		
+	function showWorkspaceTabAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		
+		$visit = CerberusApplication::getVisit();
+		$db = DevblocksPlatform::getDatabaseService();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		// My Tickets
-		$myTicketsView = C4_AbstractViewLoader::getView('', self::VIEW_MY_TICKETS);
+		$current_workspace = DevblocksPlatform::importGPC($_REQUEST['workspace'],'string','');
+		$workspaces = DAO_WorkerWorkspaceList::getWorkspaces($active_worker->id);
+
+		// Fix a bad/old cache
+		if(!empty($current_workspace) && false === array_search($current_workspace,$workspaces))
+			$current_workspace = '';
 		
-		$title = vsprintf($translate->_('home.my_tickets.view.title'), $active_worker->getName());
-		
-		if(null == $myTicketsView) {
-			$myTicketsView = new C4_TicketView();
-			$myTicketsView->id = self::VIEW_MY_TICKETS;
-			$myTicketsView->name = $title;
-			$myTicketsView->view_columns = array(
-				SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
-				SearchFields_Ticket::TICKET_UPDATED_DATE,
-				SearchFields_Ticket::TEAM_NAME,
-				SearchFields_Ticket::TICKET_CATEGORY_ID,
-//				SearchFields_Ticket::TICKET_NEXT_ACTION,
-			);
-			$myTicketsView->params = array();
-			$myTicketsView->renderLimit = 10;
-			$myTicketsView->renderPage = 0;
-			$myTicketsView->renderSortBy = SearchFields_Ticket::TICKET_UPDATED_DATE;
-			$myTicketsView->renderSortAsc = 0;
+		$views = array();
 			
-			// Overload criteria
-			$myTicketsView->params = array(
-				SearchFields_Ticket::TICKET_NEXT_WORKER_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_NEXT_WORKER_ID,'=',$active_worker->id),
-				SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN),
-				SearchFields_Ticket::TICKET_WAITING => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_WAITING,'=',0),
-			);
-			
-			C4_AbstractViewLoader::setView($myTicketsView->id,$myTicketsView);
+		if(empty($current_workspace) && !empty($workspaces)) { // custom dashboards
+			$current_workspace = reset($workspaces);
 		}
 		
-		$tpl->assign('view', $myTicketsView);
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/home/tabs/my_tickets/index.tpl');
+		if(!empty($current_workspace)) {
+			// Remember the tab
+			$visit->set(CerberusVisit::KEY_HOME_SELECTED_TAB, 'w_'.$current_workspace);
+			
+			$lists = DAO_WorkerWorkspaceList::getWhere(sprintf("%s = %d AND %s = %s",
+				DAO_WorkerWorkspaceList::WORKER_ID,
+				$active_worker->id,
+				DAO_WorkerWorkspaceList::WORKSPACE,
+				$db->qstr($current_workspace)
+			));
+
+			// Load the workspace sources to map to view renderer
+	        $source_manifests = DevblocksPlatform::getExtensions(Extension_WorkspaceSource::EXTENSION_POINT, false);
+
+	        // Loop through list schemas
+			if(is_array($lists) && !empty($lists))
+			foreach($lists as $list) { /* @var $list Model_WorkerWorkspaceList */
+				$view_id = 'cust_'.$list->id;
+				if(null == ($view = C4_AbstractViewLoader::getView('',$view_id))) {
+					$list_view = $list->list_view; /* @var $list_view Model_WorkerWorkspaceListView */
+					
+					// Make sure we can find the workspace source (plugin not disabled)
+					if(!isset($source_manifests[$list->source_extension])
+						|| null == ($workspace_source = $source_manifests[$list->source_extension])
+						|| !isset($workspace_source->params['view_class']))
+						continue;
+					
+					// Make sure our workspace source has a valid renderer class
+					$view_class = $workspace_source->params['view_class'];
+					if(!class_exists($view_class))
+						continue;
+						
+					$view = new $view_class;
+					$view->id = $view_id;
+					$view->name = $list_view->title;
+					$view->renderLimit = $list_view->num_rows;
+					$view->renderPage = 0;
+					$view->view_columns = $list_view->columns;
+					$view->params = $list_view->params;
+					C4_AbstractViewLoader::setView($view_id, $view);
+				}
+				
+				if(!empty($view))
+					$views[] = $view;
+			}
+		
+			$tpl->assign('current_workspace', $current_workspace);
+			$tpl->assign('views', $views);
+		}
+		
+		// Log activity
+		DAO_Worker::logActivity(
+			$active_worker->id,
+			new Model_Activity(
+				'activity.mail.workspaces',
+				array(
+					'<i>'.$current_workspace.'</i>'
+				)
+			)
+		);
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/home/workspaces/index.tpl');
 	}
 	
-	function showMyTasksAction() {
-		$translate = DevblocksPlatform::getTranslationService();
+	function showReorderWorkspacePanelAction() {
+		@$workspace = DevblocksPlatform::importGPC($_REQUEST['workspace'],'string', '');
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+		$tpl_path = dirname(__FILE__) . '/templates/';
+		$tpl->assign('path', $tpl_path);
+
+		$db = DevblocksPlatform::getDatabaseService();
 		
 		$active_worker = CerberusApplication::getActiveWorker();
+
+		$tpl->assign('workspace', $workspace);
 		
-		// My Tickets
-		$myTasksView = C4_AbstractViewLoader::getView('', self::VIEW_MY_TASKS);
+		$worklists = DAO_WorkerWorkspaceList::getWhere(sprintf("%s = %s AND %s = %d",
+			DAO_WorkerWorkspaceList::WORKSPACE,
+			$db->qstr($workspace),
+			DAO_WorkerWorkspaceList::WORKER_ID,
+			$active_worker->id
+		));
+		$tpl->assign('worklists', $worklists);
 		
-		$title = vsprintf($translate->_('home.my_tasks.view.title'), $active_worker->getName());
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/home/workspaces/reorder_workspace_panel.tpl');
+	}
+	
+	function doReorderWorkspaceAction() {
+		@$workspace = DevblocksPlatform::importGPC($_POST['workspace'],'string', '');
+		@$ids = DevblocksPlatform::importGPC($_POST['ids'],'array', array());
+		@$pos = DevblocksPlatform::importGPC($_POST['pos'],'array', array());
 		
-		if(null == $myTasksView) {
-			$myTasksView = new C4_TaskView();
-			$myTasksView->id = self::VIEW_MY_TASKS;
-			$myTasksView->name = $title;
-			$myTasksView->view_columns = array(
-				SearchFields_Task::SOURCE_EXTENSION,
-				SearchFields_Task::PRIORITY,
-				SearchFields_Task::DUE_DATE,
-			);
-			$myTasksView->params = array();
-//			$myTasksView->renderLimit = 10;
-			$myTasksView->renderPage = 0;
-			$myTasksView->renderSortBy = SearchFields_Task::DUE_DATE;
-			$myTasksView->renderSortAsc = 1;
-			
-			// Overload criteria
-			$myTasksView->params = array(
-				SearchFields_Task::WORKER_ID => new DevblocksSearchCriteria(SearchFields_Task::WORKER_ID,'=',$active_worker->id),
-				SearchFields_Task::IS_COMPLETED => new DevblocksSearchCriteria(SearchFields_Task::IS_COMPLETED,'=',0),
-			);
-			
-			C4_AbstractViewLoader::setView($myTasksView->id,$myTasksView);
+		if(is_array($ids) && !empty($ids))
+		foreach($ids as $idx => $id) {
+			DAO_WorkerWorkspaceList::update($id,array(
+				DAO_WorkerWorkspaceList::LIST_POS => @intval($pos[$idx])
+			));
 		}
 		
-		$tpl->assign('view', $myTasksView);
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/home/tabs/my_tasks/index.tpl');
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('home')));	
+	}
+	
+	function doDeleteWorkspaceAction() {
+		@$workspace = DevblocksPlatform::importGPC($_POST['workspace'],'string', '');
+		
+		$db = DevblocksPlatform::getDatabaseService();
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		$lists = DAO_WorkerWorkspaceList::getWhere(sprintf("%s = %s AND %s = %d",
+			DAO_WorkerWorkspaceList::WORKSPACE,
+			$db->qstr($workspace),
+			DAO_WorkerWorkspaceList::WORKER_ID,
+			$active_worker->id
+		));
+
+		DAO_WorkerWorkspaceList::delete(array_keys($lists));
+		
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('home')));	
 	}
 };
 
@@ -639,10 +760,6 @@ class ChTicketsPage extends CerberusPageExtension {
 				$quick_search_type = $visit->get('quick_search_type');
 				$tpl->assign('quick_search_type', $quick_search_type);
 
-				// Custom workspaces
-				$workspaces = DAO_WorkerWorkspaceList::getWorkspaces($active_worker->id);
-				$tpl->assign('workspaces', $workspaces);
-				
 				$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/index.tpl');
 				break;
 		}
@@ -658,7 +775,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		// Remember the tab
-		$visit->set(CerberusVisit::KEY_MAIL_MODE, 'workflow');		
+		$visit->set(CerberusVisit::KEY_MAIL_MODE, 'workflow');
 		
 		$views = array();
 
@@ -1087,85 +1204,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/search/index.tpl');
 	}
 	
-	function showWorkspaceTabAction() {
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', dirname(__FILE__) . '/templates/');
-		
-		$visit = CerberusApplication::getVisit();
-
-		// Request path
-//		@$request = DevblocksPlatform::importGPC($_REQUEST['request'],'string','');
-//		$response_path = explode('/', $request);
-//		array_shift($request_path); // tickets
-//		array_shift($request_path); // lists
-
-		$db = DevblocksPlatform::getDatabaseService();
-		
-		$active_worker = CerberusApplication::getActiveWorker();
-		
-		$current_workspace = DevblocksPlatform::importGPC($_REQUEST['workspace'],'string','');
-		$workspaces = DAO_WorkerWorkspaceList::getWorkspaces($active_worker->id);
-
-		// Fix a bad/old cache
-		if(!empty($current_workspace) && false === array_search($current_workspace,$workspaces))
-			$current_workspace = '';
-		
-		$views = array();
-			
-		if(empty($current_workspace) && !empty($workspaces)) { // custom dashboards
-			$current_workspace = reset($workspaces);
-		}
-		
-		if(!empty($current_workspace)) {
-			// Remember the tab
-			$visit->set(CerberusVisit::KEY_MAIL_MODE, 'w_'.$current_workspace);		
-			
-			$lists = DAO_WorkerWorkspaceList::getWhere(sprintf("%s = %d AND %s = %s",
-				DAO_WorkerWorkspaceList::WORKER_ID,
-				$active_worker->id,
-				DAO_WorkerWorkspaceList::WORKSPACE,
-				$db->qstr($current_workspace)
-			));
-			
-			if(is_array($lists) && !empty($lists))
-			foreach($lists as $list) { /* @var $list Model_WorkerWorkspaceList */
-				$view_id = 'cust_'.$list->id;
-				if(null == ($view = C4_AbstractViewLoader::getView('',$view_id))) {
-					$list_view = $list->list_view; /* @var $list_view Model_WorkerWorkspaceListView */
-					
-					$view = new C4_TicketView();
-					$view->id = $view_id;
-					$view->name = $list_view->title;
-					$view->renderLimit = $list_view->num_rows;
-					$view->renderPage = 0;
-					$view->view_columns = $list_view->columns;
-					$view->params = $list_view->params;
-					C4_AbstractViewLoader::setView($view_id, $view);
-				}
-				$views[] = $view;
-			}
-		
-			$tpl->assign('current_workspace', $current_workspace);
-			$tpl->assign('views', $views);
-		}
-		
-		// Log activity
-		DAO_Worker::logActivity(
-			$active_worker->id,
-			new Model_Activity(
-				'activity.mail.workspaces',
-				array(
-					'<i>'.$current_workspace.'</i>'
-				)
-			)
-		);
-		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/lists/index.tpl');
-	}
-	
-	//**** Local scope
-
-		// Ajax
+	// Ajax
 	function refreshSidebarAction() {
 		$db = DevblocksPlatform::getDatabaseService();
 		
@@ -1301,103 +1340,6 @@ class ChTicketsPage extends CerberusPageExtension {
 //		DevblocksPlatform::redirect(new DevblocksHttpResponse($request->path, $request->query));
 	}
 	
-	function showReorderWorkspacePanelAction() {
-		@$workspace = DevblocksPlatform::importGPC($_REQUEST['workspace'],'string', '');
-		
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = dirname(__FILE__) . '/templates/';
-		$tpl->assign('path', $tpl_path);
-
-		$db = DevblocksPlatform::getDatabaseService();
-		
-		$active_worker = CerberusApplication::getActiveWorker();
-
-		$tpl->assign('workspace', $workspace);
-		
-		$worklists = DAO_WorkerWorkspaceList::getWhere(sprintf("%s = %s AND %s = %d",
-			DAO_WorkerWorkspaceList::WORKSPACE,
-			$db->qstr($workspace),
-			DAO_WorkerWorkspaceList::WORKER_ID,
-			$active_worker->id
-		));
-		$tpl->assign('worklists', $worklists);
-		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/lists/reorder_workspace_panel.tpl');
-	}
-	
-	function doReorderWorkspaceAction() {
-		@$workspace = DevblocksPlatform::importGPC($_POST['workspace'],'string', '');
-		@$ids = DevblocksPlatform::importGPC($_POST['ids'],'array', array());
-		@$pos = DevblocksPlatform::importGPC($_POST['pos'],'array', array());
-		
-		if(is_array($ids) && !empty($ids))
-		foreach($ids as $idx => $id) {
-			DAO_WorkerWorkspaceList::update($id,array(
-				DAO_WorkerWorkspaceList::LIST_POS => @intval($pos[$idx])
-			));
-		}
-		
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets')));	
-	}
-	
-	function showAddListPanelAction() {
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = dirname(__FILE__) . '/templates/';
-		$tpl->assign('path', $tpl_path);
-
-		$active_worker = CerberusApplication::getActiveWorker();
-		
-		$workspaces = DAO_WorkerWorkspaceList::getWorkspaces($active_worker->id);
-		$tpl->assign('workspaces', $workspaces);
-		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/tickets/lists/add_view_panel.tpl');
-	}
-	
-	function saveAddListPanelAction() {
-		$translate = DevblocksPlatform::getTranslationService();
-		
-		@$list_title = DevblocksPlatform::importGPC($_POST['list_title'],'string', '');
-		@$workspace = DevblocksPlatform::importGPC($_POST['workspace'],'string', '');
-		@$new_workspace = DevblocksPlatform::importGPC($_POST['new_workspace'],'string', '');
-		
-		if(empty($workspace) && empty($new_workspace))
-			$new_workspace = $translate->_('mail.workspaces.new');
-			
-		if(empty($list_title))
-			$list_title = $translate->_('mail.workspaces.new_list');
-		
-		$workspace_name = (!empty($new_workspace) ? $new_workspace : $workspace);
-			
-		// [TODO] Fix crossing layers (app->DAO)
-		$active_worker = CerberusApplication::getActiveWorker();
-		
-		// List
-		$list_view = new Model_WorkerWorkspaceListView();
-		$list_view->title = $list_title;
-		$list_view->num_rows = 10;
-		$list_view->columns = array(
-			SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
-			SearchFields_Ticket::TICKET_UPDATED_DATE,
-			SearchFields_Ticket::TICKET_CATEGORY_ID,
-			SearchFields_Ticket::TICKET_SPAM_SCORE,
-			SearchFields_Ticket::TICKET_NEXT_ACTION,
-		);
-		$list_view->params = array(
-			SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN)
-		);
-		
-		$fields = array(
-			DAO_WorkerWorkspaceList::WORKER_ID => $active_worker->id,
-			DAO_WorkerWorkspaceList::WORKSPACE => $workspace_name,
-			DAO_WorkerWorkspaceList::LIST_VIEW => serialize($list_view),
-			DAO_WorkerWorkspaceList::LIST_POS => 0 // [TODO] Add to end?
-		);
-		$list_id = DAO_WorkerWorkspaceList::create($fields);
-		
-		// [TODO] Switch response to proper workspace
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets')));
-	}
-	
 	// Post	
 	function doQuickSearchAction() {
         @$type = DevblocksPlatform::importGPC($_POST['type'],'string'); 
@@ -1462,7 +1404,6 @@ class ChTicketsPage extends CerberusPageExtension {
         
         C4_AbstractViewLoader::setView($searchView->id,$searchView);
         
-        //DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','search')));
         DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets','search')));
 	}
 
@@ -1869,10 +1810,6 @@ class ChTicketsPage extends CerberusPageExtension {
 		exit;
 	}
 	
-	function clickteamAction() {
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','search')));
-	}
-	
 	function composeMailAction() {
 		@$team_id = DevblocksPlatform::importGPC($_POST['team_id'],'integer'); 
 		@$to = DevblocksPlatform::importGPC($_POST['to'],'string');
@@ -1978,65 +1915,6 @@ class ChTicketsPage extends CerberusPageExtension {
 		
 		//DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('display',$ticket_id)));
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets','create')));
-	}
-	
-	function showViewCopyAction() {
-        @$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
-
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = dirname(__FILE__) . '/templates/';
-		$tpl->assign('path', $tpl_path);
-        
-        $view = C4_AbstractViewLoader::getView('',$view_id);
-        
-		$active_worker = CerberusApplication::getActiveWorker();
-
-		$workspaces = DAO_WorkerWorkspaceList::getWorkspaces($active_worker->id);
-		$tpl->assign('workspaces', $workspaces);
-        
-        $tpl->assign('view_id', $view_id);
-		$tpl->assign('view', $view);
-
-        $tpl->display($tpl_path.'tickets/rpc/ticket_view_copy.tpl');
-	}
-	
-	function doViewCopyAction() {
-		$translate = DevblocksPlatform::getTranslationService();
-		
-	    @$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
-		$view = C4_AbstractViewLoader::getView('', $view_id);
-	    
-		@$list_title = DevblocksPlatform::importGPC($_POST['list_title'],'string', '');
-		@$workspace = DevblocksPlatform::importGPC($_POST['workspace'],'string', '');
-		@$new_workspace = DevblocksPlatform::importGPC($_POST['new_workspace'],'string', '');
-		
-		if(empty($workspace) && empty($new_workspace))
-			$new_workspace = $translate->_('mail.workspaces.new');
-			
-		if(empty($list_title))
-			$list_title = $translate->_('mail.workspaces.new_list');
-		
-		$workspace_name = (!empty($new_workspace) ? $new_workspace : $workspace);
-			
-		// [TODO] Fix crossing layers (app->DAO)
-		$active_worker = CerberusApplication::getActiveWorker();
-		
-		// List
-		$list_view = new Model_WorkerWorkspaceListView();
-		$list_view->title = $list_title;
-		$list_view->num_rows = $view->renderLimit;
-		$list_view->columns = $view->view_columns;
-		$list_view->params = $view->params;
-		
-		$fields = array(
-			DAO_WorkerWorkspaceList::WORKER_ID => $active_worker->id,
-			DAO_WorkerWorkspaceList::WORKSPACE => $workspace_name,
-			DAO_WorkerWorkspaceList::LIST_VIEW => serialize($list_view)
-		);
-		$list_id = DAO_WorkerWorkspaceList::create($fields);
-		
-		// [TODO] Switch response to proper workspace
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets')));
 	}
 	
 	function showViewAutoAssistAction() {
@@ -2226,7 +2104,6 @@ class ChTicketsPage extends CerberusPageExtension {
 	    $view->renderPage = 0;
 	    C4_AbstractViewLoader::setView($view_id,$view);
 	    	    
-        //DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets')));
         DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets')));
 	}
 
@@ -2274,18 +2151,6 @@ class ChTicketsPage extends CerberusPageExtension {
 	    // Make our changes to the entire list of tickets
 	    if(!empty($ticket_ids) && !empty($team_id)) {
 	        DAO_Ticket::updateTicket($ticket_ids, $fields);
-	    }
-	    
-	    // Increment the counter of uses for this move (by # of tickets affected)
-	    $active_worker = CerberusApplication::getActiveWorker(); /* @var $$active_worker CerberusWorker */
-	    if($active_worker->id) {
-	        $move_counts_str = DAO_WorkerPref::get($active_worker->id,DAO_WorkerPref::SETTING_MOVE_COUNTS,serialize(array()));
-	        if(is_string($move_counts_str)) {
-	            $move_counts = unserialize($move_counts_str);
-	            @$move_counts[$move_to] = intval($move_counts[$move_to]) + count($ticket_ids);
-	            arsort($move_counts);
-	            DAO_WorkerPref::set($active_worker->id,''.DAO_WorkerPref::SETTING_MOVE_COUNTS,serialize($move_counts));
-	        }
 	    }
 	    
 	    $view = C4_AbstractViewLoader::getView('',$view_id);
@@ -6590,7 +6455,6 @@ class ChGroupsPage extends CerberusPageExtension  {
 	    if(!empty($deletes))
 	        DAO_Bucket::delete(array_values($deletes));
 	        
-        //DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','team',$team_id,'buckets')));	        
         DevblocksPlatform::redirect(new DevblocksHttpResponse(array('groups',$team_id,'buckets')));
 	}
 	
@@ -7325,9 +7189,13 @@ class ChPrintController extends DevblocksControllerExtension {
 	}
 };
 
+// Note Sources
+
 class ChNotesSource_Org extends Extension_NoteSource {
 	const ID = 'cerberusweb.notes.source.org';
 };
+
+// Custom Field Sources
 
 class ChCustomFieldSource_Address extends Extension_CustomFieldSource {
 	const ID = 'cerberusweb.fields.source.address';
@@ -7344,6 +7212,26 @@ class ChCustomFieldSource_Task extends Extension_CustomFieldSource {
 class ChCustomFieldSource_Ticket extends Extension_CustomFieldSource {
 	const ID = 'cerberusweb.fields.source.ticket';
 };
+
+// Workspace Sources
+
+class ChWorkspaceSource_Address extends Extension_WorkspaceSource {
+	const ID = 'core.workspace.source.address';
+};
+
+class ChWorkspaceSource_Org extends Extension_WorkspaceSource {
+	const ID = 'core.workspace.source.org';
+};
+
+class ChWorkspaceSource_Task extends Extension_WorkspaceSource {
+	const ID = 'core.workspace.source.task';
+};
+
+class ChWorkspaceSource_Ticket extends Extension_WorkspaceSource {
+	const ID = 'core.workspace.source.ticket';
+};
+
+// RSS
 
 class ChRssController extends DevblocksControllerExtension {
 	function __construct($manifest) {
@@ -7885,10 +7773,10 @@ class ChInternalController extends DevblocksControllerExtension {
 			$view->doSetCriteria($field, $oper, $value);
 		}
 		
-		// [TODO] This should be specific to the current view
-		$tpl->assign('view_fields', C4_TicketView::getFields());
-		$tpl->assign('view_searchable_fields', C4_TicketView::getSearchFields());
-
+		$tpl->assign('optColumns', $view->getColumns());
+		$tpl->assign('view_fields', $view->getFields());
+		$tpl->assign('view_searchable_fields', $view->getSearchFields());
+		
 		C4_AbstractViewLoader::setView($id, $view);
 		$tpl->assign('view', $view);
 		
@@ -7907,14 +7795,87 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl->assign('view', $view);
 
 		$tpl->assign('optColumns', $view->getColumns());
-
-		// [TODO] This should be specific to the current view
-		$tpl->assign('view_fields', C4_TicketView::getFields());
-		
-		// [TODO] This should be specific to the current view
-		$tpl->assign('view_searchable_fields', C4_TicketView::getSearchFields());
+		$tpl->assign('view_fields', $view->getFields());
+		$tpl->assign('view_searchable_fields', $view->getSearchFields());
 		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/internal/views/customize_view.tpl');
+	}
+	
+	function viewShowCopyAction() {
+        @$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
+
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl_path = dirname(__FILE__) . '/templates/';
+		$tpl->assign('path', $tpl_path);
+        
+        $view = C4_AbstractViewLoader::getView('',$view_id);
+
+		$workspaces = DAO_WorkerWorkspaceList::getWorkspaces($active_worker->id);
+		$tpl->assign('workspaces', $workspaces);
+        
+        $tpl->assign('view_id', $view_id);
+		$tpl->assign('view', $view);
+
+        $tpl->display($tpl_path.'internal/views/copy.tpl');
+	}
+	
+	function viewDoCopyAction() {
+		$translate = DevblocksPlatform::getTranslationService();
+		$active_worker = CerberusApplication::getActiveWorker();
+		$visit = CerberusApplication::getVisit();
+		
+	    @$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+		$view = C4_AbstractViewLoader::getView('', $view_id);
+	    
+		@$list_title = DevblocksPlatform::importGPC($_POST['list_title'],'string', '');
+		@$workspace = DevblocksPlatform::importGPC($_POST['workspace'],'string', '');
+		@$new_workspace = DevblocksPlatform::importGPC($_POST['new_workspace'],'string', '');
+		
+		if(empty($workspace) && empty($new_workspace))
+			$new_workspace = $translate->_('mail.workspaces.new');
+			
+		if(empty($list_title))
+			$list_title = $translate->_('mail.workspaces.new_list');
+		
+		$workspace_name = (!empty($new_workspace) ? $new_workspace : $workspace);
+		
+        // Find the proper workspace source based on the class of the view
+        $source_manifests = DevblocksPlatform::getExtensions(Extension_WorkspaceSource::EXTENSION_POINT, false);
+        $source_manifest = null;
+        if(is_array($source_manifests))
+        foreach($source_manifests as $mft) {
+        	if(is_a($view, $mft->params['view_class'])) {
+				$source_manifest = $mft;       		
+        		break;
+        	}
+        }
+		
+        if(!is_null($source_manifest)) {
+			// View params inside the list for quick render overload
+			$list_view = new Model_WorkerWorkspaceListView();
+			$list_view->title = $list_title;
+			$list_view->num_rows = $view->renderLimit;
+			$list_view->columns = $view->view_columns;
+			$list_view->params = $view->params;
+			// [TODO] Sort order?
+			
+			// Save the new worklist
+			$fields = array(
+				DAO_WorkerWorkspaceList::WORKER_ID => $active_worker->id,
+				DAO_WorkerWorkspaceList::WORKSPACE => $workspace_name,
+				DAO_WorkerWorkspaceList::SOURCE_EXTENSION => $source_manifest->id,
+				DAO_WorkerWorkspaceList::LIST_VIEW => serialize($list_view),
+				DAO_WorkerWorkspaceList::LIST_POS => 99,
+			);
+			$list_id = DAO_WorkerWorkspaceList::create($fields);
+        }
+		
+		// Select the workspace tab
+		$visit->set(CerberusVisit::KEY_HOME_SELECTED_TAB, 'w_'.$workspace_name);
+        
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('home')));
 	}
 
 	// Ajax

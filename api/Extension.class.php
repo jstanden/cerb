@@ -168,6 +168,8 @@ abstract class Extension_OrgTab extends DevblocksExtension {
 };
 
 abstract class Extension_TaskSource extends DevblocksExtension {
+	const EXTENSION_POINT = 'cerberusweb.task.source';
+	
 	function __construct($manifest) {
 		$this->DevblocksExtension($manifest,1);
 	}
@@ -177,23 +179,37 @@ abstract class Extension_TaskSource extends DevblocksExtension {
 };
 
 abstract class Extension_NoteSource extends DevblocksExtension {
+	const EXTENSION_POINT = 'cerberusweb.notes.source';
+	
 	function __construct($manifest) {
 		$this->DevblocksExtension($manifest,1);
 	}
 };
 
 abstract class Extension_CustomFieldSource extends DevblocksExtension {
+	const EXTENSION_POINT = 'cerberusweb.fields.source';
+	
 	function __construct($manifest) {
 		$this->DevblocksExtension($manifest,1);
 	}
 };
 
 abstract class Extension_RssSource extends DevblocksExtension {
+	const EXTENSION_POINT = 'cerberusweb.rss.source';
+	
 	function __construct($manifest) {
 		$this->DevblocksExtension($manifest,1);
 	}
 
 	function getFeedAsRss($feed) {}
+};
+
+abstract class Extension_WorkspaceSource extends DevblocksExtension {
+	const EXTENSION_POINT = 'cerberusweb.workspace.source';
+	
+	function __construct($manifest) {
+		$this->DevblocksExtension($manifest,1);
+	}
 };
 
 abstract class CerberusLoginPageExtension extends DevblocksExtension { //implements DevblocksHttpRequestHandler {

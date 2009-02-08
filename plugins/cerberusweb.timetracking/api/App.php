@@ -15,6 +15,12 @@ class ChCustomFieldSource_TimeEntry extends Extension_CustomFieldSource {
 	const ID = 'timetracking.fields.source.time_entry';
 };
 
+// Workspace Sources
+
+class ChWorkspaceSource_TimeEntry extends Extension_WorkspaceSource {
+	const ID = 'timetracking.workspace.source.time_entry';
+};
+
 abstract class Extension_TimeTrackingSource extends DevblocksExtension {
 	function __construct($manifest) {
 		parent::DevblocksExtension($manifest);
@@ -40,6 +46,7 @@ class ChTimeTrackingTicketSource extends Extension_TimeTrackingSource {
 	}
 	
 	function getSourceName() {
+		$translate = DevblocksPlatform::getTranslationService();
 		return ucwords($translate->_('common.ticket'));
 	}
 	

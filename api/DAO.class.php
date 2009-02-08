@@ -4770,15 +4770,6 @@ class DAO_Bucket extends DevblocksORMHelper {
 		$sql = sprintf("UPDATE ticket SET category_id = 0 WHERE category_id IN (%s)", implode(',',$ids));
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 
-		// Team Routing Rules
-//		foreach($ids as $id) {
-//			DAO_GroupInboxFilter::deleteByMoveCodes(array('c'.$id));
-//		}
-		
-		// Clear any view's move counts involving this bucket for all workers
-		// [TODO] This is pretty hacky.
-		DAO_WorkerPref::clearMoveCounts($ids);
-		
 		$cache = DevblocksPlatform::getCacheService();
 		$cache->remove(self::CACHE_ALL);
 	}
@@ -5147,6 +5138,7 @@ class DAO_WorkerWorkspaceList extends DevblocksORMHelper {
 	const ID = 'id';
 	const WORKER_ID = 'worker_id';
 	const WORKSPACE = 'workspace';
+	const SOURCE_EXTENSION = 'source_extension';
 	const LIST_VIEW = 'list_view';
 	const LIST_POS = 'list_pos';
 	
@@ -5158,8 +5150,8 @@ class DAO_WorkerWorkspaceList extends DevblocksORMHelper {
 		
 		$id = $db->GenID('generic_seq');
 		
-		$sql = sprintf("INSERT INTO worker_workspace_list (id, worker_id, workspace, list_view, list_pos) ".
-			"VALUES (%d, 0, '', '',0)",
+		$sql = sprintf("INSERT INTO worker_workspace_list (id, worker_id, workspace, source_extension, list_view, list_pos) ".
+			"VALUES (%d, 0, '', '', '',0)",
 			$id
 		);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
@@ -5196,7 +5188,7 @@ class DAO_WorkerWorkspaceList extends DevblocksORMHelper {
 	static function getWhere($where) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = "SELECT id, worker_id, workspace, list_view, list_pos ".
+		$sql = "SELECT id, worker_id, workspace, source_extension, list_view, list_pos ".
 			"FROM worker_workspace_list ".
 			(!empty($where) ? sprintf("WHERE %s ",$where) : " ").
 			"ORDER BY list_pos ASC";
@@ -5210,6 +5202,7 @@ class DAO_WorkerWorkspaceList extends DevblocksORMHelper {
 			$object->id = intval($rs->fields['id']);
 			$object->worker_id = intval($rs->fields['worker_id']);
 			$object->workspace = $rs->fields['workspace'];
+			$object->source_extension = $rs->fields['source_extension'];
 			$object->list_pos = intval($rs->fields['list_pos']);
 			
 			$list_view = $rs->fields['list_view'];
@@ -5258,7 +5251,6 @@ class DAO_WorkerWorkspaceList extends DevblocksORMHelper {
 };
 
 class DAO_WorkerPref extends DevblocksORMHelper {
-    const SETTING_MOVE_COUNTS = 'move_counts';
     const SETTING_OVERVIEW = 'worker_overview';
     
     const CACHE_PREFIX = 'ch_workerpref_';
@@ -5318,30 +5310,6 @@ class DAO_WorkerPref extends DevblocksORMHelper {
 		}
 		
 		return $objects;
-	}
-	
-	// Clear any view's move counts for all workers involving the buckets specified
-	// [TODO] This could probably be done much better
-	static function clearMoveCounts($bucket_ids) {
-		if(!is_array($bucket_ids)) $bucket_ids = array($bucket_ids);
-		
-		$workers = DAO_Worker::getAll();
-		
-		// Loop through all workers
-		foreach($workers as $worker_id => $worker) {
-			// Load their prefs
-			if(null !== ($worker_prefs = DAO_WorkerPref::getByWorker($worker_id))) {
-				// See if they have a move counts pref
-				@$move_counts =& $worker_prefs[DAO_WorkerPref::SETTING_MOVE_COUNTS];
-				if(!empty($move_counts) && false !== ($move_counts = @unserialize($move_counts))) {
-					// Remove the deleted buckets
-					foreach($bucket_ids as $id) {
-						unset($move_counts['c'.$id]);
-					}
-					self::set($worker_id, DAO_WorkerPref::SETTING_MOVE_COUNTS, serialize($move_counts));
-				}
-			}
-		}
 	}
 };
 

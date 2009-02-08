@@ -67,6 +67,20 @@
 			</params>
 		</extension>
 		
+		<!-- Workspace Sources -->
+		
+		<extension point="cerberusweb.workspace.source">
+			<id>calls.workspace.source.call</id>
+			<name>Call</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChWorkspaceSource_Call</name>
+			</class>
+			<params>
+				<param key="view_class" value="C4_CallEntryView" />
+			</params>
+		</extension>
+		
 		<!-- Task Sources -->
 		<!-- 
 		<extension point="cerberusweb.task.source">

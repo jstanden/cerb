@@ -198,6 +198,20 @@
 			</params>
 		</extension>
 		 
+		<!-- Workspace Sources -->
+		
+		<extension point="cerberusweb.workspace.source">
+			<id>feedback.workspace.source.feedback_entry</id>
+			<name>Feedback</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChWorkspaceSource_FeedbackEntry</name>
+			</class>
+			<params>
+				<param key="view_class" value="C4_FeedbackEntryView" />
+			</params>
+		</extension>
+		 
 		<!-- Tabs -->
 		 
 		<!--

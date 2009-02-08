@@ -258,25 +258,6 @@ class C4_MobileTicketView extends C4_TicketView {
 			$tpl->assign('last_action_count', count($last_action->ticket_ids));
 		}
 
-		// View Quick Moves
-		// [TODO] Is this even used here or did mfogg copy it blindly?
-		// [TODO] Move this into an API
-		$active_worker = CerberusApplication::getActiveWorker();
-		$move_counts_str = DAO_WorkerPref::get($active_worker->id,''.DAO_WorkerPref::SETTING_MOVE_COUNTS,serialize(array()));
-		if(is_string($move_counts_str)) {
-			// [TODO] We no longer need the move hash, do we?
-			// [TODO] Phase this out.
-			$category_name_hash = DAO_Bucket::getCategoryNameHash();
-			$tpl->assign('category_name_hash', $category_name_hash);
-			 
-			$categories = DAO_Bucket::getAll();
-			$tpl->assign('categories', $categories);
-
-			@$move_counts = unserialize($move_counts_str);
-			if(!empty($move_counts))
-				$tpl->assign('move_to_counts', array_slice($move_counts,0,10,true));
-		}
-
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('view_fields', $this->getColumns());
 		

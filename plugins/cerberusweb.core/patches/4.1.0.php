@@ -351,6 +351,7 @@ if(isset($tables['worker_pref'])) {
 	$db->Execute("DELETE FROM worker_pref WHERE setting = 'overview_assign_type' ");
 	$db->Execute("DELETE FROM worker_pref WHERE setting = 'overview_assign_howmany' ");
 	$db->Execute("DELETE FROM worker_pref WHERE setting = 'worker_overview_filter' ");
+	$db->Execute("DELETE FROM worker_pref WHERE setting = 'move_counts' ");
 }
 
 // ===========================================================================
@@ -532,6 +533,19 @@ if(!isset($columns['STICKY_ORDER'])) {
 if(!isset($columns['IS_STACKABLE'])) {
     $sql = $datadict->AddColumnSQL('group_inbox_filter', 'is_stackable I1 DEFAULT 0 NOTNULL');
     $datadict->ExecuteSQLArray($sql);
+}
+
+// ===========================================================================
+// Add extensions to workspaces so workers can combine worklist types 
+
+$columns = $datadict->MetaColumns('worker_workspace_list');
+$indexes = $datadict->MetaIndexes('worker_workspace_list',false);
+
+if(!isset($columns['SOURCE_EXTENSION'])) {
+    $sql = $datadict->AddColumnSQL('worker_workspace_list', "source_extension C(255) DEFAULT '' NOTNULL");
+    $datadict->ExecuteSQLArray($sql);
+    
+    $db->Execute("UPDATE worker_workspace_list SET source_extension='core.workspace.source.ticket' WHERE source_extension = ''");
 }
 
 return TRUE;

@@ -1,6 +1,6 @@
 <form action="{devblocks_url}{/devblocks_url}" method="post">
-<input type="hidden" name="c" value="tickets">
-<input type="hidden" name="a" value="doViewCopy">
+<input type="hidden" name="c" value="internal">
+<input type="hidden" name="a" value="viewDoCopy">
 <input type="hidden" name="view_id" value="{$view_id}">
 
 <H2>Copy Worklist</H2>

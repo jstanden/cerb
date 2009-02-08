@@ -922,24 +922,6 @@ class C4_TicketView extends C4_AbstractView {
 			$tpl->assign('last_action_count', count($last_action->ticket_ids));
 		}
 
-		// View Quick Moves
-		// [TODO] Move this into an API
-		$active_worker = CerberusApplication::getActiveWorker();
-		$move_counts_str = DAO_WorkerPref::get($active_worker->id,''.DAO_WorkerPref::SETTING_MOVE_COUNTS,serialize(array()));
-		if(is_string($move_counts_str)) {
-			// [TODO] We no longer need the move hash, do we?
-			// [TODO] Phase this out.
-			$category_name_hash = DAO_Bucket::getCategoryNameHash();
-			$tpl->assign('category_name_hash', $category_name_hash);
-			 
-			$categories = DAO_Bucket::getAll();
-			$tpl->assign('categories', $categories);
-
-			@$move_counts = unserialize($move_counts_str);
-			if(!empty($move_counts))
-				$tpl->assign('move_to_counts', array_slice($move_counts,0,10,true));
-		}
-
 		$tpl->assign('timestamp_now', time());
 		
 		$tpl->cache_lifetime = "0";
@@ -1892,11 +1874,18 @@ class C4_ContactOrgView extends C4_AbstractView {
 
 		switch($field) {
 			case SearchFields_ContactOrg::NAME:
-			case SearchFields_ContactOrg::PHONE:
+			case SearchFields_ContactOrg::STREET:
+			case SearchFields_ContactOrg::CITY:
 			case SearchFields_ContactOrg::PROVINCE:
+			case SearchFields_ContactOrg::POSTAL:
 			case SearchFields_ContactOrg::COUNTRY:
+			case SearchFields_ContactOrg::PHONE:
+			case SearchFields_ContactOrg::FAX:
 			case SearchFields_ContactOrg::WEBSITE:
 				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__string.tpl');
+				break;
+			case SearchFields_ContactOrg::CREATED:
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__date.tpl');
 				break;
 			default:
 				// Custom Fields
@@ -1939,9 +1928,13 @@ class C4_ContactOrgView extends C4_AbstractView {
 
 		switch($field) {
 			case SearchFields_ContactOrg::NAME:
-			case SearchFields_ContactOrg::PHONE:
+			case SearchFields_ContactOrg::STREET:
+			case SearchFields_ContactOrg::CITY:
 			case SearchFields_ContactOrg::PROVINCE:
+			case SearchFields_ContactOrg::POSTAL:
 			case SearchFields_ContactOrg::COUNTRY:
+			case SearchFields_ContactOrg::PHONE:
+			case SearchFields_ContactOrg::FAX:
 			case SearchFields_ContactOrg::WEBSITE:
 				// force wildcards if none used on a LIKE
 				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
@@ -1949,6 +1942,15 @@ class C4_ContactOrgView extends C4_AbstractView {
 					$value = '*'.$value.'*';
 				}
 				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
+				break;
+			case SearchFields_ContactOrg::CREATED:
+				@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','');
+				@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
+
+				if(empty($from)) $from = 0;
+				if(empty($to)) $to = 'today';
+
+				$criteria = new DevblocksSearchCriteria($field,$oper,array($from,$to));
 				break;
 			default:
 				// Custom Fields
@@ -2746,13 +2748,14 @@ class Model_WorkerWorkspaceList {
 	public $id = 0;
 	public $worker_id = 0;
 	public $workspace = '';
+	public $source_extension = '';
 	public $list_view = '';
 	public $list_pos = 0;
 };
 
 class Model_WorkerWorkspaceListView {
 	public $title = 'New List';
-	//	public $workspace = '';
+//	public $workspace = '';
 	public $columns = array();
 	public $num_rows = 10;
 	public $params = array();
@@ -2803,6 +2806,7 @@ class CerberusVisit extends DevblocksVisit {
 	const KEY_VIEW_LAST_ACTION = 'view_last_action';
 	const KEY_MY_WORKSPACE = 'view_my_workspace';
 	const KEY_MAIL_MODE = 'mail_mode';
+	const KEY_HOME_SELECTED_TAB = 'home_selected_tab';
 	const KEY_OVERVIEW_FILTER = 'overview_filter';
 	const KEY_WORKFLOW_FILTER = 'workflow_filter';
 
