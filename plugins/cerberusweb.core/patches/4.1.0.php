@@ -443,7 +443,7 @@ if(!isset($columns['ACTIONS_SER'])) {
     		$do_spam = $rs->fields['do_spam'];
     		$do_status = intval($rs->fields['do_status']);
     		
-    		if(0 != strlen($do_assign))
+    		if(!empty($do_assign)) // counts 0 or ''
     			$actions['assign'] = array('worker_id' => $do_assign);
     		if(0 != strlen($do_move)) {
     			$group_id = 0;
@@ -460,7 +460,7 @@ if(!isset($columns['ACTIONS_SER'])) {
     		}
     		if(0 != strlen($do_spam))
     			$actions['spam'] = array('is_spam' => ('N'==$do_spam?0:1));
-    		if(0 != strlen($do_status))
+    		if(!empty($do_status)) // only 1|2 == closed|deleted
     			$actions['status'] = array('is_closed' => (0==$do_status?0:1), 'is_deleted' => (2==$do_status?1:0));
     		
     		$sql = sprintf("UPDATE group_inbox_filter SET actions_ser = %s WHERE id = %d",

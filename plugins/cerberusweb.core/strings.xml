@@ -565,6 +565,9 @@
 		<tu tuid='dashboard.delete.confirm'>
 			<tuv xml:lang="en_US"><seg>Are you sure you want to delete this entire workspace?</seg></tuv>
 		</tu>
+		<tu tuid='dashboard.edit'>
+			<tuv xml:lang="en_US"><seg>edit workspace</seg></tuv>
+		</tu>
 		<tu tuid='dashboard.modify'>
 			<tuv xml:lang="en_US"><seg>Modify Dashboard</seg></tuv>
 		</tu>
@@ -579,9 +582,6 @@
 		</tu>
 		<tu tuid='dashboard.remove_view'>
 			<tuv xml:lang="en_US"><seg>Remove ticket list from dashboard</seg></tuv>
-		</tu>
-		<tu tuid='dashboard.reorder'>
-			<tuv xml:lang="en_US"><seg>rearrange lists</seg></tuv>
 		</tu>
 		<tu tuid='dashboard.switch'>
 			<tuv xml:lang="en_US"><seg>Switch</seg></tuv>

@@ -537,7 +537,7 @@ class ChHomePage extends CerberusPageExtension {
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/home/workspaces/index.tpl');
 	}
 	
-	function showReorderWorkspacePanelAction() {
+	function showEditWorkspacePanelAction() {
 		@$workspace = DevblocksPlatform::importGPC($_REQUEST['workspace'],'string', '');
 		
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -558,20 +558,43 @@ class ChHomePage extends CerberusPageExtension {
 		));
 		$tpl->assign('worklists', $worklists);
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/home/workspaces/reorder_workspace_panel.tpl');
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/home/workspaces/edit_workspace_panel.tpl');
 	}
 	
-	function doReorderWorkspaceAction() {
+	function doEditWorkspaceAction() {
 		@$workspace = DevblocksPlatform::importGPC($_POST['workspace'],'string', '');
+		@$rename_workspace = DevblocksPlatform::importGPC($_POST['rename_workspace'],'string', '');
 		@$ids = DevblocksPlatform::importGPC($_POST['ids'],'array', array());
 		@$pos = DevblocksPlatform::importGPC($_POST['pos'],'array', array());
 		
+		$db = DevblocksPlatform::getDatabaseService();
+		$active_worker = CerberusApplication::getActiveWorker();
+		$visit = CerberusApplication::getVisit();
+		
+		if(!empty($rename_workspace)) {
+			$fields = array(
+				DAO_WorkerWorkspaceList::WORKSPACE => $rename_workspace,
+			);
+			DAO_WorkerWorkspaceList::updateWhere($fields, sprintf("%s = %s AND %s = %d",
+				DAO_WorkerWorkspaceList::WORKSPACE,
+				$db->qstr($workspace),
+				DAO_WorkerWorkspaceList::WORKER_ID,
+				$active_worker->id
+			));
+			
+			$workspace = $rename_workspace;
+		}
+		
+		// Reorder worklists on workspace
 		if(is_array($ids) && !empty($ids))
 		foreach($ids as $idx => $id) {
 			DAO_WorkerWorkspaceList::update($id,array(
 				DAO_WorkerWorkspaceList::LIST_POS => @intval($pos[$idx])
 			));
 		}
+		
+		// Change active tab
+		$visit->set(CerberusVisit::KEY_HOME_SELECTED_TAB, 'w_'.$workspace);
 		
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('home')));	
 	}
@@ -783,7 +806,11 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$request = DevblocksPlatform::importGPC($_REQUEST['request'],'string','');
 		$response_path = explode('/', $request);
 		@array_shift($response_path); // tickets
-		@array_shift($response_path); // overview
+		@$controller = array_shift($response_path); // workflow
+		
+		// Make sure the global URL was for us
+		if(0!=strcasecmp('workflow',$controller))
+			$response_path = null;
 
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
@@ -962,8 +989,12 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$request = DevblocksPlatform::importGPC($_REQUEST['request'],'string','');
 		$response_path = explode('/', $request);
 		@array_shift($response_path); // tickets
-		@array_shift($response_path); // overview
+		@$controller = array_shift($response_path); // overview
 
+		// Make sure the global URL was for us
+		if(0!=strcasecmp('overview',$controller))
+			$response_path = null;
+		
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 		
@@ -1754,6 +1785,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$next_action = DevblocksPlatform::importGPC($_REQUEST['next_action'],'string','');
 		@$next_worker_id = DevblocksPlatform::importGPC($_REQUEST['next_worker_id'],'integer',0);
 		@$bucket = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'string','');
+		@$spam_training = DevblocksPlatform::importGPC($_REQUEST['spam_training'],'string','');
 		
 		$fields = array(
 			DAO_Ticket::SUBJECT => $subject,
@@ -1797,6 +1829,14 @@ class ChTicketsPage extends CerberusPageExtension {
 			    $fields[DAO_Ticket::TEAM_ID] = $team_id;
 			    $fields[DAO_Ticket::CATEGORY_ID] = $bucket_id;
 			}
+		}
+		
+		// Spam Training
+		if(!empty($spam_training)) {
+			if('S'==$spam_training)
+				CerberusBayes::markTicketAsSpam($id);
+			elseif('N'==$spam_training)
+				CerberusBayes::markTicketAsNotSpam($id);
 		}
 		
 		DAO_Ticket::updateTicket($id, $fields);
@@ -2619,8 +2659,9 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$status = DevblocksPlatform::importGPC($_REQUEST['do_status'],'string',null);
 		if(0 != strlen($status)) {
 			$do['status'] = array(
-				'is_closed' => (0==$status?0:1),
-				'is_deleted' => (2==$status?1:0),
+				'is_waiting' => (3==$status?1:0), // explicit waiting
+				'is_closed' => ((0==$status||3==$status)?0:1), // not open or waiting
+				'is_deleted' => (2==$status?1:0), // explicit deleted
 			);
 		}
 		
@@ -6190,11 +6231,13 @@ class ChGroupsPage extends CerberusPageExtension  {
 				// Set status
 				case 'status':
 					@$status = DevblocksPlatform::importGPC($_REQUEST['do_status'],'string',null);
-					if(0 != strlen($status))
+					if(0 != strlen($status)) {
 						$action = array(
-							'is_closed' => (0==$status?0:1),
-							'is_deleted' => (2==$status?1:0),
+							'is_waiting' => (3==$status?1:0), // explicit waiting
+							'is_closed' => ((0==$status||3==$status)?0:1), // not open or waiting
+							'is_deleted' => (2==$status?1:0), // explicit deleted
 						);
+					}
 					break;
 				default: // ignore invalids
 					// Custom fields
@@ -8535,10 +8578,19 @@ class ChDisplayPage extends CerberusPageExtension {
 	
 	function discardAndSurrenderAction() {
 		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer',0);
+
+		$active_worker = CerberusApplication::getActiveWorker();
 		
-		DAO_Ticket::updateTicket($ticket_id,array(
+		$fields = array(
 			DAO_Ticket::NEXT_WORKER_ID => 0, // anybody
 			DAO_Ticket::UNLOCK_DATE => 0,
+		);
+		
+		DAO_Ticket::updateWhere($fields, sprintf("%s = %d AND %s = %d",
+			DAO_Ticket::ID,
+			$ticket_id,
+			DAO_Ticket::NEXT_WORKER_ID,
+			$active_worker->id
 		));
 	}
 	

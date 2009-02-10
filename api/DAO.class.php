@@ -5240,6 +5240,10 @@ class DAO_WorkerWorkspaceList extends DevblocksORMHelper {
 		parent::_update($ids, 'worker_workspace_list', $fields);
 	}
 	
+	static function updateWhere($fields, $where) {
+		parent::_updateWhere('worker_workspace_list', $fields, $where);
+	}
+	
 	static function delete($ids) {
 		if(!is_array($ids)) $ids = array($ids);
 		

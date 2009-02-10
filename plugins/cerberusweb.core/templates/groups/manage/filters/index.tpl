@@ -79,7 +79,7 @@
 				<blockquote style="margin:2px;margin-left:20px;font-size:95%;color:rgb(100,100,100);">
 					{foreach from=$rule->actions item=action key=action_key}
 						{if $action_key=="status"}
-							{if $action.is_deleted==1}Delete Ticket{elseif $action.is_closed==1}Close Ticket{else}Open Ticket{/if}<br>
+							{if $action.is_deleted==1}Delete Ticket{elseif $action.is_closed==1}Close Ticket{elseif $action.is_waiting==1}Waiting for Reply{else}Open Ticket{/if}<br>
 						{elseif $action_key=="move"}
 							{assign var=g_id value=$action.group_id}
 							{assign var=b_id value=$action.bucket_id}

@@ -19,6 +19,8 @@
 			<div style="width:98%;height:250px;overflow:auto;border:1px solid rgb(180,180,180);margin:2px;padding:3px;background-color:rgb(255,255,255);" ondblclick="if(null != genericPanel) genericPanel.hide();">
 			{$content|escape|nl2br}
 			</div>
+			
+			<b>URL:</b> <a href="{devblocks_url}c=display&id={$ticket->mask}{/devblocks_url}">{devblocks_url full=true}c=display&id={$ticket->mask}{/devblocks_url}</a>
         </div>
         
         <div id="tab2">
@@ -80,6 +82,16 @@
 						</select>
 					</td>
 				</tr>
+				{if '' == $ticket->spam_training}
+				<tr>
+					<td width="0%" nowrap="nowrap" align="right">Spam Training: </td>
+					<td width="100%">
+						<label><input type="radio" name="spam_training" value="" checked="checked"> Unknown</label>
+						<label><input type="radio" name="spam_training" value="S"> Spam</label>
+						<label><input type="radio" name="spam_training" value="N"> Not Spam</label> 
+					</td>
+				</tr>
+				{/if}
 			</table>
 			
 			<table cellpadding="2" cellspacing="1" border="0">

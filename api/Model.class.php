@@ -324,10 +324,12 @@ class Model_GroupInboxFilter {
 		foreach($this->actions as $action => $params) {
 			switch($action) {
 				case 'status':
-					if(isset($params['is_closed']) && isset($params['is_deleted'])) {
+					if(isset($params['is_waiting']))
+						$fields[DAO_Ticket::IS_WAITING] = intval($params['is_waiting']);
+					if(isset($params['is_closed']))
 						$fields[DAO_Ticket::IS_CLOSED] = intval($params['is_closed']);
+					if(isset($params['is_deleted']))
 						$fields[DAO_Ticket::IS_DELETED] = intval($params['is_deleted']);
-					}
 					break;
 
 				case 'assign':
@@ -604,8 +606,6 @@ abstract class C4_AbstractView {
 		}
 
 		$this->view_columns = $viewColumns;
-		$this->renderSortBy = null;
-		$this->renderSortAsc = true;
 	}
 
 	function doSortBy($sortBy) {

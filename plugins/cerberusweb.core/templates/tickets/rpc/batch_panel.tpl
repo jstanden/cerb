@@ -59,14 +59,16 @@
 			<select name="do_status">
 				<option value=""></option>
 				<option value="0">Open</option>
+				<option value="3">Waiting</option>
 				<option value="1">Closed</option>
 				{if $active_worker && ($active_worker->is_superuser || $active_worker->can_delete)}
 				<option value="2">Deleted</option>
 				{/if}
 			</select>
 			<button type="button" onclick="this.form.do_status.selectedIndex = 1;">open</button>
-			<button type="button" onclick="this.form.do_status.selectedIndex = 2;">closed</button>
-			<button type="button" onclick="this.form.do_status.selectedIndex = 3;">deleted</button>
+			<button type="button" onclick="this.form.do_status.selectedIndex = 2;">waiting</button>
+			<button type="button" onclick="this.form.do_status.selectedIndex = 3;">closed</button>
+			<button type="button" onclick="this.form.do_status.selectedIndex = 4;">deleted</button>
 		</td>
 	</tr>
 	<tr>

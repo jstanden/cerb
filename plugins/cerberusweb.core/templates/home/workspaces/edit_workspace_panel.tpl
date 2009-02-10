@@ -1,8 +1,12 @@
 <form action="{devblocks_url}{/devblocks_url}" method="post">
 <input type="hidden" name="c" value="home">
-<input type="hidden" name="a" value="doReorderWorkspace">
+<input type="hidden" name="a" value="doEditWorkspace">
 <input type="hidden" name="workspace" value="{$workspace}">
 <H1>{$workspace}</H1>
+<br>
+
+<b>Rename Workspace:</b><br>
+<input type="text" name="rename_workspace" value="" size="35" style="width:100%;"><br>
 <br>
 
 <b>Choose the display order of your worklists:</b><br>
