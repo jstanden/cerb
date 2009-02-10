@@ -35,19 +35,19 @@
 	<h3>Group E-mail Preferences</h3>
 
 	<b>Send replies as e-mail:</b> (optional, defaults to: {$settings->get('default_reply_from','')})<br>
-	<input type="text" name="sender_address" value="{$group_settings.reply_from}" size="65"><br>
+	<input type="text" name="sender_address" value="{$group_settings.reply_from|escape}" size="65"><br>
 	<span style="color:rgb(30,150,30);">(Make sure the above address delivers to the helpdesk or you won't receive replies!)</span><br>
 	<br>
 	
 	<b>Send replies as name:</b> (optional, defaults to: {$settings->get('default_reply_personal','')})<br>
-	<input type="text" name="sender_personal" value="{$group_settings.reply_personal}" size="65"><br>
+	<input type="text" name="sender_personal" value="{$group_settings.reply_personal|escape}" size="65"><br>
 	<label><input type="checkbox" name="sender_personal_with_worker" value="1" {if !empty($group_settings.reply_personal_with_worker)}checked{/if}> Also prefix the replying worker's name as the sender.</label><br>
 	<br>
 	
 	<label><input type="checkbox" name="subject_has_mask" value="1" onclick="toggleDiv('divGroupCfgSubject',(this.checked)?'block':'none');" {if $group_settings.subject_has_mask}checked{/if}> Include the ticket's ID in subject line:</label><br>
 	<blockquote id="divGroupCfgSubject" style="margin-left:20px;margin-bottom:0px;display:{if $group_settings.subject_has_mask}block{else}none{/if}">
 		<b>Subject prefix:</b> (optional, e.g. "Billing", "Tech Support")<br>
-		Re: [ <input type="text" name="subject_prefix" value="{$group_settings.subject_prefix}" size="24"> #MASK-12345-678]: This is the subject line<br>
+		Re: [ <input type="text" name="subject_prefix" value="{$group_settings.subject_prefix|escape}" size="24"> #MASK-12345-678]: This is the subject line<br>
 	</blockquote>
 	<br>
 	

@@ -1,6 +1,7 @@
 <html>
 <head>
 	<title>Ticket #{$ticket->mask}: {$ticket->subject} - {$settings->get('helpdesk_title','')}</title>
+	<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset={$smarty.const.LANG_CHARSET_CODE}">
 </head>
 
 <body onload="window.print();">

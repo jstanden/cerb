@@ -360,6 +360,34 @@ class CerberusMail {
 			}
 		}
 		
+		// Inbound/Outbound Reply Event
+		// [TODO] This pivots on $no_mail for now, but this functionality may change
+	    $eventMgr = DevblocksPlatform::getEventService();
+	    if($no_mail) { // inbound
+		    $eventMgr->trigger(
+		        new Model_DevblocksEvent(
+		            'ticket.reply.inbound',
+	                array(
+	                    'ticket_id' => $ticket_id,
+	                    'message_id' => $message_id,
+	                )
+	            )
+		    );
+	    	
+	    } else { // outbound
+	    	if(!empty($worker->id))
+		    $eventMgr->trigger(
+		        new Model_DevblocksEvent(
+		            'ticket.reply.outbound',
+	                array(
+	                    'ticket_id' => $ticket_id,
+	                    'message_id' => $message_id,
+	                    'worker_id' => $worker->id
+	                )
+	            )
+		    );
+	    }
+		
 		// if email sending failed, add an error note to the message
 		if ($mail_succeeded === false) {
 			$fields = array(

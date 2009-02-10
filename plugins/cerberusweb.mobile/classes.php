@@ -278,7 +278,7 @@ class CerberusMobilePageExtension extends DevblocksExtension {
 	 * @return Model_Activity
 	 */
 	public function getActivity() {
-        return new Model_Activity();
+        return new Model_Activity('activity.default');
 	}
 }
 

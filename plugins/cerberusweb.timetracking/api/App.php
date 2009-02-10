@@ -41,6 +41,8 @@ abstract class Extension_TimeTrackingSource extends DevblocksExtension {
 
 if (class_exists('Extension_TimeTrackingSource',true)):
 class ChTimeTrackingTicketSource extends Extension_TimeTrackingSource {
+	const ID = 'timetracking.source.ticket';
+	
 	function __construct($manifest) {
 		parent::__construct($manifest);
 	}
@@ -200,6 +202,10 @@ class DAO_TimeTrackingEntry extends C4_ORMHelper {
 	
 	static function update($ids, $fields) {
 		parent::_update($ids, 'timetracking_entry', $fields);
+	}
+	
+	static function updateWhere($fields, $where) {
+		parent::_updateWhere('timetracking_entry', $fields, $where);
 	}
 	
 	/**
@@ -890,55 +896,33 @@ class Model_TimeTrackingActivity {
 //	}
 //};
 
-//class ChTimeTrackingEventListener extends DevblocksEventListenerExtension {
-//    function __construct($manifest) {
-//        parent::__construct($manifest);
-//    }
-//
-//    /**
-//     * @param Model_DevblocksEvent $event
-//     */
-//    function handleEvent(Model_DevblocksEvent $event) {
-//        switch($event->id) {
-////            case 'cron.maint':
-////            	DAO_TicketAuditLog::maint();
-////            	break;
-//            	
-//            case 'ticket.reply.outbound':
-//            	@$ticket_id = $event->params['ticket_id'];
-//            	@$message_id = $event->params['message_id'];
-//            	@$worker_id = $event->params['worker_id'];
-//            	
-//            	if(null == ($ticket = DAO_Ticket::getTicket($ticket_id)))
-//            		return;
-//
-//            	$requester_list = array();
-//            	$ticket_requesters = $ticket->getRequesters();
-//            	
-//            	if(is_array($ticket_requesters))
-//            	foreach($ticket_requesters as $addy) { /* @var $addy Model_Address */
-//            		$requester_list[] = $addy->email;
-//            	}
-//            	
-//            	self::logToTimeTracking(sprintf("-- %s --\r\nReplied to %s on ticket: [#%s] %s",
-//            		date('r', time()),
-//            		implode(', ', $requester_list),
-//            		$ticket->mask,
-//            		$ticket->subject
-//            	));
-//            		
-//            	break;
-//        }
-//    }
-//    
-//    // [TODO] Where does this static best belong?
-//    static function logToTimeTracking($log) {
-//    	if(!isset($_SESSION['timetracking_worklog']))
-//        	$_SESSION['timetracking_worklog'] = array();
-//        	
-//        $_SESSION['timetracking_worklog'][] = $log;
-//    }
-//};
+class ChTimeTrackingEventListener extends DevblocksEventListenerExtension {
+    function __construct($manifest) {
+        parent::__construct($manifest);
+    }
+
+    /**
+     * @param Model_DevblocksEvent $event
+     */
+    function handleEvent(Model_DevblocksEvent $event) {
+        switch($event->id) {
+            case 'ticket.merge':
+            	$new_ticket_id = $event->params['new_ticket_id'];
+            	$old_ticket_ids = $event->params['old_ticket_ids'];
+            	
+            	$fields = array(
+            		DAO_TimeTrackingEntry::SOURCE_ID => $new_ticket_id,
+            	);
+            	 DAO_TimeTrackingEntry::updateWhere($fields,sprintf("%s = '%s' AND %s IN (%s)",
+            		DAO_TimeTrackingEntry::SOURCE_EXTENSION_ID,
+            		ChTimeTrackingTicketSource::ID,
+            		DAO_TimeTrackingEntry::SOURCE_ID,
+            		implode(',', $old_ticket_ids)
+            	));
+            	break;
+        }
+    }
+};
 
 class ChTimeTrackingAjaxController extends DevblocksControllerExtension {
 	function __construct($manifest) {

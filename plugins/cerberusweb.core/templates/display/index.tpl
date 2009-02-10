@@ -81,13 +81,16 @@
 		   			<option value="t{$team->id}">{$team->name}{if $t_or_c=='t' && $ticket->team_id==$team->id} (*){/if}</option>
 		   		{/foreach}
 		   		</optgroup>
+		   		
 		   		{foreach from=$team_categories item=categories key=teamId}
 		   			{assign var=team value=$teams.$teamId}
-		   			<optgroup label="-- {$team->name} --">
-		   			{foreach from=$categories item=category}
-		 				<option value="c{$category->id}">{$category->name}{if $t_or_c=='c' && $ticket->category_id==$category->id} (current bucket){/if}</option>
-		 			{/foreach}
-		 			</optgroup>
+		   			{if !empty($active_worker_memberships.$teamId)}
+			   			<optgroup label="-- {$team->name} --">
+			   			{foreach from=$categories item=category}
+			 				<option value="c{$category->id}">{$category->name}{if $t_or_c=='c' && $ticket->category_id==$category->id} (current bucket){/if}</option>
+			 			{/foreach}
+			 			</optgroup>
+			 		{/if}
 		  		{/foreach}
 		   	</select>
 		   	{/if}
@@ -127,7 +130,7 @@
 				<div style="padding:10px;margin-top:0px;border:1px solid rgb(180,180,255);background-color:rgb(245,245,255);text-align:center;">
 					{$translate->_('display.listnav.active_list')} <b>{$series_stats.title}</b><br>
 					{if !empty($series_stats.prev)}<button style="display:none;visibility:hidden;" id="btnPagePrev" onclick="document.location='{devblocks_url}c=display&id={$series_stats.prev}{/devblocks_url}';">&laquo;{$translate->_('common.previous_short')|capitalize}</button><a href="{devblocks_url}c=display&id={$series_stats.prev}{/devblocks_url}">&laquo;{$translate->_('common.previous_short')|capitalize}</a>{/if}
-					{'display.listnav.showing_of_total'|devblocks_translate:$series_stats.cur:$series_stats.count:$series_stats.total} 
+					{'display.listnav.showing_of_total'|devblocks_translate:$series_stats.cur:$series_stats.count} 
 					{if !empty($series_stats.next)}<button style="display:none;visibility:hidden;" id="btnPageNext" onclick="document.location='{devblocks_url}c=display&id={$series_stats.next}{/devblocks_url}';">{$translate->_('common.next')|capitalize}&raquo;</button><a href="{devblocks_url}c=display&id={$series_stats.next}{/devblocks_url}">{$translate->_('common.next')|capitalize}&raquo;</a>{/if}
 				</div>
 				</td>

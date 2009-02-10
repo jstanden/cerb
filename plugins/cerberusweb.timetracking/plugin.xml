@@ -56,7 +56,6 @@
 	
 		<!-- Event Listeners -->
 
-		<!-- 		
 		<extension point="devblocks.listener.event">
 			<id>timetracking.listener.core</id>
 			<name>Time Tracking Listener</name>
@@ -67,12 +66,11 @@
 			<params>
 				<param key="events">
 					<value>
-						<data key="ticket.reply.outbound" />
+						<data key="ticket.merge" />
 					</value>
 				</param>
 			</params>
 		</extension>
-		 -->
 
 		<!-- Time Tracking Sources -->
 		

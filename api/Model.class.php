@@ -653,10 +653,10 @@ abstract class C4_AbstractView {
 					break;
 				case Model_CustomField::TYPE_CHECKBOX:
 				case Model_CustomField::TYPE_NUMBER:
-					$cf_val = intval($cf_val);
+					$cf_val = (0==strlen($cf_val)) ? '' : intval($cf_val);
 					break;
 			}
-			
+
 			// If multi-selection types, handle delta changes
 			if(Model_CustomField::TYPE_MULTI_PICKLIST==$fields[$cf_id]->type 
 				|| Model_CustomField::TYPE_MULTI_CHECKBOX==$fields[$cf_id]->type) {
@@ -678,7 +678,7 @@ abstract class C4_AbstractView {
 			} else {
 				if(is_array($ids))
 				foreach($ids as $id) {
-					if(!empty($cf_val))
+					if(0 != strlen($cf_val))
 						DAO_CustomFieldValue::setFieldValue($source_extension,$id,$cf_id,$cf_val);
 					else
 						DAO_CustomFieldValue::unsetFieldValue($source_extension,$id,$cf_id);

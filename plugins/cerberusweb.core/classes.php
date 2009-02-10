@@ -4661,7 +4661,6 @@ class ChContactsPage extends CerberusPageExtension {
 		@$id = array_shift($stack);
 		
 		$org = DAO_ContactOrg::get($id);
-//		$opp = DAO_CrmOpportunity::get($id);
 	
 		if(empty($org)) {
 			echo "<H1>Invalid Organization ID.</H1>";
@@ -4673,19 +4672,14 @@ class ChContactsPage extends CerberusPageExtension {
 		if(!empty($view_id)) {
 			$view = C4_AbstractViewLoader::getView('',$view_id);
 
-			// Restrict to the active worker's groups
-			$active_worker = CerberusApplication::getActiveWorker();
-//			$memberships = $active_worker->getMemberships();
-//			$view->params['tmp'] = new DevblocksSearchCriteria(SearchFields_CrmOpportunity::TEAM_ID, 'in', array_keys($memberships)); 
-			
-			$range = 500;
-			$pos = $view->renderLimit * $view->renderPage;
-			$page = floor($pos / $range);
+			$range = 250;
+			$block_size = 250;
+			$page = floor(($view->renderLimit * $view->renderPage)/$block_size);
 			
 			list($series, $series_count) = DAO_ContactOrg::search(
 				$view->view_columns,
 				$view->params,
-				$range,
+				$block_size,
 				$page,
 				$view->renderSortBy,
 				$view->renderSortAsc,
@@ -4695,7 +4689,7 @@ class ChContactsPage extends CerberusPageExtension {
 			$series_info = array(
 				'title' => $view->name,
 				'total' => count($series),
-				'series' => $series
+				'series' => array_flip(array_keys($series))
 			);
 			
 			$visit->set('ch_org_series', $series_info);
@@ -4806,18 +4800,17 @@ class ChContactsPage extends CerberusPageExtension {
 								);
 								reset($series);
 								$cur = 1;
-								while(current($series)) {
-									$pos = key($series);
+								while($pos = key($series)) {
 									if(intval($pos)==intval($contact->id)) {
 										$series_stats['cur'] = $cur;
 										if(false !== prev($series)) {
-											@$series_stats['prev'] = $series[key($series)][SearchFields_ContactOrg::ID];
+											@$series_stats['prev'] = key($series);
 											next($series); // skip to current
 										} else {
 											reset($series);
 										}
 										next($series); // next
-										@$series_stats['next'] = $series[key($series)][SearchFields_ContactOrg::ID];
+										@$series_stats['next'] = key($series);
 										break;
 									}
 									next($series);
@@ -5883,7 +5876,7 @@ class ChGroupsPage extends CerberusPageExtension  {
 	}
 	
 	function getActivity() {
-	    return new Model_Activity('');
+	    return new Model_Activity('activity.default');
 	}
 	
 	function render() {
@@ -8180,37 +8173,43 @@ class ChDisplayPage extends CerberusPageExtension {
 		// Next+Prev: Does a series exist?
 		if(null != ($series_info = $visit->get('ch_display_series', null))) {
 			@$series = $series_info['series'];
+			$cur = 1;
+			$found = false;
+			
 			// Is this ID part of the series?  If not, invalidate
-			if(!isset($series[$id])) {
+			if(is_array($series))
+			while($mask = current($series)) {
+				// Stop if we find it.
+				if($mask==$ticket->mask) {
+					$found = true;
+					break;
+				}
+				next($series);
+				$cur++;
+			}
+			
+			if(!$found) { // not found
 				$visit->set('ch_display_series', null);
-			} else {
+				
+			} else { // found
 				$series_stats = array(
 					'title' => $series_info['title'],
 					'total' => $series_info['total'],
 					'count' => count($series)
 				);
-				reset($series);
-				$cur = 1;
-				while(current($series)) {
-					$pos = key($series);
-					if(intval($pos)==intval($id)) {
-						$series_stats['cur'] = $cur;
-						if(false !== prev($series)) {
-							@$series_stats['prev'] = $series[key($series)][SearchFields_Ticket::TICKET_MASK];
-							next($series); // skip to current
-						} else {
-							reset($series);
-						}
-						next($series); // next
-						@$series_stats['next'] = $series[key($series)][SearchFields_Ticket::TICKET_MASK];
-						break;
-					}
-					next($series);
-					$cur++;
+				
+				$series_stats['cur'] = $cur;
+				if(false !== prev($series)) {
+					@$series_stats['prev'] = current($series);
+					next($series); // skip to current
+				} else {
+					reset($series);
 				}
+				next($series); // next
+				@$series_stats['next'] = current($series);
 				
 				$tpl->assign('series_stats', $series_stats);
-			}
+			}			
 		}
 		
 		$quick_search_type = $visit->get('quick_search_type');
@@ -8313,23 +8312,51 @@ class ChDisplayPage extends CerberusPageExtension {
 			$memberships = $active_worker->getMemberships();
 			$view->params['tmp'] = new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID, 'in', array_keys($memberships)); 
 			
-			$range = 100;
-			$pos = $view->renderLimit * $view->renderPage;
-			$page = floor($pos / $range);
+			$range = 250; // how far to jump ahead of the current page
+			$block_size = 250;
+			$page = floor(($view->renderPage * $view->renderLimit)/$block_size);
+			$index = array();
+			$found = false;
+			$full = false;
+
+			do {
+				list($series, $null) = DAO_Ticket::search(
+					array(
+						SearchFields_Ticket::TICKET_MASK,
+					),
+					$view->params,
+					$block_size,
+					$page,
+					$view->renderSortBy,
+					$view->renderSortAsc,
+					false
+				);
+				
+				// Index by mask
+				foreach($series as $idx => $val) {
+					// Find our match before we index anything
+					if(!$found && $idx == $id)
+						$found = true;
+					elseif(!$found)
+						continue;
+					
+					$index[] = $val[SearchFields_Ticket::TICKET_MASK];
+					
+					// Stop if we fill up our desired rows
+					if(count($index)==$range) {
+						$full = true;
+						break;
+					}
+				}
+				
+				$page++;
+				
+			} while(!empty($series) && !$full);
 			
-			list($series, $series_count) = DAO_Ticket::search(
-				$view->view_columns,
-				$view->params,
-				$range,
-				$page,
-				$view->renderSortBy,
-				$view->renderSortAsc,
-				false
-			);
 			$series_info = array(
 				'title' => $view->name,
-				'total' => count($series),
-				'series' => $series
+				'total' => count($index),
+				'series' => $index
 			);
 			$visit->set('ch_display_series', $series_info);
 		}

@@ -6661,8 +6661,9 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 					break;
 					
 				case Model_CustomField::TYPE_NUMBER:
-					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'integer',0);
-					$do['cf_'.$field_id] = array('value' => intval($field_value));
+					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'string','');
+					$field_value = (0==strlen($field_value)) ? '' : intval($field_value);
+					$do['cf_'.$field_id] = array('value' => $field_value);
 					break;
 					
 				case Model_CustomField::TYPE_DROPDOWN:

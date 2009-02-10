@@ -73,7 +73,7 @@
 <button type="button" onclick="toggleDiv('kbSearch{$message->id}');document.getElementById('kbQuery{$message->id}').focus();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/book_open2.gif{/devblocks_url}" align="top"> {$translate->_('common.knowledgebase')|capitalize}</button>
 <button type="button" onclick="genericAjaxPanel('c=display&a=showTemplatesPanel&type=2&reply_id={$message->id}&txt_name=reply_{$message->id}',this,false,'550px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/text_rich.gif{/devblocks_url}" align="top"> {$translate->_('display.reply.email_templates')|capitalize}</button>
 <button type="button" onclick="genericAjaxPanel('c=display&a=showFnrPanel',this,false,'550px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/book_blue_view.gif{/devblocks_url}" align="top"> {$translate->_('common.fnr')|capitalize}</button>
-<button type="button" onclick="txtReply=document.getElementById('reply_{$message->id}');sigDiv=document.getElementById('team_signature');txtReply.value += '\n'+sigDiv.value+'\n';scrollElementToBottom(txtReply);txtReply.focus();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_edit.gif{/devblocks_url}" align="top"> {$translate->_('display.reply.insert_sig')|capitalize}</button>
+<button type="button" onclick="genericAjaxGet('','c=tickets&a=getComposeSignature&group_id={$ticket->team_id}',{literal}function(o){insertAtCursor(document.getElementById('reply_{/literal}{$message->id}{literal}'),o.responseText);document.getElementById('reply_{/literal}{$message->id}{literal}').focus();}{/literal});"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_edit.gif{/devblocks_url}" align="top"> {$translate->_('display.reply.insert_sig')|capitalize}</button>
 <br>
 {* Plugin Toolbar *}
 {if !empty($reply_toolbaritems)}
@@ -133,7 +133,6 @@
 {if !empty($signature) && !$signature_pos}{$signature}{/if}{*Sig below*}
 </textarea>
 {/if}
-			<div style="display:none"><textarea name="team_signature" id="team_signature">{$signature}</textarea></div>
 		</td>
 	</tr>
 	<tr>
@@ -229,11 +228,13 @@
 						      		</optgroup>
 						      		{foreach from=$team_categories item=categories key=teamId}
 						      			{assign var=team value=$teams.$teamId}
-						      			<optgroup label="-- {$team->name} --">
-						      			{foreach from=$categories item=category}
-						    				<option value="c{$category->id}">{$category->name}{if $t_or_c=='c' && $ticket->category_id==$category->id} {$translate->_('display.reply.next.move.current')}{/if}</option>
-						    			{/foreach}
-						    			</optgroup>
+						      			{if !empty($active_worker_memberships.$teamId)}
+							      			<optgroup label="-- {$team->name} --">
+							      			{foreach from=$categories item=category}
+							    				<option value="c{$category->id}">{$category->name}{if $t_or_c=='c' && $ticket->category_id==$category->id} {$translate->_('display.reply.next.move.current')}{/if}</option>
+							    			{/foreach}
+							    			</optgroup>
+							    		{/if}
 						     		{/foreach}
 						      	</select><br>
 						      	<br>

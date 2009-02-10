@@ -31,6 +31,8 @@ YAHOO.util.Event.addListener(window,'load',function(e) {
 	
 	var f = new LiveValidation('loginForm_password');
 	f.add( Validate.Presence );
+
+	document.getElementById('loginForm_email').focus();
 });
 {/literal}	
 </script>

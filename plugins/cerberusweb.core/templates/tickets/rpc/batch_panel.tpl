@@ -43,13 +43,16 @@
       			<option value="t{$team->id}">{$team->name}</option>
       		{/foreach}
       		</optgroup>
+      		
       		{foreach from=$team_categories item=categories key=teamId}
       			{assign var=team value=$teams.$teamId}
-      			<optgroup label="{$team->name}">
-      			{foreach from=$categories item=category}
-    				<option value="c{$category->id}">{$category->name}</option>
-    			{/foreach}
-    			</optgroup>
+      			{if !empty($active_worker_memberships.$teamId)}
+	      			<optgroup label="{$team->name}">
+	      			{foreach from=$categories item=category}
+	    				<option value="c{$category->id}">{$category->name}</option>
+	    			{/foreach}
+	    			</optgroup>
+    			{/if}
      		{/foreach}
       	</select></td>
 	</tr>
