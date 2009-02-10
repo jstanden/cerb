@@ -31,7 +31,7 @@
 				<br>
 	
 				<b>SMTP Authentication:</b> (optional)<br>
-				<label><input type="checkbox" name="smtp_auth_enabled" value="1" onclick="toggleDiv('configGeneralSmtpAuth',(this.checked?'block':'none'));" {if $settings->get('smtp_auth_enabled')}checked{/if}> Enabled</label><br>
+				<label><input type="checkbox" name="smtp_auth_enabled" value="1" onclick="toggleDiv('configGeneralSmtpAuth',(this.checked?'block':'none'));if(!this.checked){literal}{{/literal}this.form.smtp_auth_user.value='';this.form.smtp_auth_pass.value='';{literal}}{/literal}" {if $settings->get('smtp_auth_enabled')}checked{/if}> Enabled</label><br>
 				<br>
 				
 				<div id="configGeneralSmtpAuth" style="margin-left:15px;display:{if $settings->get('smtp_auth_enabled')}block{else}none{/if};">
@@ -57,18 +57,18 @@
 				<br>
 				
 				<div id="configSmtpTest"></div>	
-				<button type="button" onclick="genericAjaxGet('configSmtpTest','c=config&a=getSmtpTest&host='+this.form.smtp_host.value+'&port='+this.form.smtp_port.value+'&enc='+radioValue(this.form.smtp_enc)+'&smtp_user='+this.form.smtp_auth_user.value+'&smtp_pass='+this.form.smtp_auth_pass.value);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/gear.gif{/devblocks_url}" align="top"> Test SMTP</button>				
+				<button type="button" onclick="genericAjaxGet('configSmtpTest','c=config&a=getSmtpTest&host='+this.form.smtp_host.value+'&port='+encodeURIComponent(this.form.smtp_port.value)+'&enc='+encodeURIComponent(radioValue(this.form.smtp_enc))+'&smtp_user='+encodeURIComponent(this.form.smtp_auth_user.value)+'&smtp_pass='+encodeURIComponent(this.form.smtp_auth_pass.value));"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/gear.gif{/devblocks_url}" align="top"> Test SMTP</button>				
 			</blockquote>
 			
 			<h3>Default Preferences</h3>
 			
 			<blockquote style="margin-left:20px;">
 				<b>By default, reply to mail as:</b> (E-mail Address)<br>
-				<input type="text" name="sender_address" value="{$settings->get('default_reply_from')}" size="45"> (e.g. support@yourcompany.com)<br>
+				<input type="text" name="sender_address" value="{$settings->get('default_reply_from')|escape}" size="45"> (e.g. support@yourcompany.com)<br>
 				<br>
 				
 				<b>By default, reply to mail as:</b> (Personal Name)<br>
-				<input type="text" name="sender_personal" value="{$settings->get('default_reply_personal')}" size="45"> (e.g. Acme Widgets)<br>
+				<input type="text" name="sender_personal" value="{$settings->get('default_reply_personal')|escape}" size="45"> (e.g. Acme Widgets)<br>
 				<br>
 				
 				<b>Default E-mail Signature:</b><br>

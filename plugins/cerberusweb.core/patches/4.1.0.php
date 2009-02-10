@@ -657,5 +657,43 @@ if(isset($tables['task'])) {
 	}
 }
 
+// ===========================================================================
+// Change 'setting' values to X (text) rather than B (blob)
+
+if(isset($tables['setting'])) {
+	$columns = $datadict->MetaColumns('setting');
+	
+	if(isset($columns['VALUE'])) {
+		if(0==strcasecmp('longblob',$columns['VALUE']->type)) {
+			$sql = sprintf("ALTER TABLE setting CHANGE COLUMN `value` `value` TEXT");
+			$db->Execute($sql);
+		}
+	}
+}
+
+// ===========================================================================
+// Port Setting.DEFAULT_TEAM_ID to the group ('team') table as a bit, that way
+// it's much harder for us to use an invalid value while parsing, etc.
+
+if(isset($tables['team'])) {
+	$columns = $datadict->MetaColumns('team');
+	
+	if(!isset($columns['IS_DEFAULT'])) {
+		$sql = $datadict->AddColumnSQL('team', "is_default I1 DEFAULT 0 NOTNULL");
+    	$datadict->ExecuteSQLArray($sql);
+    	
+    	// Set the default group based on the old setting
+		$sql = "SELECT value FROM setting WHERE setting = 'default_team_id'";
+		$default_team_id = $db->GetOne($sql);
+		
+		if(!empty($default_team_id)) {
+			$sql = sprintf("UPDATE team SET is_default=1 WHERE id = %d", $default_team_id);
+			$db->Execute($sql);
+		}
+		
+		$db->Execute("DELETE FROM setting WHERE setting = 'default_team_id'");
+	}
+}
+
 return TRUE;
 ?>

@@ -504,7 +504,7 @@ class DAO_Worker extends DevblocksORMHelper {
 	        new Model_DevblocksEvent(
 	            'worker.delete',
                 array(
-                    'worker_id' => $id,
+                    'worker_ids' => array($id),
                 )
             )
 	    );
@@ -3783,6 +3783,7 @@ class DAO_Group {
     const TEAM_ID = 'id';
     const TEAM_NAME = 'name';
     const TEAM_SIGNATURE = 'signature';
+    const IS_DEFAULT = 'is_default';
     
 	// Teams
 	
@@ -3813,7 +3814,7 @@ class DAO_Group {
 
 		$teams = array();
 		
-		$sql = sprintf("SELECT t.id , t.name, t.signature ".
+		$sql = sprintf("SELECT t.id , t.name, t.signature, t.is_default ".
 			"FROM team t ".
 			((is_array($ids) && !empty($ids)) ? sprintf("WHERE t.id IN (%s) ",implode(',',$ids)) : " ").
 			"ORDER BY t.name ASC"
@@ -3826,6 +3827,7 @@ class DAO_Group {
 			$team->id = intval($rs->fields['id']);
 			$team->name = $rs->fields['name'];
 			$team->signature = $rs->fields['signature'];
+			$team->is_default = intval($rs->fields['is_default']);
 			$teams[$team->id] = $team;
 			$rs->MoveNext();
 		}
@@ -3841,6 +3843,31 @@ class DAO_Group {
 	    }
 	    
 	    return $teams;
+	}
+	
+	/**
+	 * 
+	 * @return Model_Team|null
+	 */
+	static function getDefaultGroup() {
+		$groups = self::getAll();
+		
+		if(is_array($groups))
+		foreach($groups as $group) { /* @var $group CerberusTeam */
+			if($group->is_default)
+				return $group;
+		}
+		
+		return null;
+	}
+	
+	static function setDefaultGroup($group_id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$db->Execute("UPDATE team SET is_default = 0");
+		$db->Execute(sprintf("UPDATE team SET is_default = 1 WHERE id = %d", $group_id));
+		
+		self::clearCache();
 	}
 	
 	/**
@@ -3894,16 +3921,15 @@ class DAO_Group {
 		$db = DevblocksPlatform::getDatabaseService();
 		$newId = $db->GenID('generic_seq');
 		
-		$sql = sprintf("INSERT INTO team (id, name, signature) ".
-			"VALUES (%d,'','')",
+		$sql = sprintf("INSERT INTO team (id, name, signature, is_default) ".
+			"VALUES (%d,'','',0)",
 			$newId
 		);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		self::updateTeam($newId, $fields);
-		
-		$cache = DevblocksPlatform::getCacheService();
-		$cache->remove(self::CACHE_ALL);
+
+		self::clearCache();
 		
 		return $newId;
 	}
@@ -3933,9 +3959,8 @@ class DAO_Group {
 			$id
 		);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-		$cache = DevblocksPlatform::getCacheService();
-		$cache->remove(self::CACHE_ALL);
+
+		self::clearCache();
 	}
 	
 	/**
@@ -3946,6 +3971,19 @@ class DAO_Group {
 	static function deleteTeam($id) {
 		if(empty($id)) return;
 		$db = DevblocksPlatform::getDatabaseService();
+		
+		/*
+		 * Notify anything that wants to know when groups delete.
+		 */
+	    $eventMgr = DevblocksPlatform::getEventService();
+	    $eventMgr->trigger(
+	        new Model_DevblocksEvent(
+	            'group.delete',
+                array(
+                    'group_ids' => array($id),
+                )
+            )
+	    );
 		
 		$sql = sprintf("DELETE QUICK FROM team WHERE id = %d", $id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
@@ -3968,9 +4006,8 @@ class DAO_Group {
 
 //        DAO_GroupInboxFilter::deleteByMoveCodes(array('t'.$id));
 
-		$cache = DevblocksPlatform::getCacheService();
-		$cache->remove(self::CACHE_ALL);
-		$cache->remove(CerberusApplication::CACHE_HELPDESK_FROMS);
+		self::clearCache();
+		DAO_Bucket::clearCache();
 	}
 	
 	static function maint() {
@@ -4004,10 +4041,8 @@ class DAO_Group {
             array('agent_id' => $worker_id, 'team_id' => $team_id, 'is_manager' => ($is_manager?1:0)),
             array('agent_id','team_id')
         );
-        
-		// Invalidate caches
-		$cache = DevblocksPlatform::getCacheService();
-		$cache->remove(self::CACHE_ROSTERS);
+
+        self::clearCache();
 	}
 	
 	static function unsetTeamMember($team_id, $worker_id) {
@@ -4021,10 +4056,8 @@ class DAO_Group {
 		    $worker_id
 		);
 		$db->Execute($sql);
-		
-		// Invalidate caches
-		$cache = DevblocksPlatform::getCacheService();
-		$cache->remove(self::CACHE_ROSTERS);
+
+		self::clearCache();
 	}
 	
 	static function getRosters() {
@@ -4075,6 +4108,12 @@ class DAO_Group {
 		return null;
 	}
 	
+	static public function clearCache() {
+		$cache = DevblocksPlatform::getCacheService();
+		$cache->remove(self::CACHE_ALL);
+		$cache->remove(self::CACHE_ROSTERS);
+		$cache->remove(CerberusApplication::CACHE_HELPDESK_FROMS);
+	}
 };
 
 class DAO_GroupSettings {
@@ -4731,8 +4770,7 @@ class DAO_Bucket extends DevblocksORMHelper {
 
 			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 
-			$cache = DevblocksPlatform::getCacheService();
-			$cache->remove(self::CACHE_ALL);
+			self::clearCache();
 		}
 		
 		return $id;
@@ -4741,13 +4779,25 @@ class DAO_Bucket extends DevblocksORMHelper {
 	static function update($id,$fields) {
 		parent::_update($id,'category',$fields);
 
-		$cache = DevblocksPlatform::getCacheService();
-		$cache->remove(self::CACHE_ALL);
+		self::clearCache();
 	}
 	
 	static function delete($ids) {
 	    if(!is_array($ids)) $ids = array($ids);
 		$db = DevblocksPlatform::getDatabaseService();
+		
+		/*
+		 * Notify anything that wants to know when buckets delete.
+		 */
+	    $eventMgr = DevblocksPlatform::getEventService();
+	    $eventMgr->trigger(
+	        new Model_DevblocksEvent(
+	            'bucket.delete',
+                array(
+                    'bucket_ids' => $ids,
+                )
+            )
+	    );
 		
 		$sql = sprintf("DELETE QUICK FROM category WHERE id IN (%s)", implode(',',$ids));
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
@@ -4756,6 +4806,10 @@ class DAO_Bucket extends DevblocksORMHelper {
 		$sql = sprintf("UPDATE ticket SET category_id = 0 WHERE category_id IN (%s)", implode(',',$ids));
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 
+		self::clearCache();
+	}
+	
+	static public function clearCache() {
 		$cache = DevblocksPlatform::getCacheService();
 		$cache->remove(self::CACHE_ALL);
 	}

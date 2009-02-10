@@ -546,7 +546,10 @@ class ImportCron extends CerberusCronPageExtension {
 		
 		// Find the destination Group + Bucket (or create them)
 		if(empty($sGroup)) {
-			$iDestGroupId = intval($settings->get(CerberusSettings::DEFAULT_TEAM_ID, '0'));
+			$iDestGroupId = 0;
+			
+			if(null != ($iDestGroup = DAO_Group::getDefaultGroup()))
+				$iDestGroupId = $iDestGroup->id;
 			
 		} elseif(null == ($iDestGroupId = @$group_name_to_id[strtolower($sGroup)])) {
 			$iDestGroupId = DAO_Group::createTeam(array(

@@ -60,7 +60,7 @@
 			{elseif $column=="kb_title"}
 			<td>
 				{if !empty($result.kb_title)}
-				<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document.gif{/devblocks_url}" align="top"> <a href="javascript:;" style="font-size:12px;color:rgb(75,75,75);" onclick="genericAjaxPanel('c=kb&a=showArticlePeekPanel&id={$result.kb_id}&return={$response_uri|escape:'url'}',null,false,'700px');"><b id="subject_{$result.kb_id}_{$view->id}">{$result.kb_title}</b></a>				
+				<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document.gif{/devblocks_url}" align="top"> <a href="javascript:;" style="font-size:12px;color:rgb(75,75,75);" onclick="genericAjaxPanel('c=kb&a=showArticlePeekPanel&id={$result.kb_id}&return={$response_uri|escape:'url'}',null,false,'700px');"><b id="subject_{$result.kb_id}_{$view->id}">{$result.kb_title|escape}</b></a>				
 				{/if}
 			</td>
 			{elseif $column=="kb_updated"}

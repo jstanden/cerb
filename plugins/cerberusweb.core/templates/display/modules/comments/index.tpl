@@ -12,7 +12,7 @@
 {assign var=owner_id value=$ticket->next_worker_id}
 <label><input type="checkbox" onclick="toggleDiv('addCommentNotifyWorkers');"> <b>Notify workers</b></label>
 <div id="addCommentNotifyWorkers" style="display:none;">
-<select name="notify_worker_ids" multiple="multiple" size="8">
+<select name="notify_worker_ids[]" multiple="multiple" size="8" id="notify_worker_ids">
 	{foreach from=$active_workers item=worker name=notify_workers}
 	{if $owner_id && $worker->id == $owner_id}{math assign=notify_owner_id equation="x-1" x=$smarty.foreach.notify_workers.iteration}{/if}
 	{if $worker->id == $active_worker->id}{math assign=notify_me_id equation="x-1" x=$smarty.foreach.notify_workers.iteration}{/if}
@@ -20,8 +20,8 @@
 	{/foreach}
 </select><br>
 (hold CTRL or CMD to select multiple)<br>
-{if !empty($notify_me_id)}<button type="button" onclick="this.form.notify_worker_ids.options[{$notify_me_id}].selected=true;">{$translate->_('common.me')}</button>{/if} 
-{if !empty($owner_id) || isset($notify_owner_id)}<button type="button" onclick="this.form.notify_worker_ids.options[{$notify_owner_id}].selected=true;">{$workers.$owner_id->getName()} (owner)</button>{/if}
+{if !empty($notify_me_id)}<button type="button" onclick="document.getElementById('notify_worker_ids').options[{$notify_me_id}].selected=true;">{$translate->_('common.me')}</button>{/if} 
+{if !empty($owner_id) || isset($notify_owner_id)}<button type="button" onclick="document.getElementById('notify_worker_ids').options[{$notify_owner_id}].selected=true;">{$workers.$owner_id->getName()} (owner)</button>{/if}
 </div>
 {/if}
 <br>

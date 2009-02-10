@@ -5,7 +5,7 @@
 	<br>
 {elseif $pop_test===true}
 	<div class="success">
-		Incoming mailbox were tested successfully.
+		Incoming mailbox settings were tested successfully.
 	</div>
 	<br>
 {/if}

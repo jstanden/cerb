@@ -26,6 +26,30 @@
 	<!-- Event Points -->
 
 	<event_points>
+		<event id="address.peek.saved">
+			<name>Address Peek Saved</name>
+			<param key="address_id" />
+			<param key="changed_fields" />
+		</event>
+		<event id="bucket.delete">
+			<name>Bucket Delete</name>
+			<param key="bucket_ids" />
+		</event>
+		<event id="cron.heartbeat">
+			<name>Heartbeat</name>
+		</event>
+		<event id="cron.maint">
+			<name>Maintenance</name>
+		</event>
+		<event id="group.delete">
+			<name>Group Delete</name>
+			<param key="group_ids" />
+		</event>
+		<event id="ticket.merge">
+			<name>Ticket Merge</name>
+			<param key="new_ticket_id" />
+			<param key="old_ticket_ids" />
+		</event>
 		<event id="ticket.property.pre_change">
 			<name>Ticket Property Pre-Change</name>
 			<param key="ticket_ids" />
@@ -47,16 +71,9 @@
 			<param key="message_id" />
 			<param key="worker_id" />
 		</event>
-		<event id="address.peek.saved">
-			<name>Address Peek Saved</name>
-			<param key="address_id" />
-			<param key="changed_fields" />
-		</event>
-		<event id="cron.heartbeat">
-			<name>Heartbeat</name>
-		</event>
-		<event id="cron.maint">
-			<name>Maintenance</name>
+		<event id="worker.delete">
+			<name>Worker Delete</name>
+			<param key="worker_ids" />
 		</event>
 	</event_points>
 

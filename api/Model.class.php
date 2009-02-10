@@ -3066,6 +3066,7 @@ class CerberusTeam {
 	public $id;
 	public $name;
 	public $count;
+	public $is_default = 0;
 }
 
 class Model_TeamMember {

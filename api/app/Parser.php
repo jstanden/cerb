@@ -332,7 +332,7 @@ class CerberusParser {
 					$msginfo = mailparse_msg_get_part_data($mail);
 					
 					$inline_headers = $msginfo['headers'];
-					if(strtolower(substr($headers['from'], 0, 11))=='postmaster@' || strtolower(substr($headers['from'], 0, 14))=='mailer-daemon@') {
+					if(isset($headers['from']) && (strtolower(substr($headers['from'], 0, 11))=='postmaster@' || strtolower(substr($headers['from'], 0, 14))=='mailer-daemon@')) {
 						$headers['in-reply-to'] = $inline_headers['message-id'];
 					}
 				break;
@@ -959,12 +959,10 @@ class CerberusParser {
 			}
 		}
 		
-		// Check if we have a default mailbox configured before returning NULL.		
-		$default_team_id = $settings->get(CerberusSettings::DEFAULT_TEAM_ID,0);
-		
-		if(!empty($default_team_id)) { // catchall
-			return array($default_team_id,'');
-		}
+		// Check if we have a default mailbox configured before returning NULL.
+		if(null != ($default_team = DAO_Group::getDefaultGroup())) {
+			return array($default_team->id,'');
+		}	
 		
 		return null; // bounce
 	}

@@ -682,7 +682,9 @@ switch($step) {
 					DAO_GroupSettings::set($sales_gid,DAO_GroupSettings::SETTING_SPAM_THRESHOLD,'85');
 					
 					// Default catchall
-					$settings->set(CerberusSettings::DEFAULT_TEAM_ID,$dispatch_gid);
+					DAO_Group::updateTeam($dispatch_gid, array(
+						DAO_Group::IS_DEFAULT => 1
+					));
 				}
 				
 				// If this worker doesn't exist, create them

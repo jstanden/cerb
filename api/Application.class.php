@@ -48,7 +48,7 @@
  * 		and Joe Geck.
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-define("APP_BUILD", 863);
+define("APP_BUILD", 864);
 define("APP_MAIL_PATH", realpath(APP_PATH . '/storage/mail') . DIRECTORY_SEPARATOR);
 
 include_once(APP_PATH . "/api/DAO.class.php");
@@ -622,7 +622,6 @@ class CerberusHelper {
 };
 
 class CerberusSettings {
-	const DEFAULT_TEAM_ID = 'default_team_id'; 
 	const DEFAULT_REPLY_FROM = 'default_reply_from'; 
 	const DEFAULT_REPLY_PERSONAL = 'default_reply_personal'; 
 	const DEFAULT_SIGNATURE = 'default_signature'; 
@@ -647,7 +646,6 @@ class CerberusSettings {
 	private static $instance = null;
 	
 	private $settings = array( // defaults
-		self::DEFAULT_TEAM_ID => 0,
 		self::DEFAULT_REPLY_FROM => '',
 		self::DEFAULT_REPLY_PERSONAL => '',
 		self::DEFAULT_SIGNATURE => '',

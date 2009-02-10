@@ -30,8 +30,12 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
      */
     function handleEvent(Model_DevblocksEvent $event) {
         switch($event->id) {
-            case 'worker.delete':
-				$this->_workerDeleted($event);
+            case 'bucket.delete':
+				$this->_bucketDeleted($event);
+            	break;
+            	
+            case 'group.delete':
+				$this->_groupDeleted($event);
             	break;
             	
             case 'ticket.property.pre_change':
@@ -44,6 +48,10 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
             	
             case 'ticket.reply.outbound':
 				$this->_sendForwards($event, false);
+            	break;
+            	
+            case 'worker.delete':
+				$this->_workerDeleted($event);
             	break;
         }
     }
@@ -62,12 +70,17 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
     		return;
 
     	@$active_worker = CerberusApplication::getActiveWorker();
+    	@$workers = DAO_Worker::getAllActive();
     		
     	// Make sure we're not assigning work to ourselves, if so then bail
     	if(null != $active_worker && $active_worker->id == $next_worker_id) {
     		return;
     	}
 
+    	// Make sure the worker exists and is not disabled
+    	if(!isset($workers[$next_worker_id]))
+    		return;
+    	
 		$helpdesk_senders = CerberusApplication::getHelpdeskSenders();    	
     	
 		$mail_service = DevblocksPlatform::getMailService();
@@ -95,8 +108,9 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 			if($ticket->next_worker_id == $next_worker_id)
 				continue;
 			
-			if(null == (@$last_message = end($ticket->getMessages()))) /* @var $last_message CerberusMessage */
+			if(null == (@$last_message = end($ticket->getMessages()))) { /* @var $last_message CerberusMessage */
 				continue;
+			}
 			
 			if(null == (@$last_headers = $last_message->getHeaders()))
 				continue;
@@ -152,9 +166,18 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
     }
     
     private function _workerDeleted($event) {
-    	@$worker_id = $event->params['worker_id'];
-    	
-    	DAO_WorkerMailForward::deleteByWorkerIds($worker_id);
+    	@$worker_ids = $event->params['worker_ids'];
+    	DAO_WorkerMailForward::deleteByWorkerIds($worker_ids);
+    }
+    
+    private function _bucketDeleted($event) {
+    	@$bucket_ids = $event->params['bucket_ids'];
+    	DAO_WorkerMailForward::deleteByBucketIds($bucket_ids);
+    }
+    
+    private function _groupDeleted($event) {
+    	@$group_ids = $event->params['group_ids'];
+    	DAO_WorkerMailForward::deleteByGroupIds($group_ids);
     }
     
     private function _sendForwards($event, $is_inbound) {
@@ -165,6 +188,7 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 		$ticket = DAO_Ticket::getTicket($ticket_id);
 		
 		$helpdesk_senders = CerberusApplication::getHelpdeskSenders();
+		$workers = DAO_Worker::getAllActive();
 		
 		// [JAS]: Don't send obvious spam to watchers.
 		if($ticket->spam_score >= 0.9000) {
@@ -224,6 +248,10 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 				if(!isset($n->group_id) || !isset($n->bucket_id))
 					continue;
 				
+				// if worker no longer exists or is disabled
+				if(!isset($workers[$n->worker_id]))
+					continue;
+					
 				// Don't allow a worker to usurp a helpdesk address
 				if(isset($helpdesk_senders[$n->email])) {
 					continue;
@@ -466,13 +494,41 @@ class DAO_WorkerMailForward extends DevblocksORMHelper {
 		$db->Execute(sprintf("DELETE QUICK FROM worker_mail_forward WHERE id IN (%s)", $ids_list));
 	}
 	
+	private static function _deleteWhere($where) {
+		if(empty($where))
+			return FALSE;
+			
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = sprintf("DELETE QUICK FROM worker_mail_forward WHERE %s", $where);
+		$db->Execute($sql);
+	}
+	
 	public static function deleteByWorkerIds($ids) {
 		if(!is_array($ids)) $ids = array($ids);
 		
-		$db = DevblocksPlatform::getDatabaseService();
-		$ids_list = implode(',', $ids);
+		self::_deleteWhere(sprintf("%s IN (%s)",
+			self::WORKER_ID,
+			implode(',', $ids)
+		));
+	}
+	
+	public static function deleteByBucketIds($ids) {
+		if(!is_array($ids)) $ids = array($ids);
 		
-		$db->Execute(sprintf("DELETE QUICK FROM worker_mail_forward WHERE worker_id IN (%s)", $ids_list));
+		self::_deleteWhere(sprintf("%s IN (%s)",
+			self::BUCKET_ID,
+			implode(',', $ids)
+		));
+	}
+	
+	public static function deleteByGroupIds($ids) {
+		if(!is_array($ids)) $ids = array($ids);
+		
+		self::_deleteWhere(sprintf("%s IN (%s)",
+			self::GROUP_ID,
+			implode(',', $ids)
+		));
 	}
 };
 

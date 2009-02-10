@@ -3355,7 +3355,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		
 		@$host = DevblocksPlatform::importGPC($_REQUEST['host'],'string','');
 		@$port = DevblocksPlatform::importGPC($_REQUEST['port'],'integer',25);
-		@$enc = DevblocksPlatform::importGPC($_REQUEST['enc'],'string','');
+		@$smtp_enc = DevblocksPlatform::importGPC($_REQUEST['enc'],'string','');
 		@$smtp_auth = DevblocksPlatform::importGPC($_REQUEST['smtp_auth'],'integer',0);
 		@$smtp_user = DevblocksPlatform::importGPC($_REQUEST['smtp_user'],'string','');
 		@$smtp_pass = DevblocksPlatform::importGPC($_REQUEST['smtp_pass'],'string','');
@@ -3373,7 +3373,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 					'port' => $port,
 					'auth_user' => $smtp_user,
 					'auth_pass' => $smtp_pass,
-					'enc' => $enc,
+					'enc' => $smtp_enc,
 				));
 				
 				$mailer->connect();
@@ -4371,6 +4371,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	    @$default_signature_pos = DevblocksPlatform::importGPC($_POST['default_signature_pos'],'integer',0);
 	    @$smtp_host = DevblocksPlatform::importGPC($_REQUEST['smtp_host'],'string','localhost');
 	    @$smtp_port = DevblocksPlatform::importGPC($_REQUEST['smtp_port'],'integer',25);
+	    @$smtp_enc = DevblocksPlatform::importGPC($_REQUEST['smtp_enc'],'string','None');
 	    @$smtp_timeout = DevblocksPlatform::importGPC($_REQUEST['smtp_timeout'],'integer',30);
 	    @$smtp_max_sends = DevblocksPlatform::importGPC($_REQUEST['smtp_max_sends'],'integer',20);
 
@@ -4378,11 +4379,10 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	    if($smtp_auth_enabled) {
 		    @$smtp_auth_user = DevblocksPlatform::importGPC($_REQUEST['smtp_auth_user'],'string');
 		    @$smtp_auth_pass = DevblocksPlatform::importGPC($_REQUEST['smtp_auth_pass'],'string');
-	    	@$smtp_enc = DevblocksPlatform::importGPC($_REQUEST['smtp_enc'],'string','None');
+	    	
 	    } else { // need to clear auth info when smtp auth is disabled
 		    @$smtp_auth_user = '';
 		    @$smtp_auth_pass = '';
-	    	@$smtp_enc = 'None';
 	    }
 	    
 	    $settings = CerberusSettings::getInstance();
@@ -4491,8 +4491,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		}
 		
 		// Default team
-		$settings = CerberusSettings::getInstance();
-		$settings->set(CerberusSettings::DEFAULT_TEAM_ID, $default_team_id);
+		DAO_Group::setDefaultGroup($default_team_id);
 		
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','parser')));
 	}
@@ -6476,8 +6475,9 @@ class ChGroupsPage extends CerberusPageExtension  {
 	        $cat_id = DAO_Bucket::create($category, $team_id);
 	    }
 	    
-	    if(!empty($deletes))
+	    if(!empty($deletes)) {
 	        DAO_Bucket::delete(array_values($deletes));
+	    }
 	        
         DevblocksPlatform::redirect(new DevblocksHttpResponse(array('groups',$team_id,'buckets')));
 	}
@@ -6734,12 +6734,16 @@ class ChKbPage extends CerberusPageExtension {
         $query = trim($query);
         
         $visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
-		$searchView = C4_AbstractViewLoader::getView('','kb_search');
+        $translate = DevblocksPlatform::getTranslationService();
 		
-		// [TODO]
-//		if(null == $searchView)
-//			$searchView = C4_KbArticleView:
-
+        // [TODO] This is redundant with render(), move to C4_KbArticleView::getSearchView() ?
+        if(null == ($searchView = C4_AbstractViewLoader::getView('','kb_search'))) {
+        	$searchView = new C4_KbArticleView();
+        	$searchView->id = 'kb_search';
+        	$searchView->name = $translate->_('common.search_results');
+        	C4_AbstractViewLoader::setView($searchView->id, $searchView);
+        }
+		
 //        $visit->set('quick_search_type', $type);
         
         $params = array();
@@ -8926,7 +8930,6 @@ class ChDisplayPage extends CerberusPageExtension {
 	// Post
 	function savePropertiesAction() {
 		@$ticket_id = DevblocksPlatform::importGPC($_POST['ticket_id'],'integer',0);
-		@$add = DevblocksPlatform::importGPC($_POST['add'],'string','');
 		@$remove = DevblocksPlatform::importGPC($_POST['remove'],'array',array());
 		@$next_worker_id = DevblocksPlatform::importGPC($_POST['next_worker_id'],'integer',0);
 		@$ticket_reopen = DevblocksPlatform::importGPC($_POST['ticket_reopen'],'string','');
@@ -9004,17 +9007,25 @@ class ChDisplayPage extends CerberusPageExtension {
 		DAO_CustomFieldValue::handleFormPost(ChCustomFieldSource_Ticket::ID, $ticket_id, $field_ids);
 		
 		// Requesters
+		@$req_list = DevblocksPlatform::importGPC($_POST['add'],'string','');
+		if(!empty($req_list)) {
+			$req_list = DevblocksPlatform::parseCrlfString($req_list);
+			$req_list = array_unique($req_list);
 			
-		if(!empty($add)) {
-			$adds = DevblocksPlatform::parseCrlfString($add);
-			$adds = array_unique($adds);
-			
-			foreach($adds as $addy) {
-				if(null != ($addy = DAO_Address::lookupAddress($addy, true))) {
-					DAO_Ticket::createRequester($addy->id, $ticket_id);
-//					echo "Added <b>$addy</b> as a recipient.<br>";
-				} else {
-//					echo "Ignored invalid e-mail address: <b>$addy</b><br>";
+			// [TODO] This is redundant with the Requester Peek on Reply
+			if(is_array($req_list) && !empty($req_list)) {
+				foreach($req_list as $req) {
+					if(empty($req))
+						continue;
+						
+					$rfc_addys = imap_rfc822_parse_adrlist($req, 'localhost');
+					
+					foreach($rfc_addys as $rfc_addy) {
+						$addy = $rfc_addy->mailbox . '@' . $rfc_addy->host;
+						
+						if(null != ($req_addy = CerberusApplication::hashLookupAddress($addy, true)))
+							DAO_Ticket::createRequester($req_addy->id, $ticket_id);
+					}
 				}
 			}
 		}
@@ -9364,15 +9375,24 @@ class ChDisplayPage extends CerberusPageExtension {
 		// Adds
 		@$req_adds = DevblocksPlatform::importGPC($_POST['req_adds'],'string','');
 		$req_list = DevblocksPlatform::parseCrlfString($req_adds);
+		$req_addys = array();
 		
-		if(is_array($req_list) && !empty($req_list))
-		foreach($req_list as $req) {
-			if(empty($req))
-				continue;
-			if(null != ($req_addy = CerberusApplication::hashLookupAddress($req, true)))
-				DAO_Ticket::createRequester($req_addy->id, $ticket_id);
+		if(is_array($req_list) && !empty($req_list)) {
+			foreach($req_list as $req) {
+				if(empty($req))
+					continue;
+					
+				$rfc_addys = imap_rfc822_parse_adrlist($req, 'localhost');
+				
+				foreach($rfc_addys as $rfc_addy) {
+					$addy = $rfc_addy->mailbox . '@' . $rfc_addy->host;
+					
+					if(null != ($req_addy = CerberusApplication::hashLookupAddress($addy, true)))
+						DAO_Ticket::createRequester($req_addy->id, $ticket_id);
+				}
+			}
 		}
-		
+				
 		$requesters = DAO_Ticket::getRequestersByTicket($ticket_id);
 
 		$list = array();		
@@ -9902,6 +9922,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 		@$reply_box_height = DevblocksPlatform::importGPC($_REQUEST['reply_box_height'],'integer');
 	    
 		$worker = CerberusApplication::getActiveWorker();
+		$translate = DevblocksPlatform::getTranslationService();
    		$tpl = DevblocksPlatform::getTemplateService();
    		$pref_errors = array();
    		

@@ -13,7 +13,7 @@
 </table>
 
 <div style="overflow:auto;height:300px;border:solid 1px rgb(180,180,180);background-color:rgb(255,255,255);" ondblclick="if(null != genericPanel) genericPanel.hide();">
-{$article->content}
+{if !$article->format}{$article->content|escape}{else}{$article->content}{/if}
 </div>
 <br>
 

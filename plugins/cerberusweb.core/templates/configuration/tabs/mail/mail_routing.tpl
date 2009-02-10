@@ -59,7 +59,7 @@
 				<option value="0">-- None (Bounce) --
 			{if !empty($teams)}
 			{foreach from=$teams item=team key=team_id}
-				<option value="{$team_id}" {if $settings->get('default_team_id')==$team_id}selected{/if}>{$team->name}
+				<option value="{$team_id}" {if $team->is_default}selected{/if}>{$team->name}
 			{/foreach}
 			{/if}
 			</select><br>

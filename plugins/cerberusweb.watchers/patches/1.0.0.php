@@ -105,5 +105,14 @@ while(!$rs->EOF) {
 	$rs->MoveNext();
 }
 
+// ===========================================================================
+// Clean up mail forwards where the group or buckets were removed
+
+$sql = "DELETE worker_mail_forward FROM worker_mail_forward LEFT JOIN team ON (team.id=worker_mail_forward.group_id) WHERE team.id IS NULL";
+$db->Execute($sql);
+
+$sql = "DELETE worker_mail_forward FROM worker_mail_forward LEFT JOIN category ON (category.id=worker_mail_forward.group_id) WHERE worker_mail_forward.bucket_id > 0 AND category.id IS NULL";
+$db->Execute($sql);
+
 return TRUE;
 ?>
