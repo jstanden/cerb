@@ -921,7 +921,6 @@ class DAO_ContactOrg extends C4_ORMHelper {
 	const POSTAL = 'postal';
 	const COUNTRY = 'country';
 	const PHONE = 'phone';
-	const FAX = 'fax';
 	const WEBSITE = 'website';
 	const CREATED = 'created';
 	
@@ -938,7 +937,6 @@ class DAO_ContactOrg extends C4_ORMHelper {
 			'postal' => $translate->_('contact_org.postal'),
 			'country' => $translate->_('contact_org.country'),
 			'phone' => $translate->_('contact_org.phone'),
-			'fax' => $translate->_('contact_org.fax'),
 			'website' => $translate->_('contact_org.website'),
 			'created' => $translate->_('contact_org.created'),
 		);
@@ -954,8 +952,8 @@ class DAO_ContactOrg extends C4_ORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$id = $db->GenID('contact_org_seq');
 		
-		$sql = sprintf("INSERT INTO contact_org (id,name,street,city,province,postal,country,phone,fax,website,created) ".
-  			"VALUES (%d,'','','','','','','','','',%d)",
+		$sql = sprintf("INSERT INTO contact_org (id,name,street,city,province,postal,country,phone,website,created) ".
+  			"VALUES (%d,'','','','','','','','',%d)",
 			$id,
 			time()
 		);
@@ -1015,7 +1013,7 @@ class DAO_ContactOrg extends C4_ORMHelper {
 	static function getWhere($where=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = "SELECT id,name,street,city,province,postal,country,phone,fax,website,created ".
+		$sql = "SELECT id,name,street,city,province,postal,country,phone,website,created ".
 			"FROM contact_org ".
 			(!empty($where) ? sprintf("WHERE %s ", $where) : " ")
 		;
@@ -1038,7 +1036,6 @@ class DAO_ContactOrg extends C4_ORMHelper {
 			$object->postal = $rs->fields['postal'];
 			$object->country = $rs->fields['country'];
 			$object->phone = $rs->fields['phone'];
-			$object->fax = $rs->fields['fax'];
 			$object->website = $rs->fields['website'];
 			$object->created = intval($rs->fields['created']);
 			$objects[$object->id] = $object;
@@ -1125,7 +1122,6 @@ class DAO_ContactOrg extends C4_ORMHelper {
 			"c.postal as %s, ".
 			"c.country as %s, ".
 			"c.phone as %s, ".
-			"c.fax as %s, ".
 			"c.website as %s, ".
 			"c.created as %s ",
 //			"INNER JOIN team tm ON (tm.id = t.team_id) ".
@@ -1137,7 +1133,6 @@ class DAO_ContactOrg extends C4_ORMHelper {
 			    SearchFields_ContactOrg::POSTAL,
 			    SearchFields_ContactOrg::COUNTRY,
 			    SearchFields_ContactOrg::PHONE,
-			    SearchFields_ContactOrg::FAX,
 			    SearchFields_ContactOrg::WEBSITE,
 			    SearchFields_ContactOrg::CREATED
 			);
@@ -1201,7 +1196,6 @@ class SearchFields_ContactOrg {
 	const POSTAL = 'c_postal';
 	const COUNTRY = 'c_country';
 	const PHONE = 'c_phone';
-	const FAX = 'c_fax';
 	const WEBSITE = 'c_website';
 	const CREATED = 'c_created';
 	
@@ -1219,7 +1213,6 @@ class SearchFields_ContactOrg {
 			self::POSTAL => new DevblocksSearchField(self::POSTAL, 'c', 'postal', null, $translate->_('contact_org.postal')),
 			self::COUNTRY => new DevblocksSearchField(self::COUNTRY, 'c', 'country', null, $translate->_('contact_org.country')),
 			self::PHONE => new DevblocksSearchField(self::PHONE, 'c', 'phone', null, $translate->_('contact_org.phone')),
-			self::FAX => new DevblocksSearchField(self::FAX, 'c', 'fax', null, $translate->_('contact_org.fax')),
 			self::WEBSITE => new DevblocksSearchField(self::WEBSITE, 'c', 'website', null, $translate->_('contact_org.website')),
 			self::CREATED => new DevblocksSearchField(self::CREATED, 'c', 'created', null, $translate->_('contact_org.created')),
 		);
@@ -2599,7 +2592,6 @@ class DAO_Ticket extends C4_ORMHelper {
 	const SPAM_TRAINING = 'spam_training';
 	const SPAM_SCORE = 'spam_score';
 	const INTERESTING_WORDS = 'interesting_words';
-	const NEXT_ACTION = 'next_action';
 	const LAST_ACTION_CODE = 'last_action_code';
 	const LAST_WORKER_ID = 'last_worker_id';
 	const NEXT_WORKER_ID = 'next_worker_id';
@@ -2622,7 +2614,6 @@ class DAO_Ticket extends C4_ORMHelper {
 			'spam_training' => $translate->_('ticket.spam_training'),
 			'spam_score' => $translate->_('ticket.spam_score'),
 			'interesting_words' => $translate->_('ticket.interesting_words'),
-			'next_action' => $translate->_('ticket.next_action'),
 			'next_worker_id' => $translate->_('ticket.next_worker'),
 		);
 	}
@@ -2915,7 +2906,7 @@ class DAO_Ticket extends C4_ORMHelper {
 		
 		$sql = "SELECT t.id , t.mask, t.subject, t.is_waiting, t.is_closed, t.is_deleted, t.team_id, t.category_id, t.first_message_id, ".
 			"t.first_wrote_address_id, t.last_wrote_address_id, t.created_date, t.updated_date, t.due_date, t.unlock_date, t.spam_training, ". 
-			"t.spam_score, t.interesting_words, t.next_action, t.last_worker_id, t.next_worker_id ".
+			"t.spam_score, t.interesting_words, t.last_worker_id, t.next_worker_id ".
 			"FROM ticket t ".
 			(!empty($ids) ? sprintf("WHERE t.id IN (%s) ",implode(',',$ids)) : " ").
 			"ORDER BY t.updated_date DESC"
@@ -2943,7 +2934,6 @@ class DAO_Ticket extends C4_ORMHelper {
 			$ticket->spam_score = floatval($rs->fields['spam_score']);
 			$ticket->spam_training = $rs->fields['spam_training'];
 			$ticket->interesting_words = $rs->fields['interesting_words'];
-			$ticket->next_action = $rs->fields['next_action'];
 			$ticket->last_worker_id = intval($rs->fields['last_worker_id']);
 			$ticket->next_worker_id = intval($rs->fields['next_worker_id']);
 			$tickets[$ticket->id] = $ticket;
@@ -3399,7 +3389,6 @@ class DAO_Ticket extends C4_ORMHelper {
 			"t.spam_score as %s, ".
 //			"t.num_tasks as %s, ".
 			"t.interesting_words as %s, ".
-			"t.next_action as %s, ".
 			"t.last_action_code as %s, ".
 			"t.last_worker_id as %s, ".
 			"t.next_worker_id as %s, ".
@@ -3428,7 +3417,6 @@ class DAO_Ticket extends C4_ORMHelper {
 			    SearchFields_Ticket::TICKET_SPAM_SCORE,
 //			    SearchFields_Ticket::TICKET_TASKS,
 			    SearchFields_Ticket::TICKET_INTERESTING_WORDS,
-			    SearchFields_Ticket::TICKET_NEXT_ACTION,
 			    SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
 			    SearchFields_Ticket::TICKET_LAST_WORKER_ID,
 			    SearchFields_Ticket::TICKET_NEXT_WORKER_ID,
@@ -3524,7 +3512,6 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 	const TICKET_SPAM_SCORE = 't_spam_score';
 	const TICKET_SPAM_TRAINING = 't_spam_training';
 	const TICKET_INTERESTING_WORDS = 't_interesting_words';
-	const TICKET_NEXT_ACTION = 't_next_action';
 	const TICKET_LAST_ACTION_CODE = 't_last_action_code';
 	const TICKET_LAST_WORKER_ID = 't_last_worker_id';
 	const TICKET_NEXT_WORKER_ID = 't_next_worker_id';
@@ -3585,7 +3572,6 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 
 			self::TICKET_LAST_ACTION_CODE => new DevblocksSearchField(self::TICKET_LAST_ACTION_CODE, 't', 'last_action_code',null,$translate->_('ticket.last_action')),
 			self::TICKET_LAST_WORKER_ID => new DevblocksSearchField(self::TICKET_LAST_WORKER_ID, 't', 'last_worker_id',null,$translate->_('ticket.last_worker')),
-			self::TICKET_NEXT_ACTION => new DevblocksSearchField(self::TICKET_NEXT_ACTION, 't', 'next_action',null,$translate->_('ticket.next_action')),
 			self::TICKET_NEXT_WORKER_ID => new DevblocksSearchField(self::TICKET_NEXT_WORKER_ID, 't', 'next_worker_id',null,$translate->_('ticket.next_worker')),
 			self::TICKET_SPAM_TRAINING => new DevblocksSearchField(self::TICKET_SPAM_TRAINING, 't', 'spam_training',null,$translate->_('ticket.spam_training')),
 			self::TICKET_SPAM_SCORE => new DevblocksSearchField(self::TICKET_SPAM_SCORE, 't', 'spam_score',null,$translate->_('ticket.spam_score')),
@@ -6869,7 +6855,6 @@ class DAO_Task extends C4_ORMHelper {
 	const ID = 'id';
 	const TITLE = 'title';
 	const WORKER_ID = 'worker_id';
-	const PRIORITY = 'priority';
 	const DUE_DATE = 'due_date';
 	const IS_COMPLETED = 'is_completed';
 	const COMPLETED_DATE = 'completed_date';
@@ -6908,7 +6893,7 @@ class DAO_Task extends C4_ORMHelper {
 	static function getWhere($where=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = "SELECT id, title, worker_id, priority, due_date, content, is_completed, completed_date, source_extension, source_id ".
+		$sql = "SELECT id, title, worker_id, due_date, content, is_completed, completed_date, source_extension, source_id ".
 			"FROM task ".
 			(!empty($where) ? sprintf("WHERE %s ",$where) : "").
 			"ORDER BY id asc";
@@ -6987,7 +6972,6 @@ class DAO_Task extends C4_ORMHelper {
 			$object->id = $rs->fields['id'];
 			$object->title = $rs->fields['title'];
 			$object->worker_id = $rs->fields['worker_id'];
-			$object->priority = $rs->fields['priority'];
 			$object->due_date = $rs->fields['due_date'];
 			$object->content = $rs->fields['content'];
 			$object->is_completed = $rs->fields['is_completed'];
@@ -7085,7 +7069,6 @@ class DAO_Task extends C4_ORMHelper {
 			"t.due_date as %s, ".
 			"t.is_completed as %s, ".
 			"t.completed_date as %s, ".
-			"t.priority as %s, ".
 			"t.title as %s, ".
 			"t.content as %s, ".
 			"t.worker_id as %s, ".
@@ -7096,7 +7079,6 @@ class DAO_Task extends C4_ORMHelper {
 			    SearchFields_Task::DUE_DATE,
 			    SearchFields_Task::IS_COMPLETED,
 			    SearchFields_Task::COMPLETED_DATE,
-			    SearchFields_Task::PRIORITY,
 			    SearchFields_Task::TITLE,
 			    SearchFields_Task::CONTENT,
 			    SearchFields_Task::WORKER_ID,
@@ -7162,7 +7144,6 @@ class SearchFields_Task implements IDevblocksSearchFields {
 	const DUE_DATE = 't_due_date';
 	const IS_COMPLETED = 't_is_completed';
 	const COMPLETED_DATE = 't_completed_date';
-	const PRIORITY = 't_priority';
 	const TITLE = 't_title';
 	const CONTENT = 't_content';
 	const WORKER_ID = 't_worker_id';
@@ -7177,7 +7158,6 @@ class SearchFields_Task implements IDevblocksSearchFields {
 		$columns = array(
 			self::ID => new DevblocksSearchField(self::ID, 't', 'id', null, $translate->_('task.id')),
 			self::TITLE => new DevblocksSearchField(self::TITLE, 't', 'title', null, $translate->_('task.title')),
-			self::PRIORITY => new DevblocksSearchField(self::PRIORITY, 't', 'priority', null, $translate->_('task.priority')),
 			self::IS_COMPLETED => new DevblocksSearchField(self::IS_COMPLETED, 't', 'is_completed', null, $translate->_('task.is_completed')),
 			self::DUE_DATE => new DevblocksSearchField(self::DUE_DATE, 't', 'due_date', null, $translate->_('task.due_date')),
 			self::COMPLETED_DATE => new DevblocksSearchField(self::COMPLETED_DATE, 't', 'completed_date', null, $translate->_('task.completed_date')),

@@ -361,7 +361,6 @@ class CrmPage extends CerberusPageExtension {
 		$view->name = 'Opportunity Tasks';
 		$view->view_columns = array(
 			SearchFields_Task::SOURCE_EXTENSION,
-			SearchFields_Task::PRIORITY,
 			SearchFields_Task::DUE_DATE,
 			SearchFields_Task::WORKER_ID,
 			SearchFields_Task::COMPLETED_DATE,
@@ -404,7 +403,6 @@ class CrmPage extends CerberusPageExtension {
 			SearchFields_Ticket::TICKET_UPDATED_DATE,
 			SearchFields_Ticket::TEAM_NAME,
 			SearchFields_Ticket::TICKET_CATEGORY_ID,
-			SearchFields_Ticket::TICKET_NEXT_ACTION,
 			SearchFields_Ticket::TICKET_NEXT_WORKER_ID,
 		);
 		$view->params = array(

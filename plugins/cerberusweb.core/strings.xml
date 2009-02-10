@@ -366,9 +366,6 @@
 		<tu tuid='contact_org.created'>
 			<tuv xml:lang="en_US"><seg>Created</seg></tuv>
 		</tu>
-		<tu tuid='contact_org.fax'>
-			<tuv xml:lang="en_US"><seg>Fax</seg></tuv>
-		</tu>
 		<tu tuid='contact_org.id'>
 			<tuv xml:lang="en_US"><seg>ID</seg></tuv>
 		</tu>
@@ -392,23 +389,14 @@
 		</tu>
 
 		<!-- Contact People -->
-		<tu tuid='contact_person.city'>
-			<tuv xml:lang="en_US"><seg>City</seg></tuv>
-		</tu>
 		<tu tuid='contact_person.contact_org_id'>
 			<tuv xml:lang="en_US"><seg>Organization</seg></tuv>
-		</tu>
-		<tu tuid='contact_person.country'>
-			<tuv xml:lang="en_US"><seg>Country</seg></tuv>
 		</tu>
 		<tu tuid='contact_person.created'>
 			<tuv xml:lang="en_US"><seg>Created</seg></tuv>
 		</tu>
 		<tu tuid='contact_person.email'>
 			<tuv xml:lang="en_US"><seg>Primary Email</seg></tuv>
-		</tu>
-		<tu tuid='contact_person.fax'>
-			<tuv xml:lang="en_US"><seg>Fax</seg></tuv>
 		</tu>
 		<tu tuid='contact_person.first_name'>
 			<tuv xml:lang="en_US"><seg>First Name</seg></tuv>
@@ -419,20 +407,8 @@
 		<tu tuid='contact_person.last_name'>
 			<tuv xml:lang="en_US"><seg>Last Name</seg></tuv>
 		</tu>
-		<tu tuid='contact_person.phone'>
-			<tuv xml:lang="en_US"><seg>Phone</seg></tuv>
-		</tu>
-		<tu tuid='contact_person.postal'>
-			<tuv xml:lang="en_US"><seg>Postal</seg></tuv>
-		</tu>
-		<tu tuid='contact_person.province'>
-			<tuv xml:lang="en_US"><seg>Province</seg></tuv>
-		</tu>
 		<tu tuid='contact_person.title'>
 			<tuv xml:lang="en_US"><seg>Title</seg></tuv>
-		</tu>
-		<tu tuid='contact_person.street'>
-			<tuv xml:lang="en_US"><seg>Street</seg></tuv>
 		</tu>
 
 		<!-- Cron -->
@@ -704,12 +680,6 @@
 		<tu tuid='display.reply.next.move.no_thanks'>
 			<tuv xml:lang="en_US"><seg>no thanks!</seg></tuv>
 		</tu>
-		<tu tuid='display.reply.next.next_action'>
-			<tuv xml:lang="en_US"><seg>What is the next action that needs to happen?</seg></tuv>
-		</tu>
-		<tu tuid='display.reply.next.next_action_eg'>
-			<tuv xml:lang="en_US"><seg>(optional, max 255 characters)</seg></tuv>
-		</tu>
 		<tu tuid='display.reply.next.resume'>
 			<tuv xml:lang="en_US"><seg>When would you like to resume this conversation?</seg></tuv>
 		</tu>
@@ -957,21 +927,6 @@ If you did not request this, do not click the link above.  The request will expi
 			<tuv xml:lang="en_US"><seg>%s is not a valid e-mail address.</seg></tuv>
 		</tu>
 
-		<!-- Priorities -->
-
-		<tu tuid='priority.none'>
-			<tuv xml:lang="en_US"><seg>None</seg></tuv>
-		</tu>
-		<tu tuid='priority.low'>
-			<tuv xml:lang="en_US"><seg>Low</seg></tuv>
-		</tu>
-		<tu tuid='priority.normal'>
-			<tuv xml:lang="en_US"><seg>Normal</seg></tuv>
-		</tu>
-		<tu tuid='priority.high'>
-			<tuv xml:lang="en_US"><seg>High</seg></tuv>
-		</tu>
-
 		<!-- RSS -->
 
 		<tu tuid='rss.bad_feed'>
@@ -1045,9 +1000,6 @@ If you did not request this, do not click the link above.  The request will expi
 		<tu tuid='task.is_completed'>
 			<tuv xml:lang="en_US"><seg>Completed</seg></tuv>
 		</tu>
-		<tu tuid='task.priority'>
-			<tuv xml:lang="en_US"><seg>Priority</seg></tuv>
-		</tu>
 		<tu tuid='task.source_extension'>
 			<tuv xml:lang="en_US"><seg>Source</seg></tuv>
 		</tu>
@@ -1108,17 +1060,11 @@ If you did not request this, do not click the link above.  The request will expi
 		<tu tuid='ticket.mask'>
 			<tuv xml:lang="en_US"><seg>Mask</seg></tuv>
 		</tu>
-		<tu tuid='ticket.next_action'>
-			<tuv xml:lang="en_US"><seg>Next Action</seg></tuv>
-		</tu>
 		<tu tuid='ticket.next_worker'>
 			<tuv xml:lang="en_US"><seg>Next Worker</seg></tuv>
 		</tu>
 		<tu tuid='ticket.owner'>
 			<tuv xml:lang="en_US"><seg>Owner</seg></tuv>
-		</tu>
-		<tu tuid='ticket.priority'>
-			<tuv xml:lang="en_US"><seg>Priority</seg></tuv>
 		</tu>
 		<tu tuid='ticket.requester'>
 			<tuv xml:lang="en_US"><seg>Requester</seg></tuv>

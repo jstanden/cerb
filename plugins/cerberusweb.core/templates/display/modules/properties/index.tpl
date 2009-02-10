@@ -46,10 +46,6 @@
 		<br>
 		<br>
 	</div>
-		
-	<b>Next Action:</b><br>
-	<input type="text" name="next_action" size="45" maxlength="255" value="{$ticket->next_action|escape}" style="width:90%;"><br>
-	<br>
 </blockquote>
 
 {* [TODO] Display by Group *}

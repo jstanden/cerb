@@ -864,11 +864,11 @@ class C4_TicketView extends C4_AbstractView {
 		$this->renderSortAsc = false;
 
 		$this->view_columns = array(
-			SearchFields_Ticket::TICKET_NEXT_ACTION,
+			SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
 			SearchFields_Ticket::TICKET_UPDATED_DATE,
+			SearchFields_Ticket::TEAM_NAME,
 			SearchFields_Ticket::TICKET_CATEGORY_ID,
 			SearchFields_Ticket::TICKET_SPAM_SCORE,
-			SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
 		);
 	}
 
@@ -953,7 +953,6 @@ class C4_TicketView extends C4_AbstractView {
 			case SearchFields_Ticket::TICKET_FIRST_WROTE:
 			case SearchFields_Ticket::TICKET_LAST_WROTE:
 			case SearchFields_Ticket::REQUESTER_ADDRESS:
-			case SearchFields_Ticket::TICKET_NEXT_ACTION:
 			case SearchFields_Ticket::TICKET_INTERESTING_WORDS:
 			case SearchFields_Ticket::ORG_NAME:
 				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__string.tpl');
@@ -1146,7 +1145,6 @@ class C4_TicketView extends C4_AbstractView {
 			case SearchFields_Ticket::TICKET_FIRST_WROTE:
 			case SearchFields_Ticket::TICKET_LAST_WROTE:
 			case SearchFields_Ticket::REQUESTER_ADDRESS:
-			case SearchFields_Ticket::TICKET_NEXT_ACTION:
 			case SearchFields_Ticket::TICKET_INTERESTING_WORDS:
 			case SearchFields_Ticket::ORG_NAME:
 				// force wildcards if none used on a LIKE
@@ -1340,7 +1338,6 @@ class C4_TicketView extends C4_AbstractView {
 			SearchFields_Ticket::TEAM_NAME,
 			SearchFields_Ticket::TICKET_CATEGORY_ID,
 			SearchFields_Ticket::TICKET_SPAM_SCORE,
-			SearchFields_Ticket::TICKET_NEXT_ACTION,
 		);
 		$view->params = array(
 			SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,DevblocksSearchCriteria::OPER_EQ,0),
@@ -1880,7 +1877,6 @@ class C4_ContactOrgView extends C4_AbstractView {
 			case SearchFields_ContactOrg::POSTAL:
 			case SearchFields_ContactOrg::COUNTRY:
 			case SearchFields_ContactOrg::PHONE:
-			case SearchFields_ContactOrg::FAX:
 			case SearchFields_ContactOrg::WEBSITE:
 				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__string.tpl');
 				break;
@@ -1934,7 +1930,6 @@ class C4_ContactOrgView extends C4_AbstractView {
 			case SearchFields_ContactOrg::POSTAL:
 			case SearchFields_ContactOrg::COUNTRY:
 			case SearchFields_ContactOrg::PHONE:
-			case SearchFields_ContactOrg::FAX:
 			case SearchFields_ContactOrg::WEBSITE:
 				// force wildcards if none used on a LIKE
 				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
@@ -2199,12 +2194,11 @@ class C4_TaskView extends C4_AbstractView {
 		$this->id = self::DEFAULT_ID;
 		$this->name = self::DEFAULT_TITLE;
 		$this->renderLimit = 25;
-		$this->renderSortBy = SearchFields_Task::PRIORITY;
+		$this->renderSortBy = SearchFields_Task::DUE_DATE;
 		$this->renderSortAsc = true;
 
 		$this->view_columns = array(
 			SearchFields_Task::SOURCE_EXTENSION,
-			SearchFields_Task::PRIORITY,
 			SearchFields_Task::DUE_DATE,
 			SearchFields_Task::WORKER_ID,
 			);
@@ -2277,10 +2271,6 @@ class C4_TaskView extends C4_AbstractView {
 				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__string.tpl');
 				break;
 				
-			case SearchFields_Task::PRIORITY:
-				$tpl->display('file:' . $tpl_path . 'tasks/criteria/priority.tpl');
-				break;
-				
 			case SearchFields_Task::SOURCE_EXTENSION:
 				$source_renderers = DevblocksPlatform::getExtensions('cerberusweb.task.source', true);
 				$tpl->assign('sources', $source_renderers);
@@ -2320,26 +2310,6 @@ class C4_TaskView extends C4_AbstractView {
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
-			case SearchFields_Task::PRIORITY:
-				foreach($values as $val) {
-					switch($val) {
-						case 1:
-							$strings[] = $translate->_('priority.high');
-							break;
-						case 2:
-							$strings[] = $translate->_('priority.normal');
-							break;
-						case 3:
-							$strings[] = $translate->_('priority.low');
-							break;
-						case 4:
-							$strings[] = $translate->_('priority.none');
-							break;
-					}
-				}
-				echo implode(", ", $strings);
-				break;
-				
 			case SearchFields_Task::WORKER_ID:
 				$workers = DAO_Worker::getAll();
 				$strings = array();
@@ -2413,11 +2383,6 @@ class C4_TaskView extends C4_AbstractView {
 					$value = '*'.$value.'*';
 				}
 				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
-				break;
-				
-			case SearchFields_Task::PRIORITY:
-				@$priority = DevblocksPlatform::importGPC($_REQUEST['priority'],'array',array());
-				$criteria = new DevblocksSearchCriteria($field,$oper,$priority);
 				break;
 				
 			case SearchFields_Task::SOURCE_EXTENSION:
@@ -2738,7 +2703,6 @@ class Model_ContactOrg {
 	public $postal;
 	public $country;
 	public $phone;
-	public $fax;
 	public $website;
 	public $created;
 	public $sync_id = '';
@@ -2961,7 +2925,6 @@ class CerberusTicket {
 	public $is_deleted = 0;
 	public $team_id;
 	public $category_id;
-	public $priority;
 	public $first_message_id;
 	public $first_wrote_address_id;
 	public $last_wrote_address_id;
@@ -2972,7 +2935,6 @@ class CerberusTicket {
 	public $spam_score;
 	public $spam_training;
 	public $interesting_words;
-	public $next_action;
 	public $last_action_code;
 	public $last_worker_id;
 	public $next_worker_id;
@@ -3312,7 +3274,6 @@ class Model_Task {
 	public $id;
 	public $title;
 	public $worker_id;
-	public $priority;
 	public $due_date;
 	public $is_completed;
 	public $completed_date;

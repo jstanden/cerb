@@ -12,9 +12,8 @@
 			{if !empty($contact->country)}{$contact->country}{/if}
 			<br>
 		{/if}
-		{if !empty($contact->phone) || !empty($contact->fax)}
-			{if !empty($contact->phone)}Phone: {$contact->phone} &nbsp; {/if}
-			{if !empty($contact->fax)}Fax: {$contact->fax}{/if}
+		{if !empty($contact->phone)}
+			Phone: {$contact->phone}
 			<br>
 		{/if}
 		{if !empty($contact->website)}<a href="{$contact->website}" target="_blank">{$contact->website}</a>{/if}

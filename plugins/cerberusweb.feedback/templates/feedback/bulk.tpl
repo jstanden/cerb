@@ -22,6 +22,7 @@
 
 <H2>Do:</H2>
 <table cellspacing="0" cellpadding="2" width="100%">
+	{*
 	<tr>
 		<td width="0%" nowrap="nowrap" align="right">List:</td>
 		<td width="100%">
@@ -33,6 +34,7 @@
 			</select>
 		</td>
 	</tr>
+	*}
 </table>
 
 {include file="file:$core_tpl/internal/custom_fields/bulk/form.tpl" bulk=true}

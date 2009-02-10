@@ -218,10 +218,6 @@
 							      	<br>
 							    </div>
 		
-								<b>{$translate->_('display.reply.next.next_action')}</b> {$translate->_('display.reply.next.next_action_eg')}<br>  
-						      	<input type="text" name="next_action" size="80" maxlength="255" value="{$ticket->next_action|escape}"><br>
-						      	<br>
-		
 								<b>{$translate->_('display.reply.next.move')}</b><br>  
 						      	<select name="bucket_id">
 						      		<option value="">-- {$translate->_('display.reply.next.move.no_thanks')|lower} --</option>

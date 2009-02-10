@@ -7,7 +7,6 @@
 		<td nowrap="nowrap" class="tableThBlue" align="right">
 			<a href="javascript:;" onclick="genericAjaxGet('customize{$view->id}','c=internal&a=viewCustomize&id={$view->id}');toggleDiv('customize{$view->id}','block');" class="tableThLink">{$translate->_('common.customize')|lower}</a>
 			<span style="font-size:12px"> | </span><a href="javascript:;" onclick="genericAjaxGet('{$view->id}_tips','c=internal&a=viewShowCopy&view_id={$view->id}');toggleDiv('{$view->id}_tips','block');" class="tableThLink">{$translate->_('common.copy')|lower}</a>
-			{* {if $view->id != 'search'}<span style="font-size:12px"> | </span><a href="{devblocks_url}c=internal&a=searchview&id={$view->id}{/devblocks_url}" class="tableThLink">{$translate->_('common.search')|lower} list</a>{/if} *}
 			{if $active_worker->is_superuser || $active_worker->can_export}<span style="font-size:12px"> | </span><a href="javascript:;" onclick="genericAjaxGet('{$view->id}_tips','c=internal&a=viewShowExport&id={$view->id}');toggleDiv('{$view->id}_tips','block');" class="tableThLink">{$translate->_('common.export')|lower}</a>{/if}
 			<span style="font-size:12px"> | </span><a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');" class="tableThLink"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/refresh.gif{/devblocks_url}" border="0" align="absmiddle" title="{$translate->_('common.refresh')|lower}" alt="{$translate->_('common.refresh')|lower}"></a>			
 		</td>
@@ -55,7 +54,6 @@
 		{assign var=tableRowBg value="tableRowAltBg"}
 	{/if}
 	
-	{assign var=list_id value=$result.f_list_id}
 	{assign var=worker_id value=$result.f_worker_id}
 	{assign var=mood value=$result.f_quote_mood}
 	
@@ -78,8 +76,6 @@
 				<td title="{$result.f_log_date|devblocks_date}">{$result.f_log_date|devblocks_date:'EEE, MMM d Y'}&nbsp;</td>
 			{elseif $column=="f_worker_id"}
 				<td>{if isset($workers.$worker_id)}{$workers.$worker_id->getName()}{/if}&nbsp;</td>
-			{elseif $column=="f_list_id"}
-				<td>{if isset($lists.$list_id)}{$lists.$list_id->name}{/if}&nbsp;</td>
 			{elseif $column=="f_quote_mood"}
 				<td>
 					{if 1==$result.$column}

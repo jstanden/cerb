@@ -166,10 +166,6 @@ class ChTasksController extends DevblocksControllerExtension {
 			@$due_date = DevblocksPlatform::importGPC($_REQUEST['due_date'],'string','');
 			@$fields[DAO_Task::DUE_DATE] = empty($due_date) ? 0 : intval(strtotime($due_date));		
 	
-			// Priority
-			@$priority = DevblocksPlatform::importGPC($_REQUEST['priority'],'integer',4);
-			@$fields[DAO_Task::PRIORITY] = intval($priority);
-			
 			// Worker
 			@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'integer',0);
 			@$fields[DAO_Task::WORKER_ID] = intval($worker_id);

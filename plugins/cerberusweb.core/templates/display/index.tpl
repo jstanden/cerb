@@ -19,17 +19,12 @@
 					<b>{$translate->_('ticket.mask')|capitalize}:</b> {$ticket->mask} &nbsp; 
 					<b>{$translate->_('ticket.id')}:</b> {$ticket->id} &nbsp; 
 					<br>
-					{if !empty($ticket->next_action) && !$ticket->is_closed}
-						<b>{$translate->_('ticket.next_action')|capitalize}:</b> {$ticket->next_action}<br>
-					{/if}
 					{if !empty($ticket->next_worker_id)}
 						{assign var=next_worker_id value=$ticket->next_worker_id}
 						<b>{$translate->_('ticket.next_worker')|capitalize}:</b> <span {if $next_worker_id==$active_worker->id}style="font-weight:bold;color:rgb(255,50,50);background-color:rgb(255,213,213);"{/if}>{$workers.$next_worker_id->getName()}</span> 
 						{if $ticket->unlock_date}(until {$ticket->unlock_date|devblocks_date}){/if} 
 						<br>
 					{/if}
-					<!-- {if !empty($ticket->interesting_words)}<b>Interesting Words:</b> {$ticket->interesting_words}<br>{/if} -->
-					<!-- <b>Next Action:</b> <input type="text" name="next_step" size="80" value="{$ticket->next_action}" maxlength="255"><br>  -->
 				</td>
 				<td align="right">
 					{include file="file:$core_tpl/tickets/quick_search_box.tpl"}				

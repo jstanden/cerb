@@ -383,7 +383,6 @@ class ChHomePage extends CerberusPageExtension {
 		$list->title = 'My Tasks';
 		$list->columns = array(
 			SearchFields_Task::SOURCE_EXTENSION,
-			SearchFields_Task::PRIORITY,
 			SearchFields_Task::DUE_DATE,
 		);
 		$list->params = array(
@@ -1675,10 +1674,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$files = $_FILES['attachment'];
 		
 		@$closed = DevblocksPlatform::importGPC($_POST['closed'],'integer',0);
-//		@$move_bucket = DevblocksPlatform::importGPC($_POST['bucket_id'],'string','');
 		@$next_worker_id = DevblocksPlatform::importGPC($_POST['next_worker_id'],'integer',0);
-//		@$next_action = DevblocksPlatform::importGPC($_POST['next_action'],'string','');
-//		@$ticket_reopen = DevblocksPlatform::importGPC($_POST['ticket_reopen'],'string','');
 		
 		$properties = array(
 			'team_id' => $team_id,
@@ -1689,10 +1685,7 @@ class ChTicketsPage extends CerberusPageExtension {
 			'content' => $content,
 			'files' => $files,
 			'closed' => $closed,
-//			'move_bucket' => $move_bucket,
 			'next_worker_id' => $next_worker_id,
-//			'next_action' => $next_action,
-//			'ticket_reopen' => $ticket_reopen,
 		);
 		
 		$ticket_id = CerberusMail::compose($properties);
@@ -1782,14 +1775,12 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
 		@$subject = DevblocksPlatform::importGPC($_REQUEST['subject'],'string','');
 		@$closed = DevblocksPlatform::importGPC($_REQUEST['closed'],'integer',0);
-		@$next_action = DevblocksPlatform::importGPC($_REQUEST['next_action'],'string','');
 		@$next_worker_id = DevblocksPlatform::importGPC($_REQUEST['next_worker_id'],'integer',0);
 		@$bucket = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'string','');
 		@$spam_training = DevblocksPlatform::importGPC($_REQUEST['spam_training'],'string','');
 		
 		$fields = array(
 			DAO_Ticket::SUBJECT => $subject,
-			DAO_Ticket::NEXT_ACTION => $next_action,
 			DAO_Ticket::NEXT_WORKER_ID => $next_worker_id,
 		);
 		
@@ -1862,7 +1853,6 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$closed = DevblocksPlatform::importGPC($_POST['closed'],'integer',0);
 		@$move_bucket = DevblocksPlatform::importGPC($_POST['bucket_id'],'string','');
 		@$next_worker_id = DevblocksPlatform::importGPC($_POST['next_worker_id'],'integer',0);
-		@$next_action = DevblocksPlatform::importGPC($_POST['next_action'],'string','');
 		@$ticket_reopen = DevblocksPlatform::importGPC($_POST['ticket_reopen'],'string','');
 		@$unlock_date = DevblocksPlatform::importGPC($_POST['unlock_date'],'string','');
 		
@@ -1887,7 +1877,6 @@ class ChTicketsPage extends CerberusPageExtension {
 			'closed' => $closed,
 			'move_bucket' => $move_bucket,
 			'next_worker_id' => $next_worker_id,
-			'next_action' => $next_action,
 			'ticket_reopen' => $ticket_reopen,
 			'unlock_date' => $unlock_date,
 		);
@@ -1913,7 +1902,6 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$closed = DevblocksPlatform::importGPC($_POST['closed'],'integer',0);
 		@$move_bucket = DevblocksPlatform::importGPC($_POST['bucket_id'],'string','');
 		@$next_worker_id = DevblocksPlatform::importGPC($_POST['next_worker_id'],'integer',0);
-		@$next_action = DevblocksPlatform::importGPC($_POST['next_action'],'string','');
 		@$ticket_reopen = DevblocksPlatform::importGPC($_POST['ticket_reopen'],'string','');
 		@$unlock_date = DevblocksPlatform::importGPC($_POST['unlock_date'],'string','');
 		
@@ -1940,7 +1928,6 @@ class ChTicketsPage extends CerberusPageExtension {
 			'closed' => $closed,
 			'move_bucket' => $move_bucket,
 			'next_worker_id' => $next_worker_id,
-			'next_action' => $next_action,
 			'ticket_reopen' => $ticket_reopen,
 			'unlock_date' => $unlock_date,
 			'no_mail' => true,
@@ -5110,7 +5097,6 @@ class ChContactsPage extends CerberusPageExtension {
 		$view->name = $translate->_('common.tasks') . ' ' . $contact->name;
 		$view->view_columns = array(
 			SearchFields_Task::SOURCE_EXTENSION,
-			SearchFields_Task::PRIORITY,
 			SearchFields_Task::DUE_DATE,
 			SearchFields_Task::WORKER_ID,
 			SearchFields_Task::COMPLETED_DATE,
@@ -5194,7 +5180,6 @@ class ChContactsPage extends CerberusPageExtension {
 				SearchFields_Ticket::TICKET_CREATED_DATE,
 				SearchFields_Ticket::TEAM_NAME,
 				SearchFields_Ticket::TICKET_CATEGORY_ID,
-				SearchFields_Ticket::TICKET_NEXT_ACTION,
 			);
 			$tickets_view->params = array(
 			);
@@ -5467,7 +5452,6 @@ class ChContactsPage extends CerberusPageExtension {
 		@$postal = DevblocksPlatform::importGPC($_REQUEST['postal'],'string','');
 		@$country = DevblocksPlatform::importGPC($_REQUEST['country'],'string','');
 		@$phone = DevblocksPlatform::importGPC($_REQUEST['phone'],'string','');
-		@$fax = DevblocksPlatform::importGPC($_REQUEST['fax'],'string','');
 		@$website = DevblocksPlatform::importGPC($_REQUEST['website'],'string','');
 		@$delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
 
@@ -5485,7 +5469,6 @@ class ChContactsPage extends CerberusPageExtension {
 				DAO_ContactOrg::POSTAL => $postal,
 				DAO_ContactOrg::COUNTRY => $country,
 				DAO_ContactOrg::PHONE => $phone,
-				DAO_ContactOrg::FAX => $fax,
 				DAO_ContactOrg::WEBSITE => $website
 			);
 	
@@ -5568,7 +5551,6 @@ class ChContactsPage extends CerberusPageExtension {
 		@$postal = DevblocksPlatform::importGPC($_REQUEST['postal'],'string','');
 		@$country = DevblocksPlatform::importGPC($_REQUEST['country'],'string','');
 		@$phone = DevblocksPlatform::importGPC($_REQUEST['phone'],'string','');
-		@$fax = DevblocksPlatform::importGPC($_REQUEST['fax'],'string','');
 		@$website = DevblocksPlatform::importGPC($_REQUEST['website'],'string','');
 		@$delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
 
@@ -5584,7 +5566,6 @@ class ChContactsPage extends CerberusPageExtension {
 				DAO_ContactOrg::POSTAL => $postal,
 				DAO_ContactOrg::COUNTRY => $country,
 				DAO_ContactOrg::PHONE => $phone,
-				DAO_ContactOrg::FAX => $fax,
 				DAO_ContactOrg::WEBSITE => $website,
 			);
 	
@@ -8691,7 +8672,6 @@ class ChDisplayPage extends CerberusPageExtension {
 		    'subject' => DevblocksPlatform::importGPC(@$_REQUEST['subject'],'string'),
 		    'content' => DevblocksPlatform::importGPC(@$_REQUEST['content']),
 		    'files' => @$_FILES['attachment'],
-		    'next_action' => DevblocksPlatform::importGPC(@$_REQUEST['next_action'],'string',''),
 		    'next_worker_id' => DevblocksPlatform::importGPC(@$_REQUEST['next_worker_id'],'integer',0),
 		    'closed' => DevblocksPlatform::importGPC(@$_REQUEST['closed'],'integer',0),
 		    'bucket_id' => DevblocksPlatform::importGPC(@$_REQUEST['bucket_id'],'string',''),
@@ -8949,7 +8929,6 @@ class ChDisplayPage extends CerberusPageExtension {
 		@$add = DevblocksPlatform::importGPC($_POST['add'],'string','');
 		@$remove = DevblocksPlatform::importGPC($_POST['remove'],'array',array());
 		@$next_worker_id = DevblocksPlatform::importGPC($_POST['next_worker_id'],'integer',0);
-		@$next_action = DevblocksPlatform::importGPC($_POST['next_action'],'string','');
 		@$ticket_reopen = DevblocksPlatform::importGPC($_POST['ticket_reopen'],'string','');
 		@$unlock_date = DevblocksPlatform::importGPC($_POST['unlock_date'],'string','');
 		@$subject = DevblocksPlatform::importGPC($_POST['subject'],'string','');
@@ -9008,9 +8987,6 @@ class ChDisplayPage extends CerberusPageExtension {
 		if(isset($next_worker_id))
 			$fields[DAO_Ticket::NEXT_WORKER_ID] = $next_worker_id;
 			
-		if(isset($next_action))
-			$fields[DAO_Ticket::NEXT_ACTION] = $next_action;
-
 		if(isset($unlock_date)) {
 			@$time = intval(strtotime($unlock_date));
 			$fields[DAO_Ticket::UNLOCK_DATE] = $time;
@@ -9159,7 +9135,6 @@ class ChDisplayPage extends CerberusPageExtension {
 				SearchFields_Ticket::TICKET_CREATED_DATE,
 				SearchFields_Ticket::TEAM_NAME,
 				SearchFields_Ticket::TICKET_CATEGORY_ID,
-				SearchFields_Ticket::TICKET_NEXT_ACTION,
 			);
 			$view->params = array(
 			);
@@ -9209,7 +9184,6 @@ class ChDisplayPage extends CerberusPageExtension {
 		$view->name = $translate->_('tasks.ticket.tab.view');
 		$view->view_columns = array(
 			SearchFields_Task::SOURCE_EXTENSION,
-			SearchFields_Task::PRIORITY,
 			SearchFields_Task::DUE_DATE,
 			SearchFields_Task::WORKER_ID,
 			SearchFields_Task::COMPLETED_DATE,

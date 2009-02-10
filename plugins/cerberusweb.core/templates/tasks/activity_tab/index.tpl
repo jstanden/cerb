@@ -30,26 +30,6 @@ CreateKeyHandler(function doShortcuts(e) {
 	var mykey = getKeyboardKey(e);
 	
 	switch(mykey) {
-		case "1":  // High priority
-			try {
-				document.getElementById('btnPriorityHigh').click();
-			} catch(e){}
-			break;
-		case "2":  // Normal priority
-			try {
-				document.getElementById('btnPriorityNormal').click();
-			} catch(e){}
-			break;
-		case "3":  // Low priority
-			try {
-				document.getElementById('btnPriorityLow').click();
-			} catch(e){}
-			break;
-		case "4":  // no priority
-			try {
-				document.getElementById('btnPriorityNone').click();
-			} catch(e){}
-			break;
 		case "a":  // assign to me (take)
 		case "A":
 			try {

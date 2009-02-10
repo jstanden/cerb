@@ -95,17 +95,6 @@
 						{$workers.$t_worker_id->getName()}&nbsp;
 					{/if}
 				</td>
-			{elseif $column=="t_priority"}
-				<td>
-				{if 1==$result.t_priority}
-					{$translate->_('priority.high')|capitalize}
-				{elseif 2==$result.t_priority}
-					{$translate->_('priority.normal')|capitalize}
-				{elseif 3==$result.t_priority}
-					{$translate->_('priority.low')|capitalize}
-				{else}
-				{/if}
-				</td>
 			{elseif $column=="t_is_completed"}
 				<td>
 					{if $result.t_is_completed}

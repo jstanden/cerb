@@ -871,7 +871,6 @@ class ImportCron extends CerberusCronPageExtension {
 		$sPostal = (string) $xml->postal;
 		$sCountry = (string) $xml->country;
 		$sPhone = (string) $xml->phone;
-		$sFax = (string) $xml->fax;
 		$sWebsite = (string) $xml->website;
 		
 		// Dupe check org
@@ -888,7 +887,6 @@ class ImportCron extends CerberusCronPageExtension {
 			DAO_ContactOrg::POSTAL => $sPostal,
 			DAO_ContactOrg::COUNTRY => $sCountry,
 			DAO_ContactOrg::PHONE => $sPhone,
-			DAO_ContactOrg::FAX => $sFax,
 			DAO_ContactOrg::WEBSITE => $sWebsite,
 		);
 		$org_id = DAO_ContactOrg::create($fields);

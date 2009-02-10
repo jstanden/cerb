@@ -69,5 +69,52 @@ $db->Execute("DELETE QUICK custom_field_stringvalue FROM custom_field_stringvalu
 $db->Execute("DELETE QUICK custom_field_numbervalue FROM custom_field_numbervalue LEFT JOIN feedback_entry ON (feedback_entry.id=custom_field_numbervalue.source_id) WHERE custom_field_numbervalue.source_extension = 'feedback.fields.source.feedback_entry' AND feedback_entry.id IS NULL");
 $db->Execute("DELETE QUICK custom_field_clobvalue FROM custom_field_clobvalue LEFT JOIN feedback_entry ON (feedback_entry.id=custom_field_clobvalue.source_id) WHERE custom_field_clobvalue.source_extension = 'feedback.fields.source.feedback_entry' AND feedback_entry.id IS NULL");
 
+// ===========================================================================
+// Migrate the Feedback.List to a custom field
+if(isset($tables['feedback_entry'])) {
+	$columns = $datadict->MetaColumns('feedback_entry');
+	$indexes = $datadict->MetaIndexes('feedback_entry',false);
+
+	if(isset($tables['feedback_list']) && isset($columns['LIST_ID'])) {
+		// Load the campaign hash
+		$lists = array();
+		$sql = "SELECT id, name FROM feedback_list ORDER BY name";
+		$rs = $db->Execute($sql);
+		while(!$rs->EOF) {
+			$lists[$rs->fields['id']] = $rs->fields['name'];
+			$rs->MoveNext();
+		}
+	
+		if(!empty($lists)) { // Move to a custom field before dropping
+			// Create the new custom field
+			$field_id = $db->GenID('custom_field_seq');
+			$sql = sprintf("INSERT INTO custom_field (id,name,type,group_id,pos,options,source_extension) ".
+				"VALUES (%d,'List','D',0,0,%s,%s)",
+				$field_id,
+				$db->qstr(implode("\n",$lists)),
+				$db->qstr('feedback.fields.source.feedback_entry')
+			);
+			$db->Execute($sql);
+			
+			// Populate the custom field from opp records
+			$sql = sprintf("INSERT INTO custom_field_stringvalue (field_id, source_id, field_value, source_extension) ".
+				"SELECT %d, f.id, fl.name, %s FROM feedback_entry f INNER JOIN feedback_list fl ON (f.list_id=fl.id) WHERE f.list_id != 0",
+				$field_id,
+				$db->qstr('feedback.fields.source.feedback_entry')
+			);
+			$db->Execute($sql);
+		}
+		
+		$sql = $datadict->DropColumnSQL('feedback_entry','list_id');
+	    $datadict->ExecuteSQLArray($sql);
+	}
+}
+
+// Drop the feedback_list table
+if(isset($tables['feedback_list'])) {
+	$sql = $datadict->DropTableSQL('feedback_list');
+	$datadict->ExecuteSQLArray($sql);
+}
+
 return TRUE;
 ?>

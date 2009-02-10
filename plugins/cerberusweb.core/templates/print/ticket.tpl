@@ -26,9 +26,6 @@
 <b>Mask:</b> {$ticket->mask} &nbsp; 
 <b>Internal ID:</b> {$ticket->id} &nbsp; 
 <br>
-{if !empty($ticket->next_action) && !$ticket->is_closed}
-	<b>Next Action:</b> {$ticket->next_action}<br>
-{/if}
 {if !empty($ticket->next_worker_id)}
 	{assign var=next_worker_id value=$ticket->next_worker_id}
 	<b>Next Worker:</b> {$workers.$next_worker_id->getName()}<br>

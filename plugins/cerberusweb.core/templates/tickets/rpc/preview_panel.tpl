@@ -42,12 +42,6 @@
 					</td>
 				</tr>
 				<tr>
-					<td width="0%" nowrap="nowrap" align="right">Next Action: </td>
-					<td width="100%">
-						<input type="text" name="next_action" size="45" maxlength="255" value="{$ticket->next_action|escape}">
-					</td>
-				</tr>
-				<tr>
 					<td width="0%" nowrap="nowrap" align="right">Next Worker: </td>
 					<td width="100%">
 						<select name="next_worker_id">

@@ -54,10 +54,6 @@
 		<td><input type="text" name="phone" value="{$contact->phone|escape}" style="width:98%;"></td>
 	</tr>
 	<tr>
-		<td align="right">Fax: </td>
-		<td><input type="text" name="fax" value="{$contact->fax|escape}" style="width:98%;"></td>
-	</tr>
-	<tr>
 		<td align="right">{if !empty($contact->website)}<a href="{$contact->website|escape}" target="_blank">Website</a>{else}Website{/if}: </td>
 		<td><input type="text" name="website" value="{$contact->website|escape}" style="width:98%;"></td>
 	</tr>

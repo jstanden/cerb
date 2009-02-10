@@ -26,9 +26,6 @@
 		<tu tuid='feedback_entry.id'>
 			<tuv xml:lang="en_US"><seg>ID</seg></tuv>
 		</tu>
-		<tu tuid='feedback_entry.list_id'>
-			<tuv xml:lang="en_US"><seg>List</seg></tuv>
-		</tu>
 		<tu tuid='feedback_entry.log_date'>
 			<tuv xml:lang="en_US"><seg>Log Date</seg></tuv>
 		</tu>

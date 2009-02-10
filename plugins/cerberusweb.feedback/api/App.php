@@ -33,7 +33,7 @@ class ChFeedbackPatchContainer extends DevblocksPatchContainerExtension {
 
 		$file_prefix = realpath(dirname(__FILE__) . '/../patches');
 		
-		$this->registerPatch(new DevblocksPatch('cerberusweb.feedback',2,$file_prefix.'/1.0.0.php',''));
+		$this->registerPatch(new DevblocksPatch('cerberusweb.feedback',3,$file_prefix.'/1.0.0.php',''));
 	}
 };
 
@@ -88,7 +88,6 @@ endif;
 class DAO_FeedbackEntry extends C4_ORMHelper {
 	const ID = 'id';
 	const LOG_DATE = 'log_date';
-	const LIST_ID = 'list_id';
 	const WORKER_ID = 'worker_id';
 	const QUOTE_TEXT = 'quote_text';
 	const QUOTE_MOOD = 'quote_mood';
@@ -122,7 +121,7 @@ class DAO_FeedbackEntry extends C4_ORMHelper {
 	static function getWhere($where=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = "SELECT id, log_date, list_id, worker_id, quote_text, quote_mood, quote_address_id, source_url ".
+		$sql = "SELECT id, log_date, worker_id, quote_text, quote_mood, quote_address_id, source_url ".
 			"FROM feedback_entry ".
 			(!empty($where) ? sprintf("WHERE %s ",$where) : "").
 			"ORDER BY id asc";
@@ -158,7 +157,6 @@ class DAO_FeedbackEntry extends C4_ORMHelper {
 			$object = new Model_FeedbackEntry();
 			$object->id = $rs->fields['id'];
 			$object->log_date = $rs->fields['log_date'];
-			$object->list_id = $rs->fields['list_id'];
 			$object->worker_id = $rs->fields['worker_id'];
 			$object->quote_text = $rs->fields['quote_text'];
 			$object->quote_mood = $rs->fields['quote_mood'];
@@ -216,7 +214,6 @@ class DAO_FeedbackEntry extends C4_ORMHelper {
 		$select_sql = sprintf("SELECT ".
 			"f.id as %s, ".
 			"f.log_date as %s, ".
-			"f.list_id as %s, ".
 			"f.worker_id as %s, ".
 			"f.quote_text as %s, ".
 			"f.quote_mood as %s, ".
@@ -225,7 +222,6 @@ class DAO_FeedbackEntry extends C4_ORMHelper {
 			"a.email as %s ",
 			    SearchFields_FeedbackEntry::ID,
 			    SearchFields_FeedbackEntry::LOG_DATE,
-			    SearchFields_FeedbackEntry::LIST_ID,
 			    SearchFields_FeedbackEntry::WORKER_ID,
 			    SearchFields_FeedbackEntry::QUOTE_TEXT,
 			    SearchFields_FeedbackEntry::QUOTE_MOOD,
@@ -293,7 +289,6 @@ class Model_FeedbackEntry {
 	
 	public $id;
 	public $log_date;
-	public $list_id;
 	public $worker_id;
 	public $quote_text;
 	public $quote_mood;
@@ -305,7 +300,6 @@ class SearchFields_FeedbackEntry {
 	// Feedback_Entry
 	const ID = 'f_id';
 	const LOG_DATE = 'f_log_date';
-	const LIST_ID = 'f_list_id';
 	const WORKER_ID = 'f_worker_id';
 	const QUOTE_TEXT = 'f_quote_text';
 	const QUOTE_MOOD = 'f_quote_mood';
@@ -322,7 +316,6 @@ class SearchFields_FeedbackEntry {
 		$columns = array(
 			self::ID => new DevblocksSearchField(self::ID, 'f', 'id', null, $translate->_('feedback_entry.id')),
 			self::LOG_DATE => new DevblocksSearchField(self::LOG_DATE, 'f', 'log_date', null, $translate->_('feedback_entry.log_date')),
-			self::LIST_ID => new DevblocksSearchField(self::LIST_ID, 'f', 'list_id', null, $translate->_('feedback_entry.list_id')),
 			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 'f', 'worker_id', null, $translate->_('feedback_entry.worker_id')),
 			self::QUOTE_TEXT => new DevblocksSearchField(self::QUOTE_TEXT, 'f', 'quote_text', null, $translate->_('feedback_entry.quote_text')),
 			self::QUOTE_MOOD => new DevblocksSearchField(self::QUOTE_MOOD, 'f', 'quote_mood', null, $translate->_('feedback_entry.quote_mood')),
@@ -359,7 +352,6 @@ class C4_FeedbackEntryView extends C4_AbstractView {
 		$this->view_columns = array(
 			SearchFields_FeedbackEntry::LOG_DATE,
 			SearchFields_FeedbackEntry::ADDRESS_EMAIL,
-			SearchFields_FeedbackEntry::LIST_ID,
 			SearchFields_FeedbackEntry::SOURCE_URL,
 		);
 
@@ -387,9 +379,6 @@ class C4_FeedbackEntryView extends C4_AbstractView {
 
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
-		
-		$lists = DAO_FeedbackList::getWhere(); // [TODO] getAll cache
-		$tpl->assign('lists', $lists);
 		
 		// Custom fields
 		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_FeedbackEntry::ID);
@@ -424,11 +413,6 @@ class C4_FeedbackEntryView extends C4_AbstractView {
 			case SearchFields_FeedbackEntry::QUOTE_MOOD:
 				// [TODO] Translations
 				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.feedback/templates/feedback/criteria/quote_mood.tpl');
-				break;
-			case SearchFields_FeedbackEntry::LIST_ID:
-				$lists = DAO_FeedbackList::getWhere(); // [TODO] getAll cache
-				$tpl->assign('lists', $lists);
-				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.feedback/templates/feedback/criteria/list.tpl');
 				break;
 			default:
 				// Custom Fields
@@ -482,22 +466,6 @@ class C4_FeedbackEntryView extends C4_AbstractView {
 				echo implode(", ", $strings);
 				break;
 				
-			case SearchFields_FeedbackEntry::LIST_ID:
-				$lists = DAO_FeedbackList::getWhere(); // [TODO] getAll cache
-				$strings = array();
-
-				foreach($values as $val) {
-					if(0==$val) {
-						$strings[] = "None";
-					} else {
-						if(!isset($lists[$val]))
-							continue;
-						$strings[] = $lists[$val]->name;
-					}
-				}
-				echo implode(", ", $strings);
-				break;
-
 			default:
 				parent::renderCriteriaParam($param);
 				break;
@@ -565,10 +533,6 @@ class C4_FeedbackEntryView extends C4_AbstractView {
 				@$moods = DevblocksPlatform::importGPC($_REQUEST['moods'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field,$oper,$moods);
 				break;
-			case SearchFields_FeedbackEntry::LIST_ID:
-				@$list_ids = DevblocksPlatform::importGPC($_REQUEST['list_ids'],'array',array());
-				$criteria = new DevblocksSearchCriteria($field,$oper,$list_ids);
-				break;
 			default:
 				// Custom Fields
 				if(substr($field,0,3)=='cf_') {
@@ -600,9 +564,6 @@ class C4_FeedbackEntryView extends C4_AbstractView {
 		if(is_array($do))
 		foreach($do as $k => $v) {
 			switch($k) {
-				case 'list_id':
-					$change_fields[DAO_FeedbackEntry::LIST_ID] = intval($v);
-					break;
 				default:
 					// Custom fields
 					if(substr($k,0,3)=="cf_") {
@@ -643,171 +604,6 @@ class C4_FeedbackEntryView extends C4_AbstractView {
 
 		unset($ids);
 	}	
-};
-
-class DAO_FeedbackList extends DevblocksORMHelper {
-	const ID = 'id';
-	const NAME = 'name';
-
-	static function create($fields) {
-		$db = DevblocksPlatform::getDatabaseService();
-		
-		$id = $db->GenID('generic_seq');
-		
-		$sql = sprintf("INSERT INTO feedback_list (id) ".
-			"VALUES (%d)",
-			$id
-		);
-		$db->Execute($sql);
-		
-		self::update($id, $fields);
-		
-		return $id;
-	}
-	
-	static function update($ids, $fields) {
-		parent::_update($ids, 'feedback_list', $fields);
-	}
-	
-	/**
-	 * @param string $where
-	 * @return Model_FeedbackList[]
-	 */
-	static function getWhere($where=null) {
-		$db = DevblocksPlatform::getDatabaseService();
-		
-		$sql = "SELECT id, name ".
-			"FROM feedback_list ".
-			(!empty($where) ? sprintf("WHERE %s ",$where) : "").
-			"ORDER BY name asc";
-		$rs = $db->Execute($sql);
-		
-		return self::_getObjectsFromResult($rs);
-	}
-
-	/**
-	 * @param integer $id
-	 * @return Model_FeedbackList	 */
-	static function get($id) {
-		$objects = self::getWhere(sprintf("%s = %d",
-			self::ID,
-			$id
-		));
-		
-		if(isset($objects[$id]))
-			return $objects[$id];
-		
-		return null;
-	}
-	
-	/**
-	 * @param ADORecordSet $rs
-	 * @return Model_FeedbackList[]
-	 */
-	static private function _getObjectsFromResult($rs) {
-		$objects = array();
-		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
-			$object = new Model_FeedbackList();
-			$object->id = $rs->fields['id'];
-			$object->name = $rs->fields['name'];
-			$objects[$object->id] = $object;
-			$rs->MoveNext();
-		}
-		
-		return $objects;
-	}
-	
-	static function delete($ids) {
-		if(!is_array($ids)) $ids = array($ids);
-		$db = DevblocksPlatform::getDatabaseService();
-		
-		$ids_list = implode(',', $ids);
-		
-		$db->Execute(sprintf("DELETE FROM feedback_list WHERE id IN (%s)", $ids_list));
-		
-		return true;
-	}
-
-};
-
-class Model_FeedbackList {
-	public $id;
-	public $name;
-};
-
-class ChFeedbackConfigTab extends Extension_ConfigTab {
-	const ID = 'feedback.config.tab';
-	
-	function showTab() {
-		$settings = CerberusSettings::getInstance();
-		
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = realpath(dirname(__FILE__) . '/../templates') . DIRECTORY_SEPARATOR;
-		$tpl->assign('path', $tpl_path);
-		$tpl->cache_lifetime = "0";
-
-		$lists = DAO_FeedbackList::getWhere();
-		$tpl->assign('lists', $lists);
-		
-		$tpl->display('file:' . $tpl_path . 'config/lists/index.tpl');
-	}
-	
-	function saveTab() {
-		$translate = DevblocksPlatform::getTranslationService();
-		
-		@$plugin_id = DevblocksPlatform::importGPC($_REQUEST['plugin_id'],'string');
-
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
-		@$name = DevblocksPlatform::importGPC($_REQUEST['name'],'string','');
-		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
-
-		if(DEMO_MODE) {
-			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','feedback')));
-			return;
-		}
-		
-		if(empty($name))
-			$name = $translate->_('feedback.cfg.blank');
-		
-		if(empty($id)) { // Add
-			$fields = array(
-				DAO_FeedbackList::NAME => $name,
-			);
-			$list_id = DAO_FeedbackList::create($fields);
-			
-		} else { // Edit
-			if($do_delete) { // Delete
-				DAO_FeedbackList::delete($id);
-				
-			} else { // Modify
-				$fields = array(
-					DAO_FeedbackList::NAME => $name,
-				);
-				DAO_FeedbackList::update($id, $fields);
-			}
-			
-		}
-		
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('config','feedback')));
-		exit;
-	}
-	
-	function getListAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
-		
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = realpath(dirname(__FILE__) . '/../templates') . DIRECTORY_SEPARATOR;
-		$tpl->assign('path', $tpl_path);
-		$tpl->cache_lifetime = "0";
-		
-		if(!empty($id) && null != ($list = DAO_FeedbackList::get($id)))
-			$tpl->assign('list', $list);
-		
-		$tpl->display('file:' . $tpl_path . 'config/lists/edit_list.tpl');
-	}
-	
 };
 
 class ChFeedbackController extends DevblocksControllerExtension {
@@ -898,7 +694,6 @@ class ChFeedbackController extends DevblocksControllerExtension {
 			if(!empty($msg_id)) {
 				if(null != ($message = DAO_Ticket::getMessage($msg_id))) {
 					$model->id = 0;
-					$model->list_id = 0;
 					$model->log_date = time();
 					$model->quote_address_id = $message->address_id;
 					$model->quote_mood = 0;
@@ -926,10 +721,6 @@ class ChFeedbackController extends DevblocksControllerExtension {
 			$tpl->assign('source_id', $source_id);
 		}
 		
-		// Feedback lists
-		$lists = DAO_FeedbackList::getWhere();
-		$tpl->assign('lists', $lists);
-		
 		// Custom fields
 		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_FeedbackEntry::ID); 
 		$tpl->assign('custom_fields', $custom_fields);
@@ -954,7 +745,6 @@ class ChFeedbackController extends DevblocksControllerExtension {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
 			
-		@$list_id = DevblocksPlatform::importGPC($_POST['list_id'],'integer',0);
 		@$email = DevblocksPlatform::importGPC($_POST['email'],'string','');
 		@$mood = DevblocksPlatform::importGPC($_POST['mood'],'integer',0);
 		@$quote = DevblocksPlatform::importGPC($_POST['quote'],'string','');
@@ -983,7 +773,6 @@ class ChFeedbackController extends DevblocksControllerExtension {
 		
 		// New or modify
 		$fields = array(
-			DAO_FeedbackEntry::LIST_ID => intval($list_id),
 			DAO_FeedbackEntry::QUOTE_MOOD => intval($mood),
 			DAO_FeedbackEntry::QUOTE_TEXT => $quote,
 			DAO_FeedbackEntry::QUOTE_ADDRESS_ID => intval($address_id),
@@ -1007,17 +796,13 @@ class ChFeedbackController extends DevblocksControllerExtension {
 					if(null == ($worker_address = DAO_Address::lookupAddress($active_worker->email)))
 						break;
 						
-					@$list = DAO_FeedbackList::get($list_id);
-					
 					$comment_text = sprintf(
 						"== Capture Feedback ==\n".
 						"Author: %s\n".
-						"List: %s\n".
 						"Mood: %s\n".
 						"\n".
 						"%s\n",
 						(!empty($author_address) ? $author_address->email : 'Anonymous'),
-						(empty($list) ? '-inbox-' : $list->name),
 						(empty($mood) ? 'Neutral' : (1==$mood ? 'Praise' : 'Criticism')),
 						$quote
 					);
@@ -1054,10 +839,6 @@ class ChFeedbackController extends DevblocksControllerExtension {
 	        $tpl->assign('ids', implode(',', $ids));
 	    }
 		
-	    // Lists
-	    $lists = DAO_FeedbackList::getWhere();
-	    $tpl->assign('lists', $lists);
-	    
 		// Custom Fields
 		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_FeedbackEntry::ID);
 		$tpl->assign('custom_fields', $custom_fields);
@@ -1079,13 +860,13 @@ class ChFeedbackController extends DevblocksControllerExtension {
 		$view = C4_AbstractViewLoader::getView('',$view_id);
 		
 		// Feedback fields
-		@$list_id = trim(DevblocksPlatform::importGPC($_POST['list_id'],'integer',0));
+//		@$list_id = trim(DevblocksPlatform::importGPC($_POST['list_id'],'integer',0));
 
 		$do = array();
 		
 		// Do: List
-		if(0 != strlen($list_id))
-			$do['list_id'] = $list_id;
+//		if(0 != strlen($list_id))
+//			$do['list_id'] = $list_id;
 			
 		// Do: Custom fields
 		$do = DAO_CustomFieldValue::handleBulkPost($do);

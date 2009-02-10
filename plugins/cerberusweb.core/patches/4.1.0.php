@@ -548,5 +548,114 @@ if(!isset($columns['SOURCE_EXTENSION'])) {
     $db->Execute("UPDATE worker_workspace_list SET source_extension='core.workspace.source.ticket' WHERE source_extension = ''");
 }
 
+// ===========================================================================
+// Migrate contact_org.fax to a custom field (optional field)
+if(isset($tables['contact_org'])) {
+	$columns = $datadict->MetaColumns('contact_org');
+	$indexes = $datadict->MetaIndexes('contact_org',false);
+
+	if(isset($columns['FAX'])) {
+		$sql = "SELECT count(id) FROM contact_org WHERE fax != ''";
+		$count = $db->GetOne($sql);
+	
+		if(!empty($count)) { // Move to a custom field before dropping
+			// Create the new custom field
+			$field_id = $db->GenID('custom_field_seq');
+			$sql = sprintf("INSERT INTO custom_field (id,name,type,group_id,pos,options,source_extension) ".
+				"VALUES (%d,'Fax','S',0,0,'',%s)",
+				$field_id,
+				$db->qstr('cerberusweb.fields.source.org')
+			);
+			$db->Execute($sql);
+			
+			// Populate the custom field from opp records
+			$sql = sprintf("INSERT INTO custom_field_stringvalue (field_id, source_id, field_value, source_extension) ".
+				"SELECT %d, o.id, o.fax, %s FROM contact_org o WHERE o.fax != ''",
+				$field_id,
+				$db->qstr('cerberusweb.fields.source.org')
+			);
+			$db->Execute($sql);
+		}
+		
+		$sql = $datadict->DropColumnSQL('contact_org','fax');
+	    $datadict->ExecuteSQLArray($sql);
+	}
+}
+
+// ===========================================================================
+// Migrate ticket.next_action to a custom field (optional field)
+if(isset($tables['ticket'])) {
+	$columns = $datadict->MetaColumns('ticket');
+	$indexes = $datadict->MetaIndexes('ticket',false);
+
+	if(isset($columns['NEXT_ACTION'])) {
+		$sql = "SELECT count(id) FROM ticket WHERE next_action != ''";
+		$count = $db->GetOne($sql);
+	
+		if(!empty($count)) { // Move to a custom field before dropping
+			// Create the new custom field
+			$field_id = $db->GenID('custom_field_seq');
+			$sql = sprintf("INSERT INTO custom_field (id,name,type,group_id,pos,options,source_extension) ".
+				"VALUES (%d,'Next Action','S',0,0,'',%s)",
+				$field_id,
+				$db->qstr('cerberusweb.fields.source.ticket')
+			);
+			$db->Execute($sql);
+			
+			// Populate the custom field from opp records
+			$sql = sprintf("INSERT INTO custom_field_stringvalue (field_id, source_id, field_value, source_extension) ".
+				"SELECT %d, t.id, t.next_action, %s FROM ticket t WHERE t.next_action != ''",
+				$field_id,
+				$db->qstr('cerberusweb.fields.source.ticket')
+			);
+			$db->Execute($sql);
+		}
+		
+		$sql = $datadict->DropColumnSQL('ticket','next_action');
+	    $datadict->ExecuteSQLArray($sql);
+	}
+}
+
+// ===========================================================================
+// Migrate task.priority to a custom field (optional field)
+if(isset($tables['task'])) {
+	$columns = $datadict->MetaColumns('task');
+	$indexes = $datadict->MetaIndexes('task',false);
+
+	if(isset($columns['PRIORITY'])) {
+		$priority_hash = array(
+			'1' => 'High', 
+			'2' => 'Normal', 
+			'3' => 'Low', 
+		);
+		
+		$sql = "SELECT count(id) FROM task WHERE priority IN (1,2,3)";
+		$count = $db->GetOne($sql);
+	
+		if(!empty($count)) { // Move to a custom field before dropping
+			// Create the new custom field
+			$field_id = $db->GenID('custom_field_seq');
+			$sql = sprintf("INSERT INTO custom_field (id,name,type,group_id,pos,options,source_extension) ".
+				"VALUES (%d,'Priority','D',0,0,%s,%s)",
+				$field_id,
+				$db->qstr(implode("\n", $priority_hash)),
+				$db->qstr('cerberusweb.fields.source.task')
+			);
+			$db->Execute($sql);
+			
+			// Populate the custom field from opp records
+			$sql = sprintf("INSERT INTO custom_field_stringvalue (field_id, source_id, field_value, source_extension) ".
+				"SELECT %d, t.id, IF(1=t.priority,'High',IF(2=t.priority,'Normal',IF(3=t.priority,'Low',''))), %s FROM task t WHERE t.priority IN (1,2,3)",
+				$field_id,
+				$db->qstr('cerberusweb.fields.source.task')
+			);
+			$db->Execute($sql);
+		}
+		
+		$sql = $datadict->DropColumnSQL('task','priority');
+	    $datadict->ExecuteSQLArray($sql);
+	}
+}
+
 return TRUE;
 ?>

@@ -859,7 +859,6 @@ class Rest_OrgsController extends Ch_RestController {
 			'c_postal' => 'postal',
 			'c_country' => 'country',
 			'c_phone' => 'phone',
-			'c_fax' => 'fax',
 			'c_website' => 'website',
 			'c_created' => null,
 		);
@@ -880,7 +879,6 @@ class Rest_OrgsController extends Ch_RestController {
 			case 'postal':
 			case 'country':
 			case 'phone':
-			case 'fax':
 			case 'website':
 				return !empty($value) ? true : false;
 			default:
@@ -1105,7 +1103,6 @@ class Rest_TicketsController extends Ch_RestController {
 			't_last_wrote' => 'last_wrote',
 			't_last_action_code' => null,
 			't_last_worker_id' => 'last_worker_id',
-			't_next_action' => 'next_action',
 			't_next_worker_id' => 'next_worker_id',
 			't_spam_training' => 'spam_training',
 			't_spam_score' => 'spam_score',
@@ -1149,7 +1146,6 @@ class Rest_TicketsController extends Ch_RestController {
 			case 'team_name':
 			case 'first_wrote':
 			case 'last_wrote':
-			case 'next_action':
 				return !empty($value) ? true : false;
 			default:
 				return false;
@@ -1999,7 +1995,6 @@ class Rest_TasksController extends Ch_RestController {
 		$translations = array(
 			't_id' => 'id',
 			't_title' => 'title',
-			't_priority' => 'priority',
 			't_is_completed' => 'is_completed',
 			't_due_date' => 'due_date',
 			't_completed_date' => 'completed_date',
@@ -2021,7 +2016,6 @@ class Rest_TasksController extends Ch_RestController {
 			case 'due_date':
 			case 'worker_id':
 			case 'source_id':
-			case 'priority':
 			case 'is_completed':
 			case 'completed_date':
 				return is_numeric($value) ? true : false;
@@ -2207,7 +2201,7 @@ class Rest_TasksController extends Ch_RestController {
 			$params,
 			50,
 			$p_page,
-			DAO_Task::PRIORITY,
+			DAO_Task::DUE_DATE,
 			true,
 			false
 		);
@@ -2244,7 +2238,7 @@ class Rest_TasksController extends Ch_RestController {
 			$params,
 			50,
 			$p_page,
-			SearchFields_Task::PRIORITY,
+			SearchFields_Task::DUE_DATE,
 			true,
 			false
 		);

@@ -112,7 +112,6 @@ class CerberusMail {
 		@$closed = $properties['closed'];
 		@$move_bucket = $properties['move_bucket'];
 		@$next_worker_id = $properties['next_worker_id'];
-		@$next_action = $properties['next_action'];
 		@$ticket_reopen = $properties['ticket_reopen'];
 		@$unlock_date = $properties['unlock_date'];
 		
@@ -277,8 +276,6 @@ class CerberusMail {
 		}
 		if(isset($next_worker_id))
 			$fields[DAO_Ticket::NEXT_WORKER_ID] = intval($next_worker_id);
-		if(!empty($next_action))
-			$fields[DAO_Ticket::NEXT_ACTION] = $next_action;
 		if(isset($ticket_reopen) && !empty($ticket_reopen)) {
 			$due = strtotime($ticket_reopen);
 			if($due) $fields[DAO_Ticket::DUE_DATE] = $due;
@@ -399,7 +396,6 @@ class CerberusMail {
 	    'closed'
 	    'ticket_reopen'
 	    'unlock_date'
-	    'next_action'
 	    'bucket_id'
 	    'agent_id',
 		'is_autoreply',
@@ -760,9 +756,6 @@ class CerberusMail {
 			}
 		}
 
-		if(isset($properties['next_action']))
-        	$change_fields[DAO_Ticket::NEXT_ACTION] = $properties['next_action'];
-		
         // Who should handle the followup?
 		if(isset($properties['next_worker_id']))
         	$change_fields[DAO_Ticket::NEXT_WORKER_ID] = $properties['next_worker_id'];

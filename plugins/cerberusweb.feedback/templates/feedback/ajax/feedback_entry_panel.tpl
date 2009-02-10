@@ -23,18 +23,6 @@
 <br>
 <br>
 
-<b>Save to List:</b><br>
-<select name="list_id">
-	<option value="0">- inbox -</option>
-	{if !empty($lists)}
-	{foreach from=$lists item=list}
-	<option value="{$list->id}" {if $list->id == $model->list_id} selected{/if}>{$list->name}</option>
-	{/foreach}
-	{/if}
-</select>
-<br>
-<br>
-
 <b>Source URL:</b> (optional)<br>
 <input type="text" name="url" size="45" maxlength="255" style="width:98%;" value="{$model->source_url|escape}"><br>
 

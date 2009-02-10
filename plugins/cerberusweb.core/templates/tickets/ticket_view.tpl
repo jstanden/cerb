@@ -129,8 +129,6 @@
 					{$buckets.$ticket_category_id->name}
 				{/if}
 			</td>
-		{elseif $column=="t_next_action"}
-		<td title="{$result.t_next_action}"><span style="color:rgb(130,130,130);">{$result.t_next_action|truncate:35:'...'|indent:2:"&nbsp;"}</span></td>
 		{elseif $column=="t_last_action_code"}
 		<td>
 			<span style="color:rgb(130,130,130);">
