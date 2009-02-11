@@ -502,6 +502,7 @@ abstract class C4_AbstractView {
 	 *
 	 */
 	protected function _sanitize() {
+		$fields = $this->getColumns();
 		$custom_fields = DAO_CustomField::getAll();
 		$needs_save = false;
 		
@@ -521,12 +522,18 @@ abstract class C4_AbstractView {
 		
 		// View column sanity check
 		foreach($this->view_columns as $cidx => $c) {
-			if(substr($c,0,3)!="cf_")
-				continue;
-			
-			if(0 != ($cf_id = intval(substr($c,3)))) {
-				// Make sure our custom fields still exist
-				if(!isset($custom_fields[$cf_id])) {
+			// Custom fields
+			if(substr($c,0,3) == "cf_") {
+				if(0 != ($cf_id = intval(substr($c,3)))) {
+					// Make sure our custom fields still exist
+					if(!isset($custom_fields[$cf_id])) {
+						unset($this->view_columns[$cidx]);
+						$needs_save = true;
+					}
+				}
+			} else {
+				// If the column no longer exists (rare but worth checking)
+				if(!isset($fields[$c])) {
 					unset($this->view_columns[$cidx]);
 					$needs_save = true;
 				}

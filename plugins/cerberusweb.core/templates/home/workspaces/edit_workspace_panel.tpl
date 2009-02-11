@@ -2,7 +2,7 @@
 <input type="hidden" name="c" value="home">
 <input type="hidden" name="a" value="doEditWorkspace">
 <input type="hidden" name="workspace" value="{$workspace}">
-<H1>{$workspace}</H1>
+<h1 style="color:rgb(0,150,0);">{$workspace}</h1>
 <br>
 
 <b>Rename Workspace:</b><br>
