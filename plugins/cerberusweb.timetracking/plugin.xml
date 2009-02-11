@@ -89,7 +89,7 @@
 		
 		<extension point="cerberusweb.workspace.source">
 			<id>timetracking.workspace.source.time_entry</id>
-			<name>Time Tracking Entry</name>
+			<name>Time Tracking Entries</name>
 			<class>
 				<file>api/App.php</file>
 				<name>ChWorkspaceSource_TimeEntry</name>

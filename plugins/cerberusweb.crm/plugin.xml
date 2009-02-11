@@ -104,7 +104,7 @@
 		
 		<extension point="cerberusweb.workspace.source">
 			<id>crm.workspace.source.opportunity</id>
-			<name>Opportunity</name>
+			<name>Opportunities</name>
 			<class>
 				<file>api/App.php</file>
 				<name>CrmWorkspaceSource_Opportunity</name>

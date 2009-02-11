@@ -9,13 +9,31 @@
 <input type="text" name="rename_workspace" value="" size="35" style="width:100%;"><br>
 <br>
 
-<b>Choose the display order of your worklists:</b><br>
-{foreach from=$worklists item=worklist name=worklists key=worklist_id}
-{assign var=worklist_view value=$worklist->list_view}
-<input type="hidden" name="ids[]" value="{$worklist->id}">
-<input type="text" name="pos[]" size="2" maxlength="2" value="{counter name=worklistPos}"> {$worklist_view->title}<br>
-{/foreach}
-<br>
+<div style="height:300px;overflow:auto;margin:2px;padding:3px;">
+<table width="100%">
+	<tr>
+		<td align="center"><b>{$translate->_('common.order')|capitalize}</b></td>
+		<td><b>Worklist</b></td>
+		<td align="center"><b>{$translate->_('common.remove')|capitalize}</b></td>
+	</tr>
+	
+	{foreach from=$worklists item=worklist name=worklists key=worklist_id}
+	{assign var=worklist_view value=$worklist->list_view}
+	<tr>
+		<td align="center">
+			<input type="hidden" name="ids[]" value="{$worklist->id}">
+			<input type="text" name="pos[]" size="2" maxlength="2" value="{counter name=worklistPos}">
+		</td>
+		<td>
+			<input type="text" name="names[]" value="{$worklist_view->title|escape}" style="width:100%;">
+		</td>
+		<td align="center">
+			<input type="checkbox" name="deletes[]" value="{$worklist->id}">
+		</td>
+	</tr>
+	{/foreach}
+</table>
+</div>
 
 <button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')}</button>
 </form>

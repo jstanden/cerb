@@ -71,7 +71,7 @@
 		
 		<extension point="cerberusweb.workspace.source">
 			<id>calls.workspace.source.call</id>
-			<name>Call</name>
+			<name>Calls</name>
 			<class>
 				<file>api/App.php</file>
 				<name>ChWorkspaceSource_Call</name>

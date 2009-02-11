@@ -406,6 +406,74 @@ class ChHomePage extends CerberusPageExtension {
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('home')));
 	}
 	
+	function showAddWorkspacePanelAction() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('path', dirname(__FILE__) . '/templates/');
+
+		$source_manifests = DevblocksPlatform::getExtensions(Extension_WorkspaceSource::EXTENSION_POINT, false);
+		uasort($source_manifests, create_function('$a, $b', "return strcasecmp(\$a->name,\$b->name);\n"));
+		$tpl->assign('sources', $source_manifests);		
+		
+		$workspaces = DAO_WorkerWorkspaceList::getWorkspaces($active_worker->id);
+		$tpl->assign('workspaces', $workspaces);
+		
+		$tpl->display('file:' . dirname(__FILE__) . '/templates/home/workspaces/add_workspace_panel.tpl');
+	}
+	
+	function doAddWorkspaceAction() {
+		@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
+		@$source = DevblocksPlatform::importGPC($_REQUEST['source'], 'string', '');
+		@$workspace = DevblocksPlatform::importGPC($_REQUEST['workspace'], 'string', '');
+		@$new_workspace = DevblocksPlatform::importGPC($_REQUEST['new_workspace'], 'string', '');
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		$visit = CerberusApplication::getVisit();
+
+		// Source extension exists
+		if(null != ($source_manifest = DevblocksPlatform::getExtension($source, false))) {
+			
+			// Class exists
+			if(null != (@$class = $source_manifest->params['view_class'])) {
+
+				if(empty($name))
+					$name = $source_manifest->name;
+				
+				// New workspace
+				if(!empty($new_workspace))
+					$workspace = $new_workspace;
+					
+				if(empty($workspace))
+					$workspace = 'New Workspace';
+					
+				$view = new $class; /* @var $view C4_AbstractView */ 
+					
+				// Build the list model
+				$list = new Model_WorkerWorkspaceListView();
+				$list->title = $name;
+				$list->columns = $view->view_columns;
+				$list->params = $view->params;
+				$list->num_rows = 5;
+				
+				// Add the worklist
+				$fields = array(
+					DAO_WorkerWorkspaceList::WORKER_ID => $active_worker->id,
+					DAO_WorkerWorkspaceList::LIST_POS => 1,
+					DAO_WorkerWorkspaceList::LIST_VIEW => serialize($list),
+					DAO_WorkerWorkspaceList::WORKSPACE => $workspace,
+					DAO_WorkerWorkspaceList::SOURCE_EXTENSION => $source_manifest->id,
+				);
+				DAO_WorkerWorkspaceList::create($fields);
+				
+				// Select the new tab
+				$visit->set(CerberusVisit::KEY_HOME_SELECTED_TAB, 'w_'.$workspace);
+			}
+		}
+		
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('home')));
+	}
+	
 	/**
 	 * Open an event, mark it read, and redirect to its URL.
 	 * Used by Home->Notifications view.
@@ -564,12 +632,50 @@ class ChHomePage extends CerberusPageExtension {
 		@$workspace = DevblocksPlatform::importGPC($_POST['workspace'],'string', '');
 		@$rename_workspace = DevblocksPlatform::importGPC($_POST['rename_workspace'],'string', '');
 		@$ids = DevblocksPlatform::importGPC($_POST['ids'],'array', array());
+		@$names = DevblocksPlatform::importGPC($_POST['names'],'array', array());
 		@$pos = DevblocksPlatform::importGPC($_POST['pos'],'array', array());
+		@$deletes = DevblocksPlatform::importGPC($_POST['deletes'],'array', array());
 		
 		$db = DevblocksPlatform::getDatabaseService();
 		$active_worker = CerberusApplication::getActiveWorker();
 		$visit = CerberusApplication::getVisit();
 		
+		$worklists = DAO_WorkerWorkspaceList::getWhere(sprintf("%s = %s",
+			DAO_WorkerWorkspaceList::WORKSPACE,
+			$db->qstr($workspace)
+		));
+		
+		// Reorder worklists, rename lists, delete lists, on workspace
+		if(is_array($ids) && !empty($ids))
+		foreach($ids as $idx => $id) {
+			if(false !== array_search($id, $deletes)) {
+				DAO_WorkerWorkspaceList::delete($id);
+				C4_AbstractViewLoader::deleteView('cust_'.$id); // free up a little memory
+				
+			} else {
+				if(!isset($worklists[$id]))
+					continue;
+					
+				$list_view = $worklists[$id]->list_view; /* @var $list_view Model_WorkerWorkspaceListView */
+				
+				// If the name changed
+				if(isset($names[$idx]) && 0 != strcmp($list_view->title,$names[$idx])) {
+					$list_view->title = $names[$idx];
+				
+					// Save the view in the session
+					$view = C4_AbstractViewLoader::getView('', 'cust_'.$id);
+					$view->name = $list_view->title;
+					C4_AbstractViewLoader::setView('cust_'.$id, $view);
+				}
+					
+				DAO_WorkerWorkspaceList::update($id,array(
+					DAO_WorkerWorkspaceList::LIST_POS => @intval($pos[$idx]),
+					DAO_WorkerWorkspaceList::LIST_VIEW => serialize($list_view),
+				));
+			}
+		}
+
+		// Rename workspace
 		if(!empty($rename_workspace)) {
 			$fields = array(
 				DAO_WorkerWorkspaceList::WORKSPACE => $rename_workspace,
@@ -582,14 +688,6 @@ class ChHomePage extends CerberusPageExtension {
 			));
 			
 			$workspace = $rename_workspace;
-		}
-		
-		// Reorder worklists on workspace
-		if(is_array($ids) && !empty($ids))
-		foreach($ids as $idx => $id) {
-			DAO_WorkerWorkspaceList::update($id,array(
-				DAO_WorkerWorkspaceList::LIST_POS => @intval($pos[$idx])
-			));
 		}
 		
 		// Change active tab
@@ -8061,19 +8159,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		$view->render();
 	}
-	
-	function viewDeleteAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
-		
-		// [TODO] Security check that the current user owns the view
-		
-		if(substr($id,0,5) != "cust_")
-			return;
-
-		$workspace_view_id = intval(substr($id,5));
-			
-		DAO_WorkerWorkspaceList::delete($workspace_view_id);
-	}
 }
 
 class ChDisplayPage extends CerberusPageExtension {
@@ -8092,19 +8177,6 @@ class ChDisplayPage extends CerberusPageExtension {
 			return true;
 		}
 	}
-	
-//	function getActivity() {
-//		$response = DevblocksPlatform::getHttpResponse();
-//		$stack = $response->path;
-//		@$id = $stack[1];
-//	       
-//		$url = DevblocksPlatform::getUrlService();
-//		$link = sprintf("<a href='%s'>#%s</a>",
-//		    $url->write("c=display&id=".$id),
-//		    $id
-//		);
-//	    return new Model_Activity('activity.display_ticket',array($link));
-//	}
 	
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();

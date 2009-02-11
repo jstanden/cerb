@@ -3,6 +3,10 @@
 	</div>
 </div>
 
+<form action="{devblocks_url}{/devblocks_url}" method="POST" style="margin-bottom:5px;">
+<button type="button" onclick="genericAjaxPanel('c=home&a=showAddWorkspacePanel',this,false,'550px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_plain_new.png{/devblocks_url}" align="top"> {$translate->_('dashboard.add_view')|capitalize}</button>
+</form>
+
 <div id="homeOptions"></div> 
 <br>
 

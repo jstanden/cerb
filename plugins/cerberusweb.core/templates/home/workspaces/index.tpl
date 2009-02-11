@@ -1,13 +1,19 @@
-<div style="margin-bottom:5px;width:100%;" align="right">
-	<form action="{devblocks_url}{/devblocks_url}" method="POST">
-		<input type="hidden" name="c" value="home">
-		<input type="hidden" name="a" value="doDeleteWorkspace">
-		<input type="hidden" name="workspace" value="{$current_workspace|escape}">
-		<button type="submit" value="" id="btnDeleteWorkspace" style="display:none;"></button>
-	</form>
-	<a href="javascript:;" onclick="genericAjaxPanel('c=home&a=showEditWorkspacePanel&workspace={$current_workspace|escape:'url'}',this,false,'450px');">{$translate->_('dashboard.edit')|lower}</a>
-	| <a href="javascript:;" onclick="if(confirm('{$translate->_('dashboard.delete.confirm')|escape}'))document.getElementById('btnDeleteWorkspace').click();">{$translate->_('dashboard.delete')|lower}</a>
-</div>
+<form action="{devblocks_url}{/devblocks_url}" method="POST">
+<input type="hidden" name="c" value="home">
+<input type="hidden" name="a" value="doDeleteWorkspace">
+<input type="hidden" name="workspace" value="{$current_workspace|escape}">
+<table width="100%" style="margin-bottom:5px;">
+	<tr>
+		<td>
+		</td>
+		<td align="right">
+			<button type="submit" value="" id="btnDeleteWorkspace" style="display:none;"></button>
+			<a href="javascript:;" onclick="genericAjaxPanel('c=home&a=showEditWorkspacePanel&workspace={$current_workspace|escape:'url'}',this,false,'450px');">{$translate->_('dashboard.edit')|lower}</a>
+			| <a href="javascript:;" onclick="if(confirm('{$translate->_('dashboard.delete.confirm')|escape}'))document.getElementById('btnDeleteWorkspace').click();">{$translate->_('dashboard.delete')|lower}</a>
+		</td>
+	</tr>
+</table>
+</form>
 
 <table border="0" cellpadding="0" cellspacing="0" width="100%">
   <tbody>

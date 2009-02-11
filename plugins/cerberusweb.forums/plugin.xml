@@ -43,7 +43,7 @@
 		
 		<extension point="cerberusweb.workspace.source">
 			<id>forums.workspace.source.forum_thread</id>
-			<name>Forum Thread</name>
+			<name>Forum Threads</name>
 			<class>
 				<file>api/App.php</file>
 				<name>ChWorkspaceSource_ForumThread</name>

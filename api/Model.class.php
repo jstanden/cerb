@@ -766,6 +766,11 @@ class C4_AbstractViewLoader {
 		self::_save();
 	}
 
+	static function deleteView($view_label) {
+		unset(self::$views[$view_label]);
+		self::_save();
+	}
+	
 	static private function _save() {
 		// persist
 		$visit = CerberusApplication::getVisit();

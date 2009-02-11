@@ -562,7 +562,7 @@
 		
 		<extension point="cerberusweb.workspace.source">
 			<id>core.workspace.source.address</id>
-			<name>Address</name>
+			<name>Addresses</name>
 			<class>
 				<file>classes.php</file>
 				<name>ChWorkspaceSource_Address</name>
@@ -574,7 +574,7 @@
 
 		<extension point="cerberusweb.workspace.source">
 			<id>core.workspace.source.org</id>
-			<name>Organization</name>
+			<name>Organizations</name>
 			<class>
 				<file>classes.php</file>
 				<name>ChWorkspaceSource_Org</name>
@@ -586,7 +586,7 @@
 		
 		<extension point="cerberusweb.workspace.source">
 			<id>core.workspace.source.task</id>
-			<name>Task</name>
+			<name>Tasks</name>
 			<class>
 				<file>classes.php</file>
 				<name>ChWorkspaceSource_Task</name>
@@ -598,7 +598,7 @@
 		
 		<extension point="cerberusweb.workspace.source">
 			<id>core.workspace.source.ticket</id>
-			<name>Ticket</name>
+			<name>Tickets</name>
 			<class>
 				<file>classes.php</file>
 				<name>ChWorkspaceSource_Ticket</name>
