@@ -434,9 +434,9 @@ if(!isset($columns['ACTIONS_SER'])) {
     	$sql = "SELECT id, do_assign, do_move, do_spam, do_status FROM group_inbox_filter";
     	$rs = $db->Execute($sql);
     	
-    	$actions = array();
-    	
     	while(!$rs->EOF) {
+    		$actions = array();
+    		
     		$rule_id = intval($rs->fields['id']);
     		$do_assign = intval($rs->fields['do_assign']);
     		$do_move = $rs->fields['do_move'];
