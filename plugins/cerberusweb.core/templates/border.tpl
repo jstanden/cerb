@@ -1,4 +1,5 @@
 {include file="$core_tpl/header.tpl"}
+{include file="$core_tpl/internal/renderers/prebody_autoreload.tpl"}
 
 {if !empty($prebody_renderers)}
 	{foreach from=$prebody_renderers item=renderer}

@@ -187,7 +187,7 @@
 								<br>
 								<br>
 								
-						      	<div id="replyClosed{$message->id}" style="display:{if $ticket->is_waiting || ($ticket->is_closed && !$ticket->is_deleted)}block{else}none{/if};margin-left:10px;">
+						      	<div id="replyClosed{$message->id}" style="display:block;margin-left:10px;">
 						      	<b>{$translate->_('display.reply.next.resume')}</b> {$translate->_('display.reply.next.resume_eg')}<br> 
 						      	<input type="text" name="ticket_reopen" size="55" value="{if !empty($ticket->due_date)}{$ticket->due_date|devblocks_date}{/if}"><br>
 						      	{$translate->_('display.reply.next.resume_blank')}<br>

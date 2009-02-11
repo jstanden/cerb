@@ -6,7 +6,17 @@
 		<form action="{devblocks_url}{/devblocks_url}" method="POST">
 			<button type="button" onclick="document.location.href='{devblocks_url}c=tickets&a=compose{/devblocks_url}';"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/export2.png{/devblocks_url}" align="top"> {$translate->_('mail.send_mail')|capitalize}</button><!--
 			--><button type="button" onclick="document.location.href='{devblocks_url}c=tickets&a=create{/devblocks_url}';"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/import1.png{/devblocks_url}" align="top"> {$translate->_('mail.log_message')|capitalize}</button><!-- 
-			-->
+			--><button style="margin-left:5px;" type="button" onclick="autoRefreshTimer.start('{devblocks_url full=true}c=tickets{/devblocks_url}',this.form.reloadSecs.value);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/refresh.gif{/devblocks_url}" align="top"> Auto-Refresh</button><!-- 
+			--><select name="reloadSecs">
+				<option value="600">10m</option>
+				<option value="300" selected="selected">5m</option>
+				<option value="240">4m</option>
+				<option value="180">3m</option>
+				<option value="120">2m</option>
+				<option value="60">1m</option>
+				<option value="30">30s</option>
+				<option value="10">10s</option>
+			</select>
 		</form>
 	</td>
 	<td width="98%" valign="middle">
@@ -42,6 +52,15 @@ tabView.addTab( new YAHOO.widget.Tab({
     cacheData: true
 }));
 {/literal}
+
+{foreach from=$workspaces item=workspace}
+{literal}tabView.addTab( new YAHOO.widget.Tab({{/literal}
+    label: '<i>{$workspace|escape}</i>',
+    dataSrc: '{devblocks_url}ajax.php?c=home&a=showWorkspaceTab&workspace={$workspace|escape:'url'}{/devblocks_url}',
+    cacheData: false,
+    active:{if substr($selected_tab,2)==$workspace}true{else}false{/if}
+{literal}}));{/literal}
+{/foreach}
 
 // Initialize the tabs
 tabView.appendTo('mailTabs');
