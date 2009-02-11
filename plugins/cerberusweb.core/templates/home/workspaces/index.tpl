@@ -3,7 +3,7 @@
 		<input type="hidden" name="c" value="home">
 		<input type="hidden" name="a" value="doDeleteWorkspace">
 		<input type="hidden" name="workspace" value="{$current_workspace|escape}">
-		<button type="submit" value="" id="btnDeleteWorkspace" style="visibility:hidden;display:none;">
+		<button type="submit" value="" id="btnDeleteWorkspace" style="display:none;"></button>
 	</form>
 	<a href="javascript:;" onclick="genericAjaxPanel('c=home&a=showEditWorkspacePanel&workspace={$current_workspace|escape:'url'}',this,false,'450px');">{$translate->_('dashboard.edit')|lower}</a>
 	| <a href="javascript:;" onclick="if(confirm('{$translate->_('dashboard.delete.confirm')|escape}'))document.getElementById('btnDeleteWorkspace').click();">{$translate->_('dashboard.delete')|lower}</a>
