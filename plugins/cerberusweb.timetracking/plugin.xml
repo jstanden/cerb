@@ -14,6 +14,7 @@
 	<acl>
 		<priv id="timetracking.actions.create" label="acl.timetracking.actions.create" />
 		<priv id="timetracking.actions.update_all" label="acl.timetracking.actions.update_all" />
+		<priv id="timetracking.report.group.time" label="acl.timetracking.report.group.time" />
 		<priv id="timetracking.view.actions.export" label="acl.timetracking.view.actions.export" />
 	</acl>
 	
@@ -256,6 +257,7 @@
 		</class>
 		<params>
 			<param key="group_name" value="timetracking.ui.reports" />
+			<param key="acl" value="timetracking.report.group.time" />
 		</params>
 	</extension>		 
 

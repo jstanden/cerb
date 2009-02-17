@@ -11,13 +11,16 @@
 		<name>ChReportsPlugin</name>
 	</class>
 
-	<acl>	
-		<!-- Reports -->
-		<!--
-		<priv id="reports" label="acl.reports" />
-		-->
+	<acl>
+		<!-- Report Groups -->
+		<priv id="reports.group.custom_fields" label="acl.reports.group.custom_fields" />
+		<priv id="reports.group.groups" label="acl.reports.group.groups" />
+		<priv id="reports.group.orgs" label="acl.reports.group.orgs" />
+		<priv id="reports.group.spam" label="acl.reports.group.spam" />
+		<priv id="reports.group.tickets" label="acl.reports.group.tickets" />
+		<priv id="reports.group.workers" label="acl.reports.group.workers" />
 	</acl>
-	
+		
 	<extensions>
 
 		<!-- Translations -->
@@ -59,6 +62,7 @@
 		</class>
 		<params>
 			<param key="group_name" value="reports.ui.group.custom_fields" />
+			<param key="acl" value="reports.group.custom_fields" />
 		</params>
 	</extension>
 	
@@ -71,6 +75,7 @@
 		</class>
 		<params>
 			<param key="group_name" value="reports.ui.group.group" />
+			<param key="acl" value="reports.group.groups" />
 		</params>
 	</extension>
 	
@@ -83,6 +88,7 @@
 		</class>
 		<params>
 			<param key="group_name" value="reports.ui.group.org" />
+			<param key="acl" value="reports.group.orgs" />
 		</params>
 	</extension>
 	
@@ -95,6 +101,7 @@
 		</class>
 		<params>
 			<param key="group_name" value="reports.ui.group.spam" />
+			<param key="acl" value="reports.group.spam" />
 		</params>
 	</extension>
 	
@@ -107,6 +114,7 @@
 		</class>
 		<params>
 			<param key="group_name" value="reports.ui.group.ticket" />
+			<param key="acl" value="reports.group.tickets" />
 		</params>
 	</extension>
 	
@@ -119,6 +127,7 @@
 		</class>
 		<params>
 			<param key="group_name" value="reports.ui.group.worker" />
+			<param key="acl" value="reports.group.workers" />
 		</params>
 	</extension>
 

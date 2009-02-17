@@ -355,6 +355,15 @@
 		</tu>
 
 			<!-- Tasks -->
+		<tu tuid='acl.core.tasks.actions.create'>
+			<tuv xml:lang="en_US"><seg>[Tasks] Can create tasks</seg></tuv>
+		</tu>
+		<tu tuid='acl.core.tasks.actions.update_all'>
+			<tuv xml:lang="en_US"><seg>[Tasks] Can manage everyone's tasks</seg></tuv>
+		</tu>
+		<tu tuid='acl.core.tasks.actions.update_nobody'>
+			<tuv xml:lang="en_US"><seg>[Tasks] Can manage unassigned tasks</seg></tuv>
+		</tu>
 		<tu tuid='acl.core.tasks.view.actions.export'>
 			<tuv xml:lang="en_US"><seg>[Tasks] Can export task lists to CSV/XML</seg></tuv>
 		</tu>

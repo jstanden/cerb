@@ -12,12 +12,25 @@
 		</tu>
 		
 		<!-- ACL -->
-		
-		<!-- 
-		<tu tuid='acl.reports'>
-			<tuv xml:lang="en_US"><seg>[Reports] Can view the reports page</seg></tuv>
+
+		<tu tuid='acl.reports.group.custom_fields'>
+			<tuv xml:lang="en_US"><seg>[Report Group] Can view the 'Custom Field Reports' group</seg></tuv>
 		</tu>
-		-->
+		<tu tuid='acl.reports.group.groups'>
+			<tuv xml:lang="en_US"><seg>[Report Group] Can view the 'Group Reports' group</seg></tuv>
+		</tu>
+		<tu tuid='acl.reports.group.orgs'>
+			<tuv xml:lang="en_US"><seg>[Report Group] Can view the 'Organization Reports' group</seg></tuv>
+		</tu>
+		<tu tuid='acl.reports.group.spam'>
+			<tuv xml:lang="en_US"><seg>[Report Group] Can view the 'Spam Reports' group</seg></tuv>
+		</tu>
+		<tu tuid='acl.reports.group.tickets'>
+			<tuv xml:lang="en_US"><seg>[Report Group] Can view the 'Ticket Reports' group</seg></tuv>
+		</tu>
+		<tu tuid='acl.reports.group.workers'>
+			<tuv xml:lang="en_US"><seg>[Report Group] Can view the 'Worker Reports' group</seg></tuv>
+		</tu>
 		
 		<!-- Reports Common -->
 		

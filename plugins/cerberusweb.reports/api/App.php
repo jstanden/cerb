@@ -2217,6 +2217,8 @@ class ChReportsPage extends CerberusPageExtension {
 	}
 	
 	function render() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->tpl_path);
@@ -2231,6 +2233,19 @@ class ChReportsPage extends CerberusPageExtension {
 		// We're given a specific report to display
 		if(!empty($reportId)) {
 			if(null != ($reportMft = DevblocksPlatform::getExtension($reportId))) {
+				// Make sure we have a report group
+				if(null == ($report_group_mft_id = $reportMft->params['report_group']))
+					return;
+					
+				// Make sure the report group exists
+				if(null == ($report_group_mft = DevblocksPlatform::getExtension($report_group_mft_id)))
+					return;
+					
+				// Check our permissions on the parent report group before rendering the report
+				if(isset($report_group_mft->params['acl']) && !$active_worker->hasPriv($report_group_mft->params['acl']))
+					return;
+					
+				// Render
 				if(null != ($report = $reportMft->createInstance()) && $report instanceof Extension_Report) { /* @var $report Extension_Report */
 					$report->render();
 					return;
@@ -2250,7 +2265,7 @@ class ChReportsPage extends CerberusPageExtension {
 			if(!empty($reportGroupMfts))
 			foreach($reportGroupMfts as $reportGroupMft) {
 				$report_groups[$reportGroupMft->id] = array(
-					'name' => $reportGroupMft->params['group_name'],
+					'manifest' => $reportGroupMft,
 					'reports' => array()
 				);
 			}
