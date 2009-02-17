@@ -98,10 +98,10 @@
 			<tuv xml:lang="en_US"><seg>Trial Limit Exceeded</seg></tuv>
 		</tu>
 		<tu tuid='timetracking.ui.trial.limit_exceeded.desc'>
-			<tuv xml:lang="en_US"><seg>You're able to evaluate the Time Tracking plugin by creating up to 10 entries with the Free Version of Cerberus Helpdesk 4.0.</seg></tuv>
+			<tuv xml:lang="en_US"><seg>You're able to evaluate the Time Tracking plugin by creating up to 10 entries with the free version of Cerberus Helpdesk 4.0.</seg></tuv>
 		</tu>
 		<tu tuid='timetracking.ui.trial.purchase'>
-			<tuv xml:lang="en_US"><seg>To continue using this plugin please support the project and purchase a commercial-use license.</seg></tuv>
+			<tuv xml:lang="en_US"><seg>To continue using this plugin please support the project and purchase a license.</seg></tuv>
 		</tu>		
 		
 

@@ -300,7 +300,7 @@
 	
 	<tr>
 		<td id="tagline">
-			{assign var=linked_cerberus_helpdesk value="<a href=\"http://www.cerberusweb.com/\" target=\"_blank\">"|cat:"Cerberus Helpdesk 4.0"|cat:"</a>&trade;"}
+			{assign var=linked_cerberus_helpdesk value="<a href=\"http://www.cerberusweb.com/\" target=\"_blank\">"|cat:"Cerberus Helpdesk 4.x"|cat:"</a>&trade;"}
 			{'portal.public.powered_by'|devblocks_translate:$linked_cerberus_helpdesk}
 		</td>
 	</tr>

@@ -50,7 +50,7 @@
  */
 
 if(version_compare(PHP_VERSION, "5.1.2", "<"))
-	die("Cerberus Helpdesk 4.0 requires PHP 5.1.2 or later.");
+	die("Cerberus Helpdesk 4.x requires PHP 5.1.2 or later.");
 
 require(dirname(__FILE__) . '/framework.config.php');
 require(DEVBLOCKS_PATH . 'Devblocks.class.php');

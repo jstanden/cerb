@@ -34,6 +34,7 @@
 
 <H2>Do:</H2>
 <table cellspacing="0" cellpadding="2" width="100%">
+	{if $active_worker->hasPriv('core.ticket.actions.move')}
 	<tr>
 		<td width="0%" nowrap="nowrap">Move to:</td>
 		<td width="100%"><select name="do_move">
@@ -56,6 +57,8 @@
      		{/foreach}
       	</select></td>
 	</tr>
+	{/if}
+	
 	<tr>
 		<td width="0%" nowrap="nowrap">Status:</td>
 		<td width="100%">
@@ -63,17 +66,21 @@
 				<option value=""></option>
 				<option value="0">Open</option>
 				<option value="3">Waiting</option>
+				{if $active_worker->hasPriv('core.ticket.actions.close')}
 				<option value="1">Closed</option>
-				{if $active_worker && ($active_worker->is_superuser || $active_worker->can_delete)}
+				{/if}
+				{if $active_worker->hasPriv('core.ticket.actions.delete')}
 				<option value="2">Deleted</option>
 				{/if}
 			</select>
 			<button type="button" onclick="this.form.do_status.selectedIndex = 1;">open</button>
 			<button type="button" onclick="this.form.do_status.selectedIndex = 2;">waiting</button>
-			<button type="button" onclick="this.form.do_status.selectedIndex = 3;">closed</button>
-			<button type="button" onclick="this.form.do_status.selectedIndex = 4;">deleted</button>
+			{if $active_worker->hasPriv('core.ticket.actions.close')}<button type="button" onclick="this.form.do_status.selectedIndex = 3;">closed</button>{/if}
+			{if $active_worker->hasPriv('core.ticket.actions.delete')}<button type="button" onclick="this.form.do_status.selectedIndex = 4;">deleted</button>{/if}
 		</td>
 	</tr>
+	
+	{if $active_worker->hasPriv('core.ticket.actions.spam')}
 	<tr>
 		<td width="0%" nowrap="nowrap">Spam:</td>
 		<td width="100%"><select name="do_spam">
@@ -85,6 +92,9 @@
 		<button type="button" onclick="this.form.do_spam.selectedIndex = 2;">not spam</button>
 		</td>
 	</tr>
+	{/if}
+	
+	{if $active_worker->hasPriv('core.ticket.actions.assign')}
 	<tr>
 		<td width="0%" nowrap="nowrap">Next Worker:</td>
 		<td width="100%">
@@ -102,6 +112,7 @@
 	      	{/if}
 		</td>
 	</tr>
+	{/if}
 </table>
 
 {include file="file:$core_tpl/internal/custom_fields/bulk/form.tpl" bulk=true}

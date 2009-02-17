@@ -286,6 +286,94 @@
 			<tuv xml:lang="en_US"><seg>yes</seg></tuv>
 		</tu>
 
+		<!-- ACL -->
+		
+			<!-- Address Book -->
+		<tu tuid='acl.core.addybook'>
+			<tuv xml:lang="en_US"><seg>[Address Book] Can browse the address book</seg></tuv>
+		</tu>
+		<tu tuid='acl.core.addybook.view.actions.export'>
+			<tuv xml:lang="en_US"><seg>[Address Book] Can export lists to CSV/XML</seg></tuv>
+		</tu>
+
+			<!-- Display Ticket -->
+		<tu tuid='acl.core.display.actions.attachments.download'>
+			<tuv xml:lang="en_US"><seg>[Display Ticket] Can download ticket attachments</seg></tuv>
+		</tu>
+		<tu tuid='acl.core.display.actions.comment'>
+			<tuv xml:lang="en_US"><seg>[Display Ticket] Can comment on tickets</seg></tuv>
+		</tu>
+		<tu tuid='acl.core.display.actions.forward'>
+			<tuv xml:lang="en_US"><seg>[Display Ticket] Can forward tickets to third-party e-mail addresses</seg></tuv>
+		</tu>
+		<tu tuid='acl.core.display.actions.note'>
+			<tuv xml:lang="en_US"><seg>[Display Ticket] Can add sticky notes to tickets</seg></tuv>
+		</tu>
+		<tu tuid='acl.core.display.actions.reply'>
+			<tuv xml:lang="en_US"><seg>[Display Ticket] Can reply to tickets</seg></tuv>
+		</tu>
+		<tu tuid='acl.core.display.actions.split'>
+			<tuv xml:lang="en_US"><seg>[Display Ticket] Can split tickets</seg></tuv>
+		</tu>
+
+			<!-- Knowledgebase -->
+		<tu tuid='acl.core.kb'>
+			<tuv xml:lang="en_US"><seg>[Knowledgebase] Can view the knowledgebase</seg></tuv>
+		</tu>
+
+			<!-- Mail page -->
+		<tu tuid='acl.core.mail.actions.auto_refresh'>
+			<tuv xml:lang="en_US"><seg>[Mail] Can auto-refresh the Mail page</seg></tuv>
+		</tu>
+		<tu tuid='acl.core.mail.log_ticket'>
+			<tuv xml:lang="en_US"><seg>[Mail] Can open tickets on behalf of customers</seg></tuv>
+		</tu>
+		<tu tuid='acl.core.mail.overview'>
+			<tuv xml:lang="en_US"><seg>[Mail] Can use the Overview tab on the Mail page</seg></tuv>
+		</tu>
+		<tu tuid='acl.core.mail.search'>
+			<tuv xml:lang="en_US"><seg>[Mail] Can use the Search tab on the Mail page</seg></tuv>
+		</tu>
+		<tu tuid='acl.core.mail.send'>
+			<tuv xml:lang="en_US"><seg>[Mail] Can compose new messages from the helpdesk</seg></tuv>
+		</tu>
+
+			<!-- RSS -->
+		<tu tuid='acl.core.rss'>
+			<tuv xml:lang="en_US"><seg>[RSS] Can export lists as RSS feeds</seg></tuv>
+		</tu>
+
+			<!-- Tickets -->
+		<tu tuid='acl.core.ticket.actions.assign'>
+			<tuv xml:lang="en_US"><seg>[Tickets] Can assign tickets to other workers</seg></tuv>
+		</tu>
+		<tu tuid='acl.core.ticket.actions.close'>
+			<tuv xml:lang="en_US"><seg>[Tickets] Can close tickets</seg></tuv>
+		</tu>
+		<tu tuid='acl.core.ticket.actions.delete'>
+			<tuv xml:lang="en_US"><seg>[Tickets] Can delete tickets</seg></tuv>
+		</tu>
+		<tu tuid='acl.core.ticket.actions.move'>
+			<tuv xml:lang="en_US"><seg>[Tickets] Can move tickets</seg></tuv>
+		</tu>
+		<tu tuid='acl.core.ticket.actions.spam'>
+			<tuv xml:lang="en_US"><seg>[Tickets] Can report tickets as spam</seg></tuv>
+		</tu>
+		<tu tuid='acl.core.ticket.view.actions.bulk_update'>
+			<tuv xml:lang="en_US"><seg>[Tickets] Can bulk update tickets in lists</seg></tuv>
+		</tu>
+		<tu tuid='acl.core.ticket.view.actions.export'>
+			<tuv xml:lang="en_US"><seg>[Tickets] Can export ticket lists to CSV/XML</seg></tuv>
+		</tu>
+		<tu tuid='acl.core.ticket.view.actions.merge'>
+			<tuv xml:lang="en_US"><seg>[Tickets] Can merge tickets from lists</seg></tuv>
+		</tu>
+		<tu tuid='acl.core.ticket.view.actions.pile_sort'>
+			<tuv xml:lang="en_US"><seg>[Tickets] Can use the pile sorter on lists</seg></tuv>
+		</tu>
+
+
+
 		<!-- Addresses -->
 		
 		<tu tuid='address.id'>

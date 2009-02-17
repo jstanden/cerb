@@ -123,9 +123,11 @@
 				<option value="">&nbsp;</option>
 				<option value="0" {if isset($act_status) && !$act_status.is_closed && !$act_status.is_deleted}selected="selected"{/if}>{$translate->_('status.open')|capitalize}</option>
 				<option value="3" {if isset($act_status) && !$act_status.is_closed && !$act_status.is_deleted && $act_status.is_waiting}selected="selected"{/if}>Waiting</option>
-				<option value="1" {if isset($act_status) && $act_status.is_closed && !$act_status.is_deleted}selected="selected"{/if}>{$translate->_('status.closed')|capitalize}</option>
-				{if $active_worker && ($active_worker->is_superuser || $active_worker->can_delete)}
-				<option value="2" {if isset($act_status) && $act_status.is_deleted}selected="selected"{/if}>Deleted</option>
+				{if $active_worker->hasPriv('core.ticket.actions.close') || (isset($act_status) && $act_status.is_closed && !$act_status.is_deleted)}
+					<option value="1" {if isset($act_status) && $act_status.is_closed && !$act_status.is_deleted}selected="selected"{/if}>{$translate->_('status.closed')|capitalize}</option>
+				{/if}
+				{if $active_worker->hasPriv('core.ticket.actions.delete') || (isset($act_status) && $act_status.is_deleted)}
+					<option value="2" {if isset($act_status) && $act_status.is_deleted}selected="selected"{/if}>Deleted</option>
 				{/if}
 			</select>
 		</td>

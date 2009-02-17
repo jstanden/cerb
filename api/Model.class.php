@@ -2820,8 +2820,6 @@ class CerberusWorker {
 	public $title;
 	public $is_superuser=0;
 	public $is_disabled=0;
-	public $can_export=0;
-	public $can_delete=0;
 	public $last_activity;
 	public $last_activity_date;
 
@@ -2832,14 +2830,37 @@ class CerberusWorker {
 		return DAO_Worker::getWorkerGroups($this->id); 
 	}
 
+	function hasPriv($priv_id) {
+		// We don't need to do much work if we're a superuser
+		if($this->is_superuser)
+			return true;
+		
+		$settings = CerberusSettings::getInstance();
+		$acl_enabled = $settings->get(CerberusSettings::ACL_ENABLED);
+			
+		// ACL is a paid feature (please respect the licensing and support the project!)
+		$license = CerberusLicense::getInstance();
+		if(!$acl_enabled || !isset($license['serial']) || isset($license['a']))
+			return ("core.config"==substr($priv_id,0,11)) ? false : true;
+			
+		// Check the aggregated worker privs from roles
+		$acl = DAO_WorkerRole::getACL();
+		$privs_by_worker = $acl[DAO_WorkerRole::CACHE_KEY_PRIVS_BY_WORKER];
+		
+		if(!empty($priv_id) && isset($privs_by_worker[$this->id][$priv_id]))
+			return true;
+			
+		return false;
+	}
+	
 	function isTeamManager($team_id) {
 		@$memberships = $this->getMemberships();
 		$teams = DAO_Group::getAll();
 		if(
-		empty($team_id) // null
-		|| !isset($teams[$team_id]) // doesn't exist
-		|| !isset($memberships[$team_id])  // not a member
-		|| (!$memberships[$team_id]->is_manager && !$this->is_superuser) // not a manager or superuser
+			empty($team_id) // null
+			|| !isset($teams[$team_id]) // doesn't exist
+			|| !isset($memberships[$team_id])  // not a member
+			|| (!$memberships[$team_id]->is_manager && !$this->is_superuser) // not a manager or superuser
 		){
 			return false;
 		}
@@ -2860,7 +2881,6 @@ class CerberusWorker {
 	}
 	
 	function getName($reverse=false) {
-		
 		if(!$reverse) {
 			$name = sprintf("%s%s%s",
 				$this->first_name,
@@ -2877,8 +2897,13 @@ class CerberusWorker {
 		
 		return $name;
 	}
+	
+};
 
-}
+class Model_WorkerRole {
+	public $id;
+	public $name;
+};
 
 class Model_WorkerEvent {
 	public $id;
@@ -2898,7 +2923,7 @@ class Model_ViewRss {
 	public $created = 0;
 	public $source_extension = '';
 	public $params = array();
-}
+};
 
 class Model_TicketViewLastAction {
 	// [TODO] Recycle the bulk update constants for these actions?

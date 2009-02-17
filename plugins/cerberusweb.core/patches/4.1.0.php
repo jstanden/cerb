@@ -383,16 +383,6 @@ $db->Execute("DELETE QUICK custom_field_numbervalue FROM custom_field_numbervalu
 $db->Execute("DELETE QUICK custom_field_clobvalue FROM custom_field_clobvalue LEFT JOIN ticket ON (ticket.id=custom_field_clobvalue.source_id) WHERE custom_field_clobvalue.source_extension = 'cerberusweb.fields.source.ticket' AND ticket.id IS NULL");
 
 // ===========================================================================
-// Add worker.can_export privilege (temporary, before true ACL)
-$columns = $datadict->MetaColumns('worker');
-$indexes = $datadict->MetaIndexes('worker',false);
-
-if(!isset($columns['CAN_EXPORT'])) {
-    $sql = $datadict->AddColumnSQL('worker', 'can_export I1 DEFAULT 0 NOTNULL');
-    $datadict->ExecuteSQLArray($sql);
-}
-
-// ===========================================================================
 // Migrate team_routing_rule to group_inbox_filter
 
 if(isset($tables['team_routing_rule']) && !isset($tables['group_inbox_filter'])) {
@@ -693,6 +683,93 @@ if(isset($tables['team'])) {
 		
 		$db->Execute("DELETE FROM setting WHERE setting = 'default_team_id'");
 	}
+}
+
+// ===========================================================================
+// Add worker roles for ACL
+
+// Roles
+if(!isset($tables['worker_role'])) {
+	$flds ="
+		id I4 DEFAULT 0 NOTNULL PRIMARY,
+		name C(128) DEFAULT '' NOTNULL
+	";
+	$sql = $datadict->CreateTableSQL('worker_role', $flds);
+	$datadict->ExecuteSQLArray($sql);
+}
+
+// n:m table for linking workers to roles
+if(!isset($tables['worker_to_role'])) {
+	$flds ="
+		worker_id I4 DEFAULT 0 NOTNULL,
+		role_id I4 DEFAULT 0 NOTNULL
+	";
+	$sql = $datadict->CreateTableSQL('worker_to_role', $flds);
+	$datadict->ExecuteSQLArray($sql);
+}
+
+$columns = $datadict->MetaColumns('worker_to_role');
+$indexes = $datadict->MetaIndexes('worker_to_role',false);
+
+if(!isset($indexes['worker_id'])) {
+	$sql = $datadict->CreateIndexSQL('worker_id','worker_to_role','worker_id');
+	$datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($indexes['role_id'])) {
+	$sql = $datadict->CreateIndexSQL('role_id','worker_to_role','role_id');
+	$datadict->ExecuteSQLArray($sql);
+}
+
+// n:m table for linking roles to ACL
+if(!isset($tables['worker_role_acl'])) {
+	$flds ="
+		role_id I4 DEFAULT 0 NOTNULL,
+		priv_id C(255) DEFAULT '' NOTNULL,
+		has_priv I4 DEFAULT 0 NOTNULL
+	";
+	$sql = $datadict->CreateTableSQL('worker_role_acl', $flds);
+	$datadict->ExecuteSQLArray($sql);
+}
+
+$columns = $datadict->MetaColumns('worker_role_acl');
+$indexes = $datadict->MetaIndexes('worker_role_acl',false);
+
+if(!isset($indexes['role_id'])) {
+	$sql = $datadict->CreateIndexSQL('role_id','worker_role_acl','role_id');
+	$datadict->ExecuteSQLArray($sql);
+}
+
+if(!isset($indexes['has_priv'])) {
+	$sql = $datadict->CreateIndexSQL('has_priv','worker_role_acl','has_priv');
+	$datadict->ExecuteSQLArray($sql);
+}
+
+// ===========================================================================
+// New style licenses
+$obj = unserialize($db->GetOne("SELECT value FROM setting WHERE setting='license'"));
+if(!empty($obj) && isset($obj['features'])) {
+$l = array('name' => $obj['name'],'email' => '','serial' => '** Contact support@webgroupmedia.com for your new 4.1 serial number **');
+(isset($obj['users'])&&!empty($obj['users'])?(($l['users']=$obj['users'])&&($l['a']='XXX')):($l['e']='XXX'));
+$db->Execute("DELETE FROM setting WHERE setting='license'");
+$db->Execute(sprintf("INSERT INTO setting (setting,value) VALUES ('license',%s)",$db->qstr(serialize($l))));
+$db->Execute("DELETE FROM setting WHERE setting='company'");
+$db->Execute("DELETE FROM setting WHERE setting='patch'");
+}
+
+// ===========================================================================
+// Drop worker.can_delete and worker.can_export privilege (real ACL now)
+$columns = $datadict->MetaColumns('worker');
+$indexes = $datadict->MetaIndexes('worker',false);
+
+if(isset($columns['CAN_EXPORT'])) {
+    $sql = $datadict->DropColumnSQL('worker', 'can_export');
+    $datadict->ExecuteSQLArray($sql);
+}
+
+if(isset($columns['CAN_DELETE'])) {
+    $sql = $datadict->DropColumnSQL('worker', 'can_delete');
+    $datadict->ExecuteSQLArray($sql);
 }
 
 return TRUE;

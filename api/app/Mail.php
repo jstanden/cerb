@@ -613,7 +613,7 @@ class CerberusMail {
 			 * http://www.cerberusweb.com/
 			 */
 			$license = CerberusLicense::getInstance();
-			if(empty($license) || @empty($license['key'])) {
+			if(empty($license) || @empty($license['serial'])) {
 				$content .= base64_decode("DQoNCi0tLQ0KQ29tYmF0IHNwYW0gYW5kIGltcHJvdmUgcmVzc".
 					"G9uc2UgdGltZXMgd2l0aCBDZXJiZXJ1cyBIZWxwZGVzayA0LjAhDQpodHRwOi8vd3d3LmNlc".
 					"mJlcnVzd2ViLmNvbS8NCg"

@@ -21,11 +21,11 @@
 				</tr>
 				<tr>
 					<td style="padding-left:5px;">
-						{if empty($license.key) || (!empty($license.key) && $license.users)}{assign var=free_mode value=1}{/if}
+						{if empty($license.serial) || (!empty($license.serial) && isset($license.a))}{assign var=free_mode value=1}{/if}
 						{if $plugin->id=="cerberusweb.timetracking" && $free_mode}
-							(<a href="http://www.cerberusweb.com/buy" target="_blank" style="font-weight:bold;">Limited to 10 entry evaluation on Cerb4 Free Version</a>)<br>
-						{elseif $plugin->id=="cerberusweb.feedback" && $free_mode}
-							(<a href="http://www.cerberusweb.com/buy" target="_blank" style="font-weight:bold;">Limited to 10 entry evaluation on Cerb4 Free Version</a>)<br>
+							(<a href="http://www.cerberusweb.com/buy" target="_blank" style="font-weight:bold;">Limited to 10 time tracking entries for evaluation with a free license</a>)<br>
+						{elseif $plugin->id=="cerberusweb.crm" && $free_mode}
+							(<a href="http://www.cerberusweb.com/buy" target="_blank" style="font-weight:bold;">Limited to 10 opportunities for evaluation with a free license</a>)<br>
 						{/if}					
 						{$plugin->description}	
 					</td>

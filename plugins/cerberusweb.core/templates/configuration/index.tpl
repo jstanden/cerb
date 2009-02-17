@@ -75,6 +75,13 @@ tabView.addTab( new YAHOO.widget.Tab({
 }));
 
 tabView.addTab( new YAHOO.widget.Tab({
+    label: 'Groups',
+    dataSrc: '{/literal}{devblocks_url}ajax.php?c=config&a=showTabGroups{/devblocks_url}{literal}',
+    cacheData: false,
+    {/literal}active: {if $tab_selected=="groups"}true{else}false{/if}{literal}
+}));
+
+tabView.addTab( new YAHOO.widget.Tab({
     label: 'Workers',
     dataSrc: '{/literal}{devblocks_url}ajax.php?c=config&a=showTabWorkers{/devblocks_url}{literal}',
     cacheData: false,
@@ -82,10 +89,10 @@ tabView.addTab( new YAHOO.widget.Tab({
 }));
 
 tabView.addTab( new YAHOO.widget.Tab({
-    label: 'Groups',
-    dataSrc: '{/literal}{devblocks_url}ajax.php?c=config&a=showTabGroups{/devblocks_url}{literal}',
+    label: 'Permissions',
+    dataSrc: '{/literal}{devblocks_url}ajax.php?c=config&a=showTabPermissions{/devblocks_url}{literal}',
     cacheData: false,
-    {/literal}active: {if $tab_selected=="groups"}true{else}false{/if}{literal}
+    {/literal}active: {if $tab_selected=="acl"}true{else}false{/if}{literal}
 }));
 
 tabView.addTab( new YAHOO.widget.Tab({

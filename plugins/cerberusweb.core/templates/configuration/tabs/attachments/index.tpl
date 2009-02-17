@@ -1,11 +1,3 @@
-{*
-<form action="{devblocks_url}{/devblocks_url}" style="margin-bottom:5px;">
-	<button type="button" onclick="genericAjaxGet('cfgAttachmentsOutput','c=config&a=doAttachmentsSync');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/replace2.gif{/devblocks_url}" align="top"> {$translate->_('common.synchronize')|capitalize}</button>
-</form>
-
-<div id="cfgAttachmentsOutput"></div>
-*}
-
 <table cellpadding="0" cellspacing="0" border="0">
 	<tr>
 		<td valign="top" width="0%" nowrap="nowrap">

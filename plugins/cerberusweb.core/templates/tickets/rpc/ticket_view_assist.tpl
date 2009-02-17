@@ -42,20 +42,20 @@ Sort biggest piles by:
 					</optgroup>
 				{/if}
 			{/foreach}
-			<optgroup label="Actions" style="color:rgb(150,0,0);font-weight:bold;">
-				<option value="ac">Close</option>
-				<option value="as">Report Spam</option>
-				{if $active_worker && ($active_worker->is_superuser || $active_worker->can_delete)}<option value="ad">Delete</option>{/if}
+			<optgroup label="Actions" style="font-weight:bold;">
+				{if $active_worker->hasPriv('core.ticket.actions.close')}<option value="ac">Close</option>{/if}
+				{if $active_worker->hasPriv('core.ticket.actions.spam')}<option value="as">Report Spam</option>{/if}
+				{if $active_worker->hasPriv('core.ticket.actions.delete')}<option value="ad">Delete</option>{/if}
 			</optgroup>
-			<optgroup label="Assign" style="color:rgb(150,0,0);font-weight:bold;">
+			<optgroup label="Assign" style="font-weight:bold;">
 				{foreach from=$workers item=worker key=worker_id}
 					<option value="w{$worker_id}">{$worker->getName()}</option>
 				{/foreach}
 			</optgroup>
 		</select>
-		<a href="javascript:;" onclick="document.getElementById('viewAssist{$view_id}').select{$hash}.value='ac';"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_ok.gif{/devblocks_url}" align="top" border="0"></a>
-		<a href="javascript:;" onclick="document.getElementById('viewAssist{$view_id}').select{$hash}.value='as';"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/spam.gif{/devblocks_url}" align="top" border="0"></a>
-		{if $active_worker && ($active_worker->is_superuser || $active_worker->can_delete)}<a href="javascript:;" onclick="document.getElementById('viewAssist{$view_id}').select{$hash}.value='ad';"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top" border="0"></a>{/if}
+		{if $active_worker->hasPriv('core.ticket.actions.close')}<a href="javascript:;" onclick="document.getElementById('viewAssist{$view_id}').select{$hash}.value='ac';"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_ok.gif{/devblocks_url}" align="top" border="0"></a>{/if}
+		{if $active_worker->hasPriv('core.ticket.actions.spam')}<a href="javascript:;" onclick="document.getElementById('viewAssist{$view_id}').select{$hash}.value='as';"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/spam.gif{/devblocks_url}" align="top" border="0"></a>{/if}
+		{if $active_worker->hasPriv('core.ticket.actions.delete')}<a href="javascript:;" onclick="document.getElementById('viewAssist{$view_id}').select{$hash}.value='ad';"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top" border="0"></a>{/if}
 	</td>
 	<td width="98%" align="top">
 		<input type="hidden" name="piles_hash[]" value="{$hash}">
@@ -86,20 +86,20 @@ Sort biggest piles by:
 						</optgroup>
 					{/if}
 				{/foreach}
-				<optgroup label="Actions" style="color:rgb(150,0,0);font-weight:bold;">
-					<option value="ac">Close</option>
-					<option value="as">Report Spam</option>
-					{if $active_worker && ($active_worker->is_superuser || $active_worker->can_delete)}<option value="ad">Delete</option>{/if}
+				<optgroup label="Actions" style="font-weight:bold;">
+					{if $active_worker->hasPriv('core.ticket.actions.close')}<option value="ac">Close</option>{/if}
+					{if $active_worker->hasPriv('core.ticket.actions.spam')}<option value="as">Report Spam</option>{/if}
+					{if $active_worker->hasPriv('core.ticket.actions.delete')}<option value="ad">Delete</option>{/if}
 				</optgroup>
-				<optgroup label="Assign" style="color:rgb(150,0,0);font-weight:bold;">
+				<optgroup label="Assign" style="font-weight:bold;">
 					{foreach from=$workers item=worker key=worker_id}
 						<option value="w{$worker_id}">{$worker->getName()}</option>
 					{/foreach}
 				</optgroup>
 			</select>
-			<a href="javascript:;" onclick="document.getElementById('viewAssist{$view_id}').select{$sender_hash}.value='ac';"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_ok.gif{/devblocks_url}" align="top" border="0"></a>
-			<a href="javascript:;" onclick="document.getElementById('viewAssist{$view_id}').select{$sender_hash}.value='as';"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/spam.gif{/devblocks_url}" align="top" border="0"></a>
-			{if $active_worker && ($active_worker->is_superuser || $active_worker->can_delete)}<a href="javascript:;" onclick="document.getElementById('viewAssist{$view_id}').select{$sender_hash}.value='ad';"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top" border="0"></a>{/if}
+			{if $active_worker->hasPriv('core.ticket.actions.close')}<a href="javascript:;" onclick="document.getElementById('viewAssist{$view_id}').select{$sender_hash}.value='ac';"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_ok.gif{/devblocks_url}" align="top" border="0"></a>{/if}
+			{if $active_worker->hasPriv('core.ticket.actions.spam')}<a href="javascript:;" onclick="document.getElementById('viewAssist{$view_id}').select{$sender_hash}.value='as';"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/spam.gif{/devblocks_url}" align="top" border="0"></a>{/if}
+			{if $active_worker->hasPriv('core.ticket.actions.delete')}<a href="javascript:;" onclick="document.getElementById('viewAssist{$view_id}').select{$sender_hash}.value='ad';"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top" border="0"></a>{/if}
 		</td>
 		<td width="98%">
 			<blockquote style="margin-bottom:0px;">

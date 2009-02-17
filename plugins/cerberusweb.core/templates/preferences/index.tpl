@@ -43,13 +43,14 @@ tabView.addTab( new YAHOO.widget.Tab({
     cacheData: false
 }));
 
+{/literal}{if $active_worker->hasPriv('core.rss')}{literal}
 tabView.addTab( new YAHOO.widget.Tab({
     label: 'RSS Notifications',
     dataSrc: '{/literal}{devblocks_url}ajax.php?c=preferences&a=showRss{/devblocks_url}{literal}',
     {/literal}{if $tab=='rss'}active: true,{/if}{literal}
     cacheData: false
-}));
-{/literal}
+}));{/literal}
+{/if}
 
 {foreach from=$tab_manifests item=tab_manifest}
 {literal}tabView.addTab( new YAHOO.widget.Tab({{/literal}

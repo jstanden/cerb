@@ -53,7 +53,7 @@
  */
 
 if(version_compare(PHP_VERSION, "5.1.4", "<"))
-	die("Cerberus Helpdesk 4.0 requires PHP 5.1.4 or later.");
+	die("Cerberus Helpdesk 4.x requires PHP 5.1.4 or later.");
 
 @set_time_limit(3600);
 require('../framework.config.php');
@@ -727,11 +727,11 @@ switch($step) {
 					$message = new CerberusParserMessage();
 						$message->headers['from'] = '"WebGroup Media, LLC." <support@webgroupmedia.com>';
 						$message->headers['to'] = $default_from;
-						$message->headers['subject'] = "Welcome to Cerberus Helpdesk 4.0!";
+						$message->headers['subject'] = "Welcome to Cerberus Helpdesk 4.x!";
 						$message->headers['date'] = date('r');
 						$message->headers['message-id'] = CerberusApplication::generateMessageId();
 						$message->body = <<< EOF
-Welcome to Cerberus Helpdesk 4.0 (Cerb4)!
+Welcome to Cerberus Helpdesk 4.x (Cerb4)!
 
 We automatically set up a few things for you during the installation process.
 

@@ -2,7 +2,7 @@
 <plugin>
 	<id>cerberusweb.simulator</id>
 	<name>Cerberus Helpdesk: Simulator</name>
-	<description>A tool to assist evaluators with creating sample tickets</description>
+	<description>A tool that makes it easy to create batches of realistic sample tickets; useful for evaluations, plugin development, and testing.  This adds a Simulator tab in Configuration.</description>
 	<author>WebGroup Media, LLC.</author>
 	<revision>0</revision>
 	<link>http://wiki.cerb4.com/wiki/New_Changes#Simulator</link>

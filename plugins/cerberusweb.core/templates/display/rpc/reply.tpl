@@ -70,7 +70,7 @@
 		<td>
 		{assign var=ticket_team_id value=$ticket->team_id}
 		{assign var=headers value=$message->getHeaders()}
-<button type="button" onclick="toggleDiv('kbSearch{$message->id}');document.getElementById('kbQuery{$message->id}').focus();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/book_open2.gif{/devblocks_url}" align="top"> {$translate->_('common.knowledgebase')|capitalize}</button>
+{if $active_worker->hasPriv('core.kb')}<button type="button" onclick="toggleDiv('kbSearch{$message->id}');document.getElementById('kbQuery{$message->id}').focus();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/book_open2.gif{/devblocks_url}" align="top"> {$translate->_('common.knowledgebase')|capitalize}</button>{/if}
 <button type="button" onclick="genericAjaxPanel('c=display&a=showTemplatesPanel&type=2&reply_id={$message->id}&txt_name=reply_{$message->id}',this,false,'550px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/text_rich.gif{/devblocks_url}" align="top"> {$translate->_('display.reply.email_templates')|capitalize}</button>
 <button type="button" onclick="genericAjaxPanel('c=display&a=showFnrPanel',this,false,'550px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/book_blue_view.gif{/devblocks_url}" align="top"> {$translate->_('common.fnr')|capitalize}</button>
 <button type="button" onclick="genericAjaxGet('','c=tickets&a=getComposeSignature&group_id={$ticket->team_id}',{literal}function(o){insertAtCursor(document.getElementById('reply_{/literal}{$message->id}{literal}'),o.responseText);document.getElementById('reply_{/literal}{$message->id}{literal}').focus();}{/literal});"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_edit.gif{/devblocks_url}" align="top"> {$translate->_('display.reply.insert_sig')|capitalize}</button>
@@ -183,7 +183,7 @@
 							<td nowrap="nowrap" valign="top" colspan="2">
 								<label><input type="radio" name="closed" value="0" onclick="toggleDiv('replyOpen{$message->id}','block');toggleDiv('replyClosed{$message->id}','none');">{$translate->_('status.open')|capitalize}</label>
 								<label><input type="radio" name="closed" value="2" onclick="toggleDiv('replyOpen{$message->id}','block');toggleDiv('replyClosed{$message->id}','block');" {if !$ticket->is_closed}checked{/if}>{$translate->_('status.waiting')|capitalize}</label>
-								<label><input type="radio" name="closed" value="1" onclick="toggleDiv('replyOpen{$message->id}','none');toggleDiv('replyClosed{$message->id}','block');" {if $ticket->is_closed}checked{/if}>{$translate->_('status.closed')|capitalize}</label>
+								{if $active_worker->hasPriv('core.ticket.actions.close') || ($ticket->is_closed && !$ticket->is_deleted)}<label><input type="radio" name="closed" value="1" onclick="toggleDiv('replyOpen{$message->id}','none');toggleDiv('replyClosed{$message->id}','block');" {if $ticket->is_closed}checked{/if}>{$translate->_('status.closed')|capitalize}</label>{/if}
 								<br>
 								<br>
 								
@@ -194,6 +194,7 @@
 						      	<br>
 						      	</div>
 		
+								<div style="margin-left:10px;">
 								<b>{$translate->_('display.reply.next.handle_reply')}</b><br>
 						      	<select name="next_worker_id" onchange="toggleDiv('replySurrender{$message->id}',this.selectedIndex?'block':'none');">
 						      		<option value="0" {if 0==$ticket->next_worker_id}selected{/if}>{$translate->_('common.anybody')|capitalize}
@@ -206,7 +207,7 @@
 						      		<button type="button" onclick="this.form.next_worker_id.selectedIndex = {$next_worker_id_sel};toggleDiv('replySurrender{$message->id}','block');">{$translate->_('common.me')|lower}</button>
 						      		<button type="button" onclick="this.form.next_worker_id.selectedIndex = 0;toggleDiv('replySurrender{$message->id}','none');">{$translate->_('common.anybody')|lower}</button>
 						      	{/if}
-						      	<br>
+						      	</div>
 						      	<br>
 						      	
 						      	<div id="replySurrender{$message->id}" style="display:{if $ticket->next_worker_id}block{else}none{/if};margin-left:10px;">
@@ -217,6 +218,7 @@
 							      	<br>
 							    </div>
 		
+								{if $active_worker->hasPriv('core.ticket.actions.move')}
 								<b>{$translate->_('display.reply.next.move')}</b><br>  
 						      	<select name="bucket_id">
 						      		<option value="">-- {$translate->_('display.reply.next.move.no_thanks')|lower} --</option>
@@ -238,6 +240,7 @@
 						     		{/foreach}
 						      	</select><br>
 						      	<br>
+						      	{/if}
 						      	
 								<div id="replyOpen{$message->id}" style="display:{if $ticket->is_closed}none{else}block{/if};">
 						      	</div>

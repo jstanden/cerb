@@ -4,9 +4,9 @@
 <tr>
 	<td width="1%" nowrap="nowrap" valign="top" style="padding-right:5px;">
 		<form action="{devblocks_url}{/devblocks_url}" method="POST">
-			<button type="button" onclick="document.location.href='{devblocks_url}c=tickets&a=compose{/devblocks_url}';"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/export2.png{/devblocks_url}" align="top"> {$translate->_('mail.send_mail')|capitalize}</button><!--
-			--><button type="button" onclick="document.location.href='{devblocks_url}c=tickets&a=create{/devblocks_url}';"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/import1.png{/devblocks_url}" align="top"> {$translate->_('mail.log_message')|capitalize}</button><!-- 
-			--><button style="margin-left:5px;" type="button" onclick="autoRefreshTimer.start('{devblocks_url full=true}c=tickets{/devblocks_url}',this.form.reloadSecs.value);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/refresh.gif{/devblocks_url}" align="top"> Auto-Refresh</button><!-- 
+			{if $active_worker->hasPriv('core.mail.send')}<button type="button" onclick="document.location.href='{devblocks_url}c=tickets&a=compose{/devblocks_url}';"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/export2.png{/devblocks_url}" align="top"> {$translate->_('mail.send_mail')|capitalize}</button>{/if}<!--
+			-->{if $active_worker->hasPriv('core.mail.log_ticket')}<button type="button" onclick="document.location.href='{devblocks_url}c=tickets&a=create{/devblocks_url}';"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/import1.png{/devblocks_url}" align="top"> {$translate->_('mail.log_message')|capitalize}</button>{/if}<!-- 
+			-->{if $active_worker->hasPriv('core.mail.actions.auto_refresh')}<button style="margin-left:5px;" type="button" onclick="autoRefreshTimer.start('{devblocks_url full=true}c=tickets{/devblocks_url}',this.form.reloadSecs.value);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/refresh.gif{/devblocks_url}" align="top"> Auto-Refresh</button><!-- 
 			--><select name="reloadSecs">
 				<option value="600">10m</option>
 				<option value="300" selected="selected">5m</option>
@@ -15,8 +15,7 @@
 				<option value="120">2m</option>
 				<option value="60">1m</option>
 				<option value="30">30s</option>
-				<option value="10">10s</option>
-			</select>
+			</select>{/if}
 		</form>
 	</td>
 	<td width="98%" valign="middle">
@@ -40,18 +39,21 @@ tabView.addTab( new YAHOO.widget.Tab({
     cacheData: false
 }));
 
+{/literal}{if $active_worker->hasPriv('core.mail.overview')}{literal}
 tabView.addTab( new YAHOO.widget.Tab({
     label: '{/literal}{$translate->_('mail.overview')|capitalize|escape:'quotes'}{literal}',
     dataSrc: '{/literal}{devblocks_url}ajax.php?c=tickets&a=showOverviewTab&request={$request_path|escape:'url'}{/devblocks_url}{literal}',
     cacheData: false
 }));
+{/literal}{/if}{literal}
 
+{/literal}{if $active_worker->hasPriv('core.mail.search')}{literal}
 tabView.addTab( new YAHOO.widget.Tab({
     label: '{/literal}{$translate->_('common.search')|capitalize|escape:'quotes'}{literal}',
     dataSrc: '{/literal}{devblocks_url}ajax.php?c=tickets&a=showSearchTab&request={$request_path|escape:'url'}{/devblocks_url}{literal}',
     cacheData: true
-}));
-{/literal}
+}));{/literal}
+{/if}
 
 {foreach from=$workspaces item=workspace}
 {literal}tabView.addTab( new YAHOO.widget.Tab({{/literal}
@@ -195,8 +197,8 @@ tabView.addListener('activeTabChange', function(e) {
 // Select the appropriate tab
 {assign var=tabIdx value=null}
 {counter assign=counter name="mailTabs" start=0}{if empty($selected_tab) || 'workflow'==$selected_tab}{assign var=tabIdx value=$counter}{/if}
-{counter assign=counter name="mailTabs"}{if 'overview'==$selected_tab}{assign var=tabIdx value=$counter}{/if}
-{counter assign=counter name="mailTabs"}{if 'search'==$selected_tab}{assign var=tabIdx value=$counter}{/if}
+{if $active_worker->hasPriv('core.mail.overview')}{counter assign=counter name="mailTabs"}{if 'overview'==$selected_tab}{assign var=tabIdx value=$counter}{/if}{/if}
+{if $active_worker->hasPriv('core.mail.search')}{counter assign=counter name="mailTabs"}{if 'search'==$selected_tab}{assign var=tabIdx value=$counter}{/if}{/if}
 
 {foreach from=$workspaces item=workspace}
 	{counter assign=counter name="mailTabs"}{if 'w_'==substr($selected_tab,0,2) && substr($selected_tab,2)==$workspace}{assign var=tabIdx value=$counter}{/if}

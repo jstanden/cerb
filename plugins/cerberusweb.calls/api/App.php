@@ -82,7 +82,7 @@ class CallsAjaxController extends DevblocksControllerExtension {
 		 * http://www.cerberusweb.com/
 		 */
 		$license = CerberusLicense::getInstance();
-//		if(empty($id) && (empty($license['key']) || (!empty($license['key']) && !empty($license['users'])))
+//		if(empty($id) && (empty($license['serial']) || (!empty($license['serial']) && !empty($license['users'])))
 //			&& 10 <= DAO_TimeTrackingEntry::getItemCount()) {
 //			$tpl->display('file:' . $tpl_path . 'calls/ajax/trial.tpl');
 //			return;

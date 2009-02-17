@@ -1260,7 +1260,7 @@ class Rest_TicketsController extends Ch_RestController {
 				
 		// Single DELETE
 		if(1==count($path) && is_numeric($path[0]))
-			if(($ticket = DAO_Ticket::getTicket($path[0])) != null && isset($memberships[$ticket->team_id]) && $worker->can_delete)
+			if(($ticket = DAO_Ticket::getTicket($path[0])) != null && isset($memberships[$ticket->team_id]))
 				$this->_deleteIdAction($path);
 	}
 	

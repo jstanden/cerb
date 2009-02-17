@@ -664,19 +664,6 @@ class ChFeedbackController extends DevblocksControllerExtension {
 		// Editing
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		
-		/*
-		 * [IMPORTANT -- Yes, this is simply a line in the sand.]
-		 * You're welcome to modify the code to meet your needs, but please respect 
-		 * our licensing.  Buy a legitimate copy to help support the project!
-		 * http://www.cerberusweb.com/
-		 */
-		$license = CerberusLicense::getInstance();
-		if(empty($id) && (empty($license['key']) || (!empty($license['key']) && !empty($license['users'])))
-			&& 10 <= DAO_FeedbackEntry::getItemCount()) {
-			$tpl->display('file:' . $tpl_path . 'feedback/ajax/trial.tpl');
-			return;
-		}
-		
 		// Creating
 		@$msg_id = DevblocksPlatform::importGPC($_REQUEST['msg_id'],'integer',0);
 		@$quote = DevblocksPlatform::importGPC($_REQUEST['quote'],'string','');

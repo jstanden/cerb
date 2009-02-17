@@ -1,3 +1,4 @@
+{if $active_worker->hasPriv('core.mail.search')}
 <form action="{devblocks_url}{/devblocks_url}" method="post">
 <input type="hidden" name="c" value="tickets">
 <input type="hidden" name="a" value="doQuickSearch">
@@ -10,3 +11,4 @@
 	<option value="content"{if $quick_search_type eq 'content'}selected{/if}>{$translate->_('message.content')|capitalize}</option>
 </select><input type="text" name="query" size="16"><button type="submit">{$translate->_('common.search_go')|lower}</button>
 </form>
+{/if}

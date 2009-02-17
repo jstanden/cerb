@@ -51,20 +51,18 @@
 				{if $ticket->is_closed}
 					<button type="button" onclick="this.form.closed.value='0';this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_out.gif{/devblocks_url}" align="top"> {$translate->_('common.reopen')|capitalize}</button>
 				{else}
-					<button title="{$translate->_('display.shortcut.close')}" id="btnClose" type="button" onclick="this.form.closed.value=1;this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_ok.gif{/devblocks_url}" align="top"> {$translate->_('common.close')|capitalize}</button>
+					{if $active_worker->hasPriv('core.ticket.actions.close')}<button title="{$translate->_('display.shortcut.close')}" id="btnClose" type="button" onclick="this.form.closed.value=1;this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_ok.gif{/devblocks_url}" align="top"> {$translate->_('common.close')|capitalize}</button>{/if}
 				{/if}
 				
 				{if empty($ticket->spam_training)}
-					<button title="{$translate->_('display.shortcut.spam')}" id="btnSpam" type="button" onclick="this.form.spam.value='1';this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/spam.gif{/devblocks_url}" align="top"> {$translate->_('common.spam')|capitalize}</button>
+					{if $active_worker->hasPriv('core.ticket.actions.spam')}<button title="{$translate->_('display.shortcut.spam')}" id="btnSpam" type="button" onclick="this.form.spam.value='1';this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/spam.gif{/devblocks_url}" align="top"> {$translate->_('common.spam')|capitalize}</button>{/if}
 				{/if}
 			{/if}
 			
 			{if $ticket->is_deleted}
 				<button type="button" onclick="this.form.deleted.value='0';this.form.closed.value=0;this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete_gray.gif{/devblocks_url}" align="top"> {$translate->_('common.undelete')|capitalize}</button>
 			{else}
-				{if $active_worker && ($active_worker->is_superuser || $active_worker->can_delete)}
-				<button title="{$translate->_('display.shortcut.delete')}" id="btnDelete" type="button" onclick="this.form.deleted.value=1;this.form.closed.value=1;this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> {$translate->_('common.delete')|capitalize}</button>
-				{/if}
+				{if $active_worker->hasPriv('core.ticket.actions.delete')}<button title="{$translate->_('display.shortcut.delete')}" id="btnDelete" type="button" onclick="this.form.deleted.value=1;this.form.closed.value=1;this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> {$translate->_('common.delete')|capitalize}</button>{/if}
 			{/if}
 			
 			{if empty($ticket->next_worker_id)}<button id="btnTake" title="{$translate->_('display.shortcut.take')}" type="button" onclick="this.form.next_worker_id.value='{$active_worker->id}';this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/hand_paper.gif{/devblocks_url}" align="top"> {$translate->_('mail.take')|capitalize}</button>{/if}
@@ -73,6 +71,7 @@
 			{if !$expand_all}<button id="btnReadAll" title="{$translate->_('display.shortcut.read_all')}" type="button" onclick="document.location='{devblocks_url}c=display&id={$ticket->mask}&tab=conversation&opt=read_all{/devblocks_url}';"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document.gif{/devblocks_url}" align="top"> {$translate->_('display.button.read_all')|capitalize}</button>{/if} 
 			 
 			{if !$ticket->is_deleted}
+			{if $active_worker->hasPriv('core.ticket.actions.move')}
 		   	<select name="bucket_id" onchange="this.form.submit();">
 		   		<option value="">-- {$translate->_('common.move_to')|lower} --</option>
 		   		{if empty($ticket->category_id)}{assign var=t_or_c value="t"}{else}{assign var=t_or_c value="c"}{/if}
@@ -94,6 +93,7 @@
 		  		{/foreach}
 		   	</select>
 		   	{/if}
+		   	{/if}
 		   	<button id="btnPrint" title="{$translate->_('display.shortcut.print')}" type="button" onclick="document.frmPrint.action='{devblocks_url}c=print&a=ticket&id={$ticket->mask}{/devblocks_url}';document.frmPrint.submit();">&nbsp;<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/printer.gif{/devblocks_url}" align="top">&nbsp;</button>
 		   	<button type="button" title="{$translate->_('display.shortcut.refresh')}" onclick="document.location='{devblocks_url}c=display&id={$ticket->mask}{/devblocks_url}';">&nbsp;<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/replace2.gif{/devblocks_url}" align="top">&nbsp;</button>
 			<br>
@@ -107,15 +107,15 @@
 			{/if}
 			
 			{$translate->_('common.keyboard')|lower}: 
-			{if !$ticket->is_closed}(<b>c</b>) {$translate->_('common.close')|lower}, {/if}
-			{if !$ticket->spam_trained}(<b>s</b>) {$translate->_('common.spam')|lower}, {/if}
-			{if !$ticket->is_deleted && $active_worker && ($active_worker->is_superuser || $active_worker->can_delete)}(<b>x</b>) {$translate->_('common.delete')|lower}, {/if}
-			{if empty($ticket->next_worker_id)}(<b>t</b>) {$translate->_('mail.take')|lower}, {/if}
-			{if $ticket->next_worker_id == $active_worker->id}(<b>u</b>) {$translate->_('mail.surrender')|lower}, {/if}
-			{if !$expand_all}(<b>a</b>) {$translate->_('display.button.read_all')|lower}, {/if} 
-			{if !empty($series_stats.prev)}( <b>[</b> ) {$translate->_('common.previous')|lower}, {/if} 
-			{if !empty($series_stats.next)}( <b>]</b> ) {$translate->_('common.next')|lower}, {/if} 
-			(<b>r</b>) {$translate->_('display.ui.reply')|lower},  
+			{if !$ticket->is_closed && $active_worker->hasPriv('core.ticket.actions.close')}(<b>c</b>) {$translate->_('common.close')|lower} {/if}
+			{if !$ticket->spam_trained && $active_worker->hasPriv('core.ticket.actions.spam')}(<b>s</b>) {$translate->_('common.spam')|lower} {/if}
+			{if !$ticket->is_deleted && $active_worker->hasPriv('core.ticket.actions.delete')}(<b>x</b>) {$translate->_('common.delete')|lower} {/if}
+			{if empty($ticket->next_worker_id)}(<b>t</b>) {$translate->_('mail.take')|lower} {/if}
+			{if $ticket->next_worker_id == $active_worker->id}(<b>u</b>) {$translate->_('mail.surrender')|lower} {/if}
+			{if !$expand_all}(<b>a</b>) {$translate->_('display.button.read_all')|lower} {/if} 
+			{if !empty($series_stats.prev)}( <b>[</b> ) {$translate->_('common.previous')|lower} {/if} 
+			{if !empty($series_stats.next)}( <b>]</b> ) {$translate->_('common.next')|lower} {/if} 
+			{if $active_worker->hasPriv('core.display.actions.reply')}(<b>r</b>) {$translate->_('display.ui.reply')|lower} {/if}  
 			(<b>p</b>) {$translate->_('common.print')|lower} 
 			<br>
 			 

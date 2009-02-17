@@ -77,6 +77,48 @@
 		</event>
 	</event_points>
 
+	<!-- Permissions -->
+
+	<acl>
+		<!-- Addy Book -->
+		<priv id="core.addybook" label="acl.core.addybook" />
+		<priv id="core.addybook.view.actions.export" label="acl.core.addybook.view.actions.export" />
+
+		<!-- Display Ticket -->
+		<priv id="core.display.actions.attachments.download" label="acl.core.display.actions.attachments.download" />
+		<priv id="core.display.actions.comment" label="acl.core.display.actions.comment" />
+		<priv id="core.display.actions.forward" label="acl.core.display.actions.forward" />
+		<priv id="core.display.actions.note" label="acl.core.display.actions.note" />
+		<priv id="core.display.actions.reply" label="acl.core.display.actions.reply" />
+		<priv id="core.display.actions.split" label="acl.core.display.actions.split" />
+
+		<!-- KB -->
+		<priv id="core.kb" label="acl.core.kb" />
+
+		<!-- Mail page -->
+		<priv id="core.mail.actions.auto_refresh" label="acl.core.mail.actions.auto_refresh" />
+		<priv id="core.mail.log_ticket" label="acl.core.mail.log_ticket" />
+		<priv id="core.mail.overview" label="acl.core.mail.overview" />
+		<priv id="core.mail.search" label="acl.core.mail.search" />
+		<priv id="core.mail.send" label="acl.core.mail.send" />
+
+		<!-- RSS -->
+		<priv id="core.rss" label="acl.core.rss" />
+
+		<!-- Tickets -->
+		<priv id="core.ticket.actions.assign" label="acl.core.ticket.actions.assign" />
+		<priv id="core.ticket.actions.close" label="acl.core.ticket.actions.close" />
+		<priv id="core.ticket.actions.delete" label="acl.core.ticket.actions.delete" />
+		<priv id="core.ticket.actions.move" label="acl.core.ticket.actions.move" />
+		<priv id="core.ticket.actions.spam" label="acl.core.ticket.actions.spam" />
+		<priv id="core.ticket.view.actions.bulk_update" label="acl.core.ticket.view.actions.bulk_update" />
+		<priv id="core.ticket.view.actions.export" label="acl.core.ticket.view.actions.export" />
+		<priv id="core.ticket.view.actions.merge" label="acl.core.ticket.view.actions.merge" />
+		<priv id="core.ticket.view.actions.pile_sort" label="acl.core.ticket.view.actions.pile_sort" />
+	</acl>
+
+	<!-- Extensions -->
+
 	<extensions>
 
 		<!-- Event Listeners -->
@@ -93,21 +135,6 @@
 			</params>
 		</extension>
  
-		<!-- Routers -->
-		
-		<!-- 
-		<extension point="devblocks.router">
-			<id>core.router</id>
-			<name>Cerberus Helpdesk Router</name>
-			<class>
-				<file>classes.php</file>
-				<name>ChCoreRouter</name>
-			</class>
-			<params>
-			</params>
-		</extension>
-		 -->
-		 
 		<!-- Controllers -->
 		
 		<extension point="devblocks.controller">
@@ -323,6 +350,7 @@
 			<params>
 				<param key="uri" value="kb" />
 				<param key="menutitle" value="core.menu.knowledgebase" />
+				<param key="acl" value="core.kb" />
 			</params>
 		</extension>
 
@@ -349,6 +377,7 @@
 			<params>
 				<param key="uri" value="contacts" />
 				<param key="menutitle" value="core.menu.address_book" />
+				<param key="acl" value="core.addybook" />
 			</params>
 		</extension>
 

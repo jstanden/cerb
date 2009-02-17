@@ -1,8 +1,8 @@
 <!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
 <plugin>
 	<id>cerberusweb.crm</id>
-	<name>Cerberus Helpdesk: CRM (Experimental)</name>
-	<description>Customer Relationship Management: Leads/Opportunities, Campaigns</description>
+	<name>Cerberus Helpdesk: Opportunity Tracking (Experimental)</name>
+	<description>Create opportunities (sales leads) linked to e-mail addresses. Opportunity records can be created from the Activity menu or while reading tickets.</description>
 	<author>WebGroup Media, LLC.</author>
 	<revision>0</revision>
 	<link>http://www.cerberusweb.com/</link>

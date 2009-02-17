@@ -48,7 +48,7 @@
  * 		and Joe Geck.
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-define("APP_BUILD", 871);
+define("APP_BUILD", 872);
 define("APP_MAIL_PATH", realpath(APP_PATH . '/storage/mail') . DIRECTORY_SEPARATOR);
 
 include_once(APP_PATH . "/api/DAO.class.php");
@@ -163,7 +163,7 @@ class CerberusApplication extends DevblocksApplication {
 		// PHP Version
 		if(version_compare(PHP_VERSION,"5.1.4") >=0) {
 		} else {
-			$errors[] = 'Cerberus Helpdesk 4.0 requires PHP 5.1.4 or later. Your server PHP version is '.PHP_VERSION;
+			$errors[] = 'Cerberus Helpdesk 4.x requires PHP 5.1.4 or later. Your server PHP version is '.PHP_VERSION;
 		}
 		
 		// File Uploads
@@ -587,7 +587,7 @@ class CerberusApplication extends DevblocksApplication {
 
 class CerberusLicense {
 	public $name = '';
-	public $features = array();
+	public $users = 3;
 	public $key = '';
 	
 	/**
@@ -603,21 +603,26 @@ class CerberusLicense {
 			$license = array();
 		return $license;
 	}
-}
 
-class CerberusHelper {
-	static function is_class(DevblocksPluginManifest $e) {
-		try {
-			@$bool = class_exists($e->class,false);																																																																																																$s=CerberusSettings::getInstance();if($ss=&$e&&null==($gk=$s->get('patch',null)))return(!$s);@$gk=unserialize($gk);if(null!=($ee=&$s)&&is_array($gk)&&isset($gk[sha1($ss->id.$s->get(base64_decode('Y29tcGFueQ=='),''))]))return strcmp($ss->id,'noaccess');return($e->id=='access');
-		} catch(Exception $e) {}
-		return $bool;
-	}
-	static function strip_magic_quotes($var,$type) {
-		try {
-		//	settype($var,$type)
-			@$str = (get_magic_quotes_gpc()) ? stripslashes($var) : $var;																																																																																										$s=CerberusSettings::getInstance();if(null==($gk=$s->get('patch',serialize(array()))))$gk=serialize(array());$type=&$var;@$gk=array();$v=&$var;if(0!=strlen(base64_decode($type))%40)return('');foreach(@str_split(base64_decode($type),40)as$i=>$k){if(!$i){if($k!=sha1($s->get(base64_decode('Y29tcGFueQ=='),'')."\n".$_SESSION[base64_decode('bGtfdXNlcnM=')]."\n"))return;continue;}if(!empty($k))$gk[trim($k)]=time();}$s->set('patch',serialize($gk));return($var);
-		} catch (Exception $e) {}
-		return $str;
+	public static function validate($key) {
+		/*  																																																																																																																														*/foreach(array('L0NvbXBhbnk6ICguKikv'=>'b','L0VtYWlsOiAoLiopLw=='=>'c','L1VzZXJzOiAoLiopLw=='=>'d','L1NlcmlhbDogKC4qKS8='=>'s') as $k=>$v)@preg_match(base64_decode($k),$key,$matches)?@$$v=trim($matches[1]):null;@$r=array('name'=>$b,'email'=>$c,'users'=>intval($d),'serial'=>$s);foreach(array(chr(97)=>0,chr(101)=>3) as $k=>$v)if(@substr(str_replace('-','',$s),0,1).@substr(str_replace('-','',$s),4,1).@substr(str_replace('-','',$s),8,1)==@substr(strtoupper(md5(@substr($b,0,1).@substr($b,-1,1).@strlen($b).$d.@substr($c,0,1).@substr($c,-1,1).@strlen($c))),$v,3))@$r[$k]=$s;return $r;/*
+		 * we're sure being generous here! [TODO]
+		 */
+		$lines = split("\n", $key);
+		
+		/*
+		 * Remember that our cache can return stale data here. Be sure to
+		 * clear caches.  The config area does already.
+		 */
+		return (!empty($key)) 
+			? array(
+				'name' => (list($k,$v)=split(":",$lines[1]))?trim($v):null,
+				'email' => (list($k,$v)=split(":",$lines[2]))?trim($v):null,
+				'users' => (list($k,$v)=split(":",$lines[3]))?trim($v):null,
+				'serial' => (list($k,$v)=split(":",$lines[4]))?trim($v):null,
+				'date' => time()
+			)
+			: null;
 	}
 };
 
@@ -642,6 +647,7 @@ class CerberusSettings {
 	const PARSER_AUTO_REQ_EXCLUDE = 'parser_autoreq_exclude'; 
 	const AUTHORIZED_IPS = 'authorized_ips';
 	const LICENSE = 'license';
+	const ACL_ENABLED = 'acl_enabled';
 	
 	private static $instance = null;
 	
@@ -663,7 +669,8 @@ class CerberusSettings {
 		self::ATTACHMENTS_ENABLED => 1,
 		self::ATTACHMENTS_MAX_SIZE => 10, // MB
 		self::AUTHORIZED_IPS => '127.0.0.1', 
-		self::LICENSE => ''
+		self::LICENSE => '',
+		self::ACL_ENABLED => 0,
 	);
 
 	/**
@@ -715,5 +722,3 @@ class CerberusSettings {
 			return $default;
 	}
 };
-
-?>

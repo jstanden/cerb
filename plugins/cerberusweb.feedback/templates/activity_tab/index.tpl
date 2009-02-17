@@ -1,6 +1,8 @@
+{if $active_worker->hasPriv('feedback.actions.create')}
 <form action="{devblocks_url}{/devblocks_url}" style="margin-bottom:5px;">
 	<button type="button" onclick="genericAjaxPanel('c=feedback&a=showEntry&id=0&view_id={$view->id}',null,false,'500px',function(o){literal}{{/literal} genericAjaxPostAfterSubmitEvent.subscribe(function(type,args){literal}{{/literal}genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');{literal}}{/literal}); {literal}}{/literal} );"><img src="{devblocks_url}c=resource&p=cerberusweb.feedback&f=images/question_and_answer.png{/devblocks_url}" align="top"> {$translate->_('feedback.button.capture')|capitalize}</button>
 </form>
+{/if}
 
 <table cellpadding="0" cellspacing="0" width="100%">
 

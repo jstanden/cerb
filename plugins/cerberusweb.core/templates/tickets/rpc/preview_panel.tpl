@@ -31,8 +31,8 @@
 					<td width="100%">
 						<label><input type="radio" name="closed" value="0" onclick="toggleDiv('ticketClosed','none');" {if !$ticket->is_closed && !$ticket->is_waiting}checked{/if}>{$translate->_('status.open')|capitalize}</label>
 						<label><input type="radio" name="closed" value="2" onclick="toggleDiv('ticketClosed','block');" {if !$ticket->is_closed && $ticket->is_waiting}checked{/if}>{$translate->_('status.waiting')|capitalize}</label>
-						<label><input type="radio" name="closed" value="1" onclick="toggleDiv('ticketClosed','block');" {if $ticket->is_closed && !$ticket->is_deleted}checked{/if}>{$translate->_('status.closed')|capitalize}</label>
-						<label><input type="radio" name="closed" value="3" onclick="toggleDiv('ticketClosed','none');" {if $ticket->is_deleted}checked{/if}>{$translate->_('status.deleted')|capitalize}</label>
+						{if $active_worker->hasPriv('core.ticket.actions.close') || ($ticket->is_closed && !$ticket->is_deleted)}<label><input type="radio" name="closed" value="1" onclick="toggleDiv('ticketClosed','block');" {if $ticket->is_closed && !$ticket->is_deleted}checked{/if}>{$translate->_('status.closed')|capitalize}</label>{/if}
+						{if $active_worker->hasPriv('core.ticket.actions.delete') || ($ticket->is_deleted)}<label><input type="radio" name="closed" value="3" onclick="toggleDiv('ticketClosed','none');" {if $ticket->is_deleted}checked{/if}>{$translate->_('status.deleted')|capitalize}</label>{/if}
 					</td>
 				</tr>
 				<tr>
@@ -52,6 +52,8 @@
 						</select>
 					</td>
 				</tr>
+				
+				{if $active_worker->hasPriv('core.ticket.actions.move')}
 				<tr>
 					<td width="0%" nowrap="nowrap" align="right">Bucket: </td>
 					<td width="100%">
@@ -76,7 +78,9 @@
 						</select>
 					</td>
 				</tr>
-				{if '' == $ticket->spam_training}
+				{/if}
+				
+				{if '' == $ticket->spam_training && $active_worker->hasPriv('core.ticket.actions.spam')}
 				<tr>
 					<td width="0%" nowrap="nowrap" align="right">Spam Training: </td>
 					<td width="100%">

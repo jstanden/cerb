@@ -11,6 +11,15 @@
 			<tuv xml:lang="en_US"><seg>Feedback</seg></tuv>
 		</tu>
 		
+		<!-- ACL -->
+		
+		<tu tuid='acl.feedback.actions.create'>
+			<tuv xml:lang="en_US"><seg>[Feedback] Can create feedback entries</seg></tuv>
+		</tu>
+		<tu tuid='acl.feedback.view.actions.export'>
+			<tuv xml:lang="en_US"><seg>[Feedback] Can export lists to CSV/XML</seg></tuv>
+		</tu>
+		
 		<!-- Feedback Strings -->
 
 		<tu tuid='feedback.cfg.blank'>

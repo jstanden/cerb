@@ -8,12 +8,12 @@
 		<td nowrap="nowrap" class="tableThBlue">{$view->name} {if $view->id == 'search'}<a href="#{$view->id}_actions" style="color:rgb(255,255,255);font-size:11px;">{$translate->_('views.jump_to_actions')}</a>{/if}</td>
 		<td nowrap="nowrap" class="tableThBlue" align="right">
 			<a href="javascript:;" onclick="genericAjaxGet('customize{$view->id}','c=internal&a=viewCustomize&id={$view->id}');toggleDiv('customize{$view->id}','block');" class="tableThLink">{$translate->_('common.customize')|lower}</a>
-			{if $view->id != 'contact_history'}<span style="font-size:12px"> | </span><a href="javascript:;" onclick="genericAjaxGet('{$view->id}_tips','c=tickets&a=showViewAutoAssist&view_id={$view->id}');toggleDiv('{$view->id}_tips','block');" class="tableThLink">{$translate->_('mail.piles')|lower}</a>{/if}
-			{if $view->id != 'search'}<span style="font-size:12px"> | </span><a href="{devblocks_url}c=tickets&a=searchview&id={$view->id}{/devblocks_url}" class="tableThLink">{$translate->_('common.search')|lower}</a>{/if}
+			{if $active_worker->hasPriv('core.ticket.view.actions.pile_sort')}<span style="font-size:12px"> | </span><a href="javascript:;" onclick="genericAjaxGet('{$view->id}_tips','c=tickets&a=showViewAutoAssist&view_id={$view->id}');toggleDiv('{$view->id}_tips','block');" class="tableThLink">{$translate->_('mail.piles')|lower}</a>{/if}
+			{if $active_worker->hasPriv('core.mail.search')}<span style="font-size:12px"> | </span><a href="{devblocks_url}c=tickets&a=searchview&id={$view->id}{/devblocks_url}" class="tableThLink">{$translate->_('common.search')|lower}</a>{/if}
 			<span style="font-size:12px"> | </span><a href="javascript:;" onclick="genericAjaxGet('{$view->id}_tips','c=internal&a=viewShowCopy&view_id={$view->id}');toggleDiv('{$view->id}_tips','block');" class="tableThLink">{$translate->_('common.copy')|lower}</a>
-			{if $active_worker->is_superuser || $active_worker->can_export}<span style="font-size:12px"> | </span><a href="javascript:;" onclick="genericAjaxGet('{$view->id}_tips','c=internal&a=viewShowExport&id={$view->id}');toggleDiv('{$view->id}_tips','block');" class="tableThLink">{$translate->_('common.export')|lower}</a>{/if}
+			{if $active_worker->hasPriv('core.ticket.view.actions.export')}<span style="font-size:12px"> | </span><a href="javascript:;" onclick="genericAjaxGet('{$view->id}_tips','c=internal&a=viewShowExport&id={$view->id}');toggleDiv('{$view->id}_tips','block');" class="tableThLink">{$translate->_('common.export')|lower}</a>{/if}
 			<span style="font-size:12px"> | </span><a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');" class="tableThLink"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/refresh.gif{/devblocks_url}" border="0" align="absmiddle" title="{$translate->_('common.refresh')|lower}" alt="{$translate->_('common.refresh')|lower}"></a>
-			<span style="font-size:12px"> | </span><a href="javascript:;" onclick="genericAjaxGet('{$view->id}_tips','c=tickets&a=showViewRss&view_id={$view->id}&source=core.rss.source.ticket');toggleDiv('{$view->id}_tips','block');" class="tableThLink"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/feed-icon-16x16.gif{/devblocks_url}" border="0" align="absmiddle"></a>
+			{if $active_worker->hasPriv('core.rss')}<span style="font-size:12px"> | </span><a href="javascript:;" onclick="genericAjaxGet('{$view->id}_tips','c=tickets&a=showViewRss&view_id={$view->id}&source=core.rss.source.ticket');toggleDiv('{$view->id}_tips','block');" class="tableThLink"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/feed-icon-16x16.gif{/devblocks_url}" border="0" align="absmiddle"></a>{/if}
 		</td>
 	</tr>
 </table>
@@ -173,8 +173,9 @@
 			{if empty($result.t_spam_training)}
 			<!--<a href="javascript:;"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/warning.gif{/devblocks_url}" align="top" border="0" title="Not Spam ({$score})"></a>-->
 			<!--<a href="javascript:;"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check_gray.gif{/devblocks_url}" align="top" border="0" title="Not Spam ({$score})"></a>-->
-			<a href="javascript:;" onclick="toggleDiv('{$rowIdPrefix}_s','none');toggleDiv('{$rowIdPrefix}','none');genericAjaxGet('{$view->id}_output_container','c=tickets&a=reportSpam&id={$result.t_id}&viewId={$view->id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/{if $result.t_spam_score >= .90}warning.gif{else}warning_gray.gif{/if}{/devblocks_url}" align="top" border="0" title="Report Spam ({$score})
-			{if !empty($result.t_interesting_words)}{$result.t_interesting_words}{/if}"></a>
+			{if $active_worker->hasPriv('core.ticket.actions.spam')}<a href="javascript:;" onclick="toggleDiv('{$rowIdPrefix}_s','none');toggleDiv('{$rowIdPrefix}','none');genericAjaxGet('{$view->id}_output_container','c=tickets&a=reportSpam&id={$result.t_id}&viewId={$view->id}');">{/if}
+			<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/{if $result.t_spam_score >= .90}warning.gif{else}warning_gray.gif{/if}{/devblocks_url}" align="top" border="0" title="Report Spam ({$score})	{if !empty($result.t_interesting_words)}{$result.t_interesting_words}{/if}">
+			{if $active_worker->hasPriv('core.ticket.actions.spam')}</a>{/if}
 			{/if}
 		</td>
 		{else}
@@ -191,13 +192,15 @@
 	{if $total}
 	<tr>
 		<td colspan="2">
-			{if $view->id != 'contact_history'}<button type="button"  id="btn{$view->id}BulkUpdate" onclick="ajax.showBatchPanel('{$view->id}',this);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> {$translate->_('mail.bulk_update')|lower}</button>{/if}
-			<button type="button" id="btn{$view->id}Close" onclick="ajax.viewCloseTickets('{$view->id}',0);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_ok.gif{/devblocks_url}" align="top"> {$translate->_('common.close')|lower}</button>
-			<button type="button"  id="btn{$view->id}Spam" onclick="ajax.viewCloseTickets('{$view->id}',1);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/spam.gif{/devblocks_url}" align="top"> {$translate->_('common.spam')|lower}</button>
-			{if $active_worker && ($active_worker->is_superuser || $active_worker->can_delete)}<button type="button"  id="btn{$view->id}Delete" onclick="ajax.viewCloseTickets('{$view->id}',2);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> {$translate->_('common.delete')|lower}</button>{/if}
+			{assign var=show_more value=0}
+			{if $active_worker->hasPriv('core.ticket.view.actions.bulk_update')}{assign var=show_more value=1}<button type="button"  id="btn{$view->id}BulkUpdate" onclick="ajax.showBatchPanel('{$view->id}',this);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> {$translate->_('mail.bulk_update')|lower}</button>{/if}
+			{if $active_worker->hasPriv('core.ticket.actions.close')}{assign var=show_more value=1}<button type="button" id="btn{$view->id}Close" onclick="ajax.viewCloseTickets('{$view->id}',0);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_ok.gif{/devblocks_url}" align="top"> {$translate->_('common.close')|lower}</button>{/if}
+			{if $active_worker->hasPriv('core.ticket.actions.spam')}{assign var=show_more value=1}<button type="button"  id="btn{$view->id}Spam" onclick="ajax.viewCloseTickets('{$view->id}',1);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/spam.gif{/devblocks_url}" align="top"> {$translate->_('common.spam')|lower}</button>{/if}
+			{if $active_worker->hasPriv('core.ticket.actions.delete')}{assign var=show_more value=1}<button type="button"  id="btn{$view->id}Delete" onclick="ajax.viewCloseTickets('{$view->id}',2);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> {$translate->_('common.delete')|lower}</button>{/if}
 			
+			{if $active_worker->hasPriv('core.ticket.actions.move')}
+			{assign var=show_more value=1}
 			<input type="hidden" name="move_to" value="">
-
 			<select name="move_to_select" onchange="this.form.move_to.value=this.form.move_to_select[this.selectedIndex].value;ajax.viewMoveTickets('{$view->id}');">
 				<option value="">-- {$translate->_('common.move_to')} --</option>
 				<optgroup label="{$translate->_('common.inboxes')|capitalize}" style="">
@@ -216,12 +219,15 @@
 					{/if}
 				{/foreach}
 			</select>
+			{/if}
 			
+			{if $show_more}
 			<button type="button" onclick="toggleDiv('view{$view->id}_more');">{$translate->_('common.more')|lower} &raquo;</button><br>
+			{/if}
 
-			<div id="view{$view->id}_more" style="display:none;padding-top:5px;padding-bottom:5px;">
+			<div id="view{$view->id}_more" style="display:{if $show_more}none{else}block{/if};padding-top:5px;padding-bottom:5px;">
 				<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','not_spam');">{$translate->_('common.notspam')|lower}</button>
-				<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','merge');">{$translate->_('mail.merge')|lower}</button>
+				{if $active_worker->hasPriv('core.ticket.view.actions.merge')}<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','merge');">{$translate->_('mail.merge')|lower}</button>{/if}
 				<button type="button" id="btn{$view->id}Take" onclick="ajax.viewTicketsAction('{$view->id}','take');">{$translate->_('mail.take')|lower}</button>
 				<button type="button" id="btn{$view->id}Surrender" onclick="ajax.viewTicketsAction('{$view->id}','surrender');">{$translate->_('mail.surrender')|lower}</button>
 				<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','waiting');">{$translate->_('mail.waiting')|lower}</button>
@@ -229,7 +235,14 @@
 			</div>
 
 			{if $view->id=='overview_all' || $view->id=='mail_workflow'}{*Only on Workflow/Overview*}
-				{$translate->_('common.keyboard')|lower}: (<b>b</b>) {$translate->_('mail.bulk_update')|lower}, (<b>c</b>) {$translate->_('common.close')|lower}, (<b>s</b>) {$translate->_('common.spam')|lower}, (<b>t</b>) {$translate->_('mail.take')|lower}, (<b>u</b>) {$translate->_('mail.surrender')|lower}, {if $active_worker && ($active_worker->is_superuser || $active_worker->can_delete)}(<b>x</b>) {$translate->_('common.delete')|lower}{/if}<br>
+				{$translate->_('common.keyboard')|lower}: 
+					{if $active_worker->hasPriv('core.ticket.view.actions.bulk_update')}(<b>b</b>) {$translate->_('mail.bulk_update')|lower}{/if} 
+					{if $active_worker->hasPriv('core.ticket.actions.close')}(<b>c</b>) {$translate->_('common.close')|lower}{/if} 
+					{if $active_worker->hasPriv('core.ticket.actions.spam')}(<b>s</b>) {$translate->_('common.spam')|lower}{/if} 
+					(<b>t</b>) {$translate->_('mail.take')|lower} 
+					(<b>u</b>) {$translate->_('mail.surrender')|lower} 
+					{if $active_worker->hasPriv('core.ticket.actions.delete')}(<b>x</b>) {$translate->_('common.delete')|lower}{/if}
+					<br>
 			{/if}
 
 		</td>

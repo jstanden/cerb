@@ -2,7 +2,7 @@
 <plugin>
 	<id>cerberusweb.watchers</id>
 	<name>Cerberus Helpdesk: E-mail Notifications</name>
-	<description>Create mail forwards to send copies of group mail any e-mail address, such as a desktop e-mail client or handheld device.</description>
+	<description>Create mail forwards to send copies of group mail any e-mail address, such as a desktop e-mail client or handheld device. This adds an 'Email Notifications' tab to each workers My Account page.</description>
 	<author>WebGroup Media, LLC.</author>
 	<revision>0</revision>
 	<link>http://wiki.cerb4.com/wiki/New_Changes#Watchers_.28E-mail_Notifications.29</link>

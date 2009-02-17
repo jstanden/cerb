@@ -847,7 +847,6 @@ class ImportCron extends CerberusCronPageExtension {
 		DAO_Worker::updateAgent($worker_id,array(
 			DAO_Worker::PASSWORD => $sPassword, // pre-MD5'd
 			DAO_Worker::IS_SUPERUSER => intval($isSuperuser),
-			DAO_Worker::CAN_DELETE => intval($isSuperuser),
 		));
 		
 		// Address to Worker

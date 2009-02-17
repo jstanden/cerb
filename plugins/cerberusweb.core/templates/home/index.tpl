@@ -14,7 +14,6 @@
 	<option value="120">2m</option>
 	<option value="60">1m</option>
 	<option value="30">30s</option>
-	<option value="10">10s</option>
 </select>
 </form>
 

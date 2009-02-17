@@ -278,8 +278,6 @@ class DAO_Worker extends DevblocksORMHelper {
 	const PASSWORD = 'pass';
 	const IS_SUPERUSER = 'is_superuser';
 	const IS_DISABLED = 'is_disabled';
-	const CAN_EXPORT = 'can_export';
-	const CAN_DELETE = 'can_delete';
 	const LAST_ACTIVITY_DATE = 'last_activity_date';
 	const LAST_ACTIVITY = 'last_activity';
 	
@@ -291,8 +289,8 @@ class DAO_Worker extends DevblocksORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$id = $db->GenID('generic_seq');
 		
-		$sql = sprintf("INSERT INTO worker (id, email, pass, first_name, last_name, title, is_superuser, is_disabled, can_export, can_delete) ".
-			"VALUES (%d, %s, %s, %s, %s, %s,0,0,0,0)",
+		$sql = sprintf("INSERT INTO worker (id, email, pass, first_name, last_name, title, is_superuser, is_disabled) ".
+			"VALUES (%d, %s, %s, %s, %s, %s,0,0)",
 			$id,
 			$db->qstr($email),
 			$db->qstr(md5($password)),
@@ -366,7 +364,7 @@ class DAO_Worker extends DevblocksORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$workers = array();
 		
-		$sql = "SELECT a.id, a.first_name, a.last_name, a.email, a.pass, a.title, a.is_superuser, a.is_disabled, a.can_export, a.can_delete, a.last_activity_date, a.last_activity ".
+		$sql = "SELECT a.id, a.first_name, a.last_name, a.email, a.pass, a.title, a.is_superuser, a.is_disabled, a.last_activity_date, a.last_activity ".
 			"FROM worker a ".
 			((!empty($ids) ? sprintf("WHERE a.id IN (%s) ",implode(',',$ids)) : " ").
 			"ORDER BY a.last_name, a.first_name "
@@ -384,8 +382,6 @@ class DAO_Worker extends DevblocksORMHelper {
 			$worker->title = $rs->fields['title'];
 			$worker->is_superuser = intval($rs->fields['is_superuser']);
 			$worker->is_disabled = intval($rs->fields['is_disabled']);
-			$worker->can_export = intval($rs->fields['can_export']);
-			$worker->can_delete = intval($rs->fields['can_delete']);
 			$worker->last_activity_date = intval($rs->fields['last_activity_date']);
 			
 			if(!empty($rs->fields['last_activity']))
@@ -530,6 +526,9 @@ class DAO_Worker extends DevblocksORMHelper {
 		$sql = sprintf("UPDATE ticket SET next_worker_id = 0 WHERE next_worker_id = %d", $id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 
+		// Clear roles
+		$db->Execute(sprintf("DELETE FROM worker_to_role WHERE worker_id = %d", $id));
+		
 		// Invalidate caches
 		self::clearCache();
 		$cache = DevblocksPlatform::getCacheService();
@@ -703,6 +702,252 @@ class SearchFields_Worker implements IDevblocksSearchFields {
 			SearchFields_Worker::LAST_ACTIVITY => new DevblocksSearchField(SearchFields_Worker::LAST_ACTIVITY, 'w', 'last_activity'),
 			SearchFields_Worker::LAST_ACTIVITY_DATE => new DevblocksSearchField(SearchFields_Worker::LAST_ACTIVITY_DATE, 'w', 'last_activity_date'),
 		);
+	}
+};
+
+class DAO_WorkerRole extends DevblocksORMHelper {
+	const _CACHE_ALL = 'ch_acl';
+	
+	const CACHE_KEY_ROLES = 'roles';
+	const CACHE_KEY_PRIVS_BY_ROLE = 'privs_by_role';
+	const CACHE_KEY_WORKERS_BY_ROLE = 'workers_by_role';
+	const CACHE_KEY_PRIVS_BY_WORKER = 'privs_by_worker';
+	
+	const ID = 'id';
+	const NAME = 'name';
+
+	static function create($fields) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$id = $db->GenID('generic_seq');
+		
+		$sql = sprintf("INSERT INTO worker_role (id) ".
+			"VALUES (%d)",
+			$id
+		);
+		$db->Execute($sql);
+		
+		self::update($id, $fields);
+		
+		return $id;
+	}
+	
+	static function update($ids, $fields) {
+		parent::_update($ids, 'worker_role', $fields);
+	}
+	
+	static function getACL($nocache=false) {
+	    $cache = DevblocksPlatform::getCacheService();
+	    if($nocache || null === ($acl = $cache->load(self::_CACHE_ALL))) {
+	    	$db = DevblocksPlatform::getDatabaseService();
+	    	
+	    	// All roles
+	    	$all_roles = self::getWhere();
+	    	$all_worker_ids = array();
+
+	    	// All privileges by role
+	    	$all_privs = array();
+	    	$rs = $db->Execute("SELECT role_id, priv_id FROM worker_role_acl WHERE has_priv = 1 ORDER BY role_id, priv_id");
+	    	while(!$rs->EOF) {
+	    		$role_id = intval($rs->fields['role_id']);
+	    		$priv_id = $rs->fields['priv_id'];
+	    		if(!isset($all_privs[$role_id]))
+	    			$all_privs[$role_id] = array();
+	    		
+	    		$all_privs[$role_id][$priv_id] = $priv_id;
+	    		$rs->MoveNext();
+	    	}
+	    	
+	    	// All workers by role
+	    	$all_rosters = array();
+	    	$rs = $db->Execute("SELECT role_id, worker_id FROM worker_to_role");
+	    	while(!$rs->EOF) {
+	    		$role_id = intval($rs->fields['role_id']);
+	    		$worker_id = intval($rs->fields['worker_id']);
+	    		if(!isset($all_rosters[$role_id]))
+	    			$all_rosters[$role_id] = array();
+
+	    		$all_rosters[$role_id][$worker_id] = $worker_id;
+	    		$all_worker_ids[$worker_id] = $worker_id;
+	    		$rs->MoveNext();
+	    	}
+	    	
+	    	// Aggregate privs by workers' roles (if set anywhere, keep)
+	    	$privs_by_worker = array();
+	    	if(is_array($all_worker_ids))
+	    	foreach($all_worker_ids as $worker_id) {
+	    		if(!isset($privs_by_worker[$worker_id]))
+	    			$privs_by_worker[$worker_id] = array();
+	    		
+	    		foreach($all_rosters as $role_id => $role_roster) {
+	    			if(isset($role_roster[$worker_id]) && isset($all_privs[$role_id])) {
+	    				// If we have privs from other groups, merge on the keys
+	    				$current_privs = (is_array($privs_by_worker[$worker_id])) ? $privs_by_worker[$worker_id] : array();
+    					$privs_by_worker[$worker_id] = array_merge($current_privs,$all_privs[$role_id]);
+	    			}
+	    		}
+	    	}
+	    	
+	    	$acl = array(
+	    		self::CACHE_KEY_ROLES => $all_roles,
+	    		self::CACHE_KEY_PRIVS_BY_ROLE => $all_privs,
+	    		self::CACHE_KEY_WORKERS_BY_ROLE => $all_rosters,
+	    		self::CACHE_KEY_PRIVS_BY_WORKER => $privs_by_worker,
+	    	);
+	    	
+    	    $cache->save($acl, self::_CACHE_ALL);
+	    }
+	    
+	    return $acl;
+	    
+	}
+	
+	/**
+	 * @param string $where
+	 * @return Model_WorkerRole[]
+	 */
+	static function getWhere($where=null) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = "SELECT id, name ".
+			"FROM worker_role ".
+			(!empty($where) ? sprintf("WHERE %s ",$where) : "").
+			"ORDER BY name asc";
+		$rs = $db->Execute($sql);
+		
+		return self::_getObjectsFromResult($rs);
+	}
+
+	/**
+	 * @param integer $id
+	 * @return Model_WorkerRole	 */
+	static function get($id) {
+		$objects = self::getWhere(sprintf("%s = %d",
+			self::ID,
+			$id
+		));
+		
+		if(isset($objects[$id]))
+			return $objects[$id];
+		
+		return null;
+	}
+	
+	/**
+	 * @param ADORecordSet $rs
+	 * @return Model_WorkerRole[]
+	 */
+	static private function _getObjectsFromResult($rs) {
+		$objects = array();
+		
+		while(!$rs->EOF) {
+			$object = new Model_WorkerRole();
+			$object->id = $rs->fields['id'];
+			$object->name = $rs->fields['name'];
+			$objects[$object->id] = $object;
+			$rs->MoveNext();
+		}
+		
+		return $objects;
+	}
+	
+	static function delete($ids) {
+		if(!is_array($ids)) $ids = array($ids);
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		if(empty($ids))
+			return;
+		
+		$ids_list = implode(',', $ids);
+		
+		$db->Execute(sprintf("DELETE FROM worker_role WHERE id IN (%s)", $ids_list));
+		$db->Execute(sprintf("DELETE FROM worker_to_role WHERE role_id IN (%s)", $ids_list));
+		$db->Execute(sprintf("DELETE FROM worker_role_acl WHERE role_id IN (%s)", $ids_list));
+		
+		return true;
+	}
+	
+	static function getRolePrivileges($role_id) {
+		$acl = self::getACL();
+		
+		if(empty($role_id) || !isset($acl[self::CACHE_KEY_PRIVS_BY_ROLE][$role_id]))
+			return array();
+		
+		return $acl[self::CACHE_KEY_PRIVS_BY_ROLE][$role_id];
+	}
+	
+	/**
+	 * @param integer $role_id
+	 * @param array $privileges
+	 * @param boolean $replace
+	 */
+	static function setRolePrivileges($role_id, $privileges) {
+		if(!is_array($privileges)) $privileges = array($privileges);
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		if(empty($role_id))
+			return;
+		
+		// Wipe all privileges on blank replace
+		$sql = sprintf("DELETE FROM worker_role_acl WHERE role_id = %d", $role_id);
+		$db->Execute($sql);
+
+		// Load entire ACL list
+		$acl = DevblocksPlatform::getAclRegistry();
+		
+		// Set ACLs according to the new master list
+		if(!empty($privileges) && !empty($acl)) {
+			foreach($acl as $priv) { /* @var $priv DevblocksAclPrivilege */
+				$sql = sprintf("INSERT INTO worker_role_acl (role_id, priv_id, has_priv) ".
+					"VALUES (%d, %s, %d)",
+					$role_id,
+					$db->qstr($priv->id),
+					(false !== array_search($priv->id,$privileges) ? 1 : 0)
+				);
+				$db->Execute($sql);
+			}
+		}
+		
+		self::clearCache();
+	}
+	
+	static function getRoleWorkers($role_id) {
+		$acl = self::getACL();
+		
+		if(empty($role_id) || !isset($acl[self::CACHE_KEY_WORKERS_BY_ROLE][$role_id]))
+			return array();
+		
+		return $acl[self::CACHE_KEY_WORKERS_BY_ROLE][$role_id];
+	}
+	
+	static function setRoleWorkers($role_id, $worker_ids) {
+		if(!is_array($worker_ids)) $worker_ids = array($worker_ids);
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		if(empty($role_id))
+			return;
+			
+		// Wipe roster
+		$sql = sprintf("DELETE FROM worker_to_role WHERE role_id = %d", $role_id);
+		$db->Execute($sql);
+		
+		// Add desired workers to role's roster		
+		if(is_array($worker_ids))
+		foreach($worker_ids as $worker_id) {
+			$sql = sprintf("INSERT INTO worker_to_role (worker_id, role_id) ".
+				"VALUES (%d, %d)",
+				$worker_id,
+				$role_id
+			);
+			$db->Execute($sql);
+		}
+		
+		self::clearCache();
+	}
+	
+	static function clearCache() {
+		$cache = DevblocksPlatform::getCacheService();
+		$cache->remove(self::_CACHE_ALL);
 	}
 };
 

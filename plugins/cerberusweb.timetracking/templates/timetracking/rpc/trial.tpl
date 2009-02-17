@@ -6,7 +6,7 @@
 {$translate->_('timetracking.ui.trial.limit_exceeded.desc')}<br>
 <br>
 
-<a href="http://www.cerberusweb.com/buy" target="_blank">{$translate->_('timetracking.ui.trial.purchase')}</a>.
+<a href="http://www.cerberusweb.com/buy" target="_blank">{$translate->_('timetracking.ui.trial.purchase')}</a>
 <br>
 <br>
 

@@ -74,25 +74,27 @@
 	      	<table width="100%" cellpadding="0" cellspacing="0" border="0">
 	      		<tr>
 	      			<td align="left" id="{$message->id}act">
-				      	{if !empty($requesters)}<button {if $latest_message_id==$message->id}id="btnReplyFirst"{/if} type="button" onclick="displayAjax.reply('{$message->id}',0);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/export2.png{/devblocks_url}" align="top"> {$translate->_('display.ui.reply')|capitalize}</button>{/if}
-				      	<button type="button" onclick="displayAjax.reply('{$message->id}',1);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_out.png{/devblocks_url}" align="top"> {$translate->_('display.ui.forward')|capitalize}</button>
-				      	{*<button type="button" onclick="displayAjax.addComment('{$message->id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_plain.png{/devblocks_url}" align="top"> {$translate->_('common.comment')|capitalize}</button>*}
-				      	<button type="button" onclick="displayAjax.addNote('{$message->id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_plain_yellow.png{/devblocks_url}" align="top"> {$translate->_('display.ui.sticky_note')|capitalize}</button>
-				      	&nbsp;
+	      				{assign var=show_more value=0}
+				      	{if $active_worker->hasPriv('core.display.actions.reply')}{if !empty($requesters)}{assign var=show_more value=1}<button {if $latest_message_id==$message->id}id="btnReplyFirst"{/if} type="button" onclick="displayAjax.reply('{$message->id}',0);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/export2.png{/devblocks_url}" align="top"> {$translate->_('display.ui.reply')|capitalize}</button>{/if}{/if}
+				      	{if $active_worker->hasPriv('core.display.actions.forward')}{assign var=show_more value=1}<button type="button" onclick="displayAjax.reply('{$message->id}',1);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_out.png{/devblocks_url}" align="top"> {$translate->_('display.ui.forward')|capitalize}</button>{/if}
+				      	{if $active_worker->hasPriv('core.display.actions.note')}{assign var=show_more value=1}<button type="button" onclick="displayAjax.addNote('{$message->id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_plain_yellow.png{/devblocks_url}" align="top"> {$translate->_('display.ui.sticky_note')|capitalize}</button>{/if}
 				      	
+				      	{if $show_more} {* Only show more if we showed one of the built-in buttons first *}
+				      	 &nbsp; 
 			      		<button type="button" onclick="toggleDiv('{$message->id}options');">{$translate->_('common.more')|lower} &raquo;</button>
+			      		{/if}
 	      			</td>
 	      		</tr>
 	      	</table>
 	      	
-	      	<form id="{$message->id}options" style="padding-top:10px;display:none;" method="post" action="{devblocks_url}{/devblocks_url}">
+	      	<form id="{$message->id}options" style="padding-top:10px;display:{if $show_more}none{else}block{/if};" method="post" action="{devblocks_url}{/devblocks_url}">
 	      		<input type="hidden" name="c" value="display">
 	      		<input type="hidden" name="a" value="">
 	      		<input type="hidden" name="id" value="{$message->id}">
 	      		
 	      		<button type="button" onclick="document.frmPrint.action='{devblocks_url}c=print&a=message&id={$message->id}{/devblocks_url}';document.frmPrint.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/printer.gif{/devblocks_url}" align="top"> {$translate->_('common.print')|capitalize}</button>
 	      		
-	      		{if $ticket->first_message_id != $message->id} {* Don't allow splitting of a single message *}
+	      		{if $ticket->first_message_id != $message->id && $active_worker->hasPriv('core.display.actions.split')} {* Don't allow splitting of a single message *}
 	      		<button type="button" onclick="this.form.a.value='doSplitMessage';this.form.submit();" title="Split message into new ticket"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/documents.gif{/devblocks_url}" align="top"> {$translate->_('display.button.split_ticket')|capitalize}</button>
 	      		{/if}
 	      		
@@ -104,6 +106,7 @@
 				{/if}
 	      	</form>
 	      	
+	      	{if $active_worker->hasPriv('core.display.actions.attachments.download')}
 	      	{assign var=attachments value=$message->getAttachments()}
 	      	{if !empty($attachments)}
 	      	<br>
@@ -129,6 +132,7 @@
 					</li>
 				{/foreach}<br>
 			</ul>
+			{/if}
 			{/if}
       	{/if}
 		

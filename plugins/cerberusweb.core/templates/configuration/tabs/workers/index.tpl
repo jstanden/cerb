@@ -11,7 +11,7 @@
 				<tr>
 					<td>
 						{* [WGM]: Please respect our licensing and support the project! *}
-						{if ((empty($license) || empty($license.key)) && count($workers) >= 3) || (!empty($license.key)&&!empty($license.users)&&count($workers)>=$license.users)}
+						{if ((empty($license) || empty($license.serial)) && count($workers) >= 3) || (!empty($license.serial)&&!empty($license.users)&&count($workers)>=$license.users)}
 						You have reached the number of workers permitted by your license.<br>
 						[ <a href="{devblocks_url}c=config&a=settings{/devblocks_url}" style="color:rgb(0,160,0);">Enter License</a> ]
 						[ <a href="http://www.cerberusweb.com/buy" target="_blank" style="color:rgb(0,160,0);">Buy License</a> ]

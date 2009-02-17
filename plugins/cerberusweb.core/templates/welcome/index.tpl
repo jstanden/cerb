@@ -7,7 +7,7 @@
 	</div>
 </div> 
 
-<H1>Welcome to Cerberus Helpdesk 4.0 (Cerb4)!</H1>
+<H1>Welcome to Cerberus Helpdesk 4.x (Cerb4)!</H1>
 
 <div style="width:650px;margin:5px;padding:5px;border:2px solid rgb(200,200,200);">
 <img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/wgm/c4_overview.jpg{/devblocks_url}"><br>

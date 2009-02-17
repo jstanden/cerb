@@ -89,11 +89,9 @@
 
 {if $id != 0}
 	&nbsp; 
-	<a href="javascript:;" onclick="document.formAddressPeek.a.value='showAddressTickets';document.formAddressPeek.closed.value='0';document.formAddressPeek.submit();">{$open_count} open ticket(s)</a>
-	 | 
-	<a href="javascript:;" onclick="document.formAddressPeek.a.value='showAddressTickets';document.formAddressPeek.closed.value='1';document.formAddressPeek.submit();">{$closed_count} closed ticket(s)</a>
-	 | 
-	<a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showComposePeek&view_id=&to={$address.a_email}',null,false,'600px',{literal}function(o){ajax.cbEmailMultiplePeek(o);document.getElementById('formComposePeek').team_id.focus();}{/literal});"> compose</a>
+	{if $active_worker->hasPriv('core.mail.search')}<a href="javascript:;" onclick="document.formAddressPeek.a.value='showAddressTickets';document.formAddressPeek.closed.value='0';document.formAddressPeek.submit();">{$open_count} open ticket(s)</a> &nbsp; {/if}
+	{if $active_worker->hasPriv('core.mail.search')}<a href="javascript:;" onclick="document.formAddressPeek.a.value='showAddressTickets';document.formAddressPeek.closed.value='1';document.formAddressPeek.submit();">{$closed_count} closed ticket(s)</a> &nbsp; {/if}
+	{if $active_worker->hasPriv('core.mail.send')}<a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showComposePeek&view_id=&to={$address.a_email}',null,false,'600px',{literal}function(o){ajax.cbEmailMultiplePeek(o);document.getElementById('formComposePeek').team_id.focus();}{/literal});"> compose</a>{/if}
 {/if}
 
 <br>

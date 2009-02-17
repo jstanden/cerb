@@ -2,7 +2,7 @@
 <plugin>
 	<id>usermeet.core</id>
 	<name>Cerberus Helpdesk: Community Tools</name>
-	<description>Support for customer-focused public tools for your websites</description>
+	<description>Support for customer-focused public tools for your websites.</description>
 	<author>WebGroup Media, LLC.</author>
 	<revision>0</revision>
 	<link>http://wiki.cerb4.com/wiki/New_Changes#Community_Tools</link>

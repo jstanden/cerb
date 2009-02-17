@@ -1,8 +1,8 @@
 <!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
 <plugin>
 	<id>cerberusweb.feedback</id>
-	<name>Cerberus Helpdesk: Feedback Tracking (Experimental)</name>
-	<description>Track praise/criticism from all channels and get it in front of the right decision makers.</description>
+	<name>Cerberus Helpdesk: Feedback Capture</name>
+	<description>Organically capture praise or criticism and share it with decision makers.  This adds a Feedback tab to the Activity page.  You can also capture feedback while reading e-mail by highlighting a quote and clicking 'more' in the toolbar.</description>
 	<author>WebGroup Media, LLC.</author>
 	<revision>0</revision>
 	<link>http://wiki.cerb4.com/wiki/</link>
@@ -10,6 +10,11 @@
 		<file>api/App.php</file>
 		<name>ChFeedbackPlugin</name>
 	</class>
+	
+	<acl>
+		<priv id="feedback.actions.create" label="acl.feedback.actions.create" />
+		<priv id="feedback.view.actions.export" label="acl.feedback.view.actions.export" />
+	</acl>
 	
 	<extensions>
 	
