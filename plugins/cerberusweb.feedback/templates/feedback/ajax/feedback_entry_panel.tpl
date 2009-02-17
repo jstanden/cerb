@@ -39,7 +39,7 @@
 <button type="button" onclick="genericPanel.hide();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> {$translate->_('common.cancel')|capitalize}</button>
 {else}
 <button type="button" onclick="genericAjaxPost('frmFeedbackEntry','','c=feedback&a=saveEntry');genericPanel.hide();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
-{if $active_worker->is_superuser || $active_worker->id == $model->worker_id}<button type="button" onclick="if(confirm('Permanently delete this feedback?')){literal}{{/literal}this.form.do_delete.value='1';genericAjaxPost('frmFeedbackEntry','','c=feedback&a=saveEntry');genericPanel.hide();{literal}}{/literal}"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_delete.gif{/devblocks_url}" align="top"> {$translate->_('common.delete')|capitalize}</button>{/if}
+{if $active_worker->id == $model->worker_id || $active_worker->hasPriv('feedback.actions.delete_all')}<button type="button" onclick="if(confirm('Permanently delete this feedback?')){literal}{{/literal}this.form.do_delete.value='1';genericAjaxPost('frmFeedbackEntry','','c=feedback&a=saveEntry');genericPanel.hide();{literal}}{/literal}"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_delete.gif{/devblocks_url}" align="top"> {$translate->_('common.delete')|capitalize}</button>{/if}
 <button type="button" onclick="genericPanel.hide();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> {$translate->_('common.cancel')|capitalize}</button>
 {/if}
 </form>

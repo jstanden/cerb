@@ -13,7 +13,9 @@
 
 	<acl>	
 		<!-- Reports -->
+		<!--
 		<priv id="reports" label="acl.reports" />
+		-->
 	</acl>
 	
 	<extensions>
@@ -43,7 +45,6 @@
 		<params>
 			<param key="uri" value="reports" />
 			<param key="menutitle" value="Reports" />
-			<param key="acl" value="reports" />
 		</params>
 	</extension>
 	

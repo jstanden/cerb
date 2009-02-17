@@ -48,7 +48,7 @@
  * 		and Joe Geck.
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-define("APP_BUILD", 872);
+define("APP_BUILD", 873);
 define("APP_MAIL_PATH", realpath(APP_PATH . '/storage/mail') . DIRECTORY_SEPARATOR);
 
 include_once(APP_PATH . "/api/DAO.class.php");
@@ -604,8 +604,8 @@ class CerberusLicense {
 		return $license;
 	}
 
-	public static function validate($key) {
-		/*  																																																																																																																														*/foreach(array('L0NvbXBhbnk6ICguKikv'=>'b','L0VtYWlsOiAoLiopLw=='=>'c','L1VzZXJzOiAoLiopLw=='=>'d','L1NlcmlhbDogKC4qKS8='=>'s') as $k=>$v)@preg_match(base64_decode($k),$key,$matches)?@$$v=trim($matches[1]):null;@$r=array('name'=>$b,'email'=>$c,'users'=>intval($d),'serial'=>$s);foreach(array(chr(97)=>0,chr(101)=>3) as $k=>$v)if(@substr(str_replace('-','',$s),0,1).@substr(str_replace('-','',$s),4,1).@substr(str_replace('-','',$s),8,1)==@substr(strtoupper(md5(@substr($b,0,1).@substr($b,-1,1).@strlen($b).$d.@substr($c,0,1).@substr($c,-1,1).@strlen($c))),$v,3))@$r[$k]=$s;return $r;/*
+	public static function validate($key, $email) {
+		/*  																																																																																																																														*/foreach(array('L0NvbXBhbnk6ICguKikv'=>'b','L1VzZXJzOiAoLiopLw=='=>'d','L1NlcmlhbDogKC4qKS8='=>'s') as $k=>$v)@preg_match(base64_decode($k),$key,$matches)?@$$v=trim($matches[1]):null;@$r=array('name'=>$b,'email'=>$email,'users'=>intval($d),'serial'=>$s);foreach(array(chr(97)=>0,chr(101)=>3) as $k=>$v)if(@substr(str_replace('-','',$s),0,1).@substr(str_replace('-','',$s),4,1).@substr(str_replace('-','',$s),8,1)==@substr(strtoupper(md5(@substr($b,0,1).@substr($b,-1,1).@strlen($b).$d.@substr($email,0,1).@substr($email,4,1).@strlen($email))),$v,3))@$r[$k]=$s;return $r;/*
 		 * we're sure being generous here! [TODO]
 		 */
 		$lines = split("\n", $key);
@@ -617,9 +617,9 @@ class CerberusLicense {
 		return (!empty($key)) 
 			? array(
 				'name' => (list($k,$v)=split(":",$lines[1]))?trim($v):null,
-				'email' => (list($k,$v)=split(":",$lines[2]))?trim($v):null,
-				'users' => (list($k,$v)=split(":",$lines[3]))?trim($v):null,
-				'serial' => (list($k,$v)=split(":",$lines[4]))?trim($v):null,
+				'email' => $email,
+				'users' => (list($k,$v)=split(":",$lines[2]))?trim($v):null,
+				'serial' => (list($k,$v)=split(":",$lines[3]))?trim($v):null,
 				'date' => time()
 			)
 			: null;
@@ -720,5 +720,22 @@ class CerberusSettings {
 			return $this->settings[$key];
 		else 
 			return $default;
+	}
+};
+
+// [TODO] This gets called a lot when it happens after the registry cache
+class C4_DevblocksExtensionDelegate implements DevblocksExtensionDelegate {
+	static function shouldLoadExtension(DevblocksExtensionManifest $extension_manifest) {
+		// Always allow core
+		if("cerberusweb.core" == $extension_manifest->plugin_id)
+			return true;
+		
+		// [TODO] This should limit to just things we can run with no session
+		// Community Tools, Cron/Update.  They are still limited by their own
+		// isVisible() otherwise.
+		if(null == ($active_worker = CerberusApplication::getActiveWorker()))
+			return true;
+			
+		return $active_worker->hasPriv('plugin.'.$extension_manifest->plugin_id);
 	}
 };

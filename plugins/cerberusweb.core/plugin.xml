@@ -82,7 +82,8 @@
 	<acl>
 		<!-- Addy Book -->
 		<priv id="core.addybook" label="acl.core.addybook" />
-		<priv id="core.addybook.view.actions.export" label="acl.core.addybook.view.actions.export" />
+		<priv id="core.addybook.addy.view.actions.export" label="acl.core.addybook.addy.view.actions.export" />
+		<priv id="core.addybook.org.view.actions.export" label="acl.core.addybook.org.view.actions.export" />
 
 		<!-- Display Ticket -->
 		<priv id="core.display.actions.attachments.download" label="acl.core.display.actions.attachments.download" />
@@ -106,6 +107,9 @@
 		<priv id="core.rss" label="acl.core.rss" />
 
 		<!-- Tickets -->
+		<priv id="core.tasks.view.actions.export" label="acl.core.tasks.view.actions.export" />
+		
+		<!-- Tickets -->
 		<priv id="core.ticket.actions.assign" label="acl.core.ticket.actions.assign" />
 		<priv id="core.ticket.actions.close" label="acl.core.ticket.actions.close" />
 		<priv id="core.ticket.actions.delete" label="acl.core.ticket.actions.delete" />
@@ -115,6 +119,11 @@
 		<priv id="core.ticket.view.actions.export" label="acl.core.ticket.view.actions.export" />
 		<priv id="core.ticket.view.actions.merge" label="acl.core.ticket.view.actions.merge" />
 		<priv id="core.ticket.view.actions.pile_sort" label="acl.core.ticket.view.actions.pile_sort" />
+
+		<!-- Workspaces -->
+		<priv id="core.home.auto_refresh" label="acl.core.home.auto_refresh" />
+		<priv id="core.home.workspaces" label="acl.core.home.workspaces" />
+		
 	</acl>
 
 	<!-- Extensions -->

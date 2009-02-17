@@ -60,7 +60,13 @@
 	{include file="file:$core_tpl/internal/custom_fields/bulk/form.tpl" bulk=false}
 	<br>
 	
+{if ($active_worker->hasPriv('crm.opp.actions.create') && $active_worker->id==$opp->worker_id)
+	|| ($active_worker->hasPriv('crm.opp.actions.update_nobody') && empty($opp->worker_id)) 
+	|| $active_worker->hasPriv('crm.opp.actions.update_all')}
 	<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
+{else}
+	<div class="error">You do not have permission to modify this record.</div>
+{/if}
 </blockquote>
 
 </form>

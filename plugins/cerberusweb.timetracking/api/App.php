@@ -846,56 +846,6 @@ class Model_TimeTrackingActivity {
 	public $rate;
 };
 
-//class ChTimeTrackingTab extends Extension_TicketTab {
-//	function showTab() {
-//		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer',0);
-//		
-//		$tpl = DevblocksPlatform::getTemplateService();
-//		$tpl_path = realpath(dirname(__FILE__).'/../templates') . DIRECTORY_SEPARATOR;
-//		$tpl->assign('path', $tpl_path);
-//		$tpl->cache_lifetime = "0";
-//
-////		$ticket = DAO_Ticket::getTicket($ticket_id);
-//		$tpl->assign('ticket_id', $ticket_id);
-//		
-////		if(null == ($view = C4_AbstractViewLoader::getView('', 'ticket_opps'))) {
-////			$view = new C4_CrmOpportunityView();
-////			$view->id = 'ticket_opps';
-////		}
-////
-////		if(!empty($address->contact_org_id)) { // org
-////			@$org = DAO_ContactOrg::get($address->contact_org_id);
-////			
-////			$view->name = "Org: " . $org->name;
-////			$view->params = array(
-////				SearchFields_CrmOpportunity::ORG_ID => new DevblocksSearchCriteria(SearchFields_CrmOpportunity::ORG_ID,'=',$org->id) 
-////			);
-////		}
-////		
-////		C4_AbstractViewLoader::setView($view->id, $view);
-////		
-////		$tpl->assign('view', $view);
-//		
-//		$tpl->display('file:' . $tpl_path . 'timetracking/ticket_tab/index.tpl');
-//	}
-//	
-//	function saveTab() {
-//		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer',0);
-//		
-//		$ticket = DAO_Ticket::getTicket($ticket_id);
-//		
-//		if(isset($_SESSION['timetracking'])) {
-//			@$time = intval($_SESSION['timetracking']);
-////			echo "Ran for ", (time()-$time) , "secs <BR>";
-//			unset($_SESSION['timetracking']);
-//		} else {
-//			$_SESSION['timetracking'] = time();
-//		}
-//		
-//		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('display',$ticket->mask,'timetracking')));
-//	}
-//};
-
 class ChTimeTrackingEventListener extends DevblocksEventListenerExtension {
     function __construct($manifest) {
         parent::__construct($manifest);
@@ -1175,10 +1125,10 @@ class ChTimeTrackingAjaxController extends DevblocksControllerExtension {
 		// Delete entries
 		if(!empty($id) && !empty($do_delete)) {
 			if(null != ($entry = DAO_TimeTrackingEntry::get($id))) {
-				// Only superusers and owners can delete entries
-				if($active_worker->is_superuser || $active_worker->id == $entry->worker_id) {
-					DAO_TimeTrackingEntry::delete($id);
-				}
+				// Check privs
+				if(($active_worker->hasPriv('timetracking.actions.create') && $active_worker->id==$entry->worker_id)
+					|| $active_worker->hasPriv('timetracking.actions.update_all'))
+						DAO_TimeTrackingEntry::delete($id);
 			}
 			
 			return;

@@ -14,6 +14,18 @@
 			<tuv xml:lang="en_US"><seg>Track Time</seg></tuv>
 		</tu>
 		
+		<!-- ACL -->
+		
+		<tu tuid='acl.timetracking.actions.create'>
+			<tuv xml:lang="en_US"><seg>[Time Tracking] Can track time</seg></tuv>
+		</tu>
+		<tu tuid='acl.timetracking.actions.update_all'>
+			<tuv xml:lang="en_US"><seg>[Time Tracking] Can manage everyone's time slips</seg></tuv>
+		</tu>
+		<tu tuid='acl.timetracking.view.actions.export'>
+			<tuv xml:lang="en_US"><seg>[Time Tracking] Can export time tracking lists to CSV/XML</seg></tuv>
+		</tu>
+		
 		<!-- Common  -->
 
 		<tu tuid='timetracking.ui.billable'>

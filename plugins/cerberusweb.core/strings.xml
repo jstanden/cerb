@@ -292,8 +292,11 @@
 		<tu tuid='acl.core.addybook'>
 			<tuv xml:lang="en_US"><seg>[Address Book] Can browse the address book</seg></tuv>
 		</tu>
-		<tu tuid='acl.core.addybook.view.actions.export'>
-			<tuv xml:lang="en_US"><seg>[Address Book] Can export lists to CSV/XML</seg></tuv>
+		<tu tuid='acl.core.addybook.addy.view.actions.export'>
+			<tuv xml:lang="en_US"><seg>[Address Book] Can export e-mail address lists to CSV/XML</seg></tuv>
+		</tu>
+		<tu tuid='acl.core.addybook.org.view.actions.export'>
+			<tuv xml:lang="en_US"><seg>[Address Book] Can export organization lists to CSV/XML</seg></tuv>
 		</tu>
 
 			<!-- Display Ticket -->
@@ -314,6 +317,14 @@
 		</tu>
 		<tu tuid='acl.core.display.actions.split'>
 			<tuv xml:lang="en_US"><seg>[Display Ticket] Can split tickets</seg></tuv>
+		</tu>
+
+			<!-- Home -->
+		<tu tuid='acl.core.home.auto_refresh'>
+			<tuv xml:lang="en_US"><seg>[Home] Can auto-refresh on the Home page</seg></tuv>
+		</tu>
+		<tu tuid='acl.core.home.workspaces'>
+			<tuv xml:lang="en_US"><seg>[Home] Can build private workspaces and worklists</seg></tuv>
 		</tu>
 
 			<!-- Knowledgebase -->
@@ -343,6 +354,11 @@
 			<tuv xml:lang="en_US"><seg>[RSS] Can export lists as RSS feeds</seg></tuv>
 		</tu>
 
+			<!-- Tasks -->
+		<tu tuid='acl.core.tasks.view.actions.export'>
+			<tuv xml:lang="en_US"><seg>[Tasks] Can export task lists to CSV/XML</seg></tuv>
+		</tu>
+		
 			<!-- Tickets -->
 		<tu tuid='acl.core.ticket.actions.assign'>
 			<tuv xml:lang="en_US"><seg>[Tickets] Can assign tickets to other workers</seg></tuv>
@@ -371,9 +387,7 @@
 		<tu tuid='acl.core.ticket.view.actions.pile_sort'>
 			<tuv xml:lang="en_US"><seg>[Tickets] Can use the pile sorter on lists</seg></tuv>
 		</tu>
-
-
-
+		
 		<!-- Addresses -->
 		
 		<tu tuid='address.id'>

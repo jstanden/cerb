@@ -13,6 +13,8 @@
 	
 	<acl>
 		<priv id="feedback.actions.create" label="acl.feedback.actions.create" />
+		<priv id="feedback.actions.update_all" label="acl.feedback.actions.update_all" />
+		<priv id="feedback.actions.delete_all" label="acl.feedback.actions.delete_all" />
 		<priv id="feedback.view.actions.export" label="acl.feedback.view.actions.export" />
 	</acl>
 	

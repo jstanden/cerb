@@ -289,12 +289,20 @@ class CrmPage extends CerberusPageExtension {
 		// Save
 		if($do_delete) {
 			if(null != ($opp = DAO_CrmOpportunity::get($opp_id))) {
-				if($active_worker->is_superuser || $active_worker->id==$opp->worker_id)
+			
+			// Check privs
+			if(($active_worker->hasPriv('crm.opp.actions.create') && $active_worker->id==$opp->worker_id)
+				|| ($active_worker->hasPriv('crm.opp.actions.update_nobody') && empty($opp->worker_id)) 
+				|| $active_worker->hasPriv('crm.opp.actions.update_all'))
 					DAO_CrmOpportunity::delete($opp_id);
 			}
 			
 		} elseif(empty($opp_id)) {
 			$emails = DevblocksPlatform::parseCsvString($email_str);
+			
+			// Check privs
+			if(!$active_worker->hasPriv('crm.opp.actions.create'))
+				return;
 			
 			// One opportunity per provided e-mail address
 			if(is_array($emails))
@@ -314,6 +322,10 @@ class CrmPage extends CerberusPageExtension {
 					DAO_CrmOpportunity::WORKER_ID => $worker_id,
 				);
 				$opp_id = DAO_CrmOpportunity::create($fields);
+				
+				// Custom fields
+				@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
+				DAO_CustomFieldValue::handleFormPost(CrmCustomFieldSource_Opportunity::ID, $opp_id, $field_ids);
 				
 				// If we're adding a first comment
 				if(!empty($comment)) {
@@ -342,13 +354,20 @@ class CrmPage extends CerberusPageExtension {
 				DAO_CrmOpportunity::IS_WON => $is_won,
 				DAO_CrmOpportunity::WORKER_ID => $worker_id,
 			);
-			DAO_CrmOpportunity::update($opp_id, $fields);
-		}
-		
-		if(!$do_delete) {
-			// Custom fields
-			@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
-			DAO_CustomFieldValue::handleFormPost(CrmCustomFieldSource_Opportunity::ID, $opp_id, $field_ids);
+			
+			// Check privs
+			if(null != ($opp = DAO_CrmOpportunity::get($opp_id))
+				&& (
+				($active_worker->hasPriv('crm.opp.actions.create') && $active_worker->id==$opp->worker_id) // owns
+				|| ($active_worker->hasPriv('crm.opp.actions.update_nobody') && empty($opp->worker_id))  // can edit nobody
+				|| $active_worker->hasPriv('crm.opp.actions.update_all')) // can edit anybody
+			) {
+				DAO_CrmOpportunity::update($opp_id, $fields);
+				
+				// Custom fields
+				@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
+				DAO_CustomFieldValue::handleFormPost(CrmCustomFieldSource_Opportunity::ID, $opp_id, $field_ids);
+			}
 		}
 		
 		// Reload view (if linked)

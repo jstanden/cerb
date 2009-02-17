@@ -4220,6 +4220,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		}
 		
 		@$key = DevblocksPlatform::importGPC($_POST['key'],'string','');
+		@$email = DevblocksPlatform::importGPC($_POST['email'],'string','');
 		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer',0);
 
 		if(DEMO_MODE) {
@@ -4233,12 +4234,12 @@ class ChConfigurationPage extends CerberusPageExtension  {
 			return;
 		}
 		
-		if(empty($key)) {
+		if(empty($key) || empty($email)) {
 			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','settings','empty')));
 			return;
 		}
 		
-		if(null==($valid = CerberusLicense::validate($key)) || 5!=count($valid)) {
+		if(null==($valid = CerberusLicense::validate($key,$email)) || 5!=count($valid)) {
 			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','settings','invalid')));
 			return;
 		}

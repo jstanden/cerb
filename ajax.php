@@ -57,6 +57,7 @@ header("Content-type: text/html; charset=".LANG_CHARSET_CODE);
 $request = DevblocksPlatform::readRequest();
 
 DevblocksPlatform::init();
+DevblocksPlatform::setExtensionDelegate('C4_DevblocksExtensionDelegate');
 
 $session = DevblocksPlatform::getSessionService();
 $settings = CerberusSettings::getInstance();

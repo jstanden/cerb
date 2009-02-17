@@ -897,16 +897,18 @@ class DAO_WorkerRole extends DevblocksORMHelper {
 		
 		// Set ACLs according to the new master list
 		if(!empty($privileges) && !empty($acl)) {
-			foreach($acl as $priv) { /* @var $priv DevblocksAclPrivilege */
+			foreach($privileges as $priv) { /* @var $priv DevblocksAclPrivilege */
 				$sql = sprintf("INSERT INTO worker_role_acl (role_id, priv_id, has_priv) ".
 					"VALUES (%d, %s, %d)",
 					$role_id,
-					$db->qstr($priv->id),
-					(false !== array_search($priv->id,$privileges) ? 1 : 0)
+					$db->qstr($priv),
+					1
 				);
 				$db->Execute($sql);
 			}
 		}
+		
+		unset($privileges);
 		
 		self::clearCache();
 	}

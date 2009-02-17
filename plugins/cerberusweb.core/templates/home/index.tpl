@@ -4,8 +4,8 @@
 </div>
 
 <form action="{devblocks_url}{/devblocks_url}" method="POST" style="margin-bottom:5px;">
-<button type="button" onclick="genericAjaxPanel('c=home&a=showAddWorkspacePanel',this,false,'550px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_plain_new.png{/devblocks_url}" align="top"> {$translate->_('dashboard.add_view')|capitalize}</button>
-<button type="button" onclick="autoRefreshTimer.start('{devblocks_url full=true}c=home{/devblocks_url}',this.form.reloadSecs.value);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/refresh.gif{/devblocks_url}" align="top"> Auto-Refresh</button><!-- 
+{if $active_worker->hasPriv('core.home.workspaces')}<button type="button" onclick="genericAjaxPanel('c=home&a=showAddWorkspacePanel',this,false,'550px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_plain_new.png{/devblocks_url}" align="top"> {$translate->_('dashboard.add_view')|capitalize}</button>{/if}
+{if $active_worker->hasPriv('core.home.auto_refresh')}<button type="button" onclick="autoRefreshTimer.start('{devblocks_url full=true}c=home{/devblocks_url}',this.form.reloadSecs.value);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/refresh.gif{/devblocks_url}" align="top"> Auto-Refresh</button><!-- 
 --><select name="reloadSecs">
 	<option value="600">10m</option>
 	<option value="300" selected="selected">5m</option>
@@ -14,7 +14,7 @@
 	<option value="120">2m</option>
 	<option value="60">1m</option>
 	<option value="30">30s</option>
-</select>
+</select>{/if}
 </form>
 
 <div id="homeOptions"></div> 
@@ -32,7 +32,7 @@ tabView.addTab( new YAHOO.widget.Tab({
 }));
 {/literal}
 
-{if empty($workspaces)}
+{if empty($workspaces) && $active_worker->hasPriv('core.home.workspaces')}
 {literal}
 tabView.addTab( new YAHOO.widget.Tab({
     label: '{/literal}{'home.tab.workspaces_intro'|devblocks_translate|escape:'quotes'}{literal}',
@@ -52,6 +52,7 @@ tabView.addTab( new YAHOO.widget.Tab({
 {literal}}));{/literal}
 {/foreach}
 
+{if $active_worker->hasPriv('core.home.workspaces')}
 {foreach from=$workspaces item=workspace}
 {literal}tabView.addTab( new YAHOO.widget.Tab({{/literal}
     label: '<i>{$workspace|escape}</i>',
@@ -60,6 +61,7 @@ tabView.addTab( new YAHOO.widget.Tab({
     active:{if substr($selected_tab,2)==$workspace}true{else}false{/if}
 {literal}}));{/literal}
 {/foreach}
+{/if}
 
 tabView.appendTo('homeOptions');
 </script>

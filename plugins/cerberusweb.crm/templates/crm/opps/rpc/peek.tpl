@@ -94,13 +94,17 @@
 
 {include file="file:$core_tpl/internal/custom_fields/bulk/form.tpl" bulk=false}
 <br>
-
 </div>
 
-<button type="button" onclick="genericPanel.hide();genericAjaxPost('formOppPeek', 'view{$view_id}')"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')}</button>
-{if !empty($opp) && ($active_worker->is_superuser || $active_worker->id == $opp->worker_id)}
+{if ($active_worker->hasPriv('crm.opp.actions.create') && (empty($opp) || $active_worker->id==$opp->worker_id))
+	|| ($active_worker->hasPriv('crm.opp.actions.update_nobody') && empty($opp->worker_id)) 
+	|| $active_worker->hasPriv('crm.opp.actions.update_all')
+	}
+	<button type="button" onclick="genericPanel.hide();genericAjaxPost('formOppPeek', 'view{$view_id}')"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')}</button>
 	<button type="button" onclick="if(confirm('Are you sure you want to permanently delete this opportunity?')){literal}{{/literal}this.form.do_delete.value='1';genericPanel.hide();genericAjaxPost('formOppPeek', 'view{$view_id}');{literal}}{/literal}"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete2.gif{/devblocks_url}" align="top"> {$translate->_('common.delete')|capitalize}</button>
+	<button type="button" onclick="genericPanel.hide();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> {$translate->_('common.cancel')|capitalize}</button>
+{else}
+	<div class="error">You do not have permission to modify this record.</div>
 {/if}
-<button type="button" onclick="genericPanel.hide();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> {$translate->_('common.cancel')|capitalize}</button>
 <br>
 </form>

@@ -11,6 +11,12 @@
 		<name>ChTimeTrackingPlugin</name>
 	</class>
 	
+	<acl>
+		<priv id="timetracking.actions.create" label="acl.timetracking.actions.create" />
+		<priv id="timetracking.actions.update_all" label="acl.timetracking.actions.update_all" />
+		<priv id="timetracking.view.actions.export" label="acl.timetracking.view.actions.export" />
+	</acl>
+	
 	<extensions>
 	
 		<!-- Patch Containers -->

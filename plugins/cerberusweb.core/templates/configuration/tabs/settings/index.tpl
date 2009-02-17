@@ -48,7 +48,7 @@ Data: <b>{$total_db_data} MB</b><br>
 Indexes: <b>{$total_db_indexes} MB</b><br>
 Total Disk Space: <b>{$total_db_size} MB</b><br>
 <br>
-Running an OPTIMIZE on the database would free up about <b>{$total_db_slack} MB</b><br>
+Running an OPTIMIZE on the database would free about <b>{$total_db_slack} MB</b><br>
 <br>
 
 <h3>Attachments:</h3>
@@ -76,6 +76,12 @@ Total Disk Space: <b>{$total_file_size} MB</b><br>
 			<td align="right"><b>Licensed to:</b></td>
 			<td>{$license.name}</td>
 		</tr>
+		{if $license.email}
+		<tr>
+			<td align="right"><b>E-mail:</b></td>
+			<td>{$license.email}</td>
+		</tr>
+		{/if}
 		<tr>
 			<td align="right"><b>Serial Number:</b></td>
 			<td>{$license.serial}</td>
@@ -97,9 +103,14 @@ Total Disk Space: <b>{$total_file_size} MB</b><br>
 <input type="hidden" name="a" value="saveLicenses">
 <input type="hidden" name="do_delete" value="0">
 
+<b>Enter the e-mail address from your order:</b></br>
+<input type="text" name="email" size="45" value=""><br>
+<br>
+
 <b>Paste the license information you received with your order:</b><br>
 <textarea rows="8" cols="80" name="key"></textarea><br>
 <br>
+
 <button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
 <button type="button" onclick="if(confirm('Are you sure you want to remove your license?')){literal}{{/literal}this.form.do_delete.value='1';this.form.submit();{literal}}{/literal}"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_delete.gif{/devblocks_url}" align="top"> Clear License</button>
 

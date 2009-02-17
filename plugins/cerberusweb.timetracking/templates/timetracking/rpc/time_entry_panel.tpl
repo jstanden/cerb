@@ -62,13 +62,19 @@
 
 </div>
 
-{if empty($model->id)}
-<button type="button" onclick="genericAjaxPost('frmTimeEntry','','c=timetracking&a=saveEntry',{literal}function(o){timeTrackingTimer.finish();}{/literal});"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('timetracking.ui.entry_panel.save_finish')}</button>
-<button type="button" onclick="timeTrackingTimer.play();genericPanel.hide();"><img src="{devblocks_url}c=resource&p=cerberusweb.timetracking&f=images/16x16/media_play_green.png{/devblocks_url}" align="top"> {$translate->_('timetracking.ui.entry_panel.resume')}</button>
-<button type="button" onclick="timeTrackingTimer.finish();"><img src="{devblocks_url}c=resource&p=cerberusweb.timetracking&f=images/16x16/media_stop_red.png{/devblocks_url}" align="top"> {$translate->_('common.cancel')|capitalize}</button>
+{if ($active_worker->hasPriv('timetracking.actions.create') && (empty($model->id) || $active_worker->id==$model->worker_id))
+	|| $active_worker->hasPriv('timetracking.actions.update_all')
+	}
+	{if empty($model->id)}
+		<button type="button" onclick="genericAjaxPost('frmTimeEntry','','c=timetracking&a=saveEntry',{literal}function(o){timeTrackingTimer.finish();}{/literal});"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('timetracking.ui.entry_panel.save_finish')}</button>
+		<button type="button" onclick="timeTrackingTimer.play();genericPanel.hide();"><img src="{devblocks_url}c=resource&p=cerberusweb.timetracking&f=images/16x16/media_play_green.png{/devblocks_url}" align="top"> {$translate->_('timetracking.ui.entry_panel.resume')}</button>
+		<button type="button" onclick="timeTrackingTimer.finish();"><img src="{devblocks_url}c=resource&p=cerberusweb.timetracking&f=images/16x16/media_stop_red.png{/devblocks_url}" align="top"> {$translate->_('common.cancel')|capitalize}</button>
+	{else}
+		<button type="button" onclick="genericAjaxPost('frmTimeEntry','','c=timetracking&a=saveEntry');genericPanel.hide();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
+		<button type="button" onclick="if(confirm('Permanently delete this time tracking entry?')){literal}{{/literal}this.form.do_delete.value='1';genericAjaxPost('frmTimeEntry','','c=timetracking&a=saveEntry');genericPanel.hide();{literal}}{/literal}"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_delete.gif{/devblocks_url}" align="top"> {$translate->_('common.delete')|capitalize}</button>
+		<button type="button" onclick="genericPanel.hide();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> {$translate->_('common.cancel')|capitalize}</button>
+	{/if}
 {else}
-<button type="button" onclick="genericAjaxPost('frmTimeEntry','','c=timetracking&a=saveEntry');genericPanel.hide();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
-{if $active_worker->is_superuser || $active_worker->id == $model->worker_id}<button type="button" onclick="if(confirm('Permanently delete this time tracking entry?')){literal}{{/literal}this.form.do_delete.value='1';genericAjaxPost('frmTimeEntry','','c=timetracking&a=saveEntry');genericPanel.hide();{literal}}{/literal}"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_delete.gif{/devblocks_url}" align="top"> {$translate->_('common.delete')|capitalize}</button>{/if}
-<button type="button" onclick="genericPanel.hide();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> {$translate->_('common.cancel')|capitalize}</button>
+	<div class="error">You do not have permission to modify this record.</div>
 {/if}
 </form>

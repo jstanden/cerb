@@ -45,22 +45,24 @@
 		<td width="100%" valign="top" colspan="2">
 			{foreach from=$plugins item=plugin key=plugin_id}
 				{if $plugin->enabled}
-					{assign var=show_plugin value=0}
-					{foreach from=$acl item=priv key=priv_id}{if $priv->plugin_id==$plugin_id}{assign var=show_plugin value=1}{/if}{/foreach}
-					
-					{if $show_plugin}				
+					{assign var=plugin_priv value="plugin."|cat:$plugin_id}
 					<div style="margin-left:10px;background-color:rgb(255,255,221);border:2px solid rgb(255,215,0);padding:2px;margin-bottom:10px;">
-					<b>{$plugin->name}</b><br>
-					<a href="javascript:;" style="padding-left:10px;font-size:90%;" onclick="checkAll('privs{$plugin_id}');">{$translate->_('check all')|lower}</a>
-					<div id="privs{$plugin_id}" style="margin-top:5px;margin-bottom:5px;">
-					{foreach from=$acl item=priv key=priv_id}
-						{if $priv->plugin_id==$plugin_id}
-						<label style="padding-left:10px;"><input type="checkbox" name="acl_privs[]" value="{$priv_id}" {if isset($role_privs.$priv_id)}checked{/if}> {$priv->label|devblocks_translate}</label><br>
-						{/if}
-					{/foreach}
-					</div>
-					</div>
+					<label>
+					{if $plugin->id=="cerberusweb.core"}
+						<input type="hidden" name="acl_privs[]" value="plugin.cerberusweb.core">
+					{else}
+						<input type="checkbox" name="acl_privs[]" value="{$plugin_priv|escape}" {if isset($role_privs.$plugin_priv)}checked="checked"{/if} onchange="toggleDiv('privs{$plugin_id}',(this.checked)?'block':'none');">
 					{/if}
+					<b>{$plugin->name}</b></label><br>
+						<div id="privs{$plugin_id}" style="padding-left:10px;margin-bottom:5px;display:{if $plugin->id=="cerberusweb.core" || isset($role_privs.$plugin_priv)}block{else}none{/if}">
+						<a href="javascript:;" style="font-size:90%;" onclick="checkAll('privs{$plugin_id}');">{$translate->_('check all')|lower}</a><br>
+						{foreach from=$acl item=priv key=priv_id}
+							{if $priv->plugin_id==$plugin_id}
+							<label style=""><input type="checkbox" name="acl_privs[]" value="{$priv_id}" {if isset($role_privs.$priv_id)}checked{/if}> {$priv->label|devblocks_translate}</label><br>
+							{/if}
+						{/foreach}
+						</div>
+					</div>
 				{/if}
 			{/foreach}
 		</td>

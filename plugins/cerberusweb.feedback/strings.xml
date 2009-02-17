@@ -16,8 +16,14 @@
 		<tu tuid='acl.feedback.actions.create'>
 			<tuv xml:lang="en_US"><seg>[Feedback] Can create feedback entries</seg></tuv>
 		</tu>
+		<tu tuid='acl.feedback.actions.delete_all'>
+			<tuv xml:lang="en_US"><seg>[Feedback] Can delete everyone's feedback entries</seg></tuv>
+		</tu>
+		<tu tuid='acl.feedback.actions.update_all'>
+			<tuv xml:lang="en_US"><seg>[Feedback] Can edit everyone's feedback entries</seg></tuv>
+		</tu>
 		<tu tuid='acl.feedback.view.actions.export'>
-			<tuv xml:lang="en_US"><seg>[Feedback] Can export lists to CSV/XML</seg></tuv>
+			<tuv xml:lang="en_US"><seg>[Feedback] Can export feedback lists to CSV/XML</seg></tuv>
 		</tu>
 		
 		<!-- Feedback Strings -->
@@ -51,7 +57,7 @@
 			<tuv xml:lang="en_US"><seg>Link</seg></tuv>
 		</tu>
 		<tu tuid='feedback_entry.worker_id'>
-			<tuv xml:lang="en_US"><seg>Worker</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Created By</seg></tuv>
 		</tu>
 
 	</body>

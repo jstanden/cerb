@@ -1,3 +1,4 @@
+<!--  -->																																																																																																																																																																																																																																																																																																																																																					{if ((empty($license) || empty($license.serial)) && count($workers) >= 3) || (!empty($license.serial)&&!empty($license.users)&&count($workers)>=$license.users)}{*Be good!*}{assign var=disabled value=1}{/if}
 <input type="hidden" name="c" value="config">
 <input type="hidden" name="a" value="saveWorker">
 <input type="hidden" name="id" value="{if !empty($worker->id)}{$worker->id}{else}0{/if}">
@@ -15,28 +16,28 @@
 	</tr>
 	<tr>
 		<td width="0%" nowrap="nowrap"><b>First Name:</b></td>
-		<td width="100%"><input type="text" id="workerForm_firstName" name="first_name" value="{$worker->first_name|escape}"{if (empty($license) || empty($license.serial)) && count($workers) >= 3} disabled{/if}></td>
+		<td width="100%"><input type="text" id="workerForm_firstName" name="first_name" value="{$worker->first_name|escape}" {if $disabled}disabled="disabled"{/if}></td>
 	</tr>
 	<tr>
 		<td width="0%" nowrap="nowrap">Last Name:</td>
-		<td width="100%"><input type="text" name="last_name" value="{$worker->last_name|escape}"{if (empty($license) || empty($license.serial)) && count($workers) >= 3} disabled{/if}></td>
+		<td width="100%"><input type="text" name="last_name" value="{$worker->last_name|escape}" {if $disabled}disabled="disabled"{/if}></td>
 	</tr>
 	<tr>
 		<td width="0%" nowrap="nowrap">Title:</td>
-		<td width="100%"><input type="text" name="title" value="{$worker->title|escape}"{if (empty($license) || empty($license.serial)) && count($workers) >= 3} disabled{/if}></td>
+		<td width="100%"><input type="text" name="title" value="{$worker->title|escape}" {if $disabled}disabled="disabled"{/if}></td>
 	</tr>
 	<tr>
 		<td width="0%" nowrap="nowrap"><b>E-mail:</b></td>
-		<td width="100%"><input type="text" id="workerForm_email" name="email" value="{$worker->email|escape}" size="45"{if (empty($license) || empty($license.serial)) && count($workers) >= 3} disabled{/if}></td>
+		<td width="100%"><input type="text" id="workerForm_email" name="email" value="{$worker->email|escape}" size="45" {if $disabled}disabled="disabled"{/if}></td>
 	</tr>
 	<tr>
 		<td width="0%" nowrap="nowrap">{if empty($worker->id)}<b>Password:</b>{else}Password:{/if}</td>
-		<td width="100%"><input type="password" id="workerForm_password" name="password" value=""{if (empty($license) || empty($license.serial)) && count($workers) >= 3} disabled{/if}>
+		<td width="100%"><input type="password" id="workerForm_password" name="password" value="" {if $disabled}disabled="disabled"{/if}>
 		{if empty($worker->id)}&nbsp;(Leave blank to automatically e-mail a randomly-generated password.){/if}</td>
 	</tr>
 	<tr>
 		<td width="0%" nowrap="nowrap">Password (again):</td>
-		<td width="100%"><input type="password" id="workerForm_password2" name="password2" value=""{if (empty($license) || empty($license.serial)) && count($workers) >= 3} disabled{/if}></td>
+		<td width="100%"><input type="password" id="workerForm_password2" name="password2" value="" {if $disabled}disabled="disabled"{/if}></td>
 	</tr>
 	
 	<tr><td colspan="2">&nbsp;</td></tr>
@@ -65,7 +66,7 @@
 			{foreach from=$teams item=team key=team_id}
 			{assign var=member value=$workerTeams.$team_id}
 			<input type="hidden" name="group_ids[]" value="{$team->id}">
-			<select name="group_roles[]" {if (empty($license) || empty($license.serial)) && count($workers) >= 3} disabled="disabled"{/if}>
+			<select name="group_roles[]" {if $disabled} disabled="disabled"{/if}>
 				<option value="">&nbsp;</option>
 				<option value="1" {if $member && !$member->is_manager}selected{/if}>Member</option>
 				<option value="2" {if $member && $member->is_manager}selected{/if}>Manager</option>
@@ -85,7 +86,7 @@
 				<input type="hidden" name="is_superuser" value="{$worker->is_superuser}">
 				Administrator
 			{else}
-				<label><input type="checkbox" name="is_superuser" onclick="toggleDiv('workerPrivCheckboxes',((this.checked)?'none':'block'));" value="1" {if $worker->is_superuser}checked{/if}{if (empty($license) || empty($license.serial)) && count($workers) >= 3} disabled{/if}> Administrator</label><br>
+				<label><input type="checkbox" name="is_superuser" onclick="toggleDiv('workerPrivCheckboxes',((this.checked)?'none':'block'));" value="1" {if $worker->is_superuser}checked="checked"{/if}{if $disabled} disabled="disabled"{/if}> Administrator</label><br>
 			{/if}
 			
 			<div id="workerPrivCheckboxes" style="display:{if $worker->is_superuser}none{else}block{/if};">
@@ -96,7 +97,7 @@
 	
 	<tr>
 		<td colspan="2">
-			{if (empty($license) || empty($license.serial)) && count($workers) >= 3}
+			{if $disabled}
 			{else}
 				<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
 				{if $active_worker->is_superuser && $active_worker->id != $worker->id}<button type="button" onclick="if(confirm('Are you sure you want to delete this worker and their history?')){literal}{{/literal}this.form.do_delete.value='1';this.form.submit();{literal}}{/literal}"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete2.gif{/devblocks_url}" align="top"> {$translate->_('common.delete')|capitalize}</button>{/if}
