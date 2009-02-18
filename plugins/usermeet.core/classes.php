@@ -345,6 +345,7 @@ class UmConfigCommunitiesTab extends Extension_ConfigTab {
         $path = implode('/', $parts);
         
 		$tpl->assign('host', $host);
+		$tpl->assign('is_ssl', ($url_writer->isSSL() ? 1 : 0));
 		$tpl->assign('port', $port);
 		$tpl->assign('base', $base);
 		$tpl->assign('path', $path);

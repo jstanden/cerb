@@ -472,7 +472,8 @@ class CerberusMail {
 			// Prefix the worker name on the personal line?
 			if(!empty($group_personal_with_worker)
 				&& null != ($reply_worker = DAO_Worker::getAgent($worker_id))) {
-					$from_personal = $reply_worker->getName() . ', ' . $from_personal;
+					$from_personal = $reply_worker->getName() .
+						(!empty($from_personal) ? (', ' . $from_personal) : "");
 			}
 				
 			$sendFrom = new Swift_Address($from_addy, $from_personal);

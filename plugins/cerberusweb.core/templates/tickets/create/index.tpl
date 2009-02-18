@@ -9,9 +9,10 @@
 
 <div class="block">
 <h2>{$translate->_('mail.log_message')|capitalize}</h2>
-<form name="compose" enctype="multipart/form-data" method="post" action="{devblocks_url}{/devblocks_url}">
+<form name="compose" enctype="multipart/form-data" method="post" action="{devblocks_url}{/devblocks_url}" onsubmit="return ('1' == this.do_submit.value);">
 <input type="hidden" name="c" value="tickets">
 <input type="hidden" name="a" value="logTicket">
+<input type="hidden" name="do_submit" value="0">
 
 <table cellpadding="2" cellspacing="0" border="0" width="100%">
   <tbody>
@@ -168,7 +169,7 @@
 	<tr>
 		<td>
 			<br>
-			<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> Send Message</button>
+			<button type="button" onclick="this.form.do_submit.value='1';this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> Send Message</button>
 			<button type="button" onclick="document.location='{devblocks_url}c=tickets{/devblocks_url}';"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> Discard</button>
 		</td>
 	</tr>

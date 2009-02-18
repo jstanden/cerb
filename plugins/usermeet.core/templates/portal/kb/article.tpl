@@ -22,7 +22,7 @@
 				<br>
 				
 				{if !empty($article->content)}
-					{$article->content}<br>
+					{if !$article->format}{$article->content|escape|nl2br}{else}{$article->content}{/if}<br>
 				{else}
 					<i>[[ {$translate->_('portal.kb.public.no_content')} ]]</i><br>
 				{/if}

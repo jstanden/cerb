@@ -6,8 +6,7 @@
 	</tr>
 </table>
 
-<form action="{devblocks_url}{/devblocks_url}" method="POST" id="formBatchUpdate" name="formBatchUpdate">
-<!-- <input type="hidden" name="action_id" value="{$id}"> -->
+<form action="{devblocks_url}{/devblocks_url}" method="POST" id="formBatchUpdate" name="formBatchUpdate" onsubmit="return false;">
 <input type="hidden" name="c" value="contacts">
 <input type="hidden" name="a" value="saveOrgPeek">
 <input type="hidden" name="view_id" value="{$view_id}">

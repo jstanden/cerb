@@ -25,7 +25,7 @@
 {/if}
 
 <button type="button" onclick="genericAjaxPost('formConfigCommunityTool','configCommunity',null);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
-{if !empty($instance)}<button type="button" onclick="{literal}if(confirm('{$translate->_('usermeet.ui.community.cfg.confirm_delete')}')){this.form.do_delete.value='1';this.form.submit();}{/literal}"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete2.gif{/devblocks_url}" align="top"> {$translate->_('common.delete')|capitalize}</button>{/if}
+{if !empty($instance)}<button type="button" onclick="if(confirm('{$translate->_('usermeet.ui.community.cfg.confirm_delete')}')){literal}{this.form.do_delete.value='1';this.form.submit();}{/literal}"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete2.gif{/devblocks_url}" align="top"> {$translate->_('common.delete')|capitalize}</button>{/if}
 
 </form>
 </div>
@@ -40,7 +40,9 @@
 <b>index.php:</b><br>
 <textarea rows="10" cols="80" style="width:98%;margin:10px;">
 &lt;?php
-define('REMOTE_HOST', '{$host}{if !empty($port) && 80!=$port}:{$port}{/if}');
+define('REMOTE_PROTOCOL', '{if $is_ssl}https{else}http{/if}');
+define('REMOTE_HOST', '{$host}');
+define('REMOTE_PORT', '{if !empty($port) && 80!=$port}{$port}{else}80{/if}');
 define('REMOTE_BASE', '{$base}{if !$smarty.const.DEVBLOCKS_REWRITE}/index.php{/if}'); // NO trailing slash!
 define('REMOTE_URI', '{$path}'); // NO trailing slash!
 {literal}
@@ -53,14 +55,17 @@ define('REMOTE_URI', '{$path}'); // NO trailing slash!
 define('URL_REWRITE', file_exists('.htaccess'));
 define('LOCAL_HOST', $_SERVER['HTTP_HOST']);
 define('LOCAL_BASE', DevblocksRouter::getLocalBase()); // NO trailing slash!
-define('SCRIPT_LAST_MODIFY', 2008060301); // last change
+define('SCRIPT_LAST_MODIFY', 2009021701); // last change
 
 @session_start();
 
 class DevblocksProxy {
-    function proxy($remote_host, $remote_uri, $local_path) {
-//    	echo "RH: $remote_host<BR>";    	
-//    	echo "RU: $remote_uri<BR>";    	
+    function proxy($local_path) {
+//    	echo "RPT: ",REMOTE_PROTOCOL,"<BR>";    	
+//    	echo "RH: ",REMOTE_HOST,"<BR>";    	
+//    	echo "RP: ",REMOTE_PORT,"<BR>";    	
+//    	echo "RB: ",REMOTE_BASE,"<BR>";    	
+//    	echo "RU: ",REMOTE_URI,"<BR>";    	
 //    	echo "LP: $local_path<BR>";
         $path = explode('/', substr($local_path,1));
         
@@ -70,7 +75,7 @@ class DevblocksProxy {
         	$path[$idx] = rawurlencode($p);
         }
         $local_path = '/'.implode('/', $path);
-        
+
         if(0==strcasecmp($path[0],'resource')) {
             header('Pragma: cache'); 
             header('Cache-control: max-age=86400, must-revalidate'); // 1d
@@ -91,22 +96,25 @@ class DevblocksProxy {
 //            		header('Content-type: text/html;');
 //            		break;
 //            }
+
+            $remote_path = REMOTE_BASE;
             
-            $remote_uri = REMOTE_BASE;
+        } else {
+        	$remote_path = REMOTE_BASE . REMOTE_URI;
         }
         
         if($this->_isPost()) {
-            $this->_post($remote_host, $remote_uri, $local_path);
+            $this->_post($remote_path, $local_path);
         } else {
-            $this->_get($remote_host, $remote_uri, $local_path);
+            $this->_get($remote_path, $local_path);
         }
     }
 
-    function _get($remote_host, $remote_uri, $local_path) {
+    function _get($local_path) {
         die("Subclass abstract " . __CLASS__ . "...");
     }
 
-    function _post($remote_host, $remote_uri, $local_path) {
+    function _post($local_path) {
         die("Subclass abstract " . __CLASS__ . "...");
     }
 
@@ -208,11 +216,13 @@ class DevblocksProxy {
 };
 
 class DevblocksProxy_Socket extends DevblocksProxy {
-    function _get($remote_host, $remote_uri, $local_path) {
-        $fp = fsockopen($remote_host, 80, $errno, $errstr, 10);
+    function _get($remote_path, $local_path) {
+    	$host = (REMOTE_PROTOCOL=='https' ? 'ssl://' : 'tcp://') . REMOTE_HOST;
+        $fp = fsockopen($host, REMOTE_PORT, $errno, $errstr, 10);
+        
         if ($fp) {
-            $out = "GET " . $remote_uri . $local_path . " HTTP/1.0\r\n";
-            $out .= "Host: $remote_host\r\n";
+            $out = "GET " . $remote_path . $local_path . " HTTP/1.0\r\n";
+            $out .= "Host: " . REMOTE_HOST . "\r\n";
             $out .= 'Via: 1.1 ' . LOCAL_HOST . "\r\n";
             if($this->_isSSL()) $out .= 'DevblocksProxySSL: ' . '1' . "\r\n";
             $out .= 'DevblocksProxyHost: ' . LOCAL_HOST . "\r\n";
@@ -224,14 +234,16 @@ class DevblocksProxy_Socket extends DevblocksProxy {
         }
     }
 
-    function _post($remote_host, $remote_uri, $local_path) {
-        $fp = fsockopen($remote_host, 80, $errno, $errstr, 10);
+    function _post($remote_path, $local_path) {
+    	$host = (REMOTE_PROTOCOL=='https' ? 'ssl://' : 'tcp://') . REMOTE_HOST;
+        $fp = fsockopen($host, REMOTE_PORT, $errno, $errstr, 10);
+        
         if ($fp) {
         	$boundary = $this->_generateMimeBoundary();
             $content = $this->_buildPost($boundary);
             
-            $out = "POST " . $remote_uri . $local_path . " HTTP/1.0\r\n";
-            $out .= "Host: $remote_host\r\n";
+            $out = "POST " . $remote_path . $local_path . " HTTP/1.0\r\n";
+            $out .= "Host: " . REMOTE_HOST . "\r\n";
             $out .= 'Via: 1.1 ' . LOCAL_HOST . "\r\n";
             if($this->_isSSL()) $out .= 'DevblocksProxySSL: ' . '1' . "\r\n";
             $out .= 'DevblocksProxyHost: ' . LOCAL_HOST . "\r\n";
@@ -272,8 +284,9 @@ class DevblocksProxy_Socket extends DevblocksProxy {
 };
 
 class DevblocksProxy_Curl extends DevblocksProxy {
-    function _get($remote_host, $remote_uri, $local_path) {
-        $url = 'http://' . $remote_host . $remote_uri . $local_path;
+    function _get($remote_path, $local_path) {
+        $url = REMOTE_PROTOCOL . '://' . REMOTE_HOST . ':' . REMOTE_PORT . $remote_path . $local_path;
+		
         $header = array();
         $header[] = 'Via: 1.1 ' . LOCAL_HOST;
         if($this->_isSSL()) $header[] = 'DevblocksProxySSL: 1';
@@ -283,6 +296,8 @@ class DevblocksProxy_Curl extends DevblocksProxy {
         $ch = curl_init();
         $out = "";
         curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
         curl_setopt($ch, CURLOPT_HEADER, 0);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -292,11 +307,11 @@ class DevblocksProxy_Curl extends DevblocksProxy {
         curl_close($ch);
     }
 
-    function _post($remote_host, $remote_uri, $local_path) {
+    function _post($remote_path, $local_path) {
         $boundary = $this->_generateMimeBoundary();
         $content = $this->_buildPost($boundary);
     	        
-        $url = 'http://' . $remote_host . $remote_uri . $local_path;
+        $url = REMOTE_PROTOCOL . '://' . REMOTE_HOST . ':' . REMOTE_PORT . $remote_path . $local_path;
         $header = array();
         $header[] = 'Content-Type: multipart/form-data; boundary='.$boundary;
         $header[] = 'Content-Length: ' .  strlen($content);
@@ -308,6 +323,8 @@ class DevblocksProxy_Curl extends DevblocksProxy {
         $ch = curl_init();
         $out = "";
         curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $content);
@@ -350,7 +367,7 @@ class DevblocksRouter {
 //        echo "Localbase: ",LOCAL_BASE,"<BR>";
 //        echo $local_path,"<BR>";
         $proxy = $this->_factory();
-        $proxy->proxy(REMOTE_HOST, REMOTE_BASE . REMOTE_URI, $local_path);
+        $proxy->proxy($local_path);
     }
 
     /**
