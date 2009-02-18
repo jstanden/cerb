@@ -85,7 +85,7 @@
 	{if $total}
 	<tr>
 		<td colspan="2">
-			<button type="button" onclick="ajax.showAddressBatchPanel('{$view->id}',this);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> bulk update</button>
+			{if $active_worker->hasPriv('core.addybook.addy.actions.update')}<button type="button" onclick="ajax.showAddressBatchPanel('{$view->id}',this);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> bulk update</button>{/if}
 		</td>
 	</tr>
 	{/if}

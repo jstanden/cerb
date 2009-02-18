@@ -292,8 +292,20 @@
 		<tu tuid='acl.core.addybook'>
 			<tuv xml:lang="en_US"><seg>[Address Book] Can browse the address book</seg></tuv>
 		</tu>
+		<tu tuid='acl.core.addybook.actions.import'>
+			<tuv xml:lang="en_US"><seg>[Address Book] Can import/upload records into the address book</seg></tuv>
+		</tu>
+		<tu tuid='acl.core.addybook.addy.actions.update'>
+			<tuv xml:lang="en_US"><seg>[Address Book] Can modify e-mail address contacts</seg></tuv>
+		</tu>
 		<tu tuid='acl.core.addybook.addy.view.actions.export'>
 			<tuv xml:lang="en_US"><seg>[Address Book] Can export e-mail address lists to CSV/XML</seg></tuv>
+		</tu>
+		<tu tuid='acl.core.addybook.org.actions.update'>
+			<tuv xml:lang="en_US"><seg>[Address Book] Can modify organizations</seg></tuv>
+		</tu>
+		<tu tuid='acl.core.addybook.org.actions.delete'>
+			<tuv xml:lang="en_US"><seg>[Address Book] Can delete organizations</seg></tuv>
 		</tu>
 		<tu tuid='acl.core.addybook.org.view.actions.export'>
 			<tuv xml:lang="en_US"><seg>[Address Book] Can export organization lists to CSV/XML</seg></tuv>

@@ -5611,6 +5611,7 @@ class ChContactsPage extends CerberusPageExtension {
 	}
 	
 	function saveContactAction() {
+		$active_worker = CerberusApplication::getActiveWorker();
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
@@ -5621,45 +5622,47 @@ class ChContactsPage extends CerberusPageExtension {
 		@$is_banned = DevblocksPlatform::importGPC($_REQUEST['is_banned'],'integer',0);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string', '');
 		
-		$contact_org_id = 0;
-		
-		if(!empty($contact_org)) {
-			$contact_org_id = DAO_ContactOrg::lookup($contact_org, true);
-			$contact_org = DAO_ContactOrg::get($contact_org_id);
+		if($active_worker->hasPriv('core.addybook.addy.actions.update')) {
+			$contact_org_id = 0;
+			
+			if(!empty($contact_org)) {
+				$contact_org_id = DAO_ContactOrg::lookup($contact_org, true);
+				$contact_org = DAO_ContactOrg::get($contact_org_id);
+			}
+			
+			$fields = array(
+				DAO_Address::FIRST_NAME => $first_name,
+				DAO_Address::LAST_NAME => $last_name,
+				DAO_Address::CONTACT_ORG_ID => $contact_org_id,
+				DAO_Address::IS_BANNED => $is_banned,
+			);
+			
+			if($id==0) {
+				$fields = $fields + array(DAO_Address::EMAIL => $email);
+				$id = DAO_Address::create($fields);
+			}
+			else {
+				DAO_Address::update($id, $fields);
+			}
+	
+			// Custom field saves
+			@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
+			DAO_CustomFieldValue::handleFormPost(ChCustomFieldSource_Address::ID, $id, $field_ids);
+			
+			/*
+			 * Notify anything that wants to know when Address Peek saves.
+			 */
+		    $eventMgr = DevblocksPlatform::getEventService();
+		    $eventMgr->trigger(
+		        new Model_DevblocksEvent(
+		            'address.peek.saved',
+	                array(
+	                    'address_id' => $id,
+	                    'changed_fields' => $fields,
+	                )
+	            )
+		    );
 		}
-		
-		$fields = array(
-			DAO_Address::FIRST_NAME => $first_name,
-			DAO_Address::LAST_NAME => $last_name,
-			DAO_Address::CONTACT_ORG_ID => $contact_org_id,
-			DAO_Address::IS_BANNED => $is_banned,
-		);
-		
-		if($id==0) {
-			$fields = $fields + array(DAO_Address::EMAIL => $email);
-			$id = DAO_Address::create($fields);
-		}
-		else {
-			DAO_Address::update($id, $fields);
-		}
-
-		// Custom field saves
-		@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
-		DAO_CustomFieldValue::handleFormPost(ChCustomFieldSource_Address::ID, $id, $field_ids);
-		
-		/*
-		 * Notify anything that wants to know when Address Peek saves.
-		 */
-	    $eventMgr = DevblocksPlatform::getEventService();
-	    $eventMgr->trigger(
-	        new Model_DevblocksEvent(
-	            'address.peek.saved',
-                array(
-                    'address_id' => $id,
-                    'changed_fields' => $fields,
-                )
-            )
-	    );
 		
 		if(!empty($view_id)) {
 			$view = C4_AbstractViewLoader::getView('', $view_id);
@@ -5668,6 +5671,8 @@ class ChContactsPage extends CerberusPageExtension {
 	}
 	
 	function saveOrgPropertiesAction() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		@$id = DevblocksPlatform::importGPC($_REQUEST['org_id'],'integer');
 		
 		@$org_name = DevblocksPlatform::importGPC($_REQUEST['org_name'],'string','');
@@ -5681,32 +5686,36 @@ class ChContactsPage extends CerberusPageExtension {
 		@$delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
 
 		if(!empty($id) && !empty($delete)) { // delete
-			DAO_ContactOrg::delete($id);
+			if($active_worker->hasPriv('core.addybook.org.actions.delete'))
+				DAO_ContactOrg::delete($id);
+				
 			DevblocksPlatform::redirect(new DevblocksHttpResponse(array('contacts','orgs')));
 			return;
 			
 		} else { // create/edit
-			$fields = array(
-				DAO_ContactOrg::NAME => $org_name,
-				DAO_ContactOrg::STREET => $street,
-				DAO_ContactOrg::CITY => $city,
-				DAO_ContactOrg::PROVINCE => $province,
-				DAO_ContactOrg::POSTAL => $postal,
-				DAO_ContactOrg::COUNTRY => $country,
-				DAO_ContactOrg::PHONE => $phone,
-				DAO_ContactOrg::WEBSITE => $website
-			);
-	
-			if($id==0) {
-				$id = DAO_ContactOrg::create($fields);
+			if($active_worker->hasPriv('core.addybook.org.actions.update')) {
+				$fields = array(
+					DAO_ContactOrg::NAME => $org_name,
+					DAO_ContactOrg::STREET => $street,
+					DAO_ContactOrg::CITY => $city,
+					DAO_ContactOrg::PROVINCE => $province,
+					DAO_ContactOrg::POSTAL => $postal,
+					DAO_ContactOrg::COUNTRY => $country,
+					DAO_ContactOrg::PHONE => $phone,
+					DAO_ContactOrg::WEBSITE => $website
+				);
+		
+				if($id==0) {
+					$id = DAO_ContactOrg::create($fields);
+				}
+				else {
+					DAO_ContactOrg::update($id, $fields);	
+				}
+				
+				// Custom field saves
+				@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
+				DAO_CustomFieldValue::handleFormPost(ChCustomFieldSource_Org::ID, $id, $field_ids);
 			}
-			else {
-				DAO_ContactOrg::update($id, $fields);	
-			}
-			
-			// Custom field saves
-			@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
-			DAO_CustomFieldValue::handleFormPost(ChCustomFieldSource_Org::ID, $id, $field_ids);
 		}		
 		
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('contacts','orgs','display',$id))); //,'fields'
@@ -5767,6 +5776,8 @@ class ChContactsPage extends CerberusPageExtension {
 	}
 	
 	function saveOrgPeekAction() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
 		@$org_name = DevblocksPlatform::importGPC($_REQUEST['org_name'],'string','');
@@ -5780,30 +5791,33 @@ class ChContactsPage extends CerberusPageExtension {
 		@$delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
 
 		if(!empty($id) && !empty($delete)) { // delete
-			DAO_ContactOrg::delete($id);
+			if($active_worker->hasPriv('core.addybook.org.actions.delete'))
+				DAO_ContactOrg::delete($id);
 			
 		} else { // create/edit
-			$fields = array(
-				DAO_ContactOrg::NAME => $org_name,
-				DAO_ContactOrg::STREET => $street,
-				DAO_ContactOrg::CITY => $city,
-				DAO_ContactOrg::PROVINCE => $province,
-				DAO_ContactOrg::POSTAL => $postal,
-				DAO_ContactOrg::COUNTRY => $country,
-				DAO_ContactOrg::PHONE => $phone,
-				DAO_ContactOrg::WEBSITE => $website,
-			);
-	
-			if($id==0) {
-				$id = DAO_ContactOrg::create($fields);
+			if($active_worker->hasPriv('core.addybook.org.actions.update')) {
+				$fields = array(
+					DAO_ContactOrg::NAME => $org_name,
+					DAO_ContactOrg::STREET => $street,
+					DAO_ContactOrg::CITY => $city,
+					DAO_ContactOrg::PROVINCE => $province,
+					DAO_ContactOrg::POSTAL => $postal,
+					DAO_ContactOrg::COUNTRY => $country,
+					DAO_ContactOrg::PHONE => $phone,
+					DAO_ContactOrg::WEBSITE => $website,
+				);
+		
+				if($id==0) {
+					$id = DAO_ContactOrg::create($fields);
+				}
+				else {
+					DAO_ContactOrg::update($id, $fields);	
+				}
+				
+				// Custom field saves
+				@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
+				DAO_CustomFieldValue::handleFormPost(ChCustomFieldSource_Org::ID, $id, $field_ids);
 			}
-			else {
-				DAO_ContactOrg::update($id, $fields);	
-			}
-			
-			// Custom field saves
-			@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
-			DAO_CustomFieldValue::handleFormPost(ChCustomFieldSource_Org::ID, $id, $field_ids);
 		}
 		
 		$view = C4_AbstractViewLoader::getView('', $view_id);

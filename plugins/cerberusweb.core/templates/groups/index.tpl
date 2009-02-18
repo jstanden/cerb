@@ -4,7 +4,7 @@
 
 <table cellpadding="0" cellspacing="5" border="0" width="100%">
 	<tr>
-		<td width="0%" nowrap="nowrap" valign="top">
+		<td width="1%" nowrap="nowrap" valign="top">
 		
 			<div class="block">
 			<h2>Groups</h2>
@@ -35,7 +35,7 @@
 			
 		</td>
 		
-		<td width="100%" valign="top">
+		<td width="99%" valign="top">
 			{if !empty($team)}
 				{include file="$core_tpl/groups/edit_group.tpl" group=$team}
 			{/if}

@@ -21,7 +21,9 @@
 </table>
 
 <form action="{devblocks_url}{/devblocks_url}" style="margin-bottom:5px;">
+{if $active_worker->hasPriv('core.addybook.org.actions.update')}
 	<button type="button" onclick="genericAjaxPanel('c=contacts&a=showOrgPeek&id=0&view_id={$view->id}',this,false,'500px',ajax.cbAddressPeek);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/office-building.gif{/devblocks_url}" align="top"> Add Org</button>
+{/if}
 </form>
 
 <table cellpadding="0" cellspacing="0" border="0">

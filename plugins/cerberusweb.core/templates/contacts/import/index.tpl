@@ -30,7 +30,9 @@
 <input type="file" name="csv_file" size="45"><br>
 <br>
 
+{if $active_worker->hasPriv('core.addybook.import')}
 <button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.upload')|capitalize}</button><br>
+{/if}
 </form>
 </div>
 <br>

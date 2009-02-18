@@ -24,7 +24,7 @@
       				{if $sender_org_id}
       					<a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showOrgPeek&id={$sender_org_id}', this, false, '500px', function(o){literal}{{/literal} genericAjaxPostAfterSubmitEvent.subscribe(function(type,args){literal}{{/literal}document.getElementById('btnMsgMax{$message->id}').click();{literal}}{/literal}); {literal}}{/literal});"><small style="">{$sender_org->name}</small></a>
       				{else}{* No org *}
-      					<a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&address_id={$sender_id}', this, false, '500px', function(o){literal}{{/literal} ajax.cbAddressPeek(); genericAjaxPostAfterSubmitEvent.subscribe(function(type,args){literal}{{/literal}document.getElementById('btnMsgMax{$message->id}').click();{literal}}{/literal}); {literal}}{/literal} );"><small style="background-color:rgb(255,255,194);">{$translate->_('display.convo.set_org')|lower}</small></a>
+      					{if $active_worker->hasPriv('core.addybook.addy.actions.update')}<a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&address_id={$sender_id}', this, false, '500px', function(o){literal}{{/literal} ajax.cbAddressPeek(); genericAjaxPostAfterSubmitEvent.subscribe(function(type,args){literal}{{/literal}document.getElementById('btnMsgMax{$message->id}').click();{literal}}{/literal}); {literal}}{/literal} );"><small style="background-color:rgb(255,255,194);">{$translate->_('display.convo.set_org')|lower}</small></a>{/if}
       				{/if}
       				
       				<br>
