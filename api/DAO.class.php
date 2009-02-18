@@ -3313,6 +3313,21 @@ class DAO_Ticket extends C4_ORMHelper {
 		return $addresses;
 	}
 	
+	static function isTicketRequester($email, $ticket_id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = sprintf("SELECT a.id ".
+			"FROM address a ".
+			"INNER JOIN requester r ON (r.ticket_id = %d AND a.id=r.address_id) ".
+			"WHERE a.email = %s ".
+			"ORDER BY a.email ASC ",
+			$ticket_id,
+			$db->qstr($email)
+		);
+		$result = $db->GetOne($sql);
+		return !empty($result);
+	}
+	
 	static function createRequester($address_id,$ticket_id) {
 		$db = DevblocksPlatform::getDatabaseService();
 		$db->Replace(

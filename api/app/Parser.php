@@ -349,63 +349,69 @@ class CerberusParser {
         	if(null != ($worker_address = DAO_AddressToWorker::getByAddress($fromAddressInst->email))) {
         		$logger->info("[Parser] Handling an external worker response from " . $fromAddressInst->email);
 
-				// Watcher Commands [TODO] Document on wiki/etc
-				if(0 != ($matches = preg_match_all("/\[(.*?)\]/i", $message->headers['subject'], $commands))) {
-					@$command = strtolower(array_pop($commands[1]));
-					$logger->info("[Parser] Worker command: " . $command);
-					
-					switch($command) {
-						case 'close':
-							DAO_Ticket::updateTicket($id,array(
-								DAO_Ticket::IS_CLOSED => CerberusTicketStatus::CLOSED
-							));
-							break;
-							
-						case 'take':
-							DAO_Ticket::updateTicket($id,array(
-								DAO_Ticket::NEXT_WORKER_ID => $worker_address->worker_id
-							));
-							break;
-							
-						case 'comment':
-							$comment_id = DAO_TicketComment::create(array(
-								DAO_TicketComment::ADDRESS_ID => $fromAddressId,
-								DAO_TicketComment::CREATED => time(),
-								DAO_TicketComment::TICKET_ID => $id,
-								DAO_TicketComment::COMMENT => $message->body,
-							));
-							return $id;
-							break;
-							
-						default:
-							// Typo?
-							break;
+        		if(!DAO_Ticket::isTicketRequester($worker_address->address, $id)) {
+					// Watcher Commands [TODO] Document on wiki/etc
+					if(0 != ($matches = preg_match_all("/\[(.*?)\]/i", $message->headers['subject'], $commands))) {
+						@$command = strtolower(array_pop($commands[1]));
+						$logger->info("[Parser] Worker command: " . $command);
+						
+						switch($command) {
+							case 'close':
+								DAO_Ticket::updateTicket($id,array(
+									DAO_Ticket::IS_CLOSED => CerberusTicketStatus::CLOSED
+								));
+								break;
+								
+							case 'take':
+								DAO_Ticket::updateTicket($id,array(
+									DAO_Ticket::NEXT_WORKER_ID => $worker_address->worker_id
+								));
+								break;
+								
+							case 'comment':
+								$comment_id = DAO_TicketComment::create(array(
+									DAO_TicketComment::ADDRESS_ID => $fromAddressId,
+									DAO_TicketComment::CREATED => time(),
+									DAO_TicketComment::TICKET_ID => $id,
+									DAO_TicketComment::COMMENT => $message->body,
+								));
+								return $id;
+								break;
+								
+							default:
+								// Typo?
+								break;
+						}
 					}
-				}
-
-				$attachment_files = array();
-				$attachment_files['name'] = array();
-				$attachment_files['type'] = array();
-				$attachment_files['tmp_name'] = array();
-				$attachment_files['size'] = array();
-				
-				$i=0;
-				foreach($message->files as $filename => $file) {
-					$attachment_files['name'][$i] = $filename;
-					$attachment_files['type'][$i] = $file->mime_type;
-					$attachment_files['tmp_name'][$i] = $file->tmpname;
-					$attachment_files['size'][$i] = $file->file_size;
-					$i++;
-				} 				
-				
-        		CerberusMail::sendTicketMessage(array(
-					'message_id' => $msgid,
-					'content' => $message->body,
-					'files' => $attachment_files,
-					'agent_id' => $worker_address->worker_id,
-				));
-				
-        		return $id;
+	
+					$attachment_files = array();
+					$attachment_files['name'] = array();
+					$attachment_files['type'] = array();
+					$attachment_files['tmp_name'] = array();
+					$attachment_files['size'] = array();
+					
+					$i=0;
+					foreach($message->files as $filename => $file) {
+						$attachment_files['name'][$i] = $filename;
+						$attachment_files['type'][$i] = $file->mime_type;
+						$attachment_files['tmp_name'][$i] = $file->tmpname;
+						$attachment_files['size'][$i] = $file->file_size;
+						$i++;
+					} 				
+					
+	        		CerberusMail::sendTicketMessage(array(
+						'message_id' => $msgid,
+						'content' => $message->body,
+						'files' => $attachment_files,
+						'agent_id' => $worker_address->worker_id,
+					));
+					
+	        		return $id;
+	        		
+        		} else {
+        			// ... worker is a requester, treat as normal
+        			$logger->info("[Parser] The external worker was a ticket requester, so we're not treating them as a watcher.");
+        		}
         		
         	} else { // Reply: Not sent by a worker
 	        	/*
