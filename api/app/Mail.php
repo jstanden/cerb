@@ -323,7 +323,7 @@ class CerberusMail {
 		// add files to ticket
 		// [TODO] redundant with parser (like most of the rest of this function)
 		if (is_array($files) && !empty($files)) {
-			$attachment_path = APP_PATH . '/storage/attachments/';
+			$attachment_path = APP_STORAGE_PATH . '/attachments/';
 		
 			reset($files);
 			foreach ($files['tmp_name'] as $idx => $file) {
@@ -637,7 +637,7 @@ class CerberusMail {
 	
 			// Forward Attachments
 			if(!empty($forward_files) && is_array($forward_files)) {
-				$attachments_path = APP_PATH . '/storage/attachments/';
+				$attachments_path = APP_STORAGE_PATH . '/attachments/';
 				
 				foreach($forward_files as $file_id) {
 					$attachment = DAO_Attachment::get($file_id);
@@ -702,7 +702,7 @@ class CerberusMail {
 			}
 		    
 			if (is_array($files) && !empty($files)) {
-				$attachment_path = APP_PATH . '/storage/attachments/';
+				$attachment_path = APP_STORAGE_PATH . '/attachments/';
 			
 				reset($files);
 				foreach ($files['tmp_name'] as $idx => $file) {

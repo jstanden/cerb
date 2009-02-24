@@ -218,7 +218,7 @@ class MaintCron extends CerberusCronPageExtension {
 		$logger->info('[Maint] Cleaned up mail directories.');
 	  
 		// [JAS] Remove any empty directories inside storage/import/new
-		$importNewDir = APP_PATH . '/storage/import/new' . DIRECTORY_SEPARATOR;
+		$importNewDir = APP_STORAGE_PATH . '/import/new' . DIRECTORY_SEPARATOR;
 		$subdirs = glob($importNewDir . '*', GLOB_ONLYDIR);
 		if ($subdirs !== false) {
 			foreach($subdirs as $subdir) {
@@ -289,8 +289,8 @@ class ImportCron extends CerberusCronPageExtension {
 		$logger->info("[Importer] Overloaded memory_limit to: " . ini_get('memory_limit'));
 		$logger->info("[Importer] Overloaded max_execution_time to: " . ini_get('max_execution_time'));
 		
-		$importNewDir = APP_PATH . '/storage/import/new/';
-		$importFailDir = APP_PATH . '/storage/import/fail/';
+		$importNewDir = APP_STORAGE_PATH . '/import/new/';
+		$importFailDir = APP_STORAGE_PATH . '/import/fail/';
 
 		if(!is_writable($importNewDir)) {
 			$logger->err("[Importer] Unable to write in '$importNewDir'.  Please check permissions.");
@@ -1183,7 +1183,7 @@ class ParserFile {
 	}
 
 	static public function makeTempFilename() {
-		$path = DEVBLOCKS_PATH . 'tmp' . DIRECTORY_SEPARATOR;
+		$path = APP_TEMP_PATH . DIRECTORY_SEPARATOR;
 		return tempnam($path,'mime');
 	}
 };

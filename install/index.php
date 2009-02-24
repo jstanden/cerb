@@ -113,50 +113,52 @@ if(empty($step)) $step = STEP_ENVIRONMENT;
 
 // [TODO] Could convert to CerberusApplication::checkRequirements()
 
-@chmod(DEVBLOCKS_PATH . 'tmp/', 0774);
-@chmod(DEVBLOCKS_PATH . 'tmp/templates_c/', 0774);
-@chmod(DEVBLOCKS_PATH . 'tmp/cache/', 0774);
+@chmod(APP_TEMP_PATH, 0774);
+@mkdir(APP_TEMP_PATH , '/templates_c/');
+@chmod(APP_TEMP_PATH . '/templates_c/', 0774);
+@mkdir(APP_TEMP_PATH , '/cache/');
+@chmod(APP_TEMP_PATH . '/cache/', 0774);
 
 // Make sure the temporary directories of Devblocks are writeable.
-if(!is_writeable(DEVBLOCKS_PATH . "tmp/")) {
-	die(realpath(DEVBLOCKS_PATH . "tmp/") ." is not writeable by the webserver.  Please adjust permissions and reload this page.");
+if(!is_writeable(APP_TEMP_PATH)) {
+	die(APP_TEMP_PATH ." is not writeable by the webserver.  Please adjust permissions and reload this page.");
 }
 
-if(!is_writeable(DEVBLOCKS_PATH . "tmp/templates_c/")) {
-	die(realpath(DEVBLOCKS_PATH . "tmp/templates_c/") . " is not writeable by the webserver.  Please adjust permissions and reload this page.");
+if(!is_writeable(APP_TEMP_PATH . "/templates_c/")) {
+	die(APP_TEMP_PATH . "/templates_c/" . " is not writeable by the webserver.  Please adjust permissions and reload this page.");
 }
 
-if(!is_writeable(DEVBLOCKS_PATH . "tmp/cache/")) {
-	die(realpath(DEVBLOCKS_PATH . "tmp/cache/") . " is not writeable by the webserver.  Please adjust permissions and reload this page.");
+if(!is_writeable(APP_TEMP_PATH . "/cache/")) {
+	die(APP_TEMP_PATH . "/cache/" . " is not writeable by the webserver.  Please adjust permissions and reload this page.");
 }
 
-@chmod(APP_PATH . '/storage/', 0774);
-@chmod(APP_PATH . '/storage/attachments/', 0774);
-@chmod(APP_PATH . '/storage/mail/new/', 0774);
-@chmod(APP_PATH . '/storage/mail/fail/', 0774);
+@chmod(APP_STORAGE_PATH, 0774);
+@chmod(APP_STORAGE_PATH . '/attachments/', 0774);
+@chmod(APP_STORAGE_PATH . '/mail/new/', 0774);
+@chmod(APP_STORAGE_PATH . '/mail/fail/', 0774);
 
-if(!is_writeable(APP_PATH . "/storage/")) {
-	die("storage/ is not writeable by the webserver.  Please adjust permissions and reload this page.");
+if(!is_writeable(APP_STORAGE_PATH)) {
+	die(APP_STORAGE_PATH . " is not writeable by the webserver.  Please adjust permissions and reload this page.");
 }
 
-if(!is_writeable(APP_PATH . "/storage/import/fail/")) {
-	die("storage/import/fail/ is not writeable by the webserver.  Please adjust permissions and reload this page.");
+if(!is_writeable(APP_STORAGE_PATH . "/import/fail/")) {
+	die(APP_STORAGE_PATH . "/import/fail/ is not writeable by the webserver.  Please adjust permissions and reload this page.");
 }
 
-if(!is_writeable(APP_PATH . "/storage/import/new/")) {
-	die("storage/import/new/ is not writeable by the webserver.  Please adjust permissions and reload this page.");
+if(!is_writeable(APP_STORAGE_PATH . "/import/new/")) {
+	die(APP_STORAGE_PATH . "/import/new/ is not writeable by the webserver.  Please adjust permissions and reload this page.");
 }
 
-if(!is_writeable(APP_PATH . "/storage/attachments/")) {
-	die("storage/attachments/ is not writeable by the webserver.  Please adjust permissions and reload this page.");
+if(!is_writeable(APP_STORAGE_PATH . "/attachments/")) {
+	die(APP_STORAGE_PATH . "/attachments/ is not writeable by the webserver.  Please adjust permissions and reload this page.");
 }
 
-if(!is_writeable(APP_PATH . "/storage/mail/new/")) {
-	die("storage/mail/new/ is not writeable by the webserver.  Please adjust permissions and reload this page.");
+if(!is_writeable(APP_STORAGE_PATH . "/mail/new/")) {
+	die(APP_STORAGE_PATH . "/mail/new/ is not writeable by the webserver.  Please adjust permissions and reload this page.");
 }
 
-if(!is_writeable(APP_PATH . "/storage/mail/fail/")) {
-	die("storage/mail/fail/ is not writeable by the webserver.  Please adjust permissions and reload this page.");
+if(!is_writeable(APP_STORAGE_PATH . "/mail/fail/")) {
+	die(APP_STORAGE_PATH . "/mail/fail/ is not writeable by the webserver.  Please adjust permissions and reload this page.");
 }
 
 //require_once(DEVBLOCKS_PATH . 'libs/Zend.php');
@@ -355,7 +357,7 @@ switch($step) {
 		if(!empty($db_driver) && !empty($db_server) && !empty($db_name) && !empty($db_user)) {
 			// Test the given settings, bypass platform initially
 			include_once(DEVBLOCKS_PATH . "libs/adodb5/adodb.inc.php");
-			$ADODB_CACHE_DIR = APP_PATH . "/tmp/cache";
+			$ADODB_CACHE_DIR = APP_TEMP_PATH . "/cache";
 			@$db =& ADONewConnection($db_driver);
 			@$db->Connect($db_server, $db_user, $db_pass, $db_name);
 

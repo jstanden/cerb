@@ -210,7 +210,7 @@ class CerberusParser {
      */
     static public function saveMimeToFile($source, $path=null) {
     	if(empty($path))
-    		$path = DEVBLOCKS_PATH . 'tmp' . DIRECTORY_SEPARATOR;
+    		$path = APP_TEMP_PATH . DIRECTORY_SEPARATOR;
     	else
     		$path = realpath($path) . DIRECTORY_SEPARATOR;
     	
@@ -525,7 +525,7 @@ class CerberusParser {
 			}
 		}
 		
-		$attachment_path = APP_PATH . '/storage/attachments/'; // [TODO] This should allow external attachments (S3)
+		$attachment_path = APP_STORAGE_PATH . '/attachments/'; // [TODO] This should allow external attachments (S3)
 		
         $fields = array(
             DAO_Message::TICKET_ID => $id,

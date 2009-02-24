@@ -275,7 +275,7 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 				if(0 == strcasecmp($attachment->display_name,'original_message.html'))
 					continue;
 					
-				$attachment_path = APP_PATH . '/storage/attachments/'; // [TODO] This is highly redundant in the codebase
+				$attachment_path = APP_STORAGE_PATH . '/attachments/'; // [TODO] This is highly redundant in the codebase
 				if(!file_exists($attachment_path . $attachment->filepath))
 					continue;
 				

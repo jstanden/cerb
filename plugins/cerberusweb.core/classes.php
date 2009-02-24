@@ -5083,7 +5083,7 @@ class ChContactsPage extends CerberusPageExtension {
 		$tpl = DevblocksPlatform::getTemplateService();
 		
 		$filename = basename($csv_file['tmp_name']);
-		$newfilename = DEVBLOCKS_PATH . 'tmp/' . $filename;
+		$newfilename = APP_TEMP_PATH . '/' . $filename;
 		
 		if(!rename($csv_file['tmp_name'], $newfilename)) {
 			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('contacts','import')));
@@ -7577,7 +7577,7 @@ class ChUpdateController extends DevblocksControllerExtension {
 	    		break;
 	    		
 	    	default:
-			    $path = DEVBLOCKS_PATH . 'tmp' . DIRECTORY_SEPARATOR;
+			    $path = APP_TEMP_PATH . DIRECTORY_SEPARATOR;
 				$file = $path . 'c4update_lock';	    		
 				
 			    $authorized_ips_str = $settings->get(CerberusSettings::AUTHORIZED_IPS);
@@ -7734,13 +7734,12 @@ class ChDebugController extends DevblocksControllerExtension  {
 					"[Cerberus Helpdesk] Devblocks Build: %s\n".
 					"[Cerberus Helpdesk] URL-Rewrite: %s\n".
 					"\n".
-					"[Privs] libs/devblocks/tmp: %s\n".
-					"[Privs] libs/devblocks/tmp/templates_c: %s\n".
-					"[Privs] libs/devblocks/tmp/cache: %s\n".
 					"[Privs] storage/attachments: %s\n".
 					"[Privs] storage/mail/new: %s\n".
 					"[Privs] storage/mail/fail: %s\n".
-					"[Privs] storage/indexes: %s\n".
+					"[Privs] storage/tmp: %s\n".
+					"[Privs] storage/tmp/templates_c: %s\n".
+					"[Privs] storage/tmp/cache: %s\n".
 					"\n".
 					"[PHP] Version: %s\n".
 					"[PHP] OS: %s\n".
@@ -7770,13 +7769,12 @@ class ChDebugController extends DevblocksControllerExtension  {
 					APP_BUILD,
 					PLATFORM_BUILD,
 					(file_exists(APP_PATH . '/.htaccess') ? 'YES' : 'NO'),
-					substr(sprintf('%o', fileperms(DEVBLOCKS_PATH.'tmp')), -4),
-					substr(sprintf('%o', fileperms(DEVBLOCKS_PATH.'tmp/templates_c')), -4),
-					substr(sprintf('%o', fileperms(DEVBLOCKS_PATH.'tmp/cache')), -4),
-					substr(sprintf('%o', fileperms(APP_PATH.'/storage/attachments')), -4),
-					substr(sprintf('%o', fileperms(APP_PATH.'/storage/mail/new')), -4),
-					substr(sprintf('%o', fileperms(APP_PATH.'/storage/mail/fail')), -4),
-					substr(sprintf('%o', fileperms(APP_PATH.'/storage/indexes')), -4),
+					substr(sprintf('%o', fileperms(APP_STORAGE_PATH.'/attachments')), -4),
+					substr(sprintf('%o', fileperms(APP_STORAGE_PATH.'/mail/new')), -4),
+					substr(sprintf('%o', fileperms(APP_STORAGE_PATH.'/mail/fail')), -4),
+					substr(sprintf('%o', fileperms(APP_TEMP_PATH)), -4),
+					substr(sprintf('%o', fileperms(APP_TEMP_PATH.'/templates_c')), -4),
+					substr(sprintf('%o', fileperms(APP_TEMP_PATH.'/cache')), -4),
 					PHP_VERSION,
 					PHP_OS . ' (' . php_uname() . ')',
 					php_sapi_name(),

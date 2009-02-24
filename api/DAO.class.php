@@ -2629,7 +2629,7 @@ class DAO_Attachment extends DevblocksORMHelper {
 		$sql = "SELECT filepath FROM attachment LEFT JOIN message ON attachment.message_id = message.id WHERE message.id IS NULL";
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
-		$attachment_path = APP_PATH . '/storage/attachments/';
+		$attachment_path = APP_STORAGE_PATH . '/attachments/';
 		
 		// Delete the physical files
 		if(is_a($rs,'ADORecordSet'))
@@ -2655,7 +2655,7 @@ class DAO_Attachment extends DevblocksORMHelper {
 		$sql = sprintf("SELECT filepath FROM attachment WHERE id IN (%s)", implode(',',$ids));
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
-		$attachment_path = APP_PATH . '/storage/attachments/';
+		$attachment_path = APP_STORAGE_PATH . '/attachments/';
 		
 		// Delete the physical files
 		if(is_a($rs,'ADORecordSet'))
