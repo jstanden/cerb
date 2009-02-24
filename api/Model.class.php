@@ -2067,7 +2067,6 @@ class C4_KbArticleView extends C4_AbstractView {
 		$this->_sanitize();
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		//		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 

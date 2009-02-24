@@ -114,9 +114,9 @@ if(empty($step)) $step = STEP_ENVIRONMENT;
 // [TODO] Could convert to CerberusApplication::checkRequirements()
 
 @chmod(APP_TEMP_PATH, 0774);
-@mkdir(APP_TEMP_PATH , '/templates_c/');
+@mkdir(APP_TEMP_PATH . '/templates_c/');
 @chmod(APP_TEMP_PATH . '/templates_c/', 0774);
-@mkdir(APP_TEMP_PATH , '/cache/');
+@mkdir(APP_TEMP_PATH . '/cache/');
 @chmod(APP_TEMP_PATH . '/cache/', 0774);
 
 // Make sure the temporary directories of Devblocks are writeable.
