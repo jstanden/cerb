@@ -1,5 +1,5 @@
 <?php
-$path = realpath(dirname(__FILE__).'/../') . DIRECTORY_SEPARATOR;
+$path = dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR;
 
 class ChWatchersPlugin extends DevblocksPlugin {
 	const WORKER_PREF_ASSIGN_EMAIL = 'watchers_assign_email';
@@ -15,7 +15,7 @@ if (class_exists('DevblocksTranslationsExtension',true)):
 		}
 		
 		function getTmxFile() {
-			return dirname(__FILE__) . '/../strings.xml';
+			return dirname(dirname(__FILE__)) . '/strings.xml';
 		}
 	};
 endif;
@@ -349,7 +349,7 @@ class ChWatchersPreferences extends Extension_PreferenceTab {
 	
     function __construct($manifest) {
         parent::__construct($manifest);
-        $this->tpl_path = realpath(dirname(__FILE__).'/../templates');
+        $this->tpl_path = dirname(dirname(__FILE__)).'/templates';
     }
 	
 	// Ajax

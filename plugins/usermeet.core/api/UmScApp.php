@@ -1,6 +1,6 @@
 <?php
 // Classes
-$path = realpath(dirname(__FILE__).'/../') . DIRECTORY_SEPARATOR;
+$path = dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR;
 
 DevblocksPlatform::registerClasses($path. 'api/Extension.php', array(
     'Extension_UmScController'
@@ -78,7 +78,7 @@ class UmScApp extends Extension_UsermeetTool {
 
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
-		$tpl_path = realpath(dirname(__FILE__).'/../') . '/templates/';
+		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
 		$tpl->assign('tpl_path', $tpl_path);
 		
 		$logo_url = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_LOGO_URL, '');
@@ -190,7 +190,7 @@ class UmScApp extends Extension_UsermeetTool {
 	 */
     public function configure(Model_CommunityTool $instance) {
         $tpl = DevblocksPlatform::getTemplateService();
-        $tpl_path = realpath(dirname(__FILE__).'/../') . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR;
+        $tpl_path = dirname(dirname(__FILE__)) . '/templates/';
         $tpl->assign('config_path', $tpl_path);
         
         $settings = CerberusSettings::getInstance();
@@ -403,7 +403,7 @@ class UmScApp extends Extension_UsermeetTool {
     	$tool = DAO_CommunityTool::getByCode($sCode);
     	 
         $tpl = DevblocksPlatform::getTemplateService();
-        $tpl_path = realpath(dirname(__FILE__).'/../') . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR;
+        $tpl_path = dirname(dirname(__FILE__)) . '/templates/';
 
         $settings = CerberusSettings::getInstance();
         
@@ -1077,7 +1077,7 @@ class UmScCoreController extends Extension_UmScController {
 	
 	function writeResponse(DevblocksHttpResponse $response) {
 		$tpl = DevblocksPlatform::getTemplateService();
-        $tpl_path = realpath(dirname(__FILE__).'/../') . '/templates/';
+        $tpl_path = dirname(dirname(__FILE__)) . '/templates/';
 		
         $theme = DAO_CommunityToolProperty::get($this->getPortal(), UmScApp::PARAM_THEME, UmScApp::DEFAULT_THEME);
         if(!is_dir($tpl_path . 'portal/sc/themes/'.$theme))

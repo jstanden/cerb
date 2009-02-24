@@ -1,6 +1,6 @@
 <?php
 // Classes
-$path = realpath(dirname(__FILE__).'/../') . DIRECTORY_SEPARATOR;
+$path = dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR;
 
 DevblocksPlatform::registerClasses($path. 'api/App.php', array(
     'C4_RssExpItemView'
@@ -17,7 +17,7 @@ class RssExpTranslations extends DevblocksTranslationsExtension {
 	}
 	
 	function getTmxFile() {
-		return realpath(dirname(__FILE__).'/../') . '/strings.xml';
+		return dirname(dirname(__FILE__)) . '/strings.xml';
 	}
 };
 
@@ -32,7 +32,7 @@ class RssExpActivityTab extends Extension_ActivityTab {
 	function showTab() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
-		$tpl_path = realpath(dirname(__FILE__) . '/../templates') . DIRECTORY_SEPARATOR;
+		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
 		$tpl->assign('path', $tpl_path);
 		
 		if(null == ($view = C4_AbstractViewLoader::getView('', self::VIEW_ACTIVITY_RSS))) {

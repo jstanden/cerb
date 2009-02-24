@@ -1,5 +1,5 @@
 <?php
-$path = realpath(dirname(__FILE__) . '/../') . DIRECTORY_SEPARATOR;
+$path = dirname(dirname(__FILE__)) . '/';
 
 DevblocksPlatform::registerClasses($path. 'api/App.php', array(
     'C4_ForumsThreadView'
@@ -27,7 +27,7 @@ class ChForumsConfigTab extends Extension_ConfigTab {
 		$settings = CerberusSettings::getInstance();
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = realpath(dirname(__FILE__) . '/../templates') . DIRECTORY_SEPARATOR;
+		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
 		$tpl->assign('path', $tpl_path);
 		$tpl->cache_lifetime = "0";
 
@@ -115,7 +115,7 @@ class ChForumsActivityTab extends Extension_ActivityTab {
 	function showTab() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
-		$tpl_path = realpath(dirname(__FILE__) . '/../templates') . DIRECTORY_SEPARATOR;
+		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
 		$tpl->assign('path', $tpl_path);
 		
 		if(null == ($view = C4_AbstractViewLoader::getView('', self::VIEW_ACTIVITY_FORUMS))) {
@@ -144,7 +144,7 @@ class ChForumsTranslations extends DevblocksTranslationsExtension {
 	}
 	
 	function getTmxFile() {
-		return realpath(dirname(__FILE__).'/../') . '/strings.xml';
+		return dirname(dirname(__FILE__)) . '/strings.xml';
 	}
 };
 
@@ -154,7 +154,7 @@ class ChForumsController extends DevblocksControllerExtension {
 	function __construct($manifest) {
 		parent::__construct($manifest);
 
-		$this->tpl_path = realpath(dirname(__FILE__).'/../templates');
+		$this->tpl_path = dirname(dirname(__FILE__)).'/templates';
 		
 		$router = DevblocksPlatform::getRoutingService();
 		$router->addRoute('forums','forums.controller');
@@ -869,7 +869,7 @@ class ChForumsPatchContainer extends DevblocksPatchContainerExtension {
 		 * number.
 		 */
 
-		$file_prefix = realpath(dirname(__FILE__) . '/../patches');
+		$file_prefix = dirname(dirname(__FILE__)) . '/patches';
 		
 		$this->registerPatch(new DevblocksPatch('cerberusweb.forums',3,$file_prefix.'/1.0.0.php',''));
 	}
@@ -931,7 +931,7 @@ class C4_ForumsThreadView extends C4_AbstractView {
 
 	function renderCriteria($field) {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = realpath(dirname(__FILE__) . '/../templates') . DIRECTORY_SEPARATOR;
+		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
 		$tpl->assign('id', $this->id);
 
 		switch($field) {

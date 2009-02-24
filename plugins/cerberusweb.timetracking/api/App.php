@@ -1,6 +1,6 @@
 <?php
 // Classes
-$path = realpath(dirname(__FILE__) . '/../') . DIRECTORY_SEPARATOR;
+$path = dirname(dirname(__FILE__)) . '/';
 
 DevblocksPlatform::registerClasses($path. 'api/App.php', array(
     'C4_TimeTrackingEntryView'
@@ -74,7 +74,7 @@ class ChTimeTrackingPatchContainer extends DevblocksPatchContainerExtension {
 		 * number.
 		 */
 
-		$file_prefix = realpath(dirname(__FILE__) . '/../patches');
+		$file_prefix = dirname(dirname(__FILE__)) . '/patches';
 		
 		$this->registerPatch(new DevblocksPatch('cerberusweb.timetracking',3,$file_prefix.'/1.0.0.php',''));
 	}
@@ -87,7 +87,7 @@ if (class_exists('DevblocksTranslationsExtension',true)):
 		}
 		
 		function getTmxFile() {
-			return realpath(dirname(__FILE__) . '/../strings.xml');
+			return dirname(dirname(__FILE__)) . '/strings.xml';
 		}
 	};
 endif;
@@ -96,7 +96,7 @@ if (class_exists('Extension_AppPreBodyRenderer',true)):
 	class ChTimeTrackingPreBodyRenderer extends Extension_AppPreBodyRenderer {
 		function render() {
 			$tpl = DevblocksPlatform::getTemplateService();
-			$tpl_path = realpath(dirname(__FILE__).'/../templates') . DIRECTORY_SEPARATOR;
+			$tpl_path = dirname(dirname(__FILE__)).'/templates/';
 			$tpl->assign('path', $tpl_path);
 			$tpl->cache_lifetime = "0";
 			
@@ -111,7 +111,7 @@ if (class_exists('Extension_TicketToolbarItem',true)):
 	class ChTimeTrackingTicketToolbarTimer extends Extension_TicketToolbarItem {
 		function render(CerberusTicket $ticket) {
 			$tpl = DevblocksPlatform::getTemplateService();
-			$tpl_path = realpath(dirname(__FILE__).'/../templates') . DIRECTORY_SEPARATOR;
+			$tpl_path = dirname(dirname(__FILE__)).'/templates/';
 			$tpl->assign('path', $tpl_path);
 			$tpl->cache_lifetime = "0";
 			
@@ -131,7 +131,7 @@ if (class_exists('Extension_ReplyToolbarItem',true)):
 	class ChTimeTrackingReplyToolbarTimer extends Extension_ReplyToolbarItem {
 		function render(CerberusMessage $message) { 
 			$tpl = DevblocksPlatform::getTemplateService();
-			$tpl_path = realpath(dirname(__FILE__).'/../templates') . DIRECTORY_SEPARATOR;
+			$tpl_path = dirname(dirname(__FILE__)).'/templates/';
 			$tpl->assign('path', $tpl_path);
 			$tpl->cache_lifetime = "0";
 			
@@ -151,7 +151,7 @@ if (class_exists('Extension_LogMailToolbarItem',true)):
 	class ChTimeTrackingLogMailToolbarTimer extends Extension_LogMailToolbarItem {
 		function render() { 
 			$tpl = DevblocksPlatform::getTemplateService();
-			$tpl_path = realpath(dirname(__FILE__).'/../templates') . DIRECTORY_SEPARATOR;
+			$tpl_path = dirname(dirname(__FILE__)).'/templates/';
 			$tpl->assign('path', $tpl_path);
 			$tpl->cache_lifetime = "0";
 			
@@ -164,7 +164,7 @@ if (class_exists('Extension_SendMailToolbarItem',true)):
 	class ChTimeTrackingSendMailToolbarTimer extends Extension_SendMailToolbarItem {
 		function render() { 
 			$tpl = DevblocksPlatform::getTemplateService();
-			$tpl_path = realpath(dirname(__FILE__).'/../templates') . DIRECTORY_SEPARATOR;
+			$tpl_path = dirname(dirname(__FILE__)).'/templates/';
 			$tpl->assign('path', $tpl_path);
 			$tpl->cache_lifetime = "0";
 			
@@ -1029,7 +1029,7 @@ class ChTimeTrackingAjaxController extends DevblocksControllerExtension {
 	
 	function showEntryAction($model=null) {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = realpath(dirname(__FILE__).'/../templates') . DIRECTORY_SEPARATOR;
+		$tpl_path = dirname(dirname(__FILE__)).'/templates/';
 		$tpl->assign('path', $tpl_path);
 		$tpl->cache_lifetime = "0";
 
@@ -1218,7 +1218,7 @@ class ChTimeTrackingAjaxController extends DevblocksControllerExtension {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
 
 		$tpl = DevblocksPlatform::getTemplateService();
-		$path = realpath(dirname(__FILE__) . '/../templates/') . DIRECTORY_SEPARATOR;
+		$path = dirname(dirname(__FILE__)) . '/templates/';
 		$tpl->assign('path', $path);
 		$tpl->assign('view_id', $view_id);
 
@@ -1278,7 +1278,7 @@ class TimeTrackingActivityTab extends Extension_ActivityTab {
 	function showTab() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
-		$tpl_path = realpath(dirname(__FILE__) . '/../templates') . DIRECTORY_SEPARATOR;
+		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
 		$tpl->assign('path', $tpl_path);
 		
 		if(null == ($view = C4_AbstractViewLoader::getView('', self::VIEW_ACTIVITY_TIMETRACKING))) {
@@ -1308,7 +1308,7 @@ class ChTimeTrackingConfigActivityTab extends Extension_ConfigTab {
 		$settings = CerberusSettings::getInstance();
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = realpath(dirname(__FILE__) . '/../templates') . DIRECTORY_SEPARATOR;
+		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
 		$tpl->assign('path', $tpl_path);
 		$tpl->cache_lifetime = "0";
 
@@ -1364,7 +1364,7 @@ class ChTimeTrackingConfigActivityTab extends Extension_ConfigTab {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = realpath(dirname(__FILE__) . '/../templates') . DIRECTORY_SEPARATOR;
+		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
 		$tpl->assign('path', $tpl_path);
 		$tpl->cache_lifetime = "0";
 		
@@ -1390,7 +1390,7 @@ class ChReportTimeSpentWorker extends Extension_Report {
 	
 	function __construct($manifest) {
 		parent::__construct($manifest);
-		$this->tpl_path = realpath(dirname(__FILE__).'/../templates');
+		$this->tpl_path = dirname(dirname(__FILE__)).'/templates';
 	}
 	
 	function render() {
@@ -1565,7 +1565,7 @@ class ChReportTimeSpentOrg extends Extension_Report {
 	
 	function __construct($manifest) {
 		parent::__construct($manifest);
-		$this->tpl_path = realpath(dirname(__FILE__).'/../templates');
+		$this->tpl_path = dirname(dirname(__FILE__)).'/templates';
 	}
 	
 	function render() {
@@ -1737,7 +1737,7 @@ class ChReportTimeSpentActivity extends Extension_Report {
 	
 	function __construct($manifest) {
 		parent::__construct($manifest);
-		$this->tpl_path = realpath(dirname(__FILE__).'/../templates');
+		$this->tpl_path = dirname(dirname(__FILE__)).'/templates';
 	}
 	
 	function render() {

@@ -1865,7 +1865,7 @@ class C4_ContactOrgView extends C4_AbstractView {
 		$this->_sanitize();
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('core_tpl', realpath(DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/')) . DIRECTORY_SEPARATOR;
+		$tpl->assign('core_tpl', DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/');
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
@@ -2274,7 +2274,7 @@ class C4_TaskView extends C4_AbstractView {
 
 	function renderCriteria($field) {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = realpath(DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/') . DIRECTORY_SEPARATOR;
+		$tpl_path = DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/';
 		$tpl->assign('id', $this->id);
 		
 		switch($field) {

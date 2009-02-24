@@ -206,7 +206,7 @@ class MobileController extends DevblocksControllerExtension {
 		$tpl->assign('page',$page);
 
 		$tpl->assign('response_uri', implode('/', $response->path));
-		$tpl->assign('core_tpl', realpath(DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/')) . DIRECTORY_SEPARATOR;
+		$tpl->assign('core_tpl', DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/');
 		
 		// Timings
 		$tpl->assign('render_time', (microtime(true) - DevblocksPlatform::getStartTime()));

@@ -1,5 +1,5 @@
 <?php
-$path = realpath(dirname(__FILE__).'/../') . DIRECTORY_SEPARATOR;
+$path = dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR;
 
 DevblocksPlatform::registerClasses($path. 'api/App.php', array(
     'Extension_Report',
@@ -18,7 +18,7 @@ if (class_exists('DevblocksTranslationsExtension',true)):
 		}
 		
 		function getTmxFile() {
-			return realpath(dirname(__FILE__) . '/../strings.xml');
+			return dirname(dirname(__FILE__)) . '/strings.xml';
 		}
 	};
 endif;
@@ -82,7 +82,7 @@ class ChReportCustomFieldUsage extends Extension_Report {
 	
 	function __construct($manifest) {
 		parent::__construct($manifest);
-		$this->tpl_path = realpath(dirname(__FILE__).'/../templates');
+		$this->tpl_path = dirname(dirname(__FILE__)).'/templates';
 	}
 	
 	function render() {
@@ -181,7 +181,7 @@ class ChReportGroupRoster extends Extension_Report {
 	
 	function __construct($manifest) {
 		parent::__construct($manifest);
-		$this->tpl_path = realpath(dirname(__FILE__).'/../templates');
+		$this->tpl_path = dirname(dirname(__FILE__)).'/templates';
 	}
 	
 	function render() {
@@ -207,7 +207,7 @@ class ChReportNewTickets extends Extension_Report {
 	
 	function __construct($manifest) {
 		parent::__construct($manifest);
-		$this->tpl_path = realpath(dirname(__FILE__).'/../templates');
+		$this->tpl_path = dirname(dirname(__FILE__)).'/templates';
 	}
 	
 	function render() {
@@ -373,7 +373,7 @@ class ChReportWorkerReplies extends Extension_Report {
 	
 	function __construct($manifest) {
 		parent::__construct($manifest);
-		$this->tpl_path = realpath(dirname(__FILE__).'/../templates');
+		$this->tpl_path = dirname(dirname(__FILE__)).'/templates';
 	}
 	
 	function render() {
@@ -545,7 +545,7 @@ class ChReportOrgSharedEmailDomains extends Extension_Report {
 	
 	function __construct($manifest) {
 		parent::__construct($manifest);
-		$this->tpl_path = realpath(dirname(__FILE__).'/../templates');
+		$this->tpl_path = dirname(dirname(__FILE__)).'/templates';
 	}
 	
 	function render() {
@@ -584,7 +584,7 @@ class ChReportSpamWords extends Extension_Report {
 	
 	function __construct($manifest) {
 		parent::__construct($manifest);
-		$this->tpl_path = realpath(dirname(__FILE__).'/../templates');
+		$this->tpl_path = dirname(dirname(__FILE__)).'/templates';
 	}
 	
 	function render() {
@@ -633,7 +633,7 @@ class ChReportSpamAddys extends Extension_Report {
 	
 	function __construct($manifest) {
 		parent::__construct($manifest);
-		$this->tpl_path = realpath(dirname(__FILE__).'/../templates');
+		$this->tpl_path = dirname(dirname(__FILE__)).'/templates';
 	}
 	
 	function render() {
@@ -673,7 +673,7 @@ class ChReportSpamDomains extends Extension_Report {
 	
 	function __construct($manifest) {
 		parent::__construct($manifest);
-		$this->tpl_path = realpath(dirname(__FILE__).'/../templates');
+		$this->tpl_path = dirname(dirname(__FILE__)).'/templates';
 	}
 	
 	function render() {
@@ -713,7 +713,7 @@ class ChReportAverageResponseTime extends Extension_Report {
 	
 	function __construct($manifest) {
 		parent::__construct($manifest);
-		$this->tpl_path = realpath(dirname(__FILE__).'/../templates');
+		$this->tpl_path = dirname(dirname(__FILE__)).'/templates';
 	}
 	
 	function render() {
@@ -831,7 +831,7 @@ class ChReportGroupReplies extends Extension_Report {
 	
 	function __construct($manifest) {
 		parent::__construct($manifest);
-		$this->tpl_path = realpath(dirname(__FILE__).'/../templates');
+		$this->tpl_path = dirname(dirname(__FILE__)).'/templates';
 	}
 	
 	function render() {
@@ -1007,7 +1007,7 @@ class ChReportOpenTickets extends Extension_Report {
 	
 	function __construct($manifest) {
 		parent::__construct($manifest);
-		$this->tpl_path = realpath(dirname(__FILE__).'/../templates');
+		$this->tpl_path = dirname(dirname(__FILE__)).'/templates';
 	}
 	
 	function render() {
@@ -1162,7 +1162,7 @@ class ChReportOldestOpenTickets extends Extension_Report {
 	
 	function __construct($manifest) {
 		parent::__construct($manifest);
-		$this->tpl_path = realpath(dirname(__FILE__).'/../templates');
+		$this->tpl_path = dirname(dirname(__FILE__)).'/templates';
 	}
 	
 	function render() {
@@ -1277,7 +1277,7 @@ class ChReportWaitingTickets extends Extension_Report {
 	
 	function __construct($manifest) {
 		parent::__construct($manifest);
-		$this->tpl_path = realpath(dirname(__FILE__).'/../templates');
+		$this->tpl_path = dirname(dirname(__FILE__)).'/templates';
 	}
 	
 	function render() {
@@ -1392,7 +1392,7 @@ class ChReportClosedTickets extends Extension_Report {
 	
 	function __construct($manifest) {
 		parent::__construct($manifest);
-		$this->tpl_path = realpath(dirname(__FILE__).'/../templates');
+		$this->tpl_path = dirname(dirname(__FILE__)).'/templates';
 	}
 	
 	function render() {
@@ -1551,7 +1551,7 @@ class ChReportTicketAssignment extends Extension_Report {
 	
 	function __construct($manifest) {
 		parent::__construct($manifest);
-		$this->tpl_path = realpath(dirname(__FILE__).'/../templates');
+		$this->tpl_path = dirname(dirname(__FILE__)).'/templates';
 	}
 	
 	function render() {
@@ -1654,7 +1654,7 @@ class ChReportTopTicketsByContact extends Extension_Report {
 	
 	function __construct($manifest) {
 		parent::__construct($manifest);
-		$this->tpl_path = realpath(dirname(__FILE__).'/../templates');
+		$this->tpl_path = dirname(dirname(__FILE__)).'/templates';
 	}
 	
 	function render() {
@@ -1893,7 +1893,7 @@ class ChReportWorkerHistory extends Extension_Report {
 	
 	function __construct($manifest) {
 		parent::__construct($manifest);
-		$this->tpl_path = realpath(dirname(__FILE__).'/../templates');
+		$this->tpl_path = dirname(dirname(__FILE__)).'/templates';
 	}
 	
 	function render() {
@@ -2065,7 +2065,7 @@ class ChReportExportSenders extends Extension_Report {
 	
 	function __construct($manifest) {
 		parent::__construct($manifest);
-		$this->tpl_path = realpath(dirname(__FILE__).'/../templates');
+		$this->tpl_path = dirname(dirname(__FILE__)).'/templates';
 	}
 	
 	function render() {
@@ -2172,7 +2172,7 @@ class ChReportsPage extends CerberusPageExtension {
 	function __construct($manifest) {
 		parent::__construct($manifest);
 
-		$this->tpl_path = realpath(dirname(__FILE__).'/../templates');
+		$this->tpl_path = dirname(dirname(__FILE__)).'/templates';
 	}
 		
 	function isVisible() {

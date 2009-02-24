@@ -379,7 +379,7 @@ switch($step) {
 				// [JAS]: If we didn't save directly to the config file, user action required
 				if(0 != strcasecmp($result,'config')) {
 					$tpl->assign('result', $result);
-					$tpl->assign('config_path', realpath(APP_PATH . "/framework.config.php"));
+					$tpl->assign('config_path', APP_PATH . "/framework.config.php");
 					$tpl->assign('template', 'steps/step_config_file.tpl');
 					
 				} else { // skip the config writing step
@@ -428,7 +428,7 @@ switch($step) {
 			$tpl->assign('db_pass', $db_pass);
 			$tpl->assign('failed', true);
 			$tpl->assign('result', $result);
-			$tpl->assign('config_path', realpath(APP_PATH . "/framework.config.php"));
+			$tpl->assign('config_path', APP_PATH . "/framework.config.php");
 			
 			$tpl->assign('template', 'steps/step_config_file.tpl');
 		}

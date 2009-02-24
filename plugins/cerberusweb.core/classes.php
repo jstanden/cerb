@@ -225,7 +225,7 @@ class ChPageController extends DevblocksControllerExtension {
 
 		$tpl->assign('response_uri', implode('/', $response->path));
 		
-		$core_tpl = realpath(DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/') . DIRECTORY_SEPARATOR;
+		$core_tpl = DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/';
 		$tpl->assign('core_tpl', $core_tpl);
 		
 		// Prebody Renderers
@@ -740,12 +740,6 @@ class ChActivityPage extends CerberusPageExtension {
 	
 	function __construct($manifest) {
 		parent::__construct($manifest);
-
-//		$path = realpath(dirname(__FILE__)) . DIRECTORY_SEPARATOR;
-//		
-//		DevblocksPlatform::registerClasses($path. 'api/DAO.php', array(
-//		    'DAO_Faq'
-//		));
 	}
 		
 	function isVisible() {
@@ -3053,7 +3047,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
-		$core_tplpath = realpath(dirname(__FILE__) . '/../cerberusweb.core/templates') . DIRECTORY_SEPARATOR;
+		$core_tplpath = dirname(dirname(__FILE__)) . '/cerberusweb.core/templates/';
 		$tpl->assign('core_tplpath', $core_tplpath);
 		
 		$tpl->assign('response_uri', 'config/attachments');
@@ -3071,7 +3065,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
 
 		$tpl = DevblocksPlatform::getTemplateService();
-		$path = realpath(dirname(__FILE__) . '/templates/') . DIRECTORY_SEPARATOR;
+		$path = dirname(dirname(__FILE__)) . '/templates/';
 		$tpl->assign('path', $path);
 		$tpl->assign('view_id', $view_id);
 
@@ -4826,12 +4820,6 @@ class ChConfigurationPage extends CerberusPageExtension  {
 class ChWelcomePage extends CerberusPageExtension {
 	function __construct($manifest) {
 		parent::__construct($manifest);
-
-//		$path = realpath(dirname(__FILE__)) . DIRECTORY_SEPARATOR;
-//		
-//		DevblocksPlatform::registerClasses($path. 'api/DAO.php', array(
-//		    'DAO_Faq'
-//		));
 	}
 		
 	function isVisible() {
@@ -4860,12 +4848,6 @@ class ChWelcomePage extends CerberusPageExtension {
 class ChContactsPage extends CerberusPageExtension {
 	function __construct($manifest) {
 		parent::__construct($manifest);
-
-//		$path = realpath(dirname(__FILE__)) . DIRECTORY_SEPARATOR;
-//		
-//		DevblocksPlatform::registerClasses($path. 'api/DAO.php', array(
-//		    'DAO_Faq'
-//		));
 	}
 		
 	function getActivity() {
@@ -6164,7 +6146,7 @@ class ChGroupsPage extends CerberusPageExtension  {
 		@$group_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = realpath(dirname(__FILE__) . '/templates/') . DIRECTORY_SEPARATOR;
+		$tpl_path = dirname(__FILE__) . '/templates/';
 		$tpl->assign('path', $tpl_path);
 		
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -6192,7 +6174,7 @@ class ChGroupsPage extends CerberusPageExtension  {
 		@$group_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = realpath(dirname(__FILE__) . '/templates/') . DIRECTORY_SEPARATOR;
+		$tpl_path = dirname(__FILE__) . '/templates/';
 		$tpl->assign('path', $tpl_path);
 
 		$tpl->assign('group_id', $group_id);
@@ -6259,7 +6241,7 @@ class ChGroupsPage extends CerberusPageExtension  {
 		$active_worker = CerberusApplication::getActiveWorker();
 
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = realpath(dirname(__FILE__) . '/templates/') . DIRECTORY_SEPARATOR;
+		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
 		$tpl->assign('path', $tpl_path);
    		
 		$tpl->assign('group_id', $group_id);
@@ -6601,7 +6583,7 @@ class ChGroupsPage extends CerberusPageExtension  {
 		@$group_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = realpath(dirname(__FILE__) . '/templates/') . DIRECTORY_SEPARATOR;
+		$tpl_path = dirname(__FILE__) . '/templates/';
 		$tpl->assign('path', $tpl_path);
 		
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -6649,7 +6631,7 @@ class ChGroupsPage extends CerberusPageExtension  {
 		@$group_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = realpath(dirname(__FILE__) . '/templates/') . DIRECTORY_SEPARATOR;
+		$tpl_path = dirname(__FILE__) . '/templates/';
 		$tpl->assign('path', $tpl_path);
 
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -6726,7 +6708,7 @@ class ChGroupsPage extends CerberusPageExtension  {
 		@$group_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = realpath(dirname(__FILE__) . '/templates/') . DIRECTORY_SEPARATOR;
+		$tpl_path = dirname(__FILE__) . '/templates/';
 		$tpl->assign('path', $tpl_path);
 		
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -6805,7 +6787,7 @@ class ChGroupsPage extends CerberusPageExtension  {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = realpath(dirname(__FILE__) . '/templates/') . DIRECTORY_SEPARATOR;
+		$tpl_path = dirname(__FILE__) . '/templates/';
 		$tpl->assign('path', $tpl_path);
 		
 		$tpl->assign('view_id', $view_id);
@@ -6849,12 +6831,6 @@ class ChGroupsPage extends CerberusPageExtension  {
 class ChKbPage extends CerberusPageExtension {
 	function __construct($manifest) {
 		parent::__construct($manifest);
-
-//		$path = realpath(dirname(__FILE__)) . DIRECTORY_SEPARATOR;
-//		
-//		DevblocksPlatform::registerClasses($path. 'api/DAO.php', array(
-//		    'DAO_Faq'
-//		));
 	}
 		
 	function isVisible() {
@@ -9762,7 +9738,7 @@ class ChSignInPage extends CerberusPageExtension {
             case "forgot":
                 $step = array_shift($stack);
                 $tpl = DevblocksPlatform::getTemplateService();
-                $path = realpath(dirname(__FILE__) . "/templates");
+                $path = dirname(__FILE__) . "/templates";
                 
                 switch($step) {
                     default:

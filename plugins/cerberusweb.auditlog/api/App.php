@@ -1,5 +1,5 @@
 <?php
-$path = realpath(dirname(__FILE__).'/../') . DIRECTORY_SEPARATOR;
+$path = dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR;
 
 DevblocksPlatform::registerClasses($path. 'api/App.php', array(
     'C4_TicketAuditLogView'
@@ -17,7 +17,7 @@ if (class_exists('DevblocksTranslationsExtension',true)):
 		}
 		
 		function getTmxFile() {
-			return realpath(dirname(__FILE__) . '/../strings.xml');
+			return dirname(dirname(__FILE__)) . '/strings.xml';
 		}
 	};
 endif;
@@ -104,7 +104,7 @@ class ChAuditLogTicketTab extends Extension_TicketTab {
 	
     function __construct($manifest) {
         parent::__construct($manifest);
-        $this->tpl_path = realpath(dirname(__FILE__).'/../templates');
+        $this->tpl_path = dirname(dirname(__FILE__)).'/templates';
     }
 	
 	function showTab() {

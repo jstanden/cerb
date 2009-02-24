@@ -49,7 +49,7 @@
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
 define("APP_BUILD", 878);
-define("APP_MAIL_PATH", realpath(APP_STORAGE_PATH . '/mail') . DIRECTORY_SEPARATOR);
+define("APP_MAIL_PATH", APP_STORAGE_PATH . '/mail/');
 
 include_once(APP_PATH . "/api/DAO.class.php");
 include_once(APP_PATH . "/api/Model.class.php");
@@ -123,7 +123,7 @@ class CerberusApplication extends DevblocksApplication {
 		
 		// Make sure the temporary directories of Devblocks are writeable.
 		if(!is_writeable(APP_TEMP_PATH)) {
-			$errors[] = realpath(APP_TEMP_PATH) ." is not writeable by the webserver.  Please adjust permissions and reload this page.";
+			$errors[] = APP_TEMP_PATH ." is not writeable by the webserver.  Please adjust permissions and reload this page.";
 		}
 		
 		if(!file_exists(APP_TEMP_PATH . "/templates_c")) {
@@ -131,7 +131,7 @@ class CerberusApplication extends DevblocksApplication {
 		}
 		
 		if(!is_writeable(APP_TEMP_PATH . "/templates_c/")) {
-			$errors[] = realpath(APP_TEMP_PATH . "/templates_c/") . " is not writeable by the webserver.  Please adjust permissions and reload this page.";
+			$errors[] = APP_TEMP_PATH . "/templates_c/" . " is not writeable by the webserver.  Please adjust permissions and reload this page.";
 		}
 
 		if(!file_exists(APP_TEMP_PATH . "/cache")) {
@@ -139,31 +139,31 @@ class CerberusApplication extends DevblocksApplication {
 		}
 		
 		if(!is_writeable(APP_TEMP_PATH . "/cache/")) {
-			$errors[] = realpath(APP_TEMP_PATH . "/cache/") . " is not writeable by the webserver.  Please adjust permissions and reload this page.";
+			$errors[] = APP_TEMP_PATH . "/cache/" . " is not writeable by the webserver.  Please adjust permissions and reload this page.";
 		}
 		
 		if(!is_writeable(APP_STORAGE_PATH)) {
-			$errors[] = realpath(APP_STORAGE_PATH) ." is not writeable by the webserver.  Please adjust permissions and reload this page.";
+			$errors[] = APP_STORAGE_PATH ." is not writeable by the webserver.  Please adjust permissions and reload this page.";
 		}
 		
 		if(!is_writeable(APP_STORAGE_PATH . "/import/fail")) {
-			$errors[] = realpath(APP_STORAGE_PATH . "/import/fail/") ." is not writeable by the webserver.  Please adjust permissions and reload this page.";
+			$errors[] = APP_STORAGE_PATH . "/import/fail/" ." is not writeable by the webserver.  Please adjust permissions and reload this page.";
 		}
 		
 		if(!is_writeable(APP_STORAGE_PATH . "/import/new")) {
-			$errors[] = realpath(APP_STORAGE_PATH . "/import/new/") ." is not writeable by the webserver.  Please adjust permissions and reload this page.";
+			$errors[] = APP_STORAGE_PATH . "/import/new/" ." is not writeable by the webserver.  Please adjust permissions and reload this page.";
 		}
 		
 		if(!is_writeable(APP_STORAGE_PATH . "/attachments/")) {
-			$errors[] = realpath(APP_STORAGE_PATH . "/attachments/") ." is not writeable by the webserver.  Please adjust permissions and reload this page.";
+			$errors[] = APP_STORAGE_PATH . "/attachments/" ." is not writeable by the webserver.  Please adjust permissions and reload this page.";
 		}
 		
 		if(!is_writeable(APP_STORAGE_PATH . "/mail/new/")) {
-			$errors[] = realpath(APP_STORAGE_PATH . "/mail/new/") ." is not writeable by the webserver.  Please adjust permissions and reload this page.";
+			$errors[] = APP_STORAGE_PATH . "/mail/new/" ." is not writeable by the webserver.  Please adjust permissions and reload this page.";
 		}
 		
 		if(!is_writeable(APP_STORAGE_PATH . "/mail/fail/")) {
-			$errors[] = realpath(APP_STORAGE_PATH . "/mail/fail/") ." is not writeable by the webserver.  Please adjust permissions and reload this page.";
+			$errors[] = APP_STORAGE_PATH . "/mail/fail/" ." is not writeable by the webserver.  Please adjust permissions and reload this page.";
 		}
 		
 		// Requirements

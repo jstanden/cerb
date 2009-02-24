@@ -69,7 +69,7 @@ class ChSimulatorConfigTab extends Extension_ConfigTab {
 	
 	function showTab() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = realpath(dirname(__FILE__) . '/templates') . DIRECTORY_SEPARATOR;
+		$tpl_path = dirname(__FILE__) . '/templates/';
 		$tpl->assign('path', $tpl_path);
 		$tpl->cache_lifetime = "0";
 		
@@ -90,7 +90,7 @@ class ChSimulatorConfigTab extends Extension_ConfigTab {
 		require_once(dirname(__FILE__) . '/api/API.class.php');
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = realpath(dirname(__FILE__) . '/templates') . DIRECTORY_SEPARATOR;
+		$tpl_path = dirname(__FILE__) . '/templates/';
 		$tpl->assign('path', $tpl_path);
 		$tpl->cache_lifetime = "0";
 		

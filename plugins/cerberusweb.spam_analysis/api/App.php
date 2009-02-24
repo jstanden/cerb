@@ -1,6 +1,6 @@
 <?php
 // Classes
-$path = realpath(dirname(__FILE__).'/../') . DIRECTORY_SEPARATOR;
+$path = dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR;
 
 //DevblocksPlatform::registerClasses($path. 'api/App.php', array(
 //    'C4_CrmOpportunityView'
@@ -17,7 +17,7 @@ class ChSpamAnalysisTranslations extends DevblocksTranslationsExtension {
 	}
 	
 	function getTmxFile() {
-		return realpath(dirname(__FILE__).'/../') . '/strings.xml';
+		return dirname(dirname(__FILE__)) . '/strings.xml';
 	}
 };
 
@@ -26,7 +26,7 @@ class ChSpamAnalysisTicketTab extends Extension_TicketTab {
 		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer',0);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = realpath(dirname(__FILE__).'/../templates') . DIRECTORY_SEPARATOR;
+		$tpl_path = dirname(dirname(__FILE__)).'/templates/';
 		$tpl->assign('path', $tpl_path);
 		$tpl->cache_lifetime = "0";
 

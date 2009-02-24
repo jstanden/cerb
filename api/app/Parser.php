@@ -212,7 +212,7 @@ class CerberusParser {
     	if(empty($path))
     		$path = APP_TEMP_PATH . DIRECTORY_SEPARATOR;
     	else
-    		$path = realpath($path) . DIRECTORY_SEPARATOR;
+    		$path = $path . DIRECTORY_SEPARATOR;
     	
 		do {
 			$unique = sprintf("%s.%04d.msg",

@@ -1,6 +1,6 @@
 <?php
 // Classes
-$path = realpath(dirname(__FILE__) . '/../') . DIRECTORY_SEPARATOR;
+$path = dirname(dirname(__FILE__)) . '/';
 
 DevblocksPlatform::registerClasses($path. 'api/App.php', array(
     'C4_FeedbackEntryView'
@@ -31,7 +31,7 @@ class ChFeedbackPatchContainer extends DevblocksPatchContainerExtension {
 		 * number.
 		 */
 
-		$file_prefix = realpath(dirname(__FILE__) . '/../patches');
+		$file_prefix = dirname(dirname(__FILE__)) . '/patches';
 		
 		$this->registerPatch(new DevblocksPatch('cerberusweb.feedback',3,$file_prefix.'/1.0.0.php',''));
 	}
@@ -44,7 +44,7 @@ if (class_exists('DevblocksTranslationsExtension',true)):
 		}
 		
 		function getTmxFile() {
-			return realpath(dirname(__FILE__) . '/../strings.xml');
+			return dirname(dirname(__FILE__)) . '/strings.xml';
 		}
 	};
 endif;
@@ -60,7 +60,7 @@ class ChFeedbackActivityTab extends Extension_ActivityTab {
 	function showTab() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
-		$tpl_path = realpath(dirname(__FILE__) . '/../templates') . DIRECTORY_SEPARATOR;
+		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
 		$tpl->assign('path', $tpl_path);
 		
 		if(null == ($view = C4_AbstractViewLoader::getView('', self::VIEW_ACTIVITY_FEEDBACK))) {
@@ -612,7 +612,7 @@ class ChFeedbackController extends DevblocksControllerExtension {
 	function __construct($manifest) {
 		parent::__construct($manifest);
 
-		$this->plugin_path = realpath(dirname(__FILE__).'/../') . DIRECTORY_SEPARATOR;
+		$this->plugin_path = dirname(dirname(__FILE__)) . '/';
 		
 		$router = DevblocksPlatform::getRoutingService();
 		$router->addRoute('feedback','feedback.controller');
@@ -657,7 +657,7 @@ class ChFeedbackController extends DevblocksControllerExtension {
 		@$active_worker = CerberusApplication::getActiveWorker(); 
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = realpath(dirname(__FILE__).'/../templates') . DIRECTORY_SEPARATOR;
+		$tpl_path = dirname(dirname(__FILE__)).'/templates/';
 		$tpl->assign('path', $this->plugin_path . '/templates/');
 		$tpl->cache_lifetime = "0";
 
@@ -817,7 +817,7 @@ class ChFeedbackController extends DevblocksControllerExtension {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
 
 		$tpl = DevblocksPlatform::getTemplateService();
-		$path = realpath(dirname(__FILE__) . '/../templates/') . DIRECTORY_SEPARATOR;
+		$path = dirname(dirname(__FILE__)) . '/templates/';
 		$tpl->assign('path', $path);
 		$tpl->assign('view_id', $view_id);
 
@@ -870,7 +870,7 @@ if (class_exists('Extension_MessageToolbarItem',true)):
 	class ChFeedbackMessageToolbarFeedback extends Extension_MessageToolbarItem {
 		function render(CerberusMessage $message) { 
 			$tpl = DevblocksPlatform::getTemplateService();
-			$tpl_path = realpath(dirname(__FILE__).'/../templates') . DIRECTORY_SEPARATOR;
+			$tpl_path = dirname(dirname(__FILE__)).'/templates/';
 			
 			$tpl->assign('message', $message); /* @var $message CerberusMessage */
 			

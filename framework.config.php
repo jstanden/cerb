@@ -20,10 +20,10 @@ define('DB_CHARSET_CODE','latin1'); // latin1, utf8
  ***************************************************************************/
 define('APP_DEFAULT_CONTROLLER','core.controller.page');
 define('APP_DB_PREFIX','cerb');
-define('APP_PATH',realpath(dirname(__FILE__)));
+define('APP_PATH',dirname(__FILE__));
 define('APP_STORAGE_PATH',APP_PATH . '/storage');
 define('APP_TEMP_PATH',APP_STORAGE_PATH . '/tmp');
-define('DEVBLOCKS_PATH',realpath(APP_PATH . '/libs/devblocks/') . DIRECTORY_SEPARATOR);
+define('DEVBLOCKS_PATH',APP_PATH . '/libs/devblocks/' . DIRECTORY_SEPARATOR);
 define('DEVBLOCKS_REWRITE', file_exists(dirname(__FILE__).'/.htaccess'));
 define('DEMO_MODE',false);
 define('AUTHORIZED_IPS_DEFAULTS', '');

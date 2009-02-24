@@ -1,6 +1,6 @@
 <?php
 // Classes
-$path = realpath(dirname(__FILE__) . '/../') . DIRECTORY_SEPARATOR;
+$path = dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR;
 
 DevblocksPlatform::registerClasses($path. 'api/App.php', array(
     'C4_TranslationView',
@@ -18,7 +18,7 @@ if (class_exists('DevblocksTranslationsExtension',true)):
 		}
 		
 		function getTmxFile() {
-			return realpath(dirname(__FILE__) . '/../strings.xml');
+			return dirname(dirname(__FILE__)) . '/strings.xml';
 		}
 	};
 endif;
@@ -30,8 +30,8 @@ class ChTranslatorsConfigTab extends Extension_ConfigTab {
 		$settings = CerberusSettings::getInstance();
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = realpath(dirname(__FILE__) . '/../templates') . DIRECTORY_SEPARATOR;
-		$core_tplpath = realpath(dirname(__FILE__) . '/../../cerberusweb.core/templates') . DIRECTORY_SEPARATOR;
+		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
+		$core_tplpath = dirname(dirname(dirname(__FILE__))) . '/cerberusweb.core/templates/';
 		$tpl->assign('core_tplpath', $core_tplpath);
 		$tpl->cache_lifetime = "0";
 
@@ -269,7 +269,7 @@ class ChTranslatorsAjaxController extends DevblocksControllerExtension {
 
 	function showFindStringsPanelAction($model=null) {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = realpath(dirname(__FILE__).'/../templates') . DIRECTORY_SEPARATOR;
+		$tpl_path = dirname(dirname(__FILE__)).'/templates/';
 		$tpl->assign('path', $tpl_path);
 		$tpl->cache_lifetime = "0";
 
@@ -336,7 +336,7 @@ class ChTranslatorsAjaxController extends DevblocksControllerExtension {
 	
 	function showAddLanguagePanelAction($model=null) {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = realpath(dirname(__FILE__).'/../templates') . DIRECTORY_SEPARATOR;
+		$tpl_path = dirname(dirname(__FILE__)).'/templates/';
 		$tpl->assign('path', $tpl_path);
 		$tpl->cache_lifetime = "0";
 
@@ -443,7 +443,7 @@ class ChTranslatorsAjaxController extends DevblocksControllerExtension {
 	
 	function showImportStringsPanelAction($model=null) {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = realpath(dirname(__FILE__).'/../templates') . DIRECTORY_SEPARATOR;
+		$tpl_path = dirname(dirname(__FILE__)).'/templates/';
 		$tpl->assign('path', $tpl_path);
 		$tpl->cache_lifetime = "0";
 

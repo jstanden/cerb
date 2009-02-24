@@ -1,6 +1,6 @@
 <?php
 // Classes
-$path = realpath(dirname(__FILE__).'/../') . DIRECTORY_SEPARATOR;
+$path = dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR;
 
 DevblocksPlatform::registerClasses($path. 'api/App.php', array(
     'C4_CrmOpportunityView'
@@ -37,8 +37,8 @@ class CrmOppsActivityTab extends Extension_ActivityTab {
 	function showTab() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
-		$tpl->assign('core_tpl', realpath(APP_PATH . '/plugins/cerberusweb.core/templates') . DIRECTORY_SEPARATOR);
-		$tpl_path = realpath(dirname(__FILE__) . '/../templates') . DIRECTORY_SEPARATOR;
+		$tpl->assign('core_tpl', APP_PATH . '/plugins/cerberusweb.core/templates/');
+		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
 		$tpl->assign('path', $tpl_path);
 		
 		$translate = DevblocksPlatform::getTranslationService();
@@ -70,7 +70,7 @@ class CrmPage extends CerberusPageExtension {
 	
 	function __construct($manifest) {
 		parent::__construct($manifest);
-		$this->plugin_path = realpath(dirname(__FILE__).'/../') . DIRECTORY_SEPARATOR;
+		$this->plugin_path = dirname(dirname(__FILE__)).'/';
 	}
 	
 	function render() {
@@ -209,7 +209,7 @@ class CrmPage extends CerberusPageExtension {
 		@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string','');
 
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = realpath(dirname(__FILE__) . '/../templates/') . DIRECTORY_SEPARATOR;
+		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
 		$tpl->assign('path', $tpl_path);
 		
 		/*
@@ -382,7 +382,7 @@ class CrmPage extends CerberusPageExtension {
 		@$opp_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer');
 
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = realpath(dirname(__FILE__) . '/../templates/') . DIRECTORY_SEPARATOR;
+		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
 		$tpl->assign('path', $tpl_path);
 		
 		$opp = DAO_CrmOpportunity::get($opp_id);
@@ -418,7 +418,7 @@ class CrmPage extends CerberusPageExtension {
 		@$opp_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer');
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = realpath(dirname(__FILE__) . '/../templates/') . DIRECTORY_SEPARATOR;
+		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
 		$tpl->assign('path', $tpl_path);
 		
 		$opp = DAO_CrmOpportunity::get($opp_id);
@@ -453,7 +453,7 @@ class CrmPage extends CerberusPageExtension {
 		@$opp_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer');
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = realpath(dirname(__FILE__) . '/../templates/') . DIRECTORY_SEPARATOR;
+		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
 		$tpl->assign('path', $tpl_path);
 		
 		$opp = DAO_CrmOpportunity::get($opp_id);
@@ -523,7 +523,7 @@ class CrmPage extends CerberusPageExtension {
 		@$opp_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer');
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = realpath(dirname(__FILE__) . '/../templates/') . DIRECTORY_SEPARATOR;
+		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
 		$tpl->assign('path', $tpl_path);
 		
 		$opp = DAO_CrmOpportunity::get($opp_id);
@@ -627,7 +627,7 @@ class CrmPage extends CerberusPageExtension {
 		$tpl->assign('custom_fields', $custom_fields);
 		
 		$tpl->cache_lifetime = "0";
-		$tpl->display('file:' . dirname(__FILE__) . '/../templates/crm/opps/bulk.tpl');
+		$tpl->display('file:' . dirname(dirname(__FILE__)) . '/templates/crm/opps/bulk.tpl');
 	}
 	
 	function doOppBulkUpdateAction() {
@@ -1019,7 +1019,7 @@ class C4_CrmOpportunityView extends C4_AbstractView {
 
 	function renderCriteria($field) {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = realpath(dirname(__FILE__).'/../templates') . DIRECTORY_SEPARATOR;
+		$tpl_path = dirname(dirname(__FILE__)).'/templates/';
 		$tpl->assign('id', $this->id);
 
 		switch($field) {
@@ -1264,7 +1264,7 @@ class CrmTranslations extends DevblocksTranslationsExtension {
 	}
 	
 	function getTmxFile() {
-		return realpath(dirname(__FILE__).'/../') . '/strings.xml';
+		return dirname(dirname(__FILE__)) . '/strings.xml';
 	}
 };
 
@@ -1307,7 +1307,7 @@ class CrmOrgOppTab extends Extension_OrgTab {
 		@$org_id = DevblocksPlatform::importGPC($_REQUEST['org_id'],'integer',0);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = realpath(dirname(__FILE__).'/../templates') . DIRECTORY_SEPARATOR;
+		$tpl_path = dirname(dirname(__FILE__)).'/templates/';
 		$tpl->assign('path', $tpl_path);
 		$tpl->cache_lifetime = "0";
 
@@ -1340,7 +1340,7 @@ class CrmTicketOppTab extends Extension_TicketTab {
 		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer',0);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = realpath(dirname(__FILE__).'/../templates') . DIRECTORY_SEPARATOR;
+		$tpl_path = dirname(dirname(__FILE__)).'/templates/';
 		$tpl->assign('path', $tpl_path);
 		$tpl->cache_lifetime = "0";
 

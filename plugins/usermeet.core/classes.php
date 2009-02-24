@@ -50,7 +50,7 @@
  */
 
 // Classes
-$path = realpath(dirname(__FILE__)) . DIRECTORY_SEPARATOR;
+$path = dirname(__FILE__) . DIRECTORY_SEPARATOR;
 
 DevblocksPlatform::registerClasses($path. 'api/Extension.php', array(
     'Extension_UsermeetTool'
@@ -74,7 +74,7 @@ if (class_exists('DevblocksTranslationsExtension',true)):
 		}
 		
 		function getTmxFile() {
-			return realpath(dirname(__FILE__) . '/strings.xml');
+			return dirname(__FILE__) . '/strings.xml';
 		}
 	};
 endif;
@@ -190,7 +190,7 @@ class UmConfigCommunitiesTab extends Extension_ConfigTab {
 	
 	function showTab() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = realpath(dirname(__FILE__) . '/templates') . DIRECTORY_SEPARATOR;
+		$tpl_path = dirname(__FILE__) . '/templates/';
 		$tpl->assign('path', $tpl_path);
 		$tpl->cache_lifetime = "0";
 
@@ -224,7 +224,7 @@ class UmConfigCommunitiesTab extends Extension_ConfigTab {
 
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
-		$tpl_path = realpath(dirname(__FILE__) . '/templates') . DIRECTORY_SEPARATOR;
+		$tpl_path = dirname(__FILE__) . '/templates/';
 		$tpl->assign('path', $tpl_path);
 		
 		if(!empty($id)) {
@@ -309,7 +309,7 @@ class UmConfigCommunitiesTab extends Extension_ConfigTab {
 
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
-		$tpl_path = realpath(dirname(__FILE__) . '/templates') . DIRECTORY_SEPARATOR;
+		$tpl_path = dirname(__FILE__) . '/templates/';
 		$tpl->assign('path', $tpl_path);
 	
 		$tpl->assign('portal', $portal);
@@ -397,7 +397,7 @@ class UmContactApp extends Extension_UsermeetTool {
     function __construct($manifest) {
         parent::__construct($manifest);
         
-        $filepath = realpath(dirname(__FILE__)) . DIRECTORY_SEPARATOR;
+        $filepath = dirname(__FILE__) . DIRECTORY_SEPARATOR;
         
 //        DevblocksPlatform::registerClasses('Text/CAPTCHA.php',array(
 //        	'Text_CAPTCHA',
@@ -651,7 +651,7 @@ class UmContactApp extends Extension_UsermeetTool {
 	 */
     public function configure(Model_CommunityTool $instance) {
         $tpl = DevblocksPlatform::getTemplateService();
-        $tpl_path = realpath(dirname(__FILE__)) . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR;
+        $tpl_path = dirname(__FILE__) . '/templates/';
         $tpl->assign('config_path', $tpl_path);
         
         $settings = CerberusSettings::getInstance();
@@ -683,7 +683,7 @@ class UmContactApp extends Extension_UsermeetTool {
     	$tool = DAO_CommunityTool::getByCode($sCode);
     	 
         $tpl = DevblocksPlatform::getTemplateService();
-        $tpl_path = realpath(dirname(__FILE__)) . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR;
+        $tpl_path = dirname(__FILE__) . '/templates/';
 
         $settings = CerberusSettings::getInstance();
         
@@ -790,7 +790,7 @@ class UmKbApp extends Extension_UsermeetTool {
 	
     function __construct($manifest) {
         parent::__construct($manifest);
-        $filepath = realpath(dirname(__FILE__)) . DIRECTORY_SEPARATOR;
+        $filepath = dirname(__FILE__) . DIRECTORY_SEPARATOR;
     }
     
     private function _writeArticlesAsRss($articles, $title) {
@@ -1138,7 +1138,7 @@ class UmKbApp extends Extension_UsermeetTool {
 	 */
     public function configure(Model_CommunityTool $instance) {
         $tpl = DevblocksPlatform::getTemplateService();
-        $tpl_path = realpath(dirname(__FILE__)) . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR;
+        $tpl_path = dirname(__FILE__) . '/templates/';
         $tpl->assign('config_path', $tpl_path);
         
         $base_url = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_BASE_URL, '');

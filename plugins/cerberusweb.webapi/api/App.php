@@ -50,7 +50,7 @@
  */
 
 // Classes
-$path = realpath(dirname(__FILE__)) . DIRECTORY_SEPARATOR;
+$path = dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR;
 
 //DevblocksPlatform::registerClasses($path. 'api/Extension.php', array(
 //    'Extension_UsermeetTool'
@@ -70,7 +70,7 @@ if (class_exists('DevblocksTranslationsExtension',true)):
 		}
 		
 		function getTmxFile() {
-			return dirname(__FILE__) . '/../strings.xml';
+			return dirname(__FILE__) . '/strings.xml';
 		}
 	};
 endif;
@@ -80,7 +80,7 @@ class ChWebApiConfigTab extends Extension_ConfigTab {
 	
 	function showTab() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = realpath(dirname(__FILE__) . '/../templates') . DIRECTORY_SEPARATOR;
+		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
 		$tpl->assign('path', $tpl_path);
 		$tpl->cache_lifetime = "0";
 		

@@ -10,7 +10,7 @@ class ChTasksActivityTab extends Extension_ActivityTab {
 	function showTab() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
-		$tpl_path = realpath(dirname(__FILE__) . '/../../templates') . DIRECTORY_SEPARATOR;
+		$tpl_path = dirname(dirname(dirname(__FILE__))) . '/templates/';
 		$tpl->assign('path', $tpl_path);
 		
 		$translate = DevblocksPlatform::getTranslationService();
@@ -87,7 +87,7 @@ class ChTasksController extends DevblocksControllerExtension {
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
-		$path = realpath(dirname(__FILE__) . '/../../templates/') . DIRECTORY_SEPARATOR;
+		$path = dirname(dirname(dirname(__FILE__))) . '/templates/';
 		$tpl->assign('path', $path);
 		
 		if(!empty($id)) {
@@ -252,7 +252,7 @@ class ChTasksController extends DevblocksControllerExtension {
 		$tpl->assign('custom_fields', $custom_fields);
 		
 		$tpl->cache_lifetime = "0";
-		$tpl->display('file:' . dirname(__FILE__) . '/../../templates/tasks/rpc/bulk.tpl');
+		$tpl->display('file:' . dirname(dirname(dirname(__FILE__))) . '/templates/tasks/rpc/bulk.tpl');
 	}
 	
 	function doTaskBulkUpdateAction() {
