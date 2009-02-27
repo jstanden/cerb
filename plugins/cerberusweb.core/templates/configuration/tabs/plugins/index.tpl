@@ -41,26 +41,3 @@
 <button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
 </form>
 
-<!-- <div class="block">
-<h2>Extension Points</h2>
-{if !empty($points)}
-<ul style="list-style:none;margin-left:0;padding-left:1em;text-indent:1em;">
-	{foreach from=$points key=point item=p}
-		<li>
-			<a href="javascript:;" onclick="toggleDiv('divChConfig_{$point}');" style="text-decoration:none;"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/wgm/icon_plus.gif{/devblocks_url}" align="absmiddle" border="0"></a>
-			&nbsp; 
-			<a href="javascript:;" onclick="toggleDiv('divChConfig_{$point}');" style="text-decoration:none;"><b>{$point}</b></a>
-		</li>
-		{if !empty($p->extensions)}
-		<ul style="display:none;" id='divChConfig_{$point}'>
-		{foreach from=$p->extensions item=extension}
-			<li>{$extension->name} (<i>{$extension->plugin_id}</i>)</li>
-		{/foreach}
-		</ul>
-		<br>
-		{/if}
-	{/foreach}
-</ul>
-{/if}
-</div>
- -->

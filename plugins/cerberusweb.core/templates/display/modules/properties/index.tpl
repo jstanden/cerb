@@ -26,13 +26,15 @@
 	
 	<b>Who should handle the next reply?</b><br> 
 	<select name="next_worker_id" onchange="toggleDiv('ticketPropsUnlockDate',this.selectedIndex?'block':'none');">
-		<option value="0" {if 0==$ticket->next_worker_id}selected{/if}>Anybody
+		{if 0==$ticket->next_worker_id || $active_worker->hasPriv('core.ticket.actions.assign')}<option value="0" {if 0==$ticket->next_worker_id}selected{/if}>Anybody{/if}
 		{foreach from=$workers item=worker key=worker_id name=workers}
+			{if $worker_id==$ticket->next_worker_id || $active_worker->hasPriv('core.ticket.actions.assign')}
 			{if $worker_id==$active_worker->id}{assign var=next_worker_id_sel value=$smarty.foreach.workers.iteration}{/if}
 			<option value="{$worker_id}" {if $worker_id==$ticket->next_worker_id}selected{/if}>{$worker->getName()}
+			{/if}
 		{/foreach}
 	</select>&nbsp;
-   	{if !empty($next_worker_id_sel)}
+   	{if $active_worker->hasPriv('core.ticket.actions.assign') && !empty($next_worker_id_sel)}
    		<button type="button" onclick="this.form.next_worker_id.selectedIndex = {$next_worker_id_sel};toggleDiv('ticketPropsUnlockDate','block');">me</button>
    		<button type="button" onclick="this.form.next_worker_id.selectedIndex = 0;toggleDiv('ticketPropsUnlockDate','none');">anybody</button>
    	{/if}

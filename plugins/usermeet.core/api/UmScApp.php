@@ -3,7 +3,8 @@
 $path = dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR;
 
 DevblocksPlatform::registerClasses($path. 'api/Extension.php', array(
-    'Extension_UmScController'
+    'Extension_UmScController',
+    'Extension_UsermeetTool',
 ));
 
 class UmScApp extends Extension_UsermeetTool {
@@ -38,7 +39,7 @@ class UmScApp extends Extension_UsermeetTool {
     private function _getModules() {
     	if(empty($this->_modules)) {
 			// [TODO] Load sub-controller plugins
-			$module_manifests = DevblocksPlatform::getExtensions('usermeet.sc.controller', false);
+			$module_manifests = DevblocksPlatform::getExtensions('usermeet.sc.controller', false, true);
 			foreach($module_manifests as $module_manifest) { /* @var $module_manifest DevblocksExtensionManifest */
 				if(null != ($mods = $module_manifest->params['modules'])) {
 					foreach($mods as $mod) {
@@ -59,9 +60,9 @@ class UmScApp extends Extension_UsermeetTool {
         $modules = $this->_getModules();
         
         if(isset($modules[$module_uri])) {
-        	$mf = DevblocksPlatform::getExtension($modules[$module_uri]['extension_id']);
+        	$mf = DevblocksPlatform::getExtension($modules[$module_uri]['extension_id'],false,true);
         } else {
-        	$mf = DevblocksPlatform::getExtension($this->default_controller);
+        	$mf = DevblocksPlatform::getExtension($this->default_controller,false,true);
         }
         
         array_unshift($stack, $module_uri);
@@ -123,9 +124,9 @@ class UmScApp extends Extension_UsermeetTool {
         $module_uri = array_shift($stack);
         
         if(isset($modules[$module_uri])) {
-        	$mf = DevblocksPlatform::getExtension($modules[$module_uri]['extension_id']);
+        	$mf = DevblocksPlatform::getExtension($modules[$module_uri]['extension_id'],false,true);
         } else {
-        	$mf = DevblocksPlatform::getExtension($this->default_controller);
+        	$mf = DevblocksPlatform::getExtension($this->default_controller,false,true);
         }
 
         $menu_modules = array();

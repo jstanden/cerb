@@ -112,7 +112,7 @@ class UmPortalController extends DevblocksControllerExtension {
 		// [TODO] Convert to Model_CommunityTool::getByCode()
         if(null != (@$tool = $this->hash[$code])) {
 	        // [TODO] Don't double instance any apps (add instance registry to ::getExtension?)
-	        $manifest = DevblocksPlatform::getExtension($tool->extension_id);
+	        $manifest = DevblocksPlatform::getExtension($tool->extension_id,false,true);
             if(null != (@$tool = $manifest->createInstance())) { /* @var $app Extension_UsermeetTool */
 				$tool->setPortal($code); // [TODO] Kinda hacky
 	        	return $tool->handleRequest(new DevblocksHttpRequest($stack));
@@ -140,7 +140,7 @@ class UmPortalController extends DevblocksControllerExtension {
 		// [TODO] Convert to Model_CommunityTool::getByCode()
         if(null != ($tool = $this->hash[$code])) {
 	        // [TODO] Don't double instance any apps (add instance registry to ::getExtension?)
-	        $manifest = DevblocksPlatform::getExtension($tool->extension_id);
+	        $manifest = DevblocksPlatform::getExtension($tool->extension_id,false,true);
             if(null != ($tool = $manifest->createInstance())) { /* @var $app Extension_UsermeetTool */
 				$tool->setPortal($code); // [TODO] Kinda hacky
 		        $tool->writeResponse(new DevblocksHttpResponse($stack));
@@ -211,7 +211,7 @@ class UmConfigCommunitiesTab extends Extension_ConfigTab {
 	    }
 	    
 	    // Tool Manifests
-	    $tools = DevblocksPlatform::getExtensions('usermeet.tool', false);
+	    $tools = DevblocksPlatform::getExtensions('usermeet.tool', false, true);
 	    $tpl->assign('tool_manifests', $tools);
 	    
 	    $tpl->assign('community_addons', $community_addons);
@@ -233,7 +233,7 @@ class UmConfigCommunitiesTab extends Extension_ConfigTab {
 		}
 		
 	    // Tool Manifests
-	    $tools = DevblocksPlatform::getExtensions('usermeet.tool', false);
+	    $tools = DevblocksPlatform::getExtensions('usermeet.tool', false, true);
 	    $tpl->assign('tool_manifests', $tools);
 		
 		$tpl->display('file:' . $tpl_path . 'community/config/tab/community_config.tpl');
@@ -285,7 +285,7 @@ class UmConfigCommunitiesTab extends Extension_ConfigTab {
 		@$portal = DevblocksPlatform::importGPC($_REQUEST['portal'],'string','');
 		
 		if(null != ($instance = DAO_CommunityTool::getByCode($portal))) {
-			$manifest = DevblocksPlatform::getExtension($instance->extension_id);
+			$manifest = DevblocksPlatform::getExtension($instance->extension_id, false, true);
             if(null != ($tool = $manifest->createInstance())) { /* @var $app Extension_UsermeetTool */
 				$tool->setPortal($portal); // [TODO] Kinda hacky
 				if(method_exists($tool,'getSituation'))
@@ -317,7 +317,7 @@ class UmConfigCommunitiesTab extends Extension_ConfigTab {
 		
 		if(null != ($instance = DAO_CommunityTool::getByCode($portal))) {
 			$tpl->assign('instance', $instance);
-			$manifest = DevblocksPlatform::getExtension($instance->extension_id);
+			$manifest = DevblocksPlatform::getExtension($instance->extension_id, false, true);
             if(null != ($tool = $manifest->createInstance())) { /* @var $app Extension_UsermeetTool */
 				$tool->setPortal($portal); // [TODO] Kinda hacky
         		$tpl->assign('tool', $tool);
@@ -375,7 +375,7 @@ class UmConfigCommunitiesTab extends Extension_ConfigTab {
 				return;
 				
 			} else {
-				$manifest = DevblocksPlatform::getExtension($instance->extension_id);
+				$manifest = DevblocksPlatform::getExtension($instance->extension_id, false, true);
 	            $tool = $manifest->createInstance(); /* @var $tool Extension_UsermeetTool */
 				$tool->setPortal($code); // [TODO] Kinda hacky
 				$tool->saveConfiguration();

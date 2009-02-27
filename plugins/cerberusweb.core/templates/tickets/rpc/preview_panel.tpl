@@ -45,9 +45,11 @@
 					<td width="0%" nowrap="nowrap" align="right">Next Worker: </td>
 					<td width="100%">
 						<select name="next_worker_id">
-							<option value="0" {if 0==$ticket->next_worker_id}selected{/if}>Anybody
+							{if 0==$ticket->next_worker_id || $active_worker->hasPriv('core.ticket.actions.assign')}<option value="0" {if 0==$ticket->next_worker_id}selected{/if}>Anybody{/if}
 							{foreach from=$workers item=worker key=worker_id}
+								{if $worker_id==$ticket->next_worker_id || $active_worker->hasPriv('core.ticket.actions.assign')}
 								<option value="{$worker_id}" {if $worker_id==$ticket->next_worker_id}selected{/if}>{$worker->getName()}
+								{/if}
 							{/foreach}
 						</select>
 					</td>

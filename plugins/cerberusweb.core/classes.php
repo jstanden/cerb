@@ -3790,8 +3790,8 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		unset($plugins['cerberusweb.core']);
 		$tpl->assign('plugins', $plugins);
 		
-		$points = DevblocksPlatform::getExtensionPoints();
-		$tpl->assign('points', $points);
+//		$points = DevblocksPlatform::getExtensionPoints();
+//		$tpl->assign('points', $points);
 		
 		$license = CerberusLicense::getInstance();
 		$tpl->assign('license', $license);
@@ -4797,7 +4797,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		// Run any enabled plugin patches
 		// [TODO] Should the platform do this automatically on enable in order?
 		$patchMgr = DevblocksPlatform::getPatchService();
-		$patches = DevblocksPlatform::getExtensions("devblocks.patch.container");
+		$patches = DevblocksPlatform::getExtensions("devblocks.patch.container",false,true);
 		
 		if(is_array($patches))
 		foreach($patches as $patch_manifest) { /* @var $patch_manifest DevblocksExtensionManifest */ 
@@ -6241,7 +6241,7 @@ class ChGroupsPage extends CerberusPageExtension  {
 		$active_worker = CerberusApplication::getActiveWorker();
 
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
+		$tpl_path = dirname(__FILE__) . '/templates/';
 		$tpl->assign('path', $tpl_path);
    		
 		$tpl->assign('group_id', $group_id);
@@ -7240,7 +7240,7 @@ class ChCronController extends DevblocksControllerExtension {
 
 	    // [TODO] Determine if we're on a time limit under 60 seconds
 		
-	    $cron_manifests = DevblocksPlatform::getExtensions('cerberusweb.cron', true);
+	    $cron_manifests = DevblocksPlatform::getExtensions('cerberusweb.cron', true, true);
         $jobs = array();
 	    
 	    if(empty($job_id)) { // do everything 
@@ -7265,7 +7265,7 @@ class ChCronController extends DevblocksControllerExtension {
 			}
 			
 	    } else { // single job
-	        $manifest = DevblocksPlatform::getExtension($job_id);
+	        $manifest = DevblocksPlatform::getExtension($job_id, false, true);
 	        if(empty($manifest)) exit;
 	        	        
 	        $instance = $manifest->createInstance();
