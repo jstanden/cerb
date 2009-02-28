@@ -1,6 +1,6 @@
 {if empty($open_tickets) && empty($closed_tickets)}
 	<div style="border-bottom:1px solid rgb(180,180,180);margin-bottom:10px;">
-	<h1 style="margin-bottom:0px;">{$translate->_('sermeet.ui.portal.sc.public.history.ticket_history')}</h1>
+	<h1 style="margin-bottom:0px;">{$translate->_('portal.sc.public.history.ticket_history')}</h1>
 	</div>
 
       	{assign var=tagged_active_user_email value="<b>"|cat:$active_user->email|cat:"</b>"}

@@ -433,7 +433,7 @@
 			<tuv xml:lang="en_US"><seg>Last Name</seg></tuv>
 		</tu>
 		<tu tuid='address.contact_org_id'>
-			<tuv xml:lang="en_US"><seg>Organization</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Organization ID</seg></tuv>
 		</tu>
 
 		<!-- Address Book -->

@@ -2209,7 +2209,7 @@ class ChReportsPage extends CerberusPageExtension {
 				
 			// If we asked for a value method on the extension, call it
 			if(method_exists($reportInst, $action)) {
-				call_user_method($action, $reportInst);
+				call_user_func(array(&$reportInst, $action));
 			}
 		}
 		

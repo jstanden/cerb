@@ -2990,7 +2990,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 			&& null != ($inst = $tab_mft->createInstance()) 
 			&& $inst instanceof Extension_ConfigTab) {
 				if(method_exists($inst,$action.'Action')) {
-					call_user_method($action.'Action',$inst);
+					call_user_func(array(&$inst, $action.'Action'));
 				}
 		}
 	}
@@ -3065,7 +3065,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
 
 		$tpl = DevblocksPlatform::getTemplateService();
-		$path = dirname(dirname(__FILE__)) . '/templates/';
+		$path = dirname(__FILE__) . '/templates/';
 		$tpl->assign('path', $path);
 		$tpl->assign('view_id', $view_id);
 
@@ -3574,7 +3574,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 			
 		} else {
 			$tpl->assign('pop_test, false');
-			$tpl->assign('pop_test_output', $translate->_('config.mail.pop.error_hostname'));
+			$tpl->assign('pop_test_output', $translate->_('config.mail.pop3.error_hostname'));
 		}
 		
 		$tpl->display('file:' . dirname(__FILE__) . '/templates/configuration/tabs/mail/test_pop.tpl');
