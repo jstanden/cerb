@@ -64,10 +64,10 @@ $settings = CerberusSettings::getInstance();
 $worker = CerberusApplication::getActiveWorker();
 
 // Localization
-if(isset($_SESSION['timezone'])) {
+if(isset($_SESSION['timezone']) && !empty($_SESSION['locale'])) {
 	@date_default_timezone_set($_SESSION['timezone']);
 }
-if(isset($_SESSION['locale'])) {
+if(isset($_SESSION['locale']) && !empty($_SESSION['locale'])) {
 	DevblocksPlatform::setLocale($_SESSION['locale']);
 }
 

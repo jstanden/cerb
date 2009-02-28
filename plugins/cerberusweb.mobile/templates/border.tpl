@@ -3,7 +3,7 @@
 <head><title>Cerberus Helpdesk</title></head>
 <body style="font-size:small;font-weight:normal;">
 
-<img alt="powered by cerberus helpdesk" src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/logo_small.png{/devblocks_url}" border="0">
+<img alt="powered by cerberus helpdesk" src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/wgm/logo_small.gif{/devblocks_url}" border="0">
 
 {if !empty($page) && $page->isVisible()}
 	{$page->render()}
@@ -14,14 +14,9 @@
 <br>
 <br>
 
-{*
-{include file="$tpl_path/footer.tpl"}
-*}
-
 <div>
 [ <a href="{devblocks_url}c=mobile&a=tickets&a2=overview{/devblocks_url}">Mail</a> ]
 [ <a href="{devblocks_url}c=mobile&a=tickets&a2=search{/devblocks_url}">Search</a> ]
-
 
 </div>
 <br>
