@@ -34,7 +34,7 @@
 {/if}
 <br>
 
-<div id="report"></div>
+<div id="report" style="background-color:rgb(255,255,255);"></div>
 
 <script language="javascript" type="text/javascript">
 {literal}

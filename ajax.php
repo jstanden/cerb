@@ -65,10 +65,7 @@ $worker = CerberusApplication::getActiveWorker();
 
 // Localization
 DevblocksPlatform::setLocale((isset($_SESSION['locale']) && !empty($_SESSION['locale'])) ? $_SESSION['locale'] : 'en_US');
-
-if(isset($_SESSION['timezone'])) {
-	@date_default_timezone_set($_SESSION['timezone']);
-}
+if(isset($_SESSION['timezone'])) @date_default_timezone_set($_SESSION['timezone']);
 
 $tpl = DevblocksPlatform::getTemplateService();
 $tpl->assign('translate', DevblocksPlatform::getTranslationService());

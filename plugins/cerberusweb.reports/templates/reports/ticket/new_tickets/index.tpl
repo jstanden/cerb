@@ -80,9 +80,9 @@ function drawChart(start, end) {{/literal}
 {/if}
 <br>
 
-<div id="myContainer" style="width:100%;height:400;"></div>
+<div id="myContainer" style="width:100%;height:0;background-color:rgb(255,255,255);"></div>
 
-<div id="reportNewTickets"></div>
+<div id="reportNewTickets" style="background-color:rgb(255,255,255);"></div>
 
 <script language="javascript" type="text/javascript">
 {literal}	

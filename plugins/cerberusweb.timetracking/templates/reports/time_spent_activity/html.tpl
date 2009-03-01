@@ -9,7 +9,7 @@
 				<td colspan="6">
 				<h2>
 				  {if empty($activity_entry.activity_name)}
-				  {$translate->_('timetracking.reports.time_spent_activity.no_activity')}
+				  {$translate->_('timetracking.ui.reports.time_spent_activity.no_activity')}
 				  {else}
 				  {$activity_entry.activity_name}
 				  {/if}

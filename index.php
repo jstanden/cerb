@@ -83,10 +83,7 @@ $session = DevblocksPlatform::getSessionService();
 
 // Localization
 DevblocksPlatform::setLocale((isset($_SESSION['locale']) && !empty($_SESSION['locale'])) ? $_SESSION['locale'] : 'en_US');
-
-if(isset($_SESSION['timezone'])) {
-	@date_default_timezone_set($_SESSION['timezone']);
-}
+if(isset($_SESSION['timezone'])) @date_default_timezone_set($_SESSION['timezone']);
 
 // Initialize Logging
 if(method_exists('DevblocksPlatform','getConsoleLog')) {

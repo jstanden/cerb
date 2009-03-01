@@ -59,7 +59,7 @@
 			<b>Next:</b> 
 			<label><input type="radio" name="closed" value="0">Open</label>
 			<label><input type="radio" name="closed" value="2" checked>Waiting for reply</label>
-			<label><input type="radio" name="closed" value="1">Closed</label>
+			{if $active_worker->hasPriv('core.ticket.actions.close')}<label><input type="radio" name="closed" value="1">Closed</label>{/if}
 			<br>
 			<br>
 
@@ -67,11 +67,13 @@
 	      	<select name="next_worker_id">
 	      		<option value="0">Anybody
 	      		{foreach from=$workers item=worker key=worker_id name=workers}
-	      			{if $worker_id==$active_worker->id}{assign var=next_worker_id_sel value=$smarty.foreach.workers.iteration}{/if}
-	      			<option value="{$worker_id}">{$worker->getName()}
+					{if $worker_id==$active_worker->id || $active_worker->hasPriv('core.ticket.actions.assign')}
+		      			{if $worker_id==$active_worker->id}{assign var=next_worker_id_sel value=$smarty.foreach.workers.iteration}{/if}
+		      			<option value="{$worker_id}">{$worker->getName()}
+					{/if}
 	      		{/foreach}
 	      	</select>&nbsp;
-	      	{if !empty($next_worker_id_sel)}
+	      	{if $active_worker->hasPriv('core.ticket.actions.assign') && !empty($next_worker_id_sel)}
 	      		<button type="button" onclick="this.form.next_worker_id.selectedIndex = {$next_worker_id_sel};">me</button>
 	      		<button type="button" onclick="this.form.next_worker_id.selectedIndex = 0;">anybody</button>
 	      	{/if}

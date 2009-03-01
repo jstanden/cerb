@@ -5,7 +5,7 @@
 
 <h2>{$translate->_('reports.ui.worker.response_time')}</h2>
 
-<div id="reportAverageResponseTime"></div>
+<div id="reportAverageResponseTime" style="background-color:rgb(255,255,255);"></div>
 
 <script language="javascript" type="text/javascript">
 {literal}

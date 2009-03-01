@@ -114,7 +114,7 @@
 	      	<ul style="margin-top:0px;margin-bottom:5px;">
 	      		{foreach from=$attachments item=attachment name=attachments}
 					<li>
-						<a href="{devblocks_url}c=files&p={$attachment->id}&name={$attachment->display_name}{/devblocks_url}" target="_blank" style="font-weight:bold;color:rgb(50,120,50);">{$attachment->display_name}</a>
+						<a href="{devblocks_url}c=files&p={$attachment->id}&name={$attachment->display_name|escape:'url'}{/devblocks_url}" target="_blank" style="font-weight:bold;color:rgb(50,120,50);">{$attachment->display_name}</a>
 						{assign var=bytes value=$attachment->file_size}
 						( 
 						{if !empty($attachment->file_size)} 

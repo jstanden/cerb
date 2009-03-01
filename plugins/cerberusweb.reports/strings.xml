@@ -182,10 +182,6 @@
 			<tuv xml:lang="en_US"><seg>Closed Tickets By Group</seg></tuv>
 		</tu>
 		
-		<tu tuid='reports.ui.ticket.export_senders'>
-			<tuv xml:lang="en_US"><seg>Export Senders</seg></tuv>
-		</tu>
-		
 		<tu tuid='reports.ui.ticket.new_tickets'>
 			<tuv xml:lang="en_US"><seg>Created Tickets By Group</seg></tuv>
 		</tu>

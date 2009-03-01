@@ -79,9 +79,9 @@ To: <input type="text" name="end" id="end" size="10" value="{$end}"><button type
 {/if}
 <br>
 
-<div id="myContainer" style="width:100%;height:400;"></div>
+<div id="myContainer" style="width:100%;height:0;background-color:rgb(255,255,255);"></div>
 
-<div id="reportWorkerReplies"></div>
+<div id="reportWorkerReplies" style="background-color:rgb(255,255,255);"></div>
 <script language="javascript" type="text/javascript">
 {literal}	
 YAHOO.util.Event.addListener(window,'load',function(e) {

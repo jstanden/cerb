@@ -55,7 +55,7 @@ define('REMOTE_URI', '{$path}'); // NO trailing slash!
 define('URL_REWRITE', file_exists('.htaccess'));
 define('LOCAL_HOST', $_SERVER['HTTP_HOST']);
 define('LOCAL_BASE', DevblocksRouter::getLocalBase()); // NO trailing slash!
-define('SCRIPT_LAST_MODIFY', 2009021701); // last change
+define('SCRIPT_LAST_MODIFY', 2009022801); // last change
 
 @session_start();
 
@@ -78,7 +78,7 @@ class DevblocksProxy {
 
         if(0==strcasecmp($path[0],'resource')) {
             header('Pragma: cache'); 
-            header('Cache-control: max-age=86400, must-revalidate'); // 1d
+            header('Cache-control: max-age=86400'); // 1d
             header('Expires: ' . gmdate('D, d M Y H:i:s',time()+86400) . ' GMT'); // 1d
 
 //            $pathinfo = pathinfo($local_path);

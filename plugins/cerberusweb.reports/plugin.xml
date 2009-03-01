@@ -355,18 +355,6 @@
 		</params>
 	</extension>
 	
-	<extension point="cerberusweb.report">
-		<id>report.tickets.export_senders</id>
-		<name>Export Senders Report</name>
-		<class>
-			<file>api/App.php</file>
-			<name>ChReportExportSenders</name>
-		</class>
-		<params>
-			<param key="report_name" value="reports.ui.ticket.export_senders" />
-			<param key="report_group" value="report.group.tickets" />
-		</params>
-	</extension>
 	</extensions>
 	
 </plugin>

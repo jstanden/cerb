@@ -537,7 +537,7 @@
 		<!-- Cron -->
 
 		<tu tuid='cron.ip_unauthorized'>
-			<tuv xml:lang="en_US"><seg>Your IP address (%s) is not authorized to run scheduler jobs.</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Your IP address (%s) is not authorized to run scheduler jobs. Your administrator needs to authorize your IP in Helpdesk Setup or in the framework.config.php file under AUTHORIZED_IPS_DEFAULTS.</seg></tuv>
 		</tu>
 		<tu tuid='cron.nothing_to_do'>
 			<tuv xml:lang="en_US"><seg>Nothing to do yet!  (Waiting %s seconds)</seg></tuv>
@@ -1229,7 +1229,7 @@ If you did not request this, do not click the link above.  The request will expi
 			<tuv xml:lang="en_US"><seg>Please correct the following errors before upgrading:</seg></tuv>
 		</tu>
 		<tu tuid='update.ip_unauthorized'>
-			<tuv xml:lang="en_US"><seg>Your IP address (%s) is not authorized to update this helpdesk.</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Your IP address (%s) is not authorized to update this helpdesk. Your administrator needs to authorize your IP in Helpdesk Setup or in the framework.config.php file under AUTHORIZED_IPS_DEFAULTS.</seg></tuv>
 		</tu>
 		<tu tuid='update.locked_another'>
 			<tuv xml:lang="en_US"><seg>Another administrator is currently running an update.  Please wait...</seg></tuv>

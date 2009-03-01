@@ -80,9 +80,9 @@ function drawChart(start, end) {{/literal}
 <br>
 
 
-<div id="myContainer" style="width:100%;height:400;"></div>
+<div id="myContainer" style="width:100%;height:0;background-color:rgb(255,255,255);"></div>
 
-<div id="reportdata"></div>
+<div id="reportdata" style="background-color:rgb(255,255,255);"></div>
 <script language="javascript" type="text/javascript">
 {literal}	
 YAHOO.util.Event.addListener(window,'load',function(e) {

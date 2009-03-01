@@ -7652,7 +7652,7 @@ class ChDebugController extends DevblocksControllerExtension  {
 		}
 		
 	    if(!$pass) {
-		    echo 'Your IP address ('.$_SERVER['REMOTE_ADDR'].') is not authorized to debug this helpdesk.';
+		    echo 'Your IP address ('.$_SERVER['REMOTE_ADDR'].') is not authorized to debug this helpdesk.  Your administrator needs to authorize your IP in Helpdesk Setup or in the framework.config.php file under AUTHORIZED_IPS_DEFAULTS.';
 		    return;
 	    }
 		
@@ -10110,7 +10110,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 		$tpl->assign('addresses', $addresses);
 				
 		// Timezones
-		$timezones = $locale->getTranslationList('TerritoryToTimezone');
+		$timezones = $locale->getTranslationList('TerritoryToTimezone',$locale);
 		$tpl->assign('timezones', $timezones);
 		
 		@$server_timezone = date_default_timezone_get();
@@ -10122,9 +10122,10 @@ class ChPreferencesPage extends CerberusPageExtension {
 		$tpl->assign('selected_language', DAO_WorkerPref::get($worker->id,'locale','en_US')); 
 		
 		// Date formats
-		$date_formats = $locale->getTranslationList('DateTime');
+		$date_formats = $locale->getTranslationList('DateTime',$locale);
 		$tpl->assign('date_formats', $date_formats);
-		$tpl->assign('zend_date', new Zend_Date());
+		$date = DevblocksPlatform::getDateService();
+		$tpl->assign('zend_date', $date);
 		$tpl->assign('current_time', time());
 		
 		$tpl->display('file:' . $tpl_path . '/preferences/modules/general.tpl');

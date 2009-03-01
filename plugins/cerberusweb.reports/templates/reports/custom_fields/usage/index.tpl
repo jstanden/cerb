@@ -64,6 +64,6 @@ function drawChart(field_id) {{/literal}
 <div id="divCal" style="display:none;position:absolute;z-index:1;"></div>
 </form>
 
-<div id="myContainer" style="width:100%;height:0;margin-bottom:10px;"></div>
+<div id="myContainer" style="width:100%;height:0;margin-bottom:10px;background-color:rgb(255,255,255);"></div>
 
-<div id="reportTable"></div>
+<div id="reportTable" style="background-color:rgb(255,255,255);"></div>

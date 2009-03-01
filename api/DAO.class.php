@@ -1954,6 +1954,9 @@ class DAO_AddressToWorker { // extends DevblocksORMHelper
 		if(empty($address) || empty($worker_id))
 			return NULL;
 
+		// Force lowercase
+		$address = strtolower($address);
+
 		$sql = sprintf("INSERT INTO address_to_worker (address, worker_id, is_confirmed, code, code_expire) ".
 			"VALUES (%s, %d, 0, '', 0)",
 			$db->qstr($address),
@@ -2045,6 +2048,9 @@ class DAO_AddressToWorker { // extends DevblocksORMHelper
 	static function getByAddress($address) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
+		// Force lower
+		$address = strtolower($address);
+		
 		$sql = sprintf("SELECT address, worker_id, is_confirmed, code, code_expire ".
 			"FROM address_to_worker ".
 			"WHERE address = %s",
@@ -2084,7 +2090,7 @@ class DAO_AddressToWorker { // extends DevblocksORMHelper
 		while(!$rs->EOF) {
 			$object = new Model_AddressToWorker();
 			$object->worker_id = intval($rs->fields['worker_id']);
-			$object->address = $rs->fields['address'];
+			$object->address = strtolower($rs->fields['address']);
 			$object->is_confirmed = intval($rs->fields['is_confirmed']);
 			$object->code = $rs->fields['code'];
 			$object->code_expire = intval($rs->fields['code_expire']);

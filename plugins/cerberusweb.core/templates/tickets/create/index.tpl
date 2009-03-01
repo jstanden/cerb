@@ -73,13 +73,16 @@
 					<H2>{$translate->_('display.convo.attachments_label')|capitalize}</H2>
 					{'display.reply.attachments_limit'|devblocks_translate:$upload_max_filesize}<br>
 					
-					<b>{$translate->_('display.reply.attachments_add')}</b><br>
+					<b>{$translate->_('display.reply.attachments_add')}</b> 
+					(<a href="javascript:;" onclick="appendFileInput('displayReplyAttachments','attachment[]');">{$translate->_('display.reply.attachments_more')|lower}</a>)
+					(<a href="javascript:;" onclick="clearDiv('displayReplyAttachments');appendFileInput('displayReplyAttachments','attachment[]');">{$translate->_('common.clear')|lower}</a>)
+					<br>
 					<table cellpadding="2" cellspacing="0" border="0" width="100%">
 						<tr>
 							<td width="100%" valign="top">
-								<input type="file" name="attachment[]" size="45"></input> 
-								<a href="javascript:;" onclick="appendFileInput('displayReplyAttachments','attachment[]');">{$translate->_('display.reply.attachments_more')|lower}</a>
-								<div id="displayReplyAttachments"></div>
+								<div id="displayReplyAttachments">
+									<input type="file" name="attachment[]" size="45"></input><br> 
+								</div>
 							</td>
 						</tr>
 					</table>
@@ -103,7 +106,7 @@
 							<td nowrap="nowrap" valign="top" colspan="2">
 								<label><input type="radio" name="closed" value="0" onclick="toggleDiv('ticketClosed','none');">{$translate->_('status.open')|capitalize}</label>
 								<label><input type="radio" name="closed" value="2" onclick="toggleDiv('ticketClosed','block');" checked>{$translate->_('status.waiting')|capitalize}</label>
-								<label><input type="radio" name="closed" value="1" onclick="toggleDiv('ticketClosed','block');">{$translate->_('status.closed')|capitalize}</label>
+								{if $active_worker->hasPriv('core.ticket.actions.close')}<label><input type="radio" name="closed" value="1" onclick="toggleDiv('ticketClosed','block');">{$translate->_('status.closed')|capitalize}</label>{/if}
 								<br>
 								<br>
 		
@@ -118,11 +121,13 @@
 						      	<select name="next_worker_id" onchange="toggleDiv('replySurrender{$message->id}',this.selectedIndex?'block':'none');">
 						      		<option value="0" selected="selected">{$translate->_('common.anybody')|capitalize}
 						      		{foreach from=$workers item=worker key=worker_id name=workers}
-						      			{if $worker_id==$active_worker->id}{assign var=next_worker_id_sel value=$smarty.foreach.workers.iteration}{/if}
-						      			<option value="{$worker_id}">{$worker->getName()}
+										{if $worker_id==$active_worker->id || $active_worker->hasPriv('core.ticket.actions.assign')}
+							      			{if $worker_id==$active_worker->id}{assign var=next_worker_id_sel value=$smarty.foreach.workers.iteration}{/if}
+							      			<option value="{$worker_id}">{$worker->getName()}
+										{/if}
 						      		{/foreach}
 						      	</select>&nbsp;
-						      	{if !empty($next_worker_id_sel)}
+						      	{if $active_worker->hasPriv('core.ticket.actions.assign') && !empty($next_worker_id_sel)}
 						      		<button type="button" onclick="this.form.next_worker_id.selectedIndex = {$next_worker_id_sel};toggleDiv('replySurrender{$message->id}','block');">{$translate->_('common.me')|lower}</button>
 						      		<button type="button" onclick="this.form.next_worker_id.selectedIndex = 0;toggleDiv('replySurrender{$message->id}','none');">{$translate->_('common.anybody')|lower}</button>
 						      	{/if}
@@ -137,6 +142,7 @@
 							      	<br>
 							    </div>
 		
+								{if $active_worker->hasPriv('core.ticket.actions.move')}
 								<b>{$translate->_('display.reply.next.move')}</b><br>  
 						      	<select name="bucket_id">
 						      		<option value="">-- {$translate->_('display.reply.next.move.no_thanks')|lower} --</option>
@@ -146,15 +152,18 @@
 						      		{/foreach}
 						      		</optgroup>
 						      		{foreach from=$team_categories item=categories key=teamId}
-						      			{assign var=team value=$teams.$teamId}
-						      			<optgroup label="-- {$team->name} --">
-						      			{foreach from=$categories item=category}
-						    				<option value="c{$category->id}">{$category->name}</option>
-						    			{/foreach}
-						    			</optgroup>
+										{if !empty($active_worker_memberships.$teamId)}
+							      			{assign var=team value=$teams.$teamId}
+							      			<optgroup label="-- {$team->name} --">
+							      			{foreach from=$categories item=category}
+							    				<option value="c{$category->id}">{$category->name}</option>
+							    			{/foreach}
+							    			</optgroup>
+										{/if}
 						     		{/foreach}
 						      	</select><br>
 						      	<br>
+								{/if}
 						      	
 							</td>
 						</tr>
