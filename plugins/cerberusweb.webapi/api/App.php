@@ -70,7 +70,7 @@ if (class_exists('DevblocksTranslationsExtension',true)):
 		}
 		
 		function getTmxFile() {
-			return dirname(__FILE__) . '/strings.xml';
+			return dirname(dirname(__FILE__)) . '/strings.xml';
 		}
 	};
 endif;
