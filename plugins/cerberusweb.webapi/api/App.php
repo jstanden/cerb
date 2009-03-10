@@ -52,15 +52,8 @@
 // Classes
 $path = dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR;
 
-//DevblocksPlatform::registerClasses($path. 'api/Extension.php', array(
-//    'Extension_UsermeetTool'
-//));
-
 class ChRestPlugin extends DevblocksPlugin {
 	const PLUGIN_ID = 'cerberusweb.controller.rest';
-	
-	function load(DevblocksPluginManifest $manifest) {
-	}
 };
 
 if (class_exists('DevblocksTranslationsExtension',true)):
@@ -289,8 +282,6 @@ class Model_WebapiKey {
 class ChRestFrontController extends DevblocksControllerExtension {
 	function __construct($manifest) {
 		parent::__construct($manifest);
-		$router = DevblocksPlatform::getRoutingService();
-		$router->addRoute('webapi',ChRestPlugin::PLUGIN_ID);
 	}
 	
 	function handleRequest(DevblocksHttpRequest $request) {

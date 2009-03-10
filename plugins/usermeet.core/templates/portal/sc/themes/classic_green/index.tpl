@@ -12,7 +12,7 @@
 		}
 
 		H1 {
-			font-size:130%;
+			font-size:11pt;
 			font-weight:bold;
 			color: rgb(51,102,0);
 			margin-top:0px;
@@ -20,7 +20,7 @@
 		}
 		
 		H2 {
-			font-size:120%;
+			font-size:10pt;
 			color: rgb(80,80,80);
 			margin-top:0px;
 			margin-bottom:3px;
@@ -52,6 +52,7 @@
 			background-repeat: repeat-x;
 			background-color: rgb(83,109,6);
 			
+			font-size:10pt;
 			font-weight: bold;
 			line-height: 22px;
 			padding-left: 6px;
@@ -86,7 +87,7 @@
 		#tagline {
 			padding-top:10px;
 			width:98%;
-			background-color:rgb(244,244,244);
+			background-color:rgb(255,255,255);
 			color:rgb(102,102,102);
 			padding:5px;
 			text-align:right;
@@ -123,7 +124,7 @@
 
 <div align="center" id="logo">
 {if empty($logo_url)}
-	<a href="{devblocks_url}c=home{/devblocks_url}"><img src="{devblocks_url}c=resource&p=usermeet.core&f=images/logo.jpg{/devblocks_url}" alt="Logo" border="0"></a><br>
+	<a href="{devblocks_url}c=home{/devblocks_url}"><img src="{devblocks_url}c=resource&p=usermeet.core&f=images/_wgm/logo.gif{/devblocks_url}" alt="Logo" border="0"></a><br>
 {else}
 	<a href="{devblocks_url}c=home{/devblocks_url}"><img src="{$logo_url}" alt="Logo" border="0"></a><br>
 {/if}
@@ -226,8 +227,7 @@
 	
 	<tr>
 		<td colspan="2" id="tagline">
-			{assign var=linked_cerberus_helpdesk value="<a href=\"http://www.cerberusweb.com/\" target=\"_blank\">"|cat:"Cerberus Helpdesk 4.x"|cat:"</a>&trade;"}
-			{'portal.public.powered_by'|devblocks_translate:$linked_cerberus_helpdesk}
+			<a href="http://www.cerberusweb.com/" target="_blank"><img src="{devblocks_url}c=resource&p=usermeet.core&f=images/_wgm/logo_small.gif{/devblocks_url}" border="0"></a>
 		</td>
 	</tr>
 	

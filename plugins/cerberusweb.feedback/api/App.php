@@ -1,14 +1,5 @@
 <?php
-// Classes
-$path = dirname(dirname(__FILE__)) . '/';
-
-DevblocksPlatform::registerClasses($path. 'api/App.php', array(
-    'C4_FeedbackEntryView'
-));
-
 class ChFeedbackPlugin extends DevblocksPlugin {
-	function load(DevblocksPluginManifest $manifest) {
-	}
 };
 
 class ChCustomFieldSource_FeedbackEntry extends Extension_CustomFieldSource {
@@ -613,9 +604,6 @@ class ChFeedbackController extends DevblocksControllerExtension {
 		parent::__construct($manifest);
 
 		$this->plugin_path = dirname(dirname(__FILE__)) . '/';
-		
-		$router = DevblocksPlatform::getRoutingService();
-		$router->addRoute('feedback','feedback.controller');
 	}
 		
 	function isVisible() {

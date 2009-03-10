@@ -144,7 +144,7 @@ class ParseCron extends CerberusCronPageExtension {
 	function configure($instance) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
-		$tpl_path = dirname(__FILE__) . '/templates/';
+		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
 		$tpl->assign('path', $tpl_path);
 
 		$tpl->assign('max_messages', $this->getParam('max_messages', 500));
@@ -235,7 +235,7 @@ class MaintCron extends CerberusCronPageExtension {
 	function configure($instance) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
-		$tpl_path = dirname(__FILE__) . '/templates/';
+		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
 		$tpl->assign('path', $tpl_path);
 
 		$tpl->assign('purge_waitdays', $this->getParam('purge_waitdays', 7));
@@ -270,7 +270,7 @@ class HeartbeatCron extends CerberusCronPageExtension {
 	function configure($instance) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
-		$tpl_path = dirname(__FILE__) . '/templates/';
+		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
 		$tpl->assign('path', $tpl_path);
 
 		$tpl->display($tpl_path . 'cron/heartbeat/config.tpl');
@@ -989,7 +989,7 @@ class ImportCron extends CerberusCronPageExtension {
 	function configure($instance) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
-		$tpl_path = dirname(__FILE__) . '/templates/';
+		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
 		$tpl->assign('path', $tpl_path);
 
 		$tpl->display($tpl_path . 'cron/import/config.tpl');
@@ -1141,7 +1141,7 @@ class Pop3Cron extends CerberusCronPageExtension {
 	function configure($instance) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
-		$tpl_path = dirname(__FILE__) . '/templates/';
+		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
 		$tpl->assign('path', $tpl_path);
 
 		$timeout = ini_get('max_execution_time');

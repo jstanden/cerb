@@ -49,8 +49,6 @@
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
 class ChMobilePlugin extends DevblocksPlugin {
-	function load(DevblocksPluginManifest $manifest) {
-	}
 };
 
 class MobileController extends DevblocksControllerExtension {
@@ -58,9 +56,6 @@ class MobileController extends DevblocksControllerExtension {
 	
     public function __construct($manifest) {
         parent::__construct($manifest);
-
-        $router = DevblocksPlatform::getRoutingService();
-        $router->addRoute('mobile', self::ID);
     }
     
 	/**

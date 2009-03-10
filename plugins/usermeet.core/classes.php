@@ -49,22 +49,7 @@
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
 
-// Classes
-$path = dirname(__FILE__) . DIRECTORY_SEPARATOR;
-
-DevblocksPlatform::registerClasses($path. 'api/Extension.php', array(
-    'Extension_UsermeetTool'
-));
-DevblocksPlatform::registerClasses($path. 'api/Model.php', array(
-    'Model_CommunityTool'
-));
-DevblocksPlatform::registerClasses($path. 'api/DAO.php', array(
-    'DAO_CommunityTool'
-));
-
 class UmCorePlugin extends DevblocksPlugin {
-	function load(DevblocksPluginManifest $manifest) {
-	}
 };
 
 if (class_exists('DevblocksTranslationsExtension',true)):
@@ -87,10 +72,6 @@ class UmPortalController extends DevblocksControllerExtension {
 	function __construct($manifest) {
 		parent::__construct($manifest);
 
-	    // Routing
-	    $router = DevblocksPlatform::getRoutingService();
-	    $router->addRoute('portal', self::ID);
-	    
 	    // Internal Routing
 	    // [TODO] Cache the code to extension lookup -- silly to go to DB every time for this
 	    $this->tools = DAO_CommunityTool::getList();
@@ -396,12 +377,6 @@ class UmContactApp extends Extension_UsermeetTool {
 	
     function __construct($manifest) {
         parent::__construct($manifest);
-        
-        $filepath = dirname(__FILE__) . DIRECTORY_SEPARATOR;
-        
-//        DevblocksPlatform::registerClasses('Text/CAPTCHA.php',array(
-//        	'Text_CAPTCHA',
-//        ));
     }
     
 	public function writeResponse(DevblocksHttpResponse $response) {

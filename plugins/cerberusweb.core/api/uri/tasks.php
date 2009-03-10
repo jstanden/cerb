@@ -3,14 +3,17 @@ if (class_exists('Extension_ActivityTab')):
 class ChTasksActivityTab extends Extension_ActivityTab {
 	const VIEW_ACTIVITY_TASKS = 'activity_tasks';
 	
+	private $_TPL_PATH = '';
+	
 	function __construct($manifest) {
+		$this->_TPL_PATH = dirname(dirname(dirname(__FILE__))) . '/templates/';
 		parent::__construct($manifest);
 	}
 	
 	function showTab() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
-		$tpl_path = dirname(dirname(dirname(__FILE__))) . '/templates/';
+		$tpl_path = $this->_TPL_PATH;
 		$tpl->assign('path', $tpl_path);
 		
 		$translate = DevblocksPlatform::getTranslationService();
@@ -38,11 +41,11 @@ class ChTasksActivityTab extends Extension_ActivityTab {
 endif;
 
 class ChTasksController extends DevblocksControllerExtension {
+	private $_TPL_PATH = '';
+	
 	function __construct($manifest) {
+		$this->_TPL_PATH = dirname(dirname(dirname(__FILE__))) . '/templates/';
 		parent::__construct($manifest);
-		
-		$router = DevblocksPlatform::getRoutingService();
-		$router->addRoute('tasks','core.controller.tasks');
 	}
 		
 	function isVisible() {
@@ -87,7 +90,7 @@ class ChTasksController extends DevblocksControllerExtension {
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
-		$path = dirname(dirname(dirname(__FILE__))) . '/templates/';
+		$path = $this->_TPL_PATH;
 		$tpl->assign('path', $path);
 		
 		if(!empty($id)) {
@@ -252,7 +255,7 @@ class ChTasksController extends DevblocksControllerExtension {
 		$tpl->assign('custom_fields', $custom_fields);
 		
 		$tpl->cache_lifetime = "0";
-		$tpl->display('file:' . dirname(dirname(dirname(__FILE__))) . '/templates/tasks/rpc/bulk.tpl');
+		$tpl->display('file:' . $this->_TPL_PATH . 'tasks/rpc/bulk.tpl');
 	}
 	
 	function doTaskBulkUpdateAction() {

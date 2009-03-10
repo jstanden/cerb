@@ -1,14 +1,5 @@
 <?php
-$path = dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR;
-
-DevblocksPlatform::registerClasses($path. 'api/App.php', array(
-    'Extension_Report',
-    'Extension_ReportGroup',
-));
-
 class ChReportsPlugin extends DevblocksPlugin {
-	function load(DevblocksPluginManifest $manifest) {
-	}
 };
 
 if (class_exists('DevblocksTranslationsExtension',true)):

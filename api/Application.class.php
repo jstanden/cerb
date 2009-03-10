@@ -48,12 +48,12 @@
  * 		and Joe Geck.
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-define("APP_BUILD", 890);
+define("APP_BUILD", 894);
 define("APP_MAIL_PATH", APP_STORAGE_PATH . '/mail/');
 
-include_once(APP_PATH . "/api/DAO.class.php");
-include_once(APP_PATH . "/api/Model.class.php");
-include_once(APP_PATH . "/api/Extension.class.php");
+require_once(APP_PATH . "/api/DAO.class.php");
+require_once(APP_PATH . "/api/Model.class.php");
+require_once(APP_PATH . "/api/Extension.class.php");
 
 // App Scope ClassLoading
 $path = APP_PATH . '/api/app/';
@@ -71,18 +71,13 @@ DevblocksPlatform::registerClasses($path . 'Parser.php', array(
 	'CerberusParserMessage',
 ));
 
+DevblocksPlatform::registerClasses($path . 'Update.php', array(
+	'ChUpdateController',
+));
+
 DevblocksPlatform::registerClasses($path . 'Utils.php', array(
 	'CerberusUtils',
 ));
-
-// DAO
-$path = APP_PATH . '/api/dao/';
-	
-// Model
-$path = APP_PATH . '/api/model/';
-
-// Extensions
-$path = APP_PATH . '/api/ext/';
 
 /**
  * Application-level Facade
@@ -114,6 +109,21 @@ class CerberusApplication extends DevblocksApplication {
 			? $visit->getWorker()
 			: null
 			;
+	}
+	
+	static function processRequest(DevblocksHttpRequest $request, $is_ajax=false) {
+		/**
+		 * Override the 'update' URI since we can't count on the database 
+		 * being populated from XML beforehand when /update loads it.
+		 */
+		if(!$is_ajax && isset($request->path[0]) && 0 == strcasecmp($request->path[0],'update')) {
+			if(null != ($update_controller = new ChUpdateController(null)))
+				$update_controller->handleRequest($request);
+			
+		} else {
+			// Hand it off to the platform
+			DevblocksPlatform::processRequest($request, $is_ajax);
+		}
 	}
 	
 	static function checkRequirements() {
@@ -196,7 +206,7 @@ class CerberusApplication extends DevblocksApplication {
 			$ini_memory_limit = intval($memory_limit);
 			if($ini_memory_limit >= 16) {
 			} else {
-				$errors[] = 'memory_limit must be 16M or larger in your php.ini file.  Please increase it.';
+				$errors[] = 'memory_limit must be 16M or larger (32M recommended) in your php.ini file.  Please increase it.';
 			}
 		}
 		

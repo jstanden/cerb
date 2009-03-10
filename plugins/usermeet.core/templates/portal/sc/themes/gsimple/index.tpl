@@ -58,7 +58,7 @@
 <tr>
 	<td width="100%">
 		{if empty($logo_url)}
-			<a href="{devblocks_url}c=home{/devblocks_url}"><img src="{devblocks_url}c=resource&p=usermeet.core&f=images/logo.jpg{/devblocks_url}" alt="Logo" border="0"></a><br>
+			<a href="{devblocks_url}c=home{/devblocks_url}"><img src="{devblocks_url}c=resource&p=usermeet.core&f=images/_wgm/logo.gif{/devblocks_url}" alt="Logo" border="0"></a><br>
 		{else}
 			<a href="{devblocks_url}c=home{/devblocks_url}"><img src="{$logo_url}" alt="Logo" border="0"></a><br>
 		{/if}
@@ -130,8 +130,7 @@
 		<tr>
 			<td>{$footer_html}</td>
 			<td style="text-align:right;vertical-align:top;color:rgb(150,150,150);font-size:11px;">
-				{assign var=linked_cerberus_helpdesk value="<a href=\"http://www.cerberusweb.com/\" target=\"_blank\">"|cat:"Cerberus Helpdesk 4.x"|cat:"</a>&trade;"}
-				{'portal.public.powered_by'|devblocks_translate:$linked_cerberus_helpdesk}
+				<a href="http://www.cerberusweb.com/" target="_blank"><img src="{devblocks_url}c=resource&p=usermeet.core&f=images/_wgm/logo_small.gif{/devblocks_url}" border="0"></a>
 			</td>
 		</tr>
 	</tbody>

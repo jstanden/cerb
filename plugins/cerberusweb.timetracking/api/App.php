@@ -1,14 +1,5 @@
 <?php
-// Classes
-$path = dirname(dirname(__FILE__)) . '/';
-
-DevblocksPlatform::registerClasses($path. 'api/App.php', array(
-    'C4_TimeTrackingEntryView'
-));
-
 class ChTimeTrackingPlugin extends DevblocksPlugin {
-	function load(DevblocksPluginManifest $manifest) {
-	}
 };
 
 class ChCustomFieldSource_TimeEntry extends Extension_CustomFieldSource {
@@ -877,9 +868,6 @@ class ChTimeTrackingEventListener extends DevblocksEventListenerExtension {
 class ChTimeTrackingAjaxController extends DevblocksControllerExtension {
 	function __construct($manifest) {
 		parent::__construct($manifest);
-		
-		$router = DevblocksPlatform::getRoutingService();
-		$router->addRoute('timetracking','timetracking.controller.ajax');
 	}
 	
 	function isVisible() {

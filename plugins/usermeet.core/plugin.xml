@@ -11,6 +11,21 @@
 		<name>UmCorePlugin</name>
 	</class>
 	
+	<!-- Exported Classes -->
+	
+	<class_loader>
+		<file path="api/DAO.php">
+			<class name="DAO_CommunityTool" />
+		</file>
+		<file path="api/Extension.php">
+			<class name="Extension_UmScController" />
+			<class name="Extension_UsermeetTool" />
+		</file>
+		<file path="api/Model.php">
+			<class name="Model_CommunityTool" />
+		</file>
+	</class_loader>
+	
 	<extensions>
 	
 		<!-- Patch Containers -->
@@ -49,6 +64,7 @@
 				<name>UmPortalController</name>
 			</class>
 			<params>
+				<param key="uri" value="portal" />
 			</params>
 		</extension>
 		

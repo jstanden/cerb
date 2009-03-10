@@ -7,9 +7,11 @@
 	<revision>0</revision>
 	<link>http://wiki.cerb4.com/wiki/New_Changes</link>
 	<class>
-		<file>classes.php</file>
+		<file>api/plugin.classes.php</file>
 		<name>ChCorePlugin</name>
 	</class>
+	
+	<!-- Plugin Dependencies -->
 	
 	<!-- 
 	<requires>
@@ -17,11 +19,42 @@
 	</requires>
 	 -->
 
+	<!-- Declared Extension Points -->
+
 	<!-- 
-	<extension-points>
+	<extension_points>
 		<point id=""></point>
-	</extension-points>
+	</extension_points>
 	-->
+
+	<!-- Controller Routing -->
+
+	<uri_routing>
+		<uri name="tickets" controller="core.controller.page" />
+	</uri_routing>
+	
+	<!-- Exported Classes -->
+	
+	<class_loader>
+		<file path="api/plugin.classes.php">
+			<class name="ChCorePlugin" />
+			<class name="ChCustomFieldSource_Address" />
+			<class name="ChCustomFieldSource_Org" />
+			<class name="ChCustomFieldSource_Task" />
+			<class name="ChCustomFieldSource_Ticket" />
+			<class name="ChNotesSource_Org" />
+			<class name="ChPageController" />
+			<class name="ChRssSource_Notification" />
+			<class name="ChRssSource_Task" />
+			<class name="ChRssSource_Ticket" />
+			<class name="ChTaskSource_Org" />
+			<class name="ChTaskSource_Ticket" />
+			<class name="ChWorkspaceSource_Address" />
+			<class name="ChWorkspaceSource_Org" />
+			<class name="ChWorkspaceSource_Task" />
+			<class name="ChWorkspaceSource_Ticket" />
+		</file>
+	</class_loader>
 	
 	<!-- Event Points -->
 
@@ -143,7 +176,7 @@
 			<id>cerberusweb.listeners.event</id>
 			<name>Cerberus Helpdesk Event Listener</name>
 			<class>
-				<file>listeners.classes.php</file>
+				<file>api/listeners.classes.php</file>
 				<name>ChCoreEventListener</name>
 			</class>
 			<params>
@@ -157,10 +190,11 @@
 			<id>core.controller.rss</id>
 			<name>RSS Controller</name>
 			<class>
-				<file>classes.php</file>
+				<file>api/uri/rss.php</file>
 				<name>ChRssController</name>
 			</class>
 			<params>
+				<param key="uri" value="rss" />
 			</params>
 		</extension>
 
@@ -168,10 +202,11 @@
 			<id>core.controller.internal</id>
 			<name>Internal Controller</name>
 			<class>
-				<file>classes.php</file>
+				<file>api/uri/internal.php</file>
 				<name>ChInternalController</name>
 			</class>
 			<params>
+				<param key="uri" value="internal" />
 			</params>
 		</extension>
 
@@ -179,21 +214,11 @@
 			<id>core.controller.print</id>
 			<name>Print Controller</name>
 			<class>
-				<file>classes.php</file>
+				<file>api/uri/print.php</file>
 				<name>ChPrintController</name>
 			</class>
 			<params>
-			</params>
-		</extension>
-
-		<extension point="devblocks.controller">
-			<id>core.controller.update</id>
-			<name>Update/Patch Controller</name>
-			<class>
-				<file>classes.php</file>
-				<name>ChUpdateController</name>
-			</class>
-			<params>
+				<param key="uri" value="print" />
 			</params>
 		</extension>
 
@@ -201,10 +226,11 @@
 			<id>core.controller.debug</id>
 			<name>Debug Controller</name>
 			<class>
-				<file>classes.php</file>
+				<file>api/uri/debug.php</file>
 				<name>ChDebugController</name>
 			</class>
 			<params>
+				<param key="uri" value="debug" />
 			</params>
 		</extension>
 
@@ -212,10 +238,11 @@
 			<id>core.controller.files</id>
 			<name>Files Controller</name>
 			<class>
-				<file>classes.php</file>
+				<file>api/uri/files.php</file>
 				<name>ChFilesController</name>
 			</class>
 			<params>
+				<param key="uri" value="files" />
 			</params>
 		</extension>
 
@@ -223,10 +250,11 @@
 			<id>core.controller.cron</id>
 			<name>Scheduled Tasks (Cron) Controller</name>
 			<class>
-				<file>classes.php</file>
+				<file>api/uri/cron.php</file>
 				<name>ChCronController</name>
 			</class>
 			<params>
+				<param key="uri" value="cron" />
 			</params>
 		</extension>
 
@@ -234,7 +262,7 @@
 			<id>core.controller.page</id>
 			<name>Cerberus Helpdesk Controller</name>
 			<class>
-				<file>classes.php</file>
+				<file>api/plugin.classes.php</file>
 				<name>ChPageController</name>
 			</class>
 			<params>
@@ -256,10 +284,11 @@
 			<id>core.controller.tasks</id>
 			<name>Tasks Controller</name>
 			<class>
-				<file>api/controllers/tasks.php</file>
+				<file>api/uri/tasks.php</file>
 				<name>ChTasksController</name>
 			</class>
 			<params>
+				<param key="uri" value="tasks" />
 			</params>
 		</extension>
 
@@ -269,7 +298,7 @@
 			<id>core.translations</id>
 			<name>Cerberus Helpdesk Strings</name>
 			<class>
-				<file>classes.php</file>
+				<file>api/plugin.classes.php</file>
 				<name>ChTranslations</name>
 			</class>
 			<params>
@@ -282,7 +311,7 @@
 			<id>core.patches</id>
 			<name>Cerberus Helpdesk Patches</name>
 			<class>
-				<file>patch.classes.php</file>
+				<file>api/patch.classes.php</file>
 				<name>ChCorePatchContainer</name>
 			</class>
 			<params>
@@ -295,7 +324,7 @@
 			<id>core.listeners.tour</id>
 			<name>Core Helpdesk Tour</name>
 			<class>
-				<file>listeners.classes.php</file>
+				<file>api/listeners.classes.php</file>
 				<name>ChCoreTour</name>
 			</class>
 			<params>
@@ -308,7 +337,7 @@
 			<id>core.page.welcome</id>
 			<name>Welcome Page</name>
 			<class>
-				<file>classes.php</file>
+				<file>api/uri/welcome.php</file>
 				<name>ChWelcomePage</name>
 			</class>
 			<params>
@@ -321,7 +350,7 @@
 			<id>core.page.home</id>
 			<name>Home Page</name>
 			<class>
-				<file>classes.php</file>
+				<file>api/uri/home.php</file>
 				<name>ChHomePage</name>
 			</class>
 			<params>
@@ -334,7 +363,7 @@
 			<id>core.page.tickets</id>
 			<name>Mail Page</name>
 			<class>
-				<file>classes.php</file>
+				<file>api/uri/tickets.php</file>
 				<name>ChTicketsPage</name>
 			</class>
 			<params>
@@ -347,7 +376,7 @@
 			<id>core.page.activity</id>
 			<name>Activity Page</name>
 			<class>
-				<file>classes.php</file>
+				<file>api/uri/activity.php</file>
 				<name>ChActivityPage</name>
 			</class>
 			<params>
@@ -360,7 +389,7 @@
 			<id>core.page.kb</id>
 			<name>Knowledgebase Page</name>
 			<class>
-				<file>classes.php</file>
+				<file>api/uri/kb.php</file>
 				<name>ChKbPage</name>
 			</class>
 			<params>
@@ -374,7 +403,7 @@
 			<id>core.page.groups</id>
 			<name>Groups Page</name>
 			<class>
-				<file>classes.php</file>
+				<file>api/uri/groups.php</file>
 				<name>ChGroupsPage</name>
 			</class>
 			<params>
@@ -387,7 +416,7 @@
 			<id>core.page.contacts</id>
 			<name>Contacts Page</name>
 			<class>
-				<file>classes.php</file>
+				<file>api/uri/contacts.php</file>
 				<name>ChContactsPage</name>
 			</class>
 			<params>
@@ -401,7 +430,7 @@
 			<id>core.page.display</id>
 			<name>Display Ticket Page</name>
 			<class>
-				<file>classes.php</file>
+				<file>api/uri/display.php</file>
 				<name>ChDisplayPage</name>
 			</class>
 			<params>
@@ -414,7 +443,7 @@
 			<id>core.page.signin</id>
 			<name>Signin Page</name>
 			<class>
-				<file>classes.php</file>
+				<file>api/uri/login.php</file>
 				<name>ChSignInPage</name>
 			</class>
 			<params>
@@ -427,7 +456,7 @@
 			<id>core.page.configuration</id>
 			<name>Configuration Page</name>
 			<class>
-				<file>classes.php</file>
+				<file>api/uri/config.php</file>
 				<name>ChConfigurationPage</name>
 			</class>
 			<params>
@@ -440,7 +469,7 @@
 			<id>core.page.preferences</id>
 			<name>Preferences Page</name>
 			<class>
-				<file>classes.php</file>
+				<file>api/uri/preferences.php</file>
 				<name>ChPreferencesPage</name>
 			</class>
 			<params>
@@ -454,7 +483,7 @@
 			<id>core.activity.tab.tasks</id>
 			<name>Tasks Tab</name>
 			<class>
-				<file>api/controllers/tasks.php</file>
+				<file>api/uri/tasks.php</file>
 				<name>ChTasksActivityTab</name>
 			</class>
 			<params>
@@ -469,7 +498,7 @@
 			<id>login.default</id>
 			<name>Default Login Module</name>
 			<class>
-				<file>login.classes.php</file>
+				<file>api/login.classes.php</file>
 				<name>DefaultLoginModule</name>
 			</class>
 			<params>
@@ -480,7 +509,7 @@
 			<id>login.ldap</id>
 			<name>LDAP Login Module</name>
 			<class>
-				<file>login.classes.php</file>
+				<file>api/login.classes.php</file>
 				<name>LDAPLoginModule</name>
 			</class>
 			<params>
@@ -493,7 +522,7 @@
 			<id>cron.pop3</id>
 			<name>POP3 / IMAP E-Mail Importing</name>
 			<class>
-				<file>cron.classes.php</file>
+				<file>api/cron.classes.php</file>
 				<name>Pop3Cron</name>
 			</class>
 			<params>
@@ -504,7 +533,7 @@
 			<id>cron.parser</id>
 			<name>Inbound E-Mail Processing</name>
 			<class>
-				<file>cron.classes.php</file>
+				<file>api/cron.classes.php</file>
 				<name>ParseCron</name>
 			</class>
 			<params>
@@ -515,7 +544,7 @@
 			<id>cron.maint</id>
 			<name>Maintenance</name>
 			<class>
-				<file>cron.classes.php</file>
+				<file>api/cron.classes.php</file>
 				<name>MaintCron</name>
 			</class>
 			<params>
@@ -526,7 +555,7 @@
 			<id>cron.heartbeat</id>
 			<name>Heartbeat</name>
 			<class>
-				<file>cron.classes.php</file>
+				<file>api/cron.classes.php</file>
 				<name>HeartbeatCron</name>
 			</class>
 			<params>
@@ -537,7 +566,7 @@
 			<id>cron.import</id>
 			<name>Background Importing and Synchronization</name>
 			<class>
-				<file>cron.classes.php</file>
+				<file>api/cron.classes.php</file>
 				<name>ImportCron</name>
 			</class>
 			<params>
@@ -550,7 +579,7 @@
 			<id>cerberusweb.fields.source.address</id>
 			<name>Address</name>
 			<class>
-				<file>classes.php</file>
+				<file>api/plugin.classes.php</file>
 				<name>ChCustomFieldSource_Address</name>
 			</class>
 			<params>
@@ -561,7 +590,7 @@
 			<id>cerberusweb.fields.source.org</id>
 			<name>Organization</name>
 			<class>
-				<file>classes.php</file>
+				<file>api/plugin.classes.php</file>
 				<name>ChCustomFieldSource_Org</name>
 			</class>
 			<params>
@@ -572,7 +601,7 @@
 			<id>cerberusweb.fields.source.task</id>
 			<name>Task</name>
 			<class>
-				<file>classes.php</file>
+				<file>api/plugin.classes.php</file>
 				<name>ChCustomFieldSource_Task</name>
 			</class>
 			<params>
@@ -583,7 +612,7 @@
 			<id>cerberusweb.fields.source.ticket</id>
 			<name>Ticket</name>
 			<class>
-				<file>classes.php</file>
+				<file>api/plugin.classes.php</file>
 				<name>ChCustomFieldSource_Ticket</name>
 			</class>
 			<params>
@@ -596,7 +625,7 @@
 			<id>cerberusweb.notes.source.org</id>
 			<name>Organization</name>
 			<class>
-				<file>classes.php</file>
+				<file>api/plugin.classes.php</file>
 				<name>ChNotesSource_Org</name>
 			</class>
 			<params>
@@ -609,7 +638,7 @@
 			<id>core.workspace.source.address</id>
 			<name>Addresses</name>
 			<class>
-				<file>classes.php</file>
+				<file>api/plugin.classes.php</file>
 				<name>ChWorkspaceSource_Address</name>
 			</class>
 			<params>
@@ -621,7 +650,7 @@
 			<id>core.workspace.source.org</id>
 			<name>Organizations</name>
 			<class>
-				<file>classes.php</file>
+				<file>api/plugin.classes.php</file>
 				<name>ChWorkspaceSource_Org</name>
 			</class>
 			<params>
@@ -633,7 +662,7 @@
 			<id>core.workspace.source.task</id>
 			<name>Tasks</name>
 			<class>
-				<file>classes.php</file>
+				<file>api/plugin.classes.php</file>
 				<name>ChWorkspaceSource_Task</name>
 			</class>
 			<params>
@@ -645,7 +674,7 @@
 			<id>core.workspace.source.ticket</id>
 			<name>Tickets</name>
 			<class>
-				<file>classes.php</file>
+				<file>api/plugin.classes.php</file>
 				<name>ChWorkspaceSource_Ticket</name>
 			</class>
 			<params>
@@ -659,7 +688,7 @@
 			<id>core.rss.source.notification</id>
 			<name>Notifications RSS</name>
 			<class>
-				<file>classes.php</file>
+				<file>api/plugin.classes.php</file>
 				<name>ChRssSource_Notification</name>
 			</class>
 			<params>
@@ -670,7 +699,7 @@
 			<id>core.rss.source.task</id>
 			<name>Tasks RSS</name>
 			<class>
-				<file>classes.php</file>
+				<file>api/plugin.classes.php</file>
 				<name>ChRssSource_Task</name>
 			</class>
 			<params>
@@ -681,7 +710,7 @@
 			<id>core.rss.source.ticket</id>
 			<name>Tickets RSS</name>
 			<class>
-				<file>classes.php</file>
+				<file>api/plugin.classes.php</file>
 				<name>ChRssSource_Ticket</name>
 			</class>
 			<params>
@@ -694,7 +723,7 @@
 			<id>cerberusweb.tasks.org</id>
 			<name>Organization Task</name>
 			<class>
-				<file>classes.php</file>
+				<file>api/plugin.classes.php</file>
 				<name>ChTaskSource_Org</name>
 			</class>
 			<params>
@@ -705,7 +734,7 @@
 			<id>cerberusweb.tasks.ticket</id>
 			<name>Ticket Task</name>
 			<class>
-				<file>classes.php</file>
+				<file>api/plugin.classes.php</file>
 				<name>ChTaskSource_Ticket</name>
 			</class>
 			<params>

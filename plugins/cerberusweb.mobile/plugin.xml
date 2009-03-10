@@ -21,6 +21,7 @@
 				<name>MobileController</name>
 			</class>
 			<params>
+				<param key="uri" value="mobile" />
 			</params>
 		</extension>
 		

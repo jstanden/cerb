@@ -120,7 +120,7 @@
 
 <b>PHP.INI Memory_Limit... </b> 
 {if !$results.memory_limit}
-	<span class="bad">Failure! memory_limit should be 16M or higher in your php.ini file.</span>
+	<span class="bad">Failure! memory_limit should be 16M or higher (32M recommended) in your php.ini file.</span>
 {else}
 	<span class="good">Passed!</span>
 {/if}

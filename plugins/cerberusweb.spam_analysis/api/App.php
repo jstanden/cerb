@@ -1,14 +1,5 @@
 <?php
-// Classes
-$path = dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR;
-
-//DevblocksPlatform::registerClasses($path. 'api/App.php', array(
-//    'C4_CrmOpportunityView'
-//));
-
 class ChSpamAnalysisPlugin extends DevblocksPlugin {
-	function load(DevblocksPluginManifest $manifest) {
-	}
 };
 
 class ChSpamAnalysisTranslations extends DevblocksTranslationsExtension {

@@ -1,14 +1,5 @@
 <?php
-// Classes
-$path = dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR;
-
-DevblocksPlatform::registerClasses($path. 'api/App.php', array(
-    'C4_CallEntryView'
-));
-
 class CallsPlugin extends DevblocksPlugin {
-	function load(DevblocksPluginManifest $manifest) {
-	}
 };
 
 class CallsTranslations extends DevblocksTranslationsExtension {
@@ -24,9 +15,6 @@ class CallsTranslations extends DevblocksTranslationsExtension {
 class CallsAjaxController extends DevblocksControllerExtension {
 	function __construct($manifest) {
 		parent::__construct($manifest);
-		
-		$router = DevblocksPlatform::getRoutingService();
-		$router->addRoute('calls.ajax','calls.controller.ajax');
 	}
 	
 	function isVisible() {

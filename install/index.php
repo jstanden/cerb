@@ -168,8 +168,7 @@ if(!is_writeable(APP_STORAGE_PATH . "/mail/fail/")) {
 //require_once 'Zend/Validate/EmailAddress.php';
 
 // [TODO] Move this to the framework init (installer blocks this at the moment)
-$locale = DevblocksPlatform::getLocaleService();
-$locale->setLocale('en_US');
+DevblocksPlatform::setLocale('en_US');
 
 // Get a reference to the template system and configure it
 $tpl = DevblocksPlatform::getTemplateService();

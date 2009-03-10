@@ -94,8 +94,7 @@ if(method_exists('DevblocksPlatform','getConsoleLog')) {
 	$logger->info('[Devblocks] Memory Limit: '. ini_get('memory_limit'));
 }
 
-// [JAS]: HTTP Request
-DevblocksPlatform::processRequest($request);
+// [JAS]: HTTP Request (App->Platform)
+CerberusApplication::processRequest($request);
 
 exit;
-?>

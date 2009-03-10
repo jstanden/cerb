@@ -1,14 +1,5 @@
 <?php
-// Classes
-$path = dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR;
-
-DevblocksPlatform::registerClasses($path. 'api/App.php', array(
-    'C4_TranslationView',
-));
-
 class ChTranslatorsPlugin extends DevblocksPlugin {
-	function load(DevblocksPluginManifest $manifest) {
-	}
 };
 
 if (class_exists('DevblocksTranslationsExtension',true)):
@@ -208,9 +199,6 @@ class C4_TranslationView extends C4_AbstractView {
 class ChTranslatorsAjaxController extends DevblocksControllerExtension {
 	function __construct($manifest) {
 		parent::__construct($manifest);
-		
-		$router = DevblocksPlatform::getRoutingService();
-		$router->addRoute('translators','translators.controller.ajax');
 	}
 	
 	function isVisible() {
@@ -341,8 +329,9 @@ class ChTranslatorsAjaxController extends DevblocksControllerExtension {
 		$tpl->cache_lifetime = "0";
 
 		// Language Names
-		$locs = DAO_Translation::getLocaleList();
-		$tpl->assign('locales', $locs);
+		$translate = DevblocksPlatform::getTranslationService();
+		$locs = $translate->getLocaleStrings();
+		$tpl->assign_by_ref('locales', $locs);
 
 		// Defined languages (from translations)
 		$codes = DAO_Translation::getDefinedLangCodes();
@@ -447,16 +436,6 @@ class ChTranslatorsAjaxController extends DevblocksControllerExtension {
 		$tpl->assign('path', $tpl_path);
 		$tpl->cache_lifetime = "0";
 
-//		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
-
-		// Language Names
-//		$locs = DAO_Translation::getLocaleList();
-//		$tpl->assign('locales', $locs);
-
-		// Defined languages (from translations)
-//		$codes = DAO_Translation::getDefinedLangCodes();
-//		$tpl->assign('codes', $codes);
-		
 		$tpl->display('file:' . $tpl_path . 'translators/ajax/import_strings_panel.tpl');
 	}
 
@@ -513,7 +492,7 @@ class ChTranslatorsAjaxController extends DevblocksControllerExtension {
 			$eTu =& $xml->body->addChild('tu'); /* @var $eTu SimpleXMLElement */
 			$eTu->addAttribute('tuid', $string_id);
 			$eTuv =& $eTu->addChild('tuv'); /* @var $eTuv SimpleXMLElement */
-			$eTuv->addAttribute('lang', $lang_code, 'http://www.w3.org/XML/1998/namespace');
+			$eTuv->addAttribute('xml:lang', $lang_code, 'http://www.w3.org/XML/1998/namespace');
 			$eSeg =& $eTuv->addChild('seg', htmlspecialchars($string)); /* @var $eSeg SimpleXMLElement */
 		}
 		

@@ -275,7 +275,7 @@ For example: http://www.cerberusweb.com/support/</seg></tuv>
 			<tuv xml:lang="en_US"><seg>&lt;b&gt;Webgroup Media, LLC.&lt;/b&gt;&lt;br&gt;
 451 W. Lambert Rd., Suite #201&lt;br&gt;
 Brea, CA 92821 USA&lt;br&gt;
-+1 714 681 9090&lt;br&gt;</seg></tuv>
++1 714 671 9090&lt;br&gt;</seg></tuv>
 		</tu>
 		<tu tuid='portal.sc.cfg.footer_html_hint'>
 			<tuv xml:lang="en_US"><seg>(e.g., organization, address, phone, fax, analytics)</seg></tuv>

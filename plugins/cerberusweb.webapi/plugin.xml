@@ -48,6 +48,7 @@
 				<name>ChRestFrontController</name>
 			</class>
 			<params>
+				<param key="uri" value="webapi" />
 			</params>
 		</extension>
 		

@@ -11,6 +11,14 @@
 		<name>ChTimeTrackingPlugin</name>
 	</class>
 	
+	<!-- Exported Classes -->
+	
+	<class_loader>
+		<file path="api/App.php">
+			<class name="C4_TimeTrackingEntryView" />
+		</file>
+	</class_loader>
+	
 	<acl>
 		<priv id="timetracking.actions.create" label="acl.timetracking.actions.create" />
 		<priv id="timetracking.actions.update_all" label="acl.timetracking.actions.update_all" />
@@ -213,6 +221,7 @@
 				<name>ChTimeTrackingAjaxController</name>
 			</class>
 			<params>
+				<param key="uri" value="timetracking" />
 			</params>
 		</extension>
 		 

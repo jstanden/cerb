@@ -54,7 +54,7 @@
 		<tr class="{$tableRowBg}" id="{$rowIdPrefix}_s" onmouseover="toggleClass(this.id,'tableRowHover');toggleClass('{$rowIdPrefix}','tableRowHover');" onmouseout="toggleClass(this.id,'{$tableRowBg}');toggleClass('{$rowIdPrefix}','{$tableRowBg}');" onclick="if(getEventTarget(event)=='TD') checkAll('{$rowIdPrefix}_s');">
 			<td align="center" rowspan="2"><input type="checkbox" name="row_id[]" value="{$result.a_id}"></td>
 			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">
-				<a href="{devblocks_url}c=files&p={$result.a_id}&name={$result.a_display_name}{/devblocks_url}" target="_blank" style="color:rgb(75,75,75);font-size:12px;"><b id="subject_{$result.a_id}_{$view->id}">{$result.a_display_name}</b></a>
+				<a href="{devblocks_url}c=files&p={$result.a_id}&name={$result.a_display_name|escape:'url'}{/devblocks_url}" target="_blank" style="color:rgb(75,75,75);font-size:12px;"><b id="subject_{$result.a_id}_{$view->id}">{$result.a_display_name}</b></a>
 			</td>
 		</tr>
 		<tr class="{$tableRowBg}" id="{$rowIdPrefix}" onmouseover="toggleClass(this.id,'tableRowHover');toggleClass('{$rowIdPrefix}_s','tableRowHover');" onmouseout="toggleClass(this.id,'{$tableRowBg}');toggleClass('{$rowIdPrefix}_s','{$tableRowBg}');" onclick="if(getEventTarget(event)=='TD') checkAll('{$rowIdPrefix}_s');">
@@ -73,7 +73,7 @@
 				&nbsp;
 			</td>
 			{elseif $column=="m_created_date"}
-			<td title="{$result.m_created_date|devblocks_date}">{$result.m_created_date|devblocks_date:'EEE, MMM d Y'}&nbsp;</td>
+			<td title="{$result.m_created_date|devblocks_date}">{$result.m_created_date|devblocks_prettytime}&nbsp;</td>
 			{elseif $column=="m_is_outgoing"}
 			<td>{if $result.m_is_outgoing}{$translate->_('mail.outbound')}{else}{$translate->_('mail.inbound')}{/if}&nbsp;</td>
 			{elseif $column=="t_mask"}

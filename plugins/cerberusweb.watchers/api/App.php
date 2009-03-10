@@ -3,9 +3,6 @@ $path = dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR;
 
 class ChWatchersPlugin extends DevblocksPlugin {
 	const WORKER_PREF_ASSIGN_EMAIL = 'watchers_assign_email';
-	
-	function load(DevblocksPluginManifest $manifest) {
-	}
 };
 
 if (class_exists('DevblocksTranslationsExtension',true)):

@@ -80,7 +80,6 @@ if(!empty($worker)) {
 	$tpl->assign('active_worker_memberships', $active_worker_memberships);
 }
 
-DevblocksPlatform::processRequest($request,true);
+CerberusApplication::processRequest($request,true);
 
 exit;
-?>

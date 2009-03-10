@@ -25,15 +25,13 @@
 {foreach from=$messages item=message}
 	{assign var=headers value=$message->getHeaders()}
 	<div style="margin:5px;padding:5px;">
-	<div style="border-bottom:1px solid rgb(180,180,180);">
 	<h2 style="margin:0px;color:rgb(80,80,80);">{$translate->_('message.header.from')|capitalize}: {$headers.from|escape}</h2>
-	</div>
 	<b>{$translate->_('message.header.to')|capitalize}:</b> {$headers.to|escape}<br>
 	{if !empty($headers.cc)}<b>{$translate->_('message.header.cc')|capitalize}:</b> {$headers.cc|escape}<br>{/if}
 	{if !empty($headers.date)}<b>{$translate->_('message.header.date')|capitalize}:</b> {$headers.date|escape}<br>{/if}
 	<br>
 	{$message->getContent()|trim|escape|nl2br}
-	<div style="padding-left:20px;padding-top:5px;">&raquo; <a href="#reply" style="font-size:85%;">{$translate->_('portal.sc.public.history.reply')}</a></div>
+	{*<div style="padding-left:20px;padding-top:5px;">&raquo; <a href="#reply" style="font-size:85%;">{$translate->_('portal.sc.public.history.reply')}</a></div>*}
 	</div>
 {/foreach}
 

@@ -58,7 +58,7 @@ class ChCorePatchContainer extends DevblocksPatchContainerExtension {
 		 * number.
 		 */
 
-		$file_prefix = dirname(__FILE__) . '/patches/';
+		$file_prefix = dirname(dirname(__FILE__)) . '/patches/';
 		
 		$this->registerPatch(new DevblocksPatch('cerberusweb.core',180,$file_prefix.'4.0.0__.php',''));
 		$this->registerPatch(new DevblocksPatch('cerberusweb.core',555,$file_prefix.'4.0.0_beta.php',''));
@@ -67,5 +67,3 @@ class ChCorePatchContainer extends DevblocksPatchContainerExtension {
 		$this->registerPatch(new DevblocksPatch('cerberusweb.core',827,$file_prefix.'4.1.1.php',''));
 	}
 };
-
-?>

@@ -10,6 +10,14 @@
 		<file>api/App.php</file>
 		<name>ChAuditLogPlugin</name>
 	</class>
+
+	<!-- Exported Classes -->
+	
+	<class_loader>
+		<file path="api/App.php">
+			<class name="C4_TicketAuditLogView" />
+		</file>
+	</class_loader>
 	
 	<extensions>
 

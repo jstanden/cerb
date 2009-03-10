@@ -11,6 +11,14 @@
 		<name>CrmPlugin</name>
 	</class>
 	
+	<!-- Exported Classes -->
+	
+	<class_loader>
+		<file path="api/App.php">
+			<class name="C4_CrmOpportunityView" />
+		</file>
+	</class_loader>
+	
 	<acl>
 		<priv id="crm.opp.actions.create" label="acl.crm.opp.actions.create" />
 		<priv id="crm.opp.actions.update_nobody" label="acl.crm.opp.actions.update_nobody" />

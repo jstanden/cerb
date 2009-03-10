@@ -73,7 +73,7 @@
 					{/if}
 				</td>
 			{elseif $column=="f_log_date"}
-				<td title="{$result.f_log_date|devblocks_date}">{$result.f_log_date|devblocks_date:'EEE, MMM d Y'}&nbsp;</td>
+				<td title="{$result.f_log_date|devblocks_date}">{$result.f_log_date|devblocks_prettytime}&nbsp;</td>
 			{elseif $column=="f_worker_id"}
 				<td>{if isset($workers.$worker_id)}{$workers.$worker_id->getName()}{/if}&nbsp;</td>
 			{elseif $column=="f_quote_mood"}

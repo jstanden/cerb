@@ -75,7 +75,7 @@ class DefaultLoginModule extends CerberusLoginPageExtension {
 		$tpl->assign('original_path', $original_path);
 		$tpl->assign('original_query', $query_str);
 		
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/login/login_form_default.tpl');
+		$tpl->display('file:' . dirname(dirname(__FILE__)) . '/templates/login/login_form_default.tpl');
 	}
 	
 	function authenticate($params=array()) {
@@ -145,7 +145,7 @@ class LDAPLoginModule extends CerberusLoginPageExtension {
 		$tpl->assign('default_dn', $default_dn);
 		
 		// display login form
-		$tpl->display('file:' . dirname(__FILE__) . '/templates/login/login_form_ldap.tpl');
+		$tpl->display('file:' . dirname(dirname(__FILE__)) . '/templates/login/login_form_ldap.tpl');
 	}
 	
 	function authenticate($params=array()) {
@@ -197,6 +197,3 @@ class LDAPLoginModule extends CerberusLoginPageExtension {
 		}
 	}
 };
-
-
-?>

@@ -30,9 +30,9 @@
 	<select name="add_lang_code">
 	<option value=""></option>
 	{if is_array($locales)}
-	{foreach from=$locales key=code item=lang_name}
+	{foreach from=$locales key=code item=label}
 		{if !isset($codes.$code)}
-		<option value="{$code}">{$lang_name}</option>
+		<option value="{$code}">{$label}</option>
 		{/if}
 	{/foreach}
 	{/if}

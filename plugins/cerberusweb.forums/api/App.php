@@ -1,17 +1,7 @@
 <?php
-$path = dirname(dirname(__FILE__)) . '/';
-
-DevblocksPlatform::registerClasses($path. 'api/App.php', array(
-    'C4_ForumsThreadView'
-));
-
 class ChForumsPlugin extends DevblocksPlugin {
 	const ID = 'cerberusweb.forums';
-	
 	const SETTING_POSTER_WORKERS = 'forums.forum_workers';
-	
-	function load(DevblocksPluginManifest $manifest) {
-	}
 };
 
 // Workspace Sources
@@ -155,9 +145,6 @@ class ChForumsController extends DevblocksControllerExtension {
 		parent::__construct($manifest);
 
 		$this->tpl_path = dirname(dirname(__FILE__)).'/templates';
-		
-		$router = DevblocksPlatform::getRoutingService();
-		$router->addRoute('forums','forums.controller');
 	}
 		
 	function isVisible() {

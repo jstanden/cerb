@@ -1,12 +1,4 @@
 <?php
-// Classes
-$path = dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR;
-
-DevblocksPlatform::registerClasses($path. 'api/Extension.php', array(
-    'Extension_UmScController',
-    'Extension_UsermeetTool',
-));
-
 class UmScApp extends Extension_UsermeetTool {
 	const PARAM_BASE_URL = 'base_url';
 	const PARAM_LOGO_URL = 'logo_url';
@@ -278,7 +270,7 @@ class UmScApp extends Extension_UsermeetTool {
 		$tpl->assign('groups', $groups);
 		
 		// Contact: Fields
-		$ticket_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Ticket::ID);
+		$ticket_fields = DAO_CustomField::getBySource('cerberusweb.fields.source.ticket');
 		$tpl->assign('ticket_fields', $ticket_fields);
 		
         $tpl->display("file:${tpl_path}portal/sc/config/index.tpl");
@@ -427,7 +419,7 @@ class UmScApp extends Extension_UsermeetTool {
 		$tpl->assign('groups', $groups);
         
 		// Contact: Fields
-		$ticket_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Ticket::ID);
+		$ticket_fields = DAO_CustomField::getBySource('cerberusweb.fields.source.ticket');
 		$tpl->assign('ticket_fields', $ticket_fields);
         
         $tpl->display("file:${tpl_path}portal/sc/config/add_situation.tpl");
@@ -978,7 +970,7 @@ class UmScCoreController extends Extension_UmScController {
 		$ticket = DAO_Ticket::getTicket($ticket_id);
 		
 		// Auto-save any custom fields
-		$fields = DAO_CustomField::getBySource(ChCustomFieldSource_Ticket::ID);
+		$fields = DAO_CustomField::getBySource('cerberusweb.fields.source.ticket');
 		if(!empty($aFieldIds))
 		foreach($aFieldIds as $iIdx => $iFieldId) {
 			if(!empty($iFieldId)) {
@@ -1010,7 +1002,7 @@ class UmScCoreController extends Extension_UmScController {
 				}
 				
 				if(!empty($value))
-					DAO_CustomFieldValue::setFieldValue(ChCustomFieldSource_Ticket::ID,$ticket_id,$iFieldId,$value);
+					DAO_CustomFieldValue::setFieldValue('cerberusweb.fields.source.ticket',$ticket_id,$iFieldId,$value);
 			}
 		}
 		
@@ -1377,7 +1369,7 @@ class UmScCoreController extends Extension_UmScController {
 						        	}
 						        }
 						        
-						        $ticket_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Ticket::ID);
+						        $ticket_fields = DAO_CustomField::getBySource('cerberusweb.fields.source.ticket');
         						$tpl->assign('ticket_fields', $ticket_fields);
 						        
 				        		$tpl->display("file:${tpl_path}portal/sc/internal/contact/step2.tpl");

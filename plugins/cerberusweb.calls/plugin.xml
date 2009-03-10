@@ -11,6 +11,14 @@
 		<name>CallsPlugin</name>
 	</class>
 	
+	<!-- Exported Classes -->
+	
+	<class_loader>
+		<file path="api/App.php">
+			<class name="C4_CallEntryView" />
+		</file>
+	</class_loader>
+	
 	<extensions>
 	
 		<!-- Patch Containers -->
@@ -49,6 +57,7 @@
 				<name>CallsAjaxController</name>
 			</class>
 			<params>
+				<param key="uri" value="calls.ajax" />
 			</params>
 		</extension>
 		

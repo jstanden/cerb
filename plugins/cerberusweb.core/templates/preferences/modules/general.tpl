@@ -21,8 +21,8 @@
 
 <b>Timezone:</b> {if !empty($server_timezone)}(current: {$server_timezone}){/if}<br>
 <select name="timezone">
-	{foreach from=$timezones key=city item=tz}
-		<option value="{$city}" {if $city==$server_timezone}selected{/if}>{$city}</option>
+	{foreach from=$timezones item=tz}
+		<option value="{$tz}" {if $tz==$server_timezone}selected{/if}>{$tz}</option>
 	{/foreach}
 </select><br>
 <br>

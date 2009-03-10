@@ -157,7 +157,7 @@ if($fails) {
 		echo '<li>upload_tmp_dir is empty in your php.ini file. Please set it.</li>';
 		
 	if(!$results['memory_limit'])
-		echo '<li>memory_limit must be 16M or larger in your php.ini file.  Please increase it.</li>';
+		echo '<li>memory_limit must be 16M or larger (32M recommended) in your php.ini file.  Please increase it.</li>';
 		
 	if(!$results['ext_mysql'])
 		echo "<li>The 'MySQL' PHP extension is required.  Please enable it.</li>";

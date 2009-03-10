@@ -11,6 +11,14 @@
 		<name>ChFeedbackPlugin</name>
 	</class>
 	
+	<!-- Exported Classes -->
+	
+	<class_loader>
+		<file path="api/App.php">
+			<class name="C4_FeedbackEntryView" />
+		</file>
+	</class_loader>
+	
 	<acl>
 		<priv id="feedback.actions.create" label="acl.feedback.actions.create" />
 		<priv id="feedback.actions.update_all" label="acl.feedback.actions.update_all" />
@@ -84,6 +92,7 @@
 				<name>ChFeedbackController</name>
 			</class>
 			<params>
+				<param key="uri" value="feedback" />
 			</params>
 		</extension>
 		
