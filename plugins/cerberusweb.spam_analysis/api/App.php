@@ -1,17 +1,4 @@
 <?php
-class ChSpamAnalysisPlugin extends DevblocksPlugin {
-};
-
-class ChSpamAnalysisTranslations extends DevblocksTranslationsExtension {
-	function __construct($manifest) {
-		parent::__construct($manifest);	
-	}
-	
-	function getTmxFile() {
-		return dirname(dirname(__FILE__)) . '/strings.xml';
-	}
-};
-
 class ChSpamAnalysisTicketTab extends Extension_TicketTab {
 	function showTab() {
 		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer',0);

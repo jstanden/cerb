@@ -7,7 +7,7 @@
 	<revision>0</revision>
 	<link>http://wiki.cerb4.com/wiki/New_Changes#Watchers_.28E-mail_Notifications.29</link>
 	<class>
-		<file>api/App.php</file>
+		<file>api/Plugin.php</file>
 		<name>ChWatchersPlugin</name>
 	</class>
 	
@@ -19,7 +19,7 @@
 			<id>watchers.translations</id>
 			<name>Watchers Strings</name>
 			<class>
-				<file>api/App.php</file>
+				<file>api/Plugin.php</file>
 				<name>ChWatchersTranslations</name>
 			</class>
 			<params>

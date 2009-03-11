@@ -81,6 +81,7 @@ class ChUpdateController extends DevblocksControllerExtension {
 
 						// [JAS]: Clear all caches
 						$cache->clean();
+						DevblocksPlatform::getClassLoaderService()->destroy();
 
 						// Reload plugin translations
 						DAO_Translation::reloadPluginStrings();

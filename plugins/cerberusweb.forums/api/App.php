@@ -1,9 +1,4 @@
 <?php
-class ChForumsPlugin extends DevblocksPlugin {
-	const ID = 'cerberusweb.forums';
-	const SETTING_POSTER_WORKERS = 'forums.forum_workers';
-};
-
 // Workspace Sources
 
 class ChWorkspaceSource_ForumThread extends Extension_WorkspaceSource {
@@ -127,16 +122,6 @@ class ChForumsActivityTab extends Extension_ActivityTab {
 	}
 }
 endif;
-
-class ChForumsTranslations extends DevblocksTranslationsExtension {
-	function __construct($manifest) {
-		parent::__construct($manifest);	
-	}
-	
-	function getTmxFile() {
-		return dirname(dirname(__FILE__)) . '/strings.xml';
-	}
-};
 
 class ChForumsController extends DevblocksControllerExtension {
 	private $tpl_path = null;
@@ -844,22 +829,6 @@ class Model_ForumsSource {
 	public $url;
 	public $secret_key;
 	public $last_postid;
-};
-
-class ChForumsPatchContainer extends DevblocksPatchContainerExtension {
-	function __construct($manifest) {
-		parent::__construct($manifest);
-		
-		/*
-		 * [JAS]: Just add a sequential build number here (and update plugin.xml) and
-		 * write a case in runVersion().  You should comment the milestone next to your build 
-		 * number.
-		 */
-
-		$file_prefix = dirname(dirname(__FILE__)) . '/patches';
-		
-		$this->registerPatch(new DevblocksPatch('cerberusweb.forums',3,$file_prefix.'/1.0.0.php',''));
-	}
 };
 
 class C4_ForumsThreadView extends C4_AbstractView {

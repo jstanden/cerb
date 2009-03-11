@@ -7,7 +7,7 @@
 	<revision>0</revision>
 	<link>http://wiki.cerb4.com/wiki/New_Changes#Interactive_Reports</link>
 	<class>
-		<file>api/App.php</file>
+		<file>api/Plugin.php</file>
 		<name>ChReportsPlugin</name>
 	</class>
 
@@ -38,7 +38,7 @@
 			<id>reports.translations</id>
 			<name>Reports Strings</name>
 			<class>
-				<file>api/App.php</file>
+				<file>api/Plugin.php</file>
 				<name>ChReportsTranslations</name>
 			</class>
 			<params>

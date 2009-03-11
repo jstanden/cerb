@@ -7,7 +7,7 @@
 	<revision>0</revision>
 	<link>http://wiki.cerb4.com/wiki/</link>
 	<class>
-		<file>api/App.php</file>
+		<file>api/Plugin.php</file>
 		<name>ChTranslatorsPlugin</name>
 	</class>
 	
@@ -42,7 +42,7 @@
 			<id>translate.translations</id>
 			<name>Translate Strings</name>
 			<class>
-				<file>api/App.php</file>
+				<file>api/Plugin.php</file>
 				<name>ChTranslateTranslations</name>
 			</class>
 			<params>

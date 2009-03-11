@@ -7,7 +7,7 @@
 	<revision>0</revision>
 	<link>http://wiki.cerb4.com/wiki/</link>
 	<class>
-		<file>api/App.php</file>
+		<file>api/Plugin.php</file>
 		<name>ChTimeTrackingPlugin</name>
 	</class>
 	
@@ -34,7 +34,7 @@
 			<id>timetracking.patches</id>
 			<name>Time Tracking Patches</name>
 			<class>
-				<file>api/App.php</file>
+				<file>api/Patch.php</file>
 				<name>ChTimeTrackingPatchContainer</name>
 			</class>
 			<params>
@@ -47,7 +47,7 @@
 			<id>timetracking.translations</id>
 			<name>Time Tracking Strings</name>
 			<class>
-				<file>api/App.php</file>
+				<file>api/Plugin.php</file>
 				<name>ChTimeTrackingTranslations</name>
 			</class>
 			<params>

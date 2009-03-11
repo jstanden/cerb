@@ -7,7 +7,7 @@
 	<revision>0</revision>
 	<link>http://www.cerberusweb.com/</link>
 	<class>
-		<file>api/App.php</file>
+		<file>api/Plugin.php</file>
 		<name>CallsPlugin</name>
 	</class>
 	
@@ -40,7 +40,7 @@
 			<id>calls.translations</id>
 			<name>Call Logging Strings</name>
 			<class>
-				<file>api/App.php</file>
+				<file>api/Plugin.php</file>
 				<name>CallsTranslations</name>
 			</class>
 			<params>

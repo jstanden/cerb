@@ -1,7 +1,4 @@
 <?php
-class CrmPlugin extends DevblocksPlugin {
-};
-
 class CrmCustomFieldSource_Opportunity extends Extension_CustomFieldSource {
 	const ID = 'crm.fields.source.opportunity';
 };
@@ -1248,16 +1245,6 @@ class C4_CrmOpportunityView extends C4_AbstractView {
 		unset($ids);
 	}	
 };	
-
-class CrmTranslations extends DevblocksTranslationsExtension {
-	function __construct($manifest) {
-		parent::__construct($manifest);	
-	}
-	
-	function getTmxFile() {
-		return dirname(dirname(__FILE__)) . '/strings.xml';
-	}
-};
 
 class CrmEventListener extends DevblocksEventListenerExtension {
     function __construct($manifest) {

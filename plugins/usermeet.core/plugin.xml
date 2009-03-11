@@ -7,7 +7,7 @@
 	<revision>0</revision>
 	<link>http://wiki.cerb4.com/wiki/New_Changes#Community_Tools</link>
 	<class>
-		<file>classes.php</file>
+		<file>api/Plugin.php</file>
 		<name>UmCorePlugin</name>
 	</class>
 	
@@ -47,7 +47,7 @@
 			<id>usermeet.translations</id>
 			<name>Community Tools Strings</name>
 			<class>
-				<file>classes.php</file>
+				<file>api/Plugin.php</file>
 				<name>UmTranslations</name>
 			</class>
 			<params>

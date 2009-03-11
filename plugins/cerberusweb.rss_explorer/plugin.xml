@@ -7,7 +7,7 @@
 	<revision>0</revision>
 	<link>http://www.cerberusweb.com/</link>
 	<class>
-		<file>api/App.php</file>
+		<file>api/Plugin.php</file>
 		<name>RssExpPlugin</name>
 	</class>
 	
@@ -40,7 +40,7 @@
 			<id>rssexp.translations</id>
 			<name>RSS Explorer Strings</name>
 			<class>
-				<file>api/App.php</file>
+				<file>api/Plugin.php</file>
 				<name>RssExpTranslations</name>
 			</class>
 			<params>

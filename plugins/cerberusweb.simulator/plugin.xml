@@ -7,7 +7,7 @@
 	<revision>0</revision>
 	<link>http://wiki.cerb4.com/wiki/New_Changes#Simulator</link>
 	<class>
-		<file>classes.php</file>
+		<file>api/Plugin.php</file>
 		<name>ChSimulatorPlugin</name>
 	</class>
 	
@@ -19,7 +19,7 @@
 			<id>simulator.translations</id>
 			<name>Simulator Strings</name>
 			<class>
-				<file>classes.php</file>
+				<file>api/Plugin.php</file>
 				<name>ChSimulatorTranslations</name>
 			</class>
 			<params>

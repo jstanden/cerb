@@ -1,7 +1,4 @@
 <?php
-class ChFeedbackPlugin extends DevblocksPlugin {
-};
-
 class ChCustomFieldSource_FeedbackEntry extends Extension_CustomFieldSource {
 	const ID = 'feedback.fields.source.feedback_entry';
 };
@@ -11,34 +8,6 @@ class ChCustomFieldSource_FeedbackEntry extends Extension_CustomFieldSource {
 class ChWorkspaceSource_FeedbackEntry extends Extension_WorkspaceSource {
 	const ID = 'feedback.workspace.source.feedback_entry';
 };
-
-class ChFeedbackPatchContainer extends DevblocksPatchContainerExtension {
-	function __construct($manifest) {
-		parent::__construct($manifest);
-		
-		/*
-		 * [JAS]: Just add a sequential build number here (and update plugin.xml) and
-		 * write a case in runVersion().  You should comment the milestone next to your build 
-		 * number.
-		 */
-
-		$file_prefix = dirname(dirname(__FILE__)) . '/patches';
-		
-		$this->registerPatch(new DevblocksPatch('cerberusweb.feedback',3,$file_prefix.'/1.0.0.php',''));
-	}
-};
-
-if (class_exists('DevblocksTranslationsExtension',true)):
-	class ChFeedbackTranslations extends DevblocksTranslationsExtension {
-		function __construct($manifest) {
-			parent::__construct($manifest);	
-		}
-		
-		function getTmxFile() {
-			return dirname(dirname(__FILE__)) . '/strings.xml';
-		}
-	};
-endif;
 
 if (class_exists('Extension_ActivityTab')):
 class ChFeedbackActivityTab extends Extension_ActivityTab {

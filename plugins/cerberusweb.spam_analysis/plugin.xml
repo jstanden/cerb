@@ -9,7 +9,7 @@
 	<revision>0</revision>
 	<link>http://wiki.cerb4.com/wiki/</link>
 	<class>
-		<file>api/App.php</file>
+		<file>api/Plugin.php</file>
 		<name>ChSpamAnalysisPlugin</name>
 	</class>
 	
@@ -21,7 +21,7 @@
 			<id>spamanalysis.translations</id>
 			<name>Spam Strings</name>
 			<class>
-				<file>api/App.php</file>
+				<file>api/Plugin.php</file>
 				<name>ChSpamAnalysisTranslations</name>
 			</class>
 			<params>

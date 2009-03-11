@@ -49,21 +49,6 @@
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
 
-class UmCorePlugin extends DevblocksPlugin {
-};
-
-if (class_exists('DevblocksTranslationsExtension',true)):
-	class UmTranslations extends DevblocksTranslationsExtension {
-		function __construct($manifest) {
-			parent::__construct($manifest);	
-		}
-		
-		function getTmxFile() {
-			return dirname(__FILE__) . '/strings.xml';
-		}
-	};
-endif;
-
 class UmPortalController extends DevblocksControllerExtension {
     const ID = 'usermeet.controller.portal';
 	private $tools = array();
@@ -367,6 +352,7 @@ class UmConfigCommunitiesTab extends Extension_ConfigTab {
 	}
 };
 
+if (class_exists('Extension_UsermeetTool',true)):
 class UmContactApp extends Extension_UsermeetTool {
 	const PARAM_DISPATCH = 'dispatch';
 	const PARAM_LOGO_URL = 'logo_url';
@@ -749,9 +735,10 @@ class UmContactApp extends Extension_UsermeetTool {
         
 		DAO_CommunityToolProperty::set($this->getPortal(), self::PARAM_DISPATCH, serialize($dispatch));
     }
-	
 };
+endif;
 
+if (class_exists('Extension_UsermeetTool',true)):
 class UmKbApp extends Extension_UsermeetTool {
 	const PARAM_BASE_URL = 'base_url';
 	const PARAM_LOGO_URL = 'logo_url';
@@ -1197,7 +1184,5 @@ class UmKbApp extends Extension_UsermeetTool {
 //						DAO_KbArticle::CONTENT => $content,
 //				);
 //				$id = DAO_KbArticle::create($fields);
-    
 };
-
-?>
+endif;

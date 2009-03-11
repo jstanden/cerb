@@ -7,7 +7,7 @@
 	<revision>0</revision>
 	<link>http://www.cerberusweb.com/</link>
 	<class>
-		<file>api/App.php</file>
+		<file>api/Plugin.php</file>
 		<name>CrmPlugin</name>
 	</class>
 	
@@ -65,7 +65,7 @@
 			<id>crm.translations</id>
 			<name>CRM Strings</name>
 			<class>
-				<file>api/App.php</file>
+				<file>api/Plugin.php</file>
 				<name>CrmTranslations</name>
 			</class>
 			<params>

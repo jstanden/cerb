@@ -7,7 +7,7 @@
 	<revision>0</revision>
 	<link>http://wiki.cerb4.com/wiki/</link>
 	<class>
-		<file>api/App.php</file>
+		<file>api/Plugin.php</file>
 		<name>ChFeedbackPlugin</name>
 	</class>
 	
@@ -34,7 +34,7 @@
 			<id>feedback.patches</id>
 			<name>Feedback Patches</name>
 			<class>
-				<file>api/App.php</file>
+				<file>api/Patch.php</file>
 				<name>ChFeedbackPatchContainer</name>
 			</class>
 			<params>
@@ -47,7 +47,7 @@
 			<id>feedback.translations</id>
 			<name>Feedback Strings</name>
 			<class>
-				<file>api/App.php</file>
+				<file>api/Plugin.php</file>
 				<name>ChFeedbackTranslations</name>
 			</class>
 			<params>

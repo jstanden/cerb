@@ -7,7 +7,7 @@
 	<revision>0</revision>
 	<link>http://wiki.cerb4.com/wiki/New_Changes#Audit_Log</link>
 	<class>
-		<file>api/App.php</file>
+		<file>api/Plugin.php</file>
 		<name>ChAuditLogPlugin</name>
 	</class>
 
@@ -40,7 +40,7 @@
 			<id>auditlog.translations</id>
 			<name>Audit Log Strings</name>
 			<class>
-				<file>api/App.php</file>
+				<file>api/Plugin.php</file>
 				<name>ChAuditLogTranslations</name>
 			</class>
 			<params>

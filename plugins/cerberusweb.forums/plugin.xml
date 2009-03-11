@@ -7,7 +7,7 @@
 	<revision>0</revision>
 	<link>http://wiki.cerb4.com/wiki/Forum_Explorer_(Plugin)</link>
 	<class>
-		<file>api/App.php</file>
+		<file>api/Plugin.php</file>
 		<name>ChForumsPlugin</name>
 	</class>
 	
@@ -27,7 +27,7 @@
 			<id>forums.patches</id>
 			<name>Forums Patches</name>
 			<class>
-				<file>api/App.php</file>
+				<file>api/Patch.php</file>
 				<name>ChForumsPatchContainer</name>
 			</class>
 			<params>
@@ -40,7 +40,7 @@
 			<id>forums.translations</id>
 			<name>Forums Strings</name>
 			<class>
-				<file>api/App.php</file>
+				<file>api/Plugin.php</file>
 				<name>ChForumsTranslations</name>
 			</class>
 			<params>

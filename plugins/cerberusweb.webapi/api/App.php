@@ -49,25 +49,6 @@
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
 
-// Classes
-$path = dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR;
-
-class ChRestPlugin extends DevblocksPlugin {
-	const PLUGIN_ID = 'cerberusweb.controller.rest';
-};
-
-if (class_exists('DevblocksTranslationsExtension',true)):
-	class ChWebApiTranslations extends DevblocksTranslationsExtension {
-		function __construct($manifest) {
-			parent::__construct($manifest);	
-		}
-		
-		function getTmxFile() {
-			return dirname(dirname(__FILE__)) . '/strings.xml';
-		}
-	};
-endif;
-
 class ChWebApiConfigTab extends Extension_ConfigTab {
 	const ID = 'webapi.config.tab';
 	

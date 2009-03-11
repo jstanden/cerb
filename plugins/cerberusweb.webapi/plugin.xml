@@ -7,7 +7,7 @@
 	<revision>0</revision>
 	<link>http://wiki.cerb4.com/wiki/Web-API</link>
 	<class>
-		<file>api/App.php</file>
+		<file>api/Plugin.php</file>
 		<name>ChRestPlugin</name>
 	</class>
 	
@@ -18,7 +18,7 @@
 			<id>webapi.translations</id>
 			<name>Web API Strings</name>
 			<class>
-				<file>api/App.php</file>
+				<file>api/Plugin.php</file>
 				<name>ChWebApiTranslations</name>
 			</class>
 			<params>
