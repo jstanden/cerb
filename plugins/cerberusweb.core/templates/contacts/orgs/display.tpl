@@ -1,4 +1,10 @@
-{include file="file:$core_tpl/contacts/submenu.tpl"}
+<div id="headerSubMenu">
+	<div style="padding:5px;">
+		<a href="{devblocks_url}c=contacts{/devblocks_url}">address book</a>
+		 &raquo; 
+		<a href="{devblocks_url}c=contacts&a=orgs{/devblocks_url}">organizations</a>
+	</div>
+</div>
 
 <table cellpadding="2" cellspacing="0" border="0" width="100%">
 <tr>

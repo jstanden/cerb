@@ -6850,6 +6850,82 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 		return $table;
 	}
 	
+	/**
+	 * 
+	 * @param object $source_ext_id
+	 * @param object $source_id
+	 * @param object $values
+	 * @return 
+	 */
+	public static function formatAndSetFieldValues($source_ext_id, $source_id, $values, $is_blank_unset=true) {
+		if(empty($source_ext_id) || empty($source_id) || !is_array($values))
+			return;
+
+		$fields = DAO_CustomField:: getBySource($source_ext_id);
+
+		foreach($values as $field_id => $value) {
+			if(!isset($fields[$field_id]))
+				continue;
+
+			$field =& $fields[$field_id]; /* @var $field Model_CustomField */
+			$delta = ($field->type==Model_CustomField::TYPE_MULTI_CHECKBOX || $field->type==Model_CustomField::TYPE_MULTI_PICKLIST) 
+					? true 
+					: false
+					;
+
+			// if the field is blank
+			if(0==strlen($value)) {
+				// ... and blanks should unset
+				if($is_blank_unset && !$delta)
+					self::unsetFieldValue($source_ext_id, $source_id, $field_id);
+				
+				// Skip setting
+				continue;
+			}
+
+			switch($field->type) {
+				case Model_CustomField::TYPE_SINGLE_LINE:
+					$value = (strlen($value) > 255) ? substr($value,0,255) : $value;
+					self::setFieldValue($source_ext_id, $source_id, $field_id, $value);
+					break;
+
+				case Model_CustomField::TYPE_MULTI_LINE:
+					self::setFieldValue($source_ext_id, $source_id, $field_id, $value);
+					break;
+
+				case Model_CustomField::TYPE_DROPDOWN:
+				case Model_CustomField::TYPE_MULTI_PICKLIST:
+				case Model_CustomField::TYPE_MULTI_CHECKBOX:
+					// If we're setting a field that doesn't exist yet, add it.
+					if(!in_array($value,$field->options) && !empty($value)) {
+						$field->options[] = $value;
+						DAO_CustomField::update($field_id, array(DAO_CustomField::OPTIONS => implode("\n",$field->options)));
+					}
+
+					// If we're allowed to add/remove fields without touching the rest
+					self::setFieldValue($source_ext_id, $source_id, $field_id, $value, $delta);
+						
+					break;
+
+				case Model_CustomField::TYPE_CHECKBOX:
+					$value = !empty($value) ? 1 : 0;
+					self::setFieldValue($source_ext_id, $source_id, $field_id, $value);
+					break;
+
+				case Model_CustomField::TYPE_DATE:
+					@$value = strtotime($value);
+					self::setFieldValue($source_ext_id, $source_id, $field_id, $value);
+					break;
+
+				case Model_CustomField::TYPE_NUMBER:
+					$value = intval($value);
+					self::setFieldValue($source_ext_id, $source_id, $field_id, $value);
+					break;
+			}
+		}
+		
+	}
+	
 	public static function setFieldValue($source_ext_id, $source_id, $field_id, $value, $delta=false) {
 		$db = DevblocksPlatform::getDatabaseService();
 		

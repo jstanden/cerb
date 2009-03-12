@@ -1,17 +1,3 @@
-{include file="file:$core_tpl/contacts/submenu.tpl"}
-
-<table cellspacing="0" cellpadding="0" border="0" width="100%" style="padding-bottom:5px;">
-<tr>
-	<td width="1%" nowrap="nowrap" valign="top" style="padding-right:5px;">
-		<h1>Import</h1>
-	</td>
-	<td width="98%" valign="middle">
-	</td>
-	<td width="1%" nowrap="nowrap" valign="middle" align="right">
-	</td>
-</tr>
-</table>
-
 <div class="block">
 <H2>Import Records</H2>
 <br>
@@ -21,12 +7,12 @@
 <input type="hidden" name="a" value="parseUpload">
 
 <b>Record Type:</b><br>
-<label><input type="radio" name="type" value="orgs" checked>Organizations</label>
+<label><input type="radio" name="type" value="orgs" checked="checked">Organizations</label>
 <label><input type="radio" name="type" value="addys">E-mail Addresses</label>
 <br>
 <br>
 
-<b>Upload .CSV File:</b><br>
+<b>Upload .CSV File:</b> (any format; the next step will let you choose where the data goes)<br>
 <input type="file" name="csv_file" size="45"><br>
 <br>
 

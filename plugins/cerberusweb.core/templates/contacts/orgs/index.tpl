@@ -1,9 +1,11 @@
-{include file="file:$core_tpl/contacts/submenu.tpl"}
-
 <table cellspacing="0" cellpadding="0" border="0" width="100%">
 <tr>
 	<td width="1%" nowrap="nowrap" valign="top" style="padding-right:5px;">
-		<h1>Organizations</h1>
+		<form action="{devblocks_url}{/devblocks_url}" style="margin-bottom:5px;">
+		{if $active_worker->hasPriv('core.addybook.org.actions.update')}
+			<button type="button" onclick="genericAjaxPanel('c=contacts&a=showOrgPeek&id=0&view_id={$view->id}',this,false,'500px',ajax.cbAddressPeek);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/office-building.gif{/devblocks_url}" align="top"> Add Org</button>
+		{/if}
+		</form>
 	</td>
 	<td width="98%" valign="middle">
 	</td>
@@ -20,17 +22,11 @@
 </tr>
 </table>
 
-<form action="{devblocks_url}{/devblocks_url}" style="margin-bottom:5px;">
-{if $active_worker->hasPriv('core.addybook.org.actions.update')}
-	<button type="button" onclick="genericAjaxPanel('c=contacts&a=showOrgPeek&id=0&view_id={$view->id}',this,false,'500px',ajax.cbAddressPeek);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/office-building.gif{/devblocks_url}" align="top"> Add Org</button>
-{/if}
-</form>
-
 <table cellpadding="0" cellspacing="0" border="0">
 	<tr>
 		<td valign="top" width="0%" nowrap="nowrap">
-			{include file="file:$core_tpl/internal/views/criteria_list.tpl" divName="searchCriteriaDialog"}
-			<div id="searchCriteriaDialog" style="visibility:visible;"></div>
+			{include file="file:$core_tpl/internal/views/criteria_list.tpl" divName="orgSearchFilters"}
+			<div id="orgSearchFilters" style="visibility:visible;"></div>
 		</td>
 		<td valign="top" width="0%" nowrap="nowrap"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/spacer.gif{/devblocks_url}" width="5" height="1"></td>
 		<td valign="top" width="100%">

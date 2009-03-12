@@ -75,16 +75,20 @@ class ChContactsPage extends CerberusPageExtension {
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->_TPL_PATH);
 		
-		$visit = CerberusApplication::getVisit();
+		$visit = CerberusApplication::getVisit();		
 		
 		$response = DevblocksPlatform::getHttpResponse();
 		$stack = $response->path;
 
-		array_shift($stack); // contacts
+		@array_shift($stack); // contacts
+		@$selected_tab = array_shift($stack); // orgs|addresses|*
 		
-		switch(array_shift($stack)) {
+		$tpl->assign('selected_tab', $selected_tab);
+		
+		// Allow a non-tab renderer
+		switch($selected_tab) {
 			case 'import':
-				switch(array_shift($stack)) {
+				switch(@array_shift($stack)) {
 					case 'step2':
 						$type = $visit->get('import.last.type', '');
 						
@@ -92,56 +96,26 @@ class ChContactsPage extends CerberusPageExtension {
 							case 'orgs':
 								$fields = DAO_ContactOrg::getFields();
 								$tpl->assign('fields',$fields);
+								$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Org::ID);
+								$tpl->assign('custom_fields', $custom_fields);
 								break;
 							case 'addys':
 								$fields = DAO_Address::getFields();
 								$tpl->assign('fields',$fields);
+								$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Address::ID);
+								$tpl->assign('custom_fields', $custom_fields);
 								break;
 						}
 						
 						$tpl->display('file:' . $this->_TPL_PATH . 'contacts/import/mapping.tpl');
-						break;
-					default:
-						$tpl->display('file:' . $this->_TPL_PATH . 'contacts/import/index.tpl');
+						return;
 						break;
 				}
 				break;
-
-			case 'addresses':
-				$view = C4_AbstractViewLoader::getView('C4_AddressView', C4_AddressView::DEFAULT_ID);
-				$tpl->assign('view', $view);
-				$tpl->assign('contacts_page', 'addresses');
-				$tpl->assign('view_fields', C4_AddressView::getFields());
-				$tpl->assign('view_searchable_fields', C4_AddressView::getSearchFields());
-				$tpl->display('file:' . $this->_TPL_PATH . 'contacts/addresses/index.tpl');
-				break;
-				
-//			case 'people':
-//				$view = C4_AbstractViewLoader::getView('', 'addybook_people'); // C4_AddressView::DEFAULT_ID
-//				
-//				if(null == $view) {
-//					$view = new C4_AddressView();
-//					$view->id = 'addybook_people';
-//					$view->name = 'People';
-//					$view->params = array(
-//						new DevblocksSearchCriteria(SearchFields_Address::CONTACT_ORG_ID,'!=',0),
-//					);
-//					
-//					C4_AbstractViewLoader::setView('addybook_people', $view);
-//				}
-//				
-//				$tpl->assign('view', $view);
-//				$tpl->assign('contacts_page', 'people');
-//				$tpl->assign('view_fields', C4_AddressView::getFields());
-//				$tpl->assign('view_searchable_fields', C4_AddressView::getSearchFields());
-//				$tpl->display('file:' . $this->_TPL_PATH . 'contacts/people/index.tpl');
-//				break;
-				
-			default:
+			
+			// [TODO] The org display page should probably move to its own controller
 			case 'orgs':
-				$param = array_shift($stack);
-
-				switch($param) {
+				switch(@array_shift($stack)) {
 					case 'display':
 						$tab_manifests = DevblocksPlatform::getExtensions('cerberusweb.org.tab', false);
 						$tpl->assign('tab_manifests', $tab_manifests);
@@ -194,18 +168,79 @@ class ChContactsPage extends CerberusPageExtension {
 						}
 						
 						$tpl->display('file:' . $this->_TPL_PATH . 'contacts/orgs/display.tpl');
-						break;
+						return;
+						break; // case 'orgs/display'
 						
-					default: // index
-						$view = C4_AbstractViewLoader::getView('C4_ContactOrgView', C4_ContactOrgView::DEFAULT_ID);
-						$tpl->assign('view', $view);
-						$tpl->assign('contacts_page', 'orgs');
-						$tpl->assign('view_fields', C4_ContactOrgView::getFields());
-						$tpl->assign('view_searchable_fields', C4_ContactOrgView::getSearchFields());
-						$tpl->display('file:' . $this->_TPL_PATH . 'contacts/orgs/index.tpl');
-						break;
-				}
-		}	
+				} // switch (action)
+				break;
+				
+		} // switch (tab)
+		
+		$tpl->display('file:' . $this->_TPL_PATH . 'contacts/index.tpl');
+		return;
+		
+//			case 'people':
+//				$view = C4_AbstractViewLoader::getView('', 'addybook_people'); // C4_AddressView::DEFAULT_ID
+//				
+//				if(null == $view) {
+//					$view = new C4_AddressView();
+//					$view->id = 'addybook_people';
+//					$view->name = 'People';
+//					$view->params = array(
+//						new DevblocksSearchCriteria(SearchFields_Address::CONTACT_ORG_ID,'!=',0),
+//					);
+//					
+//					C4_AbstractViewLoader::setView('addybook_people', $view);
+//				}
+//				
+//				$tpl->assign('view', $view);
+//				$tpl->assign('contacts_page', 'people');
+//				$tpl->assign('view_fields', C4_AddressView::getFields());
+//				$tpl->assign('view_searchable_fields', C4_AddressView::getSearchFields());
+//				$tpl->display('file:' . $this->_TPL_PATH . 'contacts/people/index.tpl');
+//				break;
+	}
+	
+	function showOrgsTabAction() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', $this->_TPL_PATH);
+		
+		$view = C4_AbstractViewLoader::getView('C4_ContactOrgView', C4_ContactOrgView::DEFAULT_ID);
+		$tpl->assign('view', $view);
+		$tpl->assign('contacts_page', 'orgs');
+		$tpl->assign('response_uri', 'contacts/orgs');
+		$tpl->assign('view_fields', C4_ContactOrgView::getFields());
+		$tpl->assign('view_searchable_fields', C4_ContactOrgView::getSearchFields());
+		$tpl->display('file:' . $this->_TPL_PATH . 'contacts/orgs/index.tpl');
+	}
+	
+	function showAddysTabAction() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', $this->_TPL_PATH);
+		
+		$view = C4_AbstractViewLoader::getView('C4_AddressView', C4_AddressView::DEFAULT_ID);
+		$tpl->assign('view', $view);
+		$tpl->assign('contacts_page', 'addresses');
+		$tpl->assign('response_uri', 'contacts/addresses');
+		$tpl->assign('view_fields', C4_AddressView::getFields());
+		$tpl->assign('view_searchable_fields', C4_AddressView::getSearchFields());
+		
+		$tpl->display('file:' . $this->_TPL_PATH . 'contacts/addresses/index.tpl');
+	}
+	
+	function showImportTabAction() {
+		$active_worker = CerberusApplication::getActiveWorker();
+	
+		if(!$active_worker->hasPriv('core.addybook.import'))
+			return;
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', $this->_TPL_PATH);
+
+		$tpl->display('file:' . $this->_TPL_PATH . 'contacts/import/index.tpl');
 	}
 	
 	// Post
@@ -247,10 +282,16 @@ class ChContactsPage extends CerberusPageExtension {
 	// Post
 	// [TODO] Allow XML also?
 	function doImportAction() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker->hasPriv('core.addybook.import'))
+			return;
+		
 		@$pos = DevblocksPlatform::importGPC($_REQUEST['pos'],'array',array());
 		@$field = DevblocksPlatform::importGPC($_REQUEST['field'],'array',array());
 		@$sync_column = DevblocksPlatform::importGPC($_REQUEST['sync_column'],'string','');
 		@$include_first = DevblocksPlatform::importGPC($_REQUEST['include_first'],'integer',0);
+		@$is_blank_unset = DevblocksPlatform::importGPC($_REQUEST['is_blank_unset'],'integer',0);
 		
 		@$replace_passwords = DevblocksPlatform::importGPC($_REQUEST['replace_passwords'],'integer',0);
 		
@@ -269,7 +310,12 @@ class ChContactsPage extends CerberusPageExtension {
 		
 		while(!feof($fp)) {
 			$parts = fgetcsv($fp, 8192, ',', '"');
+			
+			if(empty($parts) || (1==count($parts) && is_null($parts[0])))
+				continue;
+			
 			$fields = array();
+			$custom_fields = array();
 			$sync_field = '';
 			$sync_val = '';
 			
@@ -279,8 +325,9 @@ class ChContactsPage extends CerberusPageExtension {
 			foreach($pos as $idx => $p) {
 				$key = $field[$idx];
 				$val = $parts[$idx];
-				if(!empty($key) && !empty($val)) {
-					// [JAS]: Special overrides
+				
+				if(!empty($key)) {
+					// Organizations
 					if($type=="orgs") {
 						switch($key) {
 							// Multi-Line
@@ -293,6 +340,15 @@ class ChContactsPage extends CerberusPageExtension {
 								@$val = !is_numeric($val) ? strtotime($val) : $val;
 								break;
 						}
+
+						// Custom fields
+						if('cf_' == substr($key,0,3)) {
+							$custom_fields[substr($key,3)] = $val;
+						} else {
+							$fields[$key] = $val;
+						}
+					
+					// Addresses	
 					} elseif($type=="addys") {
 						switch($key) {
 							// Org (from string into id)
@@ -303,16 +359,23 @@ class ChContactsPage extends CerberusPageExtension {
 									$val = 0;
 								}
 								break;
+								
 							case 'password':
 								$key = null;
 								$contact_password = $val;
 								break;
 						}
+
+						// Custom fields
+						if('cf_' == substr($key,0,3)) {
+							$custom_fields[substr($key,3)] = $val;
+						} else {
+							$fields[$key] = $val;
+						}
+						
 					}
 
 					if(!empty($key)) {
-						$fields[$key] = $val;
-					
 						// [JAS]: Are we looking for matches in a certain field?
 						if($sync_column==$key && !empty($val)) {
 							$sync_field = $key;
@@ -334,7 +397,8 @@ class ChContactsPage extends CerberusPageExtension {
 						if(empty($orgs)) {
 							$id = DAO_ContactOrg::create($fields);
 						} else {
-							DAO_ContactOrg::update(key($orgs), $fields);
+							$id = key($orgs);
+							DAO_ContactOrg::update($id, $fields);
 						}
 					}
 				} elseif ($type=="addys") {
@@ -371,12 +435,21 @@ class ChContactsPage extends CerberusPageExtension {
 					}
 				}
 			}
+			
+			if(!empty($custom_fields) && !empty($id)) {
+				// Format (typecast) and set the custom field types
+				$source_ext_id = ($type=="orgs") ? ChCustomFieldSource_Org::ID : ChCustomFieldSource_Address::ID;
+				DAO_CustomFieldValue::formatAndSetFieldValues($source_ext_id, $id, $custom_fields, $is_blank_unset);
+			}
+			
 		}
 		
 		@unlink($csv_file); // nuke the imported file
 		
 		$visit->set('import.last.csv',null);
 		$visit->set('import.last.type',null);
+		
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('contacts','import')));
 	}
 	
 	// Ajax

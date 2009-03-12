@@ -444,6 +444,15 @@
 		<tu tuid='addy_book.history.view.requester'>
 			<tuv xml:lang="en_US"><seg>Requester History: %s contact(s)</seg></tuv>
 		</tu>
+		<tu tuid='addy_book.tab.addresses'>
+			<tuv xml:lang="en_US"><seg>Addresses</seg></tuv>
+		</tu>
+		<tu tuid='addy_book.tab.import'>
+			<tuv xml:lang="en_US"><seg>Import</seg></tuv>
+		</tu>
+		<tu tuid='addy_book.tab.organizations'>
+			<tuv xml:lang="en_US"><seg>Organizations</seg></tuv>
+		</tu>
 
 		<!-- Attachment -->
 		
