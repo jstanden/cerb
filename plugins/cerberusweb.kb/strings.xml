@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tmx SYSTEM "tmx14.dtd">
+<tmx version="1.4">
+	<header datatype="winres" segtype="sentence" adminlang="en-us"
+		srclang="en-us" o-tmf="abc" />
+	<body>
+
+		<!-- ACL -->
+		
+		<tu tuid='acl.core.kb'>
+			<tuv xml:lang="en_US"><seg>[Knowledgebase] Can view the knowledgebase</seg></tuv>
+		</tu>
+
+		<!-- Common Strings -->
+
+		<tu tuid='activity.kb'>
+			<tuv xml:lang="en_US"><seg>%s is browsing the knowledgebase</seg></tuv>
+		</tu>
+
+		<tu tuid='display.reply.kb.all_topics'>
+			<tuv xml:lang="en_US"><seg>all topics</seg></tuv>
+		</tu>
+		<tu tuid='display.reply.kb.search'>
+			<tuv xml:lang="en_US"><seg>Search Knowledgebase:</seg></tuv>
+		</tu>
+
+		<tu tuid='kb.research.tab.browse_kb'>
+			<tuv xml:lang="en_US"><seg>Browse Knowledgebase</seg></tuv>
+		</tu>
+		<tu tuid='kb.research.tab.search_kb'>
+			<tuv xml:lang="en_US"><seg>Search Knowledgebase</seg></tuv>
+		</tu>
+
+		<!-- KB -->
+
+		<tu tuid='kb.view.articles'>
+			<tuv xml:lang="en_US"><seg>Articles: %s</seg></tuv>
+		</tu>
+		<tu tuid='kb.view.uncategorized'>
+			<tuv xml:lang="en_US"><seg>Uncategorized Articles</seg></tuv>
+		</tu>
+
+		<!-- KB Article -->
+		
+		<tu tuid='kb_article.content'>
+			<tuv xml:lang="en_US"><seg>Content</seg></tuv>
+		</tu>
+		<tu tuid='kb_article.format'>
+			<tuv xml:lang="en_US"><seg>Format</seg></tuv>
+		</tu>
+		<tu tuid='kb_article.id'>
+			<tuv xml:lang="en_US"><seg>ID</seg></tuv>
+		</tu>
+		<tu tuid='kb_article.title'>
+			<tuv xml:lang="en_US"><seg>Title</seg></tuv>
+		</tu>
+		<tu tuid='kb_article.topic'>
+			<tuv xml:lang="en_US"><seg>Topic</seg></tuv>
+		</tu>
+		<tu tuid='kb_article.updated'>
+			<tuv xml:lang="en_US"><seg>Updated</seg></tuv>
+		</tu>
+		<tu tuid='kb_article.views'>
+			<tuv xml:lang="en_US"><seg>Views</seg></tuv>
+		</tu>
+		
+	</body>
+</tmx>

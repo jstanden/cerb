@@ -1,13 +1,6 @@
-{*
-<!--
- | <a href="{devblocks_url}c=contacts&a=people{/devblocks_url}">people</a>
- {if $active_worker->hasPriv('core.addybook.import')} | <a href="{devblocks_url}c=contacts&a=import{/devblocks_url}">import</a>{/if}
--->
-*}
-
 <div id="headerSubMenu">
-	<div style="padding:5px;"></div>
-</div> 
+	<div style="padding-bottom:5px;"></div>
+</div>
 
 <div id="addyBookTabs"></div> 
 <br>

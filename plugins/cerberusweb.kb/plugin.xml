@@ -1,0 +1,132 @@
+<!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
+<plugin>
+	<id>cerberusweb.kb</id>
+	<name>Cerberus Helpdesk: Knowledgebase</name>
+	<description>((Knowledgebase))</description>
+	<author>WebGroup Media, LLC.</author>
+	<revision>0</revision>
+	<link>http://www.cerberusweb.com/</link>
+	<class>
+		<file>api/Plugin.php</file>
+		<name>ChKbPlugin</name>
+	</class>
+	
+	<!-- Exported Classes -->
+	
+	<class_loader>
+		<file path="api/App.php">
+			<class name="C4_KbArticleView" />
+		</file>
+	</class_loader>
+
+	<!-- Permissions -->
+	
+	<acl>
+		<!-- KB -->
+		<priv id="core.kb" label="acl.core.kb" />
+	</acl>
+	
+	<extensions>
+	
+		<!-- Patch Containers -->
+		
+		<extension point="devblocks.patch.container">
+			<id>cerberusweb.kb.patches</id>
+			<name>Knowledgebase Patches</name>
+			<class>
+				<file>api/Patch.php</file>
+				<name>ChKbPatchContainer</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
+		<!-- Translations -->
+		
+		<extension point="devblocks.i18n.strings">
+			<id>cerberusweb.kb.translations</id>
+			<name>Knowledgebase Strings</name>
+			<class>
+				<file>api/Plugin.php</file>
+				<name>ChKbTranslations</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
+		<!--
+		<extension point="cerberusweb.page">
+			<id>core.page.kb</id>
+			<name>Knowledgebase Page</name>
+			<class>
+				<file>api/uri/kb.php</file>
+				<name>ChKbPage</name>
+			</class>
+			<params>
+				<param key="uri" value="kb" />
+				<param key="menutitle" value="core.menu.knowledgebase" />
+				<param key="acl" value="core.kb" />
+			</params>
+		</extension>
+		-->
+		
+		<!-- Controllers -->
+		
+ 		<extension point="devblocks.controller">
+			<id>cerberusweb.kb.controller.ajax</id>
+			<name>KB Ajax Controller</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChKbAjaxController</name>
+			</class>
+			<params>
+				<param key="uri" value="kb.ajax" />
+			</params>
+		</extension>
+		
+		<!-- Research Tab -->
+		
+		<extension point="cerberusweb.research.tab">
+			<id>cerberusweb.kb.research.tab.kb_browse</id>
+			<name>Knowledgebase Browse Tab</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChKbBrowseResearchTab</name>
+			</class>
+			<params>
+				<param key="uri" value="kb" />
+				<param key="title" value="kb.research.tab.browse_kb" />
+			</params>
+		</extension>
+
+		<extension point="cerberusweb.research.tab">
+			<id>cerberusweb.kb.research.tab.kb_search</id>
+			<name>Knowledgebase Search Tab</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChKbSearchResearchTab</name>
+			</class>
+			<params>
+				<param key="uri" value="kb.search" />
+				<param key="title" value="kb.research.tab.search_kb" />
+			</params>
+		</extension>
+		
+		<!-- Config Tabs -->
+		<!-- 
+		<extension point="cerberusweb.config.tab">
+			<id>crm.config.tab.campaigns</id>
+			<name>Campaigns Tab</name>
+			<class>
+				<file>api/App.php</file>
+				<name>CrmConfigCampaignsTab</name>
+			</class>
+			<params>
+				<param key="uri" value="crm.campaigns" />
+				<param key="title" value="Campaigns (CRM)" />
+			</params>
+		</extension>
+		-->
+		
+	</extensions>
+</plugin>

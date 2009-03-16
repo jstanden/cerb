@@ -15,11 +15,11 @@
 		<tu tuid='core.menu.home'>
 			<tuv xml:lang="en_US"><seg>home</seg></tuv>
 		</tu>
-		<tu tuid='core.menu.knowledgebase'>
-			<tuv xml:lang="en_US"><seg>kb</seg></tuv>
-		</tu>
 		<tu tuid='core.menu.mail'>
 			<tuv xml:lang="en_US"><seg>mail</seg></tuv>
+		</tu>
+		<tu tuid='core.menu.research'>
+			<tuv xml:lang="en_US"><seg>research</seg></tuv>
 		</tu>
 		
 		<tu tuid='display.tab.comments'>
@@ -339,11 +339,6 @@
 			<tuv xml:lang="en_US"><seg>[Home] Can build private workspaces and worklists</seg></tuv>
 		</tu>
 
-			<!-- Knowledgebase -->
-		<tu tuid='acl.core.kb'>
-			<tuv xml:lang="en_US"><seg>[Knowledgebase] Can view the knowledgebase</seg></tuv>
-		</tu>
-
 			<!-- Mail page -->
 		<tu tuid='acl.core.mail.actions.auto_refresh'>
 			<tuv xml:lang="en_US"><seg>[Mail] Can auto-refresh the Mail page</seg></tuv>
@@ -361,6 +356,11 @@
 			<tuv xml:lang="en_US"><seg>[Mail] Can compose new messages from the helpdesk</seg></tuv>
 		</tu>
 
+			<!-- Research -->
+		<tu tuid='acl.core.research'>
+			<tuv xml:lang="en_US"><seg>[Research] Can browse research resources</seg></tuv>
+		</tu>
+		
 			<!-- RSS -->
 		<tu tuid='acl.core.rss'>
 			<tuv xml:lang="en_US"><seg>[RSS] Can export lists as RSS feeds</seg></tuv>
@@ -571,9 +571,6 @@
 		<tu tuid='activity.home'>
 			<tuv xml:lang="en_US"><seg>%s is browsing their assigned work</seg></tuv>
 		</tu>
-		<tu tuid='activity.kb'>
-			<tuv xml:lang="en_US"><seg>%s is browsing the knowledgebase</seg></tuv>
-		</tu>
 		<tu tuid='activity.mail.overview'>
 			<tuv xml:lang="en_US"><seg>%s is browsing %s in Overview</seg></tuv>
 		</tu>
@@ -782,12 +779,6 @@
 		<tu tuid='display.reply.insert_sig'>
 			<tuv xml:lang="en_US"><seg>Insert Signature</seg></tuv>
 		</tu>
-		<tu tuid='display.reply.kb.all_topics'>
-			<tuv xml:lang="en_US"><seg>all topics</seg></tuv>
-		</tu>
-		<tu tuid='display.reply.kb.search'>
-			<tuv xml:lang="en_US"><seg>Search Knowledgebase:</seg></tuv>
-		</tu>
 		<tu tuid='display.reply.next_label'>
 			<tuv xml:lang="en_US"><seg>Next:</seg></tuv>
 		</tu>
@@ -873,39 +864,6 @@
 			<tuv xml:lang="en_US"><seg>Sticky Note</seg></tuv>
 		</tu>
 		
-		<!-- KB -->
-
-		<tu tuid='kb.view.articles'>
-			<tuv xml:lang="en_US"><seg>Articles: %s</seg></tuv>
-		</tu>
-		<tu tuid='kb.view.uncategorized'>
-			<tuv xml:lang="en_US"><seg>Uncategorized Articles</seg></tuv>
-		</tu>
-
-		<!-- KB Article -->
-		
-		<tu tuid='kb_article.content'>
-			<tuv xml:lang="en_US"><seg>Content</seg></tuv>
-		</tu>
-		<tu tuid='kb_article.format'>
-			<tuv xml:lang="en_US"><seg>Format</seg></tuv>
-		</tu>
-		<tu tuid='kb_article.id'>
-			<tuv xml:lang="en_US"><seg>ID</seg></tuv>
-		</tu>
-		<tu tuid='kb_article.title'>
-			<tuv xml:lang="en_US"><seg>Title</seg></tuv>
-		</tu>
-		<tu tuid='kb_article.topic'>
-			<tuv xml:lang="en_US"><seg>Topic</seg></tuv>
-		</tu>
-		<tu tuid='kb_article.updated'>
-			<tuv xml:lang="en_US"><seg>Updated</seg></tuv>
-		</tu>
-		<tu tuid='kb_article.views'>
-			<tuv xml:lang="en_US"><seg>Views</seg></tuv>
-		</tu>
-
 		<!-- Mail -->
 		
 		<tu tuid='mail.bulk_update'>
@@ -1059,6 +1017,12 @@ If you did not request this, do not click the link above.  The request will expi
 			<tuv xml:lang="en_US"><seg>%s is not a valid e-mail address.</seg></tuv>
 		</tu>
 
+		<!-- Research -->
+
+		<tu tuid='research.tab.links'>
+			<tuv xml:lang="en_US"><seg>Links</seg></tuv>
+		</tu>
+		
 		<!-- RSS -->
 
 		<tu tuid='rss.bad_feed'>

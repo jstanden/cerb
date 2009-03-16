@@ -130,15 +130,15 @@
 		<priv id="core.display.actions.reply" label="acl.core.display.actions.reply" />
 		<priv id="core.display.actions.split" label="acl.core.display.actions.split" />
 
-		<!-- KB -->
-		<priv id="core.kb" label="acl.core.kb" />
-
 		<!-- Mail page -->
 		<priv id="core.mail.actions.auto_refresh" label="acl.core.mail.actions.auto_refresh" />
 		<priv id="core.mail.log_ticket" label="acl.core.mail.log_ticket" />
 		<priv id="core.mail.overview" label="acl.core.mail.overview" />
 		<priv id="core.mail.search" label="acl.core.mail.search" />
 		<priv id="core.mail.send" label="acl.core.mail.send" />
+
+		<!-- Research -->
+		<priv id="core.research" label="acl.core.research" />
 
 		<!-- RSS -->
 		<priv id="core.rss" label="acl.core.rss" />
@@ -386,16 +386,16 @@
 		</extension>
 
 		<extension point="cerberusweb.page">
-			<id>core.page.kb</id>
-			<name>Knowledgebase Page</name>
+			<id>core.page.research</id>
+			<name>Research Page</name>
 			<class>
-				<file>api/uri/kb.php</file>
-				<name>ChKbPage</name>
+				<file>api/uri/research.php</file>
+				<name>ChResearchPage</name>
 			</class>
 			<params>
-				<param key="uri" value="kb" />
-				<param key="menutitle" value="core.menu.knowledgebase" />
-				<param key="acl" value="core.kb" />
+				<param key="uri" value="research" />
+				<param key="menutitle" value="core.menu.research" />
+				<param key="acl" value="core.reseach" />
 			</params>
 		</extension>
 

@@ -60,11 +60,11 @@
 			{elseif $column=="kb_title"}
 			<td>
 				{if !empty($result.kb_title)}
-				<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document.gif{/devblocks_url}" align="top"> <a href="javascript:;" style="font-size:12px;color:rgb(75,75,75);" onclick="genericAjaxPanel('c=kb&a=showArticlePeekPanel&id={$result.kb_id}&return={$response_uri|escape:'url'}',null,false,'700px');"><b id="subject_{$result.kb_id}_{$view->id}">{$result.kb_title|escape}</b></a>				
+				<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document.gif{/devblocks_url}" align="top"> <a href="javascript:;" style="font-size:12px;color:rgb(75,75,75);" onclick="genericAjaxPanel('c=kb.ajax&a=showArticlePeekPanel&id={$result.kb_id}&return={$response_uri|escape:'url'}',null,false,'700px');"><b id="subject_{$result.kb_id}_{$view->id}">{$result.kb_title|escape}</b></a>				
 				{/if}
 			</td>
 			{elseif $column=="kb_updated"}
-			<td>{$result.kb_updated|devblocks_date}&nbsp;</td>
+			<td><abbr title="{$result.kb_updated|devblocks_date}">{$result.kb_updated|devblocks_prettytime}</abbr>&nbsp;</td>
 			{else}
 			<td>{$result.$column}&nbsp;</td>
 			{/if}
@@ -77,10 +77,6 @@
 	{if $total}
 	<tr>
 		<td colspan="2">
-			{* [TODO] Comparing the view name is a hack. Eventually we need to be storing small runtime variables in views (like $root_id here) *}
-			{if $view->name=="Uncategorized Articles" || isset($root_id) && empty($root_id)}
-			<button type="button" id="btn{$view->id}Delete" onclick="{literal}if(confirm('Are you sure you want to permanently delete these articles?')){this.form.a.value='doViewDelete';this.form.submit();}{/literal}"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete2.gif{/devblocks_url}" align="top"> delete</button>
-			{/if}
 		</td>
 	</tr>
 	{/if}

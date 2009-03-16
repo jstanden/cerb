@@ -1,5 +1,5 @@
 <form action="{devblocks_url}{/devblocks_url}" method="POST">
-<input type="hidden" name="c" value="kb">
+<input type="hidden" name="c" value="kb.ajax">
 <input type="hidden" name="a" value="saveKbCategoryEditPanel">
 <input type="hidden" name="id" value="{$category->id}">
 <input type="hidden" name="return" value="{$return}">

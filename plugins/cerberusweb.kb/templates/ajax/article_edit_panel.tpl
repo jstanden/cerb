@@ -1,9 +1,8 @@
 <form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmKbEditPanel">
-<input type="hidden" name="c" value="kb">
+<input type="hidden" name="c" value="kb.ajax">
 <input type="hidden" name="a" value="saveArticleEditPanel">
 <input type="hidden" name="id" value="{$article->id}">
 <input type="hidden" name="do_delete" value="0">
-<input type="hidden" name="return" value="{$return}">
 
 <table cellspacing="0" cellpadding="0" border="0" width="100%">
 <tr>
@@ -43,11 +42,8 @@ Format:
 <br>
 <br>
 
-{if !empty($return)}
-	<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
-	<button type="button" onclick="{literal}if(confirm('Are you sure you want to permanently delete this article?')){this.form.do_delete.value='1';this.form.submit();}{/literal}"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete2.gif{/devblocks_url}" align="top"> {$translate->_('common.delete')|capitalize}</button>
-{else}
-	<button type="button" onclick="genericAjaxPost('frmKbEditPanel','','c=kb&a=saveArticleEditPanel',{literal}function(o){genericPanel.hide();}{/literal});"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
-{/if}
+{*	<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button> *}
+<button type="button" onclick="genericAjaxPost('frmKbEditPanel','','c=kb.ajax&a=saveArticleEditPanel',{literal}function(o){genericPanel.hide();}{/literal});"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button> 
+<button type="button" onclick="{literal}if(confirm('Are you sure you want to permanently delete this article?')){this.form.do_delete.value='1';this.form.submit();}{/literal}"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete2.gif{/devblocks_url}" align="top"> {$translate->_('common.delete')|capitalize}</button>
 <button type="button" onclick="genericPanel.hide();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> {$translate->_('common.cancel')|capitalize}</button>
 </form>

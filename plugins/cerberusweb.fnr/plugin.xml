@@ -1,0 +1,91 @@
+<!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
+<plugin>
+	<id>cerberusweb.fnr</id>
+	<name>Cerberus Helpdesk: Fetch &amp; Retrieve</name>
+	<description>((Fetch &amp; Retrieve))</description>
+	<author>WebGroup Media, LLC.</author>
+	<revision>0</revision>
+	<link>http://www.cerberusweb.com/</link>
+	<class>
+		<file>api/Plugin.php</file>
+		<name>ChFnrPlugin</name>
+	</class>
+	
+	<!-- Exported Classes -->
+	
+	<!--
+	<class_loader>
+		<file path="api/App.php">
+			<class name="C4_RssExpItemView" />
+		</file>
+	</class_loader>
+	-->
+	
+	<!-- Permissions -->
+	
+	<acl>
+	</acl>
+	
+	<extensions>
+	
+		<!-- Patch Containers -->
+		
+		<extension point="devblocks.patch.container">
+			<id>cerberusweb.fnr.patches</id>
+			<name>F&amp;R Patches</name>
+			<class>
+				<file>api/Patch.php</file>
+				<name>ChFnrPatchContainer</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
+		<!-- Translations -->
+		
+		<extension point="devblocks.i18n.strings">
+			<id>cerberusweb.fnr.translations</id>
+			<name>F&amp;R Strings</name>
+			<class>
+				<file>api/Plugin.php</file>
+				<name>ChFnrTranslations</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
+		<!-- Research Tab -->
+		
+		<!--
+		<extension point="cerberusweb.activity.tab">
+			<id>cerberusweb.fnr.activity.tab</id>
+			<name>RSS Explorer Tab</name>
+			<class>
+				<file>api/App.php</file>
+				<name>RssExpActivityTab</name>
+			</class>
+			<params>
+				<param key="uri" value="rss" />
+				<param key="title" value="cerberusweb.fnr.activity.tab" />
+			</params>
+		</extension>
+		-->
+		
+		<!-- Config Tabs -->
+		<!-- 
+		<extension point="cerberusweb.config.tab">
+			<id>crm.config.tab.campaigns</id>
+			<name>Campaigns Tab</name>
+			<class>
+				<file>api/App.php</file>
+				<name>CrmConfigCampaignsTab</name>
+			</class>
+			<params>
+				<param key="uri" value="crm.campaigns" />
+				<param key="title" value="Campaigns (CRM)" />
+			</params>
+		</extension>
+		-->
+		
+	</extensions>
+</plugin>
