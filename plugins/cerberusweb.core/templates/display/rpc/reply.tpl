@@ -70,47 +70,18 @@
 		<td>
 		{assign var=ticket_team_id value=$ticket->team_id}
 		{assign var=headers value=$message->getHeaders()}
-{if $active_worker->hasPriv('core.kb')}<button type="button" onclick="toggleDiv('kbSearch{$message->id}');document.getElementById('kbQuery{$message->id}').focus();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/book_open2.gif{/devblocks_url}" align="top"> {$translate->_('common.knowledgebase')|capitalize}</button>{/if}
 <button type="button" onclick="genericAjaxPanel('c=display&a=showTemplatesPanel&type=2&reply_id={$message->id}&txt_name=reply_{$message->id}',this,false,'550px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/text_rich.gif{/devblocks_url}" align="top"> {$translate->_('display.reply.email_templates')|capitalize}</button>
-<button type="button" onclick="genericAjaxPanel('c=display&a=showFnrPanel',this,false,'550px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/book_blue_view.gif{/devblocks_url}" align="top"> {$translate->_('common.fnr')|capitalize}</button>
 <button type="button" onclick="genericAjaxGet('','c=tickets&a=getComposeSignature&group_id={$ticket->team_id}',{literal}function(o){insertAtCursor(document.getElementById('reply_{/literal}{$message->id}{literal}'),o.responseText);document.getElementById('reply_{/literal}{$message->id}{literal}').focus();}{/literal});"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_edit.gif{/devblocks_url}" align="top"> {$translate->_('display.reply.insert_sig')|capitalize}</button>
-<br>
 {* Plugin Toolbar *}
 {if !empty($reply_toolbaritems)}
-	<div style="margin-top:2px;">
 	{foreach from=$reply_toolbaritems item=renderer}
 		{if !empty($renderer)}{$renderer->render($message)}{/if}
 	{/foreach}
-	</div>
 {/if}
-
-{* BEGIN KB *}
-<div id="kbSearch{$message->id}" style="display:none;background-color:rgb(240,240,240);margin:5px;padding:5px;">
-	<table cellpadding="0" cellspacing="0" border="0" width="100%">
-	<tr>
-		<td style="background-color:rgb(251,97,0);width:10px;"></td>
-		<td style="padding-left:5px;">
-			<h2>{$translate->_('display.reply.kb.search')|capitalize}</h2>
-			<select name="kbQueryTopic{$message->id}" style="border:solid 1px rgb(180,180,180);">
-				<option value="">- {$translate->_('display.reply.kb.all_topics')|lower} -</option>
-				{foreach from=$kb_topics item=topic key=topic_id}
-					<option value="{$topic_id}">{$topic->name}</option>
-				{/foreach}
-			</select>
-			 for 
-			<input id="kbQuery{$message->id}" type="text" value="" onkeypress="return interceptInputCRLF(event,function(){literal}{{/literal}document.getElementById('kbQueryBtn{$message->id}').click();document.getElementById('kbQuery{$message->id}').select();{literal}}{/literal});" size="45" style="border:solid 1px rgb(180,180,180);">
-			<button id="kbQueryBtn{$message->id}" type="button" onclick="genericAjaxGet('kbResults{$message->id}','c=display&a=doReplyKbSearch&q='+escape(document.getElementById('kbQuery{$message->id}').value)+'&topic_id='+escape(selectValue(this.form.kbQueryTopic{$message->id})));" style="display:none;">{$translate->_('common.search')|lower}</button>
-			<div id="kbResults{$message->id}" style="margin-top:5px;background-color:rgb(240,240,240);"></div>
-		</td>
-	</tr>
-	</table>
-</div>
-{* END KB *}
 
 {if $is_forward}
 <textarea name="content" rows="20" cols="80" id="reply_{$message->id}" class="reply" style="width:98%;border:1px solid rgb(180,180,180);padding:5px;">
 {if !empty($signature)}{$signature}{/if}
-
 
 {$translate->_('display.reply.forward.banner')}
 {if isset($headers.subject)}{$translate->_('message.header.subject')|capitalize}: {$headers.subject|escape|cat:"\n"}{/if}

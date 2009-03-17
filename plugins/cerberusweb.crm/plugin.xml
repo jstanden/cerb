@@ -83,7 +83,7 @@
 			</class>
 			<params>
 				<param key="uri" value="opps" />
-				<param key="title" value="crm.activity.tab.opps" />
+				<param key="title" value="crm.tab.title" />
 			</params>
 		</extension>
 		
@@ -166,7 +166,7 @@
 			</class>
 			<params>
 				<param key="uri" value="opps" />
-				<param key="title" value="Opportunities" />
+				<param key="title" value="crm.tab.title" />
 			</params>
 		</extension>
 		
@@ -181,7 +181,7 @@
 			</class>
 			<params>
 				<param key="uri" value="opps" />
-				<param key="title" value="Opportunities" />
+				<param key="title" value="crm.tab.title" />
 			</params>
 		</extension>
 		

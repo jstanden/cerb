@@ -16,6 +16,11 @@
 	<class_loader>
 		<file path="api/App.php">
 			<class name="C4_KbArticleView" />
+			<class name="DAO_KbArticle" />
+			<class name="DAO_KbCategory" />
+			<class name="Model_KbArticle" />
+			<class name="Model_KbCategory" />
+			<class name="SearchFields_KbArticle" />
 		</file>
 	</class_loader>
 
@@ -109,6 +114,19 @@
 			<params>
 				<param key="uri" value="kb.search" />
 				<param key="title" value="kb.research.tab.search_kb" />
+			</params>
+		</extension>
+		
+		<!-- Ticket Reply Toolbar -->
+			
+		<extension point="cerberusweb.reply.toolbaritem">
+			<id>cerberusweb.kb.reply.toolbaritem.kb</id>
+			<name>KB Reply Toolbar</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChKbReplyToolbarButton</name>
+			</class>
+			<params>
 			</params>
 		</extension>
 		

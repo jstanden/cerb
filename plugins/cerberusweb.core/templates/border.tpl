@@ -24,10 +24,10 @@
 		{else}
 			{assign var=worker_name value=''|cat:'<b>'|cat:$active_worker->getName()|cat:'</b>'}
 			{'header.signed_in'|devblocks_translate:$worker_name}
+			 
+			<a href="{devblocks_url}c=login&a=signout{/devblocks_url}">{$translate->_('header.signoff')|lower}</a>
+			<br>
 			<a href="{devblocks_url}c=preferences{/devblocks_url}">{$translate->_('header.preferences')|lower}</a> 
-			 | <a href="{devblocks_url}c=login&a=signout{/devblocks_url}">{$translate->_('header.signoff')|lower}</a> 
-			<br> 
-			 <a href="javascript:;" onclick="genericAjaxPanel('c=display&a=showFnrPanel',this,false,'550px');">{$translate->_('common.fnr')|lower|escape}</a>  
 			{if !empty($active_worker_memberships)} | <a href="{devblocks_url}c=groups{/devblocks_url}">{$translate->_('header.group_setup')|lower}</a>{/if} 
 			{if $active_worker->is_superuser} | <a href="{devblocks_url}c=config{/devblocks_url}">{$translate->_('header.config')|lower}</a>{/if} 
 			<br> 

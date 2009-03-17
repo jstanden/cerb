@@ -102,13 +102,6 @@ tabView.addTab( new YAHOO.widget.Tab({
     {/literal}active: {if $tab_selected=="fields"}true{else}false{/if}{literal}
 }));
 
-tabView.addTab( new YAHOO.widget.Tab({
-    label: 'Fetch &amp; Retrieve',
-    dataSrc: '{/literal}{devblocks_url}ajax.php?c=config&a=showTabFnr{/devblocks_url}{literal}',
-    cacheData: false,
-    {/literal}active: {if $tab_selected=="fnr"}true{else}false{/if}{literal}
-}));
-
 {/literal}
 
 {foreach from=$tab_manifests item=tab_manifest}

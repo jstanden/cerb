@@ -106,6 +106,21 @@ class ChKbSearchResearchTab extends Extension_ResearchTab {
 }
 endif;
 
+if (class_exists('Extension_ReplyToolbarItem',true)):
+	class ChKbReplyToolbarButton extends Extension_ReplyToolbarItem {
+		function render(CerberusMessage $message) { 
+			$tpl = DevblocksPlatform::getTemplateService();
+			$tpl_path = dirname(dirname(__FILE__)).'/templates/';
+			$tpl->assign('path', $tpl_path);
+			$tpl->cache_lifetime = "0";
+			
+			$tpl->assign('message', $message); /* @var $message CerberusMessage */
+			
+			$tpl->display('file:' . $tpl_path . 'renderers/reply_kb_button.tpl');
+		}
+	};
+endif;
+
 class ChKbAjaxController extends DevblocksControllerExtension {
 	private $_CORE_TPL_PATH = '';
 	private $_TPL_PATH = '';
