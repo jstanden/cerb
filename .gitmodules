@@ -1,0 +1,3 @@
+[submodule "libs/devblocks"]
+	path = libs/devblocks
+	url = git://github.com/wgm/devblocks.git
