@@ -24,13 +24,6 @@
 			<tuv xml:lang="en_US"><seg>Search Knowledgebase:</seg></tuv>
 		</tu>
 
-		<tu tuid='kb.research.tab.browse_kb'>
-			<tuv xml:lang="en_US"><seg>Browse Knowledgebase</seg></tuv>
-		</tu>
-		<tu tuid='kb.research.tab.search_kb'>
-			<tuv xml:lang="en_US"><seg>Search Knowledgebase</seg></tuv>
-		</tu>
-
 		<!-- KB -->
 
 		<tu tuid='kb.view.articles'>

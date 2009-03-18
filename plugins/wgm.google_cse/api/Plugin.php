@@ -1,9 +1,9 @@
 <?php
-class ChFnrPlugin extends DevblocksPlugin {
+class WgmGoogleCSEPlugin extends DevblocksPlugin {
 };
 
 if (class_exists('DevblocksTranslationsExtension',true)):
-	class ChFnrTranslations extends DevblocksTranslationsExtension {
+	class WgmGoogleCSETranslations extends DevblocksTranslationsExtension {
 		function __construct($manifest) {
 			parent::__construct($manifest);	
 		}

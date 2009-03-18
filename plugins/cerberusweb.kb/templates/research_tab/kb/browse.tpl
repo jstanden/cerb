@@ -10,14 +10,15 @@
 				{if $parent_id}
 					<button type="button" onclick="genericAjaxPanel('c=kb.ajax&a=showKbCategoryEditPanel&id={$root_id}&return={$request_path|escape:'url'}',null,false,'500px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> Edit Category</button>
 				{else}
-					<button type="button" onclick="genericAjaxPanel('c=kb.ajax&a=showKbTopicEditPanel&id={$root_id}&return={$request_path|escape:'url'}',null,false,'500px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> Edit Topic</button>
+					<button type="button" onclick="genericAjaxPanel('c=kb.ajax&a=showTopicEditPanel&id={$root_id}&return={$request_path|escape:'url'}',null,false,'500px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> Edit Topic</button>
 				{/if}
 				<button type="button" onclick="genericAjaxPanel('c=kb.ajax&a=showKbCategoryEditPanel&id=0&root_id={$root_id}&return={$request_path|escape:'url'}',null,false,'500px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_add.gif{/devblocks_url}" align="top"> Add Subcategory</button>
 			{else}
-				<button type="button" onclick="genericAjaxPanel('c=kb.ajax&a=showKbTopicEditPanel&id=0&return={$request_path|escape:'url'}',null,false,'500px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_add.gif{/devblocks_url}" align="top"> Add Topic</button>
+				<button type="button" onclick="genericAjaxPanel('c=kb.ajax&a=showTopicEditPanel&id=0&return={$request_path|escape:'url'}',null,false,'500px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_add.gif{/devblocks_url}" align="top"> Add Topic</button>
 			{/if}
 			
 			<button type="button" onclick="genericAjaxPanel('c=kb.ajax&a=showArticleEditPanel&id=0&root_id={$root_id}&return={$request_path|escape:'url'}',null,false,'550px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_new.gif{/devblocks_url}" align="top"> Add Article</button>
+			<button type="button" onclick="document.location.href='{devblocks_url}c=research&a=kb&s=search{/devblocks_url}';"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/data_find.gif{/devblocks_url}" align="top"> {$translate->_('common.search')|capitalize}</button>
 		</form>
 	</td>
 	<td width="98%" valign="middle">
@@ -26,9 +27,9 @@
 		<form action="{devblocks_url}{/devblocks_url}" method="post">
 		<input type="hidden" name="c" value="kb.ajax">
 		<input type="hidden" name="a" value="doArticleQuickSearch">
-		<span><b>Quick Search:</b></span> <select name="type">
+		<span><b>{$translate->_('common.search')|capitalize}:</b></span> <!--<select name="type">
 			<option value="content">Content</option>
-		</select><input type="text" name="query" size="24"><button type="submit">go!</button>
+		</select>--><input type="hidden" name="type" value="content"><input type="text" name="query" size="24"><button type="submit">go!</button>
 		</form>
 	</td>
 </tr>

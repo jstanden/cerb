@@ -1,7 +1,8 @@
 <?php
 if (class_exists('Extension_ResearchTab')):
-class ChKbBrowseResearchTab extends Extension_ResearchTab {
+class ChKbResearchTab extends Extension_ResearchTab {
 	const VIEW_RESEARCH_KB_BROWSE = 'research_kb_browse';
+	const VIEW_RESEARCH_KB_SEARCH = 'research_kb_search';
 	
 	function __construct($manifest) {
 		parent::__construct($manifest);
@@ -24,84 +25,73 @@ class ChKbBrowseResearchTab extends Extension_ResearchTab {
 		@array_shift($stack); // research
 		@array_shift($stack); // kb
 		
-		@$root_id = intval(array_shift($stack));
-		$tpl->assign('root_id', $root_id);
-
-		$tree = DAO_KbCategory::getTreeMap($root_id);
-		$tpl->assign('tree', $tree);
-
-		$categories = DAO_KbCategory::getWhere();
-		$tpl->assign('categories', $categories);
+		@$action = array_shift($stack);
 		
-		// Breadcrumb // [TODO] API-ize inside Model_KbTree ?
-		$breadcrumb = array();
-		$pid = $root_id;
-		while(0 != $pid) {
-			$breadcrumb[] = $pid;
-			$pid = $categories[$pid]->parent_id;
+		switch($action) {
+			case 'search':
+				if(null == ($view = C4_AbstractViewLoader::getView(null, self::VIEW_RESEARCH_KB_SEARCH))) {
+					$view = new C4_KbArticleView();
+					$view->id = self::VIEW_RESEARCH_KB_SEARCH;
+					$view->name = $translate->_('common.search_results');
+					C4_AbstractViewLoader::setView($view->id, $view);
+				}
+				
+				$tpl->assign('view', $view);
+				$tpl->assign('view_fields', C4_KbArticleView::getFields());
+				$tpl->assign('view_searchable_fields', C4_KbArticleView::getSearchFields());
+				
+				$tpl->assign('response_uri', 'research/kb/search');
+
+				$tpl->display($tpl_path . 'research_tab/kb/search.tpl');
+				break;
+				
+			default:
+				$root_id = intval($action);
+				$tpl->assign('root_id', $root_id);
+		
+				$tree = DAO_KbCategory::getTreeMap($root_id);
+				$tpl->assign('tree', $tree);
+		
+				$categories = DAO_KbCategory::getWhere();
+				$tpl->assign('categories', $categories);
+				
+				// Breadcrumb // [TODO] API-ize inside Model_KbTree ?
+				$breadcrumb = array();
+				$pid = $root_id;
+				while(0 != $pid) {
+					$breadcrumb[] = $pid;
+					$pid = $categories[$pid]->parent_id;
+				}
+				$tpl->assign('breadcrumb',array_reverse($breadcrumb));
+				
+				$tpl->assign('mid', @intval(ceil(count($tree[$root_id])/2)));
+				
+				if(null == ($view = C4_AbstractViewLoader::getView(null, self::VIEW_RESEARCH_KB_BROWSE))) {
+					$view = new C4_KbArticleView();
+					$view->id = self::VIEW_RESEARCH_KB_BROWSE;
+				}
+				
+				// Articles
+				if(empty($root_id)) {
+					$view->params = array(
+						new DevblocksSearchCriteria(SearchFields_KbArticle::CATEGORY_ID,DevblocksSearchCriteria::OPER_IS_NULL,true),
+					);
+					$view->name = $translate->_('kb.view.uncategorized');
+					
+				} else {
+					$view->params = array(
+						new DevblocksSearchCriteria(SearchFields_KbArticle::CATEGORY_ID,'=',$root_id),
+					);
+					$view->name = vsprintf($translate->_('kb.view.articles'), $categories[$root_id]->name);
+				}
+		
+				C4_AbstractViewLoader::setView($view->id, $view);
+				
+				$tpl->assign('view', $view);
+				
+				$tpl->display($tpl_path . 'research_tab/kb/browse.tpl');	
+				break;
 		}
-		$tpl->assign('breadcrumb',array_reverse($breadcrumb));
-		
-		$tpl->assign('mid', @intval(ceil(count($tree[$root_id])/2)));
-		
-		if(null == ($view = C4_AbstractViewLoader::getView(null, self::VIEW_RESEARCH_KB_BROWSE))) {
-			$view = new C4_KbArticleView();
-			$view->id = self::VIEW_RESEARCH_KB_BROWSE;
-		}
-		
-		// Articles
-		if(empty($root_id)) {
-			$view->params = array(
-				new DevblocksSearchCriteria(SearchFields_KbArticle::CATEGORY_ID,DevblocksSearchCriteria::OPER_IS_NULL,true),
-			);
-			$view->name = $translate->_('kb.view.uncategorized');
-			
-		} else {
-			$view->params = array(
-				new DevblocksSearchCriteria(SearchFields_KbArticle::CATEGORY_ID,'=',$root_id),
-			);
-			$view->name = vsprintf($translate->_('kb.view.articles'), $categories[$root_id]->name);
-		}
-
-		C4_AbstractViewLoader::setView($view->id, $view);
-		
-		$tpl->assign('view', $view);
-		
-		$tpl->display($tpl_path . 'research_tab/kb_browse/index.tpl');		
-	}
-}
-endif;
-
-if (class_exists('Extension_ResearchTab')):
-class ChKbSearchResearchTab extends Extension_ResearchTab {
-	const VIEW_RESEARCH_KB_SEARCH = 'research_kb_search';
-	
-	function __construct($manifest) {
-		parent::__construct($manifest);
-	}
-	
-	function showTab() {
-		$translate = DevblocksPlatform::getTranslationService();
-
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
-		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
-		$tpl->assign('path', $tpl_path);
-		
-		if(null == ($view = C4_AbstractViewLoader::getView(null, self::VIEW_RESEARCH_KB_SEARCH))) {
-			$view = new C4_KbArticleView();
-			$view->id = self::VIEW_RESEARCH_KB_SEARCH;
-			$view->name = $translate->_('common.search_results');
-			C4_AbstractViewLoader::setView($view->id, $view);
-		}
-		
-		$tpl->assign('view', $view);
-		$tpl->assign('view_fields', C4_KbArticleView::getFields());
-		$tpl->assign('view_searchable_fields', C4_KbArticleView::getSearchFields());
-		
-		$tpl->assign('response_uri', 'research/kb.search');
-		
-		$tpl->display($tpl_path . 'research_tab/kb_search/index.tpl');		
 	}
 }
 endif;
@@ -183,6 +173,57 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 		
 		$tpl->display('file:' . $this->_TPL_PATH . 'ajax/article_peek_panel.tpl');
 	}
+
+	function showTopicEditPanelAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', $this->_TPL_PATH);
+
+		if(!empty($id)) {
+			$topic = DAO_KbCategory::get($id);
+			$tpl->assign('topic', $topic);
+		}
+		
+		$tpl->display('file:' . $this->_TPL_PATH . 'ajax/topic_edit_panel.tpl');
+	}
+
+	function saveTopicEditPanelAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+		@$name = DevblocksPlatform::importGPC($_REQUEST['name'],'string');
+		@$delete = DevblocksPlatform::importGPC($_REQUEST['delete_box'],'integer',0);
+
+		if(!empty($id) && !empty($delete)) {
+			$ids = DAO_KbCategory::getDescendents($id);
+			DAO_KbCategory::delete($ids);
+			
+			$return = "research/kb";
+			
+		} elseif(empty($id)) { // create
+			$fields = array(
+				DAO_KbCategory::NAME => $name,
+				DAO_KbCategory::PARENT_ID => 0,
+			);
+			$id = DAO_KbCategory::create($fields);
+			
+			$return = "research/kb/" . sprintf("%04d", $id);
+			
+		} else { // update
+			$fields = array(
+				DAO_KbCategory::NAME => $name,
+				DAO_KbCategory::PARENT_ID => 0,
+			);
+			DAO_KbCategory::update($id, $fields);
+			
+			$return = "research/kb/" . sprintf("%04d", $id);
+		}
+		
+		if(!empty($return)) {
+			$return_path = explode('/', $return);
+			DevblocksPlatform::redirect(new DevblocksHttpResponse($return_path));
+		}
+	}	
 
 	function showArticleEditPanelAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
@@ -279,10 +320,9 @@ class ChKbAjaxController extends DevblocksControllerExtension {
         $visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
         $translate = DevblocksPlatform::getTranslationService();
 		
-        // [TODO] This is redundant with render(), move to C4_KbArticleView::getSearchView() ?
-        if(null == ($searchView = C4_AbstractViewLoader::getView('',ChKbSearchResearchTab::VIEW_RESEARCH_KB_SEARCH))) {
+        if(null == ($searchView = C4_AbstractViewLoader::getView('',ChKbResearchTab::VIEW_RESEARCH_KB_SEARCH))) {
         	$searchView = new C4_KbArticleView();
-        	$searchView->id = ChKbSearchResearchTab::VIEW_RESEARCH_KB_SEARCH;
+        	$searchView->id = ChKbResearchTab::VIEW_RESEARCH_KB_SEARCH;
         	$searchView->name = $translate->_('common.search_results');
         	C4_AbstractViewLoader::setView($searchView->id, $searchView);
         }
@@ -301,7 +341,7 @@ class ChKbAjaxController extends DevblocksControllerExtension {
         
         C4_AbstractViewLoader::setView($searchView->id,$searchView);
         
-        DevblocksPlatform::redirect(new DevblocksHttpResponse(array('research','kb.search')));
+        DevblocksPlatform::redirect(new DevblocksHttpResponse(array('research','kb','search')));
 	}
 	
 	function showKbCategoryEditPanelAction() {

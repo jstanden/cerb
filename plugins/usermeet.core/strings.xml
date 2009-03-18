@@ -11,7 +11,7 @@
 			<tuv xml:lang="en_US"><seg>Add Community</seg></tuv>
 		</tu>
 		<tu tuid='usermeet.ui.community.cfg.add_tool'>
-			<tuv xml:lang="en_US"><seg>Add a New Community Tool:</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Add a New Community Portal:</seg></tuv>
 		</tu>
 		<tu tuid='usermeet.ui.community.cfg.changes_saved_date'>
 			<tuv xml:lang="en_US"><seg>Changes saved at %s</seg></tuv>
@@ -29,7 +29,7 @@
 			<tuv xml:lang="en_US"><seg>(e.g. Public Website)</seg></tuv>
 		</tu>
 		<tu tuid='usermeet.ui.community.cfg.confirm_delete'>
-			<tuv xml:lang="en_US"><seg>Are you sure you want to permanently delete this community tool?</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Are you sure you want to permanently delete this community portal?</seg></tuv>
 		</tu>
 		<tu tuid='usermeet.ui.community.cfg.htaccess_hint'>
 			<tuv xml:lang="en_US"><seg>(optional, friendly URLs for Apache Web Server users)</seg></tuv>
@@ -38,7 +38,7 @@
 			<tuv xml:lang="en_US"><seg>Installation</seg></tuv>
 		</tu>
 		<tu tuid='usermeet.ui.community.cfg.installation_instructions'>
-			<tuv xml:lang="en_US"><seg>Place the index.php file in a new directory on the appropriate public website.  This directory can be named anything but will usually describe the tool.
+			<tuv xml:lang="en_US"><seg>Place the index.php file in a new directory on the appropriate public website.  This directory can be named anything but will usually describe the portal.
 For example: http://www.cerberusweb.com/support/</seg></tuv>
 		</tu>
 		<tu tuid='usermeet.ui.community.cfg.profile_id'>
@@ -96,7 +96,7 @@ For example: http://www.cerberusweb.com/support/</seg></tuv>
 			<tuv xml:lang="en_US"><seg>URL:</seg></tuv>
 		</tu>
 		<tu tuid='portal.cfg.url_hint'>
-			<tuv xml:lang="en_US"><seg>(where you plan to install this tool, e.g. http://website/tool/)</seg></tuv>
+			<tuv xml:lang="en_US"><seg>(where you plan to install this portal, e.g. http://website/portal/)</seg></tuv>
 		</tu>
 		<tu tuid='portal.common.open_ticket'>
 			<tuv xml:lang="en_US"><seg>Open a Ticket</seg></tuv>

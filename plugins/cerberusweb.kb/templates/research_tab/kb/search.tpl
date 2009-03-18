@@ -1,7 +1,9 @@
 <table cellspacing="0" cellpadding="0" border="0" width="100%" style="padding-bottom:5px;">
 <tr>
 	<td width="1%" nowrap="nowrap" valign="top" style="padding-right:5px;">
-		{* Buttons: Add Article *}
+		<form name="compose" enctype="multipart/form-data" method="post" action="{devblocks_url}{/devblocks_url}">
+			<button type="button" onclick="document.location.href='{devblocks_url}c=research&a=kb{/devblocks_url}';"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> Browse</button>
+		</form>
 	</td>
 	<td width="98%" valign="middle">
 	</td>
@@ -9,9 +11,9 @@
 		<form action="{devblocks_url}{/devblocks_url}" method="post">
 		<input type="hidden" name="c" value="kb.ajax">
 		<input type="hidden" name="a" value="doArticleQuickSearch">
-		<span><b>Quick Search:</b></span> <select name="type">
+		<span><b>{$translate->_('common.search')|capitalize}:</b></span> <!--<select name="type">
 			<option value="content">Content</option>
-		</select><input type="text" name="query" size="24"><button type="submit">go!</button>
+		</select>--><input type="hidden" name="type" value="content"><input type="text" name="query" size="24"><button type="submit">go!</button>
 		</form>
 	</td>
 </tr>

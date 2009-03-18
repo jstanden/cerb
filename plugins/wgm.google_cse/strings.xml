@@ -7,11 +7,9 @@
 
 		<!-- Common Strings -->
 
-		<!--
-		<tu tuid='rssexp.activity.tab'>
-			<tuv xml:lang="en_US"><seg>RSS Feeds</seg></tuv>
+		<tu tuid='wgm.google_cse'>
+			<tuv xml:lang="en_US"><seg>Google Custom Search</seg></tuv>
 		</tu>
-		-->
 		
 	</body>
 </tmx>

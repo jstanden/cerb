@@ -92,31 +92,18 @@
 		<!-- Research Tab -->
 		
 		<extension point="cerberusweb.research.tab">
-			<id>cerberusweb.kb.research.tab.kb_browse</id>
-			<name>Knowledgebase Browse Tab</name>
+			<id>cerberusweb.kb.research.tab.kb</id>
+			<name>Knowledgebase Tab</name>
 			<class>
 				<file>api/App.php</file>
-				<name>ChKbBrowseResearchTab</name>
+				<name>ChKbResearchTab</name>
 			</class>
 			<params>
 				<param key="uri" value="kb" />
-				<param key="title" value="kb.research.tab.browse_kb" />
+				<param key="title" value="common.knowledgebase" />
 			</params>
 		</extension>
 
-		<extension point="cerberusweb.research.tab">
-			<id>cerberusweb.kb.research.tab.kb_search</id>
-			<name>Knowledgebase Search Tab</name>
-			<class>
-				<file>api/App.php</file>
-				<name>ChKbSearchResearchTab</name>
-			</class>
-			<params>
-				<param key="uri" value="kb.search" />
-				<param key="title" value="kb.research.tab.search_kb" />
-			</params>
-		</extension>
-		
 		<!-- Ticket Reply Toolbar -->
 			
 		<extension point="cerberusweb.reply.toolbaritem">
