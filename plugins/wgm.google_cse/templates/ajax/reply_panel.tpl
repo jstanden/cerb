@@ -3,15 +3,16 @@
 </style>
 <div class="cse-branding-bottom" style="color:#000000;">
   <div class="cse-branding-form">
-    <form action="http://www.google.com/cse" id="cse-search-box" target="_blank" onsubmit="genericPanel.hide();return true;">
+    <form action="http://www.google.com/cse" id="cse-search-box" target="_blank" onsubmit="this.cx.value=selectValue(document.getElementById('engine'));genericPanel.hide();return true;">
       <div>
-        <input type="hidden" name="cx" value="005735772598845974453:efhnjjsndd0" />
+        <input type="hidden" name="cx" value="" />
         <input type="hidden" name="ie" value="UTF-8" />
         <input type="text" name="q" size="31" />
 		<br>
-	    <select onchange="this.form.cx.value=selectValue(this);">
-		    <option value="005735772598845974453:efhnjjsndd0">Cerb4 Network</option>
-	    	<option value="005735772598845974453:xxelabqfhqg">PortSensor Network</option>
+	    <select id="engine">
+	    	{foreach from=$engines item=engine}
+		    <option value="{$engine->token}">{$engine->name}</option>
+			{/foreach}
 	    </select>
         <input type="submit" name="sa" value="Search" />
 		<br>

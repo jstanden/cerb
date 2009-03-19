@@ -13,13 +13,12 @@
 	
 	<!-- Exported Classes -->
 	
-	<!--
 	<class_loader>
 		<file path="api/App.php">
-			<class name="C4_RssExpItemView" />
+			<class name="DAO_WgmGoogleCse" />
+			<class name="Model_WgmGoogleCse" />
 		</file>
 	</class_loader>
-	-->
 	
 	<!-- Permissions -->
 	
@@ -41,6 +40,19 @@
 			</params>
 		</extension>
 		
+		<!-- Patch Containers -->
+		
+		<extension point="devblocks.patch.container">
+			<id>wgm.google_cse.patches</id>
+			<name>Google CSE Patches</name>
+			<class>
+				<file>api/Plugin.php</file>
+				<name>WgmGoogleCSEPatchContainer</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
 		<!-- Controllers -->
 		
  		<extension point="devblocks.controller">
@@ -52,6 +64,21 @@
 			</class>
 			<params>
 				<param key="uri" value="googlecse.ajax" />
+			</params>
+		</extension>
+		
+		<!-- Config Tabs -->
+		
+		<extension point="cerberusweb.config.tab">
+			<id>wgm.google_cse.config.tab</id>
+			<name>Google CSE Config Tab</name>
+			<class>
+				<file>api/App.php</file>
+				<name>WgmGoogleCSEConfigTab</name>
+			</class>
+			<params>
+				<param key="uri" value="wgm.google_cse" />
+				<param key="title" value="wgm.google_cse" />
 			</params>
 		</extension>
 		
@@ -82,22 +109,6 @@
 			<params>
 			</params>
 		</extension>
-		
-		<!-- Config Tabs -->
-		<!-- 
-		<extension point="cerberusweb.config.tab">
-			<id>crm.config.tab.campaigns</id>
-			<name>Campaigns Tab</name>
-			<class>
-				<file>api/App.php</file>
-				<name>CrmConfigCampaignsTab</name>
-			</class>
-			<params>
-				<param key="uri" value="crm.campaigns" />
-				<param key="title" value="Campaigns (CRM)" />
-			</params>
-		</extension>
-		-->
 		
 	</extensions>
 </plugin>
