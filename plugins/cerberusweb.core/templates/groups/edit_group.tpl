@@ -20,7 +20,7 @@ tabView.addTab( new YAHOO.widget.Tab({
 }));
 
 tabView.addTab( new YAHOO.widget.Tab({
-    label: 'Inbox Filtering',
+    label: 'Inbox Routing',
     dataSrc: '{/literal}{devblocks_url}ajax.php?c=groups&a=showTabInbox&id={$team->id}{/devblocks_url}{literal}',
     cacheData: false,
     {/literal}active: {if $tab_selected=="inbox"}true{else}false{/if}{literal}

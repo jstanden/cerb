@@ -1,5 +1,5 @@
 <form action="{devblocks_url}{/devblocks_url}" style="margin-bottom:5px;">
-	<button type="button" onclick="genericAjaxPanel('c=groups&a=showInboxFilterPanel&id=0&group_id={$group_id}',this,false,'550px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/funnel.gif{/devblocks_url}" align="top"> Add Inbox Filter</button>
+	<button type="button" onclick="genericAjaxPanel('c=groups&a=showInboxFilterPanel&id=0&group_id={$group_id}',null,false,'550px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/funnel.gif{/devblocks_url}" align="top"> Add Inbox Routing Rule</button>
 </form>
 
 <form action="{devblocks_url}{/devblocks_url}" method="post">
@@ -9,11 +9,11 @@
 
 {if !empty($team_rules)}
 <div class="block">
-<h2>Inbox Filters</h2>
+<h2>Inbox Routing</h2>
 <table cellspacing="2" cellpadding="2">
 	<tr>
 		<td align="center" style="padding-right:10px;"><b>{$translate->_('common.order')|capitalize}</b></td>
-		<td><b>Filter</b></td>
+		<td><b>Routing Rule</b></td>
 		<td align="center"><b>{$translate->_('common.remove')|capitalize}</b></td>
 	</tr>
 	{counter start=0 print=false name=order}
@@ -28,7 +28,7 @@
 				{/if}
 			</td>
 			<td style="{if $rule->is_sticky}background-color:rgb(255,255,221);border:2px solid rgb(255,215,0);{else}{/if}padding:5px;">
-				<a href="javascript:;" onclick="genericAjaxPanel('c=groups&a=showInboxFilterPanel&id={$rule_id}&group_id={$group_id}',this,false,'550px');" style='color:rgb(80,80,80);font-weight:bold;font-size:110%;'>{$rule->name|escape}</a>
+				<a href="javascript:;" onclick="genericAjaxPanel('c=groups&a=showInboxFilterPanel&id={$rule_id}&group_id={$group_id}',null,false,'550px');" style='color:rgb(80,80,80);font-weight:bold;font-size:110%;'>{$rule->name|escape}</a>
 				{if $rule->is_stackable}<span style="font-size:90%;padding-left:5px;color:rgb(0,120,0);">(Stackable)</span>{/if}
 				<br>
 				
@@ -134,9 +134,8 @@
 </div>
 {else}
 	<div class="block">
-	<h2>No training data available</h2>
-	<br>
-	Use the Pile Sorter or Bulk Update in ticket worklists to teach the system how to sort your group's incoming mail.<br>
+	<h2>Inbox Routing</h2>
+	This group doesn't have any inbox routing rules.
 	</div>
 {/if}
 	

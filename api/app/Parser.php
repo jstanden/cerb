@@ -259,10 +259,7 @@ class CerberusParser {
 		$bIsNew = true;
 
 		// Overloadable
-		$sMask = '';
-		$iClosed = 0;
 		$enumSpamTraining = '';
-		$iDate = time();
 		
 		$from = array();
 		$to = array();
@@ -305,8 +302,6 @@ class CerberusParser {
 		if(null == ($fromAddressInst = CerberusApplication::hashLookupAddress($fromAddress, true))) {
 			$logger->err("[Parser] 'From' address could not be created: " . $fromAddress);
 			return NULL;
-		} else {
-			$fromAddressId = $fromAddressInst->id;
 		}
 
 		// Is banned?
@@ -370,7 +365,7 @@ class CerberusParser {
 								
 							case 'comment':
 								$comment_id = DAO_TicketComment::create(array(
-									DAO_TicketComment::ADDRESS_ID => $fromAddressId,
+									DAO_TicketComment::ADDRESS_ID => $fromAddressInst->id,
 									DAO_TicketComment::CREATED => time(),
 									DAO_TicketComment::TICKET_ID => $id,
 									DAO_TicketComment::COMMENT => $message->body,
@@ -421,13 +416,10 @@ class CerberusParser {
         	}
         }
         
-		@list($team_id, $matchingToAddress) = CerberusParser::findDestination($headers);
-		
         // Pre-parse mail rules
-        if(null != ($pre_filter = self::_checkPreParseRules(
+        if(null != ($pre_filter = Model_PreParseRule::getMatches(
         	(empty($id) ? 1 : 0), // is_new
         	$fromAddress,
-        	$team_id,
         	$message
         ))) {
         	// Do something with matching filter's actions
@@ -453,38 +445,64 @@ class CerberusParser {
         	}
         }
         
+		$group_id = 0;
+		
 		if(empty($id)) { // New Ticket
-			// Are we delivering or bouncing?
-			
-			if(empty($team_id)) {
-				// Bounce
-				return null;
+			// Routing new tickets
+			if(null != ($routing_rules = Model_MailToGroupRule::getMatches(
+				$fromAddressInst,
+				$message
+			))) {
+				if(is_array($routing_rules))
+				foreach($routing_rules as $rule) {
+//					print_r($rule);
+
+					// Only end up with the last 'move' action (ignore the previous)
+					if(isset($rule->actions['move'])) {
+						$group_id = intval($rule->actions['move']['group_id']);
+						// We don't need to move again when running rule actions
+						unset($rule->actions['move']);
+					}
+				}
 			}
 			
-			if(empty($sMask))
-				$sMask = CerberusApplication::generateTicketMask();
+			// Last ditch effort to check for a default group to deliver to
+			if(empty($group_id)) {
+				if(null != ($default_team = DAO_Group::getDefaultGroup())) {
+					$group_id = $default_team->id;
+				} else {
+					// Bounce
+					return null;
+				}
+			}
 			
 			$fields = array(
-				DAO_Ticket::MASK => $sMask,
+				DAO_Ticket::MASK => CerberusApplication::generateTicketMask(),
 				DAO_Ticket::SUBJECT => $sSubject,
-				DAO_Ticket::IS_CLOSED => $iClosed,
-				DAO_Ticket::FIRST_WROTE_ID => intval($fromAddressId),
-				DAO_Ticket::LAST_WROTE_ID => intval($fromAddressId),
+				DAO_Ticket::IS_CLOSED => 0,
+				DAO_Ticket::FIRST_WROTE_ID => intval($fromAddressInst->id),
+				DAO_Ticket::LAST_WROTE_ID => intval($fromAddressInst->id),
 				DAO_Ticket::CREATED_DATE => $iDate,
 				DAO_Ticket::UPDATED_DATE => $iDate,
-				DAO_Ticket::TEAM_ID => intval($team_id),
+				DAO_Ticket::TEAM_ID => intval($group_id),
 				DAO_Ticket::LAST_ACTION_CODE => CerberusTicketActionCode::TICKET_OPENED,
 			);
 			$id = DAO_Ticket::createTicket($fields);
 		}
 
+		// Apply routing actions to our new ticket ID
+		if(is_array($routing_rules))
+		foreach($routing_rules as $rule) {
+			$rule->run($id);
+		}
+
 		// [JAS]: Add requesters to the ticket
-		if(!empty($fromAddressId) && !empty($id)) {
+		if(!empty($fromAddressInst->id) && !empty($id)) {
 			// Don't add a requester if the sender is a helpdesk address
 			if(isset($helpdesk_senders[$fromAddressInst->email])) {
 				$logger->info("[Parser] Not adding ourselves as a requester: " . $fromAddressInst->email);
 			} else {
-				DAO_Ticket::createRequester($fromAddressId,$id);
+				DAO_Ticket::createRequester($fromAddressInst->id,$id);
 			}
 		}
 	    
@@ -516,7 +534,7 @@ class CerberusParser {
 				foreach($destinations as $dest) {
 					if(null != ($destInst = CerberusApplication::hashLookupAddress($dest, true))) {
 						// Skip if the destination is one of our senders or the matching TO
-						if(isset($helpdesk_senders[$destInst->email]) || 0 == strcasecmp($matchingToAddress,$destInst->email))
+						if(isset($helpdesk_senders[$destInst->email]))
 							continue;
 					 	
 						DAO_Ticket::createRequester($destInst->id,$id);
@@ -530,7 +548,7 @@ class CerberusParser {
         $fields = array(
             DAO_Message::TICKET_ID => $id,
             DAO_Message::CREATED_DATE => $iDate,
-            DAO_Message::ADDRESS_ID => $fromAddressId
+            DAO_Message::ADDRESS_ID => $fromAddressInst->id
         );
 		$email_id = DAO_Message::create($fields);
 		
@@ -593,13 +611,13 @@ class CerberusParser {
 		// New ticket processing
 		if($bIsNew) {
 			// Don't replace this with the master event listener
-			if(false !== ($rules = CerberusApplication::runGroupRouting($team_id, $id))) { /* @var $rule Model_GroupInboxFilter */
+			if(false !== ($rules = CerberusApplication::runGroupRouting($group_id, $id))) { /* @var $rule Model_GroupInboxFilter */
 				// Check the last match which moved the ticket
 				if(is_array($rules))
 				foreach($rules as $rule) {
-	                // If a rule changed our destination, replace the scope variable $team_id
+	                // If a rule changed our destination, replace the scope variable $group_id
 	                if(isset($rule->actions['move']) && isset($rule->actions['move']['group_id'])) {
-	                	$team_id = intval($rule->actions['move']['group_id']);
+	                	$group_id = intval($rule->actions['move']['group_id']);
 	                }
 				}
 			}
@@ -621,10 +639,10 @@ class CerberusParser {
 			    $out = CerberusBayes::calculateTicketSpamProbability($id);
 
 			    // [TODO] Move this group logic to a post-parse event listener
-			    if(!empty($team_id)) {
-			    	@$spam_threshold = DAO_GroupSettings::get($team_id, DAO_GroupSettings::SETTING_SPAM_THRESHOLD, 80);
-			        @$spam_action = DAO_GroupSettings::get($team_id, DAO_GroupSettings::SETTING_SPAM_ACTION, '');
-			        @$spam_action_param = DAO_GroupSettings::get($team_id, DAO_GroupSettings::SETTING_SPAM_ACTION_PARAM,'');
+			    if(!empty($group_id)) {
+			    	@$spam_threshold = DAO_GroupSettings::get($group_id, DAO_GroupSettings::SETTING_SPAM_THRESHOLD, 80);
+			        @$spam_action = DAO_GroupSettings::get($group_id, DAO_GroupSettings::SETTING_SPAM_ACTION, '');
+			        @$spam_action_param = DAO_GroupSettings::get($group_id, DAO_GroupSettings::SETTING_SPAM_ACTION_PARAM,'');
 			        
 				    if($out['probability']*100 >= $spam_threshold) {
 				    	$enumSpamTraining = CerberusTicketSpamTraining::SPAM;
@@ -646,7 +664,7 @@ class CerberusParser {
 								// Verify bucket exists
 	                            if(!empty($spam_action_param) && isset($buckets[$spam_action_param])) {
 		                            DAO_Ticket::updateTicket($id,array(
-		                                DAO_Ticket::TEAM_ID => $team_id,
+		                                DAO_Ticket::TEAM_ID => $group_id,
 		                                DAO_Ticket::CATEGORY_ID => $spam_action_param
 		                            ));
 	                            }	                            
@@ -657,8 +675,8 @@ class CerberusParser {
 			} // end spam training
 
 			// Auto reply
-			@$autoreply_enabled = DAO_GroupSettings::get($team_id, DAO_GroupSettings::SETTING_AUTO_REPLY_ENABLED, 0);
-			@$autoreply = DAO_GroupSettings::get($team_id, DAO_GroupSettings::SETTING_AUTO_REPLY, '');
+			@$autoreply_enabled = DAO_GroupSettings::get($group_id, DAO_GroupSettings::SETTING_AUTO_REPLY_ENABLED, 0);
+			@$autoreply = DAO_GroupSettings::get($group_id, DAO_GroupSettings::SETTING_AUTO_REPLY, '');
 			
 			/*
 			 * Send the group's autoreply if one exists, as long as this ticket isn't spam
@@ -692,7 +710,7 @@ class CerberusParser {
 			    DAO_Ticket::IS_WAITING => 0,
 			    DAO_Ticket::IS_CLOSED => 0,
 			    DAO_Ticket::IS_DELETED => 0,
-			    DAO_Ticket::LAST_WROTE_ID => $fromAddressId,
+			    DAO_Ticket::LAST_WROTE_ID => $fromAddressInst->id,
 			    DAO_Ticket::LAST_ACTION_CODE => CerberusTicketActionCode::TICKET_CUSTOMER_REPLY,
 			));
 			
@@ -820,159 +838,6 @@ class CerberusParser {
 		return $addresses;
 	} 		
 	
-	/**
-	 * Returns a Model_PreParserRule on a match, or NULL
-	 *
-	 * @param boolean $is_new
-	 * @param string $from
-	 * @param string $to
-	 * @param CerberusParserMessage $message
-	 * @return Model_PreParserRule
-	 */
-	static private function _checkPreParseRules($is_new, $from, $group_id, CerberusParserMessage $message) {
-		$filters = DAO_PreParseRule::getAll();
-		$headers = $message->headers;
-		
-		// check filters
-		if(is_array($filters))
-		foreach($filters as $filter) {
-			$passed = 0;
-
-			// check criteria
-			foreach($filter->criteria as $rule_key => $rule) {
-				@$value = $rule['value'];
-							
-				switch($rule_key) {
-					case 'type':
-						if(($is_new && 0 == strcasecmp($value,'new')) 
-							|| (!$is_new && 0 == strcasecmp($value,'reply')))
-								$passed++; 
-						break;
-						
-					case 'from':
-						$regexp_from = DevblocksPlatform::strToRegExp($value);
-						if(preg_match($regexp_from, $from)) {
-							$passed++;
-						}
-						break;
-						
-					case 'to':
-						if(intval($group_id)==intval($value))
-							$passed++;
-						break;
-						
-					case 'header1':
-					case 'header2':
-					case 'header3':
-					case 'header4':
-					case 'header5':
-						$header = strtolower($rule['header']);
-
-						if(empty($value)) { // we're checking for null/blanks
-							if(!isset($headers[$header]) || empty($headers[$header])) {
-								$passed++;
-							}
-							
-						} elseif(isset($headers[$header]) && !empty($headers[$header])) {
-							$regexp_header = DevblocksPlatform::strToRegExp($value);
-							
-							// handle arrays like Received: and (broken)Content-Type headers  (farking spammers)
-							if(is_array($headers[$header])) {
-								foreach($headers[$header] as $array_header) {
-									if(preg_match($regexp_header, str_replace(array("\r","\n"),' ',$array_header))) {
-										$passed++;
-										break;
-									}
-								}
-							} else {
-								// Flatten CRLF
-								if(preg_match($regexp_header, str_replace(array("\r","\n"),' ',$headers[$header]))) {
-									$passed++;
-								}								
-							}
-						}
-						
-						break;
-						
-					case 'body':
-						$regexp_body = DevblocksPlatform::strToRegExp($value);
-
-						// Flatten CRLF
-						if(preg_match($regexp_body, str_replace(array("\r","\n"),' ',$message->body)))
-							$passed++;
-						break;
-						
-					case 'body_encoding':
-						$regexp_bodyenc = DevblocksPlatform::strToRegExp($value);
-
-						if(preg_match($regexp_bodyenc, $message->body_encoding))
-							$passed++;
-						break;
-						
-					case 'attachment':
-						$regexp_file = DevblocksPlatform::strToRegExp($value);
-
-						// check the files in the raw message
-						foreach($message->files as $file_name => $file) { /* @var $file ParserFile */
-							if(preg_match($regexp_file, $file_name)) {
-								$passed++;
-								break;
-							}
-						}
-						break;
-						
-					default: // ignore invalids
-						continue;
-						break;
-				}
-			}
-			
-			// If our rule matched every criteria, stop and return the filter
-			if($passed == count($filter->criteria)) {
-				DAO_PreParseRule::increment($filter->id); // ++ the times we've matched
-				return $filter;
-			}
-		}
-		
-		return NULL;
-	}
-	
-	/**
-	 * Enter description here...
-	 *
-	 * @param array $headers
-	 * @return array (group_id,address)
-	 */
-	static private function findDestination($headers) {
-		static $routing = null;
-		
-		$settings = CerberusSettings::getInstance();
-
-		// [TODO] Should this cache be at the class level?
-		if(is_null($routing))
-			$routing = DAO_Mail::getMailboxRouting();
-		
-		$destinations = self::getDestinations($headers);
-		if(is_array($destinations))
-		foreach($destinations as $address) {
-			// Test each pattern successively
-			foreach($routing as $route) { /* @var $route Model_MailRoute */
-				$pattern = sprintf("/^%s$/i",
-					str_replace(array('*', '+'), array('.*?', '\+'), $route->pattern)
-				);
-				if(preg_match($pattern,$address)) 
-					return array($route->team_id,$address);
-			}
-		}
-		
-		// Check if we have a default mailbox configured before returning NULL.
-		if(null != ($default_team = DAO_Group::getDefaultGroup())) {
-			return array($default_team->id,'');
-		}	
-		
-		return null; // bounce
-	}
-	
 	// [TODO] Phase out in favor of the CerberusUtils class
 	static function parseRfcAddress($address_string) {
 		return CerberusUtils::parseRfcAddressList($address_string);
@@ -998,4 +863,3 @@ class CerberusParser {
 	}
 	
 };
-?>
