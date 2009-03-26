@@ -78,6 +78,7 @@ class C4_ORMHelper extends DevblocksORMHelper {
 			switch($custom_fields[$field_id]->type) {
 				case 'T': // multi-line CLOB
 					$value_table = 'custom_field_clobvalue';
+					break;
 				case 'C': // checkbox
 				case 'E': // date
 				case 'N': // number
