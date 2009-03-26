@@ -4267,9 +4267,6 @@ class DAO_Group {
 		$sql = sprintf("DELETE QUICK FROM worker_to_team WHERE team_id = %d",	$id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 
-		$sql = sprintf("DELETE QUICK FROM mail_routing WHERE team_id = %d", $id);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
 		$sql = sprintf("DELETE QUICK FROM group_inbox_filter WHERE group_id = %d", $id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 
@@ -4673,94 +4670,7 @@ class DAO_Bucket extends DevblocksORMHelper {
 };
 
 class DAO_Mail {
-	const ROUTING_ID = 'id';
-	const ROUTING_PATTERN = 'pattern';
-	const ROUTING_TEAM_ID = 'team_id';
-	const ROUTING_POS = 'pos';
 	
-	static function getMailboxRouting() {
-		$db = DevblocksPlatform::getDatabaseService();
-		$routing = array();
-		
-		$sql = "SELECT mr.id, mr.pattern, mr.team_id, mr.pos ".
-			"FROM mail_routing mr ".
-			"ORDER BY mr.pos ";
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
-			$route = new Model_MailRoute();
-			$route->id = intval($rs->fields['id']);
-			$route->pattern = $rs->fields['pattern'];
-			$route->team_id = intval($rs->fields['team_id']);
-			$route->pos = intval($rs->Fields('pos'));
-			$routing[$route->id] = $route;
-			$rs->MoveNext();
-		}
-		
-		return $routing;
-	}
-	
-	static function createMailboxRouting($fields) {
-		$db = DevblocksPlatform::getDatabaseService();
-		
-		$id = $db->GenID('generic_seq');
-		
-		// Move everything down one position in priority
-		$sql = "UPDATE mail_routing SET pos=pos+1";
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-		// Insert at top
-		$sql = sprintf("INSERT INTO mail_routing (id,pattern,team_id,pos) ".
-			"VALUES (%d,%s,%d,%d)",
-			$id,
-			$db->qstr(''),
-			0,
-			0
-		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-		self::updateMailboxRouting($id, $fields);
-		
-		return $id;
-	}
-	
-	static function updateMailboxRouting($id, $fields) {
-		$db = DevblocksPlatform::getDatabaseService();
-		$sets = array();
-		
-		if(!is_array($fields) || empty($fields) || empty($id))
-			return;
-		
-		foreach($fields as $k => $v) {
-			$sets[] = sprintf("%s = %s",
-				$k,
-				$db->qstr($v)
-			);
-		}
-			
-		$sql = sprintf("UPDATE mail_routing SET %s WHERE id = %d",
-			implode(', ', $sets),
-			$id
-		);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-	}
-	
-	static function deleteMailboxRouting($id) {
-		$db = DevblocksPlatform::getDatabaseService();
-		if(empty($id)) return;
-		
-		$sql = sprintf("DELETE QUICK FROM mail_routing WHERE id = %d",
-			$id
-		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-	}
-	
-	static function getTokenizedText($ticket_id, $source_text) {
-		// TODO: actually implement this function...
-		return $source_text;
-	}
-
 	// Pop3 Accounts
 	
 	static function createPop3Account($fields) {
@@ -4856,6 +4766,122 @@ class DAO_Mail {
 		
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 	}
+};
+
+class DAO_MailToGroupRule extends DevblocksORMHelper {
+	const ID = 'id';
+	const POS = 'pos';
+	const CREATED = 'created';
+	const NAME = 'name';
+	const CRITERIA_SER = 'criteria_ser';
+	const ACTIONS_SER = 'actions_ser';
+	const IS_STICKY = 'is_sticky';
+	const STICKY_ORDER = 'sticky_order';
+
+	static function create($fields) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$id = $db->GenID('generic_seq');
+		
+		$sql = sprintf("INSERT INTO mail_to_group_rule (id, created) ".
+			"VALUES (%d, %d)",
+			$id,
+			time()
+		);
+		$db->Execute($sql);
+		
+		self::update($id, $fields);
+		
+		return $id;
+	}
+	
+	static function update($ids, $fields) {
+		parent::_update($ids, 'mail_to_group_rule', $fields);
+	}
+	
+	/**
+	 * @param string $where
+	 * @return Model_MailToGroupRule[]
+	 */
+	static function getWhere($where=null) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = "SELECT id, pos, created, name, criteria_ser, actions_ser, is_sticky, sticky_order ".
+			"FROM mail_to_group_rule ".
+			(!empty($where) ? sprintf("WHERE %s ",$where) : "").
+			"ORDER BY is_sticky DESC, sticky_order ASC, pos DESC";
+		$rs = $db->Execute($sql);
+		
+		return self::_getObjectsFromResult($rs);
+	}
+
+	/**
+	 * @param integer $id
+	 * @return Model_MailToGroupRule	 */
+	static function get($id) {
+		$objects = self::getWhere(sprintf("%s = %d",
+			self::ID,
+			$id
+		));
+		
+		if(isset($objects[$id]))
+			return $objects[$id];
+		
+		return null;
+	}
+	
+	/**
+	 * @param ADORecordSet $rs
+	 * @return Model_MailToGroupRule[]
+	 */
+	static private function _getObjectsFromResult($rs) {
+		$objects = array();
+		
+		while(!$rs->EOF) {
+			$object = new Model_MailToGroupRule();
+			$object->id = $rs->fields['id'];
+			$object->pos = $rs->fields['pos'];
+			$object->created = $rs->fields['created'];
+			$object->name = $rs->fields['name'];
+			$criteria_ser = $rs->fields['criteria_ser'];
+			$actions_ser = $rs->fields['actions_ser'];
+			$object->is_sticky = $rs->fields['is_sticky'];
+			$object->sticky_order = $rs->fields['sticky_order'];
+
+			$object->criteria = (!empty($criteria_ser)) ? @unserialize($criteria_ser) : array();
+			$object->actions = (!empty($actions_ser)) ? @unserialize($actions_ser) : array();
+
+			$objects[$object->id] = $object;
+			
+			$rs->MoveNext();
+		}
+		
+		return $objects;
+	}
+	
+	static function delete($ids) {
+		if(!is_array($ids)) $ids = array($ids);
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$ids_list = implode(',', $ids);
+		
+		$db->Execute(sprintf("DELETE FROM mail_to_group_rule WHERE id IN (%s)", $ids_list));
+		
+		return true;
+	}
+
+	/**
+	 * Increment the number of times we've matched this rule
+	 *
+	 * @param integer $id
+	 */
+	static function increment($id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		$db->Execute(sprintf("UPDATE mail_to_group_rule SET pos = pos + 1 WHERE id = %d",
+			$id
+		));
+	}
+
 };
 
 class DAO_Community extends DevblocksORMHelper {
@@ -5420,19 +5446,23 @@ class DAO_PreParseRule extends DevblocksORMHelper {
 	const CACHE_ALL = 'cerberus_cache_preparse_rules_all';
 	
 	const ID = 'id';
+	const CREATED = 'created';
 	const NAME = 'name';
 	const CRITERIA_SER = 'criteria_ser';
 	const ACTIONS_SER = 'actions_ser';
 	const POS = 'pos';
+	const IS_STICKY = 'is_sticky';
+	const STICKY_ORDER = 'sticky_order';
 
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		$id = $db->GenID('generic_seq');
 		
-		$sql = sprintf("INSERT INTO preparse_rule (id) ".
-			"VALUES (%d)",
-			$id
+		$sql = sprintf("INSERT INTO preparse_rule (id,created) ".
+			"VALUES (%d,%d)",
+			$id,
+			time()
 		);
 		$db->Execute($sql);
 		
@@ -5464,10 +5494,10 @@ class DAO_PreParseRule extends DevblocksORMHelper {
 	static function getWhere($where=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = "SELECT id, name, criteria_ser, actions_ser, pos ".
+		$sql = "SELECT id, created, name, criteria_ser, actions_ser, pos, is_sticky, sticky_order ".
 			"FROM preparse_rule ".
 			(!empty($where) ? sprintf("WHERE %s ",$where) : "").
-			"ORDER BY pos desc";
+			"ORDER BY is_sticky DESC, sticky_order ASC, pos desc";
 		$rs = $db->Execute($sql);
 		
 		return self::_getObjectsFromResult($rs);
@@ -5510,11 +5540,14 @@ class DAO_PreParseRule extends DevblocksORMHelper {
 		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$object = new Model_PreParseRule();
+			$object->created = $rs->fields['created'];
 			$object->id = $rs->fields['id'];
 			$object->name = $rs->fields['name'];
 			$object->criteria = !empty($rs->fields['criteria_ser']) ? @unserialize($rs->fields['criteria_ser']) : array();
 			$object->actions = !empty($rs->fields['actions_ser']) ? @unserialize($rs->fields['actions_ser']) : array();
 			$object->pos = $rs->fields['pos'];
+			$object->is_sticky = $rs->fields['is_sticky'];
+			$object->sticky_order = $rs->fields['sticky_order'];
 			$objects[$object->id] = $object;
 			$rs->MoveNext();
 		}

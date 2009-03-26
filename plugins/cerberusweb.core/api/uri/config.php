@@ -575,6 +575,8 @@ class ChConfigurationPage extends CerberusPageExtension  {
 
 	function saveTabPreParseFiltersAction() {
 		@$ids = DevblocksPlatform::importGPC($_POST['deletes'],'array',array());
+	    @$sticky_ids = DevblocksPlatform::importGPC($_REQUEST['sticky_ids'],'array',array());
+	    @$sticky_order = DevblocksPlatform::importGPC($_REQUEST['sticky_order'],'array',array());
 
 		if(DEMO_MODE) {
 			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','preparser')));
@@ -582,6 +584,15 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		}
 		
 		DAO_PreParseRule::delete($ids);
+
+	    // Reordering
+	    if(is_array($sticky_ids) && is_array($sticky_order))
+	    foreach($sticky_ids as $idx => $id) {
+	    	@$order = intval($sticky_order[$idx]);
+			DAO_PreParseRule::update($id, array (
+	    		DAO_PreParseRule::STICKY_ORDER => $order
+	    	));
+	    }
 		
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','preparser')));
 	}
@@ -608,6 +619,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	function saveTabPreParserAction() {
 		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
 		@$name = DevblocksPlatform::importGPC($_POST['name'],'string','');
+		@$is_sticky = DevblocksPlatform::importGPC($_POST['is_sticky'],'integer',0);
 		@$rules = DevblocksPlatform::importGPC($_POST['rules'],'array',array());
 		@$do = DevblocksPlatform::importGPC($_POST['do'],'array',array());
 		
@@ -633,11 +645,30 @@ class ChConfigurationPage extends CerberusPageExtension  {
 			
 			// Any special rule handling
 			switch($rule) {
+				case 'dayofweek':
+					// days
+					$days = DevblocksPlatform::importGPC($_REQUEST['value_dayofweek'],'array',array());
+					if(in_array(0,$days)) $criteria['sun'] = 'Sunday';
+					if(in_array(1,$days)) $criteria['mon'] = 'Monday';
+					if(in_array(2,$days)) $criteria['tue'] = 'Tuesday';
+					if(in_array(3,$days)) $criteria['wed'] = 'Wednesday';
+					if(in_array(4,$days)) $criteria['thu'] = 'Thursday';
+					if(in_array(5,$days)) $criteria['fri'] = 'Friday';
+					if(in_array(6,$days)) $criteria['sat'] = 'Saturday';
+					unset($criteria['value']);
+					break;
+				case 'timeofday':
+					$from = DevblocksPlatform::importGPC($_REQUEST['timeofday_from'],'string','');
+					$to = DevblocksPlatform::importGPC($_REQUEST['timeofday_to'],'string','');
+					$criteria['from'] = $from;
+					$criteria['to'] = $to;
+					unset($criteria['value']);
+					break;
 				case 'type':
 					break;
 				case 'from':
 					break;
-				case 'to':
+				case 'tocc':
 					break;
 				case 'header1':
 				case 'header2':
@@ -697,6 +728,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 					DAO_PreParseRule::CRITERIA_SER => serialize($criterion),
 					DAO_PreParseRule::ACTIONS_SER => serialize($actions),
 					DAO_PreParseRule::POS => 0,
+					DAO_PreParseRule::IS_STICKY => intval($is_sticky),
 				);
 				$id = DAO_PreParseRule::create($fields);
 			} else {
@@ -704,6 +736,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 					DAO_PreParseRule::NAME => $name,
 					DAO_PreParseRule::CRITERIA_SER => serialize($criterion),
 					DAO_PreParseRule::ACTIONS_SER => serialize($actions),
+					DAO_PreParseRule::IS_STICKY => intval($is_sticky),
 				);
 				DAO_PreParseRule::update($id, $fields);
 			}
@@ -718,11 +751,22 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->_TPL_PATH);
 
-		$routing = DAO_Mail::getMailboxRouting();
-		$tpl->assign('routing', $routing);
+		$rules = DAO_MailToGroupRule::getWhere();
+		$tpl->assign('rules', $rules);
 
-		$teams = DAO_Group::getAll();
-		$tpl->assign('teams', $teams);
+		$groups = DAO_Group::getAll();
+		$tpl->assign('groups', $groups);
+
+//		$buckets = DAO_Bucket::getAll();
+//		$tpl->assign('buckets', $buckets);
+		
+		// Custom Field Sources
+		$source_manifests = DevblocksPlatform::getExtensions('cerberusweb.fields.source', false);
+		$tpl->assign('source_manifests', $source_manifests);
+		
+		// Custom Fields
+		$custom_fields =  DAO_CustomField::getAll();
+		$tpl->assign('custom_fields', $custom_fields);
 		
 		$tpl->display('file:' . $this->_TPL_PATH . 'configuration/tabs/mail/mail_routing.tpl');
 	}
@@ -1491,29 +1535,6 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	    DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','mail','outgoing','test')));
 	}
 	
-	// Ajax
-	function ajaxGetRoutingAction() {
-		$translate = DevblocksPlatform::getTranslationService();
-		$worker = CerberusApplication::getActiveWorker();
-		
-		if(!$worker || !$worker->is_superuser) {
-			echo $translate->_('common.access_denied');
-			return;
-		}
-		
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
-		$tpl->assign('path', $this->_TPL_PATH);
-		
-		$routing = DAO_Mail::getMailboxRouting();
-		$tpl->assign('routing', $routing);
-
-		$teams = DAO_Group::getAll();
-		$tpl->assign('teams', $teams);
-		
-		$tpl->display('file:' . $this->_TPL_PATH . 'configuration/tabs/mail/mail_routing.tpl');
-	}
-	
 	// Form Submit
 	function saveRoutingAction() {
 		$translate = DevblocksPlatform::getTranslationService();
@@ -1529,99 +1550,333 @@ class ChConfigurationPage extends CerberusPageExtension  {
 			return;
 		}
 		
-		@$positions = DevblocksPlatform::importGPC($_POST['positions'],'array');
-		@$route_ids = DevblocksPlatform::importGPC($_POST['route_ids'],'array');
-		@$route_team_id = DevblocksPlatform::importGPC($_POST['route_team_id'],'array');
-		@$route_pattern = DevblocksPlatform::importGPC($_POST['route_pattern'],'array');
-		@$default_team_id = DevblocksPlatform::importGPC($_POST['default_team_id'],'integer',0);
-		@$add_pattern = DevblocksPlatform::importGPC($_POST['add_pattern'],'array');
-		@$add_team_id = DevblocksPlatform::importGPC($_POST['add_team_id'],'array');
-		@$route_remove = DevblocksPlatform::importGPC($_POST['route_remove'],'array');
+	    @$deletes = DevblocksPlatform::importGPC($_REQUEST['deletes'],'array',array());
+	    @$sticky_ids = DevblocksPlatform::importGPC($_REQUEST['sticky_ids'],'array',array());
+	    @$sticky_order = DevblocksPlatform::importGPC($_REQUEST['sticky_order'],'array',array());
+	    
+	    @$active_worker = CerberusApplication::getActiveWorker();
+	    if(!$active_worker->is_superuser)
+	    	return;
+	    
+	    // Deletes
+	    if(!empty($deletes)) {
+	    	DAO_MailToGroupRule::delete($deletes);
+	    }
+	    
+	    // Reordering
+	    if(is_array($sticky_ids) && is_array($sticky_order))
+	    foreach($sticky_ids as $idx => $id) {
+	    	@$order = intval($sticky_order[$idx]);
+			DAO_MailToGroupRule::update($id, array (
+	    		DAO_MailToGroupRule::STICKY_ORDER => $order
+	    	));
+	    }
 		
-		// Rule reordering
-		if(is_array($route_ids) && is_array($positions)) {
-			foreach($route_ids as $idx => $route_id) {
-				$pos = $positions[$idx];
-				$pattern = $route_pattern[$idx];
-				$team_id = $route_team_id[$idx];
-				
-				if(empty($pattern)) {
-					$route_remove[] = $route_id;
-					continue;
-				}
-				
-				$fields = array(
-					DAO_Mail::ROUTING_POS => $pos,
-					DAO_Mail::ROUTING_PATTERN => $pattern,
-					DAO_Mail::ROUTING_TEAM_ID => $team_id,
-				);
-				DAO_Mail::updateMailboxRouting($route_id, $fields);
-			}
-		}
-		
-		// Add rules
-		if(is_array($add_pattern)) {
-			foreach($add_pattern as $k => $v) {
-				if(empty($v)) continue;
-				$team_id = $add_team_id[$k];
-		 		$fields = array(
-					DAO_Mail::ROUTING_PATTERN => $v,
-					DAO_Mail::ROUTING_TEAM_ID => $team_id,
-				);
-				$route_id = DAO_Mail::createMailboxRouting($fields);
-			}
-		}
-		
-		// Removals
-		if(is_array($route_remove)) {
-			foreach($route_remove as $remove_id) {
-				DAO_Mail::deleteMailboxRouting($remove_id);
-			}
-		}
-		
-		// Default team
-		DAO_Group::setDefaultGroup($default_team_id);
+		// Default group
+	    @$default_group_id = DevblocksPlatform::importGPC($_REQUEST['default_group_id'],'integer','0');
+		DAO_Group::setDefaultGroup($default_group_id);
 		
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','parser')));
 	}
 	
-	// Ajax
-	function ajaxDeleteRoutingAction() {
-		$translate = DevblocksPlatform::getTranslationService();
-		
-		if(DEMO_MODE) {
-			return;
-		}
-		
-		$worker = CerberusApplication::getActiveWorker();
-		if(!$worker || !$worker->is_superuser) {
-			echo $translate->_('common.access_denied');
-			return;
-		}
-		
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
-		DAO_Mail::deleteMailboxRouting($id);
-	}
-	
-	// Ajax
-	function getMailRoutingAddAction() {
-		$translate = DevblocksPlatform::getTranslationService();
-		$worker = CerberusApplication::getActiveWorker();
-		
-		if(!$worker || !$worker->is_superuser) {
-			echo $translate->_('common.access_denied');
-			return;
-		}
-		
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
-		$tpl->assign('path', $this->_TPL_PATH);
-		
-		$teams = DAO_Group::getTeams();
-		$tpl->assign('teams', $teams);
+   	function showMailRoutingRulePanelAction() {
+   		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+   		@$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'integer',0);
 
-		$tpl->display('file:' . $this->_TPL_PATH . 'configuration/tabs/mail/mail_routing_add.tpl');
-	}
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl_path = $this->_TPL_PATH;
+		$tpl->assign('path', $tpl_path);
+   		
+		$tpl->assign('group_id', $group_id);
+		
+		if(null != ($rule = DAO_MailToGroupRule::get($id))) {
+			$tpl->assign('rule', $rule);
+		}
+
+		// Make sure we're allowed to change this group's setup
+		if(!$active_worker->isTeamManager($group_id) && !$active_worker->is_superuser) {
+			return;
+		}
+		
+		$groups = DAO_Group::getAll();
+		$tpl->assign('groups', $groups);
+		
+		$workers = DAO_Worker::getAll();
+		$tpl->assign('workers', $workers);
+		
+		// Custom Fields: Address
+		$address_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Address::ID);
+		$tpl->assign('address_fields', $address_fields);
+		
+		// Custom Fields: Orgs
+		$org_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Org::ID);
+		$tpl->assign('org_fields', $org_fields);
+
+		// Custom Fields: Ticket
+		$ticket_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Ticket::ID);
+		$tpl->assign('ticket_fields', $ticket_fields);
+		
+		$tpl->display('file:' . $tpl_path . 'configuration/tabs/mail/routing/peek.tpl');
+   	}
+   	
+   	function saveMailRoutingRuleAddAction() {
+   		$translate = DevblocksPlatform::getTranslationService();
+   		
+   		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+   		
+	    @$active_worker = CerberusApplication::getActiveWorker();
+	    if(!$active_worker->is_superuser)
+	    	return;
+
+	    /*****************************/
+		@$name = DevblocksPlatform::importGPC($_POST['name'],'string','');
+		@$is_sticky = DevblocksPlatform::importGPC($_POST['is_sticky'],'integer',0);
+//		@$is_stackable = DevblocksPlatform::importGPC($_POST['is_stackable'],'integer',0);
+		@$rules = DevblocksPlatform::importGPC($_POST['rules'],'array',array());
+		@$do = DevblocksPlatform::importGPC($_POST['do'],'array',array());
+		
+		if(empty($name))
+			$name = $translate->_('Mail Routing Rule');
+		
+		$criterion = array();
+		$actions = array();
+		
+		// Custom fields
+		$custom_fields = DAO_CustomField::getAll();
+		
+		// Criteria
+		if(is_array($rules))
+		foreach($rules as $rule) {
+			$rule = DevblocksPlatform::strAlphaNumDash($rule);
+			@$value = DevblocksPlatform::importGPC($_POST['value_'.$rule],'string','');
+			
+			// [JAS]: Allow empty $value (null/blank checking)
+			
+			$criteria = array(
+				'value' => $value,
+			);
+			
+			// Any special rule handling
+			switch($rule) {
+				case 'dayofweek':
+					// days
+					$days = DevblocksPlatform::importGPC($_REQUEST['value_dayofweek'],'array',array());
+					if(in_array(0,$days)) $criteria['sun'] = 'Sunday';
+					if(in_array(1,$days)) $criteria['mon'] = 'Monday';
+					if(in_array(2,$days)) $criteria['tue'] = 'Tuesday';
+					if(in_array(3,$days)) $criteria['wed'] = 'Wednesday';
+					if(in_array(4,$days)) $criteria['thu'] = 'Thursday';
+					if(in_array(5,$days)) $criteria['fri'] = 'Friday';
+					if(in_array(6,$days)) $criteria['sat'] = 'Saturday';
+					unset($criteria['value']);
+					break;
+				case 'timeofday':
+					$from = DevblocksPlatform::importGPC($_REQUEST['timeofday_from'],'string','');
+					$to = DevblocksPlatform::importGPC($_REQUEST['timeofday_to'],'string','');
+					$criteria['from'] = $from;
+					$criteria['to'] = $to;
+					unset($criteria['value']);
+					break;
+				case 'subject':
+					break;
+				case 'from':
+					break;
+				case 'tocc':
+					break;
+				case 'header1':
+				case 'header2':
+				case 'header3':
+				case 'header4':
+				case 'header5':
+					if(null != (@$header = DevblocksPlatform::importGPC($_POST[$rule],'string',null)))
+						$criteria['header'] = strtolower($header);
+					break;
+				case 'body':
+					break;
+//				case 'attachment':
+//					break;
+				default: // ignore invalids
+					// Custom fields
+					if("cf_" == substr($rule,0,3)) {
+						$field_id = intval(substr($rule,3));
+						
+						if(!isset($custom_fields[$field_id]))
+							continue;
+
+						// [TODO] Operators
+							
+						switch($custom_fields[$field_id]->type) {
+							case 'S': // string
+							case 'T': // clob
+								$oper = DevblocksPlatform::importGPC($_REQUEST['value_cf_'.$field_id.'_oper'],'string','regexp');
+								$criteria['oper'] = $oper;
+								break;
+							case 'D': // dropdown
+							case 'M': // multi-dropdown
+							case 'X': // multi-checkbox
+								$in_array = DevblocksPlatform::importGPC($_REQUEST['value_cf_'.$field_id],'array',array());
+								$out_array = array();
+								
+								// Hash key on the option for quick lookup later
+								if(is_array($in_array))
+								foreach($in_array as $k => $v) {
+									$out_array[$v] = $v;
+								}
+								
+								$criteria['value'] = $out_array;
+								break;
+							case 'E': // date
+								$from = DevblocksPlatform::importGPC($_REQUEST['value_cf_'.$field_id.'_from'],'string','0');
+								$to = DevblocksPlatform::importGPC($_REQUEST['value_cf_'.$field_id.'_to'],'string','now');
+								$criteria['from'] = $from;
+								$criteria['to'] = $to;
+								unset($criteria['value']);
+								break;
+							case 'N': // number
+								$oper = DevblocksPlatform::importGPC($_REQUEST['value_cf_'.$field_id.'_oper'],'string','=');
+								$criteria['oper'] = $oper;
+								$criteria['value'] = intval($value);
+								break;
+							case 'C': // checkbox
+								$criteria['value'] = intval($value);
+								break;
+						}
+						
+					} else {
+						continue;
+					}
+					
+					break;
+			}
+			
+			$criterion[$rule] = $criteria;
+		}
+		
+		// Actions
+		if(is_array($do))
+		foreach($do as $act) {
+			$action = array();
+			
+			switch($act) {
+				// Move group/bucket
+				case 'move':
+					@$move_code = DevblocksPlatform::importGPC($_REQUEST['do_move'],'string',null);
+					if(0 != strlen($move_code)) {
+						list($g_id, $b_id) = CerberusApplication::translateTeamCategoryCode($move_code);
+						$action = array(
+							'group_id' => intval($g_id),
+							'bucket_id' => intval($b_id),
+						);
+					}
+					break;
+				// Assign to worker
+//				case 'assign':
+//					@$worker_id = DevblocksPlatform::importGPC($_REQUEST['do_assign'],'string',null);
+//					if(0 != strlen($worker_id))
+//						$action = array(
+//							'worker_id' => intval($worker_id)
+//						);
+//					break;
+				// Spam training
+//				case 'spam':
+//					@$is_spam = DevblocksPlatform::importGPC($_REQUEST['do_spam'],'string',null);
+//					if(0 != strlen($is_spam))
+//						$action = array(
+//							'is_spam' => (!$is_spam?0:1)
+//						);
+//					break;
+				// Set status
+//				case 'status':
+//					@$status = DevblocksPlatform::importGPC($_REQUEST['do_status'],'string',null);
+//					if(0 != strlen($status)) {
+//						$action = array(
+//							'is_waiting' => (3==$status?1:0), // explicit waiting
+//							'is_closed' => ((0==$status||3==$status)?0:1), // not open or waiting
+//							'is_deleted' => (2==$status?1:0), // explicit deleted
+//						);
+//					}
+//					break;
+				default: // ignore invalids
+					// Custom fields
+					if("cf_" == substr($act,0,3)) {
+						$field_id = intval(substr($act,3));
+						
+						if(!isset($custom_fields[$field_id]))
+							continue;
+
+						$action = array();
+							
+						// [TODO] Operators
+							
+						switch($custom_fields[$field_id]->type) {
+							case 'S': // string
+							case 'T': // clob
+							case 'D': // dropdown
+								$value = DevblocksPlatform::importGPC($_REQUEST['do_cf_'.$field_id],'string','');
+								$action['value'] = $value;
+								break;
+							case 'M': // multi-dropdown
+							case 'X': // multi-checkbox
+								$in_array = DevblocksPlatform::importGPC($_REQUEST['do_cf_'.$field_id],'array',array());
+								$out_array = array();
+								
+								// Hash key on the option for quick lookup later
+								if(is_array($in_array))
+								foreach($in_array as $k => $v) {
+									$out_array[$v] = $v;
+								}
+								
+								$action['value'] = $out_array;
+								break;
+							case 'E': // date
+								$value = DevblocksPlatform::importGPC($_REQUEST['do_cf_'.$field_id],'string','');
+								$action['value'] = $value;
+								break;
+							case 'N': // number
+							case 'C': // checkbox
+								$value = DevblocksPlatform::importGPC($_REQUEST['do_cf_'.$field_id],'string','');
+								$action['value'] = intval($value);
+								break;
+						}
+						
+					} else {
+						continue;
+					}
+					break;
+			}
+			
+			$actions[$act] = $action;
+		}
+
+   		$fields = array(
+   			DAO_MailToGroupRule::NAME => $name,
+   			DAO_MailToGroupRule::IS_STICKY => $is_sticky,
+   			DAO_MailToGroupRule::CRITERIA_SER => serialize($criterion),
+   			DAO_MailToGroupRule::ACTIONS_SER => serialize($actions),
+   		);
+
+   		// Only sticky filters can manual order and be stackable
+   		if(!$is_sticky) {
+   			$fields[DAO_MailToGroupRule::STICKY_ORDER] = 0;
+//   			$fields[DAO_MailToGroupRule::IS_STACKABLE] = 0;
+//   		} else { // is sticky
+//   			$fields[DAO_MailToGroupRule::IS_STACKABLE] = $is_stackable;
+   		}
+   		
+   		// Create
+   		if(empty($id)) {
+   			$fields[DAO_MailToGroupRule::POS] = 0;
+	   		$id = DAO_MailToGroupRule::create($fields);
+	   		
+	   	// Update
+   		} else {
+   			DAO_MailToGroupRule::update($id, $fields);
+   		}
+   		
+   		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('config','parser')));
+   	}	
 	
 	function savePluginsAction() {
 		$translate = DevblocksPlatform::getTranslationService();

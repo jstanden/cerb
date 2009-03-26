@@ -4,13 +4,13 @@
 <input type="hidden" name="group_id" value="{$group_id}">
 <input type="hidden" name="id" value="{$filter->id}">
 
-<h2>Add Inbox Filter</h2>
+<h2>Add Inbox Routing Rule</h2>
 
 <div style="height:400;overflow:auto;">
-<b>Filter Name:</b> (e.g. Spam Bounces)<br>
+<b>Rule Name:</b> (e.g. Spam Bounces)<br>
 <input type="text" name="name" value="{$filter->name|escape}" size="45" style="width:95%;"><br>
-<label><input type="checkbox" name="is_sticky" value="1" onclick="toggleDiv('divStackable',this.checked?'inline':'none');" {if $filter->is_sticky}checked="checked"{/if}> <span style="border-bottom:1px dotted;" title="Sticky filters are checked for matches first, are manually sortable, and can be stacked with subsequent filters.">Sticky</span></label>
-<span id="divStackable" style="display:{if $filter->is_sticky}inline{else}none{/if};"><label><input type="checkbox" name="is_stackable" value="1" {if $filter->is_stackable}checked="checked"{/if}> <span style="border-bottom:1px dotted;" title="Stackable filters combine their actions with those of subsequent matching filters.">Stackable</span></label></span>
+<label><input type="checkbox" name="is_sticky" value="1" onclick="toggleDiv('divStackable',this.checked?'inline':'none');" {if $filter->is_sticky}checked="checked"{/if}> <span style="border-bottom:1px dotted;" title="Sticky rules are checked for matches first, are manually sortable, and can be stacked with subsequent rules.">Sticky</span></label>
+<span id="divStackable" style="display:{if $filter->is_sticky}inline{else}none{/if};"><label><input type="checkbox" name="is_stackable" value="1" {if $filter->is_stackable}checked="checked"{/if}> <span style="border-bottom:1px dotted;" title="Stackable rules combine their actions with those of subsequent matching rules.">Stackable</span></label></span>
 <br>
 <br>
 

@@ -51,10 +51,209 @@
 
 class Model_PreParseRule {
 	public $id;
+	public $created;
 	public $name;
 	public $criteria;
 	public $actions;
 	public $pos;
+	public $is_sticky = 0;
+	public $sticky_order = 0;
+	
+	/**
+	 * Returns a Model_PreParserRule on a match, or NULL
+	 *
+	 * @param boolean $is_new
+	 * @param string $from
+	 * @param string $to
+	 * @param CerberusParserMessage $message
+	 * @return Model_PreParserRule
+	 */
+	static function getMatches($is_new, $from, CerberusParserMessage $message) {
+		$filters = DAO_PreParseRule::getAll();
+		$headers = $message->headers;
+		
+		// [TODO] Handle stackable
+		
+		// check filters
+		if(is_array($filters))
+		foreach($filters as $filter) {
+			$passed = 0;
+
+			// check criteria
+			foreach($filter->criteria as $rule_key => $rule) {
+				@$value = $rule['value'];
+							
+				switch($rule_key) {
+					case 'dayofweek':
+						$current_day = strftime('%w');
+//						$current_day = 1;
+
+						// Forced to English abbrevs as indexes
+						$days = array('sun','mon','tue','wed','thu','fri','sat');
+						
+						// Is the current day enabled?
+						if(isset($crit[$days[$current_day]])) {
+							$passed++;
+						}
+							
+						break;
+						
+					case 'timeofday':
+						$current_hour = strftime('%H');
+						$current_min = strftime('%M');
+//						$current_hour = 17;
+//						$current_min = 5;
+
+						if(null != ($from_time = @$crit['from']))
+							list($from_hour, $from_min) = split(':', $from_time);
+						
+						if(null != ($to_time = @$crit['to']))
+							if(list($to_hour, $to_min) = split(':', $to_time));
+
+						// Do we need to wrap around to the next day's hours?
+						if($from_hour > $to_hour) { // yes
+							$to_hour += 24; // add 24 hrs to the destination (1am = 25th hour)
+						}
+							
+						// Are we in the right 24 hourly range?
+						if((integer)$current_hour >= $from_hour && (integer)$current_hour <= $to_hour) {
+							// If we're in the first hour, are we minutes early?
+							if($current_hour==$from_hour && (integer)$current_min < $from_min)
+								break;
+							// If we're in the last hour, are we minutes late?
+							if($current_hour==$to_hour && (integer)$current_min > $to_min)
+								break;
+								
+							$passed++;
+						}
+
+						break;					
+
+					case 'type':
+						if(($is_new && 0 == strcasecmp($value,'new')) 
+							|| (!$is_new && 0 == strcasecmp($value,'reply')))
+								$passed++; 
+						break;
+						
+					case 'from':
+						$regexp_from = DevblocksPlatform::strToRegExp($value);
+						if(preg_match($regexp_from, $from)) {
+							$passed++;
+						}
+						break;
+						
+					case 'tocc':
+						$destinations = DevblocksPlatform::parseCsvString($value);
+
+						// Build a list of To/Cc addresses on this message
+						@$to_list = imap_rfc822_parse_adrlist($headers['to'],'localhost');
+						@$cc_list = imap_rfc822_parse_adrlist($headers['cc'],'localhost');
+						
+						if(is_array($to_list))
+						foreach($to_list as $addy) {
+							$tocc[] = $addy->mailbox . '@' . $addy->host;
+						}
+						if(is_array($cc_list))
+						foreach($cc_list as $addy) {
+							$tocc[] = $addy->mailbox . '@' . $addy->host;
+						}
+						
+						$dest_flag = false; // bail out when true
+						if(is_array($destinations) && is_array($tocc))
+						foreach($destinations as $dest) {
+							if($dest_flag) break;
+							$regexp_dest = DevblocksPlatform::strToRegExp($dest);
+							
+							foreach($tocc as $addy) {
+								if(@preg_match($regexp_dest, $addy)) {
+									$passed++;
+									$dest_flag = false;
+									break;
+								}
+							}
+						}
+						break;
+						
+					case 'header1':
+					case 'header2':
+					case 'header3':
+					case 'header4':
+					case 'header5':
+						$header = strtolower($rule['header']);
+
+						if(empty($value)) { // we're checking for null/blanks
+							if(!isset($headers[$header]) || empty($headers[$header])) {
+								$passed++;
+							}
+							
+						} elseif(isset($headers[$header]) && !empty($headers[$header])) {
+							$regexp_header = DevblocksPlatform::strToRegExp($value);
+							
+							// handle arrays like Received: and (broken)Content-Type headers  (farking spammers)
+							if(is_array($headers[$header])) {
+								foreach($headers[$header] as $array_header) {
+									if(preg_match($regexp_header, str_replace(array("\r","\n"),' ',$array_header))) {
+										$passed++;
+										break;
+									}
+								}
+							} else {
+								// Flatten CRLF
+								if(preg_match($regexp_header, str_replace(array("\r","\n"),' ',$headers[$header]))) {
+									$passed++;
+								}								
+							}
+						}
+						
+						break;
+						
+					case 'body':
+						// Line-by-line body scanning (sed-like)
+						$lines = split("[\r\n]", $message->body);
+						if(is_array($lines))
+						foreach($lines as $line) {
+							if(@preg_match($value, $line)) {
+								$passed++;
+								break;
+							}
+						}
+						break;
+						
+					case 'body_encoding':
+						$regexp_bodyenc = DevblocksPlatform::strToRegExp($value);
+
+						if(preg_match($regexp_bodyenc, $message->body_encoding))
+							$passed++;
+						break;
+						
+					case 'attachment':
+						$regexp_file = DevblocksPlatform::strToRegExp($value);
+
+						// check the files in the raw message
+						foreach($message->files as $file_name => $file) { /* @var $file ParserFile */
+							if(preg_match($regexp_file, $file_name)) {
+								$passed++;
+								break;
+							}
+						}
+						break;
+						
+					default: // ignore invalids
+						continue;
+						break;
+				}
+			}
+			
+			// If our rule matched every criteria, stop and return the filter
+			if($passed == count($filter->criteria)) {
+				DAO_PreParseRule::increment($filter->id); // ++ the times we've matched
+				return $filter;
+			}
+		}
+		
+		return NULL;
+	}
+	
 }
 
 class Model_GroupInboxFilter {
@@ -2607,11 +2806,358 @@ class Model_Activity {
 	}
 }
 
-class Model_MailRoute {
+class Model_MailToGroupRule {
 	public $id = 0;
-	public $pattern = '';
-	public $team_id = 0;
 	public $pos = 0;
+	public $created = 0;
+	public $name = '';
+	public $criteria = array();
+	public $actions = array();
+	public $is_sticky = 0;
+	public $sticky_order = 0;
+	
+	static function getMatches(Model_Address $fromAddress, CerberusParserMessage $message) {
+//		print_r($fromAddress);
+//		print_r($message);
+		
+		$matches = array();
+		$rules = DAO_MailToGroupRule::getWhere();
+		$message_headers = $message->headers;
+		$custom_fields = DAO_CustomField::getAll();
+		
+		// Lazy load when needed on criteria basis
+		$address_field_values = null;
+		$org_field_values = null;
+		
+		// Check filters
+		if(is_array($rules))
+		foreach($rules as $rule) { /* @var $rule Model_MailToGroupRule */
+			$passed = 0;
+
+			// check criteria
+			foreach($rule->criteria as $crit_key => $crit) {
+				@$value = $crit['value'];
+							
+				switch($crit_key) {
+					case 'dayofweek':
+						$current_day = strftime('%w');
+//						$current_day = 1;
+
+						// Forced to English abbrevs as indexes
+						$days = array('sun','mon','tue','wed','thu','fri','sat');
+						
+						// Is the current day enabled?
+						if(isset($crit[$days[$current_day]])) {
+							$passed++;
+						}
+							
+						break;
+						
+					case 'timeofday':
+						$current_hour = strftime('%H');
+						$current_min = strftime('%M');
+//						$current_hour = 17;
+//						$current_min = 5;
+
+						if(null != ($from_time = @$crit['from']))
+							list($from_hour, $from_min) = split(':', $from_time);
+						
+						if(null != ($to_time = @$crit['to']))
+							if(list($to_hour, $to_min) = split(':', $to_time));
+
+						// Do we need to wrap around to the next day's hours?
+						if($from_hour > $to_hour) { // yes
+							$to_hour += 24; // add 24 hrs to the destination (1am = 25th hour)
+						}
+							
+						// Are we in the right 24 hourly range?
+						if((integer)$current_hour >= $from_hour && (integer)$current_hour <= $to_hour) {
+							// If we're in the first hour, are we minutes early?
+							if($current_hour==$from_hour && (integer)$current_min < $from_min)
+								break;
+							// If we're in the last hour, are we minutes late?
+							if($current_hour==$to_hour && (integer)$current_min > $to_min)
+								break;
+								
+							$passed++;
+						}
+
+						break;					
+					
+					case 'tocc':
+						$destinations = DevblocksPlatform::parseCsvString($value);
+
+						// Build a list of To/Cc addresses on this message
+						@$to_list = imap_rfc822_parse_adrlist($message_headers['to'],'localhost');
+						@$cc_list = imap_rfc822_parse_adrlist($message_headers['cc'],'localhost');
+						
+						if(is_array($to_list))
+						foreach($to_list as $addy) {
+							$tocc[] = $addy->mailbox . '@' . $addy->host;
+						}
+						if(is_array($cc_list))
+						foreach($cc_list as $addy) {
+							$tocc[] = $addy->mailbox . '@' . $addy->host;
+						}
+						
+						$dest_flag = false; // bail out when true
+						if(is_array($destinations) && is_array($tocc))
+						foreach($destinations as $dest) {
+							if($dest_flag) break;
+							$regexp_dest = DevblocksPlatform::strToRegExp($dest);
+							
+							foreach($tocc as $addy) {
+								if(@preg_match($regexp_dest, $addy)) {
+									$passed++;
+									$dest_flag = false;
+									break;
+								}
+							}
+						}
+						break;
+						
+					case 'from':
+						$regexp_from = DevblocksPlatform::strToRegExp($value);
+						if(@preg_match($regexp_from, $fromAddress->email)) {
+							$passed++;
+						}
+						break;
+						
+					case 'subject':
+						// [TODO] Decode if necessary
+						@$subject = $message_headers['subject'];
+
+						$regexp_subject = DevblocksPlatform::strToRegExp($value);
+						if(@preg_match($regexp_subject, $subject)) {
+							$passed++;
+						}
+						break;
+
+					case 'body':
+						// Line-by-line body scanning (sed-like)
+						$lines = split("[\r\n]", $message->body);
+						if(is_array($lines))
+						foreach($lines as $line) {
+							if(@preg_match($value, $line)) {
+								$passed++;
+								break;
+							}
+						}
+						break;
+						
+					case 'header1':
+					case 'header2':
+					case 'header3':
+					case 'header4':
+					case 'header5':
+						@$header = strtolower($crit['header']);
+
+						if(empty($header)) {
+							$passed++;
+							break;
+						}
+						
+						if(empty($value)) { // we're checking for null/blanks
+							if(!isset($message_headers[$header]) || empty($message_headers[$header])) {
+								$passed++;
+							}
+							
+						} elseif(isset($message_headers[$header]) && !empty($message_headers[$header])) {
+							$regexp_header = DevblocksPlatform::strToRegExp($value);
+							
+							// Flatten CRLF
+							if(@preg_match($regexp_header, str_replace(array("\r","\n"),' ',$message_headers[$header]))) {
+								$passed++;
+							}
+						}
+						
+						break;
+						
+					default: // ignore invalids
+						// Custom Fields
+						if(0==strcasecmp('cf_',substr($crit_key,0,3))) {
+							$field_id = substr($crit_key,3);
+
+							// Make sure it exists
+							if(null == (@$field = $custom_fields[$field_id]))
+								continue;
+
+							// Lazy values loader
+							$field_values = array();
+							switch($field->source_extension) {
+								case ChCustomFieldSource_Address::ID:
+									if(null == $address_field_values)
+										$address_field_values = array_shift(DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Address::ID, $fromAddress->id));
+									$field_values =& $address_field_values;
+									break;
+								case ChCustomFieldSource_Org::ID:
+									if(null == $org_field_values)
+										$org_field_values = array_shift(DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Org::ID, $fromAddress->contact_org_id));
+									$field_values =& $org_field_values;
+									break;
+							}
+							
+							// No values, default.
+							if(!isset($field_values[$field_id]))
+								continue;
+							
+							// Type sensitive value comparisons
+							switch($field->type) {
+								case 'S': // string
+								case 'T': // clob
+									$field_val = isset($field_values[$field_id]) ? $field_values[$field_id] : '';
+									$oper = isset($crit['oper']) ? $crit['oper'] : "=";
+									
+									if($oper == "=" && @preg_match(DevblocksPlatform::strToRegExp($value), $field_val))
+										$passed++;
+									elseif($oper == "!=" && @!preg_match(DevblocksPlatform::strToRegExp($value), $field_val))
+										$passed++;
+									break;
+								case 'N': // number
+									$field_val = isset($field_values[$field_id]) ? $field_values[$field_id] : 0;
+									$oper = isset($crit['oper']) ? $crit['oper'] : "=";
+									
+									if($oper=="=" && intval($field_val)==intval($value))
+										$passed++;
+									elseif($oper=="!=" && intval($field_val)!=intval($value))
+										$passed++;
+									elseif($oper==">" && $intval($field_val) > intval($value))
+										$passed++;
+									elseif($oper=="<" && $intval($field_val) < intval($value))
+										$passed++;
+									break;
+								case 'E': // date
+									$field_val = isset($field_values[$field_id]) ? intval($field_values[$field_id]) : 0;
+									$from = isset($crit['from']) ? $crit['from'] : "0";
+									$to = isset($crit['to']) ? $crit['to'] : "now";
+									
+									if(intval(@strtotime($from)) <= $field_val && intval(@strtotime($to)) >= $field_val) {
+										$passed++;
+									}
+									break;
+								case 'C': // checkbox
+									$field_val = isset($field_values[$field_id]) ? $field_values[$field_id] : 0;
+									if(intval($value)==intval($field_val))
+										$passed++;
+									break;
+								case 'D': // dropdown
+								case 'X': // multi-checkbox
+								case 'M': // multi-picklist
+									$field_val = isset($field_values[$field_id]) ? $field_values[$field_id] : array();
+									if(!is_array($value)) $value = array($value);
+									
+									foreach($value as $v) {
+										if(isset($field_val[$v])) {
+											$passed++;
+										}
+									}
+									break;
+							}
+						}
+						break;
+				}
+			}
+			
+			// If our rule matched every criteria, stop and return the filter
+			if($passed == count($rule->criteria)) {
+				DAO_MailToGroupRule::increment($rule->id); // ++ the times we've matched
+				$matches[$rule->id] = $rule;
+				
+				// Bail out if this rule had a move action
+				if(isset($rule->actions['move']))
+					return $matches;
+			}
+		}
+		
+		// If we're at the end of rules and didn't bail out yet
+		if(!empty($matches))
+			return $matches;
+		
+		// No matches
+		return NULL;
+	}
+	
+	/**
+	 * @param integer[] $ticket_ids
+	 */
+	function run($ticket_ids) {
+		if(!is_array($ticket_ids)) $ticket_ids = array($ticket_ids);
+		
+		$fields = array();
+		$field_values = array();
+
+		$groups = DAO_Group::getAll();
+		$buckets = DAO_Bucket::getAll();
+//		$workers = DAO_Worker::getAll();
+		$custom_fields = DAO_CustomField::getAll();
+		
+		// actions
+		if(is_array($this->actions))
+		foreach($this->actions as $action => $params) {
+			switch($action) {
+//				case 'status':
+//					if(isset($params['is_waiting']))
+//						$fields[DAO_Ticket::IS_WAITING] = intval($params['is_waiting']);
+//					if(isset($params['is_closed']))
+//						$fields[DAO_Ticket::IS_CLOSED] = intval($params['is_closed']);
+//					if(isset($params['is_deleted']))
+//						$fields[DAO_Ticket::IS_DELETED] = intval($params['is_deleted']);
+//					break;
+
+//				case 'assign':
+//					if(isset($params['worker_id'])) {
+//						$w_id = intval($params['worker_id']);
+//						if(0 == $w_id || isset($workers[$w_id]))
+//							$fields[DAO_Ticket::NEXT_WORKER_ID] = $w_id;
+//					}
+//					break;
+
+				case 'move':
+					if(isset($params['group_id']) && isset($params['bucket_id'])) {
+						$g_id = intval($params['group_id']);
+						$b_id = intval($params['bucket_id']);
+						if(isset($groups[$g_id]) && (0==$b_id || isset($buckets[$b_id]))) {
+							$fields[DAO_Ticket::TEAM_ID] = $g_id;
+							$fields[DAO_Ticket::CATEGORY_ID] = $b_id;
+						}
+					}
+					break;
+					
+//				case 'spam':
+//					if(isset($params['is_spam'])) {
+//						if(intval($params['is_spam'])) {
+//							foreach($ticket_ids as $ticket_id)
+//								CerberusBayes::markTicketAsSpam($ticket_id);
+//						} else {
+//							foreach($ticket_ids as $ticket_id)
+//								CerberusBayes::markTicketAsNotSpam($ticket_id);
+//						}
+//					}
+//					break;
+
+				default:
+					// Custom fields
+					if(substr($action,0,3)=="cf_") {
+						$field_id = intval(substr($action,3));
+						
+						if(!isset($custom_fields[$field_id]) || !isset($params['value']))
+							break;
+
+						$field_values[$field_id] = $params;
+					}
+					break;
+			}
+		}
+
+		if(!empty($ticket_ids)) {
+			if(!empty($fields))
+				DAO_Ticket::updateTicket($ticket_ids, $fields);
+			
+			// Custom Fields
+			C4_AbstractView::_doBulkSetCustomFields(ChCustomFieldSource_Ticket::ID, $field_values, $ticket_ids);
+		}
+	}
+	
 };
 
 class CerberusVisit extends DevblocksVisit {

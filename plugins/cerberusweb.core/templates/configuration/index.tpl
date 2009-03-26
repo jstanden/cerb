@@ -7,7 +7,7 @@
 	</div>
 </div> 
 
-<h1>Setup</h1>
+<h1>{$translate->_('header.config')|capitalize}</h1>
 {if $smarty.const.DEMO_MODE}
 <div style="color:red;padding:2px;font-weight:bold;">NOTE: This helpdesk is in Demo Mode and changes will not be saved.</div>
 {/if}
@@ -47,7 +47,7 @@ tabView.addTab( new YAHOO.widget.Tab({
 }));
 
 tabView.addTab( new YAHOO.widget.Tab({
-    label: 'Pre-Parser',
+    label: 'Mail Filtering',
     dataSrc: '{/literal}{devblocks_url}ajax.php?c=config&a=showTabPreParser{/devblocks_url}{literal}',
     cacheData: false,
     {/literal}active: {if $tab_selected=="preparser"}true{else}false{/if}{literal}
