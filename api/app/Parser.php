@@ -419,7 +419,7 @@ class CerberusParser {
         // Pre-parse mail rules
         if(null != ($pre_filter = Model_PreParseRule::getMatches(
         	(empty($id) ? 1 : 0), // is_new
-        	$fromAddress,
+        	$fromAddressInst,
         	$message
         ))) {
         	// Do something with matching filter's actions
@@ -455,8 +455,6 @@ class CerberusParser {
 			))) {
 				if(is_array($routing_rules))
 				foreach($routing_rules as $rule) {
-//					print_r($rule);
-
 					// Only end up with the last 'move' action (ignore the previous)
 					if(isset($rule->actions['move'])) {
 						$group_id = intval($rule->actions['move']['group_id']);

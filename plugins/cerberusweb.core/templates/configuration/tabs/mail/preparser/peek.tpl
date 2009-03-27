@@ -167,6 +167,12 @@
 	{/section}
 </table>
 
+{* Get Address Fields *}
+{include file="file:$core_tpl/groups/manage/filters/peek_get_custom_fields.tpl" fields=$address_fields filter=$filter divName="divGetAddyFields" label="Sender address"}
+
+{* Get Org Fields *}
+{include file="file:$core_tpl/groups/manage/filters/peek_get_custom_fields.tpl" fields=$org_fields filter=$filter divName="divGetOrgFields" label="Sender organization"}
+
 <br>
 
 <h2>Then perform these actions:</h2>

@@ -16,9 +16,67 @@
 
 <h2>If these criteria match:</h2>
 
+{* Date/Time *}
+{assign var=expanded value=false}
+{if isset($filter->criteria.dayofweek) || isset($filter->criteria.timeofday)}
+	{assign var=expanded value=true}
+{/if}
+<label><input type="checkbox" {if $expanded}checked="checked"{/if} onclick="toggleDiv('divBlockDateTime',(this.checked?'block':'none'));if(!this.checked)checkAll('divBlockDateTime',false);"> <b>Current Date/Time</b></label><br>
+<table width="500" style="margin-left:10px;display:{if $expanded}block{else}none{/if};" id="divBlockDateTime">
+	<tr>
+		<td valign="top">
+			{assign var=crit_dayofweek value=$filter->criteria.dayofweek}
+			<label><input type="checkbox" id="chkRuleDayOfWeek" name="rules[]" value="dayofweek" {if !is_null($crit_dayofweek)}checked="checked"{/if}> Day of Week:</label>
+		</td>
+		<td valign="top">
+			<label><input type="checkbox" name="value_dayofweek[]" value="0" {if $crit_dayofweek.sun}checked="checked"{/if}> {'Sunday'|date_format:'%a'}</label>
+			<label><input type="checkbox" name="value_dayofweek[]" value="1" {if $crit_dayofweek.mon}checked="checked"{/if}> {'Monday'|date_format:'%a'}</label>
+			<label><input type="checkbox" name="value_dayofweek[]" value="2" {if $crit_dayofweek.tue}checked="checked"{/if}> {'Tuesday'|date_format:'%a'}</label>
+			<label><input type="checkbox" name="value_dayofweek[]" value="3" {if $crit_dayofweek.wed}checked="checked"{/if}> {'Wednesday'|date_format:'%a'}</label>
+			<label><input type="checkbox" name="value_dayofweek[]" value="4" {if $crit_dayofweek.thu}checked="checked"{/if}> {'Thursday'|date_format:'%a'}</label>
+			<label><input type="checkbox" name="value_dayofweek[]" value="5" {if $crit_dayofweek.fri}checked="checked"{/if}> {'Friday'|date_format:'%a'}</label>
+			<label><input type="checkbox" name="value_dayofweek[]" value="6" {if $crit_dayofweek.sat}checked="checked"{/if}> {'Saturday'|date_format:'%a'}</label>
+		</td>
+	</tr>
+	<tr>
+		<td valign="top">
+			{assign var=crit_timeofday value=$filter->criteria.timeofday}
+			<label><input type="checkbox" id="chkRuleTimeOfDay" name="rules[]" value="timeofday" {if !is_null($crit_timeofday)}checked="checked"{/if}> Time of Day:</label>
+		</td>
+		<td valign="top">
+			<i>from</i> 
+			<select name="timeofday_from">
+				{section start=0 loop=24 name=hr}
+				{section start=0 step=30 loop=60 name=min}
+					{assign var=hr value=$smarty.section.hr.index}
+					{assign var=min value=$smarty.section.min.index}
+					{if 0==$hr}{assign var=hr value=12}{/if}
+					{if $hr>12}{math assign=hr equation="x-12" x=$hr}{/if}
+					{assign var=val value=$smarty.section.hr.index|cat:':'|cat:$smarty.section.min.index}
+					<option value="{$val}" {if $crit_timeofday.from==$val}selected="selected"{/if}>{$hr|string_format:"%d"}:{$min|string_format:"%02d"} {if $smarty.section.hr.index<12}AM{else}PM{/if}</option>
+				{/section}
+				{/section}
+			</select>
+			 <i>to</i> 
+			<select name="timeofday_to">
+				{section start=0 loop=24 name=hr}
+				{section start=0 step=30 loop=60 name=min}
+					{assign var=hr value=$smarty.section.hr.index}
+					{assign var=min value=$smarty.section.min.index}
+					{if 0==$hr}{assign var=hr value=12}{/if}
+					{if $hr>12}{math assign=hr equation="x-12" x=$hr}{/if}
+					{assign var=val value=$smarty.section.hr.index|cat:':'|cat:$smarty.section.min.index}
+					<option value="{$val}" {if $crit_timeofday.to==$val}selected="selected"{/if}>{$hr|string_format:"%d"}:{$min|string_format:"%02d"} {if $smarty.section.hr.index<12}AM{else}PM{/if}</option>
+				{/section}
+				{/section}
+			</select>
+		</td>
+	</tr>
+</table>
+
 {* Message *}
 {assign var=expanded value=false}
-{if isset($filter->criteria.subject) || isset($filter->criteria.from) || isset($filter->criteria.tocc)}
+{if isset($filter->criteria.subject) || isset($filter->criteria.from) || isset($filter->criteria.tocc) || isset($filter->criteria.body)}
 	{assign var=expanded value=true}
 {/if}
 <label><input type="checkbox" {if $expanded}checked="checked"{/if} onclick="toggleDiv('divBlockMessage',(this.checked?'block':'none'));if(!this.checked)checkAll('divBlockMessage',false);"> <b>Message</b></label><br>
@@ -48,7 +106,19 @@
 		</td>
 		<td>
 			<input type="text" name="value_tocc" size="45" value="{$crit_tocc.value|escape}" value="{$tocc_list}" onchange="document.getElementById('chkRuleTo').checked=((0==this.value.length)?false:true);" style="width:95%;"><br>
-			(comma-delimited addresses, only one e-mail must match)<br>
+			<i>Comma-delimited address patterns; only one e-mail must match.</i><br>
+			Example: support@example.com, support@*, *@example.com<br>
+		</td>
+	</tr>
+	<tr>
+		<td valign="top">
+			{assign var=crit_body value=$filter->criteria.body}
+			<label><input type="checkbox" id="chkRuleBody" name="rules[]" value="body" {if !is_null($crit_body)}checked="checked"{/if}> Body Content:</label>
+		</td>
+		<td valign="top">
+			<input type="text" name="value_body" size="45" value="{$crit_body.value|escape}" onchange="document.getElementById('chkRuleBody').checked=((0==this.value.length)?false:true);" style="width:95%;"><br>
+			<i>Enter as a <a href="http://us2.php.net/manual/en/regexp.reference.php" target="_blank">regular expression</a>; scans content line-by-line.</i><br>
+			Example: /(how do|where can)/i<br>
 		</td>
 	</tr>
 </table>

@@ -68,11 +68,19 @@ class Model_PreParseRule {
 	 * @param CerberusParserMessage $message
 	 * @return Model_PreParserRule
 	 */
-	static function getMatches($is_new, $from, CerberusParserMessage $message) {
+	static function getMatches($is_new, Model_Address $fromInst, CerberusParserMessage $message) {
 		$filters = DAO_PreParseRule::getAll();
 		$headers = $message->headers;
 		
 		// [TODO] Handle stackable
+		$matches = array();
+		
+		// Custom fields
+		$custom_fields = DAO_CustomField::getAll();
+		
+		// Lazy load when needed on criteria basis
+		$address_field_values = null;
+		$org_field_values = null;
 		
 		// check filters
 		if(is_array($filters))
@@ -92,7 +100,7 @@ class Model_PreParseRule {
 						$days = array('sun','mon','tue','wed','thu','fri','sat');
 						
 						// Is the current day enabled?
-						if(isset($crit[$days[$current_day]])) {
+						if(isset($rule[$days[$current_day]])) {
 							$passed++;
 						}
 							
@@ -104,10 +112,10 @@ class Model_PreParseRule {
 //						$current_hour = 17;
 //						$current_min = 5;
 
-						if(null != ($from_time = @$crit['from']))
+						if(null != ($from_time = @$rule['from']))
 							list($from_hour, $from_min) = split(':', $from_time);
 						
-						if(null != ($to_time = @$crit['to']))
+						if(null != ($to_time = @$rule['to']))
 							if(list($to_hour, $to_min) = split(':', $to_time));
 
 						// Do we need to wrap around to the next day's hours?
@@ -137,7 +145,7 @@ class Model_PreParseRule {
 						
 					case 'from':
 						$regexp_from = DevblocksPlatform::strToRegExp($value);
-						if(preg_match($regexp_from, $from)) {
+						if(preg_match($regexp_from, $fromInst->email)) {
 							$passed++;
 						}
 						break;
@@ -239,7 +247,84 @@ class Model_PreParseRule {
 						break;
 						
 					default: // ignore invalids
-						continue;
+						// Custom Fields
+						if(0==strcasecmp('cf_',substr($rule_key,0,3))) {
+							$field_id = substr($rule_key,3);
+
+							// Make sure it exists
+							if(null == (@$field = $custom_fields[$field_id]))
+								continue;
+
+							// Lazy values loader
+							$field_values = array();
+							switch($field->source_extension) {
+								case ChCustomFieldSource_Address::ID:
+									if(null == $address_field_values)
+										$address_field_values = array_shift(DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Address::ID, $fromInst->id));
+									$field_values =& $address_field_values;
+									break;
+								case ChCustomFieldSource_Org::ID:
+									if(null == $org_field_values)
+										$org_field_values = array_shift(DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Org::ID, $fromInst->contact_org_id));
+									$field_values =& $org_field_values;
+									break;
+							}
+							
+							// Type sensitive value comparisons
+							// [TODO] Operators
+							// [TODO] Highly redundant
+							switch($field->type) {
+								case 'S': // string
+								case 'T': // clob
+									$field_val = isset($field_values[$field_id]) ? $field_values[$field_id] : '';
+									$oper = isset($rule['oper']) ? $rule['oper'] : "=";
+									
+									if($oper == "=" && @preg_match(DevblocksPlatform::strToRegExp($value), $field_val))
+										$passed++;
+									elseif($oper == "!=" && @!preg_match(DevblocksPlatform::strToRegExp($value), $field_val))
+										$passed++;
+									break;
+								case 'N': // number
+									$field_val = isset($field_values[$field_id]) ? $field_values[$field_id] : 0;
+									$oper = isset($rule['oper']) ? $rule['oper'] : "=";
+									
+									if($oper=="=" && intval($field_val)==intval($value))
+										$passed++;
+									elseif($oper=="!=" && intval($field_val)!=intval($value))
+										$passed++;
+									elseif($oper==">" && $intval($field_val) > intval($value))
+										$passed++;
+									elseif($oper=="<" && $intval($field_val) < intval($value))
+										$passed++;
+									break;
+								case 'E': // date
+									$field_val = isset($field_values[$field_id]) ? intval($field_values[$field_id]) : 0;
+									$from = isset($rule['from']) ? $rule['from'] : "0";
+									$to = isset($rule['to']) ? $rule['to'] : "now";
+									
+									if(intval(@strtotime($from)) <= $field_val && intval(@strtotime($to)) >= $field_val) {
+										$passed++;
+									}
+									break;
+								case 'C': // checkbox
+									$field_val = isset($field_values[$field_id]) ? $field_values[$field_id] : 0;
+									if(intval($value)==intval($field_val))
+										$passed++;
+									break;
+								case 'D': // dropdown
+								case 'X': // multi-checkbox
+								case 'M': // multi-picklist
+									$field_val = isset($field_values[$field_id]) ? $field_values[$field_id] : array();
+									if(!is_array($value)) $value = array($value);
+									
+									foreach($value as $v) {
+										if(isset($field_val[$v])) {
+											$passed++;
+										}
+									}
+									break;
+							}
+						}
 						break;
 				}
 			}
@@ -294,15 +379,17 @@ class Model_GroupInboxFilter {
 		
 		// [TODO] These expensive checks should only populate when needed
 		$messages = DAO_Ticket::getMessagesByTicket($ticket_id);
-		
+		$message_headers = array();
+
 		if(empty($messages))
 			return false;
 		
-		if(null == (@$message = array_pop($messages))) { /* @var $message CerberusMessage */
-			return false;
+		if(null != (@$message_last = array_pop($messages))) { /* @var $message_last CerberusMessage */
+			$message_headers = $message_last->getHeaders();
 		}
-		
-		$message_headers = $message->getHeaders();
+
+		// Clear the rest of the message manifests
+		unset($messages);
 		
 		$custom_fields = DAO_CustomField::getAll();
 		
@@ -321,7 +408,50 @@ class Model_GroupInboxFilter {
 				@$value = $rule['value'];
 							
 				switch($rule_key) {
-					
+					case 'dayofweek':
+						$current_day = strftime('%w');
+//						$current_day = 1;
+
+						// Forced to English abbrevs as indexes
+						$days = array('sun','mon','tue','wed','thu','fri','sat');
+						
+						// Is the current day enabled?
+						if(isset($rule[$days[$current_day]])) {
+							$passed++;
+						}
+							
+						break;
+						
+					case 'timeofday':
+						$current_hour = strftime('%H');
+						$current_min = strftime('%M');
+//						$current_hour = 17;
+//						$current_min = 5;
+
+						if(null != ($from_time = @$rule['from']))
+							list($from_hour, $from_min) = split(':', $from_time);
+						
+						if(null != ($to_time = @$rule['to']))
+							if(list($to_hour, $to_min) = split(':', $to_time));
+
+						// Do we need to wrap around to the next day's hours?
+						if($from_hour > $to_hour) { // yes
+							$to_hour += 24; // add 24 hrs to the destination (1am = 25th hour)
+						}
+							
+						// Are we in the right 24 hourly range?
+						if((integer)$current_hour >= $from_hour && (integer)$current_hour <= $to_hour) {
+							// If we're in the first hour, are we minutes early?
+							if($current_hour==$from_hour && (integer)$current_min < $from_min)
+								break;
+							// If we're in the last hour, are we minutes late?
+							if($current_hour==$to_hour && (integer)$current_min > $to_min)
+								break;
+								
+							$passed++;
+						}
+						break;						
+						
 					case 'tocc':
 						$destinations = DevblocksPlatform::parseCsvString($value);
 
@@ -365,6 +495,21 @@ class Model_GroupInboxFilter {
 						$regexp_subject = DevblocksPlatform::strToRegExp($value);
 						if(@preg_match($regexp_subject, $ticket->subject)) {
 							$passed++;
+						}
+						break;
+						
+					case 'body':
+						if(null == ($message_body = $message_last->getContent()))
+							break;
+							
+						// Line-by-line body scanning (sed-like)
+						$lines = split("[\r\n]", $message_body);
+						if(is_array($lines))
+						foreach($lines as $line) {
+							if(@preg_match($value, $line)) {
+								$passed++;
+								break;
+							}
 						}
 						break;
 						

@@ -236,6 +236,25 @@ class ChGroupsPage extends CerberusPageExtension  {
 			
 			// Any special rule handling
 			switch($rule) {
+				case 'dayofweek':
+					// days
+					$days = DevblocksPlatform::importGPC($_REQUEST['value_dayofweek'],'array',array());
+					if(in_array(0,$days)) $criteria['sun'] = 'Sunday';
+					if(in_array(1,$days)) $criteria['mon'] = 'Monday';
+					if(in_array(2,$days)) $criteria['tue'] = 'Tuesday';
+					if(in_array(3,$days)) $criteria['wed'] = 'Wednesday';
+					if(in_array(4,$days)) $criteria['thu'] = 'Thursday';
+					if(in_array(5,$days)) $criteria['fri'] = 'Friday';
+					if(in_array(6,$days)) $criteria['sat'] = 'Saturday';
+					unset($criteria['value']);
+					break;
+				case 'timeofday':
+					$from = DevblocksPlatform::importGPC($_REQUEST['timeofday_from'],'string','');
+					$to = DevblocksPlatform::importGPC($_REQUEST['timeofday_to'],'string','');
+					$criteria['from'] = $from;
+					$criteria['to'] = $to;
+					unset($criteria['value']);
+					break;
 				case 'subject':
 					break;
 				case 'from':

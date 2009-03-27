@@ -570,6 +570,14 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$groups = DAO_Group::getAll();
 		$tpl->assign('groups', $groups);
 		
+		// Custom Field Sources
+		$source_manifests = DevblocksPlatform::getExtensions('cerberusweb.fields.source', false);
+		$tpl->assign('source_manifests', $source_manifests);
+		
+		// Custom Fields
+		$custom_fields =  DAO_CustomField::getAll();
+		$tpl->assign('custom_fields', $custom_fields);
+		
 		$tpl->display('file:' . $this->_TPL_PATH . 'configuration/tabs/mail/mail_preparse.tpl');
 	}
 
@@ -611,6 +619,14 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		
 		$groups = DAO_Group::getAll();
 		$tpl->assign('groups', $groups);
+
+		// Custom Fields: Address
+		$address_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Address::ID);
+		$tpl->assign('address_fields', $address_fields);
+		
+		// Custom Fields: Orgs
+		$org_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Org::ID);
+		$tpl->assign('org_fields', $org_fields);
 		
 		$tpl->display('file:' . $this->_TPL_PATH . 'configuration/tabs/mail/preparser/peek.tpl');
 	}
@@ -630,6 +646,9 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		
 		$criterion = array();
 		$actions = array();
+		
+		// Custom fields
+		$custom_fields = DAO_CustomField::getAll();
 		
 		// Criteria
 		if(is_array($rules))
@@ -684,8 +703,57 @@ class ChConfigurationPage extends CerberusPageExtension  {
 					break;
 				case 'attachment':
 					break;
-				default: // ignore invalids
-					continue;
+				default: // ignore invalids // [TODO] Very redundant
+					// Custom fields
+					if("cf_" == substr($rule,0,3)) {
+						$field_id = intval(substr($rule,3));
+						
+						if(!isset($custom_fields[$field_id]))
+							continue;
+
+						// [TODO] Operators
+							
+						switch($custom_fields[$field_id]->type) {
+							case 'S': // string
+							case 'T': // clob
+								$oper = DevblocksPlatform::importGPC($_REQUEST['value_cf_'.$field_id.'_oper'],'string','regexp');
+								$criteria['oper'] = $oper;
+								break;
+							case 'D': // dropdown
+							case 'M': // multi-dropdown
+							case 'X': // multi-checkbox
+								$in_array = DevblocksPlatform::importGPC($_REQUEST['value_cf_'.$field_id],'array',array());
+								$out_array = array();
+								
+								// Hash key on the option for quick lookup later
+								if(is_array($in_array))
+								foreach($in_array as $k => $v) {
+									$out_array[$v] = $v;
+								}
+								
+								$criteria['value'] = $out_array;
+								break;
+							case 'E': // date
+								$from = DevblocksPlatform::importGPC($_REQUEST['value_cf_'.$field_id.'_from'],'string','0');
+								$to = DevblocksPlatform::importGPC($_REQUEST['value_cf_'.$field_id.'_to'],'string','now');
+								$criteria['from'] = $from;
+								$criteria['to'] = $to;
+								unset($criteria['value']);
+								break;
+							case 'N': // number
+								$oper = DevblocksPlatform::importGPC($_REQUEST['value_cf_'.$field_id.'_oper'],'string','=');
+								$criteria['oper'] = $oper;
+								$criteria['value'] = intval($value);
+								break;
+							case 'C': // checkbox
+								$criteria['value'] = intval($value);
+								break;
+						}
+						
+					} else {
+						continue;
+					}
+					
 					break;
 			}
 			
@@ -1697,7 +1765,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 					break;
 //				case 'attachment':
 //					break;
-				default: // ignore invalids
+				default: // ignore invalids // [TODO] Very redundant
 					// Custom fields
 					if("cf_" == substr($rule,0,3)) {
 						$field_id = intval(substr($rule,3));

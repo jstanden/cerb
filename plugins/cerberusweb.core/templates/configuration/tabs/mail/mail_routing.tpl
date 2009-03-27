@@ -41,7 +41,7 @@
 					{/if}
 				</td>
 				<td style="{if $rule->is_sticky}background-color:rgb(255,255,221);border:2px solid rgb(255,215,0);{else}{/if}padding:5px;">
-					<a href="javascript:;" onclick="genericAjaxPanel('c=config&a=showMailRoutingRulePanel&id={$rule_id}',null,false,'550px');" style='color:rgb(80,80,80);font-weight:bold;font-size:110%;'>{$rule->name|escape}</a>
+					<a href="javascript:;" onclick="genericAjaxPanel('c=config&a=showMailRoutingRulePanel&id={$rule_id}',null,false,'550px');" style="color:rgb(0,120,0);font-weight:bold;">{$rule->name|escape}</a>
 					{if $rule->is_stackable}<span style="font-size:90%;padding-left:5px;color:rgb(0,120,0);">(Stackable)</span>{/if}
 					<br>
 					

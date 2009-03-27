@@ -28,13 +28,28 @@
 				{/if}
 			</td>
 			<td style="{if $rule->is_sticky}background-color:rgb(255,255,221);border:2px solid rgb(255,215,0);{else}{/if}padding:5px;">
-				<a href="javascript:;" onclick="genericAjaxPanel('c=groups&a=showInboxFilterPanel&id={$rule_id}&group_id={$group_id}',null,false,'550px');" style='color:rgb(80,80,80);font-weight:bold;font-size:110%;'>{$rule->name|escape}</a>
+				<a href="javascript:;" onclick="genericAjaxPanel('c=groups&a=showInboxFilterPanel&id={$rule_id}&group_id={$group_id}',null,false,'550px');" style="color:rgb(0,120,0);font-weight:bold;">{$rule->name|escape}</a>
 				{if $rule->is_stackable}<span style="font-size:90%;padding-left:5px;color:rgb(0,120,0);">(Stackable)</span>{/if}
 				<br>
 				
 				{foreach from=$rule->criteria item=crit key=crit_key}
 					{if $crit_key=='type'}
 						Is a <b>{$crit.value}</b> message<br>
+					{elseif $crit_key=='dayofweek'}
+						Day of Week is 
+							{foreach from=$crit item=day name=timeofday}
+							<b>{$day}</b>{if !$smarty.foreach.timeofday.last} or {/if}
+							{/foreach}
+							<br>
+					{elseif $crit_key=='timeofday'}
+						{assign var=from_time value=$crit.from|explode:':'}
+						{assign var=to_time value=$crit.to|explode:':'}
+						Time of Day 
+							<i>between</i> 
+							<b>{$from_time.0|string_format:"%d"}:{$from_time.1|string_format:"%02d"}</b> 
+							<i>and</i> 
+							<b>{$to_time.0|string_format:"%d"}:{$to_time.1|string_format:"%02d"}</b> 
+							<br>
 					{elseif $crit_key=='subject'}
 						Subject = <b>{$crit.value}</b><br>
 					{elseif $crit_key=='from'}
