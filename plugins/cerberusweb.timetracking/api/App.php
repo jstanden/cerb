@@ -262,9 +262,9 @@ class DAO_TimeTrackingEntry extends C4_ORMHelper {
 		
 		// Sanitize
 		if(!isset($fields[$sortBy]))
-			unset($sortBy);
+			$sortBy=null;
 
-        list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields);
+        list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields,$sortBy);
 		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
 		
 		$select_sql = sprintf("SELECT ".

@@ -241,9 +241,9 @@ class DAO_TicketAuditLog extends DevblocksORMHelper {
 		
 		// Sanitize
 		if(!isset($fields[$sortBy]))
-			unset($sortBy);
+			$sortBy=null;
 
-        list($tables,$wheres) = parent::_parseSearchParams($params, array(), $fields);
+        list($tables,$wheres) = parent::_parseSearchParams($params, array(), $fields,$sortBy);
 		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
 		$total = -1;
 		

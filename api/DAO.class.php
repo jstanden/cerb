@@ -631,9 +631,9 @@ class DAO_Worker extends DevblocksORMHelper {
 		
 		// Sanitize
 		if(!isset($fields[$sortBy]))
-			unset($sortBy);
+			$sortBy=null;
 
-        list($tables,$wheres) = parent::_parseSearchParams($params, array(),$fields);
+        list($tables,$wheres) = parent::_parseSearchParams($params, array(),$fields,$sortBy);
 		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
 		$total = -1;
 		
@@ -1069,9 +1069,9 @@ class DAO_WorkerEvent extends DevblocksORMHelper {
 		
 		// Sanitize
 		if(!isset($fields[$sortBy]))
-			unset($sortBy);
+			$sortBy=null;
 
-        list($tables,$wheres) = parent::_parseSearchParams($params, array(),$fields);
+        list($tables,$wheres) = parent::_parseSearchParams($params, array(),$fields,$sortBy);
 		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
 		$total = -1;
 		
@@ -1355,9 +1355,9 @@ class DAO_ContactOrg extends C4_ORMHelper {
 		
 		// Sanitize
 		if(!isset($fields[$sortBy]))
-			unset($sortBy);
+			$sortBy=null;
 		
-        list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields);
+        list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields,$sortBy);
 		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
 		$total = -1;
 		
@@ -1742,9 +1742,9 @@ class DAO_Address extends C4_ORMHelper {
 		
 		// Sanitize
 		if(!isset($fields[$sortBy]))
-			unset($sortBy);
+			$sortBy=null;
 		
-        list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields);
+        list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields,$sortBy);
 		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
 		
 		$select_sql = sprintf("SELECT ".
@@ -2174,9 +2174,9 @@ class DAO_Message extends DevblocksORMHelper {
 		
 		// Sanitize
 		if(!isset($fields[$sortBy]))
-			unset($sortBy);
+			$sortBy=null;
 
-        list($tables,$wheres,$selects) = parent::_parseSearchParams($params, array(),$fields);
+        list($tables,$wheres,$selects) = parent::_parseSearchParams($params, array(),$fields,$sortBy);
 		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
 		
 		$sql = sprintf("SELECT ".
@@ -2693,9 +2693,9 @@ class DAO_Attachment extends DevblocksORMHelper {
 		
 		// Sanitize
 		if(!isset($fields[$sortBy]))
-			unset($sortBy);
+			$sortBy=null;
 
-        list($tables,$wheres) = parent::_parseSearchParams($params, array(),$fields);
+        list($tables,$wheres) = parent::_parseSearchParams($params, array(),$fields,$sortBy);
 		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
 		$total = -1;
 		
@@ -3630,10 +3630,11 @@ class DAO_Ticket extends C4_ORMHelper {
 		$total = -1;
 
 		// Sanitize
-		if(!isset($fields[$sortBy]))
+		if(!isset($fields[$sortBy])) {
 			unset($sortBy);
+		}
 		
-        list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields);
+        list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
 		$start = ($page * $limit); // [JAS]: 1-based
 		
 		$select_sql = sprintf("SELECT ".
@@ -4994,9 +4995,9 @@ class DAO_Community extends DevblocksORMHelper {
 
 		// Sanitize
 		if(!isset($fields[$sortBy]))
-			unset($sortBy);
+			$sortBy=null;
 		
-        list($tables,$wheres) = parent::_parseSearchParams($params, array(), $fields);
+        list($tables,$wheres) = parent::_parseSearchParams($params, array(), $fields,$sortBy);
 		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
 		
 		$sql = sprintf("SELECT ".
@@ -5337,9 +5338,9 @@ class DAO_Note extends DevblocksORMHelper {
 		
 		// Sanitize
 		if(!isset($fields[$sortBy]))
-			unset($sortBy);
+			$sortBy=null;
 
-        list($tables,$wheres) = parent::_parseSearchParams($params, array(),$fields);
+        list($tables,$wheres) = parent::_parseSearchParams($params, array(),$fields,$sortBy);
 		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
 		
 		$select_sql = sprintf("SELECT ".
@@ -5733,9 +5734,9 @@ class DAO_GroupInboxFilter extends DevblocksORMHelper {
 		
 		// Sanitize
 		if(!isset($fields[$sortBy]))
-			unset($sortBy);
+			$sortBy=null;
 		
-        list($tables,$wheres) = parent::_parseSearchParams($params, array(), $fields);
+        list($tables,$wheres) = parent::_parseSearchParams($params, array(), $fields,$sortBy);
 		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
 		
 		$sql = sprintf("SELECT ".
@@ -7079,9 +7080,9 @@ class DAO_Task extends C4_ORMHelper {
 		
 		// Sanitize
 		if(!isset($fields[$sortBy]))
-			unset($sortBy);
+			$sortBy=null;
 		
-        list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields);
+        list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields,$sortBy);
 		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
 		
 		$select_sql = sprintf("SELECT ".
