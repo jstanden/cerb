@@ -119,4 +119,31 @@ if(isset($columns['CRITERIA_SER'])) {
 	}
 }
 
+// ===========================================================================
+// Increase the size of 'pos' past 2 bytes (32K filter hits)
+
+// Mail Routing
+$columns = $datadict->MetaColumns('mail_to_group_rule');
+
+if(isset($columns['POS']) && 0!=strcasecmp('mediumint',$columns['POS']->type)) {
+	$sql = sprintf("ALTER TABLE mail_to_group_rule CHANGE COLUMN pos pos mediumint DEFAULT 0 NOT NULL");
+	$db->Execute($sql);
+}
+
+// Pre-Parser
+$columns = $datadict->MetaColumns('preparse_rule');
+
+if(isset($columns['POS']) && 0!=strcasecmp('mediumint',$columns['POS']->type)) {
+	$sql = sprintf("ALTER TABLE preparse_rule CHANGE COLUMN pos pos mediumint DEFAULT 0 NOT NULL");
+	$db->Execute($sql);
+}
+
+// Group Inbox Filters
+$columns = $datadict->MetaColumns('group_inbox_filter');
+
+if(isset($columns['POS']) && 0!=strcasecmp('mediumint',$columns['POS']->type)) {
+	$sql = sprintf("ALTER TABLE group_inbox_filter CHANGE COLUMN pos pos mediumint DEFAULT 0 NOT NULL");
+	$db->Execute($sql);
+}
+
 return TRUE;
