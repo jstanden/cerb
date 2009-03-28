@@ -3735,14 +3735,14 @@ class Model_MailTemplate {
 		$replace = array();
 		$with = array();
 
+		$replace[] = '#timestamp#';
+		$with[] = date('r');
+		
 		if(!empty($message_id)) {
 			$message = DAO_Ticket::getMessage($message_id);
 			$ticket = DAO_Ticket::getTicket($message->ticket_id);
 			$sender = DAO_Address::get($message->address_id);
 			$sender_org = DAO_ContactOrg::get($sender->contact_org_id);
-
-			$replace[] = '#timestamp#';
-			$with[] = date('r');
 			
 			$replace[] = '#sender_first_name#';
 			$replace[] = '#sender_last_name#';
