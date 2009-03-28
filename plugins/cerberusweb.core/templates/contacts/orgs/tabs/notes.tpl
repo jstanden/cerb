@@ -30,11 +30,13 @@
 	{assign var=worker_id value=$note.n_worker_id}
 	<div style="border-top:1px dashed rgb(200,200,200);padding:5px;margin-top:5px;margin-bottom:5px;" onmouseover="toggleDiv('contactDelOrgNote{$note.n_id}','inline');" onmouseout="toggleDiv('contactDelOrgNote{$note.n_id}','none');">
 		<b style="color:rgb(0,120,0);">{$workers.$worker_id->getName()}</b> 
-		{$note.n_content} <span style="font-size:90%;color:rgb(175,175,175);">{$note.n_created|devblocks_date}</span>
+		<span style="font-size:90%;color:rgb(175,175,175);">{$note.n_created|devblocks_date}</span>
 		{if $active_worker->is_superuser || $active_worker->id == $worker_id}
 			<span style="display:none;padding:2px;" id="contactDelOrgNote{$note.n_id}"><a href="javascript:;" onclick="document.getElementById('btnDelOrgNote{$note.n_id}').click();" style="font-size:90%;color:rgb(230,0,0);">delete</a></span>
 			<button type="button" id="btnDelOrgNote{$note.n_id}" style="display:none;visibility:hidden;" onclick="if(confirm('Are you sure you want to delete this note?')){literal}{{/literal}this.form.a.value='deleteOrgNote';this.form.id.value='{$note.n_id}';this.form.submit();{literal}}{/literal}"></button>
 		{/if}
+		<br>
+		{$note.n_content|escape|nl2br} 
 	</div>
 {/foreach}
 
