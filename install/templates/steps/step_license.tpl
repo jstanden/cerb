@@ -6,7 +6,7 @@
 
 <H3>Plain English License</H3>
 
-<ul style="line-height:175%;margin:5px;">
+<ul style="line-height:175%;margin:20px;">
 	<li>This software is the exclusive property and copyright of <b>WebGroup Media LLC ("WGM")</b></li>
 	<li>You may not resell, rebrand or sub-license this software without written permission from WGM.</li>
 	<li>You may not remove or alter any copyright notices found in the source code.</li>
