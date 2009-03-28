@@ -3048,12 +3048,17 @@ class DAO_Ticket extends C4_ORMHelper {
 			);
 			$db->Execute($sql);
 			
-			// Requesters [TODO] This will probably complain about some dupe constraints
-			$sql = sprintf("UPDATE requester SET ticket_id = %d WHERE ticket_id IN (%s)",
+			// Requesters (merge)
+			$sql = sprintf("INSERT IGNORE INTO requester (address_id,ticket_id) ".
+				"SELECT address_id, %d FROM requester WHERE ticket_id IN (%s)",
 				$oldest_id,
 				implode(',', $merge_ticket_ids)
 			);
 			$db->Execute($sql);
+			
+			$sql = sprintf("DELETE FROM requester WHERE ticket_id IN (%s)",
+				implode(',', $merge_ticket_ids)
+			);
 
 			// Tasks
 			$sql = sprintf("UPDATE task SET source_id = %d WHERE source_extension = %s AND source_id IN (%s)",
