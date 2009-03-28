@@ -64,5 +64,6 @@
 {if $template->id}
 <button type="button" onclick="if(confirm('Are you sure you want to permanently delete this template?')){literal}{{/literal}this.form.do_delete.value='1';saveGenericAjaxPanel('replyTemplateEditForm',true,ajax.onSaveReplyTemplate);{literal}}{/literal}"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_delete.gif{/devblocks_url}" align="top"> {$translate->_('common.delete')|capitalize}</button>
 {/if}
+<button type="button" onclick="genericPanel.hide();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> {$translate->_('common.cancel')|capitalize}</button>
 
 </form>

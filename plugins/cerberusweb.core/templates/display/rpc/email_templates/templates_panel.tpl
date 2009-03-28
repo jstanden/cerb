@@ -42,5 +42,5 @@
 {if !empty($templates)}
 	<button type="button" onclick="genericAjaxPanel('c=display&a=showTemplateEditPanel&type={$type}&id='+radioValue(this.form.template_id),null,false,'550px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_edit.gif{/devblocks_url}" align="top"> Edit Selected</button>
 {/if}
-
+<button type="button" onclick="genericPanel.hide();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> {$translate->_('common.cancel')|capitalize}</button>
 </form>
