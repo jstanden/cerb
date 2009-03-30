@@ -175,6 +175,10 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 	}
 
 	function showTopicEditPanelAction() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		if(!$active_worker->hasPriv('core.kb.topics.modify'))
+			return;
+		
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -190,6 +194,10 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 	}
 
 	function saveTopicEditPanelAction() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		if(!$active_worker->hasPriv('core.kb.topics.modify'))
+			return;
+		
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		@$name = DevblocksPlatform::importGPC($_REQUEST['name'],'string');
 		@$delete = DevblocksPlatform::importGPC($_REQUEST['delete_box'],'integer',0);
@@ -226,6 +234,10 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 	}	
 
 	function showArticleEditPanelAction() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		if(!$active_worker->hasPriv('core.kb.articles.modify'))
+			return;
+		
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
 		@$root_id = DevblocksPlatform::importGPC($_REQUEST['root_id']);
 		
@@ -253,6 +265,10 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 	}
 
 	function saveArticleEditPanelAction() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		if(!$active_worker->hasPriv('core.kb.articles.modify'))
+			return;
+		
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
@@ -345,6 +361,10 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 	}
 	
 	function showKbCategoryEditPanelAction() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		if(!$active_worker->hasPriv('core.kb.categories.modify'))
+			return;
+		
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
 		@$root_id = DevblocksPlatform::importGPC($_REQUEST['root_id']);
 		@$return = DevblocksPlatform::importGPC($_REQUEST['return']);
@@ -376,6 +396,10 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 	}
 	
 	function saveKbCategoryEditPanelAction() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		if(!$active_worker->hasPriv('core.kb.categories.modify'))
+			return;
+		
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		@$name = DevblocksPlatform::importGPC($_REQUEST['name'],'string');
 		@$parent_id = DevblocksPlatform::importGPC($_REQUEST['parent_id'],'integer',0);

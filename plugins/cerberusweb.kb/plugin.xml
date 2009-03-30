@@ -28,7 +28,9 @@
 	
 	<acl>
 		<!-- KB -->
-		<priv id="core.kb" label="acl.core.kb" />
+		<priv id="core.kb.articles.modify" label="acl.core.kb.articles.modify" />
+		<priv id="core.kb.categories.modify" label="acl.core.kb.categories.modify" />
+		<priv id="core.kb.topics.modify" label="acl.core.kb.topics.modify" />
 	</acl>
 	
 	<extensions>

@@ -395,7 +395,7 @@
 			<params>
 				<param key="uri" value="research" />
 				<param key="menutitle" value="core.menu.research" />
-				<param key="acl" value="core.reseach" />
+				<param key="acl" value="core.research" />
 			</params>
 		</extension>
 

@@ -7,8 +7,14 @@
 
 		<!-- ACL -->
 		
-		<tu tuid='acl.core.kb'>
-			<tuv xml:lang="en_US"><seg>[Knowledgebase] Can view the knowledgebase</seg></tuv>
+		<tu tuid='acl.core.kb.articles.modify'>
+			<tuv xml:lang="en_US"><seg>[Knowledgebase] Can manage articles</seg></tuv>
+		</tu>
+		<tu tuid='acl.core.kb.categories.modify'>
+			<tuv xml:lang="en_US"><seg>[Knowledgebase] Can manage categories</seg></tuv>
+		</tu>
+		<tu tuid='acl.core.kb.topics.modify'>
+			<tuv xml:lang="en_US"><seg>[Knowledgebase] Can manage top-level topics</seg></tuv>
 		</tu>
 
 		<!-- Common Strings -->

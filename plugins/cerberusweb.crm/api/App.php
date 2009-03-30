@@ -31,6 +31,7 @@ class CrmOppsActivityTab extends Extension_ActivityTab {
 		
 		$visit = CerberusApplication::getVisit();
 		$translate = DevblocksPlatform::getTranslationService();
+		$active_worker = CerberusApplication::getActiveWorker();
 
 		// Read original request
 		@$request_path = DevblocksPlatform::importGPC($_REQUEST['request'],'string','');
@@ -42,6 +43,9 @@ class CrmOppsActivityTab extends Extension_ActivityTab {
 		
 		switch(@array_shift($stack)) {
 			case 'import':
+				if(!$active_worker->hasPriv('crm.opp.actions.import'))
+					break;
+
 				switch(@array_shift($stack)) {
 					case 'step2':
 						// Load first row headings
@@ -77,34 +81,29 @@ class CrmOppsActivityTab extends Extension_ActivityTab {
 						return;
 						break;
 						
-					default:
-						break;
-						
 				} // import:switch
 				break;
-			
-			// Index
-			default:
-				if(null == ($view = C4_AbstractViewLoader::getView('', self::VIEW_ACTIVITY_OPPS))) {
-					$view = new C4_CrmOpportunityView();
-					$view->id = self::VIEW_ACTIVITY_OPPS;
-					$view->renderSortBy = SearchFields_CrmOpportunity::UPDATED_DATE;
-					$view->renderSortAsc = 0;
-					
-					$view->name = $translate->_('crm.tab.title');
-					
-					C4_AbstractViewLoader::setView($view->id, $view);
-				}
-		
-				$tpl->assign('response_uri', 'activity/opps');
-				
-				$tpl->assign('view', $view);
-				$tpl->assign('view_fields', C4_CrmOpportunityView::getFields());
-				$tpl->assign('view_searchable_fields', C4_CrmOpportunityView::getSearchFields());
-				
-				$tpl->display($tpl_path . 'crm/opps/activity_tab/index.tpl');		
-				break;
 		}
+			
+		// Index
+		if(null == ($view = C4_AbstractViewLoader::getView('', self::VIEW_ACTIVITY_OPPS))) {
+			$view = new C4_CrmOpportunityView();
+			$view->id = self::VIEW_ACTIVITY_OPPS;
+			$view->renderSortBy = SearchFields_CrmOpportunity::UPDATED_DATE;
+			$view->renderSortAsc = 0;
+			
+			$view->name = $translate->_('crm.tab.title');
+			
+			C4_AbstractViewLoader::setView($view->id, $view);
+		}
+
+		$tpl->assign('response_uri', 'activity/opps');
+		
+		$tpl->assign('view', $view);
+		$tpl->assign('view_fields', C4_CrmOpportunityView::getFields());
+		$tpl->assign('view_searchable_fields', C4_CrmOpportunityView::getSearchFields());
+		
+		$tpl->display($tpl_path . 'crm/opps/activity_tab/index.tpl');		
 	}
 }
 endif;
@@ -714,6 +713,10 @@ class CrmPage extends CerberusPageExtension {
 	
 	// Ajax
 	function showImportPanelAction() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		if(!$active_worker->hasPriv('crm.opp.actions.import'))
+			return;
+
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
 		$tpl->assign('path', $tpl_path);
@@ -724,6 +727,10 @@ class CrmPage extends CerberusPageExtension {
 	// Post
 	function parseUploadAction() {
 		@$csv_file = $_FILES['csv_file'];
+
+		$active_worker = CerberusApplication::getActiveWorker();
+		if(!$active_worker->hasPriv('crm.opp.actions.import'))
+			return;
 
 		if(!is_array($csv_file) || !isset($csv_file['tmp_name']) || empty($csv_file['tmp_name'])) {
 			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('activity','opps')));
@@ -750,8 +757,8 @@ class CrmPage extends CerberusPageExtension {
 	function doImportAction() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-//		if(!$active_worker->hasPriv('core.addybook.import'))
-//			return;
+		if(!$active_worker->hasPriv('crm.opp.actions.import'))
+			return;
 		
 		@$pos = DevblocksPlatform::importGPC($_REQUEST['pos'],'array',array());
 		@$field = DevblocksPlatform::importGPC($_REQUEST['field'],'array',array());

@@ -13,6 +13,9 @@
 		<tu tuid='acl.crm.opp.actions.create'>
 			<tuv xml:lang="en_US"><seg>[Opportunities] Can create opportunities</seg></tuv>
 		</tu>
+		<tu tuid='acl.crm.opp.actions.import'>
+			<tuv xml:lang="en_US"><seg>[Opportunities] Can import opportunities from CSV files</seg></tuv>
+		</tu>
 		<tu tuid='acl.crm.opp.actions.update_all'>
 			<tuv xml:lang="en_US"><seg>[Opportunities] Can manage everyone's opportunities</seg></tuv>
 		</tu>
