@@ -28,6 +28,8 @@ class ChActivityPage extends CerberusPageExtension {
 		$tpl->assign('path', $this->_TPL_PATH);
 		
 		$response = DevblocksPlatform::getHttpResponse();
+		$tpl->assign('request_path', implode('/',$response->path));
+		
 		$stack = $response->path;
 		array_shift($stack); // activity
 

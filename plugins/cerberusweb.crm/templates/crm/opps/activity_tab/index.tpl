@@ -1,10 +1,9 @@
-{if $active_worker->hasPriv('crm.opp.actions.create')}
 <form action="{devblocks_url}{/devblocks_url}" method="post" style="padding-bottom:5px;">
 	<input type="hidden" name="c" value="crm">
 	<input type="hidden" name="a" value="">
-	<button type="button" onclick="genericAjaxPanel('c=crm&a=showOppPanel&id=0&view_id={$view->id}',this,false,'500px',function(o){literal}{{/literal} ajax.cbEmailSinglePeek(); {literal}}{/literal});"><img src="{devblocks_url}c=resource&p=cerberusweb.crm&f=images/money.gif{/devblocks_url}" align="top"> Add Opportunity</button>
+	{if $active_worker->hasPriv('crm.opp.actions.create')}<button type="button" onclick="genericAjaxPanel('c=crm&a=showOppPanel&id=0&view_id={$view->id}',this,false,'500px',function(o){literal}{{/literal} ajax.cbEmailSinglePeek(); {literal}}{/literal});"><img src="{devblocks_url}c=resource&p=cerberusweb.crm&f=images/money.gif{/devblocks_url}" align="top"> Add Opportunity</button>{/if}
+	<button type="button" onclick="genericAjaxPanel('c=crm&a=showImportPanel',this,false,'500px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_into.gif{/devblocks_url}" align="top"> {$translate->_('common.import')|capitalize}</button>
 </form>
-{/if}
 
 <table cellpadding="0" cellspacing="0" width="100%">
 <tr>

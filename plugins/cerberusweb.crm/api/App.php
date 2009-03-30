@@ -29,26 +29,82 @@ class CrmOppsActivityTab extends Extension_ActivityTab {
 		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
 		$tpl->assign('path', $tpl_path);
 		
+		$visit = CerberusApplication::getVisit();
 		$translate = DevblocksPlatform::getTranslationService();
-		
-		if(null == ($view = C4_AbstractViewLoader::getView('', self::VIEW_ACTIVITY_OPPS))) {
-			$view = new C4_CrmOpportunityView();
-			$view->id = self::VIEW_ACTIVITY_OPPS;
-			$view->renderSortBy = SearchFields_CrmOpportunity::UPDATED_DATE;
-			$view->renderSortAsc = 0;
-			
-			$view->name = $translate->_('crm.tab.title');
-			
-			C4_AbstractViewLoader::setView($view->id, $view);
-		}
 
-		$tpl->assign('response_uri', 'activity/opps');
+		// Read original request
+		@$request_path = DevblocksPlatform::importGPC($_REQUEST['request'],'string','');
+		$tpl->assign('request_path', $request_path);
+
+		@$stack =  explode('/', $request_path);
+		@array_shift($stack); // activity
+		@array_shift($stack); // opps
 		
-		$tpl->assign('view', $view);
-		$tpl->assign('view_fields', C4_CrmOpportunityView::getFields());
-		$tpl->assign('view_searchable_fields', C4_CrmOpportunityView::getSearchFields());
+		switch(@array_shift($stack)) {
+			case 'import':
+				switch(@array_shift($stack)) {
+					case 'step2':
+						// Load first row headings
+						$csv_file = $visit->get('crm.import.last.csv','');
+						$fp = fopen($csv_file, "rt");
+						if($fp) {
+							$parts = fgetcsv($fp, 8192, ',', '"');
+							$tpl->assign('parts', $parts);
+						}
+						@fclose($fp);
+
+						$fields = array(
+							'name' => $translate->_('crm.opportunity.name'),
+							'email' => $translate->_('crm.opportunity.email_address'),
+							'created_date' => $translate->_('crm.opportunity.created_date'),
+							'updated_date' => $translate->_('crm.opportunity.updated_date'),
+							'closed_date' => $translate->_('crm.opportunity.closed_date'),
+							'is_won' => $translate->_('crm.opportunity.is_won'),
+							'is_closed' => $translate->_('crm.opportunity.is_closed'),
+//							'worker_id' => $translate->_('crm.opportunity.worker_id'),
+							'worker' => $translate->_('crm.opportunity.worker_id'),
+							'amount' => $translate->_('crm.opportunity.amount'),
+						);
+						$tpl->assign('fields',$fields);
+						
+						$custom_fields = DAO_CustomField::getBySource(CrmCustomFieldSource_Opportunity::ID);
+						$tpl->assign('custom_fields', $custom_fields);
+						
+						$workers = DAO_Worker::getAllActive();
+						$tpl->assign('workers', $workers);
+						
+						$tpl->display($tpl_path . 'crm/opps/activity_tab/import/mapping.tpl');
+						return;
+						break;
+						
+					default:
+						break;
+						
+				} // import:switch
+				break;
+			
+			// Index
+			default:
+				if(null == ($view = C4_AbstractViewLoader::getView('', self::VIEW_ACTIVITY_OPPS))) {
+					$view = new C4_CrmOpportunityView();
+					$view->id = self::VIEW_ACTIVITY_OPPS;
+					$view->renderSortBy = SearchFields_CrmOpportunity::UPDATED_DATE;
+					$view->renderSortAsc = 0;
+					
+					$view->name = $translate->_('crm.tab.title');
+					
+					C4_AbstractViewLoader::setView($view->id, $view);
+				}
 		
-		$tpl->display($tpl_path . 'crm/opps/activity_tab/index.tpl');		
+				$tpl->assign('response_uri', 'activity/opps');
+				
+				$tpl->assign('view', $view);
+				$tpl->assign('view_fields', C4_CrmOpportunityView::getFields());
+				$tpl->assign('view_searchable_fields', C4_CrmOpportunityView::getSearchFields());
+				
+				$tpl->display($tpl_path . 'crm/opps/activity_tab/index.tpl');		
+				break;
+		}
 	}
 }
 endif;
@@ -655,6 +711,258 @@ class CrmPage extends CerberusPageExtension {
 		$view->render();
 		return;
 	}
+	
+	// Ajax
+	function showImportPanelAction() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
+		$tpl->assign('path', $tpl_path);
+		
+		$tpl->display($tpl_path . 'crm/opps/activity_tab/import/panel.tpl');		
+	}
+	
+	// Post
+	function parseUploadAction() {
+		@$csv_file = $_FILES['csv_file'];
+
+		if(!is_array($csv_file) || !isset($csv_file['tmp_name']) || empty($csv_file['tmp_name'])) {
+			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('activity','opps')));
+			return;
+		}
+		
+		$visit = CerberusApplication::getVisit();
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		$filename = basename($csv_file['tmp_name']);
+		$newfilename = APP_TEMP_PATH . '/' . $filename;
+		
+		if(!rename($csv_file['tmp_name'], $newfilename)) {
+			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('activity','opps')));
+			return; // [TODO] Throw error
+		}
+		
+		$visit->set('crm.import.last.csv', $newfilename);
+		
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('activity','opps','import','step2')));
+	}
+	
+	// Post
+	function doImportAction() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+//		if(!$active_worker->hasPriv('core.addybook.import'))
+//			return;
+		
+		@$pos = DevblocksPlatform::importGPC($_REQUEST['pos'],'array',array());
+		@$field = DevblocksPlatform::importGPC($_REQUEST['field'],'array',array());
+		@$sync_dupes = DevblocksPlatform::importGPC($_REQUEST['sync_dupes'],'array',array());
+		@$include_first = DevblocksPlatform::importGPC($_REQUEST['include_first'],'integer',0);
+		@$is_blank_unset = DevblocksPlatform::importGPC($_REQUEST['is_blank_unset'],'integer',0);
+		@$opt_assign = DevblocksPlatform::importGPC($_REQUEST['opt_assign'],'integer',0);
+		@$opt_assign_worker_id = DevblocksPlatform::importGPC($_REQUEST['opt_assign_worker_id'],'integer',0);
+		
+		$visit = CerberusApplication::getVisit();
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$workers = DAO_Worker::getAllActive();
+		
+		$csv_file = $visit->get('crm.import.last.csv','');
+		
+		$fp = fopen($csv_file, "rt");
+		if(!$fp) return;
+
+		// [JAS]: Do we need to consume a first row of headings?
+		if(!$include_first)
+			@fgetcsv($fp, 8192, ',', '"');
+		
+		while(!feof($fp)) {
+			$parts = fgetcsv($fp, 8192, ',', '"');
+			
+			if(empty($parts) || (1==count($parts) && is_null($parts[0])))
+				continue;
+			
+			$fields = array();
+			$custom_fields = array();
+			$sync_fields = array();
+			
+			foreach($pos as $idx => $p) {
+				$key = $field[$idx];
+				$val = $parts[$idx];
+				
+				// Special handling
+				if(!empty($key)) {
+					switch($key) {
+						case 'amount':
+							if(0 != strlen($val) && is_numeric($val)) {
+								@$val = floatval($val);
+							} else {
+								unset($key);
+							}
+							break;
+						// Translate e-mail address to ID
+						case 'email':
+							if(null != ($addy = CerberusApplication::hashLookupAddress($val,true))) {
+								$key = 'primary_email_id';
+								$val = $addy->id;
+							} else {
+								unset($key);
+							}
+							break;
+						
+						// Bools
+						case 'is_won':
+						case 'is_closed':
+							if(0 != strlen($val)) {
+								@$val = !empty($val) ? 1 : 0;
+							} else {
+								unset($key);
+							}
+							break;
+													
+						// Dates
+						case 'created_date':
+						case 'updated_date':
+						case 'closed_date':
+							if(0 != strlen($val)) {
+								@$val = !is_numeric($val) ? strtotime($val) : $val;
+							} else {
+								unset($key);
+							}
+							break;
+
+						// Worker by name							
+						case 'worker':
+							unset($key);
+							if(is_array($workers))
+							foreach($workers as $worker_id=>$worker)
+								if(0==strcasecmp($val,$worker->getName())) {
+									$key = 'worker_id';
+									$val = $worker_id;
+								}
+							break;
+							
+					}
+
+					if(!isset($key))
+						continue;
+
+					// Custom fields
+					if('cf_' == substr($key,0,3)) {
+						$custom_fields[substr($key,3)] = $val;
+					} elseif(!empty($key)) {
+						$fields[$key] = $val;
+					}
+					
+					// Find dupe combos
+					if(in_array($idx,$sync_dupes)) {
+						$search_field = '';
+						$search_val = '';
+						
+						switch($key) {
+							case 'primary_email_id':
+								$search_field = SearchFields_CrmOpportunity::PRIMARY_EMAIL_ID;
+								$search_val = intval($val);
+								break;
+							case 'title':
+								$search_field = SearchFields_CrmOpportunity::NAME;
+								$search_val = $val;
+								break;
+							case 'amount':
+								$search_field = SearchFields_CrmOpportunity::AMOUNT;
+								$search_val = floatval($val);
+								break;
+							case 'is_won':
+								$search_field = SearchFields_CrmOpportunity::IS_WON;
+								$search_val = intval($val);
+								break;
+							case 'is_closed':
+								$search_field = SearchFields_CrmOpportunity::IS_CLOSED;
+								$search_val = intval($val);
+								break;
+							case 'created_date':
+								$search_field = SearchFields_CrmOpportunity::CREATED_DATE;
+								$search_val = intval($val);
+								break;
+							case 'updated_date':
+								$search_field = SearchFields_CrmOpportunity::UPDATED_DATE;
+								$search_val = intval($val);
+								break;
+							case 'closed_date':
+								$search_field = SearchFields_CrmOpportunity::CLOSED_DATE;
+								$search_val = intval($val);
+								break;
+							case 'worker_id':
+								$search_field = SearchFields_CrmOpportunity::WORKER_ID;
+								$search_val = intval($val);
+								break;
+							default:
+								// Custom field dupe
+								if('cf_'==substr($key,0,3)) {
+									$search_field = $key;
+									// [TODO] Need to format this for proper custom fields
+									$search_val = $val;
+								}
+								break;
+						}
+						
+						if(!empty($search_field) && !empty($search_val))
+							$sync_fields[$search_field] = new DevblocksSearchCriteria($search_field,'=',$search_val);
+					}
+				}
+			} // end foreach($pos)
+			
+			// Dupe checking
+			if(!empty($fields) && !empty($sync_fields)) {
+				list($dupes,$null) = DAO_CrmOpportunity::search(
+					array(),
+					$sync_fields,
+					1, // only need 1 to be a dupe
+					0,
+					null,
+					false,
+					false
+				);
+			}
+			
+			if(!empty($fields)) {
+				if(isset($fields['primary_email_id'])) {
+					// Make sure a minimum amount of fields are provided
+					if(!isset($fields[DAO_CrmOpportunity::UPDATED_DATE]))
+						$fields[DAO_CrmOpportunity::UPDATED_DATE] = time();
+					
+					if($opt_assign && !isset($fields[DAO_CrmOpportunity::WORKER_ID]))
+						$fields[DAO_CrmOpportunity::WORKER_ID] = $opt_assign_worker_id;
+					
+					if(empty($dupes)) {
+						// [TODO] Provide an import prefix for blank names
+						if(!isset($fields[DAO_CrmOpportunity::NAME]) && isset($addy))
+							$fields[DAO_CrmOpportunity::NAME] = $addy->email;
+						if(!isset($fields[DAO_CrmOpportunity::CREATED_DATE]))
+							$fields[DAO_CrmOpportunity::CREATED_DATE] = time();
+						$id = DAO_CrmOpportunity::create($fields);
+						
+					} else {
+						$id = key($dupes);
+						DAO_CrmOpportunity::update($id, $fields);
+					}
+				}
+			}
+			
+			if(!empty($custom_fields) && !empty($id)) {
+				// Format (typecast) and set the custom field types
+				$source_ext_id = CrmCustomFieldSource_Opportunity::ID;
+				DAO_CustomFieldValue::formatAndSetFieldValues($source_ext_id, $id, $custom_fields, $is_blank_unset);
+			}
+			
+		}
+		
+		@unlink($csv_file); // nuke the imported file
+		
+		$visit->set('crm.import.last.csv',null);
+		
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('activity','opps')));
+	}
+		
 };
 
 class DAO_CrmOpportunity extends C4_ORMHelper {
@@ -803,7 +1111,6 @@ class DAO_CrmOpportunity extends C4_ORMHelper {
 			"o.amount as %s, ".
 			"org.id as %s, ".
 			"org.name as %s, ".
-//			"org.website as %s, ".
 			"o.primary_email_id as %s, ".
 			"a.email as %s, ".
 			"o.created_date as %s, ".
@@ -817,7 +1124,6 @@ class DAO_CrmOpportunity extends C4_ORMHelper {
 			    SearchFields_CrmOpportunity::AMOUNT,
 			    SearchFields_CrmOpportunity::ORG_ID,
 			    SearchFields_CrmOpportunity::ORG_NAME,
-//			    SearchFields_CrmOpportunity::ORG_WEBSITE,
 			    SearchFields_CrmOpportunity::PRIMARY_EMAIL_ID,
 			    SearchFields_CrmOpportunity::EMAIL_ADDRESS,
 			    SearchFields_CrmOpportunity::CREATED_DATE,
@@ -878,7 +1184,6 @@ class DAO_CrmOpportunity extends C4_ORMHelper {
 		
 		return array($results,$total);
     }
-	
 };
 
 class SearchFields_CrmOpportunity implements IDevblocksSearchFields {
@@ -896,7 +1201,6 @@ class SearchFields_CrmOpportunity implements IDevblocksSearchFields {
 	
 	const ORG_ID = 'org_id';
 	const ORG_NAME = 'org_name';
-//	const ORG_WEBSITE = 'org_website';
 
 	const EMAIL_ADDRESS = 'a_email';
 	
@@ -914,7 +1218,6 @@ class SearchFields_CrmOpportunity implements IDevblocksSearchFields {
 			
 			self::ORG_ID => new DevblocksSearchField(self::ORG_ID, 'org', 'id', null),
 			self::ORG_NAME => new DevblocksSearchField(self::ORG_NAME, 'org', 'name', null, $translate->_('crm.opportunity.org_name')),
-			//self::ORG_WEBSITE => new DevblocksSearchField(self::ORG_WEBSITE, 'org', 'website', null, $translate->_('crm.opportunity.org_website')),
 			
 			self::NAME => new DevblocksSearchField(self::NAME, 'o', 'name', null, $translate->_('crm.opportunity.name')),
 			self::AMOUNT => new DevblocksSearchField(self::AMOUNT, 'o', 'amount', null, $translate->_('crm.opportunity.amount')),
@@ -1013,7 +1316,6 @@ class C4_CrmOpportunityView extends C4_AbstractView {
 		switch($field) {
 			case SearchFields_CrmOpportunity::NAME:
 			case SearchFields_CrmOpportunity::ORG_NAME:
-//			case SearchFields_CrmOpportunity::ORG_WEBSITE:
 			case SearchFields_CrmOpportunity::EMAIL_ADDRESS:
 				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__string.tpl');
 				break;
@@ -1112,7 +1414,6 @@ class C4_CrmOpportunityView extends C4_AbstractView {
 		switch($field) {
 			case SearchFields_CrmOpportunity::NAME:
 			case SearchFields_CrmOpportunity::ORG_NAME:
-//			case SearchFields_CrmOpportunity::ORG_WEBSITE:
 			case SearchFields_CrmOpportunity::EMAIL_ADDRESS:
 				// force wildcards if none used on a LIKE
 				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
@@ -1358,4 +1659,3 @@ class CrmTicketOppTab extends Extension_TicketTab {
 	function saveTab() {
 	}
 };
-?>
