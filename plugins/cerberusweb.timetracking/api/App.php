@@ -299,8 +299,9 @@ class DAO_TimeTrackingEntry extends C4_ORMHelper {
 //			(isset($tables['mc']) ? "INNER JOIN message_content mc ON (mc.message_id=m.id)" : " ").
 
 		// Custom field joins
-		list($select_sql, $join_sql) = self::_appendSelectJoinSqlForCustomFieldTables(
+		list($select_sql, $join_sql, $has_multiple_values) = self::_appendSelectJoinSqlForCustomFieldTables(
 			$tables,
+			$params,
 			'tt.id',
 			$select_sql,
 			$join_sql
@@ -311,9 +312,12 @@ class DAO_TimeTrackingEntry extends C4_ORMHelper {
 			
 		$sort_sql = (!empty($sortBy) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ");
 		
-		$group_sql = "GROUP BY tt.id ";
-		
-		$sql = $select_sql . $join_sql . $where_sql . $group_sql . $sort_sql;
+		$sql = 
+			$select_sql.
+			$join_sql.
+			$where_sql.
+			($has_multiple_values ? 'GROUP BY tt.id ' : '').
+			$sort_sql;
 		
 		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
@@ -333,7 +337,10 @@ class DAO_TimeTrackingEntry extends C4_ORMHelper {
 		// [JAS]: Count all
 		$total = -1;
 		if($withCounts) {
-			$count_sql = "SELECT COUNT(DISTINCT tt.id) " . $join_sql . $where_sql;
+			$count_sql = 
+				($has_multiple_values ? "SELECT COUNT(DISTINCT tt.id) " : "SELECT COUNT(tt.id) ").
+				$join_sql.
+				$where_sql;
 			$total = $db->GetOne($count_sql);
 		}
 		

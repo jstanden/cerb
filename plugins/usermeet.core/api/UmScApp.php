@@ -812,7 +812,7 @@ class UmScCoreController extends Extension_UmScController {
 		$global_from = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM,null);
 		
 		// Ticket group settings
-		$group_id = $ticket[SearchFields_Ticket::TEAM_ID];
+		$group_id = $ticket[SearchFields_Ticket::TICKET_TEAM_ID];
 		@$group_from = DAO_GroupSettings::get($group_id, DAO_GroupSettings::SETTING_REPLY_FROM, '');
 		
 		// Headers

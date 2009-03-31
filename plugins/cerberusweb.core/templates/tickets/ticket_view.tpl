@@ -58,11 +58,11 @@
 		{assign var=tableRowBg value="tableRowAltBg"}
 	{/if}
 	
-	{assign var=ticket_group_id value=$result.tm_id}
+	{assign var=ticket_group_id value=$result.t_team_id}
 	{if !isset($active_worker_memberships.$ticket_group_id)}{*censor*}
 		<tr class="{$tableRowBg}">
 			<td>&nbsp;</td>
-			<td rowspan="2" colspan="{math equation="x" x=$smarty.foreach.headers.total}" style="color:rgb(140,140,140);font-size:10px;text-align:left;vertical-align:middle;">[Access Denied: {$result.tm_name} #{$result.t_mask}]</td>
+			<td rowspan="2" colspan="{math equation="x" x=$smarty.foreach.headers.total}" style="color:rgb(140,140,140);font-size:10px;text-align:left;vertical-align:middle;">[Access Denied: {$teams.$ticket_group_id->name} #{$result.t_mask}]</td>
 		</tr>
 		<tr class="{$tableRowBg}">
 			<td>&nbsp;</td>
@@ -105,20 +105,15 @@
 		<td title="{if $result.t_due_date}{$result.t_due_date|devblocks_date}{/if}">{if $result.t_due_date}{$result.t_due_date|devblocks_prettytime}{/if}</td>
 		{*{elseif $column=="t_tasks"}
 		<td align='center'>{if !empty($result.t_tasks)}{$result.t_tasks}{/if}</td>*}
-		{elseif $column=="tm_name"}
+		{elseif $column=="t_team_id"}
 		<td>
-			{assign var=ticket_team_id value=$result.tm_id}
-			{if (isset($active_worker_memberships.$ticket_team_id)) && $active_worker_memberships.$ticket_team_id->is_manager || $active_worker->is_superuser}
-				{*<a href="javascript:;" onclick="genericAjaxPanel('c=groups&a=showGroupPanel&id={$ticket_team_id}&view_id=',this,false,'500px');">{$result.tm_name}</a>*}
-				{$result.tm_name}
-			{else}
-				{$result.tm_name}
-			{/if}
+			{assign var=ticket_team_id value=$result.t_team_id}
+			{$teams.$ticket_team_id->name}
 		</td>
 		{elseif $column=="t_interesting_words"}
 		<td>{$result.t_interesting_words|replace:',':', '}</td>
 		{elseif $column=="t_category_id"}
-			{assign var=ticket_team_id value=$result.tm_id}
+			{assign var=ticket_team_id value=$result.t_team_id}
 			{assign var=ticket_category_id value=$result.t_category_id}
 			<td>
 				{if 0 == $ticket_category_id}

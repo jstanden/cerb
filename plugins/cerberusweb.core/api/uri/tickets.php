@@ -173,7 +173,7 @@ class ChTicketsPage extends CerberusPageExtension {
 			$workflowViewDefaults->view_columns = array(
 				SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
 				SearchFields_Ticket::TICKET_UPDATED_DATE,
-				SearchFields_Ticket::TEAM_NAME,
+				SearchFields_Ticket::TICKET_TEAM_ID,
 				SearchFields_Ticket::TICKET_CATEGORY_ID,
 			);
 			$workflowViewDefaults->renderLimit = 10;
@@ -219,7 +219,7 @@ class ChTicketsPage extends CerberusPageExtension {
 				if(!is_null($filter_group_id) && isset($groups[$filter_group_id])) {
 					$tpl->assign('filter_group_id', $filter_group_id);
 					$title = $groups[$filter_group_id]->name;
-					$workflowView->params[SearchFields_Ticket::TEAM_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'=',$filter_group_id);
+					$workflowView->params[SearchFields_Ticket::TICKET_TEAM_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,'=',$filter_group_id);
 					
 					@$filter_bucket_id = array_shift($response_path);
 					if(!is_null($filter_bucket_id)) {
@@ -264,7 +264,7 @@ class ChTicketsPage extends CerberusPageExtension {
 					
 					$subparams[] = array(
 						DevblocksSearchCriteria::GROUP_AND,
-						SearchFields_Ticket::TEAM_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'=',$group_id),
+						SearchFields_Ticket::TICKET_TEAM_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,'=',$group_id),
 						SearchFields_Ticket::TICKET_CATEGORY_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CATEGORY_ID,'in',$assignable_bucket_ids),
 					);
 				}
@@ -273,7 +273,7 @@ class ChTicketsPage extends CerberusPageExtension {
 				if(1 < count($subparams))
 					$workflowView->params['tmp_GrpBkt'] = $subparams;
 				else // We're not in any groups
-					$workflowView->params[SearchFields_Ticket::TEAM_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'=',-1);
+					$workflowView->params[SearchFields_Ticket::TICKET_TEAM_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,'=',-1);
 				
 				break;
 		}
@@ -367,7 +367,7 @@ class ChTicketsPage extends CerberusPageExtension {
 			$overViewDefaults->view_columns = array(
 				SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
 				SearchFields_Ticket::TICKET_UPDATED_DATE,
-				SearchFields_Ticket::TEAM_NAME,
+				SearchFields_Ticket::TICKET_TEAM_ID,
 				SearchFields_Ticket::TICKET_CATEGORY_ID,
 				SearchFields_Ticket::TICKET_NEXT_WORKER_ID,
 			);
@@ -428,7 +428,7 @@ class ChTicketsPage extends CerberusPageExtension {
 				if(!is_null($filter_group_id) && isset($groups[$filter_group_id])) {
 					$tpl->assign('filter_group_id', $filter_group_id);
 					$title = $groups[$filter_group_id]->name;
-					$overView->params[SearchFields_Ticket::TEAM_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'=',$filter_group_id);
+					$overView->params[SearchFields_Ticket::TICKET_TEAM_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,'=',$filter_group_id);
 					
 					@$filter_bucket_id = array_shift($response_path);
 					if(!is_null($filter_bucket_id)) {
@@ -452,7 +452,7 @@ class ChTicketsPage extends CerberusPageExtension {
 				if(!is_null($filter_group_id) && isset($groups[$filter_group_id])) {
 					$tpl->assign('filter_group_id', $filter_group_id);
 					$title = vsprintf($translate->_('mail.overview.waiting.title'), $groups[$filter_group_id]->name);
-					$overView->params[SearchFields_Ticket::TEAM_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'=',$filter_group_id);
+					$overView->params[SearchFields_Ticket::TICKET_TEAM_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,'=',$filter_group_id);
 				}
 
 				break;
@@ -463,7 +463,7 @@ class ChTicketsPage extends CerberusPageExtension {
 				$overView->params = array(
 					SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN),
 					SearchFields_Ticket::TICKET_WAITING => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_WAITING,'=',0),
-					$overView->params[SearchFields_Ticket::TEAM_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'in',array_keys($memberships)), // censor
+					$overView->params[SearchFields_Ticket::TICKET_TEAM_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,'in',array_keys($memberships)), // censor
 				);
 
 				if(!is_null($filter_worker_id)) {
@@ -472,7 +472,7 @@ class ChTicketsPage extends CerberusPageExtension {
 					
 					@$filter_group_id = array_shift($response_path);
 					if(!is_null($filter_group_id) && isset($groups[$filter_group_id])) {
-						$overView->params[SearchFields_Ticket::TEAM_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'=',$filter_group_id);
+						$overView->params[SearchFields_Ticket::TICKET_TEAM_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,'=',$filter_group_id);
 					}
 				}
 				
@@ -483,7 +483,7 @@ class ChTicketsPage extends CerberusPageExtension {
 				$overView->params = array(
 					SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN),
 					SearchFields_Ticket::TICKET_WAITING => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_WAITING,'=',0),
-					SearchFields_Ticket::TEAM_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'in',array_keys($memberships)),
+					SearchFields_Ticket::TICKET_TEAM_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,'in',array_keys($memberships)),
 				);
 				
 				break;
@@ -956,7 +956,7 @@ class ChTicketsPage extends CerberusPageExtension {
    		list($inbox_tickets, $null) = DAO_Ticket::search(
    			null,
    			array(
-   				new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'=',$group_id),
+   				new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,'=',$group_id),
    				new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CATEGORY_ID,'=','0'),
    			),
    			-1,
@@ -1333,7 +1333,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	       	// [TODO] Test impact
 			$active_worker = CerberusApplication::getActiveWorker();
 			$memberships = $active_worker->getMemberships();
-			$view->params[] = new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID, 'in', array_keys($memberships)); 
+			$view->params[] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID, 'in', array_keys($memberships)); 
 			
 	        // [JAS]: Calculate statistics about the current view (top unique senders/subjects/domains)
 		    $biggest = DAO_Ticket::analyze($view->params, 15, $mode, $mode_param);
@@ -2017,7 +2017,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	    // Restrict to current worker groups
 		$active_worker = CerberusApplication::getActiveWorker();
 		$memberships = $active_worker->getMemberships();
-		$view->params['tmp'] = new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID, 'in', array_keys($memberships)); 
+		$view->params['tmp'] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID, 'in', array_keys($memberships)); 
 	    
 		// Do: Custom fields
 		$do = DAO_CustomFieldValue::handleBulkPost($do);

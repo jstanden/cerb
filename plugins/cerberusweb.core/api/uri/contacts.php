@@ -615,7 +615,7 @@ class ChContactsPage extends CerberusPageExtension {
 			$tickets_view->view_columns = array(
 				SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
 				SearchFields_Ticket::TICKET_CREATED_DATE,
-				SearchFields_Ticket::TEAM_NAME,
+				SearchFields_Ticket::TICKET_TEAM_ID,
 				SearchFields_Ticket::TICKET_CATEGORY_ID,
 			);
 			$tickets_view->params = array(

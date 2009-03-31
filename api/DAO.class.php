@@ -50,9 +50,11 @@
  */
 
 class C4_ORMHelper extends DevblocksORMHelper {
-	static protected function _appendSelectJoinSqlForCustomFieldTables($tables, $key, $select_sql, $join_sql) {
+	static protected function _appendSelectJoinSqlForCustomFieldTables($tables, $params, $key, $select_sql, $join_sql) {
 		$custom_fields = DAO_CustomField::getAll();
 		$field_ids = array();
+		
+		$return_multiple_values = false; // can our CF return more than one hit? (GROUP BY)
 		
 		if(is_array($tables))
 		foreach($tables as $tbl_name => $null) {
@@ -68,12 +70,6 @@ class C4_ORMHelper extends DevblocksORMHelper {
 			$field_table = sprintf("cf_%d", $field_id);
 			$value_table = '';
 			
-			// Select
-			$select_sql .= sprintf(", %s.field_value as %s ",
-				$field_table,
-				$field_table
-			);
-	
 			// Join value by field data type
 			switch($custom_fields[$field_id]->type) {
 				case 'T': // multi-line CLOB
@@ -91,17 +87,45 @@ class C4_ORMHelper extends DevblocksORMHelper {
 					break;
 			}
 
-			$join_sql .= sprintf("LEFT JOIN %s %s ON (%s=%s.source_id AND %s.field_id=%d) ",
-				$value_table,
-				$field_table,
-				$key,
-				$field_table,
-				$field_table,
-				$field_id
-			);
+			$has_multiple_values = false;
+			switch($custom_fields[$field_id]->type) {
+				case Model_CustomField::TYPE_MULTI_PICKLIST:
+				case Model_CustomField::TYPE_MULTI_CHECKBOX:
+					$has_multiple_values = true;
+					break;
+			}
+
+			// If we have multiple values but we don't need to WHERE the JOIN, be efficient and don't GROUP BY
+			if(!isset($params['cf_'.$field_id])) {
+				$select_sql .= sprintf(",(SELECT field_value FROM %s WHERE %s=source_id AND field_id=%d LIMIT 0,1) AS %s ",
+					$value_table,
+					$key,
+					$field_id,
+					$field_table
+				);
+				
+			} else {
+				$select_sql .= sprintf(", %s.field_value as %s ",
+					$field_table,
+					$field_table
+				);
+				
+				$join_sql .= sprintf("LEFT JOIN %s %s ON (%s=%s.source_id AND %s.field_id=%d) ",
+					$value_table,
+					$field_table,
+					$key,
+					$field_table,
+					$field_table,
+					$field_id
+				);
+				
+				// If we do need to WHERE this JOIN, make sure we GROUP BY
+				if($has_multiple_values)
+					$return_multiple_values = true;
+			}
 		}
 		
-		return array($select_sql, $join_sql);
+		return array($select_sql, $join_sql, $return_multiple_values);
 	}
 }
 
@@ -1388,8 +1412,9 @@ class DAO_ContactOrg extends C4_ORMHelper {
 		$join_sql = 'FROM contact_org c ';
 
 		// Custom field joins
-		list($select_sql, $join_sql) = self::_appendSelectJoinSqlForCustomFieldTables(
+		list($select_sql, $join_sql, $has_multiple_values) = self::_appendSelectJoinSqlForCustomFieldTables(
 			$tables,
+			$params,
 			'c.id',
 			$select_sql,
 			$join_sql
@@ -1400,10 +1425,13 @@ class DAO_ContactOrg extends C4_ORMHelper {
 			
 		$sort_sql = (!empty($sortBy)) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ";
 			
-		$group_sql = "GROUP BY c.id ";
-		
-		$sql = $select_sql . $join_sql . $where_sql . $group_sql . $sort_sql;
-
+		$sql = 
+			$select_sql.
+			$join_sql.
+			$where_sql.
+			($has_multiple_values ? 'GROUP BY c.id ' : '').
+			$sort_sql;
+			
 		// [TODO] Could push the select logic down a level too
 		if($limit > 0) {
     		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
@@ -1427,7 +1455,10 @@ class DAO_ContactOrg extends C4_ORMHelper {
 
 		// [JAS]: Count all
 		if($withCounts) {
-			$count_sql = "SELECT COUNT(DISTINCT c.id) " . $join_sql . $where_sql;
+			$count_sql = 
+				($has_multiple_values ? "SELECT COUNT(DISTINCT c.id) " : "SELECT COUNT(c.id) ").
+				$join_sql.
+				$where_sql;
 			$total = $db->GetOne($count_sql);
 		}
 		
@@ -1777,8 +1808,9 @@ class DAO_Address extends C4_ORMHelper {
 //			(isset($tables['mc']) ? "INNER JOIN message_content mc ON (mc.message_id=m.id)" : " ").
 
 		// Custom field joins
-		list($select_sql, $join_sql) = self::_appendSelectJoinSqlForCustomFieldTables(
+		list($select_sql, $join_sql, $has_multiple_values) = self::_appendSelectJoinSqlForCustomFieldTables(
 			$tables,
+			$params,
 			'a.id',
 			$select_sql,
 			$join_sql
@@ -1789,9 +1821,12 @@ class DAO_Address extends C4_ORMHelper {
 		
 		$sort_sql =	(!empty($sortBy) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ");
 		
-		$group_sql = "GROUP BY a.id ";
-		
-		$sql = $select_sql . $join_sql . $where_sql . $group_sql . $sort_sql;
+		$sql = 
+			$select_sql.
+			$join_sql.
+			$where_sql.
+			($has_multiple_values ? 'GROUP BY a.id ' : '').
+			$sort_sql;
 			
 		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
@@ -1811,7 +1846,10 @@ class DAO_Address extends C4_ORMHelper {
 		// [JAS]: Count all
 		$total = -1;
 		if($withCounts) {
-			$count_sql = "SELECT COUNT(DISTINCT a.id) " . $join_sql . $where_sql;
+			$count_sql = 
+				($has_multiple_values ? "SELECT COUNT(DISTINCT a.id) " : "SELECT COUNT(a.id) ").
+				$join_sql.
+				$where_sql;
 			$total = $db->GetOne($count_sql);
 		}
 		
@@ -3662,15 +3700,12 @@ class DAO_Ticket extends C4_ORMHelper {
 			"t.due_date as %s, ".
 			"t.spam_training as %s, ".
 			"t.spam_score as %s, ".
-//			"t.num_tasks as %s, ".
-			"t.interesting_words as %s, ".
+//			"t.interesting_words as %s, ".
 			"t.last_action_code as %s, ".
 			"t.last_worker_id as %s, ".
 			"t.next_worker_id as %s, ".
-			"tm.id as %s, ".
-			"tm.name as %s, ".
+			"t.team_id as %s, ".
 			"t.category_id as %s ",
-//			"cat.name as %s ". // [TODO] BAD LEFT JOINS
 			    SearchFields_Ticket::TICKET_ID,
 			    SearchFields_Ticket::TICKET_MASK,
 			    SearchFields_Ticket::TICKET_SUBJECT,
@@ -3690,21 +3725,17 @@ class DAO_Ticket extends C4_ORMHelper {
 			    SearchFields_Ticket::TICKET_DUE_DATE,
 			    SearchFields_Ticket::TICKET_SPAM_TRAINING,
 			    SearchFields_Ticket::TICKET_SPAM_SCORE,
-//			    SearchFields_Ticket::TICKET_TASKS,
-			    SearchFields_Ticket::TICKET_INTERESTING_WORDS,
+//			    SearchFields_Ticket::TICKET_INTERESTING_WORDS,
 			    SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
 			    SearchFields_Ticket::TICKET_LAST_WORKER_ID,
 			    SearchFields_Ticket::TICKET_NEXT_WORKER_ID,
-			    SearchFields_Ticket::TEAM_ID,
-			    SearchFields_Ticket::TEAM_NAME,
+			    SearchFields_Ticket::TICKET_TEAM_ID,
 			    SearchFields_Ticket::TICKET_CATEGORY_ID
-//			    SearchFields_Ticket::CATEGORY_NAME
 			);
 
 		$join_sql = 
 			"FROM ticket t ".
-			"INNER JOIN team tm ON (tm.id = t.team_id) ".
-//			"LEFT JOIN category cat ON (cat.id = t.category_id) ". // [TODO] Remove this and use a hash // [TODO] Optimization
+//			"INNER JOIN team tm ON (tm.id = t.team_id) ".
 			"INNER JOIN address a1 ON (t.first_wrote_address_id=a1.id) ".
 			"INNER JOIN address a2 ON (t.last_wrote_address_id=a2.id) ".
 			// [JAS]: Dynamic table joins
@@ -3722,8 +3753,9 @@ class DAO_Ticket extends C4_ORMHelper {
 		}
 			
 		// Custom field joins
-		list($select_sql, $join_sql) = self::_appendSelectJoinSqlForCustomFieldTables(
+		list($select_sql, $join_sql, $has_multiple_values) = self::_appendSelectJoinSqlForCustomFieldTables(
 			$tables,
+			$params,
 			't.id',
 			$select_sql,
 			$join_sql
@@ -3734,9 +3766,12 @@ class DAO_Ticket extends C4_ORMHelper {
 			
 		$sort_sql = (!empty($sortBy) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ");
 
-		$group_sql = "GROUP BY t.id ";
-		
-		$sql = $select_sql . $join_sql . $where_sql . $group_sql . $sort_sql;
+		$sql = 
+			$select_sql.
+			$join_sql.
+			$where_sql.
+			($has_multiple_values ? 'GROUP BY t.id ' : '').
+			$sort_sql;
 
 		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
@@ -3755,7 +3790,10 @@ class DAO_Ticket extends C4_ORMHelper {
 
 		// [JAS]: Count all
 		if($withCounts) {
-			$count_sql = "SELECT COUNT(DISTINCT t.id) " . $join_sql . $where_sql;
+			$count_sql = 
+				($has_multiple_values ? "SELECT COUNT(DISTINCT t.id) " : "SELECT COUNT(t.id) ").
+				$join_sql.
+				$where_sql;
 			$total = $db->GetOne($count_sql);
 		}
 		
@@ -3790,6 +3828,7 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 	const TICKET_LAST_ACTION_CODE = 't_last_action_code';
 	const TICKET_LAST_WORKER_ID = 't_last_worker_id';
 	const TICKET_NEXT_WORKER_ID = 't_next_worker_id';
+	const TICKET_TEAM_ID = 't_team_id';
 	const TICKET_CATEGORY_ID = 't_category_id';
 	
 	// Message
@@ -3806,10 +3845,6 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 	// Requester
 	const REQUESTER_ID = 'ra_id';
 	const REQUESTER_ADDRESS = 'ra_email';
-	
-	// Teams
-	const TEAM_ID = 'tm_id';
-	const TEAM_NAME = 'tm_name';
 	
 	// Sender Org
 	const ORG_NAME = 'o_name';
@@ -3837,7 +3872,7 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 			
 			self::TICKET_MESSAGE_CONTENT => new DevblocksSearchField(self::TICKET_MESSAGE_CONTENT, 'mc', 'content', 'B', $translate->_('message.content')),
 			
-			self::TEAM_NAME => new DevblocksSearchField(self::TEAM_NAME,'tm','name',null,$translate->_('common.group')),
+			self::TICKET_TEAM_ID => new DevblocksSearchField(self::TICKET_TEAM_ID,'t','team_id',null,$translate->_('common.group')),
 			self::TICKET_CATEGORY_ID => new DevblocksSearchField(self::TICKET_CATEGORY_ID, 't', 'category_id',null,$translate->_('common.bucket')),
 			self::TICKET_CREATED_DATE => new DevblocksSearchField(self::TICKET_CREATED_DATE, 't', 'created_date',null,$translate->_('ticket.created')),
 			self::TICKET_UPDATED_DATE => new DevblocksSearchField(self::TICKET_UPDATED_DATE, 't', 'updated_date',null,$translate->_('ticket.updated')),
@@ -3860,8 +3895,6 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 			self::REQUESTER_ID => new DevblocksSearchField(self::REQUESTER_ID, 'ra', 'id'),
 			
 			self::SENDER_ADDRESS => new DevblocksSearchField(self::SENDER_ADDRESS, 'a1', 'email'),
-			
-			self::TEAM_ID => new DevblocksSearchField(self::TEAM_ID,'tm','id',null,$translate->_('common.group')),
 			
 			self::TICKET_MESSAGE_HEADER => new DevblocksSearchField(self::TICKET_MESSAGE_HEADER, 'mh', 'header_name'),
 			self::TICKET_MESSAGE_HEADER_VALUE => new DevblocksSearchField(self::TICKET_MESSAGE_HEADER_VALUE, 'mh', 'header_value', 'B'),
@@ -7121,8 +7154,9 @@ class DAO_Task extends C4_ORMHelper {
 //			(isset($tables['mc']) ? "INNER JOIN message_content mc ON (mc.message_id=m.id)" : " ").
 
 		// Custom field joins
-		list($select_sql, $join_sql) = self::_appendSelectJoinSqlForCustomFieldTables(
+		list($select_sql, $join_sql, $has_multiple_values) = self::_appendSelectJoinSqlForCustomFieldTables(
 			$tables,
+			$params,
 			't.id',
 			$select_sql,
 			$join_sql
@@ -7131,11 +7165,14 @@ class DAO_Task extends C4_ORMHelper {
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "");
 			
-		$group_sql = "GROUP BY t.id ";
-
 		$sort_sql =	(!empty($sortBy) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ");
 		
-		$sql =  $select_sql . $join_sql . $where_sql . $group_sql . $sort_sql;
+		$sql = 
+			$select_sql.
+			$join_sql.
+			$where_sql.
+			($has_multiple_values ? 'GROUP BY t.id ' : '').
+			$sort_sql;
 		
 		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
@@ -7155,7 +7192,10 @@ class DAO_Task extends C4_ORMHelper {
 		// [JAS]: Count all
 		$total = -1;
 		if($withCounts) {
-			$count_sql = "SELECT COUNT(DISTINCT t.id) " . $join_sql . $where_sql;
+			$count_sql = 
+				($has_multiple_values ? "SELECT COUNT(DISTINCT t.id) " : "SELECT COUNT(t.id) ").
+				$join_sql.
+				$where_sql;
 			$total = $db->GetOne($count_sql);
 		}
 		

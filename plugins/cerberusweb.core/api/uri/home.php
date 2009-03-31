@@ -124,7 +124,7 @@ class ChHomePage extends CerberusPageExtension {
 		$list->columns = array(
 			SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
 			SearchFields_Ticket::TICKET_UPDATED_DATE,
-			SearchFields_Ticket::TEAM_NAME,
+			SearchFields_Ticket::TICKET_TEAM_ID,
 			SearchFields_Ticket::TICKET_CATEGORY_ID,
 		);
 		$list->params = array(

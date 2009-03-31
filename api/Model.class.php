@@ -1222,7 +1222,7 @@ class C4_TicketView extends C4_AbstractView {
 		$this->view_columns = array(
 			SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
 			SearchFields_Ticket::TICKET_UPDATED_DATE,
-			SearchFields_Ticket::TEAM_NAME,
+			SearchFields_Ticket::TICKET_TEAM_ID,
 			SearchFields_Ticket::TICKET_CATEGORY_ID,
 			SearchFields_Ticket::TICKET_SPAM_SCORE,
 		);
@@ -1291,7 +1291,7 @@ class C4_TicketView extends C4_AbstractView {
 		
 		$this->params = array(
 			SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',0),
-			SearchFields_Ticket::TEAM_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'in',array_keys($active_worker_memberships)), // censor
+			SearchFields_Ticket::TICKET_TEAM_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,'in',array_keys($active_worker_memberships)), // censor
 		);
 		$this->renderPage = 0;
 	}
@@ -1354,7 +1354,7 @@ class C4_TicketView extends C4_AbstractView {
 				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__worker.tpl');
 				break;
 					
-			case SearchFields_Ticket::TEAM_NAME:
+			case SearchFields_Ticket::TICKET_TEAM_ID:
 				$teams = DAO_Group::getAll();
 				$tpl->assign('teams', $teams);
 
@@ -1396,7 +1396,7 @@ class C4_TicketView extends C4_AbstractView {
 				echo implode(", ", $strings);
 				break;
 
-			case SearchFields_Ticket::TEAM_ID:
+			case SearchFields_Ticket::TICKET_TEAM_ID:
 				$teams = DAO_Group::getAll();
 				$strings = array();
 
@@ -1475,7 +1475,6 @@ class C4_TicketView extends C4_AbstractView {
 
 	static function getSearchFields() {
 		$fields = self::getFields();
-		unset($fields[SearchFields_Ticket::TEAM_ID]);
 		unset($fields[SearchFields_Ticket::TICKET_CATEGORY_ID]);
 		unset($fields[SearchFields_Ticket::TICKET_UNLOCK_DATE]);
 		return $fields;
@@ -1483,7 +1482,6 @@ class C4_TicketView extends C4_AbstractView {
 
 	static function getColumns() {
 		$fields = self::getFields();
-		unset($fields[SearchFields_Ticket::TEAM_ID]);
 		unset($fields[SearchFields_Ticket::TICKET_MESSAGE_CONTENT]);
 		unset($fields[SearchFields_Ticket::REQUESTER_ID]);
 		unset($fields[SearchFields_Ticket::REQUESTER_ADDRESS]);
@@ -1564,12 +1562,12 @@ class C4_TicketView extends C4_AbstractView {
 				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_id);
 				break;
 
-			case SearchFields_Ticket::TEAM_NAME:
+			case SearchFields_Ticket::TICKET_TEAM_ID:
 				@$team_ids = DevblocksPlatform::importGPC($_REQUEST['team_id'],'array');
 				@$bucket_ids = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'array');
 
 				if(!empty($team_ids))
-				$this->params[SearchFields_Ticket::TEAM_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,$oper,$team_ids);
+				$this->params[SearchFields_Ticket::TICKET_TEAM_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,$oper,$team_ids);
 				if(!empty($bucket_ids))
 				$this->params[SearchFields_Ticket::TICKET_CATEGORY_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CATEGORY_ID,$oper,$bucket_ids);
 
@@ -1691,13 +1689,13 @@ class C4_TicketView extends C4_AbstractView {
 		$view->view_columns = array(
 			SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
 			SearchFields_Ticket::TICKET_UPDATED_DATE,
-			SearchFields_Ticket::TEAM_NAME,
+			SearchFields_Ticket::TICKET_TEAM_ID,
 			SearchFields_Ticket::TICKET_CATEGORY_ID,
 			SearchFields_Ticket::TICKET_SPAM_SCORE,
 		);
 		$view->params = array(
 			SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,DevblocksSearchCriteria::OPER_EQ,0),
-			SearchFields_Ticket::TEAM_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'in',array_keys($memberships)), // censor
+			SearchFields_Ticket::TICKET_TEAM_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,'in',array_keys($memberships)), // censor
 		);
 		$view->renderLimit = 100;
 		$view->renderPage = 0;

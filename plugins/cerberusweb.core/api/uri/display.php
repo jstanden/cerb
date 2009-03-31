@@ -223,7 +223,7 @@ class ChDisplayPage extends CerberusPageExtension {
 			// Restrict to the active worker's groups
 			$active_worker = CerberusApplication::getActiveWorker();
 			$memberships = $active_worker->getMemberships();
-			$view->params['tmp'] = new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID, 'in', array_keys($memberships)); 
+			$view->params['tmp'] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID, 'in', array_keys($memberships)); 
 			
 			$range = 250; // how far to jump ahead of the current page
 			$block_size = 250;
@@ -1087,7 +1087,7 @@ class ChDisplayPage extends CerberusPageExtension {
 			$view->view_columns = array(
 				SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
 				SearchFields_Ticket::TICKET_CREATED_DATE,
-				SearchFields_Ticket::TEAM_NAME,
+				SearchFields_Ticket::TICKET_TEAM_ID,
 				SearchFields_Ticket::TICKET_CATEGORY_ID,
 			);
 			$view->params = array(

@@ -1160,7 +1160,7 @@ class Rest_TicketsController extends Ch_RestController {
 			case 'list':
 				$this->_getListAction($path,
 					array(
-						SearchFields_Ticket::TEAM_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'in',array_keys($memberships))
+						SearchFields_Ticket::TICKET_TEAM_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,'in',array_keys($memberships))
 					)
 				);
 				break;
@@ -1210,7 +1210,7 @@ class Rest_TicketsController extends Ch_RestController {
 			case 'search':
 				$this->_postSearchAction($path,
 					array(
-						SearchFields_Ticket::TEAM_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'in',array_keys($memberships))
+						SearchFields_Ticket::TICKET_TEAM_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,'in',array_keys($memberships))
 					)
 				);
 				break;
@@ -1251,7 +1251,7 @@ class Rest_TicketsController extends Ch_RestController {
 				@$value = (string) $field_ptr['value'];
 				@$oper = (string) $field_ptr['oper'];
 				if(empty($oper)) $oper = 'eq';
-				if(SearchFields_Ticket::TEAM_ID == $sp_element && isset($params[SearchFields_Ticket::TEAM_ID])) { // Worker level search
+				if(SearchFields_Ticket::TICKET_TEAM_ID == $sp_element && isset($params[SearchFields_Ticket::TICKET_TEAM_ID])) { // Worker level search
 					// TODO: Allow overrides of Worker teams (if they want to search for just a single team)
 					// for now, all Worker-level team searches will use all their teams as the search param 
 				} else { // app-level search
@@ -1307,12 +1307,12 @@ class Rest_TicketsController extends Ch_RestController {
 		// Group
 		if(0 != strlen($p_group_id)) {
 			// cannot allow override by Worker search to invalid team
-			if(isset($params[SearchFields_Ticket::TEAM_ID])) { // this is a Worker search
-				if(false !== array_search($p_group_id,$params[SearchFields_Ticket::TEAM_ID]->value)); { // worker is member of group_id
-					$params[SearchFields_Ticket::TEAM_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'eq',intval($p_group_id));
+			if(isset($params[SearchFields_Ticket::TICKET_TEAM_ID])) { // this is a Worker search
+				if(false !== array_search($p_group_id,$params[SearchFields_Ticket::TICKET_TEAM_ID]->value)); { // worker is member of group_id
+					$params[SearchFields_Ticket::TICKET_TEAM_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,'eq',intval($p_group_id));
 				}
 			} else { // app-level key search
-				$params[SearchFields_Ticket::TEAM_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'eq',intval($p_group_id));
+				$params[SearchFields_Ticket::TICKET_TEAM_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,'eq',intval($p_group_id));
 			}
 		}
 		// Bucket

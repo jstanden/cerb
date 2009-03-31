@@ -67,9 +67,7 @@
 			{elseif $column=="l_change_field"}
 				<td>
 					{assign var=change_field value='t_'|cat:$result.l_change_field}
-					{if $result.l_change_field=='team_id'}
-						{$ticket_fields.tm_name->db_label}
-					{elseif isset($ticket_fields.$change_field)}
+					{if isset($ticket_fields.$change_field)}
 						{$ticket_fields.$change_field->db_label|capitalize}
 					{else}
 						{$change_field}&nbsp;

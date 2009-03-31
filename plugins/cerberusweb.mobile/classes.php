@@ -535,7 +535,7 @@ class ChMobileTicketsPage extends CerberusMobilePageExtension  {
 						if(!is_null($filter_group_id) && isset($groups[$filter_group_id])) {
 							$tpl->assign('filter_group_id', $filter_group_id);
 							$title = $groups[$filter_group_id]->name;
-							$params[SearchFields_Ticket::TEAM_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'=',$filter_group_id);
+							$params[SearchFields_Ticket::TICKET_TEAM_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,'=',$filter_group_id);
 							
 							@$filter_bucket_id = $response->path[5];
 							if(!is_null($filter_bucket_id)) {
@@ -562,7 +562,7 @@ class ChMobileTicketsPage extends CerberusMobilePageExtension  {
 						if(!is_null($filter_waiting_id) && isset($groups[$filter_waiting_id])) {
 							$tpl->assign('filter_waiting_id', $filter_waiting_id);
 							$title = '[Waiting] ' . $groups[$filter_waiting_id]->name;
-							$params[SearchFields_Ticket::TEAM_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'=',$filter_waiting_id);
+							$params[SearchFields_Ticket::TICKET_TEAM_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,'=',$filter_waiting_id);
 							
 							@$filter_bucket_id = $response->path[5];
 							if(!is_null($filter_bucket_id)) {
@@ -581,7 +581,7 @@ class ChMobileTicketsPage extends CerberusMobilePageExtension  {
 						$params = array(
 							SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN),
 							SearchFields_Ticket::TICKET_WAITING => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_WAITING,'=',0),
-							$params[SearchFields_Ticket::TEAM_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'in',array_keys($memberships)), // censor
+							$params[SearchFields_Ticket::TICKET_TEAM_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,'in',array_keys($memberships)), // censor
 						);
 
 						if(!is_null($filter_worker_id)) {
@@ -592,7 +592,7 @@ class ChMobileTicketsPage extends CerberusMobilePageExtension  {
 							@$filter_group_id = $response->path[5];
 							if(!is_null($filter_group_id) && isset($groups[$filter_group_id])) {
 								$title .= ' in '.$groups[$filter_group_id]->name;
-								$params[SearchFields_Ticket::TEAM_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'=',$filter_group_id);
+								$params[SearchFields_Ticket::TICKET_TEAM_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,'=',$filter_group_id);
 							}
 						}
 						
@@ -606,7 +606,7 @@ class ChMobileTicketsPage extends CerberusMobilePageExtension  {
 							SearchFields_Ticket::TICKET_WAITING => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_WAITING,'=',0),
 							SearchFields_Ticket::TICKET_NEXT_WORKER_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_NEXT_WORKER_ID,'=',0),
 							SearchFields_Ticket::TICKET_SPAM_SCORE => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_SPAM_SCORE,'<=','0.9000'),
-							SearchFields_Ticket::TEAM_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'in',array_keys($memberships)),
+							SearchFields_Ticket::TICKET_TEAM_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,'in',array_keys($memberships)),
 						);
 						
 						break;
@@ -616,7 +616,7 @@ class ChMobileTicketsPage extends CerberusMobilePageExtension  {
 //						new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN),
 //						new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_NEXT_WORKER_ID,'=',0),
 //						new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_SPAM_SCORE,'<=','0.9000'),
-//						new DevblocksSearchCriteria(SearchFields_Ticket::TEAM_ID,'in',array_keys($memberships))					
+//						new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,'in',array_keys($memberships))					
 //				);
 				
 
