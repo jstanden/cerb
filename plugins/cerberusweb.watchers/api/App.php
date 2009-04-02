@@ -17,11 +17,14 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 				$this->_groupDeleted($event);
             	break;
 
-			// [TODO] Reimplement            	
-//            case 'ticket.property.pre_change':
-//				$this->_workerAssigned($event);
-//            	break;
-            	
+            case 'ticket.property.pre_change':
+				$this->_workerAssigned($event);
+            	break;
+				
+			case 'ticket.comment.create':
+				$this->_newTicketComment($event);
+				break;
+				
             case 'ticket.reply.inbound':
 				$this->_sendForwards($event, true);
             	break;
@@ -35,6 +38,155 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
             	break;
         }
     }
+
+	private function _getMailingListFromMatches($matches) {
+		$workers = DAO_Worker::getAllActive();
+		$helpdesk_senders = CerberusApplication::getHelpdeskSenders();
+		
+		$notify_emails = array();
+		
+		if(is_array($matches))
+		foreach($matches as $filter) {
+			if(!$filter instanceof Model_WatcherMailFilter)
+				continue;
+			
+			// If the worker no longer exists or is disabled
+			if(!isset($workers[$filter->worker_id]))
+				continue;
+				
+			if(isset($filter->actions['email']['to']) && is_array($filter->actions['email']['to']))
+			foreach($filter->actions['email']['to'] as $addy) {
+				$addy = strtolower($addy);
+				
+				// Don't allow a worker to usurp a helpdesk address
+				if(isset($helpdesk_senders[$addy]))
+					continue;
+				
+				if(!isset($notify_emails[$addy]))
+					$notify_emails[$addy] = $addy;
+			}
+		}
+		
+		return $notify_emails;
+	}
+
+	private function _newTicketComment($event) {
+		@$comment_id = $event->params['comment_id'];
+		@$ticket_id = $event->params['ticket_id'];
+		@$address_id = $event->params['address_id'];
+		@$comment = $event->params['comment'];
+    	
+    	if(empty($ticket_id) || empty($address_id) || empty($comment))
+    		return;
+    		
+		// Resolve the address ID
+		if(null == ($address = DAO_Address::get($address_id)))
+			return;
+			
+		// Try to associate the author with a worker
+		if(null == ($worker_addy = DAO_AddressToWorker::getByAddress($address->email)))
+			return;
+				
+		if(null == ($worker = DAO_Worker::getAgent($worker_addy->worker_id)))
+			return;
+			
+		$mail_service = DevblocksPlatform::getMailService();
+		$mailer = null; // lazy load
+    		
+    	$settings = CerberusSettings::getInstance();
+		$default_from = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM, '');
+		$default_personal = $settings->get(CerberusSettings::DEFAULT_REPLY_PERSONAL, '');
+
+		if(null == ($ticket = DAO_Ticket::getTicket($ticket_id)))
+			return;
+
+		// Find all our matching filters
+		if(false == ($matches = Model_WatcherMailFilter::getMatches(
+			$ticket,
+			'ticket_comment'
+		)))
+			return;
+		
+		// Remove any matches from the author
+		foreach($matches as $idx => $filter) {
+			if($filter->worker_id == $worker_addy->worker_id)
+				unset($matches[$idx]);
+		}
+		
+		// Sanitize and combine all the destination addresses
+		$notify_emails = $this->_getMailingListFromMatches($matches);
+		
+		if(empty($notify_emails))
+			return;
+			
+		if(null == (@$last_message = end($ticket->getMessages()))) { /* @var $last_message CerberusMessage */
+			continue;
+		}
+		
+		if(null == (@$last_headers = $last_message->getHeaders()))
+			continue;
+			
+		$reply_to = $default_from;
+		$reply_personal = $default_personal;
+			
+		// See if we need a group-specific reply-to
+		if(!empty($ticket->team_id)) {
+			@$group_from = DAO_GroupSettings::get($ticket->team_id, DAO_GroupSettings::SETTING_REPLY_FROM);
+			if(!empty($group_from))
+				$reply_to = $group_from;
+				
+			@$group_personal = DAO_GroupSettings::get($ticket->team_id, DAO_GroupSettings::SETTING_REPLY_PERSONAL);
+			if(!empty($group_personal))
+				$reply_personal = $group_personal;
+		}
+		
+		if(is_array($notify_emails))
+		foreach($notify_emails as $send_to) {
+	    	try {
+	    		if(null == $mailer)
+					$mailer = $mail_service->getMailer(CerberusMail::getMailerDefaults());
+				
+		 		// Create the message
+				$rcpt_to = new Swift_RecipientList();
+				$a_rcpt_to = array();
+				$mail_from = new Swift_Address($reply_to, $reply_personal);
+				$rcpt_to->addTo($send_to);
+				$a_rcpt_to = new Swift_Address($send_to);
+					
+				$mail = $mail_service->createMessage();
+				$mail->setTo($a_rcpt_to);
+				$mail->setFrom($mail_from);
+				$mail->setReplyTo($reply_to);
+				$mail->setSubject(sprintf("[comment #%s]: %s [comment]",
+					$ticket->mask,
+					$ticket->subject
+				));
+			
+				if(false !== (@$in_reply_to = $last_headers['in-reply-to'])) {
+				    $mail->headers->set('References', $in_reply_to);
+				    $mail->headers->set('In-Reply-To', $in_reply_to);
+				}
+				
+				// Build the body
+				$comment_text = sprintf("%s (%s) comments:\r\n%s\r\n",
+					$worker->getName(),
+					$address->email,
+					$comment
+				);
+				
+				$mail->headers->set('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
+				$mail->headers->set('Precedence','List');
+				$mail->headers->set('Auto-Submitted','auto-generated');
+				
+				$mail->attach(new Swift_Message_Part($comment_text, 'text/plain', 'base64', LANG_CHARSET_CODE));
+			
+				$mailer->send($mail, $rcpt_to, $mail_from);
+				
+	    	} catch(Exception $e) {
+	    		//
+			}
+		}
+	}
 
     private function _workerAssigned($event) {
     	@$ticket_ids = $event->params['ticket_ids'];
@@ -50,7 +202,6 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
     		return;
 
     	@$active_worker = CerberusApplication::getActiveWorker();
-    	@$workers = DAO_Worker::getAllActive();
     		
     	// Make sure we're not assigning work to ourselves, if so then bail
     	if(null != $active_worker && $active_worker->id == $next_worker_id) {
@@ -58,36 +209,37 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
     	}
 
     	// Make sure the worker exists and is not disabled
-    	if(!isset($workers[$next_worker_id]))
-    		return;
-    	
-		$helpdesk_senders = CerberusApplication::getHelpdeskSenders();    	
+//    	if(!isset($workers[$next_worker_id]))
+//    		return;
     	
 		$mail_service = DevblocksPlatform::getMailService();
-		$mailer = $mail_service->getMailer(CerberusMail::getMailerDefaults());
+		$mailer = null; // lazy load
     		
     	$settings = CerberusSettings::getInstance();
 		$default_from = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM, '');
 		$default_personal = $settings->get(CerberusSettings::DEFAULT_REPLY_PERSONAL, '');
 
-		@$worker_notify_email = DAO_WorkerPref::get($next_worker_id,ChWatchersPlugin::WORKER_PREF_ASSIGN_EMAIL,'');
-
-		// If our next worker doesn't have an assignment pref
-		if(empty($worker_notify_email))
-			return;
-
-		// Don't allow silly workers to use the inbound addresses as their watchers
-		if(isset($helpdesk_senders[$worker_notify_email]))
-			return;
-			
-		// Send notifications to this worker for each ticket
+		// Loop through all assigned tickets
 		$tickets = DAO_Ticket::getTickets($ticket_ids);
-		
 		foreach($tickets as $ticket) { /* @var $ticket CerberusTicket */
 			// If the next worker value didn't change, skip
 			if($ticket->next_worker_id == $next_worker_id)
 				continue;
 			
+			// Find all our matching filters
+			if(false == ($matches = Model_WatcherMailFilter::getMatches(
+				$ticket,
+				'ticket_assignment',
+				$next_worker_id
+			)))
+				return;
+				
+			// Sanitize and combine all the destination addresses
+			$notify_emails = $this->_getMailingListFromMatches($matches);
+			
+			if(empty($notify_emails))
+				return;
+				
 			if(null == (@$last_message = end($ticket->getMessages()))) { /* @var $last_message CerberusMessage */
 				continue;
 			}
@@ -108,41 +260,46 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 				if(!empty($group_personal))
 					$reply_personal = $group_personal;
 			}
-				
-	    	try {
-		 		// Create the message
-				$rcpt_to = new Swift_RecipientList();
-				$a_rcpt_to = array();
-				$mail_from = new Swift_Address($reply_to, $reply_personal);
-				$rcpt_to->addTo($worker_notify_email);
-				$a_rcpt_to = new Swift_Address($worker_notify_email);
+			
+			if(is_array($notify_emails))
+			foreach($notify_emails as $send_to) {
+		    	try {
+		    		if(null == $mailer)
+						$mailer = $mail_service->getMailer(CerberusMail::getMailerDefaults());
 					
-				$mail = $mail_service->createMessage();
-				$mail->setTo($a_rcpt_to);
-				$mail->setFrom($mail_from);
-				$mail->setReplyTo($reply_to);
-				$mail->setSubject(sprintf("[assignment #%s]: %s",
-					$ticket->mask,
-					$ticket->subject
-				));
-			
-				if(false !== (@$in_reply_to = $last_headers['in-reply-to'])) {
-				    $mail->headers->set('References', $in_reply_to);
-				    $mail->headers->set('In-Reply-To', $in_reply_to);
+			 		// Create the message
+					$rcpt_to = new Swift_RecipientList();
+					$a_rcpt_to = array();
+					$mail_from = new Swift_Address($reply_to, $reply_personal);
+					$rcpt_to->addTo($send_to);
+					$a_rcpt_to = new Swift_Address($send_to);
+						
+					$mail = $mail_service->createMessage();
+					$mail->setTo($a_rcpt_to);
+					$mail->setFrom($mail_from);
+					$mail->setReplyTo($reply_to);
+					$mail->setSubject(sprintf("[assignment #%s]: %s",
+						$ticket->mask,
+						$ticket->subject
+					));
+				
+					if(false !== (@$in_reply_to = $last_headers['in-reply-to'])) {
+					    $mail->headers->set('References', $in_reply_to);
+					    $mail->headers->set('In-Reply-To', $in_reply_to);
+					}
+					
+					$mail->headers->set('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
+					$mail->headers->set('Precedence','List');
+					$mail->headers->set('Auto-Submitted','auto-generated');
+					$mail->attach(new Swift_Message_Part($last_message->getContent(), 'text/plain', 'base64', LANG_CHARSET_CODE));
+				
+					$mailer->send($mail, $rcpt_to, $mail_from);
+					
+		    	} catch(Exception $e) {
+		    		//
 				}
-				
-				$mail->headers->set('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
-				$mail->headers->set('Precedence','List');
-				$mail->headers->set('Auto-Submitted','auto-generated');
-				$mail->attach(new Swift_Message_Part($last_message->getContent(), 'text/plain', 'base64', LANG_CHARSET_CODE));
-			
-				$mailer->send($mail, $rcpt_to, $mail_from);
-				
-	    	} catch(Exception $e) {
-	    		//
 			}
 		}
-			
     }
     
     private function _workerDeleted($event) {
@@ -167,33 +324,15 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
     	
 		$ticket = DAO_Ticket::getTicket($ticket_id);
 
-		$helpdesk_senders = CerberusApplication::getHelpdeskSenders();
-		$workers = DAO_Worker::getAllActive();
-
 		// Find all our matching filters
-		if(false == ($matches = Model_WatcherMailFilter::getMatches($ticket)))
+		if(false == ($matches = Model_WatcherMailFilter::getMatches(
+			$ticket,
+			($is_inbound ? 'mail_incoming' : 'mail_outgoing')
+		)))
 			return;
 		
 		// Sanitize and combine all the destination addresses
-		$notify_emails = array();
-		if(is_array($matches))
-		foreach($matches as $filter) {
-			// If the worker no longer exists or is disabled
-			if(!isset($workers[$filter->worker_id]))
-				continue;
-				
-			if(isset($filter->actions['email']['to']) && is_array($filter->actions['email']['to']))
-			foreach($filter->actions['email']['to'] as $addy) {
-				$addy = strtolower($addy);
-				
-				// Don't allow a worker to usurp a helpdesk address
-				if(isset($helpdesk_senders[$addy]))
-					continue;
-				
-				if(!isset($notify_emails[$addy]))
-					$notify_emails[$addy] = $addy;
-			}
-		}
+		$notify_emails = $this->_getMailingListFromMatches($matches);
 		
 		if(empty($notify_emails))
 			return;
@@ -333,6 +472,9 @@ class ChWatchersPreferences extends Extension_PreferenceTab {
 		$buckets = DAO_Bucket::getAll();
 		$tpl->assign('buckets', $buckets);
 		
+		$workers = DAO_Worker::getAllActive();
+		$tpl->assign('workers', $workers);
+		
 		// Filters
 		@$filters = DAO_WatcherMailFilter::getWhere(sprintf("%s = %d",
 			DAO_WatcherMailFilter::WORKER_ID,
@@ -348,10 +490,6 @@ class ChWatchersPreferences extends Extension_PreferenceTab {
 		$custom_fields = DAO_CustomField::getAll();
 		$tpl->assign('custom_fields', $custom_fields);
 		
-		// What email addy to notify on 'assign' [TODO] Reimplement
-		$assign_notify_email = DAO_WorkerPref::get($worker->id, ChWatchersPlugin::WORKER_PREF_ASSIGN_EMAIL, '');
-		$tpl->assign('assign_notify_email', $assign_notify_email);
-		
 		$tpl->display('file:' . $this->_TPL_PATH . 'preferences/watchers.tpl');
 	}
     
@@ -363,11 +501,6 @@ class ChWatchersPreferences extends Extension_PreferenceTab {
 		@$deletes = DevblocksPlatform::importGPC($_REQUEST['deletes'],'array', array());
 		if(!empty($deletes))
 			DAO_WatcherMailFilter::delete($deletes);
-		
-		// Assignment notifications
-		// [TODO] Reimplement
-//		@$assign_notify_email = DevblocksPlatform::importGPC($_REQUEST['assign_notify_email'],'string', '');
-//		DAO_WorkerPref::set($worker->id, ChWatchersPlugin::WORKER_PREF_ASSIGN_EMAIL, $assign_notify_email);
 		
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('preferences','notifications')));
 	}
@@ -400,6 +533,9 @@ class ChWatchersPreferences extends Extension_PreferenceTab {
 		
 		$addresses = DAO_AddressToWorker::getByWorker($active_worker->id);
 		$tpl->assign('addresses', $addresses);
+
+		$workers = DAO_Worker::getAllActive();
+		$tpl->assign('workers', $workers);
 
 		// Custom Fields: Ticket
 		$ticket_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Ticket::ID);
@@ -472,7 +608,12 @@ class ChWatchersPreferences extends Extension_PreferenceTab {
 					$criteria['to'] = $to;
 					unset($criteria['value']);
 					break;
-				case 'is_outgoing':
+				case 'event':
+					@$events = DevblocksPlatform::importGPC($_REQUEST['value_event'],'array',array());
+					if(is_array($events))
+					foreach($events as $event)
+						$criteria[$event] = true;
+					unset($criteria['value']);
 					break;
 				case 'groups':
 					@$groups = DevblocksPlatform::importGPC($_REQUEST['value_groups'],'array',array());
@@ -492,6 +633,8 @@ class ChWatchersPreferences extends Extension_PreferenceTab {
 						}					
 					}
 					unset($criteria['value']);
+					break;
+				case 'next_worker_id':
 					break;
 				case 'subject':
 					break;
@@ -812,13 +955,14 @@ class Model_WatcherMailFilter {
 	/**
 	 * @return Model_WatcherMailFilter[]|false
 	 */
-	static function getMatches(CerberusTicket $ticket, $only_rule_id=0) {
+	static function getMatches(CerberusTicket $ticket, $event, $only_worker_id=null) {
 		$matches = array();
 		
-		if(!empty($only_rule_id)) {
-			$filters = array(
-				DAO_WatcherMailFilter::get($only_rule_id)
-			);
+		if(!empty($only_worker_id)) {
+			$filters = DAO_WatcherMailFilter::getWhere(sprintf("%s = %d",
+				DAO_WatcherMailFilter::WORKER_ID,
+				$only_worker_id
+			));
 		} else {
 			$filters = DAO_WatcherMailFilter::getWhere();
 		}
@@ -917,18 +1061,22 @@ class Model_WatcherMailFilter {
 						}
 						break;
 						
-					case 'is_outgoing': 
-						if(intval($value)==intval($message_last->is_outgoing))
+					case 'event': 
+						if(!empty($event) && is_array($rule) && isset($rule[$event]))
 							$passed++;
 						break;					
 						
 					case 'groups':
-						// [TODO] Check memberships?
 						if(null !== (@$group_buckets = $rule['groups'][$ticket->team_id]) // group is set
 							&& (empty($group_buckets) || in_array($ticket->category_id,$group_buckets)))
 								$passed++;
 						break;
 						
+					case 'next_worker_id': 
+						if(intval($value)==intval($ticket->next_worker_id))
+							$passed++;
+						break;					
+
 					case 'mask':
 						$regexp_mask = DevblocksPlatform::strToRegExp($value);
 						if(@preg_match($regexp_mask, $ticket->mask)) {

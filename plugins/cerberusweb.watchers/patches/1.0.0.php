@@ -160,22 +160,25 @@ if(isset($tables['worker_mail_forward'])) {
 			$criteria['groups'] = array('groups' => $group);
 		}
 		
+		$criteria['event'] = array();
+		
 		switch($event) {
 			case 'i': // incoming
 				$name = "Incoming messages";
-				$criteria['is_outgoing'] = array('value' => 0);
+				$criteria['event']['mail_incoming'] = true;
 				break;
 			case 'o': // outgoing
 				$name = "Outgoing messages";
-				$criteria['is_outgoing'] = array('value' => 1);
+				$criteria['event']['mail_outgoing'] = true;
 				break;
 			case 'io': // in+out
 				$name = "All messages";
-				// Ignoring this is the same as in||out
+				$criteria['event']['mail_incoming'] = true;
+				$criteria['event']['mail_outgoing'] = true;
 				break;
 			case 'r': // reply
 				$name = "Replies to me";
-				$criteria['is_outgoing'] = array('value' => 0);
+				$criteria['event']['mail_incoming'] = true;
 				$criteria['next_worker_id'] = array('value' => $worker_id);
 				break;
 		}
@@ -208,6 +211,13 @@ if(isset($tables['worker_mail_forward'])) {
 	// Drop old table
 	$sql = $datadict->DropTableSQL('worker_mail_forward');
 	$datadict->ExecuteSQLArray($sql);
+}
+
+// ===========================================================================
+// Clear the old worker preference for assignment
+
+if(isset($tables['worker_pref'])) {
+	$db->Execute("DELETE FROM worker_pref WHERE setting = 'watchers_assign_email'");
 }
 
 return TRUE;

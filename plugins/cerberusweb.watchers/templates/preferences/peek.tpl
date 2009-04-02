@@ -12,6 +12,15 @@
 <input type="text" name="name" value="{$filter->name|escape}" size="45" style="width:95%;"><br>
 <br>
 
+<h2>In these events:</h2>
+{assign var=crit_event value=$filter->criteria.event}
+<input type="hidden" name="rules[]" value="event">
+<label><input type="checkbox" name="value_event[]" value="mail_outgoing" {if isset($crit_event.mail_outgoing)}checked="checked"{/if}> Outgoing message</label><br>
+<label><input type="checkbox" name="value_event[]" value="mail_incoming" {if isset($crit_event.mail_incoming)}checked="checked"{/if}> Incoming message</label><br>
+<label><input type="checkbox" name="value_event[]" value="ticket_assignment" {if isset($crit_event.ticket_assignment)}checked="checked"{/if}> Ticket assignment</label><br>
+<label><input type="checkbox" name="value_event[]" value="ticket_comment" {if isset($crit_event.ticket_comment)}checked="checked"{/if}> New comment</label><br>
+<br>
+
 <h2>If these criteria match:</h2>
 
 {* Date/Time *}
@@ -74,7 +83,7 @@
 
 {* Ticket *}
 {assign var=expanded value=false}
-{if isset($filter->criteria.mask) || isset($filter->criteria.groups)}
+{if isset($filter->criteria.mask) || isset($filter->criteria.groups) || isset($filter->criteria.next_worker_id)}
 	{assign var=expanded value=true}
 {/if}
 <label><input type="checkbox" {if $expanded}checked="checked"{/if} onclick="toggleDiv('divBlockTicket',(this.checked?'block':'none'));if(!this.checked)checkAll('divBlockTicket',false);"> <b>Ticket</b></label><br>
@@ -86,6 +95,20 @@
 		</td>
 		<td valign="top">
 			<input type="text" name="value_mask" size="45" value="{$crit_mask.value|escape}" onchange="document.getElementById('chkRuleMask').checked=((0==this.value.length)?false:true);" style="width:95%;">
+		</td>
+	</tr>
+	<tr>
+		<td valign="top">
+			{assign var=crit_next_worker value=$filter->criteria.next_worker_id}
+			<label><input type="checkbox" id="chkRuleNextWorkerId" name="rules[]" value="next_worker_id" {if !is_null($crit_next_worker)}checked="checked"{/if}> Assigned to:</label>
+		</td>
+		<td valign="top">
+			<select name="value_next_worker_id" onchange="document.getElementById('chkRuleNextWorkerId').checked=(''==selectValue(this)?false:true);">
+				<option value=""></option>
+				{foreach from=$workers item=worker}
+					<option value="{$worker->id}" {if $crit_next_worker.value==$worker->id}selected="selected"{/if}>{$worker->getName()}</option>
+				{/foreach}
+			</select>
 		</td>
 	</tr>
 	<tr>
@@ -118,21 +141,11 @@
 
 {* Message *}
 {assign var=expanded value=false}
-{if isset($filter->criteria.is_outgoing) || isset($filter->criteria.subject) || isset($filter->criteria.from) || isset($filter->criteria.body)}
+{if isset($filter->criteria.subject) || isset($filter->criteria.from) || isset($filter->criteria.body)}
 	{assign var=expanded value=true}
 {/if}
 <label><input type="checkbox" {if $expanded}checked="checked"{/if} onclick="toggleDiv('divBlockMessage',(this.checked?'block':'none'));if(!this.checked)checkAll('divBlockMessage',false);"> <b>Message</b></label><br>
 <table width="500" style="margin-left:10px;display:{if $expanded}block{else}none{/if};" id="divBlockMessage">
-	<tr>
-		<td valign="top">
-			{assign var=crit_is_outgoing value=$filter->criteria.is_outgoing}
-			<label><input type="checkbox" id="chkRuleIsOutgoing" name="rules[]" value="is_outgoing" {if !is_null($crit_is_outgoing)}checked="checked"{/if}> Event:</label>
-		</td>
-		<td valign="top">
-			<label><input type="radio" name="value_is_outgoing" value="1" {if $crit_is_outgoing.value}checked="checked"{/if} onclick="document.getElementById('chkRuleIsOutgoing').checked=true;"> Outgoing</label>
-			<label><input type="radio" name="value_is_outgoing" value="0" {if !$crit_is_outgoing.value}checked="checked"{/if} onclick="document.getElementById('chkRuleIsOutgoing').checked=true;"> Incoming</label>
-		</td>
-	</tr>
 	{*
 	<tr>
 		<td valign="top">

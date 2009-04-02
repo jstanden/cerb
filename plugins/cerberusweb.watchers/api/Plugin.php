@@ -1,6 +1,5 @@
 <?php
 class ChWatchersPlugin extends DevblocksPlugin {
-	const WORKER_PREF_ASSIGN_EMAIL = 'watchers_assign_email';
 };
 
 if (class_exists('DevblocksTranslationsExtension',true)):

@@ -64,6 +64,7 @@
 					<value>
 						<data key="bucket.delete" />						
 						<data key="group.delete" />						
+						<data key="ticket.comment.create" />
 						<data key="ticket.property.pre_change" />
 						<data key="ticket.reply.inbound" />
 						<data key="ticket.reply.outbound" />						

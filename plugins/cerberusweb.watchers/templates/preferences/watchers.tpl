@@ -12,22 +12,6 @@
 
 	<h2>{$translate->_('watchers.ui.pref.mail_forwarding')}</h2>
 	
-	{*
-	{if !empty($addresses)}
-	{$translate->_('watchers.ui.pref.assignment_notify')}
-	<select name="assign_notify_email">
-		<option value="">-- {$translate->_('watchers.ui.pref.dont_notify')} --</option>
-		{foreach from=$addresses item=address}
-			{if $address->is_confirmed}
-			<option value="{$address->address}" {if $address->address==$assign_notify_email}selected{/if}>{$address->address}</option>
-			{/if}
-		{/foreach}
-	</select>
-	<br>
-	<br>
-	{/if}
-	*}
-	
 	<table cellspacing="2" cellpadding="2">
 		{counter start=0 print=false name=order}
 		{foreach from=$filters item=filter key=filter_id name=filters}
@@ -41,8 +25,21 @@
 					<br>
 					
 					{foreach from=$filter->criteria item=crit key=crit_key}
-						{if $crit_key=='is_outgoing'}
-							Event = <b>{if $crit.value}Outgoing{else}Incoming{/if}</b><br>
+						{if $crit_key=='event'}
+							Event =
+								{foreach from=$crit key=event item=null name=events}
+								{if 'mail_incoming'==$event}
+									<b>Incoming mail</b>
+								{elseif 'mail_outgoing'==$event}
+									<b>Outgoing mail</b>
+								{elseif 'ticket_assignment'==$event}
+									<b>Ticket assignment</b>
+								{elseif 'ticket_comment'==$event}
+									<b>Ticket comment</b>
+								{/if}
+								{if !$smarty.foreach.events.last} or {/if}
+								{/foreach}
+							<br>
 						{elseif $crit_key=='groups'}
 							Group/Bucket = 
 							{foreach from=$crit.groups key=group_id item=bucket_ids name=groups}
@@ -56,6 +53,13 @@
 								{if !$smarty.foreach.groups.last} or {/if}
 							{/foreach}
 							<br>
+						{elseif $crit_key=='next_worker_id'}
+							{assign var=worker_id value=$crit.value}
+							{if isset($workers.$worker_id)}
+							Assigned to = 
+								<b>{$workers.$worker_id->getName()}</b>
+							<br>
+							{/if}
 						{elseif $crit_key=='subject'}
 							Subject = <b>{$crit.value}</b><br>
 						{elseif $crit_key=='from'}
