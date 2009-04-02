@@ -10,6 +10,16 @@
 		<file>api/Plugin.php</file>
 		<name>ChWatchersPlugin</name>
 	</class>
+
+	<class_loader>
+		<file path="api/App.php">
+			<class name="DAO_WorkerMailFilter" />
+			<class name="Model_WorkerMailFilter" />
+		</file>
+		<file path="api/Plugin.php">
+			<class name="ChWatchersPlugin" />
+		</file>
+	</class_loader>
 	
 	<extensions>
 

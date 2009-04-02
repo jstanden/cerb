@@ -16,10 +16,11 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
             case 'group.delete':
 				$this->_groupDeleted($event);
             	break;
-            	
-            case 'ticket.property.pre_change':
-				$this->_workerAssigned($event);
-            	break;
+
+			// [TODO] Reimplement            	
+//            case 'ticket.property.pre_change':
+//				$this->_workerAssigned($event);
+//            	break;
             	
             case 'ticket.reply.inbound':
 				$this->_sendForwards($event, true);
@@ -146,17 +147,17 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
     
     private function _workerDeleted($event) {
     	@$worker_ids = $event->params['worker_ids'];
-    	DAO_WorkerMailForward::deleteByWorkerIds($worker_ids);
+    	DAO_WatcherMailFilter::deleteByWorkerIds($worker_ids);
     }
     
     private function _bucketDeleted($event) {
     	@$bucket_ids = $event->params['bucket_ids'];
-    	DAO_WorkerMailForward::deleteByBucketIds($bucket_ids);
+    	DAO_WatcherMailFilter::deleteByBucketIds($bucket_ids);
     }
     
     private function _groupDeleted($event) {
     	@$group_ids = $event->params['group_ids'];
-    	DAO_WorkerMailForward::deleteByGroupIds($group_ids);
+    	DAO_WatcherMailFilter::deleteByGroupIds($group_ids);
     }
     
     private function _sendForwards($event, $is_inbound) {
@@ -165,24 +166,38 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
         @$send_worker_id = $event->params['worker_id'];
     	
 		$ticket = DAO_Ticket::getTicket($ticket_id);
-		
+
 		$helpdesk_senders = CerberusApplication::getHelpdeskSenders();
 		$workers = DAO_Worker::getAllActive();
-		
-		// [JAS]: Don't send obvious spam to watchers.
-		if($ticket->spam_score >= 0.9000) {
-			return true;
-		}
 
-		@$notifications = DAO_WorkerMailForward::getWhere(sprintf("%s = %d",
-			DAO_WorkerMailForward::GROUP_ID,
-			$ticket->team_id
-		));
-		
-		// Bail out early if we have no forwards for this group
-		if(empty($notifications))
+		// Find all our matching filters
+		if(false == ($matches = Model_WatcherMailFilter::getMatches($ticket)))
 			return;
-
+		
+		// Sanitize and combine all the destination addresses
+		$notify_emails = array();
+		if(is_array($matches))
+		foreach($matches as $filter) {
+			// If the worker no longer exists or is disabled
+			if(!isset($workers[$filter->worker_id]))
+				continue;
+				
+			if(isset($filter->actions['email']['to']) && is_array($filter->actions['email']['to']))
+			foreach($filter->actions['email']['to'] as $addy) {
+				$addy = strtolower($addy);
+				
+				// Don't allow a worker to usurp a helpdesk address
+				if(isset($helpdesk_senders[$addy]))
+					continue;
+				
+				if(!isset($notify_emails[$addy]))
+					$notify_emails[$addy] = $addy;
+			}
+		}
+		
+		if(empty($notify_emails))
+			return;
+		
 		$message = DAO_Ticket::getMessage($message_id);
 		$headers = $message->getHeaders();
 			
@@ -218,34 +233,6 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 			if(isset($headers['auto-submitted']) && $headers['auto-submitted'] != 'no')
 				return;
 				
-			// Headers
-			//==========
-	
-			// Build mailing list
-			$send_to = array();
-			foreach($notifications as $n) { /* @var $n Model_WorkerMailForward */
-				if(!isset($n->group_id) || !isset($n->bucket_id))
-					continue;
-				
-				// if worker no longer exists or is disabled
-				if(!isset($workers[$n->worker_id]))
-					continue;
-					
-				// Don't allow a worker to usurp a helpdesk address
-				if(isset($helpdesk_senders[$n->email])) {
-					continue;
-				}
-					
-				if($n->group_id == $ticket->team_id && ($n->bucket_id==-1 || $n->bucket_id==$ticket->category_id)) {
-					// Event checking
-					if(($is_inbound && ($n->event=='i' || $n->event=='io'))
-						|| (!$is_inbound && ($n->event=='o' || $n->event=='io'))
-						|| ($is_inbound && $n->event=='r' && $ticket->next_worker_id==$n->worker_id)) {
-						$send_to[$n->email] = true;
-					}
-				}
-	    	}
-	    	
 			// Attachments
 			$attachments = $message->getAttachments();
 			$mime_attachments = array();
@@ -263,11 +250,11 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 			}
 	    	
 	    	// Send copies
-			if(is_array($send_to) && !empty($send_to)) {
+			if(is_array($notify_emails) && !empty($notify_emails)) {
 				$mail_service = DevblocksPlatform::getMailService();
 				$mailer = $mail_service->getMailer(CerberusMail::getMailerDefaults());
 				
-				foreach($send_to as $to => $bool) {
+				foreach($notify_emails as $to) {
 					// Proxy the message
 					$rcpt_to = new Swift_RecipientList();
 					$a_rcpt_to = array();
@@ -324,17 +311,17 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 };
 
 class ChWatchersPreferences extends Extension_PreferenceTab {
-	private $tpl_path = null; 
+	private $_TPL_PATH = null; 
 	
     function __construct($manifest) {
         parent::__construct($manifest);
-        $this->tpl_path = dirname(dirname(__FILE__)).'/templates';
+        $this->_TPL_PATH = dirname(dirname(__FILE__)).'/templates/';
     }
 	
 	// Ajax
 	function showTab() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->tpl_path);
+		$tpl->assign('path', $this->_TPL_PATH);
 		$tpl->cache_lifetime = "0";
 		
 		$worker = CerberusApplication::getActiveWorker();
@@ -342,81 +329,303 @@ class ChWatchersPreferences extends Extension_PreferenceTab {
 		
 		$groups = DAO_Group::getAll();
 		$tpl->assign('groups', $groups);
+
+		$buckets = DAO_Bucket::getAll();
+		$tpl->assign('buckets', $buckets);
 		
-		$group_buckets = DAO_Bucket::getTeams();
-		$tpl->assign('group_buckets', $group_buckets);
-		
-		$memberships = $worker->getMemberships();
-		$tpl->assign('memberships', $memberships);
-		
-		$addresses = DAO_AddressToWorker::getByWorker($worker->id);
-		$tpl->assign('addresses', $addresses);
-		
-		@$notifications = DAO_WorkerMailForward::getWhere(sprintf("%s = %d",
-			DAO_WorkerMailForward::WORKER_ID,
+		// Filters
+		@$filters = DAO_WatcherMailFilter::getWhere(sprintf("%s = %d",
+			DAO_WatcherMailFilter::WORKER_ID,
 			$worker->id
 		));
-		$tpl->assign('notifications', $notifications);
+		$tpl->assign('filters', $filters);
 		
+		// Custom Field Sources
+		$source_manifests = DevblocksPlatform::getExtensions('cerberusweb.fields.source', false);
+		$tpl->assign('source_manifests', $source_manifests);
+
+		// Custom fields
+		$custom_fields = DAO_CustomField::getAll();
+		$tpl->assign('custom_fields', $custom_fields);
+		
+		// What email addy to notify on 'assign' [TODO] Reimplement
 		$assign_notify_email = DAO_WorkerPref::get($worker->id, ChWatchersPlugin::WORKER_PREF_ASSIGN_EMAIL, '');
 		$tpl->assign('assign_notify_email', $assign_notify_email);
 		
-		$tpl->display('file:' . $this->tpl_path . '/preferences/watchers.tpl');
+		$tpl->display('file:' . $this->_TPL_PATH . 'preferences/watchers.tpl');
 	}
     
 	// Post
 	function saveTab() {
-		@$forward_bucket = DevblocksPlatform::importGPC($_REQUEST['forward_bucket'],'string', '');
-		@$forward_address = DevblocksPlatform::importGPC($_REQUEST['forward_address'],'string', '');
-		@$forward_event = DevblocksPlatform::importGPC($_REQUEST['forward_event'],'string', '');
-
 		$worker = CerberusApplication::getActiveWorker();
 		
 		// Delete forwards
-		@$forward_deletes = DevblocksPlatform::importGPC($_REQUEST['forward_deletes'],'array', array());
-		if(!empty($forward_deletes))
-			DAO_WorkerMailForward::delete($forward_deletes);
-		
-		// Add forward
-		if(!empty($forward_bucket) && !empty($forward_address) && !empty($forward_event)) {
-			@list($group_id, $bucket_id) = split('_', $forward_bucket);
-			if(is_null($group_id) || is_null($bucket_id))
-				break;
-			
-			$fields = array(
-				DAO_WorkerMailForward::WORKER_ID => $worker->id,
-				DAO_WorkerMailForward::GROUP_ID => $group_id,
-				DAO_WorkerMailForward::BUCKET_ID => $bucket_id,
-				DAO_WorkerMailForward::EMAIL => $forward_address,
-				DAO_WorkerMailForward::EVENT => $forward_event,
-			);
-			DAO_WorkerMailForward::create($fields);
-		}
+		@$deletes = DevblocksPlatform::importGPC($_REQUEST['deletes'],'array', array());
+		if(!empty($deletes))
+			DAO_WatcherMailFilter::delete($deletes);
 		
 		// Assignment notifications
-		@$assign_notify_email = DevblocksPlatform::importGPC($_REQUEST['assign_notify_email'],'string', '');
-		DAO_WorkerPref::set($worker->id, ChWatchersPlugin::WORKER_PREF_ASSIGN_EMAIL, $assign_notify_email);
+		// [TODO] Reimplement
+//		@$assign_notify_email = DevblocksPlatform::importGPC($_REQUEST['assign_notify_email'],'string', '');
+//		DAO_WorkerPref::set($worker->id, ChWatchersPlugin::WORKER_PREF_ASSIGN_EMAIL, $assign_notify_email);
 		
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('preferences','notifications')));
 	}
+	
+	// Ajax
+	function showWatcherPanelAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', $this->_TPL_PATH);
+
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(null != ($filter = DAO_WatcherMailFilter::get($id))) {
+			$tpl->assign('filter', $filter);
+		}
+		
+		$groups = DAO_Group::getAll();
+		$tpl->assign('groups', $groups);
+
+		$buckets = DAO_Bucket::getAll();
+		$tpl->assign('buckets', $buckets);
+
+		$group_buckets = DAO_Bucket::getTeams();
+		$tpl->assign('group_buckets', $group_buckets);
+		
+		$memberships = $active_worker->getMemberships();
+		$tpl->assign('memberships', $memberships);
+		
+		$addresses = DAO_AddressToWorker::getByWorker($active_worker->id);
+		$tpl->assign('addresses', $addresses);
+
+		// Custom Fields: Ticket
+		$ticket_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Ticket::ID);
+		$tpl->assign('ticket_fields', $ticket_fields);
+
+		// Custom Fields: Address
+		$address_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Address::ID);
+		$tpl->assign('address_fields', $address_fields);
+		
+		// Custom Fields: Orgs
+		$org_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Org::ID);
+		$tpl->assign('org_fields', $org_fields);
+		
+		$tpl->display('file:' . $this->_TPL_PATH . 'preferences/peek.tpl');
+	}
+	
+	function saveWatcherPanelAction() {
+   		$translate = DevblocksPlatform::getTranslationService();
+   		
+   		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+   		
+	    @$active_worker = CerberusApplication::getActiveWorker();
+//	    if(!$active_worker->is_superuser)
+//	    	return;
+
+	    /*****************************/
+		@$name = DevblocksPlatform::importGPC($_POST['name'],'string','');
+		@$rules = DevblocksPlatform::importGPC($_POST['rules'],'array',array());
+		@$do = DevblocksPlatform::importGPC($_POST['do'],'array',array());
+		
+		if(empty($name))
+			$name = $translate->_('Notification');
+		
+		$criterion = array();
+		$actions = array();
+		
+		// Custom fields
+		$custom_fields = DAO_CustomField::getAll();
+		
+		// Criteria
+		if(is_array($rules))
+		foreach($rules as $rule) {
+			$rule = DevblocksPlatform::strAlphaNumDash($rule);
+			@$value = DevblocksPlatform::importGPC($_POST['value_'.$rule],'string','');
+			
+			// [JAS]: Allow empty $value (null/blank checking)
+			
+			$criteria = array(
+				'value' => $value,
+			);
+			
+			// Any special rule handling
+			switch($rule) {
+				case 'dayofweek':
+					// days
+					$days = DevblocksPlatform::importGPC($_REQUEST['value_dayofweek'],'array',array());
+					if(in_array(0,$days)) $criteria['sun'] = 'Sunday';
+					if(in_array(1,$days)) $criteria['mon'] = 'Monday';
+					if(in_array(2,$days)) $criteria['tue'] = 'Tuesday';
+					if(in_array(3,$days)) $criteria['wed'] = 'Wednesday';
+					if(in_array(4,$days)) $criteria['thu'] = 'Thursday';
+					if(in_array(5,$days)) $criteria['fri'] = 'Friday';
+					if(in_array(6,$days)) $criteria['sat'] = 'Saturday';
+					unset($criteria['value']);
+					break;
+				case 'timeofday':
+					$from = DevblocksPlatform::importGPC($_REQUEST['timeofday_from'],'string','');
+					$to = DevblocksPlatform::importGPC($_REQUEST['timeofday_to'],'string','');
+					$criteria['from'] = $from;
+					$criteria['to'] = $to;
+					unset($criteria['value']);
+					break;
+				case 'is_outgoing':
+					break;
+				case 'groups':
+					@$groups = DevblocksPlatform::importGPC($_REQUEST['value_groups'],'array',array());
+					if(is_array($groups) && !empty($groups)) {
+						$criteria['groups'] = array();
+						
+						foreach($groups as $group_id) {
+							@$all = DevblocksPlatform::importGPC($_REQUEST['value_group'.$group_id.'_all'],'integer',0);
+							
+							// Did we only want to watch specific buckets in this group?
+							$bucket_ids = array();
+							if(!$all)
+								@$bucket_ids = DevblocksPlatform::importGPC($_REQUEST['value_group'.$group_id.'_buckets'],'array',array());
+							
+							// Add to criteria (key=group id, val=array of bucket ids)
+							$criteria['groups'][$group_id] = $bucket_ids;
+						}					
+					}
+					unset($criteria['value']);
+					break;
+				case 'subject':
+					break;
+				case 'from':
+					break;
+//				case 'tocc':
+//					break;
+				case 'header1':
+				case 'header2':
+				case 'header3':
+				case 'header4':
+				case 'header5':
+					if(null != (@$header = DevblocksPlatform::importGPC($_POST[$rule],'string',null)))
+						$criteria['header'] = strtolower($header);
+					break;
+				case 'body':
+					break;
+				default: // ignore invalids // [TODO] Very redundant
+					// Custom fields
+					if("cf_" == substr($rule,0,3)) {
+						$field_id = intval(substr($rule,3));
+						
+						if(!isset($custom_fields[$field_id]))
+							continue;
+
+						// [TODO] Operators
+							
+						switch($custom_fields[$field_id]->type) {
+							case 'S': // string
+							case 'T': // clob
+								$oper = DevblocksPlatform::importGPC($_REQUEST['value_cf_'.$field_id.'_oper'],'string','regexp');
+								$criteria['oper'] = $oper;
+								break;
+							case 'D': // dropdown
+							case 'M': // multi-dropdown
+							case 'X': // multi-checkbox
+								$in_array = DevblocksPlatform::importGPC($_REQUEST['value_cf_'.$field_id],'array',array());
+								$out_array = array();
+								
+								// Hash key on the option for quick lookup later
+								if(is_array($in_array))
+								foreach($in_array as $k => $v) {
+									$out_array[$v] = $v;
+								}
+								
+								$criteria['value'] = $out_array;
+								break;
+							case 'E': // date
+								$from = DevblocksPlatform::importGPC($_REQUEST['value_cf_'.$field_id.'_from'],'string','0');
+								$to = DevblocksPlatform::importGPC($_REQUEST['value_cf_'.$field_id.'_to'],'string','now');
+								$criteria['from'] = $from;
+								$criteria['to'] = $to;
+								unset($criteria['value']);
+								break;
+							case 'N': // number
+								$oper = DevblocksPlatform::importGPC($_REQUEST['value_cf_'.$field_id.'_oper'],'string','=');
+								$criteria['oper'] = $oper;
+								$criteria['value'] = intval($value);
+								break;
+							case 'C': // checkbox
+								$criteria['value'] = intval($value);
+								break;
+						}
+						
+					} else {
+						continue;
+					}
+					
+					break;
+			}
+			
+			$criterion[$rule] = $criteria;
+		}
+		
+		// Actions
+		if(is_array($do))
+		foreach($do as $act) {
+			$action = array();
+			
+			switch($act) {
+				// Forward a copy to...
+				case 'email':
+					@$emails = DevblocksPlatform::importGPC($_REQUEST['do_email'],'array',array());
+					if(!empty($emails)) {
+						$action = array(
+							'to' => $emails
+						);
+					}
+					break;
+			}
+			
+			$actions[$act] = $action;
+		}
+
+   		$fields = array(
+   			DAO_WatcherMailFilter::NAME => $name,
+   			DAO_WatcherMailFilter::CRITERIA_SER => serialize($criterion),
+   			DAO_WatcherMailFilter::ACTIONS_SER => serialize($actions),
+   		);
+
+   		// Create
+   		if(empty($id)) {
+   			$fields[DAO_WatcherMailFilter::POS] = 0;
+   			$fields[DAO_WatcherMailFilter::WORKER_ID] = $active_worker->id;
+	   		$id = DAO_WatcherMailFilter::create($fields);
+	   		
+	   	// Update
+   		} else {
+   			DAO_WatcherMailFilter::update($id, $fields);
+   		}
+   		
+   		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('preferences','notifications')));
+	}
+	
 };
 
-class DAO_WorkerMailForward extends DevblocksORMHelper {
+class DAO_WatcherMailFilter extends DevblocksORMHelper {
 	const ID = 'id';
+	const POS = 'pos';
+	const NAME = 'name';
+	const CREATED = 'created';
 	const WORKER_ID = 'worker_id';
-	const GROUP_ID = 'group_id';
-	const BUCKET_ID = 'bucket_id';
-	const EMAIL = 'email';
-	const EVENT = 'event';
-	
-	public static function create($fields) {
+	const CRITERIA_SER = 'criteria_ser';
+	const ACTIONS_SER = 'actions_ser';
+
+	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		$id = $db->GenID('generic_seq');
 		
-		$sql = sprintf("INSERT INTO worker_mail_forward (id, worker_id, group_id, bucket_id, email, event) ".
-			"VALUES (%d, 0, 0, 0, '', '')",
-			$id
+		$sql = sprintf("INSERT INTO watcher_mail_filter (id,created) ".
+			"VALUES (%d,%d)",
+			$id,
+			time()
 		);
 		$db->Execute($sql);
 		
@@ -425,64 +634,100 @@ class DAO_WorkerMailForward extends DevblocksORMHelper {
 		return $id;
 	}
 	
-	/**
-	 * @return Model_WorkerMailForward[]
-	 */
-	public static function getWhere($where) {
-		$db = DevblocksPlatform::getDatabaseService();
-		
-		$sql = "SELECT id, worker_id, group_id, bucket_id, email, event ".
-			"FROM worker_mail_forward ".
-			(!empty($where)?sprintf("WHERE %s ",$where):" ").
-			"ORDER BY worker_id, id "
-			;
-		$rs = $db->Execute($sql);
-		
-		return self::_createObjectsFromResultSet($rs);
+	static function update($ids, $fields) {
+		parent::_update($ids, 'watcher_mail_filter', $fields);
 	}
 	
-	static private function _createObjectsFromResultSet($rs) {
+	/**
+	 * @param string $where
+	 * @return Model_WatcherMailFilter[]
+	 */
+	static function getWhere($where=null) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = "SELECT id, pos, name, created, worker_id, criteria_ser, actions_ser ".
+			"FROM watcher_mail_filter ".
+			(!empty($where) ? sprintf("WHERE %s ",$where) : "").
+			"ORDER BY pos DESC";
+		$rs = $db->Execute($sql);
+		
+		return self::_getObjectsFromResult($rs);
+	}
+
+	/**
+	 * @param integer $id
+	 * @return Model_WatcherMailFilter	 */
+	static function get($id) {
+		$objects = self::getWhere(sprintf("%s = %d",
+			self::ID,
+			$id
+		));
+		
+		if(isset($objects[$id]))
+			return $objects[$id];
+		
+		return null;
+	}
+	
+	/**
+	 * @param ADORecordSet $rs
+	 * @return Model_WatcherMailFilter[]
+	 */
+	static private function _getObjectsFromResult($rs) {
 		$objects = array();
 		
-		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
-		    $object = new Model_WorkerMailForward();
-		    $object->id = intval($rs->fields['id']);
-		    $object->worker_id = intval($rs->fields['worker_id']);
-		    $object->group_id = intval($rs->fields['group_id']);
-		    $object->bucket_id = intval($rs->fields['bucket_id']);
-		    $object->email = $rs->fields['email'];
-		    $object->event = $rs->fields['event'];
-		    $objects[$object->id] = $object;
-		    $rs->MoveNext();
+			$object = new Model_WatcherMailFilter();
+			$object->id = $rs->fields['id'];
+			$object->pos = $rs->fields['pos'];
+			$object->name = $rs->fields['name'];
+			$object->created = $rs->fields['created'];
+			$object->worker_id = $rs->fields['worker_id'];
+			
+			if(null != (@$criteria_ser = $rs->fields['criteria_ser']))
+				if(false === (@$object->criteria = unserialize($criteria_ser)))
+					$object->criteria = array();
+
+			if(null != (@$actions_ser = $rs->fields['actions_ser']))
+				if(false === ($object->actions = unserialize($actions_ser)))
+					$object->actions = array();
+			
+			$objects[$object->id] = $object;
+			$rs->MoveNext();
 		}
 		
 		return $objects;
 	}
-			
-	public static function update($ids, $fields) {
-		parent::_update($ids, 'worker_mail_forward', $fields);
+	
+	public static function increment($id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		$db->Execute(sprintf("UPDATE watcher_mail_filter SET pos = pos + 1 WHERE id = %d",
+			$id
+		));
 	}
 	
-	public static function delete($ids) {
+	static function delete($ids) {
 		if(!is_array($ids)) $ids = array($ids);
-		
 		$db = DevblocksPlatform::getDatabaseService();
+		
 		$ids_list = implode(',', $ids);
 		
-		$db->Execute(sprintf("DELETE QUICK FROM worker_mail_forward WHERE id IN (%s)", $ids_list));
+		$db->Execute(sprintf("DELETE FROM watcher_mail_filter WHERE id IN (%s)", $ids_list));
+		
+		return true;
 	}
-	
+
 	private static function _deleteWhere($where) {
 		if(empty($where))
 			return FALSE;
 			
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = sprintf("DELETE QUICK FROM worker_mail_forward WHERE %s", $where);
+		$sql = sprintf("DELETE FROM watcher_mail_filter WHERE %s", $where);
 		$db->Execute($sql);
 	}
-	
+
+
 	public static function deleteByWorkerIds($ids) {
 		if(!is_array($ids)) $ids = array($ids);
 		
@@ -492,32 +737,360 @@ class DAO_WorkerMailForward extends DevblocksORMHelper {
 		));
 	}
 	
-	public static function deleteByBucketIds($ids) {
-		if(!is_array($ids)) $ids = array($ids);
-		
-		self::_deleteWhere(sprintf("%s IN (%s)",
-			self::BUCKET_ID,
-			implode(',', $ids)
-		));
-	}
-	
 	public static function deleteByGroupIds($ids) {
 		if(!is_array($ids)) $ids = array($ids);
+
+		// [TODO] use cache
+		$filters = self::getWhere();
+		foreach($filters as $filter_id => $filter) {
+			if(!isset($filter->criteria['groups']))
+				continue;
+				
+			// If we're using the group being nuked...
+			$changed = false;
+			foreach($ids as $group_id) {
+				if(isset($filter->criteria['groups']['groups'][$group_id])) {
+					unset($filter->criteria['groups']['groups'][$group_id]);
+					$changed = true;
+				}
+			}
+			
+			// If we changed the criteria of a filter, save it
+			if($changed) {
+				$fields = array(
+					DAO_WatcherMailFilter::CRITERIA_SER => serialize($filter->criteria),
+				);
+				DAO_WatcherMailFilter::update($filter->id, $fields);
+			}
+		}
 		
-		self::_deleteWhere(sprintf("%s IN (%s)",
-			self::GROUP_ID,
-			implode(',', $ids)
-		));
+		// [TODO] invalidate cache
+	}
+
+	public static function deleteByBucketIds($ids) {
+		if(!is_array($ids)) $ids = array($ids);
+
+		// [TODO] use cache
+		$filters = self::getWhere();
+		foreach($filters as $filter_id => $filter) {
+			if(!isset($filter->criteria['groups']['groups']))
+				continue;	
+			
+			// If we're using the bucket being nuked...
+			$changed = false;
+			foreach($filter->criteria['groups']['groups'] as $group_id => $buckets) {
+				foreach($ids as $bucket_id) {
+					if(false !== ($pos = array_search($bucket_id, $buckets))) {
+						unset($filter->criteria['groups']['groups'][$group_id][$pos]);
+						$changed = true;
+					}
+				}
+			}
+			
+			if($changed) {
+				$fields = array(
+					DAO_WatcherMailFilter::CRITERIA_SER => serialize($filter->criteria),
+				);
+				DAO_WatcherMailFilter::update($filter->id, $fields);
+			}
+		}
+		
+		// [TODO] invalidate cache
+	}
+	
+};
+
+class Model_WatcherMailFilter {
+	public $id;
+	public $pos;
+	public $name;
+	public $created;
+	public $worker_id;
+	public $criteria;
+	public $actions;
+	
+	/**
+	 * @return Model_WatcherMailFilter[]|false
+	 */
+	static function getMatches(CerberusTicket $ticket, $only_rule_id=0) {
+		$matches = array();
+		
+		if(!empty($only_rule_id)) {
+			$filters = array(
+				DAO_WatcherMailFilter::get($only_rule_id)
+			);
+		} else {
+			$filters = DAO_WatcherMailFilter::getWhere();
+		}
+
+		// [JAS]: Don't send obvious spam to watchers.
+		if($ticket->spam_score >= 0.9000)
+			return false;
+			
+		// Build our objects
+		$ticket_from = DAO_Address::get($ticket->last_wrote_address_id);
+		$ticket_group_id = $ticket->team_id;
+		
+		// [TODO] These expensive checks should only populate when needed
+		$messages = DAO_Ticket::getMessagesByTicket($ticket->id);
+		$message_headers = array();
+
+		if(empty($messages))
+			return false;
+		
+		if(null != (@$message_last = array_pop($messages))) { /* @var $message_last CerberusMessage */
+			$message_headers = $message_last->getHeaders();
+		}
+
+		// Clear the rest of the message manifests
+		unset($messages);
+		
+		$custom_fields = DAO_CustomField::getAll();
+		
+		// Lazy load when needed on criteria basis
+		$ticket_field_values = null;
+		$address_field_values = null;
+		$org_field_values = null;
+		
+		// Worker memberships (for checking permissions)
+		$workers = DAO_Worker::getAll();
+		$group_rosters = DAO_Group::getRosters();
+		
+		// Check filters
+		if(is_array($filters))
+		foreach($filters as $filter) { /* @var $filter Model_WatcherMailFilter */
+			$passed = 0;
+
+			// check the worker's group memberships
+			if(!isset($workers[$filter->worker_id]) // worker doesn't exist 
+				|| (!$workers[$filter->worker_id]->is_superuser  // no a superuser
+					&& !isset($group_rosters[$ticket->team_id][$filter->worker_id]))) { // no membership
+				continue;
+			}
+
+			// check criteria
+			foreach($filter->criteria as $rule_key => $rule) {
+				@$value = $rule['value'];
+							
+				switch($rule_key) {
+					case 'dayofweek':
+						$current_day = strftime('%w');
+						//$current_day = 1;
+
+						// Forced to English abbrevs as indexes
+						$days = array('sun','mon','tue','wed','thu','fri','sat');
+						
+						// Is the current day enabled?
+						if(isset($rule[$days[$current_day]])) {
+							$passed++;
+						}
+							
+						break;
+						
+					case 'timeofday':
+						$current_hour = strftime('%H');
+						$current_min = strftime('%M');
+						//$current_hour = 17;
+						//$current_min = 5;
+
+						if(null != ($from_time = @$rule['from']))
+							list($from_hour, $from_min) = split(':', $from_time);
+						
+						if(null != ($to_time = @$rule['to']))
+							if(list($to_hour, $to_min) = split(':', $to_time));
+
+						// Do we need to wrap around to the next day's hours?
+						if($from_hour > $to_hour) { // yes
+							$to_hour += 24; // add 24 hrs to the destination (1am = 25th hour)
+						}
+							
+						// Are we in the right 24 hourly range?
+						if((integer)$current_hour >= $from_hour && (integer)$current_hour <= $to_hour) {
+							// If we're in the first hour, are we minutes early?
+							if($current_hour==$from_hour && (integer)$current_min < $from_min)
+								break;
+							// If we're in the last hour, are we minutes late?
+							if($current_hour==$to_hour && (integer)$current_min > $to_min)
+								break;
+								
+							$passed++;
+						}
+						break;
+						
+					case 'is_outgoing': 
+						if(intval($value)==intval($message_last->is_outgoing))
+							$passed++;
+						break;					
+						
+					case 'groups':
+						// [TODO] Check memberships?
+						if(null !== (@$group_buckets = $rule['groups'][$ticket->team_id]) // group is set
+							&& (empty($group_buckets) || in_array($ticket->category_id,$group_buckets)))
+								$passed++;
+						break;
+						
+					case 'mask':
+						$regexp_mask = DevblocksPlatform::strToRegExp($value);
+						if(@preg_match($regexp_mask, $ticket->mask)) {
+							$passed++;
+						}
+						break;
+						
+					case 'from':
+						$regexp_from = DevblocksPlatform::strToRegExp($value);
+						if(@preg_match($regexp_from, $ticket_from->email)) {
+							$passed++;
+						}
+						break;
+						
+					case 'subject':
+						$regexp_subject = DevblocksPlatform::strToRegExp($value);
+						if(@preg_match($regexp_subject, $ticket->subject)) {
+							$passed++;
+						}
+						break;
+						
+					case 'body':
+						if(null == ($message_body = $message_last->getContent()))
+							break;
+							
+						// Line-by-line body scanning (sed-like)
+						$lines = split("[\r\n]", $message_body);
+						if(is_array($lines))
+						foreach($lines as $line) {
+							if(@preg_match($value, $line)) {
+								$passed++;
+								break;
+							}
+						}
+						break;
+						
+					case 'header1':
+					case 'header2':
+					case 'header3':
+					case 'header4':
+					case 'header5':
+						@$header = strtolower($rule['header']);
+
+						if(empty($header)) {
+							$passed++;
+							break;
+						}
+						
+						if(empty($value)) { // we're checking for null/blanks
+							if(!isset($message_headers[$header]) || empty($message_headers[$header])) {
+								$passed++;
+							}
+							
+						} elseif(isset($message_headers[$header]) && !empty($message_headers[$header])) {
+							$regexp_header = DevblocksPlatform::strToRegExp($value);
+							
+							// Flatten CRLF
+							if(@preg_match($regexp_header, str_replace(array("\r","\n"),' ',$message_headers[$header]))) {
+								$passed++;
+							}
+						}
+						
+						break;
+						
+					default: // ignore invalids
+						// Custom Fields
+						if(0==strcasecmp('cf_',substr($rule_key,0,3))) {
+							$field_id = substr($rule_key,3);
+
+							// Make sure it exists
+							if(null == (@$field = $custom_fields[$field_id]))
+								continue;
+
+							// Lazy values loader
+							$field_values = array();
+							switch($field->source_extension) {
+								case ChCustomFieldSource_Address::ID:
+									if(null == $address_field_values)
+										$address_field_values = array_shift(DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Address::ID, $ticket_from->id));
+									$field_values =& $address_field_values;
+									break;
+								case ChCustomFieldSource_Org::ID:
+									if(null == $org_field_values)
+										$org_field_values = array_shift(DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Org::ID, $ticket_from->contact_org_id));
+									$field_values =& $org_field_values;
+									break;
+								case ChCustomFieldSource_Ticket::ID:
+									if(null == $ticket_field_values)
+										$ticket_field_values = array_shift(DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Ticket::ID, $ticket->id));
+									$field_values =& $ticket_field_values;
+									break;
+							}
+							
+							// Type sensitive value comparisons
+							// [TODO] Operators
+							switch($field->type) {
+								case 'S': // string
+								case 'T': // clob
+									$field_val = isset($field_values[$field_id]) ? $field_values[$field_id] : '';
+									$oper = isset($rule['oper']) ? $rule['oper'] : "=";
+									
+									if($oper == "=" && @preg_match(DevblocksPlatform::strToRegExp($value), $field_val))
+										$passed++;
+									elseif($oper == "!=" && @!preg_match(DevblocksPlatform::strToRegExp($value), $field_val))
+										$passed++;
+									break;
+								case 'N': // number
+									$field_val = isset($field_values[$field_id]) ? $field_values[$field_id] : 0;
+									$oper = isset($rule['oper']) ? $rule['oper'] : "=";
+									
+									if($oper=="=" && intval($field_val)==intval($value))
+										$passed++;
+									elseif($oper=="!=" && intval($field_val)!=intval($value))
+										$passed++;
+									elseif($oper==">" && $intval($field_val) > intval($value))
+										$passed++;
+									elseif($oper=="<" && $intval($field_val) < intval($value))
+										$passed++;
+									break;
+								case 'E': // date
+									$field_val = isset($field_values[$field_id]) ? intval($field_values[$field_id]) : 0;
+									$from = isset($rule['from']) ? $rule['from'] : "0";
+									$to = isset($rule['to']) ? $rule['to'] : "now";
+									
+									if(intval(@strtotime($from)) <= $field_val && intval(@strtotime($to)) >= $field_val) {
+										$passed++;
+									}
+									break;
+								case 'C': // checkbox
+									$field_val = isset($field_values[$field_id]) ? $field_values[$field_id] : 0;
+									if(intval($value)==intval($field_val))
+										$passed++;
+									break;
+								case 'D': // dropdown
+								case 'X': // multi-checkbox
+								case 'M': // multi-picklist
+									$field_val = isset($field_values[$field_id]) ? $field_values[$field_id] : array();
+									if(!is_array($value)) $value = array($value);
+									
+									foreach($value as $v) {
+										if(isset($field_val[$v])) {
+											$passed++;
+										}
+									}
+									break;
+							}
+						}
+						break;
+				}
+			}
+			
+			// If our rule matched every criteria, stop and return the filter
+			if($passed == count($filter->criteria)) {
+				DAO_WatcherMailFilter::increment($filter->id); // ++ the times we've matched
+				$matches[$filter->id] = $filter;
+			}
+		}
+		
+		if(!empty($matches))
+			return $matches;
+		
+		// No matches
+		return false;
 	}
 };
-
-class Model_WorkerMailForward {
-	public $id = '';
-	public $worker_id = '';
-	public $group_id = '';
-	public $bucket_id = '';
-	public $email = '';
-	public $event = '';
-};
-
-?>

@@ -1,111 +1,134 @@
-<h2>{$translate->_('watchers.ui.pref.mail_forwarding')}</h2>
-{$translate->_('watchers.ui.pref.any_email')}<br>
-{$translate->_('watchers.ui.pref.reply_normally')}<br>
-<br>
-
-<form action="{devblocks_url}{/devblocks_url}" method="post">
-<input type="hidden" name="c" value="preferences">
-<input type="hidden" name="a" value="saveTab">
-<input type="hidden" name="ext_id" value="core.pref.notifications">
-
-{if !empty($memberships)}
-<table cellspacing="0" cellpadding="2" border="0">
-<tr>
-	<td style="padding-right:10px;"><b>{$translate->_('watchers.ui.pref.group_bucket')}</b></td>
-	<td style="padding-right:10px;"><b>{$translate->_('watchers.ui.pref.forward_copy')}</b></td>
-	<td style="padding-right:10px;"><b>{$translate->_('watchers.ui.pref.which_events')}</b></td>
-	<td><b>{$translate->_('common.delete')|capitalize}</b></td>
-</tr>
-{foreach from=$notifications item=forward name=forwards key=forward_id}
-	<tr>
-		<td style="padding-right:10px;">
-			{assign var=forward_bucket_gid value=$forward->group_id}
-			{assign var=forward_bucket_id value=$forward->bucket_id}
-			
-			{$groups.$forward_bucket_gid->name}: 
-			{if $forward_bucket_id==-1}
-				{$translate->_('common.all')|capitalize}
-			{elseif $forward_bucket_id==0}
-				{$translate->_('common.inbox')|capitalize}
-			{else}
-				{assign var=group_bkts value=$group_buckets.$forward_bucket_gid}
-				{$group_bkts.$forward_bucket_id->name}
-			{/if}
-		</td>
-		<td>
-			{$forward->email}
-		</td>
-		<td>
-			{if $forward->event=='i'}
-				{$translate->_('watchers.ui.pref.incoming')}
-			{elseif $forward->event=='o'}
-				{$translate->_('watchers.ui.pref.outgoing')}
-			{elseif $forward->event=='io'}
-				{$translate->_('watchers.ui.pref.incoming_outgoing')}
-			{elseif $forward->event=='r'}
-				{$translate->_('watchers.ui.pref.replies_to_me')}
-			{/if}
-		</td>
-		<td align="center">
-			<input type="checkbox" name="forward_deletes[]" value="{$forward->id}">
-		</td>
-	</tr>
-{/foreach}
-	<tr>
-		<td style="padding-right:10px;">
-			<b>{$translate->_('watchers.ui.pref.add')}</b> <select name="forward_bucket">
-				<option value="">-- {$translate->_('watchers.ui.pref.choose_bucket')} --</option>
-				{foreach from=$memberships item=group key=group_id}
-					<optgroup label="{$groups.$group_id->name}">
-					<option value="{$group_id}_-1">{$groups.$group_id->name}: -- {$translate->_('common.all')|capitalize} --</option>
-					<option value="{$group_id}_0">{$groups.$group_id->name}: {$translate->_('common.inbox')|capitalize}</option>
-					{foreach from=$group_buckets.$group_id item=bucket key=bucket_id}
-					<option value="{$group_id}_{$bucket_id}">{$groups.$group_id->name}: {$bucket->name}</option>
-					{/foreach}
-					</optgroup>
-				{/foreach}
-			</select>
-		</td>
-		<td>
-			<select name="forward_address">
-				{foreach from=$addresses item=address}
-					{if $address->is_confirmed}
-					<option value="{$address->address}">{$address->address}</option>
-					{/if}
-				{/foreach}
-			</select>
-		</td>
-		<td>
-			<select name="forward_event">
-				<option value="i">{$translate->_('watchers.ui.pref.incoming')}
-				<option value="o">{$translate->_('watchers.ui.pref.outgoing')}
-				<option value="io" selected>{$translate->_('watchers.ui.pref.incoming_outgoing')}
-				<option value="r">{$translate->_('watchers.ui.pref.replies_to_me')}
-			</select>
-		</td>
-	</tr>
-</table>
-<br>
-
-{if !empty($addresses)}
-{$translate->_('watchers.ui.pref.assignment_notify')}
-<select name="assign_notify_email">
-	<option value="">-- {$translate->_('watchers.ui.pref.dont_notify')} --</option>
-	{foreach from=$addresses item=address}
-		{if $address->is_confirmed}
-		<option value="{$address->address}" {if $address->address==$assign_notify_email}selected{/if}>{$address->address}</option>
-		{/if}
-	{/foreach}
-</select>
-<br>
-<br>
-{/if}
-
-{else}
-{$translate->_('watchers.ui.pref.not_group_member')}<br>
-{/if}
-
-<br>
-
-<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')}</button>
+<div id="tourMyAcctWatchers"></div>
+<form action="{devblocks_url}{/devblocks_url}" style="margin-bottom:5px;">
+	<button type="button" onclick="genericAjaxPanel('c=preferences&a=handleTabAction&tab=core.pref.notifications&action=showWatcherPanel&id=0',null,false,'550px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/funnel.gif{/devblocks_url}" align="top"> Add Notification</button>
 </form>
+
+{if !empty($filters)}
+<div class="block" id="myAcctWatchers">
+	<form action="{devblocks_url}{/devblocks_url}" method="post">
+	<input type="hidden" name="c" value="preferences">
+	<input type="hidden" name="a" value="saveTab">
+	<input type="hidden" name="ext_id" value="core.pref.notifications">
+
+	<h2>{$translate->_('watchers.ui.pref.mail_forwarding')}</h2>
+	
+	{*
+	{if !empty($addresses)}
+	{$translate->_('watchers.ui.pref.assignment_notify')}
+	<select name="assign_notify_email">
+		<option value="">-- {$translate->_('watchers.ui.pref.dont_notify')} --</option>
+		{foreach from=$addresses item=address}
+			{if $address->is_confirmed}
+			<option value="{$address->address}" {if $address->address==$assign_notify_email}selected{/if}>{$address->address}</option>
+			{/if}
+		{/foreach}
+	</select>
+	<br>
+	<br>
+	{/if}
+	*}
+	
+	<table cellspacing="2" cellpadding="2">
+		{counter start=0 print=false name=order}
+		{foreach from=$filters item=filter key=filter_id name=filters}
+			<tr>
+				<td valign="top" align="center">
+					<label><input type="checkbox" name="deletes[]" value="{$filter_id}">
+					<input type="hidden" name="ids[]" value="{$filter_id}">
+				</td>
+				<td style="padding:5px;">
+					<a href="javascript:;" onclick="genericAjaxPanel('c=preferences&a=handleTabAction&tab=core.pref.notifications&action=showWatcherPanel&id={$filter_id}',null,false,'550px');" style="color:rgb(0,120,0);font-weight:bold;">{$filter->name|escape}</a>
+					<br>
+					
+					{foreach from=$filter->criteria item=crit key=crit_key}
+						{if $crit_key=='is_outgoing'}
+							Event = <b>{if $crit.value}Outgoing{else}Incoming{/if}</b><br>
+						{elseif $crit_key=='groups'}
+							Group/Bucket = 
+							{foreach from=$crit.groups key=group_id item=bucket_ids name=groups}
+								{if isset($groups.$group_id)}
+									<b>{$groups.$group_id->name}</b>
+								
+									{if is_array($bucket_ids) && !empty($bucket_ids)}
+									(<i>{foreach from=$bucket_ids item=bucket_id name=buckets}{if 0==$bucket_id}{$translate->_('common.inbox')|capitalize}{else}{$buckets.$bucket_id->name}{/if}{if !$smarty.foreach.buckets.last}, {/if}{/foreach}</i>)
+									{/if}
+								{/if}
+								{if !$smarty.foreach.groups.last} or {/if}
+							{/foreach}
+							<br>
+						{elseif $crit_key=='subject'}
+							Subject = <b>{$crit.value}</b><br>
+						{elseif $crit_key=='from'}
+							From = <b>{$crit.value}</b><br>
+						{elseif $crit_key=='body'}
+							Body = <b>{$crit.value}</b><br>
+						{elseif 'header'==substr($crit_key,0,6)}
+							Header <i>{$crit.header}</i> = <b>{$crit.value}</b><br>
+						{elseif $crit_key=='dayofweek'}
+							Day of Week is 
+								{foreach from=$crit item=day name=timeofday}
+								<b>{$day}</b>{if !$smarty.foreach.timeofday.last} or {/if}
+								{/foreach}
+								<br>
+						{elseif $crit_key=='timeofday'}
+							{assign var=from_time value=$crit.from|explode:':'}
+							{assign var=to_time value=$crit.to|explode:':'}
+							Time of Day 
+								<i>between</i> 
+								<b>{$from_time.0|string_format:"%d"}:{$from_time.1|string_format:"%02d"}</b> 
+								<i>and</i> 
+								<b>{$to_time.0|string_format:"%d"}:{$to_time.1|string_format:"%02d"}</b> 
+								<br>
+						{elseif 0==strcasecmp('cf_',substr($crit_key,0,3))}
+							{* [TODO] Custom Field Types *}
+							{assign var=col value=$crit_key|explode:'_'}
+							{assign var=cf_id value=$col.1}
+							
+							{if isset($custom_fields.$cf_id)}
+								{assign var=cfield value=$custom_fields.$cf_id}
+								{assign var=crit_oper value=$crit.oper}
+								{assign var=cfield_source value=$cfield->source_extension}
+								{$source_manifests.$cfield_source->name}:{$custom_fields.$cf_id->name} 
+								{if isset($crit.value) && is_array($crit.value)}
+									 = 
+									{foreach from=$crit.value item=i name=vals}
+									<b>{$i}</b>{if !$smarty.foreach.vals.last} or {/if}
+									{/foreach}
+								{elseif 'E'==$cfield->type}
+									<i>between</i> <b>{$crit.from}</b> <i>and</i> <b>{$crit.to}</b>
+								{else}
+									{if !empty($crit_oper)}{$crit_oper}{else}={/if}
+									<b>{$crit.value}</b>
+								{/if}
+								<br>
+							{/if}
+						{/if}
+					{/foreach}
+					
+					<blockquote style="margin:2px;margin-left:20px;font-size:95%;color:rgb(100,100,100);">
+						{foreach from=$filter->actions item=action key=action_key}
+							{if $action_key=="email" && isset($action.to) && !empty($action.to)}
+								Forward to 
+								{if is_array($action.to)}
+									{foreach from=$action.to item=email name=emails} 
+									<b>{$email}</b>{if !$smarty.foreach.emails.last}, {/if}
+									{/foreach}
+								{else}
+									<b>{$action.to}</b>
+								{/if}
+								<br>
+							{/if}
+						{/foreach}
+					<span>(Matched {$filter->pos} messages)</span><br>
+					</blockquote>
+				</td>
+			</tr>
+		{/foreach}
+	</table>
+	<br>	
+
+	{if !empty($filters)}<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> {$translate->_('common.remove')|capitalize}</button>{/if}
+	</form>
+</div>
+<br>
+{/if}

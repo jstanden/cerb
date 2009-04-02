@@ -111,8 +111,103 @@ while(!$rs->EOF) {
 $sql = "DELETE worker_mail_forward FROM worker_mail_forward LEFT JOIN team ON (team.id=worker_mail_forward.group_id) WHERE team.id IS NULL";
 $db->Execute($sql);
 
-$sql = "DELETE worker_mail_forward FROM worker_mail_forward LEFT JOIN category ON (category.id=worker_mail_forward.group_id) WHERE worker_mail_forward.bucket_id > 0 AND category.id IS NULL";
+$sql = "DELETE worker_mail_forward FROM worker_mail_forward LEFT JOIN category ON (category.id=worker_mail_forward.bucket_id) WHERE worker_mail_forward.bucket_id > 0 AND category.id IS NULL";
 $db->Execute($sql);
 
+// ===========================================================================
+// Add a table for new worker notification filters
+
+if(!isset($tables['watcher_mail_filter'])) {
+	$flds ="
+		id I4 DEFAULT 0 NOTNULL PRIMARY,
+		pos I2 DEFAULT 0 NOTNULL,
+		name C(128) DEFAULT '' NOTNULL,
+		created I4 DEFAULT 0 NOTNULL,
+		worker_id I4 DEFAULT 0 NOTNULL,
+		criteria_ser XL,
+		actions_ser XL
+	";
+	$sql = $datadict->CreateTableSQL('watcher_mail_filter', $flds);
+	$datadict->ExecuteSQLArray($sql);
+}
+
+// Migrate and then drop the old forward table
+if(isset($tables['worker_mail_forward'])) {
+	$sql = "SELECT id, worker_id, group_id, bucket_id, email, event FROM worker_mail_forward";
+	$rs = $db->Execute($sql);
+	
+	while(!$rs->EOF) {
+		@$old_id = intval($rs->fields['id']);
+		@$worker_id = intval($rs->fields['worker_id']);
+		@$group_id = intval($rs->fields['group_id']);
+		@$bucket_id = intval($rs->fields['bucket_id']);
+		@$email = $rs->fields['email'];
+		@$event = $rs->fields['event'];
+		
+		$name = 'Notification';
+		$criteria = array();
+		$actions = array();
+	
+		// Group+Bucket
+		if(!empty($group_id)) {	
+			$group = array($group_id=>null);
+			
+			if(-1 == $bucket_id) // "All"
+				$group = array($group_id=>array());
+			else // specific buckets
+				$group = array($group_id=>array($bucket_id));
+				
+			$criteria['groups'] = array('groups' => $group);
+		}
+		
+		switch($event) {
+			case 'i': // incoming
+				$name = "Incoming messages";
+				$criteria['is_outgoing'] = array('value' => 0);
+				break;
+			case 'o': // outgoing
+				$name = "Outgoing messages";
+				$criteria['is_outgoing'] = array('value' => 1);
+				break;
+			case 'io': // in+out
+				$name = "All messages";
+				// Ignoring this is the same as in||out
+				break;
+			case 'r': // reply
+				$name = "Replies to me";
+				$criteria['is_outgoing'] = array('value' => 0);
+				$criteria['next_worker_id'] = array('value' => $worker_id);
+				break;
+		}
+		
+		// Actions
+		if(!empty($email)) {
+			$actions['email'] = array('to' => array($email));
+		}
+		
+		// Create new filter
+		$id = $db->GenID('generic_seq');
+		$sql = sprintf("INSERT INTO watcher_mail_filter (id,pos,name,created,worker_id,criteria_ser,actions_ser) ".
+			"VALUES (%d,%d,%s,%d,%d,%s,%s)",
+			$id,
+			0,
+			$db->qstr($name),
+			time(),
+			$worker_id,
+			$db->qstr(serialize($criteria)),
+			$db->qstr(serialize($actions))
+		);
+		$db->Execute($sql);
+		
+		// Delete source row (for partial success)
+		$db->Execute(sprintf("DELETE FROM worker_mail_forward WHERE worker_id=%d AND id=%d", $worker_id, $old_id));
+		
+		$rs->MoveNext();
+	}
+	
+	// Drop old table
+	$sql = $datadict->DropTableSQL('worker_mail_forward');
+	$datadict->ExecuteSQLArray($sql);
+}
+
 return TRUE;
-?>
