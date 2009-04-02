@@ -6249,6 +6249,24 @@ class DAO_TicketComment extends DevblocksORMHelper {
 		
 		self::update($id, $fields);
 		
+		/* This event fires after the change takes place in the db,
+		 * which is important if the listener needs to stack changes
+		 */
+		if(!empty($fields[self::TICKET_ID]) && !empty($fields[self::ADDRESS_ID]) && !empty($fields[self::COMMENT])) {
+		    $eventMgr = DevblocksPlatform::getEventService();
+		    $eventMgr->trigger(
+		        new Model_DevblocksEvent(
+		            'ticket.comment.create',
+	                array(
+						'comment_id' => $id,
+	                    'ticket_id' => $fields[self::TICKET_ID],
+	                    'address_id' => $fields[self::ADDRESS_ID],
+	                    'comment' => $fields[self::COMMENT],
+	                )
+	            )
+		    );
+		}
+		
 		return $id;
 	}
 	

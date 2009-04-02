@@ -78,6 +78,13 @@
 			<name>Group Delete</name>
 			<param key="group_ids" />
 		</event>
+		<event id="ticket.comment.create">
+			<name>Ticket Comment</name>
+			<param key="comment_id" />
+			<param key="ticket_id" />
+			<param key="address_id" />
+			<param key="comment" />
+		</event>
 		<event id="ticket.merge">
 			<name>Ticket Merge</name>
 			<param key="new_ticket_id" />
