@@ -1,7 +1,4 @@
 <form action="{devblocks_url}{/devblocks_url}" method="POST">
-<input type="hidden" name="c" value="kb.ajax">
-<input type="hidden" name="a" value="saveArticlePeekPanel">
-<input type="hidden" name="id" value="{$article->id}">
 
 <table cellspacing="0" cellpadding="0" border="0" width="100%">
 <tr>
@@ -18,6 +15,6 @@
 
 <br>
 
-{if $active_worker->hasPriv('core.kb.articles.modify')}<button type="button" onclick="genericAjaxPanel('c=kb.ajax&a=showArticleEditPanel&id={$article->id}',null,false,'700px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_edit.gif{/devblocks_url}" align="top"> {$translate->_('common.edit')|capitalize}</button>{/if}
+{if $active_worker->hasPriv('core.kb.articles.modify')}<button type="button" onclick="genericAjaxPanel('c=kb.ajax&a=showArticleEditPanel&id={$article->id}&view_id={$view_id}',null,false,'700px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_edit.gif{/devblocks_url}" align="top"> {$translate->_('common.edit')|capitalize}</button>{/if}
 <button type="button" onclick="genericPanel.hide();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> {$translate->_('common.cancel')|capitalize}</button>
 </form>

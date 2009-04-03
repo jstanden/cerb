@@ -1,4 +1,4 @@
-<form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmKbEditPanel">
+<form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmKbEditPanel" onsubmit="document.getElementById('btnKbArticleEditSave').click();return false;">
 <input type="hidden" name="c" value="kb.ajax">
 <input type="hidden" name="a" value="saveArticleEditPanel">
 <input type="hidden" name="id" value="{$article->id}">
@@ -42,7 +42,7 @@ Format:
 <br>
 <br>
 
-{if $active_worker->hasPriv('core.kb.articles.modify')}<button type="button" onclick="genericAjaxPost('frmKbEditPanel','','c=kb.ajax&a=saveArticleEditPanel',{literal}function(o){genericPanel.hide();}{/literal});"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>{/if} 
-{if $active_worker->hasPriv('core.kb.articles.modify')}<button type="button" onclick="{literal}if(confirm('Are you sure you want to permanently delete this article?')){this.form.do_delete.value='1';this.form.submit();}{/literal}"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete2.gif{/devblocks_url}" align="top"> {$translate->_('common.delete')|capitalize}</button>{/if}
+{if $active_worker->hasPriv('core.kb.articles.modify')}<button type="button" id="btnKbArticleEditSave" onclick="genericAjaxPost('frmKbEditPanel','','c=kb.ajax&a=saveArticleEditPanel',{literal}function(o){{/literal}genericPanel.hide();genericAjaxGet('view{$view_id}','c=internal&a=viewRefresh&id={$view_id}');{literal}}{/literal});"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>{/if} 
+{if $active_worker->hasPriv('core.kb.articles.modify')}<button type="button" onclick="{literal}if(confirm('Are you sure you want to permanently delete this article?')){this.form.do_delete.value='1';document.getElementById('btnKbArticleEditSave').click();}{/literal}"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete2.gif{/devblocks_url}" align="top"> {$translate->_('common.delete')|capitalize}</button>{/if}
 <button type="button" onclick="genericPanel.hide();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> {$translate->_('common.cancel')|capitalize}</button>
 </form>

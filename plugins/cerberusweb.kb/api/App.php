@@ -160,12 +160,15 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 	}
 	
 	function showArticlePeekPanelAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer');
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->_TPL_PATH);
 
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
+		$tpl->assign('view_id', $view_id);
+		
 		if(!empty($id)) {
 			$article = DAO_KbArticle::get($id);
 			$tpl->assign('article', $article);
@@ -247,6 +250,9 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 
 		$tpl->assign('root_id', $root_id);
 		
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
+		$tpl->assign('view_id', $view_id);
+		
 		if(!empty($id)) {
 			$article = DAO_KbArticle::get($id);
 			$tpl->assign('article', $article);
@@ -323,8 +329,6 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 			
 			DAO_KbArticle::setCategories($id, $category_ids, true);
 		}
-		
-		// [TODO] Anything?
 	}
 	
 	function doArticleQuickSearchAction() {
