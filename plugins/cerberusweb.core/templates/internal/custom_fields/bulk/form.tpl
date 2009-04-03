@@ -35,7 +35,7 @@
 						{/foreach}
 					{else}
 						{foreach from=$f->options item=opt}
-						<label><input type="checkbox" name="field_{$f_id}[]" value="{$opt|escape}" {if $custom_field_values.$f_id.$opt}checked="checked"{/if}> {$opt}</label><br>
+						<label><input type="checkbox" name="field_{$f_id}[]" value="{$opt|escape}" {if isset($custom_field_values.$f_id.$opt)}checked="checked"{/if}> {$opt}</label><br>
 						{/foreach}
 					{/if}
 				{elseif $f->type=='D'}
@@ -59,7 +59,7 @@
 					{else}
 						<select name="field_{$f_id}[]" size="5" multiple="multiple">
 							{foreach from=$f->options item=opt}
-							<option value="{$opt|escape}" {if $custom_field_values.$f_id.$opt}selected="selected"{/if}>{$opt}</option>
+							<option value="{$opt|escape}" {if isset($custom_field_values.$f_id.$opt)}selected="selected"{/if}>{$opt}</option>
 							{/foreach}
 						</select><br>
 						<i><small>(hold CTRL or COMMAND to select multiple options)</small></i>
