@@ -59,7 +59,7 @@
 				{if $result.t_is_completed}
 					<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check_gray.gif{/devblocks_url}" align="top">
 				{/if}
-				<a href="javascript:;" onclick="genericAjaxPanel('c=tasks&a=showTaskPeek&id={$result.t_id}&view_id={$view->id}',this,false,'550px');" style="color:rgb(75,75,75);font-size:12px;"><b id="subject_{$result.t_id}_{$view->id}">{$result.t_title|escape}</b></a>
+				<a href="javascript:;" onclick="genericAjaxPanel('c=tasks&a=showTaskPeek&id={$result.t_id}&view_id={$view->id}',this,false,'550px');" style="color:rgb(75,75,75);font-size:12px;"><b id="subject_{$result.t_id}_{$view->id}">{if !empty($result.t_title)}{$result.t_title|escape}{else}New Task{/if}</b></a>
 				<br>
 				{$result.t_content|escape}
 			</td>

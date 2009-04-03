@@ -154,8 +154,7 @@ class ChTasksController extends DevblocksControllerExtension {
 	
 			// Title
 			@$title = DevblocksPlatform::importGPC($_REQUEST['title'],'string','');
-			if(!empty($title))
-				$fields[DAO_Task::TITLE] = $title;
+			$fields[DAO_Task::TITLE] = !empty($title) ? $title : 'New Task';
 	
 			// Completed
 			@$completed = DevblocksPlatform::importGPC($_REQUEST['completed'],'integer',0);
@@ -194,7 +193,6 @@ class ChTasksController extends DevblocksControllerExtension {
 				$id = DAO_Task::create($fields);
 				
 				// Write a notification (if not assigned to ourselves)
-//				$url_writer = DevblocksPlatform::getUrlService();
 				$source_extensions = DevblocksPlatform::getExtensions('cerberusweb.task.source', true);
 				if(!empty($worker_id)) { // && $active_worker->id != $worker_id (Temporarily allow self notifications)
 					if(null != (@$source_renderer = $source_extensions[$link_namespace])) { /* @var $source_renderer Extension_TaskSource */
@@ -208,7 +206,6 @@ class ChTasksController extends DevblocksControllerExtension {
 						$fields = array(
 							DAO_WorkerEvent::CREATED_DATE => time(),
 							DAO_WorkerEvent::WORKER_ID => $worker_id,
-	//						DAO_WorkerEvent::URL => $url_writer->write('c=home&a=tasks',true),
 							DAO_WorkerEvent::URL => $source_url,
 							DAO_WorkerEvent::TITLE => 'New Task Assignment', // [TODO] Translate
 							DAO_WorkerEvent::CONTENT => sprintf("%s\n%s says: %s",
