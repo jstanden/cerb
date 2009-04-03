@@ -32,6 +32,9 @@ class ChPrintController extends DevblocksControllerExtension {
 		$teams = DAO_Group::getAll();
 		$tpl->assign('teams', $teams);
 		
+		$buckets = DAO_Bucket::getAll();
+		$tpl->assign('buckets', $buckets);
+		
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 		

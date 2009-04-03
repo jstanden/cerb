@@ -23,7 +23,7 @@
 
 <b>Status:</b> {if $ticket->is_deleted}{$translate->_('status.deleted')}{elseif $ticket->is_closed}{$translate->_('status.closed')}{elseif $ticket->is_waiting}{$translate->_('status.waiting')}{else}{$translate->_('status.open')}{/if} &nbsp; 
 <b>Team:</b> {$teams.$ticket_team_id->name} &nbsp; 
-<b>Bucket:</b> {if !empty($ticket_category_id)}{$ticket_category->name}{else}Inbox{/if} &nbsp; 
+<b>Bucket:</b> {if !empty($ticket_category_id)}{$buckets.$ticket_category_id->name}{else}Inbox{/if} &nbsp; 
 <b>Mask:</b> {$ticket->mask} &nbsp; 
 <b>Internal ID:</b> {$ticket->id} &nbsp; 
 <br>
