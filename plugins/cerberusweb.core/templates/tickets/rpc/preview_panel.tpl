@@ -113,6 +113,9 @@
 						<td valign="top" width="99%">
 							{if $f->type=='S'}
 								<input type="text" name="field_{$f_id}" size="45" maxlength="255" value="{$custom_field_values.$f_id|escape}"><br>
+							{elseif $f->type=='U'}
+								<input type="text" name="field_{$f_id}" size="40" maxlength="255" value="{$custom_field_values.$f_id|escape}">
+								{if !empty($custom_field_values.$f_id)}<a href="{$custom_field_values.$f_id|escape}" target="_blank">URL</a>{else}<i>(URL)</i>{/if}
 							{elseif $f->type=='N'}
 								<input type="text" name="field_{$f_id}" size="45" maxlength="255" value="{$custom_field_values.$f_id|escape}"><br>
 							{elseif $f->type=='T'}
@@ -140,6 +143,16 @@
 							{elseif $f->type=='E'}
 								<input type="text" name="field_{$f_id}" size="35" maxlength="255" value="{if !empty($custom_field_values.$f_id)}{$custom_field_values.$f_id|devblocks_date}{/if}"><button type="button" onclick="ajax.getDateChooser('dateCustom{$f_id}',this.form.field_{$f_id});">&nbsp;<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/calendar.gif{/devblocks_url}" align="top">&nbsp;</button>
 								<div id="dateCustom{$f_id}" style="display:none;position:absolute;z-index:1;"></div>
+							{elseif $f->type=='W'}
+								{if empty($workers)}
+									{php}$this->assign('workers', DAO_Worker::getAllActive());{/php}
+								{/if}
+								<select name="field_{$f_id}">
+									<option value=""></option>
+									{foreach from=$workers item=worker}
+									<option value="{$worker->id}" {if $worker->id==$custom_field_values.$f_id}selected="selected"{/if}>{$worker->getName()}</option>
+									{/foreach}
+								</select>
 							{/if}	
 						</td>
 					</tr>

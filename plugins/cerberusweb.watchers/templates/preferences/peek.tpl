@@ -137,7 +137,7 @@
 </table>
 
 {* Get Ticket Fields *}
-{include file="file:$core_tpl/groups/manage/filters/peek_get_custom_fields.tpl" fields=$ticket_fields filter=$filter divName="divGetTicketFields" label="Ticket custom fields"}
+{include file="file:$core_tpl/internal/custom_fields/filters/peek_get_custom_fields.tpl" fields=$ticket_fields filter=$filter divName="divGetTicketFields" label="Ticket custom fields"}
 
 {* Message *}
 {assign var=expanded value=false}
@@ -146,19 +146,6 @@
 {/if}
 <label><input type="checkbox" {if $expanded}checked="checked"{/if} onclick="toggleDiv('divBlockMessage',(this.checked?'block':'none'));if(!this.checked)checkAll('divBlockMessage',false);"> <b>Message</b></label><br>
 <table width="500" style="margin-left:10px;display:{if $expanded}block{else}none{/if};" id="divBlockMessage">
-	{*
-	<tr>
-		<td valign="top">
-			{assign var=crit_tocc value=$filter->criteria.tocc}
-			<label><input type="checkbox" id="chkRuleTo" name="rules[]" value="tocc" {if !is_null($crit_tocc)}checked="checked"{/if}> To/Cc:</label>
-		</td>
-		<td valign="top">
-			<input type="text" name="value_tocc" size="45" value="{$crit_tocc.value|escape}" value="{$tocc_list}" onchange="document.getElementById('chkRuleTo').checked=((0==this.value.length)?false:true);" style="width:95%;"><br>
-			<i>Comma-delimited address patterns; only one e-mail must match.</i><br>
-			Example: support@example.com, support@*, *@example.com<br>
-		</td>
-	</tr>
-	*}
 	<tr>
 		<td valign="top">
 			{assign var=crit_from value=$filter->criteria.from}
@@ -216,10 +203,10 @@
 </table>
 
 {* Get Address Fields *}
-{include file="file:$core_tpl/groups/manage/filters/peek_get_custom_fields.tpl" fields=$address_fields filter=$filter divName="divGetAddyFields" label="Sender address"}
+{include file="file:$core_tpl/internal/custom_fields/filters/peek_get_custom_fields.tpl" fields=$address_fields filter=$filter divName="divGetAddyFields" label="Sender address"}
 
 {* Get Org Fields *}
-{include file="file:$core_tpl/groups/manage/filters/peek_get_custom_fields.tpl" fields=$org_fields filter=$filter divName="divGetOrgFields" label="Sender organization"}
+{include file="file:$core_tpl/internal/custom_fields/filters/peek_get_custom_fields.tpl" fields=$org_fields filter=$filter divName="divGetOrgFields" label="Sender organization"}
 
 <br>
 <h2>Then perform these actions:</h2>

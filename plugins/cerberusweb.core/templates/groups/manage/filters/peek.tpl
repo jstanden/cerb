@@ -149,13 +149,13 @@
 </table>
 
 {* Get Ticket Fields *}
-{include file="file:$core_tpl/groups/manage/filters/peek_get_custom_fields.tpl" fields=$ticket_fields filter=$filter divName="divGetTicketFields" label="Ticket"}
+{include file="file:$core_tpl/internal/custom_fields/filters/peek_get_custom_fields.tpl" fields=$ticket_fields filter=$filter divName="divGetTicketFields" label="Ticket"}
 
 {* Get Address Fields *}
-{include file="file:$core_tpl/groups/manage/filters/peek_get_custom_fields.tpl" fields=$address_fields filter=$filter divName="divGetAddyFields" label="Sender address"}
+{include file="file:$core_tpl/internal/custom_fields/filters/peek_get_custom_fields.tpl" fields=$address_fields filter=$filter divName="divGetAddyFields" label="Sender address"}
 
 {* Get Org Fields *}
-{include file="file:$core_tpl/groups/manage/filters/peek_get_custom_fields.tpl" fields=$org_fields filter=$filter divName="divGetOrgFields" label="Sender organization"}
+{include file="file:$core_tpl/internal/custom_fields/filters/peek_get_custom_fields.tpl" fields=$org_fields filter=$filter divName="divGetOrgFields" label="Sender organization"}
 
 <br>
 <h2>Then perform these actions:</h2>
@@ -239,7 +239,7 @@
 </table>
 
 {* Set Ticket Fields *}
-{include file="file:$core_tpl/groups/manage/filters/peek_set_custom_fields.tpl" fields=$ticket_fields filter=$filter divName="divSetTicketFields" label="Set ticket custom fields"}
+{include file="file:$core_tpl/internal/custom_fields/filters/peek_set_custom_fields.tpl" fields=$ticket_fields filter=$filter divName="divSetTicketFields" label="Set ticket custom fields"}
 
 </div>
 <br>

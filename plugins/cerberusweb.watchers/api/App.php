@@ -665,13 +665,15 @@ class ChWatchersPreferences extends Extension_PreferenceTab {
 						switch($custom_fields[$field_id]->type) {
 							case 'S': // string
 							case 'T': // clob
-								$oper = DevblocksPlatform::importGPC($_REQUEST['value_cf_'.$field_id.'_oper'],'string','regexp');
+							case 'U': // URL
+								@$oper = DevblocksPlatform::importGPC($_REQUEST['value_cf_'.$field_id.'_oper'],'string','regexp');
 								$criteria['oper'] = $oper;
 								break;
 							case 'D': // dropdown
 							case 'M': // multi-dropdown
 							case 'X': // multi-checkbox
-								$in_array = DevblocksPlatform::importGPC($_REQUEST['value_cf_'.$field_id],'array',array());
+							case 'W': // worker
+								@$in_array = DevblocksPlatform::importGPC($_REQUEST['value_cf_'.$field_id],'array',array());
 								$out_array = array();
 								
 								// Hash key on the option for quick lookup later
@@ -683,14 +685,14 @@ class ChWatchersPreferences extends Extension_PreferenceTab {
 								$criteria['value'] = $out_array;
 								break;
 							case 'E': // date
-								$from = DevblocksPlatform::importGPC($_REQUEST['value_cf_'.$field_id.'_from'],'string','0');
-								$to = DevblocksPlatform::importGPC($_REQUEST['value_cf_'.$field_id.'_to'],'string','now');
+								@$from = DevblocksPlatform::importGPC($_REQUEST['value_cf_'.$field_id.'_from'],'string','0');
+								@$to = DevblocksPlatform::importGPC($_REQUEST['value_cf_'.$field_id.'_to'],'string','now');
 								$criteria['from'] = $from;
 								$criteria['to'] = $to;
 								unset($criteria['value']);
 								break;
 							case 'N': // number
-								$oper = DevblocksPlatform::importGPC($_REQUEST['value_cf_'.$field_id.'_oper'],'string','=');
+								@$oper = DevblocksPlatform::importGPC($_REQUEST['value_cf_'.$field_id.'_oper'],'string','=');
 								$criteria['oper'] = $oper;
 								$criteria['value'] = intval($value);
 								break;
@@ -1175,6 +1177,7 @@ class Model_WatcherMailFilter {
 							switch($field->type) {
 								case 'S': // string
 								case 'T': // clob
+								case 'U': // URL
 									$field_val = isset($field_values[$field_id]) ? $field_values[$field_id] : '';
 									$oper = isset($rule['oper']) ? $rule['oper'] : "=";
 									
@@ -1213,13 +1216,24 @@ class Model_WatcherMailFilter {
 								case 'D': // dropdown
 								case 'X': // multi-checkbox
 								case 'M': // multi-picklist
+								case 'W': // worker
 									$field_val = isset($field_values[$field_id]) ? $field_values[$field_id] : array();
 									if(!is_array($value)) $value = array($value);
-									
-									foreach($value as $v) {
-										if(isset($field_val[$v])) {
-											$passed++;
+										
+									if(is_array($field_val)) { // if multiple things set
+										foreach($field_val as $v) { // loop through possible
+											if(isset($value[$v])) { // is any possible set?
+												$passed++;
+												break;
+											}
 										}
+										
+									} else { // single
+										if(isset($value[$field_val])) { // is our set field in possibles?
+											$passed++;
+											break;
+										}
+										
 									}
 									break;
 							}

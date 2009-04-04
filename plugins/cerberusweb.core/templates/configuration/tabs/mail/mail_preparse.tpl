@@ -27,7 +27,7 @@
 				<i><span style="color:rgb(180,180,180);font-size:80%;">(auto)</span></i>
 			{/if}
 		</td>
-		<td style="{if $filter->is_sticky}background-color:rgb(255,255,221);border:2px solid rgb(255,215,0);{else}{/if}padding:5px;">
+		<td valign="top" style="{if $filter->is_sticky}background-color:rgb(255,255,221);border:2px solid rgb(255,215,0);{else}{/if}padding:5px;">
 			<a href="javascript:;" onclick="genericAjaxPanel('c=config&a=showPreParserPanel&id={$filter_id}',this,false,'550px');" style="color:rgb(0,120,0);font-weight:bold;">{$filter->name|escape}</a><br>
 			{foreach from=$filter->criteria item=crit key=crit_key}
 				{if $crit_key=='tocc'}
@@ -68,28 +68,7 @@
 				{elseif $crit_key=='attachment'}
 					Attachment = <b>{$crit.value}</b><br>
 				{elseif 0==strcasecmp('cf_',substr($crit_key,0,3))}
-					{* [TODO] Custom Field Types *}
-					{assign var=col value=$crit_key|explode:'_'}
-					{assign var=cf_id value=$col.1}
-					
-					{if isset($custom_fields.$cf_id)}
-						{assign var=cfield value=$custom_fields.$cf_id}
-						{assign var=crit_oper value=$crit.oper}
-						{assign var=cfield_source value=$cfield->source_extension}
-						{$source_manifests.$cfield_source->name}:{$custom_fields.$cf_id->name} 
-						{if isset($crit.value) && is_array($crit.value)}
-							 = 
-							{foreach from=$crit.value item=i name=vals}
-							<b>{$i}</b>{if !$smarty.foreach.vals.last} or {/if}
-							{/foreach}
-						{elseif 'E'==$cfield->type}
-							<i>between</i> <b>{$crit.from}</b> <i>and</i> <b>{$crit.to}</b>
-						{else}
-							{if !empty($crit_oper)}{$crit_oper}{else}={/if}
-							<b>{$crit.value}</b>
-						{/if}
-						<br>
-					{/if}
+					{include file="$core_tpl/internal/custom_fields/filters/render_criteria_list.tpl"}
 				{/if}
 			{/foreach}
 			

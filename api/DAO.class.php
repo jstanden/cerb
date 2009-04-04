@@ -78,11 +78,13 @@ class C4_ORMHelper extends DevblocksORMHelper {
 				case 'C': // checkbox
 				case 'E': // date
 				case 'N': // number
+				case 'W': // worker
 					$value_table = 'custom_field_numbervalue';
 					break;
 				default:
 				case 'S': // single-line
 				case 'D': // dropdown
+				case 'U': // URL
 					$value_table = 'custom_field_stringvalue';
 					break;
 			}
@@ -6511,6 +6513,8 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 			case Model_CustomField::TYPE_DROPDOWN:	
 			case Model_CustomField::TYPE_MULTI_CHECKBOX:	
 			case Model_CustomField::TYPE_MULTI_PICKLIST:
+			case Model_CustomField::TYPE_URL:
+			case Model_CustomField::TYPE_FILE:
 				$table = 'custom_field_stringvalue';	
 				break;
 			// clobvalue
@@ -6521,6 +6525,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 			case Model_CustomField::TYPE_CHECKBOX:
 			case Model_CustomField::TYPE_DATE:
 			case Model_CustomField::TYPE_NUMBER:
+			case Model_CustomField::TYPE_WORKER:
 				$table = 'custom_field_numbervalue';
 				break;	
 		}
@@ -6563,6 +6568,8 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 
 			switch($field->type) {
 				case Model_CustomField::TYPE_SINGLE_LINE:
+				case Model_CustomField::TYPE_FILE:
+				case Model_CustomField::TYPE_URL:
 					$value = (strlen($value) > 255) ? substr($value,0,255) : $value;
 					self::setFieldValue($source_ext_id, $source_id, $field_id, $value);
 					break;
@@ -6599,6 +6606,11 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 					$value = intval($value);
 					self::setFieldValue($source_ext_id, $source_id, $field_id, $value);
 					break;
+					
+				case Model_CustomField::TYPE_WORKER:
+					$value = intval($value);
+					self::setFieldValue($source_ext_id, $source_id, $field_id, $value);
+					break;
 			}
 		}
 		
@@ -6617,9 +6629,13 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 		switch($field->type) {
 			case 'D': // dropdown
 			case 'S': // string
+			case 'U': // URL
 				if(255 < strlen($value))
 					$value = substr($value,0,255);
 				break;
+			case 'N': // number
+			case 'W': // worker
+				$value = intval($value);
 		}
 		
 		// Clear existing values (beats replace logic)
@@ -6678,6 +6694,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 			switch($fields[$field_id]->type) {
 				case Model_CustomField::TYPE_MULTI_LINE:
 				case Model_CustomField::TYPE_SINGLE_LINE:
+				case Model_CustomField::TYPE_URL:
 					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'string','');
 					$do['cf_'.$field_id] = array('value' => $field_value);
 					break;
@@ -6708,10 +6725,22 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 					$do['cf_'.$field_id] = array('value' => $field_value);
 					break;
 					
+				case Model_CustomField::TYPE_FILE:
+					// [TODO] Bulk file
+					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'string','');
+					$do['cf_'.$field_id] = array('value' => $field_value);
+					break;
+					
 				case Model_CustomField::TYPE_DATE:
 					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'string','');
 					$do['cf_'.$field_id] = array('value' => $field_value);
 					break;
+					
+				case Model_CustomField::TYPE_WORKER:
+					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'string','');
+					$do['cf_'.$field_id] = array('value' => $field_value);
+					break;
+					
 			}
 		}
 		
@@ -6729,6 +6758,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 			switch($fields[$field_id]->type) {
 				case Model_CustomField::TYPE_MULTI_LINE:
 				case Model_CustomField::TYPE_SINGLE_LINE:
+				case Model_CustomField::TYPE_URL:
 					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'string','');
 					if(0 != strlen($field_value)) {
 						DAO_CustomFieldValue::setFieldValue($source_ext_id, $source_id, $field_id, $field_value);
@@ -6781,6 +6811,17 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 					break;
 
 				case Model_CustomField::TYPE_NUMBER:
+				case Model_CustomField::TYPE_WORKER:
+					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'integer',0);
+					if(0 != strlen($field_value)) {
+						DAO_CustomFieldValue::setFieldValue($source_ext_id, $source_id, $field_id, intval($field_value));
+					} else {
+						DAO_CustomFieldValue::unsetFieldValue($source_ext_id, $source_id, $field_id);
+					}
+					break;
+					
+				case Model_CustomField::TYPE_FILE:
+					// [TODO] Store file in filesystem
 					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'integer',0);
 					if(0 != strlen($field_value)) {
 						DAO_CustomFieldValue::setFieldValue($source_ext_id, $source_id, $field_id, intval($field_value));

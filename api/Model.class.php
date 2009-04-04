@@ -276,6 +276,7 @@ class Model_PreParseRule {
 							switch($field->type) {
 								case 'S': // string
 								case 'T': // clob
+								case 'U': // URL
 									$field_val = isset($field_values[$field_id]) ? $field_values[$field_id] : '';
 									$oper = isset($rule['oper']) ? $rule['oper'] : "=";
 									
@@ -312,15 +313,26 @@ class Model_PreParseRule {
 										$passed++;
 									break;
 								case 'D': // dropdown
-								case 'X': // multi-checkbox
 								case 'M': // multi-picklist
+								case 'X': // multi-checkbox
+								case 'W': // worker
 									$field_val = isset($field_values[$field_id]) ? $field_values[$field_id] : array();
 									if(!is_array($value)) $value = array($value);
-									
-									foreach($value as $v) {
-										if(isset($field_val[$v])) {
-											$passed++;
+										
+									if(is_array($field_val)) { // if multiple things set
+										foreach($field_val as $v) { // loop through possible
+											if(isset($value[$v])) { // is any possible set?
+												$passed++;
+												break;
+											}
 										}
+										
+									} else { // single
+										if(isset($value[$field_val])) { // is our set field in possibles?
+											$passed++;
+											break;
+										}
+										
 									}
 									break;
 							}
@@ -579,6 +591,7 @@ class Model_GroupInboxFilter {
 							switch($field->type) {
 								case 'S': // string
 								case 'T': // clob
+								case 'U': // URL
 									$field_val = isset($field_values[$field_id]) ? $field_values[$field_id] : '';
 									$oper = isset($rule['oper']) ? $rule['oper'] : "=";
 									
@@ -617,13 +630,24 @@ class Model_GroupInboxFilter {
 								case 'D': // dropdown
 								case 'X': // multi-checkbox
 								case 'M': // multi-picklist
+								case 'W': // worker
 									$field_val = isset($field_values[$field_id]) ? $field_values[$field_id] : array();
 									if(!is_array($value)) $value = array($value);
-									
-									foreach($value as $v) {
-										if(isset($field_val[$v])) {
-											$passed++;
+										
+									if(is_array($field_val)) { // if multiple things set
+										foreach($field_val as $v) { // loop through possible
+											if(isset($value[$v])) { // is any possible set?
+												$passed++;
+												break;
+											}
 										}
+										
+									} else { // single
+										if(isset($value[$field_val])) { // is our set field in possibles?
+											$passed++;
+											break;
+										}
+										
 									}
 									break;
 							}
@@ -777,6 +801,10 @@ abstract class C4_AbstractView {
 			case Model_CustomField::TYPE_NUMBER:
 				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__number.tpl');
 				break;
+			case Model_CustomField::TYPE_WORKER:
+				$tpl->assign('workers', DAO_Worker::getAllActive());
+				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__worker.tpl');
+				break;
 			default:
 				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__string.tpl');
 				break;
@@ -827,6 +855,12 @@ abstract class C4_AbstractView {
 				if(empty($to)) $to = 'today';
 	
 				$criteria = new DevblocksSearchCriteria($token,$oper,array($from,$to));
+				break;
+			case Model_CustomField::TYPE_WORKER:
+				@$oper = DevblocksPlatform::importGPC($_REQUEST['oper'],'string','eq');
+				@$worker_ids = DevblocksPlatform::importGPC($_POST['worker_id'],'array',array());
+				
+				$criteria = new DevblocksSearchCriteria($token,$oper,$worker_ids);
 				break;
 			default: // TYPE_SINGLE_LINE || TYPE_MULTI_LINE
 				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
@@ -904,16 +938,25 @@ abstract class C4_AbstractView {
 		$vals = $param->value;
 
 		if(!is_array($vals))
-		$vals	= array($vals);
+			$vals = array($vals);
 
-		$count = count($vals);
+		// Do we need to do anything special on custom fields?
+		if('cf_'==substr($field,0,3)) {
+			$field_id = intval(substr($field,3));
+			$custom_fields = DAO_CustomField::getAll();
 			
-		for($i=0;$i<$count;$i++) {
-			echo sprintf("%s%s",
-			$vals[$i],
-			($i+1<$count?', ':'')
-			);
+			switch($custom_fields[$field_id]->type) {
+				case Model_CustomField::TYPE_WORKER:
+					$workers = DAO_worker::getAll();
+					foreach($vals as $idx => $worker_id) {
+						if(isset($workers[$worker_id]))
+							$vals[$idx] = $workers[$worker_id]->getName(); 
+					}
+					break;
+			}
 		}
+		
+		echo implode(', ', $vals);
 	}
 
 	/**
@@ -3148,6 +3191,7 @@ class Model_MailToGroupRule {
 							switch($field->type) {
 								case 'S': // string
 								case 'T': // clob
+								case 'U': // URL
 									$field_val = isset($field_values[$field_id]) ? $field_values[$field_id] : '';
 									$oper = isset($crit['oper']) ? $crit['oper'] : "=";
 									
@@ -3186,13 +3230,24 @@ class Model_MailToGroupRule {
 								case 'D': // dropdown
 								case 'X': // multi-checkbox
 								case 'M': // multi-picklist
+								case 'W': // worker
 									$field_val = isset($field_values[$field_id]) ? $field_values[$field_id] : array();
 									if(!is_array($value)) $value = array($value);
-									
-									foreach($value as $v) {
-										if(isset($field_val[$v])) {
-											$passed++;
+										
+									if(is_array($field_val)) { // if multiple things set
+										foreach($field_val as $v) { // loop through possible
+											if(isset($value[$v])) { // is any possible set?
+												$passed++;
+												break;
+											}
 										}
+										
+									} else { // single
+										if(isset($value[$field_val])) { // is our set field in possibles?
+											$passed++;
+											break;
+										}
+										
 									}
 									break;
 							}
@@ -3788,13 +3843,16 @@ class Model_TicketComment {
 };
 
 class Model_CustomField {
+	const TYPE_CHECKBOX = 'C';
+	const TYPE_DROPDOWN = 'D';
+	const TYPE_DATE = 'E';
+//	const TYPE_FILE = 'F';
+	const TYPE_MULTI_PICKLIST = 'M';
+	const TYPE_NUMBER = 'N';
 	const TYPE_SINGLE_LINE = 'S';
 	const TYPE_MULTI_LINE = 'T';
-	const TYPE_NUMBER = 'N';
-	const TYPE_DATE = 'E';
-	const TYPE_DROPDOWN = 'D';
-	const TYPE_MULTI_PICKLIST = 'M';
-	const TYPE_CHECKBOX = 'C';
+	const TYPE_URL = 'U';
+	const TYPE_WORKER = 'W';
 	const TYPE_MULTI_CHECKBOX = 'X';
 	
 	public $id = 0;
@@ -3815,6 +3873,9 @@ class Model_CustomField {
 			self::TYPE_MULTI_PICKLIST => 'Multi-Picklist',
 			self::TYPE_CHECKBOX => 'Checkbox',
 			self::TYPE_MULTI_CHECKBOX => 'Multi-Checkbox',
+			self::TYPE_WORKER => 'Worker',
+			self::TYPE_URL => 'URL',
+//			self::TYPE_FILE => 'File',
 		);
 	}
 };

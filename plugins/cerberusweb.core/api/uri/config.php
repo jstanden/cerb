@@ -716,12 +716,14 @@ class ChConfigurationPage extends CerberusPageExtension  {
 						switch($custom_fields[$field_id]->type) {
 							case 'S': // string
 							case 'T': // clob
+							case 'U': // URL
 								$oper = DevblocksPlatform::importGPC($_REQUEST['value_cf_'.$field_id.'_oper'],'string','regexp');
 								$criteria['oper'] = $oper;
 								break;
 							case 'D': // dropdown
 							case 'M': // multi-dropdown
 							case 'X': // multi-checkbox
+							case 'W': // worker
 								$in_array = DevblocksPlatform::importGPC($_REQUEST['value_cf_'.$field_id],'array',array());
 								$out_array = array();
 								
@@ -1773,17 +1775,17 @@ class ChConfigurationPage extends CerberusPageExtension  {
 						if(!isset($custom_fields[$field_id]))
 							continue;
 
-						// [TODO] Operators
-							
 						switch($custom_fields[$field_id]->type) {
 							case 'S': // string
 							case 'T': // clob
+							case 'U': // URL
 								$oper = DevblocksPlatform::importGPC($_REQUEST['value_cf_'.$field_id.'_oper'],'string','regexp');
 								$criteria['oper'] = $oper;
 								break;
 							case 'D': // dropdown
 							case 'M': // multi-dropdown
 							case 'X': // multi-checkbox
+							case 'W': // worker
 								$in_array = DevblocksPlatform::importGPC($_REQUEST['value_cf_'.$field_id],'array',array());
 								$out_array = array();
 								
@@ -1839,33 +1841,6 @@ class ChConfigurationPage extends CerberusPageExtension  {
 						);
 					}
 					break;
-				// Assign to worker
-//				case 'assign':
-//					@$worker_id = DevblocksPlatform::importGPC($_REQUEST['do_assign'],'string',null);
-//					if(0 != strlen($worker_id))
-//						$action = array(
-//							'worker_id' => intval($worker_id)
-//						);
-//					break;
-				// Spam training
-//				case 'spam':
-//					@$is_spam = DevblocksPlatform::importGPC($_REQUEST['do_spam'],'string',null);
-//					if(0 != strlen($is_spam))
-//						$action = array(
-//							'is_spam' => (!$is_spam?0:1)
-//						);
-//					break;
-				// Set status
-//				case 'status':
-//					@$status = DevblocksPlatform::importGPC($_REQUEST['do_status'],'string',null);
-//					if(0 != strlen($status)) {
-//						$action = array(
-//							'is_waiting' => (3==$status?1:0), // explicit waiting
-//							'is_closed' => ((0==$status||3==$status)?0:1), // not open or waiting
-//							'is_deleted' => (2==$status?1:0), // explicit deleted
-//						);
-//					}
-//					break;
 				default: // ignore invalids
 					// Custom fields
 					if("cf_" == substr($act,0,3)) {
@@ -1876,12 +1851,12 @@ class ChConfigurationPage extends CerberusPageExtension  {
 
 						$action = array();
 							
-						// [TODO] Operators
-							
 						switch($custom_fields[$field_id]->type) {
 							case 'S': // string
 							case 'T': // clob
+							case 'U': // URL
 							case 'D': // dropdown
+							case 'W': // worker
 								$value = DevblocksPlatform::importGPC($_REQUEST['do_cf_'.$field_id],'string','');
 								$action['value'] = $value;
 								break;

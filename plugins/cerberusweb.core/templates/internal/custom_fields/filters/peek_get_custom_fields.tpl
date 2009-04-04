@@ -17,7 +17,7 @@
 		</td>
 		<td width="99%">
 			<div style="display:{if !is_null($crit_field)}block{else}none{/if};" id="fieldGetValue{$field_id}">
-			{if 'S'==$field->type || 'T'==$field->type}
+			{if 'S'==$field->type || 'T'==$field->type || 'U'==$field->type}
 				<select name="value_cf_{$field_id}_oper">
 					<option value="=" {if $crit_field.oper=="="}selected="selected"{/if}>matches</option>
 					<option value="!=" {if $crit_field.oper=="!="}selected="selected"{/if}>doesn't match</option>
@@ -46,6 +46,14 @@
 				<i>is any of these:</i><br>
 				{foreach from=$field->options item=option}
 					<label><input type="checkbox" name="value_cf_{$field_id}[]" value="{$option|escape}" {if isset($crit_field.value.$option)}checked="checked"{/if}> {$option}</label><br>
+				{/foreach}
+			{elseif 'W'==$field->type}
+				{if empty($workers)}
+					{php}$this->assign('workers', DAO_Worker::getAllActive());{/php}
+				{/if}
+				<i>is any of these:</i><br>
+				{foreach from=$workers item=worker key=worker_id}
+					<label><input type="checkbox" name="value_cf_{$field_id}[]" value="{$worker->id|escape}" {if isset($crit_field.value.$worker_id)}checked="checked"{/if}> {$worker->getName()}</label><br>
 				{/foreach}
 			{/if}
 			</div>
