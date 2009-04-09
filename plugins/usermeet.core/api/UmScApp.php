@@ -2,9 +2,8 @@
 class UmScApp extends Extension_UsermeetTool {
 	const PARAM_BASE_URL = 'base_url';
 	const PARAM_LOGO_URL = 'logo_url';
-	const PARAM_THEME = 'theme';
-//	const PARAM_THEME_URL = 'theme_url';
 	const PARAM_PAGE_TITLE = 'page_title';
+	const PARAM_STYLE_CSS = 'style_css';
 	const PARAM_FOOTER_HTML = 'footer_html';
 	const PARAM_CAPTCHA_ENABLED = 'captcha_enabled';
 	const PARAM_DISPATCH = 'dispatch';
@@ -15,8 +14,6 @@ class UmScApp extends Extension_UsermeetTool {
 	const PARAM_FNR_SOURCES = 'fnr_sources';
 	const PARAM_ALLOW_LOGINS = 'allow_logins';
 	const PARAM_ALLOW_SUBJECTS = 'allow_subjects';
-	
-	const DEFAULT_THEME = 'cerb4';
 	
 	const SESSION_CAPTCHA = 'write_captcha';
 	const SESSION_ARTICLE_LIST = 'kb_article_list';	
@@ -80,6 +77,9 @@ class UmScApp extends Extension_UsermeetTool {
 		$page_title = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_PAGE_TITLE, 'Support Center');
 		$tpl->assign('page_title', $page_title);
         
+        $style_css = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_STYLE_CSS, '');
+		$tpl->assign('style_css', $style_css);
+
         $footer_html = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_FOOTER_HTML, '');
 		$tpl->assign('footer_html', $footer_html);
 		
@@ -98,11 +98,6 @@ class UmScApp extends Extension_UsermeetTool {
 		$iKbEnabled = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_KB_ENABLED, 0);
 		
 		$tpl->assign('show_search', (!empty($fnr_sources) || $iKbEnabled) ? true : false);
-		
-        $theme = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_THEME, self::DEFAULT_THEME);
-        if(!is_dir($tpl_path . 'portal/sc/themes/'.$theme))
-        	$theme = self::DEFAULT_THEME;
-		$tpl->assign('theme', $theme);
 		
         @$active_user = $umsession->getProperty('sc_login',null);
         $tpl->assign('active_user', $active_user);
@@ -173,7 +168,7 @@ class UmScApp extends Extension_UsermeetTool {
 			
 	    	default:
 	    		// Look up the current module
-   				$tpl->display('file:' . $tpl_path . 'portal/sc/themes/'.$theme.'/index.tpl');
+   				$tpl->display('file:' . $tpl_path . 'portal/sc/internal/index.tpl');
 		    	break;
 		}
 	}
@@ -208,13 +203,11 @@ class UmScApp extends Extension_UsermeetTool {
         $page_title = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_PAGE_TITLE, 'Support Center');
 		$tpl->assign('page_title', $page_title);
         
+        $style_css = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_STYLE_CSS, '');
+		$tpl->assign('style_css', $style_css);
+
         $footer_html = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_FOOTER_HTML, '');
 		$tpl->assign('footer_html', $footer_html);
-        
-        $theme = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_THEME, self::DEFAULT_THEME);
-        if(!is_dir($tpl_path . 'portal/sc/themes/'.$theme))
-        	$theme = self::DEFAULT_THEME;
-        $tpl->assign('theme', $theme);
         
         $captcha_enabled = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_CAPTCHA_ENABLED, 1);
 		$tpl->assign('captcha_enabled', $captcha_enabled);
@@ -254,18 +247,6 @@ class UmScApp extends Extension_UsermeetTool {
         $fnr_sources = !empty($sFnrSources) ? unserialize($sFnrSources) : array();
         $tpl->assign('fnr_sources', $fnr_sources);
 		
-		// Themes
-		$themes = array();
-		if(false !== ($dir = opendir($tpl_path . 'portal/sc/themes'))) {
-			while($file = readdir($dir)) {
-				if(is_dir($tpl_path.'portal/sc/themes/'.$file) && substr($file,0,1) != '.') {
-					$themes[] = $file;
-				}
-			}
-			@closedir($dir);
-		}
-		$tpl->assign('themes', $themes);
-		
 		$groups = DAO_Group::getAll();
 		$tpl->assign('groups', $groups);
 		
@@ -280,7 +261,6 @@ class UmScApp extends Extension_UsermeetTool {
         @$sBaseUrl = DevblocksPlatform::importGPC($_POST['base_url'],'string','');
         @$sLogoUrl = DevblocksPlatform::importGPC($_POST['logo_url'],'string','');
         @$sPageTitle = DevblocksPlatform::importGPC($_POST['page_title'],'string','Contact Us');
-        @$sTheme = DevblocksPlatform::importGPC($_POST['theme'],'string',UmScApp::DEFAULT_THEME);
         @$iCaptcha = DevblocksPlatform::importGPC($_POST['captcha_enabled'],'integer',1);
         @$iAllowLogins = DevblocksPlatform::importGPC($_POST['allow_logins'],'integer',0);
         @$iAllowSubjects = DevblocksPlatform::importGPC($_POST['allow_subjects'],'integer',0);
@@ -288,7 +268,6 @@ class UmScApp extends Extension_UsermeetTool {
         DAO_CommunityToolProperty::set($this->getPortal(), self::PARAM_BASE_URL, $sBaseUrl);
         DAO_CommunityToolProperty::set($this->getPortal(), self::PARAM_LOGO_URL, $sLogoUrl);
         DAO_CommunityToolProperty::set($this->getPortal(), self::PARAM_PAGE_TITLE, $sPageTitle);
-        DAO_CommunityToolProperty::set($this->getPortal(), self::PARAM_THEME, $sTheme);
         DAO_CommunityToolProperty::set($this->getPortal(), self::PARAM_CAPTCHA_ENABLED, $iCaptcha);
         DAO_CommunityToolProperty::set($this->getPortal(), self::PARAM_ALLOW_LOGINS, $iAllowLogins);
         DAO_CommunityToolProperty::set($this->getPortal(), self::PARAM_ALLOW_SUBJECTS, $iAllowSubjects);
@@ -309,6 +288,10 @@ class UmScApp extends Extension_UsermeetTool {
         
 		DAO_CommunityToolProperty::set($this->getPortal(), self::PARAM_HOME_RSS, serialize($aHomeRss));
         
+        // Style
+        @$sStyleCss = DevblocksPlatform::importGPC($_POST['style_css'],'string','');
+        DAO_CommunityToolProperty::set($this->getPortal(), self::PARAM_STYLE_CSS, $sStyleCss);
+
         // Footer
         @$sFooterHtml = DevblocksPlatform::importGPC($_POST['footer_html'],'string','');
         DAO_CommunityToolProperty::set($this->getPortal(), self::PARAM_FOOTER_HTML, $sFooterHtml);
@@ -323,9 +306,9 @@ class UmScApp extends Extension_UsermeetTool {
 //		DAO_CommunityToolProperty::set($this->getPortal(), self::PARAM_KB_TOPICS, serialize($aKbTopics));
         
         // F&R
-        @$aFnrSources = DevblocksPlatform::importGPC($_POST['fnr_sources'],'array',array());
-        $aFnrSources = array_flip($aFnrSources);
-		DAO_CommunityToolProperty::set($this->getPortal(), self::PARAM_FNR_SOURCES, serialize($aFnrSources));
+//        @$aFnrSources = DevblocksPlatform::importGPC($_POST['fnr_sources'],'array',array());
+//        $aFnrSources = array_flip($aFnrSources);
+//		DAO_CommunityToolProperty::set($this->getPortal(), self::PARAM_FNR_SOURCES, serialize($aFnrSources));
 
 		// Contact Form
         $settings = CerberusSettings::getInstance();
@@ -1081,10 +1064,6 @@ class UmScCoreController extends Extension_UmScController {
 		$tpl = DevblocksPlatform::getTemplateService();
         $tpl_path = dirname(dirname(__FILE__)) . '/templates/';
 		
-        $theme = DAO_CommunityToolProperty::get($this->getPortal(), UmScApp::PARAM_THEME, UmScApp::DEFAULT_THEME);
-        if(!is_dir($tpl_path . 'portal/sc/themes/'.$theme))
-        	$theme = UmScApp::DEFAULT_THEME;
-        
 		$umsession = $this->getSession();
 		$active_user = $umsession->getProperty('sc_login', null);
 		$tpl->assign('active_user', $active_user);

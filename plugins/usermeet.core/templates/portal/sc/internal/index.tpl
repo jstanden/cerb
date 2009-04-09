@@ -2,122 +2,13 @@
 <head>
 	<meta content="text/html; charset={$smarty.const.LANG_CHARSET_CODE}" http-equiv="content-type">
 	<title>{$page_title}</title>
+	<link rel="stylesheet" href="{devblocks_url}c=resource&p=usermeet.core&f=css/sc/default.css{/devblocks_url}">
 	
-	<style>
-	{literal}
-		BODY, TD {
-			font-family: Tahoma, Verdana, Arial;
-			font-size: 12px;
-			color: rgb(50,50,50);
-		}
-
-		H1 {
-			font-size:11pt;
-			font-weight:bold;
-			color: rgb(51,102,0);
-			margin-top:0px;
-			margin-bottom:3px;
-		}
-		
-		H2 {
-			font-size:10pt;
-			color: rgb(80,80,80);
-			margin-top:0px;
-			margin-bottom:3px;
-		}
-
-		#menu TD A {
-		}
-
-		#content {
-			border:1px solid rgb(204,204,204);
-			padding:5px;
-		}
-
-		#content A {
-			color:rgb(50,50,50);
-		}
-
-		#logo {
-			padding: 2px;
-		}
-
-		TABLE.box {
-			width:220px;
-			border: 1px solid rgb(78,103,4);
-		}
-
-		TABLE.box TH {
-			background-image: url('{/literal}{devblocks_url}c=resource&p=usermeet.core&f=images/classic_green/boxtitle_bg.gif{/devblocks_url}{literal}');
-			background-repeat: repeat-x;
-			background-color: rgb(83,109,6);
-			
-			font-size:10pt;
-			font-weight: bold;
-			line-height: 22px;
-			padding-left: 6px;
-			text-align: left;
-			color: rgb(255,255,255);
-		}
-		
-		TABLE.box TD {
-			background-color: rgb(238,238,238);
-			padding: 3px;
-		}
-		
-		TABLE.box TD A {
-			color: rgb(51,102,0);
-		}
-		
-		TABLE.box BUTTON {
-			width:98%;
-			text-align:center;
-			background-color:rgb(255,255,255);
-			border-top:1px solid rgb(204,204,204);	
-			border-left:1px solid rgb(204,204,204);
-			border-right:1px solid rgb(102,102,102);
-			border-bottom:1px solid rgb(102,102,102);
-		}
-		
-		#footer {
-			padding-bottom:15px;
-			text-align:center;
-		}
-		
-		#tagline {
-			padding-top:10px;
-			width:98%;
-			background-color:rgb(255,255,255);
-			color:rgb(102,102,102);
-			padding:5px;
-			text-align:right;
-		}
-		
-		#tagline A {
-			color:rgb(102,102,102);
-		}
-		
-		/* Cerb4 Styles */
-		DIV.error {
-			border:1px solid rgb(180,0,0);
-			background-color:rgb(255,235,235);
-			color:rgb(180,0,0);
-			font-weight:bold;
-			margin:10px;
-			padding:5px;
-		}
-		
-		DIV.success {
-			border:1px solid rgb(0,180,0);
-			background-color:rgb(235,255,235);
-			color:rgb(0,180,0);
-			font-weight:bold;
-			margin:10px;
-			padding:5px;
-		}
-	{/literal}
+	{if !empty($style_css)}
+	<style type='text/css'>
+		{$style_css}
 	</style>
-	
+	{/if}
 </head>
 
 <body>
@@ -162,6 +53,7 @@
 						{$translate->_('portal.sc.public.themes.keywords')}<br>
 						<input type="text" name="query" style="width:98%;border:1px solid rgb(153,153,153);"><br>
 						<button type="submit" style="width:98%;text-align:center;background-color:rgb(255,255,255);">{$translate->_('portal.sc.public.themes.find')}</button><br>
+						
 						{assign var=tagged_product_warranty value="<i>"|cat:"product warranty"|cat:"</i>"}
 						{'portal.sc.public.themes.find_hint'|devblocks_translate:$tagged_product_warranty}<br>
 					</td>
@@ -192,11 +84,11 @@
 					<th width="100%" colspan="2">{$translate->_('portal.sc.public.themes.log_in')}</th>
 				</tr>
 				<tr>
-					<td width="0%">{$translate->_('common.email')|capitalize}:</td>
+					<td width="0%">{$translate->_('common.email')|lower}:</td>
 					<td width="100%"><input type="text" name="email" style="width:98%;border:1px solid rgb(153,153,153);"></td>
 				</tr>
 				<tr>
-					<td width="0%">{$translate->_('common.password')}:</td>
+					<td width="0%">{$translate->_('common.password')|lower}:</td>
 					<td width="100%"><input type="password" name="pass" style="width:98%;border:1px solid rgb(153,153,153);"></td>
 				</tr>
 				<tr>
@@ -204,7 +96,7 @@
 				</tr>
 				<tr>
 					<td width="100%" colspan="2" align="center">
-						<a href="{devblocks_url}c=register{/devblocks_url}">{$translate->_('portal.sc.public.register')}</a> | <a href="{devblocks_url}c=register&a=forgot{/devblocks_url}">{$translate->_('portal.sc.public.themes.forgot')}</a>
+						<a href="{devblocks_url}c=register{/devblocks_url}">{$translate->_('portal.sc.public.register')|lower}</a> | <a href="{devblocks_url}c=register&a=forgot{/devblocks_url}">{$translate->_('portal.sc.public.themes.forgot')}</a>
 					</td>
 				</tr>
 			</table>
@@ -224,7 +116,7 @@
 	<tr>
 		<td colspan="2" id="footer">{$footer_html}</td>
 	</tr>
-	
+
 	<tr>
 		<td colspan="2" id="tagline">
 			<a href="http://www.cerberusweb.com/" target="_blank"><img src="{devblocks_url}c=resource&p=usermeet.core&f=images/_wgm/logo_small.gif{/devblocks_url}" border="0"></a>

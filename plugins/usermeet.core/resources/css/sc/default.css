@@ -1,0 +1,115 @@
+BODY, TD {
+	font-family: Tahoma, Verdana, Arial;
+	font-size:12px;
+	color: rgb(60,60,60);
+}
+
+H1 {
+	font-size:11pt;
+	font-weight:bold;
+	color: rgb(8,90,173);
+	/*color: rgb(8,173,30);*/
+	/*color: rgb(255,93,45);*/
+	margin-top:0px;
+	margin-bottom:3px;
+}
+
+H2 {
+	font-size:10pt;
+	color: rgb(60,60,60);
+	margin-top:0px;
+	margin-bottom:3px;
+}
+
+#menu TD A {
+}
+
+#content {
+	border:1px solid rgb(204,204,204);
+	padding:5px;
+}
+
+#content A {
+	color:rgb(50,50,50);
+}
+
+#logo {
+	padding: 2px;
+}
+
+TABLE.box {
+	width:220px;
+	border: 1px solid rgb(8,90,173);
+	/*border: 1px solid rgb(8,120,30);*/
+	/*border: 1px solid rgb(248,139,0);*/
+}
+
+TABLE.box TH {
+	background-color: rgb(8,90,173);
+	/*background-color: rgb(7,173,30);*/
+	/*background-color: rgb(248,139,0);*/
+	font-size:10pt;
+	font-weight:bold;
+	line-height: 22px;
+	padding-left: 6px;
+	text-align: left;
+	color: rgb(255,255,255);
+}
+
+TABLE.box TD {
+	background-color: rgb(238,238,238);
+	padding: 3px;
+}
+
+TABLE.box TD A {
+	color: rgb(7,39,115);
+	/*color: rgb(7,120,30);*/
+	/*color: rgb(60,60,60);*/
+}
+
+TABLE.box BUTTON {
+	width:98%;
+	text-align:center;
+	background-color:rgb(255,255,255);
+	border-top:1px solid rgb(204,204,204);	
+	border-left:1px solid rgb(204,204,204);
+	border-right:1px solid rgb(102,102,102);
+	border-bottom:1px solid rgb(102,102,102);
+}
+
+#footer {
+	padding-bottom:15px;
+	text-align:center;
+}
+
+#tagline {
+	padding-top:10px;
+	width:98%;
+	background-color:rgb(255,255,255);
+	color:rgb(102,102,102);
+	padding:5px;
+	text-align:right;
+}
+
+#tagline A {
+	color:rgb(102,102,102);
+}
+
+/* Cerb4 Styles */
+DIV.error {
+	border:1px solid rgb(180,0,0);
+	background-color:rgb(255,235,235);
+	color:rgb(180,0,0);
+	font-weight:bold;
+	margin:10px;
+	padding:5px;
+}
+
+DIV.success {
+	border:1px solid rgb(0,180,0);
+	background-color:rgb(235,255,235);
+	color:rgb(0,180,0);
+	font-weight:bold;
+	margin:10px;
+	padding:5px;
+}

@@ -10,18 +10,8 @@
 <input type="text" size="65" name="page_title" value="{$page_title}"><br>
 <br>
 
-<b>{$translate->_('portal.sc.cfg.theme')}</b> {$translate->_('portal.cfg.default_if_blank')}<br>
-<select name="theme">
-	{foreach from=$themes item=th}
-	<option value="{$th}" {if $theme==$th}selected{/if}>{$th}</option>
-	{/foreach}
-</select><br>
-<br>
-
-<b>{$translate->_('portal.cfg.captcha')}</b> {$translate->_('portal.cfg.captcha_hint')}<br>
-<label><input type="radio" name="captcha_enabled" value="1" {if $captcha_enabled}checked{/if}> {$translate->_('portal.cfg.enabled')}</label>
-<label><input type="radio" name="captcha_enabled" value="0" {if !$captcha_enabled}checked{/if}> {$translate->_('portal.cfg.disabled')}</label>
-<br>
+<b>{$translate->_('portal.cfg.style_css')}</b><br>
+<textarea name="style_css" style="width:90%;height:150px;">{$style_css}</textarea><br>
 <br>
 
 <div style="border-bottom:1px solid rgb(180,180,180);margin-bottom:10px;">
@@ -90,7 +80,7 @@
 <h2 style="margin-bottom:0px;color:rgb(0,128,255);">{$translate->_('portal.sc.cfg.login_registration')}</h2>
 </div>
 
-<label><input type="checkbox" name="allow_logins" value="1" {if $allow_logins}checked{/if}> {$translate->_('portal.sc.cfg.allow_customer_logins')}</label><br>
+<label><input type="checkbox" name="allow_logins" value="1" {if $allow_logins}checked="checked"{/if}> {$translate->_('portal.sc.cfg.allow_customer_logins')}</label><br>
 <br>
 
 <div style="border-bottom:1px solid rgb(180,180,180);margin-bottom:10px;">
@@ -103,11 +93,12 @@
 
 {assign var=root_id value="0"}
 {foreach from=$tree_map.$root_id item=category key=category_id}
-	<label><input type="checkbox" name="category_ids[]" value="{$category_id}" {if isset($kb_roots.$category_id)}checked{/if}> <img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder.gif{/devblocks_url}" align="top"> {$categories.$category_id->name}</label><br>
+	<label><input type="checkbox" name="category_ids[]" value="{$category_id}" {if isset($kb_roots.$category_id)}checked="checked"{/if}> <img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder.gif{/devblocks_url}" align="top"> {$categories.$category_id->name}</label><br>
 {/foreach}
 </div>
 <br>
 
+{*
 <div style="border-bottom:1px solid rgb(180,180,180);margin-bottom:10px;">
 <h2 style="margin-bottom:0px;color:rgb(0,128,255);">{$translate->_('common.search')|capitalize} ({$translate->_('common.fnr')|capitalize})</h2>
 </div>
@@ -123,7 +114,7 @@
 	{foreach from=$topics item=topic}
 	<b>{$topic->name}</b><br>
 	{foreach from=$topic->getResources() item=resource key=rid}
-	<label><input type="checkbox" name="fnr_sources[]" value="{$resource->id}" {if isset($fnr_sources.$rid)}checked{/if}> {$resource->name}</label><br>
+	<label><input type="checkbox" name="fnr_sources[]" value="{$resource->id}" {if isset($fnr_sources.$rid)}checked="checked"{/if}> {$resource->name}</label><br>
 	{/foreach}
 	<br>
 	{/foreach}
@@ -132,13 +123,20 @@
 {/if}
 </div>
 <br>
+*}
 
 <div style="border-bottom:1px solid rgb(180,180,180);margin-bottom:10px;">
 <h2 style="margin-bottom:0px;color:rgb(0,128,255);">{$translate->_('portal.common.open_ticket')}</h2>
 </div>
 
-<label><input type="checkbox" name="allow_subjects" value="1" {if $allow_subjects}checked{/if}> {$translate->_('portal.sc.cfg.open_ticket.allow_custom_subjects')}</label><br>
-<br> 
+<label><input type="checkbox" name="allow_subjects" value="1" {if $allow_subjects}checked="checked"{/if}> {$translate->_('portal.sc.cfg.open_ticket.allow_custom_subjects')}</label><br>
+<br>
+
+<b>{$translate->_('portal.cfg.captcha')}</b> {$translate->_('portal.cfg.captcha_hint')}<br>
+<label><input type="radio" name="captcha_enabled" value="1" {if $captcha_enabled}checked="checked"{/if}> {$translate->_('portal.cfg.enabled')}</label>
+<label><input type="radio" name="captcha_enabled" value="0" {if !$captcha_enabled}checked="checked"{/if}> {$translate->_('portal.cfg.disabled')}</label>
+<br>
+<br>
 
 {foreach from=$dispatch item=params key=reason}
 <div class="subtle" style="margin-bottom:10px;">

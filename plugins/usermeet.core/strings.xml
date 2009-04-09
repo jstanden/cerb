@@ -92,6 +92,9 @@ For example: http://www.cerberusweb.com/support/</seg></tuv>
 		<tu tuid='portal.cfg.send_to'>
 			<tuv xml:lang="en_US"><seg>Send to:</seg></tuv>
 		</tu>
+		<tu tuid='portal.cfg.style_css'>
+			<tuv xml:lang="en_US"><seg>Style CSS:</seg></tuv>
+		</tu>
 		<tu tuid='portal.cfg.url'>
 			<tuv xml:lang="en_US"><seg>URL:</seg></tuv>
 		</tu>
@@ -236,7 +239,7 @@ For example: http://www.cerberusweb.com/support/</seg></tuv>
 			<tuv xml:lang="en_US"><seg>Add a Contact Situation</seg></tuv>
 		</tu>
 		<tu tuid='portal.sc.cfg.allow_customer_logins'>
-			<tuv xml:lang="en_US"><seg>Allow customer logins and registration (for viewing support history)</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Allow customer logins and registration</seg></tuv>
 		</tu>
 		<tu tuid='portal.sc.cfg.append_to_message'>
 			<tuv xml:lang="en_US"><seg>append to message</seg></tuv>
@@ -303,9 +306,6 @@ Brea, CA 92821 USA&lt;br&gt;
 		</tu>
 		<tu tuid='portal.sc.cfg.save_to_add_followups'>
 			<tuv xml:lang="en_US"><seg>(save to add more follow-ups)</seg></tuv>
-		</tu>
-		<tu tuid='portal.sc.cfg.theme'>
-			<tuv xml:lang="en_US"><seg>Theme:</seg></tuv>
 		</tu>
 
 		<tu tuid='portal.sc.public.common.source'>
