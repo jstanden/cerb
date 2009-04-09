@@ -900,6 +900,15 @@ class UmScCoreController extends Extension_UmScController {
 		
         $captcha_enabled = DAO_CommunityToolProperty::get($this->getPortal(), UmScApp::PARAM_CAPTCHA_ENABLED, 1);
 		
+		// Subject is required if the field  is on the form
+		if(isset($_POST['subject']) && empty($sSubject)) {
+			$umsession->setProperty('support.write.last_error','A subject is required.');
+			
+			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',$this->getPortal(),'contact','step2')));
+			return;
+		}
+		
+		// Sender and CAPTCHA required
 		if(empty($sFrom) || ($captcha_enabled && 0 != strcasecmp($sCaptcha,@$umsession->getProperty(UmScApp::SESSION_CAPTCHA,'***')))) {
 			
 			if(empty($sFrom)) {
@@ -908,7 +917,7 @@ class UmScCoreController extends Extension_UmScController {
 				$umsession->setProperty('support.write.last_error','What you typed did not match the image.');
 			}
 			
-			// [TODO] Need to report the captcha didn't match and redraw the form
+			// Need to report the captcha didn't match and redraw the form
 			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',$this->getPortal(),'contact','step2')));
 			return;
 		}
@@ -1078,6 +1087,7 @@ class UmScCoreController extends Extension_UmScController {
         
 		$umsession = $this->getSession();
 		$active_user = $umsession->getProperty('sc_login', null);
+		$tpl->assign('active_user', $active_user);
 
 		$stack = $response->path;
 		@$module = array_shift($stack);

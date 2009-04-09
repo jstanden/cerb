@@ -486,12 +486,12 @@ class CerberusParser {
 				DAO_Ticket::LAST_ACTION_CODE => CerberusTicketActionCode::TICKET_OPENED,
 			);
 			$id = DAO_Ticket::createTicket($fields);
-		}
-
-		// Apply routing actions to our new ticket ID
-		if(is_array($routing_rules))
-		foreach($routing_rules as $rule) {
-			$rule->run($id);
+			
+			// Apply routing actions to our new ticket ID
+			if(isset($routing_rules) && is_array($routing_rules))
+			foreach($routing_rules as $rule) {
+				$rule->run($id);
+			}
 		}
 
 		// [JAS]: Add requesters to the ticket

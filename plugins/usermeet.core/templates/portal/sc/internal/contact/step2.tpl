@@ -16,12 +16,12 @@
       
       	<h2>{$translate->_('portal.public.what_email_reply')}</h2>
       	<input type="hidden" name="nature" value="{$sNature}">	
-		<input name="from" value="{$last_from|escape}" autocomplete="off" style="width:98%;"><br>
+		<input name="from" value="{if !empty($last_from)}{$last_from|escape}{else}{$active_user->email|escape}{/if}" autocomplete="off" style="width:98%;"><br>
 		<br>
 
       	<h2>{$translate->_('ticket.subject')|capitalize}:</h2>
       	{if $allow_subjects}
-		<input type="text" name="subject" value="{if !empty($last_subject)}{$last_subject|escape}{else}{$situation|escape}{/if}" autocomplete="off" style="width:98%;"><br>
+		<input type="text" name="subject" value="{if !empty($last_subject)}{$last_subject|escape}{/if}" autocomplete="off" style="width:98%;"><br>
 		{else}
 		{$situation|escape}<br>
 		{/if}
