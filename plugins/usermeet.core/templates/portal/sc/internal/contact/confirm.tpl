@@ -1,4 +1,4 @@
-<form action="{devblocks_url}{/devblocks_url}" method="post">
+<form action="{devblocks_url}c=contact{/devblocks_url}" method="post">
 <input type="hidden" name="a" value="">
 <table border="0" cellpadding="0" cellspacing="0">
   <tbody>

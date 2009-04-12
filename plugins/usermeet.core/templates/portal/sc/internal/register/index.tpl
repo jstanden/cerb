@@ -2,12 +2,11 @@
 <h1 style="margin-bottom:0px;">{$translate->_('portal.sc.public.register')}</h1>
 </div>
 
-
 {if !empty($register_error)}
 <div class="error">{$register_error}</div>
 {/if}
 
-<form action="{devblocks_url}{/devblocks_url}" method="post" name="loginForm">
+<form action="{devblocks_url}c=register{/devblocks_url}" method="post" name="loginForm">
 <input type="hidden" name="a" value="doRegister">
 
 <b>{$translate->_('portal.sc.public.register.email_address')}</b><br>

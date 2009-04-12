@@ -71,30 +71,6 @@
 		<!-- Usermeet Tools -->
 		
 		<extension point="usermeet.tool">
-			<id>kb.tool</id>
-			<name>Public Knowledgebase</name>
-			<class>
-				<file>classes.php</file>
-				<name>UmKbApp</name>
-			</class>
-			<params>
-			</params>
-		</extension>
-		
-		<extension point="usermeet.tool">
-			<id>support.tool</id>
-			<name>Contact Form Builder</name>
-			<class>
-				<file>classes.php</file>
-				<name>UmContactApp</name>
-			</class>
-			<params>
-			</params>
-		</extension>
-		
-		<!-- Usermeet Tools -->
-		
-		<extension point="usermeet.tool">
 			<id>sc.tool</id>
 			<name>Support Center</name>
 			<class>
@@ -108,47 +84,86 @@
 		<!-- Support Center Modules -->
 
 		<extension point="usermeet.sc.controller">
-			<id>sc.controller.core</id>
-			<name>Support Center Controller</name>
+			<id>sc.controller.home</id>
+			<name>Home</name>
 			<class>
-				<file>api/UmScApp.php</file>
-				<name>UmScCoreController</name>
+				<file>api/sc/uri/home.php</file>
+				<name>UmScHomeController</name>
 			</class>
 			<params>
-				<param key="modules">
-					<value>
-						<data key="uri" value="home"></data>
-						<data key="menu_title" value="home"></data>
-						<data key="icon" value="images/crystal/icon_home.gif"></data>
-					</value>
-					<value>
-						<data key="uri" value="contact"></data>
-						<data key="menu_title" value="open a ticket"></data>
-						<data key="icon" value="images/crystal/icon_open_ticket.gif"></data>
-					</value>
-					<value>
-						<data key="uri" value="kb"></data>
-						<data key="menu_title" value="knowledgebase"></data>
-						<data key="icon" value="images/crystal/icon_knowledgebase.gif"></data>
-					</value>
-					<value>
-						<data key="uri" value="answers"></data>
-						<data key="menu_title" value=""></data>
-						<data key="icon" value="images/document_view.gif"></data>
-					</value>
-					<value>
-						<data key="uri" value="history"></data>
-						<data key="menu_title" value="transcript history"></data>
-						<data key="icon" value="images/crystal/icon_ticket_history.gif"></data>
- 						<data key="requires_login" value="1"></data>
-					</value>
-					<value>
-						<data key="uri" value="account"></data>
-						<data key="menu_title" value="my account"></data>
-						<data key="icon" value="images/crystal/icon_my_account.gif"></data>
- 						<data key="requires_login" value="1"></data>
-					</value>
-				</param>
+				<param key="uri" value="home" />
+				<param key="menu_title" value="home" />
+				<param key="icon" value="images/crystal/icon_home.gif" />
+			</params>
+		</extension>
+		
+		<extension point="usermeet.sc.controller">
+			<id>sc.controller.announcements</id>
+			<name>Announcements</name>
+			<class>
+				<file>api/sc/uri/announcements.php</file>
+				<name>UmScAnnouncementsController</name>
+			</class>
+			<params>
+				<param key="uri" value="announcements" />
+				<param key="menu_title" value="announcements" />
+				<param key="icon" value="images/feed-icon-16x16.gif" />
+			</params>
+		</extension>
+
+		<extension point="usermeet.sc.controller">
+			<id>sc.controller.contact</id>
+			<name>Open Ticket</name>
+			<class>
+				<file>api/sc/uri/contact.php</file>
+				<name>UmScContactController</name>
+			</class>
+			<params>
+				<param key="uri" value="contact" />
+				<param key="menu_title" value="open a ticket" />
+				<param key="icon" value="images/crystal/icon_open_ticket.gif" />
+			</params>
+		</extension>
+		
+		<extension point="usermeet.sc.controller">
+			<id>sc.controller.history</id>
+			<name>Ticket History</name>
+			<class>
+				<file>api/sc/uri/history.php</file>
+				<name>UmScHistoryController</name>
+			</class>
+			<params>
+				<param key="uri" value="history" />
+				<param key="menu_title" value="transcript history" />
+				<param key="icon" value="images/crystal/icon_ticket_history.gif" />
+			</params>
+		</extension>
+
+		<extension point="usermeet.sc.controller">
+			<id>sc.controller.account</id>
+			<name>My Account</name>
+			<class>
+				<file>api/sc/uri/account.php</file>
+				<name>UmScAccountController</name>
+			</class>
+			<params>
+				<param key="uri" value="account" />
+				<param key="menu_title" value="my account" />
+				<param key="icon" value="images/crystal/icon_my_account.gif" />
+			</params>
+		</extension>
+
+		<extension point="usermeet.sc.controller">
+			<id>sc.controller.register</id>
+			<name>Registration</name>
+			<class>
+				<file>api/sc/uri/register.php</file>
+				<name>UmScRegisterController</name>
+			</class>
+			<params>
+				<param key="uri" value="register" />
+				<param key="menu_title" value="" />
+				<param key="icon" value="" />
 			</params>
 		</extension>
 		

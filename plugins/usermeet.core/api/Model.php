@@ -50,6 +50,7 @@
  */
 class Model_CommunityTool {
     public $id = 0;
+    public $name = '';
     public $code = '';
     public $community_id = 0;
     public $extension_id = '';

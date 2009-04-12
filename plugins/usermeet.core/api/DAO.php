@@ -50,6 +50,7 @@
  */
 class DAO_CommunityTool extends DevblocksORMHelper {
     const ID = 'id';
+    const NAME = 'name';
     const CODE = 'code';
     const COMMUNITY_ID = 'community_id';
     const EXTENSION_ID = 'extension_id';
@@ -59,8 +60,8 @@ class DAO_CommunityTool extends DevblocksORMHelper {
 		$id = $db->GenID('generic_seq');
 		$code = self::_generateUniqueCode();
 		
-		$sql = sprintf("INSERT INTO community_tool (id,code,community_id,extension_id) ".
-		    "VALUES (%d,%s,0,'')",
+		$sql = sprintf("INSERT INTO community_tool (id,name,code,community_id,extension_id) ".
+		    "VALUES (%d,'',%s,0,'')",
 		    $id,
 		    $db->qstr($code)
 		);
@@ -136,7 +137,7 @@ class DAO_CommunityTool extends DevblocksORMHelper {
 	    if(!is_array($ids)) $ids = array($ids);
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = "SELECT id,code,community_id,extension_id ".
+		$sql = "SELECT id,name,code,community_id,extension_id ".
 		    "FROM community_tool ".
 		    (!empty($ids) ? sprintf("WHERE id IN (%s) ", implode(',', $ids)) : " ").
 		    "ORDER BY community_id"
@@ -149,7 +150,7 @@ class DAO_CommunityTool extends DevblocksORMHelper {
 	static function getWhere($where=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = "SELECT id,code,community_id,extension_id ".
+		$sql = "SELECT id,name,code,community_id,extension_id ".
 			"FROM community_tool ".
 			(!empty($where)?sprintf("WHERE %s ",$where):" ").
 			"ORDER BY community_id "
@@ -166,6 +167,7 @@ class DAO_CommunityTool extends DevblocksORMHelper {
 		while(!$rs->EOF) {
 		    $object = new Model_CommunityTool();
 		    $object->id = intval($rs->fields['id']);
+		    $object->name = $rs->fields['name'];
 		    $object->code = $rs->fields['code'];
 		    $object->community_id = intval($rs->fields['community_id']);
 		    $object->extension_id = $rs->fields['extension_id'];
@@ -226,12 +228,14 @@ class DAO_CommunityTool extends DevblocksORMHelper {
 		
 		$sql = sprintf("SELECT ".
 			"ct.id as %s, ".
+			"ct.name as %s, ".
 			"ct.code as %s, ".
 			"ct.community_id as %s, ".
 			"ct.extension_id as %s ".
 			"FROM community_tool ct ",
 //			"INNER JOIN team tm ON (tm.id = t.team_id) ".
 			    SearchFields_CommunityTool::ID,
+			    SearchFields_CommunityTool::NAME,
 			    SearchFields_CommunityTool::CODE,
 			    SearchFields_CommunityTool::COMMUNITY_ID,
 			    SearchFields_CommunityTool::EXTENSION_ID
@@ -272,6 +276,7 @@ class DAO_CommunityTool extends DevblocksORMHelper {
 class SearchFields_CommunityTool implements IDevblocksSearchFields {
 	// Table
 	const ID = 'ct_id';
+	const NAME = 'ct_name';
 	const CODE = 'ct_code';
 	const COMMUNITY_ID = 'ct_community_id';
 	const EXTENSION_ID = 'ct_extension_id';
@@ -282,6 +287,7 @@ class SearchFields_CommunityTool implements IDevblocksSearchFields {
 	static function getFields() {
 		return array(
 			SearchFields_CommunityTool::ID => new DevblocksSearchField(SearchFields_CommunityTool::ID, 'ct', 'id'),
+			SearchFields_CommunityTool::NAME => new DevblocksSearchField(SearchFields_CommunityTool::NAME, 'ct', 'name'),
 			SearchFields_CommunityTool::CODE => new DevblocksSearchField(SearchFields_CommunityTool::CODE, 'ct', 'code'),
 			SearchFields_CommunityTool::COMMUNITY_ID => new DevblocksSearchField(SearchFields_CommunityTool::COMMUNITY_ID, 'ct', 'community_id'),
 			SearchFields_CommunityTool::EXTENSION_ID => new DevblocksSearchField(SearchFields_CommunityTool::EXTENSION_ID, 'ct', 'extension_id'),
@@ -294,6 +300,7 @@ class DAO_CommunityToolProperty {
 	const PROPERTY_KEY = 'property_key';
 	const PROPERTY_VALUE = 'property_value';
 	
+	// [TODO] Use a cache!!
 	static function get($tool_code, $key, $default=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
@@ -317,22 +324,10 @@ class DAO_CommunityToolProperty {
 			array(
 				self::TOOL_CODE => $db->qstr($tool_code),
 				self::PROPERTY_KEY => $db->qstr($key),
-				self::PROPERTY_VALUE => $db->qstr(''),
+				self::PROPERTY_VALUE => $db->qstr($value),
 			),
 			array(self::TOOL_CODE, self::PROPERTY_KEY),
 			false
-		);
-		
-		$db->UpdateBlob(
-			'community_tool_property', 
-			self::PROPERTY_VALUE, 
-			$value, 
-			sprintf('%s=%s AND %s=%s',
-				self::TOOL_CODE,
-				$db->qstr($tool_code),
-				self::PROPERTY_KEY,
-				$db->qstr($key)
-			)
 		);
 	}
 };

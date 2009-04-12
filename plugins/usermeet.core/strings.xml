@@ -126,126 +126,14 @@ For example: http://www.cerberusweb.com/support/</seg></tuv>
 			<tuv xml:lang="en_US"><seg>Your reference number is: #%s</seg></tuv>
 		</tu>
 
-		<!-- Portal Contact -->
-		
-		<tu tuid='portal.contact.cfg.add_situation'>
-			<tuv xml:lang="en_US"><seg>Add a Contact Situation</seg></tuv>
-		</tu>
-		<tu tuid='portal.contact.cfg.followup_questions_hint'>
-			<tuv xml:lang="en_US"><seg>(e.g. "Is there a specific product you're considering?")</seg></tuv>
-		</tu>
-		<tu tuid='portal.contact.cfg.long_answer'>
-			<tuv xml:lang="en_US"><seg>Long Answer</seg></tuv>
-		</tu>
-		<tu tuid='portal.contact.cfg.modify_situation'>
-			<tuv xml:lang="en_US"><seg>Modify Contact Situation</seg></tuv>
-		</tu>
-		<tu tuid='portal.contact.cfg.reason_contacting'>
-			<tuv xml:lang="en_US"><seg>Reason for contacting:</seg></tuv>
-		</tu>
-		<tu tuid='portal.contact.cfg.reason_contacting_hint'>
-			<tuv xml:lang="en_US"><seg>(e.g. "I'd like more info on your products")</seg></tuv>
-		</tu>
-		<tu tuid='portal.contact.cfg.save_more_followups'>
-			<tuv xml:lang="en_US"><seg>(save to add more follow-ups)</seg></tuv>
-		</tu>
-		
-		<!-- Portal Contact -->
-		
-		<tu tuid='portal.contact.write.continue'>
-			<tuv xml:lang="en_US"><seg>Continue</seg></tuv>
-		</tu>
-		<tu tuid='portal.contact.write.describe_situation'>
-			<tuv xml:lang="en_US"><seg>Which best describes your situation?</seg></tuv>
-		</tu>
-		<tu tuid='portal.contact.write.message'>
-			<tuv xml:lang="en_US"><seg>Message:</seg></tuv>
-		</tu>
-		<tu tuid='portal.contact.write.message_received'>
-			<tuv xml:lang="en_US"><seg>Your message has been received! We will respond to you as soon as possible.</seg></tuv>
-		</tu>
-		<tu tuid='portal.contact.write.thanks'>
-			<tuv xml:lang="en_US"><seg>Thanks for contacting us</seg></tuv>
-		</tu>
-		
-		<!-- Portal KB -->
-		
-		<tu tuid='portal.kb.cfg.public_categories'>
-			<tuv xml:lang="en_US"><seg>Public Categories</seg></tuv>
-		</tu>
-		<tu tuid='portal.kb.cfg.public_categories_hint'>
-			<tuv xml:lang="en_US"><seg>(all subcategories will automatically display for a selected category)</seg></tuv>
-		</tu>
-		<tu tuid='portal.kb.cfg.public_topics'>
-			<tuv xml:lang="en_US"><seg>Public Topics</seg></tuv>
-		</tu>
-
-		<tu tuid='portal.kb.public.article_tools'>
-			<tuv xml:lang="en_US"><seg>Article Tools</seg></tuv>
-		</tu>
-		<tu tuid='portal.kb.public.home'>
-			<tuv xml:lang="en_US"><seg>home</seg></tuv>
-		</tu>		
-		<tu tuid='portal.kb.public.no_content'>
-			<tuv xml:lang="en_US"><seg>this article has no content</seg></tuv>
-		</tu>
-		<tu tuid='portal.kb.public.search_for'>
-			<tuv xml:lang="en_US"><seg>Search for:</seg></tuv>
-		</tu>
-		<tu tuid='portal.kb.public.search_tips.any_word'>
-			<tuv xml:lang="en_US"><seg>Any word (more matches is better):</seg></tuv>
-		</tu>
-		<tu tuid='portal.kb.public.search_tips.any_word.example1'>
-			<tuv xml:lang="en_US"><seg>payment receipt order sale</seg></tuv>
-		</tu>
-		<tu tuid='portal.kb.public.search_tips.booleans'>
-			<tuv xml:lang="en_US"><seg>Booleans:</seg></tuv>
-		</tu>
-		<tu tuid='portal.kb.public.search_tips.booleans.example1'>
-			<tuv xml:lang="en_US"><seg>+payment -receipt</seg></tuv>
-		</tu>
-		<tu tuid='portal.kb.public.search_tips.booleans.example2'>
-			<tuv xml:lang="en_US"><seg>+payment credit</seg></tuv>
-		</tu>
-		<tu tuid='portal.kb.public.search_tips.boosting'>
-			<tuv xml:lang="en_US"><seg>Boosting: (more/less emphasis on some words)</seg></tuv>
-		</tu>
-		<tu tuid='portal.kb.public.search_tips.boosting.example1'>
-			<tuv xml:lang="en_US"><seg>cerberus &gt;helpdesk</seg></tuv>
-		</tu>
-		<tu tuid='portal.kb.public.search_tips.boosting.example2'>
-			<tuv xml:lang="en_US"><seg>login &lt;ftp</seg></tuv>
-		</tu>
-		<tu tuid='portal.kb.public.search_tips.exact_phrases'>
-			<tuv xml:lang="en_US"><seg>Exact phrases:</seg></tuv>
-		</tu>
-		<tu tuid='portal.kb.public.search_tips.exact_phrases.example1'>
-			<tuv xml:lang="en_US"><seg>"credit card"</seg></tuv>
-		</tu>
-		<tu tuid='portal.kb.public.search_tips.wildcards'>
-			<tuv xml:lang="en_US"><seg>Wildcards:</seg></tuv>
-		</tu>
-		<tu tuid='portal.kb.public.search_tips.wildcards.example1'>
-			<tuv xml:lang="en_US"><seg>web*</seg></tuv>
-		</tu>
-		<tu tuid='portal.kb.public.show_search_tips'>
-			<tuv xml:lang="en_US"><seg>Show Search Tips</seg></tuv>
-		</tu>
-		<tu tuid='portal.kb.public.top'>
-			<tuv xml:lang="en_US"><seg>Top</seg></tuv>
-		</tu>
-		
 		<tu tuid='portal.sc.cfg.add_contact_situation'>
 			<tuv xml:lang="en_US"><seg>Add a Contact Situation</seg></tuv>
 		</tu>
 		<tu tuid='portal.sc.cfg.allow_customer_logins'>
-			<tuv xml:lang="en_US"><seg>Allow customer logins and registration</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Allow customers to log in</seg></tuv>
 		</tu>
 		<tu tuid='portal.sc.cfg.append_to_message'>
 			<tuv xml:lang="en_US"><seg>append to message</seg></tuv>
-		</tu>
-		<tu tuid='portal.sc.cfg.choose_kb_topics'>
-			<tuv xml:lang="en_US"><seg>Choose which knowledgebase topics to expose to this portal:</seg></tuv>
 		</tu>
 		<tu tuid='portal.sc.cfg.example'>
 			<tuv xml:lang="en_US"><seg>Example:</seg></tuv>
@@ -272,7 +160,7 @@ For example: http://www.cerberusweb.com/support/</seg></tuv>
 			<tuv xml:lang="en_US"><seg>(e.g. "Which product are you considering?") -- optionally save to custom field</seg></tuv>
 		</tu>
 		<tu tuid='portal.sc.cfg.footer'>
-			<tuv xml:lang="en_US"><seg>Footer</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Footer HTML:</seg></tuv>
 		</tu>
 		<tu tuid='portal.sc.cfg.footer_html_example'>
 			<tuv xml:lang="en_US"><seg>&lt;b&gt;Webgroup Media, LLC.&lt;/b&gt;&lt;br&gt;
@@ -280,20 +168,17 @@ For example: http://www.cerberusweb.com/support/</seg></tuv>
 Brea, CA 92821 USA&lt;br&gt;
 +1 714 671 9090&lt;br&gt;</seg></tuv>
 		</tu>
-		<tu tuid='portal.sc.cfg.footer_html_hint'>
-			<tuv xml:lang="en_US"><seg>(e.g., organization, address, phone, fax, analytics)</seg></tuv>
-		</tu>
-		<tu tuid='portal.sc.cfg.home_page'>
-			<tuv xml:lang="en_US"><seg>Home Page</seg></tuv>
-		</tu>
-		<tu tuid='portal.sc.cfg.html'>
-			<tuv xml:lang="en_US"><seg>HTML:</seg></tuv>
+		<tu tuid='portal.sc.cfg.home.html'>
+			<tuv xml:lang="en_US"><seg>Home Page HTML:</seg></tuv>
 		</tu>
 		<tu tuid='portal.sc.cfg.login_registration'>
 			<tuv xml:lang="en_US"><seg>Login/Registration</seg></tuv>
 		</tu>
 		<tu tuid='portal.sc.cfg.open_ticket.allow_custom_subjects'>
-			<tuv xml:lang="en_US"><seg>Allow visitors to enter custom ticket subjects.</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Allow users to provide their own ticket subjects.</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.cfg.open_ticket.require_login'>
+			<tuv xml:lang="en_US"><seg>Must be logged in to open new tickets.</seg></tuv>
 		</tu>
 		<tu tuid='portal.sc.cfg.reason_contacting'>
 			<tuv xml:lang="en_US"><seg>Reason for contacting:</seg></tuv>
@@ -354,13 +239,6 @@ Brea, CA 92821 USA&lt;br&gt;
 		</tu>
 		<tu tuid='portal.sc.public.history.ticket_history'>
 			<tuv xml:lang="en_US"><seg>Ticket History</seg></tuv>
-		</tu>
-
-		<tu tuid='portal.sc.public.home.no_announcements'>
-			<tuv xml:lang="en_US"><seg>There are currently no announcements.</seg></tuv>
-		</tu>
-		<tu tuid='portal.sc.public.home.welcome'>
-			<tuv xml:lang="en_US"><seg>Welcome!</seg></tuv>
 		</tu>
 
 		<tu tuid='portal.sc.public.my_account'>

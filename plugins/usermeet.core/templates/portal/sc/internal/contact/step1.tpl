@@ -5,7 +5,7 @@
 {/if}
 
 {if !empty($dispatch)}
-	<form action="{devblocks_url}{/devblocks_url}" method="post">
+	<form action="{devblocks_url}c=contact{/devblocks_url}" method="post">
 	<input type="hidden" name="a" value="doContactStep2">
 	<table border="0" cellpadding="0" cellspacing="0" width="100%">
 	  <tbody>
@@ -19,7 +19,6 @@
 				{assign var=dispatchKey value=$reason|md5}
 				<label><input type="radio" name="nature" value="{$dispatchKey}" onclick="this.form.submit();"> {$reason}</label><br>
 			{/foreach}
-			<!-- <label><input type="radio" name="nature" value="" {if $displayKey==$last_nature}checked{/if}> None of the above</label><br> -->
 			<br>
 			<button type="submit"><img src="{devblocks_url}c=resource&p=usermeet.core&f=images/check.gif{/devblocks_url}" align="top" border="0"> {$translate->_('common.ok')|upper}</button>
 	      </td>

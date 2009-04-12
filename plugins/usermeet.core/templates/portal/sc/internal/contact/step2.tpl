@@ -4,7 +4,8 @@
 	</div>
 {/if}
 
-<form action="{devblocks_url}{/devblocks_url}" method="post">
+<div id="contact">
+<form action="{devblocks_url}c=contact{/devblocks_url}" method="post">
 <input type="hidden" name="a" value="doContactSend">
 <table border="0" cellpadding="0" cellspacing="0" width="100%">
   <tbody>
@@ -93,4 +94,4 @@
   </tbody>
 </table>
 </form>
-<br>
+</div>

@@ -30,6 +30,15 @@
 			<tuv xml:lang="en_US"><seg>Search Knowledgebase:</seg></tuv>
 		</tu>
 
+		<!-- SC -->
+		
+		<tu tuid='portal.sc.cfg.choose_kb_topics'>
+			<tuv xml:lang="en_US"><seg>Choose which knowledgebase topics to expose to this portal:</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.cfg.kb.require_login'>
+			<tuv xml:lang="en_US"><seg>Must be logged in to browse knowledgebase.</seg></tuv>
+		</tu>
+
 		<!-- KB -->
 
 		<tu tuid='kb.view.articles'>

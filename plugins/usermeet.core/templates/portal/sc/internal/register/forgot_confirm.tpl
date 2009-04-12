@@ -6,7 +6,7 @@
 <div class="error">{$register_error}</div>
 {/if}
 
-<form action="{devblocks_url}{/devblocks_url}" method="post">
+<form action="{devblocks_url}c=register{/devblocks_url}" method="post">
 <input type="hidden" name="a" value="doForgotConfirm">
 
 <b>{$translate->_('portal.sc.public.register.email_address')}</b><br>

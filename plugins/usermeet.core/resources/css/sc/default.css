@@ -8,8 +8,6 @@ H1 {
 	font-size:11pt;
 	font-weight:bold;
 	color: rgb(8,90,173);
-	/*color: rgb(8,173,30);*/
-	/*color: rgb(255,93,45);*/
 	margin-top:0px;
 	margin-bottom:3px;
 }
@@ -25,8 +23,8 @@ H2 {
 }
 
 #content {
-	border:1px solid rgb(204,204,204);
-	padding:5px;
+	/*border:1px solid rgb(204,204,204);*/
+	/*padding:5px;*/
 }
 
 #content A {
@@ -40,14 +38,10 @@ H2 {
 TABLE.box {
 	width:220px;
 	border: 1px solid rgb(8,90,173);
-	/*border: 1px solid rgb(8,120,30);*/
-	/*border: 1px solid rgb(248,139,0);*/
 }
 
 TABLE.box TH {
 	background-color: rgb(8,90,173);
-	/*background-color: rgb(7,173,30);*/
-	/*background-color: rgb(248,139,0);*/
 	font-size:10pt;
 	font-weight:bold;
 	line-height: 22px;
@@ -63,8 +57,6 @@ TABLE.box TD {
 
 TABLE.box TD A {
 	color: rgb(7,39,115);
-	/*color: rgb(7,120,30);*/
-	/*color: rgb(60,60,60);*/
 }
 
 TABLE.box BUTTON {
@@ -78,21 +70,41 @@ TABLE.box BUTTON {
 }
 
 #footer {
-	padding-bottom:15px;
+	padding-bottom:10px;
 	text-align:center;
 }
 
 #tagline {
-	padding-top:10px;
+	padding-top:5px;
 	width:98%;
-	background-color:rgb(255,255,255);
-	color:rgb(102,102,102);
 	padding:5px;
 	text-align:right;
 }
 
-#tagline A {
-	color:rgb(102,102,102);
+/* Modules */
+#account {
+	border:1px solid rgb(204,204,204);
+	padding:5px;
+}
+
+#announcements DIV.feed {
+	border:1px solid rgb(204,204,204);
+	padding:5px;
+	margin-bottom:10px;
+}
+
+#contact {
+	border:1px solid rgb(204,204,204);
+	padding:5px;
+}
+
+#home {
+	padding:5px;
+}
+
+#kb {
+	border:1px solid rgb(204,204,204);
+	padding:5px;
 }
 
 /* Cerb4 Styles */

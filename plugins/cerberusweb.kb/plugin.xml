@@ -119,6 +119,22 @@
 			</params>
 		</extension>
 		
+		<!-- Support Center Module -->
+		
+		<extension point="usermeet.sc.controller">
+			<id>cerberusweb.kb.sc.controller</id>
+			<name>Knowledgebase</name>
+			<class>
+				<file>api/sc/kb.php</file>
+				<name>UmScKbController</name>
+			</class>
+			<params>
+				<param key="uri" value="kb" />
+				<param key="menu_title" value="knowledgebase" />
+				<param key="icon" value="images/crystal/icon_knowledgebase.gif" />
+			</params>
+		</extension>
+		
 		<!-- Config Tabs -->
 		<!-- 
 		<extension point="cerberusweb.config.tab">

@@ -18,14 +18,14 @@
 						{foreach from=$communities item=community key=community_id}
 							<a href="javascript:;" onclick="genericAjaxGet('configCommunity','c=config&a=handleTabAction&tab=usermeet.config.tab.communities&action=getCommunity&id={$community->id}');"><b>{$community->name}</b></a><br>
 							
-							{assign var=addons value=$community_addons.$community_id}
-							{assign var=tools value=$addons.tools}
+							{assign var=tools value=$community_tools.$community_id}
 								
 							{if !empty($tools)}
-							{foreach from=$tools item=tool_extid key=tool_code}
-								{assign var=tool value=$tool_manifests.$tool_extid}
+							{foreach from=$tools item=tool key=tool_code}
+								{assign var=tool_extid value=$tool->extension_id}
+								{assign var=tool_mft value=$tool_manifests.$tool_extid}
 								{if !empty($tool)}
-								&#187;<a href="javascript:;" onclick="genericAjaxGet('configCommunity','c=config&a=handleTabAction&tab=usermeet.config.tab.communities&action=getCommunityTool&portal={$tool_code}');">{$tool->name}</a><br>
+								&#187;<a href="javascript:;" onclick="genericAjaxGet('configCommunity','c=config&a=handleTabAction&tab=usermeet.config.tab.communities&action=getCommunityTool&portal={$tool_code}');">{if !empty($tool->name)}{$tool->name}{else}{$tool_mft->name}{/if}</a><br>
 								{/if}
 							{/foreach}
 							{/if}

@@ -26,6 +26,7 @@
 		<td width="1%" nowrap="nowrap" valign="top">
 		
 			<!-- Menu -->
+			{if !empty($menu)}
 			<table cellpadding="0" cellspacing="0" border="0" class="box" id="menu">
 				<tr>
 					<th>{$translate->_('portal.sc.public.themes.main_menu')}</th>
@@ -33,74 +34,54 @@
 				<tr>
 				<td>
 				{foreach from=$menu item=item name=menu}
-					{if !empty($item.icon)}<img src="{devblocks_url}c=resource&p=usermeet.core&f={$item.icon}{/devblocks_url}" align="top">{/if} <a href="{devblocks_url}c={$item.uri}{/devblocks_url}">{$item.menu_title|capitalize}</a><br>
+					{if !empty($item->manifest->params.icon)}<img src="{devblocks_url}c=resource&p=usermeet.core&f={$item->manifest->params.icon}{/devblocks_url}" align="top" style="padding:1px;">{/if}
+					<a href="{devblocks_url}c={$item->manifest->params.uri}{/devblocks_url}">{$item->manifest->params.menu_title|capitalize}</a>
+					<br>
 				{/foreach}
 				</td>
 				</tr>
 			</table>
 			<br>
-			
-			<!-- Search Box -->
-			{if $show_search}
-			<form action="{devblocks_url}{/devblocks_url}" method="post">
-			<input type="hidden" name="a" value="doSearch">
-			<table cellpadding="0" cellspacing="0" border="0" class="box" id="searchBox">
-				<tr>
-					<th>{$translate->_('portal.sc.public.themes.search_help')}</th>
-				</tr>
-				<tr>
-					<td>
-						{$translate->_('portal.sc.public.themes.keywords')}<br>
-						<input type="text" name="query" style="width:98%;border:1px solid rgb(153,153,153);"><br>
-						<button type="submit" style="width:98%;text-align:center;background-color:rgb(255,255,255);">{$translate->_('portal.sc.public.themes.find')}</button><br>
-						
-						{assign var=tagged_product_warranty value="<i>"|cat:"product warranty"|cat:"</i>"}
-						{'portal.sc.public.themes.find_hint'|devblocks_translate:$tagged_product_warranty}<br>
-					</td>
-				</tr>
-			</table>
-			</form>
 			{/if}
 			
 			<!-- Login Form -->
 			{if $allow_logins}
 			{if !empty($active_user)}
-			<form action="{devblocks_url}{/devblocks_url}" method="post" name="loginForm">
-			<input type="hidden" name="a" value="doLogout">
-			<table cellpadding="0" cellspacing="0" border="0" class="box">
-				<tr>
-					<th>{$translate->_('portal.sc.public.themes.logged_in')}</th>
-				</tr>
-				<tr>
-					<td><button type="submit">{$translate->_('portal.sc.public.themes.click_to_log_out')}</button></td>
-				</tr>
-			</table>
-			</form> 
+				<form action="{devblocks_url}c=logout{/devblocks_url}" method="post" name="loginForm">
+				<table cellpadding="0" cellspacing="0" border="0" class="box">
+					<tr>
+						<th>{$translate->_('portal.sc.public.themes.logged_in')}</th>
+					</tr>
+					<tr>
+						<td><button type="submit">{$translate->_('portal.sc.public.themes.click_to_log_out')}</button></td>
+					</tr>
+				</table>
+				</form> 
 			{else}
-			<form action="{devblocks_url}{/devblocks_url}" method="post">
-			<input type="hidden" name="a" value="doLogin">
-			<table cellpadding="0" cellspacing="0" border="0" class="box">
-				<tr>
-					<th width="100%" colspan="2">{$translate->_('portal.sc.public.themes.log_in')}</th>
-				</tr>
-				<tr>
-					<td width="0%">{$translate->_('common.email')|lower}:</td>
-					<td width="100%"><input type="text" name="email" style="width:98%;border:1px solid rgb(153,153,153);"></td>
-				</tr>
-				<tr>
-					<td width="0%">{$translate->_('common.password')|lower}:</td>
-					<td width="100%"><input type="password" name="pass" style="width:98%;border:1px solid rgb(153,153,153);"></td>
-				</tr>
-				<tr>
-					<td width="100%" colspan="2"><button type="submit">{$translate->_('portal.sc.public.themes.click_to_log_in')}</button></td>
-				</tr>
-				<tr>
-					<td width="100%" colspan="2" align="center">
-						<a href="{devblocks_url}c=register{/devblocks_url}">{$translate->_('portal.sc.public.register')|lower}</a> | <a href="{devblocks_url}c=register&a=forgot{/devblocks_url}">{$translate->_('portal.sc.public.themes.forgot')}</a>
-					</td>
-				</tr>
-			</table>
-			</form>
+				<form action="{devblocks_url}c=login{/devblocks_url}" method="post">
+				<table cellpadding="0" cellspacing="0" border="0" class="box">
+					<tr>
+						<th width="100%" colspan="2">{$translate->_('portal.sc.public.themes.log_in')}</th>
+					</tr>
+					<tr>
+						<td width="0%">{$translate->_('common.email')|lower}:</td>
+						<td width="100%"><input type="text" name="email" style="width:98%;border:1px solid rgb(153,153,153);"></td>
+					</tr>
+					<tr>
+						<td width="0%">{$translate->_('common.password')|lower}:</td>
+						<td width="100%"><input type="password" name="pass" style="width:98%;border:1px solid rgb(153,153,153);"></td>
+					</tr>
+					<tr>
+						<td width="100%" colspan="2"><button type="submit">{$translate->_('portal.sc.public.themes.click_to_log_in')}</button></td>
+					</tr>
+					<tr>
+						<td width="100%" colspan="2" align="center">
+							{if in_array('sc.controller.register',$enabled_modules)}<a href="{devblocks_url}c=register{/devblocks_url}">{$translate->_('portal.sc.public.register')|lower}</a> | {/if} 
+							<a href="{devblocks_url}c=register&a=forgot{/devblocks_url}">{$translate->_('portal.sc.public.themes.forgot')}</a>
+						</td>
+					</tr>
+				</table>
+				</form>
 			{/if}
 			{/if}
 			
@@ -108,7 +89,9 @@
 		
 		<td width="99%" valign="top">
 			<div id="content">
+			{if !empty($module)}
 			{$module->writeResponse($module_response)}
+			{/if}
 			</div>
 		</td>
 	</tr>

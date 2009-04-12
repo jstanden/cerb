@@ -1,3 +1,4 @@
+<div id="account">
 <div style="border-bottom:1px solid rgb(180,180,180);margin-bottom:10px;">
 <h1 style="margin-bottom:0px;">{$translate->_('portal.sc.public.my_account')}</h1>
 </div>
@@ -8,7 +9,7 @@
 <div class="success">{$translate->_('portal.sc.public.my_account.settings_saved')}</div>
 {/if}
 
-<form action="{devblocks_url}{/devblocks_url}" method="post" name="">
+<form action="{devblocks_url}c=account{/devblocks_url}" method="post" name="">
 <input type="hidden" name="a" value="saveAccount">
 
 <b>{$translate->_('common.email')}:</b><br>
@@ -33,3 +34,4 @@
 
 <button type="submit"><img src="{devblocks_url}c=resource&p=usermeet.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')}</button><br>
 </form>
+</div>

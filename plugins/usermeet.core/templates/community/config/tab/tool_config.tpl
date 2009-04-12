@@ -13,6 +13,10 @@
 {$translate->_('usermeet.ui.community.cfg.profile_id')} <b>{$instance->code}</b><br>
 <br>
 
+<b>Portal Name:</b> ("Support Portal", "Contact Form", "ProductX FAQ")<br>
+<input type="text" name="portal_name" value="{if !empty($instance->name)}{$instance->name}{else}{$tool->manifest->name}{/if}" size="65"><br>
+<br> 
+
 {if !empty($instance) && !empty($tool)}
 {$tool->configure($instance)}
 {/if}

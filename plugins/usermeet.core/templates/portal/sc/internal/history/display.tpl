@@ -4,7 +4,7 @@
 
 <h2>{$translate->_('ticket.subject')|capitalize}: {$ticket.t_subject|escape}</h2>
 
-<form action="{devblocks_url}{/devblocks_url}" method="post" name="">
+<form action="{devblocks_url}c=history{/devblocks_url}" method="post" name="">
 <input type="hidden" name="a" value="saveTicketProperties">
 <input type="hidden" name="mask" value="{$ticket.t_mask}">
 <input type="hidden" name="closed" value="{if $ticket.t_is_closed}1{else}0{/if}">
@@ -39,7 +39,7 @@
 <div style="border-bottom:1px solid rgb(180,180,180);margin-bottom:10px;">
 <h2 style="margin-bottom:0px;">{$translate->_('portal.sc.public.history.add_message')}</h2>
 </div>
-<form action="{devblocks_url}{/devblocks_url}" method="post" name="replyForm">
+<form action="{devblocks_url}c=history{/devblocks_url}" method="post" name="replyForm">
 <input type="hidden" name="a" value="doReply">
 <input type="hidden" name="mask" value="{$ticket.t_mask}">
 
