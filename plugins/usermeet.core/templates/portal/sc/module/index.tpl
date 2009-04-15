@@ -3,6 +3,8 @@
 	<meta content="text/html; charset={$smarty.const.LANG_CHARSET_CODE}" http-equiv="content-type">
 	<title>{$page_title}</title>
 	<link rel="stylesheet" href="{devblocks_url}c=resource&p=usermeet.core&f=css/sc/default.css{/devblocks_url}">
+	<script type="text/javascript" src="{devblocks_url}c=resource&p=usermeet.core&f=js/jquery.js{/devblocks_url}"></script>
+	<script type="text/javascript" src="{devblocks_url}c=resource&p=usermeet.core&f=js/cerb4.common.js{/devblocks_url}"></script>
 	
 	{if !empty($style_css)}
 	<style type='text/css'>
@@ -27,7 +29,7 @@
 		
 			<!-- Menu -->
 			{if !empty($menu)}
-			<table cellpadding="0" cellspacing="0" border="0" class="box" id="menu">
+			<table cellpadding="0" cellspacing="0" border="0" class="sidebar" id="menu">
 				<tr>
 					<th>{$translate->_('portal.sc.public.themes.main_menu')}</th>
 				</tr>
@@ -35,7 +37,7 @@
 				<td>
 				{foreach from=$menu item=item name=menu}
 					{if !empty($item->manifest->params.icon)}<img src="{devblocks_url}c=resource&p=usermeet.core&f={$item->manifest->params.icon}{/devblocks_url}" align="top" style="padding:1px;">{/if}
-					<a href="{devblocks_url}c={$item->manifest->params.uri}{/devblocks_url}">{$item->manifest->params.menu_title|capitalize}</a>
+					<a href="{devblocks_url}c={$item->manifest->params.uri}{/devblocks_url}" {if !empty($module) && 0==strcasecmp($module->manifest->params.uri,$item->manifest->params.uri)}class="selected"{/if}>{$item->manifest->params.menu_title|capitalize}</a>
 					<br>
 				{/foreach}
 				</td>
@@ -48,7 +50,7 @@
 			{if $allow_logins}
 			{if !empty($active_user)}
 				<form action="{devblocks_url}c=logout{/devblocks_url}" method="post" name="loginForm">
-				<table cellpadding="0" cellspacing="0" border="0" class="box">
+				<table cellpadding="0" cellspacing="0" border="0" class="sidebar">
 					<tr>
 						<th>{$translate->_('portal.sc.public.themes.logged_in')}</th>
 					</tr>
@@ -59,7 +61,7 @@
 				</form> 
 			{else}
 				<form action="{devblocks_url}c=login{/devblocks_url}" method="post">
-				<table cellpadding="0" cellspacing="0" border="0" class="box">
+				<table cellpadding="0" cellspacing="0" border="0" class="sidebar">
 					<tr>
 						<th width="100%" colspan="2">{$translate->_('portal.sc.public.themes.log_in')}</th>
 					</tr>

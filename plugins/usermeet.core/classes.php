@@ -49,20 +49,42 @@
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
 
+class UmPortalHelper {
+	static private $_code = null; 
+	
+	public static function getCode() {
+		return self::$_code;
+	}	
+	
+	public static function setCode($code) {
+		self::$_code = $code;
+	}
+	
+	/**
+	 * @return Model_CommunitySession
+	 */
+	public static function getSession() {
+		$fingerprint = self::getFingerprint();
+		
+		$session_id = md5($fingerprint['ip'] . self::getCode() . $fingerprint['local_sessid']);
+		return DAO_CommunitySession::get($session_id);
+	}
+	
+	public static function getFingerprint() {
+		$sFingerPrint = DevblocksPlatform::importGPC($_COOKIE['GroupLoginPassport'],'string','');
+		$fingerprint = null;
+		if(!empty($sFingerPrint)) {
+			$fingerprint = unserialize($sFingerPrint);
+		}
+		return $fingerprint;
+	}
+};
+
 class UmPortalController extends DevblocksControllerExtension {
     const ID = 'usermeet.controller.portal';
-	private $tools = array();
-	private $hash = array();
     
 	function __construct($manifest) {
 		parent::__construct($manifest);
-
-	    // Internal Routing
-	    // [TODO] Cache the code to extension lookup -- silly to go to DB every time for this
-	    $this->tools = DAO_CommunityTool::getList();
-	    foreach($this->tools as $idx => $tool) {
-	        $this->hash[$tool->code] =& $this->tools[$idx];
-	    }
 	}
 		
 	/**
@@ -75,12 +97,12 @@ class UmPortalController extends DevblocksControllerExtension {
 		array_shift($stack); // portal
 		$code = array_shift($stack); // xxxxxxxx
 
-		// [TODO] Convert to Model_CommunityTool::getByCode()
-        if(null != (@$tool = $this->hash[$code])) {
+		UmPortalHelper::setCode($code);
+
+        if(null != (@$tool = DAO_CommunityTool::getByCode($code))) {
 	        // [TODO] Don't double instance any apps (add instance registry to ::getExtension?)
 	        $manifest = DevblocksPlatform::getExtension($tool->extension_id,false,true);
             if(null != (@$tool = $manifest->createInstance())) { /* @var $app Extension_UsermeetTool */
-				$tool->setPortal($code); // [TODO] Kinda hacky
 	        	return $tool->handleRequest(new DevblocksHttpRequest($stack));
             }
         } else {
@@ -103,51 +125,16 @@ class UmPortalController extends DevblocksControllerExtension {
 		array_shift($stack); // portal
 		$code = array_shift($stack); // xxxxxxxx
 
-		// [TODO] Convert to Model_CommunityTool::getByCode()
-        if(null != ($tool = $this->hash[$code])) {
+        if(null != ($tool = DAO_CommunityTool::getByCode($code))) {
 	        // [TODO] Don't double instance any apps (add instance registry to ::getExtension?)
 	        $manifest = DevblocksPlatform::getExtension($tool->extension_id,false,true);
             if(null != ($tool = $manifest->createInstance())) { /* @var $app Extension_UsermeetTool */
-				$tool->setPortal($code); // [TODO] Kinda hacky
 		        $tool->writeResponse(new DevblocksHttpResponse($stack));
             }
         } else {
             die("Tool not found.");
         }
 	}
-	
-//	function test() {
-//	    $proxyhost = $_SERVER['HTTP_DEVBLOCKSPROXYHOST'];
-//	    $proxybase = $_SERVER['HTTP_DEVBLOCKSPROXYBASE'];
-//
-//	    echo "<html><head></head><body>";
-//	    
-//	    echo 'Proxy Host: ', $proxyhost, '<BR>';
-//	    echo 'Proxy Base: ', $proxybase, '<BR>';
-//	    echo 'Response: ', var_dump($response), '<BR>';
-//	    
-//	    echo "<h2>Get Test</h2>";
-//	    echo "<a href='$proxybase/latest'>latest</a><br>";
-//
-//	    echo "<h2>Post Test</h2>";
-//	    echo "<form action=\"${proxybase}/\" method=\"post\">";
-//	    echo "<input type='text' name='name' value=''><br>";
-//	    echo "<input type='checkbox' name='checky' value='1'><br>";
-//	    echo "<input type='submit' value='Submit'>";
-//	    echo "</form>";
-//	    
-//	    if(!empty($_POST)) {
-//	        echo "<HR>"; print_r($_POST); echo "<HR>";
-//	    }
-//	    
-//        echo "Cookies: ";
-//	    print_r($_COOKIE);
-//	    echo "<HR>";
-//	    
-////	    echo "PORTAL RESPONSE";
-//	    echo "</body></html>";
-//	    exit;
-//	}
 	
 };
 
@@ -251,8 +238,9 @@ class UmConfigCommunitiesTab extends Extension_ConfigTab {
 	function getContactSituationAction() {
 		@$portal = DevblocksPlatform::importGPC($_REQUEST['portal'],'string','');
 		
+		UmPortalHelper::setCode($portal);
+		
 		$module = DevblocksPlatform::getExtension('sc.controller.contact',true,true);
-		$module->setPortal($portal);
 		$module->getSituation();
 	}
 	
@@ -265,6 +253,8 @@ class UmConfigCommunitiesTab extends Extension_ConfigTab {
 		
 		@$portal = DevblocksPlatform::importGPC($_REQUEST['portal'],'string','');
 		@$is_submitted = DevblocksPlatform::importGPC($_POST['is_submitted'],'integer',0);
+		
+		UmPortalHelper::setCode($portal);
 		
 		if(!empty($is_submitted))
 			$is_submitted = time();
@@ -281,7 +271,6 @@ class UmConfigCommunitiesTab extends Extension_ConfigTab {
 			$tpl->assign('instance', $instance);
 			$manifest = DevblocksPlatform::getExtension($instance->extension_id, false, true);
             if(null != ($tool = $manifest->createInstance())) { /* @var $app Extension_UsermeetTool */
-				$tool->setPortal($portal); // [TODO] Kinda hacky
         		$tpl->assign('tool', $tool);
             }
 		}
@@ -320,6 +309,8 @@ class UmConfigCommunitiesTab extends Extension_ConfigTab {
 		@$name = DevblocksPlatform::importGPC($_POST['portal_name'],'string','');
         @$iDelete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer',0);
 		
+		UmPortalHelper::setCode($code);
+		
 		if(DEMO_MODE) {
 			if($iDelete) {
 				DevblocksPlatform::redirect(new DevblocksHttpResponse(array('config','communities')));
@@ -340,17 +331,12 @@ class UmConfigCommunitiesTab extends Extension_ConfigTab {
 			} else {
 				$manifest = DevblocksPlatform::getExtension($instance->extension_id, false, true);
 	            $tool = $manifest->createInstance(); /* @var $tool Extension_UsermeetTool */
-				$tool->setPortal($code);
 				
-				// Any global updates?
-				if(null != ($dao_tool = DAO_CommunityTool::getByCode($code))) {
-					
-					// Update the tool name if it has changed
-					if(0 != strcmp($dao_tool->name,$name))
-						DAO_CommunityTool::update($dao_tool->id, array(
-							DAO_CommunityTool::NAME => $name
-						));
-				}
+				// Update the tool name if it has changed
+				if(0 != strcmp($instance->name,$name))
+					DAO_CommunityTool::update($instance->id, array(
+						DAO_CommunityTool::NAME => $name
+					));
 				
 				// Defer the rest to tool instances and extensions
 				$tool->saveConfiguration();

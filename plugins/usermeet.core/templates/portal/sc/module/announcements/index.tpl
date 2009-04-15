@@ -2,11 +2,11 @@
 {if !empty($feeds)}
 	{foreach from=$feeds item=matches name=matches}
 	<div class="feed">
-		<div style="border-bottom:1px solid rgb(180,180,180);margin-bottom:10px;">
+		<div class="header">
 			{if !empty($matches.url)}
 			<a href="{$matches.url}" target="_blank"><img src="{devblocks_url}c=resource&p=usermeet.core&f=images/feed-icon-16x16.gif{/devblocks_url}" alt="RSS" align="top" border="0"></a>
 			{/if}
-			<h1 style="margin-bottom:0px;display:inline;">{$matches.name}</h1>
+			<h1 style="display:inline;">{$matches.name}</h1>
 			<br>
 		</div>
 	

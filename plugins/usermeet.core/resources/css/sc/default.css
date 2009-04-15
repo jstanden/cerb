@@ -4,8 +4,12 @@ BODY, TD {
 	color: rgb(60,60,60);
 }
 
+FORM {
+	margin:0px;
+}
+
 H1 {
-	font-size:11pt;
+	font-size:16px;
 	font-weight:bold;
 	color: rgb(8,90,173);
 	margin-top:0px;
@@ -13,34 +17,46 @@ H1 {
 }
 
 H2 {
-	font-size:10pt;
+	font-size:14px;
 	color: rgb(60,60,60);
 	margin-top:0px;
 	margin-bottom:3px;
 }
 
-#menu TD A {
+DIV.header {
+	border-bottom:1px solid rgb(180,180,180);
+	margin-bottom:5px;
 }
 
-#content {
-	/*border:1px solid rgb(204,204,204);*/
-	/*padding:5px;*/
-}
-
-#content A {
-	color:rgb(50,50,50);
+DIV.header H1 {
+	margin-bottom:0px;
 }
 
 #logo {
 	padding: 2px;
 }
 
-TABLE.box {
+#menu TD A {
+}
+
+#menu TD A.selected {
+	font-weight:bold;
+	text-decoration:none;
+}
+
+#content {
+}
+
+#content A {
+	color:rgb(50,50,50);
+}
+
+TABLE.sidebar {
 	width:220px;
 	border: 1px solid rgb(8,90,173);
 }
 
-TABLE.box TH {
+TABLE.sidebar TH {
 	background-color: rgb(8,90,173);
 	font-size:10pt;
 	font-weight:bold;
@@ -50,16 +66,16 @@ TABLE.box TH {
 	color: rgb(255,255,255);
 }
 
-TABLE.box TD {
+TABLE.sidebar TD {
 	background-color: rgb(238,238,238);
 	padding: 3px;
 }
 
-TABLE.box TD A {
+TABLE.sidebar TD A {
 	color: rgb(7,39,115);
 }
 
-TABLE.box BUTTON {
+TABLE.sidebar BUTTON {
 	width:98%;
 	text-align:center;
 	background-color:rgb(255,255,255);
@@ -103,8 +119,22 @@ TABLE.box BUTTON {
 }
 
 #kb {
-	border:1px solid rgb(204,204,204);
+}
+
+#kb DIV.search {
+	margin-bottom:5px;
+}
+
+#kb DIV.search INPUT.query {
+	width:200px;
+	background-color:rgb(232,242,254);
+	border:1px solid rgb(200,200,200);
+	padding:2px;
+}
+
+#kb DIV.browse {
 	padding:5px;
+	border:1px solid rgb(204,204,204);	
 }
 
 /* Cerb4 Styles */

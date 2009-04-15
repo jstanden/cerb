@@ -3,9 +3,7 @@
 <br> 
 
 {if !empty($articles)}
-	<div style="border-bottom:1px solid rgb(180,180,180);margin-bottom:10px;">
-	<h1 style="margin-bottom:0px;">{$translate->_('common.knowledgebase')}</h1>
-	</div>
+	<div class="header"><h1>{$translate->_('common.knowledgebase')}</h1></div>
 	
 	<div style="margin:10px;">
       	{foreach from=$articles item=article name=articles key=article_id}
@@ -34,9 +32,7 @@
 
 {if !empty($feeds)}
 {foreach from=$feeds item=matches name=matches}
-	<div style="border-bottom:1px solid rgb(180,180,180);margin-bottom:10px;">
-	<h1 style="margin-bottom:0px;">{$matches.name}</h1>
-	</div>
+	<div class="header"><h1>{$matches.name}</h1></div>
 
 	<div style="margin:10px;">
 	{foreach from=$matches.feed item=item name=items}

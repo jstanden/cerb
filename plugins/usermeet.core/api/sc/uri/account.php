@@ -2,7 +2,7 @@
 class UmScAccountController extends Extension_UmScController {
 	
 	function isVisible() {
-		$umsession = $this->getSession();
+		$umsession = UmPortalHelper::getSession();
 		$active_user = $umsession->getProperty('sc_login', null);
 		return !empty($active_user);
 	}
@@ -11,13 +11,13 @@ class UmScAccountController extends Extension_UmScController {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl_path = dirname(dirname(dirname(dirname(__FILE__)))) . '/templates/';
 		
-		$umsession = $this->getSession();
+		$umsession = UmPortalHelper::getSession();
 		$active_user = $umsession->getProperty('sc_login', null);
 		
 		$address = DAO_Address::get($active_user->id);
 		$tpl->assign('address',$address);
 		
-		$tpl->display("file:".$tpl_path."portal/sc/internal/account/index.tpl");
+		$tpl->display("file:".$tpl_path."portal/sc/module/account/index.tpl");
 	}
 
 	function saveAccountAction() {
@@ -27,7 +27,7 @@ class UmScAccountController extends Extension_UmScController {
 		@$change_password2 = DevblocksPlatform::importGPC($_REQUEST['change_password2'],'string','');
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$umsession = $this->getSession();
+		$umsession = UmPortalHelper::getSession();
 		$active_user = $umsession->getProperty('sc_login', null);
 		
 		if(!empty($active_user)) {
@@ -52,7 +52,7 @@ class UmScAccountController extends Extension_UmScController {
 			}
 		}
 		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',$this->getPortal(),'account')));
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'account')));
 	}
 	
 }

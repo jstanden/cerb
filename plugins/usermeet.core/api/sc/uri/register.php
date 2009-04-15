@@ -2,7 +2,7 @@
 class UmScRegisterController extends Extension_UmScController {
 	
 	function isVisible() {
-//		$umsession = $this->getSession();
+//		$umsession = UmPortalHelper::getSession();
 //		$active_user = $umsession->getProperty('sc_login', null);
 //		return !empty($active_user);
 		return true;
@@ -12,7 +12,7 @@ class UmScRegisterController extends Extension_UmScController {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl_path = dirname(dirname(dirname(dirname(__FILE__)))) . '/templates/';
 
-		$umsession = $this->getSession();
+		$umsession = UmPortalHelper::getSession();
 		$active_user = $umsession->getProperty('sc_login', null);
 		
 		$stack = $response->path;
@@ -22,16 +22,16 @@ class UmScRegisterController extends Extension_UmScController {
 		
 		switch($step) {
 			case 'forgot':
-				$tpl->display("file:${tpl_path}portal/sc/internal/register/forgot.tpl");
+				$tpl->display("file:${tpl_path}portal/sc/module/register/forgot.tpl");
 				break;
 			case 'forgot2':
-				$tpl->display("file:${tpl_path}portal/sc/internal/register/forgot_confirm.tpl");
+				$tpl->display("file:${tpl_path}portal/sc/module/register/forgot_confirm.tpl");
 				break;
 			case 'confirm':
-				$tpl->display("file:${tpl_path}portal/sc/internal/register/confirm.tpl");
+				$tpl->display("file:${tpl_path}portal/sc/module/register/confirm.tpl");
 				break;
 			default:
-				$tpl->display("file:${tpl_path}portal/sc/internal/register/index.tpl");
+				$tpl->display("file:${tpl_path}portal/sc/module/register/index.tpl");
 				break;
 		}
 		
@@ -61,7 +61,7 @@ class UmScRegisterController extends Extension_UmScController {
 				
 			} else {
 				$tpl->assign('register_error', sprintf("'%s' is not a registered e-mail address.",$email));
-				DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',$this->getPortal(),'register','forgot')));
+				DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'register','forgot')));
 				return;
 			}
 			
@@ -91,11 +91,11 @@ class UmScRegisterController extends Extension_UmScController {
 		}
 		catch (Exception $e) {
 			$tpl->assign('register_error', 'Fatal error encountered while sending forgot password confirmation code.');
-			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',$this->getPortal(),'register','forgot')));
+			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'register','forgot')));
 			return;
 		}
 		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',$this->getPortal(),'register','forgot2')));
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'register','forgot2')));
 	}		
 	
 	function doForgotConfirmAction() {
@@ -120,13 +120,13 @@ class UmScRegisterController extends Extension_UmScController {
 				
 			} else {
 				$tpl->assign('register_error', sprintf("The confirmation code you entered does not match our records.  Try again."));
-				DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',$this->getPortal(),'register','forgot2')));
+				DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'register','forgot2')));
 				return;
 			}
 			
 		} else {
 			$tpl->assign('register_error', sprintf("You must enter a valid e-mail address, confirmation code and desired password to continue."));
-			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',$this->getPortal(),'register','forgot2')));
+			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'register','forgot2')));
 			return;
 		}
 	}
@@ -152,7 +152,7 @@ class UmScRegisterController extends Extension_UmScController {
 			// Already registered?
 			if(!empty($auth) && !empty($auth->pass)) {
 				$tpl->assign('register_error', sprintf("'%s' is already registered.",$email));
-				DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',$this->getPortal(),'register')));
+				DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'register')));
 				return;
 			}
 			
@@ -163,7 +163,7 @@ class UmScRegisterController extends Extension_UmScController {
 			
 		} else {
 			$tpl->assign('register_error', sprintf("'%s' is an invalid e-mail address.",$email));
-			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',$this->getPortal(),'register')));
+			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'register')));
 			return;
 		}
 		
@@ -191,7 +191,7 @@ class UmScRegisterController extends Extension_UmScController {
 		
 		$mailer->send($message,$email,$send_from);
 		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',$this->getPortal(),'register','confirm')));
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'register','confirm')));
 	}
 	
 	function doRegisterConfirmAction() {
@@ -217,13 +217,13 @@ class UmScRegisterController extends Extension_UmScController {
 				
 			} else {
 				$tpl->assign('register_error', sprintf("The confirmation code you entered does not match our records.  Try again."));
-				DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',$this->getPortal(),'register','confirm')));
+				DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'register','confirm')));
 				return;
 			}
 			
 		} else {
 			$tpl->assign('register_error', sprintf("You must enter a valid e-mail address, confirmation code and desired password to continue."));
-			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',$this->getPortal(),'register','confirm')));
+			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'register','confirm')));
 			return;
 		}
 	}

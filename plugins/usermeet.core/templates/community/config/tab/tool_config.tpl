@@ -59,7 +59,7 @@ define('REMOTE_URI', '{$path}'); // NO trailing slash!
 define('URL_REWRITE', file_exists('.htaccess'));
 define('LOCAL_HOST', $_SERVER['HTTP_HOST']);
 define('LOCAL_BASE', DevblocksRouter::getLocalBase()); // NO trailing slash!
-define('SCRIPT_LAST_MODIFY', 2009022801); // last change
+define('SCRIPT_LAST_MODIFY', 2009041501); // last change
 
 @session_start();
 
@@ -71,14 +71,24 @@ class DevblocksProxy {
 //    	echo "RB: ",REMOTE_BASE,"<BR>";    	
 //    	echo "RU: ",REMOTE_URI,"<BR>";    	
 //    	echo "LP: $local_path<BR>";
-        $path = explode('/', substr($local_path,1));
-        
-        // Encode all our parts
-        if(is_array($path))
-        foreach($path as $idx => $p) {
-        	$path[$idx] = rawurlencode($p);
-        }
-        $local_path = '/'.implode('/', $path);
+
+		$path = '';
+		$query = '';
+		
+		// Query args
+		if(0 != strpos($local_path,'?'))
+			list($local_path, $query) = explode('?', $local_path);
+			
+		$path = explode('/', substr($local_path,1));
+		
+		// Encode all our parts
+		if(is_array($path))
+		foreach($path as $idx => $p)
+			$path[$idx] = rawurlencode($p);
+			
+		$local_path = '/'.implode('/', $path);
+		if(!empty($query)) 
+			$local_path .= '?' . $query;
 
         if(0==strcasecmp($path[0],'resource')) {
             header('Pragma: cache'); 

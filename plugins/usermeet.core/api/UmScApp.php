@@ -18,13 +18,12 @@ class UmScApp extends Extension_UsermeetTool {
 		
     	// Lazy load
     	if(null == $modules) {
-	        $enabled_modules = DevblocksPlatform::parseCsvString(DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_ENABLED_MODULES, ''));
+	        $enabled_modules = DevblocksPlatform::parseCsvString(DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), self::PARAM_ENABLED_MODULES, ''));
 			
 			if(is_array($enabled_modules))
 			foreach($enabled_modules as $module_id) {
 				$module = DevblocksPlatform::getExtension($module_id,true,true); /* @var $module Extension_UmScController */
 				@$module_uri = $module->manifest->params['uri'];
-				$module->setPortal($this->getPortal());
 	
 				if($module->isVisible())
 					$modules[$module_uri] = $module;
@@ -65,7 +64,7 @@ class UmScApp extends Extension_UsermeetTool {
     }
     
 	public function writeResponse(DevblocksHttpResponse $response) {
-        $umsession = $this->getSession();
+        $umsession = UmPortalHelper::getSession();
 		$stack = $response->path;
 		
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -73,54 +72,41 @@ class UmScApp extends Extension_UsermeetTool {
 		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
 		$tpl->assign('tpl_path', $tpl_path);
 		
-		$logo_url = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_LOGO_URL, '');
+		$logo_url = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), self::PARAM_LOGO_URL, '');
 		$tpl->assign('logo_url', $logo_url);
         
-		$page_title = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_PAGE_TITLE, 'Support Center');
+		$page_title = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), self::PARAM_PAGE_TITLE, 'Support Center');
 		$tpl->assign('page_title', $page_title);
         
-        $style_css = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_STYLE_CSS, '');
+        $style_css = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), self::PARAM_STYLE_CSS, '');
 		$tpl->assign('style_css', $style_css);
 
-        $footer_html = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_FOOTER_HTML, '');
+        $footer_html = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), self::PARAM_FOOTER_HTML, '');
 		$tpl->assign('footer_html', $footer_html);
 		
-        $allow_logins = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_ALLOW_LOGINS, 0);
+        $allow_logins = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), self::PARAM_ALLOW_LOGINS, 0);
 		$tpl->assign('allow_logins', $allow_logins);
 		
-        $enabled_modules = DevblocksPlatform::parseCsvString(DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_ENABLED_MODULES, ''));
+        $enabled_modules = DevblocksPlatform::parseCsvString(DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), self::PARAM_ENABLED_MODULES, ''));
 		$tpl->assign('enabled_modules', $enabled_modules);
 		
         @$active_user = $umsession->getProperty('sc_login',null);
         $tpl->assign('active_user', $active_user);
 
 		// Usermeet Session
-		if(null == ($fingerprint = parent::getFingerprint())) {
+		if(null == ($fingerprint = UmPortalHelper::getFingerprint())) {
 			die("A problem occurred.");
 		}
         $tpl->assign('fingerprint', $fingerprint);
 
-		// Build the menu
-		$modules = $this->_getModules();
-        $menu_modules = array();
-		if(is_array($modules))
-		foreach($modules as $module_uri => $module) {
-			// Must be menu renderable
-			if(!empty($module->manifest->params['menu_title']) && !empty($module_uri)) {
-				$menu_modules[$module_uri] = $module;
-			}
-		}
-        $tpl->assign('menu', $menu_modules);
-		
         $module_uri = array_shift($stack);
-        if(isset($modules[$module_uri])) {
-			$controller = $modules[$module_uri];
-        } else {
-        	// First menu item
-			$controller = reset($menu_modules);
-        }
 		
 		switch($module_uri) {
+			case 'ajax':
+				$controller = new UmScAjaxController(null);
+				$controller->handleRequest(new DevblocksHttpRequest($stack));
+				break;
+				
 			case 'captcha':
                 header('Cache-control: max-age=0', true); // 1 wk // , must-revalidate
                 header('Expires: ' . gmdate('D, d M Y H:i:s',time()-604800) . ' GMT'); // 1 wk
@@ -141,11 +127,30 @@ class UmScApp extends Extension_UsermeetTool {
 				break;
 			
 	    	default:
+				// Build the menu
+				$modules = $this->_getModules();
+		        $menu_modules = array();
+				if(is_array($modules))
+				foreach($modules as $uri => $module) {
+					// Must be menu renderable
+					if(!empty($module->manifest->params['menu_title']) && !empty($uri)) {
+						$menu_modules[$uri] = $module;
+					}
+				}
+		        $tpl->assign('menu', $menu_modules);
+
+		        if(isset($modules[$module_uri])) {
+					$controller = $modules[$module_uri];
+		        } else {
+		        	// First menu item
+					$controller = reset($menu_modules);
+		        }
+
 				array_unshift($stack, $module_uri);
 				$tpl->assign('module', $controller);
 				$tpl->assign('module_response', new DevblocksHttpResponse($stack));
 				
-   				$tpl->display('file:' . $tpl_path . 'portal/sc/internal/index.tpl');
+   				$tpl->display('file:' . $tpl_path . 'portal/sc/module/index.tpl');
 		    	break;
 		}
 	}
@@ -158,22 +163,22 @@ class UmScApp extends Extension_UsermeetTool {
         $tpl_path = dirname(dirname(__FILE__)) . '/templates/';
         $tpl->assign('config_path', $tpl_path);
         
-        $logo_url = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_LOGO_URL, '');
+        $logo_url = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), self::PARAM_LOGO_URL, '');
 		$tpl->assign('logo_url', $logo_url);
         
-        $page_title = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_PAGE_TITLE, 'Support Center');
+        $page_title = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), self::PARAM_PAGE_TITLE, 'Support Center');
 		$tpl->assign('page_title', $page_title);
         
-        $style_css = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_STYLE_CSS, '');
+        $style_css = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), self::PARAM_STYLE_CSS, '');
 		$tpl->assign('style_css', $style_css);
 
-        $footer_html = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_FOOTER_HTML, '');
+        $footer_html = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), self::PARAM_FOOTER_HTML, '');
 		$tpl->assign('footer_html', $footer_html);
         
-        $allow_logins = DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_ALLOW_LOGINS, 0);
+        $allow_logins = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), self::PARAM_ALLOW_LOGINS, 0);
 		$tpl->assign('allow_logins', $allow_logins);
 
-        $enabled_modules = DevblocksPlatform::parseCsvString(DAO_CommunityToolProperty::get($this->getPortal(), self::PARAM_ENABLED_MODULES, array()));
+        $enabled_modules = DevblocksPlatform::parseCsvString(DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), self::PARAM_ENABLED_MODULES, array()));
 		$tpl->assign('enabled_modules', $enabled_modules);
 
 		$all_modules = DevblocksPlatform::getExtensions('usermeet.sc.controller', true, true);
@@ -185,7 +190,6 @@ class UmScApp extends Extension_UsermeetTool {
 			if(!isset($all_modules[$module_id]))
 				continue;
 			$module = $all_modules[$module_id];
-			$module->setPortal($this->getPortal());
 			$modules[$module_id] = $module;
 			unset($all_modules[$module_id]);
 		}
@@ -193,7 +197,6 @@ class UmScApp extends Extension_UsermeetTool {
 		// Append the unused modules
 		if(is_array($all_modules))
 		foreach($all_modules as $module_id => $module) {
-			$module->setPortal($this->getPortal());
 			$modules[$module_id] = $module;
 			$modules = array_merge($modules, $all_modules);
 		}
@@ -224,21 +227,21 @@ class UmScApp extends Extension_UsermeetTool {
 		foreach($aPosModules as $idx => $null)
 			$aEnabledModules[] = $aIdxModules[$idx]; 
 
-        DAO_CommunityToolProperty::set($this->getPortal(), self::PARAM_ENABLED_MODULES, implode(',',$aEnabledModules));
-        DAO_CommunityToolProperty::set($this->getPortal(), self::PARAM_LOGO_URL, $sLogoUrl);
-        DAO_CommunityToolProperty::set($this->getPortal(), self::PARAM_PAGE_TITLE, $sPageTitle);
+        DAO_CommunityToolProperty::set(UmPortalHelper::getCode(), self::PARAM_ENABLED_MODULES, implode(',',$aEnabledModules));
+        DAO_CommunityToolProperty::set(UmPortalHelper::getCode(), self::PARAM_LOGO_URL, $sLogoUrl);
+        DAO_CommunityToolProperty::set(UmPortalHelper::getCode(), self::PARAM_PAGE_TITLE, $sPageTitle);
 
 		// Logins
         @$iAllowLogins = DevblocksPlatform::importGPC($_POST['allow_logins'],'integer',0);
-        DAO_CommunityToolProperty::set($this->getPortal(), self::PARAM_ALLOW_LOGINS, $iAllowLogins);
+        DAO_CommunityToolProperty::set(UmPortalHelper::getCode(), self::PARAM_ALLOW_LOGINS, $iAllowLogins);
 
         // Style
         @$sStyleCss = DevblocksPlatform::importGPC($_POST['style_css'],'string','');
-        DAO_CommunityToolProperty::set($this->getPortal(), self::PARAM_STYLE_CSS, $sStyleCss);
+        DAO_CommunityToolProperty::set(UmPortalHelper::getCode(), self::PARAM_STYLE_CSS, $sStyleCss);
 
         // Footer
         @$sFooterHtml = DevblocksPlatform::importGPC($_POST['footer_html'],'string','');
-        DAO_CommunityToolProperty::set($this->getPortal(), self::PARAM_FOOTER_HTML, $sFooterHtml);
+        DAO_CommunityToolProperty::set(UmPortalHelper::getCode(), self::PARAM_FOOTER_HTML, $sFooterHtml);
         
 		// Allow modules to save their own config
 		$modules = DevblocksPlatform::getExtensions('usermeet.sc.controller',true,true);
@@ -247,14 +250,13 @@ class UmScApp extends Extension_UsermeetTool {
 			if(!in_array($module->manifest->id, $aEnabledModules))
 				continue;
 				
-			$module->setPortal($this->getPortal());
 			$module->saveConfiguration();
 		}
 
     }
 	
 	function doLogin() {
-		$umsession = $this->getSession();
+		$umsession = UmPortalHelper::getSession();
 		
 //		if(!$this->allow_logins)
 //			die();
@@ -277,15 +279,204 @@ class UmScApp extends Extension_UsermeetTool {
 			$umsession->setProperty('sc_login',null);
 		}
 		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',$this->getPortal())));
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode())));
 	}
 	
 	function doLogout() {
-		$umsession = $this->getSession();
+		$umsession = UmPortalHelper::getSession();
 		$umsession->setProperty('sc_login',null);
 		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',$this->getPortal())));
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode())));
 	}
 	
 };
 
+// [TODO] Redundant w/ C4_AbstractViewLoader
+class UmScAbstractViewLoader {
+	static $views = null;
+	const VISIT_ABSTRACTVIEWS = 'abstractviews_list';
+
+	static protected function _init() {
+		$umsession = UmPortalHelper::getSession();
+		self::$views = $umsession->getProperty(self::VISIT_ABSTRACTVIEWS,array());
+	}
+
+	/**
+	 * @param string $view_label Abstract view identifier
+	 * @return boolean
+	 */
+	static function exists($view_label) {
+		if(is_null(self::$views)) self::_init();
+		return isset(self::$views[$view_label]);
+	}
+
+	/**
+	 * Enter description here...
+	 *
+	 * @param string $class C4_AbstractView
+	 * @param string $view_label ID
+	 * @return C4_AbstractView instance
+	 */
+	static function getView($class, $view_label) {
+		if(is_null(self::$views)) self::_init();
+
+		if(!self::exists($view_label)) {
+			if(empty($class) || !class_exists($class))
+			return null;
+				
+			$view = new $class;
+			self::setView($view_label, $view);
+			return $view;
+		}
+
+		$model = self::$views[$view_label];
+		$view = self::unserializeAbstractView($model);
+
+		return $view;
+	}
+
+	/**
+	 * Enter description here...
+	 *
+	 * @param string $class C4_AbstractView
+	 * @param string $view_label ID
+	 * @param C4_AbstractView $view
+	 */
+	static function setView($view_label, $view) {
+		if(is_null(self::$views)) self::_init();
+		self::$views[$view_label] = self::serializeAbstractView($view);
+		self::_save();
+	}
+
+	static function deleteView($view_label) {
+		unset(self::$views[$view_label]);
+		self::_save();
+	}
+	
+	static protected function _save() {
+		// persist
+		$umsession = UmPortalHelper::getSession();
+		$umsession->setProperty(self::VISIT_ABSTRACTVIEWS, self::$views);
+	}
+
+	static function serializeAbstractView($view) {
+		if(!$view instanceof C4_AbstractView) {
+			return null;
+		}
+		
+		$model = new C4_AbstractViewModel();
+			
+		$model->class_name = get_class($view);
+
+		$model->id = $view->id;
+		$model->name = $view->name;
+		$model->view_columns = $view->view_columns;
+		$model->params = $view->params;
+
+		$model->renderPage = $view->renderPage;
+		$model->renderLimit = $view->renderLimit;
+		$model->renderSortBy = $view->renderSortBy;
+		$model->renderSortAsc = $view->renderSortAsc;
+
+		return $model;
+	}
+
+	static function unserializeAbstractView(C4_AbstractViewModel $model) {
+		if(!class_exists($model->class_name, true))
+			return null;
+		
+		if(null == ($inst = new $model->class_name))
+			return null;
+
+		/* @var $inst C4_AbstractView */
+			
+		$inst->id = $model->id;
+		$inst->name = $model->name;
+		$inst->view_columns = $model->view_columns;
+		$inst->params = $model->params;
+
+		$inst->renderPage = $model->renderPage;
+		$inst->renderLimit = $model->renderLimit;
+		$inst->renderSortBy = $model->renderSortBy;
+		$inst->renderSortAsc = $model->renderSortAsc;
+
+		return $inst;
+	}
+};
+
+class UmScAjaxController extends Extension_UmScController {
+	private $_TPL_PATH = '';
+	
+	function __construct($manifest=null) {
+		$this->_TPL_PATH = dirname(dirname(__FILE__)) . '/templates/';
+		parent::__construct($manifest);
+		
+//		$tpl = DevblocksPlatform::getTemplateService();
+//		$tpl->display("file:".$this->_TPL_PATH."portal/sc/internal/views/hello.tpl");
+	}
+	
+	function handleRequest(DevblocksHttpRequest $request) {
+		@$path = $request->path;
+		@$a = DevblocksPlatform::importGPC($_REQUEST['a'],'string');
+	    
+		if(empty($a)) {
+    	    @$action = array_shift($path) . 'Action';
+		} else {
+	    	@$action = $a . 'Action';
+		}
+
+	    switch($action) {
+	        default:
+			    // Default action, call arg as a method suffixed with Action
+				if(method_exists($this,$action)) {
+					call_user_func(array(&$this, $action)); // [TODO] Pass HttpRequest as arg?
+				}
+	            break;
+	    }
+	}
+	
+	function viewRefreshAction() {
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['id'],'string','');
+		
+		if(null != ($view = UmScAbstractViewLoader::getView('', $view_id))) {
+			$view->render();
+		}
+	}
+
+	function viewPageAction() {
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['id'],'string','');
+		@$page = DevblocksPlatform::importGPC($_REQUEST['page'],'integer',0);
+		
+		if(null != ($view = UmScAbstractViewLoader::getView('', $view_id))) {
+			$view->renderPage = $page;
+			UmScAbstractViewLoader::setView($view->id, $view);
+			
+			$view->render();
+		}
+	}
+	
+	function viewSortByAction() {
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['id'],'string','');
+		@$sort_by = DevblocksPlatform::importGPC($_REQUEST['sort_by'],'string','');
+		
+		if(null != ($view = UmScAbstractViewLoader::getView('', $view_id))) {
+			$fields = $view->getColumns();
+			if(isset($fields[$sort_by])) {
+				if(0==strcasecmp($view->renderSortBy,$sort_by)) { // clicked same col?
+					$view->renderSortAsc = !(bool)$view->renderSortAsc; // flip order
+				} else {
+					$view->renderSortBy = $sort_by;
+					$view->renderSortAsc = true;
+				}
+				
+				$view->renderPage = 0;
+				
+				UmScAbstractViewLoader::setView($view->id, $view);
+			}
+			
+			$view->render();
+		}
+		
+	}
+	
+};

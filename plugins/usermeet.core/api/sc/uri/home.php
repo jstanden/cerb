@@ -4,7 +4,7 @@ class UmScHomeController extends Extension_UmScController {
 	
 	function isVisible() {
 		// Disable if we have no content to show 
-		$sHomeHtml = DAO_CommunityToolProperty::get($this->getPortal(),self::PARAM_HOME_HTML, '');
+		$sHomeHtml = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(),self::PARAM_HOME_HTML, '');
 		return !empty($sHomeHtml);
 	}
 	
@@ -12,17 +12,17 @@ class UmScHomeController extends Extension_UmScController {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl_path = dirname(dirname(dirname(dirname(__FILE__)))) . '/templates/';
 		
-		$sHomeHtml = DAO_CommunityToolProperty::get($this->getPortal(),self::PARAM_HOME_HTML, '');
+		$sHomeHtml = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(),self::PARAM_HOME_HTML, '');
 		$tpl->assign('home_html', $sHomeHtml);
 		
-		$tpl->display("file:${tpl_path}portal/sc/internal/home/index.tpl");
+		$tpl->display("file:${tpl_path}portal/sc/module/home/index.tpl");
 	}
 	
 	function configure() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl_path = dirname(dirname(dirname(dirname(__FILE__)))) . '/templates/';
 
-        $sHomeHtml = DAO_CommunityToolProperty::get($this->getPortal(),self::PARAM_HOME_HTML, '');
+        $sHomeHtml = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(),self::PARAM_HOME_HTML, '');
         $tpl->assign('home_html', $sHomeHtml);
 		
 		$tpl->display("file:${tpl_path}portal/sc/config/module/home.tpl");
@@ -32,7 +32,7 @@ class UmScHomeController extends Extension_UmScController {
         // Home 
         @$sHomeHtml = DevblocksPlatform::importGPC($_POST['home_html'],'string','');
         
-		DAO_CommunityToolProperty::set($this->getPortal(), self::PARAM_HOME_HTML, $sHomeHtml);
+		DAO_CommunityToolProperty::set(UmPortalHelper::getCode(), self::PARAM_HOME_HTML, $sHomeHtml);
 	}
 	
 };

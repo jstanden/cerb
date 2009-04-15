@@ -1,6 +1,4 @@
-<div style="border-bottom:1px solid rgb(180,180,180);margin-bottom:10px;">
-<h1 style="margin-bottom:0px;">{$translate->_('portal.sc.public.history.ticket_history')}</h1>
-</div>
+<div class="header"><h1>{$translate->_('portal.sc.public.history.ticket_history')}</h1></div>
 
 <h2>{$translate->_('ticket.subject')|capitalize}: {$ticket.t_subject|escape}</h2>
 
@@ -36,9 +34,7 @@
 {/foreach}
 
 <a name="reply"></a>
-<div style="border-bottom:1px solid rgb(180,180,180);margin-bottom:10px;">
-<h2 style="margin-bottom:0px;">{$translate->_('portal.sc.public.history.add_message')}</h2>
-</div>
+<div class="header"><h2 style="margin-bottom:0px;">{$translate->_('portal.sc.public.history.add_message')}</h2></div>
 <form action="{devblocks_url}c=history{/devblocks_url}" method="post" name="replyForm">
 <input type="hidden" name="a" value="doReply">
 <input type="hidden" name="mask" value="{$ticket.t_mask}">

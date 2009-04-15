@@ -2,7 +2,7 @@
 class UmScHistoryController extends Extension_UmScController {
 	
 	function isVisible() {
-		$umsession = $this->getSession();
+		$umsession = UmPortalHelper::getSession();
 		$active_user = $umsession->getProperty('sc_login', null);
 		return !empty($active_user);
 	}
@@ -11,7 +11,7 @@ class UmScHistoryController extends Extension_UmScController {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl_path = dirname(dirname(dirname(dirname(__FILE__)))) . '/templates/';
 		
-		$umsession = $this->getSession();
+		$umsession = UmPortalHelper::getSession();
 		$active_user = $umsession->getProperty('sc_login', null);
 		
 		$stack = $response->path;
@@ -46,7 +46,7 @@ class UmScHistoryController extends Extension_UmScController {
 				false
 			);
 			$tpl->assign('closed_tickets', $closed_tickets);
-			$tpl->display("file:${tpl_path}portal/sc/internal/history/index.tpl");
+			$tpl->display("file:${tpl_path}portal/sc/module/history/index.tpl");
 			
 		} else {
 			// Secure retrieval (address + mask)
@@ -71,7 +71,7 @@ class UmScHistoryController extends Extension_UmScController {
 				
 				$tpl->assign('ticket', $ticket);
 				$tpl->assign('messages', $messages);
-				$tpl->display("file:${tpl_path}portal/sc/internal/history/display.tpl");						
+				$tpl->display("file:${tpl_path}portal/sc/module/history/display.tpl");						
 			}
 		}
 				
@@ -81,7 +81,7 @@ class UmScHistoryController extends Extension_UmScController {
 		@$mask = DevblocksPlatform::importGPC($_REQUEST['mask'],'string','');
 		@$closed = DevblocksPlatform::importGPC($_REQUEST['closed'],'integer','0');
 		
-		$umsession = $this->getSession();
+		$umsession = UmPortalHelper::getSession();
 		$active_user = $umsession->getProperty('sc_login', null);
 
 		// Secure retrieval (address + mask)
@@ -105,14 +105,14 @@ class UmScHistoryController extends Extension_UmScController {
 		);
 		DAO_Ticket::updateTicket($ticket_id,$fields);
 		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',$this->getPortal(),'history',$ticket[SearchFields_Ticket::TICKET_MASK])));		
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'history',$ticket[SearchFields_Ticket::TICKET_MASK])));		
 	}
 	
 	function doReplyAction() {
 		@$mask = DevblocksPlatform::importGPC($_REQUEST['mask'],'string','');
 		@$content = DevblocksPlatform::importGPC($_REQUEST['content'],'string','');
 		
-		$umsession = $this->getSession();
+		$umsession = UmPortalHelper::getSession();
 		$active_user = $umsession->getProperty('sc_login', null);
 
 		// Secure retrieval (address + mask)
@@ -163,7 +163,7 @@ class UmScHistoryController extends Extension_UmScController {
    
 		CerberusParser::parseMessage($message,array('no_autoreply'=>true));
 		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',$this->getPortal(),'history',$ticket[SearchFields_Ticket::TICKET_MASK])));
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'history',$ticket[SearchFields_Ticket::TICKET_MASK])));
 	}
 	
 };

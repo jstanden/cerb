@@ -6,9 +6,9 @@ class UmScKbController extends Extension_UmScController {
 	const SESSION_ARTICLE_LIST = 'kb_article_list';	
 	
 	function isVisible() {
-		$require_login = DAO_CommunityToolProperty::get($this->getPortal(),self::PARAM_REQUIRE_LOGIN, 0);
+		$require_login = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(),self::PARAM_REQUIRE_LOGIN, 0);
 		
-		$umsession = $this->getSession();
+		$umsession = UmPortalHelper::getSession();
 		$active_user = $umsession->getProperty('sc_login', null);
 		
 		// If we're requiring log in...
@@ -16,7 +16,7 @@ class UmScKbController extends Extension_UmScController {
 			return false;
 		
 		// Disable the KB if no categories were selected
-		$sKbRoots = DAO_CommunityToolProperty::get($this->getPortal(),self::PARAM_KB_ROOTS, '');
+		$sKbRoots = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(),self::PARAM_KB_ROOTS, '');
         $kb_roots = !empty($sKbRoots) ? unserialize($sKbRoots) : array();
         return !empty($kb_roots);
 	}
@@ -25,14 +25,14 @@ class UmScKbController extends Extension_UmScController {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl_path = dirname(dirname(dirname(__FILE__))) . '/templates/';
 		
-		$umsession = $this->getSession();
+		$umsession = UmPortalHelper::getSession();
 		$active_user = $umsession->getProperty('sc_login', null);
 		
 		$stack = $response->path;
 		array_shift($stack); // kb
 		
 		// KB Roots
-		$sKbRoots = DAO_CommunityToolProperty::get($this->getPortal(),self::PARAM_KB_ROOTS, '');
+		$sKbRoots = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(),self::PARAM_KB_ROOTS, '');
         $kb_roots = !empty($sKbRoots) ? unserialize($sKbRoots) : array();
 		
 		$kb_roots_str = '0';
@@ -40,6 +40,30 @@ class UmScKbController extends Extension_UmScController {
 			$kb_roots_str = implode(',', array_keys($kb_roots)); 
 		
 		switch(array_shift($stack)) {
+			case 'search':
+				@$q = DevblocksPlatform::importGPC($_REQUEST['q'],'string','');
+				$tpl->assign('q', $q);
+
+				if(null == ($view = UmScAbstractViewLoader::getView('', UmSc_KbArticleView::DEFAULT_ID))) {
+					$view = new UmSc_KbArticleView();
+				}
+				
+				$view->name = "";
+				$view->params = array(
+					array(
+						DevblocksSearchCriteria::GROUP_OR,
+						new DevblocksSearchCriteria(SearchFields_KbArticle::TITLE,DevblocksSearchCriteria::OPER_FULLTEXT,$q),
+						new DevblocksSearchCriteria(SearchFields_KbArticle::CONTENT,DevblocksSearchCriteria::OPER_FULLTEXT,$q),
+					),
+					new DevblocksSearchCriteria(SearchFields_KbArticle::TOP_CATEGORY_ID,'in',array_keys($kb_roots))
+				);
+				
+				UmScAbstractViewLoader::setView($view->id, $view);
+				$tpl->assign('view', $view);
+				
+				$tpl->display("file:${tpl_path}portal/sc/kb/search_results.tpl");
+				break;
+				
 			case 'article':
 				if(empty($kb_roots))
 					return;
@@ -104,7 +128,7 @@ class UmScKbController extends Extension_UmScController {
 			case 'browse':
 				@$root = intval(array_shift($stack));
 				$tpl->assign('root_id', $root);
-					
+				
 				$categories = DAO_KbCategory::getWhere();
 				$tpl->assign('categories', $categories);
 				
@@ -144,19 +168,30 @@ class UmScKbController extends Extension_UmScController {
 				
 				// Articles
 				
-				if(!empty($root))
-				list($articles, $count) = DAO_KbArticle::search(
-					array(
+				if(null == ($view = UmScAbstractViewLoader::getView('', UmSc_KbArticleView::DEFAULT_ID))) {
+					$view = new UmSc_KbArticleView();
+				}
+				
+				if(!empty($root)) {
+					$view->params = array(
 						new DevblocksSearchCriteria(SearchFields_KbArticle::CATEGORY_ID,'=',$root),
-						new DevblocksSearchCriteria(SearchFields_KbArticle::TOP_CATEGORY_ID,'in',array_keys($kb_roots))
-					),
-					-1,
-					0,
-					null,
-					null,
-					false
-				);
-	    		$tpl->assign('articles', $articles);
+						new DevblocksSearchCriteria(SearchFields_KbArticle::TOP_CATEGORY_ID,'in',array_keys($kb_roots)),
+					);
+				} else {
+					// Most Popular Articles
+					$view->params = array(
+						new DevblocksSearchCriteria(SearchFields_KbArticle::TOP_CATEGORY_ID,'in',array_keys($kb_roots)),
+					);
+				}
+
+				$view->name = "";
+				$view->renderSortBy = SearchFields_KbArticle::VIEWS;
+				$view->renderSortAsc = false;
+				$view->renderLimit = 10;
+
+				UmScAbstractViewLoader::setView($view->id, $view);
+				$tpl->assign('view', $view);
+				
 	    		$tpl->display("file:${tpl_path}portal/sc/kb/index.tpl");
 	    	break;
 		}
@@ -167,7 +202,7 @@ class UmScKbController extends Extension_UmScController {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl_path = dirname(dirname(dirname(__FILE__))) . '/templates/';
 
-		$require_login = DAO_CommunityToolProperty::get($this->getPortal(),self::PARAM_REQUIRE_LOGIN, 0);
+		$require_login = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(),self::PARAM_REQUIRE_LOGIN, 0);
 		$tpl->assign('kb_require_login', $require_login);
 
 		// Knowledgebase
@@ -180,7 +215,7 @@ class UmScKbController extends Extension_UmScController {
 		$categories = DAO_KbCategory::getWhere();
 		$tpl->assign('categories', $categories);
 		
-		$sKbRoots = DAO_CommunityToolProperty::get($this->getPortal(),self::PARAM_KB_ROOTS, '');
+		$sKbRoots = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(),self::PARAM_KB_ROOTS, '');
         $kb_roots = !empty($sKbRoots) ? unserialize($sKbRoots) : array();
         $tpl->assign('kb_roots', $kb_roots);
 
@@ -189,12 +224,70 @@ class UmScKbController extends Extension_UmScController {
 	
 	function saveConfiguration() {
         @$iRequireLogin = DevblocksPlatform::importGPC($_POST['kb_require_login'],'integer',0);
-		DAO_CommunityToolProperty::set($this->getPortal(), self::PARAM_REQUIRE_LOGIN, $iRequireLogin);
+		DAO_CommunityToolProperty::set(UmPortalHelper::getCode(), self::PARAM_REQUIRE_LOGIN, $iRequireLogin);
 		
         // KB
         @$aKbRoots = DevblocksPlatform::importGPC($_POST['category_ids'],'array',array());
         $aKbRoots = array_flip($aKbRoots);
-		DAO_CommunityToolProperty::set($this->getPortal(), self::PARAM_KB_ROOTS, serialize($aKbRoots));
+		DAO_CommunityToolProperty::set(UmPortalHelper::getCode(), self::PARAM_KB_ROOTS, serialize($aKbRoots));
 	}
+};
+
+class UmSc_KbArticleView extends C4_AbstractView {
+	const DEFAULT_ID = 'sc_kb';
 	
-}
+	private $_TPL_PATH = '';
+
+	function __construct() {
+		$this->_TPL_PATH = dirname(dirname(dirname(__FILE__))) . '/templates/';
+		
+		$this->id = self::DEFAULT_ID;
+		$this->name = 'Articles';
+		$this->renderSortBy = 'kb_updated';
+		$this->renderSortAsc = false;
+
+		$this->view_columns = array(
+			SearchFields_KbArticle::TITLE,
+			SearchFields_KbArticle::UPDATED,
+			SearchFields_KbArticle::VIEWS,
+		);
+	}
+
+	function getData() {
+		$objects = DAO_KbArticle::search(
+			$this->params,
+			$this->renderLimit,
+			$this->renderPage,
+			$this->renderSortBy,
+			$this->renderSortAsc
+		);
+		return $objects;
+	}
+
+	function render() {
+		$this->_sanitize();
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('id', $this->id);
+		$tpl->assign('view', $this);
+
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('view_fields', $this->getColumns());
+		$tpl->display('file:' . $this->_TPL_PATH . 'portal/sc/kb/view.tpl');
+	}
+
+	static function getFields() {
+		return SearchFields_KbArticle::getFields();
+	}
+
+	static function getSearchFields() {
+		$fields = self::getFields();
+		unset($fields[SearchFields_KbArticle::ID]);
+		unset($fields[SearchFields_KbArticle::FORMAT]);
+		return $fields;
+	}
+
+	static function getColumns() {
+		return self::getFields();
+	}
+};

@@ -621,7 +621,6 @@ class DAO_KbArticle extends DevblocksORMHelper {
 			"kb.format as %s, ".
 			"kb.content as %s ".
 			"FROM kb_article kb ",
-//			"INNER JOIN team tm ON (tm.id = t.team_id) ".
 			    SearchFields_KbArticle::ID,
 			    SearchFields_KbArticle::TITLE,
 			    SearchFields_KbArticle::UPDATED,
@@ -634,6 +633,7 @@ class DAO_KbArticle extends DevblocksORMHelper {
 			(isset($tables['katc']) ? "LEFT JOIN kb_article_to_category katc ON (kb.id=katc.kb_article_id)" : " ").
 			
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "").
+			"GROUP BY kb.id ".
 			(!empty($sortBy) ? sprintf("ORDER BY %s %s",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : "")
 		;
 		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */

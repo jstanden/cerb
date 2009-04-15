@@ -11,9 +11,7 @@
 	  <tbody>
 	    <tr>
 	      <td colspan="2">
-			<div style="border-bottom:1px solid rgb(180,180,180);margin-bottom:10px;">
-			<h1 style="margin-bottom:0px;">{$translate->_('portal.sc.public.contact.how_can_we_help')}</h1>
-			</div>
+			<div class="header"><h1>{$translate->_('portal.sc.public.contact.how_can_we_help')}</h1></div>
 	      	
 			{foreach from=$dispatch item=to key=reason}
 				{assign var=dispatchKey value=$reason|md5}
@@ -27,9 +25,7 @@
 	</table>
 	</form>
 {elseif !empty($default_from)}
-	<div style="border-bottom:1px solid rgb(180,180,180);margin-bottom:10px;">
-   	<h2 style="margin-bottom:0px;">{$translate->_('portal.sc.public.contact.contact_us')}</h2>
-   	</div>
+	<div class="header"><h2 style="margin-bottom:0px;">{$translate->_('portal.sc.public.contact.contact_us')}</h2></div>
    	{assign var=linked_default_from value="<a href=\""|cat:$default_from|cat:"\">"|cat:$default_from|cat:"</a>"}
    	{'portal.sc.public.contact.write_to_us'|devblocks_translate:$linked_default_from}<br>   	
 {/if}

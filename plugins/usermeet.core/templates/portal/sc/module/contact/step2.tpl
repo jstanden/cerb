@@ -11,9 +11,7 @@
   <tbody>
     <tr>
       <td colspan="2">
-		<div style="border-bottom:1px solid rgb(180,180,180);margin-bottom:10px;">
-		<h1 style="margin-bottom:0px;">{$translate->_('portal.common.open_ticket')}</h1>
-		</div>
+		<div class="header"><h1>{$translate->_('portal.common.open_ticket')}</h1></div>
       
       	<h2>{$translate->_('portal.public.what_email_reply')}</h2>
       	<input type="hidden" name="nature" value="{$sNature}">	

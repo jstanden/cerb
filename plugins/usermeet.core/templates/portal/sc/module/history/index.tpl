@@ -1,7 +1,5 @@
 {if empty($open_tickets) && empty($closed_tickets)}
-	<div style="border-bottom:1px solid rgb(180,180,180);margin-bottom:10px;">
-	<h1 style="margin-bottom:0px;">{$translate->_('portal.sc.public.history.ticket_history')}</h1>
-	</div>
+	<div class="header"><h1>{$translate->_('portal.sc.public.history.ticket_history')}</h1></div>
 
       	{assign var=tagged_active_user_email value="<b>"|cat:$active_user->email|cat:"</b>"}
       	{'portal.sc.public.history.no_messages_from_email'|devblocks_translate:$tagged_active_user_email}<br>	

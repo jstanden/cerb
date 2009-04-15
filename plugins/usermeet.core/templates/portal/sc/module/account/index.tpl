@@ -1,7 +1,5 @@
 <div id="account">
-<div style="border-bottom:1px solid rgb(180,180,180);margin-bottom:10px;">
-<h1 style="margin-bottom:0px;">{$translate->_('portal.sc.public.my_account')}</h1>
-</div>
+<div class="header"><h1>{$translate->_('portal.sc.public.my_account')}</h1></div>
 
 {if !empty($account_error)}
 <div class="error">{$account_error}</div>

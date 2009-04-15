@@ -1,6 +1,4 @@
-<div style="border-bottom:1px solid rgb(180,180,180);margin-bottom:10px;">
-<h1 style="margin-bottom:0px;">{$translate->_('portal.sc.public.register.confirm_registration')}</h1>
-</div>
+<div class="header"><h1>{$translate->_('portal.sc.public.register.confirm_registration')}</h1></div>
 
 {if !empty($register_error)}
 <div class="error">{$register_error}</div>

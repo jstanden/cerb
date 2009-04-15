@@ -1,6 +1,6 @@
-<div style="border-bottom:1px solid rgb(180,180,180);margin-bottom:10px;">
-<h1 style="margin-bottom:0px;">{$translate->_('common.knowledgebase')|capitalize}</h1>
-</div>
+<div id="kb">
+	
+<div class="header"><h1>{$translate->_('common.knowledgebase')|capitalize}</h1></div>
 
 <h2>{$article->title}</h2>
 
@@ -24,3 +24,5 @@
 	<i>[[ {$translate->_('portal.kb.public.no_content')} ]]</i><br>
 {/if}
 <br>
+
+</div>

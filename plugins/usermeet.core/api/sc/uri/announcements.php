@@ -6,7 +6,7 @@ class UmScAnnouncementsController extends Extension_UmScController {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl_path = dirname(dirname(dirname(dirname(__FILE__)))) . '/templates/';
 		
-		$sNewsRss = DAO_CommunityToolProperty::get($this->getPortal(),self::PARAM_NEWS_RSS, '');
+		$sNewsRss = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(),self::PARAM_NEWS_RSS, '');
 		$aNewsRss = !empty($sNewsRss) ? unserialize($sNewsRss) : array();
 		
 		$feeds = array();
@@ -28,14 +28,14 @@ class UmScAnnouncementsController extends Extension_UmScController {
 		
 		$tpl->assign('feeds', $feeds);
 		
-		$tpl->display("file:${tpl_path}portal/sc/internal/announcements/index.tpl");
+		$tpl->display("file:${tpl_path}portal/sc/module/announcements/index.tpl");
 	}
 	
 	function configure() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl_path = dirname(dirname(dirname(dirname(__FILE__)))) . '/templates/';
 
-        $sNewsRss = DAO_CommunityToolProperty::get($this->getPortal(),self::PARAM_NEWS_RSS, '');
+        $sNewsRss = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(),self::PARAM_NEWS_RSS, '');
         $news_rss = !empty($sNewsRss) ? unserialize($sNewsRss) : array();
         $tpl->assign('news_rss', $news_rss);
 		
@@ -57,7 +57,7 @@ class UmScAnnouncementsController extends Extension_UmScController {
         	$aNewsRss[$aNewsRssTitles[$idx]] = $rss;
         }
         
-		DAO_CommunityToolProperty::set($this->getPortal(), self::PARAM_NEWS_RSS, serialize($aNewsRss));
+		DAO_CommunityToolProperty::set(UmPortalHelper::getCode(), self::PARAM_NEWS_RSS, serialize($aNewsRss));
 	}
 	
 };
