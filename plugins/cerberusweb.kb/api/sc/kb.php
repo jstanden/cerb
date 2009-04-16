@@ -265,7 +265,7 @@ class UmSc_KbArticleView extends C4_AbstractView {
 	}
 
 	function render() {
-		$this->_sanitize();
+		//$this->_sanitize();
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('id', $this->id);

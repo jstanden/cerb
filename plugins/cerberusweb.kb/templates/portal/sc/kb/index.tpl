@@ -4,7 +4,7 @@
 
 <div class="search">
 	<form action="{devblocks_url}c=kb&a=search{/devblocks_url}" method="POST">
-		<input class="query" type="text" name="q" value=""><input type="submit" value="search">
+		<input class="query" type="text" name="q" value=""><button type="submit">search</button>
 	</form>
 </div>
 
