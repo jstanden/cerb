@@ -319,7 +319,6 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
     
     private function _sendForwards($event, $is_inbound) {
         @$ticket_id = $event->params['ticket_id'];
-        @$message_id = $event->params['message_id'];
         @$send_worker_id = $event->params['worker_id'];
     	
 		$ticket = DAO_Ticket::getTicket($ticket_id);
@@ -337,7 +336,10 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 		if(empty($notify_emails))
 			return;
 		
-		$message = DAO_Ticket::getMessage($message_id);
+		// [TODO] This could be more efficient
+		$messages = DAO_Ticket::getMessagesByTicket($ticket_id);
+		$message = end($messages); // last message
+		unset($messages);
 		$headers = $message->getHeaders();
 			
 		// The whole flipping Swift section needs wrapped to catch exceptions

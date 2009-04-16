@@ -474,6 +474,8 @@ class CerberusParser {
 				}
 			}
 			
+			// [JAS] It's important to not set the group_id on the ticket until the messages exist
+			// or inbox filters will just abort.
 			$fields = array(
 				DAO_Ticket::MASK => CerberusApplication::generateTicketMask(),
 				DAO_Ticket::SUBJECT => $sSubject,
@@ -482,7 +484,6 @@ class CerberusParser {
 				DAO_Ticket::LAST_WROTE_ID => intval($fromAddressInst->id),
 				DAO_Ticket::CREATED_DATE => $iDate,
 				DAO_Ticket::UPDATED_DATE => $iDate,
-				DAO_Ticket::TEAM_ID => intval($group_id),
 				DAO_Ticket::LAST_ACTION_CODE => CerberusTicketActionCode::TICKET_OPENED,
 			);
 			$id = DAO_Ticket::createTicket($fields);
@@ -599,27 +600,17 @@ class CerberusParser {
 			}
 		}
 
-		// First Thread
+		// Finalize our new ticket details (post-message creation)
 		if($bIsNew && !empty($email_id)) { // First thread
 			DAO_Ticket::updateTicket($id,array(
-			    DAO_Ticket::FIRST_MESSAGE_ID => $email_id
+			    DAO_Ticket::TEAM_ID => $group_id, // this triggers move rules
+			    DAO_Ticket::FIRST_MESSAGE_ID => $email_id,
 		    ));
 		}
 
 		// New ticket processing
 		if($bIsNew) {
-			// Don't replace this with the master event listener
-			if(false !== ($rules = CerberusApplication::runGroupRouting($group_id, $id))) { /* @var $rule Model_GroupInboxFilter */
-				// Check the last match which moved the ticket
-				if(is_array($rules))
-				foreach($rules as $rule) {
-	                // If a rule changed our destination, replace the scope variable $group_id
-	                if(isset($rule->actions['move']) && isset($rule->actions['move']['group_id'])) {
-	                	$group_id = intval($rule->actions['move']['group_id']);
-	                }
-				}
-			}
-				
+			
     		// Allow spam training overloading
 		    if(!empty($enumSpamTraining)) {
 			    if($enumSpamTraining == CerberusTicketSpamTraining::SPAM) {
@@ -633,6 +624,7 @@ class CerberusParser {
 			    } elseif($enumSpamTraining == CerberusTicketSpamTraining::NOT_SPAM) {
 		            CerberusBayes::markTicketAsNotSpam($id);
 		        }
+				
 			} else { // No overload
 			    $out = CerberusBayes::calculateTicketSpamProbability($id);
 
@@ -714,18 +706,6 @@ class CerberusParser {
 			
 			// [TODO] The TICKET_CUSTOMER_REPLY should be sure of this message address not being a worker
 		}
-		
-		// Inbound Reply Event
-	    $eventMgr = DevblocksPlatform::getEventService();
-	    $eventMgr->trigger(
-	        new Model_DevblocksEvent(
-	            'ticket.reply.inbound',
-                array(
-                    'ticket_id' => $id,
-                    'message_id' => $email_id,
-                )
-            )
-	    );
 		
 	    @imap_errors(); // Prevent errors from spilling out into STDOUT
 	    

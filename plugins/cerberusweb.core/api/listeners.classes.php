@@ -422,37 +422,61 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		@$ticket_ids = $event->params['ticket_ids'];
 		@$changed_fields = $event->params['changed_fields'];
 
-		if(!isset($changed_fields[DAO_Ticket::TEAM_ID])
-			|| !isset($changed_fields[DAO_Ticket::CATEGORY_ID]))
-				return;
+		if(!isset($changed_fields[DAO_Ticket::TEAM_ID]))
+			return;
 
 		@$team_id = $changed_fields[DAO_Ticket::TEAM_ID];
 		@$bucket_id = $changed_fields[DAO_Ticket::CATEGORY_ID];
 
-		//============ Check Team Inbox Rules ================
+		$final_moves = array();
+
+		// If we're landing in an inbox we need to check its filters
 		if(!empty($ticket_ids) && !empty($team_id) && empty($bucket_id)) { // moving to an inbox
-			// [JAS]: Build hashes for our event ([TODO] clean up)
-			$tickets = DAO_Ticket::getTickets($ticket_ids);
 
-			$from_ids = array();
-			foreach($tickets as $ticket) { /* @var $ticket CerberusTicket */
-				$from_ids[$ticket->id] = $ticket->first_wrote_address_id;
-			}
-
-			$from_addresses = DAO_Address::getWhere(
-				sprintf("%s IN (%s)",
-				DAO_Address::ID,
-				implode(',', $from_ids)
-			));
-			unset($from_ids);
-
-			if(is_array($tickets))
-			foreach($tickets as $ticket_id => $ticket) {
+			if(is_array($ticket_ids))
+			foreach($ticket_ids as $ticket_id) {
+				// Run the new inbox filters
 				$matches = CerberusApplication::runGroupRouting($team_id, $ticket_id);
+				
+				// If we matched no rules, we're stuck in the destination inbox.
+				if(empty($matches)) {
+					$final_moves[] = $ticket_id;
+					
+				} else {
+					// If more inbox rules want to move this ticket don't consider this finished
+					if(is_array($matches))
+					foreach($matches as $match) {
+		                if(isset($match->actions['move'])) // any moves
+							break;
+						$final_moves[] = $ticket_id;
+					}
+				}
 			}
-			unset($from_addresses);
+			
+		// Anything dropping into a non-inbox bucket is done chain-moving
+		} elseif(!empty($ticket_ids) && !empty($team_id) && !empty($bucket_id)) {
+			$final_moves = $ticket_ids;
+			
 		}
 
+		// Did we have any tickets finish chain-moving?
+		if(!empty($final_moves)) {
+
+			// Trigger an inbound event for all moves			
+			if(is_array($final_moves))
+			foreach($final_moves as $ticket_id) {
+				// Inbound Reply Event
+			    $eventMgr = DevblocksPlatform::getEventService();
+			    $eventMgr->trigger(
+			        new Model_DevblocksEvent(
+			            'ticket.reply.inbound',
+		                array(
+		                    'ticket_id' => $ticket_id,
+		                )
+		            )
+			    );
+			}
+		}
 	}
 	
 	private function _handleTicketClosed($event) {
@@ -508,4 +532,3 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		
 	}
 };
-?>
