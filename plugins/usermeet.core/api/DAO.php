@@ -300,18 +300,41 @@ class DAO_CommunityToolProperty {
 	const PROPERTY_KEY = 'property_key';
 	const PROPERTY_VALUE = 'property_value';
 	
-	// [TODO] Use a cache!!
-	static function get($tool_code, $key, $default=null) {
-		$db = DevblocksPlatform::getDatabaseService();
+	const _CACHE_PREFIX = 'um_comtoolprops_';
+	
+	static function getAllByTool($tool_code) {
+		$cache = DevblocksPlatform::getCacheService();
+
+		if(null == ($props = $cache->load(self::_CACHE_PREFIX.$tool_code))) {
+			$props = array();
+			
+			$db = DevblocksPlatform::getDatabaseService();
+			
+			$sql = sprintf("SELECT property_key, property_value ".
+				"FROM community_tool_property ".
+				"WHERE tool_code = %s ",
+				$db->qstr($tool_code)
+			);
+			$rs = $db->Execute($sql);
+			
+			$props = array();
+			
+			while(!$rs->EOF) {
+				$k = $rs->fields['property_key'];
+				$v = $rs->fields['property_value'];
+				$props[$k] = $v;
+				$rs->MoveNext();
+			}
+			
+			$cache->save($props, self::_CACHE_PREFIX.$tool_code);
+		}		
 		
-		$sql = sprintf("SELECT property_value ".
-			"FROM community_tool_property ".
-			"WHERE tool_code = %s ".
-			"AND property_key = %s",
-			$db->qstr($tool_code),
-			$db->qstr($key)
-		);
-		$val = $db->GetOne($sql);
+		return $props;
+	}
+	
+	static function get($tool_code, $key, $default=null) {
+		$props = self::getAllByTool($tool_code);
+		@$val = $props[$key];
 		
 		return (is_null($val) || (!is_numeric($val) && empty($val))) ? $default : $val;
 	}
@@ -329,6 +352,10 @@ class DAO_CommunityToolProperty {
 			array(self::TOOL_CODE, self::PROPERTY_KEY),
 			false
 		);
+		
+		// Invalidate cache
+		$cache = DevblocksPlatform::getCacheService();
+		$cache->remove(self::_CACHE_PREFIX.$tool_code);
 	}
 };
 
