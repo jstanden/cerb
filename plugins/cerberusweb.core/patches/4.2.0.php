@@ -146,4 +146,12 @@ if(isset($columns['POS']) && 0!=strcasecmp('mediumint',$columns['POS']->type)) {
 	$db->Execute($sql);
 }
 
+// ===========================================================================
+// Enable the new KB plugin by default
+
+if(isset($tables['cerb_plugin'])) {
+	$sql = sprintf("UPDATE cerb_plugin SET enabled=1 WHERE id = %s",$db->qstr('cerberusweb.kb'));
+	$db->Execute($sql);
+}
+
 return TRUE;

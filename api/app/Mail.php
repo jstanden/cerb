@@ -369,7 +369,6 @@ class CerberusMail {
 		            'ticket.reply.inbound',
 	                array(
 	                    'ticket_id' => $ticket_id,
-//	                    'message_id' => $message_id,
 	                )
 	            )
 		    );
@@ -381,7 +380,6 @@ class CerberusMail {
 		            'ticket.reply.outbound',
 	                array(
 	                    'ticket_id' => $ticket_id,
-//	                    'message_id' => $message_id,
 	                    'worker_id' => $worker->id
 	                )
 	            )
@@ -817,7 +815,6 @@ class CerberusMail {
 		            'ticket.reply.outbound',
 	                array(
 	                    'ticket_id' => $ticket_id,
-	                    //'message_id' => $message_id,
 	                    'worker_id' => $worker_id
 	                )
 	            )

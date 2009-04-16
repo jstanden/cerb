@@ -65,6 +65,6 @@ class ChCorePatchContainer extends DevblocksPatchContainerExtension {
 		$this->registerPatch(new DevblocksPatch('cerberusweb.core',809,$file_prefix.'4.0.0_rc1.php',''));
 		$this->registerPatch(new DevblocksPatch('cerberusweb.core',826,$file_prefix.'4.1.0.php',''));
 		$this->registerPatch(new DevblocksPatch('cerberusweb.core',827,$file_prefix.'4.1.1.php',''));
-		$this->registerPatch(new DevblocksPatch('cerberusweb.core',829,$file_prefix.'4.2.0.php',''));
+		$this->registerPatch(new DevblocksPatch('cerberusweb.core',830,$file_prefix.'4.2.0.php',''));
 	}
 };
