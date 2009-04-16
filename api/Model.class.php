@@ -3846,7 +3846,6 @@ class Model_CustomField {
 	const TYPE_CHECKBOX = 'C';
 	const TYPE_DROPDOWN = 'D';
 	const TYPE_DATE = 'E';
-//	const TYPE_FILE = 'F';
 	const TYPE_MULTI_PICKLIST = 'M';
 	const TYPE_NUMBER = 'N';
 	const TYPE_SINGLE_LINE = 'S';

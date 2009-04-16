@@ -6514,7 +6514,6 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 			case Model_CustomField::TYPE_MULTI_CHECKBOX:	
 			case Model_CustomField::TYPE_MULTI_PICKLIST:
 			case Model_CustomField::TYPE_URL:
-			case Model_CustomField::TYPE_FILE:
 				$table = 'custom_field_stringvalue';	
 				break;
 			// clobvalue
@@ -6568,7 +6567,6 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 
 			switch($field->type) {
 				case Model_CustomField::TYPE_SINGLE_LINE:
-				case Model_CustomField::TYPE_FILE:
 				case Model_CustomField::TYPE_URL:
 					$value = (strlen($value) > 255) ? substr($value,0,255) : $value;
 					self::setFieldValue($source_ext_id, $source_id, $field_id, $value);
@@ -6725,12 +6723,6 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 					$do['cf_'.$field_id] = array('value' => $field_value);
 					break;
 					
-				case Model_CustomField::TYPE_FILE:
-					// [TODO] Bulk file
-					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'string','');
-					$do['cf_'.$field_id] = array('value' => $field_value);
-					break;
-					
 				case Model_CustomField::TYPE_DATE:
 					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'string','');
 					$do['cf_'.$field_id] = array('value' => $field_value);
@@ -6812,16 +6804,6 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 
 				case Model_CustomField::TYPE_NUMBER:
 				case Model_CustomField::TYPE_WORKER:
-					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'integer',0);
-					if(0 != strlen($field_value)) {
-						DAO_CustomFieldValue::setFieldValue($source_ext_id, $source_id, $field_id, intval($field_value));
-					} else {
-						DAO_CustomFieldValue::unsetFieldValue($source_ext_id, $source_id, $field_id);
-					}
-					break;
-					
-				case Model_CustomField::TYPE_FILE:
-					// [TODO] Store file in filesystem
 					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'integer',0);
 					if(0 != strlen($field_value)) {
 						DAO_CustomFieldValue::setFieldValue($source_ext_id, $source_id, $field_id, intval($field_value));
