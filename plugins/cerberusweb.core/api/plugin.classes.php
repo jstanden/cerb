@@ -229,6 +229,11 @@ class ChPageController extends DevblocksControllerExtension {
 		$preBodyRenderers = DevblocksPlatform::getExtensions('cerberusweb.renderer.prebody', true);
 		if(!empty($preBodyRenderers))
 			$tpl->assign('prebody_renderers', $preBodyRenderers);
+
+		// Postbody Renderers
+		$postBodyRenderers = DevblocksPlatform::getExtensions('cerberusweb.renderer.postbody', true);
+		if(!empty($postBodyRenderers))
+			$tpl->assign('postbody_renderers', $postBodyRenderers);
 		
 		// Timings
 		$tpl->assign('render_time', (microtime(true) - DevblocksPlatform::getStartTime()));

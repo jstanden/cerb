@@ -44,4 +44,10 @@
 	{$translate->_('header.no_page')}
 {/if}
 
+{if !empty($postbody_renderers)}
+	{foreach from=$postbody_renderers item=renderer}
+		{if !empty($renderer)}{$renderer->render()}{/if}
+	{/foreach}
+{/if}
+
 {include file="$core_tpl/footer.tpl"}

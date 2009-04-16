@@ -57,6 +57,14 @@ abstract class Extension_AppPreBodyRenderer extends DevblocksExtension {
 	function render() { }
 };
 
+abstract class Extension_AppPostBodyRenderer extends DevblocksExtension {
+	function __construct($manifest) {
+		$this->DevblocksExtension($manifest,1);
+	}
+	
+	function render() { }
+};
+
 abstract class CerberusPageExtension extends DevblocksExtension {
 	function __construct($manifest) {
 		$this->DevblocksExtension($manifest,1);
