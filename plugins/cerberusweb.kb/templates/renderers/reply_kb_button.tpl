@@ -1,4 +1,1 @@
-{*if $active_worker->hasPriv('timetracking.actions.create')*}
-
-<button type="button" onclick=""><img src="{devblocks_url}c=resource&p=cerberusweb.kb&f=images/book_open2.gif{/devblocks_url}" align="top"> {$translate->_('common.knowledgebase')|capitalize}</button>
-{*/if*}
+<button type="button" onclick="genericAjaxGet('replyToolbarOptions{$message->id}','c=kb.ajax&a=showTicketReplyKbSearch&msg_id={$message->id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.kb&f=images/book_open2.gif{/devblocks_url}" align="top"> {$translate->_('common.knowledgebase')|capitalize}</button>

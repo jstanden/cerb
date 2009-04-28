@@ -1,19 +1,17 @@
-<input type="hidden" name="c" value="display">
-<input type="hidden" name="a" value="sendReply">
-<input type="hidden" name="id" value="{$message->id}">
-<input type="hidden" name="ticket_id" value="{$ticket->id}">
 <div class="block" style="width:98%;margin:10px;">
+
+<form id="reply{$message->id}_part1">
 <table cellpadding="2" cellspacing="0" border="0" width="100%">
 	<tr>
 		<td><h2>{if $is_forward}{$translate->_('display.ui.forward')|capitalize}{else}{$translate->_('display.ui.reply')|capitalize}{/if}</h2></td>
 	</tr>
 	<tr>
-		<td>
+		<td width="100%">
 			<table cellpadding="1" cellspacing="0" border="0" width="100%">
 				{assign var=assigned_worker_id value=$ticket->next_worker_id}
 				{if $assigned_worker_id > 0 && $assigned_worker_id != $active_worker->id && isset($workers.$assigned_worker_id)}
 				<tr>
-					<td width="100%" colspan="2">
+					<td width="100%">
 						<div class="error">
 							{'display.reply.warn_assigned'|devblocks_translate:$workers.$assigned_worker_id->getName()}.
 						</div>
@@ -23,15 +21,15 @@
 				
 				{if $is_forward}
 					<tr>
-						<td width="0%" nowrap="nowrap"><b>{$translate->_('message.header.to')|capitalize}: </b></td>
-						<td width="100%" align="left">
+						<td width="1%" nowrap="nowrap"><b>{$translate->_('message.header.to')|capitalize}: </b></td>
+						<td width="99%" align="left">
 							<input type="text" size="45" id="replyForm_to" name="to" value="" style="width:50%;border:1px solid rgb(180,180,180);padding:2px;">
 						</td>
 					</tr>
 				{else}
 					<tr>
-						<td width="0%" nowrap="nowrap">{$translate->_('ticket.requesters')|capitalize}: </td>
-						<td width="100%" align="left">
+						<td width="1%" nowrap="nowrap">{$translate->_('ticket.requesters')|capitalize}: </td>
+						<td width="99%" align="left">
 							<span id="displayRequesters{$message->id}">
 							{foreach from=$ticket->getRequesters() item=requester name=requesters}
 							<b>{$requester->email}</b>{if !$smarty.foreach.requesters.last}, {/if}
@@ -46,38 +44,57 @@
 				{/if}
 				
 				<tr>
-					<td width="0%" nowrap="nowrap">{$translate->_('message.header.cc')|capitalize}: </td>
-					<td width="100%" align="left">
+					<td width="1%" nowrap="nowrap">{$translate->_('message.header.cc')|capitalize}: </td>
+					<td width="99%" align="left">
 						<input type="text" size="45" id="replyForm_cc" name="cc" value="" style="width:50%;border:1px solid rgb(180,180,180);padding:2px;">					
 					</td>
 				</tr>
 				<tr>
-					<td width="0%" nowrap="nowrap">{$translate->_('message.header.bcc')|capitalize}: </td>
-					<td width="100%" align="left">
+					<td width="1%" nowrap="nowrap">{$translate->_('message.header.bcc')|capitalize}: </td>
+					<td width="99%" align="left">
 						<input type="text" size="45" id="replyForm_bcc" name="bcc" value="" style="width:50%;border:1px solid rgb(180,180,180);padding:2px;">					
 					</td>
 				</tr>
 				<tr>
-					<td width="0%" nowrap="nowrap">{$translate->_('message.header.subject')|capitalize}: </td>
-					<td width="100%" align="left">
+					<td width="1%" nowrap="nowrap">{$translate->_('message.header.subject')|capitalize}: </td>
+					<td width="99%" align="left">
 						<input type="text" size="45" id="replyForm_subject" name="subject" value="{if $is_forward}Fwd: {/if}{$ticket->subject|escape}" style="width:50%;border:1px solid rgb(180,180,180);padding:2px;">					
 					</td>
 				</tr>
 			</table>
+
+			{assign var=ticket_team_id value=$ticket->team_id}
+			{assign var=headers value=$message->getHeaders()}
+			<button type="button" onclick="genericAjaxPanel('c=display&a=showTemplatesPanel&type=2&reply_id={$message->id}&txt_name=reply_{$message->id}',this,false,'550px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/text_rich.gif{/devblocks_url}" align="top"> {$translate->_('display.reply.email_templates')|capitalize}</button>
+			<button type="button" onclick="genericAjaxGet('','c=tickets&a=getComposeSignature&group_id={$ticket->team_id}',{literal}function(o){insertAtCursor(document.getElementById('reply_{/literal}{$message->id}{literal}'),o.responseText);document.getElementById('reply_{/literal}{$message->id}{literal}').focus();}{/literal});"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_edit.gif{/devblocks_url}" align="top"> {$translate->_('display.reply.insert_sig')|capitalize}</button>
+			{* Plugin Toolbar *}
+			{if !empty($reply_toolbaritems)}
+				{foreach from=$reply_toolbaritems item=renderer}
+					{if !empty($renderer)}{$renderer->render($message)}{/if}
+				{/foreach}
+			{/if}
 		</td>
 	</tr>
+</table>
+</form>
+
+<div id="replyToolbarOptions{$message->id}"></div>
+
+<form id="reply{$message->id}_part2" action="{devblocks_url}{/devblocks_url}" method="POST" enctype="multipart/form-data">
+<table cellpadding="2" cellspacing="0" border="0" width="100%">
 	<tr>
 		<td>
-		{assign var=ticket_team_id value=$ticket->team_id}
-		{assign var=headers value=$message->getHeaders()}
-<button type="button" onclick="genericAjaxPanel('c=display&a=showTemplatesPanel&type=2&reply_id={$message->id}&txt_name=reply_{$message->id}',this,false,'550px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/text_rich.gif{/devblocks_url}" align="top"> {$translate->_('display.reply.email_templates')|capitalize}</button>
-<button type="button" onclick="genericAjaxGet('','c=tickets&a=getComposeSignature&group_id={$ticket->team_id}',{literal}function(o){insertAtCursor(document.getElementById('reply_{/literal}{$message->id}{literal}'),o.responseText);document.getElementById('reply_{/literal}{$message->id}{literal}').focus();}{/literal});"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_edit.gif{/devblocks_url}" align="top"> {$translate->_('display.reply.insert_sig')|capitalize}</button>
-{* Plugin Toolbar *}
-{if !empty($reply_toolbaritems)}
-	{foreach from=$reply_toolbaritems item=renderer}
-		{if !empty($renderer)}{$renderer->render($message)}{/if}
-	{/foreach}
-{/if}
+<!-- {* [TODO] This is ugly but gets the job done for now, giving toolbar plugins above their own <form> scope *} -->
+<input type="hidden" name="c" value="display">
+<input type="hidden" name="a" value="sendReply">
+<input type="hidden" name="id" value="{$message->id}">
+<input type="hidden" name="ticket_id" value="{$ticket->id}">
+
+<!-- {* Copy these dynamically so a plugin dev doesn't need to conflict with the reply <form> *} -->
+{if $is_forward}<input type="hidden" name="to" value="">{/if}
+<input type="hidden" name="cc" value="">
+<input type="hidden" name="bcc" value="">
+<input type="hidden" name="subject" value="">
 
 {if $is_forward}
 <textarea name="content" rows="20" cols="80" id="reply_{$message->id}" class="reply" style="width:98%;border:1px solid rgb(180,180,180);padding:5px;">
@@ -232,14 +249,17 @@
 	</tr>
 	<tr>
 		<td>
+			<!-- {* These buttons are kind of funky.  They have to combine two <form> blocks since there is a user-plugin land toolbar in the middle of them, which should be able to have their own <form> scope *} -->
 			{if $is_forward}
-				<button type="button" onclick="if(this.form.to.value.length > 0) this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('display.ui.forward')|capitalize}</button>
+				<button type="button" onclick="this.form.to.value=document.getElementById('replyForm_to').value;this.form.cc.value=document.getElementById('replyForm_cc').value;this.form.bcc.value=document.getElementById('replyForm_bcc').value;this.form.subject.value=document.getElementById('replyForm_subject').value;if(0==this.form.to.value.length)return;this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('display.ui.forward')|capitalize}</button>
 			{else}
-				<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('display.ui.send_message')}</button>
+				<button type="button" onclick="this.form.cc.value=document.getElementById('replyForm_cc').value;this.form.bcc.value=document.getElementById('replyForm_bcc').value;this.form.subject.value=document.getElementById('replyForm_subject').value;this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('display.ui.send_message')}</button>
 			{/if}
 			<button type="button" onclick="clearDiv('reply{$message->id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> {$translate->_('display.ui.discard')|capitalize}</button>
 			<button type="button" onclick="clearDiv('reply{$message->id}');genericAjaxGet('','c=display&a=discardAndSurrender&ticket_id={$ticket->id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/flag_white.gif{/devblocks_url}" align="top"> {$translate->_('display.ui.discard_surrender')}</button>
 		</td>
 	</tr>
 </table>
+</form>
+
 </div>
