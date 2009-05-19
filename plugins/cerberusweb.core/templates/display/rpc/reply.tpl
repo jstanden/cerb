@@ -11,7 +11,7 @@
 				{assign var=assigned_worker_id value=$ticket->next_worker_id}
 				{if $assigned_worker_id > 0 && $assigned_worker_id != $active_worker->id && isset($workers.$assigned_worker_id)}
 				<tr>
-					<td width="100%">
+					<td width="100%" colspan="2">
 						<div class="error">
 							{'display.reply.warn_assigned'|devblocks_translate:$workers.$assigned_worker_id->getName()}.
 						</div>
