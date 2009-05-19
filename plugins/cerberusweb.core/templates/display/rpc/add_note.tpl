@@ -1,3 +1,4 @@
+<form id="reply{$message->id}_form" action="{devblocks_url}{/devblocks_url}" method="POST" enctype="multipart/form-data">
 <input type="hidden" name="c" value="display">
 <input type="hidden" name="a" value="doAddNote">
 <input type="hidden" name="id" value="{$message->id}">
@@ -40,9 +41,10 @@
 	{/if}
 	<tr>
 		<td nowrap="nowrap" valign="top">
-			<button type="button" onclick="genericAjaxPost('reply{$message->id}','{$message->id}notes','c=display&a=doAddNote');clearDiv('reply{$message->id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> Add Note</button>
+			<button type="button" onclick="genericAjaxPost('reply{$message->id}_form','{$message->id}notes','c=display&a=doAddNote');clearDiv('reply{$message->id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> Add Note</button>
 			<button type="button" onclick="clearDiv('reply{$message->id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> Cancel</button>
 		</td>
 	</tr>
 </table>
 </div>
+</form>
