@@ -506,10 +506,9 @@ class ChReportWorkerReplies extends Extension_Report {
 			$hits = intval($rs_workers->fields['hits']);
 			$worker_id = intval($rs_workers->fields['worker_id']);
 			
-			if(!isset($workers[$worker_id]))
-				continue;
-
-			echo $workers[$worker_id]->getName() , "\t" , $hits , "\n";
+			if(isset($workers[$worker_id]))
+				echo $workers[$worker_id]->getName() , "\t" , $hits , "\n";
+			
 			$rs_workers->MoveNext();
 		}
 	}
