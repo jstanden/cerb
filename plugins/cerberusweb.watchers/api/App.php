@@ -367,7 +367,7 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 				return;
 				
 			// Ignore bounces
-			if($sender_split[1]=="postmaster" || $sender_split[1] == "mailer-daemon")
+			if($sender_split[0]=="postmaster" || $sender_split[0] == "mailer-daemon")
 				return;
 			
 			// Ignore autoresponses autoresponses

@@ -537,7 +537,7 @@ class CerberusMail {
 					return;
 					
 				// Ignore bounces
-				if($first_split[1]=="postmaster" || $first_split[1] == "mailer-daemon")
+				if($first_split[0]=="postmaster" || $first_split[0] == "mailer-daemon")
 					return;
 				
 				// Ignore autoresponses to autoresponses
