@@ -77,26 +77,24 @@ class ChSignInPage extends CerberusPageExtension {
 				unset($original_path[0]);
 			
 			$devblocks_response = new DevblocksHttpResponse($original_path, $original_query);
+
+			// Worker
+			$worker = CerberusApplication::getActiveWorker();
+
+			// Timezone
+			if(null != ($timezone = DAO_WorkerPref::get($worker->id,'timezone'))) {
+				$_SESSION['timezone'] = $timezone;
+				@date_default_timezone_set($timezone);
+			}
+			
+			// Language
+			if(null != ($lang_code = DAO_WorkerPref::get($worker->id,'locale'))) {
+				$_SESSION['locale'] = $lang_code;
+				DevblocksPlatform::setLocale($lang_code);
+			}
+			
 			if($devblocks_response->path[0]=='login') {
-				$session = DevblocksPlatform::getSessionService();
-				$visit = $session->getVisit();
-		        $tour_enabled = false;
-				if(!empty($visit) && !is_null($visit->getWorker())) {
-		        	$worker = $visit->getWorker();
-		        	
-					$tour_enabled = intval(DAO_WorkerPref::get($worker->id, 'assist_mode', 1));
-					
-					// Timezone
-					if(null != ($timezone = DAO_WorkerPref::get($worker->id,'timezone'))) {
-						$_SESSION['timezone'] = $timezone;
-						@date_default_timezone_set($timezone);
-					}
-					// Language
-					if(null != ($lang_code = DAO_WorkerPref::get($worker->id,'locale'))) {
-						$_SESSION['locale'] = $lang_code;
-						DevblocksPlatform::setLocale($lang_code);
-					}
-				}
+				$tour_enabled = intval(DAO_WorkerPref::get($worker->id, 'assist_mode', 1));
 				$next_page = ($tour_enabled) ?  'welcome' : 'home';				
 				$devblocks_response = new DevblocksHttpResponse(array($next_page));
 			}
