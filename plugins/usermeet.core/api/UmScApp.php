@@ -107,6 +107,11 @@ class UmScApp extends Extension_UsermeetTool {
 				$controller->handleRequest(new DevblocksHttpRequest($stack));
 				break;
 				
+			case 'rss':
+				$controller = new UmScRssController(null);
+				$controller->handleRequest(new DevblocksHttpRequest($stack));
+				break;
+				
 			case 'captcha':
                 header('Cache-control: max-age=0', true); // 1 wk // , must-revalidate
                 header('Expires: ' . gmdate('D, d M Y H:i:s',time()-604800) . ' GMT'); // 1 wk
@@ -401,6 +406,33 @@ class UmScAbstractViewLoader {
 		$inst->renderSortAsc = $model->renderSortAsc;
 
 		return $inst;
+	}
+};
+
+class UmScRssController extends Extension_UmScController {
+	function __construct($manifest=null) {
+		parent::__construct($manifest);
+	}
+	
+	function handleRequest(DevblocksHttpRequest $request) {
+		@$path = $request->path;
+				
+		if(empty($path) || !is_array($path))
+			return;
+
+		$uri = array_shift($path);
+		
+		$rss_controllers = DevblocksPlatform::getExtensions('usermeet.sc.rss.controller');
+		
+		foreach($rss_controllers as $extension_id => $rss_controller) {
+			if(0==strcasecmp($rss_controller->params['uri'],$uri)) {
+				$controller = DevblocksPlatform::getExtension($extension_id, true);
+				$controller->handleRequest(new DevblocksHttpRequest($path));
+				return;
+			}
+		}
+		
+		// [TOOD] subcontroller not found
 	}
 };
 

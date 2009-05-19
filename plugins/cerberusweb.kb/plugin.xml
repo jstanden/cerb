@@ -135,6 +135,20 @@
 			</params>
 		</extension>
 		
+		<!-- Support Center RSS Controller -->
+
+		<extension point="usermeet.sc.rss.controller">
+			<id>cerberusweb.kb.sc.rss.controller</id>
+			<name>Knowledgebase RSS</name>
+			<class>
+				<file>api/sc/rss/kb.php</file>
+				<name>UmScKbRssController</name>
+			</class>
+			<params>
+				<param key="uri" value="kb" />
+			</params>
+		</extension>
+		
 		<!-- Config Tabs -->
 		<!-- 
 		<extension point="cerberusweb.config.tab">

@@ -105,14 +105,14 @@ abstract class Extension_UsermeetTool extends DevblocksExtension implements Devb
     
 };
 
-abstract class Extension_UsermeetWidget extends DevblocksExtension {
+abstract class Extension_UmScRssController extends DevblocksExtension {
     function __construct($manifest) {
-        // [TODO] Refactor to __construct
-        parent::DevblocksExtension($manifest);
+        parent::__construct($manifest);
     }
-    
-    /*
-     */
+	
+	function handleRequest(DevblocksHttpRequest $request) {
+		//$path = $request->path;
+	}
 };
 
 abstract class Extension_UmScController extends DevblocksExtension implements DevblocksHttpRequestHandler {
