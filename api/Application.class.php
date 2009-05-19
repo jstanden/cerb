@@ -553,14 +553,17 @@ class CerberusApplication extends DevblocksApplication {
 				* back and forth between them, ignore the last move action in the chain  
 				* which is trying to start over.
 				*/
-				if(!isset($moveMap[$ticket_id])) {
-					$moveMap[$ticket_id] = array();
-				} else {
-					if(isset($moveMap[$ticket_id][$group_id])) {
-						$dont_move = true;
+				if(isset($match->actions['move'])) { 
+					if(!isset($moveMap[$ticket_id])) {
+						$moveMap[$ticket_id] = array();
+					} else {
+						if(isset($moveMap[$ticket_id][$group_id])) {
+							$dont_move = true;
+						}
 					}
+					
+					$moveMap[$ticket_id][$group_id] = $match->id;
 				}
-				$moveMap[$ticket_id][$group_id] = $match->id;
 	
 				// Stop any move actions if we're going to loop again
 				if($dont_move) {
