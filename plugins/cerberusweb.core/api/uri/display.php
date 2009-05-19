@@ -1140,12 +1140,10 @@ class ChDisplayPage extends CerberusPageExtension {
 			SearchFields_Task::SOURCE_EXTENSION,
 			SearchFields_Task::DUE_DATE,
 			SearchFields_Task::WORKER_ID,
-			SearchFields_Task::COMPLETED_DATE,
 		);
 		$view->params = array(
 			SearchFields_Task::SOURCE_EXTENSION => new DevblocksSearchCriteria(SearchFields_Task::SOURCE_EXTENSION,'=','cerberusweb.tasks.ticket'),
 			SearchFields_Task::SOURCE_ID => new DevblocksSearchCriteria(SearchFields_Task::SOURCE_ID,'=',$ticket_id),
-			SearchFields_Task::IS_COMPLETED => new DevblocksSearchCriteria(SearchFields_Task::IS_COMPLETED,'=',0),
 		);
 		$tpl->assign('view', $view);
 		
