@@ -570,7 +570,7 @@ class ChContactsPage extends CerberusPageExtension {
 			),
 			25,
 			0,
-			DAO_Note::CREATED,
+			SearchFields_Note::CREATED,
 			false,
 			false
 		);
