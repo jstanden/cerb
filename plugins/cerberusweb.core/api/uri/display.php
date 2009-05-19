@@ -1093,7 +1093,6 @@ class ChDisplayPage extends CerberusPageExtension {
 			$view->params = array(
 			);
 			$view->renderLimit = 10;
-			$view->renderPage = 0;
 			$view->renderSortBy = SearchFields_Ticket::TICKET_CREATED_DATE;
 			$view->renderSortAsc = false;
 		}
@@ -1103,6 +1102,7 @@ class ChDisplayPage extends CerberusPageExtension {
 			SearchFields_Ticket::REQUESTER_ID => new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ID,'in',array_keys($requesters)),
 			SearchFields_Ticket::TICKET_DELETED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,DevblocksSearchCriteria::OPER_EQ,0)
 		);
+		$view->renderPage = 0;
 		$tpl->assign('view', $view);
 		
 		C4_AbstractViewLoader::setView($view->id,$view);
