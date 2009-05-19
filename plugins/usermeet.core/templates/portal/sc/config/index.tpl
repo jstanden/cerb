@@ -14,7 +14,7 @@
 <table cellpadding="0" cellspacing="0" border="0">
 <tr>
 	<td valign="top" width="0%" nowrap="nowrap">
-		<textarea cols="65" rows="8" style="width:90%;height:100px;" name="footer_html">{$footer_html|escape}</textarea><br>
+		<textarea cols="65" rows="8" name="footer_html">{$footer_html|escape}</textarea><br>
 	</td>
 	<td valign="top" width="100%" style="padding:10px;">
 		<i>{$translate->_('portal.sc.cfg.example')}</i><br>
