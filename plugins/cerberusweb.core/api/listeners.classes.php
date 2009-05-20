@@ -390,11 +390,14 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		// Re-open any conversations past their reopen date
 		$fields = array(
 			DAO_Ticket::IS_CLOSED => 0,
+			DAO_Ticket::IS_WAITING => 0,
 			DAO_Ticket::DUE_DATE => 0
 		);
-		$where = sprintf("%s = %d AND %s > 0 AND %s < %d",
+		$where = sprintf("(%s = %d OR %s = %d) AND %s > 0 AND %s < %d",
+			DAO_Ticket::IS_WAITING,
+			1,
 			DAO_Ticket::IS_CLOSED,
-			CerberusTicketStatus::CLOSED,
+			1,
 			DAO_Ticket::DUE_DATE,
 			DAO_Ticket::DUE_DATE,
 			time()
