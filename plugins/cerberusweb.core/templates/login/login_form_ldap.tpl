@@ -4,7 +4,6 @@
 <input type="hidden" name="c" value="login">
 <input type="hidden" name="a" value="authenticateLDAP">
 <input type="hidden" name="original_path" value="{$original_path}">
-<input type="hidden" name="original_query" value="{$original_query}">
 <table cellpadding="0" cellspacing="2">
 <tr>
 	<td align="right" valign="middle">LDAP Server:</td>

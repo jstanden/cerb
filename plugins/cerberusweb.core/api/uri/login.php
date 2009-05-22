@@ -63,7 +63,7 @@ class ChSignInPage extends CerberusPageExtension {
 		@$email = DevblocksPlatform::importGPC($_POST['email']);
 		@$password = DevblocksPlatform::importGPC($_POST['password']);
 		@$original_path = explode(',',DevblocksPlatform::importGPC($_POST['original_path']));
-		@$original_query_str = DevblocksPlatform::importGPC($_POST['original_query']);
+//		@$original_query_str = DevblocksPlatform::importGPC($_POST['original_query']);
 		
 		$manifest = DevblocksPlatform::getExtension('login.default');
 		$inst = $manifest->createInstance(); /* @var $inst CerberusLoginPageExtension */
@@ -72,11 +72,12 @@ class ChSignInPage extends CerberusPageExtension {
 		
 		if($inst->authenticate(array('email' => $email, 'password' => $password))) {
 			//authentication passed
-			$original_query = $url_service->parseQueryString($original_query_str);
+			//$original_query = $url_service->parseQueryString($original_query_str);
 			if($original_path[0]=='')
 				unset($original_path[0]);
 			
-			$devblocks_response = new DevblocksHttpResponse($original_path, $original_query);
+			//$devblocks_response = new DevblocksHttpResponse($original_path, $original_query);
+			$devblocks_response = new DevblocksHttpResponse($original_path);
 
 			// Worker
 			$worker = CerberusApplication::getActiveWorker();
@@ -93,7 +94,7 @@ class ChSignInPage extends CerberusPageExtension {
 				DevblocksPlatform::setLocale($lang_code);
 			}
 			
-			if($devblocks_response->path[0]=='login') {
+			if(!empty($devblocks_response->path) && $devblocks_response->path[0]=='login') {
 				$tour_enabled = intval(DAO_WorkerPref::get($worker->id, 'assist_mode', 1));
 				$next_page = ($tour_enabled) ?  'welcome' : 'home';				
 				$devblocks_response = new DevblocksHttpResponse(array($next_page));
@@ -112,7 +113,7 @@ class ChSignInPage extends CerberusPageExtension {
 		@$dn = DevblocksPlatform::importGPC($_POST['dn']);
 		@$password = DevblocksPlatform::importGPC($_POST['password']);
 		@$original_path = explode(',',DevblocksPlatform::importGPC($_POST['original_path']));
-		@$original_query_str = DevblocksPlatform::importGPC($_POST['original_query']);
+//		@$original_query_str = DevblocksPlatform::importGPC($_POST['original_query']);
 		
 		$manifest = DevblocksPlatform::getExtension('login.ldap');
 		$inst = $manifest->createInstance(); /* @var $inst CerberusLoginPageExtension */
@@ -121,12 +122,13 @@ class ChSignInPage extends CerberusPageExtension {
 		
 		if($inst->authenticate(array('server' => $server, 'port' => $port, 'dn' => $dn, 'password' => $password))) {
 			//authentication passed
-			$original_query = $url_service->parseQueryString($original_query_str);
+//			$original_query = $url_service->parseQueryString($original_query_str);
 			if($original_path[0]=='')
 				unset($original_path[0]);
 			
-			$devblocks_response = new DevblocksHttpResponse($original_path, $original_query);
-			if($devblocks_response->path[0]=='login') {
+			//$devblocks_response = new DevblocksHttpResponse($original_path, $original_query);
+			$devblocks_response = new DevblocksHttpResponse($original_path);
+			if(!empty($devblocks_response->path) && $devblocks_response->path[0]=='login') {
 				$session = DevblocksPlatform::getSessionService();
 				$visit = $session->getVisit();
 		        $tour_enabled = false;

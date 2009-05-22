@@ -170,9 +170,12 @@ class ChPageController extends DevblocksControllerExtension {
 			$controller = 'home';
 
 	    // [JAS]: Require us to always be logged in for Cerberus pages
-	    // [TODO] This should probably consult with the page itself for ::authenticated()
-		if(empty($visit))
-			$controller = 'login';
+		if(empty($visit) && 0 != strcasecmp($controller,'login')) {
+			$query = array();
+			if(!empty($response->path))
+				$query = array('url'=> urlencode(implode('/',$response->path)));
+			DevblocksPlatform::redirect(new DevblocksHttpRequest(array('login'),$query));
+		}
 
 	    $page_id = $this->_getPageIdByUri($controller);
 		@$page = DevblocksPlatform::getExtension($page_id, true); /* @var $page CerberusPageExtension */

@@ -58,22 +58,8 @@ class DefaultLoginModule extends CerberusLoginPageExtension {
 		$translate = DevblocksPlatform::getTranslationService();
 		$tpl->assign('translate', $translate);
 		
-		$request = DevblocksPlatform::getHttpRequest();
-		$prefix = '';
-		$query_str = '';
-		foreach($request->query as $key=>$val) {
-			$query_str .= $prefix . $key . '=' . $val;
-			$prefix = '&';
-		}
-		
-		//$url_service = DevblocksPlatform::getUrlService();
-		//$original_url = $url_service->writeDevblocksHttpIO($request);
-		
-		//$tpl->assign('original_url', $original_url);
-		$original_path = (sizeof($request->path)==0) ? 'login' : implode(',',$request->path);
-		
-		$tpl->assign('original_path', $original_path);
-		$tpl->assign('original_query', $query_str);
+		@$redir_path = explode('/',urldecode(DevblocksPlatform::importGPC($_REQUEST["url"],"string","")));
+		$tpl->assign('original_path', (count($redir_path)==0) ? 'login' : implode(',',$redir_path));
 		
 		$tpl->display('file:' . dirname(dirname(__FILE__)) . '/templates/login/login_form_default.tpl');
 	}
@@ -124,17 +110,8 @@ class LDAPLoginModule extends CerberusLoginPageExtension {
 		$translate = DevblocksPlatform::getTranslationService();
 		$tpl->assign('translate', $translate);
 		
-		// set up redirect (to return to original page if redirected to login page)
-		$request = DevblocksPlatform::getHttpRequest();
-		$prefix = '';
-		$query_str = '';
-		foreach($request->query as $key=>$val) {
-			$query_str .= $prefix . $key . '=' . $val;
-			$prefix = '&';
-		}
-		$original_path = (sizeof($request->path)==0) ? 'login' : implode(',',$request->path);
-		$tpl->assign('original_path', $original_path);
-		$tpl->assign('original_query', $query_str);
+		@$redir_path = explode('/',urldecode(DevblocksPlatform::importGPC($_REQUEST["url"],"string","")));
+		$tpl->assign('original_path', (count($redir_path)==0) ? 'login' : implode(',',$redir_path));
 
 		// TODO: pull this from a config area
 		$server = 'localhost';
