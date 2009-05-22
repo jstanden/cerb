@@ -233,7 +233,7 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 				$next_worker_id
 			)))
 				return;
-				
+
 			// Sanitize and combine all the destination addresses
 			$notify_emails = $this->_getMailingListFromMatches($matches);
 			
@@ -1076,7 +1076,15 @@ class Model_WatcherMailFilter {
 								$passed++;
 						break;
 						
-					case 'next_worker_id': 
+					case 'next_worker_id':
+						// If it's an assigned event, we only care about the filter's owner
+						if(!empty($event) && 0==strcasecmp($event,'ticket_assignment')) {
+							if(intval($value)==intval($filter->worker_id)) {
+								$passed++;
+								break;
+							}
+						}
+
 						if(intval($value)==intval($ticket->next_worker_id))
 							$passed++;
 						break;					
