@@ -608,6 +608,20 @@ class CerberusParser {
 		    ));
 		}
 
+		// Reply notifications (new messages are handled by 'move' listener)
+		if(!$bIsNew) {
+			// Inbound Reply Event
+		    $eventMgr = DevblocksPlatform::getEventService();
+		    $eventMgr->trigger(
+		        new Model_DevblocksEvent(
+		            'ticket.reply.inbound',
+	                array(
+	                    'ticket_id' => $id,
+	                )
+	            )
+		    );
+		}
+
 		// New ticket processing
 		if($bIsNew) {
 			
