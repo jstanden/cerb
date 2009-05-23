@@ -1,10 +1,20 @@
-<form action="{devblocks_url}{/devblocks_url}" method="post">
+<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmInboxFilter">
 <input type="hidden" name="c" value="groups">
 <input type="hidden" name="a" value="saveTabInboxAdd">
 <input type="hidden" name="group_id" value="{$group_id}">
 <input type="hidden" name="id" value="{$filter->id}">
+{if !empty($view_id)}<input type="hidden" name="view_id" value="{$view_id}">{/if}
 
 <h2>Add Inbox Routing Rule</h2>
+
+{if !empty($message_headers)}
+<div id="" style="height:50px;padding:5px;overflow:auto;border:1px solid rgb(180,180,180);background-color:rgb(255,255,255);">
+	{foreach from=$message_headers item=v key=k}
+		<b>{$k|capitalize}</b>: {$v|escape|nl2br}<br>
+	{/foreach}
+</div>
+<br>
+{/if}
 
 <div style="height:400;overflow:auto;">
 <b>Rule Name:</b> (e.g. Spam Bounces)<br>
@@ -244,6 +254,10 @@
 </div>
 <br>
 
-<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')}</button>
+{if !empty($view_id)}
+	<button type="button" onclick="ajax.postAndReloadView('frmInboxFilter','view{$view_id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
+{else}
+	<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')}</button>
+{/if}
 </form>
 <br>

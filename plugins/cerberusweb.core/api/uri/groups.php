@@ -151,6 +151,8 @@ class ChGroupsPage extends CerberusPageExtension  {
    	function showInboxFilterPanelAction() {
    		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
    		@$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'integer',0);
+		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer',0);
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
 
 		$active_worker = CerberusApplication::getActiveWorker();
 
@@ -159,6 +161,7 @@ class ChGroupsPage extends CerberusPageExtension  {
 		$tpl->assign('path', $tpl_path);
    		
 		$tpl->assign('group_id', $group_id);
+		$tpl->assign('view_id', $view_id);
 		
 		if(null != ($filter = DAO_GroupInboxFilter::get($id))) {
 			$tpl->assign('filter', $filter);
@@ -167,6 +170,18 @@ class ChGroupsPage extends CerberusPageExtension  {
 		// Make sure we're allowed to change this group's setup
 		if(!$active_worker->isTeamManager($group_id) && !$active_worker->is_superuser) {
 			return;
+		}
+		
+		// Load the example ticket + headers if provided
+		if(!empty($ticket_id)) {
+			$ticket = DAO_Ticket::getTicket($ticket_id);
+			$tpl->assign('ticket', $ticket);
+	
+			$messages = $ticket->getMessages();
+			$message = array_shift($messages); /* @var $message CerberusMessage */
+			$message_headers = $message->getHeaders();
+			$tpl->assign('message', $message);
+			$tpl->assign('message_headers', $message_headers);
 		}
 		
 		$category_name_hash = DAO_Bucket::getCategoryNameHash();
@@ -201,6 +216,7 @@ class ChGroupsPage extends CerberusPageExtension  {
    		
    		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
    		@$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'integer');
+   		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
    		
 	    @$active_worker = CerberusApplication::getActiveWorker();
 	    if(!$active_worker->isTeamManager($group_id) && !$active_worker->is_superuser)
@@ -456,6 +472,33 @@ class ChGroupsPage extends CerberusPageExtension  {
    			DAO_GroupInboxFilter::update($id, $fields);
    		}
    		
+		if(!empty($view_id) && null != ($view = C4_AbstractViewLoader::getView('C4_TicketView', $view_id))) {
+			/* @var $view C4_TicketView */
+
+			// Loop through all the tickets in this inbox
+	   		list($inbox_tickets, $null) = DAO_Ticket::search(
+	   			null,
+	   			array(
+	   				new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,'=',$group_id),
+	   				new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CATEGORY_ID,'=','0'),
+	   			),
+	   			-1,
+	   			0,
+	   			null,
+	   			null,
+	   			false
+	   		);
+	   		
+	   		if(is_array($inbox_tickets))
+	   		foreach($inbox_tickets as $inbox_ticket) { /* @var $inbox_ticket CerberusTicket */
+	   			// Run only this new rule against all tickets in the group inbox
+	   			CerberusApplication::runGroupRouting($group_id, intval($inbox_ticket[SearchFields_Ticket::TICKET_ID]), $id);
+	   		}
+	   		
+	   		$view->render();
+			return;
+		}
+		
    		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('groups',$group_id,'inbox')));
    	}
 	
