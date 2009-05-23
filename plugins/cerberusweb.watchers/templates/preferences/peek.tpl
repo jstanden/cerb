@@ -104,7 +104,7 @@
 		</td>
 		<td valign="top">
 			<select name="value_next_worker_id" onchange="document.getElementById('chkRuleNextWorkerId').checked=(''==selectValue(this)?false:true);">
-				<option value=""></option>
+				<option value="0">- {$translate->_('common.nobody')} -</option>
 				{foreach from=$workers item=worker}
 					<option value="{$worker->id}" {if $crit_next_worker.value==$worker->id}selected="selected"{/if}>{$worker->getName()}</option>
 				{/foreach}

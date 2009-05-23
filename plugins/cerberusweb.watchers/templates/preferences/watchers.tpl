@@ -55,7 +55,9 @@
 							<br>
 						{elseif $crit_key=='next_worker_id'}
 							{assign var=worker_id value=$crit.value}
-							{if isset($workers.$worker_id)}
+							{if empty($worker_id)}
+							Assigned to = <b>{$translate->_('common.nobody')}</b>
+							{elseif isset($workers.$worker_id)}
 							Assigned to = 
 								<b>{$workers.$worker_id->getName()}</b>
 							<br>
