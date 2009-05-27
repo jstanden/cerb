@@ -2445,7 +2445,7 @@ class Rest_KBArticlesController extends Ch_RestController {
 		$category->addChild('parent_id', $cats[$tree_idx]->parent_id);
 		$category->addChild('name', $cats[$tree_idx]->name);
 		$category->addChild('article_count', $tree[$cats[$tree_idx]->parent_id][$tree_idx]);
-		if (is_array($tree[$tree_idx]))
+		if(isset($tree[$tree_idx]) && is_array($tree[$tree_idx]))
 			foreach($tree[$tree_idx] as $subtree_idx => $count)
 				$this->_addSubCategory($subtree_idx, $tree, $cats, $category);
 	}
