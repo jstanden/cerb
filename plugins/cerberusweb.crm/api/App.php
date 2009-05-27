@@ -263,7 +263,7 @@ class CrmPage extends CerberusPageExtension {
 		 */
 		$license = CerberusLicense::getInstance();
 		if(empty($id) && (empty($license['serial']) || (!empty($license['serial']) && isset($license['a'])))
-			&& 10 <= DAO_FeedbackEntry::getItemCount()) {
+			&& 10 <= DAO_CrmOpportunity::getItemCount()) {
 			$tpl->display('file:' . $tpl_path . 'crm/opps/rpc/trial.tpl');
 			return;
 		}
@@ -1064,6 +1064,11 @@ class DAO_CrmOpportunity extends C4_ORMHelper {
 		}
 		
 		return $objects;
+	}
+	
+	static function getItemCount() {
+		$db = DevblocksPlatform::getDatabaseService();
+		return $db->GetOne("SELECT count(id) FROM crm_opportunity");
 	}
 	
 	static function maint() {
