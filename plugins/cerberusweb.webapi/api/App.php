@@ -463,8 +463,12 @@ abstract class Ch_RestController implements DevblocksHttpRequestHandler {
 		return $contents;
 	}
 	
-	protected function _renderResults($results, $fields, $element='element', $container='elements') {
+	protected function _renderResults($results, $fields, $element='element', $container='elements', $attribs=array()) {
 		$xml =& new SimpleXMLElement("<$container/>");
+
+		if(is_array($attribs))
+		foreach($attribs as $k=>$v)
+			$xml->addAttribute($k, htmlspecialchars($v));
 
 		foreach($results as $result) {
 			$e =& $xml->addChild($element);
@@ -644,17 +648,22 @@ class Rest_AddressesController extends Ch_RestController {
 			}
 		}
 
-		list($results, $null) = DAO_Address::search(
+		list($results, $total) = DAO_Address::search(
 			array(),
 			$params,
 			50,
 			$p_page,
 			SearchFields_Address::EMAIL,
 			true,
-			false
+			true
 		);
 		
-		$this->_renderResults($results, $search_params, 'address', 'addresses');
+		$attribs = array(
+			'page_results' => count($results),
+			'total_results' => intval($total)
+		);
+		
+		$this->_renderResults($results, $search_params, 'address', 'addresses', $attribs);
 	}
 	
 	private function _postValidateAction($path) {
@@ -956,17 +965,22 @@ class Rest_OrgsController extends Ch_RestController {
 			}
 		}
 
-		list($orgs, $null) = DAO_ContactOrg::search(
+		list($orgs, $total) = DAO_ContactOrg::search(
 			array(),
 			$params,
 			50,
 			$p_page,
 			DAO_ContactOrg::NAME,
 			true,
-			false
+			true
 		);
 		
-		$this->_renderResults($orgs, $search_params, 'org', 'orgs');
+		$attribs = array(
+			'page_results' => count($orgs),
+			'total_results' => intval($total)
+		);
+		
+		$this->_renderResults($orgs, $search_params, 'org', 'orgs', $attribs);
 	}
 	
 	private function _getIdAction($path) {
@@ -1260,17 +1274,22 @@ class Rest_TicketsController extends Ch_RestController {
 			}
 		}
 
-		list($results, $null) = DAO_Ticket::search(
+		list($results, $total) = DAO_Ticket::search(
 			array(SearchFields_Ticket::TICKET_ID),
 			$params,
 			50,
 			$p_page,
 			SearchFields_Ticket::TICKET_UPDATED_DATE,
 			false,
-			false
+			true
 		);
 		
-		$this->_renderResults($results, $search_params, 'ticket', 'tickets');
+		$attribs = array(
+			'page_results' => count($results),
+			'total_results' => intval($total)
+		);
+		
+		$this->_renderResults($results, $search_params, 'ticket', 'tickets', $attribs);
 	}
 	
 	private function _getIdAction($path) {
@@ -2168,17 +2187,22 @@ class Rest_TasksController extends Ch_RestController {
 			}
 		}
 
-		list($tasks, $null) = DAO_Task::search(
+		list($tasks, $total) = DAO_Task::search(
 			array(),
 			$params,
 			50,
 			$p_page,
 			DAO_Task::DUE_DATE,
 			true,
-			false
+			true
 		);
 		
-		$this->_renderResults($tasks, $search_params, 'task', 'tasks');
+		$attribs = array(
+			'page_results' => count($tasks),
+			'total_results' => intval($total)
+		);
+		
+		$this->_renderResults($tasks, $search_params, 'task', 'tasks', $attribs);
 	}
 	
 	private function _getIdAction($path, $params=array()) {
@@ -2330,16 +2354,21 @@ class Rest_KBArticlesController extends Ch_RestController {
 		}
 		$params[SearchFields_KbArticle::TOP_CATEGORY_ID] = new DevblocksSearchCriteria(SearchFields_KbArticle::TOP_CATEGORY_ID,'in',array_keys(@$keychain->rights['acl_kb_topics']));
 		
-		list($results, $null) = DAO_KbArticle::search(
+		list($results, $total) = DAO_KbArticle::search(
 			$params,
 			50,
 			$p_page,
 			SearchFields_KbArticle::ID,
 			false,
-			false
+			true
+		);
+
+		$attribs = array(
+			'page_results' => count($results),
+			'total_results' => intval($total)
 		);
 		
-		$this->_renderResults($results, $search_params, 'article', 'articles');
+		$this->_renderResults($results, $search_params, 'article', 'articles', $attribs);
 	}
 	
 	private function _getIdAction($path,$keychain) {
