@@ -1044,6 +1044,19 @@ class DAO_WorkerEvent extends DevblocksORMHelper {
 		return null;
 	}
 	
+	static function getUnreadCountByWorker($worker_id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = sprintf("SELECT count(*) ".
+			"FROM worker_event ".
+			"WHERE worker_id = %d ".
+			"AND is_read = 0",
+			$worker_id
+		);
+		
+		return $db->GetOne($sql);
+	}
+	
 	/**
 	 * @param ADORecordSet $rs
 	 * @return Model_WorkerEvent[]
