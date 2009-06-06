@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tmx SYSTEM "tmx14.dtd">
+<tmx version="1.4">
+	<header datatype="winres" segtype="sentence" adminlang="en-us" srclang="en-us" o-tmf="abc" />
+	<body>
+
+		<!-- Manifest -->
+
+		<tu tuid='fnr.title'>
+			<tuv xml:lang="en_US"><seg>Fetch &amp; Retrieve</seg></tuv>
+		</tu>
+
+		<!-- Config -->
+
+		<tu tuid='fnr.ui.cfg.modify'>
+			<tuv xml:lang="en_US"><seg>Modify '%s'</seg></tuv>
+		</tu>
+		
+		<tu tuid='fnr.ui.cfg.resources'>
+			<tuv xml:lang="en_US"><seg>Resources</seg></tuv>
+		</tu>
+		<tu tuid='fnr.ui.cfg.resources.add'>
+			<tuv xml:lang="en_US"><seg>add new resource</seg></tuv>
+		</tu>
+		<tu tuid='fnr.ui.cfg.resources.name.hint'>
+			<tuv xml:lang="en_US"><seg>(e.g. Wiki, Blog, Forums)</seg></tuv>
+		</tu>
+		<tu tuid='fnr.ui.cfg.resources.url'>
+			<tuv xml:lang="en_US"><seg>Search URL</seg></tuv>
+		</tu>
+		<tu tuid='fnr.ui.cfg.topic'>
+			<tuv xml:lang="en_US"><seg>Topic</seg></tuv>
+		</tu>
+		<tu tuid='fnr.ui.cfg.topics'>
+			<tuv xml:lang="en_US"><seg>Topics</seg></tuv>
+		</tu>
+		<tu tuid='fnr.ui.cfg.topics.add'>
+			<tuv xml:lang="en_US"><seg>add new topic</seg></tuv>
+		</tu>
+		<tu tuid='fnr.ui.cfg.topics.name.hint'>
+			<tuv xml:lang="en_US"><seg>(e.g. Cerb4 Help)</seg></tuv>
+		</tu>
+
+		<tu tuid='fnr.portal.sc.cfg.topics'>
+			<tuv xml:lang="en_US"><seg>Choose which topics to expose to this portal:</seg></tuv>
+		</tu>
+
+	</body>
+</tmx>

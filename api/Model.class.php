@@ -3718,56 +3718,6 @@ class Model_Community {
 	public $name = '';
 }
 
-class Model_FnrTopic {
-	public $id = 0;
-	public $name = '';
-
-	function getResources() {
-		$where = sprintf("%s = %d",
-		DAO_FnrExternalResource::TOPIC_ID,
-		$this->id
-		);
-		$resources = DAO_FnrExternalResource::getWhere($where);
-		return $resources;
-	}
-};
-
-class Model_FnrQuery {
-	public $id;
-	public $query;
-	public $created;
-	public $source;
-	public $no_match;
-};
-
-class Model_FnrExternalResource {
-	public $id = 0;
-	public $name = '';
-	public $url = '';
-	public $topic_id = 0;
-
-	public static function searchResources($resources, $query) {
-		$feeds = array();
-		$topics = DAO_FnrTopic::getWhere();
-
-		if(is_array($resources))
-		foreach($resources as $resource) { /* @var $resource Model_FnrExternalResource */
-			try {
-				$url = str_replace("#find#",rawurlencode($query),$resource->url);
-				$feed = Zend_Feed::import($url);
-				if($feed->count())
-					$feeds[] = array(
-					'name' => $resource->name,
-					'topic_name' => @$topics[$resource->topic_id]->name,
-					'feed' => $feed
-				);
-			} catch(Exception $e) {}
-		}
-		
-		return $feeds;
-	}
-};
-
 class Model_MailTemplate {
 	const TYPE_COMPOSE = 1;
 	const TYPE_REPLY = 2;

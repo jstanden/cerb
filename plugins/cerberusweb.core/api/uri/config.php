@@ -856,18 +856,6 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	}
 	
 	// Ajax
-	function showTabFnrAction() {
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
-		$tpl->assign('path', $this->_TPL_PATH);
-		
-		$topics = DAO_FnrTopic::getWhere();
-		$tpl->assign('topics', $topics);
-		
-		$tpl->display('file:' . $this->_TPL_PATH . 'configuration/tabs/fnr/index.tpl');
-	}
-	
-	// Ajax
 	function showTabPluginsAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";

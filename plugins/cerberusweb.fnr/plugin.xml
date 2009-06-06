@@ -1,0 +1,142 @@
+<!DOCTYPE plugin PUBLIC "-//WebGroup Media LLC//Devblocks Framework Plugin//EN" "http://www.devblocks.com/dtd/1.0/plugin.dtd">
+<plugin>
+	<id>cerberusweb.fnr</id>
+	<name>Cerberus Helpdesk: Fetch &amp; Retrieve</name>
+	<description>Provides an external search inside the helpdesk for various help resources (e.g. blogs, forums, wikis). Very flexible but may require custom code for integration with some resources.</description>
+	<author>WebGroup Media, LLC.</author>
+	<revision>0</revision>
+	<link>http://wiki.cerb4.com/wiki/Search_your_organization%27s_resources_using_Fetch_%26_Retrieve</link>
+	<class>
+		<file>api/Plugin.php</file>
+		<name>ChFnrPlugin</name>
+	</class>
+	
+	<!-- Exported Classes -->
+	
+	<class_loader>
+		<file path="api/App.php">
+			<class name="DAO_FnrExternalResource" />
+			<class name="DAO_FnrQuery" />
+			<class name="DAO_FnrTopic" />
+			<class name="Model_FnrExternalResource" />
+			<class name="Model_FnrQuery" />
+			<class name="Model_FnrTopic" />
+		</file>
+	</class_loader>
+	
+	<!--
+	<acl>
+		<priv id="feedback.actions.create" label="acl.feedback.actions.create" />
+		<priv id="feedback.actions.update_all" label="acl.feedback.actions.update_all" />
+		<priv id="feedback.actions.delete_all" label="acl.feedback.actions.delete_all" />
+		<priv id="feedback.view.actions.export" label="acl.feedback.view.actions.export" />
+	</acl>
+	-->
+	
+	<extensions>
+	
+		<!-- Patch Containers -->
+		
+		<!--
+		<extension point="devblocks.patch.container">
+			<id>feedback.patches</id>
+			<name>Feedback Patches</name>
+			<class>
+				<file>api/Patch.php</file>
+				<name>ChFeedbackPatchContainer</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		-->
+	
+		<!-- Translations -->
+
+		<extension point="devblocks.i18n.strings">
+			<id>fnr.translations</id>
+			<name>Fetch &amp; Retrieve Strings</name>
+			<class>
+				<file>api/Plugin.php</file>
+				<name>ChFnrTranslations</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+	
+		<!-- Controllers -->
+		
+ 		<extension point="devblocks.controller">
+			<id>fnr.controller.ajax</id>
+			<name>FnR Ajax Controller</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChFnrAjaxController</name>
+			</class>
+			<params>
+				<param key="uri" value="fnr.ajax" />
+			</params>
+		</extension>
+	
+		<!-- Research Tab -->
+		
+		<extension point="cerberusweb.research.tab">
+			<id>fnr.research.tab</id>
+			<name>FnR Tab</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChFnrResearchTab</name>
+			</class>
+			<params>
+				<param key="uri" value="fnr" />
+				<param key="title" value="fnr.title" />
+			</params>
+		</extension>
+
+		<!-- Ticket Reply Toolbar -->
+			
+		<!--
+		<extension point="cerberusweb.reply.toolbaritem">
+			<id>fnr.reply.toolbaritem</id>
+			<name>FnR Reply Toolbar</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChFnrReplyToolbarButton</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		-->
+		
+		<!-- Support Center Module -->
+		
+		<extension point="usermeet.sc.controller">
+			<id>fnr.sc.controller</id>
+			<name>Fetch &amp; Retrieve</name>
+			<class>
+				<file>api/sc/resources.php</file>
+				<name>ChFnrScController</name>
+			</class>
+			<params>
+				<param key="uri" value="resources" />
+				<param key="menu_title" value="search resources" />
+				<param key="icon" value="images/help2.gif" />
+			</params>
+		</extension>
+	
+		<!-- Config Tabs -->
+		
+		<extension point="cerberusweb.config.tab">
+			<id>fnr.config.tab</id>
+			<name>Fetch &amp; Retrieve Tab</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChFnrConfigTab</name>
+			</class>
+			<params>
+				<param key="uri" value="fnr" />
+				<param key="title" value="Fetch &amp; Retrieve" />
+			</params>
+		</extension>
+
+	</extensions>
+</plugin>
