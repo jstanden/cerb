@@ -59,4 +59,16 @@ if(isset($tables['worker_workspace_list'])) {
 	}
 }
 
+// ===========================================================================
+// Expand ticket.mask max size from 16 to 32
+
+if(isset($tables['ticket'])) {
+	$columns = $datadict->MetaColumns('ticket');
+	
+	if(isset($columns['MASK'])) {
+		$sql = sprintf("ALTER TABLE ticket CHANGE COLUMN mask mask varchar(32) DEFAULT '' NOT NULL");
+		$db->Execute($sql);
+	}
+}
+
 return TRUE;
