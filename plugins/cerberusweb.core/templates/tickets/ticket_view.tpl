@@ -229,7 +229,7 @@
 				<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','not_waiting');">{$translate->_('mail.not_waiting')|lower}</button>
 			</div>
 
-			{if $view->id=='overview_all' || $view->id=='mail_workflow'}{*Only on Workflow/Overview*}
+			{if $view->id=='overview_all' || $view->id=='mail_workflow' || $view->id=='search'}{*Only on Workflow/Overview*}
 				{$translate->_('common.keyboard')|lower}: 
 					{if $active_worker->hasPriv('core.ticket.view.actions.bulk_update')}(<b>b</b>) {$translate->_('mail.bulk_update')|lower}{/if} 
 					{if $active_worker->hasPriv('core.ticket.actions.close')}(<b>c</b>) {$translate->_('common.close')|lower}{/if} 

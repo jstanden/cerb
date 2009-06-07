@@ -30,6 +30,8 @@
 <br>
 
 <script type="text/javascript">
+{counter name=tab_idx assign=tab_idx start=0 print=false}
+{assign var=tab_idx_workflow value=$tab_idx}
 {literal}
 var tabView = new YAHOO.widget.TabView();
 
@@ -39,7 +41,10 @@ tabView.addTab( new YAHOO.widget.Tab({
     cacheData: false
 }));
 
-{/literal}{if $active_worker->hasPriv('core.mail.overview')}{literal}
+{/literal}{if $active_worker->hasPriv('core.mail.overview')}
+	{counter name=tab_idx assign=tab_idx print=false}
+	{assign var=tab_idx_overview value=$tab_idx}
+{literal}
 tabView.addTab( new YAHOO.widget.Tab({
     label: '{/literal}{$translate->_('mail.overview')|capitalize|escape:'quotes'}{literal}',
     dataSrc: '{/literal}{devblocks_url}ajax.php?c=tickets&a=showOverviewTab&request={$request_path|escape:'url'}{/devblocks_url}{literal}',
@@ -47,7 +52,10 @@ tabView.addTab( new YAHOO.widget.Tab({
 }));
 {/literal}{/if}{literal}
 
-{/literal}{if $active_worker->hasPriv('core.mail.search')}{literal}
+{/literal}{if $active_worker->hasPriv('core.mail.search')}
+	{counter name=tab_idx assign=tab_idx print=false}
+	{assign var=tab_idx_search value=$tab_idx}
+{literal}
 tabView.addTab( new YAHOO.widget.Tab({
     label: '{/literal}{$translate->_('common.search')|capitalize|escape:'quotes'}{literal}',
     dataSrc: '{/literal}{devblocks_url}ajax.php?c=tickets&a=showSearchTab&request={$request_path|escape:'url'}{/devblocks_url}{literal}',
@@ -72,7 +80,10 @@ tabView.appendTo('mailTabs');
 tabView.addListener('activeTabChange', function(e) {
 	switch(tabView.get('activeIndex')) {
 		// Workflow keys
-		case 0:
+		{/literal}
+		{if is_numeric($tab_idx_workflow)}
+		case {$tab_idx_workflow}:
+		{literal}
 			CreateKeyHandler(function (e) {
 				var mykey = getKeyboardKey(e);
 				
@@ -128,9 +139,13 @@ tabView.addListener('activeTabChange', function(e) {
 				}
 			});
 			break;
+			{/literal}{/if}{literal}
 			
 		// Overview keys
-		case 1:
+		{/literal}
+		{if is_numeric($tab_idx_overview)}
+		case {$tab_idx_overview}:
+		{literal}
 			CreateKeyHandler(function (e) {
 				var mykey = getKeyboardKey(e);
 				
@@ -186,6 +201,57 @@ tabView.addListener('activeTabChange', function(e) {
 				}
 			});
 			break;
+			{/literal}{/if}{literal}
+			
+		// Search keys
+		{/literal}
+		{if is_numeric($tab_idx_search)}
+		case {$tab_idx_search}:
+		{literal}
+			CreateKeyHandler(function (e) {
+				var mykey = getKeyboardKey(e);
+				
+				switch(mykey) {
+					case "b":  // bulk update
+					case "B":
+						try {
+							document.getElementById('btnsearchBulkUpdate').click();
+						} catch(e){}
+						break;
+					case "c":  // close
+					case "C":
+						try {
+							document.getElementById('btnsearchClose').click();
+						} catch(e){}
+						break;
+					case "s":  // spam
+					case "S":
+						try {
+							document.getElementById('btnsearchSpam').click();
+						} catch(e){}
+						break;
+					case "t":  // take
+					case "T":
+						try {
+							document.getElementById('btnsearchTake').click();
+						} catch(e){}
+						break;
+					case "u":  // surrender
+					case "U":
+						try {
+							document.getElementById('btnsearchSurrender').click();
+						} catch(e){}
+						break;
+					case "x":  // delete
+					case "X":
+						try {
+							document.getElementById('btnsearchDelete').click();
+						} catch(e){}
+						break;
+				}
+			});
+			break;
+			{/literal}{/if}{literal}
 			
 		default:
 			CreateKeyHandler(function (e) {});
