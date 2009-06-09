@@ -41,7 +41,7 @@ class ChResearchPage extends CerberusPageExtension {
 		$tpl->assign('tab_manifests', $tab_manifests);
 		
 		@$tab_selected = array_shift($stack);
-		if(empty($tab_selected)) $tab_selected = 'links';
+		if(empty($tab_selected)) $tab_selected = '';
 		$tpl->assign('tab_selected', $tab_selected);
 		
 		$tpl->display('file:' . $this->_TPL_PATH . 'research/index.tpl');

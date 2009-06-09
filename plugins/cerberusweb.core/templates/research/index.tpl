@@ -19,12 +19,12 @@ tabView.addTab( new YAHOO.widget.Tab({
 }));
 *}
 
-{foreach from=$tab_manifests item=tab_manifest}
+{foreach from=$tab_manifests item=tab_manifest name=research_tabs}
 {if !isset($tab_manifest->params.acl) || $worker->hasPriv($tab_manifest->params.acl)}
 {literal}tabView.addTab(new YAHOO.widget.Tab({{/literal}
     label: '{$tab_manifest->params.title|devblocks_translate|escape:'quotes'}',
     dataSrc: '{devblocks_url}ajax.php?c=research&a=showTab&ext_id={$tab_manifest->id}&request={$request_path|escape:'url'}{/devblocks_url}',
-    {if $tab_selected==$tab_manifest->params.uri}active: true,{/if}
+    {if $tab_selected==$tab_manifest->params.uri || (empty($tab_selected) && $smarty.foreach.research_tabs.first)}active: true,{/if}
     cacheData: false
 {literal}}));{/literal}
 {/if}
