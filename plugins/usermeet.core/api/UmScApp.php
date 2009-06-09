@@ -23,6 +23,10 @@ class UmScApp extends Extension_UsermeetTool {
 			if(is_array($enabled_modules))
 			foreach($enabled_modules as $module_id) {
 				$module = DevblocksPlatform::getExtension($module_id,true,true); /* @var $module Extension_UmScController */
+				
+				if(empty($module) || !$module instanceof Extension_UmScController)
+					continue;
+				
 				@$module_uri = $module->manifest->params['uri'];
 	
 				if($module->isVisible())
