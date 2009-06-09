@@ -45,13 +45,13 @@ class ChFnrScController extends Extension_UmScController {
 					$feeds = array();
 					$where = null;
 					
-					if(!empty($sources)) {
+					if(!empty($fnr_topics)) {
 						$where = sprintf("%s IN (%s)",
-							DAO_FnrExternalResource::ID,
+							DAO_FnrExternalResource::TOPIC_ID,
 							implode(',', array_keys($fnr_topics))
 						);
 					}
-					
+				
 					$resources = DAO_FnrExternalResource::getWhere($where);
 					$feeds = Model_FnrExternalResource::searchResources($resources, $q);
 				
