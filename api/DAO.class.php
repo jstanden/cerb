@@ -981,6 +981,8 @@ class DAO_WorkerRole extends DevblocksORMHelper {
 };
 
 class DAO_WorkerEvent extends DevblocksORMHelper {
+	const CACHE_COUNT_PREFIX = 'workerevent_count_';
+	
 	const ID = 'id';
 	const CREATED_DATE = 'created_date';
 	const WORKER_ID = 'worker_id';
@@ -1001,6 +1003,12 @@ class DAO_WorkerEvent extends DevblocksORMHelper {
 		$db->Execute($sql);
 		
 		self::update($id, $fields);
+		
+		// Invalidate the worker notification count cache
+		if(isset($fields[self::WORKER_ID])) {
+			$cache = DevblocksPlatform::getCacheService();
+			self::clearCountCache($fields[self::WORKER_ID]);
+		}
 		
 		return $id;
 	}
@@ -1046,15 +1054,21 @@ class DAO_WorkerEvent extends DevblocksORMHelper {
 	
 	static function getUnreadCountByWorker($worker_id) {
 		$db = DevblocksPlatform::getDatabaseService();
+		$cache = DevblocksPlatform::getCacheService();
 		
-		$sql = sprintf("SELECT count(*) ".
-			"FROM worker_event ".
-			"WHERE worker_id = %d ".
-			"AND is_read = 0",
-			$worker_id
-		);
+	    if(null === ($count = $cache->load(self::CACHE_COUNT_PREFIX.$worker_id))) {
+			$sql = sprintf("SELECT count(*) ".
+				"FROM worker_event ".
+				"WHERE worker_id = %d ".
+				"AND is_read = 0",
+				$worker_id
+			);
+			
+			$count = $db->GetOne($sql);
+			$cache->save($count, self::CACHE_COUNT_PREFIX.$worker_id);
+	    }
 		
-		return $db->GetOne($sql);
+		return intval($count);
 	}
 	
 	/**
@@ -1089,6 +1103,11 @@ class DAO_WorkerEvent extends DevblocksORMHelper {
 		$db->Execute(sprintf("DELETE FROM worker_event WHERE id IN (%s)", $ids_list));
 		
 		return true;
+	}
+
+	static function clearCountCache($worker_id) {
+		$cache = DevblocksPlatform::getCacheService();
+		$cache->remove(self::CACHE_COUNT_PREFIX.$worker_id);
 	}
 
     /**

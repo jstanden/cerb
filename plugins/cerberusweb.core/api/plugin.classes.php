@@ -160,6 +160,8 @@ class ChPageController extends DevblocksControllerExtension {
 		$session = DevblocksPlatform::getSessionService();
 		$settings = CerberusSettings::getInstance();
 		$translate = DevblocksPlatform::getTranslationService();
+	    $active_worker = CerberusApplication::getActiveWorker();
+		
 		$visit = $session->getVisit();
 		$page_manifests = $this->_getAllowedPages();
 
@@ -185,23 +187,27 @@ class ChPageController extends DevblocksControllerExtension {
         	return; // [TODO] 404
 		}
 	    
-		// [TODO] Reimplement
-		if(!empty($visit) && !is_null($visit->getWorker())) {
-		    DAO_Worker::logActivity($visit->getWorker()->id, $page->getActivity());
-		}
-		
 		// [JAS]: Listeners (Step-by-step guided tour, etc.)
 	    $listenerManifests = DevblocksPlatform::getExtensions('devblocks.listener.http');
 	    foreach($listenerManifests as $listenerManifest) { /* @var $listenerManifest DevblocksExtensionManifest */
 	         $inst = $listenerManifest->createInstance(); /* @var $inst DevblocksHttpRequestListenerExtension */
 	         $inst->run($response, $tpl);
 	    }
-		
+
+	    $tpl->assign('active_worker', $active_worker);
         $tour_enabled = false;
-		if(!empty($visit) && !is_null($visit->getWorker())) {
-        	$worker = $visit->getWorker();
-			$tour_enabled = intval(DAO_WorkerPref::get($worker->id, 'assist_mode', 1));
+		
+		if(!empty($visit) && !is_null($active_worker)) {
+			$tour_enabled = intval(DAO_WorkerPref::get($active_worker->id, 'assist_mode', 1));
 			if(DEMO_MODE) $tour_enabled = 1; // override for DEMO
+
+	    	$active_worker_memberships = $active_worker->getMemberships();
+	    	$tpl->assign('active_worker_memberships', $active_worker_memberships);
+			
+			$unread_notifications = DAO_WorkerEvent::getUnreadCountByWorker($active_worker->id);
+			$tpl->assign('active_worker_notify_count', $unread_notifications);
+			
+			DAO_Worker::logActivity($active_worker->id, $page->getActivity());
 		}
 		$tpl->assign('tour_enabled', $tour_enabled);
 		
@@ -211,14 +217,6 @@ class ChPageController extends DevblocksControllerExtension {
 		$tpl->assign('translate', $translate);
 		$tpl->assign('visit', $visit);
 		$tpl->assign('license',CerberusLicense::getInstance());
-		
-	    $active_worker = CerberusApplication::getActiveWorker();
-	    $tpl->assign('active_worker', $active_worker);
-	
-	    if(!empty($active_worker)) {
-	    	$active_worker_memberships = $active_worker->getMemberships();
-	    	$tpl->assign('active_worker_memberships', $active_worker_memberships);
-	    }
 		
 		$tpl->assign('page_manifests',$page_manifests);		
 		$tpl->assign('page',$page);

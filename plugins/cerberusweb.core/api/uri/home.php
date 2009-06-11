@@ -246,6 +246,8 @@ class ChHomePage extends CerberusPageExtension {
 	 *
 	 */
 	function redirectReadAction() {
+		$worker = CerberusApplication::getActiveWorker();
+		
 		$request = DevblocksPlatform::getHttpRequest();
 		$stack = $request->path;
 		
@@ -258,6 +260,8 @@ class ChHomePage extends CerberusPageExtension {
 			DAO_WorkerEvent::update($id, array(
 				DAO_WorkerEvent::IS_READ => 1
 			));
+			
+			DAO_WorkerEvent::clearCountCache($worker->id);
 
 			session_write_close();
 			header("Location: " . $event->url);
@@ -266,6 +270,8 @@ class ChHomePage extends CerberusPageExtension {
 	} 
 	
 	function doNotificationsMarkReadAction() {
+		$worker = CerberusApplication::getActiveWorker();
+		
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
 		@$row_ids = DevblocksPlatform::importGPC($_REQUEST['row_id'],'array',array());
 
@@ -279,6 +285,8 @@ class ChHomePage extends CerberusPageExtension {
 					implode(',', $row_ids)
 				)
 			);
+			
+			DAO_WorkerEvent::clearCountCache($worker->id);
 		}
 		
 		$myEventsView = C4_AbstractViewLoader::getView('', $view_id);
