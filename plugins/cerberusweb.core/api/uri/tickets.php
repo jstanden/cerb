@@ -775,6 +775,8 @@ class ChTicketsPage extends CerberusPageExtension {
 	    @$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
 		@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
 	    
+		$visit = CerberusApplication::getVisit();
+		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl_path = $this->_TPL_PATH;
 		$tpl->assign('path', $tpl_path);
@@ -788,12 +790,21 @@ class ChTicketsPage extends CerberusPageExtension {
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 		
+		// Load Defaults
+		$team_id = intval($visit->get('compose.defaults.from', ''));
+		$subject = $visit->get('compose.defaults.subject', '');
+		$closed = intval($visit->get('compose.defaults.closed', ''));
+		$next_worker_id = intval($visit->get('compose.defaults.next_worker_id', ''));
+		$tpl->assign('default_group_id', $team_id);
+		$tpl->assign('default_subject', $subject);
+		$tpl->assign('default_closed', $closed);
+		$tpl->assign('default_next_worker_id', $next_worker_id);
+		
 		$tpl->display('file:' . $this->_TPL_PATH . 'tickets/compose/peek.tpl');
 	}
 	
 	function saveComposePeekAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
-		
 		@$team_id = DevblocksPlatform::importGPC($_POST['team_id'],'integer'); 
 		@$to = DevblocksPlatform::importGPC($_POST['to'],'string');
 		@$cc = DevblocksPlatform::importGPC($_POST['cc'],'string','');
@@ -801,10 +812,18 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$subject = DevblocksPlatform::importGPC($_POST['subject'],'string','(no subject)');
 		@$content = DevblocksPlatform::importGPC($_POST['content'],'string');
 		@$files = $_FILES['attachment'];
-		
 		@$closed = DevblocksPlatform::importGPC($_POST['closed'],'integer',0);
 		@$next_worker_id = DevblocksPlatform::importGPC($_POST['next_worker_id'],'integer',0);
+
+		$visit = CerberusApplication::getVisit();
+
+		// Save Defaults
+		$visit->set('compose.defaults.from', $team_id);
+		$visit->set('compose.defaults.subject', $subject);
+		$visit->set('compose.defaults.closed', $closed);
+		$visit->set('compose.defaults.next_worker_id', $next_worker_id);
 		
+		// Send
 		$properties = array(
 			'team_id' => $team_id,
 			'to' => $to,
