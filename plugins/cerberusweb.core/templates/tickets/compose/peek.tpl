@@ -16,7 +16,7 @@
 		<td width="100%">
 			<select name="team_id" style="border:1px solid rgb(180,180,180);padding:2px;">
 				{foreach from=$active_worker_memberships item=membership key=group_id}
-				<option value="{$group_id}">{$teams.$group_id->name}</option>
+				<option value="{$group_id}" {if $default_group_id==$group_id}selected="selected"{/if}>{$teams.$group_id->name}</option>
 				{/foreach}
 			</select>
 		</td>
@@ -43,7 +43,7 @@
 	<tr>
 		<td width="0%" nowrap="nowrap" align="right">Subject: </td>
 		<td width="100%">
-			<input type="text" name="subject" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;" value="" autocomplete="off">
+			<input type="text" name="subject" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;" value="{$default_subject|escape}" autocomplete="off">
 		</td>
 	</tr>
 	<tr>
@@ -57,19 +57,19 @@
 	<tr>
 		<td colspan="2">
 			<b>Next:</b> 
-			<label><input type="radio" name="closed" value="0">Open</label>
-			<label><input type="radio" name="closed" value="2" checked>Waiting for reply</label>
-			{if $active_worker->hasPriv('core.ticket.actions.close')}<label><input type="radio" name="closed" value="1">Closed</label>{/if}
+			<label><input type="radio" name="closed" value="0" {if 0==$default_closed}checked="checked"{/if}>Open</label>
+			<label><input type="radio" name="closed" value="2" {if 2==$default_closed}checked="checked"{/if}>Waiting for reply</label>
+			{if $active_worker->hasPriv('core.ticket.actions.close')}<label><input type="radio" name="closed" value="1" {if 1==$default_closed}checked="checked"{/if}>Closed</label>{/if}
 			<br>
 			<br>
 
 			<b>Who should handle the follow-up?</b><br>
 	      	<select name="next_worker_id">
-	      		<option value="0">Anybody
+	      		<option value="0" {if 0==$default_next_worker_id}selected="selected"{/if}>Anybody
 	      		{foreach from=$workers item=worker key=worker_id name=workers}
 					{if $worker_id==$active_worker->id || $active_worker->hasPriv('core.ticket.actions.assign')}
 		      			{if $worker_id==$active_worker->id}{assign var=next_worker_id_sel value=$smarty.foreach.workers.iteration}{/if}
-		      			<option value="{$worker_id}">{$worker->getName()}
+		      			<option value="{$worker_id}" {if $worker_id==$default_next_worker_id}selected="selected"{/if}>{$worker->getName()}
 					{/if}
 	      		{/foreach}
 	      	</select>&nbsp;
