@@ -111,6 +111,8 @@ endif;
 class CrmPage extends CerberusPageExtension {
 	private $plugin_path = '';
 	
+	const SESSION_OPP_TAB = '';
+	
 	function __construct($manifest) {
 		parent::__construct($manifest);
 		$this->plugin_path = dirname(dirname(__FILE__)).'/';
@@ -140,6 +142,11 @@ class CrmPage extends CerberusPageExtension {
 					break; // [TODO] Not found
 				}
 				$tpl->assign('opp', $opp);						
+
+				if(null == (@$tab_selected = $stack[0])) {
+					$tab_selected = $visit->get(self::SESSION_OPP_TAB, '');
+				}
+				$tpl->assign('tab_selected', $tab_selected);
 
 				$address = DAO_Address::get($opp->primary_email_id);
 				$tpl->assign('address', $address);
@@ -187,6 +194,8 @@ class CrmPage extends CerberusPageExtension {
 						$tpl->assign('series_stats', $series_stats);
 					}
 				}
+				
+				
 				
 				$tpl->display($tpl_path . 'crm/opps/display/index.tpl');
 				break;
@@ -428,6 +437,9 @@ class CrmPage extends CerberusPageExtension {
 		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
 		$tpl->assign('path', $tpl_path);
 		
+		$visit = CerberusApplication::getVisit();
+		$visit->set(self::SESSION_OPP_TAB, 'tasks');
+		
 		$opp = DAO_CrmOpportunity::get($opp_id);
 		$tpl->assign('opp', $opp);
 		
@@ -464,6 +476,9 @@ class CrmPage extends CerberusPageExtension {
 		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
 		$tpl->assign('path', $tpl_path);
 		
+		$visit = CerberusApplication::getVisit();
+		$visit->set(self::SESSION_OPP_TAB, 'mail');
+		
 		$opp = DAO_CrmOpportunity::get($opp_id);
 		$tpl->assign('opp', $opp);
 
@@ -498,6 +513,9 @@ class CrmPage extends CerberusPageExtension {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
 		$tpl->assign('path', $tpl_path);
+		
+		$visit = CerberusApplication::getVisit();
+		$visit->set(self::SESSION_OPP_TAB, 'properties');
 		
 		$opp = DAO_CrmOpportunity::get($opp_id);
 		$tpl->assign('opp', $opp);
@@ -568,6 +586,9 @@ class CrmPage extends CerberusPageExtension {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
 		$tpl->assign('path', $tpl_path);
+		
+		$visit = CerberusApplication::getVisit();
+		$visit->set(self::SESSION_OPP_TAB, 'notes');
 		
 		$opp = DAO_CrmOpportunity::get($opp_id);
 		$tpl->assign('opp', $opp);
