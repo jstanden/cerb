@@ -4,15 +4,17 @@
 <tr>
 	<td valign="top" style="padding-right:5px;">
 		<h1>{$opp->name}</h1> 
-	
+		<form action="{devblocks_url}{/devblocks_url}" onsubmit="return false;">
 		{assign var=opp_worker_id value=$opp->worker_id}
 		
 		<b>Status:</b> {if $opp->is_closed}{if $opp->is_won}Closed/Won{else}Closed/Lost{/if}{else}Open{/if} &nbsp;
-		<b>E-mail:</b> {$address->first_name} {$address->last_name} &lt;<a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$address->email}&view_id=',null,false,'500px',ajax.cbAddressPeek);">{$address->email}</a>&gt; &nbsp;
+		<button id="btnOppAddyPeek" type="button" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$address->email}&view_id=',null,false,'500px',ajax.cbAddressPeek);" style="visibility:false;display:none;"></button>
+		<b>E-mail:</b> {$address->first_name} {$address->last_name} &lt;<a href="javascript:;" onclick="document.getElementById('btnOppAddyPeek').click();">{$address->email}</a>&gt; &nbsp;
 		<b>Created:</b> <abbr title="{$opp->created_date|devblocks_date}">{$opp->created_date|devblocks_prettytime}</abbr> &nbsp;
 		{if !empty($opp_worker_id) && isset($workers.$opp_worker_id)}
 			<b>Worker:</b> {$workers.$opp_worker_id->getName()} &nbsp;
 		{/if}
+		</form>
 		<br>
 	</td>
 	<td align="right" valign="top">
@@ -92,10 +94,16 @@ CreateKeyHandler(function doShortcuts(e) {
 	var mykey = getKeyboardKey(e);
 	
 	switch(mykey) {
+		case "a":  // E-mail Peek
+		case "A":
+			try {
+				document.getElementById('btnOppAddyPeek').click();
+			} catch(e){}
+			break;
 		case "q":  // quick compose
 		case "Q":
 			try {
-				//document.getElementById('btnQuickCompose').click();
+				document.getElementById('btnQuickCompose').click();
 			} catch(e){}
 			break;
 		default:
