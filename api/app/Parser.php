@@ -448,6 +448,8 @@ class CerberusParser {
 		$group_id = 0;
 		
 		if(empty($id)) { // New Ticket
+			$sMask = CerberusApplication::generateTicketMask();
+		
 			// Routing new tickets
 			if(null != ($routing_rules = Model_MailToGroupRule::getMatches(
 				$fromAddressInst,
@@ -477,7 +479,7 @@ class CerberusParser {
 			// [JAS] It's important to not set the group_id on the ticket until the messages exist
 			// or inbox filters will just abort.
 			$fields = array(
-				DAO_Ticket::MASK => CerberusApplication::generateTicketMask(),
+				DAO_Ticket::MASK => $sMask,
 				DAO_Ticket::SUBJECT => $sSubject,
 				DAO_Ticket::IS_CLOSED => 0,
 				DAO_Ticket::FIRST_WROTE_ID => intval($fromAddressInst->id),
