@@ -74,7 +74,7 @@
 			{elseif $column=="a_email"}
 				<td>
 					{if !empty($result.a_email)}
-						<a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$result.a_email}&view_id={$view->id}',this,false,'500px',ajax.cbAddressPeek);" title="{$result.a_email}">{$result.a_email}</a>&nbsp;
+						<a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$result.a_email|escape:'javascript'}&view_id={$view->id}',this,false,'500px',ajax.cbAddressPeek);" title="{$result.a_email}">{$result.a_email}</a>&nbsp;
 					{else}
 						<!-- [<a href="javascript:;">assign</a>]  -->
 					{/if}

@@ -83,7 +83,7 @@
 			{elseif $column=="t_subject"}
 				<td><a href="{devblocks_url}c=display&id={$result.t_mask}{/devblocks_url}" title="{$result.t_subject|escape}">{$result.t_subject|truncate:45:'...'}</a></td>
 			{elseif $column=="ad_email"}
-				<td><a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$result.ad_email}&view_id={$view->id}',this,false,'500px',ajax.cbAddressPeek);" title="{$result.ad_email|escape}">{$result.ad_email|truncate:64:'...':true:true}</a></td>
+				<td><a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$result.ad_email|escape:'javascript'}&view_id={$view->id}',this,false,'500px',ajax.cbAddressPeek);" title="{$result.ad_email|escape}">{$result.ad_email|truncate:64:'...':true:true}</a></td>
 			{else}
 			<td>{$result.$column}&nbsp;</td>
 			{/if}
