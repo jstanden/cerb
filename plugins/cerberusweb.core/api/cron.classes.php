@@ -761,6 +761,14 @@ class ImportCron extends CerberusCronPageExtension {
 			// Create message content
 			$sMessageContentB64 = (string) $eMessage->content;
 			$sMessageContent = base64_decode($sMessageContentB64);
+			
+			// Content-type specific handling
+			if(isset($eMessage->content['content-type'])) { // do we have a content-type?
+				if(strtolower($eMessage->content['content-type']) == 'html') { // html?
+					// Force to plaintext part
+					$sMessageContent = CerberusApplication::stripHTML($sMessageContent);
+				}
+			}				
 			unset($sMessageContentB64);
 			
 			DAO_MessageContent::create($email_id, $sMessageContent);
