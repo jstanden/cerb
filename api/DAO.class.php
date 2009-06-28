@@ -3834,7 +3834,7 @@ class DAO_Ticket extends C4_ORMHelper {
 		// [JAS]: Count all
 		if($withCounts) {
 			$count_sql = 
-				($has_multiple_values ? "SELECT COUNT(DISTINCT t.id) " : "SELECT COUNT(t.id) ").
+				"SELECT COUNT(DISTINCT t.id) ".
 				$join_sql.
 				$where_sql;
 			$total = $db->GetOne($count_sql);
