@@ -8,7 +8,7 @@
 		{assign var=opp_worker_id value=$opp->worker_id}
 		
 		<b>Status:</b> {if $opp->is_closed}{if $opp->is_won}Closed/Won{else}Closed/Lost{/if}{else}Open{/if} &nbsp;
-		<button id="btnOppAddyPeek" type="button" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$address->email|escape:'javascript'}&view_id=',null,false,'500px',ajax.cbAddressPeek);" style="visibility:false;display:none;"></button>
+		<button id="btnOppAddyPeek" type="button" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$address->email|escape:'url'}&view_id=',null,false,'500px',ajax.cbAddressPeek);" style="visibility:false;display:none;"></button>
 		<b>E-mail:</b> {$address->first_name} {$address->last_name} &lt;<a href="javascript:;" onclick="document.getElementById('btnOppAddyPeek').click();">{$address->email}</a>&gt; &nbsp;
 		<b>Created:</b> <abbr title="{$opp->created_date|devblocks_date}">{$opp->created_date|devblocks_prettytime}</abbr> &nbsp;
 		{if !empty($opp_worker_id) && isset($workers.$opp_worker_id)}

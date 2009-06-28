@@ -90,9 +90,9 @@
 		{elseif $column=="t_is_deleted"}
 		<td>{if $result.t_is_deleted}<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete2_gray.gif{/devblocks_url}" width="16" height="16" border="0" title="{$translate->_('status.deleted')}">{else}{/if}</td>
 		{elseif $column=="t_last_wrote"}
-		<td><a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$result.t_last_wrote|escape:'javascript'}&view_id={$view->id}',this,false,'500px',ajax.cbAddressPeek);" title="{$result.t_last_wrote}">{$result.t_last_wrote|truncate:45:'...':true:true}</a></td>
+		<td><a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$result.t_last_wrote|escape:'url'}&view_id={$view->id}',this,false,'500px',ajax.cbAddressPeek);" title="{$result.t_last_wrote}">{$result.t_last_wrote|truncate:45:'...':true:true}</a></td>
 		{elseif $column=="t_first_wrote"}
-		<td><a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$result.t_first_wrote|escape:'javascript'}&view_id={$view->id}',this,false,'500px',ajax.cbAddressPeek);" title="{$result.t_first_wrote}">{$result.t_first_wrote|truncate:45:'...':true:true}</a></td>
+		<td><a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$result.t_first_wrote|escape:'url'}&view_id={$view->id}',this,false,'500px',ajax.cbAddressPeek);" title="{$result.t_first_wrote}">{$result.t_first_wrote|truncate:45:'...':true:true}</a></td>
 		{elseif $column=="t_created_date"}
 		<td title="{$result.t_created_date|devblocks_date}">{$result.t_created_date|devblocks_prettytime}</td>
 		{elseif $column=="t_updated_date"}
@@ -130,13 +130,13 @@
 			{if $result.t_last_action_code=='O'}
 				{assign var=action_worker_id value=$result.t_next_worker_id}
 				<span title="{$result.t_first_wrote}">New 
-				{if isset($workers.$action_worker_id)}for {$workers.$action_worker_id->getName()}{else}from <a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$result.t_first_wrote|escape:'javascript'}&view_id={$view->id}',this,false,'500px',ajax.cbAddressPeek);">{$result.t_first_wrote|truncate:45:'...':true:true}</a>{/if}</span>
+				{if isset($workers.$action_worker_id)}for {$workers.$action_worker_id->getName()}{else}from <a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$result.t_first_wrote|escape:'url'}&view_id={$view->id}',this,false,'500px',ajax.cbAddressPeek);">{$result.t_first_wrote|truncate:45:'...':true:true}</a>{/if}</span>
 			{elseif $result.t_last_action_code=='R'}
 				{assign var=action_worker_id value=$result.t_next_worker_id}
 				{if isset($workers.$action_worker_id)}
 					<span title="{$result.t_last_wrote}"><span style="color:rgb(255,50,50);background-color:rgb(255,213,213);font-weight:bold;">{'mail.inbound'|devblocks_translate}</span> for {$workers.$action_worker_id->getName()}</span>
 				{else}
-					<span title="{$result.t_last_wrote}"><span style="color:rgb(255,50,50);background-color:rgb(255,213,213);font-weight:bold;">{'mail.inbound'|devblocks_translate}</span> from <a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$result.t_last_wrote|escape:'javascript'}&view_id={$view->id}',this,false,'500px',ajax.cbAddressPeek);">{$result.t_last_wrote|truncate:45:'...':true:true}</a></span>
+					<span title="{$result.t_last_wrote}"><span style="color:rgb(255,50,50);background-color:rgb(255,213,213);font-weight:bold;">{'mail.inbound'|devblocks_translate}</span> from <a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$result.t_last_wrote|escape:'url'}&view_id={$view->id}',this,false,'500px',ajax.cbAddressPeek);">{$result.t_last_wrote|truncate:45:'...':true:true}</a></span>
 				{/if}
 			{elseif $result.t_last_action_code=='W'}
 				{assign var=action_worker_id value=$result.t_last_worker_id}

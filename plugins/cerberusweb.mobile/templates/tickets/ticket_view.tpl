@@ -32,7 +32,7 @@
 						{if $result.t_last_action_code=='O'}
 							{assign var=action_worker_id value=$result.t_next_worker_id}
 							<span title="{$result.t_first_wrote}"><b>New</b> 
-							{if isset($workers.$action_worker_id)}for {$workers.$action_worker_id->getName()}{else}from <a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$result.t_first_wrote|escape:'javascript'}&view_id={$view->id}',this,false,'500px',ajax.cbAddressPeek);">{$result.t_first_wrote|truncate:45:'...':true:true}</a>{/if}</span>
+							{if isset($workers.$action_worker_id)}for {$workers.$action_worker_id->getName()}{else}from <a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$result.t_first_wrote|escape:'url'}&view_id={$view->id}',this,false,'500px',ajax.cbAddressPeek);">{$result.t_first_wrote|truncate:45:'...':true:true}</a>{/if}</span>
 						{elseif $result.t_last_action_code=='R'}
 							{assign var=action_worker_id value=$result.t_next_worker_id}
 							{if isset($workers.$action_worker_id)}

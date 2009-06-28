@@ -94,7 +94,7 @@
 	&nbsp; 
 	{if $active_worker->hasPriv('core.mail.search')}<a href="javascript:;" onclick="document.formAddressPeek.a.value='showAddressTickets';document.formAddressPeek.closed.value='0';document.formAddressPeek.submit();">{'addy_book.peek.count.open_tickets'|devblocks_translate:$open_count}</a> &nbsp; {/if}
 	{if $active_worker->hasPriv('core.mail.search')}<a href="javascript:;" onclick="document.formAddressPeek.a.value='showAddressTickets';document.formAddressPeek.closed.value='1';document.formAddressPeek.submit();">{'addy_book.peek.count.closed_tickets'|devblocks_translate:$closed_count}</a> &nbsp; {/if}
-	{if $active_worker->hasPriv('core.mail.send')}<a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showComposePeek&view_id=&to={$address.a_email|escape:'javascript'}',null,false,'600px',{literal}function(o){ajax.cbEmailMultiplePeek(o);document.getElementById('formComposePeek').team_id.focus();}{/literal});"> {$translate->_('addy_book.peek.compose')}</a>{/if}
+	{if $active_worker->hasPriv('core.mail.send')}<a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showComposePeek&view_id=&to={$address.a_email|escape:'url'}',null,false,'600px',{literal}function(o){ajax.cbEmailMultiplePeek(o);document.getElementById('formComposePeek').team_id.focus();}{/literal});"> {$translate->_('addy_book.peek.compose')}</a>{/if}
 {/if}
 
 <br>
