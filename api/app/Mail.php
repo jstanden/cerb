@@ -360,6 +360,9 @@ class CerberusMail {
 			}
 		}
 		
+		// Train as not spam
+		CerberusBayes::markTicketAsNotSpam($ticket_id);
+		
 		// Inbound/Outbound Reply Event
 		// [TODO] This pivots on $no_mail for now, but this functionality may change
 	    $eventMgr = DevblocksPlatform::getEventService();
