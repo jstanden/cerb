@@ -119,6 +119,32 @@
 			</params>
 		</extension>
 		
+		<!-- Log Ticket Toolbar -->
+			
+		<extension point="cerberusweb.mail.log.toolbaritem">
+			<id>cerberusweb.kb.logticket.toolbaritem.kb</id>
+			<name>KB Log Ticket Toolbar</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChKbLogTicketToolbarButton</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
+		<!-- Send Mail Toolbar -->
+			
+		<extension point="cerberusweb.mail.send.toolbaritem">
+			<id>cerberusweb.kb.sendmail.toolbaritem.kb</id>
+			<name>KB Send Mail Toolbar</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChKbSendMailToolbarButton</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
 		<!-- Support Center Module -->
 		
 		<extension point="usermeet.sc.controller">

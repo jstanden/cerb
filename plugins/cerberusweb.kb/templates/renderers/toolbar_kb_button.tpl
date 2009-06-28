@@ -1,0 +1,1 @@
+<button type="button" onclick="genericAjaxGet('{$div}','c=kb.ajax&a=showKbSearch&div={$div}');"><img src="{devblocks_url}c=resource&p=cerberusweb.kb&f=images/book_open2.gif{/devblocks_url}" align="top"> {$translate->_('common.knowledgebase')|capitalize}</button>

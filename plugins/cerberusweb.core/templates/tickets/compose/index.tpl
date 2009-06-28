@@ -63,15 +63,16 @@
 		<td>
 			<button type="button" onclick="genericAjaxGet('','c=tickets&a=getComposeSignature&group_id='+selectValue(this.form.team_id),{literal}function(o){insertAtCursor(document.getElementById('content'),o.responseText);}{/literal});"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_edit.gif{/devblocks_url}" align="top"> Insert Signature</button>
 			<button type="button" onclick="genericAjaxPanel('c=display&a=showTemplatesPanel&type=1&reply_id=0&txt_name=content',this,false,'550px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/text_rich.gif{/devblocks_url}" align="top"> E-mail Templates</button>
-			<br>
 			{* Plugin Toolbar *}
 			{if !empty($sendmail_toolbaritems)}
-				<div style="margin-top:2px;">
 				{foreach from=$sendmail_toolbaritems item=renderer}
 					{if !empty($renderer)}{$renderer->render($message)}{/if}
 				{/foreach}
-				</div>
 			{/if}
+			<br>
+			
+			<div id="sendMailToolbarOptions"></div>
+			
 			<textarea name="content" id="content" rows="15" cols="80" class="reply" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;"></textarea>
 		</td>
 	</tr>

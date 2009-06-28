@@ -104,9 +104,39 @@ if (class_exists('Extension_ReplyToolbarItem',true)):
 			$tpl->assign('path', $tpl_path);
 			$tpl->cache_lifetime = "0";
 			
-			$tpl->assign('message', $message); /* @var $message CerberusMessage */
+			$tpl->assign('div', 'replyToolbarOptions'.$message->id);
 			
-			$tpl->display('file:' . $tpl_path . 'renderers/reply_kb_button.tpl');
+			$tpl->display('file:' . $tpl_path . 'renderers/toolbar_kb_button.tpl');
+		}
+	};
+endif;
+
+if (class_exists('Extension_LogMailToolbarItem',true)):
+	class ChKbLogTicketToolbarButton extends Extension_LogMailToolbarItem {
+		function render() { 
+			$tpl = DevblocksPlatform::getTemplateService();
+			$tpl_path = dirname(dirname(__FILE__)).'/templates/';
+			$tpl->assign('path', $tpl_path);
+			$tpl->cache_lifetime = "0";
+
+			$tpl->assign('div', 'logTicketToolbarOptions');
+			
+			$tpl->display('file:' . $tpl_path . 'renderers/toolbar_kb_button.tpl');
+		}
+	};
+endif;
+
+if (class_exists('Extension_SendMailToolbarItem',true)):
+	class ChKbSendMailToolbarButton extends Extension_SendMailToolbarItem {
+		function render() { 
+			$tpl = DevblocksPlatform::getTemplateService();
+			$tpl_path = dirname(dirname(__FILE__)).'/templates/';
+			$tpl->assign('path', $tpl_path);
+			$tpl->cache_lifetime = "0";
+
+			$tpl->assign('div', 'sendMailToolbarOptions');
+			
+			$tpl->display('file:' . $tpl_path . 'renderers/toolbar_kb_button.tpl');
 		}
 	};
 endif;
@@ -441,22 +471,22 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 	}
 	
 	// For Display->Reply toolbar button
-	function showTicketReplyKbSearchAction() {
+	function showKbSearchAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->_TPL_PATH);
 
-		@$msg_id = DevblocksPlatform::importGPC($_REQUEST['msg_id'],'integer',0);
-		$tpl->assign('msg_id', $msg_id);
+		@$div = DevblocksPlatform::importGPC($_REQUEST['div'],'string','');
+		$tpl->assign('div', $div);
 
 		$topics = DAO_KbCategory::getWhere(sprintf("%s = 0", DAO_KbCategory::PARENT_ID));
 		$tpl->assign('topics', $topics);
 		
-		$tpl->display('file:' . $this->_TPL_PATH . 'ajax/reply_kb_search.tpl');
+		$tpl->display('file:' . $this->_TPL_PATH . 'ajax/kb_search.tpl');
 	}
 	
 	// For Display->Reply toolbar button
-	function doTicketReplyKbSearchAction() {
+	function doKbSearchAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->_TPL_PATH);
@@ -467,8 +497,8 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 		@$topic_id = DevblocksPlatform::importGPC($_REQUEST['topic_id'],'integer',0);
 		$tpl->assign('topic_id', $topic_id);
 
-		@$msg_id = DevblocksPlatform::importGPC($_REQUEST['msg_id'],'integer',0);
-		$tpl->assign('msg_id', $msg_id);
+		@$div = DevblocksPlatform::importGPC($_REQUEST['div'],'string','');
+		$tpl->assign('div', $div);
 
 		$params = array();
 		
@@ -495,7 +525,7 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 		
 		$tpl->assign('results', $results);
 
-		$tpl->display('file:' . $this->_TPL_PATH . 'ajax/reply_kb_search_results.tpl');
+		$tpl->display('file:' . $this->_TPL_PATH . 'ajax/kb_search_results.tpl');
 	}
 };
 
