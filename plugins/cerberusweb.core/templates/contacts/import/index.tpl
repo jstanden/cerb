@@ -1,18 +1,18 @@
 <div class="block">
-<H2>Import Records</H2>
+<H2>{$translate->_('addy_book.tab.import')}</H2>
 <br>
 
 <form action="{devblocks_url}{/devblocks_url}" method="POST" enctype="multipart/form-data" id="formContactImport">
 <input type="hidden" name="c" value="contacts">
 <input type="hidden" name="a" value="parseUpload">
 
-<b>Record Type:</b><br>
-<label><input type="radio" name="type" value="orgs" checked="checked">Organizations</label>
-<label><input type="radio" name="type" value="addys">E-mail Addresses</label>
+<b>{$translate->_('addy_book.import.record_type')}:</b><br>
+<label><input type="radio" name="type" value="orgs" checked="checked">{$translate->_('addy_book.tab.organizations')}</label>
+<label><input type="radio" name="type" value="addys">{$translate->_('addy_book.tab.addresses')}</label>
 <br>
 <br>
 
-<b>Upload .CSV File:</b> (any format; the next step will let you choose where the data goes)<br>
+<b>{$translate->_('addy_book.import.upload_csv')}:</b> {$translate->_('addy_book.import.upload_csv.tip')}<br>
 <input type="file" name="csv_file" size="45"><br>
 <br>
 

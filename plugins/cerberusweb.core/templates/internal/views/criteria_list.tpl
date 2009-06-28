@@ -35,11 +35,11 @@
 	<input type="hidden" name="id" value="{$view->id}">
 	<input type="hidden" name="response_uri" value="{$response_uri}">
 	
-	<h2>Add Filter</h2>
-	<b>Field:</b><br>
+	<h2>{$translate->_('common.filter.add')}</h2>
+	<b>{$translate->_('common.filter')|capitalize}:</b><br>
 	<blockquote style="margin:5px;">
 		<select name="field" onchange="genericAjaxGet('addCriteria_{$view->id}','c=internal&a=viewGetCriteria&id={$view->id}&field='+selectValue(this));toggleDiv('saveCriteria_{$view->id}',(selectValue(this)!='')?'block':'none');">
-			<option value="">-- choose --</option>
+			<option value="">-- {$translate->_('common.choose')} --</option>
 			
 			{foreach from=$view_searchable_fields item=column key=token}
 				{assign var=has_custom value=0}
@@ -53,7 +53,7 @@
 			{/foreach}
 			
 			{if $has_custom}
-			<optgroup label="Custom Fields">
+			<optgroup label="{$translate->_('common.custom_fields')|capitalize}">
 			{foreach from=$view_searchable_fields item=column key=token}
 				{if substr($token,0,3) == "cf_"}
 					{if !empty($column->db_label) && !empty($token)}

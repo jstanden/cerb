@@ -88,7 +88,7 @@
 						{assign var=change_worker_id value=$result.l_change_value}
 						{if isset($workers.$change_worker_id)}{$workers.$change_worker_id->getName()}{else}Anybody{/if}&nbsp;
 					{elseif $change_field=="is_deleted" || $change_field=="is_closed"}
-						{if $result.l_change_value==1}True{else}False{/if}
+						{if $result.l_change_value==1}{$translate->_('common.yes')}{else}{$translate->_('common.no')}{/if}
 					{elseif $change_field=="spam_training"}
 						{if $result.l_change_value=='S'}{$translate->_('training.report_spam')}{else}{$translate->_('training.not_spam')}{/if}
 					{elseif $change_field=="team_id"}
@@ -133,7 +133,7 @@
 				<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewPage&id={$view->id}&page=0');">&lt;&lt;</a>
 				<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewPage&id={$view->id}&page={$prevPage}');">&lt;{$translate->_('common.previous_short')|capitalize}</a>
 			{/if}
-			(Showing {$fromRow}-{$toRow} of {$total})
+			({'views.showing_from_to'|devblocks_translate:$fromRow:$toRow:$total})
 			{if $toRow < $total}
 				<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewPage&id={$view->id}&page={$nextPage}');">{$translate->_('common.next')|capitalize}&gt;</a>
 				<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewPage&id={$view->id}&page={$lastPage}');">&gt;&gt;</a>

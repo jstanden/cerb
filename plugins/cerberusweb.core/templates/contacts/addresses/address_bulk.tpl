@@ -1,7 +1,7 @@
 <table cellpadding="0" cellspacing="0" border="0" width="98%">
 	<tr>
 		<td align="left" width="0%" nowrap="nowrap" style="padding-right:5px;"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/gear.gif{/devblocks_url}" align="absmiddle"></td>
-		<td align="left" width="100%" nowrap="nowrap"><h1>Bulk Update</h1></td>
+		<td align="left" width="100%" nowrap="nowrap"><h1>{$translate->_('common.bulk_update')|capitalize}</h1></td>
 	</tr>
 </table>
 
@@ -12,17 +12,17 @@
 <input type="hidden" name="address_ids" value="">
 <div style="height:400px;overflow:auto;">
 
-<h2>With:</h2>
+<h2>{$translate->_('common.bulk_update.with')|capitalize}:</h2>
 
-<label><input type="radio" name="filter" value="" {if empty($address_ids)}checked{/if}> Whole list</label> 
-<label><input type="radio" name="filter" value="checks" {if !empty($address_ids)}checked{/if}> Only checked</label> 
+<label><input type="radio" name="filter" value="" {if empty($address_ids)}checked{/if}> {$translate->_('common.bulk_update.filter.all')}</label> 
+<label><input type="radio" name="filter" value="checks" {if !empty($address_ids)}checked{/if}> {$translate->_('common.bulk_update.filter.checked')}</label> 
 <br>
 <br>
 
-<H2>Do:</H2>
+<H2>{$translate->_('common.bulk_update.do')|capitalize}:</H2>
 <table cellspacing="0" cellpadding="2" width="100%">
 	<tr>
-		<td width="0%" nowrap="nowrap">Organization:</td>
+		<td width="0%" nowrap="nowrap">{$translate->_('contact_org.name')|capitalize}:</td>
 		<td width="100%">
 			<div id="contactautocomplete" style="width:98%;" class="yui-ac">
 				<input type="text" name="contact_org" id="contactinput" value="" class="yui-ac-input">
@@ -33,11 +33,11 @@
 		</td>
 	</tr>
 	<tr>
-		<td width="0%" nowrap="nowrap">Banned:</td>
+		<td width="0%" nowrap="nowrap">{$translate->_('address.is_banned')|capitalize}:</td>
 		<td width="100%"><select name="is_banned">
 			<option value=""></option>
-			<option value="0">No</option>
-			<option value="1">Yes</option>
+			<option value="0">{$translate->_('common.no')|capitalize}</option>
+			<option value="1">{$translate->_('common.yes')|capitalize}</option>
       	</select></td>
 	</tr>
 </table>

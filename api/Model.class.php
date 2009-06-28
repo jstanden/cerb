@@ -1784,8 +1784,10 @@ class C4_AddressView extends C4_AbstractView {
 	const DEFAULT_ID = 'addresses';
 
 	function __construct() {
+		$translate = DevblocksPlatform::getTranslationService();
+		
 		$this->id = self::DEFAULT_ID;
-		$this->name = 'E-mail Addresses';
+		$this->name = $translate->_('addy_book.tab.addresses');
 		$this->renderLimit = 10;
 		$this->renderSortBy = 'a_email';
 		$this->renderSortAsc = true;
@@ -2221,8 +2223,10 @@ class C4_ContactOrgView extends C4_AbstractView {
 	const DEFAULT_ID = 'contact_orgs';
 
 	function __construct() {
+		$translate = DevblocksPlatform::getTranslationService();
+		
 		$this->id = self::DEFAULT_ID;
-		$this->name = 'Organizations';
+		$this->name = $translate->_('addy_book.tab.organizations');
 		$this->renderSortBy = 'c_name';
 		$this->renderSortAsc = true;
 

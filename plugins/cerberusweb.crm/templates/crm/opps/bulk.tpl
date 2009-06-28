@@ -1,7 +1,7 @@
 <table cellpadding="0" cellspacing="0" border="0" width="98%">
 	<tr>
 		<td align="left" width="1%" nowrap="nowrap" style="padding-right:5px;"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/gear.gif{/devblocks_url}" align="absmiddle"></td>
-		<td align="left" width="100%"><h1>Bulk Update</h1></td>
+		<td align="left" width="100%"><h1>{$translate->_('common.bulk_update')|capitalize}</h1></td>
 	</tr>
 </table>
 
@@ -12,14 +12,14 @@
 <input type="hidden" name="opp_ids" value="{$opp_ids}">
 <div style="height:400px;overflow:auto;">
 
-<h2>With:</h2>
+<h2>{$translate->_('common.bulk_update.with')|capitalize}:</h2>
 
-<label><input type="radio" name="filter" value="" {if empty($opp_ids)}checked{/if}> Whole list</label> 
-<label><input type="radio" name="filter" value="checks" {if !empty($opp_ids)}checked{/if}> Only checked</label> 
+<label><input type="radio" name="filter" value="" {if empty($opp_ids)}checked{/if}> {$translate->_('common.bulk_update.filter.all')}</label> 
+<label><input type="radio" name="filter" value="checks" {if !empty($opp_ids)}checked{/if}> {$translate->_('common.bulk_update.filter.checked')}</label> 
 <br>
 <br>
 
-<H2>Do:</H2>
+<H2>{$translate->_('common.bulk_update.do')|capitalize}:</H2>
 <table cellspacing="0" cellpadding="2" width="100%">
 	<tr>
 		<td width="0%" nowrap="nowrap" align="right">Status:</td>

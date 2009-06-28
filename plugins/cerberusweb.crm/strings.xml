@@ -27,8 +27,13 @@
 		</tu>
 
 		<!-- Common Strings -->
+
+		<tu tuid='crm.opp.add'>
+			<tuv xml:lang="en_US"><seg>Add Opportunity</seg></tuv>
+		</tu>
 		
 		<!-- Opportunity -->
+
 		<tu tuid='crm.opportunity.amount'>
 			<tuv xml:lang="en_US"><seg>Amount</seg></tuv>
 		</tu>

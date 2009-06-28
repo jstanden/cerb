@@ -72,11 +72,29 @@
 		<tu tuid='common.bucket'>
 			<tuv xml:lang="en_US"><seg>Bucket</seg></tuv>
 		</tu>
+		<tu tuid='common.bulk_update'>
+			<tuv xml:lang="en_US"><seg>Bulk Update</seg></tuv>
+		</tu>
+		<tu tuid='common.bulk_update.do'>
+			<tuv xml:lang="en_US"><seg>Do</seg></tuv>
+		</tu>
+		<tu tuid='common.bulk_update.filter.all'>
+			<tuv xml:lang="en_US"><seg>Whole list</seg></tuv>
+		</tu>
+		<tu tuid='common.bulk_update.filter.checked'>
+			<tuv xml:lang="en_US"><seg>Only checked</seg></tuv>
+		</tu>
+		<tu tuid='common.bulk_update.with'>
+			<tuv xml:lang="en_US"><seg>With</seg></tuv>
+		</tu>
 		<tu tuid='common.cancel'>
 			<tuv xml:lang="en_US"><seg>cancel</seg></tuv>
 		</tu>
 		<tu tuid='common.category'>
 			<tuv xml:lang="en_US"><seg>category</seg></tuv>
+		</tu>
+		<tu tuid='common.choose'>
+			<tuv xml:lang="en_US"><seg>choose</seg></tuv>
 		</tu>
 		<tu tuid='common.clear'>
 			<tuv xml:lang="en_US"><seg>clear</seg></tuv>
@@ -89,6 +107,9 @@
 		</tu>
 		<tu tuid='common.copy'>
 			<tuv xml:lang="en_US"><seg>copy</seg></tuv>
+		</tu>
+		<tu tuid='common.custom_fields'>
+			<tuv xml:lang="en_US"><seg>custom fields</seg></tuv>
 		</tu>
 		<tu tuid='common.customize'>
 			<tuv xml:lang="en_US"><seg>customize</seg></tuv>
@@ -120,6 +141,9 @@
 		<tu tuid='common.filter'>
 			<tuv xml:lang="en_US"><seg>filter</seg></tuv>
 		</tu>
+		<tu tuid='common.filter.add'>
+			<tuv xml:lang="en_US"><seg>Add Filter</seg></tuv>
+		</tu>
 		<tu tuid='common.filters'>
 			<tuv xml:lang="en_US"><seg>filters</seg></tuv>
 		</tu>
@@ -128,6 +152,9 @@
 		</tu>
 		<tu tuid='common.group'>
 			<tuv xml:lang="en_US"><seg>Group</seg></tuv>
+		</tu>
+		<tu tuid='common.groups'>
+			<tuv xml:lang="en_US"><seg>Groups</seg></tuv>
 		</tu>
 		<tu tuid='common.hours'>
 			<tuv xml:lang="en_US"><seg>hours</seg></tuv>
@@ -189,14 +216,23 @@
 		<tu tuid='common.optional'>
 			<tuv xml:lang="en_US"><seg>optional</seg></tuv>
 		</tu>		
+		<tu tuid='common.options'>
+			<tuv xml:lang="en_US"><seg>Options</seg></tuv>
+		</tu>
 		<tu tuid='common.order'>
 			<tuv xml:lang="en_US"><seg>order</seg></tuv>
 		</tu>		
+		<tu tuid='common.languages'>
+			<tuv xml:lang="en_US"><seg>Languages</seg></tuv>
+		</tu>
 		<tu tuid='common.load'>
 			<tuv xml:lang="en_US"><seg>Load</seg></tuv>
 		</tu>
 		<tu tuid='common.next'>
 			<tuv xml:lang="en_US"><seg>next</seg></tuv>
+		</tu>
+		<tu tuid='common.notify_workers'>
+			<tuv xml:lang="en_US"><seg>Notify workers</seg></tuv>
 		</tu>
 		<tu tuid='common.ok'>
 			<tuv xml:lang="en_US"><seg>OK</seg></tuv>
@@ -212,6 +248,12 @@
 		</tu>
 		<tu tuid='common.print'>
 			<tuv xml:lang="en_US"><seg>Print</seg></tuv>
+		</tu>
+		<tu tuid='common.quick_compose'>
+			<tuv xml:lang="en_US"><seg>Quick Compose</seg></tuv>
+		</tu>
+		<tu tuid='common.quick_search'>
+			<tuv xml:lang="en_US"><seg>Quick Search</seg></tuv>
 		</tu>
 		<tu tuid='common.refresh'>
 			<tuv xml:lang="en_US"><seg>refresh</seg></tuv>
@@ -258,8 +300,14 @@
 		<tu tuid='common.tasks'>
 			<tuv xml:lang="en_US"><seg>Tasks</seg></tuv>
 		</tu>
+		<tu tuid='common.text'>
+			<tuv xml:lang="en_US"><seg>Text</seg></tuv>
+		</tu>
 		<tu tuid='common.ticket'>
 			<tuv xml:lang="en_US"><seg>ticket</seg></tuv>
+		</tu>
+		<tu tuid='common.tips.multi_select'>
+			<tuv xml:lang="en_US"><seg>(hold CTRL or COMMAND to select multiple options)</seg></tuv>
 		</tu>
 		<tu tuid='common.today'>
 			<tuv xml:lang="en_US"><seg>today</seg></tuv>
@@ -282,11 +330,23 @@
 		<tu tuid='common.week'>
 			<tuv xml:lang="en_US"><seg>week</seg></tuv>
 		</tu>
+		<tu tuid='common.worker'>
+			<tuv xml:lang="en_US"><seg>worker</seg></tuv>
+		</tu>
+		<tu tuid='common.workers'>
+			<tuv xml:lang="en_US"><seg>workers</seg></tuv>
+		</tu>
 		<tu tuid='common.year'>
 			<tuv xml:lang="en_US"><seg>year</seg></tuv>
 		</tu>
 		<tu tuid='common.yes'>
 			<tuv xml:lang="en_US"><seg>yes</seg></tuv>
+		</tu>
+
+		<!-- Errors -->
+
+		<tu tuid='error.core.no_acl.edit'>
+			<tuv xml:lang="en_US"><seg>You do not have permission to modify this record.</seg></tuv>
 		</tu>
 
 		<!-- ACL -->
@@ -441,11 +501,80 @@
 
 		<!-- Address Book -->
 		
+		<tu tuid='addy_book.address.add'>
+			<tuv xml:lang="en_US"><seg>Add Contact</seg></tuv>
+		</tu>
 		<tu tuid='addy_book.history.view.title'>
 			<tuv xml:lang="en_US"><seg>Contact History</seg></tuv>
 		</tu>
 		<tu tuid='addy_book.history.view.requester'>
 			<tuv xml:lang="en_US"><seg>Requester History: %s contact(s)</seg></tuv>
+		</tu>
+		<tu tuid='addy_book.import.dupes.check'>
+			<tuv xml:lang="en_US"><seg>Check for duplicates using</seg></tuv>
+		</tu>
+		<tu tuid='addy_book.import.dupes.dont_check'>
+			<tuv xml:lang="en_US"><seg>don't check for duplicates</seg></tuv>
+		</tu>
+		<tu tuid='addy_book.import.from_file'>
+			<tuv xml:lang="en_US"><seg>Columns from your file</seg></tuv>
+		</tu>
+		<tu tuid='addy_book.import.options.blank_fields'>
+			<tuv xml:lang="en_US"><seg>Blank values for custom fields should clear the field (if unchecked, blank values are skipped)</seg></tuv>
+		</tu>
+		<tu tuid='addy_book.import.options.import_first_row'>
+			<tuv xml:lang="en_US"><seg>Import the first row (only check this if the dropdowns contain real data)</seg></tuv>
+		</tu>
+		<tu tuid='addy_book.import.options.replace_passwords'>
+			<tuv xml:lang="en_US"><seg>Replace all passwords with import values, even if they already exist</seg></tuv>
+		</tu>
+		<tu tuid='addy_book.import.record_type'>
+			<tuv xml:lang="en_US"><seg>Record Type</seg></tuv>
+		</tu>
+		<tu tuid='addy_book.import.to_field'>
+			<tuv xml:lang="en_US"><seg>Set value in field</seg></tuv>
+		</tu>
+		<tu tuid='addy_book.import.upload_csv'>
+			<tuv xml:lang="en_US"><seg>Upload .CSV File</seg></tuv>
+		</tu>
+		<tu tuid='addy_book.import.upload_csv.tip'>
+			<tuv xml:lang="en_US"><seg>(any column order; the next step will let you choose where the data goes)</seg></tuv>
+		</tu>
+		<tu tuid='addy_book.org.add'>
+			<tuv xml:lang="en_US"><seg>Add Org</seg></tuv>
+		</tu>
+		<tu tuid='addy_book.org.tabs.mail_history'>
+			<tuv xml:lang="en_US"><seg>Mail History</seg></tuv>
+		</tu>
+		<tu tuid='addy_book.org.tabs.notes'>
+			<tuv xml:lang="en_US"><seg>Notes</seg></tuv>
+		</tu>
+		<tu tuid='addy_book.org.tabs.notes.add'>
+			<tuv xml:lang="en_US"><seg>Add a note about %s</seg></tuv>
+		</tu>
+		<tu tuid='addy_book.org.tabs.people'>
+			<tuv xml:lang="en_US"><seg>People (%s)</seg></tuv>
+		</tu>
+		<tu tuid='addy_book.org.tabs.properties'>
+			<tuv xml:lang="en_US"><seg>Properties</seg></tuv>
+		</tu>
+		<tu tuid='addy_book.org.tabs.tasks'>
+			<tuv xml:lang="en_US"><seg>Tasks (%s)</seg></tuv>
+		</tu>
+		<tu tuid='addy_book.peek.compose'>
+			<tuv xml:lang="en_US"><seg>compose</seg></tuv>
+		</tu>
+		<tu tuid='addy_book.peek.count.open_tickets'>
+			<tuv xml:lang="en_US"><seg>%s open ticket(s)</seg></tuv>
+		</tu>
+		<tu tuid='addy_book.peek.count.closed_tickets'>
+			<tuv xml:lang="en_US"><seg>%s closed ticket(s)</seg></tuv>
+		</tu>
+		<tu tuid='addy_book.peek.title'>
+			<tuv xml:lang="en_US"><seg>E-mail Contact</seg></tuv>
+		</tu>
+		<tu tuid='addy_book.peek.view_full'>
+			<tuv xml:lang="en_US"><seg>view full record</seg></tuv>
 		</tu>
 		<tu tuid='addy_book.tab.addresses'>
 			<tuv xml:lang="en_US"><seg>Addresses</seg></tuv>
@@ -682,9 +811,6 @@
 		<tu tuid='dashboard.no_teams'>
 			<tuv xml:lang="en_US"><seg>No visible teams.</seg></tuv>
 		</tu>
-		<tu tuid='dashboard.options'>
-			<tuv xml:lang="en_US"><seg>Options</seg></tuv>
-		</tu>
 		<tu tuid='dashboard.num_rows'>
 			<tuv xml:lang="en_US"><seg>Rows per page</seg></tuv>
 		</tu>
@@ -869,9 +995,6 @@
 		
 		<!-- Mail -->
 		
-		<tu tuid='mail.bulk_update'>
-			<tuv xml:lang="en_US"><seg>Bulk Update</seg></tuv>
-		</tu>
 		<tu tuid='mail.inbound'>
 			<tuv xml:lang="en_US"><seg>Inbound</seg></tuv>
 		</tu>
@@ -1043,9 +1166,81 @@ If you did not request this, do not click the link above.  The request will expi
 
 		<!-- Search -->
 
+		<tu tuid='search.date.between'>
+			<tuv xml:lang="en_US"><seg>between</seg></tuv>
+		</tu>
+		<tu tuid='search.date.between.and'>
+			<tuv xml:lang="en_US"><seg>and</seg></tuv>
+		</tu>
+		<tu tuid='search.date.examples'>
+			<tuv xml:lang="en_US"><seg>examples:
+now
+today
+-2 days
+-1 month, 2 days
+last Friday
+next Monday
+Jan 9 2002</seg></tuv>
+		</tu>
+		<tu tuid='search.fulltext.examples'>
+			<tuv xml:lang="en_US"><seg>&lt;b&gt;Any words:&lt;/b&gt;
+payment receipt order sale
+
+&lt;b&gt;Booleans:&lt;/b&gt;
++payment -receipt
++payment credit
+
+&lt;b&gt;Wildcards:&lt;/b&gt;
+web*
+
+&lt;b&gt;Exact phrases:&lt;/b&gt;
+"credit card"
+
+&lt;b&gt;Boosting:&lt;/b&gt;
+cerberus &gt;helpdesk
+login &lt;ftp
+</seg></tuv>
+		</tu>
 		<tu tuid='search.no_saved'>
 			<tuv xml:lang="en_US"><seg>No saved searches.</seg></tuv>
 		</tu>
+		<tu tuid='search.oper.equals'>
+			<tuv xml:lang="en_US"><seg>equals</seg></tuv>
+		</tu>
+		<tu tuid='search.oper.equals.not'>
+			<tuv xml:lang="en_US"><seg>doesn't equal</seg></tuv>
+		</tu>
+		<tu tuid='search.oper.equals.or_null'>
+			<tuv xml:lang="en_US"><seg>equals or null</seg></tuv>
+		</tu>
+		<tu tuid='search.oper.in_list'>
+			<tuv xml:lang="en_US"><seg>in list</seg></tuv>
+		</tu>
+		<tu tuid='search.oper.in_list.not'>
+			<tuv xml:lang="en_US"><seg>not in list</seg></tuv>
+		</tu>
+		<tu tuid='search.oper.matches'>
+			<tuv xml:lang="en_US"><seg>matches</seg></tuv>
+		</tu>
+		<tu tuid='search.oper.matches.not'>
+			<tuv xml:lang="en_US"><seg>doesn't match</seg></tuv>
+		</tu>
+		<tu tuid='search.oper.null'>
+			<tuv xml:lang="en_US"><seg>is null (not set)</seg></tuv>
+		</tu>
+		<tu tuid='search.operator'>
+			<tuv xml:lang="en_US"><seg>operator</seg></tuv>
+		</tu>		
+		<tu tuid='search.string.examples'>
+			<tuv xml:lang="en_US"><seg>Use an asterisk (*) for wildcards.
+For example: *receipt*</seg></tuv>
+		</tu>		
+		<tu tuid='search.value'>
+			<tuv xml:lang="en_US"><seg>value</seg></tuv>
+		</tu>		
+		<tu tuid='search.values'>
+			<tuv xml:lang="en_US"><seg>values</seg></tuv>
+		</tu>		
 
 		<!-- Statuses -->
 
@@ -1064,6 +1259,9 @@ If you did not request this, do not click the link above.  The request will expi
 
 		<!-- Tasks -->
 
+		<tu tuid='tasks.add'>
+			<tuv xml:lang="en_US"><seg>Add Task</seg></tuv>
+		</tu>
 		<tu tuid='tasks.complete'>
 			<tuv xml:lang="en_US"><seg>Complete</seg></tuv>
 		</tu>

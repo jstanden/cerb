@@ -1,8 +1,8 @@
 <div id="headerSubMenu">
 	<div style="padding:5px;">
-		<a href="{devblocks_url}c=contacts{/devblocks_url}">address book</a>
+		<a href="{devblocks_url}c=contacts{/devblocks_url}">{$translate->_('core.menu.address_book')|lower}</a>
 		 &raquo; 
-		<a href="{devblocks_url}c=contacts&a=import{/devblocks_url}">import</a>
+		<a href="{devblocks_url}c=contacts&a=import{/devblocks_url}">{$translate->_('addy_book.tab.import')|lower}</a>
 	</div>
 </div>
 
@@ -13,16 +13,16 @@
 <input type="hidden" name="a" value="doImport">
 
 {if $type=="orgs"}
-<H2>Import Organizations</H2>
+<H2>{$translate->_('addy_book.tab.organizations')}</H2>
 {elseif $type=="addys"}
-<H2>Import E-mail Addresses</H2>
+<H2>{$translate->_('addy_book.tab.addresses')}</H2>
 {/if}
 <br>
 
 <table cellpadding="2" cellspacing="0" border="0">
 <tr>
-	<td><b>Columns from your file:</b></td>
-	<td style="padding-left:10px;"><b>Set value in field:</b></td>
+	<td><b>{$translate->_('addy_book.import.from_file')}:</b></td>
+	<td style="padding-left:10px;"><b>{$translate->_('addy_book.import.to_field')}:</b></td>
 </tr>
 {foreach from=$parts item=part key=pos}
 <tr>
@@ -37,10 +37,10 @@
 			<option value="{$field}">{$label}</option>
 		{/if}
 		{/foreach}
-		<option value="password">Password</option>
+		<option value="password">{$translate->_('common.password')|capitalize}</option>
 		
 		{if !empty($custom_fields)}
-		<optgroup label="- Custom Fields -">
+		<optgroup label="- {$translate->_('common.custom_fields')|capitalize} -">
 		{foreach from=$custom_fields item=field}
 			<option value="cf_{$field->id}">{$field->name}</option>
 		{/foreach}
@@ -52,20 +52,20 @@
 </table>
 <br>
 
-<b>Options:</b><br>
-<label><input type="checkbox" name="include_first" value="1"> Import the first row (only check this if the dropdowns contain real data)</label><br>
-<label><input type="checkbox" name="is_blank_unset" value="1"> Blank values for custom fields should clear the field (if unchecked, blank values are skipped)</label><br>
+<b>{$translate->_('common.options')|capitalize}:</b><br>
+<label><input type="checkbox" name="include_first" value="1"> {$translate->_('addy_book.import.options.import_first_row')}</label><br>
+<label><input type="checkbox" name="is_blank_unset" value="1"> {$translate->_('addy_book.import.options.blank_fields')}</label><br>
 {if $type=="addys"}
-<label><input type="checkbox" name="replace_passwords" value="1"> Replace all passwords with import values, even if they already exist</label><br>
+<label><input type="checkbox" name="replace_passwords" value="1"> {$translate->_('addy_book.import.options.replace_passwords')}</label><br>
 {/if}
 <br>
 
-<h2>Synchronization</h2>
+<h2>{$translate->_('common.synchronize')|capitalize}</h2>
 <br>
 
-<b>Check for duplicates using:</b><br>
+<b>{$translate->_('addy_book.import.dupes.check')}:</b><br>
 <select name="sync_column">
-	<option value="">-- don't check for duplicates --</option>
+	<option value="">-- {$translate->_('addy_book.import.dupes.dont_check')} --</option>
 	{if $type=="orgs"}
 		<option value="name" selected>{$fields.name|capitalize}</option>
 		<!-- 

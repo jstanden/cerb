@@ -65,7 +65,7 @@
 							<option value="{$opt|escape}" {if isset($custom_field_values.$f_id.$opt)}selected="selected"{/if}>{$opt}</option>
 							{/foreach}
 						</select><br>
-						<i><small>(hold CTRL or COMMAND to select multiple options)</small></i>
+						<i><small>{$translate->_('common.tips.multi_select')}</small></i>
 					{/if}
 				{elseif $f->type=='W'}
 					{if empty($workers)}

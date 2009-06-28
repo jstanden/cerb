@@ -7,27 +7,27 @@
 
 	<table cellpadding="0" cellspacing="2" border="0" width="98%">
 		<tr>
-			<td width="0%" nowrap="nowrap" align="right">Name: </td>
+			<td width="0%" nowrap="nowrap" align="right">{'common.name'|devblocks_translate}: </td>
 			<td width="100%"><input type="text" name="org_name" value="{$contact->name|escape}" style="width:98%;"></td>
 		</tr>
 		<tr>
-			<td align="right" valign="top">Street: </td>
+			<td align="right" valign="top">{'contact_org.street'|devblocks_translate}: </td>
 			<td><textarea name="street" style="width:98%;height:50px;">{$contact->street}</textarea></td>
 		</tr>
 		<tr>
-			<td align="right">City: </td>
+			<td align="right">{'contact_org.city'|devblocks_translate}: </td>
 			<td><input type="text" name="city" value="{$contact->city|escape}" style="width:98%;"></td>
 		</tr>
 		<tr>
-			<td align="right">State/Prov.: </td>
+			<td align="right">{'contact_org.province'|devblocks_translate}: </td>
 			<td><input type="text" name="province" value="{$contact->province|escape}" style="width:98%;"></td>
 		</tr>
 		<tr>
-			<td align="right">Postal: </td>
+			<td align="right">{'contact_org.postal'|devblocks_translate}: </td>
 			<td><input type="text" name="postal" value="{$contact->postal|escape}" style="width:98%;"></td>
 		</tr>
 		<tr>
-			<td align="right">Country: </td>
+			<td align="right">{'contact_org.country'|devblocks_translate}: </td>
 			<td>
 			
 				<div id="org_country_autocomplete" style="width:98%;" class="yui-ac">
@@ -39,11 +39,11 @@
 			</td>
 		</tr>
 		<tr>
-			<td align="right">Phone: </td>
+			<td align="right">{'contact_org.phone'|devblocks_translate}: </td>
 			<td><input type="text" name="phone" value="{$contact->phone|escape}" style="width:98%;"></td>
 		</tr>
 		<tr>
-			<td align="right">{if !empty($contact->website)}<a href="{$contact->website|escape}" target="_blank">Website</a>{else}Website{/if}: </td>
+			<td align="right">{if !empty($contact->website)}<a href="{$contact->website|escape}" target="_blank">{'contact_org.website'|devblocks_translate}</a>{else}{'contact_org.website'|devblocks_translate}{/if}: </td>
 			<td><input type="text" name="website" value="{$contact->website|escape}" style="width:98%;"></td>
 		</tr>
 	</table>

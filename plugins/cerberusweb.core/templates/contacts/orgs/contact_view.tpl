@@ -55,7 +55,7 @@
 	
 		<tr class="{$tableRowBg}" id="{$rowIdPrefix}_s" onmouseover="toggleClass(this.id,'tableRowHover');toggleClass('{$rowIdPrefix}','tableRowHover');" onmouseout="toggleClass(this.id,'{$tableRowBg}');toggleClass('{$rowIdPrefix}','{$tableRowBg}');" onclick="if(getEventTarget(event)=='TD') checkAll('{$rowIdPrefix}_s');">
 			<td align="center" rowspan="2"><input type="checkbox" name="row_id[]" value="{$result.c_id}"></td>
-			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}"><a href="{devblocks_url}c=contacts&a=browseOrgs&id={$result.c_id}&view_id={$view->id}{/devblocks_url}" style="font-size:12px;color:rgb(75,75,75);"><b id="subject_{$result.c_id}_{$view->id}">{$result.c_name}</b></a> <a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showOrgPeek&id={$result.c_id}&view_id={$view->id}',this,false,'600px',ajax.cbOrgCountryPeek);" style="color:rgb(180,180,180);font-size:90%;">(peek)</a></td>
+			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}"><a href="{devblocks_url}c=contacts&a=browseOrgs&id={$result.c_id}&view_id={$view->id}{/devblocks_url}" style="font-size:12px;color:rgb(75,75,75);"><b id="subject_{$result.c_id}_{$view->id}">{$result.c_name}</b></a> <a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showOrgPeek&id={$result.c_id}&view_id={$view->id}',this,false,'600px',ajax.cbOrgCountryPeek);" style="color:rgb(180,180,180);font-size:90%;">{$translate->_('views.peek')}</a></td>
 		</tr>
 		<tr class="{$tableRowBg}" id="{$rowIdPrefix}" onmouseover="toggleClass(this.id,'tableRowHover');toggleClass('{$rowIdPrefix}_s','tableRowHover');" onmouseout="toggleClass(this.id,'{$tableRowBg}');toggleClass('{$rowIdPrefix}_s','{$tableRowBg}');" onclick="if(getEventTarget(event)=='TD') checkAll('{$rowIdPrefix}_s');">
 		{foreach from=$view->view_columns item=column name=columns}
@@ -79,7 +79,7 @@
 	{if $total}
 	<tr>
 		<td colspan="2">
-			{if $active_worker->hasPriv('core.addybook.org.actions.update')}<button type="button" onclick="genericAjaxPanel('c=contacts&a=showOrgBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),this,false,'500px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> bulk update</button>{/if}
+			{if $active_worker->hasPriv('core.addybook.org.actions.update')}<button type="button" onclick="genericAjaxPanel('c=contacts&a=showOrgBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),this,false,'500px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> {$translate->_('common.bulk_update')|lower}</button>{/if}
 		</td>
 	</tr>
 	{/if}

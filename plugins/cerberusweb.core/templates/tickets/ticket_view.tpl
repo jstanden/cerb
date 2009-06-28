@@ -129,21 +129,21 @@
 			<span style="color:rgb(130,130,130);">
 			{if $result.t_last_action_code=='O'}
 				{assign var=action_worker_id value=$result.t_next_worker_id}
-				<span title="{$result.t_first_wrote}"><span style="">New</span> 
+				<span title="{$result.t_first_wrote}">New 
 				{if isset($workers.$action_worker_id)}for {$workers.$action_worker_id->getName()}{else}from <a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$result.t_first_wrote}&view_id={$view->id}',this,false,'500px',ajax.cbAddressPeek);">{$result.t_first_wrote|truncate:45:'...':true:true}</a>{/if}</span>
 			{elseif $result.t_last_action_code=='R'}
 				{assign var=action_worker_id value=$result.t_next_worker_id}
 				{if isset($workers.$action_worker_id)}
-					<span title="{$result.t_last_wrote}"><span style="color:rgb(255,50,50);background-color:rgb(255,213,213);font-weight:bold;">Inbound</span> for {$workers.$action_worker_id->getName()}</span>
+					<span title="{$result.t_last_wrote}"><span style="color:rgb(255,50,50);background-color:rgb(255,213,213);font-weight:bold;">{'mail.inbound'|devblocks_translate}</span> for {$workers.$action_worker_id->getName()}</span>
 				{else}
-					<span title="{$result.t_last_wrote}"><span style="color:rgb(255,50,50);background-color:rgb(255,213,213);font-weight:bold;">Inbound</span> from <a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$result.t_last_wrote}&view_id={$view->id}',this,false,'500px',ajax.cbAddressPeek);">{$result.t_last_wrote|truncate:45:'...':true:true}</a></span>
+					<span title="{$result.t_last_wrote}"><span style="color:rgb(255,50,50);background-color:rgb(255,213,213);font-weight:bold;">{'mail.inbound'|devblocks_translate}</span> from <a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$result.t_last_wrote}&view_id={$view->id}',this,false,'500px',ajax.cbAddressPeek);">{$result.t_last_wrote|truncate:45:'...':true:true}</a></span>
 				{/if}
 			{elseif $result.t_last_action_code=='W'}
 				{assign var=action_worker_id value=$result.t_last_worker_id}
 				{if isset($workers.$action_worker_id)}
-					<span title="{$result.t_last_wrote}"><span style="color:rgb(50,120,50);background-color:rgb(219,255,190);font-weight:bold;">Outbound</span> from {$workers.$action_worker_id->getName()}</span>
+					<span title="{$result.t_last_wrote}"><span style="color:rgb(50,120,50);background-color:rgb(219,255,190);font-weight:bold;">{'mail.outbound'|devblocks_translate}</span> from {$workers.$action_worker_id->getName()}</span>
 				{else}
-					<span title="{$result.t_last_wrote}"><span style="color:rgb(50,120,50);background-color:rgb(219,255,190);font-weight:bold;">Outbound</span> from Helpdesk</span>
+					<span title="{$result.t_last_wrote}"><span style="color:rgb(50,120,50);background-color:rgb(219,255,190);font-weight:bold;">{'mail.outbound'|devblocks_translate}</span> from Helpdesk</span>
 				{/if}
 			{/if}
 			</span>
@@ -188,7 +188,7 @@
 	<tr>
 		<td colspan="2">
 			{assign var=show_more value=0}
-			{if $active_worker->hasPriv('core.ticket.view.actions.bulk_update')}{assign var=show_more value=1}<button type="button"  id="btn{$view->id}BulkUpdate" onclick="ajax.showBatchPanel('{$view->id}',this);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> {$translate->_('mail.bulk_update')|lower}</button>{/if}
+			{if $active_worker->hasPriv('core.ticket.view.actions.bulk_update')}{assign var=show_more value=1}<button type="button"  id="btn{$view->id}BulkUpdate" onclick="ajax.showBatchPanel('{$view->id}',this);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> {$translate->_('common.bulk_update')|lower}</button>{/if}
 			{if $active_worker->hasPriv('core.ticket.actions.close')}{assign var=show_more value=1}<button type="button" id="btn{$view->id}Close" onclick="ajax.viewCloseTickets('{$view->id}',0);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_ok.gif{/devblocks_url}" align="top"> {$translate->_('common.close')|lower}</button>{/if}
 			{if $active_worker->hasPriv('core.ticket.actions.spam')}{assign var=show_more value=1}<button type="button"  id="btn{$view->id}Spam" onclick="ajax.viewCloseTickets('{$view->id}',1);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/spam.gif{/devblocks_url}" align="top"> {$translate->_('common.spam')|lower}</button>{/if}
 			{if $active_worker->hasPriv('core.ticket.actions.delete')}{assign var=show_more value=1}<button type="button"  id="btn{$view->id}Delete" onclick="ajax.viewCloseTickets('{$view->id}',2);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> {$translate->_('common.delete')|lower}</button>{/if}
@@ -231,7 +231,7 @@
 
 			{if $view->id=='overview_all' || $view->id=='mail_workflow' || $view->id=='search'}{*Only on Workflow/Overview*}
 				{$translate->_('common.keyboard')|lower}: 
-					{if $active_worker->hasPriv('core.ticket.view.actions.bulk_update')}(<b>b</b>) {$translate->_('mail.bulk_update')|lower}{/if} 
+					{if $active_worker->hasPriv('core.ticket.view.actions.bulk_update')}(<b>b</b>) {$translate->_('common.bulk_update')|lower}{/if} 
 					{if $active_worker->hasPriv('core.ticket.actions.close')}(<b>c</b>) {$translate->_('common.close')|lower}{/if} 
 					{if $active_worker->hasPriv('core.ticket.actions.spam')}(<b>s</b>) {$translate->_('common.spam')|lower}{/if} 
 					(<b>t</b>) {$translate->_('mail.take')|lower} 

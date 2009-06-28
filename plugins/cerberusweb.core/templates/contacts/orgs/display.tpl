@@ -1,8 +1,8 @@
 <div id="headerSubMenu">
 	<div style="padding:5px;">
-		<a href="{devblocks_url}c=contacts{/devblocks_url}">address book</a>
+		<a href="{devblocks_url}c=contacts{/devblocks_url}">{$translate->_('core.menu.address_book')|lower}</a>
 		 &raquo; 
-		<a href="{devblocks_url}c=contacts&a=orgs{/devblocks_url}">organizations</a>
+		<a href="{devblocks_url}c=contacts&a=orgs{/devblocks_url}">{$translate->_('addy_book.tab.organizations')|lower}</a>
 	</div>
 </div>
 
@@ -19,7 +19,7 @@
 			<br>
 		{/if}
 		{if !empty($contact->phone)}
-			Phone: {$contact->phone}
+			{$translate->_('contact_org.phone')|capitalize}: {$contact->phone}
 			<br>
 		{/if}
 		{if !empty($contact->website)}<a href="{$contact->website}" target="_blank">{$contact->website}</a>{/if}
@@ -32,10 +32,10 @@
 			<tr>
 				<td>	
 				<div style="padding:10px;margin-top:0px;border:1px solid rgb(180,180,255);background-color:rgb(245,245,255);text-align:center;">
-					Active list: <b>{$series_stats.title}</b><br>
-					{if !empty($series_stats.prev)}<button style="display:none;visibility:hidden;" id="btnPagePrev" onclick="document.location='{devblocks_url}c=contacts&a=orgs&d=display&id={$series_stats.prev}{/devblocks_url}';">&laquo;Prev</button><a href="{devblocks_url}c=contacts&a=orgs&d=display&id={$series_stats.prev}{/devblocks_url}">&laquo;Prev</a>{/if} 
-					 ({$series_stats.cur}-{$series_stats.count} of {$series_stats.total}) 
-					{if !empty($series_stats.next)}<button style="display:none;visibility:hidden;" id="btnPageNext" onclick="document.location='{devblocks_url}c=contacts&a=orgs&d=display&id={$series_stats.next}{/devblocks_url}';">Next&raquo;</button><a href="{devblocks_url}c=contacts&a=orgs&d=display&id={$series_stats.next}{/devblocks_url}">Next&raquo;</a>{/if}
+					{$translate->_('display.listnav.active_list')} <b>{$series_stats.title}</b><br>
+					{if !empty($series_stats.prev)}<button style="display:none;visibility:hidden;" id="btnPagePrev" onclick="document.location='{devblocks_url}c=contacts&a=orgs&d=display&id={$series_stats.prev}{/devblocks_url}';"></button><a href="{devblocks_url}c=contacts&a=orgs&d=display&id={$series_stats.prev}{/devblocks_url}">&laquo;{$translate->_('common.previous_short')|capitalize}</a>{/if}
+					{'display.listnav.showing_of_total'|devblocks_translate:$series_stats.cur:$series_stats.count} 
+					{if !empty($series_stats.next)}<button style="display:none;visibility:hidden;" id="btnPageNext" onclick="document.location='{devblocks_url}c=contacts&a=orgs&d=display&id={$series_stats.next}{/devblocks_url}';"></button><a href="{devblocks_url}c=contacts&a=orgs&d=display&id={$series_stats.next}{/devblocks_url}">{$translate->_('common.next')|capitalize}&raquo;</a>{/if}
 				</div>
 				</td>
 			</tr>
@@ -53,32 +53,32 @@
 var tabView = new YAHOO.widget.TabView();
 
 tabView.addTab( new YAHOO.widget.Tab({
-    label: 'Notes',
+    label: '{/literal}{$translate->_('addy_book.org.tabs.notes')|escape:'quotes'}{literal}',
     dataSrc: '{/literal}{devblocks_url}ajax.php?c=contacts&a=showTabNotes&org={$contact->id}{/devblocks_url}{literal}',
     cacheData: true,
     active: true
 }));
 
 tabView.addTab( new YAHOO.widget.Tab({
-    label: 'Properties',
+    label: '{/literal}{$translate->_('addy_book.org.tabs.properties')|escape:'quotes'}{literal}',
     dataSrc: '{/literal}{devblocks_url}ajax.php?c=contacts&a=showTabProperties&org={$contact->id}{/devblocks_url}{literal}',
     cacheData: false
 }));
 
 tabView.addTab( new YAHOO.widget.Tab({
-    label: 'Mail History',
+    label: '{/literal}{$translate->_('addy_book.org.tabs.mail_history')|escape:'quotes'}{literal}',
     dataSrc: '{/literal}{devblocks_url}ajax.php?c=contacts&a=showTabHistory&org={$contact->id}{/devblocks_url}{literal}',
     cacheData: true
 }));
 
 tabView.addTab( new YAHOO.widget.Tab({
-    label: 'People ({/literal}{$people_total}{literal})',
+    label: '{/literal}{'addy_book.org.tabs.people'|devblocks_translate:$people_total|escape:'quotes'}{literal}',
     dataSrc: '{/literal}{devblocks_url}ajax.php?c=contacts&a=showTabPeople&org={$contact->id}{/devblocks_url}{literal}',
     cacheData: true
 }));
 
 tabView.addTab( new YAHOO.widget.Tab({
-    label: 'Tasks ({/literal}{$tasks_total}{literal})',
+    label: '{/literal}{'addy_book.org.tabs.tasks'|devblocks_translate:$tasks_total|escape:'quotes'}{literal}',
     dataSrc: '{/literal}{devblocks_url}ajax.php?c=contacts&a=showTabTasks&org={$contact->id}{/devblocks_url}{literal}',
     cacheData: true
 }));
@@ -90,7 +90,7 @@ var tabDetails = tabView.getTab(0);
 {* Add any plugin-contributed tabs to the addresses view *}
 {foreach from=$tab_manifests item=tab_manifest}
 {literal}tabView.addTab( new YAHOO.widget.Tab({{/literal}
-    label: '{$tab_manifest->params.title|escape:'quotes'}',
+    label: '{$tab_manifest->params.title|devblocks_translate|escape:'quotes'}',
     dataSrc: '{devblocks_url}ajax.php?c=contacts&a=showTab&ext_id={$tab_manifest->id}&org_id={$contact->id}{/devblocks_url}',
     {if $tab==$tab_manifest->params.uri}active: true,{/if}
     cacheData: false

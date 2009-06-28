@@ -1,7 +1,7 @@
 <table cellpadding="0" cellspacing="0" border="0" width="98%">
 	<tr>
 		<td align="left" width="0%" nowrap="nowrap" style="padding-right:5px;"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/gear.gif{/devblocks_url}" align="absmiddle"></td>
-		<td align="left" width="100%" nowrap="nowrap"><h1>Bulk Update</h1></td>
+		<td align="left" width="100%" nowrap="nowrap"><h1>{$translate->_('common.bulk_update')|capitalize}</h1></td>
 	</tr>
 </table>
 
@@ -12,9 +12,9 @@
 <input type="hidden" name="ticket_ids" value="">
 <div style="height:400px;overflow:auto;">
 
-<h2>With:</h2>
-<label><input type="radio" name="filter" value="" onclick="toggleDiv('categoryFilterPanelSender','none');toggleDiv('categoryFilterPanelSubject','none');" {if empty($ticket_ids)}checked{/if}> Whole list</label> 
-<label><input type="radio" name="filter" value="checks" onclick="toggleDiv('categoryFilterPanelSender','none');toggleDiv('categoryFilterPanelSubject','none');" {if !empty($ticket_ids)}checked{/if}> Only checked</label> 
+<h2>{$translate->_('common.bulk_update.with')|capitalize}:</h2>
+<label><input type="radio" name="filter" value="" onclick="toggleDiv('categoryFilterPanelSender','none');toggleDiv('categoryFilterPanelSubject','none');" {if empty($ticket_ids)}checked{/if}> {$translate->_('common.bulk_update.filter.all')}</label> 
+<label><input type="radio" name="filter" value="checks" onclick="toggleDiv('categoryFilterPanelSender','none');toggleDiv('categoryFilterPanelSubject','none');" {if !empty($ticket_ids)}checked{/if}> {$translate->_('common.bulk_update.filter.checked')}</label> 
 <label><input type="radio" name="filter" value="sender" onclick="toggleDiv('categoryFilterPanelSender','block');toggleDiv('categoryFilterPanelSubject','none');"> Similar senders</label>
 <label><input type="radio" name="filter" value="subject" onclick="toggleDiv('categoryFilterPanelSender','none');toggleDiv('categoryFilterPanelSubject','block');"> Similar subjects</label>
 <br>
@@ -32,7 +32,7 @@
 <br>
 </div>
 
-<H2>Do:</H2>
+<H2>{$translate->_('common.bulk_update.do')|capitalize}:</H2>
 <table cellspacing="0" cellpadding="2" width="100%">
 	{if $active_worker->hasPriv('core.ticket.actions.move')}
 	<tr>
