@@ -415,6 +415,10 @@ class Model_GroupInboxFilter {
 		foreach($filters as $filter) { /* @var $filter Model_GroupInboxFilter */
 			$passed = 0;
 
+			// Skip filters with no criteria
+			if(!is_array($filter->criteria) || empty($filter->criteria))
+				continue; 
+
 			// check criteria
 			foreach($filter->criteria as $rule_key => $rule) {
 				@$value = $rule['value'];
