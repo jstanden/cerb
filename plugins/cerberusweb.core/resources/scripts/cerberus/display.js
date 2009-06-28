@@ -40,13 +40,15 @@ var cDisplayTicketAjax = function(ticket_id) {
 					
 					div.innerHTML = o.responseText;
 					document.location = '#reply' + id;
+
+					var frm_reply = document.getElementById('reply' + id + '_part2');
 					
-					if(null != div.content) {
+					if(null != frm_reply.content) {
 						if(!is_forward) {
-							div.content.focus();
-							setElementSelRange(div.content, 0, 0);
+							frm_reply.content.focus();
+							setElementSelRange(frm_reply.content, 0, 0);
 						} else {
-							div.to.focus();
+							frm_reply.to.focus();
 						}
 					}
 					
