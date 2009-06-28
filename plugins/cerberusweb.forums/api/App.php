@@ -347,11 +347,42 @@ class ChForumsController extends DevblocksControllerExtension {
 		@$row_ids = DevblocksPlatform::importGPC($_POST['row_id'],'array',array());
 		@$worker_id = DevblocksPlatform::importGPC($_REQUEST['assign_worker_id'],'integer',0);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
+
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		if(is_array($row_ids) && !empty($row_ids)) { 
+			// Do assignments
+			$fields = array(
+				DAO_ForumsThread::WORKER_ID => $worker_id
+			);
+			DAO_ForumsThread::update($row_ids, $fields);
+	
+			// Only send notifications if not assigning to self (or unassigning)
+			if(!empty($worker_id) && $active_worker->id != $worker_id) {
+				$url_writer = DevblocksPlatform::getUrlService();
+				
+				// Load threads for notifications
+				$forum_threads = DAO_ForumsThread::getWhere(sprintf("%s IN (%s)",
+					DAO_ForumsThread::ID,
+					implode(',', $row_ids)
+				));
 		
-		$fields = array(
-			DAO_ForumsThread::WORKER_ID => $worker_id
-		);
-		DAO_ForumsThread::update($row_ids, $fields);
+				// Send notifications about assigned forum threads
+				if(is_array($forum_threads) && !empty($forum_threads))
+				foreach($forum_threads as $forum_thread) {
+					/* @var $forum_thread Model_ForumsThread */
+					$fields = array(
+						DAO_WorkerEvent::CREATED_DATE => time(),
+						DAO_WorkerEvent::WORKER_ID => $worker_id,
+						DAO_WorkerEvent::URL => $url_writer->write('c=forums&a=explorer',true) . '?start=' . $forum_thread->id,
+						DAO_WorkerEvent::TITLE => 'New Forum Assignment', // [TODO] Translate
+						DAO_WorkerEvent::CONTENT => sprintf("%s assigned: %s", $active_worker->getName(), $forum_thread->title), // [TODO] Translate
+						DAO_WorkerEvent::IS_READ => 0,
+					);
+					DAO_WorkerEvent::create($fields);
+				}
+			}
+		}
 
 		if(!empty($view_id) && null != ($view = C4_AbstractViewLoader::getView('', $view_id))) {
 			$view->render();
