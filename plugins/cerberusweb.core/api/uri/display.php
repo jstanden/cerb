@@ -1063,7 +1063,20 @@ class ChDisplayPage extends CerberusPageExtension {
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('display',$new_ticket_mask)));
 	}
 	
+	function doTicketHistoryScopeAction() {
+		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer');
+		@$scope = DevblocksPlatform::importGPC($_REQUEST['scope'],'string','');
+		
+		$visit = CerberusApplication::getVisit();
+		$visit->set('display.history.scope', $scope);
+
+		$ticket = DAO_Ticket::getTicket($ticket_id);
+
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('display',$ticket->mask,'history')));
+	}
+	
 	function showContactHistoryAction() {
+		$visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer');
@@ -1071,13 +1084,22 @@ class ChDisplayPage extends CerberusPageExtension {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', $this->_TPL_PATH);
 		
+		// Ticket
 		$ticket = DAO_Ticket::getTicket($ticket_id);
+		$tpl->assign('ticket', $ticket);
+		
 		$requesters = $ticket->getRequesters();
 		
+		// Addy
 		$contact = DAO_Address::get($ticket->first_wrote_address_id);
 		$tpl->assign('contact', $contact);
+
+		// Scope
+		$scope = $visit->get('display.history.scope', '');
 		
-		$visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
+		// [TODO] Sanitize scope preference
+		
+		// View
 		$view = C4_AbstractViewLoader::getView('','contact_history');
 		
 		if(null == $view) {
@@ -1097,11 +1119,50 @@ class ChDisplayPage extends CerberusPageExtension {
 			$view->renderSortAsc = false;
 		}
 
-		$view->name = vsprintf($translate->_('addy_book.history.view.requester'), intval(count($requesters)));
-		$view->params = array(
-			SearchFields_Ticket::REQUESTER_ID => new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ID,'in',array_keys($requesters)),
-			SearchFields_Ticket::TICKET_DELETED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,DevblocksSearchCriteria::OPER_EQ,0)
-		);
+		// Sanitize scope options
+		if('org'==$scope) {
+			if(empty($contact->contact_org_id))
+				$scope = '';
+				
+			if(null == ($contact_org = DAO_ContactOrg::get($contact->contact_org_id)))
+				$scope = '';
+		}
+		if('domain'==$scope) {
+			$email_parts = explode('@', $contact->email);
+			if(!is_array($email_parts) || 2 != count($email_parts))
+				$scope = '';
+		}
+
+		switch($scope) {
+			case 'org':
+				$view->params = array(
+					SearchFields_Ticket::TICKET_FIRST_CONTACT_ORG_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_FIRST_CONTACT_ORG_ID,'=',$contact->contact_org_id),
+					SearchFields_Ticket::TICKET_DELETED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,'=',0),
+				);
+				$view->name = ucwords($translate->_('contact_org.name')) . ": " . $contact_org->name;
+				break;
+				
+			case 'domain':
+				$view->params = array(
+					SearchFields_Ticket::REQUESTER_ADDRESS => new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ADDRESS,'like','*@'.$email_parts[1]),
+					SearchFields_Ticket::TICKET_DELETED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,'=',0),
+				);
+				$view->name = ucwords($translate->_('common.email')) . ": *@" . $email_parts[1];
+				break;
+				
+			default:
+			case 'email':
+				$scope = 'email';
+				$view->params = array(
+					SearchFields_Ticket::REQUESTER_ID => new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ID,'in',array($ticket->first_wrote_address_id)),
+					SearchFields_Ticket::TICKET_DELETED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,'=',0),
+				);
+				$view->name = ucwords($translate->_('common.email')) . ": " . $contact->email;
+				break;
+		}
+
+		$tpl->assign('scope', $scope);		
+
 		$view->renderPage = 0;
 		$tpl->assign('view', $view);
 		
