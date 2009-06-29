@@ -98,6 +98,9 @@ class CrmOppsActivityTab extends Extension_ActivityTab {
 		}
 
 		$tpl->assign('response_uri', 'activity/opps');
+
+		$quick_search_type = $visit->get('crm.opps.quick_search_type');
+		$tpl->assign('quick_search_type', $quick_search_type);
 		
 		$tpl->assign('view', $view);
 		$tpl->assign('view_fields', C4_CrmOpportunityView::getFields());
@@ -730,6 +733,53 @@ class CrmPage extends CerberusPageExtension {
 		
 		$view->render();
 		return;
+	}
+	
+	function doQuickSearchAction() {
+        @$type = DevblocksPlatform::importGPC($_POST['type'],'string'); 
+        @$query = DevblocksPlatform::importGPC($_POST['query'],'string');
+
+        $query = trim($query);
+        
+        $visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
+        $translate = DevblocksPlatform::getTranslationService();
+		
+        if(null == ($searchView = C4_AbstractViewLoader::getView('',CrmOppsActivityTab::VIEW_ACTIVITY_OPPS))) {
+        	$searchView = new C4_CrmOpportunityView();
+        	$searchView->id = CrmOppsActivityTab::VIEW_ACTIVITY_OPPS;
+        	$searchView->name = $translate->_('common.search_results');
+        	C4_AbstractViewLoader::setView($searchView->id, $searchView);
+        }
+		
+		$visit->set('crm.opps.quick_search_type', $type);
+		
+        $params = array();
+        
+        switch($type) {
+            case "title":
+		        if($query && false===strpos($query,'*'))
+		            $query = '*' . $query . '*';
+            	$params[SearchFields_CrmOpportunity::NAME] = new DevblocksSearchCriteria(SearchFields_CrmOpportunity::NAME,DevblocksSearchCriteria::OPER_LIKE,$query);               
+                break;
+            case "email":
+		        if($query && false===strpos($query,'*'))
+		            $query = '*' . $query . '*';
+            	$params[SearchFields_CrmOpportunity::EMAIL_ADDRESS] = new DevblocksSearchCriteria(SearchFields_CrmOpportunity::EMAIL_ADDRESS,DevblocksSearchCriteria::OPER_LIKE,$query);               
+                break;
+            case "org":
+		        if($query && false===strpos($query,'*'))
+		            $query = '*' . $query . '*';
+            	$params[SearchFields_CrmOpportunity::ORG_NAME] = new DevblocksSearchCriteria(SearchFields_CrmOpportunity::ORG_NAME,DevblocksSearchCriteria::OPER_LIKE,$query);      
+                break;
+        }
+        
+        $searchView->params = $params;
+        $searchView->renderPage = 0;
+        $searchView->renderSortBy = null;
+        
+        C4_AbstractViewLoader::setView($searchView->id,$searchView);
+        
+        DevblocksPlatform::redirect(new DevblocksHttpResponse(array('activity','opps')));
 	}
 	
 	// Ajax
