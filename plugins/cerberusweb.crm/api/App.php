@@ -480,17 +480,33 @@ class CrmPage extends CerberusPageExtension {
 		$tpl->assign('path', $tpl_path);
 		
 		$visit = CerberusApplication::getVisit();
+		$translate = DevblocksPlatform::getTranslationService();
+		
+		// Remember the selected tab
 		$visit->set(self::SESSION_OPP_TAB, 'mail');
 		
+		// Opp
 		$opp = DAO_CrmOpportunity::get($opp_id);
 		$tpl->assign('opp', $opp);
 
+		// Recall the history scope
+		$scope = $visit->get('crm.opps.history.scope', '');
+
+		// Addy
 		$address = DAO_Address::get($opp->primary_email_id);
 		$tpl->assign('address', $address);
+
+		// Addy->Org
+		if(!empty($address->contact_org_id)) {
+			if(null != ($contact_org = DAO_ContactOrg::get($address->contact_org_id)))
+				$tpl->assign('contact_org', $contact_org);
+		}
 		
+		// View
 		$view = C4_AbstractViewLoader::getView('C4_TicketView', 'opp_tickets');
 		$view->id = 'opp_tickets';
-		$view->name = 'Open Tickets';
+		$view->name = '';
+		$view->renderPage = 0;
 		$view->view_columns = array(
 			SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
 			SearchFields_Ticket::TICKET_UPDATED_DATE,
@@ -498,16 +514,62 @@ class CrmPage extends CerberusPageExtension {
 			SearchFields_Ticket::TICKET_CATEGORY_ID,
 			SearchFields_Ticket::TICKET_NEXT_WORKER_ID,
 		);
-		$view->params = array(
-			SearchFields_Ticket::REQUESTER_ID => new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ID,'in',array($opp->primary_email_id)),
-			SearchFields_Ticket::TICKET_DELETED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,'=',0),
-		);
-		$view->name = "Requester: " . $address->email;
+
+		// Sanitize scope options
+		if('org'==$scope && empty($contact_org))
+			$scope = '';
+		if('domain'==$scope) {
+			$email_parts = explode('@', $address->email);
+			if(!is_array($email_parts) || 2 != count($email_parts))
+				$scope = '';
+		}
+
+		switch($scope) {
+			case 'org':
+				$view->params = array(
+					SearchFields_Ticket::TICKET_FIRST_CONTACT_ORG_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_FIRST_CONTACT_ORG_ID,'=',$address->contact_org_id),
+					SearchFields_Ticket::TICKET_DELETED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,'=',0),
+				);
+				$view->name = ucwords($translate->_('contact_org.name')) . ": " . $contact_org->name;
+				break;
+				
+			case 'domain':
+				$view->params = array(
+					SearchFields_Ticket::REQUESTER_ADDRESS => new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ADDRESS,'like','*@'.$email_parts[1]),
+					SearchFields_Ticket::TICKET_DELETED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,'=',0),
+				);
+				$view->name = ucwords($translate->_('common.email')) . ": *@" . $email_parts[1];
+				break;
+				
+			default:
+			case 'email':
+				$scope = 'email';
+				$view->params = array(
+					SearchFields_Ticket::REQUESTER_ID => new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ID,'in',array($opp->primary_email_id)),
+					SearchFields_Ticket::TICKET_DELETED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,'=',0),
+				);
+				$view->name = ucwords($translate->_('common.email')) . ": " . $address->email;
+				break;
+		}
+		
+		$tpl->assign('scope', $scope);
+		
 		$tpl->assign('view', $view);
 		
 		C4_AbstractViewLoader::setView($view->id, $view);
 		
 		$tpl->display('file:' . $tpl_path . 'crm/opps/display/tabs/mail.tpl');
+	}
+	
+	function doOppHistoryScopeAction() {
+		@$opp_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer');
+		@$scope = DevblocksPlatform::importGPC($_REQUEST['scope'],'string','');
+		
+		$visit = CerberusApplication::getVisit();
+
+		$visit->set('crm.opps.history.scope', $scope);
+		
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('crm','opps',$opp_id,'history')));
 	}
 	
 	function showOppPropertiesTabAction() {
