@@ -307,6 +307,7 @@ class UmScContactController extends Extension_UmScController {
 		$sNature = $umsession->getProperty('support.write.last_nature', '');
 		
         $captcha_enabled = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), self::PARAM_CAPTCHA_ENABLED, 1);
+		$captcha_session = $umsession->getProperty(UmScApp::SESSION_CAPTCHA,'***');
 		
 		// Subject is required if the field  is on the form
 		if(isset($_POST['subject']) && empty($sSubject)) {
@@ -317,7 +318,7 @@ class UmScContactController extends Extension_UmScController {
 		}
 		
 		// Sender and CAPTCHA required
-		if(empty($sFrom) || ($captcha_enabled && 0 != strcasecmp($sCaptcha,@$umsession->getProperty(UmScApp::SESSION_CAPTCHA,'***')))) {
+		if(empty($sFrom) || ($captcha_enabled && 0 != strcasecmp($sCaptcha, $captcha_session))) {
 			
 			if(empty($sFrom)) {
 				$umsession->setProperty('support.write.last_error','Invalid e-mail address.');
