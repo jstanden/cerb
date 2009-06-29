@@ -7,7 +7,7 @@
 <div id="contact">
 <form action="{devblocks_url}c=contact{/devblocks_url}" method="post">
 <input type="hidden" name="a" value="doContactSend">
-<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<table border="0" cellpadding="0" cellspacing="0" width="99%">
   <tbody>
     <tr>
       <td colspan="2">
