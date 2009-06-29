@@ -1277,6 +1277,9 @@ class SearchFields_CrmOpportunity implements IDevblocksSearchFields {
 			$columns[$key] = new DevblocksSearchField($key,$key,'field_value',null,$field->name);
 		}
 		
+		// Sort by label (translation-conscious)
+		uasort($columns, create_function('$a, $b', "return strcasecmp(\$a->db_label,\$b->db_label);\n"));
+		
 		return $columns;
 	}
 };	

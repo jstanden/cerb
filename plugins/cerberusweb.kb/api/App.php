@@ -768,7 +768,7 @@ class SearchFields_KbArticle implements IDevblocksSearchFields {
 	static function getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
-		return array(
+		$columns = array(
 			self::ID => new DevblocksSearchField(self::ID, 'kb', 'id', null, $translate->_('kb_article.id')),
 			self::TITLE => new DevblocksSearchField(self::TITLE, 'kb', 'title', null, $translate->_('kb_article.title')),
 			self::UPDATED => new DevblocksSearchField(self::UPDATED, 'kb', 'updated', null, $translate->_('kb_article.updated')),
@@ -779,6 +779,11 @@ class SearchFields_KbArticle implements IDevblocksSearchFields {
 			self::CATEGORY_ID => new DevblocksSearchField(self::CATEGORY_ID, 'katc', 'kb_category_id'),
 			self::TOP_CATEGORY_ID => new DevblocksSearchField(self::TOP_CATEGORY_ID, 'katc', 'kb_top_category_id', null, $translate->_('kb_article.topic')),
 		);
+		
+		// Sort by label (translation-conscious)
+		uasort($columns, create_function('$a, $b', "return strcasecmp(\$a->db_label,\$b->db_label);\n"));
+
+		return $columns;		
 	}
 };	
 

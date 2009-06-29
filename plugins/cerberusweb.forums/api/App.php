@@ -737,7 +737,8 @@ class SearchFields_ForumsThread implements IDevblocksSearchFields {
 	 */
 	static function getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
-		return array(
+		
+		$columns = array(
 			self::ID => new DevblocksSearchField(self::ID, 't', 'id', null, $translate->_('forumsthread.id')),
 			self::THREAD_ID => new DevblocksSearchField(self::THREAD_ID, 't', 'thread_id', null, $translate->_('forumsthread.thread_id')),
 			self::FORUM_ID => new DevblocksSearchField(self::FORUM_ID, 't', 'forum_id', null, $translate->_('forumsthread.forum_id')),
@@ -748,6 +749,11 @@ class SearchFields_ForumsThread implements IDevblocksSearchFields {
 			self::IS_CLOSED => new DevblocksSearchField(self::IS_CLOSED, 't', 'is_closed', null, $translate->_('forumsthread.is_closed')),
 			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 't', 'worker_id', null, $translate->_('forumsthread.worker_id')),
 		);
+		
+		// Sort by label (translation-conscious)
+		uasort($columns, create_function('$a, $b', "return strcasecmp(\$a->db_label,\$b->db_label);\n"));
+
+		return $columns;		
 	}
 };
 

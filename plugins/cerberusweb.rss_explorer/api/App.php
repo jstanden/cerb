@@ -329,7 +329,8 @@ class SearchFields_RssExpItem {
 	 */
 	static function getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
-		return array(
+		
+		$columns = array(
 			self::ID => new DevblocksSearchField(self::ID, 'r', 'id', null, $translate->_('common.id')),
 			self::FEED_ID => new DevblocksSearchField(self::FEED_ID, 'r', 'feed_id', null, $translate->_('rssexp_item.model.feed_id')),
 			self::TITLE => new DevblocksSearchField(self::TITLE, 'r', 'title', null, $translate->_('rssexp_item.model.title')),
@@ -339,6 +340,11 @@ class SearchFields_RssExpItem {
 			
 			self::FEED_NAME => new DevblocksSearchField(self::FEED_NAME, 'f', 'name', null, $translate->_('rssexp_feed.model.name')),
 		);
+		
+		// Sort by label (translation-conscious)
+		uasort($columns, create_function('$a, $b', "return strcasecmp(\$a->db_label,\$b->db_label);\n"));
+
+		return $columns;		
 	}
 };
 

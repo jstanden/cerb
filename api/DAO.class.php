@@ -724,11 +724,16 @@ class SearchFields_Worker implements IDevblocksSearchFields {
 	 * @return DevblocksSearchField[]
 	 */
 	static function getFields() {
-		return array(
+		$columns = array(
 			SearchFields_Worker::ID => new DevblocksSearchField(SearchFields_Worker::ID, 'w', 'id'),
 			SearchFields_Worker::LAST_ACTIVITY => new DevblocksSearchField(SearchFields_Worker::LAST_ACTIVITY, 'w', 'last_activity'),
 			SearchFields_Worker::LAST_ACTIVITY_DATE => new DevblocksSearchField(SearchFields_Worker::LAST_ACTIVITY_DATE, 'w', 'last_activity_date'),
 		);
+		
+		// Sort by label (translation-conscious)
+		uasort($columns, create_function('$a, $b', "return strcasecmp(\$a->db_label,\$b->db_label);\n"));
+
+		return $columns;		
 	}
 };
 
@@ -1206,7 +1211,7 @@ class SearchFields_WorkerEvent implements IDevblocksSearchFields {
 	static function getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
-		return array(
+		$columns = array(
 			self::ID => new DevblocksSearchField(self::ID, 'we', 'id', null, $translate->_('worker_event.id')),
 			self::CREATED_DATE => new DevblocksSearchField(self::CREATED_DATE, 'we', 'created_date', null, $translate->_('worker_event.created_date')),
 			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 'we', 'worker_id', null, $translate->_('worker_event.worker_id')),
@@ -1215,6 +1220,11 @@ class SearchFields_WorkerEvent implements IDevblocksSearchFields {
 			self::IS_READ => new DevblocksSearchField(self::IS_READ, 'we', 'is_read', null, $translate->_('worker_event.is_read')),
 			self::URL => new DevblocksSearchField(self::URL, 'we', 'url', null, $translate->_('common.url')),
 		);
+		
+		// Sort by label (translation-conscious)
+		uasort($columns, create_function('$a, $b', "return strcasecmp(\$a->db_label,\$b->db_label);\n"));
+
+		return $columns;		
 	}
 };
 
@@ -1517,6 +1527,7 @@ class SearchFields_ContactOrg {
 	 */
 	static function getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
+		
 		$columns = array(
 			self::ID => new DevblocksSearchField(self::ID, 'c', 'id', null, $translate->_('contact_org.id')),
 			self::NAME => new DevblocksSearchField(self::NAME, 'c', 'name', null, $translate->_('contact_org.name')),
@@ -1538,6 +1549,9 @@ class SearchFields_ContactOrg {
 			$key = 'cf_'.$field_id;
 			$columns[$key] = new DevblocksSearchField($key,$key,'field_value',null,$field->name);
 		}
+		
+		// Sort by label (translation-conscious)
+		uasort($columns, create_function('$a, $b', "return strcasecmp(\$a->db_label,\$b->db_label);\n"));
 		
 		return $columns;
 	}
@@ -1931,6 +1945,9 @@ class SearchFields_Address implements IDevblocksSearchFields {
 			$columns[$key] = new DevblocksSearchField($key,$key,'field_value',null,$field->name);
 		}
 		
+		// Sort by label (translation-conscious)
+		uasort($columns, create_function('$a, $b', "return strcasecmp(\$a->db_label,\$b->db_label);\n"));
+		
 		return $columns;
 	}
 };
@@ -2309,7 +2326,7 @@ class SearchFields_Message implements IDevblocksSearchFields {
 	 * @return DevblocksSearchField[]
 	 */
 	static function getFields() {
-		return array(
+		$columns = array(
 			SearchFields_Message::ID => new DevblocksSearchField(SearchFields_Message::ID, 'm', 'id'),
 			SearchFields_Message::TICKET_ID => new DevblocksSearchField(SearchFields_Message::TICKET_ID, 'm', 'ticket_id'),
 			
@@ -2318,6 +2335,11 @@ class SearchFields_Message implements IDevblocksSearchFields {
 
 			SearchFields_Message::MESSAGE_CONTENT => new DevblocksSearchField(SearchFields_Message::MESSAGE_CONTENT, 'mc', 'content', 'B'),
 		);
+		
+		// Sort by label (translation-conscious)
+		uasort($columns, create_function('$a, $b', "return strcasecmp(\$a->db_label,\$b->db_label);\n"));
+
+		return $columns;
 	}
 };
 
@@ -2873,7 +2895,8 @@ class SearchFields_Attachment implements IDevblocksSearchFields {
 	 */
 	static function getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
-		return array(
+		
+		$columns = array(
 			self::ID => new DevblocksSearchField(self::ID, 'a', 'id', null, $translate->_('attachment.id')),
 			self::MESSAGE_ID => new DevblocksSearchField(self::MESSAGE_ID, 'a', 'message_id', null, $translate->_('attachment.message_id')),
 			self::DISPLAY_NAME => new DevblocksSearchField(self::DISPLAY_NAME, 'a', 'display_name', null, $translate->_('attachment.display_name')),
@@ -2891,6 +2914,11 @@ class SearchFields_Attachment implements IDevblocksSearchFields {
 			
 			self::ADDRESS_EMAIL => new DevblocksSearchField(self::ADDRESS_EMAIL, 'ad', 'email', null, $translate->_('message.header.from')),
 		);
+		
+		// Sort by label (translation-conscious)
+		uasort($columns, create_function('$a, $b', "return strcasecmp(\$a->db_label,\$b->db_label);\n"));
+
+		return $columns;		
 	}
 };
 
@@ -3952,6 +3980,9 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 			$key = 'cf_'.$field_id;
 			$columns[$key] = new DevblocksSearchField($key,$key,'field_value',null,$field->name);
 		}
+		
+		// Sort by label (translation-conscious)
+		uasort($columns, create_function('$a, $b', "return strcasecmp(\$a->db_label,\$b->db_label);\n"));
 		
 		return $columns;
 	}
@@ -5131,10 +5162,15 @@ class SearchFields_Community implements IDevblocksSearchFields {
 	 * @return DevblocksSearchField[]
 	 */
 	static function getFields() {
-		return array(
+		$columns = array(
 			self::ID => new DevblocksSearchField(self::ID, 'c', 'id'),
 			self::NAME => new DevblocksSearchField(self::NAME, 'c', 'name'),
 		);
+		
+		// Sort by label (translation-conscious)
+		uasort($columns, create_function('$a, $b', "return strcasecmp(\$a->db_label,\$b->db_label);\n"));
+
+		return $columns;		
 	}
 };	
 
@@ -5513,7 +5549,7 @@ class SearchFields_Note implements IDevblocksSearchFields {
 	 * @return DevblocksSearchField[]
 	 */
 	static function getFields() {
-		return array(
+		$columns = array(
 			self::ID => new DevblocksSearchField(self::ID, 'n', 'id'),
 			self::SOURCE_EXT_ID => new DevblocksSearchField(self::SOURCE_EXT_ID, 'n', 'source_extension_id'),
 			self::SOURCE_ID => new DevblocksSearchField(self::SOURCE_ID, 'n', 'source_id'),
@@ -5521,6 +5557,11 @@ class SearchFields_Note implements IDevblocksSearchFields {
 			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 'n', 'worker_id'),
 			self::CONTENT => new DevblocksSearchField(self::CONTENT, 'n', 'content'),
 		);
+		
+		// Sort by label (translation-conscious)
+		uasort($columns, create_function('$a, $b', "return strcasecmp(\$a->db_label,\$b->db_label);\n"));
+
+		return $columns;		
 	}
 };
 
@@ -5882,7 +5923,7 @@ class SearchFields_GroupInboxFilter implements IDevblocksSearchFields {
 	 * @return DevblocksSearchField[]
 	 */
 	static function getFields() {
-		return array(
+		$columns = array(
 			self::ID => new DevblocksSearchField(self::ID, 'trr', 'id'),
 			self::GROUP_ID => new DevblocksSearchField(self::GROUP_ID, 'trr', 'group_id'),
 			self::POS => new DevblocksSearchField(self::POS, 'trr', 'pos'),
@@ -5890,6 +5931,11 @@ class SearchFields_GroupInboxFilter implements IDevblocksSearchFields {
 			self::STICKY_ORDER => new DevblocksSearchField(self::STICKY_ORDER, 'trr', 'sticky_order'),
 			self::IS_STACKABLE => new DevblocksSearchField(self::IS_STACKABLE, 'trr', 'is_stackable'),
 		);
+		
+		// Sort by label (translation-conscious)
+		uasort($columns, create_function('$a, $b', "return strcasecmp(\$a->db_label,\$b->db_label);\n"));
+
+		return $columns;		
 	}
 };	
 
@@ -7055,6 +7101,7 @@ class SearchFields_Task implements IDevblocksSearchFields {
 	 */
 	static function getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
+		
 		$columns = array(
 			self::ID => new DevblocksSearchField(self::ID, 't', 'id', null, $translate->_('task.id')),
 			self::TITLE => new DevblocksSearchField(self::TITLE, 't', 'title', null, $translate->_('task.title')),
@@ -7074,6 +7121,9 @@ class SearchFields_Task implements IDevblocksSearchFields {
 			$key = 'cf_'.$field_id;
 			$columns[$key] = new DevblocksSearchField($key,$key,'field_value',null,$field->name);
 		}
+		
+		// Sort by label (translation-conscious)
+		uasort($columns, create_function('$a, $b', "return strcasecmp(\$a->db_label,\$b->db_label);\n"));
 		
 		return $columns;
 	}

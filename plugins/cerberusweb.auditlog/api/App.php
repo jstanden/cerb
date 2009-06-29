@@ -317,7 +317,7 @@ class SearchFields_TicketAuditLog implements IDevblocksSearchFields {
 	static function getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
-		return array(
+		$columns = array(
 			self::ID => new DevblocksSearchField(self::ID, 'l', 'id'),
 			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 'l', 'worker_id',null,$translate->_('auditlog_entry.worker_id')),
 			self::TICKET_ID => new DevblocksSearchField(self::TICKET_ID, 'l', 'ticket_id',null,$translate->_('auditlog_entry.ticket_id')),
@@ -325,6 +325,11 @@ class SearchFields_TicketAuditLog implements IDevblocksSearchFields {
 			self::CHANGE_FIELD => new DevblocksSearchField(self::CHANGE_FIELD, 'l', 'change_field',null,$translate->_('auditlog_entry.change_field')),
 			self::CHANGE_VALUE => new DevblocksSearchField(self::CHANGE_VALUE, 'l', 'change_value',null,$translate->_('auditlog_entry.change_value')),
 		);
+		
+		// Sort by label (translation-conscious)
+		uasort($columns, create_function('$a, $b', "return strcasecmp(\$a->db_label,\$b->db_label);\n"));
+		
+		return $columns;
 	}
 };
 

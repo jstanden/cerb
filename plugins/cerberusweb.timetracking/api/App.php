@@ -384,6 +384,7 @@ class SearchFields_TimeTrackingEntry {
 	 */
 	static function getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
+		
 		$columns = array(
 			self::ID => new DevblocksSearchField(self::ID, 'tt', 'id', null, $translate->_('timetracking_entry.id')),
 			self::TIME_ACTUAL_MINS => new DevblocksSearchField(self::TIME_ACTUAL_MINS, 'tt', 'time_actual_mins', null, $translate->_('timetracking_entry.time_actual_mins')),
@@ -405,6 +406,9 @@ class SearchFields_TimeTrackingEntry {
 			$key = 'cf_'.$field_id;
 			$columns[$key] = new DevblocksSearchField($key,$key,'field_value',null,$field->name);
 		}
+		
+		// Sort by label (translation-conscious)
+		uasort($columns, create_function('$a, $b', "return strcasecmp(\$a->db_label,\$b->db_label);\n"));
 		
 		return $columns;
 	}

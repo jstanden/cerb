@@ -333,7 +333,8 @@ class SearchFields_CallEntry {
 	 */
 	static function getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
-		return array(
+		
+		$columns = array(
 			self::ID => new DevblocksSearchField(self::ID, 'c', 'id', null, $translate->_('common.id')),
 			self::NAME => new DevblocksSearchField(self::NAME, 'c', 'name', null, $translate->_('call_entry.model.name')),
 			self::PHONE => new DevblocksSearchField(self::PHONE, 'c', 'phone', null, $translate->_('call_entry.model.phone')),
@@ -343,6 +344,11 @@ class SearchFields_CallEntry {
 			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 'c', 'worker_id', null, $translate->_('call_entry.model.worker_id')),
 			self::IS_CLOSED => new DevblocksSearchField(self::IS_CLOSED, 'c', 'is_closed', null, $translate->_('call_entry.model.is_closed')),
 		);
+		
+		// Sort by label (translation-conscious)
+		uasort($columns, create_function('$a, $b', "return strcasecmp(\$a->db_label,\$b->db_label);\n"));
+
+		return $columns;		
 	}
 };
 
