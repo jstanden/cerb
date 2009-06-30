@@ -1154,7 +1154,7 @@ class ChDisplayPage extends CerberusPageExtension {
 			case 'email':
 				$scope = 'email';
 				$view->params = array(
-					SearchFields_Ticket::REQUESTER_ID => new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ID,'in',array($ticket->first_wrote_address_id)),
+					SearchFields_Ticket::REQUESTER_ID => new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ID,'in',array_keys($requesters)),
 					SearchFields_Ticket::TICKET_DELETED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,'=',0),
 				);
 				$view->name = ucwords($translate->_('common.email')) . ": " . $contact->email;

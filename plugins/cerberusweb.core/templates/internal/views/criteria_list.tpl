@@ -41,8 +41,8 @@
 		<select name="field" onchange="genericAjaxGet('addCriteria_{$view->id}','c=internal&a=viewGetCriteria&id={$view->id}&field='+selectValue(this));toggleDiv('saveCriteria_{$view->id}',(selectValue(this)!='')?'block':'none');">
 			<option value="">-- {$translate->_('common.choose')} --</option>
 			
+			{assign var=has_custom value=0}
 			{foreach from=$view_searchable_fields item=column key=token}
-				{assign var=has_custom value=0}
 				{if substr($token,0,3) != "cf_"}
 					{if !empty($column->db_label) && !empty($token)}
 					<option value="{$token}">{$column->db_label}</option>

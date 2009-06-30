@@ -569,7 +569,7 @@ class CrmPage extends CerberusPageExtension {
 
 		$visit->set('crm.opps.history.scope', $scope);
 		
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('crm','opps',$opp_id,'history')));
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('crm','opps',$opp_id,'mail')));
 	}
 	
 	function showOppPropertiesTabAction() {
