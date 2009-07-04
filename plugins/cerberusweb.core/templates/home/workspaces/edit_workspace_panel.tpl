@@ -5,7 +5,7 @@
 <h1 style="color:rgb(0,150,0);">{$workspace}</h1>
 <br>
 
-<b>Rename Workspace:</b><br>
+<b>{'home.workspaces.rename'|devblocks_translate|capitalize}:</b><br>
 <input type="text" name="rename_workspace" value="" size="35" style="width:100%;"><br>
 <br>
 
@@ -13,7 +13,7 @@
 <table width="100%">
 	<tr>
 		<td align="center"><b>{$translate->_('common.order')|capitalize}</b></td>
-		<td><b>Worklist</b></td>
+		<td><b>{'common.worklist'|devblocks_translate|capitalize}</b></td>
 		<td align="center"><b>{$translate->_('common.remove')|capitalize}</b></td>
 	</tr>
 	

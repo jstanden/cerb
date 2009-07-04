@@ -219,6 +219,9 @@
 		<tu tuid='common.options'>
 			<tuv xml:lang="en_US"><seg>Options</seg></tuv>
 		</tu>
+		<tu tuid='common.or'>
+			<tuv xml:lang="en_US"><seg>or</seg></tuv>
+		</tu>		
 		<tu tuid='common.order'>
 			<tuv xml:lang="en_US"><seg>order</seg></tuv>
 		</tu>		
@@ -257,6 +260,9 @@
 		</tu>
 		<tu tuid='common.refresh'>
 			<tuv xml:lang="en_US"><seg>refresh</seg></tuv>
+		</tu>
+		<tu tuid='common.refresh.auto'>
+			<tuv xml:lang="en_US"><seg>Auto-Refresh</seg></tuv>
 		</tu>
 		<tu tuid='common.remove'>
 			<tuv xml:lang="en_US"><seg>remove</seg></tuv>
@@ -306,6 +312,12 @@
 		<tu tuid='common.ticket'>
 			<tuv xml:lang="en_US"><seg>ticket</seg></tuv>
 		</tu>
+		<tu tuid='common.time.mins.num'>
+			<tuv xml:lang="en_US"><seg>%s min</seg></tuv>
+		</tu>
+		<tu tuid='common.time.secs.num'>
+			<tuv xml:lang="en_US"><seg>%s sec</seg></tuv>
+		</tu>
 		<tu tuid='common.tips.multi_select'>
 			<tuv xml:lang="en_US"><seg>(hold CTRL or COMMAND to select multiple options)</seg></tuv>
 		</tu>
@@ -335,6 +347,9 @@
 		</tu>
 		<tu tuid='common.workers'>
 			<tuv xml:lang="en_US"><seg>workers</seg></tuv>
+		</tu>
+		<tu tuid='common.worklist'>
+			<tuv xml:lang="en_US"><seg>worklist</seg></tuv>
 		</tu>
 		<tu tuid='common.year'>
 			<tuv xml:lang="en_US"><seg>year</seg></tuv>
@@ -837,6 +852,24 @@
 		</tu>
 		<tu tuid='home.my_tickets.view.title'>
 			<tuv xml:lang="en_US"><seg>Mail for %s</seg></tuv>
+		</tu>
+		<tu tuid='home.workspaces.rename'>
+			<tuv xml:lang="en_US"><seg>Rename Workspace</seg></tuv>
+		</tu>
+		<tu tuid='home.workspaces.worklist.add.existing'>
+			<tuv xml:lang="en_US"><seg>Existing</seg></tuv>
+		</tu>
+		<tu tuid='home.workspaces.worklist.add.new'>
+			<tuv xml:lang="en_US"><seg>New</seg></tuv>
+		</tu>
+		<tu tuid='home.workspaces.worklist.add.to_workspace'>
+			<tuv xml:lang="en_US"><seg>Add Worklist to Workspace</seg></tuv>
+		</tu>
+		<tu tuid='home.workspaces.worklist.name'>
+			<tuv xml:lang="en_US"><seg>Worklist Name</seg></tuv>
+		</tu>
+		<tu tuid='home.workspaces.worklist.type'>
+			<tuv xml:lang="en_US"><seg>Worklist Type</seg></tuv>
 		</tu>
 
 		<!-- Display Ticket -->

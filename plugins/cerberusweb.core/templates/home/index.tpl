@@ -5,15 +5,15 @@
 
 <form action="{devblocks_url}{/devblocks_url}" method="POST" style="margin-bottom:5px;">
 {if $active_worker->hasPriv('core.home.workspaces')}<button type="button" onclick="genericAjaxPanel('c=home&a=showAddWorkspacePanel',this,false,'550px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_plain_new.png{/devblocks_url}" align="top"> {$translate->_('dashboard.add_view')|capitalize}</button>{/if}
-{if $active_worker->hasPriv('core.home.auto_refresh')}<button type="button" onclick="autoRefreshTimer.start('{devblocks_url full=true}c=home{/devblocks_url}',this.form.reloadSecs.value);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/refresh.gif{/devblocks_url}" align="top"> Auto-Refresh</button><!-- 
+{if $active_worker->hasPriv('core.home.auto_refresh')}<button type="button" onclick="autoRefreshTimer.start('{devblocks_url full=true}c=home{/devblocks_url}',this.form.reloadSecs.value);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/refresh.gif{/devblocks_url}" align="top"> {'common.refresh.auto'|devblocks_translate|capitalize}</button><!-- 
 --><select name="reloadSecs">
-	<option value="600">10m</option>
-	<option value="300" selected="selected">5m</option>
-	<option value="240">4m</option>
-	<option value="180">3m</option>
-	<option value="120">2m</option>
-	<option value="60">1m</option>
-	<option value="30">30s</option>
+	<option value="600">{'common.time.mins.num'|devblocks_translate:'10'}</option>
+	<option value="300" selected="selected">{'common.time.mins.num'|devblocks_translate:'5'}</option>
+	<option value="240">{'common.time.mins.num'|devblocks_translate:'4'}</option>
+	<option value="180">{'common.time.mins.num'|devblocks_translate:'3'}</option>
+	<option value="120">{'common.time.mins.num'|devblocks_translate:'2'}</option>
+	<option value="60">{'common.time.mins.num'|devblocks_translate:'1'}</option>
+	<option value="30">{'common.time.secs.num'|devblocks_translate:'30'}</option>
 </select>{/if}
 </form>
 
