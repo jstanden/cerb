@@ -418,8 +418,10 @@ class C4_TimeTrackingEntryView extends C4_AbstractView {
 	const DEFAULT_ID = 'timetracking_entries';
 
 	function __construct() {
+		$translate = DevblocksPlatform::getTranslationService();
+		
 		$this->id = self::DEFAULT_ID;
-		$this->name = 'Time Tracking Entries';
+		$this->name = $translate->_('timetracking.activity.tab');
 		$this->renderLimit = 10;
 		$this->renderSortBy = SearchFields_TimeTrackingEntry::LOG_DATE;
 		$this->renderSortAsc = false;

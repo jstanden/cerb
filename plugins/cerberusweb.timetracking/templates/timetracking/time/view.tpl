@@ -112,7 +112,7 @@
 	<tr>
 		<td colspan="2">
 			{if !empty($custom_fields)}
-			<button type="button" onclick="genericAjaxPanel('c=timetracking&a=showBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),this,false,'500px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> bulk update</button>
+			<button type="button" onclick="genericAjaxPanel('c=timetracking&a=showBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),this,false,'500px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> {'common.bulk_update'|devblocks_translate|lower}</button>
 			{/if}
 		</td>
 	</tr>
