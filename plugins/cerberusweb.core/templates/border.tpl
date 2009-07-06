@@ -26,7 +26,7 @@
 			{'header.signed_in'|devblocks_translate:$worker_name}
 	
 			{if $active_worker_notify_count}
-			<span style="padding:3px 5px 3px 5px;background-color:rgb(200,0,0);"><a href="{devblocks_url}c=home&a=events{/devblocks_url}" style="color:rgb(255,255,255);text-decoration:none;font-weight:bold;">{$active_worker_notify_count} unread notification(s)</a></span>
+			<span style="padding:3px 5px 3px 5px;background-color:rgb(200,0,0);"><a href="{devblocks_url}c=home&a=events{/devblocks_url}" style="color:rgb(255,255,255);text-decoration:none;font-weight:bold;">{'header.notifications.unread'|devblocks_translate:$active_worker_notify_count}</a></span>
 			{/if}
 			<br>
 			

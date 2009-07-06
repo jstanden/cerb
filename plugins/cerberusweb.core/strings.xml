@@ -763,6 +763,9 @@
 		<tu tuid='header.not_signed_in'>
 			<tuv xml:lang="en_US"><seg>Not signed in</seg></tuv>
 		</tu>
+		<tu tuid='header.notifications.unread'>
+			<tuv xml:lang="en_US"><seg>%s unread notification(s)</seg></tuv>
+		</tu>
 		<tu tuid='header.preferences'>
 			<tuv xml:lang="en_US"><seg>my account</seg></tuv>
 		</tu>
