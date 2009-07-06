@@ -1076,7 +1076,6 @@ class Rest_TicketsController extends Ch_RestController {
 			't_id' => 'id',
 			't_mask' => 'mask',
 			't_subject' => 'subject',
-			'tm_name' => 'team_name',
 			't_category_id' => null,
 			't_created_date' => 'created_date',
 			't_updated_date' => 'updated_date',
@@ -1097,7 +1096,8 @@ class Rest_TicketsController extends Ch_RestController {
 			't_interesting_words' => null,
 			't_due_date' => 'due_date',
 			't_first_contact_org_id' => 'first_contact_org_id',
-			'tm_id' => 'team_id',
+			't_team_id' => 'group_id',
+			't_category_id' => 'bucket_id',
 		);
 		
 		if ($dir === true && array_key_exists($idx, $translations))
@@ -1117,7 +1117,8 @@ class Rest_TicketsController extends Ch_RestController {
 			case 'first_wrote_address_id':
 			case 'last_wrote_address_id':
 			case 'first_contact_org_id':
-			case 'team_id':
+			case 'group_id':
+			case 'bucket_id':
 				return is_numeric($value) ? true : false;
 			case 'is_waiting':
 			case 'is_closed':
@@ -1129,7 +1130,6 @@ class Rest_TicketsController extends Ch_RestController {
 				return (is_numeric($value) && 1 > $value && 0 < $value) ? true : false;
 			case 'mask':
 			case 'subject':
-			case 'team_name':
 			case 'first_wrote':
 			case 'last_wrote':
 				return !empty($value) ? true : false;
@@ -1273,7 +1273,7 @@ class Rest_TicketsController extends Ch_RestController {
 				}
 			}
 		}
-
+		
 		list($results, $total) = DAO_Ticket::search(
 			array(SearchFields_Ticket::TICKET_ID),
 			$params,
