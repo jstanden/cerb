@@ -7,12 +7,12 @@
 		<form action="{devblocks_url}{/devblocks_url}" onsubmit="return false;">
 		{assign var=opp_worker_id value=$opp->worker_id}
 		
-		<b>Status:</b> {if $opp->is_closed}{if $opp->is_won}Closed/Won{else}Closed/Lost{/if}{else}Open{/if} &nbsp;
+		<b>{'common.status'|devblocks_translate|capitalize}:</b> {if $opp->is_closed}{if $opp->is_won}{'crm.opp.status.closed.won'|devblocks_translate|capitalize}{else}{'crm.opp.status.closed.lost'|devblocks_translate|capitalize}{/if}{else}{'crm.opp.status.open'|devblocks_translate|capitalize}{/if} &nbsp;
 		<button id="btnOppAddyPeek" type="button" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$address->email|escape:'url'}&view_id=',null,false,'500px',ajax.cbAddressPeek);" style="visibility:false;display:none;"></button>
-		<b>E-mail:</b> {$address->first_name} {$address->last_name} &lt;<a href="javascript:;" onclick="document.getElementById('btnOppAddyPeek').click();">{$address->email}</a>&gt; &nbsp;
-		<b>Created:</b> <abbr title="{$opp->created_date|devblocks_date}">{$opp->created_date|devblocks_prettytime}</abbr> &nbsp;
+		<b>{'common.email'|devblocks_translate|capitalize}:</b> {$address->first_name} {$address->last_name} &lt;<a href="javascript:;" onclick="document.getElementById('btnOppAddyPeek').click();">{$address->email}</a>&gt; &nbsp;
+		<b>{'crm.opportunity.created_date'|devblocks_translate|capitalize}:</b> <abbr title="{$opp->created_date|devblocks_date}">{$opp->created_date|devblocks_prettytime}</abbr> &nbsp;
 		{if !empty($opp_worker_id) && isset($workers.$opp_worker_id)}
-			<b>Worker:</b> {$workers.$opp_worker_id->getName()} &nbsp;
+			<b>{'common.worker'|devblocks_translate|capitalize}:</b> {$workers.$opp_worker_id->getName()} &nbsp;
 		{/if}
 		</form>
 		<br>
@@ -23,10 +23,10 @@
 			<tr>
 				<td>	
 				<div style="padding:10px;margin-top:0px;border:1px solid rgb(180,180,255);background-color:rgb(245,245,255);text-align:center;">
-					Active list: <b>{$series_stats.title}</b><br>
-					{if !empty($series_stats.prev)}<button style="display:none;visibility:hidden;" id="btnPagePrev" onclick="document.location='{devblocks_url}c=crm&a=opps&id={$series_stats.prev}{/devblocks_url}';">&laquo;Prev</button><a href="{devblocks_url}c=crm&a=opps&id={$series_stats.prev}{/devblocks_url}">&laquo;Prev</a>{/if} 
-					 ({$series_stats.cur}-{$series_stats.count} of {$series_stats.total}) 
-					{if !empty($series_stats.next)}<button style="display:none;visibility:hidden;" id="btnPageNext" onclick="document.location='{devblocks_url}c=crm&a=opps&id={$series_stats.next}{/devblocks_url}';">Next&raquo;</button><a href="{devblocks_url}c=crm&a=opps&id={$series_stats.next}{/devblocks_url}">Next&raquo;</a>{/if}
+					{'display.listnav.active_list'|devblocks_translate} <b>{$series_stats.title}</b><br>
+					{if !empty($series_stats.prev)}<button style="display:none;visibility:hidden;" id="btnPagePrev" onclick="document.location='{devblocks_url}c=crm&a=opps&id={$series_stats.prev}{/devblocks_url}';">&laquo;Prev</button><a href="{devblocks_url}c=crm&a=opps&id={$series_stats.prev}{/devblocks_url}">&laquo;{'common.previous_short'|devblocks_translate|capitalize}</a>{/if} 
+					 {'display.listnav.showing_of_total'|devblocks_translate:$series_stats.cur:$series_stats.total} 
+					{if !empty($series_stats.next)}<button style="display:none;visibility:hidden;" id="btnPageNext" onclick="document.location='{devblocks_url}c=crm&a=opps&id={$series_stats.next}{/devblocks_url}';">Next&raquo;</button><a href="{devblocks_url}c=crm&a=opps&id={$series_stats.next}{/devblocks_url}">{'common.next'|devblocks_translate|capitalize}&raquo;</a>{/if}
 				</div>
 				</td>
 			</tr>
@@ -44,28 +44,28 @@
 var tabView = new YAHOO.widget.TabView();
 
 tabView.addTab( new YAHOO.widget.Tab({
-    label: 'Notes',
+    label: '{/literal}{'crm.opp.tab.notes'|devblocks_translate|escape}{literal}',
     dataSrc: '{/literal}{devblocks_url}ajax.php?c=crm&a=showOppNotesTab&id={$opp->id}{/devblocks_url}{literal}',
     cacheData: true,
     {/literal}active: {if 'notes'==$tab_selected || empty($tab_selected)}true{else}false{/if}{literal}
 }));
 
 tabView.addTab( new YAHOO.widget.Tab({
-    label: 'Properties',
+    label: '{/literal}{'crm.opp.tab.properties'|devblocks_translate|escape}{literal}',
     dataSrc: '{/literal}{devblocks_url}ajax.php?c=crm&a=showOppPropertiesTab&id={$opp->id}{/devblocks_url}{literal}',
     cacheData: true,
     {/literal}active: {if 'properties'==$tab_selected}true{else}false{/if}{literal}
 }));
 
 tabView.addTab( new YAHOO.widget.Tab({
-    label: 'Mail History',
+    label: '{/literal}{'crm.opp.tab.mail_history'|devblocks_translate|escape}{literal}',
     dataSrc: '{/literal}{devblocks_url}ajax.php?c=crm&a=showOppMailTab&id={$opp->id}{/devblocks_url}{literal}',
     cacheData: true,
     {/literal}active: {if 'mail'==$tab_selected}true{else}false{/if}{literal}
 }));
 
 tabView.addTab( new YAHOO.widget.Tab({
-    label: 'Tasks ({/literal}{$tasks_total|string_format:'%d'}{literal})',
+    label: '{/literal}{'crm.opp.tab.tasks'|devblocks_translate:$tasks_total|escape}{literal}',
     dataSrc: '{/literal}{devblocks_url}ajax.php?c=crm&a=showOppTasksTab&id={$opp->id}{/devblocks_url}{literal}',
     cacheData: true,
     {/literal}active: {if 'tasks'==$tab_selected}true{else}false{/if}{literal}

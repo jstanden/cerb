@@ -1,11 +1,11 @@
-<h1>Import Opportunities</h1>
+<h1>{'common.import'|devblocks_translate|capitalize}</h1>
 <br>
 
 <form action="{devblocks_url}{/devblocks_url}" method="POST" enctype="multipart/form-data" id="frmOppImport">
 <input type="hidden" name="c" value="crm">
 <input type="hidden" name="a" value="parseUpload">
 
-<b>Upload .CSV File:</b> (any format; the next step will let you choose where the data goes)<br>
+<b>{'crm.opp.import.upload_csv'|devblocks_translate}:</b> {'crm.opp.import.upload_csv.tip'|devblocks_translate}<br>
 <input type="file" name="csv_file" size="45"><br>
 <br>
 

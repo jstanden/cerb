@@ -4,10 +4,10 @@
 <input type="hidden" name="opp_id" value="{$opp->id}">
 <input type="hidden" name="id" value="">
 
-<b>Add a note about this opportunity</b><br>
+<b>{'crm.opp.tab.notes.add_note'|devblocks_translate}</b><br>
 <textarea name="content" rows="3" cols="65" style="width:500px;height:50px;"></textarea><br>
 {if !empty($workers)}
-	<label><input type="checkbox" onclick="toggleDiv('addOppNoteNotifyWorkers');"> <b>Notify workers</b></label>
+	<label><input type="checkbox" onclick="toggleDiv('addOppNoteNotifyWorkers');"> <b>{'common.notify_workers'|devblocks_translate}</b></label>
 	<div id="addOppNoteNotifyWorkers" style="display:none;">
 		<select name="notify_worker_ids" multiple="multiple" size="8">
 			{foreach from=$active_workers item=worker name=notify_workers}
@@ -15,7 +15,7 @@
 			<option value="{$worker->id}">{$worker->getName()}</option>
 			{/foreach}
 		</select><br>
-		(hold CTRL or CMD to select multiple)<br>
+		{'common.tips.multi_select'|devblocks_translate}<br>
 		{if !is_null($notify_me_id)}<button type="button" onclick="this.form.notify_worker_ids.options[{$notify_me_id}].selected=true;">{$translate->_('common.me')}</button>{/if} 
 	</div>
 {/if}

@@ -39,9 +39,9 @@
 	<tr>
 		<td width="0%" nowrap="nowrap" align="right" valign="top">{$translate->_('common.status')|capitalize}: </td>
 		<td width="100%">
-			<label><input type="radio" name="status" value="0" onclick="toggleDiv('oppPeekClosedDate','none');" {if empty($opp->id) || 0==$opp->is_closed}checked="checked"{/if}> Open</label>
-			<label><input type="radio" name="status" value="1" onclick="toggleDiv('oppPeekClosedDate','');" {if $opp->is_closed && $opp->is_won}checked="checked"{/if}> Closed/Won</label>
-			<label><input type="radio" name="status" value="2" onclick="toggleDiv('oppPeekClosedDate','');" {if $opp->is_closed && !$opp->is_won}checked="checked"{/if}> Closed/Lost</label>
+			<label><input type="radio" name="status" value="0" onclick="toggleDiv('oppPeekClosedDate','none');" {if empty($opp->id) || 0==$opp->is_closed}checked="checked"{/if}> {'crm.opp.status.open'|devblocks_translate|capitalize}</label>
+			<label><input type="radio" name="status" value="1" onclick="toggleDiv('oppPeekClosedDate','');" {if $opp->is_closed && $opp->is_won}checked="checked"{/if}> {'crm.opp.status.closed.won'|devblocks_translate|capitalize}</label>
+			<label><input type="radio" name="status" value="2" onclick="toggleDiv('oppPeekClosedDate','');" {if $opp->is_closed && !$opp->is_won}checked="checked"{/if}> {'crm.opp.status.closed.lost'|devblocks_translate|capitalize}</label>
 		</td>
 	</tr>
 	<tr>
@@ -56,7 +56,7 @@
 		<td width="0%" nowrap="nowrap" align="right" valign="top">{$translate->_('crm.opportunity.worker_id')|capitalize}: </td>
 		<td width="100%">
 			<select name="worker_id" style="border:1px solid rgb(180,180,180);padding:2px;">
-				<option value="0">&nbsp;</option>
+				<option value="0">- {'common.anybody'|devblocks_translate|lower} -</option>
 				{foreach from=$workers item=worker key=worker_id name=workers}
 					{if $worker_id==$active_worker->id}{math assign=me_worker_id equation="x" x=$smarty.foreach.workers.iteration}{/if}
 					<option value="{$worker_id}" {if $opp->worker_id==$worker_id}selected{/if}>{$worker->getName()}</option>
@@ -84,7 +84,7 @@
 	</tr>
 	{if empty($opp->id)}
 	<tr>
-		<td width="0%" nowrap="nowrap" align="right" valign="top">Comment: </td>
+		<td width="0%" nowrap="nowrap" align="right" valign="top">{'common.comment'|devblocks_translate|capitalize}: </td>
 		<td width="100%">
 			<textarea name="comment" style="width:98%;height:120px;border:1px solid rgb(180,180,180);padding:2px;"></textarea><br>
 		</td>

@@ -22,38 +22,38 @@
 <H2>{$translate->_('common.bulk_update.do')|capitalize}:</H2>
 <table cellspacing="0" cellpadding="2" width="100%">
 	<tr>
-		<td width="0%" nowrap="nowrap" align="right">Status:</td>
+		<td width="0%" nowrap="nowrap" valign="top" align="right">{'common.status'|devblocks_translate|capitalize}:</td>
 		<td width="100%"><select name="status">
 			<option value=""></option>
-			<option value="open">open</option>
-			<option value="won">closed/won</option>
-			<option value="lost">closed/lost</option>
+			<option value="open">{'crm.opp.status.open'|devblocks_translate}</option>
+			<option value="won">{'crm.opp.status.closed.won'|devblocks_translate}</option>
+			<option value="lost">{'crm.opp.status.closed.lost'|devblocks_translate}</option>
       	</select>
-		<button type="button" onclick="this.form.status.selectedIndex = 1;">open</button>
-		<button type="button" onclick="this.form.status.selectedIndex = 2;">won</button>
-		<button type="button" onclick="this.form.status.selectedIndex = 3;">lost</button>
+		<button type="button" onclick="this.form.status.selectedIndex = 1;">{'crm.opp.status.open'|devblocks_translate|lower}</button>
+		<button type="button" onclick="this.form.status.selectedIndex = 2;">{'crm.opp.status.closed.won'|devblocks_translate|lower}</button>
+		<button type="button" onclick="this.form.status.selectedIndex = 3;">{'crm.opp.status.closed.lost'|devblocks_translate|lower}</button>
       	</td>
 	</tr>
 	
 	<tr>
-		<td width="0%" align="right" nowrap="nowrap">Worker:</td>
+		<td width="0%" align="right" nowrap="nowrap">{'common.worker'|devblocks_translate|capitalize}:</td>
 		<td width="100%"><select name="worker_id">
 			<option value=""></option>
-			<option value="0">Anybody</option>
+			<option value="0">- {'common.anybody'|devblocks_translate|lower} -</option>
 			{foreach from=$workers item=worker key=worker_id name=workers}
 				{if $worker_id==$active_worker->id}{math assign=me_worker_id equation="x+1" x=$smarty.foreach.workers.iteration}{/if}
 				<option value="{$worker_id}">{$worker->getName()}</option>
 			{/foreach}
 		</select>
       	{if !empty($me_worker_id)}
-      		<button type="button" onclick="this.form.worker_id.selectedIndex = {$me_worker_id};">me</button>
-      		<button type="button" onclick="this.form.worker_id.selectedIndex = 1;">anybody</button>
+      		<button type="button" onclick="this.form.worker_id.selectedIndex = {$me_worker_id};">{'common.me'|devblocks_translate|lower}</button>
+      		<button type="button" onclick="this.form.worker_id.selectedIndex = 1;">{'common.anybody'|devblocks_translate|lower}</button>
       	{/if}
 		</td>
 	</tr>
 	
 	<tr>
-		<td width="0%" nowrap="nowrap" align="right">Closed Date:</td>
+		<td width="0%" nowrap="nowrap" align="right">{'crm.opportunity.closed_date'|devblocks_translate|capitalize}:</td>
 		<td width="100%">
 			<input type="text" name="closed_date" size=35 value=""><button type="button" onclick="ajax.getDateChooser('dateOppBulkClosed',this.form.closed_date);">&nbsp;<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/calendar.gif{/devblocks_url}" align="top">&nbsp;</button>
 			<div id="dateOppBulkClosed" style="display:none;position:absolute;z-index:1;"></div>

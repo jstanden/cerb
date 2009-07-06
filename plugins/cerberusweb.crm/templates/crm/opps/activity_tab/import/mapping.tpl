@@ -4,14 +4,14 @@
 <input type="hidden" name="c" value="crm">
 <input type="hidden" name="a" value="doImport">
 
-<H2>Import Opportunities</H2>
+<H2>{'common.import'|devblocks_translate|capitalize}</H2>
 <br>
 
 <table cellpadding="2" cellspacing="0" border="0">
 <tr>
-	<td><b>Columns from your file:</b></td>
-	<td style="padding-left:10px;"><b>Set value in field:</b></td>
-	<td style="padding-left:10px;"><b>Find dupes with same:</b></td>
+	<td><b>{'crm.opp.import.from_file'|devblocks_translate}:</b></td>
+	<td style="padding-left:10px;"><b>{'crm.opp.import.to_field'|devblocks_translate}:</b></td>
+	<td style="padding-left:10px;"><b>{'crm.opp.import.find_dupes'|devblocks_translate}:</b></td>
 </tr>
 {foreach from=$parts item=part key=pos}
 <tr>
@@ -43,11 +43,11 @@
 </table>
 <br>
 
-<b>Options:</b><br>
-<label><input type="checkbox" name="include_first" value="1"> Import the first row (only check this if the dropdowns contain real data)</label><br>
-<label><input type="checkbox" name="is_blank_unset" value="1"> Blank values for custom fields should clear the field (if unchecked, blank values are skipped)</label><br>
-<label><input type="checkbox" name="opt_assign" value="1"> Set the owner of imported opportunities to:</label> <select name="opt_assign_worker_id">
-	<option value="">-- unassigned --</option>
+<b>{'common.options'|devblocks_translate|capitalize}:</b><br>
+<label><input type="checkbox" name="include_first" value="1"> {'crm.opp.import.options.import_first_row'|devblocks_translate}</label><br>
+<label><input type="checkbox" name="is_blank_unset" value="1"> {'crm.opp.import.options.blank_fields'|devblocks_translate}</label><br>
+<label><input type="checkbox" name="opt_assign" value="1"> {'crm.opp.import.options.set_owner'|devblocks_translate}</label> <select name="opt_assign_worker_id">
+	<option value="">- {'common.nobody'|devblocks_translate|lower} -</option>
 	{foreach from=$workers item=worker key=worker_id}
 		<option value="{$worker_id}">{$worker->getName()}</option>
 	{/foreach}
