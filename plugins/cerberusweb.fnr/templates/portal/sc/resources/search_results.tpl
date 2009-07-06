@@ -1,16 +1,16 @@
 <div id="resources">
 
-<div class="header"><h1>{$translate->_('Search Resources')|capitalize}</h1></div>
+<div class="header"><h1>{'fnr.portal.sc.search'|devblocks_translate|capitalize}</h1></div>
 
 <div class="search">
 	<form action="{devblocks_url}c=resources&a=search{/devblocks_url}" method="POST">
-		<input class="query" type="text" name="q" value="{$q|escape}"><button type="submit">search</button>
+		<input class="query" type="text" name="q" value="{$q|escape}"><button type="submit">{'common.search'|devblocks_translate|lower}</button>
 	</form>
 </div>
 <br>
 
 {if !empty($q)}
-	<div class="header"><h1>Search results{if !empty($q)} for '{$q|escape}'{/if}</h1></div>
+	<div class="header"><h1>{'fnr.portal.sc.search.results'|devblocks_translate:$q|escape}</h1></div>
 
 	{if !empty($feeds)}
 	{foreach from=$feeds item=matches name=matches}
@@ -42,7 +42,7 @@
 				<div class="peek" style="margin-left:20px;padding:5px;display:none;">
 					{$description|escape:"script"}
 					<div style="margin-top:5px;">		
-						<b>External Link:</b> <a href="{$link}" style="font-style:italic;" target="_blank">{$link}</a>
+						<b>URL:</b> <a href="{$link}" style="font-style:italic;" target="_blank">{$link}</a>
 					</div>
 				</div>
 				<br> 
@@ -51,7 +51,7 @@
 		</div>
 	{/foreach}
 	{else}
-		No results found.
+		{'fnr.portal.sc.search.results.empty'|devblocks_translate}
 	{/if} {*feeds*}
 <br>
 

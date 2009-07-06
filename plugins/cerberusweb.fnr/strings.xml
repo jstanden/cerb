@@ -25,6 +25,9 @@
 		<tu tuid='fnr.ui.cfg.resources.name.hint'>
 			<tuv xml:lang="en_US"><seg>(e.g. Wiki, Blog, Forums)</seg></tuv>
 		</tu>
+		<tu tuid='fnr.ui.cfg.resources.examples'>
+			<tuv xml:lang="en_US"><seg>Examples</seg></tuv>
+		</tu>
 		<tu tuid='fnr.ui.cfg.resources.url'>
 			<tuv xml:lang="en_US"><seg>Search URL</seg></tuv>
 		</tu>
@@ -40,9 +43,28 @@
 		<tu tuid='fnr.ui.cfg.topics.name.hint'>
 			<tuv xml:lang="en_US"><seg>(e.g. Cerb4 Help)</seg></tuv>
 		</tu>
+		
+		<tu tuid='fnr.ui.research.keywords'>
+			<tuv xml:lang="en_US"><seg>Keywords</seg></tuv>
+		</tu>
+		<tu tuid='fnr.ui.research.not_configured'>
+			<tuv xml:lang="en_US"><seg>No topics or resources have been configured.</seg></tuv>
+		</tu>
+		<tu tuid='fnr.ui.research.searching'>
+			<tuv xml:lang="en_US"><seg>Searching resources...</seg></tuv>
+		</tu>
 
 		<tu tuid='fnr.portal.sc.cfg.topics'>
 			<tuv xml:lang="en_US"><seg>Choose which topics to expose to this portal:</seg></tuv>
+		</tu>
+		<tu tuid='fnr.portal.sc.search'>
+			<tuv xml:lang="en_US"><seg>Search Resources</seg></tuv>
+		</tu>
+		<tu tuid='fnr.portal.sc.search.results'>
+			<tuv xml:lang="en_US"><seg>Search results for '%s'</seg></tuv>
+		</tu>
+		<tu tuid='fnr.portal.sc.search.results.empty'>
+			<tuv xml:lang="en_US"><seg>No results found.</seg></tuv>
 		</tu>
 
 	</body>

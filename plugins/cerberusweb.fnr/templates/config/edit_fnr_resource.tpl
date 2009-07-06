@@ -27,7 +27,7 @@
 		<td width="0%" nowrap="nowrap" valign="top"><b>{$translate->_('fnr.ui.cfg.resources.url')}:</b></td>
 		<td width="100%">
 			<input type="text" name="url" value="{$fnr_resource->url|escape}" size="64">
-			(<a href="http://wiki.cerb4.com/wiki/Fetch_%26_Retrieve_Cookbook" target="_blank">Examples</a>)
+			(<a href="http://wiki.cerb4.com/wiki/Fetch_%26_Retrieve_Cookbook" target="_blank">{'fnr.ui.cfg.resources.examples'|devblocks_translate}</a>)
 		</td>
 	</tr>
 	

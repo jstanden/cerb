@@ -34,7 +34,7 @@
 			<div class="subtle" style="margin-bottom:5px;margin-left:10px;padding:5px;display:none;" id="{$item_guid}_preview">
 				{$description|escape:"script"}
 				<br>
-				<b>Link:</b> <a href="{$link}" style="color:rgb(50,180,50);font-weight:bold;" target="_blank">{$link}</a>
+				<b>URL:</b> <a href="{$link}" style="color:rgb(50,180,50);font-weight:bold;" target="_blank">{$link}</a>
 			</div>
 	{/foreach}
 	</div>
