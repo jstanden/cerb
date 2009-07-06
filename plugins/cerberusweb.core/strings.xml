@@ -57,6 +57,9 @@
 		<tu tuid='common.all'>
 			<tuv xml:lang="en_US"><seg>all</seg></tuv>
 		</tu>
+		<tu tuid='common.anonymous'>
+			<tuv xml:lang="en_US"><seg>anonymous</seg></tuv>
+		</tu>
 		<tu tuid='common.anybody'>
 			<tuv xml:lang="en_US"><seg>anybody</seg></tuv>
 		</tu>

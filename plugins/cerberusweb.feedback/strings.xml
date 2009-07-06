@@ -35,6 +35,20 @@
 		<tu tuid='feedback.button.capture'>
 			<tuv xml:lang="en_US"><seg>Capture Feedback</seg></tuv>
 		</tu>
+		
+		<tu tuid='feedback.mood.criticism'>
+			<tuv xml:lang="en_US"><seg>Criticism</seg></tuv>
+		</tu>
+		<tu tuid='feedback.mood.neutral'>
+			<tuv xml:lang="en_US"><seg>Neutral</seg></tuv>
+		</tu>
+		<tu tuid='feedback.mood.praise'>
+			<tuv xml:lang="en_US"><seg>Praise</seg></tuv>
+		</tu>
+		
+		<tu tuid='feedback.peek.quote.tooltip'>
+			<tuv xml:lang="en_US"><seg>optional; blank for anonymous</seg></tuv>
+		</tu>
 
 		<!-- Database -->
 		
@@ -45,7 +59,7 @@
 			<tuv xml:lang="en_US"><seg>Log Date</seg></tuv>
 		</tu>
 		<tu tuid='feedback_entry.quote_address'>
-			<tuv xml:lang="en_US"><seg>Author</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Author E-mail</seg></tuv>
 		</tu>
 		<tu tuid='feedback_entry.quote_mood'>
 			<tuv xml:lang="en_US"><seg>Mood</seg></tuv>

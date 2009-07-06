@@ -69,7 +69,7 @@
 					{if !empty($result.a_email)}
 						<a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&address_id={$result.f_quote_address_id}&view_id={$view->id}',this,false,'500px',ajax.cbAddressPeek);">{$result.a_email}</a>
 					{else}
-						<i>anonymous</i>
+						<i>{'common.anonymous'|devblocks_translate|lower}</i>
 					{/if}
 				</td>
 			{elseif $column=="f_log_date"}
@@ -79,11 +79,11 @@
 			{elseif $column=="f_quote_mood"}
 				<td>
 					{if 1==$result.$column}
-						<span style="background-color:rgb(235, 255, 235);color:rgb(0, 180, 0);font-weight:bold;">Praise</span>
+						<span style="background-color:rgb(235, 255, 235);color:rgb(0, 180, 0);font-weight:bold;">{'feedback.mood.praise'|devblocks_translate}</span>
 					{elseif 2==$result.$column}
-						<span style="background-color: rgb(255, 235, 235);color: rgb(180, 0, 0);font-weight:bold;">Criticism</span>
+						<span style="background-color: rgb(255, 235, 235);color: rgb(180, 0, 0);font-weight:bold;">{'feedback.mood.criticism'|devblocks_translate}</span>
 					{else}
-						Neutral
+						{'feedback.mood.neutral'|devblocks_translate}
 					{/if}
 				</td>
 			{elseif $column=="f_source_url"}
@@ -98,7 +98,7 @@
 				<div id="subject_{$result.f_id}_{$view->id}" style="margin:5px;margin-left:10px;font-size:12px;">
 					<img src="{devblocks_url}c=resource&p=cerberusweb.feedback&f=images/{if 1==$mood}bullet_ball_glass_green.png{elseif 2==$mood}bullet_ball_glass_red.png{else}bullet_ball_glass_grey.png{/if}{/devblocks_url}" align="top" title="{if 1==$mood}Praise{elseif 2==$mood}Criticism{else}Neutral{/if}"> 
 					{$result.f_quote_text} 
-					{if ($active_worker->hasPriv('feedback.actions.create') && $result.f_worker_id==$active_worker->id) || $active_worker->hasPriv('feedback.actions.update_all')}<a href="javascript:;" style="color:rgb(180,180,180);font-size:90%;" onclick="genericAjaxPanel('c=feedback&a=showEntry&id={$result.f_id}&view_id={$view->id}',this,false,'500px',function(o){literal}{{/literal} genericAjaxPostAfterSubmitEvent.subscribe(function(type,args){literal}{{/literal}genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');{literal}}{/literal}); {literal}}{/literal} );">(edit)</a>{/if}
+					{if ($active_worker->hasPriv('feedback.actions.create') && $result.f_worker_id==$active_worker->id) || $active_worker->hasPriv('feedback.actions.update_all')}<a href="javascript:;" style="color:rgb(180,180,180);font-size:90%;" onclick="genericAjaxPanel('c=feedback&a=showEntry&id={$result.f_id}&view_id={$view->id}',this,false,'500px',function(o){literal}{{/literal} genericAjaxPostAfterSubmitEvent.subscribe(function(type,args){literal}{{/literal}genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');{literal}}{/literal}); {literal}}{/literal} );">({'common.edit'|devblocks_translate})</a>{/if}
 				</div>
 			</td>
 		</tr>
@@ -110,7 +110,7 @@
 	{if $total}
 	<tr>
 		<td colspan="2">
-			{if $active_worker->hasPriv('feedback.actions.update_all')}<button type="button" onclick="genericAjaxPanel('c=feedback&a=showBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),this,false,'500px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> bulk update</button>{/if}
+			{if $active_worker->hasPriv('feedback.actions.update_all')}<button type="button" onclick="genericAjaxPanel('c=feedback&a=showBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),this,false,'500px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> {'common.bulk_update'|devblocks_translate|lower}</button>{/if}
 		</td>
 	</tr>
 	{/if}
