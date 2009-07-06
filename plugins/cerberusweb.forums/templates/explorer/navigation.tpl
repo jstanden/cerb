@@ -56,9 +56,9 @@
 						{if $worker_id==$active_worker->id}{assign var=active_worker_pos value=$smarty.foreach.forums_workers.iteration}{/if}
 						<option value="{$worker_id}" {if $worker_id==$current_post->worker_id}selected{/if}>{$worker->getName()}</option>
 					{/foreach}
-					<option value="0">- {$translate->_('common.unassign')|capitalize} -</option>
+					<option value="0">- {$translate->_('common.unassign')|lower} -</option>
 				</select>{if !empty($active_worker_pos)}<button type="button" onclick="this.form.worker_id.selectedIndex={$active_worker_pos};genericAjaxGet('','c=forums&a=ajaxAssign&id={$current_post->id}&worker_id={$active_worker->id}');">{$translate->_('common.me')|lower}</button>{/if}
-				<button type="button" onclick="copyToClipboard('{$current_post->link}');" title="{$translate->_('forums.ui.nav.copy_tooltip')}">{$translate->_('forums.ui.nav.copyurl')}</button>
+				<button type="button" onclick="copyToClipboard('{$current_post->link}');" title="{$translate->_('forums.ui.nav.copy_tooltip')}">{$translate->_('forums.ui.nav.copyurl')|lower}</button>
 			</form>
 		</td>
 		

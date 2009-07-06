@@ -90,7 +90,7 @@
 	{if $total}
 	<tr>
 		<td colspan="2">
-			<button type="button" id="btnForumThreadClose" onclick="this.form.a.value='viewCloseThreads';genericAjaxPost('viewForm{$view->id}','view{$view->id}','c=forums');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_ok.gif{/devblocks_url}" align="top"> close</button>
+			<button type="button" id="btnForumThreadClose" onclick="this.form.a.value='viewCloseThreads';genericAjaxPost('viewForm{$view->id}','view{$view->id}','c=forums');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_ok.gif{/devblocks_url}" align="top"> {'common.close'|devblocks_translate|lower}</button>
 		
 			{literal}<select name="assign_worker_id" onchange="if(''!=selectValue(this)){this.form.a.value='viewAssignThreads';{/literal}genericAjaxPost('viewForm{$view->id}','view{$view->id}','c=forums');{literal}}">{/literal}
 				<option value="">-- {$translate->_('common.assign')|lower} --</option>
