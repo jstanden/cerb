@@ -1348,6 +1348,13 @@ For example: *receipt*</seg></tuv>
 		<tu tuid='task.worker_id'>
 			<tuv xml:lang="en_US"><seg>Worker</seg></tuv>
 		</tu>
+		
+		<tu tuid='task.status.active'>
+			<tuv xml:lang="en_US"><seg>Active</seg></tuv>
+		</tu>
+		<tu tuid='task.status.completed'>
+			<tuv xml:lang="en_US"><seg>Completed</seg></tuv>
+		</tu>
 
 		<!-- Teamwork -->
 
