@@ -6,11 +6,11 @@
 			<div class="block">
 			<table cellpadding="2" cellspacing="0" border="0">
 				<tr>
-					<td><h2>Custom Searches</h2></td>
+					<td><h2>{'wgm.google_cse.cfg.engines'|devblocks_translate|capitalize}</h2></td>
 				</tr>
 				<tr>
 					<td>
-						[ <a href="javascript:;" onclick="genericAjaxGet('configEngine','c=google_cse.ajax&a=getConfigEngine&id=0');">add custom search</a> ]
+						[ <a href="javascript:;" onclick="genericAjaxGet('configEngine','c=google_cse.ajax&a=getConfigEngine&id=0');">{'wgm.google_cse.cfg.engine.add'|devblocks_translate}</a> ]
 					</td>
 				</tr>
 				<tr>

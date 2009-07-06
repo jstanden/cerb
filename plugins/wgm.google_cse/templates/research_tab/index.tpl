@@ -15,7 +15,7 @@
 			    <option value="{$engine->token}">{$engine->name}</option>
 				{/foreach}
 		    </select>
-	        <input type="submit" name="sa" value="Search" />
+	        <input type="submit" name="sa" value="{'common.search'|devblocks_translate|capitalize}" />
 			<br>
 	      </div>
 	    </form>
