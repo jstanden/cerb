@@ -54,6 +54,9 @@
 			<class name="ChWorkspaceSource_Task" />
 			<class name="ChWorkspaceSource_Ticket" />
 		</file>
+		<file path="api/app/Parser.php">
+			<class name="ParserFile" />
+		</file>
 	</class_loader>
 	
 	<!-- Event Points -->

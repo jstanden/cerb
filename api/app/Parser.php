@@ -57,6 +57,35 @@ class CerberusParserMessage {
     public $files = array();
 };
 
+class ParserFile {
+	public $tmpname = null;
+	public $mime_type = '';
+	public $file_size = 0;
+
+	function __destruct() {
+		if(file_exists($this->tmpname)) {
+			@unlink($this->tmpname);
+		}
+	}
+
+	public function setTempFile($tmpname,$mimetype='application/octet-stream') {
+		$this->mime_type = $mimetype;
+
+		if(!empty($tmpname) && file_exists($tmpname)) {
+			$this->tmpname = $tmpname;
+		}
+	}
+
+	public function getTempFile() {
+		return $this->tmpname;
+	}
+
+	static public function makeTempFilename() {
+		$path = APP_TEMP_PATH . DIRECTORY_SEPARATOR;
+		return tempnam($path,'mime');
+	}
+};
+
 class CerberusParser {
     const ATTACHMENT_BUCKETS = 100; // hash
 
