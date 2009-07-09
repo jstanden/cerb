@@ -4,6 +4,8 @@
 	<title>{$page_title}</title>
 	<link rel="stylesheet" href="{devblocks_url}c=resource&p=usermeet.core&f=css/sc/default.css{/devblocks_url}">
 	<script type="text/javascript" src="{devblocks_url}c=resource&p=usermeet.core&f=js/jquery.js{/devblocks_url}"></script>
+	<script type="text/javascript" src="{devblocks_url}c=resource&p=usermeet.core&f=js/jquery.MultiFile.pack.js{/devblocks_url}"></script>
+	<script type="text/javascript" src="{devblocks_url}c=resource&p=usermeet.core&f=js/jquery.validate.pack.js{/devblocks_url}"></script>
 	<script type="text/javascript" src="{devblocks_url}c=resource&p=usermeet.core&f=js/cerb4.common.js{/devblocks_url}"></script>
 	
 	{if !empty($style_css)}

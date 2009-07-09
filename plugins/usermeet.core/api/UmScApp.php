@@ -135,6 +135,20 @@ class UmScApp extends Extension_UsermeetTool {
 				exit;
 				break;
 			
+			case 'captcha.check':
+				$entered = DevblocksPlatform::importGPC($_REQUEST['captcha'],'string','');
+				$captcha = $umsession->getProperty(UmScApp::SESSION_CAPTCHA, '');
+				
+				if(!empty($entered) && !empty($captcha) && 0 == strcasecmp($entered, $captcha)) {
+					echo 'true';
+					exit;
+				}
+				
+				echo 'false';
+				exit;
+				
+				break;
+			
 	    	default:
 				// Build the menu
 				$modules = $this->_getModules();

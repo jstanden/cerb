@@ -194,6 +194,12 @@ TABLE.sidebar BUTTON {
 	border:1px solid rgb(204,204,204);	
 }
 
+LABEL.error {
+	background-color:rgb(255,235,235);
+	color:rgb(180,0,0);
+	font-weight:bold;
+}
+
 /* Cerb4 Styles */
 DIV.error {
 	border:1px solid rgb(180,0,0);

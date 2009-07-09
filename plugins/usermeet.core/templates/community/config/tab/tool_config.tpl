@@ -59,7 +59,7 @@ define('REMOTE_URI', '{$path}'); // NO trailing slash!
 define('URL_REWRITE', file_exists('.htaccess'));
 define('LOCAL_HOST', $_SERVER['HTTP_HOST']);
 define('LOCAL_BASE', DevblocksRouter::getLocalBase()); // NO trailing slash!
-define('SCRIPT_LAST_MODIFY', 2009041501); // last change
+define('SCRIPT_LAST_MODIFY', 2009070901); // last change
 
 @session_start();
 
@@ -187,18 +187,37 @@ class DevblocksProxy {
 		}
 		
 		// Handle files
+		if(is_array($_FILES) && !empty($_FILES))
 		foreach($_FILES as $k => $file) {
-			$content .= sprintf("--%s\r\n".
-				"content-disposition: form-data; name=\"%s\"; filename=\"%s\"\r\n".
-				"Content-Type: application/octet-stream\r\n".
-				"\r\n".
-				"%s\r\n",
-				$boundary,
-				$k,
-				$file['name'],
-				file_get_contents($file['tmp_name']) // [JAS] replace with a PHP4 friendly function?
-			);
-
+			if(is_array($file['name'])) {
+				foreach($file['name'] as $idx => $name) {
+					if(empty($name))
+						continue;
+					
+					$content .= sprintf("--%s\r\n".
+						"content-disposition: form-data; name=\"%s[]\"; filename=\"%s\"\r\n".
+						"Content-Type: application/octet-stream\r\n".
+						"\r\n".
+						"%s\r\n",
+						$boundary,
+						$k,
+						$name,
+						file_get_contents($file['tmp_name'][$idx]) // [JAS] replace with a PHP4 friendly function?
+					);
+				}
+				
+			} else {
+				$content .= sprintf("--%s\r\n".
+					"content-disposition: form-data; name=\"%s\"; filename=\"%s\"\r\n".
+					"Content-Type: application/octet-stream\r\n".
+					"\r\n".
+					"%s\r\n",
+					$boundary,
+					$k,
+					$file['name'],
+					file_get_contents($file['tmp_name']) // [JAS] replace with a PHP4 friendly function?
+				);
+			}
 		}
 
 		$content .= sprintf("--%s--\r\n",
