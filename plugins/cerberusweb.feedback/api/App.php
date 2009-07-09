@@ -18,6 +18,8 @@ class ChFeedbackActivityTab extends Extension_ActivityTab {
 	}
 	
 	function showTab() {
+		$translate = DevblocksPlatform::getTranslationService();
+		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
 		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
@@ -29,7 +31,7 @@ class ChFeedbackActivityTab extends Extension_ActivityTab {
 			$view->renderSortBy = SearchFields_FeedbackEntry::LOG_DATE;
 			$view->renderSortAsc = 0;
 			
-			$view->name = "Feedback";
+			$view->name = $translate->_('feedback.activity.tab');
 			
 			C4_AbstractViewLoader::setView($view->id, $view);
 		}
