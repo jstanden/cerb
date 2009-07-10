@@ -479,13 +479,13 @@ class UmScAjaxController extends Extension_UmScController {
 	        default:
 			    // Default action, call arg as a method suffixed with Action
 				if(method_exists($this,$action)) {
-					call_user_func(array(&$this, $action)); // [TODO] Pass HttpRequest as arg?
+					call_user_func(array(&$this, $action), new DevblocksHttpRequest($path)); // Pass HttpRequest as arg
 				}
 	            break;
 	    }
 	}
 	
-	function viewRefreshAction() {
+	function viewRefreshAction(DevblocksHttpRequest $request) {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['id'],'string','');
 		
 		if(null != ($view = UmScAbstractViewLoader::getView('', $view_id))) {
@@ -493,7 +493,7 @@ class UmScAjaxController extends Extension_UmScController {
 		}
 	}
 
-	function viewPageAction() {
+	function viewPageAction(DevblocksHttpRequest $request) {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['id'],'string','');
 		@$page = DevblocksPlatform::importGPC($_REQUEST['page'],'integer',0);
 		
@@ -505,7 +505,7 @@ class UmScAjaxController extends Extension_UmScController {
 		}
 	}
 	
-	function viewSortByAction() {
+	function viewSortByAction(DevblocksHttpRequest $request) {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['id'],'string','');
 		@$sort_by = DevblocksPlatform::importGPC($_REQUEST['sort_by'],'string','');
 		
@@ -528,5 +528,75 @@ class UmScAjaxController extends Extension_UmScController {
 		}
 		
 	}
+	
+	function downloadFileAction(DevblocksHttpRequest $request) {
+		$umsession = UmPortalHelper::getSession();
+		$stack = $request->path;
+		
+        if(null == ($active_user = $umsession->getProperty('sc_login',null)))
+			return;
+
+		// Attachment ID + display name
+		@$ticket_mask = array_shift($stack);
+		@$hash = array_shift($stack);
+		@$display_name = array_shift($stack);
+		
+		if(empty($ticket_mask) || empty($hash) || empty($display_name))
+			return;
+			
+		if(null == ($ticket_id = DAO_Ticket::getTicketIdByMask($ticket_mask)))
+			return;
+		
+		// Load attachments by ticket mask
+		list($attachments) = DAO_Attachment::search(
+			array(
+				SearchFields_Attachment::TICKET_MASK => new DevblocksSearchCriteria(SearchFields_Attachment::TICKET_MASK,'=',$ticket_mask), 
+			),
+			-1,
+			0,
+			null,
+			null,
+			false
+		);
+
+		$attachment = null;
+
+		if(is_array($attachments))
+		foreach($attachments as $possible_file) {
+			// Compare the hash
+			$fingerprint = md5($possible_file[SearchFields_Attachment::ID].$possible_file[SearchFields_Attachment::MESSAGE_ID].$possible_file[SearchFields_Attachment::DISPLAY_NAME]);
+			if(0 == strcmp($fingerprint,$hash)) {
+				if(null == ($attachment = DAO_Attachment::get($possible_file[SearchFields_Attachment::ID])))
+					return;
+				break;
+			}
+		}
+
+		// No hit (bad hash)
+		if(null == $attachment)
+			return;
+
+		// Load requesters		
+		if(null == ($requesters = DAO_Ticket::getRequestersByTicket($ticket_id)))
+			return;
+			
+		// Security: Make sure the active user is a requester on the proper ticket
+		if(!isset($requesters[$active_user->id]))
+			return;
+		
+		// Set headers
+		header("Expires: Mon, 26 Nov 1962 00:00:00 GMT\n");
+		header("Last-Modified: " . gmdate("D,d M YH:i:s") . " GMT\n");
+		header("Cache-control: private\n");
+		header("Pragma: no-cache\n");
+		header("Content-Type: " . $attachment->mime_type . "\n");
+		header("Content-transfer-encoding: binary\n"); 
+		header("Content-Length: " . $attachment->getFileSize() . "\n");
+		
+		// Dump contents
+		echo $attachment->getFileContents();
+		exit;
+	}
+
 	
 };

@@ -116,10 +116,42 @@ class UmScHistoryController extends Extension_UmScController {
 			// Security check (mask compare)
 			if(0 == strcasecmp($ticket[SearchFields_Ticket::TICKET_MASK],$mask)) {
 				$messages = DAO_Ticket::getMessagesByTicket($ticket[SearchFields_Ticket::TICKET_ID]);
-				$messages = array_reverse($messages, true);						
+				$messages = array_reverse($messages, true);
+				$attachments = array();						
+				
+				// Attachments
+				if(is_array($messages) && !empty($messages)) {
+					list($msg_attachments) = DAO_Attachment::search(
+						array(
+							SearchFields_Attachment::MESSAGE_ID => new DevblocksSearchCriteria(SearchFields_Attachment::MESSAGE_ID,'in',array_keys($messages))
+						),
+						-1,
+						0,
+						null,
+						null,
+						false
+					);
+					
+					if(is_array($msg_attachments))
+					foreach($msg_attachments as $attach_id => $attach) {
+						if(null == ($msg_id = intval($attach[SearchFields_Attachment::MESSAGE_ID])))
+							continue;
+							
+						if(0 == strcasecmp('original_message.html',$attach[SearchFields_Attachment::DISPLAY_NAME]))
+							continue;
+							
+						if(!isset($attachments[$msg_id]))
+							$attachments[$msg_id] = array();
+						
+						$attachments[$msg_id][$attach_id] = $attach;
+						
+						unset($attach);
+					}
+				}
 				
 				$tpl->assign('ticket', $ticket);
 				$tpl->assign('messages', $messages);
+				$tpl->assign('attachments', $attachments);
 				$tpl->display("file:${tpl_path}portal/sc/module/history/display.tpl");						
 			}
 		}

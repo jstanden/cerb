@@ -35,7 +35,7 @@
 </div>
 
 {* Message History *}
-{foreach from=$messages item=message}
+{foreach from=$messages item=message key=message_id}
 	{assign var=headers value=$message->getHeaders()}
 	<div class="message {if $message->is_outgoing}outbound_message{else}inbound_message{/if}">
 	<span class="header"><b>{$translate->_('message.header.from')|capitalize}:</b> {$headers.from|escape}</span><br>
@@ -44,6 +44,34 @@
 	{if !empty($headers.date)}<span class="header"><b>{$translate->_('message.header.date')|capitalize}:</b> {$headers.date|escape}</span><br>{/if}
 	<br>
 	{$message->getContent()|trim|escape|nl2br}
+	
+	{if isset($attachments.$message_id)}
+		<div style="margin-top:10px;">
+		<b>Attachments:</b><br>
+		<ul style="margin-top:0px;">
+		{foreach from=$attachments.$message_id item=attachment key=attachment_id}
+			<li>
+				<a href="{devblocks_url}c=ajax&a=downloadFile&mask={$ticket.t_mask}&md5={$attachment_id|cat:$message->id|cat:$attachment.a_display_name|md5}&name={$attachment.a_display_name|escape}{/devblocks_url}" target="_blank">{$attachment.a_display_name|escape}</a>
+				{assign var=bytes value=$attachment.a_file_size}
+				( 
+				{if !empty($bytes)} 
+					{if $bytes > 1024000}
+						{math equation="round(x/1024000)" x=$bytes} MB
+					{elseif $bytes > 1048}
+						{math equation="round(x/1048)" x=$bytes} KB
+					{else}
+						{$bytes} bytes
+					{/if}
+					- 
+				{/if}
+				{if !empty($attachment.a_mime_type)}{$attachment.a_mime_type}{else}{$translate->_('display.convo.unknown_format')|capitalize}{/if}
+				 )
+			</li>
+		{/foreach}
+		</ul>
+		</div>
+	{/if}
+	
 	</div>
 {/foreach}
 
