@@ -20,7 +20,13 @@
 	{if $field_id}
 		{assign var=field value=$ticket_fields.$field_id}
 		{assign var=field_group_id value=$field->group_id}
-		({if isset($groups.$field_group_id)}{$groups.$field_group_id->name}: {/if}{$field->name|escape})
+		<i>
+		 &raquo; 
+		{if isset($groups.$field_group_id)}{$groups.$field_group_id->name}: {/if}
+		{$field->name|escape}
+		{assign var=field_type value=$field->type}
+		{if isset($field_types.$field_type)}({$field_types.$field_type}){/if}
+		</i>
 	{/if}
 	<br>
 	{/foreach}

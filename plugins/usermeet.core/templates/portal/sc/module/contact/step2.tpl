@@ -26,10 +26,6 @@
 		{/if}
 		<br>
 		
-      	<h2>Message:</h2>	
-		<textarea name="content" rows="10" cols="60" style="width:98%;" class="required">{$last_content|escape}</textarea><br>
-		<br>
-		
       	{if !empty($situation_params.followups)}
 		<div class="header"><h1>{$translate->_('Additional Information')}</h1></div>
       	
@@ -46,8 +42,10 @@
 	      		
 	      		{if $field->type=='S'}
 	      			<input name="followup_a_{$idx}" value="{$last_followup_a.$idx|escape}" autocomplete="off" style="width:98%;">
+	      		{elseif $field->type=='U'}
+	      			<input name="followup_a_{$idx}" value="{$last_followup_a.$idx|escape}" autocomplete="off" style="width:98%;" class="url">
 	      		{elseif $field->type=='N'}
-	      			<input name="followup_a_{$idx}" value="{$last_followup_a.$idx|escape}" autocomplete="off" style="width:98%;">
+	      			<input name="followup_a_{$idx}" size="12" maxlength="20" value="{$last_followup_a.$idx|escape}" autocomplete="off" class="number">
 	      		{elseif $field->type=='T'}
 	      			<textarea name="followup_a_{$idx}" rows="5" cols="60" style="width:98%;">{$last_followup_a.$idx|escape}</textarea>
 	      		{elseif $field->type=='D'}
@@ -57,8 +55,29 @@
 	      				<option value="{$opt}" {if $last_followup_a.$idx==$opt}selected{/if}>{$opt}
 	      				{/foreach}
 	      			</select>
+				{elseif $field->type=='M'}
+					<select name="followup_a_{$idx}[]" size="5" multiple="multiple">
+						{foreach from=$field->options item=opt}
+						<option value="{$opt|escape}">{$opt}</option>
+						{/foreach}
+					</select><br>
+					<i><small>{$translate->_('common.tips.multi_select')}</small></i>
+	      		{elseif $field->type=='W'}
+					{if empty($workers)}
+						{php}$this->assign('workers', DAO_Worker::getAllActive());{/php}
+					{/if}
+	      			<select name="followup_a_{$idx}">
+	      				<option value=""></option>
+	      				{foreach from=$workers item=worker key=worker_id}
+	      				<option value="{$worker_id}" {if $last_followup_a.$idx==$worker_id}selected{/if}>{$worker->getName()}
+	      				{/foreach}
+	      			</select>
 	      		{elseif $field->type=='E'}
-	      			<input name="followup_a_{$idx}" value="{$last_followup_a.$idx|escape}" autocomplete="off"><br>
+	      			<input name="followup_a_{$idx}" value="{$last_followup_a.$idx|escape}" autocomplete="off" class="date">
+				{elseif $field->type=='X'}
+					{foreach from=$field->options item=opt}
+					<label><input type="checkbox" name="followup_a_{$idx}[]" value="{$opt|escape}"> {$opt}</label>
+					{/foreach}
 	      		{elseif $field->type=='C'}
 	      			<label><input name="followup_a_{$idx}" type="checkbox" value="Yes" {if $last_followup_a.$idx}checked{/if}> {$translate->_('common.yes')|capitalize}</label>
 	      		{/if}
@@ -73,7 +92,11 @@
 		</blockquote>
 		{/if}
 		
-		<div class="header"><h1>{$translate->_('Attachments')|capitalize}</h1></div>
+		<div class="header"><h1>Message</h1></div>
+		<textarea name="content" rows="15" cols="60" style="width:98%;" class="required">{$last_content|escape}</textarea><br>
+		<br>
+		
+		<div class="header"><h1>Attachments</h1></div>
 		<input type="file" name="attachments[]" class="multi"><br>
 		<br>
 		

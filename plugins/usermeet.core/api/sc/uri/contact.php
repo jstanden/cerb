@@ -113,8 +113,9 @@ class UmScContactController extends Extension_UmScController {
     	$tool = DAO_CommunityTool::getByCode($sCode);
     	 
         $tpl = DevblocksPlatform::getTemplateService();
-        $tpl_path = dirname(dirname(dirname(dirname(__FILE__)))) . '/templates/';
-
+        $tpl_path = dirname(dirname(dirname(dirname(__FILE__)))) . '/templates';
+        $tpl->assign('config_path', $tpl_path);
+		
         $settings = CerberusSettings::getInstance();
         
         $default_from = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM);
@@ -139,7 +140,11 @@ class UmScContactController extends Extension_UmScController {
 		$ticket_fields = DAO_CustomField::getBySource('cerberusweb.fields.source.ticket');
 		$tpl->assign('ticket_fields', $ticket_fields);
         
-        $tpl->display("file:${tpl_path}portal/sc/config/module/contact/add_situation.tpl");
+		// Custom field types
+		$types = Model_CustomField::getTypes();
+		$tpl->assign('field_types', $types);
+		
+        $tpl->display("file:${tpl_path}/portal/sc/config/module/contact/add_situation.tpl");
 		exit;
     }
 
@@ -171,6 +176,10 @@ class UmScContactController extends Extension_UmScController {
 		// Contact: Fields
 		$ticket_fields = DAO_CustomField::getBySource('cerberusweb.fields.source.ticket');
 		$tpl->assign('ticket_fields', $ticket_fields);
+		
+		// Custom field types
+		$types = Model_CustomField::getTypes();
+		$tpl->assign('field_types', $types);
 		
 		$tpl->display("file:${tpl_path}portal/sc/config/module/contact.tpl");
 	}
@@ -236,7 +245,6 @@ class UmScContactController extends Extension_UmScController {
 			if(!empty($aFollowup))
 			foreach($aFollowup as $idx => $followup) {
 				if(empty($followup)) continue;
-//				$followups[$followup] = (false !== array_search($idx,$aFollowupLong)) ? 1 : 0;
 				$followups[$followup] = @$aFollowupField[$idx];
 			}
         }
@@ -284,12 +292,45 @@ class UmScContactController extends Extension_UmScController {
 		@$aFieldIds = DevblocksPlatform::importGPC($_POST['field_ids'],'array',array());
 		@$aFollowUpQ = DevblocksPlatform::importGPC($_POST['followup_q'],'array',array());
 		
+		$fields = DAO_CustomField::getBySource('cerberusweb.fields.source.ticket');
+		
 		// Load the answers to any situational questions
 		$aFollowUpA = array();
 		if(is_array($aFollowUpQ))
 		foreach($aFollowUpQ as $idx => $q) {
-			@$answer = DevblocksPlatform::importGPC($_POST['followup_a_'.$idx],'string','');
-			$aFollowUpA[$idx] = $answer;
+			// Only form values we were passed
+			if(!isset($_POST['followup_a_'.$idx]))
+				continue;
+				
+			if(is_array($_POST['followup_a_'.$idx])) {
+				@$answer = DevblocksPlatform::importGPC($_POST['followup_a_'.$idx],'array',array());
+				$aFollowUpA[$idx] = implode(', ', $answer);
+			} else {
+				@$answer = DevblocksPlatform::importGPC($_POST['followup_a_'.$idx],'string','');
+				$aFollowUpA[$idx] = $answer;
+			}
+			
+			// Translate field values into something human-readable (if needed)
+			if(isset($aFieldIds[$idx]) && !empty($aFieldIds[$idx])) {
+				
+				// Were we given a legit field id?
+				if(null != (@$field = $fields[$aFieldIds[$idx]])) {
+					
+					switch($field->type) {
+						
+						// Translate 'worker' fields into worker name (not ID)
+						case Model_CustomField::TYPE_WORKER:
+							if(null != ($worker = DAO_Worker::getAgent($answer))) {
+								$aFollowUpA[$idx] = $worker->getName();
+							}
+							break;
+							
+					} // switch
+					
+				} // if
+				
+			} // if
+			
 		}
 		
 		$umsession = UmPortalHelper::getSession();
@@ -301,7 +342,6 @@ class UmScContactController extends Extension_UmScController {
 		$umsession->setProperty('support.write.last_from',$sFrom);
 		$umsession->setProperty('support.write.last_subject',$sSubject);
 		$umsession->setProperty('support.write.last_content',$sContent);
-//		$umsession->setProperty('support.write.last_followup_q',$aFollowUpQ);
 		$umsession->setProperty('support.write.last_followup_a',$aFollowUpA);
         
 		$sNature = $umsession->getProperty('support.write.last_nature', '');
@@ -409,7 +449,6 @@ class UmScContactController extends Extension_UmScController {
 		$ticket = DAO_Ticket::getTicket($ticket_id);
 		
 		// Auto-save any custom fields
-		$fields = DAO_CustomField::getBySource('cerberusweb.fields.source.ticket');
 		if(!empty($aFieldIds))
 		foreach($aFieldIds as $iIdx => $iFieldId) {
 			if(!empty($iFieldId)) {
@@ -419,6 +458,7 @@ class UmScContactController extends Extension_UmScController {
 				switch($field->type) {
 					case Model_CustomField::TYPE_SINGLE_LINE:
 					case Model_CustomField::TYPE_MULTI_LINE:
+					case Model_CustomField::TYPE_URL:
 						@$value = trim($aFollowUpA[$iIdx]);
 						break;
 					
@@ -435,8 +475,20 @@ class UmScContactController extends Extension_UmScController {
 						@$value = $aFollowUpA[$iIdx];
 						break;
 						
+					case Model_CustomField::TYPE_MULTI_PICKLIST:
+						@$value = DevblocksPlatform::importGPC($_POST['followup_a_'.$iIdx],'array',array());
+						break;
+						
 					case Model_CustomField::TYPE_CHECKBOX:
 						@$value = (isset($aFollowUpA[$iIdx]) && !empty($aFollowUpA[$iIdx])) ? 1 : 0;
+						break;
+						
+					case Model_CustomField::TYPE_MULTI_CHECKBOX:
+						@$value = DevblocksPlatform::importGPC($_POST['followup_a_'.$iIdx],'array',array());
+						break;
+						
+					case Model_CustomField::TYPE_WORKER:
+						@$value = DevblocksPlatform::importGPC($_POST['followup_a_'.$iIdx],'integer',0);
 						break;
 				}
 				

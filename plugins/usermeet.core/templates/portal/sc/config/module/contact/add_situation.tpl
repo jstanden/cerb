@@ -15,31 +15,14 @@
 
 <b>{$translate->_('portal.cfg.followup_questions')}</b> {$translate->_('portal.sc.cfg.followup_questions_hint')}<br>
 {foreach from=$situation_params.followups key=q item=field_id name=followups}
-	<input type="text" name="followup[]" size="65" value="{$q|escape}"> 
-	<!-- <label><input type="checkbox" name="followup_long[]" value="{$smarty.foreach.followups.index}" {if $long}checked{/if}> Long Answer</label><br>-->
-	<select name="followup_fields[]">
-		<option value="">-- {$translate->_('portal.sc.cfg.append_to_message')} --</option>
-		{foreach from=$ticket_fields item=f key=f_id}
-		{assign var=field_group_id value=$f->group_id}
-		<option value="{$f_id}" {if $f_id==$field_id}selected{/if}>{$groups.$field_group_id->name}: {$f->name|escape}</option>
-		{/foreach}
-	</select>
-	<br>
+	{include file="$config_path/portal/sc/config/module/contact/add_situation_followups.tpl" field_id=$field_id}
 {/foreach}
 
 {math assign=dispatch_start equation="x+1" x=$smarty.foreach.followups.index}
 {section name="dispatch" start=$dispatch_start loop=100 max=5}
-	<input type="text" name="followup[]" size="65" value=""> 
-	<!-- <label><input type="checkbox" name="followup_long[]" value="{$smarty.section.dispatch.index}"> Long Answer</label><br> -->
-	<select name="followup_fields[]">
-		<option value="">-- {$translate->_('portal.sc.cfg.append_to_message')} --</option>
-		{foreach from=$ticket_fields item=f key=f_id}
-		{assign var=field_group_id value=$f->group_id}
-		<option value="{$f_id}">{if isset($groups.$field_group_id)}{$groups.$field_group_id->name}: {/if}{$f->name|escape}</option>
-		{/foreach}
-	</select>
-	<br>
+	{include file="$config_path/portal/sc/config/module/contact/add_situation_followups.tpl" q=null field_id=null}
 {/section}
+
 {$translate->_('portal.sc.cfg.save_to_add_followups')}<br>
 <br>
 
