@@ -194,7 +194,7 @@ class ChTasksController extends DevblocksControllerExtension {
 				
 				// Write a notification (if not assigned to ourselves)
 				$source_extensions = DevblocksPlatform::getExtensions('cerberusweb.task.source', true);
-				if(!empty($worker_id)) { // && $active_worker->id != $worker_id (Temporarily allow self notifications)
+				if(!empty($worker_id) && $active_worker->id != $worker_id) {
 					if(null != (@$source_renderer = $source_extensions[$link_namespace])) { /* @var $source_renderer Extension_TaskSource */
 						$source_info = $source_renderer->getSourceInfo($link_object_id);
 						$source_name = $source_info['name'];
