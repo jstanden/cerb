@@ -1,13 +1,23 @@
-<b>{$translate->_('portal.cfg.logo_url')}</b> {$translate->_('portal.cfg.logo_url_hint')}<br>
-<input type="text" size="65" name="logo_url" value="{$logo_url}"><br>
-<br>
-
 <b>{$translate->_('portal.cfg.page_title')}</b> {$translate->_('portal.cfg.default_if_blank')}<br>
 <input type="text" size="65" name="page_title" value="{$page_title}"><br>
 <br>
 
 <b>{$translate->_('portal.cfg.style_css')}</b><br>
 <textarea name="style_css" style="width:90%;height:150px;">{$style_css}</textarea><br>
+<br>
+
+<b>{$translate->_('portal.sc.cfg.header')|escape}</b><br>
+<table cellpadding="0" cellspacing="0" border="0">
+<tr>
+	<td valign="top" width="0%" nowrap="nowrap">
+		<textarea cols="65" rows="8" name="header_html">{$header_html|escape}</textarea><br>
+	</td>
+	<td valign="top" width="100%" style="padding:10px;">
+		<i>{$translate->_('portal.sc.cfg.example')}</i><br>
+		{$translate->_('portal.sc.cfg.header_html_example')|escape|nl2br}<br>
+	</td>
+</tr>
+</table>
 <br>
 
 <b>{$translate->_('portal.sc.cfg.footer')}</b><br>

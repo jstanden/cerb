@@ -64,6 +64,7 @@ class UmPatchContainer extends DevblocksPatchContainerExtension {
 		$this->registerPatch(new DevblocksPatch('usermeet.core',0,$file_prefix.'1.0.0.php',''));
 		$this->registerPatch(new DevblocksPatch('usermeet.core',11,$file_prefix.'1.0.0_beta.php',''));
 		$this->registerPatch(new DevblocksPatch('usermeet.core',13,$file_prefix.'1.1.0.php',''));
+		$this->registerPatch(new DevblocksPatch('usermeet.core',14,$file_prefix.'4.2.2.php',''));
 	}
 
 };

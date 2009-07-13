@@ -80,12 +80,6 @@ For example: http://www.cerberusweb.com/support/</seg></tuv>
 		<tu tuid='portal.cfg.followup_questions'>
 			<tuv xml:lang="en_US"><seg>Follow-up Questions:</seg></tuv>
 		</tu>
-		<tu tuid='portal.cfg.logo_url'>
-			<tuv xml:lang="en_US"><seg>URL to Logo:</seg></tuv>
-		</tu>
-		<tu tuid='portal.cfg.logo_url_hint'>
-			<tuv xml:lang="en_US"><seg>(link to image, default if blank)</seg></tuv>
-		</tu>		
 		<tu tuid='portal.cfg.page_title'>
 			<tuv xml:lang="en_US"><seg>Page Title:</seg></tuv>
 		</tu>
@@ -167,6 +161,14 @@ For example: http://www.cerberusweb.com/support/</seg></tuv>
 451 W. Lambert Rd., Suite #201&lt;br&gt;
 Brea, CA 92821 USA&lt;br&gt;
 +1 714 671 9090&lt;br&gt;</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.cfg.header'>
+			<tuv xml:lang="en_US"><seg>Header HTML:</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.cfg.header_html_example'>
+			<tuv xml:lang="en_US"><seg>&lt;div align="center"&gt;
+&lt;img src="/path/to/logo.jpg" alt="Logo" border="0"&gt;
+&lt;/div&gt;</seg></tuv>
 		</tu>
 		<tu tuid='portal.sc.cfg.home.html'>
 			<tuv xml:lang="en_US"><seg>Home Page HTML:</seg></tuv>

@@ -16,13 +16,13 @@
 </head>
 
 <body>
-
-<div align="center" id="logo">
-{if empty($logo_url)}
-	<a href="{devblocks_url}c=home{/devblocks_url}"><img src="{devblocks_url}c=resource&p=usermeet.core&f=images/_wgm/logo.gif{/devblocks_url}" alt="Logo" border="0"></a><br>
-{else}
-	<a href="{devblocks_url}c=home{/devblocks_url}"><img src="{$logo_url}" alt="Logo" border="0"></a><br>
+{if empty($header_html)}
+	{devblocks_url assign=logo_url}c=resource&p=usermeet.core&f=images/_wgm/logo.gif{/devblocks_url}
+	{assign var=header_html value="<div align=\"center\"><img src=\""|cat:$logo_url|cat:"\" alt=\"Logo\" border=\"0\"></div>"}
 {/if}
+
+<div>
+	{$header_html}
 </div>
 
 <table cellpadding="5" cellspacing="0" border="0" width="100%" align="center">
@@ -100,9 +100,11 @@
 		</td>
 	</tr>
 	
+	{if !empty($footer_html)}
 	<tr>
 		<td colspan="2" id="footer">{$footer_html}</td>
 	</tr>
+	{/if}
 
 	<tr>
 		<td colspan="2" id="tagline">
