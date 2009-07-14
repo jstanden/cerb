@@ -2,6 +2,15 @@
 <input type="text" size="65" name="page_title" value="{$page_title}"><br>
 <br>
 
+<b>{$translate->_('portal.cfg.language')}</b><br>
+<select name="default_locale">
+	{foreach from=$locales item=loc key=code}
+	<option value="{$code|escape}" {if $code==$default_locale}selected="selected"{/if}>{$loc}</option>
+	{/foreach}
+</select>
+<br>
+<br>
+
 <b>{$translate->_('portal.cfg.style_css')}</b><br>
 <textarea name="style_css" style="width:90%;height:150px;">{$style_css}</textarea><br>
 <br>

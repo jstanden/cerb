@@ -60,7 +60,8 @@
 						<td><button type="submit">{$translate->_('portal.sc.public.themes.click_to_log_out')}</button></td>
 					</tr>
 				</table>
-				</form> 
+				</form>
+				<br>
 			{else}
 				<form action="{devblocks_url}c=login{/devblocks_url}" method="post">
 				<table cellpadding="0" cellspacing="0" border="0" class="sidebar">
@@ -86,6 +87,7 @@
 					</tr>
 				</table>
 				</form>
+				<br>
 			{/if}
 			{/if}
 			
