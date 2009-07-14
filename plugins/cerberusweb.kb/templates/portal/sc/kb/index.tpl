@@ -4,7 +4,7 @@
 
 <div class="search">
 	<form action="{devblocks_url}c=kb&a=search{/devblocks_url}" method="POST">
-		<input class="query" type="text" name="q" value=""><button type="submit">search</button>
+		<input class="query" type="text" name="q" value=""><button type="submit">{'common.search'|devblocks_translate|lower}</button>
 		
 		 &nbsp; 
 		<img src="{devblocks_url}c=resource&p=usermeet.core&f=images/feed-icon-16x16.gif{/devblocks_url}" align="top"> <a href="{devblocks_url}c=rss&m=kb&a=most_popular{/devblocks_url}">Most Popular</a>

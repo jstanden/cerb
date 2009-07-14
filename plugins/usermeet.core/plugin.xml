@@ -92,7 +92,7 @@
 			</class>
 			<params>
 				<param key="uri" value="home" />
-				<param key="menu_title" value="home" />
+				<param key="menu_title" value="portal.sc.public.home" />
 				<param key="icon" value="images/crystal/icon_home.gif" />
 			</params>
 		</extension>
@@ -106,7 +106,7 @@
 			</class>
 			<params>
 				<param key="uri" value="announcements" />
-				<param key="menu_title" value="announcements" />
+				<param key="menu_title" value="portal.sc.public.announcements" />
 				<param key="icon" value="images/feed-icon-16x16.gif" />
 			</params>
 		</extension>
@@ -120,7 +120,7 @@
 			</class>
 			<params>
 				<param key="uri" value="contact" />
-				<param key="menu_title" value="open a ticket" />
+				<param key="menu_title" value="portal.common.open_ticket" />
 				<param key="icon" value="images/crystal/icon_open_ticket.gif" />
 			</params>
 		</extension>
@@ -134,7 +134,7 @@
 			</class>
 			<params>
 				<param key="uri" value="history" />
-				<param key="menu_title" value="transcript history" />
+				<param key="menu_title" value="portal.sc.public.history.ticket_history" />
 				<param key="icon" value="images/crystal/icon_ticket_history.gif" />
 			</params>
 		</extension>
@@ -148,7 +148,7 @@
 			</class>
 			<params>
 				<param key="uri" value="account" />
-				<param key="menu_title" value="my account" />
+				<param key="menu_title" value="portal.sc.public.my_account" />
 				<param key="icon" value="images/crystal/icon_my_account.gif" />
 			</params>
 		</extension>

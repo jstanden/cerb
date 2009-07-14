@@ -227,6 +227,9 @@ Brea, CA 92821 USA&lt;br&gt;
 		<tu tuid='portal.sc.public.history.add_message'>
 			<tuv xml:lang="en_US"><seg>Add a Message</seg></tuv>
 		</tu>
+		<tu tuid='portal.sc.public.announcements'>
+			<tuv xml:lang="en_US"><seg>Announcements</seg></tuv>
+		</tu>
 		<tu tuid='portal.sc.public.history.my_closed_conversations'>
 			<tuv xml:lang="en_US"><seg>My Closed Conversations</seg></tuv>
 		</tu>
@@ -246,6 +249,10 @@ Brea, CA 92821 USA&lt;br&gt;
 			<tuv xml:lang="en_US"><seg>Ticket History</seg></tuv>
 		</tu>
 
+		<tu tuid='portal.sc.public.home'>
+			<tuv xml:lang="en_US"><seg>Home</seg></tuv>
+		</tu>
+		
 		<tu tuid='portal.sc.public.my_account'>
 			<tuv xml:lang="en_US"><seg>My Account</seg></tuv>
 		</tu>

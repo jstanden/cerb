@@ -39,7 +39,7 @@
 				<td>
 				{foreach from=$menu item=item name=menu}
 					{if !empty($item->manifest->params.icon)}<img src="{devblocks_url}c=resource&p={$item->manifest->plugin_id}&f={$item->manifest->params.icon}{/devblocks_url}" align="top" style="padding:1px;">{/if}
-					<a href="{devblocks_url}c={$item->manifest->params.uri}{/devblocks_url}" {if !empty($module) && 0==strcasecmp($module->manifest->params.uri,$item->manifest->params.uri)}class="selected"{/if}>{$item->manifest->params.menu_title|capitalize}</a>
+					<a href="{devblocks_url}c={$item->manifest->params.uri}{/devblocks_url}" {if !empty($module) && 0==strcasecmp($module->manifest->params.uri,$item->manifest->params.uri)}class="selected"{/if}>{$item->manifest->params.menu_title|devblocks_translate|capitalize}</a>
 					<br>
 				{/foreach}
 				</td>

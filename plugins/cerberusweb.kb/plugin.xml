@@ -156,7 +156,7 @@
 			</class>
 			<params>
 				<param key="uri" value="kb" />
-				<param key="menu_title" value="knowledgebase" />
+				<param key="menu_title" value="common.knowledgebase" />
 				<param key="icon" value="images/crystal/icon_knowledgebase.gif" />
 			</params>
 		</extension>

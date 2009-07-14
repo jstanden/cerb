@@ -118,7 +118,7 @@
 			</class>
 			<params>
 				<param key="uri" value="resources" />
-				<param key="menu_title" value="search resources" />
+				<param key="menu_title" value="fnr.portal.sc.search" />
 				<param key="icon" value="images/help2.gif" />
 			</params>
 		</extension>

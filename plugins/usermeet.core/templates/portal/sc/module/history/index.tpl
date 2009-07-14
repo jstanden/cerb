@@ -3,7 +3,7 @@
 <div class="header"><h1>{$translate->_('portal.sc.public.history.ticket_history')}</h1></div>
 <div class="search">
 	<form action="{devblocks_url}c=history&a=search{/devblocks_url}" method="POST">
-		<input class="query" type="text" name="q" value=""><button type="submit">search</button>
+		<input class="query" type="text" name="q" value=""><button type="submit">{'common.search'|devblocks_translate|lower}</button>
 	</form>
 </div>
 
