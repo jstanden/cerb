@@ -445,10 +445,8 @@ class UmScContactController extends Extension_UmScController {
 			}
 		}	
 		
-		$ticket_id = CerberusParser::parseMessage($message);
-		$ticket = DAO_Ticket::getTicket($ticket_id);
+		// Custom Fields
 		
-		// Auto-save any custom fields
 		if(!empty($aFieldIds))
 		foreach($aFieldIds as $iIdx => $iFieldId) {
 			if(!empty($iFieldId)) {
@@ -493,9 +491,14 @@ class UmScContactController extends Extension_UmScController {
 				}
 				
 				if(!empty($value))
-					DAO_CustomFieldValue::setFieldValue('cerberusweb.fields.source.ticket',$ticket_id,$iFieldId,$value);
+					$message->custom_fields[$iFieldId] = $value;
 			}
 		}
+		
+		// Parse
+		
+		$ticket_id = CerberusParser::parseMessage($message);
+		$ticket = DAO_Ticket::getTicket($ticket_id);
 		
 		// Clear any errors
 		$umsession->setProperty('support.write.last_nature',null);

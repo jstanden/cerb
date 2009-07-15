@@ -55,6 +55,7 @@ class CerberusParserMessage {
     public $body_encoding = '';
     public $htmlbody = '';
     public $files = array();
+	public $custom_fields = array();
 };
 
 class ParserFile {
@@ -629,6 +630,13 @@ class CerberusParser {
 			        DAO_Attachment::FILEPATH => $attachment_bucket.$attachment_file
 			    ));
 			}
+		}
+		
+		// Pre-load custom fields
+		if(isset($message->custom_fields) && !empty($message->custom_fields))
+		foreach($message->custom_fields as $cf_id => $cf_val) {
+			if(!empty($cf_val))
+				DAO_CustomFieldValue::setFieldValue('cerberusweb.fields.source.ticket',$id,$cf_id,$cf_val);
 		}
 
 		// Finalize our new ticket details (post-message creation)
