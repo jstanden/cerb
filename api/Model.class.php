@@ -293,9 +293,9 @@ class Model_PreParseRule {
 										$passed++;
 									elseif($oper=="!=" && intval($field_val)!=intval($value))
 										$passed++;
-									elseif($oper==">" && $intval($field_val) > intval($value))
+									elseif($oper==">" && intval($field_val) > intval($value))
 										$passed++;
-									elseif($oper=="<" && $intval($field_val) < intval($value))
+									elseif($oper=="<" && intval($field_val) < intval($value))
 										$passed++;
 									break;
 								case 'E': // date
@@ -612,9 +612,9 @@ class Model_GroupInboxFilter {
 										$passed++;
 									elseif($oper=="!=" && intval($field_val)!=intval($value))
 										$passed++;
-									elseif($oper==">" && $intval($field_val) > intval($value))
+									elseif($oper==">" && intval($field_val) > intval($value))
 										$passed++;
-									elseif($oper=="<" && $intval($field_val) < intval($value))
+									elseif($oper=="<" && intval($field_val) < intval($value))
 										$passed++;
 									break;
 								case 'E': // date
@@ -3216,9 +3216,9 @@ class Model_MailToGroupRule {
 										$passed++;
 									elseif($oper=="!=" && intval($field_val)!=intval($value))
 										$passed++;
-									elseif($oper==">" && $intval($field_val) > intval($value))
+									elseif($oper==">" && intval($field_val) > intval($value))
 										$passed++;
-									elseif($oper=="<" && $intval($field_val) < intval($value))
+									elseif($oper=="<" && intval($field_val) < intval($value))
 										$passed++;
 									break;
 								case 'E': // date

@@ -1204,9 +1204,9 @@ class Model_WatcherMailFilter {
 										$passed++;
 									elseif($oper=="!=" && intval($field_val)!=intval($value))
 										$passed++;
-									elseif($oper==">" && $intval($field_val) > intval($value))
+									elseif($oper==">" && intval($field_val) > intval($value))
 										$passed++;
-									elseif($oper=="<" && $intval($field_val) < intval($value))
+									elseif($oper=="<" && intval($field_val) < intval($value))
 										$passed++;
 									break;
 								case 'E': // date
