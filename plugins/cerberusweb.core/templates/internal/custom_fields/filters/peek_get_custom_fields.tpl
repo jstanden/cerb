@@ -19,8 +19,8 @@
 			<div style="display:{if !is_null($crit_field)}block{else}none{/if};" id="fieldGetValue{$field_id}">
 			{if 'S'==$field->type || 'T'==$field->type || 'U'==$field->type}
 				<select name="value_cf_{$field_id}_oper">
-					<option value="=" {if $crit_field.oper=="="}selected="selected"{/if}>matches</option>
-					<option value="!=" {if $crit_field.oper=="!="}selected="selected"{/if}>doesn't match</option>
+					<option value="=" {if $crit_field.oper=="="}selected="selected"{/if}>{'search.oper.equals'|devblocks_translate}</option>
+					<option value="!=" {if $crit_field.oper=="!="}selected="selected"{/if}>{'search.oper.equals.not'|devblocks_translate}</option>
 				</select>
 				<br>
 				<input type="text" name="value_cf_{$field_id}" size="45" value="{$crit_field.value|escape}" onchange="document.getElementById('chkGetField{$field_id}').checked=((0==this.value.length)?false:true);" style="width:95%;"><br>
