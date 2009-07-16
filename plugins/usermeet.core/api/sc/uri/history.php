@@ -232,7 +232,7 @@ class UmScHistoryController extends Extension_UmScController {
 		$message = new CerberusParserMessage();
 		$message->headers['from'] = $active_user->email;
 		$message->headers['to'] = $to;
-		$message->headers['date'] = gmdate('r');
+		$message->headers['date'] = date('r');
 		$message->headers['subject'] = 'Re: ' . $ticket[SearchFields_Ticket::TICKET_SUBJECT];
 		$message->headers['message-id'] = $message_id;
 		$message->headers['in-reply-to'] = $in_reply_to;
