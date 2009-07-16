@@ -196,7 +196,7 @@
 			<input type="text" name="{$headerx}" value="{$crit_headerx.header|escape}" size="16" onchange="document.getElementById('chkHeader{$smarty.section.headers.iteration}').checked=((0==this.value.length)?false:true);">:
 		</td>
 		<td valign="top">
-			<input type="text" name="value_{$headerx}" value="{$crit_headerx.value|escape}" size="45" style="width:95%;">
+			<input type="text" name="value_{$headerx}" value="{$crit_headerx.value|escape}" size="45">
 		</td>
 	</tr>
 	{/section}
