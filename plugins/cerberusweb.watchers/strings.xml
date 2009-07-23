@@ -4,10 +4,10 @@
 	<header datatype="winres" segtype="sentence" adminlang="en-us"
 		srclang="en-us" o-tmf="abc" />
 	<body>
-
-		<tu tuid='watchers.ui.pref.mail_forwarding'>
-			<tuv xml:lang="en_US"><seg>Mail Forwarding</seg></tuv>
+		<tu tuid='watcher.filter.model.hits'>
+			<tuv xml:lang="en_US"><seg># Hits</seg></tuv>
 		</tu>
+		
 		<tu tuid='watchers.ui.pref.any_email'>
 			<tuv xml:lang="en_US"><seg>You can create a mail forward to have copies of group mail sent to any e-mail address, such as your desktop e-mail client or handheld device.</seg></tuv>
 		</tu>
@@ -49,7 +49,7 @@
 		</tu>
 		<tu tuid='watchers.ui.pref.not_group_member'>
 			<tuv xml:lang="en_US"><seg>You are not a member of any groups.</seg></tuv>
-		</tu>		
+		</tu>
 	</body>
 </tmx>
 <!-- 

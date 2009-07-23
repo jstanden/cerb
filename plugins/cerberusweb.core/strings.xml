@@ -111,6 +111,9 @@
 		<tu tuid='common.copy'>
 			<tuv xml:lang="en_US"><seg>copy</seg></tuv>
 		</tu>
+		<tu tuid='common.created'>
+			<tuv xml:lang="en_US"><seg>created</seg></tuv>
+		</tu>
 		<tu tuid='common.custom_fields'>
 			<tuv xml:lang="en_US"><seg>custom fields</seg></tuv>
 		</tu>
@@ -126,11 +129,17 @@
 		<tu tuid='common.delete'>
 			<tuv xml:lang="en_US"><seg>delete</seg></tuv>
 		</tu>
+		<tu tuid='common.disabled'>
+			<tuv xml:lang="en_US"><seg>Disabled</seg></tuv>
+		</tu>
 		<tu tuid='common.discard'>
 			<tuv xml:lang="en_US"><seg>discard</seg></tuv>
 		</tu>
 		<tu tuid='common.email'>
 			<tuv xml:lang="en_US"><seg>E-mail</seg></tuv>
+		</tu>
+		<tu tuid='common.enabled'>
+			<tuv xml:lang="en_US"><seg>Enabled</seg></tuv>
 		</tu>
 		<tu tuid='common.edit'>
 			<tuv xml:lang="en_US"><seg>edit</seg></tuv>

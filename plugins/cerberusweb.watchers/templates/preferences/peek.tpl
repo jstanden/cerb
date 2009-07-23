@@ -1,24 +1,40 @@
-<form action="{devblocks_url}{/devblocks_url}" method="post">
+<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmWatcherFilter" onsubmit="return false;">
 <input type="hidden" name="c" value="preferences">
 <input type="hidden" name="a" value="handleTabAction">
 <input type="hidden" name="tab" value="core.pref.notifications">
 <input type="hidden" name="action" value="saveWatcherPanel">
 <input type="hidden" name="id" value="{$filter->id}">
 
-<h2>Add Mail Notification</h2>
+<h2>Add Watcher Filter</h2>
 
 <div style="height:400;overflow:auto;">
-<b>Notification Name:</b> (e.g. Emergency Support to SMS)<br>
+<b>Filter Name:</b> (e.g. Emergency Support to SMS)<br>
 <input type="text" name="name" value="{$filter->name|escape}" size="45" style="width:95%;"><br>
+
+{if $active_worker->is_superuser}
+	{'common.worker'|devblocks_translate|capitalize}:
+	<select name="worker_id" onchange="genericAjaxGet('watchers_addresses','c=preferences&a=handleTabAction&tab=core.pref.notifications&action=getWorkerAddresses&worker_id='+selectValue(this));">
+		{foreach from=$all_workers item=worker key=worker_id}
+			<option value="{$worker_id}" {if (empty($filter->worker_id) && $worker_id==$active_worker->id) || $filter->worker_id==$worker_id}selected="selected"{/if}>{$worker->getName()}</option>
+		{/foreach}
+	</select>
+	 &nbsp; 
+{else}
+	<input type="hidden" name="worker_id" value="{if !empty($filter->id)}{$filter->id}{else}{$active_worker->id}{/if}">
+{/if}
+
+<label><input type="checkbox" name="is_disabled" value="1" {if $filter->is_disabled}checked="checked"{/if}> {'common.disabled'|devblocks_translate|capitalize}</label>
+<br>
 <br>
 
-<h2>In these events:</h2>
+<h2>In these mail events:</h2>
 {assign var=crit_event value=$filter->criteria.event}
 <input type="hidden" name="rules[]" value="event">
-<label><input type="checkbox" name="value_event[]" value="mail_outgoing" {if isset($crit_event.mail_outgoing)}checked="checked"{/if}> Outgoing message</label><br>
-<label><input type="checkbox" name="value_event[]" value="mail_incoming" {if isset($crit_event.mail_incoming)}checked="checked"{/if}> Incoming message</label><br>
-<label><input type="checkbox" name="value_event[]" value="ticket_assignment" {if isset($crit_event.ticket_assignment)}checked="checked"{/if}> Ticket assigned to me</label><br>
-<label><input type="checkbox" name="value_event[]" value="ticket_comment" {if isset($crit_event.ticket_comment)}checked="checked"{/if}> New comment</label><br>
+<label><input type="checkbox" name="value_event[]" value="mail_outgoing" {if isset($crit_event.mail_outgoing)}checked="checked"{/if}> Outgoing</label>
+<label><input type="checkbox" name="value_event[]" value="mail_incoming" {if isset($crit_event.mail_incoming)}checked="checked"{/if}> Incoming</label>
+<label><input type="checkbox" name="value_event[]" value="ticket_assignment" {if isset($crit_event.ticket_assignment)}checked="checked"{/if}> Assigned to self</label>
+<label><input type="checkbox" name="value_event[]" value="ticket_comment" {if isset($crit_event.ticket_comment)}checked="checked"{/if}> Comment</label>
+<br>
 <br>
 
 <h2>If these criteria match:</h2>
@@ -214,11 +230,12 @@
 	<tr>
 		{assign var=act_email value=$filter->actions.email}
 		<td valign="top" colspan="2">
-			<input type="hidden" name="do[]" value="email">
-			<b>Forward to:</b><br>
-			{foreach from=$addresses item=address}
-			<label><input type="checkbox" name="do_email[]" value="{$address->address|escape}" {if is_array($act_email.to) && in_array($address->address,$act_email.to)}checked="checked"{/if}> {$address->address}</label><br>
-			{/foreach} 
+			<label><input type="checkbox" name="do[]" value="email" {if !is_null($filter->actions.email)}checked="checked"{/if}> <b>Forward e-mail to:</b></label><br>
+			<blockquote style="margin-top:0px;" id="watchers_addresses">
+				{foreach from=$addresses item=address}
+				<label><input type="checkbox" name="do_email[]" value="{$address->address|escape}" {if is_array($act_email.to) && in_array($address->address,$act_email.to)}checked="checked"{/if}> {$address->address}</label><br>
+				{/foreach}
+			</blockquote>
 		</td>
 	</tr>
 </table>
@@ -226,6 +243,6 @@
 </div>
 <br>
 
-<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')}</button>
+<button type="button" onclick="genericPanel.hide();genericAjaxPost('frmWatcherFilter', '', '');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')}</button>
 </form>
 <br>

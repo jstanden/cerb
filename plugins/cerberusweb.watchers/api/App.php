@@ -1,4 +1,42 @@
 <?php
+class ChWatchersConfigTab extends Extension_ConfigTab {
+	const ID = 'watchers.config.tab';
+	
+	function showTab() {
+		$settings = CerberusSettings::getInstance();
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
+		$core_tplpath = dirname(dirname(dirname(__FILE__))) . '/cerberusweb.core/templates/';
+		$tpl->assign('core_tplpath', $core_tplpath);
+		$tpl->cache_lifetime = "0";
+
+		$tpl->assign('response_uri', 'config/watchers');
+		
+		if(null == ($view = C4_AbstractViewLoader::getView('', C4_WatcherView::DEFAULT_ID))) {
+			$view = new C4_WatcherView();
+			$view->renderSortBy = SearchFields_WatcherMailFilter::POS;
+			$view->renderSortAsc = 0;
+			
+			C4_AbstractViewLoader::setView($view->id, $view);
+		}
+		
+		$tpl->assign('view', $view);
+		$tpl->assign('view_fields', C4_WatcherView::getFields());
+		$tpl->assign('view_searchable_fields', C4_WatcherView::getSearchFields());
+		
+		$tpl->display('file:' . $tpl_path . 'config/watchers/index.tpl');
+	}
+	
+	function saveTab() {
+		@$plugin_id = DevblocksPlatform::importGPC($_REQUEST['plugin_id'],'string');
+
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('config','watchers')));
+		exit;
+	}
+	
+};
+
 class ChWatchersEventListener extends DevblocksEventListenerExtension {
     function __construct($manifest) {
         parent::__construct($manifest);
@@ -466,45 +504,88 @@ class ChWatchersPreferences extends Extension_PreferenceTab {
 		$tpl->cache_lifetime = "0";
 		
 		$worker = CerberusApplication::getActiveWorker();
-		$tpl->assign('worker', $worker);
 		
-		$groups = DAO_Group::getAll();
-		$tpl->assign('groups', $groups);
-
-		$buckets = DAO_Bucket::getAll();
-		$tpl->assign('buckets', $buckets);
-		
-		$workers = DAO_Worker::getAllActive();
+		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 		
-		// Filters
-		@$filters = DAO_WatcherMailFilter::getWhere(sprintf("%s = %d",
-			DAO_WatcherMailFilter::WORKER_ID,
-			$worker->id
-		));
-		$tpl->assign('filters', $filters);
+		$tpl->assign('response_uri', 'preferences/watchers');
 		
-		// Custom Field Sources
-		$source_manifests = DevblocksPlatform::getExtensions('cerberusweb.fields.source', false);
-		$tpl->assign('source_manifests', $source_manifests);
-
-		// Custom fields
-		$custom_fields = DAO_CustomField::getAll();
-		$tpl->assign('custom_fields', $custom_fields);
+		if(null == ($view = C4_AbstractViewLoader::getView('', 'prefs.watchers'))) {
+			$view = new C4_WatcherView();
+			$view->id = 'prefs.watchers';
+			$view->name = "My Watcher Filters";
+			$view->renderSortBy = SearchFields_WatcherMailFilter::POS;
+			$view->renderSortAsc = 0;
+			$view->params = array(
+				SearchFields_WatcherMailFilter::WORKER_ID => new DevblocksSearchCriteria(SearchFields_WatcherMailFilter::WORKER_ID,'eq',$worker->id),
+			);
+			
+			C4_AbstractViewLoader::setView($view->id, $view);
+		}
+		
+		$tpl->assign('view', $view);
+		$tpl->assign('view_fields', C4_WatcherView::getFields());
+		$tpl->assign('view_searchable_fields', C4_WatcherView::getSearchFields());
 		
 		$tpl->display('file:' . $this->_TPL_PATH . 'preferences/watchers.tpl');
 	}
     
 	// Post
 	function saveTab() {
-		$worker = CerberusApplication::getActiveWorker();
+	}
+	
+	// Ajax
+	function showWatcherBulkPanelAction() {
+		@$id_csv = DevblocksPlatform::importGPC($_REQUEST['ids']);
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
+
+		$tpl = DevblocksPlatform::getTemplateService();
+		$path = dirname(dirname(__FILE__)) . '/templates/';
+		$tpl->assign('path', $path);
+		$tpl->assign('view_id', $view_id);
+
+	    if(!empty($id_csv)) {
+	        $ids = DevblocksPlatform::parseCsvString($id_csv);
+	        $tpl->assign('ids', implode(',', $ids));
+	    }
 		
-		// Delete forwards
-		@$deletes = DevblocksPlatform::importGPC($_REQUEST['deletes'],'array', array());
-		if(!empty($deletes))
-			DAO_WatcherMailFilter::delete($deletes);
+		// Custom Fields
+//		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_TimeEntry::ID);
+//		$tpl->assign('custom_fields', $custom_fields);
 		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('preferences','notifications')));
+		$tpl->cache_lifetime = "0";
+		$tpl->display('file:' . $path . 'preferences/bulk.tpl');
+	}
+	
+	// Ajax
+	function doWatcherBulkPanelAction() {
+		// Checked rows
+	    @$ids_str = DevblocksPlatform::importGPC($_REQUEST['ids'],'string');
+		$ids = DevblocksPlatform::parseCsvString($ids_str);
+
+		// Filter: whole list or check
+	    @$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
+	    
+	    // View
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
+		$view = C4_AbstractViewLoader::getView('',$view_id);
+		
+		// Watcher fields
+		@$status = trim(DevblocksPlatform::importGPC($_POST['do_status'],'string',''));
+
+		$do = array();
+		
+		// Do: ...
+		if(0 != strlen($status))
+			$do['status'] = intval($status);
+			
+		// Do: Custom fields
+		//$do = DAO_CustomFieldValue::handleBulkPost($do);
+			
+		$view->doBulkUpdate($filter, $do, $ids);
+		
+		$view->render();
+		return;
 	}
 	
 	// Ajax
@@ -533,11 +614,15 @@ class ChWatchersPreferences extends Extension_PreferenceTab {
 		$memberships = $active_worker->getMemberships();
 		$tpl->assign('memberships', $memberships);
 		
-		$addresses = DAO_AddressToWorker::getByWorker($active_worker->id);
+		if(null == (@$worker_id = $filter->worker_id)) {
+			$worker_id = $active_worker->id;
+		}
+		
+		$addresses = DAO_AddressToWorker::getByWorker($worker_id);
 		$tpl->assign('addresses', $addresses);
 
-		$workers = DAO_Worker::getAllActive();
-		$tpl->assign('workers', $workers);
+		$tpl->assign('workers', DAO_Worker::getAllActive());
+		$tpl->assign('all_workers', DAO_Worker::getAll());
 
 		// Custom Fields: Ticket
 		$ticket_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Ticket::ID);
@@ -565,11 +650,13 @@ class ChWatchersPreferences extends Extension_PreferenceTab {
 
 	    /*****************************/
 		@$name = DevblocksPlatform::importGPC($_POST['name'],'string','');
+		@$is_disabled = DevblocksPlatform::importGPC($_POST['is_disabled'],'integer',0);
+		@$worker_id = DevblocksPlatform::importGPC($_POST['worker_id'],'integer',0);
 		@$rules = DevblocksPlatform::importGPC($_POST['rules'],'array',array());
 		@$do = DevblocksPlatform::importGPC($_POST['do'],'array',array());
 		
 		if(empty($name))
-			$name = $translate->_('Notification');
+			$name = $translate->_('Watcher Filter');
 		
 		$criterion = array();
 		$actions = array();
@@ -735,6 +822,8 @@ class ChWatchersPreferences extends Extension_PreferenceTab {
 
    		$fields = array(
    			DAO_WatcherMailFilter::NAME => $name,
+   			DAO_WatcherMailFilter::IS_DISABLED => $is_disabled,
+   			DAO_WatcherMailFilter::WORKER_ID => $worker_id,
    			DAO_WatcherMailFilter::CRITERIA_SER => serialize($criterion),
    			DAO_WatcherMailFilter::ACTIONS_SER => serialize($actions),
    		);
@@ -742,7 +831,6 @@ class ChWatchersPreferences extends Extension_PreferenceTab {
    		// Create
    		if(empty($id)) {
    			$fields[DAO_WatcherMailFilter::POS] = 0;
-   			$fields[DAO_WatcherMailFilter::WORKER_ID] = $active_worker->id;
 	   		$id = DAO_WatcherMailFilter::create($fields);
 	   		
 	   	// Update
@@ -750,9 +838,266 @@ class ChWatchersPreferences extends Extension_PreferenceTab {
    			DAO_WatcherMailFilter::update($id, $fields);
    		}
    		
-   		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('preferences','notifications')));
+		exit;
+   		//DevblocksPlatform::redirect(new DevblocksHttpResponse(array('preferences','watchers')));
 	}
 	
+	function getWorkerAddressesAction() {
+   		@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'integer',0);
+	
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', $this->_TPL_PATH);
+
+		$addresses = DAO_AddressToWorker::getByWorker($worker_id);
+		$tpl->assign('addresses', $addresses);
+		
+		$tpl->display('file:' . $this->_TPL_PATH . 'preferences/worker_addresses.tpl');
+	}
+	
+};
+
+class C4_WatcherView extends C4_AbstractView {
+	const DEFAULT_ID = 'watchers';
+
+	function __construct() {
+		$this->id = self::DEFAULT_ID;
+		$this->name = 'Watchers';
+		$this->renderLimit = 25;
+		$this->renderSortBy = SearchFields_WatcherMailFilter::ID;
+		$this->renderSortAsc = true;
+
+		$this->view_columns = array(
+			SearchFields_WatcherMailFilter::CREATED,
+			SearchFields_WatcherMailFilter::WORKER_ID,
+			SearchFields_WatcherMailFilter::POS,
+		);
+
+		$this->doResetCriteria();
+	}
+
+	function getData() {
+		$objects = DAO_WatcherMailFilter::search(
+			array(),
+			$this->params,
+			$this->renderLimit,
+			$this->renderPage,
+			$this->renderSortBy,
+			$this->renderSortAsc
+		);
+		
+		return $objects;
+	}
+
+	function render() {
+		$this->_sanitize();
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('id', $this->id);
+		$tpl->assign('view', $this);
+
+		// Workers
+		$workers = DAO_Worker::getAll();
+		$tpl->assign('workers', $workers);
+		
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('view_fields', $this->getColumns());
+		$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.watchers/templates/config/watchers/view.tpl');
+	}
+
+	function renderCriteria($field) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('id', $this->id);
+
+		switch($field) {
+			case SearchFields_WatcherMailFilter::NAME:
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__string.tpl');
+				break;
+			case SearchFields_WatcherMailFilter::ID:
+			case SearchFields_WatcherMailFilter::POS:
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__number.tpl');
+				break;
+			case SearchFields_WatcherMailFilter::CREATED:
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__date.tpl');
+				break;
+			case SearchFields_WatcherMailFilter::IS_DISABLED:
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__bool.tpl');
+				break;
+			case SearchFields_WatcherMailFilter::WORKER_ID:
+				$workers = DAO_Worker::getAll();
+				$tpl->assign('workers', $workers);
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__worker.tpl');
+				break;
+			default:
+				echo '';
+				break;
+		}
+	}
+
+	function renderCriteriaParam($param) {
+		$field = $param->field;
+		$values = !is_array($param->value) ? array($param->value) : $param->value;
+
+		switch($field) {
+			case SearchFields_WatcherMailFilter::WORKER_ID:
+				$workers = DAO_Worker::getAll();
+				$strings = array();
+
+				foreach($values as $val) {
+					if(0==$val) {
+						$strings[] = "Nobody";
+					} else {
+						if(!isset($workers[$val]))
+							continue;
+						$strings[] = $workers[$val]->getName();
+					}
+				}
+				echo implode(", ", $strings);
+				break;
+			
+			default:
+				parent::renderCriteriaParam($param);
+				break;
+		}
+	}
+
+	static function getFields() {
+		return SearchFields_WatcherMailFilter::getFields();
+	}
+
+	static function getSearchFields() {
+		$fields = self::getFields();
+		unset($fields[SearchFields_WatcherMailFilter::ID]);
+		return $fields;
+	}
+
+	static function getColumns() {
+		$fields = self::getFields();
+		unset($fields[SearchFields_WatcherMailFilter::ID]);
+		return $fields;
+	}
+
+	function doResetCriteria() {
+		parent::doResetCriteria();
+		
+		$this->params = array(
+//			SearchFields_WatcherMailFilter::LOG_DATE => new DevblocksSearchCriteria(SearchFields_WatcherMailFilter::LOG_DATE,DevblocksSearchCriteria::OPER_BETWEEN,array('-1 month','now')),
+		);
+	}
+	
+	function doSetCriteria($field, $oper, $value) {
+		$criteria = null;
+
+		switch($field) {
+			case SearchFields_WatcherMailFilter::NAME:
+				// force wildcards if none used on a LIKE
+				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
+				&& false === (strpos($value,'*'))) {
+					$value = '*'.$value.'*';
+				}
+				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
+				break;
+			case SearchFields_WatcherMailFilter::ID:
+			case SearchFields_WatcherMailFilter::POS:
+				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
+				break;
+			case SearchFields_WatcherMailFilter::WORKER_ID:
+				@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_id);
+				break;
+			case SearchFields_WatcherMailFilter::IS_DISABLED:
+				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
+				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
+				break;
+			case SearchFields_WatcherMailFilter::CREATED:
+				@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','');
+				@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
+
+				if(empty($from)) $from = 0;
+				if(empty($to)) $to = 'today';
+
+				$criteria = new DevblocksSearchCriteria($field,$oper,array($from,$to));
+				break;
+		}
+
+		if(!empty($criteria)) {
+			$this->params[$field] = $criteria;
+			$this->renderPage = 0;
+		}
+	}
+	
+	function doBulkUpdate($filter, $do, $ids=array()) {
+		@set_time_limit(0);
+	  
+		$change_fields = array();
+		$custom_fields = array();
+		$do_delete = false;
+
+		// Make sure we have actions
+		if(empty($do))
+			return;
+
+		// Make sure we have checked items if we want a checked list
+		if(0 == strcasecmp($filter,"checks") && empty($ids))
+			return;
+			
+		if(is_array($do))
+		foreach($do as $k => $v) {
+			switch($k) {
+				case 'status':
+					if(2==$v) {
+						$do_delete = true;
+					} else {
+						$change_fields[DAO_WatcherMailFilter::IS_DISABLED] = (!empty($v)?1:0);
+					}
+					break;
+				default:
+					// Custom fields
+//					if(substr($k,0,3)=="cf_") {
+//						$custom_fields[substr($k,3)] = $v;
+//					}
+					break;
+			}
+		}
+
+		$pg = 0;
+
+		if(empty($ids))
+		do {
+			list($objects,$null) = DAO_WatcherMailFilter::search(
+				array(),
+				$this->params,
+				100,
+				$pg++,
+				SearchFields_WatcherMailFilter::ID,
+				true,
+				false
+			);
+			 
+			$ids = array_merge($ids, array_keys($objects));
+			 
+		} while(!empty($objects));
+
+		$batch_total = count($ids);
+		for($x=0;$x<=$batch_total;$x+=100) {
+			$batch_ids = array_slice($ids,$x,100);
+			
+			if($do_delete) {
+				DAO_WatcherMailFilter::delete($batch_ids);
+				
+			} else {
+				DAO_WatcherMailFilter::update($batch_ids, $change_fields);
+
+				// Custom Fields
+				//self::_doBulkSetCustomFields(ChCustomFieldSource_TimeEntry::ID, $custom_fields, $batch_ids);
+			}
+			
+			unset($batch_ids);
+		}
+
+		unset($ids);
+	}
+		
 };
 
 class DAO_WatcherMailFilter extends DevblocksORMHelper {
@@ -760,6 +1105,7 @@ class DAO_WatcherMailFilter extends DevblocksORMHelper {
 	const POS = 'pos';
 	const NAME = 'name';
 	const CREATED = 'created';
+	const IS_DISABLED = 'is_disabled';
 	const WORKER_ID = 'worker_id';
 	const CRITERIA_SER = 'criteria_ser';
 	const ACTIONS_SER = 'actions_ser';
@@ -792,7 +1138,7 @@ class DAO_WatcherMailFilter extends DevblocksORMHelper {
 	static function getWhere($where=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = "SELECT id, pos, name, created, worker_id, criteria_ser, actions_ser ".
+		$sql = "SELECT id, pos, name, created, is_disabled, worker_id, criteria_ser, actions_ser ".
 			"FROM watcher_mail_filter ".
 			(!empty($where) ? sprintf("WHERE %s ",$where) : "").
 			"ORDER BY pos DESC";
@@ -829,7 +1175,8 @@ class DAO_WatcherMailFilter extends DevblocksORMHelper {
 			$object->pos = $rs->fields['pos'];
 			$object->name = $rs->fields['name'];
 			$object->created = $rs->fields['created'];
-			$object->worker_id = $rs->fields['worker_id'];
+			$object->is_disabled = intval($rs->fields['is_disabled']);
+			$object->worker_id = intval($rs->fields['worker_id']);
 			
 			if(null != (@$criteria_ser = $rs->fields['criteria_ser']))
 				if(false === (@$object->criteria = unserialize($criteria_ser)))
@@ -945,6 +1292,137 @@ class DAO_WatcherMailFilter extends DevblocksORMHelper {
 		// [TODO] invalidate cache
 	}
 	
+    /**
+     * Enter description here...
+     *
+     * @param DevblocksSearchCriteria[] $params
+     * @param integer $limit
+     * @param integer $page
+     * @param string $sortBy
+     * @param boolean $sortAsc
+     * @param boolean $withCounts
+     * @return array
+     */
+    static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
+		$db = DevblocksPlatform::getDatabaseService();
+		$fields = SearchFields_WatcherMailFilter::getFields();
+		
+		// Sanitize
+		if(!isset($fields[$sortBy]))
+			$sortBy=null;
+
+        list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields,$sortBy);
+		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
+		
+		$select_sql = sprintf("SELECT ".
+			"wmf.id as %s, ".
+			"wmf.pos as %s, ".
+			"wmf.name as %s, ".
+			"wmf.created as %s, ".
+			"wmf.is_disabled as %s, ".
+			"wmf.worker_id as %s ",
+			    SearchFields_WatcherMailFilter::ID,
+			    SearchFields_WatcherMailFilter::POS,
+			    SearchFields_WatcherMailFilter::NAME,
+			    SearchFields_WatcherMailFilter::CREATED,
+			    SearchFields_WatcherMailFilter::IS_DISABLED,
+			    SearchFields_WatcherMailFilter::WORKER_ID
+			 );
+		
+		$join_sql = 
+			"FROM watcher_mail_filter wmf "
+		;
+			// [JAS]: Dynamic table joins
+//			(isset($tables['o']) ? "LEFT JOIN contact_org o ON (o.id=tt.debit_org_id)" : " ").
+//			(isset($tables['mc']) ? "INNER JOIN message_content mc ON (mc.message_id=m.id)" : " ").
+
+		// Custom field joins
+//		list($select_sql, $join_sql, $has_multiple_values) = self::_appendSelectJoinSqlForCustomFieldTables(
+//			$tables,
+//			$params,
+//			'wmf.id',
+//			$select_sql,
+//			$join_sql
+//		);
+		
+		$where_sql = "".
+			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "");
+			
+		$sort_sql = (!empty($sortBy) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ");
+		
+		$sql = 
+			$select_sql.
+			$join_sql.
+			$where_sql.
+			//($has_multiple_values ? 'GROUP BY wmf.id ' : '').
+			$sort_sql;
+
+		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		$results = array();
+		
+		if(is_a($rs,'ADORecordSet'))
+		while(!$rs->EOF) {
+			foreach($rs->fields as $f => $v) {
+				$result[$f] = $v;
+			}
+			$id = intval($rs->fields[SearchFields_WatcherMailFilter::ID]);
+			$results[$id] = $result;
+			$rs->MoveNext();
+		}
+
+		// [JAS]: Count all
+		$total = -1;
+		if($withCounts) {
+			$count_sql = 
+				($has_multiple_values ? "SELECT COUNT(DISTINCT wmf.id) " : "SELECT COUNT(wmf.id) ").
+				$join_sql.
+				$where_sql;
+			$total = $db->GetOne($count_sql);
+		}
+		
+		return array($results,$total);
+    }	
+	
+};
+
+class SearchFields_WatcherMailFilter {
+	// Watcher_Mail_Filter
+	const ID = 'wmf_id';
+	const POS = 'wmf_pos';
+	const NAME = 'wmf_name';
+	const CREATED = 'wmf_created';
+	const WORKER_ID = 'wmf_worker_id';
+	const IS_DISABLED = 'wmf_is_disabled';
+	
+	/**
+	 * @return DevblocksSearchField[]
+	 */
+	static function getFields() {
+		$translate = DevblocksPlatform::getTranslationService();
+		
+		$columns = array(
+			self::ID => new DevblocksSearchField(self::ID, 'wmf', 'id', null, ucwords($translate->_('common.id'))),
+			self::POS => new DevblocksSearchField(self::POS, 'wmf', 'pos', null, ucwords($translate->_('watcher.filter.model.hits'))),
+			self::NAME => new DevblocksSearchField(self::NAME, 'wmf', 'name', null, ucwords($translate->_('common.name'))),
+			self::CREATED => new DevblocksSearchField(self::CREATED, 'wmf', 'created', null, ucwords($translate->_('common.created'))),
+			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 'wmf', 'worker_id', null, ucwords($translate->_('common.worker'))),
+			self::IS_DISABLED => new DevblocksSearchField(self::IS_DISABLED, 'wmf', 'is_disabled', null, ucwords($translate->_('common.disabled'))),
+		);
+		
+		// Custom Fields
+//		$fields = DAO_CustomField::getBySource(ChCustomFieldSource_TimeEntry::ID);
+//		if(is_array($fields))
+//		foreach($fields as $field_id => $field) {
+//			$key = 'cf_'.$field_id;
+//			$columns[$key] = new DevblocksSearchField($key,$key,'field_value',null,$field->name);
+//		}
+		
+		// Sort by label (translation-conscious)
+		uasort($columns, create_function('$a, $b', "return strcasecmp(\$a->db_label,\$b->db_label);\n"));
+		
+		return $columns;
+	}
 };
 
 class Model_WatcherMailFilter {
@@ -952,6 +1430,7 @@ class Model_WatcherMailFilter {
 	public $pos;
 	public $name;
 	public $created;
+	public $is_disabled=0;
 	public $worker_id;
 	public $criteria;
 	public $actions;
@@ -963,12 +1442,17 @@ class Model_WatcherMailFilter {
 		$matches = array();
 		
 		if(!empty($only_worker_id)) {
-			$filters = DAO_WatcherMailFilter::getWhere(sprintf("%s = %d",
+			$filters = DAO_WatcherMailFilter::getWhere(sprintf("%s = %d AND %s = %d",
 				DAO_WatcherMailFilter::WORKER_ID,
-				$only_worker_id
+				$only_worker_id,
+				DAO_WatcherMailFilter::IS_DISABLED,
+				0
 			));
 		} else {
-			$filters = DAO_WatcherMailFilter::getWhere();
+			$filters = DAO_WatcherMailFilter::getWhere(sprintf("%s = %d",
+				DAO_WatcherMailFilter::IS_DISABLED,
+				0
+			));
 		}
 
 		// [JAS]: Don't send obvious spam to watchers.
@@ -1011,7 +1495,8 @@ class Model_WatcherMailFilter {
 
 			// check the worker's group memberships
 			if(!isset($workers[$filter->worker_id]) // worker doesn't exist 
-				|| (!$workers[$filter->worker_id]->is_superuser  // no a superuser
+				|| $workers[$filter->worker_id]->is_disabled // is disabled
+				|| (!$workers[$filter->worker_id]->is_superuser  // not a superuser, and...
 					&& !isset($group_rosters[$ticket->team_id][$filter->worker_id]))) { // no membership
 				continue;
 			}

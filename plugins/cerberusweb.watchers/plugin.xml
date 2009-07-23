@@ -1,8 +1,8 @@
 <!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
 <plugin>
 	<id>cerberusweb.watchers</id>
-	<name>Cerberus Helpdesk: E-mail Notifications</name>
-	<description>Create mail forwards to send copies of group mail any e-mail address, such as a desktop e-mail client or handheld device. This adds an 'Email Notifications' tab to each workers My Account page.</description>
+	<name>Cerberus Helpdesk: Watchers</name>
+	<description>Create mail forwards to send copies of group mail any e-mail address, such as a desktop e-mail client or handheld device. This adds an 'Watchers' tab to each workers My Account page.</description>
 	<author>WebGroup Media, LLC.</author>
 	<revision>0</revision>
 	<link>http://wiki.cerb4.com/wiki/New_Changes#Watchers_.28E-mail_Notifications.29</link>
@@ -15,6 +15,8 @@
 		<file path="api/App.php">
 			<class name="DAO_WorkerMailFilter" />
 			<class name="Model_WorkerMailFilter" />
+			<class name="SearchFields_WorkerMailFilter" />
+			<class name="C4_WatcherView" />
 		</file>
 		<file path="api/Plugin.php">
 			<class name="ChWatchersPlugin" />
@@ -78,14 +80,29 @@
 		
 		<extension point="cerberusweb.preferences.tab">
 			<id>core.pref.notifications</id>
-			<name>Notification Preferences</name>
+			<name>Watchers Preferences</name>
 			<class>
 				<file>api/App.php</file>
 				<name>ChWatchersPreferences</name>
 			</class>
 			<params>
-				<param key="uri" value="notifications" />
-				<param key="title" value="E-mail Notifications" />
+				<param key="uri" value="watchers" />
+				<param key="title" value="Watchers" />
+			</params>
+		</extension>
+		
+		<!-- Config Tabs -->
+		
+		<extension point="cerberusweb.config.tab">
+			<id>watchers.config.tab</id>
+			<name>Watchers Tab</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChWatchersConfigTab</name>
+			</class>
+			<params>
+				<param key="uri" value="watchers" />
+				<param key="title" value="Watchers" />
 			</params>
 		</extension>
 	
