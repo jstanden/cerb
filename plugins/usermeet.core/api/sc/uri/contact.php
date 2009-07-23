@@ -490,8 +490,9 @@ class UmScContactController extends Extension_UmScController {
 						break;
 				}
 				
-				if(!empty($value))
-					$message->custom_fields[$iFieldId] = $value;
+				if((is_array($value) && !empty($value)) 
+					|| (!is_array($value) && 0 != strlen($value)))
+						$message->custom_fields[$iFieldId] = $value;
 			}
 		}
 		
