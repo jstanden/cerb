@@ -184,6 +184,19 @@ abstract class Extension_OrgTab extends DevblocksExtension {
 	function saveTab() {}
 };
 
+abstract class Extension_MailFilterCriteria extends DevblocksExtension {
+	function __construct($manifest) {
+		$this->DevblocksExtension($manifest,1);
+	}
+	
+	/**
+	 * 
+	 * @return CerberusParserMessage
+	 * @param bool
+	 */
+	function matches(CerberusParserMessage $message) { return $message; }
+};
+
 abstract class Extension_MailFilterAction extends DevblocksExtension {
 	function __construct($manifest) {
 		$this->DevblocksExtension($manifest,1);

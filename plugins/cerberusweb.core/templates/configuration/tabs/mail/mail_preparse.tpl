@@ -69,6 +69,9 @@
 					Attachment = <b>{$crit.value}</b><br>
 				{elseif 0==strcasecmp('cf_',substr($crit_key,0,3))}
 					{include file="$core_tpl/internal/custom_fields/filters/render_criteria_list.tpl"}
+				{elseif isset($filter_criteria_exts.$crit_key)}
+					{assign var=filter_criteria_ext value=$filter_criteria_exts.$crit_key}
+					{$filter_criteria_ext->name}<br>
 				{/if}
 			{/foreach}
 			

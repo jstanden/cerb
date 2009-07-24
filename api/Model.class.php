@@ -84,6 +84,9 @@ class Model_PreParseRule {
 		// Custom fields
 		$custom_fields = DAO_CustomField::getAll();
 		
+		// Criteria extensions
+		$filter_criteria_exts = DevblocksPlatform::getExtensions('cerberusweb.mail_filter.criteria', false);
+		
 		// Lazy load when needed on criteria basis
 		$address_field_values = null;
 		$org_field_values = null;
@@ -342,7 +345,22 @@ class Model_PreParseRule {
 									}
 									break;
 							}
+						
+						} elseif(isset($filter_criteria_exts[$rule_key])) { // criteria extensions
+							try {
+								$crit_ext = $filter_criteria_exts[$rule_key]->createInstance();
+								if($crit_ext->matches($message)) {
+									$passed++;
+									break;
+								}
+								
+							} catch(Exception $e) {
+								// Oops!
+								//print_r($e);
+							}
+							
 						}
+						
 						break;
 				}
 			}

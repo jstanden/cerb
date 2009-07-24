@@ -578,6 +578,10 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$custom_fields =  DAO_CustomField::getAll();
 		$tpl->assign('custom_fields', $custom_fields);
 
+		// Criteria extensions
+		$filter_criteria_exts = DevblocksPlatform::getExtensions('cerberusweb.mail_filter.criteria', false);
+		$tpl->assign('filter_criteria_exts', $filter_criteria_exts);
+		
 		// Action extensions
 		$filter_action_exts = DevblocksPlatform::getExtensions('cerberusweb.mail_filter.action', false);
 		$tpl->assign('filter_action_exts', $filter_action_exts);
@@ -632,6 +636,10 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$org_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Org::ID);
 		$tpl->assign('org_fields', $org_fields);
 		
+		// Criteria extensions
+		$filter_criteria_exts = DevblocksPlatform::getExtensions('cerberusweb.mail_filter.criteria', false);
+		$tpl->assign('filter_criteria_exts', $filter_criteria_exts);
+		
 		// Action extensions
 		$filter_action_exts = DevblocksPlatform::getExtensions('cerberusweb.mail_filter.action', false);
 		$tpl->assign('filter_action_exts', $filter_action_exts);
@@ -657,6 +665,9 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		
 		// Custom fields
 		$custom_fields = DAO_CustomField::getAll();
+		
+		// Criteria extensions
+		$filter_criteria_exts = DevblocksPlatform::getExtensions('cerberusweb.mail_filter.criteria', false);
 		
 		// Criteria
 		if(is_array($rules))
@@ -711,7 +722,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 					break;
 				case 'attachment':
 					break;
-				default: // ignore invalids // [TODO] Very redundant
+				default: // ignore invalids
 					// Custom fields
 					if("cf_" == substr($rule,0,3)) {
 						$field_id = intval(substr($rule,3));
@@ -760,6 +771,10 @@ class ChConfigurationPage extends CerberusPageExtension  {
 								break;
 						}
 						
+					} elseif(isset($filter_criteria_exts[$rule])) { // Extensions
+						//$crit_ext = $filter_criteria_exts[$rule]->createInstance();
+						/* @var $crit_ext Extension_MailFilterCriteria */
+						// [TODO] Custom properties
 					} else {
 						continue;
 					}
