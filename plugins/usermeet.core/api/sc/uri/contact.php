@@ -497,16 +497,20 @@ class UmScContactController extends Extension_UmScController {
 		}
 		
 		// Parse
-		
 		$ticket_id = CerberusParser::parseMessage($message);
-		$ticket = DAO_Ticket::getTicket($ticket_id);
+		
+		// It's possible for the parser to reject the message using pre-filters
+		if(!empty($ticket_id) && null != ($ticket = DAO_Ticket::getTicket($ticket_id))) {
+			$umsession->setProperty('support.write.last_opened',$ticket->mask);			
+		} else {
+			$umsession->setProperty('support.write.last_opened',null);			
+		}
 		
 		// Clear any errors
 		$umsession->setProperty('support.write.last_nature',null);
 		$umsession->setProperty('support.write.last_nature_string',null);
 		$umsession->setProperty('support.write.last_content',null);
 		$umsession->setProperty('support.write.last_error',null);
-		$umsession->setProperty('support.write.last_opened',$ticket->mask);
 		
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'contact','confirm')));
 	}	
