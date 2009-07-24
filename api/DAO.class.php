@@ -50,6 +50,11 @@
  */
 
 class C4_ORMHelper extends DevblocksORMHelper {
+	static public function qstr($str) {
+		$db = DevblocksPlatform::getDatabaseService();
+		return $db->qstr($str);	
+	}
+	
 	static protected function _appendSelectJoinSqlForCustomFieldTables($tables, $params, $key, $select_sql, $join_sql) {
 		$custom_fields = DAO_CustomField::getAll();
 		$field_ids = array();
