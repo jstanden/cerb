@@ -184,6 +184,19 @@ abstract class Extension_OrgTab extends DevblocksExtension {
 	function saveTab() {}
 };
 
+abstract class Extension_MailFilterAction extends DevblocksExtension {
+	function __construct($manifest) {
+		$this->DevblocksExtension($manifest,1);
+	}
+	
+	/**
+	 * 
+	 * @return CerberusParserMessage 
+	 * @param CerberusParserMessage $message
+	 */
+	function run(CerberusParserMessage $message) { return $message; }
+};
+
 abstract class Extension_TaskSource extends DevblocksExtension {
 	const EXTENSION_POINT = 'cerberusweb.task.source';
 	

@@ -176,18 +176,44 @@
 <br>
 
 <h2>Then perform these actions:</h2>
+
+{if is_array($filter_action_exts) && !empty($filter_action_exts)}
+{foreach from=$filter_action_exts item=filter_action_ext key=extid}
+{assign var=ext_act value=$filter->actions.$extid}
+<label><input type="checkbox" name="do[]" value="{$extid}" {if !is_null($ext_act)}checked="checked"{/if} onclick="toggleDiv('do_{$extid}',(this.checked?'block':'none'));"> {$filter_action_ext->name}</label><br>
+{*
+<blockquote style="margin:0px 0px 5px 10px;display:{if !is_null($ext_act)}block{else}none{/if};" id="do_{$extid}">
+	...
+</blockquote>
+*}
+{/foreach}
+{/if}
+
+{assign var=do_stop value=0}
+{if isset($filter->actions.nothing) || isset($filter->actions.blackhole) || isset($filter->actions.redirect) || isset($filter->actions.bounce)}
+	{assign var=do_stop value=1}
+{/if}
+<label><input type="checkbox" name="do[]" value="stop" {if $do_stop}checked="checked"{/if} onclick="toggleDiv('do_stop',(this.checked?'block':'none'));"> Stop filtering, and:</label><br>
+<blockquote style="margin:0px 0px 5px 10px;display:{if $do_stop}block{else}none{/if};" id="do_stop">
 <table width="100%">
 	<tr>
 		<td valign="top">
+			{assign var=act_nothing value=$filter->actions.nothing}
+			<label><input type="radio" name="do_stop" value="nothing" {if !is_null($act_nothing)}checked="checked"{/if}> 
+			Continue delivery</label>
+		</td>
+	</tr>
+	<tr>
+		<td valign="top">
 			{assign var=act_blackhole value=$filter->actions.blackhole}
-			<label><input type="radio" name="do[]" value="blackhole" {if empty($filter) || !is_null($act_blackhole)}checked="checked"{/if}> 
+			<label><input type="radio" name="do_stop" value="blackhole" {if !is_null($act_blackhole)}checked="checked"{/if}> 
 			Blackhole the message</label>
 		</td>
 	</tr>
 	<tr>
 		<td valign="top">
 			{assign var=act_redirect value=$filter->actions.redirect}
-			<label><input type="radio" name="do[]" value="redirect" {if !is_null($act_redirect)}checked="checked"{/if}> 
+			<label><input type="radio" name="do_stop" value="redirect" {if !is_null($act_redirect)}checked="checked"{/if}> 
 			Redirect to e-mail:</label> 
 			<input type="text" name="do_redirect" size="45" value="{$act_redirect.to|escape}" style="width:300;">
 		</td>
@@ -195,12 +221,14 @@
 	<tr>
 		<td valign="top">
 			{assign var=act_bounce value=$filter->actions.bounce}
-			<label><input type="radio" name="do[]" value="bounce" {if !is_null($act_bounce)}checked="checked"{/if}> 
+			<label><input type="radio" name="do_stop" value="bounce" {if !is_null($act_bounce)}checked="checked"{/if}> 
 			Bounce with message:</label>
 			<div style="margin-left:30px;"><textarea rows="8" cols="80" name="do_bounce" style="width:95%;">{$act_bounce.message|escape}</textarea></div>
 		</td>
 	</tr>
 </table>
+</blockquote>
+
 </div>
 <br>
 

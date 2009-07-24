@@ -261,38 +261,18 @@ class CerberusParser {
           
 		return $filename;
     }
-    
-	/**
-	 * Enter description here...
-	 *
-	 * @param CerberusParserMessage $message
-	 * @return integer
-	 */
-	static public function parseMessage(CerberusParserMessage $message, $options=array()) {
-//		print_r($rfcMessage);
-		
-		/*
-		 * options:
-		 * 'no_autoreply'
-		 */
-		$logger = DevblocksPlatform::getConsoleLog();
-		$settings = CerberusSettings::getInstance();
-		$helpdesk_senders = CerberusApplication::getHelpdeskSenders();
-		
-		$headers =& $message->headers;
 
-		// To/From/Cc/Bcc
+	/**
+	 * 
+	 * @return Model_Address 
+	 * @param array $headers
+	 */    
+	static public function getAddressFromHeaders($headers) {
 		$sReturnPath = @$headers['return-path'];
 		$sReplyTo = @$headers['reply-to'];
 		$sFrom = @$headers['from'];
-		$sTo = @$headers['to'];
-		$bIsNew = true;
 
-		// Overloadable
-		$enumSpamTraining = '';
-		
 		$from = array();
-		$to = array();
 		
 		if(!empty($sReplyTo)) {
 			$from = CerberusParser::parseRfcAddress($sReplyTo);
@@ -302,6 +282,96 @@ class CerberusParser {
 			$from = CerberusParser::parseRfcAddress($sReturnPath);
 		}
 		
+		if(empty($from) || !is_array($from)) {
+			return NULL;
+		}
+		
+		@$fromAddress = $from[0]->mailbox.'@'.$from[0]->host;
+		if(null == ($fromInst = CerberusApplication::hashLookupAddress($fromAddress, true))) {
+			return NULL;
+		}
+		
+		return $fromInst;		
+	} 
+	
+	/**
+	 * Enter description here...
+	 *
+	 * @param CerberusParserMessage $message
+	 * @return integer
+	 */
+	static public function parseMessage(CerberusParserMessage $message, $options=array()) {
+		/*
+		 * options:
+		 * 'no_autoreply'
+		 */
+		$logger = DevblocksPlatform::getConsoleLog();
+		$settings = CerberusSettings::getInstance();
+		$helpdesk_senders = CerberusApplication::getHelpdeskSenders();
+		
+        // Pre-parse mail filters
+		$pre_filters = Model_PreParseRule::getMatches($message);
+		if(is_array($pre_filters) && !empty($pre_filters)) {
+			// Load filter action manifests for reuse
+			$ext_action_mfts = DevblocksPlatform::getExtensions('cerberusweb.mail_filter.action', false);
+
+			// Loop through all matching filters
+			foreach($pre_filters as $pre_filter) {
+				
+	        	// Do something with matching filter's actions
+	        	foreach($pre_filter->actions as $action_key => $action) {
+	        		
+	        		switch($action_key) {
+	        			case 'blackhole':
+	        				return NULL;
+	        				break;
+	        				
+	        			case 'redirect':
+	        				@$to = $action['to'];
+	        				CerberusMail::reflect($message, $to);
+	        				return NULL;
+	        				break;
+	        				
+	        			case 'bounce':
+	        				@$msg = $action['message'];
+							@$subject = 'Delivery failed: ' . self::fixQuotePrintableString($message->headers['subject']);
+							
+	        				// [TODO] Follow the RFC spec on a true bounce
+							if(null != ($fromAddressInst = CerberusParser::getAddressFromHeaders($message->headers))) {
+	        					CerberusMail::quickSend($fromAddressInst->email,$subject,$msg);
+							}
+	        				return NULL;
+	        				break;
+						
+						default:
+							// Plugin pre-parser filter actions
+							if(isset($ext_action_mfts[$action_key])) {
+								if(null != (@$ext_action = $ext_action_mfts[$action_key]->createInstance())) {
+									try { 
+										/* @var $ext_action Extension_MailFilterAction */
+										$ext_action->run($message);
+									} catch(Exception $e) {	}
+								}
+							}
+							break;
+	        		}
+	        	}
+	        }
+		}
+		
+		$headers =& $message->headers;
+
+		// From
+		if(null == ($fromAddressInst = CerberusParser::getAddressFromHeaders($headers))) {
+			$logger->err("[Parser] 'From' address could not be created.");
+			return NULL;
+		}
+
+		// To/Cc/Bcc
+		$to = array();
+		$sTo = @$headers['to'];
+		$bIsNew = true;
+
 		if(!empty($sTo)) {
 		    // [TODO] Do we still need this RFC address parser?
 			$to = CerberusParser::parseRfcAddress($sTo);
@@ -322,23 +392,14 @@ class CerberusParser {
 		if(empty($iDate) || $iDate > time())
 			$iDate = time();
 		
-		if(empty($from) || !is_array($from)) {
-			$logger->warn("[Parser] Invalid 'From' address: " . $from);
-			return NULL;
-		}
-		
-		@$fromAddress = $from[0]->mailbox.'@'.$from[0]->host;
-		@$fromPersonal = $from[0]->personal;
-		if(null == ($fromAddressInst = CerberusApplication::hashLookupAddress($fromAddress, true))) {
-			$logger->err("[Parser] 'From' address could not be created: " . $fromAddress);
-			return NULL;
-		}
-
 		// Is banned?
 		if(1==$fromAddressInst->is_banned) {
 			$logger->info("[Parser] Ignoring ticket from banned address: " . $fromAddressInst->email);
 			return NULL;
 		}
+		
+		// Overloadable
+		$enumSpamTraining = '';
 		
 		// Message Id / References / In-Reply-To
 		@$sMessageId = $headers['message-id'];
@@ -443,35 +504,6 @@ class CerberusParser {
 	        	 * [TODO] check that this sender is a requester on the matched ticket
 	        	 * Otherwise blank out the $id
 	        	 */
-        	}
-        }
-        
-        // Pre-parse mail rules
-        if(null != ($pre_filter = Model_PreParseRule::getMatches(
-        	(empty($id) ? 1 : 0), // is_new
-        	$fromAddressInst,
-        	$message
-        ))) {
-        	// Do something with matching filter's actions
-        	foreach($pre_filter->actions as $action_key => $action) {
-        		switch($action_key) {
-        			case 'blackhole':
-        				return NULL;
-        				break;
-        				
-        			case 'redirect':
-        				@$to = $action['to'];
-        				CerberusMail::reflect($message, $to);
-        				return NULL;
-        				break;
-        				
-        			case 'bounce':
-        				@$msg = $action['message'];
-        				// [TODO] Follow the RFC spec on a true bounce
-        				CerberusMail::quickSend($fromAddress,"Delivery failed: ".$sSubject,$msg);
-        				return NULL;
-        				break;
-        		}
         	}
         }
         
@@ -724,7 +756,7 @@ class CerberusParser {
 						'message_id' => $email_id,
 						'content' => str_replace(
 				        	array('#ticket_id#','#mask#','#subject#','#timestamp#', '#sender#','#sender_first#','#orig_body#'),
-				        	array($id, $sMask, $sSubject, date('r'), $fromAddress, $fromAddressInst->first_name, ltrim($message->body)),
+				        	array($id, $sMask, $sSubject, date('r'), $fromAddressInst->email, $fromAddressInst->first_name, ltrim($message->body)),
 				        	$autoreply
 						),
 						'is_autoreply' => true,

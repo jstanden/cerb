@@ -577,7 +577,11 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		// Custom Fields
 		$custom_fields =  DAO_CustomField::getAll();
 		$tpl->assign('custom_fields', $custom_fields);
-		
+
+		// Action extensions
+		$filter_action_exts = DevblocksPlatform::getExtensions('cerberusweb.mail_filter.action', false);
+		$tpl->assign('filter_action_exts', $filter_action_exts);
+
 		$tpl->display('file:' . $this->_TPL_PATH . 'configuration/tabs/mail/mail_preparse.tpl');
 	}
 
@@ -627,6 +631,10 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		// Custom Fields: Orgs
 		$org_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Org::ID);
 		$tpl->assign('org_fields', $org_fields);
+		
+		// Action extensions
+		$filter_action_exts = DevblocksPlatform::getExtensions('cerberusweb.mail_filter.action', false);
+		$tpl->assign('filter_action_exts', $filter_action_exts);
 		
 		$tpl->display('file:' . $this->_TPL_PATH . 'configuration/tabs/mail/preparser/peek.tpl');
 	}
@@ -763,28 +771,48 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		}
 		
 		// Actions
+		$filter_action_exts = DevblocksPlatform::getExtensions('cerberusweb.mail_filter.action', false);
+
 		if(is_array($do))
 		foreach($do as $act) {
 			$action = array();
 			
 			switch($act) {
-				case 'blackhole':
-					$action = array();
+				case 'stop':
+					if(null != (@$do_stop = DevblocksPlatform::importGPC($_POST['do_stop'],'string',null))) {
+						$act = $do_stop;
+						switch($do_stop) {
+							case 'nothing':
+								$action = array();
+								break;
+							case 'blackhole':
+								$action = array();
+								break;
+							case 'redirect':
+								if(null != (@$to = DevblocksPlatform::importGPC($_POST['do_redirect'],'string',null)))
+									$action = array(
+										'to' => $to
+									);
+								break;
+							case 'bounce':
+								if(null != (@$msg = DevblocksPlatform::importGPC($_POST['do_bounce'],'string',null)))
+									$action = array(
+										'message' => $msg
+									);
+								break;
+						}
+					}
 					break;
-				case 'redirect':
-					if(null != (@$to = DevblocksPlatform::importGPC($_POST['do_redirect'],'string',null)))
-						$action = array(
-							'to' => $to
-						);
-					break;
-				case 'bounce':
-					if(null != (@$msg = DevblocksPlatform::importGPC($_POST['do_bounce'],'string',null)))
-						$action = array(
-							'message' => $msg
-						);
-					break;
+					
 				default: // ignore invalids
-					continue;
+					// Check action plugins
+					if(isset($filter_action_exts[$act])) {
+						$action = array(
+							// [TODO] Custom params
+						);
+					} else {
+						continue;
+					}
 					break;
 			}
 			

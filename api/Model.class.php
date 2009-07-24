@@ -66,13 +66,19 @@ class Model_PreParseRule {
 	 * @param string $from
 	 * @param string $to
 	 * @param CerberusParserMessage $message
-	 * @return Model_PreParserRule
+	 * @return Model_PreParserRule[]
 	 */
-	static function getMatches($is_new, Model_Address $fromInst, CerberusParserMessage $message) {
+	static function getMatches(CerberusParserMessage $message) {
 		$filters = DAO_PreParseRule::getAll();
 		$headers = $message->headers;
+
+		// New or reply?
+		$is_new = (isset($message->headers['in-reply-to']) || isset($message->headers['references'])) ? false : true;
+
+		// From address
+		$fromInst = CerberusParser::getAddressFromHeaders($headers);	
 		
-		// [TODO] Handle stackable
+		// Stackable
 		$matches = array();
 		
 		// Custom fields
@@ -344,11 +350,24 @@ class Model_PreParseRule {
 			// If our rule matched every criteria, stop and return the filter
 			if($passed == count($filter->criteria)) {
 				DAO_PreParseRule::increment($filter->id); // ++ the times we've matched
-				return $filter;
+				$matches[] = $filter;
+				
+				// Check our actions and see if we should bail out early
+				if(isset($filter->actions) && !empty($filter->actions))
+				foreach($filter->actions as $action_key => $action) {
+					switch($action_key) {
+						case 'nothing':
+						case 'blackhole':
+						case 'redirect':
+						case 'bounce':
+							return $matches;
+							break;
+					}
+				}
 			}
 		}
 		
-		return NULL;
+		return $matches;
 	}
 	
 }
