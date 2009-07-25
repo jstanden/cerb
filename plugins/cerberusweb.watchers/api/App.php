@@ -176,7 +176,7 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 		$this->_sendNotifications(
 			$matches,
 			$url_writer->write('c=display&mask=' . $ticket->mask, true, false),
-			sprintf("[Ticket] %s", $ticket->mask, $ticket->subject)
+			sprintf("[Ticket] %s", $ticket->subject)
 		);
 		
 		// (Action) Forward E-mail:
@@ -309,7 +309,7 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 			$this->_sendNotifications(
 				$matches,
 				$url_writer->write('c=display&mask=' . $ticket->mask, true, false),
-				sprintf("[Ticket] %s", $ticket->mask, $ticket->subject)
+				sprintf("[Ticket] %s", $ticket->subject)
 			);
 
 			// (Action) Forward Email To:
@@ -417,7 +417,7 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 		$this->_sendNotifications(
 			$matches,
 			$url_writer->write('c=display&mask=' . $ticket->mask, true, false),
-			sprintf("[Ticket] %s", $ticket->mask, $ticket->subject)
+			sprintf("[Ticket] %s", $ticket->subject)
 		);
 		
 		// (Action) Forward Email To:
