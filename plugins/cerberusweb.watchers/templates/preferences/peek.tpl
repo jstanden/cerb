@@ -13,7 +13,7 @@
 
 {if $active_worker->is_superuser}
 	{'common.worker'|devblocks_translate|capitalize}:
-	<select name="worker_id" onchange="genericAjaxGet('watchers_addresses','c=preferences&a=handleTabAction&tab=core.pref.notifications&action=getWorkerAddresses&worker_id='+selectValue(this));">
+	<select name="worker_id" onchange="genericAjaxGet('div_do_email','c=preferences&a=handleTabAction&tab=core.pref.notifications&action=getWorkerAddresses&worker_id='+selectValue(this));">
 		{foreach from=$all_workers item=worker key=worker_id}
 			<option value="{$worker_id}" {if (empty($filter->worker_id) && $worker_id==$active_worker->id) || $filter->worker_id==$worker_id}selected="selected"{/if}>{$worker->getName()}</option>
 		{/foreach}
@@ -226,19 +226,20 @@
 
 <br>
 <h2>Then perform these actions:</h2>
-<table width="500">
-	<tr>
-		{assign var=act_email value=$filter->actions.email}
-		<td valign="top" colspan="2">
-			<label><input type="checkbox" name="do[]" value="email" {if !is_null($filter->actions.email)}checked="checked"{/if}> <b>Forward e-mail to:</b></label><br>
-			<blockquote style="margin-top:0px;" id="watchers_addresses">
-				{foreach from=$addresses item=address}
-				<label><input type="checkbox" name="do_email[]" value="{$address->address|escape}" {if is_array($act_email.to) && in_array($address->address,$act_email.to)}checked="checked"{/if}> {$address->address}</label><br>
-				{/foreach}
-			</blockquote>
-		</td>
-	</tr>
-</table>
+
+<label><input type="checkbox" name="do[]" value="notify" {if !is_null($filter->actions.notify)}checked="checked"{/if}> <b>Send a worker notification</b></label><br>
+{*
+<blockquote style="margin-top:0px;" id="div_do_notity">
+</blockquote>
+*}
+
+{assign var=act_email value=$filter->actions.email}
+<label><input type="checkbox" name="do[]" value="email" {if !is_null($filter->actions.email)}checked="checked"{/if}> <b>Forward e-mail to:</b></label><br>
+<blockquote style="margin-top:0px;" id="div_do_email">
+	{foreach from=$addresses item=address}
+	<label><input type="checkbox" name="do_email[]" value="{$address->address|escape}" {if is_array($act_email.to) && in_array($address->address,$act_email.to)}checked="checked"{/if}> {$address->address}</label><br>
+	{/foreach}
+</blockquote>
 
 </div>
 <br>

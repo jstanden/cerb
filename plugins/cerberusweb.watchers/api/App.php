@@ -108,6 +108,23 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 		return $notify_emails;
 	}
 
+	private function _sendNotifications($filters, $url, $msg) {
+		if(is_array($filters))
+		foreach($filters as $idx => $filter) { /* @var $filter Model_WatcherMailFilter */
+			if(isset($filter->actions['notify'])) {
+				$fields = array(
+					DAO_WorkerEvent::CREATED_DATE => time(),
+					DAO_WorkerEvent::WORKER_ID => $filter->worker_id,
+					DAO_WorkerEvent::URL => $url,
+					DAO_WorkerEvent::TITLE => 'Watcher: '. $filter->name,
+					DAO_WorkerEvent::CONTENT => $msg,
+					DAO_WorkerEvent::IS_READ => 0,
+				);
+				DAO_WorkerEvent::create($fields);
+			}
+		}
+	}
+
 	private function _newTicketComment($event) {
 		@$comment_id = $event->params['comment_id'];
 		@$ticket_id = $event->params['ticket_id'];
@@ -128,6 +145,8 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 		if(null == ($worker = DAO_Worker::getAgent($worker_addy->worker_id)))
 			return;
 			
+		$url_writer = DevblocksPlatform::getUrlService();
+
 		$mail_service = DevblocksPlatform::getMailService();
 		$mailer = null; // lazy load
     		
@@ -146,10 +165,21 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 			return;
 		
 		// Remove any matches from the author
+		if(is_array($matches))
 		foreach($matches as $idx => $filter) {
 			if($filter->worker_id == $worker_addy->worker_id)
 				unset($matches[$idx]);
 		}
+		
+		// (Action) Send Notification
+
+		$this->_sendNotifications(
+			$matches,
+			$url_writer->write('c=display&mask=' . $ticket->mask, true, false),
+			sprintf("[Ticket] %s", $ticket->mask, $ticket->subject)
+		);
+		
+		// (Action) Forward E-mail:
 		
 		// Sanitize and combine all the destination addresses
 		$notify_emails = $this->_getMailingListFromMatches($matches);
@@ -250,6 +280,8 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 //    	if(!isset($workers[$next_worker_id]))
 //    		return;
     	
+    	$url_writer = DevblocksPlatform::getUrlService();
+    	
 		$mail_service = DevblocksPlatform::getMailService();
 		$mailer = null; // lazy load
     		
@@ -271,6 +303,16 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 				$next_worker_id
 			)))
 				return;
+
+			// (Action) Send Notification
+
+			$this->_sendNotifications(
+				$matches,
+				$url_writer->write('c=display&mask=' . $ticket->mask, true, false),
+				sprintf("[Ticket] %s", $ticket->mask, $ticket->subject)
+			);
+
+			// (Action) Forward Email To:
 
 			// Sanitize and combine all the destination addresses
 			$notify_emails = $this->_getMailingListFromMatches($matches);
@@ -359,6 +401,8 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
         @$ticket_id = $event->params['ticket_id'];
         @$send_worker_id = $event->params['worker_id'];
     	
+		$url_writer = DevblocksPlatform::getUrlService();
+		
 		$ticket = DAO_Ticket::getTicket($ticket_id);
 
 		// Find all our matching filters
@@ -367,6 +411,16 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 			($is_inbound ? 'mail_incoming' : 'mail_outgoing')
 		)))
 			return;
+		
+		// (Action) Send Notification
+		
+		$this->_sendNotifications(
+			$matches,
+			$url_writer->write('c=display&mask=' . $ticket->mask, true, false),
+			sprintf("[Ticket] %s", $ticket->mask, $ticket->subject)
+		);
+		
+		// (Action) Forward Email To:
 		
 		// Sanitize and combine all the destination addresses
 		$notify_emails = $this->_getMailingListFromMatches($matches);
@@ -814,6 +868,16 @@ class ChWatchersPreferences extends Extension_PreferenceTab {
 							'to' => $emails
 						);
 					}
+					break;
+					
+				// Watcher notification
+				case 'notify':
+					//@$emails = DevblocksPlatform::importGPC($_REQUEST['do_email'],'array',array());
+					//if(!empty($emails)) {
+						$action = array(
+							//'to' => $emails
+						);
+					//}
 					break;
 			}
 			
