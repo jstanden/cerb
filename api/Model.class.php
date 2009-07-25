@@ -349,7 +349,7 @@ class Model_PreParseRule {
 						} elseif(isset($filter_criteria_exts[$rule_key])) { // criteria extensions
 							try {
 								$crit_ext = $filter_criteria_exts[$rule_key]->createInstance();
-								if($crit_ext->matches($message)) {
+								if($crit_ext->matches($filter, $message)) {
 									$passed++;
 									break;
 								}

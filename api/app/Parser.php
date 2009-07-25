@@ -349,7 +349,7 @@ class CerberusParser {
 								if(null != (@$ext_action = $ext_action_mfts[$action_key]->createInstance())) {
 									try { 
 										/* @var $ext_action Extension_MailFilterAction */
-										$ext_action->run($message);
+										$ext_action->run($pre_filter, $message);
 									} catch(Exception $e) {	}
 								}
 							}

@@ -637,11 +637,11 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$tpl->assign('org_fields', $org_fields);
 		
 		// Criteria extensions
-		$filter_criteria_exts = DevblocksPlatform::getExtensions('cerberusweb.mail_filter.criteria', false);
+		$filter_criteria_exts = DevblocksPlatform::getExtensions('cerberusweb.mail_filter.criteria', true);
 		$tpl->assign('filter_criteria_exts', $filter_criteria_exts);
 		
 		// Action extensions
-		$filter_action_exts = DevblocksPlatform::getExtensions('cerberusweb.mail_filter.action', false);
+		$filter_action_exts = DevblocksPlatform::getExtensions('cerberusweb.mail_filter.action', true);
 		$tpl->assign('filter_action_exts', $filter_action_exts);
 		
 		$tpl->display('file:' . $this->_TPL_PATH . 'configuration/tabs/mail/preparser/peek.tpl');
@@ -772,9 +772,14 @@ class ChConfigurationPage extends CerberusPageExtension  {
 						}
 						
 					} elseif(isset($filter_criteria_exts[$rule])) { // Extensions
-						//$crit_ext = $filter_criteria_exts[$rule]->createInstance();
-						/* @var $crit_ext Extension_MailFilterCriteria */
-						// [TODO] Custom properties
+						// Save custom criteria properties
+						try {
+							$crit_ext = $filter_criteria_exts[$rule]->createInstance();
+							/* @var $crit_ext Extension_MailFilterCriteria */
+							$criteria = $crit_ext->saveConfig();
+						} catch(Exception $e) {
+							// print_r($e);
+						}
 					} else {
 						continue;
 					}
@@ -822,9 +827,14 @@ class ChConfigurationPage extends CerberusPageExtension  {
 				default: // ignore invalids
 					// Check action plugins
 					if(isset($filter_action_exts[$act])) {
-						$action = array(
-							// [TODO] Custom params
-						);
+						// Save custom action properties
+						try {
+							$action_ext = $filter_action_exts[$act]->createInstance();
+							$action = $action_ext->saveConfig();
+							
+						} catch(Exception $e) {
+							// print_r($e);
+						}
 					} else {
 						continue;
 					}
