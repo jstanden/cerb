@@ -198,6 +198,9 @@ class UmScContactController extends Extension_UmScController {
         $settings = CerberusSettings::getInstance();
         $default_from = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM);
         
+		// Situations
+    	@$arSituations = DevblocksPlatform::importGPC($_POST['situations'],'array',array());
+    	@$arOrderSituations = DevblocksPlatform::importGPC($_POST['order_situations'],'array',array());
     	@$arDeleteSituations = DevblocksPlatform::importGPC($_POST['delete_situations'],'array',array());
         
     	@$sEditReason = DevblocksPlatform::importGPC($_POST['edit_reason'],'string','');
@@ -223,8 +226,28 @@ class UmScContactController extends Extension_UmScController {
         	}
         }
 
+		// Sort situations
+		$sorted = array();
+		asort($arOrderSituations);
+		
+		if(is_array($arSituations) && is_array($arOrderSituations))
+		foreach($arOrderSituations as $idx => $null) {
+			@$hash = $arSituations[$idx];
+			
+			if(!empty($hash) && is_array($dispatch))
+			foreach($dispatch as $k => $v) {
+				if($hash==md5($k)) {
+					$sorted[$k] = $v;
+					break;
+				}
+			}
+		}
+		
+		$dispatch = $sorted;
+
         // Nuke a record we're replacing or any checked boxes
 		// will be MD5
+        if(is_array($dispatch))
         foreach($dispatch as $d_reason => $d_params) {
         	if(!empty($sEditReason) && md5($d_reason)==$sEditReason) {
         		unset($dispatch[$d_reason]);
@@ -248,8 +271,6 @@ class UmScContactController extends Extension_UmScController {
 				$followups[$followup] = @$aFollowupField[$idx];
 			}
         }
-        
-        ksort($dispatch);
         
 		DAO_CommunityToolProperty::set(UmPortalHelper::getCode(), self::PARAM_SITUATIONS, serialize($dispatch));
 	}

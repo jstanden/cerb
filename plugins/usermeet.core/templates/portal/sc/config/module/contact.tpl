@@ -8,9 +8,12 @@
 <br>
 <br>
 
+{counter name=situation_idx start=0 print=false}
 {foreach from=$dispatch item=params key=reason}
 <div class="subtle" style="margin-bottom:10px;">
-	<h2 style="display:inline;">{$reason}</h2>&nbsp;
+	<input type="hidden" name="situations[]" value="{$reason|md5}">
+	<input type="text" name="order_situations[]" size="2" maxlength="3" value="{counter name=situation_idx}">
+	&nbsp;<h2 style="display:inline;">{$reason}</h2>&nbsp;
 	<a href="#add_situation" onclick="genericAjaxGet('add_situation','c=config&a=handleTabAction&tab=usermeet.config.tab.communities&action=getContactSituation&reason={$reason|md5}&portal={$instance->code}');">{$translate->_('common.edit')|lower} </a>
 	<br>
 	<b>{$translate->_('portal.cfg.send_to')}</b> {$params.to}<br>
