@@ -85,6 +85,8 @@ class ChKbResearchTab extends Extension_ResearchTab {
 					$view->name = vsprintf($translate->_('kb.view.articles'), $categories[$root_id]->name);
 				}
 		
+				$view->renderPage = 0;
+		
 				C4_AbstractViewLoader::setView($view->id, $view);
 				
 				$tpl->assign('view', $view);
