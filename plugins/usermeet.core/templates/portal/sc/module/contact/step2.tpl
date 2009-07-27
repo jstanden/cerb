@@ -32,24 +32,29 @@
       	<blockquote style="margin-left:10px;">
 		{foreach from=$situation_params.followups key=question item=field_id name=situations}
 			{math assign=idx equation="x-1" x=$smarty.foreach.situations.iteration}
+
+			{if '*'==substr($question,0,1)}
+				{assign var=required value=true}
+			{else}
+				{assign var=required value=false}
+			{/if}
 	      	
 	      	<h2>{$question}</h2>
 	      	<input type="hidden" name="followup_q[]" value="{$question|escape}">
 	      	{if !empty($field_id)}
 	      		{assign var=field value=$ticket_fields.$field_id}
-
 				<input type="hidden" name="field_ids[]" value="{$field_id|escape}">
 	      		
 	      		{if $field->type=='S'}
-	      			<input name="followup_a_{$idx}" value="{$last_followup_a.$idx|escape}" autocomplete="off" style="width:98%;">
+	      			<input name="followup_a_{$idx}" value="{$last_followup_a.$idx|escape}" autocomplete="off" style="width:98%;" class="{if $required}required{/if}">
 	      		{elseif $field->type=='U'}
-	      			<input name="followup_a_{$idx}" value="{$last_followup_a.$idx|escape}" autocomplete="off" style="width:98%;" class="url">
+	      			<input name="followup_a_{$idx}" value="{$last_followup_a.$idx|escape}" autocomplete="off" style="width:98%;" class="url {if $required}required{/if}">
 	      		{elseif $field->type=='N'}
-	      			<input name="followup_a_{$idx}" size="12" maxlength="20" value="{$last_followup_a.$idx|escape}" autocomplete="off" class="number">
+	      			<input name="followup_a_{$idx}" size="12" maxlength="20" value="{$last_followup_a.$idx|escape}" autocomplete="off" class="number {if $required}required{/if}">
 	      		{elseif $field->type=='T'}
-	      			<textarea name="followup_a_{$idx}" rows="5" cols="60" style="width:98%;">{$last_followup_a.$idx|escape}</textarea>
+	      			<textarea name="followup_a_{$idx}" rows="5" cols="60" style="width:98%;" class="{if $required}required{/if}">{$last_followup_a.$idx|escape}</textarea>
 	      		{elseif $field->type=='D'}
-	      			<select name="followup_a_{$idx}">
+	      			<select name="followup_a_{$idx}" class="{if $required}required{/if}">
 	      				<option value=""></option>
 	      				{foreach from=$field->options item=opt}
 	      				<option value="{$opt}" {if $last_followup_a.$idx==$opt}selected{/if}>{$opt}
@@ -66,14 +71,14 @@
 					{if empty($workers)}
 						{php}$this->assign('workers', DAO_Worker::getAllActive());{/php}
 					{/if}
-	      			<select name="followup_a_{$idx}">
+	      			<select name="followup_a_{$idx}" class="{if $required}required{/if}">
 	      				<option value=""></option>
 	      				{foreach from=$workers item=worker key=worker_id}
 	      				<option value="{$worker_id}" {if $last_followup_a.$idx==$worker_id}selected{/if}>{$worker->getName()}
 	      				{/foreach}
 	      			</select>
 	      		{elseif $field->type=='E'}
-	      			<input name="followup_a_{$idx}" value="{$last_followup_a.$idx|escape}" autocomplete="off" class="date">
+	      			<input name="followup_a_{$idx}" value="{$last_followup_a.$idx|escape}" autocomplete="off" class="date {if $required}required{/if}">
 				{elseif $field->type=='X'}
 					{foreach from=$field->options item=opt}
 					<label><input type="checkbox" name="followup_a_{$idx}[]" value="{$opt|escape}"> {$opt}</label>
@@ -84,7 +89,7 @@
 	      		
 	      	{else}
 	      		<input type="hidden" name="field_ids[]" value="0">
-				<input name="followup_a_{$idx}" value="{$last_followup_a.$idx|escape}" autocomplete="off" style="width:98%;">
+				<input name="followup_a_{$idx}" value="{$last_followup_a.$idx|escape}" autocomplete="off" style="width:98%;" class="{if $required}required{/if}">
 			{/if}
 			<br>
 			<br>

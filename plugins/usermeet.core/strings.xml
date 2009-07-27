@@ -154,7 +154,7 @@ For example: http://www.cerberusweb.com/support/</seg></tuv>
 			<tuv xml:lang="en_US"><seg>Fetch &amp; Retrieve has not been configured.</seg></tuv>
 		</tu>
 		<tu tuid='portal.sc.cfg.followup_questions_hint'>
-			<tuv xml:lang="en_US"><seg>(e.g. "Which product are you considering?") -- optionally save to custom field</seg></tuv>
+			<tuv xml:lang="en_US"><seg>(start with * to require; e.g. "*Which product are you considering?")</seg></tuv>
 		</tu>
 		<tu tuid='portal.sc.cfg.footer'>
 			<tuv xml:lang="en_US"><seg>Footer HTML:</seg></tuv>
