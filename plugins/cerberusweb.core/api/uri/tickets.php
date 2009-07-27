@@ -883,17 +883,20 @@ class ChTicketsPage extends CerberusPageExtension {
 
 		$tpl->assign('view_id', $view_id);
 		
-		$ticket = DAO_Ticket::getTicket($tid); /* @var $ticket CerberusTicket */
-	    $messages = DAO_Ticket::getMessagesByTicket($tid);
-	    
-        if(!empty($messages)) {	    
-	        $last = array_pop($messages);
-	        $content = DAO_MessageContent::get($last->id);
-        }
-	    
-	    $tpl->assign('ticket', $ticket);
-	    $tpl->assign('message', $last);
-	    $tpl->assign('content', $content);
+		if(null != ($ticket = DAO_Ticket::getTicket($tid))) {
+			/* @var $ticket CerberusTicket */
+		    $tpl->assign('ticket', $ticket);
+		}
+		
+		if(null != ($messages = DAO_Ticket::getMessagesByTicket($tid))) {
+	        if(!empty($messages)) {	    
+		        @$last = array_pop($messages);
+		        @$content = DAO_MessageContent::get($last->id);
+				
+			    $tpl->assign('message', $last);
+			    $tpl->assign('content', $content);
+	        }
+		}
 	    
 		$teams = DAO_Group::getAll();
 		$tpl->assign('teams', $teams);

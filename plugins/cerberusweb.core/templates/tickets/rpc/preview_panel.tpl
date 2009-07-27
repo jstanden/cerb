@@ -8,20 +8,22 @@
 
 <div id="ticketPeekTabs" class="yui-navset">
     <ul class="yui-nav">
-        <li class="selected"><a href="#tab1"><em>Message</em></a></li>
-        <li><a href="#tab2"><em>Properties</em></a></li>
-    </ul>            
+        {if !empty($message)}<li class="selected"><a href="#tab1"><em>Message</em></a></li>{/if}
+        <li {if empty($message)}class="selected"{/if}><a href="#tab2"><em>Properties</em></a></li>
+    </ul>
     <div class="yui-content">
+    	{if !empty($message)}
         <div id="tab1">
-			{assign var=headers value=$message->getHeaders()}
-			<b>To:</b> {$headers.to|escape}<br>
-			<b>From:</b> {$headers.from|escape}<br>
-			<div style="width:98%;height:250px;overflow:auto;border:1px solid rgb(180,180,180);margin:2px;padding:3px;background-color:rgb(255,255,255);" ondblclick="if(null != genericPanel) genericPanel.hide();">
-			{$content|escape|nl2br}
-			</div>
-			
-			<b>URL:</b> <a href="{devblocks_url}c=display&id={$ticket->mask}{/devblocks_url}">{devblocks_url full=true}c=display&id={$ticket->mask}{/devblocks_url}</a>
+				{assign var=headers value=$message->getHeaders()}
+				<b>To:</b> {$headers.to|escape}<br>
+				<b>From:</b> {$headers.from|escape}<br>
+				<div style="width:98%;height:250px;overflow:auto;border:1px solid rgb(180,180,180);margin:2px;padding:3px;background-color:rgb(255,255,255);" ondblclick="if(null != genericPanel) genericPanel.hide();">
+				{$content|escape|nl2br}
+				</div>
+				
+				<b>URL:</b> <a href="{devblocks_url}c=display&id={$ticket->mask}{/devblocks_url}">{devblocks_url full=true}c=display&id={$ticket->mask}{/devblocks_url}</a>
         </div>
+		{/if}
         
         <div id="tab2">
         	<div style="height:250px;overflow:auto;margin:2px;padding:3px;">
