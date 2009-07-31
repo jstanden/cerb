@@ -189,16 +189,9 @@ abstract class Extension_MailFilterCriteria extends DevblocksExtension {
 		$this->DevblocksExtension($manifest,1);
 	}
 	
-	/**
-	 * 
-	 * @return CerberusParserMessage
-	 * @param bool
-	 */
-	function matches(Model_PreParseRule $filter, CerberusParserMessage $message) { 
-		return $message;
-	}
+	function matches(Model_PreParseRule $filter, CerberusParserMessage $message) {}
 	
-	function renderConfig(Model_PreParseRule $filter) {}
+	function renderConfig(Model_PreParseRule $filter=null) {}
 	function saveConfig() { return array(); }
 };
 
@@ -207,16 +200,9 @@ abstract class Extension_MailFilterAction extends DevblocksExtension {
 		$this->DevblocksExtension($manifest,1);
 	}
 	
-	/**
-	 * 
-	 * @return CerberusParserMessage 
-	 * @param CerberusParserMessage $message
-	 */
-	function run(Model_PreParseRule $filter, CerberusParserMessage $message) { 
-		return $message;
-	}
+	function run(Model_PreParseRule $filter, CerberusParserMessage $message) {}
 	
-	function renderConfig(Model_PreParseRule $filter) {}
+	function renderConfig(Model_PreParseRule $filter=null) {}
 	function saveConfig() { return array(); }
 };
 
