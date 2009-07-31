@@ -70,20 +70,20 @@ class CerberusBayes {
 		$text = str_replace($chars,$tokens,$text);
 		
 		// Force lowercase and strip non-word punctuation (a-z, 0-9, _)
-		$text = preg_replace('#\W+#', ' ', strtolower($text));
+		$text = mb_ereg_replace('[^a-z0-9_]+', ' ', mb_convert_case($text, MB_CASE_LOWER));
 
 		// Decode apostrophes/etc
 		$text = str_replace($tokens,$chars,$text);
-				
+
 		// Sort unique words w/ condensed spaces
-		$words = array_flip(explode(' ', preg_replace('#\s+#', ' ', $text)));
-		
+		$words = array_flip(explode(' ', mb_ereg_replace('\s+', ' ', $text)));
+
 		// Toss words that are too common
 	    $words = self::_removeCommonWords($words);
 		
 		// Toss anything over/under the word length bounds
 		foreach($words as $k => $v) {
-			$len = strlen($k);
+			$len = mb_strlen($k);
 			if($len < $min || $len > $max || is_numeric($k)) { // [TODO]: Make decision on !numeric?
 				unset($words[$k]); // toss
 			}
@@ -290,6 +290,7 @@ class CerberusBayes {
 			$outwords = array_merge($outwords, $word_ids);
 			$pos += $batch_size;
 		}
+		
 		return $outwords;
 	}
 	

@@ -213,11 +213,11 @@ class DAO_Bayes {
 		while(!$rs->EOF) {
 			$w = new CerberusBayesWord();
 			$w->id = intval($rs->fields['id']);
-			$w->word = $rs->fields['word'];
+			$w->word = mb_convert_case($rs->fields['word'], MB_CASE_LOWER);
 			$w->spam = intval($rs->fields['spam']);
 			$w->nonspam = intval($rs->fields['nonspam']);
 			
-			$outwords[$w->word] = $w;
+			$outwords[mb_convert_case($w->word, MB_CASE_LOWER)] = $w;
 			unset($tmp[$w->word]); // check off we've indexed this word
 			$rs->MoveNext();
 		}
