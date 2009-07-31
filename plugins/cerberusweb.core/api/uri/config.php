@@ -844,7 +844,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 			$actions[$act] = $action;
 		}
 		
-		if(!empty($criterion) && !empty($actions)) {
+		if(!empty($criterion)) {
 			if(empty($id))  {
 				$fields = array(
 					DAO_PreParseRule::NAME => $name,
