@@ -62,4 +62,14 @@ if(isset($tables['bayes_words'])) {
 
 }
 
+// ===========================================================================
+// Fix orphaned tickets
+
+$default_group_id = $db->GetOne("SELECT id FROM team WHERE is_default = 1");
+
+if(!empty($default_group_id)) {
+	$db->Execute(sprintf("UPDATE ticket SET team_id=%d WHERE team_id=0", $default_group_id));
+	
+}
+
 return TRUE;

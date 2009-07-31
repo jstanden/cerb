@@ -48,6 +48,7 @@
  * 		and Joe Geck.
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
+
 class CerberusParserMessage {
     public $encoding = '';
     public $headers = array();
@@ -511,6 +512,7 @@ class CerberusParser {
 		
 		if(empty($id)) { // New Ticket
 			$sMask = CerberusApplication::generateTicketMask();
+			$groups = DAO_Group::getAll();
 		
 			// Routing new tickets
 			if(null != ($routing_rules = Model_MailToGroupRule::getMatches(
@@ -522,12 +524,18 @@ class CerberusParser {
 					// Only end up with the last 'move' action (ignore the previous)
 					if(isset($rule->actions['move'])) {
 						$group_id = intval($rule->actions['move']['group_id']);
+						
+						
 						// We don't need to move again when running rule actions
 						unset($rule->actions['move']);
 					}
 				}
 			}
 			
+			// Make sure the group exists
+			if(!isset($groups[$group_id]))
+				$group_id = null;
+				
 			// Last ditch effort to check for a default group to deliver to
 			if(empty($group_id)) {
 				if(null != ($default_team = DAO_Group::getDefaultGroup())) {
