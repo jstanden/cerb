@@ -70,6 +70,7 @@ if(!defined('DEVBLOCKS_WEBPATH')) {
 	$pos = strrpos($php_self,'/');
 	$php_self = substr($php_self,0,$pos) . '/';
 	@define('DEVBLOCKS_WEBPATH',$php_self);
+	@define('DEVBLOCKS_APP_WEBPATH',$php_self);
 }
 
 //if('' == APP_DB_DRIVER 
