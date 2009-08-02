@@ -187,6 +187,7 @@ class UmScKbController extends Extension_UmScController {
 				$view->name = "";
 				$view->renderSortBy = SearchFields_KbArticle::VIEWS;
 				$view->renderSortAsc = false;
+				$view->renderPage = 0;
 				$view->renderLimit = 10;
 
 				UmScAbstractViewLoader::setView($view->id, $view);
