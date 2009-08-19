@@ -529,6 +529,79 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 
 		$tpl->display('file:' . $this->_TPL_PATH . 'ajax/kb_search_results.tpl');
 	}
+	
+	function showArticlesBulkPanelAction() {
+		@$id_csv = DevblocksPlatform::importGPC($_REQUEST['ids']);
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
+
+		$tpl = DevblocksPlatform::getTemplateService();
+		$path = dirname(dirname(__FILE__)) . '/templates/';
+		$tpl->assign('path', $path);
+		$tpl->assign('view_id', $view_id);
+
+	    if(!empty($id_csv)) {
+	        $ids = DevblocksPlatform::parseCsvString($id_csv);
+	        $tpl->assign('ids', implode(',', $ids));
+	    }
+		
+		// Categories
+		$categories = DAO_KbCategory::getWhere();
+		$tpl->assign('categories', $categories);
+		
+		$levels = DAO_KbCategory::getTree(0); //$root_id
+		$tpl->assign('levels',$levels);
+		
+		// Custom Fields
+//		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_FeedbackEntry::ID);
+//		$tpl->assign('custom_fields', $custom_fields);
+		
+		$tpl->cache_lifetime = "0";
+		$tpl->display('file:' . $path . 'ajax/articles_bulk_panel.tpl');
+	}
+	
+	function doArticlesBulkUpdateAction() {
+		// Checked rows
+	    @$ids_str = DevblocksPlatform::importGPC($_REQUEST['ids'],'string');
+		$ids = DevblocksPlatform::parseCsvString($ids_str);
+
+		// Filter: whole list or check
+	    @$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
+	    
+	    // View
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
+		$view = C4_AbstractViewLoader::getView('',$view_id);
+		
+		$do = array();
+
+		// Categories
+		@$category_ids = DevblocksPlatform::importGPC($_REQUEST['category_ids'],'array',array());
+		
+		if(is_array($category_ids)) {
+			$do['category_delta'] = array();
+			
+			foreach($category_ids as $cat_id) {
+				@$cat_mode = DevblocksPlatform::importGPC($_REQUEST['category_ids_'.$cat_id],'string','');
+				if(!empty($cat_mode))
+					$do['category_delta'][] = $cat_mode . $cat_id;
+			}
+		}
+		
+		// Feedback fields
+//		@$list_id = trim(DevblocksPlatform::importGPC($_POST['list_id'],'integer',0));
+		
+		// Do: List
+//		if(0 != strlen($list_id))
+//			$do['list_id'] = $list_id;
+			
+		// Do: Custom fields
+//		$do = DAO_CustomFieldValue::handleBulkPost($do);
+			
+		$view->doBulkUpdate($filter, $do, $ids);
+		
+		$view->render();
+		return;
+	}
+		
 };
 
 class DAO_KbArticle extends DevblocksORMHelper {
@@ -658,15 +731,18 @@ class DAO_KbArticle extends DevblocksORMHelper {
 		return $categories;
 	}
 	
-	static function setCategories($article_id,$category_ids,$replace=true) {
+	static function setCategories($article_ids,$category_ids,$replace=true) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
+		if(!is_array($article_ids))
+			$article_ids = array($article_ids);
+
 		if(!is_array($category_ids))
 			$category_ids = array($category_ids);
 		
 		if($replace) {
-			$db->Execute(sprintf("DELETE QUICK FROM kb_article_to_category WHERE kb_article_id = %d",
-				$article_id
+			$db->Execute(sprintf("DELETE QUICK FROM kb_article_to_category WHERE kb_article_id IN (%s)",
+				implode(',', $article_ids)
 			));
 		}
 		
@@ -674,18 +750,39 @@ class DAO_KbArticle extends DevblocksORMHelper {
 		
 		if(is_array($category_ids) && !empty($category_ids)) {
 			foreach($category_ids as $category_id) {
-				$pid = $category_id;
-				while($pid) {
-					$top_category_id = $pid;
-					$pid = $categories[$pid]->parent_id;
-				}
+				$is_add = '-'==substr($category_id, 0, 1) ? false : true;
+				$category_id = ltrim($category_id,'+-');
 				
-				$db->Replace(
-					'kb_article_to_category',
-					array('kb_article_id'=>$article_id,'kb_category_id'=>$category_id,'kb_top_category_id'=>$top_category_id),
-					array('kb_article_id','kb_category_id'),
-					false
-				);
+				// Add
+				if($is_add) {
+					$pid = $category_id;
+					while($pid) {
+						$top_category_id = $pid;
+						$pid = $categories[$pid]->parent_id;
+					}
+					
+					if(is_array($article_ids))
+					foreach($article_ids as $article_id) {
+						$db->Replace(
+							'kb_article_to_category',
+							array('kb_article_id'=>$article_id,'kb_category_id'=>$category_id,'kb_top_category_id'=>$top_category_id),
+							array('kb_article_id','kb_category_id'),
+							false
+						);
+					}
+					
+				// Delete
+				} else {
+					if(is_array($article_ids))
+					foreach($article_ids as $article_id) {
+						$db->Execute(
+							sprintf("DELETE FROM kb_article_to_category WHERE kb_article_id = %d AND kb_category_id = %d",
+								$article_id,
+								$category_id
+							)
+						);
+					}
+				}
 			}
 		}
 		
@@ -1112,6 +1209,74 @@ class C4_KbArticleView extends C4_AbstractView {
 			$this->renderPage = 0;
 		}
 	}
+	
+	function doBulkUpdate($filter, $do, $ids=array()) {
+		@set_time_limit(600); // [TODO] Temp!
+	  
+		$change_fields = array();
+		$custom_fields = array();
+
+		// Make sure we have actions
+		if(empty($do))
+			return;
+
+		// Make sure we have checked items if we want a checked list
+		if(0 == strcasecmp($filter,"checks") && empty($ids))
+			return;
+			
+		if(is_array($do))
+		foreach($do as $k => $v) {
+			switch($k) {
+//				case 'x':
+//					break;
+				default:
+					// Custom fields
+//					if(substr($k,0,3)=="cf_") {
+//						$custom_fields[substr($k,3)] = $v;
+//					}
+					break;
+			}
+		}
+		
+		$pg = 0;
+
+		if(empty($ids))
+		do {
+			list($objects,$null) = DAO_KbArticle::search(
+				array(),
+				$this->params,
+				100,
+				$pg++,
+				SearchFields_KbArticle::ID,
+				true,
+				false
+			);
+			 
+			$ids = array_merge($ids, array_keys($objects));
+			 
+		} while(!empty($objects));
+
+		$batch_total = count($ids);
+		for($x=0;$x<=$batch_total;$x+=100) {
+			$batch_ids = array_slice($ids,$x,100);
+			
+			if(!empty($change_fields))
+				DAO_KbArticle::update($batch_ids, $change_fields);
+			
+			// Category deltas
+			if(isset($do['category_delta'])) {
+				DAO_KbArticle::setCategories($batch_ids, $do['category_delta'], false);
+			}
+			
+			// Custom Fields
+			//self::_doBulkSetCustomFields(ChCustomFieldSource_Address::ID, $custom_fields, $batch_ids);
+			
+			unset($batch_ids);
+		}
+
+		unset($ids);
+	}
+		
 };
 
 class Model_KbArticle {
