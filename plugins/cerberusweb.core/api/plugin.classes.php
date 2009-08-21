@@ -281,6 +281,10 @@ class ChWorkspaceSource_Org extends Extension_WorkspaceSource {
 	const ID = 'core.workspace.source.org';
 };
 
+class ChWorkspaceSource_Notification extends Extension_WorkspaceSource {
+	const ID = 'core.workspace.source.notifications';
+};
+
 class ChWorkspaceSource_Task extends Extension_WorkspaceSource {
 	const ID = 'core.workspace.source.task';
 };

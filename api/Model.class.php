@@ -2846,6 +2846,8 @@ class C4_WorkerEventView extends C4_AbstractView {
 				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__date.tpl');
 				break;
 			case SearchFields_WorkerEvent::WORKER_ID:
+				$workers = DAO_Worker::getAllActive();
+				$tpl->assign('workers', $workers);
 				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__worker.tpl');
 				break;
 			default:
@@ -2859,6 +2861,20 @@ class C4_WorkerEventView extends C4_AbstractView {
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
+			case SearchFields_WorkerEvent::WORKER_ID:
+				$workers = DAO_Worker::getAll();
+				$strings = array();
+
+				foreach($values as $val) {
+					if(empty($val))
+					$strings[] = "Nobody";
+					elseif(!isset($workers[$val]))
+					continue;
+					else
+					$strings[] = $workers[$val]->getName();
+				}
+				echo implode(", ", $strings);
+				break;
 			default:
 				parent::renderCriteriaParam($param);
 				break;
@@ -2903,7 +2919,8 @@ class C4_WorkerEventView extends C4_AbstractView {
 				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
 				break;
 			case SearchFields_WorkerEvent::WORKER_ID:
-				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
+				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_ids);
 				break;
 				
 			case SearchFields_WorkerEvent::CREATED_DATE:

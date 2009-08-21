@@ -280,7 +280,9 @@ class ChHomePage extends CerberusPageExtension {
 				array(
 					DAO_WorkerEvent::IS_READ => 1,
 				), 
-				sprintf("%s IN (%s)",
+				sprintf("%s = %d AND %s IN (%s)",
+					DAO_WorkerEvent::WORKER_ID,
+					$worker->id,
 					DAO_WorkerEvent::ID,
 					implode(',', $row_ids)
 				)

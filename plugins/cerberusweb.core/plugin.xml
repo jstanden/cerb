@@ -648,6 +648,18 @@
 		</extension>
 
 		<extension point="cerberusweb.workspace.source">
+			<id>core.workspace.source.notifications</id>
+			<name>Notifications</name>
+			<class>
+				<file>api/plugin.classes.php</file>
+				<name>ChWorkspaceSource_Notification</name>
+			</class>
+			<params>
+				<param key="view_class" value="C4_WorkerEventView" />
+			</params>
+		</extension>
+		
+		<extension point="cerberusweb.workspace.source">
 			<id>core.workspace.source.org</id>
 			<name>Organizations</name>
 			<class>
