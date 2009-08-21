@@ -1,15 +1,11 @@
 <!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
 <plugin>
 	<id>cerberusweb.watchers</id>
-	<name>Cerberus Helpdesk: Watchers</name>
+	<name>[Cerb4] Watchers</name>
 	<description>Create mail forwards to send copies of group mail any e-mail address, such as a desktop e-mail client or handheld device. This adds an 'Watchers' tab to each workers My Account page.</description>
 	<author>WebGroup Media, LLC.</author>
 	<revision>0</revision>
 	<link>http://wiki.cerb4.com/wiki/New_Changes#Watchers_.28E-mail_Notifications.29</link>
-	<class>
-		<file>api/Plugin.php</file>
-		<name>ChWatchersPlugin</name>
-	</class>
 
 	<class_loader>
 		<file path="api/App.php">

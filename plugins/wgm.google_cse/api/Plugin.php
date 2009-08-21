@@ -1,7 +1,4 @@
 <?php
-class WgmGoogleCSEPlugin extends DevblocksPlugin {
-};
-
 if (class_exists('DevblocksTranslationsExtension',true)):
 	class WgmGoogleCSETranslations extends DevblocksTranslationsExtension {
 		function __construct($manifest) {

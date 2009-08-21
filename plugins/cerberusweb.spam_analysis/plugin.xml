@@ -1,17 +1,13 @@
 <!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
 <plugin>
 	<id>cerberusweb.spam_analysis</id>
-	<name>Cerberus Helpdesk: Spam Analysis</name>
+	<name>[Cerb4] Spam Analysis</name>
 	<description>This plugin provides extra insight about how Cerb4's anti-spam system is making filtering decisions.  
 		It adds a new 'Spam Analysis' tab when displaying tickets.
 	</description>
 	<author>WebGroup Media, LLC.</author>
 	<revision>0</revision>
 	<link>http://wiki.cerb4.com/wiki/</link>
-	<class>
-		<file>api/Plugin.php</file>
-		<name>ChSpamAnalysisPlugin</name>
-	</class>
 	
 	<extensions>
 

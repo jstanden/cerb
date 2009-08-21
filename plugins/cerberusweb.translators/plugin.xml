@@ -1,15 +1,11 @@
 <!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
 <plugin>
 	<id>cerberusweb.translators</id>
-	<name>Cerberus Helpdesk: Translation Editor (Experimental)</name>
+	<name>[Cerb4] Translation Editor</name>
 	<description>A GUI for translating the Cerberus Helpdesk interface into other languages.  This adds a 'Translations' tab to Configuration.</description>
 	<author>WebGroup Media, LLC.</author>
 	<revision>0</revision>
 	<link>http://wiki.cerb4.com/wiki/</link>
-	<class>
-		<file>api/Plugin.php</file>
-		<name>ChTranslatorsPlugin</name>
-	</class>
 	
 	<!-- Exported Classes -->
 	

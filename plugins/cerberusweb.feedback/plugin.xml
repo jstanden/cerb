@@ -1,15 +1,11 @@
 <!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
 <plugin>
 	<id>cerberusweb.feedback</id>
-	<name>Cerberus Helpdesk: Feedback Capture</name>
+	<name>[Cerb4] Feedback Capture</name>
 	<description>Organically capture praise or criticism and share it with decision makers.  This adds a Feedback tab to the Activity page.  You can also capture feedback while reading e-mail by highlighting a quote and clicking 'more' in the toolbar.</description>
 	<author>WebGroup Media, LLC.</author>
 	<revision>0</revision>
 	<link>http://wiki.cerb4.com/wiki/</link>
-	<class>
-		<file>api/Plugin.php</file>
-		<name>ChFeedbackPlugin</name>
-	</class>
 	
 	<!-- Exported Classes -->
 	

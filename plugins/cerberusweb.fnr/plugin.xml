@@ -1,15 +1,11 @@
 <!DOCTYPE plugin PUBLIC "-//WebGroup Media LLC//Devblocks Framework Plugin//EN" "http://www.devblocks.com/dtd/1.0/plugin.dtd">
 <plugin>
 	<id>cerberusweb.fnr</id>
-	<name>Cerberus Helpdesk: Fetch &amp; Retrieve</name>
+	<name>[Extras] Fetch &amp; Retrieve</name>
 	<description>Provides an external search inside the helpdesk for various help resources (e.g. blogs, forums, wikis). Very flexible but may require custom code for integration with some resources.</description>
 	<author>WebGroup Media, LLC.</author>
 	<revision>0</revision>
 	<link>http://wiki.cerb4.com/wiki/Search_your_organization%27s_resources_using_Fetch_%26_Retrieve</link>
-	<class>
-		<file>api/Plugin.php</file>
-		<name>ChFnrPlugin</name>
-	</class>
 	
 	<!-- Exported Classes -->
 	

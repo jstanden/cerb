@@ -1,7 +1,4 @@
 <?php
-class UmCorePlugin extends DevblocksPlugin {
-};
-
 if (class_exists('DevblocksTranslationsExtension',true)):
 class UmTranslations extends DevblocksTranslationsExtension {
 	function __construct($manifest) {

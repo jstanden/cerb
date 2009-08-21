@@ -49,9 +49,6 @@
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
 
-class ChCorePlugin extends DevblocksPlugin {
-};
-
 class ChTranslations extends DevblocksTranslationsExtension {
 	function __construct($manifest) {
 		parent::__construct($manifest);	

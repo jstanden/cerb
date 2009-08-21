@@ -1,15 +1,11 @@
 <!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
 <plugin>
 	<id>cerberusweb.timetracking</id>
-	<name>Cerberus Helpdesk: Time Tracking</name>
+	<name>[Cerb4] Time Tracking</name>
 	<description>Track time spent on various helpdesk activities (replying to tickets, etc).  This adds a Track Time button to Display Ticket and Organizations, and a Time Tracking tab to the Activity page.</description>
 	<author>WebGroup Media, LLC.</author>
 	<revision>0</revision>
 	<link>http://wiki.cerb4.com/wiki/</link>
-	<class>
-		<file>api/Plugin.php</file>
-		<name>ChTimeTrackingPlugin</name>
-	</class>
 	
 	<!-- Exported Classes -->
 	

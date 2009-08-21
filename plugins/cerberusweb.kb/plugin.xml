@@ -1,15 +1,11 @@
 <!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
 <plugin>
 	<id>cerberusweb.kb</id>
-	<name>Cerberus Helpdesk: Knowledgebase</name>
+	<name>[Cerb4] Knowledgebase</name>
 	<description>((Knowledgebase))</description>
 	<author>WebGroup Media, LLC.</author>
 	<revision>0</revision>
 	<link>http://www.cerberusweb.com/</link>
-	<class>
-		<file>api/Plugin.php</file>
-		<name>ChKbPlugin</name>
-	</class>
 	
 	<!-- Exported Classes -->
 	

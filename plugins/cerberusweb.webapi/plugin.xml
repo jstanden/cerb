@@ -1,15 +1,21 @@
 <!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
 <plugin>
 	<id>cerberusweb.webapi</id>
-	<name>Cerberus Helpdesk: Web Services API</name>
+	<name>[Cerb4] Web Services API</name>
 	<description>A RESTful XML/JSON interface for integrating Cerberus Helpdesk with other applications and tools.</description>
 	<author>WebGroup Media, LLC.</author>
 	<revision>0</revision>
 	<link>http://wiki.cerb4.com/wiki/Web-API</link>
-	<class>
-		<file>api/Plugin.php</file>
-		<name>ChRestPlugin</name>
-	</class>
+
+	<!-- Exported Classes -->
+	
+	<class_loader>
+		<file path="api/Plugin.php">
+			<class name="ChRestPlugin" />
+		</file>
+	</class_loader>
+
+	<!-- Extensions -->
 	
 	<extensions>
 		<!-- Translations -->

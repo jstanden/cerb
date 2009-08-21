@@ -1,7 +1,4 @@
 <?php
-class ChSpamAnalysisPlugin extends DevblocksPlugin {
-};
-
 class ChSpamAnalysisTranslations extends DevblocksTranslationsExtension {
 	function __construct($manifest) {
 		parent::__construct($manifest);	

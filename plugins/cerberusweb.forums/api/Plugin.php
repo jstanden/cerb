@@ -1,5 +1,5 @@
 <?php
-class ChForumsPlugin extends DevblocksPlugin {
+class ChForumsPlugin {
 	const ID = 'cerberusweb.forums';
 	const SETTING_POSTER_WORKERS = 'forums.forum_workers';
 };

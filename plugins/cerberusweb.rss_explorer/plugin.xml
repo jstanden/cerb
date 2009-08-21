@@ -1,15 +1,11 @@
 <!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
 <plugin>
 	<id>cerberusweb.rss_explorer</id>
-	<name>Cerberus Helpdesk: RSS Explorer (Experimental)</name>
+	<name>[Cerb4] RSS Explorer (Experimental)</name>
 	<description>Distribute RSS feeds between workers, assign items, link tasks</description>
 	<author>WebGroup Media, LLC.</author>
 	<revision>0</revision>
 	<link>http://www.cerberusweb.com/</link>
-	<class>
-		<file>api/Plugin.php</file>
-		<name>RssExpPlugin</name>
-	</class>
 	
 	<!-- Exported Classes -->
 	

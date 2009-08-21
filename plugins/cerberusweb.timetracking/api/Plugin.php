@@ -1,7 +1,4 @@
 <?php
-class ChTimeTrackingPlugin extends DevblocksPlugin {
-};
-
 if (class_exists('DevblocksTranslationsExtension',true)):
 	class ChTimeTrackingTranslations extends DevblocksTranslationsExtension {
 		function __construct($manifest) {

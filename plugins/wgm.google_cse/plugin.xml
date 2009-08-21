@@ -1,15 +1,11 @@
 <!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
 <plugin>
 	<id>wgm.google_cse</id>
-	<name>Google Custom Search Engines</name>
+	<name>[Extras] Google Custom Search Engines</name>
 	<description>This plugin adds support for Google Custom Search (your own search engines) on the Research page and in the ticket reply toolbar.</description>
 	<author>WebGroup Media, LLC.</author>
 	<revision>0</revision>
 	<link>http://www.cerberusweb.com/</link>
-	<class>
-		<file>api/Plugin.php</file>
-		<name>WgmGoogleCSEPlugin</name>
-	</class>
 	
 	<!-- Exported Classes -->
 	

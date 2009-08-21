@@ -1,7 +1,4 @@
 <?php
-class ChTranslatorsPlugin extends DevblocksPlugin {
-};
-
 if (class_exists('DevblocksTranslationsExtension',true)):
 	class ChTranslateTranslations extends DevblocksTranslationsExtension {
 		function __construct($manifest) {

@@ -1,8 +1,4 @@
 <?php
-class ChSimulatorPlugin extends DevblocksPlugin {
-	
-};
-
 if (class_exists('DevblocksTranslationsExtension',true)):
 	class ChSimulatorTranslations extends DevblocksTranslationsExtension {
 		function __construct($manifest) {

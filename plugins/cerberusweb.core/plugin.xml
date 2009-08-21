@@ -1,15 +1,11 @@
 <!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
 <plugin>
 	<id>cerberusweb.core</id>
-	<name>Cerberus Helpdesk</name>
+	<name>[Cerb4] Core</name>
 	<description>The core functionality of Cerberus Helpdesk.</description>
 	<author>WebGroup Media, LLC.</author>
 	<revision>0</revision>
 	<link>http://wiki.cerb4.com/wiki/New_Changes</link>
-	<class>
-		<file>api/plugin.classes.php</file>
-		<name>ChCorePlugin</name>
-	</class>
 	
 	<!-- Plugin Dependencies -->
 	

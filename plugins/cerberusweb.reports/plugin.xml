@@ -1,15 +1,11 @@
 <!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
 <plugin>
 	<id>cerberusweb.reports</id>
-	<name>Cerberus Helpdesk: Reports</name>
+	<name>[Cerb4] Reports</name>
 	<description>Pluggable reporting area with default reports on various metrics.  This adds a Reports menu and several plugin hooks for creating new reports.</description>
 	<author>WebGroup Media, LLC.</author>
 	<revision>0</revision>
 	<link>http://wiki.cerb4.com/wiki/New_Changes#Interactive_Reports</link>
-	<class>
-		<file>api/Plugin.php</file>
-		<name>ChReportsPlugin</name>
-	</class>
 
 	<!-- Exported Classes -->
 	

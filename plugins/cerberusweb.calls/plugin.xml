@@ -1,15 +1,11 @@
 <!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
 <plugin>
 	<id>cerberusweb.calls</id>
-	<name>Cerberus Helpdesk: Call Logging (Experimental)</name>
+	<name>[Cerb4] Call Logging (Experimental)</name>
 	<description>Track phone calls in the helpdesk</description>
 	<author>WebGroup Media, LLC.</author>
 	<revision>0</revision>
 	<link>http://www.cerberusweb.com/</link>
-	<class>
-		<file>api/Plugin.php</file>
-		<name>CallsPlugin</name>
-	</class>
 	
 	<!-- Exported Classes -->
 	

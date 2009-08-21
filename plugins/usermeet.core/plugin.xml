@@ -1,15 +1,11 @@
 <!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
 <plugin>
 	<id>usermeet.core</id>
-	<name>Cerberus Helpdesk: Community Portals</name>
-	<description>Community-focused tools and portals for your websites.</description>
+	<name>[Cerb4] Usermeet Communities</name>
+	<description>Community-focused websites; the customer-facing interfaces of Cerb4.</description>
 	<author>WebGroup Media, LLC.</author>
 	<revision>0</revision>
 	<link>http://wiki.cerb4.com/wiki/New_Changes#Community_Tools</link>
-	<class>
-		<file>api/Plugin.php</file>
-		<name>UmCorePlugin</name>
-	</class>
 	
 	<!-- Exported Classes -->
 	

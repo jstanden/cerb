@@ -1,5 +1,5 @@
 <?php
-class ChRestPlugin extends DevblocksPlugin {
+class ChRestPlugin {
 	const PLUGIN_ID = 'cerberusweb.controller.rest';
 };
 

@@ -48,8 +48,6 @@
  * 		and Joe Geck.
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-class ChMobilePlugin extends DevblocksPlugin {
-};
 
 class MobileController extends DevblocksControllerExtension {
     const ID = 'cerberusweb.controller.mobile';
