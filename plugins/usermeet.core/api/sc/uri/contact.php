@@ -247,6 +247,11 @@ class UmScContactController extends Extension_UmScController {
 			if(!empty($hash) && is_array($dispatch))
 			foreach($dispatch as $k => $v) {
 				if($hash==md5($k)) {
+					// If we were editing something we sorted, swap keys
+					if(!empty($sEditReason) && md5($k)==$sEditReason) {
+						unset($dispatch[$k]);
+						$k = $sReason;
+					}
 					$sorted[$k] = $v;
 					break;
 				}
@@ -255,24 +260,21 @@ class UmScContactController extends Extension_UmScController {
 		
 		$dispatch = $sorted;
 
-        // Nuke a record we're replacing or any checked boxes
-		// will be MD5
+        // Nuke any checked boxes
         if(is_array($dispatch))
         foreach($dispatch as $d_reason => $d_params) {
-        	if(!empty($sEditReason) && md5($d_reason)==$sEditReason) {
-        		unset($dispatch[$d_reason]);
-        	} elseif(!empty($arDeleteSituations) && false !== array_search(md5($d_reason),$arDeleteSituations)) {
+        	if(!empty($arDeleteSituations) && false !== array_search(md5($d_reason), $arDeleteSituations)) {
         		unset($dispatch[$d_reason]);
         	}
         }
-        
+		
        	// If we have new data, add it
-        if(!empty($sReason) && !empty($sTo) && false === array_search(md5($sReason),$arDeleteSituations)) {
+        if(!empty($sReason) && !empty($sTo) && false === array_search(md5($sReason), $arDeleteSituations)) {
 			$dispatch[$sReason] = array(
 				'to' => $sTo,
 				'followups' => array()
 			);
-			
+					
 			$followups =& $dispatch[$sReason]['followups'];
 			
 			if(!empty($aFollowup))
