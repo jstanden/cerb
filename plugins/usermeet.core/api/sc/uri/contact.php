@@ -3,6 +3,7 @@ class UmScContactController extends Extension_UmScController {
 	const PARAM_REQUIRE_LOGIN = 'contact.require_login';
 	const PARAM_CAPTCHA_ENABLED = 'contact.captcha_enabled';
 	const PARAM_ALLOW_SUBJECTS = 'contact.allow_subjects';
+	const PARAM_ATTACHMENTS_MODE = 'contact.attachments_mode';
 	const PARAM_SITUATIONS = 'contact.situations';
 	
 	function isVisible() {
@@ -33,6 +34,9 @@ class UmScContactController extends Extension_UmScController {
 
         $allow_subjects = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), self::PARAM_ALLOW_SUBJECTS, 0);
 		$tpl->assign('allow_subjects', $allow_subjects);
+
+        $attachments_mode = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), self::PARAM_ATTACHMENTS_MODE, 0);
+		$tpl->assign('attachments_mode', $attachments_mode);
 		
     	$settings = CerberusSettings::getInstance();
 		$default_from = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM);
@@ -163,6 +167,9 @@ class UmScContactController extends Extension_UmScController {
         $allow_subjects = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), self::PARAM_ALLOW_SUBJECTS, 0);
 		$tpl->assign('allow_subjects', $allow_subjects);
 
+        $attachments_mode = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), self::PARAM_ATTACHMENTS_MODE, 0);
+		$tpl->assign('attachments_mode', $attachments_mode);
+
         $sDispatch = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(),self::PARAM_SITUATIONS, '');
         $dispatch = !empty($sDispatch) ? unserialize($sDispatch) : array();
         $tpl->assign('dispatch', $dispatch);
@@ -193,6 +200,9 @@ class UmScContactController extends Extension_UmScController {
 
         @$iAllowSubjects = DevblocksPlatform::importGPC($_POST['allow_subjects'],'integer',0);
         DAO_CommunityToolProperty::set(UmPortalHelper::getCode(), self::PARAM_ALLOW_SUBJECTS, $iAllowSubjects);
+
+        @$iAttachmentsMode = DevblocksPlatform::importGPC($_POST['attachments_mode'],'integer',0);
+        DAO_CommunityToolProperty::set(UmPortalHelper::getCode(), self::PARAM_ATTACHMENTS_MODE, $iAttachmentsMode);
 
 		// Contact Form
         $settings = CerberusSettings::getInstance();
@@ -355,6 +365,7 @@ class UmScContactController extends Extension_UmScController {
 		}
 		
 		$umsession = UmPortalHelper::getSession();
+		$active_user = $umsession->getProperty('sc_login', null);
 		$fingerprint = UmPortalHelper::getFingerprint();
 
         $settings = CerberusSettings::getInstance();
@@ -446,7 +457,9 @@ class UmScContactController extends Extension_UmScController {
 		$message->body = 'IP: ' . $fingerprint['ip'] . "\r\n\r\n" . $sContent . $fieldContent;
 
 		// Attachments
-		
+        $attachments_mode = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), self::PARAM_ATTACHMENTS_MODE, 0);
+
+		if(0==$attachments_mode || (1==$attachments_mode && !empty($active_user)))
 		if(is_array($_FILES) && !empty($_FILES))
 		foreach($_FILES as $name => $files) {
 			// field[]

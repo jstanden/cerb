@@ -2,6 +2,13 @@
 <label><input type="checkbox" name="allow_subjects" value="1" {if $allow_subjects}checked="checked"{/if}> {$translate->_('portal.sc.cfg.open_ticket.allow_custom_subjects')}</label><br>
 <br>
 
+<b>{$translate->_('portal.sc.cfg.open_ticket.attachments')}</b><br>
+<label><input type="radio" name="attachments_mode" value="0" {if !$attachments_mode}checked="checked"{/if}> {$translate->_('portal.sc.cfg.open_ticket.attachments.anybody')}</label>
+<label><input type="radio" name="attachments_mode" value="1" {if 1==$attachments_mode}checked="checked"{/if}> {$translate->_('portal.sc.cfg.open_ticket.attachments.logged_in')}</label>
+<label><input type="radio" name="attachments_mode" value="2" {if 2==$attachments_mode}checked="checked"{/if}> {$translate->_('portal.sc.cfg.open_ticket.attachments.nobody')}</label>
+<br>
+<br>
+
 <b>{$translate->_('portal.cfg.captcha')}</b> {$translate->_('portal.cfg.captcha_hint')}<br>
 <label><input type="radio" name="captcha_enabled" value="1" {if $captcha_enabled}checked="checked"{/if}> {$translate->_('portal.cfg.enabled')}</label>
 <label><input type="radio" name="captcha_enabled" value="0" {if !$captcha_enabled}checked="checked"{/if}> {$translate->_('portal.cfg.disabled')}</label>

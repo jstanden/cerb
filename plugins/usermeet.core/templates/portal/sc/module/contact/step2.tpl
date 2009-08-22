@@ -101,9 +101,11 @@
 		<textarea name="content" rows="15" cols="60" style="width:98%;" class="required">{$last_content|escape}</textarea><br>
 		<br>
 		
+		{if 0==$attachments_mode || (1==$attachments_mode && !empty($active_user))}
 		<div class="header"><h1>Attachments</h1></div>
 		<input type="file" name="attachments[]" class="multi"><br>
 		<br>
+		{/if}
 		
 		{if $captcha_enabled}
 			<div class="header"><h1>{$translate->_('portal.public.captcha_instructions')}</h1></div>

@@ -182,6 +182,18 @@ Brea, CA 92821 USA&lt;br&gt;
 		<tu tuid='portal.sc.cfg.open_ticket.allow_custom_subjects'>
 			<tuv xml:lang="en_US"><seg>Allow users to provide their own ticket subjects.</seg></tuv>
 		</tu>
+		<tu tuid='portal.sc.cfg.open_ticket.attachments'>
+			<tuv xml:lang="en_US"><seg>Allow attachments from:</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.cfg.open_ticket.attachments.anybody'>
+			<tuv xml:lang="en_US"><seg>Anybody</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.cfg.open_ticket.attachments.logged_in'>
+			<tuv xml:lang="en_US"><seg>Logged in visitors</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.cfg.open_ticket.attachments.nobody'>
+			<tuv xml:lang="en_US"><seg>Nobody</seg></tuv>
+		</tu>
 		<tu tuid='portal.sc.cfg.open_ticket.require_login'>
 			<tuv xml:lang="en_US"><seg>Must be logged in to open new tickets.</seg></tuv>
 		</tu>
