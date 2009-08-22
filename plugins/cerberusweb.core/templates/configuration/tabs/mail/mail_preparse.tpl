@@ -28,7 +28,7 @@
 			{/if}
 		</td>
 		<td valign="top" style="{if $filter->is_sticky}background-color:rgb(255,255,221);border:2px solid rgb(255,215,0);{else}{/if}padding:5px;">
-			<a href="javascript:;" onclick="genericAjaxPanel('c=config&a=showPreParserPanel&id={$filter_id}',this,false,'550px');" style="color:rgb(0,120,0);font-weight:bold;">{$filter->name|escape}</a><br>
+			<a href="javascript:;" onclick="genericAjaxPanel('c=config&a=showPreParserPanel&id={$filter_id}',this,false,'550px');" style="color:rgb(0,120,0);font-weight:bold;">{if !empty($filter->name)}{$filter->name|escape}{else}(no name){/if}</a><br>
 			{foreach from=$filter->criteria item=crit key=crit_key}
 				{if $crit_key=='tocc'}
 					To/Cc = <b>{$crit.value}</b><br>
