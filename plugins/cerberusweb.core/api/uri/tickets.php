@@ -162,37 +162,23 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl->assign('group_counts', $group_counts);
 
 		// View
-		$workflowView = C4_AbstractViewLoader::getView('', CerberusApplication::VIEW_MAIL_WORKFLOW);
-		
 		$title = $translate->_('mail.overview.all_groups');
+
+		$defaults = new C4_AbstractViewModel();
+		$defaults->class_name = 'C4_TicketView';
+		$defaults->id = CerberusApplication::VIEW_MAIL_WORKFLOW;
+		$defaults->name = $title;
+		$defaults->view_columns = array(
+			SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
+			SearchFields_Ticket::TICKET_UPDATED_DATE,
+			SearchFields_Ticket::TICKET_TEAM_ID,
+			SearchFields_Ticket::TICKET_CATEGORY_ID,
+		);
+		$defaults->renderLimit = 10;
+		$defaults->renderSortBy = SearchFields_Ticket::TICKET_UPDATED_DATE;
+		$defaults->renderSortAsc = 0;
 		
-		// [JAS]: Recover from a bad cached ID.
-		if(null == $workflowView) {
-			// Defaults
-			$workflowViewDefaults = new C4_AbstractViewModel();
-			$workflowViewDefaults->view_columns = array(
-				SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
-				SearchFields_Ticket::TICKET_UPDATED_DATE,
-				SearchFields_Ticket::TICKET_TEAM_ID,
-				SearchFields_Ticket::TICKET_CATEGORY_ID,
-			);
-			$workflowViewDefaults->renderLimit = 10;
-			$workflowViewDefaults->renderSortBy = SearchFields_Ticket::TICKET_UPDATED_DATE;
-			$workflowViewDefaults->renderSortAsc = 0;
-			
-			$workflowView = new C4_TicketView();
-			$workflowView->id = CerberusApplication::VIEW_MAIL_WORKFLOW;
-			$workflowView->name = $title;
-			$workflowView->dashboard_id = 0;
-			$workflowView->view_columns = $workflowViewDefaults->view_columns;
-			$workflowView->params = array();
-			$workflowView->renderLimit = $workflowViewDefaults->renderLimit;
-			$workflowView->renderPage = 0;
-			$workflowView->renderSortBy = $workflowViewDefaults->renderSortBy;
-			$workflowView->renderSortAsc = $workflowViewDefaults->renderSortAsc;
-			
-			C4_AbstractViewLoader::setView($workflowView->id,$workflowView);
-		}
+		$workflowView = C4_AbstractViewLoader::getView(CerberusApplication::VIEW_MAIL_WORKFLOW, $defaults);
 		
 		$workflowView->renderPage = 0;
 		
@@ -356,53 +342,23 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl->assign('worker_counts', $worker_counts);
 		
 		// All Open
-		$overView = C4_AbstractViewLoader::getView('', CerberusApplication::VIEW_OVERVIEW_ALL);
+		$defaults = new C4_AbstractViewModel();
+		$defaults->class_name = 'C4_TicketView';
+		$defaults->id = CerberusApplication::VIEW_OVERVIEW_ALL;
+		$defaults->name = $translate->_('mail.overview.all_groups');
+		$defaults->view_columns = array(
+			SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
+			SearchFields_Ticket::TICKET_UPDATED_DATE,
+			SearchFields_Ticket::TICKET_TEAM_ID,
+			SearchFields_Ticket::TICKET_CATEGORY_ID,
+			SearchFields_Ticket::TICKET_NEXT_WORKER_ID,
+		);
+		$defaults->renderLimit = 10;
+		$defaults->renderSortBy = SearchFields_Ticket::TICKET_UPDATED_DATE;
+		$defaults->renderSortAsc = 0;
 		
 		$title = $translate->_('mail.overview.all_groups');
-		
-		// [JAS]: Recover from a bad cached ID.
-		if(null == $overView) {
-			// Defaults
-			$overViewDefaults = new C4_AbstractViewModel();
-			$overViewDefaults->view_columns = array(
-				SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
-				SearchFields_Ticket::TICKET_UPDATED_DATE,
-				SearchFields_Ticket::TICKET_TEAM_ID,
-				SearchFields_Ticket::TICKET_CATEGORY_ID,
-				SearchFields_Ticket::TICKET_NEXT_WORKER_ID,
-			);
-			$overViewDefaults->renderLimit = 10;
-			$overViewDefaults->renderSortBy = SearchFields_Ticket::TICKET_UPDATED_DATE;
-			$overViewDefaults->renderSortAsc = 0;
-
-			// If the worker has other default preferences, load them instead
-			if(!DEMO_MODE && null != ($overViewPrefsStr = DAO_WorkerPref::get($active_worker->id, DAO_WorkerPref::SETTING_OVERVIEW, null))) {
-				@$overViewPrefs = unserialize($overViewPrefsStr); /* @var C4_AbstractViewModel $overViewPrefs */
-
-				if($overViewPrefs instanceof C4_AbstractViewModel) {
-					if(!is_null($overViewPrefs->view_columns)) 
-						$overViewDefaults->view_columns = $overViewPrefs->view_columns;
-					if(!is_null($overViewPrefs->renderLimit)) 
-						$overViewDefaults->renderLimit = $overViewPrefs->renderLimit;
-					if(!is_null($overViewPrefs->renderSortBy)) 
-						$overViewDefaults->renderSortBy = $overViewPrefs->renderSortBy;
-					if(!is_null($overViewPrefs->renderSortAsc)) 
-						$overViewDefaults->renderSortAsc = $overViewPrefs->renderSortAsc;
-				}
-			}
-			
-			$overView = new C4_TicketView();
-			$overView->id = CerberusApplication::VIEW_OVERVIEW_ALL;
-			$overView->name = $title;
-			$overView->view_columns = $overViewDefaults->view_columns;
-			$overView->params = array();
-			$overView->renderLimit = $overViewDefaults->renderLimit;
-			$overView->renderPage = 0;
-			$overView->renderSortBy = $overViewDefaults->renderSortBy;
-			$overView->renderSortAsc = $overViewDefaults->renderSortAsc;
-			
-			C4_AbstractViewLoader::setView($overView->id,$overView);
-		}
+		$overView = C4_AbstractViewLoader::getView(CerberusApplication::VIEW_OVERVIEW_ALL, $defaults);
 		
 		$overView->renderPage = 0;
 		
@@ -543,7 +499,7 @@ class ChTicketsPage extends CerberusPageExtension {
 
 		$tpl->assign('response_uri', 'tickets/search');
 		
-		$view = C4_AbstractViewLoader::getView('', CerberusApplication::VIEW_SEARCH);
+		$view = C4_AbstractViewLoader::getView(CerberusApplication::VIEW_SEARCH);
 		
 		if(null == $view) {
 			$view = C4_TicketView::createSearchView();
@@ -681,7 +637,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl->assign('path', $path);
 
 	    $visit = CerberusApplication::getVisit();
-		$view = C4_AbstractViewLoader::getView('',$view_id);
+		$view = C4_AbstractViewLoader::getView($view_id);
 		$tpl->assign('view', $view);
 		
 		if(!empty($last_action) && !is_null($last_action->ticket_ids)) {
@@ -712,7 +668,7 @@ class ChTicketsPage extends CerberusPageExtension {
         $query = trim($query);
         
         $visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
-		$searchView = C4_AbstractViewLoader::getView('',CerberusApplication::VIEW_SEARCH);
+		$searchView = C4_AbstractViewLoader::getView(CerberusApplication::VIEW_SEARCH);
 		
 		if(null == $searchView)
 			$searchView = C4_TicketView::createSearchView();
@@ -839,7 +795,11 @@ class ChTicketsPage extends CerberusPageExtension {
 		$ticket_id = CerberusMail::compose($properties);
 
 		if(!empty($view_id)) {
-			$view = C4_AbstractViewLoader::getView('C4_TicketView', $view_id);
+			$defaults = new C4_AbstractViewModel();
+			$defaults->class_name = 'C4_TicketView';
+			$defaults->id = $view_id;
+			
+			$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 			$view->render();
 		}
 		exit;
@@ -987,7 +947,11 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
 		DAO_CustomFieldValue::handleFormPost(ChCustomFieldSource_Ticket::ID, $id, $field_ids);
 		
-		$view = C4_AbstractViewLoader::getView('C4_TicketView', $view_id);
+		$defaults = new C4_AbstractViewModel();
+		$defaults->class_name = 'C4_TicketView';
+		$defaults->id = $view_id;
+		
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->render();
 		exit;
 	}
@@ -1122,7 +1086,7 @@ class ChTicketsPage extends CerberusPageExtension {
         
         $visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
 
-        $view = C4_AbstractViewLoader::getView('',$view_id);
+        $view = C4_AbstractViewLoader::getView($view_id);
         
         $tpl->assign('view_id', $view_id);
         $tpl->assign('mode', $mode);
@@ -1164,7 +1128,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	    @$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
 
         $visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
-		$view = C4_AbstractViewLoader::getView('',$view_id);
+		$view = C4_AbstractViewLoader::getView($view_id);
 
 		$buckets = DAO_Bucket::getAll();
 		
@@ -1307,7 +1271,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	    @$move_to = DevblocksPlatform::importGPC($_REQUEST['move_to'],'string');
 	    
 	    if(empty($ticket_ids)) {
-		    $view = C4_AbstractViewLoader::getView('',$view_id);
+		    $view = C4_AbstractViewLoader::getView($view_id);
 		    $view->render();
 		    return;
 	    }
@@ -1347,7 +1311,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	        DAO_Ticket::updateTicket($ticket_ids, $fields);
 	    }
 	    
-	    $view = C4_AbstractViewLoader::getView('',$view_id);
+	    $view = C4_AbstractViewLoader::getView($view_id);
 	    $view->render();
 	    return;
 	}
@@ -1384,7 +1348,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	    
         DAO_Ticket::updateTicket($ticket_ids, $fields);
 	    
-	    $view = C4_AbstractViewLoader::getView('',$view_id);
+	    $view = C4_AbstractViewLoader::getView($view_id);
 	    $view->render();
 	    return;
 	}
@@ -1428,7 +1392,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	    
         DAO_Ticket::updateTicket($ticket_ids, $fields);
 	    
-	    $view = C4_AbstractViewLoader::getView('',$view_id);
+	    $view = C4_AbstractViewLoader::getView($view_id);
 	    $view->render();
 	    return;
 	}
@@ -1444,7 +1408,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	    	$oldest_id = DAO_Ticket::merge($ticket_ids);
 	    }
 	    
-	    $view = C4_AbstractViewLoader::getView('',$view_id);
+	    $view = C4_AbstractViewLoader::getView($view_id);
 	    $view->render();
 	    return;
 	}
@@ -1476,7 +1440,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	    
         DAO_Ticket::updateTicket($ticket_ids, $fields);
 	    
-	    $view = C4_AbstractViewLoader::getView('',$view_id);
+	    $view = C4_AbstractViewLoader::getView($view_id);
 	    $view->render();
 	    return;
 	}
@@ -1508,7 +1472,7 @@ class ChTicketsPage extends CerberusPageExtension {
 
         DAO_Ticket::updateTicket($ticket_ids, $fields);
 	    
-	    $view = C4_AbstractViewLoader::getView('',$view_id);
+	    $view = C4_AbstractViewLoader::getView($view_id);
 	    $view->render();
 	    return;
 	}
@@ -1540,7 +1504,7 @@ class ChTicketsPage extends CerberusPageExtension {
 
         DAO_Ticket::updateTicket($ticket_ids, $fields);
 	    
-	    $view = C4_AbstractViewLoader::getView('',$view_id);
+	    $view = C4_AbstractViewLoader::getView($view_id);
 	    $view->render();
 	    return;
 	}
@@ -1584,7 +1548,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	    
         DAO_Ticket::updateTicket($ticket_ids, $fields);
 	    
-	    $view = C4_AbstractViewLoader::getView('',$view_id);
+	    $view = C4_AbstractViewLoader::getView($view_id);
 	    $view->render();
 	    return;
 	}
@@ -1628,7 +1592,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	    
         DAO_Ticket::updateTicket($ticket_ids, $fields);
 	    
-	    $view = C4_AbstractViewLoader::getView('',$view_id);
+	    $view = C4_AbstractViewLoader::getView($view_id);
 	    $view->render();
 	    return;
 	}
@@ -1662,7 +1626,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	    
         DAO_Ticket::updateTicket($ticket_ids, $fields);
 	    
-	    $view = C4_AbstractViewLoader::getView('',$view_id);
+	    $view = C4_AbstractViewLoader::getView($view_id);
 	    $view->render();
 	    return;
 	}
@@ -1674,7 +1638,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	    
 	    if($clear || empty($last_action)) {
             C4_TicketView::setLastAction($view_id,null);
-		    $view = C4_AbstractViewLoader::getView('',$view_id);
+		    $view = C4_AbstractViewLoader::getView($view_id);
 		    $view->render();
 	        return;
 	    }
@@ -1691,7 +1655,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	    $visit = CerberusApplication::getVisit();
 	    $visit->set(CerberusVisit::KEY_VIEW_LAST_ACTION,null);
 	    
-	    $view = C4_AbstractViewLoader::getView('',$view_id);
+	    $view = C4_AbstractViewLoader::getView($view_id);
 	    $view->render();
 	    return;
 	}
@@ -1774,7 +1738,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	    @$subjects = DevblocksPlatform::importGPC($_REQUEST['subjects'],'string','');
 	    
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
-		$view = C4_AbstractViewLoader::getView('',$view_id);
+		$view = C4_AbstractViewLoader::getView($view_id);
 
         $subjects = DevblocksPlatform::parseCrlfString($subjects);
         $senders = DevblocksPlatform::parseCrlfString($senders);
@@ -1853,7 +1817,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
 		@$source = DevblocksPlatform::importGPC($_REQUEST['source'],'string','');
 		
-		$view = C4_AbstractViewLoader::getView('',$view_id);
+		$view = C4_AbstractViewLoader::getView($view_id);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', $this->_TPL_PATH);
@@ -1872,7 +1836,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$title = DevblocksPlatform::importGPC($_POST['title']);
 		$active_worker = CerberusApplication::getActiveWorker();
 
-		$view = C4_AbstractViewLoader::getView('',$view_id);
+		$view = C4_AbstractViewLoader::getView($view_id);
 		
 		$hash = md5($title.$view_id.$active_worker->id.time());
 		
@@ -1907,7 +1871,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	    array_shift($path); // searchview
 	    $id = array_shift($path);
 
-	    $view = C4_AbstractViewLoader::getView('',$id);
+	    $view = C4_AbstractViewLoader::getView($id);
 
 		if(!empty($view->params)) {
 		    $params = array();
@@ -1919,7 +1883,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		    }
 		}
 		
-		if(null == ($search_view = C4_AbstractViewLoader::getView('',CerberusApplication::VIEW_SEARCH))) {
+		if(null == ($search_view = C4_AbstractViewLoader::getView(CerberusApplication::VIEW_SEARCH))) {
 			$search_view = C4_TicketView::createSearchView();
 		}
 		$search_view->params = $params;

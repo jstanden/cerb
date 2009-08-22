@@ -29,7 +29,7 @@ class ChKbResearchTab extends Extension_ResearchTab {
 		
 		switch($action) {
 			case 'search':
-				if(null == ($view = C4_AbstractViewLoader::getView(null, self::VIEW_RESEARCH_KB_SEARCH))) {
+				if(null == ($view = C4_AbstractViewLoader::getView(self::VIEW_RESEARCH_KB_SEARCH))) {
 					$view = new C4_KbArticleView();
 					$view->id = self::VIEW_RESEARCH_KB_SEARCH;
 					$view->name = $translate->_('common.search_results');
@@ -66,7 +66,7 @@ class ChKbResearchTab extends Extension_ResearchTab {
 				
 				$tpl->assign('mid', @intval(ceil(count($tree[$root_id])/2)));
 				
-				if(null == ($view = C4_AbstractViewLoader::getView(null, self::VIEW_RESEARCH_KB_BROWSE))) {
+				if(null == ($view = C4_AbstractViewLoader::getView(self::VIEW_RESEARCH_KB_BROWSE))) {
 					$view = new C4_KbArticleView();
 					$view->id = self::VIEW_RESEARCH_KB_BROWSE;
 				}
@@ -372,7 +372,7 @@ class ChKbAjaxController extends DevblocksControllerExtension {
         $visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
         $translate = DevblocksPlatform::getTranslationService();
 		
-        if(null == ($searchView = C4_AbstractViewLoader::getView('',ChKbResearchTab::VIEW_RESEARCH_KB_SEARCH))) {
+        if(null == ($searchView = C4_AbstractViewLoader::getView(ChKbResearchTab::VIEW_RESEARCH_KB_SEARCH))) {
         	$searchView = new C4_KbArticleView();
         	$searchView->id = ChKbResearchTab::VIEW_RESEARCH_KB_SEARCH;
         	$searchView->name = $translate->_('common.search_results');
@@ -569,7 +569,7 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 	    
 	    // View
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
-		$view = C4_AbstractViewLoader::getView('',$view_id);
+		$view = C4_AbstractViewLoader::getView($view_id);
 		
 		$do = array();
 

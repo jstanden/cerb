@@ -105,16 +105,16 @@ class CallsActivityTab extends Extension_ActivityTab {
 		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
 		$tpl->assign('path', $tpl_path);
 		
-		if(null == ($view = C4_AbstractViewLoader::getView('', self::VIEW_ACTIVITY_CALLS))) {
-			$view = new C4_CallEntryView();
-			$view->id = self::VIEW_ACTIVITY_CALLS;
-			$view->renderSortBy = SearchFields_CallEntry::UPDATED_DATE;
-			$view->renderSortAsc = 0;
-			
-			$view->name = "Calls";
-			
-			C4_AbstractViewLoader::setView($view->id, $view);
-		}
+		$defaults = new C4_AbstractViewModel();
+		$defaults->class_name = 'C4_CallEntryView';
+		$defaults->id = self::VIEW_ACTIVITY_CALLS;
+		$defaults->renderSortBy = SearchFields_CallEntry::UPDATED_DATE;
+		$defaults->renderSortAsc = 0;
+		
+		$view = C4_AbstractViewLoader::getView(self::VIEW_ACTIVITY_CALLS, $defaults);
+		$view->name = "Calls";
+		
+		C4_AbstractViewLoader::setView($view->id, $view);
 
 		$tpl->assign('response_uri', 'activity/calls');
 

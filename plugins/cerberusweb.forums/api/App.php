@@ -103,7 +103,7 @@ class ChForumsActivityTab extends Extension_ActivityTab {
 		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
 		$tpl->assign('path', $tpl_path);
 		
-		if(null == ($view = C4_AbstractViewLoader::getView('', self::VIEW_ACTIVITY_FORUMS))) {
+		if(null == ($view = C4_AbstractViewLoader::getView(self::VIEW_ACTIVITY_FORUMS))) {
 			$view = new C4_ForumsThreadView();
 			$view->id = self::VIEW_ACTIVITY_FORUMS;
 			$view->renderSortBy = SearchFields_ForumsThread::LAST_UPDATED;
@@ -185,7 +185,7 @@ class ChForumsController extends DevblocksControllerExtension {
 				@$start = DevblocksPlatform::importGPC($_REQUEST['start'],'integer', 0);
 				
 				// Load results cache
-				if(null == ($forums_view = C4_AbstractViewLoader::getView('', C4_ForumsThreadView::DEFAULT_ID))) {
+				if(null == ($forums_view = C4_AbstractViewLoader::getView(C4_ForumsThreadView::DEFAULT_ID))) {
 					// Do something
 					$forums_view = new C4_ForumsThreadView();
 				}
@@ -338,7 +338,7 @@ class ChForumsController extends DevblocksControllerExtension {
 		
 		DAO_ForumsThread::update($row_ids, $fields);
 		
-		if(!empty($view_id) && null != ($view = C4_AbstractViewLoader::getView('', $view_id))) {
+		if(!empty($view_id) && null != ($view = C4_AbstractViewLoader::getView($view_id))) {
 			$view->render();
 		}
 	}
@@ -384,7 +384,7 @@ class ChForumsController extends DevblocksControllerExtension {
 			}
 		}
 
-		if(!empty($view_id) && null != ($view = C4_AbstractViewLoader::getView('', $view_id))) {
+		if(!empty($view_id) && null != ($view = C4_AbstractViewLoader::getView($view_id))) {
 			$view->render();
 		}
 	}

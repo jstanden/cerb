@@ -18,7 +18,7 @@ class ChTasksActivityTab extends Extension_ActivityTab {
 		
 		$translate = DevblocksPlatform::getTranslationService();
 		
-		if(null == ($view = C4_AbstractViewLoader::getView('', self::VIEW_ACTIVITY_TASKS))) {
+		if(null == ($view = C4_AbstractViewLoader::getView(self::VIEW_ACTIVITY_TASKS))) {
 			$view = new C4_TaskView();
 			$view->id = self::VIEW_ACTIVITY_TASKS;
 			$view->renderSortBy = SearchFields_Task::DUE_DATE;
@@ -225,7 +225,7 @@ class ChTasksController extends DevblocksControllerExtension {
 			DAO_CustomFieldValue::handleFormPost(ChCustomFieldSource_Task::ID, $id, $field_ids);
 		}
 		
-		if(!empty($view_id) && null != ($view = C4_AbstractViewLoader::getView('', $view_id))) {
+		if(!empty($view_id) && null != ($view = C4_AbstractViewLoader::getView($view_id))) {
 			$view->render();
 		}
 		
@@ -265,7 +265,7 @@ class ChTasksController extends DevblocksControllerExtension {
 	    
 	    // View
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
-		$view = C4_AbstractViewLoader::getView('',$view_id);
+		$view = C4_AbstractViewLoader::getView($view_id);
 		
 		// Task fields
 		$due = trim(DevblocksPlatform::importGPC($_POST['due'],'string',''));

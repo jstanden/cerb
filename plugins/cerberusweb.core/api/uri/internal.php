@@ -37,7 +37,7 @@ class ChInternalController extends DevblocksControllerExtension {
 	// Ajax
 	function viewRefreshAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
-		$view = C4_AbstractViewLoader::getView('', $id);
+		$view = C4_AbstractViewLoader::getView($id);
 		$view->render();
 	}
 	
@@ -45,7 +45,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
 		@$sortBy = DevblocksPlatform::importGPC($_REQUEST['sortBy']);
 		
-		$view = C4_AbstractViewLoader::getView('', $id);
+		$view = C4_AbstractViewLoader::getView($id);
 		$view->doSortBy($sortBy);
 		C4_AbstractViewLoader::setView($id, $view);
 		
@@ -56,7 +56,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
 		@$page = DevblocksPlatform::importGPC(DevblocksPlatform::importGPC($_REQUEST['page']));
 		
-		$view = C4_AbstractViewLoader::getView('', $id);
+		$view = C4_AbstractViewLoader::getView($id);
 		$view->doPage($page);
 		C4_AbstractViewLoader::setView($id, $view);
 		
@@ -67,7 +67,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
 		@$field = DevblocksPlatform::importGPC($_REQUEST['field']);
 		
-		$view = C4_AbstractViewLoader::getView('', $id);
+		$view = C4_AbstractViewLoader::getView($id);
 		$view->renderCriteria($field);
 	}
 	
@@ -79,7 +79,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$oper = DevblocksPlatform::importGPC($_REQUEST['oper']);
 		@$value = DevblocksPlatform::importGPC($_REQUEST['value']);
 		
-		$view = C4_AbstractViewLoader::getView('', $id);
+		$view = C4_AbstractViewLoader::getView($id);
 		$view->doSetCriteria($field, $oper, $value);
 		C4_AbstractViewLoader::setView($id, $view);
 		
@@ -93,7 +93,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$response_uri = DevblocksPlatform::importGPC($_REQUEST['response_uri']);
 		@$field = DevblocksPlatform::importGPC($_REQUEST['field']);
 		
-		$view = C4_AbstractViewLoader::getView('', $id);
+		$view = C4_AbstractViewLoader::getView($id);
 		$view->doRemoveCriteria($field);
 		C4_AbstractViewLoader::setView($id, $view);
 		
@@ -105,7 +105,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
 		@$response_uri = DevblocksPlatform::importGPC($_REQUEST['response_uri']);
 		
-		$view = C4_AbstractViewLoader::getView('', $id);
+		$view = C4_AbstractViewLoader::getView($id);
 		$view->doResetCriteria();
 		C4_AbstractViewLoader::setView($id, $view);
 
@@ -124,7 +124,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		
-		$view = C4_AbstractViewLoader::getView('', $id);
+		$view = C4_AbstractViewLoader::getView($id);
 
 		// [TODO] Nuke criteria
 		if(is_array($field_deletes) && !empty($field_deletes)) {
@@ -155,7 +155,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl->assign('path', $this->_TPL_PATH . '');
 		$tpl->assign('id', $id);
 
-		$view = C4_AbstractViewLoader::getView('', $id);
+		$view = C4_AbstractViewLoader::getView($id);
 		$tpl->assign('view', $view);
 
 		$tpl->assign('optColumns', $view->getColumns());
@@ -174,7 +174,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl_path = $this->_TPL_PATH . '';
 		$tpl->assign('path', $tpl_path);
         
-        $view = C4_AbstractViewLoader::getView('',$view_id);
+        $view = C4_AbstractViewLoader::getView($view_id);
 
 		$workspaces = DAO_WorkerWorkspaceList::getWorkspaces($active_worker->id);
 		$tpl->assign('workspaces', $workspaces);
@@ -191,7 +191,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		$visit = CerberusApplication::getVisit();
 		
 	    @$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
-		$view = C4_AbstractViewLoader::getView('', $view_id);
+		$view = C4_AbstractViewLoader::getView($view_id);
 	    
 		@$list_title = DevblocksPlatform::importGPC($_POST['list_title'],'string', '');
 		@$workspace = DevblocksPlatform::importGPC($_POST['workspace'],'string', '');
@@ -250,7 +250,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl->assign('path', $this->_TPL_PATH . '');
 		$tpl->assign('view_id', $view_id);
 
-		$view = C4_AbstractViewLoader::getView('', $view_id);
+		$view = C4_AbstractViewLoader::getView($view_id);
 		$tpl->assign('view', $view);
 		
 		$model_columns = $view->getColumns();
@@ -274,7 +274,7 @@ class ChInternalController extends DevblocksControllerExtension {
 				unset($columns[$idx]);
 		}
 		
-		$view = C4_AbstractViewLoader::getView('', $view_id);
+		$view = C4_AbstractViewLoader::getView($view_id);
 		$column_manifests = $view->getColumns();
 
 		// Override display
@@ -356,7 +356,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		$num_rows = max($num_rows, 1); // make 1 the minimum
 		
-		$view = C4_AbstractViewLoader::getView('', $id);
+		$view = C4_AbstractViewLoader::getView($id);
 		$view->doCustomize($columns, $num_rows);
 
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -381,15 +381,15 @@ class ChInternalController extends DevblocksControllerExtension {
 				DAO_WorkerWorkspaceList::LIST_VIEW => serialize($list_view)
 			));
 			
-		} elseif($id == CerberusApplication::VIEW_OVERVIEW_ALL) { // overview
-			$overview_prefs = new C4_AbstractViewModel();
-			$overview_prefs->view_columns = $view->view_columns;
-			$overview_prefs->renderLimit = $view->renderLimit;
-			$overview_prefs->renderSortBy = $view->renderSortBy;
-			$overview_prefs->renderSortAsc = $view->renderSortAsc;
-
-			DAO_WorkerPref::set($active_worker->id, DAO_WorkerPref::SETTING_OVERVIEW, serialize($overview_prefs));
+		} else {
+			$prefs = new C4_AbstractViewModel();
+			$prefs->class_name = get_class($view);
+			$prefs->view_columns = $view->view_columns;
+			$prefs->renderLimit = $view->renderLimit;
+			$prefs->renderSortBy = $view->renderSortBy;
+			$prefs->renderSortAsc = $view->renderSortAsc;
 			
+			DAO_WorkerPref::set($active_worker->id, 'view'.$view->id, serialize($prefs));
 		}
 		
 		C4_AbstractViewLoader::setView($id, $view);

@@ -13,7 +13,12 @@ class ChTranslatorsConfigTab extends Extension_ConfigTab {
 
 		$tpl->assign('response_uri', 'config/translations');
 		
-		$view = C4_AbstractViewLoader::getView('C4_TranslationView', C4_TranslationView::DEFAULT_ID);
+		$defaults = new C4_AbstractViewModel();
+		$defaults->class_name = 'C4_TranslationView';
+		$defaults->id = C4_TranslationView::DEFAULT_ID;
+		
+		$view = C4_AbstractViewLoader::getView(C4_TranslationView::DEFAULT_ID, $defaults);
+		
 		$tpl->assign('view', $view);
 		$tpl->assign('view_fields', C4_TranslationView::getFields());
 		$tpl->assign('view_searchable_fields', C4_TranslationView::getSearchFields());
@@ -288,9 +293,13 @@ class ChTranslatorsAjaxController extends DevblocksControllerExtension {
 				}
 			}
 		}
+		
+		$defaults = new C4_AbstractViewModel();
+		$defaults->class_name = 'C4_TranslationView';
+		$defaults->id = C4_TranslationView::DEFAULT_ID;
 			
 		// Clear the existing view
-		$view = C4_AbstractViewLoader::getView('C4_TranslationView', C4_TranslationView::DEFAULT_ID);
+		$view = C4_AbstractViewLoader::getView(C4_TranslationView::DEFAULT_ID, $defaults);
 		$view->doResetCriteria();
 		
 		// Set search to untranslated strings that aren't English
@@ -387,8 +396,12 @@ class ChTranslatorsAjaxController extends DevblocksControllerExtension {
 		
 		// If we added a new language then change the view to display it
 		if(!empty($add_lang_code)) {
+			$defaults = new C4_AbstractViewModel();
+			$defaults->class_name = 'C4_TranslationView';
+			$defaults->id = C4_TranslationView::DEFAULT_ID;
+			
 			// Clear the existing view
-			$view = C4_AbstractViewLoader::getView('C4_TranslationView', C4_TranslationView::DEFAULT_ID);
+			$view = C4_AbstractViewLoader::getView(C4_TranslationView::DEFAULT_ID, $defaults);
 			$view->doResetCriteria();
 			
 			// Set search to untranslated strings that aren't English
@@ -433,7 +446,11 @@ class ChTranslatorsAjaxController extends DevblocksControllerExtension {
 	}
 	
 	function exportTmxAction() {
-		$view = C4_AbstractViewLoader::getView('C4_TranslationView', C4_TranslationView::DEFAULT_ID);
+		$defaults = new C4_AbstractViewModel();
+		$defaults->class_name = 'C4_TranslationView';
+		$defaults->id = C4_TranslationView::DEFAULT_ID;
+		
+		$view = C4_AbstractViewLoader::getView(C4_TranslationView::DEFAULT_ID, $defaults);
 
 		// Extract every result from the view
 		list($results, $null) = DAO_Translation::search(

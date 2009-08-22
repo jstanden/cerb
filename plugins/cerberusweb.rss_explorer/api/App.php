@@ -13,7 +13,7 @@ class RssExpActivityTab extends Extension_ActivityTab {
 		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
 		$tpl->assign('path', $tpl_path);
 		
-		if(null == ($view = C4_AbstractViewLoader::getView('', self::VIEW_ACTIVITY_RSS))) {
+		if(null == ($view = C4_AbstractViewLoader::getView(self::VIEW_ACTIVITY_RSS))) {
 			$view = new C4_RssExpItemView();
 			$view->id = self::VIEW_ACTIVITY_RSS;
 			$view->renderSortBy = SearchFields_RssExpItem::CREATED_DATE;

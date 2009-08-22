@@ -13,13 +13,13 @@ class ChWatchersConfigTab extends Extension_ConfigTab {
 
 		$tpl->assign('response_uri', 'config/watchers');
 		
-		if(null == ($view = C4_AbstractViewLoader::getView('', C4_WatcherView::DEFAULT_ID))) {
-			$view = new C4_WatcherView();
-			$view->renderSortBy = SearchFields_WatcherMailFilter::POS;
-			$view->renderSortAsc = 0;
-			
-			C4_AbstractViewLoader::setView($view->id, $view);
-		}
+		$defaults = new C4_AbstractViewModel();
+		$defaults->class_name = 'C4_WatcherView';
+		$defaults->id = C4_WatcherView::DEFAULT_ID;
+		$defaults->renderSortBy = SearchFields_WatcherMailFilter::POS;
+		$defaults->renderSortAsc = 0;
+		
+		$view = C4_AbstractViewLoader::getView(C4_WatcherView::DEFAULT_ID, $defaults);
 		
 		$tpl->assign('view', $view);
 		$tpl->assign('view_fields', C4_WatcherView::getFields());
@@ -564,7 +564,7 @@ class ChWatchersPreferences extends Extension_PreferenceTab {
 		
 		$tpl->assign('response_uri', 'preferences/watchers');
 		
-		if(null == ($view = C4_AbstractViewLoader::getView('', 'prefs.watchers'))) {
+		if(null == ($view = C4_AbstractViewLoader::getView('prefs.watchers'))) {
 			$view = new C4_WatcherView();
 			$view->id = 'prefs.watchers';
 			$view->name = "My Watcher Filters";
@@ -622,7 +622,7 @@ class ChWatchersPreferences extends Extension_PreferenceTab {
 	    
 	    // View
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
-		$view = C4_AbstractViewLoader::getView('',$view_id);
+		$view = C4_AbstractViewLoader::getView($view_id);
 		
 		// Watcher fields
 		@$status = trim(DevblocksPlatform::importGPC($_POST['do_status'],'string',''));

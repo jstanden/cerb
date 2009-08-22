@@ -106,7 +106,7 @@ class ChFnrResearchTab extends Extension_ResearchTab {
 		
 		switch($action) {
 			default:
-//				if(null == ($view = C4_AbstractViewLoader::getView(null, self::VIEW_RESEARCH_FNR_SEARCH))) {
+//				if(null == ($view = C4_AbstractViewLoader::getView(self::VIEW_RESEARCH_FNR_SEARCH))) {
 //					$view = new C4_KbArticleView();
 //					$view->id = self::VIEW_RESEARCH_FNR_SEARCH;
 //					$view->name = $translate->_('common.search_results');

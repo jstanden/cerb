@@ -5295,8 +5295,6 @@ class DAO_WorkerWorkspaceList extends DevblocksORMHelper {
 };
 
 class DAO_WorkerPref extends DevblocksORMHelper {
-    const SETTING_OVERVIEW = 'worker_overview';
-    
     const CACHE_PREFIX = 'ch_workerpref_';
     
 	static function set($worker_id, $key, $value) {

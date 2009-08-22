@@ -76,7 +76,7 @@ class Model_PreParseRule {
 		$is_new = (isset($message->headers['in-reply-to']) || isset($message->headers['references'])) ? false : true;
 
 		// From address
-		$fromInst = CerberusParser::getAddressFromHeaders($headers);	
+		$fromInst = CerberusParser::getAddressFromHeaders($headers);
 		
 		// Stackable
 		$matches = array();
@@ -1170,22 +1170,43 @@ class C4_AbstractViewLoader {
 	 * @param string $view_label ID
 	 * @return C4_AbstractView instance
 	 */
-	static function getView($class, $view_label) {
+	static function getView($view_label, C4_AbstractViewModel $defaults=null) {
+		$active_worker = CerberusApplication::getActiveWorker();
 		if(is_null(self::$views)) self::_init();
 
-		if(!self::exists($view_label)) {
-			if(empty($class) || !class_exists($class))
-			return null;
-				
-			$view = new $class;
-			self::setView($view_label, $view);
-			return $view;
+		if(self::exists($view_label)) {
+			$model = self::$views[$view_label];
+			return self::unserializeAbstractView($model);
+			
+		} else {
+			// See if the worker has their own saved prefs
+			@$prefs = unserialize(DAO_WorkerPref::get($active_worker->id, 'view'.$view_label));
+
+			// If no worker prefsd, check if we're passed defaults
+			if((empty($prefs) || !$prefs instanceof C4_AbstractViewModel) && !empty($defaults))
+				$prefs = $defaults;
+			
+			// Create a default view if it doesn't exist
+			if(!empty($prefs) && $prefs instanceof C4_AbstractViewModel) {
+				if(!empty($prefs->class_name) || class_exists($prefs->class_name)) {
+					$view = new $prefs->class_name;
+					$view->id = $view_label;
+					if(!empty($prefs->view_columns))
+						$view->view_columns = $prefs->view_columns;
+					if(!empty($prefs->renderLimit))
+						$view->renderLimit = $prefs->renderLimit;
+					if(null !== $prefs->renderSortBy)
+						$view->renderSortBy = $prefs->renderSortBy;
+					if(null !== $prefs->renderSortAsc)
+						$view->renderSortAsc = $prefs->renderSortAsc;
+					self::setView($view_label, $view);
+					return $view;
+				}
+			}
+			
 		}
 
-		$model = self::$views[$view_label];
-		$view = self::unserializeAbstractView($model);
-
-		return $view;
+		return null;
 	}
 
 	/**

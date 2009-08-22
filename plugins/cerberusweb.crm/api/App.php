@@ -86,17 +86,15 @@ class CrmOppsActivityTab extends Extension_ActivityTab {
 		}
 			
 		// Index
-		if(null == ($view = C4_AbstractViewLoader::getView('', self::VIEW_ACTIVITY_OPPS))) {
-			$view = new C4_CrmOpportunityView();
-			$view->id = self::VIEW_ACTIVITY_OPPS;
-			$view->renderSortBy = SearchFields_CrmOpportunity::UPDATED_DATE;
-			$view->renderSortAsc = 0;
-			
-			$view->name = $translate->_('crm.tab.title');
-			
-			C4_AbstractViewLoader::setView($view->id, $view);
-		}
-
+		$defaults = new C4_AbstractViewModel();
+		$defaults->class_name = 'C4_CrmOpportunityView';
+		$defaults->id = self::VIEW_ACTIVITY_OPPS;
+		$defaults->name = $translate->_('crm.tab.title');
+		$defaults->renderSortBy = SearchFields_CrmOpportunity::UPDATED_DATE;
+		$defaults->renderSortAsc = 0;
+		
+		$view = C4_AbstractViewLoader::getView(self::VIEW_ACTIVITY_OPPS, $defaults);
+		
 		$tpl->assign('response_uri', 'activity/opps');
 
 		$quick_search_type = $visit->get('crm.opps.quick_search_type');
@@ -225,7 +223,7 @@ class CrmPage extends CerberusPageExtension {
 		// Display series support (inherited paging from Display)
 		@$view_id = array_shift($stack);
 		if(!empty($view_id)) {
-			$view = C4_AbstractViewLoader::getView('',$view_id);
+			$view = C4_AbstractViewLoader::getView($view_id);
 
 			// Restrict to the active worker's groups
 			$active_worker = CerberusApplication::getActiveWorker();
@@ -426,7 +424,7 @@ class CrmPage extends CerberusPageExtension {
 		}
 		
 		// Reload view (if linked)
-		if(!empty($view_id) && null != ($view = C4_AbstractViewLoader::getView('', $view_id))) {
+		if(!empty($view_id) && null != ($view = C4_AbstractViewLoader::getView($view_id))) {
 			$view->render();
 		}
 		
@@ -446,19 +444,22 @@ class CrmPage extends CerberusPageExtension {
 		$opp = DAO_CrmOpportunity::get($opp_id);
 		$tpl->assign('opp', $opp);
 		
-		$view = C4_AbstractViewLoader::getView('C4_TaskView', 'opp_tasks');
-		$view->id = 'opp_tasks';
-		$view->name = 'Opportunity Tasks';
-		$view->view_columns = array(
+		$defaults = new C4_AbstractViewModel();
+		$defaults->class_name = 'C4_TaskView';
+		$defaults->id = 'opp_tasks';
+		$defaults->view_columns = array(
 			SearchFields_Task::SOURCE_EXTENSION,
 			SearchFields_Task::DUE_DATE,
 			SearchFields_Task::WORKER_ID,
 			SearchFields_Task::COMPLETED_DATE,
 		);
-		$view->params = array(
+		$defaults->params = array(
 			new DevblocksSearchCriteria(SearchFields_Task::SOURCE_EXTENSION,'=','cerberusweb.tasks.opp'),
 			new DevblocksSearchCriteria(SearchFields_Task::SOURCE_ID,'=',$opp_id),
 		);
+		
+		$view = C4_AbstractViewLoader::getView('opp_tasks', $defaults);
+		$view->name = 'Opportunity Tasks';
 		$tpl->assign('view', $view);
 		
 		C4_AbstractViewLoader::setView($view->id, $view);
@@ -503,17 +504,20 @@ class CrmPage extends CerberusPageExtension {
 		}
 		
 		// View
-		$view = C4_AbstractViewLoader::getView('C4_TicketView', 'opp_tickets');
-		$view->id = 'opp_tickets';
-		$view->name = '';
-		$view->renderPage = 0;
-		$view->view_columns = array(
+		$defaults = new C4_AbstractViewModel();
+		$defaults->class_name = 'C4_TicketView';
+		$defaults->id = 'opp_tickets';
+		$defaults->name = '';
+		$defaults->renderPage = 0;
+		$defaults->view_columns = array(
 			SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
 			SearchFields_Ticket::TICKET_UPDATED_DATE,
 			SearchFields_Ticket::TICKET_TEAM_ID,
 			SearchFields_Ticket::TICKET_CATEGORY_ID,
 			SearchFields_Ticket::TICKET_NEXT_WORKER_ID,
 		);
+		
+		$view = C4_AbstractViewLoader::getView('opp_tickets', $defaults);
 
 		// Sanitize scope options
 		if('org'==$scope && empty($contact_org))
@@ -769,7 +773,7 @@ class CrmPage extends CerberusPageExtension {
 	    
 	    // View
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
-		$view = C4_AbstractViewLoader::getView('',$view_id);
+		$view = C4_AbstractViewLoader::getView($view_id);
 		
 		// Opp fields
 		@$status = trim(DevblocksPlatform::importGPC($_POST['status'],'string',''));
@@ -806,7 +810,7 @@ class CrmPage extends CerberusPageExtension {
         $visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
         $translate = DevblocksPlatform::getTranslationService();
 		
-        if(null == ($searchView = C4_AbstractViewLoader::getView('',CrmOppsActivityTab::VIEW_ACTIVITY_OPPS))) {
+        if(null == ($searchView = C4_AbstractViewLoader::getView(CrmOppsActivityTab::VIEW_ACTIVITY_OPPS))) {
         	$searchView = new C4_CrmOpportunityView();
         	$searchView->id = CrmOppsActivityTab::VIEW_ACTIVITY_OPPS;
         	$searchView->name = $translate->_('common.search_results');
@@ -1748,10 +1752,18 @@ class CrmOrgOppTab extends Extension_OrgTab {
 		$org = DAO_ContactOrg::get($org_id);
 		$tpl->assign('org_id', $org_id);
 		
-		if(null == ($view = C4_AbstractViewLoader::getView('', 'org_opps'))) {
-			$view = new C4_CrmOpportunityView();
-			$view->id = 'org_opps';
-		}
+		$defaults = new C4_AbstractViewModel();
+		$defaults->class_name = 'C4_CrmOpportunityView';
+		$defaults->id = 'org_opps';
+		$defaults->view_columns = array(
+			SearchFields_CrmOpportunity::EMAIL_ADDRESS,
+			SearchFields_CrmOpportunity::ORG_NAME,
+			SearchFields_CrmOpportunity::AMOUNT,
+			SearchFields_CrmOpportunity::UPDATED_DATE,
+			SearchFields_CrmOpportunity::WORKER_ID,
+		);
+		
+		$view = C4_AbstractViewLoader::getView('org_opps', $defaults);
 		
 		$view->name = "Org: " . $org->name;
 		$view->params = array(
@@ -1784,7 +1796,7 @@ class CrmTicketOppTab extends Extension_TicketTab {
 		$address = DAO_Address::get($ticket->first_wrote_address_id);
 		$tpl->assign('address', $address);
 		
-		if(null == ($view = C4_AbstractViewLoader::getView('', 'ticket_opps'))) {
+		if(null == ($view = C4_AbstractViewLoader::getView('ticket_opps'))) {
 			$view = new C4_CrmOpportunityView();
 			$view->id = 'ticket_opps';
 		}

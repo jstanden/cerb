@@ -25,16 +25,19 @@ class ChFeedbackActivityTab extends Extension_ActivityTab {
 		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
 		$tpl->assign('path', $tpl_path);
 		
-		if(null == ($view = C4_AbstractViewLoader::getView('', self::VIEW_ACTIVITY_FEEDBACK))) {
-			$view = new C4_FeedbackEntryView();
-			$view->id = self::VIEW_ACTIVITY_FEEDBACK;
-			$view->renderSortBy = SearchFields_FeedbackEntry::LOG_DATE;
-			$view->renderSortAsc = 0;
-			
-			$view->name = $translate->_('feedback.activity.tab');
-			
-			C4_AbstractViewLoader::setView($view->id, $view);
-		}
+		$defaults = new C4_AbstractViewModel();
+		$defaults->class_name = 'C4_FeedbackEntryView';
+		$defaults->id = self::VIEW_ACTIVITY_FEEDBACK;
+		$defaults->name = $translate->_('feedback.activity.tab');
+		$defaults->view_columns = array(
+			SearchFields_FeedbackEntry::LOG_DATE,
+			SearchFields_FeedbackEntry::ADDRESS_EMAIL,
+			SearchFields_FeedbackEntry::SOURCE_URL,
+		);
+		$defaults->renderSortBy = SearchFields_FeedbackEntry::LOG_DATE;
+		$defaults->renderSortAsc = 0;
+		
+		$view = C4_AbstractViewLoader::getView(self::VIEW_ACTIVITY_FEEDBACK, $defaults);
 
 		$tpl->assign('response_uri', 'activity/feedback');
 		
@@ -813,7 +816,7 @@ class ChFeedbackController extends DevblocksControllerExtension {
 	    
 	    // View
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
-		$view = C4_AbstractViewLoader::getView('',$view_id);
+		$view = C4_AbstractViewLoader::getView($view_id);
 		
 		// Feedback fields
 //		@$list_id = trim(DevblocksPlatform::importGPC($_POST['list_id'],'integer',0));

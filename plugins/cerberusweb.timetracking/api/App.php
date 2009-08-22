@@ -1215,7 +1215,7 @@ class ChTimeTrackingAjaxController extends DevblocksControllerExtension {
 	    
 	    // View
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
-		$view = C4_AbstractViewLoader::getView('',$view_id);
+		$view = C4_AbstractViewLoader::getView($view_id);
 		
 		// Time Tracking fields
 //		@$list_id = trim(DevblocksPlatform::importGPC($_POST['list_id'],'integer',0));
@@ -1251,7 +1251,7 @@ class TimeTrackingActivityTab extends Extension_ActivityTab {
 		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
 		$tpl->assign('path', $tpl_path);
 		
-		if(null == ($view = C4_AbstractViewLoader::getView('', self::VIEW_ACTIVITY_TIMETRACKING))) {
+		if(null == ($view = C4_AbstractViewLoader::getView(self::VIEW_ACTIVITY_TIMETRACKING))) {
 			$view = new C4_TimeTrackingEntryView();
 			$view->id = self::VIEW_ACTIVITY_TIMETRACKING;
 			$view->renderSortBy = SearchFields_TimeTrackingEntry::LOG_DATE;

@@ -94,26 +94,23 @@ class ChAuditLogTicketTab extends Extension_TicketTab {
 		$tpl->assign('path', $this->tpl_path);
 		$tpl->cache_lifetime = "0";
 		
-		$view = C4_AbstractViewLoader::getView('','audit_log');
+		$defaults = new C4_AbstractViewModel();
+		$defaults->class_name = 'C4_TicketAuditLogView';
+		$defaults->id = 'audit_log';
+		$defaults->view_columns = array(
+			SearchFields_TicketAuditLog::CHANGE_DATE,
+			SearchFields_TicketAuditLog::WORKER_ID,
+			SearchFields_TicketAuditLog::CHANGE_FIELD,
+			SearchFields_TicketAuditLog::CHANGE_VALUE,
+		);
+		$defaults->params = array();
+		$defaults->renderLimit = 15;
+		$defaults->renderPage = 0;
+		$defaults->renderSortBy = SearchFields_TicketAuditLog::CHANGE_DATE;
+		$defaults->renderSortAsc = false;
 		
-		if(null == $view) {
-			$view = new C4_TicketAuditLogView();
-			$view->id = 'audit_log';
-			$view->name = $translate->_('auditlog.audit_log');
-			$view->view_columns = array(
-				SearchFields_TicketAuditLog::CHANGE_DATE,
-				SearchFields_TicketAuditLog::WORKER_ID,
-				SearchFields_TicketAuditLog::CHANGE_FIELD,
-				SearchFields_TicketAuditLog::CHANGE_VALUE,
-			);
-			$view->params = array(
-			);
-			$view->renderLimit = 15;
-			$view->renderPage = 0;
-			$view->renderSortBy = SearchFields_TicketAuditLog::CHANGE_DATE;
-			$view->renderSortAsc = false;
-		}
-
+		$view = C4_AbstractViewLoader::getView('audit_log', $defaults);
+		
 		$view->params = array(
 			SearchFields_TicketAuditLog::TICKET_ID => new DevblocksSearchCriteria(SearchFields_TicketAuditLog::TICKET_ID,DevblocksSearchCriteria::OPER_EQ,$ticket_id)
 		);
