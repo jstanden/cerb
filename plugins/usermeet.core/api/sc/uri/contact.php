@@ -497,7 +497,9 @@ class UmScContactController extends Extension_UmScController {
 						break;
 					
 					case Model_CustomField::TYPE_NUMBER:
-						@$value = intval($aFollowUpA[$iIdx]);
+						@$value = $aFollowUpA[$iIdx];
+						if(!is_numeric($value) || 0 == strlen($value))
+							$value = null;
 						break;
 						
 					case Model_CustomField::TYPE_DATE:
