@@ -430,35 +430,26 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		            break;
 		    }
 		}
+
+	    // [JAS]: [TODO] convert to field constants
+		$fields = array(
+		    'enabled' => $enabled,
+			'nickname' => $nickname,
+			'protocol' => $protocol,
+			'host' => $host,
+			'username' => $username,
+			'password' => $password,
+			'port' => $port
+		);
 		
 		if(!empty($id) && !empty($delete)) {
 			DAO_Mail::deletePop3Account($id);
 			
 		} elseif(!empty($id)) {
-		    // [JAS]: [TODO] convert to field constants
-			$fields = array(
-			    'enabled' => $enabled,
-				'nickname' => $nickname,
-				'protocol' => $protocol,
-				'host' => $host,
-				'username' => $username,
-				'password' => $password,
-				'port' => $port
-			);
 			DAO_Mail::updatePop3Account($id, $fields);
 			
 		} else {
             if(!empty($host) && !empty($username)) {
-			    // [JAS]: [TODO] convert to field constants
-                $fields = array(
-				    'enabled' => 1,
-					'nickname' => $nickname,
-					'protocol' => $protocol,
-					'host' => $host,
-					'username' => $username,
-					'password' => $password,
-					'port' => $port
-				);
 			    $id = DAO_Mail::createPop3Account($fields);
             }
 		}

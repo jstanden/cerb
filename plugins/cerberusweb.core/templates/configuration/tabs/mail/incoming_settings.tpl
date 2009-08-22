@@ -18,7 +18,7 @@
 						<div style="margin:0px;padding:3px;width:200px;overflow:auto;">
 						{if !empty($pop3_accounts)}
 							{foreach from=$pop3_accounts item=pop3}
-								&#187;  <a href="javascript:;" onclick="genericAjaxGet('configMailbox','c=config&a=getMailbox&id={$pop3->id}');">{$pop3->nickname}</a><br>
+								&#187;  <a href="javascript:;" onclick="genericAjaxGet('configMailbox','c=config&a=getMailbox&id={$pop3->id}');" style="{if !$pop3->enabled}font-style:italic;color:rgb(150,0,0);{/if}">{$pop3->nickname}</a><br>
 							{/foreach}
 						{/if}
 						</div>

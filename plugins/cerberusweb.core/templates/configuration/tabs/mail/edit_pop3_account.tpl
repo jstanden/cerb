@@ -14,12 +14,10 @@
 			{/if}
 		</td>
 	</tr>
-	{if !empty($pop3_account->id)}
 	<tr>
 		<td width="0%" nowrap="nowrap"><b>Enabled:</b></td>
-		<td width="100%"><input type="checkbox" name="pop3_enabled" value="1" {if $pop3_account->enabled}checked{/if}></td>
+		<td width="100%"><input type="checkbox" name="pop3_enabled" value="1" {if $pop3_account->enabled || empty($pop3_account)}checked{/if}></td>
 	</tr>
-	{/if}
 	<tr>
 		<td width="0%" nowrap="nowrap"><b>Nickname:</b></td>
 		<td width="100%"><input type="text" name="nickname" value="{$pop3_account->nickname|escape:"html"}" size="45"></td>
