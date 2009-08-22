@@ -219,6 +219,9 @@
 		<tu tuid='common.no'>
 			<tuv xml:lang="en_US"><seg>no</seg></tuv>
 		</tu>
+		<tu tuid='common.no_title'>
+			<tuv xml:lang="en_US"><seg>(no title)</seg></tuv>
+		</tu>
 		<tu tuid='common.nobody'>
 			<tuv xml:lang="en_US"><seg>nobody</seg></tuv>
 		</tu>
