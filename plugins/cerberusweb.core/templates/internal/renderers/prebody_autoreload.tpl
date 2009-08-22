@@ -1,7 +1,7 @@
-<div id="divAutoRefresh" style="display:{if isset($session.autorefresh)}block{else}none{/if};position:fixed;width:150px;height:80px;top:20;right:20;background-color:rgb(50,50,50);color:rgb(255,255,255);opacity:.9;filter:alpha(opacity=90);z-index:2;vertical-align:middle;text-align:center;padding:5px;">
-	Auto-Refresh<br>
-	<div style="font-size:18pt;font-weight:bold;"><span id="divAutoRefreshCounter">--</span></div>
+<div id="divAutoRefresh" style="display:{if isset($session.autorefresh)}block{else}none{/if};position:fixed;width:300px;height:30px;top:45;right:320;background-color:rgb(50,50,50);color:rgb(255,255,255);opacity:.9;filter:alpha(opacity=90);z-index:2;vertical-align:middle;text-align:center;padding:5px;">
 	<form action="" method="POST">
+	Auto-Refresh: 
+	<span style="font-size:18pt;font-weight:bold;"><span id="divAutoRefreshCounter">--</span></span>
 	<button id="btnAutoRefreshPlay" type="button" onclick="autoRefreshTimer.play();" style="display:none;"><img src="{devblocks_url}c=resource&p=cerberusweb.timetracking&f=images/16x16/media_play_green.png{/devblocks_url}"></button>
 	<button id="btnAutoRefreshPause" type="button" onclick="autoRefreshTimer.pause();" style="display:none;"><img src="{devblocks_url}c=resource&p=cerberusweb.timetracking&f=images/16x16/media_pause.png{/devblocks_url}"></button>
 	<button id="btnAutoRefreshStop" type="button" onclick="autoRefreshTimer.stop();" style="display:none;"><img src="{devblocks_url}c=resource&p=cerberusweb.timetracking&f=images/16x16/media_stop_red.png{/devblocks_url}"></button>
