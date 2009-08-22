@@ -155,10 +155,10 @@
 	<tr>
 		{assign var=act_move value=$rule->actions.move}
 		<td valign="top">
-			<label><input type="checkbox" name="do[]" value="move" {if isset($act_move)}checked="checked"{/if}> Move to Inbox:</label>
+			<label><input id="chkDoMove" type="checkbox" name="do[]" value="move" {if isset($act_move)}checked="checked"{/if}> Move to Inbox:</label>
 		</td>
 		<td valign="top">
-			<select name="do_move">
+			<select name="do_move" onchange="document.getElementById('chkDoMove').checked=((''==selectValue(this))?false:true);">
 				<option value="">&nbsp;</option>
 	      		{foreach from=$groups item=tm}
 	      			{assign var=k value='t'|cat:$tm->id}

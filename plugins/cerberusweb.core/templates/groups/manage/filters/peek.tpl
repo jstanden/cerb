@@ -173,10 +173,10 @@
 	<tr>
 		{assign var=act_move value=$filter->actions.move}
 		<td>
-			<label><input type="checkbox" name="do[]" value="move" {if isset($act_move)}checked="checked"{/if}> Move to:</label>
+			<label><input id="chkDoMove" type="checkbox" name="do[]" value="move" {if isset($act_move)}checked="checked"{/if}> Move to:</label>
 		</td>
 		<td>
-			<select name="do_move">
+			<select name="do_move" onchange="document.getElementById('chkDoMove').checked=((''==selectValue(this))?false:true);">
 				<option value="">&nbsp;</option>
 	      		<optgroup label="Move to Group">
 	      		{foreach from=$groups item=tm}
@@ -199,10 +199,10 @@
 	<tr>
 		{assign var=act_status value=$filter->actions.status}
 		<td>
-			<label><input type="checkbox" name="do[]" value="status" {if isset($act_status)}checked="checked"{/if}> Status:</label>
+			<label><input id="chkDoStatus" type="checkbox" name="do[]" value="status" {if isset($act_status)}checked="checked"{/if}> Status:</label>
 		</td>
 		<td>
-			<select name="do_status">
+			<select name="do_status" onchange="document.getElementById('chkDoStatus').checked=((''==selectValue(this))?false:true);">
 				<option value="">&nbsp;</option>
 				<option value="0" {if isset($act_status) && !$act_status.is_closed && !$act_status.is_deleted}selected="selected"{/if}>{$translate->_('status.open')|capitalize}</option>
 				<option value="3" {if isset($act_status) && !$act_status.is_closed && !$act_status.is_deleted && $act_status.is_waiting}selected="selected"{/if}>Waiting</option>
@@ -218,10 +218,10 @@
 	<tr>
 		{assign var=act_spam value=$filter->actions.spam}
 		<td>
-			<label><input type="checkbox" name="do[]" value="spam" {if isset($act_spam)}checked="checked"{/if}> Spam:</label>
+			<label><input id="chkDoSpam" type="checkbox" name="do[]" value="spam" {if isset($act_spam)}checked="checked"{/if}> Spam:</label>
 		</td>
 		<td>
-			<select name="do_spam">
+			<select name="do_spam" onchange="document.getElementById('chkDoSpam').checked=((''==selectValue(this))?false:true);">
 				<option value="">&nbsp;</option>
 				<option value="1" {if isset($act_spam) && $act_spam.is_spam}selected="selected"{/if}>{$translate->_('training.report_spam')|capitalize}</option>
 				<option value="0" {if isset($act_spam) && !$act_spam.is_spam}selected="selected"{/if}>{$translate->_('training.not_spam')|capitalize}</option>
@@ -231,10 +231,10 @@
 	<tr>
 		{assign var=act_assign value=$filter->actions.assign}
 		<td>
-			<label><input type="checkbox" name="do[]" value="assign" {if isset($act_assign)}checked="checked"{/if}> Assign:</label>
+			<label><input id="chkDoAssign" type="checkbox" name="do[]" value="assign" {if isset($act_assign)}checked="checked"{/if}> Assign:</label>
 		</td>
 		<td>
-			<select name="do_assign">
+			<select name="do_assign" onchange="document.getElementById('chkDoAssign').checked=((''==selectValue(this))?false:true);">
 				<option value="">&nbsp;</option>
 				{foreach from=$workers item=worker key=worker_id name=workers}
 					{if $worker_id==$active_worker->id}{math assign=next_worker_id_sel equation="x" x=$smarty.foreach.workers.iteration}{/if}
