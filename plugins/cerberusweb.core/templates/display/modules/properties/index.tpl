@@ -3,9 +3,9 @@
 <input type="hidden" name="a" value="saveProperties">
 <input type="hidden" name="ticket_id" value="{$ticket->id}">
 
-<h2>Properties</h2>
+<h2>{'display.tab.properties'|devblocks_translate}</h2>
 <blockquote style="margin:10px;">
-	<b>Subject:</b><br>
+	<b>{'message.header.subject'|devblocks_translate}:</b><br>
 	<input type="text" name="subject" size="45" maxlength="255" value="{$ticket->subject|escape}" style="width:90%;"><br>
 	<br>
 	
@@ -24,9 +24,9 @@
 	<br>
 	</div>
 	
-	<b>Who should handle the next reply?</b><br> 
+	<b>{$translate->_('display.reply.next.handle_reply')}</b><br> 
 	<select name="next_worker_id" onchange="toggleDiv('ticketPropsUnlockDate',this.selectedIndex?'block':'none');">
-		{if $active_worker->id==$ticket->next_worker_id || 0==$ticket->next_worker_id || $active_worker->hasPriv('core.ticket.actions.assign')}<option value="0" {if 0==$ticket->next_worker_id}selected{/if}>Anybody{/if}
+		{if $active_worker->id==$ticket->next_worker_id || 0==$ticket->next_worker_id || $active_worker->hasPriv('core.ticket.actions.assign')}<option value="0" {if 0==$ticket->next_worker_id}selected{/if}>{$translate->_('common.anybody')|capitalize}{/if}
 		{foreach from=$workers item=worker key=worker_id name=workers}
 			{if ($worker_id==$active_worker->id && !$ticket->next_worker_id) || $worker_id==$ticket->next_worker_id || $active_worker->hasPriv('core.ticket.actions.assign')}
 				{if $worker_id==$active_worker->id}{assign var=next_worker_id_sel value=$smarty.foreach.workers.iteration}{/if}
@@ -35,16 +35,16 @@
 		{/foreach}
 	</select>&nbsp;
    	{if $active_worker->hasPriv('core.ticket.actions.assign') && !empty($next_worker_id_sel)}
-   		<button type="button" onclick="this.form.next_worker_id.selectedIndex = {$next_worker_id_sel};toggleDiv('ticketPropsUnlockDate','block');">me</button>
-   		<button type="button" onclick="this.form.next_worker_id.selectedIndex = 0;toggleDiv('ticketPropsUnlockDate','none');">anybody</button>
+   		<button type="button" onclick="this.form.next_worker_id.selectedIndex = {$next_worker_id_sel};toggleDiv('ticketPropsUnlockDate','block');">{$translate->_('common.me')|lower}</button>
+   		<button type="button" onclick="this.form.next_worker_id.selectedIndex = 0;toggleDiv('ticketPropsUnlockDate','none');">{$translate->_('common.anybody')|lower}</button>
    	{/if}
 	<br>
 	<br>
 	
 	<div id="ticketPropsUnlockDate" style="display:{if $ticket->next_worker_id}block{else}none{/if};margin-left:10px;">	
-		<b>Allow anybody to handle the next reply after:</b> (e.g. "2 hours", "5pm", {*"Tuesday", "June 30", *}or leave blank to keep assigned)<br>  
+		<b>{$translate->_('display.reply.next.handle_reply_after')}</b> {$translate->_('display.reply.next.handle_reply_after_eg')}<br>  
 		<input type="text" name="unlock_date" size="32" maxlength="255" value="{if $ticket->unlock_date}{$ticket->unlock_date|devblocks_date}{/if}">
-		<button type="button" onclick="this.form.unlock_date.value='+2 hours';">+2 hours</button>
+		<button type="button" onclick="this.form.unlock_date.value='+2 hours';">{$translate->_('display.reply.next.handle_reply_after_2hrs')}</button>
 		<br>
 		<br>
 	</div>
