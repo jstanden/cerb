@@ -1,4 +1,3 @@
-{if !empty($view->params)}
 <div class="block">
 <form action="{devblocks_url}{/devblocks_url}" method="POST" name="{$view->id}_criteriaForm">
 <input type="hidden" name="c" value="internal">
@@ -26,7 +25,6 @@
 </form>
 </div>
 <br>
-{/if}
 
 <div class="block">
 	<form action="{devblocks_url}{/devblocks_url}" method="POST">
