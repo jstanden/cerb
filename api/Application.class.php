@@ -606,6 +606,8 @@ class CerberusApplication extends DevblocksApplication {
 					@$froms[$from] = $from;
 			}
 			
+			asort($froms);
+			
 			$cache->save($froms, self::CACHE_HELPDESK_FROMS);
 		}
 		

@@ -51,18 +51,15 @@ class ChTicketsPage extends CerberusPageExtension {
 				
 				$settings = CerberusSettings::getInstance();
 				
+				// Workers
 				$workers = DAO_Worker::getAllActive();
 				$tpl->assign('workers', $workers);
 				
+				// Groups
 				$teams = DAO_Group::getAll();
 				$tpl->assign_by_ref('teams', $teams);
 				
-				if($visit->exists('compose.last_ticket')) {
-					$ticket_mask = $visit->get('compose.last_ticket');
-					$tpl->assign('last_ticket_mask', $ticket_mask);
-					$visit->set('compose.last_ticket',null); // clear
-				}
-				
+				// Groups+Buckets
 				$team_categories = DAO_Bucket::getTeams();
 				$tpl->assign('team_categories', $team_categories);
 				
@@ -70,8 +67,16 @@ class ChTicketsPage extends CerberusPageExtension {
 				$sendMailToolbarItems = DevblocksPlatform::getExtensions('cerberusweb.mail.send.toolbaritem', true);
 				if(!empty($sendMailToolbarItems))
 					$tpl->assign('sendmail_toolbaritems', $sendMailToolbarItems);
-				
+
+				// Attachments				
 				$tpl->assign('upload_max_filesize', ini_get('upload_max_filesize'));
+
+				// Link to last created ticket
+				if($visit->exists('compose.last_ticket')) {
+					$ticket_mask = $visit->get('compose.last_ticket');
+					$tpl->assign('last_ticket_mask', $ticket_mask);
+					$visit->set('compose.last_ticket',null); // clear
+				}
 				
 				$tpl->display('file:' . $this->_TPL_PATH . 'tickets/compose/index.tpl');
 				break;
@@ -80,18 +85,19 @@ class ChTicketsPage extends CerberusPageExtension {
 				if(!$active_worker->hasPriv('core.mail.log_ticket'))
 					break;
 				
+				// Workers
 				$workers = DAO_Worker::getAllActive();
 				$tpl->assign('workers', $workers);
 				
+				// Groups
 				$teams = DAO_Group::getAll();
 				$tpl->assign('teams', $teams);
 				
-				if($visit->exists('compose.last_ticket')) {
-					$ticket_mask = $visit->get('compose.last_ticket');
-					$tpl->assign('last_ticket_mask', $ticket_mask);
-					$visit->set('compose.last_ticket',null); // clear
-				}
-				
+				// Destinations
+				$destinations = CerberusApplication::getHelpdeskSenders();
+				$tpl->assign('destinations', $destinations);
+
+				// Group+Buckets				
 				$team_categories = DAO_Bucket::getTeams();
 				$tpl->assign('team_categories', $team_categories);
 				
@@ -100,7 +106,15 @@ class ChTicketsPage extends CerberusPageExtension {
 				if(!empty($logMailToolbarItems))
 					$tpl->assign('logmail_toolbaritems', $logMailToolbarItems);
 				
+				// Attachments
 				$tpl->assign('upload_max_filesize', ini_get('upload_max_filesize'));
+
+				// Link to last created ticket
+				if($visit->exists('compose.last_ticket')) {
+					$ticket_mask = $visit->get('compose.last_ticket');
+					$tpl->assign('last_ticket_mask', $ticket_mask);
+					$visit->set('compose.last_ticket',null); // clear
+				}
 				
 				$tpl->display('file:' . $this->_TPL_PATH . 'tickets/create/index.tpl');
 				break;
@@ -1008,7 +1022,6 @@ class ChTicketsPage extends CerberusPageExtension {
 		$visit = CerberusApplication::getVisit(); /* @var CerberusVisit $visit */
 		$visit->set('compose.last_ticket', $ticket->mask);
 		
-		//DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','compose')));
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets','compose')));
 	}
 	
@@ -1018,12 +1031,12 @@ class ChTicketsPage extends CerberusPageExtension {
 		if(!$active_worker->hasPriv('core.mail.log_ticket'))
 			return;
 		
-		@$team_id = DevblocksPlatform::importGPC($_POST['team_id'],'integer'); 
 		@$to = DevblocksPlatform::importGPC($_POST['to'],'string');
+		@$reqs = DevblocksPlatform::importGPC($_POST['reqs'],'string');
 		@$subject = DevblocksPlatform::importGPC($_POST['subject'],'string');
 		@$content = DevblocksPlatform::importGPC($_POST['content'],'string');
-		@$files = $_FILES['attachment'];
 		
+		@$send_to_requesters = DevblocksPlatform::importGPC($_POST['send_to_requesters'],'integer',0);
 		@$closed = DevblocksPlatform::importGPC($_POST['closed'],'integer',0);
 		@$move_bucket = DevblocksPlatform::importGPC($_POST['bucket_id'],'string','');
 		@$next_worker_id = DevblocksPlatform::importGPC($_POST['next_worker_id'],'integer',0);
@@ -1034,44 +1047,123 @@ class ChTicketsPage extends CerberusPageExtension {
 			DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets','create')));
 			return;
 		}
+
+		// ********
 		
-		if(empty($to) || empty($team_id)) {
-			DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets','create')));
-			return;
+		$message = new CerberusParserMessage();
+		$message->headers['date'] = date('r'); 
+		$message->headers['to'] = 'cerberus@localhost';
+		$message->headers['subject'] = $subject;
+		$message->headers['message-id'] = CerberusApplication::generateMessageId();
+		//$message->headers['x-cerberus-portal'] = 1; 
+		
+		// Sender
+		$fromList = imap_rfc822_parse_adrlist($reqs,'');
+		if(empty($fromList) || !is_array($fromList)) {
+			return; // abort with message
 		}
-		
-		// [TODO] "Opened/sent on behalf of..."
-		
-		$properties = array(
-			'team_id' => $team_id,
-			'to' => $to,
-//			'cc' => $cc,
-//			'bcc' => $bcc,
-			'subject' => $subject,
-			'content' => $content,
-			'files' => $files,
-			'closed' => $closed,
-			'move_bucket' => $move_bucket,
-			'next_worker_id' => $next_worker_id,
-			'ticket_reopen' => $ticket_reopen,
-			'unlock_date' => $unlock_date,
-			'no_mail' => true,
+		$from = array_shift($fromList);
+		$from_address = $from->mailbox . '@' . $from->host;
+		$message->headers['from'] = $from_address;
+
+		$message->body = sprintf(
+			"(... This message was manually created by %s on behalf of the requesters ...)\r\n",
+			$active_worker->getName()
 		);
+
+//		// Custom Fields
+//		
+//		if(!empty($aFieldIds))
+//		foreach($aFieldIds as $iIdx => $iFieldId) {
+//			if(!empty($iFieldId)) {
+//				$field =& $fields[$iFieldId]; /* @var $field Model_CustomField */
+//				$value = "";
+//				
+//				switch($field->type) {
+//					case Model_CustomField::TYPE_SINGLE_LINE:
+//					case Model_CustomField::TYPE_MULTI_LINE:
+//					case Model_CustomField::TYPE_URL:
+//						@$value = trim($aFollowUpA[$iIdx]);
+//						break;
+//					
+//					case Model_CustomField::TYPE_NUMBER:
+//						@$value = $aFollowUpA[$iIdx];
+//						if(!is_numeric($value) || 0 == strlen($value))
+//							$value = null;
+//						break;
+//						
+//					case Model_CustomField::TYPE_DATE:
+//						if(false !== ($time = strtotime($aFollowUpA[$iIdx])))
+//							@$value = intval($time);
+//						break;
+//						
+//					case Model_CustomField::TYPE_DROPDOWN:
+//						@$value = $aFollowUpA[$iIdx];
+//						break;
+//						
+//					case Model_CustomField::TYPE_MULTI_PICKLIST:
+//						@$value = DevblocksPlatform::importGPC($_POST['followup_a_'.$iIdx],'array',array());
+//						break;
+//						
+//					case Model_CustomField::TYPE_CHECKBOX:
+//						@$value = (isset($aFollowUpA[$iIdx]) && !empty($aFollowUpA[$iIdx])) ? 1 : 0;
+//						break;
+//						
+//					case Model_CustomField::TYPE_MULTI_CHECKBOX:
+//						@$value = DevblocksPlatform::importGPC($_POST['followup_a_'.$iIdx],'array',array());
+//						break;
+//						
+//					case Model_CustomField::TYPE_WORKER:
+//						@$value = DevblocksPlatform::importGPC($_POST['followup_a_'.$iIdx],'integer',0);
+//						break;
+//				}
+//				
+//				if((is_array($value) && !empty($value)) 
+//					|| (!is_array($value) && 0 != strlen($value)))
+//						$message->custom_fields[$iFieldId] = $value;
+//			}
+//		}
 		
-		$ticket_id = CerberusMail::compose($properties);
-		
-		// [TODO] The problem here is the requester isn't the real sender (worker is)
-		// Run group filters
-		//if(false !== ($rules = CerberusApplication::runGroupRouting($team_id, $ticket_id))) { /* @var $rule Model_GroupInboxFilter */
-			// ...
-		//}
+		// Parse
+		$ticket_id = CerberusParser::parseMessage($message);
 		
 		$ticket = DAO_Ticket::getTicket($ticket_id);
+		
+		// Add additional requesters to ticket
+		if(is_array($fromList) && !empty($fromList))
+		foreach($fromList as $requester) {
+			$requester_addy = DAO_Address::lookupAddress($requester->mailbox . '@' . $requester->host);
+			DAO_Ticket::createRequester($requester_addy->id, $ticket_id);
+		}
+		
+		// Worker reply
+		$properties = array(
+		    'message_id' => $ticket->first_message_id,
+		    'ticket_id' => $ticket_id,
+		    'subject' => $subject,
+		    'content' => $content,
+		    'files' => @$_FILES['attachment'],
+		    'next_worker_id' => $next_worker_id,
+		    'closed' => $closed,
+		    'bucket_id' => $move_bucket,
+		    'ticket_reopen' => $ticket_reopen,
+		    'unlock_date' => $unlock_date,
+		    'agent_id' => $active_worker->id,
+			'dont_send' => (false==$send_to_requesters),
+		);
+		
+		CerberusMail::sendTicketMessage($properties);
+		
+		// ********
 
+//		if(empty($to) || empty($team_id)) {
+//			DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets','create')));
+//			return;
+//		}
+		
 		$visit = CerberusApplication::getVisit(); /* @var CerberusVisit $visit */
 		$visit->set('compose.last_ticket', $ticket->mask);
 		
-		//DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('display',$ticket_id)));
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets','create')));
 	}
 	

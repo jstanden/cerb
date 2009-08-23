@@ -1055,6 +1055,12 @@
 		<tu tuid='mail.log_message'>
 			<tuv xml:lang="en_US"><seg>Open Ticket</seg></tuv>
 		</tu>
+		<tu tuid='mail.log_message.requesters'>
+			<tuv xml:lang="en_US"><seg>Requester(s)</seg></tuv>
+		</tu>
+		<tu tuid='mail.log_message.send_to_requesters'>
+			<tuv xml:lang="en_US"><seg>Send a copy of this message to the requesters.</seg></tuv>
+		</tu>
 		<tu tuid='mail.merge'>
 			<tuv xml:lang="en_US"><seg>Merge</seg></tuv>
 		</tu>

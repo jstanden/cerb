@@ -20,26 +20,26 @@
 		<td>
 			<table cellpadding="1" cellspacing="0" border="0" width="100%">
 				<tr>
-					<td width="0%" nowrap="nowrap" valign="middle" align="right"><b>To:</b>&nbsp;</td>
+					<td width="0%" nowrap="nowrap" valign="middle" align="right"><b>{'message.header.to'|devblocks_translate}:</b>&nbsp;</td>
 					<td width="100%">
-						<select name="team_id" id="team_id" style="border:1px solid rgb(180,180,180);padding:2px;">
-							{foreach from=$active_worker_memberships item=membership key=group_id}
-							<option value="{$group_id}" {if $group_id==$team->id}selected{/if}>{$teams.$group_id->name}</option>
+						<select name="to" id="to" style="border:1px solid rgb(180,180,180);padding:2px;">
+							{foreach from=$destinations item=destination}
+							<option value="{$destination}" {if 0==strcasecmp($destination,$to)}selected{/if}>{$destination}</option>
 							{/foreach}
 						</select>
 					</td>
 				</tr>
 				<tr>
-					<td width="0%" nowrap="nowrap" valign="middle" align="right"><b>Requester(s):</b>&nbsp;</td>
+					<td width="0%" nowrap="nowrap" valign="middle" align="right"><b>{'mail.log_message.requesters'|devblocks_translate}:</b>&nbsp;</td>
 					<td width="100%">
 						<div id="emailautocomplete" style="width:98%;padding-bottom:2em;z-index:1;">
-							<input type="text" name="to" id="emailinput" value="{$to}" style="_position:absolute;border:1px solid rgb(180,180,180);padding:2px;" autocomplete="off">
+							<input type="text" name="reqs" id="emailinput" value="{$reqs}" style="_position:absolute;border:1px solid rgb(180,180,180);padding:2px;" autocomplete="off">
 							<div id="emailcontainer"></div>
 						</div>
 					</td>
 				</tr>
 				<tr>
-					<td width="0%" nowrap="nowrap" valign="middle" align="right"><b>Subject:</b>&nbsp;</td>
+					<td width="0%" nowrap="nowrap" valign="middle" align="right"><b>{'message.header.subject'|devblocks_translate}:</b>&nbsp;</td>
 					<td width="100%"><input type="text" size="100" name="subject" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;"></td>
 				</tr>
 			</table>
@@ -60,7 +60,8 @@
 		
 		<div id="logTicketToolbarOptions"></div>
 		
-		<textarea name="content" id="content" rows="15" cols="80" class="reply" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;"></textarea>
+		<textarea name="content" id="content" rows="15" cols="80" class="reply" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;"></textarea><br>
+		<label><input type="checkbox" name="send_to_requesters" value="1"> {'mail.log_message.send_to_requesters'|devblocks_translate}</label>
 		</td>
 	</tr>
 				

@@ -428,6 +428,7 @@ class CerberusMail {
 	    'bucket_id'
 	    'agent_id',
 		'is_autoreply',
+		'dont_send',
 		'dont_save_copy'
 		*/
 
@@ -650,9 +651,14 @@ class CerberusMail {
 			}
 			
 			if(!DEMO_MODE) {
-				if(!$mailer->send($mail, $sendTo, $sendFrom)) {
-					$mail_succeeded = false;
-					throw new Exception('Mail not sent.');
+				// If we're not supposed to send
+				if(isset($properties['dont_send']) && $properties['dont_send']) {
+					// ...do nothing
+				} else { // otherwise send
+					if(!$mailer->send($mail, $sendTo, $sendFrom)) {
+						$mail_succeeded = false;
+						throw new Exception('Mail not sent.');
+					}
 				}
 			}
 		} catch (Exception $e) {
