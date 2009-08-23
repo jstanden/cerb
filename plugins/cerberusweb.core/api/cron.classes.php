@@ -776,7 +776,7 @@ class ImportCron extends CerberusCronPageExtension {
 
 			// Headers
 			foreach($eHeaders->children() as $eHeader) { /* @var $eHeader SimpleXMLElement */
-			    DAO_MessageHeader::create($email_id, $ticket_id, $eHeader->getName(), (string) $eHeader);
+			    DAO_MessageHeader::create($email_id, $eHeader->getName(), (string) $eHeader);
 			}
 		}
 		

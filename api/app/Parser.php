@@ -628,7 +628,7 @@ class CerberusParser {
 		
 		// Headers
 		foreach($headers as $hk => $hv) {
-		    DAO_MessageHeader::create($email_id, $id, $hk, $hv);
+		    DAO_MessageHeader::create($email_id, $hk, $hv);
 		}
 		
 		// [mdf] Loop through files to insert attachment records in the db, and move temporary files

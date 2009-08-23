@@ -2507,14 +2507,13 @@ class DAO_MessageContent {
 
 class DAO_MessageHeader {
     const MESSAGE_ID = 'message_id';
-    const TICKET_ID = 'ticket_id';
     const HEADER_NAME = 'header_name';
     const HEADER_VALUE = 'header_value';
     
-    static function create($message_id, $ticket_id, $header, $value) {
+    static function create($message_id, $header, $value) {
     	$db = DevblocksPlatform::getDatabaseService();
     	
-        if(empty($header) || empty($value) || empty($message_id) || empty($ticket_id))
+        if(empty($header) || empty($value) || empty($message_id))
             return;
     	
         $header = strtolower($header);
@@ -2524,53 +2523,13 @@ class DAO_MessageHeader {
         	$value = implode("\r\n",$value);
         }
         
-		$db->Execute(sprintf("INSERT INTO message_header (message_id, ticket_id, header_name, header_value) ".
-			"VALUES (%d, %d, %s, %s)",
+		$db->Execute(sprintf("INSERT INTO message_header (message_id, header_name, header_value) ".
+			"VALUES (%d, %s, %s)",
 			$message_id,
-			$ticket_id,
 			$db->qstr($header),
 			$db->qstr($value)
 		));
     }
-    
-//    static function update($message_id, $ticket_id, $header, $value) {
-//        $db = DevblocksPlatform::getDatabaseService();
-//        
-//        $header = strtolower($header);
-//        
-//        if(empty($header) || empty($value) || empty($message_id) || empty($ticket_id))
-//            return;
-//
-//        // Handle stacked headers
-//        if(is_array($value)) {
-//        	$value = implode("\r\n",$value);
-//        }
-//            
-//        // Insert not replace?  (Can be multiple stacked headers like received?)
-//        $db->Replace(
-//            'message_header',
-//            array(
-//                self::MESSAGE_ID => $message_id,
-//                self::TICKET_ID => $ticket_id,
-//                self::HEADER_NAME => $db->qstr($header),
-//                self::HEADER_VALUE => $db->qstr('')
-//            ),
-//            array('message_id','header_name'),
-//            false
-//        );
-//        
-//        if(!empty($value) && !empty($message_id) && !empty($header)) {
-//        	if(is_array($value)) {
-//        		$value = implode("\r\n",$value);
-//        	}
-//        	$db->UpdateBlob(
-//        		'message_header',
-//        		self::HEADER_VALUE,
-//        		$value,
-//        		'message_id='.$message_id.' AND header_name='.$db->qstr($header)
-//        	);
-//        }
-//    }
     
     static function getAll($message_id) {
         $db = DevblocksPlatform::getDatabaseService();
@@ -3022,8 +2981,10 @@ class DAO_Ticket extends C4_ORMHelper {
 	static function getTicketByMessageId($message_id) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = sprintf("SELECT mh.ticket_id, mh.message_id ".
+		$sql = sprintf("SELECT t.id AS ticket_id, mh.message_id AS message_id ".
 			"FROM message_header mh ".
+			"INNER JOIN message m ON (m.id=mh.message_id) ".
+			"INNER JOIN ticket t ON (t.id=m.ticket_id) ".
 			"WHERE mh.header_name = 'message-id' AND mh.header_value = %s",
 			$db->qstr($message_id)
 		);
@@ -3136,13 +3097,6 @@ class DAO_Ticket extends C4_ORMHelper {
 			
 			// Messages
 			$sql = sprintf("UPDATE message SET ticket_id = %d WHERE ticket_id IN (%s)",
-				$oldest_id,
-				implode(',', $merge_ticket_ids)
-			);
-			$db->Execute($sql);
-			
-			// Message headers			
-			$sql = sprintf("UPDATE message_header SET ticket_id = %d WHERE ticket_id IN (%s)",
 				$oldest_id,
 				implode(',', $merge_ticket_ids)
 			);

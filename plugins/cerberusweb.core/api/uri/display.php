@@ -1032,12 +1032,6 @@ class ChDisplayPage extends CerberusPageExtension {
 			DAO_Message::TICKET_ID => $new_ticket_id
 		));
 		
-		//[mdf] [CHD-979] The ticket id is also in the message_header table, so update those too
-		$message_headers = DAO_MessageHeader::getAll($orig_message->id);
-		foreach($message_headers as $hk => $hv) {
-		    DAO_MessageHeader::create($orig_message->id, $new_ticket_id, $hk, $hv);
-		}		
-		
 		// Reindex the original ticket (last wrote, etc.)
 		$last_message = end($messages); /* @var CerberusMessage $last_message */
 		
