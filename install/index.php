@@ -304,6 +304,14 @@ switch($step) {
 			$fails++;
 		}
 		
+		// Extension: JSON
+		if(extension_loaded("json")) {
+			$results['ext_json'] = true;
+		} else {
+			$results['ext_json'] = false;
+			$fails++;
+		}
+		
 		$tpl->assign('fails', $fails);
 		$tpl->assign('results', $results);
 		$tpl->assign('template', 'steps/step_environment.tpl');

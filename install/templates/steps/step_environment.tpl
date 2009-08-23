@@ -100,6 +100,15 @@
 <br>
 <br>
 
+<b>PHP Extension (JSON)... </b> 
+{if !$results.ext_json}
+	<span class="bad">Error! PHP must have the 'JSON' extension enabled.</span>
+{else}
+	<span class="good">Passed!</span>
+{/if}
+<br>
+<br>
+
 <b>PHP.INI File_Uploads... </b> 
 {if !$results.file_uploads}
 	<span class="bad">Failure!  file_uploads must be enabled in your php.ini file.</span>
