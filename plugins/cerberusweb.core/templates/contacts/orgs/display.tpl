@@ -27,6 +27,15 @@
 		<br>
 	</td>
 	<td align="right" valign="top">
+		<form action="{devblocks_url}{/devblocks_url}" method="post">
+		<input type="hidden" name="c" value="contacts">
+		<input type="hidden" name="a" value="doOrgQuickSearch">
+		<span><b>{$translate->_('common.quick_search')|capitalize}:</b></span> <select name="type">
+			<option value="name">{$translate->_('contact_org.name')|capitalize}</option>
+			<option value="phone">{$translate->_('contact_org.phone')|capitalize}</option>
+		</select><input type="text" name="query" size="24"><button type="submit">{$translate->_('common.search_go')|lower}</button>
+		</form>
+		
 		{if !empty($series_stats.next) || !empty($series_stats.prev)}
 		<table cellpadding="0" cellspacing="0" border="0" style="margin:0px;">
 			<tr>
