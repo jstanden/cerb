@@ -520,7 +520,10 @@
 			<tuv xml:lang="en_US"><seg># Nonspam</seg></tuv>
 		</tu>
 		<tu tuid='address.is_banned'>
-			<tuv xml:lang="en_US"><seg>Banned</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Is Banned</seg></tuv>
+		</tu>
+		<tu tuid='address.is_registered'>
+			<tuv xml:lang="en_US"><seg>Is Registered</seg></tuv>
 		</tu>
 		<tu tuid='address.last_name'>
 			<tuv xml:lang="en_US"><seg>Last Name</seg></tuv>

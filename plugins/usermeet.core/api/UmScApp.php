@@ -314,11 +314,11 @@ class UmScApp extends Extension_UsermeetTool {
 		
 		// [TODO] Test login combination using the appropriate adapter
 		if(null != ($addy = DAO_Address::lookupAddress($email, false))) {
-			$auth = DAO_AddressAuth::get($addy->id);
-			
-			if(!empty($auth->pass) && md5($pass)==$auth->pass) {
-				$valid = true;
-				$umsession->setProperty('sc_login',$addy);
+			if($addy->is_registered 
+				&& !empty($addy->pass) 
+				&& 0==strcmp(md5($pass),$addy->pass)) {
+					$valid = true;
+					$umsession->setProperty('sc_login',$addy);
 			}
 		}
 		

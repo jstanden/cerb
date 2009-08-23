@@ -73,6 +73,10 @@
 			<td>
 				{if $result.a_is_banned}Yes{/if}&nbsp;
 			</td>
+			{elseif $column=="a_is_registered"}
+			<td>
+				{if $result.a_is_registered}Yes{/if}&nbsp;
+			</td>
 			{else}
 			<td>{$result.$column}&nbsp;</td>
 			{/if}

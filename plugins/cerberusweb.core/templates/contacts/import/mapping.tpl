@@ -37,7 +37,6 @@
 			<option value="{$field}">{$label}</option>
 		{/if}
 		{/foreach}
-		<option value="password">{$translate->_('common.password')|capitalize}</option>
 		
 		{if !empty($custom_fields)}
 		<optgroup label="- {$translate->_('common.custom_fields')|capitalize} -">

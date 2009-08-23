@@ -288,7 +288,6 @@ class ChContactsPage extends CerberusPageExtension {
 	}
 	
 	// Post
-	// [TODO] Allow XML also?
 	function doImportAction() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -330,6 +329,7 @@ class ChContactsPage extends CerberusPageExtension {
 			// Overrides
 			$contact_password = '';
 			
+			if(is_array($pos))
 			foreach($pos as $idx => $p) {
 				$key = $field[$idx];
 				$val = $parts[$idx];
@@ -368,16 +368,21 @@ class ChContactsPage extends CerberusPageExtension {
 								}
 								break;
 								
-							case 'password':
+							case 'pass':
 								$key = null;
-								$contact_password = $val;
+								// Detect if we need to MD5 a plaintext password.
+								if(preg_match("/[a-z0-9]{32}/", $val)) {
+									$contact_password = $val;
+								} else {
+									$contact_password = md5($val);
+								}
 								break;
 						}
 
 						// Custom fields
 						if('cf_' == substr($key,0,3)) {
 							$custom_fields[substr($key,3)] = $val;
-						} else {
+						} elseif(!empty($key)) {
 							$fields[$key] = $val;
 						}
 						
@@ -417,6 +422,21 @@ class ChContactsPage extends CerberusPageExtension {
 						);
 					
 					if(isset($fields['email'])) {
+						// Overrides
+						if(!empty($contact_password)) {
+							if($replace_passwords) { // always replace
+								$fields[DAO_Address::IS_REGISTERED] = 1;
+								$fields[DAO_Address::PASS] = $contact_password;
+								
+							} else { // only replace if null
+								if(null == ($addy = DAO_Address::lookupAddress($fields['email'], false))
+									|| !$addy->is_registered) {
+										$fields[DAO_Address::IS_REGISTERED] = 1;
+										$fields[DAO_Address::PASS] = $contact_password;
+								}
+							}
+						}
+						
 						if(empty($addys)) {
 							$id = DAO_Address::create($fields);
 						} else {
@@ -424,22 +444,6 @@ class ChContactsPage extends CerberusPageExtension {
 							DAO_Address::update($id, $fields);
 						}
 
-						// Overrides
-						if(!empty($contact_password) && !empty($id)) {
-							if($replace_passwords) { // always replace
-								DAO_AddressAuth::update(
-									$id,
-									array(DAO_AddressAuth::PASS => $contact_password) 
-								);
-							} else { // only replace if null
-								if(null == ($auth = DAO_AddressAuth::get($id))) {
-									DAO_AddressAuth::update(
-										$id,
-										array(DAO_AddressAuth::PASS => $contact_password) 
-									);
-								}
-							}
-						}
 					}
 				}
 			}
@@ -846,6 +850,8 @@ class ChContactsPage extends CerberusPageExtension {
 		@$last_name = trim(DevblocksPlatform::importGPC($_REQUEST['last_name'],'string',''));
 		@$contact_org = trim(DevblocksPlatform::importGPC($_REQUEST['contact_org'],'string',''));
 		@$is_banned = DevblocksPlatform::importGPC($_REQUEST['is_banned'],'integer',0);
+		@$pass = DevblocksPlatform::importGPC($_REQUEST['pass'],'string','');
+		@$unregister = DevblocksPlatform::importGPC($_REQUEST['unregister'],'integer',0);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string', '');
 		
 		if($active_worker->hasPriv('core.addybook.addy.actions.update')) {
@@ -856,12 +862,23 @@ class ChContactsPage extends CerberusPageExtension {
 				$contact_org = DAO_ContactOrg::get($contact_org_id);
 			}
 			
+			// Common fields
 			$fields = array(
 				DAO_Address::FIRST_NAME => $first_name,
 				DAO_Address::LAST_NAME => $last_name,
 				DAO_Address::CONTACT_ORG_ID => $contact_org_id,
 				DAO_Address::IS_BANNED => $is_banned,
 			);
+			
+			// Are we clearing the contact's login?
+			if($unregister) {
+				$fields[DAO_Address::IS_REGISTERED] = 0;
+				$fields[DAO_Address::PASS] = '';
+				
+			} elseif(!empty($pass)) { // Are we changing their password?
+				$fields[DAO_Address::IS_REGISTERED] = 1;
+				$fields[DAO_Address::PASS] = md5($pass);
+			}
 			
 			if($id==0) {
 				$fields = $fields + array(DAO_Address::EMAIL => $email);

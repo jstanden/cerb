@@ -1287,6 +1287,8 @@ class Model_Address {
 	public $num_spam = 0;
 	public $num_nonspam = 0;
 	public $is_banned = 0;
+	public $is_registered = 0;
+	public $pass = '';
 	public $last_autoreply;
 
 	function Model_Address() {}
@@ -1299,12 +1301,6 @@ class Model_Address {
 		);
 	}
 };
-
-class Model_AddressAuth {
-	public $address_id;
-	public $confirm;
-	public $pass;
-}
 
 class Model_AddressToWorker {
 	public $address;
@@ -1858,12 +1854,13 @@ class C4_AddressView extends C4_AbstractView {
 			SearchFields_Address::FIRST_NAME,
 			SearchFields_Address::LAST_NAME,
 			SearchFields_Address::ORG_NAME,
+			SearchFields_Address::IS_REGISTERED,
 			SearchFields_Address::NUM_NONSPAM,
 			SearchFields_Address::NUM_SPAM,
 		);
 		
 		$this->params = array(
-			SearchFields_Address::NUM_NONSPAM => new DevblocksSearchCriteria(SearchFields_Address::NUM_NONSPAM,'>',0),
+			SearchFields_Address::IS_REGISTERED => new DevblocksSearchCriteria(SearchFields_Address::IS_REGISTERED,'=',1),
 		);
 	}
 
@@ -1913,6 +1910,7 @@ class C4_AddressView extends C4_AbstractView {
 				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__number.tpl');
 				break;
 			case SearchFields_Address::IS_BANNED:
+			case SearchFields_Address::IS_REGISTERED:
 				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__bool.tpl');
 				break;
 			default:
@@ -1957,7 +1955,7 @@ class C4_AddressView extends C4_AbstractView {
 		parent::doResetCriteria();
 		
 		$this->params = array(
-			SearchFields_Address::NUM_NONSPAM => new DevblocksSearchCriteria(SearchFields_Address::NUM_NONSPAM,'>',0),
+			SearchFields_Address::IS_REGISTERED => new DevblocksSearchCriteria(SearchFields_Address::IS_REGISTERED,'=',1),
 		);
 	}
 	
@@ -1982,6 +1980,10 @@ class C4_AddressView extends C4_AbstractView {
 				break;
 				
 			case SearchFields_Address::IS_BANNED:
+				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
+				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
+				break;
+			case SearchFields_Address::IS_REGISTERED:
 				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;

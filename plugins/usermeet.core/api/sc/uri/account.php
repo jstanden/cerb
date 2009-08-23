@@ -35,21 +35,15 @@ class UmScAccountController extends Extension_UmScController {
 				DAO_Address::FIRST_NAME => $first_name,
 				DAO_Address::LAST_NAME => $last_name
 			);
+			
+			if(!empty($change_password) && 0 == strcmp($change_password,$change_password2)) {
+				$fields[DAO_Address::PASS] = md5($change_password);
+			} else {
+				$tpl->assign('account_error', "The passwords you entered did not match.");
+			}
+			
 			DAO_Address::update($active_user->id, $fields);
 			$tpl->assign('account_success', true);
-			
-			if(!empty($change_password)) {
-				if(0 == strcmp($change_password,$change_password2)) {
-					DAO_AddressAuth::update(
-						$active_user->id,
-						array(
-							DAO_AddressAuth::PASS => md5($change_password)
-						)
-					);
-				} else {
-					$tpl->assign('account_error', "The passwords you entered did not match.");
-				}
-			}
 		}
 		
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'account')));

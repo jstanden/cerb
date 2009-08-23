@@ -55,9 +55,10 @@ class UmScRegisterController extends Extension_UmScController {
 			
 			if(!empty($email) && null != ($addy = DAO_Address::lookupAddress($email, false))) {
 				$fields = array(
-					DAO_AddressAuth::CONFIRM => $code
+					DAO_Address::IS_REGISTERED => 0,
+					DAO_Address::PASS => $code,
 				);
-				DAO_AddressAuth::update($addy->id, $fields);
+				DAO_Address::update($addy->id, $fields);
 				
 			} else {
 				$tpl->assign('register_error', sprintf("'%s' is not a registered e-mail address.",$email));
@@ -109,14 +110,14 @@ class UmScRegisterController extends Extension_UmScController {
 		
 		if(!empty($email) && !empty($pass) && !empty($code)) {
 			if(null != ($addy = DAO_Address::lookupAddress($email, false))
-				&& null != ($auth = DAO_AddressAuth::get($addy->id))
-				&& !empty($auth) 
-				&& !empty($auth->confirm) 
-				&& 0 == strcasecmp($code,$auth->confirm)) {
+				&& !$addy->is_registered 
+				&& !empty($addy->pass) 
+				&& 0 == strcasecmp($code,$addy->pass)) {
 					$fields = array(
-						DAO_AddressAuth::PASS => md5($pass)
+						DAO_Address::IS_REGISTERED => 1,
+						DAO_Address::PASS => md5($pass),
 					);
-					DAO_AddressAuth::update($addy->id, $fields);
+					DAO_Address::update($addy->id, $fields);
 				
 			} else {
 				$tpl->assign('register_error', sprintf("The confirmation code you entered does not match our records.  Try again."));
@@ -147,19 +148,19 @@ class UmScRegisterController extends Extension_UmScController {
 		$code = CerberusApplication::generatePassword(8);
 		
 		if(!empty($email) && null != ($addy = DAO_Address::lookupAddress($email, true))) {
-			$auth = DAO_AddressAuth::get($addy->id);
 			
 			// Already registered?
-			if(!empty($auth) && !empty($auth->pass)) {
+			if($addy->is_registered) {
 				$tpl->assign('register_error', sprintf("'%s' is already registered.",$email));
 				DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'register')));
 				return;
 			}
 			
 			$fields = array(
-				DAO_AddressAuth::CONFIRM => $code
+				DAO_Address::IS_REGISTERED => 0,
+				DAO_Address::PASS => $code
 			);
-			DAO_AddressAuth::update($addy->id, $fields);
+			DAO_Address::update($addy->id, $fields);
 			
 		} else {
 			$tpl->assign('register_error', sprintf("'%s' is an invalid e-mail address.",$email));
@@ -206,14 +207,14 @@ class UmScRegisterController extends Extension_UmScController {
 		
 		if(!empty($email) && !empty($pass) && !empty($code)) {
 			if(null != ($addy = DAO_Address::lookupAddress($email, false))
-				&& null != ($auth = DAO_AddressAuth::get($addy->id))
-				&& !empty($auth) 
-				&& !empty($auth->confirm) 
-				&& 0 == strcasecmp($code,$auth->confirm)) {
+				&& !$addy->is_registered 
+				&& !empty($addy->pass) 
+				&& 0 == strcasecmp($code,$addy->pass)) {
 					$fields = array(
-						DAO_AddressAuth::PASS => md5($pass)
+						DAO_Address::IS_REGISTERED => 1,
+						DAO_Address::PASS => md5($pass)
 					);
-					DAO_AddressAuth::update($addy->id, $fields);
+					DAO_Address::update($addy->id, $fields);
 				
 			} else {
 				$tpl->assign('register_error', sprintf("The confirmation code you entered does not match our records.  Try again."));

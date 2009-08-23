@@ -929,16 +929,14 @@ class ImportCron extends CerberusCronPageExtension {
 			DAO_Address::LAST_NAME => $sLastName,
 			DAO_Address::EMAIL => $sEmail,
 		);
-		$address_id = DAO_Address::create($fields);
 
 		// Associate SC password
 		if(!empty($sPassword) && $sPassword != md5('')) {
-			DAO_AddressAuth::update($address_id, array(
-				DAO_AddressAuth::ADDRESS_ID => $address_id,
-				DAO_AddressAuth::CONFIRM => 1,
-				DAO_AddressAuth::PASS => $sPassword,
-			));
+			$fields[DAO_Address::IS_REGISTERED] = 1;
+			$fields[DAO_Address::PASS] = $sPassword;
 		}
+		
+		$address_id = DAO_Address::create($fields);
 		
 		// Associate with organization
 		if(!empty($sOrganization)) {
