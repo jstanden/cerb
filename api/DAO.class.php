@@ -4597,7 +4597,7 @@ class DAO_Bucket extends DevblocksORMHelper {
 			return 0;
 		
 		$db = DevblocksPlatform::getDatabaseService();
-		if(null != ($next_pos = $db->GetOne(sprintf("SELECT MAX(pos) FROM category WHERE team_id = %d", $group_id))))
+		if(null != ($next_pos = $db->GetOne(sprintf("SELECT MAX(pos)+1 FROM category WHERE team_id = %d", $group_id))))
 			return $next_pos;
 			
 		return 0;
@@ -4666,32 +4666,29 @@ class DAO_Bucket extends DevblocksORMHelper {
 	static function create($name, $team_id) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
+		// Check for dupes
 		$buckets = self::getAll();
-		$duplicate = false;
+		if(is_array($buckets))
 		foreach($buckets as $bucket) {
-			if($name==$bucket->name && $team_id==$bucket->team_id) {
-				$duplicate = true;
-				$id = $bucket->id;
-				break;
+			if(0==strcasecmp($name,$bucket->name) && $team_id==$bucket->team_id) {
+				return $bucket->id;
 			}
 		}
 
-		if(!$duplicate) {
-			$id = $db->GenID('generic_seq');
-			$next_pos = self::getNextPos($team_id);
-			
-			$sql = sprintf("INSERT INTO category (id,pos,name,team_id,is_assignable) ".
-				"VALUES (%d,%d,%s,%d,1)",
-				$id,
-				$next_pos,
-				$db->qstr($name),
-				$team_id
-			);
+		$id = $db->GenID('generic_seq');
+		$next_pos = self::getNextPos($team_id);
+		
+		$sql = sprintf("INSERT INTO category (id,pos,name,team_id,is_assignable) ".
+			"VALUES (%d,%d,%s,%d,1)",
+			$id,
+			$next_pos,
+			$db->qstr($name),
+			$team_id
+		);
 
-			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 
-			self::clearCache();
-		}
+		self::clearCache();
 		
 		return $id;
 	}

@@ -679,7 +679,6 @@ class ChGroupsPage extends CerberusPageExtension  {
 
 	    if(is_array($categories))
 	    foreach($categories as $category) {
-	        // [TODO] Dupe checking
 	        $cat_id = DAO_Bucket::create($category, $team_id);
 	    }
 	    
