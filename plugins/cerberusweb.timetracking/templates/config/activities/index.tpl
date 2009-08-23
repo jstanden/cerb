@@ -17,7 +17,7 @@
 					<td>
 						{if !empty($billable_activities)}
 						<b>{$translate->_('timetracking.ui.billable_label')}</b><br>
-						<div style="margin:0px;padding:3px;width:200px;overflow:auto;">
+						<div style="margin:0px;padding:3px;width:200px;">
 							{foreach from=$billable_activities item=activity}
 							&#187; <a href="javascript:;" onclick="genericAjaxGet('configActivity','c=config&a=handleTabAction&tab=timetracking.config.tab.activities&action=getActivity&id={$activity->id}');">{$activity->name}</a><br>
 							<small>&nbsp; &nbsp; {$translate->_('timetracking.ui.cfg.currency')} {'timetracking.ui.cfg.n_per_hour'|devblocks_translate:$activity->rate}</small><br>
@@ -27,7 +27,7 @@
 						
 						{if !empty($nonbillable_activities)}
 						<b>{$translate->_('timetracking.ui.non_billable_label')}</b><br>
-						<div style="margin:0px;padding:3px;width:200px;overflow:auto;">
+						<div style="margin:0px;padding:3px;width:200px;">
 							{foreach from=$nonbillable_activities item=activity}
 							&#187; <a href="javascript:;" onclick="genericAjaxGet('configActivity','c=config&a=handleTabAction&tab=timetracking.config.tab.activities&action=getActivity&id={$activity->id}');">{$activity->name}</a><br>
 							{/foreach}	
