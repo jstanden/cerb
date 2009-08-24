@@ -805,9 +805,8 @@ class Rest_AddressesController extends Ch_RestController {
 			}
 			
 			$message = $mail_service->createMessage();
-			$message->setTo($email);
-			$send_from = new Swift_Address($from, $from_personal);
-			$message->setFrom($send_from);
+			$message->setTo(array($email));
+			$message->setFrom(array($from => $from_personal));
 			$message->setSubject("Account Confirmation Code");
 			$message->setBody(sprintf("Below is your confirmation code.  Please copy and paste it into the confirmation form at:\r\n".
 				"%s\r\n".
@@ -818,9 +817,12 @@ class Rest_AddressesController extends Ch_RestController {
 				$link,
 				$code
 			));
-			$message->headers->set('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
 			
-			$mailer->send($message,$email,$send_from);
+			$headers = $mail->getHeaders();
+			
+			$headers->addTextHeader('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
+			
+			$result = $mailer->send($message);
 		}
 		catch (Exception $e) {
 			return;

@@ -67,9 +67,8 @@ class UmScRegisterController extends Extension_UmScController {
 			}
 			
 			$message = $mail_service->createMessage();
-			$message->setTo($email);
-			$send_from = new Swift_Address($from, $from_personal);
-			$message->setFrom($send_from);
+			$message->addTo($email);
+			$message->setFrom(array($from => $from_personal));
 			$message->setSubject("Did you forget your support password?");
 			$message->setBody(sprintf("This is a message to confirm your 'forgot password' request at:\r\n".
 				"%s\r\n".
@@ -86,9 +85,12 @@ class UmScRegisterController extends Extension_UmScController {
 				$url->write('c=register&a=forgot2',true),
 				$from_personal
 			));
-			$message->headers->set('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
 			
-			$mailer->send($message,$email,$send_from);
+			$headers = $message->getHeaders();
+			
+			$headers->addTextHeader('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
+			
+			$result = $mailer->send($message);
 		}
 		catch (Exception $e) {
 			$tpl->assign('register_error', 'Fatal error encountered while sending forgot password confirmation code.');
@@ -170,8 +172,7 @@ class UmScRegisterController extends Extension_UmScController {
 		
 		$message = $mail_service->createMessage();
 		$message->setTo($email);
-		$send_from = new Swift_Address($from, $from_personal);
-		$message->setFrom($send_from);
+		$message->setFrom(array($from => $from_personal));
 		$message->setSubject("Confirming your support e-mail address");
 		$message->setBody(sprintf("This is a message to confirm your recent registration request at:\r\n".
 			"%s\r\n".
@@ -188,9 +189,12 @@ class UmScRegisterController extends Extension_UmScController {
 			$url->write('c=register&a=confirm',true),
 			$from_personal
 		));
-		$message->headers->set('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
 		
-		$mailer->send($message,$email,$send_from);
+		$headers = $message->getHeaders();
+		
+		$headers->addTextHeader('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
+		
+		$result = $mailer->send($message);
 		
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'register','confirm')));
 	}

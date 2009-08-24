@@ -215,24 +215,21 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 					$mailer = $mail_service->getMailer(CerberusMail::getMailerDefaults());
 				
 		 		// Create the message
-				$rcpt_to = new Swift_RecipientList();
-				$a_rcpt_to = array();
-				$mail_from = new Swift_Address($reply_to, $reply_personal);
-				$rcpt_to->addTo($send_to);
-				$a_rcpt_to = new Swift_Address($send_to);
 					
 				$mail = $mail_service->createMessage();
-				$mail->setTo($a_rcpt_to);
-				$mail->setFrom($mail_from);
+				$mail->setTo(array($send_to));
+				$mail->setFrom(array($reply_to => $reply_personal));
 				$mail->setReplyTo($reply_to);
 				$mail->setSubject(sprintf("[comment #%s]: %s [comment]",
 					$ticket->mask,
 					$ticket->subject
 				));
 			
+				$headers = $mail->getHeaders();
+			
 				if(false !== (@$in_reply_to = $last_headers['in-reply-to'])) {
-				    $mail->headers->set('References', $in_reply_to);
-				    $mail->headers->set('In-Reply-To', $in_reply_to);
+				    $headers->addTextHeader('References', $in_reply_to);
+				    $headers->addTextHeader('In-Reply-To', $in_reply_to);
 				}
 				
 				// Build the body
@@ -242,13 +239,13 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 					$comment
 				);
 				
-				$mail->headers->set('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
-				$mail->headers->set('Precedence','List');
-				$mail->headers->set('Auto-Submitted','auto-generated');
+				$headers->addTextHeader('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
+				$headers->addTextHeader('Precedence','List');
+				$headers->addTextHeader('Auto-Submitted','auto-generated');
 				
-				$mail->attach(new Swift_Message_Part($comment_text, 'text/plain', 'base64', LANG_CHARSET_CODE));
+				$mail->setBody($comment_text);
 			
-				$mailer->send($mail, $rcpt_to, $mail_from);
+				$result = $mailer->send($mail);
 				
 	    	} catch(Exception $e) {
 	    		//
@@ -276,10 +273,6 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
     		return;
     	}
 
-    	// Make sure the worker exists and is not disabled
-//    	if(!isset($workers[$next_worker_id]))
-//    		return;
-    	
     	$url_writer = DevblocksPlatform::getUrlService();
     	
 		$mail_service = DevblocksPlatform::getMailService();
@@ -348,32 +341,30 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 						$mailer = $mail_service->getMailer(CerberusMail::getMailerDefaults());
 					
 			 		// Create the message
-					$rcpt_to = new Swift_RecipientList();
-					$a_rcpt_to = array();
-					$mail_from = new Swift_Address($reply_to, $reply_personal);
-					$rcpt_to->addTo($send_to);
-					$a_rcpt_to = new Swift_Address($send_to);
-						
+
 					$mail = $mail_service->createMessage();
-					$mail->setTo($a_rcpt_to);
-					$mail->setFrom($mail_from);
+					$mail->setTo(array($send_to));
+					$mail->setFrom(array($reply_to => $reply_personal));
 					$mail->setReplyTo($reply_to);
 					$mail->setSubject(sprintf("[assignment #%s]: %s",
 						$ticket->mask,
 						$ticket->subject
 					));
 				
+					$headers = $mail->getHeaders();
+				
 					if(false !== (@$in_reply_to = $last_headers['in-reply-to'])) {
-					    $mail->headers->set('References', $in_reply_to);
-					    $mail->headers->set('In-Reply-To', $in_reply_to);
+					    $headers->addTextHeader('References', $in_reply_to);
+					    $headers->addTextHeader('In-Reply-To', $in_reply_to);
 					}
 					
-					$mail->headers->set('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
-					$mail->headers->set('Precedence','List');
-					$mail->headers->set('Auto-Submitted','auto-generated');
-					$mail->attach(new Swift_Message_Part($last_message->getContent(), 'text/plain', 'base64', LANG_CHARSET_CODE));
+					$headers->addTextHeader('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
+					$headers->addTextHeader('Precedence','List');
+					$headers->addTextHeader('Auto-Submitted','auto-generated');
+					
+					$mail->setBody($last_message->getContent());					
 				
-					$mailer->send($mail, $rcpt_to, $mail_from);
+					$result = $mailer->send($mail);
 					
 		    	} catch(Exception $e) {
 		    		//
@@ -478,8 +469,7 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 				if(!file_exists($attachment_path . $attachment->filepath))
 					continue;
 				
-				$file =& new Swift_File($attachment_path . $attachment->filepath);
-				$mime_attachments[] =& new Swift_Message_Attachment($file, $attachment->display_name, $attachment->mime_type);
+				$mime_attachments[] = Swift_Attachment::fromPath($attachment_path . $attachment->filepath)->setFile($attachment->display_name);
 			}
 	    	
 	    	// Send copies
@@ -489,15 +479,10 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 				
 				foreach($notify_emails as $to) {
 					// Proxy the message
-					$rcpt_to = new Swift_RecipientList();
-					$a_rcpt_to = array();
-					$mail_from = new Swift_Address($sender->email);
-					$rcpt_to->addTo($to);
-					$a_rcpt_to = new Swift_Address($to);
 					
 					$mail = $mail_service->createMessage(); /* @var $mail Swift_Message */
-					$mail->setTo($a_rcpt_to);
-					$mail->setFrom($mail_from);
+					$mail->setTo(array($to));
+					$mail->setFrom(array($sender->email));
 					$mail->setReplyTo($reply_to);
 					$mail->setReturnPath($reply_to);
 					$mail->setSubject(sprintf("[%s #%s]: %s",
@@ -505,20 +490,23 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 						$ticket->mask,
 						$ticket->subject
 					));
+
+					$hdrs = $mail->getHeaders();
 					
 					if(false !== (@$msgid = $headers['message-id'])) {
-						$mail->headers->set('Message-Id',$msgid);
+						$hdrs->addTextHeader('Message-Id',$msgid);
 					}
 					
 					if(false !== (@$in_reply_to = $headers['in-reply-to'])) {
-					    $mail->headers->set('References', $in_reply_to);
-					    $mail->headers->set('In-Reply-To', $in_reply_to);
+					    $hdrs->addTextHeader('References', $in_reply_to);
+					    $hdrs->addTextHeader('In-Reply-To', $in_reply_to);
 					}
 					
-					$mail->headers->set('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
-					$mail->headers->set('Precedence','List');
-					$mail->headers->set('Auto-Submitted','auto-generated');
-					$mail->attach(new Swift_Message_Part($message->getContent(), 'text/plain', 'base64', LANG_CHARSET_CODE));
+					$hdrs->addTextHeader('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
+					$hdrs->addTextHeader('Precedence','List');
+					$hdrs->addTextHeader('Auto-Submitted','auto-generated');
+					
+					$mail->setBody($message->getContent());
 	
 					// Send message attachments with watcher
 					if(is_array($mime_attachments))
@@ -526,7 +514,7 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 						$mail->attach($mime_attachment);
 					}
 				
-					$mailer->send($mail,$rcpt_to,$mail_from);
+					$result = $mailer->send($mail);
 				}
 			}
 		}

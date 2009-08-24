@@ -1346,12 +1346,14 @@ class ChConfigurationPage extends CerberusPageExtension  {
 					        $mailer = $mail_service->getMailer(CerberusMail::getMailerDefaults());
 					        $mail = $mail_service->createMessage();
 					        
-					        $sendTo = new Swift_Address($email, $first_name . $last_name);
-					        $sendFrom = new Swift_Address($replyFrom, $replyPersonal);
-					        
+							$mail->setTo(array($email => $first_name . ' ' . $last_name));
+							$mail->setFrom(array($replyFrom => $replyPersonal));
 					        $mail->setSubject('Your new helpdesk login information!');
 					        $mail->generateId();
-					        $mail->headers->set('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
+							
+							$headers = $mail->getHeaders();
+							
+					        $headers->addTextHeader('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
 					        
 						    $body = sprintf("Your new helpdesk login information is below:\r\n".
 								"\r\n".
@@ -1366,9 +1368,9 @@ class ChConfigurationPage extends CerberusPageExtension  {
 							        $password
 						    );
 					        
-						    $mail->attach(new Swift_Message_Part($body, 'text/plain', 'base64', LANG_CHARSET_CODE));
+							$mail->setBody($body);
 	
-							if(!$mailer->send($mail, $sendTo, $sendFrom)) {
+							if(!$mailer->send($mail)) {
 								throw new Exception('Password notification email failed to send.');
 							}
 						} catch (Exception $e) {

@@ -185,24 +185,19 @@ class ChSignInPage extends CerberusPageExtension {
 			$from = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM);
 		    $personal = $settings->get(CerberusSettings::DEFAULT_REPLY_PERSONAL);
 			
-			$sendTo = new Swift_Address($email);
-			$sendFrom = new Swift_Address($from, $personal);
-		    
 			// Headers
-			$mail->setTo($sendTo);
-			$mail->setFrom($sendFrom);
+			$mail->setTo(array($email));
+			$mail->setFrom(array($from => $personal));
 			$mail->setSubject($translate->_('signin.forgot.mail.subject'));
 			$mail->generateId();
-			$mail->headers->set('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
-	
-			$mail->attach(new Swift_Message_Part(
-				vsprintf($translate->_('signin.forgot.mail.body'), $code),
-				'text/plain',
-				'base64',
-				LANG_CHARSET_CODE
-			));
 			
-			if(!$mailer->send($mail, $sendTo, $sendFrom)) {
+			$headers = $mail->getHeaders();
+			
+			$headers->addTextHeader('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
+	
+			$mail->setBody(vsprintf($translate->_('signin.forgot.mail.body'), $code));
+			
+			if(!$mailer->send($mail)) {
 				throw new Exception('Password Forgot confirmation email failed to send.');
 			}
 	    } catch (Exception $e) {
