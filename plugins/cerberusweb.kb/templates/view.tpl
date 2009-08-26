@@ -65,6 +65,25 @@
 			</td>
 			{elseif $column=="kb_updated"}
 			<td><abbr title="{$result.kb_updated|devblocks_date}">{$result.kb_updated|devblocks_prettytime}</abbr>&nbsp;</td>
+			{elseif $column=="kb_format"}
+			<td>
+				{if 0==$result.$column}
+					Plaintext
+				{elseif 1==$result.$column}
+					HTML
+				{/if}
+				&nbsp;
+			</td>
+			{elseif $column=="katc_top_category_id"}
+			<td>
+				{if !empty($result.$column)}
+					{assign var=topic_id value=$result.$column}
+					{if isset($categories.$topic_id)}
+						{$categories.$topic_id->name}
+					{/if}
+				{/if}
+				&nbsp;
+			</td>
 			{else}
 			<td>{$result.$column}&nbsp;</td>
 			{/if}

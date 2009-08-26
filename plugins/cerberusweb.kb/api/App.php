@@ -800,29 +800,43 @@ class DAO_KbArticle extends DevblocksORMHelper {
         list($tables,$wheres) = parent::_parseSearchParams($params, array(), $fields,$sortBy);
 		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
 		
-		$sql = sprintf("SELECT ".
+		$select_sql = sprintf("SELECT ".
 			"kb.id as %s, ".
 			"kb.title as %s, ".
 			"kb.updated as %s, ".
 			"kb.views as %s, ".
 			"kb.format as %s, ".
-			"kb.content as %s ".
-			"FROM kb_article kb ",
+			"kb.content as %s ",
 			    SearchFields_KbArticle::ID,
 			    SearchFields_KbArticle::TITLE,
 			    SearchFields_KbArticle::UPDATED,
 			    SearchFields_KbArticle::VIEWS,
 			    SearchFields_KbArticle::FORMAT,
 			    SearchFields_KbArticle::CONTENT
-			).
+			);
 			
-			// [JAS]: Dynamic table joins
-			(isset($tables['katc']) ? "LEFT JOIN kb_article_to_category katc ON (kb.id=katc.kb_article_id)" : " ").
+		$join_sql = "FROM kb_article kb ";
+
+		// [JAS]: Dynamic table joins
+		if(isset($tables['katc'])) {
+			$select_sql .= sprintf(", katc.kb_top_category_id AS %s ",
+				SearchFields_KbArticle::TOP_CATEGORY_ID
+			);
+			$join_sql .= "LEFT JOIN kb_article_to_category katc ON (kb.id=katc.kb_article_id) ";
+		}
+		
+		$where_sql = "".
+			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "");
 			
-			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "").
-			"GROUP BY kb.id ".
-			(!empty($sortBy) ? sprintf("ORDER BY %s %s",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : "")
-		;
+		$sort_sql = (!empty($sortBy) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ");
+
+		$sql = 
+			$select_sql.
+			$join_sql.
+			$where_sql.
+			($has_multiple_values ? 'GROUP BY kb.id ' : '').
+			$sort_sql;
+		
 		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
 		$results = array();
@@ -1084,6 +1098,9 @@ class C4_KbArticleView extends C4_AbstractView {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
+
+		$categories = DAO_KbCategory::getWhere();
+		$tpl->assign('categories', $categories);
 
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('view_fields', $this->getColumns());
