@@ -1,0 +1,71 @@
+<?php
+$db = DevblocksPlatform::getDatabaseService();
+$datadict = NewDataDictionary($db); /* @var $datadict ADODB_DataDict */ // ,'mysql' 
+
+$tables = $datadict->MetaTables();
+$tables = array_flip($tables);
+
+// ===========================================================================
+// Convert the module format
+
+$sql = "SELECT tool_code, property_value FROM community_tool_property WHERE property_key = 'common.enabled_modules'";
+$rs = $db->Execute($sql);
+
+while(!$rs->EOF) {
+	$tool_code = $rs->Fields('tool_code');
+	$property_value = $rs->Fields('property_value');
+	
+	// Check the deprecated login bits
+	$login_contact = $db->GetOne(sprintf("SELECT property_value FROM community_tool_property WHERE property_key = 'contact.require_login' AND tool_code = %s AND property_value='1'",
+		$db->qstr($tool_code)
+	));
+	$login_kb = $db->GetOne(sprintf("SELECT property_value FROM community_tool_property WHERE property_key = 'contact.require_kb' AND tool_code = %s AND property_value='1'",
+		$db->qstr($tool_code)
+	));
+	
+	// Change the format
+	$modules = array();
+	$mods = DevblocksPlatform::parseCsvString($property_value);
+	if(is_array($mods))
+	foreach($mods as $mod) {
+		switch($mod) {
+			case 'sc.controller.contact':
+				$modules[$mod] = !empty($login_contact) ? 1 : 0;
+				break;
+			case 'sc.controller.kb':
+				$modules[$mod] = !empty($login_kb) ? 1 : 0;
+				break;
+			case 'sc.controller.history':
+			case 'sc.controller.account':
+				$modules[$mod] = '1'; // default to require login
+				break;
+			default:
+				$modules[$mod] = '0'; // default to everybody
+				break;
+		}
+	}
+	
+	// Insert a new property
+	$sql = sprintf("INSERT IGNORE INTO community_tool_property (tool_code, property_key, property_value) ".
+		"VALUES (%s, %s, %s)",
+		$db->qstr($tool_code),
+		$db->qstr('common.visible_modules'),
+		$db->qstr(serialize($modules))
+	);
+	$db->Execute($sql);
+	
+	// Remove the old property
+	$db->Execute(sprintf("DELETE FROM community_tool_property WHERE tool_code = %s AND property_key = %s",
+		$db->qstr($tool_code),
+		$db->qstr('common.enabled_modules')
+	));
+	
+	// Drop deprecated options
+	$db->Execute(sprintf("DELETE FROM community_tool_property WHERE tool_code = %s AND (property_key = 'contact.require_login' OR property_key = 'kb.require_login')",
+		$db->qstr($tool_code)
+	));
+	
+	$rs->MoveNext();
+}
+
+return TRUE;

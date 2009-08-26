@@ -1,20 +1,9 @@
 <?php
 class UmScKbController extends Extension_UmScController {
-	const PARAM_REQUIRE_LOGIN = 'kb.require_login';
 	const PARAM_KB_ROOTS = 'kb.roots';
-	
 	const SESSION_ARTICLE_LIST = 'kb_article_list';	
 	
 	function isVisible() {
-		$require_login = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(),self::PARAM_REQUIRE_LOGIN, 0);
-		
-		$umsession = UmPortalHelper::getSession();
-		$active_user = $umsession->getProperty('sc_login', null);
-		
-		// If we're requiring log in...
-		if($require_login && empty($active_user))
-			return false;
-		
 		// Disable the KB if no categories were selected
 		$sKbRoots = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(),self::PARAM_KB_ROOTS, '');
         $kb_roots = !empty($sKbRoots) ? unserialize($sKbRoots) : array();
@@ -203,9 +192,6 @@ class UmScKbController extends Extension_UmScController {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl_path = dirname(dirname(dirname(__FILE__))) . '/templates/';
 
-		$require_login = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(),self::PARAM_REQUIRE_LOGIN, 0);
-		$tpl->assign('kb_require_login', $require_login);
-
 		// Knowledgebase
 		$tree_map = DAO_KbCategory::getTreeMap();
 		$tpl->assign('tree_map', $tree_map);
@@ -224,9 +210,6 @@ class UmScKbController extends Extension_UmScController {
 	}
 	
 	function saveConfiguration() {
-        @$iRequireLogin = DevblocksPlatform::importGPC($_POST['kb_require_login'],'integer',0);
-		DAO_CommunityToolProperty::set(UmPortalHelper::getCode(), self::PARAM_REQUIRE_LOGIN, $iRequireLogin);
-		
         // KB
         @$aKbRoots = DevblocksPlatform::importGPC($_POST['category_ids'],'array',array());
         $aKbRoots = array_flip($aKbRoots);

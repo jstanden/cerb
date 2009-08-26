@@ -6,7 +6,7 @@ class UmScApp extends Extension_UsermeetTool {
 	const PARAM_HEADER_HTML = 'common.header_html';
 	const PARAM_FOOTER_HTML = 'common.footer_html';
 	const PARAM_ALLOW_LOGINS = 'common.allow_logins';
-	const PARAM_ENABLED_MODULES = 'common.enabled_modules';
+	const PARAM_VISIBLE_MODULES = 'common.visible_modules';
 	
 	const SESSION_CAPTCHA = 'write_captcha';
 	
@@ -19,10 +19,21 @@ class UmScApp extends Extension_UsermeetTool {
 		
     	// Lazy load
     	if(null == $modules) {
-	        $enabled_modules = DevblocksPlatform::parseCsvString(DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), self::PARAM_ENABLED_MODULES, ''));
+			@$visible_modules = unserialize(DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), self::PARAM_VISIBLE_MODULES, ''));
+
+    		$umsession = UmPortalHelper::getSession();
+			@$active_user = $umsession->getProperty('sc_login',null);
 			
-			if(is_array($enabled_modules))
-			foreach($enabled_modules as $module_id) {
+			if(is_array($visible_modules))
+			foreach($visible_modules as $module_id => $visibility) {
+				// Disabled
+				if(0==strcmp($visibility, '2'))
+					continue;
+
+				// Must be logged in
+				if(0==strcmp($visibility, '1') && empty($active_user))
+					continue;
+				
 				$module = DevblocksPlatform::getExtension($module_id,true,true); /* @var $module Extension_UmScController */
 				
 				if(empty($module) || !$module instanceof Extension_UmScController)
@@ -96,8 +107,8 @@ class UmScApp extends Extension_UsermeetTool {
         $allow_logins = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), self::PARAM_ALLOW_LOGINS, 0);
 		$tpl->assign('allow_logins', $allow_logins);
 		
-        $enabled_modules = DevblocksPlatform::parseCsvString(DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), self::PARAM_ENABLED_MODULES, ''));
-		$tpl->assign('enabled_modules', $enabled_modules);
+       	@$visible_modules = unserialize(DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), self::PARAM_VISIBLE_MODULES, ''));
+		$tpl->assign('visible_modules', $visible_modules);
 		
         @$active_user = $umsession->getProperty('sc_login',null);
         $tpl->assign('active_user', $active_user);
@@ -219,15 +230,15 @@ class UmScApp extends Extension_UsermeetTool {
         $allow_logins = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), self::PARAM_ALLOW_LOGINS, 0);
 		$tpl->assign('allow_logins', $allow_logins);
 
-        $enabled_modules = DevblocksPlatform::parseCsvString(DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), self::PARAM_ENABLED_MODULES, array()));
-		$tpl->assign('enabled_modules', $enabled_modules);
+        @$visible_modules = unserialize(DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), self::PARAM_VISIBLE_MODULES, ''));
+		$tpl->assign('visible_modules', $visible_modules);
 
 		$all_modules = DevblocksPlatform::getExtensions('usermeet.sc.controller', true, true);
 		$modules = array();
 		
 		// Sort the enabled modules first, in order.
-		if(is_array($enabled_modules))
-		foreach($enabled_modules as $module_id) {
+		if(is_array($visible_modules))
+		foreach($visible_modules as $module_id => $visibility) {
 			if(!isset($all_modules[$module_id]))
 				continue;
 			$module = $all_modules[$module_id];
@@ -248,7 +259,7 @@ class UmScApp extends Extension_UsermeetTool {
     }
     
     public function saveConfiguration() {
-        @$aEnabledModules = DevblocksPlatform::importGPC($_POST['enabled_modules'],'array',array());
+        @$aVisibleModules = DevblocksPlatform::importGPC($_POST['visible_modules'],'array',array());
         @$aIdxModules = DevblocksPlatform::importGPC($_POST['idx_modules'],'array',array());
         @$aPosModules = DevblocksPlatform::importGPC($_POST['pos_modules'],'array',array());
         @$sPageTitle = DevblocksPlatform::importGPC($_POST['page_title'],'string','Contact Us');
@@ -256,7 +267,7 @@ class UmScApp extends Extension_UsermeetTool {
 		// Modules (toggle + sort)
 		if(is_array($aIdxModules))
 		foreach($aIdxModules as $idx => $module_id) {
-			if(!in_array($module_id, $aEnabledModules)) {
+			if(0==strcmp($aVisibleModules[$idx],'2')) {
 				unset($aPosModules[$idx]);
 			}
 		}
@@ -265,9 +276,9 @@ class UmScApp extends Extension_UsermeetTool {
 		$aEnabledModules = array();
 		asort($aPosModules); // sort enabled by order asc
 		foreach($aPosModules as $idx => $null)
-			$aEnabledModules[] = $aIdxModules[$idx]; 
-
-        DAO_CommunityToolProperty::set(UmPortalHelper::getCode(), self::PARAM_ENABLED_MODULES, implode(',',$aEnabledModules));
+			$aEnabledModules[$aIdxModules[$idx]] = $aVisibleModules[$idx];
+			
+        DAO_CommunityToolProperty::set(UmPortalHelper::getCode(), self::PARAM_VISIBLE_MODULES, serialize($aEnabledModules));
         DAO_CommunityToolProperty::set(UmPortalHelper::getCode(), self::PARAM_PAGE_TITLE, $sPageTitle);
 
 		// Logins
@@ -294,7 +305,7 @@ class UmScApp extends Extension_UsermeetTool {
 		$modules = DevblocksPlatform::getExtensions('usermeet.sc.controller',true,true);
 		foreach($modules as $module) { /* @var $module Extension_UmScController */
 			// Only save enabled
-			if(!in_array($module->manifest->id, $aEnabledModules))
+			if(!isset($aEnabledModules[$module->manifest->id]))
 				continue;
 				
 			$module->saveConfiguration();

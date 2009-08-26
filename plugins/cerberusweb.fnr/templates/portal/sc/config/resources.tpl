@@ -1,8 +1,3 @@
-{*
-<label><input type="checkbox" name="kb_require_login" value="1" {if $kb_require_login}checked="checked"{/if}> {$translate->_('portal.sc.cfg.kb.require_login')}</label><br>
-<br>
-*}
-
 <div style="margin-left:10px;">
 {$translate->_('fnr.portal.sc.cfg.topics')}<br>
 <br>

@@ -1,20 +1,11 @@
 <?php
 class UmScContactController extends Extension_UmScController {
-	const PARAM_REQUIRE_LOGIN = 'contact.require_login';
 	const PARAM_CAPTCHA_ENABLED = 'contact.captcha_enabled';
 	const PARAM_ALLOW_SUBJECTS = 'contact.allow_subjects';
 	const PARAM_ATTACHMENTS_MODE = 'contact.attachments_mode';
 	const PARAM_SITUATIONS = 'contact.situations';
 	
 	function isVisible() {
-		$require_login = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(),self::PARAM_REQUIRE_LOGIN, 0);
-		
-		$umsession = UmPortalHelper::getSession();
-		$active_user = $umsession->getProperty('sc_login', null);
-
-		if($require_login && empty($active_user))
-			return false;
-		
 		return true;
 	}
 	
@@ -174,9 +165,6 @@ class UmScContactController extends Extension_UmScController {
         $dispatch = !empty($sDispatch) ? unserialize($sDispatch) : array();
         $tpl->assign('dispatch', $dispatch);
 		
-		$require_login = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(),self::PARAM_REQUIRE_LOGIN, 0);
-		$tpl->assign('contact_require_login', $require_login);
-		
 		$groups = DAO_Group::getAll();
 		$tpl->assign('groups', $groups);
 		
@@ -192,9 +180,6 @@ class UmScContactController extends Extension_UmScController {
 	}
 	
 	function saveConfiguration() {
-        @$iRequireLogin = DevblocksPlatform::importGPC($_POST['contact_require_login'],'integer',0);
-		DAO_CommunityToolProperty::set(UmPortalHelper::getCode(), self::PARAM_REQUIRE_LOGIN, $iRequireLogin);
-
         @$iCaptcha = DevblocksPlatform::importGPC($_POST['captcha_enabled'],'integer',1);
         DAO_CommunityToolProperty::set(UmPortalHelper::getCode(), self::PARAM_CAPTCHA_ENABLED, $iCaptcha);
 

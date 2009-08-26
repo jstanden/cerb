@@ -1,4 +1,3 @@
-<label><input type="checkbox" name="contact_require_login" value="1" {if $contact_require_login}checked="checked"{/if}> {$translate->_('portal.sc.cfg.open_ticket.require_login')}</label><br>
 <label><input type="checkbox" name="allow_subjects" value="1" {if $allow_subjects}checked="checked"{/if}> {$translate->_('portal.sc.cfg.open_ticket.allow_custom_subjects')}</label><br>
 <br>
 

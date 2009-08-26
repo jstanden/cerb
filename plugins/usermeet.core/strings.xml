@@ -194,9 +194,6 @@ Brea, CA 92821 USA&lt;br&gt;
 		<tu tuid='portal.sc.cfg.open_ticket.attachments.nobody'>
 			<tuv xml:lang="en_US"><seg>Nobody</seg></tuv>
 		</tu>
-		<tu tuid='portal.sc.cfg.open_ticket.require_login'>
-			<tuv xml:lang="en_US"><seg>Must be logged in to open new tickets.</seg></tuv>
-		</tu>
 		<tu tuid='portal.sc.cfg.reason_contacting'>
 			<tuv xml:lang="en_US"><seg>Reason for contacting:</seg></tuv>
 		</tu>

@@ -81,7 +81,8 @@
 					</tr>
 					<tr>
 						<td width="100%" colspan="2" align="center">
-							{if in_array('sc.controller.register',$enabled_modules)}<a href="{devblocks_url}c=register{/devblocks_url}">{$translate->_('portal.sc.public.register')|lower}</a> | {/if} 
+							{assign var=mod_register value='sc.controller.register'}
+							{if isset($visible_modules.$mod_register)}<a href="{devblocks_url}c=register{/devblocks_url}">{$translate->_('portal.sc.public.register')|lower}</a> | {/if} 
 							<a href="{devblocks_url}c=register&a=forgot{/devblocks_url}">{$translate->_('portal.sc.public.themes.forgot')}</a>
 						</td>
 					</tr>

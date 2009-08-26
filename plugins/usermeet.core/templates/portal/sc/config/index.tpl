@@ -50,15 +50,26 @@
 <h2>Modules</h2>
 <table cellpadding="0" cellspacing="5" border="0">
 	<tr>
-		<td><b>Enabled</b></td>
 		<td><b>{$translate->_('common.order')|capitalize}</b></td>
+		<td><b>Visibility</b></td>
 		<td><b>Module</b></td>
 	</tr>
 	{counter name=pos start=0 print=false}
 	{foreach from=$modules item=module}
+		{assign var=module_id value=$module->manifest->id}
 		<tr>
-			<td align="center"><input type="checkbox" name="enabled_modules[]" value="{$module->manifest->id}" {if in_array($module->manifest->id,$enabled_modules)}checked="checked"{/if} onclick="toggleDiv('module{$module->manifest->id}',this.checked?'block':'none');"></td>
 			<td align="center"><input type="text" name="pos_modules[]" size="2" value="{counter name=pos}"></td>
+			<td align="center">
+				<select name="visible_modules[]" onchange="toggleDiv('module{$module->manifest->id}','2'!=selectValue(this)?'block':'none');">
+					{if 'sc.controller.history' != $module->manifest->id && 'sc.controller.account' != $module->manifest->id}
+					<option value="0" {if isset($visible_modules.$module_id) && '0'==$visible_modules.$module_id}selected="selected"{/if}>Everyone</option>
+					{/if}
+					{if 'sc.controller.register' != $module->manifest->id}
+					<option value="1" {if isset($visible_modules.$module_id) && '1'==$visible_modules.$module_id}selected="selected"{/if}>Logged in</option>
+					{/if}
+					<option value="2" {if !isset($visible_modules.$module_id) || '2'==$visible_modules.$module_id}selected="selected"{/if}>Disabled</option>
+				</select>
+			</td>
 			<td><input type="hidden" name="idx_modules[]" value="{$module->manifest->id}">{$module->manifest->name}</td>
 		</tr>
 	{/foreach}
@@ -67,7 +78,8 @@
 
 {* Module config forms *}
 {foreach from=$modules item=module}
-	<div id="module{$module->manifest->id}" style="display:{if in_array($module->manifest->id,$enabled_modules)}block{else}none{/if};margin-left:10px;">
+	{assign var=module_id value=$module->manifest->id}
+	<div id="module{$module->manifest->id}" style="display:{if isset($visible_modules.$module_id)}block{else}none{/if};margin-left:10px;">
 		<div style="border-bottom:1px solid rgb(180,180,180);margin-bottom:5px;">
 		<h2 style="margin-bottom:0px;color:rgb(0,128,255);">{$module->manifest->name}</h2>
 		</div>

@@ -1,20 +1,10 @@
 <?php
 class ChFnrScController extends Extension_UmScController {
-	const PARAM_REQUIRE_LOGIN = 'fnr.require_login';
 	const PARAM_FNR_TOPICS = 'fnr.roots';
 	
 	const SESSION_ARTICLE_LIST = 'fnr_article_list';	
 	
 	function isVisible() {
-		$require_login = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(),self::PARAM_REQUIRE_LOGIN, 0);
-		
-		$umsession = UmPortalHelper::getSession();
-		$active_user = $umsession->getProperty('sc_login', null);
-		
-		// If we're requiring log in...
-		if($require_login && empty($active_user))
-			return false;
-		
 		// Disable F&R if no topics were selected
 		$sFnrTopics = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(),self::PARAM_FNR_TOPICS, '');
         $fnr_topics = !empty($sFnrTopics) ? unserialize($sFnrTopics) : array();
@@ -70,9 +60,6 @@ class ChFnrScController extends Extension_UmScController {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl_path = dirname(dirname(dirname(__FILE__))) . '/templates/';
 
-//		$require_login = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(),self::PARAM_REQUIRE_LOGIN, 0);
-//		$tpl->assign('kb_require_login', $require_login);
-
 		// F&R
 		$fnr_topics = DAO_FnrTopic::getWhere();
 		$tpl->assign('fnr_topics', $fnr_topics);
@@ -85,9 +72,6 @@ class ChFnrScController extends Extension_UmScController {
 	}
 	
 	function saveConfiguration() {
-//        @$iRequireLogin = DevblocksPlatform::importGPC($_POST['kb_require_login'],'integer',0);
-//		DAO_CommunityToolProperty::set(UmPortalHelper::getCode(), self::PARAM_REQUIRE_LOGIN, $iRequireLogin);
-		
         // KB
         @$aFnrTopics = DevblocksPlatform::importGPC($_POST['topic_ids'],'array',array());
         $aFnrTopics = array_flip($aFnrTopics);
