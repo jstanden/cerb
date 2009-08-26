@@ -49,8 +49,8 @@
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
 
-if(version_compare(PHP_VERSION, "5.1.2", "<"))
-	die("Cerberus Helpdesk 4.x requires PHP 5.1.2 or later.");
+if(version_compare(PHP_VERSION, "5.2", "<"))
+	die("Cerberus Helpdesk 4.x requires PHP 5.2 or later.");
 
 require(getcwd() . '/framework.config.php');
 require(DEVBLOCKS_PATH . 'Devblocks.class.php');
