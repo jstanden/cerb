@@ -57,6 +57,9 @@ class ChAuditLogEventListener extends DevblocksEventListenerExtension {
             		&& !empty($changed_fields))
             	foreach($tickets as $ticket_id => $ticket) { /* @var $ticket CerberusTicket */
             		foreach($changed_fields as $changed_field => $changed_value) {
+            			if(is_array($changed_value))
+							$changed_value = implode("\r\n", $changed_value);
+						
             			// If different
             			if(isset($ticket->$changed_field) 
             				&& 0 != strcmp($ticket->$changed_field,$changed_value)) {
