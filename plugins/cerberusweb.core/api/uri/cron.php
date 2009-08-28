@@ -58,6 +58,7 @@ class ChCronController extends DevblocksControllerExtension {
 			"<HEAD>".
 			"<TITLE></TITLE>".
 			"<meta http-equiv='Refresh' content='".intval($reload).";".$reload_url."'>". 
+			"<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>".
 		    "</HEAD>".
 			"<BODY>"; // onload=\"setTimeout(\\\"window.location.replace('".$url->write('c=cron')."')\\\",30);\"
         }
