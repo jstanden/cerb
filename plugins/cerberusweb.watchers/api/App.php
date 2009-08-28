@@ -469,7 +469,10 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 				if(!file_exists($attachment_path . $attachment->filepath))
 					continue;
 				
-				$mime_attachments[] = Swift_Attachment::fromPath($attachment_path . $attachment->filepath)->setFile($attachment->display_name);
+				$attach = Swift_Attachment::fromPath($attachment_path . $attachment->filepath);
+				if(!empty($attachment->display_name))
+					$attach->setFilename($attachment->display_name);
+				$mime_attachments[] = $attach;
 			}
 	    	
 	    	// Send copies
