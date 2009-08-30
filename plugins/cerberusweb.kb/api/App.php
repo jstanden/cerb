@@ -687,6 +687,9 @@ class DAO_KbArticle extends DevblocksORMHelper {
 	static function delete($ids) {
 		if(!is_array($ids)) $ids = array($ids);
 		
+		if(empty($ids))
+			return;
+		
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		$id_string = implode(',', $ids);
@@ -1048,6 +1051,9 @@ class DAO_KbCategory extends DevblocksORMHelper {
 	static function delete($ids) {
 		if(!is_array($ids)) $ids = array($ids);
 		$db = DevblocksPlatform::getDatabaseService();
+		
+		if(empty($ids))
+			return;
 		
 		$ids_list = implode(',', $ids);
 		

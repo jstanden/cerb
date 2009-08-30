@@ -229,6 +229,9 @@ class DAO_WebapiKey extends DevblocksORMHelper {
 		if(!is_array($ids)) $ids = array($ids);
 		$db = DevblocksPlatform::getDatabaseService();
 		
+		if(empty($ids))
+			return;
+		
 		$ids_list = implode(',', $ids);
 		
 		$db->Execute(sprintf("DELETE QUICK FROM webapi_key WHERE id IN (%s)",$ids_list));

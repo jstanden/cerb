@@ -1259,6 +1259,9 @@ class DAO_WatcherMailFilter extends DevblocksORMHelper {
 		if(!is_array($ids)) $ids = array($ids);
 		$db = DevblocksPlatform::getDatabaseService();
 		
+		if(empty($ids))
+			return;
+		
 		$ids_list = implode(',', $ids);
 		
 		$db->Execute(sprintf("DELETE FROM watcher_mail_filter WHERE id IN (%s)", $ids_list));
