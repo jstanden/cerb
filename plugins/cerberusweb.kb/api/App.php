@@ -837,7 +837,8 @@ class DAO_KbArticle extends DevblocksORMHelper {
 			$select_sql.
 			$join_sql.
 			$where_sql.
-			($has_multiple_values ? 'GROUP BY kb.id ' : '').
+			//($has_multiple_values ? 'GROUP BY kb.id ' : '').
+			'GROUP BY kb.id '.
 			$sort_sql;
 		
 		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
