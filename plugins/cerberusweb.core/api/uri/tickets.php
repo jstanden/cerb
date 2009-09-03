@@ -1132,7 +1132,10 @@ class ChTicketsPage extends CerberusPageExtension {
 		// Add additional requesters to ticket
 		if(is_array($fromList) && !empty($fromList))
 		foreach($fromList as $requester) {
-			$requester_addy = DAO_Address::lookupAddress($requester->mailbox . '@' . $requester->host);
+			if(empty($requester))
+				continue;
+			$host = empty($host) ? 'localhost' : $requester->host;
+			$requester_addy = DAO_Address::lookupAddress($requester->mailbox . '@' . $host, true);
 			DAO_Ticket::createRequester($requester_addy->id, $ticket_id);
 		}
 		
