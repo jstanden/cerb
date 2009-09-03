@@ -60,8 +60,17 @@ class CerberusUtils {
 	 * @param string $string
 	 * @return array
 	 */
-	static function parseRfcAddressList($string) {
-		return imap_rfc822_parse_adrlist($string, 'localhost');
+	static function parseRfcAddressList($input) {
+		$addys = array();
+		
+		if(!is_array($input))
+			$input = array($input);
+		
+		foreach($input as $string) {
+			$addys += imap_rfc822_parse_adrlist($string, '');
+		}
+		
+		return $addys;
 	}
 	
 	function smarty_modifier_makehrefs($string, $sanitize = false, $style="") {

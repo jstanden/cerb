@@ -1784,7 +1784,7 @@ class DAO_Address extends C4_ORMHelper {
 		
 		$address = null;
 		
-		$email = trim(strtolower($email));
+		$email = trim(mb_convert_case($email, MB_CASE_LOWER));
 		
 		$addresses = self::getWhere(sprintf("email = %s",
 			$db->qstr($email)

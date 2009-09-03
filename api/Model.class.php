@@ -160,6 +160,7 @@ class Model_PreParseRule {
 						break;
 						
 					case 'tocc':
+						$tocc = array();
 						$destinations = DevblocksPlatform::parseCsvString($value);
 
 						// Build a list of To/Cc addresses on this message
@@ -506,6 +507,7 @@ class Model_GroupInboxFilter {
 						break;						
 						
 					case 'tocc':
+						$tocc = array();
 						$destinations = DevblocksPlatform::parseCsvString($value);
 
 						// Build a list of To/Cc addresses on this message
@@ -3156,6 +3158,7 @@ class Model_MailToGroupRule {
 						break;					
 					
 					case 'tocc':
+						$tocc = array();
 						$destinations = DevblocksPlatform::parseCsvString($value);
 
 						// Build a list of To/Cc addresses on this message

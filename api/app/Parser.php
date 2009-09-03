@@ -107,6 +107,8 @@ class CerberusParser {
 
 		// Decode headers
 		@$message->headers = $msginfo['headers'];
+		
+		if(is_array($message->headers))
 		foreach($message->headers as $header_name => $header_val) {
 			if(is_array($header_val)) {
 				foreach($header_val as $idx => $val) {
@@ -269,10 +271,10 @@ class CerberusParser {
 	 * @param array $headers
 	 */    
 	static public function getAddressFromHeaders($headers) {
-		$sReturnPath = @$headers['return-path'];
-		$sReplyTo = @$headers['reply-to'];
-		$sFrom = @$headers['from'];
-
+		@$sReturnPath = $headers['return-path'];
+		@$sReplyTo = $headers['reply-to'];
+		@$sFrom = $headers['from'];
+		
 		$from = array();
 		
 		if(!empty($sReplyTo)) {
@@ -287,12 +289,18 @@ class CerberusParser {
 			return NULL;
 		}
 		
-		@$fromAddress = $from[0]->mailbox.'@'.$from[0]->host;
-		if(null == ($fromInst = CerberusApplication::hashLookupAddress($fromAddress, true))) {
-			return NULL;
+		foreach($from as $addy) {
+			if(empty($addy->mailbox) || empty($addy->host))
+				continue;
+		
+			@$fromAddress = $addy->mailbox.'@'.$addy->host;
+			
+			if(null != ($fromInst = CerberusApplication::hashLookupAddress($fromAddress, true))) {
+				return $fromInst;
+			}
 		}
 		
-		return $fromInst;		
+		return NULL;
 	} 
 	
 	/**
@@ -381,8 +389,11 @@ class CerberusParser {
 		// Subject
 		// Fix quote printable subject (quoted blocks can appear anywhere in subject)
 		$sSubject = "";
-		if(isset($headers['subject']) && !empty($headers['subject']))
-			$sSubject = self::fixQuotePrintableString($headers['subject']);
+		if(isset($headers['subject']) && !empty($headers['subject'])) {
+			$sSubject = $headers['subject'];
+			if(is_array($sSubject))
+				$sSubject = array_shift($sSubject);
+		}
 		// The subject can still end up empty after QP decode
 		if(empty($sSubject))
 			$sSubject = "(no subject)";
@@ -545,6 +556,7 @@ class CerberusParser {
 					return null;
 				}
 			}
+			
 			
 			// [JAS] It's important to not set the group_id on the ticket until the messages exist
 			// or inbox filters will just abort.
@@ -923,13 +935,13 @@ class CerberusParser {
 					@$out .= mb_convert_encoding($part->text,LANG_CHARSET_CODE,$charset);
 				} catch(Exception $e) {}
 			}
-			
-			// Strip invalid characters in our encoding
-			if(!mb_check_encoding($out, LANG_CHARSET_CODE))
-				$out = mb_convert_encoding($out, LANG_CHARSET_CODE, LANG_CHARSET_CODE);
 		}
+
+		// Strip invalid characters in our encoding
+		if(!mb_check_encoding($out, LANG_CHARSET_CODE))
+			$out = mb_convert_encoding($out, LANG_CHARSET_CODE, LANG_CHARSET_CODE);
 		
-		return trim($out);
+		return $out;
 	}
 	
 };

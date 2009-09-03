@@ -496,11 +496,11 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 
 					$hdrs = $mail->getHeaders();
 					
-					if(false !== (@$msgid = $headers['message-id'])) {
+					if(null !== (@$msgid = $headers['message-id'])) {
 						$hdrs->addTextHeader('Message-Id',$msgid);
 					}
 					
-					if(false !== (@$in_reply_to = $headers['in-reply-to'])) {
+					if(null !== (@$in_reply_to = $headers['in-reply-to'])) {
 					    $hdrs->addTextHeader('References', $in_reply_to);
 					    $hdrs->addTextHeader('In-Reply-To', $in_reply_to);
 					}
@@ -522,14 +522,16 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 			}
 		}
 		catch(Exception $e) {
-			$fields = array(
-				DAO_MessageNote::MESSAGE_ID => $message_id,
-				DAO_MessageNote::CREATED => time(),
-				DAO_MessageNote::WORKER_ID => 0,
-				DAO_MessageNote::CONTENT => 'Exception thrown while sending watcher email: ' . $e->getMessage(),
-				DAO_MessageNote::TYPE => Model_MessageNote::TYPE_ERROR,
-			);
-			DAO_MessageNote::create($fields);
+			if(!empty($message_id)) {
+				$fields = array(
+					DAO_MessageNote::MESSAGE_ID => $message_id,
+					DAO_MessageNote::CREATED => time(),
+					DAO_MessageNote::WORKER_ID => 0,
+					DAO_MessageNote::CONTENT => 'Exception thrown while sending watcher email: ' . $e->getMessage(),
+					DAO_MessageNote::TYPE => Model_MessageNote::TYPE_ERROR,
+				);
+				DAO_MessageNote::create($fields);
+			}
 		}
     }
 };
