@@ -6563,7 +6563,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 
 				case Model_CustomField::TYPE_NUMBER:
 				case Model_CustomField::TYPE_WORKER:
-					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'integer',0);
+					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'string','');
 					if(0 != strlen($field_value)) {
 						DAO_CustomFieldValue::setFieldValue($source_ext_id, $source_id, $field_id, intval($field_value));
 					} else {
