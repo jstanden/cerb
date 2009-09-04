@@ -553,16 +553,19 @@ class CerberusMail {
 				// Forwards
 				if(!empty($properties['to'])) {
 				    $aTo = DevblocksPlatform::parseCsvString(str_replace(';',',',$properties['to']));
-					$mail->addTo($aTo);
+					
+					if(is_array($aTo))
+					foreach($aTo as $to_addy) {
+						$mail->addTo($to_addy);
+					}
 				    
 				// Replies
 				} else {
 				    // Recipients
 					$requesters = DAO_Ticket::getRequestersByTicket($ticket_id);
-				    if(is_array($requesters)) {
-					    foreach($requesters as $requester) { /* @var $requester Model_Address */
-							$mail->addTo($requester->email);
-					    }
+				    if(is_array($requesters))
+				    foreach($requesters as $requester) { /* @var $requester Model_Address */
+						$mail->addTo($requester->email);
 				    }
 				}
 		
