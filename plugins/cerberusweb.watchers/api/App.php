@@ -1736,9 +1736,9 @@ class Model_WatcherMailFilter {
 									$field_val = isset($field_values[$field_id]) ? $field_values[$field_id] : '';
 									$oper = isset($rule['oper']) ? $rule['oper'] : "=";
 									
-									if($oper == "=" && @preg_match(DevblocksPlatform::strToRegExp($value), $field_val))
+									if($oper == "=" && @preg_match(DevblocksPlatform::strToRegExp($value, true), $field_val))
 										$passed++;
-									elseif($oper == "!=" && @!preg_match(DevblocksPlatform::strToRegExp($value), $field_val))
+									elseif($oper == "!=" && @!preg_match(DevblocksPlatform::strToRegExp($value, true), $field_val))
 										$passed++;
 									break;
 								case 'N': // number
