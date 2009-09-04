@@ -595,8 +595,9 @@ switch($step) {
 					'enc' => $smtp_enc,
 				));
 				
-				$mailer->connect();
-				$mailer->disconnect();
+				$transport = $mailer->getTransport();
+				$transport->start();
+				$transport->stop();
 				
 				if(!empty($smtp_host))
 					$settings->set(CerberusSettings::SMTP_HOST, $smtp_host);

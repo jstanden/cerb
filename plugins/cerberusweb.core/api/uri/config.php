@@ -485,8 +485,9 @@ class ChConfigurationPage extends CerberusPageExtension  {
 					'enc' => $smtp_enc,
 				));
 				
-				$mailer->connect();
-				$mailer->disconnect();
+				$transport = $mailer->getTransport();
+				$transport->start();
+				$transport->stop();
 				$tpl->assign('smtp_test', true);
 				
 			} catch(Exception $e) {
