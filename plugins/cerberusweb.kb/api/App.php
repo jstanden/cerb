@@ -1267,7 +1267,6 @@ class C4_KbArticleView extends C4_AbstractView {
 		if(empty($ids))
 		do {
 			list($objects,$null) = DAO_KbArticle::search(
-				array(),
 				$this->params,
 				100,
 				$pg++,
