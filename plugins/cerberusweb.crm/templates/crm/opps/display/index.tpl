@@ -91,37 +91,31 @@ tabView.appendTo('displayCrmTabs');
 {literal}
 CreateKeyHandler(function doShortcuts(e) {
 
-	var mykey = getKeyboardKey(e);
+	var mycode = getKeyboardKey(e, true);
 	
-	switch(mykey) {
-		case "a":  // E-mail Peek
-		case "A":
+	switch(mycode) {
+		case 65:  // (A) E-mail Peek
 			try {
 				document.getElementById('btnOppAddyPeek').click();
 			} catch(e){}
 			break;
-		case "q":  // quick compose
-		case "Q":
+		case 81:  // (Q) quick compose
 			try {
 				document.getElementById('btnQuickCompose').click();
 			} catch(e){}
 			break;
+		case 219:  // [ - prev page
+			try {
+				document.getElementById('btnPagePrev').click();
+			} catch(e){}
+			break;
+		case 221:  // ] - next page
+			try {
+				document.getElementById('btnPageNext').click();
+			} catch(e){}
+			break;
 		default:
 			// We didn't find any obvious keys, try other codes
-			var mycode = getKeyboardKey(e,true);
-
-			switch(mycode) {
-				case 219:  // [ - prev page
-					try {
-						document.getElementById('btnPagePrev').click();
-					} catch(e){}
-					break;
-				case 221:  // ] - next page
-					try {
-						document.getElementById('btnPageNext').click();
-					} catch(e){}
-					break;
-			}
 			break;
 	}
 });

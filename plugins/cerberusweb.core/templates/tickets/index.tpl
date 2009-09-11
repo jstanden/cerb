@@ -85,53 +85,45 @@ tabView.addListener('activeTabChange', function(e) {
 		case {$tab_idx_workflow}:
 		{literal}
 			CreateKeyHandler(function (e) {
-				var mykey = getKeyboardKey(e);
+				var mycode = getKeyboardKey(e, true);
 				
-				switch(mykey) {
-					case "a":  // list all
-					case "A":
+				switch(mycode) {
+					case 65:  // (A) list all
 						try {
 							document.getElementById('btnWorkflowListAll').click();
 						} catch(e){}
 						break;
-					case "b":  // bulk update
-					case "B":
+					case 66:  // (B) bulk update
 						try {
 							document.getElementById('btnmail_workflowBulkUpdate').click();
 						} catch(e){}
 						break;
-					case "c":  // close
-					case "C":
+					case 67:  // (C) close
 						try {
 							document.getElementById('btnmail_workflowClose').click();
 						} catch(e){}
 						break;
-					case "m":  // my tickets
-					case "M":
+					case 77:  // (M) my tickets
 						try {
 							document.getElementById('btnMyTickets').click();
 						} catch(e){}
 						break;
-					case "s":  // spam
-					case "S":
+					case 83:  // (S) spam
 						try {
 							document.getElementById('btnmail_workflowSpam').click();
 						} catch(e){}
 						break;
-					case "t":  // take
-					case "T":
+					case 84:  // (T) take
 						try {
 							document.getElementById('btnmail_workflowTake').click();
 						} catch(e){}
 						break;
-					case "u":  // surrender
-					case "U":
+					case 85:  // (U) surrender
 						try {
 							document.getElementById('btnmail_workflowSurrender').click();
 						} catch(e){}
 						break;
-					case "x":  // delete
-					case "X":
+					case 88:  // (X) delete
 						try {
 							document.getElementById('btnmail_workflowDelete').click();
 						} catch(e){}
@@ -147,53 +139,45 @@ tabView.addListener('activeTabChange', function(e) {
 		case {$tab_idx_overview}:
 		{literal}
 			CreateKeyHandler(function (e) {
-				var mykey = getKeyboardKey(e);
+				var mycode = getKeyboardKey(e, true);
 				
-				switch(mykey) {
-					case "a":  // list all
-					case "A":
+				switch(mycode) {
+					case 65: // (A) list all
 						try {
 							document.getElementById('btnOverviewListAll').click();
 						} catch(e){}
 						break;
-					case "b":  // bulk update
-					case "B":
+					case 66:  // (B) bulk update
 						try {
 							document.getElementById('btnoverview_allBulkUpdate').click();
 						} catch(e){}
 						break;
-					case "c":  // close
-					case "C":
+					case 67:  // (C) close
 						try {
 							document.getElementById('btnoverview_allClose').click();
 						} catch(e){}
 						break;
-					case "m":  // my tickets
-					case "M":
+					case 77:  // (M) my tickets
 						try {
 							document.getElementById('btnMyTickets').click();
 						} catch(e){}
 						break;
-					case "s":  // spam
-					case "S":
+					case 83:  // (S) spam
 						try {
 							document.getElementById('btnoverview_allSpam').click();
 						} catch(e){}
 						break;
-					case "t":  // take
-					case "T":
+					case 84:  // (T) take
 						try {
 							document.getElementById('btnoverview_allTake').click();
 						} catch(e){}
 						break;
-					case "u":  // surrender
-					case "U":
+					case 85:  // (U) surrender
 						try {
 							document.getElementById('btnoverview_allSurrender').click();
 						} catch(e){}
 						break;
-					case "x":  // delete
-					case "X":
+					case 88:  // (X) delete
 						try {
 							document.getElementById('btnoverview_allDelete').click();
 						} catch(e){}
@@ -209,41 +193,35 @@ tabView.addListener('activeTabChange', function(e) {
 		case {$tab_idx_search}:
 		{literal}
 			CreateKeyHandler(function (e) {
-				var mykey = getKeyboardKey(e);
+				var mycode = getKeyboardKey(e, true);
 				
-				switch(mykey) {
-					case "b":  // bulk update
-					case "B":
+				switch(mycode) {
+					case 66:  // (B) bulk update
 						try {
 							document.getElementById('btnsearchBulkUpdate').click();
 						} catch(e){}
 						break;
-					case "c":  // close
-					case "C":
+					case 67:  // close
 						try {
 							document.getElementById('btnsearchClose').click();
 						} catch(e){}
 						break;
-					case "s":  // spam
-					case "S":
+					case 83:  // spam
 						try {
 							document.getElementById('btnsearchSpam').click();
 						} catch(e){}
 						break;
-					case "t":  // take
-					case "T":
+					case 84:  // take
 						try {
 							document.getElementById('btnsearchTake').click();
 						} catch(e){}
 						break;
-					case "u":  // surrender
-					case "U":
+					case 85:  // surrender
 						try {
 							document.getElementById('btnsearchSurrender').click();
 						} catch(e){}
 						break;
-					case "x":  // delete
-					case "X":
+					case 88:  // delete
 						try {
 							document.getElementById('btnsearchDelete').click();
 						} catch(e){}

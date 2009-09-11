@@ -210,73 +210,61 @@ tabView.appendTo('displayOptions');
 {literal}
 CreateKeyHandler(function doShortcuts(e) {
 
-	var mykey = getKeyboardKey(e);
+	var mycode = getKeyboardKey(e,true);
 	
-	switch(mykey) {
-		case "a":  // read all
-		case "A":
+	switch(mycode) {
+		case 65:  // (A) read all
 			try {
 				document.getElementById('btnReadAll').click();
-			} catch(e){}
+			} catch(ex){}
 			break;
-		case "c":  // close
-		case "C":
+		case 67:  // (C) close
 			try {
 				document.getElementById('btnClose').click();
-			} catch(e){}
+			} catch(ex){}
 			break;
-		case "p":  // print
-		case "P":
+		case 80:  // (P) print
 			try {
 				document.getElementById('btnPrint').click();
-			} catch(e){}
+			} catch(ex){}
 			break;
-		case "r":  // reply to first message
-		case "R":
+		case 82:  // (R) reply to first message
 			try {
 				document.getElementById('btnReplyFirst').click();
-			} catch(e){}
+			} catch(ex){}
 			break;
-		case "s":  // spam
-		case "S":
+		case 83:  // (S) spam
 			try {
 				document.getElementById('btnSpam').click();
-			} catch(e){}
+			} catch(ex){}
 			break;
-		case "t":  // take/assign
-		case "T":
+		case 84:  // (T) take/assign
 			try {
 				document.getElementById('btnTake').click();
-			} catch(e){}
+			} catch(ex){}
 			break;
-		case "u":  // surrender/unassign
-		case "U":
+		case 85:  // (U) surrender/unassign
 			try {
 				document.getElementById('btnSurrender').click();
-			} catch(e){}
+			} catch(ex){}
 			break;
-		case "x":  // delete
-		case "X":
+		case 88:  // (X) delete
 			try {
 				document.getElementById('btnDelete').click();
+			} catch(ex){}
+			break;
+		case 219:  // [ - prev page
+			try {
+				document.getElementById('btnPagePrev').click();
+			} catch(e){}
+			break;
+		case 221:  // ] - next page
+			try {
+				document.getElementById('btnPageNext').click();
 			} catch(e){}
 			break;
 		default:
 			// We didn't find any obvious keys, try other codes
-			var mycode = getKeyboardKey(e,true);
-
-			switch(mycode) {
-				case 219:  // [ - prev page
-					try {
-						document.getElementById('btnPagePrev').click();
-					} catch(e){}
-					break;
-				case 221:  // ] - next page
-					try {
-						document.getElementById('btnPageNext').click();
-					} catch(e){}
-					break;
-			}
 			break;
 	}
 });

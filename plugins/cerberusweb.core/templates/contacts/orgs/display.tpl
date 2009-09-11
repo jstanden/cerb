@@ -113,32 +113,21 @@ tabView.appendTo('contactOptions');
 {literal}
 CreateKeyHandler(function doShortcuts(e) {
 
-	var mykey = getKeyboardKey(e);
+	var mycode = getKeyboardKey(e,true);
 	
-	switch(mykey) {
-//		case "q":  // quick compose
-//		case "Q":
-//			try {
-//				document.getElementById('btnQuickCompose').click();
-//			} catch(e){}
-//			break;
+	switch(mycode) {
+		case 219:  // [ - prev page
+			try {
+				document.getElementById('btnPagePrev').click();
+			} catch(e){}
+			break;
+		case 221:  // ] - next page
+			try {
+				document.getElementById('btnPageNext').click();
+			} catch(e){}
+			break;
 		default:
 			// We didn't find any obvious keys, try other codes
-			var mycode = getKeyboardKey(e,true);
-
-			switch(mycode) {
-				case 219:  // [ - prev page
-					try {
-						document.getElementById('btnPagePrev').click();
-					} catch(e){}
-					break;
-				case 221:  // ] - next page
-					try {
-						document.getElementById('btnPageNext').click();
-					} catch(e){}
-					break;
-			}
-			break;
 	}
 });
 {/literal}
