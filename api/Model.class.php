@@ -1595,6 +1595,7 @@ class C4_TicketView extends C4_AbstractView {
 		unset($fields[SearchFields_Ticket::REQUESTER_ID]);
 		unset($fields[SearchFields_Ticket::REQUESTER_ADDRESS]);
 		unset($fields[SearchFields_Ticket::TICKET_UNLOCK_DATE]);
+		unset($fields[SearchFields_Ticket::TICKET_INTERESTING_WORDS]);
 		return $fields;
 	}
 
