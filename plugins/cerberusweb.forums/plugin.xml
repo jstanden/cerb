@@ -90,6 +90,19 @@
 			</params>
 		</extension>
 
+		<!-- Cron Extensions -->
+		
+		<extension point="cerberusweb.cron">
+			<id>forums.cron</id>
+			<name>Forum Explorer Synchronization</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChForumsCron</name>
+			</class>
+			<params>
+			</params>
+		</extension>		
+
 		<!-- Controllers -->
 		
 		<extension point="devblocks.controller">

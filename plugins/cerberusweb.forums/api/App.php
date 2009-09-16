@@ -89,6 +89,27 @@ class ChForumsConfigTab extends Extension_ConfigTab {
 	}
 };
 
+if (class_exists('CerberusCronPageExtension')):
+class ChForumsCron extends CerberusCronPageExtension {
+	function run() {
+		// Get the controller and run the import action
+		if(null != ($extension = DevblocksPlatform::getExtension(ChForumsController::EXTENSION_ID, true))) {
+			if(method_exists($extension, 'import'))
+				$extension->import();
+		}
+	}
+
+	function configure($instance) {
+//		$tpl = DevblocksPlatform::getTemplateService();
+//		$tpl->cache_lifetime = "0";
+//		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
+//		$tpl->assign('path', $tpl_path);
+//
+//		$tpl->display($tpl_path . 'cron/config.tpl');
+	}
+};
+endif;
+
 if (class_exists('Extension_ActivityTab')):
 class ChForumsActivityTab extends Extension_ActivityTab {
 	const VIEW_ACTIVITY_FORUMS = 'activity_forums';
@@ -124,6 +145,7 @@ class ChForumsActivityTab extends Extension_ActivityTab {
 endif;
 
 class ChForumsController extends DevblocksControllerExtension {
+	const EXTENSION_ID = 'forums.controller';
 	private $tpl_path = null;
 	
 	function __construct($manifest) {
@@ -388,8 +410,8 @@ class ChForumsController extends DevblocksControllerExtension {
 			$view->render();
 		}
 	}
-	
-	function importAction() {
+
+	function import() {
 		$sources = DAO_ForumsSource::getWhere();
 		$settings = CerberusSettings::getInstance();
 		
@@ -454,8 +476,11 @@ class ChForumsController extends DevblocksControllerExtension {
 				));
 			}
 		
-		} // foreach($sources)
-		
+		} // foreach($sources)		
+	}
+	
+	function importAction() {
+		$this->import();
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('activity','forums')));
 	}
 	
