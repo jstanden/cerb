@@ -48,6 +48,10 @@
 					{foreach from=$rule->criteria item=crit key=crit_key}
 						{if $crit_key=='tocc'}
 							To/Cc = <b>{$crit.value}</b><br>
+						{elseif $crit_key=='from'}
+							From = <b>{$crit.value}</b><br>
+						{elseif $crit_key=='subject'}
+							Subject = <b>{$crit.value}</b><br>
 						{elseif 'header'==substr($crit_key,0,6)}
 							Header <i>{$crit.header}</i> = <b>{$crit.value}</b><br>
 						{elseif $crit_key=='body'}
