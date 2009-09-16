@@ -3052,6 +3052,8 @@ class Model_WorkerWorkspaceListView {
 	public $columns = array();
 	public $num_rows = 10;
 	public $params = array();
+	public $sort_by = null;
+	public $sort_asc = 1;
 };
 
 class Model_Activity {

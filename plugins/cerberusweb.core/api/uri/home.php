@@ -221,6 +221,8 @@ class ChHomePage extends CerberusPageExtension {
 				$list->columns = $view->view_columns;
 				$list->params = $view->params;
 				$list->num_rows = 5;
+				$list->sort_by = $view->renderSortBy;
+				$list->sort_asc = $view->renderSortAsc;
 				
 				// Add the worklist
 				$fields = array(
@@ -355,6 +357,8 @@ class ChHomePage extends CerberusPageExtension {
 					$view->renderPage = 0;
 					$view->view_columns = $list_view->columns;
 					$view->params = $list_view->params;
+					$view->renderSortBy = $list_view->sort_by;
+					$view->renderSortAsc = $list_view->sort_asc;
 					C4_AbstractViewLoader::setView($view_id, $view);
 				}
 				

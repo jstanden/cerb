@@ -223,7 +223,8 @@ class ChInternalController extends DevblocksControllerExtension {
 			$list_view->num_rows = $view->renderLimit;
 			$list_view->columns = $view->view_columns;
 			$list_view->params = $view->params;
-			// [TODO] Sort order?
+			$list_view->sort_by = $view->renderSortBy;
+			$list_view->sort_asc = $view->renderSortAsc;
 			
 			// Save the new worklist
 			$fields = array(
@@ -376,6 +377,8 @@ class ChInternalController extends DevblocksControllerExtension {
 			$list_view->columns = $view->view_columns;
 			$list_view->num_rows = $view->renderLimit;
 			$list_view->params = $view->params;
+			$list_view->sort_by = $view->renderSortBy;
+			$list_view->sort_asc = $view->renderSortAsc;
 			
 			DAO_WorkerWorkspaceList::update($list_view_id, array(
 				DAO_WorkerWorkspaceList::LIST_VIEW => serialize($list_view)
