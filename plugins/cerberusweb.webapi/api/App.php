@@ -433,10 +433,10 @@ abstract class Ch_RestController implements DevblocksHttpRequestHandler {
 	
 	protected function _render($xml) {
 		if('json' == $this->_format) {
-			header("Content-type: text/javascript;");
+			header("Content-type: text/javascript; charset=utf-8");
 			echo Zend_Json::fromXml($xml, true);
 		} else {
-			header("Content-type: text/xml;");
+			header("Content-type: text/xml; charset=utf-8");
 			echo $xml;
 		}
 		exit;
@@ -444,7 +444,7 @@ abstract class Ch_RestController implements DevblocksHttpRequestHandler {
 	
 	protected function _error($message) {
 		$out_xml = new SimpleXMLElement('<error></error>');
-		$out_xml->addChild('message', htmlentities($message));
+		$out_xml->addChild('message', htmlspecialchars($message));
 		$this->_render($out_xml->asXML());
 	}
 	
@@ -471,13 +471,13 @@ abstract class Ch_RestController implements DevblocksHttpRequestHandler {
 
 		if(is_array($attribs))
 		foreach($attribs as $k=>$v)
-			$xml->addAttribute($k, htmlentities($v));
+			$xml->addAttribute($k, htmlspecialchars($v));
 
 		foreach($results as $result) {
 			$e =& $xml->addChild($element);
 			foreach($fields as $idx => $fld) {
 				if((isset($result[$idx])) && ($idx_name = $this->translate($idx, true)) != null)
-					$e->addChild($idx_name, htmlentities($result[$idx]));
+					$e->addChild($idx_name, htmlspecialchars($result[$idx]));
 			}
 		}
 
@@ -490,7 +490,7 @@ abstract class Ch_RestController implements DevblocksHttpRequestHandler {
 
 		foreach($fields as $idx => $fld) {
 			if((isset($result[$idx])) && ($idx_name = $this->translate($idx, true)) != null)
-				$xml->addChild($idx_name, htmlentities($result[$idx]));
+				$xml->addChild($idx_name, htmlspecialchars($result[$idx]));
 		}
 
 		$this->_render($xml->asXML());
@@ -678,11 +678,11 @@ class Rest_AddressesController extends Ch_RestController {
 		if(null != ($addy = DAO_Address::lookupAddress($email, false))) {
 			if($addy->is_registered && !empty($addy->pass) && $pass_hash==$addy->pass) {
 				$xml = new SimpleXMLElement("<success></success>");
-				$xml->addChild('address',htmlentities($email));
+				$xml->addChild('address',htmlspecialchars($email));
 			}
 			if(!$addy->is_registered && !empty($addy->pass) && $confirmation_code==$addy->pass) {
 				$xml = new SimpleXMLElement("<success></success>");
-				$xml->addChild('address',htmlentities($email));
+				$xml->addChild('address',htmlspecialchars($email));
 			}
 		} else {
 			$xml = new SimpleXMLElement("<failure></failure>");
@@ -1552,21 +1552,21 @@ class Rest_MessagesController extends Ch_RestController {
 		$xml_out->addChild('address_id', $message->address_id);
 		$xml_out->addChild('is_outgoing', $message->is_outgoing);
 		$xml_out->addChild('worker_id', $message->worker_id);
-		$xml_out->addChild('content', htmlentities($message_content));
+		$xml_out->addChild('content', htmlspecialchars($message_content));
 		
 		$headers = $xml_out->addChild('headers');
 		foreach($message_headers as $header_name => $header_value)
-			$headers->addChild($header_name, htmlentities($header_value));
+			$headers->addChild($header_name, htmlspecialchars($header_value));
 
 		$xml_notes = $xml_out->addChild('notes');
     	foreach($message_notes as $note) {
     		$xml_note = $xml_notes->addChild('note');
     		$xml_note->addChild('id', $note->id);
-    		$xml_note->addChild('type', htmlentities($note->type));
+    		$xml_note->addChild('type', htmlspecialchars($note->type));
     		$xml_note->addChild('message_id', $note->message_id);
     		$xml_note->addChild('created', $note->created);
     		$xml_note->addChild('worker_id', $note->worker_id);
-    		$xml_note->addChild('content', htmlentities($note->content));
+    		$xml_note->addChild('content', htmlspecialchars($note->content));
     	}
 		
     	return $xml_out;
@@ -1774,11 +1774,11 @@ class Rest_NotesController extends Ch_RestController {
     	
     	$xml_out = new SimpleXMLElement("<note></note>");
     	$xml_out->addChild('id', $message->id);
-    	$xml_out->addChild('type', htmlentities($message->type));
+    	$xml_out->addChild('type', htmlspecialchars($message->type));
     	$xml_out->addChild('message_id', $message->message_id);
     	$xml_out->addChild('created', $message->created);
     	$xml_out->addChild('worker_id', $message->worker_id);
-    	$xml_out->addChild('content', htmlentities($message->content));
+    	$xml_out->addChild('content', htmlspecialchars($message->content));
 		
 		$this->_render($xml_out->asXML());
 	}
@@ -1942,7 +1942,7 @@ class Rest_CommentsController extends Ch_RestController {
     	$xml_out->addChild('ticket_id', $comment->ticket_id);
     	$xml_out->addChild('created', $comment->created);
     	$xml_out->addChild('address_id', $comment->address_id);
-    	$xml_out->addChild('comment', htmlentities($comment->comment));
+    	$xml_out->addChild('comment', htmlspecialchars($comment->comment));
 		
 		$this->_render($xml_out->asXML());
 	}
@@ -1964,7 +1964,7 @@ class Rest_CommentsController extends Ch_RestController {
     		$xml_comment->addChild('ticket_id', $comment->ticket_id);
     		$xml_comment->addChild('created', $comment->created);
     		$xml_comment->addChild('address_id', $comment->address_id);
-    		$xml_comment->addChild('comment', htmlentities($comment->comment));
+    		$xml_comment->addChild('comment', htmlspecialchars($comment->comment));
     	}
 
 		$this->_render($xml_out->asXML());
@@ -2461,9 +2461,9 @@ class Rest_KBArticlesController extends Ch_RestController {
 		if(0 == $root)
 			$xml_out->addChild('name',"Top");
 		else
-			$xml_out->addChild('name',htmlentities($cats[$root]->name));
+			$xml_out->addChild('name',htmlspecialchars($cats[$root]->name));
 			
-		$xml_out->addChild('breadcrumb',htmlentities(serialize($breadcrumb)));
+		$xml_out->addChild('breadcrumb',htmlspecialchars(serialize($breadcrumb)));
 		
 		if (is_array($tree[$root]))
 			foreach($tree[$root] as $tree_idx => $cat)
@@ -2476,7 +2476,7 @@ class Rest_KBArticlesController extends Ch_RestController {
 		$category = $xml_out->addChild('category');
 		$category->addChild('id', $cats[$tree_idx]->id);
 		$category->addChild('parent_id', $cats[$tree_idx]->parent_id);
-		$category->addChild('name', htmlentities($cats[$tree_idx]->name));
+		$category->addChild('name', htmlspecialchars($cats[$tree_idx]->name));
 		$category->addChild('article_count', $tree[$cats[$tree_idx]->parent_id][$tree_idx]);
 		if(isset($tree[$tree_idx]) && is_array($tree[$tree_idx]))
 			foreach($tree[$tree_idx] as $subtree_idx => $count)
@@ -2561,7 +2561,7 @@ class Rest_ParserController extends Ch_RestController {
 			// [TODO] Denote if ticket is new or reply?
 			$xml_out = new SimpleXMLElement("<ticket></ticket>");
 			$xml_out->addChild("id", $ticket_id);
-			$xml_out->addChild("mask", htmlentities($ticket->mask));
+			$xml_out->addChild("mask", htmlspecialchars($ticket->mask));
 			$this->_render($xml_out->asXML());
 			
 		} else {
@@ -2659,7 +2659,7 @@ class Rest_ParserController extends Ch_RestController {
 //		foreach($topics as $topic_id => $topic) { /* @var $topic Model_FnrTopic */
 //			$eTopic = $xml_out->addChild('topic');
 //			$eTopic->addChild('id', $topic->id);
-//			$eTopic->addChild('name', htmlentities($topic->name));
+//			$eTopic->addChild('name', htmlspecialchars($topic->name));
 //
 //			$eResources = $eTopic->addChild('resources');
 //			$resources = $topic->getResources();
@@ -2667,9 +2667,9 @@ class Rest_ParserController extends Ch_RestController {
 //			foreach($resources as $resource) { /* @var $resource Model_FnrExternalResource */
 //				$eResource = $eResources->addChild('resource');
 //				$eResource->addChild('id', $resource->id);
-//				$eResource->addChild('name', htmlentities($resource->name));
+//				$eResource->addChild('name', htmlspecialchars($resource->name));
 //				$eResource->addChild('topic_id', $resource->topic_id);
-////				$eResource->addChild('url', htmlentities($resource->url));
+////				$eResource->addChild('url', htmlspecialchars($resource->url));
 //			}
 //		}
 //		
@@ -2705,9 +2705,9 @@ class Rest_ParserController extends Ch_RestController {
 //		
 //		foreach($feeds as $matches) {
 //			$eMatch = $xml_out->addChild("resource");
-//			$eMatch->addChild('name', htmlentities($matches['name']));
-//			$eMatch->addChild('topic', htmlentities($matches['topic_name']));
-//			$eMatch->addChild('link', htmlentities($matches['feed']->link));
+//			$eMatch->addChild('name', htmlspecialchars($matches['name']));
+//			$eMatch->addChild('topic', htmlspecialchars($matches['topic_name']));
+//			$eMatch->addChild('link', htmlspecialchars($matches['feed']->link));
 //			$eResults = $eMatch->addChild("results");
 //			
 //			foreach($matches['feed'] as $item) {
