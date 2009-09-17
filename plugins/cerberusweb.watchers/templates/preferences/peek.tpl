@@ -187,7 +187,7 @@
 		</td>
 		<td valign="top">
 			<input type="text" name="value_body" size="45" value="{$crit_body.value|escape}" onchange="document.getElementById('chkRuleBody').checked=((0==this.value.length)?false:true);" style="width:95%;"><br>
-			<i>Enter as a <a href="http://us2.php.net/manual/en/regexp.reference.php" target="_blank">regular expression</a>; scans content line-by-line.</i><br>
+			<i>Enter as a <a href="http://us2.php.net/manual/en/reference.pcre.pattern.syntax.php" target="_blank">regular expression</a>; scans content line-by-line.</i><br>
 			Example: /(how do|where can)/i<br>
 		</td>
 	</tr>
