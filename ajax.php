@@ -78,6 +78,9 @@ $tpl->assign('core_tpl', DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/');
 if(!empty($worker)) {
 	$active_worker_memberships = $worker->getMemberships();
 	$tpl->assign('active_worker_memberships', $active_worker_memberships);
+	
+	$keyboard_shortcuts = intval(DAO_WorkerPref::get($worker->id,'keyboard_shortcuts', 1));
+	$tpl->assign('pref_keyboard_shortcuts', $keyboard_shortcuts);
 }
 
 CerberusApplication::processRequest($request,true);

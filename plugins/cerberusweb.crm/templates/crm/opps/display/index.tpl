@@ -88,6 +88,7 @@ tabView.appendTo('displayCrmTabs');
 </script>
 
 <script type="text/javascript">
+{if $pref_keyboard_shortcuts}
 {literal}
 CreateKeyHandler(function doShortcuts(e) {
 
@@ -120,4 +121,5 @@ CreateKeyHandler(function doShortcuts(e) {
 	}
 });
 {/literal}
+{/if}
 </script>

@@ -103,7 +103,9 @@
 			<br>
 			
 			{*
+			{if $pref_keyboard_shortcuts}
 			{$translate->_('common.keyboard')|capitalize}: (<b>c</b>) {$translate->_('common.close')|lower}, (<b>s</b>) {$translate->_('common.synchronize')|lower} <br>
+			{/if}
 			*}
 		</td>
 	</tr>

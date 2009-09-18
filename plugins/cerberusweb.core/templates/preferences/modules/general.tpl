@@ -75,6 +75,10 @@ These addresses will be associated with your helpdesk account.<br>
 <label><input type="checkbox" name="assist_mode" value="1" {if $assist_mode eq 1}checked{/if}> Enabled</label><br>
 <br>
 
+<b>Keyboard Shortcuts:</b><br>
+<label><input type="checkbox" name="keyboard_shortcuts" value="1" {if $keyboard_shortcuts eq 1}checked{/if}> Enabled</label><br>
+<br>
+
 <b>Mail:</b><br>
 <label><input type="checkbox" name="mail_inline_comments" value="1" {if $mail_inline_comments}checked{/if}> Show comments in the conversation</label><br>
 <label><input type="checkbox" name="mail_always_show_all" value="1" {if $mail_always_show_all}checked{/if}> Always use 'read all' mode (expand messages and sort chronologically)</label><br>

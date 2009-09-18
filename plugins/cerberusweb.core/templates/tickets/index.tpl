@@ -83,6 +83,7 @@ tabView.addListener('activeTabChange', function(e) {
 		{/literal}
 		{if is_numeric($tab_idx_workflow)}
 		case {$tab_idx_workflow}:
+		{if $pref_keyboard_shortcuts}
 		{literal}
 			CreateKeyHandler(function (e) {
 				var mycode = getKeyboardKey(e, true);
@@ -130,14 +131,16 @@ tabView.addListener('activeTabChange', function(e) {
 						break;
 				}
 			});
-			break;
-			{/literal}{/if}{literal}
+		{/literal}
+		{/if}
+		break;
+		{/if}
 			
 		// Overview keys
-		{/literal}
 		{if is_numeric($tab_idx_overview)}
 		case {$tab_idx_overview}:
-		{literal}
+		{if $pref_keyboard_shortcuts}
+			{literal}
 			CreateKeyHandler(function (e) {
 				var mycode = getKeyboardKey(e, true);
 				
@@ -184,14 +187,16 @@ tabView.addListener('activeTabChange', function(e) {
 						break;
 				}
 			});
+			{/literal}
+			{/if}
 			break;
-			{/literal}{/if}{literal}
+			{/if}
 			
 		// Search keys
-		{/literal}
 		{if is_numeric($tab_idx_search)}
 		case {$tab_idx_search}:
-		{literal}
+		{if $pref_keyboard_shortcuts}
+			{literal}
 			CreateKeyHandler(function (e) {
 				var mycode = getKeyboardKey(e, true);
 				
@@ -228,9 +233,12 @@ tabView.addListener('activeTabChange', function(e) {
 						break;
 				}
 			});
+			{/literal}
+			{/if}
 			break;
-			{/literal}{/if}{literal}
+			{/if}
 			
+		{literal}
 		default:
 			CreateKeyHandler(function (e) {});
 			break;

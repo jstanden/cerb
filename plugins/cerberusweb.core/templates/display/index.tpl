@@ -106,6 +106,7 @@
 				<br>
 			{/if}
 			
+			{if $pref_keyboard_shortcuts}
 			{$translate->_('common.keyboard')|lower}: 
 			{if !$ticket->is_closed && $active_worker->hasPriv('core.ticket.actions.close')}(<b>c</b>) {$translate->_('common.close')|lower} {/if}
 			{if !$ticket->spam_trained && $active_worker->hasPriv('core.ticket.actions.spam')}(<b>s</b>) {$translate->_('common.spam')|lower} {/if}
@@ -118,6 +119,7 @@
 			{if $active_worker->hasPriv('core.display.actions.reply')}(<b>r</b>) {$translate->_('display.ui.reply')|lower} {/if}  
 			(<b>p</b>) {$translate->_('common.print')|lower} 
 			<br>
+			{/if}
 			 
 		</form>
 		<form action="{devblocks_url}{/devblocks_url}" method="post" name="frmPrint" id="frmPrint" target="_blank" style="display:none;"></form>
@@ -207,6 +209,7 @@ tabView.appendTo('displayOptions');
 </script>
 
 <script type="text/javascript">
+{if $pref_keyboard_shortcuts}
 {literal}
 CreateKeyHandler(function doShortcuts(e) {
 
@@ -269,6 +272,7 @@ CreateKeyHandler(function doShortcuts(e) {
 	}
 });
 {/literal}
+{/if}
 </script>
 
 <script type="text/javascript">

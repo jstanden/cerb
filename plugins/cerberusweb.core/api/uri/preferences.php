@@ -134,6 +134,9 @@ class ChPreferencesPage extends CerberusPageExtension {
 		$tour_enabled = intval(DAO_WorkerPref::get($worker->id, 'assist_mode', 1));
 		$tpl->assign('assist_mode', $tour_enabled);
 
+		$keyboard_shortcuts = intval(DAO_WorkerPref::get($worker->id, 'keyboard_shortcuts', 1));
+		$tpl->assign('keyboard_shortcuts', $keyboard_shortcuts);
+
 		$mail_inline_comments = DAO_WorkerPref::get($worker->id,'mail_inline_comments',1);
 		$tpl->assign('mail_inline_comments', $mail_inline_comments);
 		
@@ -208,6 +211,9 @@ class ChPreferencesPage extends CerberusPageExtension {
 
 		@$assist_mode = DevblocksPlatform::importGPC($_REQUEST['assist_mode'],'integer',0);
 		DAO_WorkerPref::set($worker->id, 'assist_mode', $assist_mode);
+
+		@$keyboard_shortcuts = DevblocksPlatform::importGPC($_REQUEST['keyboard_shortcuts'],'integer',0);
+		DAO_WorkerPref::set($worker->id, 'keyboard_shortcuts', $keyboard_shortcuts);
 
 		@$mail_inline_comments = DevblocksPlatform::importGPC($_REQUEST['mail_inline_comments'],'integer',0);
 		DAO_WorkerPref::set($worker->id, 'mail_inline_comments', $mail_inline_comments);
