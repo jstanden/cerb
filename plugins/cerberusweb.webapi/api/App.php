@@ -1807,6 +1807,7 @@ class Rest_CommentsController extends Ch_RestController {
 		switch($idx_name) {
 			case 'address_id':
 			case 'ticket_id':
+			case 'created':
 				return is_numeric($value) ? true : false;
 			case 'comment':
 				return !empty($value) ? true : false;
@@ -1876,7 +1877,6 @@ class Rest_CommentsController extends Ch_RestController {
 			DAO_TicketComment::COMMENT => DAO_TicketComment::COMMENT,
 		);
 		unset($flds[DAO_TicketComment::ID]);
-		unset($flds[DAO_TicketComment::CREATED]);
 		
 		foreach($flds as $idx => $f) {
 			$idx_name = $this->translate($idx, true);
@@ -1885,6 +1885,10 @@ class Rest_CommentsController extends Ch_RestController {
 			if($this->isValid($idx_name,$value))
 				$fields[$idx] = $value;
 		}
+
+		// Set a default created date if not provided
+		if(!isset($fields[DAO_TicketComment::CREATED]))
+			$fields[DAO_TicketComment::CREATED] = time();
 
 		if(empty($fields[DAO_TicketComment::COMMENT])
 		|| empty($fields[DAO_TicketComment::TICKET_ID]))
