@@ -2545,7 +2545,7 @@ class Rest_ParserController extends Ch_RestController {
 	//****
 	
 	private function _postSourceParseAction($path) {
-		$xml_in = simplexml_load_string($this->getPayload());
+		$xml_in = simplexml_load_string($this->getPayload(), null, LIBXML_NOCDATA);
 
 		@$source = (string) $xml_in->source;
 		
@@ -2576,7 +2576,7 @@ class Rest_ParserController extends Ch_RestController {
 	}
 	
 	private function _postSourceQueueAction($path) {
-		$xml_in = simplexml_load_string($this->getPayload());
+		$xml_in = simplexml_load_string($this->getPayload(), null, LIBXML_NOCDATA);
 
 		@$source = (string) $xml_in->source;
 		
