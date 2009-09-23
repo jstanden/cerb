@@ -262,6 +262,10 @@ class ChTicketsPage extends CerberusPageExtension {
 					if(DAO_GroupSettings::get($group_id, DAO_GroupSettings::SETTING_INBOX_IS_ASSIGNABLE, 1))
 						array_unshift($assignable_bucket_ids,0);
 					
+					// Don't push empty groups into the param stack
+					if(empty($assignable_bucket_ids))
+						continue;
+					
 					$subparams[] = array(
 						DevblocksSearchCriteria::GROUP_AND,
 						SearchFields_Ticket::TICKET_TEAM_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,'=',$group_id),
