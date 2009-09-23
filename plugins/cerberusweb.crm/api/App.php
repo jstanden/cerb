@@ -453,13 +453,15 @@ class CrmPage extends CerberusPageExtension {
 			SearchFields_Task::WORKER_ID,
 			SearchFields_Task::COMPLETED_DATE,
 		);
-		$defaults->params = array(
-			new DevblocksSearchCriteria(SearchFields_Task::SOURCE_EXTENSION,'=','cerberusweb.tasks.opp'),
-			new DevblocksSearchCriteria(SearchFields_Task::SOURCE_ID,'=',$opp_id),
-		);
 		
 		$view = C4_AbstractViewLoader::getView('opp_tasks', $defaults);
 		$view->name = 'Opportunity Tasks';
+
+		$view->params = array(
+			new DevblocksSearchCriteria(SearchFields_Task::SOURCE_EXTENSION,'=','cerberusweb.tasks.opp'),
+			new DevblocksSearchCriteria(SearchFields_Task::SOURCE_ID,'=',$opp_id),
+		);
+
 		$tpl->assign('view', $view);
 		
 		C4_AbstractViewLoader::setView($view->id, $view);
