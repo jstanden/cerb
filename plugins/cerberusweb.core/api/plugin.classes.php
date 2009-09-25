@@ -376,7 +376,7 @@ class ChTaskSource_Org extends Extension_TaskSource {
 		$url = DevblocksPlatform::getUrlService();
 		return array(
 			'name' => '[Org] '.$contact_org->name,
-			'url' => $url->write(sprintf('c=contacts&a=orgs&id=%d',$object_id), true),
+			'url' => $url->write(sprintf('c=contacts&a=orgs&display=display&id=%d',$object_id), true),
 		);
 	}
 };
