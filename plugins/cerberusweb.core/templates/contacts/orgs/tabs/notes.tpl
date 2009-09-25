@@ -5,7 +5,7 @@
 <input type="hidden" name="id" value="">
 
 <b>{'addy_book.org.tabs.notes.add'|devblocks_translate:$org->name}</b><br>
-<textarea name="content" rows="3" cols="65" style="width:500px;height:50px;"></textarea><br>
+<textarea name="content" rows="10" cols="65" style="width:98%;height:200px;"></textarea><br>
 {if !empty($workers)}
 	<label><input type="checkbox" onclick="toggleDiv('addOrgNoteNotifyWorkers');"> <b>{$translate->_('common.notify_workers')}</b></label>
 	<div id="addOrgNoteNotifyWorkers" style="display:none;">
