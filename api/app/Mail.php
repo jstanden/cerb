@@ -546,7 +546,7 @@ class CerberusMail {
 				));
 				
 				// Auto-reply just to the initial requester
-				$mail->addTo(array($first_address->email));
+				$mail->addTo($first_address->email);
 				
 			// Not an auto-reply
 			} else {
