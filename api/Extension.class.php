@@ -251,7 +251,7 @@ abstract class Extension_WorkspaceSource extends DevblocksExtension {
 	}
 };
 
-abstract class CerberusLoginPageExtension extends DevblocksExtension { //implements DevblocksHttpRequestHandler {
+abstract class Extension_LoginAuthenticator extends DevblocksExtension {
 	function __construct($manifest) {
 		$this->DevblocksExtension($manifest, 1);
 	}
@@ -281,7 +281,7 @@ abstract class CerberusLoginPageExtension extends DevblocksExtension { //impleme
 	 * 
 	 * @return boolean whether login succeeded
 	 */
-	function authenticate($params=array()) {
+	function authenticate() {
 		return false;
 	}
 	
@@ -290,8 +290,7 @@ abstract class CerberusLoginPageExtension extends DevblocksExtension { //impleme
 	 */
 	function signoff() {
 	}
-	
-}
+};
 
 // [TODO] Convert to a controller extension
 abstract class CerberusCronPageExtension extends DevblocksExtension {
@@ -376,7 +375,4 @@ abstract class CerberusCronPageExtension extends DevblocksExtension {
 	public function configure($instance) {}
 	
 	public function saveConfigurationAction() {}
-	
-}
-
-?>
+};

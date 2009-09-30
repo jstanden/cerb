@@ -48,7 +48,7 @@
  * 		and Joe Geck.
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-class DefaultLoginModule extends CerberusLoginPageExtension {
+class DefaultLoginModule extends Extension_LoginAuthenticator {
 	function renderLoginForm() {
 		// draws HTML form of controls needed for login information
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -64,10 +64,11 @@ class DefaultLoginModule extends CerberusLoginPageExtension {
 		$tpl->display('file:' . dirname(dirname(__FILE__)) . '/templates/login/login_form_default.tpl');
 	}
 	
-	function authenticate($params=array()) {
-	    $email = $params['email'];
-	    $password = $params['password'];
-		// pull auth info out of $_POST, check it, return user_id or false
+	function authenticate() {
+		// Pull from $_POST
+		@$email = DevblocksPlatform::importGPC($_POST['email']);
+		@$password = DevblocksPlatform::importGPC($_POST['password']);
+
 		$worker = DAO_Worker::login($email, $password);
 		
 		if(!is_null($worker)) {
@@ -86,91 +87,3 @@ class DefaultLoginModule extends CerberusLoginPageExtension {
 	}
 };
 
-class LDAPLoginModule extends CerberusLoginPageExtension {
-	/**
-	 * draws html form for adding necessary settings (host, port, etc) to be stored in the db
-	 */
-	function renderConfigForm() {
-	}
-	
-	/**
-	 * Receives posted config form, saves to manifest
-	 */
-	function saveConfiguration() {
-//		$field_value = DevblocksPlatform::importGPC($_POST['field_value']);
-//		$this->params['field_name'] = $field_value;
-	}
-	
-	// draws HTML form of controls needed for login information
-	function renderLoginForm() {
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
-		
-		// add translations for calls from classes that aren't Page Extensions (mobile plugin, specifically)
-		$translate = DevblocksPlatform::getTranslationService();
-		$tpl->assign('translate', $translate);
-		
-		@$redir_path = explode('/',urldecode(DevblocksPlatform::importGPC($_REQUEST["url"],"string","")));
-		$tpl->assign('original_path', (count($redir_path)==0) ? 'login' : implode(',',$redir_path));
-
-		// TODO: pull this from a config area
-		$server = 'localhost';
-		$port = '10389';
-		$default_dn = 'cn=William Bush,ou=people,o=sevenSeas';
-		$tpl->assign('server', $server);
-		$tpl->assign('port', $port);
-		$tpl->assign('default_dn', $default_dn);
-		
-		// display login form
-		$tpl->display('file:' . dirname(dirname(__FILE__)) . '/templates/login/login_form_ldap.tpl');
-	}
-	
-	function authenticate($params=array()) {
-	    $server = $params['server'];
-	    $port = $params['port'];
-	    $dn = $params['dn'];
-	    $password = $params['password'];
-	    
-		$worker_id = null;
-		
-	    // attempt login
-		$conn = ldap_connect($server, $port);
-		ldap_set_option($conn, LDAP_OPT_PROTOCOL_VERSION, 3);
-		
-		if ($conn) {
-			$auth = ldap_bind($conn, $dn, $password);
-			if ($auth) {
-				// search for this user
-				$search_results = ldap_search($conn, $dn, '(objectclass=*)', array('mail'));
-				if ($search_results) {
-					$user_entry = ldap_first_entry($conn, $search_results);
-					if ($user_entry) {
-						// get email addresses for this user
-						$emails = ldap_get_values($conn, $user_entry, 'mail');
-						if ($emails) {
-							foreach($emails as $email) {
-								if (is_null($worker_id)) {
-									$worker_id = DAO_Worker::lookupAgentEmail($email);
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-				
-		// we found a worker, continue login
-		if (!is_null($worker_id)) {
-			$worker = DAO_Worker::getAgent($worker_id);
-			$session = DevblocksPlatform::getSessionService();
-			$visit = new CerberusVisit();
-			$visit->setWorker($worker);
-				
-			$session->setVisit($visit);
-			
-			return true;
-		} else {
-			return false;
-		}
-	}
-};
