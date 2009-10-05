@@ -934,6 +934,7 @@ abstract class C4_AbstractView {
 		$needs_save = false;
 		
 		// Parameter sanity check
+		if(is_array($this->params))
 		foreach($this->params as $pidx => $null) {
 			if(substr($pidx,0,3)!="cf_")
 				continue;
@@ -948,6 +949,7 @@ abstract class C4_AbstractView {
 		}
 		
 		// View column sanity check
+		if(is_array($this->view_columns))
 		foreach($this->view_columns as $cidx => $c) {
 			// Custom fields
 			if(substr($c,0,3) == "cf_") {
