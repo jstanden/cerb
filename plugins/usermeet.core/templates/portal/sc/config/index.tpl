@@ -11,6 +11,16 @@
 <br>
 <br>
 
+<b>Authenticate Logins:</b><br>
+<select name="login_handler">
+	<option value="" {if empty($login_handler)}selected="selected"{/if}>- disable logins -</option>
+	{foreach from=$login_handlers item=ext}
+		<option value="{$ext->id}" {if $ext->id==$login_handler}selected="selected"{/if}>{$ext->name}</option>
+	{/foreach}
+</select>
+<br>
+<br>
+
 <b>{$translate->_('portal.cfg.style_css')}</b><br>
 <textarea name="style_css" style="width:90%;height:150px;">{$style_css}</textarea><br>
 <br>
@@ -41,10 +51,6 @@
 	</td>
 </tr>
 </table>
-<br>
-
-<b>Options:</b><br>
-<label><input type="checkbox" name="allow_logins" value="1" {if $allow_logins}checked="checked"{/if}> {$translate->_('portal.sc.cfg.allow_customer_logins')}</label><br>
 <br>
 
 <h2>Modules</h2>

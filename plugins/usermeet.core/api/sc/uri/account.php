@@ -36,7 +36,9 @@ class UmScAccountController extends Extension_UmScController {
 				DAO_Address::LAST_NAME => $last_name
 			);
 			
-			if(!empty($change_password) && 0 == strcmp($change_password,$change_password2)) {
+			if(empty($change_password)) {
+				// Do nothing
+			} elseif(!empty($change_password) && 0 == strcmp($change_password,$change_password2)) {
 				$fields[DAO_Address::PASS] = md5($change_password);
 			} else {
 				$tpl->assign('account_error', "The passwords you entered did not match.");

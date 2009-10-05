@@ -48,7 +48,7 @@
  * 		and Joe Geck.
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-define("APP_BUILD", 942);
+define("APP_BUILD", 943);
 define("APP_MAIL_PATH", APP_STORAGE_PATH . '/mail/');
 
 require_once(APP_PATH . "/api/DAO.class.php");

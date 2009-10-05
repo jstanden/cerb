@@ -126,9 +126,6 @@ For example: http://www.cerberusweb.com/support/</seg></tuv>
 		<tu tuid='portal.sc.cfg.add_contact_situation'>
 			<tuv xml:lang="en_US"><seg>Add a Contact Situation</seg></tuv>
 		</tu>
-		<tu tuid='portal.sc.cfg.allow_customer_logins'>
-			<tuv xml:lang="en_US"><seg>Allow customers to log in</seg></tuv>
-		</tu>
 		<tu tuid='portal.sc.cfg.append_to_message'>
 			<tuv xml:lang="en_US"><seg>append to message</seg></tuv>
 		</tu>

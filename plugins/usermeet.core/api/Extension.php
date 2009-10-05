@@ -178,3 +178,46 @@ abstract class Extension_UmScController extends DevblocksExtension implements De
     
 };
 
+abstract class Extension_ScLoginAuthenticator extends DevblocksExtension {
+	function __construct($manifest) {
+		$this->DevblocksExtension($manifest, 1);
+	}
+	
+	/**
+	 * draws html form for adding necessary settings (host, port, etc) to be stored in the db
+	 */
+//	function renderConfigForm() {
+//	}
+	
+	/**
+	 * Receives posted config form, saves to manifest
+	 */
+//	function saveConfiguration() {
+//		$field_value = DevblocksPlatform::importGPC($_POST['field_value']);
+//		$this->params['field_name'] = $field_value;
+//	}
+	
+	/**
+	 * draws HTML form of controls needed for login information
+	 */
+	function renderLoginForm() {
+	}
+	
+	/**
+	 * pull auth info out of $_POST, check it, return user_id or false
+	 * 
+	 * @return boolean whether login succeeded
+	 */
+	function authenticate() {
+		return false;
+	}
+	
+	/**
+	 * release any resources tied up by the authenticate process, if necessary
+	 */
+	function signoff() {
+		$umsession = UmPortalHelper::getSession();
+		$umsession->setProperty('sc_login',null);
+	}
+	
+};

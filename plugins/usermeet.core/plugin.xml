@@ -77,6 +77,19 @@
 			</params>
 		</extension>
 		
+		<!-- Login Authenticators -->
+		
+		<extension point="usermeet.login.authenticator">
+			<id>sc.login.auth.default</id>
+			<name>Cerb4 (Default)</name>
+			<class>
+				<file>api/UmScApp.php</file>
+				<name>UmScLoginAuthenticator</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
 		<!-- Support Center Modules -->
 
 		<extension point="usermeet.sc.controller">

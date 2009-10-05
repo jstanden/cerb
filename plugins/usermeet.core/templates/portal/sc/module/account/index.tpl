@@ -22,6 +22,7 @@
 <input type="text" name="last_name" size="35" value="{$address->last_name}"><br>
 <br>
 
+{if !empty($login_handler) && 0==strcasecmp($login_handler->manifest->id,'sc.login.auth.default')}
 <b>{$translate->_('portal.sc.public.my_account.change_password')}</b><br>
 <input type="password" id="change_password" name="change_password" size="35" value=""><br>
 <br>
@@ -29,11 +30,13 @@
 <b>{$translate->_('portal.sc.public.my_account.change_password_verify')}</b><br>
 <input type="password" name="change_password2" size="35" value=""><br>
 <br>
+{/if}
 
 <button type="submit"><img src="{devblocks_url}c=resource&p=usermeet.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')}</button><br>
 </form>
 </div>
 
+{if !empty($login_handler) && 0==strcasecmp($login_handler->manifest->id,'sc.login.auth.default')}
 {literal}
 <script language="JavaScript1.2" type="text/javascript">
   $(document).ready(function(){
@@ -52,3 +55,4 @@
   });
 </script>
 {/literal}
+{/if}

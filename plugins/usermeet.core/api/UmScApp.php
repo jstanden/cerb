@@ -5,7 +5,7 @@ class UmScApp extends Extension_UsermeetTool {
 	const PARAM_STYLE_CSS = 'common.style_css';
 	const PARAM_HEADER_HTML = 'common.header_html';
 	const PARAM_FOOTER_HTML = 'common.footer_html';
-	const PARAM_ALLOW_LOGINS = 'common.allow_logins';
+	const PARAM_LOGIN_HANDLER = 'common.login_handler';
 	const PARAM_VISIBLE_MODULES = 'common.visible_modules';
 	
 	const SESSION_CAPTCHA = 'write_captcha';
@@ -103,9 +103,12 @@ class UmScApp extends Extension_UsermeetTool {
 
         $footer_html = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), self::PARAM_FOOTER_HTML, '');
 		$tpl->assign('footer_html', $footer_html);
+
+        $login_handler = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), self::PARAM_LOGIN_HANDLER, '');
+		$tpl->assign('login_handler', $login_handler);
 		
-        $allow_logins = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), self::PARAM_ALLOW_LOGINS, 0);
-		$tpl->assign('allow_logins', $allow_logins);
+		$login_extension = DevblocksPlatform::getExtension($login_handler, true);
+		$tpl->assign('login_extension', $login_extension);
 		
        	@$visible_modules = unserialize(DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), self::PARAM_VISIBLE_MODULES, ''));
 		$tpl->assign('visible_modules', $visible_modules);
@@ -225,10 +228,16 @@ class UmScApp extends Extension_UsermeetTool {
         $footer_html = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), self::PARAM_FOOTER_HTML, '');
 		$tpl->assign('footer_html', $footer_html);
         
-		// Options
-		
-        $allow_logins = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), self::PARAM_ALLOW_LOGINS, 0);
-		$tpl->assign('allow_logins', $allow_logins);
+		// Login Handlers
+
+		$login_handlers = DevblocksPlatform::getExtensions('usermeet.login.authenticator');
+		uasort($login_handlers, create_function('$a, $b', "return strcasecmp(\$a->name,\$b->name);\n"));
+		$tpl->assign('login_handlers', $login_handlers);
+
+        $login_handler = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), self::PARAM_LOGIN_HANDLER, '');
+		$tpl->assign('login_handler', $login_handler);
+
+		// Modules
 
         @$visible_modules = unserialize(DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), self::PARAM_VISIBLE_MODULES, ''));
 		$tpl->assign('visible_modules', $visible_modules);
@@ -282,8 +291,8 @@ class UmScApp extends Extension_UsermeetTool {
         DAO_CommunityToolProperty::set(UmPortalHelper::getCode(), self::PARAM_PAGE_TITLE, $sPageTitle);
 
 		// Logins
-        @$iAllowLogins = DevblocksPlatform::importGPC($_POST['allow_logins'],'integer',0);
-        DAO_CommunityToolProperty::set(UmPortalHelper::getCode(), self::PARAM_ALLOW_LOGINS, $iAllowLogins);
+        @$sLoginHandler = DevblocksPlatform::importGPC($_POST['login_handler'],'string','');
+        DAO_CommunityToolProperty::set(UmPortalHelper::getCode(), self::PARAM_LOGIN_HANDLER, $sLoginHandler);
 
 		// Default Locale
         @$sDefaultLocale = DevblocksPlatform::importGPC($_POST['default_locale'],'string','en_US');
@@ -314,16 +323,80 @@ class UmScApp extends Extension_UsermeetTool {
     }
 	
 	function doLogin() {
-		$umsession = UmPortalHelper::getSession();
-		
 //		if(!$this->allow_logins)
 //			die();
+
+		// [TODO] Fall back
+        $login_handler = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), self::PARAM_LOGIN_HANDLER, 'sc.login.auth.default');
+
+		if(null != ($handler = DevblocksPlatform::getExtension($login_handler, true))) {
+			if(!$handler->authenticate()) {
+				// ...
+			}
+		}
 		
+
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode())));
+	}
+	
+	function doLogout() {
+		// [TODO] Fall back
+        $login_handler = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), self::PARAM_LOGIN_HANDLER, 'sc.login.auth.default');
+
+		if(null != ($handler = DevblocksPlatform::getExtension($login_handler, true))) {
+			if($handler->signoff()) {
+				// ...
+			}
+		}
+		
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode())));
+	}
+	
+};
+
+class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
+	function __construct($manifest) {
+		$this->DevblocksExtension($manifest, 1);
+	}
+	
+	/**
+	 * draws html form for adding necessary settings (host, port, etc) to be stored in the db
+	 */
+//	function renderConfigForm() {
+//	}
+	
+	/**
+	 * Receives posted config form, saves to manifest
+	 */
+//	function saveConfiguration() {
+//		$field_value = DevblocksPlatform::importGPC($_POST['field_value']);
+//		$this->params['field_name'] = $field_value;
+//	}
+	
+	/**
+	 * draws HTML form of controls needed for login information
+	 */
+	function renderLoginForm() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
+		$tpl->assign('tpl_path', $tpl_path);
+
+		$tpl->display("file:${tpl_path}portal/sc/login/default/login.tpl");
+	}
+	
+	/**
+	 * pull auth info out of $_POST, check it, return user_id or false
+	 * 
+	 * @return boolean whether login succeeded
+	 */
+	function authenticate() {
+		$umsession = UmPortalHelper::getSession();
+
 		@$email = DevblocksPlatform::importGPC($_REQUEST['email']);
 		@$pass = DevblocksPlatform::importGPC($_REQUEST['pass']);
 		$valid = false;
-		
-		// [TODO] Test login combination using the appropriate adapter
+
 		if(null != ($addy = DAO_Address::lookupAddress($email, false))) {
 			if($addy->is_registered 
 				&& !empty($addy->pass) 
@@ -333,18 +406,11 @@ class UmScApp extends Extension_UsermeetTool {
 			}
 		}
 		
-		if(!$valid) {
-			$umsession->setProperty('sc_login',null);
-		}
+		if($valid)
+			return true;
 		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode())));
-	}
-	
-	function doLogout() {
-		$umsession = UmPortalHelper::getSession();
 		$umsession->setProperty('sc_login',null);
-		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode())));
+		return false;
 	}
 	
 };
