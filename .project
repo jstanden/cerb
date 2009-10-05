@@ -5,6 +5,11 @@
 	<projects>
 	</projects>
 	<buildSpec>
+		<buildCommand>
+			<name>com.aptana.ide.editor.php.aptanaPhpBuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
 	</buildSpec>
 	<natures>
 		<nature>com.aptana.ide.editor.php.phpnature</nature>
