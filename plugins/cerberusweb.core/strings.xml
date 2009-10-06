@@ -1497,6 +1497,27 @@ For example: *receipt*</seg></tuv>
 			<tuv xml:lang="en_US"><seg>%s Worker(s) Signed In:</seg></tuv>
 		</tu>
 
+		<!-- Worker -->
+		
+		<tu tuid='worker.first_name'>
+			<tuv xml:lang="en_US"><seg>First Name</seg></tuv>
+		</tu>
+		<tu tuid='worker.is_superuser'>
+			<tuv xml:lang="en_US"><seg>Administrator</seg></tuv>
+		</tu>
+		<tu tuid='worker.last_activity'>
+			<tuv xml:lang="en_US"><seg>Last Activity</seg></tuv>
+		</tu>
+		<tu tuid='worker.last_activity_date'>
+			<tuv xml:lang="en_US"><seg>Last Activity Date</seg></tuv>
+		</tu>
+		<tu tuid='worker.last_name'>
+			<tuv xml:lang="en_US"><seg>Last Name</seg></tuv>
+		</tu>
+		<tu tuid='worker.title'>
+			<tuv xml:lang="en_US"><seg>Title</seg></tuv>
+		</tu>
+
 		<!-- Worker Event -->
 
 		<tu tuid='worker_event.id'>

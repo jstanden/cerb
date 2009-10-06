@@ -38,6 +38,7 @@
 			<class name="ChCustomFieldSource_Org" />
 			<class name="ChCustomFieldSource_Task" />
 			<class name="ChCustomFieldSource_Ticket" />
+			<class name="ChCustomFieldSource_Worker" />
 			<class name="ChNotesSource_Org" />
 			<class name="ChPageController" />
 			<class name="ChRssSource_Notification" />
@@ -49,6 +50,7 @@
 			<class name="ChWorkspaceSource_Org" />
 			<class name="ChWorkspaceSource_Task" />
 			<class name="ChWorkspaceSource_Ticket" />
+			<class name="ChWorkspaceSource_Worker" />
 		</file>
 	</class_loader>
 	
@@ -620,6 +622,17 @@
 			</params>
 		</extension>		
 		
+		<extension point="cerberusweb.fields.source">
+			<id>cerberusweb.fields.source.worker</id>
+			<name>Worker</name>
+			<class>
+				<file>api/plugin.classes.php</file>
+				<name>ChCustomFieldSource_Worker</name>
+			</class>
+			<params>
+			</params>
+		</extension>		
+		
 		<!-- Notes Sources -->
 		
 		<extension point="cerberusweb.notes.source">
@@ -692,6 +705,18 @@
 			</class>
 			<params>
 				<param key="view_class" value="C4_TicketView" />
+			</params>
+		</extension>
+		
+		<extension point="cerberusweb.workspace.source">
+			<id>core.workspace.source.worker</id>
+			<name>Workers</name>
+			<class>
+				<file>api/plugin.classes.php</file>
+				<name>ChWorkspaceSource_Worker</name>
+			</class>
+			<params>
+				<param key="view_class" value="C4_WorkerView" />
 			</params>
 		</extension>
 		

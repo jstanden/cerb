@@ -319,9 +319,186 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$teams = DAO_Group::getAll();
 		$tpl->assign('teams', $teams);
 		
+		$tpl->assign('response_uri', 'config/workers');
+		
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = 'workers_cfg';
+		$defaults->class_name = 'C4_WorkerView';
+		
+		$view = C4_AbstractViewLoader::getView($defaults->id, $defaults);
+		$tpl->assign('view', $view);
+		$tpl->assign('view_fields', C4_WorkerView::getFields());
+		$tpl->assign('view_searchable_fields', C4_WorkerView::getSearchFields());
+		
 		$tpl->assign('license',CerberusLicense::getInstance());
 		
 		$tpl->display('file:' . $this->_TPL_PATH . 'configuration/tabs/workers/index.tpl');
+	}
+	
+	function showWorkerPeekAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('path', $this->_TPL_PATH);
+		
+		$tpl->assign('view_id', $view_id);
+		
+		$worker = DAO_Worker::getAgent($id);
+		$tpl->assign('worker', $worker);
+		
+		$teams = DAO_Group::getAll();
+		$tpl->assign('teams', $teams);
+		
+		// Custom Fields
+		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Worker::ID);
+		$tpl->assign('custom_fields', $custom_fields);
+		
+		$custom_field_values = DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Worker::ID, $id);
+		if(isset($custom_field_values[$id]))
+			$tpl->assign('custom_field_values', $custom_field_values[$id]);
+		
+		$tpl->display('file:' . $this->_TPL_PATH . 'configuration/tabs/workers/peek.tpl');		
+	}
+	
+	function saveWorkerPeekAction() {
+		$translate = DevblocksPlatform::getTranslationService();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker || !$active_worker->is_superuser || DEMO_MODE) {
+			return;
+		}
+		
+		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer');
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+		@$first_name = DevblocksPlatform::importGPC($_POST['first_name'],'string');
+		@$last_name = DevblocksPlatform::importGPC($_POST['last_name'],'string');
+		@$title = DevblocksPlatform::importGPC($_POST['title'],'string');
+		@$email = DevblocksPlatform::importGPC($_POST['email'],'string');
+		@$password = DevblocksPlatform::importGPC($_POST['password'],'string');
+		@$is_superuser = DevblocksPlatform::importGPC($_POST['is_superuser'],'integer', 0);
+		@$disabled = DevblocksPlatform::importGPC($_POST['is_disabled'],'integer',0);
+		@$group_ids = DevblocksPlatform::importGPC($_POST['group_ids'],'array');
+		@$group_roles = DevblocksPlatform::importGPC($_POST['group_roles'],'array');
+		@$delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer',0);
+
+		// [TODO] The superuser set bit here needs to be protected by ACL
+		
+		if(empty($first_name)) $first_name = "Anonymous";
+		
+		if(!empty($id) && !empty($delete)) {
+			// Can't delete or disable self
+			if($active_worker->id != $id)
+				DAO_Worker::deleteAgent($id);
+			
+		} else {
+			if(empty($id) && null == DAO_Worker::lookupAgentEmail($email)) {
+				$workers = DAO_Worker::getAll();
+				$license = CerberusLicense::getInstance();
+				if ((!empty($license) && !empty($license['serial'])) || count($workers) < 3) {
+					// Creating new worker.  If password is empty, email it to them
+				    if(empty($password)) {
+				    	$settings = CerberusSettings::getInstance();
+						$replyFrom = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM);
+						$replyPersonal = $settings->get(CerberusSettings::DEFAULT_REPLY_PERSONAL, '');
+						$url = DevblocksPlatform::getUrlService();
+				    	
+						$password = CerberusApplication::generatePassword(8);
+				    	
+						try {
+					        $mail_service = DevblocksPlatform::getMailService();
+					        $mailer = $mail_service->getMailer(CerberusMail::getMailerDefaults());
+					        $mail = $mail_service->createMessage();
+					        
+							$mail->setTo(array($email => $first_name . ' ' . $last_name));
+							$mail->setFrom(array($replyFrom => $replyPersonal));
+					        $mail->setSubject('Your new helpdesk login information!');
+					        $mail->generateId();
+							
+							$headers = $mail->getHeaders();
+							
+					        $headers->addTextHeader('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
+					        
+						    $body = sprintf("Your new helpdesk login information is below:\r\n".
+								"\r\n".
+						        "URL: %s\r\n".
+						        "Login: %s\r\n".
+						        "Password: %s\r\n".
+						        "\r\n".
+						        "You should change your password from Preferences after logging in for the first time.\r\n".
+						        "\r\n",
+							        $url->write('',true),
+							        $email,
+							        $password
+						    );
+					        
+							$mail->setBody($body);
+	
+							if(!$mailer->send($mail)) {
+								throw new Exception('Password notification email failed to send.');
+							}
+						} catch (Exception $e) {
+							// [TODO] need to report to the admin when the password email doesn't send.  The try->catch
+							// will keep it from killing php, but the password will be empty and the user will never get an email.
+						}
+				    }
+					
+					$id = DAO_Worker::create($email, $password, '', '', '');
+				}
+			} // end create worker
+		    
+		    // Update
+			$fields = array(
+				DAO_Worker::FIRST_NAME => $first_name,
+				DAO_Worker::LAST_NAME => $last_name,
+				DAO_Worker::TITLE => $title,
+				DAO_Worker::EMAIL => $email,
+				DAO_Worker::IS_SUPERUSER => $is_superuser,
+				DAO_Worker::IS_DISABLED => $disabled,
+			);
+			
+			// if we're resetting the password
+			if(!empty($password)) {
+				$fields[DAO_Worker::PASSWORD] = md5($password);
+			}
+			
+			// Update worker
+			DAO_Worker::updateAgent($id, $fields);
+			
+			// Update group memberships
+			if(is_array($group_ids) && is_array($group_roles))
+			foreach($group_ids as $idx => $group_id) {
+				if(empty($group_roles[$idx])) {
+					DAO_Group::unsetTeamMember($group_id, $id);
+				} else {
+					DAO_Group::setTeamMember($group_id, $id, (2==$group_roles[$idx]));
+				}
+			}
+
+			// Add the worker e-mail to the addresses table
+			if(!empty($email))
+				DAO_Address::lookupAddress($email, true);
+			
+			// Addresses
+			if(null == DAO_AddressToWorker::getByAddress($email)) {
+				DAO_AddressToWorker::assign($email, $id);
+				DAO_AddressToWorker::update($email, array(
+					DAO_AddressToWorker::IS_CONFIRMED => 1
+				));
+			}
+			
+			// Custom field saves
+			@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
+			DAO_CustomFieldValue::handleFormPost(ChCustomFieldSource_Worker::ID, $id, $field_ids);
+		}
+		
+		if(!empty($view_id)) {
+			$view = C4_AbstractViewLoader::getView($view_id);
+			$view->render();
+		}
+		
+		//DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','workers')));		
 	}
 	
 	// Ajax
@@ -1262,174 +1439,6 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$settings->set(CerberusSettings::LICENSE, serialize($license));
 		
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','settings')));
-	}
-	
-	// Ajax
-	function getWorkerAction() {
-		$translate = DevblocksPlatform::getTranslationService();
-		$worker = CerberusApplication::getActiveWorker();
-		
-		if(!$worker || !$worker->is_superuser) {
-			echo $translate->_('common.access_denied');
-			return;
-		}
-		
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
-
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
-		$tpl->assign('path', $this->_TPL_PATH);
-
-		$worker = DAO_Worker::getAgent($id);
-		$tpl->assign('worker', $worker);
-		
-		$teams = DAO_Group::getAll();
-		$tpl->assign('teams', $teams);
-		
-		$tpl->display('file:' . $this->_TPL_PATH . 'configuration/tabs/workers/edit_worker.tpl');
-	}
-	
-	// Post
-	function saveWorkerAction() {
-		$translate = DevblocksPlatform::getTranslationService();
-		$active_worker = CerberusApplication::getActiveWorker();
-		
-		if(!$active_worker || !$active_worker->is_superuser) {
-			echo $translate->_('common.access_denied');
-			return;
-		}
-		
-		if(DEMO_MODE) {
-			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','workers')));
-			return;
-		}
-		
-		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer');
-		@$first_name = DevblocksPlatform::importGPC($_POST['first_name'],'string');
-		@$last_name = DevblocksPlatform::importGPC($_POST['last_name'],'string');
-		@$title = DevblocksPlatform::importGPC($_POST['title'],'string');
-		@$primary_email = DevblocksPlatform::importGPC($_POST['primary_email'],'string');
-		@$email = DevblocksPlatform::importGPC($_POST['email'],'string');
-		@$password = DevblocksPlatform::importGPC($_POST['password'],'string');
-		@$is_superuser = DevblocksPlatform::importGPC($_POST['is_superuser'],'integer');
-		@$group_ids = DevblocksPlatform::importGPC($_POST['group_ids'],'array');
-		@$group_roles = DevblocksPlatform::importGPC($_POST['group_roles'],'array');
-		@$disabled = DevblocksPlatform::importGPC($_POST['do_disable'],'integer',0);
-		@$delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer',0);
-
-		// [TODO] The superuser set bit here needs to be protected by ACL
-		
-		if(empty($first_name)) $first_name = "Anonymous";
-		
-		if(!empty($id) && !empty($delete)) {
-			// Can't delete or disable self
-			if($active_worker->id == $id)
-				return;
-			
-			DAO_Worker::deleteAgent($id);
-			
-		} else {
-			if(empty($id) && null == DAO_Worker::lookupAgentEmail($email)) {
-				$workers = DAO_Worker::getAll();
-				$license = CerberusLicense::getInstance();
-				if ((!empty($license) && !empty($license['serial'])) || count($workers) < 3) {
-					// Creating new worker.  If password is empty, email it to them
-				    if(empty($password)) {
-				    	$settings = CerberusSettings::getInstance();
-						$replyFrom = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM);
-						$replyPersonal = $settings->get(CerberusSettings::DEFAULT_REPLY_PERSONAL, '');
-						$url = DevblocksPlatform::getUrlService();
-				    	
-						$password = CerberusApplication::generatePassword(8);
-				    	
-						try {
-					        $mail_service = DevblocksPlatform::getMailService();
-					        $mailer = $mail_service->getMailer(CerberusMail::getMailerDefaults());
-					        $mail = $mail_service->createMessage();
-					        
-							$mail->setTo(array($email => $first_name . ' ' . $last_name));
-							$mail->setFrom(array($replyFrom => $replyPersonal));
-					        $mail->setSubject('Your new helpdesk login information!');
-					        $mail->generateId();
-							
-							$headers = $mail->getHeaders();
-							
-					        $headers->addTextHeader('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
-					        
-						    $body = sprintf("Your new helpdesk login information is below:\r\n".
-								"\r\n".
-						        "URL: %s\r\n".
-						        "Login: %s\r\n".
-						        "Password: %s\r\n".
-						        "\r\n".
-						        "You should change your password from Preferences after logging in for the first time.\r\n".
-						        "\r\n",
-							        $url->write('',true),
-							        $email,
-							        $password
-						    );
-					        
-							$mail->setBody($body);
-	
-							if(!$mailer->send($mail)) {
-								throw new Exception('Password notification email failed to send.');
-							}
-						} catch (Exception $e) {
-							// [TODO] need to report to the admin when the password email doesn't send.  The try->catch
-							// will keep it from killing php, but the password will be empty and the user will never get an email.
-						}
-				    }
-					
-					$id = DAO_Worker::create($email, $password, '', '', '');
-				}
-				else {
-					//not licensed and worker limit reached
-					DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','workers')));
-					return;
-				}
-			}
-		    
-			$fields = array(
-				DAO_Worker::FIRST_NAME => $first_name,
-				DAO_Worker::LAST_NAME => $last_name,
-				DAO_Worker::TITLE => $title,
-				DAO_Worker::EMAIL => $email,
-				DAO_Worker::IS_SUPERUSER => $is_superuser,
-				DAO_Worker::IS_DISABLED => $disabled,
-			);
-			
-			// if we're resetting the password
-			if(!empty($password)) {
-				$fields[DAO_Worker::PASSWORD] = md5($password);
-			}
-			
-			// Update worker
-			DAO_Worker::updateAgent($id, $fields);
-			
-			// Update group memberships
-			if(is_array($group_ids) && is_array($group_roles))
-			foreach($group_ids as $idx => $group_id) {
-				if(empty($group_roles[$idx])) {
-					DAO_Group::unsetTeamMember($group_id, $id);
-				} else {
-					DAO_Group::setTeamMember($group_id, $id, (2==$group_roles[$idx]));
-				}
-			}
-
-			// Add the worker e-mail to the addresses table
-			if(!empty($email))
-				DAO_Address::lookupAddress($email, true);
-			
-			// Addresses
-			if(null == DAO_AddressToWorker::getByAddress($email)) {
-				DAO_AddressToWorker::assign($email, $id);
-				DAO_AddressToWorker::update($email, array(
-					DAO_AddressToWorker::IS_CONFIRMED => 1
-				));
-			}
-		}
-		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','workers')));
 	}
 	
 	// Ajax

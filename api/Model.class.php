@@ -2813,6 +2813,223 @@ class C4_TaskView extends C4_AbstractView {
 	}	
 };
 
+class C4_WorkerView extends C4_AbstractView {
+	const DEFAULT_ID = 'workers';
+
+	function __construct() {
+		$this->id = self::DEFAULT_ID;
+		$this->name = 'Workers';
+		$this->renderLimit = 25;
+		$this->renderSortBy = SearchFields_Worker::FIRST_NAME;
+		$this->renderSortAsc = true;
+
+		$this->view_columns = array(
+			SearchFields_Worker::FIRST_NAME,
+			SearchFields_Worker::LAST_NAME,
+			SearchFields_Worker::TITLE,
+			SearchFields_Worker::EMAIL,
+			SearchFields_Worker::LAST_ACTIVITY_DATE,
+			SearchFields_Worker::IS_SUPERUSER,
+		);
+		
+		$this->doResetCriteria();
+	}
+
+	function getData() {
+		return DAO_Worker::search(
+			$this->view_columns,
+			$this->params,
+			$this->renderLimit,
+			$this->renderPage,
+			$this->renderSortBy,
+			$this->renderSortAsc
+		);
+	}
+
+	function render() {
+		$this->_sanitize();
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('id', $this->id);
+		$tpl->assign('view', $this);
+
+		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Worker::ID);
+		$tpl->assign('custom_fields', $custom_fields);
+
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('view_fields', $this->getColumns());
+		$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/configuration/tabs/workers/view.tpl');
+	}
+
+	function renderCriteria($field) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('id', $this->id);
+
+		switch($field) {
+			case SearchFields_Worker::EMAIL:
+			case SearchFields_Worker::FIRST_NAME:
+			case SearchFields_Worker::LAST_NAME:
+			case SearchFields_Worker::TITLE:
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__string.tpl');
+				break;
+			case SearchFields_Worker::IS_DISABLED:
+			case SearchFields_Worker::IS_SUPERUSER:
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__bool.tpl');
+				break;
+			case SearchFields_Worker::LAST_ACTIVITY_DATE:
+				$tpl->display('file:' . DEVBLOCKS_PLUGIN_PATH . 'cerberusweb.core/templates/internal/views/criteria/__date.tpl');
+				break;
+			default:
+				// Custom Fields
+				if('cf_' == substr($field,0,3)) {
+					$this->_renderCriteriaCustomField($tpl, substr($field,3));
+				} else {
+					echo ' ';
+				}
+				break;
+		}
+	}
+
+	function renderCriteriaParam($param) {
+		$field = $param->field;
+		$values = !is_array($param->value) ? array($param->value) : $param->value;
+
+		switch($field) {
+//			case SearchFields_WorkerEvent::WORKER_ID:
+//				$workers = DAO_Worker::getAll();
+//				$strings = array();
+//
+//				foreach($values as $val) {
+//					if(empty($val))
+//					$strings[] = "Nobody";
+//					elseif(!isset($workers[$val]))
+//					continue;
+//					else
+//					$strings[] = $workers[$val]->getName();
+//				}
+//				echo implode(", ", $strings);
+//				break;
+			default:
+				parent::renderCriteriaParam($param);
+				break;
+		}
+	}
+
+	static function getFields() {
+		return SearchFields_Worker::getFields();
+	}
+
+	static function getSearchFields() {
+		$fields = self::getFields();
+		unset($fields[SearchFields_Worker::ID]);
+		unset($fields[SearchFields_Worker::LAST_ACTIVITY]);
+		return $fields;
+	}
+
+	static function getColumns() {
+		$fields = self::getFields();
+		unset($fields[SearchFields_Worker::LAST_ACTIVITY]);
+		return $fields;
+	}
+
+	function doResetCriteria() {
+		parent::doResetCriteria();
+		
+//		$this->params = array(
+//			SearchFields_WorkerEvent::NUM_NONSPAM => new DevblocksSearchCriteria(SearchFields_WorkerEvent::NUM_NONSPAM,'>',0),
+//		);
+	}
+	
+	function doSetCriteria($field, $oper, $value) {
+		$criteria = null;
+
+		switch($field) {
+			case SearchFields_Worker::EMAIL:
+			case SearchFields_Worker::FIRST_NAME:
+			case SearchFields_Worker::LAST_NAME:
+			case SearchFields_Worker::TITLE:
+				// force wildcards if none used on a LIKE
+				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
+				&& false === (strpos($value,'*'))) {
+					$value = '*'.$value.'*';
+				}
+				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
+				break;
+				
+			case SearchFields_Worker::LAST_ACTIVITY_DATE:
+				@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','');
+				@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
+
+				if(empty($from)) $from = 0;
+				if(empty($to)) $to = 'today';
+
+				$criteria = new DevblocksSearchCriteria($field,$oper,array($from,$to));
+				break;
+				
+			case SearchFields_Worker::IS_DISABLED:
+			case SearchFields_Worker::IS_SUPERUSER:
+				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
+				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
+				break;
+			default:
+				// Custom Fields
+				if(substr($field,0,3)=='cf_') {
+					$criteria = $this->_doSetCriteriaCustomField($field, substr($field,3));
+				}
+				break;
+		}
+
+		if(!empty($criteria)) {
+			$this->params[$field] = $criteria;
+			$this->renderPage = 0;
+		}
+	}
+
+//	function doBulkUpdate($filter, $do, $ids=array()) {
+//		@set_time_limit(600); // [TODO] Temp!
+//	  
+//		$change_fields = array();
+//
+//		if(empty($do))
+//		return;
+//
+//		if(is_array($do))
+//		foreach($do as $k => $v) {
+//			switch($k) {
+//				case 'banned':
+//					$change_fields[DAO_Address::IS_BANNED] = intval($v);
+//					break;
+//			}
+//		}
+//
+//		$pg = 0;
+//
+//		if(empty($ids))
+//		do {
+//			list($objects,$null) = DAO_Address::search(
+//			$this->params,
+//			100,
+//			$pg++,
+//			SearchFields_Address::ID,
+//			true,
+//			false
+//			);
+//			 
+//			$ids = array_merge($ids, array_keys($objects));
+//			 
+//		} while(!empty($objects));
+//
+//		$batch_total = count($ids);
+//		for($x=0;$x<=$batch_total;$x+=100) {
+//			$batch_ids = array_slice($ids,$x,100);
+//			DAO_Address::update($batch_ids, $change_fields);
+//			unset($batch_ids);
+//		}
+//
+//		unset($ids);
+//	}
+
+};
 class C4_WorkerEventView extends C4_AbstractView {
 	const DEFAULT_ID = 'worker_events';
 

@@ -297,7 +297,7 @@ class DAO_Bayes {
 /**
  * Worker DAO
  */
-class DAO_Worker extends DevblocksORMHelper {
+class DAO_Worker extends C4_ORMHelper {
 	private function DAO_Worker() {}
 	
 	const CACHE_ALL = 'ch_workers';
@@ -656,7 +656,7 @@ class DAO_Worker extends DevblocksORMHelper {
      * @param boolean $withCounts
      * @return array
      */
-    static function search($params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
+    static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
 		$fields = SearchFields_Worker::getFields();
 		
@@ -664,25 +664,52 @@ class DAO_Worker extends DevblocksORMHelper {
 		if(!isset($fields[$sortBy]))
 			$sortBy=null;
 
-        list($tables,$wheres) = parent::_parseSearchParams($params, array(),$fields,$sortBy);
+        list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
 		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
 		$total = -1;
 		
-		$sql = sprintf("SELECT ".
+		$select_sql = sprintf("SELECT ".
 			"w.id as %s, ".
-			"w.last_activity_date as %s ".
-			"FROM worker w ",
-//			"INNER JOIN team tm ON (tm.id = t.team_id) ".
+			"w.first_name as %s, ".
+			"w.last_name as %s, ".
+			"w.title as %s, ".
+			"w.email as %s, ".
+			"w.is_superuser as %s, ".
+			"w.last_activity_date as %s, ".
+			"w.is_disabled as %s ",
 			    SearchFields_Worker::ID,
-			    SearchFields_Worker::LAST_ACTIVITY_DATE
-			).
+			    SearchFields_Worker::FIRST_NAME,
+			    SearchFields_Worker::LAST_NAME,
+			    SearchFields_Worker::TITLE,
+			    SearchFields_Worker::EMAIL,
+			    SearchFields_Worker::IS_SUPERUSER,
+			    SearchFields_Worker::LAST_ACTIVITY_DATE,
+			    SearchFields_Worker::IS_DISABLED
+			);
 			
-			// [JAS]: Dynamic table joins
-//			(isset($tables['ra']) ? "INNER JOIN requester r ON (r.ticket_id=t.id)" : " ").
+		$join_sql = "FROM worker w ";
+		
+		// Custom field joins
+		list($select_sql, $join_sql, $has_multiple_values) = self::_appendSelectJoinSqlForCustomFieldTables(
+			$tables,
+			$params,
+			'w.id',
+			$select_sql,
+			$join_sql
+		);
+				
+		$where_sql = "".
+			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "");
 			
-			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "").
-			(!empty($sortBy) ? sprintf("ORDER BY %s %s",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : "")
-		;
+		$sort_sql = (!empty($sortBy)) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ";
+			
+		$sql = 
+			$select_sql.
+			$join_sql.
+			$where_sql.
+			($has_multiple_values ? 'GROUP BY w.id ' : '').
+			$sort_sql;
+			
 		// [TODO] Could push the select logic down a level too
 		if($limit > 0) {
     		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
@@ -699,21 +726,24 @@ class DAO_Worker extends DevblocksORMHelper {
 			foreach($rs->fields as $f => $v) {
 				$result[$f] = $v;
 			}
-			$ticket_id = intval($rs->fields[SearchFields_Worker::ID]);
-			$results[$ticket_id] = $result;
+			$object_id = intval($rs->fields[SearchFields_Worker::ID]);
+			$results[$object_id] = $result;
 			$rs->MoveNext();
 		}
 
 		// [JAS]: Count all
 		if($withCounts) {
-		    $rs = $db->Execute($sql);
-		    $total = $rs->RecordCount();
+			$count_sql = 
+				($has_multiple_values ? "SELECT COUNT(DISTINCT w.id) " : "SELECT COUNT(w.id) ").
+				$join_sql.
+				$where_sql;
+			$total = $db->GetOne($count_sql);
 		}
 		
 		return array($results,$total);
-    }
+    }			
     	
-}
+};
 
 /**
  * ...
@@ -722,18 +752,41 @@ class DAO_Worker extends DevblocksORMHelper {
 class SearchFields_Worker implements IDevblocksSearchFields {
 	// Worker
 	const ID = 'w_id';
+	const FIRST_NAME = 'w_first_name';
+	const LAST_NAME = 'w_last_name';
+	const TITLE = 'w_title';
+	const EMAIL = 'w_email';
+	const IS_SUPERUSER = 'w_is_superuser';
 	const LAST_ACTIVITY = 'w_last_activity';
 	const LAST_ACTIVITY_DATE = 'w_last_activity_date';
+	const IS_DISABLED = 'w_is_disabled';
 	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
 	static function getFields() {
+		$translate = DevblocksPlatform::getTranslationService();
+		
 		$columns = array(
-			SearchFields_Worker::ID => new DevblocksSearchField(SearchFields_Worker::ID, 'w', 'id'),
-			SearchFields_Worker::LAST_ACTIVITY => new DevblocksSearchField(SearchFields_Worker::LAST_ACTIVITY, 'w', 'last_activity'),
-			SearchFields_Worker::LAST_ACTIVITY_DATE => new DevblocksSearchField(SearchFields_Worker::LAST_ACTIVITY_DATE, 'w', 'last_activity_date'),
+			self::ID => new DevblocksSearchField(self::ID, 'w', 'id', null, $translate->_('common.id')),
+			self::FIRST_NAME => new DevblocksSearchField(self::FIRST_NAME, 'w', 'first_name', null, $translate->_('worker.first_name')),
+			self::LAST_NAME => new DevblocksSearchField(self::LAST_NAME, 'w', 'last_name', null, $translate->_('worker.last_name')),
+			self::TITLE => new DevblocksSearchField(self::TITLE, 'w', 'title', null, $translate->_('worker.title')),
+			self::EMAIL => new DevblocksSearchField(self::EMAIL, 'w', 'email', null, ucwords($translate->_('common.email'))),
+			self::IS_SUPERUSER => new DevblocksSearchField(self::IS_SUPERUSER, 'w', 'is_superuser', null, $translate->_('worker.is_superuser')),
+			self::LAST_ACTIVITY => new DevblocksSearchField(self::LAST_ACTIVITY, 'w', 'last_activity', null, $translate->_('worker.last_activity')),
+			self::LAST_ACTIVITY_DATE => new DevblocksSearchField(self::LAST_ACTIVITY_DATE, 'w', 'last_activity_date', null, $translate->_('worker.last_activity_date')),
+			self::IS_DISABLED => new DevblocksSearchField(self::IS_DISABLED, 'w', 'is_disabled', null, ucwords($translate->_('common.disabled'))),
 		);
+		
+		// Custom Fields
+		$fields = DAO_CustomField::getBySource(ChCustomFieldSource_Worker::ID);
+
+		if(is_array($fields))
+		foreach($fields as $field_id => $field) {
+			$key = 'cf_'.$field_id;
+			$columns[$key] = new DevblocksSearchField($key,$key,'field_value',null,$field->name);
+		}
 		
 		// Sort by label (translation-conscious)
 		uasort($columns, create_function('$a, $b', "return strcasecmp(\$a->db_label,\$b->db_label);\n"));
