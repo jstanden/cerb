@@ -51,7 +51,7 @@
 			{if $address->is_confirmed}
 				yes
 			{else}
-				no, <a href="javascript:;" onclick="document.resendConfirmationForm.email.value='{$address->address}';document.resendConfirmationForm.submit();">$translate->_('preferences.account.email.address.resend.confirm')}</a>
+				no, <a href="javascript:;" onclick="document.resendConfirmationForm.email.value='{$address->address}';document.resendConfirmationForm.submit();">{$translate->_('preferences.account.email.address.resend.confirm')}</a>
 			{/if}
 		</td>
 		<td>
