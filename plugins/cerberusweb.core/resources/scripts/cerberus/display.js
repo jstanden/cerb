@@ -97,9 +97,11 @@ var cDisplayTicketAjax = function(ticket_id) {
 					
 					div.innerHTML = o.responseText;
 					document.location = '#reply' + id;
-					if(null != div.content) {
-						div.content.focus();
-						setElementSelRange(div.content, 0, 0);
+					
+					var frm = document.getElementById('reply' + id + '_form');
+					if(null != frm && null != frm.content) {
+						frm.content.focus();
+						setElementSelRange(frm.content, 0, 0);
 					}
 					
 //					div.style.display = 'block';
