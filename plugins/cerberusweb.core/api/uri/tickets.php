@@ -1062,7 +1062,8 @@ class ChTicketsPage extends CerberusPageExtension {
 		//$message->headers['x-cerberus-portal'] = 1; 
 		
 		// Sender
-		$fromList = imap_rfc822_parse_adrlist($reqs,'');
+		$fromList = imap_rfc822_parse_adrlist(rtrim($reqs,', '),'');
+		
 		if(empty($fromList) || !is_array($fromList)) {
 			return; // abort with message
 		}
