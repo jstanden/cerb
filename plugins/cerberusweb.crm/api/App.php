@@ -312,7 +312,7 @@ class CrmPage extends CerberusPageExtension {
 		@$status = DevblocksPlatform::importGPC($_REQUEST['status'],'integer',0);
 		@$amount_dollars = DevblocksPlatform::importGPC($_REQUEST['amount'],'string','0');
 		@$amount_cents = DevblocksPlatform::importGPC($_REQUEST['amount_cents'],'integer',0);
-		@$email_str = DevblocksPlatform::importGPC($_REQUEST['emails'],'string','');
+		@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string','');
 		@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'integer',0);
 		@$comment = DevblocksPlatform::importGPC($_REQUEST['comment'],'string','');
 		@$created_date_str = DevblocksPlatform::importGPC($_REQUEST['created_date'],'string','');
@@ -351,55 +351,54 @@ class CrmPage extends CerberusPageExtension {
 			}
 			
 		} elseif(empty($opp_id)) {
-			$emails = DevblocksPlatform::parseCsvString($email_str);
-			
 			// Check privs
 			if(!$active_worker->hasPriv('crm.opp.actions.create'))
 				return;
 			
 			// One opportunity per provided e-mail address
-			if(is_array($emails))
-			foreach($emails as $email) {
-				if(null == ($address = DAO_Address::lookupAddress($email, true)))
-					continue;
+			if(null == ($address = DAO_Address::lookupAddress($email, true)))
+				return;
 				
+			$fields = array(
+				DAO_CrmOpportunity::NAME => $name,
+				DAO_CrmOpportunity::AMOUNT => $amount,
+				DAO_CrmOpportunity::PRIMARY_EMAIL_ID => $address->id,
+				DAO_CrmOpportunity::CREATED_DATE => intval($created_date),
+				DAO_CrmOpportunity::UPDATED_DATE => time(),
+				DAO_CrmOpportunity::CLOSED_DATE => intval($closed_date),
+				DAO_CrmOpportunity::IS_CLOSED => $is_closed,
+				DAO_CrmOpportunity::IS_WON => $is_won,
+				DAO_CrmOpportunity::WORKER_ID => $worker_id,
+			);
+			$opp_id = DAO_CrmOpportunity::create($fields);
+			
+			// Custom fields
+			@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
+			DAO_CustomFieldValue::handleFormPost(CrmCustomFieldSource_Opportunity::ID, $opp_id, $field_ids);
+			
+			// If we're adding a first comment
+			if(!empty($comment)) {
 				$fields = array(
-					DAO_CrmOpportunity::NAME => $name,
-					DAO_CrmOpportunity::AMOUNT => $amount,
-					DAO_CrmOpportunity::PRIMARY_EMAIL_ID => $address->id,
-					DAO_CrmOpportunity::CREATED_DATE => intval($created_date),
-					DAO_CrmOpportunity::UPDATED_DATE => time(),
-					DAO_CrmOpportunity::CLOSED_DATE => intval($closed_date),
-					DAO_CrmOpportunity::IS_CLOSED => $is_closed,
-					DAO_CrmOpportunity::IS_WON => $is_won,
-					DAO_CrmOpportunity::WORKER_ID => $worker_id,
+					DAO_Note::CREATED => time(),
+					DAO_Note::SOURCE_EXTENSION_ID => CrmNotesSource_Opportunity::ID,
+					DAO_Note::SOURCE_ID => $opp_id,
+					DAO_Note::CONTENT => $comment,
+					DAO_Note::WORKER_ID => $active_worker->id,
 				);
-				$opp_id = DAO_CrmOpportunity::create($fields);
-				
-				// Custom fields
-				@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
-				DAO_CustomFieldValue::handleFormPost(CrmCustomFieldSource_Opportunity::ID, $opp_id, $field_ids);
-				
-				// If we're adding a first comment
-				if(!empty($comment)) {
-					$fields = array(
-						DAO_Note::CREATED => time(),
-						DAO_Note::SOURCE_EXTENSION_ID => CrmNotesSource_Opportunity::ID,
-						DAO_Note::SOURCE_ID => $opp_id,
-						DAO_Note::CONTENT => $comment,
-						DAO_Note::WORKER_ID => $active_worker->id,
-					);
-					$comment_id = DAO_Note::create($fields);
-				}
+				$comment_id = DAO_Note::create($fields);
 			}
 			
 		} else {
 			if(empty($opp_id))
 				return;
 			
+			if(null == ($address = DAO_Address::lookupAddress($email, true)))
+				return;
+
 			$fields = array(
 				DAO_CrmOpportunity::NAME => $name,
 				DAO_CrmOpportunity::AMOUNT => $amount,
+				DAO_CrmOpportunity::PRIMARY_EMAIL_ID => $address->id,
 				DAO_CrmOpportunity::CREATED_DATE => intval($created_date),
 				DAO_CrmOpportunity::UPDATED_DATE => time(),
 				DAO_CrmOpportunity::CLOSED_DATE => intval($closed_date),
@@ -591,6 +590,9 @@ class CrmPage extends CerberusPageExtension {
 		$opp = DAO_CrmOpportunity::get($opp_id);
 		$tpl->assign('opp', $opp);
 
+		$address = DAO_Address::get($opp->primary_email_id);
+		$tpl->assign('address', $address);
+
 		$workers = DAO_Worker::getAllActive();
 		$tpl->assign('workers', $workers);
 		
@@ -606,6 +608,7 @@ class CrmPage extends CerberusPageExtension {
 	
 	function saveOppPropertiesAction() {
 		@$opp_id = DevblocksPlatform::importGPC($_REQUEST['opp_id'],'integer', 0);
+		@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string','');
 		@$name = DevblocksPlatform::importGPC($_REQUEST['name'],'string','');
 		@$status = DevblocksPlatform::importGPC($_REQUEST['status'],'integer',0);
 		@$amount_dollars = DevblocksPlatform::importGPC($_REQUEST['amount'],'string','0');
@@ -642,6 +645,11 @@ class CrmPage extends CerberusPageExtension {
 				DAO_CrmOpportunity::IS_WON => $is_won,
 				DAO_CrmOpportunity::WORKER_ID => $worker_id,
 			);
+			
+			// Email
+			if(null != ($address = DAO_Address::lookupAddress($email, true)))
+				$fields[DAO_CrmOpportunity::PRIMARY_EMAIL_ID] = $address->id;
+			
 			DAO_CrmOpportunity::update($opp_id, $fields);
 			
 			@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());

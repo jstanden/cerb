@@ -7,6 +7,17 @@
 
 	<table cellpadding="0" cellspacing="2" border="0" width="98%">
 		<tr>
+			<td width="0%" nowrap="nowrap" align="right">{$translate->_('common.email')}: </td>
+			<td width="100%">
+				<div id="emailautocomplete" style="width:98%;" class="yui-ac">
+					<input type="text" name="email" id="emailinput" value="{$address->email|escape}" style="border:1px solid rgb(180,180,180);padding:2px;" class="yui-ac-input">
+					<div id="emailcontainer" class="yui-ac-container"></div>
+					<br>
+					<br>
+				</div>
+			</td>
+		</tr>
+		<tr>
 			<td width="0%" nowrap="nowrap" align="right">{$translate->_('crm.opportunity.name')|capitalize}: </td>
 			<td width="100%"><input type="text" name="name" value="{$opp->name|escape}" style="width:98%;"></td>
 		</tr>

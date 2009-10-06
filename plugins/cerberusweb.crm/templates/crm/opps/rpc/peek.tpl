@@ -18,16 +18,12 @@
 	<tr>
 		<td width="0%" nowrap="nowrap" align="right" valign="top">{$translate->_('crm.opportunity.email_address')|capitalize}: </td>
 		<td width="100%">
-			{if empty($opp->id)}
-				<div id="emailautocomplete" style="width:98%;" class="yui-ac">
-					<input type="text" name="emails" id="emailinput" value="{$email}" style="border:1px solid rgb(180,180,180);padding:2px;" class="yui-ac-input">
-					<div id="emailcontainer" class="yui-ac-container"></div>
-					<br>
-					<br>
-				</div>			
-			{elseif !empty($address)}
-				{*{$address->first_name} {$address->last_name} &lt;*}<a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$address->email|escape:'url'}&view_id=',null,false,'500px',ajax.cbAddressPeek);">{$address->email}</a>{*&gt;*}
-			{/if}
+			<div id="emailautocomplete" style="width:98%;" class="yui-ac">
+				<input type="text" name="email" id="emailinput" value="{$address->email|escape}" style="border:1px solid rgb(180,180,180);padding:2px;" class="yui-ac-input">
+				<div id="emailcontainer" class="yui-ac-container"></div>
+				<br>
+				<br>
+			</div>
 		</td>
 	</tr>
 	<tr>
