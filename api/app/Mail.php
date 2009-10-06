@@ -430,7 +430,7 @@ class CerberusMail {
 	        
 		    // properties
 		    @$reply_message_id = $properties['message_id'];
-		    @$content =& $properties['content'];
+		    @$content = $properties['content'];
 		    @$files = $properties['files'];
 		    @$forward_files = $properties['forward_files'];
 		    @$worker_id = $properties['agent_id'];
@@ -680,6 +680,7 @@ class CerberusMail {
 				}
 			}
 		    
+			// Attachments
 			if (is_array($files) && !empty($files)) {
 				$attachment_path = APP_STORAGE_PATH . '/attachments/';
 			
@@ -706,7 +707,7 @@ class CerberusMail {
 		            }
 	
 		            if(!is_writeable($attachment_path.$attachment_bucket)) {
-		            	echo "Can't write to " . $attachment_path.$attachment_bucket . "<BR>";
+		            	echo "Can't write to bucket " . $attachment_path.$attachment_bucket . "<BR>";
 		            }
 		            
 		            copy($file, $attachment_path.$attachment_bucket.$attachment_file);
@@ -730,7 +731,7 @@ class CerberusMail {
 				DAO_MessageNote::create($fields);
 			}
 		}
-
+		
 		// Post-Reply Change Properties
 
 		if(isset($properties['closed'])) {

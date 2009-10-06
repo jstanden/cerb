@@ -158,7 +158,7 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 			return;
 
 		// Find all our matching filters
-		if(false == ($matches = Model_WatcherMailFilter::getMatches(
+		if(empty($ticket) || false == ($matches = Model_WatcherMailFilter::getMatches(
 			$ticket,
 			'ticket_comment'
 		)))
@@ -290,7 +290,7 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 				continue;
 			
 			// Find all our matching filters
-			if(false == ($matches = Model_WatcherMailFilter::getMatches(
+			if(empty($ticket) || false == ($matches = Model_WatcherMailFilter::getMatches(
 				$ticket,
 				'ticket_assignment',
 				$next_worker_id
@@ -397,7 +397,7 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 		$ticket = DAO_Ticket::getTicket($ticket_id);
 
 		// Find all our matching filters
-		if(false == ($matches = Model_WatcherMailFilter::getMatches(
+		if(empty($ticket) || false == ($matches = Model_WatcherMailFilter::getMatches(
 			$ticket,
 			($is_inbound ? 'mail_incoming' : 'mail_outgoing')
 		)))
