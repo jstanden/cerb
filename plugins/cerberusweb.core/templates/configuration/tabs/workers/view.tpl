@@ -73,7 +73,11 @@
 			{elseif $column=="w_email"}
 				<td><a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$result.w_email|escape:'url'}&view_id={$view->id}',this,false,'500px',ajax.cbAddressPeek);" title="{$result.w_email|escape}">{$result.w_email|truncate:64:'...':true:true}</a></td>
 			{elseif $column=="w_last_activity_date"}
+				{if !empty($result.w_last_activity_date)}
 				<td title="{$result.w_last_activity_date|devblocks_date}">{$result.w_last_activity_date|devblocks_prettytime}</td>
+				{else}
+				<td>never</td>
+				{/if}
 			{else}
 			<td>{$result.$column}&nbsp;</td>
 			{/if}

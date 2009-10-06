@@ -352,6 +352,7 @@ class DAO_Worker extends C4_ORMHelper {
 	
 	static function getAllOnline() {
 		list($whos_online_workers, $null) = self::search(
+			array(),
 		    array(
 		        new DevblocksSearchCriteria(SearchFields_Worker::LAST_ACTIVITY_DATE,DevblocksSearchCriteria::OPER_GT,(time()-60*15)), // idle < 15 mins
 		        new DevblocksSearchCriteria(SearchFields_Worker::LAST_ACTIVITY,DevblocksSearchCriteria::OPER_NOT_LIKE,'%translation_code";N;%'), // translation code not null (not just logged out)
