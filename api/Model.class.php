@@ -1954,11 +1954,13 @@ class C4_AddressView extends C4_AbstractView {
 		$fields = self::getFields();
 		unset($fields[SearchFields_Address::ID]);
 		unset($fields[SearchFields_Address::CONTACT_ORG_ID]);
+		unset($fields[SearchFields_Address::PASS]);
 		return $fields;
 	}
 
 	static function getColumns() {
 		$fields = self::getFields();
+		unset($fields[SearchFields_Address::PASS]);
 		return $fields;
 	}
 
