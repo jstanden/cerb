@@ -885,13 +885,22 @@ class CerberusParser {
 	}
 	
 	static public function getDestinations($headers) {
-		$sources = array_merge(
-			is_array($headers['to']) ? $headers['to'] : array($headers['to']),
-			is_array($headers['cc']) ? $headers['cc'] : array($headers['cc']),
-			is_array($headers['envelope-to']) ? $headers['envelope-to'] : array($headers['envelope-to']),
-			is_array($headers['x-envelope-to']) ? $headers['x-envelope-to'] : array($headers['x-envelope-to']),
-			is_array($headers['delivered-to']) ? $headers['delivered-to'] : array($headers['delivered-to'])
-		);
+		$sources = array();
+		
+		if(isset($headers['to']))
+			$sources = array_merge($sources, is_array($headers['to']) ? $headers['to'] : array($headers['to']));
+
+		if(isset($headers['cc']))
+			$sources = array_merge($sources, is_array($headers['cc']) ? $headers['cc'] : array($headers['cc'])); 
+		
+		if(isset($headers['envelope-to']))
+			$sources = array_merge($sources, is_array($headers['envelope-to']) ? $headers['envelope-to'] : array($headers['envelope-to'])); 
+		
+		if(isset($headers['x-envelope-to']))
+			$sources = array_merge($sources, is_array($headers['x-envelope-to']) ? $headers['x-envelope-to'] : array($headers['x-envelope-to']));
+		
+		if(isset($headers['delivered-to']))
+			$sources = array_merge($sources, is_array($headers['delivered-to']) ? $headers['delivered-to'] : array($headers['delivered-to']));
 		
 		$destinations = array();
 		foreach($sources as $source) {
