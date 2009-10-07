@@ -501,6 +501,62 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		//DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','workers')));		
 	}
 	
+	function showWorkersBulkPanelAction() {
+		@$id_csv = DevblocksPlatform::importGPC($_REQUEST['ids']);
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
+
+		$tpl = DevblocksPlatform::getTemplateService();
+		$path = $this->_TPL_PATH;
+		$tpl->assign('path', $path);
+		$tpl->assign('view_id', $view_id);
+
+	    if(!empty($id_csv)) {
+	        $ids = DevblocksPlatform::parseCsvString($id_csv);
+	        $tpl->assign('ids', implode(',', $ids));
+	    }
+		
+	    // Lists
+//	    $lists = DAO_FeedbackList::getWhere();
+//	    $tpl->assign('lists', $lists);
+	    
+		// Custom Fields
+		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Worker::ID);
+		$tpl->assign('custom_fields', $custom_fields);
+		
+		$tpl->cache_lifetime = "0";
+		$tpl->display('file:' . $path . 'configuration/tabs/workers/bulk.tpl');
+	}
+	
+	function doWorkersBulkUpdateAction() {
+		// Checked rows
+	    @$ids_str = DevblocksPlatform::importGPC($_REQUEST['ids'],'string');
+		$ids = DevblocksPlatform::parseCsvString($ids_str);
+
+		// Filter: whole list or check
+	    @$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
+	    
+	    // View
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
+		$view = C4_AbstractViewLoader::getView($view_id);
+		
+		// Worker fields
+		@$is_disabled = trim(DevblocksPlatform::importGPC($_POST['is_disabled'],'string',''));
+
+		$do = array();
+		
+		// Do: Disabled
+		if(0 != strlen($is_disabled))
+			$do['is_disabled'] = $is_disabled;
+			
+		// Do: Custom fields
+		$do = DAO_CustomFieldValue::handleBulkPost($do);
+		
+		$view->doBulkUpdate($filter, $do, $ids);
+		
+		$view->render();
+		return;
+	}
+	
 	// Ajax
 	function showTabGroupsAction() {
 		$tpl = DevblocksPlatform::getTemplateService();

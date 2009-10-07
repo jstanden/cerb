@@ -26,7 +26,7 @@
 	<td>
 	{assign var=worker_id value=$result.$column}
 	{if empty($workers) && !empty($worker_id)}
-		{php}$this->assign('workers',DAO_Worker::getAllActive());{/php}
+		{php}$this->assign('workers',DAO_Worker::getAll());{/php}
 	{/if}
 	{if !empty($worker_id) && isset($workers.$worker_id)}
 		{$workers.$worker_id->getName()}

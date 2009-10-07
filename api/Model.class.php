@@ -2987,49 +2987,62 @@ class C4_WorkerView extends C4_AbstractView {
 		}
 	}
 
-//	function doBulkUpdate($filter, $do, $ids=array()) {
-//		@set_time_limit(600); // [TODO] Temp!
-//	  
-//		$change_fields = array();
-//
-//		if(empty($do))
-//		return;
-//
-//		if(is_array($do))
-//		foreach($do as $k => $v) {
-//			switch($k) {
-//				case 'banned':
-//					$change_fields[DAO_Address::IS_BANNED] = intval($v);
-//					break;
-//			}
-//		}
-//
-//		$pg = 0;
-//
-//		if(empty($ids))
-//		do {
-//			list($objects,$null) = DAO_Address::search(
-//			$this->params,
-//			100,
-//			$pg++,
-//			SearchFields_Address::ID,
-//			true,
-//			false
-//			);
-//			 
-//			$ids = array_merge($ids, array_keys($objects));
-//			 
-//		} while(!empty($objects));
-//
-//		$batch_total = count($ids);
-//		for($x=0;$x<=$batch_total;$x+=100) {
-//			$batch_ids = array_slice($ids,$x,100);
-//			DAO_Address::update($batch_ids, $change_fields);
-//			unset($batch_ids);
-//		}
-//
-//		unset($ids);
-//	}
+	function doBulkUpdate($filter, $do, $ids=array()) {
+		@set_time_limit(600); // [TODO] Temp!
+	  
+		$change_fields = array();
+		$custom_fields = array();
+
+		if(empty($do))
+			return;
+
+		if(is_array($do))
+		foreach($do as $k => $v) {
+			switch($k) {
+				case 'is_disabled':
+					$change_fields[DAO_Worker::IS_DISABLED] = intval($v);
+					break;
+				default:
+					// Custom fields
+					if(substr($k,0,3)=="cf_") {
+						$custom_fields[substr($k,3)] = $v;
+					}
+					break;
+
+			}
+		}
+
+		$pg = 0;
+
+		if(empty($ids))
+		do {
+			list($objects,$null) = DAO_Worker::search(
+			array(),
+			$this->params,
+			100,
+			$pg++,
+			SearchFields_Worker::ID,
+			true,
+			false
+			);
+			 
+			$ids = array_merge($ids, array_keys($objects));
+			 
+		} while(!empty($objects));
+
+		$batch_total = count($ids);
+		for($x=0;$x<=$batch_total;$x+=100) {
+			$batch_ids = array_slice($ids,$x,100);
+			DAO_Worker::updateAgent($batch_ids, $change_fields);
+			
+			// Custom Fields
+			self::_doBulkSetCustomFields(ChCustomFieldSource_Worker::ID, $custom_fields, $batch_ids);
+			
+			unset($batch_ids);
+		}
+
+		unset($ids);
+	}
 
 };
 class C4_WorkerEventView extends C4_AbstractView {

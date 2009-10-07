@@ -463,11 +463,13 @@ class DAO_Worker extends C4_ORMHelper {
 		return null;		
 	}
 	
-	static function updateAgent($id, $fields, $flush_cache=true) {
+	static function updateAgent($ids, $fields, $flush_cache=true) {
+		if(!is_array($ids)) $ids = array($ids);
+		
 		$db = DevblocksPlatform::getDatabaseService();
 		$sets = array();
 		
-		if(!is_array($fields) || empty($fields) || empty($id))
+		if(!is_array($fields) || empty($fields) || empty($ids))
 			return;
 		
 		foreach($fields as $k => $v) {
@@ -477,9 +479,9 @@ class DAO_Worker extends C4_ORMHelper {
 			);
 		}
 			
-		$sql = sprintf("UPDATE worker SET %s WHERE id = %d",
+		$sql = sprintf("UPDATE worker SET %s WHERE id IN (%s)",
 			implode(', ', $sets),
-			$id
+			implode(',', $ids)
 		);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
