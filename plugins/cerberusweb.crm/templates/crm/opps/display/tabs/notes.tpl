@@ -9,7 +9,7 @@
 {if !empty($workers)}
 	<label><input type="checkbox" onclick="toggleDiv('addOppNoteNotifyWorkers');"> <b>{'common.notify_workers'|devblocks_translate}</b></label>
 	<div id="addOppNoteNotifyWorkers" style="display:none;">
-		<select name="notify_worker_ids" multiple="multiple" size="8">
+		<select name="notify_worker_ids[]" multiple="multiple" size="8">
 			{foreach from=$active_workers item=worker name=notify_workers}
 			{if $worker->id == $active_worker->id}{math assign=notify_me_id equation="x-1" x=$smarty.foreach.notify_workers.iteration}{/if}
 			<option value="{$worker->id}">{$worker->getName()}</option>
