@@ -21,21 +21,30 @@
 	</td>
 	<td align="right" valign="top">
 		{*
+		<form action="{devblocks_url}{/devblocks_url}" method="post">
+		<input type="hidden" name="c" value="contacts">
+		<input type="hidden" name="a" value="doOrgQuickSearch">
+		<span><b>{$translate->_('common.quick_search')|capitalize}:</b></span> <select name="type">
+			<option value="name">{$translate->_('contact_org.name')|capitalize}</option>
+			<option value="phone">{$translate->_('contact_org.phone')|capitalize}</option>
+		</select><input type="text" name="query" size="24"><button type="submit">{$translate->_('common.search_go')|lower}</button>
+		</form>
+		*}
+		
 		{if !empty($series_stats.next) || !empty($series_stats.prev)}
 		<table cellpadding="0" cellspacing="0" border="0" style="margin:0px;">
 			<tr>
 				<td>	
 				<div style="padding:10px;margin-top:0px;border:1px solid rgb(180,180,255);background-color:rgb(245,245,255);text-align:center;">
-					{'display.listnav.active_list'|devblocks_translate} <b>{$series_stats.title}</b><br>
-					{if !empty($series_stats.prev)}<button style="display:none;visibility:hidden;" id="btnPagePrev" onclick="document.location='{devblocks_url}c=crm&a=opps&id={$series_stats.prev}{/devblocks_url}';">&laquo;Prev</button><a href="{devblocks_url}c=crm&a=opps&id={$series_stats.prev}{/devblocks_url}">&laquo;{'common.previous_short'|devblocks_translate|capitalize}</a>{/if} 
-					 {'display.listnav.showing_of_total'|devblocks_translate:$series_stats.cur:$series_stats.total} 
-					{if !empty($series_stats.next)}<button style="display:none;visibility:hidden;" id="btnPageNext" onclick="document.location='{devblocks_url}c=crm&a=opps&id={$series_stats.next}{/devblocks_url}';">Next&raquo;</button><a href="{devblocks_url}c=crm&a=opps&id={$series_stats.next}{/devblocks_url}">{'common.next'|devblocks_translate|capitalize}&raquo;</a>{/if}
+					{$translate->_('display.listnav.active_list')} <b>{$series_stats.title}</b><br>
+					{if !empty($series_stats.prev)}<button style="display:none;visibility:hidden;" id="btnPagePrev" onclick="document.location='{devblocks_url}c=tasks&a=display&id={$series_stats.prev}{/devblocks_url}';"></button><a href="{devblocks_url}c=tasks&a=display&id={$series_stats.prev}{/devblocks_url}" title="[">&laquo;{$translate->_('common.previous_short')|capitalize}</a>{/if}
+					{'display.listnav.showing_of_total'|devblocks_translate:$series_stats.cur:$series_stats.count} 
+					{if !empty($series_stats.next)}<button style="display:none;visibility:hidden;" id="btnPageNext" onclick="document.location='{devblocks_url}c=tasks&a=display&id={$series_stats.next}{/devblocks_url}';"></button><a href="{devblocks_url}c=tasks&a=display&id={$series_stats.next}{/devblocks_url}" title="]">{$translate->_('common.next')|capitalize}&raquo;</a>{/if}
 				</div>
 				</td>
 			</tr>
 		</table>
 		{/if}
-		*}
 	</td>
 </tr>
 </table>
@@ -99,21 +108,16 @@ CreateKeyHandler(function doShortcuts(e) {
 //				document.getElementById('btnOppAddyPeek').click();
 //			} catch(e){}
 //			break;
-//		case 81:  // (Q) quick compose
-//			try {
-//				document.getElementById('btnQuickCompose').click();
-//			} catch(e){}
-//			break;
-//		case 219:  // [ - prev page
-//			try {
-//				document.getElementById('btnPagePrev').click();
-//			} catch(e){}
-//			break;
-//		case 221:  // ] - next page
-//			try {
-//				document.getElementById('btnPageNext').click();
-//			} catch(e){}
-//			break;
+		case 219:  // [ - prev page
+			try {
+				document.getElementById('btnPagePrev').click();
+			} catch(e){}
+			break;
+		case 221:  // ] - next page
+			try {
+				document.getElementById('btnPageNext').click();
+			} catch(e){}
+			break;
 		default:
 			// We didn't find any obvious keys, try other codes
 			break;

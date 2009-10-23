@@ -50,6 +50,52 @@ class ChTasksPage extends CerberusPageExtension {
 		$this->_TPL_PATH = dirname(dirname(dirname(__FILE__))) . '/templates/';
 	}
 	
+	function browseAction() {
+		$visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
+		$request = DevblocksPlatform::getHttpRequest();
+		$stack = $request->path;
+		
+		array_shift($stack); // tasks
+		array_shift($stack); // browse
+		
+		@$id = array_shift($stack);
+		
+		if(null == ($task = DAO_Task::get($id))) {
+			echo "<H1>Invalid Organization ID.</H1>";
+			return;
+		}
+	
+		// Display series support (inherited paging from Display)
+		@$view_id = array_shift($stack);
+		if(!empty($view_id)) {
+			$view = C4_AbstractViewLoader::getView($view_id);
+
+			$range = 250;
+			$block_size = 250;
+			$page = floor(($view->renderLimit * $view->renderPage)/$block_size);
+			
+			list($series, $series_count) = DAO_Task::search(
+				$view->view_columns,
+				$view->params,
+				$block_size,
+				$page,
+				$view->renderSortBy,
+				$view->renderSortAsc,
+				false
+			);
+			
+			$series_info = array(
+				'title' => $view->name,
+				'total' => count($series),
+				'series' => array_flip(array_keys($series))
+			);
+			
+			$visit->set('ch_task_series', $series_info);
+		}
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tasks','display',$task->id)));
+		exit;
+	}	
+	
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
@@ -79,52 +125,47 @@ class ChTasksPage extends CerberusPageExtension {
 				}
 				$tpl->assign('tab_selected', $tab_selected);
 
-//				$address = DAO_Address::get($opp->primary_email_id);
-//				$tpl->assign('address', $address);
-				
 				$workers = DAO_Worker::getAll();
 				$tpl->assign('workers', $workers);
-				
-//				$task_count = DAO_Task::getCountBySourceObjectId('cerberusweb.tasks.opp', $opp_id);
-//				$tpl->assign('tasks_total', $task_count);
 				
 				$visit = CerberusApplication::getVisit();
 				
 				// Does a series exist?
-//				if(null != ($series_info = $visit->get('ch_opp_series', null))) {
-//					@$series = $series_info['series'];
-//					// Is this ID part of the series?  If not, invalidate
-//					if(!isset($series[$opp_id])) {
-//						$visit->set('ch_opp_series', null);
-//					} else {
-//						$series_stats = array(
-//							'title' => $series_info['title'],
-//							'total' => $series_info['total'],
-//							'count' => count($series)
-//						);
-//						reset($series);
-//						$cur = 1;
-//						while(current($series)) {
-//							$pos = key($series);
-//							if(intval($pos)==intval($opp_id)) {
-//								$series_stats['cur'] = $cur;
-//								if(false !== prev($series)) {
-//									@$series_stats['prev'] = $series[key($series)][SearchFields_CrmOpportunity::ID];
-//									next($series); // skip to current
-//								} else {
-//									reset($series);
-//								}
-//								next($series); // next
-//								@$series_stats['next'] = $series[key($series)][SearchFields_CrmOpportunity::ID];
-//								break;
-//							}
-//							next($series);
-//							$cur++;
-//						}
-//						
-//						$tpl->assign('series_stats', $series_stats);
-//					}
-//				}
+				if(null != ($series_info = $visit->get('ch_task_series', null))) {
+					@$series = $series_info['series'];
+					
+					// Is this ID part of the series?  If not, invalidate
+					if(!isset($series[$task_id])) {
+						$visit->set('ch_task_series', null);
+					} else {
+						$series_stats = array(
+							'title' => $series_info['title'],
+							'total' => $series_info['total'],
+							'count' => count($series)
+						);
+						reset($series);
+						$cur = 1;
+						while(null !== current($series)) {
+							$pos = key($series);
+							if(intval($pos)==intval($task_id)) {
+								$series_stats['cur'] = $cur;
+								if(false !== prev($series)) {
+									@$series_stats['prev'] = key($series);
+									next($series); // skip to current
+								} else {
+									reset($series);
+								}
+								next($series); // next
+								@$series_stats['next'] = key($series);
+								break;
+							}
+							next($series);
+							$cur++;
+						}
+						
+						$tpl->assign('series_stats', $series_stats);
+					}
+				}
 				
 				$tpl->display($this->_TPL_PATH . 'tasks/display/index.tpl');
 				break;
