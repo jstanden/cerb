@@ -256,6 +256,10 @@ class ChNotesSource_Org extends Extension_NoteSource {
 	const ID = 'cerberusweb.notes.source.org';
 };
 
+class ChNotesSource_Task extends Extension_NoteSource {
+	const ID = 'cerberusweb.notes.source.task';
+};
+
 // Custom Field Sources
 
 class ChCustomFieldSource_Address extends Extension_CustomFieldSource {
@@ -538,7 +542,7 @@ XML;
         // [TODO] We should probably be building this feed with Zend Framework for compliance
         
         foreach($results as $task) {
-        	$created = intval($task[SearchFields_Task::DUE_DATE]);
+        	$created = intval($task[SearchFields_Task::UPDATED_DATE]);
             if(empty($created)) $created = time();
 
             $eItem = $channel->addChild('item');
@@ -548,8 +552,8 @@ XML;
             $escapedSubject = preg_replace("/[]/", '', $escapedSubject);
             $eTitle = $eItem->addChild('title', $escapedSubject);
 
-//            $eDesc = $eItem->addChild('description', $this->_getTicketLastAction($ticket));
-            $eDesc = $eItem->addChild('description', htmlspecialchars($task[SearchFields_Task::CONTENT],null,LANG_CHARSET_CODE));
+            //$eDesc = $eItem->addChild('description', htmlspecialchars($task[SearchFields_Task::CONTENT],null,LANG_CHARSET_CODE));
+            $eDesc = $eItem->addChild('description', '');
 
             if(isset($task_sources[$task[SearchFields_Task::SOURCE_EXTENSION]]) && isset($task[SearchFields_Task::SOURCE_ID])) {
             	$source_ext =& $task_sources[$task[SearchFields_Task::SOURCE_EXTENSION]]; /* @var $source_ext Extension_TaskSource */

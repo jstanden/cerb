@@ -59,9 +59,7 @@
 				{if $result.t_is_completed}
 					<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check_gray.gif{/devblocks_url}" align="top" title="{$result.t_completed_date|devblocks_date}">
 				{/if}
-				<a href="javascript:;" onclick="genericAjaxPanel('c=tasks&a=showTaskPeek&id={$result.t_id}&view_id={$view->id}',this,false,'550px');" style="color:rgb(75,75,75);font-size:12px;"><b id="subject_{$result.t_id}_{$view->id}">{if !empty($result.t_title)}{$result.t_title|escape}{else}New Task{/if}</b></a>
-				<br>
-				{$result.t_content|escape}
+				<a href="{devblocks_url}c=tasks&d=display&id={$result.t_id}{/devblocks_url}" style="color:rgb(75,75,75);font-size:12px;"><b id="subject_{$result.t_id}_{$view->id}">{if !empty($result.t_title)}{$result.t_title|escape}{else}New Task{/if}</b></a> <a href="javascript:;" onclick="genericAjaxPanel('c=tasks&a=showTaskPeek&id={$result.t_id}&view_id={$view->id}',this,false,'550px');" style="color:rgb(180,180,180);font-size:90%;">{'views.peek'|devblocks_translate}</a>
 			</td>
 		</tr>
 		<tr class="{$tableRowBg}" id="{$rowIdPrefix}" onmouseover="toggleClass(this.id,'tableRowHover');toggleClass('{$rowIdPrefix}_s','tableRowHover');" onmouseout="toggleClass(this.id,'{$tableRowBg}');toggleClass('{$rowIdPrefix}_s','{$tableRowBg}');" onclick="if(getEventTarget(event)=='TD') checkAll('{$rowIdPrefix}_s');">
@@ -70,10 +68,10 @@
 				{include file="file:$core_tpl/internal/custom_fields/view/cell_renderer.tpl"}
 			{elseif $column=="t_id"}
 				<td>{$result.t_id}&nbsp;</td>
-			{elseif $column=="t_completed_date"}
-				<td>
-					{if !empty($result.t_completed_date)}
-						{$result.t_completed_date|devblocks_date}&nbsp;
+			{elseif $column=="t_completed_date" || $column=="t_updated_date"}
+				<td title="{$result.$column|devblocks_date}">
+					{if !empty($result.$column)}
+						{$result.$column|devblocks_prettytime}&nbsp;
 					{/if}
 				</td>
 			{elseif $column=="t_due_date"}

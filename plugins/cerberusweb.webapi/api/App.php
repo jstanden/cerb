@@ -2000,15 +2000,16 @@ class Rest_TasksController extends Ch_RestController {
 			't_worker_id' => 'worker_id',
 			't_source_extension' => 'source_extension',
 			't_source_id' => 'source_id',
-			't_content' => 'content',
+			't_updated_date' => 'updated_date',
 		);
 		
 		if ($dir === true && array_key_exists($idx, $translations))
 			return $translations[$idx];
 		if ($dir === false)
 			return ($key = array_search($idx, $translations)) === false ? null : $key;
+			
 		return $idx;
-			}
+	}
 		
 	protected function isValid($idx_name, $value) {
 		switch($idx_name) {
@@ -2017,9 +2018,9 @@ class Rest_TasksController extends Ch_RestController {
 			case 'source_id':
 			case 'is_completed':
 			case 'completed_date':
+			case 'updated_date':
 				return is_numeric($value) ? true : false;
 			case 'title':
-			case 'content':
 			case 'source_extension':
 				return !empty($value) ? true : false;
 			default:
@@ -2035,7 +2036,7 @@ class Rest_TasksController extends Ch_RestController {
 		if(1==count($path) && is_numeric($path[0]))
 			$this->_getIdAction($path,
 				array(
-					SearchFields_Task::ID => new DevblocksSearchCriteria(SearchFields_Task::ID,'=',$in_id)
+					SearchFields_Task::ID => new DevblocksSearchCriteria(SearchFields_Task::ID,'=',$path[0])
 				)
 			);
 		
@@ -2156,19 +2157,20 @@ class Rest_TasksController extends Ch_RestController {
 		$flds = SearchFields_Task::getFields();
 		unset($flds[DAO_Task::ID]);
 		
+		if(is_array($flds))
 		foreach($flds as $idx => $f) {
 			$idx_name = $this->translate($idx, true);
-			if ($idx_name == null) continue;
+			if ($idx_name == null)
+				continue;
 			@$value = DevblocksPlatform::importGPC($xml_in->$idx_name,'string');
 			if($this->isValid($idx_name,$value))
 				$fields[$idx_name] = $value;
 		}
 
 		if(empty($fields[DAO_Task::SOURCE_EXTENSION])
-		|| empty($fields[DAO_Task::SOURCE_ID])
-		|| empty($fields[DAO_Task::TITLE])
-		|| empty($fields[DAO_Task::CONTENT]))
-			$this->_error("All required fields were not provided.");
+			|| empty($fields[DAO_Task::SOURCE_ID])
+			|| empty($fields[DAO_Task::TITLE]))
+				$this->_error("All required fields were not provided.");
 		
 		$id = DAO_Task::create($fields);
 

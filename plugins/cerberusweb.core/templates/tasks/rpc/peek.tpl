@@ -58,12 +58,14 @@
 			</select>{if !empty($active_worker_sel_id)}<button type="button" onclick="this.form.worker_id.selectedIndex = {$active_worker_sel_id};">{'common.me'|devblocks_translate|lower}</button>{/if}
 		</td>
 	</tr>
+	{if empty($task->id)}
 	<tr>
 		<td width="0%" nowrap="nowrap" align="right" valign="top">{'task.content'|devblocks_translate|capitalize}: </td>
 		<td width="100%">
-			<textarea name="content" style="width:98%;height:100px;">{$task->content|escape}</textarea>
+			<textarea name="content" style="width:98%;height:100px;"></textarea>
 		</td>
 	</tr>
+	{/if}
 	<tr>
 		<td width="0%" nowrap="nowrap" align="right" valign="top"><label for="checkTaskCompleted">{'task.is_completed'|devblocks_translate|capitalize}:</label> </td>
 		<td width="100%">
@@ -73,6 +75,8 @@
 </table>
 
 {include file="file:$core_tpl/internal/custom_fields/bulk/form.tpl" bulk=false}
+
+{include file="file:$core_tpl/tasks/display/tabs/notes.tpl" readonly=true}
 
 </div>
 

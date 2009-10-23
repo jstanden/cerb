@@ -6770,10 +6770,10 @@ class DAO_Task extends C4_ORMHelper {
 	const ID = 'id';
 	const TITLE = 'title';
 	const WORKER_ID = 'worker_id';
+	const UPDATED_DATE = 'updated_date';
 	const DUE_DATE = 'due_date';
 	const IS_COMPLETED = 'is_completed';
 	const COMPLETED_DATE = 'completed_date';
-	const CONTENT = 'content';
 	const SOURCE_EXTENSION = 'source_extension';
 	const SOURCE_ID = 'source_id';
 
@@ -6808,7 +6808,7 @@ class DAO_Task extends C4_ORMHelper {
 	static function getWhere($where=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = "SELECT id, title, worker_id, due_date, content, is_completed, completed_date, source_extension, source_id ".
+		$sql = "SELECT id, title, worker_id, due_date, updated_date, is_completed, completed_date, source_extension, source_id ".
 			"FROM task ".
 			(!empty($where) ? sprintf("WHERE %s ",$where) : "").
 			"ORDER BY id asc";
@@ -6887,8 +6887,8 @@ class DAO_Task extends C4_ORMHelper {
 			$object->id = $rs->fields['id'];
 			$object->title = $rs->fields['title'];
 			$object->worker_id = $rs->fields['worker_id'];
+			$object->updated_date = $rs->fields['updated_date'];
 			$object->due_date = $rs->fields['due_date'];
-			$object->content = $rs->fields['content'];
 			$object->is_completed = $rs->fields['is_completed'];
 			$object->completed_date = $rs->fields['completed_date'];
 			$object->source_extension = $rs->fields['source_extension'];
@@ -6919,6 +6919,9 @@ class DAO_Task extends C4_ORMHelper {
 		
 		// Custom fields
 		DAO_CustomFieldValue::deleteBySourceIds(ChCustomFieldSource_Task::ID, $ids);
+		
+		// Notes
+		DAO_Note::deleteBySourceIds(ChNotesSource_Task::ID, $ids);
 		
 		return true;
 	}
@@ -6984,21 +6987,21 @@ class DAO_Task extends C4_ORMHelper {
 		
 		$select_sql = sprintf("SELECT ".
 			"t.id as %s, ".
+			"t.updated_date as %s, ".
 			"t.due_date as %s, ".
 			"t.is_completed as %s, ".
 			"t.completed_date as %s, ".
 			"t.title as %s, ".
-			"t.content as %s, ".
 			"t.worker_id as %s, ".
 			"t.source_extension as %s, ".
 			"t.source_id as %s ",
 //			"o.name as %s ".
 			    SearchFields_Task::ID,
+			    SearchFields_Task::UPDATED_DATE,
 			    SearchFields_Task::DUE_DATE,
 			    SearchFields_Task::IS_COMPLETED,
 			    SearchFields_Task::COMPLETED_DATE,
 			    SearchFields_Task::TITLE,
-			    SearchFields_Task::CONTENT,
 			    SearchFields_Task::WORKER_ID,
 			    SearchFields_Task::SOURCE_EXTENSION,
 			    SearchFields_Task::SOURCE_ID
@@ -7066,11 +7069,11 @@ class DAO_Task extends C4_ORMHelper {
 class SearchFields_Task implements IDevblocksSearchFields {
 	// Task
 	const ID = 't_id';
+	const UPDATED_DATE = 't_updated_date';
 	const DUE_DATE = 't_due_date';
 	const IS_COMPLETED = 't_is_completed';
 	const COMPLETED_DATE = 't_completed_date';
 	const TITLE = 't_title';
-	const CONTENT = 't_content';
 	const WORKER_ID = 't_worker_id';
 	const SOURCE_EXTENSION = 't_source_extension';
 	const SOURCE_ID = 't_source_id';
@@ -7083,11 +7086,11 @@ class SearchFields_Task implements IDevblocksSearchFields {
 		
 		$columns = array(
 			self::ID => new DevblocksSearchField(self::ID, 't', 'id', null, $translate->_('task.id')),
+			self::UPDATED_DATE => new DevblocksSearchField(self::UPDATED_DATE, 't', 'updated_date', null, $translate->_('task.updated_date')),
 			self::TITLE => new DevblocksSearchField(self::TITLE, 't', 'title', null, $translate->_('task.title')),
 			self::IS_COMPLETED => new DevblocksSearchField(self::IS_COMPLETED, 't', 'is_completed', null, $translate->_('task.is_completed')),
 			self::DUE_DATE => new DevblocksSearchField(self::DUE_DATE, 't', 'due_date', null, $translate->_('task.due_date')),
 			self::COMPLETED_DATE => new DevblocksSearchField(self::COMPLETED_DATE, 't', 'completed_date', null, $translate->_('task.completed_date')),
-			self::CONTENT => new DevblocksSearchField(self::CONTENT, 't', 'content', null, $translate->_('task.content')),
 			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 't', 'worker_id', null, $translate->_('task.worker_id')),
 			self::SOURCE_EXTENSION => new DevblocksSearchField(self::SOURCE_EXTENSION, 't', 'source_extension', null, $translate->_('task.source_extension')),
 			self::SOURCE_ID => new DevblocksSearchField(self::SOURCE_ID, 't', 'source_id', null, $translate->_('task.source_id')),

@@ -1328,6 +1328,9 @@ For example: *receipt*</seg></tuv>
 		<tu tuid='tasks.postpone'>
 			<tuv xml:lang="en_US"><seg>+24hrs</seg></tuv>
 		</tu>
+		<tu tuid='tasks.tab.notes.add_note'>
+			<tuv xml:lang="en_US"><seg>Add a note about this task</seg></tuv>
+		</tu>
 		<tu tuid='tasks.ticket.tab.view'>
 			<tuv xml:lang="en_US"><seg>Ticket Tasks</seg></tuv>
 		</tu>
@@ -1344,9 +1347,6 @@ For example: *receipt*</seg></tuv>
 
 		<tu tuid='task.completed_date'>
 			<tuv xml:lang="en_US"><seg>Completed Date</seg></tuv>
-		</tu>
-		<tu tuid='task.content'>
-			<tuv xml:lang="en_US"><seg>Content</seg></tuv>
 		</tu>
 		<tu tuid='task.due_date'>
 			<tuv xml:lang="en_US"><seg>Due Date</seg></tuv>
@@ -1365,6 +1365,9 @@ For example: *receipt*</seg></tuv>
 		</tu>
 		<tu tuid='task.title'>
 			<tuv xml:lang="en_US"><seg>Title</seg></tuv>
+		</tu>
+		<tu tuid='task.updated_date'>
+			<tuv xml:lang="en_US"><seg>Last Updated</seg></tuv>
 		</tu>
 		<tu tuid='task.worker_id'>
 			<tuv xml:lang="en_US"><seg>Worker</seg></tuv>

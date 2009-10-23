@@ -40,6 +40,7 @@
 			<class name="ChCustomFieldSource_Ticket" />
 			<class name="ChCustomFieldSource_Worker" />
 			<class name="ChNotesSource_Org" />
+			<class name="ChNotesSource_Task" />
 			<class name="ChPageController" />
 			<class name="ChRssSource_Notification" />
 			<class name="ChRssSource_Task" />
@@ -283,18 +284,6 @@
 			</params>
 		</extension>
 
-		<extension point="devblocks.controller">
-			<id>core.controller.tasks</id>
-			<name>Tasks Controller</name>
-			<class>
-				<file>api/uri/tasks.php</file>
-				<name>ChTasksController</name>
-			</class>
-			<params>
-				<param key="uri" value="tasks" />
-			</params>
-		</extension>
-
 		<!-- Translations -->
 		
 		<extension point="devblocks.i18n.strings">
@@ -399,6 +388,19 @@
 				<param key="uri" value="research" />
 				<param key="menutitle" value="core.menu.research" />
 				<param key="acl" value="core.research" />
+			</params>
+		</extension>
+
+		<extension point="cerberusweb.page">
+			<id>core.page.tasks</id>
+			<name>Tasks Page</name>
+			<class>
+				<file>api/uri/tasks.php</file>
+				<name>ChTasksPage</name>
+			</class>
+			<params>
+				<param key="uri" value="tasks" />
+				<param key="menutitle" value="" />
 			</params>
 		</extension>
 
@@ -641,6 +643,17 @@
 			<class>
 				<file>api/plugin.classes.php</file>
 				<name>ChNotesSource_Org</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
+		<extension point="cerberusweb.notes.source">
+			<id>cerberusweb.notes.source.task</id>
+			<name>Task</name>
+			<class>
+				<file>api/plugin.classes.php</file>
+				<name>ChNotesSource_Task</name>
 			</class>
 			<params>
 			</params>
