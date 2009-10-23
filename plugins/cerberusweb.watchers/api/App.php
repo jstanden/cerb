@@ -1587,10 +1587,10 @@ class Model_WatcherMailFilter {
 						//$current_min = 5;
 
 						if(null != ($from_time = @$rule['from']))
-							list($from_hour, $from_min) = split(':', $from_time);
+							list($from_hour, $from_min) = explode(':', $from_time);
 						
 						if(null != ($to_time = @$rule['to']))
-							if(list($to_hour, $to_min) = split(':', $to_time));
+							if(list($to_hour, $to_min) = explode(':', $to_time));
 
 						// Do we need to wrap around to the next day's hours?
 						if($from_hour > $to_hour) { // yes
@@ -1660,7 +1660,7 @@ class Model_WatcherMailFilter {
 							break;
 							
 						// Line-by-line body scanning (sed-like)
-						$lines = split("[\r\n]", $message_body);
+						$lines = explode("[\r\n]", $message_body);
 						if(is_array($lines))
 						foreach($lines as $line) {
 							if(@preg_match($value, $line)) {

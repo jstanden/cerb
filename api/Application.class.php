@@ -353,7 +353,7 @@ class CerberusApplication extends DevblocksApplication {
 		$str = html_entity_decode($str, ENT_COMPAT, LANG_CHARSET_CODE);
 
 		// Loop through each line, ltrim, and concat if not empty
-		$lines = split("\n", $str);
+		$lines = explode("\n", $str);
 		if(is_array($lines)) {
 			$str = '';
 			$blanks = 0;
@@ -638,7 +638,7 @@ class CerberusLicense {
 		/*  																																																																																																																														*/foreach(array('L0NvbXBhbnk6ICguKikv'=>'b','L1VzZXJzOiAoLiopLw=='=>'d','L1NlcmlhbDogKC4qKS8='=>'s') as $k=>$v)@preg_match(base64_decode($k),$key,$matches)?@$$v=trim($matches[1]):null;@$r=array('name'=>$b,'email'=>$email,'users'=>intval($d),'serial'=>$s);foreach(array(chr(97)=>0,chr(101)=>3) as $k=>$v)if(@substr(str_replace('-','',$s),0,1).@substr(str_replace('-','',$s),4,1).@substr(str_replace('-','',$s),8,1)==@substr(strtoupper(md5(@substr($b,0,1).@substr($b,-1,1).@strlen($b).$d.@substr($email,0,1).@substr($email,4,1).@strlen($email))),$v,3))@$r[$k]=$s;return $r;/*
 		 * we're sure being generous here! [TODO]
 		 */
-		$lines = split("\n", $key);
+		$lines = explode("\n", $key);
 		
 		/*
 		 * Remember that our cache can return stale data here. Be sure to
@@ -646,10 +646,10 @@ class CerberusLicense {
 		 */
 		return (!empty($key)) 
 			? array(
-				'name' => (list($k,$v)=split(":",$lines[1]))?trim($v):null,
+				'name' => (list($k,$v)=explode(":",$lines[1]))?trim($v):null,
 				'email' => $email,
-				'users' => (list($k,$v)=split(":",$lines[2]))?trim($v):null,
-				'serial' => (list($k,$v)=split(":",$lines[3]))?trim($v):null,
+				'users' => (list($k,$v)=explode(":",$lines[2]))?trim($v):null,
+				'serial' => (list($k,$v)=explode(":",$lines[3]))?trim($v):null,
 				'date' => time()
 			)
 			: null;
