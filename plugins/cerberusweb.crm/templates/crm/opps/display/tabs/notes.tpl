@@ -4,7 +4,7 @@
 <input type="hidden" name="opp_id" value="{$opp->id}">
 <input type="hidden" name="id" value="">
 
-<b>{'crm.opp.tab.notes.add_note'|devblocks_translate}</b><br>
+<b>{'crm.opp.tab.notes.add_note'|devblocks_translate}:</b><br>
 <textarea name="content" rows="10" cols="65" style="width:98%;height:200px;"></textarea><br>
 {if !empty($workers)}
 	<label><input type="checkbox" onclick="toggleDiv('addOppNoteNotifyWorkers');"> <b>{'common.notify_workers'|devblocks_translate}</b></label>
@@ -29,7 +29,7 @@
 {foreach from=$notes item=note}
 	{assign var=worker_id value=$note.n_worker_id}
 	<div style="border-top:1px dashed rgb(200,200,200);padding:5px;margin-top:5px;margin-bottom:5px;" onmouseover="toggleDiv('delOppNote{$note.n_id}','inline');" onmouseout="toggleDiv('delOppNote{$note.n_id}','none');">
-		<b style="color:rgb(0,120,0);">{$workers.$worker_id->getName()}</b> 
+		<b style="color:rgb(0,120,0);">{if isset($workers.$worker_id)}{$workers.$worker_id->getName()}{else}{'common.anonymous'|devblocks_translate}{/if}</b> 
 		<span style="font-size:90%;color:rgb(175,175,175);">{$note.n_created|devblocks_date}</span>
 		{if $active_worker->is_superuser || $active_worker->id == $worker_id}
 			<span style="display:none;padding:2px;" id="delOppNote{$note.n_id}"><a href="javascript:;" onclick="document.getElementById('btnDelOppNote{$note.n_id}').click();" style="font-size:90%;color:rgb(230,0,0);">delete</a></span>
