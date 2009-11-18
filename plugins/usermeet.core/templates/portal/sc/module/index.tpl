@@ -21,7 +21,7 @@
 	{assign var=header_html value="<div align=\"center\"><img src=\""|cat:$logo_url|cat:"\" alt=\"Logo\" border=\"0\"></div>"}
 {/if}
 
-<div>
+<div id="header">
 	{$header_html}
 </div>
 
