@@ -35,6 +35,12 @@
 
 		<!-- SC -->
 		
+		<tu tuid='portal.kb.public.no_content'>
+			<tuv xml:lang="en_US"><seg>No content.</seg></tuv>
+		</tu>
+		<tu tuid='portal.kb.public.top'>
+			<tuv xml:lang="en_US"><seg>Top</seg></tuv>
+		</tu>
 		<tu tuid='portal.sc.cfg.choose_kb_topics'>
 			<tuv xml:lang="en_US"><seg>Choose which knowledgebase topics to expose to this portal:</seg></tuv>
 		</tu>
