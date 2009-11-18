@@ -61,6 +61,10 @@
 			{/if}
 		</td>
 	</tr>
+	
+	{if $active_worker->id == $worker->id}
+		<input type="hidden" name="is_disabled" value="{$worker->is_disabled|escape}">
+	{else}
 	<tr>
 		<td width="0%" nowrap="nowrap" align="right">{$translate->_('common.disabled')|capitalize}: </td>
 		<td width="100%">
@@ -70,6 +74,8 @@
 			</select>
 		</td>
 	</tr>
+	{/if}
+	
 	<tr>
 		<td width="100%" colspan="2">&nbsp;</td>
 	</tr>
