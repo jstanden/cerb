@@ -1660,7 +1660,7 @@ class Model_WatcherMailFilter {
 							break;
 							
 						// Line-by-line body scanning (sed-like)
-						$lines = explode("[\r\n]", $message_body);
+						$lines = preg_split("/[\r\n]/", $message_body);
 						if(is_array($lines))
 						foreach($lines as $line) {
 							if(@preg_match($value, $line)) {

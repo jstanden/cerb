@@ -227,7 +227,7 @@ class Model_PreParseRule {
 						
 					case 'body':
 						// Line-by-line body scanning (sed-like)
-						$lines = explode("[\r\n]", $message->body);
+						$lines = preg_split("/[\r\n]/", $message->body);
 						if(is_array($lines))
 						foreach($lines as $line) {
 							if(@preg_match($value, $line)) {
@@ -561,7 +561,7 @@ class Model_GroupInboxFilter {
 							break;
 							
 						// Line-by-line body scanning (sed-like)
-						$lines = explode("[\r\n]", $message_body);
+						$lines = preg_split("/[\r\n]/", $message_body);
 						if(is_array($lines))
 						foreach($lines as $line) {
 							if(@preg_match($value, $line)) {
@@ -3452,7 +3452,7 @@ class Model_MailToGroupRule {
 
 					case 'body':
 						// Line-by-line body scanning (sed-like)
-						$lines = explode("[\r\n]", $message->body);
+						$lines = preg_split("/[\r\n]/", $message->body);
 						if(is_array($lines))
 						foreach($lines as $line) {
 							if(@preg_match($value, $line)) {
