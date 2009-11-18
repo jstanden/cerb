@@ -86,15 +86,20 @@ class ChHomePage extends CerberusPageExtension {
 			$myEventsView->renderPage = 0;
 			$myEventsView->renderSortBy = SearchFields_WorkerEvent::CREATED_DATE;
 			$myEventsView->renderSortAsc = 0;
-			
-			// Overload criteria
-			$myEventsView->params = array(
-				SearchFields_WorkerEvent::WORKER_ID => new DevblocksSearchCriteria(SearchFields_WorkerEvent::WORKER_ID,'=',$active_worker->id),
-				SearchFields_WorkerEvent::IS_READ => new DevblocksSearchCriteria(SearchFields_WorkerEvent::IS_READ,'=',0),
-			);
-			
-			C4_AbstractViewLoader::setView($myEventsView->id,$myEventsView);
 		}
+
+		// Overload criteria
+		$myEventsView->name = $title;
+		$myEventsView->params = array(
+			SearchFields_WorkerEvent::WORKER_ID => new DevblocksSearchCriteria(SearchFields_WorkerEvent::WORKER_ID,'=',$active_worker->id),
+			SearchFields_WorkerEvent::IS_READ => new DevblocksSearchCriteria(SearchFields_WorkerEvent::IS_READ,'=',0),
+		);
+		/*
+		 * [TODO] This doesn't need to save every display, but it was possible to 
+		 * lose the params in the saved version of the view in the DB w/o recovery.
+		 * This should be moved back into the if(null==...) check in a later build.
+		 */
+		C4_AbstractViewLoader::setView($myEventsView->id,$myEventsView);
 		
 		$tpl->assign('view', $myEventsView);
 		$tpl->display('file:' . $this->_TPL_PATH . 'home/tabs/my_events/index.tpl');

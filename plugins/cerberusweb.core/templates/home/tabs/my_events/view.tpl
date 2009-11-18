@@ -79,7 +79,7 @@
 			{elseif $column=="we_url"}
 			<td valign="top"><a href="{devblocks_url}c=home&a=redirectRead&id={$result.we_id}{/devblocks_url}">{$result.$column}</a>&nbsp;</td>
 			{elseif $column=="we_is_read"}
-			<td valign="top">{if !$result.$column}<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check_gray.gif{/devblocks_url}" align="top">{/if}&nbsp;</td>
+			<td valign="top">{if $result.$column}<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check_gray.gif{/devblocks_url}" align="top">{/if}&nbsp;</td>
 			{elseif $column=="we_content"}
 			<td valign="top">{$result.$column|nl2br}&nbsp;</td>
 			{else}
