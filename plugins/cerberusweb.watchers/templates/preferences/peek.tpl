@@ -20,7 +20,7 @@
 	</select>
 	 &nbsp; 
 {else}
-	<input type="hidden" name="worker_id" value="{if !empty($filter->id)}{$filter->id}{else}{$active_worker->id}{/if}">
+	<input type="hidden" name="worker_id" value="{if !empty($filter->worker_id)}{$filter->worker_id}{else}{$active_worker->id}{/if}">
 {/if}
 
 <label><input type="checkbox" name="is_disabled" value="1" {if $filter->is_disabled}checked="checked"{/if}> {'common.disabled'|devblocks_translate|capitalize}</label>
