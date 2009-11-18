@@ -17,7 +17,7 @@
 <input type="hidden" name="view_id" value="{$view_id}">
 <input type="hidden" name="do_delete" value="0">
 
-<div style="height:250px;overflow:auto;margin:2px;padding:3px;">
+<div style="height:350px;overflow:auto;margin:2px;padding:3px;">
 
 <table cellpadding="0" cellspacing="2" border="0" width="98%">
 	<tr>
