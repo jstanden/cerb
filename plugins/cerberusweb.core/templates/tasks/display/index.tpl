@@ -57,7 +57,7 @@
 var tabView = new YAHOO.widget.TabView();
 
 tabView.addTab( new YAHOO.widget.Tab({
-    label: '{/literal}{'crm.opp.tab.notes'|devblocks_translate|escape}{literal}',
+    label: '{/literal}{'activity.tasks.tab.notes'|devblocks_translate|escape}{literal}',
     dataSrc: '{/literal}{devblocks_url}ajax.php?c=tasks&a=showTaskNotesTab&id={$task->id}{/devblocks_url}{literal}',
     cacheData: true,
     {/literal}active: {if 'notes'==$tab_selected || empty($tab_selected)}true{else}false{/if}{literal}
@@ -70,7 +70,7 @@ tabView.addTab( new YAHOO.widget.Tab({
 }
 {literal}
 tabView.addTab( new YAHOO.widget.Tab({
-    label: '{/literal}{'crm.opp.tab.properties'|devblocks_translate|escape}{literal}',
+    label: '{/literal}{'activity.tasks.tab.properties'|devblocks_translate|escape}{literal}',
     dataSrc: '{/literal}{devblocks_url}ajax.php?c=tasks&a=showTasksPropertiesTab&id={$task->id}{/devblocks_url}{literal}',
     cacheData: true,
     {/literal}active: {if 'properties'==$tab_selected}true{else}false{/if}{literal}
