@@ -128,6 +128,14 @@ if(extension_loaded("simplexml")) {
 	$fails++;
 }
 
+// Extension: JSON
+if(extension_loaded("json")) {
+	$results['ext_json'] = true;
+} else {
+	$results['ext_json'] = false;
+	$fails++;
+}
+
 // Extension: DOM
 if(extension_loaded("dom")) {
 	$results['ext_dom'] = true;
@@ -189,8 +197,11 @@ if($fails) {
 	if(!$results['ext_dom'])
 		echo "<li>The 'DOM' PHP extension is required.  Please enable it.</li>";
 		
-		if(!$results['ext_simplexml'])
+	if(!$results['ext_simplexml'])
 		echo "<li>The 'SimpleXML' PHP extension is required.  Please enable it.</li>";
+
+	if(!$results['ext_json'])
+		echo "<li>The 'JSON' PHP extension is required.  Please enable it.</li>";
 		
 	echo "</ul></span><br>Please correct these issues and try again.<br>";
 	
