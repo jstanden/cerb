@@ -33,7 +33,7 @@ tabView.addTab( new YAHOO.widget.Tab({
 }));
 
 tabView.addTab( new YAHOO.widget.Tab({
-    label: 'Features &amp; Plugins',
+    label: 'Plugins &amp; Features',
     dataSrc: '{/literal}{devblocks_url}ajax.php?c=config&a=showTabPlugins{/devblocks_url}{literal}',
     cacheData: false,
     {/literal}active: {if $tab_selected=="plugins"}true{else}false{/if}{literal}

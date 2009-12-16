@@ -3045,6 +3045,7 @@ class C4_WorkerView extends C4_AbstractView {
 	}
 
 };
+
 class C4_WorkerEventView extends C4_AbstractView {
 	const DEFAULT_ID = 'worker_events';
 
@@ -3320,7 +3321,7 @@ class Model_Activity {
 			$params
 		);
 	}
-}
+};
 
 class Model_MailToGroupRule {
 	public $id = 0;

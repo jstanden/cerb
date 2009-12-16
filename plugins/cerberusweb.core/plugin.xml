@@ -33,7 +33,6 @@
 	
 	<class_loader>
 		<file path="api/plugin.classes.php">
-			<class name="ChCorePlugin" />
 			<class name="ChCustomFieldSource_Address" />
 			<class name="ChCustomFieldSource_Org" />
 			<class name="ChCustomFieldSource_Task" />

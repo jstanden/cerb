@@ -134,7 +134,7 @@ class C4_ORMHelper extends DevblocksORMHelper {
 		
 		return array($select_sql, $join_sql, $return_multiple_values);
 	}
-}
+};
 
 /**
  * Global Settings DAO

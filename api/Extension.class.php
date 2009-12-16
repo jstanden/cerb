@@ -292,7 +292,6 @@ abstract class Extension_LoginAuthenticator extends DevblocksExtension {
 	}
 };
 
-// [TODO] Convert to a controller extension
 abstract class CerberusCronPageExtension extends DevblocksExtension {
     const PARAM_ENABLED = 'enabled';
     const PARAM_LOCKED = 'locked';
