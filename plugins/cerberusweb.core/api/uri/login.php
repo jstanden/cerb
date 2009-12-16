@@ -60,7 +60,7 @@ class ChSignInPage extends CerberusPageExtension {
 	// POST
 	function authenticateAction() {
 		@$original_path = explode(',',DevblocksPlatform::importGPC($_POST['original_path']));
-		
+
 		$manifest = DevblocksPlatform::getExtension('login.default');
 		$inst = $manifest->createInstance(); /* @var $inst Extension_LoginAuthenticator */
 
@@ -88,7 +88,7 @@ class ChSignInPage extends CerberusPageExtension {
 				DevblocksPlatform::setLocale($lang_code);
 			}
 			
-			if(!empty($devblocks_response->path) && $devblocks_response->path[0]=='login') {
+			if(empty($devblocks_response->path)) {
 				$tour_enabled = intval(DAO_WorkerPref::get($worker->id, 'assist_mode', 1));
 				$next_page = ($tour_enabled) ?  'welcome' : 'home';				
 				$devblocks_response = new DevblocksHttpResponse(array($next_page));
