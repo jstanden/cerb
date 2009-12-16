@@ -593,26 +593,6 @@ class ChTicketsPage extends CerberusPageExtension {
 	}
 	
 	// Ajax
-	// [TODO] Move to 'c=internal'
-	function showCalloutAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'string');
-
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
-
-		$callouts = CerberusApplication::getTourCallouts();
-		
-	    $callout = array();
-	    if(isset($callouts[$id]))
-	        $callout = $callouts[$id];
-		
-	    $tpl->assign('callout',$callout);
-		
-		$tpl->cache_lifetime = "0";
-		$tpl->display('tour/callout.tpl');
-	}
-	
-	// Ajax
 	function reportSpamAction() {
 	    @$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer');
 	    @$view_id = DevblocksPlatform::importGPC($_REQUEST['viewId'],'string');
@@ -666,17 +646,6 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl->cache_lifetime = "0";
 		$tpl->display($path.'tickets/rpc/ticket_view_output.tpl');
 	} 
-	
-	// Post
-	// [TODO] Move to another page
-	function doStopTourAction() {
-//		$request = DevblocksPlatform::getHttpRequest();
-
-		$worker = CerberusApplication::getActiveWorker();
-		DAO_WorkerPref::set($worker->id, 'assist_mode', 0);
-		
-//		DevblocksPlatform::redirect(new DevblocksHttpResponse($request->path, $request->query));
-	}
 	
 	// Post	
 	function doQuickSearchAction() {

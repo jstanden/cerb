@@ -35,6 +35,33 @@ class ChInternalController extends DevblocksControllerExtension {
 	}
 	
 	// Ajax
+	function showCalloutAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'string');
+
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('path', $this->_TPL_PATH);
+
+		$callouts = CerberusApplication::getTourCallouts();
+		
+	    $callout = array();
+	    if(isset($callouts[$id]))
+	        $callout = $callouts[$id];
+		
+	    $tpl->assign('callout',$callout);
+		
+		$tpl->cache_lifetime = "0";
+		$tpl->display('file:' . $this->_TPL_PATH . 'internal/tour/callout.tpl');
+	}
+
+	// Post
+	function doStopTourAction() {
+		$worker = CerberusApplication::getActiveWorker();
+		DAO_WorkerPref::set($worker->id, 'assist_mode', 0);
+		
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('home')));
+	}
+	
+	// Ajax
 	function viewRefreshAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
 		$view = C4_AbstractViewLoader::getView($id);

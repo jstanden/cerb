@@ -7,7 +7,7 @@
 	{/foreach}
 {/if}
 
-{if !empty($tour_enabled)}{include file="tour.tpl"}{/if}
+{if !empty($tour_enabled)}{include file="$core_tpl/internal/tour/banner.tpl"}{/if}
 <table cellspacing="0" cellpadding="2" border="0" width="100%">
 	<tr>
 		<td align="left" valign="bottom">
