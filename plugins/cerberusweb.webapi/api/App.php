@@ -467,14 +467,14 @@ abstract class Ch_RestController implements DevblocksHttpRequestHandler {
 	}
 	
 	protected function _renderResults($results, $fields, $element='element', $container='elements', $attribs=array()) {
-		$xml =& new SimpleXMLElement("<$container/>");
+		$xml = new SimpleXMLElement("<$container/>");
 
 		if(is_array($attribs))
 		foreach($attribs as $k=>$v)
 			$xml->addAttribute($k, htmlspecialchars($v));
 
 		foreach($results as $result) {
-			$e =& $xml->addChild($element);
+			$e = $xml->addChild($element);
 			foreach($fields as $idx => $fld) {
 				if((isset($result[$idx])) && ($idx_name = $this->translate($idx, true)) != null)
 					$e->addChild($idx_name, htmlspecialchars($result[$idx]));
@@ -485,7 +485,7 @@ abstract class Ch_RestController implements DevblocksHttpRequestHandler {
 	}
 
 	protected function _renderOneResult($results, $fields, $element='element') {
-		$xml =& new SimpleXMLElement("<$element/>");
+		$xml = new SimpleXMLElement("<$element/>");
 		$result = array_shift($results);
 
 		foreach($fields as $idx => $fld) {
@@ -642,7 +642,7 @@ class Rest_AddressesController extends Ch_RestController {
 		foreach($search_params as $sp_element => $fld) {
 			$sp_element_name = $this->translate($sp_element, true);
 			if ($sp_element_name == null) continue;
-			@$field_ptr =& $xml_in->params->$sp_element_name;
+			@$field_ptr = $xml_in->params->$sp_element_name;
 			if(!empty($field_ptr)) {
 				@$value = (string) $field_ptr['value'];
 				@$oper = (string) $field_ptr['oper'];
@@ -960,7 +960,7 @@ class Rest_OrgsController extends Ch_RestController {
 		foreach($search_params as $sp_element => $fld) {
 			$sp_element_name = $this->translate($sp_element, true);
 			if ($sp_element_name == null) continue;
-			@$field_ptr =& $xml_in->params->$sp_element_name;
+			@$field_ptr = $xml_in->params->$sp_element_name;
 			if(!empty($field_ptr)) {
 				@$value = (string) $field_ptr['value'];
 				@$oper = (string) $field_ptr['oper'];
@@ -1264,7 +1264,7 @@ class Rest_TicketsController extends Ch_RestController {
 		foreach($search_params as $sp_element => $fld) {
 			$sp_element_name = $this->translate($sp_element, true);
 			if ($sp_element_name == null) continue;
-			@$field_ptr =& $xml_in->params->$sp_element_name;
+			@$field_ptr = $xml_in->params->$sp_element_name;
 			if(!empty($field_ptr)) {
 				@$value = (string) $field_ptr['value'];
 				@$oper = (string) $field_ptr['oper'];
@@ -1516,7 +1516,7 @@ class Rest_MessagesController extends Ch_RestController {
 //		foreach($search_params as $sp_element => $fld) {
 //			$sp_element_name = $this->translate($sp_element, true);
 //			if ($sp_element_name == null) continue;
-//			@$field_ptr =& $xml_in->params->$sp_element_name;
+//			@$field_ptr = $xml_in->params->$sp_element_name;
 //			if(!empty($field_ptr)) {
 //				@$value = (string) $field_ptr['value'];
 //				@$oper = (string) $field_ptr['oper'];
@@ -1743,7 +1743,7 @@ class Rest_NotesController extends Ch_RestController {
 //		foreach($search_params as $sp_element => $fld) {
 //			$sp_element_name = $this->translate($sp_element, true);
 //			if ($sp_element_name == null) continue;
-//			@$field_ptr =& $xml_in->params->$sp_element_name;
+//			@$field_ptr = $xml_in->params->$sp_element_name;
 //			if(!empty($field_ptr)) {
 //				@$value = (string) $field_ptr['value'];
 //				@$oper = (string) $field_ptr['oper'];
@@ -1912,7 +1912,7 @@ class Rest_CommentsController extends Ch_RestController {
 //		foreach($search_params as $sp_element => $fld) {
 //			$sp_element_name = $this->translate($sp_element, true);
 //			if ($sp_element_name == null) continue;
-//			@$field_ptr =& $xml_in->params->$sp_element_name;
+//			@$field_ptr = $xml_in->params->$sp_element_name;
 //			if(!empty($field_ptr)) {
 //				@$value = (string) $field_ptr['value'];
 //				@$oper = (string) $field_ptr['oper'];
@@ -2188,7 +2188,7 @@ class Rest_TasksController extends Ch_RestController {
 		foreach($search_params as $sp_element => $fld) {
 			$sp_element_name = $this->translate($sp_element, true);
 			if ($sp_element_name == null) continue;
-			@$field_ptr =& $xml_in->params->$sp_element_name;
+			@$field_ptr = $xml_in->params->$sp_element_name;
 			if(!empty($field_ptr)) {
 				@$value = (string) $field_ptr['value'];
 				@$oper = (string) $field_ptr['oper'];
@@ -2354,7 +2354,7 @@ class Rest_KBArticlesController extends Ch_RestController {
 		foreach($search_params as $sp_element => $fld) {
 			$sp_element_name = $this->translate($sp_element, true);
 			if ($sp_element_name == null) continue;
-			@$field_ptr =& $xml_in->params->$sp_element_name;
+			@$field_ptr = $xml_in->params->$sp_element_name;
 			if(!empty($field_ptr)) {
 				@$value = (string) $field_ptr['value'];
 				@$oper = (string) $field_ptr['oper'];
