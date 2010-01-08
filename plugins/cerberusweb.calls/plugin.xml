@@ -1,7 +1,7 @@
 <!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
 <plugin>
 	<id>cerberusweb.calls</id>
-	<name>[Cerb4] Call Logging (Experimental)</name>
+	<name>[Cerb5] Call Logging (Experimental)</name>
 	<description>Track phone calls in the helpdesk</description>
 	<author>WebGroup Media, LLC.</author>
 	<revision>0</revision>

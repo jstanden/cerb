@@ -1,7 +1,7 @@
 <!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
 <plugin>
 	<id>cerberusweb.reports</id>
-	<name>[Cerb4] Reports</name>
+	<name>[Cerb5] Reports</name>
 	<description>Pluggable reporting area with default reports on various metrics.  This adds a Reports menu and several plugin hooks for creating new reports.</description>
 	<author>WebGroup Media, LLC.</author>
 	<revision>0</revision>

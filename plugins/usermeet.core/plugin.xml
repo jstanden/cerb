@@ -1,8 +1,8 @@
 <!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
 <plugin>
 	<id>usermeet.core</id>
-	<name>[Cerb4] Usermeet Communities</name>
-	<description>Community-focused websites; the customer-facing interfaces of Cerb4.</description>
+	<name>[Cerb5] Usermeet Communities</name>
+	<description>Community-focused websites; the customer-facing interfaces of Cerberus Helpdesk.</description>
 	<author>WebGroup Media, LLC.</author>
 	<revision>0</revision>
 	<link>http://wiki.cerb4.com/wiki/New_Changes#Community_Tools</link>
@@ -81,7 +81,7 @@
 		
 		<extension point="usermeet.login.authenticator">
 			<id>sc.login.auth.default</id>
-			<name>Cerb4 (Default)</name>
+			<name>Cerb5 (Default)</name>
 			<class>
 				<file>api/UmScApp.php</file>
 				<name>UmScLoginAuthenticator</name>

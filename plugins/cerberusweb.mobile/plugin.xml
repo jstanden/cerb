@@ -1,7 +1,7 @@
 <!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
 <plugin>
 	<id>cerberusweb.mobile</id>
-	<name>[Cerb4] Mobile UI (Experimental)</name>
+	<name>[Cerb5] Mobile UI (Experimental)</name>
 	<description>Minimalistic interface for mobile devices.  This is accessed by appending /mobile to your helpdesk URL.</description>
 	<author>WebGroup Media, LLC.</author>
 	<revision>0</revision>

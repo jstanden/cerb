@@ -1,7 +1,7 @@
 <!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
 <plugin>
 	<id>cerberusweb.kb</id>
-	<name>[Cerb4] Knowledgebase</name>
+	<name>[Cerb5] Knowledgebase</name>
 	<description>((Knowledgebase))</description>
 	<author>WebGroup Media, LLC.</author>
 	<revision>0</revision>

@@ -7,7 +7,7 @@
 	</div>
 </div> 
 
-<H1>Welcome to Cerberus Helpdesk 4.x (Cerb4)!</H1>
+<H1>Welcome to Cerberus Helpdesk (Cerb5)!</H1>
 
 <div style="width:650px;margin:5px;padding:5px;border:2px solid rgb(200,200,200);">
 <img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/wgm/c4_overview.jpg{/devblocks_url}"><br>
@@ -33,9 +33,9 @@
 
 <h2>Become a helpdesk master</h2>
 
-<p>Cerb4 is an incredibly flexible tool that you can use daily for months and still come across 
+<p>Cerb5 is an incredibly flexible tool that you can use daily for months and still come across 
 new tricks to make you more efficient.  To get the most out of your helpdesk, 
-subscribe to the Cerb4 Blog for a regular dose of project news, sneak peeks at new development, 
+subscribe to the Cerb5 Blog for a regular dose of project news, sneak peeks at new development, 
 handy tips &amp; tricks, and highlights from community discussion:</p>
 
 <p>

@@ -509,7 +509,7 @@ class ChTranslatorsAjaxController extends DevblocksControllerExtension {
 		$simplexml = $doc->importNode($simplexml, true);
 		$simplexml = $doc->appendChild($simplexml);
 
-		$filename = "cerb4_lang_" . implode('_', array_keys($codes)) . ".xml";
+		$filename = "cerb5_lang_" . implode('_', array_keys($codes)) . ".xml";
 		
 		header("Content-type: text/xml");
 		header("Content-Disposition: attachment; filename=\"$filename\"");

@@ -41,7 +41,7 @@
 			<tuv xml:lang="en_US"><seg>add new topic</seg></tuv>
 		</tu>
 		<tu tuid='fnr.ui.cfg.topics.name.hint'>
-			<tuv xml:lang="en_US"><seg>(e.g. Cerb4 Help)</seg></tuv>
+			<tuv xml:lang="en_US"><seg>(e.g. Cerb5 Help)</seg></tuv>
 		</tu>
 		
 		<tu tuid='fnr.ui.research.keywords'>

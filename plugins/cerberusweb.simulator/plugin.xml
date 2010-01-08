@@ -1,7 +1,7 @@
 <!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
 <plugin>
 	<id>cerberusweb.simulator</id>
-	<name>[Cerb4] Ticket Simulator</name>
+	<name>[Cerb5] Ticket Simulator</name>
 	<description>A tool that makes it easy to create batches of realistic sample tickets; useful for evaluations, plugin development, and testing.  This adds a Simulator tab in Configuration.</description>
 	<author>WebGroup Media, LLC.</author>
 	<revision>0</revision>

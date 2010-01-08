@@ -24,7 +24,7 @@
 			<tuv xml:lang="en_US"><seg>Name</seg></tuv>
 		</tu>
 		<tu tuid='wgm.google_cse.cfg.engine.name.example'>
-			<tuv xml:lang="en_US"><seg>example: Cerb4 Resources</seg></tuv>
+			<tuv xml:lang="en_US"><seg>example: Cerb5 Resources</seg></tuv>
 		</tu>
 		<tu tuid='wgm.google_cse.cfg.engine.url'>
 			<tuv xml:lang="en_US"><seg>Google Custom Search Engine URL</seg></tuv>

@@ -1,7 +1,7 @@
 <!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
 <plugin>
 	<id>cerberusweb.auditlog</id>
-	<name>[Cerb4] Ticket Audit Log</name>
+	<name>[Cerb5] Ticket Audit Log</name>
 	<description>Track iterative changes and events on tickets.  This adds a Spam Analysis tab on Display Ticket.</description>
 	<author>WebGroup Media, LLC.</author>
 	<revision>0</revision>

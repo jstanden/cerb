@@ -742,7 +742,7 @@ switch($step) {
 						$message->headers['date'] = date('r');
 						$message->headers['message-id'] = CerberusApplication::generateMessageId();
 						$message->body = <<< EOF
-Welcome to Cerberus Helpdesk 4.x (Cerb4)!
+Welcome to Cerberus Helpdesk 5.x (Cerb5)!
 
 We automatically set up a few things for you during the installation process.
 
@@ -757,12 +757,12 @@ We also set up a 'Spam' bucket inside each group to start quarantining junk mail
 
 If you have any questions about your new helpdesk, simply reply to this message.  Our response will show up on this page as a new message.
 
-Subscribe to the Cerb4 blog for project news, sneak peeks of development progress, tips & tricks, and more:
+Subscribe to the Cerb5 blog for project news, sneak peeks of development progress, tips & tricks, and more:
 http://www.cerb4.com/blog/
 
 Thanks for your interest!
 ---
-The Cerb4 Team
+The Cerb5 Team
 WebGroup Media, LLC.
 http://www.cerberusweb.com/
 EOF;
