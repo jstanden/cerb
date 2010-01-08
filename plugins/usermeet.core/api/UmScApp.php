@@ -356,7 +356,7 @@ class UmScApp extends Extension_UsermeetTool {
 
 class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 	function __construct($manifest) {
-		$this->DevblocksExtension($manifest, 1);
+		$this->DevblocksExtension($manifest);
 	}
 	
 	/**

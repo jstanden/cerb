@@ -262,7 +262,7 @@ class C4_MobileTicketView extends C4_TicketView {
 
 class CerberusMobilePageExtension extends DevblocksExtension {
 	function __construct($manifest) {
-		$this->DevblocksExtension($manifest,1);
+		$this->DevblocksExtension($manifest);
 	}
 	
 	function isVisible() { return true; }

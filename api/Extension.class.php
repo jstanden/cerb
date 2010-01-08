@@ -51,7 +51,7 @@
 
 abstract class Extension_AppPreBodyRenderer extends DevblocksExtension {
 	function __construct($manifest) {
-		$this->DevblocksExtension($manifest,1);
+		$this->DevblocksExtension($manifest);
 	}
 	
 	function render() { }
@@ -59,7 +59,7 @@ abstract class Extension_AppPreBodyRenderer extends DevblocksExtension {
 
 abstract class Extension_AppPostBodyRenderer extends DevblocksExtension {
 	function __construct($manifest) {
-		$this->DevblocksExtension($manifest,1);
+		$this->DevblocksExtension($manifest);
 	}
 	
 	function render() { }
@@ -67,7 +67,7 @@ abstract class Extension_AppPostBodyRenderer extends DevblocksExtension {
 
 abstract class CerberusPageExtension extends DevblocksExtension {
 	function __construct($manifest) {
-		$this->DevblocksExtension($manifest,1);
+		$this->DevblocksExtension($manifest);
 	}
 	
 	function isVisible() { return true; }
@@ -83,7 +83,7 @@ abstract class CerberusPageExtension extends DevblocksExtension {
 
 abstract class Extension_ConfigTab extends DevblocksExtension {
 	function __construct($manifest) {
-		$this->DevblocksExtension($manifest,1);
+		$this->DevblocksExtension($manifest);
 	}
 	
 	function showTab() {}
@@ -92,7 +92,7 @@ abstract class Extension_ConfigTab extends DevblocksExtension {
 
 abstract class Extension_PreferenceTab extends DevblocksExtension {
 	function __construct($manifest) {
-		$this->DevblocksExtension($manifest,1);
+		$this->DevblocksExtension($manifest);
 	}
 	
 	function showTab() {}
@@ -101,7 +101,7 @@ abstract class Extension_PreferenceTab extends DevblocksExtension {
 
 abstract class Extension_ActivityTab extends DevblocksExtension {
 	function __construct($manifest) {
-		$this->DevblocksExtension($manifest,1);
+		$this->DevblocksExtension($manifest);
 	}
 	
 	function showTab() {}
@@ -110,7 +110,7 @@ abstract class Extension_ActivityTab extends DevblocksExtension {
 
 abstract class Extension_HomeTab extends DevblocksExtension {
 	function __construct($manifest) {
-		$this->DevblocksExtension($manifest,1);
+		$this->DevblocksExtension($manifest);
 	}
 	
 	function showTab() {}
@@ -119,7 +119,7 @@ abstract class Extension_HomeTab extends DevblocksExtension {
 
 abstract class Extension_ResearchTab extends DevblocksExtension {
 	function __construct($manifest) {
-		$this->DevblocksExtension($manifest,1);
+		$this->DevblocksExtension($manifest);
 	}
 	
 	function showTab() {}
@@ -128,7 +128,7 @@ abstract class Extension_ResearchTab extends DevblocksExtension {
 
 abstract class Extension_TicketTab extends DevblocksExtension {
 	function __construct($manifest) {
-		$this->DevblocksExtension($manifest,1);
+		$this->DevblocksExtension($manifest);
 	}
 	
 	function showTab() {}
@@ -137,7 +137,7 @@ abstract class Extension_TicketTab extends DevblocksExtension {
 
 abstract class Extension_LogMailToolbarItem extends DevblocksExtension {
 	function __construct($manifest) {
-		$this->DevblocksExtension($manifest,1);
+		$this->DevblocksExtension($manifest);
 	}
 	
 	function render() { }
@@ -145,7 +145,7 @@ abstract class Extension_LogMailToolbarItem extends DevblocksExtension {
 
 abstract class Extension_SendMailToolbarItem extends DevblocksExtension {
 	function __construct($manifest) {
-		$this->DevblocksExtension($manifest,1);
+		$this->DevblocksExtension($manifest);
 	}
 	
 	function render() { }
@@ -153,7 +153,7 @@ abstract class Extension_SendMailToolbarItem extends DevblocksExtension {
 
 abstract class Extension_TicketToolbarItem extends DevblocksExtension {
 	function __construct($manifest) {
-		$this->DevblocksExtension($manifest,1);
+		$this->DevblocksExtension($manifest);
 	}
 	
 	function render(CerberusTicket $ticket) { }
@@ -161,7 +161,7 @@ abstract class Extension_TicketToolbarItem extends DevblocksExtension {
 
 abstract class Extension_MessageToolbarItem extends DevblocksExtension {
 	function __construct($manifest) {
-		$this->DevblocksExtension($manifest,1);
+		$this->DevblocksExtension($manifest);
 	}
 	
 	function render(CerberusMessage $message) { }
@@ -169,7 +169,7 @@ abstract class Extension_MessageToolbarItem extends DevblocksExtension {
 
 abstract class Extension_ReplyToolbarItem extends DevblocksExtension {
 	function __construct($manifest) {
-		$this->DevblocksExtension($manifest,1);
+		$this->DevblocksExtension($manifest);
 	}
 	
 	function render(CerberusMessage $message) { }
@@ -177,7 +177,7 @@ abstract class Extension_ReplyToolbarItem extends DevblocksExtension {
 
 abstract class Extension_OrgTab extends DevblocksExtension {
 	function __construct($manifest) {
-		$this->DevblocksExtension($manifest,1);
+		$this->DevblocksExtension($manifest);
 	}
 	
 	function showTab() {}
@@ -186,7 +186,7 @@ abstract class Extension_OrgTab extends DevblocksExtension {
 
 abstract class Extension_MailFilterCriteria extends DevblocksExtension {
 	function __construct($manifest) {
-		$this->DevblocksExtension($manifest,1);
+		$this->DevblocksExtension($manifest);
 	}
 	
 	function matches(Model_PreParseRule $filter, CerberusParserMessage $message) {}
@@ -197,7 +197,7 @@ abstract class Extension_MailFilterCriteria extends DevblocksExtension {
 
 abstract class Extension_MailFilterAction extends DevblocksExtension {
 	function __construct($manifest) {
-		$this->DevblocksExtension($manifest,1);
+		$this->DevblocksExtension($manifest);
 	}
 	
 	function run(Model_PreParseRule $filter, CerberusParserMessage $message) {}
@@ -210,7 +210,7 @@ abstract class Extension_TaskSource extends DevblocksExtension {
 	const EXTENSION_POINT = 'cerberusweb.task.source';
 	
 	function __construct($manifest) {
-		$this->DevblocksExtension($manifest,1);
+		$this->DevblocksExtension($manifest);
 	}
 
 	function getSourceName() {}
@@ -221,7 +221,7 @@ abstract class Extension_NoteSource extends DevblocksExtension {
 	const EXTENSION_POINT = 'cerberusweb.notes.source';
 	
 	function __construct($manifest) {
-		$this->DevblocksExtension($manifest,1);
+		$this->DevblocksExtension($manifest);
 	}
 };
 
@@ -229,7 +229,7 @@ abstract class Extension_CustomFieldSource extends DevblocksExtension {
 	const EXTENSION_POINT = 'cerberusweb.fields.source';
 	
 	function __construct($manifest) {
-		$this->DevblocksExtension($manifest,1);
+		$this->DevblocksExtension($manifest);
 	}
 };
 
@@ -237,7 +237,7 @@ abstract class Extension_RssSource extends DevblocksExtension {
 	const EXTENSION_POINT = 'cerberusweb.rss.source';
 	
 	function __construct($manifest) {
-		$this->DevblocksExtension($manifest,1);
+		$this->DevblocksExtension($manifest);
 	}
 
 	function getFeedAsRss($feed) {}
@@ -247,13 +247,13 @@ abstract class Extension_WorkspaceSource extends DevblocksExtension {
 	const EXTENSION_POINT = 'cerberusweb.workspace.source';
 	
 	function __construct($manifest) {
-		$this->DevblocksExtension($manifest,1);
+		$this->DevblocksExtension($manifest);
 	}
 };
 
 abstract class Extension_LoginAuthenticator extends DevblocksExtension {
 	function __construct($manifest) {
-		$this->DevblocksExtension($manifest, 1);
+		$this->DevblocksExtension($manifest);
 	}
 	
 	/**
@@ -300,7 +300,7 @@ abstract class CerberusCronPageExtension extends DevblocksExtension {
     const PARAM_LASTRUN = 'lastrun';
     
 	function __construct($manifest) {
-		$this->DevblocksExtension($manifest, 1);
+		$this->DevblocksExtension($manifest);
 	}
 
 	/**

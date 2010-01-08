@@ -47,7 +47,7 @@ class ChSignInPage extends CerberusPageExtension {
                 break;
             default:
 				$manifest = DevblocksPlatform::getExtension('login.default');
-				$inst = $manifest->createInstance(1); /* @var $inst Extension_LoginAuthenticator */
+				$inst = $manifest->createInstance(); /* @var $inst Extension_LoginAuthenticator */
 				$inst->renderLoginForm();
                 break;
         }

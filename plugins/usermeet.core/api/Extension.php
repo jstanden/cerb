@@ -180,7 +180,7 @@ abstract class Extension_UmScController extends DevblocksExtension implements De
 
 abstract class Extension_ScLoginAuthenticator extends DevblocksExtension {
 	function __construct($manifest) {
-		$this->DevblocksExtension($manifest, 1);
+		$this->DevblocksExtension($manifest);
 	}
 	
 	/**
