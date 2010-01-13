@@ -48,7 +48,7 @@
  * 		and Joe Geck.
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-define("APP_BUILD", 2010010802);
+define("APP_BUILD", 2010011201);
 define("APP_MAIL_PATH", APP_STORAGE_PATH . '/mail/');
 
 require_once(APP_PATH . "/api/DAO.class.php");
@@ -90,7 +90,6 @@ class CerberusApplication extends DevblocksApplication {
 	const VIEW_MAIL_WORKFLOW = 'mail_workflow';
 	const VIEW_OVERVIEW_ALL = 'overview_all';
 	
-	const CACHE_SETTINGS_DAO = 'ch_settings_dao';
 	const CACHE_HELPDESK_FROMS = 'ch_helpdesk_froms';
 	
 	/**
@@ -591,11 +590,11 @@ class CerberusApplication extends DevblocksApplication {
 
 		if(null === ($froms = $cache->load(self::CACHE_HELPDESK_FROMS))) {
 			$froms = array();
-			$settings = CerberusSettings::getInstance();
+			$settings = DevblocksPlatform::getPluginSettingsService();
 			$group_settings = DAO_GroupSettings::getSettings();
 			
 			// Global sender
-			$from = strtolower($settings->get(CerberusSettings::DEFAULT_REPLY_FROM));
+			$from = strtolower($settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_FROM));
 			@$froms[$from] = $from;
 			
 			// Group senders
@@ -624,8 +623,8 @@ class CerberusLicense {
 	 * @return array
 	 */
 	public static function getInstance() {
-		$settings = CerberusSettings::getInstance();
-		$license = $settings->get(CerberusSettings::LICENSE,array());
+		$settings = DevblocksPlatform::getPluginSettingsService();
+		$license = $settings->get('cerberusweb.core',CerberusSettings::LICENSE,array());
 		if(!empty($license)) {
 			@$license = unserialize($license);
 		}
@@ -678,79 +677,6 @@ class CerberusSettings {
 	const AUTHORIZED_IPS = 'authorized_ips';
 	const LICENSE = 'license';
 	const ACL_ENABLED = 'acl_enabled';
-	
-	private static $instance = null;
-	
-	private $settings = array( // defaults
-		self::DEFAULT_REPLY_FROM => '',
-		self::DEFAULT_REPLY_PERSONAL => '',
-		self::DEFAULT_SIGNATURE => '',
-		self::DEFAULT_SIGNATURE_POS => 0,
-		self::HELPDESK_TITLE => 'Cerberus Helpdesk :: Team-based E-mail Management',
-		self::HELPDESK_LOGO_URL => '',
-		self::SMTP_HOST => 'localhost',
-		self::SMTP_AUTH_ENABLED => 0,
-		self::SMTP_AUTH_USER => '',
-		self::SMTP_AUTH_PASS => '',
-		self::SMTP_PORT => 25,
-		self::SMTP_ENCRYPTION_TYPE => 'None',
-		self::SMTP_MAX_SENDS => 20,
-		self::SMTP_TIMEOUT => 30,
-		self::ATTACHMENTS_ENABLED => 1,
-		self::ATTACHMENTS_MAX_SIZE => 10, // MB
-		self::AUTHORIZED_IPS => '127.0.0.1', 
-		self::LICENSE => '',
-		self::ACL_ENABLED => 0,
-	);
-
-	/**
-	 * @return CerberusSettings
-	 */
-	private function __construct() {
-	    // Defaults (dynamic)
-		$saved_settings = DAO_Setting::getSettings();
-		foreach($saved_settings as $k => $v) {
-			$this->settings[$k] = $v;
-		}
-	}
-	
-	/**
-	 * @return CerberusSettings
-	 */
-	public static function getInstance() {
-		if(self::$instance==null) {
-			self::$instance = new CerberusSettings();	
-		}
-		
-		return self::$instance;		
-	}
-	
-	public function set($key,$value) {
-		DAO_Setting::set($key,$value);
-		$this->settings[$key] = $value;
-		
-	    $cache = DevblocksPlatform::getCacheService();
-		$cache->remove(CerberusApplication::CACHE_SETTINGS_DAO);
-		
-		// Nuke sender cache
-		if($key == self::DEFAULT_REPLY_FROM) {
-			$cache->remove(CerberusApplication::CACHE_HELPDESK_FROMS);
-		}
-		
-		return TRUE;
-	}
-	
-	/**
-	 * @param string $key
-	 * @param string $default
-	 * @return mixed
-	 */
-	public function get($key,$default=null) {
-		if(isset($this->settings[$key]))
-			return $this->settings[$key];
-		else 
-			return $default;
-	}
 };
 
 // [TODO] This gets called a lot when it happens after the registry cache

@@ -1,11 +1,11 @@
 <html>
 <head>
-	<title>Ticket #{$ticket->mask}: {$ticket->subject} - {$settings->get('helpdesk_title','')}</title>
+	<title>Ticket #{$ticket->mask}: {$ticket->subject} - {$settings->get('cerberusweb.core','helpdesk_title','')}</title>
 	<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset={$smarty.const.LANG_CHARSET_CODE}">
 </head>
 
 <body onload="window.print();">
-{assign var=logo_url value=$settings->get('helpdesk_logo_url','')}
+{assign var=logo_url value=$settings->get('cerberusweb.core','helpdesk_logo_url','')}
 {if empty($logo_url)}
 <img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/wgm/logo.gif{/devblocks_url}">
 {else}

@@ -23,7 +23,7 @@ class ChPrintController extends DevblocksControllerExtension {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', $this->_TPL_PATH);
 		
-		$settings = CerberusSettings::getInstance();
+		$settings = DevblocksPlatform::getPluginSettingsService();
 		$tpl->assign('settings', $settings);
 		
 		$translate = DevblocksPlatform::getTranslationService();

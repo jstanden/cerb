@@ -10,7 +10,7 @@
 	<META HTTP-EQUIV="Expires" CONTENT="0">
 	-->
 
-  <title>{$settings->get('helpdesk_title')}</title>
+  <title>{$settings->get('cerberusweb.core','helpdesk_title')}</title>
   <link type="image/x-icon" rel="shortcut icon" href="{devblocks_url}favicon.ico{/devblocks_url}">
   <link type="text/css" rel="stylesheet" href="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yui/container/assets/skins/sam/container.css{/devblocks_url}?v={$smarty.const.APP_BUILD}">
   <link type="text/css" rel="stylesheet" href="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yui/calendar/assets/skins/sam/calendar.css{/devblocks_url}?v={$smarty.const.APP_BUILD}">

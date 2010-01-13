@@ -51,24 +51,24 @@
 			<input type="hidden" name="a" value="saveIncomingMailSettings">
 
 			<b>Reply to All:</b><br>
-			<label><input type="checkbox" name="parser_autoreq" value="1" {if $settings->get('parser_autoreq')}checked{/if}> Send helpdesk replies to every recipient (To:/Cc:) on the original message.</label><br>
+			<label><input type="checkbox" name="parser_autoreq" value="1" {if $settings->get('cerberusweb.core','parser_autoreq')}checked{/if}> Send helpdesk replies to every recipient (To:/Cc:) on the original message.</label><br>
 			<br>
 
 			<div style="padding-left:10px;">
 				<b>Always Exclude These Recipients:</b><br>
-				<textarea name="parser_autoreq_exclude" rows="4" cols="76">{$settings->get('parser_autoreq_exclude')|escape:"html"}</textarea><br>
+				<textarea name="parser_autoreq_exclude" rows="4" cols="76">{$settings->get('cerberusweb.core','parser_autoreq_exclude')|escape:"html"}</textarea><br>
 				<i>(one address per line)</i> &nbsp;  
 				<i>use * for wildcards, like: *@do-not-reply.com</i><br>
 				<br>
 			</div>
 
 			<b>Attachments:</b><br>
-			<label><input type="checkbox" name="attachments_enabled" value="1" {if $settings->get('attachments_enabled')}checked{/if}> Allow Incoming Attachments</label><br>
+			<label><input type="checkbox" name="attachments_enabled" value="1" {if $settings->get('cerberusweb.core','attachments_enabled')}checked{/if}> Allow Incoming Attachments</label><br>
 			<br>
 			
 			<div style="padding-left:10px;">
 				<b>Maximum Attachment Size:</b><br>
-				<input type="text" name="attachments_max_size" value="{$settings->get('attachments_max_size')|escape:"html"}" size="5"> MB<br>
+				<input type="text" name="attachments_max_size" value="{$settings->get('cerberusweb.core','attachments_max_size')|escape:"html"}" size="5"> MB<br>
 				<i>(attachments larger than this will be ignored)</i><br>
 				<br>
 			</div>

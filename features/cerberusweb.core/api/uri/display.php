@@ -526,7 +526,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		@$is_forward = DevblocksPlatform::importGPC($_REQUEST['forward'],'integer',0);
 
-		$settings = CerberusSettings::getInstance();
+		$settings = DevblocksPlatform::getPluginSettingsService();
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', $this->_TPL_PATH);
@@ -580,7 +580,7 @@ class ChDisplayPage extends CerberusPageExtension {
 	            $signature = $ticket_team->signature;
 			} else {
 			    // [TODO] Default signature
-		        $signature = $settings->get(CerberusSettings::DEFAULT_SIGNATURE);
+		        $signature = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_SIGNATURE);
 			}
 
 			$tpl->assign('signature', str_replace(
@@ -589,7 +589,7 @@ class ChDisplayPage extends CerberusPageExtension {
 			        $signature
 			));
 			
-		    $signature_pos = $settings->get(CerberusSettings::DEFAULT_SIGNATURE_POS,0);
+		    $signature_pos = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_SIGNATURE_POS,0);
 			$tpl->assign('signature_pos', $signature_pos);
 		}
 		

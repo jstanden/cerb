@@ -453,8 +453,10 @@ if(!isset($columns['IS_OUTGOING'])) {
 	try {
 		$froms = array();
 		
-		$settings = CerberusSettings::getInstance();
-		if(null != ($default_from = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM,null))) {
+		$sql = sprintf("SELECT value FROM setting WHERE setting = %s",
+			$db->qstr(CerberusSettings::DEFAULT_REPLY_FROM)
+		);
+		if(null != ($default_from = $db->GetOne($sql))) {
 			$froms[$default_from] = 1;
 		}
 		

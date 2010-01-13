@@ -3,7 +3,7 @@ class ChTranslatorsConfigTab extends Extension_ConfigTab {
 	const ID = 'translators.config.tab';
 	
 	function showTab() {
-		$settings = CerberusSettings::getInstance();
+		$settings = DevblocksPlatform::getPluginSettingsService();
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';

@@ -132,7 +132,7 @@ class MobileController extends DevblocksControllerExtension {
 
 		$tpl = DevblocksPlatform::getTemplateService();
 		$session = DevblocksPlatform::getSessionService();
-		$settings = CerberusSettings::getInstance();
+		$settings = DevblocksPlatform::getPluginSettingsService();
 		$translate = DevblocksPlatform::getTranslationService();
 		$visit = $session->getVisit();
 

@@ -3752,8 +3752,8 @@ class CerberusWorker {
 		if($this->is_superuser)
 			return true;
 		
-		$settings = CerberusSettings::getInstance();
-		$acl_enabled = $settings->get(CerberusSettings::ACL_ENABLED);
+		$settings = DevblocksPlatform::getPluginSettingsService();
+		$acl_enabled = $settings->get('cerberusweb.core',CerberusSettings::ACL_ENABLED);
 			
 		// ACL is a paid feature (please respect the licensing and support the project!)
 		$license = CerberusLicense::getInstance();

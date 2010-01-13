@@ -262,7 +262,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 	
 	private function _sendConfirmationEmail($to, $worker) {
 		$translate = DevblocksPlatform::getTranslationService();
-		$settings = CerberusSettings::getInstance();
+		$settings = DevblocksPlatform::getPluginSettingsService();
 		$url_writer = DevblocksPlatform::getUrlService();
 		$tpl = DevblocksPlatform::getTemplateService();
 							
@@ -281,7 +281,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 		CerberusMail::quickSend(
 			$to, 
 			vsprintf($translate->_('prefs.address.confirm.mail.subject'), 
-				$settings->get(CerberusSettings::HELPDESK_TITLE)
+				$settings->get('cerberusweb.core',CerberusSettings::HELPDESK_TITLE)
 			),
 			vsprintf($translate->_('prefs.address.confirm.mail.body'),
 				array(

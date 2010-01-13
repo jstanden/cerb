@@ -489,7 +489,7 @@ class ImportCron extends CerberusCronPageExtension {
 	
 	// [TODO] Move to an extension
 	private function _handleImportTicket($xml) {
-		$settings = CerberusSettings::getInstance();
+		$settings = DevblocksPlatform::getPluginSettingsService();
 		$logger = DevblocksPlatform::getConsoleLog();
 		$workers = DAO_Worker::getAll();
 
@@ -835,7 +835,7 @@ class ImportCron extends CerberusCronPageExtension {
 	}
 
 	private function _handleImportWorker($xml) {
-		$settings = CerberusSettings::getInstance();
+		$settings = DevblocksPlatform::getPluginSettingsService();
 		$logger = DevblocksPlatform::getConsoleLog();
 
 		$sFirstName = (string) $xml->first_name;
@@ -871,7 +871,7 @@ class ImportCron extends CerberusCronPageExtension {
 	}
 
 	private function _handleImportOrg($xml) {
-		$settings = CerberusSettings::getInstance();
+		$settings = DevblocksPlatform::getPluginSettingsService();
 		$logger = DevblocksPlatform::getConsoleLog();
 
 		$sName = (string) $xml->name;
@@ -907,7 +907,7 @@ class ImportCron extends CerberusCronPageExtension {
 	}
 
 	private function _handleImportContact($xml) {
-		$settings = CerberusSettings::getInstance();
+		$settings = DevblocksPlatform::getPluginSettingsService();
 		$logger = DevblocksPlatform::getConsoleLog();
 
 		$sFirstName = (string) $xml->first_name;

@@ -1281,7 +1281,7 @@ class ChTimeTrackingConfigActivityTab extends Extension_ConfigTab {
 	const ID = 'timetracking.config.tab.activities';
 	
 	function showTab() {
-		$settings = CerberusSettings::getInstance();
+		$settings = DevblocksPlatform::getPluginSettingsService();
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
@@ -1298,7 +1298,7 @@ class ChTimeTrackingConfigActivityTab extends Extension_ConfigTab {
 	}
 	
 	function saveTab() {
-		$settings = CerberusSettings::getInstance();
+		$settings = DevblocksPlatform::getPluginSettingsService();
 		@$plugin_id = DevblocksPlatform::importGPC($_REQUEST['plugin_id'],'string');
 
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);

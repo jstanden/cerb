@@ -42,9 +42,9 @@ class UmScRegisterController extends Extension_UmScController {
 
 		$tpl = DevblocksPlatform::getTemplateService();
 		
-		$settings = CerberusSettings::getInstance();
-		$from = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM,null);
-		$from_personal = $settings->get(CerberusSettings::DEFAULT_REPLY_PERSONAL,"Support Dept.");
+		$settings = DevblocksPlatform::getPluginSettingsService();
+		$from = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_FROM,null);
+		$from_personal = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_PERSONAL,"Support Dept.");
 		
 		$url = DevblocksPlatform::getUrlService();
 		try {
@@ -139,9 +139,9 @@ class UmScRegisterController extends Extension_UmScController {
 
 		$tpl = DevblocksPlatform::getTemplateService();
 		
-		$settings = CerberusSettings::getInstance();
-		$from = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM,null);
-		$from_personal = $settings->get(CerberusSettings::DEFAULT_REPLY_PERSONAL,"Support Dept.");
+		$settings = DevblocksPlatform::getPluginSettingsService();
+		$from = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_FROM,null);
+		$from_personal = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_PERSONAL,"Support Dept.");
 		
 		$url = DevblocksPlatform::getUrlService();
 		$mail_service = DevblocksPlatform::getMailService();

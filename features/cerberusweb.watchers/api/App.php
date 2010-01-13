@@ -3,7 +3,7 @@ class ChWatchersConfigTab extends Extension_ConfigTab {
 	const ID = 'watchers.config.tab';
 	
 	function showTab() {
-		$settings = CerberusSettings::getInstance();
+		$settings = DevblocksPlatform::getPluginSettingsService();
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
@@ -150,9 +150,9 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 		$mail_service = DevblocksPlatform::getMailService();
 		$mailer = null; // lazy load
     		
-    	$settings = CerberusSettings::getInstance();
-		$default_from = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM, '');
-		$default_personal = $settings->get(CerberusSettings::DEFAULT_REPLY_PERSONAL, '');
+    	$settings = DevblocksPlatform::getPluginSettingsService();
+		$default_from = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_FROM, '');
+		$default_personal = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_PERSONAL, '');
 
 		if(null == ($ticket = DAO_Ticket::getTicket($ticket_id)))
 			return;
@@ -278,9 +278,9 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 		$mail_service = DevblocksPlatform::getMailService();
 		$mailer = null; // lazy load
     		
-    	$settings = CerberusSettings::getInstance();
-		$default_from = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM, '');
-		$default_personal = $settings->get(CerberusSettings::DEFAULT_REPLY_PERSONAL, '');
+    	$settings = DevblocksPlatform::getPluginSettingsService();
+		$default_from = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_FROM, '');
+		$default_personal = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_PERSONAL, '');
 
 		// Loop through all assigned tickets
 		$tickets = DAO_Ticket::getTickets($ticket_ids);
@@ -427,8 +427,8 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 			
 		// The whole flipping Swift section needs wrapped to catch exceptions
 		try {
-			$settings = CerberusSettings::getInstance();
-			$reply_to = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM, '');
+			$settings = DevblocksPlatform::getPluginSettingsService();
+			$reply_to = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_FROM, '');
 			
 			// See if we need a group-specific reply-to
 			if(!empty($ticket->team_id)) {

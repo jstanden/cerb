@@ -137,47 +137,6 @@ class C4_ORMHelper extends DevblocksORMHelper {
 };
 
 /**
- * Global Settings DAO
- */
-class DAO_Setting extends DevblocksORMHelper {
-	static function set($key, $value) {
-		$db = DevblocksPlatform::getDatabaseService();
-		$db->Replace('setting',array('setting'=>$db->qstr($key),'value'=>$db->qstr($value)),array('setting'),false);
-	}
-	
-	static function get($key) {
-		$db = DevblocksPlatform::getDatabaseService();
-		$sql = sprintf("SELECT value FROM setting WHERE setting = %s",
-			$db->qstr($key)
-		);
-		$value = $db->GetOne($sql) or die(__CLASS__ . ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-		
-		return $value;
-	}
-	
-	static function getSettings() {
-	    $cache = DevblocksPlatform::getCacheService();
-	    if(null === ($settings = $cache->load(CerberusApplication::CACHE_SETTINGS_DAO))) {
-			$db = DevblocksPlatform::getDatabaseService();
-			$settings = array();
-			
-			$sql = sprintf("SELECT setting,value FROM setting");
-			$rs = $db->Execute($sql) or die(__CLASS__ . ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-			
-			if(is_a($rs,'ADORecordSet'))
-			while(!$rs->EOF) {
-				$settings[$rs->Fields('setting')] = $rs->Fields('value');
-				$rs->MoveNext();
-			}
-			
-			$cache->save($settings, CerberusApplication::CACHE_SETTINGS_DAO);
-	    }
-		
-		return $settings;
-	}
-};
-
-/**
  * Bayesian Anti-Spam DAO
  */
 class DAO_Bayes {

@@ -9,7 +9,7 @@ class ChForumsConfigTab extends Extension_ConfigTab {
 	const ID = 'forums.config.tab';
 	
 	function showTab() {
-		$settings = CerberusSettings::getInstance();
+		$settings = DevblocksPlatform::getPluginSettingsService();
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
@@ -19,7 +19,7 @@ class ChForumsConfigTab extends Extension_ConfigTab {
 		@$sources = DAO_ForumsSource::getWhere();
 		$tpl->assign('sources', $sources);
 
-		if(null != ($poster_workers_str = $settings->get(ChForumsPlugin::SETTING_POSTER_WORKERS, null))) {
+		if(null != ($poster_workers_str = $settings->get('cerberusweb.core',ChForumsPlugin::SETTING_POSTER_WORKERS, null))) {
 			$tpl->assign('poster_workers_str', $poster_workers_str);
 		}
 		
@@ -27,7 +27,7 @@ class ChForumsConfigTab extends Extension_ConfigTab {
 	}
 	
 	function saveTab() {
-		$settings = CerberusSettings::getInstance();
+		$settings = DevblocksPlatform::getPluginSettingsService();
 		@$plugin_id = DevblocksPlatform::importGPC($_REQUEST['plugin_id'],'string');
 
 		// Edit|Delete
@@ -55,7 +55,7 @@ class ChForumsConfigTab extends Extension_ConfigTab {
 		}
 
 		if(!empty($poster_workers)) {
-			$settings->set(ChForumsPlugin::SETTING_POSTER_WORKERS, strtolower($poster_workers));
+			$settings->set('cerberusweb.core',ChForumsPlugin::SETTING_POSTER_WORKERS, strtolower($poster_workers));
 		}
 		
 		// Edits
@@ -413,11 +413,11 @@ class ChForumsController extends DevblocksControllerExtension {
 
 	function import() {
 		$sources = DAO_ForumsSource::getWhere();
-		$settings = CerberusSettings::getInstance();
+		$settings = DevblocksPlatform::getPluginSettingsService();
 		
 		// Track posters that are also workers
 		$poster_workers = array();
-		if(null != ($poster_workers_str = $settings->get(ChForumsPlugin::SETTING_POSTER_WORKERS, null))) {
+		if(null != ($poster_workers_str = $settings->get('cerberusweb.core',ChForumsPlugin::SETTING_POSTER_WORKERS, null))) {
 			$poster_workers = DevblocksPlatform::parseCrlfString($poster_workers_str);
 		}
 		

@@ -155,7 +155,7 @@ class ChPageController extends DevblocksControllerExtension {
 
 		$tpl = DevblocksPlatform::getTemplateService();
 		$session = DevblocksPlatform::getSessionService();
-		$settings = CerberusSettings::getInstance();
+		$settings = DevblocksPlatform::getPluginSettingsService();
 		$translate = DevblocksPlatform::getTranslationService();
 	    $active_worker = CerberusApplication::getActiveWorker();
 		

@@ -49,7 +49,7 @@ class ChTicketsPage extends CerberusPageExtension {
 				if(!$active_worker->hasPriv('core.mail.send'))
 					break;
 				
-				$settings = CerberusSettings::getInstance();
+				$settings = DevblocksPlatform::getPluginSettingsService();
 				
 				// Workers
 				$workers = DAO_Worker::getAllActive();
@@ -795,12 +795,12 @@ class ChTicketsPage extends CerberusPageExtension {
 	function getComposeSignatureAction() {
 		@$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'integer',0);
 		
-		$settings = CerberusSettings::getInstance();
+		$settings = DevblocksPlatform::getPluginSettingsService();
 		$group = DAO_Group::getTeam($group_id);
 
 		$active_worker = CerberusApplication::getActiveWorker();
 		$worker = DAO_Worker::getAgent($active_worker->id); // Use the most recent info (not session)
-		$sig = $settings->get(CerberusSettings::DEFAULT_SIGNATURE,'');
+		$sig = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_SIGNATURE,'');
 
 		if(!empty($group->signature)) {
 			$sig = $group->signature;

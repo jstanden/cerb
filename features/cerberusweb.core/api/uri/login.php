@@ -135,9 +135,9 @@ class ChSignInPage extends CerberusPageExtension {
 		    $code = CerberusApplication::generatePassword(10);
 		    
 		    $_SESSION[self::KEY_FORGOT_SENTCODE] = $code;
-		    $settings = CerberusSettings::getInstance();
-			$from = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM);
-		    $personal = $settings->get(CerberusSettings::DEFAULT_REPLY_PERSONAL);
+		    $settings = DevblocksPlatform::getPluginSettingsService();
+			$from = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_FROM);
+		    $personal = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_PERSONAL);
 			
 			// Headers
 			$mail->setTo(array($email));

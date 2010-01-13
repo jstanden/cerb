@@ -14,9 +14,9 @@ class ChDebugController extends DevblocksControllerExtension  {
 	    array_shift($stack); // update
 
 //	    $cache = DevblocksPlatform::getCacheService(); /* @var $cache _DevblocksCacheManager */
-		$settings = CerberusSettings::getInstance();
+		$settings = DevblocksPlatform::getPluginSettingsService();
 
-		$authorized_ips_str = $settings->get(CerberusSettings::AUTHORIZED_IPS);
+		$authorized_ips_str = $settings->get('cerberusweb.core',CerberusSettings::AUTHORIZED_IPS);
 		$authorized_ips = DevblocksPlatform::parseCrlfString($authorized_ips_str);
 	    
 		$authorized_ip_defaults = DevblocksPlatform::parseCsvString(AUTHORIZED_IPS_DEFAULTS);
@@ -81,7 +81,7 @@ class ChDebugController extends DevblocksControllerExtension  {
 	    		
 	    	case 'report':
 	    		@$db = DevblocksPlatform::getDatabaseService();
-	    		@$settings = CerberusSettings::getInstance();
+	    		@$settings = DevblocksPlatform::getPluginSettingsService();
 	    		
 	    		@$tables = $db->MetaTables('TABLE',false);
 	    		
@@ -165,12 +165,12 @@ class ChDebugController extends DevblocksControllerExtension  {
 						"[Setting] SMTP_ENCRYPTION_TYPE: %s\n".
 						"\n".
 						'%s',
-						$settings->get(CerberusSettings::HELPDESK_TITLE,''),
-						str_replace(array('@','.'),array(' at ',' dot '),$settings->get(CerberusSettings::DEFAULT_REPLY_FROM,'')),
-						$settings->get(CerberusSettings::DEFAULT_REPLY_PERSONAL,''),
-						$settings->get(CerberusSettings::SMTP_HOST,''),
-						$settings->get(CerberusSettings::SMTP_PORT,''),
-						$settings->get(CerberusSettings::SMTP_ENCRYPTION_TYPE,''),
+						$settings->get('cerberusweb.core',CerberusSettings::HELPDESK_TITLE,''),
+						str_replace(array('@','.'),array(' at ',' dot '),$settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_FROM,'')),
+						$settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_PERSONAL,''),
+						$settings->get('cerberusweb.core',CerberusSettings::SMTP_HOST,''),
+						$settings->get('cerberusweb.core',CerberusSettings::SMTP_PORT,''),
+						$settings->get('cerberusweb.core',CerberusSettings::SMTP_ENCRYPTION_TYPE,''),
 						''
 					);
 				}

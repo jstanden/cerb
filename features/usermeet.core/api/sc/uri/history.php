@@ -217,8 +217,8 @@ class UmScHistoryController extends Extension_UmScController {
 		unset($messages);
 
 		// Helpdesk settings
-		$settings = CerberusSettings::getInstance();
-		$global_from = $settings->get(CerberusSettings::DEFAULT_REPLY_FROM,null);
+		$settings = DevblocksPlatform::getPluginSettingsService();
+		$global_from = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_FROM,null);
 		
 		// Ticket group settings
 		$group_id = $ticket[SearchFields_Ticket::TICKET_TEAM_ID];

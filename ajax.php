@@ -60,7 +60,7 @@ DevblocksPlatform::init();
 DevblocksPlatform::setExtensionDelegate('C4_DevblocksExtensionDelegate');
 
 $session = DevblocksPlatform::getSessionService();
-$settings = CerberusSettings::getInstance();
+$settings = DevblocksPlatform::getPluginSettingsService();
 $worker = CerberusApplication::getActiveWorker();
 
 // Localization

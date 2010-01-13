@@ -34,12 +34,12 @@
 	<div class="subtle2" style="margin:0px;">
 	<h3>Group E-mail Preferences</h3>
 
-	<b>Send replies as e-mail:</b> (optional, defaults to: {$settings->get('default_reply_from','')})<br>
+	<b>Send replies as e-mail:</b> (optional, defaults to: {$settings->get('cerberusweb.core','default_reply_from','')})<br>
 	<input type="text" name="sender_address" value="{$group_settings.reply_from|escape}" size="65"><br>
 	<span style="color:rgb(30,150,30);">(Make sure the above address delivers to the helpdesk or you won't receive replies!)</span><br>
 	<br>
 	
-	<b>Send replies as name:</b> (optional, defaults to: {$settings->get('default_reply_personal','')})<br>
+	<b>Send replies as name:</b> (optional, defaults to: {$settings->get('cerberusweb.core','default_reply_personal','')})<br>
 	<input type="text" name="sender_personal" value="{$group_settings.reply_personal|escape}" size="65"><br>
 	<label><input type="checkbox" name="sender_personal_with_worker" value="1" {if !empty($group_settings.reply_personal_with_worker)}checked{/if}> Also prefix the replying worker's name as the sender.</label><br>
 	<br>
@@ -53,7 +53,7 @@
 	
 	<b>Group E-mail Signature:</b> (optional, defaults to helpdesk signature)<br>
 	<div style="display:none">
-		{assign var=default_signature value=$settings->get('default_signature')}
+		{assign var=default_signature value=$settings->get('cerberusweb.core','default_signature')}
 		<textarea name="default_signature">{$default_signature}</textarea>	
 	</div>
 	<textarea name="signature" rows="4" cols="76">{$team->signature}</textarea><br>
