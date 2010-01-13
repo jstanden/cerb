@@ -181,7 +181,7 @@ class CerberusApplication extends DevblocksApplication {
 		// PHP Version
 		if(version_compare(PHP_VERSION,"5.2") >=0) {
 		} else {
-			$errors[] = 'Cerberus Helpdesk 4.x requires PHP 5.2 or later. Your server PHP version is '.PHP_VERSION;
+			$errors[] = 'Cerberus Helpdesk 5.x requires PHP 5.2 or later. Your server PHP version is '.PHP_VERSION;
 		}
 		
 		// File Uploads

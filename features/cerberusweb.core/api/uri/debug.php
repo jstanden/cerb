@@ -69,7 +69,7 @@ class ChDebugController extends DevblocksControllerExtension  {
 					echo "</ul>";
 					
 				} else {
-					echo '<span class="pass">Your server is compatible with Cerberus Helpdesk 4.x!</span>';
+					echo '<span class="pass">Your server is compatible with Cerberus Helpdesk 5.x!</span>';
 				}
 				
 				echo sprintf("

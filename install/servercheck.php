@@ -1,6 +1,6 @@
 <html>
 <head>
-	<title>Cerberus Helpdesk 4.x - Server Environment Checker</title>
+	<title>Cerberus Helpdesk 5.x - Server Environment Checker</title>
 	
 	<style>
 	BODY {font-family: Arial, Helvetica, sans-serif; font-size: 12px;}
@@ -10,7 +10,7 @@
 </head>
 
 <body>
-<h1>Cerberus Helpdesk 4.x - Server Environment Checker</h1>
+<h1>Cerberus Helpdesk 5.x - Server Environment Checker</h1>
 
 <?php
 $results = array();
@@ -153,10 +153,10 @@ if(extension_loaded("spl")) {
 }
 
 if($fails) {
-	echo "The following problems prevent you from running Cerberus Helpdesk 4.x:<span class='fail'><ul>";
+	echo "The following problems prevent you from running Cerberus Helpdesk 5.x:<span class='fail'><ul>";
 	
 	if(!$results['php_version'])
-		echo '<li>Cerberus Helpdesk 4.x requires PHP 5.2 or later. Your server PHP version is '.PHP_VERSION.'.</li>';
+		echo '<li>Cerberus Helpdesk 5.x requires PHP 5.2 or later. Your server PHP version is '.PHP_VERSION.'.</li>';
 
 	if(!$results['file_uploads'])
 		echo '<li>file_uploads is disabled in your php.ini file. Please enable it.</li>';
@@ -206,7 +206,7 @@ if($fails) {
 	echo "</ul></span><br>Please correct these issues and try again.<br>";
 	
 } else {
-	echo "<span class='pass'>Your server is Cerberus Helpdesk 4.x compatible!</span><br>";
+	echo "<span class='pass'>Your server is Cerberus Helpdesk 5.x compatible!</span><br>";
 	
 }
 

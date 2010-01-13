@@ -22,7 +22,7 @@ class ChUpdateController extends DevblocksControllerExtension {
 	    	case 'locked':
 	    		if(!DevblocksPlatform::versionConsistencyCheck()) {
 	    			$url = DevblocksPlatform::getUrlService();
-	    			echo "<h1>Cerberus Helpdesk 4.x</h1>";
+	    			echo "<h1>Cerberus Helpdesk 5.x</h1>";
 	    			echo "The helpdesk is currently waiting for an administrator to finish upgrading. ".
 	    				"Please wait a few minutes and then ". 
 		    			sprintf("<a href='%s'>try again</a>.<br><br>",

@@ -10,7 +10,7 @@
 
 <H3>Welcome to the Cerberus Helpdesk community!</H3>
 
-Cerberus Helpdesk 4.x is the culmination of over 7 years of R&amp;D to
+Cerberus Helpdesk is the culmination of over 8 years of R&amp;D to
 improve team-based webmail.  As with any such innovation, there may be some 
 concepts introduced that are completely new to you and your team.  This is 
 especially likely if you are migrating away from desktop e-mail programs to the 

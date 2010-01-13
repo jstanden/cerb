@@ -7,7 +7,7 @@
 
 <body>
 
-<H1>Installing Cerberus Helpdesk 4.x</H1>
+<H1>Installing Cerberus Helpdesk 5.x</H1>
 Please wait...
 
 </body>
