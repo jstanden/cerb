@@ -33,7 +33,7 @@
 				</select>
 			{elseif 'W'==$field->type}
 				{if empty($workers)}
-					{php}$this->assign('workers', DAO_Worker::getAllActive());{/php}
+					{$workers = DAO_Worker::getAllActive()}
 				{/if}
 				<select name="do_cf_{$field_id}">
 				<option value=""></option>

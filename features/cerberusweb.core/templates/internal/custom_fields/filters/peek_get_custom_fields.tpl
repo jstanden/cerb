@@ -49,7 +49,7 @@
 				{/foreach}
 			{elseif 'W'==$field->type}
 				{if empty($workers)}
-					{php}$this->assign('workers', DAO_Worker::getAllActive());{/php}
+					{$workers = DAO_Worker::getAllActive()}
 				{/if}
 				<i>is any of these:</i><br>
 				{foreach from=$workers item=worker key=worker_id}

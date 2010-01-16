@@ -169,7 +169,7 @@
 			<!--<a href="javascript:;"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/warning.gif{/devblocks_url}" align="top" border="0" title="Not Spam ({$score})"></a>-->
 			<!--<a href="javascript:;"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check_gray.gif{/devblocks_url}" align="top" border="0" title="Not Spam ({$score})"></a>-->
 			{if $active_worker->hasPriv('core.ticket.actions.spam')}<a href="javascript:;" onclick="toggleDiv('{$rowIdPrefix}_s','none');toggleDiv('{$rowIdPrefix}','none');genericAjaxGet('{$view->id}_output_container','c=tickets&a=reportSpam&id={$result.t_id}&viewId={$view->id}');">{/if}
-			<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/{if $result.t_spam_score >= .90}warning.gif{else}warning_gray.gif{/if}{/devblocks_url}" align="top" border="0" title="Report Spam ({$score})	{if !empty($result.t_interesting_words)}{$result.t_interesting_words}{/if}">
+			<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/{if $result.t_spam_score >= 0.90}warning.gif{else}warning_gray.gif{/if}{/devblocks_url}" align="top" border="0" title="Report Spam ({$score})">
 			{if $active_worker->hasPriv('core.ticket.actions.spam')}</a>{/if}
 			{/if}
 		</td>

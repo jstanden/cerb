@@ -69,7 +69,7 @@
 					<i><small>{$translate->_('common.tips.multi_select')}</small></i>
 	      		{elseif $field->type=='W'}
 					{if empty($workers)}
-						{php}$this->assign('workers', DAO_Worker::getAllActive());{/php}
+						{$workers = DAO_Worker::getAllActive()}
 					{/if}
 	      			<select name="followup_a_{$idx}" class="{if $required}required{/if}">
 	      				<option value=""></option>

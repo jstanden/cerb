@@ -31,7 +31,7 @@
 				<b>{$address.a_email}</b>
 
 				{* Domain Shortcut *}
-				{assign var=email_parts value=$address.a_email|explode:'@'}
+				{$email_parts = explode('@',$address.a_email)}
 				{if is_array($email_parts) && 2==count($email_parts)}
 					<a href="http://www.{$email_parts.1}" target="_blank" title="www.{$email_parts.1}">({$translate->_('contact_org.website')|lower})</a>
 				{/if}

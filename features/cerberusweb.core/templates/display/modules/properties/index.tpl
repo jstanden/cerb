@@ -104,7 +104,7 @@
 						<div id="dateCustom{$f_id}" style="display:none;position:absolute;z-index:1;"></div>
 					{elseif $f->type=='W'}
 						{if empty($workers)}
-							{php}$this->assign('workers', DAO_Worker::getAllActive());{/php}
+							{$workers = DAO_Worker::getAllActive()}
 						{/if}
 						<select name="field_{$f_id}">
 							<option value=""></option>

@@ -32,7 +32,10 @@
 	</style>
 
 	<script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yui/utilities/utilities.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script> 
-	<script language="javascript" type="text/javascript">{php}DevblocksPlatform::printJavascriptLibrary();{/php}</script>
+	
+	<script language="javascript" type="text/javascript">
+	  {include file="libs/devblocks/api/devblocks.tpl.js"}
+	</script>
 </head>
 
 <body>

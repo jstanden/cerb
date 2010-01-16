@@ -82,8 +82,7 @@
 
 {if ($active_worker->hasPriv('core.tasks.actions.create') && (empty($task) || $active_worker->id==$task->worker_id))
 	|| ($active_worker->hasPriv('core.tasks.actions.update_nobody') && empty($task->worker_id)) 
-	|| $active_worker->hasPriv('core.tasks.actions.update_all')
-}
+	|| $active_worker->hasPriv('core.tasks.actions.update_all')}
 	<button type="button" onclick="genericPanel.hide();genericAjaxPost('formTaskPeek', 'view{$view_id}')"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')}</button>
 	<button type="button" onclick="if(confirm('Are you sure you want to permanently delete this task?')){literal}{{/literal}this.form.do_delete.value='1';genericPanel.hide();genericAjaxPost('formTaskPeek', 'view{$view_id}');{literal}}{/literal}"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete2.gif{/devblocks_url}" align="top"> {$translate->_('common.delete')|capitalize}</button>
 	<button type="button" onclick="genericPanel.hide();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> {$translate->_('common.cancel')|capitalize}</button>

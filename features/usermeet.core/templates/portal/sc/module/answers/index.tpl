@@ -42,12 +42,12 @@
 			{assign var=title value=''}
 			{assign var=description value=''}
 			
-			{if $item instanceof Zend_Feed_Entry_Rss}
+			{if is_a($item,'Zend_Feed_Entry_Rss')}
 				{assign var=link value=$item->link()}
 				{assign var=title value=$item->title()}
 				{assign var=description value=$item->description()}
 				{assign var=date value=$item->pubDate()}
-			{elseif $item instanceof Zend_Feed_Entry_Atom}
+			{elseif is_a($item,'Zend_Feed_Entry_Atom')}
 				{assign var=link value=$item->link('alternate')}
 				{assign var=title value=$item->title()}
 				{assign var=description value=$item->summary()}
@@ -72,9 +72,9 @@
 	
 	{if !empty($matches.feed->link)}
 	<div style="font-size:85%;margin-left:20px;">
-		{if $matches.feed instanceof Zend_Feed_Rss}
+		{if is_a($matches.feed,'Zend_Feed_Rss')}
 			{assign var=feed_link value=$matches.feed->link}
-		{elseif $matches.feed instanceof Zend_Feed_Atom}
+		{elseif is_a($matches.feed,'Zend_Feed_Atom')}
 			{assign var=feed_link value=$matches.feed->link('alternate')}
 		{/if}
 		{assign var=linked_feed_name value="<a href=\""|cat:$feed_link|cat:"\">"|cat:$matches.name|cat:"</a>"}

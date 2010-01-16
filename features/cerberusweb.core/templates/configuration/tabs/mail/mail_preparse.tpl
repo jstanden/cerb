@@ -43,13 +43,13 @@
 						{/foreach}
 						<br>
 				{elseif $crit_key=='timeofday'}
-					{assign var=from_time value=$crit.from|explode:':'}
-					{assign var=to_time value=$crit.to|explode:':'}
+					{$from_time = explode(':',$crit.from)}
+					{$to_time = explode(':',$crit.to)}
 					Time of Day 
 						<i>between</i> 
-						<b>{$from_time.0|string_format:"%d"}:{$from_time.1|string_format:"%02d"}</b> 
+						<b>{$from_time[0]|string_format:"%d"}:{$from_time[1]|string_format:"%02d"}</b> 
 						<i>and</i> 
-						<b>{$to_time.0|string_format:"%d"}:{$to_time.1|string_format:"%02d"}</b> 
+						<b>{$to_time[0]|string_format:"%d"}:{$to_time[1]|string_format:"%02d"}</b> 
 						<br>
 				{elseif $crit_key=='header1'}
 					Header <i>{$crit.header}</i> = <b>{$crit.value}</b><br>

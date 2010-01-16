@@ -1,6 +1,5 @@
-{* [TODO] Custom Field Types *}
-{assign var=col value=$crit_key|explode:'_'}
-{assign var=cf_id value=$col.1}
+{$col = explode('_',$crit_key)}
+{$cf_id = $col[1]}
 
 {if isset($custom_fields.$cf_id)}
 	{assign var=cfield value=$custom_fields.$cf_id}
@@ -11,7 +10,7 @@
 		<i>between</i> <b>{$crit.from}</b> <i>and</i> <b>{$crit.to}</b>
 	{elseif 'W'==$cfield->type}
 		{if empty($workers)}
-			{php}$this->assign('workers', DAO_Worker::getAllActive());{/php}
+			{$workers = DAO_Worker::getAllActive()}
 		{/if}
 		= 
 		{foreach from=$crit.value item=worker_id name=workers}

@@ -66,8 +66,7 @@ tabView.addTab( new YAHOO.widget.Tab({
 {/literal}
 {if ($active_worker->hasPriv('core.tasks.actions.create') && (empty($task) || $active_worker->id==$task->worker_id))
 	|| ($active_worker->hasPriv('core.tasks.actions.update_nobody') && empty($task->worker_id)) 
-	|| $active_worker->hasPriv('core.tasks.actions.update_all')
-}
+	|| $active_worker->hasPriv('core.tasks.actions.update_all')}
 {literal}
 tabView.addTab( new YAHOO.widget.Tab({
     label: '{/literal}{'activity.tasks.tab.properties'|devblocks_translate|escape}{literal}',

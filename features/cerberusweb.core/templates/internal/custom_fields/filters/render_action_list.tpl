@@ -1,5 +1,5 @@
-{assign var=col value=$action_key|explode:'_'}
-{assign var=cf_id value=$col.1}
+{$col = explode('_',$action_key)}
+{$cf_id = $col[1]}
 
 {if isset($custom_fields.$cf_id)}
 	Set 
@@ -15,7 +15,7 @@
 		{if 'W'==$cfield->type}
 			{assign var=worker_id value=$action.value}
 			{if empty($workers)}
-				{php}$this->assign('workers', DAO_Worker::getAllActive());{/php}
+				{$workers = DAO_Worker::getAllActive()}
 			{/if}
 			{if isset($workers.$worker_id)}
 				<b>{$workers.$worker_id->getName()}</b>
