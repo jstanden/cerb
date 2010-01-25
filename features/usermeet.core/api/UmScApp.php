@@ -124,6 +124,16 @@ class UmScApp extends Extension_UsermeetTool {
 				break;
 				
 			case 'captcha':
+				@$color = DevblocksPlatform::parseCsvString(DevblocksPlatform::importGPC($_REQUEST['color'],'string','40,40,40'));
+				@$bgcolor = DevblocksPlatform::parseCsvString(DevblocksPlatform::importGPC($_REQUEST['bgcolor'],'string','240,240,240'));
+				
+				// Sanitize colors
+				// [TODO] Sanitize numeric range for elements 0-2
+				if(3 != count($color))
+					$color = array(40,40,40);
+				if(3 != count($bgcolor))
+					$color = array(240,240,240);
+				
                 header('Cache-control: max-age=0', true); // 1 wk // , must-revalidate
                 header('Expires: ' . gmdate('D, d M Y H:i:s',time()-604800) . ' GMT'); // 1 wk
 				header('Content-type: image/jpeg');
@@ -133,8 +143,8 @@ class UmScApp extends Extension_UsermeetTool {
 		        $umsession->setProperty(UmScApp::SESSION_CAPTCHA, $phrase);
                 
 				$im = @imagecreate(150, 70) or die("Cannot Initialize new GD image stream");
-				$background_color = imagecolorallocate($im, 240, 240, 240);
-				$text_color = imagecolorallocate($im, 40, 40, 40); //233, 14, 91
+				$background_color = imagecolorallocate($im, $bgcolor[0], $bgcolor[1], $bgcolor[2]);
+				$text_color = imagecolorallocate($im, $color[0], $color[1], $color[2]);
 				$font = DEVBLOCKS_PATH . 'resources/font/ryanlerch_-_Tuffy_Bold(2).ttf';
 				imagettftext($im, 24, mt_rand(0,20), 5, 60+6, $text_color, $font, $phrase);
 				imagejpeg($im,null,85);
