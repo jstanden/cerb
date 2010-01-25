@@ -121,17 +121,18 @@ class UmCommunityPage extends CerberusPageExtension {
 			$tool = DAO_CommunityTool::getByCode($code);
 			$tpl->assign('tool', $tool);
 			$tpl->assign('tool_manifests', DevblocksPlatform::getExtensions('usermeet.tool', false));
+
+//			$tab_manifests = DevblocksPlatform::getExtensions('cerberusweb.activity.tab', false);
+//			uasort($tab_manifests, create_function('$a, $b', "return strcasecmp(\$a->name,\$b->name);\n"));
+//			$tpl->assign('tab_manifests', $tab_manifests);
+
+			@$tab_selected = array_shift($stack);
+			if(empty($tab_selected)) $tab_selected = 'settings';
+			$tpl->assign('tab_selected', $tab_selected);
 			
 			$tpl->display('file:' . $this->_TPL_PATH . 'community/display/index.tpl');
 		}
 		
-//		$tab_manifests = DevblocksPlatform::getExtensions('cerberusweb.activity.tab', false);
-//		uasort($tab_manifests, create_function('$a, $b', "return strcasecmp(\$a->name,\$b->name);\n"));
-//		$tpl->assign('tab_manifests', $tab_manifests);
-		
-//		@$tab_selected = array_shift($stack);
-//		if(empty($tab_selected)) $tab_selected = 'tasks';
-//		$tpl->assign('tab_selected', $tab_selected);
 	}
 	
 	function showAddPortalPeekAction() {
@@ -399,6 +400,102 @@ class UmCommunityPage extends CerberusPageExtension {
 		$tpl->assign('template', $template); 
 		
 		$tpl->display('file:' . $this->_TPL_PATH . 'community/display/tabs/templates/peek.tpl');
+	}
+	
+	function showImportTemplatesPeekAction() {
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
+		@$portal = DevblocksPlatform::importGPC($_REQUEST['portal'],'string','');
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('path', $this->_TPL_PATH);
+		$tpl->assign('view_id', $view_id);
+		$tpl->assign('portal', $portal);
+		
+		$tpl->display('file:' . $this->_TPL_PATH . 'community/display/tabs/templates/import.tpl');
+	}
+	
+	function saveImportTemplatesPeekAction() {
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
+		@$portal = DevblocksPlatform::importGPC($_REQUEST['portal'],'string','');
+		@$import_file = $_FILES['import_file'];
+
+		DAO_DevblocksTemplate::importXmlFile($import_file['tmp_name'], 'portal_'.$portal);
+		
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('community',$portal,'templates')));
+	}
+
+	function showExportTemplatesPeekAction() {
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
+		@$portal = DevblocksPlatform::importGPC($_REQUEST['portal'],'string','');
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('path', $this->_TPL_PATH);
+		$tpl->assign('view_id', $view_id);
+		$tpl->assign('portal', $portal);
+		
+		$tpl->display('file:' . $this->_TPL_PATH . 'community/display/tabs/templates/export.tpl');
+	}
+	
+	function saveExportTemplatesPeekAction() {
+		if(null == ($active_worker = CerberusApplication::getActiveWorker()) || !$active_worker->is_superuser)
+			exit;
+		
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
+		@$portal = DevblocksPlatform::importGPC($_REQUEST['portal'],'string','');
+		@$filename = DevblocksPlatform::importGPC($_REQUEST['filename'],'string','');
+		@$author = DevblocksPlatform::importGPC($_REQUEST['author'],'string','');
+		@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string','');
+		
+		// Build XML file
+		$xml = simplexml_load_string(
+			'<?xml version="1.0" encoding="' . LANG_CHARSET_CODE . '"?>'.
+			'<cerb5>'.
+			'<templates>'.
+			'</templates>'.
+			'</cerb5>'
+		); /* @var $xml SimpleXMLElement */
+		
+		// Author
+		$eAuthor =& $xml->templates->addChild('author'); /* @var $eAuthor SimpleXMLElement */
+		$eAuthor->addChild('name', htmlspecialchars($author));
+		$eAuthor->addChild('email', htmlspecialchars($email));
+		
+		// Load view
+		if(null == ($view = C4_AbstractViewLoader::getView($view_id)))
+			exit;
+		
+		// Load all data
+		$view->renderLimit = -1;
+		$view->renderPage = 0;
+		list($results, $null) = $view->getData();
+		
+		// Add template
+		if(is_array($results))
+		foreach($results as $result) {
+			// Load content
+			if(null == ($template = DAO_DevblocksTemplate::get($result[SearchFields_DevblocksTemplate::ID])))
+				continue;
+
+			$eTemplate =& $xml->templates->addChild('template', htmlspecialchars($template->content)); /* @var $eTemplate SimpleXMLElement */
+			$eTemplate->addAttribute('plugin_id', htmlspecialchars($template->plugin_id));
+			$eTemplate->addAttribute('path', htmlspecialchars($template->path));
+		}
+		
+		// Format download file
+		$imp = new DOMImplementation;
+		$doc = $imp->createDocument("", "");
+		$doc->encoding = LANG_CHARSET_CODE;
+		$doc->formatOutput = true;
+		
+		$simplexml = dom_import_simplexml($xml); /* @var $dom DOMElement */
+		$simplexml = $doc->importNode($simplexml, true);
+		$simplexml = $doc->appendChild($simplexml);
+
+		header("Content-type: text/xml");
+		header("Content-Disposition: attachment; filename=\"$filename\"");
+		
+		echo $doc->saveXML();
+		exit;
 	}
 	
 	function showTabInstallationAction() {
