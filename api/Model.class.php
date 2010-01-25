@@ -1538,6 +1538,12 @@ class View_DevblocksTemplate extends C4_AbstractView {
 			
 			unset($batch_ids);
 		}
+		
+		if($deleted) {
+			// Clear template cache
+			$tpl = DevblocksPlatform::getTemplateService();
+			$tpl->clear_compiled_tpl();
+		}
 
 		unset($ids);
 	}
