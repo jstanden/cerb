@@ -25,7 +25,6 @@ class ChPreferencesPage extends CerberusPageExtension {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl_path = $this->_TPL_PATH;
 		$tpl->assign('path', $tpl_path);
-		$tpl->cache_lifetime = "0";
 
 		$response = DevblocksPlatform::getHttpResponse();
 		$path = $response->path;
@@ -126,7 +125,6 @@ class ChPreferencesPage extends CerberusPageExtension {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl_path = $this->_TPL_PATH;
 		$tpl->assign('path', $tpl_path);
-		$tpl->cache_lifetime = "0";
 		
 		$worker = CerberusApplication::getActiveWorker();
 		$tpl->assign('worker', $worker);
@@ -164,7 +162,6 @@ class ChPreferencesPage extends CerberusPageExtension {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl_path = $this->_TPL_PATH;
 		$tpl->assign('path', $tpl_path);
-		$tpl->cache_lifetime = "0";
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		

@@ -90,7 +90,6 @@ class ChFnrResearchTab extends Extension_ResearchTab {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
 		$tpl->assign('path', $tpl_path);
 
@@ -136,7 +135,6 @@ class ChFnrConfigTab extends Extension_ConfigTab {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
 		$tpl->assign('path', $tpl_path);
-		$tpl->cache_lifetime = "0";
 
 		@$topics = DAO_FnrTopic::getWhere();
 		$tpl->assign('fnr_topics', $topics);
@@ -153,7 +151,6 @@ class ChFnrConfigTab extends Extension_ConfigTab {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
 		$tpl->assign('path', $tpl_path);
-		$tpl->cache_lifetime = "0";
 		
 		if(!empty($id) && null != ($fnr_resource = DAO_FnrExternalResource::get($id)))
 			$tpl->assign('fnr_resource', $fnr_resource);
@@ -170,7 +167,6 @@ class ChFnrConfigTab extends Extension_ConfigTab {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
 		$tpl->assign('path', $tpl_path);
-		$tpl->cache_lifetime = "0";
 		
 		if(!empty($id) && null != ($fnr_topic = DAO_FnrTopic::get($id)))
 			$tpl->assign('fnr_topic', $fnr_topic);

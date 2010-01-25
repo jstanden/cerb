@@ -55,7 +55,6 @@ class ChSimulatorConfigTab extends Extension_ConfigTab {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl_path = dirname(__FILE__) . '/templates/';
 		$tpl->assign('path', $tpl_path);
-		$tpl->cache_lifetime = "0";
 		
 		$flavors = array(
 			'hosting' => 'Web Hosting',
@@ -76,7 +75,6 @@ class ChSimulatorConfigTab extends Extension_ConfigTab {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl_path = dirname(__FILE__) . '/templates/';
 		$tpl->assign('path', $tpl_path);
-		$tpl->cache_lifetime = "0";
 		
 		@$address = DevblocksPlatform::importGPC($_POST['address'],'string'); 
 		@$dataset = DevblocksPlatform::importGPC($_POST['dataset'],'string');

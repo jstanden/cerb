@@ -643,7 +643,6 @@ class ChTicketsPage extends CerberusPageExtension {
 		}
 		
 		$tpl->assign('last_action', $last_action);
-		$tpl->cache_lifetime = "0";
 		$tpl->display($path.'tickets/rpc/ticket_view_output.tpl');
 	} 
 	
@@ -863,7 +862,6 @@ class ChTicketsPage extends CerberusPageExtension {
 			$tpl->assign('custom_field_values', $custom_field_values[$ticket->id]);
 		
 		// Display
-		$tpl->cache_lifetime = "0";
 		$tpl->display('file:' . $this->_TPL_PATH . 'tickets/rpc/preview_panel.tpl');
 	}
 	
@@ -1793,7 +1791,6 @@ class ChTicketsPage extends CerberusPageExtension {
 		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Ticket::ID);
 		$tpl->assign('custom_fields', $custom_fields);
 		
-		$tpl->cache_lifetime = "0";
 		$tpl->display('file:' . $this->_TPL_PATH . 'tickets/rpc/batch_panel.tpl');
 	}
 	
@@ -1894,7 +1891,6 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl->assign('view', $view);
 		$tpl->assign('source', $source);
 		
-		$tpl->cache_lifetime = "0";
 		$tpl->display('file:' . $this->_TPL_PATH . 'internal/views/view_rss_builder.tpl');
 	}
 	

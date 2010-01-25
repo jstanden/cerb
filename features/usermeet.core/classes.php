@@ -107,7 +107,6 @@ class UmCommunityPage extends CerberusPageExtension {
 
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->_TPL_PATH);
 		
 		$response = DevblocksPlatform::getHttpResponse();
@@ -137,7 +136,6 @@ class UmCommunityPage extends CerberusPageExtension {
 	
 	function showAddPortalPeekAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->_TPL_PATH);
 		
 		$tool_manifests = DevblocksPlatform::getExtensions('usermeet.tool', false);
@@ -168,7 +166,6 @@ class UmCommunityPage extends CerberusPageExtension {
 		@$tool_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->_TPL_PATH);
 
 		if(null != ($instance = DAO_CommunityTool::get($tool_id))) {
@@ -215,7 +212,6 @@ class UmCommunityPage extends CerberusPageExtension {
 		@$tool_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->_TPL_PATH);
 
 		if(null != ($tool = DAO_CommunityTool::get($tool_id)))
@@ -243,7 +239,6 @@ class UmCommunityPage extends CerberusPageExtension {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->_TPL_PATH);
 		$tpl->assign('view_id', $view_id);
 		
@@ -271,7 +266,6 @@ class UmCommunityPage extends CerberusPageExtension {
 //		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_FeedbackEntry::ID);
 //		$tpl->assign('custom_fields', $custom_fields);
 		
-		$tpl->cache_lifetime = "0";
 		$tpl->display('file:' . $path . 'community/display/tabs/templates/bulk.tpl');
 	}
 	
@@ -330,7 +324,6 @@ class UmCommunityPage extends CerberusPageExtension {
 		@$portal = DevblocksPlatform::importGPC($_REQUEST['portal'],'string','');
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->_TPL_PATH);
 		$tpl->assign('view_id', $view_id);
 		$tpl->assign('portal', $portal);
@@ -502,7 +495,6 @@ class UmCommunityPage extends CerberusPageExtension {
 		@$tool_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->_TPL_PATH);
 
 		if(null != ($tool = DAO_CommunityTool::get($tool_id)))
@@ -532,16 +524,6 @@ class UmCommunityPage extends CerberusPageExtension {
 		$tpl->display('file:' . $this->_TPL_PATH . 'community/display/tabs/installation/index.tpl');
 	}
 	
-	// Ajax
-//	function showTabAction() {
-//		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
-//		
-//		if(null != ($tab_mft = DevblocksPlatform::getExtension($ext_id)) 
-//			&& null != ($inst = $tab_mft->createInstance()) 
-//			&& $inst instanceof Extension_ActivityTab) {
-//			$inst->showTab();
-//		}
-//	}	
 };
 
 class UmPortalController extends DevblocksControllerExtension {
@@ -609,7 +591,6 @@ class UmConfigCommunitiesTab extends Extension_ConfigTab {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl_path = dirname(__FILE__) . '/templates/';
 		$tpl->assign('path', $tpl_path);
-		$tpl->cache_lifetime = "0";
 
 	    // View
 		$tpl->assign('response_uri', 'config/communities');

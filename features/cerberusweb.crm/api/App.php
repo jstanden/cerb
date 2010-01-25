@@ -24,7 +24,6 @@ class CrmOppsActivityTab extends Extension_ActivityTab {
 	
 	function showTab() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('core_tpl', APP_PATH . '/features/cerberusweb.core/templates/');
 		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
 		$tpl->assign('path', $tpl_path);
@@ -121,7 +120,6 @@ class CrmPage extends CerberusPageExtension {
 	
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl_path = $this->plugin_path . '/templates/';
 		$tpl->assign('path', $tpl_path);
 
@@ -769,7 +767,6 @@ class CrmPage extends CerberusPageExtension {
 		$custom_fields = DAO_CustomField::getBySource(CrmCustomFieldSource_Opportunity::ID);
 		$tpl->assign('custom_fields', $custom_fields);
 		
-		$tpl->cache_lifetime = "0";
 		$tpl->display('file:' . dirname(dirname(__FILE__)) . '/templates/crm/opps/bulk.tpl');
 	}
 	
@@ -1472,7 +1469,6 @@ class C4_CrmOpportunityView extends C4_AbstractView {
 		$custom_fields = DAO_CustomField::getBySource(CrmCustomFieldSource_Opportunity::ID);
 		$tpl->assign('custom_fields', $custom_fields);
 		
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('view_fields', $this->getColumns());
 		$tpl->display('file:' . APP_PATH . '/features/cerberusweb.crm/templates/crm/opps/view.tpl');
 	}
@@ -1757,7 +1753,6 @@ class CrmOrgOppTab extends Extension_OrgTab {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl_path = dirname(dirname(__FILE__)).'/templates/';
 		$tpl->assign('path', $tpl_path);
-		$tpl->cache_lifetime = "0";
 
 		$org = DAO_ContactOrg::get($org_id);
 		$tpl->assign('org_id', $org_id);
@@ -1798,7 +1793,6 @@ class CrmTicketOppTab extends Extension_TicketTab {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl_path = dirname(dirname(__FILE__)).'/templates/';
 		$tpl->assign('path', $tpl_path);
-		$tpl->cache_lifetime = "0";
 
 		$ticket = DAO_Ticket::getTicket($ticket_id);
 		$tpl->assign('ticket_id', $ticket_id);

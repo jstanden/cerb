@@ -252,7 +252,6 @@ class C4_MobileTicketView extends C4_TicketView {
 			$tpl->assign('last_action_count', count($last_action->ticket_ids));
 		}
 
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('view_fields', $this->getColumns());
 		
 		$tpl->display('file:' . $view_path . 'ticket_view.tpl');
@@ -372,7 +371,6 @@ class ChMobileLoginPage  extends CerberusMobilePageExtension  {
 	function render() {
 		// draws HTML form of controls needed for login information
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		
 		// add translations for calls from classes that aren't Page Extensions (mobile plugin, specifically)
 		$translate = DevblocksPlatform::getTranslationService();

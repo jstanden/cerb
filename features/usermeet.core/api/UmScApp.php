@@ -85,7 +85,6 @@ class UmScApp extends Extension_UsermeetTool {
 		$stack = $response->path;
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
 		$tpl->assign('portal_code', UmPortalHelper::getCode());
 		
@@ -355,7 +354,6 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 	 */
 	function renderLoginForm() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
 		$tpl->assign('tpl_path', $tpl_path);
 

@@ -6,7 +6,6 @@ class ChSpamAnalysisTicketTab extends Extension_TicketTab {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl_path = dirname(dirname(__FILE__)).'/templates/';
 		$tpl->assign('path', $tpl_path);
-		$tpl->cache_lifetime = "0";
 
 		$ticket = DAO_Ticket::getTicket($ticket_id);
 		$tpl->assign('ticket_id', $ticket_id);

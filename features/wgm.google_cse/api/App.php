@@ -10,7 +10,6 @@ class WgmGoogleCSEResearchTab extends Extension_ResearchTab {
 		$translate = DevblocksPlatform::getTranslationService();
 
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
 		$tpl->assign('path', $tpl_path);
 		
@@ -29,7 +28,6 @@ if (class_exists('Extension_ReplyToolbarItem',true)):
 			$tpl = DevblocksPlatform::getTemplateService();
 			$tpl_path = dirname(dirname(__FILE__)).'/templates/';
 			$tpl->assign('path', $tpl_path);
-			$tpl->cache_lifetime = "0";
 			
 			$tpl->assign('message', $message); /* @var $message CerberusMessage */
 			
@@ -51,7 +49,6 @@ class WgmGoogleCSEConfigTab extends Extension_ConfigTab {
 	function showTab() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', $this->_TPL_PATH);
-		$tpl->cache_lifetime = "0";
 
 		$engines = DAO_WgmGoogleCse::getWhere();
 		$tpl->assign('engines', $engines);
@@ -154,7 +151,6 @@ class WgmGoogleCSEAjaxController extends DevblocksControllerExtension {
 	
 	function showReplyPanelAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->_TPL_PATH);
 
 		// Google Search Engines
@@ -168,7 +164,6 @@ class WgmGoogleCSEAjaxController extends DevblocksControllerExtension {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->_TPL_PATH);
 		
 		if(!empty($id)) {

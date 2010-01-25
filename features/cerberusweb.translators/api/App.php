@@ -9,7 +9,6 @@ class ChTranslatorsConfigTab extends Extension_ConfigTab {
 		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
 		$core_tplpath = dirname(dirname(dirname(__FILE__))) . '/cerberusweb.core/templates/';
 		$tpl->assign('core_tplpath', $core_tplpath);
-		$tpl->cache_lifetime = "0";
 
 		$tpl->assign('response_uri', 'config/translations');
 		
@@ -79,7 +78,6 @@ class C4_TranslationView extends C4_AbstractView {
 		$english_map = DAO_Translation::getMapByLang('en_US');
 		$tpl->assign('english_map', $english_map);
 		
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('view_fields', $this->getColumns());
 		$tpl->display('file:' . APP_PATH . '/features/cerberusweb.translators/templates/config/translations/view.tpl');
 	}
@@ -249,7 +247,6 @@ class ChTranslatorsAjaxController extends DevblocksControllerExtension {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl_path = dirname(dirname(__FILE__)).'/templates/';
 		$tpl->assign('path', $tpl_path);
-		$tpl->cache_lifetime = "0";
 
 		$codes = DAO_Translation::getDefinedLangCodes();
 		$tpl->assign('codes', $codes);
@@ -320,7 +317,6 @@ class ChTranslatorsAjaxController extends DevblocksControllerExtension {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl_path = dirname(dirname(__FILE__)).'/templates/';
 		$tpl->assign('path', $tpl_path);
-		$tpl->cache_lifetime = "0";
 
 		// Language Names
 		$translate = DevblocksPlatform::getTranslationService();
@@ -432,7 +428,6 @@ class ChTranslatorsAjaxController extends DevblocksControllerExtension {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl_path = dirname(dirname(__FILE__)).'/templates/';
 		$tpl->assign('path', $tpl_path);
-		$tpl->cache_lifetime = "0";
 
 		$tpl->display('file:' . $tpl_path . 'translators/ajax/import_strings_panel.tpl');
 	}

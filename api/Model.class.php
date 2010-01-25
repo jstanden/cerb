@@ -1360,7 +1360,6 @@ class View_DevblocksTemplate extends C4_AbstractView {
 //		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Worker::ID);
 //		$tpl->assign('custom_fields', $custom_fields);
 
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('view_fields', $this->getColumns());
 		$tpl->display('file:' . APP_PATH . '/features/usermeet.core/templates/community/display/tabs/templates/view.tpl');
 	}
@@ -1616,7 +1615,6 @@ class C4_TicketView extends C4_AbstractView {
 
 		$tpl->assign('timestamp_now', time());
 		
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('view_fields', $this->getColumns());
 		$tpl->display('file:' . $view_path . 'ticket_view.tpl');
 	}
@@ -2123,7 +2121,6 @@ class C4_AddressView extends C4_AbstractView {
 		$address_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Address::ID);
 		$tpl->assign('custom_fields', $address_fields);
 		
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('view_fields', $this->getColumns());
 		$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/contacts/addresses/address_view.tpl');
 	}
@@ -2345,7 +2342,6 @@ class C4_AttachmentView extends C4_AbstractView {
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('view_fields', $this->getColumns());
 		$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/configuration/tabs/attachments/view.tpl');
 	}
@@ -2563,7 +2559,6 @@ class C4_ContactOrgView extends C4_AbstractView {
 		$org_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Org::ID);
 		$tpl->assign('custom_fields', $org_fields);
 		
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('view_fields', $this->getColumns());
 		$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/contacts/orgs/contact_view.tpl');
 	}
@@ -2797,7 +2792,6 @@ class C4_TaskView extends C4_AbstractView {
 		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Task::ID);
 		$tpl->assign('custom_fields', $custom_fields);
 		
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('view_fields', $this->getColumns());
 		$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/tasks/view.tpl');
 	}
@@ -3083,7 +3077,6 @@ class C4_WorkerView extends C4_AbstractView {
 		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Worker::ID);
 		$tpl->assign('custom_fields', $custom_fields);
 
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('view_fields', $this->getColumns());
 		$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/configuration/tabs/workers/view.tpl');
 	}
@@ -3314,7 +3307,6 @@ class C4_WorkerEventView extends C4_AbstractView {
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 		
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('view_fields', $this->getColumns());
 		$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/home/tabs/my_events/view.tpl');
 	}

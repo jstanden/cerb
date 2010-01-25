@@ -9,7 +9,6 @@ class ChWatchersConfigTab extends Extension_ConfigTab {
 		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
 		$core_tplpath = dirname(dirname(dirname(__FILE__))) . '/cerberusweb.core/templates/';
 		$tpl->assign('core_tplpath', $core_tplpath);
-		$tpl->cache_lifetime = "0";
 
 		$tpl->assign('response_uri', 'config/watchers');
 		
@@ -548,7 +547,6 @@ class ChWatchersPreferences extends Extension_PreferenceTab {
 	function showTab() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', $this->_TPL_PATH);
-		$tpl->cache_lifetime = "0";
 		
 		$worker = CerberusApplication::getActiveWorker();
 		
@@ -600,7 +598,6 @@ class ChWatchersPreferences extends Extension_PreferenceTab {
 //		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_TimeEntry::ID);
 //		$tpl->assign('custom_fields', $custom_fields);
 		
-		$tpl->cache_lifetime = "0";
 		$tpl->display('file:' . $path . 'preferences/bulk.tpl');
 	}
 	
@@ -640,7 +637,6 @@ class ChWatchersPreferences extends Extension_PreferenceTab {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->_TPL_PATH);
 
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -903,7 +899,6 @@ class ChWatchersPreferences extends Extension_PreferenceTab {
    		@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'integer',0);
 	
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->_TPL_PATH);
 
 		$addresses = DAO_AddressToWorker::getByWorker($worker_id);
@@ -957,7 +952,6 @@ class C4_WatcherView extends C4_AbstractView {
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 		
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('view_fields', $this->getColumns());
 		$tpl->display('file:' . APP_PATH . '/features/cerberusweb.watchers/templates/config/watchers/view.tpl');
 	}

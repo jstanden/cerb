@@ -52,7 +52,6 @@ class DefaultLoginModule extends Extension_LoginAuthenticator {
 	function renderLoginForm() {
 		// draws HTML form of controls needed for login information
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		
 		// add translations for calls from classes that aren't Page Extensions (mobile plugin, specifically)
 		$translate = DevblocksPlatform::getTranslationService();

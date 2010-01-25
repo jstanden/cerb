@@ -288,7 +288,6 @@ class UmSc_TicketHistoryView extends C4_AbstractView {
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('view_fields', $this->getColumns());
 		
 		$tpl->display("devblocks:usermeet.core:support_center/history/view.tpl:portal_".UmPortalHelper::getCode());

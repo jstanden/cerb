@@ -136,7 +136,6 @@ class C4_CommunityPortalView extends C4_AbstractView {
 		$custom_fields = DAO_CustomField::getBySource(CustomFieldSource_CommunityPortal::ID);
 		$tpl->assign('custom_fields', $custom_fields);
 		
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('view_fields', $this->getColumns());
 		$tpl->display('file:' . APP_PATH . '/features/usermeet.core/templates/community/config/tab/view.tpl');
 	}

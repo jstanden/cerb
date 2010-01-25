@@ -13,7 +13,6 @@ class ChKbResearchTab extends Extension_ResearchTab {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
 		$tpl->assign('path', $tpl_path);
 
@@ -104,7 +103,6 @@ if (class_exists('Extension_ReplyToolbarItem',true)):
 			$tpl = DevblocksPlatform::getTemplateService();
 			$tpl_path = dirname(dirname(__FILE__)).'/templates/';
 			$tpl->assign('path', $tpl_path);
-			$tpl->cache_lifetime = "0";
 			
 			$tpl->assign('div', 'replyToolbarOptions'.$message->id);
 			
@@ -119,7 +117,6 @@ if (class_exists('Extension_LogMailToolbarItem',true)):
 			$tpl = DevblocksPlatform::getTemplateService();
 			$tpl_path = dirname(dirname(__FILE__)).'/templates/';
 			$tpl->assign('path', $tpl_path);
-			$tpl->cache_lifetime = "0";
 
 			$tpl->assign('div', 'logTicketToolbarOptions');
 			
@@ -134,7 +131,6 @@ if (class_exists('Extension_SendMailToolbarItem',true)):
 			$tpl = DevblocksPlatform::getTemplateService();
 			$tpl_path = dirname(dirname(__FILE__)).'/templates/';
 			$tpl->assign('path', $tpl_path);
-			$tpl->cache_lifetime = "0";
 
 			$tpl->assign('div', 'sendMailToolbarOptions');
 			
@@ -195,7 +191,6 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer');
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->_TPL_PATH);
 
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
@@ -217,7 +212,6 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->_TPL_PATH);
 
 		if(!empty($id)) {
@@ -277,7 +271,6 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 		@$root_id = DevblocksPlatform::importGPC($_REQUEST['root_id']);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->_TPL_PATH);
 
 		$tpl->assign('root_id', $root_id);
@@ -406,7 +399,6 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 		@$return = DevblocksPlatform::importGPC($_REQUEST['return']);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->_TPL_PATH);
 		
 		$tpl->assign('root_id', $root_id);
@@ -475,7 +467,6 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 	// For Display->Reply toolbar button
 	function showKbSearchAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->_TPL_PATH);
 
 		@$div = DevblocksPlatform::importGPC($_REQUEST['div'],'string','');
@@ -490,7 +481,6 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 	// For Display->Reply toolbar button
 	function doKbSearchAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->_TPL_PATH);
 
 		@$q = DevblocksPlatform::importGPC($_REQUEST['q'],'string','');
@@ -555,7 +545,6 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 //		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_FeedbackEntry::ID);
 //		$tpl->assign('custom_fields', $custom_fields);
 		
-		$tpl->cache_lifetime = "0";
 		$tpl->display('file:' . $path . 'ajax/articles_bulk_panel.tpl');
 	}
 	
@@ -1109,7 +1098,6 @@ class C4_KbArticleView extends C4_AbstractView {
 		$categories = DAO_KbCategory::getWhere();
 		$tpl->assign('categories', $categories);
 
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('view_fields', $this->getColumns());
 		$tpl->display('file:' . $this->_TPL_PATH . 'view.tpl');
 	}

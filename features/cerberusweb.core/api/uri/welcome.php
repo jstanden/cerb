@@ -20,7 +20,6 @@ class ChWelcomePage extends CerberusPageExtension {
 	
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->_TPL_PATH);
 		
 		$response = DevblocksPlatform::getHttpResponse();

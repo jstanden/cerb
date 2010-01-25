@@ -14,7 +14,6 @@ class ChForumsConfigTab extends Extension_ConfigTab {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
 		$tpl->assign('path', $tpl_path);
-		$tpl->cache_lifetime = "0";
 
 		@$sources = DAO_ForumsSource::getWhere();
 		$tpl->assign('sources', $sources);
@@ -101,7 +100,6 @@ class ChForumsCron extends CerberusCronPageExtension {
 
 	function configure($instance) {
 //		$tpl = DevblocksPlatform::getTemplateService();
-//		$tpl->cache_lifetime = "0";
 //		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
 //		$tpl->assign('path', $tpl_path);
 //
@@ -120,7 +118,6 @@ class ChForumsActivityTab extends Extension_ActivityTab {
 	
 	function showTab() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
 		$tpl->assign('path', $tpl_path);
 		
@@ -213,7 +210,6 @@ class ChForumsController extends DevblocksControllerExtension {
 				}
 				
 				$tpl = DevblocksPlatform::getTemplateService();
-				$tpl->cache_lifetime = "0";
 				$tpl->assign('path', $this->tpl_path);
 				
 				$view_start = $forums_view->renderLimit * $forums_view->renderPage;
@@ -269,7 +265,6 @@ class ChForumsController extends DevblocksControllerExtension {
 			}
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->tpl_path);
 
 		$translate = DevblocksPlatform::getTranslationService();
@@ -942,7 +937,6 @@ class C4_ForumsThreadView extends C4_AbstractView {
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('view_fields', $this->getColumns());
 		$tpl->display('file:' . APP_PATH . '/features/cerberusweb.forums/templates/forums/forums_view.tpl');
 	}

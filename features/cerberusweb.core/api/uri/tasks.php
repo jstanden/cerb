@@ -12,7 +12,6 @@ class ChTasksActivityTab extends Extension_ActivityTab {
 	
 	function showTab() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl_path = $this->_TPL_PATH;
 		$tpl->assign('path', $tpl_path);
 		
@@ -98,7 +97,6 @@ class ChTasksPage extends CerberusPageExtension {
 	
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->_TPL_PATH);
 
 		$visit = CerberusApplication::getVisit();
@@ -190,7 +188,6 @@ class ChTasksPage extends CerberusPageExtension {
 		@$link_object_id = DevblocksPlatform::importGPC($_REQUEST['link_object_id'],'integer',0); // opt
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$path = $this->_TPL_PATH;
 		$tpl->assign('path', $path);
 		
@@ -380,7 +377,6 @@ class ChTasksPage extends CerberusPageExtension {
 		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Task::ID);
 		$tpl->assign('custom_fields', $custom_fields);
 		
-		$tpl->cache_lifetime = "0";
 		$tpl->display('file:' . $this->_TPL_PATH . 'tasks/rpc/bulk.tpl');
 	}
 	

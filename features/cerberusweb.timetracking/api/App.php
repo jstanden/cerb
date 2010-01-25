@@ -58,7 +58,6 @@ if (class_exists('Extension_AppPreBodyRenderer',true)):
 			$tpl = DevblocksPlatform::getTemplateService();
 			$tpl_path = dirname(dirname(__FILE__)).'/templates/';
 			$tpl->assign('path', $tpl_path);
-			$tpl->cache_lifetime = "0";
 			
 			$tpl->assign('current_timestamp', time());
 			
@@ -73,7 +72,6 @@ if (class_exists('Extension_TicketToolbarItem',true)):
 			$tpl = DevblocksPlatform::getTemplateService();
 			$tpl_path = dirname(dirname(__FILE__)).'/templates/';
 			$tpl->assign('path', $tpl_path);
-			$tpl->cache_lifetime = "0";
 			
 			$tpl->assign('ticket', $ticket); /* @var $ticket CerberusTicket */
 			
@@ -93,7 +91,6 @@ if (class_exists('Extension_ReplyToolbarItem',true)):
 			$tpl = DevblocksPlatform::getTemplateService();
 			$tpl_path = dirname(dirname(__FILE__)).'/templates/';
 			$tpl->assign('path', $tpl_path);
-			$tpl->cache_lifetime = "0";
 			
 			$tpl->assign('message', $message); /* @var $message CerberusMessage */
 			
@@ -113,7 +110,6 @@ if (class_exists('Extension_LogMailToolbarItem',true)):
 			$tpl = DevblocksPlatform::getTemplateService();
 			$tpl_path = dirname(dirname(__FILE__)).'/templates/';
 			$tpl->assign('path', $tpl_path);
-			$tpl->cache_lifetime = "0";
 			
 			$tpl->display('file:' . $tpl_path . 'timetracking/renderers/logmail_toolbar_timer.tpl');
 		}
@@ -126,7 +122,6 @@ if (class_exists('Extension_SendMailToolbarItem',true)):
 			$tpl = DevblocksPlatform::getTemplateService();
 			$tpl_path = dirname(dirname(__FILE__)).'/templates/';
 			$tpl->assign('path', $tpl_path);
-			$tpl->cache_lifetime = "0";
 			
 			$tpl->display('file:' . $tpl_path . 'timetracking/renderers/sendmail_toolbar_timer.tpl');
 		}
@@ -470,7 +465,6 @@ class C4_TimeTrackingEntryView extends C4_AbstractView {
 		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_TimeEntry::ID);
 		$tpl->assign('custom_fields', $custom_fields);
 		
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('view_fields', $this->getColumns());
 		$tpl->display('file:' . APP_PATH . '/features/cerberusweb.timetracking/templates/timetracking/time/view.tpl');
 	}
@@ -1007,7 +1001,6 @@ class ChTimeTrackingAjaxController extends DevblocksControllerExtension {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl_path = dirname(dirname(__FILE__)).'/templates/';
 		$tpl->assign('path', $tpl_path);
-		$tpl->cache_lifetime = "0";
 
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		
@@ -1207,7 +1200,6 @@ class ChTimeTrackingAjaxController extends DevblocksControllerExtension {
 		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_TimeEntry::ID);
 		$tpl->assign('custom_fields', $custom_fields);
 		
-		$tpl->cache_lifetime = "0";
 		$tpl->display('file:' . $path . 'timetracking/time/bulk.tpl');
 	}
 	
@@ -1253,7 +1245,6 @@ class TimeTrackingActivityTab extends Extension_ActivityTab {
 	
 	function showTab() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
 		$tpl->assign('path', $tpl_path);
 		
@@ -1286,7 +1277,6 @@ class ChTimeTrackingConfigActivityTab extends Extension_ConfigTab {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
 		$tpl->assign('path', $tpl_path);
-		$tpl->cache_lifetime = "0";
 
 		$billable_activities = DAO_TimeTrackingActivity::getWhere(sprintf("%s!=0",DAO_TimeTrackingActivity::RATE));
 		$tpl->assign('billable_activities', $billable_activities);
@@ -1342,7 +1332,6 @@ class ChTimeTrackingConfigActivityTab extends Extension_ConfigTab {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
 		$tpl->assign('path', $tpl_path);
-		$tpl->cache_lifetime = "0";
 		
 		if(!empty($id) && null != ($activity = DAO_TimeTrackingActivity::get($id)))
 			$tpl->assign('activity', $activity);
@@ -1371,7 +1360,6 @@ class ChReportTimeSpentWorker extends Extension_Report {
 	
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->tpl_path);
 		
 		$tpl->assign('start', '-30 days');
@@ -1391,7 +1379,6 @@ class ChReportTimeSpentWorker extends Extension_Report {
 		@$sel_worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'integer',0);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->tpl_path);
 
 		// import dates from form
@@ -1546,7 +1533,6 @@ class ChReportTimeSpentOrg extends Extension_Report {
 	
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->tpl_path);
 		
 		$tpl->assign('start', '-30 days');
@@ -1561,7 +1547,6 @@ class ChReportTimeSpentOrg extends Extension_Report {
 		$db = DevblocksPlatform::getDatabaseService();
 
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->tpl_path);
 
 		// import dates from form
@@ -1718,7 +1703,6 @@ class ChReportTimeSpentActivity extends Extension_Report {
 	
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->tpl_path);
 		
 		$tpl->assign('start', '-30 days');
@@ -1733,7 +1717,6 @@ class ChReportTimeSpentActivity extends Extension_Report {
 		$db = DevblocksPlatform::getDatabaseService();
 
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->tpl_path);
 
 		// import dates from form

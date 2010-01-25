@@ -63,7 +63,6 @@ class ChReportCustomFieldUsage extends Extension_Report {
 	
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->tpl_path);
 		
 		// Custom Field sources (tickets, orgs, etc.)
@@ -117,7 +116,6 @@ class ChReportCustomFieldUsage extends Extension_Report {
 		@$field_id = DevblocksPlatform::importGPC($_REQUEST['field_id'],'integer',0);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->tpl_path);
 
 		// Custom Field sources (tickets, orgs, etc.)
@@ -162,7 +160,6 @@ class ChReportGroupRoster extends Extension_Report {
 	
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->tpl_path);
 		
 		$rosters = DAO_Group::getRosters();
@@ -188,7 +185,6 @@ class ChReportNewTickets extends Extension_Report {
 	
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->tpl_path);
 		
 		$tpl->assign('start', '-30 days');
@@ -217,7 +213,6 @@ class ChReportNewTickets extends Extension_Report {
 		$db = DevblocksPlatform::getDatabaseService();
 
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->tpl_path);
 
 		// import dates from form
@@ -354,7 +349,6 @@ class ChReportWorkerReplies extends Extension_Report {
 	
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->tpl_path);
 		
 		$tpl->assign('start', '-30 days');
@@ -383,7 +377,6 @@ class ChReportWorkerReplies extends Extension_Report {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->tpl_path);
 		
 		// import dates from form
@@ -525,7 +518,6 @@ class ChReportOrgSharedEmailDomains extends Extension_Report {
 	
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->tpl_path);
 		
 		$db = DevblocksPlatform::getDatabaseService();
@@ -564,7 +556,6 @@ class ChReportSpamWords extends Extension_Report {
 	
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->tpl_path);
 		
 		$db = DevblocksPlatform::getDatabaseService();
@@ -613,7 +604,6 @@ class ChReportSpamAddys extends Extension_Report {
 	
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->tpl_path);
 		
 		$db = DevblocksPlatform::getDatabaseService();
@@ -653,7 +643,6 @@ class ChReportSpamDomains extends Extension_Report {
 	
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->tpl_path);
 		
 		$db = DevblocksPlatform::getDatabaseService();
@@ -693,7 +682,6 @@ class ChReportAverageResponseTime extends Extension_Report {
 	
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->tpl_path);
 		
 		$tpl->display('file:' . $this->tpl_path . '/reports/worker/average_response_time/index.tpl');
@@ -703,7 +691,6 @@ class ChReportAverageResponseTime extends Extension_Report {
 		// init
 		$db = DevblocksPlatform::getDatabaseService();
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->tpl_path);
 
 		// import dates from form
@@ -811,7 +798,6 @@ class ChReportGroupReplies extends Extension_Report {
 	
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->tpl_path);
 		
 		$tpl->assign('start', '-30 days');
@@ -840,7 +826,6 @@ class ChReportGroupReplies extends Extension_Report {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->tpl_path);
 		
 		// import dates from form
@@ -987,7 +972,6 @@ class ChReportOpenTickets extends Extension_Report {
 	
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->tpl_path);
 		
 		$tpl->assign('start', '-5 years');
@@ -1035,7 +1019,6 @@ class ChReportOpenTickets extends Extension_Report {
 		$db = DevblocksPlatform::getDatabaseService();
 
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->tpl_path);
 
 	   	// Top Buckets
@@ -1142,7 +1125,6 @@ class ChReportOldestOpenTickets extends Extension_Report {
 	
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->tpl_path);
 		
 		$tpl->assign('start', '-5 years');
@@ -1190,7 +1172,6 @@ class ChReportOldestOpenTickets extends Extension_Report {
 		$db = DevblocksPlatform::getDatabaseService();
 
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->tpl_path);
 
 	   	// Top Buckets
@@ -1257,7 +1238,6 @@ class ChReportWaitingTickets extends Extension_Report {
 	
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->tpl_path);
 		
 		$tpl->assign('start', '-30 days');
@@ -1287,7 +1267,6 @@ class ChReportWaitingTickets extends Extension_Report {
 		$db = DevblocksPlatform::getDatabaseService();
 
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->tpl_path);
 
 	   	// Top Buckets
@@ -1372,7 +1351,6 @@ class ChReportClosedTickets extends Extension_Report {
 	
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->tpl_path);
 		
 		$tpl->assign('start', '-30 days');
@@ -1422,7 +1400,6 @@ class ChReportClosedTickets extends Extension_Report {
 				
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->tpl_path);
 
 	   	// Top Buckets
@@ -1531,7 +1508,6 @@ class ChReportTicketAssignment extends Extension_Report {
 	
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->tpl_path);
 		
 		$db = DevblocksPlatform::getDatabaseService();
@@ -1546,7 +1522,6 @@ class ChReportTicketAssignment extends Extension_Report {
 		$db = DevblocksPlatform::getDatabaseService();
 
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->tpl_path);
 
 		$workers = DAO_Worker::getAll();
@@ -1634,7 +1609,6 @@ class ChReportTopTicketsByContact extends Extension_Report {
 	
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->tpl_path);
 		
 		$tpl->assign('start', '-30 days');
@@ -1686,7 +1660,6 @@ class ChReportTopTicketsByContact extends Extension_Report {
 				
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->tpl_path);
 
 	   	// Top Buckets
@@ -1873,7 +1846,6 @@ class ChReportWorkerHistory extends Extension_Report {
 	
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->tpl_path);
 		
 		$tpl->assign('start', '-30 days');
@@ -1930,7 +1902,6 @@ class ChReportWorkerHistory extends Extension_Report {
 		}
 				
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->tpl_path);
 
 		$sql = sprintf("SELECT t.id, t.mask, t.subject, a.email as email, " . 
@@ -2089,7 +2060,6 @@ class ChReportsPage extends CerberusPageExtension {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('path', $this->tpl_path);
 		
 		$response = DevblocksPlatform::getHttpResponse();

@@ -95,7 +95,6 @@ class ChAuditLogTicketTab extends Extension_TicketTab {
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', $this->tpl_path);
-		$tpl->cache_lifetime = "0";
 		
 		$defaults = new C4_AbstractViewModel();
 		$defaults->class_name = 'C4_TicketAuditLogView';
@@ -379,7 +378,6 @@ class C4_TicketAuditLogView extends C4_AbstractView {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
-		$tpl->cache_lifetime = "0";
 		$tpl->assign('view_fields', $this->getColumns());
 		
 		$workers = DAO_Worker::getAll();
