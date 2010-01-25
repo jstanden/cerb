@@ -11,7 +11,7 @@
 		<b>Template:</b><br>
 		<select name="template">
 			{foreach from=$templates item=template}
-			<option value="{$template->plugin_id|escape}:{$template->path|escape}">[{$template->plugin_id|escape}] ({$template->set}) {$template->path|escape}</option>
+			<option value="{$template->plugin_id|escape}:{$template->path|escape}">[{$template->plugin_id|escape}]{*({$template->set})*} {$template->path|escape}</option>
 			{/foreach}
 		</select><br>
 		<br>

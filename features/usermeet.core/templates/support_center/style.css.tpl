@@ -107,6 +107,18 @@ TABLE.sidebar BUTTON {
 	text-align:right;
 }
 
+.tableRowBg {
+	background-color: rgb(254, 254, 254);
+}
+
+.tableRowAltBg {
+	background-color: rgb(244, 244, 244);
+}
+
+.tableRowHover {
+	background-color: rgb(255, 255, 206);
+}
+
 /* Modules */
 #account {
 	border:1px solid rgb(204,204,204);

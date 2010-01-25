@@ -13,7 +13,6 @@ define('REMOTE_PORT', '{if !empty($port) && 80!=$port}{$port}{else}80{/if}');
 define('REMOTE_BASE', '{$base}{if !$smarty.const.DEVBLOCKS_REWRITE}/index.php{/if}'); // NO trailing slash!
 define('REMOTE_URI', '{$path}'); // NO trailing slash!
 {literal}
-
 /*
  * ====================================================================
  * [JAS]: Don't modify the following unless you know what you're doing!
@@ -400,7 +399,7 @@ class DevblocksRouter {
 
 $router = new DevblocksRouter();
 $router->connect();
-{/literal}?&gt;</textarea><br>
+{/literal}</textarea><br>
 <br>
 
 <b>.htaccess:</b> {$translate->_('usermeet.ui.community.cfg.htaccess_hint')}<br>
