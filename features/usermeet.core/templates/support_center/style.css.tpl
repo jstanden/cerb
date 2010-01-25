@@ -9,7 +9,7 @@ FORM {
 }
 
 H1 {
-	font-size:16px;
+	font-size:20px;
 	font-weight:bold;
 	color: rgb(8,90,173);
 	margin-top:0px;
@@ -196,7 +196,6 @@ LABEL.error {
 	font-weight:bold;
 }
 
-/* Cerb4 Styles */
 DIV.error {
 	border:1px solid rgb(180,0,0);
 	background-color:rgb(255,235,235);

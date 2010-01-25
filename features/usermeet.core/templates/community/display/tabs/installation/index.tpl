@@ -1,41 +1,4 @@
 <div class="block">
-<form action="{devblocks_url}{/devblocks_url}" method="post" id="formConfigCommunityTool">
-<input type="hidden" name="c" value="config">
-<input type="hidden" name="a" value="handleTabAction">
-<input type="hidden" name="tab" value="usermeet.config.tab.communities">
-<input type="hidden" name="action" value="saveCommunityTool">
-<input type="hidden" name="portal" value="{$instance->code}">
-<input type="hidden" name="is_submitted" value="1">
-<input type="hidden" name="do_delete" value="0">
-
-<H2>{$tool->manifest->name}</H2>
-{$translate->_('usermeet.ui.community.cfg.community')} <b>{$community->name}</b><br>
-{$translate->_('usermeet.ui.community.cfg.profile_id')} <b>{$instance->code}</b><br>
-<br>
-
-<b>Portal Name:</b> ("Support Portal", "Contact Form", "ProductX FAQ")<br>
-<input type="text" name="portal_name" value="{if !empty($instance->name)}{$instance->name}{else}{$tool->manifest->name}{/if}" size="65"><br>
-<br> 
-
-{if !empty($instance) && !empty($tool)}
-{$tool->configure($instance)}
-{/if}
-
-<br>
-
-{if !empty($is_submitted)}
-	{assign var="changes_date" value=$is_submitted|devblocks_date}
-	<div class="success">{'usermeet.ui.community.cfg.changes_saved_date'|devblocks_translate:$changes_date}</div>
-{/if}
-
-<button type="button" onclick="genericAjaxPost('formConfigCommunityTool','configCommunity',null);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
-{if !empty($instance)}<button type="button" onclick="if(confirm('{$translate->_('usermeet.ui.community.cfg.confirm_delete')}')){literal}{this.form.do_delete.value='1';this.form.submit();}{/literal}"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete2.gif{/devblocks_url}" align="top"> {$translate->_('common.delete')|capitalize}</button>{/if}
-
-</form>
-</div>
-<br>
-
-<div class="block">
 <H2>{$translate->_('usermeet.ui.community.cfg.installation')}</H2>
 {$translate->_('usermeet.ui.community.cfg.installation_instructions')|nl2br}<br>
 <br>

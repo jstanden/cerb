@@ -21,38 +21,6 @@
 <br>
 <br>
 
-<b>{$translate->_('portal.cfg.style_css')}</b><br>
-<textarea name="style_css" style="width:90%;height:150px;">{$style_css}</textarea><br>
-<br>
-
-<b>{$translate->_('portal.sc.cfg.header')|escape}</b><br>
-<table cellpadding="0" cellspacing="0" border="0">
-<tr>
-	<td valign="top" width="0%" nowrap="nowrap">
-		<textarea cols="65" rows="8" name="header_html">{$header_html|escape}</textarea><br>
-	</td>
-	<td valign="top" width="100%" style="padding:10px;">
-		<i>{$translate->_('portal.sc.cfg.example')}</i><br>
-		{$translate->_('portal.sc.cfg.header_html_example')|escape|nl2br}<br>
-	</td>
-</tr>
-</table>
-<br>
-
-<b>{$translate->_('portal.sc.cfg.footer')}</b><br>
-<table cellpadding="0" cellspacing="0" border="0">
-<tr>
-	<td valign="top" width="0%" nowrap="nowrap">
-		<textarea cols="65" rows="8" name="footer_html">{$footer_html|escape}</textarea><br>
-	</td>
-	<td valign="top" width="100%" style="padding:10px;">
-		<i>{$translate->_('portal.sc.cfg.example')}</i><br>
-		{$translate->_('portal.sc.cfg.footer_html_example')|escape|nl2br}<br>
-	</td>
-</tr>
-</table>
-<br>
-
 <h2>Modules</h2>
 <table cellpadding="0" cellspacing="5" border="0">
 	<tr>
@@ -89,6 +57,6 @@
 		<div style="border-bottom:1px solid rgb(180,180,180);margin-bottom:5px;">
 		<h2 style="margin-bottom:0px;color:rgb(0,128,255);">{$module->manifest->name}</h2>
 		</div>
-		{$module->configure()}
+		{$module->configure($instance)}
 	</div>
 {/foreach}

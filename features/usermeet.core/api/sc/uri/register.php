@@ -22,16 +22,16 @@ class UmScRegisterController extends Extension_UmScController {
 		
 		switch($step) {
 			case 'forgot':
-				$tpl->display("file:${tpl_path}portal/sc/module/register/forgot.tpl");
+				$tpl->display("devblocks:usermeet.core:support_center/register/forgot.tpl:portal_".UmPortalHelper::getCode());
 				break;
 			case 'forgot2':
-				$tpl->display("file:${tpl_path}portal/sc/module/register/forgot_confirm.tpl");
+				$tpl->display("devblocks:usermeet.core:support_center/register/forgot_confirm.tpl:portal_".UmPortalHelper::getCode());
 				break;
 			case 'confirm':
-				$tpl->display("file:${tpl_path}portal/sc/module/register/confirm.tpl");
+				$tpl->display("devblocks:usermeet.core:support_center/register/confirm.tpl:portal_".UmPortalHelper::getCode());
 				break;
 			default:
-				$tpl->display("file:${tpl_path}portal/sc/module/register/index.tpl");
+				$tpl->display("devblocks:usermeet.core:support_center/register/index.tpl:portal_".UmPortalHelper::getCode());
 				break;
 		}
 		

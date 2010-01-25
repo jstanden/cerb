@@ -63,8 +63,8 @@ class UmScHistoryController extends Extension_UmScController {
 
 			UmScAbstractViewLoader::setView($closed_view->id, $closed_view);
 			$tpl->assign('closed_view', $closed_view);
-			
-			$tpl->display("file:${tpl_path}portal/sc/module/history/index.tpl");
+
+			$tpl->display("devblocks:usermeet.core:support_center/history/index.tpl:portal_".UmPortalHelper::getCode());
 			
 		} elseif ('search'==$mask) {
 			@$q = DevblocksPlatform::importGPC($_REQUEST['q'],'string','');
@@ -95,7 +95,7 @@ class UmScHistoryController extends Extension_UmScController {
 			UmScAbstractViewLoader::setView($view->id, $view);
 			$tpl->assign('view', $view);
 			
-			$tpl->display("file:${tpl_path}portal/sc/module/history/search_results.tpl");
+			$tpl->display("devblocks:usermeet.core:support_center/history/search_results.tpl:portal_".UmPortalHelper::getCode());
 			
 		} else {
 			// Secure retrieval (address + mask)
@@ -152,7 +152,8 @@ class UmScHistoryController extends Extension_UmScController {
 				$tpl->assign('ticket', $ticket);
 				$tpl->assign('messages', $messages);
 				$tpl->assign('attachments', $attachments);
-				$tpl->display("file:${tpl_path}portal/sc/module/history/display.tpl");						
+				
+				$tpl->display("devblocks:usermeet.core:support_center/history/display.tpl:portal_".UmPortalHelper::getCode());
 			}
 		}
 				
@@ -289,7 +290,8 @@ class UmSc_TicketHistoryView extends C4_AbstractView {
 
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('view_fields', $this->getColumns());
-		$tpl->display('file:' . $this->_TPL_PATH . 'portal/sc/module/history/view.tpl');
+		
+		$tpl->display("devblocks:usermeet.core:support_center/history/view.tpl:portal_".UmPortalHelper::getCode());
 	}
 
 	static function getFields() {

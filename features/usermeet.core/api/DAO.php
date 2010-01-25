@@ -48,22 +48,22 @@
  * 		and Joe Geck.
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-class DAO_CommunityTool extends DevblocksORMHelper {
+class DAO_CommunityTool extends C4_ORMHelper {
     const ID = 'id';
     const NAME = 'name';
     const CODE = 'code';
-    const COMMUNITY_ID = 'community_id';
     const EXTENSION_ID = 'extension_id';
     
 	public static function create($fields) {
 	    $db = DevblocksPlatform::getDatabaseService();
 		$id = $db->GenID('generic_seq');
-		$code = self::_generateUniqueCode();
 		
-		$sql = sprintf("INSERT INTO community_tool (id,name,code,community_id,extension_id) ".
-		    "VALUES (%d,'',%s,0,'')",
-		    $id,
-		    $db->qstr($code)
+		if(!isset($fields[self::CODE]))
+			$fields[self::CODE] = self::generateUniqueCode();
+		
+		$sql = sprintf("INSERT INTO community_tool (id,name,code,extension_id) ".
+		    "VALUES (%d,'','','')",
+		    $id
 		);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
@@ -73,7 +73,7 @@ class DAO_CommunityTool extends DevblocksORMHelper {
 	}
 
 	// [TODO] APIize?
-	private static function _generateUniqueCode($length=8) {
+	public static function generateUniqueCode($length=8) {
 	    $db = DevblocksPlatform::getDatabaseService();
 	    
 	    // [JAS]: [TODO] Inf loop check
@@ -137,10 +137,10 @@ class DAO_CommunityTool extends DevblocksORMHelper {
 	    if(!is_array($ids)) $ids = array($ids);
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = "SELECT id,name,code,community_id,extension_id ".
+		$sql = "SELECT id,name,code,extension_id ".
 		    "FROM community_tool ".
 		    (!empty($ids) ? sprintf("WHERE id IN (%s) ", implode(',', $ids)) : " ").
-		    "ORDER BY community_id"
+		    "ORDER BY name"
 		;
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 
@@ -150,10 +150,10 @@ class DAO_CommunityTool extends DevblocksORMHelper {
 	static function getWhere($where=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = "SELECT id,name,code,community_id,extension_id ".
+		$sql = "SELECT id,name,code,extension_id ".
 			"FROM community_tool ".
 			(!empty($where)?sprintf("WHERE %s ",$where):" ").
-			"ORDER BY community_id "
+			"ORDER BY name "
 			;
 		$rs = $db->Execute($sql);
 		
@@ -169,7 +169,6 @@ class DAO_CommunityTool extends DevblocksORMHelper {
 		    $object->id = intval($rs->fields['id']);
 		    $object->name = $rs->fields['name'];
 		    $object->code = $rs->fields['code'];
-		    $object->community_id = intval($rs->fields['community_id']);
 		    $object->extension_id = $rs->fields['extension_id'];
 		    $objects[$object->id] = $object;
 		    $rs->MoveNext();
@@ -215,7 +214,7 @@ class DAO_CommunityTool extends DevblocksORMHelper {
      * @param boolean $withCounts
      * @return array
      */
-    static function search($params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
+    static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
 		$fields = SearchFields_CommunityTool::getFields();
 		
@@ -223,54 +222,77 @@ class DAO_CommunityTool extends DevblocksORMHelper {
 		if(!isset($fields[$sortBy]))
 			$sortBy=null;
 
-        list($tables,$wheres) = parent::_parseSearchParams($params, array(), $fields,$sortBy);
+        list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
 		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
-		
-		$sql = sprintf("SELECT ".
+		$total = -1;
+					
+		$select_sql = sprintf("SELECT ".
 			"ct.id as %s, ".
 			"ct.name as %s, ".
 			"ct.code as %s, ".
-			"ct.community_id as %s, ".
-			"ct.extension_id as %s ".
-			"FROM community_tool ct ",
-//			"INNER JOIN team tm ON (tm.id = t.team_id) ".
+			"ct.extension_id as %s ",
 			    SearchFields_CommunityTool::ID,
 			    SearchFields_CommunityTool::NAME,
 			    SearchFields_CommunityTool::CODE,
-			    SearchFields_CommunityTool::COMMUNITY_ID,
 			    SearchFields_CommunityTool::EXTENSION_ID
-			).
+			);
+		
+		$join_sql = "FROM community_tool ct ";
+		
+				
+		// Custom field joins
+		list($select_sql, $join_sql, $has_multiple_values) = self::_appendSelectJoinSqlForCustomFieldTables(
+			$tables,
+			$params,
+			'ct.id',
+			$select_sql,
+			$join_sql
+		);
+				
+		$where_sql = "".
+			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "");
 			
-			// [JAS]: Dynamic table joins
-//			(isset($tables['ra']) ? "INNER JOIN requester r ON (r.ticket_id=t.id)" : " ").
+		$sort_sql = (!empty($sortBy)) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ";
 			
-			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "").
-			(!empty($sortBy) ? sprintf("ORDER BY %s %s",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : "")
-		;
-		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$sql = 
+			$select_sql.
+			$join_sql.
+			$where_sql.
+			($has_multiple_values ? 'GROUP BY ct.id ' : '').
+			$sort_sql;
+			
+		// [TODO] Could push the select logic down a level too
+		if($limit > 0) {
+    		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		} else {
+		    $rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+            $total = $rs->RecordCount();
+		}
 		
 		$results = array();
-		
+				
 		if(is_a($rs,'ADORecordSet'))
 		while(!$rs->EOF) {
 			$result = array();
 			foreach($rs->fields as $f => $v) {
 				$result[$f] = $v;
 			}
-			$ticket_id = intval($rs->fields[SearchFields_CommunityTool::ID]);
-			$results[$ticket_id] = $result;
+			$object_id = intval($rs->fields[SearchFields_CommunityTool::ID]);
+			$results[$object_id] = $result;
 			$rs->MoveNext();
 		}
 
 		// [JAS]: Count all
-		$total = -1;
 		if($withCounts) {
-		    $rs = $db->Execute($sql);
-		    $total = $rs->RecordCount();
+			$count_sql = 
+				($has_multiple_values ? "SELECT COUNT(DISTINCT ct.id) " : "SELECT COUNT(ct.id) ").
+				$join_sql.
+				$where_sql;
+			$total = $db->GetOne($count_sql);
 		}
 		
 		return array($results,$total);
-    }
+	}
 };
 
 class SearchFields_CommunityTool implements IDevblocksSearchFields {
@@ -278,20 +300,29 @@ class SearchFields_CommunityTool implements IDevblocksSearchFields {
 	const ID = 'ct_id';
 	const NAME = 'ct_name';
 	const CODE = 'ct_code';
-	const COMMUNITY_ID = 'ct_community_id';
 	const EXTENSION_ID = 'ct_extension_id';
 	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
 	static function getFields() {
+		$translate = DevblocksPlatform::getTranslationService();
+		
 		$columns = array(
-			SearchFields_CommunityTool::ID => new DevblocksSearchField(SearchFields_CommunityTool::ID, 'ct', 'id'),
-			SearchFields_CommunityTool::NAME => new DevblocksSearchField(SearchFields_CommunityTool::NAME, 'ct', 'name'),
-			SearchFields_CommunityTool::CODE => new DevblocksSearchField(SearchFields_CommunityTool::CODE, 'ct', 'code'),
-			SearchFields_CommunityTool::COMMUNITY_ID => new DevblocksSearchField(SearchFields_CommunityTool::COMMUNITY_ID, 'ct', 'community_id'),
-			SearchFields_CommunityTool::EXTENSION_ID => new DevblocksSearchField(SearchFields_CommunityTool::EXTENSION_ID, 'ct', 'extension_id'),
+			SearchFields_CommunityTool::ID => new DevblocksSearchField(SearchFields_CommunityTool::ID, 'ct', 'id', null, $translate->_('common.id')),
+			SearchFields_CommunityTool::NAME => new DevblocksSearchField(SearchFields_CommunityTool::NAME, 'ct', 'name', null, $translate->_('community_portal.name')),
+			SearchFields_CommunityTool::CODE => new DevblocksSearchField(SearchFields_CommunityTool::CODE, 'ct', 'code', null, $translate->_('community_portal.code')),
+			SearchFields_CommunityTool::EXTENSION_ID => new DevblocksSearchField(SearchFields_CommunityTool::EXTENSION_ID, 'ct', 'extension_id', null, $translate->_('community_portal.extension_id')),
 		);
+		
+		// Custom Fields
+		$fields = DAO_CustomField::getBySource(CustomFieldSource_CommunityPortal::ID);
+
+		if(is_array($fields))
+		foreach($fields as $field_id => $field) {
+			$key = 'cf_'.$field_id;
+			$columns[$key] = new DevblocksSearchField($key,$key,'field_value',null,$field->name);
+		}
 		
 		// Sort by label (translation-conscious)
 		uasort($columns, create_function('$a, $b', "return strcasecmp(\$a->db_label,\$b->db_label);\n"));
@@ -449,5 +480,3 @@ class DAO_CommunitySession {
 		$db->Execute($sql);
 	}
 };
-
-?>

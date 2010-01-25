@@ -50,7 +50,7 @@ class UmScKbController extends Extension_UmScController {
 				UmScAbstractViewLoader::setView($view->id, $view);
 				$tpl->assign('view', $view);
 				
-				$tpl->display("file:${tpl_path}portal/sc/kb/search_results.tpl");
+				$tpl->display("devblocks:cerberusweb.kb:support_center/kb/search_results.tpl:portal_".UmPortalHelper::getCode());
 				break;
 				
 			case 'article':
@@ -110,7 +110,8 @@ class UmScKbController extends Extension_UmScController {
 				}
 				
 				$tpl->assign('breadcrumbs',$breadcrumbs);
-				$tpl->display("file:${tpl_path}portal/sc/kb/article.tpl");
+				
+				$tpl->display("devblocks:cerberusweb.kb:support_center/kb/article.tpl:portal_".UmPortalHelper::getCode());
 				break;
 			
 			default:
@@ -182,13 +183,13 @@ class UmScKbController extends Extension_UmScController {
 				UmScAbstractViewLoader::setView($view->id, $view);
 				$tpl->assign('view', $view);
 				
-	    		$tpl->display("file:${tpl_path}portal/sc/kb/index.tpl");
+				$tpl->display("devblocks:cerberusweb.kb:support_center/kb/index.tpl:portal_".UmPortalHelper::getCode());
 	    	break;
 		}
 		
 	}
 	
-	function configure() {
+	function configure(Model_CommunityTool $instance) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl_path = dirname(dirname(dirname(__FILE__))) . '/templates/';
 
@@ -202,18 +203,18 @@ class UmScKbController extends Extension_UmScController {
 		$categories = DAO_KbCategory::getWhere();
 		$tpl->assign('categories', $categories);
 		
-		$sKbRoots = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(),self::PARAM_KB_ROOTS, '');
+		$sKbRoots = DAO_CommunityToolProperty::get($instance->code,self::PARAM_KB_ROOTS, '');
         $kb_roots = !empty($sKbRoots) ? unserialize($sKbRoots) : array();
         $tpl->assign('kb_roots', $kb_roots);
 
 		$tpl->display("file:${tpl_path}portal/sc/config/kb.tpl");
 	}
 	
-	function saveConfiguration() {
+	function saveConfiguration(Model_CommunityTool $instance) {
         // KB
         @$aKbRoots = DevblocksPlatform::importGPC($_POST['category_ids'],'array',array());
         $aKbRoots = array_flip($aKbRoots);
-		DAO_CommunityToolProperty::set(UmPortalHelper::getCode(), self::PARAM_KB_ROOTS, serialize($aKbRoots));
+		DAO_CommunityToolProperty::set($instance->code, self::PARAM_KB_ROOTS, serialize($aKbRoots));
 	}
 };
 
@@ -257,7 +258,8 @@ class UmSc_KbArticleView extends C4_AbstractView {
 
 		$tpl->cache_lifetime = "0";
 		$tpl->assign('view_fields', $this->getColumns());
-		$tpl->display('file:' . $this->_TPL_PATH . 'portal/sc/kb/view.tpl');
+		
+		$tpl->display("devblocks:cerberusweb.kb:support_center/kb/view.tpl:portal_".UmPortalHelper::getCode());
 	}
 
 	static function getFields() {

@@ -4,19 +4,13 @@
 <table cellpadding="0" cellspacing="0" border="0" width="100%">
 	<tr>
 		<td nowrap="nowrap"><h2>{$view->name}</h2></td>
-		<td nowrap="nowrap" align="right">
-			{*
-			<a href="javascript:;" onclick="ajaxHtmlGet('#view{$view->id}', '{devblocks_url}c=ajax&a=viewRefresh&id={$view->id}{/devblocks_url}?id={$view->id}');">{$translate->_('common.refresh')|lower}</a>
-			<span style="font-size:12px"> | </span><a href="javascript:;" onclick="genericAjaxGet('customize{$view->id}','c=internal&a=viewCustomize&id={$view->id}');toggleDiv('customize{$view->id}','block');" class="tableThLink">{$translate->_('common.customize')|lower}</a>
-			*}
-		</td>
 	</tr>
 </table>
 
 <form id="customize{$view->id}" name="customize{$view->id}" action="#" onsubmit="return false;" style="display:none;"></form>
 <form id="viewForm{$view->id}" name="viewForm{$view->id}" action="{devblocks_url}{/devblocks_url}" method="post">
 <input type="hidden" name="id" value="{$view->id}">
-<input type="hidden" name="c" value="history">
+<input type="hidden" name="c" value="kb">
 <input type="hidden" name="a" value="">
 
 {if !empty($total)}
@@ -44,26 +38,19 @@
 	{foreach from=$data item=result key=idx name=results}
 
 	{assign var=rowIdPrefix value="row_"|cat:$view->id|cat:"_"|cat:$result.kb_id}
-	{if $smarty.foreach.results.iteration % 2}
-		{assign var=tableRowBg value="tableRowBg"}
-	{else}
-		{assign var=tableRowBg value="tableRowAltBg"}
-	{/if}
+	{$tableRowBg = ($smarty.foreach.results.iteration % 2) ? "tableRowBg" : "tableRowAltBg"}
 	
-		<tr class="{$tableRowBg}" id="{$rowIdPrefix}_s" onmouseover="toggleClass(this.id,'tableRowHover');" onmouseout="toggleClass(this.id,'{$tableRowBg}');" onclick="if(getEventTarget(event)=='TD') checkAll('{$rowIdPrefix}_s');">
+		<tr class="{$tableRowBg}" id="{$rowIdPrefix}_s" onmouseover="$(this).addClass('tableRowHover');" onmouseout="$(this).removeClass('tableRowHover');" onclick="">
 		{foreach from=$view->view_columns item=column name=columns}
-			{if $column=="kb_id"}
-			<td>{$result.kb_id}&nbsp;</td>
-			{elseif $column=="t_subject"}
+			{if $column=="kb_title"}
 			<td>
-				{if !empty($result.t_subject)}
-				<a href="{devblocks_url}c=history&mask={$result.t_mask}{/devblocks_url}"><span id="subject_{$result.t_id}_{$view->id}">{$result.t_subject|escape}</span></a>				
+				{if !empty($result.kb_title)}
+				<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document.gif{/devblocks_url}" align="top">
+				<a href="{devblocks_url}c=kb&a=article&id={$result.kb_id|string_format:"%06d"}{/devblocks_url}"><span id="subject_{$result.kb_id}_{$view->id}">{$result.kb_title|escape}</span></a>				
 				{/if}
 			</td>
-			{elseif $column=="t_updated_date" || $column=="t_created_date"}
-			<td><abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr>&nbsp;</td>
-			{elseif $column=="t_is_closed" || $column=="t_is_deleted" || $column=="t_is_waiting"}
-			<td>{if $result.$column}{$translate->_('common.yes')}{else}{$translate->_('common.no')}{/if}</td>
+			{elseif $column=="kb_updated"}
+			<td><abbr title="{$result.kb_updated|devblocks_date}">{$result.kb_updated|devblocks_prettytime}</abbr>&nbsp;</td>
 			{else}
 			<td>{$result.$column}&nbsp;</td>
 			{/if}

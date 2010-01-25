@@ -1,3 +1,3 @@
 <div id="home">
-{$home_html}
+	<h1>Welcome!</h1>
 </div>

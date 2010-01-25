@@ -2,9 +2,6 @@
 class UmScApp extends Extension_UsermeetTool {
 	const PARAM_PAGE_TITLE = 'common.page_title';
 	const PARAM_DEFAULT_LOCALE = 'common.locale';
-	const PARAM_STYLE_CSS = 'common.style_css';
-	const PARAM_HEADER_HTML = 'common.header_html';
-	const PARAM_FOOTER_HTML = 'common.footer_html';
 	const PARAM_LOGIN_HANDLER = 'common.login_handler';
 	const PARAM_VISIBLE_MODULES = 'common.visible_modules';
 	
@@ -90,19 +87,10 @@ class UmScApp extends Extension_UsermeetTool {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->cache_lifetime = "0";
 		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
-		$tpl->assign('tpl_path', $tpl_path);
+		$tpl->assign('portal_code', UmPortalHelper::getCode());
 		
 		$page_title = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), self::PARAM_PAGE_TITLE, 'Support Center');
 		$tpl->assign('page_title', $page_title);
-
-        $style_css = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), self::PARAM_STYLE_CSS, '');
-		$tpl->assign('style_css', $style_css);
-
-        $header_html = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), self::PARAM_HEADER_HTML, '');
-		$tpl->assign('header_html', $header_html);
-
-        $footer_html = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), self::PARAM_FOOTER_HTML, '');
-		$tpl->assign('footer_html', $footer_html);
 
         $login_handler = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), self::PARAM_LOGIN_HANDLER, '');
 		$tpl->assign('login_handler', $login_handler);
@@ -193,7 +181,7 @@ class UmScApp extends Extension_UsermeetTool {
 				$tpl->assign('module', $controller);
 				$tpl->assign('module_response', new DevblocksHttpResponse($stack));
 
-   				$tpl->display('file:' . $tpl_path . 'portal/sc/module/index.tpl');
+   				$tpl->display('devblocks:usermeet.core:support_center/index.tpl:portal_'.UmPortalHelper::getCode());
 		    	break;
 		}
 	}
@@ -208,7 +196,7 @@ class UmScApp extends Extension_UsermeetTool {
         
 		// Locales
 		
-        $default_locale = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), self::PARAM_DEFAULT_LOCALE, 'en_US');
+        $default_locale = DAO_CommunityToolProperty::get($instance->code, self::PARAM_DEFAULT_LOCALE, 'en_US');
 		$tpl->assign('default_locale', $default_locale);
 		
 		$locales = DAO_Translation::getDefinedLangCodes();
@@ -216,30 +204,21 @@ class UmScApp extends Extension_UsermeetTool {
 
 		// Personalization
 
-        $page_title = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), self::PARAM_PAGE_TITLE, 'Support Center');
+        $page_title = DAO_CommunityToolProperty::get($instance->code, self::PARAM_PAGE_TITLE, 'Support Center');
 		$tpl->assign('page_title', $page_title);
 
-        $style_css = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), self::PARAM_STYLE_CSS, '');
-		$tpl->assign('style_css', $style_css);
-
-        $header_html = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), self::PARAM_HEADER_HTML, '');
-		$tpl->assign('header_html', $header_html);
-
-        $footer_html = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), self::PARAM_FOOTER_HTML, '');
-		$tpl->assign('footer_html', $footer_html);
-        
 		// Login Handlers
 
 		$login_handlers = DevblocksPlatform::getExtensions('usermeet.login.authenticator');
 		uasort($login_handlers, create_function('$a, $b', "return strcasecmp(\$a->name,\$b->name);\n"));
 		$tpl->assign('login_handlers', $login_handlers);
 
-        $login_handler = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), self::PARAM_LOGIN_HANDLER, '');
+        $login_handler = DAO_CommunityToolProperty::get($instance->code, self::PARAM_LOGIN_HANDLER, '');
 		$tpl->assign('login_handler', $login_handler);
 
 		// Modules
 
-        @$visible_modules = unserialize(DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), self::PARAM_VISIBLE_MODULES, ''));
+        @$visible_modules = unserialize(DAO_CommunityToolProperty::get($instance->code, self::PARAM_VISIBLE_MODULES, ''));
 		$tpl->assign('visible_modules', $visible_modules);
 
 		$all_modules = DevblocksPlatform::getExtensions('usermeet.sc.controller', true, true);
@@ -267,7 +246,7 @@ class UmScApp extends Extension_UsermeetTool {
         $tpl->display("file:${tpl_path}portal/sc/config/index.tpl");
     }
     
-    public function saveConfiguration() {
+    public function saveConfiguration(Model_CommunityTool $instance) {
         @$aVisibleModules = DevblocksPlatform::importGPC($_POST['visible_modules'],'array',array());
         @$aIdxModules = DevblocksPlatform::importGPC($_POST['idx_modules'],'array',array());
         @$aPosModules = DevblocksPlatform::importGPC($_POST['pos_modules'],'array',array());
@@ -287,29 +266,17 @@ class UmScApp extends Extension_UsermeetTool {
 		foreach($aPosModules as $idx => $null)
 			$aEnabledModules[$aIdxModules[$idx]] = $aVisibleModules[$idx];
 			
-        DAO_CommunityToolProperty::set(UmPortalHelper::getCode(), self::PARAM_VISIBLE_MODULES, serialize($aEnabledModules));
-        DAO_CommunityToolProperty::set(UmPortalHelper::getCode(), self::PARAM_PAGE_TITLE, $sPageTitle);
+        DAO_CommunityToolProperty::set($instance->code, self::PARAM_VISIBLE_MODULES, serialize($aEnabledModules));
+        DAO_CommunityToolProperty::set($instance->code, self::PARAM_PAGE_TITLE, $sPageTitle);
 
 		// Logins
         @$sLoginHandler = DevblocksPlatform::importGPC($_POST['login_handler'],'string','');
-        DAO_CommunityToolProperty::set(UmPortalHelper::getCode(), self::PARAM_LOGIN_HANDLER, $sLoginHandler);
+        DAO_CommunityToolProperty::set($instance->code, self::PARAM_LOGIN_HANDLER, $sLoginHandler);
 
 		// Default Locale
         @$sDefaultLocale = DevblocksPlatform::importGPC($_POST['default_locale'],'string','en_US');
-		DAO_CommunityToolProperty::set(UmPortalHelper::getCode(), self::PARAM_DEFAULT_LOCALE, $sDefaultLocale);
+		DAO_CommunityToolProperty::set($instance->code, self::PARAM_DEFAULT_LOCALE, $sDefaultLocale);
 
-        // Style
-        @$sStyleCss = DevblocksPlatform::importGPC($_POST['style_css'],'string','');
-        DAO_CommunityToolProperty::set(UmPortalHelper::getCode(), self::PARAM_STYLE_CSS, $sStyleCss);
-
-        // Header
-        @$sHeaderHtml = DevblocksPlatform::importGPC($_POST['header_html'],'string','');
-        DAO_CommunityToolProperty::set(UmPortalHelper::getCode(), self::PARAM_HEADER_HTML, $sHeaderHtml);
-
-        // Footer
-        @$sFooterHtml = DevblocksPlatform::importGPC($_POST['footer_html'],'string','');
-        DAO_CommunityToolProperty::set(UmPortalHelper::getCode(), self::PARAM_FOOTER_HTML, $sFooterHtml);
-        
 		// Allow modules to save their own config
 		$modules = DevblocksPlatform::getExtensions('usermeet.sc.controller',true,true);
 		foreach($modules as $module) { /* @var $module Extension_UmScController */
@@ -317,7 +284,7 @@ class UmScApp extends Extension_UsermeetTool {
 			if(!isset($aEnabledModules[$module->manifest->id]))
 				continue;
 				
-			$module->saveConfiguration();
+			$module->saveConfiguration($instance);
 		}
 
     }

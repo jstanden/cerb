@@ -12,15 +12,45 @@
 	<class_loader>
 		<file path="api/DAO.php">
 			<class name="DAO_CommunityTool" />
+			<class name="SearchFields_CommunityTool" />
 		</file>
 		<file path="api/Extension.php">
 			<class name="Extension_UmScController" />
 			<class name="Extension_UsermeetTool" />
 		</file>
 		<file path="api/Model.php">
+			<class name="C4_CommunityPortalView" />
 			<class name="Model_CommunityTool" />
 		</file>
+		<file path="classes.php">
+			<class name="CustomFieldSource_CommunityPortal" />
+		</file>
 	</class_loader>
+	
+	<!-- Templates -->
+	
+	<templates set="cerberusweb.support_center">
+		<template path="support_center/index.tpl" />
+		<template path="support_center/header.tpl" />
+		<template path="support_center/footer.tpl" />
+		<template path="support_center/style.css.tpl" />
+		<template path="support_center/account/index.tpl" />
+		<template path="support_center/announcements/index.tpl" />
+		<template path="support_center/contact/confirm.tpl" />
+		<template path="support_center/contact/step1.tpl" />
+		<template path="support_center/contact/step2.tpl" />
+		<template path="support_center/history/display.tpl" />
+		<template path="support_center/history/index.tpl" />
+		<template path="support_center/history/search_results.tpl" />
+		<template path="support_center/history/view.tpl" />
+		<template path="support_center/home/index.tpl" />
+		<template path="support_center/register/index.tpl" />
+		<template path="support_center/register/forgot.tpl" />
+		<template path="support_center/register/forgot_confirm.tpl" />
+		<template path="support_center/register/confirm.tpl" />
+	</templates>
+	
+	<!-- Extensions -->
 	
 	<extensions>
 	
@@ -63,6 +93,21 @@
 				<param key="uri" value="portal" />
 			</params>
 		</extension>
+
+		<!-- Pages -->
+
+		<extension point="cerberusweb.page">
+			<id>usermeet.page.community</id>
+			<name>Community Page</name>
+			<class>
+				<file>classes.php</file>
+				<name>UmCommunityPage</name>
+			</class>
+			<params>
+				<param key="uri" value="community" />
+				<param key="menu_title" value="" />
+			</params>
+		</extension>
 		
 		<!-- Usermeet Tools -->
 		
@@ -74,6 +119,7 @@
 				<name>UmScApp</name>
 			</class>
 			<params>
+				<param key="template_set" value="cerberusweb.support_center" />
 			</params>
 		</extension>
 		
@@ -173,6 +219,19 @@
 				<param key="uri" value="register" />
 				<param key="menu_title" value="" />
 				<param key="icon" value="" />
+			</params>
+		</extension>
+		
+		<!-- Custom Field Sources -->
+		
+		<extension point="cerberusweb.fields.source">
+			<id>usermeet.fields.source.community_portal</id>
+			<name>Community Portal</name>
+			<class>
+				<file>classes.php</file>
+				<name>CustomFieldSource_CommunityPortal</name>
+			</class>
+			<params>
 			</params>
 		</extension>
 		

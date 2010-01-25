@@ -49,14 +49,14 @@ class ChFnrScController extends Extension_UmScController {
 					$tpl->assign('sources', $sources);
 				}
 
-				$tpl->display("file:${tpl_path}portal/sc/resources/search_results.tpl");
+				$tpl->display("devblocks:cerberusweb.fnr:support_center/fnr/search_results.tpl:portal_".UmPortalHelper::getCode());
 				break;
 				
 		}
 		
 	}
 	
-	function configure() {
+	function configure(Model_CommunityTool $instance) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl_path = dirname(dirname(dirname(__FILE__))) . '/templates/';
 
@@ -64,17 +64,17 @@ class ChFnrScController extends Extension_UmScController {
 		$fnr_topics = DAO_FnrTopic::getWhere();
 		$tpl->assign('fnr_topics', $fnr_topics);
 
-		$sFnrTopics = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(),self::PARAM_FNR_TOPICS, '');
+		$sFnrTopics = DAO_CommunityToolProperty::get($instance->code,self::PARAM_FNR_TOPICS, '');
         $fnr_topics = !empty($sFnrTopics) ? unserialize($sFnrTopics) : array();
         $tpl->assign('enabled_topics', $fnr_topics);
 
 		$tpl->display("file:${tpl_path}portal/sc/config/resources.tpl");
 	}
 	
-	function saveConfiguration() {
+	function saveConfiguration(Model_CommunityTool $instance) {
         // KB
         @$aFnrTopics = DevblocksPlatform::importGPC($_POST['topic_ids'],'array',array());
         $aFnrTopics = array_flip($aFnrTopics);
-		DAO_CommunityToolProperty::set(UmPortalHelper::getCode(), self::PARAM_FNR_TOPICS, serialize($aFnrTopics));
+		DAO_CommunityToolProperty::set($instance->code, self::PARAM_FNR_TOPICS, serialize($aFnrTopics));
 	}
 };

@@ -20,6 +20,12 @@
 		</file>
 	</class_loader>
 	
+	<!-- Templates -->
+	
+	<templates set="cerberusweb.support_center">
+		<template path="support_center/fnr/search_results.tpl" />
+	</templates>
+	
 	<!--
 	<acl>
 		<priv id="feedback.actions.create" label="acl.feedback.actions.create" />

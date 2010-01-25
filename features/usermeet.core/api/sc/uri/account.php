@@ -17,7 +17,7 @@ class UmScAccountController extends Extension_UmScController {
 		$address = DAO_Address::get($active_user->id);
 		$tpl->assign('address',$address);
 		
-		$tpl->display("file:".$tpl_path."portal/sc/module/account/index.tpl");
+		$tpl->display("devblocks:usermeet.core:support_center/account/index.tpl:portal_".UmPortalHelper::getCode());
 	}
 
 	function saveAccountAction() {

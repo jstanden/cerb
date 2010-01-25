@@ -1320,6 +1320,231 @@ class Model_AddressToWorker {
 	public $code_expire;
 }
 
+class View_DevblocksTemplate extends C4_AbstractView {
+	const DEFAULT_ID = 'templates';
+
+	function __construct() {
+		$this->id = self::DEFAULT_ID;
+		$this->name = 'Templates';
+		$this->renderLimit = 25;
+		$this->renderSortBy = SearchFields_DevblocksTemplate::PATH;
+		$this->renderSortAsc = true;
+
+		$this->view_columns = array(
+			SearchFields_DevblocksTemplate::PLUGIN_ID,
+//			SearchFields_DevblocksTemplate::TAG,
+			SearchFields_DevblocksTemplate::LAST_UPDATED,
+		);
+		
+		$this->doResetCriteria();
+	}
+
+	function getData() {
+		return DAO_DevblocksTemplate::search(
+			$this->view_columns,
+			$this->params,
+			$this->renderLimit,
+			$this->renderPage,
+			$this->renderSortBy,
+			$this->renderSortAsc
+		);
+	}
+
+	function render() {
+		$this->_sanitize();
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('id', $this->id);
+		$tpl->assign('view', $this);
+
+//		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Worker::ID);
+//		$tpl->assign('custom_fields', $custom_fields);
+
+		$tpl->cache_lifetime = "0";
+		$tpl->assign('view_fields', $this->getColumns());
+		$tpl->display('file:' . APP_PATH . '/features/usermeet.core/templates/community/display/tabs/templates/view.tpl');
+	}
+
+	function renderCriteria($field) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('id', $this->id);
+
+		switch($field) {
+			case SearchFields_DevblocksTemplate::CONTENT:
+			case SearchFields_DevblocksTemplate::PATH:
+			case SearchFields_DevblocksTemplate::PLUGIN_ID:
+			case SearchFields_DevblocksTemplate::TAG:
+				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__string.tpl');
+				break;
+			case SearchFields_DevblocksTemplate::LAST_UPDATED:
+				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__date.tpl');
+				break;
+			default:
+				// Custom Fields
+//				if('cf_' == substr($field,0,3)) {
+//					$this->_renderCriteriaCustomField($tpl, substr($field,3));
+//				} else {
+//					echo ' ';
+//				}
+				break;
+		}
+	}
+
+	function renderCriteriaParam($param) {
+		$field = $param->field;
+		$values = !is_array($param->value) ? array($param->value) : $param->value;
+
+		switch($field) {
+//			case SearchFields_WorkerEvent::WORKER_ID:
+//				$workers = DAO_Worker::getAll();
+//				$strings = array();
+//
+//				foreach($values as $val) {
+//					if(empty($val))
+//					$strings[] = "Nobody";
+//					elseif(!isset($workers[$val]))
+//					continue;
+//					else
+//					$strings[] = $workers[$val]->getName();
+//				}
+//				echo implode(", ", $strings);
+//				break;
+			default:
+				parent::renderCriteriaParam($param);
+				break;
+		}
+	}
+
+	static function getFields() {
+		return SearchFields_DevblocksTemplate::getFields();
+	}
+
+	static function getSearchFields() {
+		$fields = self::getFields();
+		return $fields;
+	}
+
+	static function getColumns() {
+		$fields = self::getFields();
+		return $fields;
+	}
+
+	function doResetCriteria() {
+		parent::doResetCriteria();
+		
+//		$this->params = array(
+//			SearchFields_WorkerEvent::NUM_NONSPAM => new DevblocksSearchCriteria(SearchFields_WorkerEvent::NUM_NONSPAM,'>',0),
+//		);
+	}
+	
+	function doSetCriteria($field, $oper, $value) {
+		$criteria = null;
+
+		switch($field) {
+			case SearchFields_DevblocksTemplate::CONTENT:
+			case SearchFields_DevblocksTemplate::PATH:
+			case SearchFields_DevblocksTemplate::PLUGIN_ID:
+			case SearchFields_DevblocksTemplate::TAG:
+				// force wildcards if none used on a LIKE
+				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
+				&& false === (strpos($value,'*'))) {
+					$value = '*'.$value.'*';
+				}
+				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
+				break;
+				
+			case SearchFields_DevblocksTemplate::LAST_UPDATED:
+				@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','');
+				@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
+
+				if(empty($from)) $from = 0;
+				if(empty($to)) $to = 'today';
+
+				$criteria = new DevblocksSearchCriteria($field,$oper,array($from,$to));
+				break;
+				
+			default:
+				// Custom Fields
+//				if(substr($field,0,3)=='cf_') {
+//					$criteria = $this->_doSetCriteriaCustomField($field, substr($field,3));
+//				}
+				break;
+		}
+
+		if(!empty($criteria)) {
+			$this->params[$field] = $criteria;
+			$this->renderPage = 0;
+		}
+	}
+
+	function doBulkUpdate($filter, $do, $ids=array()) {
+		@set_time_limit(600); // [TODO] Temp!
+	  
+		$change_fields = array();
+		$deleted = false;
+		$custom_fields = array();
+
+		if(empty($do))
+			return;
+
+		// Make sure we have checked items if we want a checked list
+		if(0 == strcasecmp($filter,"checks") && empty($ids))
+			return;
+
+		if(is_array($do))
+		foreach($do as $k => $v) {
+			switch($k) {
+				case 'deleted':
+					$deleted = true;
+					break;
+				default:
+					// Custom fields
+					if(substr($k,0,3)=="cf_") {
+						$custom_fields[substr($k,3)] = $v;
+					}
+					break;
+
+			}
+		}
+
+		$pg = 0;
+
+		if(empty($ids))
+		do {
+			list($objects,$null) = DAO_DevblocksTemplate::search(
+				array(),
+				$this->params,
+				100,
+				$pg++,
+				DAO_DevblocksTemplate::ID,
+				true,
+				false
+			);
+			 
+			$ids = array_merge($ids, array_keys($objects));
+			 
+		} while(!empty($objects));
+
+		$batch_total = count($ids);
+		for($x=0;$x<=$batch_total;$x+=100) {
+			$batch_ids = array_slice($ids,$x,100);
+			
+			if(!$deleted)
+				DAO_DevblocksTemplate::update($batch_ids, $change_fields);
+			else
+				DAO_DevblocksTemplate::delete($batch_ids);
+			
+			// Custom Fields
+//			self::_doBulkSetCustomFields(ChCustomFieldSource_Worker::ID, $custom_fields, $batch_ids);
+			
+			unset($batch_ids);
+		}
+
+		unset($ids);
+	}
+
+};
+
 class C4_TicketView extends C4_AbstractView {
 	const DEFAULT_ID = 'tickets_workspace';
 
@@ -2996,6 +3221,10 @@ class C4_WorkerView extends C4_AbstractView {
 		if(empty($do))
 			return;
 
+		// Make sure we have checked items if we want a checked list
+		if(0 == strcasecmp($filter,"checks") && empty($ids))
+			return;
+			
 		if(is_array($do))
 		foreach($do as $k => $v) {
 			switch($k) {
@@ -3220,6 +3449,10 @@ class C4_WorkerEventView extends C4_AbstractView {
 //		if(empty($do))
 //		return;
 //
+//		// Make sure we have checked items if we want a checked list
+//		if(0 == strcasecmp($filter,"checks") && empty($ids))
+//			return;
+//	
 //		if(is_array($do))
 //		foreach($do as $k => $v) {
 //			switch($k) {
@@ -4047,11 +4280,6 @@ class CerberusPop3Account {
 	public $password;
 	public $port=110;
 };
-
-class Model_Community {
-	public $id = 0;
-	public $name = '';
-}
 
 class Model_MailTemplate {
 	const TYPE_COMPOSE = 1;
