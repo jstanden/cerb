@@ -22,8 +22,6 @@
 <input type="hidden" name="txt_name" value="{$txt_name}">
 <input type="hidden" name="type" value="{$type}">
 
-{*<div id="templatePanelOptions" style="margin-top:5px;"></div>*}
-
 {if !empty($templates)}
 	<b>Folder:</b>
 	<select name="folder" onchange="genericAjaxGet('templates','c=display&a=getTemplates&type={$type}&reply_id={$reply_id}&txt_name={$txt_name}&folder='+escape(selectValue(this)));">
@@ -34,13 +32,14 @@
 	</select><br>
 {/if}
 
-<div id="templates" style="display:block;height:300px;margin:5px;overflow:auto;">
+<div id="templates" style="display:block;margin:5px;">
 {include file="$core_tpl/display/rpc/email_templates/template_results.tpl"}
 </div>
+<br>
 
-<button type="button" onclick="genericAjaxPanel('c=display&a=showTemplateEditPanel&type={$type}',null,false,'550px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_new.gif{/devblocks_url}" align="top"> Create Template</button>
+<button type="button" onclick="genericAjaxPanel('c=display&a=showTemplateEditPanel&type={$type}',null,false,'550');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_new.gif{/devblocks_url}" align="top"> Create Template</button>
 {if !empty($templates)}
-	<button type="button" onclick="genericAjaxPanel('c=display&a=showTemplateEditPanel&type={$type}&id='+radioValue(this.form.template_id),null,false,'550px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_edit.gif{/devblocks_url}" align="top"> Edit Selected</button>
+	<button type="button" onclick="genericAjaxPanel('c=display&a=showTemplateEditPanel&type={$type}&id='+radioValue(this.form.template_id),null,false,'550');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_edit.gif{/devblocks_url}" align="top"> Edit Selected</button>
 {/if}
-<button type="button" onclick="genericPanel.hide();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> {$translate->_('common.cancel')|capitalize}</button>
+<button type="button" onclick="genericPanel.dialog('close');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> {$translate->_('common.cancel')|capitalize}</button>
 </form>

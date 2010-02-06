@@ -19,7 +19,7 @@
 				</tr>
 				{foreach from=$top_spam_addys key=email item=counts}
 				<tr>
-					<td><a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$email|escape:'url'}&view_id={$view->id}',this,false,'500px',ajax.cbAddressPeek);" title="{$email|escape}">{$email|truncate:45|escape}</td>
+					<td><a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$email|escape:'url'}&view_id={$view->id}',null,false,'500');" title="{$email|escape}">{$email|truncate:45|escape}</td>
 					<td align="center" style="color:rgb(200,0,0);font-weight:bold;">{$counts.0}</td>
 					<td align="center" style="color:rgb(0,200,0);font-weight:bold;">{$counts.1}</td>
 					<td align="center">{if $counts.0 + $counts.1 > 0}{math equation="(s/(s+n))*100" s=$counts.0 n=$counts.1 format="%0.1f"}%{/if}</td>
@@ -38,7 +38,7 @@
 				</tr>
 				{foreach from=$top_nonspam_addys key=email item=counts}
 				<tr>
-					<td><a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$email|escape:'url'}&view_id={$view->id}',this,false,'500px',ajax.cbAddressPeek);" title="{$email|escape}">{$email|truncate:45|escape}</td>
+					<td><a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$email|escape:'url'}&view_id={$view->id}',null,false,'500');" title="{$email|escape}">{$email|truncate:45|escape}</td>
 					<td align="center" style="color:rgb(0,200,0);font-weight:bold;">{$counts.1}</td>
 					<td align="center" style="color:rgb(200,0,0);font-weight:bold;">{$counts.0}</td>
 					<td align="center">{if $counts.0 + $counts.1 > 0}{math equation="(n/(n+s))*100" s=$counts.0 n=$counts.1 format="%0.1f"}%{/if}</td>

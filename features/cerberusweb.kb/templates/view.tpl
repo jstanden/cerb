@@ -60,7 +60,7 @@
 			{elseif $column=="kb_title"}
 			<td>
 				{if !empty($result.kb_title)}
-				<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document.gif{/devblocks_url}" align="top"> <a href="javascript:;" style="font-size:12px;color:rgb(75,75,75);" onclick="genericAjaxPanel('c=kb.ajax&a=showArticlePeekPanel&id={$result.kb_id}&view_id={$view->id}',null,false,'700px');"><b id="subject_{$result.kb_id}_{$view->id}">{$result.kb_title|escape}</b></a>				
+				<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document.gif{/devblocks_url}" align="top"> <a href="javascript:;" style="font-size:12px;color:rgb(75,75,75);" onclick="genericAjaxPanel('c=kb.ajax&a=showArticlePeekPanel&id={$result.kb_id}&view_id={$view->id}',null,false,'700');"><b id="subject_{$result.kb_id}_{$view->id}">{$result.kb_title|escape}</b></a>				
 				{/if}
 			</td>
 			{elseif $column=="kb_updated"}
@@ -96,7 +96,7 @@
 	{if $total}
 	<tr>
 		<td colspan="2">
-			{if $active_worker->hasPriv('kb.articles.actions.update_all')}<button type="button" onclick="genericAjaxPanel('c=kb.ajax&a=showArticlesBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),this,false,'500px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> {'common.bulk_update'|devblocks_translate|lower}</button>{/if}
+			{if $active_worker->hasPriv('kb.articles.actions.update_all')}<button type="button" onclick="genericAjaxPanel('c=kb.ajax&a=showArticlesBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'500');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> {'common.bulk_update'|devblocks_translate|lower}</button>{/if}
 		</td>
 	</tr>
 	{/if}

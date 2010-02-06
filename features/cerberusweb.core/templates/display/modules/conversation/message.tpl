@@ -14,29 +14,29 @@
       				{assign var=sender_org value=$message_sender_orgs.$sender_org_id}
       				{assign var=is_outgoing value=$message->worker_id}
       				{if $expanded}
-      					<h3 style="display:inline;"><span style="{if !$is_outgoing}color:rgb(255,50,50);background-color:rgb(255,213,213);{else}color:rgb(50,120,50);background-color:rgb(219,255,190);{/if}">{if $is_outgoing}[{$translate->_('mail.outbound')|lower}]{else}[{$translate->_('mail.inbound')|lower}]{/if}</span> <a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&address_id={$sender_id}', this, false, '500px', function(o){literal}{{/literal} ajax.cbAddressPeek(); genericAjaxPostAfterSubmitEvent.subscribe(function(type,args){literal}{{/literal}document.getElementById('btnMsgMax{$message->id}').click();{literal}}{/literal}); {literal}}{/literal} );" title="{$sender->email}">{if 0 != strlen($sender->getName())}{$sender->getName()}{else}&lt;{$sender->email}&gt;{/if}</a></h3>
+      					<h3 style="display:inline;"><span style="{if !$is_outgoing}color:rgb(255,50,50);background-color:rgb(255,213,213);{else}color:rgb(50,120,50);background-color:rgb(219,255,190);{/if}">{if $is_outgoing}[{$translate->_('mail.outbound')|lower}]{else}[{$translate->_('mail.inbound')|lower}]{/if}</span> <a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&address_id={$sender_id}', null, false, '500', function() { C4_ReloadMessageOnSave('{$message->id}', {if $expanded}true{else}false{/if}); } );" title="{$sender->email}">{if 0 != strlen($sender->getName())}{$sender->getName()}{else}&lt;{$sender->email}&gt;{/if}</a></h3>
       				{else}
-      					<b><span style="{if !$is_outgoing}color:rgb(255,50,50);background-color:rgb(255,213,213);{else}color:rgb(50,120,50);background-color:rgb(219,255,190);{/if}">{if $is_outgoing}[{$translate->_('mail.outbound')|lower}]{else}[{$translate->_('mail.inbound')|lower}]{/if}</span> <a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&address_id={$sender_id}', this, false, '500px',function(o){literal}{{/literal} ajax.cbAddressPeek(); genericAjaxPostAfterSubmitEvent.subscribe(function(type,args){literal}{{/literal}document.getElementById('btnMsgMax{$message->id}').click();{literal}}{/literal}); {literal}}{/literal} );">{if 0 != strlen($sender->getName())}{$sender->getName()}{else}&lt;{$sender->email}&gt;{/if}</a></b>
+      					<b><span style="{if !$is_outgoing}color:rgb(255,50,50);background-color:rgb(255,213,213);{else}color:rgb(50,120,50);background-color:rgb(219,255,190);{/if}">{if $is_outgoing}[{$translate->_('mail.outbound')|lower}]{else}[{$translate->_('mail.inbound')|lower}]{/if}</span> <a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&address_id={$sender_id}', null, false, '500', function() { C4_ReloadMessageOnSave('{$message->id}', {if $expanded}true{else}false{/if}); } );">{if 0 != strlen($sender->getName())}{$sender->getName()}{else}&lt;{$sender->email}&gt;{/if}</a></b>
       				{/if}
       				
       				&nbsp;
       				
       				{if $sender_org_id}
-      					<a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showOrgPeek&id={$sender_org_id}', this, false, '500px', function(o){literal}{{/literal} genericAjaxPostAfterSubmitEvent.subscribe(function(type,args){literal}{{/literal}document.getElementById('btnMsgMax{$message->id}').click();{literal}}{/literal}); {literal}}{/literal});"><small style="">{$sender_org->name}</small></a>
+      					<a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showOrgPeek&id={$sender_org_id}', null, false, '500', function() { C4_ReloadMessageOnSave('{$message->id}',{if $expanded}true{else}false{/if}); } );"><small style="">{$sender_org->name}</small></a>
       				{else}{* No org *}
-      					{if $active_worker->hasPriv('core.addybook.addy.actions.update')}<a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&address_id={$sender_id}', this, false, '500px', function(o){literal}{{/literal} ajax.cbAddressPeek(); genericAjaxPostAfterSubmitEvent.subscribe(function(type,args){literal}{{/literal}document.getElementById('btnMsgMax{$message->id}').click();{literal}}{/literal}); {literal}}{/literal} );"><small style="background-color:rgb(255,255,194);">{$translate->_('display.convo.set_org')|lower}</small></a>{/if}
+      					{if $active_worker->hasPriv('core.addybook.addy.actions.update')}<a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&address_id={$sender_id}', null, false, '500', function() { C4_ReloadMessageOnSave('{$message->id}', {if $expanded}true{else}false{/if}); } );"><small style="background-color:rgb(255,255,194);">{$translate->_('display.convo.set_org')|lower}</small></a>{/if}
       				{/if}
       				
       				<br>
       			{/if}
       		</td>
       		<td align="right">
-      			<button id="btnMsgMax{$message->id}" style="display:none;visibility:hidden;" onclick="genericAjaxGet('{$message->id}t','c=display&a=getMessage&id={$message->id}',function(o){literal}{{/literal}document.getElementById('{$message->id}t').innerHTML = o.responseText;window.document.location='#{$message->id}t';{literal}}{/literal});"></button>
-      			<button id="btnMsgMin{$message->id}" style="display:none;visibility:hidden;" onclick="genericAjaxGet('{$message->id}t','c=display&a=getMessage&id={$message->id}&hide=1',function(o){literal}{{/literal}document.getElementById('{$message->id}t').innerHTML = o.responseText;window.document.location='#{$message->id}t';{literal}}{/literal});"></button>
+      			<button id="btnMsgMax{$message->id}" style="display:none;visibility:hidden;" onclick="genericAjaxGet('{$message->id}t','c=display&a=getMessage&id={$message->id}');"></button>
+      			<button id="btnMsgMin{$message->id}" style="display:none;visibility:hidden;" onclick="genericAjaxGet('{$message->id}t','c=display&a=getMessage&id={$message->id}&hide=1');"></button>
 		      {if !$expanded}
-				<a href="javascript:;" onclick="document.getElementById('btnMsgMax{$message->id}').click();">{$translate->_('common.maximize')|lower}</a>
+				<a href="javascript:;" onclick="$('#btnMsgMax{$message->id}').click();">{$translate->_('common.maximize')|lower}</a>
 			  {else}
-			  	<a href="javascript:;" onclick="document.getElementById('btnMsgMin{$message->id}').click();">{$translate->_('common.minimize')|lower}</a>
+			  	<a href="javascript:;" onclick="$('#btnMsgMin{$message->id}').click();">{$translate->_('common.minimize')|lower}</a>
       		  {/if}
       		</td>
       	</tr>
@@ -148,3 +148,17 @@
 </div>
 <div id="reply{$message->id}"></div>
 <br>
+
+<script language="JavaScript1.2" type="text/javascript">
+	function C4_ReloadMessageOnSave(msgid, expanded) {
+		if(null==expanded)
+			expanded=false;
+		
+		genericPanel.one('devblocks_dialogsaved',function(e) {
+			if(expanded) 
+				$('#btnMsgMax' + msgid).click();
+			else 
+				$('#btnMsgMin' + msgid).click();
+		} );
+	}
+</script>

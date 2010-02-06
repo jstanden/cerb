@@ -1,123 +1,53 @@
 <div id="headerSubMenu">
-	<div style="padding-bottom:5px;">
-	{*
-	<div style="padding:5px;">
-	<a href="{devblocks_url}c=tickets&a=overview{/devblocks_url}">overview</a>
-	*} 
-	</div>
+	<div style="padding-bottom:5px;"></div>
 </div> 
 
 <h1>{$translate->_('header.config')|capitalize}</h1>
-{if $smarty.const.DEMO_MODE}
-<div style="color:red;padding:2px;font-weight:bold;">NOTE: This helpdesk is in Demo Mode and changes will not be saved.</div>
-{/if}
 
 {if $install_dir_warning}
-<div class="error">
-	Warning: The 'install' directory still exists.  This is a potential security risk.  Please delete it.
+<div class="ui-widget">
+	<div class="ui-state-error ui-corner-all" style="padding: 0 .7em; margin: 0.2em; "> 
+		<p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span> 
+		<strong>Warning:</strong> The 'install' directory still exists.  This is a potential security risk.  Please delete it.</p>
+	</div>
 </div>
 {/if}
 
 <div id="tourConfigMenu"></div>
-<div id="configTabs"></div>
 
-<script type="text/javascript">
-{literal}
-var tabView = new YAHOO.widget.TabView();
+<div id="configTabs">
+	<ul>
+		<li><a href="{devblocks_url}ajax.php?c=config&a=showTabSettings{/devblocks_url}">System</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=config&a=showTabPlugins{/devblocks_url}">Plugins &amp; Features</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=config&a=showTabMail{/devblocks_url}">Mail Setup</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=config&a=showTabPreParser{/devblocks_url}">Mail Filtering</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=config&a=showTabParser{/devblocks_url}">Mail Routing</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=config&a=showTabAttachments{/devblocks_url}">Attachments</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=config&a=showTabScheduler{/devblocks_url}">Scheduler</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=config&a=showTabGroups{/devblocks_url}">Groups</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=config&a=showTabWorkers{/devblocks_url}">Workers</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=config&a=showTabPermissions{/devblocks_url}">Permissions</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=config&a=showTabFields{/devblocks_url}">Custom Fields</a></li>
 
-tabView.addTab( new YAHOO.widget.Tab({
-    label: 'System',
-    dataSrc: '{/literal}{devblocks_url}ajax.php?c=config&a=showTabSettings{/devblocks_url}{literal}',
-    cacheData: false,
-    {/literal}active: {if empty($tab_selected) || $tab_selected=="settings"}true{else}false{/if}{literal}
-}));
+		{$tabs = [settings,plugins,mail,preparser,parser,attachments,scheduler,groups,workers,acl,fields]}
 
-tabView.addTab( new YAHOO.widget.Tab({
-    label: 'Plugins &amp; Features',
-    dataSrc: '{/literal}{devblocks_url}ajax.php?c=config&a=showTabPlugins{/devblocks_url}{literal}',
-    cacheData: false,
-    {/literal}active: {if $tab_selected=="plugins"}true{else}false{/if}{literal}
-}));
+		{foreach from=$tab_manifests item=tab_manifest}
+			{$tabs[] = $tab_manifest->params.uri}
+			<li><a href="{devblocks_url}ajax.php?c=config&a=showTab&ext_id={$tab_manifest->id}{/devblocks_url}"><i>{$tab_manifest->params.title|devblocks_translate|escape:'quotes'}</i></a></li>
+		{/foreach}
+	</ul>
+</div> 
+<br>
 
-tabView.addTab( new YAHOO.widget.Tab({
-    label: 'Mail Setup',
-    dataSrc: '{/literal}{devblocks_url}ajax.php?c=config&a=showTabMail{/devblocks_url}{literal}',
-    cacheData: false,
-    {/literal}active: {if $tab_selected=="mail"}true{else}false{/if}{literal}
-}));
-
-tabView.addTab( new YAHOO.widget.Tab({
-    label: 'Mail Filtering',
-    dataSrc: '{/literal}{devblocks_url}ajax.php?c=config&a=showTabPreParser{/devblocks_url}{literal}',
-    cacheData: false,
-    {/literal}active: {if $tab_selected=="preparser"}true{else}false{/if}{literal}
-}));
-
-tabView.addTab( new YAHOO.widget.Tab({
-    label: 'Mail Routing',
-    dataSrc: '{/literal}{devblocks_url}ajax.php?c=config&a=showTabParser{/devblocks_url}{literal}',
-    cacheData: false,
-    {/literal}active: {if $tab_selected=="parser"}true{else}false{/if}{literal}
-}));
-
-tabView.addTab( new YAHOO.widget.Tab({
-    label: 'Attachments',
-    dataSrc: '{/literal}{devblocks_url}ajax.php?c=config&a=showTabAttachments{/devblocks_url}{literal}',
-    cacheData: false,
-    {/literal}active: {if $tab_selected=="attachments"}true{else}false{/if}{literal}
-}));
-
-tabView.addTab( new YAHOO.widget.Tab({
-    label: 'Scheduler',
-    dataSrc: '{/literal}{devblocks_url}ajax.php?c=config&a=showTabScheduler{/devblocks_url}{literal}',
-    cacheData: false,
-    {/literal}active: {if $tab_selected=="scheduler"}true{else}false{/if}{literal}
-}));
-
-tabView.addTab( new YAHOO.widget.Tab({
-    label: 'Groups',
-    dataSrc: '{/literal}{devblocks_url}ajax.php?c=config&a=showTabGroups{/devblocks_url}{literal}',
-    cacheData: false,
-    {/literal}active: {if $tab_selected=="groups"}true{else}false{/if}{literal}
-}));
-
-tabView.addTab( new YAHOO.widget.Tab({
-    label: 'Workers',
-    dataSrc: '{/literal}{devblocks_url}ajax.php?c=config&a=showTabWorkers{/devblocks_url}{literal}',
-    cacheData: false,
-    {/literal}active: {if $tab_selected=="workers"}true{else}false{/if}{literal}
-}));
-
-tabView.addTab( new YAHOO.widget.Tab({
-    label: 'Permissions',
-    dataSrc: '{/literal}{devblocks_url}ajax.php?c=config&a=showTabPermissions{/devblocks_url}{literal}',
-    cacheData: false,
-    {/literal}active: {if $tab_selected=="acl"}true{else}false{/if}{literal}
-}));
-
-tabView.addTab( new YAHOO.widget.Tab({
-    label: 'Custom Fields',
-    dataSrc: '{/literal}{devblocks_url}ajax.php?c=config&a=showTabFields{/devblocks_url}{literal}',
-    cacheData: false,
-    {/literal}active: {if $tab_selected=="fields"}true{else}false{/if}{literal}
-}));
-
-{/literal}
-
-{foreach from=$tab_manifests item=tab_manifest}
-{literal}tabView.addTab( new YAHOO.widget.Tab({{/literal}
-    label: '<i>{$tab_manifest->params.title|devblocks_translate|escape:'quotes'}</i>',
-    dataSrc: '{devblocks_url}ajax.php?c=config&a=showTab&ext_id={$tab_manifest->id}{/devblocks_url}',
-    {if $tab_selected==$tab_manifest->params.uri}active: true,{/if}
-    cacheData: false
-{literal}}));{/literal}
+{$tab_selected_idx=0}
+{foreach from=$tabs item=tab_label name=tabs}
+	{if $tab_label==$tab_selected}{$tab_selected_idx = $smarty.foreach.tabs.index}{/if}
 {/foreach}
 
-tabView.appendTo('configTabs');
+<script type="text/javascript">
+	$(function() {
+		var tabs = $("#configTabs").tabs( { selected:{$tab_selected_idx} } );
+	});
 </script>
 
 <br>
-
-<script type="text/javascript">
-	var configAjax = new cConfigAjax();
-</script>

@@ -3,7 +3,7 @@
 </style>
 <div class="cse-branding-bottom" style="color:#000000;">
   <div class="cse-branding-form">
-    <form action="http://www.google.com/cse" id="cse-search-box" target="_blank" onsubmit="this.cx.value=selectValue(document.getElementById('engine'));genericPanel.hide();return true;">
+    <form action="http://www.google.com/cse" id="cse-search-box" target="_blank" onsubmit="this.cx.value=selectValue(document.getElementById('engine'));genericPanel.dialog('close');return true;">
       <div>
         <input type="hidden" name="cx" value="" />
         <input type="hidden" name="ie" value="UTF-8" />

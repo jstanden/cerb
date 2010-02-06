@@ -19,14 +19,12 @@
 					</td>
 				</tr>
 				<tr>
-					<td>
-						<div style="margin:0px;padding:3px;width:200px;overflow:auto;">
+					<td nowrap="nowrap">
 						{if !empty($roles)}
 							{foreach from=$roles item=role key=role_id}
 							&#187; <a href="javascript:;" onclick="genericAjaxGet('configRole','c=config&a=getRole&id={$role_id}');">{$role->name}</a><br>
 							{/foreach}
 						{/if}
-						</div>
 					</td>
 				</tr>
 			</table>

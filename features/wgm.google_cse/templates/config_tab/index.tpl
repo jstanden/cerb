@@ -9,19 +9,17 @@
 					<td><h2>{'wgm.google_cse.cfg.engines'|devblocks_translate|capitalize}</h2></td>
 				</tr>
 				<tr>
-					<td>
+					<td nowrap="nowrap">
 						[ <a href="javascript:;" onclick="genericAjaxGet('configEngine','c=google_cse.ajax&a=getConfigEngine&id=0');">{'wgm.google_cse.cfg.engine.add'|devblocks_translate}</a> ]
 					</td>
 				</tr>
 				<tr>
-					<td>
-						<div style="margin:0px;padding:3px;width:200px;overflow:auto;">
+					<td nowrap="nowrap">
 						{if !empty($engines)}
 							{foreach from=$engines item=engine}
 							&#187; <a href="javascript:;" onclick="genericAjaxGet('configEngine','c=google_cse.ajax&a=getConfigEngine&id={$engine->id}');">{$engine->name}</a><br>
 							{/foreach}
 						{/if}
-						</div>
 					</td>
 				</tr>
 			</table>

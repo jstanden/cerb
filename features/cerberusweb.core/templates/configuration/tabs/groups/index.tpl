@@ -9,7 +9,7 @@
 					<td><h2>Groups</h2></td>
 				</tr>
 				<tr>
-					<td>
+					<td nowrap="nowrap">
 						{* [WGM]: Please respect our licensing and support the project! *}
 						{if (empty($license) || empty($license.serial)) && count($teams) >= 3}
 						You have reached your Cerberus Helpdesk free version limit of 3 groups.<br>
@@ -21,14 +21,12 @@
 					</td>
 				</tr>
 				<tr>
-					<td>
-						<div style="margin:0px;padding:3px;width:200px;overflow:auto;">
+					<td nowrap="nowrap">
 						{if !empty($teams)}
 							{foreach from=$teams item=team}
 							&#187; <a href="javascript:;" onclick="configAjax.getTeam('{$team->id}')">{$team->name}</a><br>
 							{/foreach}
 						{/if}
-						</div>
 					</td>
 				</tr>
 			</table>

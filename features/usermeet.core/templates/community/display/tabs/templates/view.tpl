@@ -6,7 +6,6 @@
 		<td nowrap="nowrap" class="tableThBlue">{$view->name}</td>
 		<td nowrap="nowrap" class="tableThBlue" align="right">
 			<a href="javascript:;" onclick="genericAjaxGet('customize{$view->id}','c=internal&a=viewCustomize&id={$view->id}');toggleDiv('customize{$view->id}','block');" class="tableThLink">{$translate->_('common.customize')|lower}</a>
-			{*{if $active_worker->hasPriv('core.home.workspaces')}<span style="font-size:12px"> | </span><a href="javascript:;" onclick="genericAjaxGet('{$view->id}_tips','c=internal&a=viewShowCopy&view_id={$view->id}');toggleDiv('{$view->id}_tips','block');" class="tableThLink">{$translate->_('common.copy')|lower}</a>{/if}*}
 			<span style="font-size:12px"> | </span><a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');" class="tableThLink">{$translate->_('common.refresh')|lower}</a>
 		</td>
 	</tr>
@@ -55,7 +54,7 @@
 		<tr class="{$tableRowBg}" id="{$rowIdPrefix}_s" onmouseover="toggleClass(this.id,'tableRowHover');toggleClass('{$rowIdPrefix}','tableRowHover');" onmouseout="toggleClass(this.id,'{$tableRowBg}');toggleClass('{$rowIdPrefix}','{$tableRowBg}');" onclick="if(getEventTarget(event)=='TD') checkAll('{$rowIdPrefix}_s');">
 			<td align="center" rowspan="2"><input type="checkbox" name="row_id[]" value="{$result.d_id}"></td>
 			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">
-				<a href="javascript:;" onclick="genericAjaxPanel('c=community&a=getTemplatePeek&portal={$tool->code|escape}&view_id={$view->id}&id={$result.d_id}',null,false,'600px');" style="color:rgb(75,75,75);font-size:12px;"><b id="subject_{$result.d_id}_{$view->id}">{$result.d_path}</b></a>
+				<a href="javascript:;" onclick="genericAjaxPanel('c=community&a=getTemplatePeek&portal={$tool->code|escape}&view_id={$view->id}&id={$result.d_id}',null,false,'600');" style="color:rgb(75,75,75);font-size:12px;"><b id="subject_{$result.d_id}_{$view->id}">{$result.d_path}</b></a>
 			</td>
 		</tr>
 		<tr class="{$tableRowBg}" id="{$rowIdPrefix}" onmouseover="toggleClass(this.id,'tableRowHover');toggleClass('{$rowIdPrefix}_s','tableRowHover');" onmouseout="toggleClass(this.id,'{$tableRowBg}');toggleClass('{$rowIdPrefix}_s','{$tableRowBg}');" onclick="if(getEventTarget(event)=='TD') checkAll('{$rowIdPrefix}_s');">
@@ -79,8 +78,8 @@
 	<tr>
 		<td colspan="2">
 			{if $active_worker && $active_worker->is_superuser}
-				<button type="button" onclick="genericAjaxPanel('c=community&a=showTemplatesBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),this,false,'500px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> bulk update</button>
-				<button type="button" onclick="genericAjaxPanel('c=community&a=showExportTemplatesPeek&portal={$tool->code}&view_id={$view->id|escape:'url'}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),this,false,'500px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/export2.png{/devblocks_url}" align="top"> {'common.export'|devblocks_translate|lower}</button>
+				<button type="button" onclick="genericAjaxPanel('c=community&a=showTemplatesBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'500');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> bulk update</button>
+				<button type="button" onclick="genericAjaxPanel('c=community&a=showExportTemplatesPeek&portal={$tool->code}&view_id={$view->id|escape:'url'}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'500');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/export2.png{/devblocks_url}" align="top"> {'common.export'|devblocks_translate|lower}</button>
 			{/if}
 		</td>
 	</tr>

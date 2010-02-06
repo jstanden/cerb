@@ -11,8 +11,6 @@
 <input type="hidden" name="view_id" value="{$view_id}">
 <input type="hidden" name="org_ids" value="{$org_ids}">
 
-<div style="height:400px;overflow:auto;">
-
 <h2>{$translate->_('common.bulk_update.with')|capitalize}:</h2>
 
 <label><input type="radio" name="filter" value="" {if empty($org_ids)}checked{/if}> {$translate->_('common.bulk_update.filter.all')}</label> 
@@ -33,9 +31,8 @@
 {include file="file:$core_tpl/internal/custom_fields/bulk/form.tpl" bulk=true}	
 
 <br>
-</div>
 
-{if $active_worker->hasPriv('core.addybook.org.actions.update')}<button type="button" onclick="genericPanel.hide();genericAjaxPost('formBatchUpdate','view{$view_id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>{/if}
-<button type="button" onclick="genericPanel.hide();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> {$translate->_('common.cancel')|capitalize}</button>
+{if $active_worker->hasPriv('core.addybook.org.actions.update')}<button type="button" onclick="genericPanel.dialog('close');genericAjaxPost('formBatchUpdate','view{$view_id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>{/if}
+<button type="button" onclick="genericPanel.dialog('close');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> {$translate->_('common.cancel')|capitalize}</button>
 <br>
 </form>

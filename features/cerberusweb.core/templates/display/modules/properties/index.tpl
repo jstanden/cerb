@@ -100,8 +100,10 @@
 						</select><br>
 						<i><small>{$translate->_('common.tips.multi_select')}</small></i>
 					{elseif $f->type=='E'}
-						<input type="text" name="field_{$f_id}" size="45" maxlength="255" value="{if !empty($ticket_field_values.$f_id)}{$ticket_field_values.$f_id|devblocks_date}{/if}"><button type="button" onclick="ajax.getDateChooser('dateCustom{$f_id}',this.form.field_{$f_id});">&nbsp;<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/calendar.gif{/devblocks_url}" align="top">&nbsp;</button>
-						<div id="dateCustom{$f_id}" style="display:none;position:absolute;z-index:1;"></div>
+						<input type="text" id="field_{$f_id}" name="field_{$f_id}" size="45" maxlength="255" value="{if !empty($ticket_field_values.$f_id)}{$ticket_field_values.$f_id|devblocks_date}{/if}">
+						<script type="text/javascript" language="JavaScript1.2">
+							devblocksAjaxDateChooser('#field_{$f_id}');
+						</script>
 					{elseif $f->type=='W'}
 						{if empty($workers)}
 							{$workers = DAO_Worker::getAllActive()}

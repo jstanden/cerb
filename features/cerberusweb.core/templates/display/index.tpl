@@ -143,69 +143,33 @@
 </tr>
 </table>
 
-<div id="displayOptions"></div> 
+<div id="displayTabs">
+	<ul>
+		<li><a href="{devblocks_url}ajax.php?c=display&a=showConversation&ticket_id={$ticket->id}{if $expand_all}&expand_all=1{/if}{/devblocks_url}">{$translate->_('display.tab.conversation')|escape:'quotes'}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=display&a=showProperties&ticket_id={$ticket->id}{/devblocks_url}">{$translate->_('display.tab.properties')|escape:'quotes'}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=display&a=showComments&ticket_id={$ticket->id}{/devblocks_url}">{'display.tab.comments'|devblocks_translate:$comments_total|escape:'quotes'}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=display&a=showTasks&ticket_id={$ticket->id}{/devblocks_url}">{'display.tab.tasks'|devblocks_translate:$tasks_total|escape:'quotes'}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=display&a=showContactHistory&ticket_id={$ticket->id}{/devblocks_url}">{'display.tab.history'|devblocks_translate|escape:'quotes'}</a></li>
+
+		{$tabs = [conversation,properties,comments,tasks,history]}
+
+		{foreach from=$tab_manifests item=tab_manifest}
+			{$tabs[] = $tab_manifest->params.uri}
+			<li><a href="{devblocks_url}ajax.php?c=display&a=showTab&ext_id={$tab_manifest->id}&ticket_id={$ticket->id}{/devblocks_url}"><i>{$tab_manifest->params.title|devblocks_translate|escape:'quotes'}</i></a></li>
+		{/foreach}
+	</ul>
+</div> 
 <br>
 
-<script type="text/javascript">
-{literal}
-var tabView = new YAHOO.widget.TabView();
-
-tabView.addTab( new YAHOO.widget.Tab({
-    label: '{/literal}{$translate->_('display.tab.conversation')|escape:'quotes'}{literal}',
-    dataSrc: '{/literal}{devblocks_url}ajax.php?c=display&a=showConversation&ticket_id={$ticket->id}{if $expand_all}&expand_all=1{/if}{/devblocks_url}{literal}',
-    cacheData: true,
-    {/literal}active: {if empty($tab_selected) || 'conversation'==$tab_selected}true{else}false{/if}{literal}
-}));
-
-tabView.addTab( new YAHOO.widget.Tab({
-    label: '{/literal}{$translate->_('display.tab.properties')|escape:'quotes'}{literal}',
-    dataSrc: '{/literal}{devblocks_url}ajax.php?c=display&a=showProperties&ticket_id={$ticket->id}{/devblocks_url}{literal}',
-    cacheData: true,
-    {/literal}active: {if 'properties'==$tab_selected}true{else}false{/if}{literal}
-}));
-
-/*{/literal}{*
-tabView.addTab( new YAHOO.widget.Tab({
-    label: 'Organization',
-    dataSrc: '{/literal}{devblocks_url}ajax.php?c=display&a=showOrganization&ticket_id={$ticket->id}{/devblocks_url}{literal}',
-    cacheData: true,
-    {/literal}active: {if 'org'==$tab_selected}true{else}false{/if}{literal}
-}));
-*}{literal}*/
-
-tabView.addTab( new YAHOO.widget.Tab({
-    label: '{/literal}{'display.tab.comments'|devblocks_translate:$comments_total|escape:'quotes'}{literal}',
-    dataSrc: '{/literal}{devblocks_url}ajax.php?c=display&a=showComments&ticket_id={$ticket->id}{/devblocks_url}{literal}',
-    cacheData: true,
-    {/literal}active: {if 'comments'==$tab_selected}true{else}false{/if}{literal}
-}));
-
-tabView.addTab( new YAHOO.widget.Tab({
-    label: '{/literal}{'display.tab.tasks'|devblocks_translate:$tasks_total|escape:'quotes'}{literal}',
-    dataSrc: '{/literal}{devblocks_url}ajax.php?c=display&a=showTasks&ticket_id={$ticket->id}{/devblocks_url}{literal}',
-    cacheData: true,
-    {/literal}active: {if 'tasks'==$tab_selected}true{else}false{/if}{literal}
-}));
-
-tabView.addTab( new YAHOO.widget.Tab({
-    label: '{/literal}{'display.tab.history'|devblocks_translate|escape:'quotes'}{literal}',
-    dataSrc: '{/literal}{devblocks_url}ajax.php?c=display&a=showContactHistory&ticket_id={$ticket->id}{/devblocks_url}{literal}',
-    cacheData: true,
-    {/literal}active: {if 'history'==$tab_selected}true{else}false{/if}{literal}
-}));
-
-{/literal}
-
-{foreach from=$tab_manifests item=tab_manifest}
-{literal}tabView.addTab( new YAHOO.widget.Tab({{/literal}
-    label: '{$tab_manifest->params.title|devblocks_translate|escape:'quotes'}',
-    dataSrc: '{devblocks_url}ajax.php?c=display&a=showTab&ext_id={$tab_manifest->id}&ticket_id={$ticket->id}{/devblocks_url}',
-    {if $tab_selected==$tab_manifest->params.uri}active: true,{/if}
-    cacheData: false
-{literal}}));{/literal}
+{$tab_selected_idx=0}
+{foreach from=$tabs item=tab_label name=tabs}
+	{if $tab_label==$tab_selected}{$tab_selected_idx = $smarty.foreach.tabs.index}{/if}
 {/foreach}
 
-tabView.appendTo('displayOptions');
+<script type="text/javascript">
+	$(function() {
+		var tabs = $("#displayTabs").tabs( { selected:{$tab_selected_idx} } );
+	});
 </script>
 
 <script type="text/javascript">

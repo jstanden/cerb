@@ -234,7 +234,6 @@ A.ticket {
 
 .tableThLink {
 	color: rgb(255, 255, 255);
-	font-family: Arial, Helvetica, sans-serif;
 	font-size: 11px;
 }
 
@@ -327,46 +326,21 @@ DIV.subtle2 {
 	padding: 5px;
 }
 
-/* Tabs */
-.yui-skin-sam .yui-navset .yui-content {
-	padding: 5px;
-	background-image: url(bg_block.jpg);
-	background-repeat: repeat-x;
-	background-color: rgb(255, 255, 255);
-	border: 1px solid rgb(120, 120, 120);
-}
+/* jQueryUI Tabs (jQuery Redmond theme) */
+.ui-tabs { border: 0px; padding: 0px; }
+.ui-tabs .ui-tabs-panel { padding: 1em; }
+.ui-tabs .ui-tabs-nav { background: #ffffff none; border: none; border-bottom: 1px solid #c5dbec; }
+.ui-tabs .ui-tabs-panel { background: #ffffff none; }
+.ui-tabs .ui-tabs-nav li { margin: 0 0.2em -1px 0; } /* font-weight:normal; font-size: 1em; */
+.ui-tabs .ui-tabs-nav li.ui-tabs-selected { padding-bottom: 0px; background: #ffffff none; }
 
-.yui-skin-sam .yui-navset .yui-content H2 {
-	font-weight: bold;
-	font-family: Arial, Helvetica, sans-serif;
-	font-size: 18px;
-	margin: 0px;
-	color: rgb(0, 150, 0);
-}
+/* jQuery Validation */
+label.error { color: rgb(255,0,0); padding-left: .5em; vertical-align: top; }
 
-.yui-skin-sam .yui-navset .yui-content,.yui-skin-sam .yui-navset .yui-navset-top .yui-content
-	{
-	border: 0px; /* content border */
-	border-top-color: #243356; /* different border color */
-	padding: 0.25em 0.5em; /* content padding */
-}
-
-.LV_validation_message {
-	font-weight: bold;
-	margin: 0 0 0 5px;
-}
-
-.LV_valid {
-	color: #00CC00;
-}
-
-.LV_invalid {
-	color: #CC0000;
-}
-
-.LV_valid_field,input.LV_valid_field:hover,input.LV_valid_field:active,textarea.LV_valid_field:hover,textarea.LV_valid_field:active {
-}
-
-.LV_invalid_field,input.LV_invalid_field:hover,input.LV_invalid_field:active,textarea.LV_invalid_field:hover,textarea.LV_invalid_field:active {
-	border: 1px solid #CC0000;
-}
+/* jQuery Autocomplete */
+.ac_results { padding: 0px;	border: 1px solid black; background-color: white; overflow: hidden; z-index: 99999; }
+.ac_results ul { width: 100%; list-style-position: outside; list-style: none; padding: 0; margin: 0; }
+.ac_results li { margin: 0px; padding: 2px 5px; cursor: default; display: block; font: menu; font-size: 12px; line-height: 16px; overflow: hidden; }
+/*.ac_loading { background: white url('indicator.gif') right center no-repeat; }*/
+.ac_odd { background-color: rgb(240, 240, 240); }
+.ac_over { background-color: rgb(112, 168, 210); color: rgb(255, 255, 255); }

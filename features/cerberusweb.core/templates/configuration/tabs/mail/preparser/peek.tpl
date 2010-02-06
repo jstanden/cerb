@@ -4,8 +4,6 @@
 <input type="hidden" name="id" value="{$filter->id}">
 <h2>Add Pre-Parser Filter</h2>
 
-<div style="height:400;overflow:auto;">
-
 <b>Filter Name:</b> (e.g. Spam Bounces)<br>
 <input type="text" name="name" size="45" value="{$filter->name|escape}" style="width:95%;"><br>
 <label><input type="checkbox" name="is_sticky" value="1" {if $filter->is_sticky}checked="checked"{/if}> <span style="border-bottom:1px dotted;" title="Sticky filters are checked for matches first, are manually sortable, and can be stacked with subsequent filters.">Sticky</span></label><br>
@@ -237,7 +235,6 @@
 </table>
 </blockquote>
 
-</div>
 <br>
 
 <button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')}</button>

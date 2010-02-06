@@ -2,37 +2,26 @@
 	<div style="padding-bottom:5px;"></div>
 </div>
 
-<div id="addyBookTabs"></div> 
+{$tabs = [orgs,addresses]}
+<div id="addyBookTabs">
+	<ul>
+		<li><a href="{devblocks_url}ajax.php?c=contacts&a=showOrgsTab{/devblocks_url}">{$translate->_('addy_book.tab.organizations')|escape:'quotes'}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=contacts&a=showAddysTab{/devblocks_url}">{$translate->_('addy_book.tab.addresses')|escape:'quotes'}</a></li>
+		{if $active_worker->hasPriv('core.addybook.import')}
+			{$tabs[] = import}
+			<li><a href="{devblocks_url}ajax.php?c=contacts&a=showImportTab{/devblocks_url}">{$translate->_('addy_book.tab.import')|escape:'quotes'}</a></li>
+		{/if}
+	</ul>
+</div> 
 <br>
 
+{$tab_selected_idx=0}
+{foreach from=$tabs item=tab_label name=tabs}
+	{if $tab_label==$selected_tab}{$tab_selected_idx = $smarty.foreach.tabs.index}{/if}
+{/foreach}
+
 <script type="text/javascript">
-{literal}
-var tabView = new YAHOO.widget.TabView();
-
-tabView.addTab( new YAHOO.widget.Tab({
-    label: '{/literal}{$translate->_('addy_book.tab.organizations')|escape:'quotes'}{literal}',
-    dataSrc: '{/literal}{devblocks_url}ajax.php?c=contacts&a=showOrgsTab{/devblocks_url}{literal}',
-    cacheData: false,
-    {/literal}active: {if empty($selected_tab) || 'orgs'==$selected_tab}true{else}false{/if}{literal}
-}));
-
-tabView.addTab( new YAHOO.widget.Tab({
-    label: '{/literal}{$translate->_('addy_book.tab.addresses')|escape:'quotes'}{literal}',
-    dataSrc: '{/literal}{devblocks_url}ajax.php?c=contacts&a=showAddysTab{/devblocks_url}{literal}',
-    cacheData: false,
-    {/literal}active: {if 'addresses'==$selected_tab}true{else}false{/if}{literal}
-}));
-
-{/literal}{if $active_worker->hasPriv('core.addybook.import')}{literal}
-tabView.addTab( new YAHOO.widget.Tab({
-    label: '{/literal}{$translate->_('addy_book.tab.import')|escape:'quotes'}{literal}',
-    dataSrc: '{/literal}{devblocks_url}ajax.php?c=contacts&a=showImportTab{/devblocks_url}{literal}',
-    cacheData: false,
-    {/literal}active: {if 'import'==$selected_tab}true{else}false{/if}{literal}
-}));
-{/literal}{/if}{literal}
-
-{/literal}
-
-tabView.appendTo('addyBookTabs');
+	$(function() {
+		var tabs = $("#addyBookTabs").tabs( { selected:{$tab_selected_idx} } );
+	});
 </script>

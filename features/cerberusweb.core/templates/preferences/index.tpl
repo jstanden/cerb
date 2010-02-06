@@ -29,37 +29,28 @@
 	<br>
 {/if}
 
-<div id="prefOptions"></div> 
+<div id="prefTabs">
+	<ul>
+		<li><a href="{devblocks_url}ajax.php?c=preferences&a=showGeneral{/devblocks_url}">General</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=preferences&a=showRss{/devblocks_url}">RSS Notifications</a></li>
+
+		{$tabs = [general,rss]}
+
+		{foreach from=$tab_manifests item=tab_manifest}
+			{$tabs[] = $tab_manifest->params.uri}
+			<li><a href="{devblocks_url}ajax.php?c=preferences&a=showTab&ext_id={$tab_manifest->id}{/devblocks_url}"><i>{$tab_manifest->params.title|devblocks_translate|escape:'quotes'}</i></a></li>
+		{/foreach}
+	</ul>
+</div> 
 <br>
 
-<script type="text/javascript" language="javascript">
-{literal}
-var tabView = new YAHOO.widget.TabView();
-
-tabView.addTab( new YAHOO.widget.Tab({
-    label: 'General',
-    dataSrc: '{/literal}{devblocks_url}ajax.php?c=preferences&a=showGeneral{/devblocks_url}{literal}',
-    {/literal}{if empty($tab) || $tab=='general'}active: true,{/if}{literal}
-    cacheData: false
-}));
-
-{/literal}{if $active_worker->hasPriv('core.rss')}{literal}
-tabView.addTab( new YAHOO.widget.Tab({
-    label: 'RSS Notifications',
-    dataSrc: '{/literal}{devblocks_url}ajax.php?c=preferences&a=showRss{/devblocks_url}{literal}',
-    {/literal}{if $tab=='rss'}active: true,{/if}{literal}
-    cacheData: false
-}));{/literal}
-{/if}
-
-{foreach from=$tab_manifests item=tab_manifest}
-{literal}tabView.addTab( new YAHOO.widget.Tab({{/literal}
-    label: '{$tab_manifest->params.title|escape:'quotes'}',
-    dataSrc: '{devblocks_url}ajax.php?c=preferences&a=showTab&ext_id={$tab_manifest->id}{/devblocks_url}',
-    {if $tab==$tab_manifest->params.uri}active: true,{/if}
-    cacheData: false
-{literal}}));{/literal}
+{$tab_selected_idx=0}
+{foreach from=$tabs item=tab_label name=tabs}
+	{if $tab_label==$tab}{$tab_selected_idx = $smarty.foreach.tabs.index}{/if}
 {/foreach}
 
-tabView.appendTo('prefOptions');
+<script type="text/javascript">
+	$(function() {
+		var tabs = $("#prefTabs").tabs( { selected:{$tab_selected_idx} } );
+	});
 </script>

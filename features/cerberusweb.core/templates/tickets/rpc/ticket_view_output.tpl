@@ -1,7 +1,7 @@
 {if !empty($last_action)}
-<div id="{$view->id}_output" style="margin:10px;padding:5px;border:1px solid rgb(200,200,200);background-color:rgb(250,250,150);">
-		<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/information.gif{/devblocks_url}" align="absmiddle"> 
-	
+<div id="{$view->id}_output" class="ui-widget">
+	<div class="ui-state-highlight ui-corner-all" style="margin: 0 0 .5em 0; padding: 0 .7em;"> 
+		<p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
 		{$last_action_count} ticket{if $last_action_count!=1}s{/if} 
 	
 		{if $last_action->action == 'spam'}
@@ -36,7 +36,8 @@
 		 ( 
 		 <a href="javascript:;" onclick="ajax.viewUndo('{$view->id}');" style="font-weight:bold;">Undo</a> 
 		  | 
-		 <a href="javascript:;" onclick="toggleDiv('{$view->id}_output','none');genericAjaxGet('','c=tickets&a=viewUndo&view_id={$view->id}&clear=1');" style="">Dismiss</a>
-		  )  
+		 <a href="javascript:;" onclick="clearDiv('{$view->id}_output');genericAjaxGet('','c=tickets&a=viewUndo&view_id={$view->id}&clear=1');" style="">Dismiss</a>
+		  )
+	</div>
 </div>
 {/if}

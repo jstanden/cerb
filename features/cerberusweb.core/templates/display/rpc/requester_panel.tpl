@@ -10,7 +10,6 @@
 <input type="hidden" name="a" value="saveRequestersPanel">
 <input type="hidden" name="ticket_id" value="{$ticket_id}">
 <input type="hidden" name="msg_id" value="{$msg_id}">
-<div style="height:200px;overflow:auto;">
 
 {if !empty($requesters)}
 <b>Remove checked:</b><br>
@@ -25,9 +24,7 @@
 <textarea name="req_adds" rows="4" cols="35" style="width:98%;"></textarea><br>
 <br>
 
-</div>
-
 <button type="button" onclick="displayAjax.saveRequesterPanel('formDisplayReq','displayRequesters{$msg_id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
-<button type="button" onclick="genericPanel.hide();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> {$translate->_('common.cancel')|capitalize}</button>
+<button type="button" onclick="genericPanel.dialog('close');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> {$translate->_('common.cancel')|capitalize}</button>
 <br>
 </form>

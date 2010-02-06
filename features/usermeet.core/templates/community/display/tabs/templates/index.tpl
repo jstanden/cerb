@@ -1,6 +1,6 @@
 <form>
-	<button type="button" onclick="genericAjaxPanel('c=community&a=showAddTemplatePeek&portal={$tool->code}&view_id={$view->id|escape:'url'}',this,false,'600px');"><img src="{devblocks_url}c=resource&p=usermeet.core&f=images/text_code_add.png{/devblocks_url}" align="top"> Add Custom Template</button>	
-	<button type="button" onclick="genericAjaxPanel('c=community&a=showImportTemplatesPeek&portal={$tool->code}&view_id={$view->id|escape:'url'}',this,false,'500px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/import1.png{/devblocks_url}" align="top"> Import Templates</button>	
+	<button type="button" onclick="genericAjaxPanel('c=community&a=showAddTemplatePeek&portal={$tool->code}&view_id={$view->id|escape:'url'}',null,false,'600');"><img src="{devblocks_url}c=resource&p=usermeet.core&f=images/text_code_add.png{/devblocks_url}" align="top"> Add Custom Template</button>	
+	<button type="button" onclick="genericAjaxPanel('c=community&a=showImportTemplatesPeek&portal={$tool->code}&view_id={$view->id|escape:'url'}',null,false,'500');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/import1.png{/devblocks_url}" align="top"> Import Templates</button>	
 </form>
 
 {*

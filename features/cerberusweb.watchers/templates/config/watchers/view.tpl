@@ -60,7 +60,7 @@
 				{if $result.wmf_is_disabled}
 					<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete_gray.gif{/devblocks_url}" align="top" title="{'common.disabled'|devblocks_translate|capitalize}">
 				{/if}
-				<a href="javascript:;" style="color:rgb(75,75,75);font-size:12px;" onclick="genericAjaxPanel('c=preferences&a=handleTabAction&tab=core.pref.notifications&action=showWatcherPanel&id={$result.wmf_id}',null,false,'550px',function(o){literal}{{/literal} genericAjaxPostAfterSubmitEvent.subscribe(function(type,args){literal}{{/literal} genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');{literal}}{/literal}); {literal}}{/literal} );">
+				<a href="javascript:;" style="color:rgb(75,75,75);font-size:12px;" onclick="genericAjaxPanel('c=preferences&a=handleTabAction&tab=core.pref.notifications&action=showWatcherPanel&id={$result.wmf_id}&view_id={$view->id}',null,false,'550');">
 				<b>{$result.wmf_name}</b>
 				</a>
 			</td>
@@ -85,7 +85,7 @@
 	{if $total}
 	<tr>
 		<td colspan="2">
-			<button type="button" onclick="genericAjaxPanel('c=preferences&a=handleTabAction&tab=core.pref.notifications&action=showWatcherBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'500px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> {'common.bulk_update'|devblocks_translate|lower}</button>
+			<button type="button" onclick="genericAjaxPanel('c=preferences&a=handleTabAction&tab=core.pref.notifications&action=showWatcherBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'500');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> {'common.bulk_update'|devblocks_translate|lower}</button>
 		</td>
 	</tr>
 	{/if}

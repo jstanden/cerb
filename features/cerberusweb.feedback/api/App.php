@@ -625,10 +625,12 @@ class ChFeedbackController extends DevblocksControllerExtension {
 	
 	function showEntryAction() {
 		@$active_worker = CerberusApplication::getActiveWorker(); 
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl_path = dirname(dirname(__FILE__)).'/templates/';
 		$tpl->assign('path', $this->plugin_path . '/templates/');
+		$tpl->assign('view_id', $view_id);
 
 		// Editing
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);

@@ -16,7 +16,6 @@
 <br>
 {/if}
 
-<div style="height:400;overflow:auto;">
 <b>Rule Name:</b> (e.g. Spam Bounces)<br>
 <input type="text" name="name" value="{$filter->name|escape}" size="45" style="width:95%;"><br>
 <label><input type="checkbox" name="is_sticky" value="1" onclick="toggleDiv('divStackable',this.checked?'inline':'none');" {if $filter->is_sticky}checked="checked"{/if}> <span style="border-bottom:1px dotted;" title="Sticky rules are checked for matches first, are manually sortable, and can be stacked with subsequent rules.">Sticky</span></label>
@@ -251,7 +250,6 @@
 {* Set Ticket Fields *}
 {include file="file:$core_tpl/internal/custom_fields/filters/peek_set_custom_fields.tpl" fields=$ticket_fields filter=$filter divName="divSetTicketFields" label="Set ticket custom fields"}
 
-</div>
 <br>
 
 {if !empty($view_id)}

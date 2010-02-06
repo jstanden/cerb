@@ -1,6 +1,6 @@
 <div id="tourConfigMailRouting"></div>
 <form action="{devblocks_url}{/devblocks_url}" style="margin-bottom:5px;">
-	<button type="button" onclick="genericAjaxPanel('c=config&a=showMailRoutingRulePanel&id=0',null,false,'550px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/funnel.gif{/devblocks_url}" align="top"> Add Mail Routing Rule</button>
+	<button type="button" onclick="genericAjaxPanel('c=config&a=showMailRoutingRulePanel&id=0',null,false,'550');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/funnel.gif{/devblocks_url}" align="top"> Add Mail Routing Rule</button>
 </form>
 
 <div class="block" id="configGroupRouting">
@@ -41,7 +41,7 @@
 					{/if}
 				</td>
 				<td style="{if $rule->is_sticky}background-color:rgb(255,255,221);border:2px solid rgb(255,215,0);{else}{/if}padding:5px;">
-					<a href="javascript:;" onclick="genericAjaxPanel('c=config&a=showMailRoutingRulePanel&id={$rule_id}',null,false,'550px');" style="color:rgb(0,120,0);font-weight:bold;">{$rule->name|escape}</a>
+					<a href="javascript:;" onclick="genericAjaxPanel('c=config&a=showMailRoutingRulePanel&id={$rule_id}',null,false,'550');" style="color:rgb(0,120,0);font-weight:bold;">{$rule->name|escape}</a>
 					{if $rule->is_stackable}<span style="font-size:90%;padding-left:5px;color:rgb(0,120,0);">(Stackable)</span>{/if}
 					<br>
 					

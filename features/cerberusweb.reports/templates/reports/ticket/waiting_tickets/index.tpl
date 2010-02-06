@@ -3,67 +3,92 @@
 	</div>
 </div>
 
-<script language="javascript" type="text/javascript">
-{literal}
-function drawChart() {{/literal}
-	YAHOO.widget.Chart.SWFURL = "{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yui/charts/assets/charts.swf{/devblocks_url}?v={$smarty.const.APP_BUILD}";
-	{literal}
-	//[mdf] first let the server tell us how many records to expect so we can make sure the chart height is high enough
-	var cObj = YAHOO.util.Connect.asyncRequest('GET', "{/literal}{devblocks_url}ajax.php?c=reports&a=action&extid=report.tickets.waiting_tickets&extid_a=getWaitingTicketsChart{/devblocks_url}{literal}&countonly=1", {
-		success: function(o) {
-			var groupCount = o.responseText;
-
-			//[mdf] set the chart size based on the number of records we will get from the datasource
-			myContainer.style.cssText = 'width:100%;height:'+(30+30*groupCount);;
-				
-			var myXHRDataSource = new YAHOO.util.DataSource("{/literal}{devblocks_url}ajax.php?c=reports&a=action&extid=report.tickets.waiting_tickets&extid_a=getWaitingTicketsChart{/devblocks_url}{literal}");
-			myXHRDataSource.responseType = YAHOO.util.DataSource.TYPE_TEXT; 
-			myXHRDataSource.responseSchema = {
-				recordDelim: "\n",
-				fieldDelim: "\t",
-				fields: [
-					"group",
-					{key:"total", parser:"number"}
-				]
-			};
-			
-			var myChart = new YAHOO.widget.BarChart( "myContainer", myXHRDataSource,
-			{
-			    xField: "total",
-			    yField: "group",
-				wmode: "opaque"
-			    //polling: 1000
-			});
-		},
-		failure: function(o) {},
-		argument:{caller:this}
-		}
-	);
-}{/literal}
-
-</script>
-
 <h2>{$translate->_('reports.ui.ticket.waiting_tickets')}</h2>
 
-
-<form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmRange" name="frmRange" onsubmit="return false;">
+<form action="{devblocks_url}c=reports&report=report.tickets.waiting_tickets{/devblocks_url}" method="POST" id="frmRange" name="frmRange">
 <input type="hidden" name="c" value="reports">
-<input type="hidden" name="a" value="action">
-<input type="hidden" name="extid" value="report.tickets.waiting_tickets">
-<input type="hidden" name="extid_a" value="getWaitingTicketsReport">
-<button type="button" id="btnSubmit" onclick="genericAjaxPost('frmRange', 'report');drawChart();">{$translate->_('common.refresh')|capitalize}</button>
+<button type="submit" id="btnSubmit">{$translate->_('common.refresh')|capitalize}</button>
 </form>
 
-<br>
+<!-- Chart -->
 
-<div id="myContainer" style="width:100%;height:0;background-color:rgb(255,255,255);"></div>
-
-<div id="report" style="background-color:rgb(255,255,255);"></div>
+{if !empty($data)}
+<div id="placeholder" style="margin:1em;width:650px;height:{20+(32*count($data))}px;"></div>
 
 <script language="javascript" type="text/javascript">
-{literal}
-YAHOO.util.Event.addListener(window,'load',function(e) {
-	document.getElementById('btnSubmit').click();
-});
-{/literal}
+	$(function() {
+		var d = [
+			{foreach from=$data item=row key=iter}
+			[{$row.hits}, {$iter}],
+			{/foreach}
+		];
+		
+		var options = {
+			lines: { show: false, fill: false },
+			bars: { show: true, fill: true, horizontal: true, align: "center", barWidth: 1 },
+			points: { show: false, fill: false },
+			grid: {
+				borderWidth: 0,
+				horizontalLines: false,
+				hoverable: false,
+			},
+			xaxis: {
+				min: 0,
+				minTickSize: 1,
+				tickFormatter: function(val, axis) {
+					return Math.floor(val).toString();
+				},
+			},
+			yaxis: {
+				ticks: [
+					{foreach from=$data item=row key=iter}
+					[{$iter},"<b>{$row.value|escape:'quotes'}</b>"],
+					{/foreach}
+				]
+			}
+		} ;
+		
+		$.plot($("#placeholder"), [d], options);
+	} );
 </script>
+{/if}
+
+<!-- Table -->
+
+{if !empty($group_counts)}
+	<table cellspacing="0" cellpadding="2" border="0">
+	{foreach from=$groups key=group_id item=group}
+		{assign var=counts value=$group_counts.$group_id}
+		{if !empty($counts.total)}
+			<tr>
+				<td colspan="3" style="border-bottom:1px solid rgb(200,200,200);padding-right:20px;"><h2>{$groups.$group_id->name}</h2></td>
+			</tr>
+			
+			{if !empty($counts.0)}
+			<tr>
+				<td style="padding-left:10px;padding-right:20px;">{$translate->_('common.inbox')|capitalize}</td>
+				<td align="right">{$counts.0}</td>
+				<td></td>
+			</tr>
+			{/if}
+			
+			{foreach from=$group_buckets.$group_id key=bucket_id item=b}
+				{if !empty($counts.$bucket_id)}
+				<tr>
+					<td style="padding-left:10px;padding-right:20px;">{$b->name}</td>
+					<td align="right">{$counts.$bucket_id}</td>
+					<td></td>
+				</tr>
+				{/if}
+			{/foreach}
+
+			<tr>
+				<td></td>						
+				<td align="right" style="border-top:1px solid rgb(200,200,200);"><b>{$counts.total}</b></td>
+				<td style="padding-left:10px;"></td>
+			</tr>
+		{/if}
+	{/foreach}
+	</table>
+{/if}
+

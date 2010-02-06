@@ -4,10 +4,6 @@
 {if !empty($model) && !empty($model->id)}<input type="hidden" name="id" value="{$model->id}">{/if}
 <input type="hidden" name="do_delete" value="0">
 
-<h1>{$translate->_('timetracking.ui.timetracking')}</h1>
-
-<div style="height:350px;overflow:auto;margin:2px;padding:3px;">
-
 <table cellpadding="2" cellspacing="0" width="100%">
 	<tr>
 		<td width="1%" nowrap="nowrap"><b>{$translate->_('timetracking.ui.entry_panel.activity')}</b></td>
@@ -42,11 +38,7 @@
 <br>
 
 <b>{$translate->_('timetracking.ui.entry_panel.debit_time_client')}</b> {$translate->_('timetracking.ui.entry_panel.debit_time_client_hint')}<br>
-<div id="contactautocomplete" style="width:98%;" class="yui-ac">
-	<input type="text" name="org" id="contactinput" value="{$org->name|escape}" class="yui-ac-input">
-	<div id="contactcontainer" class="yui-ac-container"></div>
-	<br>
-</div>
+<input type="text" name="org" id="orginput" value="{$org->name|escape}" style="width:98%;">
 <br>
 
 {include file="file:$core_tpl/internal/custom_fields/bulk/form.tpl" bulk=false}
@@ -60,21 +52,25 @@
 <br>
 {/if}
 
-</div>
-
 {if ($active_worker->hasPriv('timetracking.actions.create') && (empty($model->id) || $active_worker->id==$model->worker_id))
-	|| $active_worker->hasPriv('timetracking.actions.update_all')
-	}
+	|| $active_worker->hasPriv('timetracking.actions.update_all')}
 	{if empty($model->id)}
-		<button type="button" onclick="genericAjaxPost('frmTimeEntry','','c=timetracking&a=saveEntry',{literal}function(o){timeTrackingTimer.finish();}{/literal});"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('timetracking.ui.entry_panel.save_finish')}</button>
-		<button type="button" onclick="timeTrackingTimer.play();genericPanel.hide();"><img src="{devblocks_url}c=resource&p=cerberusweb.timetracking&f=images/16x16/media_play_green.png{/devblocks_url}" align="top"> {$translate->_('timetracking.ui.entry_panel.resume')}</button>
+		<button type="button" onclick="timeTrackingTimer.finish();genericAjaxPanelPostCloseReloadView('frmTimeEntry','{$view_id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('timetracking.ui.entry_panel.save_finish')}</button>
+		<button type="button" onclick="timeTrackingTimer.play();genericPanel.dialog('close');"><img src="{devblocks_url}c=resource&p=cerberusweb.timetracking&f=images/16x16/media_play_green.png{/devblocks_url}" align="top"> {$translate->_('timetracking.ui.entry_panel.resume')}</button>
 		<button type="button" onclick="timeTrackingTimer.finish();"><img src="{devblocks_url}c=resource&p=cerberusweb.timetracking&f=images/16x16/media_stop_red.png{/devblocks_url}" align="top"> {$translate->_('common.cancel')|capitalize}</button>
 	{else}
-		<button type="button" onclick="genericAjaxPost('frmTimeEntry','','c=timetracking&a=saveEntry');genericPanel.hide();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
-		<button type="button" onclick="if(confirm('Permanently delete this time tracking entry?')){literal}{{/literal}this.form.do_delete.value='1';genericAjaxPost('frmTimeEntry','','c=timetracking&a=saveEntry');genericPanel.hide();{literal}}{/literal}"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_delete.gif{/devblocks_url}" align="top"> {$translate->_('common.delete')|capitalize}</button>
-		<button type="button" onclick="genericPanel.hide();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> {$translate->_('common.cancel')|capitalize}</button>
+		<button type="button" onclick="genericAjaxPanelPostCloseReloadView('frmTimeEntry','{$view_id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
+		<button type="button" onclick="if(confirm('Permanently delete this time tracking entry?')) { this.form.do_delete.value='1'; genericAjaxPanelPostCloseReloadView('frmTimeEntry','{$view_id}'); } "><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_delete.gif{/devblocks_url}" align="top"> {$translate->_('common.delete')|capitalize}</button>
+		<button type="button" onclick="genericPanel.dialog('close');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> {$translate->_('common.cancel')|capitalize}</button>
 	{/if}
 {else}
 	<div class="error">You do not have permission to modify this record.</div>
 {/if}
 </form>
+
+<script language="JavaScript1.2" type="text/javascript">
+	genericPanel.one('dialogopen',function(event,ui) {
+		genericPanel.dialog('option','title',"{'timetracking.ui.timetracking'|devblocks_translate|escape:'quotes'}");
+		ajax.orgAutoComplete('#orginput');
+	} );
+</script>

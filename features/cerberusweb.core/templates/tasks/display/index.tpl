@@ -49,79 +49,55 @@
 </tr>
 </table>
 
-<div id="displayTaskTabs"></div> 
+<div id="tasksTabs">
+	<ul>
+		<li><a href="{devblocks_url}ajax.php?c=tasks&a=showTaskNotesTab&id={$task->id}{/devblocks_url}">{'activity.tasks.tab.notes'|devblocks_translate|escape}</a></li>
+
+		{$tabs = [notes]}
+		
+		{if ($active_worker->hasPriv('core.tasks.actions.create') && (empty($task) || $active_worker->id==$task->worker_id))
+			|| ($active_worker->hasPriv('core.tasks.actions.update_nobody') && empty($task->worker_id)) 
+			|| $active_worker->hasPriv('core.tasks.actions.update_all')}
+			{$tabs[] = properties}
+			<li><a href="{devblocks_url}ajax.php?c=tasks&a=showTasksPropertiesTab&id={$task->id}{/devblocks_url}">{'activity.tasks.tab.properties'|devblocks_translate|escape}</a></li>
+		{/if}
+
+	</ul>
+</div> 
 <br>
 
-<script type="text/javascript">
-{literal}
-var tabView = new YAHOO.widget.TabView();
-
-tabView.addTab( new YAHOO.widget.Tab({
-    label: '{/literal}{'activity.tasks.tab.notes'|devblocks_translate|escape}{literal}',
-    dataSrc: '{/literal}{devblocks_url}ajax.php?c=tasks&a=showTaskNotesTab&id={$task->id}{/devblocks_url}{literal}',
-    cacheData: true,
-    {/literal}active: {if 'notes'==$tab_selected || empty($tab_selected)}true{else}false{/if}{literal}
-}));
-
-{/literal}
-{if ($active_worker->hasPriv('core.tasks.actions.create') && (empty($task) || $active_worker->id==$task->worker_id))
-	|| ($active_worker->hasPriv('core.tasks.actions.update_nobody') && empty($task->worker_id)) 
-	|| $active_worker->hasPriv('core.tasks.actions.update_all')}
-{literal}
-tabView.addTab( new YAHOO.widget.Tab({
-    label: '{/literal}{'activity.tasks.tab.properties'|devblocks_translate|escape}{literal}',
-    dataSrc: '{/literal}{devblocks_url}ajax.php?c=tasks&a=showTasksPropertiesTab&id={$task->id}{/devblocks_url}{literal}',
-    cacheData: true,
-    {/literal}active: {if 'properties'==$tab_selected}true{else}false{/if}{literal}
-}));
-{/literal}
-{/if}
-
-{literal}
-{/literal}
-
-{*
-{foreach from=$tab_manifests item=tab_manifest}
-{literal}tabView.addTab( new YAHOO.widget.Tab({{/literal}
-    label: '{$tab_manifest->params.title|escape:'quotes'}',
-    dataSrc: '{devblocks_url}ajax.php?c=crm&a=showTab&ext_id={$tab_manifest->id}&id={$opp->id}{/devblocks_url}',
-    {if $tab==$tab_manifest->params.uri}active: true,{/if}
-    cacheData: false
-{literal}}));{/literal}
+{$tab_selected_idx=0}
+{foreach from=$tabs item=tab_label name=tabs}
+	{if $tab_label==$tab_selected}{$tab_selected_idx = $smarty.foreach.tabs.index}{/if}
 {/foreach}
-*}
 
-tabView.appendTo('displayTaskTabs');
+<script type="text/javascript">
+	$(function() {
+		var tabs = $("#tasksTabs").tabs( { selected:{$tab_selected_idx} } );
+	});
 </script>
 
 <script type="text/javascript">
 {if $pref_keyboard_shortcuts}
-{literal}
 CreateKeyHandler(function doShortcuts(e) {
 
 	var mycode = getKeyboardKey(e, true);
 	
 	switch(mycode) {
-//		case 65:  // (A) E-mail Peek
-//			try {
-//				document.getElementById('btnOppAddyPeek').click();
-//			} catch(e){}
-//			break;
 		case 219:  // [ - prev page
 			try {
 				document.getElementById('btnPagePrev').click();
-			} catch(e){}
+			} catch(e) { } 
 			break;
 		case 221:  // ] - next page
 			try {
 				document.getElementById('btnPageNext').click();
-			} catch(e){}
+			} catch(e) { } 
 			break;
 		default:
 			// We didn't find any obvious keys, try other codes
 			break;
 	}
 });
-{/literal}
 {/if}
 </script>

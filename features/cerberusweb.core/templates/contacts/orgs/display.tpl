@@ -54,64 +54,37 @@
 </tr>
 </table>
 
-<div id="contactOptions"></div> 
+<div id="contactTabs">
+	<ul>
+		<li><a href="{devblocks_url}ajax.php?c=contacts&a=showTabNotes&org={$contact->id}{/devblocks_url}">{$translate->_('addy_book.org.tabs.notes')|escape:'quotes'}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=contacts&a=showTabProperties&org={$contact->id}{/devblocks_url}">{$translate->_('addy_book.org.tabs.properties')|escape:'quotes'}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=contacts&a=showTabHistory&org={$contact->id}{/devblocks_url}">{$translate->_('addy_book.org.tabs.mail_history')|escape:'quotes'}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=contacts&a=showTabPeople&org={$contact->id}{/devblocks_url}">{'addy_book.org.tabs.people'|devblocks_translate:$people_total|escape:'quotes'}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=contacts&a=showTabTasks&org={$contact->id}{/devblocks_url}">{'addy_book.org.tabs.tasks'|devblocks_translate:$tasks_total|escape:'quotes'}</a></li>
+
+		{$tabs = [notes,properties,history,people,tasks]}
+
+		{foreach from=$tab_manifests item=tab_manifest}
+			{$tabs[] = $tab_manifest->params.uri}
+			<li><a href="{devblocks_url}ajax.php?c=contacts&a=showTab&ext_id={$tab_manifest->id}&org_id={$contact->id}{/devblocks_url}"><i>{$tab_manifest->params.title|devblocks_translate|escape:'quotes'}</i></a></li>
+		{/foreach}
+	</ul>
+</div> 
 <br>
 
-<script type="text/javascript">
-{literal}
-var tabView = new YAHOO.widget.TabView();
-
-tabView.addTab( new YAHOO.widget.Tab({
-    label: '{/literal}{$translate->_('addy_book.org.tabs.notes')|escape:'quotes'}{literal}',
-    dataSrc: '{/literal}{devblocks_url}ajax.php?c=contacts&a=showTabNotes&org={$contact->id}{/devblocks_url}{literal}',
-    cacheData: true,
-    active: true
-}));
-
-tabView.addTab( new YAHOO.widget.Tab({
-    label: '{/literal}{$translate->_('addy_book.org.tabs.properties')|escape:'quotes'}{literal}',
-    dataSrc: '{/literal}{devblocks_url}ajax.php?c=contacts&a=showTabProperties&org={$contact->id}{/devblocks_url}{literal}',
-    cacheData: false
-}));
-
-tabView.addTab( new YAHOO.widget.Tab({
-    label: '{/literal}{$translate->_('addy_book.org.tabs.mail_history')|escape:'quotes'}{literal}',
-    dataSrc: '{/literal}{devblocks_url}ajax.php?c=contacts&a=showTabHistory&org={$contact->id}{/devblocks_url}{literal}',
-    cacheData: true
-}));
-
-tabView.addTab( new YAHOO.widget.Tab({
-    label: '{/literal}{'addy_book.org.tabs.people'|devblocks_translate:$people_total|escape:'quotes'}{literal}',
-    dataSrc: '{/literal}{devblocks_url}ajax.php?c=contacts&a=showTabPeople&org={$contact->id}{/devblocks_url}{literal}',
-    cacheData: true
-}));
-
-tabView.addTab( new YAHOO.widget.Tab({
-    label: '{/literal}{'addy_book.org.tabs.tasks'|devblocks_translate:$tasks_total|escape:'quotes'}{literal}',
-    dataSrc: '{/literal}{devblocks_url}ajax.php?c=contacts&a=showTabTasks&org={$contact->id}{/devblocks_url}{literal}',
-    cacheData: true
-}));
-
-var tabDetails = tabView.getTab(0);
-
-{/literal}
-
-{* Add any plugin-contributed tabs to the addresses view *}
-{foreach from=$tab_manifests item=tab_manifest}
-{literal}tabView.addTab( new YAHOO.widget.Tab({{/literal}
-    label: '{$tab_manifest->params.title|devblocks_translate|escape:'quotes'}',
-    dataSrc: '{devblocks_url}ajax.php?c=contacts&a=showTab&ext_id={$tab_manifest->id}&org_id={$contact->id}{/devblocks_url}',
-    {if $tab==$tab_manifest->params.uri}active: true,{/if}
-    cacheData: false
-{literal}}));{/literal}
+{$tab_selected_idx=0}
+{foreach from=$tabs item=tab_label name=tabs}
+	{if $tab_label==$tab_selected}{$tab_selected_idx = $smarty.foreach.tabs.index}{/if}
 {/foreach}
 
-tabView.appendTo('contactOptions');
+<script type="text/javascript">
+	$(function() {
+		var tabs = $("#contactTabs").tabs( { selected:{$tab_selected_idx} } );
+	});
 </script>
 
 <script type="text/javascript">
 {if $pref_keyboard_shortcuts}
-{literal}
 CreateKeyHandler(function doShortcuts(e) {
 
 	var mycode = getKeyboardKey(e,true);
@@ -120,18 +93,17 @@ CreateKeyHandler(function doShortcuts(e) {
 		case 219:  // [ - prev page
 			try {
 				document.getElementById('btnPagePrev').click();
-			} catch(e){}
+			} catch(e) { } 
 			break;
 		case 221:  // ] - next page
 			try {
 				document.getElementById('btnPageNext').click();
-			} catch(e){}
+			} catch(e) { } 
 			break;
 		default:
 			// We didn't find any obvious keys, try other codes
 	}
 });
-{/literal}
 {/if}
 </script>
 

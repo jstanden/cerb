@@ -22,10 +22,8 @@
 </form>
 </div>
 
-<script type="text/javascript">
-{literal}
-YAHOO.util.Event.addListener(window,'load',function(e) {
-	document.getElementById('loginForm_email').focus();
-});
-{/literal}	
+<script language="JavaScript1.2" type="text/javascript">
+	$(function() {
+		$('#loginForm_email').focus().select();
+	} );
 </script>

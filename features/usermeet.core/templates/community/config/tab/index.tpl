@@ -1,5 +1,5 @@
 <form>
-	<button type="button" onclick="genericAjaxPanel('c=community&a=showAddPortalPeek&view_id={$view->id|escape:'url'}',this,false,'500px');"><img src="{devblocks_url}c=resource&p=usermeet.core&f=images/text_code_add.png{/devblocks_url}" align="top"> Add Community Portal</button>	
+	<button type="button" onclick="genericAjaxPanel('c=community&a=showAddPortalPeek&view_id={$view->id|escape:'url'}',null,false,'500');"><img src="{devblocks_url}c=resource&p=usermeet.core&f=images/text_code_add.png{/devblocks_url}" align="top"> Add Community Portal</button>	
 </form>
 
 <table cellpadding="0" cellspacing="0" border="0">

@@ -11,8 +11,6 @@
 <input type="hidden" name="view_id" value="{$view_id}">
 <input type="hidden" name="ids" value="{$ids}">
 
-<div style="height:400px;overflow:auto;">
-
 <h2>{$translate->_('common.bulk_update.with')|capitalize}:</h2>
 
 <label><input type="radio" name="filter" value="" {if empty($ids)}checked{/if}> {$translate->_('common.bulk_update.filter.all')}</label> 
@@ -25,8 +23,8 @@
 	<tr>
 		<td width="0%" nowrap="nowrap" align="right">{'task.due_date'|devblocks_translate|capitalize}:</td>
 		<td width="100%">
-			<input type="text" name="due" size=35 value=""><button type="button" onclick="ajax.getDateChooser('dateBulkTaskDue',this.form.due);">&nbsp;<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/calendar.gif{/devblocks_url}" align="top">&nbsp;</button>
-			<div id="dateBulkTaskDue" style="display:none;position:absolute;z-index:1;"></div>
+			<input type="text" name="due" size="35" value=""><button type="button" onclick="devblocksAjaxDateChooser(this.form.due,'#dateBulkTaskDue');">&nbsp;<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/calendar.gif{/devblocks_url}" align="top">&nbsp;</button>
+			<div id="dateBulkTaskDue"></div>
 		</td>
 	</tr>
 	<tr>
@@ -63,8 +61,7 @@
 {include file="file:$core_tpl/internal/custom_fields/bulk/form.tpl" bulk=true}	
 
 <br>
-</div>
 
-<button type="button" onclick="genericPanel.hide();genericAjaxPost('formBatchUpdate','view{$view_id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
+<button type="button" onclick="genericPanel.dialog('close');genericAjaxPost('formBatchUpdate','view{$view_id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
 <br>
 </form>

@@ -1,10 +1,3 @@
-<table cellpadding="0" cellspacing="0" border="0" width="98%">
-	<tr>
-		<td align="left" width="0%" nowrap="nowrap" style="padding-right:5px;"><img src="{devblocks_url}c=resource&p=cerberusweb.crm&f=images/money.gif{/devblocks_url}" align="absmiddle"></td>
-		<td align="left" width="100%" nowrap="nowrap"><h1>Opportunity</h1></td>
-	</tr>
-</table>
-
 <form action="{devblocks_url}{/devblocks_url}" method="POST" id="formOppPeek" name="formOppPeek" onsubmit="return false;">
 <input type="hidden" name="c" value="crm">
 <input type="hidden" name="a" value="saveOppPanel">
@@ -12,18 +5,11 @@
 <input type="hidden" name="view_id" value="{$view_id}">
 <input type="hidden" name="do_delete" value="0">
 
-<div style="height:250px;overflow:auto;margin:2px;padding:3px;">
-
 <table cellpadding="0" cellspacing="2" border="0" width="98%">
 	<tr>
 		<td width="0%" nowrap="nowrap" align="right" valign="top">{$translate->_('crm.opportunity.email_address')|capitalize}: </td>
 		<td width="100%">
-			<div id="emailautocomplete" style="width:98%;" class="yui-ac">
-				<input type="text" name="email" id="emailinput" value="{$address->email|escape}" style="border:1px solid rgb(180,180,180);padding:2px;" class="yui-ac-input">
-				<div id="emailcontainer" class="yui-ac-container"></div>
-				<br>
-				<br>
-			</div>
+			<input type="text" name="email" id="emailinput" value="{$address->email|escape}" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;">
 		</td>
 	</tr>
 	<tr>
@@ -67,15 +53,15 @@
 	<tr>
 		<td width="0%" nowrap="nowrap" align="right" valign="top">{$translate->_('crm.opportunity.created_date')|capitalize}: </td>
 		<td width="100%">
-			<input type="text" name="created_date" size=35 value="{if !empty($opp->created_date)}{$opp->created_date|devblocks_date}{else}now{/if}"><button type="button" onclick="ajax.getDateChooser('dateOppCreated',this.form.created_date);">&nbsp;<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/calendar.gif{/devblocks_url}" align="top">&nbsp;</button>
-			<div id="dateOppCreated" style="display:none;position:absolute;z-index:1;"></div>
+			<input type="text" name="created_date" size=35 value="{if !empty($opp->created_date)}{$opp->created_date|devblocks_date}{else}now{/if}"><button type="button" onclick="devblocksAjaxDateChooser(this.form.created_date,'#dateOppCreated');">&nbsp;<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/calendar.gif{/devblocks_url}" align="top">&nbsp;</button>
+			<div id="dateOppCreated"></div>
 		</td>
 	</tr>
 	<tr id="oppPeekClosedDate" {if !$opp->is_closed}style="display:none;"{/if}>
 		<td width="0%" nowrap="nowrap" align="right" valign="top">{$translate->_('crm.opportunity.closed_date')|capitalize}: </td>
 		<td width="100%">
-			<input type="text" name="closed_date" size="35" value="{if !empty($opp->closed_date)}{$opp->closed_date|devblocks_date}{/if}"><button type="button" onclick="ajax.getDateChooser('dateOppClosed',this.form.closed_date);">&nbsp;<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/calendar.gif{/devblocks_url}" align="top">&nbsp;</button>
-			<div id="dateOppClosed" style="display:none;position:absolute;z-index:1;"></div>
+			<input type="text" name="closed_date" size="35" value="{if !empty($opp->closed_date)}{$opp->closed_date|devblocks_date}{/if}"><button type="button" onclick="devblocksAjaxDateChooser(this.form.closed_date,'#dateOppClosed');">&nbsp;<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/calendar.gif{/devblocks_url}" align="top">&nbsp;</button>
+			<div id="dateOppClosed"></div>
 		</td>
 	</tr>
 	{if empty($opp->id)}
@@ -90,17 +76,22 @@
 
 {include file="file:$core_tpl/internal/custom_fields/bulk/form.tpl" bulk=false}
 <br>
-</div>
 
 {if ($active_worker->hasPriv('crm.opp.actions.create') && (empty($opp) || $active_worker->id==$opp->worker_id))
 	|| ($active_worker->hasPriv('crm.opp.actions.update_nobody') && empty($opp->worker_id)) 
-	|| $active_worker->hasPriv('crm.opp.actions.update_all')
-	}
-	<button type="button" onclick="genericPanel.hide();genericAjaxPost('formOppPeek', 'view{$view_id}')"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')}</button>
-	<button type="button" onclick="if(confirm('Are you sure you want to permanently delete this opportunity?')){literal}{{/literal}this.form.do_delete.value='1';genericPanel.hide();genericAjaxPost('formOppPeek', 'view{$view_id}');{literal}}{/literal}"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete2.gif{/devblocks_url}" align="top"> {$translate->_('common.delete')|capitalize}</button>
-	<button type="button" onclick="genericPanel.hide();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> {$translate->_('common.cancel')|capitalize}</button>
+	|| $active_worker->hasPriv('crm.opp.actions.update_all')} 
+	<button type="button" onclick="genericPanel.dialog('close');genericAjaxPost('formOppPeek', 'view{$view_id}')"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')}</button>
+	<button type="button" onclick="if(confirm('Are you sure you want to permanently delete this opportunity?')) { this.form.do_delete.value='1';genericPanel.dialog('close');genericAjaxPost('formOppPeek', 'view{$view_id}'); } "><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete2.gif{/devblocks_url}" align="top"> {$translate->_('common.delete')|capitalize}</button>
+	<button type="button" onclick="genericPanel.dialog('close');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> {$translate->_('common.cancel')|capitalize}</button>
 {else}
 	<div class="error">You do not have permission to modify this record.</div>
 {/if}
 <br>
 </form>
+
+<script language="JavaScript1.2" type="text/javascript">
+	genericPanel.one('dialogopen',function(event,ui) {
+		genericPanel.dialog('option','title', '{'Opportunity'|devblocks_translate|escape:'quotes'}');
+		ajax.emailAutoComplete('#emailinput');
+	} );
+</script>

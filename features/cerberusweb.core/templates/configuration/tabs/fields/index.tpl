@@ -9,14 +9,12 @@
 					<td><h2>Sources</h2></td>
 				</tr>
 				<tr>
-					<td>
-						<div style="margin:0px;padding:3px;width:200px;overflow:auto;">
+					<td nowrap="nowrap">
 						{if !empty($source_manifests)}
 							{foreach from=$source_manifests item=manifest key=manifest_id}
 								&#187; <a href="javascript:;" onclick="genericAjaxGet('frmConfigFieldSource','c=config&a=getFieldSource&ext_id={$manifest_id}');">{$manifest->name}</a><br>
 							{/foreach}
 						{/if}
-						</div>
 					</td>
 				</tr>
 			</table>

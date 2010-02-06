@@ -9,19 +9,17 @@
 					<td><h2>Incoming Mail</h2></td>
 				</tr>
 				<tr>
-					<td>
+					<td nowrap="nowrap">
 						[ <a href="javascript:;" onclick="genericAjaxGet('configMailbox','c=config&a=getMailbox&id=0');">add new mail server</a> ]
 					</td>
 				</tr>
 				<tr>
-					<td>
-						<div style="margin:0px;padding:3px;width:200px;overflow:auto;">
+					<td nowrap="nowrap">
 						{if !empty($pop3_accounts)}
 							{foreach from=$pop3_accounts item=pop3}
 								&#187;  <a href="javascript:;" onclick="genericAjaxGet('configMailbox','c=config&a=getMailbox&id={$pop3->id}');" style="{if !$pop3->enabled}font-style:italic;color:rgb(150,0,0);{/if}">{$pop3->nickname}</a><br>
 							{/foreach}
 						{/if}
-						</div>
 					</td>
 				</tr>
 			</table>

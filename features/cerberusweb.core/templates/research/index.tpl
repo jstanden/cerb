@@ -2,33 +2,27 @@
 	<div style="padding-bottom:5px;"></div>
 </div>
 
-<div id="researchTabs"></div> 
+<div id="researchTabs">
+	<ul>
+		{$tabs = []}
+
+		{foreach from=$tab_manifests item=tab_manifest}
+			{if !isset($tab_manifest->params.acl) || $worker->hasPriv($tab_manifest->params.acl)}
+				{$tabs[] = $tab_manifest->params.uri}
+				<li><a href="{devblocks_url}ajax.php?c=research&a=showTab&ext_id={$tab_manifest->id}&request={$request_path|escape:'url'}{/devblocks_url}">{$tab_manifest->params.title|devblocks_translate|escape:'quotes'}</a></li>
+			{/if}
+		{/foreach}
+	</ul>
+</div> 
 <br>
 
-<script type="text/javascript">
-{literal}
-var tabView = new YAHOO.widget.TabView();
-{/literal}
-
-{*
-tabView.addTab( new YAHOO.widget.Tab({
-    label: '{/literal}{$translate->_('research.tab.links')|escape:'quotes'}{literal}',
-    dataSrc: '{/literal}{devblocks_url}ajax.php?c=research&a=showLinksTab&request={$request_path|escape:'url'}{/devblocks_url}{literal}',
-    cacheData: false,
-    {/literal}active: {if empty($selected_tab) || 'links'==$selected_tab}true{else}false{/if}{literal}
-}));
-*}
-
-{foreach from=$tab_manifests item=tab_manifest name=research_tabs}
-{if !isset($tab_manifest->params.acl) || $worker->hasPriv($tab_manifest->params.acl)}
-{literal}tabView.addTab(new YAHOO.widget.Tab({{/literal}
-    label: '{$tab_manifest->params.title|devblocks_translate|escape:'quotes'}',
-    dataSrc: '{devblocks_url}ajax.php?c=research&a=showTab&ext_id={$tab_manifest->id}&request={$request_path|escape:'url'}{/devblocks_url}',
-    {if $tab_selected==$tab_manifest->params.uri || (empty($tab_selected) && $smarty.foreach.research_tabs.first)}active: true,{/if}
-    cacheData: false
-{literal}}));{/literal}
-{/if}
+{$tab_selected_idx=0}
+{foreach from=$tabs item=tab_label name=tabs}
+	{if $tab_label==$tab_selected}{$tab_selected_idx = $smarty.foreach.tabs.index}{/if}
 {/foreach}
 
-tabView.appendTo('researchTabs');
+<script type="text/javascript">
+	$(function() {
+		var tabs = $("#researchTabs").tabs( { selected:{$tab_selected_idx} } );
+	});
 </script>

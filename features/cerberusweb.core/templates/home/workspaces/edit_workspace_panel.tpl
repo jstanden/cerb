@@ -9,7 +9,6 @@
 <input type="text" name="rename_workspace" value="" size="35" style="width:100%;"><br>
 <br>
 
-<div style="height:300px;overflow:auto;margin:2px;padding:3px;">
 <table width="100%">
 	<tr>
 		<td align="center"><b>{$translate->_('common.order')|capitalize}</b></td>
@@ -33,8 +32,7 @@
 	</tr>
 	{/foreach}
 </table>
-</div>
 
 <button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')}</button>
-<button type="button" onclick="genericPanel.hide();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> {$translate->_('common.cancel')|capitalize}</button>
+<button type="button" onclick="genericPanel.dialog('close');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> {$translate->_('common.cancel')|capitalize}</button>
 </form>

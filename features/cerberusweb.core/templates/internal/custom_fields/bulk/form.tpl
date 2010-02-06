@@ -9,18 +9,24 @@
 				{if $bulk}
 				<label><input type="checkbox" onclick="toggleDiv('bulkOpts{$f_id}');" name="field_ids[]" value="{$f_id}"><span style="font-size:90%;">{$f->name}:</span></label>
 				{else}
-				<input type="hidden" name="field_ids[]" value="{$f_id}"><span style="font-size:90%;">{$f->name}:</span>
+					<span style="font-size:0.9em;">
+					<input type="hidden" name="field_ids[]" value="{$f_id}">
+					{if $f->type=='U'}
+						{if !empty($custom_field_values.$f_id)}<a href="{$custom_field_values.$f_id|escape}" target="_blank">{$f->name}</a>{else}{$f->name}{/if}:
+					{else}
+						{$f->name}:
+					{/if}
+					</span>
 				{/if}
 			</td>
 			<td width="99%">
 				<div id="bulkOpts{$f_id}" style="display:{if $bulk}none{else}block{/if};">
 				{if $f->type=='S'}
-					<input type="text" name="field_{$f_id}" size="45" maxlength="255" value="{$custom_field_values.$f_id|escape}">
+					<input type="text" name="field_{$f_id}" size="45" style="width:98%;" maxlength="255" value="{$custom_field_values.$f_id|escape}">
 				{elseif $f->type=='U'}
-					<input type="text" name="field_{$f_id}" size="45" maxlength="255" value="{$custom_field_values.$f_id|escape}">
-					{if !empty($custom_field_values.$f_id)}<a href="{$custom_field_values.$f_id|escape}" target="_blank">URL</a>{else}<i>(URL)</i>{/if}
+					<input type="text" name="field_{$f_id}" size="45" style="width:98%;" maxlength="255" value="{$custom_field_values.$f_id|escape}" class="url">
 				{elseif $f->type=='N'}
-					<input type="text" name="field_{$f_id}" size="45" maxlength="255" value="{$custom_field_values.$f_id|escape}">
+					<input type="text" name="field_{$f_id}" size="45" style="width:98%;" maxlength="255" value="{$custom_field_values.$f_id|escape}" class="number">
 				{elseif $f->type=='T'}
 					<textarea name="field_{$f_id}" rows="4" cols="50" style="width:98%;">{$custom_field_values.$f_id|escape}</textarea>
 				{elseif $f->type=='C'}
@@ -80,8 +86,8 @@
 				{elseif $f->type=='F'}
 					<input type="file" name="field_{$f_id}" size="45" maxlength="255" value="{$custom_field_values.$f_id|escape}">
 				{elseif $f->type=='E'}
-					<input type="text" name="field_{$f_id}" size="30" maxlength="255" value="{if !empty($custom_field_values.$f_id)}{$custom_field_values.$f_id|devblocks_date}{/if}"><button type="button" onclick="ajax.getDateChooser('dateCustom{$f_id}',this.form.field_{$f_id});">&nbsp;<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/calendar.gif{/devblocks_url}" align="top">&nbsp;</button>
-					<div id="dateCustom{$f_id}" style="display:none;position:absolute;z-index:1;"></div>
+					<div id="dateCustom{$f_id}"></div>
+					<input type="text" id="field_{$f_id}" name="field_{$f_id}" size="30" maxlength="255" value="{if !empty($custom_field_values.$f_id)}{$custom_field_values.$f_id|devblocks_date}{/if}"><button type="button" onclick="devblocksAjaxDateChooser('#field_{$f_id}','#dateCustom{$f_id}');">&nbsp;<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/calendar.gif{/devblocks_url}" align="top">&nbsp;</button>
 				{/if}
 				</div>
 			</td>

@@ -65,13 +65,13 @@
 			{elseif $column=="w_id"}
 			<td>{$result.w_id}&nbsp;</td>
 			{elseif $column=="w_first_name" || $column=="w_last_name"}
-			<td><a href="javascript:;" onclick="genericAjaxPanel('c=config&a=showWorkerPeek&id={$result.w_id}&view_id={$view->id|escape:'url'}',this,false,'550px');" style="{if $result.w_is_disabled}color:rgb(120,0,0);font-style:italic;{/if}">{$result.$column}</a>&nbsp;</td>
+			<td><a href="javascript:;" onclick="genericAjaxPanel('c=config&a=showWorkerPeek&id={$result.w_id}&view_id={$view->id|escape:'url'}',null,false,'550');" style="{if $result.w_is_disabled}color:rgb(120,0,0);font-style:italic;{/if}">{$result.$column}</a>&nbsp;</td>
 			{elseif $column=="w_is_disabled"}
 				<td>{if $result.w_is_disabled}{'common.yes'|devblocks_translate|capitalize}{else}{'common.no'|devblocks_translate|capitalize}{/if}</td>
 			{elseif $column=="w_is_superuser"}
 				<td>{if $result.w_is_superuser}{'common.yes'|devblocks_translate|capitalize}{else}{'common.no'|devblocks_translate|capitalize}{/if}</td>
 			{elseif $column=="w_email"}
-				<td><a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$result.w_email|escape:'url'}&view_id={$view->id}',this,false,'500px',ajax.cbAddressPeek);" title="{$result.w_email|escape}">{$result.w_email|truncate:64:'...':true:true}</a></td>
+				<td><a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$result.w_email|escape:'url'}&view_id={$view->id}',null,false,'500');" title="{$result.w_email|escape}">{$result.w_email|truncate:64:'...':true:true}</a></td>
 			{elseif $column=="w_last_activity_date"}
 				{if !empty($result.w_last_activity_date)}
 				<td title="{$result.w_last_activity_date|devblocks_date}">{$result.w_last_activity_date|devblocks_prettytime}</td>
@@ -91,7 +91,7 @@
 	<tr>
 		<td colspan="2">
 			{if $active_worker && $active_worker->is_superuser}
-				<button type="button" onclick="genericAjaxPanel('c=config&a=showWorkersBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),this,false,'500px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> bulk update</button>
+				<button type="button" onclick="genericAjaxPanel('c=config&a=showWorkersBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'500');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> bulk update</button>
 			{/if}
 		</td>
 	</tr>

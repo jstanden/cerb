@@ -1,66 +1,15 @@
 <div id="headerSubMenu">
 	<div style="padding-bottom:5px;"></div>
 </div>
-<script language="javascript" type="text/javascript">
-{literal}
-function drawChart(start, end) {{/literal}
-	YAHOO.widget.Chart.SWFURL = "{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yui/charts/assets/charts.swf{/devblocks_url}?v={$smarty.const.APP_BUILD}";
-	{literal}
-	if(start==null || start=="") {
-		start='-30 days'
-	}
-	if(end==null || end=="") {
-		end='now';
-	}
-	start=escape(start);
-	end=escape(end);
-	//[mdf] first let the server tell us how many records to expect so we can make sure the chart height is high enough
-	var cObj = YAHOO.util.Connect.asyncRequest('GET', "{/literal}{devblocks_url}ajax.php?c=reports&a=action&extid=report.timetracking.timespentorg&extid_a=getTimeSpentOrgChart{/devblocks_url}{literal}&countonly=1&start="+start+"&end="+end, {
-		success: function(o) {
-			var workerCount = o.responseText;
-			//alert("GET count:"+workerCount);
-			//[mdf] set the chart size based on the number of records we will get from the datasource
-			myContainer.style.cssText = 'width:100%;height:'+(30+30*workerCount);;
-			
-			var myXHRDataSource = new YAHOO.util.DataSource("{/literal}{devblocks_url}ajax.php?c=reports&a=action&extid=report.timetracking.timespentorg&extid_a=getTimeSpentOrgChart{/devblocks_url}{literal}&start="+start+"&end="+end);
-			myXHRDataSource.responseType = YAHOO.util.DataSource.TYPE_TEXT; 
-			myXHRDataSource.responseSchema = {
-				recordDelim: "\n",
-				fieldDelim: "\t",
-				fields: [
-					"org",
-					{key:"minutes", parser:"number"}
-				]
-			};
-	
-			var myChart = new YAHOO.widget.BarChart( "myContainer", myXHRDataSource,
-			{
-				xField: "minutes",
-				yField: "org",
-				wmode: "opaque"
-				//polling: 1000
-			});
-			
-		},
-		failure: function(o) {},
-		argument:{caller:this}
-		}
-	);
-}{/literal}
-
-</script>
 
 <h2>{$translate->_('timetracking.ui.reports.time_spent_org')}</h2>
 
-<form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmRange" name="frmRange" onsubmit="return false;">
+<form action="{devblocks_url}c=reports&report=report.timetracking.timespentorg{/devblocks_url}" method="POST" id="frmRange" name="frmRange">
 <input type="hidden" name="c" value="reports">
-<input type="hidden" name="a" value="action">
-<input type="hidden" name="extid" value="report.timetracking.timespentorg">
-<input type="hidden" name="extid_a" value="getTimeSpentOrgReport">
-{$translate->_('timetracking.ui.reports.from')} <input type="text" name="start" id="start" size="10" value="{$start}"><button type="button" onclick="ajax.getDateChooser('divCal',this.form.start);">&nbsp;<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/calendar.gif{/devblocks_url}" align="top">&nbsp;</button>
-{$translate->_('timetracking.ui.reports.to')} <input type="text" name="end" id="end" size="10" value="{$end}"><button type="button" onclick="ajax.getDateChooser('divCal',this.form.end);">&nbsp;<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/calendar.gif{/devblocks_url}" align="top">&nbsp;</button>
-<button type="button" id="btnSubmit" onclick="genericAjaxPost('frmRange', 'reportdata');drawChart(document.getElementById('start').value, document.getElementById('end').value);">{$translate->_('common.refresh')|capitalize}</button>
-<div id="divCal" style="display:none;position:absolute;z-index:1;"></div>
+{$translate->_('timetracking.ui.reports.from')} <input type="text" name="start" id="start" size="24" value="{$start}"><button type="button" onclick="devblocksAjaxDateChooser('#start','#divCal');">&nbsp;<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/calendar.gif{/devblocks_url}" align="top">&nbsp;</button>
+{$translate->_('timetracking.ui.reports.to')} <input type="text" name="end" id="end" size="24" value="{$end}"><button type="button" onclick="devblocksAjaxDateChooser('#end','#divCal');">&nbsp;<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/calendar.gif{/devblocks_url}" align="top">&nbsp;</button>
+<button type="submit" id="btnSubmit">{$translate->_('common.refresh')|capitalize}</button>
+<div id="divCal"></div>
 </form>
 
 {$translate->_('timetracking.ui.reports.past')} <a href="javascript:;" onclick="document.getElementById('start').value='-1 year';document.getElementById('end').value='now';document.getElementById('btnSubmit').click();">{$translate->_('timetracking.ui.reports.filters.1_year')|lower}</a>
@@ -72,14 +21,113 @@ function drawChart(start, end) {{/literal}
 | <a href="javascript:;" onclick="document.getElementById('start').value='today';document.getElementById('end').value='now';document.getElementById('btnSubmit').click();">{$translate->_('common.today')|lower}</a>
 <br>
 
+{if $invalidDate}<div><font color="red"><b>{$translate->_('timetracking.ui.reports.invalid_date')}</b></font></div>{/if}
 
-<div id="myContainer" style="width:100%;height:0;background-color:rgb(255,255,255);"></div>
+<!-- Chart -->
 
-<div id="reportdata" style="background-color:rgb(255,255,255);"></div>
+{if !empty($data)}
+<div id="placeholder" style="margin:1em;width:650px;height:{20+(32*count($data))}px;"></div>
+
 <script language="javascript" type="text/javascript">
-{literal}	
-YAHOO.util.Event.addListener(window,'load',function(e) {
-	document.getElementById('btnSubmit').click();
-});
-{/literal}
+	$(function() {
+		var d = [
+			{foreach from=$data item=row key=iter}
+			[{$row.mins}, {$iter}],
+			{/foreach}
+		];
+		
+		var options = {
+			lines: { show: false, fill: false },
+			bars: { show: true, fill: true, horizontal: true, align: "center", barWidth: 1 },
+			points: { show: false, fill: false },
+			grid: {
+				borderWidth: 0,
+				horizontalLines: false,
+				hoverable: false,
+			},
+			xaxis: {
+				min: 0,
+				minTickSize: 1,
+				tickFormatter: function(val, axis) {
+					return Math.floor(val).toString();
+				},
+			},
+			yaxis: {
+				ticks: [
+					{foreach from=$data item=row key=iter}
+					[{$iter},"<b>{$row.value|escape:'quotes'}</b>"],
+					{/foreach}
+				]
+			}
+		} ;
+		
+		$.plot($("#placeholder"), [d], options);
+	} );
 </script>
+{/if}
+
+<!-- Table -->
+
+{if !empty($time_entries)}
+		{foreach from=$time_entries item=org_entry key=org_id}
+		<div class="block">
+		<table cellspacing="0" cellpadding="3" border="0">
+			<tr>
+				<td colspan="2">
+				<h2>
+				  {if empty($org_entry.org_name)}
+				  {$translate->_('timetracking.ui.reports.time_spent_org.no_organization')}
+				  {else}
+				  {$org_entry.org_name}
+				  {/if}
+				</h2>
+				<span style="margin-bottom:10px;"><b>{$org_entry.total_mins} {$translate->_('common.minutes')|lower}</b></span>
+				</td>
+			</tr>
+			{foreach from=$org_entry.entries item=time_entry key=time_entry_id}
+				{if is_numeric($time_entry_id)}
+					{assign var=entry_worker_id value=$time_entry.worker_id}
+					{assign var=source_ext_id value=$time_entry.source_extension_id}
+					{assign var=source_id value=$time_entry.source_id}
+					{assign var=worker_name value=$workers.$entry_worker_id->getName()}
+					{assign var=generic_worker value='timetracking.ui.generic_worker'|devblocks_translate}
+					
+					{if isset($worker_name)}
+						{assign var=worker_name value=$worker_name}
+					{else}
+						{assign var=worker_name value=$generic_worker}
+					{/if}					
+					<tr>
+						<td>{$time_entry.log_date|date_format:"%Y-%m-%d"}</td>
+						<td>
+							{assign var=tagged_worker_name value="<B>"|cat:$worker_name|cat:"</B>"}
+							{assign var=tagged_mins value="<B>"|cat:$time_entry.mins|cat:"</B>"}
+							{assign var=tagged_activity value="<B>"|cat:$time_entry.activity_name|cat:"</B>"}
+					
+							{if !empty($time_entry.org_name)}
+								{assign var=tagged_org_name value="<B>"|cat:$time_entry.org_name|cat:"</B>"}
+								{'timetracking.ui.reports.tracked_desc.with_org'|devblocks_translate:$tagged_worker_name:$tagged_mins:$tagged_activity:$tagged_org_name}
+							{else}
+								{'timetracking.ui.tracked_desc'|devblocks_translate:$tagged_worker_name:$tagged_mins:$tagged_activity}
+							{/if}
+
+							{if !empty($source_ext_id)}
+								{assign var=source value=$sources.$source_ext_id}
+								{if !empty($source)}<small>(<a href="{$source->getLink($source_id)}">{$source->getLinkText($source_id)}</a>)</small>{/if}
+							{/if}
+						</td>
+					</tr>
+					{if !empty($time_entry.notes)}
+					<tr>
+						<td></td>
+						<td><i>{$time_entry.notes}</i></td>
+					</tr>
+					{/if}
+				{/if}
+			{/foreach}
+			</table>
+			</div>
+			<br>
+	{/foreach}
+{/if}
+

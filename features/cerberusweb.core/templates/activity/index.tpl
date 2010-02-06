@@ -2,28 +2,26 @@
 	<div style="padding-bottom:5px;"></div>
 </div>
 
-<div id="activityOptions"></div> 
+<div id="activityTabs">
+	<ul>
+		{foreach from=$tab_manifests item=tab_manifest}
+			{if !isset($tab_manifest->params.acl) || $worker->hasPriv($tab_manifest->params.acl)}
+				{$tabs[] = $tab_manifest->params.uri}
+				<li><a href="{devblocks_url}ajax.php?c=activity&a=showTab&ext_id={$tab_manifest->id}&request={$request_path|escape:'url'}{/devblocks_url}">{$tab_manifest->params.title|devblocks_translate|escape:'quotes'}</a></li>
+			{/if}
+		{/foreach}
+	</ul>
+</div> 
 <br>
 
-<script type="text/javascript">
-{literal}
-var tabView = new YAHOO.widget.TabView();
-{/literal}
-
-{foreach from=$tab_manifests item=tab_manifest}
-{if !isset($tab_manifest->params.acl) || $worker->hasPriv($tab_manifest->params.acl)}
-{literal}tabView.addTab(new YAHOO.widget.Tab({{/literal}
-    label: '{$tab_manifest->params.title|devblocks_translate|escape:'quotes'}',
-    dataSrc: '{devblocks_url}ajax.php?c=activity&a=showTab&ext_id={$tab_manifest->id}&request={$request_path|escape:'url'}{/devblocks_url}',
-    {if $tab_selected==$tab_manifest->params.uri}active: true,{/if}
-    cacheData: false
-{literal}}));{/literal}
-{/if}
+{$tab_selected_idx=0}
+{foreach from=$tabs item=tab_label name=tabs}
+	{if $tab_label==$tab_selected}{$tab_selected_idx = $smarty.foreach.tabs.index}{/if}
 {/foreach}
 
-tabView.appendTo('activityOptions');
+<script type="text/javascript">
+	$(function() {
+		var tabs = $("#activityTabs").tabs( { selected:{$tab_selected_idx} } );
+	});
 </script>
-
-
-
 

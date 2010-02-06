@@ -23,7 +23,7 @@
 					<tr>
 						<td width="1%" nowrap="nowrap"><b>{$translate->_('message.header.to')|capitalize}: </b></td>
 						<td width="99%" align="left">
-							<input type="text" size="45" id="replyForm_to" name="to" value="" style="width:50%;border:1px solid rgb(180,180,180);padding:2px;">
+							<input type="text" size="45" id="replyForm_to" name="to" value="" style="width:50%;border:1px solid rgb(180,180,180);padding:2px;" class="required">
 						</td>
 					</tr>
 				{else}
@@ -35,7 +35,7 @@
 							<b>{$requester->email}</b>{if !$smarty.foreach.requesters.last}, {/if}
 							{/foreach}
 							</span>
-							(<a href="javascript:;" onclick="genericAjaxPanel('c=display&a=showRequestersPanel&msg_id={$message->id}&ticket_id={$ticket->id}',this,false);" style="color:rgb(00,120,0);">{$translate->_('common.edit')|lower}</a>)
+							(<a href="javascript:;" onclick="genericAjaxPanel('c=display&a=showRequestersPanel&msg_id={$message->id}&ticket_id={$ticket->id}',null,false);" style="color:rgb(00,120,0);">{$translate->_('common.edit')|lower}</a>)
 							<!-- 
 							<input type="text" size="45" name="to" value="" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;">
 							-->					
@@ -58,15 +58,15 @@
 				<tr>
 					<td width="1%" nowrap="nowrap">{$translate->_('message.header.subject')|capitalize}: </td>
 					<td width="99%" align="left">
-						<input type="text" size="45" id="replyForm_subject" name="subject" value="{if $is_forward}Fwd: {/if}{$ticket->subject|escape}" style="width:50%;border:1px solid rgb(180,180,180);padding:2px;">					
+						<input type="text" size="45" id="replyForm_subject" name="subject" value="{if $is_forward}Fwd: {/if}{$ticket->subject|escape}" style="width:50%;border:1px solid rgb(180,180,180);padding:2px;" class="required">					
 					</td>
 				</tr>
 			</table>
 
 			{assign var=ticket_team_id value=$ticket->team_id}
 			{assign var=headers value=$message->getHeaders()}
-			<button type="button" onclick="genericAjaxPanel('c=display&a=showTemplatesPanel&type=2&reply_id={$message->id}&txt_name=reply_{$message->id}',this,false,'550px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/text_rich.gif{/devblocks_url}" align="top"> {$translate->_('display.reply.email_templates')|capitalize}</button>
-			<button type="button" onclick="genericAjaxGet('','c=tickets&a=getComposeSignature&group_id={$ticket->team_id}',{literal}function(o){insertAtCursor(document.getElementById('reply_{/literal}{$message->id}{literal}'),o.responseText);document.getElementById('reply_{/literal}{$message->id}{literal}').focus();}{/literal});"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_edit.gif{/devblocks_url}" align="top"> {$translate->_('display.reply.insert_sig')|capitalize}</button>
+			<button type="button" onclick="genericAjaxPanel('c=display&a=showTemplatesPanel&type=2&reply_id={$message->id}&txt_name=reply_{$message->id}',null,false,'550');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/text_rich.gif{/devblocks_url}" align="top"> {$translate->_('display.reply.email_templates')|capitalize}</button>
+			<button type="button" onclick="genericAjaxGet('','c=tickets&a=getComposeSignature&group_id={$ticket->team_id}',function(text) { insertAtCursor(document.getElementById('reply_{$message->id}'),text);document.getElementById('reply_{$message->id}').focus(); } );"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_edit.gif{/devblocks_url}" align="top"> {$translate->_('display.reply.insert_sig')|capitalize}</button>
 			{* Plugin Toolbar *}
 			{if !empty($reply_toolbaritems)}
 				{foreach from=$reply_toolbaritems item=renderer}
@@ -97,7 +97,7 @@
 <input type="hidden" name="subject" value="">
 
 {if $is_forward}
-<textarea name="content" rows="20" cols="80" id="reply_{$message->id}" class="reply" style="width:98%;border:1px solid rgb(180,180,180);padding:5px;">
+<textarea name="content" rows="20" cols="80" id="reply_{$message->id}" class="reply required" style="width:98%;border:1px solid rgb(180,180,180);padding:5px;">
 {if !empty($signature)}{$signature}{/if}
 
 {$translate->_('display.reply.forward.banner')}
@@ -109,7 +109,7 @@
 {$message->getContent()|trim|escape}
 </textarea>
 {else}
-<textarea name="content" rows="20" cols="80" id="reply_{$message->id}" class="reply" style="width:98%;border:1px solid rgb(180,180,180);padding:5px;">
+<textarea name="content" rows="20" cols="80" id="reply_{$message->id}" class="reply required" style="width:98%;border:1px solid rgb(180,180,180);padding:5px;">
 {if !empty($signature) && $signature_pos}
 
 {$signature}{*Sig above, 2 lines necessary whitespace*}
@@ -251,9 +251,9 @@
 		<td>
 			<!-- {* These buttons are kind of funky.  They have to combine two <form> blocks since there is a user-plugin land toolbar in the middle of them, which should be able to have their own <form> scope *} -->
 			{if $is_forward}
-				<button type="button" onclick="this.form.to.value=document.getElementById('replyForm_to').value;this.form.cc.value=document.getElementById('replyForm_cc').value;this.form.bcc.value=document.getElementById('replyForm_bcc').value;this.form.subject.value=document.getElementById('replyForm_subject').value;if(0==this.form.to.value.length)return;this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('display.ui.forward')|capitalize}</button>
+				<button type="button" onclick="this.form.to.value=document.getElementById('replyForm_to').value;this.form.cc.value=document.getElementById('replyForm_cc').value;this.form.bcc.value=document.getElementById('replyForm_bcc').value;this.form.subject.value=document.getElementById('replyForm_subject').value;if($('#reply{$message->id}_part1').validate().form() && $('#reply{$message->id}_part2').validate().form())this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('display.ui.forward')|capitalize}</button>
 			{else}
-				<button type="button" onclick="this.form.cc.value=document.getElementById('replyForm_cc').value;this.form.bcc.value=document.getElementById('replyForm_bcc').value;this.form.subject.value=document.getElementById('replyForm_subject').value;this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('display.ui.send_message')}</button>
+				<button type="button" onclick="this.form.cc.value=document.getElementById('replyForm_cc').value;this.form.bcc.value=document.getElementById('replyForm_bcc').value;this.form.subject.value=document.getElementById('replyForm_subject').value;if($('#reply{$message->id}_part1').validate().form() && $('#reply{$message->id}_part2').validate().form())this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('display.ui.send_message')}</button>
 			{/if}
 			<button type="button" onclick="clearDiv('reply{$message->id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> {$translate->_('display.ui.discard')|capitalize}</button>
 			<button type="button" onclick="clearDiv('reply{$message->id}');genericAjaxGet('','c=display&a=discardAndSurrender&ticket_id={$ticket->id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/flag_white.gif{/devblocks_url}" align="top"> {$translate->_('display.ui.discard_surrender')}</button>
@@ -263,3 +263,9 @@
 </form>
 
 </div>
+
+<script language="JavaScript1.2" type="text/javascript">
+	//ajax.countryAutoComplete('#countryinput');
+	$('#reply{$message->id}_part1').validate();
+	$('#reply{$message->id}_part2').validate();
+</script>

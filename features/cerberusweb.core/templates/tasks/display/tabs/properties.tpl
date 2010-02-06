@@ -32,8 +32,10 @@
 	<tr>
 		<td width="0%" nowrap="nowrap" align="right" valign="top">{'task.due_date'|devblocks_translate|capitalize}: </td>
 		<td width="100%">
-			<input type="text" name="due_date" size="45" value="{if !empty($task->due_date)}{$task->due_date|devblocks_date}{/if}"><button type="button" onclick="ajax.getDateChooser('dateTaskDue',this.form.due_date);">&nbsp;<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/calendar.gif{/devblocks_url}" align="top">&nbsp;</button>
-			<div id="dateTaskDue" style="display:none;position:absolute;z-index:1;"></div>
+			<input type="text" id="taskDueDate" name="due_date" size="45" value="{if !empty($task->due_date)}{$task->due_date|devblocks_date}{/if}">
+			<script type="text/javascript" language="JavaScript1.2">
+				devblocksAjaxDateChooser('#taskDueDate');
+			</script>
 		</td>
 	</tr>
 	<tr>
@@ -65,6 +67,8 @@
 </table>
 
 {include file="file:$core_tpl/internal/custom_fields/bulk/form.tpl" bulk=false}
+
+<br>
 
 {if ($active_worker->hasPriv('core.tasks.actions.create') && (empty($task) || $active_worker->id==$task->worker_id))
 	|| ($active_worker->hasPriv('core.tasks.actions.update_nobody') && empty($task->worker_id)) 

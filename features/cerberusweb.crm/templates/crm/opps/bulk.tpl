@@ -10,7 +10,6 @@
 <input type="hidden" name="a" value="doOppBulkUpdate">
 <input type="hidden" name="view_id" value="{$view_id}">
 <input type="hidden" name="opp_ids" value="{$opp_ids}">
-<div style="height:400px;overflow:auto;">
 
 <h2>{$translate->_('common.bulk_update.with')|capitalize}:</h2>
 
@@ -55,8 +54,8 @@
 	<tr>
 		<td width="0%" nowrap="nowrap" align="right">{'crm.opportunity.closed_date'|devblocks_translate|capitalize}:</td>
 		<td width="100%">
-			<input type="text" name="closed_date" size=35 value=""><button type="button" onclick="ajax.getDateChooser('dateOppBulkClosed',this.form.closed_date);">&nbsp;<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/calendar.gif{/devblocks_url}" align="top">&nbsp;</button>
-			<div id="dateOppBulkClosed" style="display:none;position:absolute;z-index:1;"></div>
+			<input type="text" name="closed_date" size=35 value=""><button type="button" onclick="devblocksAjaxDateChooser(this.form.closed_date,'#dateOppBulkClosed');">&nbsp;<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/calendar.gif{/devblocks_url}" align="top">&nbsp;</button>
+			<div id="dateOppBulkClosed"></div>
       	</td>
 	</tr>
 </table>
@@ -64,7 +63,6 @@
 {include file="file:$core_tpl/internal/custom_fields/bulk/form.tpl" bulk=true}
 
 <br>
-</div>
 
-<button type="button" onclick="genericPanel.hide();genericAjaxPost('formBatchUpdate','view{$view_id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
+<button type="button" onclick="genericPanel.dialog('close');genericAjaxPost('formBatchUpdate','view{$view_id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
 </form>

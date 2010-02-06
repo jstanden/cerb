@@ -29,13 +29,7 @@
 		<tr>
 			<td align="right">{'contact_org.country'|devblocks_translate}: </td>
 			<td>
-			
-				<div id="org_country_autocomplete" style="width:98%;" class="yui-ac">
-					<input type="text" name="country" id="org_country_input" value="{$contact->country|escape}" class="yui-ac-input">
-					<div id="org_country_container" class="yui-ac-container"></div>
-				</div>			
-				<br>
-				<br>
+				<input type="text" name="country" id="countryinput" value="{$contact->country|escape}" style="width:98%;">
 			</td>
 		</tr>
 		<tr>
@@ -60,3 +54,7 @@
 </blockquote>
 
 </form>
+
+<script language="JavaScript1.2" type="text/javascript">
+	ajax.countryAutoComplete('#countryinput');
+</script>

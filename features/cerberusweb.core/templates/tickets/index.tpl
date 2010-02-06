@@ -26,236 +26,207 @@
 </tr>
 </table>
 
-<div id="mailTabs"></div> 
+<div id="mailTabs">
+	<ul>
+		{$tabs = [workflow]}
+		
+		<li><a href="{devblocks_url}ajax.php?c=tickets&a=showWorkflowTab&request={$request_path|escape:'url'}{/devblocks_url}">{$translate->_('mail.workflow')|capitalize|escape:'quotes'}</a></li>
+		
+		{if $active_worker->hasPriv('core.mail.overview')}
+			{$tabs[] = overview}
+			<li><a href="{devblocks_url}ajax.php?c=tickets&a=showOverviewTab&request={$request_path|escape:'url'}{/devblocks_url}">{$translate->_('mail.overview')|capitalize|escape:'quotes'}</a></li>
+		{/if}
+
+		{if $active_worker->hasPriv('core.mail.search')}
+			{$tabs[] = search}
+			<li><a href="{devblocks_url}ajax.php?c=tickets&a=showSearchTab&request={$request_path|escape:'url'}{/devblocks_url}">{$translate->_('common.search')|capitalize|escape:'quotes'}</a></li>
+		{/if}
+		
+		{foreach from=$tab_manifests item=tab_manifest}
+			{$tabs[] = $tab_manifest->params.uri}
+			<li><a href="{devblocks_url}ajax.php?c=config&a=showTab&ext_id={$tab_manifest->id}{/devblocks_url}"><i>{$tab_manifest->params.title|devblocks_translate|escape:'quotes'}</i></a></li>
+		{/foreach}
+	</ul>
+</div> 
 <br>
 
+{$tab_selected_idx=0}
+{foreach from=$tabs item=tab_label name=tabs}
+	{if $tab_label==$selected_tab}{$tab_selected_idx = $smarty.foreach.tabs.index}{/if}
+{/foreach}
+
 <script type="text/javascript">
-{counter name=tab_idx assign=tab_idx start=0 print=false}
-{assign var=tab_idx_workflow value=$tab_idx}
-{literal}
-var tabView = new YAHOO.widget.TabView();
+	$(function() {
+		var tabs = $("#mailTabs").tabs( { 
+			selected: {$tab_selected_idx},
+			show: function(event, ui) {
+				idx = tabs.tabs('option', 'selected');
 
-tabView.addTab( new YAHOO.widget.Tab({
-    label: '{/literal}{$translate->_('mail.workflow')|capitalize|escape:'quotes'}{literal}',
-    dataSrc: '{/literal}{devblocks_url}ajax.php?c=tickets&a=showWorkflowTab&request={$request_path|escape:'url'}{/devblocks_url}{literal}',
-    cacheData: false
-}));
+				{if $pref_keyboard_shortcuts}
+					{$case = 0}
+					switch(idx) {
+						case {$case}:
+							doWorkflowKeys();
+							break;
+						{if $active_worker->hasPriv('core.mail.overview')}
+							{$case = $case + 1}
+							case {$case}:
+								doOverviewKeys();
+								break;
+						{/if}
+						{if $active_worker->hasPriv('core.mail.search')}
+							{$case = $case + 1}
+							case {$case}:
+								doSearchKeys();
+								break;
+						{/if}
+						default:
+							doNullKeys();
+							break;
+					}
+				{/if}
+			} 
+		} );
+	});
 
-{/literal}{if $active_worker->hasPriv('core.mail.overview')}
-	{counter name=tab_idx assign=tab_idx print=false}
-	{assign var=tab_idx_overview value=$tab_idx}
-{literal}
-tabView.addTab( new YAHOO.widget.Tab({
-    label: '{/literal}{$translate->_('mail.overview')|capitalize|escape:'quotes'}{literal}',
-    dataSrc: '{/literal}{devblocks_url}ajax.php?c=tickets&a=showOverviewTab&request={$request_path|escape:'url'}{/devblocks_url}{literal}',
-    cacheData: false
-}));
-{/literal}{/if}{literal}
-
-{/literal}{if $active_worker->hasPriv('core.mail.search')}
-	{counter name=tab_idx assign=tab_idx print=false}
-	{assign var=tab_idx_search value=$tab_idx}
-{literal}
-tabView.addTab( new YAHOO.widget.Tab({
-    label: '{/literal}{$translate->_('common.search')|capitalize|escape:'quotes'}{literal}',
-    dataSrc: '{/literal}{devblocks_url}ajax.php?c=tickets&a=showSearchTab&request={$request_path|escape:'url'}{/devblocks_url}{literal}',
-    cacheData: true
-}));{/literal}
-{/if}
-
-{foreach from=$workspaces item=workspace}
-{literal}tabView.addTab( new YAHOO.widget.Tab({{/literal}
-    label: '<i>{$workspace|escape}</i>',
-    dataSrc: '{devblocks_url}ajax.php?c=home&a=showWorkspaceTab&workspace={$workspace|escape:'url'}{/devblocks_url}',
-    cacheData: false,
-    active:{if substr($selected_tab,2)==$workspace}true{else}false{/if}
-{literal}}));{/literal}
-{/foreach}
-
-// Initialize the tabs
-tabView.appendTo('mailTabs');
-
-// Hotkeys
-{literal}
-tabView.addListener('activeTabChange', function(e) {
-	switch(tabView.get('activeIndex')) {
-		// Workflow keys
-		{/literal}
-		{if is_numeric($tab_idx_workflow)}
-		case {$tab_idx_workflow}:
-		{if $pref_keyboard_shortcuts}
-		{literal}
-			CreateKeyHandler(function (e) {
-				var mycode = getKeyboardKey(e, true);
-				
-				switch(mycode) {
-					case 65:  // (A) list all
-						try {
-							document.getElementById('btnWorkflowListAll').click();
-						} catch(e){}
-						break;
-					case 66:  // (B) bulk update
-						try {
-							document.getElementById('btnmail_workflowBulkUpdate').click();
-						} catch(e){}
-						break;
-					case 67:  // (C) close
-						try {
-							document.getElementById('btnmail_workflowClose').click();
-						} catch(e){}
-						break;
-					case 77:  // (M) my tickets
-						try {
-							document.getElementById('btnMyTickets').click();
-						} catch(e){}
-						break;
-					case 83:  // (S) spam
-						try {
-							document.getElementById('btnmail_workflowSpam').click();
-						} catch(e){}
-						break;
-					case 84:  // (T) take
-						try {
-							document.getElementById('btnmail_workflowTake').click();
-						} catch(e){}
-						break;
-					case 85:  // (U) surrender
-						try {
-							document.getElementById('btnmail_workflowSurrender').click();
-						} catch(e){}
-						break;
-					case 88:  // (X) delete
-						try {
-							document.getElementById('btnmail_workflowDelete').click();
-						} catch(e){}
-						break;
-				}
-			});
-		{/literal}
-		{/if}
-		break;
-		{/if}
-			
-		// Overview keys
-		{if is_numeric($tab_idx_overview)}
-		case {$tab_idx_overview}:
-		{if $pref_keyboard_shortcuts}
-			{literal}
-			CreateKeyHandler(function (e) {
-				var mycode = getKeyboardKey(e, true);
-				
-				switch(mycode) {
-					case 65: // (A) list all
-						try {
-							document.getElementById('btnOverviewListAll').click();
-						} catch(e){}
-						break;
-					case 66:  // (B) bulk update
-						try {
-							document.getElementById('btnoverview_allBulkUpdate').click();
-						} catch(e){}
-						break;
-					case 67:  // (C) close
-						try {
-							document.getElementById('btnoverview_allClose').click();
-						} catch(e){}
-						break;
-					case 77:  // (M) my tickets
-						try {
-							document.getElementById('btnMyTickets').click();
-						} catch(e){}
-						break;
-					case 83:  // (S) spam
-						try {
-							document.getElementById('btnoverview_allSpam').click();
-						} catch(e){}
-						break;
-					case 84:  // (T) take
-						try {
-							document.getElementById('btnoverview_allTake').click();
-						} catch(e){}
-						break;
-					case 85:  // (U) surrender
-						try {
-							document.getElementById('btnoverview_allSurrender').click();
-						} catch(e){}
-						break;
-					case 88:  // (X) delete
-						try {
-							document.getElementById('btnoverview_allDelete').click();
-						} catch(e){}
-						break;
-				}
-			});
-			{/literal}
-			{/if}
-			break;
-			{/if}
-			
-		// Search keys
-		{if is_numeric($tab_idx_search)}
-		case {$tab_idx_search}:
-		{if $pref_keyboard_shortcuts}
-			{literal}
-			CreateKeyHandler(function (e) {
-				var mycode = getKeyboardKey(e, true);
-				
-				switch(mycode) {
-					case 66:  // (B) bulk update
-						try {
-							document.getElementById('btnsearchBulkUpdate').click();
-						} catch(e){}
-						break;
-					case 67:  // close
-						try {
-							document.getElementById('btnsearchClose').click();
-						} catch(e){}
-						break;
-					case 83:  // spam
-						try {
-							document.getElementById('btnsearchSpam').click();
-						} catch(e){}
-						break;
-					case 84:  // take
-						try {
-							document.getElementById('btnsearchTake').click();
-						} catch(e){}
-						break;
-					case 85:  // surrender
-						try {
-							document.getElementById('btnsearchSurrender').click();
-						} catch(e){}
-						break;
-					case 88:  // delete
-						try {
-							document.getElementById('btnsearchDelete').click();
-						} catch(e){}
-						break;
-				}
-			});
-			{/literal}
-			{/if}
-			break;
-			{/if}
-			
-		{literal}
-		default:
-			CreateKeyHandler(function (e) {});
-			break;
+	function doNullKeys() {
+		CreateKeyHandler(function (e) { } );
 	}
-});
-{/literal}
 
-// Select the appropriate tab
-{assign var=tabIdx value=null}
-{counter assign=counter name="mailTabs" start=0}{if empty($selected_tab) || 'workflow'==$selected_tab}{assign var=tabIdx value=$counter}{/if}
-{if $active_worker->hasPriv('core.mail.overview')}{counter assign=counter name="mailTabs"}{if 'overview'==$selected_tab}{assign var=tabIdx value=$counter}{/if}{/if}
-{if $active_worker->hasPriv('core.mail.search')}{counter assign=counter name="mailTabs"}{if 'search'==$selected_tab}{assign var=tabIdx value=$counter}{/if}{/if}
-
-{foreach from=$workspaces item=workspace}
-	{counter assign=counter name="mailTabs"}{if 'w_'==substr($selected_tab,0,2) && substr($selected_tab,2)==$workspace}{assign var=tabIdx value=$counter}{/if}
-{/foreach}
-
-{if is_null($tabIdx)}{assign var=tabIdx value=0}{/if}
-tabView.set('activeIndex', {$tabIdx});
+	function doWorkflowKeys() {
+		CreateKeyHandler(function (e) {
+			var mycode = getKeyboardKey(e, true);
+			
+			switch(mycode) {
+				case 65:  // (A) list all
+					try {
+						document.getElementById('btnWorkflowListAll').click();
+					} catch(e) { } 
+					break;
+				case 66:  // (B) bulk update
+					try {
+						document.getElementById('btnmail_workflowBulkUpdate').click();
+					} catch(e) { } 
+					break;
+				case 67:  // (C) close
+					try {
+						document.getElementById('btnmail_workflowClose').click();
+					} catch(e) { } 
+					break;
+				case 77:  // (M) my tickets
+					try {
+						document.getElementById('btnMyTickets').click();
+					} catch(e) { } 
+					break;
+				case 83:  // (S) spam
+					try {
+						document.getElementById('btnmail_workflowSpam').click();
+					} catch(e) { } 
+					break;
+				case 84:  // (T) take
+					try {
+						document.getElementById('btnmail_workflowTake').click();
+					} catch(e) { } 
+					break;
+				case 85:  // (U) surrender
+					try {
+						document.getElementById('btnmail_workflowSurrender').click();
+					} catch(e) { } 
+					break;
+				case 88:  // (X) delete
+					try {
+						document.getElementById('btnmail_workflowDelete').click();
+					} catch(e) { } 
+					break;
+			}
+		} );		
+	}
+	
+	function doOverviewKeys() {
+		CreateKeyHandler(function (e) {
+			var mycode = getKeyboardKey(e, true);
+			
+			switch(mycode) {
+				case 65: // (A) list all
+					try {
+						document.getElementById('btnOverviewListAll').click();
+					} catch(e) { } 
+					break;
+				case 66:  // (B) bulk update
+					try {
+						document.getElementById('btnoverview_allBulkUpdate').click();
+					} catch(e) { } 
+					break;
+				case 67:  // (C) close
+					try {
+						document.getElementById('btnoverview_allClose').click();
+					} catch(e) { } 
+					break;
+				case 77:  // (M) my tickets
+					try {
+						document.getElementById('btnMyTickets').click();
+					} catch(e) { } 
+					break;
+				case 83:  // (S) spam
+					try {
+						document.getElementById('btnoverview_allSpam').click();
+					} catch(e) { } 
+					break;
+				case 84:  // (T) take
+					try {
+						document.getElementById('btnoverview_allTake').click();
+					} catch(e) { } 
+					break;
+				case 85:  // (U) surrender
+					try {
+						document.getElementById('btnoverview_allSurrender').click();
+					} catch(e) { } 
+					break;
+				case 88:  // (X) delete
+					try {
+						document.getElementById('btnoverview_allDelete').click();
+					} catch(e) { } 
+					break;
+			}
+		});		
+	}
+	
+	function doSearchKeys() {
+		CreateKeyHandler(function (e) {
+			var mycode = getKeyboardKey(e, true);
+			
+			switch(mycode) {
+				case 66:  // (B) bulk update
+					try {
+						document.getElementById('btnsearchBulkUpdate').click();
+					} catch(e) { } 
+					break;
+				case 67:  // close
+					try {
+						document.getElementById('btnsearchClose').click();
+					} catch(e) { } 
+					break;
+				case 83:  // spam
+					try {
+						document.getElementById('btnsearchSpam').click();
+					} catch(e) { } 
+					break;
+				case 84:  // take
+					try {
+						document.getElementById('btnsearchTake').click();
+					} catch(e) { } 
+					break;
+				case 85:  // surrender
+					try {
+						document.getElementById('btnsearchSurrender').click();
+					} catch(e) { } 
+					break;
+				case 88:  // delete
+					try {
+						document.getElementById('btnsearchDelete').click();
+					} catch(e) { } 
+					break;
+			}
+		});		
+	}	
 </script>

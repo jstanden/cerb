@@ -14,46 +14,24 @@
 {$translate->_('usermeet.ui.community.cfg.profile_id')} <b>{$tool->code}</b><br>
 <br>
 
-<div id="communityToolTabs"></div> 
+<div id="communityToolTabs">
+	<ul>
+		<li><a href="{devblocks_url}ajax.php?c=community&a=showTabSettings&id={$tool->id}{/devblocks_url}">{'Settings'|devblocks_translate|escape}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=community&a=showTabTemplates&id={$tool->id}{/devblocks_url}">{'Custom Templates'|devblocks_translate|escape}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=community&a=showTabInstallation&id={$tool->id}{/devblocks_url}">{'Installation'|devblocks_translate|escape}</a></li>
+
+		{$tabs = [settings,templates,installation]}
+	</ul>
+</div> 
 <br>
 
-<script type="text/javascript">
-{literal}
-var tabView = new YAHOO.widget.TabView();
-
-tabView.addTab( new YAHOO.widget.Tab({
-    label: '{/literal}{'Settings'|devblocks_translate|escape}{literal}',
-    dataSrc: '{/literal}{devblocks_url}ajax.php?c=community&a=showTabSettings&id={$tool->id}{/devblocks_url}{literal}',
-    cacheData: false,
-    {/literal}active: {if 'settings'==$tab_selected || empty($tab_selected)}true{else}false{/if}{literal}
-}));
-
-tabView.addTab( new YAHOO.widget.Tab({
-    label: '{/literal}{'Custom Templates'|devblocks_translate|escape}{literal}',
-    dataSrc: '{/literal}{devblocks_url}ajax.php?c=community&a=showTabTemplates&id={$tool->id}{/devblocks_url}{literal}',
-    cacheData: false,
-    {/literal}active: {if 'templates'==$tab_selected}true{else}false{/if}{literal}
-}));
-
-tabView.addTab( new YAHOO.widget.Tab({
-    label: '{/literal}{'Installation'|devblocks_translate|escape}{literal}',
-    dataSrc: '{/literal}{devblocks_url}ajax.php?c=community&a=showTabInstallation&id={$tool->id}{/devblocks_url}{literal}',
-    cacheData: false,
-    {/literal}active: {if 'installation'==$tab_selected}true{else}false{/if}{literal}
-}));
-
-{/literal}
-
-{*
-{foreach from=$tab_manifests item=tab_manifest}
-{literal}tabView.addTab( new YAHOO.widget.Tab({{/literal}
-    label: '{$tab_manifest->params.title|escape:'quotes'}',
-    dataSrc: '{devblocks_url}ajax.php?c=community&a=showTab&ext_id={$tab_manifest->id}&id={$tool->id}{/devblocks_url}',
-    {if $tab==$tab_manifest->params.uri}active: true,{/if}
-    cacheData: false
-{literal}}));{/literal}
+{$tab_selected_idx=0}
+{foreach from=$tabs item=tab_label name=tabs}
+	{if $tab_label==$tab_selected}{$tab_selected_idx = $smarty.foreach.tabs.index}{/if}
 {/foreach}
-*}
 
-tabView.appendTo('communityToolTabs');
+<script type="text/javascript">
+	$(function() {
+		var tabs = $("#communityToolTabs").tabs( { selected:{$tab_selected_idx} } );
+	});
 </script>

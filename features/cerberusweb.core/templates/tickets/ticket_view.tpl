@@ -71,7 +71,7 @@
 	{else}
 	<tr class="{$tableRowBg}" id="{$rowIdPrefix}_s" onmouseover="toggleClass(this.id,'tableRowHover');toggleClass('{$rowIdPrefix}','tableRowHover');" onmouseout="toggleClass(this.id,'{$tableRowBg}');toggleClass('{$rowIdPrefix}','{$tableRowBg}');" onclick="if(getEventTarget(event)=='TD') checkAll('{$rowIdPrefix}_s');">
 		<td align="center" rowspan="2"><input type="checkbox" name="ticket_id[]" value="{$result.t_id}"></td>
-		<td colspan="{math equation="x" x=$smarty.foreach.headers.total}"><a href="{devblocks_url}c=display&a=browse&id={$result.t_mask}&view={$view->id}{/devblocks_url}" style="color:rgb(75,75,75);font-size:12px;"><b id="subject_{$result.t_id}_{$view->id}">{if $result.t_is_deleted}<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete2_gray.gif{/devblocks_url}" width="16" height="16" align="top" border="0" title="{$translate->_('status.deleted')}"> {elseif $result.t_is_closed}<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check_gray.gif{/devblocks_url}" width="16" height="16" align="top" border="0" title="{$translate->_('status.closed')}"> {elseif $result.t_is_waiting}<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/clock.gif{/devblocks_url}" width="16" height="16" align="top" border="0" title="{$translate->_('status.waiting')}"> {/if}{$result.t_subject|escape}</b></a> <a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showPreview&view_id={$view->id}&tid={$result.t_id}', this, false, '500px',function(o){literal}{{/literal}var tabView = new YAHOO.widget.TabView('ticketPeekTabs');{literal}}{/literal});" style="color:rgb(180,180,180);font-size:90%;">{$translate->_('views.peek')}</a></td>
+		<td colspan="{math equation="x" x=$smarty.foreach.headers.total}"><a href="{devblocks_url}c=display&a=browse&id={$result.t_mask}&view={$view->id}{/devblocks_url}" style="color:rgb(75,75,75);font-size:12px;"><b id="subject_{$result.t_id}_{$view->id}">{if $result.t_is_deleted}<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete2_gray.gif{/devblocks_url}" width="16" height="16" align="top" border="0" title="{$translate->_('status.deleted')}"> {elseif $result.t_is_closed}<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check_gray.gif{/devblocks_url}" width="16" height="16" align="top" border="0" title="{$translate->_('status.closed')}"> {elseif $result.t_is_waiting}<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/clock.gif{/devblocks_url}" width="16" height="16" align="top" border="0" title="{$translate->_('status.waiting')}"> {/if}{$result.t_subject|escape}</b></a> <a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showPreview&view_id={$view->id}&tid={$result.t_id}', null, false, '500');"><span class="ui-icon ui-icon-newwin" style="display:inline-block;" title="{$translate->_('views.peek')}"></span></a></td>
 	</tr>
 	<tr class="{$tableRowBg}" id="{$rowIdPrefix}" onmouseover="toggleClass(this.id,'tableRowHover');toggleClass('{$rowIdPrefix}_s','tableRowHover');" onmouseout="toggleClass(this.id,'{$tableRowBg}');toggleClass('{$rowIdPrefix}_s','{$tableRowBg}');" onclick="if(getEventTarget(event)=='TD') checkAll('{$rowIdPrefix}_s');">
 	{foreach from=$view->view_columns item=column name=columns}
@@ -90,9 +90,9 @@
 		{elseif $column=="t_is_deleted"}
 		<td>{if $result.t_is_deleted}<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete2_gray.gif{/devblocks_url}" width="16" height="16" border="0" title="{$translate->_('status.deleted')}">{else}{/if}</td>
 		{elseif $column=="t_last_wrote"}
-		<td><a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$result.t_last_wrote|escape:'url'}&view_id={$view->id}',this,false,'500px',ajax.cbAddressPeek);" title="{$result.t_last_wrote}">{$result.t_last_wrote|truncate:45:'...':true:true}</a></td>
+		<td><a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$result.t_last_wrote|escape:'url'}&view_id={$view->id}',null,false,'500');" title="{$result.t_last_wrote}">{$result.t_last_wrote|truncate:45:'...':true:true}</a></td>
 		{elseif $column=="t_first_wrote"}
-		<td><a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$result.t_first_wrote|escape:'url'}&view_id={$view->id}',this,false,'500px',ajax.cbAddressPeek);" title="{$result.t_first_wrote}">{$result.t_first_wrote|truncate:45:'...':true:true}</a></td>
+		<td><a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$result.t_first_wrote|escape:'url'}&view_id={$view->id}',null,false,'500');" title="{$result.t_first_wrote}">{$result.t_first_wrote|truncate:45:'...':true:true}</a></td>
 		{elseif $column=="t_created_date"}
 		<td title="{$result.t_created_date|devblocks_date}">{$result.t_created_date|devblocks_prettytime}</td>
 		{elseif $column=="t_updated_date"}
@@ -118,7 +118,7 @@
 			<td>
 				{if 0 == $ticket_category_id}
 					{if (isset($active_worker_memberships.$ticket_team_id)) && $active_worker_memberships.$ticket_team_id->is_manager || $active_worker->is_superuser}
-						<a href="javascript:;" onclick="genericAjaxPanel('c=groups&a=showInboxFilterPanel&id=0&group_id={$ticket_team_id}&ticket_id={$result.t_id}&view_id={$view->id}',null,false,'600px');">{$translate->_('mail.view.add_filter')}</a>
+						<a href="javascript:;" onclick="genericAjaxPanel('c=groups&a=showInboxFilterPanel&id=0&group_id={$ticket_team_id}&ticket_id={$result.t_id}&view_id={$view->id}',null,false,'600');">{$translate->_('mail.view.add_filter')}</a>
 					{/if}
 				{else}
 					{$buckets.$ticket_category_id->name}
@@ -130,13 +130,13 @@
 			{if $result.t_last_action_code=='O'}
 				{assign var=action_worker_id value=$result.t_next_worker_id}
 				<span title="{$result.t_first_wrote}">New 
-				{if isset($workers.$action_worker_id)}for {$workers.$action_worker_id->getName()}{else}from <a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$result.t_first_wrote|escape:'url'}&view_id={$view->id}',this,false,'500px',ajax.cbAddressPeek);">{$result.t_first_wrote|truncate:45:'...':true:true}</a>{/if}</span>
+				{if isset($workers.$action_worker_id)}for {$workers.$action_worker_id->getName()}{else}from <a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$result.t_first_wrote|escape:'url'}&view_id={$view->id}',null,false,'500');">{$result.t_first_wrote|truncate:45:'...':true:true}</a>{/if}</span>
 			{elseif $result.t_last_action_code=='R'}
 				{assign var=action_worker_id value=$result.t_next_worker_id}
 				{if isset($workers.$action_worker_id)}
 					<span title="{$result.t_last_wrote}"><span style="color:rgb(255,50,50);background-color:rgb(255,213,213);font-weight:bold;">{'mail.inbound'|devblocks_translate}</span> for {$workers.$action_worker_id->getName()}</span>
 				{else}
-					<span title="{$result.t_last_wrote}"><span style="color:rgb(255,50,50);background-color:rgb(255,213,213);font-weight:bold;">{'mail.inbound'|devblocks_translate}</span> from <a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$result.t_last_wrote|escape:'url'}&view_id={$view->id}',this,false,'500px',ajax.cbAddressPeek);">{$result.t_last_wrote|truncate:45:'...':true:true}</a></span>
+					<span title="{$result.t_last_wrote}"><span style="color:rgb(255,50,50);background-color:rgb(255,213,213);font-weight:bold;">{'mail.inbound'|devblocks_translate}</span> from <a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$result.t_last_wrote|escape:'url'}&view_id={$view->id}',null,false,'500');">{$result.t_last_wrote|truncate:45:'...':true:true}</a></span>
 				{/if}
 			{elseif $result.t_last_action_code=='W'}
 				{assign var=action_worker_id value=$result.t_last_worker_id}
@@ -188,7 +188,7 @@
 	<tr>
 		<td colspan="2">
 			{assign var=show_more value=0}
-			{if $active_worker->hasPriv('core.ticket.view.actions.bulk_update')}{assign var=show_more value=1}<button type="button"  id="btn{$view->id}BulkUpdate" onclick="ajax.showBatchPanel('{$view->id}',this);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> {$translate->_('common.bulk_update')|lower}</button>{/if}
+			{if $active_worker->hasPriv('core.ticket.view.actions.bulk_update')}{assign var=show_more value=1}<button type="button"  id="btn{$view->id}BulkUpdate" onclick="ajax.showBatchPanel('{$view->id}',null);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> {$translate->_('common.bulk_update')|lower}</button>{/if}
 			{if $active_worker->hasPriv('core.ticket.actions.close')}{assign var=show_more value=1}<button type="button" id="btn{$view->id}Close" onclick="ajax.viewCloseTickets('{$view->id}',0);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_ok.gif{/devblocks_url}" align="top"> {$translate->_('common.close')|lower}</button>{/if}
 			{if $active_worker->hasPriv('core.ticket.actions.spam')}{assign var=show_more value=1}<button type="button"  id="btn{$view->id}Spam" onclick="ajax.viewCloseTickets('{$view->id}',1);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/spam.gif{/devblocks_url}" align="top"> {$translate->_('common.spam')|lower}</button>{/if}
 			{if $active_worker->hasPriv('core.ticket.actions.delete')}{assign var=show_more value=1}<button type="button"  id="btn{$view->id}Delete" onclick="ajax.viewCloseTickets('{$view->id}',2);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> {$translate->_('common.delete')|lower}</button>{/if}

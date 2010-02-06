@@ -1192,7 +1192,7 @@ class ChContactsPage extends CerberusPageExtension {
 	}
 	
 	function getOrgsAutoCompletionsAction() {
-		@$starts_with = DevblocksPlatform::importGPC($_REQUEST['query'],'string','');
+		@$starts_with = DevblocksPlatform::importGPC($_REQUEST['q'],'string','');
 		
 		$params = array(
 			DAO_ContactOrg::NAME => $starts_with
@@ -1211,7 +1211,7 @@ class ChContactsPage extends CerberusPageExtension {
 		);
 		
 		foreach($orgs AS $val){
-			echo $val[SearchFields_ContactOrg::NAME] . "\t";
+			echo $val[SearchFields_ContactOrg::NAME] . "|";
 			echo $val[SearchFields_ContactOrg::ID] . "\n";
 		}
 		exit;
@@ -1219,7 +1219,7 @@ class ChContactsPage extends CerberusPageExtension {
 	
 	function getEmailAutoCompletionsAction() {
 		$db = DevblocksPlatform::getDatabaseService();
-		@$query = DevblocksPlatform::importGPC($_REQUEST['query'],'string','');
+		@$query = DevblocksPlatform::importGPC($_REQUEST['q'],'string','');
 		
 		$starts_with = strtolower($query) . '%';
 		
@@ -1248,7 +1248,7 @@ class ChContactsPage extends CerberusPageExtension {
 				(!empty($last)) ? $last : ''
 			);
 			
-			echo sprintf("%s\t%s%s\n",
+			echo sprintf("%s|%s%s\n",
 				$email,
 				!empty($personal) ? ('"'.$personal.'" ') : '',
 				!empty($personal) ? ("<".$email.">") : $email
@@ -1261,7 +1261,7 @@ class ChContactsPage extends CerberusPageExtension {
 	}
 	
 	function getCountryAutoCompletionsAction() {
-		@$starts_with = DevblocksPlatform::importGPC($_REQUEST['query'],'string','');
+		@$starts_with = DevblocksPlatform::importGPC($_REQUEST['q'],'string','');
 		
 		$db = DevblocksPlatform::getDatabaseService();
 		

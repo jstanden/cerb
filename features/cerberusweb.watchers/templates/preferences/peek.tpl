@@ -7,7 +7,6 @@
 
 <h2>Add Watcher Filter</h2>
 
-<div style="height:400;overflow:auto;">
 <b>Filter Name:</b> (e.g. Emergency Support to SMS)<br>
 <input type="text" name="name" value="{$filter->name|escape}" size="45" style="width:95%;"><br>
 
@@ -241,9 +240,8 @@
 	{/foreach}
 </blockquote>
 
-</div>
 <br>
 
-<button type="button" onclick="genericPanel.hide();genericAjaxPost('frmWatcherFilter', '', '');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')}</button>
+<button type="button" onclick="genericAjaxPanelPostCloseReloadView('frmWatcherFilter', '{$view_id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')}</button>
 </form>
 <br>

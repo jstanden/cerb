@@ -16,13 +16,11 @@
 						{if !empty($fnr_topics) && !empty($fnr_resources)}
 							{foreach from=$fnr_topics key=fnr_topic_id item=fnr_topic}
 							<b>{$fnr_topic->name}</b><br>
-							<div style="margin:0px;margin-left:5px;margin-bottom:5px;width:200px;overflow:auto;">
 								{foreach from=$fnr_resources item=fnr_resource}
 								{if $fnr_topic_id==$fnr_resource->topic_id}
 									&#187; <a href="javascript:;" onclick="genericAjaxGet('configFnrResource','c=config&a=handleTabAction&tab=fnr.config.tab&action=getFnrResource&id={$fnr_resource->id}');">{$fnr_resource->name}</a><br>
 								{/if}
 								{/foreach}
-							</div>
 							{/foreach}
 						{/if}
 					</td>

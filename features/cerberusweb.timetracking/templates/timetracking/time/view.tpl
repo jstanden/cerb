@@ -67,7 +67,7 @@
 		<tr class="{$tableRowBg}" id="{$rowIdPrefix}_s" onmouseover="toggleClass(this.id,'tableRowHover');toggleClass('{$rowIdPrefix}','tableRowHover');" onmouseout="toggleClass(this.id,'{$tableRowBg}');toggleClass('{$rowIdPrefix}','{$tableRowBg}');" onclick="if(getEventTarget(event)=='TD'||getEventTarget(event)=='DIV') checkAll('{$rowIdPrefix}_s');">
 			<td align="center" rowspan="2"><input type="checkbox" name="row_id[]" value="{$result.tt_id}"></td>
 			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">
-				<a href="javascript:;" style="color:rgb(75,75,75);font-size:12px;" onclick="genericAjaxPanel('c=timetracking&a=showEntry&id={$result.tt_id}&view_id={$view->id}',this,false,'500px',function(o){literal}{{/literal} ajax.cbAddressPeek(); genericAjaxPostAfterSubmitEvent.subscribe(function(type,args){literal}{{/literal} genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');{literal}}{/literal}); {literal}}{/literal} );">
+				<a href="javascript:;" style="color:rgb(75,75,75);font-size:12px;" onclick="genericAjaxPanel('c=timetracking&a=showEntry&id={$result.tt_id}&view_id={$view->id}',null,false,'500');">
 				<b>{'timetracking.ui.tracked_desc'|devblocks_translate:$worker_name:$result.tt_time_actual_mins:$activities.$activity_id->name}</b>
 				</a>
 				<br>
@@ -83,7 +83,7 @@
 			{elseif $column=="o_name"}
 			<td>
 				{if !empty($result.o_name)}
-				<a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showOrgPeek&id={$result.tt_debit_org_id}&view_id={$view->id}',this,false,'500px',ajax.cbOrgCountryPeek);">{$result.o_name}</a>
+				<a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showOrgPeek&id={$result.tt_debit_org_id}&view_id={$view->id}',null,false,'500');">{$result.o_name}</a>
 				{/if}
 			</td>
 			{elseif $column=="tt_log_date"}
@@ -112,7 +112,7 @@
 	<tr>
 		<td colspan="2">
 			{if !empty($custom_fields)}
-			<button type="button" onclick="genericAjaxPanel('c=timetracking&a=showBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),this,false,'500px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> {'common.bulk_update'|devblocks_translate|lower}</button>
+			<button type="button" onclick="genericAjaxPanel('c=timetracking&a=showBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'500');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> {'common.bulk_update'|devblocks_translate|lower}</button>
 			{/if}
 		</td>
 	</tr>

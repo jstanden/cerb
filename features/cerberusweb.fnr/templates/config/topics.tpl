@@ -14,11 +14,9 @@
 				<tr>
 					<td>
 						{if !empty($fnr_topics)}
-						<div style="margin:0px;padding:3px;width:200px;overflow:auto;">
 							{foreach from=$fnr_topics item=fnr_topic}
 							&#187; <a href="javascript:;" onclick="genericAjaxGet('configFnrTopic','c=config&a=handleTabAction&tab=fnr.config.tab&action=getFnrTopic&id={$fnr_topic->id}');">{$fnr_topic->name}</a><br>
 							{/foreach}
-						</div>
 						{/if}
 					</td>
 				</tr>

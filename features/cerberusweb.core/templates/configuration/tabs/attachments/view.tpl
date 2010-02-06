@@ -83,7 +83,7 @@
 			{elseif $column=="t_subject"}
 				<td><a href="{devblocks_url}c=display&id={$result.t_mask}{/devblocks_url}" title="{$result.t_subject|escape}">{$result.t_subject|truncate:45:'...'}</a></td>
 			{elseif $column=="ad_email"}
-				<td><a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$result.ad_email|escape:'url'}&view_id={$view->id}',this,false,'500px',ajax.cbAddressPeek);" title="{$result.ad_email|escape}">{$result.ad_email|truncate:64:'...':true:true}</a></td>
+				<td><a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$result.ad_email|escape:'url'}&view_id={$view->id}',null,false,'500');" title="{$result.ad_email|escape}">{$result.ad_email|truncate:64:'...':true:true}</a></td>
 			{else}
 			<td>{$result.$column}&nbsp;</td>
 			{/if}
@@ -97,7 +97,7 @@
 	<tr>
 		<td colspan="2">
 			{if $active_worker && $active_worker->is_superuser}
-				<button type="button" onclick="genericAjaxPanel('c=config&a=showAttachmentsBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),this,false,'500px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> bulk update</button>
+				<button type="button" onclick="genericAjaxPanel('c=config&a=showAttachmentsBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'500');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> bulk update</button>
 			{/if}
 		</td>
 	</tr>

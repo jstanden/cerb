@@ -9,12 +9,7 @@
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right">{$translate->_('common.email')}: </td>
 			<td width="100%">
-				<div id="emailautocomplete" style="width:98%;" class="yui-ac">
-					<input type="text" name="email" id="emailinput" value="{$address->email|escape}" style="border:1px solid rgb(180,180,180);padding:2px;" class="yui-ac-input">
-					<div id="emailcontainer" class="yui-ac-container"></div>
-					<br>
-					<br>
-				</div>
+				<input type="text" name="email" id="emailinput" value="{$address->email|escape}" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;">
 			</td>
 		</tr>
 		<tr>
@@ -55,15 +50,15 @@
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right" valign="top">{$translate->_('crm.opportunity.created_date')|capitalize}: </td>
 			<td width="100%">
-				<input type="text" name="created_date" size=35 value="{if !empty($opp->created_date)}{$opp->created_date|devblocks_date}{else}now{/if}"><button type="button" onclick="ajax.getDateChooser('dateOppCreated',this.form.created_date);">&nbsp;<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/calendar.gif{/devblocks_url}" align="top">&nbsp;</button>
-				<div id="dateOppCreated" style="display:none;position:absolute;z-index:1;"></div>
+				<input type="text" name="created_date" size=35 value="{if !empty($opp->created_date)}{$opp->created_date|devblocks_date}{else}now{/if}"><button type="button" onclick="devblocksAjaxDateChooser(this.form.created_date,'#dateOppCreated');">&nbsp;<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/calendar.gif{/devblocks_url}" align="top">&nbsp;</button>
+				<div id="dateOppCreated"></div>
 			</td>
 		</tr>
 		<tr id="oppPeekClosedDate" {if !$opp->is_closed}style="display:none;"{/if}>
 			<td width="0%" nowrap="nowrap" align="right" valign="top">{$translate->_('crm.opportunity.closed_date')|capitalize}: </td>
 			<td width="100%">
-				<input type="text" name="closed_date" size="35" value="{if !empty($opp->closed_date)}{$opp->closed_date|devblocks_date}{/if}"><button type="button" onclick="ajax.getDateChooser('dateOppClosed',this.form.closed_date);">&nbsp;<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/calendar.gif{/devblocks_url}" align="top">&nbsp;</button>
-				<div id="dateOppClosed" style="display:none;position:absolute;z-index:1;"></div>
+				<input type="text" name="closed_date" size="35" value="{if !empty($opp->closed_date)}{$opp->closed_date|devblocks_date}{/if}"><button type="button" onclick="devblocksAjaxDateChooser(this.form.closed_date,'#dateOppClosed');">&nbsp;<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/calendar.gif{/devblocks_url}" align="top">&nbsp;</button>
+				<div id="dateOppClosed"></div>
 			</td>
 		</tr>
 	</table>
@@ -81,3 +76,7 @@
 </blockquote>
 
 </form>
+
+<script language="JavaScript1.2" type="text/javascript">
+	ajax.emailAutoComplete('#emailinput');
+</script>

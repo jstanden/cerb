@@ -6,7 +6,7 @@
 	<table cellpadding="0" cellspacing="0" border="0" width="100%">
 		<tr>
 			<td width="1%" nowrap="nowrap">
-				<button id="btnQuickCompose" type="button" onclick="genericAjaxPanel('c=tickets&a=showComposePeek&view_id={$view->id}&to={$address->email|escape:'url'}',null,false,'600px',{literal}function(o){ajax.cbEmailMultiplePeek(o);document.getElementById('formComposePeek').team_id.focus();}{/literal});"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/mail_write.gif{/devblocks_url}" align="top"> {'common.quick_compose'|devblocks_translate}</button>
+				<button id="btnQuickCompose" type="button" onclick="genericAjaxPanel('c=tickets&a=showComposePeek&view_id={$view->id}&to={$address->email|escape:'url'}',null,false,'600');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/mail_write.gif{/devblocks_url}" align="top"> {'common.quick_compose'|devblocks_translate}</button>
 			</td>
 			<td width="98%"></td>
 			<td width="1%" nowrap="nowrap" align="right">

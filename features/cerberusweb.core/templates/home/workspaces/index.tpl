@@ -8,7 +8,7 @@
 		</td>
 		<td align="right">
 			<button type="submit" value="" id="btnDeleteWorkspace" style="display:none;"></button>
-			<a href="javascript:;" onclick="genericAjaxPanel('c=home&a=showEditWorkspacePanel&workspace={$current_workspace|escape:'url'}',this,false,'450px');">{$translate->_('dashboard.edit')|lower}</a>
+			<a href="javascript:;" onclick="genericAjaxPanel('c=home&a=showEditWorkspacePanel&workspace={$current_workspace|escape:'url'}',null,false,'450');">{$translate->_('dashboard.edit')|lower}</a>
 			| <a href="javascript:;" onclick="if(confirm('{$translate->_('dashboard.delete.confirm')|escape}'))document.getElementById('btnDeleteWorkspace').click();">{$translate->_('dashboard.delete')|lower}</a>
 		</td>
 	</tr>

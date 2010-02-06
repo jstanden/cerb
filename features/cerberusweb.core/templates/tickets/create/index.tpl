@@ -32,10 +32,7 @@
 				<tr>
 					<td width="0%" nowrap="nowrap" valign="middle" align="right"><b>{'mail.log_message.requesters'|devblocks_translate}:</b>&nbsp;</td>
 					<td width="100%">
-						<div id="emailautocomplete" style="width:98%;padding-bottom:2em;z-index:1;">
-							<input type="text" name="reqs" id="emailinput" value="{$reqs}" style="_position:absolute;border:1px solid rgb(180,180,180);padding:2px;" autocomplete="off">
-							<div id="emailcontainer"></div>
-						</div>
+						<input type="text" name="reqs" id="emailinput" value="{$reqs}" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;">
 					</td>
 				</tr>
 				<tr>
@@ -48,8 +45,8 @@
 	
 	<tr>
 		<td>
-		<button type="button" onclick="genericAjaxGet('','c=tickets&a=getComposeSignature&group_id='+selectValue(this.form.to),{literal}function(o){insertAtCursor(document.getElementById('content'),o.responseText);}{/literal});"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_edit.gif{/devblocks_url}" align="top"> Insert Signature</button>
-		<button type="button" onclick="genericAjaxPanel('c=display&a=showTemplatesPanel&type=3&txt_name=content',this,false,'550px');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/text_rich.gif{/devblocks_url}" align="top"> E-mail Templates</button>
+		<button type="button" onclick="genericAjaxGet('','c=tickets&a=getComposeSignature&group_id='+selectValue(this.form.to),function(text) { insertAtCursor(document.getElementById('content'), text); } );"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_edit.gif{/devblocks_url}" align="top"> Insert Signature</button>
+		<button type="button" onclick="genericAjaxPanel('c=display&a=showTemplatesPanel&type=3&txt_name=content',null,false,'550');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/text_rich.gif{/devblocks_url}" align="top"> E-mail Templates</button>
 		{* Plugin Toolbar *}
 		{if !empty($logmail_toolbaritems)}
 			{foreach from=$logmail_toolbaritems item=renderer}
@@ -189,10 +186,8 @@
 </form>
 </div>
 
-<script type="text/javascript">
-{literal}
-YAHOO.util.Event.addListener(window,'load',function(e) {
-	ajax.cbEmailMultiplePeek(null);
-});
-{/literal}
+<script language="JavaScript1.2" type="text/javascript">
+	$(function() {
+		ajax.emailAutoComplete('#emailinput', { multiple: true } );
+	} );
 </script>

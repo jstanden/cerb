@@ -4,18 +4,6 @@
 <input type="hidden" name="id" value="{$article->id}">
 <input type="hidden" name="do_delete" value="0">
 
-<table cellspacing="0" cellpadding="0" border="0" width="100%">
-<tr>
-	<td>
-		{if !empty($article)}
-		<h1>Modify Knowledgebase Article</h1>
-		{else}
-		<h1>Add Knowledgebase Article</h1>
-		{/if}
-	</td>
-</tr>
-</table>
-
 <b>Title:</b><br>
 <input type="text" name="title" value="{$article->title|escape}" style="width:99%;border:solid 1px rgb(180,180,180);"><br>
 <br>
@@ -42,7 +30,13 @@ Format:
 <br>
 <br>
 
-{if $active_worker->hasPriv('core.kb.articles.modify')}<button type="button" id="btnKbArticleEditSave" onclick="genericAjaxPost('frmKbEditPanel','','c=kb.ajax&a=saveArticleEditPanel',{literal}function(o){{/literal}genericPanel.hide();genericAjaxGet('view{$view_id}','c=internal&a=viewRefresh&id={$view_id}');{literal}}{/literal});"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>{/if} 
-{if $active_worker->hasPriv('core.kb.articles.modify')}<button type="button" onclick="{literal}if(confirm('Are you sure you want to permanently delete this article?')){this.form.do_delete.value='1';document.getElementById('btnKbArticleEditSave').click();}{/literal}"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete2.gif{/devblocks_url}" align="top"> {$translate->_('common.delete')|capitalize}</button>{/if}
-<button type="button" onclick="genericPanel.hide();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> {$translate->_('common.cancel')|capitalize}</button>
+{if $active_worker->hasPriv('core.kb.articles.modify')}<button type="button" id="btnKbArticleEditSave" onclick="genericAjaxPanelPostCloseReloadView('frmKbEditPanel','{$view_id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>{/if} 
+{if $active_worker->hasPriv('core.kb.articles.modify')}<button type="button" onclick="if(confirm('Are you sure you want to permanently delete this article?')) { this.form.do_delete.value='1';$('#btnKbArticleEditSave').click(); } "><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete2.gif{/devblocks_url}" align="top"> {$translate->_('common.delete')|capitalize}</button>{/if}
 </form>
+
+<script language="JavaScript1.2" type="text/javascript">
+	genericPanel.one('dialogopen',function(event,ui) {
+		genericPanel.dialog('option','title','Knowledgebase Article');
+		$('#frmKbEditPanel :input:text:first').focus().select();
+	} );
+</script>

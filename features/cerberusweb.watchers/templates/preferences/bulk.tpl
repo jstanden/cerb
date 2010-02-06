@@ -13,8 +13,6 @@
 <input type="hidden" name="view_id" value="{$view_id}">
 <input type="hidden" name="ids" value="{$ids}">
 
-<div style="height:400px;overflow:auto;">
-
 <h2>{$translate->_('common.bulk_update.with')|capitalize}:</h2>
 
 <label><input type="radio" name="filter" value="" {if empty($ids)}checked{/if}> {$translate->_('common.bulk_update.filter.all')}</label> 
@@ -44,8 +42,7 @@
 {include file="file:$core_tpl/internal/custom_fields/bulk/form.tpl" bulk=true}
 
 <br>
-</div>
 
-<button type="button" onclick="genericPanel.hide();genericAjaxPost('frmBulkWatchers','view{$view_id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
+<button type="button" onclick="genericPanel.dialog('close');genericAjaxPost('frmBulkWatchers','view{$view_id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
 <br>
 </form>

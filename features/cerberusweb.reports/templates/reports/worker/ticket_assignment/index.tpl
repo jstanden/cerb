@@ -3,67 +3,73 @@
 	</div>
 </div>
 
-<script language="javascript" type="text/javascript">
-{literal}
-function drawChart() {{/literal}
-	YAHOO.widget.Chart.SWFURL = "{devblocks_url}c=resource&p=cerberusweb.core&f=scripts/yui/charts/assets/charts.swf{/devblocks_url}?v={$smarty.const.APP_BUILD}";
-	{literal}
-	//[mdf] first let the server tell us how many records to expect so we can make sure the chart height is high enough
-	var cObj = YAHOO.util.Connect.asyncRequest('GET', "{/literal}{devblocks_url}ajax.php?c=reports&a=action&extid=report.workers.ticket_assignment&extid_a=getTicketAssignmentChart{/devblocks_url}{literal}&countonly=1", {
-		success: function(o) {
-			var groupCount = o.responseText;
-			//[mdf] set the chart size based on the number of records we will get from the datasource
-			myContainer.style.cssText = 'width:100%;height:'+(30+30*groupCount);;
-				
-			var myXHRDataSource = new YAHOO.util.DataSource("{/literal}{devblocks_url}ajax.php?c=reports&a=action&extid=report.workers.ticket_assignment&extid_a=getTicketAssignmentChart{/devblocks_url}{literal}");
-			myXHRDataSource.responseType = YAHOO.util.DataSource.TYPE_TEXT; 
-			myXHRDataSource.responseSchema = {
-				recordDelim: "\n",
-				fieldDelim: "\t",
-				fields: [
-					"group",
-					{key:"total", parser:"number"}
-				]
-			};
-			
-			var myChart = new YAHOO.widget.BarChart( "myContainer", myXHRDataSource,
-			{
-			    xField: "total",
-			    yField: "group",
-				wmode: "opaque"
-			    //polling: 1000
-			});
-		},
-		failure: function(o) {},
-		argument:{caller:this}
-		}
-	);
-}{/literal}
-
-</script>
-
 <h2>{$translate->_('reports.ui.worker.ticket_assignment')}</h2>
 
-
-<form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmRange" name="frmRange" onsubmit="return false;">
+<form action="{devblocks_url}c=reports&report=report.workers.ticket_assignment{/devblocks_url}" method="POST" id="frmRange" name="frmRange">
 <input type="hidden" name="c" value="reports">
-<input type="hidden" name="a" value="action">
-<input type="hidden" name="extid" value="report.workers.ticket_assignment">
-<input type="hidden" name="extid_a" value="getTicketAssignmentReport">
-<button type="button" id="btnSubmit" onclick="genericAjaxPost('frmRange', 'report');drawChart();">{$translate->_('common.refresh')|capitalize}</button>
+<button type="submit" id="btnSubmit">{$translate->_('common.refresh')|capitalize}</button>
 <br>
 
+<!-- Chart -->
 
-<br>
-
-<div id="myContainer" style="width:100%;height:0;background-color:rgb(255,255,255);"></div>
-
-<div id="report" style="background-color:rgb(255,255,255);"></div>
+{if !empty($data)}
+<div id="placeholder" style="margin:1em;width:650px;height:{20+(32*count($data))}px;"></div>
 
 <script language="javascript" type="text/javascript">
-{literal}
-YAHOO.util.Event.addListener(window,'load',function(e) {
-	document.getElementById('btnSubmit').click();
-});
-{/literal}
+	$(function() {
+		var d = [
+			{foreach from=$data item=row key=iter}
+			[{$row.hits}, {$iter}],
+			{/foreach}
+		];
+		
+		var options = {
+			lines: { show: false, fill: false },
+			bars: { show: true, fill: true, horizontal: true, align: "center", barWidth: 1 },
+			points: { show: false, fill: false },
+			grid: {
+				borderWidth: 0,
+				horizontalLines: false,
+				hoverable: false,
+			},
+			xaxis: {
+				min: 0,
+				minTickSize: 1,
+				tickFormatter: function(val, axis) {
+					return Math.floor(val).toString();
+				},
+			},
+			yaxis: {
+				ticks: [
+					{foreach from=$data item=row key=iter}
+					[{$iter},"<b>{$row.value|escape:'quotes'}</b>"],
+					{/foreach}
+				]
+			}
+		} ;
+		
+		$.plot($("#placeholder"), [d], options);
+	} );
 </script>
+{/if}
+
+<!-- Table -->
+
+{if $invalidDate}<div><font color="red"><b>{$translate->_('reports.ui.invalid_date')}</b></font></div>{/if}
+
+<table cellspacing="0" cellpadding="2" border="0">
+{foreach from=$ticket_assignments item=assigned_tickets key=worker_id}
+	<tr>
+		<td colspan="3" style="border-bottom:1px solid rgb(200,200,200);padding-right:20px;"><h2>{$workers.$worker_id->first_name} {$workers.$worker_id->last_name}</h2></td>
+	</tr>
+
+	{foreach from=$assigned_tickets item=ticket}
+	<tr>
+		<td style="padding-right:20px;"><a href="{devblocks_url}c=display&a=browse&id={$ticket->mask}{/devblocks_url}">{$ticket->mask}</a></td>
+		<td align="left"><a href="{devblocks_url}c=display&a=browse&id={$ticket->mask}{/devblocks_url}">{$ticket->subject}</a></td>
+		<td>{$ticket->created_date|date_format:"%Y-%m-%d"}</td>
+	</tr>
+	{/foreach}
+	
+{/foreach}
+</table>
