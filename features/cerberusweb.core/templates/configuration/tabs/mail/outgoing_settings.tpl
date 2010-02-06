@@ -57,7 +57,7 @@
 				<br>
 				
 				<div id="configSmtpTest"></div>	
-				<button type="button" onclick="genericAjaxGet('configSmtpTest','c=config&a=getSmtpTest&host='+this.form.smtp_host.value+'&port='+encodeURIComponent(this.form.smtp_port.value)+'&enc='+encodeURIComponent(radioValue(this.form.smtp_enc))+'&smtp_user='+encodeURIComponent(this.form.smtp_auth_user.value)+'&smtp_pass='+encodeURIComponent(this.form.smtp_auth_pass.value));"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/gear.gif{/devblocks_url}" align="top"> Test SMTP</button>				
+				<button type="button" onclick="genericAjaxGet('configSmtpTest','c=config&a=getSmtpTest&host='+this.form.smtp_host.value+'&port='+encodeURIComponent(this.form.smtp_port.value)+'&enc='+encodeURIComponent($('input[name=\'smtp_enc\']:checked').val())+'&smtp_user='+encodeURIComponent(this.form.smtp_auth_user.value)+'&smtp_pass='+encodeURIComponent(this.form.smtp_auth_pass.value));"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/gear.gif{/devblocks_url}" align="top"> Test SMTP</button>				
 			</blockquote>
 			
 			<h3>Default Preferences</h3>

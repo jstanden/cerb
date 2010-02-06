@@ -36,7 +36,7 @@
 		 ( 
 		 <a href="javascript:;" onclick="ajax.viewUndo('{$view->id}');" style="font-weight:bold;">Undo</a> 
 		  | 
-		 <a href="javascript:;" onclick="clearDiv('{$view->id}_output');genericAjaxGet('','c=tickets&a=viewUndo&view_id={$view->id}&clear=1');" style="">Dismiss</a>
+		 <a href="javascript:;" onclick="$('#{$view->id}_output').html('');genericAjaxGet('','c=tickets&a=viewUndo&view_id={$view->id}&clear=1');" style="">Dismiss</a>
 		  )
 	</div>
 </div>

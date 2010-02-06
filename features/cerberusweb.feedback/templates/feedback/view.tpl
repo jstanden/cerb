@@ -57,7 +57,7 @@
 	{assign var=worker_id value=$result.f_worker_id}
 	{assign var=mood value=$result.f_quote_mood}
 	
-		<tr class="{$tableRowBg}" id="{$rowIdPrefix}" onmouseover="toggleClass(this.id,'tableRowHover');toggleClass('{$rowIdPrefix}_s','tableRowHover');" onmouseout="toggleClass(this.id,'{$tableRowBg}');toggleClass('{$rowIdPrefix}_s','{$tableRowBg}');" onclick="if(getEventTarget(event)=='TD') checkAll('{$rowIdPrefix}');">
+		<tr class="{$tableRowBg}" id="{$rowIdPrefix}" onmouseover="$(this).addClass('tableRowHover');$('#{$rowIdPrefix}_s').addClass('tableRowHover');" onmouseout="$(this).removeClass('tableRowHover');$('#{$rowIdPrefix}_s').removeClass('tableRowHover');" onclick="if(getEventTarget(event)=='TD') checkAll('{$rowIdPrefix}');">
 			<td align="center" rowspan="2"><input type="checkbox" name="row_id[]" value="{$result.f_id}"></td>
 		{foreach from=$view->view_columns item=column name=columns}
 			{if substr($column,0,3)=="cf_"}
@@ -93,7 +93,7 @@
 			{/if}
 		{/foreach}
 		</tr>
-		<tr class="{$tableRowBg}" id="{$rowIdPrefix}_s" onmouseover="toggleClass(this.id,'tableRowHover');toggleClass('{$rowIdPrefix}','tableRowHover');" onmouseout="toggleClass(this.id,'{$tableRowBg}');toggleClass('{$rowIdPrefix}','{$tableRowBg}');" onclick="if(getEventTarget(event)=='TD'||getEventTarget(event)=='DIV') checkAll('{$rowIdPrefix}');">
+		<tr class="{$tableRowBg}" id="{$rowIdPrefix}_s" onmouseover="$(this).addClass('tableRowHover');$('#{$rowIdPrefix}').addClass('tableRowHover');" onmouseout="$(this).removeClass('tableRowHover');$('#{$rowIdPrefix}').removeClass('tableRowHover');" onclick="if(getEventTarget(event)=='TD'||getEventTarget(event)=='DIV') checkAll('{$rowIdPrefix}');">
 			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">
 				<div id="subject_{$result.f_id}_{$view->id}" style="margin:5px;margin-left:10px;font-size:12px;">
 					<img src="{devblocks_url}c=resource&p=cerberusweb.feedback&f=images/{if 1==$mood}bullet_ball_glass_green.png{elseif 2==$mood}bullet_ball_glass_red.png{else}bullet_ball_glass_grey.png{/if}{/devblocks_url}" align="top" title="{if 1==$mood}Praise{elseif 2==$mood}Criticism{else}Neutral{/if}"> 

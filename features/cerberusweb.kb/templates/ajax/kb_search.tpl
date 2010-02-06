@@ -20,7 +20,7 @@
 			
 			<div id="{$div}_kbresults"></div>
 			
-			<button type="button" onclick="clearDiv('{$div}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.close')|capitalize}</button>
+			<button type="button" onclick="$('#{$div}').html('');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.close')|capitalize}</button>
 			</form>
 		
 		</td>

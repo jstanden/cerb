@@ -86,7 +86,7 @@
 					
 					<b>{$translate->_('display.reply.attachments_add')}</b> 
 					(<a href="javascript:;" onclick="appendFileInput('displayReplyAttachments','attachment[]');">{$translate->_('display.reply.attachments_more')|lower}</a>)
-					(<a href="javascript:;" onclick="clearDiv('displayReplyAttachments');appendFileInput('displayReplyAttachments','attachment[]');">{$translate->_('common.clear')|lower}</a>)
+					(<a href="javascript:;" onclick="$('#displayReplyAttachments').html('');appendFileInput('displayReplyAttachments','attachment[]');">{$translate->_('common.clear')|lower}</a>)
 					<br>
 					<table cellpadding="2" cellspacing="0" border="0" width="100%">
 						<tr>

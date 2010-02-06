@@ -144,7 +144,7 @@
 					
 					<b>{$translate->_('display.reply.attachments_add')}</b> 
 					(<a href="javascript:;" onclick="appendFileInput('displayReplyAttachments','attachment[]');">{$translate->_('display.reply.attachments_more')|lower}</a>)
-					(<a href="javascript:;" onclick="clearDiv('displayReplyAttachments');appendFileInput('displayReplyAttachments','attachment[]');">{$translate->_('common.clear')|lower}</a>)
+					(<a href="javascript:;" onclick="$('#displayReplyAttachments').html('');appendFileInput('displayReplyAttachments','attachment[]');">{$translate->_('common.clear')|lower}</a>)
 					<br>
 					<table cellpadding="2" cellspacing="0" border="0" width="100%">
 						<tr>
@@ -255,8 +255,8 @@
 			{else}
 				<button type="button" onclick="this.form.cc.value=document.getElementById('replyForm_cc').value;this.form.bcc.value=document.getElementById('replyForm_bcc').value;this.form.subject.value=document.getElementById('replyForm_subject').value;if($('#reply{$message->id}_part1').validate().form() && $('#reply{$message->id}_part2').validate().form())this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('display.ui.send_message')}</button>
 			{/if}
-			<button type="button" onclick="clearDiv('reply{$message->id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> {$translate->_('display.ui.discard')|capitalize}</button>
-			<button type="button" onclick="clearDiv('reply{$message->id}');genericAjaxGet('','c=display&a=discardAndSurrender&ticket_id={$ticket->id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/flag_white.gif{/devblocks_url}" align="top"> {$translate->_('display.ui.discard_surrender')}</button>
+			<button type="button" onclick="$('#reply{$message->id}').html('');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> {$translate->_('display.ui.discard')|capitalize}</button>
+			<button type="button" onclick="$('#reply{$message->id}').html('');genericAjaxGet('','c=display&a=discardAndSurrender&ticket_id={$ticket->id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/flag_white.gif{/devblocks_url}" align="top"> {$translate->_('display.ui.discard_surrender')}</button>
 		</td>
 	</tr>
 </table>

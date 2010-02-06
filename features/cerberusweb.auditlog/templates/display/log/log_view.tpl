@@ -47,7 +47,7 @@
 		{assign var=tableRowBg value="tableRowAltBg"}
 	{/if}
 	
-		<tr class="{$tableRowBg}" id="{$rowIdPrefix}_s" onmouseover="toggleClass(this.id,'tableRowHover');toggleClass('{$rowIdPrefix}','tableRowHover');" onmouseout="toggleClass(this.id,'{$tableRowBg}');toggleClass('{$rowIdPrefix}','{$tableRowBg}');" onclick="if(getEventTarget(event)=='TD') checkAll('{$rowIdPrefix}_s');">
+		<tr class="{$tableRowBg}" id="{$rowIdPrefix}_s" onmouseover="$(this).addClass('tableRowHover');" onmouseout="$(this).removeClass('tableRowHover');" onclick="if(getEventTarget(event)=='TD') checkAll('{$rowIdPrefix}_s');">
 			<td align="center" rowspan="1"><input type="checkbox" name="row_id[]" value="{$result.l_id}"></td>
 		{foreach from=$view->view_columns item=column name=columns}
 			{if $column=="l_id"}

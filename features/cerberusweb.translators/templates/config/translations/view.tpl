@@ -56,7 +56,7 @@
 	{assign var=worker_id value=$result.f_worker_id}
 	{assign var=mood value=$result.f_quote_mood}
 	
-		<tr class="{$tableRowBg}" id="{$rowIdPrefix}_s" onmouseover="toggleClass(this.id,'tableRowHover');toggleClass('{$rowIdPrefix}','tableRowHover');" onmouseout="toggleClass(this.id,'{$tableRowBg}');toggleClass('{$rowIdPrefix}','{$tableRowBg}');" onclick="if(getEventTarget(event)=='TD') checkAll('{$rowIdPrefix}_s');">
+		<tr class="{$tableRowBg}" id="{$rowIdPrefix}_s" onmouseover="$(this).addClass('tableRowHover');$('#{$rowIdPrefix}').addClass('tableRowHover');" onmouseout="$(this).removeClass('tableRowHover');$('#{$rowIdPrefix}').removeClass('tableRowHover');" onclick="if(getEventTarget(event)=='TD') checkAll('{$rowIdPrefix}_s');">
 			<td align="center" rowspan="2">{*<input type="checkbox" name="row_id[]" value="{$result.tl_id}">*}</td>
 			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">
 				<div id="subject_{$result.tl_id}_{$view->id}" style="margin:2px;font-size:12px;">
@@ -110,7 +110,7 @@
 			</td>
 		</tr>
 
-		<tr class="{$tableRowBg}" id="{$rowIdPrefix}" onmouseover="toggleClass(this.id,'tableRowHover');toggleClass('{$rowIdPrefix}_s','tableRowHover');" onmouseout="toggleClass(this.id,'{$tableRowBg}');toggleClass('{$rowIdPrefix}_s','{$tableRowBg}');" onclick="if(getEventTarget(event)=='TD') checkAll('{$rowIdPrefix}_s');">
+		<tr class="{$tableRowBg}" id="{$rowIdPrefix}" onmouseover="$(this).addClass('tableRowHover');$('#{$rowIdPrefix}_s').addClass('tableRowHover');" onmouseout="$(this).removeClass('tableRowHover');$('#{$rowIdPrefix}_s').removeClass('tableRowHover');" onclick="if(getEventTarget(event)=='TD') checkAll('{$rowIdPrefix}_s');">
 		{foreach from=$view->view_columns item=column name=columns}
 			{assign var=lang_code value=$result.tl_lang_code}
 		
@@ -132,18 +132,7 @@
 			{/if}
 		{/foreach}
 		</tr>
-		{*
-		<tr class="{$tableRowBg}" id="{$rowIdPrefix}_s" onmouseover="toggleClass(this.id,'tableRowHover');toggleClass('{$rowIdPrefix}','tableRowHover');" onmouseout="toggleClass(this.id,'{$tableRowBg}');toggleClass('{$rowIdPrefix}','{$tableRowBg}');" onclick="if(getEventTarget(event)=='TD') checkAll('{$rowIdPrefix}_s');">
-			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">
-				<div id="subject_{$result.tl_id}_{$view->id}" style="margin:5px;margin-left:10px;font-size:12px;">
-					{$result.tl_string_default} 
-				</div>
-			</td>
-		</tr>
-		*}
-		
 	{/foreach}
-	
 </table>
 <table cellpadding="2" cellspacing="0" border="0" width="100%" class="tableBg" id="{$view->id}_actions">
 	{if $total}

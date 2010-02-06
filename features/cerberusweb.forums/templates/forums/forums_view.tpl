@@ -52,11 +52,11 @@
 		{assign var=tableRowBg value="tableRowAltBg"}
 	{/if}
 	
-		<tr class="{$tableRowBg}" id="{$rowIdPrefix}_s" onmouseover="toggleClass(this.id,'tableRowHover');toggleClass('{$rowIdPrefix}','tableRowHover');" onmouseout="toggleClass(this.id,'{$tableRowBg}');toggleClass('{$rowIdPrefix}','{$tableRowBg}');" onclick="if(getEventTarget(event)=='TD') checkAll('{$rowIdPrefix}_s');">
+		<tr class="{$tableRowBg}" id="{$rowIdPrefix}_s" onmouseover="$(this).addClass('tableRowHover');$('#{$rowIdPrefix}').addClass('tableRowHover');" onmouseout="$(this).removeClass('tableRowHover');$('#{$rowIdPrefix}').removeClass('tableRowHover');" onclick="if(getEventTarget(event)=='TD') checkAll('{$rowIdPrefix}_s');">
 			<td align="center" rowspan="2"><input type="checkbox" name="row_id[]" value="{$result.t_id}"></td>
 			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">{if $result.t_is_closed}<img src="{devblocks_url}c=resource&p=cerberusweb.forums&f=images/check_gray.gif{/devblocks_url}" align="top"> {/if}<a href="{devblocks_url}c=forums&a=explorer{/devblocks_url}?start={$result.t_id}" target="_blank" style="color:rgb(75,75,75);font-size:12px;"><b id="subject_{$result.t_id}_{$view->id}">{$result.t_title}</b></a></td>
 		</tr>
-		<tr class="{$tableRowBg}" id="{$rowIdPrefix}" onmouseover="toggleClass(this.id,'tableRowHover');toggleClass('{$rowIdPrefix}_s','tableRowHover');" onmouseout="toggleClass(this.id,'{$tableRowBg}');toggleClass('{$rowIdPrefix}_s','{$tableRowBg}');" onclick="if(getEventTarget(event)=='TD') checkAll('{$rowIdPrefix}_s');">
+		<tr class="{$tableRowBg}" id="{$rowIdPrefix}" onmouseover="$(this).addClass('tableRowHover');$('#{$rowIdPrefix}_s').addClass('tableRowHover');" onmouseout="$(this).removeClass('tableRowHover');$('#{$rowIdPrefix}_s').removeClass('tableRowHover');" onclick="if(getEventTarget(event)=='TD') checkAll('{$rowIdPrefix}_s');">
 		{foreach from=$view->view_columns item=column name=columns}
 			{if $column=="t_id"}
 				<td>{$result.t_id}&nbsp;</td>

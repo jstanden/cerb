@@ -118,13 +118,13 @@ Sort biggest piles by:
 </div>
 
 <button type="button" onclick="showLoadingPanel();this.form.submit();" style="">Perform selected actions</button>
-<button type="button" onclick="toggleDiv('{$view_id}_tips','none');clearDiv('{$view_id}_tips');" style="">Do nothing</button>
+<button type="button" onclick="toggleDiv('{$view_id}_tips','none');$('#{$view_id}_tips').html('');" style="">Do nothing</button>
 
 {else}
 
 There aren't enough tickets in this list for auto-assist to find patterns.<br>
 <br>
-<button type="button" onclick="toggleDiv('{$view_id}_tips','none');clearDiv('{$view_id}_tips');" style="">Do nothing</button><br>
+<button type="button" onclick="toggleDiv('{$view_id}_tips','none');$('#{$view_id}_tips').html('');" style="">Do nothing</button><br>
 
 {/if}
 
