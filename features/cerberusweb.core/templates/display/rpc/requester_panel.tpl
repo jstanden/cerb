@@ -1,10 +1,3 @@
-<table cellpadding="0" cellspacing="0" border="0" width="98%">
-	<tr>
-		<td align="left" width="0%" nowrap="nowrap" style="padding-right:5px;"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/businessmen.gif{/devblocks_url}" align="absmiddle"></td>
-		<td align="left" width="100%" nowrap="nowrap"><h1>Ticket Requesters</h1></td>
-	</tr>
-</table>
-
 <form action="{devblocks_url}{/devblocks_url}" method="POST" id="formDisplayReq" name="formDisplayReq">
 <input type="hidden" name="c" value="display">
 <input type="hidden" name="a" value="saveRequestersPanel">
@@ -28,3 +21,9 @@
 <button type="button" onclick="genericPanel.dialog('close');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> {$translate->_('common.cancel')|capitalize}</button>
 <br>
 </form>
+
+<script type="text/javascript" language="JavaScript1.2">
+	genericPanel.one('dialogopen',function(event,ui) {
+		genericPanel.dialog('option','title','Ticket Requesters');
+	});
+</script>

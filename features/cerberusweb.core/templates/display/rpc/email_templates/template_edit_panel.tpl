@@ -60,9 +60,9 @@
 <br>
 <br>
 
-<button type="button" onclick="genericPanel.dialog('close');genericAjaxPost('replyTemplateEditForm', '', 'c=display&a=saveReplyTemplate');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_ok.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
+<button type="button" onclick="genericPanel.dialog('close');genericAjaxPost('replyTemplateEditForm', '', 'c=display&a=saveReplyTemplate');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
 {if $template->id}
-<button type="button" onclick="if(confirm('Are you sure you want to permanently delete this template?')) { this.form.do_delete.value='1'; genericPanel.dialog('close'); genericAjaxPost('replyTemplateEditForm', '', 'c=display&a=saveReplyTemplate'); } "><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_delete.gif{/devblocks_url}" align="top"> {$translate->_('common.delete')|capitalize}</button>
+<button type="button" onclick="if(confirm('Are you sure you want to permanently delete this template?')) { this.form.do_delete.value='1'; genericPanel.dialog('close'); genericAjaxPost('replyTemplateEditForm', '', 'c=display&a=saveReplyTemplate'); } "><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/forbidden.png{/devblocks_url}" align="top"> {$translate->_('common.delete')|capitalize}</button>
 {/if}
 <button type="button" onclick="genericPanel.dialog('close');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> {$translate->_('common.cancel')|capitalize}</button>
 

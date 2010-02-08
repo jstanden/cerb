@@ -7,7 +7,7 @@
 		<a href="http://www.cerberusweb.com/buy" target="_blank">[Purchase License]</a>
 	</div>
 	{else}
-	<button type="button" onclick="genericAjaxPanel('c=config&a=showWorkerPeek&id=0&view_id={$view->id|escape:'url'}',null,false,'500');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/businessman_add.gif{/devblocks_url}" align="top"> Add Worker</button>
+	<button type="button" onclick="genericAjaxPanel('c=config&a=showWorkerPeek&id=0&view_id={$view->id|escape:'url'}',null,false,'500');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/add.png{/devblocks_url}" align="top"> Add Worker</button>
 	{/if}
 </form>
 

@@ -56,7 +56,6 @@
 		<tr class="{$tableRowBg}" id="{$rowIdPrefix}_s" onmouseover="$(this).addClass('tableRowHover');$('#{$rowIdPrefix}').addClass('tableRowHover');" onmouseout="$(this).removeClass('tableRowHover');$('#{$rowIdPrefix}').removeClass('tableRowHover');" onclick="if(getEventTarget(event)=='TD' || getEventTarget(event)=='DIV') checkAll('{$rowIdPrefix}_s');">
 			<td align="center" rowspan="2"><input type="checkbox" name="row_id[]" value="{$result.we_id}"></td>
 			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">
-				{*<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_new.gif{/devblocks_url}" align="top">*}
 				<a href="{devblocks_url}c=home&a=redirectRead&id={$result.we_id}{/devblocks_url}" style="color:rgb(75,75,75);font-size:12px;font-weight:bold;">{$result.we_title}</a><br>
 			</td>
 		</tr>

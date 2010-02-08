@@ -38,7 +38,7 @@
 		</td>
 		<td width="0%" nowrap="nowrap" valign="top">
 			{if !$batchDelete}
-			<a href="javascript:;" onclick="document.{$view->id}_criteriaForm.field.value='{$param_key}';document.{$view->id}_criteriaForm.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/data_error.gif{/devblocks_url}" border="0" align="top"></a>
+			<a href="javascript:;" onclick="document.{$view->id}_criteriaForm.field.value='{$param_key}';document.{$view->id}_criteriaForm.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/forbidden.png{/devblocks_url}" border="0" align="top"></a>
 			{else}
 			<input type="checkbox" name="field_deletes[]" value="{$param->field}">
 			{/if}

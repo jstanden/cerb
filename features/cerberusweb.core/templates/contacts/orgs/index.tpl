@@ -3,7 +3,7 @@
 	<td width="1%" nowrap="nowrap" valign="top" style="padding-right:5px;">
 		<form action="{devblocks_url}{/devblocks_url}" style="margin-bottom:5px;">
 		{if $active_worker->hasPriv('core.addybook.org.actions.update')}
-			<button type="button" onclick="genericAjaxPanel('c=contacts&a=showOrgPeek&id=0&view_id={$view->id}',null,false,'500');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/office-building.gif{/devblocks_url}" align="top"> {$translate->_('addy_book.org.add')|capitalize}</button>
+			<button type="button" onclick="genericAjaxPanel('c=contacts&a=showOrgPeek&id=0&view_id={$view->id}',null,false,'500');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/add.png{/devblocks_url}" align="top"> {$translate->_('addy_book.org.add')|capitalize}</button>
 		{/if}
 		</form>
 	</td>

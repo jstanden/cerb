@@ -35,7 +35,7 @@
 							<b>{$requester->email}</b>{if !$smarty.foreach.requesters.last}, {/if}
 							{/foreach}
 							</span>
-							(<a href="javascript:;" onclick="genericAjaxPanel('c=display&a=showRequestersPanel&msg_id={$message->id}&ticket_id={$ticket->id}',null,false);" style="color:rgb(00,120,0);">{$translate->_('common.edit')|lower}</a>)
+							(<a href="javascript:;" onclick="genericAjaxPanel('c=display&a=showRequestersPanel&msg_id={$message->id}&ticket_id={$ticket->id}',this,false);" style="color:rgb(00,120,0);">{$translate->_('common.edit')|lower}</a>)
 							<!-- 
 							<input type="text" size="45" name="to" value="" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;">
 							-->					

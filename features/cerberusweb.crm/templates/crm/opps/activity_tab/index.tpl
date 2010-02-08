@@ -4,8 +4,8 @@
 		<form action="{devblocks_url}{/devblocks_url}" method="post" style="padding-bottom:5px;">
 			<input type="hidden" name="c" value="crm">
 			<input type="hidden" name="a" value="">
-			{if $active_worker->hasPriv('crm.opp.actions.create')}<button type="button" onclick="genericAjaxPanel('c=crm&a=showOppPanel&id=0&view_id={$view->id}',null,false,'500');"><img src="{devblocks_url}c=resource&p=cerberusweb.crm&f=images/money.gif{/devblocks_url}" align="top"> {$translate->_('crm.opp.add')}</button>{/if}
-			{if $active_worker->hasPriv('crm.opp.actions.import')}<button type="button" onclick="genericAjaxPanel('c=crm&a=showImportPanel',null,false,'500');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_into.gif{/devblocks_url}" align="top"> {$translate->_('common.import')|capitalize}</button>{/if}
+			{if $active_worker->hasPriv('crm.opp.actions.create')}<button type="button" onclick="genericAjaxPanel('c=crm&a=showOppPanel&id=0&view_id={$view->id}',null,false,'500');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/add.png{/devblocks_url}" align="top"> {$translate->_('crm.opp.add')}</button>{/if}
+			{if $active_worker->hasPriv('crm.opp.actions.import')}<button type="button" onclick="genericAjaxPanel('c=crm&a=showImportPanel',null,false,'500');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/import1.png{/devblocks_url}" align="top"> {$translate->_('common.import')|capitalize}</button>{/if}
 		</form>
 	</td>
 	<td width="98%" valign="middle"></td>

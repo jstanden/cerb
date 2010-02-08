@@ -1,7 +1,6 @@
 {if isset($message_notes.$message_id) && is_array($message_notes.$message_id)}
 	{foreach from=$message_notes.$message_id item=note name=notes key=note_id}
 		<div class="message_note" style="margin:10px;margin-left:20px;">
-			{*<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_plain_yellow.png{/devblocks_url}" align="top">*}
 			{if 1 == $note->type}
 				<h3 style="display:inline;color:rgb(255,153,0);">[warning]:</h3>&nbsp;
 			{elseif 2 == $note->type}

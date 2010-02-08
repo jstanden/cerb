@@ -40,7 +40,7 @@
 				<form action="{devblocks_url}{/devblocks_url}" method="POST">
 				<input type="hidden" name="c" value="home">
 				<input type="hidden" name="a" value="doWorkspaceInit">
-				<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_plain_new.png{/devblocks_url}" align="top"> Create a 'My Work' workspace</button>
+				<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/add.png{/devblocks_url}" align="top"> Create a 'My Work' workspace</button>
 				</form>
 			</blockquote>
 		</td>
