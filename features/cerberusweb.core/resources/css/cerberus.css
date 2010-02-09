@@ -237,7 +237,7 @@ DIV.subtle2 {
 /* Sprite container */
 
 .cerb-sprite { 
-	background:url(sprites/cerb_icons.png);
+	background:url(cerb_icons.png);
 	background-repeat:no-repeat;
 	background-position:top left;
 	display:inline-block;
@@ -294,12 +294,22 @@ button span.cerb-sprite { display:inline-block; }
 
 /* jQueryUI (Redmond theme) */
 
+.ui-widget-content { background: #fcfdfd none; }
+.ui-widget-header { background: #5c9ccc none; }
+.ui-state-default, .ui-widget-content .ui-state-default { background: #dfeffc none; font-weight: normal; }
+.ui-state-hover, .ui-widget-content .ui-state-hover, .ui-state-focus, .ui-widget-content .ui-state-focus { background: #d0e5f5 none; }
+.ui-state-active, .ui-widget-content .ui-state-active { background: #f5f8f9 none; font-weight: bold; }
+.ui-state-highlight, .ui-widget-content .ui-state-highlight { background: #fbec88 none; }
+.ui-state-error, .ui-widget-content .ui-state-error { background: #fef1ec none; } 
+
 .ui-tabs { border: 0px; padding: 0px; }
 .ui-tabs .ui-tabs-panel { padding: 1em; }
 .ui-tabs .ui-tabs-nav { background: #ffffff none; border: none; border-bottom: 1px solid #c5dbec; }
 .ui-tabs .ui-tabs-panel { background: #ffffff none; }
 .ui-tabs .ui-tabs-nav li { margin: 0 0.2em -1px 0; }
 .ui-tabs .ui-tabs-nav li.ui-tabs-selected { padding-bottom: 0px; background: #ffffff none; }
+
+.ui-dialog .ui-dialog-titlebar { background: rgb(119,153,224) url(bg_ltblue.jpg) repeat-x; border: 0px; font-size: 14px; }
 
 /* jQuery Validation */
 

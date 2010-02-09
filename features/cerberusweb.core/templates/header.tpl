@@ -13,15 +13,17 @@
   <title>{$settings->get('cerberusweb.core','helpdesk_title')}</title>
   <link type="image/x-icon" rel="shortcut icon" href="{devblocks_url}favicon.ico{/devblocks_url}">
   
-  <link type="text/css" rel="stylesheet" href="{devblocks_url}c=resource&p=cerberusweb.core&f=css/jquery/redmond/jquery-ui-1.7.2.custom.css{/devblocks_url}?v={$smarty.const.APP_BUILD}">
-  <link type="text/css" rel="stylesheet" href="{devblocks_url}c=resource&p=cerberusweb.core&f=css/jquery/jquery.rte.css{/devblocks_url}?v={$smarty.const.APP_BUILD}">
+  <link type="text/css" rel="stylesheet" href="{devblocks_url}c=resource&p=cerberusweb.core&f=css/jquery-ui-1.7.2.custom.css{/devblocks_url}?v={$smarty.const.APP_BUILD}">
+  <link type="text/css" rel="stylesheet" href="{devblocks_url}c=resource&p=cerberusweb.core&f=css/jquery.rte.css{/devblocks_url}?v={$smarty.const.APP_BUILD}">
   <link type="text/css" rel="stylesheet" href="{devblocks_url}c=resource&p=cerberusweb.core&f=css/cerberus.css{/devblocks_url}?v={$smarty.const.APP_BUILD}">
   
+  <!-- Production -->
   <script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=js/jquery/jquery.combined.min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
   
   <!--[if IE]><script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=js/flot/excanvas.min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script><![endif]-->
   <script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=js/flot/jquery.flot.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
   
+  <!-- [TODO] Cache this -->
   <script language="javascript" type="text/javascript">
     {include file="libs/devblocks/api/devblocks.tpl.js"}
   </script>
