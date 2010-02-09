@@ -1,3 +1,5 @@
+/* Elements */
+
 body, td {
 	color: rgb(80, 80, 80);
 	font-family: Arial, Helvetica, sans-serif;
@@ -12,12 +14,10 @@ optgroup {
 
 a {
 	color: rgb(102, 102, 102);
-	font-family: Arial, Helvetica, sans-serif;
 }
 
 h1 {
 	font-weight: bold;
-	font-family: Arial, Helvetica, sans-serif;
 	font-size: 1.5em;
 	color: rgb(0, 102, 255);
 	margin-top: 0px;
@@ -26,7 +26,6 @@ h1 {
 
 h2 {
 	font-weight: bold;
-	font-family: Arial, Helvetica, sans-serif;
 	font-size: 1.5em;
 	color: rgb(102, 102, 102);
 	margin-top: 0px;
@@ -70,6 +69,8 @@ button span {
 	vertical-align:top;
 }
 
+/* Menu */
+
 #headerMenu {
 	background-color: rgb(240, 240, 240);
 	color: rgb(60, 60, 60);
@@ -81,14 +82,8 @@ button span {
 	background-color: rgb(134, 169, 227);
 }
 
-#headerMenuSelected,#headerMenuSelected a {
+#headerMenuSelected, #headerMenuSelected a {
 	color: rgb(255, 255, 255);
-}
-
-#headerMenuLinkActive {
-	color: rgb(255, 255, 255);
-	font-weight: bold;
-	text-decoration: none;
 }
 
 #headerSubMenu {
@@ -103,74 +98,67 @@ button span {
 	color: rgb(255, 255, 255);
 }
 
-.tableBlue {
-	border: 1px solid rgb(0, 102, 204);
-	background-color: rgb(240, 240, 255);
-}
+/* Worklists */
 
-.tableThBlue {
-	padding: 3px;
+table.worklist {
+	border: 1px solid rgb(0, 102, 204);
 	background-image: url(bg_ltblue.jpg);
 	background-repeat: repeat-x;
-	color: rgb(255, 255, 255);
-	font-size: 18px;
-	font-weight: bold;
-	font-family: Arial, Helvetica, sans-serif;
 	background-color: rgb(140, 175, 229);
 }
 
-.tableBg {
-	background-color: rgb(255, 255, 255);
+table.worklist td {
+	padding: 3px;
+	color: rgb(255, 255, 255);
 }
 
-.tableThBlue th a {
+table.worklist td a {
 	color: rgb(255, 255, 255);
 	font-weight: normal;
-	font-family: Arial, Helvetica, sans-serif;
-	font-size: 12px;
 }
 
-.tableTh th {
+table.worklist td span.title {
+	color: rgb(255, 255, 255);
+	font-weight:bold;
+	font-size:18px;
+}
+
+table.worklistBody th {
 	border-right: 1px solid rgb(150, 150, 150);
-	border-bottom: 1px solid rgb(50, 50, 50);
+	border-bottom: 1px solid rgb(150, 150, 150);
 	background-color: rgb(200, 200, 200);
-	padding-bottom: 2px;
-	padding-left: 5px;
-	padding-right: 5px;
+	padding: 2px 2px 2px 5px;
 	text-align: left;
 }
 
-.tableTh a {
+table.worklistBody th a {
 	font-size: 12px;
 	font-weight: bold;
 	color: rgb(68, 68, 68);
-	font-family: Arial, Helvetica, sans-serif;
 }
 
-.tableCellBg {
-	background-color: rgb(247, 247, 255);
+table.worklistBody td {
+	font-size:11px;
 }
 
-.tableRowBg {
-	background-color: rgb(254, 254, 254);
+table.worklistBody td a.subject {
+	font-size: 12px;
+	font-weight: bold;
+	color: rgb(75, 75, 75);
+}
+table.worklistBody tr.even {
+	background-color:rgb(254,254,254); 
 }
 
-.tableRowAltBg {
-	background-color: rgb(244, 244, 244);
+table.worklistBody tr.odd { 
+	background-color:rgb(244,244,244); 
 }
 
-.tableRowHover {
-	background-color: rgb(255, 255, 206);
+table.worklistBody tr.hover {
+	background-color: rgb(255, 255, 206); 
 }
 
-.tableRowBg TD,.tableRowAltBg TD {
-	font-size: 11px;
-}
-
-.tableThLink {
-	color: rgb(255, 255, 255);
-	font-size: 11px;
-}
+/* Divs */
 
 DIV.message_note {
 	padding: 5px;
@@ -181,13 +169,8 @@ DIV.message_note {
 	border: 2px dotted rgb(255, 193, 0);
 }
 
-DIV.message_note A {
-	font-family: inherit;
-}
-
 DIV.message_note H3 {
 	font-weight: bold;
-	font-family: Arial, Helvetica, sans-serif;
 	font-size: 18px;
 	margin: 0px;
 	color: rgb(102, 102, 102);
@@ -199,10 +182,6 @@ DIV.ticket_comment {
 	border: 2px dotted rgb(70, 150, 241);
 }
 
-DIV.ticket_comment A {
-	font-family:inherit;
-}
-
 DIV.block {
 	padding: 5px;
 	background-image: url(bg_block.jpg);
@@ -211,13 +190,8 @@ DIV.block {
 	border: 1px solid rgb(180,180,180);
 }
 
-DIV.block A {
-	font-family:inherit;
-}
-
 DIV.block H2 {
 	font-weight: bold;
-	font-family: Arial, Helvetica, sans-serif;
 	font-size: 18px;
 	margin: 0px;
 	color: rgb(0, 150, 0);
@@ -225,7 +199,6 @@ DIV.block H2 {
 
 DIV.block H3 {
 	font-weight: bold;
-	font-family: Arial, Helvetica, sans-serif;
 	font-size: 18px;
 	margin: 0px;
 	color: rgb(85, 85, 85);
@@ -261,7 +234,8 @@ DIV.subtle2 {
 	padding: 5px;
 }
 
-/* Sprite containers */
+/* Sprite container */
+
 .cerb-sprite { 
 	background:url(sprites/cerb_icons.png);
 	background-repeat:no-repeat;
@@ -271,6 +245,7 @@ DIV.subtle2 {
 button span.cerb-sprite { display:inline-block; }
 
 /* Sprites */
+
 .sprite-add { background-position: 0 0; width: 16px; height: 16px; } 
 .sprite-calendar { background-position: -26px 0; width: 16px; height: 16px; } 
 .sprite-check { background-position: -52px 0; width: 16px; height: 16px; } 
@@ -318,6 +293,7 @@ button span.cerb-sprite { display:inline-block; }
 .sprite-warning_gray { background-position: -1228px 0; width: 16px; height: 16px; } 
 
 /* jQueryUI (Redmond theme) */
+
 .ui-tabs { border: 0px; padding: 0px; }
 .ui-tabs .ui-tabs-panel { padding: 1em; }
 .ui-tabs .ui-tabs-nav { background: #ffffff none; border: none; border-bottom: 1px solid #c5dbec; }
@@ -326,9 +302,11 @@ button span.cerb-sprite { display:inline-block; }
 .ui-tabs .ui-tabs-nav li.ui-tabs-selected { padding-bottom: 0px; background: #ffffff none; }
 
 /* jQuery Validation */
+
 label.error { color: rgb(255,0,0); padding-left: .5em; vertical-align: top; }
 
 /* jQuery Autocomplete */
+
 .ac_results { padding: 0px;	border: 1px solid black; background-color: white; overflow: hidden; z-index: 99999; }
 .ac_results ul { width: 100%; list-style-position: outside; list-style: none; padding: 0; margin: 0; }
 .ac_results li { margin: 0px; padding: 2px 5px; cursor: default; display: block; font: menu; font-size: 12px; line-height: 16px; overflow: hidden; }

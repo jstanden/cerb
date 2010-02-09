@@ -1,13 +1,11 @@
 {assign var=results value=$view->getData()}
 {assign var=total value=$results[1]}
 {assign var=data value=$results[0]}
-<table cellpadding="0" cellspacing="0" border="0" class="tableBlue" width="100%" class="tableBg">
+<table cellpadding="0" cellspacing="0" border="0" width="100%" class="worklist">
 	<tr>
-		<td nowrap="nowrap" class="tableThBlue">{$view->name}</td>
-		<td nowrap="nowrap" class="tableThBlue" align="right">
-			<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');" class="tableThLink">{$translate->_('common.refresh')|lower}</a>
-			<!-- {if $view->id != 'search'}<span style="font-size:12px"> | </span><a href="{devblocks_url}c=internal&a=searchview&id={$view->id}{/devblocks_url}" class="tableThLink">{$translate->_('common.search')|lower} list</a>{/if} -->
-			<!-- <span style="font-size:12px"> | </span><a href="javascript:;" onclick="genericAjaxGet('customize{$view->id}','c=internal&a=viewCustomize&id={$view->id}');toggleDiv('customize{$view->id}','block');" class="tableThLink">{$translate->_('common.customize')|lower}</a> -->
+		<td nowrap="nowrap"><span class="title">{$view->name}</span></td>
+		<td nowrap="nowrap" align="right">
+			<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');">{$translate->_('common.refresh')|lower}</a>
 		</td>
 	</tr>
 </table>
@@ -15,10 +13,10 @@
 <form id="customize{$view->id}" name="customize{$view->id}" action="#" onsubmit="return false;" style="display:none;"></form>
 <form id="viewForm{$view->id}" name="viewForm{$view->id}">
 <input type="hidden" name="id" value="{$view->id}">
-<table cellpadding="0" cellspacing="0" border="0" width="100%" class="tableRowBg">
+<table cellpadding="0" cellspacing="0" border="0" width="100%" class="worklistBody">
 
 	{* Column Headers *}
-	<tr class="tableTh">
+	<tr>
 		<th style="text-align:center"><input type="checkbox" onclick="checkAll('view{$view->id}',this.checked);"></th>
 		{foreach from=$view->view_columns item=header name=headers}
 			{* start table header, insert column title and link *}
@@ -42,12 +40,12 @@
 
 	{assign var=rowIdPrefix value="row_"|cat:$view->id|cat:"_"|cat:$result.l_id}
 	{if $smarty.foreach.results.iteration % 2}
-		{assign var=tableRowBg value="tableRowBg"}
+		{assign var=tableRowClass value="even"}
 	{else}
-		{assign var=tableRowBg value="tableRowAltBg"}
+		{assign var=tableRowClass value="odd"}
 	{/if}
 	
-		<tr class="{$tableRowBg}" id="{$rowIdPrefix}_s" onmouseover="$(this).addClass('tableRowHover');" onmouseout="$(this).removeClass('tableRowHover');" onclick="if(getEventTarget(event)=='TD') checkAll('{$rowIdPrefix}_s');">
+		<tr class="{$tableRowClass}" id="{$rowIdPrefix}_s" onmouseover="$(this).addClass('hover');" onmouseout="$(this).removeClass('hover');" onclick="if(getEventTarget(event)=='TD') checkAll('{$rowIdPrefix}_s');">
 			<td align="center" rowspan="1"><input type="checkbox" name="row_id[]" value="{$result.l_id}"></td>
 		{foreach from=$view->view_columns item=column name=columns}
 			{if $column=="l_id"}
@@ -105,7 +103,7 @@
 	{/foreach}
 	
 </table>
-<table cellpadding="2" cellspacing="0" border="0" width="100%" class="tableBg" id="{$view->id}_actions">
+<table cellpadding="2" cellspacing="0" border="0" width="100%" id="{$view->id}_actions">
 	{if $total}
 	<tr>
 		<td colspan="2">

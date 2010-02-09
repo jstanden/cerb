@@ -115,7 +115,7 @@ TABLE.sidebar BUTTON {
 	background-color: rgb(244, 244, 244);
 }
 
-.tableRowHover {
+.hover {
 	background-color: rgb(255, 255, 206);
 }
 

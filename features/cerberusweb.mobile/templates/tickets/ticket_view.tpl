@@ -11,9 +11,9 @@
 
 	{assign var=rowIdPrefix value="row_"|cat:$view->id|cat:"_"|cat:$result.t_id}
 	{if $smarty.foreach.results.iteration % 2}
-		{assign var=tableRowBg value="tableRowBg"}
+		{assign var=tableRowClass value="even"}
 	{else}
-		{assign var=tableRowBg value="tableRowAltBg"}
+		{assign var=tableRowClass value="odd"}
 	{/if}
 	
 		<div>
@@ -57,7 +57,7 @@
 	{/foreach}
 	
 </table>
-<table cellpadding="2" cellspacing="0" border="0" width="100%" class="tableBg" id="{$view->id}_actions">
+<table cellpadding="2" cellspacing="0" border="0" width="100%" id="{$view->id}_actions">
 	<tr>
 		<td align="right" valign="top" nowrap="nowrap">
 			{math assign=fromRow equation="(x*y)+1" x=$view->renderPage y=$view->renderLimit}

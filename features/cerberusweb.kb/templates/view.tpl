@@ -1,13 +1,13 @@
 {assign var=results value=$view->getData()}
 {assign var=total value=$results[1]}
 {assign var=data value=$results[0]}
-<table cellpadding="0" cellspacing="0" border="0" class="tableBlue" width="100%">
+<table cellpadding="0" cellspacing="0" border="0" class="worklist" width="100%">
 	<tr>
-		<td nowrap="nowrap" class="tableThBlue">{$view->name}</td>
-		<td nowrap="nowrap" class="tableThBlue" align="right">
-			<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');" class="tableThLink">{$translate->_('common.refresh')|lower}</a>
-			<!-- {if $view->id != 'search'}<span style="font-size:12px"> | </span><a href="{devblocks_url}c=internal&a=searchview&id={$view->id}{/devblocks_url}" class="tableThLink">{$translate->_('common.search')|lower} list</a>{/if} -->
-			<span style="font-size:12px"> | </span><a href="javascript:;" onclick="genericAjaxGet('customize{$view->id}','c=internal&a=viewCustomize&id={$view->id}');toggleDiv('customize{$view->id}','block');" class="tableThLink">{$translate->_('common.customize')|lower}</a>
+		<td nowrap="nowrap"><span class="title">{$view->name}</span></td>
+		<td nowrap="nowrap" align="right">
+			<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');">{$translate->_('common.refresh')|lower}</a>
+			<!-- {if $view->id != 'search'} | <a href="{devblocks_url}c=internal&a=searchview&id={$view->id}{/devblocks_url}">{$translate->_('common.search')|lower} list</a>{/if} -->
+			 | <a href="javascript:;" onclick="genericAjaxGet('customize{$view->id}','c=internal&a=viewCustomize&id={$view->id}');toggleDiv('customize{$view->id}','block');">{$translate->_('common.customize')|lower}</a>
 		</td>
 	</tr>
 </table>
@@ -18,17 +18,15 @@
 <input type="hidden" name="c" value="kb">
 <input type="hidden" name="a" value="">
 <input type="hidden" name="return" value="{$response_uri}">
-<table cellpadding="1" cellspacing="0" border="0" width="100%" class="tableRowBg">
+<table cellpadding="1" cellspacing="0" border="0" width="100%" class="worklistBody">
 
 	{* Column Headers *}
-	<tr class="tableTh">
+	<tr>
 		<th style="text-align:center"><input type="checkbox" onclick="checkAll('view{$view->id}',this.checked);"></th>
 		{foreach from=$view->view_columns item=header name=headers}
 			{* start table header, insert column title and link *}
 			<th nowrap="nowrap">
-			{if $header=="x"}<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewSortBy&id={$view->id}&sortBy=kb_id');">{$translate->_('contact_org.id')|capitalize}</a>
-			{else}<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewSortBy&id={$view->id}&sortBy={$header}');">{$view_fields.$header->db_label|capitalize}</a>
-			{/if}
+			<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewSortBy&id={$view->id}&sortBy={$header}');">{$view_fields.$header->db_label|capitalize}</a>
 			
 			{* add arrow if sorting by this column, finish table header tag *}
 			{if $header==$view->renderSortBy}
@@ -47,12 +45,12 @@
 
 	{assign var=rowIdPrefix value="row_"|cat:$view->id|cat:"_"|cat:$result.kb_id}
 	{if $smarty.foreach.results.iteration % 2}
-		{assign var=tableRowBg value="tableRowBg"}
+		{assign var=tableRowClass value="even"}
 	{else}
-		{assign var=tableRowBg value="tableRowAltBg"}
+		{assign var=tableRowClass value="odd"}
 	{/if}
 	
-		<tr class="{$tableRowBg}" id="{$rowIdPrefix}_s" onmouseover="$(this).addClass('tableRowHover');" onmouseout="$(this).removeClass('tableRowHover');" onclick="if(getEventTarget(event)=='TD') checkAll('{$rowIdPrefix}_s');">
+		<tr class="{$tableRowClass}" id="{$rowIdPrefix}_s" onmouseover="$(this).addClass('hover');" onmouseout="$(this).removeClass('hover');" onclick="if(getEventTarget(event)=='TD') checkAll('{$rowIdPrefix}_s');">
 			<td align="center"><input type="checkbox" name="row_id[]" value="{$result.kb_id}"></td>
 		{foreach from=$view->view_columns item=column name=columns}
 			{if $column=="kb_id"}
@@ -60,7 +58,7 @@
 			{elseif $column=="kb_title"}
 			<td>
 				{if !empty($result.kb_title)}
-				<span class="cerb-sprite sprite-document"></span> <a href="javascript:;" style="font-size:12px;color:rgb(75,75,75);" onclick="genericAjaxPanel('c=kb.ajax&a=showArticlePeekPanel&id={$result.kb_id}&view_id={$view->id}',null,false,'700');"><b id="subject_{$result.kb_id}_{$view->id}">{$result.kb_title|escape}</b></a>				
+				<span class="cerb-sprite sprite-document"></span> <a href="javascript:;" onclick="genericAjaxPanel('c=kb.ajax&a=showArticlePeekPanel&id={$result.kb_id}&view_id={$view->id}',null,false,'700');" class="subject">{$result.kb_title|escape}</a>				
 				{/if}
 			</td>
 			{elseif $column=="kb_updated"}
@@ -92,7 +90,7 @@
 	{/foreach}
 	
 </table>
-<table cellpadding="2" cellspacing="0" border="0" width="100%" class="tableBg" id="{$view->id}_actions">
+<table cellpadding="2" cellspacing="0" border="0" width="100%" id="{$view->id}_actions">
 	{if $total}
 	<tr>
 		<td colspan="2">
