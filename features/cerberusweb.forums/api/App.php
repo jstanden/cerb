@@ -43,11 +43,6 @@ class ChForumsConfigTab extends Extension_ConfigTab {
 		@$url = DevblocksPlatform::importGPC($_REQUEST['url'],'string','');
 		@$secret_key = DevblocksPlatform::importGPC($_REQUEST['secret_key'],'string','');
 
-		if(DEMO_MODE) {
-			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','forums')));
-			return;
-		}
-		
 		// Deletes
 		if(is_array($deletes) && !empty($deletes)) {
 			DAO_ForumsSource::delete($deletes);

@@ -41,7 +41,7 @@
 	</tr>
 	<tr>
 		<td width="0%" nowrap="nowrap"><b>Password:</b></td>
-		<td width="100%"><input type="password" name="password" value="{if !$smarty.const.DEMO_MODE}{$pop3_account->password|escape:"html"}{/if}"></td>
+		<td width="100%"><input type="password" name="password" value="{$pop3_account->password|escape:"html"}"></td>
 	</tr>
 	<tr>
 		<td width="0%" nowrap="nowrap"><b>Port:</b></td>

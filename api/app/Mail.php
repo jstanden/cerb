@@ -621,15 +621,13 @@ class CerberusMail {
 				}
 			}
 			
-			if(!DEMO_MODE) {
-				// If we're not supposed to send
-				if(isset($properties['dont_send']) && $properties['dont_send']) {
-					// ...do nothing
-				} else { // otherwise send
-					if(!$mailer->send($mail)) {
-						$mail_succeeded = false;
-						throw new Exception('Mail not sent.');
-					}
+			// If we're not supposed to send
+			if(isset($properties['dont_send']) && $properties['dont_send']) {
+				// ...do nothing
+			} else { // otherwise send
+				if(!$mailer->send($mail)) {
+					$mail_succeeded = false;
+					throw new Exception('Mail not sent.');
 				}
 			}
 		} catch (Exception $e) {

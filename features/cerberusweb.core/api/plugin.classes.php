@@ -196,7 +196,6 @@ class ChPageController extends DevblocksControllerExtension {
 		
 		if(!empty($visit) && !is_null($active_worker)) {
 			$tour_enabled = intval(DAO_WorkerPref::get($active_worker->id, 'assist_mode', 1));
-			if(DEMO_MODE) $tour_enabled = 1; // override for DEMO
 
 			$keyboard_shortcuts = intval(DAO_WorkerPref::get($active_worker->id,'keyboard_shortcuts',1));
 			$tpl->assign('pref_keyboard_shortcuts', $keyboard_shortcuts);			

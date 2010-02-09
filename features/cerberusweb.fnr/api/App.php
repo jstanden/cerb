@@ -197,11 +197,6 @@ class ChFnrConfigTab extends Extension_ConfigTab {
 		@$name = DevblocksPlatform::importGPC($_REQUEST['name'],'string','');
 		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
 
-		if(DEMO_MODE) {
-			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','fnr')));
-			return;
-		}
-		
 		// Deletes
 		if(!empty($do_delete)) {
 			DAO_FnrTopic::delete($id);
@@ -235,11 +230,6 @@ class ChFnrConfigTab extends Extension_ConfigTab {
 		@$topic_id = DevblocksPlatform::importGPC($_REQUEST['topic_id'],'integer',0);
 		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
 
-		if(DEMO_MODE) {
-			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','fnr')));
-			return;
-		}
-		
 		// Deletes
 		if(!empty($do_delete)) {
 			DAO_FnrExternalResource::delete($id);

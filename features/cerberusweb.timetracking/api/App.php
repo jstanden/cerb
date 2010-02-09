@@ -1299,11 +1299,6 @@ class ChTimeTrackingConfigActivityTab extends Extension_ConfigTab {
 		@$rate = floatval(DevblocksPlatform::importGPC($_REQUEST['rate'],'string',''));
 		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
 
-		if(DEMO_MODE) {
-			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','timetracking.activities')));
-			return;
-		}		
-
 		if(empty($id)) { // Add
 			$fields = array(
 				DAO_TimeTrackingActivity::NAME => $name,

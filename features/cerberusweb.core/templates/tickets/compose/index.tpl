@@ -1,8 +1,5 @@
 {include file="file:$core_tpl/tickets/submenu.tpl"}
 
-{if $smarty.const.DEMO_MODE}
-<div style="color:red;padding:2px;font-weight:bold;">NOTE: This helpdesk is in Demo Mode and mail will not be sent.</div>
-{/if}
 {if !empty($last_ticket_mask)}
 <div class="success">Message sent! &nbsp; &nbsp; <a href="{devblocks_url}c=display&mask={$last_ticket_mask}{/devblocks_url}" style="font-weight:normal;color:rgb(80,80,80);">View the message</a></div>
 {/if}

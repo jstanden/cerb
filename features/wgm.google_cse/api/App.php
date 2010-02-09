@@ -62,11 +62,6 @@ class WgmGoogleCSEConfigTab extends Extension_ConfigTab {
 		@$url = trim(DevblocksPlatform::importGPC($_POST['url'],'string',''));
 		@$delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer',0);	
 
-		if(DEMO_MODE) {
-			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','wgm.google_cse')));
-			return;
-		}
-	    
 		if(!empty($delete)) {
 			DAO_WgmGoogleCse::delete($id);
 			

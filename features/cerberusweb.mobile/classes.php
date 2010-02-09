@@ -171,15 +171,6 @@ class MobileController extends DevblocksControllerExtension {
             $common_translated['header_signed_in'] = vsprintf($translate->_('header.signed_in'), array('<b>'.$visit->getWorker()->getName().'</b>'));
         $tpl->assign('common_translated', $common_translated);
 		
-//        $tour_enabled = false;
-//		if(!empty($visit) && !is_null($visit->getWorker())) {
-//        	$worker = $visit->getWorker();
-//			$tour_enabled = DAO_WorkerPref::get($worker->id, 'assist_mode');
-//			$tour_enabled = ($tour_enabled===false) ? 1 : $tour_enabled;
-//			if(DEMO_MODE) $tour_enabled = 1; // override for DEMO
-//		}
-//		$tpl->assign('tour_enabled', $tour_enabled);
-		
         // [JAS]: Variables provided to all page templates
 		$tpl->assign('settings', $settings);
 		$tpl->assign('session', $_SESSION);

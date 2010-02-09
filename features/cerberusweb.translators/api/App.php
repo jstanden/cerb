@@ -516,11 +516,6 @@ class ChTranslatorsAjaxController extends DevblocksControllerExtension {
 		@$row_ids = DevblocksPlatform::importGPC($_REQUEST['row_ids'],'array',array());
 		@$translations = DevblocksPlatform::importGPC($_REQUEST['translations'],'array',array());
 
-		if(DEMO_MODE) {
-			DevblocksPlatform::redirect(new DevblocksHttpResponse(array('config','translations')));
-			return;
-		}		
-		
 		// Save the form strings
 		if(is_array($row_ids))
 		foreach($row_ids as $idx => $row_id) {
