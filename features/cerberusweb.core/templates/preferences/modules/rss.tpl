@@ -8,7 +8,7 @@
 
 {foreach from=$feeds item=feed name=feeds}
 	<div class="subtle">
-	<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/feed-icon-16x16.gif{/devblocks_url}" border="0" align="top"> 
+	<span class="cerb-sprite sprite-rss"></span> 
 	<h2 style="display:inline;">{$feed->title}</h2>&nbsp; <a href="javascript:;" onclick="document.myFeedsForm.id.value='{$feed->id}';document.myFeedsForm.submit();">{$translate->_('common.remove')|lower}</a><br> 
 	<b>URL:</b> <a href="{devblocks_url full=true}c=rss&hash={$feed->hash}{/devblocks_url}" target="_blank">{devblocks_url full=true}c=rss&hash={$feed->hash}{/devblocks_url}</a><br>
 	</div>
@@ -17,6 +17,6 @@
 	You haven't created any feeds.  Click the RSS button in the header of any ticket list.<br>
 {/foreach}
 
-<!-- <button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')}</button>  -->
+<!-- <button type="submit"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>  -->
 </form>
 

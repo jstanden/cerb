@@ -7,7 +7,7 @@
 		<a href="http://www.cerberusweb.com/buy" target="_blank">[Purchase License]</a>
 	</div>
 	{else}
-	<button type="button" onclick="genericAjaxPanel('c=config&a=showWorkerPeek&id=0&view_id={$view->id|escape:'url'}',null,false,'500');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/add.png{/devblocks_url}" align="top"> Add Worker</button>
+	<button type="button" onclick="genericAjaxPanel('c=config&a=showWorkerPeek&id=0&view_id={$view->id|escape:'url'}',null,false,'500');"><span class="cerb-sprite sprite-add"></span> Add Worker</button>
 	{/if}
 </form>
 
@@ -17,7 +17,7 @@
 			{include file="file:$core_tpl/internal/views/criteria_list.tpl" divName="workersCriteriaDialog"}
 			<div id="workersCriteriaDialog" style="visibility:visible;"></div>
 		</td>
-		<td valign="top" width="0%" nowrap="nowrap"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/spacer.gif{/devblocks_url}" width="5" height="1"></td>
+		<td valign="top" width="0%" nowrap="nowrap" style="padding-right:5px;"></td>
 		<td valign="top" width="100%">
 			<div id="view{$view->id}">{$view->render()}</div>
 		</td>

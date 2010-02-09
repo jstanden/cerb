@@ -65,8 +65,8 @@
 
 			{assign var=ticket_team_id value=$ticket->team_id}
 			{assign var=headers value=$message->getHeaders()}
-			<button type="button" onclick="genericAjaxPanel('c=display&a=showTemplatesPanel&type=2&reply_id={$message->id}&txt_name=reply_{$message->id}',null,false,'550');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/text_rich.gif{/devblocks_url}" align="top"> {$translate->_('display.reply.email_templates')|capitalize}</button>
-			<button type="button" onclick="genericAjaxGet('','c=tickets&a=getComposeSignature&group_id={$ticket->team_id}',function(text) { insertAtCursor(document.getElementById('reply_{$message->id}'),text);document.getElementById('reply_{$message->id}').focus(); } );"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_edit.gif{/devblocks_url}" align="top"> {$translate->_('display.reply.insert_sig')|capitalize}</button>
+			<button type="button" onclick="genericAjaxPanel('c=display&a=showTemplatesPanel&type=2&reply_id={$message->id}&txt_name=reply_{$message->id}',null,false,'550');"><span class="cerb-sprite sprite-text_rich"></span> {$translate->_('display.reply.email_templates')|capitalize}</button>
+			<button type="button" onclick="genericAjaxGet('','c=tickets&a=getComposeSignature&group_id={$ticket->team_id}',function(text) { insertAtCursor(document.getElementById('reply_{$message->id}'),text);document.getElementById('reply_{$message->id}').focus(); } );"><span class="cerb-sprite sprite-document_edit"></span> {$translate->_('display.reply.insert_sig')|capitalize}</button>
 			{* Plugin Toolbar *}
 			{if !empty($reply_toolbaritems)}
 				{foreach from=$reply_toolbaritems item=renderer}
@@ -251,12 +251,12 @@
 		<td>
 			<!-- {* These buttons are kind of funky.  They have to combine two <form> blocks since there is a user-plugin land toolbar in the middle of them, which should be able to have their own <form> scope *} -->
 			{if $is_forward}
-				<button type="button" onclick="this.form.to.value=document.getElementById('replyForm_to').value;this.form.cc.value=document.getElementById('replyForm_cc').value;this.form.bcc.value=document.getElementById('replyForm_bcc').value;this.form.subject.value=document.getElementById('replyForm_subject').value;if($('#reply{$message->id}_part1').validate().form() && $('#reply{$message->id}_part2').validate().form())this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('display.ui.forward')|capitalize}</button>
+				<button type="button" onclick="this.form.to.value=document.getElementById('replyForm_to').value;this.form.cc.value=document.getElementById('replyForm_cc').value;this.form.bcc.value=document.getElementById('replyForm_bcc').value;this.form.subject.value=document.getElementById('replyForm_subject').value;if($('#reply{$message->id}_part1').validate().form() && $('#reply{$message->id}_part2').validate().form())this.form.submit();"><span class="cerb-sprite sprite-check"></span> {$translate->_('display.ui.forward')|capitalize}</button>
 			{else}
-				<button type="button" onclick="this.form.cc.value=document.getElementById('replyForm_cc').value;this.form.bcc.value=document.getElementById('replyForm_bcc').value;this.form.subject.value=document.getElementById('replyForm_subject').value;if($('#reply{$message->id}_part1').validate().form() && $('#reply{$message->id}_part2').validate().form())this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('display.ui.send_message')}</button>
+				<button type="button" onclick="this.form.cc.value=document.getElementById('replyForm_cc').value;this.form.bcc.value=document.getElementById('replyForm_bcc').value;this.form.subject.value=document.getElementById('replyForm_subject').value;if($('#reply{$message->id}_part1').validate().form() && $('#reply{$message->id}_part2').validate().form())this.form.submit();"><span class="cerb-sprite sprite-check"></span> {$translate->_('display.ui.send_message')}</button>
 			{/if}
-			<button type="button" onclick="$('#reply{$message->id}').html('');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> {$translate->_('display.ui.discard')|capitalize}</button>
-			<button type="button" onclick="$('#reply{$message->id}').html('');genericAjaxGet('','c=display&a=discardAndSurrender&ticket_id={$ticket->id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/flag_white.gif{/devblocks_url}" align="top"> {$translate->_('display.ui.discard_surrender')}</button>
+			<button type="button" onclick="$('#reply{$message->id}').html('');"><span class="cerb-sprite sprite-delete"></span> {$translate->_('display.ui.discard')|capitalize}</button>
+			<button type="button" onclick="$('#reply{$message->id}').html('');genericAjaxGet('','c=display&a=discardAndSurrender&ticket_id={$ticket->id}');"><span class="cerb-sprite sprite-flag_white"></span> {$translate->_('display.ui.discard_surrender')}</button>
 		</td>
 	</tr>
 </table>

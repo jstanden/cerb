@@ -75,9 +75,9 @@
 	      		<tr>
 	      			<td align="left" id="{$message->id}act">
 	      				{assign var=show_more value=0}
-				      	{if $active_worker->hasPriv('core.display.actions.reply')}{if !empty($requesters)}{assign var=show_more value=1}<button {if $latest_message_id==$message->id}id="btnReplyFirst"{/if} type="button" onclick="displayAjax.reply('{$message->id}',0);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/export2.png{/devblocks_url}" align="top"> {$translate->_('display.ui.reply')|capitalize}</button>{/if}{/if}
-				      	{if $active_worker->hasPriv('core.display.actions.forward')}{assign var=show_more value=1}<button type="button" onclick="displayAjax.reply('{$message->id}',1);"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_out.png{/devblocks_url}" align="top"> {$translate->_('display.ui.forward')|capitalize}</button>{/if}
-				      	{if $active_worker->hasPriv('core.display.actions.note')}{assign var=show_more value=1}<button type="button" onclick="displayAjax.addNote('{$message->id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document_plain_yellow.png{/devblocks_url}" align="top"> {$translate->_('display.ui.sticky_note')|capitalize}</button>{/if}
+				      	{if $active_worker->hasPriv('core.display.actions.reply')}{if !empty($requesters)}{assign var=show_more value=1}<button {if $latest_message_id==$message->id}id="btnReplyFirst"{/if} type="button" onclick="displayAjax.reply('{$message->id}',0);"><span class="cerb-sprite sprite-export"></span> {$translate->_('display.ui.reply')|capitalize}</button>{/if}{/if}
+				      	{if $active_worker->hasPriv('core.display.actions.forward')}{assign var=show_more value=1}<button type="button" onclick="displayAjax.reply('{$message->id}',1);"><span class="cerb-sprite sprite-document_out"></span> {$translate->_('display.ui.forward')|capitalize}</button>{/if}
+				      	{if $active_worker->hasPriv('core.display.actions.note')}{assign var=show_more value=1}<button type="button" onclick="displayAjax.addNote('{$message->id}');"><span class="cerb-sprite sprite-document_plain_yellow"></span> {$translate->_('display.ui.sticky_note')|capitalize}</button>{/if}
 				      	
 				      	{if $show_more} {* Only show more if we showed one of the built-in buttons first *}
 				      	 &nbsp; 
@@ -92,10 +92,10 @@
 	      		<input type="hidden" name="a" value="">
 	      		<input type="hidden" name="id" value="{$message->id}">
 	      		
-	      		<button type="button" onclick="document.frmPrint.action='{devblocks_url}c=print&a=message&id={$message->id}{/devblocks_url}';document.frmPrint.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/printer.gif{/devblocks_url}" align="top"> {$translate->_('common.print')|capitalize}</button>
+	      		<button type="button" onclick="document.frmPrint.action='{devblocks_url}c=print&a=message&id={$message->id}{/devblocks_url}';document.frmPrint.submit();"><span class="cerb-sprite sprite-printer"></span> {$translate->_('common.print')|capitalize}</button>
 	      		
 	      		{if $ticket->first_message_id != $message->id && $active_worker->hasPriv('core.display.actions.split')} {* Don't allow splitting of a single message *}
-	      		<button type="button" onclick="this.form.a.value='doSplitMessage';this.form.submit();" title="Split message into new ticket"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/documents.gif{/devblocks_url}" align="top"> {$translate->_('display.button.split_ticket')|capitalize}</button>
+	      		<button type="button" onclick="this.form.a.value='doSplitMessage';this.form.submit();" title="Split message into new ticket"><span class="cerb-sprite sprite-documents"></span> {$translate->_('display.button.split_ticket')|capitalize}</button>
 	      		{/if}
 	      		
 				{* Plugin Toolbar *}

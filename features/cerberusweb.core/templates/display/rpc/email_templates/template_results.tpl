@@ -9,7 +9,7 @@
 {if $template->folder != $last_folder}
 	<h2>{$template->folder}</h2>
 {/if}
-<input type="radio" name="template_id" value="{$template_id}" {if $smarty.foreach.templates.first}checked{/if}> <img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document.gif{/devblocks_url}" align="absmiddle"> 
+<input type="radio" name="template_id" value="{$template_id}" {if $smarty.foreach.templates.first}checked{/if}> <span class="cerb-sprite sprite-document"></span> 
 <a href="javascript:;" onclick="ajax.insertReplyTemplate('{$template_id}','{$txt_name}','{$reply_id}');"><b>{$template->title}</b></a> 
 {if !empty($template->description)} - {$template->description}{/if}
 <br>

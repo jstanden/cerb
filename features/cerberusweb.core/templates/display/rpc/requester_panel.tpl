@@ -17,8 +17,8 @@
 <textarea name="req_adds" rows="4" cols="35" style="width:98%;"></textarea><br>
 <br>
 
-<button type="button" onclick="displayAjax.saveRequesterPanel('formDisplayReq','displayRequesters{$msg_id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
-<button type="button" onclick="genericPanel.dialog('close');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> {$translate->_('common.cancel')|capitalize}</button>
+<button type="button" onclick="displayAjax.saveRequesterPanel('formDisplayReq','displayRequesters{$msg_id}');"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button>
+<button type="button" onclick="genericPanel.dialog('close');"><span class="cerb-sprite sprite-delete"></span> {$translate->_('common.cancel')|capitalize}</button>
 <br>
 </form>
 

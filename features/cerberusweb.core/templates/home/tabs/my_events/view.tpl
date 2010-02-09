@@ -7,8 +7,8 @@
 		<td nowrap="nowrap" class="tableThBlue" align="right">
 			<a href="javascript:;" onclick="genericAjaxGet('customize{$view->id}','c=internal&a=viewCustomize&id={$view->id}');toggleDiv('customize{$view->id}','block');" class="tableThLink">{$translate->_('common.customize')|lower}</a>
 			{if $active_worker->hasPriv('core.home.workspaces')}<span style="font-size:12px"> | </span><a href="javascript:;" onclick="genericAjaxGet('{$view->id}_tips','c=internal&a=viewShowCopy&view_id={$view->id}');toggleDiv('{$view->id}_tips','block');" class="tableThLink">{$translate->_('common.copy')|lower}</a>{/if}
-			<span style="font-size:12px"> | </span><a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');" class="tableThLink"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/refresh.gif{/devblocks_url}" border="0" align="absmiddle" title="{$translate->_('common.refresh')|lower}" alt="{$translate->_('common.refresh')|lower}"></a>
-			{if $active_worker->hasPriv('core.rss')}<span style="font-size:12px"> | </span><a href="javascript:;" onclick="genericAjaxGet('{$view->id}_tips','c=tickets&a=showViewRss&view_id={$view->id}&source=core.rss.source.notification');toggleDiv('{$view->id}_tips','block');" class="tableThLink"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/feed-icon-16x16.gif{/devblocks_url}" border="0" align="absmiddle"></a>{/if}
+			<span style="font-size:12px"> | </span><a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');" class="tableThLink"><span class="cerb-sprite sprite-refresh"></span></a>
+			{if $active_worker->hasPriv('core.rss')}<span style="font-size:12px"> | </span><a href="javascript:;" onclick="genericAjaxGet('{$view->id}_tips','c=tickets&a=showViewRss&view_id={$view->id}&source=core.rss.source.notification');toggleDiv('{$view->id}_tips','block');" class="tableThLink"><span class="cerb-sprite sprite-rss"></span></a>{/if}
 		</td>
 	</tr>
 </table>
@@ -34,9 +34,9 @@
 			{* add arrow if sorting by this column, finish table header tag *}
 			{if $header==$view->renderSortBy}
 				{if $view->renderSortAsc}
-					<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/sort_ascending.png{/devblocks_url}" align="absmiddle">
+					<span class="cerb-sprite sprite-sort_ascending"></span>
 				{else}
-					<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/sort_descending.png{/devblocks_url}" align="absmiddle">
+					<span class="cerb-sprite sprite-sort_descending"></span>
 				{/if}
 			{/if}
 			</th>
@@ -78,7 +78,7 @@
 			{elseif $column=="we_url"}
 			<td valign="top"><a href="{devblocks_url}c=home&a=redirectRead&id={$result.we_id}{/devblocks_url}">{$result.$column}</a>&nbsp;</td>
 			{elseif $column=="we_is_read"}
-			<td valign="top">{if $result.$column}<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check_gray.gif{/devblocks_url}" align="top">{/if}&nbsp;</td>
+			<td valign="top">{if $result.$column}<span class="cerb-sprite sprite-check_gray"></span>{/if}&nbsp;</td>
 			{elseif $column=="we_content"}
 			<td valign="top">{$result.$column|nl2br}&nbsp;</td>
 			{else}
@@ -93,7 +93,7 @@
 	{if $total}
 	<tr>
 		<td colspan="2">
-			{if 1}<button type="button" id="btn{$view->id}MarkRead" onclick="this.form.a.value='doNotificationsMarkRead';genericAjaxPost('viewForm{$view->id}','view{$view->id}','c=config');document.location.href='#top';"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('home.my_notifications.button.mark_read')}</button>{/if}
+			{if 1}<button type="button" id="btn{$view->id}MarkRead" onclick="this.form.a.value='doNotificationsMarkRead';genericAjaxPost('viewForm{$view->id}','view{$view->id}','c=config');document.location.href='#top';"><span class="cerb-sprite sprite-check"></span> {$translate->_('home.my_notifications.button.mark_read')}</button>{/if}
 		</td>
 	</tr>
 	{/if}

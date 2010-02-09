@@ -8,17 +8,17 @@
 			{if $root_id}
 				{assign var=parent_id value=$categories.$root_id->parent_id}
 				{if $parent_id}
-					{if $active_worker->hasPriv('core.kb.categories.modify')}<button type="button" onclick="genericAjaxPanel('c=kb.ajax&a=showKbCategoryEditPanel&id={$root_id}&return={$request_path|escape:'url'}',null,false,'500');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> Edit Category</button>{/if}
+					{if $active_worker->hasPriv('core.kb.categories.modify')}<button type="button" onclick="genericAjaxPanel('c=kb.ajax&a=showKbCategoryEditPanel&id={$root_id}&return={$request_path|escape:'url'}',null,false,'500');"><span class="cerb-sprite sprite-folder_gear"></span> Edit Category</button>{/if}
 				{else}
-					{if $active_worker->hasPriv('core.kb.topics.modify')}<button type="button" onclick="genericAjaxPanel('c=kb.ajax&a=showTopicEditPanel&id={$root_id}&return={$request_path|escape:'url'}',null,false,'500');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_gear.gif{/devblocks_url}" align="top"> Edit Topic</button>{/if}
+					{if $active_worker->hasPriv('core.kb.topics.modify')}<button type="button" onclick="genericAjaxPanel('c=kb.ajax&a=showTopicEditPanel&id={$root_id}&return={$request_path|escape:'url'}',null,false,'500');"><span class="cerb-sprite sprite-folder_gear"></span> Edit Topic</button>{/if}
 				{/if}
-				{if $active_worker->hasPriv('core.kb.categories.modify')}<button type="button" onclick="genericAjaxPanel('c=kb.ajax&a=showKbCategoryEditPanel&id=0&root_id={$root_id}&return={$request_path|escape:'url'}',null,false,'500');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_add.gif{/devblocks_url}" align="top"> Add Subcategory</button>{/if}
+				{if $active_worker->hasPriv('core.kb.categories.modify')}<button type="button" onclick="genericAjaxPanel('c=kb.ajax&a=showKbCategoryEditPanel&id=0&root_id={$root_id}&return={$request_path|escape:'url'}',null,false,'500');"><span class="cerb-sprite sprite-folder_add"></span> Add Subcategory</button>{/if}
 			{else}
-				{if $active_worker->hasPriv('core.kb.topics.modify')}<button type="button" onclick="genericAjaxPanel('c=kb.ajax&a=showTopicEditPanel&id=0&return={$request_path|escape:'url'}',null,false,'500');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_add.gif{/devblocks_url}" align="top"> Add Topic</button>{/if}
+				{if $active_worker->hasPriv('core.kb.topics.modify')}<button type="button" onclick="genericAjaxPanel('c=kb.ajax&a=showTopicEditPanel&id=0&return={$request_path|escape:'url'}',null,false,'500');"><span class="cerb-sprite sprite-folder_add"></span> Add Topic</button>{/if}
 			{/if}
 			
-			{if $active_worker->hasPriv('core.kb.articles.modify')}<button type="button" onclick="genericAjaxPanel('c=kb.ajax&a=showArticleEditPanel&id=0&root_id={$root_id}&view_id={$view->id}',null,false,'550');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/add.png{/devblocks_url}" align="top"> Add Article</button>{/if}
-			<button type="button" onclick="document.location.href='{devblocks_url}c=research&a=kb&s=search{/devblocks_url}';"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/data_find.gif{/devblocks_url}" align="top"> {$translate->_('common.search')|capitalize}</button>
+			{if $active_worker->hasPriv('core.kb.articles.modify')}<button type="button" onclick="genericAjaxPanel('c=kb.ajax&a=showArticleEditPanel&id=0&root_id={$root_id}&view_id={$view->id}',null,false,'550');"><span class="cerb-sprite sprite-add"></span> Add Article</button>{/if}
+			<button type="button" onclick="document.location.href='{devblocks_url}c=research&a=kb&s=search{/devblocks_url}';"><span class="cerb-sprite sprite-data_find"></span> {$translate->_('common.search')|capitalize}</button>
 		</form>
 	</td>
 	<td width="98%" valign="middle">
@@ -58,7 +58,7 @@
 	<tr>
 	<td width="50%" valign="top">
 	{foreach from=$tree.$root_id item=count key=cat_id name=kbcats}
-		<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder.gif{/devblocks_url}" align="top">
+		<span class="cerb-sprite sprite-folder"></span>
 		<a href="{devblocks_url}c=research&a=kb&id={$cat_id|string_format:"%06d"}{/devblocks_url}" style="font-weight:bold;">{$categories.$cat_id->name}</a> ({$count|string_format:"%d"})<br>
 	
 		{if !empty($tree.$cat_id)}

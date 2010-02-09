@@ -28,9 +28,9 @@
 			{* add arrow if sorting by this column, finish table header tag *}
 			{if $header==$view->renderSortBy}
 				{if $view->renderSortAsc}
-					<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/sort_ascending.png{/devblocks_url}" align="absmiddle">
+					<span class="cerb-sprite sprite-sort_ascending"></span>
 				{else}
-					<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/sort_descending.png{/devblocks_url}" align="absmiddle">
+					<span class="cerb-sprite sprite-sort_descending"></span>
 				{/if}
 			{/if}
 			</th>

@@ -1,6 +1,6 @@
 <div id="tourConfigMailRouting"></div>
 <form action="{devblocks_url}{/devblocks_url}" style="margin-bottom:5px;">
-	<button type="button" onclick="genericAjaxPanel('c=config&a=showMailRoutingRulePanel&id=0',null,false,'550');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/funnel.gif{/devblocks_url}" align="top"> Add Mail Routing Rule</button>
+	<button type="button" onclick="genericAjaxPanel('c=config&a=showMailRoutingRulePanel&id=0',null,false,'550');"><span class="cerb-sprite sprite-funnel"></span> Add Mail Routing Rule</button>
 </form>
 
 <div class="block" id="configGroupRouting">
@@ -113,7 +113,7 @@
 	<br>	
 	{/if}
 
-	<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
+	<button type="submit"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button>
 	</form>
 </div>
 <br>

@@ -1,7 +1,12 @@
-OPTGROUP {
+body, td {
+	color: rgb(80, 80, 80);
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 12px;
+}
+
+optgroup {
 	font-style: normal;
 	font-weight: bold;
-	font-size: 14px;
 	color: rgb(80, 80, 80);
 }
 
@@ -10,29 +15,10 @@ a {
 	font-family: Arial, Helvetica, sans-serif;
 }
 
-.ticketLink {
-	color: rgb(0, 102, 255);
-}
-
-body,td {
-	color: rgb(80, 80, 80);
-	font-family: Arial, Helvetica, sans-serif;
-	font-size: 12px;
-}
-
 h1 {
 	font-weight: bold;
 	font-family: Arial, Helvetica, sans-serif;
-	font-size: 18px;
-	color: rgb(0, 102, 255);
-	margin-top: 0px;
-	margin-bottom: 0px;
-}
-
-h1.subtitle {
-	font-weight: bold;
-	font-family: Arial, Helvetica, sans-serif;
-	font-size: 16px;
+	font-size: 1.5em;
 	color: rgb(0, 102, 255);
 	margin-top: 0px;
 	margin-bottom: 0px;
@@ -41,17 +27,10 @@ h1.subtitle {
 h2 {
 	font-weight: bold;
 	font-family: Arial, Helvetica, sans-serif;
-	font-size: 18px;
+	font-size: 1.5em;
+	color: rgb(102, 102, 102);
 	margin-top: 0px;
 	margin-bottom: 0px;
-}
-
-.line {
-	margin: 0px;
-	padding: 0px;
-	display: block;
-	background-color: rgb(220, 220, 220);
-	height: 1px;
 }
 
 form {
@@ -75,6 +54,7 @@ button {
 	border: 1px solid rgb(150, 150, 150);
 	background-color: rgb(209,209,209);
 	margin-right:1px;
+	vertical-align:middle;
 }
 
 button:hover {
@@ -85,25 +65,23 @@ button:hover {
 	cursor: hand;
 }
 
-A.ticket {
-	font-weight: bold;
-	font-family: Arial, Helvetica, sans-serif;
-	font-size: 16px;
-	color: rgb(0, 102, 255);
+button span {
+	line-height:16px;
+	vertical-align:top;
 }
 
-.headerMenu {
+#headerMenu {
 	background-color: rgb(240, 240, 240);
 	color: rgb(60, 60, 60);
 }
 
 #headerMenuSelected {
-	background-image: url(bg_grad_cobalt.jpg);
+	background-image: url(bg_ltblue.jpg);
 	background-repeat: repeat-x;
-	background-color: rgb(100, 135, 213);
+	background-color: rgb(134, 169, 227);
 }
 
-#headerMenuSelected,#headerMenuSelected a,.headerUnderline {
+#headerMenuSelected,#headerMenuSelected a {
 	color: rgb(255, 255, 255);
 }
 
@@ -115,7 +93,7 @@ A.ticket {
 
 #headerSubMenu {
 	width: 100%;
-	background-color: rgb(100, 135, 213);
+	background-color: rgb(134, 169, 227);
 	color: rgb(255, 255, 255);
 	font-size: 11px;
 	margin-bottom: 5px;
@@ -123,43 +101,6 @@ A.ticket {
 
 #headerSubMenu a {
 	color: rgb(255, 255, 255);
-}
-
-.tableOrange {
-	border: 1px solid rgb(210, 84, 0);
-	background-color: rgb(247, 247, 255);
-}
-
-.tableThOrange {
-	padding: 3px;
-	background-image: url(bg_ltorange.jpg);
-	background-repeat: repeat-x;
-	color: rgb(255, 255, 255);
-	font-size: 18px;
-	font-weight: bold;
-	font-family: Arial, Helvetica, sans-serif;
-	background-color: rgb(255, 153, 0);
-}
-
-.tableGreen {
-	border: 1px solid rgb(0, 153, 51);
-	background-color: rgb(245, 251, 238);
-}
-
-.tableGreen TD B.green {
-	color: rgb(0, 102, 0);
-}
-
-.tableThGreen {
-	padding: 3px;
-	background-image: url(bg_green.jpg);
-	background-repeat: repeat-x;
-	color: rgb(255, 255, 255);
-	font-size: 18px;
-	font-weight: bold;
-	font-family: Arial, Helvetica, sans-serif;
-	text-align: left;
-	background-color: rgb(189, 228, 139);
 }
 
 .tableBlue {
@@ -182,7 +123,7 @@ A.ticket {
 	background-color: rgb(255, 255, 255);
 }
 
-.tableThGreen th a,.tableThBlue th a,.tableThOrange th a {
+.tableThBlue th a {
 	color: rgb(255, 255, 255);
 	font-weight: normal;
 	font-family: Arial, Helvetica, sans-serif;
@@ -208,11 +149,6 @@ A.ticket {
 
 .tableCellBg {
 	background-color: rgb(247, 247, 255);
-}
-
-.tableCellBgIndent {
-	border-left: 1px solid rgb(180, 180, 180);
-	background-color: rgb(227, 227, 235);
 }
 
 .tableRowBg {
@@ -325,6 +261,62 @@ DIV.subtle2 {
 	padding: 5px;
 }
 
+/* Sprite containers */
+.cerb-sprite { 
+	background:url(sprites/cerb_icons.png);
+	background-repeat:no-repeat;
+	background-position:top left;
+	display:inline-block;
+}
+button span.cerb-sprite { display:inline-block; }
+
+/* Sprites */
+.sprite-add { background-position: 0 0; width: 16px; height: 16px; } 
+.sprite-calendar { background-position: -26px 0; width: 16px; height: 16px; } 
+.sprite-check { background-position: -52px 0; width: 16px; height: 16px; } 
+.sprite-check_gray { background-position: -78px 0; width: 16px; height: 16px; } 
+.sprite-clock { background-position: -104px 0; width: 16px; height: 16px; } 
+.sprite-data_find { background-position: -130px 0; width: 16px; height: 16px; } 
+.sprite-delete { background-position: -156px 0; width: 16px; height: 16px; } 
+.sprite-delete2 { background-position: -182px 0; width: 16px; height: 16px; } 
+.sprite-delete2_gray { background-position: -208px 0; width: 16px; height: 16px; } 
+.sprite-delete_gray { background-position: -234px 0; width: 16px; height: 16px; } 
+.sprite-document { background-position: -260px 0; width: 16px; height: 16px; } 
+.sprite-document_edit { background-position: -286px 0; width: 16px; height: 16px; } 
+.sprite-document_out { background-position: -312px 0; width: 16px; height: 16px; } 
+.sprite-document_plain_yellow { background-position: -338px 0; width: 16px; height: 16px; } 
+.sprite-documents { background-position: -364px 0; width: 16px; height: 16px; } 
+.sprite-export { background-position: -390px 0; width: 16px; height: 16px; } 
+.sprite-flag_white { background-position: -416px 0; width: 16px; height: 16px; } 
+.sprite-folder { background-position: -442px 0; width: 16px; height: 16px; } 
+.sprite-folder_add { background-position: -468px 0; width: 16px; height: 16px; } 
+.sprite-folder_gear { background-position: -494px 0; width: 16px; height: 16px; } 
+.sprite-folder_ok { background-position: -520px 0; width: 16px; height: 16px; } 
+.sprite-folder_out { background-position: -546px 0; width: 16px; height: 16px; } 
+.sprite-forbidden { background-position: -572px 0; width: 16px; height: 16px; } 
+.sprite-funnel { background-position: -598px 0; width: 16px; height: 16px; } 
+.sprite-gear { background-position: -624px 0; width: 16px; height: 16px; } 
+.sprite-hand_paper { background-position: -650px 0; width: 16px; height: 16px; } 
+.sprite-help { background-position: -676px 0; width: 16px; height: 16px; } 
+.sprite-import { background-position: -702px 0; width: 16px; height: 16px; } 
+.sprite-lock { background-position: -728px 0; width: 16px; height: 16px; } 
+.sprite-logo_small { background-position: -754px 0; width: 100px; height: 41px; } 
+.sprite-media_pause { background-position: -864px 0; width: 16px; height: 16px; } 
+.sprite-media_play_green { background-position: -890px 0; width: 16px; height: 16px; } 
+.sprite-media_stop_red { background-position: -916px 0; width: 16px; height: 16px; } 
+.sprite-nav_down_left_green { background-position: -942px 0; width: 16px; height: 16px; } 
+.sprite-printer { background-position: -968px 0; width: 16px; height: 16px; } 
+.sprite-refresh { background-position: -994px 0; width: 16px; height: 16px; } 
+.sprite-rss { background-position: -1020px 0; width: 16px; height: 16px; } 
+.sprite-sort_ascending { background-position: -1046px 0; width: 16px; height: 16px; } 
+.sprite-sort_descending { background-position: -1072px 0; width: 16px; height: 16px; } 
+.sprite-spam { background-position: -1098px 0; width: 16px; height: 16px; } 
+.sprite-stopwatch { background-position: -1124px 0; width: 16px; height: 16px; } 
+.sprite-text_rich { background-position: -1150px 0; width: 16px; height: 16px; } 
+.sprite-tree_cap { background-position: -1176px 0; width: 16px; height: 5px; } 
+.sprite-warning { background-position: -1202px 0; width: 16px; height: 16px; } 
+.sprite-warning_gray { background-position: -1228px 0; width: 16px; height: 16px; } 
+
 /* jQueryUI (Redmond theme) */
 .ui-tabs { border: 0px; padding: 0px; }
 .ui-tabs .ui-tabs-panel { padding: 1em; }
@@ -340,6 +332,6 @@ label.error { color: rgb(255,0,0); padding-left: .5em; vertical-align: top; }
 .ac_results { padding: 0px;	border: 1px solid black; background-color: white; overflow: hidden; z-index: 99999; }
 .ac_results ul { width: 100%; list-style-position: outside; list-style: none; padding: 0; margin: 0; }
 .ac_results li { margin: 0px; padding: 2px 5px; cursor: default; display: block; font: menu; font-size: 12px; line-height: 16px; overflow: hidden; }
-/*.ac_loading { background: white url('indicator.gif') right center no-repeat; }*/
+.ac_loading { background: white url('indicator.gif') right center no-repeat; }
 .ac_odd { background-color: rgb(240, 240, 240); }
 .ac_over { background-color: rgb(112, 168, 210); color: rgb(255, 255, 255); }

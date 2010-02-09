@@ -17,13 +17,13 @@
 	{/if}
 	
 		<div>
-			<a href="{devblocks_url}c=mobile&a=display&t={$result.t_mask}{/devblocks_url}" class="ticketLink" style="font-size:12px;">
+			<a href="{devblocks_url}c=mobile&a=display&t={$result.t_mask}{/devblocks_url}" style="font-size:12px;">
 				<b id="subject_{$result.t_id}_{$view->id}">
 				{if $result.t_is_closed}<strike>{/if}
 				{$result.t_subject|escape|truncate:37:"..."}
 				{if $result.t_is_closed}</strike>{/if}
 				</b>
-			</a>  <br />
+			</a>  <br>
 			<table border="0" width="100%">
 				<tr>
 					<td width="14">&nbsp;</td>

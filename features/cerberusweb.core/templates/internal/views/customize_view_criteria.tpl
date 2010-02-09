@@ -9,7 +9,7 @@
 		</tr>
 		{include file="file:$core_tpl/internal/views/criteria_list_params.tpl" params=$view->params batchDelete=true}		
 		</table>
-		<button type="button" onclick="this.form.a.value='viewAddFilter';genericAjaxPost('customize{$view->id}','viewCustomFilters{$view->id}','c=internal');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/forbidden.png{/devblocks_url}" align="top"> Delete</button>
+		<button type="button" onclick="this.form.a.value='viewAddFilter';genericAjaxPost('customize{$view->id}','viewCustomFilters{$view->id}','c=internal');"><span class="cerb-sprite sprite-forbidden"></span> Delete</button>
 		</div>
 	</td>
 	<td valign="top" width="100%">
@@ -41,7 +41,7 @@
 			</blockquote>
 		
 			<div id="addCriteria{$view->id}" style="background-color:rgb(255,255,255);"></div>
-			<button type="button" onclick="this.form.a.value='viewAddFilter';genericAjaxPost('customize{$view->id}','viewCustomFilters{$view->id}','c=internal');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/add.png{/devblocks_url}" align="top"> Add Filter</button>
+			<button type="button" onclick="this.form.a.value='viewAddFilter';genericAjaxPost('customize{$view->id}','viewCustomFilters{$view->id}','c=internal');"><span class="cerb-sprite sprite-add"></span> Add Filter</button>
 		</div>		
 	</td>
 </tr>

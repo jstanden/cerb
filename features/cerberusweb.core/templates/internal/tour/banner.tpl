@@ -21,7 +21,7 @@
 			<p>
 			<b>Points of Interest:</b><br>
 			{foreach from=$tour.callouts item=callout name=callouts}
-				<img src="{devblocks_url}c=resource&a=cerberusweb.core&f=images/help.gif{/devblocks_url}" align="absmiddle"> <a href="#{$callout->id}" onclick="genericAjaxPanel('c=internal&a=showCallout&id={$callout->id}','{$callout->id}',false);">{$callout->title}</a>
+				<span class="cerb-sprite sprite-help"></span> <a href="#{$callout->id}" onclick="genericAjaxPanel('c=internal&a=showCallout&id={$callout->id}','{$callout->id}',false);">{$callout->title}</a>
 			{/foreach}
 			</p>
 			{/if}

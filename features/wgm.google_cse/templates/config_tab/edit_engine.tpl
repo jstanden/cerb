@@ -39,8 +39,8 @@
 				</div>
 				<br>
 			</div>
-			<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
-			{if !empty($engine->id)}<button type="button" onclick="toggleDiv('deleteEngine','block');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> {$translate->_('common.remove')|capitalize}</button>{/if}
+			<button type="submit"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button>
+			{if !empty($engine->id)}<button type="button" onclick="toggleDiv('deleteEngine','block');"><span class="cerb-sprite sprite-delete"></span> {$translate->_('common.remove')|capitalize}</button>{/if}
 		</td>
 	</tr>
 </table>

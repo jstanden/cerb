@@ -253,9 +253,9 @@
 <br>
 
 {if !empty($view_id)}
-	<button type="button" onclick="ajax.postAndReloadView('frmInboxFilter','view{$view_id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
+	<button type="button" onclick="ajax.postAndReloadView('frmInboxFilter','view{$view_id}');"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button>
 {else}
-	<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')}</button>
+	<button type="submit"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
 {/if}
 </form>
 <br>

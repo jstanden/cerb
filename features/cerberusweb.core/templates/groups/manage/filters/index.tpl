@@ -1,5 +1,5 @@
 <form action="{devblocks_url}{/devblocks_url}" style="margin-bottom:5px;">
-	<button type="button" onclick="genericAjaxPanel('c=groups&a=showInboxFilterPanel&id=0&group_id={$group_id}',null,false,'550');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/funnel.gif{/devblocks_url}" align="top"> Add Inbox Routing Rule</button>
+	<button type="button" onclick="genericAjaxPanel('c=groups&a=showInboxFilterPanel&id=0&group_id={$group_id}',null,false,'550');"><span class="cerb-sprite sprite-funnel"></span> Add Inbox Routing Rule</button>
 </form>
 
 <form action="{devblocks_url}{/devblocks_url}" method="post">
@@ -106,7 +106,7 @@
 </table>
 <br>
 
-<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
+<button type="submit"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button>
 </div>
 {else}
 	<div class="block">

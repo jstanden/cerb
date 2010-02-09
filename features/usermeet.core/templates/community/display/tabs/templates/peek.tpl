@@ -12,14 +12,14 @@
 <br>
 
 {if $active_worker->is_superuser}
-	<button type="button" onclick="genericPanel.dialog('close');genericAjaxPost('formPortalTemplatePeek', 'view{$view_id}', '');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')}</button>
+	<button type="button" onclick="genericPanel.dialog('close');genericAjaxPost('formPortalTemplatePeek', 'view{$view_id}', '');"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
 	{if !$disabled}
-		{if $active_worker->is_superuser}<button type="button" onclick="if(confirm('Are you sure you want to revert this template to the default?')){literal}{{/literal}this.form.do_delete.value='1';genericPanel.dialog('close');genericAjaxPost('formPortalTemplatePeek', 'view{$view_id}', '');{literal}}{/literal}"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/refresh.gif{/devblocks_url}" align="top"> {$translate->_('Revert')|capitalize}</button>{/if}
+		{if $active_worker->is_superuser}<button type="button" onclick="if(confirm('Are you sure you want to revert this template to the default?')){literal}{{/literal}this.form.do_delete.value='1';genericPanel.dialog('close');genericAjaxPost('formPortalTemplatePeek', 'view{$view_id}', '');{literal}}{/literal}"><span class="cerb-sprite sprite-refresh"></span> {$translate->_('Revert')|capitalize}</button>{/if}
 	{/if}
 {else}
 	<div class="error">{$translate->_('error.core.no_acl.edit')}</div>	
 {/if}
-<button type="button" onclick="genericPanel.dialog('close');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> {$translate->_('common.cancel')|capitalize}</button>
+<button type="button" onclick="genericPanel.dialog('close');"><span class="cerb-sprite sprite-delete"></span> {$translate->_('common.cancel')|capitalize}</button>
 
 <br>
 </form>

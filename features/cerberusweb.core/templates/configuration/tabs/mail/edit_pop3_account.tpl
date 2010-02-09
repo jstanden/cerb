@@ -59,8 +59,8 @@
 			<br>
 			<div id="configPopTest"></div>	
 		
-			<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
-			<button type="button" onclick="document.getElementById('configPopTest').innerHTML='Testing mailbox settings...<br>';genericAjaxGet('configPopTest','c=config&a=getMailboxTest&host='+encodeURIComponent(this.form.host.value)+'&protocol='+selectValue(this.form.protocol)+'&port='+this.form.port.value+'&user='+encodeURIComponent(this.form.username.value)+'&pass='+encodeURIComponent(this.form.password.value));"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/gear.gif{/devblocks_url}" align="top"> Test Mailbox</button>
+			<button type="submit"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button>
+			<button type="button" onclick="document.getElementById('configPopTest').innerHTML='Testing mailbox settings...<br>';genericAjaxGet('configPopTest','c=config&a=getMailboxTest&host='+encodeURIComponent(this.form.host.value)+'&protocol='+selectValue(this.form.protocol)+'&port='+this.form.port.value+'&user='+encodeURIComponent(this.form.username.value)+'&pass='+encodeURIComponent(this.form.password.value));"><span class="cerb-sprite sprite-gear"></span> Test Mailbox</button>
 		</td>
 	</tr>
 	 

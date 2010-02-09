@@ -18,7 +18,7 @@
 <input type="text" name="email" size="45" value=""><br>
 <br>
 
-<button type="button" onclick="genericPanel.dialog('close');this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/export2.png{/devblocks_url}" align="top"> {'common.export'|devblocks_translate|capitalize}</button>
-<button type="button" onclick="genericPanel.dialog('close');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> {$translate->_('common.cancel')|capitalize}</button>
+<button type="button" onclick="genericPanel.dialog('close');this.form.submit();"><span class="cerb-sprite sprite-export"></span> {'common.export'|devblocks_translate|capitalize}</button>
+<button type="button" onclick="genericPanel.dialog('close');"><span class="cerb-sprite sprite-delete"></span> {$translate->_('common.cancel')|capitalize}</button>
 
 </form>

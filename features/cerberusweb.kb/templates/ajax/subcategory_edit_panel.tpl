@@ -21,7 +21,7 @@
 	{foreach from=$levels item=depth key=node_id name=levels}
 		<label>
 			<input type="radio" name="parent_id" value="{$node_id}" {if (empty($category) && $root_id==$node_id) || $node_id==$category->parent_id}checked{/if}>
-			<span style="padding-left:{math equation="(x-1)*10" x=$depth}px;{if !$depth}font-weight:bold;{/if}">{if $depth}<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/tree_cap.gif{/devblocks_url}" align="absmiddle">{else}<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder.gif{/devblocks_url}" align="absmiddle">{/if} <span id="kbTreeCat{$node_id}">{$categories.$node_id->name}</span>
+			<span style="padding-left:{math equation="(x-1)*10" x=$depth}px;{if !$depth}font-weight:bold;{/if}">{if $depth}<span class="cerb-sprite sprite-tree_cap"></span>{else}<span class="cerb-sprite sprite-folder"></span>{/if} <span id="kbTreeCat{$node_id}">{$categories.$node_id->name}</span>
 		</label>
 		<br>
 	{/foreach}
@@ -44,8 +44,8 @@
 	<br>
 </div>
 
-{if $active_worker->hasPriv('core.kb.categories.modify')}<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>{/if}
-{if $active_worker->hasPriv('core.kb.categories.modify') && !empty($category)}<button type="button" onclick="toggleDiv('deleteCategory','block');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete2.gif{/devblocks_url}" align="top"> {$translate->_('common.remove')|capitalize}</button>{/if}
-<button type="button" onclick="genericPanel.dialog('close');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> {$translate->_('common.cancel')|capitalize}</button>
+{if $active_worker->hasPriv('core.kb.categories.modify')}<button type="submit"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button>{/if}
+{if $active_worker->hasPriv('core.kb.categories.modify') && !empty($category)}<button type="button" onclick="toggleDiv('deleteCategory','block');"><span class="cerb-sprite sprite-delete2"></span> {$translate->_('common.remove')|capitalize}</button>{/if}
+<button type="button" onclick="genericPanel.dialog('close');"><span class="cerb-sprite sprite-delete"></span> {$translate->_('common.cancel')|capitalize}</button>
 
 </form>

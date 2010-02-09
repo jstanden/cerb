@@ -25,9 +25,9 @@
 			{* add arrow if sorting by this column, finish table header tag *}
 			{if $header==$view->renderSortBy}
 				{if $view->renderSortAsc}
-					<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/sort_ascending.png{/devblocks_url}" align="absmiddle">
+					<img src="{devblocks_url}c=resource&p=usermeet.core&f=images/sort_ascending.png{/devblocks_url}" align="absmiddle">
 				{else}
-					<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/sort_descending.png{/devblocks_url}" align="absmiddle">
+					<img src="{devblocks_url}c=resource&p=usermeet.core&f=images/sort_descending.png{/devblocks_url}" align="absmiddle">
 				{/if}
 			{/if}
 			</td>
@@ -45,7 +45,7 @@
 			{if $column=="kb_title"}
 			<td>
 				{if !empty($result.kb_title)}
-				<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document.gif{/devblocks_url}" align="top">
+				<img src="{devblocks_url}c=resource&p=usermeet.core&f=images/document.gif{/devblocks_url}" align="absmiddle">
 				<a href="{devblocks_url}c=kb&a=article&id={$result.kb_id|string_format:"%06d"}{/devblocks_url}"><span id="subject_{$result.kb_id}_{$view->id}">{$result.kb_title|escape}</span></a>				
 				{/if}
 			</td>

@@ -48,9 +48,9 @@
 				<input type="hidden" name="id" value="{$current_post->id}">
 
 				{if $current_post->is_closed}
-					<button type="button" onclick="genericAjaxGet('','c=forums&a=ajaxReopen&id={$current_post->id}');this.innerHTML='{$translate->_('forums.ui.nav.opened')}';"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_out.gif{/devblocks_url}" align="top"> {$translate->_('common.reopen')|lower}</button>
+					<button type="button" onclick="genericAjaxGet('','c=forums&a=ajaxReopen&id={$current_post->id}');this.innerHTML='{$translate->_('forums.ui.nav.opened')}';"><span class="cerb-sprite sprite-folder_out"></span> {$translate->_('common.reopen')|lower}</button>
 				{else}				
-					<button type="button" onclick="genericAjaxGet('','c=forums&a=ajaxClose&id={$current_post->id}');this.innerHTML='{$translate->_('forums.ui.nav.closed')}';"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder_ok.gif{/devblocks_url}" align="top"> {$translate->_('common.close')|lower}</button>
+					<button type="button" onclick="genericAjaxGet('','c=forums&a=ajaxClose&id={$current_post->id}');this.innerHTML='{$translate->_('forums.ui.nav.closed')}';"><span class="cerb-sprite sprite-folder_ok"></span> {$translate->_('common.close')|lower}</button>
 				{/if}
 				 &nbsp; 
 				{$translate->_('common.assign')|lower}: <select name="worker_id" onchange="genericAjaxGet('','c=forums&a=ajaxAssign&id={$current_post->id}&worker_id='+selectValue(this));">

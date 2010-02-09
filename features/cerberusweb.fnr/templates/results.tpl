@@ -28,7 +28,7 @@
 
 		{assign var=item_guid value=''|cat:$title|cat:'_'|cat:$link|md5}
 		
-			<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document.gif{/devblocks_url}" align="absmiddle"> <a href="javascript:;" onclick="toggleDiv('{$item_guid}_preview');" style="font-weight:bold;">{$title|escape}</a> 
+			<span class="cerb-sprite sprite-document"></span> <a href="javascript:;" onclick="toggleDiv('{$item_guid}_preview');" style="font-weight:bold;">{$title|escape}</a> 
 			<br>
 
 			<div class="subtle" style="margin-bottom:5px;margin-left:10px;padding:5px;display:none;" id="{$item_guid}_preview">

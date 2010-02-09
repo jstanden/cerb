@@ -2,9 +2,9 @@
 <div id="divTimeTrackingBox" style="display:{if isset($session.timetracking)}block{else}none{/if};position:fixed;width:300px;height:30px;top:2;right:320;background-color:rgb(50,50,50);color:rgb(255,255,255);opacity:.9;filter:alpha(opacity=90);z-index:2;vertical-align:middle;text-align:center;padding:5px;">
 	{'timetracking.activity.tab'|devblocks_translate}: 
 	<span style="font-size:18pt;font-weight:bold;"><span id="divTimeTrackingCounter">--</span></span>
-	<button id="btnTimeTrackingPlay" type="button" onclick="timeTrackingTimer.play();" style="display:none;"><img src="{devblocks_url}c=resource&p=cerberusweb.timetracking&f=images/16x16/media_play_green.png{/devblocks_url}"></button>
-	<button id="btnTimeTrackingPause" type="button" onclick="timeTrackingTimer.pause();" style="display:none;"><img src="{devblocks_url}c=resource&p=cerberusweb.timetracking&f=images/16x16/media_pause.png{/devblocks_url}"></button>
-	<button id="btnTimeTrackingStop" type="button" onclick="timeTrackingTimer.stop();" style="display:none;"><img src="{devblocks_url}c=resource&p=cerberusweb.timetracking&f=images/16x16/media_stop_red.png{/devblocks_url}"></button>
+	<button id="btnTimeTrackingPlay" type="button" onclick="timeTrackingTimer.play();" style="display:none;"><span class="cerb-sprite sprite-media_play_green"></span></button>
+	<button id="btnTimeTrackingPause" type="button" onclick="timeTrackingTimer.pause();" style="display:none;"><span class="cerb-sprite sprite-media_pause"></span></button>
+	<button id="btnTimeTrackingStop" type="button" onclick="timeTrackingTimer.stop();" style="display:none;"><span class="cerb-sprite sprite-media_stop_red"></span></button>
 </div>
 <script type="text/javascript">
 	var timeTrackingTimerClass = function() {

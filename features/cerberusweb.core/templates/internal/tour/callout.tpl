@@ -6,7 +6,7 @@
 		<td align="left" width="100%">
 			{$callout->body}
 			<br>
-			<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/nav_down_left_green.gif{/devblocks_url}" align="absmiddle">
+			<span class="cerb-sprite sprite-nav_down_left_green"></span>
 		</td>
 	</tr>
 </table>

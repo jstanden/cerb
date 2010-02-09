@@ -2,9 +2,9 @@
 	<form action="" method="POST">
 	Auto-Refresh: 
 	<span style="font-size:18pt;font-weight:bold;"><span id="divAutoRefreshCounter">--</span></span>
-	<button id="btnAutoRefreshPlay" type="button" onclick="autoRefreshTimer.play();" style="display:none;"><img src="{devblocks_url}c=resource&p=cerberusweb.timetracking&f=images/16x16/media_play_green.png{/devblocks_url}"></button>
-	<button id="btnAutoRefreshPause" type="button" onclick="autoRefreshTimer.pause();" style="display:none;"><img src="{devblocks_url}c=resource&p=cerberusweb.timetracking&f=images/16x16/media_pause.png{/devblocks_url}"></button>
-	<button id="btnAutoRefreshStop" type="button" onclick="autoRefreshTimer.stop();" style="display:none;"><img src="{devblocks_url}c=resource&p=cerberusweb.timetracking&f=images/16x16/media_stop_red.png{/devblocks_url}"></button>
+	<button id="btnAutoRefreshPlay" type="button" onclick="autoRefreshTimer.play();" style="display:none;"><span class="cerb-sprite sprite-media_play_green"></span></button>
+	<button id="btnAutoRefreshPause" type="button" onclick="autoRefreshTimer.pause();" style="display:none;"><span class="cerb-sprite sprite-media_pause"></span></button>
+	<button id="btnAutoRefreshStop" type="button" onclick="autoRefreshTimer.stop();" style="display:none;"><span class="cerb-sprite sprite-media_stop_red"></span></button>
 	<button id="btnAutoRefreshGo" type="submit" onclick="" style="display:none;"></button>
 	</form>
 </div>

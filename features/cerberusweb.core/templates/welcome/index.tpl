@@ -39,10 +39,10 @@ subscribe to the Cerb5 Blog for a regular dose of project news, sneak peeks at n
 handy tips &amp; tricks, and highlights from community discussion:</p>
 
 <p>
-	<a href="http://www.cerb4.com/blog/" target="_blank" class="ticketLink" style="margin:5px;padding:5px;border: 1px dotted rgb(120,120,120);font-size:14pt;">http://www.cerb4.com/blog/</a>
+	<a href="http://www.cerb4.com/blog/" target="_blank" style="margin:5px;padding:5px;border: 1px dotted rgb(120,120,120);font-size:14pt;">http://www.cerb4.com/blog/</a>
 </p>
 <br>
 
 <form>
-	<button type="button" onclick="document.location.href='{devblocks_url}c=preferences{/devblocks_url}';"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> Let's set up your account!</button>
+	<button type="button" onclick="document.location.href='{devblocks_url}c=preferences{/devblocks_url}';"><span class="cerb-sprite sprite-check"></span> Let's set up your account!</button>
 </form>

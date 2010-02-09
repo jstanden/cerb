@@ -27,7 +27,7 @@
 	{/foreach}
 	</table>
 	<br>
-	<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>	
+	<button type="submit"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button>	
 	</form>
 </blockquote>
 

@@ -63,8 +63,8 @@
 </div>
 <br>
 
-<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
-<button type="button" onclick="this.form.allow_delete.value='1';this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete2.gif{/devblocks_url}" align="top"> {'delete checked'|capitalize}</button>
+<button type="submit"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button>
+<button type="button" onclick="this.form.allow_delete.value='1';this.form.submit();"><span class="cerb-sprite sprite-delete2"></span> {'delete checked'|capitalize}</button>
 
 </form>
 </div>

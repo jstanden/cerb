@@ -64,6 +64,6 @@
 </div>
 <br>
 
-<button id="frmConfigFieldSourceSubmit" type="button" onclick="genericAjaxPost('frmConfigFieldSource','frmConfigFieldSource');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
+<button id="frmConfigFieldSourceSubmit" type="button" onclick="genericAjaxPost('frmConfigFieldSource','frmConfigFieldSource');"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button>
 </div>
 <br>

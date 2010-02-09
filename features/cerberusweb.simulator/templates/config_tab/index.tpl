@@ -31,7 +31,7 @@
 <div id="divSimulatorOutput"></div>
 <br>
 
-<button type="button" onclick="document.getElementById('divSimulatorOutput').innerHTML='{$translate->_('simulator.ui.cfg.generate_wait')}';genericAjaxPost('simulatorForm','divSimulatorOutput');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/gear.gif{/devblocks_url}" align="top"> {$translate->_('simulator.ui.cfg.generate')}</button>
+<button type="button" onclick="document.getElementById('divSimulatorOutput').innerHTML='{$translate->_('simulator.ui.cfg.generate_wait')}';genericAjaxPost('simulatorForm','divSimulatorOutput');"><span class="cerb-sprite sprite-gear"></span> {$translate->_('simulator.ui.cfg.generate')}</button>
 	
 </form>
 </div>

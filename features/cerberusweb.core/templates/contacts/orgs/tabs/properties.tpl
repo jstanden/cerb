@@ -47,7 +47,7 @@
 	<br>
 	
 	{if $active_worker->hasPriv('core.addybook.org.actions.update')}
-		<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
+		<button type="submit"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button>
 	{else}
 		<div class="error">You do not have permission to modify this record.</div>	
 	{/if}

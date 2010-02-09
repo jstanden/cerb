@@ -65,7 +65,7 @@
 	</blockquote>
 
 	<div id="addCriteria_{$view->id}" style="background-color:rgb(255,255,255);"></div>
-	<div id="saveCriteria_{$view->id}" style="display:none;"><br><button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button></div>
+	<div id="saveCriteria_{$view->id}" style="display:none;"><br><button type="submit"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button></div>
 	
 	</form>
 </div>

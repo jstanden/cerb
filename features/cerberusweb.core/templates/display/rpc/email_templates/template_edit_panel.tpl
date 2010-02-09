@@ -1,6 +1,6 @@
 <table cellpadding="0" cellspacing="0" border="0" width="98%">
 	<tr>
-		<td align="left" width="0%" nowrap="nowrap" style="padding-right:5px;"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/text_rich.gif{/devblocks_url}" align="absmiddle"></td>
+		<td align="left" width="0%" nowrap="nowrap" style="padding-right:5px;"><span class="cerb-sprite sprite-text_rich"></span></td>
 		<td align="left" width="100%" nowrap="nowrap"><h1>E-mail Templates</h1></td>
 	</tr>
 </table>
@@ -60,10 +60,10 @@
 <br>
 <br>
 
-<button type="button" onclick="genericPanel.dialog('close');genericAjaxPost('replyTemplateEditForm', '', 'c=display&a=saveReplyTemplate');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
+<button type="button" onclick="genericPanel.dialog('close');genericAjaxPost('replyTemplateEditForm', '', 'c=display&a=saveReplyTemplate');"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button>
 {if $template->id}
-<button type="button" onclick="if(confirm('Are you sure you want to permanently delete this template?')) { this.form.do_delete.value='1'; genericPanel.dialog('close'); genericAjaxPost('replyTemplateEditForm', '', 'c=display&a=saveReplyTemplate'); } "><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/forbidden.png{/devblocks_url}" align="top"> {$translate->_('common.delete')|capitalize}</button>
+<button type="button" onclick="if(confirm('Are you sure you want to permanently delete this template?')) { this.form.do_delete.value='1'; genericPanel.dialog('close'); genericAjaxPost('replyTemplateEditForm', '', 'c=display&a=saveReplyTemplate'); } "><span class="cerb-sprite sprite-forbidden"></span> {$translate->_('common.delete')|capitalize}</button>
 {/if}
-<button type="button" onclick="genericPanel.dialog('close');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> {$translate->_('common.cancel')|capitalize}</button>
+<button type="button" onclick="genericPanel.dialog('close');"><span class="cerb-sprite sprite-delete"></span> {$translate->_('common.cancel')|capitalize}</button>
 
 </form>

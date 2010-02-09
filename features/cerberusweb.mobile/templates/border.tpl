@@ -3,7 +3,7 @@
 <head><title>Cerberus Helpdesk</title></head>
 <body style="font-size:small;font-weight:normal;">
 
-<img alt="powered by cerberus helpdesk" src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/wgm/logo_small.gif{/devblocks_url}" border="0">
+<span class="cerb-sprite sprite-logo_small"></span>
 
 {if !empty($page) && $page->isVisible()}
 	{$page->render()}

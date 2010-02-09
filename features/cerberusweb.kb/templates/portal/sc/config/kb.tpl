@@ -4,7 +4,7 @@
 
 {assign var=root_id value="0"}
 {foreach from=$tree_map.$root_id item=category key=category_id}
-	<label><input type="checkbox" name="category_ids[]" value="{$category_id}" {if isset($kb_roots.$category_id)}checked="checked"{/if}> <img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/folder.gif{/devblocks_url}" align="top"> {$categories.$category_id->name}</label><br>
+	<label><input type="checkbox" name="category_ids[]" value="{$category_id}" {if isset($kb_roots.$category_id)}checked="checked"{/if}> <span class="cerb-sprite sprite-folder"></span> {$categories.$category_id->name}</label><br>
 {/foreach}
 </div>
 <br>

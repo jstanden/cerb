@@ -37,7 +37,7 @@
 		
 				{assign var=item_guid value=''|cat:$title|cat:'_'|cat:$link|md5}
 				
-				<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/document.gif{/devblocks_url}" align="absmiddle"> 
+				<img src="{devblocks_url}c=resource&p=usermeet.core&f=images/document.gif{/devblocks_url}" align="absmiddle"> 
 				<a href="javascript:;" class="peek" style="font-weight:normal;">{$title|escape}</a>
 				<div class="peek" style="margin-left:20px;padding:5px;display:none;">
 					{$description|escape:"script"}

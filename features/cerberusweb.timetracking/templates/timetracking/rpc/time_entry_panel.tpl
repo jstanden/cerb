@@ -55,13 +55,13 @@
 {if ($active_worker->hasPriv('timetracking.actions.create') && (empty($model->id) || $active_worker->id==$model->worker_id))
 	|| $active_worker->hasPriv('timetracking.actions.update_all')}
 	{if empty($model->id)}
-		<button type="button" onclick="timeTrackingTimer.finish();genericAjaxPanelPostCloseReloadView('frmTimeEntry','{$view_id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('timetracking.ui.entry_panel.save_finish')}</button>
-		<button type="button" onclick="timeTrackingTimer.play();genericPanel.dialog('close');"><img src="{devblocks_url}c=resource&p=cerberusweb.timetracking&f=images/16x16/media_play_green.png{/devblocks_url}" align="top"> {$translate->_('timetracking.ui.entry_panel.resume')}</button>
-		<button type="button" onclick="timeTrackingTimer.finish();"><img src="{devblocks_url}c=resource&p=cerberusweb.timetracking&f=images/16x16/media_stop_red.png{/devblocks_url}" align="top"> {$translate->_('common.cancel')|capitalize}</button>
+		<button type="button" onclick="timeTrackingTimer.finish();genericAjaxPanelPostCloseReloadView('frmTimeEntry','{$view_id}');"><span class="cerb-sprite sprite-check"></span> {$translate->_('timetracking.ui.entry_panel.save_finish')}</button>
+		<button type="button" onclick="timeTrackingTimer.play();genericPanel.dialog('close');"><span class="cerb-sprite sprite-media_play_green"></span> {$translate->_('timetracking.ui.entry_panel.resume')}</button>
+		<button type="button" onclick="timeTrackingTimer.finish();"><span class="cerb-sprite sprite-media_stop_red"></span> {$translate->_('common.cancel')|capitalize}</button>
 	{else}
-		<button type="button" onclick="genericAjaxPanelPostCloseReloadView('frmTimeEntry','{$view_id}');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
-		<button type="button" onclick="if(confirm('Permanently delete this time tracking entry?')) { this.form.do_delete.value='1'; genericAjaxPanelPostCloseReloadView('frmTimeEntry','{$view_id}'); } "><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/forbidden.png{/devblocks_url}" align="top"> {$translate->_('common.delete')|capitalize}</button>
-		<button type="button" onclick="genericPanel.dialog('close');"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top"> {$translate->_('common.cancel')|capitalize}</button>
+		<button type="button" onclick="genericAjaxPanelPostCloseReloadView('frmTimeEntry','{$view_id}');"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button>
+		<button type="button" onclick="if(confirm('Permanently delete this time tracking entry?')) { this.form.do_delete.value='1'; genericAjaxPanelPostCloseReloadView('frmTimeEntry','{$view_id}'); } "><span class="cerb-sprite sprite-forbidden"></span> {$translate->_('common.delete')|capitalize}</button>
+		<button type="button" onclick="genericPanel.dialog('close');"><span class="cerb-sprite sprite-delete"></span> {$translate->_('common.cancel')|capitalize}</button>
 	{/if}
 {else}
 	<div class="error">You do not have permission to modify this record.</div>
