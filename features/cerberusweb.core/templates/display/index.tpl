@@ -238,7 +238,3 @@ CreateKeyHandler(function doShortcuts(e) {
 {/literal}
 {/if}
 </script>
-
-<script type="text/javascript">
-	var displayAjax = new cDisplayTicketAjax('{$ticket->id}');
-</script>

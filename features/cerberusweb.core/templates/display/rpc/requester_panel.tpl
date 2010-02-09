@@ -17,7 +17,7 @@
 <textarea name="req_adds" rows="4" cols="35" style="width:98%;"></textarea><br>
 <br>
 
-<button type="button" onclick="displayAjax.saveRequesterPanel('formDisplayReq','displayRequesters{$msg_id}');"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button>
+<button id="btnSaveRequestersPanel" type="button"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button>
 <button type="button" onclick="genericPanel.dialog('close');"><span class="cerb-sprite sprite-delete"></span> {$translate->_('common.cancel')|capitalize}</button>
 <br>
 </form>
@@ -25,5 +25,20 @@
 <script type="text/javascript" language="JavaScript1.2">
 	genericPanel.one('dialogopen',function(event,ui) {
 		genericPanel.dialog('option','title','Ticket Requesters');
+		
+		$('#btnSaveRequestersPanel').bind('click', function() {
+			genericAjaxPost('formDisplayReq','','',
+				function(html) {
+					if(null != genericPanel) {
+						try {
+							genericPanel.dialog('close');
+							genericPanel = null;
+						} catch(e) {}
+					}
+					
+					$('#displayRequesters{$msg_id}').html(html);
+				}
+			);
+		} );
 	});
 </script>

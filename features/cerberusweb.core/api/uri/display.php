@@ -1393,7 +1393,7 @@ class ChDisplayPage extends CerberusPageExtension {
 
 		$list = array();		
 		foreach($requesters as $requester) {
-			$list[] = $requester->email;
+			$list[] = '<b>'.$requester->email.'</b>';
 		}
 		
 		echo implode(', ', $list);

@@ -16,15 +16,15 @@
 						[ <a href="{devblocks_url}c=config&a=settings{/devblocks_url}" style="color:rgb(0,160,0);">Enter License</a> ]
 						[ <a href="http://www.cerberusweb.com/buy" target="_blank" style="color:rgb(0,160,0);">Buy License</a> ]
 						{else}
-						[ <a href="javascript:;" onclick="configAjax.getTeam('0');">add new group</a> ]
+						[ <a href="javascript:;" onclick="genericAjaxGet('configTeam','c=config&a=getTeam&id=0');">add new group</a> ]
 						{/if}
 					</td>
 				</tr>
 				<tr>
 					<td nowrap="nowrap">
 						{if !empty($teams)}
-							{foreach from=$teams item=team}
-							&#187; <a href="javascript:;" onclick="configAjax.getTeam('{$team->id}')">{$team->name}</a><br>
+							{foreach from=$teams item=team key=team_id}
+							&#187; <a href="javascript:;" onclick="genericAjaxGet('configTeam','c=config&a=getTeam&id={$team->id}');">{$team->name}</a><br>
 							{/foreach}
 						{/if}
 					</td>

@@ -75,9 +75,9 @@
 	      		<tr>
 	      			<td align="left" id="{$message->id}act">
 	      				{assign var=show_more value=0}
-				      	{if $active_worker->hasPriv('core.display.actions.reply')}{if !empty($requesters)}{assign var=show_more value=1}<button {if $latest_message_id==$message->id}id="btnReplyFirst"{/if} type="button" onclick="displayAjax.reply('{$message->id}',0);"><span class="cerb-sprite sprite-export"></span> {$translate->_('display.ui.reply')|capitalize}</button>{/if}{/if}
-				      	{if $active_worker->hasPriv('core.display.actions.forward')}{assign var=show_more value=1}<button type="button" onclick="displayAjax.reply('{$message->id}',1);"><span class="cerb-sprite sprite-document_out"></span> {$translate->_('display.ui.forward')|capitalize}</button>{/if}
-				      	{if $active_worker->hasPriv('core.display.actions.note')}{assign var=show_more value=1}<button type="button" onclick="displayAjax.addNote('{$message->id}');"><span class="cerb-sprite sprite-document_plain_yellow"></span> {$translate->_('display.ui.sticky_note')|capitalize}</button>{/if}
+				      	{if $active_worker->hasPriv('core.display.actions.reply')}{if !empty($requesters)}{assign var=show_more value=1}<button {if $latest_message_id==$message->id}id="btnReplyFirst"{/if} type="button" onclick="displayReply('{$message->id}',0);"><span class="cerb-sprite sprite-export"></span> {$translate->_('display.ui.reply')|capitalize}</button>{/if}{/if}
+				      	{if $active_worker->hasPriv('core.display.actions.forward')}{assign var=show_more value=1}<button type="button" onclick="displayReply('{$message->id}',1);"><span class="cerb-sprite sprite-document_out"></span> {$translate->_('display.ui.forward')|capitalize}</button>{/if}
+				      	{if $active_worker->hasPriv('core.display.actions.note')}{assign var=show_more value=1}<button type="button" onclick="displayAddNote('{$message->id}');"><span class="cerb-sprite sprite-document_plain_yellow"></span> {$translate->_('display.ui.sticky_note')|capitalize}</button>{/if}
 				      	
 				      	{if $show_more} {* Only show more if we showed one of the built-in buttons first *}
 				      	 &nbsp; 

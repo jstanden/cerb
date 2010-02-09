@@ -4,8 +4,8 @@
 {else}
 	<b>{$translate->_('display.convo.order_newest')}</b>
 {/if}
-<!-- <h2>Ticket Conversation</h2> -->
 
+<div id="conversation">
 {if !empty($ticket)}
 	{if !empty($convo_timeline)}
 		{foreach from=$convo_timeline item=convo_set name=items}
@@ -33,3 +33,55 @@
   {$translate->_('display.convo.no_messages')}
   <br>
 {/if}
+</div>
+
+<script type="text/javascript" language="JavaScript1.2">
+	function displayReply(msgid, is_forward) {
+		var div = document.getElementById('reply' + msgid);
+		if(null == div) return;
+		is_forward = (null == is_forward || 0 == is_forward) ? 0 : 1;
+		
+		genericAjaxGet('', 'c=display&a=reply&forward='+is_forward+'&id=' + msgid,
+			function(html) {
+				var div = document.getElementById('reply' + msgid);
+				if(null == div) return;
+				
+				$('#reply'+msgid).html(html);
+				
+				document.location = '#reply' + msgid;
+	
+				var frm_reply = document.getElementById('reply' + msgid + '_part2');
+				
+				if(null != frm_reply.content) {
+					if(!is_forward) {
+						frm_reply.content.focus();
+						setElementSelRange(frm_reply.content, 0, 0);
+					} else {
+						frm_reply.to.focus();
+					}
+				}
+			}
+		);
+	}
+	
+	function displayAddNote(msgid) {
+		var div = document.getElementById('reply' + msgid);
+		if(null == div) return;
+		
+		genericAjaxGet('','c=display&a=addNote&id=' + msgid,
+			function(html) {
+				var div = document.getElementById('reply' + msgid);
+				if(null == div) return;
+				
+				$('#reply'+msgid).html(html);
+				document.location = '#reply' + msgid;
+				
+				var frm = document.getElementById('reply' + msgid + '_form');
+				if(null != frm && null != frm.content) {
+					frm.content.focus();
+					setElementSelRange(frm.content, 0, 0);
+				}
+			}
+		);
+	}
+</script>
