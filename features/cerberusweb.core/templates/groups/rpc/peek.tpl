@@ -1,11 +1,3 @@
-<table cellpadding="0" cellspacing="0" border="0" width="98%">
-	<tr>
-		<td align="left" width="1%" nowrap="nowrap" style="padding-right:5px;"><span class="cerb-sprite sprite-folder"></span></td>
-		<td align="left" width="98%" nowrap="nowrap"><h1>Groups</h1></td>
-		<td align="left" width="1%" nowrap="nowrap" style="padding-right:5px;"><a href="{devblocks_url}c=groups&a=config&id={$group->id}{/devblocks_url}">configuration</a></td>
-	</tr>
-</table>
-
 <form action="{devblocks_url}{/devblocks_url}" method="POST" id="formGroupsPeek" name="formGroupsPeek" onsubmit="return false;">
 <input type="hidden" name="c" value="groups">
 <input type="hidden" name="a" value="saveGroupsPanel">
@@ -29,5 +21,13 @@
 
 <button type="button" onclick="genericPanel.dialog('close');genericAjaxPost('formGroupsPeek', 'view{$view_id}')"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
 <button type="button" onclick="genericPanel.dialog('close');"><span class="cerb-sprite sprite-delete"></span> {$translate->_('common.cancel')|capitalize}</button>
+ &nbsp; 
+<a href="{devblocks_url}c=groups&a=config&id={$group->id}{/devblocks_url}">configuration</a>
 <br>
 </form>
+
+<script type="text/javascript" language="JavaScript1.2">
+	genericPanel.one('dialogopen', function(event,ui) {
+		genericPanel.dialog('option','title',"Groups");
+	} );
+</script>

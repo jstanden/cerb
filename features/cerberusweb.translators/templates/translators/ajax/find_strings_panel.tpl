@@ -2,13 +2,12 @@
 <input type="hidden" name="c" value="translators">
 <input type="hidden" name="a" value="saveFindStringsPanel">
 
-<h1>{$translate->_('common.synchronize')|capitalize}</h1>
 This will find text defined in U.S. English and not yet translated to other languages.  
 Leaving new text blank allows you to easily find translation work with a search.
 <br>
+<br>
 
 {if count($codes) > 1}
-<div style="margin:5px;padding:5px;height:150px;border:1px solid rgb(200,200,200);background-color:rgb(250,250,250);overflow:auto;">
 <table cellspacing="0" cellpadding="2" border="0">
 <tr>
 	<td><b>Language</td>
@@ -32,7 +31,7 @@ Leaving new text blank allows you to easily find translation work with a search.
 {/if}
 {/foreach}
 </table>
-</div>
+<br>
 {else}
 <br>
 <b>You have no non-English languages defined.</b><br>
@@ -44,3 +43,8 @@ Leaving new text blank allows you to easily find translation work with a search.
 
 </form>
 
+<script type="text/javascript" language="JavaScript1.2">
+	genericPanel.one('dialogopen', function(event,ui) {
+		genericPanel.dialog('option','title',"{$translate->_('common.synchronize')|capitalize|escape:'quotes'}");
+	} );
+</script>

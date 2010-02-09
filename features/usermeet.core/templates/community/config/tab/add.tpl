@@ -1,6 +1,4 @@
 <div id="divPortalAdd">
-	<h1>Add Community Portal</h1>
-	
 	<form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmAddPortal" name="frmAddPortal">
 	<input type="hidden" name="c" value="community">
 	<input type="hidden" name="a" value="saveAddPortalPeek">
@@ -27,3 +25,9 @@
 	<br>
 	</form>
 </div>
+
+<script type="text/javascript" language="JavaScript1.2">
+	genericPanel.one('dialogopen', function(event,ui) {
+		genericPanel.dialog('option','title',"Add Community Portal");
+	} );
+</script>

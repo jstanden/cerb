@@ -4,8 +4,6 @@
 <input type="hidden" name="view_id" value="{$view_id}">
 <input type="hidden" name="portal" value="{$portal}">
 
-<h1>{'common.export'|devblocks_translate|capitalize}</h1>
-
 <b>Filename:</b> (.xml)<br>
 <input type="text" name="filename" size="45" value="cerb5_portal_templates_{$smarty.const.APP_BUILD}.xml"><br>
 <br>
@@ -22,3 +20,9 @@
 <button type="button" onclick="genericPanel.dialog('close');"><span class="cerb-sprite sprite-delete"></span> {$translate->_('common.cancel')|capitalize}</button>
 
 </form>
+
+<script type="text/javascript" language="JavaScript1.2">
+	genericPanel.one('dialogopen', function(event,ui) {
+		genericPanel.dialog('option','title',"{'common.export'|devblocks_translate|capitalize|escape:'quotes'}");
+	} );
+</script>

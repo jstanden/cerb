@@ -1,8 +1,6 @@
 <form action="{devblocks_url}{/devblocks_url}" method="post">
 <input type="hidden" name="c" value="home">
 <input type="hidden" name="a" value="doAddWorkspace">
-<H1>{$translate->_('dashboard.add_view')|capitalize}</H1>
-<br>
 
 <b>{'home.workspaces.worklist.name'|devblocks_translate|capitalize}:</b><br>
 <input type="text" name="name" value="" size="35" style="width:100%;"><br>
@@ -31,3 +29,10 @@
 <button type="submit"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
 <button type="button" onclick="genericPanel.dialog('close');"><span class="cerb-sprite sprite-delete"></span> {$translate->_('common.cancel')|capitalize}</button>
 </form>
+
+<script type="text/javascript" language="JavaScript1.2">
+	genericPanel.one('dialogopen', function(event,ui) {
+		genericPanel.dialog('option','title',"{$translate->_('dashboard.add_view')|capitalize|escape:'quotes'}");
+	} );
+</script>
+

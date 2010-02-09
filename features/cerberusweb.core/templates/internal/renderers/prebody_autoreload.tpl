@@ -1,12 +1,12 @@
 <div id="divAutoRefresh" style="display:{if isset($session.autorefresh)}block{else}none{/if};position:fixed;width:300px;height:30px;top:45;right:320;background-color:rgb(50,50,50);color:rgb(255,255,255);opacity:.9;filter:alpha(opacity=90);z-index:2;vertical-align:middle;text-align:center;padding:5px;">
-	<form action="" method="POST">
-	Auto-Refresh: 
-	<span style="font-size:18pt;font-weight:bold;"><span id="divAutoRefreshCounter">--</span></span>
+<form action="" method="POST">
+	<span style="color:rgb(255,255,255);">Auto-Refresh:</span> 
+	<span style="font-size:18pt;font-weight:bold;color:rgb(255,255,255);"><span id="divAutoRefreshCounter">--</span></span>
 	<button id="btnAutoRefreshPlay" type="button" onclick="autoRefreshTimer.play();" style="display:none;"><span class="cerb-sprite sprite-media_play_green"></span></button>
 	<button id="btnAutoRefreshPause" type="button" onclick="autoRefreshTimer.pause();" style="display:none;"><span class="cerb-sprite sprite-media_pause"></span></button>
 	<button id="btnAutoRefreshStop" type="button" onclick="autoRefreshTimer.stop();" style="display:none;"><span class="cerb-sprite sprite-media_stop_red"></span></button>
 	<button id="btnAutoRefreshGo" type="submit" onclick="" style="display:none;"></button>
-	</form>
+</form>
 </div>
 <script type="text/javascript">
 	{literal}

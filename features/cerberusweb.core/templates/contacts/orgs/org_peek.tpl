@@ -59,8 +59,7 @@
 <script language="JavaScript1.2" type="text/javascript">
 	genericPanel.one('dialogopen',function(event,ui) {
 		// Title
-		{if !empty($contact->name)}{$title = $contact->name}{else}{$title = 'contact_org.name'|devblocks_translate|capitalize}{/if}
-		genericPanel.dialog('option','title', '{$title|escape:'quotes'}');
+		genericPanel.dialog('option','title', "{'contact_org.name'|devblocks_translate|capitalize|escape:'quotes'}");
 		// Autocomplete
 		ajax.countryAutoComplete('#org_country_input');
 		// Form validation

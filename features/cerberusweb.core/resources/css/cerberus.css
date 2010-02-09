@@ -1,9 +1,14 @@
 /* Elements */
 
-body, td {
+body, td, form {
 	color: rgb(80, 80, 80);
 	font-family: Arial, Helvetica, sans-serif;
 	font-size: 12px;
+}
+
+b {
+	font-weight: bold;
+	color: rgb(80, 80, 80);
 }
 
 optgroup {

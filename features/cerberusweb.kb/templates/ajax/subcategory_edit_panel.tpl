@@ -5,12 +5,6 @@
 <input type="hidden" name="return" value="{$return}">
 <input type="hidden" name="delete_box" value="0">
 
-{if !empty($category)}
-<h1>Modify Subcategory</h1>
-{else}
-<h1>Add Subcategory</h1>
-{/if}
-
 <b>Name:</b><br>
 <input type="text" name="name" value="{$category->name|escape}" style="width:99%;border:solid 1px rgb(180,180,180);"><br>
 <br>
@@ -49,3 +43,9 @@
 <button type="button" onclick="genericPanel.dialog('close');"><span class="cerb-sprite sprite-delete"></span> {$translate->_('common.cancel')|capitalize}</button>
 
 </form>
+
+<script type="text/javascript" language="JavaScript1.2">
+	genericPanel.one('dialogopen', function(event,ui) {
+		genericPanel.dialog('option','title',"Knowledgebase Subcategory");
+	} );
+</script>

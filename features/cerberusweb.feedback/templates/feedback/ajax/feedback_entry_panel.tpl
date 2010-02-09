@@ -4,8 +4,6 @@
 {if !empty($model) && !empty($model->id)}<input type="hidden" name="id" value="{$model->id}">{/if}
 <input type="hidden" name="do_delete" value="0">
 
-<h1>{'feedback.button.capture'|devblocks_translate|capitalize}</h1>
-
 <b>{'feedback_entry.quote_address'|devblocks_translate|capitalize}:</b> ({'feedback.peek.quote.tooltip'|devblocks_translate})<br>
 <input type="text" name="email" size="45" maxlength="255" style="width:98%;" value="{$address->email|escape}"><br>
 <br>
@@ -36,3 +34,9 @@
 <button type="button" onclick="genericPanel.dialog('close');"><span class="cerb-sprite sprite-delete"></span> {$translate->_('common.cancel')|capitalize}</button>
 
 </form>
+
+<script type="text/javascript" language="JavaScript1.2">
+	genericPanel.one('dialogopen', function(event,ui) {
+		genericPanel.dialog('option','title',"{'feedback.button.capture'|devblocks_translate|capitalize|escape:'quotes'}");
+	} );
+</script>

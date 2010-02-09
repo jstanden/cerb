@@ -69,6 +69,8 @@
 
 {include file="file:$core_tpl/tasks/display/tabs/notes.tpl" readonly=true}
 
+<br>
+
 {if ($active_worker->hasPriv('core.tasks.actions.create') && (empty($task) || $active_worker->id==$task->worker_id))
 	|| ($active_worker->hasPriv('core.tasks.actions.update_nobody') && empty($task->worker_id)) 
 	|| $active_worker->hasPriv('core.tasks.actions.update_all')}

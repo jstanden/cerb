@@ -1,6 +1,4 @@
 <div id="divPortalAddTemplate">
-	<h1>Add Template</h1>
-	
 	{if !empty($templates)}
 		<form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmPortalAddTemplatePeek" name="frmPortalAddTemplatePeek" onsubmit="return false;">
 		<input type="hidden" name="c" value="community">
@@ -31,3 +29,9 @@
 		<button type="button" onclick="genericPanel.dialog('close');"><span class="cerb-sprite sprite-delete"></span> {$translate->_('common.cancel')|capitalize}</button>
 	{/if}
 </div>
+
+<script type="text/javascript" language="JavaScript1.2">
+	genericPanel.one('dialogopen', function(event,ui) {
+		genericPanel.dialog('option','title',"Add Custom Template");
+	} );
+</script>

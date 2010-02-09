@@ -2,8 +2,6 @@
 <input type="hidden" name="c" value="home">
 <input type="hidden" name="a" value="doEditWorkspace">
 <input type="hidden" name="workspace" value="{$workspace}">
-<h1 style="color:rgb(0,150,0);">{$workspace}</h1>
-<br>
 
 <b>{'home.workspaces.rename'|devblocks_translate|capitalize}:</b><br>
 <input type="text" name="rename_workspace" value="" size="35" style="width:100%;"><br>
@@ -32,7 +30,14 @@
 	</tr>
 	{/foreach}
 </table>
+<br>
 
 <button type="submit"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
 <button type="button" onclick="genericPanel.dialog('close');"><span class="cerb-sprite sprite-delete"></span> {$translate->_('common.cancel')|capitalize}</button>
 </form>
+
+<script type="text/javascript" language="JavaScript1.2">
+	genericPanel.one('dialogopen', function(event,ui) {
+		genericPanel.dialog('option','title',"{$workspace|escape:'quotes'}");
+	} );
+</script>

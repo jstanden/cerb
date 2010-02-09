@@ -1,15 +1,3 @@
-<table cellpadding="0" cellspacing="0" border="0" width="98%">
-	<tr>
-		<td width="100%">
-			{if empty($worker->id)}
-			<h1>Add Worker</h1>
-			{else}
-			<h1>Worker: {$worker->getName()}</h1>
-			{/if}
-		</td>
-	</tr>
-</table>
-
 <form action="{devblocks_url}{/devblocks_url}" method="POST" id="formWorkerPeek" name="formWorkerPeek" onsubmit="return false;">
 <input type="hidden" name="c" value="config">
 <input type="hidden" name="a" value="saveWorkerPeek">
@@ -110,3 +98,10 @@
 
 <br>
 </form>
+
+<script type="text/javascript" language="JavaScript1.2">
+	genericPanel.one('dialogopen', function(event,ui) {
+		genericPanel.dialog('option','title',"Worker");
+	} );
+</script>
+

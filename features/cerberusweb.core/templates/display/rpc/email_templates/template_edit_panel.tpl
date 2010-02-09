@@ -1,10 +1,3 @@
-<table cellpadding="0" cellspacing="0" border="0" width="98%">
-	<tr>
-		<td align="left" width="0%" nowrap="nowrap" style="padding-right:5px;"><span class="cerb-sprite sprite-text_rich"></span></td>
-		<td align="left" width="100%" nowrap="nowrap"><h1>E-mail Templates</h1></td>
-	</tr>
-</table>
-
 <form action="{devblocks_url}{/devblocks_url}" method="post" name="replyTemplateEditForm" id="replyTemplateEditForm">
 <input type="hidden" name="c" value="display">
 <input type="hidden" name="a" value="saveReplyTemplate">
@@ -67,3 +60,9 @@
 <button type="button" onclick="genericPanel.dialog('close');"><span class="cerb-sprite sprite-delete"></span> {$translate->_('common.cancel')|capitalize}</button>
 
 </form>
+
+<script type="text/javascript" language="JavaScript1.2">
+	genericPanel.one('dialogopen', function(event,ui) {
+		genericPanel.dialog('option','title',"Edit E-mail Template");
+	} );
+</script>

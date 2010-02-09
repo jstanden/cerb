@@ -1,7 +1,7 @@
 <form action="{devblocks_url}{/devblocks_url}" method="post" style="padding-bottom:5px;">
 	<input type="hidden" name="c" value="forums"> 
 	<input type="hidden" name="a" value="import">
-	<button id="btnSynchronize" type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.forums&f=images/refresh.gif{/devblocks_url}" align="top"> {$translate->_('common.synchronize')|capitalize}</button><br>
+	<button id="btnSynchronize" type="submit"><span class="cerb-sprite sprite-refresh"></span> {$translate->_('common.synchronize')|capitalize}</button><br>
 </form>
 
 <table cellpadding="0" cellspacing="0" width="100%">
