@@ -25,6 +25,7 @@ define('APP_STORAGE_PATH',APP_PATH . '/storage');
 define('APP_TEMP_PATH',APP_STORAGE_PATH . '/tmp');
 define('DEVBLOCKS_PATH',APP_PATH . '/libs/devblocks/');
 define('DEVBLOCKS_REWRITE', file_exists(dirname(__FILE__).'/.htaccess'));
+define('DEVELOPMENT_MODE', false);
 define('AUTHORIZED_IPS_DEFAULTS', '');
 
 require_once(DEVBLOCKS_PATH . 'framework.defaults.php');
