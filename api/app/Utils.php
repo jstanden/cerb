@@ -49,11 +49,6 @@
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
 class CerberusUtils {
-	static function isValidEmail($email) {
-		$validator = new Zend_Validate_EmailAddress(Zend_Validate_Hostname::ALLOW_DNS | Zend_Validate_Hostname::ALLOW_LOCAL);
-		return $validator->isValid($email);
-	}
-	
 	/**
 	 * Enter description here...
 	 *

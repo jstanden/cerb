@@ -515,10 +515,6 @@ class ChGroupsPage extends CerberusPageExtension  {
 	    if(!$active_worker->isTeamManager($team_id) && !$active_worker->is_superuser)
 	    	return;
 	    	
-		// Validators
-		// [TODO] This could move into a Devblocks validation class later.
-		$validator_email = new Zend_Validate_EmailAddress(Zend_Validate_Hostname::ALLOW_DNS | Zend_Validate_Hostname::ALLOW_LOCAL);
-	    
 	    //========== GENERAL
 	    @$signature = DevblocksPlatform::importGPC($_REQUEST['signature'],'string','');
 	    @$auto_reply_enabled = DevblocksPlatform::importGPC($_REQUEST['auto_reply_enabled'],'integer',0);
@@ -535,9 +531,10 @@ class ChGroupsPage extends CerberusPageExtension  {
 	    @$spam_moveto = DevblocksPlatform::importGPC($_REQUEST['spam_action_moveto'],'integer',0);
 
 	    // Validate sender address
-	    if(!$validator_email->isValid($sender_address)) {
-	    	$sender_address = '';
-	    }
+		// [TODO] This could move into a Devblocks validation class later.
+	    //if(!$validator_email->isValid($sender_address)) {
+	    //	$sender_address = '';
+	    //}
 	    
 	    // [TODO] Move this into DAO_GroupSettings
 	    DAO_Group::updateTeam($team_id, array(

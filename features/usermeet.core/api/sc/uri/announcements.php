@@ -15,17 +15,13 @@ class UmScAnnouncementsController extends Extension_UmScController {
 		foreach($aNewsRss as $title => $url) {
 			$feed = null;
 			try {
-    			$feed = Zend_Feed::import($url);
+				$feed = DevblocksPlatform::parseRss($url);
 			} catch(Exception $e) {}
-    		if(!empty($feed) && $feed->count()) {
-   				$feeds[] = array(
-   					'name' => $title,
-   					'url' => $url,
-   					'feed' => $feed
-   				);
+    		if(!empty($feed) && isset($feed['items']) && !empty($feed['items'])) {
+   				$feeds[] = $feed;
     		}
 		}
-		
+
 		$tpl->assign('feeds', $feeds);
 		
 		$tpl->display("devblocks:usermeet.core:support_center/announcements/index.tpl:portal_".UmPortalHelper::getCode());

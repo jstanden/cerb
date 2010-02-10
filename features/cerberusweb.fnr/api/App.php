@@ -539,8 +539,10 @@ class Model_FnrExternalResource {
 		foreach($resources as $resource) { /* @var $resource Model_FnrExternalResource */
 			try {
 				$url = str_replace("#find#",rawurlencode($query),$resource->url);
-				$feed = Zend_Feed::import($url);
-				if($feed->count())
+				
+				$feed = DevblocksPlatform::parseRss($url);
+				
+				if(!empty($feed))
 					$feeds[] = array(
 					'name' => $resource->name,
 					'topic_name' => @$topics[$resource->topic_id]->name,
@@ -552,3 +554,147 @@ class Model_FnrExternalResource {
 		return $feeds;
 	}
 };
+
+//class Rest_FnrController extends Ch_RestController {
+//	
+//	//****
+//
+//	protected function getAction($path,$keychain) {
+//		if(Model_WebapiKey::ACL_NONE==intval(@$keychain->rights['acl_fnr']))
+//			$this->_error("Action not permitted.");
+//		
+//		// Single GET
+////		if(1==count($path) && is_numeric($path[0]))
+////			$this->_getIdAction($path);
+//		
+//		// Actions
+//		switch(array_shift($path)) {
+//			case 'search':
+//				$this->_getSearchAction($path);
+//				break;
+//			case 'topics':
+//				switch(array_shift($path)) {
+//					case 'list':
+//						$this->_getTopicsListAction($path);
+//						break;
+//				}
+//				break;
+//		}
+//	}
+//
+//	protected function putAction($path,$keychain) {
+////		if(Model_WebapiKey::ACL_FULL!=intval($keychain->rights['acl_tickets']))
+////			$this->_error("Action not permitted.");
+////		
+////		// Single PUT
+////		if(1==count($path) && is_numeric($path[0]))
+////			$this->_putIdAction($path);
+//	}
+//	
+//	protected function postAction($path,$keychain) {
+////		if(Model_WebapiKey::ACL_FULL != intval(@$keychain->rights['acl_parser']))
+////			$this->_error("Action not permitted.");
+////		
+////		// Actions
+////		switch(array_shift($path)) {
+////			case 'parse':
+////				$this->_postSourceParseAction($path);
+////				break;
+////			case 'queue':
+////				$this->_postSourceQueueAction($path);
+////				break;
+////		}
+//	}
+//	
+//	protected function deleteAction($path,$keychain) {
+////		if(Model_WebapiKey::ACL_FULL!=intval($keychain->rights['acl_tickets']))
+////			$this->_error("Action not permitted.");
+////		
+////		// Single DELETE
+////		if(1==count($path) && is_numeric($path[0]))
+////			$this->_deleteIdAction($path);
+//	}
+//	
+//	//****
+//	
+//	private function _getTopicsListAction($path) {
+//		$topics = DAO_FnrTopic::getWhere();
+//
+//		$xml_out = new SimpleXMLElement("<topics></topics>");
+//		
+//		foreach($topics as $topic_id => $topic) { /* @var $topic Model_FnrTopic */
+//			$eTopic = $xml_out->addChild('topic');
+//			$eTopic->addChild('id', $topic->id);
+//			$eTopic->addChild('name', htmlspecialchars($topic->name));
+//
+//			$eResources = $eTopic->addChild('resources');
+//			$resources = $topic->getResources();
+//
+//			foreach($resources as $resource) { /* @var $resource Model_FnrExternalResource */
+//				$eResource = $eResources->addChild('resource');
+//				$eResource->addChild('id', $resource->id);
+//				$eResource->addChild('name', htmlspecialchars($resource->name));
+//				$eResource->addChild('topic_id', $resource->topic_id);
+////				$eResource->addChild('url', htmlspecialchars($resource->url));
+//			}
+//		}
+//		
+//		$this->_render($xml_out->asXML());
+//	}
+//	
+//	private function _getSearchAction($path) {
+//		@$p_query = DevblocksPlatform::importGPC($_REQUEST['query'],'string','');
+//		@$p_resources = DevblocksPlatform::importGPC($_REQUEST['resources'],'string','');
+//		
+//		$resource_where = null;
+//		
+//		// Specific topics only?
+//		if(!empty($p_resources)) {
+//			$db = DevblocksPlatform::getDatabaseService();
+//			$resource_ids = DevblocksPlatform::parseCsvString($p_resources);
+//			if(!empty($resource_ids)) {
+//				$resource_where = sprintf("%s IN (%s)",
+//					DAO_FnrExternalResource::ID,
+//					$db->qstr(implode(',', $resource_ids))
+//				);
+//			}
+//		}
+//
+//		$resources = DAO_FnrExternalResource::getWhere($resource_where);
+//		
+//		$feeds = Model_FnrExternalResource::searchResources(
+//			$resources,
+//			$p_query
+//		);
+//		
+//		$xml_out = new SimpleXMLElement("<resources></resources>");
+//		
+//		foreach($feeds as $matches) {
+//			$eMatch = $xml_out->addChild("resource");
+//			$eMatch->addChild('name', htmlspecialchars($matches['name']));
+//			$eMatch->addChild('topic', htmlspecialchars($matches['topic_name']));
+//			$eMatch->addChild('link', htmlspecialchars($matches['feed']->link));
+//			$eResults = $eMatch->addChild("results");
+//			
+//			foreach($matches['feed'] as $item) {
+//				$eResult = $eResults->addChild("result");
+//				
+//				if(__RSS) {
+//					$eResult->addChild('title', (string) $item->title());
+//					$eResult->addChild('link', (string) $item->link());
+//					$eResult->addChild('date', (string) $item->pubDate());
+//					$eResult->addChild('description', (string) $item->description());
+//					
+//				} elseif(__ATOM) {
+//					$eResult->addChild('title', (string) $item->title());
+//					$eResult->addChild('link', (string) $item->link['href']);
+//					$eResult->addChild('date', (string) $item->published());
+//					$eResult->addChild('description', (string) $item->summary());
+//				}
+//			}
+//		}
+//		
+//		$this->_render($xml_out->asXML());
+//	}
+//	
+//};

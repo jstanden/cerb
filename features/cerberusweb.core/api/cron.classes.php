@@ -84,7 +84,7 @@ class ParseCron extends CerberusCronPageExtension {
 
 		foreach($subdirs as $subdir) {
 			if(!is_writable($subdir)) {
-				$logger->err('[Parser] Write permission error, unable parse messages inside: '. $subdir. "...skipping");
+				$logger->error('[Parser] Write permission error, unable parse messages inside: '. $subdir. "...skipping");
 				continue;
 			}
 
@@ -290,12 +290,12 @@ class ImportCron extends CerberusCronPageExtension {
 		$importFailDir = APP_STORAGE_PATH . '/import/fail/';
 
 		if(!is_writable($importNewDir)) {
-			$logger->err("[Importer] Unable to write in '$importNewDir'.  Please check permissions.");
+			$logger->error("[Importer] Unable to write in '$importNewDir'.  Please check permissions.");
 			return;
 		}
 
 		if(!is_writable($importFailDir)) {
-			$logger->err("[Importer] Unable to write in '$importFailDir'.  Please check permissions.");
+			$logger->error("[Importer] Unable to write in '$importFailDir'.  Please check permissions.");
 			return;
 		}
 
@@ -309,7 +309,7 @@ class ImportCron extends CerberusCronPageExtension {
 
 		foreach($subdirs as $subdir) {
 			if(!is_writable($subdir)) {
-				$logger->err('[Importer] Write permission error, unable parse imports inside: '. $subdir. "...skipping");
+				$logger->error('[Importer] Write permission error, unable parse imports inside: '. $subdir. "...skipping");
 				continue;
 			}
 
@@ -332,12 +332,12 @@ class ImportCron extends CerberusCronPageExtension {
 				
 				// Parse the XML
 				if(!@$xml_root = simplexml_load_file($file)) { /* @var $xml_root SimpleXMLElement */
-					$logger->err("[Importer] Error parsing XML file: " . $file);
+					$logger->error("[Importer] Error parsing XML file: " . $file);
 					continue;
 				}
 				
 				if(empty($xml_root)) {
-					$logger->err("[Importer] XML root element doesn't exist in: " . $file);
+					$logger->error("[Importer] XML root element doesn't exist in: " . $file);
 					continue;
 				}
 				
@@ -583,38 +583,38 @@ class ImportCron extends CerberusCronPageExtension {
 		@$eFirstMessage = reset($aMessageNodes);
 		
 		if(is_null($eFirstMessage)) {
-			$logger->warn('[Importer] Ticket ' . $sMask . " doesn't have any messages.  Skipping.");
+			$logger->warning('[Importer] Ticket ' . $sMask . " doesn't have any messages.  Skipping.");
 			return false;
 		}
 		
 		if(is_null($eFirstMessage->headers) || is_null($eFirstMessage->headers->from)) {
-			$logger->warn('[Importer] Ticket ' . $sMask . " first message doesn't provide a sender address.");
+			$logger->warning('[Importer] Ticket ' . $sMask . " first message doesn't provide a sender address.");
 			return false;
 		}
 
 		$sFirstWrote = self::_parseRfcAddressList($eFirstMessage->headers->from, true);
 		
 		if(null == ($firstWroteInst = CerberusApplication::hashLookupAddress($sFirstWrote, true))) {
-			$logger->warn('[Importer] Ticket ' . $sMask . " - Invalid sender adddress: " . $sFirstWrote);
+			$logger->warning('[Importer] Ticket ' . $sMask . " - Invalid sender adddress: " . $sFirstWrote);
 			return false;
 		}
 		
 		$eLastMessage = end($aMessageNodes);
 		
 		if(is_null($eLastMessage)) {
-			$logger->warn('[Importer] Ticket ' . $sMask . " doesn't have any messages.  Skipping.");
+			$logger->warning('[Importer] Ticket ' . $sMask . " doesn't have any messages.  Skipping.");
 			return false;
 		}
 		
 		if(is_null($eLastMessage->headers) || is_null($eLastMessage->headers->from)) {
-			$logger->warn('[Importer] Ticket ' . $sMask . " last message doesn't provide a sender address.");
+			$logger->warning('[Importer] Ticket ' . $sMask . " last message doesn't provide a sender address.");
 			return false;
 		}
 		
 		$sLastWrote = self::_parseRfcAddressList($eLastMessage->headers->from, true);
 		
 		if(null == ($lastWroteInst = CerberusApplication::hashLookupAddress($sLastWrote, true))) {
-			$logger->warn('[Importer] Ticket ' . $sMask . ' last message has an invalid sender address: ' . $sLastWrote);
+			$logger->warning('[Importer] Ticket ' . $sMask . ' last message has an invalid sender address: ' . $sLastWrote);
 			return false;
 		}
 
@@ -632,7 +632,7 @@ class ImportCron extends CerberusCronPageExtension {
 		
 		// Dupe check by ticket mask
 		if(null != DAO_Ticket::getTicketByMask($sMask)) {
-			$logger->warn("[Importer] Ticket mask '" . $sMask . "' already exists.  Making it unique.");
+			$logger->warning("[Importer] Ticket mask '" . $sMask . "' already exists.  Making it unique.");
 			
 			$uniqueness = 1;
 			$origMask = $sMask;
@@ -672,7 +672,7 @@ class ImportCron extends CerberusCronPageExtension {
 			
 			// Insert requesters
 			if(null == ($requesterAddyInst = CerberusApplication::hashLookupAddress($sRequesterAddy, true))) {
-				$logger->warn('[Importer] Ticket ' . $sMask . ' - Ignoring malformed requester: ' . $sRequesterAddy);
+				$logger->warning('[Importer] Ticket ' . $sMask . ' - Ignoring malformed requester: ' . $sRequesterAddy);
 				continue;				
 			}
 			
@@ -691,12 +691,12 @@ class ImportCron extends CerberusCronPageExtension {
 			$sMsgFrom = self::_parseRfcAddressList($sMsgFrom, true);
 			
 			if(NULL == $sMsgFrom) {
-				$logger->warn('[Importer] Ticket ' . $sMask . ' - Invalid message sender: ' . $sMsgFrom . ' (skipping)');
+				$logger->warning('[Importer] Ticket ' . $sMask . ' - Invalid message sender: ' . $sMsgFrom . ' (skipping)');
 				continue;
 			}
 			
 			if(null == ($msgFromInst = CerberusApplication::hashLookupAddress($sMsgFrom, true))) {
-				$logger->warn('[Importer] Ticket ' . $sMask . ' - Invalid message sender: ' . $sMsgFrom . ' (skipping)');
+				$logger->warning('[Importer] Ticket ' . $sMask . ' - Invalid message sender: ' . $sMsgFrom . ' (skipping)');
 				continue;
 			}
 
@@ -1024,7 +1024,7 @@ class Pop3Cron extends CerberusCronPageExtension {
 		
 		// [JAS]: Make sure our output directory is writeable
 		if(!is_writable(APP_MAIL_PATH . 'new' . DIRECTORY_SEPARATOR)) {
-			$logger->err("[POP3] The mail storage directory is not writeable.  Skipping POP3 download.");
+			$logger->error("[POP3] The mail storage directory is not writeable.  Skipping POP3 download.");
 			return;
 		}
 
@@ -1070,7 +1070,7 @@ class Pop3Cron extends CerberusCronPageExtension {
 			if(false === ($mailbox = @imap_open($connect,
 			!empty($account->username)?$account->username:"",
 			!empty($account->password)?$account->password:""))) {
-				$logger->err("[POP3] Failed with error: ".imap_last_error());
+				$logger->error("[POP3] Failed with error: ".imap_last_error());
 				continue;
 			}
 			 

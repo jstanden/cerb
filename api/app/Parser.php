@@ -372,7 +372,7 @@ class CerberusParser {
 
 		// From
 		if(null == ($fromAddressInst = CerberusParser::getAddressFromHeaders($headers))) {
-			$logger->err("[Parser] 'From' address could not be created.");
+			$logger->error("[Parser] 'From' address could not be created.");
 			return NULL;
 		}
 
