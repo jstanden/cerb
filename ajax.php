@@ -59,12 +59,6 @@ $request = DevblocksPlatform::readRequest();
 DevblocksPlatform::init();
 DevblocksPlatform::setExtensionDelegate('C4_DevblocksExtensionDelegate');
 
-// Development mode should always compile templates
-if(DEVELOPMENT_MODE) {
-	$tpl = DevblocksPlatform::getTemplateService();
-	$tpl->compile_check = true;
-}
-
 $session = DevblocksPlatform::getSessionService();
 $settings = DevblocksPlatform::getPluginSettingsService();
 $worker = CerberusApplication::getActiveWorker();

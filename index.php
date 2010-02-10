@@ -70,12 +70,6 @@ require(APP_PATH . '/api/Application.class.php');
 DevblocksPlatform::init();
 DevblocksPlatform::setExtensionDelegate('C4_DevblocksExtensionDelegate');
 
-// Development mode should always compile templates
-if(DEVELOPMENT_MODE) {
-	$tpl = DevblocksPlatform::getTemplateService();
-	$tpl->compile_check = true;
-}
-
 // Request
 $request = DevblocksPlatform::readRequest();
 
