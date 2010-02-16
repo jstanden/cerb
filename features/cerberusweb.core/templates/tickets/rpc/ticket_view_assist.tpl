@@ -54,8 +54,8 @@ Sort biggest piles by:
 			</optgroup>
 		</select>
 		{if $active_worker->hasPriv('core.ticket.actions.close')}<a href="javascript:;" onclick="document.getElementById('viewAssist{$view_id}').select{$hash}.value='ac';"><span class="cerb-sprite sprite-folder_ok"></span></a>{/if}
-		{if $active_worker->hasPriv('core.ticket.actions.spam')}<a href="javascript:;" onclick="document.getElementById('viewAssist{$view_id}').select{$hash}.value='as';"><span class="cerb-sprite sprite-spam-"></span></a>{/if}
-		{if $active_worker->hasPriv('core.ticket.actions.delete')}<a href="javascript:;" onclick="document.getElementById('viewAssist{$view_id}').select{$hash}.value='ad';"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top" border="0"></a>{/if}
+		{if $active_worker->hasPriv('core.ticket.actions.spam')}<a href="javascript:;" onclick="document.getElementById('viewAssist{$view_id}').select{$hash}.value='as';"><span class="cerb-sprite sprite-spam"></span></a>{/if}
+		{if $active_worker->hasPriv('core.ticket.actions.delete')}<a href="javascript:;" onclick="document.getElementById('viewAssist{$view_id}').select{$hash}.value='ad';"><span class="cerb-sprite sprite-delete"></span></a>{/if}
 	</td>
 	<td width="98%" align="top">
 		<input type="hidden" name="piles_hash[]" value="{$hash}">
@@ -99,7 +99,7 @@ Sort biggest piles by:
 			</select>
 			{if $active_worker->hasPriv('core.ticket.actions.close')}<a href="javascript:;" onclick="document.getElementById('viewAssist{$view_id}').select{$sender_hash}.value='ac';"><span class="cerb-sprite sprite-folder_ok"></span></a>{/if}
 			{if $active_worker->hasPriv('core.ticket.actions.spam')}<a href="javascript:;" onclick="document.getElementById('viewAssist{$view_id}').select{$sender_hash}.value='as';"><span class="cerb-sprite sprite-spam"></span></a>{/if}
-			{if $active_worker->hasPriv('core.ticket.actions.delete')}<a href="javascript:;" onclick="document.getElementById('viewAssist{$view_id}').select{$sender_hash}.value='ad';"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/delete.gif{/devblocks_url}" align="top" border="0"></a>{/if}
+			{if $active_worker->hasPriv('core.ticket.actions.delete')}<a href="javascript:;" onclick="document.getElementById('viewAssist{$view_id}').select{$sender_hash}.value='ad';"><span class="cerb-sprite sprite-delete"></span></a>{/if}
 		</td>
 		<td width="98%">
 			<blockquote style="margin-bottom:0px;">

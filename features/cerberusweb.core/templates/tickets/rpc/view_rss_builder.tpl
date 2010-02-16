@@ -11,7 +11,7 @@
 <br>
 
 <br>
-<button type="button" onclick="this.form.submit();" style=""><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check.gif{/devblocks_url}" border="0" align="top"> {$translate->_('common.save_changes')|capitalize}</button>
+<button type="button" onclick="this.form.submit();" style=""><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button>
 <button type="button" onclick="toggleDiv('{$view_id}_tips','none');$('#{$view_id}_tips').html('');" style=""><span class="cerb-sprite sprite-delete"></span> Cancel</button>
 
 </form>
